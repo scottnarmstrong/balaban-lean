@@ -202,25 +202,37 @@ theorem limits_zero (hd : 3 ≤ d) (hL : 2 ≤ L) (hM : 1 ≤ M)
             gcongr
         _ = _ := by ring
     -- the remainder at ν = 0
-    have hr0 : |rtrZero x 0| ≤ cS * R := by
-      have hlim := (h3.2.2 x 0).1.abs
-      refine le_of_tendsto hlim ?_
-      filter_upwards [hI] with ν hν
-      have hrem := (abs_rtrLim_le hM hL h3 hν x 0).1
-      simp only [sub_zero] at hrem
-      refine hrem.trans ?_
+    have hzero : ∀ {f : ℝ → ℝ} {z : ℝ}, Tendsto f (𝓝[>] 0) (𝓝 z) →
+        (∀ ν ∈ Set.Ioc (0 : ℝ) 1, f ν ≤ cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) +
+          ν ^ (((d : ℝ) - 2) / 2)) * Real.exp (-(cP * Real.sqrt ν * ‖x‖))) → z ≤ cS * R := by
+      intro f z hf hb
+      have hp : (0 : ℝ) < ((d : ℝ) - 2) / 2 := by
+        have : (3 : ℝ) ≤ d := by exact_mod_cast hd
+        linarith
+      have hT := ((tendsto_rpow_nhdsGT_zero hp).const_add ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)))).const_mul cS
+      have hT' : Tendsto (fun ν : ℝ => cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) +
+          ν ^ (((d : ℝ) - 2) / 2))) (𝓝[>] 0) (𝓝 (cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) + 0))) := hT
       have e1 : (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) ≤ R :=
         Real.rpow_le_rpow_of_exponent_le hx1 (by
           have : ρC ≤ ρ₀ := min_le_left _ _
           linarith)
+      refine le_of_tendsto_of_tendsto hf hT' ?_ |>.trans (by gcongr; linarith)
+      filter_upwards [hI] with ν hν
+      refine (hb ν hν).trans ?_
       have e2 : Real.exp (-(cP * Real.sqrt ν * ‖x‖)) ≤ 1 := by
         rw [Real.exp_le_one_iff]
         have : 0 ≤ cP * Real.sqrt ν * ‖x‖ := by
           have := hcP0; positivity
         linarith
-      calc cS * (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) * Real.exp (-(cP * Real.sqrt ν * ‖x‖))
-          ≤ cS * R * 1 := by gcongr
-        _ = cS * R := mul_one _
+      have : 0 ≤ cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) := by
+        have : 0 ≤ ν ^ (((d : ℝ) - 2) / 2) := Real.rpow_nonneg hν.1.le _
+        have : 0 ≤ (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) := Real.rpow_nonneg (by positivity) _
+        positivity
+      calc _ ≤ cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) * 1 := by gcongr
+        _ = _ := mul_one _
+    have hr0 : |rtrZero x 0| ≤ cS * R := by
+      have hlim := (h3.2.2 x 0).1.abs
+      exact hzero hlim (fun ν hν => by simpa using (abs_rtrLim_le hM hL h3 hν x 0).1)
     refine ⟨?_, ?_⟩
     · have hform : m₀ * m₀ * S0 x + rtrZero x 0 - m₀ ^ 2 / (β * γ) *
           LatticeGreen.latticeGreen d x =
@@ -245,23 +257,7 @@ theorem limits_zero (hd : 3 ≤ d) (hL : 2 ≤ L) (hM : 1 ≤ M)
         _ ≤ c * R := by gcongr
     · have : |rlgZero x 0| ≤ cS * R := by
         have hlim := (h3.2.2 x 0).2.abs
-        refine le_of_tendsto hlim ?_
-        filter_upwards [hI] with ν hν
-        have hrem := (abs_rtrLim_le hM hL h3 hν x 0).2
-        simp only [sub_zero] at hrem
-        refine hrem.trans ?_
-        have e1 : (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) ≤ R :=
-          Real.rpow_le_rpow_of_exponent_le hx1 (by
-            have : ρC ≤ ρ₀ := min_le_left _ _
-            linarith)
-        have e2 : Real.exp (-(cP * Real.sqrt ν * ‖x‖)) ≤ 1 := by
-          rw [Real.exp_le_one_iff]
-          have : 0 ≤ cP * Real.sqrt ν * ‖x‖ := by
-            have := hcP0; positivity
-          linarith
-        calc cS * (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) * Real.exp (-(cP * Real.sqrt ν * ‖x‖))
-            ≤ cS * R * 1 := by gcongr
-          _ = cS * R := mul_one _
+        exact hzero hlim (fun ν hν => by simpa using (abs_rtrLim_le hM hL h3 hν x 0).2)
       exact this.trans (by gcongr)
 
 end Balaban.Correlations

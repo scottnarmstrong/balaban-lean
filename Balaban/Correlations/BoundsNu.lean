@@ -49,7 +49,7 @@ theorem rpow_neg_two_le {β ρ₁ : ℝ} (hβ1 : 1 ≤ β) (hρ₁0 : 0 < ρ₁)
   exact Real.rpow_le_rpow_of_exponent_le hβ1 (by linarith)
 
 theorem bounds_pos_nu (hL : 2 ≤ L) (hM : 1 ≤ M)
-    (hβ1 : 1 ≤ β) (hρ₀ : 0 < ρ₀) (hcS : 0 ≤ cS) (hρ₁0 : 0 < ρ₁) (hρ₁ : ρ₁ < 1)
+    (hβ1 : 1 ≤ β) (hρ₀ : 0 < ρ₀) (hcS : 0 ≤ cS) (hcP0 : 0 ≤ cP) (hρ₁0 : 0 < ρ₁) (hρ₁ : ρ₁ < 1)
     (HS : ∀ ν ∈ Set.Icc (0 : ℝ) 1, SeqHyp L γ₀ (cX / β) (ξ ν))
     (hJb : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, (L : ℝ) ^ J ν * Real.sqrt ν ≤ (L : ℝ) ^ 2)
     (h2 : C1StarF2 d N L M hN cS ρ₀ ρ₁ J β ξ μ em)
@@ -64,8 +64,11 @@ theorem bounds_pos_nu (hL : 2 ≤ L) (hM : 1 ≤ M)
       LimAlong (M * L) (fun ℓ _ => blockGtr d N ℓ hN β ν (embedZ ℓ z)) (Gtr ν z))
     (hGlg : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, ∀ z,
       LimAlong (M * L) (fun ℓ _ => blockGlg d N ℓ hN β ν (embedZ ℓ z)) (Glg ν z))
+    {Cd : ℝ} (hCd0 : 0 ≤ Cd) (hCd : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, ∀ r : ℝ, 0 ≤ r →
+      ν ^ (((d : ℝ) - 2) / 2) * Real.exp (-(cP * Real.sqrt ν * r)) ≤
+        Cd * (1 + r) ^ (-((d : ℝ) - 2)) * Real.exp (-(cP / 2 * Real.sqrt ν * r)))
     {c c' : ℝ} (hc1 : cS + K1 L cS ρ₀ ≤ c)
-    (hc2 : (1 + K1 L cS ρ₀) ^ 2 * (2 * C_G * C1) + cS ≤ c) (hc'1 : c' ≤ cP)
+    (hc2 : (1 + K1 L cS ρ₀) ^ 2 * (2 * C_G * C1) + cS * (1 + Cd) ≤ c) (hc'1 : c' ≤ cP / 2)
     (hc'2 : c' ≤ δ_G / (2 * (L : ℝ) ^ 2)) :
     ∀ ν ∈ Set.Ioc (0 : ℝ) 1, |m ν - 1| ≤ c * β ^ (-1 + ρ₁) ∧ ∀ x,
       |Gtr ν x| ≤ c * (1 + ‖x‖) ^ (-((d : ℝ) - 2)) * Real.exp (-(c' * Real.sqrt ν * ‖x‖)) ∧
@@ -115,22 +118,38 @@ theorem bounds_pos_nu (hL : 2 ≤ L) (hM : 1 ≤ M)
     have hx1 : (1 : ℝ) ≤ 1 + ‖x‖ := by linarith [norm_nonneg x]
     have hrem := abs_rtrLim_le hM hL h3 hν x 0
     simp only [sub_zero] at hrem
-    have hrem' : ∀ w, |w| ≤ cS * (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) *
-        Real.exp (-(cP * Real.sqrt ν * ‖x‖)) → |w| ≤ cS * R * E := by
+    have hrem' : ∀ w, |w| ≤ cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) *
+        Real.exp (-(cP * Real.sqrt ν * ‖x‖)) → |w| ≤ cS * (1 + Cd) * R * E := by
       intro w hw
       refine hw.trans ?_
       have e1 : (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) ≤ R :=
         Real.rpow_le_rpow_of_exponent_le hx1 (by linarith)
+      have hcP2 : c' * Real.sqrt ν * ‖x‖ ≤ cP / 2 * Real.sqrt ν * ‖x‖ := by
+        have := Real.sqrt_nonneg ν
+        have := norm_nonneg x
+        gcongr
       have e2 : Real.exp (-(cP * Real.sqrt ν * ‖x‖)) ≤ E := by
         refine Real.exp_le_exp.2 ?_
-        have : c' * Real.sqrt ν * ‖x‖ ≤ cP * Real.sqrt ν * ‖x‖ := by
+        have : cP / 2 * Real.sqrt ν * ‖x‖ ≤ cP * Real.sqrt ν * ‖x‖ := by
           have := Real.sqrt_nonneg ν
           have := norm_nonneg x
-          gcongr
+          have := hcP0
+          gcongr; linarith
         linarith
-      calc cS * (1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) * Real.exp (-(cP * Real.sqrt ν * ‖x‖))
-          ≤ cS * R * E := by gcongr
-        _ = _ := rfl
+      have e3 : Real.exp (-(cP / 2 * Real.sqrt ν * ‖x‖)) ≤ E :=
+        Real.exp_le_exp.2 (by linarith)
+      have e4 := hCd ν hν ‖x‖ (norm_nonneg x)
+      have hν0 : 0 ≤ ν ^ (((d : ℝ) - 2) / 2) := Real.rpow_nonneg hν.1.le _
+      have hx0 : 0 ≤ Real.exp (-(cP * Real.sqrt ν * ‖x‖)) := (Real.exp_pos _).le
+      calc cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) *
+            Real.exp (-(cP * Real.sqrt ν * ‖x‖))
+          = cS * ((1 + ‖x‖) ^ (-((d : ℝ) - 2 + ρ₀)) * Real.exp (-(cP * Real.sqrt ν * ‖x‖)) +
+            ν ^ (((d : ℝ) - 2) / 2) * Real.exp (-(cP * Real.sqrt ν * ‖x‖))) := by ring
+        _ ≤ cS * (R * E + Cd * R * E) := by
+            refine mul_le_mul_of_nonneg_left (add_le_add (mul_le_mul e1 (e2) hx0 hR0) ?_) hcS
+            calc _ ≤ _ := e4
+              _ ≤ Cd * R * E := by gcongr
+        _ = _ := by ring
     refine ⟨?_, ?_⟩
     · have hid := gtr_eq hM hL (hGtr ν hν) h3 HL hν (fun j hj => mass_mem' HSν hν hj (hJb ν hν)) x 0
       simp only [sub_zero] at hid
@@ -158,21 +177,22 @@ theorem bounds_pos_nu (hL : 2 ≤ L) (hM : 1 ≤ M)
       set S := ∑ j ∈ range (J ν), (β * gammaR (ξ ν) j)⁻¹ * t j (ν * deltaR (ξ ν) j) x 0
       have hr := hrem' _ hrem.1
       calc |mx * m0 * S + rtrLim ν x 0| ≤ |mx * m0 * S| + |rtrLim ν x 0| := abs_add_le _ _
-        _ ≤ (1 + K1 L cS ρ₀) * (1 + K1 L cS ρ₀) * (2 * C_G * C1 * R * E) + cS * R * E := by
+        _ ≤ (1 + K1 L cS ρ₀) * (1 + K1 L cS ρ₀) * (2 * C_G * C1 * R * E) +
+            cS * (1 + Cd) * R * E := by
             refine add_le_add ?_ hr
             rw [abs_mul, abs_mul]
             have := hmagb x
             have := hmagb 0
             gcongr
-        _ = ((1 + K1 L cS ρ₀) ^ 2 * (2 * C_G * C1) + cS) * R * E := by ring
+        _ = ((1 + K1 L cS ρ₀) ^ 2 * (2 * C_G * C1) + cS * (1 + Cd)) * R * E := by ring
         _ ≤ c * R * E := by gcongr
     · rw [show Glg ν x = rlgLim ν x 0 by
         simpa using glg_eq hM hL (hGlg ν hν) h3 hν x 0]
       refine (hrem' _ hrem.2).trans ?_
-      have : cS ≤ c := by
+      have : cS * (1 + Cd) ≤ c := by
         have : 0 ≤ (1 + K1 L cS ρ₀) ^ 2 * (2 * C_G * C1) := by
           have := H.nonneg_G; positivity
         linarith
-      calc cS * R * E ≤ c * R * E := by gcongr
+      calc cS * (1 + Cd) * R * E ≤ c * R * E := by gcongr
 
 end Balaban.Correlations
