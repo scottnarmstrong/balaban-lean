@@ -28,3 +28,4 @@
 | 2026-10-11 | D-C correlations document | revised | review D-01..D-13 addressed; Lean packages A–F startable from Root-F's statement |
 | 2026-10-11 | W8b Agmon decay | landed | `65e44ec`: path-metric bounds (Lemma 4.3), Agmon estimate, block decay, `green_G2i` with scale mismatch (≈2,160 lines) |
 | 2026-10-11 | W10 model basics | landed | sphere-measure invariance, model symmetries, `exists_block_structure` (finite-volume Root-C structure), `analyticOnNhd_logPartition`, derivatives = correlation functions (≈1,100 lines) |
+| 2026-10-11 | W9 lattice Green | landed | heat-kernel construction, `latticeGreen_existsUnique` (Root-C's G: −ΔG = δ₀, G → 0, unique), Lemma K bounds `latticeGreen_le_rpow`, first and second differences (≈2,190 lines) |
