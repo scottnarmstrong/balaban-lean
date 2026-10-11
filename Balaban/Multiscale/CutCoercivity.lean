@@ -186,6 +186,22 @@ theorem multiscale_coercive_cut_sharp_gen (hcut : CutAligned G cut) {a : ℕ →
   have hW := weightedSqNorm_nonneg G u
   nlinarith
 
+/-- **NC1 in the form of LOCALIZATION.md §3.1.** If `|α(x)| ≤ ℓ(x)⁻² / 4`, then
+`Re ⟨u, H_cut(α) u⟩ ≥ ½ ‖∂ũ‖²_cut + ¼ ‖ℓ⁻¹u‖²`. -/
+theorem nc1_cut (hcut : CutAligned G cut) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
+    (hα : ∀ x, ‖α x‖ ≤ (1 / 4) / (G.spacing x) ^ 2) (u : G.Ω 1 → ℂ) :
+    (1 / 2) * cutEnergy cut (zeroExt (G.Ω 1) u) + (1 / 4) * weightedSqNorm G u ≤
+      Green.reQuad (cutOperator G a ν cut α) u := by
+  rw [reQuad_cutOperator, reQuad_map_ofReal]
+  have h1 := core_real_cut_sharp G hcut hν ha (fun x => (zeroExt (G.Ω 1) u x).re)
+  have h2 := core_real_cut_sharp G hcut hν ha (fun x => (zeroExt (G.Ω 1) u x).im)
+  have hw := sum_invSqSpacing_eq G u
+  have hsplit := hsplit_wsq G u
+  have hαs := pot_lower G u α hα
+  have hE := cutEnergy_eq cut (zeroExt (G.Ω 1) u)
+  linarith
+
 /-- **NC1, the quadratic form, `d`-free, in the form of `multiscale_coercive_sharp`**:
 `c₁ = 1/4` and `|α(x)| ≤ c₁ ℓ(x)⁻² / 2`; i.e. `Re ⟨u, H_cut u⟩ ≥ ¼ (‖∂ũ‖²_cut + ‖ℓ⁻¹u‖²)`. -/
 theorem multiscale_coercive_cut_sharp (hcut : CutAligned G cut) {a : ℕ → ℝ} {ν : ℝ}
