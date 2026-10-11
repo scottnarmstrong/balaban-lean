@@ -198,4 +198,81 @@ theorem Q_exp (h : KPCond inc κ a) (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ �
   rw [e1, e2, ← tsum_neg]
   exact tsum_congr (fun n => (neg_sub _ _))
 
+section XiDeriv
+
+variable (hrefl : ∀ x, inc x x)
+
+omit [Fintype P] in
+theorem lnk_refl (hrefl : ∀ x, inc x x) (x : P) : lnk inc x x := Or.inl (hrefl x)
+
+theorem Xi_smul (K : P → ℂ) (s : ℂ) :
+    Xi inc (fun x => s * K x) =
+      ∑ Γ ∈ (Finset.univ : Finset (Finset P)).filter (Compat inc), s ^ Γ.card * ∏ X ∈ Γ, K X := by
+  unfold Xi
+  refine Finset.sum_congr rfl (fun Γ _ => ?_)
+  rw [Finset.prod_mul_distrib, Finset.prod_const]
+
+theorem Xi_deriv_identity (hrefl : ∀ x, inc x x) (K : P → ℂ) (s : ℂ) :
+    ∑ Γ ∈ (Finset.univ : Finset (Finset P)).filter (Compat inc),
+        (Γ.card : ℂ) * s ^ (Γ.card - 1) * ∏ X ∈ Γ, K X =
+      ∑ Y, K Y * Xi inc (fun x => s * Kc inc Y K x) := by
+  set C := (Finset.univ : Finset (Finset P)).filter (Compat inc) with hC
+  have hL : ∀ Γ ∈ C, (Γ.card : ℂ) * s ^ (Γ.card - 1) * ∏ X ∈ Γ, K X =
+      ∑ Y ∈ Γ, s ^ (Γ.card - 1) * ∏ X ∈ Γ, K X := by
+    intro Γ _
+    rw [Finset.sum_const, nsmul_eq_mul]; ring
+  rw [Finset.sum_congr rfl hL]
+  rw [Finset.sum_comm' (t' := Finset.univ) (s' := fun Y => C.filter (fun Γ => Y ∈ Γ))
+    (fun Γ Y => by simp [and_comm])]
+  refine Finset.sum_congr rfl (fun Y _ => ?_)
+  -- the rooted sum for `Y`
+  have hA : Xi inc (fun x => s * Kc inc Y K x) =
+      ∑ Γ' ∈ C.filter (fun Γ' => ∀ X ∈ Γ', ¬ lnk inc Y X), s ^ Γ'.card * ∏ X ∈ Γ', K X := by
+    rw [Xi_smul]
+    conv_rhs => rw [Finset.sum_filter]
+    refine Finset.sum_congr rfl (fun Γ' _ => ?_)
+    by_cases h : ∀ X ∈ Γ', ¬ lnk inc Y X
+    · rw [ite_eq_left_of_eq_true _ _ (eq_true h)]
+      congr 1
+      exact Finset.prod_congr rfl (fun X hX => by simp [Kc, h X hX])
+    · rw [ite_eq_right_of_eq_false _ _ (eq_false h)]
+      obtain ⟨X, hX, hl⟩ : ∃ X ∈ Γ', lnk inc Y X := by
+        by_contra hcon
+        exact h (fun X hX hl => hcon ⟨X, hX, hl⟩)
+      rw [Finset.prod_eq_zero hX (by simp [Kc, hl]), mul_zero]
+  rw [hA, Finset.mul_sum]
+  have hYnot : ∀ Γ' ∈ C.filter (fun Γ' => ∀ X ∈ Γ', ¬ lnk inc Y X), Y ∉ Γ' := fun Γ' hΓ' hY =>
+    (Finset.mem_filter.mp hΓ').2 Y hY (lnk_refl inc hrefl Y)
+  refine Finset.sum_nbij' (fun Γ => Γ.erase Y) (fun Γ' => insert Y Γ') ?_ ?_ ?_ ?_ ?_
+  · intro Γ hΓ
+    simp only [hC, Finset.mem_filter, Finset.mem_univ, true_and] at hΓ ⊢
+    obtain ⟨hcomp, hY⟩ := hΓ
+    refine ⟨fun x hx y hy hxy => hcomp x (Finset.mem_of_mem_erase hx) y (Finset.mem_of_mem_erase hy) hxy, ?_⟩
+    intro X hX
+    exact hcomp Y hY X (Finset.mem_of_mem_erase hX) (Finset.ne_of_mem_erase hX).symm
+  · intro Γ' hΓ'
+    have hY := hYnot Γ' hΓ'
+    simp only [hC, Finset.mem_filter, Finset.mem_univ, true_and] at hΓ' ⊢
+    obtain ⟨hcomp, hl⟩ := hΓ'
+    refine ⟨?_, Finset.mem_insert_self _ _⟩
+    intro x hx y hy hxy
+    rcases Finset.mem_insert.mp hx with rfl | hx'
+    · rcases Finset.mem_insert.mp hy with rfl | hy'
+      · exact absurd rfl hxy
+      · exact hl y hy'
+    · rcases Finset.mem_insert.mp hy with rfl | hy'
+      · exact fun h => hl x hx' ((lnk_symm inc _ _).mp h)
+      · exact hcomp x hx' y hy' hxy
+  · intro Γ hΓ
+    simp only [Finset.mem_filter] at hΓ
+    exact Finset.insert_erase hΓ.2
+  · intro Γ' hΓ'
+    exact Finset.erase_insert (hYnot Γ' hΓ')
+  · intro Γ hΓ
+    simp only [Finset.mem_filter] at hΓ
+    rw [Finset.card_erase_of_mem hΓ.2, ← Finset.mul_prod_erase Γ K hΓ.2]
+    ring
+
+end XiDeriv
+
 end Balaban.Polymer
