@@ -258,4 +258,106 @@ theorem global_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
           Finset.sum_le_sum fun y _ => mul_le_mul_of_nonneg_left (hdiff y) (siteWeight_nonneg G _)
       _ ≤ _ := hsum
 
+/-- Adjacent sites of `Ω₁` lie in layers differing by at most `1`: `ℓ(x') ≤ L ℓ(x)`. -/
+theorem spacing_adj_le (G : GeneratingSet d L N₀ k ϱ) (hϱ : 1 ≤ ϱ)
+    {x x' : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) (hx' : x' ∈ G.Ω 1) (h : Adj x x') :
+    G.spacing x' ≤ L * G.spacing x := by
+  obtain ⟨hj1, hjk, hxl⟩ := G.layerIndex_spec hx
+  obtain ⟨hj1', hjk', hxl'⟩ := G.layerIndex_spec hx'
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hle : G.layerIndex x' ≤ G.layerIndex x + 1 := by
+    by_contra hcon
+    push Not at hcon
+    have hxn : x ∉ G.Ω (G.layerIndex x + 1) := (G.mem_layer.1 hxl).2
+    have hx2 : x' ∈ G.Ω (G.layerIndex x + 1 + 1) :=
+      G.Ω_antitone (by omega) (by omega) (by omega) (G.mem_layer.1 hxl').1
+    have hs := G.separation (G.layerIndex x + 1) (by omega) (by omega) x hxn x' hx2
+    have h1 := h.torusDist_le
+    have h2 : (1 : ℝ) ≤ (L : ℝ) ^ (G.layerIndex x + 1) := one_le_pow₀ hL
+    nlinarith
+  rw [GeneratingSet.spacing, GeneratingSet.spacing, ← pow_succ']
+  exact pow_le_pow_right₀ hL (by omega)
+
+/-- **The global weighted bound (GREEN.md G-2(iv)).**  If `ℓ² |f| ≤ C_f` on `Ω₁` (that is,
+`|f|₂ ≤ C_f`) and `u = H_D(α)⁻¹ f`, with `ũ` the zero extension, then for all `x ∈ Ω₁` and
+directions `μ`
+
+* `|ũ(x)| ≤ B C_f` (`|u|₀`);
+* `ℓ(x) |ũ(x + e_μ) - ũ(x)| ≤ B C_f`, and `ℓ(x + e_μ) |ũ(x + e_μ) - ũ(x)| ≤ B C_f` if also
+  `x + e_μ ∈ Ω₁` (`|∂u|₁`, spacing at both endpoints of the bond);
+* `ℓ(x)² |∑_ν (2ũ(x) - ũ(x + e_ν) - ũ(x - e_ν))| ≤ B C_f` (`|Δ^D u|₂`);
+
+with `B = B(d, L)` independent of `k`, the volume, the generating set (subject to the separation
+`2 d log L ≤ (ε₀/4)(ϱ - 1)`), the weights `a`, the mass `ν ∈ [0, L^{-2k}]` (that is, the unit-scale
+mass is in `[0, 1]`) and `α` with `|α| ≤ c₁ ℓ⁻²/2`. -/
+theorem global_bound (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ)
+      {a : ℕ → ℝ} {ν : ℝ}, 0 ≤ ν → ν * ((L : ℝ) ^ k) ^ 2 ≤ 1 →
+      IsAdmissibleWeights k a → ∀ {α : G.Ω 1 → ℂ},
+      (∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2)) →
+      2 * d * Real.log L ≤ agmonRate d / 2 / 2 * (ϱ - 1) → ∀ (f : G.Ω 1 → ℂ) {Cf : ℝ},
+      0 ≤ Cf → (∀ x : G.Ω 1, (G.spacing (x : Torus d (N₀ * L ^ k))) ^ 2 * ‖f x‖ ≤ Cf) →
+      ∀ {x : Torus d (N₀ * L ^ k)}, x ∈ G.Ω 1 →
+      ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖ ≤ B * Cf ∧
+      (∀ μ : Fin d, G.spacing x * ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
+        (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖ ≤ B * Cf ∧
+        (x + Pi.single μ 1 ∈ G.Ω 1 →
+          G.spacing (x + Pi.single μ 1) * ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
+            (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖ ≤
+            B * Cf)) ∧
+      (G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x -
+        zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) (x + Pi.single μ 1) -
+        zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) (x - Pi.single μ 1))‖ ≤ B * Cf := by
+  classical
+  obtain ⟨B1, hB1, hB⟩ := global_pointwise (d := d) (L := L) hd hL
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  refine ⟨(L + 4) * B1 + 1, by positivity, ?_⟩
+  intro k N₀ _ ϱ G a ν hν0 hν1 ha α hα hϱ f Cf hCf hf x hx
+  have hε := agmonRate_pos (d := d) (by omega)
+  have hL3 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
+  have hlog : 0 < Real.log L := Real.log_pos hL3
+  have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+  have hϱ1 : 1 < ϱ := by
+    by_contra hcon
+    push Not at hcon
+    have : agmonRate d / 2 / 2 * (ϱ - 1) ≤ 0 :=
+      mul_nonpos_of_nonneg_of_nonpos (by positivity) (by linarith)
+    have : 0 < 2 * d * Real.log L := by positivity
+    linarith
+  have hBC : 0 ≤ B1 * Cf := by positivity
+  have hmono : B1 * Cf ≤ ((L + 4) * B1 + 1) * Cf := by nlinarith
+  have hvalue : ∀ {z : Torus d (N₀ * L ^ k)}, z ∈ G.Ω 1 →
+      ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) z‖ ≤ B1 * Cf :=
+    fun hz => (hB G hν0 hν1 ha hα hϱ f hCf hf hz).1
+  have hall : ∀ z : Torus d (N₀ * L ^ k),
+      ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) z‖ ≤ B1 * Cf := by
+    intro z
+    by_cases hz : z ∈ G.Ω 1
+    · exact hvalue hz
+    · rw [zeroExt_not_mem _ _ hz]; simpa using hBC
+  obtain ⟨hv, hg⟩ := hB G hν0 hν1 ha hα hϱ f hCf hf hx
+  refine ⟨hv.trans hmono, fun μ => ⟨(hg μ).trans hmono, fun hx' => ?_⟩, ?_⟩
+  · have hadj : Adj x (x + Pi.single μ 1) := ⟨μ, Or.inl rfl⟩
+    have hs := spacing_adj_le G hϱ1.le hx hx' hadj
+    have h0 := norm_nonneg (zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
+      (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x)
+    calc _ ≤ (L * G.spacing x) * ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
+          (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖ :=
+          mul_le_mul_of_nonneg_right hs h0
+      _ = L * (G.spacing x * ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
+          (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖) := by ring
+      _ ≤ L * (B1 * Cf) := mul_le_mul_of_nonneg_left (hg μ) (by positivity)
+      _ ≤ _ := by nlinarith
+  · have hu := dirichletOperator_mulVec_inv G (by omega : 0 < d) hν0 ha α hα f
+    have hlap := laplacian_bound G hν0 hν1 ha hα hu hx (M := B1 * Cf) hBC (fun q _ => hall q)
+    have hfp : ‖zeroExt (G.Ω 1) f x‖ = ‖f ⟨x, hx⟩‖ := by rw [zeroExt_mem _ _ ⟨x, hx⟩]
+    rw [hfp] at hlap
+    have hsp : 0 < G.spacing x := spacing_pos G
+    have h1 := hf ⟨x, hx⟩
+    calc _ ≤ (G.spacing x) ^ 2 * (‖f ⟨x, hx⟩‖ + 4 * ((G.spacing x) ^ 2)⁻¹ * (B1 * Cf)) :=
+          mul_le_mul_of_nonneg_left hlap (by positivity)
+      _ = (G.spacing x) ^ 2 * ‖f ⟨x, hx⟩‖ + 4 * (B1 * Cf) := by field_simp
+      _ ≤ Cf + 4 * (B1 * Cf) := by linarith
+      _ ≤ _ := by nlinarith
+
 end Balaban.Multiscale
