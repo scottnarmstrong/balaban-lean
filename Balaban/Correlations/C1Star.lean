@@ -154,7 +154,7 @@ structure C1Star (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) where
 interface C-1* for the same `L, M`.  The eventual flow theorem supplies both from one construction
 (the `L, M` of Root-F are the block factor and polymer multiplier of the flow). -/
 def RootFAndC1Star (d N : ℕ) (hN : 2 ≤ N) : Prop :=
-  ∃ δ : ℝ, 0 < δ ∧ ∃ L M : ℕ, ∃ hL : 2 ≤ L, 1 ≤ M ∧ ∃ β₀ : ℝ,
+  ∃ δ : ℝ, 0 < δ ∧ ∃ L M : ℕ, ∃ hL : 3 ≤ L, 1 ≤ M ∧ ∃ β₀ : ℝ,
     (∀ β : ℝ, β₀ ≤ β → ∀ ν : ℝ, 0 < ν → ν ≤ 1 → ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 →
       ∃ kf : ℕ, (L : ℝ) ^ kf * Real.sqrt ν ≤ L ∧ 1 / 2 ≤ (L : ℝ) ^ (kf + 1) * Real.sqrt ν ∧
         ∃ T : RootFFamily d N, RootFClauses d N L M β ν h kf (kappaStar d) 1 δ T) ∧

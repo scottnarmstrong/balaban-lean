@@ -82,6 +82,7 @@ theorem limits_zero (hd : 3 ≤ d) (hL : 2 ≤ L) (hM : 1 ≤ M)
     (HS : ∀ ν ∈ Set.Icc (0 : ℝ) 1, SeqHyp L γ₀ (cX / β) (ξ ν))
     (hc1 : ∀ k, Tendsto (fun ν => ξ ν k) (𝓝[>] 0) (𝓝 (ξ 0 k)))
     (hJt : Tendsto J (𝓝[>] 0) atTop)
+    (hJb : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, (L : ℝ) ^ J ν * Real.sqrt ν ≤ (L : ℝ) ^ 2)
     (h2 : C1StarF2 d N L M hN cS ρ₀ ρ₁ J β ξ μ em)
     (h3 : C1StarF3 d N L M hN a cS cP ρ₀ J β ξ μ rtr rlg rtrLim rlgLim rtrZero rlgZero)
     {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ}
@@ -153,10 +154,10 @@ theorem limits_zero (hd : 3 ≤ d) (hL : 2 ≤ L) (hM : 1 ≤ M)
     hγpos, hγc, fun x => ?_⟩
   · intro x
     have hlim := (((hmagT x).mul (hmagT 0)).mul
-      (tendsto_mainSum hL hd HS hc1 hβ hJt H HL x 0)).add (h3.2.2 x 0).1
+      (tendsto_mainSum hL hd HS hc1 hβ hJt hJb H HL x 0)).add (h3.2.2 x 0).1
     refine hlim.congr' ?_
     filter_upwards [hI] with ν hν
-    have hid := gtr_eq hM hL (hGtr ν hν) h3 HL hν (fun j _ => mass_mem (HS ν (hIcc ν hν)) hν j) x 0
+    have hid := gtr_eq hM hL (hGtr ν hν) h3 HL hν (fun j hj => mass_mem' (HS ν (hIcc ν hν)) hν hj (hJb ν hν)) x 0
     simp only [sub_zero] at hid
     exact hid.symm
   · intro x

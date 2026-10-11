@@ -37,13 +37,14 @@ theorem norm_single_idx {N : ℕ} (hN : 2 ≤ N) :
 /-- **Theorem 3.1** (CORRELATIONS.md): Root-C from Root-F, C-1* and the kernel hypotheses. -/
 theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
     (hjoint : RootFAndC1Star d N hN)
-    (hG : ∀ (L : ℕ) [NeZero L] (a : ℝ), 2 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a → a < 3 / 2 →
+    (hG : ∀ (L : ℕ) [NeZero L] (a : ℝ), 3 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a → a < 3 / 2 →
       ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
         (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
         KernelHyp d L a t t0 C_G δ_G C_P ∧ KernelHypLarge d L a t C_G δ_G) :
     RootCStatement d N := by
   intro _ _
-  obtain ⟨δ, hδ, L, M, hL, hM, β₀F, hF, ⟨C⟩⟩ := hjoint
+  obtain ⟨δ, hδ, L, M, hL3, hM, β₀F, hF, ⟨C⟩⟩ := hjoint
+  have hL : 2 ≤ L := by omega
   have : NeZero L := ⟨by omega⟩
   rcases C with ⟨a, γ₀, cS, cX, cP, ρ₀, ρ₁, βS, J, ha_r, hγr, hcS, hcX, hcP, hρ₀r, hρ₁r,
     hJp, hJt, hJb, data⟩
@@ -54,7 +55,7 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
     have : ((L : ℝ) ^ 2)⁻¹ < 1 := inv_lt_one_of_one_lt₀ (one_lt_pow₀ hL1 (by norm_num))
     have : 0 < 1 - ((L : ℝ) ^ 2)⁻¹ := by linarith
     positivity
-  obtain ⟨t, t0, C_G, δ_G, C_P, H, HL⟩ := hG L a hL ha_r.1 ha_r.2
+  obtain ⟨t, t0, C_G, δ_G, C_P, H, HL⟩ := hG L a hL3 ha_r.1 ha_r.2
   have hCG := H.nonneg_G
   obtain ⟨C1, hC1nn, hC1⟩ := exists_abs_mainSum_le hd hL H.pos_δ hCG
   obtain ⟨C2, hC2nn, hC2⟩ := goldstone_uniform hL1 d hd hγr.1 H.pos_δ
@@ -119,7 +120,71 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
       (fun ν hν => (hlim' ν hν).2.2) (c := c) (c' := c')
       (by linarith) (by linarith) (min_le_left _ _) (min_le_right _ _) ν ⟨hν0, hν1⟩
   · exact limits_zero hd hL hM hβ1 hρ₀r.1 hcS.le hρ₁r.1 hρ₁r.2 ha hcP.le hcX.le HS h1.2
-      hJt h2 h3 H HL hC2 hC2nn (fun ν hν => (hlim' ν hν).1) (fun ν hν => (hlim' ν hν).2.1)
+      hJt (fun ν hν => (hJb ν hν).2) h2 h3 H HL hC2 hC2nn (fun ν hν => (hlim' ν hν).1) (fun ν hν => (hlim' ν hν).2.1)
       (fun ν hν => (hlim' ν hν).2.2) (c := c) (by linarith) (by linarith) (by linarith)
+
+theorem decay_term_weaken {d j : ℕ} {L C C' δ δ' r τ : ℝ} (hL : 0 < L) (hr : 0 ≤ r)
+    (hC0 : 0 ≤ C) (hC : C ≤ C') (hδ : δ' ≤ δ)
+    (h : τ ≤ C * (L ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ * r / L ^ j))) :
+    τ ≤ C' * (L ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ' * r / L ^ j)) := by
+  refine h.trans ?_
+  have hA : 0 ≤ (L ^ (j * (d - 2)))⁻¹ := by positivity
+  have hLj : 0 < L ^ j := by positivity
+  have hex : Real.exp (-(δ * r / L ^ j)) ≤ Real.exp (-(δ' * r / L ^ j)) := by
+    refine Real.exp_le_exp.2 ?_
+    have : δ' * r / L ^ j ≤ δ * r / L ^ j := by gcongr
+    linarith
+  have := Real.exp_pos (-(δ' * r / L ^ j))
+  calc _ ≤ C * (L ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ' * r / L ^ j)) :=
+        mul_le_mul_of_nonneg_left hex (by positivity)
+    _ ≤ _ := by gcongr
+
+theorem KernelDecay.weaken {d : ℕ} {L C C' δ δ' r : ℝ} {t : ℕ → ℝ} (hL : 0 < L) (hr : 0 ≤ r)
+    (hC0 : 0 ≤ C) (hC : C ≤ C') (hδ : δ' ≤ δ) (h : KernelDecay d L C δ r t) :
+    KernelDecay d L C' δ' r t := fun j => decay_term_weaken hL hr hC0 hC hδ (h j)
+
+theorem KernelMassDecay.nonneg {d L : ℕ} (hL : 1 ≤ L) {C δ : ℝ}
+    {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ} (h : KernelMassDecay d L C δ t) : 0 ≤ C := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have h1 : (1 : ℝ) ≤ (L : ℝ) ^ 2 := one_le_pow₀ hL1
+  have h2 : (L : ℝ) ^ 2 ≤ (L : ℝ) ^ 4 := pow_le_pow_right₀ hL1 (by norm_num)
+  have := h 0 1 one_pos (by norm_num; nlinarith) 0 0
+  simpa using (abs_nonneg _).trans this
+
+theorem KernelMassDecay.weaken {d L : ℕ} (hL : 1 ≤ L) {C C' δ δ' : ℝ}
+    {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ} (h : KernelMassDecay d L C δ t) (hC : C ≤ C')
+    (hδ : δ' ≤ δ) : KernelMassDecay d L C' δ' t := by
+  have hC0 := h.nonneg hL
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast hL
+  intro j μ hμ hμ2 x y
+  exact decay_term_weaken (d := d) hL0 (norm_nonneg _) hC0 hC hδ (h j μ hμ hμ2 x y)
+
+/-- Corollary: the large-mass hypothesis may be supplied for the kernels of a given `KernelHyp`,
+with its own constants. -/
+theorem rootC_of_rootF_c1Star_kernelLarge (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
+    (hjoint : RootFAndC1Star d N hN)
+    (hG0 : ∀ (L : ℕ) [NeZero L] (a : ℝ), 3 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a →
+      a < 3 / 2 → ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
+        (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
+        KernelHyp d L a t t0 C_G δ_G C_P)
+    (hG : ∀ (L : ℕ) [NeZero L] (a : ℝ), 3 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a →
+      a < 3 / 2 → ∀ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
+        (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
+        KernelHyp d L a t t0 C_G δ_G C_P →
+        ∃ C_G' δ_G' : ℝ, KernelHypLarge d L a t C_G' δ_G') :
+    RootCStatement d N := by
+  refine rootC_of_rootF_c1Star d N hd hN hjoint fun L _ a hL ha1 ha2 => ?_
+  obtain ⟨t, t0, C_G, δ_G, C_P, H⟩ := hG0 L a hL ha1 ha2
+  obtain ⟨C', δ', HL⟩ := hG L a hL ha1 ha2 t t0 C_G δ_G C_P H
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hL1 : 1 ≤ L := by omega
+  refine ⟨t, t0, max C_G C', min δ_G δ', C_P, ?_, ?_⟩
+  · refine { H with g2 := fun x y => ?_, nonneg_G := ?_, pos_δ := ?_ }
+    · exact KernelDecay.weaken hL0 (norm_nonneg _) H.nonneg_G (le_max_left _ _)
+        (min_le_left _ _) (H.g2 x y)
+    · exact H.nonneg_G.trans (le_max_left _ _)
+    · exact lt_min H.pos_δ HL.pos_δ
+  · refine ⟨HL.g1, HL.g2.weaken hL1 (le_max_right _ _) (min_le_right _ _),
+      lt_min H.pos_δ HL.pos_δ⟩
 
 end Balaban.Correlations

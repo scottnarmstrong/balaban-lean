@@ -54,7 +54,8 @@ theorem gtr_eq (hM : 1 ≤ M) (hL : 2 ≤ L) {Gtr : (Fin d → ℤ) → ℝ} {ν
     (h3 : C1StarF3 d N L M hN a cS cP ρ₀ J β ξ μ rtr rlg rtrLim rlgLim rtrZero rlgZero)
     {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ} {C_G δ_G : ℝ}
     (H : KernelHypLarge d L a t C_G δ_G) (hν : ν ∈ Set.Ioc (0 : ℝ) 1)
-    (hμ : ∀ j < J ν, 0 < ν * deltaR (ξ ν) j ∧ ν * deltaR (ξ ν) j ≤ 2) (x y : Fin d → ℤ) :
+    (hμ : ∀ j < J ν, 0 < ν * deltaR (ξ ν) j ∧
+      ν * deltaR (ξ ν) j * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4) (x y : Fin d → ℤ) :
     Gtr (x - y) =
       magJ L d (ξ ν) (fun j => μ j ν) β (J ν) x * magJ L d (ξ ν) (fun j => μ j ν) β (J ν) y *
         (∑ j ∈ range (J ν), (β * gammaR (ξ ν) j)⁻¹ * t j (ν * deltaR (ξ ν) j) x y)

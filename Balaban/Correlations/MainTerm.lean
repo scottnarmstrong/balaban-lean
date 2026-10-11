@@ -31,30 +31,35 @@ open Balaban Balaban.Flow
 
 variable {d L : ℕ} [NeZero L]
 
-/-- The decay of the Gaussian kernels `t_j^μ(x, y)` for all masses `μ ∈ (0, 2]`, with constants
-independent of `μ` (the form of (G2) used in Step B of CORRELATIONS.md §3.2). -/
+/-- The decay of the Gaussian kernels `t_j^μ(x, y)` at the masses `0 < μ`, `μ L^{2(j+1)} ≤ 2 L^4`
+(unit-lattice mass at most `2 L^4`), with constants independent of `j` and `μ` (the form of (G2)
+used in Step B of CORRELATIONS.md §3.2). -/
 def KernelMassDecay (d L : ℕ) (C_G δ_G : ℝ)
     (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) : Prop :=
-  ∀ (μ : ℝ), 0 < μ → μ ≤ 2 → ∀ x y : Fin d → ℤ,
-    KernelDecay d (L : ℝ) C_G δ_G ‖x - y‖ (fun j => t j μ x y)
+  ∀ (j : ℕ) (μ : ℝ), 0 < μ → μ * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4 →
+    ∀ x y : Fin d → ℤ,
+      |t j μ x y| ≤ C_G * ((L : ℝ) ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ_G * ‖x - y‖ / (L : ℝ) ^ j))
 
 section Kernel
 
 variable {a : ℝ} {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ}
   {C_G δ_G : ℝ}
 
-/-- The facts on the Gaussian kernels at the unit-lattice masses `μ ∈ (0, 2]` used by Lemma 3.0
-and Step B of CORRELATIONS.md §3, beyond the range of `KernelHyp` (which asks `μ L^{2J} ≤ 1`):
-(G1) the limit of the torus kernels `T_j^{ℓ,μ}` as the torus grows, for every `J > j`, and
-(G2) the decay of `t_j^μ` uniform in `μ ∈ (0, 2]`. -/
+/-- The facts on the Gaussian kernels at the large masses used by Lemma 3.0 and Step B of
+CORRELATIONS.md §3, beyond the range of `KernelHyp` (which asks `μ L^{2J} ≤ 1`), for
+`0 < μ`, `μ L^{2(j+1)} ≤ 2 L^4`: (G1) the limit of the torus kernels `T_j^{ℓ,μ}` as the torus grows,
+for every `J > j`, and (G2) the decay of `t_j^μ` (`KernelMassDecay`). -/
 structure KernelHypLarge (d L : ℕ) [NeZero L] (a : ℝ)
     (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G : ℝ) : Prop where
-  g1 : ∀ (J j : ℕ) (μ : ℝ), j < J → 0 < μ → μ ≤ 2 → ∀ x y,
+  g1 : ∀ (J j : ℕ) (μ : ℝ), j < J → 0 < μ → μ * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4 →
+    ∀ x y,
     Tendsto (fun m : ℕ => termKernel d L (freeSeq d L a) μ J j m x y) atTop (𝓝 (t j μ x y))
   g2 : KernelMassDecay d L C_G δ_G t
+  pos_δ : 0 < δ_G
 
 theorem KernelHypLarge.limAlong_termKernel (H : KernelHypLarge d L a t C_G δ_G)
-    {M : ℕ} (hM : 1 ≤ M) (hL : 2 ≤ L) {μ : ℝ} (hμ : 0 < μ) (hμ2 : μ ≤ 2) {J j : ℕ} (hj : j < J)
+    {M : ℕ} (hM : 1 ≤ M) (hL : 2 ≤ L) {J j : ℕ} {μ : ℝ} (hμ : 0 < μ)
+    (hμ2 : μ * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4) (hj : j < J)
     (x y : Fin d → ℤ) :
     LimAlong (M * L) (fun ℓ _ => termKernel d L (freeSeq d L a) μ J j (ℓ / L ^ J - 1) x y)
       (t j μ x y) := by
@@ -79,7 +84,8 @@ theorem KernelHypLarge.limAlong_termKernel (H : KernelHypLarge d L a t C_G δ_G)
 
 theorem KernelHypLarge.limAlong_mainTr (H : KernelHypLarge d L a t C_G δ_G)
     {M : ℕ} (hM : 1 ≤ M) (hL : 2 ≤ L) {ξ : ℕ → Fin 3 → ℝ} {β ν : ℝ} {J : ℕ}
-    (hμ : ∀ j < J, 0 < ν * deltaR ξ j ∧ ν * deltaR ξ j ≤ 2) (x y : Fin d → ℤ) :
+    (hμ : ∀ j < J, 0 < ν * deltaR ξ j ∧
+      ν * deltaR ξ j * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4) (x y : Fin d → ℤ) :
     LimAlong (M * L) (fun ℓ _ => mainTr d L a ξ β ν J ℓ x y)
       (∑ j ∈ range J, (β * gammaR ξ j)⁻¹ * t j (ν * deltaR ξ j) x y) := by
   unfold mainTr
@@ -170,7 +176,8 @@ def MainSumBound (d L : ℕ) (C_G δ_G C' : ℝ) : Prop :=
   ∀ {γ₀ c₈ : ℝ} {ξ : ℕ → Fin 3 → ℝ}, SeqHyp L γ₀ c₈ ξ → ∀ {β ν : ℝ},
       0 < β → 0 < ν → ∀ {J : ℕ}, (L : ℝ) ^ J * Real.sqrt ν ≤ (L : ℝ) ^ 2 →
       ∀ {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ}, KernelMassDecay d L C_G δ_G t →
-      (∀ j < J, 0 < ν * deltaR ξ j ∧ ν * deltaR ξ j ≤ 2) → ∀ x y : Fin d → ℤ,
+      (∀ j < J, 0 < ν * deltaR ξ j ∧
+        ν * deltaR ξ j * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4) → ∀ x y : Fin d → ℤ,
       |∑ j ∈ range J, (β * gammaR ξ j)⁻¹ * t j (ν * deltaR ξ j) x y| ≤
         2 / β * C_G * C' * (1 + ‖x - y‖) ^ (-((d : ℝ) - 2)) *
           Real.exp (-(δ_G / (2 * (L : ℝ) ^ 2) * Real.sqrt ν * ‖x - y‖))
@@ -204,7 +211,7 @@ theorem exists_abs_mainSum_le (hd : 3 ≤ d) (hL : 2 ≤ L) {C_G δ_G : ℝ} (h�
       calc (β * gammaR ξ j)⁻¹ ≤ (β / 2)⁻¹ :=
             inv_anti₀ (by positivity) (by nlinarith)
         _ = 2 / β := by field_simp
-    have h2 := ht (ν * deltaR ξ j) (hμ j hj').1 (hμ j hj').2 x y j
+    have h2 := ht j (ν * deltaR ξ j) (hμ j hj').1 (hμ j hj').2 x y
     have hcast : (((j * (d - 2) : ℕ)) : ℝ) = (j : ℝ) * σ := by
       rw [Nat.cast_mul, Nat.cast_sub (by omega : 2 ≤ d)]; push_cast; ring
     have h3 : ((L : ℝ) ^ (j * (d - 2)))⁻¹ = (L : ℝ) ^ (-((j : ℝ) * σ)) := by

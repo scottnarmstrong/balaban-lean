@@ -132,9 +132,9 @@ theorem bounds_pos_nu (hL : 2 ≤ L) (hM : 1 ≤ M)
           ≤ cS * R * E := by gcongr
         _ = _ := rfl
     refine ⟨?_, ?_⟩
-    · have hid := gtr_eq hM hL (hGtr ν hν) h3 HL hν (fun j _ => mass_mem HSν hν j) x 0
+    · have hid := gtr_eq hM hL (hGtr ν hν) h3 HL hν (fun j hj => mass_mem' HSν hν hj (hJb ν hν)) x 0
       simp only [sub_zero] at hid
-      have hS := hC1 HSν hβ hν.1 (hJb ν hν) HL.g2 (fun j _ => mass_mem HSν hν j) x 0
+      have hS := hC1 HSν hβ hν.1 (hJb ν hν) HL.g2 (fun j hj => mass_mem' HSν hν hj (hJb ν hν)) x 0
       simp only [sub_zero] at hS
       have hEG : Real.exp (-(δ_G / (2 * (L : ℝ) ^ 2) * Real.sqrt ν * ‖x‖)) ≤ E := by
         refine Real.exp_le_exp.2 ?_

@@ -129,11 +129,36 @@ theorem mass_mem {γ₀ c₈ : ℝ} {ξ : ℕ → Fin 3 → ℝ} (HS : SeqHyp L 
   have h2 := (HS.deltaR_bounds j).2
   exact ⟨mul_pos hν.1 h1, by nlinarith [hν.1, hν.2]⟩
 
+theorem mass_mem' {γ₀ c₈ : ℝ} {ξ : ℕ → Fin 3 → ℝ} (HS : SeqHyp L γ₀ c₈ ξ) {ν : ℝ}
+    (hν : ν ∈ Set.Ioc (0 : ℝ) 1) {j J : ℕ} (hj : j < J)
+    (hJ : (L : ℝ) ^ J * Real.sqrt ν ≤ (L : ℝ) ^ 2) :
+    0 < ν * deltaR ξ j ∧ ν * deltaR ξ j * (L : ℝ) ^ (2 * (j + 1)) ≤ 2 * (L : ℝ) ^ 4 := by
+  refine ⟨(mass_mem HS hν j).1, ?_⟩
+  have hL1 : (1 : ℝ) < L := by exact_mod_cast HS.hL
+  have hδ := (HS.deltaR_bounds j).2
+  have hP : 0 ≤ (L : ℝ) ^ (2 * (j + 1)) := by positivity
+  have e1 : (L : ℝ) ^ (2 * (j + 1)) ≤ ((L : ℝ) ^ J) ^ 2 := by
+    rw [← pow_mul']
+    exact pow_le_pow_right₀ hL1.le (by omega)
+  have hsq : ν = Real.sqrt ν ^ 2 := (Real.sq_sqrt hν.1.le).symm
+  have h0 : 0 ≤ (L : ℝ) ^ J * Real.sqrt ν := by positivity
+  calc ν * deltaR ξ j * (L : ℝ) ^ (2 * (j + 1))
+      ≤ ν * 2 * (L : ℝ) ^ (2 * (j + 1)) :=
+        mul_le_mul_of_nonneg_right (by nlinarith [hν.1]) hP
+    _ ≤ ν * 2 * ((L : ℝ) ^ J) ^ 2 :=
+        mul_le_mul_of_nonneg_left e1 (by nlinarith [hν.1])
+    _ = 2 * ((L : ℝ) ^ J * Real.sqrt ν) ^ 2 := by
+        conv_lhs => rw [hsq]
+        ring
+    _ ≤ 2 * ((L : ℝ) ^ 2) ^ 2 := by gcongr
+    _ = 2 * (L : ℝ) ^ 4 := by ring
+
 theorem tendsto_mainSum [NeZero L] {γ₀ c₈ β a C_G δ_G C_P : ℝ} {ξ : ℝ → ℕ → Fin 3 → ℝ}
     {J : ℝ → ℕ} (hL : 2 ≤ L) (hd : 3 ≤ d)
     (HS : ∀ ν ∈ Set.Icc (0 : ℝ) 1, SeqHyp L γ₀ c₈ (ξ ν))
     (hc : ∀ k, Tendsto (fun ν => ξ ν k) (𝓝[>] 0) (𝓝 (ξ 0 k))) (hβ : 0 < β)
     (hJ : Tendsto J (𝓝[>] 0) atTop)
+    (hJb : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, (L : ℝ) ^ J ν * Real.sqrt ν ≤ (L : ℝ) ^ 2)
     {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ}
     {t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ}
     (H : KernelHyp d L a t t0 C_G δ_G C_P) (HL : KernelHypLarge d L a t C_G δ_G)
@@ -175,8 +200,8 @@ theorem tendsto_mainSum [NeZero L] {γ₀ c₈ β a C_G δ_G C_P : ℝ} {ξ : �
     by_cases hj : j < J ν
     · simp only [hf, hj, ↓reduceIte, Real.norm_eq_abs]
       have HSν := HS ν (hIcc ν hν)
-      obtain ⟨hm1, hm2⟩ := mass_mem HSν hν j
-      have h2 := HL.g2 _ hm1 hm2 z y j
+      obtain ⟨hm1, hm2⟩ := mass_mem' HSν hν hj (hJb ν hν)
+      have h2 := HL.g2 j _ hm1 hm2 z y
       have hgp := HSν.gammaR_pos j
       have hgb := (HSν.gammaR_bounds j).1
       have h1 : |(β * gammaR (ξ ν) j)⁻¹| ≤ 2 / β := by
