@@ -77,3 +77,7 @@ public import Balaban.Model.BlockStructure
 public import Balaban.Model.PartitionFunction
 public import Balaban.Model.Derivatives
 public import Balaban.Model.Analytic
+public import Balaban.Correlations.Clauses
+public import Balaban.Correlations.PolymerCount
+public import Balaban.Correlations.PolymerDiameter
+public import Balaban.Correlations.Series
