@@ -431,6 +431,9 @@ structure GreenSetting (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) (ν :
   weights : IsAdmissibleWeights k a
   sep : 2 * d * Real.log L ≤ agmonRate d / 2 / 2 * (ϱ - 1)
 
+theorem gamma1_pos {d : ℕ} (hd : 0 < d) : 0 < gamma1 d := by
+  unfold gamma1; have := coerciveConst_pos hd; positivity
+
 variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
 theorem GreenSetting.sep_gt_one (S : GreenSetting G a ν) : 1 < ϱ := by

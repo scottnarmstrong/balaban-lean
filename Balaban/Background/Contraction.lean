@@ -704,4 +704,185 @@ theorem prop51_core (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC
 
 end Core
 
+section Constants
+
+/-- Arithmetic for the Lipschitz condition of `CoreHyp`. -/
+theorem arith_lip {A B1 B Fb δ₀ ρ τ x y z : ℝ} (hA : 1 ≤ A) (hB1 : 1 ≤ B1) (hB : 0 ≤ B)
+    (hBB : B ≤ B1) (hτ : 15 * A * B1 ^ 2 * τ = 1) (hτ0 : 0 ≤ τ)
+    (hx0 : 0 ≤ x) (hy0 : 0 ≤ y) (hz0 : 0 ≤ z) (hx : x ≤ A) (hy : y ≤ A) (hz : z ≤ A)
+    (hF0 : 0 ≤ Fb) (hδ0 : 0 ≤ δ₀) (hρ0 : 0 ≤ ρ)
+    (hF : Fb ≤ τ / 3) (hδ : δ₀ ≤ τ / 3) (hρ : 3 / 2 * ρ ≤ τ / 3) :
+    (x * Fb + y * δ₀ + z * (B * (Fb + 3 / 2 * ρ))) * (B * (3 / 2 + B * (Fb + 3 / 2 * ρ))) ≤ 1 / 2 := by
+  have hτ1 : τ ≤ 1 / 15 := by
+    have : 1 ≤ A * B1 ^ 2 := by nlinarith [one_le_pow₀ hB1 (n := 2)]
+    nlinarith
+  set D := B * (Fb + 3 / 2 * ρ) with hD
+  have hD0 : 0 ≤ D := by positivity
+  have hDle : D ≤ B1 * (2 * τ / 3) := by
+    rw [hD]
+    exact mul_le_mul hBB (by linarith) (by positivity) (by linarith)
+  have hBt : B1 * τ ≤ 1 / 15 := by
+    have h1 : 0 ≤ A * B1 - 1 := by nlinarith
+    nlinarith [mul_nonneg h1 (mul_nonneg (by linarith : 0 ≤ B1) hτ0)]
+  have hD1 : D ≤ 1 := by nlinarith
+  have h1 : x * Fb + y * δ₀ + z * D ≤ 4 / 3 * A * B1 * τ := by
+    have e1 : x * Fb ≤ A * (τ / 3) := mul_le_mul hx hF hF0 (by linarith)
+    have e2 : y * δ₀ ≤ A * (τ / 3) := mul_le_mul hy hδ hδ0 (by linarith)
+    have e3 : z * D ≤ A * (B1 * (2 * τ / 3)) := mul_le_mul hz hDle hD0 (by linarith)
+    nlinarith [mul_nonneg (by linarith : 0 ≤ A) hτ0, mul_nonneg (mul_nonneg (by linarith : 0 ≤ A) (by linarith : 0 ≤ B1 - 1)) hτ0]
+  have h2 : B * (3 / 2 + D) ≤ 5 / 2 * B1 := by nlinarith
+  have h3 : 0 ≤ x * Fb + y * δ₀ + z * D := by positivity
+  calc _ ≤ (4 / 3 * A * B1 * τ) * (5 / 2 * B1) :=
+        mul_le_mul h1 h2 (by positivity) (by positivity)
+    _ = 10 / 3 * (A * B1 ^ 2 * τ) := by ring
+    _ ≤ 1 / 2 := by nlinarith
+
+/-- Arithmetic for the self-map condition of `CoreHyp`. -/
+theorem arith_self {A B1 B Fb Gb δ₀ x y e δ₁ CF : ℝ} (hA : 1 ≤ A) (hB1 : 1 ≤ B1) (hB : 0 ≤ B)
+    (hBB : B ≤ B1) (hx : x ≤ A) (hy : y ≤ A)
+    (hxe : x * e ≤ A) (hδ0 : 0 ≤ δ₀) (hδ : δ₀ ≤ 1) (hF0 : 0 ≤ Fb) (hBF : B1 * Fb ≤ 1)
+    (hFb : Fb = CF * δ₁) (hGb : Gb = 5 * δ₁) :
+    x * ((3 / 2 + B * Fb) * Fb) + y * δ₀ * (B * Fb) + 1 / 2 * (x * (e * ((B * Fb) * (B * Fb)))) +
+      1 / 2 * Gb ≤ (5 * A * B1 * CF + 5 / 2) * δ₁ := by
+  have hD0 : 0 ≤ B * Fb := by positivity
+  have hD1 : B * Fb ≤ 1 := by nlinarith
+  have hDF : B * Fb ≤ B1 * Fb := mul_le_mul_of_nonneg_right hBB hF0
+  have t1 : x * ((3 / 2 + B * Fb) * Fb) ≤ A * (5 / 2 * Fb) := by
+    refine mul_le_mul hx (mul_le_mul (by linarith) le_rfl hF0 (by norm_num)) (by positivity) (by linarith)
+  have t2 : y * δ₀ * (B * Fb) ≤ A * (B1 * Fb) := by
+    have : y * δ₀ ≤ A * 1 := mul_le_mul hy hδ hδ0 (by linarith)
+    calc y * δ₀ * (B * Fb) ≤ (A * 1) * (B1 * Fb) := mul_le_mul this hDF hD0 (by linarith)
+      _ = _ := by ring
+  have t3 : x * (e * ((B * Fb) * (B * Fb))) ≤ A * (B1 * Fb) := by
+    have : x * (e * ((B * Fb) * (B * Fb))) = (x * e) * ((B * Fb) * (B * Fb)) := by ring
+    rw [this]
+    have h4 : (B * Fb) * (B * Fb) ≤ B1 * Fb := by nlinarith
+    exact mul_le_mul hxe h4 (by positivity) (by linarith)
+  have hCF : 0 ≤ CF * δ₁ := hFb ▸ hF0
+  have : A * (5 / 2 * Fb) + A * (B1 * Fb) + 1 / 2 * (A * (B1 * Fb)) ≤ 4 * A * B1 * Fb := by
+    nlinarith [mul_nonneg (by linarith : 0 ≤ A) hF0, mul_nonneg (mul_nonneg (by linarith : 0 ≤ A) (by linarith : 0 ≤ B1 - 1)) hF0]
+  have hfin : x * ((3 / 2 + B * Fb) * Fb) + y * δ₀ * (B * Fb) +
+      1 / 2 * (x * (e * ((B * Fb) * (B * Fb)))) + 1 / 2 * Gb ≤ 4 * A * B1 * Fb + 1 / 2 * Gb := by
+    linarith
+  refine hfin.trans ?_
+  rw [hGb, hFb]
+  have hq : 0 ≤ A * B1 * (CF * δ₁) := by
+    have : 0 ≤ A * B1 := by positivity
+    exact mul_nonneg this hCF
+  nlinarith
+
+variable (d L N : ℕ) [NeZero L]
+
+/-- Constants of Proposition 5.1: they depend on `(d, L, N)` only. -/
+noncomputable def cA : ℝ := 1 + commKConst d L N + N * (2 * d + 8) + N
+noncomputable def cB1 : ℝ := greenSupConst d L + 1
+noncomputable def cTau : ℝ := 1 / (15 * cA d L N * cB1 d L ^ 2)
+/-- `C_F = 3 + 2 d L²`: `|F_s|₂ ≤ C_F δ₁`. -/
+noncomputable def cF : ℝ := 3 + 2 * d * (L : ℝ) ^ 2
+noncomputable def cN : ℝ := 5 * cA d L N * cB1 d L * cF d L + 5 / 2
+/-- The radius `c₆` of Proposition 5.1. -/
+noncomputable def c6 : ℝ := min (gamma1 d / 4) (2 * cTau d L N / 9)
+/-- The smallness `δ_*` of Proposition 5.1. -/
+noncomputable def deltaStar : ℝ :=
+  min (min (cTau d L N / 3) (gamma1 d / 4)) (min (min 1 (c6 d L N / (2 * cN d L N)))
+    (cTau d L N / (3 * cF d L)))
+/-- The constant `K₂` of Proposition 5.1. -/
+noncomputable def cK2 : ℝ := cB1 d L * (cF d L + 3 * cN d L N) + 2 * cN d L N
+
+omit [NeZero L] in
+theorem cA_ge : 1 ≤ cA d L N := by
+  unfold cA commKConst
+  have : (0 : ℝ) ≤ N * (2 * d + 8) := by positivity
+  have : (0 : ℝ) ≤ N * (2 * d * L + 1 + 4 * d) := by positivity
+  have : (0 : ℝ) ≤ N := by positivity
+  linarith
+
+theorem cB1_ge : 1 ≤ cB1 d L := by
+  unfold cB1; have := greenSupConst_nonneg d L; linarith
+
+omit [NeZero L] in
+theorem cF_pos : 0 < cF d L := by unfold cF; positivity
+
+theorem cTau_pos : 0 < cTau d L N := by
+  have := cA_ge d L N; have := cB1_ge d L
+  unfold cTau; positivity
+
+theorem cTau_spec : 15 * cA d L N * cB1 d L ^ 2 * cTau d L N = 1 := by
+  have := cA_ge d L N; have := cB1_ge d L
+  unfold cTau; field_simp
+
+theorem cN_pos : 0 < cN d L N := by
+  have := cA_ge d L N; have := cB1_ge d L; have := cF_pos d L
+  unfold cN; positivity
+
+theorem c6_pos (hd : 0 < d) : 0 < c6 d L N := by
+  have := gamma1_pos hd; have := cTau_pos d L N
+  unfold c6; positivity
+
+theorem deltaStar_pos (hd : 0 < d) : 0 < deltaStar d L N := by
+  have := gamma1_pos hd; have := cTau_pos d L N; have := c6_pos d L N hd
+  have := cN_pos d L N; have := cF_pos d L
+  unfold deltaStar; positivity
+
+variable {d L N}
+
+theorem coreHyp_small {N₀ k : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d)
+    {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁) (hδ₀ : δ₀ ≤ deltaStar d L N)
+    (hδ₁ : δ₁ ≤ deltaStar d L N) :
+    CoreHyp G N δ₀ (cF d L * δ₁) (5 * δ₁) (c6 d L N) := by
+  have hg := gamma1_pos hd
+  have hτ := cTau_pos d L N
+  have hA := cA_ge d L N
+  have hB1 := cB1_ge d L
+  have hcF := cF_pos d L
+  have hcN := cN_pos d L N
+  have hc6 := c6_pos d L N hd
+  have hB0 := greenSupConst_nonneg d L
+  have hs1 : deltaStar d L N ≤ cTau d L N / 3 :=
+    (min_le_left _ _).trans (min_le_left _ _)
+  have hs2 : deltaStar d L N ≤ gamma1 d / 4 :=
+    (min_le_left _ _).trans (min_le_right _ _)
+  have hs3 : deltaStar d L N ≤ 1 :=
+    (min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hs4 : deltaStar d L N ≤ c6 d L N / (2 * cN d L N) :=
+    (min_le_right _ _).trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hs5 : deltaStar d L N ≤ cTau d L N / (3 * cF d L) :=
+    (min_le_right _ _).trans (min_le_right _ _)
+  have hc6a : c6 d L N ≤ gamma1 d / 4 := min_le_left _ _
+  have hc6b : c6 d L N ≤ 2 * cTau d L N / 9 := min_le_right _ _
+  have hFb : cF d L * δ₁ ≤ cTau d L N / 3 := by
+    have : δ₁ ≤ cTau d L N / (3 * cF d L) := hδ₁.trans hs5
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
+  have hFb0 : 0 ≤ cF d L * δ₁ := by positivity
+  have hN0 : (0 : ℝ) ≤ N := by positivity
+  have hK0 : (0 : ℝ) ≤ commKConst d L N := by unfold commKConst; positivity
+  have hz0 : (0 : ℝ) ≤ N * (2 * d + 8) := by positivity
+  have hNA : (N : ℝ) ≤ cA d L N := by unfold cA; linarith
+  have hKA : commKConst d L N ≤ cA d L N := by unfold cA; linarith
+  have hzA : (N : ℝ) * (2 * d + 8) ≤ cA d L N := by unfold cA; linarith
+  have hBB : greenSupConst d L ≤ cB1 d L := by unfold cB1; linarith
+  refine ⟨hc6.le, by linarith, by positivity, ?_, ?_⟩
+  · exact arith_lip (A := cA d L N) (B1 := cB1 d L) (B := greenSupConst d L) (Fb := cF d L * δ₁)
+      (δ₀ := δ₀) (ρ := c6 d L N) (τ := cTau d L N) (x := N) (y := commKConst d L N)
+      (z := N * (2 * d + 8)) hA hB1 hB0 hBB (cTau_spec d L N) hτ.le hN0 hK0 hz0 hNA hKA hzA
+      hFb0 h0 hc6.le hFb (hδ₀.trans hs1) (by linarith)
+  · have hBF : cB1 d L * (cF d L * δ₁) ≤ 1 := by
+      have hBt : cB1 d L * cTau d L N ≤ 1 / 15 := by
+        have h1 : 0 ≤ cA d L N * cB1 d L - 1 := by nlinarith
+        have := cTau_spec d L N
+        nlinarith [mul_nonneg h1 (mul_nonneg (by linarith : 0 ≤ cB1 d L) hτ.le)]
+      nlinarith
+    have hself := arith_self (A := cA d L N) (B1 := cB1 d L) (B := greenSupConst d L)
+      (Fb := cF d L * δ₁) (Gb := 5 * δ₁) (δ₀ := δ₀) (x := N) (y := commKConst d L N)
+      (e := 2 * d + 8) (δ₁ := δ₁) (CF := cF d L) hA hB1 hB0 hBB hNA hKA hzA h0
+      (hδ₀.trans hs3) hFb0 hBF rfl rfl
+    have hδ' : δ₁ ≤ c6 d L N / (2 * cN d L N) := hδ₁.trans hs4
+    rw [le_div_iff₀ (by positivity)] at hδ'
+    unfold selfBound
+    unfold cN at hδ' hself
+    nlinarith
+
+end Constants
+
 end Balaban.Background
