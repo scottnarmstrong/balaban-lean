@@ -159,23 +159,17 @@ theorem KernelMassDecay.weaken {d L : ℕ} (hL : 1 ≤ L) {C C' δ δ' : ℝ}
   intro j μ hμ hμ2 x y
   exact decay_term_weaken (d := d) hL0 (norm_nonneg _) hC0 hC hδ (h j μ hμ hμ2 x y)
 
-/-- Corollary: the large-mass hypothesis may be supplied for the kernels of a given `KernelHyp`,
-with its own constants. -/
+/-- Corollary: the large-mass facts may come with their own constants `C_G', δ_G'` (for the same
+kernel family `t`). -/
 theorem rootC_of_rootF_c1Star_kernelLarge (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
     (hjoint : RootFAndC1Star d N hN)
-    (hG0 : ∀ (L : ℕ) [NeZero L] (a : ℝ), 3 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a →
-      a < 3 / 2 → ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
-        (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
-        KernelHyp d L a t t0 C_G δ_G C_P)
     (hG : ∀ (L : ℕ) [NeZero L] (a : ℝ), 3 ≤ L → 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a →
-      a < 3 / 2 → ∀ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
-        (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
-        KernelHyp d L a t t0 C_G δ_G C_P →
-        ∃ C_G' δ_G' : ℝ, KernelHypLarge d L a t C_G' δ_G') :
+      a < 3 / 2 → ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
+        (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P C' δ' : ℝ),
+        KernelHyp d L a t t0 C_G δ_G C_P ∧ KernelHypLarge d L a t C' δ') :
     RootCStatement d N := by
   refine rootC_of_rootF_c1Star d N hd hN hjoint fun L _ a hL ha1 ha2 => ?_
-  obtain ⟨t, t0, C_G, δ_G, C_P, H⟩ := hG0 L a hL ha1 ha2
-  obtain ⟨C', δ', HL⟩ := hG L a hL ha1 ha2 t t0 C_G δ_G C_P H
+  obtain ⟨t, t0, C_G, δ_G, C_P, C', δ', H, HL⟩ := hG L a hL ha1 ha2
   have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
   have hL1 : 1 ≤ L := by omega
   refine ⟨t, t0, max C_G C', min δ_G δ', C_P, ?_, ?_⟩
