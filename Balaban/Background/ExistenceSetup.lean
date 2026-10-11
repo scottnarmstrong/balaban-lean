@@ -82,12 +82,18 @@ theorem BgHyp.approxSetting {a : ℕ → ℝ} {ν δ ε : ℝ} (H : BgHyp d L k 
 
 /-! ### The constants -/
 
+theorem lemma53Const_pos (d L : ℕ) : 0 < lemma53Const d L :=
+  lt_of_lt_of_le (by have := cB7_pos d L; positivity) (cB7_le_const d L)
+
+
 section Constants
 
 variable (d L N : ℕ) [NeZero L]
 
-/-- The constant `K₁` of Theorem 5.2: `K₁ = 2 C₃ (1 + K₂) (2 + 4 d L)`, `C₃ = lemma53Const`. -/
-noncomputable def bgK1 : ℝ := 2 * lemma53Const d L * (1 + cK2 d L N) * (2 + 4 * d * L)
+/-- The constant `K₁` of Theorem 5.2: `K₁ = C₃ (1 + L + 2 d L² + (2 N + 1) K₂)`,
+`C₃ = lemma53Const`, `K₂ = cK2` (Proposition 5.1). -/
+noncomputable def bgK1 : ℝ :=
+  lemma53Const d L * (1 + L + 2 * d * (L : ℝ) ^ 2 + (2 * N + 1) * cK2 d L N)
 
 /-- The radius `c₀` of Theorem 5.2: `min (c₆, 1/16)`. -/
 noncomputable def bgC0 : ℝ := min (c6 d L N) (1 / 16)
@@ -96,6 +102,46 @@ noncomputable def bgC0 : ℝ := min (c6 d L N) (1 / 16)
 noncomputable def bgC1 : ℝ :=
   min (min (approxDelta d L) (deltaStar d L N / (2 * lemma53Const d L)))
     (min (1 / (32 * lemma53Const d L)) (bgC0 d L N / (2 * bgK1 d L N)))
+
+theorem cK2_pos : 0 < cK2 d L N := by
+  have := cB1_ge d L
+  have := cF_pos d L
+  have := cN_pos d L N
+  unfold cK2
+  positivity
+
+theorem bgK1_pos : 0 < bgK1 d L N := by
+  have := lemma53Const_pos d L
+  have := cK2_pos d L N
+  unfold bgK1
+  positivity
+
+theorem bgC0_pos (hd : 0 < d) : 0 < bgC0 d L N := by
+  unfold bgC0
+  exact lt_min (c6_pos d L N hd) (by norm_num)
+
+theorem bgC0_le_c6 : bgC0 d L N ≤ c6 d L N := min_le_left _ _
+
+theorem bgC0_le : bgC0 d L N ≤ 1 / 16 := min_le_right _ _
+
+/-- The smallness conditions implied by `δ ≤ c₁`. -/
+theorem bgC1_facts (hd : 0 < d) {δ : ℝ} (hδ : δ ≤ bgC1 d L N) :
+    δ ≤ approxDelta d L ∧ 2 * (lemma53Const d L * δ) ≤ deltaStar d L N ∧
+      lemma53Const d L * δ ≤ 1 / 32 ∧ bgK1 d L N * δ ≤ bgC0 d L N / 2 := by
+  have hC := lemma53Const_pos d L
+  have hK := bgK1_pos d L N
+  have h0 := bgC0_pos d L N hd
+  unfold bgC1 at hδ
+  refine ⟨hδ.trans ((min_le_left _ _).trans (min_le_left _ _)), ?_, ?_, ?_⟩
+  · have := hδ.trans ((min_le_left _ _).trans (min_le_right _ _))
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
+  · have := hδ.trans ((min_le_right _ _).trans (min_le_left _ _))
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
+  · have := hδ.trans ((min_le_right _ _).trans (min_le_right _ _))
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
 
 end Constants
 
@@ -174,9 +220,6 @@ theorem DataWit.vn_le (W : DataWit G ν δ ε D) (hδ0 : 0 < δ) {x : Torus d (N
   rw [Real.sqrt_le_left (by linarith)]
   have := (abs_lt.1 h2).2
   nlinarith
-
-theorem lemma53Const_pos (d L : ℕ) : 0 < lemma53Const d L :=
-  lt_of_lt_of_le (by have := cB7_pos d L; positivity) (cB7_le_const d L)
 
 /-- A vanishing defect `g = 0` has vanishing zero extension and Laplacian. -/
 theorem negLap_zeroExt_gdef {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
