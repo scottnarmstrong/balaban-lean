@@ -86,3 +86,4 @@ public import Balaban.Correlations.Estimates
 public import Balaban.Correlations.Box
 public import Balaban.Correlations.Agreement
 public import Balaban.Correlations.Tail
+public import Balaban.Correlations.ThermoLimit
