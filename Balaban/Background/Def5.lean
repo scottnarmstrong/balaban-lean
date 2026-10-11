@@ -107,24 +107,6 @@ section Real
 
 variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
-theorem bgK1_ge_one : 1 ≤ bgK1 d L N := by
-  have h1 : (500 : ℝ) ≤ lemma53Const d L :=
-    le_trans (by have := cB7_pos d L; linarith) (cB7_le_const d L)
-  have h2 := cK2_pos d L N
-  unfold bgK1
-  have : (1 : ℝ) ≤ 1 + L + 2 * d * (L : ℝ) ^ 2 + (2 * N + 1) * cK2 d L N := by
-    have : (0 : ℝ) ≤ L + 2 * d * (L : ℝ) ^ 2 + (2 * N + 1) * cK2 d L N := by positivity
-    linarith
-  nlinarith
-
-theorem bgC1_le_bgC0 (hd : 0 < d) : bgC1 d L N ≤ bgC0 d L N := by
-  have h0 := bgC0_pos d L N hd
-  have h1 := bgK1_ge_one (d := d) (L := L) (N := N)
-  unfold bgC1
-  refine (min_le_right _ _).trans ((min_le_right _ _).trans ?_)
-  rw [div_le_iff₀ (by linarith)]
-  nlinarith
-
 theorem isReal_of_inDomainR {δ : ℝ} {D : BgData G N} (hD : InDomainR G ν δ D) : D.IsReal := by
   obtain ⟨Ψ, h, -, hΨ, hh⟩ := hD
   intro x i
@@ -149,7 +131,7 @@ theorem bg_real (H : BgHyp d L k ϱ a ν) {δ : ℝ} (hδ0 : 0 < δ) (hδ : δ �
   have hd0 : 0 < d := by have := H.hd; omega
   have hreal := isReal_of_inDomainR hD
   obtain ⟨Ψ, h₀, hP, hΨ, hh⟩ := hD
-  have hδc0 : δ ≤ bgC0 d L N := hδ.trans (bgC1_le_bgC0 hd0)
+  have hδc0 : δ ≤ bgC0 d L N := hδ.trans (bgC1_le_bgC0 d L N hd0)
   have W := DataWit.ofReal hδ0 hδ0 hP D hΨ hh
   have hνε : ν * ((L : ℝ) ^ k) ^ 2 * δ ^ 2 ≤ δ ^ 2 := by
     have := H.massLe
