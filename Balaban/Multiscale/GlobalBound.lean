@@ -110,7 +110,7 @@ theorem mem_layer_of_blockPiece (G : GeneratingSet d L N₀ k ϱ) (y x : G.Ω 1)
   have hxl := (G.mem_layer_iff hj1 hjk h.symm).1 hyl
   rw [G.spacing_eq hj1 hjk hxl, G.spacing_eq hj1 hjk hyl]
 
-theorem PtSetting.spacing_mul_diff_le_U {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+theorem PtSetting.spacing_mul_diff_le_U {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G 1)
     (x : Torus d (N₀ * L ^ k)) (μ : Fin d) :
     G.spacing x * ‖S.ut (x + Pi.single μ 1) - S.ut x‖ ≤ S.U x := by
   unfold PtSetting.U
@@ -138,7 +138,7 @@ theorem global_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
       ∀ μ : Fin d, G.spacing x * ‖zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f)
         (x + Pi.single μ 1) - zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ f) x‖ ≤ B * Cf := by
   classical
-  obtain ⟨K2, hK2, hP⟩ := prop48 (d := d) (L := L) hd hL
+  obtain ⟨K2, hK2, hP⟩ := prop48 (d := d) (L := L) hd hL 1 zero_le_one
   have hε := agmonRate_pos (d := d) (by omega)
   have hγ0 : 0 < agmonRate d / 2 := by positivity
   refine ⟨K2 * countConst d L (agmonRate d / 2), mul_nonneg hK2 ?_, ?_⟩
@@ -160,7 +160,7 @@ theorem global_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have : 0 ≤ agmonRate d / 2 * (ϱ - 1) := by positivity
     nlinarith
   -- the pieces
-  let S : G.Ω 1 → PtSetting G := fun y =>
+  let S : G.Ω 1 → PtSetting G 1 := fun y =>
     { a := a, ν := ν, α := α, f := blockPiece G f y
       j' := G.layerIndex (y : Torus d (N₀ * L ^ k)), y' := y
       hd := hd, hL := hL, hν0 := hν0, hν1 := hν1, ha := ha, hα := hα, hϱ := hϱ1.le, hsep := hsep
@@ -350,6 +350,7 @@ theorem global_bound (hd : 3 ≤ d) (hL : 3 ≤ L) :
       _ ≤ _ := by nlinarith
   · have hu := dirichletOperator_mulVec_inv G (by omega : 0 < d) hν0 ha α hα f
     have hlap := laplacian_bound G hν0 hν1 ha hα hu hx (M := B1 * Cf) hBC (fun q _ => hall q)
+    rw [show (3 + 1 : ℝ) = 4 by norm_num] at hlap
     have hfp : ‖zeroExt (G.Ω 1) f x‖ = ‖f ⟨x, hx⟩‖ := by rw [zeroExt_mem _ _ ⟨x, hx⟩]
     rw [hfp] at hlap
     have hsp : 0 < G.spacing x := spacing_pos G

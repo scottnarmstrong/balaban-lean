@@ -79,7 +79,7 @@ theorem holder_pair_facts (G : GeneratingSet d L N₀ k ϱ) (hϱ : 1 ≤ ϱ) {x 
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G 1)
 
 theorem spacing_mul_norm_le_U {y : Torus d (N₀ * L ^ k)} (ν : Fin d) :
     G.spacing y * ‖S.ut (y + Pi.single ν 1) - S.ut y‖ ≤ S.U y := by

@@ -330,11 +330,11 @@ theorem ballConst_nonneg {d : ℕ} {r : ℝ} (hr : 0 < r) : 0 ≤ ballConst d r 
   have h2 : 0 < 1 + Real.exp (-r) := by linarith [hq.1]
   positivity
 
-/-- **G-5(b), `C_tr`.**  `ν ↦ C_tr = (Δ_tr + (a'/L²) Q*Q)⁻¹` is Lipschitz on `[0, 2]` in the kernel
+/-- **G-5(b), `C_tr`.**  `ν ↦ C_tr = (Δ_tr + (a'/L²) Q*Q)⁻¹` is Lipschitz on `[0, ∞)` in the kernel
 norm: `|C_tr(ν₁) - C_tr(ν₂)|(y, y') ≤ K |ν₁ - ν₂| e^{-(r/4) dist(y, y')}`, with `r = lipRate d L`
 and `K = coarseLipConst d L` depending on `d, L` only. -/
-theorem coarseGreen_lipschitz (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν₁ ν₂ a a' : ℝ}
-    (hν₁0 : 0 ≤ ν₁) (hν₁2 : ν₁ ≤ 2) (hν₂0 : 0 ≤ ν₂) (hν₂2 : ν₂ ≤ 2) (ha1 : 1 / 2 ≤ a)
+theorem coarseGreen_lipschitz_of_nonneg (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν₁ ν₂ a a' : ℝ}
+    (hν₁0 : 0 ≤ ν₁) (hν₂0 : 0 ≤ ν₂) (ha1 : 1 / 2 ≤ a)
     (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (y y' : Torus d N₀) :
     |(coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₁ a a')⁻¹ y y' -
         (coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₂ a a')⁻¹ y y'| ≤
@@ -343,8 +343,8 @@ theorem coarseGreen_lipschitz (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {�
   have hℓ : N₀ * L ^ k = L ^ k * N₀ := mul_comm _ _
   set A₁ := coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₁ a a' with hA₁
   set A₂ := coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₂ a a' with hA₂
-  have hu₁ : IsUnit A₁.det := coarseOperator_det_isUnit hd hℓ hN hm hν₁0 hν₁2 ha1 ha'1
-  have hu₂ : IsUnit A₂.det := coarseOperator_det_isUnit hd hℓ hN hm hν₂0 hν₂2 ha1 ha'1
+  have hu₁ : IsUnit A₁.det := coarseOperator_det_isUnit_of_nonneg hd hℓ hN hm hν₁0 ha1 ha'1
+  have hu₂ : IsUnit A₂.det := coarseOperator_det_isUnit_of_nonneg hd hℓ hN hm hν₂0 ha1 ha'1
   have hr := lipRate_pos (L := L) hd
   set r := lipRate d L with hrdef
   have hr1 : r ≤ trRate d L := min_le_left _ _
@@ -361,14 +361,14 @@ theorem coarseGreen_lipschitz (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {�
   have hC₁ : ∀ u v : Torus d N₀, |A₁⁻¹ u v| ≤
       2 * (trGamma d L)⁻¹ * Real.exp (-(r) * torusDist d N₀ u v) := by
     intro u v
-    refine (coarseGreen_decay (L := L) (M := M) hd hk hm hν₁0 hν₁2 ha1 ha2 ha'1 ha'2 u v).trans ?_
+    refine (coarseGreen_decay_of_nonneg (L := L) (M := M) hd hk hm hν₁0 ha1 ha2 ha'1 ha'2 u v).trans ?_
     refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by positivity)
     have := mul_le_mul_of_nonneg_right hr1 (torusDist_nonneg_gen (m := N₀) u v)
     nlinarith
   have hC₂ : ∀ u v : Torus d N₀, |A₂⁻¹ u v| ≤
       2 * (trGamma d L)⁻¹ * Real.exp (-(r) * torusDist d N₀ u v) := by
     intro u v
-    refine (coarseGreen_decay (L := L) (M := M) hd hk hm hν₂0 hν₂2 ha1 ha2 ha'1 ha'2 u v).trans ?_
+    refine (coarseGreen_decay_of_nonneg (L := L) (M := M) hd hk hm hν₂0 ha1 ha2 ha'1 ha'2 u v).trans ?_
     refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by positivity)
     have := mul_le_mul_of_nonneg_right hr1 (torusDist_nonneg_gen (m := N₀) u v)
     nlinarith
@@ -472,6 +472,16 @@ theorem coarseGreen_lipschitz (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {�
   unfold coarseLipConst
   rw [hε, hK]
   ring
+
+
+/-- **G-5(b), `C_tr`**, the case `ν₁, ν₂ ∈ [0, 2]` of `coarseGreen_lipschitz_of_nonneg`. -/
+theorem coarseGreen_lipschitz (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν₁ ν₂ a a' : ℝ}
+    (hν₁0 : 0 ≤ ν₁) (_hν₁2 : ν₁ ≤ 2) (hν₂0 : 0 ≤ ν₂) (_hν₂2 : ν₂ ≤ 2) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (y y' : Torus d N₀) :
+    |(coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₁ a a')⁻¹ y y' -
+        (coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν₂ a a')⁻¹ y y'| ≤
+      |ν₁ - ν₂| * coarseLipConst d L * Real.exp (-(lipRate d L / 4) * torusDist d N₀ y y') :=
+  coarseGreen_lipschitz_of_nonneg hd hk hm hν₁0 hν₂0 ha1 ha2 ha'1 ha'2 y y'
 
 end CoarseGreen
 

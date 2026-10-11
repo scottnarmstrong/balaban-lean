@@ -139,9 +139,9 @@ theorem avg_row_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} (ha : 
         exact mul_le_mul_of_nonneg_right hcm2 hM0
 
 /-- **(4.4).** The Poisson-equation right-hand side `g = -Δũ` at `p ∈ Ω₁` is bounded by
-`|f̃(p)| + 4 ℓ(p)⁻² M` when `‖ũ‖ ≤ M` on the block of `p`. -/
-theorem laplacian_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1) (ha : IsAdmissibleWeights k a) {α : G.Ω 1 → ℂ}
+`|f̃(p)| + (3 + Λ) ℓ(p)⁻² M` when `‖ũ‖ ≤ M` on the block of `p`. -/
+theorem laplacian_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν Λ : ℝ} (hν : 0 ≤ ν)
+    (hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ Λ) (ha : IsAdmissibleWeights k a) {α : G.Ω 1 → ℂ}
     (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
     {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f)
     {p : Torus d (N₀ * L ^ k)} (hp : p ∈ G.Ω 1) {M : ℝ} (hM0 : 0 ≤ M)
@@ -149,7 +149,7 @@ theorem laplacian_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν 
       ‖zeroExt (G.Ω 1) u q‖ ≤ M) :
     ‖∑ μ : Fin d, (2 * zeroExt (G.Ω 1) u p -
         zeroExt (G.Ω 1) u (p + Pi.single μ 1) - zeroExt (G.Ω 1) u (p - Pi.single μ 1))‖ ≤
-      ‖zeroExt (G.Ω 1) f p‖ + 4 * ((G.spacing p) ^ 2)⁻¹ * M := by
+      ‖zeroExt (G.Ω 1) f p‖ + (3 + Λ) * ((G.spacing p) ^ 2)⁻¹ * M := by
   rw [laplacian_eq_of_dirichlet G hu hp]
   have hspk : G.spacing p ≤ (L : ℝ) ^ k := spacing_le G hp
   have hsp0 : 0 < G.spacing p := spacing_pos G
@@ -159,11 +159,12 @@ theorem laplacian_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν 
     have := hM p rfl
     have e : zeroExt (G.Ω 1) u p = u ⟨p, hp⟩ := zeroExt_mem _ _ ⟨p, hp⟩
     rwa [e] at this
-  have hν' : ν ≤ (s ^ 2)⁻¹ := by
-    rw [← one_div, le_div_iff₀ (by positivity)]
+  have hΛ0 : 0 ≤ Λ := le_trans (by positivity) hν1
+  have hν' : ν ≤ Λ * (s ^ 2)⁻¹ := by
+    rw [← div_eq_mul_inv, le_div_iff₀ (by positivity)]
     calc ν * s ^ 2 ≤ ν * ((L : ℝ) ^ k) ^ 2 :=
           mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hsp0.le hspk 2) hν
-      _ ≤ 1 := hν1
+      _ ≤ Λ := hν1
   have hαx : ‖α ⟨p, hp⟩‖ ≤ (s ^ 2)⁻¹ := by
     refine (hα ⟨p, hp⟩).trans ?_
     have h1 : coerciveConst d ≤ 1 / 4 := by
@@ -184,7 +185,7 @@ theorem laplacian_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν 
         refine (norm_sub_le _ _).trans ?_
         gcongr
         exact norm_sub_le _ _
-    _ ≤ ‖f ⟨p, hp⟩‖ + (s ^ 2)⁻¹ * M + (s ^ 2)⁻¹ * M + 2 * (s ^ 2)⁻¹ * M := by
+    _ ≤ ‖f ⟨p, hp⟩‖ + Λ * (s ^ 2)⁻¹ * M + (s ^ 2)⁻¹ * M + 2 * (s ^ 2)⁻¹ * M := by
         gcongr
         · rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hν]
           exact mul_le_mul hν' hux (norm_nonneg _) (by positivity)

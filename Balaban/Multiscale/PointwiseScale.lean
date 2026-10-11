@@ -84,7 +84,7 @@ theorem sqrt_L_pow_eq (hd : 2 ≤ d) (j : ℕ) :
     sqrt_pow_eq' (by positivity)]
   rfl
 
-theorem amp_le {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G) {Mf : ℝ} (hMf0 : 0 ≤ Mf)
+theorem amp_le {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ) {Mf : ℝ} (hMf0 : 0 ≤ Mf)
     (hMf : ∀ i, ‖S.f i‖ ≤ Mf) :
     S.amp ≤ Real.exp (2 * agmonRate d * d) * ((L : ℝ) ^ S.j') ^ 2 * bd d L ^ S.j' * Mf := by
   have h := sqrt_sqNorm_le_of_supp G S.hj'k hMf0 hMf S.hsupp
@@ -98,7 +98,7 @@ theorem amp_le {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G) {Mf : ℝ} (h
     _ = _ := by ring
 
 /-- The scale mismatch: the factor `bd^{j'}` is absorbed by the layer separation. -/
-theorem scale_abs {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G) {j : ℕ} (hj1 : 1 ≤ j)
+theorem scale_abs {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ) {j : ℕ} (hj1 : 1 ≤ j)
     {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j) {t : ℝ} (ht0 : 0 ≤ t)
     (ht : ENNReal.ofReal t ≤ G.pathDist x S.y') :
     ∃ t₂ : ℝ, t ≤ t₂ ∧ ENNReal.ofReal t₂ ≤ G.pathDist x S.y' ∧

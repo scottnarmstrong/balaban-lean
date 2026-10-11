@@ -124,7 +124,7 @@ theorem deltaAt_cauchy (hd : 0 < d) {a ν : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 �
   exact ⟨j₀, fun j₁ hj₁ j₂ hj₂ => hj₀ j₁ hj₁ j₂ hj₂ y (sqBox_mono (le_max_left _ _) hR₁) y'
     (sqBox_mono (le_max_right _ _) hR₂)⟩
 
-theorem greenAt_cauchy (hd : 0 < d) (hk : 1 ≤ k) {a a' ν : ℝ} (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2)
+theorem greenAt_cauchy_of_nonneg (hd : 0 < d) (hk : 1 ≤ k) {a a' ν : ℝ} (hν0 : 0 ≤ ν)
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (y y' : Fin d → ℤ) :
     ∀ ε > 0, ∃ M₀ : ℕ+, ∀ M₁, M₀ ≤ M₁ → ∀ M₂, M₀ ≤ M₂ →
       |greenAt d L k M₁ ν a a' y y' - greenAt d L k M₂ ν a a' y y'| ≤ ε := by
@@ -132,15 +132,104 @@ theorem greenAt_cauchy (hd : 0 < d) (hk : 1 ≤ k) {a a' ν : ℝ} (hν0 : 0 ≤
   intro ε hε
   obtain ⟨R₁, hR₁⟩ := exists_sqBox y
   obtain ⟨R₂, hR₂⟩ := exists_sqBox y'
-  obtain ⟨j₀, hj₀⟩ := coarseGreen_cauchy (d := d) (L := L) (k := k) hd hk hν0 hν2 ha1 ha2 ha'1
+  obtain ⟨j₀, hj₀⟩ := coarseGreen_cauchy_of_nonneg (d := d) (L := L) (k := k) hd hk hν0 ha1 ha2 ha'1
     ha'2 (max R₁ R₂) ε hε
   exact ⟨j₀, fun j₁ hj₁ j₂ hj₂ => hj₀ j₁ hj₁ j₂ hj₂ y (sqBox_mono (le_max_left _ _) hR₁) y'
     (sqBox_mono (le_max_right _ _) hR₂)⟩
 
+theorem greenAt_cauchy (hd : 0 < d) (hk : 1 ≤ k) {a a' ν : ℝ} (hν0 : 0 ≤ ν) (_hν2 : ν ≤ 2)
+    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (y y' : Fin d → ℤ) :
+    ∀ ε > 0, ∃ M₀ : ℕ+, ∀ M₁, M₀ ≤ M₁ → ∀ M₂, M₀ ≤ M₂ →
+      |greenAt d L k M₁ ν a a' y y' - greenAt d L k M₂ ν a a' y y'| ≤ ε :=
+  greenAt_cauchy_of_nonneg hd hk hν0 ha1 ha2 ha'1 ha'2 y y'
+
 /-- **G-5(c), uniqueness.**  The entries of `a G Q*`, `Δ_tr` and `C_tr` at sites of `ℤ^d` converge,
-for every `ν ∈ [0, 2]`, along *every* sequence of tori of side `L M_n`, `M_n → ∞`; the limits do
+for every `ν ∈ [0, νmax]`, along *every* sequence of tori of side `L M_n`, `M_n → ∞`; the limits do
 not depend on the sequence, and satisfy the decay bounds of (a) and the Lipschitz bounds of (b)
 (`Balaban.Green.infiniteVolume_limits`, whose statement this strengthens). -/
+theorem infiniteVolume_limits_unique_le (νmax : ℝ) (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) :
+    ∃ Kinf Dinf Cinf : ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ,
+      (∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
+        ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
+        Tendsto (fun n => fineKernelAt d L k (M n) ν a y y') atTop (𝓝 (Kinf ν y y')) ∧
+        Tendsto (fun n => deltaAt d L k (M n) ν a y y') atTop (𝓝 (Dinf ν y y')) ∧
+        Tendsto (fun n => greenAt d L k (M n) ν a a' y y') atTop (𝓝 (Cinf ν y y'))) ∧
+      (∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
+        ∑ x ∈ intFibre (L ^ k) y, (Kinf ν x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
+            (a * blockDecayConst d L * Real.exp (-(blockDecayRate d * l1IntDist d y y'))) ^ 2 ∧
+        |Dinf ν y y'| ≤ (2 + 4 * blockDecayConst d L) *
+            Real.exp (-(blockDecayRate d * l1IntDist d y y')) ∧
+        |Cinf ν y y'| ≤ 2 * (trGamma d L)⁻¹ * Real.exp (-(trRate d L * l1IntDist d y y'))) ∧
+      (∀ ν₁ ∈ Set.Icc (0 : ℝ) νmax, ∀ ν₂ ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
+        ∑ x ∈ intFibre (L ^ k) y, (Kinf ν₁ x y' - Kinf ν₂ x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
+            (a * (|ν₁ - ν₂| * massLipConst d L *
+              Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y'))) ^ 2 ∧
+        |Dinf ν₁ y y' - Dinf ν₂ y y'| ≤ 4 * (|ν₁ - ν₂| * massLipConst d L *
+            Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y')) ∧
+        |Cinf ν₁ y y' - Cinf ν₂ y y'| ≤ |ν₁ - ν₂| * coarseLipConst d L *
+            Real.exp (-(lipRate d L / 4) * l1IntDist d y y')) := by
+  classical
+  have hKc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) νmax →
+      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
+        Tendsto (fun n => fineKernelAt d L k (M n) ν a x y') atTop (𝓝 l) := by
+    intro ν x y'
+    by_cases hν : ν ∈ Set.Icc (0 : ℝ) νmax
+    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => fineKernelAt d L k M ν a x y')
+        (fineKernelAt_cauchy hd hν.1 ha1 ha2 x y')
+      exact ⟨l, fun _ => hl⟩
+    · exact ⟨0, fun h => absurd h hν⟩
+  have hDc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) νmax →
+      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
+        Tendsto (fun n => deltaAt d L k (M n) ν a x y') atTop (𝓝 l) := by
+    intro ν x y'
+    by_cases hν : ν ∈ Set.Icc (0 : ℝ) νmax
+    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => deltaAt d L k M ν a x y')
+        (deltaAt_cauchy hd hν.1 ha1 ha2 x y')
+      exact ⟨l, fun _ => hl⟩
+    · exact ⟨0, fun h => absurd h hν⟩
+  have hCc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) νmax →
+      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
+        Tendsto (fun n => greenAt d L k (M n) ν a a' x y') atTop (𝓝 l) := by
+    intro ν x y'
+    by_cases hν : ν ∈ Set.Icc (0 : ℝ) νmax
+    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => greenAt d L k M ν a a' x y')
+        (greenAt_cauchy_of_nonneg hd hk hν.1 ha1 ha2 ha'1 ha'2 x y')
+      exact ⟨l, fun _ => hl⟩
+    · exact ⟨0, fun h => absurd h hν⟩
+  choose Kinf hKinf using hKc
+  choose Dinf hDinf using hDc
+  choose Cinf hCinf using hCc
+  -- the bounds, from the subsequential limits
+  have hM0 : Tendsto (fun n : ℕ => ((Nat.succPNat n : ℕ+) : ℕ)) atTop atTop :=
+    tendsto_atTop_mono (fun n => by simp) tendsto_id
+  obtain ⟨φ, hφ, K', D', C', hconv, hbd, hlip⟩ :=
+    infiniteVolume_limits_le (L := L) (k := k) νmax hd hk ha1 ha2 ha'1 ha'2 (fun n => Nat.succPNat n) hM0
+  have hMφ : Tendsto (fun n : ℕ => ((Nat.succPNat (φ n) : ℕ+) : ℕ)) atTop atTop :=
+    hM0.comp hφ.tendsto_atTop
+  have eK : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ x y', K' ν x y' = Kinf ν x y' := fun ν hν x y' =>
+    tendsto_nhds_unique (hconv ν hν x y').1 (hKinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
+  have eD : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ x y', D' ν x y' = Dinf ν x y' := fun ν hν x y' =>
+    tendsto_nhds_unique (hconv ν hν x y').2.1
+      (hDinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
+  have eC : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ x y', C' ν x y' = Cinf ν x y' := fun ν hν x y' =>
+    tendsto_nhds_unique (hconv ν hν x y').2.2
+      (hCinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
+  refine ⟨Kinf, Dinf, Cinf, ?_, ?_, ?_⟩
+  · intro M hM ν hν y y'
+    exact ⟨hKinf ν y y' hν M hM, hDinf ν y y' hν M hM, hCinf ν y y' hν M hM⟩
+  · intro ν hν y y'
+    have h := hbd ν hν y y'
+    simp only [eK ν hν, eD ν hν, eC ν hν] at h
+    exact h
+  · intro ν₁ hν₁ ν₂ hν₂ y y'
+    have h := hlip ν₁ hν₁ ν₂ hν₂ y y'
+    simp only [eK ν₁ hν₁, eK ν₂ hν₂, eD ν₁ hν₁, eD ν₂ hν₂, eC ν₁ hν₁, eC ν₂ hν₂] at h
+    exact h
+
+
+/-- **G-5(c), uniqueness** for `ν ∈ [0, 2]`: the case `νmax = 2` of
+`infiniteVolume_limits_unique_le`. -/
 theorem infiniteVolume_limits_unique (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 / 2 ≤ a)
     (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) :
     ∃ Kinf Dinf Cinf : ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ,
@@ -162,64 +251,8 @@ theorem infiniteVolume_limits_unique (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (h
         |Dinf ν₁ y y' - Dinf ν₂ y y'| ≤ 4 * (|ν₁ - ν₂| * massLipConst d L *
             Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y')) ∧
         |Cinf ν₁ y y' - Cinf ν₂ y y'| ≤ |ν₁ - ν₂| * coarseLipConst d L *
-            Real.exp (-(lipRate d L / 4) * l1IntDist d y y')) := by
-  classical
-  have hKc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) 2 →
-      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
-        Tendsto (fun n => fineKernelAt d L k (M n) ν a x y') atTop (𝓝 l) := by
-    intro ν x y'
-    by_cases hν : ν ∈ Set.Icc (0 : ℝ) 2
-    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => fineKernelAt d L k M ν a x y')
-        (fineKernelAt_cauchy hd hν.1 ha1 ha2 x y')
-      exact ⟨l, fun _ => hl⟩
-    · exact ⟨0, fun h => absurd h hν⟩
-  have hDc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) 2 →
-      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
-        Tendsto (fun n => deltaAt d L k (M n) ν a x y') atTop (𝓝 l) := by
-    intro ν x y'
-    by_cases hν : ν ∈ Set.Icc (0 : ℝ) 2
-    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => deltaAt d L k M ν a x y')
-        (deltaAt_cauchy hd hν.1 ha1 ha2 x y')
-      exact ⟨l, fun _ => hl⟩
-    · exact ⟨0, fun h => absurd h hν⟩
-  have hCc : ∀ (ν : ℝ) (x y' : Fin d → ℤ), ∃ l : ℝ, ν ∈ Set.Icc (0 : ℝ) 2 →
-      ∀ M : ℕ → ℕ+, Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop →
-        Tendsto (fun n => greenAt d L k (M n) ν a a' x y') atTop (𝓝 l) := by
-    intro ν x y'
-    by_cases hν : ν ∈ Set.Icc (0 : ℝ) 2
-    · obtain ⟨l, hl⟩ := exists_tendsto_of_cauchy_pnat (fun M => greenAt d L k M ν a a' x y')
-        (greenAt_cauchy hd hk hν.1 hν.2 ha1 ha2 ha'1 ha'2 x y')
-      exact ⟨l, fun _ => hl⟩
-    · exact ⟨0, fun h => absurd h hν⟩
-  choose Kinf hKinf using hKc
-  choose Dinf hDinf using hDc
-  choose Cinf hCinf using hCc
-  -- the bounds, from the subsequential limits
-  have hM0 : Tendsto (fun n : ℕ => ((Nat.succPNat n : ℕ+) : ℕ)) atTop atTop :=
-    tendsto_atTop_mono (fun n => by simp) tendsto_id
-  obtain ⟨φ, hφ, K', D', C', hconv, hbd, hlip⟩ :=
-    infiniteVolume_limits (L := L) (k := k) hd hk ha1 ha2 ha'1 ha'2 (fun n => Nat.succPNat n) hM0
-  have hMφ : Tendsto (fun n : ℕ => ((Nat.succPNat (φ n) : ℕ+) : ℕ)) atTop atTop :=
-    hM0.comp hφ.tendsto_atTop
-  have eK : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ x y', K' ν x y' = Kinf ν x y' := fun ν hν x y' =>
-    tendsto_nhds_unique (hconv ν hν x y').1 (hKinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
-  have eD : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ x y', D' ν x y' = Dinf ν x y' := fun ν hν x y' =>
-    tendsto_nhds_unique (hconv ν hν x y').2.1
-      (hDinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
-  have eC : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ x y', C' ν x y' = Cinf ν x y' := fun ν hν x y' =>
-    tendsto_nhds_unique (hconv ν hν x y').2.2
-      (hCinf ν x y' hν (fun n => Nat.succPNat (φ n)) hMφ)
-  refine ⟨Kinf, Dinf, Cinf, ?_, ?_, ?_⟩
-  · intro M hM ν hν y y'
-    exact ⟨hKinf ν y y' hν M hM, hDinf ν y y' hν M hM, hCinf ν y y' hν M hM⟩
-  · intro ν hν y y'
-    have h := hbd ν hν y y'
-    simp only [eK ν hν, eD ν hν, eC ν hν] at h
-    exact h
-  · intro ν₁ hν₁ ν₂ hν₂ y y'
-    have h := hlip ν₁ hν₁ ν₂ hν₂ y y'
-    simp only [eK ν₁ hν₁, eK ν₂ hν₂, eD ν₁ hν₁, eD ν₂ hν₂, eC ν₁ hν₁, eC ν₂ hν₂] at h
-    exact h
+            Real.exp (-(lipRate d L / 4) * l1IntDist d y y')) :=
+  infiniteVolume_limits_unique_le 2 hd hk ha1 ha2 ha'1 ha'2
 
 end Main
 

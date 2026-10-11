@@ -59,7 +59,7 @@ theorem pathDist_lift_le (G : GeneratingSet d L N₀ k ϱ) (hϱ : 1 ≤ ϱ) {j :
         gcongr
         exact natAbs_sum_le_card_mul z
 
-theorem rho_large {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G) : 2 * (d : ℝ) + 1 < ϱ - 1 := by
+theorem rho_large {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ) : 2 * (d : ℝ) + 1 < ϱ - 1 := by
   have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast S.hL
   have h1 : Real.exp (d : ℝ) ≤ (L : ℝ) ^ d := by
     rw [← Real.exp_one_pow]
@@ -94,7 +94,7 @@ theorem two_mul_lt_side (hL : 3 ≤ L) [NeZero N₀] {j : ℕ} (hj1 : 1 ≤ j) (
   nlinarith [pow_nonneg (by linarith : (0 : ℝ) ≤ L) k]
 
 /-- The `ℓ²` mass of `ũ` on a lifted ball, via the weighted Agmon bound. -/
-theorem ball_sq_bound {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G) {j : ℕ} (hj2 : 2 ≤ j)
+theorem ball_sq_bound {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ) {j : ℕ} (hj2 : 2 ≤ j)
     (hjk : j ≤ k) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j) {R : ℝ} (hR : 0 ≤ R)
     (hRd : (d : ℝ) * R ≤ (L : ℝ) ^ (j - 1)) {t : ℝ} (ht0 : 0 ≤ t)
     (ht : ENNReal.ofReal t ≤ G.pathDist x S.y') :

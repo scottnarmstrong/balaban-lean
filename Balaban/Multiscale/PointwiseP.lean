@@ -15,7 +15,7 @@ For `u = G_D(α) f`, `f` supported in the `j'`-block of `y'`, and `U(x) = |ũ(x)
 `U(x) ≤ K₁ e^{-(ε₀/2) t} ℓ_{j'}² ‖f‖_∞ + θ* M`
 
 for every `0 ≤ t ≤ d(x, y')` and every `M` bounding `U` on the `(2d+1)`-neighbourhood of `x`
-(path metric), with `θ* = ¼ e^{-(ε₀/2)(2d+1)}` and `K₁` depending only on `d` and `L`.
+(path metric), with `θ* = ¼ e^{-(ε₀/2)(2d+1)}` and `K₁` depending only on `d`, `L` and the mass cap `Λ`.
 -/
 
 @[expose] public section
@@ -35,9 +35,9 @@ theorem thetaStar_pos (d : ℕ) : 0 < thetaStar d := by
   unfold thetaStar; positivity
 
 /-- **Lemma P** (GREEN.md (4.3)). -/
-theorem lemmaP (hd : 3 ≤ d) (hL : 3 ≤ L) :
+theorem lemmaP (hd : 3 ≤ d) (hL : 3 ≤ L) (Λ : ℝ) (hΛ : 0 ≤ Λ) :
     ∃ K1 : ℝ, 0 ≤ K1 ∧ ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ)
-      (S : PtSetting G) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) → ∀ {x : Torus d (N₀ * L ^ k)},
+      (S : PtSetting G Λ) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) → ∀ {x : Torus d (N₀ * L ^ k)},
       x ∈ G.Ω 1 → ∀ {t : ℝ}, 0 ≤ t → ENNReal.ofReal t ≤ G.pathDist x S.y' → ∀ {M : ℝ}, 0 ≤ M →
       (∀ z ∈ G.Ω 1, G.pathDist z x ≤ ENNReal.ofReal (2 * d + 1) → S.U z ≤ M) →
       S.U x ≤ K1 * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * S.j') * Mf) +
@@ -50,16 +50,16 @@ theorem lemmaP (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hL0 : (0 : ℝ) < L := by linarith
   have hc := poincareConst_pos (by omega : 0 < d)
   have hθ := thetaStar_pos d
-  set CG := cG * (36 + 12 * L) + 1 with hCG
+  set CG := cG * ((3 + Λ) * (9 + 3 * L)) + 1 with hCG
   have hCG0 : 0 < CG := by positivity
   set c0 := min (1 / 4 : ℝ) (thetaStar d / CG) with hc0def
   have hc0 : 0 < c0 := lt_min (by norm_num) (by positivity)
   have hc04 : c0 ≤ 1 / 4 := min_le_left _ _
-  have hc0θ : cG * (36 + 12 * L) * c0 ≤ thetaStar d := by
+  have hc0θ : cG * ((3 + Λ) * (9 + 3 * L)) * c0 ≤ thetaStar d := by
     have h1 : c0 ≤ thetaStar d / CG := min_le_right _ _
     have h2 : c0 * CG ≤ thetaStar d := by
       rwa [le_div_iff₀ hCG0] at h1
-    have h3 : cG * (36 + 12 * L) * c0 ≤ CG * c0 := by
+    have h3 : cG * ((3 + Λ) * (9 + 3 * L)) * c0 ≤ CG * c0 := by
       rw [hCG]; nlinarith
     nlinarith
   set J0 := 8 * d * L / c0 with hJ0
@@ -102,7 +102,7 @@ theorem lemmaP (hd : 3 ≤ d) (hL : 3 ≤ L) :
         max Kc1 Kc2 * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * S.j') * Mf) := by
       rw [mul_assoc, mul_assoc]
       exact mul_le_mul_of_nonneg_right (le_max_right _ _) hFnn
-    have h4 : cG * (36 + 12 * L) * c0 * M ≤ thetaStar d * M :=
+    have h4 : cG * ((3 + Λ) * (9 + 3 * L)) * c0 * M ≤ thetaStar d * M :=
       mul_le_mul_of_nonneg_right hc0θ hM0
     linarith
   · -- Case 1
