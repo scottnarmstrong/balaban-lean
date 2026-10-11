@@ -119,3 +119,4 @@
 | 2026-10-11 | W34 C1Star fix | running | Sonnet; F-B, O-02, F-A in `C1Star.lean` + Root-C proof adaptation; `rootC_of_rootFAndC1Star` type unchanged |
 | 2026-10-11 | W28 composition domains | landed | `lemma62` (composed real datum ∈ Ψ̃(𝔹_j; C₄K₁δ), C₄ = 4d+8), `lemma63`/`lemma63_inDomainC` (complex), `composeData_isReal`, `compWeight_kappa_mem`, `scaledComposition` ((R-S) as `ScaledPsiC`, C₀ = 8d+12; needs |φc−φr|₀ ≤ ε and a restricted pair: flag to SMALLFIELD) (≈2,830 lines) |
 | 2026-10-11 | W35 Theorem 7.3 | running | Sonnet; I-2 for bgField/bgFieldC (composition identities (4.39), domains, 𝒮 uniqueness, Prop 6.4) |
+| 2026-10-11 | W32 localization cover | landed | `CubeAligned`, `dropTop`, `chi` (`sum_chi` (Cov1), support (Cov2), `chi_diff` (Cov3) incl. layer interfaces, `inBox_cov4`), `card_inBox_le` (c_d′ = 3·5^d), `card_Qset_le` (N₀ ≤ 3(8L)^d), `norm_sProd_le`, `cutCommutator_bound` (K) (≈1,780 lines); K^♭ for dropTop open |
