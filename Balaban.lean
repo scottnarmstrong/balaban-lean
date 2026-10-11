@@ -25,6 +25,7 @@ public import Balaban.Gaussian.Measure
 public import Balaban.Gaussian.Schur
 public import Balaban.Gaussian.BlockSpin
 public import Balaban.Gaussian.Multiscale
+public import Balaban.Gaussian.Prolongation
 public import Balaban.Lattice.Laplacian
 public import Balaban.Polymer.Ursell
 public import Balaban.Polymer.Cluster
@@ -117,5 +118,6 @@ public import Balaban.Correlations.Estimates
 public import Balaban.Correlations.Box
 public import Balaban.Correlations.Agreement
 public import Balaban.Correlations.Tail
+public import Balaban.Correlations.SumRule
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
