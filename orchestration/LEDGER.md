@@ -23,3 +23,8 @@
 | 2026-10-11 | W2c G-4 tails | landed | `0f2d7b5`: Lemma 4.10 `sum_tail_le`, G-4(b) `domain_difference`, G-4(c) `perturbation_tails`, ℓ¹ ball sums (≈700 lines); axioms standard |
 | 2026-10-11 | D-G Green's function document | final | re-review APPROVE-WITH-CHANGES, N-1..N-6 applied; freeze-candidate list in §3 |
 | 2026-10-11 | W5 constant configs, O(N) reduction | landed | `05e2eb7`: λ=∞ constant configurations (unique minimizer/EL solution, complex analytic extension, P2-type bounds, covariance), analytic O(N) reduction `exists_invariant_reduction` (≈1,700 lines); axioms standard |
+| 2026-10-11 | W8a multiscale coercivity | landed | `7130c2c`: `GeneratingSet`, layers, spacing, averaging form (1.4), `dirichletOperator` (1.6), `pathDist` (1.9), `multiscale_coercive` (c₁ = 1/(2d)), invertibility (≈750 lines) |
+| 2026-10-11 | W3b polymer expansion | landed | `9c1989a`: abstract KP theorem (`pe_xi_eq_exp`, `pe_clusterBound`, `pe_PY_bound`, one-parameter `pe_differentiableOn`), Ursell sign/tree bound by vertex removal (no BKAR needed), animals for degree-Δ graphs, `pe_lattice`, `pe_blockTorus` (≈3,200 lines); axioms standard |
+| 2026-10-11 | D-C correlations document | revised | review D-01..D-13 addressed; Lean packages A–F startable from Root-F's statement |
+| 2026-10-11 | W8b Agmon decay | landed | `65e44ec`: path-metric bounds (Lemma 4.3), Agmon estimate, block decay, `green_G2i` with scale mismatch (≈2,160 lines) |
+| 2026-10-11 | W10 model basics | landed | sphere-measure invariance, model symmetries, `exists_block_structure` (finite-volume Root-C structure), `analyticOnNhd_logPartition`, derivatives = correlation functions (≈1,100 lines) |
