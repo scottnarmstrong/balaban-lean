@@ -94,6 +94,7 @@ public import Balaban.Multiscale.Counting
 public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
 public import Balaban.Multiscale.XVariantIdentities
+public import Balaban.Multiscale.XVariant
 public import Balaban.Model.SphereMeasure
 public import Balaban.Model.Symmetry
 public import Balaban.Model.BlockStructure
