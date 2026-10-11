@@ -223,7 +223,7 @@ theorem Ψ_chain (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν δ ε
   obtain ⟨hl1, hl2⟩ := active_layer_bounds G S.hϱ S.hd (by have := S.hL; omega) (by omega) hnk hx
     (torusDist_self_le x) hq
   obtain ⟨t, u, ht, hz, hj, hd⟩ := active_lift G hqi hne
-  set z : Torus d (N₀ * L ^ k) := castTorus u with hzdef
+  set z : Torus d (N₀ * L ^ k) := intTorus u with hzdef
   have hzΩ : z ∈ G.Ω q.1 := (G.mem_layer.1 hz).1
   have hxΩ : x ∈ G.Ω n := (G.mem_layer.1 hx).1
   let E := EuclideanSpace ℂ (Fin N)

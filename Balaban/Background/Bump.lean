@@ -290,7 +290,7 @@ coordinate. -/
 theorem exists_lift_near {m : ℕ} (hm : m ≤ k) {y0 x : Torus d (N₀ * L ^ k)} (hb : IsBase m y0)
     (hne : bump m y0 x ≠ 0) :
     ∃ t u : Fin d → ℤ, (∀ μ, ((t μ : ℤ) : ZMod (N₀ * L ^ k)) = x μ) ∧
-      jBlock d L N₀ k m (castTorus u) = jBlock d L N₀ k m y0 ∧
+      jBlock d L N₀ k m (intTorus u) = jBlock d L N₀ k m y0 ∧
       ∀ μ, (t μ - u μ).natAbs ≤ L ^ m := by
   have hlam : 0 < L ^ m := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) m
   have hlamR : (0 : ℝ) < (L : ℝ) ^ m := by exact_mod_cast hlam
@@ -331,9 +331,9 @@ theorem exists_lift_near {m : ℕ} (hm : m ≤ k) {y0 x : Torus d (N₀ * L ^ k)
   · intro μ
     simp only [ht]
     rw [Int.cast_add, Int.cast_mul, hS0, mul_zero, add_zero, hX x μ]
-  · have hy : (castTorus (fun μ => ((y0 μ).val : ℤ)) : Torus d (N₀ * L ^ k)) = y0 := by
-      funext μ; rw [castTorus_apply]; exact hX y0 μ
-    have key := jBlock_castTorus_eq (d := d) (L := L) (N₀ := N₀) (k := k) hm u
+  · have hy : (intTorus (fun μ => ((y0 μ).val : ℤ)) : Torus d (N₀ * L ^ k)) = y0 := by
+      funext μ; rw [intTorus_apply]; exact hX y0 μ
+    have key := jBlock_intTorus_eq (d := d) (L := L) (N₀ := N₀) (k := k) hm u
       (fun μ => ((y0 μ).val : ℤ)) fun μ => ?_
     · rwa [hy] at key
     have hq := natCast_val_eq_div_mul hb μ

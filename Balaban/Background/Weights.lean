@@ -127,8 +127,8 @@ coordinate) of a lift of `x'`. -/
 theorem active_lift {q : ℕ × Torus d (N₀ * L ^ k)} (hq : q ∈ blockIdx G)
     {x' : Torus d (N₀ * L ^ k)} (h : bump q.1 q.2 x' ≠ 0) :
     ∃ t u : Fin d → ℤ, (∀ μ, ((t μ : ℤ) : ZMod (N₀ * L ^ k)) = x' μ) ∧
-      (castTorus u : Torus d (N₀ * L ^ k)) ∈ G.layer q.1 ∧
-      jBlock d L N₀ k q.1 (castTorus u) = jBlock d L N₀ k q.1 q.2 ∧
+      (intTorus u : Torus d (N₀ * L ^ k)) ∈ G.layer q.1 ∧
+      jBlock d L N₀ k q.1 (intTorus u) = jBlock d L N₀ k q.1 q.2 ∧
       ∀ μ, (t μ - u μ).natAbs ≤ L ^ q.1 := by
   obtain ⟨⟨hm1, hmk⟩, hl, hb⟩ := (mem_blockIdx G).1 hq
   obtain ⟨t, u, ht, hj, hd⟩ := exists_lift_near hmk hb h
@@ -138,7 +138,7 @@ theorem active_dist {q : ℕ × Torus d (N₀ * L ^ k)} (hq : q ∈ blockIdx G)
     {x' : Torus d (N₀ * L ^ k)} (h : bump q.1 q.2 x' ≠ 0) :
     ∃ z ∈ G.layer q.1, Green.torusDist d (N₀ * L ^ k) x' z ≤ d * (L : ℝ) ^ q.1 := by
   obtain ⟨t, u, ht, hz, -, hd⟩ := active_lift G hq h
-  refine ⟨castTorus u, hz, (torusDist_le_of_lift t u ht (fun _ => rfl)).trans ?_⟩
+  refine ⟨intTorus u, hz, (torusDist_le_of_lift t u ht (fun _ => rfl)).trans ?_⟩
   calc ∑ μ, ((t μ - u μ).natAbs : ℝ) ≤ ∑ _μ : Fin d, (L : ℝ) ^ q.1 :=
         Finset.sum_le_sum fun μ _ => by exact_mod_cast hd μ
     _ = d * (L : ℝ) ^ q.1 := by simp

@@ -36,7 +36,7 @@ noncomputable def residual (D : BgData G N) (φ : Torus d (N₀ * L ^ k) → Fin
 
 variable {G a ν}
 
-theorem zeroExt_add_collar (D : BgData G N) (φ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (i : Fin N)
+theorem zeroExt_add_collar_field (D : BgData G N) (φ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (i : Fin N)
     {x y : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) (hxy : Adj x y) :
     zeroExt (G.Ω 1) (fun z : G.Ω 1 => φ z.1 i) y +
       (if y ∈ collar G then D.Ψ y i else 0) =
@@ -86,8 +86,8 @@ theorem residual_apply (D : BgData G N) (φ : Torus d (N₀ * L ^ k) → Fin N �
         (if x.1 - Pi.single μ 1 ∈ collar G then
           D.Ψ (x.1 - Pi.single μ 1) i - φ (x.1 - Pi.single μ 1) i else 0)) := by
     intro μ
-    have h1 := zeroExt_add_collar D φ i hx (adj_add x.1 μ)
-    have h2 := zeroExt_add_collar D φ i hx (adj_sub x.1 μ)
+    have h1 := zeroExt_add_collar_field D φ i hx (adj_add x.1 μ)
+    have h2 := zeroExt_add_collar_field D φ i hx (adj_sub x.1 μ)
     linear_combination h1 + h2
   have hsum := Finset.sum_congr (rfl : (univ : Finset (Fin d)) = univ) fun μ _ => key μ
   rw [hxx]

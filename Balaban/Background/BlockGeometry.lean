@@ -47,13 +47,13 @@ theorem torusDist_le_of_lift {m : ℕ} [NeZero m] {x z : Torus d m} (t u : Fin d
   exact_mod_cast this
 
 /-- The lift of an arbitrary integer vector to the torus. -/
-def castTorus {m : ℕ} (w : Fin d → ℤ) : Torus d m := fun μ => ((w μ : ℤ) : ZMod m)
+def intTorus {m : ℕ} (w : Fin d → ℤ) : Torus d m := fun μ => ((w μ : ℤ) : ZMod m)
 
-theorem castTorus_apply {m : ℕ} (w : Fin d → ℤ) (μ : Fin d) :
-    (castTorus w : Torus d m) μ = ((w μ : ℤ) : ZMod m) := rfl
+theorem intTorus_apply {m : ℕ} (w : Fin d → ℤ) (μ : Fin d) :
+    (intTorus w : Torus d m) μ = ((w μ : ℤ) : ZMod m) := rfl
 
-theorem torusDist_castTorus_le {m : ℕ} [NeZero m] (w t : Fin d → ℤ) :
-    Green.torusDist d m (castTorus w) (castTorus t) ≤ ∑ μ, ((w μ - t μ).natAbs : ℝ) :=
+theorem torusDist_intTorus_le {m : ℕ} [NeZero m] (w t : Fin d → ℤ) :
+    Green.torusDist d m (intTorus w) (intTorus t) ≤ ∑ μ, ((w μ - t μ).natAbs : ℝ) :=
   torusDist_le_of_lift w t (fun _ => rfl) (fun _ => rfl)
 
 end Distance
@@ -194,13 +194,13 @@ theorem blockCoord_intCast {S m lam : ℕ} [NeZero S] [NeZero m] (hS : S = lam *
   push_cast
   simp
 
-theorem jBlock_castTorus_eq {j : ℕ} (hjk : j ≤ k) (w w' : Fin d → ℤ)
+theorem jBlock_intTorus_eq {j : ℕ} (hjk : j ≤ k) (w w' : Fin d → ℤ)
     (h : ∀ μ, w μ / ((L ^ j : ℕ) : ℤ) = w' μ / ((L ^ j : ℕ) : ℤ)) :
-    jBlock d L N₀ k j (castTorus w) = jBlock d L N₀ k j (castTorus w') := by
+    jBlock d L N₀ k j (intTorus w) = jBlock d L N₀ k j (intTorus w') := by
   have hLj : 0 < L ^ j := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) j
   funext μ
   unfold jBlock
-  rw [Balaban.blockMap_apply, Balaban.blockMap_apply, castTorus_apply, castTorus_apply,
+  rw [Balaban.blockMap_apply, Balaban.blockMap_apply, intTorus_apply, intTorus_apply,
     blockCoord_intCast (side_eq hjk) hLj, blockCoord_intCast (side_eq hjk) hLj, h μ]
 
 variable {V : Type*} [SeminormedAddCommGroup V]
@@ -282,13 +282,13 @@ theorem chain_box (G : GeneratingSet d L N₀ k ϱ) (f : Torus d (N₀ * L ^ k) 
       jBlock d L N₀ k (n - 1) y = jBlock d L N₀ k (n - 1) y' → f y' = f y)
     (t u : Fin d → ℤ)
     (hbox : ∀ w : Fin d → ℤ, (∀ μ, min (t μ) (u μ) ≤ w μ ∧ w μ ≤ max (t μ) (u μ)) →
-      (castTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1)) :
-    ‖f (castTorus u) - f (castTorus t)‖ ≤
+      (intTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1)) :
+    ‖f (intTorus u) - f (intTorus t)‖ ≤
       E * ∑ μ, (((t μ - u μ).natAbs : ℝ) / (L : ℝ) ^ (n - 1) + 1) := by
   classical
   have hLpos : 0 < L ^ (n - 1) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
   set W : Finset (Fin d) → Fin d → ℤ := fun s μ => if μ ∈ s then u μ else t μ with hW
-  have key : ∀ s : Finset (Fin d), ‖f (castTorus (W s)) - f (castTorus t)‖ ≤
+  have key : ∀ s : Finset (Fin d), ‖f (intTorus (W s)) - f (intTorus t)‖ ≤
       E * ∑ μ ∈ s, (((t μ - u μ).natAbs : ℝ) / (L : ℝ) ^ (n - 1) + 1) := by
     intro s
     induction s using Finset.induction_on with
@@ -306,9 +306,9 @@ theorem chain_box (G : GeneratingSet d L N₀ k ϱ) (f : Torus d (N₀ * L ^ k) 
         by_cases h : ν = μ
         · subst h; simp [hW, hμ]
         · simp [h]
-      set g : ℤ → V := fun i => f (castTorus (Function.update (W s) μ i)) with hg
+      set g : ℤ → V := fun i => f (intTorus (Function.update (W s) μ i)) with hg
       have hbox' : ∀ i, min (t μ) (u μ) ≤ i → i ≤ max (t μ) (u μ) →
-          (castTorus (Function.update (W s) μ i) : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
+          (intTorus (Function.update (W s) μ i) : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
         intro i h1 h2
         refine hbox _ fun ν => ?_
         by_cases h : ν = μ
@@ -322,22 +322,22 @@ theorem chain_box (G : GeneratingSet d L N₀ k ϱ) (f : Torus d (N₀ * L ^ k) 
           refine hstep _ _ (hbox' i h1 h2.le) (hbox' (i + 1) (by omega) (by omega)) ⟨μ, Or.inl ?_⟩
           funext ν
           by_cases h : ν = μ
-          · subst h; simp [castTorus]
-          · simp [castTorus, Function.update_of_ne h, Pi.single_eq_of_ne h])
+          · subst h; simp [intTorus]
+          · simp [intTorus, Function.update_of_ne h, Pi.single_eq_of_ne h])
         (fun i h1 h2 hc => by
           refine hcell _ _ (hbox' i h1 h2.le) (hbox' (i + 1) (by omega) (by omega)) ?_
-          refine jBlock_castTorus_eq (by omega) _ _ fun ν => ?_
+          refine jBlock_intTorus_eq (by omega) _ _ fun ν => ?_
           by_cases h : ν = μ
           · subst h; simpa using hc
           · simp [Function.update_of_ne h])
-      have h1 : g (u μ) = f (castTorus (W (insert μ s))) := by rw [hWs]
-      have h2 : g (t μ) = f (castTorus (W s)) := by
+      have h1 : g (u μ) = f (intTorus (W (insert μ s))) := by rw [hWs]
+      have h2 : g (t μ) = f (intTorus (W s)) := by
         simp only [hg]; rw [← hWs']
       rw [h1, h2] at hline
       rw [Finset.sum_insert hμ, mul_add]
-      calc ‖f (castTorus (W (insert μ s))) - f (castTorus t)‖
-          ≤ ‖f (castTorus (W (insert μ s))) - f (castTorus (W s))‖ +
-            ‖f (castTorus (W s)) - f (castTorus t)‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+      calc ‖f (intTorus (W (insert μ s))) - f (intTorus t)‖
+          ≤ ‖f (intTorus (W (insert μ s))) - f (intTorus (W s))‖ +
+            ‖f (intTorus (W s)) - f (intTorus t)‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
         _ ≤ _ := by
           refine add_le_add ?_ ih
           convert hline using 3
@@ -354,7 +354,7 @@ theorem box_mem_pred (G : GeneratingSet d L N₀ k ϱ) (hϱ : (4 * d * L : ℝ) 
     (t u : Fin d → ℤ) (htx : ∀ μ, ((t μ : ℤ) : ZMod (N₀ * L ^ k)) = x μ)
     (hdist : ∑ μ, ((t μ - u μ).natAbs : ℝ) ≤ 4 * d * (L : ℝ) ^ n) (w : Fin d → ℤ)
     (hw : ∀ μ, min (t μ) (u μ) ≤ w μ ∧ w μ ≤ max (t μ) (u μ)) :
-    (castTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
+    (intTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
   refine mem_pred_of_dist_le G hϱ hn1 hnk hx ((torusDist_le_of_lift t w htx (fun _ => rfl)).trans
     (le_trans (Finset.sum_le_sum fun μ _ => ?_) hdist))
   have := hw μ
@@ -377,8 +377,8 @@ theorem chain_to_block (G : GeneratingSet d L N₀ k ϱ) (hϱ : (4 * d * L : ℝ
     (huz : ∀ μ, ((u μ : ℤ) : ZMod (N₀ * L ^ k)) = z μ)
     (hlift : ∀ μ, (t μ - u μ).natAbs ≤ L ^ m) :
     ‖f z - f x‖ ≤ E * (d * ((L : ℝ) ^ 2 + 1)) := by
-  have hx' : x = castTorus t := funext fun μ => (htx μ).symm
-  have hz' : z = castTorus u := funext fun μ => (huz μ).symm
+  have hx' : x = intTorus t := funext fun μ => (htx μ).symm
+  have hz' : z = intTorus u := funext fun μ => (huz μ).symm
   have hL' : (1 : ℝ) ≤ L := by exact_mod_cast hL
   have hsum : ∑ μ, ((t μ - u μ).natAbs : ℝ) ≤ d * (L : ℝ) ^ m := by
     calc ∑ μ, ((t μ - u μ).natAbs : ℝ) ≤ ∑ _μ : Fin d, (L : ℝ) ^ m :=
@@ -387,7 +387,7 @@ theorem chain_to_block (G : GeneratingSet d L N₀ k ϱ) (hϱ : (4 * d * L : ℝ
   have hLm : (0 : ℝ) ≤ (L : ℝ) ^ m := by positivity
   have hd' : (0 : ℝ) ≤ d := by positivity
   have hbox : ∀ w : Fin d → ℤ, (∀ μ, min (t μ) (u μ) ≤ w μ ∧ w μ ≤ max (t μ) (u μ)) →
-      (castTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
+      (intTorus w : Torus d (N₀ * L ^ k)) ∈ G.Ω (n - 1) := by
     intro w hw
     by_cases hmn' : m ≤ n
     · refine box_mem_pred G hϱ hn1 hnk hx t u htx ?_ w hw
