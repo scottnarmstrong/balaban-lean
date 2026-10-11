@@ -1239,4 +1239,77 @@ theorem dec_Pi_sub {M₀ : ℝ} (hM₀ : 1 ≤ M₀) (hB : D.BaseDec M₀) :
 
 end LocData
 
+/-! ### The locality theorem -/
+
+theorem LocData.BaseDec.mono {d L N : ℕ} [NeZero L] {D : LocData d L N} {C C' : ℝ}
+    (h : D.BaseDec C) (hC : C ≤ C') : D.BaseDec C' :=
+  ⟨h.Gh.mono_const noTail_nonneg hC, h.Gh'.mono_const noTail_nonneg hC,
+    h.Ph.mono_const noTail_nonneg hC, h.Ph'.mono_const noTail_nonneg hC,
+    h.Mi.mono_const noTail_nonneg hC, h.Mi'.mono_const noTail_nonneg hC,
+    h.Nn.mono_const noTail_nonneg hC, h.KG.mono_const noTail_nonneg hC,
+    h.KsGh'.mono_const noTail_nonneg hC, h.Ps.mono_const noTail_nonneg hC,
+    h.Pst.mono_const noTail_nonneg hC, h.D0.mono_const noTail_nonneg hC,
+    h.Xa.mono_const noTail_nonneg hC⟩
+
+/-- **G-2(vi′), locality of the constrained sandwich `Π` (block-operator form).**
+For all data (two instances of the hypotheses of G-2(v), equal off `Z ⊆ Ω₁`, `ϱ` large:
+`log L ≤ (e / (400 d)) (ϱ - 1)`, `e = agmonRate d`) the operator `Π - Π′` lies in
+`Dec 1 (e/12) τ_Z` with a constant `B` depending only on `d, L, N`:
+for blocks `Δ_j(y)`, `Δ_{j'}(y')` and `f` supported in `Δ_{j'}(y')`,
+`‖χ_{Δ_j(y)} (Π - Π′) f‖ ≤ B ℓ_j ℓ_{j'} e^{-(e/12) d(y,y')} e^{-(e/10)(d(y,Z)+d(y',Z))} ‖f‖`. -/
+theorem constrained_locality (d L N : ℕ) [NeZero L] (hd : 0 < d) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ D : LocData d L N,
+      Dec D.G D.sV D.sV (D.Pi - D.Pi') 1 (agmonRate d / 12) (tailZ D.G (locTail d) D.Z) B := by
+  obtain ⟨C0, hC0, hB⟩ := exists_baseDec d L N hd
+  have hM : 1 ≤ max C0 1 := le_max_right _ _
+  refine ⟨9 * lvl d L (max C0 1) 5, ?_, fun D => ?_⟩
+  · have := one_le_lvl (d := d) (L := L) hM 5; linarith
+  · exact D.dec_Pi_sub hM ((hB D).mono (le_max_left _ _))
+
+/-- The explicit form of `constrained_locality`: for `f` supported in the block `Δ_{j'}(y')`,
+`‖χ_{Δ_j(y)} (Π - Π′) f‖ ≤ B ℓ_j ℓ_{j'} e^{-γ (d(y,y') + d(y,Z) + d(y',Z))} ‖f‖`, `γ = e / 12`. -/
+theorem constrained_locality_block (d L N : ℕ) [NeZero L] (hd : 0 < d) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ (D : LocData d L N) (j j' : ℕ) (y y' : Torus d (D.N₀ * L ^ D.k)),
+      1 ≤ j → j ≤ D.k → 1 ≤ j' → j' ≤ D.k → y ∈ D.G.layer j → y' ∈ D.G.layer j' →
+      ∀ f : D.G.Ω 1 × Fin N → ℂ,
+        (∀ p : D.G.Ω 1 × Fin N, f p ≠ 0 →
+          jBlock d L D.N₀ D.k j' (p.1 : Torus d (D.N₀ * L ^ D.k)) = jBlock d L D.N₀ D.k j' y') →
+        bn D.G D.sV j y ((D.Pi - D.Pi') *ᵥ f) ≤
+          B * ((L : ℝ) ^ j * (L : ℝ) ^ j') * decay (agmonRate d / 12) (D.G.pathDist y y') *
+            decay (agmonRate d / 12) (D.G.distSet y D.Z) *
+            decay (agmonRate d / 12) (D.G.distSet y' D.Z) * l2 f := by
+  obtain ⟨B, hB0, hB⟩ := constrained_locality d L N hd
+  refine ⟨B, hB0, fun D j j' y y' hj1 hjk hj'1 hj'k hy hy' f hf => ?_⟩
+  have hbf : bproj D.G D.sV j' y' f = f := by
+    funext p
+    by_cases hp : f p = 0
+    · simp [bproj, hp]
+    · simp [bproj, LocData.sV, hf p hp]
+  have h := hB D j j' y y' hj1 hjk hj'1 hj'k hy hy' f
+  rw [hbf] at h
+  have e1 : bn D.G D.sV j' y' f = l2 f := by
+    unfold bn; rw [hbf]
+  rw [e1, zpow_one] at h
+  refine h.trans ?_
+  have he := agmonRate_pos hd
+  have d1 := decay_anti_rate (c₁ := agmonRate d / 12) (c₂ := locTail d) (by unfold locTail; linarith)
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold tailZ
+  have n1 := decay_nonneg (locTail d) (D.G.distSet y D.Z)
+  have n2 := decay_nonneg (locTail d) (D.G.distSet y' D.Z)
+  have n3 := decay_nonneg (agmonRate d / 12) (D.G.pathDist y y')
+  have n4 := l2_nonneg f
+  have m1 := d1 (D.G.distSet y D.Z)
+  have m2 := d1 (D.G.distSet y' D.Z)
+  have hLL : 0 ≤ B * ((L : ℝ) ^ j * (L : ℝ) ^ j') := by positivity
+  calc B * ((L : ℝ) ^ j * (L : ℝ) ^ j') * decay (agmonRate d / 12) (D.G.pathDist y y') *
+        (decay (locTail d) (D.G.distSet y D.Z) * decay (locTail d) (D.G.distSet y' D.Z)) * l2 f
+      ≤ B * ((L : ℝ) ^ j * (L : ℝ) ^ j') * decay (agmonRate d / 12) (D.G.pathDist y y') *
+        (decay (agmonRate d / 12) (D.G.distSet y D.Z) *
+          decay (agmonRate d / 12) (D.G.distSet y' D.Z)) * l2 f := by
+        have := mul_le_mul m1 m2 n2 (by linarith)
+        exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left this
+          (mul_nonneg hLL n3)) n4
+    _ = _ := by ring
+
 end Balaban.Multiscale
