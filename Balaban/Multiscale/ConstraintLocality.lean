@@ -543,4 +543,253 @@ theorem Pi_sub : D.Pi - D.Pi' =
 
 end LocData
 
+/-! ### Facts about the data -/
+
+section Facts
+
+variable {N : ℕ}
+
+theorem vn_sub_le (u w : Fin N → ℂ) : vn (u - w) ≤ vn u + vn w := by
+  have h := vn_triangle u 0 w
+  rwa [sub_zero, vn_sub_comm 0 w, sub_zero] at h
+
+omit [NeZero N₀] [NeZero L] in
+theorem smooth_sub_grad {δ₁ δ₂ : ℝ} {φ₁ φ₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (x e₁ : Torus d (N₀ * L ^ k)) (s : ℝ)
+    (a1 : vn (φ₁ e₁ - φ₁ x) ≤ δ₁ / s) (a2 : vn (φ₂ e₁ - φ₂ x) ≤ δ₂ / s) :
+    vn ((fun j => φ₁ e₁ j - φ₂ e₁ j) - (fun j => φ₁ x j - φ₂ x j) : Fin N → ℂ) ≤
+      (δ₁ + δ₂) / s := by
+  have e : ((fun j => φ₁ e₁ j - φ₂ e₁ j) - (fun j => φ₁ x j - φ₂ x j) : Fin N → ℂ) =
+      (φ₁ e₁ - φ₁ x) - (φ₂ e₁ - φ₂ x) := by
+    funext j; simp only [Pi.sub_apply]; ring
+  rw [e]
+  refine (vn_sub_le _ _).trans ?_
+  rw [add_div]
+  exact add_le_add a1 a2
+
+theorem IsSmoothField.sub {G : GeneratingSet d L N₀ k ϱ} {δ₁ δ₂ : ℝ}
+    {φ₁ φ₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (h₁ : IsSmoothField G δ₁ φ₁)
+    (h₂ : IsSmoothField G δ₂ φ₂) :
+    IsSmoothField G (δ₁ + δ₂) (fun x j => φ₁ x j - φ₂ x j) := by
+  refine ⟨fun x hx μ => ⟨?_, ?_⟩, fun x hx => ?_⟩
+  · exact smooth_sub_grad _ _ _ (h₁.grad x hx μ).1 (h₂.grad x hx μ).1
+  · exact smooth_sub_grad _ _ _ (h₁.grad x hx μ).2 (h₂.grad x hx μ).2
+  · have a1 := h₁.lap x hx
+    have a2 := h₂.lap x hx
+    have e : (fun i => ∑ μ : Fin d, ((φ₁ (x + Pi.single μ 1) i - φ₂ (x + Pi.single μ 1) i) +
+        (φ₁ (x - Pi.single μ 1) i - φ₂ (x - Pi.single μ 1) i) - 2 * (φ₁ x i - φ₂ x i))) =
+        (fun i => ∑ μ : Fin d, (φ₁ (x + Pi.single μ 1) i + φ₁ (x - Pi.single μ 1) i - 2 * φ₁ x i)) -
+        (fun i => ∑ μ : Fin d, (φ₂ (x + Pi.single μ 1) i + φ₂ (x - Pi.single μ 1) i - 2 * φ₂ x i)) := by
+      funext i
+      simp only [Pi.sub_apply, ← Finset.sum_sub_distrib]
+      refine Finset.sum_congr rfl fun μ _ => ?_
+      ring
+    have key : vn (fun i => ∑ μ : Fin d, ((φ₁ (x + Pi.single μ 1) i - φ₂ (x + Pi.single μ 1) i) +
+        (φ₁ (x - Pi.single μ 1) i - φ₂ (x - Pi.single μ 1) i) - 2 * (φ₁ x i - φ₂ x i))) ≤
+        (δ₁ + δ₂) / G.spacing x ^ 2 := by
+      rw [e]
+      refine (vn_sub_le _ _).trans ?_
+      rw [add_div]
+      exact add_le_add a1 a2
+    exact key
+
+theorem Standing.delta_le_half {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {α : G.Ω 1 → ℂ} {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (St : Standing G a ν α δ φ) : δ ≤ 1 / 2 := by
+  have h2 : 2 ≤ smallnessConst d := by
+    unfold smallnessConst
+    have := poincareConst_inv_nonneg St.pos
+    have hd : (0 : ℝ) ≤ (d : ℝ) ^ 2 := by positivity
+    nlinarith [mul_nonneg hd this]
+  have h := St.small
+  have h0 := St.nonneg
+  by_contra hc
+  push Not at hc
+  nlinarith [mul_le_mul_of_nonneg_left h2 (sq_nonneg δ)]
+
+end Facts
+
+/-! ### Block decay of the basic operators of the data -/
+
+/-- The constant of `green_dec`. -/
+noncomputable def cGreen (d L : ℕ) : ℝ :=
+  13 * L / poincareConst d * (L : ℝ) ^ (((2 : ℤ) - 1).natAbs)
+
+theorem cGreen_nonneg (d L : ℕ) : 0 ≤ cGreen d L := by
+  unfold cGreen poincareConst
+  positivity
+
+theorem locKappa_le_half {d : ℕ} (hd : 0 < d) : locKappa d ≤ agmonRate d / 2 := by
+  have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have he := agmonRate_pos hd
+  unfold locKappa
+  rw [div_le_div_iff₀ (by positivity) (by positivity)]
+  nlinarith
+
+namespace LocData
+
+variable {d L N : ℕ} [NeZero L] (D : LocData d L N)
+
+include D in
+theorem hd : 0 < d := D.St.pos
+
+theorem dec_Gh : Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) Prod.fst D.Gh 1
+    (agmonRate d / 2 - locKappa d) noTail (cGreen d L) :=
+  Dec.lift (G := D.G) (cGreen_nonneg d L) noTail_nonneg
+    (green_dec D.G D.St.pos D.St.mass D.St.weights D.St.alpha D.hϱ D.hlog (locKappa_le_half D.St.pos))
+
+theorem dec_Gh' : Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) Prod.fst D.Gh' 1
+    (agmonRate d / 2 - locKappa d) noTail (cGreen d L) :=
+  Dec.lift (G := D.G) (cGreen_nonneg d L) noTail_nonneg
+    (green_dec D.G D.St'.pos D.St'.mass D.St'.weights D.St'.alpha D.hϱ D.hlog (locKappa_le_half D.St'.pos))
+
+theorem dec_Ph {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) (id : D.G.Ω 1 → D.G.Ω 1) D.Ph 0 γ noTail
+      (3 / 2 * Real.exp (γ * (4 * d))) :=
+  fieldMul_dec (by norm_num) hγ fun x => D.St.field.bound x x.2
+
+theorem dec_Ph' {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) (id : D.G.Ω 1 → D.G.Ω 1) D.Ph' 0 γ noTail
+      (3 / 2 * Real.exp (γ * (4 * d))) :=
+  fieldMul_dec (by norm_num) hγ fun x => D.St'.field.bound x x.2
+
+theorem dec_Pht {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) D.Ph.transpose 0 γ
+      noTail (3 / 2 * Real.exp (γ * (4 * d))) :=
+  fieldMulT_dec (by norm_num) hγ fun x => D.St.field.bound x x.2
+
+theorem dec_Mi : Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (id : D.G.Ω 1 → D.G.Ω 1) D.Mm⁻¹ 0
+    (agmonRate d - locKappa d) noTail (2 * Real.exp (4 * agmonRate d * d) * L) :=
+  constraintM_inv_dec D.St D.hϱ D.hlog
+
+theorem dec_Mi' : Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (id : D.G.Ω 1 → D.G.Ω 1) D.Mm'⁻¹ 0
+    (agmonRate d - locKappa d) noTail (2 * Real.exp (4 * agmonRate d * d) * L) :=
+  constraintM_inv_dec D.St' D.hϱ D.hlog
+
+theorem dec_KG : Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1)
+    (D.K * D.Gh) 0 (agmonRate d - locKappa d) noTail
+    (commDecConst d * D.δ * Real.exp (4 * agmonRate d * d) * L) :=
+  GreenData.commK_green_dec D.St.greenData D.St.field.toIsSmoothField D.St.nonneg D.hϱ D.hlog
+
+theorem Ks_eq : D.Ks = commK D.H' (restrictField D.G D.ψ) := by
+  unfold Ks
+  rw [D.H_eq, commK_add_diagonal]
+
+theorem ψ_smooth : IsSmoothField D.G (D.δ + D.δ) D.ψ :=
+  IsSmoothField.sub D.St.field.toIsSmoothField D.St'.field.toIsSmoothField
+
+theorem dec_KsGh' : Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1)
+    (D.Ks * D.Gh') 0 (agmonRate d - locKappa d) noTail
+    (commDecConst d * (D.δ + D.δ) * Real.exp (4 * agmonRate d * d) * L) := by
+  rw [D.Ks_eq]
+  have h := GreenData.commK_green_dec D.St'.greenData D.ψ_smooth
+    (add_nonneg D.St.nonneg D.St.nonneg) D.hϱ D.hlog
+  exact h
+
+theorem vn_ψ_le (x : D.G.Ω 1) : vn (restrictField D.G D.ψ x) ≤ 3 := by
+  have h1 := D.St.field.bound x x.2
+  have h2 := D.St'.field.bound x x.2
+  have := vn_sub_le (D.φ x) (D.φ' x)
+  have e : restrictField D.G D.ψ x = D.φ x - D.φ' x := rfl
+  rw [e]; linarith
+
+theorem dec_Ps {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) (id : D.G.Ω 1 → D.G.Ω 1) D.Ps 0 γ noTail
+      (3 * Real.exp (γ * (4 * d))) :=
+  fieldMul_dec (by norm_num) hγ D.vn_ψ_le
+
+theorem dec_Pst {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) D.Pst 0 γ noTail
+      (3 * Real.exp (γ * (4 * d))) :=
+  fieldMulT_dec (by norm_num) hγ D.vn_ψ_le
+
+theorem alpha_diff_le (x : D.G.Ω 1) :
+    ‖(D.α - D.α') x‖ ≤ coerciveConst d *
+      ((D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) * D.G.spacing (x : Torus d (D.N₀ * L ^ D.k))) ^
+        (-1 : ℤ)) := by
+  have h1 := D.St.alpha x
+  have h2 := D.St'.alpha x
+  have hs : 0 < D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) := by
+    have := D.G.spacing_ge_one (x : Torus d (D.N₀ * L ^ D.k)); linarith
+  rw [_root_.zpow_neg_one, Pi.sub_apply]
+  refine (norm_sub_le _ _).trans ?_
+  have e : coerciveConst d * (D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) *
+      D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)))⁻¹ =
+      coerciveConst d / (2 * D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) ^ 2) +
+      coerciveConst d / (2 * D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) ^ 2) := by
+    field_simp; ring
+  rw [e]
+  exact add_le_add h1 h2
+
+theorem dec_D0 {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) Prod.fst D.D0 (-1) γ noTail
+      (coerciveConst d * Real.exp (γ * (4 * d))) := by
+  have hc := (coerciveConst_pos D.St.pos).le
+  exact Dec.lift (G := D.G) (by positivity) noTail_nonneg
+    (diagonal_dec hc hγ D.alpha_diff_le)
+
+theorem sigma_diff_le (x : D.G.Ω 1) :
+    ‖∑ i, D.φ' x i * D.φ' x i - ∑ i, D.φ x i * D.φ x i‖ ≤
+      1 * ((D.G.spacing (x : Torus d (D.N₀ * L ^ D.k)) *
+        D.G.spacing (x : Torus d (D.N₀ * L ^ D.k))) ^ (0 : ℤ)) := by
+  have h1 := D.St.field.sq x x.2
+  have h2 := D.St'.field.sq x x.2
+  have h3 := D.St.delta_le_half
+  have e : ∑ i, D.φ' x i * D.φ' x i - ∑ i, D.φ x i * D.φ x i =
+      (∑ i, D.φ' x i * D.φ' x i - 1) - (∑ i, D.φ x i * D.φ x i - 1) := by ring
+  rw [e, zpow_zero]
+  refine (norm_sub_le _ _).trans ?_
+  linarith
+
+theorem dec_Xa {γ : ℝ} (hγ : 0 ≤ γ) :
+    Dec D.G (id : D.G.Ω 1 → D.G.Ω 1) id D.Xa 0 γ noTail (1 * Real.exp (γ * (4 * d))) :=
+  diagonal_dec zero_le_one hγ D.sigma_diff_le
+
+theorem out_D0 : OutNear D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) D.Z (2 * d) D.D0 := by
+  refine OutNear.of_supp D.G fun g p hp => ?_
+  unfold D0 at hp
+  rw [liftOp_diagonal, Matrix.mulVec_diagonal] at hp
+  by_contra hx
+  apply hp
+  simp [D.hZα p.1 hx]
+
+theorem out_Ps : OutNear D.G (Prod.fst : D.G.Ω 1 × Fin N → D.G.Ω 1) D.Z (2 * d) D.Ps := by
+  refine OutNear.of_supp D.G fun g p hp => ?_
+  unfold Ps at hp
+  rw [fieldMul_mulVec] at hp
+  by_contra hx
+  apply hp
+  have : D.ψ (p.1 : Torus d (D.N₀ * L ^ D.k)) p.2 = 0 := by
+    simp [ψ, D.hZφ p.1 hx]
+  simp [restrictField, this]
+
+theorem out_Pst : OutNear D.G (id : D.G.Ω 1 → D.G.Ω 1) D.Z (2 * d) D.Pst := by
+  refine OutNear.of_supp D.G fun g x hp => ?_
+  unfold Pst Ps at hp
+  rw [fieldMul_transpose_mulVec] at hp
+  by_contra hx
+  apply hp
+  refine Finset.sum_eq_zero fun i _ => ?_
+  have : D.ψ (x : Torus d (D.N₀ * L ^ D.k)) i = 0 := by
+    simp [ψ, D.hZφ x hx]
+  simp [restrictField, this]
+
+theorem out_Xa : OutNear D.G (id : D.G.Ω 1 → D.G.Ω 1) D.Z (2 * d) D.Xa := by
+  refine OutNear.of_supp D.G fun g x hp => ?_
+  unfold Xa at hp
+  rw [Matrix.mulVec_diagonal] at hp
+  by_contra hx
+  apply hp
+  have : D.φ' (x : Torus d (D.N₀ * L ^ D.k)) = D.φ x := (D.hZφ x hx).symm
+  simp [this]
+
+theorem out_KsGh' : OutNear D.G (id : D.G.Ω 1 → D.G.Ω 1) D.Z (2 * d + (2 * d + 1))
+    (D.Ks * D.Gh') := by
+  refine OutNear.mul_right D.G ?_ _
+  exact commK_outNear D.G D.a D.ν D.α (ψ := D.ψ) (Z := D.Z) fun x hx => by
+    funext j
+    simp [ψ, D.hZφ x hx]
+
+end LocData
+
 end Balaban.Multiscale
