@@ -87,3 +87,4 @@
 | 2026-10-11 | W24 RG with analytic matrix | running | Sonnet; (L1) `exists_rg_solution_triangular_param`, (L2) `rg_solution_real`, Lemma 3.3 |
 | 2026-10-11 | W24 RG param | landed | `exists_rg_solution_triangular_param` (analytic A(p)), `rg_solution_real`, `fixedPoint_dist_le` (215 lines); Lemma 3.1 coefficient bounds open |
 | 2026-10-11 | astra LF v4 audit | counting survives | `notes/phase1/LF-V4-AUDIT-astra.md`: Pending state, transitions, Lemma C4, budget §4.5, ω-separation, abstract LF-2 all survive refutation; V4-01 BLOCKER Lemma L(c) global path claim false (Pre component grid counterexample) → localize to the ripe lineage; V4-02 MAJOR tentative: exact factorization (Lemma F) still an input (Roland Q5); V4-03 MINOR interface (d ≥ 3, ω₀, k₀ ≥ 1) |
+| 2026-10-11 | astra Lemma F | running | tmux `astra-lemmaF`: exact factorization / localized backgrounds (V4-02, Roland Q5) → `LEMMA_F.md` |
