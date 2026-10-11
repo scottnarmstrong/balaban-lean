@@ -94,6 +94,156 @@ theorem sum_animals_le {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) (b : B) (f :
         mul_le_mul_of_nonneg_right (by exact_mod_cast hcard) (hf _)
     _ = _ := by push_cast; ring
 
+section Expansion
+
+variable {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {ε κ κ' α : ℝ}
+
+include hdeg in
+/-- The entropy sum over polymers through a block. -/
+theorem entropy_bound (hε : 0 ≤ ε)
+    (hq : (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α)) < 1)
+    (hcond : ε * Real.exp (-(κ - κ' - α)) / (1 - (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α))) ≤ α)
+    (b : B) :
+    ∑ X : BlockPolymer H, (if b ∈ X.1 then ε * Real.exp ((κ' + α - κ) * X.1.card) else 0) ≤ α := by
+  set q : ℝ := (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α)) with hqdef
+  have hq0 : 0 ≤ q := by positivity
+  have h1 := sum_animals_le H hdeg b (fun n => ε * Real.exp ((κ' + α - κ) * n))
+    (fun n => by positivity)
+  refine h1.trans ?_
+  have h2 : ∀ n ∈ range (Fintype.card B), (Δ : ℝ) ^ (2 * n) * (ε * Real.exp ((κ' + α - κ) * ((n + 1 : ℕ) : ℝ)))
+      = ε * Real.exp (-(κ - κ' - α)) * q ^ n := by
+    intro n _
+    rw [hqdef, mul_pow, ← Real.exp_nat_mul, pow_mul]
+    push_cast
+    rw [show (κ' + α - κ) * ((n : ℝ) + 1) = -(κ - κ' - α) + (n : ℝ) * (-(κ - κ' - α)) by ring,
+      Real.exp_add]
+    ring
+  rw [Finset.sum_congr rfl h2, ← Finset.mul_sum]
+  have h3 : ∑ i ∈ range (Fintype.card B), q ^ i ≤ (1 - q)⁻¹ :=
+    sum_le_hasSum _ (fun i _ => by positivity) (hasSum_geometric_of_lt_one hq0 hq)
+  calc ε * Real.exp (-(κ - κ' - α)) * ∑ i ∈ range (Fintype.card B), q ^ i
+      ≤ ε * Real.exp (-(κ - κ' - α)) * (1 - q)⁻¹ :=
+        mul_le_mul_of_nonneg_left h3 (by positivity)
+    _ = ε * Real.exp (-(κ - κ' - α)) / (1 - q) := by rw [div_eq_mul_inv]
+    _ ≤ α := hcond
+
+
+/-- The weights `κ(X) = ε e^{-κ |X|} e^{κ' |X|}` of the lattice expansion. -/
+def latticeW (ε κ κ' : ℝ) (X : BlockPolymer H) : ℝ :=
+  ε * Real.exp (-κ * X.1.card) * Real.exp (κ' * (X.1.card : ℝ) + 0)
+
+omit [Fintype B] in
+theorem latticeW_mul_exp (X : BlockPolymer H) :
+    latticeW H ε κ κ' X * Real.exp (α * X.1.card) = ε * Real.exp ((κ' + α - κ) * X.1.card) := by
+  unfold latticeW
+  have e : Real.exp (-κ * (X.1.card : ℝ)) * Real.exp (κ' * (X.1.card : ℝ) + 0 + α * X.1.card) =
+      Real.exp ((κ' + α - κ) * X.1.card) := by
+    rw [← Real.exp_add]; congr 1; ring
+  have e' : Real.exp (κ' * (X.1.card : ℝ) + 0 + α * X.1.card) =
+      Real.exp (κ' * (X.1.card : ℝ) + 0) * Real.exp (α * X.1.card) := Real.exp_add _ _
+  rw [← e, e']
+  ring
+
+include hdeg in
+theorem lattice_kp (hε : 0 ≤ ε)
+    (hq : (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α)) < 1)
+    (hcond : ε * Real.exp (-(κ - κ' - α)) / (1 - (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α))) ≤ α)
+    :
+    KPCond (overlap H) (latticeW H ε κ κ') (fun X => α * X.1.card) := by
+  constructor
+  · intro X; unfold latticeW; positivity
+  · intro Y
+    have hent := entropy_bound H hdeg hε hq hcond
+    calc ∑ Y' : BlockPolymer H, (if lnk (overlap H) Y Y' then latticeW H ε κ κ' Y' *
+          Real.exp (α * Y'.1.card) else 0)
+        ≤ ∑ Y' : BlockPolymer H, ∑ b ∈ Y.1, (if b ∈ Y'.1 then
+          ε * Real.exp ((κ' + α - κ) * Y'.1.card) else 0) := by
+          refine Finset.sum_le_sum (fun Y' _ => ?_)
+          rw [latticeW_mul_exp]
+          by_cases h : lnk (overlap H) Y Y'
+          · rw [ite_eq_left_of_eq_true _ _ (eq_true h)]
+            obtain ⟨b, hbY, hbY'⟩ : ∃ b, b ∈ Y.1 ∧ b ∈ Y'.1 := by
+              rcases (lnk_overlap H Y Y').mp h with h1
+              by_contra hcon
+              exact h1 (Finset.disjoint_left.mpr (fun b hb hb' => hcon ⟨b, hb, hb'⟩))
+            calc ε * Real.exp ((κ' + α - κ) * Y'.1.card)
+                = (if b ∈ Y'.1 then ε * Real.exp ((κ' + α - κ) * Y'.1.card) else 0) := by
+                  rw [ite_eq_left_of_eq_true _ _ (eq_true hbY')]
+              _ ≤ _ := Finset.single_le_sum (f := fun b => (if b ∈ Y'.1 then
+                  ε * Real.exp ((κ' + α - κ) * Y'.1.card) else 0))
+                  (fun _ _ => by split_ifs <;> positivity) hbY
+          · rw [ite_eq_right_of_eq_false _ _ (eq_false h)]
+            exact Finset.sum_nonneg (fun _ _ => by split_ifs <;> positivity)
+      _ = ∑ b ∈ Y.1, ∑ Y' : BlockPolymer H, (if b ∈ Y'.1 then
+          ε * Real.exp ((κ' + α - κ) * Y'.1.card) else 0) := Finset.sum_comm
+      _ ≤ ∑ b ∈ Y.1, α := Finset.sum_le_sum (fun b _ => hent b)
+      _ = α * Y.1.card := by rw [Finset.sum_const, nsmul_eq_mul]; ring
+
+
+include hdeg in
+theorem lattice_entropy_W (hε : 0 ≤ ε)
+    (hq : (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α)) < 1)
+    (hcond : ε * Real.exp (-(κ - κ' - α)) / (1 - (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α))) ≤ α)
+    (b : B) :
+    ∑ Y : BlockPolymer H, (if b ∈ Y.1 then latticeW H ε κ κ' Y * Real.exp (α * Y.1.card) else 0)
+      ≤ α := by
+  refine le_trans (le_of_eq (Finset.sum_congr rfl (fun Y _ => ?_))) (entropy_bound H hdeg hε hq hcond b)
+  by_cases hb : b ∈ Y.1
+  · rw [ite_eq_left_of_eq_true _ _ (eq_true hb), ite_eq_left_of_eq_true _ _ (eq_true hb),
+      latticeW_mul_exp]
+  · rw [ite_eq_right_of_eq_false _ _ (eq_false hb), ite_eq_right_of_eq_false _ _ (eq_false hb)]
+
+include hdeg in
+/-- The polymer expansion for connected block sets: the abstract theorem for the lattice. -/
+theorem pe_lattice (hε : 0 ≤ ε) (hκ' : 0 ≤ κ')
+    (hq : (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α)) < 1)
+    (hcond : ε * Real.exp (-(κ - κ' - α)) / (1 - (Δ : ℝ) ^ 2 * Real.exp (-(κ - κ' - α))) ≤ α)
+    (K : BlockPolymer H → ℂ) (hK : ∀ X, ‖K X‖ ≤ ε * Real.exp (-κ * X.1.card)) :
+    Xi (overlap H) K = Complex.exp (logSeries (overlap H) K) ∧
+    logSeries (overlap H) K = ∑ Y : Finset B, PY (overlap H) (fun X => X.1) K Y ∧
+    (∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
+        ‖PY (overlap H) (fun X => X.1) K Y‖ * Real.exp (κ' * (Y.card : ℝ)) ≤ α) ∧
+    ‖logSeries (overlap H) K‖ ≤ Fintype.card B * α ∧
+    Real.exp (-(Fintype.card B * α)) ≤ ‖Xi (overlap H) K‖ ∧
+    ‖Xi (overlap H) K‖ ≤ Real.exp (Fintype.card B * α) := by
+  have hKP := lattice_kp H hdeg hε hq hcond
+  have hK' : ∀ X, ‖K X‖ ≤ latticeW H ε κ κ' X := fun X => by
+    refine (hK X).trans ?_
+    unfold latticeW
+    calc ε * Real.exp (-κ * X.1.card) = ε * Real.exp (-κ * X.1.card) * 1 := by rw [mul_one]
+      _ ≤ _ := mul_le_mul_of_nonneg_left (Real.one_le_exp (by positivity)) (by positivity)
+  have hent := lattice_entropy_W H hdeg hε hq hcond
+  have hw : ∀ b : B, ∑ Y : BlockPolymer H, (if b ∈ Y.1 then
+      latticeW H ε κ κ' Y * Real.exp (α * Y.1.card) else 0) ≤ α := hent
+  have hcover : ∀ Y : BlockPolymer H, ∃ b : B, b ∈ Y.1 := fun Y => Y.2.1
+  have hL : ‖logSeries (overlap H) K‖ ≤ ∑ _b : B, α :=
+    pe_logSeries_bound (overlap H) (fun (b : B) (Y : BlockPolymer H) => b ∈ Y.1) hcover hKP K hK'
+      (fun _ => α) (fun b => by convert hw b using 3)
+  have hnorm := pe_xi_norm_bounds (overlap H) (fun (b : B) (Y : BlockPolymer H) => b ∈ Y.1) hcover
+    hKP (overlap_refl H) K hK' (fun _ => α) (fun b => by convert hw b using 3)
+  simp only [Finset.sum_const, Finset.card_univ, nsmul_eq_mul] at hL hnorm
+  refine ⟨pe_xi_eq_exp (overlap H) hKP (overlap_refl H) K hK',
+    logSeries_eq_sum_PY (overlap H) (fun X => X.1) hKP K hK', ?_, ?_, ?_, ?_⟩
+  · intro b
+    have := pe_PY_bound (overlap H) (fun X : BlockPolymer H => X.1) (fun Y : Finset B => κ' * (Y.card : ℝ)) 0
+      le_rfl (fun Y => by positivity) ?_ (fun x => rfl) hKP K
+      (fun x => hK x) b
+    · exact this.trans (hw b |>.trans' (le_of_eq (Finset.sum_congr rfl (fun x _ => rfl))))
+    · intro n X _
+      have : (unionOf (fun X : BlockPolymer H => X.1) X).card ≤ ∑ i, (X i).1.card :=
+        Finset.card_biUnion_le
+      calc κ' * ((unionOf (fun X : BlockPolymer H => X.1) X).card : ℝ)
+          ≤ κ' * ∑ i, ((X i).1.card : ℝ) := by
+            refine mul_le_mul_of_nonneg_left ?_ hκ'
+            exact_mod_cast this
+        _ = ∑ i, κ' * ((X i).1.card : ℝ) := by rw [Finset.mul_sum]
+        _ ≤ ∑ i, κ' * ((X i).1.card : ℝ) + 0 * n := by simp
+  · exact hL
+  · exact hnorm.1
+  · exact hnorm.2
+
+end Expansion
+
 end Blocks
 
 end Balaban.Polymer
