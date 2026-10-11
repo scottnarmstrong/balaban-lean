@@ -302,4 +302,235 @@ theorem gas_family_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ
 
 end Family
 
+section Cover
+
+/-- A sum over a family of nonnegative terms is bounded by the sums over the members through each
+block of a covering set of blocks. -/
+theorem sum_le_sum_cover {ι B : Type*} [Fintype ι] (s : Finset ι) (cov : ι → Finset B)
+    (W : Finset B) (f : ι → ℝ) (hf : ∀ i, 0 ≤ f i) (h : ∀ i ∈ s, ∃ b ∈ W, b ∈ cov i) :
+    ∑ i ∈ s, f i ≤ ∑ b ∈ W, ∑ i ∈ Finset.univ.filter (fun i => b ∈ cov i), f i := by
+  calc ∑ i ∈ s, f i ≤ ∑ i ∈ s, ∑ b ∈ W, (if b ∈ cov i then f i else 0) := by
+        refine Finset.sum_le_sum (fun i hi => ?_)
+        obtain ⟨b, hbW, hb⟩ := h i hi
+        calc f i = (if b ∈ cov i then f i else 0) := by
+              rw [ite_eq_left_of_eq_true _ _ (eq_true hb)]
+          _ ≤ _ := Finset.single_le_sum (f := fun b => (if b ∈ cov i then f i else 0))
+            (fun _ _ => by split_ifs <;> simp [hf i]) hbW
+    _ = ∑ b ∈ W, ∑ i ∈ s, (if b ∈ cov i then f i else 0) := Finset.sum_comm
+    _ ≤ ∑ b ∈ W, ∑ i, (if b ∈ cov i then f i else 0) :=
+        Finset.sum_le_sum (fun b _ => Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+          (fun i _ _ => by split_ifs <;> simp [hf i]))
+    _ = _ := by
+        refine Finset.sum_congr rfl (fun b _ => ?_)
+        rw [Finset.sum_filter]
+
+end Cover
+
+section Sum
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {cy : Yt → Finset B} {zs cr : Zt → Finset B}
+
+variable (cy cr) in
+/-- The couplings meeting the core of the heavy objects `Γ`. -/
+def gasYm (Γ : Finset Zt) : Finset Yt :=
+  Finset.univ.filter (fun y => ¬ Disjoint (cy y) (Γ.biUnion cr))
+
+variable (zs) in
+/-- The heavy objects supported in `X`. -/
+def gasZsub (X : Finset B) : Finset Zt := Finset.univ.filter (fun z => zs z ⊆ X)
+
+omit [Fintype B] in
+theorem sum_cfam_le (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (ha : ∀ z, 0 ≤ a z)
+    (X : Finset B) :
+    ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z ≤
+      ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅,
+        (∏ z ∈ Γ, a z) * ∏ y ∈ gasYm cy cr Γ, (1 + g y) := by
+  set 𝒮 : Finset (Σ _ : Finset Zt, Finset Yt) :=
+    (((gasZsub zs X).powerset).erase ∅).sigma (fun Γ => (gasYm cy cr Γ).powerset) with h𝒮
+  set ψ : (Σ _ : Finset Zt, Finset Yt) → Finset (Yt ⊕ Zt) := fun x => x.2.disjSum x.1 with hψ
+  have hsub : Cfam (gasCs cy zs) (gasA cy zs cr) X ⊆ 𝒮.image ψ := by
+    intro C hC
+    obtain ⟨hconn, hA, hU⟩ := mem_Cfam.mp hC
+    rw [Finset.mem_image]
+    refine ⟨⟨C.toRight, C.toLeft⟩, ?_, ?_⟩
+    · rw [h𝒮, Finset.mem_sigma, Finset.mem_erase, Finset.mem_powerset, Finset.mem_powerset]
+      refine ⟨⟨?_, ?_⟩, ?_⟩
+      · intro hR0
+        have hR : C.toRight = ∅ := hR0
+        have hL : C.toLeft = ∅ := by
+          refine Finset.eq_empty_of_forall_notMem (fun y hy => ?_)
+          obtain ⟨z, hz, _⟩ := hA.2 y hy
+          rw [hR] at hz; simp at hz
+        have : C = ∅ := by
+          rw [← Finset.toLeft_disjSum_toRight (u := C), hL, hR]; rfl
+        exact Finset.not_nonempty_empty (this ▸ hconn.1)
+      · intro z hz
+        simp only [gasZsub, Finset.mem_filter, Finset.mem_univ, true_and]
+        rw [← hU]
+        have := Finset.subset_biUnion_of_mem (gasCs cy zs) (Finset.mem_toRight.mp hz)
+        simpa [unionCs] using this
+      · intro y hy
+        obtain ⟨z, hz, hnd⟩ := hA.2 y hy
+        simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and]
+        exact fun hd => hnd (Finset.disjoint_of_subset_right
+          (Finset.subset_biUnion_of_mem cr hz) hd)
+    · simp [hψ, Finset.toLeft_disjSum_toRight]
+  have hinj : Set.InjOn ψ (𝒮 : Set _) := by
+    rintro ⟨Γ, Dy⟩ _ ⟨Γ', Dy'⟩ _ hxy
+    have h1 := congrArg Finset.toLeft hxy
+    have h2 := congrArg Finset.toRight hxy
+    simp only [hψ, Finset.toLeft_disjSum, Finset.toRight_disjSum] at h1 h2
+    subst h1; subst h2; rfl
+  calc ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z
+      ≤ ∑ C ∈ 𝒮.image ψ, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z :=
+        Finset.sum_le_sum_of_subset_of_nonneg hsub (fun C _ _ =>
+          mul_nonneg (Finset.prod_nonneg (fun y _ => hg y)) (Finset.prod_nonneg (fun z _ => ha z)))
+    _ = ∑ x ∈ 𝒮, (∏ y ∈ x.2, g y) * ∏ z ∈ x.1, a z := by
+        rw [Finset.sum_image hinj]
+        refine Finset.sum_congr rfl (fun x _ => ?_)
+        simp [hψ]
+    _ = ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅, ∑ Dy ∈ (gasYm cy cr Γ).powerset,
+          (∏ y ∈ Dy, g y) * ∏ z ∈ Γ, a z := by
+        rw [h𝒮, Finset.sum_sigma']
+    _ = _ := by
+        refine Finset.sum_congr rfl (fun Γ _ => ?_)
+        rw [← Finset.sum_mul, ← Finset.prod_one_add, mul_comm]
+
+end Sum
+
+section Main
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {cy : Yt → Finset B} {zs cr : Zt → Finset B} {β : Yt → ℂ} {τ : Zt → ℂ}
+  {d : Finset B → ℝ} {B0 κ' κ'' c c1 c2 p h : ℝ}
+
+omit [Fintype B] [Fintype Zt] in
+theorem gas_prod_le (hB0 : 0 ≤ B0) {K0' : ℝ} (hK0' : 0 ≤ K0') (hcr : ∀ z, cr z ⊆ zs z)
+    (hent : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y),
+      Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0') (Γ : Finset Zt) :
+    ∏ y ∈ gasYm cy cr Γ, (1 + gasG cy d B0 κ' κ'' c y) ≤
+      Real.exp (B0 * Real.exp B0 * Real.exp (κ' * c) * K0' * ∑ z ∈ Γ, ((zs z).card : ℝ)) := by
+  refine (Real.prod_one_add_le_exp_sum _ (gasG_nonneg hB0)).trans (Real.exp_le_exp.mpr ?_)
+  have hcov := sum_le_sum_cover (gasYm cy cr Γ) cy (Γ.biUnion cr) (gasG cy d B0 κ' κ'' c)
+    (gasG_nonneg hB0) (fun y hy => by
+      simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and] at hy
+      obtain ⟨b, hb1, hb2⟩ := Finset.not_disjoint_iff.mp hy
+      exact ⟨b, hb2, hb1⟩)
+  refine hcov.trans ?_
+  have hCc : 0 ≤ B0 * Real.exp B0 * Real.exp (κ' * c) * K0' := by positivity
+  have hin : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), gasG cy d B0 κ' κ'' c y ≤
+      B0 * Real.exp B0 * Real.exp (κ' * c) * K0' := by
+    intro b
+    unfold gasG
+    rw [← Finset.mul_sum]
+    exact mul_le_mul_of_nonneg_left (hent b) (by positivity)
+  calc ∑ b ∈ Γ.biUnion cr, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), gasG cy d B0 κ' κ'' c y
+      ≤ ∑ b ∈ Γ.biUnion cr, B0 * Real.exp B0 * Real.exp (κ' * c) * K0' :=
+        Finset.sum_le_sum (fun b _ => hin b)
+    _ = ((Γ.biUnion cr).card : ℝ) * (B0 * Real.exp B0 * Real.exp (κ' * c) * K0') := by
+        rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ (∑ z ∈ Γ, ((zs z).card : ℝ)) * (B0 * Real.exp B0 * Real.exp (κ' * c) * K0') := by
+        refine mul_le_mul_of_nonneg_right ?_ hCc
+        have h1 : (Γ.biUnion cr).card ≤ ∑ z ∈ Γ, (cr z).card := Finset.card_biUnion_le
+        have h2 : ∑ z ∈ Γ, (cr z).card ≤ ∑ z ∈ Γ, (zs z).card :=
+          Finset.sum_le_sum (fun z _ => Finset.card_le_card (hcr z))
+        exact_mod_cast h1.trans h2
+    _ = _ := by ring
+
+/-- **GAS (activity bound)**.  The activities of the polymer gas of `gas_eq` satisfy
+`|K(X)| ≤ 3 c₁ e^{-p} e^{-(κ' - 2) d(X)}` for the polymers with `|X| ≤ c₁ (1 + d(X))`, provided the
+volume decay `h` of the heavy weights is at least
+`C + κ'(c₂ + c) + c₁ + 3 + ln K₀''`, where `C = B₀ e^{B₀} e^{κ' c} K₀'`. -/
+theorem gas_activity_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c)
+    (hc1 : 0 ≤ c1) (hp : 0 ≤ p) (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
+    (hcr : ∀ z, cr z ⊆ zs z)
+    (hB : ∀ y, ‖β y‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
+    (hτ : ∀ z, ‖τ z‖ ≤ Real.exp (-p - h * (zs z).card))
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → gasA cy zs cr C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    {K0' K0'' : ℝ} (hK0' : 0 ≤ K0')
+    (hent : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y),
+      Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0')
+    (hK1 : 1 ≤ K0'')
+    (hcount : ∀ (b : B) (v : ℕ),
+      ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0'' ^ v)
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 + Real.log K0'' ≤ h)
+    (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
+    ‖gasK cy zs cr β τ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) := by
+  set Cc : ℝ := B0 * Real.exp B0 * Real.exp (κ' * c) * K0' with hCc
+  set lam : ℝ := h - κ' * (c2 + c) - Cc with hlam
+  have hlam' : c1 + 3 + Real.log K0'' ≤ lam := by rw [hlam]; linarith
+  have hCc0 : 0 ≤ Cc := by positivity
+  set ζ : Zt → ℝ := fun z => Real.exp (-p) * Real.exp (-lam * (zs z).card) with hζ
+  have hζ0 : ∀ z, 0 ≤ ζ z := fun z => by positivity
+  -- the family bound
+  have hfam : ∀ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+      Real.exp (κ' * d X.1) * ‖∏ t ∈ C, gasW β τ t‖ ≤
+        (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, gasAz zs κ' c c2 p h z :=
+    fun C hC => gas_family_bound hB0 hκ' hκ'' hc hd hz hB hτ hzd hG3 hC
+  have h1 : Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖ ≤
+      ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+        (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, gasAz zs κ' c c2 p h z := by
+    unfold gasK polyAct
+    calc Real.exp (κ' * d X.1) * ‖∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+          ∏ t ∈ C, gasW β τ t‖
+        ≤ Real.exp (κ' * d X.1) * ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+          ‖∏ t ∈ C, gasW β τ t‖ :=
+          mul_le_mul_of_nonneg_left (norm_sum_le _ _) (Real.exp_pos _).le
+      _ = ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+          Real.exp (κ' * d X.1) * ‖∏ t ∈ C, gasW β τ t‖ := by rw [Finset.mul_sum]
+      _ ≤ _ := Finset.sum_le_sum hfam
+  have h2 := sum_cfam_le (cy := cy) (zs := zs) (cr := cr) (gasG cy d B0 κ' κ'' c)
+    (gasAz zs κ' c c2 p h) (gasG_nonneg hB0) gasAz_nonneg X.1
+  have h3 : ∀ Γ ∈ ((gasZsub zs X.1).powerset).erase ∅,
+      (∏ z ∈ Γ, gasAz zs κ' c c2 p h z) * ∏ y ∈ gasYm cy cr Γ, (1 + gasG cy d B0 κ' κ'' c y) ≤
+        ∏ z ∈ Γ, ζ z := by
+    intro Γ _
+    calc _ ≤ (∏ z ∈ Γ, gasAz zs κ' c c2 p h z) * Real.exp (Cc * ∑ z ∈ Γ, ((zs z).card : ℝ)) :=
+          mul_le_mul_of_nonneg_left (gas_prod_le hB0 hK0' hcr hent Γ)
+            (Finset.prod_nonneg (fun z _ => gasAz_nonneg z))
+      _ = ∏ z ∈ Γ, (gasAz zs κ' c c2 p h z * Real.exp (Cc * (zs z).card)) := by
+          rw [Finset.prod_mul_distrib, Finset.mul_sum, Real.exp_sum]
+      _ = ∏ z ∈ Γ, ζ z := by
+          refine Finset.prod_congr rfl (fun z _ => ?_)
+          simp only [gasAz, hζ, hlam]
+          rw [← Real.exp_add, ← Real.exp_add]; congr 1; ring
+  have h4 := (Finset.sum_le_sum h3).trans (sum_powerset_erase_le ζ hζ0 (gasZsub zs X.1))
+  have h5 : ∑ z ∈ gasZsub zs X.1, ζ z ≤ X.1.card * (Real.exp (-p) * Real.exp (-(c1 + 2))) := by
+    refine (sum_le_sum_cover (gasZsub zs X.1) zs X.1 ζ hζ0 (fun z hz' => ?_)).trans ?_
+    · obtain ⟨b, hb⟩ := hz z
+      simp only [gasZsub, Finset.mem_filter, Finset.mem_univ, true_and] at hz'
+      exact ⟨b, hz' hb, hb⟩
+    · calc ∑ b ∈ X.1, ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), ζ z
+          ≤ ∑ b ∈ X.1, Real.exp (-p) * Real.exp (-(c1 + 2)) := by
+            refine Finset.sum_le_sum (fun b _ => ?_)
+            rw [hζ, ← Finset.mul_sum]
+            exact mul_le_mul_of_nonneg_left
+              (heavy_entropy hc1 hK1 hz hcount hlam' b) (Real.exp_pos _).le
+        _ = _ := by rw [Finset.sum_const, nsmul_eq_mul]
+  have h6 := gas_real_bound (p := p) (c1 := c1) (D := d X.1) (n := (X.1.card : ℝ)) hp hc1 (hd _)
+    (Nat.cast_nonneg _) hG1
+  have h7 : Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖ ≤
+      3 * c1 * Real.exp (-p) * Real.exp (2 * d X.1) := by
+    refine h1.trans (h2.trans (h4.trans ?_))
+    have := Real.exp_le_exp.mpr h5
+    linarith
+  have h8 : ‖gasK cy zs cr β τ X‖ ≤
+      Real.exp (-κ' * d X.1) * (3 * c1 * Real.exp (-p) * Real.exp (2 * d X.1)) := by
+    have hpos : 0 < Real.exp (κ' * d X.1) := Real.exp_pos _
+    have e : Real.exp (-κ' * d X.1) * Real.exp (κ' * d X.1) = 1 := by
+      rw [← Real.exp_add]; simp
+    calc ‖gasK cy zs cr β τ X‖ = Real.exp (-κ' * d X.1) *
+          (Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖) := by
+          rw [← mul_assoc, e, one_mul]
+      _ ≤ _ := mul_le_mul_of_nonneg_left h7 (Real.exp_pos _).le
+  refine h8.trans (le_of_eq ?_)
+  have : Real.exp (-κ' * d X.1) * Real.exp (2 * d X.1) = Real.exp (-(κ' - 2) * d X.1) := by
+    rw [← Real.exp_add]; congr 1; ring
+  rw [← this]; ring
+
+end Main
+
 end Balaban.Polymer
