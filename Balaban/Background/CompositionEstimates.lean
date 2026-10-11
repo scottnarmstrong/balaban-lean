@@ -81,24 +81,24 @@ theorem vn_ofReal (v : Fin N → ℝ) : vn (fun i => (v i : ℂ)) = rn v := by
   rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
 
 /-- A vector with vanishing imaginary part. -/
-def IsRealVec (v : Fin N → ℂ) : Prop := ∀ i, (v i).im = 0
+def IsRealCVec (v : Fin N → ℂ) : Prop := ∀ i, (v i).im = 0
 
-theorem IsRealVec.eq_ofReal {v : Fin N → ℂ} (h : IsRealVec v) :
+theorem IsRealCVec.eq_ofReal {v : Fin N → ℂ} (h : IsRealCVec v) :
     v = fun i => ((v i).re : ℂ) := by
   funext i
   exact Complex.ext (by simp) (by simpa using h i)
 
-theorem IsRealVec.vn_eq {v : Fin N → ℂ} (h : IsRealVec v) : vn v = rn (fun i => (v i).re) := by
+theorem IsRealCVec.vn_eq {v : Fin N → ℂ} (h : IsRealCVec v) : vn v = rn (fun i => (v i).re) := by
   rw [← vn_ofReal, ← h.eq_ofReal]
 
-theorem IsRealVec.dot_self {v : Fin N → ℂ} (h : IsRealVec v) :
+theorem IsRealCVec.dot_self {v : Fin N → ℂ} (h : IsRealCVec v) :
     ∑ i, v i * v i = ((∑ i, (v i).re ^ 2 : ℝ) : ℂ) := by
   push_cast
   refine Finset.sum_congr rfl fun i _ => ?_
   have := h i
   apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im, this, sq]
 
-theorem rn_sq (v : Fin N → ℝ) : rn v ^ 2 = ∑ i, v i ^ 2 := by
+theorem rn_sq_sum (v : Fin N → ℝ) : rn v ^ 2 = ∑ i, v i ^ 2 := by
   unfold rn
   exact Real.sq_sqrt (Finset.sum_nonneg fun _ _ => sq_nonneg _)
 

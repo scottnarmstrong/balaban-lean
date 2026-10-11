@@ -151,18 +151,18 @@ theorem rn_triangle (x y z : Fin N → ℝ) :
     funext i; simp
   rwa [e1, e2, e3] at h
 
-theorem IsRealVec.norm_dot_sub_one {v : Fin N → ℂ} (h : IsRealVec v) :
+theorem IsRealCVec.norm_dot_sub_one {v : Fin N → ℂ} (h : IsRealCVec v) :
     ‖∑ i, v i * v i - 1‖ = |rn (fun i => (v i).re) ^ 2 - 1| := by
-  rw [h.dot_self, rn_sq]
+  rw [h.dot_self, rn_sq_sum]
   have : ((∑ i, (v i).re ^ 2 : ℝ) : ℂ) - 1 = (((∑ i, (v i).re ^ 2 : ℝ) - 1 : ℝ) : ℂ) := by
     push_cast; ring
   rw [this, Complex.norm_real, Real.norm_eq_abs]
 
-theorem IsRealVec.vn_eq_one {v : Fin N → ℂ} (h : IsRealVec v) (hv : ∑ i, v i * v i = 1) :
+theorem IsRealCVec.vn_eq_one {v : Fin N → ℂ} (h : IsRealCVec v) (hv : ∑ i, v i * v i = 1) :
     vn v = 1 := by
   rw [h.vn_eq]
   have h1 : rn (fun i => (v i).re) ^ 2 = 1 := by
-    rw [rn_sq]
+    rw [rn_sq_sum]
     have := h.dot_self
     rw [hv] at this
     exact_mod_cast this.symm
@@ -187,10 +187,10 @@ theorem r3_core {Ψ h0 : Fin N → ℝ} {s c b E δ : ℝ} (hs0 : 0 ≤ s) (hs1 
     · rw [← h] at hr2; norm_num at hr2
     · exact h
   set u : Fin N → ℝ := fun i => Ψ i / r with hu
-  have hΨ2 : ∑ i, Ψ i ^ 2 = r ^ 2 := (rn_sq Ψ).symm
+  have hΨ2 : ∑ i, Ψ i ^ 2 = r ^ 2 := (rn_sq_sum Ψ).symm
   have hid : 1 - (∑ i, Ψ i * h0 i) / r =
       (1 / 2) * rn (fun i => u i - h0 i) ^ 2 + (1 / 2) * (1 - ∑ i, h0 i ^ 2) := by
-    rw [rn_sq]
+    rw [rn_sq_sum]
     have e1 : ∑ i, (u i - h0 i) ^ 2 =
         ∑ i, (Ψ i ^ 2 / r ^ 2 - 2 * (Ψ i * h0 i / r) + h0 i ^ 2) :=
       Finset.sum_congr rfl fun i _ => by simp only [hu]; field_simp; ring
@@ -235,15 +235,15 @@ theorem r3_core {Ψ h0 : Fin N → ℝ} {s c b E δ : ℝ} (hs0 : 0 ≤ s) (hs1 
           pow_le_pow_left₀ hs_nn hsrn 2
         linarith
 
-theorem rn_re_sub_eq_vn {u v : Fin N → ℂ} (hu : IsRealVec u) (hv : IsRealVec v) :
+theorem rn_re_sub_eq_vn {u v : Fin N → ℂ} (hu : IsRealCVec u) (hv : IsRealCVec v) :
     rn (fun i => (u i).re - (v i).re) = vn (u - v) := by
-  have h : IsRealVec (u - v) := fun i => by simp [hu i, hv i]
+  have h : IsRealCVec (u - v) := fun i => by simp [hu i, hv i]
   rw [h.vn_eq]
   simp
 
-theorem rn_re_sub_cast_eq_vn {u : Fin N → ℂ} (hu : IsRealVec u) (h0 : Fin N → ℝ) :
+theorem rn_re_sub_cast_eq_vn {u : Fin N → ℂ} (hu : IsRealCVec u) (h0 : Fin N → ℝ) :
     rn (fun i => (u i).re - h0 i) = vn (u - fun i => (h0 i : ℂ)) := by
-  have h : IsRealVec (u - fun i => (h0 i : ℂ)) := fun i => by simp [hu i]
+  have h : IsRealCVec (u - fun i => (h0 i : ℂ)) := fun i => by simp [hu i]
   rw [h.vn_eq]
   simp
 
@@ -271,7 +271,7 @@ theorem compVec_collar (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ)
 theorem compVec_isReal (h : Precedes G G') (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ)
     (Ψ' : Torus d (N₀ * L ^ k) → Fin N → ℂ) (hφ : ∀ z i, (φ' (z, i)).im = 0)
     (hΨ : ∀ x ∈ dataSites G', ∀ i, (Ψ' x i).im = 0) (x : Torus d (N₀ * L ^ k)) :
-    IsRealVec (compVec G G' a φ' Ψ' x) := fun i => composeField_im h a φ' Ψ' hφ hΨ x i
+    IsRealCVec (compVec G G' a φ' Ψ' x) := fun i => composeField_im h a φ' Ψ' hφ hΨ x i
 
 /-- On `Ω'₁` the field `φ̄'` is `φ'`; a real unit field has `|φ'| = 1`. -/
 theorem barVec_vn_eq_one (hφ : ∀ z i, (φ' (z, i)).im = 0)
@@ -280,7 +280,7 @@ theorem barVec_vn_eq_one (hφ : ∀ z i, (φ' (z, i)).im = 0)
   have e : barVec G' Ψ' φ' y = fun i => φ' (⟨y, hy⟩, i) := by
     funext i; exact barVec_of_mem Ψ' φ' hy i
   rw [e]
-  exact IsRealVec.vn_eq_one (fun i => hφ _ i) (hu ⟨y, hy⟩)
+  exact IsRealCVec.vn_eq_one (fun i => hφ _ i) (hu ⟨y, hy⟩)
 
 /-- **(R2)-type estimate** at a site of `Ω₁`: `| |Ψ|² - 1 | ≤ (2dθη)² + 2θ²η + θ⁴η²`. -/
 theorem CompHyp.re_r2 (H : CompHyp G G' a θ η Ψ' φ') (hφ : ∀ z i, (φ' (z, i)).im = 0)
@@ -320,7 +320,7 @@ theorem CompHyp.re_dist (H : CompHyp G G' a θ η Ψ' φ') (hφ : ∀ z i, (φ' 
   have hs0 : 0 ≤ s := mul_nonneg (Real.sqrt_nonneg ν) (G.spacing_ge_one x |>.trans' zero_le_one)
   have hs1 : s ≤ 1 := sqrt_mul_spacing_le_one hν hνk G x
   have hreal := compVec_isReal H.prec a φ' Ψ' hφ hΨ x
-  have hv : IsRealVec (compVec G G' a φ' Ψ' x - fun i => (h0 i : ℂ)) := fun i => by
+  have hv : IsRealCVec (compVec G G' a φ' Ψ' x - fun i => (h0 i : ℂ)) := fun i => by
     simp [hreal i]
   have e : rn (fun i => (compVec G G' a φ' Ψ' x i).re - h0 i) =
       vn (compVec G G' a φ' Ψ' x - fun i => (h0 i : ℂ)) := by
@@ -538,13 +538,13 @@ theorem lemma62_core (hL : 2 ≤ L) (h : Precedes G G') {a₁ : ℝ} (ha₁ : 0 
     intro x hx
     rcases (mem_dataSites G).1 hx with hx | hx
     · have := hR2 x hx
-      rw [rn_sq] at this
+      rw [rn_sq_sum] at this
       refine this.trans_lt ?_
       rw [hC4]; nlinarith
     · have hn : x ∉ G.Ω 1 := ((mem_collar G).1 hx).1
       by_cases hx' : x ∈ G'.Ω 1
       · have : ∑ i, Ψo x i ^ 2 = 1 := by
-          rw [← rn_sq, hunitcol x hx hx']; norm_num
+          rw [← rn_sq_sum, hunitcol x hx hx']; norm_num
         rw [this]; simp; rw [hC4]; positivity
       · have hc1 := mem_collar_of_not_mem h hx hx'
         have hds : x ∈ dataSites G' := (mem_dataSites G').2 (Or.inr hc1)
@@ -897,7 +897,7 @@ theorem hc : CompHyp G G' (compWeight L a₁) 1 η (psiC Ψ0 Ψ'') φc :=
       (H.prec.layerIndex_le hx)
     layerConst := H.psiC_const, bounds := H.hbc }
 
-theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealVec (crv G G' a₁ φr Ψ0 x) :=
+theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealCVec (crv G G' a₁ φr Ψ0 x) :=
   compVec_isReal H.prec _ φr (psiR Ψ0) H.hφr psiR_im_zero x
 
 theorem core : InPsiTilde G ν (compC4 d * η) (reR G G' a₁ φr Ψ0) h0 := by
@@ -1057,7 +1057,7 @@ theorem c2b : ∀ x ∈ dataSites G,
         have e3 : psiR Ψ0 y = fun i => (Ψ0 y i : ℂ) := rfl
         rw [e3, vn_ofReal]
         have := hP.r2 y hyd
-        rw [← rn_sq] at this
+        rw [← rn_sq_sum] at this
         have h4 := rn_nonneg (Ψ0 y)
         have h5 := (abs_lt.1 this).2
         by_contra hcon
@@ -1176,7 +1176,7 @@ theorem c3b : ∀ x ∈ G.Ω 1, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
   have hrpos : 0 < rn (reR G G' a₁ φr Ψ0 x) := by linarith
   have hr0pos : 0 < rn (Ψ0 x) := by
     have h1 := (abs_lt.1 (H.hPC.toInPsiTilde.r2 x hxd)).1
-    rw [← rn_sq] at h1
+    rw [← rn_sq_sum] at h1
     have := rn_nonneg (Ψ0 x)
     by_contra hcon
     push Not at hcon

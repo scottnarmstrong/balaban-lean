@@ -180,7 +180,7 @@ theorem hc : CompHyp G G' (compWeight L a₁) θ η (psiC Ψ0 Ψ'') φc :=
       (H.prec.layerIndex_le hx)
     layerConst := H.psiC_const, bounds := H.hbc }
 
-theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealVec (crv G G' a₁ φr Ψ0 x) :=
+theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealCVec (crv G G' a₁ φr Ψ0 x) :=
   compVec_isReal H.prec _ φr (psiR Ψ0) H.hφr psiR_im_zero x
 
 /-- All sites of `Ω₁ ∪ C(Ω₁)` are in `Ω'₁` with `1 ≤ θ ℓ'`. -/
@@ -260,7 +260,7 @@ theorem r2 : ∀ x ∈ dataSites G, |∑ i, reR G G' a₁ φr Ψ0 x i ^ 2 - 1| <
   rcases (mem_dataSites G).1 hx with hx | hx
   · have h1 := H.hr.re_r2 H.hφr psiR_im_zero hx
     have h2 := b2_le hd0 hη hθ hθ1 H.hsmall (M := 1)
-    rw [← rn_sq]
+    rw [← rn_sq_sum]
     refine (h1.trans h2).trans_lt ?_
     unfold scaledC0
     have h3 : θ ^ 2 * η * (d + 2 * 1 + 1) ≤ θ ^ 2 * ε * (d + 3) := by
@@ -268,7 +268,7 @@ theorem r2 : ∀ x ∈ dataSites G, |∑ i, reR G G' a₁ φr Ψ0 x i ^ 2 - 1| <
       nlinarith
     have h4 : 0 < θ ^ 2 * ε := by positivity
     nlinarith [mul_nonneg h4.le hd0, mul_nonneg (mul_nonneg h4.le hd0) hd0]
-  · rw [← rn_sq, H.unit_collar hx]
+  · rw [← rn_sq_sum, H.unit_collar hx]
     simpa using hpos
 
 theorem hh_of {n : ℕ} (hn : n ≤ j) :
@@ -474,7 +474,7 @@ theorem c2b : ∀ x ∈ dataSites G,
         have e3 : psiR Ψ0 y = fun i => (Ψ0 y i : ℂ) := rfl
         rw [e3, vn_ofReal]
         have := hP.r2 y hyd
-        rw [← rn_sq] at this
+        rw [← rn_sq_sum] at this
         have h4 := rn_nonneg (Ψ0 y)
         have h5 := (abs_lt.1 this).2
         by_contra hcon
@@ -613,7 +613,7 @@ theorem c3b : ∀ x ∈ G.Ω 1, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
   have hrpos : 0 < rn (reR G G' a₁ φr Ψ0 x) := by linarith
   have hr0pos : 0 < rn (Ψ0 x) := by
     have h1 := (abs_lt.1 (H.hPC.toInPsiTilde.r2 x hxd)).1
-    rw [← rn_sq] at h1
+    rw [← rn_sq_sum] at h1
     have := rn_nonneg (Ψ0 x)
     by_contra hcon
     push Not at hcon
