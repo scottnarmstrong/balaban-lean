@@ -164,7 +164,7 @@ theorem theorem52_analytic (H : BgHyp d L k ϱ a ν) :
         (fun p => φ p - approxField G a ν D.Ψ D.h p.1 p.2) α := by
       have e1 : (rawQ G a ν ((D.Ψ, D.h) : RawData d L N₀ k N)).2.2.1 =
           (0 : Torus d (N₀ * L ^ k) → Fin N → ℂ) := rfl
-      rw [e1, pertSource_zero, rawQ_residual]
+      rw [e1, pertSource_zeroΨ, rawQ_residual]
       exact hP
     obtain ⟨e1, e2⟩ := huniq _ _ hP' hSm
     refine Prod.ext ?_ ?_

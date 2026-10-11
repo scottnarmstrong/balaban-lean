@@ -167,7 +167,7 @@ section Reduction
 
 variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
-theorem pertSource_zero (f₁ : G.Ω 1 × Fin N → ℂ) :
+theorem pertSource_zeroΨ (f₁ : G.Ω 1 × Fin N → ℂ) :
     pertSource G a (0 : Torus d (N₀ * L ^ k) → Fin N → ℂ) f₁ = f₁ := by
   funext p
   simp [pertSource, qStar, boundaryTerm]

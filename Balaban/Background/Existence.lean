@@ -83,7 +83,7 @@ theorem bg_core (H : BgHyp d L k ϱ a ν) (hδ0 : 0 < δ) (hδε : δ ≤ ε) (h
     H.approxSetting hδ0 hδε (hε.trans (bgC0_le d L N)) hdelta.1 hνε
   have hyp := prop51Hyp_of_data (N := N) H S hδa W (by linarith) hC32
   obtain ⟨δφ, δα, hP, hS, hSup, huniq⟩ := prop51_exists_unique hd0 hyp
-  rw [pertSource_zero] at hP huniq
+  rw [pertSource_zeroΨ] at hP huniq
   have hc0 := bgC0_pos d L N hd0
   have hK2 := cK2_pos d L N
   have hKδ : cK2 d L N * (lemma53Const d L * δ) ≤ bgK1 d L N * δ := by
