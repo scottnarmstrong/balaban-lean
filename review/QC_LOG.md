@@ -25,3 +25,9 @@ statements were compared against the PDF page images by the orchestrator.
 - Brydges, "A short course on cluster expansions", Les Houches 1984 (Elsevier 1986) — cited by P5, P6.
 - Gawedzki–Kupiainen, CMP 102 (1985) — Gross–Neveu RG, used only by P8.
 - Brydges–Dimock–Hurd, "Weak perturbations of Gaussian measures" (preprint) — cited by P4.
+
+# Orchestrator quality-check log (Phase 3: external library)
+
+| Key | Words | Template (0–10) | Notes |
+|---|---|---|---|
+| E1 | 2581 | 11 sections | High-temperature decay result (Thm 1) plus an abstract polymer-gas convergence theorem (Thm 2, cardinality-weighted activities, Penrose tree bound cited). Orphaned in P4 (listed as [5], never cited in text); cited generically by P6 [9] (pp. 35, 38) and P7 [11] (p. 528) for exponentiating polymer expansions. |
