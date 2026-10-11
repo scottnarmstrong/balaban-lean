@@ -25,7 +25,13 @@ Your job: produce two separate documents.
 
 ## Inputs and how to use them
 
-- Read SOURCES.md, READER_BRIEF.md and all ten reviews in full.
+- Read SOURCES.md, READER_BRIEF.md, QC_LOG.md and all ten reviews in full.
+  QC_LOG.md records the orchestrator's spot-checks against the PDFs, known
+  printing errors in the bibliographies, a warning that the inductive
+  hypotheses are numbered differently in P1 ((H.1)–(H.9)) and in P0/P4/P5
+  ((H.1)–(H.7)) — build a concordance table — and the external sources
+  identified so far. Note also that P8 is about the 2d Gross–Neveu model,
+  not O(N).
 - The reviews were written by readers who each saw only one paper. They may
   disagree with each other, miss cross-paper connections, or contain errors.
   Reconcile them. For anything load-bearing — the main theorems, the
