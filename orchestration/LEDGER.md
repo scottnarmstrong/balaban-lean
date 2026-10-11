@@ -117,3 +117,5 @@
 | 2026-10-11 | W33 background wrap-up | running | Sonnet; I-1(e) Hölder, Prop 5.4 for bgFieldC, c₀-independence |
 | 2026-10-11 | D-TP review | accept with revisions | `notes/phase1/OBSERVABLES-review.md`: F-B confirmed (rtr/rlg bound needs ν^{(d−2)/2}), O-02 new (em bound false on small tori), F-A optional weakening (J after β); last covariance massive with tail (P9 (4.14) misprint); kernels massless for i ≤ k₀; O-04..O-10 minor; P9 (3.13) on subdomains is the main risk |
 | 2026-10-11 | W34 C1Star fix | running | Sonnet; F-B, O-02, F-A in `C1Star.lean` + Root-C proof adaptation; `rootC_of_rootFAndC1Star` type unchanged |
+| 2026-10-11 | W28 composition domains | landed | `lemma62` (composed real datum ∈ Ψ̃(𝔹_j; C₄K₁δ), C₄ = 4d+8), `lemma63`/`lemma63_inDomainC` (complex), `composeData_isReal`, `compWeight_kappa_mem`, `scaledComposition` ((R-S) as `ScaledPsiC`, C₀ = 8d+12; needs |φc−φr|₀ ≤ ε and a restricted pair: flag to SMALLFIELD) (≈2,830 lines) |
+| 2026-10-11 | W35 Theorem 7.3 | running | Sonnet; I-2 for bgField/bgFieldC (composition identities (4.39), domains, 𝒮 uniqueness, Prop 6.4) |
