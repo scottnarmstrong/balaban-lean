@@ -83,6 +83,8 @@ public import Balaban.Symmetry.InvariantReduction
 public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RGParam
 public import Balaban.Flow.RunningCoefficients
+public import Balaban.Flow.MatrixInfty
+public import Balaban.Flow.RGInfty
 public import Balaban.Green.Summation
 public import Balaban.Green.DomainDifference
 public import Balaban.Green.Perturbation
