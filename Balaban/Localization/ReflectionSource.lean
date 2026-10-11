@@ -258,4 +258,250 @@ theorem single_source_U_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
   refine le_trans (le_of_eq rfl) (h1.trans ?_)
   exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left h2 hK2) hF
 
+/-- **Hölder bound for one reflected source** (`holder_pair_decay` on the reflected set). -/
+theorem single_source_holder_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {θ : ℝ}, 0 < θ → θ < 1 → ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ}
+      (G : GeneratingSet d L N₀ k ϱ)
+      {q s : ℕ} {c : Fin d → ℕ} [NeZero s] (h : FoldSetting G q s c) {a : ℕ → ℝ} {ν : ℝ},
+      0 ≤ ν → ν * ((L : ℝ) ^ k) ^ 2 ≤ 1 → IsAdmissibleWeights k a →
+      ∀ (α : G.Ω 1 → ℂ), (∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2)) →
+      1 ≤ ϱ → (L : ℝ) ^ d ≤ Real.exp (agmonRate d / 2 * (ϱ - 1)) →
+      ∀ {j' : ℕ}, 1 ≤ j' → j' ≤ q → ∀ (r : Torus d (2 * s * L ^ q)),
+      foldTo N₀ L k q s c r ∈ G.layer j' → ∀ (g : (reflectedGS G h).Ω 1 → ℂ),
+      (∀ x, g x ≠ 0 → jBlock d L (2 * s) q j' x = jBlock d L (2 * s) q j' r) →
+      ∀ {Mf : ℝ}, 0 ≤ Mf → (∀ x, ‖g x‖ ≤ Mf) → ∀ {p p' : Torus d (2 * s * L ^ q)},
+      (reflectedGS G h).layerIndex p ≤ (reflectedGS G h).layerIndex p' + 1 →
+      ∀ {z : Fin d → ℤ}, 1 ≤ ‖z‖ → liftPt p z = p' → ∀ (ν' : Fin d),
+      ((reflectedGS G h).spacing p) ^ 2 *
+          ‖(reflSol h a ν α g (p' + Pi.single ν' 1) - reflSol h a ν α g p') -
+            (reflSol h a ν α g (p + Pi.single ν' 1) - reflSol h a ν α g p)‖ ≤
+        (B / θ) * (((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ)) *
+          ((decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) (foldTo N₀ L k q s c r)) +
+            decay (agmonRate d / 2)
+              (G.pathDist (foldTo N₀ L k q s c p') (foldTo N₀ L k q s c r))) *
+            ((L : ℝ) ^ (2 * j') * Mf)) := by
+  obtain ⟨B, hB, hH⟩ := holder_pair_decay (d := d) (L := L) hd hL
+  refine ⟨B, hB, ?_⟩
+  intro θ hθ0 hθ1 k N₀ _ ϱ G q s c _ h a ν hν0 hν1 ha α hα hϱ hsep j' hj'1 hj'q r hr g hg Mf
+    hMf0 hMf p p' hlay z hz hlift ν'
+  set S := reflSetting h hd hL hν0 hν1 ha α hα hϱ hsep hj'1 hj'q r hr g hg with hS
+  have h1 := hH hθ0 hθ1 (reflectedGS G h) S hMf0 hMf (mem_reflectedGS_Ω_one h p)
+    (mem_reflectedGS_Ω_one h p') hlay hz hlift ν'
+  have hd0 : 0 ≤ agmonRate d / 2 := by
+    have := agmonRate_pos (show 0 < d by omega)
+    positivity
+  have h2 := decay_anti_dist hd0 (pathDist_fold_le h p r)
+  have h3 := decay_anti_dist hd0 (pathDist_fold_le h p' r)
+  have hF : 0 ≤ (L : ℝ) ^ (2 * j') * Mf := by positivity
+  have hBθ : 0 ≤ B / θ := by positivity
+  have hX : 0 ≤ ((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ) := by
+    have := spacing_pos (reflectedGS G h) (x := p)
+    positivity
+  refine le_trans (le_of_eq rfl) (h1.trans ?_)
+  refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hBθ hX)
+  exact mul_le_mul_of_nonneg_right (add_le_add h2 h3) hF
+
+open scoped Classical in
+/-- The part of the even extension `E f` lying over the reflected block `β`. -/
+noncomputable def srcPiece (h : FoldSetting G q s c) (j' : ℕ) (β : Torus d (2 * s * L ^ (q - j')))
+    (f : G.Ω 1 → ℂ) : (reflectedGS G h).Ω 1 → ℂ :=
+  fun p => if jBlock d L (2 * s) q j' (p : Torus d (2 * s * L ^ q)) = β then reflU h f p else 0
+
+theorem sum_srcPiece (h : FoldSetting G q s c) {j' : ℕ} (hj'q : j' ≤ q)
+    {y' : Torus d (N₀ * L ^ k)} (f : G.Ω 1 → ℂ)
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ k j' z = jBlock d L N₀ k j' y') :
+    ∑ β ∈ sourceBlocks N₀ L k q s c j' y', srcPiece h j' β f = reflU h f := by
+  classical
+  funext p
+  rw [Finset.sum_apply]
+  simp only [srcPiece]
+  rw [Finset.sum_ite_eq]
+  by_cases hf : reflU h f p = 0
+  · simp [hf]
+  · have hf' : f ⟨foldTo N₀ L k q s c p, foldTo_mem_Ω_one h p⟩ ≠ 0 := hf
+    have hb := hsupp _ hf'
+    have hmem : jBlock d L (2 * s) q j' (p : Torus d (2 * s * L ^ q)) ∈
+        sourceBlocks N₀ L k q s c j' y' :=
+      (jBlock_mem_sourceBlocks_iff h hj'q y' p).2 hb
+    simp [hmem]
+
+theorem reflSol_sum (h : FoldSetting G q s c) (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ)
+    {ι : Type*} (T : Finset ι) (g : ι → (reflectedGS G h).Ω 1 → ℂ) (p : Torus d (2 * s * L ^ q)) :
+    reflSol h a ν α (∑ i ∈ T, g i) p = ∑ i ∈ T, reflSol h a ν α (g i) p := by
+  classical
+  unfold reflSol
+  rw [Matrix.mulVec_sum]
+  by_cases hp : p ∈ (reflectedGS G h).Ω 1
+  · simp only [zeroExt, hp, ↓reduceDIte, Finset.sum_apply]
+  · simp [zeroExt, hp]
+
+theorem norm_sum_grad_le {ι : Type*} (T : Finset ι) {w : ℝ} (hw : 0 ≤ w) (v : ι → ℂ)
+    (v' : Fin d → ι → ℂ) :
+    ‖∑ i ∈ T, v i‖ + w * ∑ μ : Fin d, ‖∑ i ∈ T, v' μ i - ∑ i ∈ T, v i‖ ≤
+      ∑ i ∈ T, (‖v i‖ + w * ∑ μ : Fin d, ‖v' μ i - v i‖) := by
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum, Finset.sum_comm]
+  refine add_le_add (norm_sum_le _ _) (mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun μ _ => ?_) hw)
+  rw [← Finset.sum_sub_distrib]
+  exact norm_sum_le _ _
+
+/-- **Pointwise bound on the doubled torus for the even extension of a source in one block.** -/
+theorem refl_U_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ)
+      {q s : ℕ} {c : Fin d → ℕ} [NeZero s] (h : FoldSetting G q s c) {a : ℕ → ℝ} {ν : ℝ},
+      0 ≤ ν → ν * ((L : ℝ) ^ k) ^ 2 ≤ 1 → IsAdmissibleWeights k a →
+      ∀ (α : G.Ω 1 → ℂ), (∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2)) →
+      1 ≤ ϱ → (L : ℝ) ^ d ≤ Real.exp (agmonRate d / 2 * (ϱ - 1)) →
+      ∀ {j' : ℕ} {y' : Torus d (N₀ * L ^ k)}, 1 ≤ j' → j' ≤ k → y' ∈ G.layer j' →
+      y' ∈ cubeOf N₀ L k q s c → ∀ (f : G.Ω 1 → ℂ),
+      (∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ k j' z = jBlock d L N₀ k j' y') →
+      ∀ {Mf : ℝ}, 0 ≤ Mf → (∀ z, ‖f z‖ ≤ Mf) → ∀ (p : Torus d (2 * s * L ^ q)),
+      ‖reflSol h a ν α (reflU h f) p‖ + (reflectedGS G h).spacing p *
+          ∑ μ : Fin d, ‖reflSol h a ν α (reflU h f) (p + Pi.single μ 1) -
+            reflSol h a ν α (reflU h f) p‖ ≤
+        K * decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') *
+          ((L : ℝ) ^ (2 * j') * Mf) := by
+  classical
+  obtain ⟨K2, hK2, hS⟩ := single_source_U_le (d := d) (L := L) hd hL
+  refine ⟨2 ^ d * K2, by positivity, ?_⟩
+  intro k N₀ _ ϱ G q s c _ h a ν hν0 hν1 ha α hα hϱ hsep j' y' hj'1 hj'k hy' hyc f hsupp Mf hMf0
+    hMf p
+  have hj'q : j' ≤ q := by
+    have h1 := foldTo_unfoldPt h hyc
+    have h2 := layerIndex_le h (unfoldPt N₀ L k q s c y')
+    rw [h1, G.layerIndex_eq hj'1 hj'k hy'] at h2
+    exact h2
+  rw [← sum_srcPiece h hj'q f hsupp (y' := y')]
+  simp only [reflSol_sum]
+  have hw : 0 ≤ (reflectedGS G h).spacing p := (spacing_pos (reflectedGS G h)).le
+  refine (norm_sum_grad_le (sourceBlocks N₀ L k q s c j' y') hw
+    (fun β => reflSol h a ν α (srcPiece h j' β f) p)
+    (fun μ β => reflSol h a ν α (srcPiece h j' β f) (p + Pi.single μ 1))).trans ?_
+  have hterm : ∀ β ∈ sourceBlocks N₀ L k q s c j' y',
+      ‖reflSol h a ν α (srcPiece h j' β f) p‖ + (reflectedGS G h).spacing p *
+          ∑ μ : Fin d, ‖reflSol h a ν α (srcPiece h j' β f) (p + Pi.single μ 1) -
+            reflSol h a ν α (srcPiece h j' β f) p‖ ≤
+        K2 * decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') *
+          ((L : ℝ) ^ (2 * j') * Mf) := by
+    intro β hβ
+    obtain ⟨r, hr1, hr2⟩ := exists_source_pre y' hβ
+    have hrl : foldTo N₀ L k q s c r ∈ G.layer j' := by rw [hr1]; exact hy'
+    have := hS G h hν0 hν1 ha α hα hϱ hsep hj'1 hj'q r hrl (srcPiece h j' β f)
+      (fun x hx => by
+        unfold srcPiece at hx
+        by_contra hne
+        rw [hr2] at hne
+        simp only [hne, ↓reduceIte] at hx
+        exact hx rfl) hMf0 (fun x => by
+        unfold srcPiece
+        split_ifs
+        · exact hMf _
+        · simpa using hMf0) p
+    rwa [hr1] at this
+  refine (Finset.sum_le_sum hterm).trans ?_
+  rw [Finset.sum_const, nsmul_eq_mul]
+  have hc : ((sourceBlocks N₀ L k q s c j' y').card : ℝ) ≤ 2 ^ d := by
+    exact_mod_cast card_sourceBlocks_le h j' y'
+  have hnn : 0 ≤ K2 * decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') *
+      ((L : ℝ) ^ (2 * j') * Mf) := by
+    have := decay_nonneg (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y')
+    positivity
+  calc _ ≤ (2 ^ d : ℝ) * (K2 * decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') *
+        ((L : ℝ) ^ (2 * j') * Mf)) := mul_le_mul_of_nonneg_right hc hnn
+    _ = _ := by ring
+
+/-- **Hölder bound on the doubled torus for the even extension of a source in one block.** -/
+theorem refl_holder_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {θ : ℝ}, 0 < θ → θ < 1 → ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ}
+      (G : GeneratingSet d L N₀ k ϱ)
+      {q s : ℕ} {c : Fin d → ℕ} [NeZero s] (h : FoldSetting G q s c) {a : ℕ → ℝ} {ν : ℝ},
+      0 ≤ ν → ν * ((L : ℝ) ^ k) ^ 2 ≤ 1 → IsAdmissibleWeights k a →
+      ∀ (α : G.Ω 1 → ℂ), (∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2)) →
+      1 ≤ ϱ → (L : ℝ) ^ d ≤ Real.exp (agmonRate d / 2 * (ϱ - 1)) →
+      ∀ {j' : ℕ} {y' : Torus d (N₀ * L ^ k)}, 1 ≤ j' → j' ≤ k → y' ∈ G.layer j' →
+      y' ∈ cubeOf N₀ L k q s c → ∀ (f : G.Ω 1 → ℂ),
+      (∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ k j' z = jBlock d L N₀ k j' y') →
+      ∀ {Mf : ℝ}, 0 ≤ Mf → (∀ z, ‖f z‖ ≤ Mf) → ∀ {p p' : Torus d (2 * s * L ^ q)},
+      (reflectedGS G h).layerIndex p ≤ (reflectedGS G h).layerIndex p' + 1 →
+      ∀ {z : Fin d → ℤ}, 1 ≤ ‖z‖ → liftPt p z = p' → ∀ (ν' : Fin d),
+      ((reflectedGS G h).spacing p) ^ 2 *
+          ‖(reflSol h a ν α (reflU h f) (p' + Pi.single ν' 1) - reflSol h a ν α (reflU h f) p') -
+            (reflSol h a ν α (reflU h f) (p + Pi.single ν' 1) -
+              reflSol h a ν α (reflU h f) p)‖ ≤
+        (B / θ) * (((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ)) *
+          ((decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') +
+            decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p') y')) *
+            ((L : ℝ) ^ (2 * j') * Mf)) := by
+  classical
+  obtain ⟨B0, hB0, hS⟩ := single_source_holder_le (d := d) (L := L) hd hL
+  refine ⟨2 ^ d * B0, by positivity, ?_⟩
+  intro θ hθ0 hθ1 k N₀ _ ϱ G q s c _ h a ν hν0 hν1 ha α hα hϱ hsep j' y' hj'1 hj'k hy' hyc f hsupp
+    Mf hMf0 hMf p p' hlay z hz hlift ν'
+  have hj'q : j' ≤ q := by
+    have h1 := foldTo_unfoldPt h hyc
+    have h2 := layerIndex_le h (unfoldPt N₀ L k q s c y')
+    rw [h1, G.layerIndex_eq hj'1 hj'k hy'] at h2
+    exact h2
+  rw [← sum_srcPiece h hj'q f hsupp (y' := y')]
+  simp only [reflSol_sum]
+  have hsp : 0 ≤ ((reflectedGS G h).spacing p) ^ 2 := by positivity
+  have hterm : ∀ β ∈ sourceBlocks N₀ L k q s c j' y',
+      ((reflectedGS G h).spacing p) ^ 2 *
+          ‖(reflSol h a ν α (srcPiece h j' β f) (p' + Pi.single ν' 1) -
+              reflSol h a ν α (srcPiece h j' β f) p') -
+            (reflSol h a ν α (srcPiece h j' β f) (p + Pi.single ν' 1) -
+              reflSol h a ν α (srcPiece h j' β f) p)‖ ≤
+        (B0 / θ) * (((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ)) *
+          ((decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') +
+            decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p') y')) *
+            ((L : ℝ) ^ (2 * j') * Mf)) := by
+    intro β hβ
+    obtain ⟨r, hr1, hr2⟩ := exists_source_pre y' hβ
+    have hrl : foldTo N₀ L k q s c r ∈ G.layer j' := by rw [hr1]; exact hy'
+    have := hS hθ0 hθ1 G h hν0 hν1 ha α hα hϱ hsep hj'1 hj'q r hrl (srcPiece h j' β f)
+      (fun x hx => by
+        unfold srcPiece at hx
+        by_contra hne
+        rw [hr2] at hne
+        simp only [hne, ↓reduceIte] at hx
+        exact hx rfl) hMf0 (fun x => by
+        unfold srcPiece
+        split_ifs
+        · exact hMf _
+        · simpa using hMf0) hlay hz hlift ν'
+    rwa [hr1] at this
+  have hsum : ((reflectedGS G h).spacing p) ^ 2 *
+      ‖(∑ β ∈ sourceBlocks N₀ L k q s c j' y',
+            reflSol h a ν α (srcPiece h j' β f) (p' + Pi.single ν' 1) -
+          ∑ β ∈ sourceBlocks N₀ L k q s c j' y', reflSol h a ν α (srcPiece h j' β f) p') -
+        (∑ β ∈ sourceBlocks N₀ L k q s c j' y',
+            reflSol h a ν α (srcPiece h j' β f) (p + Pi.single ν' 1) -
+          ∑ β ∈ sourceBlocks N₀ L k q s c j' y', reflSol h a ν α (srcPiece h j' β f) p)‖ ≤
+      ∑ β ∈ sourceBlocks N₀ L k q s c j' y', ((reflectedGS G h).spacing p) ^ 2 *
+          ‖(reflSol h a ν α (srcPiece h j' β f) (p' + Pi.single ν' 1) -
+              reflSol h a ν α (srcPiece h j' β f) p') -
+            (reflSol h a ν α (srcPiece h j' β f) (p + Pi.single ν' 1) -
+              reflSol h a ν α (srcPiece h j' β f) p)‖ := by
+    rw [← Finset.mul_sum]
+    refine mul_le_mul_of_nonneg_left ?_ hsp
+    rw [← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
+    exact norm_sum_le _ _
+  refine hsum.trans ((Finset.sum_le_sum hterm).trans ?_)
+  rw [Finset.sum_const, nsmul_eq_mul]
+  have hc : ((sourceBlocks N₀ L k q s c j' y').card : ℝ) ≤ 2 ^ d := by
+    exact_mod_cast card_sourceBlocks_le h j' y'
+  have hnn : 0 ≤ (B0 / θ) * (((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ)) *
+          ((decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') +
+            decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p') y')) *
+            ((L : ℝ) ^ (2 * j') * Mf)) := by
+    have h1 := decay_nonneg (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y')
+    have h2 := decay_nonneg (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p') y')
+    have h3 := spacing_pos (reflectedGS G h) (x := p)
+    have h4 : (0 : ℝ) < ‖z‖ := by linarith
+    positivity
+  calc _ ≤ (2 ^ d : ℝ) * ((B0 / θ) * (((reflectedGS G h).spacing p) ^ θ * ‖z‖ ^ (1 - θ)) *
+          ((decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p) y') +
+            decay (agmonRate d / 2) (G.pathDist (foldTo N₀ L k q s c p') y')) *
+            ((L : ℝ) ^ (2 * j') * Mf))) := mul_le_mul_of_nonneg_right hc hnn
+    _ = _ := by ring
+
 end Balaban.Reflection
