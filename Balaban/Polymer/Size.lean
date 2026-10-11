@@ -118,6 +118,22 @@ theorem size_entropy (hε : 0 ≤ ε)
         mul_le_mul_of_nonneg_left (hG2 b) (by positivity)
     _ = α := by rw [hαdef]; ring
 
+
+omit [Fintype P] [Fintype B] in
+/-- The weight `g = κ'(d + c)` satisfies (G3) with constant `0`. -/
+theorem size_g_G3 [Fintype P] {κ' c : ℝ} (hκ' : 0 ≤ κ')
+    (hG3 : ∀ (n : ℕ) (X : Fin (n + 1) → P), (clusterGraph (shareBlock supp) X).Connected →
+      d (unionOf supp X) ≤ ∑ i, d (supp (X i)) + c * n) :
+    ∀ (n : ℕ) (X : Fin (n + 1) → P), (clusterGraph (shareBlock supp) X).Connected →
+      (fun Y => κ' * (d Y + c)) (unionOf supp X) ≤
+        ∑ i, (fun Y => κ' * (d Y + c)) (supp (X i)) + 0 * n := by
+  intro n X hX
+  have h1 := hG3 n X hX
+  simp only [zero_mul, add_zero, ← Finset.mul_sum, Finset.sum_add_distrib, Finset.sum_const,
+    Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  push_cast
+  nlinarith
+
 /-- **PE-L for a general size** (POLYMER.md §2.3). -/
 theorem pe_size (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c)
     (hd : ∀ Y, 0 ≤ d Y) (hne : ∀ x, (supp x).Nonempty)
@@ -162,14 +178,7 @@ theorem pe_size (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤
   intro b
   set g : Finset B → ℝ := fun Y => κ' * (d Y + c) with hg
   have hg0 : ∀ Y, 0 ≤ g Y := fun Y => by have := hd Y; positivity
-  have hG3' : ∀ (n : ℕ) (X : Fin (n + 1) → P), (clusterGraph (shareBlock supp) X).Connected →
-      g (unionOf supp X) ≤ ∑ i, g (supp (X i)) + 0 * n := by
-    intro n X hX
-    have h1 := hG3 n X hX
-    simp only [hg, zero_mul, add_zero, ← Finset.mul_sum, Finset.sum_add_distrib, Finset.sum_const,
-      Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-    push_cast
-    nlinarith
+  have hG3' := size_g_G3 supp d hκ' hG3
   have := pe_PY_bound (shareBlock supp) supp g 0 le_rfl hg0 hG3'
     (κ0 := fun x => ε * Real.exp (-κ * d (supp x))) (fun x => rfl) hKP K hK b
   have hle : ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
