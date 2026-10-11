@@ -13,3 +13,5 @@
 | 2026-10-11 | W3a BKAR port | landed | `975347f` (55 files, modules, v4.35.0-rc2; proof-only repairs `dif_pos/dif_neg → dite_eq_left/right`, `if_pos/if_neg → ite_eq_left/right`, one trailing `rfl`; statements unchanged, checked by diff against `a07f44a`); axioms standard |
 | 2026-10-11 | W2a Combes–Thomas | running | Sonnet, worktree W2a |
 | 2026-10-11 | W2a Combes–Thomas | landed | non-Hermitian coercive kernels with exponential decay: `combesThomas`, `combesThomas_restrict`, `perturbation_decay`, `greenFn_resolvent_identity` (`Balaban/Green/`, 724 lines); axioms standard |
+| 2026-10-11 | W1 lattice/Gaussian | landed | `99dc252`: blocks, block averaging (Q, Q*, projection), Gaussian integral with determinant (complex source), Gaussian measure and moments, Schur/Woodbury, block-spin identity with minimizer, composition, weighted form (1,103 lines); axioms standard; target 6 open → W1b |
+| 2026-10-11 | D-PE polymer document | draft, in review | `notes/phase1/POLYMER.md` (Sonnet); review → `POLYMER-review.md` |
