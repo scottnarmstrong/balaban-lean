@@ -108,6 +108,8 @@ public import Balaban.Symmetry.InvariantReduction
 public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RGParam
 public import Balaban.Flow.RunningCoefficients
+public import Balaban.Flow.MatrixInfty
+public import Balaban.Flow.RGInfty
 public import Balaban.Green.Summation
 public import Balaban.Green.DomainDifference
 public import Balaban.Green.Perturbation
@@ -243,3 +245,9 @@ public import Balaban.Localization.AbstractExpansion
 public import Balaban.Localization.RiemannSum
 public import Balaban.Localization.ParameterAnalytic
 public import Balaban.Localization.Geometry
+public import Balaban.LargeField.Geometry.Lattice
+public import Balaban.LargeField.Geometry.Plaquette
+public import Balaban.LargeField.Geometry.BoundaryConnectivity
+public import Balaban.LargeField.Geometry.Escape
+public import Balaban.LargeField.Geometry.Timar
+public import Balaban.LargeField.Geometry.LemmaS
