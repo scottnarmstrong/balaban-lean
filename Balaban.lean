@@ -136,6 +136,9 @@ public import Balaban.Green.TranslationInvariant
 public import Balaban.Green.CoarseOperator
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
+public import Balaban.Green.CauchyInverse
+public import Balaban.Green.LimitCauchy
+public import Balaban.Green.InfiniteVolumeUnique
 public import Balaban.Model.SphereMeasure
 public import Balaban.Model.Symmetry
 public import Balaban.Model.BlockStructure
