@@ -96,6 +96,7 @@ public import Balaban.Background.Theorem52
 public import Balaban.Background.Theorem52Analytic
 public import Balaban.Background.MinimizerAlg
 public import Balaban.Background.MinimizerExpansion
+public import Balaban.Background.Minimizer
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
