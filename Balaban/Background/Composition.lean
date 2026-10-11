@@ -505,4 +505,84 @@ theorem compose_eq_of_unique (h : Precedes G G') (a : ℕ → ℝ)
 
 end Identities
 
+/-! ### Proposition 6.4: the perturbed composition (`g ≡ 0` or any `φ₀`) -/
+
+section Perturbed
+
+variable {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+
+/-- **Proposition 6.4, the identities (P2 (4.42), (4.43))**: a solution `(δφ', δα')` of the
+perturbed system (P-1), (P-2) for `𝔹'_k` restricts to a solution for `𝔹_j` with the datum
+`δΨ = composeField(δφ', δΨ')` (the formula (6.2) with `φ' → δφ'`, `ψ'_p → δΨ'`), the same `φ₀`,
+and restricted `α₀`, `f₁`.  No constraint on `φ₀` is used (the constraint `φ₀·φ₀ = 1` enters only
+through the hypotheses (P4) of Proposition 5.1 in `prop64`). -/
+theorem isPerturbed_compose (h : Precedes G G') (a : ℕ → ℝ) (ha : ∀ j, 1 ≤ j → j ≤ k → a j ≠ 0)
+    (ν : ℝ) {α₀' : G'.Ω 1 → ℂ} {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {δΨ' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {f₁' : G'.Ω 1 × Fin N → ℂ}
+    {δφ' : G'.Ω 1 × Fin N → ℂ} {δα' : G'.Ω 1 → ℂ}
+    (hP : IsPerturbed G' a ν α₀' φ₀ (pertSource G' a δΨ' f₁') δφ' δα') :
+    IsPerturbed G a ν (h.restrictα α₀') φ₀
+      (pertSource G a (fun z j => composeField G G' a δφ' δΨ' z j) (h.restrictφ f₁'))
+      (h.restrictφ δφ') (h.restrictα δα') := by
+  refine ⟨?_, fun x => hP.2 (h.incl x)⟩
+  funext ⟨x, i⟩
+  have e := resid_compose h a ha ν (α₀' + δα') δφ' δΨ' x i
+  have h1 := congrFun hP.1 (h.incl x, i)
+  simp only [Pi.add_apply] at h1 ⊢
+  have h2 := liftOp_dirichlet_add (G := G') (N := N) a ν α₀' δα' δφ' (h.incl x, i)
+  have h3 := liftOp_dirichlet_add (G := G) (N := N) a ν (h.restrictα α₀') (h.restrictα δα')
+    (h.restrictφ δφ') (x, i)
+  have h4 : (h.restrictα α₀' + h.restrictα δα') = (fun z => (α₀' + δα') (h.incl z)) := rfl
+  rw [h4] at h3
+  unfold pertSource at h1 ⊢
+  simp only [Pi.add_apply] at h1 ⊢
+  unfold Precedes.restrictφ at h3 e ⊢
+  unfold Precedes.restrictα at h3 ⊢
+  simp only [Precedes.incl_val] at *
+  linear_combination -h3 + e + h2 + h1
+
+/-- **Proposition 6.4** (P2 (4.41)–(4.43); BACKGROUND.md §6.7 with the smallness hypotheses of
+the V-02 fix).  If the hypotheses (P1)–(P4) of Proposition 5.1 hold for `𝔹_j` with the data
+`(α₀|, φ₀, δΨ, f₁|)` (this is where `δ₁ ↦ (2K₂+1)δ₁` and `g ≡ 0` restrict), then the restriction
+of the solution for `𝔹'_k` is *the* solution for `𝔹_j` in the class `|δα|₂ ≤ c₆`. -/
+theorem prop64 (hd : 0 < d) (h : Precedes G G') (a : ℕ → ℝ) (ha : ∀ j, 1 ≤ j → j ≤ k → a j ≠ 0)
+    (ν : ℝ) {α₀' : G'.Ω 1 → ℂ} {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {δΨ' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {f₁' : G'.Ω 1 × Fin N → ℂ}
+    {δφ' : G'.Ω 1 × Fin N → ℂ} {δα' : G'.Ω 1 → ℂ} {δ₀ δ₁ : ℝ}
+    (hP : IsPerturbed G' a ν α₀' φ₀ (pertSource G' a δΨ' f₁') δφ' δα')
+    (hS : Small G' δα' (c6 d L N))
+    (H : Prop51Hyp G a ν (h.restrictα α₀') φ₀ (fun z j => composeField G G' a δφ' δΨ' z j)
+      (h.restrictφ f₁') δ₀ δ₁) :
+    Small G (h.restrictα δα') (c6 d L N) ∧
+    ∀ (δφ : G.Ω 1 × Fin N → ℂ) (δα : G.Ω 1 → ℂ),
+      IsPerturbed G a ν (h.restrictα α₀') φ₀
+        (pertSource G a (fun z j => composeField G G' a δφ' δΨ' z j) (h.restrictφ f₁')) δφ δα →
+      Small G δα (c6 d L N) → δφ = h.restrictφ δφ' ∧ δα = h.restrictα δα' := by
+  have hc := isPerturbed_compose h a ha ν hP
+  refine ⟨?_, ?_⟩
+  · intro x
+    have hle := h.layerIndex_le x.2
+    have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+    have hsp : G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 ≤
+        G'.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by
+      unfold GeneratingSet.spacing
+      exact pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL hle) 2
+    exact (mul_le_mul_of_nonneg_right hsp (norm_nonneg _)).trans (hS (h.incl x))
+  · intro δφ δα hP2 hS2
+    obtain ⟨δφ0, δα0, -, -, -, huniq⟩ := prop51_exists_unique hd H
+    have hsm : Small G (h.restrictα δα') (c6 d L N) := by
+      intro x
+      have hle := h.layerIndex_le x.2
+      have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+      have hsp : G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 ≤
+          G'.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by
+        unfold GeneratingSet.spacing
+        exact pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL hle) 2
+      exact (mul_le_mul_of_nonneg_right hsp (norm_nonneg _)).trans (hS (h.incl x))
+    obtain ⟨e1, e2⟩ := huniq _ _ hP2 hS2
+    obtain ⟨f1, f2⟩ := huniq _ _ hc hsm
+    exact ⟨e1.trans f1.symm, e2.trans f2.symm⟩
+
+end Perturbed
+
 end Balaban.Background
