@@ -46,3 +46,4 @@ public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.PathMetric
+public import Balaban.Multiscale.PathMetricBounds
