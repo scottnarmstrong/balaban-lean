@@ -75,6 +75,10 @@ public import Balaban.Green.Lattice.LocCutoff
 public import Balaban.Green.Lattice.LocAlgebra
 public import Balaban.Green.Lattice.LocCore
 public import Balaban.Green.Lattice.Loc
+public import Balaban.Green.Lattice.LocSums
+public import Balaban.Multiscale.PointwiseLift
+public import Balaban.Multiscale.PointwisePotential
+public import Balaban.Multiscale.PointwiseAgmon
 public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
