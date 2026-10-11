@@ -16,3 +16,5 @@ public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
+public import Balaban.Analysis.Contraction
+public import Balaban.Analysis.InfiniteProduct
