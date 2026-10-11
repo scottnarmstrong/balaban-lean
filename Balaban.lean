@@ -20,3 +20,5 @@ public import Balaban.Gaussian.Integral
 public import Balaban.Gaussian.Measure
 public import Balaban.Gaussian.Schur
 public import Balaban.Gaussian.BlockSpin
+public import Balaban.Gaussian.Multiscale
+public import Balaban.Lattice.Laplacian
