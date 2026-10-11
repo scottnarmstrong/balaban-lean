@@ -225,21 +225,31 @@ theorem coarseOperator_form [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N *
   rw [← hc1, ← hc2]
   nlinarith
 
+theorem isUnit_det_of_isUnit_map {ι : Type*} [Fintype ι] [DecidableEq ι] (A : Matrix ι ι ℝ)
+    (h : IsUnit (A.map (algebraMap ℝ ℂ))) : IsUnit A.det := by
+  rw [Matrix.isUnit_iff_isUnit_det] at h
+  have e : (A.map (algebraMap ℝ ℂ)).det = algebraMap ℝ ℂ A.det := by
+    rw [← RingHom.mapMatrix_apply, ← RingHom.map_det]
+  rw [e] at h
+  rw [isUnit_iff_ne_zero] at h ⊢
+  intro h0
+  exact h (by rw [h0, map_zero])
+
 /-- The real inverse of a real matrix with unit complexification is the real part of the complex
 inverse. -/
 theorem map_inv_real {ι : Type*} [Fintype ι] [DecidableEq ι] (A : Matrix ι ι ℝ)
     (h : IsUnit (A.map (algebraMap ℝ ℂ))) :
     (A.map (algebraMap ℝ ℂ))⁻¹ = (A⁻¹).map (algebraMap ℝ ℂ) := by
-  have hdet : IsUnit A.det := by
-    rw [Matrix.isUnit_iff_isUnit_det] at h
-    have e : (A.map (algebraMap ℝ ℂ)).det = algebraMap ℝ ℂ A.det := by
-      rw [← RingHom.mapMatrix_apply, ← RingHom.map_det]
-    rw [e] at h
-    rw [isUnit_iff_ne_zero] at h ⊢
-    intro h0
-    exact h (by rw [h0, map_zero])
+  have hdet := isUnit_det_of_isUnit_map A h
   apply Matrix.inv_eq_right_inv
   rw [← Matrix.map_mul, Matrix.mul_nonsing_inv _ hdet, Matrix.map_one _ (map_zero _) (map_one _)]
+
+/-- `A` is invertible (its determinant is a unit). -/
+theorem coarseOperator_det_isUnit [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m) (hN : 0 < N)
+    (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a)
+    (ha'1 : 1 / 2 ≤ a') : IsUnit (coarseOperator d ℓ N m L M ν a a').det :=
+  isUnit_det_of_isUnit_map _ (isUnit_of_isCoercive (trGamma_pos hd)
+    (isCoercive_map_of_real _ fun φ => coarseOperator_form hd hℓ hN hm hν0 hν2 ha1 ha'1 φ))
 
 end Coercive
 
