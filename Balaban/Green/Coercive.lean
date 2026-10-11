@@ -24,8 +24,8 @@ Main results (all elementary, without operator norms):
   satisfies `‖G x y‖ ≤ γ⁻¹`.
 
 This is the first layer of the Combes–Thomas estimate (G-4 of the Balaban roadmap); the method
-follows `FroehlichSpencer.Infra.Green.CombesThomas` (Armstrong–Loher, public as
-`scottnarmstrong/Frohlich-Spencer`), with the Hermitian hypothesis replaced by coercivity.
+follows `FroehlichSpencer.Infra.Green.CombesThomas` (Armstrong–Loher; public repository
+`scottnarmstrong/Frohlich-Spencer`, commit b47bc3d), with the Hermitian hypothesis replaced by coercivity.
 -/
 
 @[expose] public section

@@ -12,3 +12,5 @@ public import Balaban.Frozen.Geometry.IsPolymer
 public import Balaban.External.BKAR
 public import Balaban.Green.Coercive
 public import Balaban.Green.CombesThomas
+public import Balaban.Green.Restriction
+public import Balaban.Green.GeometricResolvent

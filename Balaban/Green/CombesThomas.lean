@@ -25,8 +25,8 @@ whose entries are `≤ (4 c₀ ε / δ₀) exp (-(δ₀/4) dist x y)`, so by the
 (`reQuad_ge_of_entry_bound`) the conjugated matrix is still `γ₀/2`-coercive for small `ε`;
 an entry bound for right inverses of coercive matrices then gives the decay.
 
-The route follows `FroehlichSpencer.Infra.Green.CombesThomas` (Armstrong–Loher, public as
-`scottnarmstrong/Frohlich-Spencer`), generalized from range-one Hermitian kernels to
+The route follows `FroehlichSpencer.Infra.Green.CombesThomas` (Armstrong–Loher; public repository
+`scottnarmstrong/Frohlich-Spencer`, commit b47bc3d), generalized from range-one Hermitian kernels to
 exponentially weighted row and column sums and non-Hermitian coercive operators.  This is
 G-4 of the Balaban roadmap.  A matrix on `ι × Fin n` handles vector-valued fields.
 -/
