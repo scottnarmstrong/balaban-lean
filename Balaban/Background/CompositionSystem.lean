@@ -454,7 +454,7 @@ theorem isComposedSystem_of_isEL (h : Precedes G G') (a : ℕ → ℝ)
       linear_combination hr + (blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k)))
         (fun y => svec G' φ y i) z - D'.Ψ z i) * e1
 
-theorem composeField_eq_of_layer_eq (h : Precedes G G') (a : ℕ → ℝ) (D' : BgData G' N)
+theorem composeField_eq_of_layer_eq (a : ℕ → ℝ) (D' : BgData G' N)
     (φ : G'.Ω 1 × Fin N → ℂ) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
     (hap : a (G'.layerIndex x) ≠ 0) (hnp : G.layerIndex x = G'.layerIndex x) (i : Fin N) :
     composeField G G' a φ D'.Ψ x i = D'.Ψ x i := by
@@ -486,7 +486,7 @@ theorem system_eq_compose (h : Precedes G G') (a : ℕ → ℝ)
   rcases (h.layerIndex_le hx₀).lt_or_eq with hlt | heq
   swap
   · rw [congrFun (hS.compat x₀ hx₀ heq) i]
-    exact (composeField_eq_of_layer_eq h a D' φ hx₀ hap heq i).symm
+    exact (composeField_eq_of_layer_eq a D' φ hx₀ hap heq i).symm
   set p := G'.layerIndex x₀ with hp
   set S := G'.blk p x₀ with hSdef
   have hua := invAp_pos h a hpos hx₀' hlt
@@ -572,6 +572,123 @@ theorem system_eq_compose (h : Precedes G G') (a : ℕ → ℝ)
   linear_combination (-(((a p)⁻¹ : ℂ) - ((a (p - G.layerIndex x₀) : ℂ))⁻¹) * (a p : ℂ)) * hmt +
     ((ua : ℂ)⁻¹ * (((a p)⁻¹ : ℂ) - ((a (p - G.layerIndex x₀) : ℂ))⁻¹) * t) * hap1
 
+/-- **Theorem 6.1 (iii)**: a solution of `𝒮` is a solution of (EL) for `𝔹'_k` (equivalently:
+the system (4.17) is (EL) for `𝔹'_k` together with the explicit (6.2)). -/
+theorem isEL_of_isComposedSystem (h : Precedes G G') (a : ℕ → ℝ)
+    (hC1 : ∀ n p : ℕ, n ≤ p → ((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2 * (a n)⁻¹ =
+      (a p)⁻¹ - (a (p - n))⁻¹)
+    (hpos : ∀ r, 1 ≤ r → 0 < a r) (ν : ℝ) (D' : BgData G' N)
+    {ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φ : G'.Ω 1 × Fin N → ℂ} {α : G'.Ω 1 → ℂ}
+    (hS : IsComposedSystem G G' a ν D' ψ φ α) : IsEL G' a ν D' φ α := by
+  refine ⟨?_, hS.constraint⟩
+  have hres : ∀ (z : G'.Ω 1) (i : Fin N), elResidual G' a ν D' φ α (z, i) = 0 := by
+    intro z i
+    rw [elResidual_site]
+    have hsite := hS.site z i
+    by_cases hz : (z : Torus d (N₀ * L ^ k)) ∈ G.Ω 1
+    · simp only [hz, ↓reduceIte] at hsite
+      have hψ := system_eq_compose h a hC1 hpos ν D' hS hz i
+      have hcf := composeField_of_mem a φ D'.Ψ hz i
+      have han : a (G.layerIndex (z : Torus d (N₀ * L ^ k))) ≠ 0 :=
+        (hpos _ (G.layerIndex_spec hz).1).ne'
+      have e2 := coeff_mul_kappa (L := L) a (n := G.layerIndex (z : Torus d (N₀ * L ^ k)))
+        (p := G'.layerIndex (z : Torus d (N₀ * L ^ k))) han
+      rw [hψ, hcf] at hsite
+      linear_combination hsite + (D'.Ψ z i -
+        blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k))) (fun y => svec G' φ y i) z) * e2
+    · simp only [hz, ↓reduceIte] at hsite
+      have hz' : (z : Torus d (N₀ * L ^ k)) ∈ G'.Ω 1 := z.2
+      have hp1 := (G'.layerIndex_spec hz').1
+      have hlt : G.layerIndex (z : Torus d (N₀ * L ^ k)) < G'.layerIndex (z : Torus d (N₀ * L ^ k)) := by
+        rw [layerIndex_of_not_mem G hz]; omega
+      have hua := invAp_pos h a hpos hz' hlt
+      have hap : a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) ≠ 0 := (hpos _ hp1).ne'
+      have hfun : (fun y => psiExt G G' D' φ ψ y i) =
+          fun y => psiExt G G' D' φ (fun y j => composeField G G' a φ D'.Ψ y j) y i := by
+        funext y
+        unfold psiExt
+        by_cases hy : y ∈ G.Ω 1
+        · simp only [hy, ↓reduceIte]
+          exact system_eq_compose h a hC1 hpos ν D' hS hy i
+        · simp only [hy, ↓reduceIte]
+      rw [hfun] at hsite
+      have KI := blockMean_psiExt_compose h a hC1 D' φ hz' hap i
+      have e1 : (((invAp G G' a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) z)⁻¹ /
+          ((L : ℝ) ^ G'.layerIndex (z : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) *
+          ((a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) *
+            invAp G G' a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) z : ℝ) : ℂ) =
+          ((a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) /
+            ((L : ℝ) ^ G'.layerIndex (z : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) := by
+        have hL : (L : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne L
+        rw [← Complex.ofReal_mul]
+        congr 1
+        field_simp
+      rw [KI] at hsite
+      linear_combination hsite - (blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k)))
+        (fun y => svec G' φ y i) z - D'.Ψ z i) * e1
+  funext ⟨z, i⟩
+  have := hres z i
+  unfold elResidual at this
+  exact sub_eq_zero.1 (by simpa using this)
+
 end System
+
+/-! ### Local uniqueness of (EL) from Proposition 5.1 -/
+
+section LocalUnique
+
+variable {G : GeneratingSet d L N₀ k ϱ}
+
+theorem pertSource_zero (a : ℕ → ℝ) :
+    pertSource G a (fun _ _ => (0 : ℂ)) (0 : G.Ω 1 × Fin N → ℂ) = 0 := by
+  funext p
+  simp [pertSource, qStar, boundaryTerm]
+
+/-- **Local uniqueness of (EL)** (the uniqueness part of `prop51_exists_unique` with `δΨ = 0`,
+`f₁ = 0`): if `(φ₁, α₀)` solves (EL) and the hypotheses (P2)–(P4) of Proposition 5.1 hold at
+`(φ₀, α₀)` with `φ₀ = φ₁` (in particular `g ≡ 0`), then (EL) has no other solution `(φ₂, α₂)`
+with `|α₂ - α₀|₂ ≤ c₆`. -/
+theorem el_local_unique (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} {α₀ : G.Ω 1 → ℂ}
+    {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : Prop51Hyp G a ν α₀ φ₀ (fun _ _ => (0 : ℂ)) 0 δ₀ δ₁) (D : BgData G N)
+    {φ₁ φ₂ : G.Ω 1 × Fin N → ℂ} {α₂ : G.Ω 1 → ℂ}
+    (h1 : IsEL G a ν D φ₁ α₀) (hφ : ∀ (z : G.Ω 1) (i : Fin N), φ₀ z i = φ₁ (z, i))
+    (h2 : IsEL G a ν D φ₂ α₂) (hs : Small G (α₂ - α₀) (c6 d L N)) :
+    φ₂ = φ₁ ∧ α₂ = α₀ := by
+  obtain ⟨δφ0, δα0, -, -, -, huniq⟩ := prop51_exists_unique hd H
+  have hc6 : 0 ≤ c6 d L N := (c6_pos d L N hd).le
+  have hzero : IsPerturbed G a ν α₀ φ₀ (pertSource G a (fun _ _ => (0 : ℂ)) 0)
+      (0 : G.Ω 1 × Fin N → ℂ) (0 : G.Ω 1 → ℂ) := by
+    refine ⟨?_, fun x => ?_⟩
+    · rw [pertSource_zero]; funext p; simp
+    · have := h1.2 x
+      simpa [← hφ] using this
+  have hpert : IsPerturbed G a ν α₀ φ₀ (pertSource G a (fun _ _ => (0 : ℂ)) 0)
+      (φ₂ - φ₁) (α₂ - α₀) := by
+    refine ⟨?_, fun x => ?_⟩
+    · rw [pertSource_zero]
+      funext p
+      have e2 := congrFun h2.1 p
+      have e1 := congrFun h1.1 p
+      have hadd := liftOp_dirichlet_add (G := G) (N := N) a ν α₀ (α₂ - α₀) φ₂ p
+      have hα : α₀ + (α₂ - α₀) = α₂ := by abel
+      rw [hα, e2] at hadd
+      simp only [Pi.add_apply, Pi.sub_apply, Pi.zero_apply, Matrix.mulVec_sub, zero_sub] at e1 hadd ⊢
+      rw [hφ] at *
+      linear_combination -hadd - e1
+    · have e : ∀ i, φ₀ x i + (φ₂ - φ₁) (x, i) = φ₂ (x, i) := fun i => by
+        simp only [Pi.sub_apply, hφ]; ring
+      calc _ = ∑ i, φ₂ (x, i) * φ₂ (x, i) :=
+            Finset.sum_congr rfl (fun i _ => by rw [e i])
+        _ = 1 := h2.2 x
+  obtain ⟨e1, e2⟩ := huniq _ _ hpert hs
+  obtain ⟨f1, f2⟩ := huniq _ _ hzero (fun x => by simpa using hc6)
+  constructor
+  · have := e1.trans f1.symm
+    exact sub_eq_zero.1 this
+  · have := e2.trans f2.symm
+    exact sub_eq_zero.1 this
+
+end LocalUnique
 
 end Balaban.Background
