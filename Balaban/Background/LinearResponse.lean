@@ -32,6 +32,7 @@ For real data `G − Π ⪰ 0` (`Balaban.Background.green_sub_constrainedOp_posS
 namespace Balaban.Background
 
 open Balaban.Multiscale Matrix Finset Filter Topology
+open scoped ComplexOrder
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
@@ -146,6 +147,110 @@ theorem linearResponse (St : Standing G a ν α₀ δ Φ) {S φ : ℂ → G.Ω 1
       exact (mul_eq_zero.1 hu).resolve_left two_ne_zero
     exact this
 
+/-- The source `S` of (1.1) is affine in the data, so its tangent is the source of the tangent
+data (without the weights `a`, mass `ν` or generating set changing): for differentiable families
+`Ψ(t)`, `h̃(t)`, `Ṡ = Q* a Ψ̇ + ν ḣ + 𝔟(Ψ̇)`. -/
+theorem source_hasDerivAt (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) (ν : ℝ)
+    {Ψt ht : ℂ → Torus d (N₀ * L ^ k) → Fin N → ℂ} {Ψd hd : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {t₀ : ℂ} (hΨ : HasDerivAt Ψt Ψd t₀) (hh : HasDerivAt ht hd t₀) :
+    HasDerivAt (fun t p => qStar G a (Ψt t) p + (ν : ℂ) * ht t p.1 p.2 +
+        boundaryTerm G (Ψt t) p)
+      (fun p => qStar G a Ψd p + (ν : ℂ) * hd p.1 p.2 + boundaryTerm G Ψd p) t₀ := by
+  classical
+  refine hasDerivAt_pi.2 fun p => ?_
+  have hΨ' : ∀ x i, HasDerivAt (fun t => Ψt t x i) (Ψd x i) t₀ := fun x i =>
+    hasDerivAt_pi.1 (hasDerivAt_pi.1 hΨ x) i
+  have hh' : ∀ x i, HasDerivAt (fun t => ht t x i) (hd x i) t₀ := fun x i =>
+    hasDerivAt_pi.1 (hasDerivAt_pi.1 hh x) i
+  have hite : ∀ (c : Prop) [Decidable c] (x : Torus d (N₀ * L ^ k)) (i : Fin N),
+      HasDerivAt (fun t => if c then Ψt t x i else 0) (if c then Ψd x i else 0) t₀ := by
+    intro c _ x i
+    by_cases hc : c
+    · simp only [hc, ↓reduceIte]; exact hΨ' x i
+    · simp only [hc, ↓reduceIte]; exact hasDerivAt_const _ _
+  refine ((((hΨ' p.1 p.2).const_mul _).add ((hh' p.1 p.2).const_mul _))).add ?_
+  unfold boundaryTerm
+  exact HasDerivAt.fun_sum fun μ _ => (hite _ _ _).add (hite _ _ _)
+
 end Derivative
+
+section Positivity
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- **`G − Π ⪰ 0`** (abstract form): for `A` positive semidefinite, `φ` real and
+`φ · A φ` invertible, `liftOp A − constrainedOp A φ = Eᴴ (liftOp A) E` with
+`E = 1 − φ [φ · A φ]⁻¹ φ · A`, hence positive semidefinite. -/
+theorem sub_constrainedOp_posSemidef {A : Matrix ι ι ℂ} (hA : A.PosSemidef) {φ : ι → Fin N → ℂ}
+    (hφ : ∀ x i, star (φ x i) = φ x i) (hM : IsUnit (constraintForm A φ)) :
+    (liftOp N A - constrainedOp A φ).PosSemidef := by
+  set Lg := liftOp N A with hLg
+  set T := fieldMul φ with hT
+  set M := constraintForm A φ with hMdef
+  have hL : Lg.PosSemidef := liftOp_posSemidef hA
+  have hTH : Tᴴ = Tᵀ := fieldMul_conjTranspose hφ
+  have hMpsd : M.PosSemidef := by
+    rw [hMdef, constraintForm, ← hTH]
+    exact hL.conjTranspose_mul_mul_same _
+  have hMi : (M⁻¹).PosSemidef := hMpsd.inv
+  have hMinv : M⁻¹ * M = 1 :=
+    Matrix.nonsing_inv_mul _ ((Matrix.isUnit_iff_isUnit_det _).1 hM)
+  set X := T * M⁻¹ * Tᵀ with hX
+  have hXH : Xᴴ = X := by
+    rw [hX, conjTranspose_mul, conjTranspose_mul, hMi.isHermitian.eq]
+    have : (Tᵀ)ᴴ = T := by
+      rw [← hTH, conjTranspose_conjTranspose]
+    rw [this, ← hTH, Matrix.mul_assoc]
+  have hXLX : X * Lg * X = X := by
+    have hMe : Tᵀ * Lg * T = M := by rw [hMdef, constraintForm]
+    calc X * Lg * X = T * M⁻¹ * (Tᵀ * Lg * T) * M⁻¹ * Tᵀ := by
+          simp only [hX, Matrix.mul_assoc]
+      _ = T * M⁻¹ * M * M⁻¹ * Tᵀ := by rw [hMe]
+      _ = X := by
+          rw [show T * M⁻¹ * M * M⁻¹ * Tᵀ = T * (M⁻¹ * M) * M⁻¹ * Tᵀ by simp only [Matrix.mul_assoc],
+            hMinv, Matrix.mul_one]
+  have hPi : constrainedOp A φ = Lg * X * Lg := by
+    unfold constrainedOp; simp only [hX, hLg, hT, Matrix.mul_assoc]; rfl
+  have hE : (1 - X * Lg)ᴴ = 1 - Lg * X := by
+    rw [conjTranspose_sub, conjTranspose_one, conjTranspose_mul, hXH, hL.isHermitian.eq]
+  have key : (1 - Lg * X) * Lg * (1 - X * Lg) = Lg - Lg * X * Lg := by
+    have e : (1 - Lg * X) * Lg * (1 - X * Lg) =
+        Lg - Lg * X * Lg - Lg * X * Lg + Lg * X * Lg * X * Lg := by noncomm_ring
+    have e2 : Lg * X * Lg * X * Lg = Lg * X * Lg := by
+      rw [show Lg * X * Lg * X * Lg = Lg * (X * Lg * X) * Lg by simp only [Matrix.mul_assoc], hXLX]
+    rw [e, e2]; abel
+  have := hL.conjTranspose_mul_mul_same (1 - X * Lg)
+  rw [hE, key, ← hPi] at this
+  exact this
+
+end Positivity
+
+/-- **Proposition 5.4 (b)**: for real data (`α₀` and `φ₀ = restrictField G Φ` real) the
+constrained Green's function `G − Π` of the linear response is positive semidefinite. -/
+theorem green_sub_constrainedOp_posSemidef {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {α₀ : G.Ω 1 → ℂ} {δ : ℝ} {Φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (St : Standing G a ν α₀ δ Φ) (hα : ∀ x, star (α₀ x) = α₀ x)
+    (hΦ : ∀ (x : G.Ω 1) (i : Fin N), star (restrictField G Φ x i) = restrictField G Φ x i) :
+    (liftOp N (dirichletOperator G a ν α₀)⁻¹ -
+      constrainedOp (dirichletOperator G a ν α₀)⁻¹ (restrictField G Φ)).PosSemidef :=
+  sub_constrainedOp_posSemidef
+    (dirichletGreen_posSemidef G St.pos St.mass St.weights α₀ St.alpha hα) hΦ
+    (constraintForm_isUnit St)
+
+/-- **Proposition 5.4 (a), bounds**: under the hypotheses of `constrained_sup` the tangent
+`φ̇ = (G − Π) Ṡ` obeys `|φ̇|₀, |∂φ̇|₁, |Δ^D φ̇|₂ ≤ (B + B₁') C` if `ℓ² |Ṡ| ≤ C`. -/
+theorem linearResponse_sup {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {α₀ : G.Ω 1 → ℂ} {δ : ℝ} {Φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (St : Standing G a ν α₀ δ Φ)
+    (hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1)
+    (hϱ : 2 * d * Real.log L ≤ agmonRate d / 2 / 2 * (ϱ - 1))
+    (hδ : (1 + sandwichConst d L N) * δ ≤ 1 / 2) {Sd φd : G.Ω 1 × Fin N → ℂ} {C : ℝ}
+    (hC : 0 ≤ C)
+    (hSd : ∀ (x : G.Ω 1) (i : Fin N), G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖Sd (x, i)‖ ≤ C)
+    (hφd : φd = (liftOp N (dirichletOperator G a ν α₀)⁻¹ -
+        constrainedOp (dirichletOperator G a ν α₀)⁻¹ (restrictField G Φ)) *ᵥ Sd) :
+    SupBounds G φd ((greenSupConst d L + piSupConst d L N) * C) := by
+  rw [hφd]
+  exact (constrained_sup hd hL St hν1 hϱ hδ Sd hC hSd).2
 
 end Balaban.Background
