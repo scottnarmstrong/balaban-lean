@@ -45,3 +45,15 @@ files gained only the private provider import (`import Balaban.Provider.<Root>`)
 `FROZEN_ANCHOR_*` marker comments around the unchanged statement and its `by sorry` body. The
 provider modules `Balaban/Provider/{LogPartitionMultiscale,LowTemperatureCorrelations}.lean` are
 empty placeholders, quarantined until their anchors are sealed.
+
+## LF rulings 1–2 (2026-10-11)
+
+Author (Scott Armstrong), 2026-10-11: "Approve large-field rulings." This approves rulings 1 and 2 of
+`notes/phase1/LF-ARCHITECTURE.md` v4 §7: (1) the reconstructed bookkeeping (A′) — budget invariant
+(H6′) with spines, clocks and pre-window/pending/active window states; ripeness of covered windows
+with merge strips as the trigger of R; R on windows of up to ν_max merged pieces; components by
+"distance < ω_k cubes" — for Def-7, LF-2 and LF-4; (2) the Def-7 design — `IsRep_k` predicate on
+representations, deterministic bookkeeping on the a-priori sequence λ̂, (D5) at every scale j ≤ k,
+LF-4 existential. These are design rulings for reconstructed interfaces (roadmap §3.5); no
+declaration is frozen by them. The exact Lean statements of Def-7 and LF-4 will be submitted for
+approval separately when the reconstruction document Parts I–III are approved.

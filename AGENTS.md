@@ -37,6 +37,14 @@ provider, and nothing may import a root, until the root is sealed.
 
 - **surface-v1 (2026-10-11):** decisions S0-Q01 to S0-Q10 and m1–m4 of
   `notes/phase0/surface-v1-for-approval.md` at their recommended defaults (`frozen/APPROVALS.md`).
+- **LF rulings 1–2 (2026-10-11, approved):** (1) the reconstructed large-field bookkeeping (A′) of
+  `notes/phase1/LF-ARCHITECTURE.md` v4 §7 replaces P5–P7's H6, counter K, κ_{k,n} and admissibility
+  by the budget invariant (H6′) with spines, clocks and three-way window states (pre-window /
+  pending / active); the trigger K = 0 of R by ripeness of an active covered window with merge strips;
+  R is generalized to windows of up to ν_max ≍ λ^{p₂} merged pieces; components are classes of
+  "distance < ω_k cubes" — approved for Def-7, LF-2 and LF-4. (2) Def-7 design: a predicate `IsRep_k`
+  on representations (𝓡_k = densities that have one), deterministic bookkeeping on the a-priori
+  sequence λ̂, (D5) required at every scale j ≤ k, LF-4 in existential form — approved.
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
