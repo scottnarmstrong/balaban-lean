@@ -110,6 +110,7 @@ public import Balaban.Background.WeightsMixed
 public import Balaban.Background.ApproxSecond
 public import Balaban.Background.HolderFull
 public import Balaban.Background.Perturb
+public import Balaban.Background.Theorem73
 public import Balaban.Background.SingleScale
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
