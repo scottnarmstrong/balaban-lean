@@ -72,6 +72,7 @@ theorem sizedW_mul_exp_le (x : P) :
     _ ≤ ε * Real.exp ((κ' + α - κ) * s x) := mul_le_mul_of_nonneg_left h1 hε
 
 include hε hα hs hgs hent in
+omit [Fintype B] in
 theorem sized_kp :
     KPCond (shareBlock supp) (sizedW supp s g ε κ) (fun x => α * (supp x).card) := by
   constructor

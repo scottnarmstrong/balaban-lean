@@ -46,6 +46,7 @@ public import Balaban.Polymer.BoxTransport
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
+public import Balaban.Polymer.Hole
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
