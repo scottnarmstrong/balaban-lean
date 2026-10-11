@@ -87,6 +87,8 @@ public import Balaban.Multiscale.PointwiseCase2a
 public import Balaban.Multiscale.PointwiseCase2b
 public import Balaban.Multiscale.PointwiseCase2c
 public import Balaban.Multiscale.PointwiseCase2d
+public import Balaban.Multiscale.PointwiseP
+public import Balaban.Multiscale.Pointwise48
 public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
