@@ -781,4 +781,24 @@ theorem ursell_comap (f : ι' ↪ ι) (G : SimpleGraph ι) (S' : Finset ι') :
 
 end Comap
 
+/-- Reachability along edges of `G` implies reachability in `G`. -/
+theorem Rch.reachable [Fintype ι] {G : SimpleGraph ι} {H : Finset (Sym2 ι)} (hH : H ⊆ edgesIn G Finset.univ)
+    {x y : ι} (h : Rch H x y) : G.Reachable x y := by
+  induction h with
+  | refl => exact SimpleGraph.Reachable.refl _
+  | @tail b c _ hbc ih =>
+    have := (mk_mem_edgesIn.mp (hH hbc)).1
+    exact ih.trans (SimpleGraph.Adj.reachable this)
+
+/-- The Ursell function of a disconnected graph vanishes. -/
+theorem ursell_eq_zero_of_not_preconnected [Fintype ι] {G : SimpleGraph ι} (hG : ¬ G.Preconnected) :
+    ursell G Finset.univ = 0 := by
+  unfold ursell
+  refine Finset.sum_eq_zero (fun H hH => ?_)
+  exfalso
+  rw [Finset.mem_filter, Finset.mem_powerset] at hH
+  apply hG
+  intro x y
+  exact Rch.reachable hH.1 (hH.2 x (Finset.mem_univ _) y (Finset.mem_univ _))
+
 end Balaban.Polymer
