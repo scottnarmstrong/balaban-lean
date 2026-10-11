@@ -190,5 +190,30 @@ theorem fluctTerm_eq_termDirect (j : ℕ) :
     rw [hs, hCQ, ← hcomp1, ← hcomp2, hQ, hO, Matrix.transpose_mul]
     simp only [Matrix.mul_assoc]
 
+/-- The dictionary for the free flow `α_i = a L^{(i+1)(d-2)}` (CORRELATIONS.md §2.1): the
+`j`-th term is `T_j = H (Δ + α_j Q₁ᵀ Q₁)⁻¹ Hᵀ` with `Δ = (b_j⁻¹ + C A⁻¹ Cᵀ)⁻¹`, `H = A⁻¹ Cᵀ Δ`,
+`C = Q_{(j)}`, `α_j = a L^{(j+1)(d-2)}` and
+`b_j⁻¹ = a⁻¹ L^{-j(d-2)} (1 - L^{-2j}) / (1 - L^{-2})`, i.e. `b_j = L^{j(d-2)} a_j` with
+`a_j = a (1 - L^{-2}) / (1 - L^{-2j})`. -/
+theorem termDirect_freeSeq (hd : 2 ≤ d) (hL : 1 < L) {a : ℝ} (ha : 0 < a) (j : ℕ)
+    {ℓ ℓ₁ m₂ : ℕ} [NeZero ℓ] [NeZero ℓ₁] [NeZero m₂] (A : Matrix (Torus d ℓ) (Torus d ℓ) ℝ) :
+    termDirect d L j ℓ ℓ₁ m₂ A (freeSeq d L a) =
+      (schurProlong A (blockAverageMatrix (L ^ j) ℓ₁ : Matrix (Torus d ℓ₁) (Torus d ℓ) ℝ)
+          (a⁻¹ * ((L : ℝ) ^ (j * (d - 2)))⁻¹ *
+            ((1 - ((L : ℝ) ^ (2 * j))⁻¹) / (1 - ((L : ℝ) ^ 2)⁻¹)))) *
+        (schurOp A (blockAverageMatrix (L ^ j) ℓ₁ : Matrix (Torus d ℓ₁) (Torus d ℓ) ℝ)
+            (a⁻¹ * ((L : ℝ) ^ (j * (d - 2)))⁻¹ *
+              ((1 - ((L : ℝ) ^ (2 * j))⁻¹) / (1 - ((L : ℝ) ^ 2)⁻¹))) +
+          (a * (L : ℝ) ^ ((j + 1) * (d - 2))) •
+            ((blockAverageMatrix L m₂ : Matrix (Torus d m₂) (Torus d ℓ₁) ℝ)ᵀ *
+              (blockAverageMatrix L m₂ : Matrix (Torus d m₂) (Torus d ℓ₁) ℝ)))⁻¹ *
+        (schurProlong A (blockAverageMatrix (L ^ j) ℓ₁ : Matrix (Torus d ℓ₁) (Torus d ℓ) ℝ)
+          (a⁻¹ * ((L : ℝ) ^ (j * (d - 2)))⁻¹ *
+            ((1 - ((L : ℝ) ^ (2 * j))⁻¹) / (1 - ((L : ℝ) ^ 2)⁻¹))))ᵀ := by
+  unfold termDirect
+  simp only []
+  rw [invScale_freeSeq hd hL ha j]
+  rfl
+
 end Levels
 end Balaban

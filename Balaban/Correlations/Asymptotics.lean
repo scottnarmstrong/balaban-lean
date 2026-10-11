@@ -153,4 +153,47 @@ theorem goldstone_rewriting {L : ℝ} (hL : 1 < L) (d : ℕ) (hd : 3 ≤ d) {γ�
         mul_le_mul_of_nonneg_left hhtsum (by positivity)
     _ = _ := by rw [hσdef]; ring
 
+/-- The summed kernel decay: if `|t_j| ≤ C L^{-j(d-2)} exp(-δ r / L^j)` for all `j`, then `∑ t_j`
+converges absolutely and `|∑_j t_j| ≤ C C' (1 + r)^{-(d-2)}` (CORRELATIONS.md Lemma 1.3 with
+`σ = d - 2`). -/
+theorem KernelDecay.tsum_abs_le {L : ℝ} (hL : 1 < L) (d : ℕ) (hd : 3 ≤ d) {δ : ℝ} (hδ : 0 < δ) :
+    ∃ C' : ℝ, 0 ≤ C' ∧ ∀ (C r : ℝ) (t : ℕ → ℝ), 0 ≤ C → 0 ≤ r → KernelDecay d L C δ r t →
+      Summable t ∧ |∑' j, t j| ≤ C * C' / (1 + r) ^ (d - 2) := by
+  have hL0 : 0 < L := by linarith
+  have hσ : 0 < ((d - 2 : ℕ) : ℝ) := by
+    have : 1 ≤ d - 2 := by omega
+    exact_mod_cast this
+  obtain ⟨C', hC'0, hC'⟩ := Correlations.sum_pow_exp_le hσ hδ hL
+  refine ⟨C', hC'0, fun C r t hC hr ht => ?_⟩
+  set σ : ℝ := ((d - 2 : ℕ) : ℝ) with hσdef
+  set h : ℕ → ℝ := fun j => L ^ (-((j : ℝ) * σ)) * Real.exp (-(δ * r / L ^ j)) with hh
+  have hh0 : ∀ j, 0 ≤ h j := fun j => by positivity
+  have hhsum : ∀ J, ∑ j ∈ range J, h j ≤ C' * (1 + r) ^ (-σ) := fun J =>
+    hC' J r hr
+  have hhS : Summable h := summable_of_sum_range_le hh0 hhsum
+  have hhtsum : ∑' j, h j ≤ C' * (1 + r) ^ (-σ) := Real.tsum_le_of_sum_range_le hh0 hhsum
+  have hbd : ∀ j, ‖t j‖ ≤ C * h j := by
+    intro j
+    rw [Real.norm_eq_abs]
+    refine (ht j).trans (le_of_eq ?_)
+    have : (L ^ (j * (d - 2)))⁻¹ = L ^ (-((j : ℝ) * σ)) := by
+      rw [Real.rpow_neg hL0.le, ← Real.rpow_natCast]
+      push_cast
+      rfl
+    rw [hh]
+    simp only
+    rw [← this]
+    ring
+  have htS : Summable t := Summable.of_norm_bounded (hhS.mul_left C) hbd
+  refine ⟨htS, ?_⟩
+  have h1 : |∑' j, t j| ≤ C * ∑' j, h j := by
+    have := tsum_of_norm_bounded (hhS.mul_left C).hasSum hbd
+    rw [tsum_mul_left] at this
+    simpa [Real.norm_eq_abs] using this
+  refine h1.trans ?_
+  calc C * ∑' j, h j ≤ C * (C' * (1 + r) ^ (-σ)) := mul_le_mul_of_nonneg_left hhtsum hC
+    _ = C * C' / (1 + r) ^ (d - 2) := by
+        rw [Real.rpow_neg (by positivity), hσdef, Real.rpow_natCast]
+        ring
+
 end Balaban

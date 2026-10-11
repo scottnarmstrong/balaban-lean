@@ -122,5 +122,6 @@ public import Balaban.Correlations.Tail
 public import Balaban.Correlations.SumRule
 public import Balaban.Correlations.Asymptotics
 public import Balaban.Correlations.TermKernel
+public import Balaban.Correlations.GreenIdentification
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
