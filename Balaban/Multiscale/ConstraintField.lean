@@ -17,7 +17,7 @@ import Mathlib.Tactic.Positivity
   `φ₀ : Torus → ℂ^N` (defined on the torus, so that its differences at points of `Ω₁` make sense):
   `|φ₀| ≤ 3/2`, `|φ₀ · φ₀ - 1| ≤ δ`, `ℓ(x) |∂ φ₀| ≤ δ` along every bond at a point `x ∈ Ω₁`, and
   `ℓ(x)² |Δ φ₀(x)| ≤ δ` for `x ∈ Ω₁` (P3 (3.2), P2 (3.21): `|∂φ₀|₁ < δ₀`, `|Δφ₀|₂ < δ₀`);
-* `Balaban.Multiscale.IsConstraintField.osc_block`: the oscillation of `φ₀` on a block of its layer
+* `Balaban.Multiscale.IsSmoothField.osc_block`: the oscillation of `φ₀` on a block of its layer
   is at most `2 d δ` (path argument through the multiscale metric).
 -/
 
@@ -80,10 +80,10 @@ section Field
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
-/-- The hypotheses of G-2(v) on the constraint field `φ₀ : Torus → ℂ^N` (smallness `δ`):
-`|φ₀| ≤ 3/2`, `|φ₀ · φ₀ - 1| ≤ δ`, `ℓ |∂ φ₀| ≤ δ` on bonds at points of `Ω₁` and
-`ℓ² |Δ φ₀| ≤ δ` at points of `Ω₁` (Euclidean norms in `ℂ^N`, bilinear square `φ₀ · φ₀`). -/
-structure IsConstraintField (G : GeneratingSet d L N₀ k ϱ) (δ : ℝ)
+/-- The smoothness hypotheses of G-2(v) on a field `φ₀ : Torus → ℂ^N` (smallness `δ`):
+`ℓ |∂ φ₀| ≤ δ` on bonds at points of `Ω₁` and `ℓ² |Δ φ₀| ≤ δ` at points of `Ω₁`
+(P3 (3.2), P2 (3.21): `|∂φ₀|₁ < δ₀`, `|Δφ₀|₂ < δ₀`; Euclidean norms in `ℂ^N`). -/
+structure IsSmoothField (G : GeneratingSet d L N₀ k ϱ) (δ : ℝ)
     (φ : Torus d (N₀ * L ^ k) → Fin N → ℂ) : Prop where
   grad : ∀ x ∈ G.Ω 1, ∀ μ : Fin d,
     vn (φ (x + Pi.single μ 1) - φ x) ≤ δ / G.spacing x ∧
@@ -91,18 +91,19 @@ structure IsConstraintField (G : GeneratingSet d L N₀ k ϱ) (δ : ℝ)
   lap : ∀ x ∈ G.Ω 1,
     vn (fun i => ∑ μ : Fin d, (φ (x + Pi.single μ 1) i + φ (x - Pi.single μ 1) i - 2 * φ x i)) ≤
       δ / G.spacing x ^ 2
+
+/-- The hypotheses of G-2(v) on the constraint field `φ₀ : Torus → ℂ^N`: `|φ₀| ≤ 3/2`,
+`|φ₀ · φ₀ - 1| ≤ δ` (bilinear square) and the smoothness hypotheses `IsSmoothField G δ φ₀`. -/
+structure IsConstraintField (G : GeneratingSet d L N₀ k ϱ) (δ : ℝ)
+    (φ : Torus d (N₀ * L ^ k) → Fin N → ℂ) : Prop extends IsSmoothField G δ φ where
   bound : ∀ x ∈ G.Ω 1, vn (φ x) ≤ 3 / 2
   sq : ∀ x ∈ G.Ω 1, ‖∑ i, φ x i * φ x i - 1‖ ≤ δ
 
-namespace IsConstraintField
+namespace IsSmoothField
 
 variable {G : GeneratingSet d L N₀ k ϱ} {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
 
-theorem delta_nonneg (hφ : IsConstraintField G δ φ) (hΩ : (G.Ω 1).Nonempty) : 0 ≤ δ := by
-  obtain ⟨x, hx⟩ := hΩ
-  exact (norm_nonneg _).trans (hφ.sq x hx)
-
-theorem adj_bound (hφ : IsConstraintField G δ φ) {x x' : Torus d (N₀ * L ^ k)}
+theorem adj_bound (hφ : IsSmoothField G δ φ) {x x' : Torus d (N₀ * L ^ k)}
     (hx : x ∈ G.Ω 1) (hx' : x' ∈ G.Ω 1) (hadj : Adj x x') :
     vn (φ x' - φ x) ≤ δ * G.bondCost x x' := by
   have h1 : vn (φ x' - φ x) ≤ δ / G.spacing x ∧ vn (φ x' - φ x) ≤ δ / G.spacing x' := by
@@ -127,7 +128,7 @@ theorem adj_bound (hφ : IsConstraintField G δ φ) {x x' : Torus d (N₀ * L ^ 
   · rw [max_eq_left h]; exact h1.1
   · rw [max_eq_right h]; exact h1.2
 
-theorem pathCost_bound (hφ : IsConstraintField G δ φ) {x y : Torus d (N₀ * L ^ k)} {c : ℝ}
+theorem pathCost_bound (hφ : IsSmoothField G δ φ) {x y : Torus d (N₀ * L ^ k)} {c : ℝ}
     (h : G.PathCost x y c) : vn (φ y - φ x) ≤ δ * c := by
   induction h with
   | refl x hx => simp [vn_zero]
@@ -139,7 +140,7 @@ theorem pathCost_bound (hφ : IsConstraintField G δ φ) {x y : Torus d (N₀ * 
 
 /-- **Oscillation on a block** (the source's `osc_B φ₀ ≤ d δ₀`; constant `2 d` from the corner
 paths): two points of a `j`-block of layer `j` have `|φ₀(x') - φ₀(x)| ≤ 2 d δ`. -/
-theorem osc_block (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) {j : ℕ} (hj : 1 ≤ j) (hjk : j ≤ k)
+theorem osc_block (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) {j : ℕ} (hj : 1 ≤ j) (hjk : j ≤ k)
     {x x' : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j)
     (h : jBlock d L N₀ k j x' = jBlock d L N₀ k j x) : vn (φ x' - φ x) ≤ 2 * d * δ := by
   have hpd := G.pathDist_block_le hj hjk hx h
@@ -169,7 +170,13 @@ theorem osc_block (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) {j : ℕ} (
     nlinarith
   nlinarith
 
-end IsConstraintField
+end IsSmoothField
+
+theorem IsConstraintField.delta_nonneg {G : GeneratingSet d L N₀ k ϱ} {δ : ℝ}
+    {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (hΩ : (G.Ω 1).Nonempty) : 0 ≤ δ := by
+  obtain ⟨x, hx⟩ := hΩ
+  exact (norm_nonneg _).trans (hφ.sq x hx)
 
 end Field
 

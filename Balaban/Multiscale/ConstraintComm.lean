@@ -139,7 +139,7 @@ theorem lap_part_eq (ν : ℝ) (φ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (
   ring
 
 theorem lapTerm_norm_le {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
-    (hφ : IsConstraintField G δ φ) (s : G.Ω 1 × Fin N → ℂ)
+    (hφ : IsSmoothField G δ φ) (s : G.Ω 1 × Fin N → ℂ)
     {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
     ‖lapTerm G φ s x‖ ≤ δ / G.spacing x *
       ∑ μ : Fin d, (vn (svec G s (x + Pi.single μ 1) - svec G s x) +
@@ -228,7 +228,7 @@ theorem layerProjMatrix_apply_of_layer {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
 
 /-- Norm of one entry of the commutator argument on a block of the layer of `x`. -/
 theorem commArg_norm_le {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
-    (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j)
+    (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j)
     (hjk : j ≤ k) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j) {y : Torus d (N₀ * L ^ k)}
     (hy : y ∈ G.blk j x) : ‖commArg G φ s x y‖ ≤ 2 * d * δ * vn (svec G s y) := by
   have h := hφ.osc_block hδ hj1 hjk hx (G.mem_blk.1 hy)
@@ -238,7 +238,7 @@ theorem commArg_norm_le {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → �
   exact mul_le_mul_of_nonneg_right h (vn_nonneg _)
 
 theorem blockPart_norm_le {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {δ : ℝ}
-    {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {x : Torus d (N₀ * L ^ k)}
     (hx : x ∈ G.layer j) :
     ‖((avgMatrix G a).map (algebraMap ℝ ℂ) *ᵥ commArg G φ s x) x‖ ≤
@@ -372,7 +372,7 @@ theorem commK_dirichlet_split (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ)
 
 /-- **Pointwise weighted bound for `K(φ₀) s`.** -/
 theorem commK_pointwise {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) (ν : ℝ) (α : G.Ω 1 → ℂ)
-    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (x : G.Ω 1)
     (hx : (x : Torus d (N₀ * L ^ k)) ∈ G.layer j) :
@@ -525,7 +525,7 @@ theorem sq_sum_pair_le (d : ℕ) (u v : Fin d → ℝ) :
     _ = 2 * d * ∑ μ, (u μ ^ 2 + v μ ^ 2) := by rw [← Finset.mul_sum]; ring
 
 theorem commK_sq_pointwise {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) (ν : ℝ) (α : G.Ω 1 → ℂ)
-    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (x : G.Ω 1)
     (hx : (x : Torus d (N₀ * L ^ k)) ∈ G.layer j) :
@@ -577,7 +577,7 @@ theorem commK_sq_pointwise {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) (ν 
 
 /-- The per-layer bound. -/
 theorem commK_layer_sum_le {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) (ν : ℝ) (α : G.Ω 1 → ℂ)
-    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) :
     ∑ x ∈ G.layer j, G.spacing x ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) *
@@ -652,7 +652,7 @@ theorem exp_two_d_sq_le (hd : 0 < d) {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤
 `‖ℓ w K(φ₀) s‖² ≤ 105 d² δ² (‖w ∂ s‖² + ‖ℓ⁻¹ w s‖²)`. -/
 theorem agmonSource_commK_le (hd : 0 < d) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) (ν : ℝ)
     (α : G.Ω 1 → ℂ) {δ : ℝ} {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
-    (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ agmonRate d) (s : G.Ω 1 × Fin N → ℂ) :
     agmonSource G ε r (commK (dirichletOperator G a ν α) (restrictField G φ) *ᵥ s) ≤

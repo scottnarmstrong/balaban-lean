@@ -259,7 +259,7 @@ theorem constraintM_error_le (s : G.Ω 1 → ℂ) :
     refine agmonSource_mul_le G ε r _ s (c := δ) fun x => ?_
     rw [norm_sub_rev]
     exact St.field.sq x x.2
-  have hK := agmonSource_commK_le G St.pos St.weights ν α St.field St.nonneg hr hε0 hε1
+  have hK := agmonSource_commK_le G St.pos St.weights ν α St.field.toIsSmoothField St.nonneg hr hε0 hε1
     (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ (fieldMul (restrictField G φ) *ᵥ s))
   obtain ⟨hM, hGr⟩ := green_vec_bounds St hr hε0 hε1 (fieldMul (restrictField G φ) *ᵥ s)
   have hΦ := vecSrc_fieldMul_le (ε := ε) (r := r) St.field s
@@ -391,7 +391,7 @@ theorem constraintN_src_le (f : G.Ω 1 × Fin N → ℂ) :
   rw [sub_mulVec, ← mulVec_mulVec]
   refine (agmonSource_sub_le G ε r _ _).trans ?_
   have h1 := agmonSource_fieldMul_transpose_le (ε := ε) (r := r) St.field f
-  have hK := agmonSource_commK_le G St.pos St.weights ν α St.field St.nonneg hr hε0 hε1
+  have hK := agmonSource_commK_le G St.pos St.weights ν α St.field.toIsSmoothField St.nonneg hr hε0 hε1
     (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ f)
   obtain ⟨hM, hGr⟩ := green_vec_bounds St hr hε0 hε1 f
   have hc0 := poincareConst_pos St.pos
