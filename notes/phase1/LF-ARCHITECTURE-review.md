@@ -269,3 +269,91 @@ $R$'s need, $C\lambda_t^{2d+2}$, is then covered:
 ## 7. Can (A′) work?
 
 Yes, with changes. The counting core is right: the budget, the spines and clocks, Lemma V, Lemma T and the four cases check out line by line, and the frozen threshold after $k_0$ is sound. The diagnosis that P6 Prop 3.2 (ii) fails for merges is correct, and P7 p. 498 settles its reading. The weak point is the claim that $R$ needs smallness only during the last $n_2=O(\log\log\beta)$ scales. P7's estimates (2.59), (2.60) and (3.17)–(3.19) use single-box volume bounds at every scale of the quiet window. For a ripe component built from a dense cluster of merged pieces, those bounds fail by powers of $\beta$, so the loss bound in (Rg) is false as stated. The repair is cheap at the counting level: add a per-piece reserve $\nu(Z)$ to (H6′) and to (Rg), and use P7's refund route for the window losses. On the analytic side it is real work: per-piece versions of (2.59), (2.60) and (3.17)–(3.19), with (2.60) and (3.19) used as losses. The doubling and pooled-reserve route, which keeps P7 exactly as written, has not been refuted and should be developed in parallel. Def-7 and LF-4 should not be frozen until one of the two routes is written in full.
+
+---
+
+## Re-review of v2
+
+Re-review, 2026-10-11, of `LF-ARCHITECTURE.md` version 2 (about 17,000 words, ending with "Review
+dispositions" and the updated list of unproved statements), together with `MERGES-astra.md`. Read
+in full: v2 §§1–7 and the dispositions; MERGES-astra.md; and again P7 pp. 498–524 for the chain
+places (2.20)–(2.30), Lemma 2.3, (2.61)–(2.62), (3.11)–(3.19). I checked these points hardest:
+Proposition M (§4.10); the chain obstruction (§2.7.1, §2.7.3); Lemma C, Lemma CH and the
+re-derived estimates of §3.8; Lemma H; the revised LF-2 (§4.3–§4.7); and the constant chain (§5).
+
+**Verdict: APPROVE-WITH-CHANGES.**
+
+- The architecture is now consistent, and the counting closes.
+- Proposition M is correct. It refutes the pooled-reserve route, and my doubling sketch in LFR-03
+  was wrong.
+- The chain obstruction for windows with unboundedly many pieces is real. It is the main thing my
+  LFR-01 missed.
+- Lemma C, the refund certificate and the re-derived volume estimates check out at the level of
+  their displayed inequalities.
+- LF-2 under covered windows is correct.
+- Two changes are needed before Def-7 and LF-4 are drafted:
+  - Lemma CH's enclosure bound must be argued one connected component at a time, using a stated
+    lattice separation lemma. As written it uses the span of the whole lineage, which is not bounded.
+  - Ripeness should exclude merges of the lineage during the $h$ scales before $k_1$ (R2-01 below).
+    The core is then a union of separated boxes, every window point is exposed, and Lemma H is no
+    longer needed. The cost is $O(\log\lambda)$ per merge, paid inside Case 2a. If this is not
+    adopted, Lemma H stays open, and its documented fallback changes the ripeness rule anyway.
+
+### Findings
+
+| ID | Severity | Location | Finding | Evidence | Proposed fix |
+|---|---|---|---|---|---|
+| R2-01 | MAJOR | §3.8 Lemma H; §6 item 8; §3.5 ripeness | Lemma H is genuinely open: hollow clusters merged shortly before $k_1$ enclose pockets. Its outcome decides the ripeness rule, so Def-7 depends on it. The case can be removed by bookkeeping. Holes in the core at $k_1$ occur only in lineage clusters merged during $[k_1-h,k_1]$: by Lemma C (c) a cluster has extent at most $\sqrt d\,\nu_{\max}\mathrm{crit}$, so within $h-2$ shadow steps it is $\le\mathrm{crit}$ and is hulled. If ripeness also requires no lineage merge in $[k_1(k)-h,k_1(k)]$, the core is a union of pairwise separated boxes. Then $Z\setminus$core is connected (a box minus separated interior boxes, $d\ge2$), and every window point is exposed. The extra delay is at most $k(\mu+h)-k(\mu)+1=O(h)=O(\log\lambda)$ per merge at scale $\mu$, where $k(x):=x+n_1(x)$. That is the same order as Case 2a's existing shift $\bar\Delta$, and the $(m-1)\tau_{k+1}$ freed by that merge pays it. | v2 §3.8 Lemma H ("the cluster arises only because the window must accept merges"); §6 last paragraph ("I do not have that counting argument"); Lemma C (b)–(c); Case 2a. | Add the merge-free strip to $t^*$, carrying the window's merge scales in the window state. Add $+O(h)$ to $\bar\Delta$ in Case 2a. State the lattice separation lemma of R2-02. Keep plan (H2) as an alternative. |
+| R2-02 | MINOR | §3.8 Lemma CH (a) | The enclosure bound says "the enclosing set lies in the lineage at scale $i$, which by (RQ2) spans at most $\sqrt d\,\nu M\mathrm{crit}_i$". (RQ2) bounds the number and size of the cover boxes, not their spread. The lineage at early scales can consist of pieces up to $L^{k-i}$ units apart that merge later, so the claim is false as written. It holds per connected component: a connected cluster covered by $\nu_c$ boxes has extent $\le\sqrt d\,\nu_c M\mathrm{crit}$. It also needs a lattice separation lemma: a block enclosed by a union of pairwise $*$-separated sets is enclosed by one of them (Alexander duality, or Janiszewski in $d=2$, in the $*$/nearest-neighbour adjacency pair). Foreign components (not in the lineage) also need a remark: the path only has to reach $Z$'s own outer shell. | v2 §3.8 Lemma CH (a); Lemma G's $*$-adjacency convention. | Restate (a) component by component; prove the separation lemma in Lemma G (R2-01 needs it too). |
+| R2-03 | MINOR | §3.1, §4.3 (U2) | The connector length should be $D_k=\sqrt d\,(2\rho_k+10)$, not $\sqrt d\,(2\rho_k+9)$. A spine point $p$ is within $\rho+4$ of some point $a$ of a cube $Q$; $Q$ shares a point $c$ with $Q'$; $Q'$ has a point $b$ within $\rho+4$ of $p'$. So $\lvert p-p'\rvert_\infty\le(\rho+4)+1+1+(\rho+4)$. Version 1 had $2(\rho+3)+2=2\rho+8$, which is consistent. | v2 §3.1 and §4.3 (U2) text. | Change to $2\rho_k+10$. Only constants change ($C_E$, Lemma C (c), $h$). |
+| R2-04 | MINOR | §3.7 (M7); §3.8 Step 2 | The late-scale constants that depend on $\mathrm{diam}_k(Z_0)<15$ include (2.20) ($30(d-1)\cdot3\delta_k$, hence $90d\delta_k$ in (2.28)) and the $7K_6$, $90d$ terms in Lemma 2.5 (p. 515), besides Lemma 2.1. With $D_0=3c_0+4$ these become $C(c_0)\delta_k$. They are absorbed by $L^{-n_1/3}$ and $\beta$ large, so nothing breaks, but (M7) should list them. | P7 (2.20) p. 503; p. 515. | Add them to (M7) and row 4. |
+| R2-05 | NOTE | §4.10 Proposition M | **Confirmed.** Checked: $\lambda_{s_i}\ge\kappa_-^i\lambda_b$ with $\kappa_-=1+\frac{d-2}{2\alpha}>2$; per-step loss $\ge c\,c_1\lambda_j(M\mathrm{crit}_j)^d$ (exact $\kappa^{(j)}$, $\log C$ nondecreasing, $H$-terms $\le0$ in steady state); income $\le2^HC_M\lambda_b^{2p_0}$; root window cost $\asymp\kappa_-^{H(2d+2)}\lambda_b^{2d+2}$. Two points to add. (a) The proof keeps only the root's window cost while the merges at all levels give surpluses. It should compare level by level: each level's merge surpluses are at most $2^{H-i}C\lambda_{s_i}^{2d+1}$, which is $1/\lambda$ of that level's window costs. (b) The conclusion holds for any window length $n_1\ge c\lambda$ with $(1+c\theta_-)^{2d+2}>2$. P7's estimates force $n_1\ge c\lambda$ for some $c>0$ (from (2.59) on the analyticity domain, $\beta_{k_1}\varepsilon_{k_1}^2L^{-2(1+\alpha)n_1}<1$ with $\beta_j\varepsilon_j^2=\beta\varepsilon_0^2L^{2\gamma j}$). With $2d+2\ge8$, a shorter window does not rescue (R2) unless $c$ is very small. | v2 §4.10; P7 (2.59) p. 511, p. 522; P9 p. 495. | Add (a) to the proof; add (b) as a remark. |
+| R2-06 | NOTE | §2.7.2; dispositions LFR-03 | My LFR-03 sketch, $\lambda_t\le\lambda_{b'}(1+c\log N)$, treated $n_q$ as a constant. Each restart adds $n_q(\text{current})\asymp\lambda_{\text{current}}$ scales, so $\lambda$ grows geometrically per restart. v2's correction to $\lambda_t\ge N^{\log_2\kappa_-}\lambda_{b'}$ on the balanced tree is right. | — | Disposition accepted. |
+| R2-07 | NOTE | §2.7.1 shape rows; §2.7.3 | **Confirmed**, and missed by my LFR-01. In a gap-filled layer of a dense cluster, the chain from an interior point to $\Omega_{j+1}$ has length about $L^n\mathrm{crit}$. The constraints allow a drift of about $L^n\mathrm{crit}\,M\,c\,\delta$, which leaves the analyticity domain $\lvert\delta\psi\rvert<c'_6$ of Lemma 2.4 once $L^n\gtrsim\beta^{1/2}\lambda^{-C}$. No new restriction can produce a small factor for it: an $O(1)$ drift over length $\ell$ costs only $\asymp\beta/\ell$ in the action, which is $O(1)$ for $\ell\gtrsim\beta$, and ripeness allows $L^n$ up to $\beta^{1/\alpha}$. So it is not a loss that a reserve can pay. The cap $\nu\le\nu_{\max}$ is the right cure. | P7 p. 504 ($\mathrm{dist}_j(\Omega^c_j,\Omega_{j+1})<3LMR_j$), Lemma 2.3 p. 508, Lemma 2.4 p. 509. | — |
+| R2-08 | NOTE | §2.7.3 (R1-ν); MERGES-astra §3 | MERGES-astra's objection (i) is weaker than it reads. A gain on an old large connected region gives $\nu=1$, but Lemma V bounds that piece's volume through its spine. Its share in (2.59) stays at most $C\rho^{d-1}\varepsilon_0^2\beta_{k_1}^{-1-1/\alpha}$, as in my §3.3. The decisive objection to (R1-ν) is the shape one: a large concave piece fills its own gaps (R2-07). The conclusion stands. | Review §3.3; v2 §2.7.3. | None needed. |
+| R2-09 | NOTE | §3.8 Steps 1, 4, 6 | **Checked.** Lemma C (b) step: $\mathrm{crit}_j/L+2+2s_*r_j\le\mathrm{crit}_{j+1}$ when $c_0(1-L^{-1})\ge s_*$. Lemma C (c) at (W3). (2.59)′: $\le C'\lambda^{p_2+2d}\varepsilon_0^2\beta_{k_1}^{-1-2/\alpha}$. (2.60)′: $\le CA_0^3\nu_{\max}\hat W^2(LM\mathrm{crit})^d\lambda^{3p_0}\beta_k^{-1/2}$. (3.17)′ and (3.19)′. (2.33)′ with $p_R=2p_0-2w_0>p_2+2d$: from row 8, $p_R\ge5d+4>4d+3$, and $\hat W\le C\lambda^{p_2d/2+3d-2}\le C\lambda^{w_0}$. Step 6: $G_k\le\mathcal K_{k_1}-\sum(c_1\log\beta_j+c_2)\lvert\text{new}\rvert-H_k\lvert Z\rvert_k$ holds exactly, because the quiet-window history is determined by the lineage at $k_1$ and $\log C^{(j)}\ge0$. With $c_1\ge C_{39}$, $c_2\ge C'_{39}$ this gives (Rg) with $L_{\rm res}\le C_R\lambda^{2d+1}$. | P6 (3.9)–(3.11); P7 pp. 501, 505, 511, 519–524. | — |
+| R2-10 | NOTE | §4.3–§4.7 (LF-2) | **Checked.** Entry (W1) leaves $t^*$ unchanged ($q=s$). Pure shadow does not increase $t^*$. Case 2a: $\nu$ cancels and $q'+n_q(q')\le t^*_{i_0}$. Case 2b: $\bar\Delta'$ from Lemma T′ and $n_q(a+x)-n_q(a)\le\theta_+x/(\alpha\log L)+1$. Case 2c: $\sum\nu_i-1\ge\nu_{\max}\ge C_r\lambda^{p_2}$ pays $\tau_{t^{*\prime}}+\sum w+1$. Kept $R$: $p_R>p_2+2d$. Transfer at $k_0$. Under (W3) the young part's reserve pays the merged window's continuation, so Proposition M's tree is harmless in (R1-cov). | v2 §4. | — |
+| R2-11 | NOTE | §5 | **Checked; no cycle.** $c_0,D_0,K_6$ are fixed in row 4 from $d,L$, with $R_0\ge C(L)$ in row 7. Keeping P7's $k_2$ is correct: my LFR-09 proposal to move $k_2$ would have broken (2.2)'s separation $\mathrm{dist}_k(Z_{k_2},\Omega_{k_2+1})>1$, because $k_2$ is the smallest index at which that separation still holds. $p_0,A_0$ now precede $B_0$, and $c_1,c_2,C_R$ follow it. Still open (as v2 says): $\kappa_0$ independent of $M$, and $B_0$ independent of $H_0$. | P7 (2.1)–(2.4) p. 498. | — |
+| R2-12 | NOTE | §3.8 (2.61)′ | "$\lambda_i\ge\lambda_{k_1}-\theta_+h$" is unnecessary, since $i\ge k_1$. | — | Editorial. |
+| R2-13 | NOTE | §3.6 Lean types | If R2-01 is adopted, the window state must also carry the window's merge scales (a finite list), not just `Option (ℕ × ℕ)`. Def-7 also needs $\nu_{\max}$, $h$ and the extended $\lambda_j$ as explicit functions. | — | Update the type sketch. |
+
+### Dispositions of LFR-01 … LFR-18
+
+| ID | v2 disposition | Assessment |
+|---|---|---|
+| LFR-01 | Volume terms handled by the cap (now $O(1)$); (2.15) and (3.9) by the refund; shape terms by Lemma CH and Lemma H; $\nu$ pays overflow restarts; (Rg) becomes $L_R\le C_R\lambda^{2d+1}$ | **Resolved**, apart from Lemma H (R2-01) and Lemma CH (a) (R2-02). The extension beyond my finding (the shape terms) is correct (R2-07). |
+| LFR-02 | Refund route explicit; $c_1\ge C_{39}$, $c_2\ge C'_{39}$ | **Resolved** (R2-09). |
+| LFR-03 | Pooled reserves refuted by Proposition M; doubling bound corrected | **Resolved.** My sketch was wrong (R2-06); Proposition M is confirmed (R2-05). |
+| LFR-04 | Counterexample completed | **Resolved.** The upper bound uses the coefficient $2^{1/p_2}-1$; both readings are treated; existence by translation. The remaining UNCERTAIN (buffers at least two cubes wide) is correctly flagged for Lemma G. |
+| LFR-05 | Lemma B charges $c_v\lambda\lvert Z'\rvert_\#$ | Resolved. |
+| LFR-06 | (U3) only for non-point spines | Resolved. |
+| LFR-07 | Simultaneous, iterated hull; terminates and is deterministic | Resolved. |
+| LFR-08 | $\mathrm{crit}=2\rho+10$, radius $\rho+4$, $\rho\in\mathbb N$ | Resolved for crit and Lemma V ($(4\rho+10)^d\le(14\rho)^d$). The connector is off by one (R2-03). |
+| LFR-09 | $k_2,k_3$ kept; $D_0=3c_0+4$; $K_6$ fixed in row 4 | Resolved, and better than my proposal (R2-11). Add the (2.20) and Lemma 2.5 constants (R2-04). |
+| LFR-10 | Reordered | Resolved. |
+| LFR-11 | $\delta=\gamma/2$, $\alpha_1$ in row 10 | Resolved. |
+| LFR-12 | LF-8 via (H6♭), P7 (4.9)–(4.14) and PE with volume weights | Resolved. |
+| LFR-13 – LFR-16 | Applied | Resolved. |
+| LFR-17 | Confidences and length revised | Resolved. |
+| LFR-18 | Noted | — |
+
+### Judgement: ready for Lean drafting?
+
+- **LF-2 is ready to draft.** It is a model-independent theorem about an abstract history process
+  satisfying (G1), (G2), (B), (Rg), (K). Under AGENTS.md hard rule 4, those axioms may be hypotheses
+  of this abstract lemma only; they must not be premises of any frozen statement, and the
+  instantiation must discharge them through Lemma G, Lemma C, Lemma B and LF-4. Its proof is
+  checked and elementary. The only open choice is whether $t^*$ gets the merge-free strip clause of
+  R2-01; settle that first (one short paper revision), then draft.
+- **Def-7 and LF-4 should wait for the ripeness rule to be fixed.** Their statements depend on Lemma
+  H only through the ripeness rule:
+  - If R2-01 is adopted, the statements no longer depend on Lemma H. They can then be drafted for
+    the author's approval.
+  - If R2-01 is not adopted and Lemma H fails, v2's own fallback changes ripeness, and so changes
+    (D6) and LF-2. Drafting before the decision risks rework.
+- **LF-4 should stay a draft, not frozen,** until Lemma CH (with R2-02) and the §3.8 re-derivations
+  are written at full length in the reconstruction document. They are consistent at the level of
+  their displayed inequalities, but they are still proof plans.
+
+In short: draft LF-2 now (with the ripeness clause decided); draft Def-7 and LF-4 after adopting
+R2-01 or proving Lemma H; freeze nothing in LF-4 until the reconstruction document is approved.
