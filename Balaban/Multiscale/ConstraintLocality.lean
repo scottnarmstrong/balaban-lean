@@ -1091,6 +1091,152 @@ theorem Pi_sub_peq : D.Pi - D.Pi' =
   rw [D.Pi_sub]
   simp only [Matrix.mul_assoc]
 
+theorem Dec.to_chain {ι₁ ι₂ : Type*} [Fintype ι₁] [Fintype ι₂] {G : GeneratingSet d L N₀ k ϱ}
+    {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {T : Matrix ι₁ ι₂ ℂ} {w : ℤ} {ρ M₀ : ℝ} {m : ℕ}
+    (hM₀ : 1 ≤ M₀) (h : Dec G s₁ s₂ T w ρ noTail (lvl d L M₀ m)) (hm : m ≤ 3)
+    (hρ : agmonRate d / 3 ≤ ρ) : Dec G s₁ s₂ T w (agmonRate d / 3) noTail (lvl d L M₀ 3) :=
+  h.adj hM₀ noTail_nonneg rfl hρ hm
+
+/-- **The telescoped difference has the tails.** -/
+theorem dec_Pi_sub {M₀ : ℝ} (hM₀ : 1 ≤ M₀) (hB : D.BaseDec M₀) :
+    Dec D.G D.sV D.sV (D.Pi - D.Pi') 1 (agmonRate d / 12) (tailZ D.G (locTail d) D.Z)
+      (9 * lvl d L M₀ 5) := by
+  have hd := D.St.pos
+  have he := agmonRate_pos hd
+  have hb := baseRate_ge hd
+  have hϱ := D.hϱ
+  have hlog := D.hlog
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  set e := agmonRate d with he_def
+  set γb := baseRate d with hγb
+  have hGh := hB.Gh
+  have hGh' := hB.Gh'
+  have hPh := hB.Ph
+  have hPh' := hB.Ph'
+  have hMi := hB.Mi
+  have hMi' := hB.Mi'
+  have hNn := hB.Nn
+  have hKG := hB.KG
+  have hKs := hB.KsGh'
+  have hPs := hB.Ps
+  have hPst := hB.Pst
+  have hD0 := hB.D0
+  have hXa := hB.Xa
+  have hT := (noTail_nonneg : ∀ y y' : Torus d (D.N₀ * L ^ D.k), 0 ≤ (noTail :
+      Torus d (D.N₀ * L ^ D.k) → Torus d (D.N₀ * L ^ D.k) → ℝ) y y')
+  have e50 : e / 50 ≤ γb - 0 := by linarith
+  -- level 1
+  have A1 : Dec D.G D.sV D.sS (D.Gh' * D.Ph') 1 (γb - 1 * (e / 50)) noTail (lvl d L M₀ 1) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb) (by linarith) le_rfl le_rfl hGh' hPh').adj
+      hM₀ hT (by norm_num) (by linarith) le_rfl
+  have A1u : Dec D.G D.sV D.sS (D.Gh' * D.Ph) 1 (γb - 1 * (e / 50)) noTail (lvl d L M₀ 1) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb) (by linarith) le_rfl le_rfl hGh' hPh).adj
+      hM₀ hT (by norm_num) (by linarith) le_rfl
+  have B1 : Dec D.G D.sS D.sV (D.Mm⁻¹ * D.Nn) 0 (γb - 1 * (e / 50)) noTail (lvl d L M₀ 1) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb) (by linarith) le_rfl le_rfl hMi hNn).adj
+      hM₀ hT (by norm_num) (by linarith) le_rfl
+  have B1' : Dec D.G D.sS D.sV (D.Mm'⁻¹ * D.Nn) 0 (γb - 1 * (e / 50)) noTail (lvl d L M₀ 1) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb) (by linarith) le_rfl le_rfl hMi' hNn).adj
+      hM₀ hT (by norm_num) (by linarith) le_rfl
+  have B2 : Dec D.G D.sV D.sS (D.Ph' * D.Mm'⁻¹) 0 (γb - 1 * (e / 50)) noTail (lvl d L M₀ 1) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb) (by linarith) le_rfl le_rfl hPh' hMi').adj
+      hM₀ hT (by norm_num) (by linarith) le_rfl
+  -- level 2
+  have A2 : Dec D.G D.sV D.sS (D.Gh' * D.Ph' * D.Mm⁻¹) 1 (γb - 2 * (e / 50)) noTail
+      (lvl d L M₀ 2) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 1 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A1 (hMi.adj hM₀ hT rfl (γ' := γb - 1 * (e / 50)) (by linarith) (Nat.zero_le 1))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have A2' : Dec D.G D.sV D.sS (D.Gh' * D.Ph' * D.Mm'⁻¹) 1 (γb - 2 * (e / 50)) noTail
+      (lvl d L M₀ 2) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 1 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A1 (hMi'.adj hM₀ hT rfl (γ' := γb - 1 * (e / 50)) (by linarith) (Nat.zero_le 1))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have A2u : Dec D.G D.sV D.sS (D.Gh' * D.Ph * D.Mm⁻¹) 1 (γb - 2 * (e / 50)) noTail
+      (lvl d L M₀ 2) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 1 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A1u (hMi.adj hM₀ hT rfl (γ' := γb - 1 * (e / 50)) (by linarith) (Nat.zero_le 1))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have B3 : Dec D.G D.sV D.sV (D.Ph' * D.Mm'⁻¹ * D.Nn) 0 (γb - 2 * (e / 50)) noTail
+      (lvl d L M₀ 2) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 1 * (e / 50)) (by linarith) le_rfl
+      (by linarith) B2 (hNn.adj hM₀ hT rfl (γ' := γb - 1 * (e / 50)) (by linarith) (Nat.zero_le 1))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  -- level 3
+  have A3 : Dec D.G D.sV D.sV (D.Gh' * D.Ph' * D.Mm⁻¹ * (D.K * D.Gh)) 1 (γb - 3 * (e / 50))
+      noTail (lvl d L M₀ 3) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 2 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A2 (hKG.adj hM₀ hT rfl (γ' := γb - 2 * (e / 50)) (by linarith) (Nat.zero_le 2))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have A3' : Dec D.G D.sV D.sV (D.Gh' * D.Ph' * D.Mm'⁻¹ * (D.K * D.Gh)) 1 (γb - 3 * (e / 50))
+      noTail (lvl d L M₀ 3) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 2 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A2' (hKG.adj hM₀ hT rfl (γ' := γb - 2 * (e / 50)) (by linarith) (Nat.zero_le 2))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have Q5 : Dec D.G D.sV D.sV (D.Gh' * D.Ph' * D.Mm'⁻¹ * D.Nn) 1 (γb - 3 * (e / 50)) noTail
+      (lvl d L M₀ 3) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 2 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A2' (hNn.adj hM₀ hT rfl (γ' := γb - 2 * (e / 50)) (by linarith) (Nat.zero_le 2))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have Q1 : Dec D.G D.sV D.sV (D.Gh' * D.Ph * D.Mm⁻¹ * D.Nn) 1 (γb - 3 * (e / 50)) noTail
+      (lvl d L M₀ 3) :=
+    (Dec.mul_lvl hd hϱ hlog hM₀ (by norm_num) (γ := γb - 2 * (e / 50)) (by linarith) le_rfl
+      (by linarith) A2u (hNn.adj hM₀ hT rfl (γ' := γb - 2 * (e / 50)) (by linarith) (Nat.zero_le 2))).adj hM₀ hT
+      (by norm_num) (by linarith) le_rfl
+  have hc0 : (0 : ℝ) ≤ 2 * d := by positivity
+  have hc1 : (2 : ℝ) * d ≤ 4 * d + 1 := by
+    have : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+    linarith
+  have hc2 : (0 : ℝ) ≤ 2 * d + (2 * d + 1) := by positivity
+  have hc3 : (2 : ℝ) * d + (2 * d + 1) ≤ 4 * d + 1 := by linarith
+  have hch : e / 4 ≤ e / 3 := by linarith
+  have r3 : e / 3 ≤ γb - 3 * (e / 50) := by linarith
+  have r2 : e / 3 ≤ γb - 2 * (e / 50) := by linarith
+  have r1 : e / 3 ≤ γb - 1 * (e / 50) := by linarith
+  have r0 : e / 3 ≤ γb := by linarith
+  -- the nine terms, all with rate `e/12`, level `5`, weight `1`
+  have t1 := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ hGh (Nat.zero_le 3) r0) (Dec.to_chain hM₀ hD0 (Nat.zero_le 3) r0) D.out_D0
+    (Dec.to_chain hM₀ Q1 (by norm_num) r3)
+  have t2 := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ hGh' (Nat.zero_le 3) r0) (Dec.to_chain hM₀ hPs (Nat.zero_le 3) r0) D.out_Ps
+    (Dec.to_chain hM₀ B1 (by norm_num) r1)
+  have t3a := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ A2 (by norm_num) r2) (Dec.to_chain hM₀ hXa (Nat.zero_le 3) r0) D.out_Xa
+    (Dec.to_chain hM₀ B1' (by norm_num) r1)
+  have t3b := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch
+    (by positivity) hc3 (Dec.to_chain hM₀ A2 (by norm_num) r2)
+    (Dec.to_chain hM₀ hKs (Nat.zero_le 3) r0) D.out_KsGh' (Dec.to_chain hM₀ B3 (by norm_num) r2)
+  have t3c := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ A3 (by norm_num) r3) (Dec.to_chain hM₀ hD0 (Nat.zero_le 3) r0) D.out_D0
+    (Dec.to_chain hM₀ Q5 (by norm_num) r3)
+  have t3d := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ A3 (by norm_num) r3) (Dec.to_chain hM₀ hPs (Nat.zero_le 3) r0) D.out_Ps
+    (Dec.to_chain hM₀ B1' (by norm_num) r1)
+  have t4b := Dec.chain_lvl hd hϱ hlog hM₀ (by norm_num) (by norm_num) (γ := e / 3) hch hc0 hc1
+    (Dec.to_chain hM₀ A3' (by norm_num) r3) (Dec.to_chain hM₀ hD0 (Nat.zero_le 3) r0) D.out_D0
+    (Dec.to_chain hM₀ hGh' (Nat.zero_le 3) r0)
+  have t4a := Dec.mul_out_lvl hd hϱ hlog hM₀ (by norm_num) (γ := e / 3) (by linarith) le_rfl le_rfl
+    hc0 hc1 (Dec.to_chain hM₀ A2' (by norm_num) r2) (Dec.to_chain hM₀ hPst (Nat.zero_le 3) r0)
+    D.out_Pst
+  have t4c := Dec.mul_out_lvl hd hϱ hlog hM₀ (by norm_num) (γ := e / 3) (by linarith) le_rfl le_rfl
+    (by positivity) hc3 (Dec.to_chain hM₀ A2' (by norm_num) r2)
+    (Dec.to_chain hM₀ hKs (Nat.zero_le 3) r0) D.out_KsGh'
+  have tz := (tailZ_nonneg D.G (locTail d) D.Z)
+  rw [D.Pi_sub_peq]
+  have a1 := t1.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a2 := t2.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a3 := t3a.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a4 := t3b.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a5 := t3c.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a6 := t3d.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a7 := t4a.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a8 := t4b.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have a9 := t4c.adj hM₀ tz (w' := 1) (by norm_num) (γ' := e / 12) (by linarith) (n := 5) (by norm_num)
+  have fin := ((((((((a1.neg.add a2).add a3).add a4).sub a5).add a6).add a7).add a8).sub a9)
+  have h5 : 0 ≤ lvl d L M₀ 5 := by have := one_le_lvl (d := d) (L := L) hM₀ 5; linarith
+  exact fin.mono_const tz (by linarith)
+
 end LocData
 
 end Balaban.Multiscale
