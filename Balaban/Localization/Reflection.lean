@@ -200,6 +200,37 @@ theorem fold1_nbr [NeZero ℓ] [NeZero m] (hm : m = 2 * S) (hS : 0 < S) (hSℓ :
     rw [e1, e2, fold1_neg_one_sub hm hS, fold1_neg_one_sub hm hS]
     exact ⟨h2, h1⟩
 
+theorem val_neg_one_sub [NeZero m] (hm : m = 2 * S) (a : ZMod m) :
+    (-1 - a : ZMod m).val = 2 * S - 1 - a.val := by
+  have hlt := ZMod.val_lt a
+  have e : (-1 - a : ZMod m) = ((2 * S - 1 - a.val : ℕ) : ZMod m) := by
+    rw [Nat.cast_sub (by omega), Nat.cast_sub (by omega)]
+    have : ((2 * S : ℕ) : ZMod m) = 0 := by rw [← hm]; exact ZMod.natCast_self m
+    push_cast at this ⊢
+    rw [this, ZMod.natCast_zmod_val]
+    ring
+  rw [e, ZMod.val_natCast, Nat.mod_eq_of_lt (by omega)]
+
+/-- The fibres of the fold have at most two points: `b = a` or `b = -1 - a`. -/
+theorem fold1_fibre [NeZero ℓ] [NeZero m] (hm : m = 2 * S) (hSℓ : S < ℓ) {a b : ZMod m}
+    (h : fold1 ℓ S c m a = fold1 ℓ S c m b) : b = a ∨ b = -1 - a := by
+  have ha := ZMod.val_lt a
+  have hb := ZMod.val_lt b
+  have h1 := (ZMod.natCast_eq_natCast_iff' _ _ _).1 h
+  have h2 : foldNat S a.val % ℓ = foldNat S b.val % ℓ :=
+    Nat.ModEq.add_left_cancel' c (show c + foldNat S a.val ≡ c + foldNat S b.val [MOD ℓ] from h1)
+  have hl1 := foldNat_lt (S := S) (t := a.val) (by omega)
+  have hl2 := foldNat_lt (S := S) (t := b.val) (by omega)
+  rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)] at h2
+  unfold foldNat at h2
+  by_cases hs : a.val < S <;> by_cases hs' : b.val < S
+  · left; apply ZMod.val_injective; simp only [hs, hs', ↓reduceIte] at h2; omega
+  · right; apply ZMod.val_injective; simp only [hs, hs', ↓reduceIte] at h2
+    rw [val_neg_one_sub hm]; omega
+  · right; apply ZMod.val_injective; simp only [hs, hs', ↓reduceIte] at h2
+    rw [val_neg_one_sub hm]; omega
+  · left; apply ZMod.val_injective; simp only [hs, hs', ↓reduceIte] at h2; omega
+
 /-! ### The fold is 1-Lipschitz for the cyclic distance -/
 
 /-- The periodic reflection on `ℤ`. -/
@@ -436,6 +467,34 @@ theorem stepDnT_eq [NeZero ℓ] {x : Torus d ℓ} (hx : x ∈ cubeSet ℓ S c) (
   · have h' : ¬ x - Pi.single μ 1 ∈ cubeSet ℓ S c := fun h' => h (hiff.1 h')
     simp only [h', h, ↓reduceIte]
     exact (Function.update_eq_self μ x).symm
+
+theorem foldMap_add_single [NeZero m] (p : Torus d m) (μ : Fin d) :
+    foldMap ℓ S m c (p + Pi.single μ 1) =
+      Function.update (foldMap ℓ S m c p) μ (fold1 ℓ S (c μ) m (p μ + 1)) := by
+  rw [add_single_eq_update]
+  funext i
+  by_cases h : i = μ
+  · subst h; simp [foldMap]
+  · simp [foldMap, h, Function.update_of_ne]
+
+theorem foldMap_sub_single [NeZero m] (p : Torus d m) (μ : Fin d) :
+    foldMap ℓ S m c (p - Pi.single μ 1) =
+      Function.update (foldMap ℓ S m c p) μ (fold1 ℓ S (c μ) m (p μ - 1)) := by
+  rw [sub_single_eq_update]
+  funext i
+  by_cases h : i = μ
+  · subst h; simp [foldMap]
+  · simp [foldMap, h, Function.update_of_ne]
+
+/-- In the lower half the folded neighbours are the neighbours of the image. -/
+theorem foldMap_nbr_low [NeZero ℓ] [NeZero m] (hm : m = 2 * S) (hS : 0 < S) (hSℓ : S < ℓ)
+    (p : Torus d m) (μ : Fin d) (hp : (p μ).val < S) :
+    foldMap ℓ S m c (p + Pi.single μ 1) = stepUpT (cubeSet ℓ S c) (foldMap ℓ S m c p) μ ∧
+      foldMap ℓ S m c (p - Pi.single μ 1) = stepDnT (cubeSet ℓ S c) (foldMap ℓ S m c p) μ := by
+  have hx := foldMap_mem_cubeSet (ℓ := ℓ) (c := c) hm p
+  rw [foldMap_add_single, foldMap_sub_single, stepUpT_eq hx, stepDnT_eq hx]
+  obtain ⟨h1, h2⟩ := fold1_nbr_low (c := c μ) hm hS hSℓ (p μ) hp
+  exact ⟨by rw [h1]; rfl, by rw [h2]; rfl⟩
 
 /-- **Neighbours of a folded point (torus).** The two folded neighbours `F(p ± e_μ)` of `p` are
 `x + e_μ`, `x - e_μ` (each replaced by `x` when it leaves the cube), in one order or the other,
