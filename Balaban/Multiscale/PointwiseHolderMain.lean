@@ -91,7 +91,7 @@ theorem holder_final_I {K1 K2 B X θ eF M : ℝ} (hK1 : K1 ≤ B) (hK2 : K2 ≤ 
 /-- **The Hölder bound** (Proposition 4.9 with an arbitrary neighbourhood bound `M`). -/
 theorem holder_bound (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ B : ℝ, 0 ≤ B ∧ ∀ {θ : ℝ}, 0 < θ → θ < 1 → ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ}
-      (G : GeneratingSet d L N₀ k ϱ) (S : PtSetting G) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
+      (G : GeneratingSet d L N₀ k ϱ) (S : PtSetting G 1) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
       ∀ {x : Torus d (N₀ * L ^ k)}, x ∈ G.Ω 1 → ∀ {z : Fin d → ℤ}, 1 ≤ ‖z‖ →
       liftPt x z ∈ G.Ω 1 →
       ((G.layerIndex x = 1 ∧ G.pathDist x (liftPt x z) ≤ ENNReal.ofReal 1) ∨
@@ -208,7 +208,7 @@ pair `(x, x + z)` (`z ≠ 0`, `x + z` within path distance `1`: `ℓ(x) = L` or 
 `d(x, y') = ∞`. -/
 theorem prop49 (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ B : ℝ, 0 ≤ B ∧ ∀ {θ : ℝ}, 0 < θ → θ < 1 → ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ}
-      (G : GeneratingSet d L N₀ k ϱ) (S : PtSetting G) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
+      (G : GeneratingSet d L N₀ k ϱ) (S : PtSetting G 1) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
       ∀ {x : Torus d (N₀ * L ^ k)}, x ∈ G.Ω 1 → ∀ {z : Fin d → ℤ}, 1 ≤ ‖z‖ →
       liftPt x z ∈ G.Ω 1 →
       ((G.layerIndex x = 1 ∧ G.pathDist x (liftPt x z) ≤ ENNReal.ofReal 1) ∨
@@ -225,7 +225,7 @@ theorem prop49 (hd : 3 ≤ d) (hL : 3 ≤ L) :
             (S.ut (x + Pi.single ν 1) - S.ut x) = 0) := by
   classical
   obtain ⟨B0, hB0, hHB⟩ := holder_bound hd hL
-  obtain ⟨K2, hK2, h48⟩ := prop48 hd hL
+  obtain ⟨K2, hK2, h48⟩ := prop48 hd hL 1 zero_le_one
   have hexp0 : 0 < Real.exp (agmonRate d / 2 * (2 * d + 1)) := Real.exp_pos _
   refine ⟨B0 * (1 + K2 * Real.exp (agmonRate d / 2 * (2 * d + 1))), by positivity, ?_⟩
   intro θ hθ0 hθ1 k N₀ _ ϱ G S Mf hMf0 hMf x hx z hz1 hx'Ω hpair ν

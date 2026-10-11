@@ -68,7 +68,7 @@ theorem holderKl2_nonneg (d L : ℕ) (c0 : ℝ) : 0 ≤ holderKl2 d L c0 := by
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G 1)
 
 /-- **Proposition 4.9, Case 2: the decomposition.**  Splits the Loc (c) bound into the `ℓ²` part,
 the source part and the potential part. -/
@@ -144,6 +144,7 @@ theorem holder_caseI_pre
   have hg : ∀ w ∈ ball, ‖negLap (fun w => S.ut (liftPt x w)) w‖ ≤ ‖S.ft (liftPt x w)‖ + m := by
     intro w hw
     have := S.g_bound hj2 hjk hx (hzb w hw) hM0 hM'
+    rw [show (3 + 1 : ℝ) = 4 by norm_num] at this
     simpa only [Nat.add_sub_cancel] using this
   have hT := S.l2_part hc0 hc04 hj2 hjk hx (by simpa using hρ) hMf0 hMf ht0 ht
   simp only [Nat.add_sub_cancel] at hT
