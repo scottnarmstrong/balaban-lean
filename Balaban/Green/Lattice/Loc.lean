@@ -115,11 +115,11 @@ theorem lemma_loc_a (hd : 3 ≤ d) :
       negLap (fun w => ((latticeCutoff ρ x₀ w : ℝ) : ℂ) * u w) z := by
     rw [hrep, hxχ]; simp
   have core := loc_core (latticeGreen d) (A := c0) (A' := max c1 c1') (k := d - 2) hc0 hm
-    (fun y => by rw [abs_of_nonneg (latticeGreen_nonneg y)]; exact h0 y)
-    (fun y μ => by
+    (fun y _ => by rw [abs_of_nonneg (latticeGreen_nonneg y)]; exact h0 y)
+    (fun y μ _ => by
       rw [hk1]
       exact (h1 y μ).trans (div_le_div_of_nonneg_right (le_max_left _ _) (by positivity)))
-    (fun y μ => by
+    (fun y μ _ => by
       rw [hk1, abs_sub_comm]
       exact (h1' y μ).trans (div_le_div_of_nonneg_right (le_max_right _ _) (by positivity)))
     hρ x₀ x hx u g hg
@@ -192,8 +192,8 @@ theorem lemma_loc_b (hd : 3 ≤ d) :
     rw [hrep, hxχ, hxχ']; simp
   have core := loc_core (fun y => latticeGreen d (y + Pi.single ν 1) - latticeGreen d y)
     (A := c1) (A' := c2) (k := d - 1) hc1 hc2
-    (fun y => h1 y ν)
-    (fun y μ => by
+    (fun y _ => h1 y ν)
+    (fun y μ _ => by
       rw [hk]
       have e : latticeGreen d (y + Pi.single μ 1 + Pi.single ν 1) -
           latticeGreen d (y + Pi.single μ 1) -
@@ -203,7 +203,7 @@ theorem lemma_loc_b (hd : 3 ≤ d) :
       have := h2 y μ ν 1 1 (Or.inl rfl) (Or.inl rfl)
       rw [← e] at this
       exact this)
-    (fun y μ => by
+    (fun y μ _ => by
       rw [hk]
       have e : latticeGreen d (y - Pi.single μ 1 + Pi.single ν 1) -
           latticeGreen d (y - Pi.single μ 1) -

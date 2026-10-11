@@ -1,9 +1,11 @@
 # The large-field part: architecture (phase 1, document D-LF, first part)
 
-Version 2, 2026-10-11. This revises version 1 after the review `notes/phase1/LF-ARCHITECTURE-review.md`
+Version 3, 2026-10-11. Version 2 revised version 1 after the review `notes/phase1/LF-ARCHITECTURE-review.md`
 (verdict CHANGES-REQUIRED, findings LFR-01 to LFR-18) and after the independent merger analysis
-`notes/phase1/MERGES-astra.md` (cited below as MERGES-astra.md). Written for the orchestrator, Scott
-Armstrong and Roland Bauerschmidt. Status: draft for review. Nothing here is approved.
+`notes/phase1/MERGES-astra.md` (cited below as MERGES-astra.md). Version 3 revises version 2 after
+the re-review appended to the same review file ("Re-review of v2", verdict APPROVE-WITH-CHANGES,
+findings R2-01 to R2-13). Written for the orchestrator, Scott Armstrong and Roland Bauerschmidt.
+Status: draft for review. Nothing here is approved.
 
 This document fixes the architecture of the large-field analysis from which the reconstruction
 document (roadmap §4.5) and the Lean interfaces Def-7 and LF-1, …, LF-8 will be written. It
@@ -23,7 +25,25 @@ bookkeeping of P5–P7 and the operation $R$ itself; the repair of P6 Thm 4 (fre
 $p_2(\beta_{k_0})$) is agreed; the step counter must be reconstructed; limits along tori suffice;
 hard spins only ($\lambda=\infty$).
 
-**What changed from version 1.**
+**What changed from version 2.**
+
+1. Ripeness also requires that the window's core scale (P7's $k_1$) does not lie within
+   $h=O(\log\lambda)$ scales after a merge of the lineage (R2-01). The core is then a union of pairwise
+   separated boxes, every window point can be chained to the reference field, and the hole lemma of
+   version 2 (Lemma H) is not needed; its plan (H2) is kept as a documented backup (§3.8).
+2. The window state carries the merge scales after the core (R2-13) and a *bank* of $\frac12\tau_\mu$ per
+   such merge. The counting closes (§4.5, Case 2a). The strip of the new merge is an $O(h)$ delay
+   paid by the freed threshold, as the re-review proposes. When parts with different cores combine,
+   the merged core may also have to cross strips of earlier merges; those are paid by the banks of
+   the merges crossed. The freed threshold of the current merge alone does not cover that case.
+3. Lemma CH (a) is argued one component at a time, with a lattice separation lemma (Lemma S, part of
+   Lemma G) (R2-02).
+4. Connector length $D_k=\sqrt d(2\rho_k+10)$ (R2-03); the late-scale constants of P7 (2.20) and Lemma
+   2.5 are listed (R2-04); Proposition M is compared level by level, with a remark on shorter windows
+   (R2-05).
+5. New §8: the three interfaces ready for Lean drafting (abstract LF-2, Def-7, LF-4).
+
+**What changed from version 1** (version 2).
 
 1. The review's blocker LFR-01 is correct, and the gap is larger than the review states. P7 uses
    the single-box shape of the quiet window in two ways: through *volumes* ((2.15), (2.59), (2.60),
@@ -54,13 +74,15 @@ $G_k(Z)$ and an explicit *budget invariant* with a potential function. The trigg
 geometric: a component is *ripe* when its *covered window* is complete, that is, it has had no new
 large fields for $n_q\asymp\lambda$ scales, at the start of this window its history consisted of
 single boxes below critical size, during the window it has been covered at every scale by at most
-$\nu\le\nu_{\max}\asymp\lambda^{p_2}$ boxes of critical size, and it has been one small box for the last
-$n_2=O(\log\lambda)$ scales. After $k_0$ the threshold is frozen at $p_2(\beta_{k_0})$. §4 proves the
+$\nu\le\nu_{\max}\asymp\lambda^{p_2}$ boxes of critical size, it has been one small box for the last
+$n_2=O(\log\lambda)$ scales, and no merge of its lineage happened in the $h=O(\log\lambda)$ scales before
+the window's core scale. After $k_0$ the threshold is frozen at $p_2(\beta_{k_0})$. §4 proves the
 invariant (the reconstructed step counter LF-2) from listed axioms. $R$ must be generalized to
 covered windows (§3.8): P7's volume estimates acquire polynomial factors and remain $O(1)$, the
 losses (2.15) and (3.9) go through P7's refund route, and the chain argument is replaced by a chain
-lemma with a polynomial constant. One analytic point remains open: window points that the window's
-core encloses (Lemma H, §3.8). The reasons for this design are that P6 Prop 3.2 (ii) is false for
+lemma with a polynomial constant. Because of the merge-free strip before the core scale, the core
+is a union of separated boxes and every window point can be chained to the reference field; the hole
+lemma of version 2 (Lemma H) is not needed. The reasons for this design are that P6 Prop 3.2 (ii) is false for
 merged components (§4.9), that the repair keeping P7 unchanged fails (§4.10), and that without a
 cap on the number of pieces P7's chain argument fails (§2.7.3).
 
@@ -288,7 +310,8 @@ generalized to covered windows (§3.8).
 *Inductive hypothesis.* Def-7 (§3.6): P5 H1–H5, H7 unchanged in substance; H6 replaced by (H6′).
 
 *Hardest step.* $R$ on covered windows (LF-4, §3.8): P7 §§2–3 with polynomially many merged pieces,
-a chain lemma in place of P7's layer-width argument, and the open hole sub-lemma (Lemma H).
+and a chain lemma in place of P7's layer-width argument (with the merge-free strip of §3.5, no hole
+lemma is needed).
 LF-2 is elementary (§4: about 8 pages of inequalities).
 
 *What the sources prove and what is reconstructed.* The step, the fluctuation integrals and the
@@ -298,7 +321,7 @@ LF-2, LF-6, the $k_f=0$ case and the constant chain are reconstructed. List in �
 
 *Length (revised, LFR-17).* Reconstruction document 70–95 pp.: definitions and the region calculus
 (Lemma G, the cover lemma) 12 pp.; LF-2 10 pp.; LF-1 4 pp.; LF-6 incl. the sphere chart 10 pp.;
-$R$ on covered windows (the re-derived estimates of §3.8, Lemma CH, Lemma H, Lemma 2.5, Lemma 3.1,
+$R$ on covered windows (the re-derived estimates of §3.8, Lemma CH, Lemma S, Lemma 2.5, Lemma 3.1,
 the refund certificate) 25–40 pp.; last step and $k_f=0$ 5 pp.; constants 4 pp.
 
 ### 2.6 Recommendation
@@ -389,8 +412,10 @@ $b$, smallness only for the last $n_2$ scales), add $\nu(Z)$ = number of compone
 the last gain to (H6′), reset $\nu$ to $1$ at gains and kept $R$-events, and state (Rg) as
 $L_R\le C_R\lambda^{2d+2}+\nu(Z)$. Two defects. (i) MERGES-astra.md §3: a gain on an old, large,
 connected region resets $\nu$ to $1$, but the window starting at $b$ still contains all the old
-region's sites, so the reserve is not proportional to what (2.59) sees. I agree. (ii) The volume
-of a window is not the only problem: see the shape defect below.
+region's sites, so the reserve is not proportional to what (2.59) sees. (The re-review, R2-08,
+points out that this objection is weaker than it reads: Lemma V bounds the volume of such a piece
+through its spine, so its share of (2.59) stays small.) (ii) The decisive defect is the shape one
+below: a large concave piece, or a dense cluster, fills its own gaps.
 
 *(R1-atom), MERGES-astra.md's proposal.* An atom tally $N_k(Z)$ (each gained cube one atom, kept $R$
 output one atom, additive at merges, never reset at gains), invariant $G_k\ge\tau_{t^*}+V_k+a_NN_k$,
@@ -416,7 +441,7 @@ does not bound the window's geometry needs a new analytic idea (confidence in th
 the risk is an argument that controls the drift through the structure of the cluster's own
 history, which I do not see).
 
-*(R1-cov), adopted: covered windows with a cap.* Four rules (precise form in §3.5):
+*(R1-cov), adopted: covered windows with a cap.* Five rules (precise form in §3.5):
 
 1. A component *enters a window* when it is a single box below critical size (point spine); its
    window start $q$ is that scale and its piece count is $\nu=1$. A gain, a kept $R$-event or a
@@ -430,13 +455,19 @@ history, which I do not see).
    piece) carried in the invariant, resp. as in version 1's Case 2.
 4. Lemma C (§3.5): the history of an in-window component is covered at every scale of the window
    by $\nu$ boxes of side $\le\mathrm{crit}_j$.
+5. (Version 3, R2-01.) The window's core scale, P7's $k_1$, must not lie within $h=O(\log\lambda)$ scales
+   after a merge of the lineage. Then every lineage component at the core scale is a single box (a
+   merged cluster collapses to one box within $h$ shadow steps), the core is a union of pairwise
+   separated boxes, and no window point is enclosed by it. The delay this causes is paid by the
+   merges themselves (§4.5).
 
 With the cap, everything $R$ sees is polynomial in $\lambda$: the window's volume is at most
 $\nu_{\max}(M\mathrm{crit})^d$ per scale, its extent at most $\sqrt d\,\nu_{\max}\mathrm{crit}$ cubes. The volume
 estimates (2.59), (2.60), (3.17)–(3.19) stay $O(1)$ (they carry negative powers of $\beta$), so no
 per-piece analytic accounting is needed at all; (2.15) and (3.9) go through the refund. The
 chain argument becomes Lemma CH with a constant $\hat W\le C\lambda^{w_0}$, at the price of a larger
-$p_0$. What remains open is Lemma H: points of the window enclosed by the window's core (§3.8).
+$p_0$. Version 2 left open Lemma H (window points enclosed by a hollow cluster in the core); rule 5,
+added in version 3, removes that case.
 
 #### 2.7.4 Comparison
 
@@ -444,16 +475,17 @@ $p_0$. What remains open is Lemma H: points of the window enclosed by the window
 |---|---|---|---|---|
 | counting | fails (Prop. M) | closes for the volume terms; the gain reset is unsound for windows from $b$ | closes (MERGES-astra.md (3.1)–(3.4); I agree) | closes (§4) |
 | P7 volume terms | unchanged | per piece | per atom | $O(1)$ with a factor $\nu_{\max}$; (2.15), (3.9) by refund |
-| P7 shape terms (chains) | unchanged | not addressed | not addressed; false for dense clusters | Lemma CH, constant $\lambda^{w_0}$; Lemma H open |
+| P7 shape terms (chains) | unchanged | not addressed | not addressed; false for dense clusters | Lemma CH, constant $\lambda^{w_0}$; merge-free strip (no hole lemma) |
 | new constants | — | — | $a_N$ | $C_\nu$, $w_0$; $p_0$ larger |
-| status | refuted | insufficient | insufficient as stated | adopted; Lemma H open |
+| status | refuted | insufficient | insufficient as stated | adopted |
 
 #### 2.7.5 Choice
 
 (R1-cov). (R2) is false by Proposition M. Among the (R1) versions it is the only one in which the
 window geometry is controlled, and that control is what P7's chain argument needs; the cap costs
-one unit of reserve per piece and is paid at overflow. The remaining risk is concentrated in two
-analytic statements, Lemma CH (70%) and Lemma H (60%), both local to LF-4.
+one unit of reserve per piece and is paid at overflow. The merge-free strip (version 3) costs
+$O(h)$ scales per merge and is paid by the merges. The remaining analytic risk is concentrated in
+Lemma CH (75%), local to LF-4.
 
 ---
 ## 3. The recommended architecture (A′) in full
@@ -485,9 +517,11 @@ local objects are defined on finite subsets of $\mathbb Z^d$ and pushed to the t
   with $\theta_-=\frac12(d-2)\log L$, $\theta_+=2(d-2)\log L$ for $c_8$ small. For the bookkeeping only,
   $\lambda_j:=\lambda_{k_f}+(j-k_f)(d-2)\log L$ for $j>k_f$ (LFR-14); this keeps $\theta_\pm$.
   $R_k:=R_0\lambda_k^2$ (P5 (1.2)), $r_k:=\lceil R_k\rceil$, $\rho_k:=c_0r_k$ with $c_0\in\mathbb N$, and
-  $$\mathrm{crit}_k:=2\rho_k+10\quad(\pi_k\text{-cubes}),\qquad D_k:=\sqrt d\,(2\rho_k+9)\quad(\text{connector length}).$$
+  $$\mathrm{crit}_k:=2\rho_k+10\quad(\pi_k\text{-cubes}),\qquad D_k:=\sqrt d\,(2\rho_k+10)\quad(\text{connector length}).$$
   (LFR-08: with spine radius $\rho_k+4$ in (3.1), a general point spine meets at most $2\rho_k+10$ cubes
-  per direction, and a box of side $\le2\rho_k+10$ lies in $N_{\rho_k+4}$ of its centre.)
+  per direction, and a box of side $\le2\rho_k+10$ lies in $N_{\rho_k+4}$ of its centre. R2-03: two
+  adjacent cubes, each within $\rho+4$ of its own spine point, put the two points at sup-distance
+  $\le(\rho+4)+1+1+(\rho+4)=2\rho+10$.)
 * **Window lengths.** $n_q(j):=\min\{n\ge1:n\log L>\alpha^{-1}\lambda_j\}$ — this is P7 (2.31)
   [checked] with $k_1=j$, $\alpha=\frac{d-2}2-\gamma\in(0,\frac{d-2}2)$ (LFR-13);
   $n_2(j):=\min\{n:L^n>LM\,\mathrm{crit}_j\}$ (LFR-09), so that after $n_2(j)$ scales the shadow of a box
@@ -496,6 +530,12 @@ local objects are defined on finite subsets of $\mathbb Z^d$ and pushed to the t
 * **Piece cap and chain exponent.** $\nu_{\max}(j):=\lceil C_\nu\lambda_j^{p_2}\rceil$ with $C_\nu$ from §5 row 8;
   $w_0:=\frac{p_2d}2+3d$ (the exponent of the chain constant $\hat W$ of Lemma CH, §3.8);
   $p_R:=2p_0-2w_0$ (the exponent of the gain of a kept $R$-component).
+* **Window core and strips** (version 3). $k_1(t):=\max\{c:\ c+n_q(c)\le t\}$ is the window start that
+  P7 (2.31) uses for ripeness at scale $t$. Since $c\mapsto c+n_q(c)$ is strictly increasing, $k_1$ is
+  nondecreasing, $k_1(t+1)\le k_1(t)+1$, and $k_1(t)=c$ exactly for $c+n_q(c)\le t<(c+1)+n_q(c+1)$. The
+  strip length is $h_j:=\lceil\log_L(2\sqrt d\,\nu_{\max}(j)M\mathrm{crit}_j)\rceil+2=O(\log\lambda_j)$, nondecreasing in
+  $j$; for a finite set $\mathcal M$ of merge scales, $B(\mathcal M):=\bigcup_{\mu\in\mathcal M}[\mu,\mu+h_\mu]$ (the
+  *blocked* scales).
 * **Fields.** $\psi_k:T^{(k)}\to\mathbb R^N$ (complex $\mathbb C^N$ in analyticity statements); multiscale
   $\psi$ on a generating set $\mathbb B_k\subset\bigsqcup_{j\le k}T^{(j)}$, $\psi=\psi_j$ on
   $\Lambda_j=(\Omega_j\setminus\Omega_{j+1})\cap T^{(j)}$ (P5 p. 492 [checked]); unintegrated
@@ -582,8 +622,10 @@ Each component $Z$ of $Z_k$ carries, as deterministic functions of the history:
   into it);
 * a **smallness clock** $s(Z)$: if $\Gamma(Z)$ is a point, the scale since which it has been a point;
   otherwise the projected epoch $s(Z):=k+\lceil\log_L\ell(Z)\rceil$;
-* a **window state**: either *pre-window*, with the conventions $q(Z):=s(Z)>k$ and $\nu(Z):=1$; or
-  *in-window* with a window start $q(Z)\le k$ and a piece count $\nu(Z)\in\mathbb N_{\ge1}$.
+* a **window state**: either *pre-window*, with the conventions $q(Z):=s(Z)>k$, $\nu(Z):=1$ and
+  $\mathcal M(Z):=\emptyset$; or *in-window* with a *window core* $q(Z)\le k$, a piece count $\nu(Z)\in\mathbb N_{\ge1}$
+  and a *merge record* $\mathcal M(Z)\subset(q(Z),k]$, the scales of the merges in the lineage after the
+  core (version 3; R2-01, R2-13). The *bank* of $Z$ is $U(Z):=\frac12\sum_{\mu\in\mathcal M(Z)}\tau_\mu$.
 
 **Canonical hull rule (LFR-07).** At step $k\to k+1$, after the domains of §3.2 are formed, repeat:
 replace simultaneously every component of diameter $\le\mathrm{crit}_{k+1}$ by its hull; stop when
@@ -602,43 +644,69 @@ $\ell(\Gamma')\le1$, $\Gamma'$ is replaced by one of its points (LFR-08); $b'=k+
 spine was not a point (LFR-06).
 (U4) *Kept $R$-component* at scale $k$: domain and spine unchanged, $b'=k$.
 
-**Window updates.**
+**Window updates.** A *merge* is an event with $r=0$ (including merges caused by hulls); its scale is
+the scale $k+1$ of the merged component.
 (W1) *Entry.* A pre-window component whose spine becomes a point at scale $k$ (by (U1), (U2) or a
-hull) becomes in-window with $(q,\nu)=(k,1)$.
-(W2) *Shadow.* An in-window component under a pure shadow step (with or without hull) keeps $(q,\nu)$.
-(W3) *Merge.* An event with $r=0$ whose parts are all in-window, with $\sum_i\nu_i\le\nu_{\max}(k+1)$:
-$(q',\nu')=(\max_iq_i,\sum_i\nu_i)$.
-(W4) *Restart.* An event with $r\ge1$; or with $r=0$ and some part pre-window; or with $r=0$, all
-parts in-window and $\sum_i\nu_i>\nu_{\max}(k+1)$ (*overflow*): $Z'$ is pre-window if $\Gamma'$ is not a point,
-otherwise in-window with $(q',\nu')=(k+1,1)$.
-(W5) *Kept $R$.* At scale $k$: in-window with $(q,\nu)=(k,1)$.
+hull) becomes in-window with $(q,\nu,\mathcal M)=(k,1,\emptyset)$.
+(W2) *Shadow.* An in-window component under a pure shadow step (with or without hull) keeps
+$(q,\nu,\mathcal M)$.
+(W3) *Merge.* A merge whose parts are all in-window, with $\sum_i\nu_i\le\nu_{\max}(k+1)$: put
+$\nu'=\sum_i\nu_i$, $\tilde{\mathcal M}:=\bigcup_i\mathcal M_i\cup\{k+1\}$, $\tilde q:=\max_iq_i$,
+$$\tilde t:=\min\{t\ge\max(\tilde q+n_q(\tilde q),\,s'+n_2(s')):\ k_1(t)\notin B(\tilde{\mathcal M})\},\qquad q':=k_1(\tilde t),\qquad\mathcal M':=\tilde{\mathcal M}\cap(q',\infty).$$
+The merges in $\tilde{\mathcal M}\cap[0,q']$ are *released*; since $q'\notin B(\tilde{\mathcal M})$, each of them has
+$\mu+h_\mu<q'$.
+(W4) *Restart.* An event with $r\ge1$; or a merge with some part pre-window; or a merge whose parts
+are all in-window with $\sum_i\nu_i>\nu_{\max}(k+1)$ (*overflow*): $Z'$ is pre-window if $\Gamma'$ is not a point,
+otherwise in-window with $(q',\nu',\mathcal M')=(k+1,1,\emptyset)$. All merges of the parts are released.
+(W5) *Kept $R$.* At scale $k$: in-window with $(q,\nu,\mathcal M)=(k,1,\emptyset)$.
 
 * **Ripeness time** $t^*(Z):=\max\{q+n_q(q),\ s+n_2(s)\}$. $Z$ is **ripe** at scale $k$ if it is
   in-window and $t^*(Z)=k$. A pre-window component has $t^*=s+n_q(s)>k$ (as $n_q\ge n_2$ for
-  $\lambda\ge\lambda_*$) and is never ripe.
+  $\lambda\ge\lambda_*$) and is never ripe. After (W3), $t^*(Z')=\tilde t$. Indeed, let $t_0$ be the lower bound in
+  (W3). If $k_1(t_0)$ is not blocked, then $\tilde t=t_0$ and $q'+n_q(q')\le t_0$, with equality unless
+  $t_0=s'+n_2(s')$. If it is blocked, $k_1$ increases by at most one per scale, so $\tilde t=q'+n_q(q')>t_0$.
+  By Lemma C (e)–(f) this is the re-review's rule (R2-01) in bookkeeping form: at ripeness the core
+  is $k_1(k)=q$, and no merge $\mu$ of the lineage has $\mu\le q\le\mu+h_\mu$, i.e. none lies in the strip of
+  $h=O(\log\lambda)$ scales before the core.
 
-**Lemma C (covered windows).** Let $Z$ be an in-window component at scale $k$ with data $(q,\nu)$, and
-for $j\le k$ let $Z_j\cap Z$ denote its *lineage* at scale $j$, the union of the components of $Z_j$
+**Lemma C (covered windows).** Let $Z$ be an in-window component at scale $k$ with data $(q,\nu,\mathcal M)$,
+and for $j\le k$ let $Z_j\cap Z$ denote its *lineage* at scale $j$, the union of the components of $Z_j$
 whose descendants lie in $Z$. Then:
 (a) no new large-field cubes appear in the lineage at the steps $j\to j+1$, $q\le j<k$, and $b(Z)\le q$;
 (b) for every $j\in[q,k]$, $Z_j\cap Z$ is covered by $\nu$ boxes of side $\le\mathrm{crit}_j$ ($\pi_j$-cubes);
 (c) $\ell(Z)\le(\nu-1)D_k$;
 (d) every component of the lineage that entered its window, or was kept by $R$, at a scale
-$q_\ell\le q$ was a single box of side $\le\mathrm{crit}_{q_\ell}$ at that scale (the *leaves* of the window).
-*Proof.* Induction over the rules. (a): gains restart ((W4)), and (W3) keeps $\max_iq_i\ge\max_ib_i$.
+$q_\ell\le q$ was a single box of side $\le\mathrm{crit}_{q_\ell}$ at that scale (the *leaves* of the window);
+(e) every merge of the lineage at a scale $\mu\le q$ satisfies $\mu+h_\mu<q$; consequently, at scale $q$
+every component of the lineage is a single box of side $\le\mathrm{crit}_q$, and distinct ones are pairwise
+$*$-separated;
+(f) $q+n_q(q)\le t^*(Z)<(q+1)+n_q(q+1)$, so $k_1(t^*(Z))=q$: the core used by $R$ at ripeness is $q$.
+*Proof.* Induction over the rules. (a): gains restart ((W4)), and in (W3) $q'\ge\tilde q\ge\max_iq_i\ge\max_ib_i$.
 (b): at entry, a point spine means a hulled box of side $\le\mathrm{crit}$. Under a step, a box $B$ of side
 $\le\mathrm{crit}_j$ gives $B^\uparrow$ of side $\le\mathrm{crit}_j/L+2$, and by (G1) of §4.1 its seed set lies in
 $N_{s_*r_j}(B^\uparrow)$, a box of side $\le\mathrm{crit}_j/L+2+2s_*r_j\le\mathrm{crit}_{j+1}$, because $c_0(1-L^{-1})\ge s_*$
 and $10/L+2\le10$. A hull is one box of side $\le\mathrm{crit}_{j+1}$ and replaces the boxes covering its
-component. A merge (W3) takes the union of the covers. (c): the spine is a point at entry;
-contraction divides lengths by $L$; at (W3), $\ell'\le\sum_i(\nu_i-1)D_k/L+(m-1)D_{k+1}\le(\nu'-1)D_{k+1}$; a hull
-makes it a point. (d) is the entry condition. $\square$
-*Status:* reconstructed. It is the attribution argument of MERGES-astra.md's per-atom cover
-((3.5) there), with pieces in place of atoms.
+component. A merge (W3) takes the union of the covers; raising the core from $\tilde q$ to $q'$ only
+shortens the range of scales. (c): the spine is a point at entry; contraction divides lengths by $L$;
+at (W3), $\ell'\le\sum_i(\nu_i-1)D_k/L+(m-1)D_{k+1}\le(\nu'-1)D_{k+1}$; a hull makes it a point. (d) is the entry
+condition. (e): a merge released at (W3) has $\mu+h_\mu<q'$, and the core never decreases afterwards
+($q'\ge\tilde q\ge q_i$); merges recorded in $\mathcal M$ lie after $q$. A lineage component whose last merge was at
+$\mu$ with $\mu+h_\mu<q$ was, at scale $\mu$, connected and covered by at most $\nu_{\max}(\mu)$ boxes of side
+$\le\mathrm{crit}_\mu$, so its diameter was at most $\nu_{\max}(\mu)\mathrm{crit}_\mu$. A pure shadow step maps a diameter $e$ to
+at most $e/L+2s_*r+2$, and $e\mapsto e/L+2s_*r+2$ has fixed point $\le\mathrm{crit}-10$ by the condition on $c_0$;
+so after $t$ steps the diameter is $\le\nu_{\max}(\mu)\mathrm{crit}_\mu L^{-t}+\mathrm{crit}-10$, which is $\le\mathrm{crit}$ for
+$t\ge h_\mu-1$. The component is then hulled into one box and stays one box under further shadow
+steps. Components that did not merge since entering are boxes. Distinct components of $Z_q$ are
+$*$-separated by Lemma G's convention. (f): at entry and at (W5), $t^*=q+n_q(q)$. At (W3), $q'=k_1(\tilde t)$
+and $t^*(Z')=\tilde t$, so $q'+n_q(q')\le\tilde t<(q'+1)+n_q(q'+1)$ by the definition of $k_1$. Pure shadow steps
+keep $q$, do not increase $t^*$, and keep $t^*\ge q+n_q(q)$. $\square$
+*Status:* reconstructed. (b)–(c) are the attribution argument of MERGES-astra.md's per-atom cover
+((3.5) there), with pieces in place of atoms; (e)–(f) are new in version 3 (R2-01).
 
 A ripe component has: no new large fields in its window $[q,k]$; a cover by $\nu\le\nu_{\max}(k)$ boxes
 of critical size at every scale of the window; been one box of side $\le\mathrm{crit}$ for the last
-$n_2(s)$ scales. These are the hypotheses (RQ) of LF-4 (§3.8).
+$n_2(s)$ scales; and a core $q=k_1(k)$ at which its lineage is a union of pairwise separated boxes.
+These are the hypotheses (RQ) of LF-4 (§3.8).
 
 ### 3.6 Def-7: the inductive classes
 
@@ -662,7 +730,7 @@ $\psi_k\in(\mathbb R^N)^{T^{(k)}}$, $\|g\|_{\ell^1}<1$, such that:
 * (D4) $\mathbb T_k$ is the operator of §3.3 for the given history; H5 properties;
 * (D5) **operator bound** (1.26) with $\kappa_k$ of §3.4 and $\sum_{\mathbb A\cap Z}C^{-1}\le1$ (1.27);
 * (D6) **(H6′) budget invariant**: for every component $Z$ of $Z_k$ and admissible $\mathbb A$,
-  $$t^*(Z)>k\qquad\text{and}\qquad G_k(Z,\mathbb A\cap Z)\ \ge\ \tau_{t^*(Z)}+V_k(Z)+\nu(Z);$$
+  $$t^*(Z)>k\qquad\text{and}\qquad G_k(Z,\mathbb A\cap Z)\ \ge\ \tau_{t^*(Z)}+V_k(Z)+\nu(Z)+U(Z);$$
 * (D7) **boundary terms** H7 (P5 (1.36)–(1.39) [checked]) with constant $B_0$;
 * (D8) local data and torus independence (roadmap §3.5);
 * (D9) $\beta_k>BL^{k(d-2)}$, $0<\nu_k\le\bar\nu$ (P5 (1.42)).
@@ -678,10 +746,12 @@ with $\ell=1$ and the frozen threshold $p_2(\beta_{k_0})$.
 *Lean types.* Tori and scale lattices as `Fin d → ZMod _`; domains as `Finset` of cubes; the
 history as an inductive list of records whose fields are domains satisfying the stated
 equalities; spines as finite lists of segments in `Fin d → ℝ`, clocks as natural numbers and the
-window state as `Option (ℕ × ℕ)` (bookkeeping data, part of the history); kernels as non-negative
-measurable functions with an explicit Lebesgue reference measure on the internal variables. Def-7
-is a predicate on families indexed by admissible tori. It is frozen only after the reconstruction
-document is approved (roadmap §3.1).
+window state as `Option (ℕ × ℕ × Finset ℕ)` (core, piece count, merge record; R2-13), all
+bookkeeping data being part of the history; kernels as non-negative measurable functions with an
+explicit Lebesgue reference measure on the internal variables. The functions $\lambda_j$ (extended
+beyond $k_f$), $n_q$, $n_2$, $k_1$, $h_j$, $\nu_{\max}$, $v_j,w_j,\sigma_k,\tau_t$ are explicit definitions from the
+constants. Def-7 is a predicate on families indexed by admissible tori (§8.2). It is frozen only
+after the reconstruction document is approved (roadmap §3.1).
 
 ### 3.7 The statements LF-1 … LF-8
 
@@ -740,7 +810,8 @@ new boundary terms satisfy H7 with a constant independent of $B_0$ (P7 p. 529 [c
 (M2) *Covered windows.* P7 §§2–3 on windows whose lineage is covered by $\nu\le\nu_{\max}(k)$ boxes of
 critical size: the re-derived estimates (2.15)′, (2.26)′–(2.30)′, (2.33)′, (2.48)′–(2.49)′,
 (2.59)′, (2.60)′, (2.61)′–(2.62)′, (3.11)′, (3.15)′, (3.17)′–(3.19)′ of §3.8, with the chain lemma
-(Lemma CH) and the hole lemma (Lemma H, open).
+(Lemma CH) and the lattice separation lemma (Lemma S, in Lemma G); with the merge-free strip of
+§3.5 every window point is exposed, so the hole lemma of version 2 is not needed.
 (M3) *Input bound by the refund route.* P7 (3.8)–(3.10) in the form of the window certificate of
 §3.8 (MERGES-astra.md (3.6)), with $c_1\ge C_{(3.9)}$ (LFR-02).
 (M4) *Lemma 3.1 (coset average) written out.* For unit $u$ with $u\cdot e_1\neq-1$ the rotation in
@@ -766,8 +837,12 @@ of each $P(Y)$ in parameters, `pe_analyticOnNhd`, `pe_PY_analyticOnNhd` (`Holomo
 The version with holes, which (3.26)–(3.28) need, is `pe_hole` (`Hole.lean`, decay in the Steiner
 size outside a hole $S_0$), reported in progress.
 (M7) *Late scales.* P7's $k_2,k_3$, $Z_0$, $Z'''_0$ as printed; $\mathrm{diam}_k(Z_0)<D_0:=3c_0+4$ instead
-of 15, and Lemma 2.1's constants $c_{11},K_6$ are those for size $D_0$ (LFR-09; §5 rows 4 and 7).
-*Status:* sketched in P7 for single-box windows; (M1)–(M7) reconstructed; Lemma H open.
+of 15, and Lemma 2.1's constants $c_{11},K_6$ are those for size $D_0$ (LFR-09; §5 rows 4 and 7). The
+other constants of P7 that come from $\mathrm{diam}_k(Z_0)<15$ change in the same way (R2-04): in (2.20)
+p. 503 the bound $30(d-1)\cdot3\delta_k$ (hence $90d\delta_k$ in (2.28)) becomes $C(c_0)\delta_k$, and so do the terms
+$7K_6$ and $90d$ in the proof of Lemma 2.5 (p. 515). They are absorbed by the factors $L^{-n_1/3}$ in
+(2.27)–(2.30) and by $\beta$ large, as the printed ones are.
+*Status:* sketched in P7 for single-box windows; (M1)–(M7) reconstructed.
 
 **LF-5 (regime $k_0\le k<k_f$; P5/P6 Thm 4 repaired).** $\mathcal R_{k_0}\subset\mathcal R^\flat_{k_0}$, and for
 $k_0\le k<k_f$, $S^{(k)}T^{(k)}$ maps $\mathcal R^\flat_k$ into $\mathcal R^\flat_{k+1}$ (with $BL^{d-2}$). Consequently
@@ -801,7 +876,7 @@ with $P^\perp_\phi=I-\phi\phi^\top/(\phi\cdot\phi)$, which is analytic in $\phi$
 lower bound on the fluctuation form (P4 (2.48)–(2.50): $G_1^{-1}(\alpha_1)\ge\gamma_0$; at $\lambda=\infty$
 the form $P^\perp G_1^{-1}P^\perp+P$, roadmap C8) and I-8 at $k=0$ give $\mathcal E^{(1)},\mathcal M^{(1)}$.
 (v) Budgets and windows: each component of $Z_1$ is an event with no old parts ((W4): pre-window,
-or in-window with $(q,\nu)=(1,1)$); LF-2 (iii).
+or in-window with $(q,\nu,\mathcal M)=(1,1,\emptyset)$); LF-2 (iii).
 *Status:* reconstructed (ER-062, ER-063).
 
 **LF-7 (the flow; P7 Thm 5, method form).** For $\beta\ge\beta_0$, $\nu\in(0,1]$ with $k_f\ge1$, unit $h$: the
@@ -848,19 +923,39 @@ rounded to $\pi'_{k+1}$-cubes, so that every cube of a new component lies in the
 seed in the same component. The review rechecked this structure (its §1.1, with $s_*\approx4$ and
 $R_0\ge C(L)$ absorbing the additive $O(L^2)$ terms). Lemma G also fixes the adjacency convention:
 components are taken in $*$-adjacency (cubes sharing any point), so that distinct components are at
-sup-distance $\ge1$ cube; Lemma CH uses this.
+sup-distance $\ge1$ cube. Paths, enclosure and the chains of Lemma CH use nearest-neighbour adjacency.
+These are the two adjacencies of the following lemma.
+
+*Lemma S (lattice separation; R2-02).* Let $d\ge2$ and let $A_1,\dots,A_n\subset\mathbb Z^d$ be finite and
+pairwise $*$-separated (no $a\in A_i$, $a'\in A_j$, $i\ne j$, with $|a-a'|_\infty\le1$). Say that $x\notin A:=\bigcup_iA_i$ is
+*enclosed* by $A$ if every nearest-neighbour path from $x$ to infinity meets $A$. If $x$ is enclosed by
+$A$, then it is enclosed by a single $A_{i_0}$. In particular a union of pairwise $*$-separated boxes
+encloses no point outside it.
+*Proof.* Let $C$ be the nearest-neighbour component of $\mathbb Z^d\setminus A$ containing $x$; it is finite. Let
+$\partial^{\rm ext}C$ be the set of $y\notin C$ that are nearest-neighbour adjacent to $C$ and joined to infinity
+by a nearest-neighbour path avoiding $C$. For a finite nearest-neighbour connected set in $\mathbb Z^d$,
+$d\ge2$, this exterior boundary is $*$-connected (Deuschel–Pisztora 1996, Lemma 2.1; Timár 2013,
+"Boundary-connectivity via graph theory"; external, standard, not in the source library). Every
+neighbour of $C$ outside $C$ lies in $A$, by maximality of $C$, so $\partial^{\rm ext}C\subset A$; being $*$-connected
+and the $A_i$ being pairwise $*$-separated, $\partial^{\rm ext}C\subset A_{i_0}$ for one $i_0$. A nearest-neighbour path
+from $x$ to infinity, after its last visit to $C$, steps into $\partial^{\rm ext}C\subset A_{i_0}$. For a box: its
+complement is nearest-neighbour connected and unbounded, so it encloses nothing. $\square$
+On the torus the lemma is applied to sets contained in a box that does not wind, lifted to $\mathbb Z^d$
+(all sets below lie inside one component of scale $k$, which is a box below critical size).
 
 ### 3.8 LF-4 in detail: $R$ on covered windows
 
-**Hypotheses (RQ).** $Z$ is a ripe component at scale $k\le k_0$ with window data $(q,\nu)$. P7's
-$k_1$ is the largest index with $(k-k_1)\log L>\alpha^{-1}\lambda_{k_1}$ (P7 (2.31)); since $k\ge q+n_q(q)$,
-$k_1\ge q$. So, by Lemma C: (RQ1) there are no new large fields in the lineage on $[k_1,k]$;
+**Hypotheses (RQ).** $Z$ is a ripe component at scale $k\le k_0$ with window data $(q,\nu,\mathcal M)$. P7's
+$k_1$ is the largest index with $(k-k_1)\log L>\alpha^{-1}\lambda_{k_1}$ (P7 (2.31)), that is $k_1=k_1(k)$ of §3.1;
+by Lemma C (f), $k_1=q$. So, by Lemma C: (RQ1) there are no new large fields in the lineage on $[k_1,k]$;
 (RQ2) for $j\in[k_1,k]$ the lineage $Z_j\cap Z$ is covered by $\nu\le\nu_{\max}(k)$ boxes of side
 $\le\mathrm{crit}_j$; (RQ3) $Z_j\cap Z$ is one box of side $\le\mathrm{crit}_j$ for $j\in[s,k]$, and $k-s\ge n_2(s)$; since
 $L^{n_2(s)}>LM\,\mathrm{crit}_s>LM[R_s]$, P7's $k_2$ (the smallest $j$ with $L^{-(k-j)}LM[R_j]\ge1$) exceeds $s$, so
-$[k_2,k]\subset[s,k]$; (RQ4) $\lambda_k\le c_*\lambda_{k_1}$ with $c_*=1+\theta_+/(\alpha\log L)$.
-Write $h:=\lceil\log_L(\sqrt d\,\nu_{\max}(k)M\mathrm{crit}_k)\rceil+2$, and
-$$\hat W:=C_{\rm ch}\,\nu_{\max}(k)\,(LM\mathrm{crit}_k)^d\,(\sqrt d\,\nu_{\max}(k)M\mathrm{crit}_k)^{\frac{d-2}2}L^{\frac{3(d-2)}2}\ \le\ C_{\hat W}\lambda_k^{w_0}.$$
+$[k_2,k]\subset[s,k]$; (RQ4) $\lambda_k\le c_*\lambda_{k_1}$ with $c_*=1+\theta_+/(\alpha\log L)$; (RQ5) (version 3) at scale $k_1$
+the lineage, i.e. the *core* $Z_{k_1}\cap Z$, is a union of single boxes of side $\le\mathrm{crit}_{k_1}$ that are
+pairwise $*$-separated (Lemma C (e)).
+Write $h:=h_k$ (§3.1), and
+$$\hat W:=C_{\rm ch}\,\nu_{\max}(k)\,(LM\mathrm{crit}_k)^d\,(2\sqrt d\,\nu_{\max}(k)M\mathrm{crit}_k)^{\frac{d-2}2}L^{\frac{3(d-2)}2}\ \le\ C_{\hat W}\lambda_k^{w_0}.$$
 All constants $C,C',\dots$ below depend only on constants fixed before $\beta$ (§5).
 
 **Step 0: composition and core.** P7 (2.6)–(2.9) hold as printed for any lineage: the operator is
@@ -881,55 +976,58 @@ use only scales in $[k_2,k]$ and hold by (RQ3), with $\mathrm{diam}_k(Z_0)<D_0$ 
 in (3.4)–(3.5).
 
 **Step 3: chains.** Call a point $y$ of a window layer $\Lambda_j\cap Z$ ($k_1\le j<k$) *exposed* if it is
-joined to $\Omega_k\cap Z$ by a path avoiding the core $Z_{k_1}\cap Z$ (as fine-scale sets), and
-*enclosed* otherwise; likewise for points of $\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$ with respect to
+joined to $\Omega_k\cap Z$ by a nearest-neighbour path avoiding the core $Z_{k_1}\cap Z$ (as fine-scale sets),
+and *enclosed* otherwise; likewise for points of $\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$ with respect to
 $(U^{\sim3}_{k_1})^c$ inside $W^\sim_{k_1}\cap U^{\sim4}_{k_1}$.
 
-*Lemma CH (chain lemma).* For every exposed $y\in\Lambda_j\cap Z$ there are points
+*All window points are exposed* (version 3). By (RQ5) and Lemma S the core encloses no point outside
+it. A window point $y$ lies in $Z$ (a box at scale $k$) outside the core; a path from $y$ to infinity
+avoiding the core leaves $Z$ through its outer shell, and the outer shell of $Z$ lies in $\Omega_k$ because
+$Z_k$ contains the neighbourhood of width $2MR_{k-1}+M$ of $\Omega''^c_k\supset\Omega^c_k$ (P6 (2.3)). The part of the path
+before it leaves $Z$ joins $y$ to $\Omega_k\cap Z$. Each core piece is a single box, so the points of
+$\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$ are joined to the exterior of their box as in P7 (3.11), with
+$3MR_{k_1}+8M$ replaced by $\frac12M\mathrm{crit}_{k_1}+8M$.
+
+*Lemma CH (chain lemma).* For every window point $y\in\Lambda_j\cap Z$ there are points
 $y=x_0,x_1,\dots,x_p=y_k\in\partial\Lambda_k$, consecutive ones joined either by a lattice segment inside
 one layer $\Lambda_i$ with $i\ge\max(k_1,j-h)$ or by a cross-layer bond, such that on every configuration
 satisfying the bounds (2.22) with a constant $c$,
 $$|\tilde\psi(y)-\psi_k(y_k)|\ <\ \hat W\,c\,\delta_j .\tag{2.26′}$$
-*Proof plan.* (a) *Enclosure bound.* If a fine block of side $L^j$ is enclosed by $\Omega^c_i$ for
-some $i\in[k_1,j]$, the enclosing set lies in the lineage at scale $i$ (since $\Omega^c_i\subset Z_i$), which
-by (RQ2) spans at most $\sqrt d\,\nu\,M\mathrm{crit}_i$ units of scale $i$; hence $L^{j-i}\le\sqrt d\,\nu M\mathrm{crit}_i$, that
-is $j-i\le h-2$. So $y$ is joined to $\Omega_k\cap Z$ inside $\bigcup_{i'\ge i_0}\Lambda_{i'}\cup(\Omega_k\cap Z)$ with
-$i_0:=\max(k_1,j-h+1)$: at scale $i_0$ it is neither enclosed by $\Omega^c_{i_0}$ nor (being exposed) by
-the core. (b) *Length.* Take a self-avoiding such path. Its part in $\Lambda_{i'}$ lies in
+*Proof plan.* (a) *Enclosure bound, one component at a time* (R2-02). For $i\in[k_1,j]$ let the
+*obstacle at scale $i$* be $O_i:=(\Omega^c_i\cup Z_{k_1})\cap Z$, the fine-scale points of $Z$ not available to
+layers of scale $\ge i$. Since $\Omega^c_i\subset Z_i$ and $Z_{k_1}\subset Z_i$ (regions only grow, (G1)), $O_i$ lies in the
+lineage at scale $i$, and each $*$-component of $O_i$ lies in one $*$-component of the lineage at scale
+$i$. By Lemma C (b) such a lineage component is connected and covered by at most $\nu$ boxes of side
+$\le\mathrm{crit}_i$, so its diameter is at most $\nu\,\mathrm{crit}_i$ cubes of $\pi_i$, i.e. at most $\nu M\mathrm{crit}_i$ units of scale
+$i$. If the block of $y$ (side $L^{j-i}$ units of scale $i$) is enclosed by $O_i$, then by Lemma S it is
+enclosed by one $*$-component of $O_i$, whose diameter must exceed $L^{j-i}$; hence $L^{j-i}<\nu M\mathrm{crit}_i$,
+i.e. $j-i\le h-2$. Points outside $Z$ (other components of $Z_i$) play no role: the path only has to
+reach the outer shell of $Z$, and other components of the flow are disjoint from $Z$ at fine scale.
+At $i=k_1$ the obstacle is the core, which encloses nothing (exposure). So with
+$i_0:=\max(k_1,j-h+1)$, $y$ is joined to $\Omega_k\cap Z$ by a path avoiding $O_{i_0}$, i.e. inside
+$\bigcup_{i'\ge i_0}\Lambda_{i'}\cup(\Omega_k\cap Z)$. (b) *Length.* Take a self-avoiding such path. Its part in $\Lambda_{i'}$ lies in
 $\Omega^c_{i'+1}\subset Z_{i'+1}\cap Z$, which by (RQ2) has at most $\nu(LM\mathrm{crit}_{i'+1})^d$ lattice points of
 scale $i'$. (c) *Cost.* Each bond in $\Lambda_{i'}$ costs $c\delta_{i'}$ and each cross-layer bond $dLc\delta_{i'}$
 ((2.22)); by P7 (2.25) $\sum_{i'\ge i_0}\delta_{i'}\le4\delta_{i_0}$ and $\delta_{i_0}\le L^{\frac{d-2}2(j-i_0)}\delta_j\le
-L^{\frac{d-2}2h}\delta_j$, with $L^h\le L^3\sqrt d\,\nu_{\max}(k)M\mathrm{crit}_k$. Summing gives (2.26′) with the stated $\hat W$. For boxes ($\nu=1$, no enclosure)
-this reduces to P7's chain with $16LMR_{k_1}$ replaced by $\hat W$. $\square$
-UNCERTAIN: the adjacency bookkeeping in (a) (Lemma G's $*$-adjacency) and the form of the
-cross-layer bonds (2.22) when a layer meets several older layers; neither changes the polynomial
-order of $\hat W$.
+L^{\frac{d-2}2h}\delta_j$, with $L^h\le L^3\cdot2\sqrt d\,\nu_{\max}(k)M\mathrm{crit}_k$. Summing gives (2.26′) with the stated $\hat W$. For
+boxes ($\nu=1$) this reduces to P7's chain with $16LMR_{k_1}$ replaced by $\hat W$. $\square$
+UNCERTAIN: the form of the cross-layer bonds (2.22) when a layer meets several older layers; it
+does not change the polynomial order of $\hat W$.
 
-*Lemma H (enclosed points; open).* The conclusions of Lemma 2.3 (2.48)′, of (2.61)′–(2.62)′ and of
-(3.11)′ below hold also for enclosed points, with constant $\hat W$; or the window variables at
-enclosed points can be treated as core variables. Enclosed points occur: a component of the
-lineage at $k_1$ that is a cluster merged shortly before $k_1$ (for instance $3^d-1$ critical boxes
-in a hollow arrangement) can enclose a region of $Z^c_{k_1}$, which is absorbed into the window later.
-Version 1 and P7 never meet this because their cores are single boxes; the cluster arises only
-because the window must accept merges (§4.10). Two plans. (H1) *Open the core.* By the enclosure
-bound, a path from an enclosed point leaves the enclosure through the lineage's own layers at
-scales in $[k_1-h,k_1)$; these are quiet and covered (Lemma C applied to the components of the
-lineage), and their characteristic functions are part of the kernel of $\mathbb T_{k_1}$, so the
-deterministic bound (2.48)′ follows. The small factors for $\chi''^c$ and $Q''$ along such paths need the
-main action of those layers, i.e. a composition started at $k_1-h$ for the parts that were
-in-window there; holes of the lineage at $k_1-h$ then raise the same question one level down, and I
-have not cut this regress. (H2) *Generalized core.* Do not shift the enclosed variables by
-$\psi^0_{k_1,k}$; keep their original characteristic functions; bound their part of the operator by
-the step-by-step charges (no refund for their new volume). The main action then differs from
-P7's by the action of the actual enclosed values minus that of $\psi^0_{k_1,k}$; this is $\ge0$ on real
-fields because $\psi^0_{k_1,k}$ is the minimal configuration (P7 (2.51)), and on the analyticity domain
-it is of order $\beta_k\varepsilon_k^2$ times the rescaled volume of the enclosed set, which is
-$\le C\nu_{\max}^{2}\mathrm{crit}^{2d}\beta_{k_1}^{-1-2/\alpha}$ as in (2.59)′. The unverified step is the
-analyticity of the composed operator in $\psi_k$ when part of the window is not shifted.
-Confidence that one of the two plans works: 60%.
+*Remark (version 2's Lemma H; backup).* Without the merge-free strip, a lineage component at $k_1$
+can be a hollow cluster merged shortly before $k_1$ and enclose a region of $Z^c_{k_1}$ that the window
+absorbs later; version 2 stated the needed estimates for such enclosed points as Lemma H and left
+it open. Version 3 excludes the case by the ripeness rule (Lemma C (e), R2-01). Plan (H2) of version
+2 is kept as a backup in case the strip should be dropped: do not shift the enclosed variables by
+$\psi^0_{k_1,k}$, keep their original characteristic functions, and bound their part of the operator by
+the step-by-step charges (no refund for their new volume); the main-action difference is $\ge0$ on
+real fields because $\psi^0_{k_1,k}$ is the minimal configuration (P7 (2.51)), and on the analyticity
+domain it is of order $\beta_k\varepsilon_k^2$ times the rescaled volume of the enclosed set,
+$\le C\nu_{\max}^2\mathrm{crit}^{2d}\beta_{k_1}^{-1-2/\alpha}$. Its unverified step is the analyticity of the composed
+operator in $\psi_k$ when part of the window is not shifted.
 
-**Step 4: the re-derived estimates.** For exposed points; each replaces the printed estimate in
-P7's argument without other change.
+**Step 4: the re-derived estimates.** Each replaces the printed estimate in P7's argument without
+other change.
 
 * (2.29)′–(2.30)′. From (2.26′) with $y$ on the ring $\partial(U^{\sim3}_{k_1}\cap T^{(k_1)})$, (2.27), (2.28):
   $|\psi_{k_1}(y)-\psi_0|<\frac12K_1^{-1}\delta_{k_1}\big(2K_1\hat Wc+36K_1MR_{k_1}L^{-n_1/3}+180dK_1L^{-n_1/3}\big)\le\frac12K_1^{-1}\delta_{k_1}$
@@ -958,14 +1056,13 @@ P7's argument without other change.
   using $|\Lambda_j\cap Z|_j\le L^d|Z_{j+1}\cap Z|_{j+1}$, $\beta_j\delta_j^2=A_0^2\lambda_j^{2p_0}$, $\delta_k=A_0\beta_k^{-1/2}\lambda_k^{p_0}$ and
   $\sum_jL^{-2(k-j)}\le2$. As in P7, the curly bracket of (2.58) times $\beta_k$ is then bounded below by the
   right side of P6 (3.5) for $X=Z^c_{k_1}\cap Z$ minus 1 (LF-1 holds for arbitrary generating sets).
-* (2.61)′–(2.62)′. $\chi''$ as printed. For $\chi''^c$ at an exposed $y\in\Lambda_j$, Lemma CH with
-  $c=(2\hat W)^{-1}$ gives a bond in some $\Lambda_i$, $i\ge\max(k_1,j-h)$, with $|\partial\delta\psi|\ge c\delta_{i,1}$; P6 (3.5)
-  yields $\exp(-\frac12\gamma_0(2\hat W)^{-2}p_1^2(\beta_i)+1)\le\exp(-A''_3\lambda_k^{p_R})$, using $\lambda_i\ge\lambda_{k_1}-\theta_+h\ge\frac\alpha{2d}\lambda_k$
-  for $\lambda\ge\lambda_*$.
-* (3.11)′. $|\delta\psi|<\hat W\delta_{k_1}$ on $\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$ at exposed points: P7's path of
-  length $<3MR_{k_1}+8M$ to the exterior of $U^{\sim3}_{k_1}$ is replaced by one of length
-  $\le\sqrt d\,\nu M\mathrm{crit}_{k_1}+8M$ (the core lies in $\nu$ boxes); the other terms are at scale $k$ and
-  unchanged. $|\delta\psi|<\delta_{j,1}$ on $\Lambda_j$ by $\chi''$.
+* (2.61)′–(2.62)′. $\chi''$ as printed. For $\chi''^c$ at a window point $y\in\Lambda_j$, Lemma CH with
+  $c=(2\hat W)^{-1}$ gives a bond in some $\Lambda_i$, $i\ge k_1$, with $|\partial\delta\psi|\ge c\delta_{i,1}$; P6 (3.5)
+  yields $\exp(-\frac12\gamma_0(2\hat W)^{-2}p_1^2(\beta_i)+1)\le\exp(-A''_3\lambda_k^{p_R})$, using $\lambda_i\ge\lambda_{k_1}\ge\frac\alpha d\lambda_k$ ((2.32)).
+* (3.11)′. $|\delta\psi|<\hat W\delta_{k_1}$ on $\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$: P7's path of length $<3MR_{k_1}+8M$
+  to the exterior of $U^{\sim3}_{k_1}$ is replaced by one of length $\le\frac12M\mathrm{crit}_{k_1}+8M$ inside the core box
+  containing the point (RQ5); the other terms are at scale $k$ and unchanged. $|\delta\psi|<\delta_{j,1}$ on $\Lambda_j$
+  by $\chi''$.
 * (3.15)′. $|\delta\phi'_{k_1,k}|,L^j\eta|\partial^\eta\delta\phi'|,(L^j\eta)^2|\Delta^\eta\delta\phi'|,(L^j\eta)^2|\delta\alpha'|<C(\hat W\delta_j\varepsilon_k+\varepsilon_j\beta_j^{-1})$ on
   $\Lambda_j\cap\Omega^c_{j+1}\cap Z^c_{k_1}\cap Z$; the real part $\delta\phi_{k_1,k}$ with $C\hat W\delta_j$. Proof as printed (pp. 522–523)
   with (3.11)′ and (2.49)′.
@@ -984,7 +1081,7 @@ So every term of P7 (3.9) other than the window sum is $O(1)$ (at most $4$ in to
 no per-piece accounting of these losses is needed.
 
 **Step 5: Lemma 2.5, Lemma 3.1, the polymer expansion.** As in (M4)–(M6). Lemma 2.5 uses the chains
-of Lemma CH (and Lemma H for enclosed points).
+of Lemma CH.
 
 **Step 6: the refund certificate and the $R$-rule (M3).** Let $\mathcal K_{k_1}:=\kappa_{k_1}(Z_{k_1}\cap Z)-\log C(\mathbb A_{k_1}\cap Z)$
 (summed over the components of the lineage at $k_1$). By P6 (3.10)–(3.11) over the quiet window,
@@ -1006,25 +1103,29 @@ $\sum\int|\mathbb T''_ke^{E_k|Z|}F|\le e^{-p_2(\beta_k)-H_k|Z|}\sup|F|$, the inp
 route, bounding all of (3.9) by $C\lambda_k^{2d+2}$, is not available: with $\nu$ pieces the window sum is
 of order $\nu_{\max}\lambda^{2d+2}$.
 
-**Status of LF-4.** Steps 0–2 and 5 as P7; Lemma C, Lemma CH, Step 4 and Step 6 reconstructed
-here at the level of the displayed inequalities; Lemma H open.
+**Status of LF-4.** Steps 0–2 and 5 as P7; Lemma C, Lemma S, Lemma CH, Step 4 and Step 6
+reconstructed here at the level of the displayed inequalities. LF-4 stays a draft, not frozen, until
+Lemma CH and the re-derivations are written at full length in the reconstruction document (the
+re-review's judgement).
 
 ---
 ## 4. The step counter (LF-2)
 
 This section proves LF-2 from explicitly listed axioms. The axioms are statements about the
 region calculus and the one-step bounds of P5–P7; their verification from the sources is Lemma G
-(§3.7), Lemma C (§3.5) and Lemma B (§3.4), and the $R$-rule (Rg) is LF-4 (§3.8, Step 6, subject to
-Lemma H). Everything else here is elementary. "For $\lambda_0\ge\lambda_*$" means: for $\lambda_0=\log(\beta a)$
+(§3.7), Lemma C (§3.5) and Lemma B (§3.4), and the $R$-rule (Rg) is LF-4 (§3.8, Step 6). Everything
+else here is elementary. "For $\lambda_0\ge\lambda_*$" means: for $\lambda_0=\log(\beta a)$
 larger than a constant depending only on the constants fixed before $\beta$ in §5. The review
 checked version 1 of this section line by line (its §1, LFR-18); the changes in version 2 are the
-radii (LFR-08), the window data, the reserve $\nu$, Case 2 (b)–(c), and Lemma T′.
+radii (LFR-08), the window data, the reserve $\nu$, Case 2 (b)–(c), and Lemma T′. The re-review
+checked version 2 (its R2-10). Version 3 adds the merge record, the bank $U$ and the strip shift in
+Case 2a (R2-01), and corrects $D_k$ (R2-03).
 
 ### 4.1 Setting and axioms
 
 Fixed: $d\ge3$, $L\ge2$, $M$, $\alpha\in(0,\frac{d-2}2)$ (LFR-13), a nondecreasing sequence $\lambda_k$ ($k\ge0$,
 extended beyond $k_f$ as in §3.1, LFR-14) with $\theta_-\le\lambda_{k+1}-\lambda_k\le\theta_+$, $r_k=\lceil R_0\lambda_k^2\rceil$,
-$\rho_k=c_0r_k$, $\mathrm{crit}_k=2\rho_k+10$, $D_k=\sqrt d(2\rho_k+9)$, $n_q,n_2,\nu_{\max}$ as in §3.1. Components are
+$\rho_k=c_0r_k$, $\mathrm{crit}_k=2\rho_k+10$, $D_k=\sqrt d(2\rho_k+10)$, $n_q,n_2,\nu_{\max},k_1,h_j$ as in §3.1. Components are
 taken after $R^{(k)}$ unless said otherwise. The *seeds* of step $k\to k+1$ are the sets $Z^\uparrow$ ($Z$ a
 component of $Z_k$) and the cubes $q\in\mathcal N_{k+1}$.
 
@@ -1079,7 +1180,7 @@ $r_k\le r_{k+1}$ and $4/L\le3$. If $\ell(\Gamma/L)\le1$ and $x\in\Gamma/L$, then
 (U2) $B_q\subset N_{s'r_k+1/2}(c(q))\subset N_{\rho_{k+1}+3}(c(q))$. The contact graph on the seed sets and hull
 boxes of a new component (edge when two of them are adjacent) is connected because the component
 is their union; adjacent sets, each within $\rho+4$ of its own spine point, put the two points at
-sup-distance $\le2\rho+9$, hence at Euclidean distance $\le D_{k+1}$. So $\Gamma'$ is connected, (3.1) holds
+sup-distance $\le(\rho+4)+1+1+(\rho+4)=2\rho+10$, hence at Euclidean distance $\le D_{k+1}$ (R2-03). So $\Gamma'$ is connected, (3.1) holds
 (if $\ell(\Gamma')\le1$, by the same remark as in (U1)), and
 $$\ell(\Gamma')\le\sum_i\ell_i/L+(m+r-1)D_{k+1}\tag{4.1}$$
 for $m$ old parts with spine lengths $\ell_i$ and $r$ new cubes.
@@ -1089,8 +1190,8 @@ increase. A hull that meets another component merges them; this is an event of t
 $r=0$.
 (U4) Kept $R$-components: domain and spine unchanged, $b=k$, window data $(k,1)$.
 
-*Pure shadow steps do not increase $t^*$.* For an in-window component, $q$ is fixed and $s$ is
-nonincreasing: the projected epoch satisfies $k+1+\lceil\log_L(\ell/L)\rceil\le k+\lceil\log_L\ell\rceil$, and when the
+*Pure shadow steps do not increase $t^*$ and do not change $\nu$, $\mathcal M$ or the bank $U$.* For an
+in-window component, $q$ is fixed and $s$ is nonincreasing: the projected epoch satisfies $k+1+\lceil\log_L(\ell/L)\rceil\le k+\lceil\log_L\ell\rceil$, and when the
 spine becomes a point at $k+1$ the new $s=k+1$ is at most the old projected epoch. For a pre-window
 component $t^*=s+n_q(s)$ with the same monotonicity of $s$; at entry (W1), $q=s$ is unchanged.
 
@@ -1102,11 +1203,13 @@ $\lambda_{t^*}\le\lambda_{q'}+\theta_+n_q(q')\le c_*\lambda_{q'}+\theta_+$ and $
 
 ### 4.4 The invariant
 
-$$\text{(H6′)}\qquad t^*(Z)>k\quad\text{and}\quad G_k(Z)\ \ge\ \tau_{t^*(Z)}+V_k(Z)+\nu(Z),\qquad V_k(Z)=2\sigma_k\ell(Z)+\sum_{j=k+1}^{t^*(Z)}w_j ,$$
-with $\nu:=1$ for pre-window components. (H6′)$^{\rm pre}$: the same with $t^*(Z)\ge k$. The two summands
+$$\text{(H6′)}\qquad t^*(Z)>k\quad\text{and}\quad G_k(Z)\ \ge\ \tau_{t^*(Z)}+V_k(Z)+\nu(Z)+U(Z),\qquad V_k(Z)=2\sigma_k\ell(Z)+\sum_{j=k+1}^{t^*(Z)}w_j ,$$
+with $\nu:=1$, $U:=0$ for pre-window components, and $U(Z)=\frac12\sum_{\mu\in\mathcal M(Z)}\tau_\mu$ the bank. (H6′)$^{\rm pre}$: the same with $t^*(Z)\ge k$. The two summands
 of $V$ are the predicted costs of the future steps (spine part: the shrinking phase, cf. E10 (1.81)
 [review]; critical part: the window). $\tau_{t^*}$ is the threshold that $R$ needs at the ripeness
-time, and $\nu$ is one unit of reserve per window piece, spent only at an overflow restart. The
+time, $\nu$ is one unit of reserve per window piece, spent only at an overflow restart, and the
+bank $U$ holds half of the threshold freed by each merge after the core, spent only when a later
+merge forces the core across that merge's strip. The
 factor 2 on the spine part creates a reserve proportional to $\ell$, used in Cases 1b and 2.
 
 **Theorem (LF-2).** Assume (G1), (G2), (B), (Rg), (K) and $\lambda_0\ge\lambda_*$.
@@ -1124,9 +1227,9 @@ Every component $Z'$ of $Z_{k+1}$ arises either from a pure shadow step or from 
 **Pure shadow** (one old part $Z$, no new cube; possibly hulled). By (B),
 $G_{k+1}(Z')\ge G_k(Z)-c_v\lambda_{k+1}|Z'|_\#\ge G_k(Z)-v_{k+1}\ell/L-w_{k+1}$, by (U1) (or (U3) if hulled) and Lemma V. By
 (H6′) and (F2),
-$$G_k(Z)\ge\tau_{t^*}+\tfrac2L(v_{k+1}+\sigma_{k+1})\ell+w_{k+1}+\sum_{j=k+2}^{t^*}w_j+\nu\quad(t^*\ge k+1).$$
-Hence $G_{k+1}(Z')\ge\tau_{t^*}+2\sigma_{k+1}\ell/L+\sum_{j=k+2}^{t^*}w_j+v_{k+1}\ell/L+\nu\ge\tau_{t^*(Z')}+V_{k+1}(Z')+\nu(Z')$,
-since $t^*(Z')\le t^*(Z)$ (§4.3), $\ell(Z')\le\ell/L$ and $\nu(Z')=\nu(Z)$ ((W1), (W2)). $t^*(Z')\ge k+1$ holds. This
+$$G_k(Z)\ge\tau_{t^*}+\tfrac2L(v_{k+1}+\sigma_{k+1})\ell+w_{k+1}+\sum_{j=k+2}^{t^*}w_j+\nu+U\quad(t^*\ge k+1).$$
+Hence $G_{k+1}(Z')\ge\tau_{t^*}+2\sigma_{k+1}\ell/L+\sum_{j=k+2}^{t^*}w_j+v_{k+1}\ell/L+\nu+U\ge\tau_{t^*(Z')}+V_{k+1}(Z')+\nu(Z')+U(Z')$,
+since $t^*(Z')\le t^*(Z)$ (§4.3), $\ell(Z')\le\ell/L$, and $\nu$, $U$ are unchanged ((W1), (W2)). $t^*(Z')\ge k+1$ holds. This
 is the exact telescoping that replaces "$K(Z')\ge K(Z)-1$" (P6 Prop 3.2 (iii)).
 
 **Event** ($m$ old parts $Z_1,\dots,Z_m$, $r$ new cubes, $(m,r)\neq(1,0)$). By (B), Lemma V and
@@ -1134,7 +1237,8 @@ is the exact telescoping that replaces "$K(Z')\ge K(Z)-1$" (P6 Prop 3.2 (iii)).
 $$G_{k+1}(Z')\ge\sum_iG_k(Z_i)+g_kr-v_{k+1}\Big(\sum_i\ell_i/L+(m+r-1)D_{k+1}\Big)-w_{k+1}.$$
 Insert (H6′) for the $Z_i$, $2\sigma_k\ell_i=\frac2L(v_{k+1}+\sigma_{k+1})\ell_i$, and the required
 $V_{k+1}(Z')\le2\sigma_{k+1}(\sum\ell_i/L+(m+r-1)D_{k+1})+\sum_{j=k+2}^{t^{*\prime}}w_j$. It suffices that
-$$\sum_i\tau_{t^*_i}+\sum_i\sum_{j=k+1}^{t^*_i}w_j+g_kr+v_{k+1}\sum_i\frac{\ell_i}L+\sum_i\nu_i\ \ge\ \tau_{t^{*\prime}}+\sum_{j=k+1}^{t^{*\prime}}w_j+(m+r-1)E_{k+1}+\nu'.\tag{4.2}$$
+$$\sum_i\tau_{t^*_i}+\sum_i\sum_{j=k+1}^{t^*_i}w_j+g_kr+v_{k+1}\sum_i\frac{\ell_i}L+\sum_i(\nu_i+U_i)\ \ge\ \tau_{t^{*\prime}}+\sum_{j=k+1}^{t^{*\prime}}w_j+(m+r-1)E_{k+1}+\nu'+U'.\tag{4.2}$$
+In Cases 1, 2b and 2c below the window restarts, so $U'=0$ and the banks $U_i$ only help.
 Write $\lambda=\lambda_{k+1}$, note $\lambda_k\ge\lambda/2$, $\sum_i\tau_{t^*_i}\ge m\tau_{k+1}$, and $c':=c_*(1+6\theta_+)$.
 
 *Case 1: $r\ge1$ (new large-field cubes).* By (W4), $\nu'=1$ and Lemma T′ applies.
@@ -1150,22 +1254,59 @@ which is covered by $m\tau_{k+1}+rg_k$. The terms $(m+r-1)C_E\lambda^{2d+1}$ are
 
 *Case 2: $r=0$, $m\ge2$ (pure merge).* Let $i_0$ maximize $t^*_i$ and $\ell_{\max}:=\max(\max_i\ell_i,1)$.
 
-(2a) *All parts in-window and $\sum_i\nu_i\le\nu_{\max}(k+1)$* ((W3)). Then $\nu'=\sum_i\nu_i$, which cancels, and
-$q'+n_q(q')=\max_i(q_i+n_q(q_i))\le t^*_{i_0}$, so the window is not restarted. If $t^{*\prime}\le t^*_{i_0}$, the right
-side of (4.2) minus the $i_0$ terms on the left is at most $(m-1)E_{k+1}\le(m-1)\tau_{k+1}$. Done.
-Otherwise $t^{*\prime}=s'+n_2(s')>t^*_{i_0}$. The part carrying the longest spine has $t^*\ge s\ge k+\log_L\ell_{\max}$
-(its projected epoch; trivial if all spines are points), so $t^*_{i_0}\ge k+\log_L\ell_{\max}$, while
-$\Lambda'\le\log_L\ell_{\max}+\log_L(m(1+D_{k+1}))$ by (4.1). Hence
-$$\Delta:=t^{*\prime}-t^*_{i_0}\le\bar\Delta:=3+\log_Lm+\log_L(1+D_{k+1})+n_2(k+2+\Lambda'),$$
-and by (F3), (F5) it suffices that
-$$(m-1)\tau_{k+1}+v_{k+1}\ell_{\max}/L\ \ge\ \bar\Delta\big(2A_2p_2\theta_+\lambda_{t^{*\prime}}^{p_2-1}+C_w\lambda_{t^{*\prime}}^{2d+1}\big)+(m-1)E_{k+1}.\tag{4.3}$$
+(2a) *All parts in-window and $\sum_i\nu_i\le\nu_{\max}(k+1)$* ((W3)). Then $\nu'=\sum_i\nu_i$, which cancels. With
+$\tilde{\mathcal M},\tilde q,q'$ as in (W3) and $t_0:=\max(\tilde q+n_q(\tilde q),s'+n_2(s'))$, we have $t^{*\prime}=\tilde t\ge t_0$. Split
+the shift $\Delta:=t^{*\prime}-t^*_{i_0}$ into the *smallness shift* $\Delta_1:=(t_0-t^*_{i_0})_+$ and the *strip shift*
+$\Delta_2:=\tilde t-t_0$. Let $X\subset\tilde{\mathcal M}$ be the set of *crossed* merges, those $\mu\le q'-1$ with $\mu+h_\mu\ge k_1(t_0)$.
+
+*Banks.* $U'=\frac12\sum_{\mu\in\mathcal M'}\tau_\mu$ with $\mathcal M'=\tilde{\mathcal M}\cap(q',\infty)$, so
+$$U'-\sum_iU_i\ \le\ \tfrac12\tau_{k+1}[\,k+1\notin X\,]-\tfrac12\textstyle\sum_{\mu\in X,\ \mu\le k}\tau_\mu :$$
+the new merge is banked unless it is crossed, and the banks of crossed earlier merges are released.
+
+*Smallness shift.* Since $t^*_i\ge q_i+n_q(q_i)$ for every part, $\tilde q+n_q(\tilde q)\le t^*_{i_0}$, so only $s'+n_2(s')$
+can exceed $t^*_{i_0}$. The part carrying the longest spine has $t^*\ge s\ge k+\log_L\ell_{\max}$ (its projected
+epoch; trivial if all spines are points), so $t^*_{i_0}\ge k+\log_L\ell_{\max}$, while $\Lambda'\le\log_L\ell_{\max}+\log_L(m(1+D_{k+1}))$
+by (4.1). Hence, as in version 2,
+$$\Delta_1\le\bar\Delta:=3+\log_Lm+\log_L(1+D_{k+1})+n_2(k+2+\Lambda').$$
+
+*Strip shift.* If $c_0:=k_1(t_0)\notin B(\tilde{\mathcal M})$, then $\Delta_2=0$ and $X=\emptyset$. Otherwise the scales $[c_0,q'-1]$ are
+covered by the strips of the crossed merges, so $q'-c_0\le\sum_{\mu\in X}(h_\mu+1)\le|X|(h_{k+1}+1)$ (all merges are at
+scales $\le k+1$ and $h$ is nondecreasing). As $\tilde t=q'+n_q(q')$, $t_0\ge c_0+n_q(c_0)$ and (F1),
+$$\Delta_2\le c_*|X|(h_{k+1}+1)+1 .$$
+If only the new merge is crossed ($X=\{k+1\}$), this is the $O(h)$ delay of R2-01.
+
+*Scales involved.* By Lemma C (f) applied to the part with $q_i=\tilde q$, which has $t^*_i\ge k+1$,
+$k+1<(\tilde q+1)+n_q(\tilde q+1)$, so $\lambda_{k+1}\le c_*\lambda_{\tilde q}+2\theta_+$. Since every scale above $k+1+h_{k+1}$ is
+unblocked, $q'\le\max(c_0,k+2+h_{k+1})$, and in all cases $\lambda_{t^{*\prime}}\le c_*\lambda_{q'}+\theta_+\le2c_*^2\lambda_{\tilde q}$ for $\lambda\ge\lambda_*$.
+Every crossed merge has $\mu\ge c_0-h_{k+1}\ge\tilde q-h_{k+1}$, so $\lambda_\mu\ge\frac12\lambda_{\tilde q}\ge\lambda_{t^{*\prime}}/(4c_*^2)$.
+
+*Payment.* After cancelling the $i_0$ terms, the right side of (4.2) exceeds the left by at most
+$(m-1)E_{k+1}+(U'-\sum_iU_i)+(\Delta_1+\Delta_2)\big(2A_2p_2\theta_+\lambda_{t^{*\prime}}^{p_2-1}+C_w\lambda_{t^{*\prime}}^{2d+1}\big)$ (by (F3), (F5)), and
+the left keeps the freed thresholds $\sum_{i\ne i_0}\tau_{t^*_i}\ge(m-1)\tau_{k+1}$ and the spine reserve $v_{k+1}\ell_{\max}/L$.
+Spend $\frac12\tau_{k+1}$ of the freed thresholds on the new merge (its bank if $k+1\notin X$, its share of $\Delta_2$
+if $k+1\in X$). The rest, at least $\frac12(m-1)\tau_{k+1}$, pays $(m-1)E_{k+1}$ and the $\Delta_1$-term: the sufficient
+inequality is
+$$\tfrac12(m-1)\tau_{k+1}+v_{k+1}\ell_{\max}/L\ \ge\ \bar\Delta\big(2A_2p_2\theta_+\lambda_{t^{*\prime}}^{p_2-1}+C_w\lambda_{t^{*\prime}}^{2d+1}\big)+(m-1)E_{k+1}.\tag{4.3}$$
 If $\Lambda'\le\lambda$: $\lambda_{t^{*\prime}}\le c'\lambda$ and $\bar\Delta\le\log_Lm+C\log\lambda\le(m-1)(1+C\log\lambda)$ (as $\ln m\le m-1$); the right side
-of (4.3) is $\le(m-1)C(1+\log\lambda)\lambda^{\max(p_2-1,2d+1)}\le(m-1)\tau_{k+1}$ for $\lambda\ge\lambda_*$, because $p_2\ge2d+3$.
+of (4.3) is $\le(m-1)C(1+\log\lambda)\lambda^{\max(p_2-1,2d+1)}\le\frac12(m-1)\tau_{k+1}$ for $\lambda\ge\lambda_*$, because $p_2\ge2d+3$.
 If $\Lambda'>\lambda$: either $\log_L\ell_{\max}\ge\Lambda'/2$, and the spine reserve $v_{k+1}\ell_{\max}/L\ge\lambda L^{\Lambda'/2-1}$
 dominates $C(\log_Lm+\Lambda')\Lambda'^{p_2-1}$ when $m-1\le L^{\Lambda'/4}$, while for $m-1>L^{\Lambda'/4}$ the part
 $C\log m\,\Lambda'^{p_2-1}\le C(\log m)^{p_2}$ is $\le m-1$; or $\log_L(m(1+D_{k+1}))\ge\Lambda'/2$, so $m\ge L^{\lambda/4}$ and the
-right side is $\le C(\log m)^{p_2}+(m-1)C_E\lambda^{2d+1}\le(m-1)\tau_{k+1}$. (By Lemma C (c) in-window spines have
+right side is $\le C(\log m)^{p_2}+(m-1)C_E\lambda^{2d+1}\le\frac12(m-1)\tau_{k+1}$. (By Lemma C (c) in-window spines have
 $\ell_i\le\nu_{\max}(k)D_k$, so for in-window parts the case $\Lambda'>\lambda$ forces $m\ge L^{\lambda/4}$.)
+Finally the $\Delta_2$-term is at most $\sum_{\mu\in X}\big(c_*(h_{k+1}+1)+1\big)(2A_2p_2\theta_++C_w)\lambda_{t^{*\prime}}^{p_2-1}$, and each crossed
+merge provides $\frac12\tau_\mu=A_2\lambda_\mu^{p_2}\ge A_2(4c_*^2)^{-p_2}\lambda_{t^{*\prime}}^{p_2}$ (its released bank, or the $\frac12\tau_{k+1}$ set aside
+for the new merge). Since $h_{k+1}=O(\log\lambda)$, each such term exceeds that merge's share for $\lambda\ge\lambda_*$.
+Hence (4.2) holds.
+
+*Why the bank is needed.* If only the new merge is crossed, the freed threshold pays, as the
+re-review proposes. But when two parts with different cores combine, the merged core $c_0\ge\tilde q$ can
+fall in the strip of an earlier merge of one part, and pushing it forward can then run through
+strips of the other part's merges that lay after that part's own core. For example, a part about to
+ripen with frequent merges after its core, joined by a part that merged just before that core,
+must wait until about $h$ scales after the last of those merges, which can be a whole window. The
+freed threshold of the current merge does not cover such a chain; the banks of the crossed merges
+do, one merge at a time.
 
 (2b) *Some part pre-window* ((W4)). Then $\nu'=1\le\sum_i\nu_i-1$, so the reserves are not needed, and
 Lemma T′ applies to $Z'$. Let $p$ be a pre-window part: $t^*_p=s_p+n_q(s_p)\ge k+1+n_q(k+1)$. Let $i_1$ carry the
@@ -1191,9 +1332,11 @@ This proves (i). $\square$
 **Remark (what replaced E10's tree induction).** E10 (1.84)–(1.88) handles merges by an induction
 over a spanning tree of the merged domains, paying a restarted geometric waiting period with a
 reserve $2(1+\beta_0)^{-1}p_0(g_{j+1})$ that does not grow along the flow [review: MERGES-astra.md §1].
-Here additivity of $G$ and of $\nu$ (Lemma B, (W3)), the union bound for spines (4.1) and the
-quantitative shift $\Delta$ of the ripeness time replace that induction. A merge of in-window parts
-shifts only the smallness clock ($n_2$ scales), so the shift is $O(\log m+\log\lambda)$. A restart of the
+Here additivity of $G$, of $\nu$ and of the banks (Lemma B, (W3)), the union bound for spines (4.1)
+and the quantitative shift $\Delta$ of the ripeness time replace that induction. A merge of in-window
+parts shifts the smallness clock ($n_2$ scales) and possibly the core across merge strips ($O(h)$
+scales per merge crossed), so the shift is $O(\log m+\log\lambda)$ plus $O(h)$ per crossed merge, each paid
+by the freed threshold or by a bank. A restart of the
 whole window ($n_q$ scales) happens only at overflow, where at least $\nu_{\max}\asymp\lambda^{p_2}$ units of
 reserve are available. Proposition M (§4.10) shows that a full restart at every merge cannot be
 paid.
@@ -1202,7 +1345,8 @@ paid.
 
 (ii) Non-ripe components are unchanged by $R^{(k)}$ and satisfy (H6′) because $t^*>k$. A ripe
 component ($t^*=k$, point spine, in-window) is removed, or kept with
-$G_{\rm new}\ge G_k-C_R\lambda_k^{2d+1}+g'_k\ge\tau_k+\nu-C_R\lambda_k^{2d+1}+A'_3\lambda_k^{p_R}$ and new data $(q,\nu)=(k,1)$, so
+$G_{\rm new}\ge G_k-C_R\lambda_k^{2d+1}+g'_k\ge\tau_k+\nu+U-C_R\lambda_k^{2d+1}+A'_3\lambda_k^{p_R}$ and new data $(q,\nu,\mathcal M)=(k,1,\emptyset)$
+(so the new bank is $0$), so
 $t^{*\prime}=k+n_q(k)$ (its smallness clock satisfies $s+n_2(s)\le k$) and $V'=\sum_{j=k+1}^{k+n_q(k)}w_j$. Since
 $\lambda_{k+n_q(k)}\le c_*\lambda_k+\theta_+$, it suffices that
 $$A'_3\lambda_k^{p_R}\ \ge\ C_R\lambda_k^{2d+1}+2A_2(c_*+1)^{p_2}\lambda_k^{p_2}+\Big(\frac{\lambda_k}{\alpha\log L}+1\Big)C_w(c_*+1)^{2d+1}\lambda_k^{2d+1}+1,$$
@@ -1220,8 +1364,8 @@ equal $(d-2)\log L$ up to errors whose sum over all $j$ is $O(c_8)$ ($\beta_k=\b
 $\gamma_k$ convergent; the review rechecked this against P4 p. 679 and (5.33) p. 717), so
 $\lambda_{k_f}\le\lambda_{k_0}+(k_f-k_0)(d-2)\log L+O(c_8)\le\frac d2\lambda_{k_0}+c_d$.
 
-*Transfer.* At $k_0$, (H6′) gives $G\ge\tau_{t^*}+2\sigma_{k_0}\ell+\sum_{j=k_0+1}^{t^*}w_j+\nu$ with $t^*>k_0$. Discard
-$\nu\ge0$ and the window data. (H6♭) needs $G\ge p_2(\beta_{k_0})+2\sigma_{k_0}\ell+\sum_{j=k_0+1}^{k_f}w_j$. It suffices that
+*Transfer.* At $k_0$, (H6′) gives $G\ge\tau_{t^*}+2\sigma_{k_0}\ell+\sum_{j=k_0+1}^{t^*}w_j+\nu+U$ with $t^*>k_0$. Discard
+$\nu+U\ge0$ and the window data. (H6♭) needs $G\ge p_2(\beta_{k_0})+2\sigma_{k_0}\ell+\sum_{j=k_0+1}^{k_f}w_j$. It suffices that
 $\tau_{k_0+1}\ge p_2(\beta_{k_0})+(k_f-k_0)w_{k_f}$, i.e.
 $A_2\lambda_{k_0}^{p_2}\ge\lambda_{k_0}C_w(\frac d2\lambda_{k_0}+c_d)^{2d+1}$: true for $\lambda_{k_0}\ge\lambda_*$ since $p_2>2d+2$.
 
@@ -1337,7 +1481,7 @@ merges; none was found in P5 §§1–2, P6 §3, P7 §§1–3 (also MERGES-astra.
 $R$ acts only on components that have been a single box below critical size, without new large
 fields, for a window of $n_q$ scales, and a merge restarts the window. Put $\kappa_-:=1+\frac{d-2}{2\alpha}>2$. There
 are constants $c_M,C_M>0$ such that for every $\lambda_b\ge\lambda_*$ and every
-$$H\ \ge\ H_0(\lambda_b):=\Big\lceil\frac{(2p_0-2d-2)\log_2\lambda_b+\log_2(C_M/c_M)}{2d+1}\Big\rceil+1$$
+$$H\ \ge\ H_0(\lambda_b):=\Big\lceil\frac{(2p_0-2d-2)\log_2\lambda_b+\log_2(4C_M/c_M)}{2d+1}\Big\rceil+1$$
 there is a history generated by the step rules (on a large enough torus) in which a component
 $Z_H$ formed from $2^H$ atoms, each a single new large-field cube created at scale $b$, has
 $G_t(Z_H)<0$ at the end of its window, where $G$ is P6's budget (3.10)–(3.11).
@@ -1370,11 +1514,22 @@ contains merges, which is route (R1).
 *Income.* The only positive terms in P6's $\kappa$ are the gains of new cubes; here these are the
 $2^H$ atoms, each contributing at most $C_M\lambda_b^{2p_0}$.
 
-*Conclusion.* $G$ is additive at merges up to the one-step terms bounded above (P6 (3.10)–(3.11)),
-so at the end of the root's window
-$$G(Z_H)\ \le\ 2^HC_M\lambda_b^{2p_0}-c_M\kappa_-^{H(2d+2)}\lambda_b^{2d+2}\ <\ 0$$
-as soon as $(\kappa_-^{2d+2}/2)^H>(C_M/c_M)\lambda_b^{2p_0-2d-2}$, which holds for $H\ge H_0(\lambda_b)$ since
+*Conclusion, level by level* (R2-05 (a)). $G$ is additive at merges up to the one-step terms
+(P6 (3.10)–(3.11)). At level $i$ there are $2^{H-i}$ components; their window losses total at least
+$2^{H-i}c_M\lambda_{s_i}^{2d+2}$, while the $O(1)$ non-steady steps around their merges (the shrinking of a merged
+pair to one box) add at most $2^{H-i}C\lambda_{s_i}^{2d+1}$, a fraction $O(1/\lambda_b)$ of that level's losses.
+Summing over the levels and keeping only the root's loss, at the end of the root's window
+$$G(Z_H)\ \le\ 2^HC_M\lambda_b^{2p_0}-\tfrac12\sum_{i=1}^H2^{H-i}c_M\lambda_{s_i}^{2d+2}\ \le\ 2^HC_M\lambda_b^{2p_0}-\tfrac12c_M\kappa_-^{H(2d+2)}\lambda_b^{2d+2}\ <\ 0$$
+as soon as $(\kappa_-^{2d+2}/2)^H>(2C_M/c_M)\lambda_b^{2p_0-2d-2}$, which holds for $H\ge H_0(\lambda_b)$ since
 $\kappa_-^{2d+2}/2>2^{2d+1}$. $\square$
+
+*Remark (shorter windows; R2-05 (b)).* The proof uses the window length only through
+$\lambda_{s_{i+1}}\ge\kappa\lambda_{s_i}$ with $\kappa^{2d+2}>2$. If P7's window $n_1(s)$ were only $\ge c\lambda_s/\log L$, the same
+construction gives $\kappa=1+c\theta_-/\log L=1+c(d-2)/2$. P7's own estimates force $c$ well above the
+threshold $\kappa^{2d+2}=2$: (3.11) needs $\varepsilon_k=\varepsilon_{k_1}L^{-\alpha n_1}$ below $\delta_{k_1}$ up to powers of $\lambda$, i.e.
+$\alpha n_1\log L\ge\frac12\lambda_{k_1}(1-o(1))$, so $c\ge\frac1{2\alpha}$ and $\kappa\ge1+\frac{d-2}{4\alpha}>\frac32$, with $(\frac32)^{2d+2}\ge(\frac32)^8>2$
+(this reading of (3.11) is mine). (2.59) on the analyticity domain gives a weaker bound of the
+same kind (re-review R2-05). So (R2) fails for every window length P7's estimates allow.
 
 *Consequences.* (1) No invariant implying $G\ge0$, and no allocation of pooled reserves, can hold
 for (R2): the total income of the lineage is smaller than its costs. (2) The doubling bound is
@@ -1403,11 +1558,11 @@ $C_\nu,w_0,D_0$.
 | 1 | $\gamma\in(0,\min\{\frac{d-2}2,\frac12\})$; $\delta:=\gamma/2$; $\alpha:=\frac{d-2}2-\gamma\in(0,\frac{d-2}2)$ | $d$ | P4 (H.1); $\delta$ is Root-F's (surface S0-Q05). LFR-11: $\alpha_1$ is chosen in row 10 with $\alpha_1\le\gamma/(2(d-2))\le\gamma/2$, so $\gamma-\alpha_1\ge\delta$, and Root-F item 3 is monotone in $\delta$; this removes version 1's UNCERTAIN. |
 | 2 | $\kappa,c_9$ | given by Root-F | — |
 | 3 | $L\ge L_0(d)$; $a:=(1-L^{-2})^{-1}$ | $d$ (and $\kappa$, allowed by Root-F) | $L\ge3$ (P2 (4.26) [review]); $1<a<\frac32$ (P4 (5.22) [review]); $\log L>\frac12$ (P5 p. 500); requirements of G-1, G-2. |
-| 4 | Green's function and localization constants $\gamma_0,K_0,\dots,K_5,B_5,B_6,C_3,C_4,c_0^{\rm P2},\dots$; $\theta_\pm$; $C_V=2\cdot14^d$; $s_*,s'$ (Lemma G, valid once $R_0\ge C(L)$); $c_0:=$ least integer with $c_0(1-L^{-1})\ge s_*+1$, $c_0\ge s'+1$; $D_0:=3c_0+4$; $c_{11},K_6$ of P7 Lemma 2.1 for $Z_0$ of diameter $<D_0$ | $d,L$ | G-1–G-6; P2, P3 (uniform in $M$, roadmap §3.4); P7 p. 507 ("the constants $c_{11},K_6$ depend on its size"). LFR-09: $K_6$ depends only on $d,L$, so row 7 has no cycle. |
+| 4 | Green's function and localization constants $\gamma_0,K_0,\dots,K_5,B_5,B_6,C_3,C_4,c_0^{\rm P2},\dots$; $\theta_\pm$; $C_V=2\cdot14^d$; $s_*,s'$ (Lemma G, valid once $R_0\ge C(L)$); $c_0:=$ least integer with $c_0(1-L^{-1})\ge s_*+1$, $c_0\ge s'+1$; $D_0:=3c_0+4$; $c_{11},K_6$ of P7 Lemma 2.1 for $Z_0$ of diameter $<D_0$, and the constants $C(c_0)$ replacing $90d$ in (2.20), (2.28) and $7K_6$, $90d$ in the proof of Lemma 2.5 (R2-04) | $d,L$ | G-1–G-6; P2, P3 (uniform in $M$, roadmap §3.4); P7 p. 507 ("the constants $c_{11},K_6$ depend on its size"). LFR-09: $K_6$ depends only on $d,L$, so row 7 has no cycle. |
 | 5 | $\kappa_0$; $\kappa_{\rm flow}:=\max\{C_d(\kappa+1),\,16\kappa_0+16\}$; $m_0:=\lceil\log_L14d\rceil$; $\kappa_1\ge\max\{4d(2L+1)^d\kappa_{\rm flow},\,8dm_0\log(2L+1)\}$ | $d,L,\kappa$ | $\kappa\ge3\kappa_0+3$ and the conditions on $\kappa_1,m_0$ (P3 p. 81 [review]), $\kappa-5-8\kappa_0\ge\frac\kappa2$ (P6 p. 43 [review]); conversion tree length → block count (§1.2 (F3)). UNCERTAIN: $\kappa_0$ independent of $M$ (roadmap §12). |
 | 6 | $M=L^m$ | $d,L,\kappa_1$ | $M\ge2(7L)^d\kappa_1/\gamma_0$ (P3 (2.19) [review]); $8dB_0^{\rm G}c_1(2L+1)^dM^{-1/2}\le1$ (P3 p. 68 [review]); P7 (2.70) [review]; $M$ a power of $L$ (P5 H4) |
 | 7 | $R_0\ge\max\{6K_1K_6,\,C(L)\}$, $r_0\ge5$ | 4 | P7 p. 514 [review]; P3 (2.14); Lemma G |
-| 8 | $p_2:=2d+3$; $w_0:=\frac{p_2d}2+3d$; $p_0=p_1:=$ least even integer $\ge d^2+7d+2$ (so $p_R=2p_0-2w_0>p_2+2d$ and $2p_0-4>p_2$); $A_2:=1$; $C_\nu:=C_r=2A_2c'^{p_2}+1$ with $c'=c_*(1+6\theta_+)$; $C_{\rm ch},C_{\hat W}$ | $d,\gamma,L,M,c_0,R_0$ | (K) of §4.1; P5 (1.30) ($p_2\ge2d+2$); P7 pp. 502, 505 ($2p_0>2d+1$, $2p_0-4\ge2d-2$); (4.4); Lemma CH |
+| 8 | $p_2:=2d+3$; $w_0:=\frac{p_2d}2+3d$; $p_0=p_1:=$ least even integer $\ge d^2+7d+2$ (so $p_R=2p_0-2w_0>p_2+2d$ and $2p_0-4>p_2$); $A_2:=1$; $C_\nu:=C_r=2A_2c'^{p_2}+1$ with $c'=c_*(1+6\theta_+)$; the strip lengths $h_j$ (§3.1); $C_{\rm ch},C_{\hat W}$ | $d,\gamma,L,M,c_0,R_0$ | (K) of §4.1; P5 (1.30) ($p_2\ge2d+2$); P7 pp. 502, 505 ($2p_0>2d+1$, $2p_0-4\ge2d-2$); (4.4); Lemma CH |
 | 9 | $A_0$; $A_1=A_0/(4K_2B_5)$; $A_3$; $A'_3,A''_3$ | 4, 6–8 | P7 p. 505 (with $64K_1LMR_{k_1}$ replaced by $4K_1\hat W$; the exponent margin $p_R>p_2+2d$ leaves no further condition on $A_0$ beyond P7's relations); $A_3$ by P6 (3.9) [checked]; $A'_3,A''_3$ by (2.33)′, (2.62)′ |
 | 10 | $\alpha_1\le\gamma/(2(d-2))$; $c_8$ small; $c_9\le c_9^{\max}$ | $d,\gamma,L,M$ | P4 Thm 1 hypotheses ("$\alpha_1,c_8,c_9$ positive and sufficiently small", P5 p. 499 [checked]); $\alpha_1(d-2)\le\gamma$ (P3 p. 76 [review]) |
 | 11 | $\alpha_0,E_0,B$ | 1–10 | outputs of P4 Thm 1 / P5 Thm 1; $E_0\ge4C_4B_6K_0K_5$ (P4 (5.39)) |
@@ -1457,15 +1612,16 @@ after a routine adjustment of constants) and the main risk.
 
 | # | Statement | Status | Confidence | Main risk |
 |---|---|---|---|---|
-| 1 | LF-2: budget invariant with spines, clocks, covered windows, unit reserves and the cap $\nu_{\max}$ (§4) | reconstructed; proof given here | 88% | the axioms (G1)–(G2) and Lemma C from the actual region definitions; off-by-one constants |
-| 2 | Lemma G (seeds, radii $s_*,s'$, canonical hull rule, $*$-adjacency) and Lemma C (covered windows) | reconstructed | 85% | P5 (2.4), (2.9), (2.45), P6 (2.3) rounding to $\pi'_{k+1}$-cubes; hull-induced merges |
+| 1 | LF-2: budget invariant with spines, clocks, covered windows, unit reserves, the cap $\nu_{\max}$, the merge-free strip and the banks (§4) | reconstructed; proof given here | 87% | the strip shift and banks of Case 2a (new in version 3, not yet re-reviewed); the axioms (G1)–(G2) from the actual region definitions |
+| 2 | Lemma G (seeds, radii $s_*,s'$, canonical hull rule, $*$-adjacency) and Lemma C (a)–(d) (covered windows) | reconstructed | 85% | P5 (2.4), (2.9), (2.45), P6 (2.3) rounding to $\pi'_{k+1}$-cubes; hull-induced merges |
+| 2′ | Lemma S (lattice separation) | standard (Deuschel–Pisztora; Timár), external to the library | 97% | none of substance |
 | 3 | P6 Prop 3.2 (ii) fails for merged components (§4.9) | finding | 92% | an unstated restriction elsewhere in P5–P7 |
-| 4 | Proposition M: restarting the window at every merge (route R2) cannot be paid (§4.10) | finding | 90% | exact merge times in the construction |
-| 5 | Without a bound on the window's geometry, P7's chain argument fails (dense clusters), so (R1-ν) and (R1-atom) are insufficient (§2.7.3) | finding | 80% | a drift bound coming from the cluster's own history |
+| 4 | Proposition M: restarting the window at every merge (route R2) cannot be paid (§4.10) | finding (confirmed by the re-review) | 93% | exact merge times in the construction |
+| 5 | Without a bound on the window's geometry, P7's chain argument fails (dense clusters), so (R1-ν) and (R1-atom) are insufficient (§2.7.3) | finding (confirmed by the re-review) | 85% | a drift bound coming from the cluster's own history |
 | 6 | LF-4 volume estimates and refund: (2.15)′, (2.33)′, (2.59)′, (2.60)′, (3.15)′, (3.17)′–(3.19)′ and (Rg) with $L_R\le C_R\lambda^{2d+1}$ (§3.8 Steps 1, 4, 6) | reconstructed | 85% | the analytic extension (3.11)–(3.19) with polynomial factors; dependence of $C_{39},C'_{39}$ on $B_0$ |
-| 7 | Lemma CH and the chain estimates (2.26)′–(2.30)′, (2.48)′–(2.49)′, (2.61)′–(2.62)′, (3.11)′ | reconstructed (proof plan) | 70% | adjacency and cross-layer bonds in general position |
-| 8 | Lemma H: enclosed points of a covered window | open | 60% | the regress in plan (H1); analyticity in plan (H2) |
-| 9 | LF-4 (M1), (M7): ripeness trigger; late scales with $D_0$ | reconstructed | 90% | none beyond items 6–8 |
+| 7 | Lemma CH (argued per component, all window points exposed) and the chain estimates (2.26)′–(2.30)′, (2.48)′–(2.49)′, (2.61)′–(2.62)′, (3.11)′ | reconstructed (proof plan) | 75% | cross-layer bonds in general position |
+| 8 | Lemma C (e)–(f): at the core scale the lineage is a union of separated boxes, and the core used at ripeness is $q$ | reconstructed | 85% | collapse time of a merged cluster under the exact hull rule (fixed point of the shadow-and-buffer map) |
+| 9 | LF-4 (M1), (M7): ripeness trigger; late scales with $D_0$ and the constants of (2.20), Lemma 2.5 | reconstructed | 90% | none beyond items 6–8 |
 | 10 | LF-4 (M4): coset average with the explicit two-chart section | reconstructed (P7 verbal) | 90% | measure bookkeeping for the complexified, non-orthogonal $R(\psi_0+\psi'_0)$ |
 | 11 | LF-4 (M5): P7 Lemma 2.5 in full, with the chains of Lemma CH | sketched in P7 | 75% | the constant chase (2.64)–(2.72) |
 | 12 | LF-4 (M6): the $R$ polymer expansion with non-small boundary terms | "almost completely standard" (P7 p. 528); abstract PE proved in Lean, hole version in progress | 85% | the activity lemma (roadmap §5.2) with connectivity modulo $\Omega_k^c\cap Y_k$ |
@@ -1485,10 +1641,9 @@ single-box windows apart from (M4)–(M6), LF-5 apart from the bound, LF-7's ind
 apart from the frozen bound. Product-form combinatorial factors (version 1, item 9) are no longer
 needed.
 
-The weakest links of the chosen route are items 8 and 7, both inside LF-4 and both about the
-shape of covered windows. If Lemma H fails, the fallback is to prove it for the restricted class
-of windows whose lineage at $k_1$ has no enclosed regions and to show by counting that the other
-windows can wait; I do not have that counting argument.
+The weakest links of the chosen route are item 7 (inside LF-4), item 8 and the new accounting of
+item 1. The hole lemma of version 2 (its item 8, 60%) is no longer needed: the merge-free strip
+removes enclosed points, and its plan (H2) is kept only as a backup (§3.8).
 
 ---
 
@@ -1498,8 +1653,9 @@ windows can wait; I do not have that counting argument.
 
 1. *Bookkeeping change.* (A′) replaces P5's H6, the counter $K$, the functions $\kappa_{k,n}$ and the
    admissibility conditions by the budget invariant (H6′) with spines, clocks and window data,
-   replaces the trigger $K=0$ of $R$ by ripeness of a covered window, and generalizes P7's $R$ to
-   windows containing up to $\nu_{\max}\asymp\lambda^{p_2}$ merged pieces. Roadmap §3.5 asks for an
+   replaces the trigger $K=0$ of $R$ by ripeness of a covered window (with a merge-free strip of
+   $O(\log\lambda)$ scales before the window's core), and generalizes P7's $R$ to windows containing up to
+   $\nu_{\max}\asymp\lambda^{p_2}$ merged pieces. Roadmap §3.5 asks for an
    explicit ruling for each reconstructed interface: approve this for Def-7, LF-2 and LF-4?
 2. *Bookkeeping data in the history.* Spines, clocks and window data are carried in the history
    (deterministic, by a fixed tie-breaking rule). Alternatively Def-7 could quantify existentially
@@ -1512,19 +1668,125 @@ windows can wait; I do not have that counting argument.
    window length $n_q\asymp\lambda$ multiplies $\lambda$ by $\kappa_->2$ per restart). So $R$ must accept windows in
    which pieces merged. Do you know how Balaban intended merges to be handled in P5–P7, beyond
    E10's geometric clock, or see an obstruction to $R$ on covered windows?
-4. *Enclosed regions (Lemma H).* When the core of a window is a cluster of boxes that encloses a
-   small-field pocket, the pocket's fields cannot be chained to the reference $\psi_0$ through
-   controlled layers at the window's scales. Is there a standard way to treat such pockets
-   (for example as part of the large-field core, or by opening $\mathbb T_{k_1}$ for a few scales)?
+4. *Merge-free strip.* To keep the core of a window a union of separated boxes, version 3 forbids
+   merges of the window's lineage in the $O(\log\lambda)$ scales before the core scale; otherwise a hollow
+   cluster could enclose a small-field pocket whose fields cannot be chained to the reference
+   $\psi_0$. Do you see an objection to this rule, or a standard way in Balaban's framework to treat
+   such pockets directly?
 
 No other decision is blocked: the frozen-threshold repair is agreed, and the remaining choices are
 covered by ruling 7.
 
 ---
 
-## Review dispositions
+## 8. Lean interfaces
 
-* **LFR-01** (BLOCKER) — Accepted and extended: the volume terms are handled by the cap $\nu\le\nu_{\max}$ (they stay $O(1)$) and by the refund for (2.15)/(3.9) (§3.8 Steps 1, 4, 6); the shape terms (P7's chain argument), which the review did not list, are handled by Lemma CH and the open Lemma H; $\nu$ enters (H6′) as one unit of reserve per window piece paying overflow restarts, and (Rg) becomes $L_R\le C_R\lambda^{2d+1}$ after the refund.
+Three interfaces are ready for Lean drafting. They are stated here in mathematics, with all
+quantifiers and constants. Following the re-review's judgement: draft LF-2 now; draft Def-7 and
+LF-4 for the author's approval; freeze nothing in LF-4 until the reconstruction document is
+approved.
+
+### 8.1 LF-2 as an abstract, model-independent theorem (internal lemma)
+
+*Typing data.* Integers $d\ge2$, $L\ge2$, $M\ge1$, $1\le k_0\le k_f$; reals $\theta_+\ge\theta_->0$, $\alpha>0$, $R_0\ge1$,
+$s_*,s'\ge0$, $c_v,A_2,A_3,A'_3,C_R,C_\nu,c_d>0$; naturals $c_0,p_0,p_2$; a function $\lambda:\mathbb N\to\mathbb R$.
+*Derived functions* (definitions): $r_k=\lceil R_0\lambda_k^2\rceil$, $\rho_k=c_0r_k$, $\mathrm{crit}_k=2\rho_k+10$,
+$D_k=\sqrt d(2\rho_k+10)$, $n_q(j)=\min\{n\ge1:n\log L>\alpha^{-1}\lambda_j\}$, $n_2(j)=\min\{n:L^n>LM\mathrm{crit}_j\}$,
+$k_1(t)=\max\{c:c+n_q(c)\le t\}$, $\nu_{\max}(j)=\lceil C_\nu\lambda_j^{p_2}\rceil$, $h_j=\lceil\log_L(2\sqrt d\,\nu_{\max}(j)M\mathrm{crit}_j)\rceil+2$,
+$w_0=\frac{p_2d}2+3d$, $p_R=2p_0-2w_0$, $g_k=\frac12A_3\lambda_k^{2p_0}$, $C_V=2\cdot14^d$, $v_j=c_vC_V\lambda_j\rho_j^{d-1}$, $w_j=v_j\rho_j$,
+$\sigma_k=\sum_{j>k}v_jL^{-(j-k)}$, $\tau_t=2A_2\lambda_t^{p_2}$, and, from the bookkeeping, $t^*$, $V_k$, $\nu$, $U$ (§3.5, §4.4).
+
+*Abstract history.* Cubes of every scale are indexed by $\mathbb Z^d$; $X^\uparrow=\{\lfloor x/L\rfloor:x\in X\}$, $N_r$, hulls
+and $*$-components are as in §3.1. A history consists of: finite sets $Z^{\rm pre}_k\supseteq Z_k\subset\mathbb Z^d$
+($1\le k\le k_f$; equal for $k>k_0$), new-cube sets $\mathcal N_k$, seed sets $B_\sigma$; for each component $Z$ of
+$Z^{\rm pre}_k$ and of $Z_k$, numbers $G^{\rm pre}_k(Z)$, $G_k(Z)$ and bookkeeping data (spine, $b$, $s$, window
+state) generated by (U1)–(U4), (W1)–(W5), the choices of spine points and spanning trees being
+part of the data; for $k\le k_0$ an $R$-record marking each ripe component of $Z^{\rm pre}_k$ removed or kept.
+
+*Hypotheses* (premises of this internal lemma only):
+(H-λ) $\theta_-\le\lambda_{k+1}-\lambda_k\le\theta_+$ for all $k$; $k_f-k_0<\lambda_{k_0}$; $\lambda_{k_f}\le\frac d2\lambda_{k_0}+c_d$.
+(G1) $Z^{(0)}_{k+1}=\bigcup_ZB_Z\cup\bigcup_{q\in\mathcal N_{k+1}}B_q$ over the components $Z$ of $Z_k$, with $B_Z$ $*$-connected,
+$Z^\uparrow\subset B_Z\subset N_{s_*r_k}(Z^\uparrow)$, and $B_q$ $*$-connected, $q\in B_q\subset N_{s'r_k}(\{q\})$.
+(G2) $Z^{\rm pre}_{k+1}$ is the canonical hull closure of $Z^{(0)}_{k+1}$ at size $\mathrm{crit}_{k+1}$ (§3.5).
+(B) For every component $Z'$ of $Z^{\rm pre}_{k+1}$: $G^{\rm pre}_{k+1}(Z')\ge\sum_{Z\subset Z'}G_k(Z)+g_k|\mathcal N_{k+1}\cap Z'|-c_v\lambda_{k+1}|Z'|$,
+the sum over the components $Z$ of $Z_k$ with $Z^\uparrow\subset Z'$ (empty for $k+1=1$).
+(Rg) For $k\le k_0$: the components of $Z_k$ are those of $Z^{\rm pre}_k$ minus the removed ones; every
+ripe component is removed or kept; a kept one has the same set, bookkeeping (U4), (W5), and
+$G_k\ge G^{\rm pre}_k-C_R\lambda_k^{2d+1}+A'_3\lambda_k^{p_R}$; a non-ripe one has $G_k=G^{\rm pre}_k$. For $k>k_0$: $G_k=G^{\rm pre}_k$.
+(K) $p_2\ge2d+3$; $p_R>p_2+2d$; $2p_0>p_2$; $c_0(1-L^{-1})\ge s_*+1$; $c_0\ge s'+1$; $C_\nu\ge2A_2c'^{p_2}+1$ with
+$c'=(1+\frac{\theta_+}{\alpha\log L})(1+6\theta_+)$.
+
+*Conclusion.* For all typing constants satisfying (K) there is $\lambda_*$, depending only on them, such
+that for every $\lambda$ with $\lambda_0\ge\lambda_*$ satisfying (H-λ) and every history satisfying (G1), (G2), (B), (Rg):
+(i) for $1\le k\le k_0$ and every component $Z$ of $Z_k$: $t^*(Z)>k$ and $G_k(Z)\ge\tau_{t^*(Z)}+V_k(Z)+\nu(Z)+U(Z)$;
+for every component of $Z^{\rm pre}_k$ the same with $t^*(Z)\ge k$;
+(ii) for $k_0\le k\le k_f$ and every component $Z$ of $Z_k$: $G_k(Z)\ge A_2\lambda_{k_0}^{p_2}+2\sigma_k\ell(Z)+\sum_{j=k+1}^{k_f}w_j$;
+(iii) consequently $G_k(Z)\ge2A_2\lambda_k^{p_2}$ for $k\le k_0$, $G^{\rm pre}_k(Z)\ge2A_2\lambda_k^{p_2}+1$ for every ripe $Z$, and
+$G_k(Z)\ge A_2\lambda_{k_0}^{p_2}$ for $k_0\le k\le k_f$.
+
+*Instantiation plan.* The flow's history (§3.2) with its bookkeeping (§3.5) is an abstract history
+with $\lambda_k=\log(\beta_ka)$; (H-λ) is P4 (H.6) and P5 p. 500 (§4.7); (G1)–(G2) are Lemma G; (B) is Lemma
+B (P6 (3.9)–(3.11)) and LF-6 (ii) at $k=1$; (Rg) is LF-4 (d); (K) is §5. By AGENTS.md hard rule 4,
+(G1)–(K) are hypotheses of this internal lemma only; no frozen statement carries them, and Def-7,
+LF-3, LF-4, LF-5 and LF-7 discharge them in their proofs.
+
+### 8.2 Def-7: the inductive class
+
+Fix $d\ge3$, $N\ge2$ and the constant tuple
+$\mathsf c=(L,M,\kappa,\gamma,\alpha_1,\alpha_0,E_0,c_8,c_9,B_0,H_0,p_0,p_2,A_0,A_1,A_2,A_3,A'_3,R_0,c_0,s_*,s',c_1,c_2,c_v,C_\nu,B,\bar\nu)$,
+with the derived functions of §3.1. For $\beta>0$, $\nu\in(0,1]$, $h\in S^{N-1}$, an admissible torus
+$\mathbb T$ ($ML^{k_f+1}\mid\ell$), and $1\le k\le k_0(\beta,\nu)$, the set $\mathcal R_k(\beta,\nu,h;\mathsf c)$ consists of the functions
+$\rho:(\mathbb R^N)^{T^{(k)}}\times\mathcal G\to\mathbb C$, $\mathcal G:=\{g\in(\mathbb C^N)^{\mathbb T}:\sum_y\sum_i|g_i(y)|<1\}$, measurable in $\psi_k$ and
+analytic in $g$, for which there exist
+(a) small-field data $\mathfrak s_k=((\beta_j,a_j,\nu_j)_{0\le j\le k},E_k,(\mathcal E^{(j)},\mathcal M^{(j)})_{j\le k},(\mathcal R^{(k)}_n)_{n\le m})$ satisfying the
+small-field interface $\mathrm{SF}_k(\mathsf c)$ (P4 (H.1)–(H.7) at $\lambda=\infty$, the RG equations with $c_j=0$, $d_j=b_j$,
+P5 H2–H4); $k_0,k_f$ are defined from these running constants (§1.2);
+(b) a finite set $\mathfrak A_k$ of admissible histories with bookkeeping (§3.2, §3.5), generated by the step
+rules from the base rule, every ripe component being treated in the $R$-record of its scale;
+(c) for each $\mathbb A\in\mathfrak A_k$, the kernel $\mathbb T_k(\mathbb A)\ge0$, defined by recursion on $\mathbb A$ as the composition of
+the one-step operators (P5 (2.47), P6 (3.2)–(3.3)) and, at kept components, of P7's operators (3.7);
+the exponents $\kappa_k$ and the factors $C$ defined by P6 (3.9)–(3.11); and boundary terms $\mathcal B^{(k)}(\mathbb A)$;
+such that
+(D1) $\rho=\sum_{\mathbb A\in\mathfrak A_k}\mathbb T_k(\mathbb A)\big[e^{\mathcal B^{(k)}(\mathbb A)}\chi_k(Z_k(\mathbb A)^c)\exp(\mathcal A_k+\mathcal F_k+\mathcal R^{(k)})(Z_k(\mathbb A)^c)\big]$;
+(D5) for every $\mathbb A$, every component $Z$ of $Z_k(\mathbb A)$ and every bounded measurable $F$:
+$\sum_{\mathbb A'\cap Z=\mathbb A\cap Z}\int d\psi_k|_Z\,|\mathbb T_k(\mathbb A')F|\le e^{-\kappa_k(Z,\mathbb A\cap Z)}\sup\chi|F|$, and $\sum C(\mathbb A\cap Z)^{-1}\le1$;
+(D6) for every $\mathbb A$ and every component $Z$ of $Z_k(\mathbb A)$: $t^*(Z)>k$ and
+$G_k(Z,\mathbb A\cap Z):=\kappa_k-\log C-H_0\lambda_k|Z|_k\ \ge\ \tau_{t^*(Z)}+V_k(Z)+\nu(Z)+U(Z)$;
+(D7) the boundary terms are local in $\mathcal D_k(\mathrm{mod}\,\Omega^c_k)$, analytic on P5 (1.36)–(1.37) $\times\mathcal G$, and
+$|\mathcal B^{(k)}(X)|\le B_0e^{-\kappa d_k(X\,\mathrm{mod}\,\Omega^c_k)}$;
+(D8) all localized objects are functions of local data on finite subsets of $\mathbb Z^d$, pushed to $\mathbb T$, and
+agree for two admissible tori on non-winding sets;
+(D9) $\beta_k>BL^{k(d-2)}$ and $0<\nu_k\le\bar\nu$.
+$\mathcal R^{\rm pre}_k$: the same with $t^*(Z)\ge k$ in (D6). $\mathcal R^\flat_k$ ($k_0\le k\le k_f$): (D6) replaced by
+$G_k\ge A_2\lambda_{k_0}^{p_2}+2\sigma_k\ell(Z)+\sum_{j=k+1}^{k_f}w_j$, no window data, complete backgrounds for $k>k_0$.
+*Drafting notes.* (D1)–(D9) are the conditions defining the class, not proof steps. $\mathbb T_k$, $\kappa_k$,
+$C$, $t^*$, $V_k$, $\nu$, $U$ are definitions (by recursion on the history and from the bookkeeping), so the
+definitions of the one-step operator, of P7's operator (3.7) and of $\mathrm{SF}_k$ must be drafted first.
+
+### 8.3 LF-4: $R$ on covered windows
+
+Fix $d\ge3$, $N\ge2$ and constants chosen in the order of §5 rows 0–15. There is $\lambda_*$, depending only
+on these constants, such that with $\beta_0:=\max\{e^{\lambda_*}/a,B\}$ the following holds for all $\beta\ge\beta_0$,
+$\nu\in(0,1]$, $h\in S^{N-1}$, admissible tori and $1\le k\le k_0(\beta,\nu)$. Let $\rho_{k-1}\in\mathcal R_{k-1}(\beta,\nu,h;\mathsf c)$, and let
+$\rho:=S^{(k-1)}T^{(k-1)}\rho_{k-1}$ with the representation in $\mathcal R^{\rm pre}_k(\beta,\nu,h;\mathsf c)$ given by LF-3. Let $R^{(k)}\rho$ be
+defined by P7 (1.3)–(1.6) applied to the ripe components of that representation. Then:
+(a) $\int R^{(k)}\rho\,d\psi_k=\int\rho\,d\psi_k$ for all $(h,g)$;
+(b) $R^{(k)}\rho\in\mathcal R_k(\beta,\nu,h;\mathsf c)$, with the same small-field data except that $\mathcal R^{(k)}_m$ is replaced by
+$\mathcal R^{(k)}_m+\mathcal R''^{(k)}_m$;
+(c) $\mathcal R''^{(k)}_m$ satisfies the bounds of P5 H4;
+(d) every ripe component $Z$ is either removed or kept with its domain and spine unchanged and
+$G''_k(Z)\ge G_k(Z)-C_R\lambda_k^{2d+1}+A'_3\lambda_k^{p_R}$; non-ripe components and their budgets are unchanged
+(this is (Rg) of §8.1);
+(e) the new boundary terms satisfy (D7) with a constant independent of $B_0$ (and $\le B_0$ by §5 row 12).
+The hypotheses (RQ1)–(RQ5) of §3.8 are consequences of (D6) and Lemma C, not premises.
+*Status:* draft. Its proof is §3.8 (Steps 0–6) together with P7 §§2–3; per the re-review it is not
+to be frozen until Lemma CH and the re-derivations of §3.8 are written at full length.
+
+---
+
+## Review dispositions (v1 → v2)
+
+* **LFR-01** (BLOCKER) — Accepted and extended: the volume terms are handled by the cap $\nu\le\nu_{\max}$ (they stay $O(1)$) and by the refund for (2.15)/(3.9) (§3.8 Steps 1, 4, 6); the shape terms (P7's chain argument), which the review did not list, are handled by Lemma CH and Lemma H (in version 3 the merge-free strip makes Lemma H unnecessary, R2-01); $\nu$ enters (H6′) as one unit of reserve per window piece paying overflow restarts, and (Rg) becomes $L_R\le C_R\lambda^{2d+1}$ after the refund.
 * **LFR-02** — Accepted: the refund route is explicit (§3.8 Step 6, window certificate), with $c_1\ge C_{39}$, $c_2\ge C'_{39}$ in §5 row 14; P7's alternative $C\lambda^{2d+2}$ bound is not used.
 * **LFR-03** — Accepted and resolved: the pooled-reserve route (R2) was developed (§2.7.2) and is refuted by Proposition M (§4.10); the summary and §2.6 are reworded; the review's doubling bound $\lambda_t\le\lambda_{b'}(1+c\log N)$ is corrected to $\lambda_t\ge N^{\log_2\kappa_-}\lambda_{b'}$ on the merge tree.
 * **LFR-04** — Accepted: §4.9 now uses P7 p. 498's reading, gives the upper budget bound and $K(Z')\le((2^{1/p_2}-1)/\theta+o(1))\lambda+2$, treats the per-component reading, proves existence by a translation argument, adds the diagnosis; confidence 92%.
@@ -1545,27 +1807,45 @@ covered by ruling 7.
 
 *MERGES-astra.md.* Adopted: the reading of E10 (geometric $K$, (1.80), (1.84)–(1.88)); the counterexample's upper bound and the coefficient $2^{1/p_2}-1$; the atom attribution of covers (Lemma C); the window certificate with the refund (Step 6); the critique of resetting $\nu$ at a gain when the window starts at the gain; the frozen transfer. Not adopted: an unbounded atom tally (P7's chain argument then fails, §2.7.3) and the per-atom treatment of (2.60), (3.19) as losses (unnecessary under the cap). Its "option (b), open, 45%" is settled negatively by Proposition M.
 
-## Statements no source proves (updated list)
+## Re-review dispositions (v2 → v3)
 
-1. LF-2, the budget invariant with covered windows, unit reserves and the cap, from the axioms of §4.1 — 88%.
-2. Lemma G and Lemma C (region calculus, canonical hull rule, covers of windows) — 85%.
-3. P6 Prop 3.2 (ii) is false for merged components — 92%.
-4. Proposition M: route (R2) cannot be paid — 90%.
-5. Uncapped versions of (R1) fail P7's chain argument — 80%.
-6. LF-4 volume estimates (2.15)′, (2.33)′, (2.59)′, (2.60)′, (3.15)′, (3.17)′–(3.19)′ and the refund certificate (Rg) — 85%.
-7. Lemma CH and the chain estimates (2.26)′–(2.30)′, (2.48)′–(2.49)′, (2.61)′–(2.62)′, (3.11)′ — 70%.
-8. Lemma H (enclosed points of a covered window) — 60%, open.
-9. LF-4 (M1), (M7): ripeness trigger and late-scale constants — 90%.
-10. LF-4 (M4): coset average with an explicit two-chart section — 90%.
-11. LF-4 (M5): P7 Lemma 2.5 in full — 75%.
-12. LF-4 (M6): $R$ polymer expansion with non-small boundary terms — 85%.
-13. Frozen-threshold repair of P6 Thm 4 — 95%.
-14. The step $k=k_0$ — 85%.
-15. LF-1 for hard spins — 90%.
-16. LF-6, base case — 80%.
-17. LF-8 (b), $k_f=0$ — 90%.
-18. $k_0\le0$ — 95%.
-19. LF-8 (a) with the frozen threshold and the final sum via PE — 90%.
-20. Torus independence of large-field terms — 90%.
-21. Global constant chain — 85%.
-22. Admissibility after $R$ as a corollary of LF-2 (ii) — 95%.
+* **R2-01** — Adopted: ripeness forbids the window core within $h_\mu$ scales after a lineage merge (§3.5 (W3), Lemma C (e)–(f)); the core is a union of separated boxes and every window point is exposed, so Lemma H is not needed (its plan (H2) is kept as a backup, §3.8). The counting closes (§4.5 Case 2a): the new merge's $O(h)$ strip is paid by the freed threshold, and strips of earlier merges crossed when parts with different cores combine are paid by banks of $\frac12\tau_\mu$ per merge after the core (an addition to the re-review's proposal; the freed threshold alone does not cover that case).
+* **R2-02** — Adopted: Lemma CH (a) is argued per $*$-component of the obstacle, and Lemma S (lattice separation) is proved in Lemma G.
+* **R2-03** — Adopted: $D_k=\sqrt d(2\rho_k+10)$ (§3.1, §4.3).
+* **R2-04** — Adopted: (M7) and §5 row 4 list the constants of (2.20)/(2.28) and of Lemma 2.5 that depend on $\mathrm{diam}_k(Z_0)$.
+* **R2-05** — Adopted: Proposition M is compared level by level; a remark shows that (R2) fails for every window length P7's estimates allow (via (3.11): $n_1\ge\lambda/(2\alpha\log L)$, so $\kappa>\frac32$).
+* **R2-06** — Noted: the reviewer withdraws the LFR-03 doubling sketch; no change.
+* **R2-07** — Noted: the chain obstruction is confirmed; no change.
+* **R2-08** — Adopted as a qualification in §2.7.3: MERGES-astra.md's objection (i) is weaker than stated, and the shape defect is the decisive one.
+* **R2-09** — Noted: Lemma C, the refund and the re-derived volume estimates checked; no change.
+* **R2-10** — Noted: version 2's LF-2 checked; version 3's additions (strip shift, banks) are listed at the head of §4 for the next review.
+* **R2-11** — Noted: the constant chain checked; the two open independences ($\kappa_0$ of $M$, $B_0$ of $H_0$) remain in §5.
+* **R2-12** — Adopted: (2.62)′ uses $\lambda_i\ge\lambda_{k_1}$ directly.
+* **R2-13** — Adopted: the window state carries the merge record (`Option (ℕ × ℕ × Finset ℕ)`), and Def-7 uses $\nu_{\max}$, $h_j$, $k_1$ and the extended $\lambda_j$ as explicit functions (§3.6, §8.2).
+
+## Statements no source proves (updated list, version 3)
+
+1. LF-2: the budget invariant with covered windows, unit reserves, the cap, the merge-free strip and the banks, from the axioms of §4.1 — 87%.
+2. Lemma G and Lemma C (a)–(d) (region calculus, canonical hull rule, covers of windows) — 85%.
+3. Lemma S (lattice separation; standard, external) — 97%.
+4. Lemma C (e)–(f): the core is a union of separated boxes and is the core used at ripeness — 85%.
+5. P6 Prop 3.2 (ii) is false for merged components — 92%.
+6. Proposition M: route (R2) cannot be paid, for any window length P7 allows — 93%.
+7. Uncapped versions of (R1) fail P7's chain argument — 85%.
+8. LF-4 volume estimates (2.15)′, (2.33)′, (2.59)′, (2.60)′, (3.15)′, (3.17)′–(3.19)′ and the refund certificate (Rg) — 85%.
+9. Lemma CH and the chain estimates (2.26)′–(2.30)′, (2.48)′–(2.49)′, (2.61)′–(2.62)′, (3.11)′ — 75%.
+10. LF-4 (M1), (M7): ripeness trigger and late-scale constants — 90%.
+11. LF-4 (M4): coset average with an explicit two-chart section — 90%.
+12. LF-4 (M5): P7 Lemma 2.5 in full — 75%.
+13. LF-4 (M6): $R$ polymer expansion with non-small boundary terms — 85%.
+14. Frozen-threshold repair of P6 Thm 4 — 95%.
+15. The step $k=k_0$ — 85%.
+16. LF-1 for hard spins — 90%.
+17. LF-6, base case — 80%.
+18. LF-8 (b), $k_f=0$ — 90%.
+19. $k_0\le0$ — 95%.
+20. LF-8 (a) with the frozen threshold and the final sum via PE — 90%.
+21. Torus independence of large-field terms — 90%.
+22. Global constant chain — 85%.
+23. Admissibility after $R$ as a corollary of LF-2 (ii) — 95%.
+(Version 2's Lemma H, 60%, is no longer part of the route; its plan (H2) is a backup only.)

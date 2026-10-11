@@ -90,6 +90,10 @@ public import Balaban.Green.Lattice.LocCore
 public import Balaban.Green.Lattice.Loc
 public import Balaban.Green.Lattice.LocSums
 public import Balaban.Green.Lattice.LocGreenSums
+public import Balaban.Green.Lattice.ThirdDiff
+public import Balaban.Green.Lattice.HolderKernel
+public import Balaban.Green.Lattice.LocHolder
+public import Balaban.Green.Lattice.HolderSums
 public import Balaban.Multiscale.PointwiseLift
 public import Balaban.Multiscale.PointwisePotential
 public import Balaban.Multiscale.PointwiseAgmon
@@ -102,6 +106,10 @@ public import Balaban.Multiscale.PointwiseCase2c
 public import Balaban.Multiscale.PointwiseCase2d
 public import Balaban.Multiscale.PointwiseP
 public import Balaban.Multiscale.Pointwise48
+public import Balaban.Multiscale.PointwiseHolderArith
+public import Balaban.Multiscale.PointwiseHolderI
+public import Balaban.Multiscale.PointwiseHolder
+public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
@@ -124,6 +132,7 @@ public import Balaban.Multiscale.ConstraintPerturb
 public import Balaban.Multiscale.ConstraintMain
 public import Balaban.Multiscale.Counting
 public import Balaban.Multiscale.GlobalBound
+public import Balaban.Multiscale.ConstraintSup
 public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
 public import Balaban.Multiscale.XVariantIdentities
