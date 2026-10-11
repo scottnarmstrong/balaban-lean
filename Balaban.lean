@@ -59,3 +59,4 @@ public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.PathMetric
 public import Balaban.Model.SphereMeasure
 public import Balaban.Model.Symmetry
+public import Balaban.Model.BlockStructure
