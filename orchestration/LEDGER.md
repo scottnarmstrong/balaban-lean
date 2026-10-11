@@ -39,3 +39,4 @@
 | 2026-10-11 | W12 pointwise bounds | landed | `lemma_loc_a`, `lemma_loc_b` (interior estimates), `lemmaP`, `prop48` (G-2(ii) pointwise decay of u and ∂u, K₂(d,L)) (≈3,460 lines); Loc (c)/Hölder (needs third differences of C) and η-scaling open |
 | 2026-10-11 | W15 Gaussian bookkeeping | landed | `sum_rule_matrix`, `mul_prolong` (3.2), `goldstone_rewriting` ((4.18) step), `KernelHyp.tsum_eq_latticeGreen` ((G4): Σ t_j = Root-C's G, conditional on kernel hypotheses G1–G3, G5 from W13/W13b) (≈1,250 lines) |
 | 2026-10-11 | D-LF v2 re-review | APPROVE-WITH-CHANGES | R2-01 ripeness condition avoids Lemma H; v3 in progress (Opus) with §8 Lean interfaces |
+| 2026-10-11 | W2d sharp Poincaré | landed | `blockPoincare_sharp` (N²/2, d-free), `multiscale_coercive_sharp` (c=1/4), `xDirichletOperator_isCoercive_N1` (P3's range a_{k+1}L⁻²/12) (≈870 lines); Agmon rates still d-dependent (harmless) |
