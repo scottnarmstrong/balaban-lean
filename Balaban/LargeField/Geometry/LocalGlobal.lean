@@ -160,6 +160,14 @@ theorem flow_local_eq_global (hY : Y ∈ comps ω X) {r m : ℕ} (hω : 2 ≤ ω
     simp only [nbhd_nbhd]
     exact local_eq_global_compl hY hm hω _
 
+/-- **Lemma I.2.14**: local equals global near a component, (a) and (b) together. -/
+theorem local_eq_global (hY : Y ∈ comps ω X) {t : ℕ} (ht : 2 * t < ω) (hω : 2 ≤ ω) :
+    (∀ k ≤ t, nbhd k (X : Set (Torus d n)) ∩ nbhd t (Y : Set (Torus d n)) =
+      nbhd k (Y : Set (Torus d n)) ∩ nbhd t (Y : Set (Torus d n))) ∧
+    ∀ k, nbhd k (X : Set (Torus d n))ᶜ ∩ nbhd t (Y : Set (Torus d n)) =
+      nbhd k (Y : Set (Torus d n))ᶜ ∩ nbhd t (Y : Set (Torus d n)) :=
+  ⟨fun _ hk => local_eq_global_nbhd hY ht hk, local_eq_global_compl hY ht hω⟩
+
 /-- The flow hypotheses of `flow_local_eq_global`: `r ≤ r̂`, `ω = 2 r̂ + L + 11`, `2 m ≤ L + 8`. -/
 theorem flow_local_eq_global' (hY : Y ∈ comps ω X) {L r rhat m : ℕ} (hr : r ≤ rhat)
     (hω : ω = 2 * rhat + L + 11) (hm : 2 * m ≤ L + 8) :

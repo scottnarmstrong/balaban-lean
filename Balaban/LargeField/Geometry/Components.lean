@@ -241,6 +241,8 @@ theorem comp_diam_le {ι : Type*} [Fintype ι] {b : ℕ} (hω : 1 ≤ ω) (a : �
     _ ≤ Fintype.card ι * (b - 1) + (Fintype.card ι - 1) * (ω - 1) :=
       Nat.add_le_add (Nat.mul_le_mul_right _ (by omega)) (Nat.mul_le_mul_right _ (by omega))
 
+alias comp_of_linked := exists_comp_of_linked
+
 end Comps
 
 end Balaban.LargeField

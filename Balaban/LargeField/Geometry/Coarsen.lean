@@ -167,4 +167,12 @@ theorem blockMap_nbhd_subset (k : ℕ) (X : Set (Torus d n)) :
 
 end Coord
 
+/-- The coarsening `x ↦ x^↑` of `𝕋_k` to `𝕋_{k+1}` (Definition I.2.3): `blockMap L m`, where
+`n_k = L * n_{k+1}`. -/
+abbrev coarsen {d n : ℕ} (L m : ℕ) : Torus d n → Torus d m := blockMap L m
+
+alias supDist_coarsen_le := supDist_blockMap_le
+alias supDist_le_coarsen := supDist_le_blockMap
+alias nbhd_coarsen_subset := blockMap_nbhd_subset
+
 end Balaban.LargeField
