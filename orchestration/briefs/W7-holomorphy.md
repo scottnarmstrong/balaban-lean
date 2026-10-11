@@ -33,11 +33,14 @@ from the flow (`notes/phase1/PLAN.md`).
 `Complex.norm_deriv_le_of_forall_mem_sphere_norm_le`, `DifferentiableOn.analyticOnNhd`,
 `AnalyticOnNhd`, `HasFPowerSeriesOnBall`, `ContractingWith`,
 `Mathlib/Analysis/Calculus/ImplicitFunction*`); the standard reduction to one variable along
-complex lines `λ ↦ f(z₀ + λv)`. **Copy only from public repositories** (with attribution):
-Mathlib, `scottnarmstrong/Frohlich-Spencer` (clone `/home/scott/mining/Frohlich-Spencer`),
-`scottnarmstrong/AVAnomalousDiffusion` (`/home/scott/AVAnomalousDiffusion`),
-`scottnarmstrong/CoarseGraining` (`/home/scott/CoarseGraining`). Do **not** copy code from private
-repositories (`AVAnomalousRegularization-dev`, `KPZ`, `EllipticRegularity`, `FroehlichSpencer`).
+complex lines `λ ↦ f(z₀ + λv)`. Copy (with attribution: repository and commit) from any of the
+author's repositories, public or private — in particular
+`/home/scott/AVAnomalousRegularization-dev/AVRegularity/External/CauchyPolydisc.lean`
+(`complexOpenPolydisc`, `cauchyPolydiscCoordinateIteratedDerivativeEstimate`,
+`cauchyPolydiscRepeatedDirectionEstimate`), `.../External/Standard.lean`
+(`banachFixedPointOnCompleteSubset`, `neumannSeriesInverse`, `cauchyDerivativeEstimate`),
+`/home/scott/AVAnomalousDiffusion`, `/home/scott/mining/Frohlich-Spencer`, `/home/scott/CoarseGraining`.
+Check toolchain compatibility (they are on v4.35.0-rc2 or close) and convert to modules if needed.
 
 **Checks.** `lake build` of your modules only, in your worktree (at most one build at a time;
 compiles are throttled machine-wide and may wait for a slot; never bypass the throttle); zero

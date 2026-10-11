@@ -80,13 +80,15 @@ checkout's `.lake/packages`) (v4.35.0-rc2, Mathlib `065356127b1d`); elsewhere us
 
 Public repositories by the author, usable as Lake dependencies or as sources to port:
 - `scottnarmstrong/Frohlich-Spencer` (v4.35.0-rc2, modules, same Mathlib pin): Combes–Thomas
-  resolvent bounds, lattice animals, Gaussian toolkit, Fourier on tori. Read and copy from the
-  public clone `/home/scott/mining/Frohlich-Spencer` (commit `b47bc3d`) and cite the public
-  repository in attributions. `/home/scott/FroehlichSpencer` is the author's private development
-  mirror: never cite it in this repository (collaborators cannot see it). Roadmap §7.2 gives paths
-  relative to the repository root, which are the same in both.
+  resolvent bounds, lattice animals, Gaussian toolkit, Fourier on tori. Public clone
+  `/home/scott/mining/Frohlich-Spencer` (commit `b47bc3d`); `/home/scott/FroehlichSpencer` is the
+  author's private development mirror with the same layout.
 - `scottnarmstrong/DOZZ` (v4.35.0-rc2, modules, same Mathlib pin): library `GaussianFields`.
-- `scottnarmstrong/BKARForestFormula` (v4.33.0, **not modules**): the BKAR forest formula for
-  the polymer expansion PE (roadmap §5). Using it requires a port to v4.35.0-rc2 and to the
-  module system first (an author decision).
+- `scottnarmstrong/BKARForestFormula`: ported into this project as `Balaban/External/BKAR/`.
+- **Private repositories may be copied too** (author, 2026-10-11: "I am very happy to expose all my
+  private code"): e.g. `/home/scott/AVAnomalousRegularization-dev` (polydisc Cauchy estimates,
+  `AVRegularity/External/`), `/home/scott/KPZ` (BKAR-based polymer expansions,
+  `cumulants/Lean/Polymers/`), `/home/scott/EllipticRegularity`. Copy with attribution (source
+  repository and commit in the module docstring); when identical code is public, cite the public
+  repository. Do not add Lake dependencies on these repositories.
 Other local repositories with relevant material are listed in roadmap §7.2.
