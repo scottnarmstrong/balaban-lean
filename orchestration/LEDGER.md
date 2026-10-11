@@ -23,3 +23,4 @@
 | 2026-10-11 | W2c G-4 tails | landed | `0f2d7b5`: Lemma 4.10 `sum_tail_le`, G-4(b) `domain_difference`, G-4(c) `perturbation_tails`, ℓ¹ ball sums (≈700 lines); axioms standard |
 | 2026-10-11 | D-G Green's function document | final | re-review APPROVE-WITH-CHANGES, N-1..N-6 applied; freeze-candidate list in §3 |
 | 2026-10-11 | W5 constant configs, O(N) reduction | landed | `05e2eb7`: λ=∞ constant configurations (unique minimizer/EL solution, complex analytic extension, P2-type bounds, covariance), analytic O(N) reduction `exists_invariant_reduction` (≈1,700 lines); axioms standard |
+| 2026-10-11 | W8a multiscale coercivity | landed | `7130c2c`: `GeneratingSet`, layers, spacing, averaging form (1.4), `dirichletOperator` (1.6), `pathDist` (1.9), `multiscale_coercive` (c₁ = 1/(2d)), invertibility (≈750 lines) |
