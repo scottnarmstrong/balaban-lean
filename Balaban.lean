@@ -260,6 +260,15 @@ public import Balaban.Localization.CubeAligned
 public import Balaban.Localization.CubeBump
 public import Balaban.Localization.Cover
 public import Balaban.Localization.CutCommutator
+public import Balaban.Localization.Reflection
+public import Balaban.Localization.ReflectedGeneratingSet
+public import Balaban.Localization.ReflectionMetric
+public import Balaban.Localization.ReflectionOperator
+public import Balaban.Localization.ReflectionGreen
+public import Balaban.Localization.CubeRegimes
+public import Balaban.Localization.ReflectionSource
+public import Balaban.Localization.NC3
+public import Balaban.Localization.NC3Small
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
