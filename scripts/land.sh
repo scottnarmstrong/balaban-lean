@@ -5,16 +5,19 @@
 #
 # Run in the main checkout. Merges <branch> with --no-ff, resolves a conflict in Balaban.lean
 # by the union of import lines (any other conflict aborts), seeds build artifacts from the
-# branch's worktree if one exists, then runs: the duplicate-declaration check, `lake build`,
+# branch's worktree if one exists, then runs: a lexical duplicate-name warning, `lake build`
+# (which fails on any real name clash, since Balaban.lean imports every module),
 # the module check, and the frozen-anchor guard. Only if every step passes is the merge kept
-# and pushed; otherwise the merge is undone (`git reset --hard ORIG_HEAD`) and nothing is pushed.
+# and pushed; otherwise the merge is undone (`git reset --keep`, which preserves uncommitted edits
+# of document agents under notes/ and review/) and nothing is pushed.
 set -euo pipefail
 branch=$1; msg=$2
 root=$(git rev-parse --show-toplevel); cd "$root"
 [ "$(git rev-parse --abbrev-ref HEAD)" = main ] || { echo "not on main"; exit 1; }
-[ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "main has uncommitted changes"; exit 1; }
+dirty=$(git status --porcelain --untracked-files=no | grep -v -E "^ ?M (notes|review)/" || true)
+[ -z "$dirty" ] || { echo "main has uncommitted changes outside notes/ and review/:"; echo "$dirty"; exit 1; }
 start=$(git rev-parse HEAD)
-undo() { echo "LANDING FAILED: $1 — undoing merge"; git merge --abort 2>/dev/null || true; git reset -q --hard "$start"; exit 1; }
+undo() { echo "LANDING FAILED: $1 — undoing merge"; git merge --abort 2>/dev/null || true; git reset -q --keep "$start"; exit 1; }
 
 if ! git merge -q --no-ff "$branch" -m "$msg"; then
   conflicts=$(git diff --name-only --diff-filter=U)
@@ -37,18 +40,20 @@ if [ -n "$wt" ] && [ -d "$wt/.lake/build" ]; then
   cp -a "$wt/.lake/build/ir/Balaban/." .lake/build/ir/Balaban/ 2>/dev/null || true
 fi
 
-python3 - <<'EOF' || undo "duplicate declaration names"
+python3 - <<'EOF' || true
 import re, pathlib, collections, sys
 decl = re.compile(r"^(?:@\[[^\]]*\]\s*)*(?:private |protected |noncomputable |public )*"
                   r"(?:theorem|lemma|def|abbrev|structure|instance|inductive|class)\s+([A-Za-z_][\w.'₀-₉]*)", re.M)
 names = collections.defaultdict(set)
 for f in pathlib.Path('Balaban').rglob('*.lean'):
+    if 'External' in f.parts:
+        continue
     for m in decl.finditer(f.read_text()):
         names[m.group(1)].add(str(f))
 dups = {n: fs for n, fs in names.items() if len(fs) > 1}
 for n, fs in dups.items():
-    print("DUPLICATE", n, sorted(fs))
-sys.exit(1 if dups else 0)
+    print("WARNING possible duplicate (lexical; the build decides):", n, sorted(fs))
+sys.exit(0)
 EOF
 
 out=$(lake build 2>&1) || { echo "$out" | grep -E "error" | head -20; undo "lake build failed"; }
