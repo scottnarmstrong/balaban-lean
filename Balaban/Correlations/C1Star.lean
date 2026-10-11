@@ -22,18 +22,20 @@ tests it.
 
 The integers `L, M` are those of Root-F at `κ = κ_*`, `c₉ = 1` (the structure is stated for
 arbitrary `L, M`; the tie to Root-F is made in `RootFAndC1Star`).  The constants
-`a, γ₀, c_*, c_ξ, c', ρ₀, ρ₁, β_*` and the scale function `J` come before `β`; for every
+`a, γ₀, c_*, c_ξ, c', ρ₀, ρ₁, β_*` come before `β`; for every
 `β ≥ β_*` the flow provides, as in the document,
 
+* the scale function `J` (with `J_pos`, `J_tendsto`, `J_bounds`);
 * `ξ ν k ∈ ℝ³` (the running coefficients `ξ^{(k)}(ν)`, real; `Balaban.Flow` sequences are formed
   with the complexification `xiC ξ`), `μ j ν x` (`μ_j(ν; x)`), the remainders `rtr ℓ ν x y`,
   `rlg ℓ ν x y` (`r^ℓ_{tr}, r^ℓ_{lg}`) and `em ℓ ν x` (`e^ℓ_m`);
 * (F1) `C1StarF1`: the bound `‖ξ(ν)_k‖ ≤ c_ξ/(4β) q^{k+1}`, `q = L^{-2γ₀}`, and continuity of
   `ν ↦ ξ(ν)_k` at `ν = 0`;
 * (F2) `C1StarF2`: `|μ_j| ≤ c_* β^{-1/2+ρ₁} L^{-jρ₀}`, continuity of `ν ↦ μ_j(ν; x)` at `0`, and
-  `m_ℓ = m_J(ν; x) + e^ℓ_m` with `|e^ℓ_m| ≤ c_* β^{-2} L^{-2J(d-2)}` on the tori `M L^{J+1} ∣ ℓ`;
+  `m_ℓ = m_J(ν; x) + e^ℓ_m` with `|e^ℓ_m| ≤ c_* β^{-2} L^{-2J(d-2)}` on the tori `M L^{J+1} ∣ ℓ` with `ℓ ≥ ℓ₀(ν, x)`
+  (winding terms on small tori are larger);
 * (F3) `C1StarF3`: the two-point decomposition `G_{tr,ℓ} = m_J m_J ∑_{j<J} (β γ_j)⁻¹ T_j^{ℓ, ν δ_j} + r_{tr}`,
-  `G_{lg,ℓ} = r_{lg}`, the bounds on `r`, the existence of the limits of `r^ℓ` along the tori
+  `G_{lg,ℓ} = r_{lg}`, the bounds on `r` (with the extra term `ν^{(d-2)/2}`), the existence of the limits of `r^ℓ` along the tori
   `(M L)^n ∣ ℓ` (`rtrLim`, `rlgLim`; the document lists them "to fix the family") and of their
   limits as `ν ↓ 0` (`rtrZero`, `rlgZero`).
 
@@ -90,7 +92,8 @@ def C1StarF2 (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) (cStar ρ₀ ρ₁ : ℝ)
   (∀ j, 1 ≤ j → ∀ ν ∈ Set.Icc (0 : ℝ) 1, ∀ x,
     |μ j ν x| ≤ cStar * β ^ (-(1 / 2 : ℝ) + ρ₁) * (L : ℝ) ^ (-((j : ℝ) * ρ₀))) ∧
   (∀ j x, Tendsto (fun ν => μ j ν x) (𝓝[>] 0) (𝓝 (μ j 0 x))) ∧
-  ∀ ν ∈ Set.Ioc (0 : ℝ) 1, ∀ x, ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (J ν + 1) ∣ ℓ →
+  ∀ ν ∈ Set.Ioc (0 : ℝ) 1, ∀ x, ∃ ℓ₀ : ℕ, ∀ (ℓ : ℕ) [NeZero ℓ], ℓ₀ ≤ ℓ →
+    M * L ^ (J ν + 1) ∣ ℓ →
     blockM d N ℓ hN β ν = magJ L d (ξ ν) (fun j => μ j ν) β (J ν) x + em ℓ ν x ∧
     |em ℓ ν x| ≤ cStar * (β ^ 2)⁻¹ * ((L : ℝ) ^ (2 * J ν * (d - 2)))⁻¹
 
@@ -106,9 +109,9 @@ def C1StarF3 (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) (a cStar cPrime ρ₀ : �
       magJ L d (ξ ν) (fun j => μ j ν) β (J ν) x * magJ L d (ξ ν) (fun j => μ j ν) β (J ν) y *
         mainTr d L a (ξ ν) β ν (J ν) ℓ x y + rtr ℓ ν x y ∧
     blockGlg d N ℓ hN β ν (embedZ ℓ (x - y)) = rlg ℓ ν x y ∧
-    |rtr ℓ ν x y| ≤ cStar * (1 + ‖x - y‖) ^ (-((d : ℝ) - 2 + ρ₀)) *
+    |rtr ℓ ν x y| ≤ cStar * ((1 + ‖x - y‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) *
       Real.exp (-(cPrime * Real.sqrt ν * ‖x - y‖)) ∧
-    |rlg ℓ ν x y| ≤ cStar * (1 + ‖x - y‖) ^ (-((d : ℝ) - 2 + ρ₀)) *
+    |rlg ℓ ν x y| ≤ cStar * ((1 + ‖x - y‖) ^ (-((d : ℝ) - 2 + ρ₀)) + ν ^ (((d : ℝ) - 2) / 2)) *
       Real.exp (-(cPrime * Real.sqrt ν * ‖x - y‖))) ∧
   (∀ ν ∈ Set.Ioc (0 : ℝ) 1, ∀ x y,
     LimAlong (M * L) (fun ℓ _ => rtr ℓ ν x y) (rtrLim ν x y) ∧
@@ -117,7 +120,7 @@ def C1StarF3 (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) (a cStar cPrime ρ₀ : �
     Tendsto (fun ν => rlgLim ν x y) (𝓝[>] 0) (𝓝 (rlgZero x y)))
 
 /-- **The interface C-1\*** (CORRELATIONS.md §2.2, (F1)–(F3), finite-torus form; `L, M` are the
-integers of Root-F at `κ = κ_*`, `c₉ = 1`).  The constants come before `β`. -/
+integers of Root-F at `κ = κ_*`, `c₉ = 1`).  The constants come before `β`; the last scale `J(ν)` is part of the data for each `β`. -/
 structure C1Star (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) where
   /-- The free-flow constant `a`. -/
   a : ℝ
@@ -129,8 +132,6 @@ structure C1Star (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) where
   ρ₀ : ℝ
   ρ₁ : ℝ
   βStar : ℝ
-  /-- The last scale `J(ν)`. -/
-  J : ℝ → ℕ
   a_range : 1 / (2 * (1 - ((L : ℝ) ^ 2)⁻¹)) < a ∧ a < 3 / 2
   γ₀_range : 0 < γ₀ ∧ γ₀ ≤ 1 / 2
   cStar_pos : 0 < cStar
@@ -138,15 +139,14 @@ structure C1Star (d N L M : ℕ) [NeZero L] (hN : 2 ≤ N) where
   cPrime_pos : 0 < cPrime
   ρ₀_range : 0 < ρ₀ ∧ ρ₀ ≤ (d : ℝ) - 2
   ρ₁_range : 0 < ρ₁ ∧ ρ₁ < 1
-  J_pos : ∀ ν ∈ Set.Ioc (0 : ℝ) 1, 1 ≤ J ν
-  J_tendsto : Tendsto J (𝓝[>] 0) atTop
-  J_bounds : ∀ ν ∈ Set.Ioc (0 : ℝ) 1,
-    1 / 2 ≤ (L : ℝ) ^ J ν * Real.sqrt ν ∧ (L : ℝ) ^ J ν * Real.sqrt ν ≤ (L : ℝ) ^ 2
   data : ∀ β : ℝ, βStar ≤ β →
-    ∃ (ξ : ℝ → ℕ → Fin 3 → ℝ) (μ : ℕ → ℝ → (Fin d → ℤ) → ℝ)
+    ∃ (J : ℝ → ℕ) (ξ : ℝ → ℕ → Fin 3 → ℝ) (μ : ℕ → ℝ → (Fin d → ℤ) → ℝ)
       (rtr rlg : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (em : ℕ → ℝ → (Fin d → ℤ) → ℝ)
       (rtrLim rlgLim : ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
       (rtrZero rlgZero : (Fin d → ℤ) → (Fin d → ℤ) → ℝ),
+      (∀ ν ∈ Set.Ioc (0 : ℝ) 1, 1 ≤ J ν) ∧ Tendsto J (𝓝[>] 0) atTop ∧
+      (∀ ν ∈ Set.Ioc (0 : ℝ) 1,
+        1 / 2 ≤ (L : ℝ) ^ J ν * Real.sqrt ν ∧ (L : ℝ) ^ J ν * Real.sqrt ν ≤ (L : ℝ) ^ 2) ∧
       C1StarF1 L γ₀ cXi β ξ ∧ C1StarF2 d N L M hN cStar ρ₀ ρ₁ J β ξ μ em ∧
       C1StarF3 d N L M hN a cStar cPrime ρ₀ J β ξ μ rtr rlg rtrLim rlgLim rtrZero rlgZero
 

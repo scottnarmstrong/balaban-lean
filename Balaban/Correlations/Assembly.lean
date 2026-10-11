@@ -46,8 +46,7 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
   obtain ⟨δ, hδ, L, M, hL3, hM, β₀F, hF, ⟨C⟩⟩ := hjoint
   have hL : 2 ≤ L := by omega
   have : NeZero L := ⟨by omega⟩
-  rcases C with ⟨a, γ₀, cS, cX, cP, ρ₀, ρ₁, βS, J, ha_r, hγr, hcS, hcX, hcP, hρ₀r, hρ₁r,
-    hJp, hJt, hJb, data⟩
+  rcases C with ⟨a, γ₀, cS, cX, cP, ρ₀, ρ₁, βS, ha_r, hγr, hcS, hcX, hcP, hρ₀r, hρ₁r, data⟩
   have hL1 : (1 : ℝ) < L := by exact_mod_cast hL
   have hL0 : (0 : ℝ) < L := by linarith
   have ha : 0 < a := by
@@ -67,14 +66,18 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
   have hK0 : 0 ≤ K := K1_nonneg hL hcS.le hρ₀r.1
   set A3 : ℝ := cX * q / (2 * (1 - q)) with hA3
   have hA30 : 0 ≤ A3 := by positivity
+  obtain ⟨Cd, hCd0, hCd⟩ := exists_rpow_exp_le (p := (d : ℝ) - 2) (c := cP)
+    (by have : (3 : ℝ) ≤ d := by exact_mod_cast hd
+        linarith) hcP
   set c : ℝ := cS + K + 1 + ((1 + K) ^ 2 * (2 * C_G * C1) +
-    (1 + K) ^ 2 * (Real.exp 2 * A3 * C_G * C2)) + A3 with hc
+    (1 + K) ^ 2 * (Real.exp 2 * A3 * C_G * C2)) + A3 + cS * Cd with hc
+  have hcSCd : 0 ≤ cS * Cd := by positivity
   have hW1 : 0 ≤ (1 + K) ^ 2 * (2 * C_G * C1) := by positivity
   have hW2 : 0 ≤ (1 + K) ^ 2 * (Real.exp 2 * A3 * C_G * C2) := by positivity
-  set c' : ℝ := min cP (δ_G / (2 * (L : ℝ) ^ 2)) with hc'
+  set c' : ℝ := min (cP / 2) (δ_G / (2 * (L : ℝ) ^ 2)) with hc'
   have hρC : 0 < min ρ₀ (2 * γ₀) := lt_min hρ₀r.1 (by linarith [hγr.1])
   refine ⟨max (max β₀F βS) (max 1 (2 * cX * q / (1 - q))), c, c', min ρ₀ (2 * γ₀), ρ₁, M * L,
-    by nlinarith, by linarith, lt_min hcP (by have := H.pos_δ; positivity), hρC, hρ₁r.1, hρ₁r.2,
+    by nlinarith, by linarith, lt_min (half_pos hcP) (by have := H.pos_δ; positivity), hρC, hρ₁r.1, hρ₁r.2,
     ?_⟩
   intro β hβ
   have hβF : β₀F ≤ β := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hβ
@@ -83,7 +86,8 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
   have hβ2 : 2 * cX * q / (1 - q) ≤ β :=
     le_trans (le_trans (le_max_right _ _) (le_max_right _ _)) hβ
   have hβpos : 0 < β := by linarith
-  obtain ⟨ξ, μ, rtr, rlg, em, rtrLim, rlgLim, rtrZero, rlgZero, h1, h2, h3⟩ := data β hβS
+  obtain ⟨J, ξ, μ, rtr, rlg, em, rtrLim, rlgLim, rtrZero, rlgZero, -, hJt, hJb, h1, h2, h3⟩ :=
+    data β hβS
   have HS : ∀ ν ∈ Set.Icc (0 : ℝ) 1, SeqHyp L γ₀ (cX / β) (ξ ν) := by
     intro ν hν
     refine ⟨hL, hγr.1, by positivity, ?_, fun k => ?_⟩
@@ -114,10 +118,10 @@ theorem rootC_of_rootF_c1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
     obtain ⟨hm, hGt, hGl⟩ := hlim' ν ⟨hν0, hν1⟩
     exact bullet_one hN hm hGt hGl h hh x y ε hε
   · intro ν hν0 hν1
-    exact bounds_pos_nu hL hM hβ1 hρ₀r.1 hcS.le hρ₁r.1 hρ₁r.2 HS
+    exact bounds_pos_nu hL hM hβ1 hρ₀r.1 hcS.le hcP.le hρ₁r.1 hρ₁r.2 HS
       (fun ν hν => (hJb ν hν).2) h2 h3 H HL hC1nn hC1
       (fun ν hν => (hlim' ν hν).1) (fun ν hν => (hlim' ν hν).2.1)
-      (fun ν hν => (hlim' ν hν).2.2) (c := c) (c' := c')
+      (fun ν hν => (hlim' ν hν).2.2) hCd0 hCd (c := c) (c' := c')
       (by linarith) (by linarith) (min_le_left _ _) (min_le_right _ _) ν ⟨hν0, hν1⟩
   · exact limits_zero hd hL hM hβ1 hρ₀r.1 hcS.le hρ₁r.1 hρ₁r.2 ha hcP.le hcX.le HS h1.2
       hJt (fun ν hν => (hJb ν hν).2) h2 h3 H HL hC2 hC2nn (fun ν hν => (hlim' ν hν).1) (fun ν hν => (hlim' ν hν).2.1)
