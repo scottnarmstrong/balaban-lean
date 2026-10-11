@@ -14,6 +14,10 @@ public import Balaban.Green.Coercive
 public import Balaban.Green.CombesThomas
 public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
+public import Balaban.Green.BlockPoincare
+public import Balaban.Green.Coercivity
+public import Balaban.Green.SchurVariational
+public import Balaban.Green.UnitLattice
 public import Balaban.Lattice.Blocks
 public import Balaban.Lattice.BlockAverage
 public import Balaban.Gaussian.Integral

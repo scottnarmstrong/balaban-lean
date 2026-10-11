@@ -68,6 +68,9 @@ Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
    `lake build` per worker, build only the modules you changed, never bypass the wrapper by
    calling a Lean binary directly, and never start extra sessions to go faster.
 7. Commit only checked work; stage explicit paths; never rewrite history on `main`.
+8. Before handoff, merge the current `main` into your branch and build the whole default target
+   (`lake build`, not only your modules); declaration names must not clash with existing ones
+   (search before naming). The orchestrator lands branches only with `scripts/land.sh`.
 
 ## Building
 
