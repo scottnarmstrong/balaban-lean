@@ -14,3 +14,9 @@ public import Balaban.Green.Coercive
 public import Balaban.Green.CombesThomas
 public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
+public import Balaban.Lattice.Blocks
+public import Balaban.Lattice.BlockAverage
+public import Balaban.Gaussian.Integral
+public import Balaban.Gaussian.Measure
+public import Balaban.Gaussian.Schur
+public import Balaban.Gaussian.BlockSpin
