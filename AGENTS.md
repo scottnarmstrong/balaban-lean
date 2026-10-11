@@ -88,7 +88,6 @@ Public repositories by the author, usable as Lake dependencies or as sources to 
 - **Private repositories may be copied too** (author, 2026-10-11: "I am very happy to expose all my
   private code"): e.g. `/home/scott/AVAnomalousRegularization-dev` (polydisc Cauchy estimates,
   `AVRegularity/External/`), `/home/scott/KPZ` (BKAR-based polymer expansions,
-  `cumulants/Lean/Polymers/`), `/home/scott/EllipticRegularity`. Copy with attribution (source
-  repository and commit in the module docstring); when identical code is public, cite the public
-  repository. Do not add Lake dependencies on these repositories.
+  `cumulants/Lean/Polymers/`), `/home/scott/EllipticRegularity`. **No attribution is required**
+  (author: "it's all my code"). Do not add Lake dependencies on these repositories; copy.
 Other local repositories with relevant material are listed in roadmap §7.2.
