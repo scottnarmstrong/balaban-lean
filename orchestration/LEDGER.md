@@ -74,3 +74,4 @@
 | 2026-10-11 | W21 global Hölder | landed | `global_g2iv` (all four terms of G-2(iv) incl. `|∂Gf|_{(θ),2−θ} ≤ (B/θ)|f|₂`), `holder_global`, `holder_pair_decay`; Δ̃(y) = blocks touching at their own layer; forward bonds (≈400 lines) |
 | 2026-10-11 | astra Lemma 5.3 | done | `notes/phase1/LEMMA53-astra.md`: BACKGROUND Lemma 5.3a(b) FALSE for one-site collar in d ≥ 4; replacement: layer-1 field = local constant solution; B-spline construction proved (high confidence); multilinear interpolation does not save the second differences; Lean lemma order (8 items) |
 | 2026-10-11 | W22 approximate field | running | Sonnet; Lemma 5.3 per LEMMA53-astra.md §6, branch from W20 Data commit |
+| 2026-10-11 | D-SF small field | running | Sonnet; `notes/phase1/SMALLFIELD.md` (I-6..I-9 at λ=∞; P1, P4, P5, P6 §4; C-1a two-point parts) |
