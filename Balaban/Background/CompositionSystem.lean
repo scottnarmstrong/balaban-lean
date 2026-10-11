@@ -274,6 +274,96 @@ theorem blockMean_psiExt_compose (h : Precedes G G') (a : ℕ → ℝ)
   simp only [hT, hQp]
   linear_combination (D'.Ψ x₀ i - (K : ℂ) * W) * hKc1
 
+/-- The residual of the linear equation of (EL) in "site form": the Laplacian of the extension
+`φ̄` plus the block term plus the mass and multiplier terms. -/
+theorem elResidual_site (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) (ν : ℝ) (D : BgData G N)
+    (φ : G.Ω 1 × Fin N → ℂ) (α : G.Ω 1 → ℂ) (z : G.Ω 1) (i : Fin N) :
+    elResidual G a ν D φ α (z, i) =
+      negLap (fun y => barField G D.Ψ φ y i) (z : Torus d (N₀ * L ^ k)) +
+        ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) *
+          (blockMean G (G.layerIndex z) (fun y => svec G φ y i) z - D.Ψ z i) +
+        ν * (φ (z, i) - D.h z i) + α z * φ (z, i) := by
+  classical
+  unfold elResidual source
+  simp only [Pi.sub_apply]
+  rw [liftOp_mulVec, dirichlet_apply]
+  have hl := negLap_sub_boundary G D.Ψ φ i z
+  have hz : zeroExt (G.Ω 1) (fun q => φ (q, i)) (z : Torus d (N₀ * L ^ k)) = φ (z, i) :=
+    zeroExt_mem _ _ z
+  have hbz : barField G D.Ψ φ (z : Torus d (N₀ * L ^ k)) i = φ (z, i) := by
+    simp [barField]
+  have hbl : blockTerm G a (zeroExt (G.Ω 1) (fun q => φ (q, i))) (z : Torus d (N₀ * L ^ k)) =
+      ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) *
+        blockMean G (G.layerIndex z) (fun y => svec G φ y i) z := rfl
+  have hq : qStar G a D.Ψ (z, i) =
+      ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) * D.Ψ z i := rfl
+  have hneg : negLap (fun y => barField G D.Ψ φ y i) (z : Torus d (N₀ * L ^ k)) =
+      ∑ μ : Fin d, (2 * φ (z, i) - barField G D.Ψ φ ((z : Torus d (N₀ * L ^ k)) + Pi.single μ 1) i -
+        barField G D.Ψ φ ((z : Torus d (N₀ * L ^ k)) - Pi.single μ 1) i) := by
+    unfold negLap
+    simp only [hbz]
+  rw [hneg, ← hl, hbl, hq]
+  ring
+
+/-- If one site of the `p`-block of `x₀ ∈ Ω'₁` has `n < p`, all do (a `p`-block lies in a layer
+of `𝔹_j` or is disjoint from the layer `p`). -/
+theorem Precedes.block_lt (h : Precedes G G') {x₀ : Torus d (N₀ * L ^ k)} (hx₀ : x₀ ∈ G'.Ω 1)
+    {z₀ : Torus d (N₀ * L ^ k)} (hz₀ : z₀ ∈ G'.blk (G'.layerIndex x₀) x₀)
+    (hlt : G.layerIndex z₀ < G'.layerIndex x₀) :
+    ∀ z ∈ G'.blk (G'.layerIndex x₀) x₀, G.layerIndex z < G'.layerIndex x₀ := by
+  intro z hz
+  obtain ⟨hp1, hpk, hxp⟩ := G'.layerIndex_spec hx₀
+  have hz' : z ∈ G'.layer (G'.layerIndex x₀) :=
+    (G'.mem_layer_iff hp1 hpk (GeneratingSet.mem_blk.1 hz).symm).1 hxp
+  have hzp : G'.layerIndex z = G'.layerIndex x₀ := G'.layerIndex_eq hp1 hpk hz'
+  by_contra hge
+  push Not at hge
+  have hzΩ : z ∈ G.Ω 1 := by
+    by_contra hn
+    rw [layerIndex_of_not_mem G hn] at hge
+    omega
+  have hle := hzp ▸ h.layerIndex_le hzΩ
+  have heq : G.layerIndex z = G'.layerIndex x₀ := le_antisymm hle hge
+  obtain ⟨hn1, hnk, hzn⟩ := G.layerIndex_spec hzΩ
+  rw [heq] at hzn
+  have hb : jBlock d L N₀ k (G'.layerIndex x₀) z = jBlock d L N₀ k (G'.layerIndex x₀) z₀ :=
+    (GeneratingSet.mem_blk.1 hz).trans (GeneratingSet.mem_blk.1 hz₀).symm
+  have hz₀n : z₀ ∈ G.layer (G'.layerIndex x₀) := (G.mem_layer_iff hp1 hpk hb).1 hzn
+  have := G.layerIndex_eq hp1 hpk hz₀n
+  omega
+
+/-- Positivity of `1 / a^{(p)}` on a block without a full `𝔹_j`-layer. -/
+theorem invAp_pos (h : Precedes G G') (a : ℕ → ℝ) (hpos : ∀ r, 1 ≤ r → 0 < a r)
+    {x₀ : Torus d (N₀ * L ^ k)} (hx₀ : x₀ ∈ G'.Ω 1)
+    (hlt : G.layerIndex x₀ < G'.layerIndex x₀) :
+    0 < invAp G G' a (G'.layerIndex x₀) x₀ := by
+  have hself : x₀ ∈ G'.blk (G'.layerIndex x₀) x₀ := GeneratingSet.mem_blk.2 rfl
+  have hall := h.block_lt hx₀ hself hlt
+  unfold invAp
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  refine mul_pos (by positivity) (Finset.sum_pos (fun z hz => ?_) ⟨x₀, hself⟩)
+  have := hall z hz
+  exact inv_pos.2 (hpos _ (by omega))
+
+/-- The block-mean of a field of the form `Q_{n(z)} φ (z) + r(z) τ` on a `p`-block. -/
+theorem blockMean_decomp (h : Precedes G G') {x₀ : Torus d (N₀ * L ^ k)} (hx₀ : x₀ ∈ G'.Ω 1)
+    (W : Torus d (N₀ * L ^ k) → ℂ) (F : Torus d (N₀ * L ^ k) → ℂ) (r : Torus d (N₀ * L ^ k) → ℝ)
+    (τ : ℂ)
+    (hF : ∀ z ∈ G'.blk (G'.layerIndex x₀) x₀,
+      F z = blockMean G (G.layerIndex z) W z + (r z : ℂ) * τ) :
+    blockMean G' (G'.layerIndex x₀) F x₀ =
+      blockMean G' (G'.layerIndex x₀) W x₀ +
+        ((((((L : ℝ) ^ G'.layerIndex x₀) ^ d)⁻¹) * ∑ z ∈ G'.blk (G'.layerIndex x₀) x₀, r z : ℝ) : ℂ) *
+          τ := by
+  obtain ⟨hp1, hpk, hxp⟩ := G'.layerIndex_spec hx₀
+  have hnest := sum_blockMean_nested G (G'.blk (G'.layerIndex x₀) x₀) G.layerIndex
+    (layerIndex_le_k G) W (h.block_nested hx₀)
+  unfold blockMean
+  rw [Finset.sum_congr rfl hF, Finset.sum_add_distrib, hnest]
+  push_cast
+  rw [← Finset.sum_mul]
+  ring
+
 end System
 
 end Balaban.Background
