@@ -279,11 +279,9 @@ theorem cMultiplier_mulVec (a ν : ℝ) (M : Matrix ι ι ℂ) (hM : Mᵀ * M = 
   unfold cMultiplier
   rw [cBlend_mulVec, sqrtDot_mulVec M hM]
 
-/-- Covariance under a real orthogonal matrix acting on complex data. -/
-theorem cMinimizer_mulVec_ofReal (a ν : ℝ) (R : Matrix ι ι ℝ) (hR : Rᵀ * R = 1)
-    (ψ h : ι → ℂ) :
-    cMinimizer a ν (R.map (↑) *ᵥ ψ) (R.map (↑) *ᵥ h) = R.map (↑) *ᵥ cMinimizer a ν ψ h := by
-  apply cMinimizer_mulVec
+/-- A real orthogonal matrix is a complex orthogonal matrix. -/
+theorem map_ofReal_transpose_mul (R : Matrix ι ι ℝ) (hR : Rᵀ * R = 1) :
+    (R.map ((↑) : ℝ → ℂ))ᵀ * R.map (↑) = 1 := by
   ext i j
   have h0 := congrFun (congrFun hR i) j
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.one_apply] at h0
@@ -292,6 +290,12 @@ theorem cMinimizer_mulVec_ofReal (a ν : ℝ) (R : Matrix ι ι ℝ) (hR : Rᵀ 
   push_cast at h1
   rw [h1]
   split_ifs <;> simp
+
+/-- Covariance under a real orthogonal matrix acting on complex data. -/
+theorem cMinimizer_mulVec_ofReal (a ν : ℝ) (R : Matrix ι ι ℝ) (hR : Rᵀ * R = 1)
+    (ψ h : ι → ℂ) :
+    cMinimizer a ν (R.map (↑) *ᵥ ψ) (R.map (↑) *ᵥ h) = R.map (↑) *ᵥ cMinimizer a ν ψ h := by
+  exact cMinimizer_mulVec a ν _ (map_ofReal_transpose_mul R hR) ψ h
 
 end Covariance
 
