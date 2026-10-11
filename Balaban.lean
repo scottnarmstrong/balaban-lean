@@ -40,6 +40,8 @@ public import Balaban.Polymer.BlockTorus
 public import Balaban.Polymer.Holomorphic
 public import Balaban.Polymer.Transport
 public import Balaban.Polymer.Support
+public import Balaban.Polymer.Bridge
+public import Balaban.Polymer.FrozenTorus
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
