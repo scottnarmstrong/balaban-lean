@@ -159,5 +159,10 @@ public import Balaban.Correlations.SumRule
 public import Balaban.Correlations.Asymptotics
 public import Balaban.Correlations.TermKernel
 public import Balaban.Correlations.GreenIdentification
+public import Balaban.Correlations.KernelDictionary
+public import Balaban.Correlations.KernelPointwise
+public import Balaban.Correlations.FineGreenLimits
+public import Balaban.Correlations.KernelLimits
+public import Balaban.Correlations.KernelHypProof
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
