@@ -30,3 +30,4 @@
 | 2026-10-11 | W10 model basics | landed | sphere-measure invariance, model symmetries, `exists_block_structure` (finite-volume Root-C structure), `analyticOnNhd_logPartition`, derivatives = correlation functions (≈1,100 lines) |
 | 2026-10-11 | W9 lattice Green | landed | heat-kernel construction, `latticeGreen_existsUnique` (Root-C's G: −ΔG = δ₀, G → 0, unique), Lemma K bounds `latticeGreen_le_rpow`, first and second differences (≈2,190 lines) |
 | 2026-10-11 | W3c polymer completion | landed | `pe_analyticOnNhd`, `pe_blockTorus_frozen` (frozen IsPolymer language), `frozenPY_boxMap` (torus independence), marked/truncated moments, `pe_hole` (Steiner size) (≈2,350 lines); MY and GAS open |
+| 2026-10-11 | W8d G-2(vi) | landed | `analyticOnNhd_green_apply`, counting Lemma 4.4 `sum_siteWeight_decay_le`, `green_sub_green_locality` (product form, rate ε₀/6), `sqrt_sqNorm_le_of_supp` (≈1,000 lines) |
