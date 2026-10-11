@@ -1096,6 +1096,11 @@ Cayley tree count.
 
 ### 7.2 Scott's repositories (concrete paths)
 
+*Note (2026-10-11).* `/home/scott/FroehlichSpencer` below is the author's private development
+mirror of the public repository `scottnarmstrong/Frohlich-Spencer` (public clone
+`/home/scott/mining/Frohlich-Spencer`, commit `b47bc3d`; same file layout). Work in this repository
+reads, copies and cites the public repository only.
+
 **`/home/scott/FroehlichSpencer`** (v4.35.0-rc2; HEAD 2026-10-10; 1,660 files,
 365,903 lines; 0 `sorry`; manifest `AUTHOR_APPROVED`, 425 sealed anchors). Paths
 relative to `FroehlichSpencer/`:

@@ -32,7 +32,7 @@ sources use it; choose and document conventions in each file's module docstring)
    definite `A`: `∫ exp(−½⟨φ, Aφ⟩ + ⟨J, φ⟩) dφ = (2π)^{n/2} (det A)^{−1/2} exp(½⟨J, A^{−1}J⟩)`
    with complex `J`; the normalized Gaussian measure with covariance `A^{−1}`; its moments of
    order ≤ 2. Survey first (do not rebuild what exists): Mathlib (`multivariateGaussian`,
-   `integral_cexp_neg_sum_mul_add`, `Matrix.PosDef`), `/home/scott/FroehlichSpencer/FroehlichSpencer/FS82/Gaussian/*`,
+   `integral_cexp_neg_sum_mul_add`, `Matrix.PosDef`), `/home/scott/mining/Frohlich-Spencer/FroehlichSpencer/FS82/Gaussian/*`,
    `/home/scott/mining/DOZZ/GaussianFields/*`, `/home/scott/KPZ/Lean/Phi4/Phi4/Law/{ProductGaussian,GaussianIBP}.lean`.
    Copy and adapt (with attribution in the module docstring), do not add Lake dependencies.
 4. Schur complement and Woodbury identities for finite matrices (check Mathlib first).

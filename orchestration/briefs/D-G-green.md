@@ -17,7 +17,7 @@ column "At λ = ∞").
 
 Read: `review/FORMALIZATION_ROADMAP.md` §3.4 (the interface G-1..G-6, the table C1–C14 of what the
 series consumes, and the proposed proof routes), §7 (infrastructure; Scott's repositories, in
-particular `/home/scott/FroehlichSpencer/FroehlichSpencer/Infra/Green/CombesThomas.lean`, the
+particular `/home/scott/mining/Frohlich-Spencer/FroehlichSpencer/Infra/Green/CombesThomas.lean`, the
 continuum Agmon template under `/home/scott/Superdiffusion*`, and
 `/home/scott/CoarseGraining/Homogenization/Sobolev/Foundations/DifferenceQuotient.lean`); the
 reviews `review/papers/P2-*.md`, `P3-*.md`, `E3-*.md`, `E4-*.md`, `E5-*.md`, `D1-*.md` (Dimock's

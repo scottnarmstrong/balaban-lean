@@ -72,15 +72,19 @@ Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 ## Building
 
 `python3 -I scripts/use_local_cache.py /home/scott/FroehlichSpencer` points Lake at an
-already built Mathlib with the same pin (v4.35.0-rc2, Mathlib `065356127b1d`); elsewhere use
+already built Mathlib with the same pin (only Mathlib and its dependencies are taken from that
+checkout's `.lake/packages`) (v4.35.0-rc2, Mathlib `065356127b1d`); elsewhere use
 `lake exe cache get`. Then `lake build <Module>`.
 
 ## Reuse (survey before building infrastructure)
 
 Public repositories by the author, usable as Lake dependencies or as sources to port:
 - `scottnarmstrong/Frohlich-Spencer` (v4.35.0-rc2, modules, same Mathlib pin): Combes–Thomas
-  resolvent bounds, lattice animals, Gaussian toolkit, Fourier on tori (paths in roadmap §7.2,
-  which cites the private development checkout `/home/scott/FroehlichSpencer`).
+  resolvent bounds, lattice animals, Gaussian toolkit, Fourier on tori. Read and copy from the
+  public clone `/home/scott/mining/Frohlich-Spencer` (commit `b47bc3d`) and cite the public
+  repository in attributions. `/home/scott/FroehlichSpencer` is the author's private development
+  mirror: never cite it in this repository (collaborators cannot see it). Roadmap §7.2 gives paths
+  relative to the repository root, which are the same in both.
 - `scottnarmstrong/DOZZ` (v4.35.0-rc2, modules, same Mathlib pin): library `GaussianFields`.
 - `scottnarmstrong/BKARForestFormula` (v4.33.0, **not modules**): the BKAR forest formula for
   the polymer expansion PE (roadmap §5). Using it requires a port to v4.35.0-rc2 and to the

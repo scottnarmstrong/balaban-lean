@@ -17,14 +17,13 @@ reason: needed by G-4, G-5, P4 (2.23)–(2.25), P9 (4.12)–(4.17) (`notes/phase
 `Balaban.lean`. No other edits.
 
 **Starting point (copy and generalize, with attribution in the module docstring).**
-`/home/scott/FroehlichSpencer/FroehlichSpencer/Infra/Green/{Basic,CombesThomas,CombesThomasGap,Iteration}.lean`
-and `/home/scott/FroehlichSpencer/FroehlichSpencer/Infra/Resolvent/Basic.lean` (read-only; this
-repository is also public as `scottnarmstrong/Frohlich-Spencer`). Its `combesThomas_core` assumes a
+`/home/scott/mining/Frohlich-Spencer/FroehlichSpencer/Infra/Green/{Basic,CombesThomas,CombesThomasGap,Iteration}.lean`
+and `/home/scott/mining/Frohlich-Spencer/FroehlichSpencer/Infra/Resolvent/Basic.lean` (read-only clone of the public repository `scottnarmstrong/Frohlich-Spencer` at commit `b47bc3d`; cite that repository and commit in attributions, never the private development checkout `/home/scott/FroehlichSpencer`). Its `combesThomas_core` assumes a
 Hermitian kernel of range one in a pseudometric, a real potential and `Im z ≠ 0`; the Hermitian
 hypothesis is used only in `norm_weightPerturbation_le` and for column sums. Replace range one by
 exponentially weighted row and column sums, drop the Hermitian hypothesis (use the lower bound
 `Re A ≥ γ₀`, so `‖(A+t)^{−1}‖ ≤ (γ₀+t)^{−1}`), and allow `t ≥ 0` in place of `Im z ≠ 0`. Do not add
-a Lake dependency on FroehlichSpencer.
+a Lake dependency on it.
 
 **Method (standard).** Conjugate by `e^{ε ρ(x, y₀)}` (weights bounded by the triangle inequality);
 the conjugated operator differs from `A` by an operator whose norm (Schur test on row and column
