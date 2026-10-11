@@ -126,6 +126,8 @@ public import Balaban.Multiscale.AgmonWeight
 public import Balaban.Multiscale.Agmon
 public import Balaban.Multiscale.AgmonDecay
 public import Balaban.Multiscale.ScaleMismatch
+public import Balaban.Multiscale.CutOperator
+public import Balaban.Multiscale.CutCoercivity
 public import Balaban.Multiscale.Constrained
 public import Balaban.Multiscale.ConstraintGrad
 public import Balaban.Multiscale.ConstraintField
