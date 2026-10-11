@@ -19,3 +19,4 @@
 | 2026-10-11 | D-PE polymer document | revised | review R1–R12 addressed (`## Review dispositions`); ready for PE interface drafting and W3b |
 | 2026-10-11 | W7 holomorphy | landed | Cauchy estimates (ball, polydisc, mixed i≠j), several-variable Weierstrass (uniform limits analytic), `exists_analytic_fixedPoint`, `exists_tendsto_prod_inv_one_add` (≈900 lines); axioms standard |
 | 2026-10-11 | W2b coercivity | landed | block Poincaré (const d/2), single-scale coercivity with complex α (`blockHamiltonianC_isCoercive`), Schur variational form, `unconstrainedUnitOperator_lower` (γ ≥ 1/(8d+3)) (≈1,470 lines); constrained (λ=∞) operator and multiscale item 4 open |
+| 2026-10-11 | W4 RG equations | landed | `4985fa7` via land.sh: `Balaban.Flow.exists_rg_solution` (P4 Prop 5.1, λ=∞), triangular form, running coefficients, (H.6) bounds, `exists_gamma_infty` (5.33), `exists_inv_betaSeq_asymptotics` (P9 (4.18)) (≈710 lines); axioms standard |
