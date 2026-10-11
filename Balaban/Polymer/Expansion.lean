@@ -275,4 +275,192 @@ theorem Xi_deriv_identity (hrefl : ∀ x, inc x x) (K : P → ℂ) (s : ℂ) :
 
 end XiDeriv
 
+section LogDeriv
+
+variable (h : KPCond inc κ a)
+
+omit [Fintype P] in
+theorem Kc_smul (Y : P) (K : P → ℂ) (c : ℂ) :
+    Kc inc Y (fun x => c * K x) = fun x => c * Kc inc Y K x := by
+  funext x; unfold Kc; split_ifs <;> simp
+
+theorem zN_smul (Y : P) (K : P → ℂ) (c : ℂ) (n : ℕ) :
+    zN (blkc inc Y (fun x => c * K x)) n = c ^ n * zN (blkc inc Y K) n := by
+  have hp : ∀ X' : Fin n → P, ∏ i, (c * K (X' i)) = c ^ n * ∏ i, K (X' i) := by
+    intro X'; rw [Finset.prod_mul_distrib]; simp
+  have : rootedSum inc Y (fun x => c * K x) n = c ^ n * rootedSum inc Y K n := by
+    unfold rootedSum
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl (fun X' _ => by rw [hp]; ring)
+  rw [zN, zN, ← rootedSum_eq, ← rootedSum_eq, this, mul_div_assoc]
+
+/-- The coefficients of `s ↦ logSeries (s K)` as a power series in `s`. -/
+def ccSeq (K : P → ℂ) (m : ℕ) : ℂ := if m = 0 then 0 else clTerm inc K (m - 1)
+
+theorem ccSeq_succ (K : P → ℂ) (n : ℕ) : ccSeq inc K (n + 1) = clTerm inc K n := by
+  simp [ccSeq]
+
+include h in
+theorem summable_ccSeq (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ κ x) :
+    Summable (fun m => ‖ccSeq inc K m‖) := by
+  have hnorm : Summable (fun n => ‖clTerm inc K n‖) :=
+    Summable.of_nonneg_of_le (fun _ => norm_nonneg _) (norm_clTerm_le inc κ K hK)
+      (summable_sp inc h (fun _ => True))
+  rw [← summable_nat_add_iff 1]
+  simpa [ccSeq_succ] using hnorm
+
+include h in
+theorem logSeries_smul_eq (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ κ x) {y : ℝ} (hy : |y| ≤ 1) :
+    logSeries inc (fun x => (y : ℂ) * K x) = ∑' m, ccSeq inc K m * (y : ℂ) ^ m := by
+  have hsy : Summable (fun m => ccSeq inc K m * (y : ℂ) ^ m) := by
+    refine Summable.of_norm (Summable.of_nonneg_of_le (fun _ => norm_nonneg _) (fun m => ?_)
+      (summable_ccSeq inc h K hK))
+    rw [norm_mul, norm_pow, Complex.norm_real, Real.norm_eq_abs]
+    exact mul_le_of_le_one_right (norm_nonneg _) (pow_le_one₀ (abs_nonneg _) hy)
+  rw [hsy.tsum_eq_zero_add]
+  simp only [ccSeq, logSeries, clTerm_smul]
+  simp only [Nat.add_one_ne_zero, ite_false, Nat.add_sub_cancel, pow_zero, mul_one, ite_true,
+    zero_add]
+  exact tsum_congr (fun n => mul_comm _ _)
+
+include h in
+theorem continuousOn_logSeries (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ κ x) :
+    ContinuousOn (fun y : ℝ => logSeries inc (fun x => (y : ℂ) * K x)) (Set.Icc 0 1) := by
+  refine (continuousOn_powSeries (ccSeq inc K) (summable_ccSeq inc h K hK)).congr (fun y hy => ?_)
+  exact logSeries_smul_eq inc h K hK (abs_le.mpr ⟨by linarith [hy.1], hy.2⟩)
+
+include h in
+theorem hasDerivAt_logSeries (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ κ x) {s : ℝ} (hs : |s| < 1) :
+    HasDerivAt (fun y : ℝ => logSeries inc (fun x => (y : ℂ) * K x))
+      (∑ Y, K Y * ∑' n, zN (blkc inc Y (fun x => (s : ℂ) * K x)) n) s := by
+  have hsum := summable_ccSeq inc h K hK
+  have hD := hasDerivAt_powSeries (ccSeq inc K) hsum hs
+  have hev : (fun y : ℝ => logSeries inc (fun x => (y : ℂ) * K x)) =ᶠ[nhds s]
+      (fun y : ℝ => ∑' m, ccSeq inc K m * (y : ℂ) ^ m) := by
+    have : {y : ℝ | |y| < 1} ∈ nhds s := (isOpen_lt continuous_abs continuous_const).mem_nhds hs
+    filter_upwards [this] with y hy using logSeries_smul_eq inc h K hK hy.le
+  refine (hD.congr_of_eventuallyEq hev).congr_deriv ?_
+  rw [tsum_deriv_shift (ccSeq inc K) hsum hs]
+  have hk : ∀ Y, Summable (fun n => K Y * zN (blkc inc Y (fun x => (s : ℂ) * K x)) n) := by
+    intro Y
+    have hKs : ∀ x, ‖(s : ℂ) * K x‖ ≤ κ x := fun x => by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+      calc |s| * ‖K x‖ ≤ 1 * ‖K x‖ := mul_le_mul_of_nonneg_right hs.le (norm_nonneg _)
+        _ ≤ κ x := by rw [one_mul]; exact hK x
+    refine Summable.mul_left _ (Summable.of_norm (Summable.of_nonneg_of_le (fun _ => norm_nonneg _)
+      (norm_zN_le inc _ hKs Y) (summable_zq inc h Y)))
+  have : ∀ n : ℕ, ((n : ℂ) + 1) * ccSeq inc K (n + 1) * (s : ℂ) ^ n =
+      ∑ Y, K Y * zN (blkc inc Y (fun x => (s : ℂ) * K x)) n := by
+    intro n
+    rw [ccSeq_succ, clTerm_eq_root, Finset.sum_mul]
+    refine Finset.sum_congr rfl (fun Y _ => ?_)
+    rw [zN_smul]; ring
+  simp_rw [this]
+  rw [Summable.tsum_finsetSum (fun Y _ => hk Y)]
+  refine Finset.sum_congr rfl (fun Y _ => ?_)
+  rw [tsum_mul_left]
+
+end LogDeriv
+
+section Main
+
+variable (h : KPCond inc κ a) (hrefl : ∀ x, inc x x)
+
+include h hrefl in
+theorem xi_eq_exp_aux : ∀ (N : ℕ) (K : P → ℂ), (∀ x, ‖K x‖ ≤ κ x) →
+    (Finset.univ.filter (fun x => K x ≠ 0)).card = N →
+      Xi inc K = Complex.exp (logSeries inc K) := by
+  intro N
+  induction N using Nat.strong_induction_on with
+  | _ N ih =>
+  intro K hK hN
+  set C : Finset (Finset P) := (Finset.univ : Finset (Finset P)).filter (Compat inc) with hC
+  set Ψ : ℝ → ℂ := fun s => Xi inc (fun x => (s : ℂ) * K x) with hΨ
+  set Φ : ℝ → ℂ := fun s => Complex.exp (logSeries inc (fun x => (s : ℂ) * K x)) with hΦ
+  have hKs : ∀ s : ℝ, |s| ≤ 1 → ∀ x, ‖(s : ℂ) * K x‖ ≤ κ x := fun s hs x => by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    calc |s| * ‖K x‖ ≤ 1 * ‖K x‖ := mul_le_mul_of_nonneg_right hs (norm_nonneg _)
+      _ ≤ κ x := by rw [one_mul]; exact hK x
+  have hdΨ : ∀ s : ℝ, HasDerivAt Ψ
+      (∑ Y, K Y * Xi inc (fun x => (s : ℂ) * Kc inc Y K x)) s := by
+    intro s
+    have hform : Ψ = fun s : ℝ => ∑ Γ ∈ C, (s : ℂ) ^ Γ.card * ∏ X ∈ Γ, K X :=
+      funext (fun s => Xi_smul inc K (s : ℂ))
+    rw [hform]
+    have := HasDerivAt.fun_sum (u := C) (x := s)
+      (A := fun (Γ : Finset P) (y : ℝ) => (y : ℂ) ^ Γ.card * ∏ X ∈ Γ, K X)
+      (A' := fun (Γ : Finset P) => (Γ.card : ℂ) * (s : ℂ) ^ (Γ.card - 1) * ∏ X ∈ Γ, K X)
+      (fun Γ _ => ((hasDerivAt_pow Γ.card (s : ℂ)).comp_ofReal).mul_const (∏ X ∈ Γ, K X))
+    rw [← Xi_deriv_identity inc hrefl K (s : ℂ)]
+    exact this
+  have hdΦ : ∀ s : ℝ, |s| < 1 → HasDerivAt Φ
+      (∑ Y, K Y * Xi inc (fun x => (s : ℂ) * Kc inc Y K x)) s := by
+    intro s hs
+    have hL := hasDerivAt_logSeries inc h K hK hs
+    have := hL.cexp
+    convert this using 1
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl (fun Y _ => ?_)
+    by_cases hKY : K Y = 0
+    · simp [hKY]
+    · rw [Q_exp inc h (fun x => (s : ℂ) * K x) (hKs s hs.le) Y, Kc_smul]
+      have hKc' : ∀ x, ‖(s : ℂ) * Kc inc Y K x‖ ≤ κ x := fun x => by
+        have := hKs s hs.le x
+        unfold Kc
+        split_ifs
+        · simpa using (le_trans (norm_nonneg _) (hK x))
+        · exact this
+      have hY : Y ∈ Finset.univ.filter (fun x => K x ≠ 0) := by simp [hKY]
+      have hsub : Finset.univ.filter (fun x => (s : ℂ) * Kc inc Y K x ≠ 0) ⊆
+          (Finset.univ.filter (fun x => K x ≠ 0)).erase Y := by
+        intro x hx
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and, ne_eq, mul_eq_zero, not_or] at hx
+        simp only [Finset.mem_erase, Finset.mem_filter, Finset.mem_univ, true_and]
+        refine ⟨?_, ?_⟩
+        · rintro rfl
+          exact hx.2 (by simp [Kc, lnk_refl inc hrefl x])
+        · intro hx0
+          exact hx.2 (by simp [Kc, hx0])
+      have hlt : (Finset.univ.filter (fun x => (s : ℂ) * Kc inc Y K x ≠ 0)).card < N := by
+        refine (Finset.card_le_card hsub).trans_lt ?_
+        rw [Finset.card_erase_of_mem hY, hN]
+        have : 0 < N := hN ▸ Finset.card_pos.mpr ⟨Y, hY⟩
+        omega
+      rw [ih _ hlt _ hKc' rfl, Complex.exp_sub]
+      have := Complex.exp_ne_zero (logSeries inc (fun x => (s : ℂ) * K x))
+      field_simp
+  have hΨ0 : Ψ 0 = 1 := by
+    simp only [hΨ, Xi_smul, Complex.ofReal_zero]
+    rw [Finset.sum_eq_single ∅]
+    · simp
+    · intro Γ _ hΓ
+      rw [zero_pow (Finset.card_ne_zero.mpr (Finset.nonempty_iff_ne_empty.mpr hΓ)), zero_mul]
+    · intro hmem
+      exact absurd (by simp [Compat]) hmem
+  have hΦ0 : Φ 0 = 1 := by
+    simp only [hΦ, logSeries, clTerm_smul, Complex.ofReal_zero]
+    simp
+  have hD : ∀ s ∈ Set.Ioo (-1 : ℝ) 1, Ψ s = Φ s := by
+    intro s hs
+    have hconst := IsOpen.is_const_of_deriv_eq_zero (f := fun y => Ψ y - Φ y) isOpen_Ioo
+      isPreconnected_Ioo
+      (fun y hy => ((hdΨ y).fun_sub (hdΦ y (abs_lt.mpr ⟨(Set.mem_Ioo.mp hy).1, (Set.mem_Ioo.mp hy).2⟩))).differentiableAt.differentiableWithinAt)
+      (fun y hy => by
+        have := (hdΨ y).fun_sub (hdΦ y (abs_lt.mpr ⟨(Set.mem_Ioo.mp hy).1, (Set.mem_Ioo.mp hy).2⟩))
+        rw [this.deriv]; simp)
+      (y := 0) hs (Set.mem_Ioo.mpr ⟨by norm_num, by norm_num⟩)
+    simp only [hΨ0, hΦ0, sub_self] at hconst
+    exact sub_eq_zero.mp hconst
+  have hEq : Set.EqOn Ψ Φ (Set.Icc 0 1) := by
+    refine Set.EqOn.of_subset_closure (s := Set.Ico 0 1) (fun y hy => ?_) ?_ ?_
+      Set.Ico_subset_Icc_self ?_
+    · exact hD y (Set.mem_Ioo.mpr ⟨by linarith [hy.1], hy.2⟩)
+    · exact (continuous_iff_continuousAt.mpr (fun y => (hdΨ y).continuousAt)).continuousOn
+    · exact Complex.continuous_exp.comp_continuousOn (continuousOn_logSeries inc h K hK)
+    · rw [closure_Ico (by norm_num)]
+  have := hEq (Set.mem_Icc.mpr ⟨zero_le_one, le_rfl⟩)
+  simpa [hΨ, hΦ] using this
+
+end Main
+
 end Balaban.Polymer
