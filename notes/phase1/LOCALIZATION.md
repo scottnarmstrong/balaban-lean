@@ -1,0 +1,500 @@
+# LOCALIZATION: the localization expansion of the background fields at $\lambda=\infty$ (I-4, I-5)
+
+Phase-1 document D-LOC. Author: analyst session (Sonnet), 2026-10-11. Mathematics on paper only; no Lean was
+written or run. Source for freezing the interfaces I-4 and I-5 and for writing their Lean proofs.
+
+**What was read.** P3 (`sources/BF02506385.pdf`, CMP 182, pp. 33–82): every page through its OCR text layer (noisy; formulas
+were cross-checked against `review/papers/P3-localization-I.md` and `notes/phase1/GREEN.md`); the page *images* of printed
+pp. 41, 44, 77 and 81 (PDF pages 9, 12, 45, 49), which carry (2.13)–(2.17), (2.22)–(2.25), Lemma 4.2, (4.41)–(4.43), (4.50)–(4.52)
+and Prop. 4.3, were read as images. Consumers: P5 (pp. 503–514), P6 (pp. 6–41), P7 (pp. 509–530), P9 (p. 506) through their
+typeset text layers (grep for every use of "[3]" and reading of the surrounding paragraphs; P6 §4 pp. 22–25 in full); P4 only
+through `notes/ERRATA.md` (ER-058, ER-059) and its review (pp. 677, 687, 696 not re-read). Independent exposition: D1 (Dimock I)
+§2.4–2.5 and §4.5 (Lemma 6, Lemmas 18–20; text layer). Project documents: `GREEN.md` (Rev. 2), `BACKGROUND.md` (v2),
+`LEMMA53-astra.md`, `POLYMER.md`, roadmap §3.3, §4.4, ERRATA rows ER-024/025/026/029/042–057/058/059/095/100/163/164/209.
+P2 was not re-read; everything about the variational problems is taken from `BACKGROUND.md`.
+
+**Status key.** *proved* = every step is written here and uses only landed Lean (names given), statements of GREEN/BACKGROUND
+marked ready, or standard facts; *cited* = taken from a named place; *sketched* = the inequalities are listed but not all
+steps are written. UNCERTAIN: marks a doubt. "P3 (2.16)" etc. are equation numbers of P3; "BG" = `BACKGROUND.md`, "GR" = `GREEN.md`.
+
+---
+
+## 0. Summary of decisions and results
+
+**The decision (GR Q2).** Option A is required: the decoupled interpolation $G_s$ of the Green's function must be built from
+a *walk (Schwarz) expansion* with cube-localized operators. Option B (no walk expansion; single and multi-block locality
+GR G-2(vi), (vi$'$), (vi$''$) with $m!$) cannot give what I-5 consumes. The reason (§2) is structural, not a matter of constants:
+the expansion consumes an analytic family $F(s)$ on a polydisc of radius $e^{\kappa_1}$, exactly local when $s$ vanishes on an
+arbitrary subfamily, and equal to the true function at $s=1$. Differences of the Green's function between two potentials,
+however sharp, give approximate locality of a fixed object, and the only way to turn them into an exact expansion is to replace
+data outside a domain by reference data, which leaves the analyticity domain of $\mathcal E$ (an $\varepsilon$-neighbourhood of the
+real small-field configurations). The exponent $\kappa-1$ of (H.5)/(4.31) (ER-053) is a *hypothesis* on $\mathcal E$ in I-5
+and is independent of the choice; the output exponents are $\kappa_0\le\frac13\kappa-1$ and $2\kappa$ exactly as in P3.
+The walk expansion is kept in the form of P3 (2.8) and D1 (§2.4, Lemma 6) with two simplifications: (i) one-sided Schwarz parametrix
+$G^*=\sum_z\chi_zG^{(z)}c_z$ with $\sum_z\chi_z=1$ (D1 (90)–(94)); (ii) the decoupling weights are multiplicative along the walk, which costs
+$M_1\ge c\,e^{N_0\kappa_1}$ (exponential in $\kappa_1$, as in D1 where $e^{\kappa_1}=M^{1/2}$) and removes the geometric lemma P3 (2.18)–(2.22) and, at
+$\lambda=\infty$, the 12-type walk of P3 (3.17) (the constraint is handled by an operator formula). The local inverses $G^{(z)}$ stay the *Neumann cube
+operators* of P3 (2.3): the cut must be local at once in the data, in the generating set and in the support, because the terms of the expansion have to be
+evaluated on configurations given near the final domain $Y$ only (§2.4). Only their *interior* bounds are used (D1 after (97)), so the Green's-function input
+becomes the statement NC of §3.1 (coercivity and $L^2$ decay of the bond-subset form, interior pointwise bounds at distance $\ge\frac12M_1\ell$ from the cut faces), and
+neither the reflection argument of GR 4.6 nor boundary regularity is needed. The simplifications are ours and are marked UNCERTAIN in §8 until reviewed.
+
+**I-4 (statements, one line each).**
+- *I-4a* (P3 Prop 2.1). For $|s_P|<e^{\kappa_1}$ the perturbed system (P-1), (P-2) of BG Prop 5.1, with $G$ replaced by $G_s$, has a
+  unique small solution $(\delta\phi(s),\delta\alpha(s))$, analytic in $(s,\text{data})$, equal to the true solution at $s=1$, bounded by
+  $K_3\delta_1$, exponentially close to it away from the decoupling cubes, and exactly local.
+- *I-4b* (Props 2.2, 2.3). The same for the background field $\phi_k(s),\alpha_k(s)$ of Thm 5.2 and for $\psi(\mathbb B_j,\mathbb B_k';s)$,
+  with the bounds (1.15)/(4.29)/(4.37) at $K_4$ and closeness $e^{-\gamma_wr_1M_1}$ on $X_0$ ($\gamma_w=\gamma_0/4$).
+- *I-4c* (Prop 3.1). The constrained covariance $C^{(k)}_x(s)=A_{k,x}+a_k^2A_{k,x}Q_k(G_{k,x,s}-\Pi_{k,x,s})Q_k^*A_{k,x}$, its square root
+  $C^{(k)1/2}(s)=\frac1\pi\int_0^\infty x^{-1/2}C_x^{(k)}(s)\,dx$ and the logarithm $\mathbb L(s)$ are analytic in $(s,\phi_0,\alpha_0)$, bounded by $B_5$, exactly local, and exponentially close to the $s=1$ objects on $X_0$.
+
+**I-5 (one line).** For $X\in\mathscr D_j$, $X\subset X_1\subset\Omega_{k+1}$, and $\mathcal E(X;\cdot)$ analytic on $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ with
+$|\mathcal E|\le Ee^{-(\kappa-1)d_j(X)}$: $\mathcal E(X;\psi^{(j)}_k(\psi^{(k)}(\theta)+\psi'))=\sum_{Y\in\mathscr D(\mathbb B_{k+1}),\,Y\supset X_1}\mathcal E(X,Y;\theta,\psi')$ with terms analytic on
+$\Xi^c_{k+1}(\mathbb B_{k+1}(Y);1,\varepsilon')\times\{|\psi'|<\delta_1\}$, depending on $(\theta,\psi')|_Y$ only, and $|\mathcal E(X,Y)|\le Ee^{-\kappa_0d_j(X)-2\kappa\tilde d_{k+1}(Y)}$; the simple variations
+(V2)–(V5) of §4.6 follow from the same three ingredients (abstract expansion AE, geometry GM, domain lemma DL).
+
+**Which proofs are complete.** Complete at paper level: AE (abstract interpolation–resummation), the counting lemma (GM3) (P3 (4.50)) and the exponent
+bookkeeping (GM4) (P3 (4.49)); DG (decoupled Green's operator) and I-4a, from the commutator Lemma 3.1 of BG, the landed `global_bound`, `prop48`, `global_g2iv`
+and the statement NC (below); I-4c from GR 4.5a/4.7(b$'$) and the $x$-variant. Complete modulo requirements on other documents: I-4b (R-B1: BG Thm 6.1 for
+non-solutions), I-4a in mode P (R-B2). Sketched: the tree estimate (GM2) (normalisation corrected, ER-049). Cited: (Ξ1)–(Ξ4), the definition of the spaces
+$\Xi^c_j$ (D-SF/BG, not fixed yet). **Not yet a proof:** NC, the interior bounds of the Neumann cube operator (new Green's-function input replacing GR G-3; it
+is a generalisation of landed local estimates, not landed).
+
+**Main risk.** (1) NC: the landed pointwise and Agmon modules are stated for the operator of a generating set, and the cut operator needs a bond-subset
+parameter (4,000–6,000 lines); the walk expansion is only as good as this input. (2) The domain lemma DL and the definition of the spaces $\Xi^c_j$ (defined by (4.25)–(4.28) from conditions on the
+minimiser, the scan is partly garbled, no project document has fixed them at $\lambda=\infty$). (3) The exponential size of $M_1$ (§5.3 checks the order of constants, no conflict found). (4) The cover at layer interfaces and near the wall (§1.2).
+
+**Questions.** Collected in §8 (five items; none for Roland).
+
+---
+
+## 1. The objects at $\lambda=\infty$
+
+### 1.1 Setting
+
+Units of the landed Lean (BG §1.1): fine torus $\mathbb T=(\mathbb Z/N_0L^k\mathbb Z)^d$ with $\eta=1$, spacing $\ell_j=L^j$, $\ell(x)=\ell_{n(x)}$ for $x$ in the
+layer $\Lambda_n=\Omega_n\setminus\Omega_{n+1}$; $d\ge3$, $L\ge3$, $N\ge2$. Operator $H_D(A)=-\Delta^D_{\Omega_1}+Q^*aQ+\nu+A$ on $\ell^2(\Omega_1;\mathbb C)$ (acting
+componentwise on $\mathbb C^N$-valued fields), $G_D(A)=H_D(A)^{-1}$; norms $|f|_\sigma=\sup\ell^\sigma|f|$, $\|u\|_*=|u|_0+|\partial u|_1$ (BG §1.1).
+The Green's function input is the single statement
+
+**(G)** (landed `Balaban.Multiscale.global_bound`, `global_g2iv`; GR G-2(iv)). There is $B_1(d,L,N)$ with $\|G_D(A)f\|_*+|\Delta^DG_D(A)f|_2\le B_1|f|_2$ and
+$|\partial G_D(A)f|_{(\theta),2-\theta}\le B_1\theta^{-1}|f|_2$, for every complex $A$ with $|A|_2\le\gamma_1$ (BG: $\gamma_1=\mathrm{coerciveConst}\,d/2$), admissible weights, mass
+$0\le\nu\le L^{-2k}$ and separation $\varrho\ge R_0$;
+
+and its blockwise exponential form **(G$_{\rm loc}$)** (landed `prop48`, `prop49`; GR G-2(ii)): for $f$ supported in the block $\Delta(y')$ and $x\in\Delta(y)$,
+$|u(x)|+\ell(x)|\partial u|+\ell(x)^2|\Delta^Du|\le B_0e^{-\gamma_0d(y,y')}\ell_{y'}^2\|f\|_\infty$, $u=G_D(A)f$, $d$ the path metric (GR 1.9, landed `pathDist`), and its $L^2$
+version G-2(i) (landed `green_G2i`). The ball-sum Lemma 4.4 of GR is landed as `sum_siteWeight_decay_le`.
+
+*Cube alignment (CA).* In the localization context (P3 (1.2), p. 34) every domain $\Omega_j$ ($j\le k+1$) is a union of cubes of the lattice $M_1\ell_j\mathbb Z^d$ ("$\pi_j$-cubes", side $M_1\ell_j$,
+$M_1=L^{m_1}$ a free parameter of this paper, P3 pp. 35–36, 68). The layer $\Lambda_j$ is then also a union of $\pi_j$-cubes, because $M_1\ell_{j+1}=LM_1\ell_j$.
+The renormalization-group size is $M=L^{m_0}M_1$ with $L^{m_0}\ge14d$ (P3 p. 81); it enters only through localization domains (§4). The
+separation is $\mathrm{dist}(\Omega_j^c,\Omega_{j+1})>RM\ell_j$ with $R\ge R_0(d,L)\ge4dL$; in units of $M_1\ell_j$ this is $\ge4dL\cdot(M/M_1)$, which is what the cover lemma below needs.
+
+### 1.2 The cover, the partition of unity and the cut commutators (P3 (2.2)–(2.7))
+
+*Centres.* $Z$ is the set of all $\pi_m$-cubes $P\subset\Lambda_m$, $1\le m\le k$ (P3 uses $\Lambda^{(m)+}_j$, an extra layer of cubes outside $\Omega_j$; it is not needed
+with the normalisation below). A centre $z\leftrightarrow P_z$ has scale $m(z)$ and centre point $c(z)$.
+
+*Partition of unity.* **Lemma Cov** (proved by the proof of BG Lemmas 5.3a, 5.3b with "block of layer $m$" replaced by "$\pi_m$-cube": all lengths are multiplied by $M_1$, and the
+separation hypothesis becomes the one just stated). Put $\tilde h_z(x)=\prod_\mu\beta((x_\mu-c_\mu(z))/(M_1\ell_{m(z)}))$ with the quadratic B-spline $\beta$ of BG §5.3, $D=\sum_z\tilde h_z$,
+$\chi_z=\tilde h_z/D$ on $\Omega_1$. Then, with $C_\chi=C_\chi(d,L)$ and $c_d=3^{d+1}$:
+(Cov1) $\chi_z\ge0$, $\sum_z\chi_z=1$ on $\Omega_1$;
+(Cov2) $\mathrm{supp}\,\chi_z\subset C_z$, the open cube of side $3M_1\ell_{m(z)}$ centred at $c(z)$; each $x\in\Omega_1$ lies in at most $c_d$ of the $C_z$ (BG 5.3b (h3));
+(Cov3) $\ell(x)|\Delta_e\chi_z(x)|\le C_\chi/M_1$ and $\ell(x)^2|\Delta\chi_z(x)|\le C_\chi/M_1$ for $x\in\Omega_1$ (BG 5.3b (h4), rescaled; the loss of a factor $L$ at layer interfaces, where a cube of
+layer $n\pm1$ is active at a site of layer $n$, is inside $C_\chi$);
+(Cov4) $\square_z$ denotes the concentric cube of side $5M_1\ell_{m(z)}$ (the *interaction cube*); $M_1\ge4L^2$ makes it contain the $(2L^2\ell_{m(z)}+1)$-neighbourhood of $C_z$, which covers the range of $K_z$ below
+and of the local fields $\phi_0,f_0$ of BG Lemma 5.3 (those depend on the data within $2L$ blocks, of side $\le L\ell_m$ in layers $\le m+1$).
+
+UNCERTAIN: BG 5.3a was proved with a one-site collar and the argument "rerouting through $C$" was found false for $d\ge4$ by `LEMMA53-astra.md`; the partition used here has no collar bumps (cubes cover $\Omega_1$ exactly)
+so the problematic case does not occur, but near the wall of $\Omega_1$ the function $D$ is only bounded below by $2^{-d}$ because every site lies in its own cube. The proof must be rechecked for sites
+whose neighbour lies outside $\Omega_1$; the convention is $\chi_z(x')=\chi_z(x)$ for the outside neighbour $x'$ of a wall site $x$, which gives no wall term in the commutator below.
+
+*Cut commutators.* Define $K_z:=\chi_zH-H\chi_z$ (an operator on functions on $\Omega_1$, independent of the potential $A$ because multiplication operators commute with $\chi_z$). By the discrete Leibniz rule (BG (3.1))
+$$K_zu=(\Delta\chi_z)u+\sum_e\Delta_e\chi_z\,\Delta_e\tilde u-[Q^*aQ,\chi_z]u,$$
+which is the operator $K$ of BG Lemma 3.1 with $\phi_0$ replaced by the scalar field $\chi_z$. Hence, for every $u$, **(K)**
+$$|K_zu|_2\le(1+2d)\,\frac{C_\chi}{M_1}\,\|u\|_*,\qquad K_zu=0\text{ outside }\{x:\ \text{the star or the block of }x\text{ meets }\mathrm{supp}\,\chi_z\ \text{in a non-constant way}\}\subset\square_z.$$
+(Proof: BG Lemma 3.1 uses only $|\partial\phi_0|_1\le\delta_0$, $|\Delta\phi_0|_2\le\delta_0$, here (Cov3) with $\delta_0=C_\chi/M_1$; for a field of $\mathbb C^N$ nothing changes.)
+
+*Decoupling parameters.* $\mathfrak P$ denotes the set of $\pi$-cubes (of any layer) that meet $\Omega_1$ and are not contained in $X_1$; a point $s=(s_P)_{P\in\mathfrak P}\in\mathbb C^{\mathfrak P}$ is a *decoupling vector*,
+$\mathcal P(\kappa_1)=\{|s_P|<e^{\kappa_1}\ \forall P\}$ (P3 (2.16), p. 41; $s_\square$ there). For a centre $z$ let $\mathcal Q(z)$ be the set of $\pi$-cubes meeting $\square_z$, $N_0(d,L)=\max_z|\mathcal Q(z)|$ (finite: at most $5^d$ cubes of the layer of $z$ or the coarser neighbour layer and at most $(5L)^d$ of the finer layer), and
+$$s_z:=\prod_{P\in\mathcal Q(z)\cap\mathfrak P}s_P\qquad(s_z=1\text{ if the product is empty}).$$
+This differs from P3 (2.16) in two respects. P3 multiplies once per *cube contained in the union $X_\omega$ of the walk*, we multiply once per walk step by the product over all parameter cubes *meeting* the interaction cube. Containment (P3) misses a $\pi_{n+1}$-cube that is only partially covered by a walk cube at a layer interface; with "meets" the statement "a term vanishes as soon as a parameter cube it can read data from has $s=0$" is exact. The factor per step is at most $e^{N_0\kappa_1}$ in modulus on $\mathcal P(\kappa_1)$.
+
+### 1.3 The interpolated Green's operator
+
+For a centre $z$ let $H_z(A)$ be the *Neumann cube operator* of P3 (2.3), D1 (79): on $\ell^2(\square_z\cap\Omega_1)$,
+$H_z(A)=-\Delta_{\square_z}+Q^*aQ|_{\square_z}+\nu+A|_{\square_z}$, where $\Delta_{\square_z}$ is the Laplacian of the Dirichlet form of $\Omega_1$ from which the bonds joining
+$\square_z\cap\Omega_1$ to $\Omega_1\setminus\square_z$ have been removed (the bonds to $\Omega_1^c$ stay: they are the Dirichlet wall). The cube $\square_z$ is a union of $\pi_{m(z)}$-cubes,
+hence of blocks of the layers $m-1,m,m+1$ (because $M_1\ell_m\in\ell_{m+1}\mathbb Z$), so $Q^*aQ$ splits blockwise. Put $G^{(z)}(A):=H_z(A)^{-1}$, extended by zero to $\Omega_1$,
+and $c_z=\mathbf 1_{\square_z}$ (multiplication). Define
+$$G^*_s(A)=\sum_zs_z\,\chi_zG^{(z)}(A)c_z,\qquad\mathcal K_s(A)=\sum_zs_z\,K_zG^{(z)}(A)c_z,\qquad G_s(A):=G^*_s(A)\,(1-\mathcal K_s(A))^{-1}.$$
+**Parametrix identity (proved).** At $s\equiv1$: $H_D(A)G^*_1(A)=1-\mathcal K_1(A)$. Indeed for $u=G^{(z)}c_zf$, $H_D(A)(\chi_zu)=\chi_zH_D(A)u-K_zu$ (definition of $K_z$), and at a point $x\in\mathrm{supp}\,\chi_z\subset C_z$
+all bonds at $x$ are either inside $\square_z$ or Dirichlet bonds, and the block of $x$ lies inside $\square_z$, so $(H_D(A)u)(x)=(H_z(A)u)(x)=(c_zf)(x)=f(x)$; hence
+$\chi_zH_D(A)u=\chi_zf$; sum over $z$ with (Cov1). Hence $G_1(A)=G_D(A)$ as soon as $1-\mathcal K_1$ is invertible (§3.1). Expanding the inverse,
+$$G_s(A)=\sum_{n\ge0}\ \sum_{z_0,\dots,z_n}\Big(\prod_is_{z_i}\Big)\chi_{z_0}G^{(z_0)}c_{z_0}K_{z_1}G^{(z_1)}c_{z_1}\cdots K_{z_n}G^{(z_n)}c_{z_n}$$
+(the *walk expansion*; it is P3 (2.8), D1 (94), one-sided). A term is non-zero only if $\square_{z_{i-1}}\cap\mathrm{supp}\,K_{z_i}\ne\emptyset$, so consecutive interaction cubes overlap
+and $\bigcup_i\square_{z_i}$ is connected; it depends on the potential $A$ and on the generating set $\mathbb B_k$ only through their restrictions to $\bigcup_i\square_{z_i}$ (because each $H_{z_i}$ does), and on the input only through $f|_{\square_{z_n}}$.
+
+### 1.4 What I-4 is about (the extended objects)
+
+All objects are for a generating set $\mathbb B_k$ with (CA), and for a pair $X_0\subset X_1$ of connected unions of $\pi$-cubes with the $r_0$-cube neighbourhood of $X_0$ inside $X_1$ ($r_0\ge r_*:=8$; P3 has $r_0\ge5$ with $\mathrm{dist}$ measured to $(X_1^c)^{\sim2}$, our cover range is larger, ER-051).
+1. $G_s(A)$ as above, and its $x$-variant $G_{k,x,s}(A)$ built from $H_{k,x}(A)=G_{k,x}(A)^{-1}$ (GR (1.7)) with the commutators $K^{x}_z=\chi_zH_{k,x}-H_{k,x}\chi_z$ (L$^2$ setting).
+2. For data $(\delta\Psi,\phi_0,\alpha_0,f_1)$ satisfying (P1)–(P4) of BG Prop 5.1: $\delta\alpha(s)$, $\delta\phi(s)=G_s(\alpha_0+\delta\alpha(s))(F_s-\delta\alpha(s)\phi_0)$ [I-4a].
+3. For the actual minimiser: $\phi_k(s)=\phi_0+\delta\phi(s)$, $\alpha_k(s)=\delta\alpha(s)$ ($\alpha_0\equiv0$ in BG Lemma 5.3), and $\psi(\mathbb B_j,\mathbb B'_k;s)=\mathrm{composeField}$ of BG (6.2) evaluated at $\phi_k(s)$ [I-4b]. For $s\ne1$ these satisfy neither $\phi\cdot\phi=1$ nor the Euler–Lagrange equation (P3 p. 57); only analyticity, bounds, closeness and locality are claimed.
+4. $C^{(k)}_x(s)$, $C^{(k)1/2}(s)$, $\mathbb L(s)$ [I-4c].
+
+### 1.5 Which P3 statements are consumed, and where
+
+| P3 statement | Consumer and place | Use |
+|---|---|---|
+| Prop 2.1, (2.54)–(2.56) | P6 p. 23 (4.2)–(4.3), p. 24 (4.7) for $\phi_{k+1}(s)$ feeding $\delta\phi_k(\psi';\phi_{k+1}(s),\alpha_{k+1}(s),s)$; P7 p. 509 Lemma 2.4 (proof "applied" with an extra factor $L^{(d+2)/2}$), p. 514 (2.68), p. 518 (constants), p. 530 (4.6) (box problem, decay (2.55), (2.56)); P7 p. 526 | bounds $K_3|\psi'|$ for $\delta\phi,\partial\delta\phi,\Delta\delta\phi,\delta\alpha$; decay away from $X_1^c$; analyticity in $\psi'$ for the Cauchy estimate P6 (4.4)–(4.6) |
+| Prop 2.2, (2.57)–(2.58) | P6 p. 23 (analytic $\phi_{k+1}(s),\alpha_{k+1}(s)$); P7 p. 518 | $K_4$ bounds; analytic dependence on $(\theta,h)$ |
+| Prop 2.3, (2.59)–(2.60), $\mathbb B_{k+1}$ extension p. 59 | P5 p. 505 (2.17)–(2.19) (pre-localisation $\psi^{(k)}(\Box;\theta)=\psi^{(k)}(\tilde\theta,0)$ with $(X_0,X_1)=(\Box,R_{k+1}(\Box))$ and the error $e^{-\frac14\gamma_0(LMR_k-2M_1)}$); P6 p. 6 | value at $s=0$ and its closeness to $s=1$ |
+| Sect. 3, Prop 3.1, (3.4)–(3.9), (3.22)–(3.24) | P4 p. 687 (the localization expansions "constructed in [3]"), p. 696 Props 2.1, 2.2 ($B_4$, $B_5$ of (3.20), (3.24) in the bound $N L^dB_4+1$ and $\kappa\to2\kappa-3-6\kappa_0$; ER-058, ER-059); P5 pp. 508–509 ($C^{(k)1/2}(\Box,s)$ at $s=0$, "Sect. 3 [3]"), pp. 510–511 (2.41) (the trace $D^{(k)}$ of the second operator in (3.22)); P6 p. 24 (4.7)–(4.9), p. 39 ($D^{(k)}(z)$), p. 41 | $C^{(k)1/2}(s)$, its bound $B_5$ and the logarithm |
+| (3.12), (3.16) walk expansion of $G_{k,x}$, $G^{(i)}$ grouped by domain | P9 p. 506 (3.24)–(3.25) ("localization expansions of $H_{i-1}$, $C^{(i-1)}$ constructed in [3]") | expansion of unit-lattice propagators over domains $X\supset\{x,x'\}$ (variation V3) |
+| (4.4)–(4.8) minimal generating sets $\mathbb B_k(X)$, $X_0,X_1$ | P5 p. 503 (2.10)–(2.11); P6 p. 23 (modified so that $X_1\subset\Omega_{k+1}$) | domains and generating sets |
+| (4.25)–(4.31), Lemma 4.1 | P4 p. 677 (H.4) (the strengthened (H.5): $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$), P6 pp. 27–29 | analyticity spaces and composition |
+| (4.41)–(4.52), Lemma 4.2, Prop 4.3 | P5 p. 514 (boundary terms); P6 pp. 24–25 (modified with $d_{k+1}$), 27, 29–32, 34 (Lemma 4.2 "with a slight modification", (4.38)), 39, 41; P7 p. 527 (3.7)-type terms | the localization expansion |
+
+P6 pp. 8, 11, 12, 24 cite "Proposition 4.1 [3]" for the procedure of the expansion; P3 has no Proposition 4.1 (P2 does). It is read as Prop. 4.3 (UNCERTAIN; new erratum N-8, §6).
+
+Not consumed: the $\lambda$-dependent items P3 (2.31)–(2.34) (moot at $\lambda=\infty$, ER-029), the Hölder part of (2.54) beyond one fixed exponent (only through P1 (3.107), GR C1), the constants $\gamma_2,c_6$ in the form printed.
+
+---
+
+## 2. Option A or Option B (GR Q2)
+
+### 2.1 What the expansion consumes
+
+The proof of P3 Prop 4.3 (pp. 77–81; (4.41)–(4.43), (4.47)) uses the following four properties of the composite function $F(s)=\mathcal E(X;\psi(\mathbb B_j(X),\mathbb B_k(X);\psi(\mathbb B_k(X),\mathbb B_{k+1};\theta,s)+\delta\psi(\mathbb B_k(X),\mathbb B_k;\psi',s)))$.
+(R1) $F$ is analytic on the polydisc $\{|s_P|\le e^{\kappa_1}\}$ and bounded there by $Ee^{-(\kappa-1)d_j(X)}$ (Lemma 4.2: the extended arguments stay inside the analyticity domain of $\mathcal E$ for *all* such $s$).
+(R2) $F(1)$ is the function to be expanded.
+(R3) *Exact locality:* if $s_P=0$ for all $P$ outside a subfamily $\mathcal C$, then $F$ depends on the data $(\theta,\psi')$ only through their restriction to the connected domain $Y(\mathcal C)\supset X_1$ generated by $\mathcal C$, and on $s$ only through the parameters inside it.
+(R4) The $s$-dependence of the fields on $X_0$ is exponentially small, $e^{-\gamma_0r_1M_1/4}$, so that the extended arguments differ from the unextended ones by less than the analyticity radius $\varepsilon_k$ of $\mathcal E$ (this is the term $2(d+2)K_4e^{-\gamma_0M_1}\varepsilon'$ in (4.38)).
+The radius $e^{\kappa_1}$ in (R1) is not a convenience. The sum over subfamilies $\mathcal C$ (4.43) has the entropy $\big((2L+1)^dM^d/M_1^d\big)^{|Y|}$ of choosing the $M_1$-cubes inside a domain $Y$ (the counting (4.50)), and it is paid by the factor $e^{-(\kappa_1-1)|\mathcal C|}$ that Cauchy's formula gives on the radius $e^{\kappa_1}$; this forces $\kappa_1\ge4d(2L+1)^d\kappa$ and $\kappa_1\ge4d\log((2L+1)M/M_1)+2$ (P3 p. 81).
+
+### 2.2 Why Option B cannot supply (R1)–(R4)
+
+Option B replaces G-3 by the locality statements G-2(vi) (one block: $\|\chi_y(G(\alpha)-G(\alpha'))\chi_{y'}\|\le B\ell\ell'e^{-\gamma_0'(d(y,Z)+d(y',Z)+d(y,y'))}$, landed as `green_sub_green_locality`), G-2(vi$'$) (the same for the constrained $\Pi$, landed as `constrained_locality_block`) and G-2(vi$''$) (mixed differences). These are estimates for *differences between two potentials of one fixed operator*. They give approximate locality of the unextended objects: $\phi_k(x)$ depends on the data at distance $D$ only up to $e^{-\gamma_0D}$. Three obstructions.
+
+*(a) No analytic family.* Locality estimates provide no extension in a complex parameter of radius $e^{\kappa_1}$. The natural complex parameter in Option B is the potential, $A\mapsto A+t\,\mathbf 1_Z(A'-A)$; the operator $H_D(A)$ is coercive only for $|A|_2<\gamma_1$ (GR G-1), so the radius in $t$ is $O(1)$, not $e^{\kappa_1}$. A radius $O(1)$ does not pay the entropy $A^{|Y|}$ of (4.50).
+*(b) Exactness through data replacement leaves the domain.* The only way to make a locality difference an *exact* local term is to replace the data outside a set $Y$ by reference data (Mayer-type difference expansion $\sum_C\delta_C$). Then the function of $\mathcal E$ is evaluated at a configuration that coincides with the true one inside $Y$ and with a reference configuration outside; at $\partial Y$ the two differ by $O(1)$, not by the $O(\delta)$ allowed between neighbours in the small-field domain (R1), (R2) of BG §1.3 and the spaces $\Xi^c_j$. So $\mathcal E$ is not even defined there, and there is no analyticity to estimate a mixed difference by Cauchy. The decoupling $s$ avoids this because it changes the *propagation* (the Green's function) and not the data: the configuration on $X_0$ changes by at most $e^{-\gamma_0r_1M_1/4}K_4\delta$ (R4).
+*(c) Exactness is needed downstream.* The terms $\mathcal E(X,Y;\theta,\psi')$ enter product measures over *disjoint* polymers (POLYMER.md §2.4, P6 (4.53)–(4.54), P5 (3.2)); an activity that depends on the field outside $Y$ by $e^{-D}$ is not an activity of $Y$.
+The factor $m!$ in G-2(vi$''$) is not the obstruction: since $\sum_{\sigma\in S_m}\prod_ie^{-\gamma d(Z_{\sigma i},Z_{\sigma(i+1)})}\le m\,c^{m-1}$ for cubes separated by at least $M_1$ (the orderings form a self-avoiding walk on the complete graph with kernel sum $c<2$), (vi$''$) can be sharpened to $c^m$ without factorial. This does not help with (a)–(c).
+
+### 2.3 Why the walk expansion gives (R1)–(R4)
+
+The decoupled operator $G_s$ is a rational function of $s$ (§1.3), analytic where $1-\mathcal K_s$ is invertible, which is the whole polydisc once $M_1\ge c\,e^{N_0\kappa_1}$ (DG1 below): each step carries the factor $s_z$ (modulus $\le e^{N_0\kappa_1}$) and the commutator $K_zG^{(z)}c_z$, whose norm is $O(M_1^{-1})$ by (K) and (NC). The locality (R3) is built into the support of each walk term. The closeness (R4) follows from the formula $G_s-G=[(G^*_s-G^*)+G(\mathcal K_s-\mathcal K)](1-\mathcal K_s)^{-1}$ (proved in §3.1): the first bracket vanishes at points of $X_0$ because no cube touching such a point carries a parameter, and the second is multiplied by the Green's function between $X_0$ and a point at distance $\ge r_1M_1$.
+
+### 2.4 Two simplifications of P3, and the point where P3 is kept
+
+(i) *One-sided parametrix $G^*=\sum_z\chi_zG^{(z)}c_z$, $\sum\chi_z=1$* (D1 (90)–(94) uses $\sum h_z^2=1$ and $h_zG(\tilde\square_z)h_z$): the identity $HG^*=1-\mathcal K$ is the same; no square-root partition is needed and the B-spline partition of BG §5.3 is reused.
+(ii) *Neumann cube operators are kept, with interior bounds only.* The cut must be local in three senses at once: in the data (a term depends on $A$ only on $\bigcup\square_{z_i}$), in the generating set (it depends on $\mathbb B_{k+1}$ only on $\bigcup\square_{z_i}$), and in the support. The second is not a luxury. The final terms $\mathcal E(X,Y;\theta,\psi')$ must be analytic on $\Xi^c_{k+1}(\mathbb B_{k+1}(Y);1,\varepsilon')$, a space of configurations given near $Y$ only, because the next step composes $\mathcal E$ with fields that are in the small-field domain only near $Y$ (and the large-field regions are elsewhere); P3 p. 79 states that for $Y_1\cap\mathbb B'_{k+1}=Y_1\cap\mathbb B_{k+1}$ the function (4.32) is unchanged, and P5 (2.10)–(2.11) builds its generating sets $\mathbb B_{k+1}(\Box^{\sim2})$ for this reason. A global Green's function of a potential cut to $\square_z$ (an earlier draft of this note used $G_D(\mathbf 1_{\square_z}A)$) is exact in the data and in the support but depends on the whole generating set, hence the terms would differ from those computed with $\mathbb B_{k+1}(Y)$ and the sum over $Y$ would not reproduce the target. What *can* be simplified is the boundary behaviour. The output cutoff $\chi_z$ and the commutator $K_z$ live in the 3-cube $C_z$ and its $L\ell$-neighbourhood, at distance $\ge\frac12M_1\ell_m$ from the cut faces of $\square_z$; D1 remarks after (97) that "only interior derivatives of $G(\tilde\square_z)$ appear". So the Green's-function input is the *interior* statement NC of §3.1: coercivity and $L^2$ Agmon decay of the bond-subset form (form-level, unchanged from GR G-1(a), G-2(i), since cut bonds only remove non-negative terms and the cube is block-aligned), and sup/gradient/Laplacian/Hölder bounds at points of the core region. These follow from the landed interior machinery (`lemma_loc_a`, `lemma_loc_b`, `lemma_loc_c`, `lemmaP`: statements about any lattice function $u$ with $-\Delta u=g$ on a ball), without the reflection argument of GR 4.6 and without boundary regularity (Lipschitz bounds up to the Neumann face).
+(iii) *Weights multiplicative along the walk* ($\prod_is_{z_i}$, P3 has $\prod_{\square\subset X_\omega}s_\square$): the series is then a Neumann series of the single operator $\mathcal K_s$, so convergence, analyticity, weighted bounds and all difference estimates are operator-norm statements (no counting of walks, no path decomposition P3 (2.18)–(2.22), no condition $M\ge2(7L)^d\kappa_1/\gamma_0$ of the form "linear in $\kappa_1$"). Cost: the weights are not shared when a walk returns to a cube, so $M_1\ge c\,e^{N_0\kappa_1}$ is required (exponential in $\kappa_1$). D1 uses the same regime: $|s_\square|\le M^{1/2}$, i.e. $e^{\kappa_1}=M^{1/2}$ (D1 p. 13 and Lemma 19, p. 30). The roadmap's order of constants (§4.4: "$\kappa$ before $M$, $M$ exponentially large in $L\kappa$", Dimock; E6 Thm 3: $M\ge M(\kappa)$) already allows this; §5.3 checks that nothing in P3, P5–P7 bounds $M_1$ from above.
+
+### 2.5 Consequences for GREEN.md
+
+G-3 (Option A of GR §3) is replaced by the interior statement NC of §3.1 (the Option A statement minus the pointwise bounds near the Neumann faces, minus the convergence of the walk series, which is now DG1 proved from NC and (K), and minus the 12-type walk). G-2(vi$''$) is not needed by I-4/I-5; G-2(vi$'$) is not needed by I-4c either (the covariance is *defined* by the formula with $\Pi_s$, so no locality of a unit-lattice inverse is used; G-4 is not used by I-4/I-5). They remain useful for P4 (2.50)/(5.17) and P9 (kernel decay of $C^{(k)}$, translation-invariant case). The size entry "G-3: 3,000–5,000 lines" of GR §5 becomes the line items of §7 below (NC: about 4,000–6,000 lines for generalising the landed coercivity, Agmon and pointwise modules to a bond-subset operator; cover, commutator, block algebra and DG: about 3,500 lines).
+
+---
+
+## 3. I-4: the decoupled background fields and the covariance
+
+Throughout, $\kappa_1\ge1$ is fixed first, $\gamma_w:=\gamma_0/4$ (with $\gamma_0$ the decay rate of (G$_{\rm loc}$), (NC2), (NC3)), $W_\gamma$ is the class of weights $w:\Omega_1\to[1,\infty)$ with $w(x)\le w(x')e^{\gamma d(x,x')}$ and $|f|_{2,w}=\sup w\ell^2|f|$. All constants "$c(d,L,N)$" below never depend on $\kappa_1$, $M_1$, $k$, the volume or the generating set unless a $\kappa_1$ is displayed.
+
+### 3.1 Theorem DG (the decoupled Green's operator)
+
+**Statement NC (interior bounds of the Neumann cube operator; the Green's-function input of DG; a new requirement on GREEN, replacing G-3).** Let $z$ be a centre, $m=m(z)$, $\square=\square_z$ (side $5M_1\ell_m$), $C^+$ the concentric cube of side $4M_1\ell_m$ (so $\mathrm{dist}(C^+,\text{cut faces})\ge\frac12M_1\ell_m$), $M_1\ge4L^2$, $A$ with $|A|\le\gamma_1\ell^{-2}$ on $\square\cap\Omega_1$, admissible $a$, $0\le\nu\le L^{-2k}$, separation $\varrho\ge R_0$. There are $B_0,\gamma_0$ (depending on $d,L,N$ only) with:
+(NC1) $\mathrm{Re}\langle u,H_z(A)u\rangle\ge\frac12\|\partial\tilde u\|^2_{\square}+\frac14\|\ell^{-1}u\|^2$; in particular $H_z(A)$ is invertible. (Form-level: the proof of GR G-1(a), landed as `multiscale_coercive_sharp`, goes through, since the cut removes non-negative bond terms and the cube is block-aligned, so every block Poincaré inequality is intact.)
+(NC2) ($L^2$ block decay) for $f$ supported in $\Delta(y')\subset\square$ and $u=H_z(A)^{-1}f$: $\ell_y\|\chi_{\Delta(y)}\partial u\|+\|\chi_{\Delta(y)}u\|\le B_0e^{-\gamma_0d(y,y')}\ell_{y'}^2\|f\|$. (The Agmon argument of GR 4.2 is bond-by-bond, so it holds for the bond-subset form; the path metric of $\Omega_1$ is at most the metric of the cut graph, so the bound is with the metric $d$ of $\Omega_1$.)
+(NC3) (interior pointwise bounds) in addition, $x\in\Delta(y)\subset C^+$, $f$ supported in $\Delta(y')$ and bounded: $|u(x)|+\ell|\partial u(x)|+\ell^2|\Delta^Du(x)|\le B_0e^{-\gamma_0d(y,y')}\ell_{y'}^2\|f\|_\infty$ and the Hölder bound of G-2(iii) for one fixed exponent. (Landed `prop48`, `prop49` prove this for the global operator; the proofs only use the equation in a ball around $x$ together with the $L^2$ decay of (NC2), so they extend verbatim; the ball of radius $\sim\ell(x)$ used there lies in $\square$.)
+(NC4) $A\mapsto H_z(A)^{-1}$ is rational, hence analytic on $\{|A|_2<\gamma_1\}$ with (NC1)–(NC3) uniform.
+Status: statement and plan; not landed (the landed modules are stated for `dirichletOperator G a ν α` of a `GeneratingSet`; a bond-subset parameter must be added, §7).
+
+**Weighted form of (NC3) (proved).** For $w\in W_\gamma$, $\gamma\le\gamma_w$, $f$ supported in $\square$ with $|f|_{2,w}<\infty$ and $u=H_z(A)^{-1}f$: $\sup_{C^+}w\,(|u|+\ell|\partial u|+\ell^2|\Delta^Du|)\le B_w|f|_{2,w}$ with $B_w=B_0\,c_1(d,\gamma_0-\gamma_w)\,e^{\gamma_wdL}$ (split $f=\sum_{y'}f\chi_{\Delta(y')}$, use (NC3) and $w(x)\le w(y')e^{\gamma d(x,y')}$, then Lemma 4.4 for $\sum_{y'}e^{-(\gamma_0-\gamma)d(x,y')}$; the factor $e^{\gamma dL}$ accounts for the variation of $w$ inside a block).
+
+**Theorem DG.** There are $c_*,B_G$ (depending on $d,L,N$) such that for $M_1\ge M_*:=\max(4L^2,c_*e^{N_0\kappa_1})$, every cube-aligned generating set with $\varrho\ge R_0$, every admissible $a,\nu$, every $A$ with $|A|_2\le\gamma_1$, every $s$ with $|s_P|\le e^{\kappa_1}$:
+
+**(DG1)** $\|\mathcal K_s(A)\|\le\frac14$ on $(\{f\},|\cdot|_{2,w})$ for every $w\in W_{\gamma_w}$ (in particular $w\equiv1$); hence $\|\mathcal K_s\|\le\frac12$ on $|s_P|\le2^{1/N_0}e^{\kappa_1}$, $G_s(A)$ is defined, and $G_1(A)=G_D(A)$.
+**(DG2)** $\|G_s(A)f\|_*+|\Delta^DG_s(A)f|_2+\theta|\partial G_s(A)f|_{(\theta),2-\theta}\le B_Ge^{N_0\kappa_1}|f|_2$, and the same with weights: $\sup w(\dots)\le B_Ge^{N_0\kappa_1}|f|_{2,w}$.
+**(DG3)** (blockwise decay) for $f$ supported in $\Delta(y')$, $x\in\Delta(y)$: $|G_sf(x)|+\ell|\partial G_sf|+\ell^2|\Delta^DG_sf|\le B_Ge^{N_0\kappa_1}e^{-\gamma_wd(y,y')}\ell_{y'}^2\|f\|_\infty$.
+**(DG4)** $(s,A)\mapsto G_s(A)f$ is analytic on $\{|s_P|<2^{1/N_0}e^{\kappa_1}\}\times\{|A|_2<\gamma_1\}$ with values in the four-norm space, and $\|(G_s(A)-G_s(A'))f\|\le4B_Ge^{N_0\kappa_1}\gamma_1^{-1}|A-A'|_2|f|_2$ for $|A|_2,|A'|_2\le\gamma_1/8$.
+**(DG5)** (locality) Let $\mathcal R=\{P:s_P=0\}$, $Z_{\mathcal R}=\{z:\mathcal Q(z)\cap\mathcal R=\emptyset\}$ and $Y(\mathcal R)=\bigcup_{z\in Z_{\mathcal R}}\square_z$ (a union of blocks of all layers involved, because $\square_z$ is a union of $\pi_{m(z)}$-cubes and $M_1\ell_m\in\ell_{m+1}\mathbb Z$). Then $G_s(A)f=0$ outside $Y(\mathcal R)$, and for each nearest-neighbour component $Y'$ of $Y(\mathcal R)$: $\chi_{Y'}G_s(A)f$ depends only on $f|_{Y'}$, $A|_{Y'}$ and $s$.
+**(DG6)** (closeness) Let $\mathcal W=\bigcup\{\square_z:\mathcal Q(z)\cap\mathfrak P\neq\emptyset\}$ (the region where some parameter is visible). For all $x\in\Omega_1$: $\big(|(G_s-G_1)f|+\ell|\partial(G_s-G_1)f|+\ell^2|\Delta^D(G_s-G_1)f|\big)(x)\le B_Ge^{N_0\kappa_1}e^{-\gamma_wd(x,\mathcal W)}|f|_2$.
+**(DG7)** The $x$-variant $G_{k,x,s}(A)$ (cube operators $H_{k,x,z}(A)$ built from $H_{k,x}$ of GR (1.7) by the same cut, commutators $K_z^x=\chi_zH_{k,x}-H_{k,x}\chi_z$, $A$ with $|A|\le\frac1{12}a_{k+1}L^{-2}$ on $\Omega_{k+1}$) satisfies (DG1)–(DG6) in the block-$L^2$ form (norm $\sup_y\|\chi_y\cdot\|_{L^2}$ with weights), uniformly in $x\ge0$; constants depend also on $L$. Its Green's-function input is (NC1), (NC2) for the $x$-cube operators (the $L^2$ part of GR G-2(vii); landed for the global operator as `green_G2i_x`, `xVariant_reduction`).
+
+*Proof of (DG1).* Put $u_z=G^{(z)}(A)c_zf$. By the weighted (NC3) and $\mathrm{supp}\,K_z\subset C^+$ (by (Cov4), the $(L\ell_m+1)$-neighbourhood of $C_z$ lies in $C^+$ once $M_1\ge2L+2$), $\|wu_z\|_{*,C^+}\le B_w|f|_{2,w}$. By (K) (BG Lemma 3.1 with $\phi_0=\chi_z$) and since $w$ varies by at most $e^{\gamma_w\rho_0}$ over the stencil and block of a point ($\rho_0=dL$), $|wK_zu_z|_2\le(1+2d)C_\chi e^{\gamma_w\rho_0}M_1^{-1}B_w|f|_{2,w}$. A point lies in at most $c_d'=3\cdot5^d$ interaction cubes (cubes of the three layers $n-1,n,n+1$ active at a site of layer $n$, at most $5^d$ per layer); $|s_z|\le e^{N_0\kappa_1}$. Hence $\|\mathcal K_s\|\le c_d'(1+2d)C_\chi e^{\gamma_w\rho_0}B_w\,e^{N_0\kappa_1}/M_1\le\frac14$ for $M_1\ge c_*e^{N_0\kappa_1}$, $c_*:=4c_d'(1+2d)C_\chi e^{\gamma_w\rho_0}B_w$. The identity $G_1=G_D$ is the parametrix identity of §1.3: $G^*_1=G_D(1-\mathcal K_1)$ ($H_D(A)$ is invertible by GR G-1(a)). $\square$
+
+*Proof of (DG2), (DG3).* With $g=(1-\mathcal K_s)^{-1}f$, $|g|_{2,w}\le\frac43|f|_{2,w}$, and $G_sf=\sum_zs_z\chi_zG^{(z)}c_zg$; at most $c_d$ summands are non-zero at a point (and the point lies in $C_z\subset C^+$); for each, (NC3) applied to $c_zg$ and the Leibniz rule for $\chi_zu$ (BG (3.1)) with (Cov3) give $\|\chi_zu\|_*+|\Delta^D(\chi_zu)|_2+\text{H\"older}\le(1+3C_\chi)B_1'|g|_2$ ($B_1'$ the sum of (NC3) over blocks by Lemma 4.4; the Hölder seminorm of $\partial(\chi_zu)$ uses $|\partial\chi_z|_{(\theta)}\le C_\chi\ell^{-2+\theta}$, a consequence of the bounded second differences). (DG3) is the weighted form of (DG2) with $w=e^{\gamma_wd(\cdot,y')}$, for which $|f|_{2,w}\le e^{\gamma_wdL}\ell_{y'}^2\|f\|_\infty$. $\square$
+
+*Proof of (DG4).* $G_s(A)f=\sum_zs_z\chi_zH_z(A)^{-1}c_z\,(1-\mathcal K_s(A))^{-1}f$: finite sums, products and the inverse of an operator of norm $<1$ of maps analytic in $(s,A)$; analyticity of $A\mapsto H_z(A)^{-1}$ is Cramer's rule (NC4) (the global analogue is the landed `analyticOnNhd_green_apply`). The bound (DG2) holds on the whole polydisc $|A|_2<\gamma_1$ (the proof of (DG1) used $|A|_2<\gamma_1$ only through (NC1)–(NC3)). The Lipschitz bound is Cauchy's estimate along the line $t\mapsto A'+t(A-A')$ (landed `norm_sub_le_of_ball`): the function is analytic for $|t|<R_0=(\gamma_1-|A'|_2)/|A-A'|_2\ge2$ and bounded by $B_Ge^{N_0\kappa_1}|f|_2$, so its derivative on $|t|\le1$ is $\le2B/R_0\le4B|A-A'|_2/\gamma_1$. $\square$
+
+*Proof of (DG5).* A walk term is non-zero only if $z_0,\dots,z_n$ all have $s_{z_i}\ne0$, i.e. $z_i\in Z_{\mathcal R}$, and consecutive interaction cubes overlap (§1.3). So its support (output points in $\mathrm{supp}\,\chi_{z_0}$, input points in $\square_{z_n}$) lies in the connected set $\bigcup_i\square_{z_i}\subset Y(\mathcal R)$; the kernel vanishes outside, and a connected set lies in one component. The dependence on $A$ is through $\tilde A_{z_i}$, i.e. through $A|_{\square_{z_i}}$. $\square$
+
+*Proof of (DG6).* Algebra: from $G^*=G_D(1-\mathcal K)$ (at $s=1$) one gets $G_s-G_D=[G^*_s-G_D(1-\mathcal K_s)](1-\mathcal K_s)^{-1}=[(G^*_s-G^*_1)+G_D(\mathcal K_s-\mathcal K_1)](1-\mathcal K_s)^{-1}$. In $(G^*_s-G^*_1)g=\sum_z(s_z-1)\chi_zG^{(z)}c_zg$ only centres $z$ with $\mathcal Q(z)\cap\mathfrak P\ne\emptyset$ contribute, and their output points lie in $C_z\subset\mathcal W$: at $x\notin\mathcal W$ this term vanishes, and for $x\in\mathcal W$ the claim is the trivial bound by (DG2) (here $d(x,\mathcal W)=0$). In the second term $h=(\mathcal K_s-\mathcal K_1)g=\sum_z(s_z-1)K_zG^{(z)}c_zg$ is supported in $\mathcal W$ with $|h|_2\le(\|\mathcal K_s\|+\|\mathcal K_1\|)|g|_2\le\frac12|g|_2\le\frac23|f|_2$ (DG1), and for $x\notin\mathcal W$, by (G$_{\rm loc}$) and Lemma 4.4, $|G_Dh(x)|\le B_0c_1(d,\gamma_0/2)e^{-\frac12\gamma_0d(x,\mathcal W)}|h|_2$; the same for $\partial,\Delta^D$. Rate $\frac12\gamma_0\ge\gamma_w$. $\square$
+
+*Proof of (DG7).* Verbatim, with $L^2$ block norms: the commutator $K^x_z$ has the same form as $K_z$ with the block operator $a_kQ_k^*[\frac{x}{a_k+x}(1-Q^*Q)+\frac{aL^{-2}+x}{a_k+aL^{-2}+x}Q^*Q]Q_k$ in place of $Q^*aQ$; its commutator with $\chi_z$ is bounded in the same way by $\mathrm{osc}\,\chi_z\cdot\|u\|\le C_\chi M_1^{-1}\|u\|$ uniformly in $x$ because the coefficients are $\le a_k\le2$. The local inverses satisfy (NC1), (NC2) for the $x$-variant (form-level, GR G-1(a$'$), 4.2; uniform in $x\ge0$). $\square$
+
+**Remark (what DG replaces).** P3 (2.5)–(2.23): the convergence (2.9)–(2.11), the counting of walks $2^{d+1}(2L+1)^{nd}$, the path decomposition (2.18)–(2.22) and the bound (2.23). Our (DG2), (DG6) are the analogues of (2.23) and (2.55). The factor $e^{N_0\kappa_1}$ replaces $e^{(7L)^d\kappa_1}$; the conditions $8dB_0c_1(2L+1)^dM^{-1/2}\le1$ and $M\ge2(7L)^d\kappa_1/\gamma_0$ (ER-050) are replaced by the single condition $M_1\ge M_*(\kappa_1)$.
+
+### 3.2 Theorem I-4a (P3 Prop 2.1 at $\lambda=\infty$)
+
+*Data and hypotheses.* As in BG Prop 5.1: a lifted block-spin field $\delta\Psi$ with $|\delta\Psi|\le\delta_1$ on $\Omega_1\cup C$; $\phi_0$ with `IsSmoothField` $\delta_0$ and $|\phi_0|\le\frac32$; $\alpha_0$ with $|\alpha_0|_2\le\delta_0$; $f_1$ with $|f_1|_2\le\delta_1$. Two *modes* for the constraint. **Mode U (unit):** $(\phi_0+\delta\phi)\cdot(\phi_0+\delta\phi)=1$, with the defect hypothesis (P4) $g=\phi_0\cdot\phi_0-1$, $|g|_0+|\Delta\tilde g|_2\le\delta_1$ (BG Prop 5.1; used for the minimiser, I-4b). **Mode P (preserving):** $(\phi_0+\delta\phi)\cdot(\phi_0+\delta\phi)=\phi_0\cdot\phi_0$, no hypothesis on $g$. Mode P is the system (3.20) of P2 at $\lambda=\infty$ (its second equation $\phi_0\cdot\delta\phi+\frac12\delta\phi\cdot\delta\phi-\frac1\lambda\delta\alpha=\frac1\lambda\alpha_1$ has the zero solution for zero data whatever $\phi_0,\alpha_0$ are); it is the mode needed for the fluctuation problem (4.17), (4.18) of P3, where $\phi_0=\phi_{k+1}(s)$ is an *extended* field with $\phi_0\cdot\phi_0\ne1$ and one needs $\delta\phi(\psi'=0,s)=0$ and bounds in terms of $\delta_1=|\psi'|$ alone (P3 (4.20)). At $s=1$ the two modes agree when $g=0$. Put $H_0=H_D(\alpha_0)$ and let $K,R$ be the commutator and the quadratic remainder of BG Lemmas 3.1, 3.2 (relative to $H_0,\phi_0$).
+*Definition of the decoupled system.* For $|\xi|_2\le\rho$ and $A=\alpha_0+\xi$:
+$$F_s:=Q^*a\delta\Psi+\mathfrak b(\delta\Psi)+f_1,\qquad F(\xi)=F_s-\xi\phi_0,\qquad\delta\phi(\xi,s)=G_s(A)F(\xi),$$
+$$\mathcal N_s(\xi)=(\phi_0+\delta\phi(\xi,s))\cdot F_s-K\delta\phi(\xi,s)+\tfrac12R(\delta\phi(\xi,s))+\iota_U\tfrac12H_0\tilde g\qquad(\iota_U=1\text{ in mode U},\ 0\text{ in mode P}).$$
+At $s=1$ this is the map $\mathcal N$ of BG (5.2) (in mode P: the same derivation with $u=2\phi_0\cdot\delta\phi+\delta\phi\cdot\delta\phi$, i.e. without $g$); for $s\ne1$ it is a *definition* (the identity $H_0\delta\phi=F_s-\delta\alpha(\phi_0+\delta\phi)$ used to derive (5.2) is not available for $G_s$, and is not needed).
+
+**Theorem I-4a.** Let $\kappa_1\ge1$. There are $M_*,c_6,\delta_*,K_3$ (functions of $d,L,N,\kappa_1$) such that for $M_1\ge M_*$, $r_0\ge r_*$, data as above with $\delta_0,\delta_1\le\delta_*$ and $C_N\delta_1\le\frac12c_6$:
+(a) for every $s\in\mathcal P(\kappa_1)$ the equation $\mathcal N_s(\xi)=\xi$ has exactly one solution $\delta\alpha(s)$ with $|\xi|_2<c_6$; put $\delta\phi(s)=\delta\phi(\delta\alpha(s),s)$;
+(b) $(s,\text{data})\mapsto(\delta\phi(s),\delta\alpha(s))$ is analytic on $\mathcal P(\kappa_1)\times$ (open set of data), and at $s=1$ it is the solution of (P-1), (P-2) of BG Prop 5.1;
+(c) $|\delta\phi(s)|_0+|\partial\delta\phi(s)|_1+|\Delta^D\delta\phi(s)|_2+|\delta\alpha(s)|_2\le K_3\delta_1$ (in mode P: $\delta\phi(s)=0$, $\delta\alpha(s)=0$ if $\delta\Psi=0$, $f_1=0$), and for the fixed exponent $\theta=\alpha_1$ also $|\partial\delta\phi(s)|_{(\theta),2-\theta}\le C_\theta K_3\delta_1$;
+(d) with $\mathcal W$ of (DG6): $e^{\gamma_wd(x,\mathcal W)}$ times each of the quantities in (c) evaluated for $\delta\phi(s)-\delta\phi(1)$ (resp. $\delta\alpha(s)-\delta\alpha(1)$) at $x$ is $\le K_3\delta_1$; in particular on $X_0$ the difference is $\le e^{-\gamma_wr_1M_1}K_3\delta_1$, $r_1:=r_0-6$;
+(e) (locality) with $\mathcal R=\{s_P=0\}$, $Y(\mathcal R)$ as in (DG5) and the *core* $\mathrm{Core}(\mathcal R)=\bigcup_{z\in Z_{\mathcal R}}C_z$: $\delta\phi(s)=0$ outside $\mathrm{Core}(\mathcal R)$, and for every nearest-neighbour component $Y'$ of $Y(\mathcal R)$ the restrictions of $\delta\phi(s)$ and $\delta\alpha(s)$ to $Y'\cap\mathrm{Core}(\mathcal R)$ depend on $s$ and on $(\delta\Psi,\phi_0,\alpha_0,f_1)|_{Y'}$ only. (Outside the core $\delta\alpha(s)$ is a local function of the data at the point itself and is not used by any consumer.)
+
+*Proof.* **Step 1 (constants).** Let $B_s=B_Ge^{N_0\kappa_1}$, $L_s=4B_s/\gamma_1$, $\mathcal C_F=3+2dL^2$ (BG 5.1), $\rho=c_6\le\gamma_1/8-\delta_0$. By (DG2), $\|\delta\phi(\xi,s)\|_*+|\Delta^D\delta\phi|_2\le B_s(\mathcal C_F\delta_1+\frac32|\xi|_2)$, and by (DG4)
+$\|\delta\phi(\xi,s)-\delta\phi(\xi',s)\|_*\le[\frac32B_s+L_s(\mathcal C_F\delta_1+\frac32\rho)]\,|\xi-\xi'|_2=:\Lambda_s|\xi-\xi'|_2$ (replacing the resolvent identity of BG Lemma 3.3 by Cauchy).
+**Step 2 (contraction).** BG Lemmas 3.1, 3.2 give $|K\delta\phi|_2\le(1+2d)\delta_0\|\delta\phi\|_*$ and $|R(\delta\phi)-R(\delta\phi')|_2\le(8+2d)\|\delta\phi-\delta\phi'\|_*(\|\delta\phi\|_*+\|\delta\phi'\|_*)$; $|H_0\tilde g|_2\le4\delta_1$. As in BG (iii): $|\mathcal N_s(0)|_2\le C_N\delta_1$ with $C_N=C_N(B_s,d)$ (in mode P, $\mathcal N_s(0)=0$ for zero data) and $\mathrm{Lip}(\mathcal N_s)\le2B_s\mathcal C_F\delta_1+(1+2d)\delta_0\Lambda_s+4(4+d)\Lambda_s(B_s\mathcal C_F\delta_1+\frac32B_s\rho)\le\frac12$ once $\delta_*$ and $c_6$ are small in the order: $c_6$ (against $B_s,L_s$), then $\delta_*$. Self-map of the ball as before. Banach gives (a).
+**Step 3 (analyticity, $s=1$, bounds).** The map $T(\xi;(s,\text{data}))=\mathcal N_s(\xi)$ is analytic on a neighbourhood of the closed ball (DG4) and a $\frac12$-contraction; the landed `Balaban.Analysis.exists_analytic_fixedPoint` gives (b), analytic in the data and in $s$ jointly. At $s=1$, $G_1=G_D$ (DG1), so $\mathcal N_1=\mathcal N$ and uniqueness in the ball identifies the solution with that of BG Prop 5.1 (this also shows that BG's solution lies in the ball). Bounds (c): $|\delta\alpha(s)|_2\le2|\mathcal N_s(0)|_2\le2C_N\delta_1$, $|F|_2\le(\mathcal C_F+3C_N)\delta_1$, hence all four norms of $\delta\phi(s)$ are $\le B_s(\mathcal C_F+3C_N)\delta_1$; take $K_3=2C_N+B_s(\mathcal C_F+3C_N)$. The Hölder bound is (DG2).
+**Step 4 (closeness).** Take $w=e^{\gamma_wd(\cdot,\mathcal W)}\in W_{\gamma_w}$. All estimates of Steps 1–2 hold in the weighted norms with constants $B_w$-modified (weighted (DG1), (DG2), and Cauchy in $A$ for the weighted operator norm), so $\mathcal N_s$ is also a $\frac12$-contraction in $|\cdot|_{2,w}$ after decreasing $c_6,\delta_*$. Write $\xi_s=\delta\alpha(s)$:
+$\xi_s-\xi_1=[\mathcal N_s(\xi_s)-\mathcal N_s(\xi_1)]+[\mathcal N_s(\xi_1)-\mathcal N_1(\xi_1)]$, so $|\xi_s-\xi_1|_{2,w}\le2|\mathcal N_s(\xi_1)-\mathcal N_1(\xi_1)|_{2,w}$. With $v=\delta\phi(\xi_1,s)-\delta\phi(\xi_1,1)=(G_s-G_1)(\alpha_0+\xi_1)F(\xi_1)$, (DG6) gives $\sup w(\ldots)(v)\le B_s|F|_2\le B_s(\mathcal C_F+3C_N)\delta_1$ and $\mathcal N_s-\mathcal N_1$ consists of $v\cdot F_s$, $Kv$, $\frac12(R(\delta\phi_s)-R(\delta\phi_1))$, all $\le C\delta_1\cdot\delta_1$ or $C\delta_0\|wv\|_*$ in $|\cdot|_{2,w}$. Then $\delta\phi(s)-\delta\phi(1)=G_s(A_s)(F(\xi_s)-F(\xi_1))+(G_s(A_s)-G_s(A_1))F(\xi_1)+(G_s-G_1)(A_1)F(\xi_1)$ is bounded termwise by $C\delta_1$ in the weighted norms (the middle term by the weighted Lipschitz bound). On $X_0$: the scaled distance from $X_0$ to $\mathcal W$ is $\ge(r_0-6)M_1$ because $\mathcal W$ lies within $5$ cubes of $X_1^c$ (an interaction cube has side $5M_1\ell$ and meets $X_1^c$), and the layer comparison of GR Lemma 4.3 (separation) converts cube-distance to scaled distance as in P3 (2.22). This is (d).
+**Step 5 (locality).** The iterates $\xi^{(0)}=0$, $\xi^{(n+1)}=\mathcal N_s(\xi^{(n)})$ satisfy the statement by induction: $\delta\phi(\xi,s)=G_s(\alpha_0+\xi)F(\xi)$ vanishes outside $\mathrm{Core}(\mathcal R)$ and on a component $Y'$ depends only on $(\xi,\alpha_0,F_s,\phi_0)|_{Y'}$ by (DG5); for $x\in C_z\cap Y'$ the value $\mathcal N_s(\xi)(x)$ uses $\delta\phi$ on the star and the block of $x$, which lie in $\square_z\subset Y'$ by (Cov4) (a neighbour outside $Y(\mathcal R)$ has $\delta\phi=0$), and the local data at $x$; if the data fields are themselves local functions of original data with range $\le2L$ blocks (I-4b), their range lies in $\square_z$ too. The limit inherits the property. $\square$
+
+**Remark (differences from P3).** P3 states $\delta\alpha_k(s)=0$ on $Y_0=\bigcup\mathscr C$ and independence of $\delta\alpha_k(s)|_{Y_0}$ from the data (p. 55, Prop 2.1). For our definition $\delta\alpha(s)$ is *not* zero on a cube with $s_P=0$ (the local term $(\phi_0+\delta\phi)\cdot F_s$ survives); only (e) is claimed. No consumer found uses the vanishing: P6 pp. 23–24 and P5 pp. 505, 509 use only the dependence on the restricted data (UNCERTAIN, §8). P3's difference bounds (2.46)–(2.49) (the "mean value" equation with the localized differential of $H_2$) are replaced by Step 4.
+
+### 3.3 Theorem I-4b (P3 Props 2.2, 2.3 at $\lambda=\infty$)
+
+*Data.* $(\Psi+\Psi',h+h')\in\tilde\Psi^c(\mathbb B_k;\delta,\varepsilon)$ with the hypotheses of BG Thm 5.2 ($0<\delta\le\varepsilon\le c_0$, $\delta\le c_1$, $\mu L^{2k}\varepsilon^2\le\delta^2$). BG Lemma 5.3 supplies the approximate field $\phi_0$ ($\phi_0\cdot\phi_0=1$, `IsSmoothField` $C_3\delta$, $\alpha_0\equiv0$, residual $f_0$ with $|f_0|_2\le C_3\delta$), local in the data with range $\le2L$ blocks.
+
+**Theorem I-4b.** Let $\kappa_1\ge1$. There are $c_7=c_7(d,L,N,\kappa_1)$, $K_4=(1+K_3)C_3$ such that for $M_1\ge M_*$, $\delta\le c_7$, and $s\in\mathcal P(\kappa_1)$, the pair $(\phi_k(s),\alpha_k(s)):=(\phi_0+\delta\phi(s),\delta\alpha(s))$ obtained from Theorem I-4a with data $(\delta\Psi=0,\phi_0,\alpha_0=0,f_1=f_0,g=0)$, $\delta_0=\delta_1=C_3\delta$, has:
+(i) analytic in $(s,\Psi+\Psi',h+h')$; equal at $s=1$ to the solution of BG Thm 5.2;
+(ii) the bounds of BG Thm 5.2(3) (P2 (1.15)) with $K_4$: $|\phi_k(s)-Q^*(\psi+\psi')|_0,|\partial\bar\phi_k(s)|_1,|\Delta\bar\phi_k(s)|_2,|\alpha_k(s)|_2\le K_4\delta$, the Hölder bound with $C_\theta K_4$, and the defect $|\phi_k(s)\cdot\phi_k(s)-1|_0+|\Delta(\phi_k(s)^2-1)^\sim|_2\le4K_4\delta$ (for $s\ne1$ the constraint fails, P3 p. 57);
+(iii) closeness: $w\,(\phi_k(s)-\phi_k(1))$ and $w\,(\alpha_k(s)-\alpha_k(1))$ are $\le K_4\delta$ in the same norms, so $\le e^{-\gamma_wr_1M_1}K_4\delta$ on $X_0$ (P3 (2.57));
+(iv) locality: on $Y'\cap\mathrm{Core}(\mathcal R)$, for each component $Y'$ of $Y(\mathcal R)$, $\phi_k(s)$ and $\alpha_k(s)$ depend on $s$ and on $(\Psi+\Psi',h+h')|_{Y'}$ only (the range $2L$ blocks of $\phi_0,f_0$ lies inside the interaction cubes by (Cov4), so the thickening is absorbed); moreover $\phi_k(s)-\phi_0=\delta\phi(s)$ vanishes outside $\mathrm{Core}(\mathcal R)$.
+(v) *(Prop 2.3)* for $\mathbb B_j\prec\mathbb B_k'$ and data in $\tilde\Psi^c(\mathbb B_k';\delta,\varepsilon)$ put $\psi(\mathbb B_j,\mathbb B_k';s):=$ `composeField` of BG (6.2) evaluated at $\phi_k'(s)$. It is analytic in $(s,\text{data})$, equals $\psi(\mathbb B_j,\mathbb B_k')$ at $s=1$, and
+$\psi(s)-\psi(1)=Q(\mathbb B_j)(\delta\phi'(s)-\delta\phi'(1))-\frac{1}{a(\mathbb B_j)}Q^*(\mathbb B'_k,\mathbb B_j)a(\mathbb B'_k)Q(\mathbb B'_k)(\delta\phi'(s)-\delta\phi'(1))$ (P3 (2.59), affine linearity of (6.2)), hence it satisfies closeness (2.60) and locality; and it satisfies the domain statements (i), (iv) of BG Thm 6.1 with $K_4$ in place of $K_1$ (P3 (4.29), (4.37)), *provided* requirement R-B1 below holds.
+
+*Proof.* (i)–(iv): Theorem I-4a with the stated data, and BG §5.4 for the bounds; (iii) is Step 4 of I-4a. (v): linearity of (6.2) in $\phi$ gives the displayed formula and (2.60) from (iii); the domain statements are BG Thm 6.1 (i), (iv), whose proof (Lemmas 6.2, 6.3) bounds $||\psi_n|-1|$ by the constraint $\phi\cdot\phi=1$; for $\phi_k'(s)$ the constraint holds up to $4K_4\delta$, which adds a term $C(d)K_4\delta$ to the right-hand side, harmless. $\square$
+
+**R-B1 (requirement on BG, §6).** State BG Thm 6.1 (i), (iv) and Lemmas 6.2, 6.3 for fields $\phi'$ that are *not* solutions of (EL): hypotheses $|\phi'-Q^*\Psi'|\le K\delta$, $|\partial\bar\phi'|_1,|\Delta\bar\phi'|_2\le K\delta$, $|\phi'\cdot\phi'-1|\le K\delta$ (and no equation). By P3 p. 58 the only place where the equation was used is the estimate of $||\psi^{(j)}(y)|-1|$; at $\lambda=\infty$ this is the condition (R2) of BG §1.3 and the new defect adds $O(\delta)$.
+**R-B2.** BG Prop 5.1 should be proved for an *abstract* Green family, and in both modes U and P: the hypotheses used are only (G) in the form "$G(A)$, $|A|_2\le\gamma_1$, analytic in $A$, $\|G(A)f\|_*+|\Delta^DG(A)f|_2\le B|f|_2$" and Lemma 3.3 in the form of the Lipschitz bound; then Theorem I-4a is a corollary (the proof above is the same proof with $B\to B_s$, resolvent identity $\to$ Cauchy). Recommended to the W20 worker, who is currently writing Prop 5.1 for $G=G_D$ only.
+
+### 3.4 Theorem I-4c (P3 Prop 3.1 at $\lambda=\infty$): the constrained covariance
+
+*Objects* (unit lattice $T^{(k)}_1$, field $\psi'$ supported in $\Lambda:=\Omega^{(k)}_{k+1}$; GR (1.7), (1.8$'$), 4.7(b$'$)). $A_{k,x}=(a_k+x+aL^{-2}Q^*Q)^{-1}=\frac1{a_k+x}(1-Q^*Q)+\frac1{a_k+aL^{-2}+x}Q^*Q$. For data $(\phi_0,\alpha_0)$ complex with $\frac12<|\phi_0|<\frac32$, $|\phi_0^2-1|<\delta_0$, $|\partial\phi_0|_1,|\Delta\phi_0|_2<\delta_0$, $|\alpha_0|\le\frac1{12}a_{k+1}L^{-2}$ on $\Omega_{k+1}$ and $|\alpha_0|_2\le\delta_0$ elsewhere (P3 (3.2)), $x\ge0$ and $s\in\mathcal P(\kappa_1)$:
+$$M_{x,s}=\phi_0^2-K_x(\phi_0)\cdot G_{k,x,s}\phi_0,\quad N_{x,s}f=\phi_0\cdot f-K_x(\phi_0)\cdot G_{k,x,s}f,\quad\Pi_{x,s}=G_{k,x,s}\phi_0\,M_{x,s}^{-1}N_{x,s},$$
+$$C_x(s)=A_{k,x}+a_k^2A_{k,x}Q_k\big(G_{k,x,s}-\Pi_{x,s}\big)Q_k^*A_{k,x}\Big|_\Lambda,\qquad C^{(k)1/2}(s)=\tfrac1\pi\int_0^\infty x^{-1/2}C_x(s)\,dx,$$
+$$\mathbb L(s)=\log a_k(1-Q^*Q)+\log(a_k+aL^{-2})Q^*Q-\int_0^\infty\big(C_x(s)-A_{k,x}\big)dx.$$
+(Here $K_x(\phi_0)$ is the commutator of $\phi_0$ with $H_{k,x}$, GR (4.5a) and BG Lemma 3.1.) At $s=1$, by GR 4.5a, $\Pi_{x,1}=G_{k,x}\phi_0[\phi_0\cdot G_{k,x}\phi_0]^{-1}\phi_0\cdot G_{k,x}$, and by GR 4.7(b$'$) (algebraic, complex data) $C_x(1)=(aL^{-2}Q^*Q+\Delta^{(k)}+x)^{-1}|_\Lambda$ with $\Delta^{(k)}$ the constrained operator (1.8$'$).
+
+**Theorem I-4c.** Let $\kappa_1\ge1$. There are $M_*,\delta_*,B_4,B_5$ (functions of $d,L,N,\kappa_1$) such that for $M_1\ge M_*$, $\delta_0\le\delta_*$, all $x\ge0$ and $s\in\mathcal P(\kappa_1)$:
+(i) $M_{x,s}$ is invertible on $L^2_w$ ($w\in W_{\gamma_w}$) with $\|M_{x,s}^{-1}\|\le2$; $G_{k,x,s}$, $\Pi_{x,s}$ satisfy the block-$L^2$ bounds of G-2(i), G-2(v) with constants $\times e^{N_0\kappa_1}$;
+(ii) $\|C_x(s)-A_{k,x}\|_{2\to2}\le B_4(a_k+x)^{-2}$, hence $\|C^{(k)1/2}(s)f\|\le B_5\|f\|$ with $B_5=2a_k^{-1/2}+\frac{a_k^2}{\pi}\int_0^\infty x^{-1/2}\big(\tfrac{1+L^{-2}}{a_k+x}\big)^2B_4\,dx$ (the shape of P3 (3.24)), and $\mathbb L(s)$ is bounded; $B_4\propto e^{N_0\kappa_1}$;
+(iii) $C_x(s)$, $C^{(k)1/2}(s)$, $\mathbb L(s)$ are analytic in $(s,\phi_0,\alpha_0)$;
+(iv) at $s=1$: $C^{(k)1/2}(1)=\big((aL^{-2}Q^*Q+\Delta^{(k)})|_\Lambda\big)^{-1/2}$ (for real data the positive inverse square root, for complex data by analytic continuation of $C^{(k)1/2}(1)^2=C^{(k)}(1)$) and $\mathbb L(1)=\log((aL^{-2}Q^*Q+\Delta^{(k)})|_\Lambda)$;
+(v) (locality) if $s=0$ on $\mathcal R$ and $Y'$ is a component of $Y(\mathcal R)$ then $\chi_{Y'}C^{(k)1/2}(s)f$ and $\chi_{Y'}\mathbb L(s)\chi_{Y'}$ depend on $(\phi_0,\alpha_0,s,f)|_{Y'}$ only (unit-lattice points of $Y'\cap\Lambda$);
+(vi) (closeness) the matrix elements of $C^{(k)1/2}(s)-C^{(k)1/2}(1)$ and $\mathbb L(s)-\mathbb L(1)$ between unit points $y,y'$ with $d(y,\mathcal W),d(y',\mathcal W)\ge D$ are $\le B_5e^{-\gamma_wD}$; in particular on $X_0$ they are $\le B_5e^{-\gamma_wr_1M_1}$ and the factor $e^{N_0\kappa_1}$ in (3.24) may be dropped (P3 p. 67).
+
+*Proof.* (i) By (DG7) and the commutator estimates of GR 4.5a (with $\phi_0$ complex and the bilinear dot product): $\|K_x(\phi_0)\cdot G_{k,x,s}\phi_0\|_{L^2_w}\le c_*'\delta_0e^{N_0\kappa_1}$ (the proof of GR 4.5a uses only the $L^2$ block bounds of $G$ and $\partial G$, which (DG7) provides with the extra factor), so $M_{x,s}=1+(\phi_0^2-1)-K_xG\phi_0$ is a perturbation of the identity of norm $\le\frac12$ once $\delta_*\le(2(1+c_*'e^{N_0\kappa_1}))^{-1}$. The bounds on $\Pi_{x,s}=G_{k,x,s}\phi_0M^{-1}N$ follow factor by factor. (ii) $\|Q_k(G_s-\Pi_s)Q_k^*\|$ is bounded by $\|\ell^{-1}\cdot\|$-norms on the unit lattice where $\ell=1$; and $\|A_{k,x}\|\le(a_k+x)^{-1}$, uniformly in $x\ge0$ by (DG7); the $x$-integral converges because $\int_0^\infty x^{-1/2}(a_k+x)^{-2}dx<\infty$. (iii) Finite sums, Neumann series, the inverse $M^{-1}$ and absolutely convergent $x$-integrals of analytic functions (landed several-variable Weierstrass, W7). (iv) $C_x(1)$ was identified above; $\frac1\pi\int_0^\infty x^{-1/2}(\mathcal A+x)^{-1}dx=\mathcal A^{-1/2}$ for a positive symmetric $\mathcal A$ by diagonalisation ($\int_0^\infty x^{-1/2}(\lambda+x)^{-1}dx=\pi\lambda^{-1/2}$), and $\log\mathcal A-\log\mathcal A_0=-\int_0^\infty[(\mathcal A+x)^{-1}-(\mathcal A_0+x)^{-1}]dx$ with $\mathcal A_0=a_k+aL^{-2}Q^*Q$ (so $(\mathcal A_0+x)^{-1}=A_{k,x}$, and $\log\mathcal A_0$ is the displayed explicit part); complex data by analytic continuation (both sides analytic on the connected data domain). (v), (vi): (DG5), (DG6) in the $x$-variant form and the same bookkeeping as Theorem I-4a(d), (e); the unit-lattice entries are block averages ($Q_k$ are $L^2$ contractions, P3 p. 63). $\square$
+
+**What I-4c does not need.** No unit-lattice inverse is formed for $s\ne1$: the formula (3.9) of P3 is used as a *definition*, so neither G-4 (Combes–Thomas for the unit-lattice operator) nor the 12-type walk P3 (3.15)–(3.20) occurs. The index restrictions of that walk (ER-046) and the constants $48$, $8^n$ of (3.18)–(3.19) are not needed. The price is the operator-norm smallness $\delta_*\le c\,e^{-N_0\kappa_1}$ for $\delta_0$, of the same type as P3's $B_1\delta_0\le\frac18$.
+
+
+---
+
+## 4. I-5: the localization expansion (P3 Prop 4.3 at $\lambda=\infty$)
+
+### 4.0 Setting, domains, the spaces $\Xi^c$
+
+*Domains* (P3 (1.2)–(1.3), p. 34; P1 (2.26)–(2.27)). $\mathscr D_n$: connected unions of $\pi'_n$-cubes (cubes of side $LM\ell_n$, unions of $L^d$ cubes of $\pi_n$, $M=L^{m_0}M_1$ the RG size). $d_j(X)=\inf\{M^{-1}\ell_j^{-1}|\Gamma|:\Gamma\subset X$ a tree meeting every $\pi'_j$-cube contained in $X\}$ (dimensionless: the length in units of the cube side in the scale-$j$ lattice, "$X$ rescaled together with the lattice", P1 (2.27)). $\mathscr D(\mathbb B_{k+1})$: connected sets $Y$ with $Y\cap\Lambda_n\in\mathscr D_n$ for $n\le k+1$; $\tilde d_{k+1}(Y)=\inf M^{-1}|\Gamma|_{\mathbb B_{k+1}}$ over trees in $Y$ meeting every $\pi'_n$-cube contained in $Y\cap\Lambda_n$, $|\Gamma|_{\mathbb B}=\sum_n\ell_n^{-1}|\Gamma\cap\Lambda_n|$.
+*The domains of P3 (4.2)–(4.8)* (pp. 68–69), of which only the following is used: for $X\in\mathscr D_j$ with $X\subset\Omega_{k+1}$, a domain $X_1\subset\Omega_{k+1}$ that is a union of $\pi$-cubes, each containing a $\pi'_j$-cube lying in $X$ (4.2), a domain $X_0\supset X$ and minimal generating sets $\mathbb B_k(X)$, $\mathbb B_j(X)$ with $\Omega_1(X)\subset X_0$ (4.7) and the $r_0$-cube neighbourhood of $X_0$ inside $X_1$ (4.8); these are possible when $(4L+r_0)M_1\le LM$, i.e. $M/M_1\ge4+r_0/L$, which holds for $r_0=8$, $L^{m_0}\ge14d$.
+*The spaces.* $\Xi_n(\mathbb B;\sigma,\varepsilon)$ and $\Xi^c_n(\mathbb B;\sigma,\varepsilon)$ are those of P3 (4.25)–(4.28) (pp. 73–74) transcribed to $\lambda=\infty$: conditions $|\partial\phi|<\sigma\ell^{-1}\varepsilon$, $|\Delta\phi|<\sigma^2\ell^{-2}\varepsilon$, $|\alpha|<\sigma^2\ell^{-2}\varepsilon$ on the minimiser $(\phi,\alpha)=$ `bgField`/`bgFieldC` of BG §7 and $|\psi(y)-(Q\phi)(y)|<\sigma^2\varepsilon$, with complex perturbations bounded in the same way. UNCERTAIN: the scan of (4.25) is partly garbled (the conditions on $\alpha=\frac\lambda2(\phi^2-1)$ and on $|\phi\cdot h'|$), and no project document fixes the $\lambda=\infty$ version; D-SF must. The proof below uses only the following four properties, each a consequence of the definition and of BG Thm 5.2, 6.1, I-1(e).
+(Ξ1) $\Xi^c_n(\mathbb B;1,\varepsilon')\subset\tilde\Psi^c(\mathbb B;2(d+2)\varepsilon',2(d+2)\varepsilon')$ (P3 (4.36), "the proofs of Lemmas 4.3, 4.4 [P2]").
+(Ξ2) (membership) If $\Psi\in\Xi^c_k(\mathbb B;1,\varepsilon')$ and $\hat\Psi=\Psi+\delta\Psi$ with $\delta\Psi$ of size $\le\delta_3$ in the sense of BG Prop 5.1 (P1), then $\hat\Psi\in\Xi^c_k(\mathbb B;1,\varepsilon'+(K_2+1)\delta_3)$ ($K_2$ of BG Prop 5.1). (BG Thm 5.2(6): the minimiser at $\hat\Psi$ is $\phi(\Psi)+\delta\phi$ with $\delta\phi$ the solution of (P-1), (P-2), $|\delta\phi|$-norms $\le K_2\delta_3$.)
+(Ξ3) (Lemma 4.1) for $\mathbb B_j\prec\mathbb B'_k$: $\psi(\mathbb B_j,\mathbb B'_k):\Xi^c_k(\mathbb B'_k;\sigma(\mathbb B'_k),\varepsilon)\to\Xi^c_j(\mathbb B_j;\sigma(\mathbb B_j,\mathbb B'_k)\sigma(\mathbb B'_k),\varepsilon)$, $\sigma(\mathbb B_j,\mathbb B'_k;x)=L^{n-p}\le1$ (P3 (4.30)); consequence of BG Thm 6.1 (iv) and the form (6.2).
+(Ξ4) (P3 (4.39)–(4.40)) $\psi(\mathbb B_j(X),\mathbb B_k(X))|_X$ maps $\Xi^c_k(\mathbb B_k(X);1,\varepsilon_k)$ into $\{\Psi:|\partial^2\Psi|\le K_1C_{\alpha_1}\ell_j^{2-\alpha_1}2(d+2)\varepsilon_k+4\ell_j^2\varepsilon_k\}\cap\Psi^c_j(X;3\ell_j,\varepsilon_k)$, hence into the condition (3.107) of P1 (this uses the Hölder bound I-1(e) with the one fixed exponent $\alpha_1$).
+(Int) the function $\psi(\mathbb B_j(X),\mathbb B_k(X);\cdot)|_X$ is given by the explicit formula BG (6.2) and depends on its argument only through the restriction to $\Omega_1(X)^{(k)}$ plus one layer of points, hence through $X_0$; $\mathcal E(X;\cdot)$ depends on its argument only through $X$ (P1 (H.5)).
+*The sequence $\varepsilon_j$.* P1/P3 p. 76: $\varepsilon_j=\alpha_{0}(1+\sum_{n\ge j}n^{-2})\xi_j^{\alpha}$-type, with $\alpha=\frac{d-2}2-\gamma$ (the printed formula is hard to read, ER-052, UNCERTAIN). The only property used is a gap **(E)**: $\varepsilon_{k+1}\le(1-\eta_\varepsilon)\varepsilon_k$ with $\eta_\varepsilon=\eta_\varepsilon(d,L)\in(0,1)$ (P3: "$L^{-\alpha}\alpha\varepsilon_k\le\varepsilon_k-\varepsilon_{k+1}$", so $\eta_\varepsilon\approx\alpha L^{-\alpha}$), and that $\alpha_0$ (hence all $\varepsilon_j$) may be taken as small as the constants of I-4 require.
+
+### 4.1 Lemma AE (abstract interpolation–resummation; P3 (4.41), (4.43), (4.47))
+
+*Data.* $\Omega$ a finite set (sites) with nearest-neighbour adjacency; $X_1\subset\Omega$ connected; $\mathfrak P$ a finite family of subsets $P\subset\Omega$; for $\mathcal C\subset\mathfrak P$ put $V(\mathcal C)=X_1\cup\bigcup_{P\in\mathcal C}P$ and let $Y(\mathcal C)$ be the connected component of $V(\mathcal C)$ containing $X_1$; call $\mathcal C$ *connected* if $P\subset Y(\mathcal C)$ for all $P\in\mathcal C$. Let $\kappa_1\ge1$, $R=e^{\kappa_1}$, $U$ a set of "data" $u$ (fields on $\Omega$, with restriction maps), and $F(s;u)$ defined for $s$ in a neighbourhood of $\bar{\mathcal P}=\{|s_P|\le R\}$.
+**(AE1)** for each $u$, $s\mapsto F(s;u)$ is analytic near $\bar{\mathcal P}$ and $|F|\le B_F$ on $\bar{\mathcal P}$.
+**(AE2)** (locality) if $s,s'$ vanish outside $\mathcal C$, agree on $\{P\in\mathcal C:P\subset Y(\mathcal C)\}$, and $u=u'$ on $Y(\mathcal C)$, then $F(s;u)=F(s';u')$.
+**Lemma AE.** Then $F(\mathbf 1;u)=\sum_{\mathcal C\subset\mathfrak P,\ \mathcal C\text{ connected}}F_{\mathcal C}(u)$ with
+$$F_{\mathcal C}(u)=\int_{[0,1]^{\mathcal C}}\prod_{P\in\mathcal C}\frac{\partial}{\partial s_P}F(s;u)\Big|_{s_P=0\,(P\notin\mathcal C)}\prod_{P\in\mathcal C}ds_P,$$
+$F_{\mathcal C}(u)$ depends only on $u|_{Y(\mathcal C)}$, and $|F_{\mathcal C}|\le B_F(R-1)^{-|\mathcal C|}\le B_Fe^{-(\kappa_1-1)|\mathcal C|}$. If $F$ is jointly analytic in further parameters $\lambda$ with $|F|\le B_F$ uniformly, so is every $F_{\mathcal C}$.
+*Proof (proved).* (1) Induction on $|\mathfrak P|$ using $F(\dots,1,\dots)=F(\dots,0,\dots)+\int_0^1\partial_{s_P}F\,ds_P$ in one variable at a time gives $F(\mathbf 1)=\sum_{\mathcal C\subset\mathfrak P}F_{\mathcal C}$ (each $P$ is either set to $0$ or differentiated and integrated). (2) If $\mathcal C$ is not connected, some $P\in\mathcal C$ has $P\not\subset Y(\mathcal C)$; by (AE2) applied to two vectors $s,s'$ that differ only in $s_P$, $F(s;u)|_{s=0\text{ off }\mathcal C}$ does not depend on $s_P$, so $\partial_{s_P}F=0$ and $F_{\mathcal C}=0$. (3) For connected $\mathcal C$ all integration points have $s=0$ off $\mathcal C$ and $P\subset Y(\mathcal C)$ for all $P\in\mathcal C$, so (AE2) with $s=s'$ gives the dependence on $u|_{Y(\mathcal C)}$ only. (4) Fix $s^0$ with $|s^0_P|\le1$ ($P\in\mathcal C$), $s^0=0$ elsewhere. In the $|\mathcal C|$ variables $s_P$ the function is analytic on the polydisc of radius $R-1$ around $s^0$ and bounded by $B_F$; the iterated Cauchy estimate (landed `norm_mixed_fderiv_le`, `norm_fderiv_single_le`, `Analysis/Cauchy.lean`) bounds the mixed first derivative $\prod_P\partial_{s_P}F(s^0)$ by $B_F(R-1)^{-|\mathcal C|}$; and $R-1\ge e^{\kappa_1-1}$ because $e^{\kappa_1-1}(e-1)\ge1$ for $\kappa_1\ge1$. The last statement: the integral and the derivatives of a jointly analytic function with uniform bound are analytic. $\square$
+(AE2) is the "fundamental localization property" of P3 pp. 55–56, 78–79. P3's printed condition for (4.47), "$\kappa_1\ge\log(1+\frac1{\sqrt e-1})$ or simply $\kappa_1\ge2$" (ER-052), is replaced by $\kappa_1\ge1$.
+
+### 4.2 Lemma GM (geometry and counting; P3 (4.44)–(4.50))
+
+*Construction (4.44)–(4.45).* For a $\pi$-cube $P\in\mathfrak P$ of layer $n$ let $D(P)\in\mathscr D_n$ be the union of the $\pi'_n$-cubes $\Box'$ with $\Box'\supset\Box$, $\Box'\subset\Lambda_n$, where $\Box\in\pi_n$ (side $M\ell_n$) contains $P$; it is non-empty because each component of $\Lambda_n$ lies in $\mathscr D_n$, and $D(P)\subset\Box^{\sim L}$, so it consists of at most $G_0:=(2L+1)^d$ cubes of $\pi_n$ (for layer $k+1$ the same with $\pi_{k+1}$). For connected $\mathcal C$ put $Y[\mathcal C]:=X_1\cup\bigcup_{P\in\mathcal C}D(P)$. It is connected (each $D(P)\supset P$, and $Y(\mathcal C)$ is connected), a union of $\pi'$-cubes in each layer, so $Y[\mathcal C]\in\mathscr D(\mathbb B_{k+1})$, and $Y[\mathcal C]\supset Y(\mathcal C)\supset X_1$. Write $\mathcal C_n$ for the cubes of $\mathcal C$ in layer $n$.
+**(GM1)** The number of $\pi_n$-cubes of $Y[\mathcal C]\setminus X_1$ in layer $n$ is $\le G_0|\mathcal C_n|$. (By construction.)
+**(GM2)** $\tilde d_{k+1}(Y[\mathcal C])\le L^{-1}d_j(X)+d(2L+1)^d|\mathcal C|$. (Sketched, below.)
+**(GM3)** (Peierls count, proved) Let $\kappa_2=\frac12\kappa_1-1$ and $A=(2L+1)^d(M/M_1)^d$. If $\kappa_2\ge2\max(1,\log A)$, i.e. $\kappa_1\ge4d\log((2L+1)M/M_1)+2$, then for every fixed $Y$: $\sum_{\mathcal C:\,Y[\mathcal C]=Y}e^{-\kappa_2|\mathcal C|}\le1$.
+**(GM4)** (exponents, proved) If $\kappa\ge3\kappa_0+3$ and $\kappa_1\ge4d(2L+1)^d\kappa$, then for every connected $\mathcal C$ and $Y=Y[\mathcal C]$, with $\Delta:=d_j(X)\ge0$:
+$(\kappa_1-1)|\mathcal C|+(\kappa-1)\Delta\ \ge\ \kappa_2|\mathcal C|+\kappa_0\Delta+2\kappa\,\tilde d_{k+1}(Y)$.
+*Proof of (GM3).* Fix $Y$ and a layer $n$; $N_n$ is the number of $\pi_n$-cubes of $Y\setminus X_1$ in layer $n$, and $\mathfrak P_n(Y)$ the set of $M_1$-cubes of layer $n$ in $Y\setminus X_1$, $|\mathfrak P_n(Y)|=(M/M_1)^dN_n$. Every $\mathcal C$ with $Y[\mathcal C]=Y$ has $\mathcal C_n\subset\mathfrak P_n(Y)$ and, by (GM1), $|\mathcal C_n|\ge N_n/G_0$. So $e^{-\kappa_2|\mathcal C_n|}\le e^{-\frac12\kappa_2|\mathcal C_n|}e^{-\kappa_2N_n/(2G_0)}$ and
+$\sum_{\mathcal C_n\subset\mathfrak P_n(Y)}e^{-\frac12\kappa_2|\mathcal C_n|}=(1+e^{-\kappa_2/2})^{|\mathfrak P_n(Y)|}\le\exp\big(N_n(M/M_1)^de^{-\kappa_2/2}\big)$. Hence the layer-$n$ factor is $\le\exp[\frac{N_n}{G_0}(Ae^{-x}-x)]$ with $x=\kappa_2/2$. If $x\ge\max(1,\log A)$ then $Ae^{-x}\le1\le x$ and the factor is $\le1$. The sum over $\mathcal C=\sqcup_n\mathcal C_n$ is bounded by the product over layers (dropping the coupling constraint can only increase it). $\square$ (This is P3 (4.50), whose last step "$f(x)=x-e^{-x}A$ is increasing, $f(\log A)=\log A-1>0$" is the same.) With $L^{m_0}=M/M_1\ge14d$ and $\kappa_1\ge8dm_0\log(2L+1)$ (P3's stronger-looking condition) one checks $4d\log((2L+1)L^{m_0})+2\le8dm_0\log(2L+1)$ for $m_0\ge1$, so P3's two conditions imply (GM3).
+*Proof of (GM4).* By (GM2), $2\kappa\tilde d\le2\kappa L^{-1}\Delta+2\kappa d(2L+1)^d|\mathcal C|$. The coefficient of $|\mathcal C|$ on the left minus right is $\kappa_1-1-\kappa_2-2\kappa d(2L+1)^d=\frac12\kappa_1-2\kappa d(2L+1)^d\ge0$; that of $\Delta$ is $\kappa-1-\kappa_0-2\kappa/L\ge\frac13\kappa-1-\kappa_0\ge0$ (using $L\ge3$). $\square$ (These are the conditions $\frac13\kappa-1\ge\kappa_0$, $\kappa_1\ge4d(2L+1)^d\kappa$ of P3 p. 80–81; the check shows that the "$\frac13$" is exactly $1-\frac2L$ at $L=3$.)
+*Proof of (GM2) (sketched).* Take a tree $\Gamma_0\subset X$ with $M^{-1}\ell_j^{-1}|\Gamma_0|\le d_j(X)+\epsilon$ meeting every $\pi'_j$-cube contained in $X$. Since $X\subset\Omega_{k+1}$, its $\mathbb B_{k+1}$-length is $\ell_{k+1}^{-1}|\Gamma_0|=L^{-(k+1-j)}\ell_j^{-1}|\Gamma_0|\le L^{-1}\ell_j^{-1}|\Gamma_0|$, because $k\ge j$. Each cube of $\pi'_{k+1}$ in $X_1$ contains a $\pi'_j$-cube of $X$ (4.2) and therefore meets $\Gamma_0$. For each component $Y^{(i)}$ of $Y\setminus X_1$ choose a cube touching $X_1$ along a $(d-1)$-dimensional wall and a spanning tree through the centres of adjacent cubes of $Y^{(i)}$ (consecutive cubes of the same layer: $M^{-1}$-length $1$; across a layer interface the shortest path inside the union has $M^{-1}$-length $\le\frac32$); $Y^{(i)}$ has at most $G_0|\mathcal C\cap Y^{(i)}|$ cubes, so the tree has $M^{-1}$-length $\le\frac{d+1}2G_0|\mathcal C\cap Y^{(i)}|$; connect it to $\Gamma_0$ by a path of length $\le dL+\frac12$. Since $dL+\frac12\le\frac{d-1}2G_0$, the total added length is $\le dG_0|\mathcal C|$. The union is a tree in $Y$ meeting every cube of the covers $\pi'_n$ contained in $Y\cap\Lambda_n$. This is P3 (4.48), (pp. 79–80), where the printed factor "$L^{-1}L^j\eta$" is the conversion between the unit-lattice length and the scale-$j$ length; in the normalisation above ($d_j$ dimensionless, $\tilde d_{k+1}$ dimensionless) the factor is $L^{-(k+1-j)}\le L^{-1}$ (ER-049 resolved up to the normalisation of P1 (2.27), UNCERTAIN). The detailed tree construction near layer interfaces (one-site claims "$1+\frac12(1-L^{-1})$") is not re-derived.
+
+### 4.3 Lemma DL (the domain lemma; P3 Lemma 4.2, (4.32)–(4.40))
+
+*The function.* For $\Theta=(\theta,h)$ and $\psi'$ (a perturbation of the layer-$k$ block-spin field, supported on $\Omega_{k+1}^{(k)}$), $s\in\bar{\mathcal P}(\kappa_1)$ (parameters for the generating set $\mathbb B_k$ with cubes $M_1\ell_n$, ignoring $\Omega_{k+1}$ in the cover, with the operators of $\mathbb B_{k+1}$ inside, P3 p. 59 — here this means: the cover and the cube operators $H_z$ are those of §1 for the operator $H_D(\mathbb B_{k+1})$, with scale function $\ell(x)$ of $\mathbb B_k$ in the cover and block terms of $\mathbb B_{k+1}$; all constants are unchanged up to factors $L$):
+$$\mathcal T(s;\Theta,\psi')=\mathcal E\Big(X;\ \psi\big(\mathbb B_j(X),\mathbb B_k(X);\ \psi(\mathbb B_k(X),\mathbb B_{k+1};\theta,s)+\delta\psi(\mathbb B_k(X),\mathbb B_k;\psi',s)\big)\Big).$$
+Here $\psi(\mathbb B_k(X),\mathbb B_{k+1};\theta,s)$ is I-4b(v); $\delta\psi(\mathbb B_k(X),\mathbb B_k;\psi',s)$ is the affine image (BG (4.17)/(6.2)) of $\delta\phi(\psi',s)$, the solution of I-4a **in mode P** with data $\delta\Psi=\psi'$ (layer $k$), $\phi_0=\phi_{k+1}(\Theta;s)$, $\alpha_0=\alpha_{k+1}(\Theta;s)$, $f_1=0$: $\delta\psi=Q(\mathbb B_k(X))\delta\phi+\frac{a(\mathbb B_k(X))}{a(\mathbb B_k)}\cdots Q^*(\mathbb B_k,\mathbb B_k(X))\,a(\mathbb B_k)(\psi'-Q(\mathbb B_k)\delta\phi)$, so $|\delta\psi|\le(2K_3+1)\delta_1$ for $|\psi'|\le\delta_1$ because all weights are $\le1$ (P3 (4.20)); by mode P, $\delta\psi=0$ if $\psi'=0$. At $s=1$ the identity (4.16) of P3 (BG Prop 6.4, $g\equiv0$) gives $\mathcal T(1;\Theta,\psi')=\mathcal E(X;\psi(\mathbb B_j,\mathbb B_k;\psi(\mathbb B_k,\mathbb B_{k+1};\theta)+\psi'))$ on $X$.
+**Lemma DL.** Let $\kappa_1\ge1$, $M_1\ge M_*(\kappa_1)$, $r_0=8$. Let $\mathcal E(X;\cdot)$ be analytic on a space containing $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ with $|\mathcal E|\le Ee^{-(\kappa-1)d_j(X)}$ there, and suppose $\varepsilon'\le\varepsilon_{k+1}$, $\delta_a:=2(d+2)\varepsilon'\le c_7(\kappa_1)$ and $\delta_1\le\delta_1^{\max}(\kappa_1)$ (smallness of I-4a for the fluctuation problem: $\delta_0=K_4\delta_a$, data size $\delta_1$), and the two conditions
+**(4.38)** $(K_2+1)\,2(d+2)K_4\,e^{-\gamma_wM_1}\le\frac12\eta_\varepsilon$ and $(K_2+1)(2K_3+1)\delta_1\le\frac12\eta_\varepsilon\varepsilon_k$.
+Then $\mathcal T$ is defined and analytic on $\Xi^c_{k+1}(\mathbb B_{k+1};1,\varepsilon')\times\{|\psi'|<\delta_1\}\times\bar{\mathcal P}(\kappa_1)$ (and on a neighbourhood of the closed polydisc), with values of the argument of $\mathcal E$ in $\Xi^c_j(\mathbb B_j(X);\sigma,\varepsilon_k)\subset\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$, and $|\mathcal T|\le Ee^{-(\kappa-1)d_j(X)}$.
+*Proof.* (1) By (Ξ1), $\Theta\in\tilde\Psi^c(\mathbb B_{k+1};\delta_a,\delta_a)$, so I-4b applies to the pair $(\mathbb B_k(X),\mathbb B_{k+1})$ and to $\mathbb B_{k+1}$: $\Psi_1(s):=\psi(\mathbb B_k(X),\mathbb B_{k+1};\theta,s)$ and $\phi_{k+1}(s),\alpha_{k+1}(s)$ are analytic in $(s,\Theta)$ with the bounds $K_4\delta_a$ and with $|\Psi_1(s)-\Psi_1(1)|\le e^{-\gamma_wr_1M_1}K_4\delta_a$ on $\Omega_1(X)^{(k)}\subset X_0$ (I-4b(iii), (v), (Int); $r_1=r_0-6=2$).
+(2) $\Psi_1(1)=\psi(\mathbb B_k(X),\mathbb B_{k+1};\theta)\in\Xi^c_k(\mathbb B_k(X);1,\varepsilon')$ by (Ξ3) ($\sigma\le1$). With the bracket $\Psi_{\rm br}(s,\psi'):=\Psi_1(s)-\Psi_1(1)+\delta\psi(\psi',s)$ (P3 (4.34)): $|\Psi_{\rm br}|\le\delta_3:=2(d+2)K_4e^{-\gamma_wM_1}\varepsilon'+(2K_3+1)\delta_1$; here the first term uses $K_4\delta_a=2(d+2)K_4\varepsilon'$ and $r_1\ge1$.
+(3) The fluctuation problem: $\phi_0=\phi_{k+1}(s)$ satisfies `IsSmoothField` with $\delta_0=K_4\delta_a$, $|\alpha_0|_2\le K_4\delta_a$, $|\phi_0|\le\frac32$, so I-4a (mode P) applies: $\delta\phi(\psi',s)$ exists, is analytic in $(\psi',s,\Theta)$ and bounded by $K_3\delta_1$ (P3 (4.19)–(4.20)).
+(4) By (Ξ2) (the minimiser of the $\mathbb B_k(X)$ problem at $\Psi_1(1)+\Psi_{\rm br}$ is the minimiser at $\Psi_1(1)$ plus the solution of (P-1), (P-2) with data of size $\delta_3$), $\hat\Psi:=\Psi_1(s)+\delta\psi(\psi',s)\in\Xi^c_k(\mathbb B_k(X);1,\varepsilon'+(K_2+1)\delta_3)$, and by (4.38), (E): $\varepsilon'+(K_2+1)\delta_3\le(1-\eta_\varepsilon)\varepsilon_k+\frac12\eta_\varepsilon\varepsilon_k+\frac12\eta_\varepsilon\varepsilon_k=\varepsilon_k$ (the first term of $\delta_3$ contributes at most $\frac12\eta_\varepsilon\varepsilon'\le\frac12\eta_\varepsilon\varepsilon_k$).
+(5) (Ξ3) with $\mathbb B_j(X)\prec\mathbb B_k(X)$ maps $\hat\Psi$ into $\Xi^c_j(\mathbb B_j(X);\sigma(\mathbb B_j(X),\mathbb B_k(X)),\varepsilon_k)$, and (Ξ4) places the restriction to $X$ in the space with (3.107) of P1. The inclusion $\Xi^c_j(\mathbb B_j(X);\sigma,\varepsilon_k)\subset\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ needs $\varepsilon_k\le\varepsilon_j$ ($j\le k$, true for a decreasing sequence $\varepsilon_j$; UNCERTAIN: P3's $\varepsilon_j$ formula is garbled, but a decreasing sequence is implied by "$\varepsilon_k-\varepsilon_{k+1}>0$"). Analyticity is that of the composition of analytic maps; the bound is the hypothesis on $\mathcal E$. $\square$
+
+### 4.4 Theorem I-5
+
+**Theorem I-5 (P3 Prop 4.3, $\lambda=\infty$, case $X\subset X_1\subset\Omega_{k+1}$).** Fix $d\ge3$, $L\ge3$, $N\ge2$, $\kappa_0>0$, $\kappa\ge3\kappa_0+3$, $m_0$ with $L^{m_0}\ge14d$, and $\kappa_1\ge\max\{4d(2L+1)^d\kappa,\ 4d\log((2L+1)L^{m_0})+2\}$. Let $M_*,c_7,K_2,K_3,K_4,B_5$ be the constants of I-4 for this $\kappa_1$. Let $M_1=L^{m_1}\ge M_*$, $M=L^{m_0}M_1$, $r_0=8$, $\varrho\ge R_0$ in terms of $M$, and suppose the sequence $(\varepsilon_j)$ satisfies (E). Let $1\le j\le k$, $X\in\mathscr D_j$ with $X\subset\Omega_{k+1}$, and $X_1,X_0,\mathbb B_k(X),\mathbb B_j(X)$ as in §4.0; let $\mathcal E(X;\cdot)$ be as in Lemma DL; let $\varepsilon'\le\varepsilon_{k+1}$, $\delta_1$ satisfy the hypotheses of Lemma DL. Then for all $(\Theta,\psi')\in\Xi^c_{k+1}(\mathbb B_{k+1};1,\varepsilon')\times\{|\psi'|<\delta_1\}$:
+$$\mathcal T(1;\Theta,\psi')=\sum_{Y\in\mathscr D(\mathbb B_{k+1}),\ Y\supset X_1}\mathcal E(X,Y;\Theta,\psi'),$$
+where each term is analytic on $\Xi^c_{k+1}(\mathbb B_{k+1}(Y);1,\varepsilon')\times\{|\psi'|<\delta_1\}$ (after replacing $\mathbb B_{k+1}$ by $\mathbb B_{k+1}(Y)$, P3 (4.44)–(4.46)), depends on $(\Theta,\psi')$ only through their restriction to $Y$ (and on $\mathbb B_{k+1}$ only through $Y\cap\mathbb B_{k+1}$), and satisfies $|\mathcal E(X,Y;\Theta,\psi')|\le Ee^{-\kappa_0d_j(X)-2\kappa\tilde d_{k+1}(Y)}$.
+
+*Proof.* Take $\mathfrak P$ = the parameter cubes outside $X_1$ of §1.2 and $F(s;u)=\mathcal T(s;\Theta,\psi')$, $u=(\Theta,\psi')$. (AE1) is Lemma DL with $B_F=Ee^{-(\kappa-1)d_j(X)}$. (AE2): by I-4a(e), I-4b(iv), (v) and (Int), if $s_P=0$ off $\mathcal C$ then the argument of $\mathcal E$ on $X$ is a function of $u|_{Y'}$ and of $s$ only, where $Y'$ is the component of $Y(\mathcal R)=\bigcup_{z\in Z_{\mathcal R}}\square_z$ containing $X_0$; $Z_{\mathcal R}$ consists of centres whose interaction cube meets only parameter cubes in $\mathcal C$ or cubes inside $X_1$, hence $Y(\mathcal R)\subset V(\mathcal C)$ and $Y'\subset Y(\mathcal C)$ (it contains $X_0\subset X_1$ and is connected); the dependence on $s_P$ for $P\not\subset Y(\mathcal C)$ is nil by (DG5). Lemma AE gives $\mathcal T(1)=\sum_{\mathcal C\text{ connected}}F_{\mathcal C}$ with $|F_{\mathcal C}|\le Ee^{-(\kappa-1)d_j(X)-(\kappa_1-1)|\mathcal C|}$, $F_{\mathcal C}$ depending on $u|_{Y(\mathcal C)}$ only. Put $\mathcal E(X,Y):=\sum_{\mathcal C:\,Y[\mathcal C]=Y}F_{\mathcal C}$ (P3 (4.45)); it depends on $u|_Y$ only since $Y(\mathcal C)\subset Y$. By (GM4) each $F_{\mathcal C}$ is $\le Ee^{-\kappa_2|\mathcal C|-\kappa_0d_j(X)-2\kappa\tilde d_{k+1}(Y)}$ and by (GM3) the sum over $\mathcal C$ is $\le Ee^{-\kappa_0d_j(X)-2\kappa\tilde d_{k+1}(Y)}$. Analyticity on the space for $\mathbb B_{k+1}(Y)$: apply Lemma DL to the generating set $\mathbb B_{k+1}(Y)$; the locality in the generating set of the walk terms (§1.3: the term depends on $\mathbb B_{k+1}$ only through $\bigcup\square_{z_i}\subset Y(\mathcal C)$ and $Y(\mathcal C)\cap\mathbb B_{k+1}(Y)=Y(\mathcal C)\cap\mathbb B_{k+1}$ by the construction of $\mathbb B_{k+1}(Y)$, P3 p. 78) shows that the terms computed with $\mathbb B_{k+1}(Y)$ and with $\mathbb B_{k+1}$ coincide. $\square$
+
+*Constants (the conditions of the proof, collected).* (C1) $\kappa\ge3\kappa_0+3$; (C2) $\kappa_1\ge4d(2L+1)^d\kappa$; (C3) $\kappa_1\ge4d\log((2L+1)M/M_1)+2$, $M/M_1=L^{m_0}\ge14d$; (C4) $M_1\ge M_*(\kappa_1)=\max(4L^2,c_*e^{N_0\kappa_1})$ and (4.38); (C5) $\varepsilon'\le\varepsilon_{k+1}$, $2(d+2)\varepsilon'\le c_7(\kappa_1)$, $\delta_1\le\delta_1^{\max}(\kappa_1)$; (C6) $r_0=8$ and $(4L+r_0)M_1\le LM$. They replace the unlisted chain of P3 pp. 39, 43, 68, 76, 80–81 (ER-050, ER-051).
+
+### 4.5 What is proved here and what is not
+
+Proved: Lemma AE; (GM1), (GM3), (GM4); Lemma DL given (Ξ1)–(Ξ4), (Int), I-4a/b; Theorem I-5 given these. Sketched: (GM2) (tree geometry). Cited: (Ξ1)–(Ξ4) (definition of $\Xi^c$, D-SF/BG), the composition identity (4.16) (BG Prop 6.4), the form of (4.17). Not covered: the case $X_1\not\subset\Omega_{k+1}$ (variation V1), the bound $|\psi|<p_1(\beta_k)$ (ER-055, belongs to I-8/P4–P6), and the re-establishment of the strengthened (H.5) (ER-053, I-8).
+
+### 4.6 The simple variations (P3 p. 81; used by P5, P6, P7, P9)
+
+All follow by running the three ingredients with a different function $F(s;u)$; the work is to verify (AE1), (AE2), which are statements about the extended objects of I-4.
+
+**(V2) $\psi'$ as the fluctuation variable.** Replace $\psi'$ by $\beta_k^{-1/2}\sigma\,C^{(k)1/2}(s;\Theta)\psi$ (P3 (4.24), P6 p. 41 with parameters $\sigma,\tau$): $F(s;\Theta,\psi,\sigma)=\mathcal T(s;\Theta,\beta_k^{-1/2}\sigma C^{(k)1/2}(s;\Theta)\psi)$. By I-4c (bound $B_5$, analyticity, locality (v)), (AE1), (AE2) hold for $|\psi|<p_1(\beta_k)$, $|\sigma|\le1$ (and a complex disc in $\sigma$) provided $\beta_k^{-1/2}B_5p_1(\beta_k)\le\delta_1$ (P3 (4.23)). The conclusion is Theorem I-5 with $\psi'$ replaced by $\psi$; the terms are analytic in $\sigma$ on the disc, which is the extra Cauchy argument of P6 p. 42 (ER-100, covered here because $\sigma$ is one more analytic parameter of $F$).
+**(V3) General functions.** Lemma AE applies to any $F(s;u)=\Phi(\text{extended objects})$ with (AE1), (AE2). Instances: the interaction potential $U^{(k)}$ and its Taylor terms in P6 (4.1)–(4.10) (with $\delta\phi_k(s)$, $\delta\phi_{k,2}(s)$, $\delta\alpha_k(s)$ of I-4a, the second-order parts by the Cauchy estimate in $\psi'$ P6 (4.4)); the trace $D^{(k)}$ (P5 pp. 510–511): $F(s)=\mathbb L(s)(y,y')$ from I-4c, with $X_1$ a neighbourhood of $y$ (terms vanish unless $Y(\mathcal C)\ni y'$, by (AE2)); the unit-lattice propagators of P9 p. 506: the same with a one-scale generating set (all $\Omega_j=\mathbb T$) and the translation-invariant $\phi_0$; the surface terms P5 p. 514.
+**(V4) Domain size.** If $Y\subset\Omega'_{k+1}$ lies in the last layer, $\tilde d_{k+1}(Y)=d_{k+1}(Y)$ and (GM2)–(GM4) hold unchanged (P6 pp. 24–25, (4.9)); with a modified generating set $\mathbb B'_{k+1}=\mathbb B_k(W_k)\cap\dots\cup(\dots)^{(k+1)}$ (P6 p. 23) the cover is built for that set.
+**(V5) Pre-localisation.** The value $s=0$ on all of $\mathfrak P$ (P5 (2.18)–(2.19), $X_1=R_{k+1}(\Box)$): by I-4a(d), I-4b(iii) the fields at $s=0$ differ from those at $s=1$ on $X_0$ by $\le e^{-\gamma_wr_1M_1}K_4\delta$ (P3 (2.57), (2.60)), which is $\le e^{-R_k}\beta_k^{-K}$ for the choices of P5.
+**(V1) $X_1\subset\Omega_k$ (not $\Omega_{k+1}$).** P3: "later we will have to discuss also simple variations, like $X_1\subset\Omega_k$". Not proved here, and not a mere variation of the proof: for $X_1\subset\Omega_k$ the gain $L^{-(k+1-j)}\le L^{-1}$ of (GM2) is only $L^{-(k-j)}$, which is $1$ for $k=j$, and then (GM4) cannot absorb the term $2\kappa\tilde d$ against $(\kappa-1)d_j(X)$ (it would need $\kappa-1\ge\kappa_0+2\kappa$). The exponent in the conclusion must be changed or the generating set modified so that $X_1\subset\Omega_{k+1}$; P6 p. 23 does the latter, which is variation V4. UNCERTAIN.
+**(V6) Iterated expansions** (P6 pp. 29–34: expansions of integrals over fluctuation variables, with resummation over old domains for fixed final domain): an iteration of Lemma AE with (GM3) used once per expansion; the bookkeeping of the constants is I-8.
+
+
+---
+
+## 5. Interfaces for freezing
+
+### 5.1 Definitions that must exist first
+
+All carriers are finite sets of the landed Lean (`Torus d (N₀ * L ^ k)`, `GeneratingSet d L N₀ k ϱ`, fields as `G.Ω 1 → ℂ` or `G.Ω 1 × Fin N → ℂ`, matrices `Matrix ι ι ℂ`).
+- **Def-L1** `CubeAligned G M₁`: $\Omega_j$ ($j\le k+1$) are unions of cubes of the lattice $M_1L^j\mathbb Z^d$, $M_1=L^{m_1}$, $m_1\ge1$. (A predicate on `GeneratingSet`; one extra field, or a bundled structure.)
+- **Def-L2** the *cover* `DecouplingCover G M₁`: the index set $Z$ (the $\pi_m$-cubes in the layers), $\chi_z$ (Lemma Cov, built from the B-spline of BG §5.3 at cube scale), $\square_z$, $C_z$, the parameter set $\mathfrak P(X_1)$, $\mathcal Q(z)$ and the weights $s_z$.
+- **Def-L3** `cubeOperator G a ν A z` $=H_z(A)$ (bond-subset form), `cubeGreen` $=H_z(A)^{-1}$ extended by zero, `cutCommutator` $K_z$, and `decoupledGreen` $G_s(A)=G^*_s(A)(1-\mathcal K_s(A))^{-1}$ with the *total* matrix inverse (`Ring.inverse`); the walk expansion and DG1 are theorems characterizing it. All explicit.
+- **Def-L4** (needs an `∃!` theorem first, rule 4) `decoupledPerturbation mode data s` $=\delta\alpha(s)$, defined by `dite` on the statement I-4a(a) ("exactly one $\xi$ with $|\xi|_2<c_6$ and $\mathcal N_s(\xi)=\xi$"); then `decoupledPerturbationField` $\delta\phi(s)$, for `mode ∈ {unit, preserving}`. Its characterization theorem is I-4a(a)–(c) and the agreement at $s=1$ with the `dite`-defined object of BG Prop 5.1.
+- **Def-L5** `decoupledField` $(\phi_k(s),\alpha_k(s))$ (data $\delta\Psi=0$, $\alpha_0=0$, BG Lemma 5.3 field) and `decoupledCompose` $\psi(\mathbb B_j,\mathbb B_k';s)=$ `composeField` of BG (6.2) at $\phi_k'(s)$ (explicit once Def-L4 exists).
+- **Def-L6** `decoupledCovariance` $C_x(s)$, `covSqrtS` $=\frac1\pi\int_0^\infty x^{-1/2}C_x(s)dx$, `logS` $=\mathbb L(s)$ (explicit; the improper integrals are defined as Bochner integrals over $(0,\infty)$ and the characterization theorem I-4c(ii) asserts integrability).
+- **Def-L7** the expansion terms `locTerm` $F_{\mathcal C}$ (finite iterated integrals of the derivative) and $\mathcal E(X,Y)=\sum_{Y[\mathcal C]=Y}F_{\mathcal C}$, with the sets $D(P)$, $Y[\mathcal C]$ of §4.2 (explicit finite combinatorics).
+- **Def-Ξ** (D-SF/BG): `Xi G σ ε`, `XiC G σ ε` with (Ξ1)–(Ξ4) as theorems.
+
+### 5.2 Statements, status, and which are frozen
+
+| Label | Content (exact statement in) | Carriers and quantifier order | Status | Frozen? |
+|---|---|---|---|---|
+| NC | interior bounds of the cube operator (§3.1) | $\forall d\ge3,L\ge3,N$ $\exists B_0,\gamma_0$ $\forall M_1\ge4L^2$ $\forall$ cube-aligned $\mathbb B$, $a,\nu$, $A$, centre $z$ | planned; new Lean (generalise landed modules by a bond-subset parameter) | internal (Green layer), PENDING |
+| DG1–DG6 (+DG7) | decoupled Green's operator (§3.1) | $\forall\kappa_1\ge1$ $\exists c_*,B_G$ $\forall M_1\ge M_*(\kappa_1)$ $\forall s,A$ | proved at paper level from NC, (K), (G), (G$_{\rm loc}$) | internal |
+| I-4a | decoupled perturbed system, both modes (§3.2) | $\forall\kappa_1\ge1$ $\exists M_*,c_6,\delta_*,K_3$ (functions of $d,L,N,\kappa_1$ only) $\forall M_1\ge M_*$ $\forall$ cube-aligned $\mathbb B_k$, $X_0\subset X_1$, data, $s\in\mathcal P(\kappa_1)$: $\exists!\,\xi$, analytic, bounds, closeness, locality | proved at paper level | **frozen** (after R-B2) |
+| I-4b | decoupled background field and $\psi(s)$ (§3.3) | same constants plus $c_7,K_4$; data in $\tilde\Psi^c(\mathbb B_k;\delta,\varepsilon)$ | proved modulo R-B1 | **frozen** (after R-B1) |
+| I-4c | constrained covariance, square root, logarithm (§3.4) | $\forall\kappa_1\ge1$ $\exists M_*,\delta_*,B_4,B_5$ $\forall$ data (P3 (3.2)), $x\ge0$, $s$ | proved at paper level | **frozen** |
+| AE | abstract interpolation–resummation (§4.1) | purely finite-set statement | proved | **frozen** (consumers V2–V6 use it directly) |
+| GM1–GM4 | geometry/counting (§4.2) | finite domains of cubes | GM1, GM3, GM4 proved, GM2 sketched | internal |
+| DL | domain lemma (§4.3) | needs Def-Ξ | proved given (Ξ1)–(Ξ4) | internal |
+| I-5 | Theorem I-5 (§4.4), with (C1)–(C6) | $\forall d,L,N,\kappa_0,\kappa,m_0,\kappa_1$ $\exists M_*,\dots$ $\forall M_1\ge M_*$ $\forall k,j,X,\mathcal E,\varepsilon',\delta_1$ | proved given DL, GM, I-4 | **frozen** (after Def-Ξ is fixed) |
+| I-5 (V2)–(V5) | variations (§4.6) | as above, with $F$ given by I-4c etc. | proved given I-4c, AE | frozen as separate statements |
+
+What is *internal*: NC, DG, GM, DL and everything in §3.1–§4.3 that is not an interface to I-8. The frozen statements are the ones I-8 (P6 §4, P4 Props 2.1–2.2) and LF consume. The count is five main frozen theorem statements (I-4a, I-4b, I-4c, AE, I-5), the four variations (V2)–(V5) as separate statements, and the definitions of §5.1.
+
+### 5.3 Order of constants (extends roadmap §4.4)
+
+(1) $d,N$; $\kappa_0,K_0$ (dimension). (2) $L\ge3$, $a$, $\gamma,\alpha,\alpha_1$. (3) $\kappa\ge3\kappa_0+3$ (larger by the losses of P6 (4.54), (4.67), roadmap item 3), then $m_0$ with $L^{m_0}\ge14d$, $\kappa_1:=\max\{4d(2L+1)^d\kappa,\,4d\log((2L+1)L^{m_0})+2\}$. (4) $M_*(\kappa_1)=\max(4L^2,c_*e^{N_0\kappa_1})$, $M_1=L^{m_1}\ge M_*$ also satisfying (4.38) first part ($e^{\gamma_wM_1}\ge4(d+2)(K_2+1)K_4/\eta_\varepsilon$); $M:=L^{m_0}M_1$; $r_0=8$; $R\ge R_0(d,L)$ so that $\varrho=RM\ell_j$ meets the separation. (5) The constants $B_G,c_6,\delta_*,K_3,K_4,c_7,B_4,B_5$ depend on $(d,L,N,\kappa_1)$ **only, not on $M_1,M$**. (6) $\alpha_0$ (all $\varepsilon_j$) small enough that $2(d+2)\varepsilon_{k+1}\le c_7$; $\delta_1\le\delta_1^{\max}$ is then a condition on $\beta_k$ via $\delta_1=B_5C\beta_k^{-1/2+\alpha_1}$. (7) $\beta_0$ large. Nothing in P3, P5, P6 bounds $M_1$ or $M$ from above (checked: P3 pp. 39, 43, 68, 76, 80–81; P5 (2.10)–(2.20); P6 p. 23–25; P7's conditions on $H_0,A_0$ are lower bounds). The output exponents $\kappa_0,2\kappa$ do not depend on $M_1$ (answers ER-057, second half).
+
+---
+
+## 6. What changes at $\lambda=\infty$; errata; places where P3 is sketched
+
+### 6.1 Changes
+
+1. $\lambda G(\lambda)\to1$: P3 (2.31)–(2.34) (the bound on $\lambda G(\square,\lambda)$ via rescaling, a Neumann series in $Q^*_{j+1}Q_{j+1}-Q_j^*Q_j$ and a unit-lattice walk) disappear (ER-029 moot; GR C3).
+2. The singular equation (2.24) $\phi_0\cdot\delta\phi+\frac12\delta\phi\cdot\delta\phi-\frac1\lambda\delta\alpha=\frac1\lambda\alpha_1$ with its algebra (2.25)–(2.30) ($V(h_z)$, tree graphs $t_1$, $t_2$) is replaced by the Leibniz fixed point $\delta\alpha=\mathcal N_s(\delta\alpha)$ of BG §5.1, with $G$ replaced by $G_s$ and $K$, $R$ unchanged; for $s\ne1$ it is a definition. This also removes the need for localized estimates of the *differential* of $H_2$ (P3 (2.47)–(2.48), (2.51)–(2.52)): closeness is obtained from (DG6) and a weighted contraction.
+3. The third term of $C_x$ (P3 (3.9), the constraint) involves $\Pi=G\phi_0[\phi_0\cdot G\phi_0]^{-1}\phi_0\cdot G$ and is expanded in the 12-type walk P3 (3.15)–(3.20); here $\Pi_s=G_s\phi_0M_s^{-1}N_s$ with $M_s^{-1}$ a Neumann series (GR 4.5a), and the constraint algebra is an operator identity at $s=1$ (GR 4.7(b$'$)).
+4. $\alpha_1$ drops out ($\alpha_1/\lambda$); the constraint of the perturbed problem has two modes (§3.2); the decoupled fields do not satisfy the constraint for $s\ne1$ (P3 p. 57), so the defect enters (I-4b(ii)).
+5. Signs and orientation: the constrained covariance is $C_x=A+a_k^2AQ(G-\Pi)Q^*A$ (GR 4.7(b$'$): the sign of the third term of P3 (3.9) is minus; P3 prints the term in the form $-a_k^2A\,Q_kG\phi_0[\dots]^{-1}\dots$, consistent).
+6. The Hölder exponent: one fixed $\alpha_1$ (GR C1), through (3.107) of P1 only.
+
+### 6.2 Errata rows for P3 (ER-042–ER-057) and neighbours
+
+| Row | Disposition here |
+|---|---|
+| ER-042 (citations off by 10) | moot: the Green's function bounds are those of landed G-2, not [2b] |
+| ER-045 (convergence of (2.8) for $x$-dependent $G_{k,x}$) | DG1/DG7: operator norm $\le\frac14$ from NC (form-level, uniform in $x$) and (K) |
+| ER-046 (index restrictions of the 12-type walk (3.17); constants $48$, $8^n$) | eliminated (§3.4): no such walk; the constraint is an operator formula |
+| ER-047 (uniqueness and analyticity of $\delta\alpha_k(s)$) | I-4a(a),(b): Banach contraction, analytic fixed point (`exists_analytic_fixedPoint`) |
+| ER-048 (log operator not stated) | stated as $\mathbb L(s)$, I-4c |
+| ER-049 (dimensional consistency (4.48)) | (GM2): $L^{-(k+1-j)}\le L^{-1}$ in the dimensionless normalisation; remaining UNCERTAIN: P1 (2.27) normalisation |
+| ER-050 ($M^{-1}$ vs $M^{-1/2}$; unlisted conditions) | replaced by the single list (C1)–(C6) and $M_1\ge M_*(\kappa_1)$ |
+| ER-051 ($r_0$, $r_1$) | $r_0=8$, $r_1=r_0-6=2$ (cover range is larger than P3's walk range) |
+| ER-052 ($\varepsilon_j$, (4.47)) | (4.47) replaced by $\kappa_1\ge1$; $\varepsilon_j$ only through the gap (E) (UNCERTAIN, D-SF) |
+| ER-053 (strengthened (H.5)) | not resolved here: it is the *hypothesis* (4.31) of I-5; re-establishing it is I-8 |
+| ER-054 (Prop 4.3 under $X\subset X_1\subset\Omega_{k+1}$) | variations V2–V5 stated and proved; V1, V6 not (§4.6) |
+| ER-055 ($|\psi|<p_1(\beta_k)$) | $\delta_1$ is a hypothesis; the choice $\delta_1=B_5C\beta_k^{-1/2+\alpha_1}$ is (V2) |
+| ER-056 ("next paper") | identified: P3 is used by P4 pp. 677, 687, 696; P5 pp. 503–514; P6 §4; P7 pp. 509–530; P9 p. 506 (§1.5) |
+| ER-057 ($\kappa_0$ independent of $M$) | yes: $\kappa_0\le\frac13\kappa-1$, no dependence on $M_1$, $M$ |
+| ER-024/025 (order of constants) | §5.3, for the part concerning P3 |
+| ER-058/059 (P4 uses [3]) | consumer side, §1.5; I-8 |
+| ER-100 (extra analyticity in $\sigma$, P6 p. 42) | (V2): $\sigma$ is one more parameter of $F$ |
+
+New findings (candidates for the errata ledger): **N-1** P3 (2.16)/(4.41) multiply over cubes *contained in* $X_\omega$; a $\pi_{n+1}$-cube partially covered by a walk cube at a layer interface is then not killed by $s=0$ (fix: "meets", §1.2). **N-2** P3 Prop 2.1's "$\delta\alpha_k(s)=0$ on $Y_0$" does not hold for the decoupling constructed here and no consumer found uses it. **N-3** The $\lambda=\infty$ fluctuation problem needs the *preserving* constraint $(\phi_0+\delta\phi)^2=\phi_0^2$ (P2 (3.20) as printed), not the unit constraint of BG Prop 5.1, because $\phi_0=\phi_{k+1}(s)$ is not a unit field for $s\ne1$ (§3.2, R-B2). **N-4** BG Thm 6.1 (i), (iv) must be stated for non-solutions $\phi'$ with $|\phi'\cdot\phi'-1|\le K\delta$ (R-B1). **N-5** P3's final statement (4.37) needs $\varepsilon_k\le\varepsilon_j$ ($j\le k$) (sequence decreasing). **N-6** The conditions on $M_1$ are linear in $\kappa_1$ in P3 ((2.19)) because its weights are shared along the walk; they are exponential for multiplicative weights (D1 has the exponential form). **N-7** P3's $(X_1^c)^{\sim2}$ in (2.22) must be $(X_1^c)^{\sim5}$ for a cover of range $5M_1$ (with $r_0\ge8$). **N-8** P6 pp. 8, 11, 12, 24 cite "Proposition 4.1 [3]"; P3 has no such proposition (read: Prop 4.3).
+
+### 6.3 Places where P3 is sketched, and how they are treated here
+
+Prop 2.3 ("the remaining arguments are the same"): I-4b(v), proved given R-B1. Lemma 4.1 ("follows immediately by inspecting the definitions"): (Ξ3), cited from the definition. The Gaussian integration (3.7)–(3.9) ("elementary"): GR 4.7(b$'$), a block-matrix identity, proved. Prop 3.1's log operator: I-4c. The tree-graph geometry (pp. 79–80): (GM2), sketched. The final domains $\mathscr D(\mathbb B_{k+1}(Y))$ and "$Y_1\cap\mathbb B'_{k+1}=Y_1\cap\mathbb B_{k+1}$" (p. 79): handled by the locality in the generating set of the Neumann cube operators (§4.4). The "simple variations": §4.6.
+
+---
+
+## 7. Lean plan and size estimate
+
+Landed modules relied on: `Balaban/Multiscale/{GeneratingSet, GlobalBound, HolderGlobal, Pointwise48, PointwiseHolderMain, ConstraintSup, ConstraintDecay, ConstraintLocality, XVariant*, KernelAlgebra, Analyticity, ScaleMismatch}`, `Balaban/Green/{Coercivity*, Summation, ...}`, `Balaban/Analysis/{Cauchy, Contraction}` (polydisc Cauchy estimates, `exists_analytic_fixedPoint`), W20/W22 (Prop 5.1, approximate field and B-spline partition, running).
+
+| Item | Content | Lines | Depends on | Risk |
+|---|---|---|---|---|
+| NC | bond-subset operator: coercivity, $L^2$ Agmon decay, interior pointwise and Hölder bounds, $x$-variant | 4,000–6,000 | landed coercivity, Agmon, `prop48`, `prop49` (parametrize by a cut-bond set) | **high** (largest item; the interior statements must be re-stated for a local equation) |
+| Cov | cube-aligned generating sets, cover, B-spline $\chi_z$ at cube scale, (Cov1)–(Cov4), $\mathcal Q(z)$, $N_0$ | 1,200–1,800 | W22 (BG Lemma 5.3a/b) | medium (layer interfaces; UNCERTAIN of §1.2) |
+| K | cut commutator, Leibniz form, (K) from BG Lemma 3.1 | 400–600 | BG calculus (W20) | low |
+| DG | DG1–DG6, weighted operator norms, Neumann series, analyticity in $(s,A)$, Lipschitz in $A$ | 1,500–2,500 | NC, Cov, K, `Analysis/Cauchy` | medium |
+| DG7 | $x$-variant, $L^2$ | 1,000–1,500 | NC (x), `Dec`, `XVariant*` | medium |
+| I-4a | abstract-family Prop 5.1 in modes U, P; weighted closeness; locality | 1,500–2,200 | DG, W20 (R-B2), `exists_analytic_fixedPoint` | medium |
+| I-4b | $\phi_k(s)$, $\psi(s)$, closeness, locality; R-B1 in BG §6 | 800–1,500 | I-4a, BG 5.3, 6.x | medium (R-B1) |
+| I-4c | $M_s^{-1}$, $\Pi_s$, $C_x(s)$, $x$-integrals, $C^{1/2}$, $\mathbb L$, identification at $s=1$ | 2,500–3,500 | DG7, GR 4.5a/4.7 landed (`xVariant_constrained_reduction`, `constrained_G2v`) | medium |
+| AE | Lemma AE | 600–1,000 | `Analysis/Cauchy` | low |
+| GM | $D(P)$, $Y[\mathcal C]$, (GM1)–(GM4), trees (GM2) | 1,800–2,800 | lattice domains (`Lattice`), D-PE `pe_hole` (Steiner/tree size) | medium |
+| DL | Lemma DL, (4.38), (Ξ1)–(Ξ4) usage | 1,500–2,500 | I-4a/b, Def-Ξ (D-SF), BG Thm 6.1 | **high** (definitions of $\Xi^c$) |
+| I-5 | assembly of Theorem I-5, constants (C1)–(C6) | 600–1,000 | AE, GM, DL | low |
+| Variations | V2–V5 | 1,500–2,500 | I-4c, AE | medium |
+| Total | | 18,000–29,000 | | |
+
+Compared with the plan of GR (G-3 at 3,000–5,000 lines plus I-4/I-5 unestimated), the walk-expansion part is smaller than P3's (no walk counting, no geometric lemma (2.18)–(2.22), no 12-type walk). The largest single risk is NC (the bond-subset generalisation of the pointwise modules); if it proves too costly, the fallback is the reflection argument of GR 4.6 *plus* the landed global bounds on a reflected generating set (checking separation after reflection), or P3's own treatment citing [2b].
+
+---
+
+## 8. Questions, doubts
+
+**Questions.**
+1. (D-SF/P1 reader) State the $\lambda=\infty$ definition of $\Xi_j$, $\Xi_j^c$ (P3 (4.25)–(4.28)) so that (Ξ1)–(Ξ4) are theorems, and the exact gap condition on $(\varepsilon_j)$ replacing (E) ($\varepsilon_j$ formula, P3 p. 76; ER-052). Both are inputs of Lemma DL.
+2. (BG/W20 author) R-B1 (BG Thm 6.1 (i), (iv), Lemmas 6.2, 6.3 for non-solutions with $|\phi\cdot\phi-1|\le K\delta$) and R-B2 (Prop 5.1 for an abstract Green family, both constraint modes U and P). The W20 worker should be told before Prop 5.1 is fixed in Lean.
+3. (Orchestrator, GREEN) Accept replacing G-3 by the interior statement NC and schedule its generalisation of the landed modules (bond-subset operator) as a work package; accept $M_1\ge c\,e^{N_0\kappa_1}$ (exponential, as in D1) instead of P3's linear condition. Please check once more that no phase-1 document bounds $M$ from above (I found none, §5.3).
+4. (Consumer check) P3's Prop 2.1 assertion $\delta\alpha_k(s)=0$ on $Y_0$ (N-2) is dropped. I found no use in P5, P6, P7 (pp. 23–24, 505–514, 509–530). A second reader of P6 §4 should confirm.
+5. (Variation V1) If a consumer needs $X\subset X_1\subset\Omega_k$ with $k=j$ (rather than P6's modified generating set), the exponent bookkeeping of (GM4) has to change; which exponents P4 (H.4)/(H.7) can afford is a question for the I-8 document.
+
+None of these are questions for Roland.
+
+**Open doubts (UNCERTAIN, collected).** (a) The cover at layer interfaces and near the wall (§1.2; the B-spline normalisation $D$ and (Cov3) near $\partial\Omega_1$; BG 5.3a was found false for the collar case in $d\ge4$ and the partition here avoids the collar, to be rechecked). (b) The simplifications (i) one-sided parametrix and (iii) multiplicative weights are ours; the identity $HG^*=1-\mathcal K$ and the bound $\|\mathcal K_s\|\le\frac14$ were checked line by line, but no independent review exists. (c) NC3 (interior pointwise bounds for the bond-subset operator) is claimed to follow from the landed local machinery; the landed statements are for the global operator (§3.1, §7). (d) The definition of the weights by "meets" (N-1) and the constant $N_0$. (e) (Ξ1)–(Ξ4), (E), $\varepsilon_k\le\varepsilon_j$ (N-5). (f) The normalisation of $d_j$ and $\tilde d_{k+1}$ in (GM2) (ER-049). (g) $r_0=8$ in place of $r_0=5$ and the claim $r_1=2$ (N-7). (h) The identification at $s=1$ of the fluctuation problem in mode P with BG Prop 6.4's perturbed composition (BG Prop 6.4 is proved for $g\equiv0$ only, which is the case at $s=1$). (i) That the $x$-integral in I-4c converges to the same $C^{(k)1/2}$ for complex data (analytic continuation from real data on a connected domain; the connectedness of the data domain was not checked).
+
