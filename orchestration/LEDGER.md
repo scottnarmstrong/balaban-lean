@@ -65,3 +65,5 @@
 | 2026-10-11 | D-LF v4 | running | Opus; counting closure (pending cores, C-01..C-05), adjacency R3-01, tori R3-05, Def-7/LF-4 design decisions R3-06..R3-11, outline of the reconstruction document |
 | 2026-10-11 | W20 background I | running | Sonnet; BACKGROUND.md §9 Data, Calculus, Contraction (Prop 5.1) |
 | 2026-10-11 | astra Lemma 5.3 | running | tmux `astra-bg`: full proof of BACKGROUND Lemma 5.3/5.3a/5.3b (approximate solution, C^{1,1} partition of unity), settle the collar UNCERTAIN, compare multilinear interpolation vs B-splines → `LEMMA53.md` |
+| 2026-10-11 | W19 Root-C assembly | landed | `rootC_of_rootF_c1Star` (Theorem 3.1: `RootFAndC1Star` + kernel hypotheses ⇒ `RootCStatement`, defeq to frozen Root-C by probe on main), `rootC_of_rootF_c1Star_kernelLarge`; `C1Star` (F1)–(F3) + additions: limits of r^ℓ along tori, their ν↓0 limits, 2|x−y| < ℓ; `RootFAndC1Star` joint ∃ L ≥ 3, M; `KernelHypLarge` (masses μL^{2(j+1)} ≤ 2L⁴) → W17b; `goldstone_uniform` (≈2,000 lines) |
+| 2026-10-11 | W21 global Hölder | running | Sonnet; G-2(iii) all pairs of P2 (3.17), Hölder part of G-2(iv) |
