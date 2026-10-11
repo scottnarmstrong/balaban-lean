@@ -173,6 +173,9 @@ public import Balaban.Correlations.KernelPointwise
 public import Balaban.Correlations.FineGreenLimits
 public import Balaban.Correlations.KernelLimits
 public import Balaban.Correlations.KernelHypProof
+public import Balaban.Correlations.KernelLarge
+public import Balaban.Correlations.KernelLargeAssembly
+public import Balaban.Correlations.RootCFromFlow
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
 public import Balaban.Correlations.RootCStatement

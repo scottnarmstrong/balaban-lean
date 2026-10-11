@@ -56,7 +56,7 @@ theorem loc_lift (hd : 3 ≤ d) :
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ)
 
 /-- The zero extension of the source. -/
 def ft : Torus d (N₀ * L ^ k) → ℂ := zeroExt (G.Ω 1) S.f
@@ -67,7 +67,7 @@ theorem g_bound {j : ℕ} (hj2 : 2 ≤ j) (hjk : j ≤ k) {x : Torus d (N₀ * L
     (hM0 : 0 ≤ M)
     (hM : ∀ q ∈ G.Ω 1, G.pathDist q x ≤ ENNReal.ofReal (2 * d + 1) → ‖S.ut q‖ ≤ M) :
     ‖negLap (fun w => S.ut (liftPt x w)) z‖ ≤
-      ‖S.ft (liftPt x z)‖ + 4 * (((L : ℝ) ^ (j - 1)) ^ 2)⁻¹ * M := by
+      ‖S.ft (liftPt x z)‖ + (3 + Λ) * (((L : ℝ) ^ (j - 1)) ^ 2)⁻¹ * M := by
   have hLpos : (0 : ℝ) < (L : ℝ) ^ (j - 1) := by
     have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
     positivity
@@ -99,6 +99,7 @@ theorem g_bound {j : ℕ} (hj2 : 2 ≤ j) (hjk : j ≤ k) {x : Torus d (N₀ * L
   have h2 : ((G.spacing p) ^ 2)⁻¹ ≤ (((L : ℝ) ^ (j - 1)) ^ 2)⁻¹ := by
     apply inv_anti₀ (by positivity)
     exact pow_le_pow_left₀ hLpos.le hlo 2
+  have hΛ0 : 0 ≤ Λ := le_trans (by have := S.hν0; positivity) S.hν1
   unfold ft
   gcongr
 

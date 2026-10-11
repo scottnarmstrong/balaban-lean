@@ -12,8 +12,8 @@ import Mathlib.Tactic.FieldSimp
 
 `oneScale_pointwise`: the entries of `K = a G Q*` (`Balaban.Green.fineToBlockKernel`) satisfy
 `|K(x, y')| ≤ K₀ e^{-δ₀ dist(block x, y')}` for every fine site `x` (not only in the block `L²`
-sense of `fineToBlockKernel_decay`), with `K₀, δ₀` depending on `d, L` only, uniformly in
-`k ≥ 1`, the volume, `ν ∈ [0, 1]` and `a ∈ [1/2, 2]`.  It is the pointwise Proposition 4.8
+sense of `fineToBlockKernel_decay`), with `K₀, δ₀` depending on `d, L, Λ` only, uniformly in
+`k ≥ 1`, the volume, `ν ∈ [0, Λ]` and `a ∈ [1/2, 2]`.  It is the pointwise Proposition 4.8
 (`Balaban.Multiscale.prop48`) applied to the single-scale generating set (`oneScaleSet`); it
 needs `d ≥ 3`, `L ≥ 3`.
 -/
@@ -26,13 +26,13 @@ open Matrix Finset Balaban Balaban.Multiscale
 
 variable {d L : ℕ} [NeZero L]
 
-theorem oneScale_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
+theorem oneScale_pointwise_le (hd : 3 ≤ d) (hL : 3 ≤ L) (Λ : ℝ) (hΛ : 0 ≤ Λ) :
     ∃ K : ℝ, 0 ≤ K ∧ ∀ {k N₀ ℓ : ℕ} [NeZero N₀] [NeZero ℓ], 1 ≤ k → ℓ = N₀ * L ^ k →
-      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → ∀ (y' : Torus d N₀) (x : Torus d ℓ),
+      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ Λ → 1 / 2 ≤ a → a ≤ 2 → ∀ (y' : Torus d N₀) (x : Torus d ℓ),
       |fineToBlockKernel d ℓ (L ^ k) N₀ ν a x y'| ≤
         K * Real.exp (-(blockDecayRate d * torusDist d N₀ (blockMap (L ^ k) N₀ x) y')) := by
   classical
-  obtain ⟨K2, hK2, hP⟩ := prop48 (d := d) (L := L) hd hL
+  obtain ⟨K2, hK2, hP⟩ := prop48 (d := d) (L := L) hd hL Λ hΛ
   have hd0 : 0 < d := by omega
   refine ⟨2 * K2 * Real.exp (blockDecayRate d * d), by positivity, ?_⟩
   intro k N₀ ℓ _ _ hk hℓ0 ν a hν hν1 ha1 ha2 y' x
@@ -62,7 +62,7 @@ theorem oneScale_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
     simp only [Pi.zero_apply, norm_zero]
     exact div_nonneg (coerciveConst_pos hd0).le (by positivity)
   have hν' : 0 ≤ ν / ((L : ℝ) ^ k) ^ 2 := by positivity
-  have hν'1 : ν / ((L : ℝ) ^ k) ^ 2 * ((L : ℝ) ^ k) ^ 2 ≤ 1 := by
+  have hν'1 : ν / ((L : ℝ) ^ k) ^ 2 * ((L : ℝ) ^ k) ^ 2 ≤ Λ := by
     rw [div_mul_cancel₀ _ (by positivity)]; exact hν1
   set B := blockHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ (ν / ((L : ℝ) ^ k) ^ 2)
     (a / ((L : ℝ) ^ k) ^ 2) with hB
@@ -85,7 +85,7 @@ theorem oneScale_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have h1 : blockMap (L ^ k) N₀ (i : Torus d (N₀ * L ^ k)) = blockMap (L ^ k) N₀ z' := by
       rw [blockIndicator_support y' _ hFx, hz']
     exact (blockMap_eq_iff_of_sides hℓ hm _ _).1 h1
-  let S : PtSetting G :=
+  let S : PtSetting G Λ :=
     { a := fun _ => a, ν := ν / ((L : ℝ) ^ k) ^ 2, α := 0, f := f, j' := k, y' := z'
       hd := hd, hL := hL, hν0 := hν', hν1 := hν'1, ha := hadm, hα := hα, hϱ := hϱ,
       hsep := hsep, hj'1 := hk, hj'k := le_rfl, hy' := mem_layer_k ϱ z', hsupp := hsupp }
@@ -162,5 +162,13 @@ theorem oneScale_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
           apply mul_le_mul ha2 (mul_le_mul_of_nonneg_left hexp hK2) (by positivity)
           norm_num
       _ = _ := by ring
+
+/-- `oneScale_pointwise_le` at `Λ = 1`: the unit-lattice masses `ν ∈ [0, 1]`. -/
+theorem oneScale_pointwise (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ {k N₀ ℓ : ℕ} [NeZero N₀] [NeZero ℓ], 1 ≤ k → ℓ = N₀ * L ^ k →
+      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → ∀ (y' : Torus d N₀) (x : Torus d ℓ),
+      |fineToBlockKernel d ℓ (L ^ k) N₀ ν a x y'| ≤
+        K * Real.exp (-(blockDecayRate d * torusDist d N₀ (blockMap (L ^ k) N₀ x) y')) :=
+  oneScale_pointwise_le hd hL 1 zero_le_one
 
 end Balaban.Green

@@ -178,7 +178,14 @@ theorem blockProj_quadratic [NeZero M] (hm : m = L * M) (hL : 0 < L) (φ : Torus
   simp only [dotProduct, blockProjMatrix_mulVec]
   exact sum_mul_blockProjection hm hL φ
 
-/-- **Coercivity of `A = Δ_tr + (a'/L²) Q*Q`**: `⟨φ, A φ⟩ ≥ γ ‖φ‖²`, `γ = trGamma d L`. -/
+theorem a_mul_div_ge {d : ℕ} {ν a : ℝ} (hν : 2 ≤ ν) (ha : 1 / 2 ≤ a) :
+    1 / (8 * (d : ℝ) + 5) ≤ a / (a + 4 * d + ν) * ν := by
+  have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+  have ha0 : 0 < a := by linarith
+  rw [div_mul_eq_mul_div, div_le_div_iff₀ (by positivity) (by positivity)]
+  nlinarith [mul_le_mul ha hν (by norm_num) ha0.le, mul_nonneg hd (mul_nonneg ha0.le (by linarith : (0 : ℝ) ≤ ν))]
+
+/-- Coercivity of `A = Δ_tr + (a'/L²) Q*Q` for `ν ∈ [0, 2]`. -/
 theorem coarseOperator_form [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m) (hN : 0 < N)
     (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a)
     (ha'1 : 1 / 2 ≤ a') (φ : Torus d m → ℝ) :
@@ -225,6 +232,57 @@ theorem coarseOperator_form [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N *
   rw [← hc1, ← hc2]
   nlinarith
 
+/-- Coercivity of `A = Δ_tr + (a'/L²) Q*Q` for `ν ≥ 2`. -/
+theorem coarseOperator_form_large [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : m = L * M) {ν a a' : ℝ} (hν2 : 2 ≤ ν) (ha1 : 1 / 2 ≤ a)
+    (ha'1 : 1 / 2 ≤ a') (φ : Torus d m → ℝ) :
+    trGamma d L * ∑ x, φ x ^ 2 ≤ φ ⬝ᵥ coarseOperator d ℓ N m L M ν a a' *ᵥ φ := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hLr : (0 : ℝ) < L := by exact_mod_cast hL
+  have hd' : (0 : ℝ) < d := by exact_mod_cast hd
+  have ha0 : 0 < a := by linarith
+  have hν0 : 0 ≤ ν := by linarith
+  have hΔ := unconstrainedUnitOperator_lower hℓ hN hd hν0 ha0 φ
+  have hE : 0 ≤ latticeEnergy φ := latticeEnergy_nonneg φ
+  have hSum : 0 ≤ ∑ x, φ x ^ 2 := Finset.sum_nonneg fun _ _ => sq_nonneg _
+  have hSnn : 0 ≤ ∑ x, (blockProjection L M φ x) ^ 2 := Finset.sum_nonneg fun _ _ => sq_nonneg _
+  have hg := a_mul_div_ge (d := d) hν2 ha1
+  have hg0 : 0 ≤ a / (a + 4 * d + ν) := by positivity
+  have hform : φ ⬝ᵥ coarseOperator d ℓ N m L M ν a a' *ᵥ φ =
+      φ ⬝ᵥ unconstrainedUnitOperator d ℓ N m ν a *ᵥ φ +
+        a' / (L : ℝ) ^ 2 * ∑ x, (blockProjection L M φ x) ^ 2 := by
+    unfold coarseOperator
+    rw [Matrix.add_mulVec, dotProduct_add, Matrix.smul_mulVec, dotProduct_smul, smul_eq_mul,
+      blockProj_quadratic hm hL]
+  have hc1 : 0 ≤ min (1 / (8 * (d : ℝ) + 5)) (1 / (2 * (L : ℝ) ^ 2)) :=
+    le_min (by positivity) (by positivity)
+  have hc2a : min (2 / ((d : ℝ) * (L : ℝ) ^ 2)) 1 ≤ 1 := min_le_right _ _
+  have hc1a : min (1 / (8 * (d : ℝ) + 5)) (1 / (2 * (L : ℝ) ^ 2)) ≤ 1 / (8 * (d : ℝ) + 5) :=
+    min_le_left _ _
+  have hγ : trGamma d L ≤ a / (a + 4 * d + ν) * ν := by
+    unfold trGamma
+    calc _ ≤ min (1 / (8 * (d : ℝ) + 5)) (1 / (2 * (L : ℝ) ^ 2)) * 1 :=
+          mul_le_mul_of_nonneg_left hc2a hc1
+      _ ≤ _ := by rw [mul_one]; exact hc1a.trans hg
+  have hnn : 0 ≤ a' / (L : ℝ) ^ 2 * ∑ x, (blockProjection L M φ x) ^ 2 := by
+    have : 0 ≤ a' := by linarith
+    positivity
+  have h1 : trGamma d L * ∑ x, φ x ^ 2 ≤ a / (a + 4 * d + ν) * (latticeEnergy φ + ν * ∑ x, φ x ^ 2) :=
+    calc _ ≤ (a / (a + 4 * d + ν) * ν) * ∑ x, φ x ^ 2 := mul_le_mul_of_nonneg_right hγ hSum
+      _ ≤ _ := by nlinarith [mul_nonneg hg0 hE]
+  rw [hform]
+  linarith
+
+/-- **Coercivity of `A = Δ_tr + (a'/L²) Q*Q`** for every mass `ν ≥ 0`, with the constant
+`γ = trGamma d L` independent of `ν`. -/
+theorem coarseOperator_form_of_nonneg [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (ha1 : 1 / 2 ≤ a)
+    (ha'1 : 1 / 2 ≤ a') (φ : Torus d m → ℝ) :
+    trGamma d L * ∑ x, φ x ^ 2 ≤ φ ⬝ᵥ coarseOperator d ℓ N m L M ν a a' *ᵥ φ := by
+  rcases le_total ν 2 with h | h
+  · exact coarseOperator_form hd hℓ hN hm hν0 h ha1 ha'1 φ
+  · exact coarseOperator_form_large hd hℓ hN hm h ha1 ha'1 φ
+
 theorem isUnit_det_of_isUnit_map {ι : Type*} [Fintype ι] [DecidableEq ι] (A : Matrix ι ι ℝ)
     (h : IsUnit (A.map (algebraMap ℝ ℂ))) : IsUnit A.det := by
   rw [Matrix.isUnit_iff_isUnit_det] at h
@@ -244,12 +302,20 @@ theorem map_inv_real {ι : Type*} [Fintype ι] [DecidableEq ι] (A : Matrix ι �
   apply Matrix.inv_eq_right_inv
   rw [← Matrix.map_mul, Matrix.mul_nonsing_inv _ hdet, Matrix.map_one _ (map_zero _) (map_one _)]
 
-/-- `A` is invertible (its determinant is a unit). -/
-theorem coarseOperator_det_isUnit [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m) (hN : 0 < N)
-    (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a)
+/-- `A` is invertible (its determinant is a unit), for every mass `ν ≥ 0`. -/
+theorem coarseOperator_det_isUnit_of_nonneg [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (ha1 : 1 / 2 ≤ a)
     (ha'1 : 1 / 2 ≤ a') : IsUnit (coarseOperator d ℓ N m L M ν a a').det :=
   isUnit_det_of_isUnit_map _ (isUnit_of_isCoercive (trGamma_pos hd)
-    (isCoercive_map_of_real _ fun φ => coarseOperator_form hd hℓ hN hm hν0 hν2 ha1 ha'1 φ))
+    (isCoercive_map_of_real _ fun φ =>
+      coarseOperator_form_of_nonneg hd hℓ hN hm hν0 ha1 ha'1 φ))
+
+/-- `A` is invertible (its determinant is a unit); the case `ν ≤ 2` of
+`coarseOperator_det_isUnit_of_nonneg`. -/
+theorem coarseOperator_det_isUnit [NeZero M] [NeZero L] (hd : 0 < d) (hℓ : ℓ = N * m) (hN : 0 < N)
+    (hm : m = L * M) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (_hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a)
+    (ha'1 : 1 / 2 ≤ a') : IsUnit (coarseOperator d ℓ N m L M ν a a').det :=
+  coarseOperator_det_isUnit_of_nonneg hd hℓ hN hm hν0 ha1 ha'1
 
 end Coercive
 
@@ -275,9 +341,9 @@ theorem coarseOperator_entry (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν
 
 /-- **G-5(a), second half.**  `C_tr = (Δ_tr + (a'/L²) Q*Q)⁻¹` has exponentially decaying entries,
 `|C_tr(y, y')| ≤ (2/γ) e^{-δ dist(y, y')}`, with `γ = trGamma d L`, `δ = trRate d L`, uniformly
-in `k ≥ 1`, the volume `N₀ = L M`, `ν ∈ [0, 2]`, `a, a' ∈ [1/2, 2]`. -/
-theorem coarseGreen_decay (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν a a' : ℝ}
-    (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a')
+in `k ≥ 1`, the volume `N₀ = L M`, every mass `ν ≥ 0`, `a, a' ∈ [1/2, 2]`. -/
+theorem coarseGreen_decay_of_nonneg (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν a a' : ℝ}
+    (hν0 : 0 ≤ ν) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a')
     (ha'2 : a' ≤ 2) (y y' : Torus d N₀) :
     |(coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν a a')⁻¹ y y'| ≤
       2 * (trGamma d L)⁻¹ * Real.exp (-(trRate d L * torusDist d N₀ y y')) := by
@@ -288,7 +354,7 @@ theorem coarseGreen_decay (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν a 
   have hδ := blockDecayRate_pos hd
   have hcoer : IsCoercive (A.map (algebraMap ℝ ℂ)) (trGamma d L) :=
     isCoercive_map_of_real A fun φ =>
-      coarseOperator_form hd hℓ hN hm hν0 hν2 ha1 ha'1 φ
+      coarseOperator_form_of_nonneg hd hℓ hN hm hν0 ha1 ha'1 φ
   set Ac : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ := A.map (algebraMap ℝ ℂ) with hAc
   have hA : ∀ x y : L1Torus d N₀, ‖Ac x y‖ ≤
       trC0 d L * Real.exp (-blockDecayRate d * dist x y) := by
@@ -318,6 +384,14 @@ theorem coarseGreen_decay (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν a 
   have := hb y y'
   rw [e2, neg_mul] at this
   exact this
+
+/-- **G-5(a), second half**, the case `ν ∈ [0, 2]` of `coarseGreen_decay_of_nonneg`. -/
+theorem coarseGreen_decay (hd : 0 < d) (hk : 1 ≤ k) (hm : N₀ = L * M) {ν a a' : ℝ}
+    (hν0 : 0 ≤ ν) (_hν2 : ν ≤ 2) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a')
+    (ha'2 : a' ≤ 2) (y y' : Torus d N₀) :
+    |(coarseOperator d (N₀ * L ^ k) (L ^ k) N₀ L M ν a a')⁻¹ y y'| ≤
+      2 * (trGamma d L)⁻¹ * Real.exp (-(trRate d L * torusDist d N₀ y y')) :=
+  coarseGreen_decay_of_nonneg hd hk hm hν0 ha1 ha2 ha'1 ha'2 y y'
 
 end Main
 

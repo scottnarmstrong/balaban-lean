@@ -10,9 +10,9 @@ public import Balaban.Multiscale.PointwisePotential
 /-!
 # Lemma P: the setting and the weighted Agmon bounds at points
 
-`PtSetting G` bundles the data and hypotheses of GREEN.md Lemma P / Proposition 4.8:
+`PtSetting G Λ` bundles the data and hypotheses of GREEN.md Lemma P / Proposition 4.8:
 `f` supported in the `j'`-block of `y' ∈ layer j'`, `u = G_D(α) f = H_D(α)⁻¹ f`,
-`ν ℓ_k² ≤ 1` (unit-scale mass `ν_unit = ν L^{2k} ≤ 1`), `|α| ≤ c₁ ℓ⁻²/2`, weights `a_j ∈ [1/2, 2]`,
+`ν ℓ_k² ≤ Λ` (unit-scale mass `ν_unit = ν L^{2k} ≤ Λ`), `|α| ≤ c₁ ℓ⁻²/2`, weights `a_j ∈ [1/2, 2]`,
 `ϱ ≥ 1`, and the separation `L^d ≤ exp ((ε₀/2)(ϱ - 1))` (the absorption (4.2)).
 
 From the global weighted Agmon estimate (`agmon_wsq_le`, `agmon_cEnergy_le`) with the weight
@@ -36,7 +36,7 @@ open Finset Matrix Balaban
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
 /-- The data and hypotheses of Lemma P and Proposition 4.8. -/
-structure PtSetting (G : GeneratingSet d L N₀ k ϱ) where
+structure PtSetting (G : GeneratingSet d L N₀ k ϱ) (Λ : ℝ) where
   /-- the multiscale weights -/
   a : ℕ → ℝ
   /-- the mass (fine units) -/
@@ -52,7 +52,7 @@ structure PtSetting (G : GeneratingSet d L N₀ k ϱ) where
   hd : 3 ≤ d
   hL : 3 ≤ L
   hν0 : 0 ≤ ν
-  hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1
+  hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ Λ
   ha : IsAdmissibleWeights k a
   hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2)
   hϱ : 1 ≤ ϱ
@@ -64,7 +64,7 @@ structure PtSetting (G : GeneratingSet d L N₀ k ϱ) where
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ)
 
 include S in
 theorem hd0 : 0 < d := by have := S.hd; omega
