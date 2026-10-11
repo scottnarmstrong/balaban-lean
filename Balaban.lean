@@ -104,6 +104,11 @@ public import Balaban.Background.Minimizer
 public import Balaban.Background.Def5
 public import Balaban.Background.Def5Response
 public import Balaban.Background.Holder
+public import Balaban.Background.NormalizeMixed
+public import Balaban.Background.BumpMixed
+public import Balaban.Background.WeightsMixed
+public import Balaban.Background.ApproxSecond
+public import Balaban.Background.HolderFull
 public import Balaban.Background.Perturb
 public import Balaban.Background.Theorem73
 public import Balaban.Background.SingleScale
