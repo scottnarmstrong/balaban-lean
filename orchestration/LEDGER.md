@@ -107,3 +107,4 @@
 | 2026-10-11 | W30 existence + Def-5 | running | Sonnet; Theorem 5.2 from lemma53 + Prop 5.1, minimizer identity, bgField/bgFieldC with Theorems 7.1/7.2 |
 | 2026-10-11 | W31 Timár lemma | running | Sonnet; exterior boundary of a finite connected set in ℤ^d is *-connected (Part I O-1), Lemma I.3.13 consequence |
 | 2026-10-11 | W29 RG at λ=∞ | landed | `matrixInfty` (5.21), `triangularBounds_matrixInfty` (Lemma 3.1), `rg_step_infty` (Thm 3.2(a), editable; (B1), (5.29) hypotheses), `norm_xi_le_of_step`, `rg_flow_infty` (γ_∞, δ_∞ bounds; δ_∞ needs 6Cq ≤ β(1−q)), `tendsto_rg_solution` (≈480 lines) |
+| 2026-10-11 | D-TP observables | running | Sonnet; `notes/phase1/OBSERVABLES.md` (C-1a, X1–X7, through R and frozen regime, last step → C1Star, β-dependence) |
