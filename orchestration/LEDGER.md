@@ -53,3 +53,4 @@
 | 2026-10-11 | W18b constrained locality | running | Sonnet; G-2(vi′) via kernel algebra, analyticity of Π |
 | 2026-10-11 | W12b Hölder | landed | `prop49` (G-2(iii): `ℓ²|∂u(b)−∂u(b')| ≤ (B/θ) ℓ^θ |z|^{1−θ} e^{−γ₀d} ℓ_{j'}² ‖f‖_∞`, nearby pairs), `lemma_loc_c`, `latticeGreen_diff3_signs_le` (third differences), `green_holder_sum` (≈1,950 lines); larger separations (ball ×3 remark) and global Hölder norm open |
 | 2026-10-11 | W19 Root-C assembly | running | Sonnet; `RootCStatement`, `C1Star` record, Theorem 3.1 (Root-F + C-1* + I-G ⇒ Root-C) — test of C-1* before surface v2 |
+| 2026-10-11 | D-V background fields | written | `notes/phase1/BACKGROUND.md` (≈8,600 words): I-1 (Thm 5.2; Prop 5.1 proved from G-2(iv) by contraction with exact Leibniz identity, no inverse of φ₀·Gφ₀), I-2 (Thm 6.1), Def-5 (§7); Lemma 5.3 (approximate solution, C^{1,1} partition of unity) sketched = main risk; Lean 10–15k lines; review running (Sonnet) |
