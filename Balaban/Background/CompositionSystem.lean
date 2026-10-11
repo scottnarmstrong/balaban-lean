@@ -691,4 +691,76 @@ theorem el_local_unique (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} {α₀ : G.Ω 
 
 end LocalUnique
 
+/-! ### Theorem 6.1 (iii): uniqueness for the composed system -/
+
+section Uniqueness
+
+variable {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+
+/-- **Theorem 6.1 (iii)** (P2 Lemma 4.2; BACKGROUND.md §6.5).  Let `(ψ₁, φ₁, α₁)` be a solution of
+the composed system `𝒮` such that the hypotheses (P2)–(P4) of Proposition 5.1 hold for `𝔹'_k` at
+`(φ₁, α₁)` (these are the bounds of Theorem 5.2 (3) for the small solution).  Then every other
+solution `(ψ₂, φ₂, α₂)` of `𝒮` with `|α₂ - α₁|'₂ ≤ c₆` has `φ₂ = φ₁`, `α₂ = α₁`, and `ψ₂ = ψ₁`
+on `Ω₁`; and `ψ₁ = composeField φ₁` there.  (When `|α_i|'₂ < c₀` with `2c₀ ≤ c₆` this is
+uniqueness in the class `|α|'₂ < c₀`.) -/
+theorem composedSystem_unique (hd : 0 < d) (h : Precedes G G') (a : ℕ → ℝ)
+    (hC1 : ∀ n p : ℕ, n ≤ p → ((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2 * (a n)⁻¹ =
+      (a p)⁻¹ - (a (p - n))⁻¹)
+    (hpos : ∀ r, 1 ≤ r → 0 < a r) (ν : ℝ) (D' : BgData G' N)
+    {ψ₁ ψ₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φ₁ φ₂ : G'.Ω 1 × Fin N → ℂ}
+    {α₁ α₂ : G'.Ω 1 → ℂ} {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : Prop51Hyp G' a ν α₁ φ₀ (fun _ _ => (0 : ℂ)) 0 δ₀ δ₁)
+    (hφ₀ : ∀ (z : G'.Ω 1) (i : Fin N), φ₀ z i = φ₁ (z, i))
+    (h₁ : IsComposedSystem G G' a ν D' ψ₁ φ₁ α₁) (h₂ : IsComposedSystem G G' a ν D' ψ₂ φ₂ α₂)
+    (hs : Small G' (α₂ - α₁) (c6 d L N)) :
+    φ₂ = φ₁ ∧ α₂ = α₁ ∧ ∀ x ∈ G.Ω 1, ψ₂ x = ψ₁ x := by
+  have e1 := isEL_of_isComposedSystem h a hC1 hpos ν D' h₁
+  have e2 := isEL_of_isComposedSystem h a hC1 hpos ν D' h₂
+  obtain ⟨hφ, hα⟩ := el_local_unique hd H D' e1 hφ₀ e2 hs
+  refine ⟨hφ, hα, fun x hx => ?_⟩
+  funext i
+  rw [system_eq_compose h a hC1 hpos ν D' h₂ hx i, system_eq_compose h a hC1 hpos ν D' h₁ hx i, hφ]
+
+/-- **Theorem 6.1 (iii), existence and uniqueness in the class `|α|'₂ < c₀`** (`2c₀ ≤ c₆`). -/
+theorem composedSystem_unique_lt (hd : 0 < d) (h : Precedes G G') (a : ℕ → ℝ)
+    (hC1 : ∀ n p : ℕ, n ≤ p → ((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2 * (a n)⁻¹ =
+      (a p)⁻¹ - (a (p - n))⁻¹)
+    (hpos : ∀ r, 1 ≤ r → 0 < a r) (ν : ℝ) (D' : BgData G' N) {c₀ : ℝ} (hc₀ : 2 * c₀ ≤ c6 d L N)
+    {ψ₁ ψ₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φ₁ φ₂ : G'.Ω 1 × Fin N → ℂ}
+    {α₁ α₂ : G'.Ω 1 → ℂ} {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : Prop51Hyp G' a ν α₁ φ₀ (fun _ _ => (0 : ℂ)) 0 δ₀ δ₁)
+    (hφ₀ : ∀ (z : G'.Ω 1) (i : Fin N), φ₀ z i = φ₁ (z, i))
+    (h₁ : IsComposedSystem G G' a ν D' ψ₁ φ₁ α₁) (h₂ : IsComposedSystem G G' a ν D' ψ₂ φ₂ α₂)
+    (s₁ : ∀ z : G'.Ω 1, G'.spacing (z : Torus d (N₀ * L ^ k)) ^ 2 * ‖α₁ z‖ < c₀)
+    (s₂ : ∀ z : G'.Ω 1, G'.spacing (z : Torus d (N₀ * L ^ k)) ^ 2 * ‖α₂ z‖ < c₀) :
+    φ₂ = φ₁ ∧ α₂ = α₁ ∧ ∀ x ∈ G.Ω 1, ψ₂ x = ψ₁ x := by
+  refine composedSystem_unique hd h a hC1 hpos ν D' H hφ₀ h₁ h₂ (fun z => ?_)
+  have hsp : 0 ≤ G'.spacing (z : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+  have := norm_sub_le (α₂ z) (α₁ z)
+  calc G'.spacing (z : Torus d (N₀ * L ^ k)) ^ 2 * ‖(α₂ - α₁) z‖
+      ≤ G'.spacing (z : Torus d (N₀ * L ^ k)) ^ 2 * (‖α₂ z‖ + ‖α₁ z‖) :=
+        mul_le_mul_of_nonneg_left (by simpa using this) hsp
+    _ ≤ c₀ + c₀ := by
+        rw [mul_add]; exact add_le_add (s₂ z).le (s₁ z).le
+    _ ≤ c6 d L N := by linarith
+
+end Uniqueness
+
+/-- The weights (6.1) are positive for `r ≥ 1` (`L ≥ 2`, `a₁ > 0`). -/
+theorem compWeight_pos {L : ℕ} (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {r : ℕ} (hr : 1 ≤ r) :
+    0 < compWeight L a₁ r := by
+  unfold compWeight
+  have h2 : (2 : ℝ) ≤ L := by exact_mod_cast hL
+  have h4 : (4 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
+  have hlt : (((L : ℝ) ^ 2)⁻¹) < 1 := by
+    rw [inv_lt_one₀ (by positivity)]; linarith
+  have hr' : (L : ℝ) ^ 2 ≤ ((L : ℝ) ^ r) ^ 2 := by
+    have : (L : ℝ) ≤ (L : ℝ) ^ r := by
+      calc (L : ℝ) = (L : ℝ) ^ 1 := (pow_one _).symm
+        _ ≤ (L : ℝ) ^ r := pow_le_pow_right₀ (by linarith) hr
+    exact pow_le_pow_left₀ (by positivity) this 2
+  have hlt2 : ((((L : ℝ) ^ r) ^ 2)⁻¹) < 1 := by
+    rw [inv_lt_one₀ (by positivity)]; linarith
+  exact div_pos (mul_pos ha (by linarith)) (by linarith)
+
 end Balaban.Background
