@@ -16,6 +16,8 @@ public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
 public import Balaban.Green.BlockPoincare
 public import Balaban.Green.Coercivity
+public import Balaban.Green.BlockPoincareSharp
+public import Balaban.Green.CoercivitySharp
 public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
 public import Balaban.Lattice.Blocks
