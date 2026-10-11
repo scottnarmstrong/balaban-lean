@@ -1,0 +1,4 @@
+/.lake
+/scratch
+__pycache__/
+*.lean.txt.tmp

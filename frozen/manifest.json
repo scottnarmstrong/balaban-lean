@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "manifest_state": "AUTHOR_APPROVED",
+  "seal_limits": { "max_body_lines": 3, "max_body_bytes": 240 },
+  "anchors": []
+}
