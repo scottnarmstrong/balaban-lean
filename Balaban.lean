@@ -124,6 +124,7 @@ public import Balaban.Multiscale.ConstraintPerturb
 public import Balaban.Multiscale.ConstraintMain
 public import Balaban.Multiscale.Counting
 public import Balaban.Multiscale.GlobalBound
+public import Balaban.Multiscale.ConstraintSup
 public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
 public import Balaban.Multiscale.XVariantIdentities
