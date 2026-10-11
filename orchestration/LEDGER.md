@@ -17,3 +17,4 @@
 | 2026-10-11 | D-PE polymer document | draft, in review | `notes/phase1/POLYMER.md` (Sonnet); review → `POLYMER-review.md` |
 | 2026-10-11 | W1b multiscale | landed | torus Laplacian matrix, one-step splitting `A⁻¹ = M⁻¹ + HΔ⁻¹Hᵀ`, exact k-step decomposition `laplacian_inv_eq_multiscale`, positivity (≈410 lines); axioms standard |
 | 2026-10-11 | D-PE polymer document | revised | review R1–R12 addressed (`## Review dispositions`); ready for PE interface drafting and W3b |
+| 2026-10-11 | W7 holomorphy | landed | Cauchy estimates (ball, polydisc, mixed i≠j), several-variable Weierstrass (uniform limits analytic), `exists_analytic_fixedPoint`, `exists_tendsto_prod_inv_one_add` (≈900 lines); axioms standard |
