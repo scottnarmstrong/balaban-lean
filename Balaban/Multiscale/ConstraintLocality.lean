@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Multiscale.KernelStd
+public import Balaban.Multiscale.ConstraintPerturb
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -27,12 +28,6 @@ variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 section Entries
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
-
-omit [Fintype ι] [DecidableEq ι] in
-theorem liftOp_sub (A B : Matrix ι ι ℂ) : liftOp N (A - B) = liftOp N A - liftOp N B := by
-  ext p q
-  simp only [liftOp, Matrix.sub_apply]
-  split_ifs <;> simp
 
 omit [Fintype ι] in
 theorem liftOp_diagonal (β : ι → ℂ) :
@@ -325,5 +320,227 @@ theorem commK_outNear (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) {N : �
       rw [hψ x hxZ, hψ y hyZ]; simp
 
 end Range
+
+/-! ### The data of the locality statement -/
+
+/-- The data of G-2(vi′): two instances `(α, φ₀)`, `(α′, φ₀′)` of the hypotheses of G-2(v) with the
+same `a`, `ν`, `δ`, which agree off the set `Z ⊆ Ω₁`; `ϱ` is large (`log L ≤ κ (ϱ - 1)`). -/
+structure LocData (d L N : ℕ) [NeZero L] where
+  N₀ : ℕ
+  [hN₀ : NeZero N₀]
+  k : ℕ
+  ϱ : ℝ
+  G : GeneratingSet d L N₀ k ϱ
+  a : ℕ → ℝ
+  ν : ℝ
+  α : G.Ω 1 → ℂ
+  α' : G.Ω 1 → ℂ
+  δ : ℝ
+  φ : Torus d (N₀ * L ^ k) → Fin N → ℂ
+  φ' : Torus d (N₀ * L ^ k) → Fin N → ℂ
+  Z : Finset (G.Ω 1)
+  St : Standing G a ν α δ φ
+  St' : Standing G a ν α' δ φ'
+  hZα : ∀ x : G.Ω 1, x ∉ Z → α x = α' x
+  hZφ : ∀ x : G.Ω 1, x ∉ Z → φ x = φ' x
+  hϱ : 1 < ϱ
+  hlog : Real.log L ≤ locKappa d * (ϱ - 1)
+
+attribute [instance] LocData.hN₀
+
+namespace LocData
+
+variable {d L N : ℕ} [NeZero L] (D : LocData d L N)
+
+/-- `H_D(α)`. -/
+noncomputable def H : Matrix (D.G.Ω 1) (D.G.Ω 1) ℂ := dirichletOperator D.G D.a D.ν D.α
+/-- `H_D(α′)`. -/
+noncomputable def H' : Matrix (D.G.Ω 1) (D.G.Ω 1) ℂ := dirichletOperator D.G D.a D.ν D.α'
+/-- `Ĝ = G_D(α)` acting on vector fields. -/
+noncomputable def Gh : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1 × Fin N) ℂ := liftOp N D.H⁻¹
+noncomputable def Gh' : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1 × Fin N) ℂ := liftOp N D.H'⁻¹
+/-- `φ₀ ·` (multiplication of a scalar field by `φ₀`). -/
+noncomputable def Ph : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1) ℂ := fieldMul (restrictField D.G D.φ)
+noncomputable def Ph' : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1) ℂ := fieldMul (restrictField D.G D.φ')
+/-- The difference field `ψ = φ₀ - φ₀′` and the corresponding multiplication. -/
+noncomputable def ψ : Torus d (D.N₀ * L ^ D.k) → Fin N → ℂ := fun x j => D.φ x j - D.φ' x j
+noncomputable def Ps : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1) ℂ := fieldMul (restrictField D.G D.ψ)
+/-- The commutators `K(φ₀)` and `K(ψ)`. -/
+noncomputable def K : Matrix (D.G.Ω 1) (D.G.Ω 1 × Fin N) ℂ := commK D.H (restrictField D.G D.φ)
+noncomputable def Ks : Matrix (D.G.Ω 1) (D.G.Ω 1 × Fin N) ℂ := commK D.H (restrictField D.G D.ψ)
+/-- `M`, `M′`, `Nn`, `Nn′` of the sandwich formula. -/
+noncomputable def Mm : Matrix (D.G.Ω 1) (D.G.Ω 1) ℂ :=
+  constraintM D.H D.H⁻¹ (restrictField D.G D.φ)
+noncomputable def Mm' : Matrix (D.G.Ω 1) (D.G.Ω 1) ℂ :=
+  constraintM D.H' D.H'⁻¹ (restrictField D.G D.φ')
+noncomputable def Nn : Matrix (D.G.Ω 1) (D.G.Ω 1 × Fin N) ℂ :=
+  constraintN D.H D.H⁻¹ (restrictField D.G D.φ)
+noncomputable def Nn' : Matrix (D.G.Ω 1) (D.G.Ω 1 × Fin N) ℂ :=
+  constraintN D.H' D.H'⁻¹ (restrictField D.G D.φ')
+/-- The difference of the diagonal operators and of the bilinear squares. -/
+noncomputable def D0 : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1 × Fin N) ℂ :=
+  liftOp N (Matrix.diagonal (D.α - D.α'))
+noncomputable def Xa : Matrix (D.G.Ω 1) (D.G.Ω 1) ℂ :=
+  Matrix.diagonal (fun x => ∑ i, D.φ' x i * D.φ' x i - ∑ i, D.φ x i * D.φ x i)
+/-- The constrained operators `Π`, `Π′`. -/
+noncomputable def Pi : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1 × Fin N) ℂ :=
+  constrainedOp D.H⁻¹ (restrictField D.G D.φ)
+noncomputable def Pi' : Matrix (D.G.Ω 1 × Fin N) (D.G.Ω 1 × Fin N) ℂ :=
+  constrainedOp D.H'⁻¹ (restrictField D.G D.φ')
+
+end LocData
+
+/-! ### The telescoping identity -/
+
+section Telescope
+
+theorem tele_alg {V S : Type*} [Fintype V] [Fintype S] [DecidableEq S] (A A' : Matrix V V ℂ) (B B' : Matrix V S ℂ) (X X' M M' : Matrix S S ℂ)
+    (C C' : Matrix S V ℂ) (hX : X * M = 1) (hX' : M' * X' = 1) :
+    A * B * X * C - A' * B' * X' * C' =
+      (A - A') * B * X * C + A' * (B - B') * X * C + A' * B' * (X * (M' - M) * X') * C +
+        A' * B' * X' * (C - C') := by
+  have hXX : X * (M' - M) * X' = X - X' := by
+    rw [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_assoc, hX', mul_one, hX, Matrix.one_mul]
+  rw [hXX]
+  simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.mul_assoc]
+  abel
+
+theorem Mdiff_alg {V S : Type*} [Fintype V] (K Ks Kp : Matrix S V ℂ) (Gh Gh' : Matrix V V ℂ) (Ph Ph' Ps : Matrix V S ℂ)
+    (T T' Xa : Matrix S S ℂ) (hK : Kp = K - Ks) (hP : Ph - Ph' = Ps) (hT : T' - T = Xa) :
+    (T' - Kp * Gh' * Ph') - (T - K * Gh * Ph) =
+      Xa + Ks * Gh' * Ph' - K * (Gh' - Gh) * Ph' + K * Gh * Ps := by
+  have hPh : Ph = Ph' + Ps := by rw [← hP]; abel
+  have hT' : T' = T + Xa := by rw [← hT]; abel
+  subst hK hPh hT'
+  simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.mul_add, Matrix.mul_assoc]
+  abel
+
+theorem Ndiff_alg {V S : Type*} [Fintype V] (K Ks Kp : Matrix S V ℂ) (Gh Gh' : Matrix V V ℂ) (Ph Ph' Ps : Matrix V S ℂ)
+    (hK : Kp = K - Ks) (hP : Ph - Ph' = Ps) :
+    (Phᵀ - K * Gh) - (Ph'ᵀ - Kp * Gh') = Psᵀ + K * (Gh' - Gh) - Ks * Gh' := by
+  have hPh : Ph = Ph' + Ps := by rw [← hP]; abel
+  subst hK hPh
+  simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.transpose_add]
+  abel
+
+end Telescope
+
+namespace LocData
+
+variable {d L N : ℕ} [NeZero L] (D : LocData d L N)
+
+noncomputable def Pst : Matrix (D.G.Ω 1) (D.G.Ω 1 × Fin N) ℂ := (D.Ps)ᵀ
+
+theorem H_mul_inv : D.H * D.H⁻¹ = 1 := dirichlet_mul_inv D.St
+theorem inv_mul_H : D.H⁻¹ * D.H = 1 := dirichlet_inv_mul D.St
+theorem H'_mul_inv : D.H' * D.H'⁻¹ = 1 := dirichlet_mul_inv D.St'
+theorem inv_mul_H' : D.H'⁻¹ * D.H' = 1 := dirichlet_inv_mul D.St'
+
+theorem H_eq : D.H = D.H' + Matrix.diagonal (D.α - D.α') :=
+  dirichletOperator_eq_add D.G D.a D.ν D.α D.α'
+
+theorem Hinv_sub : D.H⁻¹ - D.H'⁻¹ = -(D.H⁻¹ * Matrix.diagonal (D.α - D.α') * D.H'⁻¹) := by
+  have h1 : D.H⁻¹ - D.H'⁻¹ = D.H⁻¹ * (D.H' - D.H) * D.H'⁻¹ := by
+    rw [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_assoc, D.H'_mul_inv, Matrix.mul_one,
+      D.inv_mul_H, Matrix.one_mul]
+  rw [h1]
+  have h2 : D.H' - D.H = -Matrix.diagonal (D.α - D.α') := by rw [D.H_eq]; abel
+  rw [h2]
+  simp only [Matrix.mul_neg, Matrix.neg_mul]
+
+omit [NeZero L] in
+theorem liftOp_neg' {ι : Type*} [Fintype ι] [DecidableEq ι] (A : Matrix ι ι ℂ) :
+    liftOp N (-A) = -liftOp N A := by
+  ext p q
+  by_cases h : p.2 = q.2 <;> simp [liftOp, h]
+
+theorem Gh_sub : D.Gh - D.Gh' = -(D.Gh * D.D0 * D.Gh') := by
+  unfold Gh Gh' D0
+  rw [← liftOp_sub, D.Hinv_sub, liftOp_neg', liftOp_mul, liftOp_mul]
+
+theorem Gh_sub' : D.Gh' - D.Gh = D.Gh * D.D0 * D.Gh' := by
+  have := D.Gh_sub
+  rw [← neg_sub, this, neg_neg]
+
+theorem Ph_sub : D.Ph - D.Ph' = D.Ps := by
+  unfold Ph Ph' Ps ψ
+  exact (fieldMul_sub' _ _).symm
+
+theorem Kp_eq : commK D.H' (restrictField D.G D.φ') = D.K - D.Ks := by
+  have h1 : commK D.H' (restrictField D.G D.φ') = commK D.H (restrictField D.G D.φ') := by
+    rw [D.H_eq, commK_add_diagonal]
+  rw [h1]
+  unfold K Ks ψ restrictField
+  rw [commK_sub_field]
+  abel
+
+theorem Mm_sub : D.Mm' - D.Mm = D.Xa + D.Ks * D.Gh' * D.Ph' - D.K * D.Gh * D.D0 * D.Gh' * D.Ph'
+    + D.K * D.Gh * D.Ps := by
+  have hT : (fieldMul (restrictField D.G D.φ'))ᵀ * fieldMul (restrictField D.G D.φ') -
+      (fieldMul (restrictField D.G D.φ))ᵀ * fieldMul (restrictField D.G D.φ) = D.Xa := by
+    rw [fieldMul_transpose_mul, fieldMul_transpose_mul]
+    unfold Xa
+    rw [← Matrix.diagonal_sub]
+    rfl
+  have h := Mdiff_alg (D.K) (D.Ks) (commK D.H' (restrictField D.G D.φ')) D.Gh D.Gh' D.Ph D.Ph'
+    D.Ps ((fieldMul (restrictField D.G D.φ))ᵀ * fieldMul (restrictField D.G D.φ))
+    ((fieldMul (restrictField D.G D.φ'))ᵀ * fieldMul (restrictField D.G D.φ')) D.Xa D.Kp_eq
+    D.Ph_sub hT
+  have e : D.Mm' - D.Mm = ((fieldMul (restrictField D.G D.φ'))ᵀ * fieldMul (restrictField D.G D.φ') -
+      commK D.H' (restrictField D.G D.φ') * D.Gh' * D.Ph') -
+      ((fieldMul (restrictField D.G D.φ))ᵀ * fieldMul (restrictField D.G D.φ) - D.K * D.Gh * D.Ph) := by
+    unfold Mm Mm' constraintM Gh Gh' Ph Ph' K
+    rfl
+  rw [e, h, D.Gh_sub']
+  simp only [Matrix.mul_assoc]
+
+theorem Nn_sub : D.Nn - D.Nn' = D.Pst + D.K * D.Gh * D.D0 * D.Gh' - D.Ks * D.Gh' := by
+  have h := Ndiff_alg (D.K) (D.Ks) (commK D.H' (restrictField D.G D.φ')) D.Gh D.Gh' D.Ph D.Ph'
+    D.Ps D.Kp_eq D.Ph_sub
+  have e : D.Nn - D.Nn' = (D.Ph ᵀ - D.K * D.Gh) - (D.Ph' ᵀ - commK D.H' (restrictField D.G D.φ') * D.Gh') := by
+    unfold Nn Nn' constraintN Gh Gh' Ph Ph' K
+    rfl
+  rw [e, h, D.Gh_sub']
+  unfold Pst
+  simp only [Matrix.mul_assoc]
+
+theorem Pi_eq : D.Pi = D.Gh * D.Ph * D.Mm⁻¹ * D.Nn := by
+  unfold Pi Gh Ph Mm Nn
+  exact constrainedOp_eq D.H_mul_inv D.inv_mul_H _
+
+theorem Pi'_eq : D.Pi' = D.Gh' * D.Ph' * D.Mm'⁻¹ * D.Nn' := by
+  unfold Pi' Gh' Ph' Mm' Nn'
+  exact constrainedOp_eq D.H'_mul_inv D.inv_mul_H' _
+
+theorem Mm_mul_inv : D.Mm * D.Mm⁻¹ = 1 :=
+  Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 (constraintM_isUnit D.St))
+
+theorem inv_mul_Mm : D.Mm⁻¹ * D.Mm = 1 :=
+  Matrix.nonsing_inv_mul _ ((Matrix.isUnit_iff_isUnit_det _).1 (constraintM_isUnit D.St))
+
+theorem Mm'_mul_inv : D.Mm' * D.Mm'⁻¹ = 1 :=
+  Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 (constraintM_isUnit D.St'))
+
+/-- **The telescoping decomposition of `Π - Π′`** into products with exactly one localized factor. -/
+theorem Pi_sub : D.Pi - D.Pi' =
+    -(D.Gh * D.D0 * (D.Gh' * D.Ph * D.Mm⁻¹ * D.Nn))
+    + D.Gh' * D.Ps * (D.Mm⁻¹ * D.Nn)
+    + D.Gh' * D.Ph' * D.Mm⁻¹ * D.Xa * (D.Mm'⁻¹ * D.Nn)
+    + D.Gh' * D.Ph' * D.Mm⁻¹ * (D.Ks * D.Gh') * (D.Ph' * D.Mm'⁻¹ * D.Nn)
+    - D.Gh' * D.Ph' * D.Mm⁻¹ * D.K * D.Gh * D.D0 * (D.Gh' * D.Ph' * D.Mm'⁻¹ * D.Nn)
+    + D.Gh' * D.Ph' * D.Mm⁻¹ * D.K * D.Gh * D.Ps * (D.Mm'⁻¹ * D.Nn)
+    + D.Gh' * D.Ph' * D.Mm'⁻¹ * D.Pst
+    + D.Gh' * D.Ph' * D.Mm'⁻¹ * D.K * D.Gh * D.D0 * D.Gh'
+    - D.Gh' * D.Ph' * D.Mm'⁻¹ * (D.Ks * D.Gh') := by
+  have h := tele_alg D.Gh D.Gh' D.Ph D.Ph' D.Mm⁻¹ D.Mm'⁻¹ D.Mm D.Mm' D.Nn D.Nn' D.inv_mul_Mm
+    D.Mm'_mul_inv
+  rw [D.Pi_eq, D.Pi'_eq, h, D.Mm_sub, D.Nn_sub, D.Ph_sub]
+  have hG : D.Gh - D.Gh' = -(D.Gh * D.D0 * D.Gh') := D.Gh_sub
+  rw [hG]
+  simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.mul_add, Matrix.add_mul, Matrix.neg_mul,
+    Matrix.mul_assoc]
+  abel
+
+end LocData
 
 end Balaban.Multiscale
