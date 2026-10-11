@@ -1663,7 +1663,7 @@ Version 1 (Part II, sections II.1–II.6), 2026-10-11. Brief: `orchestration/bri
 (version 1.1), ARCH v4 (§§3, 5, 8, 9), `LEMMA-F-astra.md` (cited as **LF-astra**), `BACKGROUND.md` v2 (**BG**),
 `LOCALIZATION.md` v2 (**LOC**), `SMALLFIELD.md` v2 (**SF**), `GREEN.md`, `POLYMER.md` and their reviews; the landed Lean of
 `Balaban/Background`, `Balaban/Localization`, `Balaban/Flow`, `Balaban/Multiscale`, `Balaban/Green`, `Balaban/Polymer`.
-Status: draft for independent review; nothing here is approved or frozen. Tags and status words as in Part I
+Status: draft for independent review; nothing in this Part is approved or frozen (the architecture rulings it implements are, §II.0). Tags and status words as in Part I
 ([checked] = re-read for this Part in the PDF text layer of P5–P7, or the page image where stated; [review] = taken from
 a review or project document). §II.7 (LF-6, the base case) is written after Part III (ARCH §9).
 
@@ -1676,6 +1676,14 @@ the budget $G$, the summability (1.27) and Lemma B (§II.5); and Def-7 as a pred
 (§II.6). §II.L lists the Lean declarations and §II.O the status, the changes and the open items.
 
 ## II.0 Design decisions and summary of changes
+
+**Rulings in force.** ARCH v4 §7 rulings 1 and 2 are **approved by the author** (2026-10-11; AGENTS.md "Author rulings",
+`frozen/APPROVALS.md`, section "LF rulings 1–2"): the reconstructed bookkeeping (A′) — budget invariant (H6′), spines, clocks, pre-window/pending/active
+states, ripeness with merge strips, $R$ on windows of up to $\nu_{\max}$ merged pieces, components by distance $<\omega_k$ — for Def-7, LF-2 and LF-4;
+and the Def-7 design — $\mathrm{IsRep}_k$ on representations, deterministic bookkeeping on $\hat\lambda$, (D5) at every scale $j\le k$, LF-4 existential. Part II
+implements both. D-II.1 and D-II.2 below refine the approved design without leaving it (Def-7 stays a predicate on representations,
+the bookkeeping stays on $\hat\lambda$, (D5) is required at every scale, LF-4 stays existential); they change ARCH v4 in two points of detail
+(the background of the new large-field action, and which operators are data rather than functions) and are **for author review**.
 
 Each decision is explained where it is used. D-II.1 and D-II.2 change ARCH v4; the others make ARCH precise.
 
