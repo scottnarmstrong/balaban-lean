@@ -16,6 +16,8 @@ public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
 public import Balaban.Green.BlockPoincare
 public import Balaban.Green.Coercivity
+public import Balaban.Green.BlockPoincareSharp
+public import Balaban.Green.CoercivitySharp
 public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
 public import Balaban.Lattice.Blocks
@@ -111,6 +113,7 @@ public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
+public import Balaban.Multiscale.CoercivitySharp
 public import Balaban.Multiscale.PathMetric
 public import Balaban.Multiscale.PathMetricBounds
 public import Balaban.Multiscale.AgmonCore
@@ -128,10 +131,13 @@ public import Balaban.Multiscale.ConstraintKernel
 public import Balaban.Multiscale.ConstraintPerturb
 public import Balaban.Multiscale.ConstraintMain
 public import Balaban.Multiscale.Counting
+public import Balaban.Multiscale.GlobalBound
+public import Balaban.Multiscale.ConstraintSup
 public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
 public import Balaban.Multiscale.XVariantIdentities
 public import Balaban.Multiscale.XVariant
+public import Balaban.Multiscale.XVariantSharp
 public import Balaban.Multiscale.XVariantAgmon
 public import Balaban.Green.BlockDistance
 public import Balaban.Green.OneScaleDecay
@@ -140,6 +146,9 @@ public import Balaban.Green.TranslationInvariant
 public import Balaban.Green.CoarseOperator
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
+public import Balaban.Green.CauchyInverse
+public import Balaban.Green.LimitCauchy
+public import Balaban.Green.InfiniteVolumeUnique
 public import Balaban.Model.SphereMeasure
 public import Balaban.Model.Symmetry
 public import Balaban.Model.BlockStructure

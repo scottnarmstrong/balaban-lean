@@ -39,3 +39,15 @@
 | 2026-10-11 | W12 pointwise bounds | landed | `lemma_loc_a`, `lemma_loc_b` (interior estimates), `lemmaP`, `prop48` (G-2(ii) pointwise decay of u and ∂u, K₂(d,L)) (≈3,460 lines); Loc (c)/Hölder (needs third differences of C) and η-scaling open |
 | 2026-10-11 | W15 Gaussian bookkeeping | landed | `sum_rule_matrix`, `mul_prolong` (3.2), `goldstone_rewriting` ((4.18) step), `KernelHyp.tsum_eq_latticeGreen` ((G4): Σ t_j = Root-C's G, conditional on kernel hypotheses G1–G3, G5 from W13/W13b) (≈1,250 lines) |
 | 2026-10-11 | D-LF v2 re-review | APPROVE-WITH-CHANGES | R2-01 ripeness condition avoids Lemma H; v3 in progress (Opus) with §8 Lean interfaces |
+| 2026-10-11 | W2d sharp Poincaré | landed | `blockPoincare_sharp` (N²/2, d-free), `multiscale_coercive_sharp` (c=1/4), `xDirichletOperator_isCoercive_N1` (P3's range a_{k+1}L⁻²/12) (≈870 lines); Agmon rates still d-dependent (harmless) |
+| 2026-10-11 | D-V background fields | running | Sonnet; `notes/phase1/BACKGROUND.md` (I-1, I-2, Def-5 at λ=∞; P2 Prop 1.1/3.1/4.1); running alongside W12b, W13b, W16 (Sonnet), LF v3 (Opus), astra Lemma H (tmux) |
+| 2026-10-11 | W13b G-5 uniqueness | landed | `infiniteVolume_limits_unique` (limits along every sequence of tori, sequence-independent; same decay/Lipschitz constants), `cauchy_inv_entries` (≈1,340 lines) |
+| 2026-10-11 | W16 global bound | landed | `global_bound` (G-2(iv) without the Hölder part: `|Gf|₀ + |∂Gf|₁ + |Δ^D Gf|₂ ≤ B|f|₂`, separation `2d log L ≤ (ε₀/4)(ϱ−1)`), `global_pointwise` (≈360 lines) |
+| 2026-10-11 | W17 kernel hypotheses (I-G) | running | Sonnet; discharge `KernelHyp` (G1)–(G3), (G5) from G-5 via the term dictionary |
+| 2026-10-11 | W18 constrained sup bounds | running | Sonnet; G-2(v′): `M = φ₀² − K G φ₀` invertible in `|·|₂`, `|Πf|₀ + |∂Πf|₁ ≤ B|f|₂` |
+| 2026-10-11 | W18 constrained sup bounds | landed | `constrained_sup` (G-2(v′): `|Πf|₀+|∂Πf|₁+|Δ^DΠf|₂ ≤ B₁′|f|₂`, same for `G − Π`), `constraintM_inv_sup` (`|M⁻¹g|₂ ≤ 2|g|₂`), `KGphi_sup`, `constraintForm_inv_mul_green` (≈550 lines); constants depend on (d, L, N) (scalar `global_bound` applied componentwise); G-2(vi′) open |
+| 2026-10-11 | D-LF v3 | written | Opus; R2-01 ripeness via merge strips in window state + per-merge bank `U` (invariant `G ≥ τ_{t*}+V+ν+U`, §4.5 Case 2a, unreviewed); Lemma S (exposure; replaces Lemma H); §8 Lean interfaces LF-2 (abstract), Def-7, LF-4 (draft) |
+| 2026-10-11 | astra Lemma H | open | `notes/phase1/LEMMA-H-astra.md`: no proof, no counterexample; hollow cores possible; weighted-norm idea (H.1)–(H.2) recorded; superseded by v3 route (Lemma S) |
+| 2026-10-11 | D-LF third review | running | Opus; scope §3.8 (LF-4), §5, §8 interfaces, dispositions |
+| 2026-10-11 | astra LF v3 counting | running | tmux `astra-lfv3` (codex-3 gpt-6-sol xhigh): refute strips/bank/Case 2a, Lemma C (e)–(f), Lemma S, §8.1 match |
+| 2026-10-11 | W18b constrained locality | running | Sonnet; G-2(vi′) via kernel algebra, analyticity of Π |
