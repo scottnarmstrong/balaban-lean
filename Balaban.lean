@@ -135,6 +135,11 @@ public import Balaban.Multiscale.GlobalBound
 public import Balaban.Multiscale.ConstraintSup
 public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
+public import Balaban.Multiscale.KernelAlgebra
+public import Balaban.Multiscale.KernelBase
+public import Balaban.Multiscale.KernelStd
+public import Balaban.Multiscale.ConstraintLocality
+public import Balaban.Multiscale.ConstraintAnalytic
 public import Balaban.Multiscale.XVariantIdentities
 public import Balaban.Multiscale.XVariant
 public import Balaban.Multiscale.XVariantSharp
