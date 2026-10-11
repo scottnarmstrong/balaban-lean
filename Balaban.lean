@@ -250,6 +250,10 @@ public import Balaban.Localization.AbstractExpansion
 public import Balaban.Localization.RiemannSum
 public import Balaban.Localization.ParameterAnalytic
 public import Balaban.Localization.Geometry
+public import Balaban.Localization.CubeAligned
+public import Balaban.Localization.CubeBump
+public import Balaban.Localization.Cover
+public import Balaban.Localization.CutCommutator
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
