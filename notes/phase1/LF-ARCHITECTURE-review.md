@@ -357,3 +357,179 @@ re-derived estimates of §3.8; Lemma H; the revised LF-2 (§4.3–§4.7); and th
 
 In short: draft LF-2 now (with the ripeness clause decided); draft Def-7 and LF-4 after adopting
 R2-01 or proving Lemma H; freeze nothing in LF-4 until the reconstruction document is approved.
+
+---
+
+## Third review (v3)
+
+Third review, 2026-10-11, of `LF-ARCHITECTURE.md` version 3 (commit 9c37838), by a referee who did not
+write it. Scope as in brief D-LF-review3: §3.8 (LF-4) with Lemma S and Lemma G as used there, §5, §8,
+and the dispositions R2-01 … R2-13. The counting of §§4.4–4.5 was audited separately
+(`notes/phase1/LF-V3-COUNTING-astra.md`, commit 8d7660c, findings C-01 … C-05). At the coordinator's
+request this review adjudicates C-03 and states agreement or disagreement with each C-finding.
+
+Read for this review: v3 in full; the two earlier reviews; MERGES-astra.md and LEMMA-H-astra.md; P7
+pp. 494–524 and P5 pp. 488–497 (text layers made with `pdftotext -layout` from `sources/`); P6
+pp. 18–22 (text layer); the Lean statements in `Frozen/Roots/LogPartitionMultiscale.lean`,
+`Frozen/Geometry/IsPolymer.lean`, `Multiscale/GeneratingSet.lean`, `Flow/RunningCoefficients.lean`,
+`Flow/RGEquations.lean` and `Polymer/Hole.lean` (`pe_hole`); `notes/phase1/BACKGROUND.md` §0. Page
+numbers are journal pages.
+
+**Verdict: CHANGES-REQUIRED.**
+
+- **§3.8 analysis.** The analytic part of §3.8 is consistent at the level of its displayed
+  inequalities. Every re-derived estimate except (3.11)′ follows from P7's argument with the stated
+  replacement. Its constants depend only on $d,L,M$, on §5 rows 4–9 and 14–15, and on $\lambda_k$.
+  The argument for (3.11)′ is wrong (C-03, agreed), but its stated bound is true by a path through
+  the whole thickened core (R3-02).
+- **Factorization.** Factorization over components (P5 (1.22)) needs components whose
+  neighbourhoods $U^\sim$ are disjoint. Lemma G's $*$-adjacency does not give that (R3-01). This
+  affects Step 0, Def-7 (D5) and every per-component bound. The fix is a change of adjacency, and it
+  also removes C-03.
+- **Window rules.** The window rules do not close (C-01, C-02, agreed), so the window-state type of
+  §8 changes.
+- **§8 interfaces.** None of the three §8 interfaces can yet be written as an exact Lean declaration:
+  - LF-2 is stated on $\mathbb Z^d$, while the flow lives on tori (R3-05).
+  - Def-7 takes the running constants as existential data, although $k_0$, $k_f$ and the window rules
+    need the whole sequence (R3-06). It states (D5) incorrectly (R3-07). It has no definition of the
+    operators and exponents of kept components (R3-08), and it rests on objects not yet defined
+    (R3-09).
+  - LF-4 applies $R^{(k)}$ to a function, although $R^{(k)}$ is defined on a representation (R3-10).
+    Its constant prefix is not a quantifier prefix (R3-11).
+- **Architecture.** No finding refutes the architecture. Every repair proposed below is local.
+
+### Findings
+
+| ID | Severity | Location | Finding and argument | Proposed fix |
+|---|---|---|---|---|
+| R3-01 | MAJOR | §3.7 Lemma G ("components are taken in $*$-adjacency"); §3.3 (H5, factorization (1.22)); §3.8 Step 0; §8.1 (G1); §8.2 (D5)–(D6) | P5 (1.22) (p. 493) factorizes $\mathbb T_k(Z'\cup Z'')=\mathbb T_k(Z')\mathbb T_k(Z'')$ only if $U'^\sim\cap U''^\sim=\emptyset$, where $U=Z^\approx$. The operation $\approx$ adds $[R_{j-1}]+1$ layers of cubes (P5 (1.2), p. 488). The bound (1.26) (p. 494) is stated for "the operator restricted to a component", so it presupposes this factorization; P6 (3.10) (p. 18) adds $\kappa$ over components. The region rule P6 (2.3) gives no separation between components beyond one cube. So two $*$-components at distance $\le2[R_{k-1}]+3$ cubes have overlapping $U^\sim$. Their kernels then share variables. The main actions of P5 (2.47) and P6 (3.2) contain background fields $\phi_{j+1}(\mathbb B_{j+1}(\partial\Omega_{j+1});\tilde\psi)$, solved on overlapping neighbourhoods. The operator is therefore not a product, and $\mathbb T_k(Z,\mathbb A\cap Z)$ is undefined for either component. Step 0 uses "the product over the components of the lineage at $k_1$". Lemma B, (D5), (D6) and the final sum of LF-8 all use per-component bounds. P5–P7 are silent on this, so the reconstruction must choose. | In Lemma G, define the components at scale $k$ as the classes of the relation "$\mathrm{dist}_k<w_k$", with $w_k:=2[R_{k-1}]+11$ cubes. Then the $U^{\sim4}$ of distinct components are disjoint. Prove (1.22) for these components, and use the same relation for merges, the hull rule, (U2) and Lemma C. Lemma S applies unchanged, since $w_k$-separated sets are $*$-separated. The cost is in constants only: $D_k$ becomes $\sqrt d(2\rho_k+10+w_k)$ and $h_k$ grows by $O(1)$, since $w_k=O(r_k)$. The gain: at the core scale the sets $U^{\sim4}_{k_1}$ of distinct core boxes are disjoint, so P7's per-box (3.11) and the ring count of (2.33) hold as printed, and C-03 disappears. |
+| R3-02 | MAJOR | §3.8 Step 3, last two sentences; (3.11)′ (= C-03) | The per-box path "of length $\le\frac12M\mathrm{crit}_{k_1}+8M$ inside the core box containing the point" reaches the exterior of that box's neighbourhood. P7 (3.11) (p. 522) needs a point of $(U^{\sim3}_{k_1})^c$, where after the rotation $\psi'_{k_1}=e_1$. Under $*$-adjacency the neighbourhoods of close core boxes overlap. In an array of boxes with small gaps, the distance to $(U^{\sim3}_{k_1})^c$ is of the order of the array's size. A gap point lies in no core box at all. I agree with C-03. The bound stated in (3.11)′, $\lvert\delta\psi\rvert<\hat W\delta_{k_1}$, is nevertheless true; the proof is (a)–(c) below the table. | Replace the two sentences by the path lemma (a)–(c) below the table. Alternatively adopt R3-01, after which P7's per-box argument holds verbatim. |
+| R3-03 | MINOR | §3.8 Lemma CH, proof plan | Lemma CH is still an outline, in five places. (i) A fine-lattice path must be turned into a chain in the multiscale graph of $\mathbb B_k$. The path must be self-avoiding in that graph, not in the fine lattice, for the per-layer counts of (b) to apply. (ii) The UNCERTAIN on cross-layer bonds is smaller than stated. The generating-set separation (P2 (1.1)–(1.3); Lean `GeneratingSet.separation`) lets only adjacent layers meet. What remains is P7 (2.22)'s requirement that the whole block $B(b_-)$ lie in $\Lambda_j$, which can fail at corners of a non-convex layer. (iii) $O_i$ must be taken in the generating set current at scale $k$, that is, after R has removed other components whose regions $Z$ later absorbs. Def-7 does not say how $\Omega_j$ is overwritten on a removed region (R3-08). (iv) Step (a) uses "the enclosing $*$-component has diameter $>L^{j-i}$". This needs one line: the exterior boundary of a finite set containing a block of side $s$ has sup-diameter $\ge s+1$, by its extreme points in each coordinate. (v) Lemma S is applied after lifting to $\mathbb Z^d$. For $k\le k_0$ this is justified by the bound of R3-05. | Write (i)–(v) in the reconstruction document. For (ii), add a one-bond detour bound with constant $2dL$. |
+| R3-04 | MINOR | (M7); §3.8 Step 2 and (2.29)′; R2-04 | Several more P7 constants use the single-box size $<12M[R_{k-1}]$ at scale $k$: the segment of length $<6M[R_{k-1}]$ in the argument after (2.18) (p. 502); the segment $<6MR_{k+1}$ before (2.27) (p. 504); and $\lvert z-z_0\rvert\le7$ together with $3MR_{k_1}+8M$ in (3.11) (p. 522). Under v3 they all become $O(c_0MR_k)$ or $O(D_0)$, but (M7) does not list them. The displayed (2.29)′ still carries P7's $36K_1MR_{k_1}$ and $180dK_1$. Everything is absorbed by $L^{-n_1/3}$ and by $\beta$ large. | Add these to (M7) and §5 row 4. Write the conditions on $n_1$ as $L^{n_1/3}\ge C(c_0)K_1MR_{k_1}$. |
+| R3-05 | MAJOR | §8.1 "Abstract history" ("cubes of every scale are indexed by $\mathbb Z^d$"); §3.1; Lemma S, last paragraph | The flow lives on the scale-$k$ tori with $n_k=\ell/(ML^k)$ cubes per side. Root-F allows every $\ell$ with $ML^{k_f+1}\mid\ell$. **For $k\le k_0$ the tori are large:** from $\nu_{k_f}>\frac78L^{-2}$, $\nu_{k_0}\beta_{k_0}\le1$ and $\nu_k=\nu L^{2k}\delta_k$ with $\delta_k=e^{O(c_8)}$ (P4 (H.6); Lean `nuSeq_eq`), one gets $n_k\ge L^{k_f+1-k_0}\ge c\,\beta_{k_0}^{1/2}$. This is far more than $\sqrt d\,\nu_{\max}(k_0)\mathrm{crit}_{k_0}=O(\lambda_{k_0}^{p_2+2})$. So in-window components, hulls and the lift used by Lemma S never wind. **Two cases do wind:** pre-window components, at any $k$, and, for $k_0<k\le k_f$ on the minimal torus, components on a torus with $n_k$ as small as $L<\mathrm{crit}_k$. There "the smallest box containing $X$" (§3.1, (G2)) is undefined. The abstract LF-2 on $\mathbb Z^d$ therefore does not instantiate. | State LF-2 on `Torus d` $n_k$ with $n_k=Ln_{k+1}$ and coarsening by the landed `jBlock`/`blockMap`. Put spines in the continuous torus; Lemma V and (4.1) hold there. Apply the hull rule only to non-winding sets of diameter $\le\mathrm{crit}_k$, or only for $k\le k_0$, the only place it is used. Add $n_k\ge2\sqrt d\,\nu_{\max}(k)\mathrm{crit}_k+2$ for $k\le k_0$ to (H-λ), with the derivation above as its instantiation. |
+| R3-06 | MAJOR | §8.2 (a); §8.3 ("$1\le k\le k_0(\beta,\nu)$"); §3.5 (W3); §3.6 | **Where Def-7 needs the whole sequence.** Def-7 (a) quantifies existentially over $(\beta_j,a_j,\nu_j)_{0\le j\le k}$ and defines $k_0,k_f$ "from these running constants". But the whole sequence is needed in four places. (1) The class is indexed by $1\le k\le k_0(\beta,\nu)$. (2) Admissible tori need $k_f$. (3) $V_k$, $\sigma_k$ and $\tau_{t^*}$ use $\lambda_j$ for $j>k$. (4) (W3) computes $q'=k_1(\tilde t)$ and $t^*=\tilde t$, which need $\lambda_c$ up to scale $k+1+O(h_{k+1})$; C-02's example has $q'=4+h_3$ at $k+1=3$. Pre-window $t^*$ also uses $\lambda$ at the projected epoch $s$. **These values are not known in advance.** The running constants depend on the flow itself: $\mathcal R''_m$ enters $\mathcal E^{(j+m)}$ after $m$ steps (§1.3). **The decisions are causal.** Ripeness at $k$ and the core $k_1(k)$ depend only on $\lambda_c$ for $c\le k$, because "$\tilde t=k$" is decided by $k_1$ on $[t_0,k]$. So the flow is a well-defined causal recursion, but neither this nor the parametrization is stated. | **Option A:** parametrize Def-7 by the whole running sequence (extended beyond $k_f$ as in §3.1), and define $k_0$, $k_f$, admissible tori and the bookkeeping from it. LF-7 then needs a causality lemma: step $k$ of the flow uses the sequence only up to $k$. **Option B:** run the bookkeeping on the a priori sequence $\hat\lambda_j:=\log(\beta a)+j(d-2)\log L$, which is within $Cc_8$ of $\lambda_j$ (P4 (H.6); Lean `betaSeq_eq`, `norm_gammaSeq_le`), and keep $\lambda_j$ in the estimates only. In (H6♭) and in the admissibility of tori, replace $k_f$ by an a priori bound such as $k_0+\lceil\lambda_{k_0}\rceil\ge k_f$ (§4.7). Option B moves $n_q,n_2,h$ by at most one scale, and P7 (2.31) absorbs that into constants. It is the simpler option in Lean. |
+| R3-07 | MAJOR | §8.2 (D5) | (D5) sums the global operators $\mathbb T_k(\mathbb A')$ over all $\mathbb A'$ with $\mathbb A'\cap Z=\mathbb A\cap Z$ and bounds the sum by $e^{-\kappa_k(Z,\mathbb A\cap Z)}$. That sum runs over the histories outside $Z$, and nothing attached to $Z$ bounds it. P5 (1.26) (p. 494) bounds the single localized operator $\mathbb T_k(Z,\mathbb A_k\cap Z)$. (1.27) is $\sum_{\mathbb A_k\cap Z}C^{-1}(\mathbb A_k\cap Z)\le1$ over "the maximal set of the multi-indices", meaning those that satisfy the geometric restrictions. The $\chi$ in "$\sup\chi\lvert F\rvert$" is the indicator of the domain (1.24)–(1.25), which Def-7 does not define. | Define the localized operator (this needs R3-01). State (D5) as P5 (1.26)–(1.27), with the index set of (1.27) explicit, and define the domain (1.24)–(1.25). |
+| R3-08 | MAJOR | §3.3 ("on kept components, $\mathbb T''_k$ of P7 (2.74)–(2.75), (3.7)"); §8.2 (c); §3.4 | **Wrong citation.** P7 (2.74)–(2.75) and (3.7) are the operators of the component that keeps only small-field restrictions, the one R removes ((3.6), p. 518: on a component of $Z_k$ the operator "is defined now as follows", (3.7)). **Kept operators are not displayed.** P7 p. 516 says only "It is also clear what form has the corresponding operators $\mathbb T''_k(Z,\mathbb A_k\cap Z)$". **No $\kappa''_k$ is defined** by P7 or by §3.4. P7 bounds kept operators in two ways: p. 502, "the old bound in (1.26) modified by the above additional small factor" times the exponential of (2.15); and p. 520, "in the same way" as (3.7), through $\mathbb T_{k_1}$. Def-7 needs both the operator and $\kappa''_k$ as definitions. **Generating set after a removal.** Def-7 also does not say how a removal by R changes $\Omega_j$ on the removed region. This is needed for later layers, for $O_i$ in Lemma CH, and to keep $\mathbb B_k$ a generating set with separation $\varrho$ (Lean `GeneratingSet`). | **Kept operator:** define it as $\mathbb T_k(Z,\mathbb A_k\cap Z)$ times the product of the characteristic functions of the decompositions (2.18), the $S''_k$ decomposition (p. 502), (2.21)/$Q''_{k_1}$, (2.61) and (3.20), up to the first one taken in its large-field branch. **$\kappa''_k$:** define it in the refund form of Step 6: $\kappa_{k_1}(Z_{k_1}\cap Z)-\sum_j(C_{39}\log\beta_j+C'_{39})\lvert Z^c_j\cap Z_{j+1}\cap Z\rvert_{j+1}-L_{\rm res}+g$. Prove (D5) for it. P7 p. 502's route also closes under covered windows, because $g\ge A'_3\lambda^{p_R}$ with $p_R\ge5d+4$ exceeds the (2.15) window term $C_{15}n_1\nu_{\max}(LM\mathrm{crit}_k)^d=O(\lambda^{4d+4})$; choose one route. **Removal:** state how $\Omega_j$ is overwritten on a removed component, and check the separation condition against neighbouring components; the width $w_k$ of R3-01 provides it. |
+| R3-09 | MAJOR | §8.2 drafting notes | Def-7 rests on objects not yet defined. The drafting notes name the one-step operator, P7 (3.7) and $\mathrm{SF}_k$, but not the rest of this list. (i) Def-5 background fields $\phi_k(\mathbb B;\tilde\psi)$ and $\psi^{(j)}$ (`BACKGROUND.md`, not yet reviewed), and P7's $\psi'_k$ of (2.34). Each is a "the unique …" object, so its $\exists!$ theorem must come first (hard rule 4; roadmap item 8, I-1, I-2). (ii) The region calculus of Lemma G as explicit set functions: $\sim$ and $\approx$ (P5 (1.2)), $\pi'_{k+1}$, P5 (2.2)–(2.9) and (2.45), P6 (2.3)–(2.5), and the hull rule. (iii) The characteristic functions: $\chi_k$ (P5 (1.18)–(1.19)), $\chi'_{k+1}$ (P5 (2.11)–(2.13)), and R's $\tilde\chi_k$, $\chi'_{k_1,\frac12}$, $\chi''$, $\chi_{Z_0}$ (P7 (2.18), (2.21), (2.61), (3.2)). (iv) The analyticity spaces (1.36)–(1.37), which P5 p. 497 declines to write: "There is no point in formulating this straightforward, but rather awkward, definition here". (v) The multiscale action $A^*_{k+1}(X,\mathbb B;\psi,\phi)$ and the one-step operator, with a reference measure on index sets that depend on the history. (vi) $\mathcal D_k(\mathrm{mod}\,\Omega^c)$ and $d_k(X\,\mathrm{mod}\,\Omega^c)$ (P5 (1.33)–(1.34)), which the landed `IsPolymer` (nearest-neighbour connected unions of blocks) does not cover. | Draft (i)–(vi) before Def-7. Tie Def-7 to the landed Lean: `Torus`, `IsPolymer`, and `Multiscale.GeneratingSet`. Require that $\mathbb B_k(\mathbb A)$ be a `GeneratingSet d L N₀ k ϱ` with $\varrho\ge R_0$, as I-1 in BACKGROUND.md assumes. |
+| R3-10 | MAJOR | §8.3 ("$\rho:=S^{(k-1)}T^{(k-1)}\rho_{k-1}$ with the representation in $\mathcal R^{\rm pre}_k$ given by LF-3"; "Let $R^{(k)}\rho$ be defined by P7 (1.3)–(1.6)") | $R^{(k)}$ is defined on the representation (1.3), not on the function. P7 p. 496: "It is based on the representation (1.4), which is uniquely defined starting from (1.3), so $R^{(k)}$ is uniquely defined also". Membership in Def-7 is existential over representations. "The representation given by LF-3" refers to a proof. So "$R^{(k)}\rho$" is not well-typed. | Make Def-7 a predicate $\mathrm{IsRep}_k(\mathsf c,\mathrm{rep},\rho)$ on a representation structure, with $\mathcal R_k:=\{\rho:\exists\,\mathrm{rep},\ \mathrm{IsRep}_k\}$. State LF-4 existentially. For every rep of $\rho\in\mathcal R^{\rm pre}_k$, with $1\le k\le k_0$ and $\rho$ in the image of $S^{(k-1)}T^{(k-1)}$ on $\mathcal R_{k-1}$, there are $\rho'$ and rep$'$ such that: $\mathrm{IsRep}_k(\mathrm{rep}',\rho')$; $\int\rho'\,d\psi_k=\int\rho\,d\psi_k$ for all $(h,g)$; the small-field data of rep$'$ equal those of rep, except that $\mathcal R^{(k)}_m$ becomes $\mathcal R^{(k)}_m+\mathcal R''^{(k)}_m$, with $\mathcal R''^{(k)}_m$ satisfying H4; and (e) holds. This is all LF-7 and Root-F use. P7's $R$ becomes the construction inside the proof, which also matches ruling 7. Move (d), which is (Rg) and a step of the proof of (b), to an internal lemma. |
+| R3-11 | MAJOR | §8.2 constant tuple $\mathsf c$; §8.3 ("constants chosen in the order of §5 rows 0–15"); LF-4 (e) | "Chosen in the order of §5" is not a quantifier prefix, for three reasons. (1) Several rows are not yet predicates: the "sufficiently small" $\alpha_1,c_8,c_9$ of P4 Thm 1 (P5 p. 499) and "$A_0$ large enough". (2) Several are outputs: $\alpha_0,E_0,B$ (row 11) and $B_0$ (row 12). (3) LF-4 (e), "a constant independent of $B_0$", is a quantifier swap. In addition, derived quantities ($c_v$, $C_\nu$, $C_V$, $c_0$, $D_0$, $s_*$, $s'$) appear in $\mathsf c$ as free parameters. | Write the prefix explicitly and monotonically, so that LF-3, LF-4 and LF-5 can be combined at one choice: $\exists\gamma\ \forall\kappa,c_9\ \exists L_0\ \forall L\ge L_0\ \exists M_0\ \forall M\ge M_0\cdots\exists B'_0\ \forall B_0\ge B'_0\ \exists H'_0\ \forall H_0\ge H'_0\ \exists c'_1,c'_2\ \forall c_1\ge c'_1,c_2\ge c'_2\cdots\exists\lambda_*\ \forall\beta\ge e^{\lambda_*}/a$. Turn each "large enough" or "small enough" into an explicit inequality or an existential threshold. Make derived quantities definitions. The prefix of (e) cannot be fixed until §5 row 12 ($B_0$ independent of $H_0$) is settled. |
+| R3-12 | MINOR | §3.5 (U2); §7 question 2; §8.1 "Abstract history"; §8.2 (b) | If spine points and spanning trees are free data of the history, then (D1) sums the same operator once per choice. Also, $k_1(t)=\max\{c:c+n_q(c)\le t\}$ is a maximum over the empty set for $t<n_q(0)$. | Fix a tie-breaking rule, for example a lexicographic order on cubes and a breadth-first spanning tree from the least seed, and make the bookkeeping a function of the region history. The abstract LF-2 may keep arbitrary choices, which makes it stronger. Fix a convention for $k_1$ (Lean `Nat.findGreatest` returns $0$). $\tilde t$ in (W3) exists because $B(\tilde{\mathcal M})$ is finite. |
+| R3-13 | MINOR | §5 rows 6, 10, 14 | Row 10, "$c_9\le c_9^{\max}$", conflates Root-F's $c_9$ with the flow amplitude $c_9e^{-\kappa_{\rm flow}}$ of §1.2 (F3). Rows 6 and 14 use $c_1$ for P3's constant and for P6's cost coefficient. | Write $c_9^{\rm flow}:=\min\{c_9e^{-\kappa_{\rm flow}},c_9^{\max}(d,\gamma,L,M)\}$, chosen after row 6; this is allowed because Root-F's bound is monotone in $c_9$. Rename P3's constant. |
+| R3-14 | NOTE | §3.8 Steps 5–6; (M5), (M6); (2.32); (2.49)′ | (a) Lemma 2.5's proof (pp. 512–516) uses no chains: only $\chi''$ (2.61), Lemma 2.2, P3 Prop 2.1, and a scale-$k$ segment to $\partial(Z_0^c\cap T_1^{(k)})$. Its one shape input, "$\square^{\sim3}\cap U^{\sim3}_{k_1}\ne\emptyset$ implies $j=k_1$", follows from P7 (2.1) for any core. (b) `pe_hole` is landed (Polymer/Hole.lean, commit d665e8d, before v3, no `sorry`), so "reported in progress" in (M6) is stale. (c) The kept case of Step 6 is P7 p. 520: "We estimate in the same way the operators constructed in the last section and involving some large field restrictions, but then with an additional small factor". (d) (2.32) survives the window length $n_q(q)+O(1)$ of Lemma C (f): $\lambda_{k_1}/\lambda_k\ge\alpha/(\alpha+d-2)-o(1)>\alpha/d$. (e) (2.49)′ applies P3 Prop 2.1 to P7's generating set $\mathbb B_{k_1,k}$ of (2.13) for a multi-box core. That this set satisfies P2 (1.1)–(1.3) is asserted, not checked. | (a) Drop "with the chains of Lemma CH" from (M5) and Step 5. (b), (c) Update the text and cite. (e) Check in Lemma G. |
+
+**Proof that (3.11)′ holds (R3-02).** Let $x\in\mathbb B_{k_1}(W_{k_1})\cap U^{\sim3}_{k_1}$, where
+$W_{k_1}=(Z^c_{k_1})^{\approx2}$ (P5 (1.4), p. 488).
+
+(a) *Existence.* Inside each core box $B$, the cubes not in $W^\sim_{k_1}$ form a box: $B$ shrunk by a
+fixed width, or the empty set. These shrunken boxes are pairwise $*$-separated, and $x$ lies in none
+of them. By Lemma S their union encloses no point. So a nearest-neighbour path from $x$ to infinity
+avoids them. It first leaves $U^{\sim3}_{k_1}$ at a point of $U^{\sim4}_{k_1}$, and before that it lies
+in $W^\sim_{k_1}\cap U^{\sim4}_{k_1}$. This is the domain on which P7 (p. 522) has
+$\lvert\partial^1\psi'_{k_1}\rvert<3\delta_{k_1}$, from the characteristic functions of (3.7). Gap
+points lie in $Z^c_{k_1}\cap U^{\sim6}_{k_1}$, where $\chi_{k_1}(Z^c_{k_1}\cap U_{k_1})$ and
+$\chi'_{k_1,\frac12}(U^c_{k_1}\cap U^{\sim6}_{k_1})$ supply the bound.
+
+(b) *Layer.* $U^{\sim4}_{k_1}\subset\Omega^c_{k_1+1}$ by P7 (2.1) (p. 498). This inclusion comes from
+P5 (2.4) and holds for any shape. So the path stays in the layer of scale $k_1$.
+
+(c) *Length.* A shortest such path has at most as many steps as there are scale-$k_1$ sites in
+$U^{\sim4}_{k_1}\cap Z$, that is at most $\nu M^d(\mathrm{crit}_{k_1}+2[R_{k_1-1}]+12)^d$. Walking
+along a chain of at most $\nu$ thickened boxes gives the shorter bound $C\nu M(\mathrm{crit}_{k_1}+R_{k_1})$
+of C-03. Either bound is at most $\hat W/6$ for $C_{\rm ch}$ large.
+
+Hence $\lvert R(\psi_0)\tilde\psi_{k_1}(x)-\psi_0\rvert<\frac12\hat W\delta_{k_1}$. With the scale-$k$
+terms of P7 (3.11), whose constants change as in R3-04, this gives
+$\lvert\delta\psi\rvert<\hat W\delta_{k_1}$. (3.15)′–(3.19)′ are then unchanged, since their exponent
+$a_{17}$ already contains $2w_0$.
+
+### §3.8: status of the re-derived estimates
+
+| Estimate | Status | Constants |
+|---|---|---|
+| (2.15)′ | Correctly cited: the first inequality of P7 (2.15), p. 501, is per unit of new volume by (2.11); it is paid by the refund (Step 6). | $C_{15}$: small-field constants (rows 4, 11) |
+| (2.26)′, Lemma CH | Proof plan; outline items in R3-03 | $\hat W\le C_{\hat W}\lambda_k^{w_0}$; $C_{\hat W}$ in row 8 |
+| (2.29)′–(2.30)′ | Follow from (2.26)′; late-scale constants to update (R3-04) | $K_1$, $C(c_0)$ (row 4) |
+| (2.33)′ | Checked; the ring is at most $\nu$ per-box rings | $A'_3$ (row 9); $p_R\ge5d+4>p_2+2d=4d+3$ |
+| (2.48)′ | Follows from (2.26)′ with $c=3dL$ ((1.24) gives (2.22) on every window layer) | $C_{23}=3dL+1$ |
+| (2.49)′ | Cites P3 Prop 2.1; the generating-set check is missing (R3-14 (e)) | $C_{24}$ (row 4) |
+| (2.59)′, (2.60)′ | Checked | $C'\lambda^{p_2+2d}\varepsilon_0^2\beta_{k_1}^{-1-2/\alpha}$; $CA_0^3\nu_{\max}\hat W^2(LM\mathrm{crit}_k)^d\lambda^{3p_0}\beta_k^{-1/2}$ |
+| (2.61)′–(2.62)′ | Follow from (2.26)′. The failing bond lies in a layer $i\ge\max(k_1,j-h)\ge k_1$, so $\lambda_i\ge\lambda_{k_1}$. | $A''_3$ (row 9) |
+| (3.11)′ | Argument wrong, bound true (R3-02) | $\hat W$ |
+| (3.15)′ | Checked. The decay step uses $\mathrm{dist}(U^{\sim3}_{k_1},\Omega_{k_1+1})>LMR_{k_1}$ from (2.1), which holds for any shape. | — |
+| (3.17)′–(3.19)′ | Checked | $a_{17}=p_2+2w_0+2d+2p_0$ |
+| Step 6, (Rg) | Checked, both cases; the kept case is P7 p. 520 | $C_{39},C'_{39}$ (row 14); $C_R$ (row 15) |
+
+Still outlines: Lemma CH; the constant chase of Lemma 2.5 ((2.64)–(2.72)); the activity lemma of
+(M6); the measure bookkeeping of (M4); the kept operators and $\kappa''$ (R3-08); and Step 0's
+factorization (R3-01).
+
+### §5: the constant chain
+
+- **Circularity.** I rechecked rows 0–16 for cycles and found none, including with the width $w_k$
+  of R3-01, which is a function of $R_0$ (row 7). Only two constants are not yet functions of earlier
+  rows: the two open independences, $\kappa_0$ of $M$ (row 5) and $B_0$ of $H_0$ (row 12). Both are
+  unchanged since R2-11. The second now also decides the quantifier form of LF-4 (e) (R3-11).
+- **Dependence on $\beta$.** No constant of rows 0–15 depends on $\beta$, $\nu$, $h$ or the torus.
+  $\beta$ enters only through functions of $\lambda_k$ and through $\lambda_*$ and $\beta_0$ (row 16).
+  The functions of $\lambda_k$ are $n_q$, $n_2$, $k_1$, $h_k$, $\nu_{\max}$, $\mathrm{crit}_k$,
+  $\hat W$, $k_0$ and $k_f$; under R3-06 they are causal in the running constants. Root-F's prefix
+  $\exists\delta\,\forall\kappa\,\forall c_9\,\exists L,M\,\exists\beta_0$ is respected, since
+  $\delta=\gamma/2$ depends on $d$ only. Row 17 (Root-C) is also free of $\beta$. Roland's open
+  question, whether P9's constants may depend on $\beta$, is not affected by the large-field part.
+- **Notation.** See R3-13.
+
+### §8: interfaces
+
+| §8 interface | What an exact Lean statement needs | Freezable now? | Freezable after |
+|---|---|---|---|
+| LF-2, abstract (§8.1) | Tori `Torus d` $n_k$ with $n_k=Ln_{k+1}$ (R3-05). Finsets $Z^{\rm pre}_k\supseteq Z_k$ with $Z_0=\emptyset$ (C-05). Seeds; reals $G^{\rm pre}_k$, $G_k$; spines as finite lists of segments; clocks $b,s\in\mathbb N$. A window state with three cases, pre-window, *pending* $(q>k,\nu)$ or *active* $(q\le k,\nu,\mathcal M\subset(q,k])$ (C-02), replacing `Option (ℕ × ℕ × Finset ℕ)`. An $R$-record; $\lambda:\mathbb N\to\mathbb R$; hypotheses (G1), (G2) in the adjacency of R3-01, (B), (Rg), (K), and (H-λ) extended as in R3-05. | No. It should never be a frozen statement: (G1), (B) and (Rg) are steps of the flow's proof (hard rule 4). It is an internal lemma. | It can be drafted after C-01 and C-02 (Lemma C and the state type repaired), C-04, C-05, R3-05, R3-01 and R3-12. It is model-independent and can then be proved in Lean on its own. |
+| Def-7 (§8.2) | A representation structure: the running sequence (R3-06); small-field data $\mathrm{SF}_k$; the set of admissible histories (region records, $R$-records, deterministic bookkeeping); kernels on history-dependent index sets with a reference measure; $\kappa_k$, $C$, $\kappa''$; boundary terms. A predicate $\mathrm{IsRep}_k$ expressing (D1)–(D9) (R3-10). | No | After R3-01, R3-06, R3-07, R3-08, R3-09 and R3-11; after the window-state type of C-02; after Def-5 and I-1, I-2 are frozen; and after the reconstruction document is approved (roadmap §3.1). |
+| LF-4 (§8.3) | The existential form on representations (R3-10), with an explicit constant prefix (R3-11). | No | After Def-7 is frozen; after §5 row 12 is settled; and after Lemma CH, (3.11)′ (R3-02) and the §3.8 re-derivations are written at full length in the reconstruction document. |
+
+None of the three can enter surface v2 now.
+
+**Hard rule 4.**
+- §8.1's hypotheses are premises of an internal lemma only, which is allowed as long as no frozen
+  statement carries them.
+- LF-4's hypotheses ($\rho_{k-1}\in\mathcal R_{k-1}$, $1\le k\le k_0$) are source premises, and
+  (RQ1)–(RQ5) are consequences, not premises.
+- Def-7's (D6) is a defining condition of a reconstructed class, like P5's H6, and not a smuggled
+  step.
+- The only proof step in a §8 statement is LF-4 (d), which is a conclusion; R3-10 moves it to an
+  internal lemma.
+
+### Dispositions R2-01 … R2-13
+
+| ID | v3 disposition | Assessment |
+|---|---|---|
+| R2-01 | Merge-free strip, banks | **Accepted in substance, not closed.** The strip does make the core a union of boxes, and exposure by Lemma S is correct. The rules implementing it are defective (C-01, C-02). The bank arithmetic was checked by the counting audit; I did not recheck it. |
+| R2-02 | Lemma CH (a) per component; Lemma S | **Accepted.** I checked Lemma S's proof; the counting audit checked its citation (Timár 2013, Lemma 2). Residual outline items are in R3-03. Lemma S does not give (3.11)′ (R3-02). |
+| R2-03 | $D_k=\sqrt d(2\rho_k+10)$ | Accepted. It changes again under R3-01. |
+| R2-04 | (M7) lists (2.20)/(2.28) and Lemma 2.5 constants | Partly: the list is incomplete (R3-04). |
+| R2-05 | Proposition M level by level; remark on shorter windows | Accepted (outside this review's scope; read, not rechecked). |
+| R2-06 – R2-09 | Noted | Accepted. R2-09's check of Step 6 is confirmed, and the kept case is P7 p. 520. |
+| R2-10 | Additions listed for review | Superseded by the counting audit (C-01, C-02, C-04). |
+| R2-11 | Two open independences remain | Accepted. They now bear on R3-11. |
+| R2-12 | $\lambda_i\ge\lambda_{k_1}$ in (2.62)′ | Accepted. |
+| R2-13 | Merge record in the window state; explicit $\nu_{\max}$, $h_j$, $k_1$, extended $\lambda_j$ | **Partly.** The type must gain the pending state (C-02), and the bookkeeping must be deterministic (R3-12). The explicit functions need the running-sequence decision of R3-06. |
+
+### The counting audit C-01 … C-05
+
+| ID | Agree? | Comment |
+|---|---|---|
+| C-01 | **Agree** | I found the same (W4) case independently. The shape conclusion survives the last-box-entry split, which I checked. After the last box entry of a lineage component, only (W3) merges can occur before $q$: a (W4) merge would be a later entry, or would make the component pre-window and force another entry. (W3) merges carry the strip condition. Nothing downstream ((RQ5), Lemma CH, Case 2a) uses the literal sentence, so I would rate it MAJOR rather than BLOCKER. Either way, it must be fixed before Lemma C is called proved. |
+| C-02 | **Agree** | I verified the two-merge history: $k_1(t_0)=2\in[2,2+h_2]$, $B(\tilde{\mathcal M})=[2,3+h_3]$, so $q'=4+h_3>k+1=3$. It is a BLOCKER for Lemma C and LF-2 as proved statements, and for the §8 types. The pending-core repair is the right one: a pending component cannot be ripe, since $t^*\ge q+n_q(q)>q$, and at activation the released merges have $\mu+h_\mu<q$, so the collapse argument of Lemma C (e) applies. The activation proof is an induction like Lemma C. |
+| C-03 | **Agree**; adjudicated | The per-box argument is false; the component-wide path lemma is true and enough for (3.11)′ (R3-02 and the proof above). R3-01 removes the issue altogether. |
+| C-04 | **Agree** (MAJOR) | The §4 theorem must carry (H-λ), as §8.1 does. |
+| C-05 | **Agree** (MINOR) | Declare $Z_0=\emptyset$ and apply (B) at $k=0$. |
+
+**In short.**
+- The analytic re-derivation of P7 for covered windows holds, with one corrected path argument.
+- The window rules need the pending-core and last-entry repairs.
+- Components must be defined so that the operators factorize.
+- The three Lean interfaces are not yet exact. LF-2 must move to tori and take the new window state.
+  Def-7 must be parametrized by the running sequence and must define kept operators, (D5) and its
+  prerequisites. LF-4 should be stated existentially on representations, with an explicit constant
+  prefix.
+- Nothing can be frozen now. LF-2 can be drafted as an internal lemma once C-01, C-02, C-04, C-05,
+  R3-01, R3-05 and R3-12 are in.
