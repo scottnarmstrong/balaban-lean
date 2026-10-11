@@ -128,3 +128,4 @@
 | 2026-10-11 | D-LFR Part III | running | Opus; R on covered windows, Lemma CH in full, Lemma 2.5, cancellation, LF-4, LF-4R |
 | 2026-10-11 | W37 LF geometry (block A) | running | Sonnet; LF-RECONSTRUCTION §I.2 + Lemma S on the torus (A1–A10, A12) |
 | 2026-10-11 | W33 background wrap-up | landed (partial) | `theorem72_linearResponse` (Prop 5.4 for bgFieldC; new smallness bgC2 ≤ bgC1), `bgFieldC_eq_of_le` (c₀-independence), `bgFieldC_increment_holder` (Hölder for φ − φ₀ only). **I-1(e) open**: needs mixed second differences of approxField (Lemma 5.3 extension); BACKGROUND §5.2 claim 'from prop49 alone' incomplete → W33b |
+| 2026-10-11 | W33b mixed differences | running | Sonnet; all second differences of approxField, Hölder reduction, I-1(e) for bgFieldC |
