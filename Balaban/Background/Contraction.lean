@@ -398,6 +398,218 @@ theorem Nmap_diff_bound (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {δφ δφ
         ring
     _ ≤ _ := by linarith
 
+/-- Rescaling `δα ↦ ξ = ℓ² δα` (so that `|δα|₂ = ‖ξ‖_∞`) and back. -/
+noncomputable def toAlpha (G : GeneratingSet d L N₀ k ϱ) (ξ : G.Ω 1 → ℂ) : G.Ω 1 → ℂ :=
+  fun x => ξ x / ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ)
+
+theorem small_toAlpha (G : GeneratingSet d L N₀ k ϱ) (ξ : G.Ω 1 → ℂ) {r : ℝ}
+    (h : ∀ x, ‖ξ x‖ ≤ r) : Small G (toAlpha G ξ) r := by
+  intro x
+  have hp : 0 < G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by
+    have := spacing_pos G (x := (x : Torus d (N₀ * L ^ k))); positivity
+  unfold toAlpha
+  rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hp.le, mul_div_cancel₀ _ hp.ne']
+  exact h x
+
+theorem toAlpha_sub (G : GeneratingSet d L N₀ k ϱ) (ξ ξ' : G.Ω 1 → ℂ) :
+    toAlpha G ξ - toAlpha G ξ' = toAlpha G (ξ - ξ') := by
+  funext x; simp [toAlpha, sub_div]
+
+theorem toAlpha_zero (G : GeneratingSet d L N₀ k ϱ) : toAlpha G (0 : G.Ω 1 → ℂ) = 0 := by
+  funext x; simp [toAlpha]
+
+variable (G a ν α₀ φ₀ Fs) in
+/-- The rescaled map `ξ ↦ ℓ² 𝒩(δα(ξ))`. -/
+noncomputable def Smap (ξ : G.Ω 1 → ℂ) : G.Ω 1 → ℂ := fun x =>
+  ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) *
+    Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs (toAlpha G ξ)) x
+
+theorem norm_Smap (ξ : G.Ω 1 → ℂ) (x : G.Ω 1) :
+    ‖Smap G a ν α₀ φ₀ Fs ξ x‖ = G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+      ‖Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs (toAlpha G ξ)) x‖ := by
+  have hp : 0 ≤ G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+  unfold Smap
+  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hp]
+
+/-- The bound for `|𝒩(0)|₂`: with `D₀ = B F_b`,
+`N (3/2 + D₀) F_b + c_K δ₀ D₀ + ½ N (2d+8) D₀² + ½ G_b`. -/
+noncomputable def selfBound (d L N : ℕ) [NeZero L] (δ₀ Fb Gb : ℝ) : ℝ :=
+  N * ((3 / 2 + greenSupConst d L * Fb) * Fb) + commKConst d L N * δ₀ * (greenSupConst d L * Fb) +
+    1 / 2 * (N * ((2 * d + 8) * ((greenSupConst d L * Fb) * (greenSupConst d L * Fb)))) +
+    1 / 2 * Gb
+
+/-- The numbers entering the fixed point argument. -/
+structure CoreHyp (G : GeneratingSet d L N₀ k ϱ) (N : ℕ) (δ₀ Fb Gb ρ : ℝ) : Prop where
+  ρ_nn : 0 ≤ ρ
+  poly : δ₀ + 2 * ρ ≤ gamma1 d
+  D1_le : 0 ≤ greenSupConst d L * (Fb + 3 / 2 * ρ)
+  lip : (N * Fb + commKConst d L N * δ₀ + N * (2 * d + 8) * (greenSupConst d L * (Fb + 3 / 2 * ρ))) *
+    (greenSupConst d L * (3 / 2 + greenSupConst d L * (Fb + 3 / 2 * ρ))) ≤ 1 / 2
+  self : selfBound d L N δ₀ Fb Gb ≤ ρ / 2
+
+theorem Smap_lip (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC : CoreHyp G N δ₀ Fb Gb ρ)
+    {ξ ξ' : G.Ω 1 → ℂ} (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hξ' : ∀ x, ‖ξ' x‖ ≤ ρ) (x : G.Ω 1) :
+    ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs ξ' x‖ ≤ 1 / 2 * ‖ξ - ξ'‖ := by
+  have hB0 : 0 ≤ greenSupConst d L := greenSupConst_nonneg d L
+  have hr : δ₀ + ρ ≤ gamma1 d := by linarith [hC.poly, hC.ρ_nn]
+  have hs := small_toAlpha G ξ hξ
+  have hs' := small_toAlpha G ξ' hξ'
+  have hDs := dphi_sup H hs hC.ρ_nn hr
+  have hDs' := dphi_sup H hs' hC.ρ_nn hr
+  have hΔ0 : 0 ≤ ‖ξ - ξ'‖ := norm_nonneg _
+  have hΔ : Small G (toAlpha G ξ - toAlpha G ξ') ‖ξ - ξ'‖ := by
+    rw [toAlpha_sub]
+    exact small_toAlpha G _ (fun y => norm_le_pi_norm (ξ - ξ') y)
+  have hv : ∀ (y : G.Ω 1) (i : Fin N), ‖dphi G a ν α₀ φ₀ Fs (toAlpha G ξ') (y, i)‖ ≤
+      greenSupConst d L * (Fb + 3 / 2 * ρ) := by
+    intro y i
+    simpa [svec_of_mem] using hDs'.val y i
+  have hdiff := dphi_diff_sup H hs hs' hr hΔ0 hC.D1_le hΔ hv
+  have hE0 : 0 ≤ greenSupConst d L * (‖ξ - ξ'‖ * (3 / 2 + greenSupConst d L * (Fb + 3 / 2 * ρ))) := by
+    have := hC.D1_le; positivity
+  have key := Nmap_diff_bound H hE0 hC.D1_le hC.D1_le (SupBounds.star hdiff) (SupBounds.star hDs)
+    (SupBounds.star hDs') x
+  have hnorm : ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs ξ' x‖ =
+      G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+        ‖Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs (toAlpha G ξ)) x -
+          Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs (toAlpha G ξ')) x‖ := by
+    have hp : 0 ≤ G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+    unfold Smap
+    rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg hp]
+  rw [hnorm]
+  refine key.trans ?_
+  have e : ∀ B D1 : ℝ, N * (B * (‖ξ - ξ'‖ * (3 / 2 + D1)) * Fb) +
+      commKConst d L N * δ₀ * (B * (‖ξ - ξ'‖ * (3 / 2 + D1))) +
+      1 / 2 * (N * ((2 * d + 8) * (B * (‖ξ - ξ'‖ * (3 / 2 + D1)) * (D1 + D1)))) =
+      ‖ξ - ξ'‖ * ((N * Fb + commKConst d L N * δ₀ + N * (2 * d + 8) * D1) *
+        (B * (3 / 2 + D1))) := by intro B D1; ring
+  rw [e]
+  calc _ ≤ ‖ξ - ξ'‖ * (1 / 2) := mul_le_mul_of_nonneg_left hC.lip hΔ0
+    _ = _ := by ring
+
+/-- The inverse rescaling `δα ↦ ℓ² δα`. -/
+noncomputable def ofAlpha (G : GeneratingSet d L N₀ k ϱ) (δα : G.Ω 1 → ℂ) : G.Ω 1 → ℂ :=
+  fun x => ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) * δα x
+
+theorem toAlpha_ofAlpha (G : GeneratingSet d L N₀ k ϱ) (δα : G.Ω 1 → ℂ) :
+    toAlpha G (ofAlpha G δα) = δα := by
+  funext x
+  have hp : 0 < G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by
+    have := spacing_pos G (x := (x : Torus d (N₀ * L ^ k))); positivity
+  have : ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hp.ne'
+  simp only [toAlpha, ofAlpha]
+  field_simp
+
+theorem ofAlpha_toAlpha (G : GeneratingSet d L N₀ k ϱ) (ξ : G.Ω 1 → ℂ) :
+    ofAlpha G (toAlpha G ξ) = ξ := by
+  funext x
+  have hp : 0 < G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by
+    have := spacing_pos G (x := (x : Torus d (N₀ * L ^ k))); positivity
+  have : ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hp.ne'
+  simp only [toAlpha, ofAlpha]
+  field_simp
+
+theorem norm_ofAlpha (G : GeneratingSet d L N₀ k ϱ) (δα : G.Ω 1 → ℂ) (x : G.Ω 1) :
+    ‖ofAlpha G δα x‖ = G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖δα x‖ := by
+  have hp : 0 ≤ G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+  simp only [ofAlpha, norm_mul, Complex.norm_real, Real.norm_of_nonneg hp]
+
+theorem selfBound_nonneg {δ₀ Fb Gb : ℝ} (h1 : 0 ≤ δ₀) (h2 : 0 ≤ Fb) (h3 : 0 ≤ Gb) :
+    0 ≤ selfBound d L N δ₀ Fb Gb := by
+  have := greenSupConst_nonneg d L
+  unfold selfBound commKConst
+  positivity
+
+theorem Smap_zero_bound (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC : CoreHyp G N δ₀ Fb Gb ρ)
+    (x : G.Ω 1) :
+    ‖Smap G a ν α₀ φ₀ Fs 0 x‖ ≤ selfBound d L N δ₀ Fb Gb := by
+  have hr : δ₀ + 0 ≤ gamma1 d := by linarith [hC.poly, hC.ρ_nn]
+  have h0 : Small G (toAlpha G (0 : G.Ω 1 → ℂ)) 0 :=
+    small_toAlpha G _ (fun y => by simp)
+  have hD := dphi_sup H h0 le_rfl hr
+  have hF := H.Fb_nn
+  have hB0 := greenSupConst_nonneg d L
+  have hD0 : 0 ≤ greenSupConst d L * Fb := by positivity
+  have hs : StarBound G (dphi G a ν α₀ φ₀ Fs (toAlpha G 0)) (greenSupConst d L * Fb) := by
+    have := SupBounds.star hD
+    simpa using this
+  rw [norm_Smap]
+  have := Nmap_bound H hD0 hs x
+  exact this
+
+theorem exists_fixed (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC : CoreHyp G N δ₀ Fb Gb ρ) :
+    ∃ δα : G.Ω 1 → ℂ, Small G δα ρ ∧
+      Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα) = δα ∧
+      Small G δα (2 * selfBound d L N δ₀ Fb Gb) ∧
+      ∀ δα' : G.Ω 1 → ℂ, Small G δα' ρ →
+        Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα') = δα' → δα' = δα := by
+  have hρ := hC.ρ_nn
+  have hS := fun ξ ξ' (hξ : ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ)
+      (hξ' : ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ) => by
+    rw [mem_closedBall_zero_iff] at hξ hξ'
+    show ‖Smap G a ν α₀ φ₀ Fs ξ - Smap G a ν α₀ φ₀ Fs ξ'‖ ≤ 1 / 2 * ‖ξ - ξ'‖
+    refine (pi_norm_le_iff_of_nonneg (by positivity)).2 fun x => ?_
+    exact Smap_lip H hC (fun y => (norm_le_pi_norm ξ y).trans hξ)
+      (fun y => (norm_le_pi_norm ξ' y).trans hξ') x
+  have hmaps : ∀ ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ,
+      Smap G a ν α₀ φ₀ Fs ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ := by
+    intro ξ hξ
+    rw [mem_closedBall_zero_iff] at hξ ⊢
+    refine (pi_norm_le_iff_of_nonneg hρ).2 fun x => ?_
+    have h1 := Smap_lip H hC (ξ := ξ) (ξ' := 0) (fun y => (norm_le_pi_norm ξ y).trans hξ)
+      (fun y => by simp [hρ]) x
+    have h0 := Smap_zero_bound H hC x
+    have := hC.self
+    have e : ‖(ξ - 0)‖ ≤ ρ := by simpa using hξ
+    calc ‖Smap G a ν α₀ φ₀ Fs ξ x‖ ≤ ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x‖ +
+          ‖Smap G a ν α₀ φ₀ Fs 0 x‖ := by
+          have := norm_add_le (Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x)
+            (Smap G a ν α₀ φ₀ Fs 0 x)
+          simpa using this
+      _ ≤ ρ := by linarith
+  obtain ⟨ξ, hξB, hfix, huniq, -⟩ := Balaban.Analysis.exists_unique_fixedPoint_closedBall (S := Smap G a ν α₀ φ₀ Fs)
+    hρ (by norm_num) (by norm_num) hmaps (fun ξ hξ ξ' hξ' => hS ξ ξ' hξ hξ')
+  rw [mem_closedBall_zero_iff] at hξB
+  have hξx : ∀ x, ‖ξ x‖ ≤ ρ := fun x => (norm_le_pi_norm ξ x).trans hξB
+  have hfixx : ∀ x, Smap G a ν α₀ φ₀ Fs ξ x = ξ x := fun x => congrFun hfix x
+  refine ⟨toAlpha G ξ, small_toAlpha G ξ hξx, ?_, ?_, ?_⟩
+  · funext x
+    have hp : ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) ≠ 0 := by
+      have := spacing_pos G (x := (x : Torus d (N₀ * L ^ k)))
+      exact_mod_cast (by positivity : G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 ≠ 0)
+    have := hfixx x
+    unfold Smap at this
+    simp only [toAlpha]
+    rw [eq_div_iff hp, mul_comm]
+    exact this
+  · have hb0 := selfBound_nonneg (d := d) (L := L) (N := N) H.δ₀_nn H.Fb_nn H.Gb_nn
+    have hb : ‖ξ‖ ≤ 2 * selfBound d L N δ₀ Fb Gb := by
+      have hx : ∀ x, ‖ξ x‖ ≤ 1 / 2 * ‖ξ‖ + selfBound d L N δ₀ Fb Gb := by
+        intro x
+        have h1 := Smap_lip H hC (ξ := ξ) (ξ' := 0) hξx (fun y => by simp [hρ]) x
+        have h0 := Smap_zero_bound H hC x
+        have e : ‖(ξ - 0)‖ = ‖ξ‖ := by simp
+        rw [e] at h1
+        calc ‖ξ x‖ = ‖Smap G a ν α₀ φ₀ Fs ξ x‖ := by rw [hfixx]
+          _ ≤ ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x‖ + ‖Smap G a ν α₀ φ₀ Fs 0 x‖ := by
+            have := norm_add_le (Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x)
+              (Smap G a ν α₀ φ₀ Fs 0 x)
+            simpa using this
+          _ ≤ _ := by linarith
+      have := (pi_norm_le_iff_of_nonneg (by positivity)).2 hx
+      linarith
+    exact small_toAlpha G ξ (fun x => (norm_le_pi_norm ξ x).trans hb)
+  · intro δα' hs' hf'
+    have := huniq (ofAlpha G δα') ?_ ?_
+    · rw [← this, toAlpha_ofAlpha]
+    · rw [mem_closedBall_zero_iff]
+      refine (pi_norm_le_iff_of_nonneg hρ).2 fun x => ?_
+      rw [norm_ofAlpha]; exact hs' x
+    · funext x
+      unfold Smap
+      rw [toAlpha_ofAlpha, hf']
+      rfl
+
 end Core
 
 end Balaban.Background
