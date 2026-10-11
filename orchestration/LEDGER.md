@@ -69,3 +69,4 @@
 | 2026-10-11 | W21 global Hölder | running | Sonnet; G-2(iii) all pairs of P2 (3.17), Hölder part of G-2(iv) |
 | 2026-10-11 | W17b large masses | landed | `kernelHyp_and_large_holds` (KernelHyp ∧ KernelHypLarge for the same `t = tLim`, d ≥ 3, L ≥ 3, a in C-1* range); coarse coercivity for all ν ≥ 0; `infiniteVolume_limits_le νmax`; `prop48`/`lemmaP`/`PtSetting` take a mass cap Λ (old uses Λ = 1) (≈580 lines net) |
 | 2026-10-11 | Root-C reduced to the flow | **milestone** | `Balaban.Correlations.rootC_of_rootFAndC1Star : RootFAndC1Star d N hN → RootCStatement d N` (axioms standard; RootCStatement defeq frozen Root-C). Root-C now depends only on the joint Root-F/C-1* statement the flow must deliver |
+| 2026-10-11 | D-LOC localization | running | Sonnet; `notes/phase1/LOCALIZATION.md` (I-4, I-5; P3 at λ=∞; GREEN Q2 Option A/B decision) |
