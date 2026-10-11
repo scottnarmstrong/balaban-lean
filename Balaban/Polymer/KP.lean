@@ -113,7 +113,7 @@ theorem blkc_neg (Y : P) (n : ℕ) :
   simp only [aaw, Finset.prod_neg, Finset.card_univ, Fintype.card_fin]
   ring
 
-theorem sum_cons_pi {n : ℕ} (g : (Fin (n + 1) → P) → ℝ) :
+theorem sum_cons_pi {n : ℕ} {B : Type*} [AddCommMonoid B] (g : (Fin (n + 1) → P) → B) :
     ∑ X, g X = ∑ Y : P, ∑ X' : Fin n → P, g (Fin.cons Y X') := by
   rw [← Fintype.sum_prod_type']
   exact (Fintype.sum_equiv (Fin.consEquiv (fun _ => P)) _ _ (fun _ => rfl)).symm
