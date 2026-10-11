@@ -124,6 +124,116 @@ theorem constrainedOp_posSemidef {A : Matrix ι ι ℂ} (hA : A.PosSemidef) {φ 
   rw [e] at key
   simpa only [constrainedOp, Matrix.mul_assoc] using key
 
+theorem fieldMul_mulVec (φ : ι → Fin N → ℂ) (s : ι → ℂ) (x : ι) (i : Fin N) :
+    (fieldMul φ *ᵥ s) (x, i) = φ x i * s x := by
+  simp only [mulVec, dotProduct, fieldMul]
+  rw [Finset.sum_eq_single x]
+  · simp
+  · intro y _ hy; simp [Ne.symm hy]
+  · simp
+
+theorem fieldMul_transpose_mulVec (φ : ι → Fin N → ℂ) (w : ι × Fin N → ℂ) (x : ι) :
+    ((fieldMul φ)ᵀ *ᵥ w) x = ∑ i, φ x i * w (x, i) := by
+  simp only [mulVec, dotProduct, transpose_apply, fieldMul, Fintype.sum_prod_type]
+  rw [Finset.sum_eq_single x]
+  · simp
+  · intro y _ hy; simp [hy]
+  · simp
+
+omit [DecidableEq ι] in
+theorem liftOp_mul (A B : Matrix ι ι ℂ) : liftOp N (A * B) = liftOp N A * liftOp N B := by
+  ext p q
+  simp only [liftOp, mul_apply, Fintype.sum_prod_type]
+  by_cases h : p.2 = q.2
+  · simp only [h, ↓reduceIte]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Finset.sum_eq_single q.2]
+    · simp
+    · intro j _ hj; simp [hj]
+    · simp
+  · simp only [h, ↓reduceIte]
+    refine (Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun j _ => ?_).symm
+    by_cases hj : p.2 = j
+    · by_cases hj2 : j = q.2
+      · exact absurd (hj.trans hj2) h
+      · simp [hj, hj2]
+    · simp [hj]
+
+omit [Fintype ι] in
+theorem liftOp_one : liftOp N (1 : Matrix ι ι ℂ) = 1 := by
+  ext p q
+  simp only [liftOp, one_apply]
+  by_cases h1 : p.1 = q.1 <;> by_cases h2 : p.2 = q.2 <;>
+    simp [h1, h2, Prod.ext_iff]
+
+/-- The commutator `K(φ₀) = (φ₀ ·) Ĥ - H (φ₀ ·)` of `H` with the multiplication by `φ₀`
+(GREEN.md G-6(e), (4.5a)): `K(φ₀) s = φ₀ · H s - H (φ₀ · s)`. -/
+noncomputable def commK (H : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) : Matrix ι (ι × Fin N) ℂ :=
+  (fieldMul φ)ᵀ * liftOp N H - H * (fieldMul φ)ᵀ
+
+theorem commK_mulVec (H : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) (s : ι × Fin N → ℂ) (x : ι) :
+    (commK H φ *ᵥ s) x = ∑ y, ∑ i, H x y * (φ x i - φ y i) * s (y, i) := by
+  unfold commK
+  rw [sub_mulVec, ← mulVec_mulVec, ← mulVec_mulVec, Pi.sub_apply]
+  have e1 : ((fieldMul φ)ᵀ *ᵥ (liftOp N H *ᵥ s)) x = ∑ i, φ x i * ∑ y, H x y * s (y, i) := by
+    rw [fieldMul_transpose_mulVec]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [liftOp_mulVec]
+    rfl
+  have e2 : (H *ᵥ ((fieldMul φ)ᵀ *ᵥ s)) x = ∑ y, H x y * ∑ i, φ y i * s (y, i) := by
+    show ∑ y, H x y * ((fieldMul φ)ᵀ *ᵥ s) y = _
+    exact Finset.sum_congr rfl fun y _ => by rw [fieldMul_transpose_mulVec]
+  have hL : ∑ i, φ x i * ∑ y, H x y * s (y, i) = ∑ y, ∑ i, H x y * φ x i * s (y, i) := by
+    simp only [Finset.mul_sum]
+    rw [Finset.sum_comm]
+    exact Finset.sum_congr rfl fun y _ => Finset.sum_congr rfl fun i _ => by ring
+  have hR : ∑ y, H x y * ∑ i, φ y i * s (y, i) = ∑ y, ∑ i, H x y * φ y i * s (y, i) := by
+    simp only [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun y _ => Finset.sum_congr rfl fun i _ => by ring
+  rw [e1, e2, hL, hR, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  rw [← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun i _ => by ring
+
+/-- `M = φ₀² - K(φ₀) Ĝ φ₀`, so that `H (φ₀ · G φ₀) = M`. -/
+noncomputable def constraintM (H G : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) : Matrix ι ι ℂ :=
+  (fieldMul φ)ᵀ * fieldMul φ - commK H φ * liftOp N G * fieldMul φ
+
+/-- `N = φ₀ · - K(φ₀) Ĝ`, so that `H (φ₀ · G) = N`. -/
+noncomputable def constraintN (H G : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) :
+    Matrix ι (ι × Fin N) ℂ :=
+  (fieldMul φ)ᵀ - commK H φ * liftOp N G
+
+theorem H_mul_constraintForm {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (φ : ι → Fin N → ℂ) :
+    H * constraintForm G φ = constraintM H G φ := by
+  have h1 : H * (fieldMul φ)ᵀ = (fieldMul φ)ᵀ * liftOp N H - commK H φ := by
+    unfold commK; abel
+  have h2 : liftOp N H * liftOp N G = 1 := by rw [← liftOp_mul, hHG, liftOp_one]
+  unfold constraintForm constraintM
+  rw [← Matrix.mul_assoc, ← Matrix.mul_assoc, h1, Matrix.sub_mul, Matrix.sub_mul, Matrix.mul_assoc _ (liftOp N H),
+    h2, Matrix.mul_one, Matrix.mul_assoc]
+
+theorem H_mul_dotG {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (φ : ι → Fin N → ℂ) :
+    H * ((fieldMul φ)ᵀ * liftOp N G) = constraintN H G φ := by
+  have h1 : H * (fieldMul φ)ᵀ = (fieldMul φ)ᵀ * liftOp N H - commK H φ := by
+    unfold commK; abel
+  have h2 : liftOp N H * liftOp N G = 1 := by rw [← liftOp_mul, hHG, liftOp_one]
+  unfold constraintN
+  rw [← Matrix.mul_assoc, h1, Matrix.sub_mul, Matrix.mul_assoc _ (liftOp N H), h2, Matrix.mul_one]
+
+/-- **The sandwich formula** `Π = Ĝ φ₀ M⁻¹ N` (GREEN.md §4.5a), valid as soon as `M` is invertible.
+Here `H = G⁻¹`. -/
+theorem constrainedOp_eq {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
+    (φ : ι → Fin N → ℂ) :
+    constrainedOp G φ = liftOp N G * fieldMul φ * (constraintM H G φ)⁻¹ * constraintN H G φ := by
+  have hS : constraintForm G φ = G * constraintM H G φ := by
+    rw [← H_mul_constraintForm hHG, ← Matrix.mul_assoc, hGH, Matrix.one_mul]
+  have hinv : (constraintForm G φ)⁻¹ = (constraintM H G φ)⁻¹ * H := by
+    rw [hS, Matrix.mul_inv_rev, Matrix.inv_eq_right_inv hGH]
+  unfold constrainedOp
+  rw [hinv, ← H_mul_dotG hHG]
+  simp only [Matrix.mul_assoc]
+
 end Abstract
 
 section Concrete
