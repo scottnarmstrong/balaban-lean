@@ -89,6 +89,8 @@ public import Balaban.Background.ApproxResidual
 public import Balaban.Background.ApproxReal
 public import Balaban.Background.Approximate
 public import Balaban.Background.ApproxAnalytic
+public import Balaban.Background.ExistenceSetup
+public import Balaban.Background.ExistenceBounds
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
