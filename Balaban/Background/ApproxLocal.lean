@@ -120,7 +120,8 @@ theorem locSol_facts (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν �
     (1 / 8 : ℝ) ≤ (cBlend (if y ∈ G.Ω 1 then a (G.layerIndex y) else 1)
       (if y ∈ G.Ω 1 then blockMass G ν y else 0) (D.Ψ y) (if y ∈ G.Ω 1 then D.h y else 0) ⬝ᵥ
       cBlend (if y ∈ G.Ω 1 then a (G.layerIndex y) else 1)
-      (if y ∈ G.Ω 1 then blockMass G ν y else 0) (D.Ψ y) (if y ∈ G.Ω 1 then D.h y else 0)).re := by
+      (if y ∈ G.Ω 1 then blockMass G ν y else 0) (D.Ψ y) (if y ∈ G.Ω 1 then D.h y else 0)).re ∧
+    (y ∈ G.Ω 1 → ‖cMultiplier (a (G.layerIndex y)) (blockMass G ν y) (D.Ψ y) (D.h y)‖ ≤ 128 * δ) := by
   classical
   have hδ0 : 0 < δ := lt_of_le_of_lt (abs_nonneg _) (W.P.r2 y hy)
   obtain ⟨hΨn, hΨΨ⟩ := site_Ψ_hyp G W.P S.hδε S.hε hy (D.Ψ y) (W.hΨ y hy)
@@ -134,17 +135,17 @@ theorem locSol_facts (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν �
     have := local_solution (a := a (G.layerIndex y)) (ν := blockMass G ν y) (δ := δ)
       (Ψ := D.Ψ y) (H := D.h y) ham.1 ham.2 hB0 hB1 hδ0.le S.hδ hΨn hΨΨ hH
     simp only [locSol, hyΩ, ite_true]
-    exact ⟨this.2.1, this.2.2.1, this.1⟩
+    exact ⟨this.2.1, this.2.2.1, by simpa [hyΩ] using this.1, fun _ => this.2.2.2⟩
   · have hyC : y ∈ collar G := ((mem_dataSites G).1 hy).resolve_left hyΩ
     have := local_solution (a := 1) (ν := 0) (δ := δ) (Ψ := D.Ψ y) (H := 0) (by norm_num)
       (by norm_num) le_rfl zero_le_one hδ0.le S.hδ hΨn hΨΨ (by simp; linarith)
     simp only [locSol, hyΩ, ite_false]
-    exact ⟨this.2.1, this.2.2.1, this.1⟩
+    exact ⟨this.2.1, this.2.2.1, by simpa [hyΩ] using this.1, fun h => h.elim⟩
 
 theorem locSol_norm_le (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν δ ε D)
     {y : Torus d (N₀ * L ^ k)} (hy : y ∈ dataSites G) :
     cNorm (locSol G a ν D.Ψ D.h y) ≤ 2 := by
-  obtain ⟨-, h2, -⟩ := locSol_facts S W hy
+  obtain ⟨-, h2, -, -⟩ := locSol_facts S W hy
   obtain ⟨hΨn, -⟩ := site_Ψ_hyp G W.P S.hδε S.hε hy (D.Ψ y) (W.hΨ y hy)
   have := cNorm_add_le (locSol G a ν D.Ψ D.h y - D.Ψ y) (D.Ψ y)
   simp at this
@@ -192,8 +193,8 @@ theorem locSol_adj (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν δ 
     (hadj : Adj y y') (h1 : G.layerIndex y ≤ G.layerIndex y' + 1)
     (h2 : G.layerIndex y' ≤ G.layerIndex y + 1) :
     cNorm (locSol G a ν D.Ψ D.h y - locSol G a ν D.Ψ D.h y') ≤ 1002 * δ := by
-  obtain ⟨-, f1, -⟩ := locSol_facts S W hy
-  obtain ⟨-, f2, -⟩ := locSol_facts S W hy'
+  obtain ⟨-, f1, -, -⟩ := locSol_facts S W hy
+  obtain ⟨-, f2, -, -⟩ := locSol_facts S W hy'
   have f3 := Ψ_adj_close W hy hy' hadj h1 h2
   have e : locSol G a ν D.Ψ D.h y - locSol G a ν D.Ψ D.h y' =
       (locSol G a ν D.Ψ D.h y - D.Ψ y) + (D.Ψ y - D.Ψ y') +
@@ -272,8 +273,8 @@ theorem locSol_chain (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν �
   obtain ⟨hqi, hne⟩ := (mem_active G).1 hq
   obtain ⟨⟨hm1, hmk⟩, hql, hqb⟩ := (mem_blockIdx G).1 hqi
   have hq1 : q.2 ∈ dataSites G := (mem_dataSites G).2 (Or.inl (G.layer_subset hm1 hmk hql))
-  obtain ⟨-, f1, -⟩ := locSol_facts S W hq1
-  obtain ⟨-, f2, -⟩ := locSol_facts S W hx1
+  obtain ⟨-, f1, -, -⟩ := locSol_facts S W hq1
+  obtain ⟨-, f2, -, -⟩ := locSol_facts S W hx1
   have f3 := Ψ_chain S W hn2 hnk hx hq
   have e : locSol G a ν D.Ψ D.h q.2 - locSol G a ν D.Ψ D.h x =
       (locSol G a ν D.Ψ D.h q.2 - D.Ψ q.2) + (D.Ψ q.2 - D.Ψ x) +

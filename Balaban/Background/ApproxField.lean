@@ -78,7 +78,7 @@ theorem phi0_close_locSol (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G
     obtain ⟨hm1, hmk, hyl⟩ := G.layerIndex_spec hy1
     rw [phi0_eq_normalize hn2 hmk hyl]
     have hmem : y ∈ dataSites G := hy
-    obtain ⟨hdot, -, -⟩ := locSol_facts S W hy
+    obtain ⟨hdot, -, -, -⟩ := locSol_facts S W hy
     have hnorm := locSol_norm_le S W hy
     have h1 := interp_close S W hn2 hmk hyl
     have hA : cA1 d L * δ ≤ 1 / 100 := (mul_le_mul_of_nonneg_right (cA1_le_cA2 d L) hδ0.le).trans hs
@@ -96,7 +96,7 @@ theorem phi0_close_locSol (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G
   · have hle : y ∈ G.Ω 1 → G.layerIndex y ≤ 1 := fun h => by
       by_contra hc; exact hy2 ⟨h, by omega⟩
     rw [phi0_eq_locSol hy hle]
-    obtain ⟨hdot, -, -⟩ := locSol_facts S W hy
+    obtain ⟨hdot, -, -, -⟩ := locSol_facts S W hy
     refine ⟨hdot, ?_⟩
     rw [sub_self, cNorm_zero']
     have := cB7_pos d L
@@ -208,7 +208,7 @@ theorem phi0_bond_bounds (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G 
     have am := interp_near G (locSol G a ν D.Ψ D.h) (locSol G a ν D.Ψ D.h x) h21 h2k hx₂
       (fun q hq => hsupp q (by simp [supp, hq]))
     have hxd : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl hx1)
-    obtain ⟨hdot, -, -⟩ := locSol_facts S W hxd
+    obtain ⟨hdot, -, -, -⟩ := locSol_facts S W hxd
     have hnorm := locSol_norm_le S W hxd
     obtain ⟨-, -, N1, N1', N2⟩ := normalize_bounds (ref := locSol G a ν D.Ψ D.h x)
       (v0 := interp G (locSol G a ν D.Ψ D.h) x)
