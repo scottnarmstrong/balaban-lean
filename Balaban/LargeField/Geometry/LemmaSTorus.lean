@@ -171,4 +171,202 @@ theorem exists_shell_path_iff_not_enclosed_torus (hs : ∀ i, 1 ≤ s i ∧ 2 * 
     · rw [← himg] at hc
       exact (tconn_iff_conn hs2 Set.sdiff_subset x z).mpr hc
 
+/-- The lift of a sub-box `box c t ⊆ box a s` (`2 t_i < n`) is the integer box
+`[ι c, ι c + t - 1]`. -/
+theorem boxLift_image_subbox (hs : ∀ i, 2 * s i < n) {c : Torus d n} {t : Fin d → ℕ}
+    (ht1 : ∀ i, 1 ≤ t i) (ht2 : ∀ i, 2 * t i < n) (hsub : box c t ⊆ box a s) :
+    boxLift a '' box c t = Set.Icc (boxLift a c) (fun i => boxLift a c i + t i - 1) := by
+  have hc : c ∈ box a s := hsub fun i => ⟨0, ht1 i, by simp⟩
+  have hpc := (mem_box_iff hs).mp hc
+  ext z
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    have hpy := (mem_box_iff hs).mp (hsub hy)
+    refine ⟨fun i => ?_, fun i => ?_⟩ <;>
+    · obtain ⟨k, hk, hyk⟩ := hy i
+      have e : ((pos (a i) (y i) : ℤ) : ZMod n) = (((pos (a i) (c i) : ℤ) + k : ℤ) : ZMod n) := by
+        push_cast; rw [natCast_pos, natCast_pos, hyk]; ring
+      have := int_eq_of_cast_eq e (by
+        have := hpy i; have := hpc i; have := hs i; have := ht2 i
+        rw [abs_lt]; constructor <;> omega)
+      simp only [boxLift]
+      omega
+  · intro hz
+    have hz1 : ∀ i, boxLift a c i ≤ z i := hz.1
+    have hz2 : ∀ i, z i ≤ boxLift a c i + t i - 1 := hz.2
+    have hy : (fun i => (z i : ZMod n)) ∈ box c t := fun i => by
+      refine ⟨(z i - boxLift a c i).toNat, by have := hz1 i; have := hz2 i; omega, ?_⟩
+      have h3 : (((z i - boxLift a c i).toNat : ℕ) : ℤ) = z i - boxLift a c i := by
+        have := hz1 i; omega
+      have h4 : ((((z i - boxLift a c i).toNat : ℕ) : ℤ) : ZMod n) =
+          ((z i - boxLift a c i : ℤ) : ZMod n) := by rw [h3]
+      rw [Int.cast_natCast] at h4
+      rw [h4]; push_cast; rw [boxLift_cast]; ring
+    refine ⟨_, hy, ?_⟩
+    funext i
+    have hyQ := (mem_box_iff hs).mp (hsub hy) i
+    have e : ((boxLift a (fun i => (z i : ZMod n)) i : ℤ) : ZMod n) = (z i : ZMod n) := by
+      rw [boxLift_cast]
+    have hcQ := (mem_box_iff hs).mp hc i
+    refine int_eq_of_cast_eq e ?_
+    have := hz1 i; have := hz2 i; have := hs i; have := ht2 i
+    simp only [boxLift] at *
+    rw [abs_lt]; constructor <;> omega
+
+/-- The lift of the `*`-component of a point of `T ⊆ Q` is the `*`-component of its lift. -/
+theorem boxLift_image_starComp (hs : ∀ i, 2 * s i < n) {T : Set (Torus d n)} (hT : T ⊆ box a s)
+    {p : Torus d n} (hp : p ∈ T) :
+    boxLift a '' starComp T p = LatticeGeom.starComp (boxLift a '' T) (boxLift a p) := by
+  ext c
+  constructor
+  · rintro ⟨b, ⟨hbT, hl⟩, rfl⟩
+    show LatticeGeom.StarConn _ _ _
+    clear hbT
+    induction hl with
+    | refl => exact Relation.ReflTransGen.refl
+    | @tail w w' _ hstep ih =>
+      exact ih.tail ⟨⟨w, hstep.1, rfl⟩, ⟨w', hstep.2.1, rfl⟩,
+        (starNear_boxLift_iff hs (hT hstep.1) (hT hstep.2.1)).mp (by
+          have := hstep.2.2; omega)⟩
+  · intro hc
+    have key : ∀ c, LatticeGeom.StarConn (boxLift a '' T) (boxLift a p) c →
+        ∃ w, boxLift a w = c ∧ w ∈ T ∧ Linked 2 T p w := by
+      intro c hc
+      induction hc with
+      | refl => exact ⟨p, rfl, hp, Linked.refl _⟩
+      | @tail b c' _ hstep ih =>
+        obtain ⟨w, rfl, hwT, hw⟩ := ih
+        obtain ⟨⟨p', hp', hpb⟩, ⟨q, hq, rfl⟩, hnn⟩ := hstep
+        have hpw : p' = w := boxLift_injective a hpb
+        subst hpw
+        refine ⟨q, rfl, hq, hw.trans (Linked.single hp' hq ?_)⟩
+        have := (starNear_boxLift_iff hs (hT hp') (hT hq)).mpr hnn
+        omega
+    obtain ⟨w, rfl, hwT, hw⟩ := key c hc
+    exact ⟨w, ⟨hwT, hw⟩, rfl⟩
+
+variable {ι : Type*} [Finite ι]
+
+/-- **Lemma S (c), torus form**: a union of pairwise `*`-separated sub-boxes of `Q^{∼-1}` (of side
+`< n/2`) encloses no point: every `x ∈ Q^{∼-1}` outside them is joined to `∂Q` by an nn path in
+`Q` avoiding them. -/
+theorem torus_path_to_shell_of_boxes (hd : 2 ≤ d) (hs : ∀ i, 1 ≤ s i ∧ 2 * s i < n)
+    {c : ι → Torus d n} {t : ι → Fin d → ℕ} (ht1 : ∀ j i, 1 ≤ t j i) (ht2 : ∀ j i, 2 * t j i < n)
+    (hsub : ∀ j, box (c j) (t j) ⊆ nbhdNeg 1 (box a s))
+    (hsep : ∀ j k, j ≠ k → ∀ y ∈ box (c j) (t j), ∀ y' ∈ box (c k) (t k), 2 ≤ supDist y y')
+    {x : Torus d n} (hx : x ∈ nbhdNeg 1 (box a s)) (hxA : x ∉ ⋃ j, box (c j) (t j)) :
+    ∃ z ∈ box a s, z ∉ nbhdNeg 1 (box a s) ∧ TConn (box a s \ ⋃ j, box (c j) (t j)) x z := by
+  have hs2 : ∀ i, 2 * s i < n := fun i => (hs i).2
+  have hQ := nbhdNeg_subset 1 (box a s)
+  have hsubQ : ∀ j, box (c j) (t j) ⊆ box a s := fun j => (hsub j).trans hQ
+  have hA : (⋃ j, box (c j) (t j)) ⊆ nbhdNeg 1 (box a s) := Set.iUnion_subset hsub
+  have := (exists_shell_path_iff_not_enclosed_torus hs hA hx hxA).mpr
+  apply this
+  rw [Set.image_iUnion]
+  simp only [fun j => boxLift_image_subbox hs2 (ht1 j) (ht2 j) (hsubQ j)]
+  refine LatticeGeom.not_enclosed_boxes hd (fun j => boxLift a (c j))
+    (fun j i => boxLift a (c j) i + t j i - 1) ?_ _
+  intro j k hjk u hu v hv hnear
+  have hu' : u ∈ boxLift a '' box (c j) (t j) := by
+    rwa [boxLift_image_subbox hs2 (ht1 j) (ht2 j) (hsubQ j)]
+  have hv' : v ∈ boxLift a '' box (c k) (t k) := by
+    rwa [boxLift_image_subbox hs2 (ht1 k) (ht2 k) (hsubQ k)]
+  obtain ⟨y, hy, rfl⟩ := hu'
+  obtain ⟨y', hy', rfl⟩ := hv'
+  have h1 := (starNear_boxLift_iff hs2 (hsubQ j hy) (hsubQ k hy')).mpr hnear
+  have := hsep j k hjk y hy y' hy'
+  omega
+
+omit [Finite ι] in
+/-- Common setup of Lemma S (a), (b) on the torus: the lifts of a family of pairwise
+`*`-separated subsets of `Q^{∼-1}` are `*`-separated subsets of `ℤ^d`. -/
+theorem starSeparated_boxLift (hs : ∀ i, 2 * s i < n) {A : ι → Set (Torus d n)}
+    (hA : ∀ j, A j ⊆ box a s)
+    (hsep : ∀ j k, j ≠ k → ∀ y ∈ A j, ∀ y' ∈ A k, 2 ≤ supDist y y') :
+    LatticeGeom.StarSeparated fun j => boxLift a '' A j := by
+  rintro j k hjk _ ⟨y, hy, rfl⟩ _ ⟨y', hy', rfl⟩ hnear
+  have := (starNear_boxLift_iff hs (hA j hy) (hA k hy')).mpr hnear
+  have := hsep j k hjk y hy y' hy'
+  omega
+
+/-- **Lemma S (a), torus form**: if `x ∈ Q^{∼-1}` is not joined to `∂Q` by an nn path in
+`Q ∖ ⋃_j A_j` (`A_j ⊆ Q^{∼-1}` pairwise `*`-separated), then for one `*`-component
+`K = starComp (A_j) p` of one `A_j`, `x` is not joined to `∂Q` by an nn path in `Q ∖ K`. -/
+theorem torus_enclosed_by_single_component (hd : 2 ≤ d) (hs : ∀ i, 1 ≤ s i ∧ 2 * s i < n)
+    {A : ι → Set (Torus d n)} (hA : ∀ j, A j ⊆ nbhdNeg 1 (box a s))
+    (hsep : ∀ j k, j ≠ k → ∀ y ∈ A j, ∀ y' ∈ A k, 2 ≤ supDist y y')
+    {x : Torus d n} (hx : x ∈ nbhdNeg 1 (box a s)) (hxA : x ∉ ⋃ j, A j)
+    (hno : ¬ ∃ z ∈ box a s, z ∉ nbhdNeg 1 (box a s) ∧ TConn (box a s \ ⋃ j, A j) x z) :
+    ∃ j, ∃ p ∈ A j, ¬ ∃ z ∈ box a s, z ∉ nbhdNeg 1 (box a s) ∧
+      TConn (box a s \ starComp (A j) p) x z := by
+  have hs2 : ∀ i, 2 * s i < n := fun i => (hs i).2
+  have hQ := nbhdNeg_subset 1 (box a s)
+  have hAQ : ∀ j, A j ⊆ box a s := fun j => (hA j).trans hQ
+  have hU : (⋃ j, A j) ⊆ nbhdNeg 1 (box a s) := Set.iUnion_subset hA
+  have henc : LatticeGeom.Enclosed (⋃ j, boxLift a '' A j) (boxLift a x) := by
+    have := (exists_shell_path_iff_not_enclosed_torus hs hU hx hxA).not.mp hno
+    rwa [not_not, Set.image_iUnion] at this
+  obtain ⟨j, a', ha', hK⟩ := LatticeGeom.enclosed_by_single_component hd
+    (fun j => (Set.toFinite _ : (boxLift a '' A j).Finite))
+    (starSeparated_boxLift hs2 hAQ hsep) henc
+  obtain ⟨p, hp, rfl⟩ := ha'
+  refine ⟨j, p, hp, ?_⟩
+  rw [← boxLift_image_starComp hs2 (hAQ j) hp] at hK
+  have hKA : starComp (A j) p ⊆ A j := fun b hb => hb.1
+  refine (exists_shell_path_iff_not_enclosed_torus hs (hKA.trans (hA j)) hx
+    (fun h => hxA (Set.mem_iUnion.mpr ⟨j, hKA h⟩))).not.mpr (not_not.mpr hK) 
+
+/-- **Lemma S (b), torus form**: if moreover a sub-box `Q' = box c t ⊆ Q ∖ ⋃_j A_j` (`2 t_i < n`)
+contains `x`, the `*`-component `K` has, for every coordinate `i`, two points at index distance
+`≥ t_i + 1` (sup-diameter `≥ side(Q') + 1`). -/
+theorem torus_enclosed_component_diam (hd : 2 ≤ d) (hs : ∀ i, 1 ≤ s i ∧ 2 * s i < n)
+    {A : ι → Set (Torus d n)} (hA : ∀ j, A j ⊆ nbhdNeg 1 (box a s))
+    (hsep : ∀ j k, j ≠ k → ∀ y ∈ A j, ∀ y' ∈ A k, 2 ≤ supDist y y')
+    {x : Torus d n} (hx : x ∈ nbhdNeg 1 (box a s)) (hxA : x ∉ ⋃ j, A j)
+    (hno : ¬ ∃ z ∈ box a s, z ∉ nbhdNeg 1 (box a s) ∧ TConn (box a s \ ⋃ j, A j) x z)
+    {c : Torus d n} {t : Fin d → ℕ} (ht1 : ∀ i, 1 ≤ t i) (ht2 : ∀ i, 2 * t i < n)
+    (hQ' : box c t ⊆ box a s \ ⋃ j, A j) (hxQ' : x ∈ box c t) :
+    ∃ j, ∃ p ∈ A j, (¬ ∃ z ∈ box a s, z ∉ nbhdNeg 1 (box a s) ∧
+      TConn (box a s \ starComp (A j) p) x z) ∧
+      ∀ i, ∃ y ∈ starComp (A j) p, ∃ z ∈ starComp (A j) p, t i + 1 ≤ supDist y z := by
+  have hs2 : ∀ i, 2 * s i < n := fun i => (hs i).2
+  have hQ := nbhdNeg_subset 1 (box a s)
+  have hAQ : ∀ j, A j ⊆ box a s := fun j => (hA j).trans hQ
+  have hU : (⋃ j, A j) ⊆ nbhdNeg 1 (box a s) := Set.iUnion_subset hA
+  have hsubQ : box c t ⊆ box a s := fun y hy => (hQ' hy).1
+  have henc : LatticeGeom.Enclosed (⋃ j, boxLift a '' A j) (boxLift a x) := by
+    have := (exists_shell_path_iff_not_enclosed_torus hs hU hx hxA).not.mp hno
+    rwa [not_not, Set.image_iUnion] at this
+  have himg := boxLift_image_subbox hs2 ht1 ht2 hsubQ
+  have hQc : Set.Icc (boxLift a c) (fun i => boxLift a c i + t i - 1) ⊆
+      (⋃ j, boxLift a '' A j)ᶜ := by
+    rw [← himg]
+    rintro _ ⟨y, hy, rfl⟩ hmem
+    obtain ⟨j, w, hw, hwy⟩ := Set.mem_iUnion.mp hmem
+    have := boxLift_injective a hwy
+    subst this
+    exact (hQ' hy).2 (Set.mem_iUnion.mpr ⟨j, hw⟩)
+  obtain ⟨j, a', ha', hK, hdiam⟩ := LatticeGeom.enclosed_component_diam hd
+    (fun j => (Set.toFinite _ : (boxLift a '' A j).Finite))
+    (starSeparated_boxLift hs2 hAQ hsep) henc (boxLift a c) (fun i => boxLift a c i + t i - 1) hQc
+    (by rw [← himg]; exact ⟨x, hxQ', rfl⟩)
+  obtain ⟨p, hp, rfl⟩ := ha'
+  refine ⟨j, p, hp, ?_, fun i => ?_⟩
+  · rw [← boxLift_image_starComp hs2 (hAQ j) hp] at hK
+    have hKA : starComp (A j) p ⊆ A j := fun b hb => hb.1
+    exact (exists_shell_path_iff_not_enclosed_torus hs (hKA.trans (hA j)) hx
+      (fun h => hxA (Set.mem_iUnion.mpr ⟨j, hKA h⟩))).not.mpr (not_not.mpr hK)
+  · obtain ⟨y', hy', z', hz', hle⟩ := hdiam i
+    rw [← boxLift_image_starComp hs2 (hAQ j) hp] at hy' hz'
+    obtain ⟨y, hy, rfl⟩ := hy'
+    obtain ⟨z, hz, rfl⟩ := hz'
+    refine ⟨y, hy, z, hz, ?_⟩
+    have hyA := (hAQ j) hy.1
+    have hzA := (hAQ j) hz.1
+    by_contra hlt
+    push Not at hlt
+    have := (supDist_le_iff_boxLift hs2 hyA hzA (supDist y z)).mp le_rfl i
+    rw [abs_le] at this
+    omega
+
 end Balaban.LargeField
