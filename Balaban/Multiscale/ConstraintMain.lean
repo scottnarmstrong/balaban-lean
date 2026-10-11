@@ -215,7 +215,7 @@ theorem vecSrc_unitPullback (hk : 1 ≤ k) {ψ : Torus d (N₀ * L ^ (k - k)) �
         simp only [Finset.mem_filter, GeneratingSet.mem_blk]
         exact ⟨fun h => h.2, fun h => ⟨(G.blockUnion k hk le_rfl x x₀ h).2 hx₀, h⟩⟩
       rw [hfil, Finset.sum_congr rfl fun x hx => by rw [G.mem_blk.1 hx], Finset.sum_const,
-        nsmul_eq_mul, card_blk G k le_rfl]
+        nsmul_eq_mul, card_blk_cast G k le_rfl]
   have h4 : ∑ x ∈ G.Ω k, F (jBlock d L N₀ k k x) = ((L : ℝ) ^ k) ^ d * ∑ y, F y := by
     rw [← Finset.sum_fiberwise_of_maps_to (g := jBlock d L N₀ k k) (t := Finset.univ)
       (fun x _ => Finset.mem_univ _)]

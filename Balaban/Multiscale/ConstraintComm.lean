@@ -287,7 +287,7 @@ theorem blk_eq_fibre (j : ℕ) (x : Torus d (N₀ * L ^ k)) :
   ext y
   exact Iff.rfl
 
-theorem card_blk (j : ℕ) (hjk : j ≤ k) (x : Torus d (N₀ * L ^ k)) :
+theorem card_blk_cast (j : ℕ) (hjk : j ≤ k) (x : Torus d (N₀ * L ^ k)) :
     ((G.blk j x).card : ℝ) = ((L : ℝ) ^ j) ^ d := by
   rw [blk_eq_fibre, card_blockFibre (side_eq hjk)]
   push_cast
@@ -305,7 +305,7 @@ theorem layer_block_sq_sum {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
   have h1 : ∀ x ∈ G.layer j, (c * ∑ y ∈ G.blk j x, V y) ^ 2 ≤ c * ∑ y ∈ G.blk j x, V y ^ 2 := by
     intro x _
     have h := sq_sum_le_card_mul_sum_sq (s := G.blk j x) (f := V)
-    rw [card_blk G j hjk] at h
+    rw [card_blk_cast G j hjk] at h
     calc (c * ∑ y ∈ G.blk j x, V y) ^ 2 = c ^ 2 * (∑ y ∈ G.blk j x, V y) ^ 2 := by ring
       _ ≤ c ^ 2 * (((L : ℝ) ^ j) ^ d * ∑ y ∈ G.blk j x, V y ^ 2) :=
           mul_le_mul_of_nonneg_left h (by positivity)
@@ -335,7 +335,7 @@ theorem layer_block_sq_sum {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
           · exact fun h => h.2.symm
           · intro h
             exact ⟨(G.mem_layer_iff hj1 hjk h).2 hy, h.symm⟩
-        rw [this, Finset.sum_const, nsmul_eq_mul, card_blk G j hjk]
+        rw [this, Finset.sum_const, nsmul_eq_mul, card_blk_cast G j hjk]
       · simp only [hy, ↓reduceIte]
         refine Finset.sum_eq_zero fun x hx => ?_
         have : jBlock d L N₀ k j y ≠ jBlock d L N₀ k j x := fun h =>

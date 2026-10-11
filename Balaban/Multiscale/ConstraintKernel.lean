@@ -55,7 +55,7 @@ theorem card_blk_sub {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {y : Torus d (N�
     (hy : y ∈ G.layer j) :
     ((Finset.univ.filter fun x : G.Ω 1 => (x : Torus d (N₀ * L ^ k)) ∈ G.blk j y).card : ℝ) =
       ((L : ℝ) ^ j) ^ d := by
-  rw [← card_blk G j hjk y]
+  rw [← card_blk_cast G j hjk y]
   congr 1
   rw [← Finset.card_map (Function.Embedding.subtype _)]
   congr 1
@@ -131,7 +131,7 @@ theorem norm_blockSum_le {y : Torus d (N₀ * L ^ k)}
         Real.sum_mul_le_sqrt_mul_sqrt _ _ _
     _ ≤ Real.sqrt (((L : ℝ) ^ k) ^ d) * Real.sqrt (blkNormSq G u k y) := by
         have h1 : ∑ x ∈ G.blk k y, (1 : ℝ) ^ 2 = ((L : ℝ) ^ k) ^ d := by
-          simp [card_blk G k le_rfl y]
+          simp [card_blk_cast G k le_rfl y]
         rw [h1]
         refine mul_le_mul_of_nonneg_left (Real.sqrt_le_sqrt ?_) (Real.sqrt_nonneg _)
         unfold blkNormSq
