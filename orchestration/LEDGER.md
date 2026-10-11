@@ -12,3 +12,4 @@
 | 2026-10-11 | Agent cap | rule | author: at most 4 Sonnet + 1 Opus subagents, no sub-subagents |
 | 2026-10-11 | W3a BKAR port | landed | `975347f` (55 files, modules, v4.35.0-rc2; proof-only repairs `dif_pos/dif_neg → dite_eq_left/right`, `if_pos/if_neg → ite_eq_left/right`, one trailing `rfl`; statements unchanged, checked by diff against `a07f44a`); axioms standard |
 | 2026-10-11 | W2a Combes–Thomas | running | Sonnet, worktree W2a |
+| 2026-10-11 | W2a Combes–Thomas | landed | non-Hermitian coercive kernels with exponential decay: `combesThomas`, `combesThomas_restrict`, `perturbation_decay`, `greenFn_resolvent_identity` (`Balaban/Green/`, 724 lines); axioms standard |
