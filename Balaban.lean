@@ -42,3 +42,11 @@ public import Balaban.Green.Summation
 public import Balaban.Green.DomainDifference
 public import Balaban.Green.Perturbation
 public import Balaban.Green.BallSums
+public import Balaban.Green.Lattice.HeatKernel
+public import Balaban.Green.Lattice.HeatKernelBounds
+public import Balaban.Green.Lattice.Green
+public import Balaban.Green.Lattice.TimeIntegrals
+public import Balaban.Green.Lattice.GreenBounds
+public import Balaban.Green.Lattice.LatticeGreen
+public import Balaban.Green.Lattice.Uniqueness
+public import Balaban.Green.Lattice.Main
