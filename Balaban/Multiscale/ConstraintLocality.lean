@@ -792,4 +792,305 @@ theorem out_KsGh' : OutNear D.G (id : D.G.Ω 1 → D.G.Ω 1) D.Z (2 * d + (2 * d
 
 end LocData
 
+/-! ### Assembly: uniform constants -/
+
+/-- The common starting rate `e/2 - κ`. -/
+noncomputable def baseRate (d : ℕ) : ℝ := agmonRate d / 2 - locKappa d
+
+theorem baseRate_ge (hd : 0 < d) : agmonRate d / 2 - agmonRate d / 400 ≤ baseRate d := by
+  have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have he := agmonRate_pos hd
+  unfold baseRate locKappa
+  have : agmonRate d / (400 * d) ≤ agmonRate d / 400 := by
+    rw [div_le_div_iff₀ (by positivity) (by positivity)]
+    nlinarith
+  linarith
+
+theorem baseRate_nonneg (hd : 0 < d) : 0 ≤ baseRate d := by
+  have := baseRate_ge hd
+  have he := agmonRate_pos hd
+  linarith
+
+namespace LocData
+
+variable {d L N : ℕ} [NeZero L] (D : LocData d L N)
+
+/-- The site maps of vector and scalar fields. -/
+abbrev sV : D.G.Ω 1 × Fin N → D.G.Ω 1 := Prod.fst
+abbrev sS : D.G.Ω 1 → D.G.Ω 1 := id
+
+theorem Nn_eq : D.Nn = D.Ph.transpose - D.K * D.Gh := rfl
+
+/-- The block decay of the basic operators at the common rate. -/
+structure BaseDec (D : LocData d L N) (C : ℝ) : Prop where
+  Gh : Dec D.G D.sV D.sV D.Gh 1 (baseRate d) noTail C
+  Gh' : Dec D.G D.sV D.sV D.Gh' 1 (baseRate d) noTail C
+  Ph : Dec D.G D.sV D.sS D.Ph 0 (baseRate d) noTail C
+  Ph' : Dec D.G D.sV D.sS D.Ph' 0 (baseRate d) noTail C
+  Mi : Dec D.G D.sS D.sS D.Mm⁻¹ 0 (baseRate d) noTail C
+  Mi' : Dec D.G D.sS D.sS D.Mm'⁻¹ 0 (baseRate d) noTail C
+  Nn : Dec D.G D.sS D.sV D.Nn 0 (baseRate d) noTail C
+  KG : Dec D.G D.sS D.sV (D.K * D.Gh) 0 (baseRate d) noTail C
+  KsGh' : Dec D.G D.sS D.sV (D.Ks * D.Gh') 0 (baseRate d) noTail C
+  Ps : Dec D.G D.sV D.sS D.Ps 0 (baseRate d) noTail C
+  Pst : Dec D.G D.sS D.sV D.Pst 0 (baseRate d) noTail C
+  D0 : Dec D.G D.sV D.sV D.D0 (-1) (baseRate d) noTail C
+  Xa : Dec D.G D.sS D.sS D.Xa 0 (baseRate d) noTail C
+
+end LocData
+
+/-- **The basic operators have block decay with a constant depending only on `d, L`.** -/
+theorem exists_baseDec (d L N : ℕ) [NeZero L] (hd : 0 < d) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ D : LocData d L N, D.BaseDec C := by
+  have he := agmonRate_pos hd
+  have hγ := baseRate_nonneg hd
+  set c1 := cGreen d L with hc1
+  set c2 : ℝ := 3 / 2 * Real.exp (baseRate d * (4 * d)) with hc2
+  set c3 : ℝ := 2 * Real.exp (4 * agmonRate d * d) * L with hc3
+  set c4 : ℝ := commDecConst d * (1 / 2) * Real.exp (4 * agmonRate d * d) * L with hc4
+  set c5 : ℝ := commDecConst d * 1 * Real.exp (4 * agmonRate d * d) * L with hc5
+  set c6 : ℝ := coerciveConst d * Real.exp (baseRate d * (4 * d)) with hc6
+  set c7 : ℝ := 3 * Real.exp (baseRate d * (4 * d)) with hc7
+  set c8 : ℝ := 1 * Real.exp (baseRate d * (4 * d)) with hc8
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hn1 : 0 ≤ c1 := cGreen_nonneg d L
+  have hn2 : 0 ≤ c2 := by positivity
+  have hn3 : 0 ≤ c3 := by positivity
+  have hcd := commDecConst_nonneg d
+  have hn4 : 0 ≤ c4 := by positivity
+  have hn5 : 0 ≤ c5 := by positivity
+  have hcc := (coerciveConst_pos hd).le
+  have hn6 : 0 ≤ c6 := by positivity
+  have hn7 : 0 ≤ c7 := by positivity
+  have hn8 : 0 ≤ c8 := by positivity
+  refine ⟨c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8, by positivity, fun D => ?_⟩
+  have hδ0 := D.St.nonneg
+  have hδ1 := D.St.delta_le_half
+  have hrate : baseRate d ≤ agmonRate d - locKappa d := by
+    unfold baseRate; linarith
+  have dec_KG : Dec D.G D.sS D.sV (D.K * D.Gh) 0 (baseRate d) noTail c4 := by
+    refine (D.dec_KG.mono_rate noTail_nonneg (by positivity) hrate).mono_const noTail_nonneg ?_
+    have : commDecConst d * D.δ ≤ commDecConst d * (1 / 2) :=
+      mul_le_mul_of_nonneg_left hδ1 hcd
+    rw [hc4]
+    have hE := (Real.exp_pos (4 * agmonRate d * d)).le
+    nlinarith [mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right this hE) hL0.le]
+  have dec_KsGh' : Dec D.G D.sS D.sV (D.Ks * D.Gh') 0 (baseRate d) noTail c5 := by
+    refine (D.dec_KsGh'.mono_rate noTail_nonneg (by positivity) hrate).mono_const noTail_nonneg ?_
+    have : commDecConst d * (D.δ + D.δ) ≤ commDecConst d * 1 :=
+      mul_le_mul_of_nonneg_left (by linarith) hcd
+    rw [hc5]
+    have hE := (Real.exp_pos (4 * agmonRate d * d)).le
+    nlinarith [mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right this hE) hL0.le]
+  have hT : ∀ y y' : Torus d (D.N₀ * L ^ D.k), 0 ≤ (noTail : Torus d (D.N₀ * L ^ D.k) →
+      Torus d (D.N₀ * L ^ D.k) → ℝ) y y' := noTail_nonneg
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, dec_KG.mono_const hT (by linarith), dec_KsGh'.mono_const hT
+    (by linarith), ?_, ?_, ?_, ?_⟩
+  · exact (D.dec_Gh).mono_const hT (by linarith)
+  · exact (D.dec_Gh').mono_const hT (by linarith)
+  · exact (D.dec_Ph hγ).mono_const hT (by linarith)
+  · exact (D.dec_Ph' hγ).mono_const hT (by linarith)
+  · exact (D.dec_Mi.mono_rate hT (by positivity) hrate).mono_const hT (by linarith)
+  · exact (D.dec_Mi'.mono_rate hT (by positivity) hrate).mono_const hT (by linarith)
+  · rw [D.Nn_eq]
+    have h1 := (D.dec_Pht hγ).sub dec_KG
+    exact h1.mono_const hT (by linarith)
+  · exact (D.dec_Ps hγ).mono_const hT (by linarith)
+  · exact (D.dec_Pst hγ).mono_const hT (by linarith)
+  · exact (D.dec_D0 hγ).mono_const hT (by linarith)
+  · exact (D.dec_Xa hγ).mono_const hT (by linarith)
+
+/-! ### Constants by levels -/
+
+/-- The factor `e^{2 γ_t c}` for the largest localization distance `c = 4 d + 1`. -/
+noncomputable def locB (d : ℕ) : ℝ := Real.exp (2 * locTail d * (4 * d + 1))
+
+/-- The counting constant, at least `1`. -/
+noncomputable def locCC (d L : ℕ) : ℝ := max 1 (countConst d L (locTheta d))
+
+/-- One step of the constant under a composition. -/
+noncomputable def Mup (d L : ℕ) (M : ℝ) : ℝ := M * M * locB d * (L : ℝ) ^ 4 * locCC d L
+
+/-- The constants after `n` compositions. -/
+noncomputable def lvl (d L : ℕ) (M₀ : ℝ) : ℕ → ℝ
+  | 0 => M₀
+  | n + 1 => Mup d L (lvl d L M₀ n)
+
+section Lvl
+
+variable {d L : ℕ} [NeZero L]
+
+theorem locB_ge_one (d : ℕ) : 1 ≤ locB d := by
+  unfold locB locTail agmonRate poincareConst
+  exact Real.one_le_exp (by positivity)
+
+theorem one_le_locCC (d L : ℕ) : 1 ≤ locCC d L := le_max_left _ _
+
+theorem one_le_L : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+
+theorem Mup_mono {M M' : ℝ} (h : M ≤ M') (h0 : 0 ≤ M) : Mup d L M ≤ Mup d L M' := by
+  unfold Mup
+  have hB := locB_ge_one d
+  have hC := one_le_locCC d L
+  have hL : (1 : ℝ) ≤ (L : ℝ) ^ 4 := one_le_pow₀ one_le_L
+  have h1 : M * M ≤ M' * M' := mul_le_mul h h h0 (h0.trans h)
+  have h2 : 0 ≤ locB d * (L : ℝ) ^ 4 * locCC d L :=
+    mul_nonneg (mul_nonneg (by linarith) (by linarith)) (by linarith)
+  nlinarith [mul_le_mul_of_nonneg_right h1 h2]
+
+theorem le_Mup {M : ℝ} (h : 1 ≤ M) : M ≤ Mup d L M := by
+  unfold Mup
+  have hB := locB_ge_one d
+  have hC := one_le_locCC d L
+  have hL : (1 : ℝ) ≤ (L : ℝ) ^ 4 := one_le_pow₀ one_le_L
+  have h1 : 1 ≤ locB d * (L : ℝ) ^ 4 * locCC d L := by
+    have := one_le_mul_of_one_le_of_one_le hB hL
+    exact one_le_mul_of_one_le_of_one_le this hC
+  nlinarith [mul_le_mul h h (by norm_num) (by linarith)]
+
+theorem one_le_lvl {M₀ : ℝ} (h : 1 ≤ M₀) (n : ℕ) : 1 ≤ lvl d L M₀ n := by
+  induction n with
+  | zero => exact h
+  | succ n ih => exact ih.trans (le_Mup ih)
+
+theorem lvl_mono {M₀ : ℝ} (h : 1 ≤ M₀) {m n : ℕ} (hmn : m ≤ n) : lvl d L M₀ m ≤ lvl d L M₀ n := by
+  induction hmn with
+  | refl => exact le_rfl
+  | step _ ih => exact ih.trans (le_Mup (one_le_lvl h _))
+
+end Lvl
+
+section LvlDec
+
+variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
+variable {ι₁ ι₂ ι₃ : Type*} [Fintype ι₁] [Fintype ι₂] [Fintype ι₃]
+
+theorem cmpC_le_Mup {C B : ℝ} {μ : ℕ} (hC : 0 ≤ C) (hB0 : 0 ≤ B) (hB : B ≤ locB d)
+    (hμ : μ ≤ 4) : cmpC d L (locTheta d) C C B μ ≤ Mup d L C := by
+  unfold cmpC Mup
+  have hL : (1 : ℝ) ≤ L := one_le_L
+  have hLμ : (L : ℝ) ^ μ ≤ (L : ℝ) ^ 4 := pow_le_pow_right₀ hL hμ
+  have hcc : countConst d L (locTheta d) ≤ locCC d L := le_max_right _ _
+  have hcc0 := countConst_nonneg d L (locTheta d)
+  have h1 : C * C * B * (L : ℝ) ^ μ ≤ C * C * locB d * (L : ℝ) ^ 4 := by
+    have hCC : 0 ≤ C * C := mul_nonneg hC hC
+    have hLp : 0 ≤ (L : ℝ) ^ μ := by positivity
+    have hLp4 : 0 ≤ (L : ℝ) ^ 4 := by positivity
+    have hb : 0 ≤ locB d := by have := locB_ge_one d; linarith
+    calc C * C * B * (L : ℝ) ^ μ ≤ C * C * locB d * (L : ℝ) ^ μ :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hB hCC) hLp
+      _ ≤ _ := mul_le_mul_of_nonneg_left hLμ (mul_nonneg hCC hb)
+  have h2 : 0 ≤ C * C * B * (L : ℝ) ^ μ := by positivity
+  calc C * C * B * (L : ℝ) ^ μ * countConst d L (locTheta d)
+      ≤ C * C * locB d * (L : ℝ) ^ 4 * countConst d L (locTheta d) := by gcongr
+    _ ≤ _ := by
+        have : 0 ≤ C * C * locB d * (L : ℝ) ^ 4 := by
+          have := locB_ge_one d; positivity
+        exact mul_le_mul_of_nonneg_left hcc this
+
+theorem Dec.mul_lvl {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {s₃ : ι₃ → G.Ω 1}
+    {T : Matrix ι₁ ι₂ ℂ} {S : Matrix ι₂ ι₃ ℂ} {w w' : ℤ} {γ γT γS M₀ : ℝ} {n : ℕ}
+    (hd : 0 < d) (hϱ : 1 < ϱ) (hlog : Real.log L ≤ locKappa d * (ϱ - 1)) (hM₀ : 1 ≤ M₀)
+    (hμ : w.natAbs + w'.natAbs ≤ 4) (hγ : agmonRate d / 50 ≤ γ) (hT : γ ≤ γT) (hS : γ ≤ γS)
+    (hTd : Dec G s₁ s₂ T w γT noTail (lvl d L M₀ n))
+    (hSd : Dec G s₂ s₃ S w' γS noTail (lvl d L M₀ n)) :
+    Dec G s₁ s₃ (T * S) (w + w') (γ - agmonRate d / 50) noTail (lvl d L M₀ (n + 1)) := by
+  have h0 : 0 ≤ lvl d L M₀ n := by have := one_le_lvl (d := d) (L := L) hM₀ n; linarith
+  have := Dec.mul_std hd hϱ hlog hμ hγ hT hS h0 h0 hTd hSd
+  exact this.mono_const noTail_nonneg (cmpC_le_Mup h0 zero_le_one (locB_ge_one d) hμ)
+
+theorem Dec.mul_out_lvl {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {s₃ : ι₃ → G.Ω 1}
+    {T : Matrix ι₁ ι₂ ℂ} {S : Matrix ι₂ ι₃ ℂ} {w w' : ℤ} {γ γT γS M₀ c : ℝ} {n : ℕ}
+    {Z : Finset (G.Ω 1)}
+    (hd : 0 < d) (hϱ : 1 < ϱ) (hlog : Real.log L ≤ locKappa d * (ϱ - 1)) (hM₀ : 1 ≤ M₀)
+    (hμ : w.natAbs + w'.natAbs ≤ 4) (hγ : agmonRate d / 8 ≤ γ) (hT : γ ≤ γT) (hS : γ ≤ γS)
+    (hc : 0 ≤ c) (hc' : c ≤ 4 * d + 1)
+    (hTd : Dec G s₁ s₂ T w γT noTail (lvl d L M₀ n))
+    (hSd : Dec G s₂ s₃ S w' γS noTail (lvl d L M₀ n)) (hE : OutNear G s₂ Z c S) :
+    Dec G s₁ s₃ (T * S) (w + w') (γ - agmonRate d / 8) (tailZ G (locTail d) Z)
+      (lvl d L M₀ (n + 1)) := by
+  have h0 : 0 ≤ lvl d L M₀ n := by have := one_le_lvl (d := d) (L := L) hM₀ n; linarith
+  have := Dec.mul_out hd hϱ hlog hμ hγ hT hS h0 h0 hc hTd hSd hE
+  refine this.mono_const (tailZ_nonneg G _ Z) ?_
+  have hγt : 0 ≤ locTail d := by unfold locTail agmonRate poincareConst; positivity
+  have hB : Real.exp (2 * locTail d * c) ≤ locB d :=
+    Real.exp_le_exp.2 (mul_le_mul_of_nonneg_left hc' (by positivity))
+  exact cmpC_le_Mup h0 (Real.exp_pos _).le hB hμ
+
+theorem Dec.mul_tail_lvl {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {s₃ : ι₃ → G.Ω 1}
+    {T : Matrix ι₁ ι₂ ℂ} {S : Matrix ι₂ ι₃ ℂ} {w w' : ℤ} {γ γT γS M₀ : ℝ} {n : ℕ}
+    {Z : Finset (G.Ω 1)}
+    (hd : 0 < d) (hϱ : 1 < ϱ) (hlog : Real.log L ≤ locKappa d * (ϱ - 1)) (hM₀ : 1 ≤ M₀)
+    (hμ : w.natAbs + w'.natAbs ≤ 4) (hγ : agmonRate d / 8 ≤ γ) (hT : γ ≤ γT) (hS : γ ≤ γS)
+    (hTd : Dec G s₁ s₂ T w γT (tailZ G (locTail d) Z) (lvl d L M₀ n))
+    (hSd : Dec G s₂ s₃ S w' γS noTail (lvl d L M₀ n)) :
+    Dec G s₁ s₃ (T * S) (w + w') (γ - agmonRate d / 8) (tailZ G (locTail d) Z)
+      (lvl d L M₀ (n + 1)) := by
+  have h0 : 0 ≤ lvl d L M₀ n := by have := one_le_lvl (d := d) (L := L) hM₀ n; linarith
+  have := Dec.mul_tail hd hϱ hlog hμ hγ hT hS h0 h0 hTd hSd
+  exact this.mono_const (tailZ_nonneg G _ Z) (cmpC_le_Mup h0 zero_le_one (locB_ge_one d) hμ)
+
+/-- **The chain `(P E) Q` with the localized factor `E` in the middle.** -/
+theorem Dec.chain_lvl {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {s₃ : ι₃ → G.Ω 1}
+    {ι₄ : Type*} [Fintype ι₄] {s₄ : ι₄ → G.Ω 1}
+    {P : Matrix ι₁ ι₂ ℂ} {E : Matrix ι₂ ι₃ ℂ} {Q : Matrix ι₃ ι₄ ℂ} {w₁ w₂ w₃ : ℤ}
+    {γ M₀ c : ℝ} {n : ℕ} {Z : Finset (G.Ω 1)}
+    (hd : 0 < d) (hϱ : 1 < ϱ) (hlog : Real.log L ≤ locKappa d * (ϱ - 1)) (hM₀ : 1 ≤ M₀)
+    (hμ₁ : w₁.natAbs + w₂.natAbs ≤ 4) (hμ₂ : (w₁ + w₂).natAbs + w₃.natAbs ≤ 4)
+    (hγ : agmonRate d / 4 ≤ γ) (hc : 0 ≤ c) (hc' : c ≤ 4 * d + 1)
+    (hP : Dec G s₁ s₂ P w₁ γ noTail (lvl d L M₀ n))
+    (hE : Dec G s₂ s₃ E w₂ γ noTail (lvl d L M₀ n)) (hEo : OutNear G s₂ Z c E)
+    (hQ : Dec G s₃ s₄ Q w₃ γ noTail (lvl d L M₀ n)) :
+    Dec G s₁ s₄ (P * E * Q) (w₁ + w₂ + w₃) (γ - agmonRate d / 8 - agmonRate d / 8)
+      (tailZ G (locTail d) Z) (lvl d L M₀ (n + 2)) := by
+  have he := agmonRate_pos hd
+  have h0 := one_le_lvl (d := d) (L := L) hM₀ n
+  have h1 := Dec.mul_out_lvl hd hϱ hlog hM₀ hμ₁ (γ := γ) (by linarith) le_rfl le_rfl hc hc' hP hE hEo
+  have hQ' : Dec G s₃ s₄ Q w₃ (γ - agmonRate d / 8) noTail (lvl d L M₀ (n + 1)) :=
+    (hQ.mono_rate noTail_nonneg (by linarith) (by linarith)).mono_const noTail_nonneg
+      (lvl_mono hM₀ (Nat.le_succ n))
+  exact Dec.mul_tail_lvl hd hϱ hlog hM₀ hμ₂ (γ := γ - agmonRate d / 8) (by linarith) le_rfl le_rfl
+    h1 hQ'
+
+end LvlDec
+
+
+/-! ### The terms of `Π - Π′` -/
+
+section Terms
+
+variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
+variable {ι₁ ι₂ : Type*} [Fintype ι₁] [Fintype ι₂]
+
+/-- Adjust weight, rate, and level of a `Dec` fact. -/
+theorem Dec.adj {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {T : Matrix ι₁ ι₂ ℂ} {w w' : ℤ} {γ γ' M₀ : ℝ}
+    {m n : ℕ} {τ : Torus d (N₀ * L ^ k) → Torus d (N₀ * L ^ k) → ℝ}
+    (hM₀ : 1 ≤ M₀) (hτ : ∀ y y', 0 ≤ τ y y')
+    (h : Dec G s₁ s₂ T w γ τ (lvl d L M₀ m)) (hw : w = w') (hγ : γ' ≤ γ) (hmn : m ≤ n) :
+    Dec G s₁ s₂ T w' γ' τ (lvl d L M₀ n) := by
+  subst hw
+  have h0 : 0 ≤ lvl d L M₀ m := by have := one_le_lvl (d := d) (L := L) hM₀ m; linarith
+  exact (h.mono_rate hτ h0 hγ).mono_const hτ (lvl_mono hM₀ hmn)
+
+end Terms
+
+namespace LocData
+
+variable {d L N : ℕ} [NeZero L] (D : LocData d L N)
+
+theorem Pi_sub_peq : D.Pi - D.Pi' =
+    -((D.Gh * D.D0) * (D.Gh' * D.Ph * D.Mm⁻¹ * D.Nn))
+    + (D.Gh' * D.Ps) * (D.Mm⁻¹ * D.Nn)
+    + (D.Gh' * D.Ph' * D.Mm⁻¹ * D.Xa) * (D.Mm'⁻¹ * D.Nn)
+    + (D.Gh' * D.Ph' * D.Mm⁻¹ * (D.Ks * D.Gh')) * (D.Ph' * D.Mm'⁻¹ * D.Nn)
+    - (D.Gh' * D.Ph' * D.Mm⁻¹ * (D.K * D.Gh) * D.D0) * (D.Gh' * D.Ph' * D.Mm'⁻¹ * D.Nn)
+    + (D.Gh' * D.Ph' * D.Mm⁻¹ * (D.K * D.Gh) * D.Ps) * (D.Mm'⁻¹ * D.Nn)
+    + (D.Gh' * D.Ph' * D.Mm'⁻¹) * D.Pst
+    + (D.Gh' * D.Ph' * D.Mm'⁻¹ * (D.K * D.Gh) * D.D0) * D.Gh'
+    - (D.Gh' * D.Ph' * D.Mm'⁻¹) * (D.Ks * D.Gh') := by
+  rw [D.Pi_sub]
+  simp only [Matrix.mul_assoc]
+
+end LocData
+
 end Balaban.Multiscale
