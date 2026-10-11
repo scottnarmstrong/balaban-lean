@@ -57,3 +57,9 @@ public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.PathMetric
+public import Balaban.Multiscale.PathMetricBounds
+public import Balaban.Multiscale.AgmonCore
+public import Balaban.Multiscale.AgmonWeight
+public import Balaban.Multiscale.Agmon
+public import Balaban.Multiscale.AgmonDecay
+public import Balaban.Multiscale.ScaleMismatch
