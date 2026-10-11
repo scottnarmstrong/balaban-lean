@@ -32,3 +32,5 @@ public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
 public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RunningCoefficients
+public import Balaban.Green.Summation
+public import Balaban.Green.DomainDifference
