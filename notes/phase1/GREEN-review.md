@@ -93,3 +93,44 @@ The sandwich bound of G-2(v) is right and sufficient for $\Pi$ as a bounded oper
 ### 6. Consistency with the landed Lean
 
 `Balaban.Green.combesThomas` matches G-4(a) as to shape (constant $2(\gamma_0+t)^{-1}$, rate independent of $t\ge0$, coercive non-Hermitian $A$, pseudo-metric, finite index type) and `combesThomas_restrict` matches the restriction to $\Lambda$ with the same constants. It differs from the doc's description of the proof and of the rate (ball sums at $\delta_0/4$; `ctRate`); the doc's §4.4 "required generalization" has already been done differently (F-12). Missing relative to G-4 and to G-1/G-2/G-6: see F-13. Also, `greenFn_resolvent_identity` is stated for $\Lambda\subseteq\Lambda'$ with $G_\Lambda=G_{\Lambda'}+G_{\Lambda'}AG_\Lambda$ summed over $\Lambda'\setminus\Lambda$ and agrees in sign with the doc's identity.
+
+
+## Re-review of the revision
+
+Checked against the revised `GREEN.md` (658 lines; Sections 1.1, 3, 4.1, 4.2, 4.4, 4.5, 4.5a, 4.5b, 4.6, 4.9, 4.10 and "Review dispositions"). Lean names cited in 4.9 exist (`blockAverage_adjoint_spacing`, `woodbury_posDef`, `blockSpinOperator_eq_schur`, etc.).
+
+**VERDICT: APPROVE-WITH-CHANGES.** All eighteen dispositions are acceptable. The new mathematics is correct in substance: Lemma 4.10 and the rewritten G-4(b), (c); $\Pi\succeq0$ for real data and the complex perturbation bound; the blockwise x-variant Agmon estimate; the $1/105$ Poincaré constant; and G-2(v$'$). I found no new BLOCKER or MAJOR error. The remaining items are small, listed as N-1 to N-5 below, and should be fixed before freezing. G-2(vi$'$) is an outline only; this is stated honestly in the document.
+
+### Disposition table
+
+| Finding | Verified | Remark |
+|---|---|---|
+| F-01 | yes | Lemma 4.10 re-derived: with $m=\min(\mu,\delta)$, $|x_1-z|+d(z,Z)\ge D_1$ gives $e^{-ms}\le e^{-mD_1/2}e^{-ms/2}$ and the remaining sum is $\le\kappa_m\kappa_\delta$. Correct. G-4(c) with tails and (b) with halved rate $\mu_1/2$ follow. (4.10) does not literally cover (b), since $z\in Z$ and $w$ carries no $Z$-weight; the remark after the lemma handles it, but one more line is needed (see N-3). Tails of $\Delta^{(k)}$-differences are in the metric $d\ge|\cdot|_1$, so the $\ell^1$-distance statement is the weaker one and is fine. |
+| F-02 | yes | (1.8) renamed; (1.8$'$) added; G-1(d) proved. (1) $\Pi=(GT)S(GT)^*\succeq0$ for real symmetric positive definite $G$ and injective $T=\phi_0\cdot$ (checked). (2) $\|\ell^{-1}(\Pi-\Pi_r)f\|\le C\epsilon\|\ell f\|$ and evaluating on $\Lambda_k$ where $\ell=1$ gives $C_*\epsilon$ (checked; the resolvent difference is written loosely, see N-5). (3) entry decay via $\|1_B\|=1$ and G-2(v) (checked). The constrained covariance sign (minus) is consistent with P3 (3.9) and P4 (2.23). One justification is thin (N-4). |
+| F-03 | yes (as withdrawal) | G-3 is now an explicit open option; (vi$''$) with $m!$ is derived by induction on G-6(c); (vi$'$) is an outline only. The freeze statement "G-1, G-2, G-4, G-5, G-6 frozen" overstates for (vi$'$) and (vii)(ii)–(iv) (N-6). |
+| F-04 | yes | Blockwise estimate re-derived. Block-conjugation estimate $\ge(1-2\tau)X^2-2\tau Y^2$ is correct (cross terms $2e^\sigma\tau XY$, $e^\sigma\le1.3$). $s_2-s_1\le aL^{-2}\le\frac32L^{-2}$ and $\|v-P_Bv\|^2\le\frac{L^2}8\|\partial v\|^2$ make the $s_2$-error $\sim0.375\,\tau_B\|\partial v\|^2$; the unit sub-block error uses $\sigma_b\le\varepsilon d/L$. The error is absorbed by the gradient and by $s_1\sum\|P_bv\|^2$, so $\varepsilon_0(d)$ independent of $L$ and $x$ is justified (my objection was to the earlier text). Corrected (4.4): $|Q_k^*S_xQ_ku|\le s_2\le\frac32$, total $3\max|u|=3L^2\ell^{-2}\max|u|$ on $\Omega_{k+1}$; Lemma P rerun is sound (the extra factor $L$ in $c_0$ is unnecessary but harmless). The interface still allows $\varepsilon_0'(d,L)$. |
+| F-05 | yes | Torus $(\eta\mathbb Z/N_0\mathbb Z)^d$, single symbol $\nu=\nu_k$. |
+| F-06 | yes | (iii), Loc(c), 4.9 now use exponent $1-\theta$, $B_\theta=C/\theta$. |
+| F-07 | yes | $R_0$ and $13e^{2d\varepsilon_0}L\le14L$ corrected. |
+| F-08 | yes | Restriction to $\Omega_{k+1}^{(k)}$; the constrained term is derived in 4.7(b$'$) as a stationary value of a bilinear Lagrangian (valid over $\mathbb C$). The Woodbury step for the constrained covariance is only sketched (N-4). |
+| F-09 | yes | Marked as cited. |
+| F-10 | yes | Poincaré re-derived: with $\psi_{-1}=\psi_n=0$, $|\psi_x|^2\le(x+1)\sum_{i\le x}|g_i|^2$ and $\sum_x(x+1)\le n(n+1)/2$, so constant $\ge2/(n(n+1))=1/105$ for $n\le14$; one direction suffices in $d$ dimensions. The remark that P7's $1/36$ is also true is correct ($4\sin^2(\pi/30)\approx0.0438$). $\psi$ supported in $\Lambda_k$ fixed. |
+| F-11 | yes | Identity on columns in $\Lambda'$; rates halved; sign agrees with Lean. |
+| F-12 | yes | 4.4 cites the landed Lean with `ctRate` and ball sums. |
+| F-13 | yes | Dictionary 4.9 present; remaining work listed. |
+| F-14 | yes | Definitions fixed; $d\ge|\cdot|_1$ in Lemma 4.7. |
+| F-15 | yes | $d\ge3$ added to (A). |
+| F-16 | yes | G-2(v$'$) re-derived: bounds $|2\nabla\phi_0\cdot\nabla u|_2\le4d\delta_0|\partial u|_1$, $|(\Delta\phi_0)u|_2\le\delta_0|u|_0$, commutator $\le2d\delta_0|u|_0$; $[\phi_0\cdot G\phi_0]^{-1}G=M^{-1}$ is right; the Neumann series converges for $\delta_0\le\delta_*$. |
+| F-17 | yes | Preamble and 4.8 aligned (proved vs detailed plan). |
+| F-18 | yes | Limit argument reworded. |
+
+### New findings
+
+| ID | Sev | Location | Finding | Fix |
+|---|---|---|---|---|
+| N-1 | MINOR | G-1(a$'$) | The hypothesis on $\alpha_0$ was shrunk to $|\alpha_0|\le\frac1{24}L^{-2}$, but P3 (3.10) allows $|\alpha_0|<\frac1{12}a_{k+1}L^{-2}$, which is larger for $a_{k+1}>\frac12$. So the interface no longer covers the consumer's range. The shrinkage is not needed: $E_B\ge\frac13L^{-2}\|v\|^2$ against $\frac18L^{-2}$ (from $a_{k+1}\le\frac32$) still leaves a positive margin. | Restore $|\alpha_0|\le\frac1{12}a_{k+1}L^{-2}$. |
+| N-2 | MINOR | §4.6 proof of G-2(vi) | The split $e^{-\gamma_0 s}\le e^{-\frac{\gamma_0}2(d(y,Z)+d(y',Z))}e^{-\frac{\gamma_0}2d(y,y')}e^{-\frac{\gamma_0}2s}$ is invalid: with $A,B\le s$ it needs $\frac32\gamma_0s\le\gamma_0s$. | Use $\frac{\gamma_0}3$ in each of the three factors (or $\gamma_0/4$ in the first two). The conclusion (product form) is unchanged. |
+| N-3 | MINOR | Lemma 4.10 / (b) | The lemma as stated has $e^{-\delta d(z,Z)}$ on the $z$-side and a $w$-side tail, but (b) has $z\in Z$ and no tail on $w$, so it is not literally an instance. | State the lemma with optional factors, or add the two-line splitting $e^{-\mu|w-x_2|-\delta|z-w|}\le e^{-mD_2/2}e^{-\frac m2(|w-x_2|+|z-w|)}$ in the proof of (b). |
+| N-4 | MINOR | 4.7(b$'$) | "Woodbury with the rank condition" for $C_x^{(k)}=A+a_k^2AQ(G_{k,x}-\Pi_{k,x})Q^*A$ is not a direct Woodbury: $G-\Pi$ is singular. The identity does hold, as an inverse on $\phi_0^\perp$, with $G_c=E(E^*HE)^{-1}E^*$ for the embedding $E$ of $\phi_0^\perp$; the correct statement is $(T-a_k^2QEH'^{-1}E^*Q^*)^{-1}=T^{-1}+a_k^2T^{-1}QE(E^*G_{k,x}^{-1}E)^{-1}E^*Q^*T^{-1}$. | Write the argument this way. |
+| N-5 | NOTE | 4.5b(2) | $G(\alpha)-G(\alpha_r)=-G(\alpha)(i\alpha_i)G(\alpha_r)$ is written as $G(i\alpha_i)G_r$. The bound $\le16\epsilon$ is correct. | Typo. |
+| N-6 | NOTE | §3 freeze statement | G-2(vi$'$) (locality of $\Pi$ in $\phi_0$) is an outline, and G-4(c) is consumed through it for the constrained covariance. Likewise G-2(vii)(ii)–(iv) are gated on Q4. "G-1, G-2, G-4, G-5, G-6 frozen" should exclude these. | Mark (vi$'$) and (vii)(ii)–(iv) as pending, or write the kernel-algebra proof. |
