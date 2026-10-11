@@ -364,6 +364,96 @@ theorem blockMean_decomp (h : Precedes G G') {x₀ : Torus d (N₀ * L ^ k)} (hx
   rw [← Finset.sum_mul]
   ring
 
+/-- `c_n κ = c_p`: `a_n L^{-2n} · (a_p / a_n) L^{2(n-p)} = a_p L^{-2p}` (the identity behind
+(6.3)–(6.4)), in `ℂ`. -/
+theorem coeff_mul_kappa (a : ℕ → ℝ) {n p : ℕ} (han : a n ≠ 0) :
+    ((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) *
+      ((a p / a n * (((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2) : ℝ) : ℂ) =
+      ((a p / ((L : ℝ) ^ p) ^ 2 : ℝ) : ℂ) := by
+  have hL : (L : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne L
+  rw [← Complex.ofReal_mul]
+  congr 1
+  field_simp
+
+/-- **Theorem 6.1 (iii), existence**: the composed field with `(φ', α')` solves `𝒮`. -/
+theorem isComposedSystem_of_isEL (h : Precedes G G') (a : ℕ → ℝ)
+    (hC1 : ∀ n p : ℕ, n ≤ p → ((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2 * (a n)⁻¹ =
+      (a p)⁻¹ - (a (p - n))⁻¹)
+    (hpos : ∀ r, 1 ≤ r → 0 < a r) (ν : ℝ) (D' : BgData G' N) {φ : G'.Ω 1 × Fin N → ℂ}
+    {α : G'.Ω 1 → ℂ} (hEL : IsEL G' a ν D' φ α) :
+    IsComposedSystem G G' a ν D' (fun x i => composeField G G' a φ D'.Ψ x i) φ α := by
+  have hL : (L : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne L
+  have hres : ∀ (z : G'.Ω 1) (i : Fin N), elResidual G' a ν D' φ α (z, i) = 0 := by
+    intro z i
+    unfold elResidual; rw [hEL.1]; simp
+  refine ⟨composeField_layerConst h a φ D'.Ψ_layerConst, ?_, ?_, ?_, hEL.2⟩
+  · intro x hx hlt i
+    obtain ⟨hn1, hnk, hxn⟩ := G.layerIndex_spec hx
+    have hx' := h.mem_Ω1 hx
+    have hua := invAp_pos h a hpos hx' hlt
+    have hap : a (G'.layerIndex x) ≠ 0 :=
+      (hpos _ (G'.layerIndex_spec hx').1).ne'
+    have han : a (G.layerIndex x) ≠ 0 := (hpos _ hn1).ne'
+    have KI := blockMean_psiExt_compose h a hC1 D' φ hx' hap i
+    have hcf := composeField_of_mem a φ D'.Ψ hx i
+    have e2 := coeff_mul_kappa (L := L) a (n := G.layerIndex x) (p := G'.layerIndex x) han
+    have e1 : (((invAp G G' a (G'.layerIndex x) x)⁻¹ / ((L : ℝ) ^ G'.layerIndex x) ^ 2 : ℝ) : ℂ) *
+        ((a (G'.layerIndex x) * invAp G G' a (G'.layerIndex x) x : ℝ) : ℂ) =
+        ((a (G'.layerIndex x) / ((L : ℝ) ^ G'.layerIndex x) ^ 2 : ℝ) : ℂ) := by
+      rw [← Complex.ofReal_mul]
+      congr 1
+      field_simp
+    rw [KI, hcf]
+    linear_combination
+      (blockMean G' (G'.layerIndex x) (fun y => svec G' φ y i) x - D'.Ψ x i) * e1 +
+      (D'.Ψ x i - blockMean G' (G'.layerIndex x) (fun y => svec G' φ y i) x) * e2
+  · intro x hx hnp
+    funext i
+    show composeField G G' a φ D'.Ψ x i = D'.Ψ x i
+    have hx' := h.mem_Ω1 hx
+    have hap : a (G'.layerIndex x) ≠ 0 := (hpos _ (G'.layerIndex_spec hx').1).ne'
+    rw [composeField_of_mem a φ D'.Ψ hx, hnp]
+    have hb : blockMean G (G'.layerIndex x) (fun y => svec G' φ y i) x =
+        blockMean G' (G'.layerIndex x) (fun y => svec G' φ y i) x := rfl
+    have e : a (G'.layerIndex x) / a (G'.layerIndex x) *
+        (((L : ℝ) ^ G'.layerIndex x) ^ 2 / ((L : ℝ) ^ G'.layerIndex x) ^ 2) = 1 := by
+      field_simp
+    rw [hb, e]
+    simp
+  · intro z i
+    have hr := hres z i
+    rw [elResidual_site] at hr
+    by_cases hz : (z : Torus d (N₀ * L ^ k)) ∈ G.Ω 1
+    · simp only [hz, ↓reduceIte]
+      have hcf := composeField_of_mem a φ D'.Ψ hz i
+      have han : a (G.layerIndex (z : Torus d (N₀ * L ^ k))) ≠ 0 :=
+        (hpos _ (G.layerIndex_spec hz).1).ne'
+      have e2 := coeff_mul_kappa (L := L) a (n := G.layerIndex (z : Torus d (N₀ * L ^ k)))
+        (p := G'.layerIndex (z : Torus d (N₀ * L ^ k))) han
+      rw [hcf]
+      linear_combination hr - (D'.Ψ z i -
+        blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k))) (fun y => svec G' φ y i) z) * e2
+    · simp only [hz, ↓reduceIte]
+      have hz' : (z : Torus d (N₀ * L ^ k)) ∈ G'.Ω 1 := z.2
+      have hp1 := (G'.layerIndex_spec hz').1
+      have hlt : G.layerIndex (z : Torus d (N₀ * L ^ k)) < G'.layerIndex (z : Torus d (N₀ * L ^ k)) := by
+        rw [layerIndex_of_not_mem G hz]; omega
+      have hua := invAp_pos h a hpos hz' hlt
+      have hap : a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) ≠ 0 := (hpos _ hp1).ne'
+      have KI := blockMean_psiExt_compose h a hC1 D' φ hz' hap i
+      have e1 : (((invAp G G' a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) z)⁻¹ /
+          ((L : ℝ) ^ G'.layerIndex (z : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) *
+          ((a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) *
+            invAp G G' a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) z : ℝ) : ℂ) =
+          ((a (G'.layerIndex (z : Torus d (N₀ * L ^ k))) /
+            ((L : ℝ) ^ G'.layerIndex (z : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) := by
+        rw [← Complex.ofReal_mul]
+        congr 1
+        field_simp
+      rw [KI]
+      linear_combination hr + (blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k)))
+        (fun y => svec G' φ y i) z - D'.Ψ z i) * e1
+
 end System
 
 end Balaban.Background
