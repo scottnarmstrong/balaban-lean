@@ -511,4 +511,282 @@ theorem x_agmon_energy (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → �
 
 end XEnergy
 
+/-! ### Block decay for a general constant `c` -/
+
+section Decay
+
+variable {K : ℕ}
+
+theorem eps_sq_mul_le_gen (hd : 0 < d) {c ε : ℝ} (hc0 : 0 < c) (hε0 : 0 ≤ ε)
+    (hεd : ε * d ≤ c / 16) : ε ^ 2 * d ≤ c ^ 2 / 256 := by
+  have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have hε : ε ≤ c / 16 := by nlinarith [mul_nonneg hε0 (by linarith : (0 : ℝ) ≤ d)]
+  nlinarith [mul_le_mul hεd hε hε0 (by positivity)]
+
+theorem numeric_grad_gen (hd : 0 < d) {c ε : ℝ} (hc0 : 0 < c) (hc2 : c ≤ 1 / 2) (hε0 : 0 ≤ ε)
+    (hεd : ε * d ≤ c / 16) {E S Hh : ℝ} (hHh0 : 0 ≤ Hh) (hS : S ≤ 4 / c ^ 2 * Hh)
+    (hE : E ≤ 2 / c * Hh) : 2 * E + 8 * ε ^ 2 * (d * S) ≤ 5 / c * Hh := by
+  have hε2 := eps_sq_mul_le_gen hd hc0 hε0 hεd
+  have h3 : 8 * ε ^ 2 * (d * S) ≤ 1 / 8 * Hh := by
+    have hcc : 0 ≤ 8 * ε ^ 2 * d :=
+      mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg ε)) (Nat.cast_nonneg d)
+    calc 8 * ε ^ 2 * (d * S) = (8 * ε ^ 2 * d) * S := by ring
+      _ ≤ (8 * ε ^ 2 * d) * (4 / c ^ 2 * Hh) := mul_le_mul_of_nonneg_left hS hcc
+      _ = (32 * (ε ^ 2 * d) / c ^ 2) * Hh := by ring
+      _ ≤ (32 * (c ^ 2 / 256) / c ^ 2) * Hh := by gcongr
+      _ = 1 / 8 * Hh := by field_simp; ring
+  have h4 : 1 / 8 * Hh ≤ 1 / c * Hh := by
+    have : 1 / 8 ≤ 1 / c := by
+      rw [div_le_div_iff₀ (by norm_num) hc0]; linarith
+    exact mul_le_mul_of_nonneg_right this hHh0
+  have e : 5 / c * Hh = 4 / c * Hh + 1 / c * Hh := by ring
+  have e2 : 2 * (2 / c * Hh) = 4 / c * Hh := by ring
+  linarith
+
+/-- **Agmon block decay**, for any operator satisfying the energy inequality `hen` for all admissible
+weights (the proof of `Balaban.Multiscale.agmon_block` with a free constant `c`). -/
+theorem agmon_block_gen (G : GeneratingSet d L N₀ K ϱ) (hd : 0 < d) {c : ℝ} (hc0 : 0 < c)
+    (hc2 : c ≤ 1 / 2) {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ K) (hj'1 : 1 ≤ j') (hj'k : j' ≤ K)
+    {y y' : Torus d (N₀ * L ^ K)} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {u f : G.Ω 1 → ℂ} {ε : ℝ} (hε0 : 0 ≤ ε) (hεd : ε * d ≤ c / 16)
+    (hen : ∀ r : Torus d (N₀ * L ^ K) → ℝ, IsAgmonWeight G r →
+      (1 / 2) * cEnergy (agmonField G ε r u) + (c / 4) * cwsq G (agmonField G ε r u) ≤
+        (1 / c) * agmonSource G ε r f)
+    (hsupp : ∀ x : G.Ω 1, f x ≠ 0 → jBlock d L N₀ K j' x = jBlock d L N₀ K j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') :
+    (∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2 ≤
+        8 / c ^ 2 * ((L : ℝ) ^ j) ^ 2 * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(2 * ε * t)) *
+          Green.sqNorm f) ∧
+    (∑ x ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 ≤
+        10 / c * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(2 * ε * t)) * Green.sqNorm f) := by
+  have hε12 : ε ≤ 1 / 2 := by
+    have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+    nlinarith [mul_nonneg hε0 (by linarith : (0 : ℝ) ≤ d)]
+  have h8 : Real.exp (8 * (ε * d)) ≤ 2 := exp_eight_mul_le_two (by positivity) (by linarith)
+  have hr : IsAgmonWeight G (G.truncDist y' t) := G.isAgmonWeight_truncDist y' t
+  have hry : G.truncDist y' t y = t := G.truncDist_eq_of_le ht0 ht
+  have hry' : G.truncDist y' t y' = 0 := G.truncDist_self (G.layer_subset hj'1 hj'k hy') t
+  have h := hen _ hr
+  have hEnn := cEnergy_nonneg (agmonField G ε (G.truncDist y' t) u)
+  have hSnn := cwsq_nonneg G (agmonField G ε (G.truncDist y' t) u)
+  have hS : cwsq G (agmonField G ε (G.truncDist y' t) u) ≤
+      4 / c ^ 2 * agmonSource G ε (G.truncDist y' t) f := by
+    have h2 : c / 4 * cwsq G (agmonField G ε (G.truncDist y' t) u) ≤
+        1 / c * agmonSource G ε (G.truncDist y' t) f := by linarith
+    have e : 4 / c ^ 2 * agmonSource G ε (G.truncDist y' t) f =
+        4 / c * (1 / c * agmonSource G ε (G.truncDist y' t) f) := by field_simp
+    rw [e, show cwsq G (agmonField G ε (G.truncDist y' t) u) = 4 / c *
+      (c / 4 * cwsq G (agmonField G ε (G.truncDist y' t) u)) by field_simp]
+    exact mul_le_mul_of_nonneg_left h2 (by positivity)
+  have hE : cEnergy (agmonField G ε (G.truncDist y' t) u) ≤
+      2 / c * agmonSource G ε (G.truncDist y' t) f := by
+    have : (1 / 2) * cEnergy (agmonField G ε (G.truncDist y' t) u) ≤
+        1 / c * agmonSource G ε (G.truncDist y' t) f := by nlinarith [mul_nonneg hc0.le hSnn]
+    have e : 2 / c * agmonSource G ε (G.truncDist y' t) f =
+        2 * (1 / c * agmonSource G ε (G.truncDist y' t) f) := by ring
+    linarith
+  have hsrc := agmonSource_le G hr hε0 hj'1 hj'k hy' hry' hsupp
+  have hlow := blk_lower G hr hε0 hj1 hjk hy u
+  have hgrad := blk_grad_le G hr hε0 hε12 hj1 hjk hy u
+  rw [hry] at hlow hgrad
+  have hHh0 := agmonSource_nonneg G ε (G.truncDist y' t) f
+  have hZZ : Real.exp (4 * ε * d) * Real.exp (4 * ε * d) ≤ 2 := by
+    rw [← Real.exp_add]
+    have : 4 * ε * d + 4 * ε * d = 8 * (ε * d) := by ring
+    rw [this]; exact h8
+  have hE20 : 0 < Real.exp (2 * ε * (t - 2 * d)) := Real.exp_pos _
+  have hA0 : 0 < ((L : ℝ) ^ j) ^ 2 := by
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  have hLj : ((L : ℝ) ^ j) ≠ 0 := by
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  have hE2inv : (Real.exp (2 * ε * (t - 2 * d)))⁻¹ =
+      Real.exp (-(2 * ε * t)) * Real.exp (4 * ε * d) := by
+    rw [← Real.exp_neg, ← Real.exp_add]; congr 1; ring
+  have hsf := Green.sqNorm_nonneg f
+  refine ⟨?_, ?_⟩
+  · have hX2 : ∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2 ≤ ((L : ℝ) ^ j) ^ 2 *
+        (Real.exp (-(2 * ε * t)) * Real.exp (4 * ε * d)) *
+          cwsq G (agmonField G ε (G.truncDist y' t) u) := by
+      rw [← hE2inv]
+      have := mul_le_mul_of_nonneg_left hlow
+        (mul_nonneg hA0.le (inv_nonneg.2 hE20.le))
+      calc _ = (((L : ℝ) ^ j) ^ 2 * (Real.exp (2 * ε * (t - 2 * d)))⁻¹) *
+            ((((L : ℝ) ^ j) ^ 2)⁻¹ * Real.exp (2 * ε * (t - 2 * d)) *
+              ∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2) := by field_simp
+        _ ≤ _ := this
+        _ = _ := by ring
+    exact numeric_a hc0 hA0.le (by positivity) (Real.exp_pos _).le (Real.exp_pos _).le hsf
+      hX2 hS hsrc hZZ
+  · have hY2 : ∑ x ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 ≤
+        (Real.exp (-(2 * ε * t)) * Real.exp (4 * ε * d)) *
+          (5 / c * agmonSource G ε (G.truncDist y' t) f) := by
+      have h1 := hgrad.trans (numeric_grad_gen hd hc0 hc2 hε0 hεd hHh0 hS hE)
+      rw [← hE2inv, ← div_eq_inv_mul, le_div_iff₀ hE20]
+      linarith
+    exact numeric_b hc0 (by positivity) (Real.exp_pos _).le (Real.exp_pos _).le hsf hY2 hsrc hZZ
+
+/-- **G-2(i) for a general constant `c`**: from the block decay `agmon_block_gen` and the scale
+mismatch (the proof of `Balaban.Multiscale.green_G2i`). -/
+theorem green_G2i_gen (G : GeneratingSet d L N₀ K ϱ) (hd : 0 < d) {c : ℝ} (hc0 : 0 < c)
+    (hc2 : c ≤ 1 / 2) {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ K) (hj'1 : 1 ≤ j') (hj'k : j' ≤ K)
+    {y y' : Torus d (N₀ * L ^ K)} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {u f : G.Ω 1 → ℂ} {ε : ℝ} (hε0 : 0 ≤ ε) (hεd : ε * d ≤ c / 16)
+    (hen : ∀ r : Torus d (N₀ * L ^ K) → ℝ, IsAgmonWeight G r →
+      (1 / 2) * cEnergy (agmonField G ε r u) + (c / 4) * cwsq G (agmonField G ε r u) ≤
+        (1 / c) * agmonSource G ε r f)
+    (hsupp : ∀ x : G.Ω 1, f x ≠ 0 → jBlock d L N₀ K j' x = jBlock d L N₀ K j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y')
+    (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ x ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2) +
+      Real.sqrt (∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2) ≤
+    13 * L / c * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 * Real.sqrt (Green.sqNorm f) := by
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hL0 : (0 : ℝ) < L := by linarith
+  have hyΩ : y ∈ G.Ω j := (G.mem_layer.1 hy).1
+  have hsep0 := G.pathDist_separation_le hϱ hj'1 hjk hy' hyΩ
+  rw [GeneratingSet.pathDist_comm] at hsep0
+  set s₀ : ℝ := (ϱ - 1) * ((j - j' - 1 : ℕ) : ℝ) with hs₀
+  have hs₀0 : 0 ≤ s₀ := mul_nonneg (by linarith) (Nat.cast_nonneg _)
+  set t₂ := max t s₀ with ht₂
+  have ht₂0 : 0 ≤ t₂ := ht0.trans (le_max_left _ _)
+  have ht₂d : ENNReal.ofReal t₂ ≤ G.pathDist y y' := by
+    rcases le_total t s₀ with h | h
+    · rw [ht₂, max_eq_right h]; exact hsep0
+    · rw [ht₂, max_eq_left h]; exact ht
+  obtain ⟨hA, hB⟩ := agmon_block_gen G hd hc0 hc2 hj1 hjk hj'1 hj'k hy hy' hε0 hεd hen hsupp
+    ht₂0 ht₂d
+  have hmis := scale_mismatch (L := L) (ε := ε) (t := t) (t₂ := t₂) hε0 j j' hsep
+    (le_max_left _ _) (le_max_right _ _)
+  set F := Green.sqNorm f with hF
+  have hF0 : 0 ≤ F := Green.sqNorm_nonneg f
+  set P : ℝ := (L : ℝ) ^ j * (L : ℝ) ^ j' * Real.exp (-(ε * t₂)) * Real.sqrt F with hP
+  have hP0 : 0 ≤ P := by positivity
+  have hP2 : P ^ 2 = ((L : ℝ) ^ j) ^ 2 * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(2 * ε * t₂)) * F := by
+    rw [hP, mul_pow, mul_pow, mul_pow, Real.sq_sqrt hF0, ← Real.exp_nat_mul]
+    congr 2
+    · push_cast; ring_nf
+  have hPle : P ≤ L * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(ε / 2 * t)) * Real.sqrt F := by
+    rw [hP]
+    exact mul_le_mul_of_nonneg_right hmis (Real.sqrt_nonneg _)
+  clear_value P
+  set Nn := ∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2 with hNn
+  set Yy := ∑ x ∈ G.blk j y, ∑ μ : Fin d,
+    ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 with hYy
+  have hY0 : 0 ≤ Yy := Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _
+  have hN0 : 0 ≤ Nn := Finset.sum_nonneg fun _ _ => sq_nonneg _
+  have h1 : Real.sqrt Nn ≤ 3 / c * P := by
+    rw [Real.sqrt_le_iff]
+    refine ⟨by positivity, ?_⟩
+    calc Nn ≤ 8 / c ^ 2 * P ^ 2 := by rw [hP2]; convert hA using 1; ring
+      _ ≤ (3 / c * P) ^ 2 := by
+        rw [mul_pow, div_pow]
+        have : 8 / c ^ 2 ≤ 3 ^ 2 / c ^ 2 :=
+          div_le_div_of_nonneg_right (by norm_num) (by positivity)
+        exact mul_le_mul_of_nonneg_right this (sq_nonneg _)
+  have h2 : (L : ℝ) ^ j * Real.sqrt Yy ≤ 10 / c * P := by
+    have hsq : ((L : ℝ) ^ j * Real.sqrt Yy) ^ 2 ≤ (10 / c * P) ^ 2 := by
+      rw [mul_pow, Real.sq_sqrt hY0, mul_pow]
+      have hB' : ((L : ℝ) ^ j) ^ 2 * Yy ≤ 10 / c * P ^ 2 := by
+        rw [hP2]
+        calc ((L : ℝ) ^ j) ^ 2 * Yy ≤ ((L : ℝ) ^ j) ^ 2 *
+              (10 / c * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(2 * ε * t₂)) * F) :=
+            mul_le_mul_of_nonneg_left hB (by positivity)
+          _ = _ := by ring
+      have h10 : 10 / c ≤ (10 / c) ^ 2 := by
+        have : 1 ≤ 10 / c := by
+          rw [le_div_iff₀ hc0]; linarith
+        nlinarith
+      calc _ ≤ 10 / c * P ^ 2 := hB'
+        _ ≤ (10 / c) ^ 2 * P ^ 2 := mul_le_mul_of_nonneg_right h10 (sq_nonneg _)
+    exact (pow_le_pow_iff_left₀ (by positivity) (by positivity) two_ne_zero).1 hsq
+  calc (L : ℝ) ^ j * Real.sqrt Yy + Real.sqrt Nn ≤ 10 / c * P + 3 / c * P := add_le_add h2 h1
+    _ = 13 / c * P := by ring
+    _ ≤ 13 / c * (L * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(ε / 2 * t)) * Real.sqrt F) :=
+        mul_le_mul_of_nonneg_left hPle (by positivity)
+    _ = _ := by ring
+
+end Decay
+
+/-! ### The x-variant -/
+
+section XBlock
+
+variable {k : ℕ}
+variable (G : GeneratingSet d L N₀ (k + 1) ϱ)
+
+/-- `H_{k,x}(α₀) G_{k,x}(α₀) f = f`. -/
+theorem xDirichletOperator_mulVec_inv (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2)) (f : G.Ω 1 → ℂ) :
+    xDirichletOperator G a aT x ν α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) = f := by
+  have hU := xDirichletOperator_isUnit G hd hL hk hν ha haT1 haT2 hx α hα
+  rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
+    Matrix.one_mulVec]
+
+/-- **G-2(vii)(i): the `L²` Agmon block decay for `G_{k,x}(α₀)`, uniformly in `x ≥ 0`.**
+Let `G` be a generating set of level `k + 1` (so `Ω_{k+1}` is its top layer), `u` solve
+`H_{k,x}(α₀) u = f` with `f` supported in the block `Δ_{j'}(y')`, `y ∈` layer `j`,
+`1 ≤ j, j' ≤ k + 1`, `0 ≤ ε ≤ ε₀' = c_x/(16 d L)`, `L ≤ exp ((ε/2)(ϱ - 1))`. Then for
+`0 ≤ t ≤ d(y, y')`
+`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c_x) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`. -/
+theorem green_G2i_x (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+    (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
+    {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k + 1)
+    {y y' : Torus d (N₀ * L ^ (k + 1))} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {u f : G.Ω 1 → ℂ} (hu : xDirichletOperator G a aT x ν α *ᵥ u = f)
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ (k + 1) j' z = jBlock d L N₀ (k + 1) j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ z ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (z + Pi.single μ 1) - zeroExt (G.Ω 1) u z‖ ^ 2) +
+      Real.sqrt (∑ z ∈ G.blk j y, ‖zeroExt (G.Ω 1) u z‖ ^ 2) ≤
+    13 * L / xPoincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
+      Real.sqrt (Green.sqNorm f) := by
+  have hc0 := xPoincareConst_pos hd
+  have hc2 : xPoincareConst d ≤ 1 / 2 := (xPoincareConst_le_quarter d).trans (by norm_num)
+  have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have hεd : ε * d ≤ xPoincareConst d / 16 := by
+    have : ε * (d * L) ≤ xAgmonRate d L * (d * L) := by gcongr
+    have e : xAgmonRate d L * (d * L) = xPoincareConst d / 16 := by
+      unfold xAgmonRate; field_simp
+    have h2 : ε * d * 1 ≤ ε * d * L := by
+      have : (1 : ℝ) ≤ L := by linarith
+      exact mul_le_mul_of_nonneg_left this (by positivity)
+    nlinarith
+  exact green_G2i_gen G hd hc0 hc2 hj1 hjk hj'1 hj'k hy hy' hε0 hεd
+    (fun r hr => x_agmon_energy G hd hL hk hν ha haT1 haT2 hx α hα hr hε0 hε1 hu) hsupp ht0 ht
+    hϱ hsep
+
+/-- **G-2(vii)(i) for the Green's function** `G_{k,x}(α₀) = H_{k,x}(α₀)⁻¹`. -/
+theorem green_G2i_x_green (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+    (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
+    {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k + 1)
+    {y y' : Torus d (N₀ * L ^ (k + 1))} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {f : G.Ω 1 → ℂ}
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ (k + 1) j' z = jBlock d L N₀ (k + 1) j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ z ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) (z + Pi.single μ 1) -
+          zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) z‖ ^ 2) +
+      Real.sqrt (∑ z ∈ G.blk j y,
+        ‖zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) z‖ ^ 2) ≤
+    13 * L / xPoincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
+      Real.sqrt (Green.sqNorm f) :=
+  green_G2i_x G hd hL hk hν ha haT1 haT2 hx α hα hj1 hjk hj'1 hj'k hy hy'
+    (xDirichletOperator_mulVec_inv G hd hL hk hν ha haT1 haT2 hx α hα f) hsupp ht0 ht hε0 hε1 hϱ
+    hsep
+
+end XBlock
+
 end Balaban.Multiscale

@@ -183,6 +183,26 @@ theorem xBracket_projection (c x b : ℂ) (P : Matrix κ κ ℂ) (hP : P * P = P
   rw [e1, e2]
   module
 
+omit [Fintype ι] [DecidableEq ι] in
+/-- **G-6(b), block form.** If `T = (c + x) + b P` with `P` idempotent on the unit lattice, `Q*Q = P_k`
+and `Q* P Q = P_{k+1}` (the fine block projections), then
+`H_{k,x} = H̃ + (c x/(c+x)) P_k + (c (x+b)/(c+x+b) - c x/(c+x)) P_{k+1}`, the operator of (1.7). -/
+theorem xOperator_blocks (c x b : ℂ) (Q : Matrix κ ι ℂ) (P : Matrix κ κ ℂ) (hP : P * P = P)
+    (h1 : c + x ≠ 0) (h2 : c + x + b ≠ 0) (Ht Pk Pk1 : Matrix ι ι ℂ) (hQ1 : Qᵀ * Q = Pk)
+    (hQ2 : Qᵀ * P * Q = Pk1) :
+    xOperator Ht Q c ((c + x) • (1 : Matrix κ κ ℂ) + b • P) =
+      Ht + (c * x / (c + x)) • Pk +
+        (c * (x + b) / (c + x + b) - c * x / (c + x)) • Pk1 := by
+  unfold xOperator
+  rw [xBracket_projection c x b P hP h1 h2]
+  have key : ∀ α β : ℂ, Qᵀ * (α • ((1 : Matrix κ κ ℂ) - P) + β • P) * Q =
+      α • (Qᵀ * Q) + (β - α) • (Qᵀ * P * Q) := by
+    intro α β
+    simp only [Matrix.mul_add, Matrix.add_mul, Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_sub,
+      Matrix.sub_mul, Matrix.mul_one, Matrix.mul_assoc]
+    module
+  rw [key, hQ1, hQ2, ← add_assoc]
+
 /-! ### The constrained inverse -/
 
 /-- `E` embeds `ker B`: `B E = 0`, `E` injective and every `v` with `B v = 0` is `E w`. -/
