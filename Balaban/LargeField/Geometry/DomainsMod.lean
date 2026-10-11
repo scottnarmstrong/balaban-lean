@@ -1,0 +1,88 @@
+module
+
+public import Balaban.LargeField.Geometry.Components
+public import Balaban.LargeField.Geometry.Openings
+public import Balaban.LargeField.Geometry.Continuous
+public import Mathlib.Topology.Connected.Basic
+public import Mathlib.Basic.ENNReal.Real
+public import Mathlib.Analysis.Real.Sqrt
+
+/-!
+# Localization domains modulo `Ω^c` (Part I, Definition I.2.15)
+
+At cube level (the torus `𝕋_k = Torus d n`, `n = n_k`):
+
+* `IsDomain X` (`X ∈ 𝒟_k`): `X` is nonempty and nn-connected. (This is the cube-level form of
+  Def-2 `Balaban.IsPolymer` with block side `M L^k`: a polymer is the union of the fibres
+  `blockFibre (M L^k)` of such a set of cubes.)
+* `DmodOmega Ω X` (`X ∈ 𝒟_k(mod Ω^c)`): `X ∈ 𝒟_k` and every `*`-component of `Ω^c` is contained in
+  `X` or disjoint from `X`. Here the `*`-components of a set `T` are the classes of `Linked 2 T`
+  (consecutive distances `< 2`, i.e. `≤ 1`).
+* `treeLengthMod L Ω X` (`d_k(X mod Ω^c)`): the infimum, in cube units, of the lengths of connected
+  finite unions of straight segments `Γ ⊂ ⋃_{x ∈ X} □_x` meeting every `L`-block `Bl(c)` with
+  `Bl(c) ∩ X ∩ Ω ≠ ∅` (meeting `Bl(c)` means meeting a cube `□_y`, `y ∈ Bl(c)`). The length of
+  a segment is Euclidean; the length of a finite union is bounded by the sum of the lengths, and the
+  infimum is taken over the finite families of segments (the two infima coincide).
+-/
+
+@[expose] public section
+
+namespace Balaban.LargeField
+
+open Balaban
+
+variable {d n : ℕ}
+
+/-- Nearest-neighbour adjacency on the torus. -/
+def NNAdj (a b : Torus d n) : Prop := ∃ μ : Fin d, b = a + Pi.single μ 1 ∨ a = b + Pi.single μ 1
+
+/-- `X ∈ 𝒟_k`: nonempty and nn-connected. -/
+def IsDomain (X : Finset (Torus d n)) : Prop :=
+  X.Nonempty ∧ ∀ x ∈ X, ∀ y ∈ X, Relation.ReflTransGen
+    (fun a b => a ∈ X ∧ b ∈ X ∧ NNAdj a b) x y
+
+/-- The `*`-component of `a` in `T`: the points of `T` linked to `a` by chains of consecutive
+sup-distance `≤ 1`. -/
+def starComp [NeZero n] (T : Set (Torus d n)) (a : Torus d n) : Set (Torus d n) :=
+  {b | b ∈ T ∧ Linked 2 T a b}
+
+/-- `X ∈ 𝒟_k(mod Ω^c)`: `X ∈ 𝒟_k` and every `*`-component of `Ω^c` is contained in `X` or
+disjoint from `X`. -/
+def DmodOmega [NeZero n] (Ω : Set (Torus d n)) (X : Finset (Torus d n)) : Prop :=
+  IsDomain X ∧ ∀ a ∈ Ωᶜ, starComp Ωᶜ a ⊆ (X : Set (Torus d n)) ∨
+    Disjoint (starComp Ωᶜ a) (X : Set (Torus d n))
+
+/-- A straight segment `{p + t v : t ∈ [0,1]}` in the continuous torus. -/
+structure Seg (d n : ℕ) where
+  /-- start point -/
+  start : CTorus d n
+  /-- displacement (in cube units) -/
+  vec : Fin d → ℝ
+
+namespace Seg
+
+/-- The points of the segment. -/
+def carrier (s : Seg d n) : Set (CTorus d n) :=
+  {q | ∃ t ∈ Set.Icc (0 : ℝ) 1, ∀ i, q i = s.start i + ((t * s.vec i : ℝ) : AddCircle (n : ℝ))}
+
+/-- The Euclidean length of a segment, in cube units. -/
+noncomputable def length (s : Seg d n) : ℝ := Real.sqrt (∑ i, (s.vec i) ^ 2)
+
+end Seg
+
+/-- An admissible curve for `d_k(X mod Ω^c)`: a finite family of segments whose union is connected,
+lies in `⋃_{x∈X} □_x` and meets every block `Bl(c)` with `Bl(c) ∩ X ∩ Ω ≠ ∅`. -/
+def IsAdmissibleCurve [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n))
+    (Γ : Finset (Seg d n)) : Prop :=
+  IsConnected (⋃ s ∈ Γ, s.carrier) ∧
+  (⋃ s ∈ Γ, s.carrier) ⊆ ⋃ x ∈ X, cube x ∧
+  ∀ c : Torus d n, (lblock L c ∩ (X : Set (Torus d n)) ∩ Ω).Nonempty →
+    ∃ y ∈ lblock L c, ∃ q ∈ ⋃ s ∈ Γ, s.carrier, q ∈ cube y
+
+/-- `d_k(X mod Ω^c)`: the infimum of the total lengths of admissible curves, in `[0, ∞]`
+(`⊤` if there is none). -/
+noncomputable def treeLengthMod [NeZero n] (L : ℕ) (Ω : Set (Torus d n))
+    (X : Finset (Torus d n)) : ENNReal :=
+  ⨅ (Γ : Finset (Seg d n)) (_ : IsAdmissibleCurve L Ω X Γ), ENNReal.ofReal (∑ s ∈ Γ, s.length)
+
+end Balaban.LargeField

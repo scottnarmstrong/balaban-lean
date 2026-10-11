@@ -261,3 +261,14 @@ public import Balaban.LargeField.Geometry.BoundaryConnectivity
 public import Balaban.LargeField.Geometry.Escape
 public import Balaban.LargeField.Geometry.Timar
 public import Balaban.LargeField.Geometry.LemmaS
+public import Balaban.LargeField.Geometry.Distance
+public import Balaban.LargeField.Geometry.Coarsen
+public import Balaban.LargeField.Geometry.Openings
+public import Balaban.LargeField.Geometry.Continuous
+public import Balaban.LargeField.Geometry.CubeDist
+public import Balaban.LargeField.Geometry.Small
+public import Balaban.LargeField.Geometry.Components
+public import Balaban.LargeField.Geometry.LocalGlobal
+public import Balaban.LargeField.Geometry.DomainsMod
+public import Balaban.LargeField.Geometry.TorusLift
+public import Balaban.LargeField.Geometry.LemmaSTorus
