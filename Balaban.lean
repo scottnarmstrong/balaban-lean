@@ -66,6 +66,10 @@ public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
 public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
+public import Balaban.Background.Data
+public import Balaban.Background.Calculus
+public import Balaban.Background.Contraction
+public import Balaban.Background.ContractionAnalytic
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
