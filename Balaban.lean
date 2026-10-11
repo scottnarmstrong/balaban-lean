@@ -14,3 +14,5 @@ public import Balaban.Green.Coercive
 public import Balaban.Green.CombesThomas
 public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
+public import Balaban.Analysis.Cauchy
+public import Balaban.Analysis.AnalyticLimit
