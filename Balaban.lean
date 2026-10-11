@@ -88,6 +88,7 @@ public import Balaban.Green.Lattice.LocCore
 public import Balaban.Green.Lattice.Loc
 public import Balaban.Green.Lattice.LocSums
 public import Balaban.Green.Lattice.LocGreenSums
+public import Balaban.Green.Lattice.ThirdDiff
 public import Balaban.Multiscale.PointwiseLift
 public import Balaban.Multiscale.PointwisePotential
 public import Balaban.Multiscale.PointwiseAgmon
