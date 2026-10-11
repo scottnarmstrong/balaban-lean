@@ -454,6 +454,124 @@ theorem isComposedSystem_of_isEL (h : Precedes G G') (a : ℕ → ℝ)
       linear_combination hr + (blockMean G' (G'.layerIndex (z : Torus d (N₀ * L ^ k)))
         (fun y => svec G' φ y i) z - D'.Ψ z i) * e1
 
+theorem composeField_eq_of_layer_eq (h : Precedes G G') (a : ℕ → ℝ) (D' : BgData G' N)
+    (φ : G'.Ω 1 × Fin N → ℂ) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (hap : a (G'.layerIndex x) ≠ 0) (hnp : G.layerIndex x = G'.layerIndex x) (i : Fin N) :
+    composeField G G' a φ D'.Ψ x i = D'.Ψ x i := by
+  rw [composeField_of_mem a φ D'.Ψ hx, hnp]
+  have hb : blockMean G (G'.layerIndex x) (fun y => svec G' φ y i) x =
+      blockMean G' (G'.layerIndex x) (fun y => svec G' φ y i) x := rfl
+  have e : a (G'.layerIndex x) / a (G'.layerIndex x) *
+      (((L : ℝ) ^ G'.layerIndex x) ^ 2 / ((L : ℝ) ^ G'.layerIndex x) ^ 2) = 1 := by
+    have hL : (L : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne L
+    field_simp
+  rw [hb, e]
+  simp
+
+/-- **Theorem 6.1 (iii), the solution of `𝒮`**: any solution `(ψ, φ, α)` of `𝒮` has `ψ` equal to
+the composed field (6.2) on `Ω₁` (§6.5: the linear system (6.3) has the unique solution (6.2),
+by (C1)). -/
+theorem system_eq_compose (h : Precedes G G') (a : ℕ → ℝ)
+    (hC1 : ∀ n p : ℕ, n ≤ p → ((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2 * (a n)⁻¹ =
+      (a p)⁻¹ - (a (p - n))⁻¹)
+    (hpos : ∀ r, 1 ≤ r → 0 < a r) (ν : ℝ) (D' : BgData G' N)
+    {ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φ : G'.Ω 1 × Fin N → ℂ} {α : G'.Ω 1 → ℂ}
+    (hS : IsComposedSystem G G' a ν D' ψ φ α) {x₀ : Torus d (N₀ * L ^ k)} (hx₀ : x₀ ∈ G.Ω 1)
+    (i : Fin N) : ψ x₀ i = composeField G G' a φ D'.Ψ x₀ i := by
+  classical
+  have hx₀' := h.mem_Ω1 hx₀
+  obtain ⟨hp1, hpk, hxp⟩ := G'.layerIndex_spec hx₀'
+  have hap : a (G'.layerIndex x₀) ≠ 0 := (hpos _ hp1).ne'
+  have hL : (L : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne L
+  rcases (h.layerIndex_le hx₀).lt_or_eq with hlt | heq
+  swap
+  · rw [congrFun (hS.compat x₀ hx₀ heq) i]
+    exact (composeField_eq_of_layer_eq h a D' φ hx₀ hap heq i).symm
+  set p := G'.layerIndex x₀ with hp
+  set S := G'.blk p x₀ with hSdef
+  have hua := invAp_pos h a hpos hx₀' hlt
+  set ua := invAp G G' a p x₀ with huadef
+  set Qp := blockMean G' p (fun y => svec G' φ y i) x₀ with hQp
+  set t := blockMean G' p (fun y => psiExt G G' D' φ ψ y i) x₀ - D'.Ψ x₀ i with ht
+  have hself : x₀ ∈ S := GeneratingSet.mem_blk.2 rfl
+  have hall := h.block_lt hx₀' hself hlt
+  -- the form of `ψ` on the block
+  have hX1 : ∀ z ∈ S, psiExt G G' D' φ ψ z i =
+      blockMean G (G.layerIndex z) (fun y => svec G' φ y i) z +
+        ((-(ua⁻¹) * ((a p)⁻¹ - (a (p - G.layerIndex z))⁻¹) : ℝ) : ℂ) * t := by
+    intro z hz
+    have hz' : z ∈ G'.layer p := (G'.mem_layer_iff hp1 hpk (GeneratingSet.mem_blk.1 hz).symm).1 hxp
+    have hzp : G'.layerIndex z = p := G'.layerIndex_eq hp1 hpk hz'
+    have hzΩ' : z ∈ G'.Ω 1 := G'.layer_subset hp1 hpk hz'
+    by_cases hzΩ : z ∈ G.Ω 1
+    · have hzlt := hall z hz
+      obtain ⟨hn1, hnk, -⟩ := G.layerIndex_spec hzΩ
+      have hbl := hS.block z hzΩ (by rw [hzp]; exact hzlt) i
+      rw [hzp] at hbl
+      have e_ua : invAp G G' a p z = ua := by
+        rw [huadef]; unfold invAp; rw [blk_eq_of_mem hz]
+      have e_bm : blockMean G' p (fun y => psiExt G G' D' φ ψ y i) z =
+          blockMean G' p (fun y => psiExt G G' D' φ ψ y i) x₀ := blockMean_congr _ (blk_eq_of_mem hz)
+      have e_Ψ : D'.Ψ z i = D'.Ψ x₀ i := by rw [D'.Ψ_layerConst _ hp1 hpk x₀ hxp z hz]
+      rw [e_ua, e_bm, e_Ψ] at hbl
+      have han : a (G.layerIndex z) ≠ 0 := (hpos _ hn1).ne'
+      have hcn : ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) ≠ 0 := by
+        have : a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 ≠ 0 := by positivity
+        exact_mod_cast this
+      have hid : ((ua⁻¹ / ((L : ℝ) ^ p) ^ 2 : ℝ) : ℂ) =
+          ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) *
+            ((ua⁻¹ * ((a p)⁻¹ - (a (p - G.layerIndex z))⁻¹) : ℝ) : ℂ) := by
+        rw [← Complex.ofReal_mul]
+        congr 1
+        rw [← hC1 _ _ (hzp ▸ h.layerIndex_le hzΩ)]
+        field_simp
+      rw [hid] at hbl
+      unfold psiExt
+      simp only [hzΩ, ↓reduceIte]
+      have key : ((a (G.layerIndex z) / ((L : ℝ) ^ G.layerIndex z) ^ 2 : ℝ) : ℂ) *
+          (((ua⁻¹ * ((a p)⁻¹ - (a (p - G.layerIndex z))⁻¹) : ℝ) : ℂ) * t +
+            (ψ z i - blockMean G (G.layerIndex z) (fun y => svec G' φ y i) z)) = 0 := by
+        rw [← hbl]; ring
+      rcases mul_eq_zero.1 key with h0 | h0
+      · exact absurd h0 hcn
+      · push_cast at h0 ⊢
+        linear_combination h0
+    · have hn : G.layerIndex z = 0 := layerIndex_of_not_mem G hzΩ
+      unfold psiExt
+      simp only [hzΩ, ↓reduceIte]
+      rw [hn, blockMean_zero]
+      simp [barField, svec, zeroExt, hzΩ']
+  have hdec := blockMean_decomp h hx₀' (fun y => svec G' φ y i)
+    (fun y => psiExt G G' D' φ ψ y i) (fun z => -(ua⁻¹) * ((a p)⁻¹ - (a (p - G.layerIndex z))⁻¹)) t hX1
+  have hcard := card_blk_cast G' p hpk x₀
+  have hK1 : (S.card : ℝ) * ((((L : ℝ) ^ p) ^ d)⁻¹) = 1 := by
+    rw [hSdef, hcard]; field_simp
+  have hsum : ((((L : ℝ) ^ p) ^ d)⁻¹) *
+      ∑ z ∈ S, (-(ua⁻¹) * ((a p)⁻¹ - (a (p - G.layerIndex z))⁻¹)) =
+      -(ua⁻¹) * ((a p)⁻¹ - ua) := by
+    have hKX : ((((L : ℝ) ^ p) ^ d)⁻¹) * ∑ z ∈ S, (a (p - G.layerIndex z))⁻¹ = ua := rfl
+    simp only [mul_sub, Finset.sum_sub_distrib, ← Finset.mul_sum, Finset.sum_const, nsmul_eq_mul]
+    linear_combination (-(ua⁻¹) * (a p)⁻¹) * hK1 + ua⁻¹ * hKX
+  rw [hsum] at hdec
+  -- solve for `t`
+  have hu1 : ((ua⁻¹ : ℝ) : ℂ) * (ua : ℂ) = 1 := by
+    rw [← Complex.ofReal_mul, inv_mul_cancel₀ hua.ne']; simp
+  have hmt : ((ua⁻¹ : ℝ) : ℂ) * (((a p)⁻¹ : ℝ) : ℂ) * t = Qp - D'.Ψ x₀ i := by
+    have e1 : t = Qp + ((-(ua⁻¹) * ((a p)⁻¹ - ua) : ℝ) : ℂ) * t - D'.Ψ x₀ i := by
+      linear_combination ht + hdec
+    push_cast at e1 hu1 ⊢
+    linear_combination e1 + t * hu1
+  have hc := psiExt_compose_block h a hC1 D' φ hx₀' hself i
+  have h1 := hX1 x₀ hself
+  unfold psiExt at hc h1
+  simp only [hx₀, ↓reduceIte] at hc h1
+  rw [h1, hc]
+  have hap1 : ((a p : ℝ) : ℂ) * (((a p)⁻¹ : ℝ) : ℂ) = 1 := by
+    rw [← Complex.ofReal_mul, mul_inv_cancel₀ hap]; simp
+  push_cast at hap1 hmt ⊢
+  linear_combination (-(((a p)⁻¹ : ℂ) - ((a (p - G.layerIndex x₀) : ℂ))⁻¹) * (a p : ℂ)) * hmt +
+    ((ua : ℂ)⁻¹ * (((a p)⁻¹ : ℂ) - ((a (p - G.layerIndex x₀) : ℂ))⁻¹) * t) * hap1
+
 end System
 
 end Balaban.Background
