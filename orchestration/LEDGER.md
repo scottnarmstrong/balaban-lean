@@ -26,3 +26,5 @@
 | 2026-10-11 | W8a multiscale coercivity | landed | `7130c2c`: `GeneratingSet`, layers, spacing, averaging form (1.4), `dirichletOperator` (1.6), `pathDist` (1.9), `multiscale_coercive` (c₁ = 1/(2d)), invertibility (≈750 lines) |
 | 2026-10-11 | W3b polymer expansion | landed | `9c1989a`: abstract KP theorem (`pe_xi_eq_exp`, `pe_clusterBound`, `pe_PY_bound`, one-parameter `pe_differentiableOn`), Ursell sign/tree bound by vertex removal (no BKAR needed), animals for degree-Δ graphs, `pe_lattice`, `pe_blockTorus` (≈3,200 lines); axioms standard |
 | 2026-10-11 | D-C correlations document | revised | review D-01..D-13 addressed; Lean packages A–F startable from Root-F's statement |
+| 2026-10-11 | W8b Agmon decay | landed | `65e44ec`: path-metric bounds (Lemma 4.3), Agmon estimate, block decay, `green_G2i` with scale mismatch (≈2,160 lines) |
+| 2026-10-11 | W10 model basics | landed | sphere-measure invariance, model symmetries, `exists_block_structure` (finite-volume Root-C structure), `analyticOnNhd_logPartition`, derivatives = correlation functions (≈1,100 lines) |
