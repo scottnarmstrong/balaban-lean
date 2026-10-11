@@ -16,6 +16,8 @@ public import Balaban.Green.Restriction
 public import Balaban.Green.GeometricResolvent
 public import Balaban.Green.BlockPoincare
 public import Balaban.Green.Coercivity
+public import Balaban.Green.BlockPoincareSharp
+public import Balaban.Green.CoercivitySharp
 public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
 public import Balaban.Lattice.Blocks
@@ -103,6 +105,7 @@ public import Balaban.Multiscale.Pointwise48
 public import Balaban.Multiscale.GeneratingSet
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
+public import Balaban.Multiscale.CoercivitySharp
 public import Balaban.Multiscale.PathMetric
 public import Balaban.Multiscale.PathMetricBounds
 public import Balaban.Multiscale.AgmonCore
@@ -124,6 +127,7 @@ public import Balaban.Multiscale.Analyticity
 public import Balaban.Multiscale.Locality
 public import Balaban.Multiscale.XVariantIdentities
 public import Balaban.Multiscale.XVariant
+public import Balaban.Multiscale.XVariantSharp
 public import Balaban.Multiscale.XVariantAgmon
 public import Balaban.Green.BlockDistance
 public import Balaban.Green.OneScaleDecay
