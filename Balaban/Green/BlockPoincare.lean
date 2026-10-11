@@ -471,6 +471,26 @@ theorem sum_sum_fibre (hℓ : ℓ = N * m) (g : Torus d ℓ → ℝ) :
         congr 1
         exact Finset.sum_fiberwise Finset.univ (blockMap N m) g
 
+theorem sum_mul_blockProjection (hℓ : ℓ = N * m) (hN : 0 < N) (φ : Torus d ℓ → ℝ) :
+    ∑ x, φ x * blockProjection N m φ x = ∑ x, (blockProjection N m φ x) ^ 2 := by
+  have h := blockProjection_selfAdjoint (m := m) (d := d) (ℓ := ℓ) hN
+    (wf := 1) (wc := (N : ℝ) ^ d * 1) (by simp) φ (blockProjection N m φ)
+  rw [blockProjection_idem hℓ hN] at h
+  unfold latticeInner at h
+  simp only [one_mul] at h
+  rw [← h]
+  refine Finset.sum_congr rfl fun x _ => by ring
+
+/-- Pythagoras for the block projection: `‖φ‖² = ‖φ - Pφ‖² + ‖Pφ‖²`. -/
+theorem sum_sq_eq_sum_sq_sub_add (hℓ : ℓ = N * m) (hN : 0 < N) (φ : Torus d ℓ → ℝ) :
+    ∑ x, φ x ^ 2 = ∑ x, (φ x - blockProjection N m φ x) ^ 2 + ∑ x, (blockProjection N m φ x) ^ 2 := by
+  have hsq := sum_mul_blockProjection hℓ hN φ
+  have : ∀ x, (φ x - blockProjection N m φ x) ^ 2 =
+      φ x ^ 2 - 2 * (φ x * blockProjection N m φ x) + (blockProjection N m φ x) ^ 2 := fun x => by ring
+  rw [Finset.sum_congr rfl fun x _ => this x, Finset.sum_add_distrib, Finset.sum_sub_distrib,
+    ← Finset.mul_sum, ← hsq]
+  ring
+
 theorem pairSum_eq (hℓ : ℓ = N * m) (hN : 0 < N) (φ : Torus d ℓ → ℝ) :
     pairSum N m φ = 2 * (N : ℝ) ^ d * ∑ x, (φ x - blockProjection N m φ x) ^ 2 := by
   have hNd : ((N : ℝ) ^ d) ≠ 0 := by positivity
@@ -488,14 +508,7 @@ theorem pairSum_eq (hℓ : ℓ = N * m) (hN : 0 < N) (φ : Torus d ℓ → ℝ) 
     rw [Finset.sum_congr rfl this, Finset.sum_add_distrib, Finset.sum_sub_distrib,
       ← Finset.mul_sum, hP, Finset.sum_const, card_blockFibre hℓ, nsmul_eq_mul]
     simp
-  have hsq : ∑ x, φ x * blockProjection N m φ x = ∑ x, (blockProjection N m φ x) ^ 2 := by
-    have h := blockProjection_selfAdjoint (m := m) (d := d) (ℓ := ℓ) hN
-      (wf := 1) (wc := (N : ℝ) ^ d * 1) (by simp) φ (blockProjection N m φ)
-    rw [blockProjection_idem hℓ hN] at h
-    unfold latticeInner at h
-    simp only [one_mul] at h
-    rw [← h]
-    refine Finset.sum_congr rfl fun x _ => by ring
+  have hsq := sum_mul_blockProjection hℓ hN φ
   unfold pairSum
   rw [Finset.sum_congr rfl fun x _ => hrow x, Finset.sum_add_distrib, Finset.sum_sub_distrib,
     sum_sum_fibre hℓ (fun x' => φ x' ^ 2)]
