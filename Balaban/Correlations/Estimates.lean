@@ -490,6 +490,42 @@ theorem exists_abs_twoPointTruncated_le (d L M : ℕ) (δ κ : ℝ) (hd : 3 ≤ 
         gcongr
     _ = _ := by ring
 
+/-- The summand of the two-point formula of Proposition 1.4. -/
+noncomputable def dsum (T : RootFFamily d N) (ℓ : ℕ) [NeZero ℓ] (j : ℕ) (x y : Torus d ℓ)
+    (i k : Fin N) (X : Finset (Torus d ℓ)) : ℂ :=
+  fderiv ℂ (termComp T ℓ j x X i) 0 (sourceDelta y k)
+    + fderiv ℂ (termComp T ℓ j y X k) 0 (sourceDelta x i)
+
+theorem dsum_eq_zero (hcl : RootFTorusClauses d N L M β ν h kf κ c₉ δ T ℓ) {j : ℕ}
+    {x y : Torus d ℓ} {X : Finset (Torus d ℓ)}
+    (hX : ¬ (IsPolymer d ℓ (M * L ^ j) X ∧ x ∈ X ∧ y ∈ X)) (i k : Fin N) :
+    dsum T ℓ j x y i k X = 0 := by
+  unfold dsum
+  by_cases hp : IsPolymer d ℓ (M * L ^ j) X
+  · by_cases hxX : x ∈ X
+    · have hyX : y ∉ X := fun hyX => hX ⟨hp, hxX, hyX⟩
+      rw [fderiv_termComp_eq_zero_of_not_mem hcl hyX,
+        fderiv_termComp_eq_zero_of_not_polymer hcl (j := j) (x := y) (X := X)
+          (fun h' => hyX h'.2.1)]
+      simp
+    · rw [fderiv_termComp_eq_zero_of_not_polymer hcl (j := j) (x := x) (X := X)
+        (fun h' => hxX h'.2.1), fderiv_termComp_eq_zero_of_not_mem hcl hxX]
+      simp
+  · rw [fderiv_termComp_eq_zero_of_not_polymer hcl (j := j) (x := x) (X := X)
+        (fun h' => hp h'.2.2),
+      fderiv_termComp_eq_zero_of_not_polymer hcl (j := j) (x := y) (X := X)
+        (fun h' => hp h'.2.2)]
+    simp
+
+theorem norm_dsum_le (hcl : RootFTorusClauses d N L M β ν h kf κ c₉ δ T ℓ) {j : ℕ}
+    (hj : j ∈ Finset.Icc 1 (kf + 1)) (x y : Torus d ℓ) (i k : Fin N) (X : Finset (Torus d ℓ)) :
+    ‖dsum T ℓ j x y i k X‖ ≤ 4 * (c₉ * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+        * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)) := by
+  refine (norm_add_le _ _).trans ?_
+  have b1 := norm_fderiv_termComp_le hcl hj x X i y k
+  have b2 := norm_fderiv_termComp_le hcl hj y X k x i
+  linarith
+
 end TwoPoint
 
 end OnePoint

@@ -83,3 +83,6 @@ public import Balaban.Correlations.PolymerDiameter
 public import Balaban.Correlations.Series
 public import Balaban.Correlations.Identity
 public import Balaban.Correlations.Estimates
+public import Balaban.Correlations.Box
+public import Balaban.Correlations.Agreement
+public import Balaban.Correlations.Tail
