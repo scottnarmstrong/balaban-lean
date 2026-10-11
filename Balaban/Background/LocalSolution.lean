@@ -257,6 +257,41 @@ theorem site_Ψ_hyp {ν δ ε : ℝ} {Ψ : Torus d (N₀ * L ^ k) → Fin N → 
     rw [h3, Complex.norm_real, Real.norm_eq_abs] at h4
     linarith
 
+/-- **The real mass bound**: `√ν_B |φ - h| ≤ 503 δ` for the local solution of real data. -/
+theorem real_mass_bound {ψ h : Fin N → ℝ} {δ B : ℝ} (hδ0 : 0 ≤ δ) (hδ : δ ≤ 1 / 16)
+    (hB0 : 0 ≤ B) (hB1 : B ≤ 1) (hψ : |∑ i, ψ i ^ 2 - 1| < δ)
+    (hr3 : B * |1 - (∑ i, ψ i * h i) / rn ψ| < δ ^ 2) (hr4 : B * |∑ i, h i ^ 2 - 1| < δ ^ 2)
+    {φ : Fin N → ℂ} (hφ : cNorm (φ - cplx ψ) ≤ 500 * δ) :
+    Real.sqrt B * cNorm (φ - cplx h) ≤ 503 * δ := by
+  obtain ⟨c1, -, c3⟩ := q_facts hδ0 hδ hB0 hB1 hψ hr3 hr4
+  have hs0 : 0 ≤ Real.sqrt B := Real.sqrt_nonneg _
+  have hs1 : Real.sqrt B ≤ 1 := by
+    calc Real.sqrt B ≤ Real.sqrt 1 := Real.sqrt_le_sqrt hB1
+      _ = 1 := Real.sqrt_one
+  have hsq : Real.sqrt B ^ 2 = B := Real.sq_sqrt hB0
+  have e : φ - cplx h = (φ - cplx ψ) + (cplx ψ - qvec ψ) + (qvec ψ - cplx h) := by
+    funext i; simp [Pi.sub_apply, Pi.add_apply]
+  have hX : 0 ≤ cNorm (qvec ψ - cplx h) := cNorm_nonneg _
+  have hX2 : Real.sqrt B * cNorm (qvec ψ - cplx h) ≤ 2 * δ := by
+    have e2 : cNorm (qvec ψ - cplx h) = cNorm (cplx h - qvec ψ) := vn_sub_comm _ _
+    rw [e2] at hX ⊢
+    by_contra hlt
+    rw [not_le] at hlt
+    have : (Real.sqrt B * cNorm (cplx h - qvec ψ)) ^ 2 ≤ 3 * δ ^ 2 := by
+      rw [mul_pow, hsq]; exact c3
+    nlinarith [mul_nonneg hs0 hX]
+  rw [e]
+  have t1 := cNorm_add_le (φ - cplx ψ + (cplx ψ - qvec ψ)) (qvec ψ - cplx h)
+  have t2 := cNorm_add_le (φ - cplx ψ) (cplx ψ - qvec ψ)
+  have a1 : Real.sqrt B * cNorm (φ - cplx ψ) ≤ 500 * δ :=
+    (mul_le_mul hs1 hφ (cNorm_nonneg _) zero_le_one).trans (by linarith)
+  have a2 : Real.sqrt B * cNorm (cplx ψ - qvec ψ) ≤ δ :=
+    (mul_le_mul hs1 c1 (cNorm_nonneg _) zero_le_one).trans (by linarith)
+  have t3 : cNorm (φ - cplx ψ + (cplx ψ - qvec ψ) + (qvec ψ - cplx h)) ≤
+      cNorm (φ - cplx ψ) + cNorm (cplx ψ - qvec ψ) + cNorm (qvec ψ - cplx h) := by linarith
+  have := mul_le_mul_of_nonneg_left t3 hs0
+  nlinarith
+
 /-- (R2)-(R4), (C3): the mass hypothesis of `local_solution` at a site of `Ω₁`. -/
 theorem site_H_hyp {ν δ ε : ℝ} {Ψ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
     {Ψ' h' : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hP : InPsiTildeC G ν δ ε Ψ h₀ Ψ' h')
