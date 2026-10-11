@@ -64,3 +64,4 @@
 | 2026-10-11 | D-V background fields v2 | revised | all V-01..V-15 accepted: Def-5 as predicates `IsEL`, `IsSmallSolution c₀`, `IsMinimizer` + `dite` functions `bgField`, `bgFieldC`, explicit `composeField`, `BgData`; Thm 6.1(iii) as uniqueness for explicit system 𝒮; Lemma 5.3a/b written (one UNCERTAIN spot: n = 1 collar rerouting); I-1(e) Hölder separate |
 | 2026-10-11 | D-LF v4 | running | Opus; counting closure (pending cores, C-01..C-05), adjacency R3-01, tori R3-05, Def-7/LF-4 design decisions R3-06..R3-11, outline of the reconstruction document |
 | 2026-10-11 | W20 background I | running | Sonnet; BACKGROUND.md §9 Data, Calculus, Contraction (Prop 5.1) |
+| 2026-10-11 | astra Lemma 5.3 | running | tmux `astra-bg`: full proof of BACKGROUND Lemma 5.3/5.3a/5.3b (approximate solution, C^{1,1} partition of unity), settle the collar UNCERTAIN, compare multilinear interpolation vs B-splines → `LEMMA53.md` |
