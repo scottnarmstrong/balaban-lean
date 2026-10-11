@@ -404,6 +404,39 @@ theorem Zr_eq (Y : P) (K : P → A) :
       rw [show m + 1 - (j + 1) = m - j by omega]
       ring
 
+/-- The cluster sum with a distinguished first element `Y`. -/
+def rootedSum (Y : P) (K : P → A) (N : ℕ) : A :=
+  ∑ X' : Fin N → P, (clusterUrsell inc (Fin.cons Y X' : Fin (N + 1) → P) Finset.univ : A) *
+    ∏ i, K (X' i)
+
+theorem erase_zero_eq_map (N : ℕ) :
+    (Finset.univ : Finset (Fin (N + 1))).erase 0 = Finset.univ.map (Fin.succEmb N) := by
+  ext i
+  refine Fin.cases ?_ (fun j => ?_) i
+  · simp
+  · simp
+
+theorem rootedSum_eq (Y : P) (K : P → A) (N : ℕ) :
+    rootedSum inc Y K N = ZZ (blkc inc Y K) N := by
+  rw [← Zr_eq (N := N) inc Y K N (Finset.univ.erase 0) (by simp) (by simp), Zr, rootedSum]
+  refine (Finset.sum_nbij' (fun X' => (Fin.cons Y X' : Fin (N + 1) → P))
+    (fun X => Fin.tail X) ?_ ?_ ?_ ?_ ?_)
+  · intro X' _
+    rw [mem_Fn]
+    intro i hi
+    have : i = 0 := by simpa using hi
+    subst this
+    simp
+  · intro X _; exact Finset.mem_univ _
+  · intro X' _; exact Fin.tail_cons _ _
+  · intro X hX
+    have h0 : X 0 = Y := (mem_Fn.mp hX) 0 (by simp)
+    show Fin.cons Y (Fin.tail X) = X
+    rw [← h0]; exact Fin.cons_self_tail X
+  · intro X' _
+    rw [Finset.insert_erase (Finset.mem_univ _), erase_zero_eq_map, Finset.prod_map]
+    rfl
+
 end RootedSum
 
 end Balaban.Polymer
