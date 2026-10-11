@@ -200,3 +200,7 @@ public import Balaban.Correlations.BoundsNu
 public import Balaban.Correlations.GoldstoneUniform
 public import Balaban.Correlations.GoldstoneStep
 public import Balaban.Correlations.Assembly
+public import Balaban.Localization.Peierls
+public import Balaban.Localization.PartialDeriv
+public import Balaban.Localization.Telescope
+public import Balaban.Localization.AbstractExpansion
