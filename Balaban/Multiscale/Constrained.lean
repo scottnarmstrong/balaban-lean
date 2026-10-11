@@ -221,17 +221,22 @@ theorem H_mul_dotG {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (φ : ι → Fin N
   unfold constraintN
   rw [← Matrix.mul_assoc, h1, Matrix.sub_mul, Matrix.mul_assoc _ (liftOp N H), h2, Matrix.mul_one]
 
+theorem constraintForm_eq_mul {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
+    (φ : ι → Fin N → ℂ) : constraintForm G φ = G * constraintM H G φ := by
+  rw [← H_mul_constraintForm hHG, ← Matrix.mul_assoc, hGH, Matrix.one_mul]
+
+/-- `[φ₀ · G φ₀]⁻¹ = M⁻¹ H` with `M = φ₀² - K(φ₀) Ĝ φ₀` and `H = G⁻¹` (GREEN.md G-2(v)). -/
+theorem constraintForm_inv {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
+    (φ : ι → Fin N → ℂ) : (constraintForm G φ)⁻¹ = (constraintM H G φ)⁻¹ * H := by
+  rw [constraintForm_eq_mul hHG hGH, Matrix.mul_inv_rev, Matrix.inv_eq_right_inv hGH]
+
 /-- **The sandwich formula** `Π = Ĝ φ₀ M⁻¹ N` (GREEN.md §4.5a), valid as soon as `M` is invertible.
 Here `H = G⁻¹`. -/
 theorem constrainedOp_eq {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
     (φ : ι → Fin N → ℂ) :
     constrainedOp G φ = liftOp N G * fieldMul φ * (constraintM H G φ)⁻¹ * constraintN H G φ := by
-  have hS : constraintForm G φ = G * constraintM H G φ := by
-    rw [← H_mul_constraintForm hHG, ← Matrix.mul_assoc, hGH, Matrix.one_mul]
-  have hinv : (constraintForm G φ)⁻¹ = (constraintM H G φ)⁻¹ * H := by
-    rw [hS, Matrix.mul_inv_rev, Matrix.inv_eq_right_inv hGH]
   unfold constrainedOp
-  rw [hinv, ← H_mul_dotG hHG]
+  rw [constraintForm_inv hHG hGH, ← H_mul_dotG hHG]
   simp only [Matrix.mul_assoc]
 
 end Abstract

@@ -178,6 +178,56 @@ theorem poincareConst_inv_nonneg (hd : 0 < d) : 0 ≤ 10 / poincareConst d + 4 /
   have := poincareConst_pos hd
   positivity
 
+/-- The explicit smallness threshold `δ_*(d) = 1 / (300 d²)` of G-2(v). -/
+noncomputable def constraintDeltaMax (d : ℕ) : ℝ := 1 / (300 * (d : ℝ) ^ 2)
+
+theorem small_of_le_deltaMax (hd : 0 < d) {δ : ℝ} (h0 : 0 ≤ δ) (hδ : δ ≤ constraintDeltaMax d) :
+    δ ^ 2 * smallnessConst d ≤ 1 / 4 := by
+  have hdd : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have hp0 := poincareConst_pos hd
+  have hinv : 1 / poincareConst d ≤ 2 * d := by
+    have : poincareConst d = min (1 / (d : ℝ)) (1 / 2) := rfl
+    rw [div_le_iff₀ hp0]
+    rcases le_total (1 / (d : ℝ)) (1 / 2) with h | h
+    · rw [this, min_eq_left h]; field_simp; nlinarith
+    · rw [this, min_eq_right h]; nlinarith
+  have h1 : 10 / poincareConst d + 4 / poincareConst d ^ 2 ≤ 36 * (d : ℝ) ^ 2 := by
+    have e1 : 10 / poincareConst d = 10 * (1 / poincareConst d) := by ring
+    have e2 : 4 / poincareConst d ^ 2 = 4 * (1 / poincareConst d) ^ 2 := by ring
+    rw [e1, e2]
+    have h2 : (1 / poincareConst d) ^ 2 ≤ (2 * d) ^ 2 := pow_le_pow_left₀ (by positivity) hinv 2
+    nlinarith
+  have hd2 : (1 : ℝ) ≤ (d : ℝ) ^ 2 := by nlinarith
+  have hSC : smallnessConst d ≤ 17030 * (d : ℝ) ^ 4 := by
+    unfold smallnessConst
+    have : 473 * (d : ℝ) ^ 2 * (10 / poincareConst d + 4 / poincareConst d ^ 2) ≤
+        473 * (d : ℝ) ^ 2 * (36 * (d : ℝ) ^ 2) := by gcongr
+    nlinarith [pow_le_pow_left₀ (by norm_num : (0:ℝ) ≤ 1) hdd 4]
+  have hδ' : δ ≤ 1 / (300 * (d : ℝ) ^ 2) := hδ
+  have hδ2 : δ ^ 2 ≤ (1 / (300 * (d : ℝ) ^ 2)) ^ 2 := pow_le_pow_left₀ h0 hδ' 2
+  have hsc0 : 0 ≤ smallnessConst d := by
+    unfold smallnessConst
+    have := poincareConst_inv_nonneg hd
+    positivity
+  calc δ ^ 2 * smallnessConst d ≤ (1 / (300 * (d : ℝ) ^ 2)) ^ 2 * (17030 * (d : ℝ) ^ 4) := by
+        exact mul_le_mul hδ2 hSC hsc0 (by positivity)
+    _ ≤ 1 / 4 := by
+        have : (d : ℝ) ^ 4 = ((d : ℝ) ^ 2) ^ 2 := by ring
+        rw [div_pow, this]
+        field_simp
+        nlinarith
+
+
+
+/-- The standing hypotheses from the explicit threshold `δ ≤ δ_*(d) = 1 / (300 d²)`. -/
+theorem Standing.of_le_deltaMax {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ} {δ : ℝ}
+    {φ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hd : 0 < d) (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a)
+    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    (hφ : IsConstraintField G δ φ) (hδ0 : 0 ≤ δ) (hδ : δ ≤ constraintDeltaMax d) :
+    Standing G a ν α δ φ :=
+  ⟨hd, hν, ha, hα, hφ, hδ0, small_of_le_deltaMax hd hδ0 hδ⟩
+
 end Neumann
 
 section GreenVec
@@ -300,6 +350,36 @@ theorem constraintM_lower (s : G.Ω 1 → ℂ) :
   have h5 : agmonSource G ε r (s - Ms) ≤ 1 / 4 * agmonSource G ε r s := h1.trans h4
   linarith
 
+/-- **The smallness of `K(φ₀) Ĝ φ₀`** (GREEN.md G-2(v), `‖ℓ w K(φ₀) G φ₀ f‖ ≤ c δ₀ ‖ℓ w f‖`):
+`‖ℓ w K(φ₀) Ĝ φ₀ s‖² ≤ 473 d² (10/c + 4/c²) δ² ‖ℓ w s‖²`. -/
+theorem commK_green_fieldMul_le (s : G.Ω 1 → ℂ) :
+    agmonSource G ε r (commK (dirichletOperator G a ν α) (restrictField G φ) *ᵥ
+      (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ (fieldMul (restrictField G φ) *ᵥ s))) ≤
+      δ ^ 2 * (473 / 2 * (d : ℝ) ^ 2 * (10 / poincareConst d + 4 / poincareConst d ^ 2)) *
+        agmonSource G ε r s := by
+  have hK := agmonSource_commK_le G St.pos St.weights ν α St.field.toIsSmoothField St.nonneg hr hε0 hε1
+    (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ (fieldMul (restrictField G φ) *ᵥ s))
+  obtain ⟨hM, hGr⟩ := green_vec_bounds St hr hε0 hε1 (fieldMul (restrictField G φ) *ᵥ s)
+  have hΦ := vecSrc_fieldMul_le (ε := ε) (r := r) St.field s
+  have hc0 := poincareConst_pos St.pos
+  have hd1 : (0 : ℝ) ≤ (d : ℝ) ^ 2 := by positivity
+  have hδ2 : 0 ≤ δ ^ 2 := sq_nonneg δ
+  have hS0 := agmonSource_nonneg G ε r s
+  have hsum : vecGrad G ε r (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ
+      (fieldMul (restrictField G φ) *ᵥ s)) + vecM G ε r (liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ
+      (fieldMul (restrictField G φ) *ᵥ s)) ≤
+      (10 / poincareConst d + 4 / poincareConst d ^ 2) *
+        (9 / 4 * agmonSource G ε r s) := by
+    have := mul_le_mul_of_nonneg_left hΦ (poincareConst_inv_nonneg St.pos)
+    calc _ ≤ 10 / poincareConst d * vecSrc G ε r (fieldMul (restrictField G φ) *ᵥ s) +
+          4 / poincareConst d ^ 2 * vecSrc G ε r (fieldMul (restrictField G φ) *ᵥ s) := by linarith
+      _ = (10 / poincareConst d + 4 / poincareConst d ^ 2) *
+          vecSrc G ε r (fieldMul (restrictField G φ) *ᵥ s) := by ring
+      _ ≤ _ := this
+  have hB := hK.trans (mul_le_mul_of_nonneg_left hsum (by positivity : (0 : ℝ) ≤ 105 * d ^ 2 * δ ^ 2))
+  have hCg := poincareConst_inv_nonneg St.pos
+  nlinarith [mul_nonneg hd1 (mul_nonneg hδ2 (mul_nonneg hCg hS0))]
+
 end Neumann2
 
 section Unit
@@ -378,6 +458,15 @@ theorem dirichlet_inv_mul (St : Standing G a ν α δ φ) :
     (dirichletOperator G a ν α)⁻¹ * dirichletOperator G a ν α = 1 :=
   Matrix.nonsing_inv_mul _ ((Matrix.isUnit_iff_isUnit_det _).1
     (dirichletOperator_isUnit G St.pos St.mass St.weights α St.alpha))
+
+/-- **`φ₀ · G_D(α) φ₀` is invertible** and `[φ₀ · G φ₀]⁻¹ = M⁻¹ H_D(α)` (G-2(v)). -/
+theorem constraintForm_isUnit (St : Standing G a ν α δ φ) :
+    IsUnit (constraintForm (dirichletOperator G a ν α)⁻¹ (restrictField G φ)) := by
+  rw [constraintForm_eq_mul (dirichlet_mul_inv St) (dirichlet_inv_mul St)]
+  have hG : IsUnit (dirichletOperator G a ν α)⁻¹ :=
+    (Matrix.isUnit_nonsing_inv_iff).2 (dirichletOperator_isUnit G St.pos St.mass St.weights α St.alpha)
+  exact hG.mul (constraintM_isUnit St)
+
 
 variable (St : Standing G a ν α δ φ) {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r)
   {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ agmonRate d)
