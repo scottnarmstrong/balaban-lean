@@ -426,4 +426,17 @@ theorem decomposition (hA0 : ∀ D, A D → ∀ t ∈ D, (cs t).Nonempty)
 
 end Fiber
 
+section Powerset
+
+/-- The sum over nonempty subfamilies of the products of nonnegative weights. -/
+theorem sum_powerset_erase_le {T : Type*} (r : T → ℝ) (hr : ∀ t, 0 ≤ r t) (S : Finset T) :
+    ∑ C ∈ S.powerset.erase ∅, ∏ t ∈ C, r t ≤ Real.exp (∑ t ∈ S, r t) - 1 := by
+  have h1 : ∏ t ∈ S, (1 + r t) = ∑ C ∈ S.powerset, ∏ t ∈ C, r t := Finset.prod_one_add S
+  have h2 := Finset.add_sum_erase S.powerset (fun C => ∏ t ∈ C, r t) (Finset.empty_mem_powerset S)
+  have h3 := Real.prod_one_add_le_exp_sum S hr
+  simp only [Finset.prod_empty] at h2
+  linarith
+
+end Powerset
+
 end Balaban.Polymer
