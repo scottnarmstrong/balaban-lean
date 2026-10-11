@@ -331,4 +331,122 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
   have hE0 := cEnergy_nonneg v
   nlinarith [hcomb, hTsum, hpot, hsrc, hκ, mul_nonneg hS0 (sub_nonneg.2 hκ)]
 
+
+/-! ### Consequences -/
+
+section Consequences
+
+variable (G : GeneratingSet d L N₀ k ϱ)
+
+/-- `‖ℓ⁻¹ w u‖² ≤ 4 c⁻² ‖ℓ w f‖²`. -/
+theorem agmon_wsq_le (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (α : G.Ω 1 → ℂ) (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
+    cwsq G (agmonField G ε r u) ≤ 4 / poincareConst d ^ 2 * agmonSource G ε r f := by
+  have h := agmon_energy G hd hν ha α hα hr hε0 hε1 hu
+  have hp0 := poincareConst_pos hd
+  have hE := cEnergy_nonneg (agmonField G ε r u)
+  have h2 : poincareConst d / 4 * cwsq G (agmonField G ε r u) ≤
+      1 / poincareConst d * agmonSource G ε r f := by linarith
+  have h3 : cwsq G (agmonField G ε r u) ≤
+      4 / poincareConst d ^ 2 * agmonSource G ε r f := by
+    have e : 4 / poincareConst d ^ 2 * agmonSource G ε r f =
+        4 / poincareConst d * (1 / poincareConst d * agmonSource G ε r f) := by
+      field_simp
+    rw [e]
+    rw [show cwsq G (agmonField G ε r u) = 4 / poincareConst d *
+      (poincareConst d / 4 * cwsq G (agmonField G ε r u)) by field_simp]
+    exact mul_le_mul_of_nonneg_left h2 (by positivity)
+  exact h3
+
+/-- `‖∂(w ũ)‖² ≤ 2 c⁻¹ ‖ℓ w f‖²`. -/
+theorem agmon_cEnergy_le (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
+    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
+    cEnergy (agmonField G ε r u) ≤ 2 / poincareConst d * agmonSource G ε r f := by
+  have h := agmon_energy G hd hν ha α hα hr hε0 hε1 hu
+  have hp0 := poincareConst_pos hd
+  have hS := cwsq_nonneg G (agmonField G ε r u)
+  have : (1 / 2) * cEnergy (agmonField G ε r u) ≤ 1 / poincareConst d * agmonSource G ε r f := by
+    nlinarith [mul_nonneg hp0.le hS]
+  have e : 2 / poincareConst d * agmonSource G ε r f =
+      2 * (1 / poincareConst d * agmonSource G ε r f) := by ring
+  linarith
+
+/-- Pointwise form of the weighted gradient bound:
+`w(x)² |ũ(x + e_μ) - ũ(x)|² ≤ 2 |v(x + e_μ) - v(x)|² + 8 ε² ℓ(x + e_μ)⁻² |v(x + e_μ)|²`. -/
+theorem agmon_grad_pointwise {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ}
+    (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) (u : G.Ω 1 → ℂ) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (μ : Fin d) :
+    Real.exp (ε * r x) ^ 2 * ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 ≤
+      2 * ‖agmonField G ε r u (x + Pi.single μ 1) - agmonField G ε r u x‖ ^ 2 +
+        8 * ε ^ 2 * (invSqSpacing G (x + Pi.single μ 1) *
+          ‖agmonField G ε r u (x + Pi.single μ 1)‖ ^ 2) := by
+  set b := x + Pi.single μ 1 with hb
+  set Ex := Real.exp (ε * r x) with hEx
+  set Eb := Real.exp (ε * r b) with hEb
+  have hEx0 : 0 < Ex := Real.exp_pos _
+  have hEb0 : 0 < Eb := Real.exp_pos _
+  set ut := zeroExt (G.Ω 1) u with hut
+  set v := agmonField G ε r u with hv
+  have hvx : v x = (Ex : ℂ) * ut x := rfl
+  have hvb : v b = (Eb : ℂ) * ut b := rfl
+  have hnn : 0 ≤ 8 * ε ^ 2 * (invSqSpacing G b * ‖v b‖ ^ 2) := by
+    have := invSqSpacing_nonneg G b
+    positivity
+  have hnorm : Ex ^ 2 * ‖ut b - ut x‖ ^ 2 = ‖(Ex : ℂ) * (ut b - ut x)‖ ^ 2 := by
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hEx0.le, mul_pow]
+  by_cases hbm : b ∈ G.Ω 1
+  · have hadj : Adj x b := ⟨μ, Or.inl rfl⟩
+    have hbc := hr.bond x b hx hbm hadj
+    have hc0 := G.bondCost_nonneg x b
+    have hc1 : G.bondCost x b ≤ 1 := G.bondCost_le_one hx b
+    have hεc : ε * G.bondCost x b ≤ 1 / 2 := by nlinarith
+    have hBb := exp_sub_one_sq_le hε0 hc0 hεc (G.bondCost_le_inv_right x b)
+    rw [← invSqSpacing_eq G hbm] at hBb
+    have h2 := exp_sq_sub_le hε0 (show |r b - r x| ≤ G.bondCost x b by rwa [abs_sub_comm])
+    set B := (Real.exp (ε * G.bondCost x b) - 1) ^ 2 with hB
+    -- decomposition
+    have hdec : (Ex : ℂ) * (ut b - ut x) = (v b - v x) + ((Ex / Eb - 1 : ℝ) : ℂ) * v b := by
+      rw [hvb, hvx]
+      have : (Eb : ℂ) ≠ 0 := by exact_mod_cast hEb0.ne'
+      push_cast
+      field_simp
+      ring
+    have hY : ‖((Ex / Eb - 1 : ℝ) : ℂ) * v b‖ ^ 2 ≤ B * ‖v b‖ ^ 2 := by
+      rw [norm_mul, Complex.norm_real, mul_pow, Real.norm_eq_abs, sq_abs]
+      refine mul_le_mul_of_nonneg_right ?_ (sq_nonneg _)
+      have : (Ex / Eb - 1) ^ 2 = (Eb - Ex) ^ 2 / Eb ^ 2 := by field_simp; ring
+      rw [this, div_le_iff₀ (by positivity)]
+      have h2' : (Eb - Ex) ^ 2 ≤ B * Eb ^ 2 := h2
+      exact h2'
+    have hsum : ‖(v b - v x) + ((Ex / Eb - 1 : ℝ) : ℂ) * v b‖ ^ 2 ≤
+        2 * ‖v b - v x‖ ^ 2 + 2 * ‖((Ex / Eb - 1 : ℝ) : ℂ) * v b‖ ^ 2 := by
+      have h1 := norm_add_le (v b - v x) (((Ex / Eb - 1 : ℝ) : ℂ) * v b)
+      have h3 := pow_le_pow_left₀ (norm_nonneg _) h1 2
+      nlinarith [sq_nonneg (‖v b - v x‖ - ‖((Ex / Eb - 1 : ℝ) : ℂ) * v b‖)]
+    rw [hnorm, hdec]
+    have hBv : B * ‖v b‖ ^ 2 ≤ 4 * ε ^ 2 * invSqSpacing G b * ‖v b‖ ^ 2 :=
+      mul_le_mul_of_nonneg_right hBb (sq_nonneg _)
+    have hY2 : 2 * ‖((Ex / Eb - 1 : ℝ) : ℂ) * v b‖ ^ 2 ≤
+        8 * ε ^ 2 * (invSqSpacing G b * ‖v b‖ ^ 2) :=
+      calc 2 * ‖((Ex / Eb - 1 : ℝ) : ℂ) * v b‖ ^ 2
+          ≤ 2 * (4 * ε ^ 2 * invSqSpacing G b * ‖v b‖ ^ 2) :=
+            mul_le_mul_of_nonneg_left (hY.trans hBv) (by norm_num)
+        _ = _ := by ring
+    linarith [hsum, hY2]
+  · have hub : ut b = 0 := zeroExt_not_mem _ _ hbm
+    have hvb0 : v b = 0 := by rw [hvb, hub]; simp
+    rw [hnorm, hub, zero_sub, mul_neg, norm_neg]
+    have : (Ex : ℂ) * ut x = v x := rfl
+    rw [this, hvb0, zero_sub, norm_neg]
+    simp only [norm_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, mul_zero,
+      add_zero]
+    nlinarith [sq_nonneg ‖v x‖]
+
+end Consequences
+
 end Balaban.Multiscale
