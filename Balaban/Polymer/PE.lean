@@ -114,4 +114,27 @@ theorem pe_xi_norm_bounds (h : KPCond inc κ a) (hrefl : ∀ x, inc x x) (K : P 
 
 end Tests
 
+section Holomorphic
+
+variable {U : Set ℂ} (K : P → ℂ → ℂ)
+
+theorem differentiableOn_clTerm (hdiff : ∀ Y, DifferentiableOn ℂ (K Y) U) (n : ℕ) :
+    DifferentiableOn ℂ (fun u => clTerm inc (fun Y => K Y u) n) U := by
+  unfold clTerm
+  refine DifferentiableOn.const_mul ?_ _
+  refine DifferentiableOn.fun_sum (fun X _ => ?_)
+  refine DifferentiableOn.const_mul ?_ _
+  exact DifferentiableOn.fun_finsetProd (fun i _ => hdiff _)
+
+/-- Holomorphic dependence of the cluster sum on a complex parameter. -/
+theorem pe_differentiableOn (h : KPCond inc κ a) (hU : IsOpen U)
+    (hdiff : ∀ Y, DifferentiableOn ℂ (K Y) U) (hK : ∀ Y u, u ∈ U → ‖K Y u‖ ≤ κ Y) :
+    DifferentiableOn ℂ (fun u => logSeries inc (fun Y => K Y u)) U := by
+  unfold logSeries
+  exact Complex.differentiableOn_tsum_of_summable_norm (summable_sp inc h (fun _ => True))
+    (fun n => differentiableOn_clTerm inc K hdiff n) hU
+    (fun n u hu => norm_clTerm_le inc κ _ (fun Y => hK Y u hu) n)
+
+end Holomorphic
+
 end Balaban.Polymer
