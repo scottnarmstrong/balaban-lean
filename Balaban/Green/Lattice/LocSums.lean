@@ -194,7 +194,7 @@ theorem sum_ball_pow_le (hd : 1 ≤ d) {p : ℕ} (hp : 1 ≤ p) (hpd : p ≤ d) 
 
 /-- Rearrangement: a set with at most as many points as the ball `B_R(0)` has a smaller sum of a
 radially nonincreasing nonnegative function (centred anywhere) than the ball. -/
-theorem sum_translate_le (φ : ℝ → ℝ) (hφ0 : ∀ r, 0 ≤ φ r)
+theorem sum_translate_le (φ : ℝ → ℝ) (hφ0 : ∀ r, 0 ≤ r → 0 ≤ φ r)
     (hφ : ∀ r r', 0 ≤ r → r ≤ r' → φ r' ≤ φ r) {R : ℝ} (hR : 0 ≤ R)
     (A : Finset (Fin d → ℤ)) (hA : A.card ≤ (latticeBall (0 : Fin d → ℤ) R).card)
     (y₀ : Fin d → ℤ) :
@@ -228,7 +228,7 @@ theorem sum_translate_le (φ : ℝ → ℝ) (hφ0 : ∀ r, 0 ≤ φ r)
     exact hφ ‖w‖ R (norm_nonneg _) this
   have hm : (A' \ B).card • φ R ≤ (B \ A').card • φ R := by
     rw [nsmul_eq_mul, nsmul_eq_mul]
-    exact mul_le_mul_of_nonneg_right (by exact_mod_cast hcc) (hφ0 R)
+    exact mul_le_mul_of_nonneg_right (by exact_mod_cast hcc) (hφ0 R hR)
   linarith
 
 end Balaban.LatticeGreen
