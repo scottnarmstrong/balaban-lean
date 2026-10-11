@@ -154,9 +154,9 @@ theorem natT_single (μ : Fin d) : (natT (Pi.single μ 1) : Torus d n) = Pi.sing
 
 /-- Monotone chains in `ℕ ^ d`: if every elementary step below `w₀` is a `ρ 1`-step, then
 `f 0` and `f w₀` are joined by a `ρ (∑ w₀)`-chain. -/
-theorem chain_of_steps {X : Type*} (ρ : ℕ → X → X → Prop) (hrefl : ∀ x, ρ 0 x x)
-    (htrans : ∀ {m m' x y z}, ρ m x y → ρ m' y z → ρ (m + m') x z)
-    (f : (Fin d → ℕ) → X) :
+theorem chain_of_steps {X : Type*} (ρ : ℕ → X → X → Prop)
+    (f : (Fin d → ℕ) → X) (hrefl : ρ 0 (f 0) (f 0))
+    (htrans : ∀ {m m' x y z}, ρ m x y → ρ m' y z → ρ (m + m') x z) :
     ∀ (m : ℕ) (w₀ : Fin d → ℕ), ∑ μ, w₀ μ = m →
       (∀ w μ, w + Pi.single μ 1 ≤ w₀ → ρ 1 (f w) (f (w + Pi.single μ 1))) →
         ρ m (f 0) (f w₀) := by
@@ -169,7 +169,7 @@ theorem chain_of_steps {X : Type*} (ρ : ℕ → X → X → Prop) (hrefl : ∀ 
       have := (Finset.sum_eq_zero_iff.1 hm) μ (Finset.mem_univ _)
       simpa using this
     subst this
-    exact hrefl _
+    exact hrefl
   | succ m ih =>
     intro w₀ hm hstep
     have hne : ∃ μ, 0 < w₀ μ := by
@@ -210,8 +210,8 @@ theorem reach_box (b : Torus d n) (w : Fin d → ℕ) (R : Set (Torus d n))
   have key := chain_of_steps (d := d)
     (fun (_ : ℕ) (x y : Torus d n) =>
       Relation.ReflTransGen (fun x y => (latGraph d n).Adj x y ∧ x ∈ R ∧ y ∈ R) x y)
-    (fun x => Relation.ReflTransGen.refl) (fun h h' => h.trans h')
-    (fun w' => b + natT w') (∑ μ, w μ) w rfl ?_
+    (fun w' => b + natT w') Relation.ReflTransGen.refl (fun h h' => h.trans h')
+    (∑ μ, w μ) w rfl ?_
   · simpa [natT_zero] using key
   · intro w' μ hw'
     have h1 : b + natT w' ∈ R := hR w' (fun ν => le_trans (by
