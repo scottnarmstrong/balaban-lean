@@ -559,7 +559,7 @@ theorem fineKernel_cauchy (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 
     _ = η := by field_simp
 
 /-- **Cauchy property of `C_tr`** at sites of `ℤ^d`. -/
-theorem coarseGreen_cauchy (hd : 0 < d) (hk : 1 ≤ k) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (hν2 : ν ≤ 2)
+theorem coarseGreen_cauchy_of_nonneg (hd : 0 < d) (hk : 1 ≤ k) {ν a a' : ℝ} (hν0 : 0 ≤ ν)
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2)
     (R₀ : ℕ) (η : ℝ) (hη : 0 < η) :
     ∃ j₀ : ℕ, ∀ j₁, j₀ ≤ j₁ → ∀ j₂, j₀ ≤ j₂ → ∀ y ∈ sqBox d R₀, ∀ y' ∈ sqBox d R₀,
@@ -582,7 +582,7 @@ theorem coarseGreen_cauchy (hd : 0 < d) (hk : 1 ≤ k) {ν a a' : ℝ} (hν0 : 0
       ha1 ha2 ha'1 ha'2 x y
     rwa [neg_mul]
   · intro j φ
-    exact coarseOperator_form hd (mul_comm _ _) hN rfl hν0 hν2 ha1 ha'1 φ
+    exact coarseOperator_form_of_nonneg hd (mul_comm _ _) hN rfl hν0 ha1 ha'1 φ
   · intro R ε hε
     obtain ⟨j₀, hj₀⟩ := unitOperator_cauchy (d := d) (L := L) (k := k) hd hν0 ha1 ha2 R ε hε
     refine ⟨max j₀ (2 * R + 1), fun j₁ hj₁ j₂ hj₂ u hu u' hu' => ?_⟩
@@ -598,6 +598,18 @@ theorem coarseGreen_cauchy (hd : 0 < d) (hk : 1 ≤ k) {ν a a' : ℝ} (hν0 : 0
     have e : ∀ A B C : ℝ, A + C - (B + C) = A - B := fun A B C => by ring
     rw [e]
     exact h
+
+/-- **Cauchy property of `C_tr`** at sites of `ℤ^d`, the case `ν ≤ 2` of
+`coarseGreen_cauchy_of_nonneg`. -/
+theorem coarseGreen_cauchy (hd : 0 < d) (hk : 1 ≤ k) {ν a a' : ℝ} (hν0 : 0 ≤ ν) (_hν2 : ν ≤ 2)
+    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2)
+    (R₀ : ℕ) (η : ℝ) (hη : 0 < η) :
+    ∃ j₀ : ℕ, ∀ j₁, j₀ ≤ j₁ → ∀ j₂, j₀ ≤ j₂ → ∀ y ∈ sqBox d R₀, ∀ y' ∈ sqBox d R₀,
+      |(coarseOperator d (L * (j₁ + 1) * L ^ k) (L ^ k) (L * (j₁ + 1)) L (j₁ + 1) ν a a')⁻¹
+          (castTorus (L * (j₁ + 1)) y) (castTorus (L * (j₁ + 1)) y') -
+        (coarseOperator d (L * (j₂ + 1) * L ^ k) (L ^ k) (L * (j₂ + 1)) L (j₂ + 1) ν a a')⁻¹
+          (castTorus (L * (j₂ + 1)) y) (castTorus (L * (j₂ + 1)) y')| ≤ η :=
+  coarseGreen_cauchy_of_nonneg hd hk hν0 ha1 ha2 ha'1 ha'2 R₀ η hη
 
 end Kernels
 

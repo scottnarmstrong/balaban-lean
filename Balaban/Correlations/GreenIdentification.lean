@@ -10,11 +10,14 @@ import Mathlib.Tactic.Positivity
 # The sum of the infinite-volume kernels is the lattice Green's function (G4)
 
 CORRELATIONS.md §3.4. Hypotheses (named after §2.1; they are supplied by the Green package):
-* (G1) `hG1`: for `μ ∈ (0, 2]` the infinite-volume kernels `t_j^μ(x, y)` are the limits of the
+* (G1) `hG1`: for `μ > 0` with `μ L^{2(j+1)} ≤ 1` (unit-lattice mass `μ L^{2(j+1)} ≤ 1` of the
+  fine Green's function at scale `j + 1`; this is the only range the sum rule uses, since it
+  takes `μ ≤ L^{-2J}` at fixed `J`) the infinite-volume kernels `t_j^μ(x, y)` are the limits of the
   torus kernels `T_j^{ℓ,μ}` as `ℓ = L ^ (j+1) (m+1) → ∞`;
 * (G2) `hG2`: decay of `t_j^0` (`KernelDecay`);
 * (G3) `hG3`: `t_j^μ → t_j^0` as `μ ↓ 0`;
-* (G5) `hG5`: the prolongation kernels are bounded by `C_P`, uniformly in `J, m` and `μ ∈ (0, 2]`.
+* (G5) `hG5`: the prolongation kernels are bounded by `C_P`, uniformly in `J, m` and in
+  `μ > 0` with `μ L^{2J} ≤ 1`.
 
 Conclusion `sum_kernels_eq_latticeGreen` (G4): `∑_j t_j^0(x, y)` converges absolutely and equals
 `latticeGreen d (x - y)`. The proof follows §3.4: the torus sum rule (`sum_rule_termKernel`) passes
@@ -70,7 +73,7 @@ free flow `α = freeSeq d L a`: `t j μ x y` are the infinite-volume kernels `t_
 structure KernelHyp (d L : ℕ) [NeZero L] (a : ℝ) (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
     (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ) : Prop where
   /-- (G1): `t_j^μ` is the limit of the torus kernels as the torus grows. -/
-  g1 : ∀ (j : ℕ) (μ : ℝ), 0 < μ → μ ≤ 2 → ∀ x y,
+  g1 : ∀ (j : ℕ) (μ : ℝ), 0 < μ → μ * (L : ℝ) ^ (2 * (j + 1)) ≤ 1 → ∀ x y,
     Tendsto (fun m : ℕ => termKernel d L (freeSeq d L a) μ (j + 1) j m x y) atTop
       (𝓝 (t j μ x y))
   /-- (G2) at `μ = 0`: exponential decay on the scale `L ^ j`. -/
@@ -78,7 +81,7 @@ structure KernelHyp (d L : ℕ) [NeZero L] (a : ℝ) (t : ℕ → ℝ → (Fin d
   /-- (G3): the limit `μ ↓ 0`. -/
   g3 : ∀ (j : ℕ) x y, Tendsto (fun μ => t j μ x y) (𝓝[>] 0) (𝓝 (t0 j x y))
   /-- (G5): the prolongation kernels are bounded. -/
-  g5 : ∀ (J m : ℕ) (μ : ℝ), 0 < μ → μ ≤ 2 → ∀ y u,
+  g5 : ∀ (J m : ℕ) (μ : ℝ), 0 < μ → μ * (L : ℝ) ^ (2 * J) ≤ 1 → ∀ y u,
     |prolong (L := L) (m := m + 1) J (latticeLaplacian d (L ^ J * (m + 1)) μ) (freeSeq d L a) y u|
       ≤ C_P
   nonneg_G : 0 ≤ C_G
@@ -92,7 +95,8 @@ variable {a : ℝ} {t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → 
 /-- The `j`-th torus kernel on the `J`-step decomposition has the same limit `t_j^μ` for every
 `J > j` (nested tori). -/
 theorem KernelHyp.tendsto_termKernel (H : KernelHyp d L a t t0 C_G δ_G C_P) (ha : 0 < a)
-    {μ : ℝ} (hμ : 0 < μ) (hμ2 : μ ≤ 2) {J j : ℕ} (hj : j < J) (x y : Fin d → ℤ) :
+    {J j : ℕ} {μ : ℝ} (hμ : 0 < μ) (hμ2 : μ * (L : ℝ) ^ (2 * J) ≤ 1) (hj : j < J)
+    (x y : Fin d → ℤ) :
     Tendsto (fun m : ℕ => termKernel d L (freeSeq d L a) μ J j m x y) atTop (𝓝 (t j μ x y)) := by
   obtain ⟨n, rfl⟩ : ∃ n, J = n + 1 + j := ⟨J - j - 1, by omega⟩
   have hpos : 1 ≤ L ^ n := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
@@ -102,7 +106,11 @@ theorem KernelHyp.tendsto_termKernel (H : KernelHyp d L a t t0 C_G δ_G C_P) (ha
   have hle : ∀ m : ℕ, m ≤ L ^ n * (m + 1) - 1 := fun m => by
     have : m + 1 ≤ L ^ n * (m + 1) := Nat.le_mul_of_pos_left _ hpos
     omega
-  have hcomp := (H.g1 j μ hμ hμ2 x y).comp
+  have hLge : (1 : ℝ) ≤ L := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hμ2' : μ * (L : ℝ) ^ (2 * (j + 1)) ≤ 1 :=
+    (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ hLge (by omega)) hμ.le).trans hμ2
+  have hcomp := (H.g1 j μ hμ hμ2' x y).comp
     (tendsto_atTop_mono hle tendsto_id)
   refine hcomp.congr fun m => ?_
   simp only [Function.comp]
@@ -112,7 +120,7 @@ open Finset in
 /-- The sum rule in infinite volume, for `∑_{j<J} t_j^μ` (the limit `ℓ → ∞` of
 `sum_rule_termKernel`). -/
 theorem KernelHyp.sum_rule_limit (H : KernelHyp d L a t t0 C_G δ_G C_P) (ha : 0 < a)
-    {μ : ℝ} (hμ : 0 < μ) (hμ2 : μ ≤ 2) (J : ℕ) (x y : Fin d → ℤ) :
+    (J : ℕ) {μ : ℝ} (hμ : 0 < μ) (hμ2 : μ * (L : ℝ) ^ (2 * J) ≤ 1) (x y : Fin d → ℤ) :
     |(∑ ν : Fin d, (2 * ∑ j ∈ range J, t j μ x y - ∑ j ∈ range J, t j μ (x + Pi.single ν 1) y -
           ∑ j ∈ range J, t j μ (x - Pi.single ν 1) y) + μ * ∑ j ∈ range J, t j μ x y) -
         (if x = y then 1 else 0)| ≤ C_P * (((L ^ J : ℕ) : ℝ) ^ d)⁻¹ := by
@@ -153,8 +161,14 @@ theorem KernelHyp.sum_rule_zero (H : KernelHyp d L a t t0 C_G δ_G C_P) (ha : 0 
       |(∑ ν : Fin d, (2 * ∑ j ∈ range J, t j μ x y - ∑ j ∈ range J, t j μ (x + Pi.single ν 1) y -
           ∑ j ∈ range J, t j μ (x - Pi.single ν 1) y) + id μ * ∑ j ∈ range J, t j μ x y) -
         (if x = y then 1 else 0)| ≤ C_P * (((L ^ J : ℕ) : ℝ) ^ d)⁻¹ := by
-    filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 2 by norm_num)] with μ hμ
-    exact H.sum_rule_limit ha hμ.1 hμ.2.le J x y
+    have hLJ : (0 : ℝ) < (L : ℝ) ^ (2 * J) := by
+      have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+      positivity
+    filter_upwards [Ioo_mem_nhdsGT (inv_pos.2 hLJ)] with μ hμ
+    refine H.sum_rule_limit ha J hμ.1 ?_ x y
+    have := mul_lt_mul_of_pos_right hμ.2 hLJ
+    rw [inv_mul_cancel₀ hLJ.ne'] at this
+    exact this.le
   have := le_of_tendsto hE.abs hev
   simpa using this
 

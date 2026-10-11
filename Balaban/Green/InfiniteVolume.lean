@@ -37,10 +37,10 @@ open Filter Topology
 
 /-! ### A compactness lemma -/
 
-theorem exists_rat_Icc_near {ν δ : ℝ} (hν : ν ∈ Set.Icc (0 : ℝ) 2) (hδ : 0 < δ) :
-    ∃ q : ℚ, (q : ℝ) ∈ Set.Icc (0 : ℝ) 2 ∧ |ν - q| < δ := by
+theorem exists_rat_Icc_near {νmax ν δ : ℝ} (hν : ν ∈ Set.Icc (0 : ℝ) νmax) (hδ : 0 < δ) :
+    ∃ q : ℚ, (q : ℝ) ∈ Set.Icc (0 : ℝ) νmax ∧ |ν - q| < δ := by
   rcases eq_or_lt_of_le hν.1 with h0 | hpos
-  · refine ⟨0, by norm_num, ?_⟩
+  · refine ⟨0, by simp only [Rat.cast_zero, Set.mem_Icc]; exact ⟨le_rfl, hν.1.trans hν.2⟩, ?_⟩
     rw [← h0]; simpa using hδ
   · obtain ⟨q, hq1, hq2⟩ := exists_rat_btwn (show max 0 (ν - δ) < ν from
       max_lt hpos (by linarith))
@@ -50,16 +50,17 @@ theorem exists_rat_Icc_near {ν δ : ℝ} (hν : ν ∈ Set.Icc (0 : ℝ) 2) (h�
     rw [abs_lt]; constructor <;> linarith
 
 /-- **Diagonal extraction with a common subsequence for all masses.**  Let `f n i ν` be real
-numbers, `i` in a countable set, `ν ∈ [0, 2]`, uniformly bounded and uniformly Lipschitz in `ν`.
-Then along a common subsequence `f n i ν` converges for every `i` and every `ν ∈ [0, 2]`. -/
-theorem exists_subseq_tendsto {ι : Type*} [Countable ι] (f : ℕ → ι → ℝ → ℝ) (B Λ : ι → ℝ)
-    (hB : ∀ n i ν, ν ∈ Set.Icc (0 : ℝ) 2 → |f n i ν| ≤ B i)
-    (hΛ : ∀ n i ν ν', ν ∈ Set.Icc (0 : ℝ) 2 → ν' ∈ Set.Icc (0 : ℝ) 2 →
+numbers, `i` in a countable set, `ν ∈ [0, νmax]`, uniformly bounded and uniformly Lipschitz in `ν`.
+Then along a common subsequence `f n i ν` converges for every `i` and every `ν ∈ [0, νmax]`. -/
+theorem exists_subseq_tendsto {ι : Type*} [Countable ι] (νmax : ℝ) (f : ℕ → ι → ℝ → ℝ)
+    (B Λ : ι → ℝ)
+    (hB : ∀ n i ν, ν ∈ Set.Icc (0 : ℝ) νmax → |f n i ν| ≤ B i)
+    (hΛ : ∀ n i ν ν', ν ∈ Set.Icc (0 : ℝ) νmax → ν' ∈ Set.Icc (0 : ℝ) νmax →
       |f n i ν - f n i ν'| ≤ Λ i * |ν - ν'|) :
-    ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∀ i, ∀ ν ∈ Set.Icc (0 : ℝ) 2,
+    ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∀ i, ∀ ν ∈ Set.Icc (0 : ℝ) νmax,
       ∃ l, Tendsto (fun n => f (φ n) i ν) atTop (𝓝 l) := by
   classical
-  let J := ι × {q : ℚ // (q : ℝ) ∈ Set.Icc (0 : ℝ) 2}
+  let J := ι × {q : ℚ // (q : ℝ) ∈ Set.Icc (0 : ℝ) νmax}
   let x : ℕ → (J → ℝ) := fun n j => f n j.1 (j.2.1 : ℝ)
   let s : Set (J → ℝ) := Set.pi Set.univ fun j => Set.Icc (-B j.1) (B j.1)
   have hs : IsCompact s := isCompact_univ_pi fun j => isCompact_Icc
@@ -67,7 +68,7 @@ theorem exists_subseq_tendsto {ι : Type*} [Countable ι] (f : ℕ → ι → �
     intro n j _
     exact abs_le.1 (hB n j.1 _ j.2.2)
   obtain ⟨a, -, φ, hφ, hlim⟩ := hs.tendsto_subseq hx
-  have hq : ∀ (i : ι) (q : {q : ℚ // (q : ℝ) ∈ Set.Icc (0 : ℝ) 2}),
+  have hq : ∀ (i : ι) (q : {q : ℚ // (q : ℝ) ∈ Set.Icc (0 : ℝ) νmax}),
       Tendsto (fun n => f (φ n) i (q.1 : ℝ)) atTop (𝓝 (a (i, q))) := fun i q =>
     (tendsto_pi_nhds.1 hlim) (i, q)
   refine ⟨φ, hφ, fun i ν hν => ?_⟩
@@ -268,21 +269,21 @@ converge entrywise, simultaneously for all `ν ∈ [0, 2]`.  The limits satisfy
 * the Lipschitz bounds of (b);
 
 with the `ℓ¹` distance of `ℤ^d`.  The constants depend on `d, L` only. -/
-theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 / 2 ≤ a)
+theorem infiniteVolume_limits_le (νmax : ℝ) (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 / 2 ≤ a)
     (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (M : ℕ → ℕ+)
     (hM : Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop) :
     ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∃ Kinf Dinf Cinf : ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ,
-      (∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+      (∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
         Tendsto (fun n => fineKernelAt d L k (M (φ n)) ν a y y') atTop (𝓝 (Kinf ν y y')) ∧
         Tendsto (fun n => deltaAt d L k (M (φ n)) ν a y y') atTop (𝓝 (Dinf ν y y')) ∧
         Tendsto (fun n => greenAt d L k (M (φ n)) ν a a' y y') atTop (𝓝 (Cinf ν y y'))) ∧
-      (∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+      (∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
         ∑ x ∈ intFibre (L ^ k) y, (Kinf ν x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
             (a * blockDecayConst d L * Real.exp (-(blockDecayRate d * l1IntDist d y y'))) ^ 2 ∧
         |Dinf ν y y'| ≤ (2 + 4 * blockDecayConst d L) *
             Real.exp (-(blockDecayRate d * l1IntDist d y y')) ∧
         |Cinf ν y y'| ≤ 2 * (trGamma d L)⁻¹ * Real.exp (-(trRate d L * l1IntDist d y y'))) ∧
-      (∀ ν₁ ∈ Set.Icc (0 : ℝ) 2, ∀ ν₂ ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+      (∀ ν₁ ∈ Set.Icc (0 : ℝ) νmax, ∀ ν₂ ∈ Set.Icc (0 : ℝ) νmax, ∀ y y',
         ∑ x ∈ intFibre (L ^ k) y, (Kinf ν₁ x y' - Kinf ν₂ x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
             (a * (|ν₁ - ν₂| * massLipConst d L *
               Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y'))) ^ 2 ∧
@@ -316,36 +317,36 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
     (2 + 4 * blockDecayConst d L) + 2 * (trGamma d L)⁻¹ + SN * (2 * blockDecayConst d L)
   let Λ : ((Fin d → ℤ) × (Fin d → ℤ) × Fin 3) → ℝ := fun _ =>
     4 * massLipConst d L + coarseLipConst d L + SN * (2 * massLipConst d L)
-  have hdelta_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) 2 → ∀ y y' : Fin d → ℤ,
+  have hdelta_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) νmax → ∀ y y' : Fin d → ℤ,
       |deltaAt d L k (M n) ν a y y'| ≤ (2 + 4 * blockDecayConst d L) *
         Real.exp (-(blockDecayRate d * torusDist d (L * (M n : ℕ)) (castTorus _ y)
           (castTorus _ y'))) := by
     intro n ν hν y y'
     exact unconstrainedUnitOperator_decay (L := L) (N₀ := L * (M n : ℕ)) hd hk hν.1 ha1 ha2 _ _
-  have hgreen_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) 2 → ∀ y y' : Fin d → ℤ,
+  have hgreen_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) νmax → ∀ y y' : Fin d → ℤ,
       |greenAt d L k (M n) ν a a' y y'| ≤ 2 * (trGamma d L)⁻¹ *
         Real.exp (-(trRate d L * torusDist d (L * (M n : ℕ)) (castTorus _ y)
           (castTorus _ y'))) := by
     intro n ν hν y y'
-    exact coarseGreen_decay (L := L) (N₀ := L * (M n : ℕ)) (M := (M n : ℕ)) hd hk rfl hν.1 hν.2
+    exact coarseGreen_decay_of_nonneg (L := L) (N₀ := L * (M n : ℕ)) (M := (M n : ℕ)) hd hk rfl hν.1
       ha1 ha2 ha'1 ha'2 _ _
-  have hdelta_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) 2 → ν₂ ∈ Set.Icc (0 : ℝ) 2 →
+  have hdelta_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) νmax → ν₂ ∈ Set.Icc (0 : ℝ) νmax →
       ∀ y y' : Fin d → ℤ, |deltaAt d L k (M n) ν₁ a y y' - deltaAt d L k (M n) ν₂ a y y'| ≤
         4 * (|ν₁ - ν₂| * massLipConst d L * Real.exp (-(blockDecayRate d / 2) *
           torusDist d (L * (M n : ℕ)) (castTorus _ y) (castTorus _ y'))) := by
     intro n ν₁ ν₂ h1 h2 y y'
     exact unconstrainedUnitOperator_lipschitz (L := L) (N₀ := L * (M n : ℕ)) hd hk h1.1 h2.1 ha1
       ha2 _ _
-  have hgreen_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) 2 → ν₂ ∈ Set.Icc (0 : ℝ) 2 →
+  have hgreen_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) νmax → ν₂ ∈ Set.Icc (0 : ℝ) νmax →
       ∀ y y' : Fin d → ℤ, |greenAt d L k (M n) ν₁ a a' y y' - greenAt d L k (M n) ν₂ a a' y y'| ≤
         |ν₁ - ν₂| * coarseLipConst d L * Real.exp (-(lipRate d L / 4) *
           torusDist d (L * (M n : ℕ)) (castTorus _ y) (castTorus _ y')) := by
     intro n ν₁ ν₂ h1 h2 y y'
-    exact coarseGreen_lipschitz (L := L) (N₀ := L * (M n : ℕ)) (M := (M n : ℕ)) hd hk rfl h1.1
-      h1.2 h2.1 h2.2 ha1 ha2 ha'1 ha'2 _ _
+    exact coarseGreen_lipschitz_of_nonneg (L := L) (N₀ := L * (M n : ℕ)) (M := (M n : ℕ)) hd hk rfl
+      h1.1 h2.1 ha1 ha2 ha'1 ha'2 _ _
   -- the fine-to-block kernel: block bounds and pointwise bounds
   have hℓ : ∀ n : ℕ, (L * (M n : ℕ)) * L ^ k = L ^ k * (L * (M n : ℕ)) := fun n => mul_comm _ _
-  have hfine_blk : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) 2 → ∀ (y y' : Fin d → ℤ),
+  have hfine_blk : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) νmax → ∀ (y y' : Fin d → ℤ),
       ∑ x ∈ intFibre (L ^ k) y, (fineKernelAt d L k (M n) ν a x y') ^ 2 ≤
         (((L ^ k : ℕ) : ℝ) ^ d) * (a * blockDecayConst d L *
           Real.exp (-(blockDecayRate d * torusDist d (L * (M n : ℕ)) (castTorus _ y)
@@ -360,7 +361,7 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
     refine h1.trans ?_
     refine mul_le_mul_of_nonneg_left ?_ (by positivity)
     exact pow_le_pow_left₀ (blockL2_nonneg _ _) h2 2
-  have hfine_lip_blk : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) 2 → ν₂ ∈ Set.Icc (0 : ℝ) 2 →
+  have hfine_lip_blk : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) νmax → ν₂ ∈ Set.Icc (0 : ℝ) νmax →
       ∀ (y y' : Fin d → ℤ),
       ∑ x ∈ intFibre (L ^ k) y, (fineKernelAt d L k (M n) ν₁ a x y' -
           fineKernelAt d L k (M n) ν₂ a x y') ^ 2 ≤
@@ -379,7 +380,7 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
     refine h3.trans ?_
     refine mul_le_mul_of_nonneg_left ?_ (by positivity)
     exact pow_le_pow_left₀ (blockL2_nonneg _ _) h4 2
-  have hfine_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) 2 → ∀ x y' : Fin d → ℤ,
+  have hfine_dec : ∀ (n : ℕ) (ν : ℝ), ν ∈ Set.Icc (0 : ℝ) νmax → ∀ x y' : Fin d → ℤ,
       |fineKernelAt d L k (M n) ν a x y'| ≤ SN * (2 * blockDecayConst d L) := by
     intro n ν hν x y'
     have h1 := abs_le_sqrt_mul_blockL2 (ℓ := (L * (M n : ℕ)) * L ^ k) (N := L ^ k)
@@ -402,7 +403,7 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
     show |fineToBlockKernel d ((L * (M n : ℕ)) * L ^ k) (L ^ k) (L * (M n : ℕ)) ν a
       (castTorus ((L * (M n : ℕ)) * L ^ k) x) (castTorus (L * (M n : ℕ)) y')| ≤ _
     exact h1.trans (mul_le_mul_of_nonneg_left (h2.trans h4) hSN0)
-  have hfine_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) 2 → ν₂ ∈ Set.Icc (0 : ℝ) 2 →
+  have hfine_lip : ∀ (n : ℕ) (ν₁ ν₂ : ℝ), ν₁ ∈ Set.Icc (0 : ℝ) νmax → ν₂ ∈ Set.Icc (0 : ℝ) νmax →
       ∀ x y' : Fin d → ℤ, |fineKernelAt d L k (M n) ν₁ a x y' - fineKernelAt d L k (M n) ν₂ a x y'|
         ≤ SN * (2 * massLipConst d L) * |ν₁ - ν₂| := by
     intro n ν₁ ν₂ h1 h2 x y'
@@ -440,7 +441,7 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
       _ ≤ SN * (2 * massLipConst d L * |ν₁ - ν₂|) :=
           mul_le_mul_of_nonneg_left (h4.trans h6) hSN0
       _ = _ := by ring
-  have hB : ∀ n i ν, ν ∈ Set.Icc (0 : ℝ) 2 → |f n i ν| ≤ B i := by
+  have hB : ∀ n i ν, ν ∈ Set.Icc (0 : ℝ) νmax → |f n i ν| ≤ B i := by
     intro n i ν hν
     have hd0 := torusDist_nonneg_gen (m := L * (M n : ℕ)) (castTorus _ i.1) (castTorus _ i.2.1)
     have e1 : Real.exp (-(trRate d L * torusDist d (L * (M n : ℕ)) (castTorus _ i.1)
@@ -467,7 +468,7 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
       linarith
     · show _ ≤ (2 + 4 * blockDecayConst d L) + 2 * (trGamma d L)⁻¹ + SN * (2 * blockDecayConst d L)
       linarith
-  have hΛ : ∀ n i ν ν', ν ∈ Set.Icc (0 : ℝ) 2 → ν' ∈ Set.Icc (0 : ℝ) 2 →
+  have hΛ : ∀ n i ν ν', ν ∈ Set.Icc (0 : ℝ) νmax → ν' ∈ Set.Icc (0 : ℝ) νmax →
       |f n i ν - f n i ν'| ≤ Λ i * |ν - ν'| := by
     intro n i ν ν' hν hν'
     have hd0 := torusDist_nonneg_gen (m := L * (M n : ℕ)) (castTorus _ i.1) (castTorus _ i.2.1)
@@ -496,19 +497,19 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
       nlinarith
     · show _ ≤ (4 * massLipConst d L + coarseLipConst d L + SN * (2 * massLipConst d L)) * |ν - ν'|
       nlinarith
-  obtain ⟨φ, hφ, hconv⟩ := exists_subseq_tendsto f B Λ hB hΛ
+  obtain ⟨φ, hφ, hconv⟩ := exists_subseq_tendsto νmax f B Λ hB hΛ
   have hφt : Tendsto φ atTop atTop := hφ.tendsto_atTop
-  have hKex : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y', ∃ l,
+  have hKex : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y', ∃ l,
       Tendsto (fun n => fineKernelAt d L k (M (φ n)) ν a y y') atTop (𝓝 l) := by
     intro ν hν y y'
     obtain ⟨l, hl⟩ := hconv (y, y', 2) ν hν
     exact ⟨l, by simpa [f] using hl⟩
-  have hDex : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y', ∃ l,
+  have hDex : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y', ∃ l,
       Tendsto (fun n => deltaAt d L k (M (φ n)) ν a y y') atTop (𝓝 l) := by
     intro ν hν y y'
     obtain ⟨l, hl⟩ := hconv (y, y', 0) ν hν
     exact ⟨l, by simpa [f] using hl⟩
-  have hCex : ∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y', ∃ l,
+  have hCex : ∀ ν ∈ Set.Icc (0 : ℝ) νmax, ∀ y y', ∃ l,
       Tendsto (fun n => greenAt d L k (M (φ n)) ν a a' y y') atTop (𝓝 l) := by
     intro ν hν y y'
     obtain ⟨l, hl⟩ := hconv (y, y', 1) ν hν
@@ -563,6 +564,32 @@ theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 
       filter_upwards [hev] with n hn
       have := hgreen_lip (φ n) ν₁ ν₂ hν₁ hν₂ y y'
       rwa [hn] at this
+
+/-- **G-5(c): infinite-volume limits** for `ν ∈ [0, 2]`, the case `νmax = 2` of
+`infiniteVolume_limits_le`. -/
+theorem infiniteVolume_limits (hd : 0 < d) (hk : 1 ≤ k) {a a' : ℝ} (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (ha'1 : 1 / 2 ≤ a') (ha'2 : a' ≤ 2) (M : ℕ → ℕ+)
+    (hM : Tendsto (fun n => ((M n : ℕ+) : ℕ)) atTop atTop) :
+    ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∃ Kinf Dinf Cinf : ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ,
+      (∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+        Tendsto (fun n => fineKernelAt d L k (M (φ n)) ν a y y') atTop (𝓝 (Kinf ν y y')) ∧
+        Tendsto (fun n => deltaAt d L k (M (φ n)) ν a y y') atTop (𝓝 (Dinf ν y y')) ∧
+        Tendsto (fun n => greenAt d L k (M (φ n)) ν a a' y y') atTop (𝓝 (Cinf ν y y'))) ∧
+      (∀ ν ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+        ∑ x ∈ intFibre (L ^ k) y, (Kinf ν x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
+            (a * blockDecayConst d L * Real.exp (-(blockDecayRate d * l1IntDist d y y'))) ^ 2 ∧
+        |Dinf ν y y'| ≤ (2 + 4 * blockDecayConst d L) *
+            Real.exp (-(blockDecayRate d * l1IntDist d y y')) ∧
+        |Cinf ν y y'| ≤ 2 * (trGamma d L)⁻¹ * Real.exp (-(trRate d L * l1IntDist d y y'))) ∧
+      (∀ ν₁ ∈ Set.Icc (0 : ℝ) 2, ∀ ν₂ ∈ Set.Icc (0 : ℝ) 2, ∀ y y',
+        ∑ x ∈ intFibre (L ^ k) y, (Kinf ν₁ x y' - Kinf ν₂ x y') ^ 2 ≤ (((L ^ k : ℕ) : ℝ) ^ d) *
+            (a * (|ν₁ - ν₂| * massLipConst d L *
+              Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y'))) ^ 2 ∧
+        |Dinf ν₁ y y' - Dinf ν₂ y y'| ≤ 4 * (|ν₁ - ν₂| * massLipConst d L *
+            Real.exp (-(blockDecayRate d / 2) * l1IntDist d y y')) ∧
+        |Cinf ν₁ y y' - Cinf ν₂ y y'| ≤ |ν₁ - ν₂| * coarseLipConst d L *
+            Real.exp (-(lipRate d L / 4) * l1IntDist d y y')) :=
+  infiniteVolume_limits_le 2 hd hk ha1 ha2 ha'1 ha'2 M hM
 
 end Limits
 

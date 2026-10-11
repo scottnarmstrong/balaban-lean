@@ -32,7 +32,7 @@ theorem rpow_neg_half_eq {ρ : ℝ} (hρ : 0 < ρ) (d : ℕ) :
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ)
 
 theorem l2_part {c0 : ℝ} (hc0 : 0 < c0) (hc04 : c0 ≤ 1 / 4) {j : ℕ} (hj2 : 2 ≤ j) (hjk : j ≤ k)
     {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j)

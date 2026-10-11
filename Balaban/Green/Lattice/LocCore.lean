@@ -39,10 +39,11 @@ theorem norm_sub_single_le (z : Fin d → ℤ) (μ : Fin d) : ‖z - Pi.single �
   (norm_sub_le _ _).trans (by linarith [norm_pi_single_le μ])
 
 theorem coef_term_le (K : (Fin d → ℤ) → ℝ) {A A' : ℝ} {k : ℕ} (hA : 0 ≤ A) (hA' : 0 ≤ A')
-    (hK0 : ∀ y, |K y| ≤ A / (1 + ‖y‖) ^ k)
-    (hKf : ∀ y μ, |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    (hKb : ∀ y μ, |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    {ρ M₁ M₂ : ℝ} (hρ : 0 < ρ) (χ : (Fin d → ℤ) → ℝ)
+    {ρ M₁ M₂ : ℝ}
+    (hK0 : ∀ y, ρ / 2 ≤ 1 + ‖y‖ → |K y| ≤ A / (1 + ‖y‖) ^ k)
+    (hKf : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hKb : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hρ : 0 < ρ) (χ : (Fin d → ℤ) → ℝ)
     (h1f : ∀ z μ, |χ (z + Pi.single μ 1) - χ z| ≤ M₁ / ρ)
     (h1b : ∀ z μ, |χ (z - Pi.single μ 1) - χ z| ≤ M₁ / ρ)
     (h2 : ∀ z μ, |χ (z + Pi.single μ 1) + χ (z - Pi.single μ 1) - 2 * χ z| ≤ M₂ / ρ ^ 2)
@@ -56,11 +57,11 @@ theorem coef_term_le (K : (Fin d → ℤ) → ℝ) {A A' : ℝ} {k : ℕ} (hA : 
       (K (y + Pi.single μ 1) - K y) * (χ (w - Pi.single μ 1) - χ w) +
       (K (y - Pi.single μ 1) - K y) * (χ (w + Pi.single μ 1) - χ w) := by ring
   rw [key]
-  have b0 : |K y| ≤ A * 2 ^ k / ρ ^ k := (hK0 y).trans (div_pow_le_of_half hA hρ hy k)
+  have b0 : |K y| ≤ A * 2 ^ k / ρ ^ k := (hK0 y hy).trans (div_pow_le_of_half hA hρ hy k)
   have bf : |K (y + Pi.single μ 1) - K y| ≤ A' * 2 ^ (k + 1) / ρ ^ (k + 1) :=
-    (hKf y μ).trans (div_pow_le_of_half hA' hρ hy (k + 1))
+    (hKf y μ hy).trans (div_pow_le_of_half hA' hρ hy (k + 1))
   have bb : |K (y - Pi.single μ 1) - K y| ≤ A' * 2 ^ (k + 1) / ρ ^ (k + 1) :=
-    (hKb y μ).trans (div_pow_le_of_half hA' hρ hy (k + 1))
+    (hKb y μ hy).trans (div_pow_le_of_half hA' hρ hy (k + 1))
   have t1 : |K y * (χ (w + Pi.single μ 1) + χ (w - Pi.single μ 1) - 2 * χ w)| ≤
       A * 2 ^ k / ρ ^ k * (M₂ / ρ ^ 2) := by
     rw [abs_mul]
@@ -81,10 +82,11 @@ theorem coef_term_le (K : (Fin d → ℤ) → ℝ) {A A' : ℝ} {k : ℕ} (hA : 
     _ = _ := by field_simp; ring
 
 theorem coef_le (K : (Fin d → ℤ) → ℝ) {A A' : ℝ} {k : ℕ} (hA : 0 ≤ A) (hA' : 0 ≤ A')
-    (hK0 : ∀ y, |K y| ≤ A / (1 + ‖y‖) ^ k)
-    (hKf : ∀ y μ, |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    (hKb : ∀ y μ, |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    {ρ M₁ M₂ : ℝ} (hρ : 0 < ρ) (hM₁ : 0 ≤ M₁) (hM₂ : 0 ≤ M₂) (χ : (Fin d → ℤ) → ℝ)
+    {ρ M₁ M₂ : ℝ}
+    (hK0 : ∀ y, ρ / 2 ≤ 1 + ‖y‖ → |K y| ≤ A / (1 + ‖y‖) ^ k)
+    (hKf : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hKb : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hρ : 0 < ρ) (hM₁ : 0 ≤ M₁) (hM₂ : 0 ≤ M₂) (χ : (Fin d → ℤ) → ℝ)
     (h1f : ∀ z μ, |χ (z + Pi.single μ 1) - χ z| ≤ M₁ / ρ)
     (h1b : ∀ z μ, |χ (z - Pi.single μ 1) - χ z| ≤ M₁ / ρ)
     (h2 : ∀ z μ, |χ (z + Pi.single μ 1) + χ (z - Pi.single μ 1) - 2 * χ z| ≤ M₂ / ρ ^ 2)
@@ -165,10 +167,11 @@ theorem cutoff_zero_outside {ρ : ℝ} (hρ : 4 ≤ ρ) (x₀ : Fin d → ℤ) {
 /-- The core estimate of Lemma Loc: for `x ∈ B_{ρ/2}` and `-Δ u = g` on `B_{2ρ-1}`,
 `‖∑_z K(x-z) (-Δ(χ u))(z)‖ ≤ ∑_{B_{2ρ}} |K(x-z)| |g(z)| + C ρ^{-(k+2)} ∑_{B_{2ρ}} |u|`. -/
 theorem loc_core (K : (Fin d → ℤ) → ℝ) {A A' : ℝ} {k : ℕ} (hA : 0 ≤ A) (hA' : 0 ≤ A')
-    (hK0 : ∀ y, |K y| ≤ A / (1 + ‖y‖) ^ k)
-    (hKf : ∀ y μ, |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    (hKb : ∀ y μ, |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
-    {ρ : ℝ} (hρ : 8 ≤ ρ) (x₀ x : Fin d → ℤ) (hx : ‖x - x₀‖ ≤ ρ / 2)
+    {ρ : ℝ}
+    (hK0 : ∀ y, ρ / 2 ≤ 1 + ‖y‖ → |K y| ≤ A / (1 + ‖y‖) ^ k)
+    (hKf : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y + Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hKb : ∀ y μ, ρ / 2 ≤ 1 + ‖y‖ → |K (y - Pi.single μ 1) - K y| ≤ A' / (1 + ‖y‖) ^ (k + 1))
+    (hρ : 8 ≤ ρ) (x₀ x : Fin d → ℤ) (hx : ‖x - x₀‖ ≤ ρ / 2)
     (u g : (Fin d → ℤ) → ℂ) (hg : ∀ z, ‖z - x₀‖ ≤ 2 * ρ - 1 → negLap u z = g z) :
     ‖∑ z ∈ latticeBall x₀ (2 * ρ + 1), ((K (x - z) : ℝ) : ℂ) *
         negLap (fun w => ((latticeCutoff ρ x₀ w : ℝ) : ℂ) * u w) z‖ ≤

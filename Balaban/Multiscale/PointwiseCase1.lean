@@ -28,7 +28,7 @@ variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ)
 
 /-- `U(x) = |ũ(x)| + ℓ(x) ∑_μ |ũ(x + e_μ) - ũ(x)|`. -/
 def U (x : Torus d (N₀ * L ^ k)) : ℝ :=
