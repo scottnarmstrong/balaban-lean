@@ -42,27 +42,27 @@ theorem blockL2_nonneg (y : Torus d m) (h : Torus d ℓ → ℝ) : 0 ≤ blockL2
   Real.sqrt_nonneg _
 
 /-- The block `L²` norm as a Euclidean norm. -/
-noncomputable def blockVec (N m : ℕ) (y : Torus d m) (h : Torus d ℓ → ℝ) :
+noncomputable def blockL2Vec (N m : ℕ) (y : Torus d m) (h : Torus d ℓ → ℝ) :
     EuclideanSpace ℝ (blockFibre N m y : Finset (Torus d ℓ)) :=
   WithLp.toLp 2 fun x => Real.sqrt (((N : ℝ) ^ d)⁻¹) * h x
 
 theorem blockL2_eq_norm (y : Torus d m) (h : Torus d ℓ → ℝ) :
-    blockL2 N m y h = ‖blockVec N m y h‖ := by
-  rw [blockVec, EuclideanSpace.norm_eq, blockL2]
+    blockL2 N m y h = ‖blockL2Vec N m y h‖ := by
+  rw [blockL2Vec, EuclideanSpace.norm_eq, blockL2]
   congr 1
   rw [← Finset.sum_coe_sort (blockFibre N m y) (fun x => h x ^ 2), Finset.mul_sum]
   refine Finset.sum_congr rfl fun x _ => ?_
   rw [Real.norm_eq_abs, sq_abs, mul_pow, Real.sq_sqrt (by positivity)]
 
-theorem blockVec_sum (y : Torus d m) {κ : Type*} (s : Finset κ) (f : κ → Torus d ℓ → ℝ) :
-    blockVec N m y (fun x => ∑ i ∈ s, f i x) = ∑ i ∈ s, blockVec N m y (f i) := by
+theorem blockL2Vec_sum (y : Torus d m) {κ : Type*} (s : Finset κ) (f : κ → Torus d ℓ → ℝ) :
+    blockL2Vec N m y (fun x => ∑ i ∈ s, f i x) = ∑ i ∈ s, blockL2Vec N m y (f i) := by
   ext x
-  simp [blockVec, Finset.mul_sum]
+  simp [blockL2Vec, Finset.mul_sum]
 
 /-- The triangle inequality for sums. -/
 theorem blockL2_sum_le (y : Torus d m) {κ : Type*} (s : Finset κ) (f : κ → Torus d ℓ → ℝ) :
     blockL2 N m y (fun x => ∑ i ∈ s, f i x) ≤ ∑ i ∈ s, blockL2 N m y (f i) := by
-  simp only [blockL2_eq_norm, blockVec_sum]
+  simp only [blockL2_eq_norm, blockL2Vec_sum]
   exact norm_sum_le _ _
 
 theorem blockL2_smul (y : Torus d m) (c : ℝ) (h : Torus d ℓ → ℝ) :
