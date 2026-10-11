@@ -631,6 +631,143 @@ theorem CompHyp.bond_out (H : CompHyp G G' a θ η Ψ' φ') {z z' : Torus d (N�
   have : η / G'.spacing z ≤ η := div_le_self H.η_nn h1
   exact h.trans this
 
+/-! ### Differences of two composed fields (Lemma 6.3, (R-S) complex part) -/
+
+theorem vn_add' (u w : Fin N → ℂ) : vn (fun i => u i + w i) ≤ vn u + vn w := vn_add u w
+
+theorem blk_subset_blk' (h : Precedes G G') {x y : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (hy : y ∈ G.blk (G.layerIndex x) x) : y ∈ G'.blk (G'.layerIndex x) x := by
+  obtain ⟨-, hpk, -⟩ := G'.layerIndex_spec (h.mem_Ω1 hx)
+  exact GeneratingSet.mem_blk.2 (jBlock_eq_of_le (h.layerIndex_le hx) hpk
+    (GeneratingSet.mem_blk.1 hy))
+
+/-- **Linear structure of the difference**: for two fields `(Ψc, φc)`, `(Ψr, φr)`,
+`Ψ_c - Ψ_r = Q_n Δφ + κ (ΔΨ' - Q_p Δφ)`. -/
+theorem compVec_sub_eq {Ψc Ψr : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φc φr : G'.Ω 1 × Fin N → ℂ}
+    (a : ℕ → ℝ) (h : Precedes G G') {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) (i : Fin N) :
+    compVec G G' a φc Ψc x i - compVec G G' a φr Ψr x i =
+      blockMean G (G.layerIndex x) (fun y => barVec G' Ψc φc y i - barVec G' Ψr φr y i) x +
+        (kap G G' a x : ℂ) * ((Ψc x i - Ψr x i) -
+          blockMean G' (G'.layerIndex x) (fun y => barVec G' Ψc φc y i - barVec G' Ψr φr y i) x) := by
+  obtain ⟨hp1, hpk, hxp⟩ := G'.layerIndex_spec (h.mem_Ω1 hx)
+  have hsub : ∀ y ∈ G'.blk (G'.layerIndex x) x, y ∈ G'.Ω 1 := fun y hy =>
+    G'.layer_subset hp1 hpk ((G'.mem_layer_iff hp1 hpk (GeneratingSet.mem_blk.1 hy)).2 hxp)
+  have hsubG : ∀ y ∈ G.blk (G.layerIndex x) x, y ∈ G'.Ω 1 := fun y hy =>
+    (blk_mem_Ω1' h hx hy).2
+  unfold compVec
+  rw [composeField_of_mem a φc Ψc hx i, composeField_of_mem a φr Ψr hx i,
+    blockMean_svec_eq_bar (G := G) Ψc φc _ x hsubG i, blockMean_svec_eq_bar (G := G) Ψr φr _ x hsubG i,
+    blockMean_svec_eq_bar (G := G') Ψc φc _ x hsub i, blockMean_svec_eq_bar (G := G') Ψr φr _ x hsub i,
+    blockMean_sub, blockMean_sub]
+  unfold kap
+  push_cast
+  ring
+
+/-- The bonds of `φ̄'_c - φ̄'_r` inside `Ω'₁`. -/
+theorem FieldBounds.bond_sub {Ψc Ψr : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {φc φr : G'.Ω 1 × Fin N → ℂ} {η : ℝ} (hc : FieldBounds G' η Ψc φc)
+    (hr : FieldBounds G' η Ψr φr) {x x' : Torus d (N₀ * L ^ k)} (hx : x ∈ G'.Ω 1)
+    (hx' : x' ∈ G'.Ω 1) (hadj : Adj x x') :
+    vn (barVec G' Ψc φc x' - barVec G' Ψr φr x' -
+        (barVec G' Ψc φc x - barVec G' Ψr φr x)) ≤ (η + η) * G'.bondCost x x' := by
+  have h1 := hc.smooth.adj_bound hx hx' hadj
+  have h2 := hr.smooth.adj_bound hx hx' hadj
+  have e : barVec G' Ψc φc x' - barVec G' Ψr φr x' - (barVec G' Ψc φc x - barVec G' Ψr φr x) =
+      (fun i => (barVec G' Ψc φc x' - barVec G' Ψc φc x) i -
+        (barVec G' Ψr φr x' - barVec G' Ψr φr x) i) := by
+    funext i; simp only [Pi.sub_apply]; ring
+  rw [e]
+  refine (vn_sub_le' _ _).trans ?_
+  nlinarith
+
+/-- The difference `φ̄'_c - φ̄'_r` of two extensions. -/
+noncomputable def diffBar (G' : GeneratingSet d L N₀ k ϱ') (Ψc Ψr : Torus d (N₀ * L ^ k) → Fin N → ℂ)
+    (φc φr : G'.Ω 1 × Fin N → ℂ) : Torus d (N₀ * L ^ k) → Fin N → ℂ :=
+  fun y i => barVec G' Ψc φc y i - barVec G' Ψr φr y i
+
+/-- **The size of the difference** (the core of Lemma 6.3 (C2) and of (R-S) (C2')):
+if `|φc - φr| ≤ AΔ` on `Ω'₁` and `|Ψc - Ψr|(x) ≤ AΔ + e`, then
+`|Ψ_c - Ψ_r|(x) ≤ AΔ + θ² (e + 4 d η)`. -/
+theorem compVec_sub_bound {Ψc Ψr : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {φc φr : G'.Ω 1 × Fin N → ℂ} {a : ℕ → ℝ} {θ η : ℝ}
+    (Hc : CompHyp G G' a θ η Ψc φc) (Hr : CompHyp G G' a θ η Ψr φr) (hθ1 : θ ≤ 1)
+    {AΔ e : ℝ} (hΔ : ∀ z : G'.Ω 1, vn (fun i => φc (z, i) - φr (z, i)) ≤ AΔ) (he : 0 ≤ e)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) (hD : vn (fun i => Ψc x i - Ψr x i) ≤ AΔ + e) :
+    vn (compVec G G' a φc Ψc x - compVec G G' a φr Ψr x) ≤ AΔ + θ ^ 2 * (e + 4 * d * η) := by
+  have h := Hc.prec
+  obtain ⟨hn1, hnk, -⟩ := G.layerIndex_spec hx
+  obtain ⟨hp1, hpk, hxp⟩ := G'.layerIndex_spec (h.mem_Ω1 hx)
+  obtain ⟨k0, k1⟩ := Hc.kap_bounds hx
+  have hκ1 : kap G G' a x ≤ 1 := k1.trans (by nlinarith [Hc.θ_pos])
+  obtain ⟨κ, hκ⟩ : ∃ κ : ℝ, κ = kap G G' a x := ⟨_, rfl⟩
+  rw [← hκ] at k0 k1 hκ1
+  obtain ⟨mQ, hmQ⟩ : ∃ m : Fin N → ℂ, m = fun i =>
+      blockMean G (G.layerIndex x) (fun y => diffBar G' Ψc Ψr φc φr y i) x := ⟨_, rfl⟩
+  obtain ⟨pQ, hpQ⟩ : ∃ m : Fin N → ℂ, m = fun i =>
+      blockMean G' (G'.layerIndex x) (fun y => diffBar G' Ψc Ψr φc φr y i) x := ⟨_, rfl⟩
+  have hAΔ : 0 ≤ AΔ := (vn_nonneg _).trans (hΔ ⟨x, h.mem_Ω1 hx⟩)
+  have hDFb : ∀ y ∈ G'.Ω 1, vn (diffBar G' Ψc Ψr φc φr y) ≤ AΔ := fun y hy => by
+    have : diffBar G' Ψc Ψr φc φr y = fun i => φc (⟨y, hy⟩, i) - φr (⟨y, hy⟩, i) := by
+      funext i; simp only [diffBar, barVec_of_mem Ψc φc hy, barVec_of_mem Ψr φr hy]
+    rw [this]; exact hΔ _
+  have hm : vn mQ ≤ AΔ := by
+    rw [hmQ]
+    exact vn_blockMean_le (G := G) hnk (diffBar G' Ψc Ψr φc φr) x
+      (fun y hy => hDFb y (blk_mem_Ω1' h hx hy).2)
+  -- oscillation of `diffBar` in the `p`-block of `x`
+  have hosc : ∀ y ∈ G'.blk (G'.layerIndex x) x, ∀ y' ∈ G'.blk (G'.layerIndex x) x,
+      vn (diffBar G' Ψc Ψr φc φr y' - diffBar G' Ψc Ψr φc φr y) ≤ 2 * d * (η + η) := by
+    intro y hy y' hy'
+    have hyl : y ∈ G'.layer (G'.layerIndex x) :=
+      (G'.mem_layer_iff hp1 hpk (GeneratingSet.mem_blk.1 hy)).2 hxp
+    refine vn_block_osc (diffBar G' Ψc Ψr φc φr) (by have := Hc.η_nn; positivity) ?_ hp1 hpk hyl ?_
+    · intro u u' hu hu' hadj
+      exact Hc.bounds.bond_sub Hr.bounds hu hu' hadj
+    · rw [GeneratingSet.mem_blk.1 hy', GeneratingSet.mem_blk.1 hy]
+  have hpm : ∀ y ∈ G.blk (G.layerIndex x) x,
+      vn (fun i => diffBar G' Ψc Ψr φc φr y i - pQ i) ≤ 2 * d * (η + η) := by
+    intro y hy
+    have hy' := blk_subset_blk' h hx hy
+    have := vn_blockMean_sub_le (G := G') hpk (diffBar G' Ψc Ψr φc φr) x
+      (diffBar G' Ψc Ψr φc φr y) (fun y' hy'' => hosc y hy' y' hy'')
+    have hpQi : ∀ i, pQ i = blockMean G' (G'.layerIndex x)
+        (fun y => diffBar G' Ψc Ψr φc φr y i) x := fun i => by rw [hpQ]
+    simp only [← hpQi] at this
+    exact (vn_sub_comm (diffBar G' Ψc Ψr φc φr y) pQ).trans_le this
+  have hdiff : vn (fun i => mQ i - pQ i) ≤ 2 * d * (η + η) := by
+    rw [hmQ]
+    have := vn_blockMean_sub_le (G := G) hnk (diffBar G' Ψc Ψr φc φr) x pQ hpm
+    exact this
+  -- assemble
+  have hw : compVec G G' a φc Ψc x - compVec G G' a φr Ψr x = fun i =>
+      ((1 - κ : ℝ) : ℂ) * mQ i + (κ : ℂ) * (Ψc x i - Ψr x i) + (κ : ℂ) * (mQ i - pQ i) := by
+    funext i
+    simp only [Pi.sub_apply]
+    have := compVec_sub_eq (φc := φc) (φr := φr) (Ψc := Ψc) (Ψr := Ψr) a h hx i
+    simp only [compVec] at this ⊢
+    rw [hmQ, hpQ, hκ]
+    simp only [diffBar]
+    rw [this]
+    push_cast
+    ring
+  rw [hw]
+  have t1 : vn (fun i => ((1 - κ : ℝ) : ℂ) * mQ i) ≤ (1 - κ) * AΔ := by
+    rw [vn_smul_real, abs_of_nonneg (by linarith)]
+    exact mul_le_mul_of_nonneg_left hm (by linarith)
+  have t2 : vn (fun i => (κ : ℂ) * (Ψc x i - Ψr x i)) ≤ κ * (AΔ + e) := by
+    rw [vn_smul_real, abs_of_nonneg k0]
+    exact mul_le_mul_of_nonneg_left hD k0
+  have t3 : vn (fun i => (κ : ℂ) * (mQ i - pQ i)) ≤ κ * (2 * d * (η + η)) := by
+    rw [vn_smul_real, abs_of_nonneg k0]
+    exact mul_le_mul_of_nonneg_left hdiff k0
+  have t12 := vn_add' (fun i => ((1 - κ : ℝ) : ℂ) * mQ i) (fun i => (κ : ℂ) * (Ψc x i - Ψr x i))
+  have t123 := vn_add' (fun i => ((1 - κ : ℝ) : ℂ) * mQ i + (κ : ℂ) * (Ψc x i - Ψr x i))
+    (fun i => (κ : ℂ) * (mQ i - pQ i))
+  have hθ2 : κ ≤ θ ^ 2 := k1
+  have hη0 := Hc.η_nn
+  nlinarith [mul_nonneg hη0 (Nat.cast_nonneg (α := ℝ) d), mul_nonneg he (sub_nonneg.2 hθ2),
+    mul_nonneg (mul_nonneg hη0 (Nat.cast_nonneg (α := ℝ) d)) (sub_nonneg.2 hθ2)]
+
 end Compose
 
 end Balaban.Background
