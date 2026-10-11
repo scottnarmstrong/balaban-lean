@@ -617,4 +617,168 @@ theorem ursell_insert_rec [DecidableEq ι] (G : SimpleGraph ι) {v : ι} {U : Fi
     simp only [hcard, pow_add]
     ring
 
+/-! ### Basic values and invariance -/
+
+section Invariance
+
+theorem edgesIn_empty (G : SimpleGraph ι) : edgesIn G (∅ : Finset ι) = ∅ := by
+  ext e
+  simp only [mem_edgesIn, Finset.notMem_empty, iff_false, not_and]
+  intro _ h
+  induction e using Sym2.ind with
+  | _ a b => exact (h a (Sym2.mem_mk_left a b)).elim
+
+theorem edgesIn_singleton (G : SimpleGraph ι) (a : ι) : edgesIn G {a} = ∅ := by
+  ext e
+  simp only [mem_edgesIn, Finset.mem_singleton, Finset.notMem_empty, iff_false, not_and]
+  intro he h
+  induction e using Sym2.ind with
+  | _ x y =>
+    have hx := h x (Sym2.mem_mk_left x y)
+    have hy := h y (Sym2.mem_mk_right x y)
+    exact (G.mem_edgeSet.mp he).ne (hx.trans hy.symm)
+
+theorem ursell_empty (G : SimpleGraph ι) : ursell G ∅ = 1 := by
+  have : (edgesIn G (∅ : Finset ι)).powerset.filter (Conn ∅) = {∅} := by
+    rw [edgesIn_empty]
+    ext H
+    simp only [Finset.powerset_empty, Finset.mem_filter, Finset.mem_singleton]
+    constructor
+    · exact fun h => h.1
+    · rintro rfl
+      exact ⟨rfl, fun x hx => absurd hx (Finset.notMem_empty x)⟩
+  rw [ursell, this]
+  simp
+
+theorem ursell_singleton (G : SimpleGraph ι) (a : ι) : ursell G {a} = 1 := by
+  have : (edgesIn G {a}).powerset.filter (Conn {a}) = {∅} := by
+    rw [edgesIn_singleton]
+    ext H
+    simp only [Finset.powerset_empty, Finset.mem_filter, Finset.mem_singleton]
+    constructor
+    · exact fun h => h.1
+    · rintro rfl
+      refine ⟨rfl, fun x hx y hy => ?_⟩
+      rw [Finset.mem_singleton] at hx hy
+      subst hx; subst hy; exact Rch.refl
+  rw [ursell, this]
+  simp
+
+/-- The Ursell function only depends on the adjacency inside the vertex set. -/
+theorem ursell_congr {G G' : SimpleGraph ι} {S : Finset ι}
+    (h : ∀ x ∈ S, ∀ y ∈ S, G.Adj x y ↔ G'.Adj x y) : ursell G S = ursell G' S := by
+  have : edgesIn G S = edgesIn G' S := by
+    ext e
+    induction e using Sym2.ind with
+    | _ a b =>
+      rw [mk_mem_edgesIn, mk_mem_edgesIn]
+      constructor
+      · rintro ⟨hab, ha, hb⟩; exact ⟨(h a ha b hb).mp hab, ha, hb⟩
+      · rintro ⟨hab, ha, hb⟩; exact ⟨(h a ha b hb).mpr hab, ha, hb⟩
+  rw [ursell, ursell, this]
+
+end Invariance
+
+section Comap
+
+variable {ι' : Type*}
+
+/-- The induced embedding on unordered pairs. -/
+def sym2Emb (f : ι' ↪ ι) : Sym2 ι' ↪ Sym2 ι := ⟨Sym2.map f, Sym2.map.injective f.injective⟩
+
+theorem sym2Emb_mk (f : ι' ↪ ι) (a b : ι') : sym2Emb f s(a, b) = s(f a, f b) := rfl
+
+theorem edgesIn_map (f : ι' ↪ ι) (G : SimpleGraph ι) (S' : Finset ι') :
+    edgesIn G (S'.map f) = (edgesIn (G.comap f) S').map (sym2Emb f) := by
+  ext e
+  rw [Finset.mem_map]
+  constructor
+  · intro he
+    induction e using Sym2.ind with
+    | _ x y =>
+      obtain ⟨hxy, hx, hy⟩ := mk_mem_edgesIn.mp he
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_map.mp hx
+      obtain ⟨b, hb, rfl⟩ := Finset.mem_map.mp hy
+      exact ⟨s(a, b), mk_mem_edgesIn.mpr ⟨by simpa using hxy, ha, hb⟩, rfl⟩
+  · rintro ⟨e', he', rfl⟩
+    induction e' using Sym2.ind with
+    | _ a b =>
+      obtain ⟨hab, ha, hb⟩ := mk_mem_edgesIn.mp he'
+      exact mk_mem_edgesIn.mpr ⟨by simpa using hab, Finset.mem_map_of_mem _ ha,
+        Finset.mem_map_of_mem _ hb⟩
+
+theorem rch_map_iff (f : ι' ↪ ι) (H' : Finset (Sym2 ι')) (a b : ι') :
+    Rch (H'.map (sym2Emb f)) (f a) (f b) ↔ Rch H' a b := by
+  constructor
+  · intro h
+    have key : ∀ y, Rch (H'.map (sym2Emb f)) (f a) y → ∃ b, y = f b ∧ Rch H' a b := by
+      intro y hy
+      induction hy with
+      | refl => exact ⟨a, rfl, Rch.refl⟩
+      | @tail y z _ hyz ih =>
+        obtain ⟨b, rfl, hb⟩ := ih
+        obtain ⟨e', he', hee⟩ := Finset.mem_map.mp hyz
+        induction e' using Sym2.ind with
+        | _ p q =>
+          rw [sym2Emb_mk] at hee
+          rcases Sym2.eq_iff.mp hee with ⟨h1, h2⟩ | ⟨h1, h2⟩
+          · have := f.injective h1
+            subst this
+            exact ⟨q, h2.symm, hb.trans (Rch.single he')⟩
+          · have := f.injective h2
+            subst this
+            exact ⟨p, h1.symm, hb.trans (Rch.single (by rwa [Sym2.eq_swap]))⟩
+    obtain ⟨b', hb', hr⟩ := key _ h
+    rw [f.injective hb']
+    exact hr
+  · intro h
+    induction h with
+    | refl => exact Rch.refl
+    | tail _ hbc ih =>
+      exact ih.trans (Rch.single (Finset.mem_map.mpr ⟨_, hbc, rfl⟩))
+
+/-- Invariance of the Ursell function under embeddings of the vertex type. -/
+theorem ursell_comap (f : ι' ↪ ι) (G : SimpleGraph ι) (S' : Finset ι') :
+    ursell (G.comap f) S' = ursell G (S'.map f) := by
+  rw [ursell, ursell, edgesIn_map]
+  refine Finset.sum_nbij (fun H => H.map (sym2Emb f)) ?_ ?_ ?_ ?_
+  · intro H hH
+    rw [Finset.mem_filter, Finset.mem_powerset] at hH ⊢
+    refine ⟨Finset.map_subset_map.mpr hH.1, ?_⟩
+    intro x hx y hy
+    obtain ⟨a, ha, rfl⟩ := Finset.mem_map.mp hx
+    obtain ⟨b, hb, rfl⟩ := Finset.mem_map.mp hy
+    exact (rch_map_iff f H a b).mpr (hH.2 a ha b hb)
+  · intro H _ K _ hHK
+    exact Finset.map_injective _ hHK
+  · intro K hK
+    simp only [Finset.coe_filter, Finset.mem_powerset, Set.mem_ofPred_eq] at hK
+    refine ⟨(edgesIn (G.comap f) S').filter (fun e => sym2Emb f e ∈ K), ?_, ?_⟩
+    · have hmap : ((edgesIn (G.comap f) S').filter (fun e => sym2Emb f e ∈ K)).map (sym2Emb f) = K := by
+        ext x
+        rw [Finset.mem_map]
+        constructor
+        · rintro ⟨e, he, rfl⟩
+          exact (Finset.mem_filter.mp he).2
+        · intro hx
+          obtain ⟨e, he, rfl⟩ := Finset.mem_map.mp (hK.1 hx)
+          exact ⟨e, Finset.mem_filter.mpr ⟨he, hx⟩, rfl⟩
+      simp only [Finset.coe_filter, Finset.mem_powerset, Set.mem_ofPred_eq]
+      refine ⟨Finset.filter_subset _ _, ?_⟩
+      intro a ha b hb
+      rw [← rch_map_iff f, hmap]
+      exact hK.2 _ (Finset.mem_map_of_mem _ ha) _ (Finset.mem_map_of_mem _ hb)
+    · ext x
+      rw [Finset.mem_map]
+      constructor
+      · rintro ⟨e, he, rfl⟩
+        exact (Finset.mem_filter.mp he).2
+      · intro hx
+        obtain ⟨e, he, rfl⟩ := Finset.mem_map.mp (hK.1 hx)
+        exact ⟨e, Finset.mem_filter.mpr ⟨he, hx⟩, rfl⟩
+  · intro H _
+    rw [Finset.card_map]
+
+end Comap
+
 end Balaban.Polymer
