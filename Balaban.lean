@@ -90,3 +90,14 @@ public import Balaban.Model.BlockStructure
 public import Balaban.Model.PartitionFunction
 public import Balaban.Model.Derivatives
 public import Balaban.Model.Analytic
+public import Balaban.Correlations.Clauses
+public import Balaban.Correlations.PolymerCount
+public import Balaban.Correlations.PolymerDiameter
+public import Balaban.Correlations.Series
+public import Balaban.Correlations.Identity
+public import Balaban.Correlations.Estimates
+public import Balaban.Correlations.Box
+public import Balaban.Correlations.Agreement
+public import Balaban.Correlations.Tail
+public import Balaban.Correlations.ThermoLimit
+public import Balaban.Correlations.Consequences
