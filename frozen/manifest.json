@@ -1,6 +1,443 @@
 {
-  "schema_version": 1,
-  "manifest_state": "AUTHOR_APPROVED",
-  "seal_limits": { "max_body_lines": 3, "max_body_bytes": 240 },
-  "anchors": []
+ "schema_version": 1,
+ "manifest_state": "AUTHOR_APPROVED",
+ "seal_limits": {
+  "max_body_lines": 3,
+  "max_body_bytes": 240
+ },
+ "anchors": [
+  {
+   "id": "def.Torus.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P1 p. 103; P9 p. 494"
+   },
+   "contract": {
+    "id": "Def-1.Torus",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/Torus.lean",
+   "export": "Balaban.Torus",
+   "split_policy": {
+    "source_group": "Def-1.Torus",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "cb513ba66db61e6128e2c2fde7f43cc9af702368d64a66a2476f96c686e0b951",
+   "definition_closure": [],
+   "state": "SEALED",
+   "full_file_sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+  },
+  {
+   "id": "def.aprioriMeasure.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P1 (1.5)-(1.6) p. 104"
+   },
+   "contract": {
+    "id": "Def-1.aprioriMeasure",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+   "export": "Balaban.aprioriMeasure",
+   "split_policy": {
+    "source_group": "Def-1.aprioriMeasure",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "8055ee04b44dc553c0bf9ae8fb26efd8c2e1e8a4932894d08cb5e30bb3466bce",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+  },
+  {
+   "id": "def.energy.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 (1.1) p. 493; P1 (1.2), (1.5)-(1.6) pp. 103-104"
+   },
+   "contract": {
+    "id": "Def-1.energy",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/Energy.lean",
+   "export": "Balaban.energy",
+   "split_policy": {
+    "source_group": "Def-1.energy",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "05c4876a72acb12a459f49897222c99b409d95bc520cc00f386c58e1382488d8",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+  },
+  {
+   "id": "def.partitionFunction.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 (1.1) p. 493; P1 p. 108"
+   },
+   "contract": {
+    "id": "Def-1.partitionFunction",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/PartitionFunction.lean",
+   "export": "Balaban.partitionFunction",
+   "split_policy": {
+    "source_group": "Def-1.partitionFunction",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "2aa3e2467a41caf77d031ae4738de8e27e44ebe14af7704a4638f4634aeca0d4",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "4648319116e15912b07f55b3393ac3de07bcf5db98836101ac34c041a0ccf626"
+  },
+  {
+   "id": "def.gibbsExpectation.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 p. 494"
+   },
+   "contract": {
+    "id": "Def-1.gibbsExpectation",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/GibbsExpectation.lean",
+   "export": "Balaban.gibbsExpectation",
+   "split_policy": {
+    "source_group": "Def-1.gibbsExpectation",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "d6c7110f76a97fa6cd47855b60586e3172822c61b551016fb090805156704956",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "d08f7626d786fa35644d5ef5fb83268e59f7180313a245e173a139bd406b2930"
+  },
+  {
+   "id": "def.onePoint.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 p. 494"
+   },
+   "contract": {
+    "id": "Def-1.onePoint",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/OnePoint.lean",
+   "export": "Balaban.onePoint",
+   "split_policy": {
+    "source_group": "Def-1.onePoint",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "6fd2e719f83302f0a85cd137531c610ee25e2a041b843db429c2b836754addf9",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    },
+    {
+     "path": "Balaban/Frozen/Model/GibbsExpectation.lean",
+     "sha256": "d08f7626d786fa35644d5ef5fb83268e59f7180313a245e173a139bd406b2930"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "782baf7117dffc222c9cd87f8bf27c90dcdb279696432898162494a216a7a47e"
+  },
+  {
+   "id": "def.twoPointTruncated.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 p. 494"
+   },
+   "contract": {
+    "id": "Def-1.twoPointTruncated",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Model/TwoPointTruncated.lean",
+   "export": "Balaban.twoPointTruncated",
+   "split_policy": {
+    "source_group": "Def-1.twoPointTruncated",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "33c77571e1793c8ce82dfe473f9784c731119ea5309e017bc0073cef5b64f3c6",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    },
+    {
+     "path": "Balaban/Frozen/Model/GibbsExpectation.lean",
+     "sha256": "d08f7626d786fa35644d5ef5fb83268e59f7180313a245e173a139bd406b2930"
+    },
+    {
+     "path": "Balaban/Frozen/Model/OnePoint.lean",
+     "sha256": "782baf7117dffc222c9cd87f8bf27c90dcdb279696432898162494a216a7a47e"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "ac9b2bd105da10abfab3533b77ce64f1d711c7430494640643bb53161e70a54d"
+  },
+  {
+   "id": "def.IsPolymer.v1",
+   "kind": "definition",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P1 (2.26)-(2.27) p. 117; ruling S0-Q03"
+   },
+   "contract": {
+    "id": "Def-2.IsPolymer",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Geometry/IsPolymer.lean",
+   "export": "Balaban.IsPolymer",
+   "split_policy": {
+    "source_group": "Def-2.IsPolymer",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "945ce71e03c56959dfdef30defa46e670db7dd01777f3280b689d12d3afc74cf",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    }
+   ],
+   "state": "SEALED",
+   "full_file_sha256": "906991e7c397b4b9e5cb87ff909d880a6e4b6ee9f2a10f406128d5ff5425a290"
+  },
+  {
+   "id": "thm.RootF.logPartition_multiscale.v1",
+   "kind": "theorem",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P7 (4.15)-(4.17) p. 533; P4 (H.4), (H.6)-(H.7) pp. 677-679; P9 (4.4)-(4.7) p. 516; rulings S0-Q02..Q06"
+   },
+   "contract": {
+    "id": "Root-F",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Roots/LogPartitionMultiscale.lean",
+   "export": "Balaban.logPartition_multiscale",
+   "split_policy": {
+    "source_group": "Root-F",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "c3e19f8e94b32ec4600de11df7ab01764c2d5947d01e30c16eafe20a36c6a53a",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    },
+    {
+     "path": "Balaban/Frozen/Model/PartitionFunction.lean",
+     "sha256": "4648319116e15912b07f55b3393ac3de07bcf5db98836101ac34c041a0ccf626"
+    },
+    {
+     "path": "Balaban/Frozen/Geometry/IsPolymer.lean",
+     "sha256": "906991e7c397b4b9e5cb87ff909d880a6e4b6ee9f2a10f406128d5ff5425a290"
+    }
+   ],
+   "state": "DRAFT_SORRY",
+   "implementation": {
+    "module": "Balaban.Provider.LogPartitionMultiscale",
+    "export": "Balaban.Provider.logPartition_multiscale"
+   },
+   "prefix_sha256": "041b0e4f4dbe4e882b03997d4f967a53a0c29d4eb80f4e2b46b2890b28d14652",
+   "suffix_sha256": "d66fce743871c4b86fa5ba2954d2bef2f1265e63b1a12671d6f03f71bfac750e",
+   "draft_allowlist": {
+    "frozen_paths": [],
+    "audit_paths": []
+   }
+  },
+  {
+   "id": "thm.RootC.lowTemperature_correlations.v1",
+   "kind": "theorem",
+   "author_approval": {
+    "approved_by": "Scott Armstrong",
+    "approved_at": "2026-10-11",
+    "approval_ref": "frozen/APPROVALS.md#surface-v1",
+    "approval_version": "v1.2"
+   },
+   "source": {
+    "revision": "notes/phase0/surface-v1-for-approval.md v1.2 sha256 a4a9f045310c56eb7b85df172abc80d7c37d02830be8414a34a99ec897a08f08 (git d66ce10)",
+    "range": "P9 Thm 1.1 pp. 494-495, (4.17)-(4.18) pp. 518-519; rulings S0-Q02, S0-Q07..Q09"
+   },
+   "contract": {
+    "id": "Root-C",
+    "version": "v1"
+   },
+   "path": "Balaban/Frozen/Roots/LowTemperatureCorrelations.lean",
+   "export": "Balaban.lowTemperature_correlations",
+   "split_policy": {
+    "source_group": "Root-C",
+    "mode": "NOT_SPLIT",
+    "ruling_ref": "frozen/APPROVALS.md#surface-v1"
+   },
+   "abi_sha256": "47232a214d6ea0296e86c69a64274978002faa1387eb949ba684ddaeb8164814",
+   "definition_closure": [
+    {
+     "path": "Balaban/Frozen/Model/Torus.lean",
+     "sha256": "09adfc2ab553d217e6427b778f8230d794533c9ef8eb9c90e297a69f03334555"
+    },
+    {
+     "path": "Balaban/Frozen/Model/AprioriMeasure.lean",
+     "sha256": "c1aa5b02285700c9efff45696d34f73451ef3f9682b8a6016ec26ff53d25c254"
+    },
+    {
+     "path": "Balaban/Frozen/Model/Energy.lean",
+     "sha256": "ef66251521d7c27f3ff6f7cf78022e3b91a0d0b285ef93d48471339602628872"
+    },
+    {
+     "path": "Balaban/Frozen/Model/GibbsExpectation.lean",
+     "sha256": "d08f7626d786fa35644d5ef5fb83268e59f7180313a245e173a139bd406b2930"
+    },
+    {
+     "path": "Balaban/Frozen/Model/OnePoint.lean",
+     "sha256": "782baf7117dffc222c9cd87f8bf27c90dcdb279696432898162494a216a7a47e"
+    },
+    {
+     "path": "Balaban/Frozen/Model/TwoPointTruncated.lean",
+     "sha256": "ac9b2bd105da10abfab3533b77ce64f1d711c7430494640643bb53161e70a54d"
+    }
+   ],
+   "state": "DRAFT_SORRY",
+   "implementation": {
+    "module": "Balaban.Provider.LowTemperatureCorrelations",
+    "export": "Balaban.Provider.lowTemperature_correlations"
+   },
+   "prefix_sha256": "da72b6e3f98b394ee723cbf7113b21919cbcb516a7184fcadea5b061b6d64ad2",
+   "suffix_sha256": "d66fce743871c4b86fa5ba2954d2bef2f1265e63b1a12671d6f03f71bfac750e",
+   "draft_allowlist": {
+    "frozen_paths": [],
+    "audit_paths": []
+   }
+  }
+ ]
 }

@@ -22,18 +22,31 @@ receive bounded briefs in `orchestration/briefs/`.
 
 ## Current phase
 
-**Phase 0 (roadmap §8): preparation.** Scaffold; draft, audit and present for approval the
-exact Lean declarations of Def-1 (model), Def-2 (geometry), Root-F (full RG flow, observable
-form) and Root-C (P9 Theorem 1.1, hard spins); errata ledger; questions to Roland.
-**Nothing is frozen yet.** Drafts live outside the repository (`/home/scott/Balaban-scratch/`)
-until the author approves the exact code.
+**Phase 0 (roadmap §8): complete on 2026-10-11.** Surface v1 approved by the author ("approve all
+defaults", `frozen/APPROVALS.md#surface-v1`) and frozen: eight definitions `SEALED` (Def-1 model,
+Def-2 `IsPolymer`) and two roots `DRAFT_SORRY`:
+- Root-F `Balaban.logPartition_multiscale` (`Balaban/Frozen/Roots/LogPartitionMultiscale.lean`);
+- Root-C `Balaban.lowTemperature_correlations` (`Balaban/Frozen/Roots/LowTemperatureCorrelations.lean`).
+Their providers `Balaban/Provider/*.lean` are quarantined: nothing but the frozen root may import a
+provider, and nothing may import a root, until the root is sealed.
+
+**Next: phase 1** — the source dependency graph from the frozen roots; Lean work packages W1–W6
+(roadmap §8); the large-field reconstruction document on paper (roadmap §4.5).
 
 ## Author rulings
 
-None yet. Roland's answers (2026-10-11, `review/ROLAND_ANSWERS.md`) fix the scope: large fields
-are essential; hard spins with general `d ≥ 3`, `N ≥ 2`; finite volume on tori with bounds
-uniform in the volume, infinite volume only in the final correlation theorem; our own proofs of
-the Green's function estimates are encouraged.
+- **surface-v1 (2026-10-11):** decisions S0-Q01 to S0-Q10 and m1–m4 of
+  `notes/phase0/surface-v1-for-approval.md` at their recommended defaults (`frozen/APPROVALS.md`).
+
+Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
+- (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
+  finite volume on tori with bounds uniform in the volume, infinite volume only in the final
+  correlation theorem; our own proofs of the Green's function estimates are encouraged.
+- (2026-10-11, batch 2) λ large is needed (hard spins satisfy it); **any large-field mechanism that
+  works is acceptable** (the bookkeeping of P5–P7, including the R operation, may be redefined);
+  the repair of P6 Thm 4 (threshold frozen at `p₂(β_{k₀})`) is agreed; the step counter must be
+  reconstructed; limits along tori suffice (no uniqueness); the forms of Root-F and Root-C are
+  accepted; no known errata. Open: whether P9's constants may depend on `β` (Root-C assumes not).
 
 ## Hard rules
 
