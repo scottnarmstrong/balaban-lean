@@ -30,15 +30,15 @@ section Decay
 variable {d L : ℕ} [NeZero L]
 
 /-- Crude exponential decay of the inverse of the fine operator (Combes--Thomas), with constants
-depending on `d, L, k` only. -/
-theorem fineGreen_decay (hd : 0 < d) (k : ℕ) :
-    ∃ c ρ : ℝ, 0 ≤ c ∧ 0 < ρ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a →
+depending on `d, L, k` and the mass cap `νm` only. -/
+theorem fineGreen_decay_le (hd : 0 < d) (k : ℕ) (νm : ℝ) (hνm : 0 ≤ νm) :
+    ∃ c ρ : ℝ, 0 ≤ c ∧ 0 < ρ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν a : ℝ}, 0 ≤ ν → ν ≤ νm → 1 / 2 ≤ a →
       a ≤ 2 → ∀ x y : Torus d (N₀ * L ^ k),
       |(fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ x y| ≤
         c * Real.exp (-ρ * torusDist d (N₀ * L ^ k) x y) := by
   have hN : 0 < L ^ k := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
   have hdr : (0 : ℝ) < d := by exact_mod_cast hd
-  set c₀ : ℝ := (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + 1 + 2) * Real.exp (d * ((L ^ k : ℕ) : ℝ) + 1)
+  set c₀ : ℝ := (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + νm + 2) * Real.exp (d * ((L ^ k : ℕ) : ℝ) + 1)
     with hc₀
   have hc₀0 : 0 ≤ c₀ := by positivity
   set γ₀ : ℝ := min (2 / (d : ℝ)) (1 / 2) with hγ₀
@@ -62,7 +62,7 @@ theorem fineGreen_decay (hd : 0 < d) (k : ℕ) :
     rw [e, dist_L1Torus]
     refine h.trans ?_
     rw [hc₀]
-    have : (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + ν + 2) ≤ (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + 1 + 2) := by
+    have : (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + ν + 2) ≤ (4 * d * ((L ^ k : ℕ) : ℝ) ^ 2 + νm + 2) := by
       linarith
     exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right this (by positivity)
       ) (by positivity)
@@ -79,13 +79,21 @@ theorem fineGreen_decay (hd : 0 < d) (k : ℕ) :
   rw [e2] at this
   exact this
 
+/-- `fineGreen_decay_le` for masses `ν ∈ [0, 1]`. -/
+theorem fineGreen_decay (hd : 0 < d) (k : ℕ) :
+    ∃ c ρ : ℝ, 0 ≤ c ∧ 0 < ρ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a →
+      a ≤ 2 → ∀ x y : Torus d (N₀ * L ^ k),
+      |(fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ x y| ≤
+        c * Real.exp (-ρ * torusDist d (N₀ * L ^ k) x y) :=
+  fineGreen_decay_le hd k 1 zero_le_one
+
 /-- Lipschitz dependence of the fine Green function on the mass, uniformly in the torus. -/
-theorem fineGreen_lipschitz (hd : 0 < d) (k : ℕ) :
-    ∃ Λ : ℝ, 0 ≤ Λ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν₁ ν₂ a : ℝ}, 0 ≤ ν₁ → ν₁ ≤ 1 → 0 ≤ ν₂ → ν₂ ≤ 1 →
+theorem fineGreen_lipschitz_le (hd : 0 < d) (k : ℕ) (νm : ℝ) (hνm : 0 ≤ νm) :
+    ∃ Λ : ℝ, 0 ≤ Λ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν₁ ν₂ a : ℝ}, 0 ≤ ν₁ → ν₁ ≤ νm → 0 ≤ ν₂ → ν₂ ≤ νm →
       1 / 2 ≤ a → a ≤ 2 → ∀ x y : Torus d (N₀ * L ^ k),
       |(fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν₁ a)⁻¹ x y -
           (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν₂ a)⁻¹ x y| ≤ Λ * |ν₁ - ν₂| := by
-  obtain ⟨c, ρ, hc, hρ, hdec⟩ := fineGreen_decay (L := L) hd k
+  obtain ⟨c, ρ, hc, hρ, hdec⟩ := fineGreen_decay_le (L := L) hd k νm hνm
   have hN : 0 < L ^ k := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
   refine ⟨c ^ 2 * ballConst d (ρ / 2), by
     have := ballConst_nonneg (d := d) (r := ρ / 2) (by positivity)
@@ -126,6 +134,14 @@ theorem fineGreen_lipschitz (hd : 0 < d) (k : ℕ) :
   calc |ν₁ - ν₂| * |∑ z, _| ≤ |ν₁ - ν₂| * (c ^ 2 * ballConst d (ρ / 2)) :=
         mul_le_mul_of_nonneg_left hsum (abs_nonneg _)
     _ = _ := by ring
+
+/-- `fineGreen_lipschitz_le` for masses in `[0, 1]`. -/
+theorem fineGreen_lipschitz (hd : 0 < d) (k : ℕ) :
+    ∃ Λ : ℝ, 0 ≤ Λ ∧ ∀ {N₀ : ℕ} [NeZero N₀] {ν₁ ν₂ a : ℝ}, 0 ≤ ν₁ → ν₁ ≤ 1 → 0 ≤ ν₂ → ν₂ ≤ 1 →
+      1 / 2 ≤ a → a ≤ 2 → ∀ x y : Torus d (N₀ * L ^ k),
+      |(fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν₁ a)⁻¹ x y -
+          (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν₂ a)⁻¹ x y| ≤ Λ * |ν₁ - ν₂| :=
+  fineGreen_lipschitz_le hd k 1 zero_le_one
 
 end Decay
 

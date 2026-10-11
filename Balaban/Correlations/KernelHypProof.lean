@@ -76,10 +76,10 @@ variable {d L : ℕ} [NeZero L]
 
 /-- **Uniform torus bound for the terms `j ≥ 1`**: `T_j = L^{-j(d-2)} K C_tr Kᵀ` with the pointwise
 kernel bound and the Combes--Thomas bound of `C_tr`. -/
-theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+theorem term_bound_succ_le (Λ : ℝ) (hΛ : 0 ≤ Λ) (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
     (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
     ∃ B s : ℝ, 0 ≤ B ∧ 0 < s ∧ ∀ {μ : ℝ}, 0 < μ → ∀ {j : ℕ}, 1 ≤ j →
-      μ * ((L : ℝ) ^ j) ^ 2 ≤ 1 → ∀ (m : ℕ) (x y : Fin d → ℤ),
+      μ * ((L : ℝ) ^ j) ^ 2 ≤ Λ → ∀ (m : ℕ) (x y : Fin d → ℤ),
       |termKernel d L (freeSeq d L a) μ (j + 1) j m x y| ≤
         B * ((L : ℝ) ^ (j * (d - 2)))⁻¹ *
           Real.exp (-(s / 2 / 2) * torusDist d (L * (m + 1))
@@ -89,7 +89,7 @@ theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
   have hd0 : 0 < d := by omega
   have hhalf := half_le_of_lo hL1 hlo
   have ha0 : 0 < a := by linarith
-  obtain ⟨K₀, hK₀, hK⟩ := oneScale_pointwise (d := d) (L := L) hd hL
+  obtain ⟨K₀, hK₀, hK⟩ := oneScale_pointwise_le (d := d) (L := L) hd hL Λ hΛ
   set r : ℝ := blockDecayRate d with hr
   set ρ : ℝ := trRate d L with hρ
   set γ : ℝ := trGamma d L with hγ
@@ -109,10 +109,10 @@ theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
   have hN : 0 < L ^ j := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
   rw [termKernel_eq_termDirect ha0 hμ,
     termDirect_freeSeq_unit (d := d) (L := L) (ℓ := L * (m + 1) * L ^ j) (ℓ₁ := L * (m + 1))
-      (m₂ := m + 1) (by omega) hL1 ha0 hμ hj (mul_comm _ _) rfl (by linarith) haJ1 hhalf]
+      (m₂ := m + 1) (by omega) hL1 ha0 hμ hj (mul_comm _ _) rfl haJ1 hhalf]
   set ν : ℝ := μ * ((L ^ j : ℕ) : ℝ) ^ 2 with hν
   have hν0 : 0 ≤ ν := by positivity
-  have hν1 : ν ≤ 1 := by simpa [hν, Nat.cast_pow] using hμ1
+  have hν1 : ν ≤ Λ := by simpa [hν, Nat.cast_pow] using hμ1
   set Kmat := fineToBlockKernel d (L * (m + 1) * L ^ j) (L ^ j) (L * (m + 1)) ν (aScale L a j)
     with hKmat
   set Cinv := (coarseOperator d (L * (m + 1) * L ^ j) (L ^ j) (L * (m + 1)) L (m + 1) ν
@@ -128,8 +128,8 @@ theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
   have hCb : ∀ u u' : Torus d (L * (m + 1)),
       |Cinv u u'| ≤ 2 * γ⁻¹ * Real.exp (-s * torusDist d (L * (m + 1)) u u') := by
     intro u u'
-    have h := coarseGreen_decay (L := L) (N₀ := L * (m + 1)) (M := m + 1) (k := j) hd0 hj rfl
-      hν0 (by linarith) haJ1 haJ2 hhalf (by linarith) u u'
+    have h := coarseGreen_decay_of_nonneg (L := L) (N₀ := L * (m + 1)) (M := m + 1) (k := j) hd0 hj rfl
+      hν0 haJ1 haJ2 hhalf (by linarith) u u'
     refine h.trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by positivity))
     have := torusDist_nonneg_gen (d := d) u u'
     nlinarith
@@ -179,6 +179,18 @@ theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
         Real.exp (-(s / 2 / 2) * torusDist d (L * (m + 1)) bX bY))) :=
         mul_le_mul_of_nonneg_left hsum (by positivity)
     _ = _ := by ring
+
+/-- `term_bound_succ_le` with the mass cap `1`. -/
+theorem term_bound_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+    (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
+    ∃ B s : ℝ, 0 ≤ B ∧ 0 < s ∧ ∀ {μ : ℝ}, 0 < μ → ∀ {j : ℕ}, 1 ≤ j →
+      μ * ((L : ℝ) ^ j) ^ 2 ≤ 1 → ∀ (m : ℕ) (x y : Fin d → ℤ),
+      |termKernel d L (freeSeq d L a) μ (j + 1) j m x y| ≤
+        B * ((L : ℝ) ^ (j * (d - 2)))⁻¹ *
+          Real.exp (-(s / 2 / 2) * torusDist d (L * (m + 1))
+            (blockMap (L ^ j) (L * (m + 1)) (castTorus (L * (m + 1) * L ^ j) x))
+            (blockMap (L ^ j) (L * (m + 1)) (castTorus (L * (m + 1) * L ^ j) y))) :=
+  term_bound_succ_le 1 zero_le_one hd hL hlo hhi
 
 end TermBound
 
@@ -251,14 +263,14 @@ section DecaySucc
 variable {d L : ℕ} [NeZero L]
 
 /-- **Sharp decay of `t_j^μ`, `j ≥ 1`.** -/
-theorem tLim_decay_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+theorem tLim_decay_succ_le (Λ : ℝ) (hΛ : 0 ≤ Λ) (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
     (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
     ∃ C δ : ℝ, 0 ≤ C ∧ 0 < δ ∧ ∀ {μ : ℝ}, 0 < μ → ∀ {j : ℕ}, 1 ≤ j →
-      μ * ((L : ℝ) ^ j) ^ 2 ≤ 1 → ∀ x y : Fin d → ℤ,
+      μ * ((L : ℝ) ^ j) ^ 2 ≤ Λ → ∀ x y : Fin d → ℤ,
       |tLim d L a μ j x y| ≤
         C * ((L : ℝ) ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ * ‖x - y‖ / (L : ℝ) ^ j)) := by
   have hL1 : 1 < L := by omega
-  obtain ⟨B, s, hB, hs, h⟩ := term_bound_succ hd hL hlo hhi
+  obtain ⟨B, s, hB, hs, h⟩ := term_bound_succ_le Λ hΛ hd hL hlo hhi
   have hδ : 0 < s / 2 / 2 := by positivity
   refine ⟨B * Real.exp (s / 2 / 2), s / 2 / 2, by positivity, hδ, ?_⟩
   intro μ hμ j hj hμ1 x y
@@ -291,24 +303,41 @@ theorem tLim_decay_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
         mul_le_mul_of_nonneg_left hexp (by positivity)
     _ = _ := by ring
 
+/-- `tLim_decay_succ_le` with the mass cap `1`. -/
+theorem tLim_decay_succ (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+    (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
+    ∃ C δ : ℝ, 0 ≤ C ∧ 0 < δ ∧ ∀ {μ : ℝ}, 0 < μ → ∀ {j : ℕ}, 1 ≤ j →
+      μ * ((L : ℝ) ^ j) ^ 2 ≤ 1 → ∀ x y : Fin d → ℤ,
+      |tLim d L a μ j x y| ≤
+        C * ((L : ℝ) ^ (j * (d - 2)))⁻¹ * Real.exp (-(δ * ‖x - y‖ / (L : ℝ) ^ j)) :=
+  tLim_decay_succ_le 1 zero_le_one hd hL hlo hhi
+
 end DecaySucc
 
 section DecayZero
 
 variable {d L : ℕ} [NeZero L]
 
-theorem gent_decay (hd : 0 < d) (k : ℕ) :
+theorem gent_decay_le (νm : ℝ) (hνm : 0 ≤ νm) (hd : 0 < d) (k : ℕ) :
     ∃ c ρ : ℝ, 0 ≤ c ∧ 0 < ρ ∧ ∀ {ℓ N M : ℕ} [NeZero ℓ] [NeZero M], N = L ^ k → ℓ = M * L ^ k →
-      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → ∀ x y : Fin d → ℤ,
+      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ νm → 1 / 2 ≤ a → a ≤ 2 → ∀ x y : Fin d → ℤ,
       (∀ i, 2 * (x i - y i).natAbs < ℓ) →
       |Gent d ℓ N M ν a x y| ≤ c * Real.exp (-ρ * l1IntDist d x y) := by
-  obtain ⟨c, ρ, hc, hρ, h⟩ := fineGreen_decay (L := L) hd k
+  obtain ⟨c, ρ, hc, hρ, h⟩ := fineGreen_decay_le (L := L) hd k νm hνm
   refine ⟨c, ρ, hc, hρ, ?_⟩
   intro ℓ N M _ _ hN hℓ ν a h1 h2 h3 h4 x y hxy
   subst hN hℓ
   unfold Gent
   rw [← torusDist_castTorus x y hxy]
   exact h h1 h2 h3 h4 _ _
+
+/-- `gent_decay_le` with the mass cap `1`. -/
+theorem gent_decay (hd : 0 < d) (k : ℕ) :
+    ∃ c ρ : ℝ, 0 ≤ c ∧ 0 < ρ ∧ ∀ {ℓ N M : ℕ} [NeZero ℓ] [NeZero M], N = L ^ k → ℓ = M * L ^ k →
+      ∀ {ν a : ℝ}, 0 ≤ ν → ν ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → ∀ x y : Fin d → ℤ,
+      (∀ i, 2 * (x i - y i).natAbs < ℓ) →
+      |Gent d ℓ N M ν a x y| ≤ c * Real.exp (-ρ * l1IntDist d x y) :=
+  gent_decay_le 1 zero_le_one hd k
 
 theorem norm_le_l1IntDist (x y : Fin d → ℤ) : ‖x - y‖ ≤ l1IntDist d x y := by
   have hnn : 0 ≤ l1IntDist d x y := Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _
@@ -321,14 +350,14 @@ theorem norm_le_l1IntDist (x y : Fin d → ℤ) : ‖x - y‖ ≤ l1IntDist d x 
     (fun _ _ => Nat.cast_nonneg _) (Finset.mem_univ i)
 
 /-- Decay of `t_0^μ` (crude constants suffice: `L` is fixed). -/
-theorem tLim_decay_zero (hd : 3 ≤ d) (hL : 1 < L) {a : ℝ}
+theorem tLim_decay_zero_le (Λ : ℝ) (hΛ : 0 ≤ Λ) (hd : 3 ≤ d) (hL : 1 < L) {a : ℝ}
     (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
-    ∃ C δ : ℝ, 0 ≤ C ∧ 0 < δ ∧ ∀ {μ : ℝ}, 0 < μ → μ * (L : ℝ) ^ 2 ≤ 1 → ∀ x y : Fin d → ℤ,
+    ∃ C δ : ℝ, 0 ≤ C ∧ 0 < δ ∧ ∀ {μ : ℝ}, 0 < μ → μ * (L : ℝ) ^ 2 ≤ Λ → ∀ x y : Fin d → ℤ,
       |tLim d L a μ 0 x y| ≤ C * Real.exp (-(δ * ‖x - y‖)) := by
   have hd0 : 0 < d := by omega
   have hhalf := half_le_of_lo hL hlo
   have ha0 : 0 < a := by linarith
-  obtain ⟨c, ρ, hc, hρ, h⟩ := gent_decay (L := L) hd0 1
+  obtain ⟨c, ρ, hc, hρ, h⟩ := gent_decay_le (L := L) Λ hΛ hd0 1
   refine ⟨(L : ℝ) ^ 2 * c, ρ, by positivity, hρ, ?_⟩
   intro μ hμ hμ1 x y
   have hLp : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
@@ -356,6 +385,13 @@ theorem tLim_decay_zero (hd : 3 ≤ d) (hL : 1 < L) {a : ℝ}
     _ ≤ (L : ℝ) ^ 2 * (c * Real.exp (-(ρ * ‖x - y‖))) :=
         mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left he hc) (by positivity)
     _ = _ := by ring
+
+/-- `tLim_decay_zero_le` with the mass cap `1`. -/
+theorem tLim_decay_zero (hd : 3 ≤ d) (hL : 1 < L) {a : ℝ}
+    (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
+    ∃ C δ : ℝ, 0 ≤ C ∧ 0 < δ ∧ ∀ {μ : ℝ}, 0 < μ → μ * (L : ℝ) ^ 2 ≤ 1 → ∀ x y : Fin d → ℤ,
+      |tLim d L a μ 0 x y| ≤ C * Real.exp (-(δ * ‖x - y‖)) :=
+  tLim_decay_zero_le 1 zero_le_one hd hL hlo hhi
 
 end DecayZero
 

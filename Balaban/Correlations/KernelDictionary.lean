@@ -375,7 +375,7 @@ theorem invScale_freeSeq_mul (hd : 2 ≤ d) (hL : 1 < L) {a : ℝ} (ha : 0 < a) 
 `C_tr = (Δ_tr + a L^{-2} Q^* Q)⁻¹` (`coarseOperator`) of the unit lattice at mass
 `ν_j = μ L^{2j}` and penalty `a_j`. -/
 theorem termDirect_freeSeq_unit (hd : 2 ≤ d) (hL : 1 < L) {a μ : ℝ} (ha : 0 < a) (hμ : 0 < μ)
-    {j : ℕ} (hj : 1 ≤ j) (hℓ : ℓ = L ^ j * ℓ₁) (hℓ₁ : ℓ₁ = L * m₂) (hν2 : μ * ((L : ℝ) ^ j) ^ 2 ≤ 2)
+    {j : ℕ} (hj : 1 ≤ j) (hℓ : ℓ = L ^ j * ℓ₁) (hℓ₁ : ℓ₁ = L * m₂)
     (haJ : 1 / 2 ≤ aScale L a j) (ha1 : 1 / 2 ≤ a) :
     termDirect d L j ℓ ℓ₁ m₂ (latticeLaplacian d ℓ μ) (freeSeq d L a) =
       (((L : ℝ) ^ (j * (d - 2)))⁻¹) •
@@ -416,9 +416,8 @@ theorem termDirect_freeSeq_unit (hd : 2 ≤ d) (hL : 1 < L) {a μ : ℝ} (ha : 0
     field_simp
   have hdet : IsUnit (Green.coarseOperator (e + 2) ℓ (L ^ j) ℓ₁ L m₂
       (μ * ((L ^ j : ℕ) : ℝ) ^ 2) (aScale L a j) a).det := by
-    refine Green.coarseOperator_det_isUnit (L := L) (M := m₂) hd0 hℓ hN hℓ₁ ?_ ?_ haJ ha1
-    · positivity
-    · simpa [Nat.cast_pow] using hν2
+    refine Green.coarseOperator_det_isUnit_of_nonneg (L := L) (M := m₂) hd0 hℓ hN hℓ₁ ?_ haJ ha1
+    positivity
   rw [hmid]
   have : Invertible ((L : ℝ) ^ (j * e)) := invertibleOfNonzero (by positivity)
   rw [Matrix.inv_smul (k := (L : ℝ) ^ (j * e)) (h := hdet), invOf_eq_inv]
