@@ -81,3 +81,5 @@ public import Balaban.Correlations.Clauses
 public import Balaban.Correlations.PolymerCount
 public import Balaban.Correlations.PolymerDiameter
 public import Balaban.Correlations.Series
+public import Balaban.Correlations.Identity
+public import Balaban.Correlations.Estimates
