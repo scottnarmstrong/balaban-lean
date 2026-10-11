@@ -610,6 +610,98 @@ theorem exists_fixed (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (h
       rw [toAlpha_ofAlpha, hf']
       rfl
 
+theorem small_two_mul {δα : G.Ω 1 → ℂ} {r : ℝ} (h : Small G δα r) : Small G (2 * δα) (2 * r) := by
+  intro x
+  have hp : 0 ≤ G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+  have := h x
+  calc G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖(2 * δα) x‖
+      = 2 * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖δα x‖) := by
+        simp only [Pi.mul_apply, Pi.ofNat_apply, norm_mul, Complex.norm_ofNat]; ring
+    _ ≤ 2 * r := by linarith
+
+/-- The constraint is equivalent to `u = 0`. -/
+theorem constraint_iff_u (φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (δφ : G.Ω 1 × Fin N → ℂ)
+    (x : G.Ω 1) :
+    (∑ i, (φ₀ x i + δφ (x, i)) * (φ₀ x i + δφ (x, i)) = 1) ↔
+      2 * ∑ i, φ₀ x i * δφ (x, i) + ∑ i, δφ (x, i) * δφ (x, i) + gdef G φ₀ x = 0 := by
+  have e : ∑ i, (φ₀ x i + δφ (x, i)) * (φ₀ x i + δφ (x, i)) =
+      ∑ i, φ₀ x i * φ₀ x i + 2 * ∑ i, φ₀ x i * δφ (x, i) + ∑ i, δφ (x, i) * δφ (x, i) := by
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun i _ => by ring
+  rw [e]
+  have : gdef G φ₀ x = ∑ i, φ₀ x i * φ₀ x i - 1 := rfl
+  rw [this]
+  constructor <;> intro h <;> linear_combination h
+
+theorem isPerturbed_dphi_iff (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {δα : G.Ω 1 → ℂ} {ρ : ℝ}
+    (hs : Small G δα ρ) (hr : δ₀ + ρ ≤ gamma1 d) (δφ : G.Ω 1 × Fin N → ℂ) :
+    (liftOp N (dirichletOperator G a ν α₀) *ᵥ δφ + (fun p => δα p.1 * δφ p) =
+      fun p => Fs p - δα p.1 * φ₀ p.1 p.2) ↔ δφ = dphi G a ν α₀ φ₀ Fs δα := by
+  have hU := H.green.isUnit (H.poly hs hr)
+  have key : (liftOp N (dirichletOperator G a ν α₀) *ᵥ δφ + (fun p => δα p.1 * δφ p) =
+      fun p => Fs p - δα p.1 * φ₀ p.1 p.2) ↔
+      liftOp N (dirichletOperator G a ν (α₀ + δα)) *ᵥ δφ = Fsrc φ₀ Fs δα := by
+    have : liftOp N (dirichletOperator G a ν (α₀ + δα)) *ᵥ δφ =
+        liftOp N (dirichletOperator G a ν α₀) *ᵥ δφ + (fun p => δα p.1 * δφ p) := by
+      funext p; rw [liftOp_dirichlet_add]; rfl
+    rw [this]; rfl
+  rw [key]
+  constructor
+  · intro h
+    rw [dphi, ← h, liftOp_inv_mulVec hU]
+  · intro h
+    rw [h]; exact dphi_eq H hs hr
+
+/-- **Proposition 5.1 (core)**.  Under the numerical conditions of `CoreHyp`, the perturbed
+system (P-1), (P-2) has a solution with `|δα|₂ ≤ 2 sb`, `SupBounds` of `δφ`, and it is the only one
+with `|δα|₂ ≤ ρ`. -/
+theorem prop51_core (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC : CoreHyp G N δ₀ Fb Gb ρ) :
+    ∃ (δφ : G.Ω 1 × Fin N → ℂ) (δα : G.Ω 1 → ℂ),
+      IsPerturbed G a ν α₀ φ₀ Fs δφ δα ∧
+      Small G δα (2 * selfBound d L N δ₀ Fb Gb) ∧
+      SupBounds G δφ (greenSupConst d L * (Fb + 3 / 2 * (2 * selfBound d L N δ₀ Fb Gb))) ∧
+      ∀ (δφ' : G.Ω 1 × Fin N → ℂ) (δα' : G.Ω 1 → ℂ), IsPerturbed G a ν α₀ φ₀ Fs δφ' δα' →
+        Small G δα' ρ → δφ' = δφ ∧ δα' = δα := by
+  obtain ⟨δα, hsmall, hfix, hsb, huniq⟩ := exists_fixed H hC
+  have hρ := hC.ρ_nn
+  have hsb0 := selfBound_nonneg (d := d) (L := L) (N := N) H.δ₀_nn H.Fb_nn H.Gb_nn
+  have hr : δ₀ + ρ ≤ gamma1 d := by linarith [hC.poly]
+  have hr2 : δ₀ + 2 * selfBound d L N δ₀ Fb Gb ≤ gamma1 d := by linarith [hC.poly, hC.self]
+  have hU2 := H.green.isUnit (H.poly (small_two_mul hsmall) (by linarith [hC.poly]))
+  have hP1 := (isPerturbed_dphi_iff H hsmall hr (dphi G a ν α₀ φ₀ Fs δα)).2 rfl
+  have hu : ∀ x : G.Ω 1, 2 * ∑ i, φ₀ x i * dphi G a ν α₀ φ₀ Fs δα (x, i) +
+      ∑ i, dphi G a ν α₀ φ₀ Fs δα (x, i) * dphi G a ν α₀ φ₀ Fs δα (x, i) + gdef G φ₀ x = 0 := by
+    have hz : (dirichletOperator G a ν (α₀ + 2 * δα) *ᵥ fun y => 2 * ∑ i, φ₀ y i *
+        dphi G a ν α₀ φ₀ Fs δα (y, i) + ∑ i, dphi G a ν α₀ φ₀ Fs δα (y, i) *
+        dphi G a ν α₀ φ₀ Fs δα (y, i) + gdef G φ₀ y) = 0 := by
+      funext x
+      rw [identity52 a ν α₀ δα φ₀ Fs _ hP1 x, congrFun hfix x]
+      simp
+    exact fun x => congrFun (Matrix.eq_zero_of_mulVec_eq_zero
+      ((Matrix.isUnit_iff_isUnit_det _).1 hU2).ne_zero hz) x
+  refine ⟨dphi G a ν α₀ φ₀ Fs δα, δα, ⟨hP1, fun x => (constraint_iff_u φ₀ _ x).2 (hu x)⟩, hsb, ?_, ?_⟩
+  · exact dphi_sup H hsb (by positivity) hr2
+  · intro δφ' δα' hP hs'
+    obtain ⟨hP1', hP2'⟩ := hP
+    have hdφ := (isPerturbed_dphi_iff H hs' hr δφ').1 hP1'
+    have hu' := fun x => (constraint_iff_u φ₀ δφ' x).1 (hP2' x)
+    have hz : (dirichletOperator G a ν (α₀ + 2 * δα') *ᵥ fun y => 2 * ∑ i, φ₀ y i * δφ' (y, i) +
+        ∑ i, δφ' (y, i) * δφ' (y, i) + gdef G φ₀ y) = 0 := by
+      funext x
+      have hu0 : (fun y : G.Ω 1 => 2 * ∑ i, φ₀ y i * δφ' (y, i) + ∑ i, δφ' (y, i) * δφ' (y, i) +
+        gdef G φ₀ y) = 0 := funext hu'
+      rw [hu0]; simp
+    have hfix' : Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα') = δα' := by
+      funext x
+      have := identity52 a ν α₀ δα' φ₀ Fs δφ' hP1' x
+      rw [congrFun hz x] at this
+      rw [← hdφ]
+      have h2 : (2 : ℂ) * (Nmap G a ν α₀ φ₀ Fs δφ' x - δα' x) = 0 := by simpa using this.symm
+      have := (mul_eq_zero.1 h2).resolve_left (by norm_num)
+      exact sub_eq_zero.1 this
+    have := huniq δα' hs' hfix'
+    exact ⟨by rw [hdφ, this], this⟩
+
 end Core
 
 end Balaban.Background
