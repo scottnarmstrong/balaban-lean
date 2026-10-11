@@ -47,13 +47,11 @@ D1–D3 are Dimock's exposition of Balaban's method. Reviews:
 | E8 | — NOT YET OBTAINED — | T. Balaban, "Convergent renormalization expansions for lattice gauge theories", Commun. Math. Phys. 119 (1988) 243–285 | 10.1007/BF01217741 | 43 | P5 [5b], P6 [6b] |
 | E9 | — NOT YET OBTAINED — | T. Balaban, "Large field renormalization. I. The basic step of the R operation", Commun. Math. Phys. 122 (1989) 175–202 | 10.1007/BF01257412 | 28 | P5 [5c], P6 [6c] |
 | E10 | — NOT YET OBTAINED — | T. Balaban, "Large field renormalization. II. Localization, exponentiation, and bounds for the R operation", Commun. Math. Phys. 122 (1989) 355–392 | 10.1007/BF01238433 | 38 | P5 [5d], P6 [6d] (P6 Prop. 3.2) |
+| E11 | `les_houches_84.pdf` | D. Brydges, "A short course on cluster expansions", in *Critical Phenomena, Random Systems, Gauge Theories* (Les Houches 1984), Elsevier 1986 | (book chapter, no DOI) | 55 | P5 [6], P6 [7], P7 |
 | D1 | `Dimock-I-arXiv-1108.1335.pdf` | J. Dimock, "The renormalization group according to Balaban I. Small fields", Rev. Math. Phys. 25 (2013) 1330010; arXiv:1108.1335 | 10.1142/S0129055X13300100 | 52 | — |
 | D2 | `Dimock-II-arXiv-1212.5562.pdf` | J. Dimock, "The renormalization group according to Balaban II. Large fields", J. Math. Phys. 54 (2013); arXiv:1212.5562 | 10.1063/1.4821275 | 94 | — |
 | D3 | `Dimock-III-arXiv-1304.0705.pdf` | J. Dimock, "The renormalization group according to Balaban III. Convergence", Ann. Henri Poincaré 15 (2014) 2133–2175; arXiv:1304.0705 | 10.1007/s00023-013-0303-3 | 37 | — |
 
-Not obtained, no DOI: D. Brydges, "A short course on cluster expansions", in
-*Critical Phenomena, Random Systems, Gauge Theories* (Les Houches 1984),
-Elsevier 1986 (cited by P5 [6], P6 [7]).
 
-Notes: E1–E7 are scans (unreliable OCR; read page images). D1–D3 are arXiv
+Notes: E1–E7 and E11 are scans (unreliable OCR; read page images). D1–D3 are arXiv
 typeset PDFs with good text layers.
