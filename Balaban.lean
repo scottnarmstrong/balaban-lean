@@ -74,6 +74,7 @@ public import Balaban.Background.Composition
 public import Balaban.Background.CompositionSystem
 public import Balaban.Background.CompositionEstimates
 public import Balaban.Background.CompositionDomain
+public import Balaban.Background.ScaledComposition
 public import Balaban.Background.LinearResponse
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction

@@ -26,6 +26,7 @@ variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
 
 /-! ### The weights: `a_p / a_n · L^{2(n-p)} ∈ [0, 1]` -/
 
+omit [NeZero L] in
 theorem compWeight_antitone (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {n p : ℕ} (hn : 1 ≤ n)
     (hnp : n ≤ p) : compWeight L a₁ p ≤ compWeight L a₁ n := by
   have h2 : (2 : ℝ) ≤ L := by exact_mod_cast hL
@@ -47,6 +48,7 @@ theorem compWeight_antitone (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {n p : �
     linarith
   exact div_le_div_of_nonneg_left hnum hDn (by linarith)
 
+omit [NeZero L] in
 theorem compWeight_ratio (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {n p : ℕ} (hn : 1 ≤ n)
     (hnp : n ≤ p) :
     0 ≤ compWeight L a₁ p / compWeight L a₁ n ∧ compWeight L a₁ p / compWeight L a₁ n ≤ 1 := by
@@ -54,6 +56,7 @@ theorem compWeight_ratio (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {n p : ℕ}
   have h2 := compWeight_pos hL ha (hn.trans hnp)
   exact ⟨div_nonneg h2.le h1.le, (div_le_one h1).2 (compWeight_antitone hL ha hn hnp)⟩
 
+omit [NeZero L] in
 /-- **The weights of (6.2)**: `a_p / a_n · L^{2(n-p)} ∈ [0, 1]` for `1 ≤ n ≤ p` (this was left open
 by the composition identities, which hold for any weights `a_n ≠ 0`). -/
 theorem compWeight_kappa_mem (hL : 2 ≤ L) {a₁ : ℝ} (ha : 0 < a₁) {n p : ℕ} (hn : 1 ≤ n)
@@ -847,6 +850,9 @@ theorem c3b_numeric {d η δ ε : ℝ} (hd0 : 0 ≤ d) (hη : 0 < η) (hδ : 0 <
   nlinarith [sq_nonneg η, mul_nonneg hd0 (sq_nonneg η), mul_nonneg hd0 hd0,
     mul_nonneg (mul_nonneg hd0 hd0) (sq_nonneg η)]
 
+theorem psiR_im_zero {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} :
+    ∀ x ∈ dataSites G', ∀ i, (psiR Ψ0 x i).im = 0 := fun x _ i => by simp [psiR]
+
 namespace Hyp63
 
 variable {a₁ ν δ ε K₁ η : ℝ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
@@ -881,20 +887,18 @@ theorem psiC_const : IsLayerConstant G' (psiC Ψ0 Ψ'') := by
 
 theorem hr : CompHyp G G' (compWeight L a₁) 1 η (psiR Ψ0) φr :=
   { prec := H.prec, θ_pos := one_pos, η_nn := H.ηpos.le, gap := scaleGap_one H.prec
-    ratio := fun x hx => compWeight_ratio H.hL H.ha₁ (G.layerIndex_spec hx).1
+    ratio := fun _ hx => compWeight_ratio H.hL H.ha₁ (G.layerIndex_spec hx).1
       (H.prec.layerIndex_le hx)
     layerConst := H.psiR_const, bounds := H.hbr }
 
 theorem hc : CompHyp G G' (compWeight L a₁) 1 η (psiC Ψ0 Ψ'') φc :=
   { prec := H.prec, θ_pos := one_pos, η_nn := H.ηpos.le, gap := scaleGap_one H.prec
-    ratio := fun x hx => compWeight_ratio H.hL H.ha₁ (G.layerIndex_spec hx).1
+    ratio := fun _ hx => compWeight_ratio H.hL H.ha₁ (G.layerIndex_spec hx).1
       (H.prec.layerIndex_le hx)
     layerConst := H.psiC_const, bounds := H.hbc }
 
-theorem psiR_re : ∀ x ∈ dataSites G', ∀ i, (psiR Ψ0 x i).im = 0 := fun x _ i => by simp [psiR]
-
 theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealVec (crv G G' a₁ φr Ψ0 x) :=
-  compVec_isReal H.prec _ φr (psiR Ψ0) H.hφr H.psiR_re x
+  compVec_isReal H.prec _ φr (psiR Ψ0) H.hφr psiR_im_zero x
 
 theorem core : InPsiTilde G ν (compC4 d * η) (reR G G' a₁ φr Ψ0) h0 := by
   have hP := H.hPC.toInPsiTilde
@@ -1125,7 +1129,7 @@ theorem rn_lower {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
   have hsq : (2 * d * (1 * η)) ^ 2 ≤ 2 * d * η := by
     nlinarith [mul_le_mul_of_nonneg_left h2dη h2dη0]
   have hbr2 : |rn (reR G G' a₁ φr Ψ0 x) ^ 2 - 1| ≤ (2 * d + 3) * η := by
-    refine (H.hr.re_r2 H.hφr H.psiR_re hx).trans ?_
+    refine (H.hr.re_r2 H.hφr psiR_im_zero hx).trans ?_
     nlinarith
   have hr2 : 1 / 2 ≤ rn (reR G G' a₁ φr Ψ0 x) ^ 2 := by
     have := (abs_le.1 hbr2).1
@@ -1268,6 +1272,48 @@ theorem lemma63 {a₁ ν δ ε K₁ η : ℝ} {Ψ0 : Torus d (N₀ * L ^ k) → 
     InPsiTildeC G ν (2 * (compC4 d * η)) (max ε (2 * (compC4 d * η)))
       (reR G G' a₁ φr Ψ0) h0 (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') :=
   H.inPsiTildeC
+
+/-- `composeField` only sees the values of the datum on `Ω'₁ ∪ C(Ω'₁)`. -/
+theorem composeField_congr_data (h : Precedes G G') (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ)
+    {Ψ1 Ψ2 : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (hΨ : ∀ x ∈ dataSites G', ∀ i, Ψ1 x i = Ψ2 x i) (x : Torus d (N₀ * L ^ k)) (i : Fin N) :
+    composeField G G' a φ' Ψ1 x i = composeField G G' a φ' Ψ2 x i := by
+  by_cases hx : x ∈ G.Ω 1
+  · rw [composeField_of_mem a φ' Ψ1 hx, composeField_of_mem a φ' Ψ2 hx,
+      hΨ x ((mem_dataSites G').2 (Or.inl (h.mem_Ω1 hx))) i]
+  · by_cases hc : x ∈ collar G
+    · rw [composeField_of_collar a φ' Ψ1 hc, composeField_of_collar a φ' Ψ2 hc]
+      by_cases hx' : x ∈ G'.Ω 1
+      · simp [barField, hx']
+      · simp only [barField, hx', ↓reduceDIte]
+        exact hΨ x ((mem_dataSites G').2 (Or.inr (mem_collar_of_not_mem h hc hx'))) i
+    · have : x ∉ dataSites G := fun h' => by
+        rcases (mem_dataSites G).1 h' with h' | h'
+        · exact hx h'
+        · exact hc h'
+      rw [composeField_of_not_mem a φ' Ψ1 this, composeField_of_not_mem a φ' Ψ2 this]
+
+/-- **Lemma 6.3 for `BgData`**: for complex data `Dc` of `𝔹'_k` (equal to `Ψ0 + Ψ''`, `h0 + h''`),
+the composed datum `composeData` (formula (6.2) with the complex field `φc`) lies in the complex
+domain `Ψ̃^c(𝔹_j; δ', ε')` of `𝔹_j`. -/
+theorem lemma63_inDomainC {a₁ ν δ ε K₁ η : ℝ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ}
+    {h0 : Fin N → ℝ} {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {φr φc : G'.Ω 1 × Fin N → ℂ} (H : Hyp63 G G' a₁ ν δ ε K₁ η Ψ0 h0 Ψ'' h'' φr φc)
+    (Dc : BgData G' N) (hDΨ : ∀ x ∈ dataSites G', ∀ i, Dc.Ψ x i = psiC Ψ0 Ψ'' x i)
+    (hDh : ∀ x ∈ G'.Ω 1, ∀ i, Dc.h x i = (h0 i : ℂ) + h'' x i) :
+    InDomainC G ν (2 * (compC4 d * η)) (max ε (2 * (compC4 d * η)))
+      (composeData H.prec (compWeight L a₁) φc Dc) := by
+  refine ⟨reR G G' a₁ φr Ψ0, h0, dPsi G G' a₁ φr φc Ψ0 Ψ'', hRes G h'', H.inPsiTildeC, ?_, ?_⟩
+  · intro x _ i
+    have hcastr : crv G G' a₁ φr Ψ0 x i = ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) :=
+      congrFun (H.real_crv x).eq_ofReal i
+    show composeField G G' (compWeight L a₁) φc Dc.Ψ x i = _
+    rw [composeField_congr_data H.prec (compWeight L a₁) φc hDΨ x i, ← hcastr]
+    simp [dPsi, ccv, compVec]
+  · intro x hx i
+    show (if x ∈ G.Ω 1 then Dc.h x i else 0 : ℂ) = _
+    simp only [hx, ↓reduceIte]
+    rw [hDh x (H.prec.mem_Ω1 hx) i, hRes_of_mem h'' hx]
 
 end Lemma63
 
