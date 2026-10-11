@@ -1,0 +1,27 @@
+# Orchestrator quality-check log (Phase 1)
+
+Each per-paper review was checked for template completeness, and two or three
+statements were compared against the PDF page images by the orchestrator.
+
+| Key | Words | Template | Spot-checks against PDF | Notes |
+|---|---|---|---|---|
+| P0 | 4309 | complete | Thm 5 and RG equations (29), p. 214: exact match (incl. "independent of k, κ" as printed) | Venue unconfirmed from page images. |
+| P8 | 2949 | complete | Model confirmed from text: 2d continuum massive Gross–Neveu (fermionic), not O(N) | P8 is a method paper only; its analytic input is Gawedzki–Kupiainen CMP 102 (1985). |
+| P2 | 5257 | complete | Prop. 1.1 and (1.15)–(1.16), p. 611: exact match. Bibliography p. 642 read. | Reviewer's reference identification CONFIRMED from p. 642: [2(a)] = Balaban, CMP 89, 571 (1983) ("Regularity and decay of lattice Green's functions"); [2(b)] = Balaban, CMP 96, 223 (1984) ("Propagators and renormalization transformations for lattice gauge theories II"). |
+| P4 | 6015 | complete (formulas partly plain text, not LaTeX) | Thm 2 and flow (1.9)–(1.10), p. 681: exact match. Bibliography pp. 720–721 read. | Bibliography [3] is printed as "Balaban, T.: Commun. Math. Phys. 85, 603 (1982)" (from memory possibly "(Higgs)_{2,3} quantum fields in a finite volume I", unverified), yet the text uses "Sect. 4/5 of [3]" for localization/analyticity material that looks like P3 (P3 received 17 Jul 1995, P4 received 25 Jul 1995). Synthesis agent: decide whether [3] is a misprint for P3 or a genuine citation. P4 Sect. 6 (p. 720) also sketches the final step k_1 and the passage to the thermodynamic limit and ν→0 for the generating functional. |
+| P3 | 5968 | complete | Prop. 2.1 and (2.53)–(2.57), p. 56: exact match. | P3 has propositions only, no theorems. Its random-walk and Green's-function inputs come from [2a] CMP 89, 571 and [2b] CMP 96, 223 (same pair as P2; reviewer prints the year of [2b] as 1982, P2's bibliography prints 1984). |
+| P1 | 6095 | complete (formulas partly plain text) | Thm 2.2 (Main Theorem), p. 120, and χ_k definition (2.30): exact match. | NUMBERING WARNING: P1 has inductive hypotheses (H.1)–(H.9); P0 and P4 restate them as (H.1)–(H.7) with different numbering (e.g. renormalization conditions are (H.6)–(H.7) in P1 but (H.5) in P0/P4; P3's abstract cites "(H.5) in [1]"). Synthesis agent: build a concordance table of the hypothesis numbering across P0, P1, P4, P5. |
+| P7 | 5996 | complete | Thms 2 and 5, p. 497: exact match. | P7 Thm 2 is printed as "a reformulation of Theorem 2 [5]" (= P5 Thm 2) with index k+1 → k. P7 Thm 5 is the statement that the whole RG flow satisfies all inductive hypotheses (combining Thm 1 of P5/P6, Thm 2 of P5/P7, Thm 4 of P6) — the candidate "RG flow exists" headline. The reviewer's "Lemma 3.1 (p. 525)" is real (journal pp. 493–534). |
+| P9 | 5682 | complete | Thm 1.1 (a), (b), pp. 494–495: match (checked against text layer). | The reviewer's "missing minus sign in exponent d−2+ρ0" is probably a misreading: the theorem prints the bound as c/(1+|x−y|)^{d−2+ρ0}, which is correct as written; check the abstract separately. "|G_tr(x−y) − |" in part (a) is a genuine typesetting defect. Δ^{-1} prints as "1−1" in the text layer. |
+| P6 | 9128 | complete | Bibliography checked against text layer. Prop. 3.2 statement plausible (cited from [6d]). | CONFIRMED printing error: P6's bibliography entry [5] has P5's title but P4's journal data ("182, 675–721 (1997)"). P6's [6] = Balaban, CMP a) 89, 571–597 (1983); b) 119, 243–285 (1988); c) 122, 175–202 (1989); d) 122, 355–392 (1989) — the gauge-theory RG papers; Prop. 3.2 (step-counting function K for large-field regions) is cited from [6d] pp. 383–387, i.e. OUTSIDE the bundle. [7] = Brydges, "A short course on cluster expansions", Les Houches 1984. P6 forward-references P7 (possible circularity to check). |
+| P5 | 8426 | complete | Thms 1–4, pp. 499–500: exact match with the text layer (Thm 1 "≥" weakening of (1.32) is printed as "the inequality '≥' in (1.32)", the "≥" is present in the text layer). | P5's bibliography: [1]=P1, [2]=P2, [3]=P3, [4]=P4, [5] = Balaban gauge-theory papers CMP 89 (1983), 119 (1988), 122:175 (1989), 122:355 (1989); [6] = Brydges cluster-expansion course. P5 Thm 4 (k ≥ k0 regime: fewer than log β_{k0} further steps, weaker bounds) and Thm 3 (one full step R∘S∘T for k < k0) together with P7 Thm 5 give the whole flow. "Theorems 1, 4 in the first two papers, Theorem 2 in the third" (p. 501): synthesis agent to resolve (likely P5+P6 for Thms 1, 4 and P7 for Thm 2). |
+
+## External sources identified so far (not in the bundle)
+
+- Balaban, CMP 89, 571–597 (1983) — regularity and decay of lattice Green's functions (cited by P2, P3, P5, P6).
+- Balaban, CMP 96, 223 (1984) — Propagators and renormalization transformations for lattice gauge theories II (cited by P2, P3).
+- Balaban, CMP 119, 243–285 (1988); CMP 122, 175–202 (1989); CMP 122, 355–392 (1989) — gauge-theory RG / large-field papers (cited by P5, P6; P6 Prop. 3.2 depends on CMP 122:355).
+- Balaban, CMP 85, 603 (1982) — cited as [3] by P4 (possibly a misprint for P3).
+- Brydges, "A short course on cluster expansions", Les Houches 1984 (Elsevier 1986) — cited by P5, P6.
+- Gawedzki–Kupiainen, CMP 102 (1985) — Gross–Neveu RG, used only by P8.
+- Brydges–Dimock–Hurd, "Weak perturbations of Gaussian measures" (preprint) — cited by P4.
