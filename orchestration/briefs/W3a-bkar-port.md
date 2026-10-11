@@ -36,6 +36,8 @@ repairing); zero warnings (the original has one `set_option linter...` silence i
 **Stop condition.** The facade builds with the flagship theorem, or a precise obstruction (a lemma
 that no longer exists and has no replacement), reported with file and line.
 
+**Do not launch subagents (no Agent tool); work directly.**
+
 **Hard rules** (from `AGENTS.md`): every `.lean` file is a module; no `axiom`, no `sorry`/`admit`,
 no heartbeat overrides, zero warnings; frozen files are read-only and are not imported by this
 package; no file over 10,000 lines; do not bypass the compile throttle; commit on your branch

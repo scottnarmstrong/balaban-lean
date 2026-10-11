@@ -52,6 +52,8 @@ the main theorems shows only `propext`, `Classical.choice`, `Quot.sound`;
 stop and report after about 3,000 lines or if a target needs a change of conventions affecting
 other packages.
 
+**Do not launch subagents (no Agent tool); work directly.**
+
 **Hard rules** (from `AGENTS.md`, verbatim in substance): every `.lean` file is a module (`module`
 header, `public import` for the interface, `@[expose]` where bodies must unfold); no `axiom`, no
 `sorry`/`admit`, no heartbeat overrides, no placeholder definitions, zero warnings; frozen files
