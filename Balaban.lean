@@ -70,6 +70,9 @@ public import Balaban.Background.Data
 public import Balaban.Background.Calculus
 public import Balaban.Background.Contraction
 public import Balaban.Background.ContractionAnalytic
+public import Balaban.Background.Composition
+public import Balaban.Background.CompositionSystem
+public import Balaban.Background.LinearResponse
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
