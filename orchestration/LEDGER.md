@@ -127,3 +127,7 @@
 | 2026-10-11 | astra Part II audit | running | tmux `astra-lfr2`: Part I v1.1 fixes + Part II |
 | 2026-10-11 | D-LFR Part III | running | Opus; R on covered windows, Lemma CH in full, Lemma 2.5, cancellation, LF-4, LF-4R |
 | 2026-10-11 | W37 LF geometry (block A) | running | Sonnet; LF-RECONSTRUCTION §I.2 + Lemma S on the torus (A1–A10, A12) |
+| 2026-10-11 | W33 background wrap-up | landed (partial) | `theorem72_linearResponse` (Prop 5.4 for bgFieldC; new smallness bgC2 ≤ bgC1), `bgFieldC_eq_of_le` (c₀-independence), `bgFieldC_increment_holder` (Hölder for φ − φ₀ only). **I-1(e) open**: needs mixed second differences of approxField (Lemma 5.3 extension); BACKGROUND §5.2 claim 'from prop49 alone' incomplete → W33b |
+| 2026-10-11 | W33b mixed differences | running | Sonnet; all second differences of approxField, Hölder reduction, I-1(e) for bgFieldC |
+| 2026-10-11 | W35 Theorem 7.3 | landed | **I-2 proved** for the defined fields: `theorem73_real`/`theorem73_complex` (composed datum in the domain, bgField of it = restriction, P2 (4.39)), `theorem73_system` (𝒮 unique in |α|′₂ < c₀/2), `theorem73_perturb` (Prop 6.4); domain constant thm73C1 = bgC1/(2C₄K₁) (≈700 lines). Open: admissibility of compWeight weights as a lemma |
+| 2026-10-11 | W38 localization GM | running | Sonnet; D(P), Y[𝒞], GM1, GM2 (tree length), instantiation of GM1/GM3 on the cover; compWeight admissibility |

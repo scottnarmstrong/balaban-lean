@@ -102,7 +102,10 @@ public import Balaban.Background.MinimizerAlg
 public import Balaban.Background.MinimizerExpansion
 public import Balaban.Background.Minimizer
 public import Balaban.Background.Def5
+public import Balaban.Background.Def5Response
+public import Balaban.Background.Holder
 public import Balaban.Background.Perturb
+public import Balaban.Background.Theorem73
 public import Balaban.Background.SingleScale
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
