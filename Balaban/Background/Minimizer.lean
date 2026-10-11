@@ -276,4 +276,48 @@ theorem eq_of_isMinimizer {c₀ : ℝ} (hc₀ : c₀ ≤ 1 / 16) (hν : 0 ≤ ν
 
 end Positivity
 
+section Conjugation
+
+local notation "cj" => starRingEnd ℂ
+
+theorem H0_conj (u : G.Ω 1 × Fin N → ℂ) (p : G.Ω 1 × Fin N) :
+    cj ((liftOp N (dirichletOperator G a ν 0) *ᵥ u) p) =
+      (liftOp N (dirichletOperator G a ν 0) *ᵥ fun q => cj (u q)) p := by
+  rw [H0_apply, H0_apply]
+  have hz : ∀ (i : Fin N) (y : Torus d (N₀ * L ^ k)),
+      cj (zeroExt (G.Ω 1) (fun z => u (z, i)) y) =
+        zeroExt (G.Ω 1) (fun z => cj (u (z, i))) y := by
+    intro i y
+    by_cases hy : y ∈ G.Ω 1 <;> simp [zeroExt, hy]
+  simp only [lapVec, blockVec, negLap, blockTerm, map_add, map_sub, map_mul, map_sum,
+    Complex.conj_ofReal, hz, map_ofNat]
+
+theorem source_conj (D : BgData G N) (hD : D.IsReal) (p : G.Ω 1 × Fin N) :
+    cj (source G a ν D p) = source G a ν D p := by
+  have hc : ∀ x i, cj (D.Ψ x i) = D.Ψ x i := fun x i => by
+    rw [Complex.conj_eq_iff_im]; exact (hD x i).1
+  have hh : ∀ x i, cj (D.h x i) = D.h x i := fun x i => by
+    rw [Complex.conj_eq_iff_im]; exact (hD x i).2
+  simp only [source, qStar, boundaryTerm, map_add, map_mul, map_sum,
+    Complex.conj_ofReal, hc, hh]
+  congr 1
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  split_ifs <;> simp [hc]
+
+/-- **Conjugation preserves small solutions of real data.** -/
+theorem isSmallSolution_conj {c₀ : ℝ} (D : BgData G N) (hD : D.IsReal) {φ : G.Ω 1 × Fin N → ℂ}
+    {α : G.Ω 1 → ℂ} (hs : IsSmallSolution G a ν c₀ D φ α) :
+    IsSmallSolution G a ν c₀ D (fun p => cj (φ p)) (fun x => cj (α x)) := by
+  obtain ⟨⟨h1, h2⟩, h3⟩ := hs
+  refine ⟨⟨funext fun p => ?_, fun x => ?_⟩, fun x => ?_⟩
+  · have := congrFun h1 p
+    have e := congrArg cj this
+    rw [source_conj D hD] at e
+    rw [H_alpha_apply (fun x => cj (α x)) _ p, ← e, H_alpha_apply α _ p, map_add, map_mul, H0_conj]
+  · have := congrArg cj (h2 x)
+    simpa [map_sum, map_mul] using this
+  · simpa using h3 x
+
+end Conjugation
+
 end Balaban.Background
