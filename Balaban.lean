@@ -10,3 +10,5 @@ public import Balaban.Frozen.Model.OnePoint
 public import Balaban.Frozen.Model.TwoPointTruncated
 public import Balaban.Frozen.Geometry.IsPolymer
 public import Balaban.External.BKAR
+public import Balaban.Green.Coercive
+public import Balaban.Green.CombesThomas
