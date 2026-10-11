@@ -51,3 +51,4 @@ public import Balaban.Multiscale.AgmonCore
 public import Balaban.Multiscale.AgmonWeight
 public import Balaban.Multiscale.Agmon
 public import Balaban.Multiscale.AgmonDecay
+public import Balaban.Multiscale.ScaleMismatch

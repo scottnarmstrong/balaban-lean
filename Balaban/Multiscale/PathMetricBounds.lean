@@ -476,6 +476,21 @@ theorem pathDist_separation_le (hϱ : 1 ≤ ϱ) {j j' : ℕ} (hj : 1 ≤ j) (hj'
         rw [Finset.sum_const, Nat.card_Ioo, nsmul_eq_mul, mul_comm]
     _ ≤ _ := Finset.sum_le_sum hyi
 
+
+/-- **Lemma 4.3 (a), symmetric form.** For `y` in layer `j` and `y'` in layer `j'`,
+`d(y, y') ≥ (ϱ - 1) (|j - j'| - 1)₊`. -/
+theorem pathDist_separation (hϱ : 1 ≤ ϱ) {j j' : ℕ} (hj : 1 ≤ j) (hj' : 1 ≤ j') (hjk : j ≤ k)
+    (hj'k : j' ≤ k) {y y' : Torus d (N₀ * L ^ k)} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j') :
+    ENNReal.ofReal ((ϱ - 1) * ((j - j' + (j' - j) - 1 : ℕ) : ℝ)) ≤ G.pathDist y y' := by
+  rcases le_total j j' with h | h
+  · have := G.pathDist_separation_le hϱ hj hj'k hy (G.mem_layer.1 hy').1
+    have e : j - j' + (j' - j) - 1 = j' - j - 1 := by omega
+    rwa [e]
+  · have := G.pathDist_separation_le hϱ hj' hjk hy' (G.mem_layer.1 hy).1
+    rw [pathDist_comm] at this
+    have e : j - j' + (j' - j) - 1 = j - j' - 1 := by omega
+    rwa [e]
+
 end GeneratingSet
 
 end Balaban.Multiscale
