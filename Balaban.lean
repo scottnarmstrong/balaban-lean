@@ -91,6 +91,7 @@ public import Balaban.Green.Lattice.LocGreenSums
 public import Balaban.Green.Lattice.ThirdDiff
 public import Balaban.Green.Lattice.HolderKernel
 public import Balaban.Green.Lattice.LocHolder
+public import Balaban.Green.Lattice.HolderSums
 public import Balaban.Multiscale.PointwiseLift
 public import Balaban.Multiscale.PointwisePotential
 public import Balaban.Multiscale.PointwiseAgmon
