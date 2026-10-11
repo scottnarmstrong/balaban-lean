@@ -42,3 +42,7 @@ public import Balaban.Green.Summation
 public import Balaban.Green.DomainDifference
 public import Balaban.Green.Perturbation
 public import Balaban.Green.BallSums
+public import Balaban.Multiscale.GeneratingSet
+public import Balaban.Multiscale.Operator
+public import Balaban.Multiscale.Coercivity
+public import Balaban.Multiscale.PathMetric
