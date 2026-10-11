@@ -8,6 +8,10 @@ was checked against a page image or text layer during this synthesis, it is
 marked **[checked]**. Section 7 lists the places where this document corrects a
 review or could not confirm one.
 
+Sections 5 and 7 were updated on 2026-10-11 with the external library (E1–E11,
+D1–D3; see `LIBRARY.md`); changed items are marked "(updated 2026-10-11 from
+E*/D*)".
+
 Contents
 
 1. The model and the main theorems
@@ -912,65 +916,176 @@ direction; nobody has written the full chain.
 
 ## 5. Prerequisites outside the bundle
 
-Titles marked † are identified from memory and from the volume/page data printed
-in the bundle; they should be confirmed when the papers are obtained.
+(updated 2026-10-11 from E*/D*) All external papers named below with an E- or
+D-key are now in the library and have been reviewed (`SOURCES.md`,
+`LIBRARY.md`, `papers/E*.md`, `papers/D*.md`); titles are confirmed from the
+title pages. The summary table says what the bundle actually uses from each;
+the items below give the details.
+
+| Key | Paper | Cited by (as printed) | What the bundle uses | Needed for the formalization? |
+|---|---|---|---|---|
+| E5 | CMP 96 (1984) 223 | P2 [2(b)], P3 [2b] | multiscale scalar Green's function bounds (Prop 2.2, (2.67)), local cube bound (2.43), random-walk expansion (2.50), distance lemma (Lemma 2.1) | the bounds as stated do not cover the operator used; replaced by own proofs (FORMALIZATION_ROADMAP §3.4) |
+| E3 | CMP 89 (1983) 571 | P1 [2c], P2 [2(a)], P3 [2a], P4 "[2c]" and "[3]", P5 [5a], P6 [6a], P9 [12] (defective) | unit-lattice operator theorem (§5, (5.17)); Gaussian lower bound (1.22); Hölder constant (implicitly) | the §5 theorem as an interface (G-4); the rest replaced by own proofs |
+| E10 | CMP 122 (1989) 355 | P5 [5d], P6 [6d] | functions $\kappa_k$ and the step counter (P6 Prop 3.2, "pp. 383–387") | the counting argument, rewritten for O(N) (reconstruction) |
+| E11, E1 | Brydges, Les Houches 1984; Cammarota CMP 85 (1982) 517 | P5 [6], P6 [7], P7 [9] (E11); P6 [9], P7 [11], P4 [5] (E1) | "standard" polymer exponentiation | replaced by one Kotecký–Preiss-type theorem (roadmap §5) |
+| E6 | CMP 109 (1987) 249 | P1 [2d] | form of $\mathcal E_k$, localization format, lattice Taylor formula | no (P1 restates everything) |
+| E2 | CMP 85 (1982) 603 | P1 [2a]; P4's printed [3] (stale) | definition of $T$ | no |
+| E8, E9 | CMP 119 (1988) 243; CMP 122 (1989) 175 | P5 [5b,c], P6 [6b,c] (bibliographies; P6 p. 18) | origin of the large-field representation and of $R$ | templates (large-field operators, base case, "new conditions imply old") |
+| E4, E7 | CMP 95 (1984) 17; CMP 116 (1988) 1 | none in P0–P9 text (E7 = P1 [2e], generic) | — | background |
+| D1–D3 | Dimock, RMP 2013, JMP 2013, AHP 2014 | — (they cite P1–P7, P9) | — | templates (Gaussian skeleton, large-field bookkeeping, last step) |
 
 **Essential (cannot be avoided without re-proving their content).**
 
 1. T. Balaban, "Propagators and renormalization transformations for lattice gauge
-   theories. II"†, Commun. Math. Phys. **96** (1984) 223–250. Cited as P2 [2(b)],
-   P3 [2b] (P3 misprints the year as 1982). Used for: bounds on
-   $G(\alpha)=(-\Delta^D_\Omega+Q^*aQ+\nu+\alpha)^{-1}$ in scale-weighted sup and
-   Hölder norms ((2.57), Prop 2.1 there; P2 §3); the exponential decay (2.33) of
-   local Green's functions on cubes and the random-walk expansion (Prop 2.2,
-   §A there; P3 §2). The gauge-theory setting must be specialized to scalar
-   fields and to the multiscale operator $Q^*(\mathbb B_k)a(\mathbb B_k)Q(\mathbb B_k)$ with Dirichlet
-   conditions; P2 asserts this without proof (P2 p. 622).
-2. T. Balaban, "Regularity and decay of lattice Green's functions"†, Commun.
-   Math. Phys. **89** (1983) 571–597. Cited by P1 [2c], P2 [2(a)], P3 [2a],
-   P5 [5a], P6 [6a], P9 [12]. Used for: the Hölder constant $C_\alpha=O(\alpha^{-d-1})$
-   (P2 p. 611); the random-walk expansion for operators with unit-lattice
-   structure (its §5; P3, and probably P4's "theorem in Sect. 5 of [3]"); action
-   lower bounds of the type P6 (3.5)–(3.6) ("Sect. 4 of [6a]").
-3. T. Balaban, "Large field renormalization. II. Localization, exponentiation, and
-   bounds for the R operation"†, Commun. Math. Phys. **122** (1989) 355–392. Cited as
-   P5 [5d], P6 [6d]. Used for: the step counter $K$ and P6 Prop 3.2 (pp. 383–387
-   there), i.e. the combinatorics behind H6 and behind P7's choice of components
-   of the second kind. Model-independent geometry, but essential.
-4. A cluster (polymer) expansion convergence theorem with exponentiation for
-   activities indexed by connected unions of cubes, including the variant with
-   connectivity modulo $\Omega^c$. Cited: D. Brydges, "A short course on cluster
-   expansions", in *Critical Phenomena, Random Systems, Gauge Theories* (Les
-   Houches 1984), Elsevier 1986; C. Cammarota, Commun. Math. Phys. **85** (1982)
-   517–528; also Abdesselam–Rivasseau, Rivasseau (CRM Proc.). Any modern
-   Kotecký–Preiss-type theorem would serve. Used in P6 (4.46)–(4.51), P7
-   (3.27)–(3.28), (4.14), P9 (4.4)–(4.6).
+   theories. II", Commun. Math. Phys. **96** (1984) 223–250 = **E5**. Cited as P2
+   [2(b)], P3 [2b] (P3 misprints the year as 1982). Contents: Section A, the
+   gauge-fixed variational problem (algebra only); Section B, the scalar operator
+   $G'=(\Delta+Q'^*aQ')^{-1}$ on nested domains $\Omega_1\supset\dots\supset\Omega_k$
+   with the separation condition (2.2) — the geometry of P2's generating sets —
+   with a random-walk expansion over mixed-scale cubes (2.50), the multiscale
+   distance (2.46), the summation Lemma 2.1 ((2.60)–(2.63), p. 234) and
+   Prop 2.2 with the weighted sup, gradient and Hölder bounds (2.67) (p. 234);
+   the single-cube bound (2.43) is imported from E3; Section C is
+   gauge-specific. **What the bundle cites is there, under shifted numbers:**
+   P2's "Sect. B, Prop. 2.1 and (2.57)" is E5 Prop 2.2, (2.67); P3's "(2.33)",
+   "(2.40)", "(2.50)–(2.53)", "(2.57)", "Sect. A" are E5 (2.43), (2.50),
+   (2.60)–(2.63), (2.67), Sect. B — an offset of +10, most likely a preprint
+   numbering. **What is not there:** E5 treats only $a=1$, no mass $\nu$, no
+   complex potential $\alpha$, Dirichlet conditions only as a remark (p. 248),
+   and the Hölder bounds only as "similar" (p. 234). So the bounds P2 §3 and P3
+   §2 use are not proved in E5 (or E3); the roadmap states them as an interface
+   to be proved by standard methods (Roland: "different proofs are fine, in fact
+   encouraged"). (updated 2026-10-11 from E5, E3)
+2. T. Balaban, "Regularity and decay of lattice Green's functions", Commun.
+   Math. Phys. **89** (1983) 571–597 = **E3**. Contents: for the single-scale
+   covariant Neumann operator $-\Delta^N_A+aP_k(A)+m^2$, positivity (1.8), decay
+   and Hölder bounds of the Green's function and its derivative (Theorem,
+   p. 573), the unit-lattice propagators (Prop 2.3 of Higgs I, (1.15)–(1.20)),
+   the Gaussian lower bound (1.22) (Prop 3.1′, proved in §4), and §5, "A General
+   Theorem on Unit Lattice Operators" (p. 594): a symmetric operator with
+   $A\ge\gamma_0$ and exponentially decaying kernel has an exponentially
+   decaying inverse with a random-walk (localization) representation (5.17);
+   §5 is fully proved. Uses in the bundle: P3 §3 and P4 pp. 687, 693 (the §5
+   theorem and (5.17)); P4 "[2c]" (p. 687) = (1.22) at $A=0$; P2 p. 611 attributes
+   $C_\alpha=O(\alpha^{-d-1})$ to it, but no power of $\alpha$ is stated in E3
+   (it can be reconstructed from (2.39), (2.51) as $O((1-\alpha)^{-d-1})$ in E3's
+   convention); P6 p. 30 cites "Sect. 4 of [6a]" for its action lower bounds,
+   which E3 §4 supplies only as a technique. Not covered: Dirichlet conditions,
+   variable or complex potentials, the multiscale $Q^*(\mathbb B_k)aQ(\mathbb B_k)$;
+   the $j$-uniform analytic strip of Lemma 2.4 is asserted without proof
+   (p. 586); several steps import formulas of the Higgs papers I–III. P9's
+   "[12]" prints this paper but the context calls for a paper on O(N)
+   correlations (probably Fröhlich–Pfister, CMP 89 (1983) 303; inference).
+   (updated 2026-10-11 from E3)
+3. T. Balaban, "Large field renormalization. II. Localization, exponentiation,
+   and bounds for the R operation", Commun. Math. Phys. **122** (1989) 355–392 =
+   **E10**. Contents: the completion of the gauge $R$ operation — cancellation
+   of the main (Wilson) actions around a critical configuration (pp. 356–368),
+   re-localization around the new background (pp. 369–378), the large-field
+   operators $\mathbf T'_k$ (1.71) with positivity under complex perturbations
+   (1.73)–(1.75), the large-field factor bound (1.79), the step-counting induction
+   (1.80)–(1.89) (pp. 383–387), and a polymer expansion with connectivity modulo
+   the remaining large-field components, with written activity bounds
+   (1.90)–(1.101); an alternative representation (1.104). Uses in the bundle:
+   P5 p. 496 ("we will use here the results of [5d]"), P6 pp. 18–19 (the functions
+   $\kappa_k$) and p. 21 (Prop 3.2, "Details can be found in [6d], on pp. 383–387").
+   **E10 does not contain P6 Prop 3.2 as stated:** its $K$ is geometric ("the
+   smallest positive integer" such that the shadow $S^K(Z)$ satisfies E9's
+   conditions (i), (ii)), (1.80) bounds $\kappa_j(Z)$ from below by the cost of
+   $K$ steps, and the induction uses the slow (logarithmic) running of the gauge
+   coupling; P6's analytic $K$ (via $\kappa_{k,n}-\ell p_2(\beta_{k+n})$), its
+   properties (i)–(iii), the critical size and the bound $\log\beta_{k_1}a$ are
+   not in E10. The O(N) version must be written as a separate lemma
+   (FORMALIZATION_ROADMAP §4.3). (updated 2026-10-11 from E10)
+4. A cluster (polymer) expansion theorem with exponentiation for activities on
+   connected unions of cubes, including connectivity modulo $\Omega^c$. In the
+   library: D. Brydges, "A short course on cluster expansions" (Les Houches 1984,
+   Elsevier 1986) = **E11** (connected parts $\psi'_c$ = P6's $\rho^T$, tree
+   formula, criterion (3.10), polymer-log bound Thm 3.4, pp. 141–142; cited P5
+   [6], P6 [7] pp. 22, 35, 38–39, P7 [9]); C. Cammarota, CMP **85** (1982) 517–528
+   = **E1** (Thm 2, p. 519, cardinality-graded criterion; cited generically by P6
+   [9], P7 [11]; P4's [5] is never cited in P4's text); Balaban's gauge version
+   E7 §2; Dimock's D1 Thm 27 (proved except the Penrose tree bound) and D2 Thm
+   F.1 (with holes; sketched). None of E1, E7, E11 has connectivity modulo a set
+   or the transfer of tree-length decay to the localized logarithm, which P6
+   (4.46)–(4.51), P7 (3.27)–(3.28), (4.14) and P9 (4.4)–(4.6) need. The roadmap
+   (§5) states one Kotecký–Preiss-type theorem covering all uses; Kotecký–Preiss,
+   CMP 103 (1986) 491, is to be obtained. (updated 2026-10-11 from E1, E7, E11,
+   D1, D2)
 
-**Cited for structure or specific formulas (should be obtained, probably
-re-derivable).**
+**Cited for structure or specific formulas (templates; not needed as
+dependencies).**
 
 5. T. Balaban, "Renormalization group approach to lattice gauge field theories.
    I. Generation of effective actions in a small field approximation and a
-   coupling constant renormalization in four dimensions"†, Commun. Math. Phys.
-   **109** (1987) 249–301 (P1 [2d]): the localization-expansion format (§0 there)
-   and the lattice Taylor formula used in P1 (3.97).
-6. T. Balaban, Commun. Math. Phys. **85** (1982) 603 ("(Higgs)$_{2,3}$ quantum
-   fields in a finite volume. I"†): printed as P4's [3], probably a stale entry
-   (see §7 item 6); also P1 [2a].
-7. T. Balaban, Commun. Math. Phys. **119** (1988) 243–285 ("Convergent
-   renormalization expansions for lattice gauge theories"†) and **122** (1989)
-   175–202 ("Large field renormalization. I. The basic step of the R
-   operation"†) (P5 [5b,c], P6 [6b,c]): origin of the functions $\kappa$ and of
-   the $R$ operation; P7 is the O(N) adaptation.
-8. T. Balaban, CMP 86 (1982) 555, CMP 116 (1988) 1; Balaban–Imbrie–Jaffe, CMP 97
-   (1985) 299 and CMP 114 (1988) 257 (P1 [1], [2b,e]): background-field method
-   and RG transformation format; context.
+   coupling constant renormalization in four dimensions", Commun. Math. Phys.
+   **109** (1987) 249–301 = **E6** = P1 [2d]. P1 cites it on p. 113 (form of
+   $\mathcal E_k$ = E6 (0.22)–(0.23), p. 256), p. 117 (localization format,
+   "Sect. 0 in [2d]" = E6 (0.24)–(0.25), p. 257) and p. 144 (the lattice Taylor
+   formula P1 (3.97) = E6 (4.30), p. 288). P1 restates all three; no theorem of
+   E6 is load-bearing. Note that P1 (2.26)–(2.27) uses overlapping $LM$-cubes
+   where E6 uses a partition into $M$-cubes, and neither proves the counting
+   bound $K_0<\infty$ (P1 (2.28) "well known"). E6 Thm 3 (p. 264) fixes the order
+   "$\kappa\ge\kappa_0$, $M\ge M(\kappa)$". (updated 2026-10-11 from E6)
+6. T. Balaban, "(Higgs)$_{2,3}$ quantum fields in a finite volume. I. A lower
+   bound", Commun. Math. Phys. **85** (1982) 603–626 = **E2** = P1 [2a]. Used only
+   for the definition and composition law of the transformation $T$ (E2 §2,
+   (2.4)–(2.16)), which P1 (1.11) restates; E2's layer decomposition (2.43) is the
+   identity behind P9 (4.17). P4's printed entry [3] points to it, but none of
+   P4's seven "[3]" citations refers to E2 (§7 item 6). Not needed. (updated
+   2026-10-11 from E2)
+7. T. Balaban, "Convergent renormalization expansions for lattice gauge
+   theories", Commun. Math. Phys. **119** (1988) 243–285 = **E8**, and "Large field
+   renormalization. I. The basic step of the R operation", **122** (1989) 175–202
+   = **E9** (P5 [5b,c], P6 [6b,c]). E8: the YM$_4$ inductive description keeping
+   all large-field regions, with a complete first step with large fields (§1,
+   (1.1)–(1.30)) and large-field operators factorized over components and levels
+   ((2.18)–(2.22)); beyond $\mathbf T_1$ they "are left undefined, only their
+   basic general properties are formulated" (p. 254); no $\kappa$, $C$, $K$ or $R$.
+   E9: the heuristic $R$ (0.3)–(0.6), the class of components to which it applies
+   (conditions (i), (ii), p. 177), the undoing of $N$ preparatory steps, the
+   identities (1.29), (1.89) (new restrictions imply the old ones, proved in full)
+   and the normalized ratio $R'$ (1.100)–(1.102). The bundle cites no specific
+   item of either; P6 p. 18's statement that "the same functions [$\kappa_k$]
+   have been used in the papers [6b,c,d]" holds only for [6d] = E10. Templates
+   for P5's operators $\mathbb T_k$, the base case and P7 Lemma 2.5; E10 is the
+   original of $\kappa$ and $K$, and P7 is the O(N) adaptation of E9–E10.
+   (updated 2026-10-11 from E8, E9, E10)
+8. T. Balaban, "Propagators and renormalization transformations for lattice gauge
+   theories. I", Commun. Math. Phys. **95** (1984) 17–40 = **E4** (not cited by any
+   P-paper; precursor of E5): the Woodbury representation (1.76), (1.134) that P4
+   p. 710 uses unattributed, the multiscale decomposition (1.135), and the remark
+   (p. 36) that conjugation by $e^{\langle q,x\rangle}$ (a Combes–Thomas argument)
+   is "probably the simplest proof" of exponential decay. CMP **116** (1988) 1 is
+   **E7** (P1 [2e]), Balaban's cluster-expansion paper for the gauge small-field
+   step: background. CMP 86 (1982) 555 (Higgs II, P1 [2b]) and
+   Balaban–Imbrie–Jaffe CMP 97 (1985) 299, CMP 114 (1988) 257 (P1 [1a,b]) are cited
+   only generically (P1 pp. 106–107); not needed. (updated 2026-10-11 from E4, E7,
+   E2, E6)
 9. D. Brydges, J. Dimock, T. Hurd, "Weak perturbations of Gaussian measures"
    (CRM Proceedings): context for one-scale RG.
 10. G. Parisi, *Statistical Field Theory* (1987): cited by P9 for the
-    decomposition (4.17) of $(-\Delta)^{-1}$, which is in fact an identity of the
-    Gaussian block-spin RG and can be proved directly.
+    decomposition (4.17) of $(-\Delta)^{-1}$, which is an identity of the Gaussian
+    block-spin RG, already E2 (2.43) and E4 (1.135), and can be proved directly.
+    (updated 2026-10-11 from E2, E4)
 11. K. Gawedzki, A. Kupiainen, CMP 102 (1985) 1–30: input of P8 only.
+12. J. Dimock, "The renormalization group according to Balaban", I. Small fields,
+    Rev. Math. Phys. 25 (2013) 1330010; II. Large fields, J. Math. Phys. 54
+    (2013); III. Convergence, Ann. Henri Poincaré 15 (2014) 2133–2175 = **D1–D3**:
+    an exposition of Balaban's method for the $\phi^4_3$ ultraviolet problem,
+    citing P1–P7 and P9 (not E8–E10). D1: one small-field step (Thm 14) and the
+    flow (Thm 24), a fully written Combes–Thomas $L^2$ decay (Lemma 30, valid for
+    Dirichlet and mixed conditions), the cluster expansion Thm 27; pointwise and
+    Hölder Green's function bounds cited to E3. D2: a complete large-field
+    induction (Thm 3.1), an explicit base case (§3.4), a cluster expansion with
+    holes (Thm F.1, sketched), a dictionary to P5–P7 (p. 84); no step counter, no
+    admissibility and no $R$ operation ("This difficult step is not necessary for
+    this model", p. 31). D3: the last step and a one-pass summation over
+    large-field histories (Lemmas 14–15), which works because at most
+    $-\log\lambda_i$ steps remain after scale $i$ — the analogue of the O(N) regime
+    $k\ge k_0$, which is why $R$ is needed for O(N) when $k<k_0$; no global order
+    of constants (Thm 1, p. 3). Templates, not dependencies. (updated 2026-10-11
+    from D1, D2, D3)
 
 **Context only.** Fröhlich–Simon–Spencer CMP 50 (1976) 79; Bricmont–Fontaine–
 Lebowitz–Spencer CMP 78 (1980) 281, 363; Bricmont–Fontaine–Lebowitz–Lieb–Spencer
@@ -978,14 +1093,15 @@ CMP 78 (1981) 545; Fröhlich–Pfister CMP 89 (1983) 303; Schor–O'Carroll CMP 
 (1991) 487; Bleher–Major; Glimm–Jaffe–Spencer Ann. Phys. 101 (1976); Glimm–Jaffe,
 *Quantum Physics*.
 
-**To obtain and study before starting:** items 1, 2, 3 (essential, about 105
-pages), items 5–7 (to settle citations and to see the original versions of the
-$\kappa$/$R$ machinery), and a modern polymer-expansion reference for item 4. A
-secondary source worth obtaining is J. Dimock's exposition of Balaban's method
-for $\phi^4_3$ ("The renormalization group according to Balaban", I. Small fields,
-Rev. Math. Phys. 25 (2013); II. Large fields, J. Math. Phys. 54 (2013); III.
-Convergence, Ann. Henri Poincaré 15 (2014)†), which writes out a version of the
-small/large-field and $R$-operation machinery in full.
+**Still to obtain** (updated 2026-10-11 from E*/D*). All items v1 called
+essential are in the library. Recommended: Kotecký–Preiss, CMP 103 (1986)
+491–498 (the hypothesis form of the polymer theorem); Abdesselam–Rivasseau, Rev.
+Math. Phys. 9 (1997) (P7 [13], an explicit large/small-field cluster expansion);
+Balaban, "Ultraviolet stability of three-dimensional lattice pure gauge field
+theories", CMP 102 (1985) 255–275 (E6 [16]; the prototype of the large-field
+factors behind P6 (3.4)–(3.9), cited by E10 p. 380). Background only: Higgs II
+(CMP 86, 555) and III (CMP 88, 411 — E6 prints 89); Benfatto et al., CMP 59 (1978),
+CMP 71 (1980) (origin of the $R$ idea, E9 p. 176).
 
 ---
 
@@ -1057,15 +1173,18 @@ Corrections (checked against the PDFs):
 5. **P1 (H.9) prefactor.** The P1 review writes $\beta_{j-1}^{-1}$; the page
    image (p. 119) shows $\beta_{j-1}^{-1/2}$, consistent with the stated bound
    $M_0K_0\beta^{-1/2}$ and with P0 (H.7).
-6. **P4's reference [3].** P4 cites "Sect. 4 of [3]" (the spaces
-   $\Xi^c_j(\mathbb B_j(X))$, p. 677) and "Sect. 3 of [3]" (the constant $B_4$,
-   p. 696) — these are P3. It also cites "the theorem in Sect. 5 of [3] on unit
-   lattice operators" (p. 687) and "(5.17) in [3]" (p. 693); P3 has only four
-   sections, and P3 itself attributes the unit-lattice random-walk theorem to §5
-   of CMP 89, 571. The printed entry "CMP 85, 603 (1982)" matches neither. Most
-   likely [3] conflates P3 with a Balaban paper of the early 1980s (probably CMP
-   89, 571); not settled without that paper. Similarly P4 p. 687 cites "[2c]",
-   although P4's [2] is the single paper P2; this is P1's [2c] = CMP 89, 571.
+6. **P4's reference [3].** Settled (updated 2026-10-11 from E2, E3). P4's
+   printed entry [3] ("CMP 85, 603 (1982)" = E2) is stale. P4 uses "[3]" seven
+   times: "Sect. 4 of [3]" (p. 677), "localization expansions constructed in [3]"
+   (p. 687) and "Sect. 3 of [3]" (p. 696) are P3; "the theorem in Sect. 5 of [3] on
+   unit lattice operators" (p. 687), "the theorem on unit lattice operators in
+   [3]", "(5.17) in [3]" and "see [3] for a proof" (all p. 693) are E3 §5 (titled
+   "A General Theorem on Unit Lattice Operators", p. 593; (5.17) is its random-walk
+   representation, p. 595) and E3 (1.8)/(2.28); "representations derived in [3]"
+   (p. 710, the Woodbury formula for $G$) is unattributed and elementary (E4
+   (1.76), (1.134)). None refers to E2. P4's "[2c]" (p. 687) uses P1's numbering:
+   [2c] = E3, and the cited lower bound is E3 (1.22) (Prop 3.1′, p. 574, proved in
+   §4) at $A=0$. (The P4 review's "P2 [2c]" should read P1 [2c].)
 7. **P9 remainder bounds (P9 review, weak spot 7).** The extra terms
    $\partial^2_g\mathcal R^{(k+1)}$, $\partial^2_g\mathcal P^{(k+1)}$ in (4.9) are bounded by
    $O(1)\beta^{-2}L^{-(k+1)\frac{d-2}2}|x-x'|^{-\frac{d-2}2}e^{-\frac12\delta_0L^{-(k+1)}|x-x'|}$
@@ -1087,10 +1206,13 @@ Corrections (checked against the PDFs):
     written out. P7 Lemma 2.5 also contains the proof of P5 Lemma 2.1 (P7 p. 512).
 11. **P5's "Proposition 5.2 in Sect. 3 of the next paper"** (p. 495) is P6
     Prop 3.2 (numbering mismatch).
-12. **P1 [2d].** The P1 review guesses "Averaging operations for lattice gauge
-    theories" for CMP 109 (1987) 249. That title belongs to CMP 98; CMP 109, 249
-    is (from memory) "Renormalization group approach to lattice gauge field
-    theories. I". Confirm when obtained.
+12. **P1 [2d].** Settled (updated 2026-10-11 from E6). CMP 109 (1987) 249 = E6,
+    "Renormalization group approach to lattice gauge field theories. I.
+    Generation of effective actions in a small field approximation and a
+    coupling constant renormalization in four dimensions" (title page checked).
+    "Averaging operations for lattice gauge theories" is CMP 98 (1985) 17–51. P1's
+    list (p. 154): [2a] = E2, [2b] = CMP 86, 555 (Higgs II, not in the library),
+    [2c] = E3, [2d] = E6, [2e] = E7; [1a,b] = Balaban–Imbrie–Jaffe CMP 97, 114.
 13. **P5/P6 renormalization choice $c=0$, $d=b$.** P4 Prop 5.1 is proved for
     $c=ab,d=b$ and remarked for $c=0,d=0$; P4 p. 717 adds that "mixed" choices
     such as $c=0,d=b$ also work, without details. Not a contradiction, but the
@@ -1105,7 +1227,12 @@ Could not confirm or settle:
     P1–P7 claim $\lambda\in[1,\infty]$.
 16. Where the base case $\rho_1\in\mathbb R_1$ (with large fields) is established;
     only the small-field first step (P4 pp. 691–694) and a narrative (P5 pp.
-    486–487) exist. Also the case $k_0\le0$ (field already strong at the start).
+    486–487) exist. Also the case $k_0\le0$ (field already strong at the start). (updated 2026-10-11 from E8, D2) The library supplies templates but no O(N)
+    base case: E8 §1 ((1.1)–(1.30)) is a complete gauge first step with large
+    fields, D2 §3.4 (p. 32) a complete $\phi^4_3$ one, E10 (1.82) the base of the
+    counting induction. $\mathbb A_1$, $\mathbb T_1$, $\kappa_1$, $C(\mathbb A_1)$
+    and $\mathcal B^{(1)}$ are defined nowhere in P5–P7, and P7 Thm 5 starts from
+    $\rho_0$, which has no $\chi_0$; a reconstruction is needed.
 17. The existence of the thermodynamic limit (used in P9 and P5 (1.46)); it is
     asserted to follow from torus-independence of localized terms (P4 p. 720).
 18. P9 Prop 3.1 (3.13), the localization expansion of truncated expectations of
@@ -1113,13 +1240,89 @@ Could not confirm or settle:
     one genuinely new technical input of P9.
 19. P6 Prop 3.1 (action lower bounds) and P2 Prop 2.2 (effective-potential
     bounds) are stated without proof; both are elementary but load-bearing for
-    every large-field estimate.
+    every large-field estimate. (updated 2026-10-11 from E3, E10, D3) No source in the library proves
+    (3.5)–(3.6): E3 §4 proves only a Gaussian two-block lower bound (the technique
+    for the quadratic part), P7 (2.37)–(2.38) a Dirichlet Poincaré inequality on a
+    small box, D3 Lemma 20 (App. C) the $\phi^4_3$ analogue; E10 p. 380 obtains its
+    large-field factors "almost exactly as in [16]" (CMP 102, 255, not in the
+    library).
 20. Admissibility of multi-indices is never defined in one place: P5 p. 495
     describes it as geometric conditions "but also other conditions connected
     with bounds" including $K(Z_j\cap Z,\cdot)>0$ for all $j\le k$ (p. 496); the
     operators $\mathbb T_k$ are defined by an explicit induction (P6 (3.1)–(3.3)),
-    not by properties.
+    not by properties. (updated 2026-10-11 from E8, D2) The library does not help: E8 also defines
+    its large-field operators only by construction (p. 254), P5 p. 493 defers
+    "remaining parts of [the] definition", and D2 has no admissibility condition
+    at all (Dimock's histories are arbitrary nested sequences with buffers).
 21. The global order of constants (§4) and the consistency of the conditions on
-    $M$, $\kappa$, $\kappa_1$, $A_0$, $H_0$, $B_0$.
+    $M$, $\kappa$, $\kappa_1$, $A_0$, $H_0$, $B_0$. (updated 2026-10-11 from D1–D3, E6) No source states a global order; D3 Thm 1
+    (p. 3) has only "$L$ sufficiently large, $M$ sufficiently large (depending on
+    $L$), $\lambda_k$ sufficiently small (depending on $L,M$)". The "delicate point"
+    of §4 ($M$ versus $\kappa$) is resolved by reading P1 p. 118 / P4 (H.4) as an
+    upper constraint: $\kappa$ is chosen first and $M\ge M(\kappa)$, as in E6
+    Thm 3 (p. 264), P3 (2.19) and Dimock (D2 pp. 19, 78); see
+    FORMALIZATION_ROADMAP §4.4.
 22. Venue of P0: consistent with LNP 446 (*Constructive Physics*, Palaiseau 1994)
     via P5 p. 488, not seen on the page images.
+
+Settled or found with the external library (each item: updated 2026-10-11 from
+E*/D*; details in the E/D reviews and FORMALIZATION_ROADMAP §§3.4, 4, 5, 12):
+
+23. **P2's and P3's citations of CMP 96 = E5.** The content exists in E5 under
+    numbers shifted by +10: P3 "(2.33)" = E5 (2.43) (single-cube bound), "(2.40)"
+    = (2.50) (random-walk expansion), "(2.50)–(2.53)" = (2.60)–(2.63) (Lemma 2.1),
+    "(2.57)" = (2.67) (Prop 2.2 bounds), "Sect. A" = Sect. B; P2 p. 622's "Prop.
+    2.1 … (2.57)" = E5 Prop 2.2, (2.67). So the references in §§2.3, 2.7 and 3.2
+    above to "CMP 96 (2.57), (2.33)" mean E5 (2.67), (2.43). E5 itself covers only
+    $a=1$, no $\nu$, no complex $\alpha$, Dirichlet as a remark. (from E5)
+24. **Green's function coverage.** E3 and E5 together do not prove the bounds P2
+    §3 and P3 §2 use (Dirichlet conditions, $\nu$, complex $\alpha$, general $a$ on
+    multiscale generating sets); P2 p. 622 and P3 p. 63 ("can be easily extended")
+    assert the extension. $C_\alpha=O(\alpha^{-d-1})$ (P2 p. 611) is not stated in
+    E3. (from E3, E5)
+25. **P6 Prop 3.2 versus E10.** E10 pp. 383–387 prove (1.80) for a geometric
+    counter, by an induction that uses the slow running of the gauge coupling;
+    P6's analytic $K$ and properties (i)–(iii) are not in E10, and "the results of
+    [6d] hold without changes" (P6 p. 21) is not literal for the geometric
+    running of $\beta_k$. P6 Prop 3.2 (iii) refers to "(5.1)" for (3.1), and P5
+    p. 495 to "Proposition 5.2": P6 §3 was numbered §5 in a preprint. (from E10)
+26. **Proof of P6 Thm 4 (p. 22).** Its last inequality,
+    $2p_2(\beta_{k+K})-{\rm const}'(\log\beta_{k+K}a)^{2d+2}>p_2(\beta_{k+n})$ for
+    $n\le K+\log\beta_{k+K}a$, fails as printed: the ratio
+    $p_2(\beta_{k+n})/p_2(\beta_{k+K})$ is about $(1+(d-2)\log L)^{p_2}\ge1.69^8$
+    there, independently of $A_2$. Freezing the threshold at $p_2(\beta_{k_0})$
+    for $k\ge k_0$ appears to repair it (to be confirmed). (found while comparing
+    with E10 and D3)
+27. **P6 p. 18** attributes "the same functions $\kappa_k$" to [6b,c,d]; only
+    [6d] = E10 has them. This corrects item 7 of §5 in its v1 form. (from E8, E9)
+28. **E8 p. 254**: beyond $\mathbf T_1$ the gauge large-field operators "are left
+    undefined, only their basic general properties are formulated" (corrects the
+    E8 review). (from E8)
+29. **Dimock and the $R$ operation.** D2 p. 31: the $R$ operation "is not
+    necessary for this model" ($\phi^4_3$). D3's one-pass summation works because
+    at most $-\log\lambda_i$ steps remain after scale $i$ (D3 (205), p. 30); in the
+    O(N) flow this holds only for $k\ge k_0$, which is why P7's $R$ is needed for
+    $k<k_0$. (from D2, D3)
+30. **The $\sqrt\nu$ decay rate (§2.9).** No separate Green's function estimate is
+    needed: for $j<k(\nu)$, $\nu_j\le\frac78L^{-2}$, so $\sqrt\nu\le L^{-j}$ and
+    the unit-scale decay of $G_j$, $C^{(j)}$ already gives the rate
+    $\delta(\sqrt\nu+L^{-j})$ in original units. (from E5 review N7, D1 p. 45)
+31. **P9 (4.6)** prints $|\mathcal P^{(k+1)}(Y;g)|<\beta_k^{-2}e^{-2\kappa d_{k+1}(Y)}$
+    (§2.9 above has $e^{-\kappa d}$, which is weaker). P9's "[12]" (CMP 89,
+    571 = E3) is defective in context; probably Fröhlich–Pfister CMP 89, 303. (from
+    E3; text layer of P9)
+32. **P9 Prop 3.1 (item 18).** The truncated expectation of two localized
+    functions is a derivative of the logarithm of a polymer partition function with
+    two marked activities; with a polymer theorem that transfers tree-length decay
+    (FORMALIZATION_ROADMAP §5) it follows. Not proved in any source. (from E7,
+    E11, D1)
+33. **Polymer theorems in the library.** None of E1, E7, E11 has connectivity
+    modulo $\Omega^c$ (needed in P6 p. 44, P7 (3.27)–(3.28), (4.11)–(4.14)) or the
+    transfer of tree-length decay; D2 Thm F.1 states the version with holes with
+    a sketched proof; D1 Thm 27 is proved except the Penrose tree bound. P7
+    (3.28) is over $X\in\mathcal D_k({\rm mod}\,\Omega_k^c\cap Y_k)$. (from E1, E7,
+    E11, D1, D2)
+34. **Order of $\kappa$ and $M$ (§4).** E6 Thm 3 (p. 264): "$\kappa\ge\kappa_0$,
+    $M\ge M(\kappa)$"; Dimock: $\kappa\ge16\kappa_0+16$, $e^{\kappa_1}\le M^{1/2}$ (D2
+    pp. 19, 78); P3 (2.19): $M\ge2(7L)^d\kappa_1/\gamma_0$. Consistent with
+    "$\kappa$ first"; see item 21. (from E6, D1, D2)

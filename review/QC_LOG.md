@@ -54,3 +54,8 @@ statements were compared against the PDF page images by the orchestrator.
 - Green's function bounds: E3 and E5 together do NOT cover what P2/P3 use (Dirichlet conditions, ν, complex α, general a in multiscale Q*aQ). Gap closed only by new proofs (Roland: encouraged).
 - Dimock does NOT cover the R operation (D2 p. ~31: "not necessary for this model"); D1/D2 are blueprints for the Gaussian/analytic skeleton and the large-field region bookkeeping only.
 - Abstract polymer expansion: E1, E7, E11 give Mayer/tree-graph criteria with cardinality or set-disjointness; "connectivity mod Ω^c" (P6/P7) is in none of them.
+
+## Phase 4 orchestrator check (roadmap v2)
+
+- Verified independently the defect reported in P6 Thm 4's proof (P6 p. 22, page image): the final inequality $2p_2(\beta_{k+K})-\mathrm{const}'(\log\beta_{k+K}a)^{2d+2}>p_2(\beta_{k+n})$ is claimed for all $n\le K+\log\beta_{k+K}a$, with $p_2(\beta)=A_2(\log\beta)^{p_2}$ (P5 p. 491 text layer) and $\beta_{k+n}\approx\beta L^{(k+n)(d-2)}$. Then $p_2(\beta_{k+n})/p_2(\beta_{k+K})\to(1+(d-2)\log L)^{p_2}\gg2$ at the top of the range, independently of $A_2$; the inequality holds only for $n-K\lesssim(2^{1/p_2}-1)\log\beta_{k+K}/((d-2)\log L)$. Defect confirmed as printed; the proposed repair (threshold frozen at $p_2(\beta_{k_0})$) is not checked by the orchestrator.
+
