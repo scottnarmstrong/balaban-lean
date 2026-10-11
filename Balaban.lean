@@ -47,6 +47,15 @@ public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
 public import Balaban.Polymer.Hole
+public import Balaban.Polymer.Decomposition
+public import Balaban.Polymer.Mayer
+public import Balaban.Polymer.Gas
+public import Balaban.Polymer.GasBound
+public import Balaban.Polymer.Size
+public import Balaban.Polymer.MayerPE
+public import Balaban.Polymer.MayerHolomorphic
+public import Balaban.Polymer.MayerAnalytic
+public import Balaban.Polymer.MayerMarked
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
