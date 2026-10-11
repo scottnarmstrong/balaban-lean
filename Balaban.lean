@@ -78,6 +78,7 @@ public import Balaban.Background.ApproxField
 public import Balaban.Background.ApproxResidual
 public import Balaban.Background.ApproxReal
 public import Balaban.Background.Approximate
+public import Balaban.Background.ApproxAnalytic
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
