@@ -26,6 +26,17 @@ public import Balaban.Gaussian.Schur
 public import Balaban.Gaussian.BlockSpin
 public import Balaban.Gaussian.Multiscale
 public import Balaban.Lattice.Laplacian
+public import Balaban.Polymer.Ursell
+public import Balaban.Polymer.Cluster
+public import Balaban.Polymer.SeriesIneq
+public import Balaban.Polymer.SeriesEq
+public import Balaban.Polymer.KP
+public import Balaban.Polymer.Expansion
+public import Balaban.Polymer.PE
+public import Balaban.Polymer.Local
+public import Balaban.Polymer.Animals
+public import Balaban.Polymer.Lattice
+public import Balaban.Polymer.BlockTorus
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
