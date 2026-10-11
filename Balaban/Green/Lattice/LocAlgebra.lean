@@ -32,7 +32,7 @@ def negLap (v : (Fin d → ℤ) → ℂ) (z : Fin d → ℤ) : ℂ :=
   ∑ μ : Fin d, (2 * v z - v (z + Pi.single μ 1) - v (z - Pi.single μ 1))
 
 /-- Translating the summation variable is harmless for functions supported well inside `S`. -/
-theorem sum_shift {S T : Finset (Fin d → ℤ)} (F : (Fin d → ℤ) → ℂ) (a : Fin d → ℤ)
+theorem sum_shift_finset {S T : Finset (Fin d → ℤ)} (F : (Fin d → ℤ) → ℂ) (a : Fin d → ℤ)
     (hT : ∀ y, y ∉ T → F y = 0) (hTS : T ⊆ S) (hTa : ∀ y ∈ T, y - a ∈ S) :
     ∑ z ∈ S, F (z + a) = ∑ y ∈ S, F y := by
   have h1 : ∑ y ∈ S, F y = ∑ y ∈ T, F y :=
@@ -65,14 +65,14 @@ theorem sum_kernel_negLap {S T : Finset (Fin d → ℤ)} (K : (Fin d → ℤ) �
     intro μ
     have s1 : ∑ z ∈ S, K (x - z) * v (z + Pi.single μ 1) =
         ∑ w ∈ S, K (x - w + Pi.single μ 1) * v w := by
-      have := sum_shift (S := S) (T := T) (fun w => K (x - w + Pi.single μ 1) * v w)
+      have := sum_shift_finset (S := S) (T := T) (fun w => K (x - w + Pi.single μ 1) * v w)
         (Pi.single μ 1) (fun y hy => by simp [hv y hy]) hTS (fun y hy => (hTe y hy μ).2)
       have e : ∀ z : Fin d → ℤ, x - (z + Pi.single μ 1) + Pi.single μ 1 = x - z :=
         fun z => by abel
       simpa only [e] using this
     have s2 : ∑ z ∈ S, K (x - z) * v (z - Pi.single μ 1) =
         ∑ w ∈ S, K (x - w - Pi.single μ 1) * v w := by
-      have := sum_shift (S := S) (T := T) (fun w => K (x - w - Pi.single μ 1) * v w)
+      have := sum_shift_finset (S := S) (T := T) (fun w => K (x - w - Pi.single μ 1) * v w)
         (-Pi.single μ 1) (fun y hy => by simp [hv y hy]) hTS
         (fun y hy => by rw [sub_neg_eq_add]; exact (hTe y hy μ).1)
       have e : ∀ z : Fin d → ℤ, x - (z - Pi.single μ 1) - Pi.single μ 1 = x - z :=
@@ -230,7 +230,7 @@ theorem sum_kernel_remainder {S T : Finset (Fin d → ℤ)} (K : (Fin d → ℤ)
     have s1 : ∑ z ∈ S, ((K (x - z) : ℝ) : ℂ) * (((χ z - χ (z + Pi.single μ 1) : ℝ) : ℂ) *
         u (z + Pi.single μ 1)) =
         ∑ w ∈ S, ((K (x - w + Pi.single μ 1) * (χ (w - Pi.single μ 1) - χ w) : ℝ) : ℂ) * u w := by
-      have := sum_shift (S := S) (T := T)
+      have := sum_shift_finset (S := S) (T := T)
         (fun w => ((K (x - w + Pi.single μ 1) * (χ (w - Pi.single μ 1) - χ w) : ℝ) : ℂ) * u w)
         (Pi.single μ 1)
         (fun y hy => by
@@ -247,7 +247,7 @@ theorem sum_kernel_remainder {S T : Finset (Fin d → ℤ)} (K : (Fin d → ℤ)
     have s2 : ∑ z ∈ S, ((K (x - z) : ℝ) : ℂ) * (((χ z - χ (z - Pi.single μ 1) : ℝ) : ℂ) *
         u (z - Pi.single μ 1)) =
         ∑ w ∈ S, ((K (x - w - Pi.single μ 1) * (χ (w + Pi.single μ 1) - χ w) : ℝ) : ℂ) * u w := by
-      have := sum_shift (S := S) (T := T)
+      have := sum_shift_finset (S := S) (T := T)
         (fun w => ((K (x - w - Pi.single μ 1) * (χ (w + Pi.single μ 1) - χ w) : ℝ) : ℂ) * u w)
         (-Pi.single μ 1)
         (fun y hy => by

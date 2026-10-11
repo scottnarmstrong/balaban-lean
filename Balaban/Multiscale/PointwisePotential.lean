@@ -57,7 +57,7 @@ theorem laplacian_eq_of_dirichlet (G : GeneratingSet d L N₀ k ϱ) {a : ℕ →
   rw [hx] at h ⊢
   linear_combination h
 
-theorem avgMatrix_apply_of_layer (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) {m : ℕ}
+theorem avgMatrix_apply_layer_block (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) {m : ℕ}
     (hm1 : 1 ≤ m) (hmk : m ≤ k) {p : Torus d (N₀ * L ^ k)} (hpl : p ∈ G.layer m)
     (q : Torus d (N₀ * L ^ k)) :
     avgMatrix G a p q = a m / ((L : ℝ) ^ m) ^ 2 *
@@ -96,21 +96,21 @@ theorem avg_row_bound (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} (ha : 
   have hrow : ∀ q, (avgMatrix G a p q) ≤ cm * blockProjMatrix d (N₀ * L ^ k) (L ^ m)
       (N₀ * L ^ (k - m)) p q := by
     intro q
-    rw [avgMatrix_apply_of_layer G a hm1 hmk hpl, ← hcm]
+    rw [avgMatrix_apply_layer_block G a hm1 hmk hpl, ← hcm]
     split_ifs
     · exact le_rfl
     · rw [mul_zero]
       exact mul_nonneg hcm0 (blockProjMatrix_nonneg m p q)
   have hnn : ∀ q, 0 ≤ avgMatrix G a p q := by
     intro q
-    rw [avgMatrix_apply_of_layer G a hm1 hmk hpl, ← hcm]
+    rw [avgMatrix_apply_layer_block G a hm1 hmk hpl, ← hcm]
     split_ifs
     · exact mul_nonneg hcm0 (blockProjMatrix_nonneg m p q)
     · simp
   have hsupp : ∀ q, avgMatrix G a p q ≠ 0 → ‖ψ q‖ ≤ M := by
     intro q hq
     apply hM
-    rw [avgMatrix_apply_of_layer G a hm1 hmk hpl, ← hcm] at hq
+    rw [avgMatrix_apply_layer_block G a hm1 hmk hpl, ← hcm] at hq
     by_contra hne
     apply hq
     have : blockProjMatrix d (N₀ * L ^ k) (L ^ m) (N₀ * L ^ (k - m)) p q = 0 := by
