@@ -22,3 +22,4 @@
 | 2026-10-11 | W4 RG equations | landed | `4985fa7` via land.sh: `Balaban.Flow.exists_rg_solution` (P4 Prop 5.1, λ=∞), triangular form, running coefficients, (H.6) bounds, `exists_gamma_infty` (5.33), `exists_inv_betaSeq_asymptotics` (P9 (4.18)) (≈710 lines); axioms standard |
 | 2026-10-11 | W2c G-4 tails | landed | `0f2d7b5`: Lemma 4.10 `sum_tail_le`, G-4(b) `domain_difference`, G-4(c) `perturbation_tails`, ℓ¹ ball sums (≈700 lines); axioms standard |
 | 2026-10-11 | D-G Green's function document | final | re-review APPROVE-WITH-CHANGES, N-1..N-6 applied; freeze-candidate list in §3 |
+| 2026-10-11 | W5 constant configs, O(N) reduction | landed | `05e2eb7`: λ=∞ constant configurations (unique minimizer/EL solution, complex analytic extension, P2-type bounds, covariance), analytic O(N) reduction `exists_invariant_reduction` (≈1,700 lines); axioms standard |
