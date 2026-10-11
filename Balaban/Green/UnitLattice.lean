@@ -430,7 +430,7 @@ section Green
 variable {d ℓ N m : ℕ} [NeZero ℓ] [NeZero m]
 
 /-- The matrix of the block averaging `Q` of `blockAverage`: `(Q φ) y = N^{-d} ∑_{x ∈ block y} φ x`. -/
-noncomputable def blockAverageMatrix (d ℓ N m : ℕ) [NeZero ℓ] [NeZero m] :
+noncomputable def unitBlockAverageMatrix (d ℓ N m : ℕ) [NeZero ℓ] [NeZero m] :
     Matrix (Torus d m) (Torus d ℓ) ℝ :=
   fun y x => if blockMap N m x = y then ((N : ℝ) ^ d)⁻¹ else 0
 
@@ -440,9 +440,9 @@ noncomputable def blockPullbackMatrix (d ℓ N m : ℕ) [NeZero ℓ] [NeZero m] 
   fun x y => if blockMap N m x = y then 1 else 0
 
 theorem blockAverageMatrix_mulVec (φ : Torus d ℓ → ℝ) :
-    blockAverageMatrix d ℓ N m *ᵥ φ = blockAverage N m φ := by
+    unitBlockAverageMatrix d ℓ N m *ᵥ φ = blockAverage N m φ := by
   funext y
-  simp only [Matrix.mulVec, dotProduct, blockAverageMatrix, ite_mul, zero_mul,
+  simp only [Matrix.mulVec, dotProduct, unitBlockAverageMatrix, ite_mul, zero_mul,
     blockAverage_apply]
   rw [← Finset.sum_filter, ← Finset.mul_sum]
   congr 2
@@ -464,7 +464,7 @@ This is the Schur complement and not P4's constrained `Δ^{(k)}`. -/
 noncomputable def unconstrainedUnitOperator (d ℓ N m : ℕ) [NeZero ℓ] [NeZero m] (ν a : ℝ) :
     Matrix (Torus d m) (Torus d m) ℝ :=
   a • (1 : Matrix (Torus d m) (Torus d m) ℝ) -
-    (a ^ 2) • (blockAverageMatrix d ℓ N m * (fineHamiltonian d ℓ N m ν a)⁻¹ *
+    (a ^ 2) • (unitBlockAverageMatrix d ℓ N m * (fineHamiltonian d ℓ N m ν a)⁻¹ *
       blockPullbackMatrix d ℓ N m)
 
 theorem unconstrainedUnitOperator_eq (hN : 0 < N) (hd : 0 < d) (hℓ : ℓ = N * m) {ν a : ℝ}
@@ -475,9 +475,9 @@ theorem unconstrainedUnitOperator_eq (hN : 0 < N) (hd : 0 < d) (hℓ : ℓ = N *
   have hc : (N : ℝ) ^ 2 ≠ 0 := by positivity
   set c : ℝ := (N : ℝ) ^ 2 with hcdef
   have hs : Real.sqrt ((N : ℝ) ^ d) ≠ 0 := by positivity
-  have hQa : blockAverageMatrix d ℓ N m = (Real.sqrt ((N : ℝ) ^ d))⁻¹ • orthoBlockMatrix d ℓ N m := by
+  have hQa : unitBlockAverageMatrix d ℓ N m = (Real.sqrt ((N : ℝ) ^ d))⁻¹ • orthoBlockMatrix d ℓ N m := by
     ext y x
-    simp only [blockAverageMatrix, orthoBlockMatrix, Matrix.smul_apply, smul_eq_mul]
+    simp only [unitBlockAverageMatrix, orthoBlockMatrix, Matrix.smul_apply, smul_eq_mul]
     split_ifs
     · rw [← mul_inv, Real.mul_self_sqrt (by positivity)]
     · simp
