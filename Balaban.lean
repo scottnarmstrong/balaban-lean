@@ -26,3 +26,5 @@ public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
+public import Balaban.Flow.RGEquations
+public import Balaban.Flow.RunningCoefficients
