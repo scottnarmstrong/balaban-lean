@@ -17,3 +17,10 @@
 | 2026-10-11 | D-PE polymer document | draft, in review | `notes/phase1/POLYMER.md` (Sonnet); review → `POLYMER-review.md` |
 | 2026-10-11 | W1b multiscale | landed | torus Laplacian matrix, one-step splitting `A⁻¹ = M⁻¹ + HΔ⁻¹Hᵀ`, exact k-step decomposition `laplacian_inv_eq_multiscale`, positivity (≈410 lines); axioms standard |
 | 2026-10-11 | D-PE polymer document | revised | review R1–R12 addressed (`## Review dispositions`); ready for PE interface drafting and W3b |
+| 2026-10-11 | W7 holomorphy | landed | Cauchy estimates (ball, polydisc, mixed i≠j), several-variable Weierstrass (uniform limits analytic), `exists_analytic_fixedPoint`, `exists_tendsto_prod_inv_one_add` (≈900 lines); axioms standard |
+| 2026-10-11 | W2b coercivity | landed | block Poincaré (const d/2), single-scale coercivity with complex α (`blockHamiltonianC_isCoercive`), Schur variational form, `unconstrainedUnitOperator_lower` (γ ≥ 1/(8d+3)) (≈1,470 lines); constrained (λ=∞) operator and multiscale item 4 open |
+| 2026-10-11 | W4 RG equations | landed | `4985fa7` via land.sh: `Balaban.Flow.exists_rg_solution` (P4 Prop 5.1, λ=∞), triangular form, running coefficients, (H.6) bounds, `exists_gamma_infty` (5.33), `exists_inv_betaSeq_asymptotics` (P9 (4.18)) (≈710 lines); axioms standard |
+| 2026-10-11 | W2c G-4 tails | landed | `0f2d7b5`: Lemma 4.10 `sum_tail_le`, G-4(b) `domain_difference`, G-4(c) `perturbation_tails`, ℓ¹ ball sums (≈700 lines); axioms standard |
+| 2026-10-11 | D-G Green's function document | final | re-review APPROVE-WITH-CHANGES, N-1..N-6 applied; freeze-candidate list in §3 |
+| 2026-10-11 | W5 constant configs, O(N) reduction | landed | `05e2eb7`: λ=∞ constant configurations (unique minimizer/EL solution, complex analytic extension, P2-type bounds, covariance), analytic O(N) reduction `exists_invariant_reduction` (≈1,700 lines); axioms standard |
+| 2026-10-11 | W8a multiscale coercivity | landed | `7130c2c`: `GeneratingSet`, layers, spacing, averaging form (1.4), `dirichletOperator` (1.6), `pathDist` (1.9), `multiscale_coercive` (c₁ = 1/(2d)), invertibility (≈750 lines) |
