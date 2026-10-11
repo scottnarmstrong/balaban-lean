@@ -8,6 +8,7 @@ module
 public import Balaban.Model.Symmetry
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+public import Mathlib.Analysis.Real.Pi.Bounds
 
 /-!
 # The partition function with a source is entire (Lemma 0.1)
@@ -140,5 +141,121 @@ theorem differentiable_partitionFunction (β ν : ℝ) (h : EuclideanSpace ℝ (
     Differentiable ℂ (partitionFunction d N ℓ β ν h) := by
   rw [partitionFunction_eq_sourceIntegral]
   exact differentiable_sourceIntegral β ν h continuous_const
+
+/-! ### Positivity at `g = 0` and the logarithm -/
+
+theorem sourcePairing_zero (φ : Torus d ℓ → SpinSphere N) :
+    sourcePairing (0 : Torus d ℓ → Fin N → ℂ) φ = 0 := by
+  simp [sourcePairing]
+
+/-- `Z(0) = ∫ e^{-βH}` (as a complex number). -/
+theorem partitionFunction_zero (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) :
+    partitionFunction d N ℓ β ν h 0 =
+      ((∫ φ, Real.exp (-(β * energy d N ℓ ν h φ)) ∂aprioriMeasure d N ℓ : ℝ) : ℂ) := by
+  rw [← integral_complex_ofReal]
+  unfold partitionFunction
+  refine integral_congr_ae (Filter.Eventually.of_forall fun φ => ?_)
+  show Complex.exp (-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing 0 φ) = _
+  rw [sourcePairing_zero, add_zero]
+  simp only [Complex.ofReal_exp, Complex.ofReal_neg]
+
+theorem partitionFunctionReal_pos [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) :
+    0 < ∫ φ, Real.exp (-(β * energy d N ℓ ν h φ)) ∂aprioriMeasure d N ℓ := by
+  have : NeZero (aprioriMeasure d N ℓ) := ⟨aprioriMeasure_ne_zero d N ℓ⟩
+  have hE := continuous_energy (d := d) (N := N) (ℓ := ℓ) ν h
+  exact integral_exp_pos (integrable_of_continuous (by fun_prop))
+
+/-- `Z(0) > 0`, and it is real. -/
+theorem partitionFunction_zero_pos [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) :
+    ∃ r : ℝ, 0 < r ∧ partitionFunction d N ℓ β ν h 0 = (r : ℂ) :=
+  ⟨_, partitionFunctionReal_pos β ν h, partitionFunction_zero β ν h⟩
+
+/-- The domain `∑_x ∑_i |g_i(x)| < 1` on which the logarithm of `Z(g)/Z(0)` is analytic. -/
+def sourceBall (d N ℓ : ℕ) [NeZero ℓ] : Set (Torus d ℓ → Fin N → ℂ) :=
+  {g | ∑ x : Torus d ℓ, ∑ i : Fin N, ‖g x i‖ < 1}
+
+theorem isOpen_sourceBall : IsOpen (sourceBall d N ℓ) :=
+  isOpen_lt (by fun_prop) continuous_const
+
+theorem zero_mem_sourceBall : (0 : Torus d ℓ → Fin N → ℂ) ∈ sourceBall d N ℓ := by
+  simp [sourceBall]
+
+theorem abs_im_sourcePairing_le (g : Torus d ℓ → Fin N → ℂ) (φ : Torus d ℓ → SpinSphere N) :
+    |(sourcePairing g φ).im| ≤ ∑ x : Torus d ℓ, ∑ i : Fin N, ‖g x i‖ := by
+  refine (Complex.abs_im_le_norm _).trans ?_
+  unfold sourcePairing
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun i _ => ?_)
+  rw [norm_mul, Complex.norm_real]
+  have : ‖(φ x : EuclideanSpace ℝ (Fin N)) i‖ ≤ 1 := by
+    calc ‖(φ x : EuclideanSpace ℝ (Fin N)) i‖ ≤ ‖(φ x : EuclideanSpace ℝ (Fin N))‖ :=
+          PiLp.norm_apply_le _ i
+      _ = 1 := by simp
+  nlinarith [norm_nonneg (g x i)]
+
+/-- On `∑ |g| < 1` the real part of `Z(g)` is positive (`|Im ⟨g, φ⟩| < 1 < π/2`). -/
+theorem re_partitionFunction_pos [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    {g : Torus d ℓ → Fin N → ℂ} (hg : g ∈ sourceBall d N ℓ) :
+    0 < (partitionFunction d N ℓ β ν h g).re := by
+  have : NeZero (aprioriMeasure d N ℓ) := ⟨aprioriMeasure_ne_zero d N ℓ⟩
+  have h1 := continuous_energy (d := d) (N := N) (ℓ := ℓ) ν h
+  have h2 : Continuous fun φ : Torus d ℓ → SpinSphere N => sourcePairing g φ :=
+    continuous_sourcePairing_prod.comp (Continuous.prodMk_right g)
+  have hint : Integrable (fun φ => Complex.exp
+      (-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ)) (aprioriMeasure d N ℓ) :=
+    integrable_of_continuous (by fun_prop)
+  have key : (partitionFunction d N ℓ β ν h g).re = ∫ φ, (Complex.exp
+      (-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ)).re ∂aprioriMeasure d N ℓ := by
+    have := (integral_re hint).symm
+    simp only [RCLike.re_to_complex] at this
+    exact this
+  rw [key]
+  simp only [Complex.exp_re]
+  have hpos : ∀ φ : Torus d ℓ → SpinSphere N, 0 < Real.exp ((-((β * energy d N ℓ ν h φ : ℝ) : ℂ)
+      + sourcePairing g φ).re) * Real.cos (-((β * energy d N ℓ ν h φ : ℝ) : ℂ)
+      + sourcePairing g φ).im := by
+    intro φ
+    refine mul_pos (Real.exp_pos _) (Real.cos_pos_of_mem_Ioo ⟨?_, ?_⟩)
+    · have := abs_im_sourcePairing_le g φ
+      have h1 := abs_lt.1 (lt_of_le_of_lt this hg)
+      simp only [Complex.add_im, Complex.neg_im, Complex.ofReal_im, neg_zero, zero_add]
+      linarith [Real.pi_gt_three, h1.1]
+    · have := abs_im_sourcePairing_le g φ
+      have h1 := abs_lt.1 (lt_of_le_of_lt this hg)
+      simp only [Complex.add_im, Complex.neg_im, Complex.ofReal_im, neg_zero, zero_add]
+      linarith [Real.pi_gt_three, h1.2]
+  have hcont : Continuous fun φ : Torus d ℓ → SpinSphere N =>
+      Real.exp ((-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ).re) *
+        Real.cos (-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ).im := by
+    fun_prop
+  rw [integral_pos_iff_support_of_nonneg (fun φ => (hpos φ).le) (integrable_of_continuous hcont)]
+  have : Function.support (fun φ : Torus d ℓ → SpinSphere N =>
+      Real.exp ((-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ).re) *
+        Real.cos (-((β * energy d N ℓ ν h φ : ℝ) : ℂ) + sourcePairing g φ).im) = Set.univ :=
+    Set.eq_univ_of_forall fun φ => (hpos φ).ne'
+  rw [this]
+  exact aprioriMeasure_univ_pos d N ℓ
+
+theorem partitionFunction_ne_zero [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    {g : Torus d ℓ → Fin N → ℂ} (hg : g ∈ sourceBall d N ℓ) :
+    partitionFunction d N ℓ β ν h g ≠ 0 := by
+  intro h0
+  have := re_partitionFunction_pos β ν h hg
+  rw [h0] at this
+  simp at this
+
+/-- `Re (Z(g)/Z(0)) > 0` on `∑ |g| < 1`. -/
+theorem re_partitionFunction_div_pos [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    {g : Torus d ℓ → Fin N → ℂ} (hg : g ∈ sourceBall d N ℓ) :
+    0 < (partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0).re := by
+  obtain ⟨r, hr, h0⟩ := partitionFunction_zero_pos (d := d) (N := N) (ℓ := ℓ) β ν h
+  rw [h0, Complex.div_ofReal_re]
+  exact div_pos (re_partitionFunction_pos β ν h hg) hr
+
+/-- `Z(g)/Z(0)` lies in the slit plane on `∑ |g| < 1`. -/
+theorem partitionFunction_div_mem_slitPlane [NeZero N] (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    {g : Torus d ℓ → Fin N → ℂ} (hg : g ∈ sourceBall d N ℓ) :
+    partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0 ∈ Complex.slitPlane :=
+  Complex.mem_slitPlane_iff.2 (Or.inl (re_partitionFunction_div_pos β ν h hg))
 
 end Balaban
