@@ -730,6 +730,77 @@ theorem Dec.of_blockwise {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {T 
         nlinarith [mul_le_mul_of_nonneg_right this hb0]
     _ = _ := by unfold noTail; ring
 
+/-- Conversion of the one-sided form `ℓ_j^{2w-b} ℓ_{j'}^b` (the form produced by the Agmon
+estimates) to the symmetric form `(ℓ_j ℓ_{j'})^w` at the price of `κ |b - w|` in the rate. -/
+theorem Dec.of_one_sided {s₁ : ι₁ → G.Ω 1} {s₂ : ι₂ → G.Ω 1} {T : Matrix ι₁ ι₂ ℂ} {w b : ℤ}
+    {A γ₀ κ : ℝ} (hϱ : 1 < ϱ) (hκ : Real.log L ≤ κ * (ϱ - 1)) (hA : 0 ≤ A)
+    (hT : ∀ (j j' : ℕ) (y y' : Torus d (N₀ * L ^ k)), 1 ≤ j → j ≤ k → 1 ≤ j' → j' ≤ k →
+      y ∈ G.layer j → y' ∈ G.layer j' → ∀ f : ι₂ → ℂ,
+        bn G s₁ j y (T *ᵥ bproj G s₂ j' y' f) ≤
+          A * (((L : ℝ) ^ j) ^ (2 * w - b) * ((L : ℝ) ^ j') ^ b) * decay γ₀ (G.pathDist y y') *
+            bn G s₂ j' y' f) :
+    Dec G s₁ s₂ T w (γ₀ - κ * ((b - w).natAbs : ℝ)) noTail (A * (L : ℝ) ^ (b - w).natAbs) := by
+  intro j j' y y' hj1 hjk hj'1 hj'k hy hy' f
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hL0 : (0 : ℝ) < L := by linarith
+  have ha : (0 : ℝ) < (L : ℝ) ^ j := by positivity
+  have hc : (0 : ℝ) < (L : ℝ) ^ j' := by positivity
+  have hb0 := bn_nonneg s₂ j' y' f
+  have h1 := hT j j' y y' hj1 hjk hj'1 hj'k hy hy' f
+  have hR0 : 0 ≤ A * (L : ℝ) ^ (b - w).natAbs * (((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w) *
+      decay (γ₀ - κ * ((b - w).natAbs : ℝ)) (G.pathDist y y') * noTail y y' *
+        bn G s₂ j' y' f := by
+    have := decay_nonneg (γ₀ - κ * ((b - w).natAbs : ℝ)) (G.pathDist y y')
+    unfold noTail
+    positivity
+  by_cases hD : G.pathDist y y' = ⊤
+  · rw [hD, decay_top] at h1
+    refine h1.trans ?_
+    rw [hD, decay_top]
+    simp
+  have hκ0 : 0 ≤ κ := by
+    by_contra h
+    push Not at h
+    have := Real.log_nonneg hL
+    nlinarith
+  set Dr := (G.pathDist y y').toReal with hDr
+  have hr1 := spacing_ratio_le G hϱ hκ hj1 hjk hj'1 hj'k hy hy' hD
+  have hr2 := spacing_ratio_le G hϱ hκ hj'1 hj'k hj1 hjk hy' hy (by
+    rw [GeneratingSet.pathDist_comm]; exact hD)
+  rw [GeneratingSet.pathDist_comm y' y] at hr2
+  have hE1 : (1 : ℝ) ≤ Real.exp (κ * Dr) := Real.one_le_exp (by positivity)
+  have hratio := zpow_div_le (a := (L : ℝ) ^ j') (b := (L : ℝ) ^ j) (r := L * Real.exp (κ * Dr))
+    hc ha (by nlinarith) hr1 hr2 (b - w)
+  have hid : ((L : ℝ) ^ j) ^ (2 * w - b) * ((L : ℝ) ^ j') ^ b =
+      ((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w * (((L : ℝ) ^ j') / ((L : ℝ) ^ j)) ^ (b - w) := by
+    rw [mul_zpow, div_zpow]
+    have e1 : ((L : ℝ) ^ j) ^ (2 * w - b) = ((L : ℝ) ^ j) ^ w * ((L : ℝ) ^ j) ^ (w - b) := by
+      rw [← zpow_add₀ ha.ne']; congr 1; ring
+    have e2 : ((L : ℝ) ^ j') ^ b = ((L : ℝ) ^ j') ^ w * ((L : ℝ) ^ j') ^ (b - w) := by
+      rw [← zpow_add₀ hc.ne']; congr 1; ring
+    have e3 : ((L : ℝ) ^ j) ^ (w - b) = (((L : ℝ) ^ j) ^ (b - w))⁻¹ := by
+      rw [← _root_.zpow_neg]; congr 1; ring
+    rw [e1, e2, e3]
+    have : ((L : ℝ) ^ j) ^ (b - w) ≠ 0 := zpow_ne_zero _ ha.ne'
+    field_simp
+  rw [hid] at h1
+  have hpow : (L * Real.exp (κ * Dr)) ^ (b - w).natAbs =
+      (L : ℝ) ^ (b - w).natAbs * Real.exp (((b - w).natAbs : ℝ) * (κ * Dr)) := by
+    rw [mul_pow, ← Real.exp_nat_mul]
+  have hdec : decay γ₀ (G.pathDist y y') * Real.exp (((b - w).natAbs : ℝ) * (κ * Dr)) =
+      decay (γ₀ - κ * ((b - w).natAbs : ℝ)) (G.pathDist y y') := by
+    rw [decay_of_ne_top hD, decay_of_ne_top hD, ← Real.exp_add]; congr 1; ring
+  have hQ : 0 ≤ ((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w := by positivity
+  have hdn := decay_nonneg γ₀ (G.pathDist y y')
+  calc _ ≤ A * (((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w * (((L : ℝ) ^ j') / ((L : ℝ) ^ j)) ^ (b - w)) *
+        decay γ₀ (G.pathDist y y') * bn G s₂ j' y' f := h1
+    _ ≤ A * (((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w * (L * Real.exp (κ * Dr)) ^ (b - w).natAbs) *
+        decay γ₀ (G.pathDist y y') * bn G s₂ j' y' f := by gcongr
+    _ = A * (L : ℝ) ^ (b - w).natAbs * (((L : ℝ) ^ j * (L : ℝ) ^ j') ^ w) *
+        (decay γ₀ (G.pathDist y y') * Real.exp (((b - w).natAbs : ℝ) * (κ * Dr))) * noTail y y' *
+          bn G s₂ j' y' f := by rw [hpow]; unfold noTail; ring
+    _ = _ := by rw [hdec]
+
 end Dec
 
 end Balaban.Multiscale
