@@ -176,3 +176,14 @@ public import Balaban.Correlations.KernelHypProof
 public import Balaban.Correlations.KernelLarge
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
+public import Balaban.Correlations.RootCStatement
+public import Balaban.Correlations.C1Star
+public import Balaban.Correlations.LimAlong
+public import Balaban.Correlations.RealSequences
+public import Balaban.Correlations.MainTerm
+public import Balaban.Correlations.LemmaThree
+public import Balaban.Correlations.ZeroLimit
+public import Balaban.Correlations.BoundsNu
+public import Balaban.Correlations.GoldstoneUniform
+public import Balaban.Correlations.GoldstoneStep
+public import Balaban.Correlations.Assembly
