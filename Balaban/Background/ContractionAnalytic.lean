@@ -194,6 +194,141 @@ theorem an_Tmap (a : ℕ → ℝ) (ν : ℝ) (q : Qvar G N)
   simp only [Tmap, Smap, Nmap_explicit]
   rfl
 
+theorem continuous_vn : Continuous (vn : (Fin N → ℂ) → ℝ) := by
+  unfold vn
+  exact continuous_norm.comp (PiLp.continuous_toLp 2 _)
+
+theorem isOpen_forall_lt {α E : Type*} [Finite α] [TopologicalSpace E] {f : α → E → ℝ}
+    {c : α → ℝ} (hf : ∀ a, Continuous (f a)) : IsOpen {p | ∀ a, f a p < c a} := by
+  simp only [Set.ofPred_forall]
+  exact isOpen_iInter_of_finite fun a => isOpen_lt (hf a) continuous_const
+
+/-- The open set of data of Proposition 5.1: the hypotheses (P1)–(P4) with strict inequalities
+(`δ₀, δ₁` fixed numbers). -/
+def StrictData (G : GeneratingSet d L N₀ k ϱ) (N : ℕ) (δ₀ δ₁ : ℝ) (p : Edat G N) : Prop :=
+  (∀ (x : G.Ω 1) (μ : Fin d),
+      vn (p.1 ((x : Torus d (N₀ * L ^ k)) + Pi.single μ 1) - p.1 x) <
+        δ₀ / G.spacing (x : Torus d (N₀ * L ^ k)) ∧
+      vn (p.1 ((x : Torus d (N₀ * L ^ k)) - Pi.single μ 1) - p.1 x) <
+        δ₀ / G.spacing (x : Torus d (N₀ * L ^ k))) ∧
+  (∀ x : G.Ω 1, vn (fun i => ∑ μ : Fin d, (p.1 ((x : Torus d (N₀ * L ^ k)) + Pi.single μ 1) i +
+      p.1 ((x : Torus d (N₀ * L ^ k)) - Pi.single μ 1) i - 2 * p.1 x i)) <
+      δ₀ / G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2) ∧
+  (∀ x : G.Ω 1, vn (p.1 x) < 3 / 2) ∧
+  (∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.1 x‖ < δ₀) ∧
+  (∀ (x : G.Ω 1) (i : Fin N), G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.2.2 (x, i)‖ < δ₁) ∧
+  (∀ x : dataSites G, vn (p.2.2.1 x) < δ₁) ∧
+  (∀ x : G.Ω 1, ‖gdef G p.1 x‖ < δ₁) ∧
+  (∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+    ‖negLap (zeroExt (G.Ω 1) (gdef G p.1)) (x : Torus d (N₀ * L ^ k))‖ < δ₁)
+
+theorem isOpen_strictData_aux1 (δ₀ : ℝ) : IsOpen {p : Edat G N | ∀ (x : G.Ω 1) (μ : Fin d),
+      vn (p.1 ((x : Torus d (N₀ * L ^ k)) + Pi.single μ 1) - p.1 x) <
+        δ₀ / G.spacing (x : Torus d (N₀ * L ^ k)) ∧
+      vn (p.1 ((x : Torus d (N₀ * L ^ k)) - Pi.single μ 1) - p.1 x) <
+        δ₀ / G.spacing (x : Torus d (N₀ * L ^ k))} := by
+  simp only [Set.ofPred_forall, Set.ofPred_and]
+  refine isOpen_iInter_of_finite fun x => isOpen_iInter_of_finite fun μ => IsOpen.inter ?_ ?_
+  · exact isOpen_lt (continuous_vn.comp (by fun_prop)) continuous_const
+  · exact isOpen_lt (continuous_vn.comp (by fun_prop)) continuous_const
+
+theorem isOpen_strictData_aux2 (δ₀ : ℝ) : IsOpen {p : Edat G N | ∀ x : G.Ω 1,
+    vn (fun i => ∑ μ : Fin d, (p.1 ((x : Torus d (N₀ * L ^ k)) + Pi.single μ 1) i +
+      p.1 ((x : Torus d (N₀ * L ^ k)) - Pi.single μ 1) i - 2 * p.1 x i)) <
+      δ₀ / G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2} := by
+  refine isOpen_forall_lt (f := fun (x : G.Ω 1) (p : Edat G N) => vn (fun i => ∑ μ : Fin d,
+      (p.1 ((x : Torus d (N₀ * L ^ k)) + Pi.single μ 1) i +
+      p.1 ((x : Torus d (N₀ * L ^ k)) - Pi.single μ 1) i - 2 * p.1 x i)))
+      (c := fun x => δ₀ / G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2) fun x => ?_
+  refine continuous_vn.comp (continuous_pi fun i => continuous_finsetSum _ fun μ _ => ?_)
+  fun_prop
+
+theorem isOpen_strictData_o3 : IsOpen {p : Edat G N | ∀ x : G.Ω 1, vn (p.1 x) < 3 / 2} :=
+  isOpen_forall_lt (f := fun (x : G.Ω 1) (p : Edat G N) => vn (p.1 x))
+      (c := fun _ => 3 / 2) fun x => continuous_vn.comp (by fun_prop)
+
+theorem isOpen_strictData_o4 (δ₀ : ℝ) : IsOpen {p : Edat G N | ∀ x : G.Ω 1,
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.1 x‖ < δ₀} :=
+  isOpen_forall_lt (f := fun (x : G.Ω 1) (p : Edat G N) =>
+      G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.1 x‖) (c := fun _ => δ₀)
+      fun x => by fun_prop
+
+theorem isOpen_strictData_o5 (δ₁ : ℝ) : IsOpen {p : Edat G N | ∀ (x : G.Ω 1) (i : Fin N),
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.2.2 (x, i)‖ < δ₁} := by
+  have : {p : Edat G N | ∀ (x : G.Ω 1) (i : Fin N),
+      G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.2.2 (x, i)‖ < δ₁} =
+      {p : Edat G N | ∀ q : G.Ω 1 × Fin N,
+        G.spacing (q.1 : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.2.2 q‖ < δ₁} := by
+    ext p; simp [Prod.forall]
+  rw [this]
+  exact isOpen_forall_lt (f := fun (q : G.Ω 1 × Fin N) (p : Edat G N) =>
+      G.spacing (q.1 : Torus d (N₀ * L ^ k)) ^ 2 * ‖p.2.2.2 q‖) (c := fun _ => δ₁)
+      fun q => by fun_prop
+
+theorem isOpen_strictData_o6 (δ₁ : ℝ) :
+    IsOpen {p : Edat G N | ∀ x : dataSites G, vn (p.2.2.1 x) < δ₁} :=
+  isOpen_forall_lt (f := fun (x : dataSites G) (p : Edat G N) => vn (p.2.2.1 x))
+      (c := fun _ => δ₁) fun x => continuous_vn.comp (by fun_prop)
+
+theorem isOpen_strictData_o7 (δ₁ : ℝ) :
+    IsOpen {p : Edat G N | ∀ x : G.Ω 1, ‖gdef G p.1 x‖ < δ₁} :=
+  isOpen_forall_lt (f := fun (x : G.Ω 1) (p : Edat G N) => ‖gdef G p.1 x‖)
+      (c := fun _ => δ₁) fun x => by unfold gdef; fun_prop
+
+theorem isOpen_strictData_o8 (δ₁ : ℝ) : IsOpen {p : Edat G N | ∀ x : G.Ω 1,
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+    ‖negLap (zeroExt (G.Ω 1) (gdef G p.1)) (x : Torus d (N₀ * L ^ k))‖ < δ₁} := by
+  refine isOpen_forall_lt (f := fun (x : G.Ω 1) (p : Edat G N) => G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+      ‖negLap (zeroExt (G.Ω 1) (gdef G p.1)) (x : Torus d (N₀ * L ^ k))‖) (c := fun _ => δ₁) fun x => ?_
+  have hz : ∀ y : Torus d (N₀ * L ^ k),
+      Continuous fun p : Edat G N => zeroExt (G.Ω 1) (gdef G p.1) y := by
+    intro y
+    by_cases hy : y ∈ G.Ω 1
+    · simp only [zeroExt, hy, ↓reduceDIte]
+      unfold gdef; fun_prop
+    · simp only [zeroExt, hy, ↓reduceDIte]; exact continuous_const
+  unfold negLap
+  refine continuous_const.mul (continuous_norm.comp (continuous_finsetSum _ fun μ _ => ?_))
+  exact ((continuous_const.mul (hz _)).sub (hz _)).sub (hz _)
+
+theorem isOpen_strictData (δ₀ δ₁ : ℝ) : IsOpen {p : Edat G N | StrictData G N δ₀ δ₁ p} := by
+  unfold StrictData
+  simp only [Set.ofPred_and]
+  exact (isOpen_strictData_aux1 δ₀).inter ((isOpen_strictData_aux2 δ₀).inter
+    (isOpen_strictData_o3.inter ((isOpen_strictData_o4 δ₀).inter ((isOpen_strictData_o5 δ₁).inter
+    ((isOpen_strictData_o6 δ₁).inter ((isOpen_strictData_o7 δ₁).inter
+    (isOpen_strictData_o8 δ₁)))))))
+
+theorem StrictData.hyp {a : ℕ → ℝ} {ν : ℝ} (S : GreenSetting G a ν) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀)
+    (h1 : 0 ≤ δ₁) (hle0 : δ₀ ≤ deltaStar d L N) (hle1 : δ₁ ≤ deltaStar d L N)
+    {p : Edat G N} (hp : StrictData G N δ₀ δ₁ p) :
+    Prop51Hyp G a ν p.2.1 p.1 p.2.2.1 p.2.2.2 δ₀ δ₁ := by
+  obtain ⟨c1, c2, c3, c4, c5, c6, c7, c8⟩ := hp
+  refine ⟨S, h0, h1, hle0, hle1, ⟨?_, ?_⟩, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro x hx μ
+    exact ⟨(c1 ⟨x, hx⟩ μ).1.le, (c1 ⟨x, hx⟩ μ).2.le⟩
+  · intro x hx; exact (c2 ⟨x, hx⟩).le
+  · intro x hx; exact (c3 ⟨x, hx⟩).le
+  · intro x; exact (c4 x).le
+  · intro x i; exact (c5 x i).le
+  · intro x hx; exact (c6 ⟨x, hx⟩).le
+  · intro x; exact (c7 x).le
+  · intro x; exact (c8 x).le
+
+theorem fixed_of_Smap_fixed {a : ℕ → ℝ} {ν : ℝ} {α₀ : G.Ω 1 → ℂ}
+    {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {Fs : G.Ω 1 × Fin N → ℂ} {ξ : G.Ω 1 → ℂ}
+    (hfix : Smap G a ν α₀ φ₀ Fs ξ = ξ) :
+    Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs (toAlpha G ξ)) = toAlpha G ξ := by
+  funext x
+  have hp : ((G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 : ℝ) : ℂ) ≠ 0 := by
+    have := spacing_pos G (x := (x : Torus d (N₀ * L ^ k)))
+    exact_mod_cast (by positivity : G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 ≠ 0)
+  have := congrFun hfix x
+  unfold Smap at this
+  simp only [toAlpha]
+  rw [eq_div_iff hp, mul_comm]
+  exact this
+
 end Families
 
 end Balaban.Background

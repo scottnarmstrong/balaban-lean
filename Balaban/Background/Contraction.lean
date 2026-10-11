@@ -537,6 +537,35 @@ theorem Smap_zero_bound (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ}
   have := Nmap_bound H hD0 hs x
   exact this
 
+theorem Smap_lip_norm (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ}
+    (hC : CoreHyp G N δ₀ Fb Gb ρ) (ξ ξ' : G.Ω 1 → ℂ)
+    (hξ : ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ) (hξ' : ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ) :
+    ‖Smap G a ν α₀ φ₀ Fs ξ - Smap G a ν α₀ φ₀ Fs ξ'‖ ≤ 1 / 2 * ‖ξ - ξ'‖ := by
+  rw [mem_closedBall_zero_iff] at hξ hξ'
+  refine (pi_norm_le_iff_of_nonneg (by positivity)).2 fun x => ?_
+  exact Smap_lip H hC (fun y => (norm_le_pi_norm ξ y).trans hξ)
+    (fun y => (norm_le_pi_norm ξ' y).trans hξ') x
+
+theorem Smap_mem_ball (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ}
+    (hC : CoreHyp G N δ₀ Fb Gb ρ) :
+    ∀ ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ,
+      Smap G a ν α₀ φ₀ Fs ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ := by
+  have hρ := hC.ρ_nn
+  intro ξ hξ
+  rw [mem_closedBall_zero_iff] at hξ ⊢
+  refine (pi_norm_le_iff_of_nonneg hρ).2 fun x => ?_
+  have h1 := Smap_lip H hC (ξ := ξ) (ξ' := 0) (fun y => (norm_le_pi_norm ξ y).trans hξ)
+    (fun y => by simp [hρ]) x
+  have h0 := Smap_zero_bound H hC x
+  have := hC.self
+  have e : ‖(ξ - 0)‖ ≤ ρ := by simpa using hξ
+  calc ‖Smap G a ν α₀ φ₀ Fs ξ x‖ ≤ ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x‖ +
+        ‖Smap G a ν α₀ φ₀ Fs 0 x‖ := by
+        have := norm_add_le (Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x)
+          (Smap G a ν α₀ φ₀ Fs 0 x)
+        simpa using this
+    _ ≤ ρ := by linarith
+
 theorem exists_fixed (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (hC : CoreHyp G N δ₀ Fb Gb ρ) :
     ∃ δα : G.Ω 1 → ℂ, Small G δα ρ ∧
       Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα) = δα ∧
@@ -544,31 +573,9 @@ theorem exists_fixed (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ} (h
       ∀ δα' : G.Ω 1 → ℂ, Small G δα' ρ →
         Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα') = δα' → δα' = δα := by
   have hρ := hC.ρ_nn
-  have hS := fun ξ ξ' (hξ : ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ)
-      (hξ' : ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ) => by
-    rw [mem_closedBall_zero_iff] at hξ hξ'
-    show ‖Smap G a ν α₀ φ₀ Fs ξ - Smap G a ν α₀ φ₀ Fs ξ'‖ ≤ 1 / 2 * ‖ξ - ξ'‖
-    refine (pi_norm_le_iff_of_nonneg (by positivity)).2 fun x => ?_
-    exact Smap_lip H hC (fun y => (norm_le_pi_norm ξ y).trans hξ)
-      (fun y => (norm_le_pi_norm ξ' y).trans hξ') x
-  have hmaps : ∀ ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ,
-      Smap G a ν α₀ φ₀ Fs ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ := by
-    intro ξ hξ
-    rw [mem_closedBall_zero_iff] at hξ ⊢
-    refine (pi_norm_le_iff_of_nonneg hρ).2 fun x => ?_
-    have h1 := Smap_lip H hC (ξ := ξ) (ξ' := 0) (fun y => (norm_le_pi_norm ξ y).trans hξ)
-      (fun y => by simp [hρ]) x
-    have h0 := Smap_zero_bound H hC x
-    have := hC.self
-    have e : ‖(ξ - 0)‖ ≤ ρ := by simpa using hξ
-    calc ‖Smap G a ν α₀ φ₀ Fs ξ x‖ ≤ ‖Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x‖ +
-          ‖Smap G a ν α₀ φ₀ Fs 0 x‖ := by
-          have := norm_add_le (Smap G a ν α₀ φ₀ Fs ξ x - Smap G a ν α₀ φ₀ Fs 0 x)
-            (Smap G a ν α₀ φ₀ Fs 0 x)
-          simpa using this
-      _ ≤ ρ := by linarith
+  have hmaps := Smap_mem_ball H hC
   obtain ⟨ξ, hξB, hfix, huniq, -⟩ := Balaban.Analysis.exists_unique_fixedPoint_closedBall (S := Smap G a ν α₀ φ₀ Fs)
-    hρ (by norm_num) (by norm_num) hmaps (fun ξ hξ ξ' hξ' => hS ξ ξ' hξ hξ')
+    hρ (by norm_num) (by norm_num) hmaps (fun ξ hξ ξ' hξ' => Smap_lip_norm H hC ξ ξ' hξ hξ')
   rw [mem_closedBall_zero_iff] at hξB
   have hξx : ∀ x, ‖ξ x‖ ≤ ρ := fun x => (norm_le_pi_norm ξ x).trans hξB
   have hfixx : ∀ x, Smap G a ν α₀ φ₀ Fs ξ x = ξ x := fun x => congrFun hfix x
@@ -651,6 +658,27 @@ theorem isPerturbed_dphi_iff (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {δα
     rw [dphi, ← h, liftOp_inv_mulVec hU]
   · intro h
     rw [h]; exact dphi_eq H hs hr
+
+/-- A fixed point of `𝒩` in the ball gives a solution of (P-1), (P-2). -/
+theorem perturbed_of_fixed (H : Setup G a ν α₀ φ₀ Fs δ₀ Fb Gb) {ρ : ℝ}
+    (hC : CoreHyp G N δ₀ Fb Gb ρ) {δα : G.Ω 1 → ℂ} (hsmall : Small G δα ρ)
+    (hfix : Nmap G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα) = δα) :
+    IsPerturbed G a ν α₀ φ₀ Fs (dphi G a ν α₀ φ₀ Fs δα) δα := by
+  have hρ := hC.ρ_nn
+  have hr : δ₀ + ρ ≤ gamma1 d := by linarith [hC.poly]
+  have hU2 := H.green.isUnit (H.poly (small_two_mul hsmall) (by linarith [hC.poly]))
+  have hP1 := (isPerturbed_dphi_iff H hsmall hr (dphi G a ν α₀ φ₀ Fs δα)).2 rfl
+  have hu : ∀ x : G.Ω 1, 2 * ∑ i, φ₀ x i * dphi G a ν α₀ φ₀ Fs δα (x, i) +
+      ∑ i, dphi G a ν α₀ φ₀ Fs δα (x, i) * dphi G a ν α₀ φ₀ Fs δα (x, i) + gdef G φ₀ x = 0 := by
+    have hz : (dirichletOperator G a ν (α₀ + 2 * δα) *ᵥ fun y => 2 * ∑ i, φ₀ y i *
+        dphi G a ν α₀ φ₀ Fs δα (y, i) + ∑ i, dphi G a ν α₀ φ₀ Fs δα (y, i) *
+        dphi G a ν α₀ φ₀ Fs δα (y, i) + gdef G φ₀ y) = 0 := by
+      funext x
+      rw [identity52 a ν α₀ δα φ₀ Fs _ hP1 x, congrFun hfix x]
+      simp
+    exact fun x => congrFun (Matrix.eq_zero_of_mulVec_eq_zero
+      ((Matrix.isUnit_iff_isUnit_det _).1 hU2).ne_zero hz) x
+  exact ⟨hP1, fun x => (constraint_iff_u φ₀ _ x).2 (hu x)⟩
 
 /-- **Proposition 5.1 (core)**.  Under the numerical conditions of `CoreHyp`, the perturbed
 system (P-1), (P-2) has a solution with `|δα|₂ ≤ 2 sb`, `SupBounds` of `δφ`, and it is the only one
