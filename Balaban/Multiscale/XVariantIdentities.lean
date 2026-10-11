@@ -7,6 +7,7 @@ module
 
 public import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 public import Mathlib.Analysis.Complex.Basic
+public import Balaban.Multiscale.Constrained
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Module
 
@@ -319,5 +320,18 @@ theorem xVariant_constrained_reduction (c : ℂ) (Q : Matrix κ ι ℂ) (Ht : Ma
   rw [e1, hW, ← hEq]
   congr 2
   simp only [Matrix.mul_assoc]
+
+section Bridge
+
+variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {N : ℕ}
+
+/-- The constrained operator `Π` of `Balaban/Multiscale/Constrained.lean` (W8c) is `constraintPi` of the
+componentwise lift `liftOp N A` with the constraint `B = (fieldMul φ₀)ᵀ`, i.e. `B v = φ₀ · v`. -/
+theorem constrainedOp_eq_constraintPi (A : Matrix ι' ι' ℂ) (φ : ι' → Fin N → ℂ) :
+    constrainedOp A φ = constraintPi (liftOp N A) (fieldMul φ)ᵀ := by
+  unfold constrainedOp constraintPi constraintForm
+  simp only [Matrix.transpose_transpose, Matrix.mul_assoc]
+
+end Bridge
 
 end Balaban.Multiscale
