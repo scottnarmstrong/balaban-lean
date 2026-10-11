@@ -71,6 +71,7 @@ public import Balaban.Background.LocalSolution
 public import Balaban.Background.BSpline
 public import Balaban.Background.Bump
 public import Balaban.Background.Normalize
+public import Balaban.Background.Weights
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
