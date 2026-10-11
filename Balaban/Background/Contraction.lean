@@ -826,6 +826,46 @@ theorem deltaStar_pos (hd : 0 < d) : 0 < deltaStar d L N := by
 
 variable {d L N}
 
+theorem selfBound_le (hd : 0 < d) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar d L N) (hδ₁ : δ₁ ≤ deltaStar d L N) :
+    selfBound d L N δ₀ (cF d L * δ₁) (5 * δ₁) ≤ cN d L N * δ₁ := by
+  have hτ := cTau_pos d L N
+  have hA := cA_ge d L N
+  have hB1 := cB1_ge d L
+  have hcF := cF_pos d L
+  have hB0 := greenSupConst_nonneg d L
+  have hs1 : deltaStar d L N ≤ cTau d L N / 3 :=
+    (min_le_left _ _).trans (min_le_left _ _)
+  have hs3 : deltaStar d L N ≤ 1 :=
+    (min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hs5 : deltaStar d L N ≤ cTau d L N / (3 * cF d L) :=
+    (min_le_right _ _).trans (min_le_right _ _)
+  have hFb : cF d L * δ₁ ≤ cTau d L N / 3 := by
+    have : δ₁ ≤ cTau d L N / (3 * cF d L) := hδ₁.trans hs5
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
+  have hFb0 : 0 ≤ cF d L * δ₁ := by positivity
+  have hN0 : (0 : ℝ) ≤ N := by positivity
+  have hK0 : (0 : ℝ) ≤ commKConst d L N := by unfold commKConst; positivity
+  have hz0 : (0 : ℝ) ≤ N * (2 * d + 8) := by positivity
+  have hKA : commKConst d L N ≤ cA d L N := by unfold cA; linarith
+  have hNA : (N : ℝ) ≤ cA d L N := by unfold cA; linarith
+  have hzA : (N : ℝ) * (2 * d + 8) ≤ cA d L N := by unfold cA; linarith
+  have hBB : greenSupConst d L ≤ cB1 d L := by unfold cB1; linarith
+  have hBF : cB1 d L * (cF d L * δ₁) ≤ 1 := by
+    have hBt : cB1 d L * cTau d L N ≤ 1 / 15 := by
+      have h1 : 0 ≤ cA d L N * cB1 d L - 1 := by nlinarith
+      have := cTau_spec d L N
+      nlinarith [mul_nonneg h1 (mul_nonneg (by linarith : 0 ≤ cB1 d L) hτ.le)]
+    nlinarith
+  have hself := arith_self (A := cA d L N) (B1 := cB1 d L) (B := greenSupConst d L)
+    (Fb := cF d L * δ₁) (Gb := 5 * δ₁) (δ₀ := δ₀) (x := N) (y := commKConst d L N)
+    (e := 2 * d + 8) (δ₁ := δ₁) (CF := cF d L) hA hB1 hB0 hBB hNA hKA hzA h0
+    (hδ₀.trans hs3) hFb0 hBF rfl rfl
+  unfold selfBound
+  unfold cN
+  exact hself
+
 theorem coreHyp_small {N₀ k : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d)
     {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁) (hδ₀ : δ₀ ≤ deltaStar d L N)
     (hδ₁ : δ₁ ≤ deltaStar d L N) :
@@ -867,22 +907,242 @@ theorem coreHyp_small {N₀ k : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet
       (δ₀ := δ₀) (ρ := c6 d L N) (τ := cTau d L N) (x := N) (y := commKConst d L N)
       (z := N * (2 * d + 8)) hA hB1 hB0 hBB (cTau_spec d L N) hτ.le hN0 hK0 hz0 hNA hKA hzA
       hFb0 h0 hc6.le hFb (hδ₀.trans hs1) (by linarith)
-  · have hBF : cB1 d L * (cF d L * δ₁) ≤ 1 := by
-      have hBt : cB1 d L * cTau d L N ≤ 1 / 15 := by
-        have h1 : 0 ≤ cA d L N * cB1 d L - 1 := by nlinarith
-        have := cTau_spec d L N
-        nlinarith [mul_nonneg h1 (mul_nonneg (by linarith : 0 ≤ cB1 d L) hτ.le)]
-      nlinarith
-    have hself := arith_self (A := cA d L N) (B1 := cB1 d L) (B := greenSupConst d L)
-      (Fb := cF d L * δ₁) (Gb := 5 * δ₁) (δ₀ := δ₀) (x := N) (y := commKConst d L N)
-      (e := 2 * d + 8) (δ₁ := δ₁) (CF := cF d L) hA hB1 hB0 hBB hNA hKA hzA h0
-      (hδ₀.trans hs3) hFb0 hBF rfl rfl
+  · have := selfBound_le (N := N) (L := L) hd h0 h1 hδ₀ hδ₁
     have hδ' : δ₁ ≤ c6 d L N / (2 * cN d L N) := hδ₁.trans hs4
     rw [le_div_iff₀ (by positivity)] at hδ'
-    unfold selfBound
-    unfold cN at hδ' hself
     nlinarith
 
 end Constants
+
+section Source
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- The source `F_s = Q* a δΨ + 𝔟(δΨ) + f₁` of (P-1). -/
+noncomputable def pertSource (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ)
+    (δΨ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (f₁ : G.Ω 1 × Fin N → ℂ) : G.Ω 1 × Fin N → ℂ :=
+  qStar G a δΨ + boundaryTerm G δΨ + f₁
+
+/-- `|F_s|₂ ≤ (3 + 2 d L²) δ₁` (BACKGROUND.md Prop 5.1, `𝒞_F δ₁`): uses that wall sites are in
+layer `1`. -/
+theorem pertSource_bound (S : GreenSetting G a ν) {δΨ : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {f₁ : G.Ω 1 × Fin N → ℂ} {δ₁ : ℝ} (hδ₁ : 0 ≤ δ₁)
+    (hΨ : ∀ x ∈ dataSites G, vn (δΨ x) ≤ δ₁)
+    (hf : ∀ (x : G.Ω 1) (i : Fin N), G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖f₁ (x, i)‖ ≤ δ₁)
+    (x : G.Ω 1) (i : Fin N) :
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖pertSource G a δΨ f₁ (x, i)‖ ≤ cF d L * δ₁ := by
+  obtain ⟨hj1, hjk, hxl⟩ := G.layerIndex_spec x.2
+  set p : Torus d (N₀ * L ^ k) := (x : Torus d (N₀ * L ^ k)) with hp
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hsp : G.spacing p = (L : ℝ) ^ G.layerIndex p := G.spacing_eq hj1 hjk hxl
+  have hℓ : 0 < G.spacing p ^ 2 := by have := spacing_pos G (x := p); positivity
+  have hdx : ∀ y ∈ dataSites G, ∀ i, ‖δΨ y i‖ ≤ δ₁ := fun y hy i => (norm_le_vn _ i).trans (hΨ y hy)
+  have hpx : p ∈ dataSites G := (mem_dataSites G).2 (Or.inl x.2)
+  -- the three pieces
+  have t1 : G.spacing p ^ 2 * ‖qStar G a δΨ (x, i)‖ ≤ 2 * δ₁ := by
+    unfold qStar
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by
+      have := (S.weights _ hj1 hjk).1; positivity)]
+    have h2 := (S.weights _ hj1 hjk).2
+    have hc : G.spacing p ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2) =
+        a (G.layerIndex p) := by
+      rw [hsp]; field_simp
+    calc G.spacing p ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2 * ‖δΨ x i‖)
+        = a (G.layerIndex p) * ‖δΨ x i‖ := by rw [← mul_assoc, hc]
+      _ ≤ 2 * δ₁ := mul_le_mul h2 (hdx p hpx i) (norm_nonneg _) (by norm_num)
+  have t2 : G.spacing p ^ 2 * ‖boundaryTerm G δΨ (x, i)‖ ≤ 2 * d * (L : ℝ) ^ 2 * δ₁ := by
+    unfold boundaryTerm
+    change G.spacing p ^ 2 * ‖∑ μ : Fin d, ((if p + Pi.single μ 1 ∈ collar G then
+        δΨ (p + Pi.single μ 1) i else 0) + (if p - Pi.single μ 1 ∈ collar G then
+        δΨ (p - Pi.single μ 1) i else 0))‖ ≤ 2 * d * (L : ℝ) ^ 2 * δ₁
+    by_cases hcol : ∃ μ : Fin d, p + Pi.single μ 1 ∈ collar G ∨ p - Pi.single μ 1 ∈ collar G
+    · obtain ⟨μ, hμ⟩ := hcol
+      have hone : G.layerIndex p = 1 := by
+        rcases hμ with h | h
+        · exact layerIndex_eq_one_of_adj_not_mem S.sep_gt_one (by have := S.hL; omega) x.2
+            ((mem_collar G).1 h).1 ⟨μ, Or.inl rfl⟩
+        · exact layerIndex_eq_one_of_adj_not_mem S.sep_gt_one (by have := S.hL; omega) x.2
+            ((mem_collar G).1 h).1 ⟨μ, Or.inr (by simp)⟩
+      have hs2 : G.spacing p ^ 2 = (L : ℝ) ^ 2 := by rw [hsp, hone]; ring
+      have hterm : ∀ y : Torus d (N₀ * L ^ k), ‖(if y ∈ collar G then δΨ y i else 0)‖ ≤ δ₁ := by
+        intro y
+        by_cases hy : y ∈ collar G
+        · simp only [hy, ↓reduceIte]
+          exact hdx y ((mem_dataSites G).2 (Or.inr hy)) i
+        · simp [hy, hδ₁]
+      have hsum : ‖∑ μ : Fin d, ((if p + Pi.single μ 1 ∈ collar G then δΨ (p + Pi.single μ 1) i
+          else 0) + (if p - Pi.single μ 1 ∈ collar G then δΨ (p - Pi.single μ 1) i else 0))‖ ≤
+          2 * d * δ₁ := by
+        refine (norm_sum_le _ _).trans ?_
+        calc ∑ μ : Fin d, ‖(if p + Pi.single μ 1 ∈ collar G then δΨ (p + Pi.single μ 1) i else 0) +
+              (if p - Pi.single μ 1 ∈ collar G then δΨ (p - Pi.single μ 1) i else 0)‖
+            ≤ ∑ _μ : Fin d, (δ₁ + δ₁) := Finset.sum_le_sum fun μ _ =>
+              (norm_add_le _ _).trans (add_le_add (hterm _) (hterm _))
+          _ = 2 * d * δ₁ := by simp; ring
+      rw [hs2]
+      calc (L : ℝ) ^ 2 * ‖∑ μ : Fin d, ((if p + Pi.single μ 1 ∈ collar G then
+              δΨ (p + Pi.single μ 1) i else 0) + (if p - Pi.single μ 1 ∈ collar G then
+              δΨ (p - Pi.single μ 1) i else 0))‖ ≤ (L : ℝ) ^ 2 * (2 * d * δ₁) :=
+            mul_le_mul_of_nonneg_left hsum (by positivity)
+        _ = _ := by ring
+    · push Not at hcol
+      have : ∀ μ : Fin d, ((if p + Pi.single μ 1 ∈ collar G then δΨ (p + Pi.single μ 1) i else 0) +
+          (if p - Pi.single μ 1 ∈ collar G then δΨ (p - Pi.single μ 1) i else 0)) = 0 := by
+        intro μ; simp [(hcol μ).1, (hcol μ).2]
+      simp only [this, Finset.sum_const_zero, norm_zero, mul_zero]
+      positivity
+  have t3 := hf x i
+  unfold pertSource
+  simp only [Pi.add_apply]
+  calc G.spacing p ^ 2 * ‖qStar G a δΨ (x, i) + boundaryTerm G δΨ (x, i) + f₁ (x, i)‖
+      ≤ G.spacing p ^ 2 * (‖qStar G a δΨ (x, i)‖ + ‖boundaryTerm G δΨ (x, i)‖ + ‖f₁ (x, i)‖) :=
+        mul_le_mul_of_nonneg_left (norm_add₃_le) hℓ.le
+    _ = G.spacing p ^ 2 * ‖qStar G a δΨ (x, i)‖ + G.spacing p ^ 2 * ‖boundaryTerm G δΨ (x, i)‖ +
+        G.spacing p ^ 2 * ‖f₁ (x, i)‖ := by ring
+    _ ≤ cF d L * δ₁ := by unfold cF; nlinarith
+
+variable {α₀ : G.Ω 1 → ℂ} {φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {δ₀ δ₁ : ℝ}
+
+/-- `|H₀ g|₂ ≤ 5 δ₁` from the hypothesis (P4): `|g|₀ ≤ δ₁` and `|Δ g̃|₂ ≤ δ₁`
+(BACKGROUND.md has the sum `|g|₀ + |Δ g̃|₂ ≤ δ₁` and the constant `4`; here the two suprema are
+bounded separately). -/
+theorem Hg_bound (S : GreenSetting G a ν) (hα₀ : ∀ x : G.Ω 1,
+      G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖α₀ x‖ ≤ δ₀) (hδ₀ : δ₀ ≤ 1) (hδ₁ : 0 ≤ δ₁)
+    (hg0 : ∀ x : G.Ω 1, ‖gdef G φ₀ x‖ ≤ δ₁)
+    (hgl : ∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+      ‖negLap (zeroExt (G.Ω 1) (gdef G φ₀)) (x : Torus d (N₀ * L ^ k))‖ ≤ δ₁)
+    (x : G.Ω 1) :
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+      ‖(dirichletOperator G a ν α₀ *ᵥ gdef G φ₀) x‖ ≤ 5 * δ₁ := by
+  obtain ⟨hj1, hjk, hxl⟩ := G.layerIndex_spec x.2
+  set p : Torus d (N₀ * L ^ k) := (x : Torus d (N₀ * L ^ k)) with hp
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hsp : G.spacing p = (L : ℝ) ^ G.layerIndex p := G.spacing_eq hj1 hjk hxl
+  have hℓ : 0 < G.spacing p ^ 2 := by have := spacing_pos G (x := p); positivity
+  rw [dirichlet_apply]
+  have hz : ∀ y, ‖zeroExt (G.Ω 1) (gdef G φ₀) y‖ ≤ δ₁ := by
+    intro y
+    by_cases hy : y ∈ G.Ω 1
+    · have := hg0 ⟨y, hy⟩
+      simpa [zeroExt, hy] using this
+    · simp [zeroExt, hy, hδ₁]
+  have b1 := blockTerm_norm_le (G := G) S.weights x.2 (f := zeroExt (G.Ω 1) (gdef G φ₀)) hz
+  have hc : G.spacing p ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2) ≤ 2 := by
+    have h2 := (S.weights _ hj1 hjk).2
+    rw [hsp]
+    have : (0 : ℝ) < ((L : ℝ) ^ G.layerIndex p) ^ 2 := by positivity
+    calc ((L : ℝ) ^ G.layerIndex p) ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2)
+        = a (G.layerIndex p) := by field_simp
+      _ ≤ 2 := h2
+  have hnu : ν * G.spacing p ^ 2 ≤ 1 := by
+    refine le_trans (mul_le_mul_of_nonneg_left ?_ S.mass) S.massLe
+    exact pow_le_pow_left₀ (spacing_pos G).le (spacing_le G x.2) 2
+  have e1 : G.spacing p ^ 2 * ‖blockTerm G a (zeroExt (G.Ω 1) (gdef G φ₀)) p‖ ≤ 2 * δ₁ := by
+    calc _ ≤ G.spacing p ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2 * δ₁) :=
+          mul_le_mul_of_nonneg_left b1 hℓ.le
+      _ = (G.spacing p ^ 2 * (a (G.layerIndex p) / ((L : ℝ) ^ G.layerIndex p) ^ 2)) * δ₁ := by ring
+      _ ≤ 2 * δ₁ := mul_le_mul_of_nonneg_right hc hδ₁
+  have e2 : G.spacing p ^ 2 * ‖(ν : ℂ) * gdef G φ₀ x‖ ≤ δ₁ := by
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg S.mass]
+    calc G.spacing p ^ 2 * (ν * ‖gdef G φ₀ x‖) = (ν * G.spacing p ^ 2) * ‖gdef G φ₀ x‖ := by ring
+      _ ≤ 1 * δ₁ := mul_le_mul hnu (hg0 x) (norm_nonneg _) zero_le_one
+      _ = δ₁ := one_mul _
+  have e3 : G.spacing p ^ 2 * ‖α₀ x * gdef G φ₀ x‖ ≤ δ₁ := by
+    rw [norm_mul]
+    calc G.spacing p ^ 2 * (‖α₀ x‖ * ‖gdef G φ₀ x‖) = (G.spacing p ^ 2 * ‖α₀ x‖) * ‖gdef G φ₀ x‖ := by ring
+      _ ≤ 1 * δ₁ := mul_le_mul ((hα₀ x).trans hδ₀) (hg0 x) (norm_nonneg _) zero_le_one
+      _ = δ₁ := one_mul _
+  have e0 := hgl x
+  calc G.spacing p ^ 2 * ‖negLap (zeroExt (G.Ω 1) (gdef G φ₀)) p +
+        blockTerm G a (zeroExt (G.Ω 1) (gdef G φ₀)) p + ν * gdef G φ₀ x + α₀ x * gdef G φ₀ x‖
+      ≤ G.spacing p ^ 2 * (‖negLap (zeroExt (G.Ω 1) (gdef G φ₀)) p‖ +
+        ‖blockTerm G a (zeroExt (G.Ω 1) (gdef G φ₀)) p‖ + ‖(ν : ℂ) * gdef G φ₀ x‖ +
+        ‖α₀ x * gdef G φ₀ x‖) := by
+        refine mul_le_mul_of_nonneg_left ?_ hℓ.le
+        exact (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans
+          (add_le_add (norm_add_le _ _) le_rfl)) le_rfl)
+    _ ≤ 5 * δ₁ := by nlinarith
+
+variable (G a ν) in
+/-- The hypotheses (P1)–(P4) of Proposition 5.1 (BACKGROUND.md §5.1), with
+`δ₀, δ₁ ≤ δ_* = deltaStar`.  (P1) the collar/block field `δΨ` has `|δΨ| ≤ δ₁` on `Ω₁ ∪ C`
+(block-constancy of `δΨ` is *not* needed and not assumed); (P2) `φ₀` is smooth (`IsSmoothField`)
+with `|φ₀| ≤ 3/2` on `Ω₁`; (P3) `|α₀|₂ ≤ δ₀`, `|f₁|₂ ≤ δ₁`; (P4) the defect `g = φ₀ · φ₀ - 1`
+satisfies `|g|₀ ≤ δ₁` and `|Δ g̃|₂ ≤ δ₁` (`g̃` the zero extension). -/
+structure Prop51Hyp (α₀ : G.Ω 1 → ℂ) (φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ)
+    (δΨ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (f₁ : G.Ω 1 × Fin N → ℂ) (δ₀ δ₁ : ℝ) : Prop where
+  green : GreenSetting G a ν
+  δ₀_nn : 0 ≤ δ₀
+  δ₁_nn : 0 ≤ δ₁
+  δ₀_le : δ₀ ≤ deltaStar d L N
+  δ₁_le : δ₁ ≤ deltaStar d L N
+  smooth : IsSmoothField G δ₀ φ₀
+  phiBd : ∀ x ∈ G.Ω 1, vn (φ₀ x) ≤ 3 / 2
+  alpha0 : ∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖α₀ x‖ ≤ δ₀
+  f₁_bd : ∀ (x : G.Ω 1) (i : Fin N), G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖f₁ (x, i)‖ ≤ δ₁
+  dPsi : ∀ x ∈ dataSites G, vn (δΨ x) ≤ δ₁
+  g0 : ∀ x : G.Ω 1, ‖gdef G φ₀ x‖ ≤ δ₁
+  gl : ∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+    ‖negLap (zeroExt (G.Ω 1) (gdef G φ₀)) (x : Torus d (N₀ * L ^ k))‖ ≤ δ₁
+
+variable {δΨ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {f₁ : G.Ω 1 × Fin N → ℂ}
+
+theorem Prop51Hyp.setup (H : Prop51Hyp G a ν α₀ φ₀ δΨ f₁ δ₀ δ₁) :
+    Setup G a ν α₀ φ₀ (pertSource G a δΨ f₁) δ₀ (cF d L * δ₁) (5 * δ₁) where
+  green := H.green
+  δ₀_nn := H.δ₀_nn
+  δ₀_le := H.δ₀_le.trans (by
+    have : deltaStar d L N ≤ 1 :=
+      (min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _))
+    exact this)
+  Fb_nn := by have := cF_pos d L; have := H.δ₁_nn; positivity
+  Gb_nn := by have := H.δ₁_nn; positivity
+  smooth := H.smooth
+  phiBd := H.phiBd
+  alpha0 := H.alpha0
+  Fs_bd := pertSource_bound H.green H.δ₁_nn H.dPsi H.f₁_bd
+  g_bd := fun x => Hg_bound H.green H.alpha0
+    (H.δ₀_le.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _))))
+    H.δ₁_nn H.g0 H.gl x
+
+/-- **Proposition 5.1 (existence, uniqueness, bounds)** (BACKGROUND.md §5.1; P2 Lemma 3.2 and
+Prop 3.1 at `λ = ∞`).  There are constants `c₆ = c6 d L N`, `δ_* = deltaStar d L N`,
+`K₂ = cK2 d L N` depending only on `(d, L, N)` such that under (P1)–(P4) with `δ₀, δ₁ ≤ δ_*`
+the system (P-1), (P-2) has a solution with `|δφ|₀, |∂δφ|₁, |Δ^D δφ|₂ ≤ K₂ δ₁` and
+`|δα|₂ ≤ K₂ δ₁`, and it is the only solution with `|δα|₂ ≤ c₆`.  Norms are the component-wise
+suprema (`SupBounds`, `Small`). -/
+theorem prop51_exists_unique (hd : 0 < d) (H : Prop51Hyp G a ν α₀ φ₀ δΨ f₁ δ₀ δ₁) :
+    ∃ (δφ : G.Ω 1 × Fin N → ℂ) (δα : G.Ω 1 → ℂ),
+      IsPerturbed G a ν α₀ φ₀ (pertSource G a δΨ f₁) δφ δα ∧
+      Small G δα (cK2 d L N * δ₁) ∧ SupBounds G δφ (cK2 d L N * δ₁) ∧
+      ∀ (δφ' : G.Ω 1 × Fin N → ℂ) (δα' : G.Ω 1 → ℂ),
+        IsPerturbed G a ν α₀ φ₀ (pertSource G a δΨ f₁) δφ' δα' →
+        Small G δα' (c6 d L N) → δφ' = δφ ∧ δα' = δα := by
+  have hS := H.setup
+  have hC := coreHyp_small G hd H.δ₀_nn H.δ₁_nn H.δ₀_le H.δ₁_le
+  obtain ⟨δφ, δα, hP, hsmall, hsup, huniq⟩ := prop51_core hS hC
+  have hsb := selfBound_le (N := N) (L := L) hd H.δ₀_nn H.δ₁_nn H.δ₀_le H.δ₁_le
+  have hsb0 := selfBound_nonneg (d := d) (L := L) (N := N) H.δ₀_nn hS.Fb_nn hS.Gb_nn
+  have hB1 := cB1_ge d L
+  have hF := cF_pos d L
+  have hN := cN_pos d L N
+  have hδ1 := H.δ₁_nn
+  refine ⟨δφ, δα, hP, ?_, ?_, huniq⟩
+  · intro x
+    refine (hsmall x).trans ?_
+    unfold cK2
+    nlinarith [mul_nonneg (by linarith : 0 ≤ cB1 d L) (mul_nonneg hF.le hδ1), mul_nonneg hN.le hδ1,
+      mul_nonneg (mul_nonneg (by linarith : 0 ≤ cB1 d L) hN.le) hδ1]
+  · refine hsup.mono ?_
+    unfold cK2
+    have hB := greenSupConst_nonneg d L
+    have : greenSupConst d L ≤ cB1 d L := by unfold cB1; linarith
+    calc greenSupConst d L * (cF d L * δ₁ + 3 / 2 * (2 * selfBound d L N δ₀ (cF d L * δ₁) (5 * δ₁)))
+        ≤ cB1 d L * (cF d L * δ₁ + 3 * (cN d L N * δ₁)) := by
+          refine mul_le_mul this (by linarith) (by positivity) (by linarith)
+      _ ≤ _ := by nlinarith [mul_nonneg hN.le hδ1]
+
+end Source
 
 end Balaban.Background
