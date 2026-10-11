@@ -329,6 +329,90 @@ theorem fixed_of_Smap_fixed {a : ℕ → ℝ} {ν : ℝ} {α₀ : G.Ω 1 → ℂ
   rw [eq_div_iff hp, mul_comm]
   exact this
 
+/-- **Proposition 5.1, analyticity.**  On the open set of data satisfying (P1)–(P4) with strict
+inequalities, the solution `(δφ, δα)` of the perturbed system (the unique one with
+`|δα|₂ ≤ c₆`) is a complex-analytic function of the data `(φ₀, α₀, δΨ, f₁)` (a finite-dimensional
+complex vector space), and it satisfies the bounds of `prop51_exists_unique`. -/
+theorem prop51_analytic (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (S : GreenSetting G a ν) {δ₀ δ₁ : ℝ}
+    (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁) (hle0 : δ₀ ≤ deltaStar d L N) (hle1 : δ₁ ≤ deltaStar d L N) :
+    ∃ sol : Edat G N → (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ),
+      AnalyticOnNhd ℂ sol {p | StrictData G N δ₀ δ₁ p} ∧
+      ∀ p : Edat G N, StrictData G N δ₀ δ₁ p →
+        IsPerturbed G a ν p.2.1 p.1 (pertSource G a p.2.2.1 p.2.2.2) (sol p).1 (sol p).2 ∧
+        Small G (sol p).2 (cK2 d L N * δ₁) ∧ SupBounds G (sol p).1 (cK2 d L N * δ₁) ∧
+        ∀ (δφ' : G.Ω 1 × Fin N → ℂ) (δα' : G.Ω 1 → ℂ),
+          IsPerturbed G a ν p.2.1 p.1 (pertSource G a p.2.2.1 p.2.2.2) δφ' δα' →
+          Small G δα' (c6 d L N) → δφ' = (sol p).1 ∧ δα' = (sol p).2 := by
+  have hPo := isOpen_strictData (G := G) (N := N) δ₀ δ₁
+  have hC : CoreHyp G N δ₀ (cF d L * δ₁) (5 * δ₁) (c6 d L N) :=
+    coreHyp_small G hd h0 h1 hle0 hle1
+  have hyp := fun p (hp : StrictData G N δ₀ δ₁ p) => StrictData.hyp S h0 h1 hle0 hle1 hp
+  have hdetf : ∀ (q : Qvar G N), StrictData G N δ₀ δ₁ q.2 →
+      q.1 ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6 d L N) →
+      (dirichletOperator G a ν (q.2.2.1 + toAlpha G q.1)).det ≠ 0 := by
+    intro q hq hξ
+    rw [mem_closedBall_zero_iff] at hξ
+    have hs := small_toAlpha G q.1 (fun x => (norm_le_pi_norm q.1 x).trans hξ)
+    have hr : δ₀ + c6 d L N ≤ gamma1 d := by linarith [hC.poly, hC.ρ_nn]
+    exact ((Matrix.isUnit_iff_isUnit_det _).1
+      (S.isUnit ((hyp q.2 hq).setup.poly hs hr))).ne_zero
+  obtain ⟨ξs, hξs, hanal, -⟩ := Balaban.Analysis.exists_analytic_fixedPoint
+    (T := Tmap G a ν) (P := {p : Edat G N | StrictData G N δ₀ δ₁ p}) (r := c6 d L N)
+    (θ := 1 / 2) hPo hC.ρ_nn (by norm_num) (by norm_num)
+    (fun q hq => an_Tmap a ν q (hdetf q hq.2 hq.1))
+    (fun p hp ξ hξ => Smap_mem_ball (hyp p hp).setup hC ξ hξ)
+    (fun p hp ξ hξ ξ' hξ' => Smap_lip_norm (hyp p hp).setup hC ξ ξ' hξ hξ')
+  have hfixed : ∀ p, StrictData G N δ₀ δ₁ p →
+      IsPerturbed G a ν p.2.1 p.1 (pertSource G a p.2.2.1 p.2.2.2)
+        (dphi G a ν p.2.1 p.1 (pertSource G a p.2.2.1 p.2.2.2) (toAlpha G (ξs p)))
+        (toAlpha G (ξs p)) ∧ Small G (toAlpha G (ξs p)) (c6 d L N) := by
+    intro p hp
+    obtain ⟨hb, hfx, -⟩ := hξs p hp
+    rw [mem_closedBall_zero_iff] at hb
+    have hs := small_toAlpha G (ξs p) (fun x => (norm_le_pi_norm (ξs p) x).trans hb)
+    exact ⟨perturbed_of_fixed (hyp p hp).setup hC hs (fixed_of_Smap_fixed hfx), hs⟩
+  refine ⟨fun p => (dphi G a ν p.2.1 p.1 (pertSource G a p.2.2.1 p.2.2.2) (toAlpha G (ξs p)),
+    toAlpha G (ξs p)), ?_, ?_⟩
+  · intro p hp
+    have hξy : ∀ y, AnalyticAt ℂ (fun p => ξs p y) p := fun y => analyticAt_pi_iff.1 (hanal p hp) y
+    have hc : ∀ y : G.Ω 1, AnalyticAt ℂ (fun p : Edat G N => toAlpha G (ξs p) y) p := by
+      intro y
+      unfold toAlpha
+      exact (hξy y).div_const
+    have hφ : ∀ y i, AnalyticAt ℂ (fun p : Edat G N => p.1 y i) p := fun y i => by fun_prop
+    have hα0 : ∀ y, AnalyticAt ℂ (fun p : Edat G N => p.2.1 y) p := fun y => by fun_prop
+    have hΨ : ∀ y i, AnalyticAt ℂ (fun p : Edat G N => p.2.2.1 y i) p := fun y i => by fun_prop
+    have hf : ∀ (y : G.Ω 1) i, AnalyticAt ℂ (fun p : Edat G N => p.2.2.2 (y, i)) p :=
+      fun y i => by fun_prop
+    have hF := an_pertSource (G := G) a (q := p) (fun p : Edat G N => p.2.2.1)
+      (fun p : Edat G N => p.2.2.2) hΨ hf
+    have hα : ∀ y, AnalyticAt ℂ (fun p : Edat G N => (p.2.1 + toAlpha G (ξs p)) y) p := by
+      intro y
+      simp only [Pi.add_apply]
+      exact (hα0 y).add (hc y)
+    have hFs : ∀ (y : G.Ω 1) j, AnalyticAt ℂ (fun p : Edat G N =>
+        Fsrc p.1 (pertSource G a p.2.2.1 p.2.2.2) (toAlpha G (ξs p)) (y, j)) p := by
+      intro y j
+      unfold Fsrc
+      exact (hF y j).sub ((hc y).mul (hφ y j))
+    have hdet : (dirichletOperator G a ν (p.2.1 + toAlpha G (ξs p))).det ≠ 0 := by
+      have hs := (hfixed p hp).2
+      have hr : δ₀ + c6 d L N ≤ gamma1 d := by linarith [hC.poly, hC.ρ_nn]
+      exact ((Matrix.isUnit_iff_isUnit_det _).1
+        (S.isUnit ((hyp p hp).setup.poly hs hr))).ne_zero
+    have hd := an_dphi (G := G) a ν (q := p) (fun p : Edat G N => p.2.1 + toAlpha G (ξs p))
+      (fun p : Edat G N => Fsrc p.1 (pertSource G a p.2.2.1 p.2.2.2) (toAlpha G (ξs p))) hα hFs hdet
+    refine AnalyticAt.prod ?_ (analyticAt_pi_iff.2 hc)
+    refine analyticAt_pi_iff.2 fun ⟨y, j⟩ => ?_
+    exact hd y j
+  · intro p hp
+    obtain ⟨δφ, δα, hP, hs, hsup, huniq⟩ := prop51_exists_unique hd (hyp p hp)
+    obtain ⟨hPs, hSs⟩ := hfixed p hp
+    obtain ⟨e1, e2⟩ := huniq _ _ hPs hSs
+    simp only
+    rw [e1, e2]
+    exact ⟨hP, hs, hsup, huniq⟩
+
 end Families
 
 end Balaban.Background
