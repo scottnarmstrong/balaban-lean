@@ -22,3 +22,7 @@ public import Balaban.Gaussian.Schur
 public import Balaban.Gaussian.BlockSpin
 public import Balaban.Gaussian.Multiscale
 public import Balaban.Lattice.Laplacian
+public import Balaban.Analysis.Cauchy
+public import Balaban.Analysis.AnalyticLimit
+public import Balaban.Analysis.Contraction
+public import Balaban.Analysis.InfiniteProduct
