@@ -119,5 +119,6 @@ public import Balaban.Correlations.Box
 public import Balaban.Correlations.Agreement
 public import Balaban.Correlations.Tail
 public import Balaban.Correlations.SumRule
+public import Balaban.Correlations.Asymptotics
 public import Balaban.Correlations.ThermoLimit
 public import Balaban.Correlations.Consequences
