@@ -11,7 +11,7 @@ public import Balaban.Multiscale.PointwiseCase2c
 # Lemma P, Case 2: assembly
 
 `case2_bound`: for `x` in layer `j = j₀ + 1` with `ρ = c₀ L^{j₀}/d ≥ 8`,
-`U(x) ≤ K e^{-(ε₀/2) t} ℓ_{j'}² ‖f‖_∞ + c_G (36 + 12 L) c₀ M`, where `M` bounds `U` on the
+`U(x) ≤ K e^{-(ε₀/2) t} ℓ_{j'}² ‖f‖_∞ + c_G (3 + Λ)(9 + 3 L) c₀ M`, where `M` bounds `U` on the
 `(2d+1)`-neighbourhood of `x`.
 -/
 
@@ -25,36 +25,36 @@ open Finset Matrix Balaban Balaban.LatticeGreen
 
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
-theorem pot_arith {cG c0 L d M Lc : ℝ} (hcG : 0 ≤ cG) (hc0 : 0 < c0) (hc01 : c0 ≤ 1)
-    (hL : 1 ≤ L) (hd : 1 ≤ d) (hLc : 0 < Lc) (hM : 0 ≤ M) (hρ : 1 ≤ c0 * Lc / d) :
-    (4 * (Lc ^ 2)⁻¹ * M) * (cG * (2 * (c0 * Lc / d) + 1) ^ 2) +
-      (Lc * L) * d * ((4 * (Lc ^ 2)⁻¹ * M) * (cG * (2 * (c0 * Lc / d) + 1))) ≤
-        cG * (36 + 12 * L) * c0 * M := by
+theorem pot_arith {cG c0 L d M Lc κ : ℝ} (hcG : 0 ≤ cG) (hc0 : 0 < c0) (hc01 : c0 ≤ 1)
+    (hL : 1 ≤ L) (hd : 1 ≤ d) (hLc : 0 < Lc) (hM : 0 ≤ M) (hκ : 0 ≤ κ) (hρ : 1 ≤ c0 * Lc / d) :
+    (κ * (Lc ^ 2)⁻¹ * M) * (cG * (2 * (c0 * Lc / d) + 1) ^ 2) +
+      (Lc * L) * d * ((κ * (Lc ^ 2)⁻¹ * M) * (cG * (2 * (c0 * Lc / d) + 1))) ≤
+        cG * (κ * (9 + 3 * L)) * c0 * M := by
   set ρ := c0 * Lc / d with hρd
   have hd0 : 0 < d := by linarith
   have hρ0 : 0 < ρ := by linarith
   have h3 : 2 * ρ + 1 ≤ 3 * ρ := by nlinarith
   have h3' : 0 ≤ 2 * ρ + 1 := by linarith
-  have hm : 0 ≤ 4 * (Lc ^ 2)⁻¹ * M := by positivity
+  have hm : 0 ≤ κ * (Lc ^ 2)⁻¹ * M := by positivity
   have e1 : (2 * ρ + 1) ^ 2 ≤ (3 * ρ) ^ 2 := pow_le_pow_left₀ h3' h3 2
-  have a1 : (4 * (Lc ^ 2)⁻¹ * M) * (cG * (2 * ρ + 1) ^ 2) ≤
-      (4 * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ) ^ 2) := by gcongr
-  have a2 : (Lc * L) * d * ((4 * (Lc ^ 2)⁻¹ * M) * (cG * (2 * ρ + 1))) ≤
-      (Lc * L) * d * ((4 * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ))) := by gcongr
+  have a1 : (κ * (Lc ^ 2)⁻¹ * M) * (cG * (2 * ρ + 1) ^ 2) ≤
+      (κ * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ) ^ 2) := by gcongr
+  have a2 : (Lc * L) * d * ((κ * (Lc ^ 2)⁻¹ * M) * (cG * (2 * ρ + 1))) ≤
+      (Lc * L) * d * ((κ * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ))) := by gcongr
   refine (add_le_add a1 a2).trans ?_
   have hρe : ρ * d = c0 * Lc := by rw [hρd]; field_simp
-  have e2 : (4 * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ) ^ 2) = 36 * cG * M * c0 ^ 2 / d ^ 2 := by
+  have e2 : (κ * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ) ^ 2) = 9 * κ * cG * M * c0 ^ 2 / d ^ 2 := by
     rw [hρd]; field_simp; ring
-  have e3 : (Lc * L) * d * ((4 * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ))) = 12 * cG * M * L * c0 := by
-    rw [hρd]; field_simp; ring
+  have e3 : (Lc * L) * d * ((κ * (Lc ^ 2)⁻¹ * M) * (cG * (3 * ρ))) = 3 * κ * cG * M * L * c0 := by
+    rw [hρd]; field_simp
   rw [e2, e3]
-  have e4 : 36 * cG * M * c0 ^ 2 / d ^ 2 ≤ 36 * cG * M * c0 := by
+  have e4 : 9 * κ * cG * M * c0 ^ 2 / d ^ 2 ≤ 9 * κ * cG * M * c0 := by
     rw [div_le_iff₀ (by positivity)]
     have h1 : c0 ^ 2 ≤ c0 := by nlinarith
     have hd2 : (1 : ℝ) ≤ d ^ 2 := one_le_pow₀ hd
     have h2 : c0 ≤ c0 * d ^ 2 := by nlinarith
     have : c0 ^ 2 ≤ c0 * d ^ 2 := h1.trans h2
-    have h36 : 0 ≤ 36 * cG * M := by positivity
+    have h36 : 0 ≤ 9 * κ * cG * M := by positivity
     nlinarith [mul_le_mul_of_nonneg_left this h36]
   nlinarith
 
@@ -65,7 +65,7 @@ theorem rpow_neg_one_sub_half {ρ : ℝ} (hρ : 0 < ρ) (d : ℕ) :
 
 namespace PtSetting
 
-variable {G : GeneratingSet d L N₀ k ϱ} (S : PtSetting G)
+variable {G : GeneratingSet d L N₀ k ϱ} {Λ : ℝ} (S : PtSetting G Λ)
 
 theorem case2_fpart {cG c0 : ℝ} (hcG : 0 ≤ cG) (hc0 : 0 < c0) (hc04 : c0 ≤ 1 / 4)
     {j₀ : ℕ} (hj01 : 1 ≤ j₀) (hjk : j₀ + 1 ≤ k) {x : Torus d (N₀ * L ^ k)}
@@ -187,7 +187,7 @@ theorem case2_bound {Ca Cb cG c0 : ℝ} (hCa : 0 ≤ Ca) (hCb : 0 ≤ Cb) (hcG :
           Real.sqrt ((c0 / d) ^ d)) +
         cG * (4 + 2 * d * L) * Real.exp (agmonRate d / 2 * (2 * d + 1))) *
         Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * S.j') * Mf) +
-      cG * (36 + 12 * L) * c0 * M := by
+      cG * ((3 + Λ) * (9 + 3 * L)) * c0 * M := by
   have hc := poincareConst_pos S.hd0
   have hd1 : (1 : ℝ) ≤ d := by exact_mod_cast S.hd0
   have hd0 : (0 : ℝ) < d := by linarith
@@ -206,7 +206,8 @@ theorem case2_bound {Ca Cb cG c0 : ℝ} (hCa : 0 ≤ Ca) (hCb : 0 ≤ Cb) (hcG :
     rw [sub_zero] at this
     simp only [Nat.add_sub_cancel]
     exact (mul_le_mul_of_nonneg_left this (Nat.cast_nonneg d)).trans hRd
-  set m := 4 * (((L : ℝ) ^ j₀) ^ 2)⁻¹ * M with hm
+  have hΛ0 : 0 ≤ Λ := le_trans (by have := S.hν0; positivity) S.hν1
+  set m := (3 + Λ) * (((L : ℝ) ^ j₀) ^ 2)⁻¹ * M with hm
   have hm0 : 0 ≤ m := by positivity
   have hM' : ∀ q ∈ G.Ω 1, G.pathDist q x ≤ ENNReal.ofReal (2 * d + 1) → ‖S.ut q‖ ≤ M :=
     fun q hq h => (S.norm_ut_le_U q).trans (hM q hq h)
@@ -274,7 +275,8 @@ theorem case2_bound {Ca Cb cG c0 : ℝ} (hCa : 0 ≤ Ca) (hCb : 0 ≤ Cb) (hcG :
   have hsr : (L : ℝ) ^ (j₀ + 1) * ρ⁻¹ = d * L / c0 := by
     rw [hρdef]; field_simp; ring
   have hpot := pot_arith (cG := cG) (c0 := c0) (L := (L : ℝ)) (d := (d : ℝ)) (M := M)
-    (Lc := (L : ℝ) ^ j₀) hcG hc0 (by linarith) hL1 hd1 hLc hM0 (by linarith)
+    (Lc := (L : ℝ) ^ j₀) (κ := 3 + Λ) hcG hc0 (by linarith) hL1 hd1 hLc hM0 (by linarith)
+    (by linarith)
   have hX1 : 0 ≤ Ca + d * (d * L / c0) * Cb := by positivity
   have hT' := mul_le_mul_of_nonneg_left hT hX1
   have hU : S.U x ≤ ‖S.ut x‖ + (L : ℝ) ^ (j₀ + 1) * ∑ ν : Fin d, ‖S.ut (x + Pi.single ν 1) - S.ut x‖ := by

@@ -16,7 +16,7 @@ Let `u = G_D(α) f`, `f` supported in the `j'`-block of `y'` with `|f| ≤ M_f`,
 
 `U(x) ≤ K₂ e^{-(ε₀/2) d(x, y')} ℓ_{j'}² M_f`,
 
-and `U(x) = 0` if `d(x, y') = ∞`; the constant `K₂` depends only on `d` and `L`.
+and `U(x) = 0` if `d(x, y') = ∞`; the constant `K₂` depends only on `d`, `L` and the mass cap `Λ` (`ν L^{2k} ≤ Λ`).
 The proof is the maximum-principle form of the recursion (4.3): at a maximiser of
 `e^{(ε₀/2) d(x, y')} U(x)`, Lemma P and the contraction `θ* e^{(ε₀/2)(2d+1)} = ¼` give the bound.
 -/
@@ -38,16 +38,16 @@ theorem thetaStar_mul (d : ℕ) :
   simp
 
 /-- **Proposition 4.8.** -/
-theorem prop48 (hd : 3 ≤ d) (hL : 3 ≤ L) :
+theorem prop48 (hd : 3 ≤ d) (hL : 3 ≤ L) (Λ : ℝ) (hΛ : 0 ≤ Λ) :
     ∃ K2 : ℝ, 0 ≤ K2 ∧ ∀ {k N₀ : ℕ} [NeZero N₀] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ)
-      (S : PtSetting G) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
+      (S : PtSetting G Λ) {Mf : ℝ}, 0 ≤ Mf → (∀ i, ‖S.f i‖ ≤ Mf) →
       ∀ {x : Torus d (N₀ * L ^ k)}, x ∈ G.Ω 1 →
       (G.pathDist x S.y' ≠ ⊤ →
         S.U x ≤ K2 * Real.exp (-(agmonRate d / 2 * (G.pathDist x S.y').toReal)) *
           ((L : ℝ) ^ (2 * S.j') * Mf)) ∧
       (G.pathDist x S.y' = ⊤ → S.U x = 0) := by
   classical
-  obtain ⟨K1, hK1, hP⟩ := lemmaP (d := d) (L := L) hd hL
+  obtain ⟨K1, hK1, hP⟩ := lemmaP (d := d) (L := L) hd hL Λ hΛ
   refine ⟨2 * K1, by positivity, ?_⟩
   intro k N₀ _ ϱ G S Mf hMf0 hMf x hx
   have hε0 := agmonRate_pos S.hd0
