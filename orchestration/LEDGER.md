@@ -51,3 +51,5 @@
 | 2026-10-11 | D-LF third review | running | Opus; scope §3.8 (LF-4), §5, §8 interfaces, dispositions |
 | 2026-10-11 | astra LF v3 counting | running | tmux `astra-lfv3` (codex-3 gpt-6-sol xhigh): refute strips/bank/Case 2a, Lemma C (e)–(f), Lemma S, §8.1 match |
 | 2026-10-11 | W18b constrained locality | running | Sonnet; G-2(vi′) via kernel algebra, analyticity of Π |
+| 2026-10-11 | W12b Hölder | landed | `prop49` (G-2(iii): `ℓ²|∂u(b)−∂u(b')| ≤ (B/θ) ℓ^θ |z|^{1−θ} e^{−γ₀d} ℓ_{j'}² ‖f‖_∞`, nearby pairs), `lemma_loc_c`, `latticeGreen_diff3_signs_le` (third differences), `green_holder_sum` (≈1,950 lines); larger separations (ball ×3 remark) and global Hölder norm open |
+| 2026-10-11 | W19 Root-C assembly | running | Sonnet; `RootCStatement`, `C1Star` record, Theorem 3.1 (Root-F + C-1* + I-G ⇒ Root-C) — test of C-1* before surface v2 |
