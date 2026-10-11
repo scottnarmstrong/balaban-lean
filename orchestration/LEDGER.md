@@ -36,3 +36,4 @@
 | 2026-10-11 | W8c constrained operator | landed | `constrainedOp_posSemidef`, `constrained_complex_lower`, `unitKernel_bound`, `constrained_G2v` (≈3,600 lines); G-2(v′) open (needs pointwise G-2(iv)) |
 | 2026-10-11 | W13 G-5 | landed | `oneScale_blockDecay`, `fineToBlockKernel_decay` (block L²), `coarseGreen_decay`, Lipschitz in ν ∈ [0,2], `infiniteVolume_limits` (subsequential; uniqueness → W13b) (≈2,200 lines) |
 | 2026-10-11 | W14 x-variant | landed | `xVariant_reduction`, `constrained_green_eq` (G_c = G − Π), `xVariant_constrained_reduction`, x-variant coercivity uniform in x, `green_G2i_x` (rate depends on L) (≈1,660 lines); α₀ range below P3's a_{k+1}L⁻²/12 by a d-factor → sharp Poincaré W2d |
+| 2026-10-11 | W12 pointwise bounds | landed | `lemma_loc_a`, `lemma_loc_b` (interior estimates), `lemmaP`, `prop48` (G-2(ii) pointwise decay of u and ∂u, K₂(d,L)) (≈3,460 lines); Loc (c)/Hölder (needs third differences of C) and η-scaling open |
