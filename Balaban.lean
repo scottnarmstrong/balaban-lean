@@ -37,6 +37,16 @@ public import Balaban.Polymer.Local
 public import Balaban.Polymer.Animals
 public import Balaban.Polymer.Lattice
 public import Balaban.Polymer.BlockTorus
+public import Balaban.Polymer.Holomorphic
+public import Balaban.Polymer.Transport
+public import Balaban.Polymer.Support
+public import Balaban.Polymer.Bridge
+public import Balaban.Polymer.FrozenTorus
+public import Balaban.Polymer.BoxTransport
+public import Balaban.Polymer.CauchySum
+public import Balaban.Polymer.Marked
+public import Balaban.Polymer.Sized
+public import Balaban.Polymer.Hole
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
