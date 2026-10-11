@@ -74,6 +74,7 @@ public import Balaban.Background.Normalize
 public import Balaban.Background.Weights
 public import Balaban.Background.Interpolation
 public import Balaban.Background.ApproxLocal
+public import Balaban.Background.ApproxField
 public import Balaban.Symmetry.TotallyReal
 public import Balaban.Symmetry.EvenReduction
 public import Balaban.Symmetry.Rotation
