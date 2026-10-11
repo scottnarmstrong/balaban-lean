@@ -257,6 +257,102 @@ theorem card_cube_bases_le {j : ℕ} (hj : j ≤ K) (x : Torus d ((N₁ * L ^ m�
         exact ⟨Finset.mem_univ _, isBase_tor.2 hy.1, hy.2⟩) (tor_injective.injOn)
     _ ≤ 3 ^ d := card_active_bases_le (by omega) _
 
+section Window
+
+variable {N₀ k : ℕ} [NeZero N₀]
+
+open Classical in
+/-- **Counting bases in a window.**  At most `N ^ d` bases `y0` of layer-`m` blocks (coordinates
+divisible by `L ^ m`) have their (periodized) centre within `s L ^ m` of a given real point `v`
+in every coordinate, if `2 s ≤ N`. -/
+theorem card_bases_window {m : ℕ} (hmk : m ≤ k) (v : Fin d → ℝ) {s : ℝ} (N : ℕ)
+    (hs : 2 * s ≤ N) :
+    ((Finset.univ : Finset (Torus d (N₀ * L ^ k))).filter
+      (fun y0 => IsBase m y0 ∧ ∀ μ, ∃ p : ℤ,
+        |(v μ - bumpCentre m y0 μ) / (L : ℝ) ^ m +
+          p * (((N₀ * L ^ k : ℕ) : ℝ) / (L : ℝ) ^ m)| < s)).card ≤ N ^ d := by
+  classical
+  have hlam : 0 < L ^ m := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) m
+  have hlamR : (0 : ℝ) < (L : ℝ) ^ m := by exact_mod_cast hlam
+  set r : ℕ := N₀ * L ^ (k - m) with hr
+  have hrpos : 0 < r := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne N₀))
+    (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
+  have hS : N₀ * L ^ k = L ^ m * r := side_eq hmk
+  have hrR : ((N₀ * L ^ k : ℕ) : ℝ) / (L : ℝ) ^ m = (r : ℝ) := by
+    rw [hS]; push_cast; field_simp
+  let w : Fin d → ℝ := fun μ => (v μ - ((L : ℝ) ^ m - 1) / 2) / (L : ℝ) ^ m
+  let n0 : Fin d → ℤ := fun μ => ⌊w μ - s⌋
+  let A : Fin d → Finset ℤ := fun μ => (Finset.Icc (n0 μ + 1) (n0 μ + N)).image
+    (fun j => j % (r : ℤ))
+  let F : Torus d (N₀ * L ^ k) → (Fin d → ℤ) := fun y0 μ => (((y0 μ).val / L ^ m : ℕ) : ℤ)
+  have hcardA : ∀ μ, (A μ).card ≤ N := fun μ => by
+    refine card_image_le.trans ?_
+    rw [Int.card_Icc]; omega
+  calc _ ≤ (Fintype.piFinset A).card := by
+        refine Finset.card_le_card_of_injOn F ?_ ?_
+        · intro y0 hy
+          simp only [Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq] at hy
+          obtain ⟨hb, hne⟩ := hy
+          rw [Finset.mem_coe, Fintype.mem_piFinset]
+          intro μ
+          obtain ⟨p, hp⟩ := hne μ
+          set b : ℕ := (y0 μ).val / L ^ m with hbdef
+          have hY : ((y0 μ).val : ℝ) = (L : ℝ) ^ m * b := by
+            have := natCast_val_eq_div_mul hb μ
+            have h2 := congrArg (fun z : ℤ => (z : ℝ)) this
+            simp only [Int.cast_natCast, Int.cast_mul] at h2
+            push_cast at h2
+            exact h2
+          have hwb : (v μ - bumpCentre m y0 μ) / (L : ℝ) ^ m = w μ - b := by
+            unfold bumpCentre
+            rw [hY]
+            simp only [w]
+            field_simp
+            ring
+          rw [hwb, hrR] at hp
+          set j : ℤ := (b : ℤ) - p * r with hj
+          have hjR : (j : ℝ) = b - p * r := by simp [hj]
+          have hp' := abs_lt.1 hp
+          have hn0 : (n0 μ : ℝ) ≤ w μ - s := Int.floor_le _
+          have hn1 : w μ - s < n0 μ + 1 := Int.lt_floor_add_one _
+          have hNR : 2 * s ≤ (N : ℝ) := hs
+          have hj1 : n0 μ + 1 ≤ j := by
+            have : (n0 μ : ℝ) < j := by rw [hjR]; linarith [hp'.1, hp'.2]
+            have := Int.cast_lt.1 this
+            omega
+          have hj2 : j ≤ n0 μ + N := by
+            have : (j : ℝ) < n0 μ + N + 1 := by rw [hjR]; linarith [hp'.1, hp'.2]
+            have : j < n0 μ + N + 1 := by exact_mod_cast this
+            omega
+          have hbr : b < r := by
+            have h1 := (y0 μ).val_lt
+            have h2 : (y0 μ).val = L ^ m * b := by
+              exact (Nat.mul_div_cancel' (Nat.dvd_of_mod_eq_zero (hb μ))).symm
+            rw [h2, hS] at h1
+            exact Nat.lt_of_mul_lt_mul_left h1
+          have hjmod : j % (r : ℤ) = (b : ℤ) := by
+            have : j = (b : ℤ) + (-p) * (r : ℤ) := by rw [hj]; ring
+            rw [this, Int.add_mul_emod_self_right]
+            exact Int.emod_eq_of_lt (by positivity) (by exact_mod_cast hbr)
+          simp only [A, F, Finset.mem_image, Finset.mem_Icc]
+          exact ⟨j, ⟨hj1, hj2⟩, hjmod⟩
+        · intro y0 hy y1 hy1 hF
+          simp only [Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq] at hy hy1
+          funext μ
+          have h0 := congrFun hF μ
+          simp only [F] at h0
+          have h0' : (y0 μ).val / L ^ m = (y1 μ).val / L ^ m := by exact_mod_cast h0
+          have e0 : (y0 μ).val = L ^ m * ((y0 μ).val / L ^ m) :=
+            (Nat.mul_div_cancel' (Nat.dvd_of_mod_eq_zero (hy.1 μ))).symm
+          have e1 : (y1 μ).val = L ^ m * ((y1 μ).val / L ^ m) :=
+            (Nat.mul_div_cancel' (Nat.dvd_of_mod_eq_zero (hy1.1 μ))).symm
+          exact ZMod.val_injective _ (by rw [e0, e1, h0'])
+    _ = ∏ μ, (A μ).card := Fintype.card_piFinset A
+    _ ≤ ∏ _μ : Fin d, N := Finset.prod_le_prod fun μ _ => hcardA μ
+    _ = N ^ d := by simp
+
+end Window
+
 section Own
 
 variable {N₀ k : ℕ} [NeZero N₀]
