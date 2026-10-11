@@ -403,17 +403,17 @@ variable {d L : ℕ} [NeZero L]
 `a` with `a (1 - L^{-2}) ≥ 1/2` and `a ≤ 2` (so that `a_j ∈ [1/2, 2]` for all `j ≥ 1`; the range
 of C-1* is `a ∈ (1/(2(1 - L^{-2})), 3/2)`) there are kernels `t, t0` and constants such that
 `KernelHyp d L a t t0 C_G δ_G C_P` holds. -/
-theorem kernelHyp_holds (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+theorem kernelHyp_holds_tLim (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
     (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
-    ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
-      (C_G δ_G C_P : ℝ), KernelHyp d L a t t0 C_G δ_G C_P := by
+    ∃ (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (C_G δ_G C_P : ℝ),
+      KernelHyp d L a (fun j μ x y => tLim d L a μ j x y) t0 C_G δ_G C_P := by
   have hL1 : 1 < L := by omega
   have hLp : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hx : (1 : ℝ) < L := by exact_mod_cast hL1
   obtain ⟨C₀, δ₀, hC₀, hδ₀, h₀⟩ := tLim_decay_zero hd hL1 hlo hhi
   obtain ⟨C₁, δ₁, hC₁, hδ₁, h₁⟩ := tLim_decay_succ hd hL hlo hhi
   obtain ⟨C_P, hCP, hP⟩ := prolong_bound hd hL hlo hhi
-  refine ⟨fun j μ x y => tLim d L a μ j x y, fun j x y => t0Lim d L a j x y, max C₀ C₁,
+  refine ⟨fun j x y => t0Lim d L a j x y, max C₀ C₁,
     min δ₀ δ₁, C_P, ?_⟩
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro j μ hμ hμ1 x y
@@ -458,6 +458,14 @@ theorem kernelHyp_holds (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
     exact hP J m hμ hJ y u
   · exact (hC₀.trans (le_max_left _ _))
   · exact lt_min hδ₀ hδ₁
+
+/-- The kernel hypotheses hold (the existential form of `kernelHyp_holds_tLim`). -/
+theorem kernelHyp_holds (hd : 3 ≤ d) (hL : 3 ≤ L) {a : ℝ}
+    (hlo : 1 ≤ 2 * a * (1 - ((L : ℝ) ^ 2)⁻¹)) (hhi : a ≤ 2) :
+    ∃ (t : ℕ → ℝ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ) (t0 : ℕ → (Fin d → ℤ) → (Fin d → ℤ) → ℝ)
+      (C_G δ_G C_P : ℝ), KernelHyp d L a t t0 C_G δ_G C_P := by
+  obtain ⟨t0, C_G, δ_G, C_P, H⟩ := kernelHyp_holds_tLim hd hL hlo hhi
+  exact ⟨_, t0, C_G, δ_G, C_P, H⟩
 
 /-- **(G4) unconditionally**: with the kernels of `kernelHyp_holds`, `∑_j t_j^0(x, y)` converges
 absolutely and equals Root-C's lattice Green's function `G(x - y)`. -/
