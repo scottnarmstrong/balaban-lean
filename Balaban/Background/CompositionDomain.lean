@@ -232,6 +232,24 @@ theorem r3_core {Ψ h0 : Fin N → ℝ} {s c b E δ : ℝ} (hs0 : 0 ≤ s) (hs1 
           pow_le_pow_left₀ hs_nn hsrn 2
         linarith
 
+theorem rn_re_sub_eq_vn {u v : Fin N → ℂ} (hu : IsRealVec u) (hv : IsRealVec v) :
+    rn (fun i => (u i).re - (v i).re) = vn (u - v) := by
+  have h : IsRealVec (u - v) := fun i => by simp [hu i, hv i]
+  rw [h.vn_eq]
+  simp
+
+theorem rn_re_sub_cast_eq_vn {u : Fin N → ℂ} (hu : IsRealVec u) (h0 : Fin N → ℝ) :
+    rn (fun i => (u i).re - h0 i) = vn (u - fun i => (h0 i : ℂ)) := by
+  have h : IsRealVec (u - fun i => (h0 i : ℂ)) := fun i => by simp [hu i]
+  rw [h.vn_eq]
+  simp
+
+theorem vn_cast_sub (u v : Fin N → ℝ) :
+    vn ((fun i => (u i : ℂ)) - fun i => (v i : ℂ)) = rn (fun i => u i - v i) := by
+  rw [← vn_ofReal]
+  congr 1
+  funext i; simp
+
 end RealAux
 
 /-! ### Real estimates (shared by Lemma 6.2 and (R-S)) -/
@@ -344,6 +362,69 @@ theorem CompHyp.re_dist (H : CompHyp G G' a θ η Ψ' φ') (hφ : ∀ z i, (φ' 
         (mul_le_mul hs1 h1 (vn_nonneg _) zero_le_one) h2
     _ = θ * η + θ ^ 2 * η := by ring
 
+/-- **(R3)** at a site of `Ω₁`, for the real part of the composed field. -/
+theorem CompHyp.re_r3 (H : CompHyp G G' a θ η Ψ' φ') (hφ : ∀ z i, (φ' (z, i)).im = 0)
+    (hΨ : ∀ x ∈ dataSites G', ∀ i, (Ψ' x i).im = 0) {ν δ₄ : ℝ} (hν : 0 ≤ ν)
+    (hνk : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1) (h0 : Fin N → ℝ)
+    (hmass : ∀ z : G'.Ω 1, Real.sqrt ν * G'.spacing z * vn (fun i => φ' (z, i) - (h0 i : ℂ)) ≤ η)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (hb2 : (2 * d * (θ * η)) ^ 2 + 2 * θ ^ 2 * 1 * η + (θ ^ 2) ^ 2 * η ^ 2 ≤ 1 / 2)
+    (hh : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |∑ i, h0 i ^ 2 - 1| < δ₄ ^ 2) :
+    ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+      |1 - (∑ i, (compVec G G' a φ' Ψ' x i).re * h0 i) /
+        rn (fun i => (compVec G G' a φ' Ψ' x i).re)| <
+      (1 / 2) * (((2 * d * (θ * η)) ^ 2 + 2 * θ ^ 2 * 1 * η + (θ ^ 2) ^ 2 * η ^ 2) +
+        (θ * η + θ ^ 2 * η)) ^ 2 + (1 / 2) * δ₄ ^ 2 := by
+  have hxc : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 = (Real.sqrt ν * G.spacing x) ^ 2 := by
+    unfold GeneratingSet.spacing; rw [mul_pow, Real.sq_sqrt hν]
+  have hs0 : 0 ≤ Real.sqrt ν * G.spacing x :=
+    mul_nonneg (Real.sqrt_nonneg ν) ((G.spacing_ge_one x).trans' zero_le_one)
+  exact r3_core (Ψ := fun i => (compVec G G' a φ' Ψ' x i).re) (h0 := h0) hs0
+    (sqrt_mul_spacing_le_one hν hνk G x) hxc (H.re_r2 hφ hΨ hx) hb2
+    (H.re_dist hφ hΨ hν hνk h0 hmass hx) hh
+
+/-- **(R3)** at a collar site of `Ω'₁` (where `Ψ = φ'`, a unit vector): the bound
+`ν |1 - φ'·h| < ½ (θη)² + ½ δ₄²`, if `ℓ(x) ≤ θ ℓ'(x)`. -/
+theorem CompHyp.re_r3_collar (H : CompHyp G G' a θ η Ψ' φ') (hφ : ∀ z i, (φ' (z, i)).im = 0)
+    (hΨ : ∀ x ∈ dataSites G', ∀ i, (Ψ' x i).im = 0) {ν δ₄ : ℝ} (hν : 0 ≤ ν)
+    (hνk : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1) (h0 : Fin N → ℝ)
+    (hmass : ∀ z : G'.Ω 1, Real.sqrt ν * G'.spacing z * vn (fun i => φ' (z, i) - (h0 i : ℂ)) ≤ η)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ collar G) (hx' : x ∈ G'.Ω 1)
+    (hgap : G.spacing x ≤ θ * G'.spacing x)
+    (hh : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |∑ i, h0 i ^ 2 - 1| < δ₄ ^ 2) :
+    ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+      |1 - (∑ i, (compVec G G' a φ' Ψ' x i).re * h0 i) /
+        rn (fun i => (compVec G G' a φ' Ψ' x i).re)| <
+      (1 / 2) * (0 + θ * η) ^ 2 + (1 / 2) * δ₄ ^ 2 := by
+  have hxc : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 = (Real.sqrt ν * G.spacing x) ^ 2 := by
+    unfold GeneratingSet.spacing; rw [mul_pow, Real.sq_sqrt hν]
+  have hs0 : 0 ≤ Real.sqrt ν * G.spacing x :=
+    mul_nonneg (Real.sqrt_nonneg ν) ((G.spacing_ge_one x).trans' zero_le_one)
+  have hreal := compVec_isReal H.prec a φ' Ψ' hφ hΨ x
+  have hu : rn (fun i => (compVec G G' a φ' Ψ' x i).re) = 1 := by
+    have h1 : vn (compVec G G' a φ' Ψ' x) = 1 := by
+      rw [compVec_collar a φ' Ψ' hx]
+      exact barVec_vn_eq_one hφ H.bounds.unit Ψ' hx'
+    rwa [hreal.vn_eq] at h1
+  have hb0 : |rn (fun i => (compVec G G' a φ' Ψ' x i).re) ^ 2 - 1| ≤ 0 := by rw [hu]; norm_num
+  have hdist : Real.sqrt ν * G.spacing x *
+      rn (fun i => (compVec G G' a φ' Ψ' x i).re - h0 i) ≤ θ * η := by
+    rw [rn_re_sub_cast_eq_vn hreal h0, compVec_collar a φ' Ψ' hx]
+    have e2 : barVec G' Ψ' φ' x - (fun i => (h0 i : ℂ)) =
+        fun i => φ' (⟨x, hx'⟩, i) - (h0 i : ℂ) := by
+      funext i; simp [barVec_of_mem Ψ' φ' hx']
+    rw [e2]
+    have := hmass ⟨x, hx'⟩
+    calc _ ≤ Real.sqrt ν * (θ * G'.spacing x) *
+          vn (fun i => φ' (⟨x, hx'⟩, i) - (h0 i : ℂ)) :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hgap (Real.sqrt_nonneg ν))
+            (vn_nonneg _)
+      _ = θ * (Real.sqrt ν * G'.spacing x * vn (fun i => φ' (⟨x, hx'⟩, i) - (h0 i : ℂ))) := by
+          ring
+      _ ≤ θ * η := mul_le_mul_of_nonneg_left this H.θ_pos.le
+  exact r3_core (Ψ := fun i => (compVec G G' a φ' Ψ' x i).re) (h0 := h0) hs0
+    (sqrt_mul_spacing_le_one hν hνk G x) hxc hb0 (by norm_num) hdist hh
+
 end RealEstimates
 
 /-! ### Lemma 6.2 -/
@@ -354,24 +435,6 @@ variable {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
 
 /-- The constant `C₄ = C₄(d)` of Lemma 6.2 (P2 (4.29)): the domain `Ψ̃(𝔹_j; C₄ K₁ δ)`. -/
 noncomputable def compC4 (d : ℕ) : ℝ := 4 * d + 6
-
-theorem rn_re_sub_eq_vn {u v : Fin N → ℂ} (hu : IsRealVec u) (hv : IsRealVec v) :
-    rn (fun i => (u i).re - (v i).re) = vn (u - v) := by
-  have h : IsRealVec (u - v) := fun i => by simp [hu i, hv i]
-  rw [h.vn_eq]
-  simp
-
-theorem rn_re_sub_cast_eq_vn {u : Fin N → ℂ} (hu : IsRealVec u) (h0 : Fin N → ℝ) :
-    rn (fun i => (u i).re - h0 i) = vn (u - fun i => (h0 i : ℂ)) := by
-  have h : IsRealVec (u - fun i => (h0 i : ℂ)) := fun i => by simp [hu i]
-  rw [h.vn_eq]
-  simp
-
-theorem vn_cast_sub (u v : Fin N → ℝ) :
-    vn ((fun i => (u i : ℂ)) - fun i => (v i : ℂ)) = rn (fun i => u i - v i) := by
-  rw [← vn_ofReal]
-  congr 1
-  funext i; simp
 
 /-- **Lemma 6.2, core form** (P2 Lemma 4.3; BACKGROUND.md §6.6).  Let `(Ψ0, h0) ∈ Ψ̃(𝔹'_k; δ)` be
 real data (`hP`), `Ψ'` a block-constant lifted field equal to `Ψ0` on `Ω'₁ ∪ C(Ω'₁)`, and `φ'` a
@@ -411,7 +474,7 @@ theorem lemma62_core (hL : 2 ≤ L) (h : Precedes G G') {a₁ : ℝ} (ha₁ : 0 
   have hcast : ∀ x i, compVec G G' a φ' Ψ' x i = (Ψo x i : ℂ) := fun x i =>
     congrFun (hreal x).eq_ofReal i
   -- smallness consequences
-  have hs1 : (2 * d + 3) * η ≤ 1 / 2 := by nlinarith
+  have hsm1 : (2 * d + 3) * η ≤ 1 / 2 := by nlinarith
   have hs2 : (2 * d * (1 * η)) ^ 2 + 2 * 1 ^ 2 * 1 * η + (1 ^ 2) ^ 2 * η ^ 2 ≤ (2 * d + 3) * η := by
     nlinarith [mul_nonneg hd0 hηpos.le]
   have hR2 : ∀ x ∈ G.Ω 1, |rn (Ψo x) ^ 2 - 1| ≤ (2 * d + 3) * η := fun x hx =>
@@ -493,11 +556,6 @@ theorem lemma62_core (hL : 2 ≤ L) (h : Precedes G G') {a₁ : ℝ} (ha₁ : 0 
         rw [hC4]; nlinarith
   · -- (R3)
     intro x hx
-    have hxc : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 = (Real.sqrt ν * G.spacing x) ^ 2 := by
-      unfold GeneratingSet.spacing; rw [mul_pow, Real.sq_sqrt hν]
-    have hsp1 : (1 : ℝ) ≤ G.spacing x := G.spacing_ge_one x
-    have hs0 : 0 ≤ Real.sqrt ν * G.spacing x := mul_nonneg (Real.sqrt_nonneg ν) (by linarith)
-    have hs1 := sqrt_mul_spacing_le_one hν hνk G x
     have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
     have hh : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |∑ i, h0 i ^ 2 - 1| < δ ^ 2 := by
       refine lt_of_le_of_lt ?_ hP.r4
@@ -513,39 +571,21 @@ theorem lemma62_core (hL : 2 ≤ L) (h : Precedes G G') {a₁ : ℝ} (ha₁ : 0 
       rw [hC4]
       nlinarith [sq_nonneg η, mul_nonneg hd0 hηpos.le, sq_nonneg (d * η)]
     rcases (mem_dataSites G).1 hx with hx | hx
-    · have hdist := H.re_dist hφ hΨreal hν hνk h0 hmass0 hx
-      have hd2 : Real.sqrt ν * G.spacing x * rn (fun i => Ψo x i - h0 i) ≤ 2 * η := by
-        show Real.sqrt ν * G.spacing x *
-          rn (fun i => (compVec G G' a φ' Ψ' x i).re - h0 i) ≤ 2 * η
-        linarith
-      have := r3_core (Ψ := Ψo x) (h0 := h0) (s := Real.sqrt ν * G.spacing x) (b := (2 * d + 3) * η)
-        (E := 2 * η) hs0 hs1 hxc (hR2 x hx) (by linarith) hd2 hh
-      exact this.trans_le (hfin (E := 2 * η) (b := (2 * d + 3) * η) (by positivity) le_rfl le_rfl
-        (by positivity))
+    · have hb2 : (2 * d * (1 * η)) ^ 2 + 2 * 1 ^ 2 * 1 * η + (1 ^ 2) ^ 2 * η ^ 2 ≤ 1 / 2 :=
+        hs2.trans hsm1
+      have := H.re_r3 hφ hΨreal hν hνk h0 hmass0 hx hb2 hh
+      exact this.trans_le (hfin (E := 1 * η + 1 ^ 2 * η)
+        (b := (2 * d * (1 * η)) ^ 2 + 2 * 1 ^ 2 * 1 * η + (1 ^ 2) ^ 2 * η ^ 2)
+        (by positivity) hs2 (by linarith) (by positivity))
     · have hn : x ∉ G.Ω 1 := ((mem_collar G).1 hx).1
       by_cases hx' : x ∈ G'.Ω 1
-      · have hu := hunitcol x hx hx'
-        have hdist : Real.sqrt ν * G.spacing x * rn (fun i => Ψo x i - h0 i) ≤ η := by
-          have e : rn (fun i => Ψo x i - h0 i) = vn (barVec G' Ψ' φ' x - fun i => (h0 i : ℂ)) := by
-            rw [← compVec_collar a φ' Ψ' hx]
-            exact rn_re_sub_cast_eq_vn (hreal x) h0
-          rw [e]
-          have e2 : barVec G' Ψ' φ' x - (fun i => (h0 i : ℂ)) =
-              fun i => φ' (⟨x, hx'⟩, i) - (h0 i : ℂ) := by
-            funext i; simp [barVec_of_mem Ψ' φ' hx']
-          rw [e2]
-          have hgs : G.spacing x ≤ G'.spacing x := by
-            have : G.spacing x = 1 := by
-              unfold GeneratingSet.spacing; rw [layerIndex_of_not_mem G hn]; simp
-            rw [this]; exact G'.spacing_ge_one x
-          have := hmass0 ⟨x, hx'⟩
-          refine le_trans ?_ this
-          exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hgs (Real.sqrt_nonneg ν))
-            (vn_nonneg _)
-        have hb0 : |rn (Ψo x) ^ 2 - 1| ≤ 0 := by rw [hu]; norm_num
-        have := r3_core (Ψ := Ψo x) (h0 := h0) (s := Real.sqrt ν * G.spacing x) (b := 0)
-          (E := η) hs0 hs1 hxc hb0 (by norm_num) hdist hh
-        exact this.trans_le (hfin (E := η) (b := 0) le_rfl (by positivity) (by linarith) hηpos.le)
+      · have hgs : G.spacing x ≤ 1 * G'.spacing x := by
+          have : G.spacing x = 1 := by
+            unfold GeneratingSet.spacing; rw [layerIndex_of_not_mem G hn]; simp
+          rw [this, one_mul]; exact G'.spacing_ge_one x
+        have := H.re_r3_collar hφ hΨreal hν hνk h0 hmass0 hx hx' hgs hh
+        exact this.trans_le (hfin (E := 1 * η) (b := 0) le_rfl (by positivity) (by linarith)
+          (by positivity))
       · have hc1 := mem_collar_of_not_mem h hx hx'
         have hds : x ∈ dataSites G' := (mem_dataSites G').2 (Or.inr hc1)
         have e : ∀ i, Ψo x i = Ψ0 x i := fun i => by
