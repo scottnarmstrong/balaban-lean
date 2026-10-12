@@ -193,7 +193,7 @@ open Classical in
 theorem baseBlockProp_iff {R : ℕ → ℝ} (δ₀ z : ℝ) (hK : 1 ≤ K)
     (o : OutT N R a 1) (x : NewCfg N a 0) (c : Torus S.d (n 1))
     (hc : CubeSub (S := S) (n := n) M K 1 c (a.Z 1 \ a.Omega 0))
-    (hnn : ∀ i, n i = S.L * n (i + 1)) :
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) :
     BaseBlockProp a 0 δ₀ (fun y => gaussArg N z o x y.1) c ↔
       ChiBlockProp n S.L M K δ₀ (fun s i => subVarField N x 0 s i)
         (fun y i => (z • outField N o y) i) c := by

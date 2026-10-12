@@ -84,7 +84,7 @@ theorem ofReal_one_sub_baseA_le (δ₀ : ℝ) (b : Torus S.d (n (k + 1)))
             (Finset.mem_filter.mpr ⟨Finset.mem_univ _, hy⟩)
 
 /-- The number of `(k+1)`-blocks of a cube is `M^d`. -/
-theorem card_blocks_cube (hnn : ∀ i, n i = S.L * n (i + 1)) (hK : k + 1 ≤ K)
+theorem card_blocks_cube (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hK : k + 1 ≤ K)
     (b : Torus S.d (n (k + 1))) :
     (open Classical in (Finset.univ.filter fun y : BlockAt S n M K (k + 1) =>
       blockCube S n M K (k + 1) y = b)).card = M ^ S.d := by
@@ -99,7 +99,7 @@ theorem card_blocks_cube (hnn : ∀ i, n i = S.L * n (i + 1)) (hK : k + 1 ≤ K)
 
 /-- **The Gaussian measure of the witness function** (Lemma II.7.8, block witnesses):
 `m^w_0 ≤ (M^d · q)^{#blk(w)}`, `q = 2^{N/2} e^{-c (2δ₀)²/4}`. -/
-theorem mWit_baseF_le [NeZero N] (hnn : ∀ i, n i = S.L * n (i + 1)) (hK : k + 1 ≤ K) {c : ℝ}
+theorem mWit_baseF_le [NeZero N] (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hK : k + 1 ≤ K) {c : ℝ}
     (hc : 0 < c) {δ₀ : ℝ} (hδ : 0 ≤ δ₀) (w : BaseW a k) :
     mWit N c a k (baseF a k δ₀) w ≤
       ((M : ℝ≥0∞) ^ S.d * tailQ N c (2 * δ₀)) ^ (baseBlk a k w).card := by

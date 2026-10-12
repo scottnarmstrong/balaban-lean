@@ -25,8 +25,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 theorem gain_zero (Z : H.Comp 0) : H.gain 0 Z = 0 := by
   unfold gain; rfl
@@ -122,16 +122,16 @@ variable (G : S.Good)
 include G
 
 /-- **Lemma I.4.13 (a)**: `b(Z) ≤ q` for `Z` `Active` or `Pending` of scale `k ≤ k₀` with core `q`. -/
-theorem gain_le_core {k : ℕ} {Z : H.Comp k} (hk0 : k ≤ k0)
+theorem gain_le_core {k : ℕ} {Z : H.Comp k} (hk0 : k ≤ k0) (hkK : k ≤ K)
     (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) : H.gain k Z ≤ (H.bk k Z).q := by
   refine (gain_le_iff k Z).mpr ⟨fun j Y hd hmj hne => ?_, fun j Y hd hjk hmj hK => ?_⟩
-  · have hL := live_of_desc G hk0 hZ hd hmj
+  · have hL := live_of_desc G hk0 hkK hZ hd hmj
     obtain ⟨κ, rfl⟩ : ∃ κ, j = κ + 1 := ⟨j - 1, by omega⟩
     have hr : (Y.1 ∩ H.newCubes (κ + 1)).card = 0 := hL.1
     rw [Finset.card_eq_zero] at hr
     rw [hr] at hne
     simp at hne
-  · exact not_ripe_of_desc G hk0 hZ hd hmj hjk hK.2.2
+  · exact not_ripe_of_desc G hk0 hkK hZ hd hmj hjk hK.2.2
 
 end RegionHistory
 

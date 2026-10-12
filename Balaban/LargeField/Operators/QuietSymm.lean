@@ -260,7 +260,7 @@ section Reading
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
   [NeZero S.L]
 
-theorem blockCfgOf_rot (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
+theorem blockCfgOf_rot (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
     (hqK : q ≤ K) (ρ : OrthN N) (f : BlockAt S n M K i → EuclideanSpace ℝ (Fin N)) :
     blockCfgOf g hnn hiq hqK (fun y => ρ (f y)) = rotBC (rotMat ρ) (blockCfgOf g hnn hiq hqK f) := by
   funext z j
@@ -403,9 +403,9 @@ end Action
 section MainAct
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ)
+  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ)
   (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
-  (cs : OpConsts) (hk : k + 1 ≤ K)
+  (hk : k + 1 ≤ K) (cs : OpConsts)
 
 theorem locLiftPsi_rot (ρ : OrthN N) (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) :
     locLiftPsi g Hl k Zc hk (rotSub ρ x) = rotBC (rotMat ρ) (locLiftPsi g Hl k Zc hk x) := by
@@ -435,13 +435,13 @@ theorem locData_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k 
 
 theorem locBg_eq (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locBg g Hl k Zc hZc cs hk o x hv = bgFieldC (locGen g Hl k Zc hZc) cs.aw (cs.mu (k + 1))
+    locBg g Hl k Zc hZc hk cs o x hv = bgFieldC (locGen g Hl k Zc hZc hk) cs.aw (cs.mu (k + 1))
       (bgC0 S.d S.L N) (locData g Hl k Zc hZc hk o x hv) := rfl
 
 theorem locBg_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locBg g Hl k Zc hZc cs hk (rotOut ρ o) (rotSub ρ x) (ρ hv) =
-      rotFld (cmat (rotMat ρ)) (locBg g Hl k Zc hZc cs hk o x hv) := by
+    locBg g Hl k Zc hZc hk cs (rotOut ρ o) (rotSub ρ x) (ρ hv) =
+      rotFld (cmat (rotMat ρ)) (locBg g Hl k Zc hZc hk cs o x hv) := by
   rw [locBg_eq, locBg_eq, locData_rot]
   exact (bgFieldC_rot cs.aw (cs.mu (k + 1)) (isRealOrth_ofReal (rotMat_transpose_mul ρ)).1
     (bgC0 S.d S.L N) _).1
@@ -452,14 +452,14 @@ theorem re_cmat_mulVec (Q : Matrix (Fin N) (Fin N) ℝ) (v : Fin N → ℂ) (i :
 
 theorem locPhi_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locPhi g Hl k Zc hZc cs hk (rotOut ρ o) (rotSub ρ x) (ρ hv) =
-      fun z => ρ (locPhi g Hl k Zc hZc cs hk o x hv z) := by
+    locPhi g Hl k Zc hZc hk cs (rotOut ρ o) (rotSub ρ x) (ρ hv) =
+      fun z => ρ (locPhi g Hl k Zc hZc hk cs o x hv z) := by
   funext z
   unfold locPhi
   rw [locBg_rot, locData_rot]
   refine PiLp.ext fun i => ?_
   have e := congrFun (barField_rot (cmat (rotMat ρ)) (locData g Hl k Zc hZc hk o x hv).Ψ
-    (locBg g Hl k Zc hZc cs hk o x hv) z) i
+    (locBg g Hl k Zc hZc hk cs o x hv) z) i
   rw [rot_apply_eq]
   simp only [BgData.rot]
   rw [e, re_cmat_mulVec]
@@ -475,14 +475,14 @@ theorem psiLevel_rot (ρ : OrthN N) (ψ : MultiField S n M K N) :
 theorem mainActionLoc_rot (hrem : ∀ j, Hl.rem j = ∅) (ρ : OrthN N)
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    mainActionLoc g Hl k Zc hZc cs hk hrem (rotOut ρ o) (rotSub ρ x) (ρ hv) =
-      mainActionLoc g Hl k Zc hZc cs hk hrem o x hv := by
+    mainActionLoc g Hl k Zc hZc hk cs hrem (rotOut ρ o) (rotSub ρ x) (ρ hv) =
+      mainActionLoc g Hl k Zc hZc hk cs hrem o x hv := by
   unfold mainActionLoc
   rw [subMultiscaleField_rot, psiLevel_rot, locPhi_rot]
-  rw [actionG_rot ρ (histGenLevel g Hl k hrem) cs.aw (cs.muAct (k + 1)) hv (Xfine g Hl k Zc)
+  rw [actionG_rot ρ (histGenLevel g Hl k hk hrem) cs.aw (cs.muAct (k + 1)) hv (Xfine g Hl k Zc)
     (psiLevel g Hl k hk (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
       (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o))
-    (locPhi g Hl k Zc hZc cs hk o x hv)]
+    (locPhi g Hl k Zc hZc hk cs o x hv)]
   rw [starBondE_rot]
 
 
@@ -493,8 +493,8 @@ and the external direction `h`. -/
 theorem quietKernel_rot (hrem : ∀ j, Hl.rem j = ∅) (ρ : OrthN N)
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    quietKernel g Hl k Zc hZc cs hk hrem (rotOut ρ o) (rotSub ρ x) (ρ hv) =
-      quietKernel g Hl k Zc hZc cs hk hrem o x hv := by
+    quietKernel g Hl k Zc hZc hk cs hrem (rotOut ρ o) (rotSub ρ x) (ρ hv) =
+      quietKernel g Hl k Zc hZc hk cs hrem o x hv := by
   have hQ := rotMat_transpose_mul ρ
   have hh : (fun i => (ρ hv : EuclideanSpace ℝ (Fin N)) i) = rotMat ρ *ᵥ fun i => hv i :=
     funext fun i => rot_apply_eq ρ hv i

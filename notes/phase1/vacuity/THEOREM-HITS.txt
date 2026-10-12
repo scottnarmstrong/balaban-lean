@@ -1,0 +1,100 @@
+Balaban/Background/Theorem52Analytic.lean:127:theorem theorem52_analytic (H : BgHyp d L k ϱ a ν) :
+Balaban/Background/Perturb.lean:65:theorem theorem52_perturb (H : BgHyp d L k ϱ a ν) (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+Balaban/Background/Perturb.lean:150:theorem theorem52_perturb_eq (H : BgHyp d L k ϱ a ν) (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+Balaban/Correlations/RootCFromFlow.lean:21:theorem rootC_of_rootFAndC1Star (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N)
+Balaban/Background/Theorem73.lean:246:theorem theorem73_real (ha₁ : 0 < a₁) (H : BgHyp d L k ϱ (compWeight L a₁) ν)
+Balaban/Background/Theorem73.lean:306:theorem theorem73_complex (ha₁ : 0 < a₁) (H : BgHyp d L k ϱ (compWeight L a₁) ν)
+Balaban/Background/Theorem73.lean:421:theorem theorem73_system (ha₁ : 0 < a₁) (H' : BgHyp d L k ϱ' (compWeight L a₁) ν)
+Balaban/Background/Theorem73.lean:448:theorem theorem73_system_real (ha₁ : 0 < a₁) (H' : BgHyp d L k ϱ' (compWeight L a₁) ν)
+Balaban/Background/Theorem73.lean:573:theorem theorem73_perturb (ha₁ : 0 < a₁) (H : BgHyp d L k ϱ (compWeight L a₁) ν)
+Balaban/Background/Def5Response.lean:287:theorem theorem72_linearResponse (H : BgHyp d L k ϱ a ν) {D : BgData G N}
+Balaban/LargeField/Counter/LF2.lean:150:theorem LF2 {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {k0 K khat : ℕ} (G : S.Good)
+Balaban/LargeField/Operators/QuietBound.lean:43:theorem quietKernel_bound [NeZero N] (hN : 2 ≤ N) (hk1 : 1 ≤ k) (hK : k + 1 ≤ K)
+Balaban/LargeField/Counter/InstantiationFlow.lean:27:theorem flow_counter (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (H : RegionHistory S n R F.k0)
+Balaban/LargeField/Operators/LocOp.lean:322:theorem locOp_level {k : ℕ} (hk : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (h : ¬ IsKept H (k + 1) Z') :
+Balaban/LargeField/Operators/LocOp.lean:328:theorem locOp_kept {k : ℕ} (hk : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (h : IsKept H (k + 1) Z') :
+Balaban/LargeField/Operators/LocOp.lean:336:theorem locOp_domain {k : ℕ} (hk : k ≤ K) (Z : H.Comp k)
+Balaban/LargeField/Operators/LocOp.lean:390:theorem locOp_b_supp (k : ℕ) : ∀ (hk : k ≤ K) (Z : H.Comp k)
+Balaban/LargeField/Operators/LocOp.lean:429:theorem locOp_support {k : ℕ} (hk : k ≤ K) (Z : H.Comp k) :
+Balaban/LargeField/Operators/LocOp.lean:446:theorem locOp_factor {k : ℕ} (hk1 : 1 ≤ k) (hk : k ≤ K) {Z1 Z2 : H.Comp k} (hne : Z1 ≠ Z2) :
+Balaban/LargeField/Operators/LocOp.lean:464:theorem locOp_commute {k : ℕ} (hk : k ≤ K) (Z1 Z2 : H.Comp k) (o1 o2) (hv : EuclideanSpace ℝ (Fin N))
+Balaban/Background/Def5.lean:171:theorem theorem71 (H : BgHyp d L k ϱ a ν) {D : BgData G N}
+Balaban/Background/Def5.lean:218:theorem theorem72 (H : BgHyp d L k ϱ a ν) {D : BgData G N}
+Balaban/Background/Def5.lean:240:theorem theorem72_analytic (H : BgHyp d L k ϱ a ν) :
+Balaban/Background/Def5.lean:255:theorem theorem72_real (H : BgHyp d L k ϱ a ν) {D : BgData G N}
+Balaban/Background/Theorem52.lean:44:theorem theorem52_exists (H : BgHyp d L k ϱ a ν) (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+Balaban/Background/Theorem52.lean:57:theorem theorem52_compare (H : BgHyp d L k ϱ a ν) (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+Balaban/LargeField/Operators/CompBound.lean:1389:theorem preOp_pkgBound (hH : H.Admissible) (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/Localization/DecoupledCovWeighted.lean:281:theorem decCov_sub_decCov_eq :
+Balaban/LargeField/Operators/Invariance.lean:126:theorem locOp_rot_invariant (ρ : OrthN N) (k : ℕ) : ∀ (hk : k ≤ K) (Z : H.Comp k)
+Balaban/LargeField/Operators/Invariance.lean:385:theorem locOp_euclid_invariant (hiso : HistIso H H' σ)
+Balaban/Localization/DecoupledCovPrincipal.lean:1232:theorem decCovSqrt_one_eq_sqrtMat (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Localization/DecoupledCovPrincipal.lean:1381:theorem decCovSqrt_one_principal
+Balaban/SmallField/RenormTermwiseCrude.lean:420:theorem termwise_irrelevant_all_scales (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR : ℝ) (hA : 0 ≤ A)
+Balaban/LargeField/Operators/LocOpBound.lean:36:theorem locOp_pkgBound (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5)
+Balaban/LargeField/Operators/LocOpBound.lean:63:theorem locOp_pkgBound_kappa (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5)
+Balaban/Localization/DecoupledFunctional.lean:38:theorem decCovSqrt_one_eq (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/SmallField/RenormTermwiseIrrel.lean:105:theorem termwise_irrelevant (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ)
+Balaban/SmallField/RenormTermwiseIrrel.lean:147:theorem termwise_irrelevant_scaled (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ)
+Balaban/Localization/I5.lean:41:theorem i5_background (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+Balaban/Localization/Decoupled2FieldLocal.lean:296:theorem i4a_local {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG) (S : CoverLocal C H a ν Kc Cx)
+Balaban/Localization/Decoupled2Solve.lean:60:theorem i4a_exists_unique {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG) :
+Balaban/Localization/Decoupled2BackgroundLocal.lean:39:theorem i4b_local {c BG : ℝ} (hS : DecSpecs d L Kc Cx c BG) (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H)
+Balaban/Localization/Decoupled2BackgroundLocal.lean:100:theorem i4b_vanish (S : CoverLocal C H a ν Kc Cx) {ρ : ℝ} {s : DecParams C} {D : BgData H N} {φ : H.Ω 1 × Fin N → ℂ}
+Balaban/Localization/DecoupledBackgroundLocal.lean:171:theorem i4b_local {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (hconn : HatConn G)
+Balaban/Localization/DecoupledBackgroundLocal.lean:232:theorem i4b_vanish {ρ : ℝ} {s : DecParams G} {D : BgData G N} {φ : G.Ω 1 × Fin N → ℂ}
+Balaban/Localization/Decoupled2SolveAnalytic.lean:62:theorem i4a_analytic {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG) (hA : AnSpec d L Kc Cx cstar)
+Balaban/Localization/DecoupledCovLocal.lean:638:theorem decCov_mulVec_eq (h : unitPts G × Fin N → ℂ) :
+Balaban/Localization/DecoupledCovLocal.lean:660:theorem decCov_local (h h' : unitPts G × Fin N → ℂ)
+Balaban/Localization/Decoupled2Background.lean:94:theorem i4b_exists_unique {c BG : ℝ} (hS : DecSpecs d L Kc Cx c BG) (S : CoverBase C H a ν Kc Cx)
+Balaban/Localization/Decoupled2Background.lean:196:theorem i4b_one {c BG : ℝ} (hS : DecSpecs d L Kc Cx c BG) (S : CoverBase C H a ν Kc Cx)
+Balaban/Localization/Decoupled2Background.lean:248:theorem i4b_close {c BG : ℝ} (hS : DecSpecs d L Kc Cx c BG) (S : CoverBase C H a ν Kc Cx)
+Balaban/Localization/Decoupled2Background.lean:308:theorem i4b_analytic {c BG : ℝ} (hS : DecSpecs d L Kc Cx c BG) (S : CoverBase C H a ν Kc Cx)
+Balaban/Localization/DecoupledFieldX0.lean:400:theorem i4a_close_X0 {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c BG)
+Balaban/Localization/Decoupled2One.lean:67:theorem i4a_one {cstar BG c1 : ℝ} (hF : FamSpec d L Kc Cx cstar BG) (h1 : OneSpec d L Kc Cx c1)
+Balaban/Localization/Decoupled2FieldClose.lean:360:theorem i4a_close_core {c BG : ℝ} (hF : FamSpec d L Kc Cx c BG) (hD : Dg2Spec d L Kc Cx c BG)
+Balaban/Localization/Decoupled2FieldClose.lean:508:theorem i4a_close {c BG : ℝ} (hF : FamSpec d L Kc Cx c BG) (hD : Dg2Spec d L Kc Cx c BG)
+Balaban/Localization/I5Chain.lean:156:theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+Balaban/Localization/I5Chain.lean:243:theorem i5_stage2 (ha₁ : 0 < a₁) (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν)
+Balaban/Localization/DecoupledOne.lean:94:theorem i4a_one {cstar BG c1 : ℝ} (hF : FamSpec d L cstar BG) (h1 : OneSpec d L c1)
+Balaban/Localization/DecoupledFieldClose.lean:1155:theorem i4a_close_core {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c BG)
+Balaban/Localization/DecoupledFieldClose.lean:1343:theorem i4a_close {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c BG)
+Balaban/Localization/DecoupledSolveAnalytic.lean:135:theorem i4a_analytic {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (hA : AnSpec d L cstar)
+Balaban/Localization/DecoupledSolve.lean:260:theorem i4a_exists_unique {cstar BG : ℝ} (hF : FamSpec d L cstar BG) :
+Balaban/Localization/DecoupledCovBound.lean:353:theorem decCov_sub_covA (Av : Matrix (κι × Fin N) (κι × Fin N) ℂ) (cs : ℂ)
+Balaban/Localization/DecoupledCovBound.lean:366:theorem decCov_sub_le (h : κι × Fin N → ℂ) :
+Balaban/Localization/DecoupledDefect.lean:248:theorem i4b_defect {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledIdentMain.lean:186:theorem decCov_one_prod (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Localization/DecoupledIdentMain.lean:271:theorem decCov_one_mul (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Localization/DecoupledIdentMain.lean:348:theorem decCov_one_eq (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Localization/DecoupledSqrt.lean:330:theorem decCovSqrt_bound (f : κι × Fin N → ℂ) :
+Balaban/Localization/DecoupledCovReal.lean:190:theorem decCovSqrt_one_eq_real (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Localization/DecoupledFieldLocal.lean:626:theorem i4a_local {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledFieldHolder.lean:88:theorem i4a_holder {cstar BG BH : ℝ} (hF : FamSpec d L cstar BG) (hH : HolSpec d L cstar BH)
+Balaban/Localization/DecoupledBackground.lean:232:theorem i4b_exists_unique {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledBackground.lean:334:theorem i4b_one {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledBackground.lean:386:theorem i4b_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledBackground.lean:474:theorem i4b_analytic {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+Balaban/Localization/DecoupledCompose.lean:305:theorem i4b_compose_one {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G' a ν)
+Balaban/Localization/DecoupledCompose.lean:321:theorem i4b_compose_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G' a ν)
+Balaban/Localization/DecoupledCompose.lean:356:theorem i4b_compose_local (a : ℕ → ℝ) {φ φ₂ : G'.Ω 1 × Fin N → ℂ}
+Balaban/Localization/DecoupledCompose.lean:364:theorem i4b_compose_analytic {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G' a ν)
+Balaban/Polymer/MarkedCubesTwo.lean:185:theorem marked_cubes_two {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+Balaban/Polymer/MarkedCubes.lean:372:theorem marked_cubes_core {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+Balaban/Polymer/MarkedCubes.lean:498:theorem marked_cubes {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)] (μ : ∀ b, Measure (Ωb b))
+Balaban/Polymer/MarkedCubesLocal.lean:132:theorem marked_cubes_explicit {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+Balaban/LargeField/Budget/LemmaB.lean:158:theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → ℝ) (K : ℕ) :
+Balaban/LargeField/Budget/LemmaB.lean:254:theorem lemmaB_recursive (B : BudgetSetup S P) (ok : S.Ok) (κK δ : ∀ k, H.Comp k → ℝ)
+Balaban/Fluctuation/Covariance.lean:52:theorem lemma24_a (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:84:theorem lemma24_b (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:101:theorem lemma24_b_resolvent (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:116:theorem lemma24_c_principal (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:137:theorem lemma24_c_real (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:147:theorem lemma24_c_l2 (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:156:theorem lemma24_c_sup (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:167:theorem lemma24_c_logdet (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:208:theorem lemma24_d (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/Covariance.lean:241:theorem lemma24_d_identification (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1))
+Balaban/Fluctuation/ExpansionDomain.lean:53:theorem theorem73_complex_small (ha₁ : 0 < a₁) (H : BgHyp d L k ϱ (compWeight L a₁) ν)
+Balaban/Fluctuation/ExpansionDomain.lean:126:theorem theorem73_complex_witness (ha₁ : 0 < a₁) (H : BgHyp d L k ϱ (compWeight L a₁) ν)
+Balaban/SmallField/Def6BridgeInfMoment.lean:282:theorem IsSFFamily.bridgeInf (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNum d L N k j ϱ P)

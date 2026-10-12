@@ -21,14 +21,14 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- `Y` (scale `a`) is an ancestor of `Z` (scale `b`). -/
 inductive Desc (a : ℕ) : (b : ℕ) → H.Comp a → H.Comp b → Prop
   | refl (Y : H.Comp a) : Desc a a Y Y
   | step (b : ℕ) (Y : H.Comp a) (Y' : H.Comp b) (Y'' : H.Comp (b + 1)) :
-      Desc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.succ b Y' h = Y'' → Desc a (b + 1) Y Y''
+      Desc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.IsSucc b Y' Y'' → Desc a (b + 1) Y Y''
 
 variable {H}
 
@@ -44,7 +44,7 @@ theorem Desc.trans {a b c : ℕ} {Y : H.Comp a} {Y' : H.Comp b} {Z : H.Comp c}
   | step c _ Y'' Z'' _ hrem hs ih => exact Desc.step c Y Y'' Z'' (ih h1) hrem hs
 
 theorem Desc.single {b : ℕ} {Y : H.Comp b} {Z : H.Comp (b + 1)} (h : Y.1 ∉ H.rem b)
-    (hs : H.succ b Y h = Z) : H.Desc b (b + 1) Y Z :=
+    (hs : H.IsSucc b Y Z) : H.Desc b (b + 1) Y Z :=
   Desc.step b Y Y Z (Desc.refl Y) h hs
 
 theorem Desc.unique {a b : ℕ} {Y : H.Comp a} {Z Z' : H.Comp b} (h : H.Desc a b Y Z)
@@ -59,7 +59,7 @@ theorem Desc.unique {a b : ℕ} {Y : H.Comp a} {Z Z' : H.Comp b} (h : H.Desc a b
     | step _ _ Y3 _ hd3 hrem3 hs3 =>
       have := ih hd3
       subst this
-      rw [← hs, ← hs3]
+      exact RegionHistory.IsSucc.unique _ hs hs3
 
 /-- Inversion of the last step. -/
 theorem desc_succ_iff {a b : ℕ} (hab : a ≤ b) {Y : H.Comp a} {Z : H.Comp (b + 1)} :

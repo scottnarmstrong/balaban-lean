@@ -23,8 +23,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 theorem parts_image (k : ℕ) (Z' : H.Comp (k + 1)) :
     (H.parts k Z').image Subtype.val = (H.step k).oldIn (S.omega k) Z'.1 := by
@@ -33,10 +33,10 @@ theorem parts_image (k : ℕ) (Z' : H.Comp (k + 1)) :
   simp only [Finset.mem_image, RegionStep.oldIn, Finset.mem_filter, H.mem_parts]
   constructor
   · rintro ⟨c, ⟨hc, hs⟩, rfl⟩
-    exact ⟨H.comp_mem_Z hc, (H.succ_eq_iff k hc).mp hs⟩
+    exact ⟨H.comp_mem_Z hc, hs⟩
   · rintro ⟨hY, hsub⟩
     obtain ⟨hY1, hY2⟩ := (H.mem_comps_Z k).mp hY
-    refine ⟨⟨Y, hY1⟩, ⟨hY2, (H.succ_eq_iff k hY2).mpr hsub⟩, rfl⟩
+    refine ⟨⟨Y, hY1⟩, ⟨hY2, hsub⟩, rfl⟩
 
 theorem parts_card (k : ℕ) (Z' : H.Comp (k + 1)) :
     (H.parts k Z').card = ((H.step k).oldIn (S.omega k) Z'.1).card := by
@@ -72,7 +72,7 @@ theorem _root_.Balaban.LargeField.critOpt_le (S : Setting) (k0 k : ℕ) :
 
 /-- **Lemma I.4.8** for a region history: the spines of the components of `Z_k` with
 `Z ⊆ N_{ρ_k+4}(Γ)` give spines for the components of `Z^pre_{k+1}`. -/
-theorem exists_spineOK (k : ℕ) (Γs : H.Comp k → Spine S.d)
+theorem exists_spineOK {k : ℕ} (hk : k < K) (Γs : H.Comp k → Spine S.d)
     (h : ∀ c : H.Comp k, (c.1 : Set (Torus S.d (n k))) ⊆
       NR ((S.rho k : ℝ) + 4) ((Γs c).proj (n k))) (Z' : H.Comp (k + 1)) :
     ∃ Γ', H.SpineOK k Γs Z' Γ' := by
@@ -85,7 +85,7 @@ theorem exists_spineOK (k : ℕ) (Γs : H.Comp k → Spine S.d)
     have : Γs' Y = Γs ⟨Y, hY1⟩ := by simp only [Γs', hY1, ↓reduceDIte]
     rw [this]
     exact h ⟨Y, hY1⟩
-  obtain ⟨Γ', h1, h2, h3, h4⟩ := (H.step k).exists_step_spine_box Γs' (H.stepGeom k)
+  obtain ⟨Γ', h1, h2, h3, h4⟩ := (H.step k).exists_step_spine_box Γs' (H.stepGeom hk)
     (H.F.ok.spineNum H.F.s4 H.F.s5 k) hΓ (crit := critOpt S k0 (k + 1)) (critOpt_le S k0 k)
     (Z' := Z'.1) Z'.2
   refine ⟨Γ', h1, ?_, ?_, ?_⟩
@@ -104,8 +104,8 @@ theorem exists_spineOK (k : ℕ) (Γs : H.Comp k → Spine S.d)
     · rw [← H.parts_card, hc]; simp
     · have : Γs' c.1 = Γs c := by simp only [Γs', c.2, ↓reduceDIte]
       rw [this]; exact hL
-  · intro hk hsm hsd
-    exact h4 (S.crit (k + 1)) (by simp [critOpt, hk]) hsm hsd
+  · intro hk' hsm hsd
+    exact h4 (S.crit (k + 1)) (by simp [critOpt, hk']) hsm hsd
 
 open Classical in
 /-- The spine of a component of `Z^pre_{k+1}`, given the spines at scale `k`. -/
@@ -125,15 +125,15 @@ noncomputable def bk : ∀ k, H.Comp k → Book
   | k + 1 => fun Z' => S.nextBook (k + 1) (H.parts k Z')
       (fun c => S.postBook k0 k (bk k c)) (Z'.1 ∩ H.newCubes (k + 1)).card (H.spine (k + 1) Z')
 
-theorem spine_contains : ∀ k, ∀ c : H.Comp k, (c.1 : Set (Torus S.d (n k))) ⊆
+theorem spine_contains : ∀ k, k ≤ K → ∀ c : H.Comp k, (c.1 : Set (Torus S.d (n k))) ⊆
     NR ((S.rho k : ℝ) + 4) ((H.spine k c).proj (n k)) := by
   intro k
   induction k with
-  | zero => exact fun c => (H.F.isEmpty_comp_zero.false c).elim
+  | zero => exact fun _ c => (H.F.isEmpty_comp_zero.false c).elim
   | succ k ih =>
-    intro Z'
+    intro hkK Z'
     classical
-    have h := H.exists_spineOK k (H.spine k) ih Z'
+    have h := H.exists_spineOK (by omega) (H.spine k) (ih (by omega)) Z'
     have : H.spine (k + 1) Z' = h.choose := by
       show H.nextSpine k (H.spine k) Z' = _
       unfold nextSpine
@@ -141,10 +141,10 @@ theorem spine_contains : ∀ k, ∀ c : H.Comp k, (c.1 : Set (Torus S.d (n k))) 
     rw [this]
     exact h.choose_spec.1
 
-theorem spineOK_spine (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem spineOK_spine {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.SpineOK k (H.spine k) Z' (H.spine (k + 1) Z') := by
   classical
-  have h := H.exists_spineOK k (H.spine k) (H.spine_contains k) Z'
+  have h := H.exists_spineOK hk (H.spine k) (H.spine_contains k hk.le) Z'
   have : H.spine (k + 1) Z' = h.choose := by
     show H.nextSpine k (H.spine k) Z' = _
     unfold nextSpine
@@ -164,10 +164,10 @@ theorem postBook_len (k : ℕ) (b : Book) : (S.postBook k0 k b).len = b.len := b
 theorem postBook_pt (k : ℕ) (b : Book) : (S.postBook k0 k b).pt = b.pt := by
   unfold Setting.postBook; split_ifs <;> rfl
 
-theorem book_rule (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem book_rule {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     S.BookRule (k + 1) (k + 1 ≤ k0) (H.parts k Z') (fun c => S.postBook k0 k (H.bk k c))
       (Z'.1 ∩ H.newCubes (k + 1)).card (H.bk (k + 1) Z') := by
-  obtain ⟨-, h2, h3, -⟩ := H.spineOK_spine k Z'
+  obtain ⟨-, h2, h3, -⟩ := H.spineOK_spine hk Z'
   refine S.nextBook_rule (k + 1) (k + 1 ≤ k0) (H.parts k Z') _ _ (H.spine (k + 1) Z') ?_ ?_ ?_
   · simp only [postBook_len, bk_len]
     exact h2
@@ -180,17 +180,17 @@ theorem book_rule (k : ℕ) (Z' : H.Comp (k + 1)) :
     exact hp
 
 /-- Every component of `Z^pre_{k+1}` contains a seed: one old part or one new cube. -/
-theorem seed_pos (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem seed_pos {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     1 ≤ (H.parts k Z').card + (Z'.1 ∩ H.newCubes (k + 1)).card := by
-  have hg := H.stepGeom k
+  have hg := H.stepGeom hk
   have hcont : ∃ C0 ∈ comps (S.omega (k + 1)) (finOf (H.step k).Z0), C0 ⊆ Z'.1 := by
     have hZ' : Z'.1 ∈ comps (S.omega (k + 1))
         (finOf ((H.step k).Zpre (S.omega (k + 1)) (critOpt S k0 (k + 1)))) := Z'.2
-    by_cases hk : k + 1 ≤ k0
-    · have hc : critOpt S k0 (k + 1) = some (S.crit (k + 1)) := by simp [critOpt, hk]
+    by_cases hk' : k + 1 ≤ k0
+    · have hc : critOpt S k0 (k + 1) = some (S.crit (k + 1)) := by simp [critOpt, hk']
       rw [hc] at hZ'
       exact hullClosure_comp_contains hg.hω2 (H.step k).Z0 hZ'
-    · have hc : critOpt S k0 (k + 1) = none := by simp [critOpt, hk]
+    · have hc : critOpt S k0 (k + 1) = none := by simp [critOpt, hk']
       rw [hc] at hZ'
       exact ⟨Z'.1, hZ', subset_rfl⟩
   have h := (H.step k).seedsIn_card_pos hg hcont
@@ -200,14 +200,14 @@ theorem seed_pos (k : ℕ) (Z' : H.Comp (k + 1)) :
 /-- **Lemma I.4.8**, point spines: for `1 ≤ k ≤ k₀` and `n_k ≥ 4ρ_k + 21` (a consequence of (H-T)),
 the spine of a component `Z` of `Z^pre_k` is a point iff `Z` is small of side `≤ crit_k`, and
 then `Z` is a box with spine `{c(Z)}`. -/
-theorem spine_point_iff {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hT : 4 * S.rho k + 21 ≤ n k)
+theorem spine_point_iff {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hkK : k ≤ K) (hT : 4 * S.rho k + 21 ≤ n k)
     (Z : H.Comp k) :
     (H.spine k Z).length = 0 ↔
       IsSmall (Z.1 : Set (Torus S.d (n k))) ∧ side (Z.1 : Set (Torus S.d (n k))) ≤ S.crit k := by
   obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
   constructor
   · intro h0
-    have hcont := H.spine_contains (j + 1) Z
+    have hcont := H.spine_contains (j + 1) hkK Z
     obtain ⟨s, hs⟩ := (H.spine (j + 1) Z).nonempty
     have hP0 : s.1 ∈ (H.spine (j + 1) Z).carrier :=
       ((H.spine (j + 1) Z).mem_carrier).mpr ⟨s, hs, left_mem_segment _ _ _⟩
@@ -222,7 +222,7 @@ theorem spine_point_iff {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hT : 4 * S.r
     unfold Setting.crit
     omega
   · rintro ⟨hsm, hsd⟩
-    obtain ⟨-, -, -, h4⟩ := H.spineOK_spine j Z
+    obtain ⟨-, -, -, h4⟩ := H.spineOK_spine (by omega) Z
     obtain ⟨a, s, -, hl, -⟩ := h4 hk0 hsm hsd
     exact hl
 

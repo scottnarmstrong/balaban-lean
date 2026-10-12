@@ -147,21 +147,21 @@ end BudgetSetup
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {P : BudgetConsts}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {P : BudgetConsts}
 
 /-- **Lemma II.5.12 (Lemma B: the budget recursion; LF-2's hypothesis (B))**, in the form of the
 `budget` argument of `RegionHistory.toLF2Hyp`: for every component `Z'` of `Z^pre_{k+1}` (hull
 closure included),
 `∑_Y G_k(Y) + g_k |𝒩_{k+1} ∩ Z'|_# - c_v λ_{k+1} |Z'|_# ≤ G^pre_{k+1}(Z')`,
 for arbitrary post-`R` exponents `κ_k` and factors `log C_k` of the old parts. -/
-theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → ℝ) (K : ℕ) :
+theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → ℝ) :
     ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.Gpost P κ logC k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.Gpre P κ logC (k + 1) Z' := by
-  intro k _ Z'
-  have hcnt := H.card_oldCubes_add_outCubes k Z'
-  have hsum := H.sum_parts_card k Z'
+  intro k hk Z'
+  have hcnt := H.card_oldCubes_add_outCubes hk Z'
+  have hsum := H.sum_parts_card hk Z'
   have hu := ok.L_pow_pos
   have hm := ok.M_pow_pos
   -- the sum of the old budgets
@@ -251,17 +251,16 @@ theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → 
 
 /-- **Lemma B along the history** (Definition II.5.11): the same for the recursive `kappa`,
 `logC` with kept data `κK` and kept decoration `δ`. -/
-theorem lemmaB_recursive (B : BudgetSetup S P) (ok : S.Ok) (κK δ : ∀ k, H.Comp k → ℝ)
-    (K : ℕ) :
+theorem lemmaB_recursive (B : BudgetSetup S P) (ok : S.Ok) (κK δ : ∀ k, H.Comp k → ℝ) :
     ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.budgetPost P κK δ k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.budgetPre P κK δ (k + 1) Z' :=
-  H.lemmaB B ok (H.kappa P κK) (H.logC δ) K
+  H.lemmaB B ok (H.kappa P κK) (H.logC δ)
 
 /-- The abstract history of LF-2 for the flow's region history, with (B) supplied by Lemma B for
 the recursive exponents of Definition II.5.11; (Rg) remain hypotheses (LF-4R, Part III). -/
 noncomputable def toLF2HypBudget (B : BudgetSetup S P) (ok : S.Ok) (hadm : H.Admissible)
-    (κK δ : ∀ k, H.Comp k → ℝ) (K : ℕ)
+    (κK δ : ∀ k, H.Comp k → ℝ)
     (rg_ripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → S.Ripe k (H.bk k c) →
       H.budgetPre P κK δ k c - S.CR * S.lam k ^ (2 * S.d + 1) + S.A3' * S.lam k ^ S.pR ≤
         H.budgetPost P κK δ k c)
@@ -269,8 +268,8 @@ noncomputable def toLF2HypBudget (B : BudgetSetup S P) (ok : S.Ok) (hadm : H.Adm
       H.budgetPost P κK δ k c = H.budgetPre P κK δ k c)
     (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k,
       H.budgetPost P κK δ k c = H.budgetPre P κK δ k c) : LF2Hyp S n k0 K :=
-  H.toLF2Hyp hadm K (H.budgetPre P κK δ) (H.budgetPost P κK δ)
-    (H.lemmaB_recursive B ok κK δ K) rg_ripe rg_nonripe rg_frozen
+  H.toLF2Hyp hadm (H.budgetPre P κK δ) (H.budgetPost P κK δ)
+    (H.lemmaB_recursive B ok κK δ) rg_ripe rg_nonripe rg_frozen
 
 end RegionHistory
 

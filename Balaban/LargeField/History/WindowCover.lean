@@ -37,8 +37,8 @@ theorem CoveredBy.biUnion {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] 
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 section Cover
 
@@ -48,7 +48,7 @@ include G
 
 /-- The number of pieces adds up over the ancestors at scale `j` of a component whose steps in
 `(j, s]` are live and whose ancestors in `(j, s]` are not ripe. -/
-theorem nu_sum {j : ℕ} {s : ℕ} (hjs : j < s) (hs : s ≤ k0)
+theorem nu_sum {j : ℕ} {s : ℕ} (hjs : j < s) (hs : s ≤ k0) (hsK : s ≤ K)
     (W : H.Comp s)
     (hLive : ∀ s' (Y' : H.Comp s'), j < s' → s' ≤ s → H.Desc s' s Y' W → LiveAt s' Y')
     (hNR : ∀ s' (Y' : H.Comp s'), j < s' → s' < s → H.Desc s' s Y' W → ¬ S.Ripe s' (H.bk s' Y')) :
@@ -57,14 +57,14 @@ theorem nu_sum {j : ℕ} {s : ℕ} (hjs : j < s) (hs : s ≤ k0)
   induction s, hjs using Nat.le_induction with
   | base =>
     have hL : H.Live j W := hLive (j + 1) W (by omega) le_rfl (Desc.refl W)
-    rw [Live.nu_eq G hs hL, ancFin_succ le_rfl, Finset.sum_biUnion]
+    rw [Live.nu_eq G hs hsK hL, ancFin_succ le_rfl, Finset.sum_biUnion]
     · refine Finset.sum_congr rfl fun c _ => ?_
       rw [ancFin_self, Finset.sum_singleton]
     · intro c _ c' _ hne
       exact ancFin_disjoint hne
   | succ s hjs ih =>
     have hL : H.Live s W := hLive (s + 1) W (by omega) le_rfl (Desc.refl W)
-    rw [Live.nu_eq G hs hL, ancFin_succ (by omega), Finset.sum_biUnion]
+    rw [Live.nu_eq G hs hsK hL, ancFin_succ (by omega), Finset.sum_biUnion]
     · refine Finset.sum_congr rfl fun c hc => ?_
       have hcd : H.Desc s (s + 1) c W := by
         obtain ⟨hrem, hsu⟩ := (H.mem_parts s c W).mp hc
@@ -74,7 +74,7 @@ theorem nu_sum {j : ℕ} {s : ℕ} (hjs : j < s) (hs : s ≤ k0)
         show (S.postBook k0 s (H.bk s c)).nu = _
         rw [S.postBook_of_not_ripe hnr]
       rw [e1]
-      refine ih (by omega) c ?_ ?_
+      refine ih (by omega) (by omega) c ?_ ?_
       · intro s' Y' h1 h2 hd
         exact hLive s' Y' h1 (by omega) (hd.trans hcd)
       · intro s' Y' h1 h2 hd
@@ -86,19 +86,19 @@ variable {k : ℕ} {Z : H.Comp k}
 
 /-- **Lemma I.4.13 (b)**: for `q ≤ j < k`, the lineage `Lin_j(Z)` is covered by `ν(Z)` boxes of
 side `≤ crit_j`, and `ν(Z) = ∑_{Y ∈ Anc_j(Z)} ν(Y)`. -/
-theorem nu_sum_window (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {j : ℕ}
+theorem nu_sum_window (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {j : ℕ}
     (hqj : (H.bk k Z).q ≤ j) (hjk : j < k) :
     (H.bk k Z).nu = ∑ Y ∈ H.ancFin j k Z, (H.pb j Y).nu := by
-  refine nu_sum G hjk hk0 Z ?_ ?_
+  refine nu_sum G hjk hk0 hkK Z ?_ ?_
   · intro s' Y' h1 h2 hd
-    exact live_of_desc G hk0 hZ hd (by omega)
+    exact live_of_desc G hk0 hkK hZ hd (by omega)
   · intro s' Y' h1 h2 hd
-    exact not_ripe_of_desc G hk0 hZ hd (by omega) h2
+    exact not_ripe_of_desc G hk0 hkK hZ hd (by omega) h2
 
 /-- **Lemma I.4.13 (b)**, the cover: `Lin_j(Z)` is covered by `ν(Z)` boxes of side `≤ crit_j`
 for `q ≤ j ≤ k`. -/
 theorem cover_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k) (hk0 : k ≤ k0)
-    (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {j : ℕ} (hqj : (H.bk k Z).q ≤ j)
+    (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {j : ℕ} (hqj : (H.bk k Z).q ≤ j)
     (hjk : j ≤ k) : CoveredBy S n j (H.lin j k Z) (H.bk k Z).nu := by
   have hk1 : 1 ≤ k := by
     by_contra h
@@ -110,8 +110,8 @@ theorem cover_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ 
     have hl : H.lin j j Z = Z.1 := by
       unfold lin; rw [ancFin_self, Finset.singleton_biUnion]
     rw [hl]
-    exact H.cover_inv G hT j hk1 hk0 Z hZ
-  · rw [H.nu_sum_window G hk0 hZ hqj hlt]
+    exact H.cover_inv G hT j hk1 hk0 hkK Z hZ
+  · rw [H.nu_sum_window G hk0 hkK hZ hqj hlt]
     unfold lin
     refine CoveredBy.biUnion _ _ _ fun Y hY => ?_
     have hd : H.Desc j k Y Z := mem_ancFin.mp hY
@@ -120,8 +120,8 @@ theorem cover_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ 
       have : j = 0 := by omega
       subst this
       exact (H.F.isEmpty_comp_zero.false Y).elim
-    have hap := nonpre_of_desc G hk0 hZ hd hqj
-    refine H.cover_post G hT hj1 (by omega) Y ?_
+    have hap := nonpre_of_desc G hk0 hkK hZ hd hqj
+    refine H.cover_post G hT hj1 (by omega) (by omega) Y ?_
     by_cases hr : S.Ripe j (H.bk j Y)
     · rw [S.postBook_of_ripe hj1 (by omega) hr]
       exact Or.inl ⟨j, 1, ∅, rfl⟩

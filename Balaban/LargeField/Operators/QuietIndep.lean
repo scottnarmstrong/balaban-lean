@@ -36,7 +36,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- The `π_{q}`-cube of the fine-torus block corresponding to a site of the level-`q` torus is the
 cube of that site. -/
-theorem blockCube_torusCast (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q : ℕ}
+theorem blockCube_torusCast (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {q : ℕ}
     (hqK : q ≤ K)
     (x : Torus S.d (g.M1 * (g.c * n q) * S.L ^ q)) :
     blockCube S n M K q (torusCast (histScale_eq g.hM hnn (le_refl q) hqK)
@@ -102,8 +102,8 @@ section QuietRest
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ}
-  (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
-  (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (cs : OpConsts) (hk : k + 1 ≤ K)
+  (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
+  (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (hk : k + 1 ≤ K) (cs : OpConsts)
   (hrem : ∀ j, Hl.rem j = ∅)
 
 open Classical in
@@ -140,21 +140,21 @@ noncomputable def quietRest (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (cubeFin (quietA4 (locHist Hl M K (k + 1) Zc) k))
     (blockCfgOf g Hl.F.hnn le_rfl hk (outField N o)) *
   chiNew (locHist Hl M K (k + 1) Zc) k
-    (Hl.histGen (M := M) hrem Hl.F.ok.two_le_L K (fun j _ _ => g.hRlow j))
+    (Hl.histGen (M := M) (K' := K) le_rfl hrem Hl.F.ok.two_le_L (fun j _ _ => g.hRlow j))
     (fineSet (S := S) (n := n) M K (k + 1) (Zc : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
     cs.Cpsi
     (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o,
       subFluctField N (locHist Hl M K (k + 1) Zc) (k + 1) x) *
-  (if InUnionDomainR (locGen g Hl k Zc hZc) (bgC1 S.d S.L N) (cs.mu (k + 1))
+  (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
       (locData g Hl k Zc hZc hk o x hv) then 1 else 0) *
-  Real.exp (-mainActionLoc g Hl k Zc hZc cs hk hrem o x hv)
+  Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem o x hv)
 
 open Classical in
 theorem quietKernel_eq (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    quietKernel g Hl k Zc hZc cs hk hrem o x hv =
-      gaussProd N (locHist Hl M K (k + 1) Zc) k cs o x * quietRest g Hl k Zc hZc cs hk hrem o x hv := by
+    quietKernel g Hl k Zc hZc hk cs hrem o x hv =
+      gaussProd N (locHist Hl M K (k + 1) Zc) k cs o x * quietRest g Hl k Zc hZc hk cs hrem o x hv := by
   unfold quietKernel quietRest
   ring
 
@@ -163,7 +163,7 @@ end QuietRest
 section Indep
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0} {k : ℕ}
+  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K} {k : ℕ}
   (g : Geo S n R M) (cs : OpConsts) (hk : k + 1 ≤ K)
 
 theorem cubeSub_omega_mem (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) {w : Torus S.d (n (k + 1))}
@@ -250,7 +250,7 @@ theorem subMultiscaleField_agree (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
             rwa [← hc] at h2
           · right
             rw [hc]
-            exact fun h => h1 ((mem_localHistory_Z_top Z' x0).mpr h)
+            exact fun h => h1 ((mem_localHistory_Z_top (by omega) Z' x0).mpr h)
       · simp only [hb, ↓reduceIte]
     · simp only [hj, hjk, ↓reduceIte, ↓reduceDIte]
 
@@ -277,8 +277,8 @@ theorem locData_congr (g : Geo S n R M) (hk : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
       y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y)
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locData g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') hk o x hv =
-      locData g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') hk o' x hv := by
+    locData g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk o x hv =
+      locData g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk o' x hv := by
   unfold locData
   exact liftMixed_congr_Om _ _ _ (fun x' _ hx' =>
     theta_congr0 g hk Z' o o' hoo x' (mem_fineK1.mp hx'))
@@ -288,8 +288,8 @@ theorem locBg_congr (g : Geo S n R M) (cs : OpConsts) (hk : k + 1 ≤ K) (Z' : H
     (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
       y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y)
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locBg g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk o x hv =
-      locBg g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk o' x hv := by
+    locBg g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs o x hv =
+      locBg g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs o' x hv := by
   unfold locBg bgLocPiece
   congr 1
   exact liftMixed_congr_Om _ _ _ (fun x' _ hx' =>
@@ -300,8 +300,8 @@ theorem locPhi_congr (g : Geo S n R M) (cs : OpConsts) (hk : k + 1 ≤ K) (Z' : 
     (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
       y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y)
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locPhi g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk o x hv =
-      locPhi g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk o' x hv := by
+    locPhi g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs o x hv =
+      locPhi g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs o' x hv := by
   unfold locPhi
   rw [locData_congr g hk Z' o o' hoo x hv, locBg_congr g cs hk Z' o o' hoo x hv]
 
@@ -311,8 +311,8 @@ theorem mainActionLoc_congr (g : Geo S n R M) (cs : OpConsts) (hk : k + 1 ≤ K)
     (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
       y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y)
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N)) :
-    mainActionLoc g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk (locRH_rem (k + 1) Z') o x hv =
-      mainActionLoc g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk (locRH_rem (k + 1) Z') o' x hv := by
+    mainActionLoc g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o x hv =
+      mainActionLoc g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o' x hv := by
   have e2 : subMultiscaleField N (locHist (H.locRH (k + 1) Z') M K (k + 1) Z'.1) (k + 1)
       (Vblk R (locHist (H.locRH (k + 1) Z') M K (k + 1) Z'.1) (k + 1)) x o =
       subMultiscaleField N (locHist (H.locRH (k + 1) Z') M K (k + 1) Z'.1) (k + 1)
@@ -329,8 +329,8 @@ theorem quietRest_congr (Z' : H.Comp (k + 1))
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N))
     (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
       y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y) :
-    quietRest g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk (locRH_rem (k + 1) Z') o x hv =
-      quietRest g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk (locRH_rem (k + 1) Z') o' x hv := by
+    quietRest g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o x hv =
+      quietRest g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o' x hv := by
   unfold quietRest
   refine congrArg₂ (· * ·) (congrArg₂ (· * ·) (congrArg₂ (· * ·) (congrArg₂ (· * ·)
     (congrArg₂ (· * ·) (congrArg₂ (· * ·) ?_ ?_) ?_) ?_) ?_) ?_) ?_
@@ -366,7 +366,7 @@ theorem quietRest_congr (Z' : H.Comp (k + 1))
       · intro x' hx'
         refine ⟨⟨?_, ?_⟩, fun hh => hnO ?_⟩
         · show cubeMap n S.L M K (k + 1) x' ∈ ((H.locRH (k + 1) Z').step (k + 1)).Z
-          rw [locRH_Z Z' le_rfl, lin_self, hx']; exact hZ
+          rw [locRH_Z Z' le_rfl (by omega), lin_self, hx']; exact hZ
         · show cubeMap n S.L M K (k + 1) x' ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
           rw [hx']; exact hZ
         · have := hh.1
@@ -377,7 +377,7 @@ theorem quietRest_congr (Z' : H.Comp (k + 1))
         subst hw
         rwa [supDist_comm]
   · exact congrArg (fun m => chiNew (locHist (H.locRH (k + 1) Z') M K (k + 1) Z'.1) k
-      ((H.locRH (k + 1) Z').histGen (M := M) (locRH_rem (k + 1) Z') H.F.ok.two_le_L K
+      ((H.locRH (k + 1) Z').histGen (M := M) (K' := K) le_rfl (locRH_rem (k + 1) Z') H.F.ok.two_le_L
         (fun j _ _ => g.hRlow j))
       (fineSet (S := S) (n := n) M K (k + 1) (Z'.1 : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
       cs.Cpsi (m, subFluctField N (locHist (H.locRH (k + 1) Z') M K (k + 1) Z'.1) (k + 1) x))

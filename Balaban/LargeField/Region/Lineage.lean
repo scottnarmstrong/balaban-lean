@@ -76,7 +76,8 @@ variable {d L M : ℕ} [NeZero L] [NeZero M] {nn : ℕ → ℕ} [∀ i, NeZero (
 /-- **Lemma I.3.15**: along a chain of sets `Y_i ⊆ 𝕋_i` with `Y_i^↑ ⊆ Y_{i+1}` (`j ≤ i < j + t`) and
 `⌊R_{i-1}⌋ ≤ ⌊R_i⌋`, a fine site whose `𝕋_j`-cube is in `(Y_j^≈)^{∼m}` has its `𝕋_{j+t}`-cube in
 `(Y_{j+t}^≈)^{∼ ceilDivIter t m}` (`≈` at scale `i` has radius `⌊R_{i-1}⌋`). -/
-theorem thick_lineage_subset (hnn : ∀ i, nn i = L * nn (i + 1)) (hL : 0 < L) (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {K j t : ℕ}
+theorem thick_lineage_subset {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) (hL : 0 < L)
+    (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {j t : ℕ}
     (hjt : j + t ≤ K) (Y : ∀ i, Set (Torus d (nn i)))
     (hY : ∀ i, j ≤ i → i < j + t → blockMap L (nn (i + 1)) '' Y i ⊆ Y (i + 1))
     {m : ℕ} {x : Torus d (M * nn K * L ^ K)}
@@ -87,13 +88,14 @@ theorem thick_lineage_subset (hnn : ∀ i, nn i = L * nn (i + 1)) (hL : 0 < L) (
   | zero => simpa [ceilDivIter] using hx
   | succ t ih =>
     have h1 := ih (by omega) (fun i hi hi' => hY i hi (by omega))
-    have h2 := thick_nbhd_coarsen (hnn (j + t)) hL (hR (j + t)) (hY (j + t) (by omega) (by omega)) h1
+    have h2 := thick_nbhd_coarsen (hnn (j + t) (by omega)) hL (hR (j + t)) (hY (j + t) (by omega) (by omega)) h1
     rw [cubeMap_succ hnn (by omega)] at h2
     exact h2
 
 /-- **Lemma I.3.15**, the radius-one form: if `m ≤ L^t`, the neighbourhood of radius `m` at scale `j`
 lies in the `1`-neighbourhood of the thickened ancestor at scale `j + t`. -/
-theorem thick_lineage_le_one (hnn : ∀ i, nn i = L * nn (i + 1)) (hL : 0 < L) (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {K j t : ℕ}
+theorem thick_lineage_le_one {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) (hL : 0 < L)
+    (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {j t : ℕ}
     (hjt : j + t ≤ K) (Y : ∀ i, Set (Torus d (nn i)))
     (hY : ∀ i, j ≤ i → i < j + t → blockMap L (nn (i + 1)) '' Y i ⊆ Y (i + 1))
     {m : ℕ} (hm : m ≤ L ^ t) {x : Torus d (M * nn K * L ^ K)}

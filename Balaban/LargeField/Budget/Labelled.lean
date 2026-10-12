@@ -28,8 +28,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {M : ℕ} [NeZero M]
 
 open Classical in
 /-- The label costs `δ` of the kept ripe ancestors of a component (itself included). -/
@@ -48,7 +48,7 @@ theorem logC_eq_record (δ : ∀ k, H.Comp k → ℝ) :
   | zero => intro _ c; exact (H.F.isEmpty_comp_zero.false c).elim
   | succ k ih =>
     intro hkK Z'
-    have hcnt := H.card_oldCubes_add_outCubes k Z'
+    have hcnt := H.card_oldCubes_add_outCubes (by omega) Z'
     have hcnt' : ((H.oldCubes k Z').card : ℝ) + (H.outCubes k Z').card =
         (S.L : ℝ) ^ S.d * Z'.1.card := by exact_mod_cast hcnt
     rw [H.logC_succ hkK Z']

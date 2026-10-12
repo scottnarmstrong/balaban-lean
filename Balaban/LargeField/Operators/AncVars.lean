@@ -43,10 +43,10 @@ structure OpPkg (N : ℕ) (R : ℕ → ℝ) (a : LocalHistory S n M K) (k : ℕ)
 
 section Geometry
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
 /-- Every cube of `𝕋_k` is the cube of a site of the fine torus (`k ≤ K`). -/
-theorem exists_site_of_cube (hnn : ∀ i, n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
+theorem exists_site_of_cube (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
     (y : Torus S.d (n k)) : ∃ x : Torus S.d (M * n K * S.L ^ K), cubeMap n S.L M K k x = y := by
   have hℓ : M * n K * S.L ^ K = (S.L ^ k * M) * n k := fine_eq hnn hkK
   have hc := card_blockFibre (d := S.d) (ℓ := M * n K * S.L ^ K) (N := S.L ^ k * M) (m := n k)
@@ -70,12 +70,12 @@ theorem Zcubes_loc_sub {k : ℕ} (hkK : k ≤ K) (Y : H.Comp k) :
   rwa [hx] at h2
 
 /-- The component `Z'` lies in the cubes of `Z_{k+1}` of its localized history. -/
-theorem Zcubes_loc_top {k : ℕ} (Z : H.Comp k) :
+theorem Zcubes_loc_top {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) :
     (Z.1 : Set (Torus S.d (n k))) ⊆ Zcubes (H.localHistory M K k Z) k := by
   intro y hy x hx
   refine ⟨?_, ?_⟩
   · show cubeMap n S.L M K k x ∈ ((H.locRH k Z).step k).Z
-    rw [locRH_Z Z le_rfl, lin_self, hx]
+    rw [locRH_Z Z le_rfl hkK, lin_self, hx]
     exact hy
   · show cubeMap n S.L M K k x ∈ (Z.1 : Set (Torus S.d (n k)))
     rw [hx]; exact hy
@@ -93,13 +93,12 @@ theorem Vsites_anc (geo : Geo S n R M) {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp 
   have hYY : blockMap S.L (n (k + 1)) '' Zcubes (H.localHistory M K k Y) k ⊆
       (Z'.1 : Set (Torus S.d (n (k + 1)))) := by
     rintro _ ⟨y, hy, rfl⟩
-    have h1 := H.succ_spec k hrem ⟨y, Zcubes_loc_sub (by omega) Y hy, rfl⟩
-    rwa [hs] at h1
-  have h1 := thick_nbhd_coarsen (H.F.hnn k) hL (geo.hRmono k) hYY hx
-  rw [cubeMap_succ H.F.hnn (by omega : k ≤ K)] at h1
+    exact hs ⟨y, Zcubes_loc_sub (by omega) Y hy, rfl⟩
+  have h1 := thick_nbhd_coarsen (H.F.hnn k (by omega)) hL (geo.hRmono k) hYY hx
+  rw [cubeMap_succ H.F.hnn hK] at h1
   have hdiv : (1 + S.L - 1) / S.L ≤ 1 := by
     rw [show 1 + S.L - 1 = S.L by omega, Nat.div_self hL]
-  exact nbhd_mono hdiv (thick_mono' _ (Zcubes_loc_top Z')) h1
+  exact nbhd_mono hdiv (thick_mono' _ (Zcubes_loc_top hK Z')) h1
 
 end Geometry
 
@@ -107,7 +106,7 @@ end Geometry
 
 section Anc
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
 theorem ancInc_mem {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Comp (k + 1)}
     (hY : Y ∈ H.parts k Z') (p : InternalVars (H.localHistory M K k Y) k) :
@@ -167,7 +166,7 @@ end Anc
 
 section PreVars
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
 /-- The variables integrated by the pre-operator of `Z'`: the new variables and the variables of
 the operators of the old parts. -/

@@ -32,8 +32,8 @@ noncomputable def LocalHistory.logC {S : Setting} {n : ℕ → ℕ} {M K : ℕ} 
   ∑ j ∈ Finset.range k, (5 * ((a.Z (j + 1)).ncard : ℝ) - (a.Z j).ncard) /
     (4 * (((S.L ^ j * M) ^ S.d : ℕ) : ℝ))
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {M K k : ℕ} [NeZero M]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {M k : ℕ} [NeZero M]
 
 theorem lin_disjoint (j : ℕ) {c c' : H.Comp k} (hne : c ≠ c') :
     Disjoint (H.lin j k c) (H.lin j k c') := by
@@ -83,7 +83,7 @@ theorem logC_succ (hkK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) :
     rw [Finset.mul_sum, ← Finset.sum_sub_distrib, Finset.sum_div]
   · -- the last term
     rw [H.ncard_localHistory_Z Z' hkK le_rfl, H.ncard_localHistory_Z Z' hkK (by omega),
-      H.lin_succ_self, lin_self]
+      H.lin_succ_self (by omega), lin_self]
     have hc : (0 : ℝ) < (((S.L ^ k * M) ^ S.d : ℕ) : ℝ) := by
       have := H.F.ok.two_le_L
       have : 0 < (S.L ^ k * M) ^ S.d := by
