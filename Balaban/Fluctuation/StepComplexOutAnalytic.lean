@@ -864,6 +864,61 @@ theorem exists_analyticAt_E0C_add_F0C_zeroClass (g : Fld d L N₁ m₁ (k + 1) N
 
 end Public
 
+/-! ### Proposition 2.6 as an identity between analytic functions of the block datum -/
+
+section Prop26
+
+variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ δc : ℝ}
+  (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+  (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+  (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+  (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 1 < R)
+  (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁) {pp : ℝ} (hlt : S.p₁ < pp)
+  (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+    (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁)
+
+include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hlt hδ₁ in
+/-- **Proposition 2.6 at complex data as an identity between analytic functions of the block
+datum, for the class with zero old terms**: there are two functions of the raw datum, `F_T`
+analytic on the whole chart `Ξ^c(𝔹_{k+1}; 1, ε)` and `F_E`, which return the fluctuation integral
+`TstepC` and the new exponent `ℰ₀^{(k+1)} + ℱ₀^{(k+1)}(g)` of the step with the datum `D`, for
+every datum `D` of the chart with `h = h₀`; at every such datum with `Z_{s,0}, Z_{1,t} ≠ 0`
+(`StepNonvanishingC`), `F_E` is analytic and
+`F_T = exp [-β_k A^η_{k+1} + ℰ_k(ψ^{(k)}) - E'''_k |T^{(k)}_1| + ℱ_k(ψ^{(k)}, g) + F_E]` (2.6). -/
+theorem exists_analytic_prop26C_zeroClass (g : Fld d L N₁ m₁ (k + 1) N) :
+    ∃ FT FE : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      AnalyticOnNhd ℂ FT (XiCRaw S.G' S.a S.ν (k + 1) 1 eps) ∧
+      ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+        XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+        FT (rawOf D) = (S.withDatum D hD).TstepC (zeroClass d L N₁ m₁ k N ϱ) g ∧
+        FE (rawOf D) = (S.withDatum D hD).E0C (zeroClass d L N₁ m₁ k N ϱ) +
+          (S.withDatum D hD).F0C (zeroClass d L N₁ m₁ k N ϱ) g ∧
+        ((S.withDatum D hD).StepNonvanishingC (zeroClass d L N₁ m₁ k N ϱ) g →
+          AnalyticAt ℂ FE (rawOf D) ∧
+          FT (rawOf D) = Complex.exp (-(S.β : ℂ) * (S.withDatum D hD).AnewC +
+            EcompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+              (Nat.le_succ k) (S.withDatum D hD).psiKdC -
+            ((S.withDatum D hD).Eppp (zeroClass d L N₁ m₁ k N ϱ) : ℂ) *
+              ((S.withDatum D hD).nU : ℂ) +
+            FcompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+              (Nat.le_succ k) (S.withDatum D hD).psiKdC g + FE (rawOf D))) := by
+  obtain ⟨FT, hFTan, hFT⟩ := S.exists_analytic_TstepC_zeroClass (eps := eps) hC hMX hdm hα hsm ha₁
+    hc7 hR hsmR hβ.le hp₁ hlt hδ₁ g
+  obtain ⟨FE, hFE⟩ := S.exists_analyticAt_E0C_add_F0C_zeroClass (eps := eps) hC hMX hdm hα hsm ha₁
+    hc7 hR hsmR hβ.le hp₁ hlt hδ₁ g
+  refine ⟨FT, FE, hFTan, fun D hD hX => ⟨hFT D hD hX, (hFE D hD hX).1, fun hnv =>
+    ⟨(hFE D hD hX).2 hnv, ?_⟩⟩⟩
+  rw [hFT D hD hX, (hFE D hD hX).1]
+  have h := (S.withDatum D hD).prop26C_zeroClass hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hlt
+    hδ₁ hX g hnv
+  rw [h, add_assoc]
+  rfl
+
+end Prop26
+
 end StepSetting
 
 end Balaban.Fluctuation
