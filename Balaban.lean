@@ -680,6 +680,7 @@ public import Balaban.LargeField.R.WindowChain
 public import Balaban.LargeField.R.WindowIdeal
 public import Balaban.LargeField.R.WindowErr
 public import Balaban.LargeField.R.WindowShift
+public import Balaban.LargeField.R.WindowTotalShift
 public import Balaban.LargeField.R.ZeroDomainCoercive
 public import Balaban.LargeField.R.ZeroDomainScales
 public import Balaban.LargeField.R.ZeroDomainPaths
