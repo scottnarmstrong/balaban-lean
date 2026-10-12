@@ -8,6 +8,7 @@ module
 public import Balaban.Localization.P6ActiveHalo
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.LedgerPacking
+import Balaban.LargeField.R.WindowOfHistory
 
 /-!
 # A concrete setting for the P6 pair cover `F♯`
@@ -259,6 +260,106 @@ theorem halo (hn1 : n1 = 100) (z : CTorus 3 3 (15 * n1) 2 (1 + 1))
   p6_active_top_halo (step n1) P6PairWitness.hM9 P6PairWitness.hmc15 rfl (by norm_num)
     P6PairWitness.hρ9 (by norm_num) (ustar n1)
     (by rw [mem_fineK1]; exact (ustar_blockMap n1 hn1) ▸ u0_mem_omega n1 hn1) z hz
+
+theorem touch_layer (hn1 : n1 = 100) {P : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)}
+    (hP : P ∈ cubeIdx (cover n1))
+    (hT : MooreTouch (topCell 1 (1 + 1, ustar n1)) (Pset 2 P)) : P.1 = 1 + 1 :=
+  p6_touch_active_layer (step n1) P6PairWitness.hM9 P6PairWitness.hmc15 rfl (by norm_num)
+    P6PairWitness.hρ9 (by norm_num) (ustar n1)
+    (by rw [mem_fineK1]; exact (ustar_blockMap n1 hn1) ▸ u0_mem_omega n1 hn1) hP hT
+
+open Classical in
+theorem root_count (hn1 : n1 = 100) :
+    ((cubeIdx (cover n1)).filter
+        fun P => MooreTouch (topCell 1 (1 + 1, ustar n1)) (Pset 2 P)).card ≤ 3 ^ 3 * (3 ^ 1) ^ 3 :=
+  p6_root_patch_count (step n1) P6PairWitness.hM9 P6PairWitness.hmc15 rfl (by norm_num)
+    P6PairWitness.hρ9 (by norm_num) (ustar n1)
+    (by rw [mem_fineK1]; exact (ustar_blockMap n1 hn1) ▸ u0_mem_omega n1 hn1)
+
+theorem moore_layer_gap {P Q : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)}
+    (hP : P ∈ cubeIdx (cover n1)) (hQ : Q ∈ cubeIdx (cover n1))
+    (h : MooreTouch (Pset 2 P) (Pset 2 Q)) : P.1 ≤ Q.1 + 1 ∧ Q.1 ≤ P.1 + 1 :=
+  cubeIdx_moore_layer_gap_p6 (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl P6PairWitness.hρ9
+    (by norm_num) (step n1).Z P6PairWitness.hM9 le_rfl (by norm_num) hP hQ h
+
+open Classical in
+theorem moore_degree {P : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)} (hP : P ∈ cubeIdx (cover n1)) :
+    ((cubeIdx (cover n1)).filter
+        fun Q => Q ≠ P ∧ MooreTouch (Pset 2 P) (Pset 2 Q)).card ≤ 3 * (3 + 4) ^ 3 :=
+  cubeIdx_moore_degree_p6 (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl P6PairWitness.hρ9
+    (by norm_num) (step n1).Z P6PairWitness.hM9 le_rfl (by norm_num) hP
+
+theorem layer_unique {j j' : ℕ} {y : CTorus 3 3 (15 * n1) 2 (1 + 1)}
+    (h : (j, y) ∈ cubeIdx (cover n1)) (h' : (j', y) ∈ cubeIdx (cover n1)) : j = j' :=
+  p6FsharpC_cubeIdx_layer_unique (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl
+    P6PairWitness.hρ9 (by norm_num) (step n1).Z P6PairWitness.hM9 h h'
+
+omit [NeZero n1] in
+theorem ustar_base (hn1 : n1 = 100) : ∀ μ, ((ustar n1) μ).val % 3 ^ (1 + 1 + 2) = 0 := by
+  subst hn1
+  intro μ
+  fin_cases μ <;> decide
+
+theorem top_mem_cubeIdx (hn1 : n1 = 100) :
+    ((1 + 1, ustar n1) : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)) ∈ cubeIdx (cover n1) := by
+  have h0 : ustar n1 ∈ topCell 1 (1 + 1, ustar n1) := mem_box_cbase (cellSide_pos 1 2 (1 + 1)) _
+  have hΩ : ustar n1 ∈ (cover n1).Ω (1 + 1) :=
+    Finset.mem_coe.1 (halo n1 hn1 (ustar n1) ⟨ustar n1, h0, ustar n1, h0,
+      ⟨0, fun _ => by simp, by funext μ; simp⟩⟩ h0)
+  exact (mem_cubeIdx _).2 ⟨⟨by norm_num, le_rfl⟩,
+    (cover n1).mem_layer.2 ⟨hΩ, by rw [(cover n1).top]; simp⟩, ustar_base n1 hn1⟩
+
+open Classical in
+theorem root_count_pos (hn1 : n1 = 100) :
+    1 ≤ ((cubeIdx (cover n1)).filter
+        fun P => MooreTouch (topCell 1 (1 + 1, ustar n1)) (Pset 2 P)).card := by
+  refine Finset.card_pos.2 ⟨(1 + 1, ustar n1), Finset.mem_filter.2 ⟨top_mem_cubeIdx n1 hn1, ?_⟩⟩
+  have h0 : ustar n1 ∈ topCell 1 (1 + 1, ustar n1) := mem_box_cbase (cellSide_pos 1 2 (1 + 1)) _
+  exact ⟨ustar n1, h0, ustar n1, self_mem_Pset (1 + 1, ustar n1),
+    ⟨0, fun _ => by simp, by funext μ; simp⟩⟩
+
+/-! #### An index below the top layer -/
+
+/-- A fine site deep in the old large-field region's collar: first coordinate `41 · 405`. -/
+def ylow : CTorus 3 3 (15 * n1) 2 (1 + 1) := fun i => if i = 0 then 16605 else 0
+
+omit [NeZero n1] in
+theorem ylow_base (hn1 : n1 = 100) : ∀ μ, ((ylow n1) μ).val % 3 ^ (1 + 2) = 0 := by
+  subst hn1
+  intro μ
+  fin_cases μ <;> decide
+
+theorem ylow_near (hn1 : n1 = 100) :
+    blockMap (3 ^ 1 * (15 * 9)) (3 * n1)
+      (LargeField.torusCast (by ring : (15 * n1) * 3 ^ 2 * 3 ^ (1 + 1) =
+        9 * (15 * n1) * 3 ^ (1 + 1)) (ylow n1)) ∈ nbhd (2 * (⌊(9 : ℝ)⌋₊ + 1)) (step n1).Zᶜ := by
+  subst hn1
+  have hf : ⌊(9 : ℝ)⌋₊ = 9 := by norm_num
+  let zpt : Torus 3 (3 * 100) := fun i => if i = 0 then 61 else 0
+  let ppt : Torus 3 (3 * 100) := fun i => if i = 0 then 41 else 0
+  have e : blockMap (3 ^ 1 * (15 * 9)) (3 * 100)
+      (LargeField.torusCast (by ring : (15 * 100) * 3 ^ 2 * 3 ^ (1 + 1) =
+        9 * (15 * 100) * 3 ^ (1 + 1)) (ylow 100)) = ppt := by
+    funext i
+    fin_cases i <;> decide
+  have e1 : ¬ cycNorm (3 * 100) (zpt 0) ≤ 60 := by decide
+  have e2 : ∀ i, cycNorm (3 * 100) (ppt i - zpt i) ≤ 20 := by
+    intro i
+    fin_cases i <;> decide
+  rw [e]
+  refine mem_nbhd.2 ⟨zpt, e1, ?_⟩
+  rw [hf]
+  exact supDist_le_iff.2 e2
+
+theorem ylow_mem_Ω_one (hn1 : n1 = 100) : ylow n1 ∈ (cover n1).Ω 1 := by
+  unfold cover p6FsharpC
+  rw [castN_mem (p6_side P6PairWitness.hM9),
+    p6Fsharp_Ω_of_le (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl P6PairWitness.hρ9
+      (by norm_num) (step n1).Z (le_refl 1),
+    p6Hold_Ω_k (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl]
+  show _ ∈ fineK 9 15 n1 3 1 (3 * n1) (thick2 _ _)
+  rw [mem_fineK, thick2_eq]
+  exact ylow_near n1 hn1
 
 end Slab
 
