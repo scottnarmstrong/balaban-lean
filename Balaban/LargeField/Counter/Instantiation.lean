@@ -65,6 +65,25 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp
   rg_nonripe := fun k hk1 hk2 c hc => rg_nonripe k hk1 hk2 c (fun h => hc ((H.mem_remC k c).mpr h))
   rg_frozen := rg_frozen
 
+/-- (H-T) implies the size condition `n_k ≥ 4ρ_k + 21` of Lemma I.2.10 (d). -/
+theorem _root_.Balaban.LargeField.Setting.Ok.four_rho_le {S : Setting} (ok : S.Ok) {k m : ℕ}
+    (h : 4 * S.numax k * (S.crit k + S.omega k) + 4 ≤ m) : 4 * S.rho k + 21 ≤ m := by
+  have h1 := ok.one_le_numax k
+  have h2 : S.crit k = 2 * S.rho k + 10 := rfl
+  have h3 : 4 * 1 * (S.crit k + S.omega k) ≤ 4 * S.numax k * (S.crit k + S.omega k) :=
+    Nat.mul_le_mul_right _ (Nat.mul_le_mul_left _ h1)
+  omega
+
+/-- **Lemma I.4.8** (point spines) under (H-T): for `1 ≤ k ≤ k₀` the spine of a component `Z` of
+`Z^pre_k` is a point iff `Z` is small of side `≤ crit_k`, and then `Z` is a box with spine
+`{c(Z)}`. -/
+theorem spine_point_iff_HT (ok : S.Ok)
+    (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.numax k * (S.crit k + S.omega k) + 4 ≤ n k)
+    {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (Z : H.Comp k) :
+    (H.spine k Z).length = 0 ↔
+      IsSmall (Z.1 : Set (Torus S.d (n k))) ∧ side (Z.1 : Set (Torus S.d (n k))) ≤ S.crit k :=
+  H.spine_point_iff hk1 hk0 (ok.four_rho_le (hT k hk1 hk0)) Z
+
 end RegionHistory
 
 end Balaban.LargeField
