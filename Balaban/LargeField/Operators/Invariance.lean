@@ -185,9 +185,9 @@ structure HistIso (H H' : RegionHistory S n R k0 K) (σ : TorusSym S n M K) wher
   /-- ripe components correspond -/
   kept : ∀ (k : ℕ) (Z : H.Comp k), IsKept H' k (e k Z) ↔ IsKept H k Z
 
-variable {H H' : RegionHistory S n R k0 K} {σ : TorusSym S n M K}
+variable {H H' : RegionHistory S n R k0 K} {σ : LatTorusSym S n M K}
 
-theorem symVar_ancInc (hiso : HistIso H H' σ) {k : ℕ} (hk : k ≤ K) (hK : k + 1 ≤ K) {Y : H.Comp k}
+theorem symVar_ancInc (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk : k ≤ K) (hK : k + 1 ≤ K) {Y : H.Comp k}
     {Z' : H.Comp (k + 1)} (hY : Y ∈ H.parts k Z') (hY' : hiso.e k Y ∈ H'.parts k (hiso.e (k + 1) Z'))
     (q : InternalVars (H.localHistory M K k Y) k) :
     symVar (hiso.loc (k + 1) hK Z') hK (ancInc hK hY q) =
@@ -203,14 +203,14 @@ theorem sub_congr {a : LocalHistory S n M K} {k : ℕ} {A : Set (InternalVars a 
 
 /-- The outputs of an old part correspond under `σ` when the internal variables of the component
 do. -/
-theorem relOut_ancOut (hiso : HistIso H H' σ) {k : ℕ} (hK : k + 1 ≤ K) (Y : H.Comp k)
+theorem relOut_ancOut (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hK : k + 1 ≤ K) (Y : H.Comp k)
     (Z' : H.Comp (k + 1))
     {A : Set (InternalVars (H.localHistory M K (k + 1) Z') (k + 1))}
     {A' : Set (InternalVars (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')) (k + 1))}
     (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) A)
     (x' : SubCfg N (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')) (k + 1) A')
     (h : RelSub (hiso.loc (k + 1) hK Z') hK x x') :
-    RelOut σ (ancOut (R := R) Y Z' x) (ancOut (R := R) (hiso.e k Y) (hiso.e (k + 1) Z') x') := by
+    RelOut σ.toTorusSym (ancOut (R := R) Y Z' x) (ancOut (R := R) (hiso.e k Y) (hiso.e (k + 1) Z') x') := by
   intro y
   classical
   by_cases hy : y ∈ Vblk R (H.localHistory M K k Y) k
@@ -232,12 +232,12 @@ theorem ancRestrict_toEuc {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Co
 
 theorem relSub_newRestrict {k : ℕ} {a a' : LocalHistory S n M K}
     {A : Set (InternalVars a (k + 1))} {A' : Set (InternalVars a' (k + 1))}
-    (hI : HistImage σ a a') (hk : k + 1 ≤ K) (h : newVars a k ⊆ A) (h' : newVars a' k ⊆ A')
+    (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) (h : newVars a k ⊆ A) (h' : newVars a' k ⊆ A')
     (x : SubCfg N a (k + 1) A) (x' : SubCfg N a' (k + 1) A') (hval : RelVal hI hk x x') :
     RelSub hI hk (newRestrict a h x) (newRestrict a' h' x') :=
   ⟨subCorr_newVars hI hk, fun p hp hp' => hval p (h hp) (h' hp')⟩
 
-theorem relVal_anc (hiso : HistIso H H' σ) {k : ℕ} (hk : k ≤ K) (hK : k + 1 ≤ K) {Y : H.Comp k}
+theorem relVal_anc (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk : k ≤ K) (hK : k + 1 ≤ K) {Y : H.Comp k}
     {Z' : H.Comp (k + 1)} (hY : Y ∈ H.parts k Z')
     (hY' : hiso.e k Y ∈ H'.parts k (hiso.e (k + 1) Z'))
     {AY : Set (InternalVars (H.localHistory M K k Y) k)}
@@ -265,7 +265,7 @@ variable (geo : Geo S n R M) (cs : OpConsts) {κs κ : ℕ → LocalHistory S n 
   {lamHat : ℕ → ℝ} (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ lamHat)
   {hH : H.Admissible} {hH' : H'.Admissible}
 
-theorem preVars_corr_fwd (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
+theorem preVars_corr_fwd (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
     (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (sub' : ∀ Y : H'.Comp k, Y ∈ H'.parts k (hiso.e (k + 1) Z') →
@@ -281,7 +281,7 @@ theorem preVars_corr_fwd (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK 
     rw [← hqp]
     exact (symVar_ancInc hiso hk' hK hY hY' q).symm
 
-theorem preVars_corr_bwd (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
+theorem preVars_corr_bwd (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
     (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (sub' : ∀ Y : H'.Comp k, Y ∈ H'.parts k (hiso.e (k + 1) Z') →
@@ -302,7 +302,7 @@ theorem preVars_corr_bwd (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK 
     exact hq'p
 
 /-- The pre-operators of corresponding components correspond. -/
-theorem preOp_euclid (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
+theorem preOp_euclid (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk' : k ≤ K) (hK : k + 1 ≤ K)
     (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (sub' : ∀ Y : H'.Comp k, Y ∈ H'.parts k (hiso.e (k + 1) Z') →
@@ -310,16 +310,16 @@ theorem preOp_euclid (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK : k 
     (hcorr : ∀ Y (hY : Y ∈ H.parts k Z') (hY' : hiso.e k Y ∈ H'.parts k (hiso.e (k + 1) Z')),
       SubCorr (hiso.loc k hk' Y) hk' (sub Y hY).A (sub' (hiso.e k Y) hY').A)
     (hval : ∀ Y (hY : Y ∈ H.parts k Z') (hY' : hiso.e k Y ∈ H'.parts k (hiso.e (k + 1) Z'))
-      o o' x x' hv (g g' : GIdx S n M K N → ℂ), RelOut σ o o' →
-      RelVal (hiso.loc k hk' Y) hk' x x' → RelG σ g g' →
+      o o' x x' hv (g g' : GIdx S n M K N → ℂ), RelOut σ.toTorusSym o o' →
+      RelVal (hiso.loc k hk' Y) hk' x x' → RelG σ.toTorusSym g g' →
       (sub' (hiso.e k Y) hY').T.K o' x' hv = (sub Y hY).T.K o x hv ∧
       (sub' (hiso.e k Y) hY').T.b o' x' hv g' = (sub Y hY).T.b o x hv g) :
     SubCorr (hiso.loc (k + 1) hK Z') hK (preVars hK Z' sub)
         (preVars hK (hiso.e (k + 1) Z') sub') ∧
       ∀ o o' (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) (preVars hK Z' sub))
         (x' : SubCfg N (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')) (k + 1)
-          (preVars hK (hiso.e (k + 1) Z') sub')) hv (g g' : GIdx S n M K N → ℂ), RelOut σ o o' →
-        RelVal (hiso.loc (k + 1) hK Z') hK x x' → RelG σ g g' →
+          (preVars hK (hiso.e (k + 1) Z') sub')) hv (g g' : GIdx S n M K N → ℂ), RelOut σ.toTorusSym o o' →
+        RelVal (hiso.loc (k + 1) hK Z') hK x x' → RelG σ.toTorusSym g g' →
         (preKernel hK (hiso.e (k + 1) Z') sub'
           (SD.ker k (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')))).K o' x' hv =
           (preKernel hK Z' sub (SD.ker k (H.localHistory M K (k + 1) Z'))).K o x hv ∧
@@ -343,7 +343,7 @@ theorem preOp_euclid (hiso : HistIso H H' σ) {k : ℕ} (hk' : k ≤ K) (hK : k 
   have hstepK := SD.euclid_K k σ _ _ (hiso.loc (k + 1) hK Z') hK o o' _ _ hv hOut hnewRel
   have hstepb := SD.euclid_b k σ _ _ (hiso.loc (k + 1) hK Z') hK o o' _ _ hv g g' hOut hnewRel hG
   have hAnc : ∀ Y : ↥(H.parts k Z'),
-      RelOut σ (ancOut (R := R) Y.1 Z' x) (ancOut (R := R) (hiso.e k Y.1) (hiso.e (k + 1) Z') x') :=
+      RelOut σ.toTorusSym (ancOut (R := R) Y.1 Z' x) (ancOut (R := R) (hiso.e k Y.1) (hiso.e (k + 1) Z') x') :=
     fun Y => relOut_ancOut hiso hK Y.1 Z' x x' hRel
   have hAncVal : ∀ Y : ↥(H.parts k Z'),
       RelVal (hiso.loc k hk' Y.1) hk'
@@ -382,7 +382,7 @@ variables correspond (`SubCorr`) and the kernels and exponents take the same val
 corresponding configurations of the output, of the internal variables and of the external field.
 The statement is by induction along the lineage, using the Euclidean covariance of the step and
 kept data. -/
-theorem locOp_euclid_invariant (hiso : HistIso H H' σ)
+theorem locOp_euclid_invariant (hiso : HistIso H H' σ.toTorusSym)
     (hlab : ∀ k (Z : H.Comp k), lab' k (hiso.e k Z) = lab k Z) (k : ℕ) :
     ∀ (hk : k ≤ K) (Z : H.Comp k),
       SubCorr (hiso.loc k hk Z) hk (locOp geo cs SD KD hH lab k hk Z).A
@@ -390,7 +390,7 @@ theorem locOp_euclid_invariant (hiso : HistIso H H' σ)
       ∀ o o' (x : SubCfg N (H.localHistory M K k Z) k (locOp geo cs SD KD hH lab k hk Z).A)
         (x' : SubCfg N (H'.localHistory M K k (hiso.e k Z)) k
           (locOp geo cs SD KD hH' lab' k hk (hiso.e k Z)).A) hv (g g' : GIdx S n M K N → ℂ),
-        RelOut σ o o' → RelVal (hiso.loc k hk Z) hk x x' → RelG σ g g' →
+        RelOut σ.toTorusSym o o' → RelVal (hiso.loc k hk Z) hk x x' → RelG σ.toTorusSym g g' →
         (locOp geo cs SD KD hH' lab' k hk (hiso.e k Z)).T.K o' x' hv =
             (locOp geo cs SD KD hH lab k hk Z).T.K o x hv ∧
           (locOp geo cs SD KD hH' lab' k hk (hiso.e k Z)).T.b o' x' hv g' =
@@ -413,7 +413,7 @@ theorem locOp_euclid_invariant (hiso : HistIso H H' σ)
           ∀ o o' (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A)
             (x' : SubCfg N (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')) (k + 1) P'.A) hv
             (g g' : GIdx S n M K N → ℂ),
-            RelOut σ o o' → RelVal (hiso.loc (k + 1) hk Z') hk x x' → RelG σ g g' →
+            RelOut σ.toTorusSym o o' → RelVal (hiso.loc (k + 1) hk Z') hk x x' → RelG σ.toTorusSym g g' →
             P'.T.K o' x' hv = P.T.K o x hv ∧ P'.T.b o' x' hv g' = P.T.b o x hv g := by
         intro P P' hP hP'
         subst hP hP'
@@ -438,7 +438,7 @@ theorem locOp_euclid_invariant (hiso : HistIso H H' σ)
           ∀ o o' (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A)
             (x' : SubCfg N (H'.localHistory M K (k + 1) (hiso.e (k + 1) Z')) (k + 1) P'.A) hv
             (g g' : GIdx S n M K N → ℂ),
-            RelOut σ o o' → RelVal (hiso.loc (k + 1) hk Z') hk x x' → RelG σ g g' →
+            RelOut σ.toTorusSym o o' → RelVal (hiso.loc (k + 1) hk Z') hk x x' → RelG σ.toTorusSym g g' →
             P'.T.K o' x' hv = P.T.K o x hv ∧ P'.T.b o' x' hv g' = P.T.b o x hv g := by
         intro P P' hP hP'
         subst hP hP'

@@ -12,16 +12,16 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
-| W131 | `w131-latsym` / W131 | LatTorusSym covariance + positive-scale quiet witness |
-| W129 (Opus) | `w129-fldatum` / W129 | repair flDatum (ψ′ term, FLDATUM.md) + mixed-pair FlCore witness |
-| W130 | `w130-d1j` / W130 | level-j D1 (MASS-LEVEL.md) + ContAtZero fix |
-| W127 | `w127-basek3` / W127 | base kernel: BASE-KERNEL-3 proved parts |
-| W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
-| W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
-| W124 | `w124-prop33-bound` / W124 | Prop 3.3 bound shape, ν-part, symmetry |
+| W135 (Opus) | `w135-thm31ae` / W135 | FLUCT Thm 3.1(a)–(e) assembly |
+| W132 | `w132-dec-equiv` / W132 | equivariance of decoupled localization objects |
+| W133 | `w133-psizero` / W133 | psiZero (LFR Lemma III.3.3) |
+| W136 | `w136-prop33-close` / W136 | close Prop 3.3 premises (hreal, hc7, ν-part merge) |
+| W137 | `w137-thm42-cubes` / W137 | Thm 4.2 non-bulk cubes + aggregation |
+| W138 | `w138-prop279` / W138 | conditional Prop II.7.9 (BASE-KERNEL-4) |
+| W139 | `w139-p5-core` / W139 | P5 core, unconditional (2.48′)/(2.49′) |
+| W140 | `w140-quiet-image` / W140 | image histories for k₀ > 0, quiet bound in the ripe regime |
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra round 8 (sent ~12:00 UTC): vmod VMOD-8 (tag VMOD8), class GRAPH-GM (GRAPHGM), fluctfix P631-INPUTS (P631IN). astra-q13 idle (answer committed), awaiting Roland. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): q13 CLASS-RULINGS-2 (tag CR2), fluctfix P631-INPUTS-2 (P631IN2), vmod VMOD-9 (VMOD9). Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 

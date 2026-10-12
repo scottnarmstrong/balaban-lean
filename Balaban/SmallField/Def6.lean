@@ -484,7 +484,7 @@ structure CoeffBounds (d L k : ℕ) (P : Consts) (β ν a : ℕ → ℝ) : Prop 
 over the tori `N₁ ≥ 1` of densities of the form `IsSF`, with torus independence of the terms
 `torusIndep` (P4 (H.4)), the infinite-volume renormalization conditions (H.5) (`RenormCond`, on the
 family `T∞` obtained by stabilization) at every scale `j ≤ k` and the coefficient bounds (H.6).  (CONT) is the clause `ContAtZero` on
-families in `ν`. -/
+families in `ν` (open sets taken in the space of block-constant fields). -/
 structure IsSFFamily (P : Consts) (β ν a : ℕ → ℝ)
     (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
     (ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
@@ -499,32 +499,56 @@ structure IsSFFamily (P : Consts) (β ν a : ℕ → ℝ)
 
 /-! ### (CONT): continuity in `ν` down to `ν = 0` -/
 
+/-- A field **constant on the `j`-blocks** (the lifted block-spin fields `Q* ψ` of P2/P1, the
+layer-constant fields of the level-`j` data: `XiDom` forces `Ψ`, `h` to have this form on the
+active region, so it has no interior in the full field space). -/
+def IsBlockConstFld (j : ℕ) (f : Fld d L N₁ m₁ k N) : Prop :=
+  ∀ x x' : CTorus d L N₁ m₁ k,
+    jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → f x = f x'
+
+/-- The space of pairs `(ψ, b)` of block-constant fields, the carrier of the `ℰ`-variables of
+(CONT) (relative topology). -/
+def blockConstE (j : ℕ) : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N) :=
+  {p | IsBlockConstFld j p.1 ∧ IsBlockConstFld j p.2}
+
+/-- The space of triples `(ψ, b, g)` with `ψ`, `b` block-constant (the source `g` is free): the
+carrier of the `ℳ`-variables of (CONT). -/
+def blockConstM (j : ℕ) :
+    Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N) :=
+  {p | IsBlockConstFld j p.1 ∧ IsBlockConstFld j p.2.1}
+
 /-- **Clause (CONT)** (SMALLFIELD §3.5; CORRELATIONS (F1)) for a family `ν ↦ (β(ν), a(ν), Tm(ν))`
 on the torus `N₁`: for each `j ≤ k` and polymer `X`, as `ν ↓ 0` the coefficients `β_k(ν), a_k(ν)` and
 the localized terms `ℰ^{(j)}_ν(y, X; ψ, b)`, `ℳ^{(j)}_ν(x, X; ψ, b, g)` in the variables
-`b = ν_j h` converge uniformly on a `ν`-independent nonempty open set of `(ψ, b)` (resp.
-`(ψ, b, g)`) which lies in the domain `Ξ^c_j` (in the variables `(ψ, h = b/ν_j)`) for all small `ν`.
+`b = ν_j h` converge uniformly on a `ν`-independent nonempty set of `(ψ, b)` (resp.
+`(ψ, b, g)`) which is **open in the space of block-constant fields** (`blockConstE`,
+`blockConstM`; written `V ∩ blockConst…` with `V` open, i.e. in the relative topology) and
+which lies in the domain `Ξ^c_j` (in the variables `(ψ, h = b/ν_j)`) for all small `ν`.
+`Ξ^c_j` consists of block-constant fields, so openness in the full field space is impossible.
 Here `ν ↦ νv ν k` is the sequence of running mass coefficients of the family. -/
 structure ContAtZero (P : Consts) (N₁ : ℕ) [NeZero N₁] (β a : ℝ → ℕ → ℝ) (νv : ℝ → ℕ → ℝ)
     (Tm : ℝ → Terms d L N₁ m₁ k N ϱ) : Prop where
   coeffs : ∃ βl al : ℝ, Tendsto (fun ν => β ν k) (𝓝[>] 0) (𝓝 βl) ∧
     Tendsto (fun ν => a ν k) (𝓝[>] 0) (𝓝 al)
   termsE : ∀ j, 1 ≤ j → j ≤ k → ∀ y X, IsPolyDom P.m₀ j X → y ∈ X →
-    ∃ U : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N), IsOpen U ∧ U.Nonempty ∧
-      (∀ᶠ ν in 𝓝[>] 0, ∀ p ∈ U,
+    ∃ V : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N), IsOpen V ∧
+      (V ∩ blockConstE j).Nonempty ∧
+      (∀ᶠ ν in 𝓝[>] 0, ∀ p ∈ V ∩ blockConstE j,
         XiDom ((Tm ν).gs j X) (aIdeal L k (a ν k)) (bgMass L k (β ν k) (νv ν k)) j
           (P.eps d L j) p.1 ((nuIdeal L k (νv ν k) j)⁻¹ • p.2)) ∧
       ∃ f : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N → ℂ,
         TendstoUniformlyOn
-          (fun ν p => (Tm ν).E j y X p.1 ((nuIdeal L k (νv ν k) j)⁻¹ • p.2)) f (𝓝[>] 0) U
+          (fun ν p => (Tm ν).E j y X p.1 ((nuIdeal L k (νv ν k) j)⁻¹ • p.2)) f (𝓝[>] 0)
+          (V ∩ blockConstE j)
   termsM : ∀ j, 1 ≤ j → j ≤ k → ∀ x X, IsPolyDom P.m₀ j X → x ∈ X →
-    ∃ U : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N), IsOpen U ∧ U.Nonempty ∧
-      (∀ᶠ ν in 𝓝[>] 0, ∀ p ∈ U,
+    ∃ V : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N), IsOpen V ∧
+      (V ∩ blockConstM j).Nonempty ∧
+      (∀ᶠ ν in 𝓝[>] 0, ∀ p ∈ V ∩ blockConstM j,
         XiDom ((Tm ν).gs j X) (aIdeal L k (a ν k)) (bgMass L k (β ν k) (νv ν k)) j
           (P.eps d L j) p.1 ((nuIdeal L k (νv ν k) j)⁻¹ • p.2.1) ∧ l1 p.2.2 < 1) ∧
       ∃ f : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N → (Fin N → ℂ),
         TendstoUniformlyOn
           (fun ν p => (Tm ν).M j x X p.1 ((nuIdeal L k (νv ν k) j)⁻¹ • p.2.1) p.2.2) f
-          (𝓝[>] 0) U
+          (𝓝[>] 0) (V ∩ blockConstM j)
 
 end Balaban.SmallField.Def6
