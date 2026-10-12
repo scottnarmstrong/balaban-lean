@@ -260,6 +260,10 @@ public import Balaban.Localization.CubeAligned
 public import Balaban.Localization.CubeBump
 public import Balaban.Localization.Cover
 public import Balaban.Localization.CutCommutator
+public import Balaban.Localization.CompWeightAdmissible
+public import Balaban.Localization.PolymerGeometry
+public import Balaban.Localization.TreeLength
+public import Balaban.Localization.PolymerCount
 public import Balaban.Localization.Reflection
 public import Balaban.Localization.ReflectedGeneratingSet
 public import Balaban.Localization.ReflectionMetric
