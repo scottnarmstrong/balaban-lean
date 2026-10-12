@@ -1,6 +1,6 @@
 module
 
-public import Balaban.LargeField.Counter.Params
+public import Balaban.LargeField.Counter.Basic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -42,20 +42,13 @@ namespace Setting.Ok
 variable {S : Setting} (hS : S.Ok)
 include hS
 
-theorem lam_mono {j k : ℕ} (hjk : j ≤ k) : S.lam j ≤ S.lam k := by
-  induction hjk with
-  | refl => exact le_rfl
-  | @step m _ ih => have := (hS.lam_step m).1; linarith [hS.θm_pos]
-
-theorem one_le_lam (k : ℕ) : 1 ≤ S.lam k := (hS.one_le_lam0).trans (hS.lam_mono (Nat.zero_le k))
-
-theorem pos_L : (0 : ℝ) < S.L := by
+theorem hatW_pos_L : (0 : ℝ) < S.L := by
   have := hS.two_le_L; exact_mod_cast (by omega : 0 < S.L)
 
-theorem one_le_L : (1 : ℝ) ≤ S.L := by
+theorem hatW_one_le_L : (1 : ℝ) ≤ S.L := by
   have := hS.two_le_L; exact_mod_cast (by omega : 1 ≤ S.L)
 
-theorem one_le_Cν : 1 ≤ S.Cν := by
+theorem hatW_one_le_Cν : 1 ≤ S.Cν := by
   have hlog : 0 < S.logL := by
     unfold Typing.logL
     apply Real.log_pos
@@ -77,7 +70,7 @@ theorem one_le_Cν : 1 ≤ S.Cν := by
     linarith
   exact hCr.trans hS.Cr_le
 
-theorem numax_ge_one (k : ℕ) : 1 ≤ S.numax k := by
+theorem hatW_numax_ge_one (k : ℕ) : 1 ≤ S.numax k := by
   unfold Setting.numax
   apply Nat.one_le_iff_ne_zero.2
   have h1 := hS.one_le_lam k
@@ -85,16 +78,16 @@ theorem numax_ge_one (k : ℕ) : 1 ≤ S.numax k := by
     have := hS.Cν_pos; positivity
   exact (Nat.ceil_pos.2 h2).ne'
 
-theorem numax_le (k : ℕ) : (S.numax k : ℝ) ≤ 2 * S.Cν * S.lam k ^ S.p2 := by
+theorem hatW_numax_le (k : ℕ) : (S.numax k : ℝ) ≤ 2 * S.Cν * S.lam k ^ S.p2 := by
   unfold Setting.numax
   have h1 := hS.one_le_lam k
-  have hC := hS.one_le_Cν
+  have hC := hS.hatW_one_le_Cν
   have h2 : 1 ≤ S.lam k ^ S.p2 := one_le_pow₀ h1
   have h3 : 1 ≤ S.Cν * S.lam k ^ S.p2 := by nlinarith
   have h4 := Nat.ceil_lt_add_one (show 0 ≤ S.Cν * S.lam k ^ S.p2 by linarith)
   nlinarith
 
-theorem crit_le (k : ℕ) :
+theorem hatW_crit_le (k : ℕ) :
     (S.crit k : ℝ) ≤ (2 * S.c0 * (S.Rb + 1) + 10) * S.lam k ^ 2 := by
   unfold Setting.crit Setting.rho Setting.r
   have h1 := hS.one_le_lam k
@@ -109,13 +102,13 @@ theorem crit_le (k : ℕ) :
     mul_le_mul_of_nonneg_left h3 hc0
   nlinarith [mul_le_mul_of_nonneg_left h2 hc0]
 
-theorem omega_le (k : ℕ) :
+theorem hatW_omega_le (k : ℕ) :
     (S.omega k : ℝ) ≤ (2 * S.Rb + S.L + 11) * S.lam k ^ 2 := by
   unfold Setting.omega
   have h1 := hS.one_le_lam k
   have h2 : 1 ≤ S.lam k ^ 2 := one_le_pow₀ h1
   have hR := hS.two_le_Rb
-  have hL : (0 : ℝ) ≤ S.L := hS.pos_L.le
+  have hL : (0 : ℝ) ≤ S.L := hS.hatW_pos_L.le
   split_ifs with hk
   · push_cast; nlinarith
   · have hm : S.lam (k - 1) ≤ S.lam k := hS.lam_mono (Nat.sub_le k 1)
@@ -127,13 +120,13 @@ theorem omega_le (k : ℕ) :
     nlinarith [mul_le_mul_of_nonneg_left h3 (by linarith : (0 : ℝ) ≤ S.Rb)]
 
 /-- `L^{h_k - 2} ≤ L · 2 √d ν_max M (crit_k + ω_k)` (definition of `h_k`). -/
-theorem pow_h_le (k : ℕ) :
+theorem hatW_pow_h_le (k : ℕ) :
     (S.L : ℝ) ^ ((S.h k : ℝ) - 2) ≤
       S.L * (2 * Real.sqrt S.d * S.numax k * S.M * (S.crit k + S.omega k)) := by
   have hL1 : (1 : ℝ) < S.L := by
     have := hS.two_le_L; exact_mod_cast (by omega : 1 < S.L)
-  have hL0 := hS.pos_L
-  have hν : (1 : ℝ) ≤ S.numax k := by exact_mod_cast hS.numax_ge_one k
+  have hL0 := hS.hatW_pos_L
+  have hν : (1 : ℝ) ≤ S.numax k := by exact_mod_cast hS.hatW_numax_ge_one k
   have hM : (1 : ℝ) ≤ S.M := by exact_mod_cast hS.one_le_M
   have hd : (0 : ℝ) < Real.sqrt S.d := by
     apply Real.sqrt_pos.2
@@ -169,19 +162,19 @@ theorem pow_h_le (k : ℕ) :
 
 /-- **`Ŵ_k ≤ C_Ŵ λ̂_k^{w₀-2}`** (Lemma III.4.4, (2.26′)). -/
 theorem hatW_le (ε : ℝ) (k : ℕ) : S.hatW ε k ≤ S.CHatW ε * S.lam k ^ S.wExp := by
-  have hL0 := hS.pos_L
-  have hL1 := hS.one_le_L
+  have hL0 := hS.hatW_pos_L
+  have hL1 := hS.hatW_one_le_L
   have hlam := hS.one_le_lam k
   have hlam0 : 0 < S.lam k := by linarith
   have hd3 := hS.three_le_d
   have hdR : (3 : ℝ) ≤ S.d := by exact_mod_cast hd3
   have hM : (1 : ℝ) ≤ S.M := by exact_mod_cast hS.one_le_M
-  have hCν := hS.one_le_Cν
+  have hCν := hS.hatW_one_le_Cν
   set l := S.lam k with hl
   set z : ℝ := ((S.d : ℝ) - 2) / 2 with hz
   have hz0 : 0 ≤ z := by rw [hz]; linarith
   set ν : ℝ := (S.numax k : ℝ) with hν
-  have hν1 : 1 ≤ ν := by rw [hν]; exact_mod_cast hS.numax_ge_one k
+  have hν1 : 1 ≤ ν := by rw [hν]; exact_mod_cast hS.hatW_numax_ge_one k
   set c : ℝ := (S.crit k : ℝ) with hc
   set w : ℝ := (S.omega k : ℝ) with hw
   have hc0 : 0 ≤ c := Nat.cast_nonneg _
@@ -192,13 +185,13 @@ theorem hatW_le (ε : ℝ) (k : ℕ) : S.hatW ε k ≤ S.CHatW ε * S.lam k ^ S.
     have : (0 : ℝ) ≤ S.c0 := Nat.cast_nonneg _
     have := hS.two_le_Rb
     rw [hc1]; positivity
-  have hcc : c ≤ c1 * l ^ 2 := hS.crit_le k
+  have hcc : c ≤ c1 * l ^ 2 := hS.hatW_crit_le k
   have hcw : c + w ≤ c2 * l ^ 2 := by
-    have h1 := hS.crit_le k
-    have h2 := hS.omega_le k
+    have h1 := hS.hatW_crit_le k
+    have h2 := hS.hatW_omega_le k
     rw [hc2]; nlinarith
-  have hνle : ν ≤ 2 * S.Cν * l ^ S.p2 := hS.numax_le k
-  have hpow := hS.pow_h_le k
+  have hνle : ν ≤ 2 * S.Cν * l ^ S.p2 := hS.hatW_numax_le k
+  have hpow := hS.hatW_pow_h_le k
   have hsqrt : (0 : ℝ) < Real.sqrt S.d := Real.sqrt_pos.2 (by linarith)
   -- the factor L^{z (h-2)}
   have hLz : (S.L : ℝ) ^ (z * ((S.h k : ℝ) - 2)) ≤

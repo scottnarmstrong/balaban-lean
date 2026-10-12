@@ -75,7 +75,7 @@ theorem Setting.Ok.chain_lt_hatW {S : Setting} (hS : S.Ok) {ε : ℝ} {k1 k j : 
       rw [Finset.mem_Icc] at hi
       exact (hδ.pos i (hk1i0.trans hi.1) hi.2).le
   -- δ i0 ≤ e^ε L^{(d-2)/2 (h-2)} δ j
-  have hLge : (1 : ℝ) ≤ S.L := hS.one_le_L
+  have hLge : (1 : ℝ) ≤ S.L := hS.hatW_one_le_L
   have hgrow := hδ.growth i0 j hk1i0 hi0j hjk.le
   have hexp : (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2 * ((j : ℝ) - i0)) ≤
       (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2 * ((S.h k : ℝ) - 2)) := by
@@ -89,13 +89,13 @@ theorem Setting.Ok.chain_lt_hatW {S : Setting} (hS : S.Ok) {ε : ℝ} {k1 k j : 
     push_cast at this
     linarith
   have hδj := hδpos j (hk1.trans le_rfl) hjk
-  have hLpos : (0 : ℝ) < S.L := hS.pos_L
+  have hLpos : (0 : ℝ) < S.L := hS.hatW_pos_L
   have hE : 0 < Real.exp ε := Real.exp_pos ε
   have hδ0 : δ i0 ≤ Real.exp ε * (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2 * ((S.h k : ℝ) - 2)) * δ j :=
     hgrow.trans (mul_le_mul_of_nonneg_right
       (mul_le_mul_of_nonneg_left hexp hE.le) hδj.le)
   -- assemble
-  have hν : (1 : ℝ) ≤ S.numax k := by exact_mod_cast hS.numax_ge_one k
+  have hν : (1 : ℝ) ≤ S.numax k := by exact_mod_cast hS.hatW_numax_ge_one k
   have hM : (1 : ℝ) ≤ S.M := by exact_mod_cast hS.one_le_M
   have hcrit : (0 : ℝ) < S.crit k := by
     have : 0 < S.crit k := by unfold Setting.crit; omega
