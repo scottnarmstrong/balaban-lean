@@ -291,6 +291,101 @@ theorem chiPrimeZero_eq_one_of_margins (hK : 1 ≤ K)
 
 end Margins
 
+section Product
+
+variable {nn : ℕ → ℕ} {L M K : ℕ} [∀ k, NeZero (nn k)] [NeZero M] [NeZero L]
+
+open Classical in
+/-- **The old base factor (2.1)** for the failed cubes `P`:
+`∏_{c ∈ P} (1 - A_c B_c) ∏_{c ∉ P} A_c B_c`. -/
+noncomputable def baseOldFactor (regimeB : Prop) (ν δ₀ : ℝ) (h : Fin N → ℝ)
+    (P : Finset (Torus d (nn 1))) (p : BaseCfg d N nn L M K) : ℝ :=
+  (∏ c ∈ P, (1 - chiPrimeZero nn L M K regimeB ν δ₀ h c p)) *
+    ∏ c ∈ Finset.univ \ P, chiPrimeZero nn L M K regimeB ν δ₀ h c p
+
+open Classical in
+/-- The old base factor with all good cubes of `𝒥₊` deleted. -/
+noncomputable def baseDeletedFactor (regimeB : Prop) (ν δ₀ : ℝ) (h : Fin N → ℝ)
+    (P : Finset (Torus d (nn 1))) (Dplus : Set (Torus d (M * nn K * L ^ K)))
+    (p : BaseCfg d N nn L M K) : ℝ :=
+  (∏ c ∈ P, (1 - chiPrimeZero nn L M K regimeB ν δ₀ h c p)) *
+    ∏ c ∈ (Finset.univ \ P).filter (fun c => c ∉ baseJPlus nn L M K regimeB (P : Set _) Dplus),
+      chiPrimeZero nn L M K regimeB ν δ₀ h c p
+
+/-- **BASE-KERNEL-3 §2, exact pointwise identity.**  Under the margins, deleting precisely the
+good factors of `𝒥₊` does not change the old base factor (2.1). -/
+theorem baseOldFactor_eq_deleted (hK : 1 ≤ K) {regimeB : Prop} {ν δ₀ r : ℝ} (hν : 0 ≤ ν)
+    {h : Fin N → ℝ} (P : Finset (Torus d (nn 1))) {Dplus : Set (Torus d (M * nn K * L ^ K))}
+    {φ e : Torus d (M * nn K * L ^ K) → Fin N → ℝ}
+    {θ : Torus d (M * nn K * L ^ (K - 1)) → Fin N → ℝ}
+    (hm : BaseCutoffMargins nn L M K regimeB ν δ₀ r h (P : Set _) Dplus φ e θ) :
+    baseOldFactor regimeB ν δ₀ h P (φ, θ) = baseDeletedFactor regimeB ν δ₀ h P Dplus (φ, θ) := by
+  classical
+  unfold baseOldFactor baseDeletedFactor
+  congr 1
+  rw [← Finset.prod_filter_mul_prod_filter_not (Finset.univ \ P)
+    (fun c => c ∉ baseJPlus nn L M K regimeB (P : Set _) Dplus)]
+  have : ∏ c ∈ (Finset.univ \ P).filter
+      (fun c => ¬ (c ∉ baseJPlus nn L M K regimeB (P : Set _) Dplus)),
+      chiPrimeZero nn L M K regimeB ν δ₀ h c (φ, θ) = 1 := by
+    refine Finset.prod_eq_one fun c hc => ?_
+    have hc' := (Finset.mem_filter.1 hc).2
+    push Not at hc'
+    exact chiPrimeZero_eq_one_of_margins hK hν hm hc'
+  rw [this, mul_one]
+
+/-- **The remaining old factor is independent of the integrated spins.**  If `P` is the set of
+cubes of the record `P₁` and `D₊` consists of sites in cubes of `Ω₁`, then the deleted factor
+depends on the spins only through the sites outside `D₊`. -/
+theorem baseDeleted_indep (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) (hK : 1 ≤ K)
+    {regimeB : Prop} (ν δ₀ : ℝ) (h : Fin N → ℝ) {Rk : ℝ} (br : BaseRecord d L (nn 1) Rk)
+    (P : Finset (Torus d (nn 1))) (hP : (P : Set (Torus d (nn 1))) = br.P)
+    {Dplus : Set (Torus d (M * nn K * L ^ K))}
+    (hD : ∀ x ∈ Dplus, cubeMap nn L M K 1 x ∈ br.Omega)
+    (φ φ' : Torus d (M * nn K * L ^ K) → Fin N → ℝ)
+    (θ : Torus d (M * nn K * L ^ (K - 1)) → Fin N → ℝ) (hφ : ∀ x ∉ Dplus, φ x = φ' x) :
+    baseDeletedFactor regimeB ν δ₀ h P Dplus (φ, θ) =
+      baseDeletedFactor regimeB ν δ₀ h P Dplus (φ', θ) := by
+  classical
+  unfold baseDeletedFactor
+  congr 1
+  · refine Finset.prod_congr rfl fun c hc => ?_
+    have hcP : c ∈ br.P := hP ▸ (Finset.mem_coe.2 hc)
+    have hdis := baseFootprint_disjoint_of_mem_P hnn hK regimeB br hcP hD
+    rw [chiPrimeZero_congr_footprint regimeB ν δ₀ h c φ φ' θ
+      (fun x hx => hφ x (Set.disjoint_left.1 hdis hx))]
+  · refine Finset.prod_congr rfl fun c hc => ?_
+    obtain ⟨hc1, hc2⟩ := Finset.mem_filter.1 hc
+    have hcP : c ∉ (P : Set (Torus d (nn 1))) := by
+      simpa using (Finset.mem_sdiff.1 hc1).2
+    have hdis : ∀ x ∈ baseFootprint nn L M K regimeB c, x ∉ Dplus := by
+      intro x hx hxD
+      exact hc2 ⟨hcP, x, hx, hxD⟩
+    rw [chiPrimeZero_congr_footprint regimeB ν δ₀ h c φ φ' θ (fun x hx => hφ x (hdis x hx))]
+
+/-- **`BaseCutoffMargins` is inhabited** (rule 10): for `δ₀ > 0`, `ν ≥ 0`, `N ≥ 1`, the constant
+unit spin field `φ = e ≡ u`, `θ = Qe`, `h = u`, `r = 0` satisfies all margins. -/
+theorem baseCutoffMargins_nonempty (nn : ℕ → ℕ) (L M K : ℕ) [∀ k, NeZero (nn k)] [NeZero M]
+    [NeZero L] {N : ℕ} (hN : 0 < N) (regimeB : Prop) {ν δ₀ : ℝ} (hδ : 0 < δ₀)
+    (P : Set (Torus d (nn 1))) (Dplus : Set (Torus d (M * nn K * L ^ K))) :
+    ∃ (h : Fin N → ℝ) (φ e : Torus d (M * nn K * L ^ K) → Fin N → ℝ)
+      (θ : Torus d (M * nn K * L ^ (K - 1)) → Fin N → ℝ),
+      Nonempty (BaseCutoffMargins nn L M K regimeB ν δ₀ 0 h P Dplus φ e θ) := by
+  classical
+  set u : Fin N → ℝ := Pi.single ⟨0, hN⟩ 1 with hu
+  have hu1 : ∑ i, u i ^ 2 = 1 := by
+    simp [hu, Pi.single_apply]
+  have hz : ∀ a : Fin N → ℝ, rn (fun i => a i - a i) = 0 := fun a => by simp [rn]
+  refine ⟨u, fun _ => u, fun _ => u, fun y => spinAverage nn L M K (fun _ => u) y, ⟨?_⟩⟩
+  exact
+    { unit := fun _ _ _ _ => hu1
+      close := fun _ _ _ _ => by rw [hz]
+      block := fun _ _ y _ => by rw [hz]; linarith
+      bond := fun _ _ x μ _ => by rw [hz]; linarith
+      site := fun _ _ _ _ _ => by rw [hz, mul_zero]; linarith }
+
+end Product
+
 end Footprint
 
 end Balaban.LargeField

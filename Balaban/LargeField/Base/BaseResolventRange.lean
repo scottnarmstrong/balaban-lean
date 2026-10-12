@@ -24,6 +24,8 @@ and column sums of `A_e(s)` are at most `J` and its blocks vanish beyond distanc
 
 @[expose] public section
 
+set_option linter.unusedSectionVars false
+
 namespace Balaban.LargeField.Base
 
 open Balaban Balaban.Multiscale Balaban.Green Matrix Finset
@@ -245,7 +247,7 @@ theorem layerProjMatrix_symm (x y : Torus d (N₀ * L ^ 1)) :
   unfold layerProjMatrix
   rw [blockProjMatrix_symm (d := d) (L := L) (N₀ := N₀) (k := 1) 1 x y]
   by_cases h : x ∈ G.layer 1 ∧ y ∈ G.layer 1
-  · simp [h, h.symm]
+  · simp [h]
   · have h' : ¬ (y ∈ G.layer 1 ∧ x ∈ G.layer 1) := fun hh => h hh.symm
     simp [h, h']
 
@@ -300,7 +302,7 @@ theorem torusDist_le_of_avg {a : ℕ → ℝ} {x y : Torus d (N₀ * L ^ 1)}
     by_contra hne
     apply hb
     unfold blockProjMatrix
-    exact if_neg hne
+    exact ite_eq_right_iff.2 (fun h => absurd h hne)
   have hN : 0 < L ^ 1 := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
   have := torusDist_le_of_blockMap_eq (side_eq (le_refl 1)) hN hbl
   simpa using this
@@ -311,7 +313,7 @@ theorem siteDist_le_of_ne_zero (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ
   by_contra hlt
   push Not at hlt
   apply h
-  rw [baseHamiltonian_apply, if_neg hzy, add_zero]
+  rw [baseHamiltonian_apply, ite_eq_right_iff.2 (fun h => absurd h hzy), add_zero]
   have hne : (z : Torus d (N₀ * L ^ 1)) ≠ y := fun e => hzy (Subtype.ext e)
   have hdz : Green.torusDist d (N₀ * L ^ 1) z.1 y.1 > d * L + 1 := hlt
   have hLpos : (0 : ℝ) ≤ d * L := by positivity
@@ -322,7 +324,7 @@ theorem siteDist_le_of_ne_zero (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ
   have hcf : cutFullMatrix G a ν (baseCutBonds G) z.1 y.1 = 0 := by
     rw [cutFullMatrix_eq]
     simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, Matrix.sum_apply,
-      smul_eq_mul, hbond, Finset.sum_const_zero, if_neg hne]
+      smul_eq_mul, hbond, Finset.sum_const_zero, ite_eq_right_iff.2 (fun h => absurd h hne)]
     have : avgMatrix G a z.1 y.1 = 0 := by
       by_contra hav
       have := torusDist_le_of_avg G hav
@@ -351,14 +353,14 @@ theorem blockOf_one (z w : ι) :
   ext i j
   by_cases h : z = w
   · subst h; simp [blockOf, Matrix.one_apply]
-  · simp [blockOf, Matrix.one_apply, h]
+  · simp [blockOf, h]
 
 theorem blockOf_liftOp (H : Matrix ι ι ℂ) (z y : ι) :
     blockOf (liftOp N H) z y = H z y • (1 : Matrix (Fin N) (Fin N) ℂ) := by
   ext i j
   by_cases h : i = j
   · subst h; simp [blockOf, liftOp]
-  · simp [blockOf, liftOp, Matrix.one_apply, h]
+  · simp [blockOf, liftOp, h]
 
 theorem blockOf_add (X Y : Matrix (ι × Fin N) (ι × Fin N) ℂ) (z y : ι) :
     blockOf (X + Y) z y = blockOf X z y + blockOf Y z y := by
@@ -422,7 +424,7 @@ theorem blockOf_baseOp (e : ι → Fin N → ℝ) (H : Matrix ι ι ℂ) (z y : 
   simp only [blockOf_mul, hQ, blockOf_liftOp]
   rw [Finset.sum_eq_single y]
   · rw [Finset.sum_eq_single z]
-    · simp [Matrix.smul_mul, Matrix.mul_smul]
+    · simp
     · intro w _ hw
       simp [Ne.symm hw]
     · simp
@@ -489,7 +491,7 @@ theorem baseOp_rowSum_range {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : 
     · subst hzy
       rw [siteDist_self]
       unfold baseRange; positivity
-    · rw [blockOf_baseOp, if_neg hzy, add_zero] at hne
+    · rw [blockOf_baseOp, ite_eq_right_iff.2 (fun h => absurd h hzy), add_zero] at hne
       have hH0 : H z y ≠ 0 := fun h0 => hne (by rw [h0, zero_smul])
       exact siteDist_le_of_ne_zero G a ν α s z y hzy hH0
   · calc ∑ y, ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) H) z y‖

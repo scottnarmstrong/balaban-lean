@@ -20,6 +20,8 @@ square root and the logarithm inside `U × U` depend only on the data (`s`, `α`
 
 @[expose] public section
 
+set_option linter.unusedSectionVars false
+
 namespace Balaban.LargeField.Base
 
 open Matrix Finset
@@ -90,11 +92,11 @@ open Classical in
 /-- **Inverses see only the `P`-block of the data.** -/
 theorem inv_entry_congr {M M' : Matrix κ κ ℂ} (hM : BlockDiag P M) (hM' : BlockDiag P M')
     (hU : IsUnit M) (hU' : IsUnit M') (hagree : ∀ p q, P p → P q → M p q = M' p q)
-    {p q : κ} (hp : P p) (hq : P q) : M⁻¹ p q = M'⁻¹ p q := by
+    {p q : κ} (_hp : P p) (hq : P q) : M⁻¹ p q = M'⁻¹ p q := by
   set f : κ → ℂ := Pi.single q 1 with hf
   have hf0 : ∀ r, ¬ P r → f r = 0 := fun r hr => by
     have : r ≠ q := fun h => hr (h ▸ hq)
-    simp [hf, Pi.single_apply, this]
+    simp [hf, this]
   have e1 : M⁻¹ p q = (M⁻¹ *ᵥ f) p := by
     rw [hf, Matrix.mulVec_single_one]; rfl
   have e2 : M'⁻¹ p q = (M'⁻¹ *ᵥ f) p := by
@@ -131,7 +133,7 @@ theorem blockDiag_add_smul_one {M : Matrix κ κ ℂ} (hM : BlockDiag P M) (y : 
     by_cases h : P p
     · exact (hpq.1 h) h
     · exact h (hpq.2 h)
-  simp [Matrix.add_apply, Matrix.one_apply, hne, hM p q hpq]
+  simp [Matrix.add_apply, hne, hM p q hpq]
 
 theorem resolvent_entry_congr {M M' : Matrix κ κ ℂ} (hM : BlockDiag P M) (hM' : BlockDiag P M')
     (hagree : ∀ p q, P p → P q → M p q = M' p q) {y : ℂ}
@@ -151,7 +153,7 @@ theorem sqrtMat_entry_congr [Nonempty κ] {M M' : Matrix κ κ ℂ} (hM : BlockD
   refine integral_congr_ae ?_
   refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun y hy => ?_)
   have hy0 : 0 ≤ y := le_of_lt hy
-  simp only [Matrix.smul_apply]
+  beta_reduce
   rw [resolvent_entry_congr hM hM' hagree (hR y hy0) (hR' y hy0) hp hq]
 
 open MeasureTheory Set Balaban.Localization in
@@ -242,8 +244,7 @@ theorem baseHamiltonian_cross_zero {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFi
     exact_mod_cast h0
   have hcf : cutFullMatrix G a ν (baseCutBonds G) z.1 y.1 = 0 := by
     rw [cutFullMatrix_eq]
-    simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, ite_eq_right_iff.2 (fun h => absurd h hne'), smul_zero,
-      zero_add, Matrix.sum_apply, smul_eq_mul]
+    simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, ite_eq_right_iff.2 (fun h => absurd h hne'), Matrix.sum_apply, smul_eq_mul]
     have h1 : ∑ b ∈ Finset.univ \ baseCutBonds G, bondMatrix b z.1 y.1 = 0 := by
       refine Finset.sum_eq_zero fun b hb => ?_
       by_contra hne0
@@ -261,9 +262,9 @@ theorem baseHamiltonian_cross_zero {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFi
         rw [this]; simp
       apply hblk
       by_contra hne2
-      exact hb (by unfold blockProjMatrix; exact if_neg hne2)
+      exact hb (by unfold blockProjMatrix; exact ite_eq_right_iff.2 (fun h => absurd h hne2))
     rw [h1, h2]; simp
-  rw [baseHamiltonian_apply, hcf, if_neg hne]
+  rw [baseHamiltonian_apply, hcf, ite_eq_right_iff.2 (fun h => absurd h hne)]
   simp only [Complex.ofReal_zero, zero_add]
   refine Finset.sum_eq_zero fun b hb => ?_
   by_cases hT : baseBond G b z y = 0
