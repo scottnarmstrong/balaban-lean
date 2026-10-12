@@ -17,7 +17,9 @@ It has no removals, and for `j ≥ k` it continues with steps without new cubes.
 * `locRH_Z`: `Z_j(loc) = Lin_j(Z)` for `j ≤ k`;
 * `locRH_derived`: for `j < k` the complements `Ω'ᶜ, Ωᶜ, Ω''ᶜ, Z^{(0)}` of the local step are the
   global ones intersected with `Lin_{j+1}(Z)` (Lemma I.3.9 (b));
-* `locRH_fine_subset`: its records, as fine sets, are contained in those of `localHistory`.
+* `localHistory`: the localized history 𝔥_k(Z) of Definition I.4.4 as fine sets: the records of
+  `locRH H k Z` (the lineage of `Z`), so records of removed components never occur;
+* `localHistory_subset_raw`: its records are contained in those of `rawLocalHistory`.
 -/
 
 @[expose] public section
@@ -258,20 +260,33 @@ theorem cubeMap_mem_of_desc [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1)) {M
       rw [← hs]; exact H.succ_spec b' hrem ⟨_, h1, rfl⟩
     rwa [cubeMap_succ hnn (by omega) x] at h2
 
-/-- The records of the lineage localization, as fine sets, are contained in those of
-`localHistory` (the new cubes and the regions `Z_j`, `j < k`). -/
-theorem locRH_fine_subset {k : ℕ} (Z : H.Comp k) {M K : ℕ} [NeZero M] (hkK : k ≤ K) {j : ℕ}
+variable (H) in
+/-- The localized history `𝔥_k(Z)` of a component `Z` of `Z^pre_k` (Definition I.4.4), as fine
+sets: the records of the lineage localization `locRH H k Z`, intersected with the fine set of `Z`. -/
+noncomputable def localHistory (M K k : ℕ) (Z : H.Comp k) : LocalHistory S n M K where
+  Z j := fineSet (S := S) (n := n) M K j ((H.locRH k Z).step j).Z ∩ fineSet M K k Z.1
+  P j := fineSet M K (j + 1) ((H.locRH k Z).step j).P ∩ fineSet M K k Z.1
+  Q j := fineSet M K (j + 1) ((H.locRH k Z).step j).Q ∩ fineSet M K k Z.1
+  R j := fineSet M K (j + 1) ((H.locRH k Z).step j).R ∩ fineSet M K k Z.1
+  Sset j := fineSet M K (j + 1) ((H.locRH k Z).step j).S ∩ fineSet M K k Z.1
+  OmegaPrime j := fineSet M K (j + 1) ((H.locRH k Z).step j).OmegaPrime ∩ fineSet M K k Z.1
+  Omega j := fineSet M K (j + 1) ((H.locRH k Z).step j).Omega ∩ fineSet M K k Z.1
+  OmegaDD j := fineSet M K (j + 1) ((H.locRH k Z).step j).OmegaDD ∩ fineSet M K k Z.1
+
+/-- The records of the localized history are contained in the raw records (the new cubes and the
+regions `Z_j`, `j < k`). -/
+theorem localHistory_subset_raw {k : ℕ} (Z : H.Comp k) {M K : ℕ} [NeZero M] (hkK : k ≤ K) {j : ℕ}
     (hj : j < k) :
-    fineSet (S := S) (n := n) M K j (((H.locRH k Z).step j).Z) ⊆
-        (localHistory H M K k Z).Z j ∧
-    fineSet (S := S) (n := n) M K (j + 1) (((H.locRH k Z).step j).P) ⊆
-        (localHistory H M K k Z).P j ∧
-    fineSet (S := S) (n := n) M K (j + 1) (((H.locRH k Z).step j).Q) ⊆
-        (localHistory H M K k Z).Q j ∧
-    fineSet (S := S) (n := n) M K (j + 1) (((H.locRH k Z).step j).R) ⊆
-        (localHistory H M K k Z).R j ∧
-    fineSet (S := S) (n := n) M K (j + 1) (((H.locRH k Z).step j).S) ⊆
-        (localHistory H M K k Z).Sset j := by
+    (localHistory H M K k Z).Z j ⊆
+        (rawLocalHistory H M K k Z).Z j ∧
+    (localHistory H M K k Z).P j ⊆
+        (rawLocalHistory H M K k Z).P j ∧
+    (localHistory H M K k Z).Q j ⊆
+        (rawLocalHistory H M K k Z).Q j ∧
+    (localHistory H M K k Z).R j ⊆
+        (rawLocalHistory H M K k Z).R j ∧
+    (localHistory H M K k Z).Sset j ⊆
+        (rawLocalHistory H M K k Z).Sset j := by
   have := H.neZero_L
   have hin : ∀ {a : ℕ} (ha : a ≤ k) (x : Torus S.d (M * n K * S.L ^ K)),
       cubeMap n S.L M K a x ∈ ((H.lin a k Z : Finset (Torus S.d (n a))) : Set _) →
@@ -282,26 +297,26 @@ theorem locRH_fine_subset {k : ℕ} (Z : H.Comp k) {M K : ℕ} [NeZero M] (hkK :
   obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · intro x hx
-    have hx' : cubeMap n S.L M K j x ∈ ((H.locRH k Z).step j).Z := hx
+    have hx' : cubeMap n S.L M K j x ∈ ((H.locRH k Z).step j).Z := hx.1
     rw [locRH_Z Z hj.le] at hx'
     refine ⟨?_, hin hj.le x hx'⟩
     obtain ⟨Y, hd, hxY⟩ := mem_lin.mp (Finset.mem_coe.mp hx')
     obtain ⟨hrem, -⟩ := Desc.first hd hj
     exact (H.mem_Z_iff hxY).mpr hrem
   · intro x hx
-    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).P := hx
+    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).P := hx.1
     rw [hP] at hx'
     exact ⟨hx'.1, hin (by omega) x hx'.2⟩
   · intro x hx
-    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).Q := hx
+    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).Q := hx.1
     rw [hQ] at hx'
     exact ⟨hx'.1, hin (by omega) x hx'.2⟩
   · intro x hx
-    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).R := hx
+    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).R := hx.1
     rw [hR] at hx'
     exact ⟨hx'.1, hin (by omega) x hx'.2⟩
   · intro x hx
-    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).S := hx
+    have hx' : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Z).step j).S := hx.1
     rw [hS] at hx'
     exact ⟨hx'.1, hin (by omega) x hx'.2⟩
 
