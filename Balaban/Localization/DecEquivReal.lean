@@ -285,12 +285,12 @@ theorem Fsrc_conj {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ} (hφ : ∀ 
   simp [Fsrc, hF, hφ _ _]
 
 /-- **Conjugation of `δφ(δα)`** at `α₀ = 0`, for a Green family compatible with conjugation. -/
-theorem dphi_conj {𝒢 : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ}
-    (h𝒢 : ∀ α, cjm (𝒢 α) = 𝒢 (fun x => cj (α x))) {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+theorem dphi_conj {𝒢 𝒢' : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ}
+    (h𝒢 : ∀ α, cjm (𝒢 α) = 𝒢' (fun x => cj (α x))) {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
     (hφ : ∀ x, IsRealVec (φ₀ x)) {Fs : G.Ω 1 × Fin N → ℂ} (hF : ∀ p, cj (Fs p) = Fs p)
     (δα : G.Ω 1 → ℂ) (p : G.Ω 1 × Fin N) :
     cj (dphi G 𝒢 (0 : G.Ω 1 → ℂ) φ₀ Fs δα p) =
-      dphi G 𝒢 (0 : G.Ω 1 → ℂ) φ₀ Fs (fun x => cj (δα x)) p := by
+      dphi G 𝒢' (0 : G.Ω 1 → ℂ) φ₀ Fs (fun x => cj (δα x)) p := by
   unfold dphi
   rw [cj_liftOp_mulVec, h𝒢]
   have e1 : (fun x => cj (((0 : G.Ω 1 → ℂ) + δα) x)) = (0 : G.Ω 1 → ℂ) + fun x => cj (δα x) := by
@@ -319,30 +319,31 @@ section Dec2Cover
 
 variable {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
-theorem decG2_conj {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = s P) (α : H.Ω 1 → ℂ) :
-    cjm (Dec2.decG C H a ν s α) = Dec2.decG C H a ν s (fun x => cj (α x)) := by
+theorem decG2_conj (s : Dec2.DecParams C) (α : H.Ω 1 → ℂ) :
+    cjm (Dec2.decG C H a ν s α) =
+      Dec2.decG C H a ν (fun P => cj (s P)) (fun x => cj (α x)) := by
   unfold Dec2.decG
   rw [cjm_Gs]
-  have : (fun P => cj (Dec2.extS C s P)) = Dec2.extS C s := by
+  have : (fun P => cj (Dec2.extS C s P)) = Dec2.extS C (fun P => cj (s P)) := by
     funext P
     unfold Dec2.extS
     split_ifs with h
-    · exact hs _
+    · rfl
     · simp
   rw [this]
 
 /-- **Conjugation preserves the system `IsDecBg`** for real data and real parameters. -/
-theorem isDecBg2_conj {ρ : ℝ} {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = s P)
+theorem isDecBg2_conj {ρ : ℝ} {s : Dec2.DecParams C}
     {D : BgData H N} (hD : D.IsReal) {φ : H.Ω 1 × Fin N → ℂ} {α : H.Ω 1 → ℂ}
     (h : Dec2.IsDecBg C H a ν ρ s D φ α) :
-    Dec2.IsDecBg C H a ν ρ s D (fun p => cj (φ p)) (fun x => cj (α x)) := by
+    Dec2.IsDecBg C H a ν ρ (fun P => cj (s P)) D (fun p => cj (φ p)) (fun x => cj (α x)) := by
   have hΨ : ∀ x, IsRealVec (D.Ψ x) := fun x => isRealVec_of_im fun i => (hD x i).1
   have hh : ∀ x, IsRealVec (D.h x) := fun x => isRealVec_of_im fun i => (hD x i).2
   have hA := approxField_real (G := H) (a := a) (ν := ν) hΨ hh
   have hF := fun p => residual_real (G := H) (a := a) (ν := ν) hD hA p
   have hH0 : cjm (dirichletOperator H a ν (0 : H.Ω 1 → ℂ)) = dirichletOperator H a ν 0 :=
     cjm_dirichlet_zero
-  have h𝒢 := fun β => decG2_conj (C := C) (H := H) (a := a) (ν := ν) hs β
+  have h𝒢 := fun β => decG2_conj (C := C) (H := H) (a := a) (ν := ν) s β
   obtain ⟨h1, h2, h3⟩ := h
   refine ⟨small_conj h1, ?_, ?_⟩
   · unfold Dec2.DecFixed at h2 ⊢
@@ -351,7 +352,7 @@ theorem isDecBg2_conj {ρ : ℝ} {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = 
     have := Nmap_conj hH0 true hA hF (dphi H (Dec2.decG C H a ν s) 0 (approxField H a ν D.Ψ D.h)
       (Background.residual H a ν D (approxField H a ν D.Ψ D.h)) α) x
     rw [e] at this
-    have hd : dphi H (Dec2.decG C H a ν s) (0 : H.Ω 1 → ℂ) (approxField H a ν D.Ψ D.h)
+    have hd : dphi H (Dec2.decG C H a ν (fun P => cj (s P))) (0 : H.Ω 1 → ℂ) (approxField H a ν D.Ψ D.h)
         (Background.residual H a ν D (approxField H a ν D.Ψ D.h)) (fun x => cj (α x)) =
         fun p => cj (dphi H (Dec2.decG C H a ν s) (0 : H.Ω 1 → ℂ) (approxField H a ν D.Ψ D.h)
           (Background.residual H a ν D (approxField H a ν D.Ψ D.h)) α p) :=
@@ -368,8 +369,10 @@ theorem decBg2_real {ρ : ℝ} {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = s 
     (∀ p, cj (Dec2.decBgField C H a ν ρ s D p) = Dec2.decBgField C H a ν ρ s D p) ∧
       ∀ x, cj (Dec2.decBgMult C H a ν ρ s D x) = Dec2.decBgMult C H a ν ρ s D x := by
   classical
+  have hs' : (fun P => cj (s P)) = s := funext hs
   by_cases Hh : ∃! p : (H.Ω 1 × Fin N → ℂ) × (H.Ω 1 → ℂ), Dec2.IsDecBg C H a ν ρ s D p.1 p.2
-  · have hc := isDecBg2_conj hs hD Hh.exists.choose_spec
+  · have hc := isDecBg2_conj hD Hh.exists.choose_spec
+    rw [hs'] at hc
     have e := Hh.unique (y₁ := (fun p => cj (Hh.exists.choose.1 p), fun x => cj (Hh.exists.choose.2 x)))
       hc Hh.exists.choose_spec
     refine ⟨fun p => ?_, fun x => ?_⟩
@@ -386,18 +389,18 @@ section OldCover
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
 /-- **Conjugation preserves the system `IsDecBg`** for real data and real parameters. -/
-theorem isDecBg_conj {ρ : ℝ} {s : DecParams G} (hs : ∀ P, cj (s P) = s P)
+theorem isDecBg_conj {ρ : ℝ} {s : DecParams G}
     {D : BgData G N} (hD : D.IsReal) {φ : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ}
     (h : IsDecBg G a ν ρ s D φ α) :
-    IsDecBg G a ν ρ s D (fun p => cj (φ p)) (fun x => cj (α x)) := by
+    IsDecBg G a ν ρ (fun P => cj (s P)) D (fun p => cj (φ p)) (fun x => cj (α x)) := by
   have hΨ : ∀ x, IsRealVec (D.Ψ x) := fun x => isRealVec_of_im fun i => (hD x i).1
   have hh : ∀ x, IsRealVec (D.h x) := fun x => isRealVec_of_im fun i => (hD x i).2
   have hA := approxField_real (G := G) (a := a) (ν := ν) hΨ hh
   have hF := fun p => residual_real (G := G) (a := a) (ν := ν) hD hA p
   have hH0 : cjm (dirichletOperator G a ν (0 : G.Ω 1 → ℂ)) = dirichletOperator G a ν 0 :=
     cjm_dirichlet_zero
-  have h𝒢 : ∀ β : G.Ω 1 → ℂ, cjm (decG G a ν s β) = decG G a ν s (fun x => cj (β x)) :=
-    fun β => decG2_conj (C := coverOf G) (H := G) (a := a) (ν := ν) hs β
+  have h𝒢 : ∀ β : G.Ω 1 → ℂ, cjm (decG G a ν s β) = decG G a ν (fun P => cj (s P)) (fun x => cj (β x)) :=
+    fun β => decG2_conj (C := coverOf G) (H := G) (a := a) (ν := ν) s β
   obtain ⟨h1, h2, h3⟩ := h
   refine ⟨small_conj h1, ?_, ?_⟩
   · unfold DecFixed at h2 ⊢
@@ -406,7 +409,7 @@ theorem isDecBg_conj {ρ : ℝ} {s : DecParams G} (hs : ∀ P, cj (s P) = s P)
     have := Nmap_conj hH0 true hA hF (dphi G (decG G a ν s) 0 (approxField G a ν D.Ψ D.h)
       (Background.residual G a ν D (approxField G a ν D.Ψ D.h)) α) x
     rw [e] at this
-    have hd : dphi G (decG G a ν s) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+    have hd : dphi G (decG G a ν (fun P => cj (s P))) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
         (Background.residual G a ν D (approxField G a ν D.Ψ D.h)) (fun x => cj (α x)) =
         fun p => cj (dphi G (decG G a ν s) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
           (Background.residual G a ν D (approxField G a ν D.Ψ D.h)) α p) :=
@@ -418,14 +421,15 @@ theorem isDecBg_conj {ρ : ℝ} {s : DecParams G} (hs : ∀ P, cj (s P) = s P)
     simp only [map_add]
     rw [hA p.1 p.2, dphi_conj h𝒢 hA hF α p]
 
-
 theorem decBg_real {ρ : ℝ} {s : DecParams G} (hs : ∀ P, cj (s P) = s P)
     {D : BgData G N} (hD : D.IsReal) :
     (∀ p, cj (decBgField G a ν ρ s D p) = decBgField G a ν ρ s D p) ∧
       ∀ x, cj (decBgMult G a ν ρ s D x) = decBgMult G a ν ρ s D x := by
   classical
+  have hs' : (fun P => cj (s P)) = s := funext hs
   by_cases Hh : ∃! p : (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ), IsDecBg G a ν ρ s D p.1 p.2
-  · have hc := isDecBg_conj hs hD Hh.exists.choose_spec
+  · have hc := isDecBg_conj hD Hh.exists.choose_spec
+    rw [hs'] at hc
     have e := Hh.unique (y₁ := (fun p => cj (Hh.exists.choose.1 p), fun x => cj (Hh.exists.choose.2 x)))
       hc Hh.exists.choose_spec
     refine ⟨fun p => ?_, fun x => ?_⟩
@@ -434,6 +438,7 @@ theorem decBg_real {ρ : ℝ} {s : DecParams G} (hs : ∀ P, cj (s P) = s P)
     · have := congrFun (congrArg Prod.snd e) x
       simpa [decBgMult, Hh] using this
   · refine ⟨fun p => ?_, fun x => ?_⟩ <;> simp [decBgField, decBgMult, Hh]
+
 
 end OldCover
 
