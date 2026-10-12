@@ -17,12 +17,12 @@ Claude workers (background subagents of this session):
 | W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
 | W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
 | W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
-| W172 | `w172-def7v2` / W172 | Def-7 v2 main clauses (scheme A) |
+| W177 | `w177-mass-response` / W177 | MASS-RESPONSE §1: same-datum mass source, response bound |
 | W173 | `w173-collar` / W173 | COLLAR-FIX steps 1–2 (collar datum = inherited trace) |
 | W174 | `w174-activity-witness` / W174 | non-degenerate StepActivityBound witness |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): q13 MASS-RESPONSE (tag MASSRESP), vmod VMOD-17 (VMOD17), fluctfix ACTIVITY (ACTIVITY). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): round 19 collected (notes/phase1/ACTIVITY.md, MASS-RESPONSE.md, VMOD-17.md); round 20 being sent. Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
