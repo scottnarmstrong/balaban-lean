@@ -773,3 +773,4 @@ public import Balaban.Inhabited.Misc
 public import Balaban.Inhabited.XiCDomains
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
+public import Balaban.Inhabited.LocalizationSettings
