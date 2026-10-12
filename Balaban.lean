@@ -765,3 +765,6 @@ public import Balaban.Fluctuation.RenormExpCauchy
 public import Balaban.Fluctuation.RenormExpBounds
 public import Balaban.Fluctuation.RenormExpG
 public import Balaban.Fluctuation.RenormExpDiff
+public import Balaban.Observables.SecondOrderCauchy
+public import Balaban.Observables.SecondOrderSums
+public import Balaban.Observables.SecondOrderStep
