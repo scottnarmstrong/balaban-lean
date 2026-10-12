@@ -752,3 +752,9 @@ public import Balaban.Fluctuation.TraceEntropyInhab
 public import Balaban.Fluctuation.CubeAction
 public import Balaban.Fluctuation.CubeActionShift
 public import Balaban.Fluctuation.CubeActionBound
+public import Balaban.Background.Prop51Mass
+public import Balaban.Fluctuation.RenormExpLemma35
+public import Balaban.Fluctuation.RenormExpCauchy
+public import Balaban.Fluctuation.RenormExpBounds
+public import Balaban.Fluctuation.RenormExpG
+public import Balaban.Fluctuation.RenormExpDiff
