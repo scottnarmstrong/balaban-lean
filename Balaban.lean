@@ -1042,6 +1042,11 @@ public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Fluctuation.HatLabelsSplit
+public import Balaban.Fluctuation.HatLabelsGeom
+public import Balaban.Fluctuation.HatLabelsDep
+public import Balaban.Fluctuation.HatLabelsAct
+public import Balaban.Fluctuation.HatLabelsTerms
+public import Balaban.Fluctuation.HatLabelsExpansion
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum

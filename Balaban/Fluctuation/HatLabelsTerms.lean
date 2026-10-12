@@ -243,6 +243,55 @@ theorem labelAct_of_hatTerms {emb : (S.U × Fin N → ℂ) → F'} {ρ Rσ εU a
   exact ⟨{Z // Z ∈ 𝒵}, inferInstance, thickLabels 𝒵 h𝒵,
     fun u => ⟨Hf u, hHmeas u, hHdep u, fun Z Φ => hHbound u Z Φ, hHent⟩, hhol, hsum⟩
 
+theorem ae_norm_lt_fluctMeasure1 (N : ℕ) (p : ℝ) :
+    ∀ᵐ x ∂fluctMeasure1 N p, ‖x‖ < p := by
+  rw [ae_iff]
+  have hs : MeasurableSet {x : Rn N | ¬ ‖x‖ < p} :=
+    (measurableSet_lt measurable_norm measurable_const).compl
+  unfold fluctMeasure1
+  rw [Measure.smul_apply, withDensity_apply _ hs]
+  have : ∫⁻ x in {x : Rn N | ¬ ‖x‖ < p}, ENNReal.ofReal (fluctDensity N p x) = 0 := by
+    rw [setLIntegral_congr_fun hs (g := fun _ => 0) (fun x hx => by
+      have : ¬ ‖x‖ < p := hx
+      simp [fluctDensity, this])]
+    simp
+  rw [this]; simp
+
+/-- **The fluctuation variable lies in the disk `|ψ̂(u)| < p₁` `ν_{p₁}`-almost surely.** -/
+theorem StepSetting.ae_norm_nuFl (hp : 0 < S.p₁) :
+    ∀ᵐ x ∂S.nuFl, ∀ u, ‖x u‖ < S.p₁ := by
+  have := isProbabilityMeasure_fluctMeasure1 N hp
+  rw [ae_all_iff]
+  intro u
+  exact (measurePreserving_eval (fun _ : S.U => fluctMeasure1 N S.p₁) u).quasiMeasurePreserving.ae
+    (ae_norm_lt_fluctMeasure1 N S.p₁)
+
+/-- **The sum identity, almost surely**: on the support of `ν_{p₁}` (for `p₁ ≤ ρ`) the hat variable
+of the block variables of `x` is the complexification of `x`. -/
+theorem StepSetting.ae_hatOf_restr {ρ : ℝ} (hρ : 0 < ρ) (hp : 0 < S.p₁) (hpρ : S.p₁ ≤ ρ) :
+    ∀ᵐ x ∂S.nuFl, S.hatOf m₀ ρ hp ((S.blockSplit m₀ hp).restr x) = S.hatC x := by
+  filter_upwards [S.ae_norm_nuFl hp] with x hx
+  exact S.hatOf_restr m₀ hρ hp x fun u => ((hx u).trans_le hpρ).le
+
+/-- **`HatTerms` is inhabited** (no domains, zero expanded function): for every step and all
+parameters. -/
+theorem nonempty_hatTerms (ρ Rσ εU a : ℝ) :
+    Nonempty (HatTerms S m₀ (F' := Unit) (fun _ => ()) ρ Rσ εU a (0 : ℂ) Set.univ Set.univ
+      (fun _ _ _ _ => (0 : ℂ)) (fun _ _ _ => True) (fun _ _ _ => True)) :=
+  ⟨{ 𝒴 := ∅
+     T := fun _ _ _ _ _ => 0
+     b := fun _ => 0
+     loc := ⟨by simp, fun Y hY => absurd hY (Finset.notMem_empty Y),
+       fun Y hY => absurd hY (Finset.notMem_empty Y), fun Y hY => absurd hY (Finset.notMem_empty Y),
+       fun Y hY => absurd hY (Finset.notMem_empty Y)⟩
+     dom := fun Y hY => absurd hY (Finset.notMem_empty Y)
+     bd := fun Y hY => absurd hY (Finset.notMem_empty Y)
+     mem := Set.mem_univ _
+     agΘ := fun _ => trivial
+     xw := fun _ _ => Set.mem_univ _
+     ag := fun _ _ _ _ => trivial
+     meas := fun Y hY => absurd hY (Finset.notMem_empty Y) }⟩
+
 end Terms
 
 end Balaban.Fluctuation
