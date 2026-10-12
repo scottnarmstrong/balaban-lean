@@ -769,11 +769,17 @@ public import Balaban.Fluctuation.TraceEntropyInhab
 public import Balaban.Fluctuation.CubeAction
 public import Balaban.Fluctuation.CubeActionShift
 public import Balaban.Fluctuation.CubeActionBound
+public import Balaban.Fluctuation.CubeActionReal
+public import Balaban.Fluctuation.CubeActionRealBound
+public import Balaban.Fluctuation.CubeActionRealStar
 public import Balaban.Fluctuation.H7Bridge
 public import Balaban.Fluctuation.H7BridgeCube
 public import Balaban.Fluctuation.Theorem42Geom
 public import Balaban.Fluctuation.Theorem42Input
 public import Balaban.Fluctuation.Theorem42
+public import Balaban.Fluctuation.Theorem42RealVolume
+public import Balaban.Fluctuation.Theorem42RealStep1
+public import Balaban.Fluctuation.Theorem42RealFlow
 public import Balaban.Background.Prop51Mass
 public import Balaban.Fluctuation.RenormExpLemma35
 public import Balaban.Fluctuation.RenormExpCauchy
