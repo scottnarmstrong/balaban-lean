@@ -687,3 +687,5 @@ public import Balaban.Fluctuation.BackgroundChangeCompare
 public import Balaban.Fluctuation.BackgroundChangeExpansion
 public import Balaban.Fluctuation.BackgroundChangeLate
 public import Balaban.Fluctuation.TraceEntropyCells
+public import Balaban.Fluctuation.TraceEntropy
+public import Balaban.Fluctuation.TraceEntropyInhab

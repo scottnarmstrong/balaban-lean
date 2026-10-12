@@ -425,6 +425,11 @@ theorem aMulti_nonneg (d L : ℕ) : 0 ≤ aMulti d L := by
     Real.log_nonneg (by nlinarith)
   positivity
 
+theorem K0Multi_nonneg (d L : ℕ) : 0 ≤ K0Multi d L := by
+  unfold K0Multi
+  have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
+  exact div_nonneg (Real.exp_nonneg _) (by linarith)
+
 open Classical in
 /-- **Entropy of multiscale polymer domains through a point**: for `κ ≥ a_multi + 1`,
 `∑_{Y ∋ x₀} e^{-κ d̃^cov(Y)} ≤ K₀`, the sum over the multiscale polymer domains `Y` containing `x₀`
