@@ -676,3 +676,8 @@ public import Balaban.LargeField.R.ChainEstimate
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
+public import Balaban.SmallField.RenormClassTube
+public import Balaban.SmallField.RenormClassGE
+public import Balaban.SmallField.RenormClassCrude
+public import Balaban.SmallField.RenormClassFamily
+public import Balaban.SmallField.RenormClassTheorem
