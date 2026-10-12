@@ -176,4 +176,28 @@ theorem tensB_cov (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 
     rwa [dirD_add_comp hr] at this
   rw [c3, c1, c1]
 
+/-- The second moment tensor of a polymer: `Σ_{x,x'} B_X(x,x') (x - x')_μ (x - x')_{ν'}`. -/
+noncomputable def Sx (T : TermFamily d N) (i₀ i₁ : Fin N) (ν : ℝ) (X : Finset (Site d))
+    (μ ν' : Fin d) : ℂ :=
+  ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+    ((((x.1 - x'.1) μ : ℤ) : ℂ) * (((x.1 - x'.1) ν' : ℤ) : ℂ))
+
+theorem Sx_cov (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) {r : Site d → Site d}
+    (hr : IsLatGen r) {X : Finset (Site d)} (hX : X ∈ T.polys) (μ ν' : Fin d) :
+    Sx T i₀ i₁ ν (X.image r) μ ν' =
+      ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+        ((((r (x.1 - x'.1)) μ : ℤ) : ℂ) * (((r (x.1 - x'.1)) ν' : ℤ) : ℂ)) := by
+  unfold Sx
+  set e := hr.imageEquiv X with he
+  have h : ∀ F : ↥(X.image r) → ↥(X.image r) → ℂ, ∑ y : ↥(X.image r), ∑ y' : ↥(X.image r), F y y' =
+      ∑ x : ↥X, ∑ x' : ↥X, F (e x) (e x') := by
+    intro F
+    rw [← e.sum_comp (fun y => ∑ y' : ↥(X.image r), F y y')]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [← e.sum_comp (fun y' => F (e x) y')]
+  rw [h]
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun x' _ => ?_
+  rw [he, tensB_cov hP hρ hr hX x x']
+  simp only [IsLatGen.imageEquiv_val, ← hr.sub]
+
 end Balaban.SmallField
