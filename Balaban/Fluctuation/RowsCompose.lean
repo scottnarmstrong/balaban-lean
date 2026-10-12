@@ -199,4 +199,131 @@ theorem X1_isCellUnion_unit {m₀ j : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k
 
 end Blocks
 
+section Rows
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+
+/-- **T3.  Square-root image of the hat variable from raw data on the component.**  As
+`hatSqrtF_local`, with the raw data agreeing on `Y` only (`hdata`), the hat variables agreeing at the
+unit points of the blocks inside `Y`, and the conclusion at a unit point with block inside `Y`.
+Besides the level `IsLevel Gp (k+1)`, the geometric premises are that `X₁` is a union of complete
+cells of side `L ^ (k+1)` and that the marked centres lie in `cubeIdx Gp`. -/
+theorem hatSqrtF_rows (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) (hG : IsLevel Gp (k + 1))
+    (hconn : HatConn Gp)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hX₁ : IsCellUnion (L ^ (k + 1)) (X₁ : Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒞 : ∀ P ∈ 𝒞, P ∈ cubeIdx Gp)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
+    (ψh ψh' : unitPts Gp × Fin N → ℂ)
+    {b : unitPts Gp} (hb : UnitOut Gp Y b)
+    (hh : ∀ b' : unitPts Gp, UnitOut Gp Y b' → ∀ i, ψh (b', i) = ψh' (b', i)) (i : Fin N) :
+    (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh) (b, i) =
+      (hatSqrtF Gp a₁ ν F₁ s' (rawOf D') *ᵥ ψh') (b, i) := by
+  classical
+  exact hatSqrtF_rows_of_bgAgree hC hk hconn hMX hmar hα hsm hF₁ hs hs' hD hD' hY hs1 hs0 hag
+    (completeBlocks_of_isNnComp hG hX₁ h𝒞 hY)
+    (bgAgree_of_agree_on_component hC hconn hG hs hs' hD hD' hY hs1 hs0 hag hdata)
+    ψh ψh' hb hh i
+
+/-- **T3.  The hat-shifted field on the component from raw data on the component.**  As
+`hatPsiF_local`, with raw data agreeing on `Y` only and hat variables agreeing at the unit points of
+the blocks inside `Y`; the conclusion is at the sites of `Y`. -/
+theorem hatPsiF_rows (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (hconn : HatConn Gp)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hX₁ : IsCellUnion (L ^ (k + 1)) (X₁ : Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒞 : ∀ P ∈ 𝒞, P ∈ cubeIdx Gp)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
+    (ψh ψh' : unitPts Gp × Fin N → ℂ)
+    (hh : ∀ b' : unitPts Gp, UnitOut Gp Y b' → ∀ i, ψh (b', i) = ψh' (b', i)) :
+    ∀ y ∈ Y,
+      hatPsiF Gp a₁ ν hG' cc F₁ s (rawOf D) ψh y = hatPsiF Gp a₁ ν hG' cc F₁ s' (rawOf D') ψh' y := by
+  classical
+  exact hatPsiF_rows_of_bgAgree hC hk hG' cc hconn hMX hmar hα hsm hF₁ hs hs' hD hD' hY hs1 hs0 hag
+    (completeBlocks_of_isNnComp hG' hX₁ h𝒞 hY)
+    (bgAgree_of_agree_on_component hC hconn hG' hs hs' hD hD' hY hs1 hs0 hag hdata)
+    ψh ψh' hh
+
+end Rows
+
 end Balaban.Localization
+
+namespace Balaban.Fluctuation
+
+open Balaban.Localization Balaban.Polymer
+
+section Hat
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
+
+/-- **T4.  The `blocksOf` form of the hat hypothesis.**  Let `Y` be a union of complete cells of side
+`cellSide L m₀ m₁ (k+1)` and `Y₁ ⊆ Y`.  If two block configurations agree on the cubes of
+`blocksOf m₀ (k+1) univ Y` (the hypothesis of `DirectTerms.ag`), their hat variables agree at every
+unit point whose `(k+1)`-block lies in `Y₁` (`UnitOut S.G' Y₁`).  The cell-union property of `Y` is
+needed: the hat variable at a unit point reads the whole cube of side `cellSide` containing it. -/
+theorem StepSetting.hatOf_agree_unitOut (hN : L ^ m₀ ∣ N₁) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    {Y₁ : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsCellUnion (cellSide L m₀ m₁ (k + 1)) Y) (hY₁ : (Y₁ : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ Y)
+    (ρ : ℝ) (hp : 0 < S.p₁) (Φ Φ' : ∀ b, (S.blockSplit m₀ hp).Ωb b)
+    (h : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y, Φ b = Φ' b)
+    {b : S.U} (hb : UnitOut S.G' Y₁ b) (i : Fin N) :
+    S.hatOf m₀ ρ hp Φ (b, i) = S.hatOf m₀ ρ hp Φ' (b, i) := by
+  classical
+  obtain ⟨hxl, hxb⟩ := Classical.choose_spec ((mem_unitPts S.G').1 b.2)
+  set x := Classical.choose ((mem_unitPts S.G').1 b.2) with hxdef
+  have hxΩ : x ∈ S.G'.Ω 1 := S.G'.layer_subset (by omega) le_rfl hxl
+  have hxY₁ : x ∈ Y₁ := hb ⟨x, hxΩ⟩ (by simp only [hxb])
+  have hxY : x ∈ Y := hY₁ (Finset.mem_coe.2 hxY₁)
+  have hc : S.cellOf m₀ b = cubeOfSite m₀ x := rfl
+  have hcube : S.cellOf m₀ b ∈ blocksOf m₀ (k + 1) Set.univ Y := by
+    rw [hc]
+    refine mem_blocksOf.2 fun z hz => ?_
+    have hcb : cbase (cellSide L m₀ m₁ (k + 1)) z = cbase (cellSide L m₀ m₁ (k + 1)) x :=
+      cbase_eq_of_mem_box (cellSide_dvd hN le_rfl) (aligned_cbase x) hz
+    exact hY x hxY z ((sameCell_iff_cbase_eq (cellSide_pos m₀ m₁ (k + 1))).2 hcb)
+  have := h _ hcube
+  simp only [StepSetting.hatOf]
+  rw [this]
+
+end Hat
+
+end Balaban.Fluctuation
