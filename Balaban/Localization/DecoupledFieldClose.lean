@@ -1294,6 +1294,98 @@ theorem i4a_close_core {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c 
   obtain ⟨hEVa, hVE⟩ := close_arith hM_0 hVa0 hs2M hs2 hEΛ hE0
   exact ⟨fun x => (he_le x).trans hEVa, hWS.mono hVE⟩
 
+
+/-- **From the weights `e^{γ min(D, t)}` to the decay `e^{-γ D}`**: if
+`e^{γ min(D, t)} Q ≤ K` for every `t ≥ 0` then `Q ≤ K decay γ D` (and `Q = 0` if `D = ∞`). -/
+theorem decay_of_weighted {γ Q K : ℝ} (hγ : 0 < γ) (D : ENNReal)
+    (h : ∀ t : ℝ, 0 ≤ t → Real.exp (γ * (min D (ENNReal.ofReal t)).toReal) * Q ≤ K) :
+    Q ≤ K * decay γ D := by
+  by_cases hD : D = ⊤
+  · subst hD
+    rw [decay_top, mul_zero]
+    by_contra hpos
+    have hQ0 : 0 < Q := lt_of_not_ge hpos
+    have hK0 : 0 ≤ K := by
+      have := h 0 le_rfl
+      exact le_trans (by positivity) this
+    set t : ℝ := Real.log (K / Q + 1) / γ with ht
+    have hlog : 0 ≤ Real.log (K / Q + 1) :=
+      Real.log_nonneg (by have : 0 ≤ K / Q := by positivity
+                          linarith)
+    have ht0 : 0 ≤ t := by rw [ht]; positivity
+    have h2 := h t ht0
+    have hmin : (min (⊤ : ENNReal) (ENNReal.ofReal t)).toReal = t := by
+      rw [min_eq_right le_top, ENNReal.toReal_ofReal ht0]
+    rw [hmin, ht, mul_div_cancel₀ _ hγ.ne', Real.exp_log (by
+      have : 0 ≤ K / Q := by positivity
+      linarith)] at h2
+    have : (K / Q + 1) * Q = K + Q := by field_simp
+    linarith
+  · have hD' : D ≠ ⊤ := hD
+    have h1 := h D.toReal ENNReal.toReal_nonneg
+    rw [ENNReal.ofReal_toReal hD', min_self] at h1
+    rw [decay_of_ne_top hD']
+    calc Q = Real.exp (-(γ * D.toReal)) * (Real.exp (γ * D.toReal) * Q) := by
+          rw [← mul_assoc, ← Real.exp_add]; simp
+      _ ≤ Real.exp (-(γ * D.toReal)) * K :=
+          mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
+      _ = K * Real.exp (-(γ * D.toReal)) := mul_comm _ _
+
+
+theorem gammaW_pos' (hd : 0 < d) : 0 < gammaW d := by
+  unfold gammaW; have := agmonRate_pos hd; positivity
+
+/-- **Theorem I-4a (d): closeness to `s = 1` away from the parameters.**  Let `W` be a set of sites
+containing the interaction cube of every centre with `s_z ≠ 1`.  Then the solutions of the decoupled
+systems at `s` and at `s ≡ 1` (same data, `δ₀, δ₁ ≤ deltaClose`) satisfy, at every site `x`,
+`|δα(s) - δα(1)|₂(x)` and the value, forward gradient and Laplacian of `δφ(s) - δφ(1)` are at most
+`closeConst · e^{-γ_w d(x, W)}` (resp. twice that), with `closeConst = O(δ₁)`. -/
+theorem i4a_close {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c BG)
+    (hCl : CloseSpec d L c BG) (h1 : OneSpec d L c) (S : DGSetting G a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) {W : Finset (CTorus d L N₁ m₁ K)}
+    (hW : ∀ z ∈ cubeIdx G, sProd G (extS G s) z ≠ 1 → intBox z ⊆ W)
+    {ιU : Bool} {α₀ : G.Ω 1 → ℂ} {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ} (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaClose d L N BG κ) (hδ₁ : δ₁ ≤ deltaClose d L N BG κ)
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν (fun _ => 1) ιU α₀ φ₀ (pertSource G a δΨ f₁) δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖ ≤
+        closeConst d L N BG κ δ₁ * decay (gammaW d) (siteSetDist G W x)) ∧
+    (∀ (y : CTorus d L N₁ m₁ K) (i : Fin N),
+      ‖svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') y i‖ ≤
+        2 * closeConst d L N BG κ δ₁ * decay (gammaW d) (siteSetDist G W y)) ∧
+    (∀ x ∈ G.Ω 1, ∀ (μ : Fin d) (i : Fin N), G.spacing x *
+      ‖svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') (x + Pi.single μ 1) i -
+        svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') x i‖ ≤
+        2 * closeConst d L N BG κ δ₁ * decay (gammaW d) (siteSetDist G W x)) ∧
+    (∀ x ∈ G.Ω 1, ∀ i : Fin N, G.spacing x ^ 2 * ‖∑ μ : Fin d,
+      (2 * svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') x i -
+      svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') (x + Pi.single μ 1) i -
+      svec G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') (x - Pi.single μ 1) i)‖ ≤
+        2 * closeConst d L N BG κ δ₁ * decay (gammaW d) (siteSetDist G W x)) := by
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hγ := gammaW_pos' hd0
+  have core := fun t => i4a_close_core hF hD hCl h1 S hκ hM hs hW H hδ₀ hδ₁ hfix hsm hfix' hsm' t
+  refine ⟨fun x => ?_, fun y i => ?_, fun x hx μ i => ?_, fun x hx i => ?_⟩
+  · refine decay_of_weighted hγ _ (fun t _ => ?_)
+    exact (core t).1 x
+  · refine decay_of_weighted hγ _ (fun t _ => ?_)
+    exact (core t).2.val y i
+  · refine decay_of_weighted hγ _ (fun t _ => ?_)
+    exact (core t).2.fwd x hx μ i
+  · refine decay_of_weighted hγ _ (fun t _ => ?_)
+    exact (core t).2.lap x hx i
+
 end Close
 
 end Balaban.Localization
