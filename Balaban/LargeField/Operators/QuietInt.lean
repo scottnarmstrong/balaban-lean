@@ -98,10 +98,10 @@ theorem pi_pi_le_one {ι : Type*} [Fintype ι] {α : ι → Type*} [∀ i, Measu
   rw [Measure.pi_pi]
   exact Finset.prod_le_one fun i _ => h i
 
-open Classical in
 /-- The integral of the shell indicator over the new output variables is at most `1`. -/
 theorem lintegral_indOut_le_one (N : ℕ) (hN : 2 ≤ N) {α : Type} [Finite α] (V : Set α)
-    (P : α → Prop) {t : ℝ} (ht : 0 < t) (ht1 : t ≤ 1 / 2) (hct : cShell N * t ≤ 1) :
+    (P : α → Prop) {t : ℝ} (ht : 0 < t) (ht1 : t ≤ 1 / 2) (hct : cShell N * t ≤ 1)
+    [∀ on : OutPart N V P, Decidable (∀ y, |‖on y‖ ^ 2 - 1| < t)] :
     ∫⁻ on : OutPart N V P, (if ∀ y, |‖on y‖ ^ 2 - 1| < t then (1 : ℝ≥0∞) else 0)
       ∂(outPartMeasure N V P) ≤ 1 := by
   classical
@@ -124,12 +124,12 @@ section NewInt
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K : ℕ} [NeZero M] [NeZero S.L]
 
-open Classical in
 /-- The integral of the shell indicator over the new′ internal variables (all Lebesgue) is at
 most `1`. -/
 theorem lintegral_indNew_le_one (N : ℕ) (hN : 2 ≤ N) (a : LocalHistory S n M K) {k' : ℕ}
     (A : Set (InternalVars a k')) (hA : ∀ p ∈ A, p.isSpin = false) {t : ℝ} (ht : 0 < t)
-    (ht1 : t ≤ 1 / 2) (hct : cShell N * t ≤ 1) :
+    (ht1 : t ≤ 1 / 2) (hct : cShell N * t ≤ 1)
+    [∀ x' : SubCfg N a k' A, Decidable (∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t)] :
     ∫⁻ x' : SubCfg N a k' A, (if ∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t then (1 : ℝ≥0∞) else 0)
       ∂(subMeasure N a k' A) ≤ 1 := by
   have hset : {x' : SubCfg N a k' A | ∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t} =
@@ -167,8 +167,8 @@ theorem mWit_one (N : ℕ) [NeZero N] {c : ℝ} (hc : 0 < c) (a : LocalHistory S
 
 end NewInt
 
-open Classical in
-theorem measurable_indOut (N : ℕ) {α : Type} [Finite α] (V : Set α) (P : α → Prop) (t : ℝ) :
+theorem measurable_indOut (N : ℕ) {α : Type} [Finite α] (V : Set α) (P : α → Prop) (t : ℝ)
+    [∀ on : OutPart N V P, Decidable (∀ y, |‖on y‖ ^ 2 - 1| < t)] :
     Measurable fun on : OutPart N V P =>
       (if ∀ y, |‖on y‖ ^ 2 - 1| < t then (1 : ℝ≥0∞) else 0) := by
   have hset : {on : OutPart N V P | ∀ y, |‖on y‖ ^ 2 - 1| < t} =
@@ -179,10 +179,9 @@ theorem measurable_indOut (N : ℕ) {α : Type} [Finite α] (V : Set α) (P : α
     exact MeasurableSet.univ_pi fun _ => measurableSet_shellSet N t
   exact Measurable.ite hmeas measurable_const measurable_const
 
-open Classical in
 theorem measurable_indNew (N : ℕ) {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K : ℕ}
     [NeZero M] [NeZero S.L] (a : LocalHistory S n M K) {k' : ℕ} (A : Set (InternalVars a k'))
-    (t : ℝ) :
+    (t : ℝ) [∀ x' : SubCfg N a k' A, Decidable (∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t)] :
     Measurable fun x' : SubCfg N a k' A =>
       (if ∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t then (1 : ℝ≥0∞) else 0) := by
   have hset : {x' : SubCfg N a k' A | ∀ p : A, |‖VarVal.toEuc (x' p)‖ ^ 2 - 1| < t} =
