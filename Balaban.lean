@@ -1100,6 +1100,12 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31bInhab
+public import Balaban.Fluctuation.Thm31WitnessAnalytic
+public import Balaban.Fluctuation.Thm31WitnessData
+public import Balaban.Fluctuation.Thm31Witness
+public import Balaban.Fluctuation.Thm31WitnessMain
+public import Balaban.Fluctuation.Thm31bWitnessData
+public import Balaban.Fluctuation.Thm31bWitness
 public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
