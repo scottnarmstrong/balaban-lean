@@ -387,6 +387,7 @@ public import Balaban.LargeField.Geometry.Small
 public import Balaban.LargeField.Geometry.Components
 public import Balaban.LargeField.Geometry.LocalGlobal
 public import Balaban.LargeField.Geometry.DomainsMod
+public import Balaban.LargeField.Geometry.DomainsModBridge
 public import Balaban.LargeField.Geometry.TorusLift
 public import Balaban.LargeField.Geometry.LemmaSTorus
 public import Balaban.LargeField.Counter.LamStar
@@ -401,6 +402,7 @@ public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
 public import Balaban.LargeField.Background.MinimalGenSet
 public import Balaban.LargeField.Background.Lift
+public import Balaban.LargeField.Background.LiftSymm
 public import Balaban.LargeField.Background.CubeUnion
 public import Balaban.LargeField.Background.StepGenSets
 public import Balaban.LargeField.Background.StepGenSetsFlow
@@ -495,6 +497,8 @@ public import Balaban.LargeField.Operators.Pullback
 public import Balaban.LargeField.Operators.MainAction
 public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.QuietSymm
+public import Balaban.LargeField.Operators.ActionSymm
+public import Balaban.LargeField.Operators.QuietSymmEuclid
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
@@ -511,6 +515,7 @@ public import Balaban.LargeField.Operators.QuietBound
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
+public import Balaban.LargeField.Characteristic.RegSymm
 public import Balaban.LargeField.Characteristic.RealDomain
 public import Balaban.LargeField.Characteristic.Functions
 public import Balaban.LargeField.Characteristic.Stencil
