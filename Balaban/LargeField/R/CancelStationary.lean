@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.CancelIdentity
 public import Balaban.LargeField.R.DenominatorSqueeze
+public import Balaban.LargeField.R.Denominator
 public import Balaban.LargeField.R.PsiZeroHessInput
 public import Balaban.LargeField.R.PsiZeroHessLine
 public import Balaban.LargeField.R.PsiZeroHessRef
@@ -22,6 +23,10 @@ Convention: the massless reference of P7 (mass `0` in `BgHyp`).
 * `firstVar_basis`: the first variation `firstVar` of the effective action at a real block field `ψ` in the
   direction of the basis perturbation at `(z₀, i₀)`, `z₀` a block of `Z`, is
   `(a_k / L^{2k}) · L^{kd} · Re r(z₀, i₀)`, `r = ψ - Q_k φ_k(ψ)` the residual of Definition III.6.1.
+* `rBlk_psiZero_eq_zero`, `resZero_psiZero_eq_zero` (P7 (2.52)): the stationarity of `ψ⁰_k` gives `r = 0` on `Z₀`;
+* `psiZeroWin_eq_blockAvg_on_Z0`: `ψ⁰_{k₁,k} = Q φ⁰` over `Z₀`;
+* `cancellation_identity`: (2.58′) without the premises `hD0r`, `hZk1r`, `hDom`;
+* `smallness_satisfiable`: the numerical premises are jointly satisfiable.
 -/
 
 @[expose] public section
@@ -303,6 +308,30 @@ theorem psiZeroWin_eq_blockAvg_on_Z0 {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ
       hψ0 hxZ j) i
   exact sub_eq_zero.1 this
 
+
+include hd hk hw1 hwD hm hXreg hΩ hdata H in
+/-- **Non-vacuity of the numerical premises of the stationarity theorem**: under the geometry of
+Lemma III.3.3 there is `δ > 0` with `δ ≤ c₁₁` (the existence range of `psiZero`) and `K₆ δ < etaDen`
+(the smallness of `effAction_squeeze`).  The geometric premises themselves (`OverTop`, `hdata`, `hXreg`,
+`BgHyp`) have no landed concrete witness (the only landed generating set with such data is the empty one,
+for which `PsiZeroInput` is refuted, `not_psiZeroInput_emptyGen`). -/
+theorem smallness_satisfiable :
+    ∃ δ : ℝ, 0 < δ ∧ δ ≤ psiZeroC11 N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H ∧
+      psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H * δ < etaDen d L N D := by
+  have hK := psiZeroK_pos N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H
+  have hc := psiZeroC11_pos N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H
+  have he : 0 < etaDen d L N D := etaDen_pos (N := N) (D := D) (by omega)
+  refine ⟨min (psiZeroC11 N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)
+    (etaDen d L N D / (2 * psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)),
+    lt_min hc (by positivity), min_le_left _ _, ?_⟩
+  have h1 : min (psiZeroC11 N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)
+      (etaDen d L N D / (2 * psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)) ≤
+      etaDen d L N D / (2 * psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) := min_le_right _ _
+  calc _ ≤ psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H *
+        (etaDen d L N D / (2 * psiZeroK N G' a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)) :=
+        mul_le_mul_of_nonneg_left h1 hK.le
+    _ = etaDen d L N D / 2 := by field_simp
+    _ < _ := by linarith
 
 end Stationary
 
