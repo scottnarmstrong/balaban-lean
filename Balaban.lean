@@ -1282,3 +1282,5 @@ public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
+public import Balaban.Fluctuation.SharpFan
+public import Balaban.Fluctuation.SharpEngine
