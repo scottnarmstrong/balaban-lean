@@ -451,4 +451,124 @@ theorem norm_blockOf_baseOp_le (e : ι → Fin N → ℝ) (he : ∀ z, ∑ i, e 
 
 end Blocks
 
+section Assembly
+
+variable (G : GeneratingSet d L N₀ 1 ϱ) {N : ℕ}
+
+/-- The volume-independent row-sum constant `J = ν + 12 d + 4`. -/
+noncomputable def baseJ (d : ℕ) (ν : ℝ) : ℝ := ν + 12 * d + 4
+
+/-- The volume-independent range `R = d L + 1`. -/
+noncomputable def baseRange (d L : ℕ) : ℝ := d * L + 1
+
+omit [NeZero N₀] in
+theorem baseJ_pos {ν : ℝ} (hν : 0 ≤ ν) : 0 < baseJ d ν := by
+  unfold baseJ; positivity
+
+omit [NeZero N₀] [NeZero L] in
+theorem baseRange_pos : 0 < baseRange d L := by
+  unfold baseRange; positivity
+
+/-- **BASE-KERNEL-3 Theorem 1.1: volume-independent `J` and `R`.**  The block row and column sums of
+`A_e(s)` are at most `baseJ d ν = ν + 12 d + 4` and its blocks vanish beyond distance
+`baseRange d L = d L + 1`; neither depends on `N₀`, `D`, `α`, `s` or `e`. -/
+theorem baseOp_rowSum_range {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    {α : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ}
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    (∀ z y, blockOf (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) z y ≠ 0 →
+        siteDist G z y ≤ baseRange d L) ∧
+    (∀ z, ∑ y, ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) z y‖ ≤
+        baseJ d ν) ∧
+    (∀ y, ∑ z, ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) z y‖ ≤
+        baseJ d ν) := by
+  classical
+  set H := baseHamiltonian G a ν α s with hH
+  refine ⟨fun z y hne => ?_, fun z => ?_, fun y => ?_⟩
+  · by_cases hzy : z = y
+    · subst hzy
+      rw [siteDist_self]
+      unfold baseRange; positivity
+    · rw [blockOf_baseOp, if_neg hzy, add_zero] at hne
+      have hH0 : H z y ≠ 0 := fun h0 => hne (by rw [h0, zero_smul])
+      exact siteDist_le_of_ne_zero G a ν α s z y hzy hH0
+  · calc ∑ y, ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) H) z y‖
+        ≤ ∑ y, (‖H z y‖ + (if z = y then 1 else 0)) :=
+          Finset.sum_le_sum fun y _ => norm_blockOf_baseOp_le e he H z y
+      _ = ∑ y, ‖H z y‖ + 1 := by
+          rw [Finset.sum_add_distrib]
+          simp
+      _ ≤ baseJ d ν := by
+          have := baseHamiltonian_row_le G hν ha hα hη hs z
+          unfold baseJ; linarith
+  · calc ∑ z, ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) H) z y‖
+        ≤ ∑ z, (‖H z y‖ + (if z = y then 1 else 0)) :=
+          Finset.sum_le_sum fun z _ => norm_blockOf_baseOp_le e he H z y
+      _ = ∑ z, ‖H y z‖ + 1 := by
+          rw [Finset.sum_add_distrib]
+          simp [hH, baseHamiltonian_symm G a ν α s _ y]
+      _ ≤ baseJ d ν := by
+          have := baseHamiltonian_row_le G hν ha hα hη hs y
+          unfold baseJ; linarith
+
+/-- The explicit volume-independent decay rate with `J (e^{γR} - 1) = c/4`. -/
+noncomputable def baseDecayRate (d L : ℕ) (ν : ℝ) : ℝ :=
+  Real.log (1 + baseCoercivity L / (4 * baseJ d ν)) / baseRange d L
+
+omit [NeZero N₀] in
+theorem baseDecayRate_pos {ν : ℝ} (hν : 0 ≤ ν) : 0 < baseDecayRate d L ν := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hc := baseCoercivity_pos hL
+  have hJ := baseJ_pos (d := d) hν
+  unfold baseDecayRate
+  refine div_pos (Real.log_pos ?_) baseRange_pos
+  have : 0 < baseCoercivity L / (4 * baseJ d ν) := by positivity
+  linarith
+
+omit [NeZero N₀] in
+theorem baseJ_mul_exp_baseDecayRate {ν : ℝ} (hν : 0 ≤ ν) :
+    baseJ d ν * (Real.exp (baseDecayRate d L ν * baseRange d L) - 1) = baseCoercivity L / 4 := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hc := baseCoercivity_pos hL
+  have hJ := baseJ_pos (d := d) hν
+  have hR := baseRange_pos (d := d) (L := L)
+  have h1 : baseDecayRate d L ν * baseRange d L =
+      Real.log (1 + baseCoercivity L / (4 * baseJ d ν)) := by
+    unfold baseDecayRate; field_simp
+  have hpos : 0 < 1 + baseCoercivity L / (4 * baseJ d ν) := by positivity
+  rw [h1, Real.exp_log hpos]
+  field_simp
+  ring
+
+/-- **BASE-KERNEL-3 Theorem 1.1, (1.7), unconditional form.**  There is a rate
+`g = baseDecayRate d L ν > 0`, independent of `N₀`, `D`, `α`, `s`, `e`, such that
+`‖𝒞_{e,x}(s)(z,w)‖_op ≤ (c/4 + x)⁻¹ e^{-g d(z,w)}`, `c = 1/(4L²)`. -/
+theorem baseResolvent_decay {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    {α : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    {x : ℝ} (hx : 0 ≤ x) (z w : G.Ω 1) :
+    ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x) z w‖ ≤
+      (baseCoercivity L / 4 + x)⁻¹ * Real.exp (-baseDecayRate d L ν * siteDist G z w) := by
+  obtain ⟨hR, hrow, hcol⟩ := baseOp_rowSum_range G hν ha hα hη hs e he
+  exact baseResolvent_block_decay G hν ha hα hη0 hη hs e he hx hR baseRange_pos.le hrow hcol
+    (baseDecayRate_pos hν).le (baseJ_mul_exp_baseDecayRate hν).le z w
+
+/-- **BASE-KERNEL-3 Theorem 1.1, (1.7), square root, unconditional form:**
+`‖A_e(s)^{-1/2}(z,w)‖_op ≤ √(4/c) e^{-g d(z,w)}`. -/
+theorem baseSqrt_decay [Nonempty (G.Ω 1 × Fin N)] {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a)
+    {α : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (z w : G.Ω 1) :
+    ‖blockOf (Balaban.Localization.sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α s))) z w‖ ≤
+      Real.sqrt (4 / baseCoercivity L) * Real.exp (-baseDecayRate d L ν * siteDist G z w) := by
+  obtain ⟨hR, hrow, hcol⟩ := baseOp_rowSum_range G hν ha hα hη hs e he
+  exact baseSqrt_block_decay G hν ha hα hη0 hη hs e he hR baseRange_pos.le hrow hcol
+    (baseDecayRate_pos hν).le (baseJ_mul_exp_baseDecayRate hν).le z w
+
+end Assembly
+
 end Balaban.LargeField.Base
