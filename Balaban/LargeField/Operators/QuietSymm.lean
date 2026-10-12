@@ -39,7 +39,6 @@ section Prelim
 
 variable {N : ℕ}
 
-/-- The real matrix of an element of `O(N)`. -/
 /-- The real matrix `(R_{ij})` of an element `R` of `O(N)`. -/
 noncomputable def rotMat (ρ : OrthN N) : Matrix (Fin N) (Fin N) ℝ := Matrix.of fun i j => rotEntry ρ i j
 
@@ -56,7 +55,6 @@ theorem rot_apply_eq (ρ : OrthN N) (v : EuclideanSpace ℝ (Fin N)) (i : Fin N)
   rw [rot_apply_coord]; rfl
 
 
-/-- The rotation of a real block configuration. -/
 /-- The rotation `ψ ↦ Q ψ` of a real block configuration. -/
 def rotBC {d N₀ L k j : ℕ} (Q : Matrix (Fin N) (Fin N) ℝ) (ψ : BlockCfg d N₀ L k j N) :
     BlockCfg d N₀ L k j N := fun z => Q *ᵥ ψ z
