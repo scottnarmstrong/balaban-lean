@@ -997,6 +997,7 @@ public import Balaban.LargeField.Def7v2Interface
 public import Balaban.LargeField.Def7v2Form
 public import Balaban.LargeField.Def7v2Class
 public import Balaban.LargeField.Def7v2Variants
+public import Balaban.LargeField.Def7v2Inhabited
 public import Balaban.Localization.CubeFoldGeometry
 public import Balaban.Localization.CubeFoldRow
 public import Balaban.Localization.CubeFoldPoisson
