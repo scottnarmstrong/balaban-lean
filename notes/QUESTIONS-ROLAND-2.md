@@ -138,3 +138,31 @@ The printed transfer has no term that grows with T.
 large-field cubes that Y contains, paid by the large-field factor of the new region (the exponent
 p(β_k)-type smallness per new cube)? That is the repair we plan to use. Or is there a restriction on
 𝖯, or on which boundary terms X occur next to a new hole, that we have missed?
+
+**Addendum to 14 (after working out the proposed repair; details: `notes/phase1/VMOD-17.md`).**
+
+The repair named in the question does not go through as stated, for two reasons.
+
+(a) The positive part of the large-field exponent counts the new seed cubes of the step only:
+κ^{(k)}(Z′) = a_k·N(Z′) − b_k·O(Z′) with N(Z′) the number of cubes of 𝖯 ∪ 𝖰 ∪ 𝖱 ∪ 𝖲 in Z′
+(P6 (3.9)–(3.11)). But Ω_{k+1}^c also grows around the old region with no new seed: if
+𝖯 = 𝖰 = 𝖱 = 𝖲 = ∅ at step k+1 and Z_k ≠ ∅, the neighbourhood of Z_k removed by P5 (2.8) at the
+new scale contains cells outside the old hole, while N = 0. A collar made of such cells has
+nothing to be charged to.
+
+(b) P5 (H7) and the boundary clause of P6 ask for a bound on each boundary coefficient B(Y) by
+itself. The large-field factor belongs to the operator of the region, not to a single coefficient,
+so using it would need a joint norm for the pair (operator, boundary term), that is, a different
+inductive hypothesis.
+
+**Question (revised).** Which of these did you intend?
+
+(i) The modular size d_{k+1}(Y mod Ω_{k+1}^c) is not meant to charge the blocks of π′_{k+1} that lie
+    in Y only because they meet a hole component contained in Y; in other words a hole is taken
+    together with its one-block collar, and the tree of P5 (1.34) need only meet the other blocks of
+    Y ∩ Ω_{k+1}. Then the long thin hole costs nothing and the printed transfer holds.
+(ii) A boundary term that touches a new hole is not re-expanded as a boundary term at scale k+1 but
+    stays in the integrand of the new large-field operation for that component.
+(iii) Something else.
+
+We are examining (i) and (ii).
