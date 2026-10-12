@@ -169,6 +169,28 @@ theorem h_le_bar (j : ℕ) : (S.h j : ℝ) ≤ S.hBar (S.lam j) := by
   push_cast
   linarith
 
+
+theorem h_mono : Monotone S.h := by
+  intro a b hab
+  unfold Setting.h
+  have hL := ok.cast_L_ge
+  have h1 := ok.numax_mono hab
+  have h2 := ok.crit_mono hab
+  have h3 := ok.omega_mono hab
+  have h1' : (S.numax a : ℝ) ≤ S.numax b := by exact_mod_cast h1
+  have h2' : (S.crit a : ℝ) ≤ S.crit b := by exact_mod_cast h2
+  have h3' : (S.omega a : ℝ) ≤ S.omega b := by exact_mod_cast h3
+  have harg := ok.h_arg_ge a
+  have : Real.logb S.L (2 * Real.sqrt S.d * S.numax a * S.M * (S.crit a + S.omega a)) ≤
+      Real.logb S.L (2 * Real.sqrt S.d * S.numax b * S.M * (S.crit b + S.omega b)) := by
+    apply Real.logb_le_logb_of_le (by linarith) (by linarith)
+    have : (0 : ℝ) ≤ Real.sqrt S.d := Real.sqrt_nonneg _
+    have : (0 : ℝ) ≤ S.M := Nat.cast_nonneg _
+    have : (0 : ℝ) ≤ S.numax a := Nat.cast_nonneg _
+    gcongr
+  have := Nat.ceil_le_ceil this
+  omega
+
 theorem n2_le_bar (j : ℕ) : (S.n2 j : ℝ) ≤ S.n2Bar (S.lam j) := by
   unfold Typing.n2Bar
   have hL := ok.cast_L_ge

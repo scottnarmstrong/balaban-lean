@@ -126,9 +126,13 @@ def t4E {ι : Type*} (μ : ℕ) (parts : Finset ι) (f : ι → Book) : Finset �
 noncomputable def t4t0 {ι : Type*} (parts : Finset ι) (f : ι → Book) (s' : ℕ) : ℕ :=
   max (t4Q parts f + S.nq (t4Q parts f)) (s' + S.n2 s')
 
-/-- The ripeness time `T = min {t ≥ t₀ : k₁(t) ∉ B(E)}` of (B.3). -/
+/-- `T = min {t ≥ t₀ : k₁(t) ∉ B(E)}`. -/
+noncomputable def Tmin (E : Finset ℕ) (t0 : ℕ) : ℕ :=
+  sInf {t : ℕ | t0 ≤ t ∧ S.k1 t ∉ S.blocked E}
+
+/-- The ripeness time `T` of (B.3). -/
 noncomputable def t4T {ι : Type*} (μ : ℕ) (parts : Finset ι) (f : ι → Book) (s' : ℕ) : ℕ :=
-  sInf {t : ℕ | S.t4t0 parts f s' ≤ t ∧ S.k1 t ∉ S.blocked (t4E μ parts f)}
+  S.Tmin (t4E μ parts f) (S.t4t0 parts f s')
 
 /-- The new core `q' = k₁(T)`. -/
 noncomputable def t4q {ι : Type*} (μ : ℕ) (parts : Finset ι) (f : ι → Book) (s' : ℕ) : ℕ :=
