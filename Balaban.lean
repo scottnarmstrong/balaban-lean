@@ -1085,6 +1085,10 @@ public import Balaban.Fluctuation.HatLabelsDep
 public import Balaban.Fluctuation.HatLabelsAct
 public import Balaban.Fluctuation.HatLabelsTerms
 public import Balaban.Fluctuation.HatLabelsExpansion
+public import Balaban.Fluctuation.HatDiagContBase
+public import Balaban.Fluctuation.HatLocIntDm
+public import Balaban.Fluctuation.HatPolyDom
+public import Balaban.Fluctuation.HatLabelsDm
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
