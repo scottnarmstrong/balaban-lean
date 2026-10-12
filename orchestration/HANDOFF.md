@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W213 | `w213-label-sum` / W213 | CubeLabels/LabelAct sums; source segment of the activity bound (zero class, g ≠ 0) |
 | W214 | `w214-ripe-removal` / W214 | admissible RegionHistory with a ripe removal; Geo; windowOfHistory at it |
 | W215 | `w215-rho-physical` / W215 | rhoZeroPhysical (physical mass term), R_normalization_ripe, R_normalizationPhysical |
-| W216 | `w216-collar-chidom` / W216 | collar bounds from ChiDomProp; Geo + nonempty inner collar witness; (Λ21′) check |
+| W221 | `w221-ripe-geo` / W221 (on W216) | ripe window with a Geo (M ≥ 14, genuine radii); windowOfHistory instantiated; inner collar |
 | W217 | `w217-cover-equiv` / W217 | chosen-cover size vs the papers' all-cubes size (OPEN-COVER-EQUIVALENCE) |
 | W220 | `w220-cancel-witness` / W220 (on W207) | concrete instance of cancellation_identity (P8 non-vacuity) |
 | W219 | `w219-marks-witness` / W219 | non-degenerate InterpMarks/ObsMarks witnesses; Thm 3.1 instantiated |
