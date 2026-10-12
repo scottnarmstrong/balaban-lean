@@ -144,10 +144,6 @@ theorem mCore_im {v : Fin N → ℂ} (hv : ∀ l, (v l).im = 0) (i : Fin N) : (m
 theorem vn_smul_c (c : ℂ) (v : Fin N → ℂ) : vn (c • v) = ‖c‖ * vn v := by
   unfold vn; rw [WithLp.toLp_smul, norm_smul]
 
-theorem vn_sq (v : Fin N → ℂ) : vn v ^ 2 = ∑ l, ‖v l‖ ^ 2 := by
-  unfold vn
-  rw [EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg fun _ _ => by positivity)]
-
 theorem vn_mCore_le {v : Fin N → ℂ} {B : ℝ} (hB : vn v ≤ B) :
     vn (mCore v) ≤ (B ^ 2 + 1) * B := by
   have h0 := vn_nonneg v
