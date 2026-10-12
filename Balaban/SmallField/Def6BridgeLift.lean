@@ -630,14 +630,18 @@ noncomputable def liftWt (P : Consts) (j : ℕ)
     (X : ↥(liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j)) : ℝ :=
   wt P.κ X.1 (sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P.m₀ j (Ypoly j X.1))
 
-/-- **The data domain of the lifted family**: the configurations `(ψ, b)` all of whose polymer
-restrictions give torus fields in `Ξ^c_j`. -/
+/-- **The data domain of the lifted family**: the configurations `(ψ, b)` such that for every
+shape, the restriction to the polymer extends to torus fields in `Ξ^c_j(𝔹_j(Y); 1, ε_j)`
+(`ℰ` depends on the restriction to `Y` only, by locality). -/
 def liftDom (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k N ϱ) (j : ℕ) (i₀ : Fin N) :
     Set ((Site d → Spin N) × Spin N) :=
   {p | ∀ X' ∈ liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
-    XiDom (Tm.gs j (Ypoly j X')) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
-      (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' (pack X' p.1 p.2))
-      (hOf (nuIdeal L k (ν k) j) X' (pack X' p.1 p.2))}
+    ∃ (Ψ h : Fld d L N₁ m₁ k N),
+      (∀ x ∈ Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X',
+        Ψ x = fieldOf j i₀ X' (pack X' p.1 p.2) x ∧
+          h x = hOf (nuIdeal L k (ν k) j) X' (pack X' p.1 p.2) x) ∧
+      XiDom (Tm.gs j (Ypoly j X')) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
+        Ψ h}
 
 /-- On the ball the term of the lifted family is the class term (the representative at the
 origin). -/
@@ -665,7 +669,13 @@ theorem LiftCtx.bdd_dom (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fi
     exact ctx.norm_Eaux_le i₀ hX h0 (ctx.mem_xiDom i₀ hX h3)
   · unfold termL
     simp only [hex, dite_false]
-    exact ctx.norm_Eaux_le i₀ hX h0 (hp X' ⟨h0, hnw, hX⟩)
+    obtain ⟨Ψ, h, hag, hXi⟩ := hp X' ⟨h0, hnw, hX⟩
+    have hloc : Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' (pack X' p.1 p.2) =
+        Tm.E j 0 (Ypoly j X') Ψ h := by
+      unfold Eaux
+      exact (ctx.sf.localE j 0 (Ypoly j X') _ _ _ _ (fun x hx => ⟨(hag x hx).1.symm, (hag x hx).2.symm⟩))
+    rw [hloc]
+    exact ctx.sf.boundE j ctx.j1 ctx.jk 0 (Ypoly j X') hX (zero_mem_Ypoly h0) Ψ h hXi
 
 
 /-- **The fields of `PremisesTerm` supplied by the class** for the lifted family: the geometry
@@ -713,38 +723,6 @@ theorem IsSFFamily.liftCtx {β ν a : ℕ → ℝ} {Ek : ℕ → ℝ}
   ⟨hF.torus N₁, bgHyp_of_class hF.admissible hF.coeff hd hL hϱ, hF.coeff.nu_pos, hj1, hjk, hρ0,
     hrad⟩
 
-
-/-- **`IsSFFamily.premisesTerm`**: a member of the class supplies the analytic premises of the
-termwise I-6 at each scale `1 ≤ j ≤ k` on every torus, for the lifted family `liftTF`, with the
-radius `ρ ≍ ε_j²` of `hrad`.  The fields `diam`, `count_*` (the counting facts (G1), (G2), (G5),
-`geo_*`) and `sym_*` enter as the internal hypotheses of `LiftCtx.premisesTerm`. -/
-theorem IsSFFamily.premisesTerm {β ν a : ℕ → ℝ} {Ek : ℕ → ℝ}
-    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
-    {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
-      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
-    (hF : IsSFFamily P β ν a Tm ρd Ek) (N₁ : ℕ) [NeZero N₁] (hd : 3 ≤ d) (hL : 3 ≤ L)
-    (hϱ : bgR0 d L ≤ ϱ) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hρ0 : 0 < ρ)
-    (hrad : ∃ δ : ℝ, 0 < δ ∧ δ ≤ bgC0 d L N ∧ δ ≤ bgC1 d L N ∧
-      (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j ∧ (N : ℝ) * (ρ * (1 + N * rotB N)) < δ ^ 2)
-    {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {A K₀ : ℝ}
-    (geo_diam : ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j, ∀ x ∈ X,
-      ((∑ μ, |x μ| : ℤ) : ℝ) ≤ A * (1 + sizeJ (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)
-        P.m₀ j (Ypoly (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X)))
-    (geo_summable : Summable (liftWt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j))
-    (geo_le : (∑' X, liftWt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j X) ≤ K₀)
-    (sym_mem : ∀ r : Site d → Site d, IsLatGen r →
-      ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
-        X.image r ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j)
-    (sym_inv : ∀ r : Site d → Site d, IsLatGen r →
-      ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
-        ∀ (ψ : Site d → Spin N) (b : Spin N),
-          termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) ρ (X.image r)
-              (pack (X.image r) (fun x => ψ (r x)) b) =
-            termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) ρ X (pack X ψ b)) :
-    PremisesTerm (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ (Tm N₁)) i₀ i₁ (nuIdeal L k (ν k) j) ρ
-      P.E₀ P.κ A K₀ (liftDom P β ν a (Tm N₁) j i₀) :=
-  (hF.liftCtx N₁ hd hL hϱ hj1 hjk hρ0 hrad).premisesTerm hne geo_diam geo_summable geo_le sym_mem
-    sym_inv
 
 end Core
 
