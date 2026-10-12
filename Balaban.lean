@@ -510,6 +510,8 @@ public import Balaban.SmallField.Def6AvgGeom
 public import Balaban.SmallField.Def6AvgFamily
 public import Balaban.SmallField.Def6AvgLimit
 public import Balaban.SmallField.Def6AvgDens
+public import Balaban.SmallField.Def6AvgSumConst
+public import Balaban.SmallField.Def6AvgSumConds
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Ancestors
