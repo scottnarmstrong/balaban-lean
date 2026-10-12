@@ -435,3 +435,6 @@ public import Balaban.LargeField.Budget.LemmaB
 public import Balaban.LargeField.Budget.LogC
 public import Balaban.LargeField.Budget.Summability
 public import Balaban.LargeField.Budget.Labelled
+public import Balaban.LargeField.Budget.RecordForward
+public import Balaban.LargeField.Budget.CanonicalBook
+public import Balaban.LargeField.Budget.KeptPositions
