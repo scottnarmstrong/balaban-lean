@@ -596,6 +596,101 @@ theorem EresJ2_sub_remainder_le_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ 
   rw [EresJ2_eq_EresAt]
   exact EresAt_sub_remainder_le_of_radialCoeff vc hv hN hj hv1 g
 
+/-! ### (T4) The sum over scales -/
+
+/-- The sites of the torus of the context. -/
+abbrev SiteT (C : SFCtx S n R M K N k m₁ ϱ) : Type := Localization.CTorus S.d S.L C.N₁ m₁ k
+
+open Classical in
+/-- The charge of one inherited level: the grouped regional correction plus the omitted tail. -/
+noncomputable def groupedCharge (j : ℕ) (Y : Set (Torus S.d (n k))) (R' Bc : Finset (SiteT C))
+    (ψ : Fld S.d S.L C.N₁ m₁ k N) (h : Fin N → ℂ) (νj : ℝ) (a : SiteT C → ℂ)
+    (v₂ : SiteT C → SiteT C → ℂ) (E : SiteT C → Set (SiteT C) → ℂ) : ℝ :=
+  ‖AtermRegion a (fun x => dot (ψ x) (ψ x)) R' - corrSum (fun y x => a (x - y)) v₂ νj R' Bc ψ h‖ +
+    ‖∑ y ∈ R', tailAt (polyUniv C j) E (C.sset (thickY R Y)) y‖
+
+theorem scaleJ_rpow_eq (L k m : ℕ) [NeZero L] (hm : m ≤ k) :
+    scaleJ L k (k - m) = (L : ℝ) ^ (-(m : ℝ)) := by
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold scaleJ
+  rw [Nat.sub_sub_self hm, Real.rpow_neg hL.le, Real.rpow_natCast]
+
+open Classical in
+/-- **(T4) The sum over scales.**  For each gap `m = k - j` with `n₁ ≤ m ≤ k` suppose
+`GroupedInputs` at the level `j = k - m` (with common constants, `ε_j` and the data depending on
+`j`) and at most `Γ_E s^{-d}` centres, `s = L^{-m}`.  Then the charge per new cube, summed over the
+gaps `m ≥ n₁`, is at most
+`Γ_E (C₁ + C₂ + C_T) E₀ L^{-n₁ α₃} / (1 - L^{-α₃})`. -/
+theorem charge_sum_grouped (hN : S.L ^ C.m₀ ∣ C.N₁) (hL : 1 < (S.L : ℝ))
+    (Y : Set (Torus S.d (n k))) (R' Bc : ℕ → Finset (SiteT C)) (ψ : ℕ → Fld S.d S.L C.N₁ m₁ k N)
+    (h : Fin N → ℂ) (νj : ℕ → ℝ) (a : ℕ → SiteT C → ℂ) (v₂ : ℕ → SiteT C → SiteT C → ℂ)
+    (c cv : ℕ → Set (SiteT C) → SiteT C → SiteT C → ℂ) (E : ℕ → SiteT C → Set (SiteT C) → ℂ)
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εq Γ : ℝ} (εj : ℕ → ℝ) (n₁ : ℕ) (hn₁ : n₁ ≤ k)
+    (hα₃ : 0 < α₃) (hΓ : 0 ≤ Γ)
+    (hin : ∀ m, n₁ ≤ m → m ≤ k →
+      GroupedInputs C (k - m) Y (R' (k - m)) (Bc (k - m)) (ψ (k - m)) h (νj (k - m)) (a (k - m))
+        (v₂ (k - m)) (c (k - m)) (cv (k - m)) (E (k - m)) E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B
+        (εj (k - m)) εq)
+    (hcard : ∀ m, n₁ ≤ m → m ≤ k →
+      ((R' (k - m)).card : ℝ) ≤ Γ * scaleJ S.L k (k - m) ^ (-dd)) (n : ℕ) :
+    ∑ i ∈ Finset.range n, (if n₁ + i ≤ k then
+        groupedCharge (C := C) (k - (n₁ + i)) Y (R' (k - (n₁ + i))) (Bc (k - (n₁ + i)))
+          (ψ (k - (n₁ + i))) h (νj (k - (n₁ + i))) (a (k - (n₁ + i))) (v₂ (k - (n₁ + i)))
+          (E (k - (n₁ + i))) else 0) ≤
+      Γ * (farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R + v2Const (S := S) κ κ₀ B C₀ K_r K_R +
+          tailConst C κ κ₀ Rs dd α₃) * E₀ *
+        ((S.L : ℝ) ^ (-((n₁ : ℝ) * α₃)) / (1 - (S.L : ℝ) ^ (-α₃))) := by
+  set Kc := farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R + v2Const (S := S) κ κ₀ B C₀ K_r K_R +
+    tailConst C κ κ₀ Rs dd α₃ with hKc
+  have g0 := hin n₁ le_rfl hn₁
+  have hKnn : 0 ≤ Kc := by
+    have := g0.consts_nonneg; have := g0.tailConst_nonneg
+    rw [hKc]; linarith [this]
+  have hE0 := g0.E₀_nonneg
+  -- the charge sequence
+  let cs : ℕ → ℝ := fun m => if n₁ ≤ m ∧ m ≤ k then
+    groupedCharge (C := C) (k - m) Y (R' (k - m)) (Bc (k - m)) (ψ (k - m)) h (νj (k - m))
+      (a (k - m)) (v₂ (k - m)) (E (k - m)) else 0
+  have hcs : ∀ m, cs m ≤ Γ * Kc * E₀ * (S.L : ℝ) ^ (-((m : ℝ) * α₃)) := by
+    intro m
+    by_cases hm : n₁ ≤ m ∧ m ≤ k
+    · simp only [cs, hm, and_self, ↓reduceIte]
+      obtain ⟨hm1, hm2⟩ := hm
+      have g := hin m hm1 hm2
+      have hj : k - m ≤ k := Nat.sub_le _ _
+      have h1 := grouped_bound_power hN hj g
+      have h2 := omitted_tail_power hN hj g
+      have hs0 := scaleJ_pos S.L k (k - m)
+      have hcd := hcard m hm1 hm2
+      have hnn : 0 ≤ Kc * E₀ * scaleJ S.L k (k - m) ^ (dd + α₃) := by positivity
+      unfold groupedCharge
+      calc _ ≤ ((R' (k - m)).card : ℝ) * (Kc * E₀ * scaleJ S.L k (k - m) ^ (dd + α₃)) := by
+            refine (add_le_add h1 h2).trans (le_of_eq ?_)
+            rw [hKc]; ring
+        _ ≤ Γ * scaleJ S.L k (k - m) ^ (-dd) * (Kc * E₀ * scaleJ S.L k (k - m) ^ (dd + α₃)) :=
+            mul_le_mul_of_nonneg_right hcd hnn
+        _ = Γ * Kc * E₀ * scaleJ S.L k (k - m) ^ α₃ := by
+            have : scaleJ S.L k (k - m) ^ (-dd) * scaleJ S.L k (k - m) ^ (dd + α₃) =
+                scaleJ S.L k (k - m) ^ α₃ := by
+              rw [← Real.rpow_add hs0]; congr 1; ring
+            calc _ = Γ * Kc * E₀ * (scaleJ S.L k (k - m) ^ (-dd) *
+                  scaleJ S.L k (k - m) ^ (dd + α₃)) := by ring
+              _ = _ := by rw [this]
+        _ = _ := by
+            rw [scaleJ_rpow_eq S.L k m hm2]
+            have hL0 : (0 : ℝ) < S.L := by linarith
+            rw [← Real.rpow_mul hL0.le]
+            congr 3
+            ring
+    · simp only [cs, hm, ↓reduceIte]
+      positivity
+  have hsum := charge_sum_le hL hα₃ hΓ hKnn hE0 n₁ n cs hcs
+  refine le_trans (le_of_eq ?_) hsum
+  refine Finset.sum_congr rfl fun i _ => ?_
+  by_cases hi : n₁ + i ≤ k
+  · simp [cs, hi]
+  · simp [cs, hi]
+
 end Concrete
 
 end Balaban.LargeField.RegionalGroupedBound
