@@ -21,7 +21,7 @@ Claude workers (background subagents of this session):
 | W137b | `w137-thm42-cubes` / W137 | Thm 4.2 non-bulk cubes + aggregation |
 | W144 | `w144-spine` / W144 | canonical spine; image histories for k₀ > 0 |
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): vmod VMOD-10 (tag VMOD10), q13 PIN-I6 (PINI6), fluctfix GRAPH-GM-2 (GRAPHGM2). Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): q13 COLLAR-RULING then PIN-JET (tags COLLAR, PINJET), vmod VMOD-11 (VMOD11), fluctfix GRAPH-GM-3 (GRAPHGM3). Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
