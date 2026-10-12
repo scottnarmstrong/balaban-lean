@@ -2,6 +2,7 @@ module
 
 public import Balaban.LargeField.R.DeltaPsiCore
 public import Balaban.LargeField.R.DeltaPhi
+public import Balaban.LargeField.R.DeltaPsiBdryLayer
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -16,7 +17,7 @@ The three pieces of the window generating set `𝔹_{k₁,k} = (𝔹_{k₁}(W) �
 * boundary piece (`deltaPsi_bdry_eq_zero`): a site of `U^∼_k ∖ Z` lies in the single top layer of
   `𝔹_k(U_k)`, and `ψ⁰_k = ψ_k` off `Z` (P7 (2.44)), so `δψ = 0`.
 
-`deltaPsi_le_pieces` is (2.48′) on `Ω₁(𝔹_{k₁,k})`: `|δψ| ≤ C₂₃ Ŵ_k δ_{max(k₁, min(n,k))}` for `x` of layer `n`.
+`deltaPsi_le_pieces'` is (2.48′) on `Ω₁(𝔹_{k₁,k})` minus the lower boundary layers: `|δψ| ≤ C₂₃ Ŵ_k δ_{max(k₁, min(n,k))}` for `x` of layer `n`.
 `dataChangeBound_of_collar` assembles `DataChangeBound` from it and the collar inequality.
 -/
 
@@ -108,12 +109,19 @@ bounds on `Ω_k` and `< C₂₃ Ŵ_k δ_j` on `Λ_j`, `k₁ ≤ j < k`, and `≤
 
 Premises beyond `deltaPsi_le_outer` are those of the core piece (`deltaPsi_core_lt`: `hTreg`, `hmW`,
 `hreach`, and `hcoreTop`: the core sites of `Z_{k₁}` lie in the top layer `k₁` of `𝔹_{k₁}(W)`) and of the
-boundary piece (`hbl`, `hoff`).
+boundary piece (`hoff`).
 
-*Naming*: this is stated for an abstract `WindowPieces`, with `hreach`, `hcoreTop`, `hbl` and `hoff` as
+*Domain restriction (replaces the old premise `hbl`).*  The old theorem `deltaPsi_le_pieces` assumed that every
+boundary-piece site of `Ω₁` lies in the top layer `k` of `𝔹_k(U_k)`.  That is false for the actual window when
+`k ≥ 2` and `U_k ≠` torus (`not_bdry_top_of_data`): the cubes of `Ω_{k-1} ∖ Ω_k` next to `U_k` lie in
+`U^∼_k ∖ Z`.  Here the conclusion is therefore asserted for the sites `x` with `hxb` (a boundary-piece site, if
+`x` is one, is in the top layer of `𝔹_k(U_k)`), i.e. on the core, outer and top-boundary sites.  The bound on the
+lower layers of `𝔹_k(U_k) ∩ Z^c ∩ U^∼_k` is not covered (see `DeltaPsiBdryLayer`).
+
+*Naming*: this is stated for an abstract `WindowPieces`, with `hreach`, `hcoreTop` and `hoff` as
 premises. The name `deltaPsi_le` stays reserved for the version on the actual ripe window, with the reach,
 top-layer and off-`Z` facts derived from the history and `psiZero`. -/
-theorem deltaPsi_le_pieces
+theorem deltaPsi_le_pieces'
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -143,10 +151,10 @@ theorem deltaPsi_le_pieces
           ∃ s ∈ (H.locGen Z S.M hkK hL hR).layer (S.k1 k), s ∉ H.locFine Z S.M (S.k1 k) ∧
             jBlock S.d S.L (S.M * n k) k (S.k1 k) s = u m)
     (hcoreTop : ∀ x ∈ W.Zk1, x ∈ W.core.Ω 1 → x ∈ W.core.layer (S.k1 k))
-    (hbl : ∀ x ∈ W.Unb, x ∉ W.Z → x ∈ W.bdry.Ω 1 → x ∈ W.bdry.layer k)
     (hoff : ∀ x ∈ W.Unb, x ∉ W.Z →
       ψ0 ⟨k, jBlock S.d S.L (S.M * n k) k k x⟩ = ψ ⟨k, jBlock S.d S.L (S.M * n k) k k x⟩)
-    {x : Torus S.d (S.M * n k * S.L ^ k)} (hx : x ∈ (W.windowGenSet hWh).Ω 1) :
+    {x : Torus S.d (S.M * n k * S.L ^ k)} (hx : x ∈ (W.windowGenSet hWh).Ω 1)
+    (hxb : x ∈ W.Unb → x ∉ W.Z → x ∈ W.bdry.Ω 1 → x ∈ W.bdry.layer k) :
     vn (deltaPsi (W.windowGenSet hWh) W.bdry (compWeight S.L a₁) ψ ψ0 h x) ≤
       (3 * S.d * S.L + 2) * S.hatW ε k *
         δ (max (S.k1 k) (min ((W.windowGenSet hWh).layerIndex x) k)) := by
@@ -171,7 +179,7 @@ theorem deltaPsi_le_pieces
   simp only [Finset.mem_union, Finset.mem_inter, Finset.mem_sdiff] at hxmem
   obtain ⟨hj01, hj0k, hxj0⟩ := (W.windowGenSet hWh).layerIndex_spec hx
   set j := (W.windowGenSet hWh).layerIndex x with hjdef
-  rcases hxmem with (⟨hxc1, hxZ1⟩ | ⟨hxf, hxZ, hxnZ1⟩) | ⟨hxb, hxU, hxnZ⟩
+  rcases hxmem with (⟨hxc1, hxZ1⟩ | ⟨hxf, hxZ, hxnZ1⟩) | ⟨hxbd, hxU, hxnZ⟩
   · -- the core piece
     have hxZ1' : x ∈ H.locFine Z S.M (S.k1 k) := by rw [← hZk1]; exact hxZ1
     have hxl := hcoreTop x hxZ1 hxc1
@@ -214,7 +222,7 @@ theorem deltaPsi_le_pieces
       rw [← Finset.mem_coe, hZ]
       have : x ∈ H.locFine Z S.M (S.k1 k) := by rw [← hZk1]; exact hh
       exact locFine_mono hkK hkq.le le_rfl this)
-    have hbl' := hbl x hxU hxnZ hxb
+    have hbl' := hxb hxU hxnZ hxbd
     have hlayW : x ∈ (W.windowGenSet hWh).layer k :=
       (windowGen_mem_bdry_layer_iff W hWh hxU hxnZ hxZ1b k).2 hbl'
     have hjk : j = k := GeneratingSet.layerIndex_eq _ (by omega) le_rfl hlayW
