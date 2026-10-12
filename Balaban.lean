@@ -765,6 +765,9 @@ public import Balaban.LargeField.R.DeltaPsiComp
 public import Balaban.LargeField.R.DeltaPsiEdge
 public import Balaban.LargeField.R.DeltaPsiZ
 public import Balaban.LargeField.R.DeltaPsi
+public import Balaban.LargeField.R.DeltaPhiWeight
+public import Balaban.LargeField.R.DeltaPhiResp
+public import Balaban.LargeField.R.DeltaPhi
 public import Balaban.LargeField.R.SmallFactorTilde
 public import Balaban.LargeField.R.SmallFactorAction
 public import Balaban.LargeField.R.SmallFactorOne

@@ -36,11 +36,19 @@ section Def
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
 
+open Classical in
 /-- `ψ̃ = Q*(𝔹, 𝔹_k) ψ` at a site `x`: the value of the multiscale field `ψ` on the block of layer
-`n(x)` containing `x` (P7 (2.46), `ψ̃(x) = ψ_j(y)` for the window block `y ∋ x`). -/
+`n(x)` containing `x` for `x ∈ Ω₁` (P7 (2.46), `ψ̃(x) = ψ_j(y)` for the window block `y ∋ x`), and the
+value of the layer `0` (the fine-scale field `ψ_0(x)`) outside `Ω₁`, in particular on the collar. -/
 noncomputable def psiTilde (G : GeneratingSet d L N₀ k ϱ)
     (ψ : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) (x : Torus d (N₀ * L ^ k)) : Fin N → ℝ :=
-  fun i => ψ (blockOf d L N₀ k (G.layerIndex x) x) i
+  fun i => if x ∈ G.Ω 1 then ψ (blockOf d L N₀ k (G.layerIndex x) x) i
+    else ψ (⟨0, x⟩ : BlockV d L N₀ k) i
+
+theorem psiTilde_of_mem (G : GeneratingSet d L N₀ k ϱ)
+    (ψ : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (i : Fin N) : psiTilde G ψ x i = ψ (blockOf d L N₀ k (G.layerIndex x) x) i := by
+  simp [psiTilde, hx]
 
 /-- The data `(Ψ, h̃) = lift_k ψ̃⁰_k` of the generating set `𝔹_k(U_k)` from the block field `ψ̃⁰_k`
 (only its values on `k`-blocks enter). -/

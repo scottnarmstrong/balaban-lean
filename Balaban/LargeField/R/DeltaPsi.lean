@@ -193,7 +193,7 @@ theorem deltaPsi_layer_lt
   have hlay : (W.windowGenSet hWh).layerIndex x = j :=
     GeneratingSet.layerIndex_eq _ hj1 hjk.le hxl
   have hxδ : psiTilde (W.windowGenSet hWh) ψ x = fun i => ψ (blockOf S.d S.L (S.M * n k) k j x) i := by
-    funext i; simp only [psiTilde, hlay]
+    funext i; rw [psiTilde_of_mem _ ψ hx, hlay]
   generalize hyk : xs len = yk at hterm hdist
   obtain ⟨ik, β⟩ := yk
   obtain ⟨hik, hall⟩ := hterm
@@ -307,7 +307,7 @@ theorem deltaPsi_top
     rw [liftSingle_Ψ W.bdry _ _ hxd]
   rw [hz]
   have : psiTilde (W.windowGenSet hWh) ψ x i = ψ0 ⟨k, jBlock S.d S.L (S.M * n k) k k x⟩ i := by
-    simp only [psiTilde, hlay]
+    rw [psiTilde_of_mem _ ψ hx, hlay]
     rw [← hψ]
     rfl
   rw [this]
