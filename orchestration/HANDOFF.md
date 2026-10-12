@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W89b | `w89-weighted51` / W89 | WeightedProp51S (defect-zero + OpSetting separation), lemma41_uncond, Lemma 3.5 analyticity |
 | W90b (Opus) | `w90-i6-aniso` / W90 | anisotropic I-6 (TubeAniso polydisc plan) |
 | W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
-| W93 | `w93-joint-witness` / W93 | joint non-vacuity witness for flow_counter / lemmaB |
+| W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
 Next Sonnet packages: I-5 with ψ′ on the footprint layer (Decoupled2Fp*); formal joint witnesses for the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
 astra round 6 (sent ~11:10 UTC): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
