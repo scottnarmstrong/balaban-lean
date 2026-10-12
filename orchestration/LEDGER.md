@@ -181,3 +181,4 @@
 | 2026-10-12 | W55 Lemma C remainder | running | Sonnet; Lemma I.4.13 (b),(d),(e4), clock b(Z), multi-scale regions_grow, localHistory is a region history |
 | 2026-10-12 | astra Part IV audit | running | tmux `astra-lfr4`: §II.7, LF-3, LF-5, LF-7, LF-8, a-priori choices, assembly clause by clause |
 | 2026-10-12 | W50 LF constants + LF-1 | landed | block F (`runLam`, `kZero` a-priori, `RunningHyp.of_flow` from landed flow lemmas, Lemma II.1.2 items except (f)) and **LF-1 proved** (`lf1_gradient`, `lf1_hardSpin`, γ₀ = 1/(28d), from `blockPoincare_sharp`) (≈2,940 lines) |
+| 2026-10-12 | W56 DG2 Hölder + I-4a(d) on X₀ | running | Sonnet |
