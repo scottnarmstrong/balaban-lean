@@ -672,6 +672,237 @@ theorem wsup_liftOp (hϱ : 1 < ϱ) (hL : 2 ≤ L) {ε : ℝ} (hε : 0 ≤ ε)
     refine le_trans (le_of_eq ?_) (this.trans hmono)
     simp only [svec_liftOp]
 
+
+/-- **A field with weighted value, forward gradient and Laplacian bounds** has the four weighted
+bounds, with the backward gradient and the wall bonds costing `L e^ε`. -/
+theorem wsup_of_fwd (hϱ : 1 < ϱ) (hL : 2 ≤ L) {ε : ℝ} (hε : 0 ≤ ε)
+    {ω : CTorus d L N₁ m₁ K → ℝ} (hω : IsWeight G ε ω) {u : G.Ω 1 × Fin N → ℂ} {V : ℝ}
+    (hV : 0 ≤ V) (hval : ∀ (y : CTorus d L N₁ m₁ K) (i : Fin N), ω y * ‖svec G u y i‖ ≤ V)
+    (hfwd : ∀ x ∈ G.Ω 1, ∀ (μ : Fin d) (i : Fin N), ω x * (G.spacing x *
+      ‖svec G u (x + Pi.single μ 1) i - svec G u x i‖) ≤ V)
+    (hlap : ∀ x ∈ G.Ω 1, ∀ i : Fin N, ω x * (G.spacing x ^ 2 * ‖∑ μ : Fin d, (2 * svec G u x i -
+      svec G u (x + Pi.single μ 1) i - svec G u (x - Pi.single μ 1) i)‖) ≤ V) :
+    WSup G ω u (L * Real.exp ε * V) := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hE1 : 1 ≤ Real.exp ε := Real.one_le_exp hε
+  have hLE : 1 ≤ (L : ℝ) * Real.exp ε := one_le_mul_of_one_le_of_one_le hL1 hE1
+  have hmono : V ≤ L * Real.exp ε * V := le_mul_of_one_le_left hV hLE
+  refine ⟨fun y i => (hval y i).trans hmono, fun x hx μ i => (hfwd x hx μ i).trans hmono,
+    fun x hx μ i => ?_, fun x hx i => (hlap x hx i).trans hmono⟩
+  by_cases hy : x - Pi.single μ 1 ∈ G.Ω 1
+  · have h1 := hfwd (x - Pi.single μ 1) hy μ i
+    simp only [sub_add_cancel] at h1
+    have hadj : Adj x (x - Pi.single μ 1) := ⟨μ, Or.inr (by simp)⟩
+    have hpd := pathDist_adj_le_one hx hy hadj
+    have hw := weight_le_of_pathDist hε hω (by norm_num : (0 : ℝ) ≤ 1) hpd
+    have hsp := spacing_adj_le G hϱ.le hy hx (Adj.symm hadj)
+    rw [norm_sub_rev] at h1
+    have hs0 := (spacing_pos G (x := x - Pi.single μ 1)).le
+    have hn := norm_nonneg (svec G u (x - Pi.single μ 1) i - svec G u x i)
+    calc ω x * (G.spacing x * ‖svec G u (x - Pi.single μ 1) i - svec G u x i‖)
+        ≤ (Real.exp (ε * 1) * ω (x - Pi.single μ 1)) *
+          ((L * G.spacing (x - Pi.single μ 1)) * ‖svec G u (x - Pi.single μ 1) i - svec G u x i‖) := by
+          refine mul_le_mul hw (mul_le_mul_of_nonneg_right hsp hn)
+            (mul_nonneg (spacing_pos G (x := x)).le hn)
+            (mul_nonneg (Real.exp_pos _).le (le_trans zero_le_one (hω.1 _)))
+      _ = (L * Real.exp ε) * (ω (x - Pi.single μ 1) * (G.spacing (x - Pi.single μ 1) *
+          ‖svec G u (x - Pi.single μ 1) i - svec G u x i‖)) := by rw [mul_one]; ring
+      _ ≤ (L * Real.exp ε) * V := by
+          refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+          have := hfwd (x - Pi.single μ 1) hy μ i
+          simp only [sub_add_cancel] at this
+          rw [norm_sub_rev] at this
+          exact this
+  · have hz : svec G u (x - Pi.single μ 1) i = 0 := svec_of_not_mem G u hy i
+    rw [hz, zero_sub, norm_neg, spacing_wall_eq hϱ hL hx hy ⟨μ, Or.inr (by simp)⟩]
+    calc ω x * ((L : ℝ) * ‖svec G u x i‖) = L * (ω x * ‖svec G u x i‖) := by ring
+      _ ≤ L * V := mul_le_mul_of_nonneg_left (by simpa using hval x i) (by linarith)
+      _ ≤ _ := by
+        have := mul_le_mul_of_nonneg_left hE1 (mul_nonneg (by linarith : (0 : ℝ) ≤ L) hV)
+        nlinarith
+
 end WSup
+
+section Specs
+
+variable {d L : ℕ} [NeZero L]
+
+/-- The conclusion of `dg2_sup` (weighted pointwise bounds of `G_s`) with the constants
+`(c, B_G)`. -/
+def Dg2Spec (d L : ℕ) [NeZero L] (cstar BG : ℝ) : Prop :=
+  0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
+      ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      IsUnit (1 - Kcal G a ν α s) ∧
+      SupBdW G w (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) (BG * Real.exp (N0 d L * κ) * C)
+
+theorem Dg2Spec.mono {c c' BG BG' : ℝ} (h : Dg2Spec d L c BG) (hc : c ≤ c') (hB : BG ≤ BG') :
+    Dg2Spec d L c' BG' := by
+  refine ⟨h.1.trans hc, h.2.1.trans hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hM s hs w hw f C hC hf
+  obtain ⟨hU, hS⟩ := h.2.2 G S hα hκ
+    (le_trans (mul_le_mul_of_nonneg_right hc (Real.exp_pos _).le) hM) hs hw f hC hf
+  exact ⟨hU, hS.mono (mul_le_mul_of_nonneg_right
+    (mul_le_mul_of_nonneg_right hB (Real.exp_pos _).le) hC)⟩
+
+theorem dg2Spec_exists (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ c BG : ℝ, Dg2Spec d L c BG := by
+  obtain ⟨c, B, hc, hB, H⟩ := dg2_sup (d := d) (L := L) hd hL
+  refine ⟨c, B, hc, hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hM s hs w hw f C hC hf
+  exact H G S hα hκ hM hs hw f hC hf
+
+/-- The conclusion of `dg6` (closeness of `G_s` to `G_D` away from `W`) with the constants
+`(c, B_G)`. -/
+def CloseSpec (d L : ℕ) [NeZero L] (cstar BG : ℝ) : Prop :=
+  0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {W : Finset (CTorus d L N₁ m₁ K)},
+      (∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) →
+      ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      ∀ x ∈ G.Ω 1,
+      ‖Gdiff G a ν α s f x‖ ≤ BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C ∧
+      (∀ μ : Fin d, G.spacing x * ‖Gdiff G a ν α s f (x + Pi.single μ 1) -
+        Gdiff G a ν α s f x‖ ≤
+        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C) ∧
+      (G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * Gdiff G a ν α s f x -
+        Gdiff G a ν α s f (x + Pi.single μ 1) - Gdiff G a ν α s f (x - Pi.single μ 1))‖ ≤
+        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C
+
+theorem CloseSpec.mono {c c' BG BG' : ℝ} (h : CloseSpec d L c BG) (hc : c ≤ c') (hB : BG ≤ BG') :
+    CloseSpec d L c' BG' := by
+  refine ⟨h.1.trans hc, h.2.1.trans hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hM s hs W hW f C hC hf x hx
+  have hM' : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ :=
+    le_trans (mul_le_mul_of_nonneg_right hc (Real.exp_pos _).le) hM
+  obtain ⟨h1, h2, h3⟩ := h.2.2 G S hα hκ hM' hs hW f hC hf x hx
+  have hmono : BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C ≤
+      BG' * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C := by
+    have := decay_nonneg (gammaW d) (siteSetDist G W x)
+    have := (Real.exp_pos (N0 d L * κ)).le
+    gcongr
+  exact ⟨h1.trans hmono, fun μ => (h2 μ).trans hmono, h3.trans hmono⟩
+
+theorem closeSpec_exists (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ c BG : ℝ, CloseSpec d L c BG := by
+  obtain ⟨c, B, hc, hB, H⟩ := dg6 (d := d) (L := L) hd hL
+  refine ⟨c, B, hc, hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hM s hs W hW f C hC hf x hx
+  exact H G S hα hκ hM hs hW f hC hf x hx
+
+
+/-- **One set of constants for all the inputs of Theorem I-4a.** -/
+theorem specs_exist (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ c BG : ℝ, FamSpec d L c BG ∧ Dg2Spec d L c BG ∧
+    CloseSpec d L c BG ∧ OneSpec d L c ∧ AnSpec d L c := by
+  obtain ⟨c1, B1, h1⟩ := decGreenFamily (d := d) (L := L) hd hL
+  obtain ⟨c2, B2, h2⟩ := dg2Spec_exists (d := d) (L := L) hd hL
+  obtain ⟨c3, B3, h3⟩ := closeSpec_exists (d := d) (L := L) hd hL
+  obtain ⟨c4, h4⟩ := oneSpec_exists (d := d) (L := L) hd hL
+  obtain ⟨c5, h5⟩ := anSpec_exists (d := d) (L := L) hd hL
+  set c := max (max (max (max c1 c2) c3) c4) c5 with hc
+  set B := max (max B1 B2) B3 with hB
+  refine ⟨c, B, (h1.mono_c ?_).mono_BG ?_, h2.mono ?_ ?_, h3.mono ?_ ?_, h4.mono_c ?_, h5.mono_c ?_⟩
+  all_goals simp [hc, hB]
+
+end Specs
+
+section Close
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+theorem wgt_mul_decay (W : Finset (CTorus d L N₁ m₁ K)) (t : ℝ) {γ : ℝ} (hγ : 0 ≤ γ)
+    (y : CTorus d L N₁ m₁ K) :
+    wgt G W t γ y * decay γ (siteSetDist G W y) ≤ 1 := by
+  by_cases h : siteSetDist G W y = ⊤
+  · rw [h, decay_top, mul_zero]; exact zero_le_one
+  · rw [decay_of_ne_top h]
+    unfold wgt
+    rw [← Real.exp_add, Real.exp_le_one_iff]
+    have : (truncSetDist G W t y).toReal ≤ (siteSetDist G W y).toReal :=
+      ENNReal.toReal_mono h (min_le_left _ _)
+    nlinarith
+
+/-- **The part of `δφ(s) - δφ(1)` coming from `G_s - G_D`** (via `dg6`): weighted bounds with the
+weight `e^{γ_w min(d(x, W), t)}`. -/
+theorem wsup_close {c BG6 : ℝ} (hC : CloseSpec d L c BG6) (S : DGSetting G a ν)
+    {α : G.Ω 1 → ℂ} (hα : AdmPot G α) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    {W : Finset (CTorus d L N₁ m₁ K)} (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W)
+    (g : G.Ω 1 × Fin N → ℂ) {C : ℝ} (hCn : 0 ≤ C) (hg : SrcBound G g C) {t : ℝ} :
+    WSup G (wgt G W t (gammaW d)) (liftOp N (Gs G a ν α s) *ᵥ g -
+        liftOp N (dirichletOperator G a ν α)⁻¹ *ᵥ g)
+      (L * Real.exp (gammaW d) * (BG6 * Real.exp (N0 d L * κ) * C)) := by
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hγ := gammaW_nonneg hd0
+  have hB6 : 0 ≤ BG6 * Real.exp (N0 d L * κ) * C := by
+    have := hC.2.1; positivity
+  have hω := isWeight_wgt (G := G) W t hγ
+  refine wsup_of_fwd S.one_lt_rho (by have := S.hL; omega) hγ hω hB6 ?_ ?_ ?_
+  · intro y i
+    rw [svec_liftOp_sub]
+    by_cases hy : y ∈ G.Ω 1
+    · obtain ⟨h1, -, -⟩ := hC.2.2 G S hα hκ hM hs hW (comp G g i) hCn (fun x => hg x i) y hy
+      have e : zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ comp G g i) y -
+          zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ comp G g i) y =
+          Gdiff G a ν α s (comp G g i) y := rfl
+      rw [e]
+      have hw := wgt_mul_decay (G := G) W t hγ y
+      have hbc : 0 ≤ BG6 * Real.exp (N0 d L * κ) * C := hB6
+      calc wgt G W t (gammaW d) y * ‖Gdiff G a ν α s (comp G g i) y‖
+          ≤ wgt G W t (gammaW d) y * (BG6 * Real.exp (N0 d L * κ) *
+            decay (gammaW d) (siteSetDist G W y) * C) :=
+            mul_le_mul_of_nonneg_left h1 (wgt_pos W t _ y).le
+        _ = (wgt G W t (gammaW d) y * decay (gammaW d) (siteSetDist G W y)) *
+            (BG6 * Real.exp (N0 d L * κ) * C) := by ring
+        _ ≤ 1 * (BG6 * Real.exp (N0 d L * κ) * C) := mul_le_mul_of_nonneg_right hw hbc
+        _ = _ := one_mul _
+    · rw [zeroExt_not_mem _ _ hy, zeroExt_not_mem _ _ hy, sub_zero, norm_zero, mul_zero]
+      exact hB6
+  · intro x hx μ i
+    simp only [svec_liftOp_sub]
+    obtain ⟨-, h2, -⟩ := hC.2.2 G S hα hκ hM hs hW (comp G g i) hCn (fun x => hg x i) x hx
+    have e : ∀ y : CTorus d L N₁ m₁ K, zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ comp G g i) y -
+          zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ comp G g i) y =
+          Gdiff G a ν α s (comp G g i) y := fun y => rfl
+    simp only [e]
+    have hw := wgt_mul_decay (G := G) W t hγ x
+    calc wgt G W t (gammaW d) x * (G.spacing x * ‖Gdiff G a ν α s (comp G g i) (x + Pi.single μ 1) -
+          Gdiff G a ν α s (comp G g i) x‖)
+        ≤ wgt G W t (gammaW d) x * (BG6 * Real.exp (N0 d L * κ) *
+            decay (gammaW d) (siteSetDist G W x) * C) :=
+            mul_le_mul_of_nonneg_left (h2 μ) (wgt_pos W t _ x).le
+      _ = (wgt G W t (gammaW d) x * decay (gammaW d) (siteSetDist G W x)) *
+          (BG6 * Real.exp (N0 d L * κ) * C) := by ring
+      _ ≤ 1 * (BG6 * Real.exp (N0 d L * κ) * C) := mul_le_mul_of_nonneg_right hw hB6
+      _ = _ := one_mul _
+  · intro x hx i
+    simp only [svec_liftOp_sub]
+    obtain ⟨-, -, h3⟩ := hC.2.2 G S hα hκ hM hs hW (comp G g i) hCn (fun x => hg x i) x hx
+    have e : ∀ y : CTorus d L N₁ m₁ K, zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ comp G g i) y -
+          zeroExt (G.Ω 1) ((dirichletOperator G a ν α)⁻¹ *ᵥ comp G g i) y =
+          Gdiff G a ν α s (comp G g i) y := fun y => rfl
+    simp only [e]
+    have hw := wgt_mul_decay (G := G) W t hγ x
+    calc wgt G W t (gammaW d) x * (G.spacing x ^ 2 * ‖∑ μ : Fin d,
+          (2 * Gdiff G a ν α s (comp G g i) x - Gdiff G a ν α s (comp G g i) (x + Pi.single μ 1) -
+            Gdiff G a ν α s (comp G g i) (x - Pi.single μ 1))‖)
+        ≤ wgt G W t (gammaW d) x * (BG6 * Real.exp (N0 d L * κ) *
+            decay (gammaW d) (siteSetDist G W x) * C) :=
+            mul_le_mul_of_nonneg_left h3 (wgt_pos W t _ x).le
+      _ = (wgt G W t (gammaW d) x * decay (gammaW d) (siteSetDist G W x)) *
+          (BG6 * Real.exp (N0 d L * κ) * C) := by ring
+      _ ≤ 1 * (BG6 * Real.exp (N0 d L * κ) * C) := mul_le_mul_of_nonneg_right hw hB6
+      _ = _ := one_mul _
+
+end Close
 
 end Balaban.Localization

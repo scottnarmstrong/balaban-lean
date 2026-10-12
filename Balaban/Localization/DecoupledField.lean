@@ -370,6 +370,40 @@ theorem FamSpec.mono_c {d L : ℕ} [NeZero L] {c c' BG : ℝ} (h : FamSpec d L c
   intro N₁ m₁ K _ ϱ G a ν S κ hκ hM s hs N
   exact h.2.2 G S hκ (le_trans (mul_le_mul_of_nonneg_right hc (Real.exp_pos _).le) hM) hs N
 
+theorem famConst_mono {d L : ℕ} [NeZero L] (hd : 0 < d) {BG BG' : ℝ} (hB : BG ≤ BG') (κ : ℝ) :
+    famConst d L BG κ ≤ famConst d L BG' κ := by
+  have hγ := gamma1_pos hd
+  have hE := (Real.exp_pos (N0 d L * κ)).le
+  unfold famConst
+  have h1 : BG * Real.exp (N0 d L * κ) ≤ BG' * Real.exp (N0 d L * κ) :=
+    mul_le_mul_of_nonneg_right hB hE
+  have h2 : 4 * (BG * Real.exp (N0 d L * κ)) / gamma1 d ≤
+      4 * (BG' * Real.exp (N0 d L * κ)) / gamma1 d := by gcongr
+  have hL : (0 : ℝ) ≤ L := by positivity
+  nlinarith [mul_le_mul_of_nonneg_left h1 hL, mul_le_mul_of_nonneg_left h2 hL]
+
+theorem FamSpec.mono_BG {d L : ℕ} [NeZero L] {c BG BG' : ℝ} (h : FamSpec d L c BG)
+    (hB : BG ≤ BG') : FamSpec d L c BG' := by
+  refine ⟨h.1, h.2.1.trans hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S κ hκ hM s hs N
+  obtain ⟨⟨hfam, hsup⟩, hunit⟩ := h.2.2 G S hκ hM hs N
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hle := famConst_mono (d := d) (L := L) hd0 hB κ
+  have hB0 : 0 ≤ famConst d L BG κ := by
+    have := famConst_ge_one (L := L) h.2.1 κ hd0; linarith
+  refine ⟨⟨⟨hB0.trans hle, ?_, ?_⟩, ?_⟩, hunit⟩
+  · intro α hα g C hC hg
+    exact (hfam.bound hα g hC hg).mono (mul_le_mul_of_nonneg_right hle hC)
+  · intro α α' hα hα' g C Δ hC hg hΔ0 hΔ
+    refine (hfam.diff hα hα' g hC hg hΔ0 hΔ).mono ?_
+    have h1 : famConst d L BG κ * C ≤ famConst d L BG' κ * C :=
+      mul_le_mul_of_nonneg_right hle hC
+    have h2 : Δ * (famConst d L BG κ * C) ≤ Δ * (famConst d L BG' κ * C) :=
+      mul_le_mul_of_nonneg_left h1 hΔ0
+    exact mul_le_mul hle h2 (mul_nonneg hΔ0 (mul_nonneg hB0 hC)) (hB0.trans hle)
+  · intro α hα g C hC hg
+    exact (hsup hα g hC hg).mono (mul_le_mul_of_nonneg_right hle hC)
+
 /-- **The decoupled Green operators form a Green family.** -/
 theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ cstar BG : ℝ, FamSpec d L cstar BG := by
   obtain ⟨c1, B1, hc1, hB1, H1⟩ := dg2_sup (d := d) (L := L) hd hL
