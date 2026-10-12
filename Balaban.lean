@@ -310,6 +310,9 @@ public import Balaban.Localization.Decoupled2XClose
 public import Balaban.Localization.Decoupled2XAnalytic
 public import Balaban.Localization.Decoupled2FpGeometry
 public import Balaban.Localization.Decoupled2FpLocal
+public import Balaban.Localization.Decoupled2FpField
+public import Balaban.Localization.Decoupled2FpBackground
+public import Balaban.Localization.Decoupled2FpX
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
