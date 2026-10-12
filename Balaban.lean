@@ -514,6 +514,9 @@ public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.ActionSymm
 public import Balaban.LargeField.Operators.QuietSymmEuclid
 public import Balaban.LargeField.Operators.StepData
+public import Balaban.LargeField.Operators.AncVars
+public import Balaban.LargeField.Operators.DomainGeom
+public import Balaban.LargeField.Operators.DomainIdentity
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
 public import Balaban.LargeField.Operators.KerBound
@@ -627,3 +630,7 @@ public import Balaban.Fluctuation.Lemma25Xi
 public import Balaban.Fluctuation.Lemma25Domain
 public import Balaban.Fluctuation.Lemma25
 public import Balaban.Fluctuation.Lemma25Real
+public import Balaban.LargeField.R.ChainSeq
+public import Balaban.LargeField.R.HatW
+public import Balaban.LargeField.R.ChainBound
+public import Balaban.LargeField.R.ChainEstimate

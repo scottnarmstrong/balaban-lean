@@ -88,13 +88,13 @@ theorem shell_newOut (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
       rw [locRH_Z Z' le_rfl, lin_self, hx']; exact hcZ
     · show cubeMap n S.L M K (k + 1) x' ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
       rw [hx']; exact hcZ
-  have hom : c ∈ omegaSim (H.localHistory M K (k + 1) Z') (k + 1) (k + 1) := by
-    unfold omegaSim omegaNb
+  have hom : c ∈ lhOmegaSim (H.localHistory M K (k + 1) Z') (k + 1) (k + 1) := by
+    unfold lhOmegaSim lhOmegaNb
     have hne : ¬ (k + 1 = k + 1 + 1) := by omega
     simp only [hne, ↓reduceIte]
     refine subset_nbhd 1 _ ?_
     intro x' hx'
-    refine ⟨?_, ?_⟩
+    refine Or.inl ⟨?_, ?_⟩
     · show cubeMap n S.L M K (k + 1) x' ∈ ((H.locRH (k + 1) Z').step k).Omega
       rw [hx']; exact hcO
     · show cubeMap n S.L M K (k + 1) x' ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
@@ -125,7 +125,7 @@ theorem shell_newOut (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     unfold subMultiscaleField
     simp only [lt_irrefl, ↓reduceIte, ↓reduceDIte]
     have hb : BlockSub (S := S) (n := n) (M := M) (K := K) (k + 1) y
-        ((H.localHistory M K (k + 1) Z').Omega k) := hy.2
+        (lhOmega (H.localHistory M K (k + 1) Z') (k + 1) (k + 1)) := fun x hx => Or.inl (hy.2 x hx)
     simp [hb]
   simpa [hψ] using h2
 
@@ -198,7 +198,8 @@ theorem shell_newPrime (hK : k + 1 ≤ K) (hk1 : 1 ≤ k) (hδ : 0 ≤ cs.delta 
     classical
     unfold subMultiscaleField
     have hbl' : m + 1 = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) (m + 1) y
-        ((H.localHistory M K (m + 1 + 1) Z').Omega (m + 1 - 1)) := Or.inr hbl
+        (lhOmega (H.localHistory M K (m + 1 + 1) Z') (m + 1 + 1) (m + 1)) :=
+      Or.inr fun x hx => Or.inl (hbl x hx)
     simp only [Nat.lt_succ_self, hbl', ↓reduceIte]
     unfold subVarField
     have hex : ∃ hj' : m + 1 < m + 1 + 1, ∃ hb' : BlockSub (S := S) (n := n) (M := M) (K := K)
@@ -218,7 +219,7 @@ theorem shell_newPrime (hK : k + 1 ≤ K) (hk1 : 1 ≤ k) (hδ : 0 ≤ cs.delta 
       rw [hx']; exact h'Z
   have hdL' : (1 : ℝ) ≤ S.d * S.L := by exact_mod_cast hdL
   by_cases hom : blockMap S.L (n (m + 1 + 1)) (blockCube S n M K (m + 1) y) ∈
-      omegaSim (H.localHistory M K (m + 1 + 1) Z') (m + 1 + 1) (m + 1 + 1)
+      lhOmegaSim (H.localHistory M K (m + 1 + 1) Z') (m + 1 + 1) (m + 1 + 1)
   · -- first family
     have h1 := hchi.1 _ hCube hom
     have hmem : (⟨m + 1, y⟩ : BlockPt S n M K) ∈ genBlocksIn
@@ -238,7 +239,7 @@ theorem shell_newPrime (hK : k + 1 ≤ K) (hk1 : 1 ≤ k) (hδ : 0 ≤ cs.delta 
     simp only [hψ] at h2
     exact h2
   · -- second family
-    have h2 := hchi.2.1 (m + 1) (Or.inl rfl) (blockCube S n M K (m + 1) y) ?_ ?_ ?_
+    have h2 := hchi.2.1 (m + 1) (by omega) (Or.inl rfl) (blockCube S n M K (m + 1) y) ?_ ?_ ?_
     · have h3 := h2.2 _ ⟨y, rfl, x0, hx0, by rw [hcube]; exact subset_nbhd 1 _ rfl⟩
       simp only [hψ] at h3
       refine h3.trans_le ?_

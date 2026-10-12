@@ -81,6 +81,10 @@ Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
    (search before naming). The orchestrator lands branches only with `scripts/land.sh`.
 9. Never kill, stop or signal a process you did not start yourself: no `pkill`/`killall` by
    pattern, no `kill` of another PID. The machine is shared with other campaigns.
+10. Every new structure, class or bundled `Prop` used as a theorem hypothesis lands together with a
+   theorem proving it is inhabited (`Nonempty …`) for an admissible choice of parameters, unless the
+   orchestrator records an exemption in the ledger. (A structure with contradictory fields makes every
+   theorem about it vacuous.)
 
 ## Building
 
