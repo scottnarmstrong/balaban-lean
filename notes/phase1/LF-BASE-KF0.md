@@ -323,3 +323,83 @@ Sizes are estimates in lines of Lean, not proof-status claims. The provider modu
 4. **B: locality and torus agreement.** Construct local activities whose coefficients are *exactly* independent of the torus on non-winding supports, not merely exponentially close. Then verify the uniform $B_\beta$ required in B.4 and the remaining $M,\beta_0$ inequalities.
 
 Confidence is high in the elementary identities (A.1)–(A.4), (B.1)–(B.4), the principal-log argument, and the conditional Root-F assembly (B.6). Confidence in the proposed analytic routes is moderate; the source and landed Lean interfaces do not currently close their load-bearing estimates. Consequently the requested unconditional proofs of Proposition II.7.9 and the $k_f=0$ Root-F branch are **open in this document**.
+
+## Part D. Choice of the high-mass route and a normalized connected-core theorem
+
+### D.1. Cost and dependencies of the two routes
+
+Here $\nu_*:=7/(8L^2)$ and $\nu\in(\nu_*,1]$. The word *complete* in the route estimates includes the frozen source ball, exact torus agreement, and every quantitative hypothesis of the landed polymer-gas theorems. Line counts are estimates for new Lean proof, not claims that the corresponding mathematical theorem has been proved.
+
+| Route | New theorems that cannot be omitted | Landed reuse | Estimated new Lean lines |
+|---|---|---|---:|
+| H, one extra RG step | High-mass real and complex BG existence/uniqueness with a new nonempty complex domain; Green and localization constants through mass $L^2e^\epsilon$; Def-6/Def-7 H7 domain transport; high-mass II.7.9 base and LF-8 at index one; LF-2 horizon $\max(\hat k_f,1)$ and the frozen heavy budget | `Background/*`, `Green/*`, `Localization/*`, `Flow/*`, `Polymer/GasOperator`, `MayerPE`, `Hole`, `Peierls` | At least 25,000–50,000, with several existing theorem statements changed |
+| D, direct one-scale | A normalized connected-core estimate retaining crossing bonds; Gaussian-with-holes localization with shrinking real chart cutoff; pointwise small ordinary interactions after exact finite-support localization; polymer counting and exact non-winding torus lifts | `Frozen/Model/Energy`, `Polymer/Mayer`, `MayerPE`, `GasOperator`, `Hole`, `HoleOperator`, `BlockTorus`, `BoxTransport`, `Localization/Peierls` | About 13,000–30,000 if the conditional comparison below can be integrated into a hole-aware gas construction |
+
+The H estimate has a structural lower bound beyond line counting. `Background/ExistenceSetup.lean` sets `BgHyp.massLe` to $B:=\nu L^{2k}\le1$ and sends it both to `GreenSetting.massLe` and `ApproxSetting.hν1`. `Background/ApproxLocal.lean` uses $B\le1$ to bound each block mass and invokes `LocalSolution.local_solution` with local mass at most one. `Background/Approximate.lean` uses $\sqrt B\le1$ in its mass term; `ApproxResidual.lean` and `Calculus.lean` use $B\le1$ in the residual and nonlinear bounds, so their constants grow at least with $B$ if the same radii are retained. `Contraction.lean` passes the cap into `Rvec_bound` and bounds $\nu g$ by the old small parameter. `Mass116.lean` and `Def5.lean` make the complex witness with $\delta=\varepsilon$, requiring $B\delta^2\le\delta^2$. The localization chain is affected too: `Localization/ReflectionSource.lean`, `NC3Small.lean`, and `DecoupledClose.lean` explicitly pass the dimensionless cap to source and cut-Laplacian bounds. Positive mass improves coercivity, but it does not justify their unchanged upper source bounds. A valid H proof would need new constants $C_{\rm loc}(B),C_{53}(B),C_{\rm Green}(B)$ and radii at most a constant times $1/B$ in the $h$ perturbation direction, with $B\le L^2e^\epsilon$ inserted before the BG contraction thresholds are fixed. The present files do not give formulas from which those constants can be asserted.
+
+There is an exact obstruction to extending **the existing complex domain**: `Background/Data.lean` defines `InUnionDomainC` by $0<\delta\le\varepsilon$ and $B\varepsilon^2\le\delta^2$. If $B>1$, these inequalities imply $B\varepsilon^2\le\varepsilon^2$ with $\varepsilon>0$, a contradiction. Thus the domain is empty. This affects `Theorem52Analytic.lean` and the H7 domains derived from BG in LF-RECONSTRUCTION Definition II.3.5. Merely replacing `massLe` by $B\le L^2e^\epsilon$ yields a vacuous analyticity theorem. A new anisotropic domain, with separate radii for $\Psi$ and $h$, and a new theorem proving its nonempty real slice are necessary. It must then be propagated through Def-6/Def-7 and LF-8. The high-mass class also must replace (D9$^\flat$), which caps the running mass at one, and LF-2 must be reproved when $\hat k_f=0$; see C.2–C.4. This audit rules out Route H as a short reuse of the landed BG theorem.
+
+I therefore choose Route D. It keeps the mass parameter in a fixed positive interval after $L$ is selected and avoids extending all BG/H7 interfaces. The first quantitative obstacle is the connected bad-core normalization. The following theorem settles its *conditional-core magnitude* with all crossing bonds present. The theorem is deliberately stated before a polymer activity is defined: its last subsection records exactly what remains between this result and (B.5).
+
+### D.2. A complete conditional connected-core estimate
+
+Let $\Lambda$ be a finite nearest-neighbour $d$-torus of side at least three, so every vertex has $2d$ distinct neighbours. Let $C\subset\Lambda$ be any nonempty set, and prescribe unit spins $q_y$ at $y\notin C$. Only the neighbours of $C$ matter. For unit spins $\phi_x$, $x\in C$, set
+$$E_C(\phi\mid q)=\sum_{\{x,z\}\subset C,\ x\sim z}(1-\phi_x\cdot\phi_z)+\sum_{x\in C,\ y\notin C,\ x\sim y}(1-\phi_x\cdot q_y)+\nu\sum_{x\in C}(1-\phi_x\cdot h).\tag{D.1}$$
+This is the exact conditional energy; the second sum is retained. Write $\sigma$ for normalized surface measure on $\mathbb S^{N-1}$, $m=N-1$, and
+$$I_C(q):=\int e^{-\beta E_C(\phi\mid q)}d\sigma^C(\phi),\qquad I_C^{\rm bad}(q;g):=\int_{\forall x\in C:\ |\phi_x-h|\ge r}e^{-\beta E_C(\phi\mid q)+\sum_{x\in C}g_x\cdot\phi_x}d\sigma^C(\phi).\tag{D.2}$$
+Take $r=r_\beta=A\log(\beta a)/\sqrt\beta$, with fixed $A>0,a>1$, and assume $|q_y-h|<r$ for every exterior neighbour of $C$. Put
+$$c_{d,L}:=\frac{\nu_*^3}{64(2d+1)^2},\qquad c_N:=\frac{\operatorname{vol}(B_m(1))}{2^m|\mathbb S^{N-1}|},\qquad P_\beta:=c_{d,L}A^2\log^2(\beta a)-\frac m2\log\beta-\frac{4d+1}{2}-\log(c_N^{-1}).\tag{D.3}$$
+
+**Theorem D.1 (uniform normalized bad core).** There is an explicit threshold $\beta_{\rm core}(d,N,L,A,a)$ such that, for $\beta\ge\beta_{\rm core}$, $\nu\in(\nu_*,1]$, every $C$ and all exterior data just specified,
+$$\frac{|I_C^{\rm bad}(q;g)|}{I_C(q)}\le \exp\{1-P_\beta|C|\}\quad(\|g\|_1<1).\tag{D.4}$$
+In particular $P_\beta\to\infty$. The same inequality holds for a connected maximal bad component $C$ of the real sector $\{x:|\phi_x-h|\ge r\}$, because its exterior neighbours are good. The ratio in (D.4) is holomorphic in every complex source coordinate on the entire $\ell^1$ ball, for fixed *real* $q$. No complex continuation of the indicator or of $q$ is used.
+
+One may take $\beta_{\rm core}$ to be any number such that for all $\beta$ above it,
+$$\beta\ge16,\qquad r_\beta\le\tfrac14,\qquad (4d+\tfrac12)r_\beta^2\le\tfrac12\nu_* .\tag{D.5}$$
+These conditions have a solution because $\log^2(\beta a)/\beta\to0$; increasing the threshold also makes $P_\beta>0$.
+
+*Proof.* Compactness gives a minimizer $u=(u_x)_{x\in C}$ of $E_C(\cdot\mid q)$. First, $u_x\cdot h\ge0$ for all $x$. If a spin has negative $h$ component, reflect **all** such spins across the hyperplane $h^\perp$. An internal bond with both endpoints reflected is unchanged. For a bond with only one reflected endpoint, the dot product increases because the other endpoint has nonnegative $h$ component; the same holds at a crossing bond because $q_y\cdot h>0$. At every reflected site the mass energy decreases strictly since $\nu>0$. Thus a minimizer cannot contain a negative component. Keeping all other sites fixed, minimization over $u_x$ aligns it with
+$$b_x:=\sum_{z\in C:z\sim x}u_z+\sum_{y\notin C:y\sim x}q_y+\nu h.\tag{D.6}$$
+Its $h$ component is at least $\nu>0$, so $u_x=b_x/|b_x|$ and $u_x\cdot h>0$.
+
+Let $\theta_r:=2\arcsin(r/2)<\pi/2$, and let $\theta_x\in[0,\pi/2)$ be the angle between $u_x$ and $h$. If $\Theta:=\max(\theta_r,\max_x\theta_x)$ exceeded $\theta_r$, choose $x$ with $\theta_x=\Theta$. All its $2d$ neighbours, including prescribed spins, have angle at most $\Theta$. Resolving (D.6) parallel and perpendicular to $h$ gives $b_x\cdot h\ge2d\cos\Theta+\nu$ and $|P_h^\perp b_x|\le2d\sin\Theta$. Hence
+$$\tan\theta_x\le\frac{2d\sin\Theta}{2d\cos\Theta+\nu}<\tan\Theta,$$
+a contradiction. Therefore every $\theta_x\le\theta_r$. Applying the same estimate once more gives
+$$\theta_x\le\theta_*:=\arctan\frac{2d\sin\theta_r}{2d\cos\theta_r+\nu}<\theta_r.\tag{D.7}$$
+For $r\le1/4$, $\sin\theta_r\ge3r/4$, $\cos\theta_r\ge3/4$, and $\cos(\theta_r/2)\ge3/4$. The mean-value inequality for $\arctan$ applied between $\tan\theta_r$ and $\tan\theta_* =\tan\theta_r/(1+\nu/(2d\cos\theta_r))$ yields
+$$\theta_r-\theta_*\ge\frac{\nu\sin\theta_r\cos\theta_r}{2d\cos\theta_r+\nu}\ge\frac{9\nu r}{16(2d+1)}.$$
+Applying the mean-value inequality to $2\sin(\theta/2)$ and weakening $27/64$ to $1/4$ gives the uniform inward gap
+$$r-|u_x-h|\ge\frac{\nu r}{4(2d+1)}.\tag{D.8}$$
+
+Let $K_C$ be the Dirichlet graph Laplacian on $C$ plus $\nu I$: its diagonal is $2d+\nu$, its off-diagonal entries are $-1$ on internal nearest-neighbour bonds. The exterior spins occur only in the linear term of (D.1). Thus $\nu I\le K_C\le(4d+1)I$. At the minimizer, $K_Cu-b=\alpha_xu_x$ sitewise, where
+$$\alpha_x=\sum_{z\sim x}(1-u_x\cdot v_z)+\nu(1-u_x\cdot h),\qquad v_z=\begin{cases}u_z&z\in C,\\q_z&z\notin C.\end{cases}$$
+Every $u_x$ and every $v_z$ lies within chord distance $r$ of $h$, so $0\le\alpha_x\le(4d+\tfrac12)r^2\le\nu_*/2$. For any other sphere-valued $\phi$ and $w=\phi-u$, the identity $u_x\cdot w_x=-|w_x|^2/2$ gives the **exact** constrained energy difference
+$$E_C(\phi\mid q)-E_C(u\mid q)=\tfrac12\langle w,(K_C-\operatorname{diag}\alpha)w\rangle.\tag{D.9}$$
+Consequently $E_C(\phi\mid q)-E_C(u\mid q)\ge(\nu_*/4)\sum_x|w_x|^2$. If all $\phi_x$ are bad, (D.8) implies $|w_x|\ge\nu_*r/[4(2d+1)]$, and therefore
+$$E_C(\phi\mid q)-E_C(u\mid q)\ge c_{d,L}r^2|C|.\tag{D.10}$$
+This gap holds for bad spins anywhere on the sphere; no chart approximation entered the numerator.
+
+For the denominator, restrict each spin to the chord cap $|\phi_x-u_x|\le b:=\beta^{-1/2}\le1/4$. Since $\alpha_x\ge0$, (D.9) and $K_C\le(4d+1)I$ give $E_C(\phi\mid q)-E_C(u\mid q)\le(4d+1)b^2|C|/2$ on this product cap. The sphere chart about $u_x$ contains the tangent ball of radius $b/2$ in that chord cap, and its density is at least $|\mathbb S^{N-1}|^{-1}$; hence the normalized cap measure is at least $c_Nb^m$. It follows that
+$$I_C(q)\ge e^{-\beta E_C(u\mid q)}e^{-(4d+1)|C|/2}\big(c_N\beta^{-m/2}\big)^{|C|}.\tag{D.11}$$
+The bad numerator at $g=0$ is at most $e^{-\beta E_C(u\mid q)}e^{-\beta c_{d,L}r^2|C|}$ because $\sigma^C$ has total mass one. Dividing by (D.11) gives $e^{-P_\beta|C|}$. For complex $g$, $|e^{\sum g_x\cdot\phi_x}|\le e^{\|g\|_1}<e$, proving (D.4). The fixed finite integral is entire in $g$ by dominated differentiation. All constants are independent of $C$, its shape, the exterior spins within the good cap, and the torus. $\square$
+
+The proof uses the conditional minimizer required by P4-06; (D.6) contains every crossing spin. It also shows why the counterexample in B′.2 does not apply: its exterior neighbours $-h$ violate the good-boundary condition of a *maximal* bad component.
+
+### D.3. What D.1 supplies to a polymer activity, and what it does not
+
+For a proposed connected-core activity, the local function $W_C(q;g):=I_C^{\rm bad}(q;g)/I_C(q)$ is defined on good real boundary data, reads only the external neighbours of $C$ and $g|_C$, and obeys (D.4) pointwise. Thus integration of $|W_C|$ against **any probability measure supported on good boundary data** preserves the same bound. For disjoint $s$-blocks, the blocks meeting $C$ number at most $|C|$, and their one-block neighbourhood numbers at most $3^d|C|$; a thicker collar needs its own corresponding count. A determinant factor bounded by $e^{D_L|C|}$ can be absorbed with this block entropy: $P_\beta-D_L-3^dH_\beta\to\infty$ for any fixed desired $H_\beta=o(\log^2\beta)$. The determinant claim is available for a *specified* positive Dirichlet matrix $K$ with spectrum in $[\nu_*,4d+1]$: deleting $C$ gives a Schur complement $S_C$, and $v^*S_Cv=\min_w(v,w)^*K(v,w)$ lies between $\nu_*|v|^2$ and $(4d+1)|v|^2$. Since $\det K/\det K_{C^c}=\det S_C$, its determinant ratio costs at most $((4d+1)/\nu_*)^{|C|}$. This finite-matrix fact does not say that the full nonlinear good-region ratio has already been reduced to that determinant.
+
+The activity $\tau_Z$ in (B.5) has **not** been constructed by defining $W_C$. In the exact sector identity, $I_C^{\rm bad}=W_C I_C$; the factor $I_C$ remains and couples to the good region through the boundary. The good-region Gaussian determinant, nonlinear chart integral, shrinking indicators, and their hole ratios must be localized before an exact product-reference gas is available. A collar can also contain good or intermediate sites, so $|Z|_{\rm block}\le a_d|C|$ requires a stated assignment and proof, not just a connectedness assertion. D.1 completes the conditional-core magnitude theorem and supplies its source analyticity, but it does **not** by itself prove the full integrated (B.5) with the actual $\tau_Z$ required by `GasOperator.gasOp_pe`. Accordingly the first missing piece of Route D is solved only at the conditional-core level; the full activity statement requested in `followup3.txt` remains open. Claiming Root-F from D.1 would skip exactly the hole normalization and finite-support hypotheses identified in B′.5.
+
+The remaining order is now concrete. First construct the exact core/collar sector identity and a product Gaussian with holes, keeping the real cutoff and every crossing bond. Next show that its activity is $W_C$ multiplied by factors whose absolute value is at most $e^{D_L|C|}$, with a proved $|Z|_{\rm block}\le a_d|C|$ assignment; D.1 then proves (B.5) after choosing $\beta_0$ so that $P_\beta-D_L$ dominates the `gasOp_pe` thresholds. Then establish localized finite-support walk activities and exact torus lifts; the landed `MayerPE`, `GasOperator`, `Hole`, `Peierls`, `BlockTorus`, and `BoxTransport` theorems can be invoked only after their stated inputs are checked. Finally B.4–B.6 assemble Root-F. The $\delta=1/8$, $\kappa,c_9$, $L,M$, $\beta_0$ order remains the frozen order; $A,a$ are fixed after $L,M$ and before $\beta_0$.
+
+| Order | Lean lemma | Estimated lines | Status and reuse |
+|---|---|---:|---|
+| D1 | `conditionalMinimizer_exists`, `minimizer_hemisphere`, `minimizer_strictCap` proving (D.6)–(D.8) | 800–1,600 | Mathematical proof above; `Frozen/Model/Energy`, finite sphere compactness |
+| D2 | `conditionalEnergy_quadratic`, `badCore_energyGap` proving (D.9)–(D.10) | 600–1,200 | Mathematical proof above; finite graph Laplacian |
+| D3 | `sphereCap_measureLower`, `badCore_normalized`, holomorphic source proving (D.11)–(D.4) | 700–1,400 | Mathematical proof above; chart Jacobian from A.1 |
+| D4 | `holeSchur_detRatio`, core/collar assignment, exact sector activity with a product reference | 2,000–5,000 | Matrix determinant part standard; full nonlinear hole ratio **open**; `Polymer/HoleOperator` |
+| D5 | `kf0_gaussianWithHoles_local`, source and cutoff localization, exact torus lift | 5,000–10,000 | **Open**; `Localization/DecoupledX*`, `MayerPE`, `BoxTransport` |
+| D6 | Check `gasOp_pe`, `pe_blockTorus_frozen`, then B.6 | 2,500–5,000 | Conditional on D4–D5; landed GAS/PE and frozen Root-F |
+
+Confidence is high in Theorem D.1 and the empty-domain obstruction for literal Route H. The comparison in D.3 identifies the precise unsolved part of the selected route. The note therefore does not claim an unconditional proof of (B.5), Proposition II.7.9, or Root-F in the $k_f=0$ regime.
