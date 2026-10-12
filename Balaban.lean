@@ -298,6 +298,10 @@ public import Balaban.Localization.DecoupledOne
 public import Balaban.Localization.DecoupledSolveAnalytic
 public import Balaban.Localization.DecoupledFieldLocal
 public import Balaban.Localization.DecoupledFieldClose
+public import Balaban.Localization.DecoupledBackground
+public import Balaban.Localization.DecoupledBackgroundLocal
+public import Balaban.Localization.DecoupledDefect
+public import Balaban.Localization.DecoupledCompose
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
