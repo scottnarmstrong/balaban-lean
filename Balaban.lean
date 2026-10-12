@@ -538,6 +538,7 @@ public import Balaban.Fluctuation.ExpansionCauchy
 public import Balaban.Fluctuation.ExpansionBounds
 public import Balaban.Fluctuation.ExpansionReal
 public import Balaban.Fluctuation.ExpansionLocal
+public import Balaban.Fluctuation.ExpansionSymm
 public import Balaban.Fluctuation.ExpansionAnalytic
 public import Balaban.Polymer.MarkedCubesLocal
 public import Balaban.Polymer.MarkedCubesVanish
