@@ -176,7 +176,7 @@ is `bgMass` (P5 (1.9)).
   termwise;
 * `eucE`, `eucM` (H.4-E) [P4 pp. 677-678 (H.4); P1 p. 117 (2.26)]: Euclidean covariance of the
   individual terms, **only** for the symmetries `pavingSymGroup` of the fixed `M`-paving
-  (CLASS-RULINGS Q-A), with `pavingPoly` (`r X ∈ 𝒟_j`) and `pavingGS` (the generating sets are
+  (CLASS-RULINGS Q-A), with `pavingGS` (the generating sets are
   transported: `Ω_i(𝔹_j(rX)) = r Ω_i(𝔹_j(X))`, which determines `𝔹_j(rX)`);
 * `eucEloc`, `eucMloc` (H.3-E) [P1 p. 116 (H.4), P4 p. 677 (H.3)]: covariance of the **densities**
   `Eloc`, `Mloc` at each centre under the symmetries `fullJSymGroup` of the whole level-`j`
@@ -218,9 +218,6 @@ structure IsSF (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k 
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (rotField R Ψ) (rotField R h) →
       Tm.E j y X (rotField R Ψ) (rotField R h) = Tm.E j y X Ψ h
-  pavingPoly : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X →
-    ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L P.m₀ j,
-      IsPolyDom P.m₀ j (r '' X)
   pavingGS : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X →
     ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L P.m₀ j, ∀ i,
       (((Tm.gs j (r '' X)).Ω i : Finset (CTorus d L N₁ m₁ k)) : Set (CTorus d L N₁ m₁ k)) =
