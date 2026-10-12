@@ -35,7 +35,9 @@ import Mathlib.Tactic.Linarith
 * `windowOfHistory_hTband_of_chiDom` (T4, T5): the bond bound for `y ∈ regSetT` and any block `y'`
   adjacent to `y` (in particular every `y' ∈ regSetTExt`), for the layer-`k₁` blocks of the window
   generating set `𝔹_k`.  The bond bound is a statement about blocks of `𝔹_k` (`genBlocksIn`), so the two
-  blocks are premised to be blocks of the layer `k₁` of `𝔹_k` (`IsLayerBlock`).
+  blocks are premised to be blocks of the layer `k₁` of `𝔹_k` (`IsLayerBlock`);
+* `chiDomProp_const`, `windowOfHistory_hTband_witness` (T6): the constant unit configuration satisfies
+  `ChiDomProp` for every history and generating set (positive `δ`, `p0`, `Cpsi`, `N ≥ 1`).
 -/
 
 @[expose] public section
@@ -212,5 +214,43 @@ theorem windowOfHistory_hTband_of_chiDom_symm {N : ℕ} (Zc : Set (Torus S.d (M 
     hy' hly' hly (adjT_symm' hadj)
 
 end RegionHistory
+
+section Witness
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K N : ℕ} [NeZero M] [NeZero S.L]
+
+/-- **T6, non-vacuity of `ChiDomProp`.**  The constant unit configuration `ψ ≡ e₀`, `ψ' ≡ 0` lies in the
+support of the retained domain indicator for every history `a`, generating set `B`, fine set `Zc`, and
+every positive tolerance sequence `δ`, `p0`, constant `Cpsi > 0` (`N ≥ 1`): all differences vanish and
+`‖ψ‖ = 1`. -/
+theorem chiDomProp_const (hd : 0 < S.d) (hN : 0 < N) (a : RegionHistory.LocalHistory S n M K) (k : ℕ) {ϱ : ℝ}
+    (B : GeneratingSet S.d S.L (M * n K) K ϱ) (Zc : Set (Torus S.d (M * n K * S.L ^ K)))
+    (δ p0 : ℕ → ℝ) (Cpsi : ℝ) (hδ : ∀ j, 0 < δ j) (hp : ∀ j, 0 < p0 j) (hC : 0 < Cpsi) :
+    ChiDomProp a k B Zc δ p0 Cpsi
+      (fun _ _ => EuclideanSpace.single (⟨0, hN⟩ : Fin N) (1 : ℝ))
+      (fun _ _ => (0 : EuclideanSpace ℝ (Fin N))) := by
+  have hpsi : ∀ (Y : Set (BlockPt S n M K)) (t : ℝ), 0 < t →
+      PsiTildeMulti (fun (_ : ℕ) (_ : Torus S.d (M * n K * S.L ^ (K - _))) =>
+        EuclideanSpace.single (⟨0, hN⟩ : Fin N) (1 : ℝ)) Y t := by
+    intro Y t ht
+    refine ⟨fun b _ b' _ _ _ => ?_, fun b _ => ?_⟩ <;> simp [ht]
+  have hd' : (0 : ℝ) < S.d := by exact_mod_cast hd
+  have hL' : (0 : ℝ) < S.L := by exact_mod_cast NeZero.pos S.L
+  refine ⟨fun j _ y _ _ => hpsi _ _ ?_, fun j _ _ y _ _ _ => hpsi _ _ (mul_pos (by norm_num) (hδ j)),
+    fun j _ y _ => ?_⟩
+  · exact mul_pos (mul_pos (mul_pos (by norm_num) hd') hL') (hδ j)
+  · simpa using mul_pos hC (hp j)
+
+/-- **T6 at the actual window.**  The hypothesis `ChiDomProp` of `windowOfHistory_hTband_of_chiDom`
+is satisfiable for every window: the constant unit configuration satisfies it. -/
+theorem windowOfHistory_hTband_witness {R : ℕ → ℝ} {k0 : ℕ} {K' : ℕ} (H : RegionHistory S n R k0 K')
+    {k : ℕ} (Z : H.Comp k) (g : Geo S n R M) (hkK : k ≤ K') (hW : H.RipeWindow k Z)
+    (hd : 0 < S.d) (hN : 0 < N) (Zc : Set (Torus S.d (M * n k * S.L ^ k)))
+    (δ p0 : ℕ → ℝ) (Cpsi : ℝ) (hδ : ∀ j, 0 < δ j) (hp : ∀ j, 0 < p0 j) (hC : 0 < Cpsi) :
+    ∃ ψ ψ' : MultiField S n M k N,
+      ChiDomProp (H.localHistory M k k Z) k (windowOfHistory H Z g hkK hW).full Zc δ p0 Cpsi ψ ψ' :=
+  ⟨_, _, chiDomProp_const hd hN _ k _ Zc δ p0 Cpsi hδ hp hC⟩
+
+end Witness
 
 end Balaban.LargeField
