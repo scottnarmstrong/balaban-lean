@@ -352,8 +352,9 @@ theorem thm31g_Eu_of_input
 /-- **Theorem 3.1 (h)** (FLUCTUATION.md §3.6, (3.11); P4 Prop 4.2): `ℳ(x) = β_k^{-1/2} ℳ''₀(θ)(x) +
 δφ(x) + (ℳ^{(j)}-differences)` expands with the bound
 `B_{M0} + K_loc c_K K₂ B ε_R + B_{old,M} ε_R / r₀`.  With
-`B_{M0} = ½ β^{-1/4} ξ_{k+1}^{(d-2)/2+γ-α₁}` from (b), `B = 8 ε`, `ε_{k+1} = α₀ ξ_{k+1}^{(d-2)/2+γ-α₁} L^{(k+1)(2γ-α₁)}`, this is the (H.7)
-bound with `c₉` replaced by `½ β^{-1/4} + C₆ ε_R L^{(k+1)(2γ-α₁)}`. -/
+`B_{M0} = ½ β^{-1/4} ξ_{k+1}^{(d-2)/2+γ-α₁}` from (b), `B = 8 ε`,
+`ε_{k+1} = α₀ ξ_{k+1}^{(d-2)/2+γ-α₁} L^{(k+1)(2γ-α₁)}`, this is the (H.7) bound with `c₉`
+replaced by `½ β^{-1/4} + C₆ ε_R L^{(k+1)(2γ-α₁)}`. -/
 theorem thm31h_of_input
     (I : RenormExpInput G a ν ε r₀ cK B F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE
       M0θ oldM)

@@ -33,10 +33,11 @@ The datum `ψ` (fine units: the lifted field `D.Ψ` with `h̃ = D.h`) ranges ove
 `(φ, α) = (bgFieldC, bgMultC)` of `(ψ, h)` at the mass `ν` (Def-5(b)).
 
 * `prop51Hyp_xi` (complete) and `prop51Hyp_xi_nuFree`: the `Ξ`-domain instantiation of the
-  hypotheses
-  (P1)–(P4) of Proposition 5.1 for the shifted multiplier, with `δ₁ = 8 ε |ξ|_∞` (complete) resp.
-  `δ₁ = (3/2) ε |ξ|_∞` (`ν`-free);
-* `IsRenSol` — the properties of the solution map `F : ((Ψ, h̃), ξ) ↦ (δφ, δα)`; `exists_isRenSol`,
+  hypotheses (P1)–(P4) of Proposition 5.1 for the shifted multiplier, with `δ₁ = 8 ε |ξ|_∞`
+  (complete) resp. `δ₁ = (3/2) ε |ξ|_∞` (`ν`-free);
+* `IsRenSol G a ν ε_ζ ε r B F` — the properties of the solution map
+  `F : ((Ψ, h̃), ξ) ↦ (δφ, δα)` (`ζ = ε_ζ ξ₁`, domain radius `ε`, bound `K₂ B |ξ|_∞`);
+  `exists_isRenSol`,
   `exists_isRenSol_nuFree` (and `exists_isRenSol_params`, the inhabitation witness): there is one
   `F`, complex-analytic jointly in `(Ψ, h̃, ξ)` on `Ξ^c_{k+1}(1, ε) × {|ξ|_∞ < r}`, solving the
   complex-mass system, unique in `|δα|₂ ≤ c₆`, with
@@ -44,8 +45,8 @@ The datum `ψ` (fine units: the lifted field `D.Ψ` with `h̃ = D.h`) ranges ove
 * `IsRenSol.eq_zero`: `F = 0` at `ξ = 0`; `IsRenSol.eq_bg`: for real `ξ`, `F = (φ_u - φ, α_u - α)`
   with `(φ_u, α_u)` the small solution of the unrenormalized datum `((1 + ζ) ψ, h)` at `ν_u`.
 
-Constants: P4 (4.10)–(4.11) has `7 K₂`, FLUCTUATION.md has `3 K₂`.  The `ν`-free bound `(3/2) K₂` is
-sharper; the complete-convention `8 K₂` comes from the `Ξ^c` mass condition as landed
+Constants: P4 (4.10)–(4.11) has `7 K₂`, FLUCTUATION.md has `3 K₂`.  The `ν`-free bound
+`(3/2) K₂` is sharper; the complete-convention `8 K₂` comes from the `Ξ^c` mass condition as landed
 (`√ν ℓ |φ^r - h₀| < ε` on the real part and the displacement bounds, not a complex mass
 condition, see `Balaban/SmallField/Xi.lean` item 4): `ν ℓ² |h - φ| < 3 ε`.
 -/
