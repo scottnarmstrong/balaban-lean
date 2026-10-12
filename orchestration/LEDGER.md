@@ -150,3 +150,4 @@
 | 2026-10-12 | D-LFR Part IV | running | Opus; §II.7 LF-6 base case, LF-3, LF-5, LF-7, LF-8, final assembly to Root-F and RootFAndC1Star |
 | 2026-10-12 | astra Part III audit | running | tmux `astra-lfr3` |
 | 2026-10-12 | queued (next Sonnet slots) | queued | (1) LOCALIZATION v3: adopt GM2 repair (d̃^cov) + W38 restatement of `gm2`; (2) SMALLFIELD v3 §3: RG system with P5's ν-free backgrounds (CHECKS1 §2) + Lean `matrixInfty` variant; (3) OBSERVABLES revision: replace (L4) by the P2-04 convention (operators depend on g through e^b) |
+| 2026-10-12 | W44 Ξ3 field level | landed (partial) | `xiC_compose`/`xiC_compose_at` ((Ξ3): composed datum ∈ Ξ^c_j(𝔹; (8d+12)θ, ε₀), fields = restrictions), `composeField_eq_blockMean_ext`, `composeField_sub_blockMean_ext_le` (≈710 lines). (Ξ4) transport open: needs the P1 (3.107) normalization of ∂² (GREEN Q1) and a block-translation lemma for Q_n |
