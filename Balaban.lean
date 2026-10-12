@@ -683,3 +683,7 @@ public import Balaban.SmallField.RenormClassFamily
 public import Balaban.SmallField.RenormClassTheorem
 public import Balaban.Localization.CoverPartition
 public import Balaban.Localization.Decoupled2FpCount
+public import Balaban.LargeField.R.Outcome
+public import Balaban.LargeField.R.SmallFactorChi
+public import Balaban.LargeField.R.SmallFactorConsts
+public import Balaban.LargeField.R.SmallFactorGe
