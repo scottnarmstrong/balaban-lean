@@ -12,17 +12,17 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W141 (Opus) | `w141-class-v2` / W141 | class v2 per CLASS-RULINGS-2 + PIN-I6 jet certificate clause |
+| W165 (Opus) | `w165-v2-i6` / W165 | I-6 + renormalization for the v2 class (scheme A) |
 | W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
-| W158 | `w158-step-followups` / W158 | step-object identities (ΣE1loc, ℱ₀ vs ℳ₀, ∫t_k) |
-| W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
-| W160 | `w160-p6-base` / W160 | VMOD-11 rows 6–8: P6 pair CoverBase, FootLocal, s ≡ 1 identities |
-| W154 | `w154-symm-engine` / W154 | symmetry of Prop 3.3 terms |
-| W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
-Opus queue after W141: psiZero Hessian bound (after astra PSIZERO-HESS). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief.
+| W162 | `w162-obs-witness` / W162 | step regularity; ClassRegularObs witness |
+| W164 | `w164-vmod12` / W164 | VMOD-12 proved parts (two-operator locality) |
+| W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
+| W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
+| W170 | `w170-nonvanish` / W170 | complex StepNonvanishing from the cluster expansion |
+Temporary rule-10 exemptions to clear: `PsiZeroInput` (W157), `ClassRegularObs` at N = 0 (W162). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): q13 WALL-COLLAR (tag WALLCOLLAR), vmod VMOD-14 (VMOD14), fluctfix COMPLETE-STEP (COMPLETESTEP). DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): q13 COLLAR-FIX (tag COLLARFIX), vmod VMOD-16 (VMOD16), fluctfix RAY-CHART (RAYCHART). DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
