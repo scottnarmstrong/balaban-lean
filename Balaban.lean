@@ -1225,3 +1225,4 @@ public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.Inhabited.RLaneWitness
+public import Balaban.Inhabited.RLaneWitnessDen
