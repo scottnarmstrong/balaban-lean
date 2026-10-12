@@ -12,17 +12,17 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W245 | `w245-avg-family` / W245 | averaged vs unaveraged term family in a_j = v₁ (links M2, M3 of W235) |
-| W248 | `w248-p6-pair-witness` / W248 | concrete P6 pair instance for P6ActiveHalo / MooreDegree / LedgerPacking |
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W250 | `w250-v-reads` / W250 | V-summand physical reads (SPLIT §3, V) |
-| W251 | `w251-rows-compose` / W251 | composition of the row-local theorems on the component |
-| W252 | `w252-bgsetting-witness` / W252 | BgSetting/FlSetting witness with nonempty data sites; E-read instance |
-| W253 | `w253-v2-moments` / W253 | moment bound for v₂ and the near source term (Q13-GROUPED (4) second inequality, (7)) |
-| W254 | `w254-sharp-ae` / W254 | SharpAE: resummation with the sharp relation AgHatDir (SHARPLOC package 3) |
+| W256 | `w256-physical-terms` / W256 | physical_hatTerms packaging; physical_directTerms given PhysicalSharpLoc |
+| W258 | `w258-output-fixed-coeff` / W258 | canonical coefficients of Theorem 3.1 with congruence lemmas (OUTPUT package 2) |
+| W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
+| W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
+| W262 | `w262-grouped-bound` / W262 | grouped regional bound assembled from W228, W233, W234, W242, W253 |
+| W263 | `w263-sharp-vf` / W263 | sharp V and F summands on the sharp engine |
+| W264 | `w264-sharp-enu` / W264 | sharp E and ν/ℳ summands on the sharp engine |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): fluctfix OUTPUT (tag OUTPUT; SHARPLOC done: package order SharpFanFl → SharpFanHat → SharpAE → SharpV/E/F/Nu/M → SharpAssembly → physical_directTerms → direct assembler; output-class ledger of 23 fields, none produced from a step yet), q13 GENERATOR (tag GENERATOR; Q13-TRANSFER done: the admissible global generator levelGS breaks the SF→LF history transfer — generator choice is a design decision across lanes), vmod VMOD-29 DECAY (tag VMOD29; VMOD-28 done: D7 migration brief passed to Opus W249; continuum-to-fine bridge conditional on two named statements). NEXT SONNET PACKAGES (rate route, notes/phase1/SHARPLOC.md §1): SharpFanFl, SharpFanHat (after W251), then SharpV/E/F/Nu/M, SharpAssembly, physical_directTerms, direct assembler. AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
+astra (cap 3): q13 LOCALGEN (tag LOCALGEN; GENERATOR done — DECISION PENDING WITH SCOTT: class generator (L) local / (G) global / (M) mixed-refuted; no generator-specific Lean until he rules: hold OutputTermSkeleton and any change to GsSpecStrong), fluctfix GENERAL (tag GENERAL: the step beyond the zero class; OUTPUT done), vmod VMOD-30 MIXED-DECAY (tag VMOD30; VMOD-29 done: propagation decay not yet sufficient). NEXT SONNET PACKAGES (rate route, notes/phase1/SHARPLOC.md §1): after W257 (sharp fan) → SharpV/E/F/Nu/M → SharpAssembly/PhysicalSharpLoc → compose with W256 (physical_directTerms_of_sharpLoc) and W255 (direct assembler). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 

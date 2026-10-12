@@ -223,3 +223,9 @@ connected families of cover cubes rooted at the ACTIVE cells of X is uniform (de
 at most 3^d (L^{m_0})^d cubes at an active cell); the sum over families at a fixed support then has
 the rate 2κ − 1 of (4.34). What is missing is exactly the statement that a family not rooted at an
 active cell contributes nothing, or is paid for.
+
+If the parameters are present (case (b)): does (4.32) admit an estimate of the mixed differences in
+the marked parameters with ONE propagation factor for each connected component of marked cubes not
+touching an active cell (on the polydisc of (H7)), and do all the parameter-dependent reads of the
+output lie in layer k of the old operator? A bound on a single Green-function entry, or (3.9), does
+not give either.
