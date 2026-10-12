@@ -473,7 +473,7 @@ theorem total_final_small {K P Y Mcd lam : ℝ} {n : ℕ} (hK : 0 ≤ K) (hP : 0
   linarith
 
 /-- Final arithmetic, large `s`. -/
-theorem total_final_big {K P Y Mcd v lam : ℝ} {n : ℕ} (hK : 0 ≤ K) (hP : 0 ≤ P) (hY : 0 ≤ Y)
+theorem total_final_big {K P Y Mcd v lam : ℝ} {n : ℕ} (hK : 0 ≤ K) (hP : 0 ≤ P) (_hY : 0 ≤ Y)
     (hlam : 1 ≤ lam) (hM : Mcd ≤ P * lam ^ n) (hv : v ≤ P * Y * lam ^ (n + 1)) :
     2 * K * Mcd + 4 * K * v ≤ K * (2 * P + 4 * P * Y) * lam ^ (n + 1) := by
   have hl0 : 0 ≤ lam := by linarith
