@@ -970,3 +970,7 @@ public import Balaban.Localization.GraphGmWalk
 public import Balaban.Localization.GraphGmDefs
 public import Balaban.Localization.GraphGmTree
 public import Balaban.Localization.GraphGmExponent
+public import Balaban.SmallField.RenormPinJet
+public import Balaban.SmallField.RenormPinBridge
+public import Balaban.SmallField.RenormPinSum
+public import Balaban.SmallField.RenormPinCounter
