@@ -172,7 +172,7 @@ theorem HistImage.vcubes_eq (hI : HistImage σ a a') (R : ℕ → ℝ) {k : ℕ}
   rw [hI.zcubes_eq hk, σ.thick_image, σ.nbhd_image]
 
 /-- The cube of the image of a block is the image of the cube. -/
-theorem TorusSym.blockCube_eb (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hj : j ≤ K)
+theorem TorusSym.blockCube_eb (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hj : j ≤ K)
     (y : BlockAt S n M K j) : blockCube S n M K j (σ.eb j y) = σ.ec j (blockCube S n M K j y) := by
   obtain ⟨x, hx⟩ := exists_site_in_block (S := S) (n := n) (M := M) hj y
   have h1 := cubeMap_jBlock (S := S) (n := n) (M := M) hnn hj x
@@ -180,7 +180,7 @@ theorem TorusSym.blockCube_eb (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hj
   rw [σ.jblock j hj, hx] at h2
   rw [h2, σ.cube j hj, ← h1, hx]
 
-theorem HistImage.mem_Vblk (hI : HistImage σ a a') (hnn : ∀ i, n i = S.L * n (i + 1)) (R : ℕ → ℝ)
+theorem HistImage.mem_Vblk (hI : HistImage σ a a') (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (R : ℕ → ℝ)
     {k : ℕ} (hk : k ≤ K) (y : BlockAt S n M K k) :
     σ.eb k y ∈ Vblk R a' k ↔ y ∈ Vblk R a k := by
   show blockCube S n M K k (σ.eb k y) ∈ Vcubes R a' k ↔ blockCube S n M K k y ∈ Vcubes R a k

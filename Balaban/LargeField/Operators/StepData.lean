@@ -65,11 +65,11 @@ def parOutP (a : LocalHistory S n M K) (k : ℕ) (y : BlockAt S n M K (k + 1)) :
 /-- The new part `χ^new_k(Z')` of the domain of the localized history of a component `Z'` of a
 region history `H` (with the generating set `𝔹_K` of the lineage localization), at the
 configuration `(o, x)` of the output and the new variables. -/
-def ChiNewAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k : ℕ)
+def ChiNewAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0 K) (k : ℕ)
     (Z' : H.Comp (k + 1)) (o : OutT N R (H.localHistory M K (k + 1) Z') (k + 1))
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) : Prop :=
   ChiNewProp (H.localHistory M K (k + 1) Z') k
-    ((H.locRH (k + 1) Z').histGen (M := M) (locRH_rem (k + 1) Z') H.F.ok.two_le_L K
+    ((H.locRH (k + 1) Z').histGen (M := M) (K' := K) le_rfl (locRH_rem (k + 1) Z') H.F.ok.two_le_L
       (fun j _ _ => geo.hRlow j))
     (fineSet (S := S) (n := n) M K (k + 1) (Z'.1 : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
     cs.Cpsi
@@ -80,12 +80,12 @@ def ChiNewAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k
 /-- The domain condition `χ^dom_k(Z, 𝔞) = 1` of Definition II.3.4 for the localized history of a
 component `Z` of a region history `H`, at the configuration `(o, x)` of the output and of the
 internal variables in `A`. -/
-def ChiDomAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k : ℕ)
+def ChiDomAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0 K) (k : ℕ)
     (Z : H.Comp k) {A : Set (InternalVars (H.localHistory M K k Z) k)}
     (o : OutT N R (H.localHistory M K k Z) k) (x : SubCfg N (H.localHistory M K k Z) k A) :
     Prop :=
   ChiDomProp (H.localHistory M K k Z) k
-    ((H.locRH k Z).histGen (M := M) (locRH_rem k Z) H.F.ok.two_le_L K (fun j _ _ => geo.hRlow j))
+    ((H.locRH k Z).histGen (M := M) (K' := K) le_rfl (locRH_rem k Z) H.F.ok.two_le_L (fun j _ _ => geo.hRlow j))
     (fineSet (S := S) (n := n) M K k (Z.1 : Set (Torus S.d (n k)))) cs.delta cs.p0 cs.Cpsi
     (subMultiscaleField N (H.localHistory M K k Z) k (Vblk R (H.localHistory M K k Z) k) x o)
     (subFluctField N (H.localHistory M K k Z) k x)
@@ -170,7 +170,7 @@ structure StepData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
     RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
       (ker k a').b o' x' hv g' = (ker k a).b o x hv g
   /-- (S0) the bound `|b_k| ≤ (C_b log β_k + C_b B_0) |Z^c_k ∩ Z'|_{k+1}` on the domain -/
-  b_bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ)
+  b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ)
     (Z' : H.Comp (k + 1)) o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
     ChiNewAt geo cs H k Z' o x →
     ‖(ker k (H.localHistory M K (k + 1) Z')).b o x hv g‖ ≤
@@ -178,17 +178,17 @@ structure StepData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
         volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
           z ∉ (H.localHistory M K (k + 1) Z').Z k}
   /-- (S1) the kernel of a quiet step is the quiet kernel -/
-  quiet : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (hk : k + 1 ≤ K)
+  quiet : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ) (hk : k + 1 ≤ K)
     (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
     ∀ o x hv, (ker k (H.localHistory M K (k + 1) Z')).K o x hv =
-      quietKernel geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hk (locRH_rem (k + 1) Z') o x hv
+      quietKernel geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o x hv
   /-- (S1) the kernel vanishes off the new part `χ^new_k` of the domain -/
-  dom : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ)
+  dom : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ)
     (Z' : H.Comp (k + 1)) o x hv,
     ¬ ChiNewAt geo cs H k Z' o x →
     (ker k (H.localHistory M K (k + 1) Z')).K o x hv = 0
   /-- (S1)-(S2) the Gaussian structure and the one-step bound -/
-  gauss : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z' : H.Comp (k + 1)),
+  gauss : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ) (Z' : H.Comp (k + 1)),
     GaussStepSpec cs R (H.localHistory M K (k + 1) Z') k (κs k (H.localHistory M K (k + 1) Z'))
       (ker k (H.localHistory M K (k + 1) Z')) (wit k (H.localHistory M K (k + 1) Z'))
 
@@ -247,7 +247,7 @@ structure KeptData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
     RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
       (datum k a' ϰ).ker.b o' x' hv g' = (datum k a ϰ).ker.b o x hv g
   /-- the bound (1.26) of the kept operator (which includes the vanishing off `χ^dom_k`) -/
-  bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z : H.Comp k),
+  bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ) (Z : H.Comp k),
     1 ≤ k → k ≤ k0 → S.Ripe k (H.bk k Z) → ∀ ϰ : Fin 5,
     (∀ o x hv, ¬ ChiDomAt geo cs H k Z o x → (datum k (H.localHistory M K k Z) ϰ).ker.K o x hv = 0) ∧
     KerBound (H.localHistory M K k Z) k (datum k (H.localHistory M K k Z) ϰ).ker

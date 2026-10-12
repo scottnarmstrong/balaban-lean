@@ -29,8 +29,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- The geometric content of Lemma III.1.2 for a ripe component `Z` of scale `k`; `q` is the core
 and `ν` the number of pieces of `Z`. -/
@@ -100,10 +100,10 @@ include G
 /-- **Lemma III.1.2 (RQ1)–(RQ5), the part about the region history**: a ripe component `Z` of
 `Z^pre_k`, `1 ≤ k ≤ k₀` (assuming `n_j ≥ 4ρ_j + 21` for `1 ≤ j ≤ k₀`). -/
 theorem ripe_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k) {k : ℕ} {Z : H.Comp k}
-    (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) : H.RipeWindow k Z := by
+    (hk0 : k ≤ k0) (hkK : k ≤ K) (hrip : S.Ripe k (H.bk k Z)) : H.RipeWindow k Z := by
   have hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending := Or.inl hrip.1
   have hk1 : 1 ≤ k := not_isEmpty_comp Z hk0
-  have hinv := (H.window_inv' G k hk1 hk0 Z).1
+  have hinv := (H.window_inv' G k hk1 hk0 hkK Z).1
   have htS : S.tStar (H.bk k Z) = k := hrip.2
   have hlo : (H.bk k Z).q + S.nq (H.bk k Z).q ≤ k := by
     have := S.tStar_ge_left (H.bk k Z); omega
@@ -116,23 +116,23 @@ theorem ripe_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n
   · have := (G.ok.k1_eq_iff (S := S) (t := k) (c := (H.bk k Z).q)
       (by have := G.ok.nq_mono (Nat.zero_le (H.bk k Z).q); omega)).mpr ⟨hlo, hhi⟩
     exact this
-  · intro j Y hd hq; exact nonpre_of_desc G hk0 hZ hd hq
-  · intro j Y hd hq; exact live_of_desc G hk0 hZ hd hq
+  · intro j Y hd hq; exact nonpre_of_desc G hk0 hkK hZ hd hq
+  · intro j Y hd hq; exact live_of_desc G hk0 hkK hZ hd hq
   · intro j hq hjk
     ext x
     simp only [Finset.mem_inter, Finset.notMem_empty, iff_false]
     rintro ⟨hx, hxn⟩
     obtain ⟨Y, hd, hxY⟩ := mem_lin.mp hx
-    have hL := live_of_desc G hk0 hZ hd hq
+    have hL := live_of_desc G hk0 hkK hZ hd hq
     obtain ⟨κ, rfl⟩ : ∃ κ, j = κ + 1 := ⟨j - 1, by omega⟩
     have hr : (Y.1 ∩ H.newCubes (κ + 1)).card = 0 := hL.1
     rw [Finset.card_eq_zero] at hr
     have : x ∈ Y.1 ∩ H.newCubes (κ + 1) := Finset.mem_inter.mpr ⟨hxY, hxn⟩
     rw [hr] at this
     simp at this
-  · intro j Y hd hq hjk; exact not_ripe_of_desc G hk0 hZ hd hq hjk
-  · exact gain_le_core G hk0 hZ
-  · intro j hq hjk; exact cover_window G hT hk0 hZ hq hjk
+  · intro j Y hd hq hjk; exact not_ripe_of_desc G hk0 hkK hZ hd hq hjk
+  · exact gain_le_core G hk0 hkK hZ
+  · intro j hq hjk; exact cover_window G hT hk0 hkK hZ hq hjk
   · have := hinv.adm
     obtain ⟨q, ν, M, hst⟩ := hrip.1
     rw [S.adm_active hst] at this
@@ -140,12 +140,12 @@ theorem ripe_window (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n
     exact this.2.2.1
   · intro j Y hsj hd
     have hjk := hd.le
-    obtain ⟨h1, -, h3⟩ := pt_desc G k Z hk0 hpt (s := (H.bk k Z).s) rfl (by omega) j Y hsj hd
+    obtain ⟨h1, -, h3⟩ := pt_desc G k Z hk0 hkK hpt (s := (H.bk k Z).s) rfl (by omega) j Y hsj hd
     have hj1 : 1 ≤ j := not_isEmpty_comp Y (by omega)
-    have hinvY := (H.window_inv' G j hj1 (by omega) Y).1
+    have hinvY := (H.window_inv' G j hj1 (by omega) (by omega) Y).1
     have hl := hinvY.pt_len h1
-    exact ⟨hl, cover_of_len hT hj1 (by omega) Y hl, h3⟩
-  · intro Y hd; exact core_box G hT hk0 hZ rfl hd
+    exact ⟨hl, cover_of_len hT hj1 (by omega) (by omega) Y hl, h3⟩
+  · intro Y hd; exact core_box G hT hk0 hkK hZ rfl hd
   · intro Y Y' hne x hx y hy; exact core_sep hne hx hy
 
 end RegionHistory

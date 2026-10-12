@@ -28,7 +28,7 @@ section Counts
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] [NeZero S.L] {M K : ℕ} [NeZero M]
 
 /-- The number of sites of the fine torus over a set of `A` cubes of `𝕋_j` is `(L^j M)^d |A|`. -/
-theorem card_fineSet (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem card_fineSet (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (A : Finset (Torus S.d (n j))) :
     (RegionHistory.fineSet (S := S) (n := n) M K j (A : Set (Torus S.d (n j)))).ncard =
       (S.L ^ j * M) ^ S.d * A.card := by
@@ -44,7 +44,7 @@ theorem card_fineSet (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤
   rw [e, Set.ncard_coe_finset, h]
 
 /-- `cubeMap` is onto. -/
-theorem cubeMap_surjective (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem cubeMap_surjective (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (x : Torus S.d (n j)) : ∃ y : Torus S.d (M * n K * S.L ^ K), cubeMap n S.L M K j y = x := by
   classical
   have hℓ : M * n K * S.L ^ K = S.L ^ j * M * n j := fine_eq hnn hjK
@@ -58,7 +58,7 @@ theorem cubeMap_surjective (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK :
   exact ⟨y, mem_blockFibre.mp hy⟩
 
 /-- A set of cubes is determined by its fine set. -/
-theorem fineSet_injective (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem fineSet_injective (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     {A B : Set (Torus S.d (n j))}
     (h : RegionHistory.fineSet (S := S) (n := n) M K j A =
       RegionHistory.fineSet (S := S) (n := n) M K j B) : A = B := by
@@ -71,8 +71,8 @@ end Counts
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0} {M K k : ℕ} [NeZero M]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K} {M k : ℕ} [NeZero M]
 
 theorem fine_lin_subset {j : ℕ} (hkK : k ≤ K) (Z : H.Comp k) :
     fineSet (S := S) (n := n) M K j ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) ⊆
@@ -87,7 +87,7 @@ theorem localHistory_Z (Z : H.Comp k) (hkK : k ≤ K) {j : ℕ} (hj : j ≤ k) :
     (localHistory H M K k Z).Z j =
       fineSet (S := S) (n := n) M K j ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) := by
   show fineSet M K j ((H.locRH k Z).step j).Z ∩ fineSet M K k Z.1 = _
-  rw [locRH_Z Z hj]
+  rw [locRH_Z Z hj (hj.trans hkK)]
   exact Set.inter_eq_left.mpr (fine_lin_subset hkK Z)
 
 /-- The `P`-, `Q`-, `R`-, `S`-records of the localized history at a scale `j < k`: the fine
@@ -101,7 +101,7 @@ theorem localHistory_new (Z : H.Comp k) (hkK : k ≤ K) {j : ℕ} (hj : j < k) :
         ((H.step j).R ∩ ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)) ∧
     (localHistory H M K k Z).Sset j = fineSet (S := S) (n := n) M K (j + 1)
         ((H.step j).S ∩ ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)) := by
-  obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj
+  obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj (by omega)
   have hsub : ∀ (X : Set (Torus S.d (n (j + 1)))),
       fineSet (S := S) (n := n) M K (j + 1)
         (X ∩ ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)) ∩

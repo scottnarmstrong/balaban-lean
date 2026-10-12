@@ -25,15 +25,15 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 variable (H) in
 /-- A chain of pure shadows. -/
 inductive ShDesc (a : ℕ) : (b : ℕ) → H.Comp a → H.Comp b → Prop
   | refl (Y : H.Comp a) : ShDesc a a Y Y
   | step (b : ℕ) (Y : H.Comp a) (Y' : H.Comp b) (Y'' : H.Comp (b + 1)) :
-      ShDesc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.succ b Y' h = Y'' →
+      ShDesc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.IsSucc b Y' Y'' →
         H.parts b Y'' = {Y'} → H.nr b Y'' = 0 →
         ((H.pb b Y').IsActive ∨ (H.pb b Y').IsPending) → ¬ S.Ripe b (H.bk b Y') →
         ShDesc a (b + 1) Y Y''
@@ -48,11 +48,11 @@ theorem ShDesc.le {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc a b W 
   h.toDesc.le
 
 /-- One pure shadow: the length is divided by `L`, and a short spine becomes a point. -/
-theorem shadow_len {k : ℕ} {Y'' : H.Comp (k + 1)} {c : H.Comp k} (hparts : H.parts k Y'' = {c})
+theorem shadow_len {k : ℕ} (hk : k < K) {Y'' : H.Comp (k + 1)} {c : H.Comp k} (hparts : H.parts k Y'' = {c})
     (hr : H.nr k Y'' = 0) :
     (H.bk (k + 1) Y'').len ≤ (H.bk k c).len / S.L ∧
       ((H.bk k c).len ≤ S.L → (H.bk (k + 1) Y'').len = 0) := by
-  have hrule := H.book_rule k Y''
+  have hrule := H.book_rule hk Y''
   have hlen := hrule.len_gen
   have hr' : (Y''.1 ∩ H.newCubes (k + 1)).card = 0 := hr
   rw [hparts, hr'] at hlen
@@ -75,14 +75,16 @@ variable (G : S.Good)
 include G
 
 /-- The length along a chain of pure shadows. -/
-theorem ShDesc.len_le {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc a b W Y) :
+theorem ShDesc.len_le {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc a b W Y)
+    (hbK : b ≤ K) :
     (H.bk b Y).len ≤ (H.bk a W).len / (S.L : ℝ) ^ (b - a) := by
   have hL : (1 : ℝ) < S.L := by linarith [G.ok.cast_L_ge]
   induction h with
   | refl => simp
   | step b' W' Y' Y'' hd hrem hs hparts hr _ _ ih =>
     have hle := hd.le
-    obtain ⟨h1, -⟩ := shadow_len hparts hr
+    have ih := ih (by omega)
+    obtain ⟨h1, -⟩ := shadow_len (by omega) hparts hr
     have e : b' + 1 - a = (b' - a) + 1 := by omega
     rw [e, pow_succ]
     calc (H.bk (b' + 1) Y'').len ≤ (H.bk b' Y').len / S.L := h1
@@ -91,14 +93,15 @@ theorem ShDesc.len_le {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc a 
 
 /-- A spine of length `≤ L^t` becomes a point after `t ≥ 1` pure shadows. -/
 theorem ShDesc.len_zero {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc a b W Y)
-    (hab : a < b) (hW : (H.bk a W).len ≤ (S.L : ℝ) ^ (b - a)) : (H.bk b Y).len = 0 := by
+    (hab : a < b) (hbK : b ≤ K) (hW : (H.bk a W).len ≤ (S.L : ℝ) ^ (b - a)) :
+    (H.bk b Y).len = 0 := by
   have hL : (1 : ℝ) < S.L := by linarith [G.ok.cast_L_ge]
   cases h with
   | refl => omega
   | step b' _ Y' _ hd hrem hs hparts hr _ _ =>
-    obtain ⟨-, h2⟩ := shadow_len hparts hr
+    obtain ⟨-, h2⟩ := shadow_len (by omega) hparts hr
     refine h2 ?_
-    have h3 := ShDesc.len_le G hd
+    have h3 := ShDesc.len_le G hd (by omega)
     have hpos : (0 : ℝ) < (S.L : ℝ) ^ (b' - a) := by positivity
     have e : b' + 1 - a = (b' - a) + 1 := by have := hd.le; omega
     rw [e, pow_succ] at hW
@@ -125,14 +128,14 @@ theorem not_isEmpty_comp {k : ℕ} (Y : H.Comp k) (hk : k ≤ k0) : 1 ≤ k := b
 
 /-- **Branches of the lineage**: every `Active` or `Pending` component of scale `κ ≤ k₀` is the
 pure-shadow descendant of a component `W` that is a point or a merge within the cap. -/
-theorem back : ∀ κ (Y : H.Comp κ), κ ≤ k0 → ((H.bk κ Y).IsActive ∨ (H.bk κ Y).IsPending) →
+theorem back : ∀ κ (Y : H.Comp κ), κ ≤ k0 → κ ≤ K → ((H.bk κ Y).IsActive ∨ (H.bk κ Y).IsPending) →
     ∃ ξ, ∃ W : H.Comp ξ, H.ShDesc ξ κ W Y ∧ BackKind ξ W := by
   intro κ
   induction κ with
   | zero => intro Y; exact (H.F.isEmpty_comp_zero.false Y).elim
   | succ k ih =>
-    intro Y hk0 hact
-    obtain ⟨hinv, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Y
+    intro Y hk0 hkK hact
+    obtain ⟨hinv, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 hkK Y
     have hrestart : (H.bk (k + 1) Y).st = WState.restart (k + 1) (H.bk (k + 1) Y).pt →
         (H.bk (k + 1) Y).len = 0 := by
       intro hst
@@ -165,15 +168,15 @@ theorem back : ∀ κ (Y : H.Comp κ), κ ≤ k0 → ((H.bk κ Y).IsActive ∨ (
       by_cases hact' : (H.pb k i).IsActive ∨ (H.pb k i).IsPending
       · by_cases hrip : S.Ripe k (H.bk k i)
         · have hk1 := not_isEmpty_comp i (by omega)
-          have h0 := len_zero_of_ripe (H.window_inv' G k hk1 (by omega) i).1 hrip
-          obtain ⟨hl1, -⟩ := shadow_len hparts hr
+          have h0 := len_zero_of_ripe (H.window_inv' G k hk1 (by omega) (by omega) i).1 hrip
+          obtain ⟨hl1, -⟩ := shadow_len (by omega) hparts hr
           have : (H.bk (k + 1) Y).len = 0 := by
             have h2 := hinv.len_nonneg
             rw [h0, zero_div] at hl1
             exact le_antisymm hl1 h2
           exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl this⟩
         · have hbk : H.pb k i = H.bk k i := S.postBook_of_not_ripe hrip
-          obtain ⟨ξ, W, hsh, hkind⟩ := ih i (by omega) (by rw [← hbk]; exact hact')
+          obtain ⟨ξ, W, hsh, hkind⟩ := ih i (by omega) (by omega) (by rw [← hbk]; exact hact')
           exact ⟨ξ, W, ShDesc.step k W i Y hsh hrem hsu hparts hr hact' hrip, hkind⟩
       · have hpre : (H.pb k i).st = .pre := by
           rcases Book.cases_st (H.pb k i) with h | h | h

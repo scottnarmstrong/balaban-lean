@@ -25,12 +25,12 @@ namespace Balaban.LargeField
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- **Instantiation of LF-2** (§I.5.7): the abstract history `LF2Hyp` of an admissible region
 history, with the numbers `G^pre_k(Z)`, `G_k(Z)` given and (B), (Rg) as hypotheses. -/
-noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp k → ℝ)
+noncomputable def toLF2Hyp (hadm : H.Admissible) (Gp G : ∀ k, H.Comp k → ℝ)
     (budget : ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', G k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ Gp (k + 1) Z')
@@ -39,7 +39,7 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp
     (rg_nonripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → ¬ S.Ripe k (H.bk k c) →
       G k c = Gp k c)
     (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k, G k c = Gp k c) : LF2Hyp S n k0 K where
-  n_succ := fun k _ => H.F.hnn k
+  n_succ := fun k hk => H.F.hnn k hk
   Zp := H.Zp
   Zp_zero := H.F.Zp_zero
   newCubes := H.newCubes
@@ -51,7 +51,7 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp
   bk := H.bk
   bk_len := H.bk_len
   rem_ripe := fun k c hc => hadm k c ((H.mem_remC k c).mp hc)
-  succ := fun k c hc => H.succ k c (fun h => hc ((H.mem_remC k c).mpr h))
+  IsSucc := H.IsSucc
   parts := H.parts
   mem_parts := fun k c Z' => by
     rw [H.mem_parts]
@@ -62,9 +62,9 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp
       exact ⟨fun h' => h ((H.mem_remC k c).mpr h'), e⟩
   Gp := Gp
   G := G
-  spine_contains := fun k _ _ c => H.spine_contains k c
-  seed_pos := fun k _ Z' => H.seed_pos k Z'
-  book_rule := fun k _ Z' => H.book_rule k Z'
+  spine_contains := fun k _ hk c => H.spine_contains k hk c
+  seed_pos := fun k hk Z' => H.seed_pos hk Z'
+  book_rule := fun k hk Z' => H.book_rule hk Z'
   budget := budget
   rg_ripe := fun k hk1 hk2 c hc => rg_ripe k hk1 hk2 c (fun h => hc ((H.mem_remC k c).mpr h))
   rg_nonripe := fun k hk1 hk2 c hc => rg_nonripe k hk1 hk2 c (fun h => hc ((H.mem_remC k c).mpr h))
@@ -84,10 +84,10 @@ theorem _root_.Balaban.LargeField.Setting.Ok.four_rho_le {S : Setting} (ok : S.O
 `{c(Z)}`. -/
 theorem spine_point_iff_HT (ok : S.Ok)
     (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.numax k * (S.crit k + S.omega k) + 4 ≤ n k)
-    {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (Z : H.Comp k) :
+    {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hkK : k ≤ K) (Z : H.Comp k) :
     (H.spine k Z).length = 0 ↔
       IsSmall (Z.1 : Set (Torus S.d (n k))) ∧ side (Z.1 : Set (Torus S.d (n k))) ≤ S.crit k :=
-  H.spine_point_iff hk1 hk0 (ok.four_rho_le (hT k hk1 hk0)) Z
+  H.spine_point_iff hk1 hk0 hkK (ok.four_rho_le (hT k hk1 hk0)) Z
 
 end RegionHistory
 

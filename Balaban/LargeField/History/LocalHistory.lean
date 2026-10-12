@@ -23,8 +23,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- The fine set (a subset of the fine torus `𝕋_{M n_K L^K}`) of a set of cubes of `𝕋_j`. -/
 def fineSet (M K j : ℕ) (A : Set (Torus S.d (n j))) : Set (Torus S.d (M * n K * S.L ^ K)) :=
@@ -59,7 +59,7 @@ def rawLocalHistory (M K k : ℕ) (Z : H.Comp k) : LocalHistory S n M K where
 
 /-- `𝔥_k(Z)`: the admissible region histories (on the same tori) whose pre-`R` region at scale `k`
 is `Z` and has `Z` as its only component. -/
-def historiesWithFinal (k : ℕ) (Z : Finset (Torus S.d (n k))) : Set (RegionHistory S n R k0) :=
+def historiesWithFinal (k : ℕ) (Z : Finset (Torus S.d (n k))) : Set (RegionHistory S n R k0 K) :=
   {H' | H'.Admissible ∧ H'.F.Zp k = Z ∧ comps (S.omega k) Z = {Z}}
 
 open Classical in

@@ -414,13 +414,13 @@ theorem exists_site_in_block {j : ℕ} (hjK : j ≤ K)
   exact ZMod.natCast_zmod_val (y i)
 
 /-- The cube of a site is the cube of its `j`-block. -/
-theorem cubeMap_jBlock (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem cubeMap_jBlock (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (x : Torus S.d (M * n K * S.L ^ K)) :
     blockCube S n M K j (Multiscale.jBlock S.d S.L (M * n K) K j x) = cubeMap n S.L M K j x :=
   cubeMap_eq_comp hnn hjK x
 
 /-- **The bridge.** A block lies in the fine set of a set of cubes iff its cube does. -/
-theorem blockSub_fineSet_iff (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem blockSub_fineSet_iff (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (A : Set (Torus S.d (n j))) (y : BlockAt S n M K j) :
     BlockSub (S := S) (n := n) (M := M) (K := K) j y (fineSet (S := S) (n := n) M K j A) ↔
       blockCube S n M K j y ∈ A := by
@@ -445,13 +445,13 @@ end Bridge
 
 section LocalFacts
 
-variable {R : ℕ → ℝ} {k0 : ℕ} {H : RegionHistory S n R k0}
+variable {R : ℕ → ℝ} {k0 : ℕ} {H : RegionHistory S n R k0 K}
 
 /-- The record `Z_k` of the localized history of a component `Z` of `Z_k` is the fine set of `Z`. -/
-theorem mem_localHistory_Z_top {k : ℕ} (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
+theorem mem_localHistory_Z_top {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
     x ∈ (H.localHistory M K k Z).Z k ↔ cubeMap n S.L M K k x ∈ Z.1 := by
   show (cubeMap n S.L M K k x ∈ ((H.locRH k Z).step k).Z ∧ cubeMap n S.L M K k x ∈ Z.1) ↔ _
-  rw [locRH_Z Z le_rfl, lin_self]
+  rw [locRH_Z Z le_rfl hkK, lin_self]
   simp
 
 /-- A site outside the fine set of `Z` lies in `lhOmega`. -/

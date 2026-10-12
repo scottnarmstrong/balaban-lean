@@ -153,7 +153,7 @@ theorem supDist_add_single_le {d m : ℕ} [NeZero m] (x : Torus d m) (μ : Fin d
 
 /-- The cubes of `𝕋_1` of two nearest-neighbour fine sites are within distance `1`. -/
 theorem supDist_cubeMap_add_single_le {d : ℕ} {nn : ℕ → ℕ} [∀ k, NeZero (nn k)] {L M K : ℕ}
-    [NeZero M] [NeZero L] (hnn : ∀ i, nn i = L * nn (i + 1)) (hK : 1 ≤ K)
+    [NeZero M] [NeZero L] (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) (hK : 1 ≤ K)
     (x : Torus d (M * nn K * L ^ K)) (μ : Fin d) :
     supDist (cubeMap nn L M K 1 x) (cubeMap nn L M K 1 (x + Pi.single μ 1)) ≤ 1 := by
   have hn : M * nn K * L ^ K = (L ^ 1 * M) * nn 1 := fine_eq hnn hK

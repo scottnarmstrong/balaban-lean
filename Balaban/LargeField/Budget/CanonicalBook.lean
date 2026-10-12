@@ -128,7 +128,7 @@ end NextBook
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
 
 /-- `SpineOK` with the old parts given as a set `Ys` of cubes-sets and their spines as a function
 `G` on cubes-sets. -/
@@ -160,23 +160,23 @@ theorem SpineOKO_congr (k0 k : ℕ) (Zf : Finset (Torus S.d (n (k + 1))))
 
 /-- The spine of a component of `Z^pre_k` as a function of the cube set (a default off the
 components). -/
-noncomputable def spineO (H : RegionHistory S n R k0) (k : ℕ) (Y : Finset (Torus S.d (n k))) :
+noncomputable def spineO (H : RegionHistory S n R k0 K) (k : ℕ) (Y : Finset (Torus S.d (n k))) :
     Spine S.d :=
   open Classical in
   if h : Y ∈ comps (S.omega k) (H.Zp k) then H.spine k ⟨Y, h⟩ else Spine.point 0
 
-theorem spineO_comp (H : RegionHistory S n R k0) (k : ℕ) (c : H.Comp k) :
+theorem spineO_comp (H : RegionHistory S n R k0 K) (k : ℕ) (c : H.Comp k) :
     H.spineO k c.1 = H.spine k c := by
   classical
   simp [spineO, c.2]
 
-theorem SpineOK_iff (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1))
+theorem SpineOK_iff (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1))
     (Γ' : Spine S.d) :
     H.SpineOK k (H.spine k) Z' Γ' ↔
       SpineOKO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
         (Z'.1 ∩ H.newCubes (k + 1)).card Γ' := by
   classical
-  have hI := H.parts_image_eq_comps k Z'
+  have hI := H.parts_image_eq_comps hk Z'
   have hsum : ∑ Y ∈ comps (S.omega k) (H.oldCubes k Z'), (H.spineO k Y).length / S.L =
       ∑ c ∈ H.parts k Z', (H.spine k c).length / S.L := by
     rw [← hI, Finset.sum_image (fun _ _ _ _ h => Subtype.val_injective h)]
@@ -208,23 +208,23 @@ theorem dite_choose_congr {P Q : Spine S.d → Prop} (h : P = Q) (x : Spine S.d)
   subst h; rfl
 
 open Classical in
-theorem spine_succ_eq (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem spine_succ_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.spine (k + 1) Z' =
       if h : ∃ Γ', SpineOKO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
           (Z'.1 ∩ H.newCubes (k + 1)).card Γ' then h.choose else Spine.point 0 := by
   have hp : (fun Γ' => H.SpineOK k (H.spine k) Z' Γ') =
       (fun Γ' => SpineOKO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
         (Z'.1 ∩ H.newCubes (k + 1)).card Γ') :=
-    funext fun Γ' => propext (H.SpineOK_iff k Z' Γ')
+    funext fun Γ' => propext (H.SpineOK_iff hk Z' Γ')
   show H.nextSpine k (H.spine k) Z' = _
   unfold nextSpine
   exact dite_choose_congr hp _
 
-theorem mem_Zp_of_old (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1))
+theorem mem_Zp_of_old (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1))
     {Y : Finset (Torus S.d (n k))} (hY : Y ∈ comps (S.omega k) (H.oldCubes k Z')) :
     Y ∈ comps (S.omega k) (H.Zp k) := by
   classical
-  rw [← H.parts_image_eq_comps k Z'] at hY
+  rw [← H.parts_image_eq_comps hk Z'] at hY
   obtain ⟨c, -, rfl⟩ := Finset.mem_image.mp hY
   exact c.2
 
@@ -232,7 +232,7 @@ variable {M K : ℕ} [NeZero M]
 
 /-- **The spine and the book of a component are functions of its localized history.** -/
 theorem spine_bk_eq_of_localHistory_eq :
-    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
+    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0 K) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
       localHistory H1 M K k Z1 = localHistory H2 M K k Z2 →
       Z1.1 = Z2.1 ∧ H1.spine k Z1 = H2.spine k Z2 ∧ H1.bk k Z1 = H2.bk k Z2 := by
   classical
@@ -245,9 +245,9 @@ theorem spine_bk_eq_of_localHistory_eq :
     have hnn : (Z1.1 ∩ H1.newCubes (k + 1)).card = (Z2.1 ∩ H2.newCubes (k + 1)).card := by
       rw [hnew]
     have hmem1 := fun Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)) =>
-      mem_Zp_of_old H1 k Z1 hY
+      mem_Zp_of_old H1 (by omega) Z1 hY
     have hmem2 := fun Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)) =>
-      mem_Zp_of_old H2 k Z2 (hold ▸ hY)
+      mem_Zp_of_old H2 (by omega) Z2 (hold ▸ hY)
     have hih : ∀ Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)),
         H1.spine k ⟨Y, hmem1 Y hY⟩ = H2.spine k ⟨Y, hmem2 Y hY⟩ ∧
         H1.bk k ⟨Y, hmem1 Y hY⟩ = H2.bk k ⟨Y, hmem2 Y hY⟩ := fun Y hY =>
@@ -261,7 +261,7 @@ theorem spine_bk_eq_of_localHistory_eq :
       rw [e1, e2]
       exact (hih Y hY).1
     have hsp : H1.spine (k + 1) Z1 = H2.spine (k + 1) Z2 := by
-      rw [spine_succ_eq, spine_succ_eq]
+      rw [spine_succ_eq (hk := by omega), spine_succ_eq (hk := by omega)]
       refine dite_choose_congr (funext fun Γ' => propext ?_) _
       rw [hnn, hZ, hold]
       exact SpineOKO_congr k0 k _ _ (hold ▸ hspO) _ _
@@ -273,13 +273,13 @@ theorem spine_bk_eq_of_localHistory_eq :
     rw [hnn, hsp]
     refine S.nextBook_congr (k + 1) Subtype.val Subtype.val_injective Subtype.val
       Subtype.val_injective _ _ _ _ ?_ ?_ _ _
-    · have e1 := H1.parts_image_eq_comps k Z1
-      have e2 := H2.parts_image_eq_comps k Z2
+    · have e1 := H1.parts_image_eq_comps (k := k) (by omega) Z1
+      have e2 := H2.parts_image_eq_comps (k := k) (by omega) Z2
       rw [hold] at e1
       convert e1.trans e2.symm
     · intro c hc c' hc' hcc
       have hY : c.1 ∈ comps (S.omega k) (H1.oldCubes k Z1) := by
-        rw [← H1.parts_image_eq_comps]; exact Finset.mem_image_of_mem _ hc
+        rw [← H1.parts_image_eq_comps (k := k) (by omega)]; exact Finset.mem_image_of_mem _ hc
       have hb := (hih c.1 hY).2
       have e1 : (⟨c.1, hmem1 c.1 hY⟩ : H1.Comp k) = c := Subtype.ext rfl
       have e2 : (⟨c.1, hmem2 c.1 hY⟩ : H2.Comp k) = c' := Subtype.ext hcc

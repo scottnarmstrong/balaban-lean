@@ -24,8 +24,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 /-- The step into a component of `Z^pre_s` is live (`False` for `s = 0`). -/
 def LiveAt : ∀ s : ℕ, H.Comp s → Prop
@@ -40,27 +40,28 @@ include G
 
 /-- Lemma I.4.12 along a path, after `R`. -/
 theorem floor_desc_post {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (h : H.Desc a b Y Z)
-    (hb : b ≤ k0) {m : ℕ} (hm : m ≤ a + 1) (hF : (H.pb a Y).Fl m) : (H.pb b Z).Fl m := by
+    (hb : b ≤ k0) (hbK : b ≤ K) {m : ℕ} (hm : m ≤ a + 1) (hF : (H.pb a Y).Fl m) :
+    (H.pb b Z).Fl m := by
   induction h with
   | refl => exact hF
   | step b' _ Y' Y'' hd hrem hs ih =>
     have hle := hd.le
-    have ih' := ih (by omega) hF
+    have ih' := ih (by omega) (by omega) hF
     have hmem : Y' ∈ H.parts b' Y'' := (H.mem_parts b' Y' Y'').mpr ⟨hrem, hs⟩
-    have h1 := floor_step G hb Y'' (by omega) hmem ih'
+    have h1 := floor_step G hb hbK Y'' (by omega) hmem ih'
     exact floor_post G (by omega) hb (by omega) Y'' h1
 
 /-- Lemma I.4.12 along a path, before `R` at the final scale (`a < b`). -/
 theorem floor_desc_pre {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (h : H.Desc a b Y Z)
-    (hab : a < b) (hb : b ≤ k0) {m : ℕ} (hm : m ≤ a + 1) (hF : (H.pb a Y).Fl m) :
+    (hab : a < b) (hb : b ≤ k0) (hbK : b ≤ K) {m : ℕ} (hm : m ≤ a + 1) (hF : (H.pb a Y).Fl m) :
     (H.bk b Z).Fl m := by
   cases h with
   | refl => omega
   | step b' _ Y' Z' hd hrem hs =>
     have hle := hd.le
-    have ih' := floor_desc_post G hd (by omega) hm hF
+    have ih' := floor_desc_post G hd (by omega) (by omega) hm hF
     have hmem : Y' ∈ H.parts b' Z' := (H.mem_parts b' Y' Z').mpr ⟨hrem, hs⟩
-    exact floor_step G hb Z' (by omega) hmem ih'
+    exact floor_step G hb hbK Z' (by omega) hmem ih'
 
 variable {k : ℕ} {Z : H.Comp k}
 
@@ -84,7 +85,7 @@ theorem pb_of_pre {s : ℕ} {Y : H.Comp s} (h : (H.bk s Y).st = .pre) : H.pb s Y
 
 /-- Lemma I.4.13 (a): the ancestors at scales `s ≥ q` of an `Active` or `Pending` component are
 `Active` or `Pending`. -/
-theorem nonpre_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem nonpre_of_desc (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {s : ℕ} {Y : H.Comp s} (hd : H.Desc s k Y Z) (hq : (H.bk k Z).q ≤ s) :
     (H.bk s Y).IsActive ∨ (H.bk s Y).IsPending := by
   have hle := hd.le
@@ -96,18 +97,18 @@ theorem nonpre_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z)
       subst this
       exact not_pre_of_ap hZ hpre
     · have hF : (H.pb s Y).Fl (s + 1) := Book.fl_pre (by rw [pb_of_pre G hpre]; exact hpre)
-      have := not_fl_of_ap hZ (floor_desc_pre G hd hlt hk0 le_rfl hF)
+      have := not_fl_of_ap hZ (floor_desc_pre G hd hlt hk0 hkK le_rfl hF)
       omega
   · exact Or.inr hpend
   · exact Or.inl hact
 
 /-- Lemma I.4.13 (a): the steps into the ancestors at scales `s ∈ (q, k]` are live, so (T1) or
 (T4). -/
-theorem live_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem live_of_desc (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {s : ℕ} {Y : H.Comp s} (hd : H.Desc s k Y Z) (hq : (H.bk k Z).q < s) : LiveAt s Y := by
   have hle := hd.le
   obtain ⟨κ, rfl⟩ : ∃ κ, s = κ + 1 := ⟨s - 1, by omega⟩
-  rcases live_or_floor G (show κ + 1 ≤ k0 by omega) Y with hL | hF
+  rcases live_or_floor G (show κ + 1 ≤ k0 by omega) (show κ + 1 ≤ K by omega) Y with hL | hF
   · exact hL
   · exfalso
     have hq' : (H.bk k Z).q < κ + 1 := hq
@@ -118,11 +119,11 @@ theorem live_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).I
       have := not_fl_of_ap hZ hF
       omega
     · have hF' := floor_post G (by omega) (by omega) le_rfl Y hF
-      have := not_fl_of_ap hZ (floor_desc_pre G hd hlt hk0 (by omega) hF')
+      have := not_fl_of_ap hZ (floor_desc_pre G hd hlt hk0 hkK (by omega) hF')
       omega
 
 /-- Lemma I.4.13 (a): no ancestor at a scale in `(q, k)` is ripe (so none is removed or kept). -/
-theorem not_ripe_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem not_ripe_of_desc (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {s : ℕ} {Y : H.Comp s} (hd : H.Desc s k Y Z) (hq : (H.bk k Z).q < s) (hsk : s < k) :
     ¬ S.Ripe s (H.bk s Y) := by
   intro hr
@@ -130,7 +131,7 @@ theorem not_ripe_of_desc (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k 
   have hF : (H.pb s Y).Fl s := by
     rw [hpb]
     exact Book.fl_active (b := (H.bk s Y).kept s) (q := s) (ν := 1) (M := ∅) rfl le_rfl
-  have := not_fl_of_ap hZ (floor_desc_pre G hd hsk hk0 (by omega) hF)
+  have := not_fl_of_ap hZ (floor_desc_pre G hd hsk hk0 hkK (by omega) hF)
   omega
 
 end Floor

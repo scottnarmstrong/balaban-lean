@@ -59,15 +59,15 @@ theorem Setting.Ok.numax_D_le_pow {S : Setting} (ok : S.Ok) (ξ : ℕ) :
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 variable (H) in
 /-- A path of ancestors along which every step is live and every predecessor is not ripe. -/
 inductive LiveDesc (a : ℕ) : (b : ℕ) → H.Comp a → H.Comp b → Prop
   | refl (Y : H.Comp a) : LiveDesc a a Y Y
   | step (b : ℕ) (Y : H.Comp a) (Y' : H.Comp b) (Y'' : H.Comp (b + 1)) :
-      LiveDesc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.succ b Y' h = Y'' → LiveAt (b + 1) Y'' →
+      LiveDesc a b Y Y' → (h : Y'.1 ∉ H.rem b) → H.IsSucc b Y' Y'' → LiveAt (b + 1) Y'' →
         ¬ S.Ripe b (H.bk b Y') → LiveDesc a (b + 1) Y Y''
 
 theorem LiveDesc.toDesc {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.LiveDesc a b W Y) :
@@ -98,7 +98,7 @@ include G
 
 /-- A merge record is kept or released with a large core, along a live path. -/
 theorem recInv_liveDesc {ξ b : ℕ} {W : H.Comp ξ} {Z : H.Comp b} (h : H.LiveDesc ξ b W Z)
-    (hξ : ξ < b) (hb : b ≤ k0) (hbase : S.RecInv ξ (H.bk ξ W)) : S.RecInv ξ (H.bk b Z) := by
+    (hξ : ξ < b) (hb : b ≤ k0) (hbK : b ≤ K) (hbase : S.RecInv ξ (H.bk ξ W)) : S.RecInv ξ (H.bk b Z) := by
   induction h with
   | refl => omega
   | step b' W' Y' Y'' hd hrem hs hl hn ih =>
@@ -110,11 +110,11 @@ theorem recInv_liveDesc {ξ b : ℕ} {W : H.Comp ξ} {Z : H.Comp b} (h : H.LiveD
       · subst heq
         have : Y' = W' := hd.toDesc.unique (Desc.refl W')
         subst this; exact hbase
-      · exact ih hlt (by omega) hbase
-    exact recInv_step G hb hl hmem hR
+      · exact ih hlt (by omega) (by omega) hbase
+    exact recInv_step G hb hbK hl hmem hR
 
 /-- The path from an ancestor `Y` at scale `a` to `Z`, not ripe at `a`, is live. -/
-theorem liveDesc_of_desc {k : ℕ} {Z : H.Comp k} (hk0 : k ≤ k0)
+theorem liveDesc_of_desc {k : ℕ} {Z : H.Comp k} (hk0 : k ≤ k0) (hkK : k ≤ K)
     (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {a : ℕ} {Y : H.Comp a}
     (hd : H.Desc a k Y Z) (hq : (H.bk k Z).q ≤ a) (hnr : ¬ S.Ripe a (H.bk a Y)) :
     H.LiveDesc a k Y Z := by
@@ -128,49 +128,50 @@ theorem liveDesc_of_desc {k : ℕ} {Z : H.Comp k} (hk0 : k ≤ k0)
       have hsingle : H.Desc b' (b' + 1) Y1 Y2 := Desc.single hrem hs
       have hle := hd'.le
       refine LiveDesc.step b' _ Y1 Y2 (ih hd hnr (hsingle.trans hrest)) hrem hs ?_ ?_
-      · exact live_of_desc G hk0 hZ hrest (by omega)
+      · exact live_of_desc G hk0 hkK hZ hrest (by omega)
       · rcases Nat.eq_or_lt_of_le hle with heq | hlt
         · subst heq
           have : Y1 = W' := hd'.unique (Desc.refl W')
           subst this; exact hnr
-        · exact not_ripe_of_desc G hk0 hZ (hsingle.trans hrest) (by omega) (by have := hrest.le; omega)
+        · exact not_ripe_of_desc G hk0 hkK hZ (hsingle.trans hrest) (by omega) (by have := hrest.le; omega)
   exact key k Z hd (Desc.refl Z)
 
 omit G in
 /-- A component with a point spine (length `0` of the book) is one box. -/
 theorem cover_of_len (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k) {e : ℕ} (he1 : 1 ≤ e)
-    (he0 : e ≤ k0) (Y : H.Comp e) (h : (H.bk e Y).len = 0) : CoveredBy S n e Y.1 1 :=
-  H.cover_of_pt he1 he0 (hT e he1 he0) Y (by rw [← H.bk_len]; exact h)
+    (he0 : e ≤ k0) (heK : e ≤ K) (Y : H.Comp e) (h : (H.bk e Y).len = 0) : CoveredBy S n e Y.1 1 :=
+  H.cover_of_pt he1 he0 heK (hT e he1 he0) Y (by rw [← H.bk_len]; exact h)
 
 variable {k : ℕ} {Z : H.Comp k}
 
 /-- **Lemma I.4.13 (e4)**: for `Z` `Active` or `Pending` of scale `k ≤ k₀` with core `q`, every
 ancestor of `Z` at scale `q` is one box of side `≤ crit_q`. -/
 theorem core_box (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k) (hk0 : k ≤ k0)
+    (hkK : k ≤ K)
     (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending) {q : ℕ} (hq : (H.bk k Z).q = q)
     {Y : H.Comp q} (hd : H.Desc q k Y Z) : CoveredBy S n q Y.1 1 := by
   have hqk := hd.le
   have hq1 : 1 ≤ q := not_isEmpty_comp Y (by omega)
-  have hap := nonpre_of_desc G hk0 hZ hd (by omega)
-  have hinvY := (H.window_inv' G q hq1 (by omega) Y).1
+  have hap := nonpre_of_desc G hk0 hkK hZ hd (by omega)
+  have hinvY := (H.window_inv' G q hq1 (by omega) (by omega) Y).1
   by_cases hrip : S.Ripe q (H.bk q Y)
-  · exact cover_of_len hT hq1 (by omega) Y (len_zero_of_ripe hinvY hrip)
-  · obtain ⟨ξ, W, hsh, hkind⟩ := back G q Y (by omega) hap
+  · exact cover_of_len hT hq1 (by omega) (by omega) Y (len_zero_of_ripe hinvY hrip)
+  · obtain ⟨ξ, W, hsh, hkind⟩ := back G q Y (by omega) (by omega) hap
     rcases hkind with hz | ⟨hrec, hlen, hnr⟩
-    · have hl := ShDesc.len_le G hsh
+    · have hl := ShDesc.len_le G hsh (by omega)
       rw [hz, zero_div] at hl
-      exact cover_of_len hT hq1 (by omega) Y (le_antisymm hl hinvY.len_nonneg)
+      exact cover_of_len hT hq1 (by omega) (by omega) Y (le_antisymm hl hinvY.len_nonneg)
     · have hLD : H.LiveDesc ξ k W Z :=
-        hsh.toLiveDesc.trans (liveDesc_of_desc G hk0 hZ hd (by omega) hrip)
+        hsh.toLiveDesc.trans (liveDesc_of_desc G hk0 hkK hZ hd (by omega) hrip)
       have hξq : ξ ≤ q := hsh.le
       have hk1 : 1 ≤ k := not_isEmpty_comp Z hk0
-      have hinvZ := (H.window_inv' G k hk1 hk0 Z).1
+      have hinvZ := (H.window_inv' G k hk1 hk0 hkK Z).1
       have hrecZ : S.RecInv ξ (H.bk k Z) := by
         rcases Nat.eq_or_lt_of_le (hξq.trans hqk) with heq | hlt
         · subst heq
           have : Z = W := hLD.toDesc.unique (Desc.refl W)
           subst this; exact hrec
-        · exact recInv_liveDesc G hLD hlt hk0 hrec
+        · exact recInv_liveDesc G hLD hlt hk0 hkK hrec
       have hh : ξ + S.h ξ < q := by
         rcases hrecZ with hM | hh
         · exfalso
@@ -188,8 +189,8 @@ theorem core_box (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k)
       have hL : (1 : ℝ) ≤ S.L := by linarith [G.ok.cast_L_ge]
       have hW : (H.bk ξ W).len ≤ (S.L : ℝ) ^ (q - ξ) :=
         hlen.trans ((G.ok.numax_D_le_pow ξ).trans (pow_le_pow_right₀ hL (by omega)))
-      exact cover_of_len hT hq1 (by omega) Y
-        (ShDesc.len_zero G hsh (by omega) hW)
+      exact cover_of_len hT hq1 (by omega) (by omega) Y
+        (ShDesc.len_zero G hsh (by omega) (by omega) hW)
 
 omit G in
 /-- **Lemma I.4.13 (e4)**: distinct components of `Z^pre_q` are at distance `≥ ω_q`. -/

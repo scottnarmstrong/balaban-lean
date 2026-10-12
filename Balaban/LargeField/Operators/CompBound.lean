@@ -56,9 +56,9 @@ abbrev PkgBound (a : LocalHistory S n M K) (k : ℕ) (P : OpPkg N R a k) (κ : �
 
 section Geometry
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
-theorem blockCube_eq_cubeMap (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem blockCube_eq_cubeMap (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     {y : BlockAt S n M K j} {x : Torus S.d (M * n K * S.L ^ K)}
     (hx : Multiscale.jBlock S.d S.L (M * n K) K j x = y) :
     blockCube S n M K j y = cubeMap n S.L M K j x := by
@@ -66,19 +66,19 @@ theorem blockCube_eq_cubeMap (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK
 
 /-- A scale-`j` block lies in the fine set of a set of cubes of the next scale iff its cube's
 coarsening does. -/
-theorem blockSub_fineSet_succ_iff (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem blockSub_fineSet_succ_iff (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j + 1 ≤ K)
     (A : Set (Torus S.d (n (j + 1)))) (y : BlockAt S n M K j) :
     BlockSub (S := S) (n := n) (M := M) (K := K) j y (fineSet (S := S) (n := n) M K (j + 1) A) ↔
       blockMap S.L (n (j + 1)) (blockCube S n M K j y) ∈ A := by
   constructor
   · intro h
-    obtain ⟨x, hx⟩ := exists_site_in_block (S := S) (n := n) (M := M) hjK y
+    obtain ⟨x, hx⟩ := exists_site_in_block (S := S) (n := n) (M := M) (by omega) y
     have h1 := h x hx
     have h2 : cubeMap n S.L M K (j + 1) x ∈ A := h1
-    rwa [← cubeMap_succ hnn hjK x, ← blockCube_eq_cubeMap hnn hjK hx] at h2
+    rwa [← cubeMap_succ hnn hjK x, ← blockCube_eq_cubeMap hnn (by omega) hx] at h2
   · intro h x hx
     show cubeMap n S.L M K (j + 1) x ∈ A
-    rwa [← cubeMap_succ hnn hjK x, ← blockCube_eq_cubeMap hnn hjK hx]
+    rwa [← cubeMap_succ hnn hjK x, ← blockCube_eq_cubeMap hnn (by omega) hx]
 
 theorem mem_lin_succ_iff {k : ℕ} {Z' : H.Comp (k + 1)} {c : Torus S.d (n k)} :
     c ∈ H.lin k (k + 1) Z' ↔ ∃ Y ∈ H.parts k Z', c ∈ Y.1 := by
@@ -99,7 +99,7 @@ theorem ZBlk_self_iff {k : ℕ} (hkK : k ≤ K) (Y : H.Comp k) (y : BlockAt S n 
   show BlockSub (S := S) (n := n) (M := M) (K := K) k y
     (fineSet (S := S) (n := n) M K k ((H.locRH k Y).step k).Z ∩
       fineSet (S := S) (n := n) M K k (Y.1 : Set (Torus S.d (n k)))) ↔ _
-  rw [locRH_Z Y le_rfl, lin_self, blockSub_inter, blockSub_fineSet_iff hnn hkK]
+  rw [locRH_Z Y le_rfl (by omega), lin_self, blockSub_inter, blockSub_fineSet_iff hnn hkK]
   simp
 
 theorem ZBlk_pre_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : BlockAt S n M K k) :
@@ -111,8 +111,8 @@ theorem ZBlk_pre_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : Blo
   show BlockSub (S := S) (n := n) (M := M) (K := K) k y
     (fineSet (S := S) (n := n) M K k ((H.locRH (k + 1) Z').step k).Z ∩
       fineSet (S := S) (n := n) M K (k + 1) (Z'.1 : Set (Torus S.d (n (k + 1))))) ↔ _
-  rw [locRH_Z Z' (Nat.le_succ k), blockSub_inter, blockSub_fineSet_iff hnn hkK,
-    blockSub_fineSet_succ_iff hnn hkK]
+  rw [locRH_Z Z' (Nat.le_succ k) hkK, blockSub_inter, blockSub_fineSet_iff hnn hkK,
+    blockSub_fineSet_succ_iff hnn hK]
   constructor
   · rintro ⟨h1, -⟩
     obtain ⟨Y, hY, hc⟩ := mem_lin_succ_iff.mp (Finset.mem_coe.mp h1)
@@ -120,14 +120,13 @@ theorem ZBlk_pre_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : Blo
   · rintro ⟨Y, hY, hc⟩
     refine ⟨Finset.mem_coe.mpr (mem_lin_succ_iff.mpr ⟨Y, hY, hc⟩), ?_⟩
     obtain ⟨hrem, hs⟩ := (H.mem_parts k Y Z').mp hY
-    have := H.succ_spec k hrem ⟨_, hc, rfl⟩
-    rwa [hs] at this
+    exact hs ⟨_, hc, rfl⟩
 
 
 theorem ZBlk_mem_Vblk {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) (y : BlockAt S n M K k)
     (hy : ZBlk (H.localHistory M K k Z) k y) : y ∈ Vblk R (H.localHistory M K k Z) k := by
   have hc := (ZBlk_self_iff hkK Z y).mp hy
-  have h1 : blockCube S n M K k y ∈ Zcubes (H.localHistory M K k Z) k := Zcubes_loc_top Z hc
+  have h1 : blockCube S n M K k y ∈ Zcubes (H.localHistory M K k Z) k := Zcubes_loc_top (by omega) Z hc
   exact subset_nbhd 1 _ (subset_nbhd _ _ h1)
 
 /-- The old output blocks are large-field variables of scale `k` of the new component. -/
@@ -143,14 +142,13 @@ theorem outBlock_large {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) {Y : H
   obtain ⟨hrem, hs⟩ := (H.mem_parts k Y Z').mp hY
   have hcZ' : blockMap S.L (n (k + 1)) (blockCube S n M K k y) ∈
       (Z'.1 : Set (Torus S.d (n (k + 1)))) := by
-    have := H.succ_spec k hrem ⟨_, hc, rfl⟩
-    rwa [hs] at this
+    exact hs ⟨_, hc, rfl⟩
   intro x hx
   have hxc : cubeMap n S.L M K (k + 1) x = blockMap S.L (n (k + 1)) (blockCube S n M K k y) := by
-    rw [← cubeMap_succ hnn hkK x, ← blockCube_eq_cubeMap hnn hkK hx]
+    rw [← cubeMap_succ hnn hK x, ← blockCube_eq_cubeMap hnn hkK hx]
   refine ⟨⟨?_, ?_⟩, ?_⟩
   · show cubeMap n S.L M K (k + 1) x ∈ ((H.locRH (k + 1) Z').step (k + 1)).Z
-    rw [locRH_Z Z' le_rfl, lin_self, hxc]; exact hcZ'
+    rw [locRH_Z Z' le_rfl (by omega), lin_self, hxc]; exact hcZ'
   · show cubeMap n S.L M K (k + 1) x ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
     rw [hxc]; exact hcZ'
   · rintro ⟨h1, -⟩
@@ -159,9 +157,9 @@ theorem outBlock_large {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) {Y : H
       have : cubeMap n S.L M K (k + 1) x ∈ ((H.locRH (k + 1) Z').step k).Omega := h1
       rwa [hxc] at this
     have hz : blockCube S n M K k y ∈ ((H.locRH (k + 1) Z').step k).Z := by
-      rw [locRH_Z Z' (Nat.le_succ k)]
+      rw [locRH_Z Z' (Nat.le_succ k) hkK]
       exact Finset.mem_coe.mpr (mem_lin_succ_iff.mpr ⟨Y, hY, hc⟩)
-    exact ((H.locRH (k + 1) Z').step k).not_mem_Z_of_mem_Omega hL (hnn k) h1' hz
+    exact ((H.locRH (k + 1) Z').step k).not_mem_Z_of_mem_Omega hL (hnn k (by omega)) h1' hz
 
 
 /-- Sites of a block lie in `Z_k` of the localization of `Z'` according to the block only. -/
@@ -173,18 +171,17 @@ theorem site_mem_Z_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) {y : B
   rw [ZBlk_pre_iff hK Z' y]
   have hc := blockCube_eq_cubeMap hnn hkK hx
   have hc1 : cubeMap n S.L M K (k + 1) x = blockMap S.L (n (k + 1)) (cubeMap n S.L M K k x) :=
-    (cubeMap_succ hnn hkK x).symm
+    (cubeMap_succ hnn hK x).symm
   show (cubeMap n S.L M K k x ∈ ((H.locRH (k + 1) Z').step k).Z ∧
       cubeMap n S.L M K (k + 1) x ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))) ↔ _
-  rw [← hc, locRH_Z Z' (Nat.le_succ k), hc1, ← hc]
+  rw [← hc, locRH_Z Z' (Nat.le_succ k) hkK, hc1, ← hc]
   constructor
   · rintro ⟨h1, -⟩
     exact mem_lin_succ_iff.mp (Finset.mem_coe.mp h1)
   · rintro ⟨Y, hY, hc'⟩
     refine ⟨Finset.mem_coe.mpr (mem_lin_succ_iff.mpr ⟨Y, hY, hc'⟩), ?_⟩
     obtain ⟨hrem, hs⟩ := (H.mem_parts k Y Z').mp hY
-    have := H.succ_spec k hrem ⟨_, hc', rfl⟩
-    rwa [hs] at this
+    exact hs ⟨_, hc', rfl⟩
 
 theorem ZBlk_of_not_blockSub_compl {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     {y : BlockAt S n M K k}
@@ -211,7 +208,7 @@ end Geometry
 
 section Index
 
-variable {H : RegionHistory S n R k0} {k : ℕ}
+variable {H : RegionHistory S n R k0 K} {k : ℕ}
 
 /-- The index set of the integrated output variables `ψ_k` on `T^{(k)} ∩ Y` of an old part. -/
 abbrev OutIdx (R : ℕ → ℝ) (Y : H.Comp k) : Type :=
@@ -726,7 +723,7 @@ end Index
 
 section TopBlocks
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
 /-- A `(k+1)`-block of `Z'` is Gaussian iff its cube is in `Z'` and not in `Ω_{k+1}`. -/
 theorem gaussBlocks_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : BlockAt S n M K (k + 1)) :
@@ -755,7 +752,7 @@ theorem gaussBlocks_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : 
     have hc := hsite x hx
     refine ⟨⟨?_, ?_⟩, fun ho => h2 ?_⟩
     · show cubeMap n S.L M K (k + 1) x ∈ ((H.locRH (k + 1) Z').step (k + 1)).Z
-      rw [locRH_Z Z' le_rfl, lin_self, hc]; exact h1
+      rw [locRH_Z Z' le_rfl (by omega), lin_self, hc]; exact h1
     · show cubeMap n S.L M K (k + 1) x ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
       rw [hc]; exact h1
     · have : cubeMap n S.L M K (k + 1) x ∈ ((H.locRH (k + 1) Z').step k).Omega := ho.1
@@ -785,7 +782,7 @@ theorem newOutP_iff {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) (y : Bloc
     · have hc := hsite x hx
       refine ⟨?_, ?_⟩
       · show cubeMap n S.L M K (k + 1) x ∈ ((H.locRH (k + 1) Z').step (k + 1)).Z
-        rw [locRH_Z Z' le_rfl, lin_self, hc]; exact h1
+        rw [locRH_Z Z' le_rfl (by omega), lin_self, hc]; exact h1
       · show cubeMap n S.L M K (k + 1) x ∈ (Z'.1 : Set (Torus S.d (n (k + 1))))
         rw [hc]; exact h1
     · have hc := hsite x hx
@@ -825,7 +822,7 @@ end TopBlocks
 
 section Out
 
-variable {H : RegionHistory S n R k0} {k : ℕ}
+variable {H : RegionHistory S n R k0 K} {k : ℕ}
 
 noncomputable instance (a : LocalHistory S n M K) (k : ℕ) : Fintype ↥(gaussBlocks a k) :=
   Fintype.ofFinite _
@@ -984,7 +981,7 @@ end Out
 
 section Weights
 
-variable {H : RegionHistory S n R k0} {k : ℕ}
+variable {H : RegionHistory S n R k0 K} {k : ℕ}
 
 theorem absW_preKernel (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
@@ -1100,7 +1097,7 @@ end Weights
 
 section Main
 
-variable {H : RegionHistory S n R k0} {k : ℕ}
+variable {H : RegionHistory S n R k0 K} {k : ℕ}
 
 /-- The parameters as an element of `OutPart … (parOutP …)` (the same thing, with the
 type of the step data). -/
@@ -1126,7 +1123,7 @@ theorem measurable_slice_right {α β γ : Type*} [MeasurableSpace α] [Measurab
     Measurable fun a => F a y := hF.comp measurable_prodMk_right
 
 /-- The Gaussian factor of a witness, as a function of the output and the variables. -/
-noncomputable def Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+noncomputable def Afn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (cs : OpConsts) (wit : GaussWit N R (H.localHistory M K (k + 1) Z') k) (w : wit.W)
     (par : OutPar N R (H.localHistory M K (k + 1) Z') (k + 1))
@@ -1140,7 +1137,7 @@ noncomputable def Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) 
             (newRestrict (H.localHistory M K (k + 1) Z') (preVars_new hK Z' sub) x) y.1))
 
 /-- The majorant of the new′ variables, as a function of the output and the variables. -/
-noncomputable def Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+noncomputable def Bfn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (Sw : OutPart N (Vblk R (H.localHistory M K (k + 1) Z') (k + 1))
         (newOutP (H.localHistory M K (k + 1) Z') k) →
@@ -1159,14 +1156,14 @@ noncomputable def Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) 
             (parC _ k par) hv g
 
 /-- The product of the weights of the old parts. -/
-noncomputable def Pfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+noncomputable def Pfn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
     (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) (preVars hK Z' sub)) : ℝ≥0∞ :=
   ∏ Y : ↥(H.parts k Z'), (sub Y.1 Y.2).T.absW (ancOut Y.1 Z' x)
     (ancRestrict hK Y.2 (preVars_anc hK Z' sub Y.1 Y.2) x) hv g
 
-theorem measurable_Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+theorem measurable_Afn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (cs : OpConsts) (wit : GaussWit N R (H.localHistory M K (k + 1) Z') k) (w : wit.W)
     (hFm : Measurable (wit.F w)) (par : OutPar N R (H.localHistory M K (k + 1) Z') (k + 1)) :
@@ -1188,7 +1185,7 @@ theorem measurable_Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K)
   have h3 := h1.comp h2
   exact h3
 
-theorem measurable_Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+theorem measurable_Bfn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (Sw : OutPart N (Vblk R (H.localHistory M K (k + 1) Z') (k + 1))
         (newOutP (H.localHistory M K (k + 1) Z') k) →
@@ -1220,7 +1217,7 @@ theorem measurable_Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K)
   have h2 := (measurable_restrictSub (N := N) (newPrimeVars_sub (H.localHistory M K (k + 1) Z') k)).comp hm2
   exact hSwm.comp (h1.prodMk h2)
 
-theorem measurable_Pfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+theorem measurable_Pfn {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) :
     Measurable (Pfn hK Z' sub hv g) :=
@@ -1229,7 +1226,7 @@ theorem measurable_Pfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K)
       ((measurable_ancOut (R := R) Y.1 Z' _).prodMk
         (measurable_ancRestrict hK Y.2 (preVars_anc hK Z' sub Y.1 Y.2)))
 
-theorem measurable_Fw {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+theorem measurable_Fw {H : RegionHistory S n R k0 K} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     (sub : ∀ Y : H.Comp k, Y ∈ H.parts k Z' → OpPkg N R (H.localHistory M K k Y) k)
     (cs : OpConsts) (wit : GaussWit N R (H.localHistory M K (k + 1) Z') k) (w : wit.W)
     (hFm : Measurable (wit.F w))

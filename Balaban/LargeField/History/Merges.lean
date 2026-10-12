@@ -23,8 +23,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 /-- The output of a restart (T2), (T3), (T5) at the step into scale `a`. -/
 def IsRestart : ∀ a : ℕ, H.Comp a → Prop
@@ -63,6 +63,7 @@ theorem not_live_of_restart {k : ℕ} {Y : H.Comp (k + 1)} (h : H.IsRestart (k +
 /-- **Lemma I.4.12 (floor)**: a component with a reset at scale `a` has, at every later scale
 `b ≤ k₀` of its descendants, the form `Pre` or core `≥ a` (and `≥ a + 1` if the reset is (i)). -/
 theorem floor_reset {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (hd : H.Desc a b Y Z) (hb : b ≤ k0)
+    (hbK : b ≤ K)
     (hR : H.IsReset a Y) :
     (H.pb b Z).Fl a ∧ (a < b → (H.bk b Z).Fl a) ∧
       ((H.bk a Y).st = .pre → (a < b → (H.bk b Z).Fl (a + 1))) := by
@@ -74,21 +75,21 @@ theorem floor_reset {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (hd : H.Desc a b Y
       | zero => exact hrs.elim
       | succ k =>
         have hF : (H.bk (k + 1) Y).Fl (k + 1) := by
-          rcases live_or_floor G (show k + 1 ≤ k0 by omega) Y with hL | hF
+          rcases live_or_floor G (show k + 1 ≤ k0 by omega) (show k + 1 ≤ K by omega) Y with hL | hF
           · exact (not_live_of_restart G hrs hL).elim
           · exact hF
         exact floor_post G (by omega) (by omega) le_rfl Y hF
     · rw [show H.pb a Y = (H.bk a Y).kept a from S.postBook_of_ripe h1 h2 hrip]
       exact Book.fl_active (b := (H.bk a Y).kept a) (q := a) (ν := 1) (M := ∅) rfl le_rfl
-  refine ⟨floor_desc_post G hd hb (by omega) hpost, fun hab =>
-    floor_desc_pre G hd hab hb (by omega) hpost, fun hpre hab => ?_⟩
-  exact floor_desc_pre G hd hab hb le_rfl (Book.fl_pre (by rw [pb_of_pre G hpre]; exact hpre))
+  refine ⟨floor_desc_post G hd hb hbK (by omega) hpost, fun hab =>
+    floor_desc_pre G hd hab hb hbK (by omega) hpost, fun hpre hab => ?_⟩
+  exact floor_desc_pre G hd hab hb hbK le_rfl (Book.fl_pre (by rw [pb_of_pre G hpre]; exact hpre))
 
 /-- The output of a merge within the cap satisfies `RecInv` for its own scale. -/
-theorem recInv_of_merge {k : ℕ} {Y : H.Comp (k + 1)} (hk0 : k + 1 ≤ k0) (hM : H.IsMerge (k + 1) Y) :
+theorem recInv_of_merge {k : ℕ} {Y : H.Comp (k + 1)} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) (hM : H.IsMerge (k + 1) Y) :
     S.RecInv (k + 1) (H.bk (k + 1) Y) := by
   obtain ⟨hr, hcard, hact, hcap⟩ := hM
-  obtain ⟨-, hcase, -⟩ := H.step_facts G hk0 Y
+  obtain ⟨-, hcase, -⟩ := H.step_facts G hk0 hkK Y
   cases hcase with
   | new hr' hf => omega
   | mergePre hr' hcard' hpre hf =>
@@ -104,10 +105,10 @@ theorem recInv_of_merge {k : ℕ} {Y : H.Comp (k + 1)} (hk0 : k + 1 ≤ k0) (hM 
 variable {k : ℕ} {Z : H.Comp k}
 
 /-- The records of an `Active` or `Pending` component are scales `> q`. -/
-theorem core_lt_of_mem_M (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem core_lt_of_mem_M (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {ξ : ℕ} (hξ : ξ ∈ (H.bk k Z).M) : (H.bk k Z).q < ξ := by
   have hk1 : 1 ≤ k := not_isEmpty_comp Z hk0
-  have hadm := (H.window_inv' G k hk1 hk0 Z).1.adm
+  have hadm := (H.window_inv' G k hk1 hk0 hkK Z).1.adm
   rcases hZ with ⟨q', ν, M', hst⟩ | ⟨q', ν, hst⟩
   · rw [S.adm_active hst] at hadm
     rw [Book.M_active hst] at hξ
@@ -117,22 +118,22 @@ theorem core_lt_of_mem_M (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k 
     simp at hξ
 
 /-- The record of a merge at the start of a live path to `Z` is kept or released with a large core. -/
-theorem recInv_of_live_merge (hk0 : k ≤ k0) {ξ : ℕ} {W : H.Comp ξ} (hM : H.IsMerge ξ W)
+theorem recInv_of_live_merge (hk0 : k ≤ k0) (hkK : k ≤ K) {ξ : ℕ} {W : H.Comp ξ} (hM : H.IsMerge ξ W)
     (hL : H.LiveDesc ξ k W Z) : S.RecInv ξ (H.bk k Z) := by
   have hξ := hL.toDesc.le
   obtain ⟨κ, rfl⟩ : ∃ κ, ξ = κ + 1 := ⟨ξ - 1, by
     cases ξ with
     | zero => exact (H.F.isEmpty_comp_zero.false W).elim
     | succ ξ => omega⟩
-  have hrec := recInv_of_merge G (show κ + 1 ≤ k0 by omega) hM
+  have hrec := recInv_of_merge G (show κ + 1 ≤ k0 by omega) (show κ + 1 ≤ K by omega) hM
   rcases Nat.eq_or_lt_of_le hξ with heq | hlt
   · subst heq
     have : Z = W := hL.toDesc.unique (Desc.refl W)
     subst this; exact hrec
-  · exact recInv_liveDesc G hL hlt hk0 hrec
+  · exact recInv_liveDesc G hL hlt hk0 hkK hrec
 
 /-- **Lemma I.4.13 (e4)**: every (T4) merge of the lineage at a scale `ξ ∈ (q, k]` lies in `𝓜`. -/
-theorem merge_in_record (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem merge_in_record (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {ξ : ℕ} {Y : H.Comp ξ} (hd : H.Desc ξ k Y Z) (hq : (H.bk k Z).q < ξ)
     (hM : H.IsMerge ξ Y) : ξ ∈ (H.bk k Z).M := by
   have hξ := hd.le
@@ -141,18 +142,18 @@ theorem merge_in_record (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z
     · subst heq
       have : Z = Y := hd.unique (Desc.refl Y)
       subst this; exact LiveDesc.refl _
-    · exact liveDesc_of_desc G hk0 hZ hd hq.le (not_ripe_of_desc G hk0 hZ hd hq hlt)
-  rcases recInv_of_live_merge G hk0 hM hL with h | h
+    · exact liveDesc_of_desc G hk0 hkK hZ hd hq.le (not_ripe_of_desc G hk0 hkK hZ hd hq hlt)
+  rcases recInv_of_live_merge G hk0 hkK hM hL with h | h
   · exact h
   · omega
 
 /-- **Lemma I.4.13 (e4)**: a (T4) merge at a scale `ξ ≤ q` that lies on a live path (no certified
 entry after it) to `Z` satisfies `ξ + h_ξ < q`. -/
-theorem merge_released (hk0 : k ≤ k0) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
+theorem merge_released (hk0 : k ≤ k0) (hkK : k ≤ K) (hZ : (H.bk k Z).IsActive ∨ (H.bk k Z).IsPending)
     {ξ : ℕ} {W : H.Comp ξ} (hM : H.IsMerge ξ W) (hL : H.LiveDesc ξ k W Z)
     (hξq : ξ ≤ (H.bk k Z).q) : ξ + S.h ξ < (H.bk k Z).q := by
-  rcases recInv_of_live_merge G hk0 hM hL with h | h
-  · have := core_lt_of_mem_M G hk0 hZ h
+  rcases recInv_of_live_merge G hk0 hkK hM hL with h | h
+  · have := core_lt_of_mem_M G hk0 hkK hZ h
     omega
   · exact h
 
