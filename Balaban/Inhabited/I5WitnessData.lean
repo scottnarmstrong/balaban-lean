@@ -583,5 +583,81 @@ theorem treeLenCovOne_XD_ge (m₁ : ℕ) : 294 ≤ treeLenCovOne 0 1 (XD m₁) :
 
 end Lower
 
+/-! ### The old term and the instance of `i5_background` -/
+
+section Instance
+
+variable {m₁ : ℕ}
+
+/-- **The old term (constant).**  `𝓔 ≡ exp (-(κ_dec - 1) d^cov_1(X))`, i.e. `E_b = 1` and the bound of
+`i5_background` attained with equality. -/
+noncomputable def Edata (m₁ : ℕ) (κdec : ℝ) : RawData 3 3 (240 * 3 ^ m₁) 2 2 → ℂ :=
+  fun _ => ((Real.exp (-(κdec - 1) * treeLenCovOne 0 1 (XD m₁)) : ℝ) : ℂ)
+
+theorem Edata_analytic (κdec : ℝ) (S : Set (RawData 3 3 (240 * 3 ^ m₁) 2 2)) :
+    AnalyticOnNhd ℂ (Edata m₁ κdec) S := analyticOnNhd_const
+
+theorem Edata_bound (κdec : ℝ) (r : RawData 3 3 (240 * 3 ^ m₁) 2 2) :
+    ‖Edata m₁ κdec r‖ ≤ 1 * Real.exp (-(κdec - 1) * treeLenCovOne 0 1 (XD m₁)) := by
+  unfold Edata
+  rw [Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le, one_mul]
+
+/-- The numerical inequalities of `i5_background` at `κ = 100000`, `κ_dec = 24`, `κ₀ = 7`. -/
+theorem num_ineqs :
+    (0 : ℝ) ≤ 7 ∧ 3 * (7 : ℝ) + 3 ≤ 24 ∧
+    4 * ((3 : ℕ) : ℝ) * ((((2 * 3 + 1) ^ 3 : ℕ)) : ℝ) * 24 ≤ 100000 ∧
+    1 ≤ ((100000 : ℝ) / 2 - 1) / 2 ∧
+    Real.log ((((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * (((3 ^ 0) ^ 3 : ℕ) : ℝ)) ≤ ((100000 : ℝ) / 2 - 1) / 2 := by
+  refine ⟨by norm_num, by norm_num, by norm_num, by norm_num, ?_⟩
+  have h343 : Real.log (343 : ℝ) ≤ 343 - 1 := Real.log_le_sub_one_of_pos (by norm_num)
+  norm_num at h343 ⊢
+  linarith
+
+/-- **`i5_background` on the data with non-empty data sites.**  `Gp = GpD` (whole lattice, level
+`2`), `Gk = GkD` (`Ω₁` one `1`-block), `Gj = G0D` (empty), `X₀ = dataSites GkD`, `X = XD`,
+`𝒦_X = KM` (a chosen family of `X` attaining `d^cov_1(X)`), `X₁ = X1 GpD 0 1 KM` (a proper subset of
+the torus), `𝓔 = Edata` (constant), `κ = 100000`, `κ_dec = 24`, `κ₀ = 7`.  The conclusion is
+that of `i5_background`. -/
+theorem i5_background_data_of (h4 : 4 ≤ m₁) {c BG eps δ₃ : ℝ} (hS : DecSpecs 3 3 c BG)
+    (hm : c * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁)
+    (hnum : ChainNum 3 3 2 m₁ BG 100000 324 eps δ₃) :
+    ∃ Ev : Set (T m₁) → RawData 3 3 (240 * 3 ^ m₁) 2 2 → ℂ,
+      (∀ D : BgData (GpD m₁ (rhoSep m₁)) 2,
+        XiCData (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 2 1 eps D →
+        Edata m₁ 24 (rawOf (composeData (bgSetting_dataM h4 hS hm hnum).hq (compWeight 3 1)
+          (bgFieldC (GkD m₁ (rhoSep m₁)) (compWeight 3 1) 0 (bgC0 3 3 2)
+            (composeData (bgSetting_dataM h4 hS hm hnum).hP (compWeight 3 1)
+              (bgFieldC (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 (bgC0 3 3 2) D) D))
+          (composeData (bgSetting_dataM h4 hS hm hnum).hP (compWeight 3 1)
+            (bgFieldC (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 (bgC0 3 3 2) D) D))) =
+        ∑ Y ∈ polymerDomains
+          (fun i : ParIdx (GpD m₁ (rhoSep m₁)) (↑(X1fM m₁ (rhoSep m₁)) : Set (T m₁)) => i.1.1)
+          (GpD m₁ (rhoSep m₁)) 0 (X1 (GpD m₁ (rhoSep m₁)) 0 1 (KM m₁)), Ev Y (rawOf D)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 2 1 eps,
+        ∀ u' ∈ XiCRaw (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 2 1 eps,
+        agreeOn (thickSet (GpD m₁ (rhoSep m₁)) Y) u u' → Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 2 1 eps,
+        ‖Ev Y u‖ ≤ 1 * Real.exp (-7 * treeLenCovOne 0 1 (XD m₁) -
+          2 * 24 * treeLenCov (GpD m₁ (rhoSep m₁)) 0 Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw (GpD m₁ (rhoSep m₁)) (compWeight 3 1) 0 2 1 eps)) := by
+  obtain ⟨h0, h3, hk, h1, hlog⟩ := num_ineqs
+  exact i5_background (bgSetting_dataM h4 hS hm hnum) (covSetup_KM m₁ _) (coe_X1fM m₁ _)
+    hatConn_GpD (hopt_data m₁) (κdec := 24) (κ₀ := 7) (Eb := 1) h0 h3 hk h1 hlog zero_le_one
+    (Edata_analytic 24 _) (fun r _ => Edata_bound 24 r)
+
+/-- The premises of `i5_background_data_of` are satisfiable (the same constants as
+`bgSetting_data`). -/
+theorem exists_data_premises :
+    ∃ (m₁ : ℕ) (c BG eps δ₃ : ℝ), 4 ≤ m₁ ∧ DecSpecs 3 3 c BG ∧
+      c * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁ ∧
+      ChainNum 3 3 2 m₁ BG 100000 324 eps δ₃ := by
+  obtain ⟨c, BG, hS⟩ := decSpecs_exists (d := 3) (L := 3) (by norm_num) (by norm_num)
+  have hBG : 0 ≤ BG := hS.fam.2.1
+  obtain ⟨m₁, h4, hm⟩ := exists_m₁ (c * Real.exp ((N0 3 3 : ℝ) * 100000))
+  obtain ⟨eps, δ₃, hnum⟩ := chainNum_exists 3 3 2 m₁ (by norm_num) hBG 100000 324
+  exact ⟨m₁, c, BG, eps, δ₃, h4, hS, hm, hnum⟩
+
+end Instance
+
 end I5WitnessData
 end Balaban.Inhabited
