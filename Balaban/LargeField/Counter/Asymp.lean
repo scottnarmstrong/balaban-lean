@@ -51,6 +51,9 @@ theorem PolyB.const_mul {f : ℝ → ℝ} {m : ℕ} (hf : PolyB f m) {c : ℝ} (
 
 theorem polyB_pow (m : ℕ) : PolyB (fun x => x ^ m) m := ⟨1, by norm_num, fun x _ => by simp⟩
 
+theorem polyB_pow_const (c : ℝ) (hc : 0 ≤ c) (m : ℕ) : PolyB (fun x => c * x ^ m) m :=
+  ⟨c, hc, fun _ _ => le_rfl⟩
+
 theorem polyB_const {c : ℝ} (hc : 0 ≤ c) (m : ℕ) : PolyB (fun _ => c) m :=
   ⟨c, hc, fun x hx => by
     have : (1 : ℝ) ≤ x ^ m := one_le_pow₀ hx
