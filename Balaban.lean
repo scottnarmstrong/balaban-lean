@@ -914,3 +914,4 @@ public import Balaban.Localization.CubeFoldRow
 public import Balaban.Localization.CubeFoldPoisson
 public import Balaban.Localization.CutPointwiseWall
 public import Balaban.Localization.CutPointwiseWallBall
+public import Balaban.Localization.CubeFoldSource
