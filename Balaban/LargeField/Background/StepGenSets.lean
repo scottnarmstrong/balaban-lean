@@ -14,7 +14,7 @@ region calculus (Lemma II.2.5) is in `Balaban.LargeField.Background.StepGenSetsF
 * `GeneratingSet.withTop` and `genCubeMixed` (ii): the top layer of `𝔹_{k+1}(□'^{∼2})`
   replaced by `Ω_{k+1} ∩ □'^{∼2}`;
 * `genSF` (iii): `𝔹_j(W)` for `j ≤ k` on the level-`k` torus, with `𝔹_j(W) ≺ 𝔹_k(W)`;
-* `genBoundary` (iv)/(v): the family `Ω_n = (Ω_n(W) ∖ Ω_{k+1}) ∪ (Ω_n(U) ∩ Ω_{k+1})`, a generating
+* `boundaryGenSet` (iv)/(v): the family `Ω_n = (Ω_n(W) ∖ Ω_{k+1}) ∪ (Ω_n(U) ∩ Ω_{k+1})`, a generating
   set under the separation hypotheses `BoundaryHyp`.
 -/
 
@@ -186,7 +186,7 @@ theorem minLayer_antitone {q j : ℕ} {X : Finset (Torus d (M1 * N₁ * L ^ q))}
   | succ t ih => exact (minLayer_succ_subset X).trans (ih (by omega))
 
 /-- **Definition II.2.4 (iv)/(v)**: the boundary family as a generating set of level `k+1`. -/
-noncomputable def genBoundary (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
+noncomputable def boundaryGenSet (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
     (h : BoundaryHyp M1 N₁ L k W U Om) :
     Multiscale.GeneratingSet d L (M1 * N₁) (k + 1) (minSep L M1) where
   Ω := boundaryLayer M1 N₁ L k W U Om
@@ -226,9 +226,9 @@ noncomputable def genBoundary (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1)
           (h.far₂ x hxOm hxW y
             (Finset.mem_inter.2 ⟨hyOm, minLayer_antitone (by omega : 1 ≤ n + 1) hyU⟩))
 
-theorem genBoundary_Ω (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
+theorem boundaryGenSet_Ω (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
     (h : BoundaryHyp M1 N₁ L k W U Om) (n : ℕ) :
-    (genBoundary W U Om h).Ω n = boundaryLayer M1 N₁ L k W U Om n := rfl
+    (boundaryGenSet W U Om h).Ω n = boundaryLayer M1 N₁ L k W U Om n := rfl
 
 end
 
