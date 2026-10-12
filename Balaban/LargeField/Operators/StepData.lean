@@ -2,6 +2,7 @@ module
 
 public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.Compose
+public import Balaban.LargeField.Operators.Symm
 
 /-!
 # Step data and kept data (Part II, Definition II.5.7, block J5)
@@ -172,6 +173,16 @@ structure StepData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
   /-- (S0) `O(N)`-covariance of the boundary factor -/
   rot_b : ∀ k a (ρ : OrthN N) o x hv g,
     (ker k a).b (rotOut ρ o) (rotSub ρ x) (ρ hv) (rotG ρ g) = (ker k a).b o x hv g
+  /-- (S0)/(S1) Euclidean covariance of the kernel: for a Euclidean symmetry `σ` and the images
+  `a' = σ a` of a localized history, corresponding configurations give the same value -/
+  euclid_K : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv,
+    RelOut σ o o' → RelSub hI hk x x' → (ker k a').K o' x' hv = (ker k a).K o x hv
+  /-- (S0) Euclidean covariance of the boundary factor (the external field is transported) -/
+  euclid_b : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv g g',
+    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
+      (ker k a').b o' x' hv g' = (ker k a).b o x hv g
   /-- (S0) the bound `|b_k| ≤ (C_b log β_k + C_b B_0) |Z^c_k ∩ Z'|_{k+1}` on the domain -/
   b_bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ)
     (Z' : H.Comp (k + 1)) o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
@@ -236,6 +247,19 @@ structure KeptData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
   rot_b : ∀ k a ϰ (ρ : OrthN N) o x hv g,
     (datum k a ϰ).ker.b (rotOut ρ o) (rotSub ρ x) (ρ hv) (rotG ρ g) =
       (datum k a ϰ).ker.b o x hv g
+  /-- Euclidean covariance: the variables `I''` correspond under `σ` -/
+  euclid_I : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ a a') (hk : k ≤ K) (ϰ : Fin 5) (p : InternalVars a k),
+    p ∈ (datum k a ϰ).Ikeep ↔ symVar hI hk p ∈ (datum k a' ϰ).Ikeep
+  /-- Euclidean covariance of the kept kernel -/
+  euclid_K : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ a a') (hk : k ≤ K) (ϰ : Fin 5) o o' x x' hv,
+    RelOut σ o o' → RelSub hI hk x x' → (datum k a' ϰ).ker.K o' x' hv = (datum k a ϰ).ker.K o x hv
+  /-- Euclidean covariance of the kept boundary factor -/
+  euclid_b : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ a a') (hk : k ≤ K) (ϰ : Fin 5) o o' x x' hv g g',
+    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
+      (datum k a' ϰ).ker.b o' x' hv g' = (datum k a ϰ).ker.b o x hv g
   /-- the bound (1.26) of the kept operator (which includes the vanishing off `χ^dom_k`) -/
   bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z : H.Comp k),
     1 ≤ k → k ≤ k0 → S.Ripe k (H.bk k Z) → ∀ ϰ : Fin 5,

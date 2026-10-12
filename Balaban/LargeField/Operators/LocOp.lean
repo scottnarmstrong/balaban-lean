@@ -127,13 +127,18 @@ section Anc
 
 variable {H : RegionHistory S n R k0}
 
-/-- The internal variable of the component `Z'` that is the variable `p` of its old part `Y`
+theorem ancInc_mem {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Comp (k + 1)}
+    (hY : Y ∈ H.parts k Z') (p : InternalVars (H.localHistory M K k Y) k) :
+    BlockSub (S := S) (n := n) (M := M) (K := K) (↑(Fin.castSucc p.1.1)) p.1.2.2
+      (varSet (H.localHistory M K (k + 1) Z') (↑(Fin.castSucc p.1.1)) p.1.2.1) :=
+  fun x hx => varSet_mono hK hY p.1.1.2 p.1.2.1 (p.2 x hx)
+
+/-- The internal variable of the component `Z'` that is the variable `p` of its old part
 (`j < k` is also `< k + 1`). -/
 def ancInc {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Comp (k + 1)} (hY : Y ∈ H.parts k Z')
     (p : InternalVars (H.localHistory M K k Y) k) :
     InternalVars (H.localHistory M K (k + 1) Z') (k + 1) :=
-  ⟨⟨Fin.castSucc p.1.1, p.1.2.1, p.1.2.2⟩,
-    fun x hx => varSet_mono hK hY p.1.1.2 p.1.2.1 (p.2 x hx)⟩
+  ⟨⟨Fin.castSucc p.1.1, p.1.2.1, p.1.2.2⟩, ancInc_mem hK hY p⟩
 
 theorem isSpin_ancInc {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Comp (k + 1)}
     (hY : Y ∈ H.parts k Z') (p : InternalVars (H.localHistory M K k Y) k) :
@@ -416,6 +421,22 @@ theorem locOp_b_supp (k : ℕ) : ∀ (hk : k ≤ K) (Z : H.Comp k)
         exact preOp_b_supp geo cs SD hk Z' _ (fun Y hY o x hv g g' hg => ih _ Y o x hv g g' hg)
           o x hv g g' hg
       exact key _ e x
+
+/-- **Lemma II.5.9 (a)** (support; P5 H5, P6 p. 16): the operator of `Z` integrates over
+variables located in `Z` (so over blocks of the fine set of `Z`), has output on `V_Z` and
+internal variables in `A` by its type, and its exponent depends on the external field only through
+`g|_{V_Z}`. -/
+theorem locOp_support {k : ℕ} (hk : k ≤ K) (Z : H.Comp k) :
+    (∀ p : InternalVars (H.localHistory M K k Z) k,
+      BlockSub (S := S) (n := n) (M := M) (K := K) p.1.1 p.1.2.2
+        (fineSet (S := S) (n := n) M K k (Z.1 : Set (Torus S.d (n k))))) ∧
+    ∀ (o : OutT N R (H.localHistory M K k Z) k)
+      (x : SubCfg N (H.localHistory M K k Z) k (locOp geo cs SD KD hH lab k hk Z).A)
+      (hv : EuclideanSpace ℝ (Fin N)) (g g' : GIdx S n M K N → ℂ),
+      (∀ i : GIdx S n M K N, i.1 ∈ Vsites R (H.localHistory M K k Z) k → g i = g' i) →
+        (locOp geo cs SD KD hH lab k hk Z).T.b o x hv g =
+          (locOp geo cs SD KD hH lab k hk Z).T.b o x hv g' :=
+  ⟨internalVar_located Z, fun o x hv g g' hg => locOp_b_supp geo cs SD KD k hk Z o x hv g g' hg⟩
 
 /-! (b) Factorization -/
 

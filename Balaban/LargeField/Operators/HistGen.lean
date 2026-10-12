@@ -9,7 +9,7 @@ public import Balaban.LargeField.Characteristic.Analytic
 
 A region history without removals (the lineage localization `locRH`, whose `rem` is empty) is a
 `RegionSeq` (`RegionHistory.toSeq`), so Lemma I.3.10 (`flowGeneratingSet`) gives its generating
-set `𝔹_K` (layers `Ω_1 ⊇ ⋯ ⊇ Ω_K` of the history).  `GeneratingSet.castSites` transports a
+set `𝔹_K` (layers `Ω_1 ⊇ ⋯ ⊇ Ω_K` of the history).  `castGen` transports a
 generating set along an equality of the numbers `N₀` of coarsest blocks (the level-`q` tori of the
 characteristic functions are `Torus d (M₁ (c n_q) L^q)`, those of the history
 `Torus d (M n_K L^K)` with `M = c M₁`).

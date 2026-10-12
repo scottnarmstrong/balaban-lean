@@ -404,6 +404,7 @@ public import Balaban.LargeField.Operators.Compose
 public import Balaban.LargeField.Operators.Ancestors
 public import Balaban.LargeField.Operators.HistGen
 public import Balaban.LargeField.Operators.Setup
+public import Balaban.LargeField.Operators.Symm
 public import Balaban.LargeField.Operators.Pullback
 public import Balaban.LargeField.Operators.MainAction
 public import Balaban.LargeField.Operators.Quiet
