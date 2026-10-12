@@ -938,6 +938,9 @@ public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
 public import Balaban.Fluctuation.StepIdentityInhabited
+public import Balaban.Fluctuation.StepLocalReg
+public import Balaban.Fluctuation.StepLocal
+public import Balaban.Fluctuation.StepLocalInhabited
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
