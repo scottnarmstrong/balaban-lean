@@ -39,11 +39,8 @@ of a step; the family versions are, for the step with the datum `D` of the chart
 * `exists_analytic_bgC_path`: its small solution `(φ_k(ψ), α_k(ψ))` is analytic in the datum.
 
 The landed `shiftU`, `psi0` (real parts of objects of the real minimizer) have no such
-continuation.  The analyticity of `WoneC`, `WtwoC` in the datum is the composition of these maps
-with `interactionV` (as a function of the backgrounds and the tangent) and with the class terms at
-the composed data; neither the analyticity of `interactionV` in the background
-`(α_{k+1}, φ_{k+1})` nor the membership of the composed data of the complex path in the domains
-`XiDom` of the class terms is landed, and they are not proved here.
+continuation.  The exponents `WoneC`, `WtwoC` as functions of the datum are treated in
+`StepComplexExponent`.
 -/
 
 @[expose] public section
