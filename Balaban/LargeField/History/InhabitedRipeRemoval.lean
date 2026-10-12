@@ -320,11 +320,9 @@ theorem admissible : (H2).Admissible := by
     rw [this] at hc
     exact Finset.notMem_empty _ hc
 
-include hT hK in
-/-- The removed set at scale `T` is nonempty. -/
-theorem rem_nonempty : ((H2).rem (Tstar S)).Nonempty := by
-  obtain ⟨c, -, -⟩ := exists_ripe (N := N) (K := K) ok h4 h5 RH hT hK
-  refine ⟨c.1, ?_⟩
+include hT in
+/-- Every component of `Z^pre_T` is removed at scale `T`. -/
+theorem mem_rem_T (c : (H2).Comp (Tstar S)) : c.1 ∈ (H2).rem (Tstar S) := by
   have hZ : (H2).F.Zp (Tstar S) = finOf (regions S R N K (Tstar S) (Tstar S)) := by
     show finOf ((flowSteps2 S R N K ok h4 h5 RH).Zpre (Tstar S)) = _
     rw [flowSteps2_Zpre ok h4 h5 RH _ le_rfl]
@@ -334,6 +332,62 @@ theorem rem_nonempty : ((H2).rem (Tstar S)).Nonempty := by
   rw [hZ] at h
   simp only [remAt, ↓reduceIte]
   exact h
+
+include hT hK in
+/-- The removed set at scale `T` is nonempty. -/
+theorem rem_nonempty : ((H2).rem (Tstar S)).Nonempty := by
+  obtain ⟨c, -, -⟩ := exists_ripe (N := N) (K := K) ok h4 h5 RH hT hK
+  exact ⟨c.1, mem_rem_T ok h4 h5 RH hT c⟩
+
+
+include ok h4 h5 RH hT hK in
+/-- **`RemCluster` has a nonempty member whose history is the one with the removal**: the cluster
+consisting of the removed ripe component of `Z^pre_T`, with its localized history taken from
+the admissible history `hist2` (which itself removes that component), and the empty kept
+configuration (Definition III.10.3). -/
+theorem remCluster_exists (M : ℕ) [NeZero M] :
+    ∃ (Kc : HistConfig S (side S N K) R (Tstar S) K M (Tstar S))
+      (C : Finset (ConfigPair S (side S N K) M K (Tstar S))), RemCluster Kc C := by
+  classical
+  obtain ⟨c, hc, hrip⟩ := exists_ripe (N := N) (K := K) ok h4 h5 RH hT hK
+  have hH : H2 ∈ (RegionHistory.historiesWithFinal (R := R) (k0 := Tstar S) (K := K) (Tstar S)
+      c.1 : Set (RegionHistory S (side S N K) R (Tstar S) K)) := by
+    have hZp : (H2).F.Zp (Tstar S) = c.1 := by
+      ext x
+      constructor
+      · intro hx
+        obtain ⟨Y, hY, hxY⟩ := mem_comp_self (ω := S.omega (Tstar S)) hx
+        have := hc ⟨Y, hY⟩
+        have h2 : Y = c.1 := congrArg Subtype.val this
+        rwa [h2] at hxY
+      · intro hx; exact comp_subset c.2 hx
+    refine ⟨admissible ok h4 h5 RH hT hK, hZp, ?_⟩
+    rw [← hZp]
+    ext Y
+    rw [Finset.mem_singleton]
+    constructor
+    · intro hY; exact (congrArg Subtype.val (hc ⟨Y, hY⟩)).trans hZp.symm
+    · intro h
+      have : Y = c.1 := h.trans hZp
+      rw [this]; exact c.2
+  refine ⟨HistConfig.empty, {(c.1, (H2).localHistory M K (Tstar S) c)},
+    ⟨⟨_, Finset.mem_singleton_self _⟩, ?_, ?_, ?_, ?_, ?_⟩⟩
+  · intro m hm
+    rw [Finset.mem_singleton] at hm
+    subst hm
+    exact ⟨_, hH, c, rfl, rfl, hrip⟩
+  · intro m hm
+    rw [Finset.mem_singleton] at hm
+    subst hm
+    exact ⟨_, hH, c, rfl, rfl⟩
+  · intro m hm m' hm' hne
+    rw [Finset.mem_singleton] at hm hm'
+    exact absurd (hm.trans hm'.symm) hne
+  · intro m _ m' hm'
+    simp [HistConfig.empty] at hm'
+  · intro m hm m' hm'
+    rw [Finset.mem_singleton] at hm hm'
+    rw [hm, hm']
 
 end Final
 
@@ -425,6 +479,87 @@ theorem omegaPost_ne_OmegaCube :
   exact key _ rfl (two_le_Tstar)
 
 end Post
+
+
+/-! ### The concrete history -/
+
+section Concrete
+
+open RadiiSet
+
+/-- **The admissible history with a ripe removal**: the genuine-radii setting `wS` (`d = L = 3`,
+`R_j = R_base λ_j²`, `M = 14 M₁`), side factor `bigN wS`, `k₀ = T`, horizon `K = T + 1`;
+the single component of `Z^pre_T` is removed at scale `T`. -/
+noncomputable def ripeRemHistory :
+    RegionHistory wS (side wS (bigN wS) (Tstar wS + 1)) wR (Tstar wS) (Tstar wS + 1) :=
+  hist2 wS wR (bigN wS) (Tstar wS + 1) wS_ok le_rfl le_rfl wRH (one_le_Tstar _)
+
+theorem ripeRemHistory_admissible : ripeRemHistory.Admissible :=
+  admissible (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH (one_le_Tstar _)
+    (Nat.le_succ _)
+
+theorem ripeRemHistory_rem_nonempty : (ripeRemHistory.rem (Tstar wS)).Nonempty :=
+  rem_nonempty (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH (one_le_Tstar _)
+    (Nat.le_succ _)
+
+/-- **An admissible region history with a nonempty removed set** (Definition I.4.1): some
+`1 ≤ k ≤ k₀` has `Rem_k ≠ ∅`, and every removed component is ripe. -/
+theorem exists_admissible_regionHistory_rem :
+    ∃ (S : Setting) (n : ℕ → ℕ) (_ : ∀ k, NeZero (n k)) (R : ℕ → ℝ) (k0 K : ℕ)
+      (H : RegionHistory S n R k0 K),
+      (∃ k, 1 ≤ k ∧ k ≤ k0 ∧ (H.rem k).Nonempty) ∧ H.Admissible :=
+  ⟨wS, _, inferInstance, wR, Tstar wS, Tstar wS + 1, ripeRemHistory,
+    ⟨Tstar wS, one_le_Tstar _, le_rfl, ripeRemHistory_rem_nonempty⟩, ripeRemHistory_admissible⟩
+
+/-- **The removal is visible** (T3): a removed component is nonempty, lies in `Z^pre_T`, and is
+disjoint from `Z_T`. -/
+theorem ripeRemHistory_visible : ∃ Y ∈ ripeRemHistory.rem (Tstar wS),
+    Y.Nonempty ∧ (∀ x ∈ Y, x ∈ ripeRemHistory.F.Zpre (Tstar wS)) ∧
+      (∀ x ∈ Y, x ∉ (ripeRemHistory.step (Tstar wS)).Z) :=
+  let ⟨Y, hY⟩ := ripeRemHistory_rem_nonempty
+  ⟨Y, hY, rem_visible ripeRemHistory hY⟩
+
+/-- **`Ω_T^post ≠ Ω_T^pre`** for the history with the removal (T3). -/
+theorem ripeRemHistory_omegaPost_ne :
+    ripeRemHistory.omegaPost (Tstar wS) ≠ Def7.OmegaCube ripeRemHistory (Tstar wS) :=
+  omegaPost_ne_OmegaCube (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH
+    (one_le_Tstar _) (Nat.le_succ _)
+
+/-- **The window of the removed ripe component** (T4): the unique component `Z` of `Z^pre_T` is
+removed and ripe, it has the geometric window of Lemma III.1.2 (`RipeWindow`), and the window pieces
+`windowOfHistory` built from the geometry datum `RadiiSet.wGeo` (`M = 14 M₁`, `R_j ≥ R_base`) satisfy
+`WindowPieces.Hyp`. -/
+theorem ripeRemHistory_windowOfHistory_hyp :
+    ∃ Z : ripeRemHistory.Comp (Tstar wS), Z.1 ∈ ripeRemHistory.rem (Tstar wS) ∧
+      wS.Ripe (Tstar wS) (ripeRemHistory.bk (Tstar wS) Z) ∧
+      ∃ hW : ripeRemHistory.RipeWindow (Tstar wS) Z,
+        (RegionHistory.windowOfHistory ripeRemHistory Z (wGeo _) (Nat.le_succ _) hW).Hyp := by
+  obtain ⟨c, -, hrip⟩ := exists_ripe (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH
+    (one_le_Tstar _) (Nat.le_succ _)
+  have hW : ripeRemHistory.RipeWindow (Tstar wS) c := by
+    refine RegionHistory.ripe_window wS_good ?_ le_rfl (Nat.le_succ _) hrip
+    intro k _ hk
+    have hk' : k ∈ Finset.range (Tstar wS + 1) := Finset.mem_range.mpr (by omega)
+    have h1 : 4 * wS.rho k + 21 ≤ ∑ j ∈ Finset.range (Tstar wS + 1), (4 * wS.rho j + 21) :=
+      Finset.single_le_sum (f := fun j => 4 * wS.rho j + 21) (fun _ _ => Nat.zero_le _) hk'
+    have h2 : bigN wS ≤ side wS (bigN wS) (Tstar wS + 1) k := by
+      unfold RadiiHist.side
+      exact Nat.le_mul_of_pos_right _ (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne _)))
+    have h3 : bigN wS = 1 + ∑ j ∈ Finset.range (Tstar wS + 1), (4 * wS.rho j + 21) := rfl
+    omega
+  exact ⟨c, mem_rem_T (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH
+    (one_le_Tstar _) c, hrip, hW, RegionHistory.windowOfHistory_hyp _ hW⟩
+
+/-- **`RemCluster` for the history with the removal** (genuine radii, `M = 14 M₁`). -/
+theorem ripeRem_remCluster :
+    ∃ (Kc : HistConfig wS (side wS (bigN wS) (Tstar wS + 1)) wR (Tstar wS) (Tstar wS + 1)
+        wS.M (Tstar wS))
+      (C : Finset (ConfigPair wS (side wS (bigN wS) (Tstar wS + 1)) wS.M (Tstar wS + 1)
+        (Tstar wS))), RemCluster Kc C :=
+  remCluster_exists (N := bigN wS) (K := Tstar wS + 1) wS_ok le_rfl le_rfl wRH
+    (one_le_Tstar _) (Nat.le_succ _) wS.M
+
+end Concrete
 
 end RipeRemoval
 
