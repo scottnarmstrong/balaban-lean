@@ -651,11 +651,13 @@ public import Balaban.Polymer.MarkedHolo
 public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.LargeField.Base.BaseMarked
+public import Balaban.LargeField.Base.BaseMarkedFootprint
 public import Balaban.LargeField.Base.BaseResolventAbs
 public import Balaban.LargeField.Base.BaseResolvent
 public import Balaban.LargeField.Base.BaseResolventDecay
 public import Balaban.LargeField.Base.BaseResolventMain
 public import Balaban.LargeField.Base.BaseResolventRange
+public import Balaban.LargeField.Base.BaseResolventLocal
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
 public import Balaban.Observables.Cauchy
