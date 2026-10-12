@@ -614,4 +614,165 @@ theorem perq_holder (hd : 3 ≤ d) (hL : 3 ≤ L) :
 
 end PerQ
 
+section Assembly
+
+variable {d L : ℕ} [NeZero L]
+
+/-- The coefficient bound `‖s_z‖ ≤ e^{N₀ κ₁}` and the Neumann solution `g = (1 - 𝒦_s)⁻¹ f`. -/
+theorem dg2_g_bound (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar : ℝ, 0 ≤ cstar ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      Gs G a ν α s *ᵥ f = Gstar G a ν α s *ᵥ ((1 - Kcal G a ν α s)⁻¹ *ᵥ f) ∧
+      ∀ x : G.Ω 1, (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+        ‖((1 - Kcal G a ν α s)⁻¹ *ᵥ f) x‖ ≤ 4 * C / 3 := by
+  obtain ⟨cstar, BG, hcs, hBG, H⟩ := dg2_all (d := d) (L := L) hd hL
+  refine ⟨cstar, hcs, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hMκ s hs f C hC hfC
+  have hd0 : 0 < d := by omega
+  have hw1 : IsWeight G (gammaW d) (fun _ => (1 : ℝ)) := IsWeight.one G (gammaW_nonneg hd0)
+  obtain ⟨⟨hU, -⟩, hKc⟩ := H G S hα hκ hMκ hs hw1 f hC (fun x => by simpa using hfC x)
+  have hspos : ∀ x : G.Ω 1, 0 < (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 := fun x => by
+    have := spacing_pos G (x := (x : CTorus d L N₁ m₁ K)); positivity
+  set g : G.Ω 1 → ℂ := (1 - Kcal G a ν α s)⁻¹ *ᵥ f with hgdef
+  have hg : g - Kcal G a ν α s *ᵥ g = f := by
+    have h1 : (1 - Kcal G a ν α s) *ᵥ g = f := by
+      rw [hgdef, Matrix.mulVec_mulVec,
+        Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU), Matrix.one_mulVec]
+    rw [Matrix.sub_mulVec, Matrix.one_mulVec] at h1
+    exact h1
+  have hKw : ∀ (h : G.Ω 1 → ℂ) (C : ℝ), 0 ≤ C →
+      WBd (fun x : G.Ω 1 => (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2) h C →
+      WBd (fun x : G.Ω 1 => (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2) (Kcal G a ν α s *ᵥ h)
+        (C / 4) := by
+    intro h C0 hC0 hh x
+    have := hKc h hC0 (fun y => by simpa using hh y) x
+    simpa using this
+  have hgW := neumann_bound hspos hKw hg (fun x => hfC x)
+  refine ⟨?_, fun x => hgW x⟩
+  rw [hgdef, Gs, ← Matrix.mulVec_mulVec]
+
+/-- **The Hölder part of (DG2).**  For `M₁ ≥ c_* e^{N₀ κ₁}`, `|s_P| ≤ e^{κ₁}`, `|A|₂ ≤ γ₁` and
+`|f|₂ ≤ C`: `|∂ G_s(A) f|_{(θ),2-θ} ≤ (B_H e^{N₀κ₁}/θ) C`, in the convention of P2 (3.17)
+(`HolderSeminormLE`); `B_H = B_H(d, L)`. -/
+theorem dg2_holder (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar BH : ℝ, 0 ≤ cstar ∧ 0 ≤ BH ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {θ : ℝ}, 0 < θ → θ < 1 → ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      HolderSeminormLE G (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) θ (2 - θ)
+        (BH * Real.exp (N0 d L * κ) / θ * C) := by
+  obtain ⟨cstar, hcs, hgb⟩ := dg2_g_bound hd hL
+  obtain ⟨Bq, hBq, hP⟩ := perq_holder hd hL
+  refine ⟨cstar, 18 * 3 ^ d * Bq * (4 / 3), hcs, by positivity, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hMκ s hs θ hθ0 hθ1 f C hC hfC
+  classical
+  obtain ⟨hGs, hgC⟩ := hgb G S hα hκ hMκ hs f hC hfC
+  set g : G.Ω 1 → ℂ := (1 - Kcal G a ν α s)⁻¹ *ᵥ f with hgdef
+  have hC' : 0 ≤ 4 * C / 3 := by positivity
+  have hv : ∀ y : CTorus d L N₁ m₁ K, zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) y =
+      ∑ q ∈ cubeIdx G, sProd G s q * Tq G a ν α q g y := by
+    intro y; rw [hGs]; exact Gstar_apply s g y
+  have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hρ : (d : ℝ) < ϱ := by
+    have h1 := S.cover_sep
+    have h2 : (1 : ℝ) ≤ (L : ℝ) ^ m₁ := one_le_pow₀ hL1
+    have h3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+    nlinarith [mul_le_mul h3 h2 zero_le_one (by linarith), mul_pos hd0 hd0]
+  have hcoef : ∀ q ∈ cubeIdx G, ‖sProd G s q‖ ≤ Real.exp (N0 d L * κ) := fun q hq =>
+    norm_sProd_le S.aligned S.cover_sep S.hM (by omega : 1 ≤ L) hq hκ hs
+  intro x hx x' hx'T hne z hz ν'
+  have hx'Ω : x' ∈ G.Ω 1 := hx'T.1
+  have hlay := layer_le_of_tildeDelta G hρ hx hx'T
+  have hz1 : 1 ≤ ‖z‖ := by
+    refine one_le_norm_of_ne_zero ?_
+    rintro rfl
+    rw [liftPt_zero] at hz
+    exact hne hz
+  have hx'eq : x' = x + intTorus z := hz.symm
+  subst hx'eq
+  have hz0 : (0 : ℝ) < ‖z‖ := by linarith
+  have hsp0 := spacing_pos G (x := x)
+  set X : ℝ := (G.spacing x) ^ θ * ‖z‖ ^ (1 - θ) with hX
+  have hX0 : 0 < X := by positivity
+  -- the sum over the active centres
+  obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec hx
+  obtain ⟨hn1', hnK', hxl'⟩ := G.layerIndex_spec hx'Ω
+  set A : Finset (ℕ × CTorus d L N₁ m₁ K) := cubeSupp G x ν' ∪ cubeSupp G (x + intTorus z) ν' with hA
+  have hAsub : A ⊆ cubeIdx G :=
+    Finset.union_subset (cubeSupp_subset x ν') (cubeSupp_subset (x + intTorus z) ν')
+  have hAcard : (A.card : ℝ) ≤ 18 * 3 ^ d := by
+    have h1 := card_cubeSupp_le S.aligned S.cover_sep (by omega : 1 ≤ d) (by omega : 1 ≤ L) hn1 hnK
+      hxl ν'
+    have h2 := card_cubeSupp_le S.aligned S.cover_sep (by omega : 1 ≤ d) (by omega : 1 ≤ L) hn1'
+      hnK' hxl' ν'
+    have := card_union_le (cubeSupp G x ν') (cubeSupp G (x + intTorus z) ν')
+    have h3 : A.card ≤ 18 * 3 ^ d := by rw [hA]; omega
+    exact_mod_cast h3
+  set Pq : ℕ × CTorus d L N₁ m₁ K → ℂ := fun q =>
+    (Tq G a ν α q g (x + intTorus z + Pi.single ν' 1) - Tq G a ν α q g (x + intTorus z)) -
+      (Tq G a ν α q g (x + Pi.single ν' 1) - Tq G a ν α q g x) with hPq
+  have hdiff : (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + intTorus z + Pi.single ν' 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + intTorus z)) -
+      (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + Pi.single ν' 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) x) = ∑ q ∈ cubeIdx G, sProd G s q * Pq q := by
+    simp only [hv, hPq]
+    rw [← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun q _ => by ring
+  have hzero : ∀ q ∈ cubeIdx G, q ∉ A → Pq q = 0 := by
+    intro q hq hqA
+    have h1 : q ∉ cubeSupp G x ν' := fun h => hqA (Finset.mem_union_left _ h)
+    have h2 : q ∉ cubeSupp G (x + intTorus z) ν' := fun h => hqA (Finset.mem_union_right _ h)
+    obtain ⟨a1, a2, -⟩ := not_mem_cubeSupp hq h1
+    obtain ⟨a3, a4, -⟩ := not_mem_cubeSupp hq h2
+    have c1 : chi G q x = 0 := by unfold chi; rw [a1, zero_div]
+    have c2 : chi G q (x + Pi.single ν' 1) = 0 := by unfold chi; rw [a2, zero_div]
+    have c3 : chi G q (x + intTorus z) = 0 := by unfold chi; rw [a3, zero_div]
+    have c4 : chi G q (x + intTorus z + Pi.single ν' 1) = 0 := by unfold chi; rw [a4, zero_div]
+    simp only [hPq, Tq, c1, c2, c3, c4, Complex.ofReal_zero, zero_mul, sub_self]
+  set Dn : ℂ := (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + intTorus z + Pi.single ν' 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + intTorus z)) -
+      (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + Pi.single ν' 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) x) with hDn
+  have hterm : ∀ q ∈ A, (G.spacing x) ^ 2 * ‖sProd G s q * Pq q‖ ≤
+      Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3)) := by
+    intro q hqA
+    have hq := hAsub hqA
+    have := hP G S hα hq hθ0 hθ1 g hC' hgC hx hx'Ω hlay hz1 ν'
+    rw [norm_mul]
+    calc (G.spacing x) ^ 2 * (‖sProd G s q‖ * ‖Pq q‖)
+        = ‖sProd G s q‖ * ((G.spacing x) ^ 2 * ‖Pq q‖) := by ring
+      _ ≤ Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3)) :=
+          mul_le_mul (hcoef q hq) this (by positivity) (Real.exp_pos _).le
+  have hsumb : (G.spacing x) ^ 2 * ‖Dn‖ ≤
+      18 * 3 ^ d * (Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3))) := by
+    rw [hdiff, ← Finset.sum_subset hAsub (fun q hq hnA => by rw [hzero q hq hnA, mul_zero])]
+    calc (G.spacing x) ^ 2 * ‖∑ q ∈ A, sProd G s q * Pq q‖
+        ≤ (G.spacing x) ^ 2 * ∑ q ∈ A, ‖sProd G s q * Pq q‖ :=
+          mul_le_mul_of_nonneg_left (norm_sum_le _ _) (by positivity)
+      _ = ∑ q ∈ A, (G.spacing x) ^ 2 * ‖sProd G s q * Pq q‖ := by rw [Finset.mul_sum]
+      _ ≤ ∑ _q ∈ A, Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3)) :=
+          Finset.sum_le_sum hterm
+      _ = A.card * (Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3))) := by simp
+      _ ≤ 18 * 3 ^ d * (Real.exp (N0 d L * κ) * (Bq / θ * X * (4 * C / 3))) :=
+          mul_le_mul_of_nonneg_right hAcard (by positivity)
+  have hsig : (G.spacing x) ^ (2 - θ) * (‖z‖ ^ (1 - θ))⁻¹ = (G.spacing x) ^ 2 / X := by
+    rw [hX, Real.rpow_sub hsp0, Real.rpow_two]
+    have : 0 < ‖z‖ ^ (1 - θ) := by positivity
+    have : 0 < (G.spacing x) ^ θ := by positivity
+    field_simp
+  rw [hsig, div_mul_eq_mul_div, div_le_iff₀ hX0]
+  refine hsumb.trans (le_of_eq ?_)
+  ring
+
+end Assembly
+
 end Balaban.Localization
