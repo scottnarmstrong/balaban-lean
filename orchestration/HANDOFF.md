@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
 | W162 | `w162-obs-witness` / W162 | step regularity; ClassRegularObs witness |
 | W164 | `w164-vmod12` / W164 | VMOD-12 proved parts (two-operator locality) |
-| W167 | `w167-masschange` / W167 | mass-change regional chord with wall flux |
+| W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
 | W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
 | W170 | `w170-nonvanish` / W170 | complex StepNonvanishing from the cluster expansion |
 Temporary rule-10 exemptions to clear: `PsiZeroInput` (W157), `ClassRegularObs` at N = 0 (W162). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
