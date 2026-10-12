@@ -298,3 +298,12 @@ public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
+public import Balaban.SmallField.Xi
+public import Balaban.SmallField.XiGeom
+public import Balaban.SmallField.XiReal
+public import Balaban.SmallField.XiD1
+public import Balaban.SmallField.XiD1C
+public import Balaban.SmallField.XiD2
+public import Balaban.SmallField.XiProps
+public import Balaban.SmallField.XiPerturb
+public import Balaban.SmallField.XiCompose
