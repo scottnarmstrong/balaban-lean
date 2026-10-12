@@ -969,3 +969,4 @@ public import Balaban.Fluctuation.HatEngineLift
 public import Balaban.Fluctuation.HatEngineFan
 public import Balaban.Fluctuation.HatEngineLocal
 public import Balaban.Fluctuation.HatEngineLocalFan
+public import Balaban.Fluctuation.HatEngineLocalEngine
