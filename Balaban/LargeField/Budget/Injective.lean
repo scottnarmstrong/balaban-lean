@@ -68,10 +68,11 @@ theorem RegionStep.eq_of_fields {d L n0 n1 : ℕ} {Rprev Rk : ℝ} {a b : Region
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
 
 /-- The old parts of `Z'` are the components of the set `Z_k ∩ Z'` of `π_k`-cubes. -/
-theorem parts_image_eq_comps (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem parts_image_eq_comps (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K)
+    (Z' : H.Comp (k + 1)) :
     (H.parts k Z').image Subtype.val = comps (S.omega k) (H.oldCubes k Z') := by
   classical
   have hT : (H.parts k Z').image Subtype.val ⊆ comps (S.omega k) (H.Zp k) := by
@@ -79,20 +80,20 @@ theorem parts_image_eq_comps (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp
     obtain ⟨c, -, rfl⟩ := Finset.mem_image.mp hY
     exact c.2
   have e : H.oldCubes k Z' = ((H.parts k Z').image Subtype.val).biUnion id := by
-    rw [H.oldCubes_eq, Finset.image_biUnion]
+    rw [H.oldCubes_eq hk, Finset.image_biUnion]
     rfl
   rw [e, comps_biUnion_of_subset hT]
 
 /-- The cubes of `Z_k` over `Z'` form the lineage of `Z'` at scale `k`. -/
-theorem lin_succ_self (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem lin_succ_self (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.lin k (k + 1) Z' = H.oldCubes k Z' := by
-  rw [lin, ancFin_succ le_rfl, Finset.biUnion_biUnion, H.oldCubes_eq]
+  rw [lin, ancFin_succ le_rfl, Finset.biUnion_biUnion, H.oldCubes_eq hk]
   refine Finset.biUnion_congr rfl fun c _ => ?_
   have := H.lin_self k c
   simpa [lin] using this
 
 /-- The lineage of `Z'` at a scale `j ≤ k` is the union of the lineages of its old parts. -/
-theorem lin_succ_decomp (H : RegionHistory S n R k0) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
+theorem lin_succ_decomp (H : RegionHistory S n R k0 K) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
     (Z' : H.Comp (k + 1)) :
     H.lin j (k + 1) Z' = (H.parts k Z').biUnion fun c => H.lin j k c := by
   rw [lin, ancFin_succ hjk, Finset.biUnion_biUnion]
@@ -101,36 +102,37 @@ theorem lin_succ_decomp (H : RegionHistory S n R k0) {j : ℕ} (k : ℕ) (hjk : 
 open Classical in
 /-- The lineage at scale `j` of a component of `Z^pre_k`, indexed by the finset of cubes
 (`∅` if it is not a component). -/
-noncomputable def linO (H : RegionHistory S n R k0) (j k : ℕ) (Y : Finset (Torus S.d (n k))) :
+noncomputable def linO (H : RegionHistory S n R k0 K) (j k : ℕ) (Y : Finset (Torus S.d (n k))) :
     Finset (Torus S.d (n j)) :=
   if h : Y ∈ comps (S.omega k) (H.Zp k) then H.lin j k ⟨Y, h⟩ else ∅
 
-theorem linO_comp (H : RegionHistory S n R k0) (j k : ℕ) (c : H.Comp k) :
+theorem linO_comp (H : RegionHistory S n R k0 K) (j k : ℕ) (c : H.Comp k) :
     H.linO j k c.1 = H.lin j k c := by
   classical
   simp [linO, c.2]
 
-theorem lin_succ_decomp' (H : RegionHistory S n R k0) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
-    (Z' : H.Comp (k + 1)) :
+theorem lin_succ_decomp' (H : RegionHistory S n R k0 K) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
+    (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.lin j (k + 1) Z' = (comps (S.omega k) (H.oldCubes k Z')).biUnion fun Y => H.linO j k Y := by
   classical
-  rw [← H.parts_image_eq_comps k Z', Finset.image_biUnion, H.lin_succ_decomp k hjk]
+  rw [← H.parts_image_eq_comps hk Z', Finset.image_biUnion, H.lin_succ_decomp k hjk]
   exact Finset.biUnion_congr rfl fun c _ => (H.linO_comp j k c).symm
 
 /-! ### Equality of localized histories -/
 
-theorem tailZ_congr {H1 H2 : RegionHistory S n R k0} {k : ℕ} (Z1 : H1.Comp k) (Z2 : H2.Comp k)
-    (hZ : Z1.1 = Z2.1) {j : ℕ} (hj : k ≤ j) : H1.tailZ k Z1 j = H2.tailZ k Z2 j := by
+theorem tailZ_congr {H1 H2 : RegionHistory S n R k0 K} {k : ℕ} (Z1 : H1.Comp k) (Z2 : H2.Comp k)
+    (hZ : Z1.1 = Z2.1) (hkK : k ≤ K) {j : ℕ} (hj : k ≤ j) :
+    H1.tailZ k Z1 j = H2.tailZ k Z2 j := by
   induction j, hj using Nat.le_induction with
   | base =>
-    rw [tailZ_eq_lin Z1 le_rfl, tailZ_eq_lin Z2 le_rfl, lin_self, lin_self, hZ]
+    rw [tailZ_eq_lin Z1 le_rfl hkK, tailZ_eq_lin Z2 le_rfl hkK, lin_self, lin_self, hZ]
   | succ j hj ih =>
-    have hn : ¬ (j + 1 ≤ k) := by omega
+    have hn : ¬ (j + 1 ≤ k ∧ j + 1 ≤ K) := by omega
     simp only [tailZ, hn, ite_false, ih]
 
 /-- The localized history only depends on the component and on the steps of the lineage
 localization. -/
-theorem localHistory_congr {H1 H2 : RegionHistory S n R k0} {M K k : ℕ} [NeZero M]
+theorem localHistory_congr {H1 H2 : RegionHistory S n R k0 K} {M K k : ℕ} [NeZero M]
     (Z1 : H1.Comp k) (Z2 : H2.Comp k) (hZ : Z1.1 = Z2.1)
     (hst : ∀ j, (H1.locRH k Z1).step j = (H2.locRH k Z2).step j) :
     localHistory H1 M K k Z1 = localHistory H2 M K k Z2 := by
@@ -156,7 +158,7 @@ variable {M K : ℕ} [NeZero M]
 `Z'` of `Z^pre_{k+1}` is determined by the cubes of `Z_k` over `Z'`, the new cubes
 `P, Q, R, S` of the step into scale `k+1` in `Z'`, and the localized histories of the components
 of `Z_k ∩ Z'`. -/
-theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k + 1 ≤ K)
+theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0 K} {k : ℕ} (hkK : k + 1 ≤ K)
     (Z1 : H1.Comp (k + 1)) (Z2 : H2.Comp (k + 1)) (hZ : Z1.1 = Z2.1)
     (hS : H1.oldCubes k Z1 = H2.oldCubes k Z2)
     (hP : (H1.step k).P ∩ (Z1.1 : Set _) = (H2.step k).P ∩ (Z2.1 : Set _))
@@ -175,12 +177,12 @@ theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k
   -- membership of the index set in both component sets
   have hmem1 : ∀ Y, Y ∈ comps (S.omega k) (H1.oldCubes k Z1) → Y ∈ comps (S.omega k) (H1.Zp k) := by
     intro Y hY
-    rw [← H1.parts_image_eq_comps k Z1] at hY
+    rw [← H1.parts_image_eq_comps (by omega) Z1] at hY
     obtain ⟨c, -, rfl⟩ := Finset.mem_image.mp hY
     exact c.2
   have hmem2 : ∀ Y, Y ∈ comps (S.omega k) (H1.oldCubes k Z1) → Y ∈ comps (S.omega k) (H2.Zp k) := by
     intro Y hY
-    rw [hS, ← H2.parts_image_eq_comps k Z2] at hY
+    rw [hS, ← H2.parts_image_eq_comps (by omega) Z2] at hY
     obtain ⟨c, -, rfl⟩ := Finset.mem_image.mp hY
     exact c.2
   have hfam' : ∀ Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)),
@@ -201,7 +203,7 @@ theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k
     rw [e1, e2, h'']
   have hZlin : ∀ j, j ≤ k → H1.lin j (k + 1) Z1 = H2.lin j (k + 1) Z2 := by
     intro j hj
-    rw [H1.lin_succ_decomp' k hj, H2.lin_succ_decomp' k hj, hS]
+    rw [H1.lin_succ_decomp' k hj (by omega), H2.lin_succ_decomp' k hj (by omega), hS]
     refine Finset.biUnion_congr rfl fun Y hY => ?_
     rw [← hS] at hY
     exact hlin j hj Y hY
@@ -236,13 +238,13 @@ theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k
   have hZf : ∀ j, H1.tailZ (k + 1) Z1 j = H2.tailZ (k + 1) Z2 j := by
     intro j
     by_cases hj : j ≤ k + 1
-    · rw [tailZ_eq_lin Z1 hj, tailZ_eq_lin Z2 hj]
+    · rw [tailZ_eq_lin Z1 hj (by omega), tailZ_eq_lin Z2 hj (by omega)]
       by_cases hjk : j ≤ k
       · rw [hZlin j hjk]
       · have : j = k + 1 := by omega
         subst this
         rw [lin_self, lin_self, hZ]
-    · exact tailZ_congr Z1 Z2 hZ (by omega)
+    · exact tailZ_congr Z1 Z2 hZ hkK (by omega)
   -- the steps agree
   have hst : ∀ j, (H1.locRH (k + 1) Z1).step j = (H2.locRH (k + 1) Z2).step j := by
     intro j
@@ -250,15 +252,15 @@ theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k
     · have hZj : ((H1.locRH (k + 1) Z1).step j).Z = ((H2.locRH (k + 1) Z2).step j).Z := by
         show (H1.locStep (k + 1) Z1 j).Z = (H2.locStep (k + 1) Z2 j).Z
         rw [locStep_Z, locStep_Z, hZf]
-      obtain ⟨p1, q1, r1, s1⟩ := locRH_new Z1 hj
-      obtain ⟨p2, q2, r2, s2⟩ := locRH_new Z2 hj
+      obtain ⟨p1, q1, r1, s1⟩ := locRH_new Z1 hj (by omega)
+      obtain ⟨p2, q2, r2, s2⟩ := locRH_new Z2 hj (by omega)
       by_cases hjk : j < k
       · have hjl : ∀ (X1 X2 : Set (Torus S.d (n (j + 1)))),
             (∀ Y ∈ comps (S.omega k) (H1.oldCubes k Z1),
               X1 ∩ (H1.linO (j + 1) k Y : Set _) = X2 ∩ (H2.linO (j + 1) k Y : Set _)) →
             X1 ∩ (H1.lin (j + 1) (k + 1) Z1 : Set _) = X2 ∩ (H2.lin (j + 1) (k + 1) Z2 : Set _) := by
           intro X1 X2 e
-          rw [H1.lin_succ_decomp' k (by omega), H2.lin_succ_decomp' k (by omega), ← hS]
+          rw [H1.lin_succ_decomp' k (by omega) (by omega), H2.lin_succ_decomp' k (by omega) (by omega), ← hS]
           exact inter_biUnion_congr e
         refine RegionStep.eq_of_fields hZj ?_ ?_ ?_ ?_
         · rw [p1, p2]
@@ -278,10 +280,10 @@ theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k
         · rw [s1, s2, lin_self, lin_self]; exact hS'
     · have e1 : (H1.locRH (k + 1) Z1).step j = emptyStep S n R j (H1.tailZ (k + 1) Z1 j) := by
         show H1.locStep (k + 1) Z1 j = _
-        unfold locStep; exact ite_eq_right_of_eq_false _ _ (eq_false hj)
+        unfold locStep; exact ite_eq_right_of_eq_false _ _ (eq_false (fun h => hj h.1))
       have e2 : (H2.locRH (k + 1) Z2).step j = emptyStep S n R j (H2.tailZ (k + 1) Z2 j) := by
         show H2.locStep (k + 1) Z2 j = _
-        unfold locStep; exact ite_eq_right_of_eq_false _ _ (eq_false hj)
+        unfold locStep; exact ite_eq_right_of_eq_false _ _ (eq_false (fun h => hj h.1))
       rw [e1, e2, hZf j]
   exact localHistory_congr Z1 Z2 hZ hst
 

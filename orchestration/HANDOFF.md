@@ -7,7 +7,24 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
 
-## Landing procedure (unchanged)
+## RESTART POINT (2026-10-12 ~10:00 UTC, Scott restarting the session for fresh quota)
+
+Claude workers were told to wrap up: commit compiling, sorry-free work to their branches and write
+`/home/scott/Balaban-scratch/W<nn>_HANDOFF.md`. Their worktrees stay in place:
+| Worker | Branch / worktree | Task (brief = its ledger row + this file) |
+|---|---|---|
+| W83 | `w83-reynolds` / Balaban-worktrees/W83 | Reynolds average over paving offsets → full I-6 Premises from Def-6 |
+| W88 | `w88-complex-g1` / Balaban-worktrees/W88 | det∘exp, complex log det, Lemma 2.4(a) complex |
+| W89 | `w89-weighted51` / Balaban-worktrees/W89 | WeightedProp51 → Lemma 4.1 unconditional; Lemma 3.5 analyticity |
+| W90 (Opus) | `w90-i6-aniso` / Balaban-worktrees/W90 | anisotropic I-6 per notes/phase1/I6-ANISO.md |
+| W91 | `w91-dec2-locality` / Balaban-worktrees/W91 | VMOD-4 locality interface on Dec2 |
+To resume: for each, read `W<nn>_HANDOFF.md`, inspect the branch (`git -C <worktree> log`, diff vs
+main); if the committed part is clean and useful, land it with the landing procedure (merge main +
+full build happens inside land.sh), then relaunch a fresh worker for the remainder in the same worktree
+(merge main first). astra sessions (tmux) were NOT stopped — they run on codex-1 and continue; collect
+their outputs (tags BASEK2, VMOD5, RGFREE5, KF0F, FLUCTFIX4, VACUITY2) as they finish.
+
+## Landing procedure (unchanged; NEW: every new hypothesis structure must come with a `Nonempty` witness)
 
 1. Read the worker's handoff; `git diff --stat origin/main...HEAD`, grep new files for
    `sorry|^axiom|maxHeartbeats`.
@@ -23,7 +40,10 @@ Worktree setup: `git worktree add -q <path> -b <branch>`, `mkdir -p <path>/.lake
 
 ## Running at handoff
 
-Sonnet (none running at 08:20 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
+POLICY (Scott, 2026-10-12): keep 4 Sonnet (+≤1 Opus) Lean workers running regardless of quota; Scott resets
+accounts when quota runs out.
+
+Sonnet (W83–W86 launched ~08:35 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
 in the ledger row and the branch state):
 - W70: DONE (landed 017b7c9; χ^dom identity still open).
 
@@ -35,22 +55,30 @@ in the ledger row and the branch state):
 - W80: DONE (landed; bridgeInf gives PremisesCore ∧ SumConds from the class).
 - W77: DONE (landed 7c6b40b).
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
+- W83 (`w83-reynolds`): Reynolds average → full I-6 Premises from Def-6.
+- W84: DONE (landed b1e5034).
+- W89 (`w89-weighted51`): weighted Prop 5.1 → Lemma 4.1 unconditional; Lemma 3.5 analyticity.
+- W90 (OPUS, `w90-i6-aniso`): anisotropic I-6 per notes/phase1/I6-ANISO.md.
+Queued Sonnet (next free slots): (a) [running as W91] then I-5 with ψ′ on the new interface;
+(b) base step Q5/Q6 per BASE-KERNEL.md (conditional on Prop II.7.9 parts).
+- W85: DONE (landed b3b1f92; P4 estimate half). Found the vacuous-history defect.
+- W87: DONE (landed 4a1bc48; histories inhabited).
+- W91 (`w91-dec2-locality`): VMOD-4 locality interface on Dec2.
+- W86: DONE (landed 6637c62; χ^dom identity proved).
+- W88 (`w88-complex-g1`): det∘exp, complex log det, Lemma 2.4(a) complex.
 - W78: DONE (landed c6f82f7).
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
-codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and committed). State at
-~08:20 UTC (round 3 committed in e98dcbe):
-- astra-kf0: followup4.txt — Route D: (B.5) activity estimate with hole normalization for gasOp_pe,
-  torus-exact walk activities, k_f=0 assembly; LF-BASE-KF0 Part E. Tag KF0E.
-- astra-class: followup1.txt — I6-ANISO.md (anisotropic I-6, Lean-ready). Tag I6ANISO. (long-running)
-- astra-vmod: followup3.txt — VMOD-4.md: redesign the Dec2 locality fields (cubeP_sub/own_cover force
-  equal first domains — VMOD-3 obstruction) and prove the replacements for mixed pairs. Tag VMOD4.
-- astra-rgfree: followup3.txt — RGFREE-4.md: repaired switch domain / density class, mass-free IsSF
-  domain, H7 domain (RGFREE-3 counterexample), SWITCH-JOINT, FREE-ACT. Tag RGFREE4.
-- astra-fluctfix: IDLE (v2.2 committed). Next: Theorem 3.1(f) once I6-ANISO lands (needs anisotropic
-  I-6 and the mixed-background H7 inclusion).
-- astra-basek: prompt.txt — BASE-KERNEL.md (k=0 kernel, C^{(0)}, H, b₀, baseMainAction, II.7.7-8).
-  Tag BASEK.
+codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and committed). Round 5 sent
+~09:40 UTC (round 4 + vacuity audit committed in 6b82960):
+- astra-basek: followup1.txt — BASE-KERNEL-2.md (C^{(0)} localization, cutoff transfer, first small-field
+  integral / half-budget). Tag BASEK2.
+- astra-vmod: followup4.txt — VMOD-5.md (mixed wall NC3, reverse partition, graph counting). Tag VMOD5.
+- astra-rgfree: followup4.txt — RGFREE-5.md (FREE-ACT, SWITCH-JOINT on the repaired domain). Tag RGFREE5.
+- astra-kf0: followup5.txt — Part F (sector weights → gasOp_pe form, (B.5), k_f=0 assembly). Tag KF0F.
+- astra-fluctfix: followup3.txt — FLUCTUATION v2.3, Theorem 3.1(f). Tag FLUCTFIX4.
+- astra-vacuity: followup1.txt — VACUITY-AUDIT-2.md (post-W87 re-audit, joint witnesses). Tag VACUITY2.
+- astra-class: idle.
 If a session shows "Selected model is at capacity", resend the one-line pointer message.
 Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t S Enter`
 (long pastes get truncated — always point to a file).

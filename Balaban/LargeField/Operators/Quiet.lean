@@ -42,7 +42,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N : ℕ}
 
 /-- The step `k → k + 1` is *quiet in* `Z'` if `𝒩_{k+1} ∩ Z' = ∅` (Definition II.5.5). -/
-def IsQuiet (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) : Prop :=
+def IsQuiet (Hl : RegionHistory S n R k0 K) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) : Prop :=
   Zc ∩ Hl.newCubes (k + 1) = ∅
 
 /-- The `(k+1)`-blocks of `Ω^c_{k+1} ∩ Z'`: the blocks carrying the Gaussian factors. -/
@@ -85,16 +85,17 @@ variable {ϱ : ℝ}
 
 /-- The conditions of Definition II.3.4 at level `k + 1` that involve scales `k` or `k + 1`
 (Lemma II.5.13): (1.24) for `j = k` (the `π_{k+1}`-cubes of `Ω^∼_{k+1} ∩ Z'`) and for the
-`π_k`- and `π_{k+1}`-cubes of the second family, (1.25) for `j = k`. -/
+`π_k`- and `π_{k+1}`-cubes of the second family (`1 ≤ j`, as in Definition II.3.4: the second
+family is indexed by `1 ≤ j ≤ k`), (1.25) for `j = k`. -/
 def ChiNewProp (a : LocalHistory S n M K) (k : ℕ) (B : GeneratingSet S.d S.L (M * n K) K ϱ)
     (Zc : Set (Torus S.d (M * n K * S.L ^ K))) (δ p0 : ℕ → ℝ) (Cpsi : ℝ)
     (ψ ψ' : MultiField S n M K N) : Prop :=
   (∀ y : Torus S.d (n (k + 1)), CubeSub (S := S) (n := n) M K (k + 1) y (a.Z (k + 1)) →
-      y ∈ omegaSim a (k + 1) (k + 1) →
+      y ∈ lhOmegaSim a (k + 1) (k + 1) →
         PsiTildeMulti ψ (genBlocksIn B (k + 1) (nbhd 1 {y})) (3 * S.d * S.L * δ k)) ∧
-  (∀ j, (j = k ∨ j = k + 1) → ∀ y : Torus S.d (n j), CubeSub (S := S) (n := n) M K j y Zc →
+  (∀ j, 1 ≤ j → (j = k ∨ j = k + 1) → ∀ y : Torus S.d (n j), CubeSub (S := S) (n := n) M K j y Zc →
       (∀ x, cubeMap n S.L M K j x = y → x ∉ a.Z j) →
-      (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ omegaSim a (k + 1) (j + 1)) →
+      (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ lhOmegaSim a (k + 1) (j + 1)) →
         PsiTildeMulti ψ (scaleBlocksIn j (nbhd 1 {y})) (3 * δ j)) ∧
   (∀ y : BlockAt S n M K k,
       BlockSub (S := S) (n := n) (M := M) (K := K) k y (a.Omega k \ a.OmegaDD k) →
@@ -140,8 +141,8 @@ theorem cubeProd_charFn_nonneg {m : ℕ} {X : Type*} (P : Torus S.d m → X → 
     (A : Finset (Torus S.d m)) (x : X) : 0 ≤ cubeProd (fun y => charFn (P y)) A x :=
   Finset.prod_nonneg fun y _ => charFn_nonneg' (P y) x
 
-variable (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
-  (cs : OpConsts) (hk : k + 1 ≤ K) (hrem : ∀ j, Hl.rem j = ∅)
+variable (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (hk : k + 1 ≤ K)
+  (cs : OpConsts) (hrem : ∀ j, Hl.rem j = ∅)
 
 open Classical in
 /-- **Definition II.5.6 (quiet step kernel)** at the configuration `(o, x) = (ψ_{k+1}|_V, I^new_k)`
@@ -181,15 +182,15 @@ noncomputable def quietKernel (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (cubeFin (quietA4 (locHist Hl M K (k + 1) Zc) k))
     (blockCfgOf g Hl.F.hnn le_rfl hk (outField N o)) *
   chiNew (locHist Hl M K (k + 1) Zc) k
-    (Hl.histGen (M := M) hrem Hl.F.ok.two_le_L K (fun j _ _ => g.hRlow j))
+    (Hl.histGen (M := M) (K' := K) le_rfl hrem Hl.F.ok.two_le_L (fun j _ _ => g.hRlow j))
     (fineSet (S := S) (n := n) M K (k + 1) (Zc : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
     cs.Cpsi
     (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o,
       subFluctField N (locHist Hl M K (k + 1) Zc) (k + 1) x) *
-  (if InUnionDomainR (locGen g Hl k Zc hZc) (bgC1 S.d S.L N) (cs.mu (k + 1))
+  (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
       (locData g Hl k Zc hZc hk o x hv) then 1 else 0) *
-  Real.exp (-mainActionLoc g Hl k Zc hZc cs hk hrem o x hv)
+  Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem o x hv)
 
 theorem cubeProd_nonneg_of_nonneg {m : ℕ} {X : Type*} {χ : Torus S.d m → X → ℝ}
     (h : ∀ y x, 0 ≤ χ y x) (A : Finset (Torus S.d m)) (x : X) : 0 ≤ cubeProd χ A x :=
@@ -200,7 +201,7 @@ theorem quietKernel_nonneg (hz : 0 ≤ cs.z (k + 1))
     (hc : 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    0 ≤ quietKernel g Hl k Zc hZc cs hk hrem o x hv := by
+    0 ≤ quietKernel g Hl k Zc hZc hk cs hrem o x hv := by
   classical
   unfold quietKernel
   refine mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg

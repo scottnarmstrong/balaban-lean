@@ -66,10 +66,12 @@ end Dist
 
 /-- The steps `i → i+1` for all `i`, with `Z_{i+1} = Z^pre_{i+1}` (the widths are
 `ω_{i+1} = omegaW (i+1)`; `crit i` is `none` once `i > k₀`, otherwise the critical side).
-`nn i` is the cube-torus side `n_i`, `nn i = L * nn (i+1)`. -/
+`nn i` is the cube-torus side `n_i`, `nn i = L * nn (i+1)` for the scales `i < K` below the
+horizon `K` (the flow runs from scale `0` to the top scale `K`; a relation `nn i = L * nn (i+1)` for
+all `i` would be contradictory). -/
 structure RegionSeq (d L : ℕ) (nn : ℕ → ℕ) [∀ i, NeZero (nn i)] (Rbase : ℝ) (lam R : ℕ → ℝ)
-    (crit : ℕ → Option ℕ) where
-  hnn : ∀ i, nn i = L * nn (i + 1)
+    (crit : ℕ → Option ℕ) (K : ℕ) where
+  hnn : ∀ i, i < K → nn i = L * nn (i + 1)
   step : ∀ i, RegionStep d L (nn i) (nn (i + 1)) (R (i - 1)) (R i)
   Z_zero : (step 0).Z = ∅
   Z_succ : ∀ i, (step (i + 1)).Z = (step i).Zpre (omegaW L Rbase lam (i + 1)) (crit (i + 1))
@@ -77,7 +79,7 @@ structure RegionSeq (d L : ℕ) (nn : ℕ → ℕ) [∀ i, NeZero (nn i)] (Rbase
 namespace RegionSeq
 
 variable {d L : ℕ} {nn : ℕ → ℕ} [∀ i, NeZero (nn i)] {Rbase : ℝ} {lam R : ℕ → ℝ}
-  {crit : ℕ → Option ℕ} (S : RegionSeq d L nn Rbase lam R crit)
+  {crit : ℕ → Option ℕ} {K : ℕ} (S : RegionSeq d L nn Rbase lam R crit K)
 
 /-- The domain `Ω_j ⊆ 𝕋_j` (`Ω_0 = ∅`, `Ω_{i+1}` is the output of the step `i`). -/
 def OmegaAt : ∀ j, Set (Torus d (nn j))
@@ -100,17 +102,17 @@ theorem OmegaAt_compl_subset_Z (i : ℕ) : (S.OmegaAt (i + 1))ᶜ ⊆ (S.step (i
 
 end RegionSeq
 
-theorem nn_eq_pow {L : ℕ} {nn : ℕ → ℕ} (hnn : ∀ i, nn i = L * nn (i + 1)) (j t : ℕ) :
-    nn j = nn (j + t) * L ^ t := by
+theorem nn_eq_pow {L : ℕ} {nn : ℕ → ℕ} {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1))
+    (j t : ℕ) (hjt : j + t ≤ K) : nn j = nn (j + t) * L ^ t := by
   induction t with
   | zero => simp
   | succ t ih =>
-    rw [ih, hnn (j + t), pow_succ, ← add_assoc]
+    rw [ih (by omega), hnn (j + t) (by omega), pow_succ, ← add_assoc]
     ring
 
-theorem nn_eq_pow' {L : ℕ} {nn : ℕ → ℕ} (hnn : ∀ i, nn i = L * nn (i + 1)) {j K : ℕ} (h : j ≤ K) :
-    nn j = nn K * L ^ (K - j) := by
-  have := nn_eq_pow hnn j (K - j)
+theorem nn_eq_pow' {L : ℕ} {nn : ℕ → ℕ} {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1))
+    {j : ℕ} (h : j ≤ K) : nn j = nn K * L ^ (K - j) := by
+  have := nn_eq_pow hnn j (K - j) (by omega)
   rwa [show j + (K - j) = K by omega] at this
 
 /-! ### Fine sets and the generating set -/
@@ -127,25 +129,25 @@ def cubeMap (nn : ℕ → ℕ) (L M K j : ℕ) (x : Torus d (M * nn K * L ^ K)) 
 
 variable [NeZero M]
 
-theorem fine_eq (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K) :
+theorem fine_eq {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) {j : ℕ} (hjK : j ≤ K) :
     M * nn K * L ^ K = L ^ j * M * nn j := by
   rw [nn_eq_pow' hnn hjK]
   have : L ^ K = L ^ j * L ^ (K - j) := by rw [← pow_add]; congr 1; omega
   rw [this]; ring
 
-theorem cubeMap_eq_comp (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K)
+theorem cubeMap_eq_comp {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (x : Torus d (M * nn K * L ^ K)) :
     blockMap M (nn j) (Multiscale.jBlock d L (M * nn K) K j x) = cubeMap nn L M K j x := by
   unfold Multiscale.jBlock cubeMap
   rw [blockMap_comp (Multiscale.side_eq hjK)]
   rw [nn_eq_pow' hnn hjK]; ring
 
-theorem cubeMap_succ (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K)
+theorem cubeMap_succ {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) {j : ℕ} (hjK : j + 1 ≤ K)
     (x : Torus d (M * nn K * L ^ K)) :
     blockMap L (nn (j + 1)) (cubeMap nn L M K j x) = cubeMap nn L M K (j + 1) x := by
   unfold cubeMap
   have h := blockMap_comp (d := d) (ℓ := M * nn K * L ^ K) (N := L ^ j * M) (m₁ := nn j)
-    (m₂ := nn (j + 1)) (M := L) (fine_eq hnn hjK) (hnn j) x
+    (m₂ := nn (j + 1)) (M := L) (fine_eq hnn (by omega)) (hnn j (by omega)) x
   rw [h, show L ^ j * M * L = L ^ (j + 1) * M by ring]
 
 variable (M)
@@ -153,11 +155,11 @@ variable (M)
 open Classical in
 /-- The fine domain `Ω_j` (`1 ≤ j ≤ K`; empty for `j > K`): the sites whose `𝕋_j`-cube lies in
 `Ω_j`. -/
-noncomputable def flowOmega (S : RegionSeq d L nn Rbase lam R crit) (K j : ℕ) :
+noncomputable def flowOmega {K₀ : ℕ} (S : RegionSeq d L nn Rbase lam R crit K₀) (K j : ℕ) :
     Finset (Torus d (M * nn K * L ^ K)) :=
   if j ≤ K then Finset.univ.filter fun x => cubeMap nn L M K j x ∈ S.OmegaAt j else ∅
 
-theorem mem_flowOmega (S : RegionSeq d L nn Rbase lam R crit) {K j : ℕ}
+theorem mem_flowOmega {K₀ : ℕ} (S : RegionSeq d L nn Rbase lam R crit K₀) {K j : ℕ}
     {x : Torus d (M * nn K * L ^ K)} :
     x ∈ flowOmega M S K j ↔ j ≤ K ∧ cubeMap nn L M K j x ∈ S.OmegaAt j := by
   classical
@@ -166,13 +168,13 @@ theorem mem_flowOmega (S : RegionSeq d L nn Rbase lam R crit) {K j : ℕ}
   · simp [h]
   · simp [h]
 
-variable (S : RegionSeq d L nn Rbase lam R crit)
+variable {K : ℕ} (S : RegionSeq d L nn Rbase lam R crit K)
 
 /-- **Lemma I.3.10 (a)**, nesting: a cube of `𝕋_{i+1}` over a cube of `Ω_{i+2}` lies in
 `Ω''_{i+1}` (so `Ω_{j+1} ⊆ Z_jᶜ ⊆ Ω''_j ⊆ Ω_j`). -/
-theorem RegionSeq.nesting (hL : 0 < L) (i : ℕ) {y : Torus d (nn (i + 1))}
+theorem RegionSeq.nesting (hL : 0 < L) (i : ℕ) (hi : i + 1 < K) {y : Torus d (nn (i + 1))}
     (hy : blockMap L (nn (i + 1 + 1)) y ∈ (S.step (i + 1)).Omega) : y ∈ (S.step i).OmegaDD := by
-  have h1 := (S.step (i + 1)).not_mem_Z_of_mem_Omega hL (S.hnn (i + 1)) hy
+  have h1 := (S.step (i + 1)).not_mem_Z_of_mem_Omega hL (S.hnn (i + 1) hi) hy
   rw [S.Z_succ i] at h1
   by_contra h2
   exact h1 ((S.step i).OmegaDD_compl_subset_Z0 h2 |> (S.step i).Z0_subset_Zpre _ _)
@@ -180,7 +182,7 @@ theorem RegionSeq.nesting (hL : 0 < L) (i : ℕ) {y : Torus d (nn (i + 1))}
 /-- **Lemma I.3.10**: the domains of the region sequence form a `GeneratingSet` with
 `ϱ = L M R_base` (fields: `top` is the terminal `Ω_{K+1} = ∅`; `subset`, `blockUnion`, `separation`
 by (a), (b), (c); `separation` needs `R_j ≥ R_base`, audit P1-04). -/
-noncomputable def flowGeneratingSet (hL : 2 ≤ L) (K : ℕ)
+noncomputable def flowGeneratingSet (hL : 2 ≤ L)
     (hR : ∀ j, 1 ≤ j → j < K → Rbase ≤ R j) :
     Multiscale.GeneratingSet d L (M * nn K) K ((L : ℝ) * M * Rbase) where
   Ω := flowOmega M S K
@@ -190,12 +192,12 @@ noncomputable def flowGeneratingSet (hL : 2 ≤ L) (K : ℕ)
   subset := by
     intro j hj hjK x hx
     rw [mem_flowOmega] at hx ⊢
-    obtain ⟨-, hx⟩ := hx
+    obtain ⟨hj1, hx⟩ := hx
     obtain ⟨i, rfl⟩ : ∃ i, j = i + 1 := ⟨j - 1, by omega⟩
     refine ⟨hjK, ?_⟩
     have hy : blockMap L (nn (i + 1 + 1)) (cubeMap nn L M K (i + 1) x) ∈ (S.step (i + 1)).Omega := by
       rw [cubeMap_succ S.hnn (by omega)]; exact hx
-    exact (S.step i).OmegaDD_subset_Omega (S.nesting (by omega) i hy)
+    exact (S.step i).OmegaDD_subset_Omega (S.nesting (by omega) i (by omega) hy)
   blockUnion := by
     intro j hj hjK x x' hxx'
     rw [mem_flowOmega, mem_flowOmega]
@@ -214,7 +216,7 @@ noncomputable def flowGeneratingSet (hL : 2 ≤ L) (K : ℕ)
     have hyc : blockMap L (nn (i + 1 + 1)) (cubeMap nn L M K (i + 1) y) ∈
         (S.step (i + 1)).Omega := by
       rw [cubeMap_succ S.hnn (by omega)]; exact hy
-    have hfar := (S.step (i + 1)).fine_far (by omega) (S.hnn (i + 1)) hyc hz
+    have hfar := (S.step (i + 1)).fine_far (by omega) (S.hnn (i + 1) (by omega)) hyc hz
     have hdist := torusDist_lower (d := d) (N := L ^ (i + 1) * M) (m := nn (i + 1))
       (ℓ := M * nn K * L ^ K) (fine_eq S.hnn (by omega))
       (Nat.pos_of_ne_zero (by have := NeZero.ne M; have := NeZero.ne L; positivity)) x y

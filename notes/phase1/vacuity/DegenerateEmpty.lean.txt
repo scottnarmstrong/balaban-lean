@@ -1,0 +1,34 @@
+import Balaban.LargeField.Geometry.Escape
+import Balaban.Background.Data
+
+open Balaban.LatticeGeom
+
+theorem no_escape_in_dimension_zero (x : Pt 0) (p : ℕ → Pt 0) :
+    ¬ IsEscPath x p := by
+  intro h
+  rcases h.step 0 with ⟨i, _⟩
+  exact Fin.elim0 i
+
+open Balaban Balaban.Multiscale Balaban.Background
+
+theorem no_real_background_data_in_spin_dimension_zero
+    {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ ν δ : ℝ}
+    {G : GeneratingSet d L N₀ k ϱ}
+    (hsite : (dataSites G).Nonempty) (hδ : δ ≤ 1)
+    (Ψ : Torus d (N₀ * L ^ k) → Fin 0 → ℝ) (h : Fin 0 → ℝ) :
+    ¬ InPsiTilde G ν δ Ψ h := by
+  intro H
+  obtain ⟨x, hx⟩ := hsite
+  have hr := H.r2 x hx
+  simp at hr
+  linarith
+
+theorem no_complex_background_data_in_spin_dimension_zero
+    {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ ν δ ε : ℝ}
+    {G : GeneratingSet d L N₀ k ϱ}
+    (hsite : (dataSites G).Nonempty) (hδ : δ ≤ 1)
+    (Ψ : Torus d (N₀ * L ^ k) → Fin 0 → ℝ) (h : Fin 0 → ℝ)
+    (Ψ' h' : Torus d (N₀ * L ^ k) → Fin 0 → ℂ) :
+    ¬ InPsiTildeC G ν δ ε Ψ h Ψ' h' := by
+  intro H
+  exact no_real_background_data_in_spin_dimension_zero hsite hδ Ψ h H.toInPsiTilde

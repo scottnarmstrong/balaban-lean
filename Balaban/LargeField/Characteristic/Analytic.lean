@@ -40,7 +40,7 @@ section Cast
 
 variable {n : ℕ → ℕ} {L M1 c M K : ℕ}
 
-theorem histScale_eq (hM : M = c * M1) (hnn : ∀ i, n i = L * n (i + 1)) {i q : ℕ} (hiq : i ≤ q)
+theorem histScale_eq (hM : M = c * M1) (hnn : ∀ i, i < K → n i = L * n (i + 1)) {i q : ℕ} (hiq : i ≤ q)
     (hqK : q ≤ K) : M1 * (c * n q) * L ^ (q - i) = M * n K * L ^ (K - i) := by
   rw [nn_eq_pow' hnn hqK, hM]
   have : L ^ (K - i) = L ^ (K - q) * L ^ (q - i) := by rw [← pow_add]; congr 1; omega
@@ -121,7 +121,7 @@ theorem omegaLevel_blockUnion (M1 c j : ℕ) [NeZero M1] [NeZero c] (W : Set (To
     (by simp) W).isBlockUnion (le_refl j)
 
 variable (M1 c : ℕ) [NeZero M1] [NeZero c]
-  (hM : M = c * M1) (hnn : ∀ i, n i = S.L * n (i + 1))
+  (hM : M = c * M1) (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
   (a : LocalHistory S n M K) (k : ℕ) (hkK : k ≤ K)
   (Xf : Set (Torus S.d (M * n K * S.L ^ K)))
   (aw : ℕ → ℝ) (μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ)

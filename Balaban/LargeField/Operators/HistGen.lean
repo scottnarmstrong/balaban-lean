@@ -25,13 +25,14 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
-/-- A region history without removals is a region sequence (Lemma I.3.10's input). -/
-noncomputable def toSeq (hrem : ∀ k, H.rem k = ∅) :
-    RegionSeq S.d S.L n S.Rb S.lam R (critOpt S k0) where
-  hnn := H.F.hnn
+/-- A region history without removals is a region sequence (Lemma I.3.10's input), up to any
+horizon `K' ≤ K`. -/
+noncomputable def toSeq {K' : ℕ} (hK' : K' ≤ K) (hrem : ∀ k, H.rem k = ∅) :
+    RegionSeq S.d S.L n S.Rb S.lam R (critOpt S k0) K' where
+  hnn := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hK')
   step := H.F.step
   Z_zero := by
     have h := H.Z_eq 0
@@ -47,16 +48,16 @@ noncomputable def toSeq (hrem : ∀ k, H.rem k = ∅) :
 variable {M : ℕ} [NeZero M] [NeZero S.L]
 
 /-- The generating set `𝔹_K` of a region history without removals (Lemma I.3.10). -/
-noncomputable def histGen (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L) (K : ℕ)
-    (hR : ∀ j, 1 ≤ j → j < K → S.Rb ≤ R j) :
-    Multiscale.GeneratingSet S.d S.L (M * n K) K ((S.L : ℝ) * M * S.Rb) :=
-  flowGeneratingSet M (H.toSeq hrem) hL K hR
+noncomputable def histGen {K' : ℕ} (hK' : K' ≤ K) (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
+    (hR : ∀ j, 1 ≤ j → j < K' → S.Rb ≤ R j) :
+    Multiscale.GeneratingSet S.d S.L (M * n K') K' ((S.L : ℝ) * M * S.Rb) :=
+  flowGeneratingSet M (H.toSeq hK' hrem) hL hR
 
-theorem mem_histGen (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L) (K : ℕ)
-    (hR : ∀ j, 1 ≤ j → j < K → S.Rb ≤ R j) (j : ℕ) (x : Torus S.d (M * n K * S.L ^ K)) :
-    x ∈ (H.histGen (M := M) hrem hL K hR).Ω j ↔
-      j ≤ K ∧ cubeMap n S.L M K j x ∈ (H.toSeq hrem).OmegaAt j :=
-  mem_flowOmega M (H.toSeq hrem)
+theorem mem_histGen {K' : ℕ} (hK' : K' ≤ K) (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
+    (hR : ∀ j, 1 ≤ j → j < K' → S.Rb ≤ R j) (j : ℕ) (x : Torus S.d (M * n K' * S.L ^ K')) :
+    x ∈ (H.histGen (M := M) hK' hrem hL hR).Ω j ↔
+      j ≤ K' ∧ cubeMap n S.L M K' j x ∈ (H.toSeq hK' hrem).OmegaAt j :=
+  mem_flowOmega M (H.toSeq hK' hrem)
 
 end RegionHistory
 

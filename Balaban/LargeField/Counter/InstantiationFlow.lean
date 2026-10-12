@@ -24,7 +24,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **LF-2 for the flow**: for the flow data `F` (with `S` its counter), an admissible region
 history up to `K = k_f`, and the hypotheses (B), (Rg), the conclusion of Theorem I.5.4 holds
 up to `k̂_f`. -/
-theorem flow_counter (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (H : RegionHistory S n R F.k0)
+theorem flow_counter (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (H : RegionHistory S n R F.k0 F.kf)
     (hadm : H.Admissible) (hkf : 1 ≤ F.kf)
     (hΛ12 : ((F.d : ℝ) + 3) / 2 ≤ S.lam F.k0 * (1 - 1 / (2 * Real.log F.L)))
     (hgen : F.beta F.k0 * F.nu F.k0 ≤ 1 → 2 * (F.L : ℝ) ^ 2 ≤ F.beta F.k0)
@@ -38,10 +38,10 @@ theorem flow_counter (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (H : RegionHi
       ¬ S.Ripe k (H.bk k c) → G' k c = Gp k c)
     (rg_frozen : ∀ k, F.k0 < k → ∀ c : H.Comp k, G' k c = Gp k c) :
     CounterConclusion
-      ((H.toLF2Hyp hadm F.kf Gp G' budget rg_ripe rg_nonripe rg_frozen).toCounterHist G.ok)
+      ((H.toLF2Hyp hadm Gp G' budget rg_ripe rg_nonripe rg_frozen).toCounterHist G.ok)
       F.kfhat := by
   obtain ⟨hH1, hH2⟩ := F.hLambda_of_flow' hS hkf hΛ12 hgen
-  exact LF2 G (H.toLF2Hyp hadm F.kf Gp G' budget rg_ripe rg_nonripe rg_frozen)
+  exact LF2 G (H.toLF2Hyp hadm Gp G' budget rg_ripe rg_nonripe rg_frozen)
     (F.k0_lt_kf hkf hgen).le F.kfhat_bounds.1 hH1 hH2
 
 end RegionHistory

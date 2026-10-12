@@ -121,7 +121,7 @@ end Abstract
 section Flow
 
 variable {d L M : ℕ} [NeZero L] [NeZero M] {nn : ℕ → ℕ} [∀ i, NeZero (nn i)] {Rbase : ℝ}
-  {lam R : ℕ → ℝ} {crit : ℕ → Option ℕ} (S : RegionSeq d L nn Rbase lam R crit)
+  {lam R : ℕ → ℝ} {crit : ℕ → Option ℕ} {K : ℕ} (S : RegionSeq d L nn Rbase lam R crit K)
 
 variable (M) in
 open Classical in
@@ -135,7 +135,8 @@ theorem mem_fineCubes {K k : ℕ} {Y : Finset (Torus d (nn k))} {x : Torus d (M 
   classical
   simp [fineCubes]
 
-theorem fineCubes_isBlockUnion (hnn : ∀ i, nn i = L * nn (i + 1)) {K k : ℕ} (hkK : k ≤ K)
+theorem fineCubes_isBlockUnion {K : ℕ} (hnn : ∀ i, i < K → nn i = L * nn (i + 1)) {k : ℕ}
+    (hkK : k ≤ K)
     (Y : Finset (Torus d (nn k))) :
     Multiscale.IsBlockUnion L (M * nn K) K k (fineCubes (nn := nn) (L := L) M K k Y) := by
   intro x x' hxx'
@@ -144,7 +145,7 @@ theorem fineCubes_isBlockUnion (hnn : ∀ i, nn i = L * nn (i + 1)) {K k : ℕ} 
 
 /-- Regions grow (Lemma I.4.3 for the no-removal sequence): a cube of `Z_{i+1}` has its ancestor
 cubes in `Z_{i+1+t}`. -/
-theorem RegionSeq.Z_grow {K : ℕ} (i : ℕ) (x : Torus d (M * nn K * L ^ K))
+theorem RegionSeq.Z_grow (i : ℕ) (x : Torus d (M * nn K * L ^ K))
     (hx : cubeMap nn L M K (i + 1) x ∈ (S.step (i + 1)).Z) :
     ∀ t, i + 1 + t ≤ K → cubeMap nn L M K (i + 1 + t) x ∈ (S.step (i + 1 + t)).Z := by
   intro t
@@ -165,7 +166,7 @@ theorem RegionSeq.Z_grow {K : ℕ} (i : ℕ) (x : Torus d (M * nn K * L ^ K))
 /-- **Lemma I.3.12 (c)**, geometric input: the fine set of a component `Y` of `Z_k` is at fine
 distance `> ϱ L^j` (`ϱ = L M R_base`, `j < k`) from every fine site outside `Y` whose `𝕋_j`-cube
 lies in `Z_j`. Needs `R_base ≥ 0`, `λ ≥ 1`. -/
-theorem flow_overwrite_sep (hRH : RadiusHyp L Rbase lam R) (hL : 2 ≤ L) {K k : ℕ}
+theorem flow_overwrite_sep (hRH : RadiusHyp L Rbase lam R) (hL : 2 ≤ L) {k : ℕ}
     (hk1 : 1 ≤ k) (hkK : k ≤ K) {Y : Finset (Torus d (nn k))}
     (hY : Y ∈ comps (omegaW L Rbase lam k) (finOf (S.step k).Z))
     {j : ℕ} (hj : 1 ≤ j) (hjk : j < k) {x : Torus d (M * nn K * L ^ K)}
@@ -218,11 +219,11 @@ theorem flow_overwrite_sep (hRH : RadiusHyp L Rbase lam R) (hL : 2 ≤ L) {K k :
 
 /-- **Lemma I.3.12** for the region sequence: removing a component `Y` of `Z^pre_k` keeps the
 domains a generating set. -/
-noncomputable def flowOverwrite (hRH : RadiusHyp L Rbase lam R) (hL : 2 ≤ L) (K : ℕ)
+noncomputable def flowOverwrite (hRH : RadiusHyp L Rbase lam R) (hL : 2 ≤ L)
     (hR : ∀ j, 1 ≤ j → j < K → Rbase ≤ R j) {k : ℕ} (hk1 : 1 ≤ k) (hkK : k ≤ K)
     (Y : Finset (Torus d (nn k))) (hY : Y ∈ comps (omegaW L Rbase lam k) (finOf (S.step k).Z)) :
     Multiscale.GeneratingSet d L (M * nn K) K ((L : ℝ) * M * Rbase) :=
-  overwriteGeneratingSet (flowGeneratingSet M S hL K hR) hkK
+  overwriteGeneratingSet (flowGeneratingSet M S hL hR) hkK
     (fineCubes (nn := nn) (L := L) M K k Y) (fineCubes_isBlockUnion S.hnn hkK Y)
     (by
       intro j hj hjk x hx hxY y hy

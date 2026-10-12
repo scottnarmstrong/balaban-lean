@@ -27,8 +27,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- The coarsening of a cube of `𝕋_j` to `𝕋_{j+t}`. -/
 def cm : (t j : ℕ) → Torus S.d (n j) → Torus S.d (n (j + t))
@@ -40,7 +40,7 @@ components at the scales `j, …, j+t-1`. -/
 inductive AncRel : (j t : ℕ) → H.Comp j → H.Comp (j + t) → Prop
   | refl (j : ℕ) (Y : H.Comp j) : AncRel j 0 Y Y
   | step (j t : ℕ) (Y : H.Comp j) (Y' : H.Comp (j + t)) (Y'' : H.Comp (j + t + 1)) :
-      AncRel j t Y Y' → (h : Y'.1 ∉ H.rem (j + t)) → H.succ (j + t) Y' h = Y'' → AncRel j (t + 1) Y Y''
+      AncRel j t Y Y' → (h : Y'.1 ∉ H.rem (j + t)) → H.IsSucc (j + t) Y' Y'' → AncRel j (t + 1) Y Y''
 
 /-- The lineage `Lin_j(Z)`: the union of the ancestors of `Z` at scale `j`. -/
 def lineage (j t : ℕ) (Z : H.Comp (j + t)) : Set (Torus S.d (n j)) :=
@@ -82,7 +82,7 @@ theorem mem_Z_iff {k : ℕ} {x : Torus S.d (n k)} {Y : H.Comp k} (hx : x ∈ Y.1
     exact hY (comp_eq_of_mem Y.2 hY'c hx hxY' ▸ hY')
 
 /-- **Lemma I.4.3 (c)**: the lineage is `Z_j ∩ Z`: `Lin_j(Z) = {y ∈ Zov j t : cm y ∈ Z}`. -/
-theorem lineage_eq_inter (j t : ℕ) (Z : H.Comp (j + t)) :
+theorem lineage_eq_inter (j t : ℕ) (Z : H.Comp (j + t)) (hjt : j + t ≤ K) :
     H.lineage j t Z = {y | y ∈ H.Zov j t ∧ cm (S := S) (n := n) t j y ∈ Z.1} := by
   induction t with
   | zero =>
@@ -100,7 +100,7 @@ theorem lineage_eq_inter (j t : ℕ) (Z : H.Comp (j + t)) :
       cases hY with
       | step _ _ Y' _ hY' hrem hsucc =>
         have hyY' : y ∈ H.lineage j t Y' := ⟨Y, hY', hy⟩
-        rw [ih Y'] at hyY'
+        rw [ih Y' (by omega)] at hyY'
         obtain ⟨hZov, hcm⟩ := hyY'
         have hZ : cm (S := S) (n := n) t j y ∈ (H.step (j + t)).Z := (H.mem_Z_iff hcm).mpr hrem
         refine ⟨⟨hZov.1, fun s hs => ?_⟩, ?_⟩
@@ -108,38 +108,41 @@ theorem lineage_eq_inter (j t : ℕ) (Z : H.Comp (j + t)) :
           · subst hst; exact hZ
           · exact hZov.2 s (by omega)
         · show blockMap S.L (n (j + t + 1)) (cm (S := S) (n := n) t j y) ∈ _
-          rw [← hsucc]
-          exact H.succ_spec (j + t) hrem ⟨_, hcm, rfl⟩
+          exact hsucc ⟨_, hcm, rfl⟩
     · rintro ⟨hZov, hy⟩
       have hZt : cm (S := S) (n := n) t j y ∈ (H.step (j + t)).Z := hZov.2 t (by omega)
       have hZpre := H.Z_subset_Zpre (j + t) hZt
       obtain ⟨Y', hY', hyY'⟩ := mem_comp_self (ω := S.omega (j + t)) (mem_finOf.mpr hZpre)
       have hrem : Y' ∉ H.rem (j + t) := (H.mem_Z_iff (Y := ⟨Y', hY'⟩) hyY').mp hZt
+      have hjt' : j + t < K := by omega
       have hx : blockMap S.L (n (j + t + 1)) (cm (S := S) (n := n) t j y) ∈
-          (H.succ (j + t) ⟨Y', hY'⟩ hrem).1 := H.succ_spec (j + t) hrem ⟨_, hyY', rfl⟩
-      have hsucc : H.succ (j + t) ⟨Y', hY'⟩ hrem = Z :=
-        Subtype.ext (comp_eq_of_mem (H.succ (j + t) ⟨Y', hY'⟩ hrem).2 Z.2 hx hy)
+          (H.succ hjt' ⟨Y', hY'⟩ hrem).1 :=
+        H.succ_spec hjt' hrem ⟨_, hyY', rfl⟩
+      have hsucc : H.IsSucc (j + t) ⟨Y', hY'⟩ Z :=
+        (H.succ_eq_iff hjt' hrem).mp
+          (Subtype.ext (comp_eq_of_mem (H.succ hjt' ⟨Y', hY'⟩ hrem).2 Z.2 hx hy))
       have hmem : y ∈ H.lineage j t ⟨Y', hY'⟩ := by
-        rw [ih ⟨Y', hY'⟩]
+        rw [ih ⟨Y', hY'⟩ (by omega)]
         exact ⟨⟨hZov.1, fun s hs => hZov.2 s (by omega)⟩, hyY'⟩
       obtain ⟨Y0, hY0, hy0⟩ := hmem
       exact ⟨Y0, AncRel.step j t Y0 ⟨Y', hY'⟩ Z hY0 hrem hsucc, hy0⟩
 
 /-- **Lemma I.4.3 (d)**: lineages of distinct components are disjoint. -/
-theorem lineage_disjoint (j t : ℕ) {Z Z' : H.Comp (j + t)} (hne : Z ≠ Z') :
+theorem lineage_disjoint (j t : ℕ) (hjt : j + t ≤ K) {Z Z' : H.Comp (j + t)} (hne : Z ≠ Z') :
     Disjoint (H.lineage j t Z) (H.lineage j t Z') := by
   rw [Set.disjoint_left]
   intro y hy hy'
-  rw [H.lineage_eq_inter] at hy hy'
+  rw [H.lineage_eq_inter j t _ hjt] at hy
+  rw [H.lineage_eq_inter j t _ hjt] at hy'
   exact hne (Subtype.ext (comp_eq_of_mem Z.2 Z'.2 hy.2 hy'.2))
 
 /-- **Lemma I.4.3 (d)**: `Z_j` is the union of the lineages of the components of `Z^pre_{j+t}`
 (for `t ≥ 1`; for the cubes of `Zov j t` whose coarsening lies in `Z^pre_{j+t}`). -/
-theorem iUnion_lineage (j t : ℕ) :
+theorem iUnion_lineage (j t : ℕ) (hjt : j + t ≤ K) :
     (⋃ Z : H.Comp (j + t), H.lineage j t Z) =
       {y | y ∈ H.Zov j t ∧ cm (S := S) (n := n) t j y ∈ H.F.Zpre (j + t)} := by
   ext y
-  simp only [Set.mem_iUnion, lineage_eq_inter, Set.mem_ofPred_eq]
+  simp only [Set.mem_iUnion, H.lineage_eq_inter j t _ hjt, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨Z, hy, hz⟩
     exact ⟨hy, mem_finOf.mp (comp_subset Z.2 hz)⟩

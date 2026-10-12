@@ -23,6 +23,21 @@ For a localized history `a` (fine sets, `LocalHistory`) and a level `k`:
   `ψ'_j(y)`, `y ∈ T^{(j)} ∩ (Ω_{j+1} ∖ Ω''_{j+1}) ∩ Z`.  As all sets of a `LocalHistory` are
   already intersected with `Z`, `Ω^c_{j+1} ∩ Z` is `Z_{j+1} ∩ Z ∖ Ω_{j+1}` (Lemma I.3.5 (e):
   `Ω^c_{j+1} ⊂ Z_{j+1}`).  A block belongs to a fine set if all its fine sites do.
+* **Localized region history (fix of the domain identity, W86).**  The localized history of a
+  component `Z` of `Z_k` is, in the source, the *lineage localization* of the region history
+  (Definition I.4.4, Lemma I.3.9): its domains `Ω_j`, `Ω''_j` are the global ones inside the lineage
+  of `Z` and contain *everything outside it* (Lemma I.3.9 (b): `Ωᶜ(loc) = Ωᶜ ∩ Lin(Z)`).  The records
+  of `LocalHistory` are intersected with `Z` (Definition II.5.1: "all sets are intersected with `Z`
+  as fine sets"), which is right for the *variables* (they live in `Z`), but the multiscale field
+  `ψ = ψ_j` on `Λ_j = Ω_j ∖ Ω_{j+1}` of Definition II.3.4 must be read with the `Ω_j` of the
+  localized region history: outside `Z` and inside the margin `V_Z ∖ Z` the history is
+  `Ω_1 ⊇ ⋯ ⊇ Ω_k`, so the field there is the output `ψ_k` on `V_Z` (Definition II.5.1, output
+  variables on `T^{(k)} ∩ V_Z`; the proof of Lemma II.5.13 (3) treats "its outputs on `V_Y ∖ Y`" of an
+  old part `Y` as parameters).  `lhOmega a k j = a.Omega (j - 1) ∪ (a.Z k)ᶜ` (OperatorDomain) is this
+  `Ω_j`; the gate of `multiscaleField` and `subMultiscaleField` uses it.  (Before, the field
+  vanished on the blocks of the margin that the generating set `𝔹_K` of the localization still
+  contains, so `χ^dom_k(Z)` failed identically at the outer boundary cubes and the identity
+  `χ^dom_{k+1}(Z') = χ^new_k(Z') ∏_Y χ^dom_k(Y)`, Lemma II.5.13, was false.)
 * `refMeasure`: the product of the surface measures `volume.toSphere` (total mass `N v_N`, not
   normalized; D-IV.4) on the scale-`0` large-field variables (the spins) and Lebesgue measure on
   the others.
@@ -169,14 +184,12 @@ noncomputable def multiscaleField (N : ℕ) (a : LocalHistory S n M K) (k : ℕ)
     (V : Set (BlockAt S n M K k)) (x : IntConfig N a k) (o : OutConfig N V) : MultiField S n M K N :=
   fun j y =>
     if j < k then
-      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1)) then
+      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j) then
         varField N a k x j y
       else 0
     else if hjk : j = k then
-      (by
-        subst hjk
-        exact if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1)) then
-          outField N o y else 0)
+      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j) then
+        (by subst hjk; exact outField N o y) else 0
     else 0
 
 /-- The fluctuation field `ψ'` of the configuration. -/
@@ -223,7 +236,7 @@ theorem measurable_multiscaleField (N : ℕ) (a : LocalHistory S n M K) (k : ℕ
   unfold multiscaleField
   by_cases hj : j < k
   · simp only [hj, ↓reduceIte]
-    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j)
     · simp only [hc, ↓reduceIte]
       exact (measurable_varField N a k j y).comp measurable_fst
     · simp only [hc, ↓reduceIte]
@@ -232,7 +245,7 @@ theorem measurable_multiscaleField (N : ℕ) (a : LocalHistory S n M K) (k : ℕ
     by_cases hjk : j = k
     · subst hjk
       simp only [↓reduceDIte]
-      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a j j)
       · simp only [hc, ↓reduceIte]
         exact (measurable_outField N V y).comp measurable_snd
       · simp only [hc, ↓reduceIte]
@@ -333,14 +346,12 @@ noncomputable def subMultiscaleField (N : ℕ) (a : LocalHistory S n M K) (k : �
     (o : OutConfig N V) : MultiField S n M K N :=
   fun j y =>
     if j < k then
-      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1)) then
+      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j) then
         subVarField N x j y
       else 0
     else if hjk : j = k then
-      (by
-        subst hjk
-        exact if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1)) then
-          outField N o y else 0)
+      if j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j) then
+        (by subst hjk; exact outField N o y) else 0
     else 0
 
 /-- The fluctuation field of a configuration of `A`. -/
@@ -356,7 +367,7 @@ theorem measurable_subMultiscaleField (V : Set (BlockAt S n M K k)) {A : Set (In
   unfold subMultiscaleField
   by_cases hj : j < k
   · simp only [hj, ↓reduceIte]
-    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j)
     · simp only [hc, ↓reduceIte]
       exact (measurable_subVarField j y).comp measurable_fst
     · simp only [hc, ↓reduceIte]
@@ -365,7 +376,7 @@ theorem measurable_subMultiscaleField (V : Set (BlockAt S n M K k)) {A : Set (In
     by_cases hjk : j = k
     · subst hjk
       simp only [↓reduceDIte]
-      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a j j)
       · simp only [hc, ↓reduceIte]
         exact (measurable_outField N V y).comp measurable_snd
       · simp only [hc, ↓reduceIte]
@@ -403,13 +414,13 @@ theorem exists_site_in_block {j : ℕ} (hjK : j ≤ K)
   exact ZMod.natCast_zmod_val (y i)
 
 /-- The cube of a site is the cube of its `j`-block. -/
-theorem cubeMap_jBlock (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem cubeMap_jBlock (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (x : Torus S.d (M * n K * S.L ^ K)) :
     blockCube S n M K j (Multiscale.jBlock S.d S.L (M * n K) K j x) = cubeMap n S.L M K j x :=
   cubeMap_eq_comp hnn hjK x
 
 /-- **The bridge.** A block lies in the fine set of a set of cubes iff its cube does. -/
-theorem blockSub_fineSet_iff (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+theorem blockSub_fineSet_iff (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
     (A : Set (Torus S.d (n j))) (y : BlockAt S n M K j) :
     BlockSub (S := S) (n := n) (M := M) (K := K) j y (fineSet (S := S) (n := n) M K j A) ↔
       blockCube S n M K j y ∈ A := by
@@ -431,6 +442,24 @@ theorem blockSub_inter (j : ℕ) (y : BlockAt S n M K j) (A B : Set (Torus S.d (
     fun h x hx => ⟨h.1 x hx, h.2 x hx⟩⟩
 
 end Bridge
+
+section LocalFacts
+
+variable {R : ℕ → ℝ} {k0 : ℕ} {H : RegionHistory S n R k0 K}
+
+/-- The record `Z_k` of the localized history of a component `Z` of `Z_k` is the fine set of `Z`. -/
+theorem mem_localHistory_Z_top {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
+    x ∈ (H.localHistory M K k Z).Z k ↔ cubeMap n S.L M K k x ∈ Z.1 := by
+  show (cubeMap n S.L M K k x ∈ ((H.locRH k Z).step k).Z ∧ cubeMap n S.L M K k x ∈ Z.1) ↔ _
+  rw [locRH_Z Z le_rfl hkK, lin_self]
+  simp
+
+/-- A site outside the fine set of `Z` lies in `lhOmega`. -/
+theorem mem_lhOmega_of_not_mem {a : LocalHistory S n M K} {k : ℕ} (j : ℕ)
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : x ∉ a.Z k) : x ∈ lhOmega a k j :=
+  Or.inr hx
+
+end LocalFacts
 
 end Vars
 

@@ -22,8 +22,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 variable (H) in
 /-- A certified entry: post-`R` state `Active(e, 1, ∅)` and a point spine. -/
@@ -44,18 +44,18 @@ include G
 /-- **Lemma I.4.13 (d)**: each branch of the lineage of an `Active` or `Pending` component ends at
 a certified entry, which is one box of side `≤ crit_e`. -/
 theorem exists_entry (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ n k) :
-    ∀ κ (Y : H.Comp κ), κ ≤ k0 → ((H.bk κ Y).IsActive ∨ (H.bk κ Y).IsPending) →
+    ∀ κ (Y : H.Comp κ), κ ≤ k0 → κ ≤ K → ((H.bk κ Y).IsActive ∨ (H.bk κ Y).IsPending) →
     ∃ e, ∃ Y' : H.Comp e, H.Desc e κ Y' Y ∧ H.IsEntry e Y' ∧ CoveredBy S n e Y'.1 1 := by
   intro κ
   induction κ with
   | zero => intro Y; exact (H.F.isEmpty_comp_zero.false Y).elim
   | succ k ih =>
-    intro Y hk0 hact
-    obtain ⟨hinv, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Y
+    intro Y hk0 hkK hact
+    obtain ⟨hinv, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 hkK Y
     have mk : (H.bk (k + 1) Y).st = .active (k + 1) 1 ∅ → (H.bk (k + 1) Y).pt →
         ∃ e, ∃ Y' : H.Comp e, H.Desc e (k + 1) Y' Y ∧ H.IsEntry e Y' ∧ CoveredBy S n e Y'.1 1 :=
       fun hst hp => ⟨k + 1, Y, Desc.refl Y, ⟨pb_st_of_active hst, hinv.pt_len hp⟩,
-        cover_of_len hT (by omega) hk0 Y (hinv.pt_len hp)⟩
+        cover_of_len hT (by omega) hk0 hkK Y (hinv.pt_len hp)⟩
     have hrestart : (H.bk (k + 1) Y).st = WState.restart (k + 1) (H.bk (k + 1) Y).pt →
         ∃ e, ∃ Y' : H.Comp e, H.Desc e (k + 1) Y' Y ∧ H.IsEntry e Y' ∧ CoveredBy S n e Y'.1 1 := by
       intro hst
@@ -76,7 +76,7 @@ theorem exists_entry (hT : ∀ k, 1 ≤ k → k ≤ k0 → 4 * S.rho k + 21 ≤ 
         ∃ e, ∃ Y' : H.Comp e, H.Desc e (k + 1) Y' Y ∧ H.IsEntry e Y' ∧ CoveredBy S n e Y'.1 1 := by
       intro c hc hc'
       obtain ⟨hrem, hsu⟩ := (H.mem_parts k c Y).mp hc
-      obtain ⟨e, Y', hd, he, hcov⟩ := ih c (by omega) (hact_of c hc')
+      obtain ⟨e, Y', hd, he, hcov⟩ := ih c (by omega) (by omega) (hact_of c hc')
       exact ⟨e, Y', hd.trans (Desc.single hrem hsu), he, hcov⟩
     cases hcase with
     | new hr hf => exact hrestart (hs1 hr)

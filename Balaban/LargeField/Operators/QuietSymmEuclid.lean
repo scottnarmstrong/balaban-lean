@@ -131,6 +131,17 @@ theorem HistImage.blockSub_omega_iff (hI : HistImage σ a a') {j : ℕ} (hj : j 
       BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega i) := by
   rw [hI.Omega i]; exact σ.blockSub_image hj y _
 
+theorem HistImage.lhOmega_eq (hI : HistImage σ a a') (k i : ℕ) :
+    lhOmega a' k i = σ.ef '' lhOmega a k i := by
+  unfold lhOmega
+  rw [Set.image_union, hI.Omega, hI.Z, Equiv.image_compl]
+
+theorem HistImage.blockSub_lhOmega_iff (hI : HistImage σ a a') {j : ℕ} (hj : j ≤ K) (k i : ℕ)
+    (y : BlockAt S n M K j) :
+    BlockSub (S := S) (n := n) (M := M) (K := K) j (σ.eb j y) (lhOmega a' k i) ↔
+      BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k i) := by
+  rw [hI.lhOmega_eq]; exact σ.blockSub_image hj y _
+
 theorem subMultiscaleField_euclid {hI : HistImage σ a a'} (hk : k ≤ K)
     {V V' : Set (BlockAt S n M K k)} {o : OutConfig N V} {o' : OutConfig N V'}
     (ho : RelOut σ o o') {x : SubCfg N a k A} {x' : SubCfg N a' k A'}
@@ -141,10 +152,10 @@ theorem subMultiscaleField_euclid {hI : HistImage σ a a'} (hk : k ≤ K)
   by_cases hj : j < k
   · have hjK : j ≤ K := by omega
     simp only [hj, ↓reduceIte]
-    have hc : (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j (σ.eb j y) (a'.Omega (j - 1))) ↔
-        (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))) := by
-      rw [hI.blockSub_omega_iff hjK]
-    by_cases hc' : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+    have hc : (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j (σ.eb j y) (lhOmega a' k j)) ↔
+        (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j)) := by
+      rw [hI.blockSub_lhOmega_iff hjK k j]
+    by_cases hc' : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j)
     · simp only [hc'.imp_right id, hc.mpr hc', ↓reduceIte]
       exact h.read_large j y
     · simp only [hc', hc.not.mpr hc', ↓reduceIte]
@@ -152,10 +163,10 @@ theorem subMultiscaleField_euclid {hI : HistImage σ a a'} (hk : k ≤ K)
     by_cases hjk : j = k
     · subst hjk
       simp only [↓reduceDIte]
-      have hc : (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j (σ.eb j y) (a'.Omega (j - 1))) ↔
-          (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))) := by
-        rw [hI.blockSub_omega_iff hk]
-      by_cases hc' : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+      have hc : (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j (σ.eb j y) (lhOmega a' j j)) ↔
+          (j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a j j)) := by
+        rw [hI.blockSub_lhOmega_iff hk j j]
+      by_cases hc' : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a j j)
       · simp only [hc.mpr hc', hc', ↓reduceIte]
         exact ho y
       · simp only [hc.not.mpr hc', hc', ↓reduceIte]

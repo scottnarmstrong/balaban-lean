@@ -416,6 +416,7 @@ public import Balaban.LargeField.History.FlowSteps
 public import Balaban.LargeField.History.CompsRemove
 public import Balaban.LargeField.History.NextBook
 public import Balaban.LargeField.History.RegionHistory
+public import Balaban.LargeField.History.Inhabited
 public import Balaban.LargeField.History.FlowBook
 public import Balaban.LargeField.Counter.Instantiation
 public import Balaban.LargeField.History.BoxCover
@@ -514,6 +515,9 @@ public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.ActionSymm
 public import Balaban.LargeField.Operators.QuietSymmEuclid
 public import Balaban.LargeField.Operators.StepData
+public import Balaban.LargeField.Operators.AncVars
+public import Balaban.LargeField.Operators.DomainGeom
+public import Balaban.LargeField.Operators.DomainIdentity
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
 public import Balaban.LargeField.Operators.KerBound
@@ -621,3 +625,13 @@ public import Balaban.LargeField.Base.BaseSupport
 public import Balaban.LargeField.Base.BaseWitness
 public import Balaban.LargeField.Base.BaseGauss
 public import Balaban.LargeField.Base.BaseWitnessGauss
+public import Balaban.Fluctuation.RenormIdentity
+public import Balaban.Fluctuation.FarDecay
+public import Balaban.Fluctuation.Lemma25Xi
+public import Balaban.Fluctuation.Lemma25Domain
+public import Balaban.Fluctuation.Lemma25
+public import Balaban.Fluctuation.Lemma25Real
+public import Balaban.LargeField.R.ChainSeq
+public import Balaban.LargeField.R.HatW
+public import Balaban.LargeField.R.ChainBound
+public import Balaban.LargeField.R.ChainEstimate

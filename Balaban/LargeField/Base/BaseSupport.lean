@@ -47,7 +47,7 @@ theorem spinAverage_eq_spinBlockAverage (G : GeneratingSet d L (M * nn 1) 1 ϱ)
     rw [e z, e x])
 
 /-- A site of `Ω₁ ∪ C(Ω₁)` lies in a cube at index distance `≤ 1` from `Ω₁`. -/
-theorem exists_near_of_mem_dataSites (hnn : ∀ i, nn i = L * nn (i + 1)) {Rk : ℝ}
+theorem exists_near_of_mem_dataSites (hnn : ∀ i, i < 1 → nn i = L * nn (i + 1)) {Rk : ℝ}
     (G : GeneratingSet d L (M * nn 1) 1 ϱ) (br : BaseRecord d L (nn 1) Rk)
     (hΩ : ∀ x, x ∈ G.Ω 1 ↔ cubeMap nn L M 1 1 x ∈ br.Omega)
     {x : Torus d (M * nn 1 * L ^ 1)} (hx : x ∈ dataSites G) :
@@ -70,7 +70,7 @@ record and `G` a generating set (`K = 1`) whose `Ω₁` is the fine set of the `
 `χ'^{(0)}(□') = 1` for every cube `□' ∉ P₁` (the support of the base decomposition summand of
 `br`), then `BaseSpinSupport` holds for `D` (with `ν` the site coefficient in regime (B) and `0`
 in regime (A)). -/
-theorem baseSpinSupport_of_baseRecord (hnn : ∀ i, nn i = L * nn (i + 1)) {Rk : ℝ}
+theorem baseSpinSupport_of_baseRecord (hnn : ∀ i, i < 1 → nn i = L * nn (i + 1)) {Rk : ℝ}
     (G : GeneratingSet d L (M * nn 1) 1 ϱ) (br : BaseRecord d L (nn 1) Rk)
     (hΩ : ∀ x, x ∈ G.Ω 1 ↔ cubeMap nn L M 1 1 x ∈ br.Omega)
     (regimeB : Prop) (ν δ₀ : ℝ) (hδ₀ : 0 < δ₀)
@@ -122,14 +122,14 @@ theorem baseSpinSupport_of_baseRecord (hnn : ∀ i, nn i = L * nn (i + 1)) {Rk :
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {M : ℕ} [NeZero M] [NeZero S.L]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {M : ℕ} [NeZero M] [NeZero S.L]
 
-theorem mem_histGen_one_iff (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
+theorem mem_histGen_one_iff (hK1 : 1 ≤ K) (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
     (x : Torus S.d (M * n 1 * S.L ^ 1)) :
-    x ∈ (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega)).Ω 1 ↔
+    x ∈ (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega)).Ω 1 ↔
       cubeMap n S.L M 1 1 x ∈ H.baseRecord.Omega := by
-  rw [H.mem_histGen hrem hL 1 _ 1 x]
+  rw [H.mem_histGen (K' := 1) hK1 hrem hL _ 1 x]
   have h := baseRecord_isStep H.baseRecord (n 0) (R (0 - 1))
   rw [H.baseRecord_toStep] at h
   rw [← h.2.2.2.2.2.2.2.2.1]
@@ -140,23 +140,24 @@ open Classical in
 /-- **Lemma II.7.5, first step** for the generating set of a region history (without removals):
 `BaseSpinSupport` follows from the base record `H.baseRecord` and the support of the base
 decomposition term (`χ'^{(0)}(□') = 1` for the cubes `□' ∉ P₁`). -/
-theorem baseSpinSupport (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
+theorem baseSpinSupport (hK1 : 1 ≤ K) (hrem : ∀ k, H.rem k = ∅) (hL : 2 ≤ S.L)
     (regimeB : Prop) (ν δ₀ : ℝ) (hδ₀ : 0 < δ₀)
     {N : ℕ} (φ : Torus S.d (M * n 1 * S.L ^ 1) → Fin N → ℝ)
     (θ : Torus S.d (M * n 1 * S.L ^ (1 - 1)) → Fin N → ℝ) (h : Fin N → ℝ)
     (hφ : ∀ x, ∑ i, φ x i ^ 2 = 1) (hh : ∑ i, h i ^ 2 = 1)
-    (D : BgData (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega)) N)
-    (hDΨ : ∀ x ∈ (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega)).Ω 1, ∀ i,
+    (D : BgData (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega)) N)
+    (hDΨ : ∀ x ∈ (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega)).Ω 1, ∀ i,
       D.Ψ x i = (θ (jBlock S.d S.L (M * n 1) 1 1 x) i : ℂ))
-    (hDc : ∀ x ∈ collar (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega)), ∀ i,
+    (hDc : ∀ x ∈ collar (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega)), ∀ i,
       D.Ψ x i = (φ x i : ℂ))
-    (hDh : ∀ x ∈ (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega)).Ω 1, ∀ i,
+    (hDh : ∀ x ∈ (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega)).Ω 1, ∀ i,
       D.h x i = (h i : ℂ))
     (hsupp : ∀ c : Torus S.d (n 1), c ∉ H.baseRecord.P →
       chiPrimeZero n S.L M 1 regimeB ν δ₀ h c (φ, θ) = 1) :
-    BaseSpinSupport (H.histGen (M := M) hrem hL 1 (fun j h1 h2 => by omega))
+    BaseSpinSupport (H.histGen (M := M) (K' := 1) hK1 hrem hL (fun j h1 h2 => by omega))
       (if regimeB then ν else 0) δ₀ φ h D :=
-  baseSpinSupport_of_baseRecord H.F.hnn _ H.baseRecord (H.mem_histGen_one_iff hrem hL)
+  baseSpinSupport_of_baseRecord (fun i hi => H.F.hnn i (by omega)) _ H.baseRecord
+    (H.mem_histGen_one_iff hK1 hrem hL)
     regimeB ν δ₀ hδ₀ φ θ h hφ hh D hDΨ hDc hDh hsupp
 
 end RegionHistory

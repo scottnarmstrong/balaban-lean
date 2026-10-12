@@ -67,12 +67,12 @@ structure LF2Hyp (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (k0 K : �
   bk : ∀ k, LF2Comp S n Zp k → Book
   bk_len : ∀ k c, (bk k c).len = (spine k c).length
   rem_ripe : ∀ k, ∀ c ∈ rem k, S.Ripe k (bk k c)
-  /-- the component of `Z^pre_{k+1}` containing `c^↑`, for a component not removed by `R^{(k)}` -/
-  succ : ∀ k (c : LF2Comp S n Zp k), c ∉ rem k → LF2Comp S n Zp (k + 1)
+  /-- `Z'` is the component of `Z^pre_{k+1}` containing `c^↑` -/
+  IsSucc : ∀ k, LF2Comp S n Zp k → LF2Comp S n Zp (k + 1) → Prop
   /-- the old parts of a component of `Z^pre_{k+1}` -/
   parts : ∀ k, LF2Comp S n Zp (k + 1) → Finset (LF2Comp S n Zp k)
   mem_parts : ∀ k (c : LF2Comp S n Zp k) (Z' : LF2Comp S n Zp (k + 1)),
-    c ∈ parts k Z' ↔ ∃ h : c ∉ rem k, succ k c h = Z'
+    c ∈ parts k Z' ↔ c ∉ rem k ∧ IsSucc k c Z'
   /-- `G^pre_k(Z)` -/
   Gp : ∀ k, LF2Comp S n Zp k → ℝ
   /-- `G_k(Z)` -/
@@ -117,7 +117,7 @@ noncomputable def toCounterHist (ok : S.Ok) (H : LF2Hyp S n k0 K) :
   rem := H.rem
   rem_empty := H.rem_empty
   rem_ripe := H.rem_ripe
-  succ := H.succ
+  IsSucc := H.IsSucc
   parts := H.parts
   mem_parts := H.mem_parts
   newc := fun k Z' => (Z'.1 ∩ H.newCubes k).card

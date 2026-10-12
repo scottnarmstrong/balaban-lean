@@ -59,8 +59,8 @@ end BudgetConsts
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) (P : BudgetConsts)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) (P : BudgetConsts)
 
 /-- `κ^pre_{k+1}(Z', 𝔞) = ∑_Y κ_k(Y) + κ^{(k)}(Z')` given the post-`R` exponents `κ_k` of the
 old parts. -/
