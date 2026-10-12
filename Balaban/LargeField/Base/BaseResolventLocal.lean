@@ -271,6 +271,165 @@ theorem baseHamiltonian_cross_zero {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFi
   · have := hjoin b (hbb b hT)
     rw [hs b hb this.2, zero_mul]
 
+/-- The data `(s, α, e)` and `(s', α', e')` agree on `U`. -/
+structure AgreeOn (U : Set (Torus d (N₀ * L ^ 1))) (s s' : FineBond d L N₀ → ℂ)
+    (α α' : G.Ω 1 → ℂ) (e e' : G.Ω 1 → Fin N → ℝ) : Prop where
+  alpha : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → α z = α' z
+  bg : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → e z = e' z
+  param : ∀ b ∈ baseCutBonds G, b.1 ∈ U → bondTip b ∈ U → s b = s' b
+
+/-- `AgreeOn` is inhabited (the data agree with themselves). -/
+theorem AgreeOn.refl (U : Set (Torus d (N₀ * L ^ 1))) (s : FineBond d L N₀ → ℂ)
+    (α : G.Ω 1 → ℂ) (e : G.Ω 1 → Fin N → ℝ) : AgreeOn G U s s α α e e :=
+  ⟨fun _ _ => rfl, fun _ _ => rfl, fun _ _ _ _ => rfl⟩
+
+theorem agreeOn_nonempty (U : Set (Torus d (N₀ * L ^ 1))) :
+    Nonempty (AgreeOn G U (fun _ => 0) (fun _ => 0) (fun _ => 0) (fun _ => 0)
+      (fun _ _ => (0 : ℝ) : G.Ω 1 → Fin N → ℝ) (fun _ _ => 0)) :=
+  ⟨AgreeOn.refl G U _ _ _⟩
+
+theorem isFirstBlockUnion_empty : IsFirstBlockUnion G (∅ : Set (Torus d (N₀ * L ^ 1))) :=
+  fun _ _ _ _ _ => Iff.rfl
+
+theorem isFirstBlockUnion_univ : IsFirstBlockUnion G (Set.univ : Set (Torus d (N₀ * L ^ 1))) :=
+  fun _ _ _ _ _ => Iff.rfl
+
+theorem crossZero_zero (U : Set (Torus d (N₀ * L ^ 1))) : CrossZero G U (fun _ => 0) :=
+  fun _ _ _ => rfl
+
+theorem baseOp_blockDiag {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFirstBlockUnion G U)
+    (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) {s : FineBond d L N₀ → ℂ} (hs : CrossZero G U s)
+    (e : G.Ω 1 → Fin N → ℝ) :
+    BlockDiag (fun p : G.Ω 1 × Fin N => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+      (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) := by
+  intro p q hpq
+  have hpq' : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U ↔ ¬ ((q.1 : Torus d (N₀ * L ^ 1)) ∈ U) := hpq
+  have hH := baseHamiltonian_cross_zero G hU a ν α hs p.1 q.1 hpq'
+  have hne : p.1 ≠ q.1 := by
+    intro h
+    rw [h] at hpq'
+    by_cases hp : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U
+    · exact (hpq'.1 hp) hp
+    · exact hp (hpq'.2 hp)
+  have := congrFun (congrFun (blockOf_baseOp e (baseHamiltonian G a ν α s) p.1 q.1) p.2) q.2
+  simp only [blockOf, Matrix.of_apply] at this
+  rw [ite_eq_right_iff.2 (fun h => absurd h hne), hH] at this
+  simpa using this
+
+theorem baseHamiltonian_agree {U : Set (Torus d (N₀ * L ^ 1))} (a : ℕ → ℝ) (ν : ℝ)
+    {α α' : G.Ω 1 → ℂ} {s s' : FineBond d L N₀ → ℂ} (hs : CrossZero G U s)
+    (hs' : CrossZero G U s') {e e' : G.Ω 1 → Fin N → ℝ} (hag : AgreeOn G U s s' α α' e e')
+    {z y : G.Ω 1} (hz : (z : Torus d (N₀ * L ^ 1)) ∈ U) (hy : (y : Torus d (N₀ * L ^ 1)) ∈ U) :
+    baseHamiltonian G a ν α s z y = baseHamiltonian G a ν α' s' z y := by
+  rw [baseHamiltonian_apply, baseHamiltonian_apply]
+  congr 1
+  · congr 1
+    by_cases h : z = y
+    · subst h; simp [hag.alpha z hz]
+    · simp [h]
+  · refine Finset.sum_congr rfl fun b hb => ?_
+    by_cases hT : baseBond G b z y = 0
+    · rw [hT, mul_zero, mul_zero]
+    · have hx : bondVec b z.1 ≠ 0 := fun h0 => hT (by rw [baseBond_apply]; simp [h0])
+      have hy' : bondVec b y.1 ≠ 0 := fun h0 => hT (by rw [baseBond_apply]; simp [h0])
+      have hzm := bondVec_ne_zero_mem b z.1 hx
+      by_cases hboth : b.1 ∈ U ∧ bondTip b ∈ U
+      · rw [hag.param b hb hboth.1 hboth.2]
+      · have hcross : (b.1 ∈ U ↔ bondTip b ∉ U) := by
+          rcases hzm with h | h
+          · have : b.1 ∈ U := h ▸ hz
+            constructor
+            · intro _ ht; exact hboth ⟨this, ht⟩
+            · intro _; exact this
+          · have : bondTip b ∈ U := h ▸ hz
+            constructor
+            · intro h1; exact absurd this (fun _ => hboth ⟨h1, this⟩ |>.elim)
+            · intro h2; exact absurd this h2
+        rw [hs b hb hcross, hs' b hb hcross]
+
+theorem baseOp_entry_agree {U : Set (Torus d (N₀ * L ^ 1))} (a : ℕ → ℝ) (ν : ℝ)
+    {α α' : G.Ω 1 → ℂ} {s s' : FineBond d L N₀ → ℂ} (hs : CrossZero G U s)
+    (hs' : CrossZero G U s') {e e' : G.Ω 1 → Fin N → ℝ} (hag : AgreeOn G U s s' α α' e e')
+    (p q : G.Ω 1 × Fin N) (hp : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (hq : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U) :
+    baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) p q =
+      baseOp N (fun z i => (e' z i : ℂ)) (baseHamiltonian G a ν α' s') p q := by
+  have h1 := congrFun (congrFun (blockOf_baseOp e (baseHamiltonian G a ν α s) p.1 q.1) p.2) q.2
+  have h2 := congrFun (congrFun (blockOf_baseOp e' (baseHamiltonian G a ν α' s') p.1 q.1) p.2) q.2
+  simp only [blockOf, Matrix.of_apply] at h1 h2
+  rw [h1, h2, baseHamiltonian_agree G a ν hs hs' hag hp hq]
+  have hpe : siteProj e p.1 = siteProj e' p.1 := by
+    unfold siteProj; rw [hag.bg p.1 hp]
+  have hqe : siteProj e q.1 = siteProj e' q.1 := by
+    unfold siteProj; rw [hag.bg q.1 hq]
+  rw [hpe, hqe]
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+
+/-- **Block-component locality of the resolvent** (BASE-KERNEL-3 Theorem 1.1): the entries of
+`𝒞_{e,x}(s)` inside `U × U` do not depend on the data outside `U`. -/
+theorem baseResolvent_local {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFirstBlockUnion G U)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    {α α' : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2))
+    (hα' : ∀ z, ‖α' z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η) (hz : CrossZero G U s)
+    (hz' : CrossZero G U s') {e e' : G.Ω 1 → Fin N → ℝ} (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (he' : ∀ z, ∑ i, e' z i ^ 2 = 1) (hag : AgreeOn G U s s' α α' e e') {x : ℝ} (hx : 0 ≤ x)
+    (p q : G.Ω 1 × Fin N) (hp : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (hq : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U) :
+    baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x p q =
+      baseResolvent N (fun z i => (e' z i : ℂ)) (baseHamiltonian G a ν α' s') x p q := by
+  have hU1 := (baseResolvent_norm_le G hν ha hα hη0 hη hs e he hx).1
+  have hU2 := (baseResolvent_norm_le G hν ha hα' hη0 hη hs' e' he' hx).1
+  rw [add_comm] at hU1 hU2
+  have := resolvent_entry_congr (P := fun p : G.Ω 1 × Fin N => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (baseOp_blockDiag G hU a ν α hz e) (baseOp_blockDiag G hU a ν α' hz' e')
+    (fun p q hp hq => baseOp_entry_agree G a ν hz hz' hag p q hp hq) hU1 hU2 hp hq
+  unfold baseResolvent
+  rw [add_comm, add_comm (baseOp N (fun z i => (e' z i : ℂ)) _)]
+  exact this
+
+/-- Block-component locality of the Stieltjes inverse square root `A_e(s)^{-1/2}`. -/
+theorem baseSqrt_local {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFirstBlockUnion G U)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    {α α' : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2))
+    (hα' : ∀ z, ‖α' z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η) (hz : CrossZero G U s)
+    (hz' : CrossZero G U s') {e e' : G.Ω 1 → Fin N → ℝ} (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (he' : ∀ z, ∑ i, e' z i ^ 2 = 1) (hag : AgreeOn G U s s' α α' e e')
+    (p q : G.Ω 1 × Fin N) (hp : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (hq : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U) :
+    Balaban.Localization.sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α s)) p q =
+      Balaban.Localization.sqrtMat (baseOp N (fun z i => (e' z i : ℂ))
+        (baseHamiltonian G a ν α' s')) p q :=
+  sqrtMat_entry_congr (P := fun p : G.Ω 1 × Fin N => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (baseOp_blockDiag G hU a ν α hz e) (baseOp_blockDiag G hU a ν α' hz' e')
+    (fun p q hp hq => baseOp_entry_agree G a ν hz hz' hag p q hp hq)
+    (resOK_baseOp G hν ha hα hη0 hη hs e he) (resOK_baseOp G hν ha hα' hη0 hη hs' e' he') hp hq
+
+/-- Block-component locality of the principal logarithm `log A_e(s)`. -/
+theorem baseLog_local {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFirstBlockUnion G U)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    {α α' : G.Ω 1 → ℂ} (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2))
+    (hα' : ∀ z, ‖α' z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η) (hz : CrossZero G U s)
+    (hz' : CrossZero G U s') {e e' : G.Ω 1 → Fin N → ℝ} (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (he' : ∀ z, ∑ i, e' z i ^ 2 = 1) (hag : AgreeOn G U s s' α α' e e')
+    (p q : G.Ω 1 × Fin N) (hp : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (hq : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U) :
+    Balaban.Localization.logMat (baseOp N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α s)) p q =
+      Balaban.Localization.logMat (baseOp N (fun z i => (e' z i : ℂ))
+        (baseHamiltonian G a ν α' s')) p q :=
+  logMat_entry_congr (P := fun p : G.Ω 1 × Fin N => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+    (baseOp_blockDiag G hU a ν α hz e) (baseOp_blockDiag G hU a ν α' hz' e')
+    (fun p q hp hq => baseOp_entry_agree G a ν hz hz' hag p q hp hq)
+    (resOK_baseOp G hν ha hα hη0 hη hs e he) (resOK_baseOp G hν ha hα' hη0 hη hs' e' he') hp hq
+
 end Concrete
 
 end Balaban.LargeField.Base
