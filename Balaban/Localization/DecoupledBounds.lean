@@ -165,6 +165,136 @@ theorem pathDist_adj_le_one {x y : CTorus d L N₁ m₁ K} (hx : x ∈ G.Ω 1) (
     (hadj : Adj x y) : G.pathDist x y ≤ ENNReal.ofReal 1 :=
   (G.pathDist_le_bondCost hx hy hadj).trans (ENNReal.ofReal_le_ofReal (G.bondCost_le_one hx y))
 
+/-- The local bounds of a cube solution at an interior point `x`, all with the same constant `V`:
+the value on the block of `x` and its neighbours (points at path distance `≤ 2 d`), the forward and
+backward gradient and the Laplacian at `x`. -/
+structure StarBd (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+    (u : CTorus d L N₁ m₁ K → ℂ) (x : G.Ω 1) (V : ℝ) : Prop where
+  val : ∀ y : CTorus d L N₁ m₁ K, y ∈ G.Ω 1 → G.pathDist x y ≤ ENNReal.ofReal (2 * d) → ‖u y‖ ≤ V
+  fwd : ∀ μ : Fin d, G.spacing (x : CTorus d L N₁ m₁ K) *
+    ‖u ((x : CTorus d L N₁ m₁ K) + Pi.single μ 1) - u x‖ ≤ V
+  bwd : ∀ μ : Fin d, G.spacing (x : CTorus d L N₁ m₁ K) *
+    ‖u ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) - u x‖ ≤ L * V
+  lap : (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖∑ μ : Fin d, (2 * u x -
+    u ((x : CTorus d L N₁ m₁ K) + Pi.single μ 1) - u ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1))‖ ≤ V
+
+/-- **Local bounds of the cube Green's function at an interior point** (the weighted (NC3) of
+LOCALIZATION.md §3.1). -/
+theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ Bw : ℝ, 0 ≤ Bw ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {q : ℕ × CTorus d L N₁ m₁ K}, q ∈ cubeIdx G →
+      ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
+      ∀ (g : G.Ω 1 → ℂ), (∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) →
+      ∀ {C : ℝ}, 0 ≤ C →
+      (∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖g z‖ ≤ C) →
+      ∀ {x : G.Ω 1}, Inner q x →
+      StarBd G (solExt G (cubeH G a ν α q)⁻¹ g) x
+        (Bw * C * Real.exp (2 * gammaW d * d) / w x) := by
+  obtain ⟨Bw, hBw, hW⟩ := cube_weighted (d := d) (L := L) hd hL
+  refine ⟨Bw, hBw, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα q hq w hw g hgsupp C hC hgC x hI
+  have hd0 : 0 < d := by omega
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hρ := S.one_lt_rho
+  have hγ0 := gammaW_nonneg hd0
+  obtain ⟨hW1, hW2, hW3⟩ := hW G S hα hq hw g hgsupp hC hgC
+  have hwx := hw.pos x
+  have hBC := mul_nonneg hBw hC
+  set u : CTorus d L N₁ m₁ K → ℂ := solExt G (cubeH G a ν α q)⁻¹ g with hudef
+  have hzero : ∀ y : CTorus d L N₁ m₁ K, y ∉ box q → u y = 0 := by
+    intro y hy
+    by_cases hyΩ : y ∈ G.Ω 1
+    · have e : u y = ((cubeH G a ν α q)⁻¹ *ᵥ g) ⟨y, hyΩ⟩ := by
+        simp [hudef, solExt, zeroExt, hyΩ]
+      rw [e]
+      have := cubeG_supp S hα hq g ⟨y, hyΩ⟩ hy
+      have hcg : cD G q *ᵥ g = g := by
+        funext z; rw [cD_mulVec]; by_cases hz : (z : CTorus d L N₁ m₁ K) ∈ box q
+        · simp [hz]
+        · have : g z = 0 := by_contra fun h => hz (hgsupp z h)
+          simp [this]
+      have hc : cubeG G a ν α q *ᵥ g = (cubeH G a ν α q)⁻¹ *ᵥ (cD G q *ᵥ g) := cubeG_mulVec q g
+      rw [hcg] at hc
+      rw [← hc]; exact this
+    · exact zeroExt_not_mem _ _ hyΩ
+  have hval : ∀ (y : CTorus d L N₁ m₁ K), y ∈ G.Ω 1 → ∀ {ρ : ℝ}, 0 ≤ ρ →
+      G.pathDist x y ≤ ENNReal.ofReal ρ → ‖u y‖ ≤ Bw * C * Real.exp (gammaW d * ρ) / w x := by
+    intro y hyΩ ρ hρ0 hdist
+    have hwxy := hw.le_mul hγ0 hρ0 hdist
+    rw [le_div_iff₀ hwx]
+    by_cases hyb : y ∈ box q
+    · have h1 := hW1 hyΩ hyb
+      calc ‖u y‖ * w x ≤ ‖u y‖ * (w y * Real.exp (gammaW d * ρ)) :=
+            mul_le_mul_of_nonneg_left hwxy (norm_nonneg _)
+        _ = (w y * ‖u y‖) * Real.exp (gammaW d * ρ) := by ring
+        _ ≤ Bw * C * Real.exp (gammaW d * ρ) :=
+            mul_le_mul_of_nonneg_right h1 (Real.exp_pos _).le
+    · rw [hzero y hyb, norm_zero, zero_mul]
+      exact mul_nonneg hBC (Real.exp_pos _).le
+  have hVx : ∀ {ρ : ℝ}, 0 ≤ ρ → ρ ≤ 2 * d → Bw * C * Real.exp (gammaW d * ρ) / w x ≤
+      Bw * C * Real.exp (2 * gammaW d * d) / w x := by
+    intro ρ hρ0 hρ2
+    apply div_le_div_of_nonneg_right _ hwx.le
+    apply mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 _) hBC
+    nlinarith
+  set V : ℝ := Bw * C * Real.exp (2 * gammaW d * d) / w x with hV
+  have hV0 : 0 ≤ V := by positivity
+  have hVw : V * w x = Bw * C * Real.exp (2 * gammaW d * d) := by
+    rw [hV]; field_simp
+  have hxΩ : (x : CTorus d L N₁ m₁ K) ∈ G.Ω 1 := x.2
+  have hxV : ‖u x‖ ≤ V := by
+    refine (hval x hxΩ (le_refl 0) (by simp [G.pathDist_self hxΩ])).trans ?_
+    simpa using hVx (le_refl 0) (by positivity)
+  have hE1 : 1 ≤ Real.exp (2 * gammaW d * d) := Real.one_le_exp (by positivity)
+  refine ⟨fun y hyΩ hdist => (hval y hyΩ (by positivity) hdist).trans
+      (hVx (by positivity) le_rfl), fun μ => ?_, fun μ => ?_, ?_⟩
+  · have h := hW2 hxΩ hI.self hI.add_single μ
+    rw [← mul_le_mul_iff_of_pos_right hwx, hVw]
+    nlinarith [mul_nonneg hBC (sub_nonneg.2 hE1)]
+  · by_cases hyΩ : ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) ∈ G.Ω 1
+    · set y : CTorus d L N₁ m₁ K := (x : CTorus d L N₁ m₁ K) - Pi.single μ 1 with hy
+      have hadj : Adj y (x : CTorus d L N₁ m₁ K) := ⟨μ, Or.inl (by rw [hy]; simp)⟩
+      have hyb : y ∈ box q := hI.sub_single μ
+      have hye : ∀ ν' : Fin d, y + Pi.single ν' 1 ∈ box q := fun ν' => hI.sub_add_single μ ν'
+      have h := hW2 hyΩ hyb hye μ
+      have hyx : y + Pi.single μ 1 = (x : CTorus d L N₁ m₁ K) := by rw [hy]; simp
+      rw [hyx] at h
+      have hsp := spacing_adj_le G hρ.le hyΩ hxΩ hadj
+      have hd1 := (G.pathDist_comm (x : CTorus d L N₁ m₁ K) y) ▸
+        (G.pathDist_le_bondCost hyΩ hxΩ hadj |>.trans
+          (ENNReal.ofReal_le_ofReal (G.bondCost_le_one hyΩ _)))
+      have hwxy := hw.le_mul hγ0 zero_le_one hd1
+      have hwy := hw.pos y
+      change w y * (G.spacing y * ‖u (x : CTorus d L N₁ m₁ K) - u y‖) ≤ Bw * C at h
+      have hnn := norm_nonneg (u y - u (x : CTorus d L N₁ m₁ K))
+      rw [norm_sub_rev] at h
+      rw [← mul_le_mul_iff_of_pos_right hwx]
+      set Dn := ‖u y - u (x : CTorus d L N₁ m₁ K)‖ with hDn
+      have hsp0 := (spacing_pos G (x := y)).le
+      have hE : Real.exp (gammaW d * 1) ≤ Real.exp (2 * gammaW d * d) :=
+        Real.exp_le_exp.2 (by
+          have : (1 : ℝ) ≤ d := by exact_mod_cast hd0
+          nlinarith)
+      calc G.spacing (x : CTorus d L N₁ m₁ K) * Dn * w x
+          ≤ (L * G.spacing y) * Dn * (w y * Real.exp (gammaW d * 1)) := by
+            gcongr
+        _ = L * Real.exp (gammaW d * 1) * (w y * (G.spacing y * Dn)) := by ring
+        _ ≤ L * Real.exp (gammaW d * 1) * (Bw * C) := by
+            gcongr
+        _ ≤ L * Real.exp (2 * gammaW d * d) * (Bw * C) := by gcongr
+        _ = L * V * w x := by rw [mul_assoc (L : ℝ) V, hVw]; ring
+    · have hz : u ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) = 0 := zeroExt_not_mem _ _ hyΩ
+      rw [hz, zero_sub, norm_neg]
+      have hadj : Adj (x : CTorus d L N₁ m₁ K) ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) :=
+        ⟨μ, Or.inr (by simp)⟩
+      have hsp := spacing_le_of_adj_not_mem G hρ (by omega : 1 ≤ L) hxΩ hyΩ hadj
+      calc _ ≤ (L : ℝ) * ‖u x‖ := mul_le_mul_of_nonneg_right hsp (norm_nonneg _)
+        _ ≤ L * V := mul_le_mul_of_nonneg_left hxV (by positivity)
+  · have h := hW3 hxΩ hI.self (fun μ => ⟨hI.add_single μ, hI.sub_single μ⟩)
+    rw [← mul_le_mul_iff_of_pos_right hwx, hVw]
+    nlinarith [mul_nonneg hBC (sub_nonneg.2 hE1)]
+
 /-- **The cut commutator on a cube solution, weighted.** For `f` with `w ℓ² |f| ≤ C`,
 `w ℓ² |K_z G^{(z)} c_z f| ≤ B_K C / M₁`. -/
 theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
@@ -176,7 +306,7 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
       ∀ x : G.Ω 1, w x * ((G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
         ‖((Kz G a ν q * cubeG G a ν α q) *ᵥ f) x‖) ≤ Bk * C / (L : ℝ) ^ m₁ := by
-  obtain ⟨Bw, hBw, hW⟩ := cube_weighted (d := d) (L := L) hd hL
+  obtain ⟨Bw, hBw, hS⟩ := cube_star (d := d) (L := L) hd hL
   refine ⟨commKConst d L 1 * Cchi d L * Bw * Real.exp (2 * gammaW d * d), ?_, ?_⟩
   · have := Cchi_nonneg d L
     have : 0 ≤ commKConst d L 1 := by unfold commKConst; positivity
@@ -186,11 +316,6 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
   have hM0 : (0 : ℝ) < (L : ℝ) ^ m₁ := by positivity
   have hρ := S.one_lt_rho
-  have hγ0 := gammaW_nonneg hd0
-  have hBk0 : 0 ≤ commKConst d L 1 * Cchi d L * Bw * Real.exp (2 * gammaW d * d) := by
-    have := Cchi_nonneg d L
-    have : 0 ≤ commKConst d L 1 := by unfold commKConst; positivity
-    positivity
   -- the source restricted to the cube
   set g : G.Ω 1 → ℂ := cD G q *ᵥ f with hgdef
   have hgsupp : ∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q := by
@@ -208,124 +333,26 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
     rw [← Matrix.mulVec_mulVec, hu]
   rw [hrw]
   set u : G.Ω 1 → ℂ := (cubeH G a ν α q)⁻¹ *ᵥ g with hudef
+  have hwx := hw.pos x
+  have hBk0 : 0 ≤ commKConst d L 1 * Cchi d L * Bw * Real.exp (2 * gammaW d * d) := by
+    have := Cchi_nonneg d L
+    have : 0 ≤ commKConst d L 1 := by unfold commKConst; positivity
+    positivity
   by_cases hK0 : (Kz G a ν q *ᵥ u) x = 0
   · rw [hK0]; simp only [norm_zero, mul_zero]
     positivity
   have hI := inner_of_Kz_ne_zero S hq u x hK0
-  obtain ⟨hW1, hW2, -⟩ := hW G S hα hq hw g hgsupp hC hgC
-  have hwx := hw.pos x
+  have hstar := hS G S hα hq hw g hgsupp hC hgC hI
   obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
   set n := G.layerIndex (x : CTorus d L N₁ m₁ K) with hn
-  -- the solution is zero outside the cube
-  have hcg : cD G q *ᵥ g = g := by
-    funext z; rw [cD_mulVec]; by_cases hz : (z : CTorus d L N₁ m₁ K) ∈ box q
-    · simp [hz]
-    · have : g z = 0 := by_contra fun h => hz (hgsupp z h)
-      simp [this]
-  have hzero : ∀ y : CTorus d L N₁ m₁ K, y ∉ box q → zeroExt (G.Ω 1) u y = 0 := by
-    intro y hy
-    by_cases hyΩ : y ∈ G.Ω 1
-    · have e : zeroExt (G.Ω 1) u y = u ⟨y, hyΩ⟩ := by simp [zeroExt, hyΩ]
-      rw [e]
-      have := cubeG_supp S hα hq g ⟨y, hyΩ⟩ hy
-      have hc : cubeG G a ν α q *ᵥ g = (cubeH G a ν α q)⁻¹ *ᵥ (cD G q *ᵥ g) := cubeG_mulVec q g
-      rw [hcg] at hc
-      rw [hudef, ← hc]; exact this
-    · exact zeroExt_not_mem _ _ hyΩ
-  have hBC := mul_nonneg hBw hC
-  -- value bound at points at path distance at most `ρ` from `x`
-  have hval : ∀ (y : CTorus d L N₁ m₁ K), y ∈ G.Ω 1 → ∀ {ρ : ℝ}, 0 ≤ ρ →
-      G.pathDist x y ≤ ENNReal.ofReal ρ →
-      ‖zeroExt (G.Ω 1) u y‖ ≤ Bw * C * Real.exp (gammaW d * ρ) / w x := by
-    intro y hyΩ ρ hρ0 hdist
-    have hwxy := hw.le_mul hγ0 hρ0 hdist
-    rw [le_div_iff₀ hwx]
-    by_cases hyb : y ∈ box q
-    · have h1 := hW1 hyΩ hyb
-      have e : zeroExt (G.Ω 1) u y = solExt G (cubeH G a ν α q)⁻¹ g y := rfl
-      rw [e]
-      calc ‖solExt G (cubeH G a ν α q)⁻¹ g y‖ * w x
-          ≤ ‖solExt G (cubeH G a ν α q)⁻¹ g y‖ * (w y * Real.exp (gammaW d * ρ)) :=
-            mul_le_mul_of_nonneg_left hwxy (norm_nonneg _)
-        _ = (w y * ‖solExt G (cubeH G a ν α q)⁻¹ g y‖) * Real.exp (gammaW d * ρ) := by ring
-        _ ≤ Bw * C * Real.exp (gammaW d * ρ) :=
-            mul_le_mul_of_nonneg_right h1 (Real.exp_pos _).le
-    · rw [hzero y hyb, norm_zero, zero_mul]
-      exact mul_nonneg hBC (Real.exp_pos _).le
-  have hVx : ∀ {ρ : ℝ}, 0 ≤ ρ → ρ ≤ 2 * d → Bw * C * Real.exp (gammaW d * ρ) / w x ≤
-      Bw * C * Real.exp (2 * gammaW d * d) / w x := by
-    intro ρ hρ0 hρ2
-    apply div_le_div_of_nonneg_right _ hwx.le
-    apply mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 _) hBC
-    nlinarith
   set V : ℝ := Bw * C * Real.exp (2 * gammaW d * d) / w x with hV
-  have hV0 : 0 ≤ V := by positivity
-  have hLV : V ≤ L * V := le_mul_of_one_le_left hV0 hL1
+  have hV0 : 0 ≤ V := by
+    have := mul_nonneg hBw hC
+    positivity
   have hVw : V * w x = Bw * C * Real.exp (2 * gammaW d * d) := by
     rw [hV]; field_simp
-  -- the hypotheses of the local commutator bound
   have hsmooth := chiField_isSmooth S.aligned S.cover_sep (by omega : 1 ≤ d) (by omega : 2 ≤ L) hq
   have hδ : 0 ≤ Cchi d L / (L : ℝ) ^ m₁ := div_nonneg (Cchi_nonneg d L) hM0.le
-  have hxΩ : (x : CTorus d L N₁ m₁ K) ∈ G.Ω 1 := x.2
-  have hxV : ‖zeroExt (G.Ω 1) u x‖ ≤ V := by
-    refine (hval x hxΩ (le_refl 0) (by simp [G.pathDist_self hxΩ])).trans ?_
-    simpa using hVx (le_refl 0) (by positivity)
-  have hfwd : ∀ μ : Fin d, G.spacing (x : CTorus d L N₁ m₁ K) *
-      ‖zeroExt (G.Ω 1) u ((x : CTorus d L N₁ m₁ K) + Pi.single μ 1) -
-        zeroExt (G.Ω 1) u x‖ ≤ V := by
-    intro μ
-    have h := hW2 hxΩ hI.self hI.add_single μ
-    have e : ∀ y, zeroExt (G.Ω 1) u y = solExt G (cubeH G a ν α q)⁻¹ g y := fun y => rfl
-    simp only [e]
-    rw [← mul_le_mul_iff_of_pos_right hwx, hVw]
-    nlinarith [mul_nonneg hBC (sub_nonneg.2 (Real.one_le_exp (by positivity : 0 ≤ 2 * gammaW d * d)))]
-  have hbwd : ∀ μ : Fin d, G.spacing (x : CTorus d L N₁ m₁ K) *
-      ‖zeroExt (G.Ω 1) u ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) -
-        zeroExt (G.Ω 1) u x‖ ≤ L * V := by
-    intro μ
-    by_cases hyΩ : ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) ∈ G.Ω 1
-    · set y : CTorus d L N₁ m₁ K := (x : CTorus d L N₁ m₁ K) - Pi.single μ 1 with hy
-      have hadj : Adj y (x : CTorus d L N₁ m₁ K) := ⟨μ, Or.inl (by rw [hy]; simp)⟩
-      have hyb : y ∈ box q := hI.sub_single μ
-      have hye : ∀ ν' : Fin d, y + Pi.single ν' 1 ∈ box q := fun ν' => hI.sub_add_single μ ν'
-      have h := hW2 hyΩ hyb hye μ
-      have hyx : y + Pi.single μ 1 = (x : CTorus d L N₁ m₁ K) := by rw [hy]; simp
-      rw [hyx] at h
-      have e : ∀ z, zeroExt (G.Ω 1) u z = solExt G (cubeH G a ν α q)⁻¹ g z := fun z => rfl
-      have hsp := spacing_adj_le G hρ.le hyΩ hxΩ hadj
-      have hd1 := (G.pathDist_comm (x : CTorus d L N₁ m₁ K) y) ▸
-        (G.pathDist_le_bondCost hyΩ hxΩ hadj |>.trans
-          (ENNReal.ofReal_le_ofReal (G.bondCost_le_one hyΩ _)))
-      have hwxy := hw.le_mul hγ0 zero_le_one hd1
-      have hwy := hw.pos y
-      simp only [e] at h ⊢
-      set Dn := ‖solExt G (cubeH G a ν α q)⁻¹ g y - solExt G (cubeH G a ν α q)⁻¹ g x‖ with hDn
-      have hnn := norm_nonneg
-        (solExt G (cubeH G a ν α q)⁻¹ g y - solExt G (cubeH G a ν α q)⁻¹ g x)
-      rw [norm_sub_rev] at h
-      rw [← mul_le_mul_iff_of_pos_right hwx]
-      have hsp0 := (spacing_pos G (x := y)).le
-      have hE : Real.exp (gammaW d * 1) ≤ Real.exp (2 * gammaW d * d) :=
-        Real.exp_le_exp.2 (by
-          have : (1 : ℝ) ≤ d := by exact_mod_cast hd0
-          nlinarith)
-      calc G.spacing (x : CTorus d L N₁ m₁ K) * Dn * w x
-          ≤ (L * G.spacing y) * Dn * (w y * Real.exp (gammaW d * 1)) := by
-            gcongr
-        _ = L * Real.exp (gammaW d * 1) * (w y * (G.spacing y * Dn)) := by ring
-        _ ≤ L * Real.exp (gammaW d * 1) * (Bw * C) := by
-            gcongr
-        _ ≤ L * Real.exp (2 * gammaW d * d) * (Bw * C) := by gcongr
-        _ = L * V * w x := by rw [mul_assoc (L : ℝ) V, hVw]; ring
-    · have hz : zeroExt (G.Ω 1) u ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) = 0 :=
-        zeroExt_not_mem _ _ hyΩ
-      rw [hz, zero_sub, norm_neg]
-      have hadj : Adj (x : CTorus d L N₁ m₁ K) ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) :=
-        ⟨μ, Or.inr (by simp)⟩
-      have hsp := spacing_le_of_adj_not_mem G hρ (by omega : 1 ≤ L) hxΩ hyΩ hadj
-      calc _ ≤ (L : ℝ) * ‖zeroExt (G.Ω 1) u x‖ :=
-            mul_le_mul_of_nonneg_right hsp (norm_nonneg _)
-        _ ≤ L * V := mul_le_mul_of_nonneg_left hxV (by positivity)
   have hloc := commK_local_bound G hd0 (by omega : 1 ≤ L) S.weights ν (0 : G.Ω 1 → ℂ) hsmooth hδ
     (fun p : G.Ω 1 × Fin 1 => u p.1) hV0 x
     (fun y hy i => by
@@ -333,10 +360,9 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
       have hy' := G.mem_blk.1 hy
       have hyl : y ∈ G.layer n := (G.mem_layer_iff hn1 hnK hy').2 hxl
       have hyΩ : y ∈ G.Ω 1 := G.layer_subset hn1 hnK hyl
-      have hd2 := G.pathDist_block_le hn1 hnK hxl hy'
-      exact (hval y hyΩ (by positivity) hd2).trans (hVx (by positivity) le_rfl))
-    (fun μ i => by simp only [svec_scalar]; exact hfwd μ)
-    (fun μ i => by simp only [svec_scalar]; exact hbwd μ)
+      exact hstar.val y hyΩ (G.pathDist_block_le hn1 hnK hxl hy'))
+    (fun μ i => by simp only [svec_scalar]; exact hstar.fwd μ)
+    (fun μ i => by simp only [svec_scalar]; exact hstar.bwd μ)
   rw [Kz_mulVec_eq_commK (α := 0) q u x]
   calc w x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖(commK (dirichletOperator G a ν 0)
         (restrictField G (chiField G q)) *ᵥ fun p : G.Ω 1 × Fin 1 => u p.1) x‖)
