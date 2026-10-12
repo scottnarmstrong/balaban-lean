@@ -776,3 +776,4 @@ public import Balaban.Inhabited.SmallFieldCtx
 public import Balaban.Inhabited.LocalizationSettings
 public import Balaban.Inhabited.BgDataStructures
 public import Balaban.Inhabited.StepData
+public import Balaban.Inhabited.RipeHistory
