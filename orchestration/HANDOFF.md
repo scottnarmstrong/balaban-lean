@@ -14,7 +14,7 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W83b | `w83-reynolds` / W83 | finish Reynolds average: SumConds, bridgeAvg, termwise corollary |
 | W96 | `w96-witnesses` / W96 | positive-scale non-vacuity witnesses (i5_background, bridgeInf, LiftCtx) |
-| W90b (Opus) | `w90-i6-aniso` / W90 | anisotropic I-6 (TubeAniso polydisc plan) |
+| W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
 Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
