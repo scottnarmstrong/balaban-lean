@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.ActionConvChain
+public import Balaban.LargeField.R.ActionConvRatio
 import Mathlib.Analysis.Analytic.Constructions
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Positivity
@@ -35,7 +36,7 @@ Theorems: `StepDecomp.cost_le` (the single-conversion bound
 
 namespace Balaban.LargeField.ActionConv
 
-open Balaban.Multiscale Balaban.Background Balaban.Fluctuation Finset
+open Balaban.Multiscale Balaban.Background Balaban.Fluctuation Balaban.SmallField Finset
 
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
@@ -222,7 +223,7 @@ theorem windowAction_eq_sum (u : U) :
 end WindowSetup
 
 variable [NormedAddCommGroup U] [NormedSpace ℂ U]
-  (Kconv γ Kbg γw M M₁ cC cW : ℝ) (ε Rhat : ℕ → ℝ) (δ₁ : ℕ → ℕ → U → ℝ)
+  (Kconv Kbg γw M M₁ cC cW : ℝ) (ε Rhat : ℕ → ℝ) (δ₁ : ℕ → ℕ → U → ℝ)
 
 /-- **The input of the action conversion** (ONE structure; fields = the named source estimates).
 
@@ -230,7 +231,14 @@ variable [NormedAddCommGroup U] [NormedSpace ℂ U]
   `(w, t) = (φ_{n-1} - φ_n, α_{n-1} - α_n)` and the analytic dependence of the converted actions;
 * `cube_bound`: P6 (2.25) for the cube terms of `β_n C_X`; `wall_bound`: the wall estimate after
   (2.25) for the walls of `β_{n-1} S_X`;
-* `p7_first`, `p7_ratio`: P7 (2.11), the cost `R_{j,n}` and the running-radius bound;
+* `p7_first`: P7 (2.11) first inequality, the cost `R_{j,n}` (P631-INPUTS-2 (2.2); the open
+  RELATIVE-SOURCE estimate).  The second inequality (the scale ratio) is no longer an input: with
+  constant one it is false (`p631_ratio_one_counterexample`) and with its true constant it is
+  proved (`p631_ratio_free`, used in `window_conversion`);
+* `wall_bound` is the open WALL-CUT estimate (P631-INPUTS-2 §3, (3.2)); the finite part (3.1)-(3.3)
+  is proved in `ActionConvReduce` (`wall_sum_le`, `wall_scalar`, `wall_mixed_scalar`);
+* `window_decay` is the open WINDOW-PAIR with WINDOW-NORMALIZATION (P631-INPUTS-2 §1.1); the
+  reduction §1.2 (1.4) is `window_margin`, the supremum of (1.5) is `sup_linear_sub_sq`;
 * `window_decay`: (W) (7), the background replacement remainder, `analytic_win`: analyticity of the
   scale-`k` window action on the complex domain `S` (P5 (1.32)). -/
 structure ActionConvInput : Prop where
@@ -253,20 +261,17 @@ structure ActionConvInput : Prop where
   p7_first : ∀ j ∈ Finset.Ico k1 k, ∀ n, j + 2 ≤ n → n ≤ k → ∀ u ∈ S,
     ‖(W.chain j).cost u n‖ ≤ Kconv *
       (((W.chain j).β (j + 1) * ε (j + 1) ^ 2) / ((W.chain j).β n * ε n ^ 2)) * W.mcount j
-  p7_ratio : ∀ j ∈ Finset.Ico k1 k, ∀ n, j + 2 ≤ n → n ≤ k →
-    ((W.chain j).β (j + 1) * ε (j + 1) ^ 2) / ((W.chain j).β n * ε n ^ 2) ≤
-      ((L : ℝ) ^ (-(2 * γ))) ^ (n - j - 1)
   window_decay : ∀ j ∈ Finset.Ico k1 k, ∀ u ∈ S,
     ‖W.bgRem u j‖ ≤ Kbg * Real.exp (-γw * (M * (Rhat (j - 1) - 1) - 2 * M₁)) * W.mcount j
   analytic_win : ∀ j ∈ Finset.Ico k1 k,
     AnalyticOnNhd ℂ (fun u => (W.βk : ℂ) * actionRegionC (W.Xw j) W.ak W.νk (W.Datw u) (W.φw u)) S
 
-variable {W Kconv γ Kbg γw M M₁ cC cW ε Rhat δ₁}
+variable {W Kconv Kbg γw M M₁ cC cW ε Rhat δ₁}
 
 /-- **The single-conversion estimate** (P631 §2, "the sum is bounded by a fixed constant times
 `|D ∩ Ω_r^c|_η + |D ∩ Ω_r|`"): from the cube bounds and the wall bounds,
 `|R_{j,n}| ≤ (c_C + c_W · inc) |X_j|_{j+1}`. -/
-theorem ActionConvInput.cost_le (I : ActionConvInput W Kconv γ Kbg γw M M₁ cC cW ε Rhat δ₁)
+theorem ActionConvInput.cost_le (I : ActionConvInput W Kconv Kbg γw M M₁ cC cW ε Rhat δ₁)
     (hcW : 0 ≤ cW) {j : ℕ} (hj : j ∈ Finset.Ico k1 k) {n : ℕ} (hn2 : j + 2 ≤ n) (hnk : n ≤ k)
     {u : U} (hu : u ∈ S) :
     ‖(W.chain j).cost u n‖ ≤ (cC + cW * (W.decomp j).inc) * W.mcount j := by
@@ -287,13 +292,22 @@ theorem ActionConvInput.cost_le (I : ActionConvInput W Kconv γ Kbg γw M M₁ c
 /-- **The window action theorem** (P631 (8)-(9); LFR (2.15′)): conditional on the input
 `ActionConvInput`, on the window configurations in the complex domain `S`,
 `β_k A*_k(X_win, 𝔹_{k₁,k}; ψ, φ_{k₁,k}) = 𝒜_win(ψ) + C_{k₁,k}(ψ)` with `C_{k₁,k}` analytic on `S`
-and `|C_{k₁,k}| ≤ C₁₅ ∑_j |X_j|_{j+1}`, `C₁₅ = K_conv/(1 - L^{-2γ}) + K_bg`.  The constant `C₁₅`
-is a function of `K_conv, K_bg, L, γ` only. -/
-theorem window_conversion (I : ActionConvInput W Kconv γ Kbg γw M M₁ cC cW ε Rhat δ₁)
-    (hL : 1 < L) (hγ : 0 < γ) (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
+and `|C_{k₁,k}| ≤ C₁₅ ∑_j |X_j|_{j+1}`, 
+`C₁₅ = 9 e^{2η} K_conv/(1 - L^{-2γ}) + K_bg`.  The constant `C₁₅` is a function of
+`K_conv, K_bg, L, γ, η` only.  The scale ratio of P7 (2.11) is proved, not assumed
+(`p631_ratio_free`): its premises are the P4 (H.6) form of the couplings along each chain,
+`β_n = B L^{(d-2)n} g_n`, `e^{-η} ≤ g_n ≤ e^{η}` (`Flow.betaSeq_eq`, `Flow.norm_gammaSeq_le`), the
+sequence `ε = epsSeq L α α₀` and `d - 2 - 2α = 2γ`. -/
+theorem window_conversion (I : ActionConvInput W Kconv Kbg γw M M₁ cC cW ε Rhat δ₁)
+    {γ η α α₀ : ℝ} (hd : 2 ≤ d) (hL : 1 < L) (hγ : 0 < γ) (hα₀ : 0 < α₀)
+    (hε : ε = epsSeq L α α₀) (hγα : (d : ℝ) - 2 - 2 * α = 2 * γ)
+    (hflow : ∀ j ∈ Finset.Ico k1 k, ∃ B : ℝ, 0 < B ∧ ∃ g : ℕ → ℝ,
+      (∀ m, Real.exp (-η) ≤ g m ∧ g m ≤ Real.exp η) ∧
+      ∀ n, j + 1 ≤ n → n ≤ k → (W.chain j).β n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
+    (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
     (hsep : ∀ j ∈ Finset.Ico k1 k, 0 ≤ M * (Rhat (j - 1) - 1) - 2 * M₁) :
     ∃ C : U → ℂ, (∀ u ∈ S, W.windowAction u = W.Awin u + C u) ∧ AnalyticOnNhd ℂ C S ∧
-      ∀ u ∈ S, ‖C u‖ ≤ (Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
+      ∀ u ∈ S, ‖C u‖ ≤ (9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
         ∑ j ∈ Finset.Ico k1 k, W.mcount j := by
   set q : ℝ := (L : ℝ) ^ (-(2 * γ)) with hq
   have hL1 : (1 : ℝ) < L := by exact_mod_cast hL
@@ -333,29 +347,37 @@ theorem window_conversion (I : ActionConvInput W Kconv γ Kbg γw M M₁ cC cW �
       exact Finset.sum_congr rfl hstep
     have hnorm : ∀ j ∈ Finset.Ico k1 k,
         ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n + W.bgRem u j‖ ≤
-          (Kconv / (1 - q) + Kbg) * W.mcount j := by
+          (9 * Real.exp (2 * η) * Kconv / (1 - q) + Kbg) * W.mcount j := by
       intro j hj
       have hjk := (Finset.mem_Ico.1 hj).2
       have hm := W.mcount_nonneg j
-      have hcost : ∀ n ∈ Finset.Ioc (j + 1) k, ‖(W.chain j).cost u n‖ ≤ Kconv * q ^ (n - j - 1) * W.mcount j := by
+      obtain ⟨B, hB, g, hg, hβ⟩ := hflow j hj
+      have hKc' : 0 ≤ 9 * Real.exp (2 * η) * Kconv := by positivity
+      have hcost : ∀ n ∈ Finset.Ioc (j + 1) k, ‖(W.chain j).cost u n‖ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - j - 1) * W.mcount j := by
         intro n hn
         obtain ⟨hn1, hn2⟩ := Finset.mem_Ioc.1 hn
         calc ‖(W.chain j).cost u n‖ ≤ _ := I.p7_first j hj n (by omega) hn2 u hu
-          _ ≤ Kconv * q ^ (n - j - 1) * W.mcount j := by
+          _ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - j - 1) * W.mcount j := by
             apply mul_le_mul_of_nonneg_right _ hm
-            exact mul_le_mul_of_nonneg_left (I.p7_ratio j hj n (by omega) hn2) hKc
-      have h1 : ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n‖ ≤ Kconv / (1 - q) * W.mcount j := by
+            have hr := p631_ratio_free L d hL hd α α₀ γ B η hα₀ hB hγα g hg (j := j) (n := n) (by omega)
+            have hbe : ∀ m, j + 1 ≤ m → m ≤ k → (W.chain j).β m = B * (L : ℝ) ^ ((d - 2) * m) * g m :=
+              fun m h1 h2 => hβ m h1 h2
+            rw [hε, hbe (j + 1) le_rfl (by omega), hbe n (by omega) hn2]
+            calc Kconv * _ ≤ Kconv * (9 * Real.exp (2 * η) * q ^ (n - j - 1)) :=
+                  mul_le_mul_of_nonneg_left hr hKc
+              _ = _ := by ring
+      have h1 : ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n‖ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j := by
         refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hcost).trans ?_)
-        have : ∑ n ∈ Finset.Ioc (j + 1) k, Kconv * q ^ (n - j - 1) * W.mcount j =
-            Kconv * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1) := by
+        have : ∑ n ∈ Finset.Ioc (j + 1) k, ((9 * Real.exp (2 * η) * Kconv)) * q ^ (n - j - 1) * W.mcount j =
+            (9 * Real.exp (2 * η) * Kconv) * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1) := by
           rw [Finset.mul_sum]
           exact Finset.sum_congr rfl fun n _ => by ring
         rw [this]
         have hg := geom_Ioc_le hq0.le hq1 j k
-        calc Kconv * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1)
-            ≤ Kconv * W.mcount j * (1 / (1 - q)) :=
-              mul_le_mul_of_nonneg_left hg (mul_nonneg hKc hm)
-          _ = Kconv / (1 - q) * W.mcount j := by ring
+        calc (9 * Real.exp (2 * η) * Kconv) * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1)
+            ≤ (9 * Real.exp (2 * η) * Kconv) * W.mcount j * (1 / (1 - q)) :=
+              mul_le_mul_of_nonneg_left hg (mul_nonneg hKc' hm)
+          _ = (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j := by ring
       have h2 : ‖W.bgRem u j‖ ≤ Kbg * W.mcount j := by
         refine (I.window_decay j hj u hu).trans ?_
         have : Real.exp (-γw * (M * (Rhat (j - 1) - 1) - 2 * M₁)) ≤ 1 := by
@@ -367,7 +389,7 @@ theorem window_conversion (I : ActionConvInput W Kconv γ Kbg γw M M₁ cC cW �
               exact mul_le_mul_of_nonneg_left this hKb
           _ = Kbg * W.mcount j := by ring
       calc _ ≤ ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n‖ + ‖W.bgRem u j‖ := norm_add_le _ _
-        _ ≤ Kconv / (1 - q) * W.mcount j + Kbg * W.mcount j := add_le_add h1 h2
+        _ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j + Kbg * W.mcount j := add_le_add h1 h2
         _ = _ := by ring
     show ‖W.windowAction u - W.Awin u‖ ≤ _
     rw [hsum, norm_neg]
