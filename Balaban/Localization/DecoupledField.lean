@@ -357,10 +357,11 @@ def FamSpec (d L : ℕ) [NeZero L] (cstar BG : ℝ) : Prop :=
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {κ : ℝ}, 0 ≤ κ → cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
       ∀ {s : DecParams G}, (∀ P, ‖s P‖ ≤ Real.exp κ) → ∀ (N : ℕ),
-      GreenFamily G N (fun α => Gs G a ν α (extS G s)) (famConst d L BG κ) (gamma1 d / 8) ∧
+      (GreenFamily G N (fun α => Gs G a ν α (extS G s)) (famConst d L BG κ) (gamma1 d / 8) ∧
       ∀ {α : G.Ω 1 → ℂ}, Small G α (gamma1 d / 8) → ∀ (g : G.Ω 1 × Fin N → ℂ) {C : ℝ}, 0 ≤ C →
         SrcBound G g C →
-        SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L BG κ * C)
+        SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L BG κ * C)) ∧
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → IsUnit (1 - Kcal G a ν α (extS G s))
 
 theorem FamSpec.mono_c {d L : ℕ} [NeZero L] {c c' BG : ℝ} (h : FamSpec d L c BG) (hc : c ≤ c') :
     FamSpec d L c' BG := by
@@ -416,7 +417,10 @@ theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ cstar BG : ℝ, FamSp
     refine hsc.mono ?_
     calc (L : ℝ) * (b * C) = (L * b) * C := by ring
       _ ≤ famConst d L (max B1 B2) κ * C := mul_le_mul_of_nonneg_right hLb hC
-  refine ⟨⟨by linarith, ?_, ?_⟩, hsup⟩
+  have hunit : ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → IsUnit (1 - Kcal G a ν α (extS G s)) := by
+    intro α hα
+    exact (H1 G S hα hκ hMκ1 hs' hw1 (0 : G.Ω 1 → ℂ) (C := 0) le_rfl (by simp)).1
+  refine ⟨⟨⟨by linarith, ?_, ?_⟩, hsup⟩, hunit⟩
   · intro α hα g C hC hg
     exact (Balaban.Background.SupBounds.star (hsup hα g hC hg))
   · intro α α' hα hα' g C Δ hC hg hΔ0 hΔ

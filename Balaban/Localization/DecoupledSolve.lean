@@ -279,7 +279,7 @@ theorem i4a_exists_unique {cstar BG : ℝ} (hF : FamSpec d L cstar BG) :
           dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα = 0) := by
   obtain ⟨-, hBG, Hfam⟩ := hF
   intro N₁ m₁ K N _ ϱ G a ν S κ hκ hM s hs ιU α₀ φ₀ δΨ f₁ δ₀ δ₁ H hδ₀ hδ₁
-  obtain ⟨hfam, hsup⟩ := Hfam G S hκ hM hs N
+  obtain ⟨⟨hfam, hsup⟩, -⟩ := Hfam G S hκ hM hs N
   have hd0 : 0 < d := by have := S.hd; omega
   set B : ℝ := famConst d L BG κ with hB
   set Γ : ℝ := gamma1 d / 8 with hΓdef

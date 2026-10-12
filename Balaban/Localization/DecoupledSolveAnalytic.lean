@@ -172,7 +172,7 @@ theorem i4a_analytic {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (hA : AnSpec d
     fun p _ hp => StrictDataM.hyp S.toGreen h0 h1 hle1 hp
   have hfam : ∀ p : DecParams G × Edat G N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
       GreenFamily G N (decG G a ν p.1) B Γ := fun p hp =>
-    (hF.2.2 G S hκ hM (s := p.1) (fun P => (hp P).le) N).1
+    (hF.2.2 G S hκ hM (s := p.1) (fun P => (hp P).le) N).1.1
   have hc0 : 0 < coerciveConst d := by
     have := gamma1_pos hd0; unfold gamma1 at this; linarith
   have aΨ : ∀ (p : DecParams G × Edat G N) y i,
