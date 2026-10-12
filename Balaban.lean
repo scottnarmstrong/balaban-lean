@@ -104,6 +104,7 @@ public import Balaban.Background.MinimizerAlg
 public import Balaban.Background.MinimizerExpansion
 public import Balaban.Background.Minimizer
 public import Balaban.Background.Def5
+public import Balaban.Background.Equivariance
 public import Balaban.Background.Def5Response
 public import Balaban.Background.Holder
 public import Balaban.Background.NormalizeMixed
