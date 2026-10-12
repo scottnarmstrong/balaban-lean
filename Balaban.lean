@@ -39,6 +39,7 @@ public import Balaban.Polymer.Expansion
 public import Balaban.Polymer.PE
 public import Balaban.Polymer.Local
 public import Balaban.Polymer.Animals
+public import Balaban.Polymer.RootedAnimals
 public import Balaban.Polymer.Lattice
 public import Balaban.Polymer.BlockTorus
 public import Balaban.Polymer.Holomorphic
