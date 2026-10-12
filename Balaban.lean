@@ -1084,6 +1084,7 @@ public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepRegUnit
 public import Balaban.Fluctuation.StepRegWitness
 public import Balaban.Fluctuation.StepRegDomain
+public import Balaban.Fluctuation.GeneralClassMatch
 public import Balaban.Fluctuation.StepNormGauss
 public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
