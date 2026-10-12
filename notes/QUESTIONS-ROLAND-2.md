@@ -80,3 +80,36 @@ Our current irrelevance proof uses a source polydisc with transverse radius ε_j
 mass (from P3 (4.26)), which is too wide for this term when ν_j ≪ 1.
 
 Details: `notes/phase1/PIN-I6.md` §2 and `notes/phase1/PIN-JET.md` §§2–3.
+
+**13 (second addendum, 2026-10-13). What we now believe, and the sharpened question.**
+
+We checked P1, P3, P4, P5 and P6 for how the W²-dependence is handled (`notes/phase1/W2-TERM.md`):
+
+- P1 does not give ∂f/∂W² its own recursion. P1 (3.29)–(3.33) bounds it by Cauchy's theorem on a
+  complex source disc of radius ≈ ε_j in b⊥ (independent of ν_j and β_j) and puts f_{0,0,1}·ν²w² in
+  the Taylor remainder. P4 (5.1)–(5.26) studies f(u, v, 0) only.
+- That Cauchy bound needs the inductive bound E₀ on the wide disc. A coefficient β_j/(2a) of |b⊥|²
+  does not satisfy it when β_j ε_j² is large.
+- In P1/P4 the backgrounds are complete (they include the field), so this classical term sits inside
+  the main action β_k A_k(ψ, φ_k(ψ, h)), which is kept exactly, and the fluctuation integral has no
+  linear source term. No problem arises there.
+- The problem appears only with P5's convention for β_kν_k ≤ 1: the background ignores h, the field
+  term is a perturbation, and its second-order Gaussian contribution β|b⊥|²/(2a) has to land in the
+  local terms ℰ, at every step k ≤ k₀ and again at the switch.
+
+P5 p. 490 says the ℰ^{(j)} "still satisfy the induction hypotheses" of P4 in that regime.
+
+**Sharpened question.** In the regime β_kν_k ≤ 1, which is intended?
+
+(A) The small-field terms ℰ^{(j)} are still those of P4, built with complete backgrounds; the
+    field-free background is used only in the large-field operators (P5–P7). If so, where is the
+    difference between the two backgrounds accounted for inside the small-field region?
+(B) The ℰ^{(j)} are rebuilt with field-free backgrounds, and the transverse-source free energy is
+    controlled by something we have not found (a cancellation, a narrower complex domain in h, or
+    an extra tracked term).
+(C) Either reading works because only real unit h matters in the end, and the complex-h bounds of
+    (H.5) are needed in a weaker form than printed.
+
+Our fallback, if there is no answer in the papers: complete backgrounds at all scales for the
+small-field class (as in P1/P4), and a separate treatment of the large-field operators for
+k ≤ k₀ with the tiny mass β_kν_k ≤ 1.

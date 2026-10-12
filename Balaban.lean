@@ -728,6 +728,8 @@ public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseS5
+public import Balaban.LargeField.Base.Prop279Counter
+public import Balaban.LargeField.Base.Prop279
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
@@ -967,3 +969,15 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.HatEngineDom
+public import Balaban.Fluctuation.HatEngineLift
+public import Balaban.Fluctuation.HatEngineFan
+public import Balaban.Localization.GraphGmCount
+public import Balaban.Localization.GraphGmWalk
+public import Balaban.Localization.GraphGmDefs
+public import Balaban.Localization.GraphGmTree
+public import Balaban.Localization.GraphGmExponent
+public import Balaban.SmallField.RenormPinJet
+public import Balaban.SmallField.RenormPinBridge
+public import Balaban.SmallField.RenormPinSum
+public import Balaban.SmallField.RenormPinCounter
