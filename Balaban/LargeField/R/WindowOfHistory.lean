@@ -36,10 +36,11 @@ Derived premises of `WindowCollarGeom` / `DeltaPsiCollar` (each for `W = windowO
 `_hbdry`, `_hcore` (Lemma I.3.5 (g) through `coreW_nbhd_subset_Omega`), `_hmargin_layers`/`_hmargin`
 (Lemma III.4.6 margin), `_hexitLayer` (Lemma I.3.5 (f)).
 
-`windowOfHistory_not_hyp_of_boundary_pair`: `W.Hyp` itself is false for this window (its margin clause
-for the core piece contradicts the fact that `𝔹_{k₁}(W)` fills the collar of `Z_{k₁}`), so
-`windowOfHistory_hmargin` (stated with `hWh : W.Hyp`) is vacuous; the form
-`windowOfHistory_hmargin_layers` is stated on the layer formula of Definition III.2.1 and does not use `Hyp`.
+`windowOfHistory_hyp`: `WindowPieces.Hyp` (block unions of the restricted layers and the glued
+margin) holds for this window.  The strong margin clause it replaced is false for the window
+(`windowOfHistory_strongMargin_false_of_boundary_pair`: the core `𝔹_{k₁}(W)` fills the collar of
+`Z_{k₁}`), which is kept as the record of why `GluePieces.Hyp.margin` has the alternative
+`x ∈ P.layer n`.  `WindowOfHistoryCollar` instantiates the collar lemmas at this window.
 -/
 
 @[expose] public section
@@ -80,13 +81,19 @@ namespace WindowPieces
 
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
-/-- The margin clause of `WindowPieces.Hyp` fails as soon as the core piece contains a site `y` of
-`Z_{k₁}` within `ϱ L^n` of a site `x` off `Z_{k₁}` (`1 ≤ n < k`, `y ∈ Ω_{n+1}(core)`). -/
-theorem not_hyp_of_core_near (W : WindowPieces d L N₀ k ϱ) {n : ℕ} (hn1 : 1 ≤ n) (hnk : n < k)
+/-- The OLD strong margin clause (every point outside the region of a piece is at distance `> ϱ L^n`
+from the restricted layer `n + 1`) fails as soon as the core piece contains a site `y` of `Z_{k₁}`
+within `ϱ L^n` of a site `x` off `Z_{k₁}` (`1 ≤ n < k`, `y ∈ Ω_{n+1}(core)`).  This is why
+`GluePieces.Hyp.margin` has the alternative `x ∈ P.layer n` (LFR Lemma III.2.1 only needs (S) for the
+glued family). -/
+theorem strongMargin_false_of_core_near (W : WindowPieces d L N₀ k ϱ) {n : ℕ} (hn1 : 1 ≤ n)
+    (hnk : n < k)
     {x y : Torus d (N₀ * L ^ k)} (hy : y ∈ W.core.Ω (n + 1)) (hyZ : y ∈ W.Zk1) (hx : x ∉ W.Zk1)
-    (hd : Green.torusDist d (N₀ * L ^ k) x y ≤ ϱ * (L : ℝ) ^ n) : ¬ W.Hyp := by
+    (hd : Green.torusDist d (N₀ * L ^ k) x y ≤ ϱ * (L : ℝ) ^ n) :
+    ¬ (∀ i n, 1 ≤ n → n < k → ∀ y ∈ (W.pieces.gen i).Ω (n + 1), y ∈ W.pieces.region i →
+        ∀ x, x ∉ W.pieces.region i → ϱ * (L : ℝ) ^ n < Green.torusDist d (N₀ * L ^ k) x y) := by
   intro h
-  have := h.margin 0 n hn1 hnk y (by simpa [pieces] using hy) (by simpa [pieces] using hyZ) x
+  have := h 0 n hn1 hnk y (by simpa [pieces] using hy) (by simpa [pieces] using hyZ) x
     (by simpa [pieces] using hx)
   linarith
 
@@ -424,16 +431,6 @@ theorem windowOfHistory_hmargin_layers :
     · exact Or.inr (Finset.mem_sdiff.1 (Finset.mem_inter.1 h).2).2
   · exact Or.inr fun hz => (Finset.mem_sdiff.1 (Finset.mem_inter.1 h).2).2 (hZ hz)
 
-/-- **Lemma III.4.6 margin**, the form `hmargin` of `inner_collar_parent_layer`
-(only meaningful when `W.Hyp` holds; see `not_hyp_of_core_near`). -/
-theorem windowOfHistory_hmargin (hWh : (windowOfHistory H Z g hkK hW).Hyp) :
-    ∀ x ∈ ((windowOfHistory H Z g hkK hW).windowGenSet hWh).Ω 1, ∀ c, Adj x c →
-      c ∈ (windowOfHistory H Z g hkK hW).Zk1 →
-      c ∈ (windowOfHistory H Z g hkK hW).full.Ω (S.k1 k) := by
-  intro x hx c hadj _
-  rw [WindowPieces.windowGenSet_Ω] at hx
-  exact windowOfHistory_hmargin_layers hkK hW x hx c hadj
-
 /-- **Premise `hexitLayer`** (Lemma III.1.2 (f), Lemma I.3.5 (f)): a site off `Z_{k₁}` adjacent to
 `Z_{k₁}` lies in the layer `k₁` of `B`. -/
 theorem windowOfHistory_hexitLayer :
@@ -462,15 +459,20 @@ theorem windowOfHistory_hexitLayer :
       rw [this, windowOfHistory_full_Ω, (H.locGen Z M hkK H.F.ok.two_le_L _).top]
       simp
 
-/-- **`W.Hyp` is false for the actual window** (LF-RECONSTRUCTION Definition III.2.1): if `k₁ ≥ 2` and
+/-- **The strong margin clause is false for the actual window** (record of why `GluePieces.Hyp.margin`
+has the alternative `x ∈ P.layer n`; LF-RECONSTRUCTION Definition III.2.1): if `k₁ ≥ 2` and
 `Z_{k₁}` has a boundary pair (a site `y ∈ Z_{k₁}` adjacent to a site `x ∉ Z_{k₁}`; this holds as soon as
-`Z_{k₁}` is a nonempty proper subset of the connected torus), the margin clause of `GluePieces.Hyp`
+`Z_{k₁}` is a nonempty proper subset of the connected torus), the strong margin clause
 for the core piece fails: the core `𝔹_{k₁}(W)`, `W = (Z_{k₁}ᶜ)^{≈2}`, contains every site of `Z_{k₁}`
 next to `Z_{k₁}ᶜ`. -/
-theorem windowOfHistory_not_hyp_of_boundary_pair (h2 : 2 ≤ S.k1 k)
+theorem windowOfHistory_strongMargin_false_of_boundary_pair (h2 : 2 ≤ S.k1 k)
     {x y : Torus S.d (M * n k * S.L ^ k)} (hadj : Adj x y)
     (hy : y ∈ (windowOfHistory H Z g hkK hW).Zk1) (hx : x ∉ (windowOfHistory H Z g hkK hW).Zk1) :
-    ¬ (windowOfHistory H Z g hkK hW).Hyp := by
+    ¬ (∀ (i : Fin 3) m, 1 ≤ m → m < k →
+        ∀ y ∈ ((windowOfHistory H Z g hkK hW).pieces.gen i).Ω (m + 1),
+          y ∈ (windowOfHistory H Z g hkK hW).pieces.region i →
+        ∀ x, x ∉ (windowOfHistory H Z g hkK hW).pieces.region i →
+          winSep g * (S.L : ℝ) ^ m < Green.torusDist S.d (M * n k * S.L ^ k) x y) := by
   have hqk := k1_le hW
   have hnn : ∀ i, i < k → n i = S.L * n (i + 1) := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hkK)
   obtain ⟨m, hm⟩ : ∃ m, S.k1 k = m + 1 := ⟨S.k1 k - 1, by omega⟩
@@ -504,7 +506,7 @@ theorem windowOfHistory_not_hyp_of_boundary_pair (h2 : 2 ≤ S.k1 k)
     refine le_min ?_ ?_
     · nlinarith
     · nlinarith
-  refine WindowPieces.not_hyp_of_core_near _ (n := m) (by omega) (by omega) (x := x) (y := y)
+  refine WindowPieces.strongMargin_false_of_core_near _ (n := m) (by omega) (by omega) (x := x) (y := y)
     ?_ hy hx ?_
   · have : m + 1 = S.k1 k := hm.symm
     show y ∈ (windowCore H Z g (S.k1 k) hqk).Ω (m + 1)
@@ -512,6 +514,158 @@ theorem windowOfHistory_not_hyp_of_boundary_pair (h2 : 2 ≤ S.k1 k)
   · have h1 := Multiscale.Adj.torusDist_le hadj
     have hLr : (1 : ℝ) ≤ (S.L : ℝ) ^ m := one_le_pow₀ (by exact_mod_cast NeZero.pos S.L)
     nlinarith
+
+/-- Sites with the same `m`-block lie in the same `π_j`-cube, `m ≤ j ≤ k`. -/
+theorem cubeMap_eq_of_jBlock_eq (hnn : ∀ i, i < k → n i = S.L * n (i + 1)) {m j : ℕ} (hmj : m ≤ j)
+    (hjk : j ≤ k) {x x' : Torus S.d (M * n k * S.L ^ k)}
+    (h : jBlock S.d S.L (M * n k) k m x = jBlock S.d S.L (M * n k) k m x') :
+    cubeMap n S.L M k j x = cubeMap n S.L M k j x' := by
+  have hmk : m ≤ k := hmj.trans hjk
+  have hℓ : M * n k * S.L ^ k = S.L ^ m * (M * n k * S.L ^ (k - m)) := by
+    have : S.L ^ k = S.L ^ m * S.L ^ (k - m) := by rw [← pow_add]; congr 1; omega
+    rw [this]; ring
+  have hm : M * n k * S.L ^ (k - m) = (S.L ^ (j - m) * M) * n j := by
+    have h1 : S.L ^ (k - m) = S.L ^ (j - m) * S.L ^ (k - j) := by
+      rw [← pow_add]; congr 1; omega
+    rw [nn_eq_pow' hnn hjk, h1]; ring
+  have hLM : S.L ^ j * M = S.L ^ m * (S.L ^ (j - m) * M) := by
+    rw [← mul_assoc, ← pow_add]; congr 2; omega
+  have key : ∀ z : Torus S.d (M * n k * S.L ^ k), cubeMap n S.L M k j z =
+      blockMap (S.L ^ (j - m) * M) (n j) (jBlock S.d S.L (M * n k) k m z) := by
+    intro z
+    unfold jBlock cubeMap
+    rw [blockMap_comp hℓ hm, hLM]
+  rw [key x, key x', h]
+
+/-- Top layer of the core piece: a site whose `π_q`-cube lies in `W_q` is in `Ω_q(𝔹_q(W_q))`. -/
+theorem windowCore_top_mem (hnn : ∀ i, i < k → n i = S.L * n (i + 1)) (q : ℕ) (hqk : q ≤ k)
+    {x : Torus S.d (M * n k * S.L ^ k)} (hx : cubeMap n S.L M k q x ∈ coreW H Z q) :
+    x ∈ (windowCore H Z g q hqk).Ω q := by
+  have hcu : IsCubeUnion g.M1 (g.c * n k) S.L k q (fineMin g q (coreW H Z q)) :=
+    isCubeUnion_cubePre hqk (by rw [nn_eq_pow' hnn hqk]; ring) _
+  have h1 : torusCast (by rw [geo_base_eq g]) x ∈ fineMin g q (coreW H Z q) := by
+    rw [fineMin, mem_cubePre, ← cubeMap_eq_castBlock (g := g)]; exact hx
+  refine (castN_mem (geo_base_eq g) _ _ x).2 ?_
+  show _ ∈ minLayer g.M1 (g.c * n k) S.L k q _ q
+  rw [minLayer_self, hcu.cubeInterior_eq]; exact h1
+
+/-- Top layer of the boundary piece: a site whose `π_k`-cube lies in `U_k` is in `Ω_k(𝔹_k(U_k))`. -/
+theorem windowBdry_top_mem
+    {x : Torus S.d (M * n k * S.L ^ k)} (hx : cubeMap n S.L M k k x ∈ bdryU H Z) :
+    x ∈ (windowBdry H Z g).Ω k := by
+  have hcu : IsCubeUnion g.M1 (g.c * n k) S.L k k (fineMin g k (bdryU H Z)) :=
+    isCubeUnion_cubePre (c := g.c) le_rfl (by simp) _
+  have h1 : torusCast (by rw [geo_base_eq g]) x ∈ fineMin g k (bdryU H Z) := by
+    rw [fineMin, mem_cubePre, ← cubeMap_eq_castBlock (g := g)]; exact hx
+  refine (castN_mem (geo_base_eq g) _ _ x).2 ?_
+  show _ ∈ minLayer g.M1 (g.c * n k) S.L k k _ k
+  rw [minLayer_self, hcu.cubeInterior_eq]; exact h1
+
+/-- The core piece has no layer above `k₁`. -/
+theorem windowCore_not_mem_of_gt (q : ℕ) (hqk : q ≤ k) {m : ℕ} (hm : q < m)
+    (x : Torus S.d (M * n k * S.L ^ k)) : x ∉ (windowCore H Z g q hqk).Ω m := by
+  intro hx
+  have : torusCast (by rw [geo_base_eq g]) x ∈
+      minLayer g.M1 (g.c * n k) S.L k q (fineMin g q (coreW H Z q)) m :=
+    (castN_mem (geo_base_eq g) _ m x).1 hx
+  rw [minLayer_of_gt _ hm] at this
+  exact Finset.notMem_empty _ this
+
+/-- **Lemma I.3.5 (f) in fine form**: a site of `Z_{k₁}` is at distance `> winSep L^{k₁}` from
+`Ω_{k₁+1}(𝔹_k)` (`k₁ < k`): the cubes are at index distance `≥ L(⌊R_{k₁}⌋+4)` and `R_{k₁} ≥ R_base`. -/
+theorem windowOfHistory_far (hlt : S.k1 k < k)
+    {x y : Torus S.d (M * n k * S.L ^ k)} (hx : x ∈ (windowOfHistory H Z g hkK hW).Zk1)
+    (hy : y ∈ (windowOfHistory H Z g hkK hW).full.Ω (S.k1 k + 1)) :
+    winSep g * (S.L : ℝ) ^ (S.k1 k) <
+      Green.torusDist S.d (M * n k * S.L ^ k) x y := by
+  have hnn : ∀ i, i < k → n i = S.L * n (i + 1) := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hkK)
+  have hL := H.F.ok.two_le_L
+  rw [windowOfHistory_Zk1, mem_locFineFin, mem_locFine] at hx
+  rw [windowOfHistory_full_Ω, mem_locGen_succ hlt, ← cubeMap_succ hnn (by omega)] at hy
+  have hfar := ((H.locRH k Z).step (S.k1 k)).fine_far (by omega) (hnn _ hlt) hy hx
+  have hN0 : 0 < S.L ^ S.k1 k * M := Nat.pos_of_ne_zero (by
+    have := NeZero.ne S.L; have := NeZero.ne M; positivity)
+  have hlow : ((S.L ^ S.k1 k * M : ℕ) : ℝ) * (supDist (cubeMap n S.L M k (S.k1 k) y)
+      (cubeMap n S.L M k (S.k1 k) x) : ℝ) + 1 ≤ Green.torusDist S.d (M * n k * S.L ^ k) y x +
+        ((S.L ^ S.k1 k * M : ℕ) : ℝ) :=
+    torusDist_lower (d := S.d) (fine_eq hnn hlt.le) hN0 y x
+  have hsd : S.L * (⌊R (S.k1 k)⌋₊ + 4) ≤ supDist (cubeMap n S.L M k (S.k1 k) y)
+      (cubeMap n S.L M k (S.k1 k) x) := Nat.le_trans (by omega) hfar
+  have hsd' : (S.L : ℝ) * ((⌊R (S.k1 k)⌋₊ : ℝ) + 4) ≤
+      (supDist (cubeMap n S.L M k (S.k1 k) y) (cubeMap n S.L M k (S.k1 k) x) : ℝ) := by
+    exact_mod_cast hsd
+  have hcomm : Green.torusDist S.d (M * n k * S.L ^ k) y x =
+      Green.torusDist S.d (M * n k * S.L ^ k) x y := Green.torusDist_comm_gen _ _
+  have hLr : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+  have hMr : (0 : ℝ) < M := by exact_mod_cast NeZero.pos M
+  have hPr : (0 : ℝ) < (S.L : ℝ) ^ (S.k1 k) := by positivity
+  have hRb := g.hRlow (S.k1 k)
+  have hfl : R (S.k1 k) < ⌊R (S.k1 k)⌋₊ + 1 := Nat.lt_floor_add_one _
+  have hw : winSep g ≤ (S.L : ℝ) * M * S.Rb := by unfold winSep; exact min_le_left _ _
+  set N : ℝ := (S.L : ℝ) ^ (S.k1 k) * M with hN
+  have hNpos : 0 < N := mul_pos hPr hMr
+  push_cast at hlow
+  have h1 : winSep g * (S.L : ℝ) ^ (S.k1 k) ≤ (S.L * M * S.Rb) * (S.L : ℝ) ^ (S.k1 k) :=
+    mul_le_mul_of_nonneg_right hw hPr.le
+  have h2 : N * ((S.L : ℝ) * ((⌊R (S.k1 k)⌋₊ : ℝ) + 4)) ≤ N * (supDist (cubeMap n S.L M k (S.k1 k) y)
+      (cubeMap n S.L M k (S.k1 k) x) : ℝ) := mul_le_mul_of_nonneg_left hsd' hNpos.le
+  have h3 : N * ((S.L : ℝ) * (S.Rb + 3)) ≤ N * ((S.L : ℝ) * ((⌊R (S.k1 k)⌋₊ : ℝ) + 4)) :=
+    mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (by linarith) (by linarith)) hNpos.le
+  have h4 : 0 < N * (3 * (S.L : ℝ) - 1) := mul_pos hNpos (by linarith)
+  rw [← hcomm]
+  nlinarith [h1, h2, h3, h4, hlow]
+
+/-- **Lemma III.2.1, the hypotheses of the gluing for the actual window**: `windowOfHistory` satisfies
+`WindowPieces.Hyp` (block unions of the restricted layers, and the glued margin).  The three pieces
+use: core (region `Z_{k₁}`) — a site `x ∉ Z_{k₁}` near `y ∈ Ω_{n+1}(core) ∩ Z_{k₁}` lies in
+`Ω_n(core) ⊆ Ω_n(𝔹_k)`, hence in the glued layer `n` through the full piece if `x ∈ Z`, through the
+boundary piece (`Z ⊆ Ω_k(𝔹_k(U_k))`) if `x ∉ Z`; full (region `Z ∖ Z_{k₁}`) — a nearby `x ∈ Z_{k₁}`
+is in the glued layer `n` through the core piece if `n < k₁`, and cannot occur for `n = k₁`
+(`windowOfHistory_far`) or `n > k₁` (`Z_{k₁} ∩ Ω_{k₁+1}(𝔹_k) = ∅`), a nearby `x ∉ Z` is in the
+boundary piece; boundary (region `U_k^∼ ∖ Z`) — a nearby `x` is in `Ω_n(𝔹_k(U_k))`, hence in `U_k^∼`,
+hence in `Z`, and then in the layer `n` of the full or the core piece as above. -/
+theorem windowOfHistory_hyp : (windowOfHistory H Z g hkK hW).Hyp := by
+  classical
+  have hnn : ∀ i, i < k → n i = S.L * n (i + 1) := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hkK)
+  have hk1 := hW.k1_pos hkK
+  have hk1k := k1_le hW
+  refine WindowPieces.hyp_of_geometry (windowOfHistory H Z g hkK hW) (k1 := S.k1 k) hk1 hk1k
+    (windowOfHistory_hZ (g := g) hkK hW) (windowOfHistory_hZk1top (g := g) hkK hW)
+    (windowOfHistory_hbdry (g := g) hkK hW) (windowOfHistory_hsupp (g := g) hkK hW)
+    (fun m hm1 _ x hx => windowCore_subset_full (g := g) hkK (S.k1 k) hk1 hk1k hm1 hx)
+    ?_ ?_ (fun m hm x => windowCore_not_mem_of_gt (g := g) (S.k1 k) hk1k hm x)
+    (fun hlt x hx y hy => windowOfHistory_far (g := g) hkK hW hlt hx hy) ?_ ?_ ?_
+  · intro x hx
+    rw [windowOfHistory_Zk1, mem_locFineFin, mem_locFine] at hx
+    refine windowCore_top_mem (g := g) hnn (S.k1 k) hk1k ?_
+    unfold coreW thick2 thick
+    exact subset_nbhd _ _ (subset_nbhd _ _ hx)
+  · intro x hx
+    rw [windowOfHistory_Z, mem_locFineFin, mem_locFine_k hkK] at hx
+    refine windowBdry_top_mem (g := g) ?_
+    unfold bdryU thick
+    exact subset_nbhd _ _ hx
+  · intro m _ hm x x' h
+    show x ∈ H.locFineFin Z (S.k1 k) ↔ x' ∈ H.locFineFin Z (S.k1 k)
+    rw [mem_locFineFin, mem_locFineFin, mem_locFine, mem_locFine,
+      cubeMap_eq_of_jBlock_eq hnn hm hk1k h]
+  · intro m _ hm x x' h
+    show x ∈ H.locFineFin Z k ↔ x' ∈ H.locFineFin Z k
+    rw [mem_locFineFin, mem_locFineFin, mem_locFine, mem_locFine,
+      cubeMap_eq_of_jBlock_eq hnn hm le_rfl h]
+  · intro m _ hm x x' h
+    show x ∈ fineFin (k := k) (M := M) k (bdryUnb H Z) ↔ x' ∈ fineFin (k := k) (M := M) k (bdryUnb H Z)
+    rw [mem_fineFin, mem_fineFin, cubeMap_eq_of_jBlock_eq hnn hm le_rfl h]
+
+/-- **Lemma III.4.6 margin**, the form `hmargin` of `inner_collar_parent_layer`, for the glued
+generating set of the actual window. -/
+theorem windowOfHistory_hmargin :
+    ∀ x ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω 1, ∀ c, Adj x c →
+      c ∈ (windowOfHistory H Z g hkK hW).Zk1 →
+      c ∈ (windowOfHistory H Z g hkK hW).full.Ω (S.k1 k) := by
+  intro x hx c hadj _
+  rw [WindowPieces.windowGenSet_Ω] at hx
+  exact windowOfHistory_hmargin_layers hkK hW x hx c hadj
 
 end Fields
 
