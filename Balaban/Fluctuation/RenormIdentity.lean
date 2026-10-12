@@ -300,6 +300,23 @@ theorem lemma35_iii (a : ℕ → ℝ) (ζ : ℝ) (Ψ : Torus d (N₀ * L ^ K) �
 end Compose
 
 
+/-- The difference of two small solutions with `|α|₂, |α'|₂ < c₀`, `2 c₀ ≤ c₆`, lies in the
+uniqueness class `|δα|₂ ≤ c₆` of Proposition 5.1. -/
+theorem small_sub_of_isSmallSolution {a : ℕ → ℝ} {μ μu c₀ : ℝ} {D Du : BgData G N}
+    {φ φu : G.Ω 1 × Fin N → ℂ} {α αu : G.Ω 1 → ℂ}
+    (hφ : IsSmallSolution G a μ c₀ D φ α) (hφu : IsSmallSolution G a μu c₀ Du φu αu)
+    (hc₀ : 2 * c₀ ≤ c6 d L N) : Small G (αu - α) (c6 d L N) := by
+  intro x
+  have h1 := hφ.2 x
+  have h2 := hφu.2 x
+  simp only [Pi.sub_apply]
+  calc G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖αu x - α x‖
+      ≤ G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * (‖αu x‖ + ‖α x‖) :=
+        mul_le_mul_of_nonneg_left (norm_sub_le _ _) (by positivity)
+    _ = G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖αu x‖ +
+        G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖α x‖ := by ring
+    _ ≤ c6 d L N := by linarith
+
 /-- **Lemma 3.5 (ii), the bound**: under the hypotheses `(P1)`--`(P4)` of BG Proposition 5.1 for the
 perturbation of `(φ, α)` (extended to `φ₀`) by the lifted data `δΨ = ζ ψ` and
 `f₁ = (μu - μ)(h - φ)`, the difference of the small solutions is the solution of Proposition 5.1,
@@ -316,17 +333,7 @@ theorem lemma35_ii_bound (hd : 0 < d) (a : ℕ → ℝ) {μ μu ζ c₀ : ℝ} {
   obtain ⟨δφ, δα, hpert, hsm, hsup, huniq⟩ := prop51_exists_unique hd hP
   have hper := isPerturbed_of_EL a (δΨ := fun x i => (ζ : ℂ) * D.Ψ x i)
     (fun x i => by rw [hΨ]; ring) hh hφ₀ hφ.1 hφu.1
-  have hsmall : Small G (αu - α) (c6 d L N) := by
-    intro x
-    have h1 := hφ.2 x
-    have h2 := hφu.2 x
-    simp only [Pi.sub_apply]
-    calc G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖αu x - α x‖
-        ≤ G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * (‖αu x‖ + ‖α x‖) :=
-          mul_le_mul_of_nonneg_left (norm_sub_le _ _) (by positivity)
-      _ = G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖αu x‖ +
-          G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖α x‖ := by ring
-      _ ≤ c6 d L N := by linarith
+  have hsmall : Small G (αu - α) (c6 d L N) := small_sub_of_isSmallSolution hφ hφu hc₀
   obtain ⟨e1, e2⟩ := huniq _ _ hper hsmall
   rw [e1, e2]
   exact ⟨hsm, hsup⟩
