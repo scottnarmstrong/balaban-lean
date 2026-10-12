@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W114 | `w114-thm42-real` / W114 | Thm 4.2 real-step pieces |
 | W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
 | W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
-| W113 | `w113-witness-cleanup` / W113 | non-vacuity loose ends, delete vacuous T2_bound |
+| W116 | `w116-witness-sweep` / W116 | witnesses for the remaining 28 hypothesis structures |
 | W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
 | W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
 Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
