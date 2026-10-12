@@ -337,6 +337,14 @@ public import Balaban.Localization.DecoupledIdentMain
 public import Balaban.Localization.DecoupledSpectral
 public import Balaban.Localization.DecoupledFunctional
 public import Balaban.Localization.DecoupledCovAnalytic
+public import Balaban.Localization.DecoupledCovReal
+public import Balaban.Localization.DecoupledCovParam
+public import Balaban.Localization.DecoupledCovAnalyticFull
+public import Balaban.Localization.DecoupledCovPrincipal
+public import Balaban.Localization.DecoupledCovUnit
+public import Balaban.Localization.DecoupledCovClose
+public import Balaban.Localization.DecoupledCovWeighted
+public import Balaban.Localization.DecoupledCovLocal
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
@@ -513,3 +521,10 @@ public import Balaban.Fluctuation.ExpansionBounds
 public import Balaban.Fluctuation.ExpansionReal
 public import Balaban.Fluctuation.ExpansionLocal
 public import Balaban.Fluctuation.ExpansionAnalytic
+public import Balaban.Polymer.MarkedCubesLocal
+public import Balaban.Polymer.MarkedCubesVanish
+public import Balaban.Polymer.MarkedHolo
+public import Balaban.Polymer.MarkedCubesHolo
+public import Balaban.Polymer.MarkedDeriv2
+public import Balaban.Polymer.MarkedTermwise2
+public import Balaban.Polymer.MarkedCubesTwo
