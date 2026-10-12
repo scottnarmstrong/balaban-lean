@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Base.BaseResolventMain
 public import Balaban.Multiscale.AgmonCore
 public import Balaban.Green.LimitCauchy
+public import Balaban.LargeField.Base.BaseResolventDecay
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -26,6 +27,7 @@ and column sums of `A_e(s)` are at most `J` and its blocks vanish beyond distanc
 namespace Balaban.LargeField.Base
 
 open Balaban Balaban.Multiscale Balaban.Green Matrix Finset
+open scoped Matrix.Norms.L2Operator
 
 variable {d L N₀ : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
@@ -239,5 +241,119 @@ theorem baseHamiltonian_row_le {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha
     _ ≤ ν + 12 * d + 3 := by linarith
 
 end Rows
+
+section Blocks
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+theorem blockOf_mul (X Y : Matrix (ι × Fin N) (ι × Fin N) ℂ) (z y : ι) :
+    blockOf (X * Y) z y = ∑ w, blockOf X z w * blockOf Y w y := by
+  ext i j
+  simp only [blockOf, Matrix.of_apply, Matrix.mul_apply, Matrix.sum_apply, Fintype.sum_prod_type]
+
+theorem blockOf_one (z w : ι) :
+    blockOf (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) z w = if z = w then 1 else 0 := by
+  ext i j
+  by_cases h : z = w
+  · subst h; simp [blockOf, Matrix.one_apply]
+  · simp [blockOf, Matrix.one_apply, h]
+
+theorem blockOf_liftOp (H : Matrix ι ι ℂ) (z y : ι) :
+    blockOf (liftOp N H) z y = H z y • (1 : Matrix (Fin N) (Fin N) ℂ) := by
+  ext i j
+  by_cases h : i = j
+  · subst h; simp [blockOf, liftOp]
+  · simp [blockOf, liftOp, Matrix.one_apply, h]
+
+theorem blockOf_add (X Y : Matrix (ι × Fin N) (ι × Fin N) ℂ) (z y : ι) :
+    blockOf (X + Y) z y = blockOf X z y + blockOf Y z y := by
+  ext i j; simp [blockOf]
+
+theorem blockOf_sub (X Y : Matrix (ι × Fin N) (ι × Fin N) ℂ) (z y : ι) :
+    blockOf (X - Y) z y = blockOf X z y - blockOf Y z y := by
+  ext i j; simp [blockOf]
+
+/-- The rank-one block `P_z = e_z e_zᵀ`. -/
+def siteProj (e : ι → Fin N → ℝ) (z : ι) : Matrix (Fin N) (Fin N) ℂ :=
+  Matrix.of fun i j => (e z i : ℂ) * (e z j : ℂ)
+
+theorem blockOf_unitProj (e : ι → Fin N → ℝ) (z w : ι) :
+    blockOf (unitProj e) z w = if z = w then siteProj e z else 0 := by
+  ext i j
+  by_cases h : z = w
+  · subst h; simp [blockOf, unitProj_apply, siteProj]
+  · simp [blockOf, unitProj_apply, h]
+
+theorem siteProj_conjTranspose (e : ι → Fin N → ℝ) (z : ι) :
+    (siteProj e z)ᴴ = siteProj e z := by
+  ext i j
+  simp [siteProj, Matrix.conjTranspose_apply, mul_comm]
+
+theorem siteProj_mul_self (e : ι → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) (z : ι) :
+    siteProj e z * siteProj e z = siteProj e z := by
+  ext i k
+  have hc : (∑ j : Fin N, (e z j : ℂ) ^ 2) = 1 := by exact_mod_cast he z
+  simp only [siteProj, Matrix.mul_apply, Matrix.of_apply]
+  calc ∑ j, (e z i : ℂ) * (e z j : ℂ) * ((e z j : ℂ) * (e z k : ℂ))
+      = (e z i : ℂ) * (e z k : ℂ) * ∑ j, (e z j : ℂ) ^ 2 := by
+        rw [Finset.mul_sum]; refine Finset.sum_congr rfl fun j _ => ?_; ring
+    _ = _ := by rw [hc, mul_one]
+
+/-- The block `Q_z = 1 - P_z` and the block `P_z` have operator norm at most one. -/
+theorem norm_siteProj_le (e : ι → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) (z : ι) :
+    ‖siteProj e z‖ ≤ 1 ∧ ‖(1 : Matrix (Fin N) (Fin N) ℂ) - siteProj e z‖ ≤ 1 := by
+  have hsplit := fun f => sqNorm_proj_split (siteProj_conjTranspose e z) (siteProj_mul_self e he z) f
+  constructor
+  · refine l2_opNorm_le_of_sqNorm _ zero_le_one fun f => ?_
+    have := hsplit f
+    have h2 := sqNorm_nonneg ((1 - siteProj e z) *ᵥ f)
+    rw [one_pow, one_mul]; linarith
+  · refine l2_opNorm_le_of_sqNorm _ zero_le_one fun f => ?_
+    have := hsplit f
+    have h2 := sqNorm_nonneg (siteProj e z *ᵥ f)
+    rw [one_pow, one_mul]; linarith
+
+theorem blockOf_baseOp (e : ι → Fin N → ℝ) (H : Matrix ι ι ℂ) (z y : ι) :
+    blockOf (baseOp N (fun z i => (e z i : ℂ)) H) z y =
+      H z y • ((1 - siteProj e z) * (1 - siteProj e y)) + (if z = y then siteProj e z else 0) := by
+  have hP : basePart (fun z i => (e z i : ℂ)) = unitProj e := rfl
+  have hQ : ∀ a b, blockOf (1 - unitProj e) a b = if a = b then 1 - siteProj e a else 0 := by
+    intro a b
+    rw [blockOf_sub, blockOf_one, blockOf_unitProj]
+    split_ifs <;> simp
+  unfold baseOp
+  rw [hP, blockOf_add, blockOf_unitProj, blockOf_mul]
+  congr 1
+  simp only [blockOf_mul, hQ, blockOf_liftOp]
+  rw [Finset.sum_eq_single y]
+  · rw [Finset.sum_eq_single z]
+    · simp [Matrix.smul_mul, Matrix.mul_smul]
+    · intro w _ hw
+      simp [Ne.symm hw]
+    · simp
+  · intro w _ hw
+    simp [hw]
+  · simp
+
+theorem norm_blockOf_baseOp_le (e : ι → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (H : Matrix ι ι ℂ) (z y : ι) :
+    ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) H) z y‖ ≤
+      ‖H z y‖ + (if z = y then 1 else 0) := by
+  rw [blockOf_baseOp]
+  refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
+  · have h1 := (norm_siteProj_le e he z).2
+    have h2 := (norm_siteProj_le e he y).2
+    have hX : ‖((1 - siteProj e z) * (1 - siteProj e y) : Matrix (Fin N) (Fin N) ℂ)‖ ≤ 1 := by
+      calc _ ≤ ‖(1 - siteProj e z : Matrix (Fin N) (Fin N) ℂ)‖ *
+            ‖(1 - siteProj e y : Matrix (Fin N) (Fin N) ℂ)‖ := norm_mul_le _ _
+        _ ≤ 1 * 1 := mul_le_mul h1 h2 (norm_nonneg _) zero_le_one
+        _ = 1 := one_mul 1
+    rw [norm_smul]
+    exact mul_le_of_le_one_right (norm_nonneg _) hX
+  · split_ifs
+    · exact (norm_siteProj_le e he z).1
+    · simp
+
+end Blocks
 
 end Balaban.LargeField.Base
