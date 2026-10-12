@@ -17,10 +17,13 @@ import Mathlib.Tactic.Positivity
 
 `d = L = 3`, `N = 2`, any `m₁`, `ϱ ≥ R₀(3, 3)`, `1 ≤ j ≤ k`.  The effective action is zero
 (`zeroTerms`: `ℰ = ℳ = 0`, `𝔹_j(X)` the whole-lattice generating set of level `j`); the constants are
-`γ = α₁ = 1/4`, `κ = a_ent + 4`, `E₀ = 0`, `c₉ = 1`, `B = 0`, `ν̄ = 7/72`, `m₀ = 0`, `α₀` chosen so that
-`ε_j` meets the bound of `MomNum.hsmall`; the running coefficients are those of the flow with
-`ξ = 0` (`β_n = 3^n`, `ν_n = (7/72) 9^{n-k}`, `a_n = 5/4`).
+`γ = α₁ = 1/4`, `κ = a_ent + 4`, `E₀ = 0`, `c₉ = 1`, `B = 0`, `ν̄ = 7/72`, `p ≡ 1`, `m₀ = 0`, `α₀`
+chosen so that `ε_j` meets the bound of `MomNum.hsmall`; the running coefficients are those of the
+flow with `ξ = 0` (`β_n = 3^n`, `ν_n = (7/72) 9^{n-k}`, `a_n = 5/4`).
 
+* `rhoZero`: the density `ρ = χ_k exp[-β_k A_k + ⟨g, φ_k⟩]` of (H.1) for the zero action
+  (`E_k = 0`), real-valued; `isSF_zero_density` proves the field `density` of `IsSF` (the
+  realizing datum is unique, `realizes_unique`, and the exponent is real by Theorem 7.1);
 * `isSFFamily_witness`: every field of `IsSFFamily` (`CoeffBounds`, `TorusIndep`, `RenormCond` at
   every `j ≤ k`, and per torus `IsSF` including `pavingGS`, `eucEloc`, `eucMloc`);
 * `momNum_witness`: `MomNum`;
@@ -65,14 +68,25 @@ theorem Edens_zero (m₀ j : ℕ) (ψ h : Fld d L N₁ m₁ k N) :
   simp [Edens, Eloc_zero]
 
 theorem isSF_zero (P : Consts) (β ν a : ℕ → ℝ) (hE₀ : P.E₀ = 0) (hc₉ : 0 < P.c₉)
-    (hp : ∀ x, P.p x ≤ 0) :
-    IsSF P β ν a (zeroTerms d L N₁ m₁ k N ϱ) (fun _ _ _ => 0) 0 where
-  density := by
-    intro Ψ₀ h₀ g D _ _
-    have hXi : ¬ Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) k 1
-        (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀ := fun h =>
-      absurd h.2.1 (not_lt.2 (div_nonpos_of_nonpos_of_nonneg (hp _) (Real.sqrt_nonneg _)))
-    simp [hXi]
+    (ρ : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ)
+    (hdens : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
+      (g : CTorus d L N₁ m₁ k → Fin N → ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N),
+      Realizes D Ψ₀ h₀ → l1 (fun x i => (g x i : ℂ)) < 1 →
+      (ρ Ψ₀ h₀ g : ℂ) =
+        open Classical in
+        if Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) k 1
+            (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
+        then Complex.exp (-(β k : ℂ) * (action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
+              (bgMass L k (β k) (ν k)) D
+              (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) D) : ℝ) +
+            Ecomp P.m₀ (zeroTerms d L N₁ m₁ k N ϱ) (aIdeal L k (a k))
+              (bgMass L k (β k) (ν k)) D -
+            ((0 : ℝ) : ℂ) * (((N₁ * L ^ m₁) ^ d : ℕ) : ℂ) +
+            Fcomp P.m₀ (zeroTerms d L N₁ m₁ k N ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) D
+              (fun x i => (g x i : ℂ)))
+        else 0) :
+    IsSF P β ν a (zeroTerms d L N₁ m₁ k N ϱ) ρ 0 where
+  density := hdens
   gs_spec := by
     intro j hj1 hjk X _
     rw [zeroTerms_gs hjk]
@@ -157,6 +171,111 @@ theorem renormCond_zero (m₀ k' : ℕ) (νk : ℝ) (j : ℕ) :
     simp only [this]
     exact tendsto_const_nhds
 
+
+section Density
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+theorem bgData_eq {N₀ : ℕ} [NeZero N₀] {G : GeneratingSet d L N₀ k ϱ} {D D' : BgData G N}
+    (h1 : D.Ψ = D'.Ψ) (h2 : D.h = D'.h) : D = D' := by
+  cases D; cases D'
+  simp only at h1 h2
+  subst h1; subst h2; rfl
+
+theorem realizes_unique {N₀ : ℕ} [NeZero N₀] {G : GeneratingSet d L N₀ k ϱ} {D D' : BgData G N}
+    {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    (h : Realizes D Ψ₀ h₀) (h' : Realizes D' Ψ₀ h₀) : D = D' := by
+  refine bgData_eq (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
+  · by_cases hx : x ∈ dataSites G
+    · rw [h.1 x hx i, h'.1 x hx i]
+    · rw [D.Ψ_zero x hx, D'.Ψ_zero x hx]
+  · by_cases hx : x ∈ G.Ω 1
+    · rw [h.2 x hx i, h'.2 x hx i]
+    · rw [D.h_zero x hx, D'.h_zero x hx]
+
+theorem Floc_zero (m₀ j : ℕ) (ψ h g : Fld d L N₁ m₁ k N) :
+    Floc m₀ (zeroTerms d L N₁ m₁ k N ϱ) j ψ h g = 0 := by
+  simp [Floc, Mloc_zero]
+
+theorem Ecomp_zero (m₀ : ℕ) (a : ℕ → ℝ) (ν : ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N) :
+    Ecomp m₀ (zeroTerms d L N₁ m₁ k N ϱ) a ν D = 0 := by
+  simp [Ecomp, Edens_zero]
+
+theorem Fcomp_zero (m₀ : ℕ) (a : ℕ → ℝ) (ν : ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N)
+    (g : Fld d L N₁ m₁ k N) :
+    Fcomp m₀ (zeroTerms d L N₁ m₁ k N ϱ) a ν D g =
+      ∑ x : CTorus d L N₁ m₁ k, ∑ i, g x i * svec (topGS d L N₁ m₁ k ϱ)
+        (bgField (topGS d L N₁ m₁ k ϱ) a ν D) x i := by
+  simp [Fcomp, Floc_zero]
+
+theorem im_Fcomp_zero {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
+    {D : BgData (topGS d L N₁ m₁ k ϱ) N}
+    (hD : InUnionDomainR (topGS d L N₁ m₁ k ϱ) (bgC1 d L N) ν D) (m₀ : ℕ)
+    (g : CTorus d L N₁ m₁ k → Fin N → ℝ) :
+    (Fcomp m₀ (zeroTerms d L N₁ m₁ k N ϱ) a ν D (fun x i => (g x i : ℂ))).im = 0 := by
+  have hreal := (theorem71 H hD).2.1
+  rw [Fcomp_zero, Complex.im_sum]
+  refine Finset.sum_eq_zero fun x _ => ?_
+  rw [Complex.im_sum]
+  refine Finset.sum_eq_zero fun i _ => ?_
+  by_cases hx : x ∈ (topGS d L N₁ m₁ k ϱ).Ω 1
+  · rw [svec_of_mem (topGS d L N₁ m₁ k ϱ) _ ⟨x, hx⟩ i]
+    simp [(hreal ⟨x, hx⟩).1 i]
+  · rw [svec_of_not_mem (topGS d L N₁ m₁ k ϱ) _ hx i]; simp
+
+open Classical in
+/-- The real density of the zero effective action. -/
+noncomputable def rhoZero (P : Consts) (β ν a : ℕ → ℝ)
+    (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
+    (g : CTorus d L N₁ m₁ k → Fin N → ℝ) : ℝ :=
+  if hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) k 1
+      (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
+  then Real.exp ((-(β k : ℂ) * (action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) (Classical.choose hX.2.2)
+        (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k))
+          (Classical.choose hX.2.2)) : ℝ) +
+      Fcomp P.m₀ (zeroTerms d L N₁ m₁ k N ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k))
+        (Classical.choose hX.2.2) (fun x i => (g x i : ℂ))).re)
+  else 0
+
+theorem isSF_zero_density (P : Consts) (β ν a : ℕ → ℝ) (hE₀ : P.E₀ = 0) (hc₉ : 0 < P.c₉)
+    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k))) :
+    IsSF P β ν a (zeroTerms d L N₁ m₁ k N ϱ) (rhoZero (N₁ := N₁) (m₁ := m₁) (N := N) (ϱ := ϱ) P β ν a) 0 := by
+  refine isSF_zero P β ν a hE₀ hc₉ _ ?_
+  intro Ψ₀ h₀ g D hD _
+  classical
+  unfold rhoZero
+  by_cases hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) k 1
+      (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
+  · simp only [hX, ↓reduceDIte, ↓reduceIte]
+    have hD0 := Classical.choose_spec hX.2.2
+    have hDD : D = Classical.choose hX.2.2 := realizes_unique hD hD0.1
+    rw [← hDD] at hD0 ⊢
+    rw [Ecomp_zero]
+    have him := im_Fcomp_zero H hD0.2.1 P.m₀ g
+    set w : ℂ := -(β k : ℂ) * (action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) D
+        (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) D) : ℝ) +
+      Fcomp P.m₀ (zeroTerms d L N₁ m₁ k N ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k))
+        D (fun x i => (g x i : ℂ)) with hw
+    have hwim : w.im = 0 := by
+      rw [hw, Complex.add_im, him]
+      simp [Complex.mul_im]
+    have hwre : w = ((w.re : ℝ) : ℂ) := Complex.ext (by simp) (by simpa using hwim)
+    have : (-(β k : ℂ) * (action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) D
+        (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) D) : ℝ) +
+        0 - ((0 : ℝ) : ℂ) * (((N₁ * L ^ m₁) ^ d : ℕ) : ℂ) +
+        Fcomp P.m₀ (zeroTerms d L N₁ m₁ k N ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k))
+          D (fun x i => (g x i : ℂ))) = w := by
+      rw [hw]; simp
+    rw [this]
+    conv_rhs => rw [hwre]
+    rw [← Complex.ofReal_exp]
+  · simp only [hX, ↓reduceDIte, ↓reduceIte]; simp
+
+end Density
+
 end Zero
 
 /-! ### The constants and the coefficient sequences at `d = L = 3`, `N = 2` -/
@@ -185,7 +304,7 @@ noncomputable def witnessConsts (α₀ : ℝ) : Consts where
   α₀ := α₀
   B := 0
   νbar := 7 / 72
-  p := fun _ => 0
+  p := fun _ => 1
   m₀ := 0
 
 theorem rate3_pos : 0 < Flow.rate ((3 : ℕ) : ℝ) (1 / 4) := Flow.rate_pos (by norm_num) _
@@ -203,6 +322,7 @@ theorem witnessConsts_admissible {α₀ : ℝ} (h : 0 < α₀) : (witnessConsts 
   νbar_pos := by norm_num [witnessConsts]
   νbar_le := by norm_num [witnessConsts]
   c₈_pos := by have := rate3_lt; simp only [witnessConsts]; linarith
+  E₀_nonneg := le_rfl
 
 /-- The running coefficients: `β_n = 3^n`, `ν_n = (7/72) 9^{n-k}`, `a_n = 5/4`. -/
 noncomputable def witnessβ : ℕ → ℝ := fun n => (3 : ℝ) ^ n
@@ -266,13 +386,14 @@ theorem eps_witness (j : ℕ) : (witnessConsts (witnessα₀ j)).eps 3 3 j = eps
   have := eps_pos (d := 3) (L := 3) (P := witnessConsts 1) one_pos j
   field_simp
 
-theorem isSFFamily_witness (m₁ k j : ℕ) (ϱ : ℝ) :
+theorem isSFFamily_witness (m₁ k j : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) :
     IsSFFamily (d := 3) (L := 3) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
       (witnessConsts (witnessα₀ j)) witnessβ (witnessν k) witnessa (zeroFam 3 3 m₁ k 2 ϱ)
-      (fun _ _ _ _ _ => 0) (fun _ => 0) where
+      (fun N₁ _ => rhoZero (N₁ := N₁) (m₁ := m₁) (N := 2) (ϱ := ϱ) (witnessConsts (witnessα₀ j)) witnessβ (witnessν k) witnessa) (fun _ => 0) where
   admissible := witnessConsts_admissible (witnessα₀_pos j)
   coeff := witness_coeff k
-  torus := fun _ _ => isSF_zero _ _ _ _ rfl one_pos (fun _ => le_rfl)
+  torus := fun _ _ => isSF_zero_density _ _ _ _ rfl one_pos
+    (bgHyp_of_class (witnessConsts_admissible (witnessα₀_pos j)) (witness_coeff k) le_rfl le_rfl hϱ)
   torusIndep := torusIndep_zero _
   renorm := fun _ _ _ => renormCond_zero _ _ _ _
 
@@ -285,7 +406,6 @@ theorem momNum_witness (k j : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) (hj1 : 1 �
   hj1 := hj1
   hjk := hjk
   hsmall := (eps_witness j).le
-  hE0 := le_rfl
 
 end Family
 
@@ -345,7 +465,7 @@ theorem nonempty_bridgeInfWitness (m₁ k j : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 �
     (hjk : j ≤ k) : Nonempty BridgeInfWitness :=
   ⟨{ m₁ := m₁, k := k, j := j, ϱ := ϱ, P := witnessConsts (witnessα₀ j), β := witnessβ,
      ν := witnessν k, a := witnessa, Tm := zeroFam 3 3 m₁ k 2 ϱ,
-     ρd := fun _ _ _ _ _ => 0, Ek := fun _ => 0, hF := isSFFamily_witness m₁ k j ϱ,
+     ρd := fun N₁ _ => rhoZero (N₁ := N₁) (m₁ := m₁) (N := 2) (ϱ := ϱ) (witnessConsts (witnessα₀ j)) witnessβ (witnessν k) witnessa, Ek := fun _ => 0, hF := isSFFamily_witness m₁ k j ϱ hϱ,
      hn := momNum_witness k j ϱ hϱ hj1 hjk, i₀ := 0, i₁ := 1, hne := by decide, T := _,
      hT := rfl }⟩
 
