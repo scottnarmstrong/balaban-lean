@@ -401,6 +401,15 @@ public import Balaban.SmallField.XiFour
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Compose
+public import Balaban.LargeField.Operators.Ancestors
+public import Balaban.LargeField.Operators.HistGen
+public import Balaban.LargeField.Operators.Setup
+public import Balaban.LargeField.Operators.Pullback
+public import Balaban.LargeField.Operators.MainAction
+public import Balaban.LargeField.Operators.Quiet
+public import Balaban.LargeField.Operators.StepData
+public import Balaban.LargeField.Operators.LocOp
+public import Balaban.LargeField.Operators.Invariance
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
