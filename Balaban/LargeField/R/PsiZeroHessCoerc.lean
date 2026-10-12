@@ -248,6 +248,66 @@ theorem normSqE_top (hd : 2 ≤ d) (hk : 1 ≤ k) {Z : Finset (Torus d (N₀ * L
         rw [hd2, ← pow_mul]
         field_simp
 
+/-- Real-number core of the absorption. -/
+theorem absorb_core {At A0 W SEt P g θ Q : ℝ} (hg : 0 < g) (hθ : 0 ≤ θ) (hc : 8 * θ * (g + 1) ≤ g)
+    (hW : W ≤ 4 * A0) (hA0 : A0 ≤ 2 * At + SEt) (hSE : g * SEt ≤ 2 * P) (hP0 : 0 ≤ P) (hP : P ≤ At)
+    (hQ : At - 1 / 2 * (θ * W) ≤ Q) : P / 2 ≤ Q := by
+  have hAt : 0 ≤ At := hP0.trans hP
+  have h1 : SEt ≤ 2 * At / g := by rw [le_div_iff₀ hg]; linarith
+  have h2 : θ * W ≤ 4 * (θ * A0) := by nlinarith [mul_le_mul_of_nonneg_left hW hθ]
+  have h3 : θ * A0 ≤ θ * (2 * At + SEt) := mul_le_mul_of_nonneg_left hA0 hθ
+  have h4 : θ * SEt ≤ θ * (2 * At / g) := mul_le_mul_of_nonneg_left h1 hθ
+  have h5 : 4 * θ * At + 4 * θ * (At / g) = At * (4 * θ * (g + 1) / g) := by field_simp
+  have h6 : 4 * θ * (g + 1) / g ≤ 1 / 2 := by rw [div_le_iff₀ hg]; linarith
+  have h7 : At * (4 * θ * (g + 1) / g) ≤ At * (1 / 2) := mul_le_mul_of_nonneg_left h6 hAt
+  have h8 : θ * (2 * At / g) = 2 * θ * (At / g) := by ring
+  nlinarith
+
+/-- **Absorption of the multiplier term (row 6).**  For `ℓ² |α| ≤ θ` with `8 θ (g + 1) ≤ g`,
+`g = ½ γ_LF c_D`, the Lagrangian quadratic form is at least `½ g L^{k(d-2)} t² ‖v‖²`. -/
+theorem quad_ge_half {D₀ : ℕ} (hd : 2 ≤ d) (hL : 2 ≤ L) (hϱ : 2 * (d : ℝ) * L ≤ ϱ) (hk : 1 ≤ k)
+    (ha : IsAdmissibleWeights k a) (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ)
+    (Z : Finset (Torus d (N₀ * L ^ (k - k)))) (hZ : (Z : Set (Torus d (N₀ * L ^ (k - k)))) = box b0 w)
+    (hwD : ∀ i, w i ≤ D₀) (hm : D₀ + 1 ≤ N₀ * L ^ (k - k)) (hn3 : 3 ≤ N₀ * L ^ (k - k))
+    (hΩ : OverTop G ((box b0 w : Set (Torus d (N₀ * L ^ (k - k)))) ∪
+      shellOut (box b0 w : Set (Torus d (N₀ * L ^ (k - k))))))
+    (v : SuppSpace Z N) (t : ℝ) {τ : G.Ω 1 × Fin N → ℂ} (hτ : ∀ (x : G.Ω 1) i, (τ (x, i)).im = 0)
+    {α : G.Ω 1 → ℂ} {θ : ℝ} (hα : Small G α θ) (hθ : 0 ≤ θ)
+    (hc : 8 * θ * (gamma0 d / 2 * cDirichlet D₀ + 1) ≤ gamma0 d / 2 * cDirichlet D₀) :
+    (gamma0 d / 2 * cDirichlet D₀) * (L : ℝ) ^ (k * (d - 2)) * (t ^ 2 * ‖v‖ ^ 2) / 2 ≤
+      action G a 0 ((bgZero G N).lineAt (topTangent G v) (t : ℂ)) τ +
+        1 / 2 * ∑ x : G.Ω 1, (α x).re * ∑ i, ‖τ (x, i)‖ ^ 2 := by
+  have hg : 0 < gamma0 d / 2 * cDirichlet D₀ := by
+    have h1 : 0 < gamma0 d := by unfold gamma0; have : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+                                 positivity
+    have h2 : 0 < cDirichlet D₀ := by unfold cDirichlet; positivity
+    positivity
+  have hZ' : (Z : Set (Torus d (N₀ * L ^ (k - k)))) = box b0 w := hZ
+  have hΩZ : OverTop G (Z : Set (Torus d (N₀ * L ^ (k - k)))) := by
+    intro x hx
+    exact hΩ x (Or.inl (by rw [← hZ']; exact hx))
+  have hΩ' : OverTop G ((Z : Set (Torus d (N₀ * L ^ (k - k)))) ∪ shellOut (Z : Set _)) := by
+    rw [hZ']; exact hΩ
+  have hEo : ∀ x, x ∉ G.Ω 1 → (topTangent G v).Ψ x = 0 := fun x hx => topTangent_zero_off hΩZ hk v hx
+  have hEh : ∀ x, (topTangent G v).h x = 0 := fun x => funext fun i => topTangent_h v x i
+  have hTop := action_top_ge (a := a) hd hL hϱ hk ha b0 w Z hZ hwD hm hn3 hΩ v t hτ
+  have hW := wsq_le_four_action (a := a) ha hτ
+  have hA0 := action_triangle (a := a) ha (topTangent G v) hEo hEh t τ
+  have hSE := normSqE_top (a := a) hd hk hΩZ v
+  have hak := (ha k hk le_rfl).2
+  have hs : 0 ≤ (L : ℝ) ^ (k * (d - 2)) := by positivity
+  have hα' := alpha_term_ge hα τ
+  have hge : 0 ≤ (gamma0 d / 2 * cDirichlet D₀) * (L : ℝ) ^ (k * (d - 2)) * (t ^ 2 * ‖v‖ ^ 2) := by positivity
+  have hSEb : (gamma0 d / 2 * cDirichlet D₀) * (t ^ 2 * normSqE a (topTangent G v)) ≤
+      2 * ((gamma0 d / 2 * cDirichlet D₀) * (L : ℝ) ^ (k * (d - 2)) * (t ^ 2 * ‖v‖ ^ 2)) := by
+    rw [hSE]
+    have := mul_le_mul_of_nonneg_right hak hge
+    nlinarith
+  have hQb : action G a 0 ((bgZero G N).lineAt (topTangent G v) (t : ℂ)) τ - 1 / 2 * (θ * wsq G τ) ≤
+      action G a 0 ((bgZero G N).lineAt (topTangent G v) (t : ℂ)) τ +
+        1 / 2 * ∑ x : G.Ω 1, (α x).re * ∑ i, ‖τ (x, i)‖ ^ 2 := by linarith
+  exact absorb_core hg hθ hc hW hA0 hSEb hge hTop hQb
+
 end Coerc
 
 end Balaban.LargeField
