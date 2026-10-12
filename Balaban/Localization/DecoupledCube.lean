@@ -200,4 +200,95 @@ theorem cubeBlockBounds_exists (hd : 3 ≤ d) (hL : 3 ≤ L) :
         hy' f hsupp hMf0 hMf hρ1 hsep1
       exact key.trans (mono _ _ (by linarith [hK1, hK2, hK3, hsc]) (decay_nonneg _ _) _ hF0)
 
+/-! ### The weighted form of (NC3) -/
+
+section Observables
+
+variable {n : ℕ}
+
+/-- Evaluation at a point, as a linear functional. -/
+noncomputable def evalLM (x : Torus d n) : (Torus d n → ℂ) →ₗ[ℂ] ℂ := LinearMap.proj x
+
+/-- The forward difference at `x` in the direction `μ`. -/
+noncomputable def gradLM (x : Torus d n) (μ : Fin d) : (Torus d n → ℂ) →ₗ[ℂ] ℂ :=
+  evalLM (x + Pi.single μ 1) - evalLM x
+
+/-- The discrete Laplacian at `x`. -/
+noncomputable def lapLM (x : Torus d n) : (Torus d n → ℂ) →ₗ[ℂ] ℂ :=
+  ∑ μ : Fin d, ((2 : ℂ) • evalLM x - evalLM (x + Pi.single μ 1) - evalLM (x - Pi.single μ 1))
+
+theorem evalLM_apply (x : Torus d n) (u : Torus d n → ℂ) : evalLM x u = u x := rfl
+
+theorem gradLM_apply (x : Torus d n) (μ : Fin d) (u : Torus d n → ℂ) :
+    gradLM x μ u = u (x + Pi.single μ 1) - u x := rfl
+
+theorem lapLM_apply (x : Torus d n) (u : Torus d n → ℂ) :
+    lapLM x u = ∑ μ : Fin d, (2 * u x - u (x + Pi.single μ 1) - u (x - Pi.single μ 1)) := by
+  unfold lapLM
+  rw [LinearMap.sum_apply]
+  simp [evalLM_apply]
+
+end Observables
+
+/-- **The weighted form of (NC3)** for the cube operator of the centre `q` (LOCALIZATION.md §3.1):
+for `f` supported in `□_z` with `w ℓ² |f| ≤ C`, `w` a weight of rate `γ_w`, the value, the forward
+gradient (at points with all forward neighbours in the cube) and the Laplacian (at points with all
+neighbours in the cube) of `u = H_z(A)⁻¹ f` satisfy `w · (…) ≤ B_w C`. -/
+theorem cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ Bw : ℝ, 0 ≤ Bw ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {q : ℕ × CTorus d L N₁ m₁ K}, q ∈ cubeIdx G →
+      ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
+      ∀ (f : G.Ω 1 → ℂ), (∀ z : G.Ω 1, f z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) →
+      ∀ {C : ℝ}, 0 ≤ C → (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
+        w x * ‖solExt G (cubeH G a ν α q)⁻¹ f x‖ ≤ Bw * C) ∧
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
+        (∀ ν' : Fin d, x + Pi.single ν' 1 ∈ box q) → ∀ μ : Fin d,
+        w x * (G.spacing x * ‖solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
+          solExt G (cubeH G a ν α q)⁻¹ f x‖) ≤ Bw * C) ∧
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
+        (∀ μ : Fin d, x + Pi.single μ 1 ∈ box q ∧ x - Pi.single μ 1 ∈ box q) →
+        w x * ((G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * solExt G (cubeH G a ν α q)⁻¹ f x -
+          solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
+          solExt G (cubeH G a ν α q)⁻¹ f (x - Pi.single μ 1))‖) ≤ Bw * C) := by
+  obtain ⟨Kc, hKc, hB⟩ := cubeBlockBounds_exists (d := d) (L := L) hd hL
+  refine ⟨Kc * Real.exp (2 * gammaW d * d) * countConst d L (agmonRate d / 2 - gammaW d),
+    ?_, ?_⟩
+  · have : 0 ≤ countConst d L (agmonRate d / 2 - gammaW d) :=
+      tsum_nonneg fun m => by positivity
+    positivity
+  intro N₁ m₁ K _ ϱ G a ν S α hα q hq w hw f hf C hC hfC
+  have hd0 : 0 < d := by omega
+  have hBq := hB G S hα hq
+  have hγ0 := gammaW_nonneg hd0
+  have hγlt := gammaW_lt hd0
+  have hρ := S.one_lt_rho
+  have hΛ := box_blockAligned S.aligned S.cover_sep (by omega) hq
+  refine ⟨fun {x} hxΩ hxb => ?_, fun {x} hxΩ hxb hxe μ => ?_, fun {x} hxΩ hxb hxe => ?_⟩
+  · have := weighted_sum_bound (G := G) (γ := gammaW d) (γ0 := agmonRate d / 2) (Kc := Kc) (s := 1)
+      hγ0 hγlt hKc zero_le_one hw (cubeH G a ν α q)⁻¹ (evalLM (n := (N₁ * L ^ m₁) * L ^ K) x) hxΩ hΛ hρ
+      S.sep_weight
+      (fun {j'} {y'} hj'1 hj'k hy' hy'b g hsupp {Mf} hMf0 hMf => by
+        have := ((hBq.bounds hj'1 hj'k hy' hy'b g hsupp hMf0 hMf).1 hxΩ hxb)
+        simpa [evalLM_apply] using this)
+      f hf hC hfC
+    simpa [evalLM_apply] using this
+  · have := weighted_sum_bound (G := G) (γ := gammaW d) (γ0 := agmonRate d / 2) (Kc := Kc)
+      (s := G.spacing x) hγ0 hγlt hKc (spacing_pos G).le hw (cubeH G a ν α q)⁻¹
+      (gradLM (n := (N₁ * L ^ m₁) * L ^ K) x μ) hxΩ hΛ hρ S.sep_weight
+      (fun {j'} {y'} hj'1 hj'k hy' hy'b g hsupp {Mf} hMf0 hMf => by
+        have := ((hBq.bounds hj'1 hj'k hy' hy'b g hsupp hMf0 hMf).2.1 hxΩ hxb hxe μ)
+        simpa [gradLM_apply] using this)
+      f hf hC hfC
+    simpa [gradLM_apply] using this
+  · have := weighted_sum_bound (G := G) (γ := gammaW d) (γ0 := agmonRate d / 2) (Kc := Kc)
+      (s := G.spacing x ^ 2) hγ0 hγlt hKc (by have := spacing_pos G (x := x); positivity) hw
+      (cubeH G a ν α q)⁻¹ (lapLM (n := (N₁ * L ^ m₁) * L ^ K) x) hxΩ hΛ hρ S.sep_weight
+      (fun {j'} {y'} hj'1 hj'k hy' hy'b g hsupp {Mf} hMf0 hMf => by
+        have := ((hBq.bounds hj'1 hj'k hy' hy'b g hsupp hMf0 hMf).2.2 hxΩ hxb hxe)
+        simpa [lapLM_apply] using this)
+      f hf hC hfC
+    simpa [lapLM_apply] using this
+
 end Balaban.Localization

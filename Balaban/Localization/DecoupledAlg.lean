@@ -78,6 +78,18 @@ theorem Inner.sub_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N�
   rw [e, ← sub_eq_add_neg] at this
   exact this
 
+theorem Inner.sub_add_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K}
+    (h : Inner q x) (μ ν : Fin d) : x - Pi.single μ 1 + Pi.single ν 1 ∈ box q := by
+  have := h (Pi.single ν 1 - Pi.single μ 1) (fun ρ => by
+    simp only [Pi.sub_apply, Pi.single_apply]
+    split_ifs <;> norm_num)
+  have e : x + (intTorus (Pi.single ν (1 : ℤ) - Pi.single μ 1) : CTorus d L N₁ m₁ K) =
+      x - Pi.single μ 1 + Pi.single ν 1 := by
+    funext ρ
+    simp only [Pi.add_apply, Pi.sub_apply, intTorus_apply, Pi.single_apply]
+    split_ifs <;> push_cast <;> ring
+  rwa [e] at this
+
 theorem Inner.noCut {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} (h : Inner q x) :
     NoCutAt (cubeCut G (box q)) x :=
   noCutAt_cubeCut (box q) h.self fun μ => ⟨h.add_single μ, h.sub_single μ⟩
