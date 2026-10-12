@@ -1270,6 +1270,7 @@ public import Balaban.Inhabited.HatExpansionWitnessLabels
 public import Balaban.Fluctuation.StepActivityHatRay
 public import Balaban.Fluctuation.StepActivityHat
 public import Balaban.Fluctuation.StepActivityHatBound
+public import Balaban.Fluctuation.StepActivityDirectBound
 public import Balaban.Fluctuation.StepActivityHatCor
 public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
@@ -1282,6 +1283,7 @@ public import Balaban.Inhabited.StepActivityHatWitness
 public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
+public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
