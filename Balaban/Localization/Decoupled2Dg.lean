@@ -27,7 +27,7 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
   {Kc Cx : ℝ} {α : H.Ω 1 → ℂ}
 
-theorem CoverBase.one_lt_rho (S : CoverBase C H a ν Kc Cx) : 1 < ϱ := by
+theorem OpSetting.one_lt_rho (S : OpSetting H a ν) : 1 < ϱ := by
   have hd : (3 : ℝ) ≤ d := by exact_mod_cast S.hd
   have hL : (3 : ℝ) ≤ L := by exact_mod_cast S.hL
   have hlog : 0 < Real.log L := Real.log_pos (by linarith)
@@ -40,7 +40,7 @@ theorem CoverBase.one_lt_rho (S : CoverBase C H a ν Kc Cx) : 1 < ϱ := by
   linarith
 
 
-theorem CoverBase.sep_pow (S : CoverBase C H a ν Kc Cx) {n : ℕ} (hn : (n : ℝ) ≤ d) :
+theorem OpSetting.sep_pow (S : OpSetting H a ν) {n : ℕ} (hn : (n : ℝ) ≤ d) :
     (L : ℝ) ^ n ≤ Real.exp (agmonRate d / 2 * (ϱ - 1)) := by
   have hL : (3 : ℝ) ≤ L := by exact_mod_cast S.hL
   have hlog : 0 < Real.log L := Real.log_pos (by linarith)
@@ -56,7 +56,7 @@ theorem CoverBase.sep_pow (S : CoverBase C H a ν Kc Cx) {n : ℕ} (hn : (n : �
 
 /-- The rate of the weights: `γ_w = ε₀ / 8` (one quarter of the decay rate `ε₀ / 2` of (NC2)). -/
 
-theorem CoverBase.sep_weight (S : CoverBase C H a ν Kc Cx) :
+theorem OpSetting.sep_weight (S : OpSetting H a ν) :
     2 * d * Real.log L ≤ (agmonRate d / 2 - gammaW d) / 2 * (ϱ - 1) := by
   have h := S.sep
   have hρ := S.one_lt_rho

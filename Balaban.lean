@@ -288,6 +288,7 @@ public import Balaban.Localization.Decoupled2Gs
 public import Balaban.Localization.Decoupled2Analytic
 public import Balaban.Localization.Decoupled2Local
 public import Balaban.Localization.Decoupled2Geometry
+public import Balaban.Localization.Decoupled2Close
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube

@@ -71,6 +71,9 @@ noncomputable def sProd (s : ℕ × CTorus d L N₁ m₁ K → ℂ) (q : ℕ × 
 noncomputable def chiField (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) : Fin 1 → ℂ :=
   fun _ => ((C.chi q x : ℝ) : ℂ)
 
+theorem sProd_one (q : ℕ × CTorus d L N₁ m₁ K) : C.sProd (fun _ => (1 : ℂ)) q = 1 := by
+  simp [sProd]
+
 /-- `|s_z| ≤ e^{N₀ κ₁}` if every `|s_P| ≤ e^{κ₁}` and `|𝒬(z)| ≤ N₀`. -/
 theorem norm_sProd_le {q : ℕ × CTorus d L N₁ m₁ K} (hcard : (C.Qset q).card ≤ N0 d L)
     {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {κ : ℝ} (hκ : 0 ≤ κ) (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) :

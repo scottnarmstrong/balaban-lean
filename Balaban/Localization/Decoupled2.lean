@@ -103,24 +103,25 @@ section Pair
 variable (C : DecCover d L N₁ m₁ K) (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ)
   (Kc Cx : ℝ)
 
-open Classical in
-/-- **The properties of the pair (cover `C`, operator `H`) used by (DG1)--(DG4).**
-
-Operator side: `hd`, `hL`, `mass`, `massLe`, `weights`, `sep` (the hypotheses of the Green's
-function bounds on `H`).  Pair side: `blockAligned` (every cover cube `□_z` is a union of
-`H`-blocks, so its cut is a valid cut of `H`), `nc` (the block bounds (NC3) of the cut operator
-`H_z(A)⁻¹`), `chi_unit`, `sum_chi` (partition of unity on `Ω₁(H)`), `chi_smooth` (the `H`-scaled
-derivative bounds on `χ_z`), `inner_near` (`supp χ_z` and the stencil: the interior of the cube),
-`card_box` (at most `3 · 5^d` cubes meet a point), `card_qset` (`|𝒬(z)| ≤ N₀`). -/
-structure CoverBase : Prop where
+/-- **The hypotheses on the operator `H` alone**: `d ≥ 3`, `L ≥ 3`, mass regime, admissible weights
+and the separation `ϱ ≥ R₀` of the Green's function bounds (the operator part of `DGSetting`). -/
+structure OpSetting (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) : Prop where
   hd : 3 ≤ d
   hL : 3 ≤ L
   mass : 0 ≤ ν
   massLe : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1
   weights : IsAdmissibleWeights K a
   sep : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)
-  Kc_nn : 0 ≤ Kc
-  Cx_nn : 0 ≤ Cx
+
+open Classical in
+/-- **The properties of the pair (cover `C`, operator `H`) used by (DG1)--(DG4).**
+
+Operator side: `OpSetting H a ν`.  Pair side: `blockAligned` (every cover cube `□_z` is a union of
+`H`-blocks, so its cut is a valid cut of `H`), `nc` (the block bounds (NC3) of the cut operator
+`H_z(A)⁻¹`), `chi_unit`, `sum_chi` (partition of unity on `Ω₁(H)`), `chi_smooth` (the `H`-scaled
+derivative bounds on `χ_z`), `inner_near` (`supp χ_z` and the stencil: the interior of the cube),
+`card_box` (at most `3 · 5^d` cubes meet a point), `card_qset` (`|𝒬(z)| ≤ N₀`). -/
+structure CoverBase : Prop extends OpSetting H a ν where
   blockAligned : ∀ q ∈ C.cubeIdx, BlockAligned H (intBox q)
   nc : ∀ {α : H.Ω 1 → ℂ}, AdmPot H α → ∀ q ∈ C.cubeIdx, CubeBlockBounds H a ν α q Kc
   chi_unit : ∀ q ∈ C.cubeIdx, ∀ {x z : CTorus d L N₁ m₁ K}, x ∈ H.Ω 1 →
