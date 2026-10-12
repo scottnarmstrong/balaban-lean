@@ -1108,6 +1108,7 @@ public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
 public import Balaban.SmallField.GsSpecAgree
 public import Balaban.SmallField.GsSpecClass
+public import Balaban.SmallField.GsSpecPoly
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
