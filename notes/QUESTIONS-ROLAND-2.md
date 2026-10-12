@@ -199,3 +199,33 @@ inductive hypothesis.
 Is (iii) what was intended? Two assertions needed for it are not in the printed argument: that the
 two boundary operators of P6 have a common domain of analyticity and locality on such supports (the
 analogue of (H7)), and that the labels can be summed uniformly at fixed support.
+
+### Item 14, second addendum (2026-10-12): old boundary terms in a new hole
+
+P6 (4.32)–(4.34), p. 34. P5 (1.38)–(1.39) gives an old boundary term B^(k)(X, A_k); P5 (2.47)–(2.48)
+leaves its A_k spins in X ∩ Ω_{k+1}^c as arguments, integrates the outer ultra-local Gaussian on
+Ω_{k+1} \ Ω''_{k+1}, and takes the main fluctuation expectation on Ω''_{k+1}. P6 (4.32) substitutes
+ψ^(k)_loc(θ) + β_k^{-1/2} C_loc^(k)1/2 ψ on B(3k+1) = Ω_{k+1}^(k).
+
+When Proposition 4.3 of P3 is applied to this term, are the localization parameters of cover cubes
+lying wholly in Ω_{k+1}^c absent from that composite after the prescribed local extension, or can
+the old/boundary Green function and background on W_k depend on them?
+
+(a) If they are absent: what cutoff radius, and what bound on the number of cover cubes meeting a
+    given cell, reduce the roots of the expansion to X ∩ Ω_{k+1}?
+(b) If they are present: which estimate pays for them? At fixed old size d_k(X mod Ω_k^c) the
+    cover constructed in the proof can have of order L^{k(d-2)} cubes of the lowest layer touching
+    the hole side of the cover of X (a flat old wall), and P6 (3.9) charges the new seed sets
+    P, Q, R, S, while (4.34) is a bound on each coefficient before that weight is attached.
+
+What we can prove: the spins of A_k in the hole do not depend on the parameters; the count of
+connected families of cover cubes rooted at the ACTIVE cells of X is uniform (degree 3(L+2)^d,
+at most 3^d (L^{m_0})^d cubes at an active cell); the sum over families at a fixed support then has
+the rate 2κ − 1 of (4.34). What is missing is exactly the statement that a family not rooted at an
+active cell contributes nothing, or is paid for.
+
+If the parameters are present (case (b)): does (4.32) admit an estimate of the mixed differences in
+the marked parameters with ONE propagation factor for each connected component of marked cubes not
+touching an active cell (on the polydisc of (H7)), and do all the parameter-dependent reads of the
+output lie in layer k of the old operator? A bound on a single Green-function entry, or (3.9), does
+not give either.
