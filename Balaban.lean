@@ -422,6 +422,16 @@ public import Balaban.SmallField.RenormIso
 public import Balaban.SmallField.RenormTheorem
 public import Balaban.SmallField.RenormTorus
 public import Balaban.SmallField.RenormGlobal
+public import Balaban.SmallField.RenormTermwiseDefs
+public import Balaban.SmallField.RenormTermwiseCtx
+public import Balaban.SmallField.RenormTermwiseBound
+public import Balaban.SmallField.RenormTermwiseIrrel
+public import Balaban.SmallField.RenormTermwiseSum
+public import Balaban.SmallField.RenormTermwiseProps
+public import Balaban.SmallField.RenormTermwiseAnalytic
+public import Balaban.SmallField.RenormTermwise
+public import Balaban.SmallField.RenormTermwiseCrude
+public import Balaban.SmallField.RenormTermwiseSub
 public import Balaban.SmallField.Xi
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
