@@ -57,6 +57,8 @@ public import Balaban.Polymer.Gas
 public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Size
 public import Balaban.Polymer.MayerPE
+public import Balaban.Polymer.GasOperator
+public import Balaban.Polymer.HoleOperator
 public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerMarked
@@ -290,6 +292,12 @@ public import Balaban.Localization.DecoupledLocal
 public import Balaban.Localization.DecoupledClose
 public import Balaban.Localization.BoxConn
 public import Balaban.Localization.DecoupledGeometry
+public import Balaban.Localization.DecoupledField
+public import Balaban.Localization.DecoupledSolve
+public import Balaban.Localization.DecoupledOne
+public import Balaban.Localization.DecoupledSolveAnalytic
+public import Balaban.Localization.DecoupledFieldLocal
+public import Balaban.Localization.DecoupledFieldClose
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
