@@ -253,7 +253,7 @@ theorem CoverSymm.intBox_eq (q : ℕ × CTorus d L N₁ m₁ K) :
 
 /-- The transported decoupling parameters `s ∘ τ⁻¹`. -/
 def CoverSymm.par (s : Dec2.DecParams C) : Dec2.DecParams C := fun P =>
-  s ⟨CS.τ.symm P.1, (CS.idx _).1 (by simpa using P.2)⟩
+  s ⟨CS.τ.symm P.1, (CS.idx _).1 (by simp)⟩
 
 theorem CoverSymm.extS_par (s : Dec2.DecParams C) (P : ℕ × CTorus d L N₁ m₁ K) :
     Dec2.extS C (CS.par s) P = Dec2.extS C s (CS.τ.symm P) := by

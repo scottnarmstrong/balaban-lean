@@ -232,6 +232,32 @@ theorem dphi_sym {𝒢 𝒢' : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ
   rw [h0, h𝒢, Fsrc_sym S, liftOp_rm S]
   simp [LatSymm.fld]
 
+/-- **Covariance of the perturbation source under a lattice symmetry.** -/
+theorem pertSource_sym (a : ℕ → ℝ) (δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ) (f₁ : G.Ω 1 × Fin N → ℂ)
+    (x : G.Ω 1) (i : Fin N) :
+    pertSource G a (symSite σ δΨ) (S.fld f₁) (S.Ω1Equiv x, i) = pertSource G a δΨ f₁ (x, i) := by
+  simp only [pertSource, Pi.add_apply, qStar, boundaryTerm, LatSymm.coe_Ω1Equiv, S.layerIndex_eq,
+    symSite, Equiv.symm_apply_apply, LatSymm.fld_apply]
+  congr 2
+  rw [← Equiv.sum_comp S.perm]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  have := S.bdry_swap (fun z => if z ∈ collar G then δΨ (σ.symm z) i else 0) x μ
+  simp only [S.mem_collar, Equiv.symm_apply_apply] at this
+  convert this using 2 <;> congr
+
+theorem dphi_sym_gen {𝒢 𝒢' : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ}
+    (h𝒢 : ∀ α, 𝒢' (S.mul α) = rm S.Ω1Equiv (𝒢 α)) (α₀ : G.Ω 1 → ℂ)
+    (φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ) (Fs : G.Ω 1 × Fin N → ℂ) (δα : G.Ω 1 → ℂ) :
+    dphi G 𝒢' (S.mul α₀) (symSite σ φ₀) (S.fld Fs) (S.mul δα) =
+      S.fld (dphi G 𝒢 α₀ φ₀ Fs δα) := by
+  funext ⟨y, i⟩
+  obtain ⟨x, rfl⟩ := S.Ω1Equiv.surjective y
+  unfold dphi
+  have h0 : S.mul α₀ + S.mul δα = S.mul (α₀ + δα) := by
+    funext z; simp [LatSymm.mul]
+  rw [h0, h𝒢, Fsrc_sym S, liftOp_rm S]
+  simp [LatSymm.fld]
+
 end Fixed
 
 section Bg
@@ -349,6 +375,29 @@ theorem decBg2_sym (ρ : ℝ) (s : Dec2.DecParams C) (D : BgData H N) :
     unfold Dec2.decBgMult
     rw [← this]
     split_ifs <;> simp [h0']
+
+theorem fluctFixed_sym_iff (s : Dec2.DecParams C) (ιU : Bool) (α₀ : H.Ω 1 → ℂ)
+    (φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ) (f₁ : H.Ω 1 × Fin N → ℂ) (δα : H.Ω 1 → ℂ) :
+    Dec2.DecFixed C H a ν (CS.par s) ιU (S.mul α₀) (symSite σ φ₀)
+        (pertSource H a (symSite σ δΨ) (S.fld f₁)) (S.mul δα) ↔
+      Dec2.DecFixed C H a ν s ιU α₀ φ₀ (pertSource H a δΨ f₁) δα := by
+  have hP : pertSource H a (symSite σ δΨ) (S.fld f₁) = S.fld (pertSource H a δΨ f₁) := by
+    funext ⟨y, i⟩
+    obtain ⟨x, rfl⟩ := S.Ω1Equiv.surjective y
+    rw [pertSource_sym S, LatSymm.fld_apply]
+  unfold Dec2.DecFixed
+  rw [hP, dphi_sym_gen S (decG2_sym S CS s) α₀, ← rm_dirichlet S]
+  constructor
+  · intro h
+    funext x
+    have := congrFun h (S.Ω1Equiv x)
+    rw [Nmap_sym S, LatSymm.mul_apply] at this
+    exact this
+  · intro h
+    funext y
+    obtain ⟨x, rfl⟩ := S.Ω1Equiv.surjective y
+    rw [Nmap_sym S, LatSymm.mul_apply]
+    exact congrFun h x
 
 end Bg
 

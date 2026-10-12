@@ -198,6 +198,19 @@ theorem dphi_rot (R : Matrix (Fin N) (Fin N) ℂ) (𝒢 : (G.Ω 1 → ℂ) → M
 
 end Nmap
 
+/-- **Covariance of the perturbation source** `F_s = Q* a δΨ + 𝔟(δΨ) + f₁`. -/
+theorem pertSource_rot {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (R : Matrix (Fin N) (Fin N) ℂ)
+    (a : ℕ → ℝ) (δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ) (f₁ : H.Ω 1 × Fin N → ℂ) :
+    pertSource H a (rotSite R δΨ) (rotFld R f₁) = rotFld R (pertSource H a δΨ f₁) := by
+  funext p
+  simp only [pertSource, qStar, boundaryTerm, rotFld, rotSite, Matrix.mulVec, dotProduct,
+    Finset.mul_sum, mul_add, Finset.sum_add_distrib, Pi.add_apply]
+  refine congrArg₂ _ (congrArg₂ _ (Finset.sum_congr rfl fun i _ => by ring) (congrArg₂ _ ?_ ?_))
+    rfl <;>
+  · rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun μ _ => ?_
+    split_ifs <;> simp
+
 /-! ### The fixed point system and the decoupled background field -/
 
 section Bg
@@ -306,6 +319,25 @@ theorem decBg2_rot {R : Matrix (Fin N) (Fin N) ℂ} (hR : Rᵀ * R = 1) (ρ : �
   choose_rot hR (P := fun p => Dec2.IsDecBg C H a ν ρ s D p.1 p.2)
     (Q := fun p => Dec2.IsDecBg C H a ν ρ s (D.rot R) p.1 p.2)
     (fun p => (isDecBg2_rot_iff hR ρ s D p.1 p.2).symm)
+
+/-- **`O(N)` covariance of the fluctuation problem of Theorem I-4a** (cover `C`, operator `H`): the
+fixed point equation `δα = 𝒩_s(δα)` with the data `(α₀, φ₀, δΨ, f₁)` is equivalent to the one for the
+rotated data `(α₀, R φ₀, R δΨ, R f₁)`; the multiplier `α` is a scalar and does not rotate. -/
+theorem fluctFixed_rot_iff {R : Matrix (Fin N) (Fin N) ℂ} (hR : Rᵀ * R = 1)
+    (s : Dec2.DecParams C) (ιU : Bool) (α₀ : H.Ω 1 → ℂ) (φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ)
+    (f₁ : H.Ω 1 × Fin N → ℂ) (δα : H.Ω 1 → ℂ) :
+    Dec2.DecFixed C H a ν s ιU α₀ (rotSite R φ₀)
+        (pertSource H a (rotSite R δΨ) (rotFld R f₁)) δα ↔
+      Dec2.DecFixed C H a ν s ιU α₀ φ₀ (pertSource H a δΨ f₁) δα := by
+  rw [pertSource_rot]; exact dec2Fixed_rot_iff hR s ιU α₀ φ₀ _ δα
+
+/-- The fluctuation field `δφ(δα)` rotates with the data. -/
+theorem fluctField_rot (R : Matrix (Fin N) (Fin N) ℂ) (s : Dec2.DecParams C)
+    (α₀ : H.Ω 1 → ℂ) (φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ) (f₁ : H.Ω 1 × Fin N → ℂ)
+    (δα : H.Ω 1 → ℂ) :
+    dphi H (Dec2.decG C H a ν s) α₀ (rotSite R φ₀) (pertSource H a (rotSite R δΨ) (rotFld R f₁)) δα =
+      rotFld R (dphi H (Dec2.decG C H a ν s) α₀ φ₀ (pertSource H a δΨ f₁) δα) := by
+  rw [pertSource_rot, dphi_rot]
 
 end Dec2Cover
 

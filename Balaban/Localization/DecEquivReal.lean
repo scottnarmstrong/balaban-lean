@@ -300,6 +300,29 @@ theorem dphi_conj {𝒢 𝒢' : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) �
   funext q
   exact Fsrc_conj hφ hF δα q
 
+/-- **Conjugation of `δφ(δα)`** for a real `α₀`, for Green families compatible with conjugation. -/
+theorem dphi_conj_gen {𝒢 𝒢' : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ}
+    (h𝒢 : ∀ α, cjm (𝒢 α) = 𝒢' (fun x => cj (α x))) {α₀ : G.Ω 1 → ℂ}
+    (hα₀ : ∀ x, cj (α₀ x) = α₀ x) {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    (hφ : ∀ x, IsRealVec (φ₀ x)) {Fs : G.Ω 1 × Fin N → ℂ} (hF : ∀ p, cj (Fs p) = Fs p)
+    (δα : G.Ω 1 → ℂ) (p : G.Ω 1 × Fin N) :
+    cj (dphi G 𝒢 α₀ φ₀ Fs δα p) = dphi G 𝒢' α₀ φ₀ Fs (fun x => cj (δα x)) p := by
+  unfold dphi
+  rw [cj_liftOp_mulVec, h𝒢]
+  have e1 : (fun x => cj ((α₀ + δα) x)) = α₀ + fun x => cj (δα x) := by
+    funext x; simp [hα₀]
+  rw [e1]
+  congr 2
+  funext q
+  exact Fsrc_conj hφ hF δα q
+
+/-- **Reality of the perturbation source** for real `δΨ`, `f₁`. -/
+theorem pertSource_real {δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ} (hΨ : ∀ x, IsRealVec (δΨ x))
+    {f₁ : G.Ω 1 × Fin N → ℂ} (hf : ∀ p, cj (f₁ p) = f₁ p) (a : ℕ → ℝ) (p : G.Ω 1 × Fin N) :
+    cj (pertSource G a δΨ f₁ p) = pertSource G a δΨ f₁ p := by
+  simp only [pertSource, Pi.add_apply, qStar, boundaryTerm, map_add, map_mul, map_sum,
+    Complex.conj_ofReal, apply_ite (starRingEnd ℂ), map_zero, hΨ _ _, hf]
+
 end FixedPoint
 
 /-! ### Reality of the decoupled background field -/
@@ -381,6 +404,53 @@ theorem decBg2_real {ρ : ℝ} {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = s 
     · have := congrFun (congrArg Prod.snd e) x
       simpa [Dec2.decBgMult, Hh] using this
   · refine ⟨fun p => ?_, fun x => ?_⟩ <;> simp [Dec2.decBgField, Dec2.decBgMult, Hh]
+
+theorem fluctFixed_conj {s : Dec2.DecParams C} (ιU : Bool) {α₀ : H.Ω 1 → ℂ}
+    (hα₀ : ∀ x, cj (α₀ x) = α₀ x) {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    (hφ : ∀ x, IsRealVec (φ₀ x)) (hΨ : ∀ x, IsRealVec (δΨ x)) {f₁ : H.Ω 1 × Fin N → ℂ}
+    (hf : ∀ p, cj (f₁ p) = f₁ p) {δα : H.Ω 1 → ℂ}
+    (h : Dec2.DecFixed C H a ν s ιU α₀ φ₀ (pertSource H a δΨ f₁) δα) :
+    Dec2.DecFixed C H a ν (fun P => cj (s P)) ιU α₀ φ₀ (pertSource H a δΨ f₁)
+      (fun x => cj (δα x)) := by
+  have hF : ∀ p, cj (pertSource H a δΨ f₁ p) = pertSource H a δΨ f₁ p :=
+    pertSource_real hΨ hf a
+  have hH : cjm (dirichletOperator H a ν α₀) = dirichletOperator H a ν α₀ := by
+    rw [cjm_dirichlet]; congr 1; funext x; exact hα₀ x
+  have h𝒢 := fun β => decG2_conj (C := C) (H := H) (a := a) (ν := ν) s β
+  unfold Dec2.DecFixed at h ⊢
+  funext x
+  have e := congrFun h x
+  have := Nmap_conj hH ιU hφ hF (dphi H (Dec2.decG C H a ν s) α₀ φ₀ (pertSource H a δΨ f₁) δα) x
+  rw [e] at this
+  have hd : dphi H (Dec2.decG C H a ν (fun P => cj (s P))) α₀ φ₀ (pertSource H a δΨ f₁)
+      (fun x => cj (δα x)) =
+      fun p => cj (dphi H (Dec2.decG C H a ν s) α₀ φ₀ (pertSource H a δΨ f₁) δα p) :=
+    funext fun p => (dphi_conj_gen h𝒢 hα₀ hφ hF δα p).symm
+  rw [hd]
+  exact this.symm
+
+/-- **Reality of the fluctuation problem of Theorem I-4a**: for real data and real parameters
+the solution `δα` (the unique fixed point in a ball) and the field `δφ(δα)` are real. -/
+theorem fluct_real {s : Dec2.DecParams C} (hs : ∀ P, cj (s P) = s P) (ιU : Bool)
+    {α₀ : H.Ω 1 → ℂ} (hα₀ : ∀ x, cj (α₀ x) = α₀ x) {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    (hφ : ∀ x, IsRealVec (φ₀ x)) (hΨ : ∀ x, IsRealVec (δΨ x)) {f₁ : H.Ω 1 × Fin N → ℂ}
+    (hf : ∀ p, cj (f₁ p) = f₁ p) {r : ℝ} {δα : H.Ω 1 → ℂ}
+    (hfix : Dec2.DecFixed C H a ν s ιU α₀ φ₀ (pertSource H a δΨ f₁) δα) (hsm : Small H δα r)
+    (huniq : ∀ δα' : H.Ω 1 → ℂ, Small H δα' r →
+      Dec2.DecFixed C H a ν s ιU α₀ φ₀ (pertSource H a δΨ f₁) δα' → δα' = δα) :
+    (∀ x, cj (δα x) = δα x) ∧
+      ∀ p, cj (dphi H (Dec2.decG C H a ν s) α₀ φ₀ (pertSource H a δΨ f₁) δα p) =
+        dphi H (Dec2.decG C H a ν s) α₀ φ₀ (pertSource H a δΨ f₁) δα p := by
+  have hs' : (fun P => cj (s P)) = s := funext hs
+  have hfix' := fluctFixed_conj (C := C) (H := H) (a := a) (ν := ν) (s := s) ιU hα₀ hφ hΨ hf hfix
+  rw [hs'] at hfix'
+  have hδ : (fun x => cj (δα x)) = δα := huniq _ (small_conj hsm) hfix'
+  refine ⟨fun x => congrFun hδ x, fun p => ?_⟩
+  have h𝒢 := fun β => decG2_conj (C := C) (H := H) (a := a) (ν := ν) s β
+  rw [hs'] at h𝒢
+  have hF : ∀ p, cj (pertSource H a δΨ f₁ p) = pertSource H a δΨ f₁ p :=
+    pertSource_real hΨ hf a
+  rw [dphi_conj_gen h𝒢 hα₀ hφ hF δα p, hδ]
 
 end Dec2Cover
 
