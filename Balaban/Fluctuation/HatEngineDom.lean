@@ -163,6 +163,18 @@ theorem decDom_of_isDecBg {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   · have := hC.phi_lt; nlinarith
   · unfold decDomMargin at hmar; nlinarith
 
+/-- **The `XSetting` bridge** (target 2): the standing hypotheses of the decoupled covariance
+`XSetting Gp (compWeight L a₁) aT ν` follow from `FlCore` and `1 ≤ k`, with the top-layer
+coefficient `aT = a₁` (the weight `a_1` of the new layer, as in `StepSetting.covSqrt`); the bounds
+`aT ∈ [1/2, 2]` are the admissibility `a_1 ∈ [1/2, 2]` of the weights `compWeight L a₁`. -/
+theorem xSetting_of_flCore {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) :
+    XSetting Gp (compWeight L a₁) a₁ ν := by
+  have hL : 2 ≤ L := by have := hC.Sp.hL; omega
+  have h := hC.Sp.weights 1 le_rfl (by omega)
+  rw [compWeight_one hL] at h
+  exact ⟨hC.Sp, hk, h.1, h.2⟩
+
 end Dom
 
 end Balaban.Localization
