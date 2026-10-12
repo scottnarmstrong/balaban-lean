@@ -783,6 +783,7 @@ public import Balaban.LargeField.R.PsiZeroHessCoerc
 public import Balaban.LargeField.R.PsiZeroHessInput
 public import Balaban.LargeField.R.PsiZeroHessRef
 public import Balaban.LargeField.R.PsiZeroFinal
+public import Balaban.LargeField.R.PsiZeroHessCounter
 public import Balaban.LargeField.R.PsiZeroSmooth
 public import Balaban.LargeField.R.PsiZeroSolve
 public import Balaban.LargeField.R.PsiZeroSpace
