@@ -47,6 +47,7 @@ codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and com
   fields for the mixed pairs (OPEN-NC3-MIXED-WALL, OPEN-EMBED-MIXED, OPEN-BLOCKCOUNT-MINIMAL). Tag VMOD3.
 - astra-rgfree: followup2.txt — RGFREE-3.md: FREE-LOC, SWITCH-LOC, SWITCH-H7. Tag RGFREE3.
 - astra-fluctfix: followup2.txt — FLUCTUATION v2.2: Theorem 3.1(f) in full. Tag FLUCTFIX3.
+- astra-basek (new, prompt.txt): BASE-KERNEL.md — k=0 kernel factor list, C^{(0)}, H, b₀, baseMainAction, (S5), proofs of II.7.7/II.7.8 (unblocks queued item 9). Tag BASEK.
 If a session shows "Selected model is at capacity", resend the one-line pointer message.
 Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t S Enter`
 (long pastes get truncated — always point to a file).
