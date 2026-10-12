@@ -319,6 +319,7 @@ public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
+public import Balaban.LargeField.Background.MinimalGenSet
 public import Balaban.SmallField.TaylorCauchy
 public import Balaban.SmallField.RenormDefs
 public import Balaban.SmallField.RenormRot
