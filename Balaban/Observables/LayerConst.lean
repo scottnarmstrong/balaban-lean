@@ -107,4 +107,18 @@ theorem Gk_longitudinal {v : Fin N → ℝ} (D : BgData (topGS d L N₁ m₁ k �
 
 end Const
 
+omit [NeZero L] [NeZero N₁] in
+/-- Complexification of the transversality `hᵀ G = 0` of Lemma 2.1 (item 3): a real matrix with
+`vᵀ A = 0` has `vᵀ A_ℂ = 0`.  With `Gker j x x' (h, h) = (gaussKernel H C x x')_ℂ` this gives the
+hypothesis `hG` of `Gk_longitudinal`. -/
+theorem vecMul_map_ofReal {v : Fin N → ℝ} {A : Matrix (Fin N) (Fin N) ℝ}
+    (h : Matrix.vecMul v A = 0) :
+    Matrix.vecMul (fun i => (v i : ℂ)) (A.map (fun r : ℝ => (r : ℂ))) = 0 := by
+  ext l
+  have h1 := congrFun h l
+  simp only [Matrix.vecMul, dotProduct, Pi.zero_apply] at h1 ⊢
+  have h2 : ((∑ i, v i * A i l : ℝ) : ℂ) = 0 := by rw [h1]; simp
+  push_cast at h2
+  simpa only [Matrix.map_apply] using h2
+
 end Balaban.Observables

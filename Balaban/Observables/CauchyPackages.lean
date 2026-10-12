@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Observables.Cauchy
-public import Balaban.SmallField.Def6Terms
+public import Balaban.SmallField.Def6
 
 /-!
 # `g`-derivatives of inherited packages (OBSERVABLES.md §3.2, Lemma 3.2)
@@ -265,5 +265,16 @@ theorem norm_D2_pkg_le {β e : ℝ} (hβ : 1 ≤ β) (he : 0 ≤ e) {n : ℕ} (h
     _ = 32 * (β⁻¹ * e) := by rw [← h3]; ring
 
 end Packages
+
+section Def6Link
+
+open Balaban.SmallField.Def6
+
+/-- The seminorm is `Def6.l1`, and `srcBall` is the domain `{‖g‖₁ < 1}` of the analytic clauses of
+Def-6 (`IsSF.analyticM`) and of the identification (O4). -/
+theorem srcBall_eq_l1 {d L N₁ m₁ k n : ℕ} [NeZero L] [NeZero N₁] :
+    (srcBall : Set (Fld d L N₁ m₁ k n)) = {g | l1 g < 1} := rfl
+
+end Def6Link
 
 end Balaban.Observables

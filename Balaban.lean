@@ -546,3 +546,4 @@ public import Balaban.Observables.LayerSums
 public import Balaban.Observables.LayerDictionary
 public import Balaban.Observables.LayerFirstOrder
 public import Balaban.Observables.LayerConst
+public import Balaban.Observables.LayerDictionaryBound
