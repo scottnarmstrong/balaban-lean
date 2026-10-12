@@ -502,3 +502,5 @@ public import Balaban.Fluctuation.CriticalPointGauss
 public import Balaban.Fluctuation.CriticalPoint
 public import Balaban.Fluctuation.ExpansionGauss
 public import Balaban.Fluctuation.Expansion
+public import Balaban.Fluctuation.ExpansionDomain
+public import Balaban.Fluctuation.ExpansionQuad
