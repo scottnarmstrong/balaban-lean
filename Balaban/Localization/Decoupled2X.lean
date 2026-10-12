@@ -37,17 +37,17 @@ noncomputable def Kzx (a : ℕ → ℝ) (aT x ν : ℝ) (q : ℕ × CTorus d L N
     Matrix (H.Ω 1) (H.Ω 1) ℂ :=
   chiD C H q * xDirichletOperator H a aT x ν 0 - xDirichletOperator H a aT x ν 0 * chiD C H q
 
-/-- `H*_{x,s}(A) = ∑_z s_z χ_z H^{(z)}_x(A) c_z`. -/
+/-- `G*_{x,s}(A) = ∑_z s_z χ_z G^{(z)}_x(A) c_z`. -/
 noncomputable def Gstarx (a : ℕ → ℝ) (aT x ν : ℝ) (α : H.Ω 1 → ℂ)
     (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) : Matrix (H.Ω 1) (H.Ω 1) ℂ :=
   ∑ q ∈ C.cubeIdx, C.sProd s q • (chiD C H q * cubeGx H a aT x ν α q)
 
-/-- `𝒦_{x,s}(A) = ∑_z s_z K^x_z H^{(z)}_x(A) c_z`. -/
+/-- `𝒦_{x,s}(A) = ∑_z s_z K^x_z G^{(z)}_x(A) c_z`. -/
 noncomputable def Kcalx (a : ℕ → ℝ) (aT x ν : ℝ) (α : H.Ω 1 → ℂ)
     (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) : Matrix (H.Ω 1) (H.Ω 1) ℂ :=
   ∑ q ∈ C.cubeIdx, C.sProd s q • (Kzx C H a aT x ν q * cubeGx H a aT x ν α q)
 
-/-- **The x-variant decoupled Green's operator** `G_{k,x,s}(A) = H*_{x,s}(A) (1 - 𝒦_{x,s}(A))⁻¹`. -/
+/-- **The x-variant decoupled Green's operator** `G_{k,x,s}(A) = G*_{x,s}(A) (1 - 𝒦_{x,s}(A))⁻¹`. -/
 noncomputable def Gsx (a : ℕ → ℝ) (aT x ν : ℝ) (α : H.Ω 1 → ℂ)
     (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) : Matrix (H.Ω 1) (H.Ω 1) ℂ :=
   Gstarx C H a aT x ν α s * (1 - Kcalx C H a aT x ν α s)⁻¹
@@ -107,7 +107,7 @@ theorem cubeGx_supp (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ 
     (f := cD H q *ᵥ f) (fun w hw => by rw [cD_mulVec]; simp [hw])
     (cubeHx_cubeGx S hα hx hq f) z hz
 
-/-- **`χ_z H_{k,x} H^{(z)}_x c_z = χ_z`.** -/
+/-- **`χ_z H_{k,x} G^{(z)}_x c_z = χ_z`.** -/
 theorem chiD_xDirichlet_cubeGx (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ C.cubeIdx) :
     chiD C H q * xDirichletOperator H a aT x ν α * cubeGx H a aT x ν α q = chiD C H q := by
@@ -212,7 +212,7 @@ theorem parametrix_algebra_x (a : ℕ → ℝ) (aT x ν : ℝ) (α : H.Ω 1 → 
   simp only [DecCover.sProd, Finset.prod_const_one, one_smul]
   rw [Finset.mul_sum, Finset.sum_congr rfl h1, Finset.sum_sub_distrib, hsum]
 
-/-- **The parametrix identity** `H_{k,x}(A) H*_{x,1}(A) = 1 - 𝒦_{x,1}(A)`. -/
+/-- **The parametrix identity** `H_{k,x}(A) G*_{x,1}(A) = 1 - 𝒦_{x,1}(A)`. -/
 theorem parametrix_x (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x) :
     xDirichletOperator H a aT x ν α * Gstarx C H a aT x ν α (fun _ => 1) =
       1 - Kcalx C H a aT x ν α (fun _ => 1) :=

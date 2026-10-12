@@ -95,7 +95,7 @@ theorem chi_mem_Icc (S : XCover C H a aT ν Cx) {q : ℕ × CTorus d L N₁ m₁
     (hq : q ∈ C.cubeIdx) (z : H.Ω 1) : 0 ≤ C.chi q z ∧ C.chi q z ≤ 1 :=
   S.chi_unit q hq z.2 (Or.inl rfl)
 
-/-- The zero extension of `H*_{x,s} g` is `∑_q s_q χ_q ũ_q`. -/
+/-- The zero extension of `G*_{x,s} g` is `∑_q s_q χ_q ũ_q`. -/
 theorem zeroExt_Gstarx (g : H.Ω 1 → ℂ) (z : CTorus d L N₁ m₁ (k + 1)) :
     zeroExt (H.Ω 1) (Gstarx C H a aT x ν α s *ᵥ g) z =
       ∑ q ∈ C.cubeIdx, C.sProd s q * (((C.chi q z : ℝ) : ℂ) *

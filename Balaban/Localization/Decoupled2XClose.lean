@@ -30,7 +30,7 @@ theorem xDirichlet_isUnit (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 
     (AdmPot.le_eighth' S.hd hα)
 
 /-- **The algebraic identity behind (DG6)**:
-`(G_s - G_D) f = (H*_s - H*_1) g + G_D (𝒦_s - 𝒦_1) g`, `g = (1 - 𝒦_s)⁻¹ f`. -/
+`(G_s - G_D) f = (G*_s - G*_1) g + G_D (𝒦_s - 𝒦_1) g`, `g = (1 - 𝒦_s)⁻¹ f`. -/
 theorem Gsx_sub_Gd (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
     (hU : IsUnit (1 - Kcalx C H a aT x ν α s)) (f : H.Ω 1 → ℂ) :
     Gsx C H a aT x ν α s *ᵥ f - (xDirichletOperator H a aT x ν α)⁻¹ *ᵥ f =
@@ -72,7 +72,7 @@ theorem Gsx_one (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
     rw [← Matrix.mul_assoc, hpar, Matrix.mul_nonsing_inv _ hdetK]
   exact (Matrix.inv_eq_right_inv h1).symm
 
-/-- `(H*_s - H*_1) g` vanishes off `W`. -/
+/-- `(G*_s - G*_1) g` vanishes off `W`. -/
 theorem Gstarx_diff_zero (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
     {W : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hW : ∀ z ∈ C.cubeIdx, C.sProd s z ≠ 1 → intBox z ⊆ W) (g : H.Ω 1 → ℂ)

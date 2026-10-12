@@ -25,7 +25,7 @@ variable {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁)
   {Kc Cx : ℝ} {α : H.Ω 1 → ℂ}
 
 
-/-- `H*_s g = ∑_z s_z χ_z ũ_z` pointwise on the whole torus (zero extension). -/
+/-- `G*_s g = ∑_z s_z χ_z ũ_z` pointwise on the whole torus (zero extension). -/
 theorem Gstar_apply (s : ℕ × CTorus d L N₁ m₁ K → ℂ) (g : H.Ω 1 → ℂ)
     (y : CTorus d L N₁ m₁ K) :
     zeroExt (H.Ω 1) (Gstar C H a ν α s *ᵥ g) y =
@@ -265,7 +265,7 @@ theorem perq_bounds (S : CoverBase C H a ν Kc Cx) (hCx : 0 ≤ Cx) {q : ℕ × 
             linarith
           nlinarith
 
-/-- Only the centres whose interaction cube has `x` in its interior contribute to `H*_s g` at
+/-- Only the centres whose interaction cube has `x` in its interior contribute to `G*_s g` at
 `x` and its neighbours. -/
 theorem Gstar_repr (S : CoverBase C H a ν Kc Cx) (α : H.Ω 1 → ℂ) (s : ℕ × CTorus d L N₁ m₁ K → ℂ)
     (g : H.Ω 1 → ℂ) (x : H.Ω 1) :

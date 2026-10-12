@@ -89,7 +89,7 @@ theorem dirichlet_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
     simpa [lapLM_apply] using this
 
 /-- **The algebraic identity behind (DG6)**:
-`(G_s - G_D) f = (H*_s - H*_1) g + G_D (𝒦_s - 𝒦_1) g`, `g = (1 - 𝒦_s)⁻¹ f`. -/
+`(G_s - G_D) f = (G*_s - G*_1) g + G_D (𝒦_s - 𝒦_1) g`, `g = (1 - 𝒦_s)⁻¹ f`. -/
 theorem Gs_sub_Gd (S : CoverBase C H a ν Kc Cx) (hα : AdmPot H α) {s : ℕ × CTorus d L N₁ m₁ K → ℂ}
     (hU : IsUnit (1 - Kcal C H a ν α s)) (f : H.Ω 1 → ℂ) :
     Gs C H a ν α s *ᵥ f - (dirichletOperator H a ν α)⁻¹ *ᵥ f =
@@ -129,7 +129,7 @@ theorem cubeSolE_eq_zero_of_not_mem_box (S : CoverBase C H a ν Kc Cx) (hα : Ad
     exact h
   · exact cubeSolE_of_not_mem q g hyΩ
 
-/-- `(H*_s - H*_1) g` vanishes off `W`. -/
+/-- `(G*_s - G*_1) g` vanishes off `W`. -/
 theorem Gstar_diff_zero (S : CoverBase C H a ν Kc Cx) (hα : AdmPot H α)
     {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {W : Finset (CTorus d L N₁ m₁ K)}
     (hW : ∀ z ∈ C.cubeIdx, C.sProd s z ≠ 1 → intBox z ⊆ W) (g : H.Ω 1 → ℂ)

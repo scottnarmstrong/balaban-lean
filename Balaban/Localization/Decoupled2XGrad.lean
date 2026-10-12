@@ -300,7 +300,7 @@ theorem gradP_le (S : XCover C H a aT ν Cx) {q : ℕ × CTorus d L N₁ m₁ (k
   exact hsum
 
 
-/-! ### The overlap at a bond and the gradient of `H*_{x,s} g` -/
+/-! ### The overlap at a bond and the gradient of `G*_{x,s} g` -/
 
 
 variable {κ : ℝ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {ε : ℝ}
