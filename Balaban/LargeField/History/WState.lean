@@ -179,6 +179,18 @@ structure BookRule {ι : Type*} (μ : ℕ) (win : Prop) (parts : Finset ι) (f :
   clock_pt_other : b'.pt → ¬ (r = 0 ∧ ∃ i, parts = {i} ∧ (f i).pt) → b'.s = μ
   state : win → S.StateRule μ parts f r b'.pt b'.s b'.st
 
+theorem BookRule.toTrue {ι : Type*} {μ : ℕ} {win : Prop} {parts : Finset ι} {f : ι → Book} {r : ℕ}
+    {b' : Book} (h : S.BookRule μ win parts f r b') (hw : win) :
+    S.BookRule μ True parts f r b' :=
+  { len_nonneg := h.len_nonneg
+    pt_len := h.pt_len
+    len_gen := h.len_gen
+    shadow := h.shadow
+    clock_np := h.clock_np
+    clock_pt_shadow := h.clock_pt_shadow
+    clock_pt_other := h.clock_pt_other
+    state := fun _ => h.state hw }
+
 end Setting
 
 end Balaban.LargeField
