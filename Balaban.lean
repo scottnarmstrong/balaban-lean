@@ -1153,6 +1153,10 @@ public import Balaban.LargeField.R.DenominatorSqueeze
 public import Balaban.LargeField.R.Denominator
 public import Balaban.LargeField.R.Rop
 public import Balaban.LargeField.R.RopNorm
+public import Balaban.LargeField.R.RopConcreteDecomp
+public import Balaban.LargeField.R.RopConcreteLocal
+public import Balaban.LargeField.R.RopConcreteNorm
+public import Balaban.LargeField.R.RopConcrete
 public import Balaban.LargeField.R.DenominatorRot
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
