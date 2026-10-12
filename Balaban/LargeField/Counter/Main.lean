@@ -76,7 +76,7 @@ theorem window_budget {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [
       G.pre_step H (k := k) (by omega) hk0 c (fun i hi => by
         have := G.window_inv H k hk (by omega) (by omega) i
         exact ⟨this.2.1, this.2.2⟩)
-        (fun i hi => hpost i ((H.mem_parts k i c).mp hi).1)
+        (fun i hi => hpost i ((H.mem_parts k i c).mp hi).fst)
     refine ⟨hpre, fun c hc => ?_⟩
     exact G.post_of_pre H (by omega) hk0 c hc
       ((G.window_inv H (k + 1) (by omega) hk0 hkK c).1) (hpre c)
@@ -95,7 +95,7 @@ theorem frozen_budget {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [
     obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
     exact G.frozen_step H hKk hH1 hH2 hkk0 hkK Z'
       (fun i _ => H.len_nonneg_succ (by omega) i)
-      (fun i hi => ih i ((H.mem_parts _ i Z').mp hi).1)
+      (fun i hi => ih i ((H.mem_parts _ i Z').mp hi).fst)
   by_cases hk0 : 1 ≤ k0
   · intro k hkk0
     induction k, hkk0 using Nat.le_induction with

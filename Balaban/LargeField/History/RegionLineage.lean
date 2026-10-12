@@ -40,7 +40,7 @@ components at the scales `j, …, j+t-1`. -/
 inductive AncRel : (j t : ℕ) → H.Comp j → H.Comp (j + t) → Prop
   | refl (j : ℕ) (Y : H.Comp j) : AncRel j 0 Y Y
   | step (j t : ℕ) (Y : H.Comp j) (Y' : H.Comp (j + t)) (Y'' : H.Comp (j + t + 1)) :
-      AncRel j t Y Y' → Y'.1 ∉ H.rem (j + t) → H.succ (j + t) Y' = Y'' → AncRel j (t + 1) Y Y''
+      AncRel j t Y Y' → (h : Y'.1 ∉ H.rem (j + t)) → H.succ (j + t) Y' h = Y'' → AncRel j (t + 1) Y Y''
 
 /-- The lineage `Lin_j(Z)`: the union of the ancestors of `Z` at scale `j`. -/
 def lineage (j t : ℕ) (Z : H.Comp (j + t)) : Set (Torus S.d (n j)) :=
@@ -116,9 +116,9 @@ theorem lineage_eq_inter (j t : ℕ) (Z : H.Comp (j + t)) :
       obtain ⟨Y', hY', hyY'⟩ := mem_comp_self (ω := S.omega (j + t)) (mem_finOf.mpr hZpre)
       have hrem : Y' ∉ H.rem (j + t) := (H.mem_Z_iff (Y := ⟨Y', hY'⟩) hyY').mp hZt
       have hx : blockMap S.L (n (j + t + 1)) (cm (S := S) (n := n) t j y) ∈
-          (H.succ (j + t) ⟨Y', hY'⟩).1 := H.succ_spec (j + t) hrem ⟨_, hyY', rfl⟩
-      have hsucc : H.succ (j + t) ⟨Y', hY'⟩ = Z :=
-        Subtype.ext (comp_eq_of_mem (H.succ (j + t) ⟨Y', hY'⟩).2 Z.2 hx hy)
+          (H.succ (j + t) ⟨Y', hY'⟩ hrem).1 := H.succ_spec (j + t) hrem ⟨_, hyY', rfl⟩
+      have hsucc : H.succ (j + t) ⟨Y', hY'⟩ hrem = Z :=
+        Subtype.ext (comp_eq_of_mem (H.succ (j + t) ⟨Y', hY'⟩ hrem).2 Z.2 hx hy)
       have hmem : y ∈ H.lineage j t ⟨Y', hY'⟩ := by
         rw [ih ⟨Y', hY'⟩]
         exact ⟨⟨hZov.1, fun s hs => hZov.2 s (by omega)⟩, hyY'⟩
