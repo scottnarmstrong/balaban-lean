@@ -459,6 +459,8 @@ public import Balaban.SmallField.Def6BridgeGeom
 public import Balaban.SmallField.Def6InfPaving
 public import Balaban.SmallField.Def6InfBasic
 public import Balaban.SmallField.Def6InfSum
+public import Balaban.SmallField.Def6BridgeInfDict
+public import Balaban.SmallField.Def6BridgeInfLift
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Ancestors
