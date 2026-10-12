@@ -1,0 +1,25 @@
+import Balaban.Observables.ImprovedConst
+
+namespace Balaban.Observables
+
+open Balaban Balaban.Multiscale Balaban.Localization Balaban.SmallField Balaban.SmallField.Def6
+
+/-- A nonzero constant-field observable response is incompatible with the
+landed `IsObs` class in its mass-free regime. -/
+theorem vacuity3_obs_massFree_nonzero_impossible
+    {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+    {P : Consts} {Q : ObsConsts} {β ν a : ℕ → ℝ}
+    {Tm : Terms d L N₁ m₁ k N ϱ} {Ot : ObsTerms d L N₁ m₁ k N}
+    {Gker : ℕ → CTorus d L N₁ m₁ k → CTorus d L N₁ m₁ k →
+      Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → Matrix (Fin N) (Fin N) ℂ}
+    {ρd : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℝ} {j : ℕ} {ρ : ℝ}
+    (hO : IsObs P Q β ν a Tm Ot Gker)
+    (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) (hmf : β k * ν k ≤ 1)
+    (x : CTorus d L N₁ m₁ k) (i₀ : Fin N) (w : Fin N → ℂ)
+    (hne : Mobs P.m₀ Ot j x (constFld (Pi.single i₀ 1 : Fin N → ℂ))
+      (constFld w) ≠ 0) : False := by
+  exact hne (Mobs_const_eq_zero_massFree hO ctx hmf x i₀ w)
+
+end Balaban.Observables

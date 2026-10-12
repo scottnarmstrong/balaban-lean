@@ -1,0 +1,25 @@
+import Balaban.Fluctuation.Theorem42Input
+
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Localization Balaban.Multiscale
+
+/-- Even for a nonempty cube family, the published zero-response witness
+has identically zero cube action and zero total action. -/
+theorem vacuity3_response_zero_nonempty_cubes
+    {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ j : ℕ)
+    {ι : Type*} [DecidableEq ι] [Fintype ι]
+    (c : ι → ℕ × CTorus d L N₁ m₁ K)
+    {U : Type*} [NormedAddCommGroup U] [NormedSpace ℂ U]
+    (b : CTorus d L N₁ m₁ K) (S : Set U) (κ₁ : ℝ)
+    (Ag : Finset ι → U → U → Prop) (u : U) :
+    Nonempty (DecoupledCubeResponse G m₀ j c {b} S κ₁ 0 Ag
+      (fun _ _ => 0) (fun _ _ _ => 0)) ∧
+      (∑ q ∈ ({b} : Finset (CTorus d L N₁ m₁ K)),
+        (fun _ (_ : U) => (0 : ℂ)) q u) = 0 := by
+  constructor
+  · exact DecoupledCubeResponse.nonempty_zero {b} S κ₁ Ag
+  · simp
+
+end Balaban.Fluctuation

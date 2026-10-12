@@ -41,7 +41,7 @@ theorem exists_site_of_block {d L N₀ k j : ℕ} [NeZero N₀] [NeZero L] (hjk 
 block. -/
 theorem exists_chain_of_window (hkK : k ≤ K) (hL : 2 ≤ S.L)
     (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j) (hW : H.RipeWindow k Z) (hk0 : k ≤ k0)
-    (hq1 : 1 ≤ (H.bk k Z).q) (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
     {j : ℕ} (hjk : j < k) {y : BlockV S.d S.L (S.M * n k) k}
     (hy : IsWindowBlock (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k)) (S.k1 k) y)
     (hyj : y.1 = j) :
@@ -56,7 +56,7 @@ theorem exists_chain_of_window (hkK : k ≤ K) (hL : 2 ≤ S.L)
   set G := H.locGen Z S.M hkK hL hR with hG
   have hS := H.F.ok
   have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
-  have hkk1 : 1 ≤ S.k1 k := by rw [hqk1]; exact hq1
+  have hkk1 : 1 ≤ S.k1 k := hW.k1_pos hkK
   have hk1j : S.k1 k ≤ j := by
     obtain ⟨hh1, -, -⟩ := hy; rw [hyj] at hh1; exact hh1
   have hkq : S.k1 k < k := by
@@ -69,7 +69,7 @@ theorem exists_chain_of_window (hkK : k ≤ K) (hL : 2 ≤ S.L)
   subst hyj
   obtain ⟨x0, hx0b⟩ := exists_site_of_block (d := S.d) (L := S.L) (N₀ := S.M * n k) hjk.le b
   have hxs : x0 ∈ BlockV.sites (⟨j', b⟩ : BlockV S.d S.L (S.M * n k) k) := hx0b
-  obtain ⟨N, p, hN, hp0, hadj, hwin, hpE, hpZ⟩ := path_avoids_obstacles hkK hL hR hW hk0 hq1 hT hjk hy rfl hxs
+  obtain ⟨N, p, hN, hp0, hadj, hwin, hpE, hpZ⟩ := path_avoids_obstacles hkK hL hR hW hk0 hT hjk hy rfl hxs
   -- block constancy of the core and of the component
   have hnn := hnn_k H hkK
   have hblk : ∀ x x' : Torus S.d (S.M * n k * S.L ^ k),
@@ -129,7 +129,7 @@ most `d L c δ_i` along cross edges from layer `i + 1` to layer `i`, where `δ` 
 hypotheses of Lemma III.4.4 (`IsAdmDelta`), then `dist (ψ y) (ψ x_p) < Ŵ_k c δ_j`. -/
 theorem lemmaCH (hkK : k ≤ K) (hL : 2 ≤ S.L)
     (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j) (hW : H.RipeWindow k Z) (hk0 : k ≤ k0)
-    (hq1 : 1 ≤ (H.bk k Z).q) (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
     {ε : ℝ} {δ : ℕ → ℝ} (hδ : IsAdmDelta S.d S.L ε (S.k1 k) k δ) {c : ℝ} (hc : 0 < c)
     {E : Type*} [PseudoMetricSpace E] (ψ : BlockV S.d S.L (S.M * n k) k → E)
     (hψintra : ∀ u v, IsChainVertex (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k))
@@ -154,7 +154,7 @@ theorem lemmaCH (hkK : k ≤ K) (hL : 2 ≤ S.L)
       dist (ψ y) (ψ (x len)) < S.hatW ε k * c * δ j := by
   classical
   obtain ⟨len, x, hx0, hwin, hterm, hadj, hinj⟩ :=
-    exists_chain_of_window hkK hL hR hW hk0 hq1 hT hjk hy hyj
+    exists_chain_of_window hkK hL hR hW hk0 hT hjk hy hyj
   refine ⟨len, x, hx0, hwin, hterm, hadj, hinj, ?_⟩
   have hS := H.F.ok
   have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
@@ -239,7 +239,6 @@ theorem hT_forms (hS : S.Ok) {j : ℕ}
 Lemma III.1.2 derived from the ripeness of `Z`, under the source hypothesis (H-T). -/
 theorem lemmaCH_of_ripe (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L)
     (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j) (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z))
-    (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
     {ε : ℝ} {δ : ℕ → ℝ} (hδ : IsAdmDelta S.d S.L ε (S.k1 k) k δ) {c : ℝ} (hc : 0 < c)
     {E : Type*} [PseudoMetricSpace E] (ψ : BlockV S.d S.L (S.M * n k) k → E)
@@ -266,7 +265,7 @@ theorem lemmaCH_of_ripe (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L)
   have hS := H.F.ok
   have hW : H.RipeWindow k Z :=
     ripe_window hG (fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).1) hk0 hkK hrip
-  exact lemmaCH hkK hL hR hW hk0 hq1 (fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).2) hδ hc ψ
+  exact lemmaCH hkK hL hR hW hk0 (fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).2) hδ hc ψ
     hψintra hψcross hjk hy hyj
 
 end RegionHistory
