@@ -79,6 +79,14 @@ section Cubes
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
+/-- The sites of `Ω₁` in the set `B` lie in `Y`. -/
+def SubI (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (B Y : Finset (CTorus d L N₁ m₁ K)) : Prop :=
+  ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ B → (x : CTorus d L N₁ m₁ K) ∈ Y
+
+/-- The sites of `Ω₁` in the set `B` lie outside `Y`. -/
+def DisjI (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (B Y : Finset (CTorus d L N₁ m₁ K)) : Prop :=
+  ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ B → (x : CTorus d L N₁ m₁ K) ∉ Y
+
 open Classical in
 /-- The multiplication by the indicator of a set `Y` of sites. -/
 noncomputable def indY (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (Y : Finset (CTorus d L N₁ m₁ K)) :
@@ -105,23 +113,23 @@ theorem cD_mul_self (q : ℕ × CTorus d L N₁ m₁ K) : cD G q * cD G q = cD G
   congr 1; funext x; split_ifs <;> simp
 
 theorem cD_mul_indY_of_subset {q : ℕ × CTorus d L N₁ m₁ K} {Y : Finset (CTorus d L N₁ m₁ K)}
-    (h : box q ⊆ Y) : cD G q * indY G Y = cD G q := by
+    (h : SubI G (box q) Y) : cD G q * indY G Y = cD G q := by
   classical
   unfold cD indY
   rw [Matrix.diagonal_mul_diagonal]
   congr 1; funext x
   by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ box q
-  · simp [hx, h hx]
+  · simp [hx, h x hx]
   · simp [hx]
 
 theorem cD_mul_indY_of_disjoint {q : ℕ × CTorus d L N₁ m₁ K} {Y : Finset (CTorus d L N₁ m₁ K)}
-    (h : Disjoint (box q) Y) : cD G q * indY G Y = 0 := by
+    (h : DisjI G (box q) Y) : cD G q * indY G Y = 0 := by
   classical
   unfold cD indY
   rw [Matrix.diagonal_mul_diagonal, ← Matrix.diagonal_zero]
   congr 1; funext x
   by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ box q
-  · have : (x : CTorus d L N₁ m₁ K) ∉ Y := fun hy => Finset.disjoint_left.1 h hx hy
+  · have : (x : CTorus d L N₁ m₁ K) ∉ Y := h x hx
     simp [hx, this]
   · simp [hx]
 
@@ -130,22 +138,22 @@ def RowSupp (M : Matrix (G.Ω 1) (G.Ω 1) ℂ) (B : Finset (CTorus d L N₁ m₁
   ∀ (f : G.Ω 1 → ℂ) (x : G.Ω 1), (x : CTorus d L N₁ m₁ K) ∉ B → (M *ᵥ f) x = 0
 
 theorem indY_mul_of_rowSupp {M : Matrix (G.Ω 1) (G.Ω 1) ℂ} {B Y : Finset (CTorus d L N₁ m₁ K)}
-    (hM : RowSupp M B) (h : B ⊆ Y) : indY G Y * M = M := by
+    (hM : RowSupp M B) (h : SubI G B Y) : indY G Y * M = M := by
   refine matrix_ext_mulVec fun f => ?_
   funext x
   rw [← Matrix.mulVec_mulVec, indY_mulVec]
   by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ B
-  · simp [h hx]
+  · simp [h x hx]
   · rw [hM f x hx]; simp
 
 theorem indY_mul_of_rowSupp_disjoint {M : Matrix (G.Ω 1) (G.Ω 1) ℂ}
-    {B Y : Finset (CTorus d L N₁ m₁ K)} (hM : RowSupp M B) (h : Disjoint B Y) :
+    {B Y : Finset (CTorus d L N₁ m₁ K)} (hM : RowSupp M B) (h : DisjI G B Y) :
     indY G Y * M = 0 := by
   refine matrix_ext_mulVec fun f => ?_
   funext x
   rw [← Matrix.mulVec_mulVec, indY_mulVec]
   by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ Y
-  · have : (x : CTorus d L N₁ m₁ K) ∉ B := fun hb => Finset.disjoint_left.1 h hb hx
+  · have : (x : CTorus d L N₁ m₁ K) ∉ B := fun hb => h x hb hx
     simp [hx, hM f x this]
   · simp [hx]
 
@@ -208,7 +216,7 @@ open Classical in
 /-- The centres whose interaction cube lies inside `Y`. -/
 noncomputable def innerCentres (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     (Y : Finset (CTorus d L N₁ m₁ K)) : Finset (ℕ × CTorus d L N₁ m₁ K) :=
-  (cubeIdx G).filter fun q => box q ⊆ Y
+  (cubeIdx G).filter fun q => SubI G (box q) Y
 
 /-- If every summand either lives inside `Y` (commutes with `P`) or is annihilated by `P` on both
 sides, then the sum commutes with `P` and `P (∑ B) = ∑_{inner} B`. -/
@@ -233,7 +241,7 @@ theorem sum_block_facts {Y : Finset (CTorus d L N₁ m₁ K)} (B : ℕ × CTorus
 theorem blk_conditions {Y : Finset (CTorus d L N₁ m₁ K)} {s : ℕ × CTorus d L N₁ m₁ K → ℂ}
     (M : ℕ × CTorus d L N₁ m₁ K → Matrix (G.Ω 1) (G.Ω 1) ℂ)
     (hM : ∀ q ∈ cubeIdx G, RowSupp (M q) (box q) ∧ M q * cD G q = M q)
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → box q ⊆ Y ∨ Disjoint (box q) Y) :
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y) :
     (∀ q ∈ innerCentres G Y, indY G Y * (sProd G s q • M q) = sProd G s q • M q ∧
       (sProd G s q • M q) * indY G Y = sProd G s q • M q) ∧
     (∀ q ∈ cubeIdx G, q ∉ innerCentres G Y →
@@ -254,7 +262,7 @@ theorem blk_conditions {Y : Finset (CTorus d L N₁ m₁ K)} {s : ℕ × CTorus 
     obtain ⟨h1, h2⟩ := hM q hq
     by_cases hc : sProd G s q = 0
     · simp [hc]
-    · have hdis : Disjoint (box q) Y := by
+    · have hdis : DisjI G (box q) Y := by
         rcases hdich q hq hc with h | h
         · exact absurd (Finset.mem_filter.2 ⟨hq, h⟩) hnq
         · exact h
@@ -275,8 +283,8 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
     {s s' : ℕ × CTorus d L N₁ m₁ K → ℂ}
     (hU : IsUnit (1 - Kcal G a ν α s)) (hU' : IsUnit (1 - Kcal G a ν α' s'))
     (hdich : ∀ q ∈ cubeIdx G, (sProd G s q ≠ 0 ∨ sProd G s' q ≠ 0) →
-      box q ⊆ Y ∨ Disjoint (box q) Y)
-    (hagree : ∀ q ∈ cubeIdx G, box q ⊆ Y → sProd G s q = sProd G s' q)
+      SubI G (box q) Y ∨ DisjI G (box q) Y)
+    (hagree : ∀ q ∈ cubeIdx G, SubI G (box q) Y → sProd G s q = sProd G s' q)
     (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → α x = α' x)
     {f f' : G.Ω 1 → ℂ} (hf : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → f x = f' x) :
     ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y →
@@ -301,9 +309,9 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
       Kz G a ν q * cubeG G a ν α' q * cD G q = Kz G a ν q * cubeG G a ν α' q := by
     intro q hq
     exact ⟨rowSupp_Kz_cubeG S hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
-  have hd1 : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → box q ⊆ Y ∨ Disjoint (box q) Y :=
+  have hd1 : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y :=
     fun q hq hc => hdich q hq (Or.inl hc)
-  have hd2 : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → box q ⊆ Y ∨ Disjoint (box q) Y :=
+  have hd2 : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y :=
     fun q hq hc => hdich q hq (Or.inr hc)
   obtain ⟨hKin, hKout⟩ := blk_conditions (s := s) _ hMK hd1
   obtain ⟨hKin', hKout'⟩ := blk_conditions (s := s') _ hMK' hd2
@@ -318,12 +326,12 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
       ∑ q ∈ innerCentres G Y, sProd G s' q • (Kz G a ν q * cubeG G a ν α' q) := by
     refine Finset.sum_congr rfl fun q hq => ?_
     have hq' := Finset.mem_filter.1 hq
-    rw [hagree q hq'.1 hq'.2, cubeG_congr S hα hα' hq'.1 (fun z hz => hA z (hq'.2 hz))]
+    rw [hagree q hq'.1 hq'.2, cubeG_congr S hα hα' hq'.1 (fun z hz => hA z (hq'.2 z hz))]
   have hinnerX : ∑ q ∈ innerCentres G Y, sProd G s q • (chiD G q * cubeG G a ν α q) =
       ∑ q ∈ innerCentres G Y, sProd G s' q • (chiD G q * cubeG G a ν α' q) := by
     refine Finset.sum_congr rfl fun q hq => ?_
     have hq' := Finset.mem_filter.1 hq
-    rw [hagree q hq'.1 hq'.2, cubeG_congr S hα hα' hq'.1 (fun z hz => hA z (hq'.2 hz))]
+    rw [hagree q hq'.1 hq'.2, cubeG_congr S hα hα' hq'.1 (fun z hz => hA z (hq'.2 z hz))]
   set P := indY G Y with hPdef
   have hKdef : Kcal G a ν α s = ∑ q ∈ cubeIdx G, sProd G s q • (Kz G a ν q * cubeG G a ν α q) := rfl
   have hKdef' : Kcal G a ν α' s' =
