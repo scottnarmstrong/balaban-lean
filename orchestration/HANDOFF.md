@@ -13,7 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W165 (Opus) | `w165-v2-i6` / W165 | I-6 + renormalization for the v2 class (scheme A) |
-| W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
+| W166 | `w166-window-fix` / W166 | remove vacuous psiZeroSpec_of_input; settle hbl |
 | W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
 | W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
