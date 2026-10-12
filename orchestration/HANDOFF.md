@@ -7,6 +7,23 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
 
+## RESTART POINT (2026-10-12 ~10:00 UTC, Scott restarting the session for fresh quota)
+
+Claude workers were told to wrap up: commit compiling, sorry-free work to their branches and write
+`/home/scott/Balaban-scratch/W<nn>_HANDOFF.md`. Their worktrees stay in place:
+| Worker | Branch / worktree | Task (brief = its ledger row + this file) |
+|---|---|---|
+| W83 | `w83-reynolds` / Balaban-worktrees/W83 | Reynolds average over paving offsets → full I-6 Premises from Def-6 |
+| W88 | `w88-complex-g1` / Balaban-worktrees/W88 | det∘exp, complex log det, Lemma 2.4(a) complex |
+| W89 | `w89-weighted51` / Balaban-worktrees/W89 | WeightedProp51 → Lemma 4.1 unconditional; Lemma 3.5 analyticity |
+| W90 (Opus) | `w90-i6-aniso` / Balaban-worktrees/W90 | anisotropic I-6 per notes/phase1/I6-ANISO.md |
+| W91 | `w91-dec2-locality` / Balaban-worktrees/W91 | VMOD-4 locality interface on Dec2 |
+To resume: for each, read `W<nn>_HANDOFF.md`, inspect the branch (`git -C <worktree> log`, diff vs
+main); if the committed part is clean and useful, land it with the landing procedure (merge main +
+full build happens inside land.sh), then relaunch a fresh worker for the remainder in the same worktree
+(merge main first). astra sessions (tmux) were NOT stopped — they run on codex-1 and continue; collect
+their outputs (tags BASEK2, VMOD5, RGFREE5, KF0F, FLUCTIX4, VACUITY2) as they finish.
+
 ## Landing procedure (unchanged; NEW: every new hypothesis structure must come with a `Nonempty` witness)
 
 1. Read the worker's handoff; `git diff --stat origin/main...HEAD`, grep new files for
