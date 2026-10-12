@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.Thm31Avg
+public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.StepObjects
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -34,121 +34,29 @@ namespace Balaban.Fluctuation
 open Balaban Balaban.Localization Balaban.Polymer Balaban.Multiscale Balaban.Background
   MeasureTheory
 
-section Split
+section Marks
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 /-- **The block structure of `ν_{p₁}`** (Theorem 3.4): the fluctuation variable `ψ̂` of the unit
 lattice splits into its restrictions to the `π_{k+1}`-cubes `b` of `Ω = 𝕋`, and `ν_{p₁}` is the
-product of the probability measures `ν_b`. -/
-structure BlockSplit (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) where
-  /-- the space of the variables of a block -/
-  Ωb : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ → Type
-  [ms : ∀ b, MeasurableSpace (Ωb b)]
-  /-- the block measures `ν_b` -/
-  μ : ∀ b, Measure (Ωb b)
-  [prob : ∀ b, IsProbabilityMeasure (μ b)]
-  /-- the restriction `ψ̂ ↦ (ψ̂|_b)_b` -/
-  restr : S.E → ∀ b, Ωb b
-  meas : Measurable restr
-  map_eq : Measure.map restr S.nuFl = Measure.pi μ
-
-attribute [instance] BlockSplit.ms BlockSplit.prob
-
-/-- Expectations in the interpolating measure are Theorem-3.4 averages. -/
-theorem avgFun_eq_avgPi {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ} (BS : BlockSplit S m₀)
-    {Lb : Type*} [Fintype Lb] (W : ℝ → S.E → ℂ) (f : S.E → ℂ) (s : ℝ)
-    (H : Lb → (∀ b, BS.Ωb b) → ℂ) (G : (∀ b, BS.Ωb b) → ℂ)
-    (hHm : ∀ y, Measurable (H y)) (hGm : Measurable G)
-    (hW : ∀ᵐ x ∂S.nuFl, W s x = ∑ y, H y (BS.restr x))
-    (hf : ∀ᵐ x ∂S.nuFl, f x = G (BS.restr x)) :
-    avgFun S.nuFl W f s =
-      avgPi (K := k + 1) (j := k + 1) (Ω := Set.univ) BS.μ H G := by
-  have hmeas : Measurable (fun Φ : ∀ b, BS.Ωb b => Complex.exp (∑ y, H y Φ)) :=
-    Complex.measurable_exp.comp (Finset.measurable_sum _ fun y _ => hHm y)
-  have hZ : partFun S.nuFl W s = ∫ Φ, Complex.exp (∑ y, H y Φ) ∂(Measure.pi BS.μ) := by
-    rw [← BS.map_eq, integral_map BS.meas.aemeasurable hmeas.aestronglyMeasurable]
-    unfold partFun
-    refine integral_congr_ae ?_
-    filter_upwards [hW] with x hx
-    rw [hx]
-  have hN : ∫ x, f x * Complex.exp (W s x) ∂S.nuFl =
-      ∫ Φ, G Φ * Complex.exp (∑ y, H y Φ) ∂(Measure.pi BS.μ) := by
-    rw [← BS.map_eq, integral_map (f := fun Φ => G Φ * Complex.exp (∑ y, H y Φ))
-      BS.meas.aemeasurable (hGm.mul hmeas).aestronglyMeasurable]
-    refine integral_congr_ae ?_
-    filter_upwards [hW, hf] with x hx hfx
-    rw [hx, hfx]
-  unfold avgFun avgPi
-  rw [hZ, hN]
-
-end Split
-
-
-section Marks
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-
-theorem isPiUnion_univ_step (m₀ j : ℕ) :
-    IsPiUnion (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (Ω := Set.univ) m₀ j :=
-  fun z _ => ⟨cbase (cellSide L m₀ m₁ j) z, aligned_cbase z,
-    mem_box_cbase (cellSide_pos (L := L) m₀ m₁ j) z, Set.subset_univ _⟩
+product of the probability measures `ν_b` (typing datum; `ProdSplit` is inhabited, see
+`nonempty_prodSplit`). -/
+abbrev BlockSplit (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) : Type _ :=
+  ProdSplit S.nuFl d L N₁ m₁ (k + 1) m₀
 
 /-- **Proposition 3.3 for the actual step, in the fluctuation variable `ψ̂`, for the integrand of
 `ℰ₁^{(k+1)}(z)`** (§3.5 (a)): the exponent `W₁(s,ψ̂)` of `μ_{s,0}` and the mark
 `DΦ₁(sψ')[1_{B(z)}ψ']` are, for `s ∈ [0,1]` and `ν_{p₁}`-a.e. `ψ̂`, the sums of the block-local
 terms `H(Y; s, ψ̂)` and `G(Y₀; s, ψ̂)` (functions of `ψ̂|_{Y∩Ω}`, bounded by `ε_U e^{-κ_U 𝗱(Y)}`,
 resp. `F₀ e^{-κ_G 𝗱(Y₀)}`), holomorphic in the interpolation parameter `s` on an open set
-`𝒰 ⊃ [0,1]`; together with the numerical hypotheses of Theorem 3.4.  The labels have the entropy
-bound `∑_{Y ∋ b} e^{-κ₀𝗱(Y)} ≤ K₀` (`LabelAct.entropy`). -/
-structure E1Marks (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {m₀ : ℕ}
-    (BS : BlockSplit S m₀) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) where
-  Lb : Type
-  [fin : Fintype Lb]
-  Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ Lb
-  ι : Type
-  [finι : Fintype ι]
-  nonempty : Nonempty ι
-  εH : ℝ
-  κH : ℝ
-  κG : ℝ
-  κ0 : ℝ
-  κ' : ℝ
-  Kc : ℝ
-  F0 : ι → ℝ
-  hN : L ^ m₀ ∣ N₁
-  𝒰 : Set ℂ
-  isOpen : IsOpen 𝒰
-  seg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰
-  A : ℂ → LabelAct Lab BS.Ωb εH κH κ0 Kc
-  y0 : ι → Lb
-  G : ι → ℂ → (∀ b, BS.Ωb b) → ℂ
-  meas : ∀ i u, Measurable (G i u)
-  dep : ∀ i u, DepOn (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i))) (G i u)
-  bound : ∀ i u Φ, ‖G i u Φ‖ ≤ F0 i * Real.exp (-κG * Lab.dl (y0 i))
-  holA : ∀ y Φ, DifferentiableOn ℂ (fun u => (A u).H y Φ) 𝒰
-  holG : ∀ i Φ, DifferentiableOn ℂ (fun u => G i u Φ) 𝒰
-  hκ0 : aEnt d L + 1 ≤ κ0
-  hKc : K0 d L κ0 + 1 ≤ Kc
-  hεpos : 0 < εH
-  hF0 : ∀ i, 0 < F0 i
-  hκ' : 0 ≤ κ'
-  hκG : κH ≤ κG
-  hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH
-  hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
-    Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L))
-  /-- `W₁(s,ψ̂) = ∑_Y H(Y; s, ψ̂)`. -/
-  hW : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
-    S.Wone C s x = ∑ y, (A (s : ℂ)).H y (BS.restr x)
-  /-- `DΦ₁(sψ')[1_{B(z)}ψ'] = ∑_{Y₀} G(Y₀; s, ψ̂)`. -/
-  hF : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
-    (fderiv ℝ (S.Phi1 C) (s • S.shiftU x)) (S.maskU z (S.shiftU x)) =
-      ∑ i, G i (s : ℂ) (BS.restr x)
-
-attribute [instance] E1Marks.fin E1Marks.finι
+`𝒰 ⊃ [0,1]`; together with the numerical hypotheses of Theorem 3.4 (`InterpMarks`). -/
+abbrev E1Marks (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {m₀ : ℕ}
+    (BS : BlockSplit S m₀) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) : Type _ :=
+  InterpMarks S.nuFl BS (S.Wone C) (fun s x =>
+    (fderiv ℝ (S.Phi1 C) (s • S.shiftU x)) (S.maskU z (S.shiftU x)))
 
 end Marks
-
 
 section Thm
 
@@ -159,31 +67,16 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 open Classical in
 /-- **The interpolation integral `ℰ₁^{(k+1)}(z)` has a localization expansion** (§3.5 (a)),
 conditional on `E1Marks` (Proposition 3.3 in the variable `ψ̂`): `ℰ₁(z) = ∑_S E(S)` over the sets
-`S` of `π_{k+1}`-cubes, `E(S) = ∫₀¹ ∑_{Y₀} G*(Y₀,S)(s) ds`, with
-`|E(S)| ≤ C_PE (∑_{Y₀} F₀ e^{-κ₀𝗱(Y₀)}) e^{-κ' d_Ω(S)}`. -/
+`S` of `π_{k+1}`-cubes, with `|E(S)| ≤ C_PE (∑_{Y₀} F₀ e^{-κ₀𝗱(Y₀)}) e^{-κ' d_Ω(S)}`. -/
 theorem e1loc_expansion_of_input (I : E1Marks S C BS z) :
-    S.E1loc C z = ∑ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
-        (k + 1) Set.univ), (∫ s in (0 : ℝ)..1,
-      Gsum BS.μ I.Lab (I.A (s : ℂ)).H I.y0 (fun i => I.G i (s : ℂ)) T) ∧
-    ∀ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
-        (k + 1) Set.univ),
-      ‖∫ s in (0 : ℝ)..1, Gsum BS.μ I.Lab (I.A (s : ℂ)).H I.y0 (fun i => I.G i (s : ℂ)) T‖ ≤
-        CPE d L I.Kc I.κH I.κ0 I.κ' *
-          (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) * Real.exp (-I.κ' * dExt T) := by
-  have hex := avg_integral_expansion BS.μ I.hN le_rfl (isPiUnion_univ_step m₀ (k + 1))
-    I.isOpen I.seg I.A I.y0 I.G I.meas I.dep I.bound I.holA I.holG I.hκ0 I.hKc I.hεpos
-    I.nonempty I.hF0 I.hκ' I.hκG I.hκ I.hε
-  obtain ⟨-, hint, hbd⟩ := hex
-  refine ⟨?_, hbd⟩
-  rw [← hint]
-  unfold StepSetting.E1loc
-  refine intervalIntegral.integral_congr fun s hs => ?_
-  rw [Set.uIcc_of_le zero_le_one] at hs
-  exact avgFun_eq_avgPi BS _ _ s (I.A (s : ℂ)).H (fun Φ => ∑ i, I.G i (s : ℂ) Φ)
-    (I.A (s : ℂ)).meas (Finset.measurable_sum _ fun i _ => I.meas i _) (I.hW s hs) (I.hF s hs)
+    ∃ E : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+        Set.univ) → ℂ,
+      S.E1loc C z = ∑ T, E T ∧
+      ∀ T, ‖E T‖ ≤ CPE d L I.Kc I.κH I.κ0 I.κ' *
+          (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) * Real.exp (-I.κ' * dExt T) :=
+  interpAvg_expansion_of_input I
 
 end Thm
-
 
 section Det
 
@@ -238,9 +131,8 @@ theorem thm31a_of_input {BS : BlockSplit S m₀}
       ∀ T, ‖E T‖ ≤ (CPE d L I.Kc I.κH I.κ0 I.κ' *
           (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) + cdet) *
         Real.exp (-I.κ' * dExt T) := by
-  obtain ⟨h1, h2⟩ := e1loc_expansion_of_input I
-  refine ⟨fun T => D.term T + ∫ s in (0 : ℝ)..1,
-      Gsum BS.μ I.Lab (I.A (s : ℂ)).H I.y0 (fun i => I.G i (s : ℂ)) T, ?_, fun T => ?_⟩
+  obtain ⟨E1, h1, h2⟩ := e1loc_expansion_of_input I
+  refine ⟨fun T => D.term T + E1 T, ?_, fun T => ?_⟩
   · rw [Finset.sum_add_distrib, ← D.sum_eq, ← h1]
     rfl
   · refine (norm_add_le _ _).trans ?_

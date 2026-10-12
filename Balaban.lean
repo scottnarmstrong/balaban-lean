@@ -911,3 +911,5 @@ public import Balaban.LargeField.Def7Inhabited
 public import Balaban.LargeField.Def7Counts
 public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
+public import Balaban.Fluctuation.Thm31cde
+public import Balaban.Fluctuation.Thm31Inhab
