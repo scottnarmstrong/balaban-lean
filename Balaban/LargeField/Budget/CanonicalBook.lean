@@ -158,6 +158,41 @@ theorem SpineOKO_congr (k0 k : ℕ) (Zf : Finset (Torus S.d (n (k + 1))))
   have : Y ∈ Ys := by rw [hY]; exact Finset.mem_singleton_self Y
   rw [hG Y this]
 
+open Classical in
+/-- `RegionHistory.spineTarget` with the old parts given as a set `Ys` of cube-sets. -/
+noncomputable def spineTargetO (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (k0 k : ℕ)
+    (Zf : Finset (Torus S.d (n (k + 1)))) (Ys : Finset (Finset (Torus S.d (n k))))
+    (G : Finset (Torus S.d (n k)) → Spine S.d) (nn : ℕ) : ℝ :=
+  if k + 1 ≤ k0 ∧ IsSmall (Zf : Set (Torus S.d (n (k + 1)))) ∧
+      side (Zf : Set (Torus S.d (n (k + 1)))) ≤ S.crit (k + 1) then 0
+  else if nn = 0 ∧ ∃ Y, Ys = {Y} ∧ (G Y).length ≤ S.L then 0
+  else ∑ Y ∈ Ys, (G Y).length / S.L + ((((Ys.card + nn : ℕ) : ℝ) - 1) * S.D (k + 1))
+
+/-- `RegionHistory.SpineCan` with the old parts given as a set of cube-sets. -/
+def SpineCanO (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (k0 k : ℕ)
+    (Zf : Finset (Torus S.d (n (k + 1)))) (Ys : Finset (Finset (Torus S.d (n k))))
+    (G : Finset (Torus S.d (n k)) → Spine S.d) (nn : ℕ) (Γ' : Spine S.d) : Prop :=
+  SpineOKO S n k0 k Zf Ys G nn Γ' ∧ Γ'.length = spineTargetO S n k0 k Zf Ys G nn
+
+theorem spineTargetO_congr (k0 k : ℕ) (Zf : Finset (Torus S.d (n (k + 1))))
+    (Ys : Finset (Finset (Torus S.d (n k)))) {G G' : Finset (Torus S.d (n k)) → Spine S.d}
+    (hG : ∀ Y ∈ Ys, G Y = G' Y) (nn : ℕ) :
+    spineTargetO S n k0 k Zf Ys G nn = spineTargetO S n k0 k Zf Ys G' nn := by
+  classical
+  have hs : ∑ Y ∈ Ys, (G Y).length / S.L = ∑ Y ∈ Ys, (G' Y).length / S.L :=
+    Finset.sum_congr rfl fun Y hY => by rw [hG Y hY]
+  have he : (∃ Y, Ys = {Y} ∧ (G Y).length ≤ S.L) ↔ ∃ Y, Ys = {Y} ∧ (G' Y).length ≤ S.L := by
+    refine exists_congr fun Y => and_congr_right fun hY => ?_
+    rw [hG Y (by rw [hY]; exact Finset.mem_singleton_self Y)]
+  simp only [spineTargetO, hs, he]
+
+theorem SpineCanO_congr (k0 k : ℕ) (Zf : Finset (Torus S.d (n (k + 1))))
+    (Ys : Finset (Finset (Torus S.d (n k)))) {G G' : Finset (Torus S.d (n k)) → Spine S.d}
+    (hG : ∀ Y ∈ Ys, G Y = G' Y) (nn : ℕ) (Γ' : Spine S.d) :
+    SpineCanO S n k0 k Zf Ys G nn Γ' ↔ SpineCanO S n k0 k Zf Ys G' nn Γ' := by
+  unfold SpineCanO
+  rw [SpineOKO_congr k0 k Zf Ys hG nn Γ', spineTargetO_congr k0 k Zf Ys hG nn]
+
 /-- The spine of a component of `Z^pre_k` as a function of the cube set (a default off the
 components). -/
 noncomputable def spineO (H : RegionHistory S n R k0 K) (k : ℕ) (Y : Finset (Torus S.d (n k))) :
@@ -202,6 +237,42 @@ theorem SpineOK_iff (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : 
     · rw [← hI, hc]; simp
     · rw [H.spineO_comp]; exact hL
 
+theorem spineTarget_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
+    H.spineTarget k (H.spine k) Z' =
+      spineTargetO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
+        (Z'.1 ∩ H.newCubes (k + 1)).card := by
+  classical
+  have hI := H.parts_image_eq_comps hk Z'
+  have hsum : ∑ Y ∈ comps (S.omega k) (H.oldCubes k Z'), (H.spineO k Y).length / S.L =
+      ∑ c ∈ H.parts k Z', (H.spine k c).length / S.L := by
+    rw [← hI, Finset.sum_image (fun _ _ _ _ h => Subtype.val_injective h)]
+    exact Finset.sum_congr rfl fun c _ => by rw [H.spineO_comp]
+  have hcard : (comps (S.omega k) (H.oldCubes k Z')).card = (H.parts k Z').card := by
+    rw [← hI, Finset.card_image_of_injective _ Subtype.val_injective]
+  have he : (∃ c, H.parts k Z' = {c} ∧ (H.spine k c).length ≤ S.L) ↔
+      ∃ Y, comps (S.omega k) (H.oldCubes k Z') = {Y} ∧ (H.spineO k Y).length ≤ S.L := by
+    constructor
+    · rintro ⟨c, hc, hL⟩
+      refine ⟨c.1, ?_, by rw [H.spineO_comp]; exact hL⟩
+      rw [← hI, hc]; simp
+    · rintro ⟨Y, hY, hL⟩
+      have hc : (H.parts k Z').card = 1 := by rw [← hcard, hY]; simp
+      obtain ⟨c, hc'⟩ := Finset.card_eq_one.mp hc
+      have hYc : Y = c.1 := by
+        rw [← hI, hc'] at hY
+        simpa using hY.symm
+      subst hYc
+      exact ⟨c, hc', by rw [← H.spineO_comp]; exact hL⟩
+  simp only [spineTarget, spineTargetO, hsum, hcard, he]
+
+theorem SpineCan_iff (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1))
+    (Γ' : Spine S.d) :
+    H.SpineCan k (H.spine k) Z' Γ' ↔
+      SpineCanO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
+        (Z'.1 ∩ H.newCubes (k + 1)).card Γ' := by
+  unfold SpineCan SpineCanO
+  rw [H.SpineOK_iff hk Z' Γ', H.spineTarget_eq hk Z']
+
 theorem dite_choose_congr {P Q : Spine S.d → Prop} (h : P = Q) (x : Spine S.d) :
     (open Classical in if hp : ∃ Γ, P Γ then hp.choose else x) =
       (open Classical in if hq : ∃ Γ, Q Γ then hq.choose else x) := by
@@ -210,12 +281,12 @@ theorem dite_choose_congr {P Q : Spine S.d → Prop} (h : P = Q) (x : Spine S.d)
 open Classical in
 theorem spine_succ_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.spine (k + 1) Z' =
-      if h : ∃ Γ', SpineOKO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
+      if h : ∃ Γ', SpineCanO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
           (Z'.1 ∩ H.newCubes (k + 1)).card Γ' then h.choose else Spine.point 0 := by
-  have hp : (fun Γ' => H.SpineOK k (H.spine k) Z' Γ') =
-      (fun Γ' => SpineOKO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
+  have hp : (fun Γ' => H.SpineCan k (H.spine k) Z' Γ') =
+      (fun Γ' => SpineCanO S n k0 k Z'.1 (comps (S.omega k) (H.oldCubes k Z')) (H.spineO k)
         (Z'.1 ∩ H.newCubes (k + 1)).card Γ') :=
-    funext fun Γ' => propext (H.SpineOK_iff hk Z' Γ')
+    funext fun Γ' => propext (H.SpineCan_iff hk Z' Γ')
   show H.nextSpine k (H.spine k) Z' = _
   unfold nextSpine
   exact dite_choose_congr hp _
@@ -264,7 +335,7 @@ theorem spine_bk_eq_of_localHistory_eq :
       rw [spine_succ_eq (hk := by omega), spine_succ_eq (hk := by omega)]
       refine dite_choose_congr (funext fun Γ' => propext ?_) _
       rw [hnn, hZ, hold]
-      exact SpineOKO_congr k0 k _ _ (hold ▸ hspO) _ _
+      exact SpineCanO_congr k0 k _ _ (hold ▸ hspO) _ _
     refine ⟨hZ, hsp, ?_⟩
     show S.nextBook (k + 1) (H1.parts k Z1) (fun c => S.postBook k0 k (H1.bk k c))
         (Z1.1 ∩ H1.newCubes (k + 1)).card (H1.spine (k + 1) Z1) =
