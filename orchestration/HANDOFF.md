@@ -28,8 +28,8 @@ in the ledger row and the branch state):
 - W70: DONE (landed 017b7c9; χ^dom identity still open).
 
 
-- W75 (`w75-equivariance`): O(N)/lattice covariance of bgField/bgFieldC, Ξᶜ covariance, invariance of
-  mainActionLoc/quietKernel, V(z).
+- W75: DONE (landed d6829a5).
+- W81 (`w81-lf-consol`): DmodOmega nnComp (queued item 4), lattice II.5.10, χ^dom identity.
 - W76: DONE (landed c9ac759).
 - W79: DONE (landed dd7b11e).
 - W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
