@@ -45,6 +45,17 @@ provider, and nothing may import a root, until the root is sealed.
   "distance < ω_k cubes" — approved for Def-7, LF-2 and LF-4. (2) Def-7 design: a predicate `IsRep_k`
   on representations (𝓡_k = densities that have one), deterministic bookkeeping on the a-priori
   sequence λ̂, (D5) required at every scale j ≤ k, LF-4 in existential form — approved.
+- **Q13 background convention (2026-10-12, Scott):** "rule out fully massive; hybrid pending
+  factorization." (1) The fully massive variant A0 is ruled out: no mass in the sharp large-field
+  characteristic functions and none in the reference of the R operation (both stay massless below
+  k₀, as in P5–P7); the landed massless reference code stands. (2) Scheme A (approved 2026-10-13:
+  complete backgrounds for the small-field class at every scale, field-free backgrounds inside the
+  large-field operators below k₀, an SF→LF interface) remains the recorded scheme. (3) The hybrid
+  A0′ (as A, but the main action and the inherited small-field terms of a new large-field region
+  are evaluated at the complete background, with no interface) replaces A if and when the exact
+  factorization `hybrid_sf_factorization` is proved (`notes/phase1/Q13-HYBRID.md`,
+  `Q13-FACTOR.md`). Until then: write nothing specific to A's interface and nothing specific to
+  the hybrid (in particular no split of `OpConsts.mu`); everything else proceeds.
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;

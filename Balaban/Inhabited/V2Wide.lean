@@ -159,7 +159,9 @@ theorem isSF2_pinTermsB {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : 
     (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
     IsSF2 P Rg β a Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (rho2 P Rg β a (pinTerms d L N₁ m₁ k N ϱ P.κ cj) 0) 0 := by
-  refine isSF2_rho2 (pinTerms_clausesB hE₀ hκ hc0 hc hc9 hB) ?_
+  refine isSF2_rho2 (pinTerms_clausesB hE₀ hκ hc0 hc hc9 hB)
+    (fun j hj1 hjk X _ => by
+      rw [pinTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X) ?_
   intro Ψ₀ h₀ g D hD
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
