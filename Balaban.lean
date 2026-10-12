@@ -1025,6 +1025,8 @@ public import Balaban.Inhabited.Def6Density
 public import Balaban.Inhabited.DecHyp
 public import Balaban.Inhabited.BaseStep
 public import Balaban.Inhabited.I5Settings
+public import Balaban.Inhabited.BgSettingDataNum
+public import Balaban.Inhabited.BgSettingData
 public import Balaban.Inhabited.Misc
 public import Balaban.Inhabited.XiCDomains
 public import Balaban.Inhabited.PsiZeroWitness
@@ -1234,6 +1236,7 @@ public import Balaban.LargeField.R.HaloDistance
 public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.RadialCoefficient
+public import Balaban.LargeField.R.RadialCoefficientAvg
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
