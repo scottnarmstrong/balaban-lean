@@ -308,6 +308,8 @@ public import Balaban.Localization.Decoupled2XGrad
 public import Balaban.Localization.Decoupled2XLocal
 public import Balaban.Localization.Decoupled2XClose
 public import Balaban.Localization.Decoupled2XAnalytic
+public import Balaban.Localization.Decoupled2FpGeometry
+public import Balaban.Localization.Decoupled2FpLocal
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
