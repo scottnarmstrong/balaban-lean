@@ -130,6 +130,9 @@ theorem wCoh : Coh wS wR (kZero wS.d wS.L wβ ν) 27 (wCs ν (kZero wS.d wS.L w�
   lam_eq := fun j => setting_lam_eq wβ j
   R_eq := fun _ => rfl
   k0_eq := rfl
+  a_free := fun j hj1 hj => by
+    obtain rfl : j = 1 := by omega
+    exact (compWeight_one (by show 2 ≤ 3; norm_num) _).symm
   beta_cs := fun _ _ => rfl
   beta_P := fun _ _ => rfl
   z_cs := fun _ _ => rfl

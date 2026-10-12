@@ -294,10 +294,13 @@ noncomputable def EresJ (j : ℕ) : ℂ :=
 /-- **`ℰ_k(Y; ψ_k, h) = ∑_{j=1}^k ℰ^{(j)}(Y; ψ^{(j)}_k, h)`** (P5 (1.7)). -/
 noncomputable def EresK : ℂ := ∑ j ∈ Finset.Icc 1 k, C.EresJ Y ψk hv j
 
-/-- **`𝒜_k(Y; ψ_k, h) = -β_k A*_k(Y; ψ_k, φ_k) + ℰ_k(Y; ψ_k, h) - E_k |Y|_k`** (P5 (1.6)). -/
+/-- **`𝒜_k(Y; ψ_k, h) = -β_k A*_k(Y; ψ_k, φ_k) + ℰ_k(Y; ψ_k, h) - E_k |Y|_k`** (P5 (1.6)).  As in
+Definition II.5.4, `β_k A*_k` with `A*_k` in the units of scale `k` is
+`β^{(k)}_0 (A + ¼ ∑_{st} |∂φ̄|²)` with the fine-unit action `A` and
+`β^{(k)}_0 = β_k L^{-k(d-2)}` (`betaCanon`). -/
 noncomputable def Ares : ℂ :=
-  -((C.sf.β k : ℝ) : ℂ) * ((C.actStar Y ψk hv : ℝ) : ℂ) + C.EresK Y ψk hv -
-    ((C.sf.E C.N₁ * volK M Y : ℝ) : ℂ)
+  -((betaCanon S.d S.L (C.sf.β k) k 0 : ℝ) : ℂ) * ((C.actStar Y ψk hv : ℝ) : ℂ) +
+    C.EresK Y ψk hv - ((C.sf.E C.N₁ * volK M Y : ℝ) : ℂ)
 
 open Classical in
 /-- **`ℳ^{(j)}(x, Y) = ∑_{X ∈ 𝒟_j, x ∈ X ⊂ Y^≈} ℳ^{(j)}(x, X)`** (P5 (1.13)). -/

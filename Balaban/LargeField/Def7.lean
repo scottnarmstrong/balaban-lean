@@ -90,8 +90,10 @@ theorem sfIdx_hT {S : Setting} {n : ℕ → ℕ} {R : ℕ → ℝ} {M : ℕ} (ge
 /-- **Coherence of the typing bundles with the running constants and the a priori data**
 (§II.1, ruling 2, D-IV.2, D-IV.11): the cube side `M = S.M = L^{m₀ + m₁}`; the bookkeeping
 sequence is the a priori `λ̂_j` and the radii are `R̂_j = R_base λ̂_j²`; `k₀` is the a priori
-regime index `kZero(β, ν)`; the operators and the budget use the running constants of `𝔰`
-(`β_j`, `z_j`, `ν_j`) and the derived tolerances `δ_j`, `p₀(β_j)` (Definition II.1.1). -/
+regime index `kZero(β, ν)`; the coefficients `a_j` follow the free flow (II.1)
+`a_j = a (1 - L^{-2})/(1 - L^{-2j})` (`compWeight`, D-II.3, with the kernel constant `a`); the
+operators and the budget use the running constants of `𝔰` (`β_j`, `z_j`, `ν_j`) and the derived
+tolerances `δ_j`, `p₀(β_j)` (Definition II.1.1). -/
 structure Coh (S : Setting) [NeZero S.L] (R : ℕ → ℝ) (k0 M : ℕ) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ) (k : ℕ) {N : ℕ} {ϱ : ℝ}
     (sf : SFData S.d S.L C7.m₁ k N ϱ) : Prop where
@@ -100,6 +102,7 @@ structure Coh (S : Setting) [NeZero S.L] (R : ℕ → ℝ) (k0 M : ℕ) (cs : Op
   lam_eq : ∀ j, S.lam j = lamHat S.d S.L β cs.aKer j
   R_eq : ∀ j, R j = S.Rb * S.lam j ^ 2
   k0_eq : k0 = kZero S.d S.L β ν
+  a_free : ∀ j, 1 ≤ j → j ≤ k → sf.a j = compWeight S.L cs.aKer j
   beta_cs : ∀ j, j ≤ k → cs.beta j = sf.β j
   beta_P : ∀ j, j ≤ k → P.beta j = sf.β j
   z_cs : ∀ j, j ≤ k → cs.z j = sf.z j
