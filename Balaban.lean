@@ -68,6 +68,7 @@ public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
+public import Balaban.Analysis.ParamIntegralAnalytic
 public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
@@ -1178,6 +1179,8 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
+public import Balaban.Fluctuation.StepComplexLocal
+public import Balaban.Fluctuation.StepComplexObs
 public import Balaban.Fluctuation.StepRates
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
