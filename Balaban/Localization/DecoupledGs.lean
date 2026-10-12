@@ -378,6 +378,92 @@ theorem perq_bounds (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K} (
             linarith
           nlinarith
 
+/-- Only the centres whose interaction cube has `x` in its interior contribute to `G*_s g` at
+`x` and its neighbours. -/
+theorem Gstar_repr (S : DGSetting G a ν) (α : G.Ω 1 → ℂ) (s : ℕ × CTorus d L N₁ m₁ K → ℂ)
+    (g : G.Ω 1 → ℂ) (x : G.Ω 1) :
+    ∃ A : Finset (ℕ × CTorus d L N₁ m₁ K), (∀ q ∈ A, q ∈ cubeIdx G ∧ Inner q x) ∧
+      A.card ≤ 3 * 5 ^ d ∧ ∀ y : CTorus d L N₁ m₁ K,
+      (y = (x : CTorus d L N₁ m₁ K) ∨ ∃ μ : Fin d, y = (x : CTorus d L N₁ m₁ K) + Pi.single μ 1 ∨
+        y = (x : CTorus d L N₁ m₁ K) - Pi.single μ 1) →
+      zeroExt (G.Ω 1) (Gstar G a ν α s *ᵥ g) y =
+        ∑ q ∈ A, sProd G s q * (((chi G q y : ℝ) : ℂ) * cubeSolE G a ν α q g y) := by
+  classical
+  refine ⟨(cubeIdx G).filter (fun q => Inner q (x : CTorus d L N₁ m₁ K)), ?_, ?_, ?_⟩
+  · intro q hq
+    exact (Finset.mem_filter.1 hq)
+  · obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
+    have hcard := card_inBox_le (G := G) S.cover_sep (by have := S.hL; omega : 1 ≤ L) hn1 hnK hxl
+      (s := 5 / 2) (by norm_num) 5 (by norm_num)
+    refine le_trans (Finset.card_le_card ?_) (by exact_mod_cast hcard)
+    intro q hq
+    rw [Finset.mem_filter] at hq ⊢
+    exact ⟨hq.1, by
+      have := mem_box.1 (hq.2.self)
+      simpa using this⟩
+  · intro y hy
+    rw [Gstar_apply]
+    symm
+    refine Finset.sum_filter_of_ne fun q hq hne => ?_
+    by_contra hI
+    apply hne
+    obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
+    by_cases hyΩ : y ∈ G.Ω 1
+    · have hchi : chi G q y = 0 := by
+        by_contra hne'
+        apply hI
+        rcases hy with rfl | ⟨μ, hμ | hμ⟩
+        · exact inner_of_chi_ne_zero S hq x.2 hne'
+        · exact inner_of_near S.cover_sep S.hM (by have := S.hL; omega) hq hn1 hnK hxl
+            (inBox_of_chi_ne_zero hne') (Or.inl ⟨μ, Or.inl hμ⟩)
+        · exact inner_of_near S.cover_sep S.hM (by have := S.hL; omega) hq hn1 hnK hxl
+            (inBox_of_chi_ne_zero hne') (Or.inl ⟨μ, Or.inr hμ⟩)
+      rw [hchi]; simp
+    · rw [cubeSolE_of_not_mem q g hyΩ]; simp
+
+/-- A finite sum of terms `c_q z_q` with `‖c_q‖ ≤ E`, `s ‖z_q‖ ≤ M`. -/
+theorem sum_scaled_bound {ι : Type*} (A : Finset ι) {n E M s : ℝ} (hn : (A.card : ℝ) ≤ n)
+    (hs : 0 ≤ s) (hE : 0 ≤ E) (hM : 0 ≤ M) (c z : ι → ℂ) (hc : ∀ q ∈ A, ‖c q‖ ≤ E)
+    (hz : ∀ q ∈ A, s * ‖z q‖ ≤ M) : s * ‖∑ q ∈ A, c q * z q‖ ≤ n * (E * M) := by
+  calc s * ‖∑ q ∈ A, c q * z q‖ ≤ s * ∑ q ∈ A, ‖c q * z q‖ :=
+        mul_le_mul_of_nonneg_left (norm_sum_le _ _) hs
+    _ = ∑ q ∈ A, s * ‖c q * z q‖ := by rw [Finset.mul_sum]
+    _ ≤ ∑ _q ∈ A, E * M := by
+        refine Finset.sum_le_sum fun q hq => ?_
+        rw [norm_mul]
+        calc s * (‖c q‖ * ‖z q‖) = ‖c q‖ * (s * ‖z q‖) := by ring
+          _ ≤ E * M := mul_le_mul (hc q hq) (hz q hq) (by positivity) hE
+    _ = A.card * (E * M) := by rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ n * (E * M) := mul_le_mul_of_nonneg_right hn (by positivity)
+
+/-- The constant multiplying the bounds of a single centre. -/
+noncomputable def Fc (d L : ℕ) : ℝ := (1 + Cchi d L) * (1 + d) * (1 + L)
+
+theorem Fc_bounds (d L : ℕ) :
+    1 ≤ Fc d L ∧ 1 + Cchi d L ≤ Fc d L ∧
+      1 + Cchi d L + d * Cchi d L * (1 + L) ≤ Fc d L ∧ L * (1 + Cchi d L) ≤ Fc d L := by
+  have hC := Cchi_nonneg d L
+  have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg _
+  have hL : (0 : ℝ) ≤ L := Nat.cast_nonneg _
+  unfold Fc
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> nlinarith [mul_nonneg hC hd, mul_nonneg hC hL, mul_nonneg hd hL,
+    mul_nonneg (mul_nonneg hC hd) hL, mul_nonneg (mul_nonneg hC hd) hd,
+    mul_nonneg (mul_nonneg hC hL) hL, mul_nonneg (mul_nonneg hd hL) hL]
+
+/-- The cube-restricted source is supported in the cube and has the same weighted bound. -/
+theorem cD_source (q : ℕ × CTorus d L N₁ m₁ K) (g : G.Ω 1 → ℂ) {w : CTorus d L N₁ m₁ K → ℝ}
+    {C : ℝ} (hC : 0 ≤ C)
+    (hgC : ∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖g z‖ ≤ C) :
+    (∀ z : G.Ω 1, (cD G q *ᵥ g) z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) ∧
+    (∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖(cD G q *ᵥ g) z‖ ≤ C) := by
+  refine ⟨fun z hz => ?_, fun z => ?_⟩
+  · by_contra hnb
+    exact hz (by rw [cD_mulVec]; simp [hnb])
+  · rw [cD_mulVec]
+    split_ifs
+    · exact hgC z
+    · simpa using hC
+
 end Sup
 
 end Balaban.Localization
