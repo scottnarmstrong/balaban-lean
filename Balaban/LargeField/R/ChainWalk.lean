@@ -1,5 +1,6 @@
 module
 
+public import Balaban.LargeField.R.GainPos
 public import Balaban.LargeField.R.ChainSetting
 public import Balaban.LargeField.R.ChainPath
 public import Balaban.LargeField.R.ChainCount
@@ -480,7 +481,7 @@ site `x` of a window block `y` of layer `j` there is a nearest-neighbour path to
 `i₀ = max {k₁, j - h_k + 2}`. -/
 theorem path_avoids_obstacles [NeZero S.M] (hkK : k ≤ K) (hL : 2 ≤ S.L)
     (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j) (hW : H.RipeWindow k Z) (hk0 : k ≤ k0)
-    (hq1 : 1 ≤ (H.bk k Z).q) (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j)
     {j : ℕ} (hjk : j < k) {y : BlockV S.d S.L (S.M * n k) k}
     (hy : IsWindowBlock (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k)) (S.k1 k) y)
     (hyj : y.1 = j) {x : Torus S.d (S.M * n k * S.L ^ k)} (hx : x ∈ y.sites) :
@@ -492,6 +493,7 @@ theorem path_avoids_obstacles [NeZero S.M] (hkK : k ≤ K) (hL : 2 ≤ S.L)
   classical
   set G := H.locGen Z S.M hkK hL hR with hG
   have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
+  have hq1 : 1 ≤ (H.bk k Z).q := hW.q_pos hkK
   have hkk1 : 1 ≤ S.k1 k := by rw [hqk1]; exact hq1
   have hk1j : S.k1 k ≤ j := by
     obtain ⟨hh1, -, -⟩ := hy; rw [hyj] at hh1; exact hh1
