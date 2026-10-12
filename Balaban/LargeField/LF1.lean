@@ -100,7 +100,7 @@ theorem lf1_gradient (G : GeneratingSet d L N₀ q ϱ) (hd : 2 ≤ d) (hL : 2 �
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
   have hd2 : (2 : ℝ) ≤ d := by exact_mod_cast hd
   have h1 := total_bound G hd hL hϱ X hX φ ψ
-  have h2 := actionG_ge G ha h X ψ φ
+  have h2 := actionG_ge G ha (μ := μ) h X ψ φ
   have hE := bondE_nonneg X φ
   have hB : 0 ≤ ∑ n ∈ Finset.Icc 1 q, bk G X φ ψ n :=
     Finset.sum_nonneg fun n _ => bk_nonneg G X φ ψ n
@@ -130,7 +130,7 @@ theorem lf1_hardSpin (G : GeneratingSet d L N₀ q ϱ) (hd : 2 ≤ d) {a : ℕ �
   have hd2 : (2 : ℝ) ≤ d := by exact_mod_cast hd
   have h1 := hardSpin_total G hd X hX φ hφ h hh hμ hμq ψ (fun n hn1 hnq y hy => by
     rw [psiFull_of_pos φ ψ hn1]; exact hψ n hn1 hnq y hy)
-  have h2 := actionG_ge G ha h X ψ φ
+  have h2 := actionG_ge G ha (μ := μ) h X ψ φ
   have hE := bondE_nonneg X φ
   have hB : 0 ≤ ∑ n ∈ Finset.Icc 1 q, bk G X φ ψ n :=
     Finset.sum_nonneg fun n _ => bk_nonneg G X φ ψ n
