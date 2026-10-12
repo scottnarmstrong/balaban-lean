@@ -450,3 +450,15 @@ public import Balaban.LargeField.Budget.Labelled
 public import Balaban.LargeField.Budget.RecordForward
 public import Balaban.LargeField.Budget.CanonicalBook
 public import Balaban.LargeField.Budget.KeptPositions
+public import Balaban.Fluctuation.SizeModDefs
+public import Balaban.Fluctuation.SizeModCells
+public import Balaban.Fluctuation.SizeModCore
+public import Balaban.Fluctuation.SizeModG1
+public import Balaban.Fluctuation.SizeModUnion
+public import Balaban.Fluctuation.SizeModG4
+public import Balaban.Fluctuation.SizeModG5
+public import Balaban.Fluctuation.SizeModSum
+public import Balaban.Fluctuation.SizeModCount
+public import Balaban.Fluctuation.SizeModStruct
+public import Balaban.Fluctuation.SizeModEntropy
+public import Balaban.Fluctuation.SizeMod
