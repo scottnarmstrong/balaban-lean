@@ -828,6 +828,7 @@ public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionInhab
 public import Balaban.Fluctuation.InteractionLevelPair
 public import Balaban.Fluctuation.Prop33CloseC7
+public import Balaban.Fluctuation.Prop33CloseDomain
 public import Balaban.Fluctuation.Prop33Level
 public import Balaban.Fluctuation.Prop33Count
 public import Balaban.Fluctuation.Prop33Agg
