@@ -257,8 +257,8 @@ theorem Nmap_zero_zero {N₁ m₁ K N : ℕ} [NeZero N₁] {ϱ : ℝ} (G : Gener
 /-- **Theorem I-4a (a), (c) for one parameter `s`**: existence, uniqueness in the ball
 `|δα|₂ ≤ c₆` and the bounds, in both modes.  The family `G_s` is the decoupled Green's operator;
 the constants are `famConst d L B_G κ₁`. -/
-theorem i4a_exists_unique (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ cstar BG : ℝ, 0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K N : ℕ} [NeZero N₁] {ϱ : ℝ}
+theorem i4a_exists_unique {cstar BG : ℝ} (hF : FamSpec d L cstar BG) :
+    ∀ {N₁ m₁ K N : ℕ} [NeZero N₁] {ϱ : ℝ}
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {κ : ℝ}, 0 ≤ κ → cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
       ∀ {s : DecParams G}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
@@ -269,6 +269,7 @@ theorem i4a_exists_unique (hd : 3 ≤ d) (hL : 3 ≤ L) :
       δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8) →
       ∃ δα : G.Ω 1 → ℂ,
         DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα ∧
+        Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
         Small G δα (cK2' d L N (famConst d L BG κ) * δ₁) ∧
         SupBounds G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα)
           (cK2' d L N (famConst d L BG κ) * δ₁) ∧
@@ -276,11 +277,10 @@ theorem i4a_exists_unique (hd : 3 ≤ d) (hL : 3 ≤ L) :
           DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα' → δα' = δα) ∧
         (ιU = false → δΨ = 0 → f₁ = 0 → δα = 0 ∧
           dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα = 0) := by
-  obtain ⟨c, BG, hc, hBG, Hfam⟩ := decGreenFamily (d := d) (L := L) hd hL
-  refine ⟨c, BG, hc, hBG, ?_⟩
+  obtain ⟨-, hBG, Hfam⟩ := hF
   intro N₁ m₁ K N _ ϱ G a ν S κ hκ hM s hs ιU α₀ φ₀ δΨ f₁ δ₀ δ₁ H hδ₀ hδ₁
   obtain ⟨hfam, hsup⟩ := Hfam G S hκ hM hs N
-  have hd0 : 0 < d := by omega
+  have hd0 : 0 < d := by have := S.hd; omega
   set B : ℝ := famConst d L BG κ with hB
   set Γ : ℝ := gamma1 d / 8 with hΓdef
   have hB1 : 1 ≤ B := famConst_ge_one hBG κ hd0
@@ -321,7 +321,7 @@ theorem i4a_exists_unique (hd : 3 ≤ d) (hL : 3 ≤ L) :
           refine mul_le_mul (by linarith) (by linarith) hX (by linarith)
       _ ≤ _ := by nlinarith [mul_nonneg hcN.le hδ1, mul_nonneg hF.le hδ1,
             mul_nonneg (mul_nonneg hcN.le hδ1) hB0]
-  refine ⟨δα, hfix, hsmall2, hdp, fun δα' hs' hf' => huniq δα' hs' hf', ?_⟩
+  refine ⟨δα, hfix, hsmall, hsmall2, hdp, fun δα' hs' hf' => huniq δα' hs' hf', ?_⟩
   intro hι hΨ hf
   subst hι hΨ hf
   rw [pertSource_zero] at *

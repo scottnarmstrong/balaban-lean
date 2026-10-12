@@ -348,18 +348,29 @@ theorem famConst_ge_one {BG : ℝ} (hBG : 0 ≤ BG) (κ : ℝ) (hd : 0 < d) :
   have : 0 ≤ (L : ℝ) * (4 * (BG * Real.exp (N0 d L * κ)) / gamma1 d) := by positivity
   linarith
 
-/-- **The decoupled Green operators form a Green family** (R-B2 of LOCALIZATION.md §3.3): for
-`M₁ ≥ c_* e^{N₀ κ₁}` and parameters `|s_P| ≤ e^{κ₁}`, `α ↦ G_s(α)` is a `GreenFamily` on the
-polydisc `|α|₂ ≤ γ₁/8` with constant `famConst`. -/
-theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ cstar BG : ℝ, 0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+/-- **The specification of the decoupled Green family** with the constants `(c, B_G)`: for
+`M₁ ≥ c e^{N₀ κ₁}` and parameters `|s_P| ≤ e^{κ₁}`, `α ↦ G_s(α)` is a `GreenFamily` on the
+polydisc `|α|₂ ≤ γ₁/8` with constant `famConst d L B_G κ₁` (R-B2 of LOCALIZATION.md §3.3), and
+`G_s(α) g` has the sup bounds including the Laplacian with the same constant. -/
+def FamSpec (d L : ℕ) [NeZero L] (cstar BG : ℝ) : Prop :=
+  0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {κ : ℝ}, 0 ≤ κ → cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
       ∀ {s : DecParams G}, (∀ P, ‖s P‖ ≤ Real.exp κ) → ∀ (N : ℕ),
       GreenFamily G N (fun α => Gs G a ν α (extS G s)) (famConst d L BG κ) (gamma1 d / 8) ∧
       ∀ {α : G.Ω 1 → ℂ}, Small G α (gamma1 d / 8) → ∀ (g : G.Ω 1 × Fin N → ℂ) {C : ℝ}, 0 ≤ C →
         SrcBound G g C →
-        SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L BG κ * C) := by
+        SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L BG κ * C)
+
+theorem FamSpec.mono_c {d L : ℕ} [NeZero L] {c c' BG : ℝ} (h : FamSpec d L c BG) (hc : c ≤ c') :
+    FamSpec d L c' BG := by
+  have hn : 0 ≤ c' := h.1.trans hc
+  refine ⟨hn, h.2.1, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S κ hκ hM s hs N
+  exact h.2.2 G S hκ (le_trans (mul_le_mul_of_nonneg_right hc (Real.exp_pos _).le) hM) hs N
+
+/-- **The decoupled Green operators form a Green family.** -/
+theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) : ∃ cstar BG : ℝ, FamSpec d L cstar BG := by
   obtain ⟨c1, B1, hc1, hB1, H1⟩ := dg2_sup (d := d) (L := L) hd hL
   obtain ⟨c2, B2, hc2, hB2, H2⟩ := dg4_lipschitz_fwd' (d := d) (L := L) hd hL
   have hd0 : 0 < d := by omega
