@@ -1160,3 +1160,4 @@ public import Balaban.Fluctuation.StepComplexHat
 public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
+public import Balaban.Fluctuation.StepRates
