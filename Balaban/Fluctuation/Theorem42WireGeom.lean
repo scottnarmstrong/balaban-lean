@@ -303,47 +303,44 @@ inequalities of the local background `bg(G^{Z'}_{k+1}; lift(ψ_k, ψ_{k+1}))` on
 distance `≤ 1` from `□` hold with the radius `r` increased by
 `(N+1)(1 + √ν_k) K_w c_F (2d+2) K₁ δ e^{-γ_w Dist}` (Lemma 4.1 for the composition `G_{k+1}(□) ≺
 G^{Z'}_{k+1}`). -/
-theorem regIneq_locGen_of_deltaC (cs : OpConsts) (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) :
+theorem regIneq_locGen_of_deltaC (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
-      ∀ {a₁ r δ1 ε1 δ0 ε0 : ℝ} {y0 : Torus S.d (n (k + 1))}
+      ∀ {a₁ ν r δ1 ε1 δ0 ε0 : ℝ} {y0 : Torus S.d (n (k + 1))}
         (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
         (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)),
-        cs.aw = compWeight S.L a₁ → 0 < a₁ →
-        BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) (cs.mu (k + 1)) →
+        0 < a₁ →
+        BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) (ν) →
         2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1) →
         y0 ∈ (Zc : Set (Torus S.d (n (k + 1)))) → nbhd 4 {y0} ⊆ (Hl.step k).Omega →
         (locLiftTheta g Hl k Zc hk o).toC ∈ DeltaC (q := k + 1) (M1 := g.M1) (N₁ := g.c * n (k + 1))
-          (L := S.L) (compWeight S.L a₁) (cs.mu (k + 1)) r (fun i => (hv i : ℂ)) g.c (n (k + 1)) y0 →
+          (L := S.L) (compWeight S.L a₁) (ν) r (fun i => (hv i : ℂ)) g.c (n (k + 1)) y0 →
         0 < δ1 → δ1 ≤ ε1 → ε1 ≤ bgC0 S.d S.L N → δ1 ≤ thm73C1 S.d S.L N →
-        cs.mu (k + 1) * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε1 ^ 2 ≤ δ1 ^ 2 →
-        InDomainC (locGen g Hl k Zc hZc hk) (cs.mu (k + 1)) δ1 ε1 (locData g Hl k Zc hZc hk o xc hv) →
+        ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε1 ^ 2 ≤ δ1 ^ 2 →
+        InDomainC (locGen g Hl k Zc hZc hk) (ν) δ1 ε1 (locData g Hl k Zc hZc hk o xc hv) →
         0 < δ0 → δ0 ≤ ε0 → ε0 ≤ bgC0 S.d S.L N → δ0 ≤ bgC1 S.d S.L N →
-        cs.mu (k + 1) * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε0 ^ 2 ≤ δ0 ^ 2 →
-        InDomainC (genCubeLoc g k y0) (cs.mu (k + 1)) δ0 ε0
+        ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε0 ^ 2 ≤ δ0 ^ 2 →
+        InDomainC (genCubeLoc g k y0) (ν) δ0 ε0
           (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) →
         bgK1 S.d S.L N * δ0 ≤ deltaStar S.d S.L N → bgK1 S.d S.L N * δ0 ≤ δw →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ deltaStar S.d S.L N →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ δw →
-        RegIneq (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) (cs.mu (k + 1))
+        RegIneq (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) (ν)
           (locData g Hl k Zc hZc hk o xc hv)
-          (r + ((N : ℝ) + 1) * (1 + Real.sqrt (cs.mu (k + 1) * ((S.L : ℝ) ^ (k + 1)) ^ 2)) *
-            (Kw * (cF S.d S.L * ((2 * S.d + 2) * (bgK1 S.d S.L N * δ1))) *
-              Real.exp (-(gammaW S.d * min ((((S.L ^ (k + 1) * (g.c * g.M1) : ℕ) : ℝ) * (1 : ℕ) - 1) /
-                (S.L : ℝ) ^ (k + 1 + 1)) (minSep S.L g.M1 - 1)))))
+          (r + transferShift S.d S.L N (k + 1) ν Kw δ1 (stepDist S.L g.M1 g.c k 1 (minSep S.L g.M1)))
           (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1)))))
           (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1))))) := by
   obtain ⟨Kw, δw, hK, hδ, htr⟩ := regIneq_transfer (d := S.d) (L := S.L) (N := N) hd hL
   refine ⟨Kw, δw, hK, hδ, ?_⟩
-  intro a₁ r δ1 ε1 δ0 ε0 y0 o xc hv hw ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0
+  intro a₁ ν r δ1 ε1 δ0 ε0 y0 o xc hv ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0
     hδ0c hνε0 hD0 hK0 hKw0 hK1 hKw1
   classical
   have hprec := genCubeLoc_precedes g Hl k Zc hZc hk hy0 hΩ
   obtain ⟨hΨ, hh⟩ := cube_locData_agree g Hl k Zc hZc hk hy0 hΩ o xc hv
-  have hΔreg := (show RegC (genCubeLoc g k y0) (compWeight S.L a₁) (cs.mu (k + 1))
+  have hΔreg := (show RegC (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
       (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) r
       (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0)
       (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0) from hΔ).2
-  have hReg : RegIneq (genCubeLoc g k y0) (compWeight S.L a₁) (cs.mu (k + 1))
+  have hReg : RegIneq (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
       (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) r
       (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1)))))
       (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1))))) := by
@@ -375,8 +372,7 @@ theorem regIneq_locGen_of_deltaC (cs : OpConsts) (hd : 3 ≤ S.d) (hL : 3 ≤ S.
       (nbhd 1 ({y0} : Set (Torus S.d (n (k + 1))))),
       ∀ w ∈ shadowN (genCubeLoc g k y0) (stepFarSites (M1 := g.M1) (c := g.c) (L := S.L) k
         (nbhd 1 ({y0} : Set (Torus S.d (n (k + 1))))) 1),
-      ENNReal.ofReal (min ((((S.L ^ (k + 1) * (g.c * g.M1) : ℕ) : ℝ) * (1 : ℕ) - 1) /
-        (S.L : ℝ) ^ (k + 1 + 1)) (minSep S.L g.M1 - 1)) ≤ (genCubeLoc g k y0).pathDist y w :=
+      ENNReal.ofReal (stepDist S.L g.M1 g.c k 1 (minSep S.L g.M1)) ≤ (genCubeLoc g k y0).pathDist y w :=
     fun y hy w hw => hdist y hy (near'_top g Hl k Zc hZc hk hy0 hΩ hy) w hw
   exact htr (N₁ := g.M1 * (g.c * n (k + 1))) (m₁ := 0) (by simp) ha₁ H H hsep hprec hδ10 hδε1 hε1
     hδ1c hνε1 hD1 hδ00 hδε0 hε0 hδ0c hνε0 hD0 hK0 hKw0 hK1 hKw1 hΨ hh _ hE

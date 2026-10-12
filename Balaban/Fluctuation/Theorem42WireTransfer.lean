@@ -353,6 +353,12 @@ end Hyp
 
 end Shift
 
+/-- The increase of the regularity radius in the transfer (`regIneq_transfer`):
+`(N+1)(1 + √ν_q) · K_w c_F (2d+2) K₁ δ' · e^{-γ_w Dist}` with `ν_q = ν L^{2q}`. -/
+noncomputable def transferShift (d L N q : ℕ) [NeZero L] (ν Kw δ1 Dist : ℝ) : ℝ :=
+  ((N : ℝ) + 1) * (1 + Real.sqrt (ν * ((L : ℝ) ^ q) ^ 2)) *
+    (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ1))) * Real.exp (-(gammaW d * Dist)))
+
 section Transfer
 
 variable {d L : ℕ} [NeZero L]
@@ -381,10 +387,7 @@ theorem regIneq_transfer (hd : 3 ≤ d) (hL : 3 ≤ L) {N : ℕ} :
         (∀ x ∈ R, ∀ y ∈ G0.blk q x, y ∈ R') → (∀ y ∈ R', y ∈ G0.Ω 1) →
         (∀ y ∈ R', ∀ w ∈ shadowN G0 W, ENNReal.ofReal Dist ≤ G0.pathDist y w) →
         RegIneq G0 (compWeight L a₁) ν D0 ε R R →
-        RegIneq G1 (compWeight L a₁) ν D1
-          (ε + ((N : ℝ) + 1) * (1 + Real.sqrt (ν * ((L : ℝ) ^ q) ^ 2)) *
-            (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ1))) * Real.exp (-(gammaW d * Dist))))
-          R R := by
+        RegIneq G1 (compWeight L a₁) ν D1 (ε + transferShift d L N q ν Kw δ1 Dist) R R := by
   obtain ⟨Kw, δw, hK, hδ, hmain⟩ := lemma41_domain_uncond (N := N) hd hL
   refine ⟨Kw, δw, hK, hδ, ?_⟩
   intro N₀ q N₁ m₁ _ hN ϱ0 ϱ1 G0 G1 a₁ ν ha₁ H0 H1 hsep hprec D1 δ1 ε1 hδ10 hδε1 hε1 hδ1c hνε1 hD1
@@ -501,6 +504,9 @@ theorem regIneq_transfer (hd : 3 ≤ d) (hL : 3 ≤ L) {N : ℕ} :
       rw [← hspace x hx]; exact (hFar.alpha ⟨x, hx0⟩).trans (hbd x hx)
   have hs0 : 0 ≤ Real.sqrt (ν * ((L : ℝ) ^ (k + 1)) ^ 2) := Real.sqrt_nonneg _
   have hN0 : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  have hshift : transferShift d L N (k + 1) ν Kw δ1 Dist =
+      ((N : ℝ) + 1) * (1 + Real.sqrt (ν * ((L : ℝ) ^ (k + 1)) ^ 2)) * Θ := rfl
+  rw [hshift]
   refine ⟨?_, ?_, ?_⟩
   · refine blockClose_mono (blockClose_transfer hprec hφ hRtop hRblk hR'Ω hsv hΘ0 hΨ hreg.1) ?_
     nlinarith [mul_nonneg hs0 hΘ0, mul_nonneg hN0 hΘ0, mul_nonneg (mul_nonneg hN0 hs0) hΘ0]

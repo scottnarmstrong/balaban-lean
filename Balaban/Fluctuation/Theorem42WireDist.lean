@@ -140,6 +140,11 @@ noncomputable def stepNearSites (k : ℕ) (Z' : Set (Torus d n1)) :
   Finset.univ.filter fun y => ∃ x, blockMap (L ^ (k + 1) * (c * M1)) n1 x ∈ Z' ∧
     Green.torusDist d (M1 * (c * n1) * L ^ (k + 1)) y x ≤ 1
 
+/-- The scaled distance `min((L^{k+1} c M₁ ρ - 1)/L^{k+2}, ϱ - 1)` of Step 3 for a data change
+vanishing on `Z'^{∼ρ}` (`step_dist_premise`). -/
+noncomputable def stepDist (L M1 c k ρ : ℕ) (ϱ : ℝ) : ℝ :=
+  min ((((L ^ (k + 1) * (c * M1) : ℕ) : ℝ) * ρ - 1) / (L : ℝ) ^ (k + 1 + 1)) (ϱ - 1)
+
 theorem mem_stepFarSites {k : ℕ} {Z' : Set (Torus d n1)} {ρ : ℕ}
     {e : Torus d (M1 * (c * n1) * L ^ (k + 1))} :
     e ∈ stepFarSites (M1 := M1) (c := c) (L := L) k Z' ρ ↔
@@ -162,8 +167,7 @@ theorem step_dist_premise (k : ℕ) (G : GeneratingSet d L (M1 * (c * n1)) (k + 
     (Z' : Set (Torus d n1)) (ρ : ℕ) :
     ∀ y ∈ stepNearSites (M1 := M1) (c := c) k Z', y ∈ G.Ω 1 →
       ∀ w ∈ shadowN G (stepFarSites (M1 := M1) (c := c) k Z' ρ),
-      ENNReal.ofReal (min ((((L ^ (k + 1) * (c * M1) : ℕ) : ℝ) * ρ - 1) / (L : ℝ) ^ (k + 1 + 1))
-        (ϱ - 1)) ≤ G.pathDist y w := by
+      ENNReal.ofReal (stepDist L M1 c k ρ ϱ) ≤ G.pathDist y w := by
   classical
   refine pathDist_shadow_ge G hϱ _ (fun y _ hyΩ => (G.layerIndex_spec hyΩ).2.1) _ ?_
   intro y hy w hw
