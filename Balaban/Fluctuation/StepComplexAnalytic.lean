@@ -23,9 +23,9 @@ statement gives one function of the raw data `(Ψ, h̃)`, analytic at every poin
 * `exists_analytic_bgC`: the complex small solution `(φ_{k+1}, α_{k+1}) = (bgFieldC, bgMultC)`;
 * `exists_analytic_hatCovSqrt`: the entries of the square root `C^{(k)1/2}` (`hatCovSqrt`);
 * `exists_analytic_composeField`: the critical point `ψ^{(k)}(θ)` of (2.1);
-* `inUnionDomainC_of_tangent_hatLift`, `exists_analytic_bgC_tangent`: the old spin with tangent
-  `hatLift cc θ ψ̂` lies in the domain `𝒟(𝔹_k)` of the small solution (`hreal_level`), and its small
-  solution `(φ_k(ψ), α_k(ψ))` is analytic in `θ`.
+* `inUnionDomainC_of_tangent_hatLift`, `exists_analytic_oldSpin`, `exists_analytic_bgC_tangent`:
+  the old spin with tangent `hatLift cc θ ψ̂` lies in the domain `𝒟(𝔹_k)` of the small solution
+  (`hreal_level`), and its raw data and its small solution `(φ_k(ψ), α_k(ψ))` are analytic in `θ`.
 
 A `StepSetting` fixes the datum and requires its field `h` to be a real constant (`hh₀`), so that
 "analytic in the datum" is not a statement about one `StepSetting`.  `withDatum` replaces the datum
@@ -222,19 +222,23 @@ theorem inUnionDomainC_of_tangent_hatLift {D' : BgData Gp N}
   exact h1
 
 include hC hk ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ hψh in
-/-- **The small solution `(φ_k(ψ), α_k(ψ))` of the old spin with tangent `hatLift cc D' ψ̂` is
-analytic in the block datum `D'`** on the chart: one function of the raw data, analytic on
-`Ξ^c(𝔹_{k+1}; 1, ε)`, returns `(bgFieldC, bgMultC)` of every datum `D` of level `k` with the same
-`h̃` as `D'` and tangent `D.Ψ - ψ^{(k)}(D') = hatLift cc D' ψ̂` (Theorem 7.2 at the level `k`,
-composed with the analytic critical point and square root). -/
-theorem exists_analytic_bgC_tangent :
-    ∃ F : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ),
+/-- **The old spin with tangent `hatLift cc D' ψ̂` and its small solution `(φ_k(ψ), α_k(ψ))` are
+analytic in the block datum `D'`** on the chart: two functions of the raw data, analytic on
+`Ξ^c(𝔹_{k+1}; 1, ε)`, return the raw data `(D.Ψ, D.h)` and the pair `(bgFieldC, bgMultC)` of every
+datum `D` of level `k` with the same `h̃` as `D'` and tangent
+`D.Ψ - ψ^{(k)}(D') = hatLift cc D' ψ̂` (Theorem 7.2 at the level `k`, composed with the analytic
+critical point and square root). -/
+theorem exists_analytic_oldSpin :
+    ∃ (g : RawData d L (N₁ * L ^ m₁) (k + 1) N → RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      (F : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+      AnalyticOnNhd ℂ g (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) ∧
       AnalyticOnNhd ℂ F (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) ∧
       ∀ D' : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D' →
         ∀ D : BgData Hm N, (∀ x i, D.h x i = D'.h x i) →
           compTangent hG hG' (le_refl (k + 1)) (compWeight L a₁)
             (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D' D =
               hatLift Gp a₁ ν hG' cc D' ψh →
+          rawOf D = g (rawOf D') ∧
           F (rawOf D') = (bgFieldC Hm (compWeight L a₁) ν (bgC0 d L N) D,
             bgMultC Hm (compWeight L a₁) ν (bgC0 d L N) D) := by
   obtain ⟨Pc, hPcan, hPc⟩ := exists_analytic_composeField hC (hG.precedes hG' (le_refl (k + 1)))
@@ -260,7 +264,15 @@ theorem exists_analytic_bgC_tangent :
       linear_combination h2 + h3
     · funext z i
       exact hh z i
-  refine ⟨fun Θ => F (g Θ), ?_, fun D' hD' D hh ht => ?_⟩
+  have hgan : AnalyticOnNhd ℂ g (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) := by
+    intro Θ hΘ
+    refine AnalyticAt.prod (analyticAt_pi_iff.2 fun z => analyticAt_pi_iff.2 fun i => ?_)
+      analyticAt_snd
+    refine (hPcan z i _ hΘ).add ?_
+    simp only [liftC_apply, Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
+    exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun r _ =>
+      (hMan _ r _ hΘ).mul analyticAt_const)
+  refine ⟨g, fun Θ => F (g Θ), hgan, ?_, fun D' hD' D hh ht => ⟨hraw D' hD' D hh ht, ?_⟩⟩
   · rintro Θ ⟨D', hD', rfl⟩
     -- a datum with the prescribed tangent exists (`hreal_level`)
     have hψ := hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD' hψh
@@ -269,19 +281,30 @@ theorem exists_analytic_bgC_tangent :
     have hdom := inUnionDomainC_of_tangent_hatLift hC hk hG hG' ha₁ H hc7 hR hsmR hMX hdm hα hsm
       cc hcψ hδ₁ hψh hD' hDh hDt
     have hpt := hraw D' hD' D₀ hDh hDt
-    have hgan : AnalyticAt ℂ g (rawOf D') := by
-      refine AnalyticAt.prod (analyticAt_pi_iff.2 fun z => analyticAt_pi_iff.2 fun i => ?_)
-        analyticAt_snd
-      refine (hPcan z i _ ⟨D', hD', rfl⟩).add ?_
-      simp only [liftC_apply, Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
-      exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun r _ =>
-        (hMan _ r _ ⟨D', hD', rfl⟩).mul analyticAt_const)
-    exact (hFan _ ⟨D₀, hdom, hpt.symm⟩).comp_of_eq hgan rfl
+    exact (hFan _ ⟨D₀, hdom, hpt.symm⟩).comp_of_eq (hgan _ ⟨D', hD', rfl⟩) rfl
   · have hdom := inUnionDomainC_of_tangent_hatLift hC hk hG hG' ha₁ H hc7 hR hsmR hMX hdm hα hsm
       cc hcψ hδ₁ hψh hD' hh ht
     show F (g (rawOf D')) = _
     rw [← hraw D' hD' D hh ht]
     exact hF D hdom
+
+include hC hk ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ hψh in
+/-- **The small solution `(φ_k(ψ), α_k(ψ))` of the old spin with tangent `hatLift cc D' ψ̂` is
+analytic in the block datum `D'`** on the chart (the second function of
+`exists_analytic_oldSpin`). -/
+theorem exists_analytic_bgC_tangent :
+    ∃ F : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ),
+      AnalyticOnNhd ℂ F (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) ∧
+      ∀ D' : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D' →
+        ∀ D : BgData Hm N, (∀ x i, D.h x i = D'.h x i) →
+          compTangent hG hG' (le_refl (k + 1)) (compWeight L a₁)
+            (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D' D =
+              hatLift Gp a₁ ν hG' cc D' ψh →
+          F (rawOf D') = (bgFieldC Hm (compWeight L a₁) ν (bgC0 d L N) D,
+            bgMultC Hm (compWeight L a₁) ν (bgC0 d L N) D) := by
+  obtain ⟨_, F, -, hFan, hF⟩ := exists_analytic_oldSpin hC hk hG hG' ha₁ H hc7 hR hsmR hMX hdm hα
+    hsm cc hcψ hδ₁ hψh
+  exact ⟨F, hFan, fun D' hD' D hh ht => (hF D' hD' D hh ht).2⟩
 
 end Tangent
 
