@@ -555,4 +555,166 @@ theorem local_step {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G
 
 end Step
 
+section Pair
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- The fixed point of `Smap` in the ball with its Picard iterates (rate `1/2`). -/
+theorem smap_fixed_iterates {𝒢 : (G.Ω 1 → ℂ) → Matrix (G.Ω 1) (G.Ω 1) ℂ}
+    {H₀ : Matrix (G.Ω 1) (G.Ω 1) ℂ} {ιU : Bool} {B Kc Rc γ : ℝ} {α₀ : G.Ω 1 → ℂ}
+    {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ} {Fs : G.Ω 1 × Fin N → ℂ} {δ₀ Fb Gb ρ : ℝ}
+    (hG : GreenFamily G N 𝒢 B γ) (H : Setup G H₀ ιU Kc Rc α₀ φ₀ Fs δ₀ Fb Gb)
+    (hC : CoreHyp N B Kc Rc γ δ₀ Fb Gb ρ) :
+    ∃ ξ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ, Smap G 𝒢 H₀ ιU α₀ φ₀ Fs ξ = ξ ∧
+      (∀ ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ, Smap G 𝒢 H₀ ιU α₀ φ₀ Fs ξ' = ξ' → ξ' = ξ) ∧
+      ∀ n : ℕ, (Smap G 𝒢 H₀ ιU α₀ φ₀ Fs)^[n] 0 ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) ρ ∧
+        ‖(Smap G 𝒢 H₀ ιU α₀ φ₀ Fs)^[n] 0 - ξ‖ ≤ (1 / 2 : ℝ) ^ n * ρ :=
+  Balaban.Analysis.exists_unique_fixedPoint_closedBall (S := Smap G 𝒢 H₀ ιU α₀ φ₀ Fs) hC.ρ_nn
+    (by norm_num) (by norm_num) (Smap_mem_ball hG H hC)
+    (fun ξ hξ ξ' hξ' => Smap_lip_norm hG H hC ξ ξ' hξ hξ')
+
+/-- The Picard iterates of two maps that agree on `T` at every step agree on `T`; so do their
+fixed points. -/
+theorem fixed_agree_of_step {ι : Type*} {S S' : (ι → ℂ) → (ι → ℂ)}
+    {T : ι → Prop} {ρ : ℝ} {ξ ξ' : ι → ℂ} [Fintype ι]
+    (hstep : ∀ u v : ι → ℂ, (∀ i, ‖u i‖ ≤ ρ) → (∀ i, ‖v i‖ ≤ ρ) → (∀ i, T i → u i = v i) →
+      ∀ i, T i → S u i = S' v i)
+    (hit : ∀ n : ℕ, S^[n] 0 ∈ Metric.closedBall (0 : ι → ℂ) ρ ∧ ‖S^[n] 0 - ξ‖ ≤ (1 / 2 : ℝ) ^ n * ρ)
+    (hit' : ∀ n : ℕ, S'^[n] 0 ∈ Metric.closedBall (0 : ι → ℂ) ρ ∧
+      ‖S'^[n] 0 - ξ'‖ ≤ (1 / 2 : ℝ) ^ n * ρ) (hρ : 0 ≤ ρ) :
+    ∀ i, T i → ξ i = ξ' i := by
+  have hagree : ∀ n : ℕ, ∀ i, T i → (S^[n] 0) i = (S'^[n] 0) i := by
+    intro n
+    induction n with
+    | zero => intro i _; simp
+    | succ n ih =>
+      intro i hi
+      rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
+      refine hstep _ _ (fun j => ?_) (fun j => ?_) ih i hi
+      · have := (mem_closedBall_zero_iff.1 (hit n).1)
+        exact (norm_le_pi_norm _ j).trans this
+      · have := (mem_closedBall_zero_iff.1 (hit' n).1)
+        exact (norm_le_pi_norm _ j).trans this
+  intro i hi
+  by_contra hne
+  have hpos : 0 < ‖ξ i - ξ' i‖ := norm_pos_iff.2 (sub_ne_zero.2 hne)
+  obtain ⟨n, hn⟩ := exists_pow_lt_of_lt_one (by positivity : 0 < ‖ξ i - ξ' i‖ / (2 * (ρ + 1)))
+    (by norm_num : (1 / 2 : ℝ) < 1)
+  have h1 : ‖ξ i - (S^[n] 0) i‖ ≤ (1 / 2 : ℝ) ^ n * ρ := by
+    have e : ξ i - (S^[n] 0) i = (ξ - S^[n] 0) i := rfl
+    rw [e]
+    exact (norm_le_pi_norm _ i).trans (by rw [norm_sub_rev]; exact (hit n).2)
+  have h2 : ‖(S'^[n] 0) i - ξ' i‖ ≤ (1 / 2 : ℝ) ^ n * ρ :=
+    (norm_le_pi_norm (S'^[n] 0 - ξ') i).trans (hit' n).2
+  have h3 : ξ i - ξ' i = (ξ i - (S^[n] 0) i) + ((S'^[n] 0) i - ξ' i) := by
+    rw [← hagree n i hi]; ring
+  have : ‖ξ i - ξ' i‖ ≤ 2 * ((1 / 2 : ℝ) ^ n * ρ) := by
+    rw [h3]; calc _ ≤ _ := norm_add_le _ _
+      _ ≤ _ := by linarith
+  have h4 : (1 / 2 : ℝ) ^ n * (2 * (ρ + 1)) < ‖ξ i - ξ' i‖ := by
+    have := (lt_div_iff₀ (by positivity : 0 < 2 * (ρ + 1))).1 hn
+    exact this
+  nlinarith [pow_nonneg (by norm_num : (0 : ℝ) ≤ 1 / 2) n]
+
+
+/-- **Theorem I-4a (e): locality, comparison form.**  Let `𝒞 ⊂ 𝔓`-data, `Y` a union of
+nearest-neighbour components of `V(𝒞) ∩ Ω₁`, `S_Y = ⋃_{z ∈ Z_Y} □_z` (so `Core_Y ⊆ S_Y ⊆ Y`), two
+parameter vectors `s, s'` that vanish on `𝔓 ∖ 𝒞`, equal `1` off `𝔓` and agree on the cubes of `𝒞`
+inside `Y`, and two data sets that agree on `Y`.  Then the solutions of the two decoupled systems
+satisfy `δα(s) = δα(s')` on `S_Y` and `δφ(s) = δφ(s')` on `Y ∩ Ω₁`; in particular on `Core_Y`. -/
+theorem i4a_local {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgree G N Y α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν s' ιU α₀' φ₀' (pertSource G a δΨ' f₁') δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') δα' (y, i)) := by
+  classical
+  have hBG := hF.2.1
+  have hd0 : 0 < d := by have := S.hd; omega
+  set B : ℝ := famConst d L BG κ with hB
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hB0 : 0 ≤ B := by have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hΓ : 0 < Γ := by have := gamma1_pos hd0; positivity
+  have hC := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ H.δ₀_nn H.δ₁_nn hδ₀ hδ₁
+  obtain ⟨⟨hfam, -⟩, hunit⟩ := hF.2.2 G S hκ hM hs N
+  obtain ⟨⟨hfam', -⟩, hunit'⟩ := hF.2.2 G S hκ hM hs' N
+  obtain ⟨ξ, hξB, hξfix, hξuniq, hit⟩ := smap_fixed_iterates hfam H.setup hC
+  obtain ⟨ξ', hξB', hξfix', hξuniq', hit'⟩ := smap_fixed_iterates hfam' H'.setup hC
+  -- identify `toAlpha ξ` with `δα`
+  have hid : ∀ {s₀ : DecParams G} {α₀₀ : G.Ω 1 → ℂ} {φ₀₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+      {Fs₀ : G.Ω 1 × Fin N → ℂ} {ξ₀ δα₀ : G.Ω 1 → ℂ},
+      Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀ ξ₀ = ξ₀ →
+      ξ₀ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ) →
+      (∀ ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ),
+        Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀ ξ' = ξ' → ξ' = ξ₀) →
+      DecFixed G a ν s₀ ιU α₀₀ φ₀₀ Fs₀ δα₀ → Small G δα₀ (c6' d L N B Γ) →
+      toAlpha G ξ₀ = δα₀ := by
+    intro s₀ α₀₀ φ₀₀ Fs₀ ξ₀ δα₀ _ _ huniq hf hsm₀
+    have hm : ofAlpha G δα₀ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ) := by
+      rw [mem_closedBall_zero_iff]
+      refine (pi_norm_le_iff_of_nonneg (c6'_pos (d := d) (L := L) (N := N) hB0 hΓ).le).2
+        fun x => ?_
+      rw [norm_ofAlpha]; exact hsm₀ x
+    have hf' : Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀
+        (ofAlpha G δα₀) = ofAlpha G δα₀ := by
+      funext x
+      unfold Smap
+      rw [toAlpha_ofAlpha]
+      have := congrFun hf x
+      unfold DecFixed at hf
+      rw [hf]
+      rfl
+    rw [← huniq _ hm hf', toAlpha_ofAlpha]
+  have e1 : toAlpha G ξ = δα := hid hξfix hξB hξuniq hfix hsm
+  have e2 : toAlpha G ξ' = δα' := hid hξfix' hξB' hξuniq' hfix' hsm'
+  have hpoly : ∀ {α₀₀ : G.Ω 1 → ℂ}, Small G α₀₀ δ₀ → δ₀ + c6' d L N B Γ ≤ Γ := by
+    intro _ _; linarith [hC.poly, hC.ρ_nn]
+  -- the pair induction
+  have hagreeξ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → ξ x = ξ' x := by
+    refine fixed_agree_of_step (T := fun x : G.Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y)
+      (fun u v hu hv huv i hi => ?_) (fun n => ⟨(hit n).1, (hit n).2⟩)
+      (fun n => ⟨(hit' n).1, (hit' n).2⟩) hC.ρ_nn
+    exact local_step hF S hconn hκ hM hs hs' H.alpha0 H'.alpha0 (hpoly H.alpha0)
+      hY hs1 hs0 hag hD hu hv huv i hi
+  have hδ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x := by
+    intro x hx
+    rw [← e1, ← e2]
+    unfold toAlpha
+    rw [hagreeξ x hx]
+  refine ⟨hδ, fun y hy i => ?_⟩
+  have hA : Small G (α₀ + δα) Γ := fun z => ((Small.add H.alpha0 hsm) z).trans (hpoly H.alpha0)
+  have hA' : Small G (α₀' + δα') Γ := fun z =>
+    ((Small.add H'.alpha0 hsm') z).trans (hpoly H'.alpha0)
+  unfold dphi
+  rw [liftOp_mulVec, liftOp_mulVec]
+  refine dg5'_inner S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
+    (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hs1 hs0 hag
+    (fun z hz => ?_) (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) δα (b, i))
+    (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') δα' (b, i)) (fun b hb => ?_) y hy
+  · simp only [Pi.add_apply]
+    rw [hD.alpha z (SY_subset hz), hδ z hz]
+  · simp only [Fsrc]
+    rw [pertSource_congr hD (SY_subset hb) i, hD.phi b (SY_subset hb), hδ b hb]
+
+end Pair
+
 end Balaban.Localization
