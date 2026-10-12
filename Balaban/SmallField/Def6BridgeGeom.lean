@@ -22,8 +22,9 @@ of the covering size (FLUCTUATION Lemma 1.2, `Balaban/Fluctuation/SizeMod*.lean`
   polymer counted in blocks (`card_Ypoly`: `|Ypoly X'| = |X'| L^{jd}` for non-winding `X'`);
 * `liftPolys_count_le`, `liftPolys_summable` (counting, from (G2) with `κ₀ = κ - 2 ≥ a_ent + 1`):
   `∑ |X'|² (1 + d_j)⁶ e^{-(κ-1) d_j} ≤ K₀` with `K₀` independent of `j` and of the torus;
-* `IsSFFamily.premisesTerm`: `PremisesTerm` for the lifted family, every field except the point
-  group invariance `sym_mem`, `sym_inv`.
+* `IsSFFamily.premisesCore`: `PremisesTerm` for the lifted family, every field except the point
+  group invariance `sym_mem`, `sym_inv` (`PremisesCore`); `IsSFFamily.premisesTerm` adds them as
+  hypotheses.
 
 Typing data: `L^{m₀} ∣ N₁` (the cells tile the torus), `1 ≤ j ≤ k`.
 -/
@@ -431,11 +432,34 @@ section Final
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 
-/-- **`IsSFFamily.premisesTerm`**: a member of the class supplies the premises of the termwise I-6
+/-- **`IsSFFamily.premisesCore`**: a member of the class supplies the premises of the termwise I-6
 at each scale `1 ≤ j ≤ k` on every torus (`N₁` divisible by `L^{m₀}`), for the lifted family
-`liftTF`: the geometric fields from (G1), (G2), (G5) (with `κ ≥ a_ent + 3`), the analytic fields
-from the class (radius `ρ = liftRadius ≍ ε_j²`; numerical condition `hsmall`).  Only the point-group invariance (`sym_mem`, `sym_inv`)
-remains as the internal hypotheses (see the module docstring of `Def6BridgeLift`). -/
+`liftTF`, except the point-group invariance: the geometric fields from (G1), (G2), (G5) (with
+`κ ≥ a_ent + 3`) and the analytic fields from the class, with the tube radius
+`ρ = liftRadius ≍ ε_j²` (numerical condition `hsmall`). -/
+theorem IsSFFamily.premisesCore {P : Consts} {β ν a : ℕ → ℝ} {Ek : ℕ → ℝ}
+    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {j : ℕ}
+    (hF : IsSFFamily P β ν a Tm ρd Ek) (N₁ : ℕ) [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) (hκ : aEnt d L + 3 ≤ P.κ)
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
+    {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
+    PremisesCore (liftTF P j i₀ (nuIdeal L k (ν k) j) (liftRadius d L N P j) (Tm N₁)) i₀ i₁
+      (nuIdeal L k (ν k) j) (liftRadius d L N P j)
+      P.E₀ P.κ (diamA d L P.m₀ m₁)
+      ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
+        K0 d L (P.κ - 2)) (liftDom P β ν a (Tm N₁) j i₀) :=
+  (hF.liftCtx N₁ hd hL hϱ hj1 hjk (liftRadius_pos (eps_pos hF.admissible.α₀_pos j) i₀)
+    (liftRadius_spec (eps_pos hF.admissible.α₀_pos j) i₀ hsmall)).premisesCore hne
+    (fun _ hX _ hx => liftPolys_diam hjk hX hx) (liftPolys_summable P j)
+    (liftPolys_count_le hjk hN hκ)
+
+/-- **`IsSFFamily.premisesTerm`**: `IsSFFamily.premisesCore` together with the point-group
+invariance `sym_mem`, `sym_inv` (H.3), which the class does not supply for the polymers aligned at
+the origin (see the report of the bridge). -/
 theorem IsSFFamily.premisesTerm {P : Consts} {β ν a : ℕ → ℝ} {Ek : ℕ → ℝ}
     {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
     {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
@@ -460,10 +484,7 @@ theorem IsSFFamily.premisesTerm {P : Consts} {β ν a : ℕ → ℝ} {Ek : ℕ �
       P.E₀ P.κ (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDom P β ν a (Tm N₁) j i₀) :=
-  (hF.liftCtx N₁ hd hL hϱ hj1 hjk (liftRadius_pos (eps_pos hF.admissible.α₀_pos j) i₀)
-    (liftRadius_spec (eps_pos hF.admissible.α₀_pos j) i₀ hsmall)).premisesTerm hne
-    (fun _ hX _ hx => liftPolys_diam hjk hX hx) (liftPolys_summable P j)
-    (liftPolys_count_le hjk hN hκ) sym_mem sym_inv
+  (hF.premisesCore N₁ hN hd hL hϱ hκ hj1 hjk hsmall hne).toPremisesTerm sym_mem sym_inv
 
 end Final
 

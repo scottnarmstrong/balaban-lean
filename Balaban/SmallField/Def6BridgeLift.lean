@@ -723,35 +723,56 @@ theorem LiftCtx.bdd_dom (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fi
     exact ctx.sf.boundE j ctx.j1 ctx.jk 0 (Ypoly j X') hX (zero_mem_Ypoly h0) Ψ h hXi
 
 
-/-- **The fields of `PremisesTerm` supplied by the class** for the lifted family: the geometry
-(`zero_mem`, `dist_nonneg`) and the analytic fields (`analytic`, `bdd_tube`, `bdd_dom`, `rot_inv`).
-The remaining fields (`diam`, `count_*`: the counting facts (G1), (G2), (G5) of FLUCTUATION
-Lemma 1.2; `sym_mem`, `sym_inv`: the point-group invariance) enter as the internal hypotheses of
-`LiftCtx.premisesTerm`. -/
-theorem LiftCtx.premisesTerm (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
-    {A K₀ : ℝ}
+/-- **`PremisesTerm` without the point-group invariance**: the fields of `PremisesTerm` other than
+`sym_mem`, `sym_inv`. -/
+structure PremisesCore (T : TermFamily d N) (i₀ i₁ : Fin N) (ν ρ E₀ κ A K₀ : ℝ)
+    (Dom : Set ((Site d → Spin N) × Spin N)) : Prop where
+  ne : i₀ ≠ i₁
+  zero_mem : ∀ X ∈ T.polys, (0 : Site d) ∈ X
+  dist_nonneg : ∀ X ∈ T.polys, 0 ≤ T.dist X
+  diam : ∀ X ∈ T.polys, ∀ x ∈ X, ((∑ μ, |x μ| : ℤ) : ℝ) ≤ A * (1 + T.dist X)
+  count_summable : Summable fun X : T.polys => wt κ X.1 (T.dist X.1)
+  count_le : ∑' X : T.polys, wt κ X.1 (T.dist X.1) ≤ K₀
+  analytic : ∀ X ∈ T.polys, AnalyticOnNhd ℂ (T.term X) (Tube i₀ ν ρ X)
+  bdd_tube : ∀ X ∈ T.polys, ∀ c ∈ Tube i₀ ν ρ X, ‖T.term X c‖ ≤ E₀ * Real.exp (-κ * T.dist X)
+  bdd_dom : ∀ X ∈ T.polys, ∀ p ∈ Dom,
+    ‖T.term X (pack X p.1 p.2)‖ ≤ E₀ * Real.exp (-κ * T.dist X)
+  rot_inv : ∀ X ∈ T.polys, ∀ c ∈ Tube i₀ ν ρ X, ∀ R : Matrix (Fin N) (Fin N) ℂ,
+    IsOrth R → EntryBd N R → rotCfgL R X c ∈ Tube i₀ ν ρ X → T.term X (rotCfgL R X c) = T.term X c
+
+/-- The core fields together with the point-group invariance (H.3) are `PremisesTerm`. -/
+theorem PremisesCore.toPremisesTerm {T : TermFamily d N} {i₀ i₁ : Fin N} {ν ρ E₀ κ A K₀ : ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)} (h : PremisesCore T i₀ i₁ ν ρ E₀ κ A K₀ Dom)
+    (sym_mem : ∀ r : Site d → Site d, IsLatGen r → ∀ X ∈ T.polys, X.image r ∈ T.polys)
+    (sym_inv : ∀ r : Site d → Site d, IsLatGen r → ∀ X ∈ T.polys, ∀ (ψ : Site d → Spin N)
+      (b : Spin N), T.term (X.image r) (pack (X.image r) (fun x => ψ (r x)) b) =
+        T.term X (pack X ψ b)) :
+    PremisesTerm T i₀ i₁ ν ρ E₀ κ A K₀ Dom :=
+  ⟨h.ne, h.zero_mem, h.dist_nonneg, h.diam, h.count_summable, h.count_le, h.analytic, h.bdd_tube,
+    h.bdd_dom, h.rot_inv, sym_mem, sym_inv⟩
+
+/-- **The core premises supplied by the class** for the lifted family: the geometry
+(`zero_mem`, `dist_nonneg`; `diam`, `count_*` as hypotheses, discharged in `Def6BridgeGeom`) and
+the analytic fields (`analytic`, `bdd_tube`, `bdd_dom`, `rot_inv`). -/
+theorem LiftCtx.premisesCore (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fin N}
+    (hne : i₁ ≠ i₀) {A K₀ : ℝ}
     (geo_diam : ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j, ∀ x ∈ X,
       ((∑ μ, |x μ| : ℤ) : ℝ) ≤ A * (1 + sizeJ (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P.m₀ j
         (Ypoly (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X)))
     (geo_summable : Summable (liftWt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j))
-    (geo_le : (∑' X, liftWt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j X) ≤ K₀)
-    (sym_mem : ∀ r : Site d → Site d, IsLatGen r →
-      ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
-        X.image r ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j)
-    (sym_inv : ∀ r : Site d → Site d, IsLatGen r →
-      ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
-        ∀ (ψ : Site d → Spin N) (b : Spin N),
-          termL Tm j i₀ (nuIdeal L k (ν k) j) ρ (X.image r) (pack (X.image r) (fun x => ψ (r x)) b) =
-            termL Tm j i₀ (nuIdeal L k (ν k) j) ρ X (pack X ψ b)) :
-    PremisesTerm (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ Tm) i₀ i₁ (nuIdeal L k (ν k) j) ρ P.E₀
-      P.κ A K₀ (liftDom P β ν a Tm j i₀) :=
-  PremisesTerm.ofDomain (fun X => Tube i₀ (nuIdeal L k (ν k) j) ρ X) (fun _ _ => subset_rfl)
-    hne.symm (fun _ hX => hX.1) (fun _ _ => treeLenCovOne_nonneg _ _ _) geo_diam geo_summable
-    geo_le (fun _ hX => ctx.analytic hne hX.2.2 hX.1)
-    (fun _ hX _ hc => ctx.bdd_tube hne hX.2.2 hX.1 hc)
-    (fun _ hX _ hp => ctx.bdd_dom hne hX hp)
-    (fun _ hX _ hc _ hR hRb hRc => ctx.rot_inv hne hX.2.2 hX.1 hc hR hRb hRc) sym_mem sym_inv
-
+    (geo_le : (∑' X, liftWt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j X) ≤ K₀) :
+    PremisesCore (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ Tm) i₀ i₁ (nuIdeal L k (ν k) j) ρ P.E₀
+      P.κ A K₀ (liftDom P β ν a Tm j i₀) where
+  ne := hne.symm
+  zero_mem := fun _ hX => hX.1
+  dist_nonneg := fun _ _ => treeLenCovOne_nonneg _ _ _
+  diam := geo_diam
+  count_summable := geo_summable
+  count_le := geo_le
+  analytic := fun _ hX => ctx.analytic hne hX.2.2 hX.1
+  bdd_tube := fun _ hX _ hc => ctx.bdd_tube hne hX.2.2 hX.1 hc
+  bdd_dom := fun _ hX _ hp => ctx.bdd_dom hne hX hp
+  rot_inv := fun _ hX _ hc _ hR hRb hRc => ctx.rot_inv hne hX.2.2 hX.1 hc hR hRb hRc
 
 /-- **The context from class membership.**  A member of the class on the torus `N₁` (the per-torus
 form of `IsSFFamily`) gives the context at the scale `j` whenever the numerical conditions on the
