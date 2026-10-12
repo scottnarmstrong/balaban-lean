@@ -1,0 +1,27 @@
+import Balaban.Background.ApproxLocal
+
+open Balaban.Multiscale Balaban.Background
+
+private theorem impossible_mass_inequalities {B δ ε : ℝ}
+    (hB : 1 < B) (hδ : 0 < δ) (hδε : δ ≤ ε)
+    (hmass : B * ε ^ 2 ≤ δ ^ 2) : False := by
+  have hε : 0 < ε := lt_of_lt_of_le hδ hδε
+  have hprod : 0 < (B - 1) * ε ^ 2 :=
+    mul_pos (by linarith) (sq_pos_of_pos hε)
+  have hsq : δ ^ 2 ≤ ε ^ 2 := by
+    nlinarith [mul_nonneg (sub_nonneg.mpr hδε) (by linarith : 0 ≤ ε + δ)]
+  nlinarith
+
+theorem inUnionDomainC_empty_of_mass_gt_one
+    {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L N₀ k ϱ} {c₀ c₁ ν : ℝ} {D : BgData G N}
+    (hB : 1 < ν * ((L : ℝ) ^ k) ^ 2) :
+    ¬ InUnionDomainC G c₀ c₁ ν D := by
+  rintro ⟨δ, ε, hδ, hδε, _, _, hmass, _⟩
+  exact impossible_mass_inequalities hB hδ hδε hmass
+
+theorem approxSetting_empty_of_mass_gt_one
+    {d L k : ℕ} {ϱ : ℝ} {a : ℕ → ℝ} {ν δ ε : ℝ}
+    (hB : 1 < ν * ((L : ℝ) ^ k) ^ 2)
+    (S : ApproxSetting d L k ϱ a ν δ ε) : False := by
+  exact impossible_mass_inequalities hB S.hδ0 S.hδε S.hνε

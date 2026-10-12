@@ -1,0 +1,257 @@
+Balaban/LargeField/Counter/Instantiation.lean:9:For a `RegionHistory` whose removed components are ripe, `RegionHistory.toLF2Hyp` is the abstract
+Balaban/LargeField/Counter/Instantiation.lean:26:namespace RegionHistory
+Balaban/LargeField/Counter/Instantiation.lean:29:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Counter/Instantiation.lean:92:end RegionHistory
+Balaban/LargeField/Counter/InstantiationFlow.lean:10:`RegionHistory.flow_counter` assembles the instantiation: the region history of the flow gives
+Balaban/LargeField/Counter/InstantiationFlow.lean:20:namespace RegionHistory
+Balaban/LargeField/Counter/InstantiationFlow.lean:27:theorem flow_counter (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (H : RegionHistory S n R F.k0)
+Balaban/LargeField/Counter/InstantiationFlow.lean:47:end RegionHistory
+Balaban/LargeField/Operators/Symm.lean:24:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Operators/Ancestors.lean:8:For a component `Z'` of `Z^pre_{k+1}` and an old part `Y ∈ Anc_k(Z')` (`RegionHistory.parts`) the
+Balaban/LargeField/Operators/Ancestors.lean:22:open Balaban RegionHistory
+Balaban/LargeField/Operators/Ancestors.lean:24:namespace RegionHistory
+Balaban/LargeField/Operators/Ancestors.lean:27:  {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/Ancestors.lean:109:end RegionHistory
+Balaban/LargeField/Operators/QuietIndep.lean:25:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/QuietIndep.lean:105:  (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
+Balaban/LargeField/Operators/QuietIndep.lean:166:  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/Quiet.lean:26:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory
+Balaban/LargeField/Operators/Quiet.lean:45:def IsQuiet (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) : Prop :=
+Balaban/LargeField/Operators/Quiet.lean:143:variable (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
+Balaban/LargeField/Operators/QuietInt.lean:22:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/QuietInt.lean:41:  (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
+Balaban/LargeField/Operators/QuietBound.lean:22:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/QuietBound.lean:27:  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/Variables.lean:39:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Operators/QuietSymmEuclid.lean:22:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Operators/LocOp.lean:42:open MeasureTheory Balaban Balaban.Multiscale RegionHistory
+Balaban/LargeField/Operators/LocOp.lean:64:variable {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/LocOp.lean:128:variable {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/LocOp.lean:192:  {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/LocOp.lean:299:def IsKept (H : RegionHistory S n R k0) (k : ℕ) (Z : H.Comp k) : Prop :=
+Balaban/LargeField/Operators/HistGen.lean:11:`RegionSeq` (`RegionHistory.toSeq`), so Lemma I.3.10 (`flowGeneratingSet`) gives its generating
+Balaban/LargeField/Operators/HistGen.lean:26:namespace RegionHistory
+Balaban/LargeField/Operators/HistGen.lean:29:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Operators/HistGen.lean:33:    RegionSeq S.d S.L n S.Rb S.lam R (critOpt S k0) where
+Balaban/LargeField/Operators/HistGen.lean:39:    simpa [FlowSteps.Zpre] using h
+Balaban/LargeField/Operators/HistGen.lean:45:    simp only [FlowSteps.Zpre, Setting.omega_eq_omegaW]
+Balaban/LargeField/Operators/HistGen.lean:61:end RegionHistory
+Balaban/LargeField/Operators/QuietShell.lean:13:(`RegionSeq.OmegaAt_compl_subset_Z`).
+Balaban/LargeField/Operators/QuietShell.lean:22:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/QuietShell.lean:27:  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/QuietSymm.lean:36:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory Matrix
+Balaban/LargeField/Operators/QuietSymm.lean:406:  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ)
+Balaban/LargeField/Base/BaseWitness.lean:37:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory
+Balaban/LargeField/Region/Overwrite.lean:124:  {lam R : ℕ → ℝ} {crit : ℕ → Option ℕ} (S : RegionSeq d L nn Rbase lam R crit)
+Balaban/LargeField/Region/Overwrite.lean:147:theorem RegionSeq.Z_grow {K : ℕ} (i : ℕ) (x : Torus d (M * nn K * L ^ K))
+Balaban/LargeField/Operators/CompBound.lean:44:open MeasureTheory Balaban Balaban.Multiscale RegionHistory ENNReal
+Balaban/LargeField/Operators/CompBound.lean:59:variable {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/CompBound.lean:214:variable {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/CompBound.lean:729:variable {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/CompBound.lean:828:variable {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/CompBound.lean:987:variable {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/CompBound.lean:1103:variable {H : RegionHistory S n R k0} {k : ℕ}
+Balaban/LargeField/Operators/CompBound.lean:1129:noncomputable def Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1143:noncomputable def Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1162:noncomputable def Pfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1169:theorem measurable_Afn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1191:theorem measurable_Bfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1223:theorem measurable_Pfn {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Operators/CompBound.lean:1232:theorem measurable_Fw {H : RegionHistory S n R k0} {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Region/Generating.lean:11:`RegionSeq` is the sequence of steps `𝕋_i → 𝕋_{i+1}` of Definition I.3.1 with
+Balaban/LargeField/Region/Generating.lean:70:structure RegionSeq (d L : ℕ) (nn : ℕ → ℕ) [∀ i, NeZero (nn i)] (Rbase : ℝ) (lam R : ℕ → ℝ)
+Balaban/LargeField/Region/Generating.lean:77:namespace RegionSeq
+Balaban/LargeField/Region/Generating.lean:80:  {crit : ℕ → Option ℕ} (S : RegionSeq d L nn Rbase lam R crit)
+Balaban/LargeField/Region/Generating.lean:101:end RegionSeq
+Balaban/LargeField/Region/Generating.lean:156:noncomputable def flowOmega (S : RegionSeq d L nn Rbase lam R crit) (K j : ℕ) :
+Balaban/LargeField/Region/Generating.lean:160:theorem mem_flowOmega (S : RegionSeq d L nn Rbase lam R crit) {K j : ℕ}
+Balaban/LargeField/Region/Generating.lean:169:variable (S : RegionSeq d L nn Rbase lam R crit)
+Balaban/LargeField/Region/Generating.lean:173:theorem RegionSeq.nesting (hL : 0 < L) (i : ℕ) {y : Torus d (nn (i + 1))}
+Balaban/LargeField/Operators/StepData.lean:37:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/StepData.lean:68:def ChiNewAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k : ℕ)
+Balaban/LargeField/Operators/StepData.lean:83:def ChiDomAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k : ℕ)
+Balaban/LargeField/Operators/StepData.lean:173:  b_bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ)
+Balaban/LargeField/Operators/StepData.lean:181:  quiet : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (hk : k + 1 ≤ K)
+Balaban/LargeField/Operators/StepData.lean:186:  dom : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ)
+Balaban/LargeField/Operators/StepData.lean:191:  gauss : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z' : H.Comp (k + 1)),
+Balaban/LargeField/Operators/StepData.lean:250:  bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z : H.Comp k),
+Balaban/LargeField/Base/BaseWitnessGauss.lean:28:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory ENNReal
+Balaban/LargeField/Operators/MainAction.lean:29:open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory
+Balaban/LargeField/Operators/MainAction.lean:64:  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ)
+Balaban/LargeField/Operators/MainAction.lean:68:theorem Geo.three_L_le_floor (Hl : RegionHistory S n R k0) (j : ℕ) : 3 * S.L ≤ ⌊R j⌋₊ := by
+Balaban/LargeField/Operators/KerBound.lean:24:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Base/BaseSupport.lean:18:`RegionHistory.baseSpinSupport` is the same for the generating set `histGen` of a region history.
+Balaban/LargeField/Base/BaseSupport.lean:123:namespace RegionHistory
+Balaban/LargeField/Base/BaseSupport.lean:126:  (H : RegionHistory S n R k0) {M : ℕ} [NeZero M] [NeZero S.L]
+Balaban/LargeField/Base/BaseSupport.lean:136:  simp only [RegionSeq.OmegaAt_succ]
+Balaban/LargeField/Base/BaseSupport.lean:162:end RegionHistory
+Balaban/LargeField/Operators/Setup.lean:30:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Operators/Setup.lean:87:def locHist (Hl : RegionHistory S n R k0) (M K k : ℕ) (Zc : Finset (Torus S.d (n k))) :
+Balaban/LargeField/Operators/Setup.lean:98:theorem locHist_locRH (H : RegionHistory S n R k0) (M K k : ℕ) (Z : H.Comp k) :
+Balaban/LargeField/Operators/Setup.lean:101:theorem locComp_mem (H : RegionHistory S n R k0) {k : ℕ} (Z : H.Comp k) :
+Balaban/LargeField/History/GainClock.lean:26:namespace RegionHistory
+Balaban/LargeField/History/GainClock.lean:29:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/GainClock.lean:136:end RegionHistory
+Balaban/LargeField/Operators/Invariance.lean:34:open MeasureTheory Balaban RegionHistory
+Balaban/LargeField/Operators/Invariance.lean:53:variable {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/Invariance.lean:176:structure HistIso (H H' : RegionHistory S n R k0) (σ : TorusSym S n M K) where
+Balaban/LargeField/Operators/Invariance.lean:188:variable {H H' : RegionHistory S n R k0} {σ : TorusSym S n M K}
+Balaban/LargeField/History/RegionHistory.lean:3:public import Balaban.LargeField.History.FlowSteps
+Balaban/LargeField/History/RegionHistory.lean:11:A `RegionHistory` consists of the steps of the region calculus (`FlowSteps`) and, for each scale
+Balaban/LargeField/History/RegionHistory.lean:28:`RegionHistory.Admissible`). -/
+Balaban/LargeField/History/RegionHistory.lean:29:structure RegionHistory (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 : ℕ) where
+Balaban/LargeField/History/RegionHistory.lean:31:  F : FlowSteps S n R k0
+Balaban/LargeField/History/RegionHistory.lean:39:namespace RegionHistory
+Balaban/LargeField/History/RegionHistory.lean:42:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/RegionHistory.lean:119:end RegionHistory
+Balaban/LargeField/Base/BaseHistory.lean:12:For a region history `H` the step `0 → 1` is a base record (`RegionHistory.baseRecord`,
+Balaban/LargeField/Base/BaseHistory.lean:13:`Z_0 = ∅`).  Lemma II.7.2 (RH holds for every `FlowSteps`):
+Balaban/LargeField/Base/BaseHistory.lean:34:namespace RegionHistory
+Balaban/LargeField/Base/BaseHistory.lean:37:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Base/BaseHistory.lean:42:  simpa [FlowSteps.Zpre] using h
+Balaban/LargeField/Base/BaseHistory.lean:260:end RegionHistory
+Balaban/LargeField/Characteristic/OperatorDomain.lean:34:open Balaban Balaban.Multiscale Balaban.Background RegionHistory
+Balaban/LargeField/History/Floor.lean:25:namespace RegionHistory
+Balaban/LargeField/History/Floor.lean:28:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/Floor.lean:138:end RegionHistory
+Balaban/LargeField/Operators/LocOpBound.lean:23:open MeasureTheory Balaban Balaban.Multiscale RegionHistory
+Balaban/LargeField/Operators/LocOpBound.lean:28:  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0}
+Balaban/LargeField/Operators/LocOpBound.lean:80:      simpa [RegionHistory.kappa, hev] using h
+Balaban/LargeField/Operators/LocOpBound.lean:84:    simp only [RegionHistory.kappa, hev, ↓reduceIte, RegionHistory.kappaPre]
+Balaban/LargeField/History/FlowInv.lean:29:namespace RegionHistory
+Balaban/LargeField/History/FlowInv.lean:32:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/FlowInv.lean:215:end RegionHistory
+Balaban/LargeField/History/Merges.lean:24:namespace RegionHistory
+Balaban/LargeField/History/Merges.lean:27:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/Merges.lean:159:end RegionHistory
+Balaban/LargeField/Characteristic/Analytic.lean:30:open Balaban Balaban.Multiscale Balaban.Background RegionHistory
+Balaban/LargeField/History/FlowBook.lean:3:public import Balaban.LargeField.History.RegionHistory
+Balaban/LargeField/History/FlowBook.lean:9:For a `RegionHistory` the spine of every component of `Z^pre_k` is defined by recursion on `k`:
+Balaban/LargeField/History/FlowBook.lean:24:namespace RegionHistory
+Balaban/LargeField/History/FlowBook.lean:27:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/FlowBook.lean:240:end RegionHistory
+Balaban/LargeField/History/Descent.lean:22:namespace RegionHistory
+Balaban/LargeField/History/Descent.lean:25:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/Descent.lean:129:end RegionHistory
+Balaban/LargeField/History/Branch.lean:26:namespace RegionHistory
+Balaban/LargeField/History/Branch.lean:29:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/Branch.lean:192:end RegionHistory
+Balaban/LargeField/Budget/CanonicalBook.lean:9:The spine of a component is chosen (`RegionHistory.nextSpine`) by `Classical.choose` among the
+Balaban/LargeField/Budget/CanonicalBook.lean:16:* `RegionHistory.SpineOK_iff`: `SpineOK` is a property of `Z'`, of the old parts as a set of
+Balaban/LargeField/Budget/CanonicalBook.lean:18:* `RegionHistory.bk_eq_of_localHistory_eq`: if `localHistory H₁ M K k Z₁ = localHistory H₂ M K k Z₂`
+Balaban/LargeField/Budget/CanonicalBook.lean:129:namespace RegionHistory
+Balaban/LargeField/Budget/CanonicalBook.lean:163:noncomputable def spineO (H : RegionHistory S n R k0) (k : ℕ) (Y : Finset (Torus S.d (n k))) :
+Balaban/LargeField/Budget/CanonicalBook.lean:168:theorem spineO_comp (H : RegionHistory S n R k0) (k : ℕ) (c : H.Comp k) :
+Balaban/LargeField/Budget/CanonicalBook.lean:173:theorem SpineOK_iff (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Budget/CanonicalBook.lean:211:theorem spine_succ_eq (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+Balaban/LargeField/Budget/CanonicalBook.lean:223:theorem mem_Zp_of_old (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1))
+Balaban/LargeField/Budget/CanonicalBook.lean:235:    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
+Balaban/LargeField/Budget/CanonicalBook.lean:289:end RegionHistory
+Balaban/LargeField/History/RegionGrow.lean:27:namespace RegionHistory
+Balaban/LargeField/History/RegionGrow.lean:30:  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+Balaban/LargeField/History/RegionGrow.lean:97:end RegionHistory
+Balaban/LargeField/Budget/Exponents.lean:60:namespace RegionHistory
+Balaban/LargeField/Budget/Exponents.lean:63:  (H : RegionHistory S n R k0) (P : BudgetConsts)
+Balaban/LargeField/Budget/Exponents.lean:116:end RegionHistory
+Balaban/LargeField/History/RegionLineage.lean:28:namespace RegionHistory
+Balaban/LargeField/History/RegionLineage.lean:31:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/RegionLineage.lean:156:end RegionHistory
+Balaban/LargeField/Budget/Fine.lean:33:    (RegionHistory.fineSet (S := S) (n := n) M K j (A : Set (Torus S.d (n j)))).ncard =
+Balaban/LargeField/Budget/Fine.lean:39:  have e : RegionHistory.fineSet (S := S) (n := n) M K j (A : Set (Torus S.d (n j))) =
+Balaban/LargeField/Budget/Fine.lean:43:    simp [RegionHistory.fineSet, cubeMap]
+Balaban/LargeField/Budget/Fine.lean:63:    (h : RegionHistory.fineSet (S := S) (n := n) M K j A =
+Balaban/LargeField/Budget/Fine.lean:64:      RegionHistory.fineSet (S := S) (n := n) M K j B) : A = B := by
+Balaban/LargeField/Budget/Fine.lean:72:namespace RegionHistory
+Balaban/LargeField/Budget/Fine.lean:75:  {H : RegionHistory S n R k0} {M K k : ℕ} [NeZero M]
+Balaban/LargeField/Budget/Fine.lean:131:end RegionHistory
+Balaban/LargeField/History/StepKinds.lean:91:namespace RegionHistory
+Balaban/LargeField/History/StepKinds.lean:94:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/StepKinds.lean:288:end RegionHistory
+Balaban/LargeField/Budget/Injective.lean:69:namespace RegionHistory
+Balaban/LargeField/Budget/Injective.lean:74:theorem parts_image_eq_comps (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+Balaban/LargeField/Budget/Injective.lean:87:theorem lin_succ_self (H : RegionHistory S n R k0) (k : ℕ) (Z' : H.Comp (k + 1)) :
+Balaban/LargeField/Budget/Injective.lean:95:theorem lin_succ_decomp (H : RegionHistory S n R k0) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
+Balaban/LargeField/Budget/Injective.lean:104:noncomputable def linO (H : RegionHistory S n R k0) (j k : ℕ) (Y : Finset (Torus S.d (n k))) :
+Balaban/LargeField/Budget/Injective.lean:108:theorem linO_comp (H : RegionHistory S n R k0) (j k : ℕ) (c : H.Comp k) :
+Balaban/LargeField/Budget/Injective.lean:113:theorem lin_succ_decomp' (H : RegionHistory S n R k0) {j : ℕ} (k : ℕ) (hjk : j ≤ k)
+Balaban/LargeField/Budget/Injective.lean:122:theorem tailZ_congr {H1 H2 : RegionHistory S n R k0} {k : ℕ} (Z1 : H1.Comp k) (Z2 : H2.Comp k)
+Balaban/LargeField/Budget/Injective.lean:133:theorem localHistory_congr {H1 H2 : RegionHistory S n R k0} {M K k : ℕ} [NeZero M]
+Balaban/LargeField/Budget/Injective.lean:159:theorem localHistory_succ_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k + 1 ≤ K)
+Balaban/LargeField/Budget/Injective.lean:288:end RegionHistory
+Balaban/LargeField/History/FlowCover.lean:40:namespace RegionHistory
+Balaban/LargeField/History/FlowCover.lean:43:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/FlowCover.lean:95:end RegionHistory
+Balaban/LargeField/Budget/Summability.lean:83:namespace RegionHistory
+Balaban/LargeField/Budget/Summability.lean:86:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Budget/Summability.lean:117:end RegionHistory
+Balaban/LargeField/Budget/Summability.lean:166:namespace RegionHistory
+Balaban/LargeField/Budget/Summability.lean:169:  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+Balaban/LargeField/Budget/Summability.lean:198:end RegionHistory
+Balaban/LargeField/Budget/Summability.lean:203:    (Y : Finset (Torus S.d (n k))) : Set (RegionHistory.LocalHistory S n M K) :=
+Balaban/LargeField/Budget/Summability.lean:204:  {a | ∃ (H : RegionHistory S n R k0) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
+Balaban/LargeField/Budget/Summability.lean:205:    a = RegionHistory.localHistory H M K k ⟨Y, hY⟩}
+Balaban/LargeField/Budget/Summability.lean:222:open RegionHistory in
+Balaban/LargeField/Budget/Summability.lean:252:    have : Nonempty (RegionHistory S n R k0) := ⟨H0⟩
+Balaban/LargeField/Budget/Summability.lean:253:    have hex : ∀ a ∈ A, ∃ (H : RegionHistory S n R k0)
+Balaban/LargeField/History/LocalHistory.lean:24:namespace RegionHistory
+Balaban/LargeField/History/LocalHistory.lean:27:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/LocalHistory.lean:62:def historiesWithFinal (k : ℕ) (Z : Finset (Torus S.d (n k))) : Set (RegionHistory S n R k0) :=
+Balaban/LargeField/History/LocalHistory.lean:95:end RegionHistory
+Balaban/LargeField/Budget/Labelled.lean:9:* `logC_eq_record`: the recursive `log C_k` of Definition II.5.11 (`RegionHistory.logC`) is the
+Balaban/LargeField/Budget/Labelled.lean:29:namespace RegionHistory
+Balaban/LargeField/Budget/Labelled.lean:32:  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+Balaban/LargeField/Budget/Labelled.lean:68:end RegionHistory
+Balaban/LargeField/Budget/Labelled.lean:80:open RegionHistory in
+Balaban/LargeField/History/Entry.lean:23:namespace RegionHistory
+Balaban/LargeField/History/Entry.lean:26:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/Entry.lean:110:end RegionHistory
+Balaban/LargeField/History/WindowCover.lean:38:namespace RegionHistory
+Balaban/LargeField/History/WindowCover.lean:41:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/WindowCover.lean:132:end RegionHistory
+Balaban/LargeField/Budget/LemmaB.lean:17:`lemmaB` states this in exactly the form of the `budget` argument of `RegionHistory.toLF2Hyp`,
+Balaban/LargeField/Budget/LemmaB.lean:148:namespace RegionHistory
+Balaban/LargeField/Budget/LemmaB.lean:151:  (H : RegionHistory S n R k0) {P : BudgetConsts}
+Balaban/LargeField/Budget/LemmaB.lean:154:`budget` argument of `RegionHistory.toLF2Hyp`: for every component `Z'` of `Z^pre_{k+1}` (hull
+Balaban/LargeField/Budget/LemmaB.lean:275:end RegionHistory
+Balaban/LargeField/Budget/KeptPositions.lean:9:`RegionHistory.keptPos H k Z` is the set of positions `(j, c)` (a scale `j` and a component `c`
+Balaban/LargeField/Budget/KeptPositions.lean:25:namespace RegionHistory
+Balaban/LargeField/Budget/KeptPositions.lean:28:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Budget/KeptPositions.lean:72:    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
+Balaban/LargeField/Budget/KeptPositions.lean:115:theorem isKeptEvent_iff_of_localHistory_eq {k : ℕ} (hkK : k ≤ K) {H1 H2 : RegionHistory S n R k0}
+Balaban/LargeField/Budget/KeptPositions.lean:123:end RegionHistory
+Balaban/LargeField/Budget/KeptPositions.lean:130:open RegionHistory in
+Balaban/LargeField/Budget/KeptPositions.lean:140:    (hhist : ∀ x ∈ 𝒜, ∃ (H : RegionHistory S n R k0) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
+Balaban/LargeField/History/Core.lean:60:namespace RegionHistory
+Balaban/LargeField/History/Core.lean:63:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/Core.lean:200:end RegionHistory
+Balaban/LargeField/Budget/LogC.lean:26:namespace RegionHistory
+Balaban/LargeField/Budget/LogC.lean:36:  (H : RegionHistory S n R k0) {M K k : ℕ} [NeZero M]
+Balaban/LargeField/Budget/LogC.lean:101:end RegionHistory
+Balaban/LargeField/History/FlowSteps.lean:13:`FlowSteps S n R k₀` is the sequence of steps `𝕋_k → 𝕋_{k+1}` of Definition I.3.1 with the
+Balaban/LargeField/History/FlowSteps.lean:100:structure FlowSteps (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 : ℕ) where
+Balaban/LargeField/History/FlowSteps.lean:108:namespace FlowSteps
+Balaban/LargeField/History/FlowSteps.lean:111:  (F : FlowSteps S n R k0)
+Balaban/LargeField/History/FlowSteps.lean:151:end FlowSteps
+Balaban/LargeField/History/RipeWindow.lean:30:namespace RegionHistory
+Balaban/LargeField/History/RipeWindow.lean:33:  (H : RegionHistory S n R k0)
+Balaban/LargeField/History/RipeWindow.lean:151:end RegionHistory
+Balaban/LargeField/History/LocalRegion.lean:33:namespace RegionHistory
+Balaban/LargeField/History/LocalRegion.lean:36:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/LocalRegion.lean:85:/-- The steps of the lineage localization, as `FlowSteps`. -/
+Balaban/LargeField/History/LocalRegion.lean:86:noncomputable def locF (k : ℕ) (Z : H.Comp k) : FlowSteps S n R k0 :=
+Balaban/LargeField/History/LocalRegion.lean:167:noncomputable def locRH (k : ℕ) (Z : H.Comp k) : RegionHistory S n R k0 where
+Balaban/LargeField/History/LocalRegion.lean:323:end RegionHistory
+Balaban/LargeField/History/PointChain.lean:36:namespace RegionHistory
+Balaban/LargeField/History/PointChain.lean:39:  {H : RegionHistory S n R k0}
+Balaban/LargeField/History/PointChain.lean:102:end RegionHistory
+Balaban/LargeField/Budget/Counts.lean:50:namespace RegionHistory
+Balaban/LargeField/Budget/Counts.lean:53:  (H : RegionHistory S n R k0)
+Balaban/LargeField/Budget/Counts.lean:110:end RegionHistory
+Balaban/LargeField/Budget/RecordForward.lean:24:namespace RegionHistory
+Balaban/LargeField/Budget/RecordForward.lean:30:theorem lin_eq_of_localHistory_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k ≤ K)
+Balaban/LargeField/Budget/RecordForward.lean:41:theorem new_eq_of_localHistory_eq {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k ≤ K)
+Balaban/LargeField/Budget/RecordForward.lean:72:theorem mem_fine_lin_part {H : RegionHistory S n R k0} {k : ℕ} (hkK : k + 1 ≤ K)
+Balaban/LargeField/Budget/RecordForward.lean:97:theorem locRH_step_congr {H1 H2 : RegionHistory S n R k0} {k : ℕ} (Z1 : H1.Comp k)
+Balaban/LargeField/Budget/RecordForward.lean:137:theorem record_forward {H1 H2 : RegionHistory S n R k0} {k : ℕ} (hkK : k + 1 ≤ K)
+Balaban/LargeField/Budget/RecordForward.lean:160:    simp only [Finset.mem_inter, RegionHistory.newCubes, mem_finOf]
+Balaban/LargeField/Budget/RecordForward.lean:235:end RegionHistory
