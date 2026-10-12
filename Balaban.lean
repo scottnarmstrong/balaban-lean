@@ -275,6 +275,7 @@ public import Balaban.Localization.SupportMargin
 public import Balaban.Localization.SupportMarginExample
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
+public import Balaban.Localization.TreeLengthDiam
 public import Balaban.Localization.TreeLengthPaper
 public import Balaban.Localization.TreeLengthPaperExample
 public import Balaban.Localization.BlockCount
@@ -1216,6 +1217,7 @@ public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxLimits
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
+public import Balaban.LargeField.R.HaloDistance
 public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.PositiveMassFacts
