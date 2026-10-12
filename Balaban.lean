@@ -625,3 +625,4 @@ public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
 public import Balaban.Fluctuation.Lemma25Domain
+public import Balaban.Fluctuation.Lemma25
