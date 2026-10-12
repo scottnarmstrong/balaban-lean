@@ -2,7 +2,7 @@
 
 Written 2026-10-12 ~06:45 UTC by the orchestrator session scott-41 (account claude-2, weekly quota
 nearly exhausted). A new orchestrator session should read AGENTS.md, this file, and the last ~60 rows of
-`orchestration/LEDGER.md`, then continue. Policies: at most 4 Sonnet + 1 Opus subagents, no
+`orchestration/LEDGER.md`, then continue. Policies: at most 7 Sonnet + 1 Opus subagents (raised 2026-10-12), no
 sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.md verbatim in every brief
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
@@ -13,13 +13,16 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W98 | `w98-i6-class` / W98 | full I-6 for class members on the anisotropic domain |
-| W96 | `w96-witnesses` / W96 | positive-scale non-vacuity witnesses (i5_background, bridgeInf, LiftCtx) |
+| W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
+| W100 | `w100-lemmaF` / W100 | FLUCT Thm 4.2 + Cor 4.3 |
+| W101 | `w101-gm2-graph` / W101 | corrected cover partition + anchored graph GM2 |
+| W102 | `w102-obs-o3` / W102 | observables O3 (+O4) |
 | W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
 Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
-astra round 6 (sent ~11:10 UTC): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra-q13 (effort HIGH): Roland Q13 → Q13-ANSWER.md (tag Q13). astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
