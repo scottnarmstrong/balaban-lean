@@ -30,7 +30,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.
   Finset Set Filter
 
 /-- The background of the block datum of the witness setting is the constant unit field. -/
-theorem witness_bgField {m₁ : ℕ} {β δ : ℝ} (R : (witnessSetting m₁ β δ).RayData 2) :
+theorem activityWitness_bgField {m₁ : ℕ} {β δ : ℝ} (R : (witnessSetting m₁ β δ).RayData 2) :
     bgField (witnessSetting m₁ β δ).G' (witnessSetting m₁ β δ).a (witnessSetting m₁ β δ).ν
       (witnessSetting m₁ β δ).D' = unitPhi (witnessSetting m₁ β δ).G' hN2 := by
   have hcons := theta_consts (d := 3) (L := 3) (N := 2) (by norm_num) R.hδ'0 R.hδ'
@@ -65,7 +65,7 @@ theorem exists_activity_datum :
     exists_witness_params (fun _ => 0)
   obtain ⟨R0⟩ := rayData_witness hm hbig hδ hsm hδ'0 hδ'a hδ'b hδ'c hT hT1 hT2
   set S0 := witnessSetting m₁ (T ^ 2 / 3) δ with hS0
-  have hbg0 := witness_bgField R0
+  have hbg0 := activityWitness_bgField R0
   have hβ : 0 < S0.β := R0.hβ
   have hT0 := stepActivityThreshold_pos 3 3 6 m₁ 2
   set T0 := stepActivityThreshold 3 3 6 m₁ 2 with hT0def
