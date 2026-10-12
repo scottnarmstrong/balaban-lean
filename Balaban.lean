@@ -329,6 +329,13 @@ public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
+public import Balaban.LargeField.Background.MinimalGenSet
+public import Balaban.LargeField.Background.Lift
+public import Balaban.LargeField.Background.CubeUnion
+public import Balaban.LargeField.Background.StepGenSets
+public import Balaban.LargeField.Background.StepGenSetsFlow
+public import Balaban.LargeField.Background.Factorization
+public import Balaban.LargeField.Background.StepBackgrounds
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.JoinFamily
 public import Balaban.LargeField.History.StepSeeds
