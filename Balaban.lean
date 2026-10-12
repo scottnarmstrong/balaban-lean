@@ -544,3 +544,5 @@ public import Balaban.Fluctuation.Covariance
 public import Balaban.LargeField.Base.ChordQuadratic
 public import Balaban.LargeField.Base.ConeVolume
 public import Balaban.LargeField.Base.SphereChart
+public import Balaban.LargeField.Base.BlockPath
+public import Balaban.LargeField.Base.SpinsNearBackground
