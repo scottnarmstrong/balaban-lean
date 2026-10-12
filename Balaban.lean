@@ -1224,5 +1224,3 @@ public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
-public import Balaban.LargeField.R.RotSections
-public import Balaban.LargeField.R.RotSectionsLip
