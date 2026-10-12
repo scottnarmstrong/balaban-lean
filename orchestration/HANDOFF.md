@@ -13,9 +13,9 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
-| W131 | `w131-latsym` / W131 | LatTorusSym covariance + positive-scale quiet witness |
+| W134 | `w134-radii-witness` / W134 | joint witness with genuine radii R_j = Rb λ_j² |
 | W129 (Opus) | `w129-fldatum` / W129 | repair flDatum (ψ′ term, FLDATUM.md) + mixed-pair FlCore witness |
-| W130 | `w130-d1j` / W130 | level-j D1 (MASS-LEVEL.md) + ContAtZero fix |
+| W133 | `w133-psizero` / W133 | psiZero (LFR Lemma III.3.3) |
 | W127 | `w127-basek3` / W127 | base kernel: BASE-KERNEL-3 proved parts |
 | W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
 | W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
