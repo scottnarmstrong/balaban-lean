@@ -34,7 +34,7 @@ in the ledger row and the branch state):
 - W79: DONE (landed dd7b11e).
 - W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
 - W77: DONE (landed 7c6b40b).
-- W82 (`w82-base`): LFR Q1, Q5, Q6 (base record, base kernels, (S2) at k=0).
+- W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
 - W78: DONE (landed c6f82f7).
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
@@ -69,6 +69,7 @@ Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t 
 6. FLUCT modules 11 (Renorm, Lemma 3.5, Thm 3.1(g),(h)), 13 (Lemma 4.1), 14 (Switch scalar part);
    LFR Part III blocks P1–P16 (none started), Q1, Q5–Q7 after W77.
 7. Doc touch-up: LFR IV.1.3 prefactor per FLUCT v2 FL-A04.
+9. Base step Q5/Q6: needs an astra reconstruction of the k=0 kernel factor by factor (P5 (2.47) × P6 (3.2) at k=0: cube sets for P/Q/R/S, which bonds belong to the kernel, ψ′₀ factors), C^{(0)1/2}_loc and H, the explicit b₀; a `baseMainAction` with the spin-gradient energy on Λ₀. Then Q5/Q6 in Lean.
 8. LF localized-field domain fix (W81 item 3): `subMultiscaleField` vs `genBlocksIn` on localized histories; decide the definition change (level-k field on the V-support, or restrict genBlocksIn to the component), then prove the χ^dom identity. Also `quietKernel_euclid` (II.5.10 lattice part; several thousand lines).
 
 ## Waiting on Scott
