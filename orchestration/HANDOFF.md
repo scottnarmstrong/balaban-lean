@@ -18,7 +18,7 @@ Claude workers (background subagents of this session):
 | W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
 | W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
 | W123 | `w123-ripe-witness` / W123 | ripe-regime joint witness at L = 4 (k₀ ≥ 1) |
-| W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
+| W124 | `w124-prop33-bound` / W124 | Prop 3.3 bound shape, ν-part, symmetry |
 | W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra round 8 (sent ~12:00 UTC): vmod VMOD-8 (tag VMOD8), class GRAPH-GM (GRAPHGM), fluctfix P631-INPUTS (P631IN). astra-q13 idle (answer committed), awaiting Roland. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
