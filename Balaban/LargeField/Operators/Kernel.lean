@@ -13,8 +13,7 @@ A large-field kernel `(K, b)` has `K ≥ 0` Borel in the output and internal var
 of `g`, and `b` analytic in `g` on the `ℓ¹` unit ball and real for real arguments; the operators
 depend on `g` through `e^b` only (audit P2-04).  The variables are abstract: `O` (outputs),
 `X` (internal variables, with a reference measure `μ`), `H` (the parameter `h`), `ι` (the index of
-the coordinates of `g`).  `Bound126` is the bound (1.26) with the modulus inside, with the domain
-indicator `dom` (`χ^dom`) and the support condition of Lemma II.5.9 (d).
+the coordinates of `g`).  The bound (1.26) is `KerBound` (`KerBound.lean`).
 -/
 
 @[expose] public section
@@ -66,58 +65,6 @@ noncomputable def op (μ : Measure X) (h : H) (g : ι → ℂ) (F : O → X → 
 
 end LFKernel
 
-/-- The bound (1.26) with exponent `κ`: the kernel vanishes off the domain `dom` and, for all
-Borel `F` and all `g` in the `ℓ¹` ball,
-`∫ dν ∫ μ(dx) K e^{Re b} |F| ≤ e^{-κ} sup {χ^dom |F|}`. -/
-def Bound126 {O X H ι : Type*} [MeasurableSpace O] [MeasurableSpace X] [Fintype ι]
-    (T : LFKernel O X H ι) (ν : Measure O) (μ : Measure X) (dom : O → X → H → Prop) (κ : ℝ) :
-    Prop :=
-  (∀ o x h, ¬ dom o x h → T.K o x h = 0) ∧
-    ∀ h, ∀ g ∈ l1Ball ι, ∀ F : O → X → ℂ, Measurable (fun p : O × X => F p.1 p.2) →
-      ∫⁻ o, ∫⁻ x, T.absW o x h g * ‖F o x‖ₑ ∂μ ∂ν ≤
-        ENNReal.ofReal (Real.exp (-κ)) * ⨆ (p : O × X) (_ : dom p.1 p.2 h), ‖F p.1 p.2‖ₑ
-
-section Basic
-
-variable {O X H ι : Type*} [MeasurableSpace O] [MeasurableSpace X] [Fintype ι]
-  {T : LFKernel O X H ι} {ν : Measure O} {μ : Measure X} {dom : O → X → H → Prop} {κ : ℝ}
-  [SFinite ν] [SFinite μ]
-
-omit [SFinite ν] in
-/-- Reduction to `F ≡ 1` (audit P2-06). -/
-theorem bound126_iff_one :
-    Bound126 T ν μ dom κ ↔ (∀ o x h, ¬ dom o x h → T.K o x h = 0) ∧
-      ∀ h, ∀ g ∈ l1Ball ι, ∫⁻ o, ∫⁻ x, T.absW o x h g ∂μ ∂ν ≤ ENNReal.ofReal (Real.exp (-κ)) := by
-  constructor
-  · rintro ⟨hs, hb⟩
-    refine ⟨hs, fun h g hg => ?_⟩
-    have := hb h g hg (fun _ _ => 1) measurable_const
-    simp only [enorm_one, mul_one] at this
-    refine this.trans ?_
-    calc _ ≤ ENNReal.ofReal (Real.exp (-κ)) * 1 :=
-          by gcongr; exact iSup₂_le fun _ _ => le_rfl
-      _ = _ := mul_one _
-  · rintro ⟨hs, hb⟩
-    refine ⟨hs, fun h g hg F hF => ?_⟩
-    set Sup : ℝ≥0∞ := ⨆ (p : O × X) (_ : dom p.1 p.2 h), ‖F p.1 p.2‖ₑ with hSup
-    have hpt : ∀ o x, T.absW o x h g * ‖F o x‖ₑ ≤ T.absW o x h g * Sup := by
-      intro o x
-      by_cases hd : dom o x h
-      · gcongr
-        exact le_iSup₂ (f := fun (p : O × X) (_ : dom p.1 p.2 h) => ‖F p.1 p.2‖ₑ) (o, x) hd
-      · have : T.K o x h = 0 := hs o x h hd
-        simp [LFKernel.absW, this]
-    have hm1 : ∀ o, Measurable fun x => T.absW o x h g := fun o =>
-      (T.measurable_absW h g).comp measurable_prodMk_left
-    calc ∫⁻ o, ∫⁻ x, T.absW o x h g * ‖F o x‖ₑ ∂μ ∂ν
-        ≤ ∫⁻ o, ∫⁻ x, T.absW o x h g * Sup ∂μ ∂ν :=
-          lintegral_mono fun o => lintegral_mono fun x => hpt o x
-      _ = (∫⁻ o, ∫⁻ x, T.absW o x h g ∂μ ∂ν) * Sup := by
-          simp_rw [lintegral_mul_const _ (hm1 _)]
-          rw [lintegral_mul_const _ (T.measurable_absW h g).lintegral_prod_right']
-      _ ≤ ENNReal.ofReal (Real.exp (-κ)) * Sup := by gcongr; exact hb h g hg
-
-end Basic
 
 /-! ### Tensor products and compositions (Lemma II.5.3) -/
 
@@ -252,43 +199,5 @@ end Comp
 
 end LFKernel
 
-/-! ### The bound (1.26) is preserved -/
-
-section Bounds
-
-variable {H ι : Type*} [Fintype ι]
-
-/-- Tensor products preserve (1.26): exponents add. -/
-theorem Bound126.tensor {O₁ O₂ X₁ X₂ : Type*} [MeasurableSpace O₁] [MeasurableSpace O₂]
-    [MeasurableSpace X₁] [MeasurableSpace X₂] {T₁ : LFKernel O₁ X₁ H ι}
-    {T₂ : LFKernel O₂ X₂ H ι} {ν₁ : Measure O₁} {ν₂ : Measure O₂} {μ₁ : Measure X₁}
-    {μ₂ : Measure X₂} [SFinite ν₁] [SFinite ν₂] [SFinite μ₁] [SFinite μ₂]
-    {dom₁ : O₁ → X₁ → H → Prop} {dom₂ : O₂ → X₂ → H → Prop} {κ₁ κ₂ : ℝ}
-    (h₁ : Bound126 T₁ ν₁ μ₁ dom₁ κ₁) (h₂ : Bound126 T₂ ν₂ μ₂ dom₂ κ₂) :
-    Bound126 (LFKernel.tensor T₁ T₂) (ν₁.prod ν₂) (μ₁.prod μ₂)
-      (fun p x h => dom₁ p.1 x.1 h ∧ dom₂ p.2 x.2 h) (κ₁ + κ₂) := by
-  rw [bound126_iff_one] at h₁ h₂ ⊢
-  obtain ⟨s₁, b₁⟩ := h₁
-  obtain ⟨s₂, b₂⟩ := h₂
-  refine ⟨fun p x h hn => ?_, fun h g hg => ?_⟩
-  · by_cases h1 : dom₁ p.1 x.1 h
-    · have h2 : ¬ dom₂ p.2 x.2 h := fun h2 => hn ⟨h1, h2⟩
-      simp [LFKernel.tensor, s₂ _ _ _ h2]
-    · simp [LFKernel.tensor, s₁ _ _ _ h1]
-  · have hm : ∀ (o : O₁ × O₂), ∫⁻ x, (LFKernel.tensor T₁ T₂).absW o x h g ∂(μ₁.prod μ₂) =
-        (∫⁻ x₁, T₁.absW o.1 x₁ h g ∂μ₁) * ∫⁻ x₂, T₂.absW o.2 x₂ h g ∂μ₂ := by
-      intro o
-      simp_rw [LFKernel.tensor_absW]
-      exact lintegral_prod_mul
-        ((T₁.measurable_absW h g).comp measurable_prodMk_left).aemeasurable
-        ((T₂.measurable_absW h g).comp measurable_prodMk_left).aemeasurable
-    simp_rw [hm]
-    rw [lintegral_prod_mul
-      ((T₁.measurable_absW h g).lintegral_prod_right').aemeasurable
-      ((T₂.measurable_absW h g).lintegral_prod_right').aemeasurable,
-      show -(κ₁ + κ₂) = -κ₁ + -κ₂ by ring, Real.exp_add, ENNReal.ofReal_mul (Real.exp_pos _).le]
-    exact mul_le_mul' (b₁ h g hg) (b₂ h g hg)
-
-end Bounds
 
 end Balaban.LargeField
