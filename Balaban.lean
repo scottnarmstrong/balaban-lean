@@ -994,6 +994,11 @@ public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
 public import Balaban.Localization.P6PairSep
 public import Balaban.Localization.P6PairOp
+public import Balaban.Localization.P6PairBase
+public import Balaban.Localization.P6PairBaseHat
+public import Balaban.Localization.P6PairOne
+public import Balaban.Localization.P6PairOneP6
+public import Balaban.Localization.P6PairOneFl
 public import Balaban.Fluctuation.HatEngineDom
 public import Balaban.Fluctuation.HatEngineLift
 public import Balaban.Fluctuation.HatEngineFan

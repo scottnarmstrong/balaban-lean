@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W162 | `w162-obs-witness` / W162 | step regularity from background analyticity; ClassRegularObs witness |
 | W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
-| W160 | `w160-p6-base` / W160 | VMOD-11 rows 6–8: P6 pair CoverBase, FootLocal, s ≡ 1 identities |
+| W163 | `w163-p6-action` / W163 | P6 action identity on the step torus, CoverBase for locGen |
 | W154 | `w154-symm-engine` / W154 | symmetry of Prop 3.3 terms |
 | W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
 Opus queue after W141: psiZero Hessian bound (after astra PSIZERO-HESS). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief.
