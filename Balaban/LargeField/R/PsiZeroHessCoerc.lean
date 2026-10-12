@@ -171,6 +171,83 @@ theorem action_triangle (ha : IsAdmissibleWeights k a) (E : BgData G N)
         rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum, ← Finset.mul_sum]
   linarith
 
+/-- **The block energy of the top tangent datum**: `∑ w |Jv|² = a_k L^{k(d-2)} ‖v‖²`. -/
+theorem normSqE_top (hd : 2 ≤ d) (hk : 1 ≤ k) {Z : Finset (Torus d (N₀ * L ^ (k - k)))}
+    (hΩ : OverTop G (Z : Set (Torus d (N₀ * L ^ (k - k))))) (v : SuppSpace Z N) :
+    normSqE a (topTangent G v) = a k * (L : ℝ) ^ (k * (d - 2)) * ‖v‖ ^ 2 := by
+  classical
+  set E := topTangent G v with hE
+  set H : Torus d (N₀ * L ^ (k - k)) → ℝ := fun z =>
+    a k / ((L : ℝ) ^ k) ^ 2 * ∑ i, extSupp Z v z i ^ 2 with hH
+  have hpt : ∀ x : Torus d (N₀ * L ^ k), (if x ∈ G.Ω 1 then
+      a (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2 * ∑ i, ‖E.Ψ x i‖ ^ 2 else 0) =
+      if jBlock d L N₀ k k x ∈ Z then H (jBlock d L N₀ k k x) else 0 := by
+    intro x
+    by_cases hz : jBlock d L N₀ k k x ∈ Z
+    · have hxk : x ∈ G.Ω k := hΩ x hz
+      have h1 : x ∈ G.Ω 1 := G.Ω_antitone le_rfl hk (by omega) hxk
+      have hds : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl h1)
+      have hli : G.layerIndex x = k := G.layerIndex_eq hk le_rfl (G.mem_layer.2 ⟨hxk, by rw [G.top]; simp⟩)
+      simp only [h1, hz, ↓reduceIte, hli, hH]
+      congr 1
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [hE, topTangent_Ψ v hds i]
+      simp [Complex.norm_real, sq_abs]
+    · simp only [hz, ↓reduceIte]
+      by_cases h1 : x ∈ G.Ω 1
+      · have hds : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl h1)
+        have : ∀ i, E.Ψ x i = 0 := fun i => by
+          rw [hE, topTangent_Ψ v hds i]; simp [extSupp, hz]
+        simp [h1, this]
+      · simp [h1]
+  have hsum : normSqE a E = ∑ x : Torus d (N₀ * L ^ k), (if x ∈ G.Ω 1 then
+      a (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2 * ∑ i, ‖E.Ψ x i‖ ^ 2 else 0) := by
+    unfold normSqE
+    rw [Finset.sum_coe_sort (G.Ω 1) (fun x => a (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+      ∑ i, ‖E.Ψ x i‖ ^ 2), Finset.sum_ite_mem, Finset.univ_inter]
+  rw [hsum]
+  simp only [hpt]
+  have hZ : ∀ y ∈ Z, ((Finset.univ.filter fun x : Torus d (N₀ * L ^ k) => jBlock d L N₀ k k x ∈ Z).filter
+      fun x => jBlock d L N₀ k k x = y).card = (L ^ k) ^ d := by
+    intro y hy
+    have h := (topLift_block_count hΩ hk (Finset.mem_coe.2 hy)).1
+    rw [← h]
+    congr 1
+    ext x
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    constructor
+    · exact fun h => h.2
+    · exact fun h => ⟨h ▸ hy, h⟩
+  calc ∑ x : Torus d (N₀ * L ^ k), (if jBlock d L N₀ k k x ∈ Z then H (jBlock d L N₀ k k x) else 0)
+      = ∑ x ∈ Finset.univ.filter (fun x : Torus d (N₀ * L ^ k) => jBlock d L N₀ k k x ∈ Z),
+          H (jBlock d L N₀ k k x) := by rw [Finset.sum_filter]
+    _ = ∑ y ∈ Z, ∑ x ∈ (Finset.univ.filter (fun x : Torus d (N₀ * L ^ k) => jBlock d L N₀ k k x ∈ Z)).filter
+          (fun x => jBlock d L N₀ k k x = y), H (jBlock d L N₀ k k x) :=
+        (Finset.sum_fiberwise_of_maps_to (fun x hx => (Finset.mem_filter.1 hx).2) _).symm
+    _ = ∑ y ∈ Z, ((L : ℝ) ^ k) ^ d * H y := by
+        refine Finset.sum_congr rfl fun y hy => ?_
+        rw [Finset.sum_congr rfl (fun x hx => by rw [(Finset.mem_filter.1 hx).2]), Finset.sum_const,
+          hZ y hy, nsmul_eq_mul]
+        push_cast; ring
+    _ = a k * (L : ℝ) ^ (k * (d - 2)) * ‖v‖ ^ 2 := by
+        rw [← Finset.mul_sum]
+        have hs : ∑ y ∈ Z, H y = a k / ((L : ℝ) ^ k) ^ 2 * ‖v‖ ^ 2 := by
+          rw [hH]
+          simp only
+          rw [← Finset.mul_sum]
+          congr 1
+          have e1 : ∑ y ∈ Z, ∑ i, (extSupp Z v y).ofLp i ^ 2 = ∑ y ∈ Z, ‖extSupp Z v y‖ ^ 2 :=
+            Finset.sum_congr rfl fun y _ => (sq_norm_euc _).symm
+          have e2 : ∑ y ∈ Z, ‖extSupp Z v y‖ ^ 2 = ∑ y, ‖extSupp Z v y‖ ^ 2 :=
+            Finset.sum_subset (Finset.subset_univ Z) (fun x _ hx => by simp [extSupp, hx])
+          rw [e1, e2, sum_sq_extSupp]
+        rw [hs]
+        have hL : (0 : ℝ) < (L : ℝ) ^ k := pow_pos (by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)) k
+        have hd2 : ((L : ℝ) ^ k) ^ d = ((L : ℝ) ^ k) ^ (d - 2) * ((L : ℝ) ^ k) ^ 2 := by
+          rw [← pow_add]; congr 1; omega
+        rw [hd2, ← pow_mul]
+        field_simp
+
 end Coerc
 
 end Balaban.LargeField
