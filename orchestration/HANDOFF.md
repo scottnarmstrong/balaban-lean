@@ -7,7 +7,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
 
-## Landing procedure (unchanged)
+## Landing procedure (unchanged; NEW: every new hypothesis structure must come with a `Nonempty` witness)
 
 1. Read the worker's handoff; `git diff --stat origin/main...HEAD`, grep new files for
    `sorry|^axiom|maxHeartbeats`.
@@ -23,7 +23,10 @@ Worktree setup: `git worktree add -q <path> -b <branch>`, `mkdir -p <path>/.lake
 
 ## Running at handoff
 
-Sonnet (none running at 08:20 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
+POLICY (Scott, 2026-10-12): keep 4 Sonnet (+≤1 Opus) Lean workers running regardless of quota; Scott resets
+accounts when quota runs out.
+
+Sonnet (W83–W86 launched ~08:35 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
 in the ledger row and the branch state):
 - W70: DONE (landed 017b7c9; χ^dom identity still open).
 
@@ -35,6 +38,11 @@ in the ledger row and the branch state):
 - W80: DONE (landed; bridgeInf gives PremisesCore ∧ SumConds from the class).
 - W77: DONE (landed 7c6b40b).
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
+- W83 (`w83-reynolds`): Reynolds average → full I-6 Premises from Def-6.
+- W84 (`w84-fluct-wire`): FLUCT Lemma 2.5 source form, Lemma 3.5, Lemma 4.1.
+- W85: DONE (landed b3b1f92; P4 estimate half). Found the vacuous-history defect.
+- W87 (`w87-horizon`): fix vacuous FlowSteps/RegionSeq/RegionHistory (finite horizon), Nonempty witnesses, repair ~60 consumers. PRIORITY.
+- W86 (`w86-lf-domain`): LF localized-field domain fix + χ^dom identity (queued item 8).
 - W78: DONE (landed c6f82f7).
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
