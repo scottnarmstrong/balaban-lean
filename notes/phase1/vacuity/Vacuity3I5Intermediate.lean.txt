@@ -1,0 +1,12 @@
+import Balaban.Localization.I5Inhabited
+
+namespace Balaban.Localization.I5Inhabited
+
+/-- The published positive-scale I-5 witness uses intermediate generating
+sets with no scale-one sites or background data sites. -/
+theorem vacuity3_i5_intermediate_empty (m₁ : ℕ) (ϱ : ℝ) :
+    (G0 m₁ ϱ).Ω 1 = ∅ ∧
+      Balaban.Background.dataSites (G0 m₁ ϱ) = ∅ := by
+  exact ⟨G0_Ω 1 le_rfl, G0_dataSites⟩
+
+end Balaban.Localization.I5Inhabited

@@ -1,0 +1,15 @@
+import Balaban.Fluctuation.RenormExpG
+
+namespace Balaban.Fluctuation
+
+/-- The polymer family and size in `renormExpInput_witness` have only the
+whole torus and give decay factor one, at every decay rate. -/
+theorem vacuity3_renorm_witness_no_spatial_decay
+    {α : Type*} [Fintype α] [DecidableEq α] (κ : ℝ)
+    (Y : Finset α) (hY : Y ∈ ({Finset.univ} : Finset (Finset α))) :
+    Y = Finset.univ ∧ Real.exp (-κ * (fun _ : Finset α => (0 : ℝ)) Y) = 1 := by
+  constructor
+  · simpa only [Finset.mem_singleton] using hY
+  · simp
+
+end Balaban.Fluctuation
