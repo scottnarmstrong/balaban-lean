@@ -761,6 +761,8 @@ public import Balaban.Fluctuation.Theorem42Geom
 public import Balaban.Fluctuation.Theorem42Input
 public import Balaban.Fluctuation.Theorem42
 public import Balaban.Fluctuation.Theorem42RealVolume
+public import Balaban.Fluctuation.Theorem42RealStep1
+public import Balaban.Fluctuation.Theorem42RealFlow
 public import Balaban.Background.Prop51Mass
 public import Balaban.Fluctuation.RenormExpLemma35
 public import Balaban.Fluctuation.RenormExpCauchy
