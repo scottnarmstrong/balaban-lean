@@ -64,6 +64,35 @@ theorem cubeMap_torusCast_fineSide (k j : ℕ) (s : Torus S.d (fineSide S n k)) 
   unfold cubeMap cubeOf
   rw [blockMap_torusCast, mul_comm]
 
+/-- **The margin of Lemma III.1.2 (f)**, in `π_j`-cube units: if the `π_j`-cube of `s` lies in
+`Z_j = Lin_j(Z)` (`j < k`), and the `π_j`-cubes of `x` and `s` are at index distance `≤ E` with
+`E < L([R_j] + 4) + 2`, then the `π_{j+1}`-cube of `x` lies in `Z_{j+1} ∖ Ω_{j+1}` (of the
+localization of `Z`), and its `π_k`-cube lies in `Z`. -/
+theorem mem_of_cube_dist {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) {j : ℕ} (hjk : j < k)
+    {x s : Torus S.d (S.M * n k * S.L ^ k)}
+    (hs : cubeMap n S.L S.M k j s ∈ ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _)) {E : ℕ}
+    (hE : supDist (cubeMap n S.L S.M k j x) (cubeMap n S.L S.M k j s) ≤ E)
+    (hm : E < S.L * (⌊R j⌋₊ + 4) + 2) :
+    cubeMap n S.L S.M k (j + 1) x ∉ ((H.locRH k Z).step j).Omega ∧
+    cubeMap n S.L S.M k (j + 1) x ∈ ((H.locRH k Z).step (j + 1)).Z ∧
+    cubeMap n S.L S.M k k x ∈ Z.1 := by
+  have hnn := hnn_k H hkK
+  have hz : cubeMap n S.L S.M k j s ∈ ((H.locRH k Z).step j).Z := by
+    rw [locRH_Z Z hjk.le (hjk.le.trans hkK)]; exact hs
+  have hOm : cubeMap n S.L S.M k (j + 1) x ∉ ((H.locRH k Z).step j).Omega := by
+    intro hy
+    have hyc : blockMap S.L (n (j + 1)) (cubeMap n S.L S.M k j x) ∈ ((H.locRH k Z).step j).Omega := by
+      rw [cubeMap_succ hnn (by omega) x]; exact hy
+    have hfar := ((H.locRH k Z).step j).fine_far
+      (Nat.pos_of_ne_zero (NeZero.ne S.L)) (hnn j hjk) hyc hz
+    omega
+  have hZ1 : cubeMap n S.L S.M k (j + 1) x ∈ ((H.locRH k Z).step (j + 1)).Z :=
+    ((H.locRH k Z).toSeq hkK (fun _ => rfl)).OmegaAt_compl_subset_Z j hOm
+  refine ⟨hOm, hZ1, ?_⟩
+  rw [locRH_Z Z (by omega) (by omega)] at hZ1
+  obtain ⟨Y, hd, hxY⟩ := mem_lin.mp (Finset.mem_coe.mp hZ1)
+  exact cubeMap_mem_of_desc' (M := S.M) hnn le_rfl hd hxY
+
 /-- **The margin of Lemma III.1.2 (f), coarsened**: let `x, s` be sites of the fine torus of scale `k`,
 the `π_j`-cube of `s` lying in `Z_j = Lin_j(Z)`, `j < k`, and the `π_k`-cubes of `x` and `s` at index
 distance `≤ D`, with `(D + 1) L^{k-j} ≤ L([R_j] + 4) + 2`.  Then the `π_{j+1}`-cube of `x` lies in
@@ -77,37 +106,24 @@ theorem coarse_mem_of_margin {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) {j : ℕ} 
     cubeMap n S.L S.M k (j + 1) x ∈ ((H.locRH k Z).step (j + 1)).Z ∧
     cubeMap n S.L S.M k k x ∈ Z.1 := by
   have hnn := hnn_k H hkK
-  have hz : cubeMap n S.L S.M k j s ∈ ((H.locRH k Z).step j).Z := by
-    rw [locRH_Z Z hjk.le (hjk.le.trans hkK)]; exact hs
-  have hOm : cubeMap n S.L S.M k (j + 1) x ∉ ((H.locRH k Z).step j).Omega := by
-    intro hy
-    have hyc : blockMap S.L (n (j + 1)) (cubeMap n S.L S.M k j x) ∈ ((H.locRH k Z).step j).Omega := by
-      rw [cubeMap_succ hnn (by omega) x]; exact hy
-    have hfar := ((H.locRH k Z).step j).fine_far
-      (Nat.pos_of_ne_zero (NeZero.ne S.L)) (hnn j hjk) hyc hz
-    have hpow : n j = S.L ^ (k - j) * n k := H.F.n_eq_pow hjk.le hkK
-    have hcomp : ∀ y : Torus S.d (S.M * n k * S.L ^ k),
-        blockMap (S.L ^ (k - j)) (n k) (cubeMap n S.L S.M k j y) = cubeMap n S.L S.M k k y := by
-      intro y
-      unfold cubeMap
-      rw [blockMap_comp (fine_eq hnn hjk.le) hpow]
-      have : S.L ^ j * S.M * S.L ^ (k - j) = S.L ^ k * S.M := by
-        rw [mul_right_comm, ← pow_add, show j + (k - j) = k by omega]
-      rw [this]
-    have hle := supDist_le_blockMap (d := S.d) (L := S.L ^ (k - j)) (m := n k) hpow
-      (cubeMap n S.L S.M k j x) (cubeMap n S.L S.M k j s)
-    rw [hcomp, hcomp] at hle
-    have hP : 1 ≤ S.L ^ (k - j) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne S.L))
-    have h1 : S.L ^ (k - j) * supDist (cubeMap n S.L S.M k k x) (cubeMap n S.L S.M k k s) ≤
-        S.L ^ (k - j) * D := Nat.mul_le_mul_left _ hD
-    have h2 : (D + 1) * S.L ^ (k - j) = S.L ^ (k - j) * D + S.L ^ (k - j) := by ring
-    omega
-  have hZ1 : cubeMap n S.L S.M k (j + 1) x ∈ ((H.locRH k Z).step (j + 1)).Z :=
-    ((H.locRH k Z).toSeq hkK (fun _ => rfl)).OmegaAt_compl_subset_Z j hOm
-  refine ⟨hOm, hZ1, ?_⟩
-  rw [locRH_Z Z (by omega) (by omega)] at hZ1
-  obtain ⟨Y, hd, hxY⟩ := mem_lin.mp (Finset.mem_coe.mp hZ1)
-  exact cubeMap_mem_of_desc' (M := S.M) hnn le_rfl hd hxY
+  have hpow : n j = S.L ^ (k - j) * n k := H.F.n_eq_pow hjk.le hkK
+  have hcomp : ∀ y : Torus S.d (S.M * n k * S.L ^ k),
+      blockMap (S.L ^ (k - j)) (n k) (cubeMap n S.L S.M k j y) = cubeMap n S.L S.M k k y := by
+    intro y
+    unfold cubeMap
+    rw [blockMap_comp (fine_eq hnn hjk.le) hpow]
+    have : S.L ^ j * S.M * S.L ^ (k - j) = S.L ^ k * S.M := by
+      rw [mul_right_comm, ← pow_add, show j + (k - j) = k by omega]
+    rw [this]
+  have hle := supDist_le_blockMap (d := S.d) (L := S.L ^ (k - j)) (m := n k) hpow
+    (cubeMap n S.L S.M k j x) (cubeMap n S.L S.M k j s)
+  rw [hcomp, hcomp] at hle
+  have hP : 1 ≤ S.L ^ (k - j) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne S.L))
+  have h1 : S.L ^ (k - j) * supDist (cubeMap n S.L S.M k k x) (cubeMap n S.L S.M k k s) ≤
+      S.L ^ (k - j) * D := Nat.mul_le_mul_left _ hD
+  have h2 : (D + 1) * S.L ^ (k - j) = S.L ^ (k - j) * D + S.L ^ (k - j) := by ring
+  exact H.mem_of_cube_dist hkK Z hjk hs (E := S.L ^ (k - j) * D + (S.L ^ (k - j) - 1)) (by omega)
+    (by omega)
 
 include H
 
