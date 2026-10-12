@@ -1052,3 +1052,5 @@ public import Balaban.Localization.P6PairCastReal
 public import Balaban.Localization.P6PairLocBase
 public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
+public import Balaban.SmallField.GsSpecCounter
+public import Balaban.SmallField.GsSpecStrong
