@@ -16,11 +16,13 @@ import Mathlib.Tactic.Positivity
 
 If the decoupling vectors `s, s'` vanish outside a family `𝒞`, agree on the cubes of `𝒞` inside
 `Y(𝒞)`, and the data `(Θ, ψ')`, `(Θ', ψ'')` agree on the thickening of `Y(𝒞)` (for `Θ`: by the
-dependency sets `resDep`; for `ψ'`: on `Y(𝒞)` and its neighbours), then the composites agree
+dependency sets `resDep`; for the layer-constant `ψ'`: on `Y(𝒞)` and its neighbours), then the
+composites agree
 (`fan_local_fl`).  The background fields agree by Theorem I-4b (iv) (nearest-neighbour components);
 the fluctuation fields by Theorem I-4a (e) in footprint form (`Dec2.i4a_local_fpS`), for the
 parameter-incidence graph of `(C, H⁻)`, of which the components `Y(𝒞)` are unions
-(`incUnion_of_nnComp`).
+(`incUnion_of_nnComp`); the direct term `κ ψ'` of the composed fluctuation (P3 (4.17)) reads `ψ'`
+only on the data sites of `𝔹_k(X)`, inside `X₁ ⊆ Y(𝒞)`.
 -/
 
 @[expose] public section
@@ -77,7 +79,7 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
     (E : RawData d L (N₁ * L ^ m₁) K N → ℂ) :
-    LocalityAEOn (Real.exp κ) (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁)
+    LocalityAEOn (Real.exp κ) (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBallLC Hm δ₁)
       (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => Pset m₁ i.1.1)
       (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
         (↑X₁f : Set (CTorus d L N₁ m₁ K)))
@@ -90,7 +92,7 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
       (fun u s => E (D2raw Gk Gj (compWeight L a₁) Fk (D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol
         (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s) u))) := by
   classical
-  rintro C ⟨u, ψ⟩ ⟨u', ψ'⟩ ⟨⟨D, hD, rfl⟩, hψ⟩ ⟨⟨D', hD', rfl⟩, hψ'⟩ s s' hs hs' hag hAg
+  rintro C ⟨u, ψ⟩ ⟨u', ψ'⟩ ⟨⟨D, hD, rfl⟩, hψ, hψc⟩ ⟨⟨D', hD', rfl⟩, hψ', hψc'⟩ s s' hs hs' hag hAg
   obtain ⟨hAgΘ, hAgψ⟩ := hAg
   set cc : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℕ × CTorus d L N₁ m₁ K :=
     fun i => i.1.1 with hcc
@@ -103,9 +105,9 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
   have hs1 := extParams_hs1 (X₁f := X₁f) (Gp := Gp) s
   have hs1' := extParams_hs1 (X₁f := X₁f) (Gp := Gp) s'
   obtain ⟨φ, α, δφ, hI, hFeq, hstrict, hδφ, hX3, hrawD, hD2, hX2⟩ :=
-    point_facts_fl hB hF hF₁ hFk hSol hsx hs1 hD hψ
+    point_facts_fl hB hF hF₁ hFk hSol hsx hs1 hD hψ hψc
   obtain ⟨φ', α', δφ', hI', hFeq', hstrict', hδφ', hX3', hrawD', hD2', hX2'⟩ :=
-    point_facts_fl hB hF hF₁ hFk hSol hsx' hs1' hD' hψ'
+    point_facts_fl hB hF hF₁ hFk hSol hsx' hs1' hD' hψ' hψc'
   show E (D2raw Gk Gj (compWeight L a₁) Fk (D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol
       (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s) (rawOf D, ψ))) =
     E (D2raw Gk Gj (compWeight L a₁) Fk (D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol
@@ -270,8 +272,8 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
     hAgΘ y (Or.inl (hXY y hy))
   refine congrArg E (congrArg (D2raw Gk Gj (compWeight L a₁) Fk) ?_)
   refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-  · show (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D).Ψ x i =
-      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ' δφ' D').Ψ x i
+  · show (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ hψc).Ψ x i =
+      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ' δφ' D' ψ' hψc').Ψ x i
     rw [flDatum_Ψ, flDatum_Ψ]
     by_cases hx : x ∈ dataSites Gk
     · congr 1
@@ -282,7 +284,8 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
         rw [svec_of_mem' φ hyΩ jj, svec_of_mem' φ' hyΩ jj]
         exact hφY ⟨y, hyΩ⟩ ((hmemY y).2 (hXY y hyX)) jj
       · refine composeField_congr (G := Gk) (G' := Hm) (compWeight L a₁) (fun y hy jj => ?_)
-          (fun jj => rfl) i
+          (fun jj => congrFun (hAgψ x (Or.inl (hXY x (hF.depm x hx x
+            (self_mem_composeDep x))))) jj) i
         have hyX := hF.depm x hx y hy
         by_cases hyΩ : y ∈ Hm.Ω 1
         · rw [svec_of_mem' δφ hyΩ jj, svec_of_mem' δφ' hyΩ jj]
@@ -290,8 +293,8 @@ theorem fan_local_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X
         · rw [svec_of_not_mem Hm δφ hyΩ jj, svec_of_not_mem Hm δφ' hyΩ jj]
     · rw [composeField_of_not_mem _ _ _ hx, composeField_of_not_mem _ _ _ hx,
         composeField_of_not_mem _ _ _ hx, composeField_of_not_mem _ _ _ hx]
-  · show (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D).h x i =
-      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ' δφ' D').h x i
+  · show (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ hψc).h x i =
+      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ' δφ' D' ψ' hψc').h x i
     rw [flDatum_h, flDatum_h]
     show (if x ∈ Gk.Ω 1 then D.h x i else 0) = (if x ∈ Gk.Ω 1 then D'.h x i else 0)
     by_cases hx : x ∈ Gk.Ω 1

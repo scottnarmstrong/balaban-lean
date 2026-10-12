@@ -19,8 +19,10 @@ import Mathlib.Tactic.Positivity
 At `s = 1` mode P coincides with mode U when the base field satisfies the constraint
 (`φ₀ · φ₀ = 1`), and the decoupled system is the perturbed system of Proposition 5.1.  Hence the
 exact fluctuation `φ' = φ_k(ψ) - φ_{k+1}|` (a small solution of the perturbed system, Lemma 2.3 (d))
-is the fluctuation field `flField` of Theorem I-4a (mode P) at `s = 1` (`exact_eq_flField`), and the
-block energies of the decoupled objects sum to the exact chord energy.
+is the fluctuation field `flField` of Theorem I-4a (mode P) at `s = 1` (`exact_eq_flField`), the
+datum of I-5 with the fluctuation (`flDatumOne`, P3 (4.16), (4.17)) is the composition of the exact
+field `φ_k(ψ)` (`flDatumOne_eq_composeData`), and the block energies of the decoupled objects sum to
+the exact chord energy.
 -/
 
 @[expose] public section
@@ -238,6 +240,78 @@ theorem exact_fluct_eq_flFieldOne (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc' C
       (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) := fun x => (hsmall' x).trans hnum
   exact exact_eq_flField (cstar := c₂) (BG := BG₂) (c1 := c₂) hC.hS2.fam hC.hS2.one le_rfl
     hC.hκ.le hC.SM.toCoverBase hC.hM2 Hh hg hC.B_le hC.δ₁_le hnum' hP' hsm
+
+/-- The tangent `ψ' = D.Ψ - ψ^{(k)}` (`compTangent`) is a block field of `𝔹_k`. -/
+theorem compTangent_layerConst (hG : IsLevel Hm n) (hG' : IsLevel Gp (n + 1)) (hp : n + 1 ≤ K)
+    (a : ℕ → ℝ) (φ₁ : Gp.Ω 1 × Fin N → ℂ) (D' : BgData Gp N) (D : BgData Hm N) :
+    IsLayerConstant Hm (compTangent hG hG' hp a φ₁ D' D) := by
+  intro m h1 h2 x hx x' hx'
+  funext i
+  show D.Ψ x' i - (composeData (hG.precedes hG' hp) a φ₁ D').Ψ x' i =
+    D.Ψ x i - (composeData (hG.precedes hG' hp) a φ₁ D').Ψ x i
+  rw [congrFun (D.Ψ_layerConst m h1 h2 x hx x' hx') i,
+    congrFun ((composeData (hG.precedes hG' hp) a φ₁ D').Ψ_layerConst m h1 h2 x hx x' hx') i]
+
+/-- **The datum of I-5 with the fluctuation at `s = 1` is the composition of the exact field**
+(P3 (4.16), (4.17); FLDATUM (3)).  With the notation and premises of `exact_fluct_eq_flFieldOne`,
+for a generating set `𝔹_k(X)` with `𝔹_k(X) ≺ 𝔹_k` and `𝔹_k(X) ≺ 𝔹_{k+1}`, the datum `flDatumOne`
+of `𝔹_k(X)` at the fluctuation `ψ' = D.Ψ - ψ^{(k)}`,
+`ψ(𝔹_k(X), 𝔹_{k+1}; φ_{k+1}, θ) + δψ(𝔹_k(X), 𝔹_k; δφ(ψ'), ψ')`, is the composed datum
+`ψ(𝔹_k(X), 𝔹_k; φ_k(ψ), ψ)` of the exact field `φ_k(ψ) = bgFieldC D` of the datum
+`D = ψ^{(k)} + ψ'` of `𝔹_k`: by `exact_fluct_eq_flFieldOne` (`φ_k(ψ) = φ_{k+1}| + δφ(ψ')`), the
+linearity of the composition (`composeField_add`) and the composition identity
+`ψ(𝔹_k(X), 𝔹_k; φ_{k+1}|, ψ^{(k)}) = ψ(𝔹_k(X), 𝔹_{k+1}; φ_{k+1}, θ)` (`composeField_trans`). -/
+theorem flDatumOne_eq_composeData (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc' Cx' c₂ BG₂ δ₁)
+    (hG : IsLevel Hm n) (hG' : IsLevel Gp (n + 1)) (hp : n + 1 ≤ K) (ha₁ : 0 < a₁)
+    (H : BgHyp d L K ϱm (compWeight L a₁) ν)
+    (D' : BgData Gp N) (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D')
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N)
+    (D : BgData Hm N) (hh : ∀ x i, D.h x i = D'.h x i)
+    (hψ : compTangent hG hG' hp (compWeight L a₁)
+      (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D' D ∈ FlBall Hm δ₁)
+    {R : ℝ} (hR : 2 ≤ R)
+    (hdisc : ∀ t : ℂ, ‖t‖ < R → InUnionDomainC Hm (bgC0 d L N) (bgC1 d L N) ν
+      ((composeData (hG.precedes hG' hp) (compWeight L a₁)
+        (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D').lineAt
+        (tangentData D (composeData (hG.precedes hG' hp) (compWeight L a₁)
+          (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D')) t))
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {ϱ₁ : ℝ} {Gk : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁} (hP : Precedes Gk Gp)
+    (hPm : Precedes Gk Hm) :
+    flDatumOne Hm BG₂ κ hP hPm a₁ ν D' (compTangent hG hG' hp (compWeight L a₁)
+        (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D') D' D)
+        (compTangent_layerConst hG hG' hp _ _ D' D) =
+      composeData hPm (compWeight L a₁) (bgFieldC Hm (compWeight L a₁) ν (bgC0 d L N) D) D := by
+  classical
+  have hex := exact_fluct_eq_flFieldOne hC hG hG' hp ha₁ H D' hD hc7 D hh hψ hR hdisc hRs
+    hsmall hnum hnum'
+  have hL2 : 2 ≤ L := by have := hC.HBp.hL; omega
+  set a := compWeight L a₁ with ha
+  set φ₁ := bgFieldC Gp a ν (bgC0 d L N) D' with hφ₁
+  set h := hG.precedes hG' hp with hhP
+  set ψt := compTangent hG hG' hp a φ₁ D' D with hψt
+  set δφ := flFieldOne Gp Hm BG₂ κ a₁ ν D' ψt with hδφ
+  have hapos : ∀ j, 1 ≤ j → j ≤ K → a j ≠ 0 := fun j hj _ =>
+    (compWeight_pos hL2 ha₁ hj).ne'
+  have hφk : bgFieldC Hm a ν (bgC0 d L N) D = h.restrictφ φ₁ + δφ := by
+    rw [← hex]; abel
+  have hΨ : D.Ψ = fun y j => (composeData h a φ₁ D').Ψ y j + ψt y j := by
+    funext y j
+    simp only [hψt, compTangent]
+    ring
+  apply BgData.eq_of_raw
+  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
+  · show (flDatum Gk hP hPm a φ₁ δφ D' ψt (compTangent_layerConst hG hG' hp _ _ D' D)).Ψ x i =
+      composeField Gk Hm a (bgFieldC Hm a ν (bgC0 d L N) D) D.Ψ x i
+    rw [flDatum_Ψ, hφk, hΨ, composeField_add,
+      ← composeField_trans hPm h hapos φ₁ D'.Ψ x i]
+    rfl
+  · show (composeData hP a φ₁ D').h x i =
+      (composeData hPm a (bgFieldC Hm a ν (bgC0 d L N) D) D).h x i
+    simp [composeData, hh]
 
 end Exact
 
