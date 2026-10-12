@@ -881,6 +881,10 @@ public import Balaban.LargeField.R.ChiBridgeHist
 public import Balaban.LargeField.R.ActionConvDef
 public import Balaban.LargeField.R.ActionConvGreen
 public import Balaban.LargeField.R.ActionConvIdentity
+public import Balaban.LargeField.R.CancelDef
+public import Balaban.LargeField.R.CancelIdentity
+public import Balaban.LargeField.R.CancelBound
+public import Balaban.LargeField.R.CancelRemaining
 public import Balaban.LargeField.R.ActionConvReal
 public import Balaban.LargeField.R.ActionConvAdd
 public import Balaban.LargeField.R.ActionConvChain
@@ -1084,6 +1088,10 @@ public import Balaban.Fluctuation.HatLabelsDep
 public import Balaban.Fluctuation.HatLabelsAct
 public import Balaban.Fluctuation.HatLabelsTerms
 public import Balaban.Fluctuation.HatLabelsExpansion
+public import Balaban.Fluctuation.HatDiagContBase
+public import Balaban.Fluctuation.HatLocIntDm
+public import Balaban.Fluctuation.HatPolyDom
+public import Balaban.Fluctuation.HatLabelsDm
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
