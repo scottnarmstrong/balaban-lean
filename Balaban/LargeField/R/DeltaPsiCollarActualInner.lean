@@ -415,6 +415,49 @@ theorem deltaPsiColl_interior_lt_actual
           nlinarith
       _ ≤ S.hatW ε k * δ (S.k1 k) := mul_le_mul_of_nonneg_right hΛ21' hδk1.le
 
+/-- **COLLAR-FIX (2.3) for the actual window, without `hcoreTop`**:
+`|D^ph.Ψ(c) - D⁰.Ψ(c)| ≤ (3dL + 3) Ŵ_k δ_{k₁}` for `c ∈ C_in` (the constant obtained is `3dL + 2`,
+strictly; see `inner_collar_data_change_lt_actual` for the hypotheses and their sources). -/
+theorem inner_collar_data_change_bound_actual
+    (hG : S.Good) (hkK : k ≤ K) (hW : H.RipeWindow k Z) (g : Geo S n R S.M)
+    (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
+    (hϱ : (2 * S.d * S.L : ℝ) ≤ (S.L : ℝ) * S.M * S.Rb)
+    {ε : ℝ} {δ : ℕ → ℝ} (hδ : IsAdmDelta S.d S.L ε (S.k1 k) k δ)
+    {a₁ : ℝ}
+    (hprec : Precedes ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW))
+      (windowOfHistory H Z g hkK hW).bdry)
+    (hBg : BgHyp S.d S.L k (winSep g) (compWeight S.L a₁) 0)
+    {N : ℕ} (ψ ψ0 : BlockV S.d S.L (S.M * n k) k → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ)
+    {K6 : ℝ} (hK6 : 0 < K6) (hθ1 : 3 * K6 * δ k ≤ 1)
+    (hθc : 3 * (3 * K6 * δ k) ≤ bgC1 S.d S.L N)
+    (hspec : PsiZeroSpec (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
+      (windowOfHistory H Z g hkK hW).bdry (H.locFine Z S.M k) (3 * K6 * δ k) ψ ψ0)
+    (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
+      (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ ψ)
+    (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
+    {Creg : ℝ} (hCreg : 0 ≤ Creg)
+    (hband : ∀ y ∈ regSetT H Z S.M (S.k1 k), ∀ y' ∈ regSetTExt H Z S.M (S.k1 k), AdjT y y' →
+      dist (ψ ⟨S.k1 k, y⟩) (ψ ⟨S.k1 k, y'⟩) ≤ Creg * δ (S.k1 k))
+    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * Creg ≤ S.hatW ε k)
+    {c : Torus S.d (S.M * n k * S.L ^ k)}
+    (hc : c ∈ collarIn (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)) :
+    vn (deltaPsiColl (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)
+        (windowOfHistory_parentRefines H Z g hkK hW) hprec (compWeight S.L a₁) ψ ψ0 h c) ≤
+      (3 * S.d * S.L + 3) * S.hatW ε k * δ (S.k1 k) := by
+  have hlt := inner_collar_data_change_lt_actual hG hkK hW g hk0 hrip hq1 hT hϱ hδ hprec hBg ψ ψ0 h hK6 hθ1
+    hθc hspec hwin hΛ21 hCreg hband hΛ21' hc
+  have hS := H.F.ok
+  have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
+  have hkq : S.k1 k < k := by
+    rw [hqk1]
+    have := hW.core_window.1
+    have : 1 ≤ S.nq (H.bk k Z).q := by unfold Setting.nq; omega
+    omega
+  have h0 : 0 ≤ S.hatW ε k * δ (S.k1 k) :=
+    mul_nonneg (hatW_nonneg ε k) (hδ.pos (S.k1 k) le_rfl hkq.le).le
+  nlinarith
+
 end RegionHistory
 
 end Balaban.LargeField
