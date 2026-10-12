@@ -93,6 +93,38 @@ theorem step_exponent_algebra (K0 cp Ao An β sg Ek nU : ℝ) (Eψ E0 Fψ F0 V :
         Complex.exp (-(β : ℂ) * (Ao : ℂ) + Eψ - (Ek : ℂ) * (nU : ℂ) + Fψ)) := by ring
     _ = _ := by rw [hexp]; ring
 
+section AeCongr
+
+open MeasureTheory
+
+variable {X : Type*} [MeasurableSpace X] {ν : Measure X}
+
+theorem partFun₂_congr_ae {W₁ W₁' W₂ W₂' : ℝ → X → ℂ} {s t : ℝ}
+    (h1 : ∀ᵐ x ∂ν, W₁ s x = W₁' s x) (h2 : ∀ᵐ x ∂ν, W₂ t x = W₂' t x) :
+    partFun₂ ν W₁ W₂ s t = partFun₂ ν W₁' W₂' s t := by
+  unfold partFun₂
+  refine integral_congr_ae ?_
+  filter_upwards [h1, h2] with x hx1 hx2
+  rw [hx1, hx2]
+
+theorem avgFun₂_congr_ae {W₁ W₁' W₂ W₂' : ℝ → X → ℂ} {f f' : X → ℂ} {s t : ℝ}
+    (h1 : ∀ᵐ x ∂ν, W₁ s x = W₁' s x) (h2 : ∀ᵐ x ∂ν, W₂ t x = W₂' t x)
+    (hf : ∀ᵐ x ∂ν, f x = f' x) :
+    avgFun₂ ν W₁ W₂ f s t = avgFun₂ ν W₁' W₂' f' s t := by
+  unfold avgFun₂
+  rw [partFun₂_congr_ae h1 h2]
+  congr 1
+  refine integral_congr_ae ?_
+  filter_upwards [h1, h2, hf] with x hx1 hx2 hx3
+  rw [hx1, hx2, hx3]
+
+theorem avgFun_eq_avgFun₂ {W₁ W₂ : ℝ → X → ℂ} (h0 : ∀ x, W₂ 0 x = 0) (f : X → ℂ) (s : ℝ) :
+    avgFun ν W₁ f s = avgFun₂ ν W₁ W₂ f s 0 := by
+  unfold avgFun avgFun₂ partFun partFun₂
+  simp [h0]
+
+end AeCongr
+
 section ZeroTangent
 
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
@@ -775,6 +807,215 @@ theorem integrand_eq (g : Fld d L N₁ m₁ (k + 1) N) (x : S.E) :
     simp
 
 end Main5
+
+section Constants
+
+include S C in
+/-- **The vacuum constants** (P4 (2.58)-(2.63), Definition 2.1): the product of the normalisation of
+the kernel `t_k`, the Jacobian of (2.7) and the normalisation of `ν_{p₁}` is
+`exp (-(E'''_k - E_k) |T^{(k)}_1|)`. -/
+theorem const_identity (hL : 0 < L) (ha₁ : 0 < S.a₁) (hβ : 0 < S.β) (hp₁ : 0 < S.p₁) :
+    (S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) *
+        (S.betaU ^ (-((N * Fintype.card S.U : ℕ) : ℝ) / 2) *
+          fluctNorm N S.p₁ ^ Fintype.card S.U) =
+      Real.exp (-((S.Eppp C - C.Ek) * S.nU)) := by
+  have hL' : (0 : ℝ) < L := by exact_mod_cast hL
+  have hcK : 0 < S.cKernel := by
+    unfold cKernel
+    have : 0 < ((L : ℝ) ^ (k + 1)) ^ d / ((L : ℝ) ^ (k + 1)) ^ 2 := by positivity
+    positivity
+  have hA : 0 < S.cKernel / (2 * Real.pi) := by positivity
+  have hB := betaU_pos' S hL hβ
+  have hZ := fluctNorm_pos N hp₁
+  have he : fluctE N S.p₁ = -((N : ℝ) / 2) * Real.log (2 * Real.pi) + Real.log (fluctNorm N S.p₁) := by
+    unfold fluctE
+    rw [Real.log_mul (by positivity) hZ.ne', Real.log_rpow (by positivity)]
+    ring
+  have hZe : fluctNorm N S.p₁ ^ Fintype.card S.U =
+      Real.exp ((Fintype.card S.U : ℝ) * Real.log (fluctNorm N S.p₁)) := by
+    rw [Real.exp_nat_mul, Real.exp_log hZ]
+  rw [Real.rpow_def_of_pos hA, Real.rpow_def_of_pos hB, hZe, ← Real.exp_add, ← Real.exp_add]
+  congr 1
+  unfold Eppp Epp Ep nBlocks nU
+  rw [he]
+  push_cast
+  field_simp
+  ring
+
+end Constants
+
+/-- **Regularity of the interpolation along the ray** (the analyticity (H.2), (H.7) of the class
+terms on `Ξ^c`, and of the Background field on `𝒟`, along the path `s ↦ ψ^{(k)} + s ψ'`): the
+exponents of `μ_{s,t}`, truncated to the support `{χ_fl = 1}` of `ν_{p₁}`, are `C¹` families on an
+open neighbourhood of `[0,1]`, bounded together with their derivatives. -/
+structure StepRegular (g : Fld d L N₁ m₁ (k + 1) N) : Prop where
+  c1 : ∃ (U : Set ℝ) (W₁' W₂' : ℝ → S.E → ℂ),
+    IsC1Family U (S.WoneT C) W₁' ∧ IsC1Family U (S.WtwoT C g) W₂'
+
+/-- **Nonvanishing of the partition functions** (the cluster expansion, Theorem 3.4 (a), (e)) along
+the two segments of the interpolation: `Z_{s,0} ≠ 0` and `Z_{1,t} ≠ 0`, `s, t ∈ [0,1]`. Automatic
+for real data, where `Z_{s,t} > 0`. -/
+structure StepNonvanishing (g : Fld d L N₁ m₁ (k + 1) N) : Prop where
+  seg1 : ∀ s ∈ Set.Icc (0 : ℝ) 1, S.Zst C g s 0 ≠ 0
+  seg2 : ∀ t ∈ Set.Icc (0 : ℝ) 1, S.Zst C g 1 t ≠ 0
+
+theorem psi0_add_smul (x : S.E) : S.psi0 + (S.betaU ^ (-(1 / 2 : ℝ))) • S.K x = S.psiAt 1 x := by
+  unfold psiAt shiftU; rw [one_smul]
+
+theorem psiAt_zero (x : S.E) : S.psiAt 0 x = S.psi0 := by
+  unfold psiAt; rw [zero_smul, add_zero]
+
+theorem WoneT_of_chi (s : ℝ) (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
+    S.WoneT C s x = S.Wone C s x := by
+  simp [WoneT, hx]
+
+theorem WtwoT_of_chi (g : Fld d L N₁ m₁ (k + 1) N) (s : ℝ) (x : S.E)
+    (hx : chiFl S.U N S.p₁ x = 1) : S.WtwoT C g s x = S.Wtwo C g s x := by
+  simp [WtwoT, hx]
+
+theorem ae_ball (hp₁ : 0 < S.p₁) : ∀ᵐ x ∂S.nuFl, chiFl S.U N S.p₁ x = 1 :=
+  ae_chiFl_fluctMeasure S.U N hp₁
+
+theorem Wtwo_zero (g : Fld d L N₁ m₁ (k + 1) N) (x : S.E) : S.Wtwo C g 0 x = 0 := by
+  unfold Wtwo dF
+  rw [S.psiAt_zero]
+  exact sub_self _
+
+theorem WoneT_zero (x : S.E) (hV : S.Vk S.psi0 = 0) : S.WoneT C 0 x = 0 := by
+  unfold WoneT Wone dE
+  rw [S.psiAt_zero, hV]
+  simp
+
+theorem WtwoT_zero (g : Fld d L N₁ m₁ (k + 1) N) (x : S.E) : S.WtwoT C g 0 x = 0 := by
+  unfold WtwoT
+  rw [S.Wtwo_zero]
+  simp
+
+section Final
+
+variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+  {δ' : ℝ} (hδ'0 : 0 < δ') (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+  (hχu : chiU S.G' S.a S.ν S.δ S.D' = 1)
+  (hnorm : S.ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, S.h₀ i ^ 2 - 1| < (1 * S.δ) ^ 2)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
+  {B₅ K₂ : ℝ} (hB5 : max 1 (Real.sqrt N * covSupConst d L N (S.a k)) ≤ B₅)
+  (hK2 : max (max 1 (cK2 d L N)) (Real.sqrt N * cK2 d L N) ≤ K₂)
+  (hp40 : S.p₁ / (S.betaU ^ (1 / 2 : ℝ) * S.δ) ≤ (3 * B₅ * K₂)⁻¹)
+  (hrad : B₅ * S.betaU ^ (-(1 / 2 : ℝ)) * S.p₁ ≤ fluctRadius d L N)
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad in
+/-- **Proposition 2.6, (2.6)-(2.9), whole lattice, `λ = ∞`, complete convention** (FLUCTUATION
+§2.6).  On `{χ_{k+1,u} = 1}`,
+`(T^{(k)} χ^{(k)} ρ_k)(θ) = exp [-β_k A^η_{k+1}(θ, φ_{k+1}) + ℰ_k(ψ^{(k)}(θ)) - E'''_k |T^{(k)}_1|
++ ℱ_k(ψ^{(k)}(θ), g) + ℰ₀^{(k+1)} + ℱ₀^{(k+1)}(g)]`.  Premises: those of Lemma 2.5 (the source
+premises on the data and constants), the regularity of the exponents along the ray and the
+nonvanishing `Z_{s,0}, Z_{1,t} ≠ 0`. -/
+theorem prop26_complex (g : Fld d L N₁ m₁ (k + 1) N) (hreg : StepRegular S C g)
+    (hnv : StepNonvanishing S C g) :
+    S.Tstep C g = Complex.exp (-(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (S.Eppp C : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g + S.E0 C + S.F0 C g) := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hβU := betaU_pos' S hL hβ
+  have hχ := (chiU_eq_one_iff _ _ _ _).1 hχu
+  obtain ⟨U, W₁', W₂', h₁, h₂⟩ := hreg.c1
+  have hdet := S.det_K_ne H hδ'0 hδ' hD'R hδ0 hχ hfam hsm
+  have hV0 := S.Vk_psi0 ha₁ H hδ'0 hδ' hD'R
+  have key := fluct_integral_eq_complex S.K hdet hβU hp₁ S.psi0 (S.Pconst C g)
+    (fun ψ => (S.tKernel ψ : ℂ) * (S.chiK ψ : ℂ) * S.rhoStep C g ψ)
+    (W₁ := S.WoneT C) (W₂ := S.WtwoT C g) (U := U)
+    (fun x => by
+      rw [S.psi0_add_smul]
+      exact S.integrand_eq C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad
+        g x)
+    h₁ h₂ (fun x => S.WoneT_zero C x hV0) (fun x => S.WtwoT_zero C g x)
+    (fun s hs => by
+      have h := hnv.seg1 s hs
+      unfold Zst at h
+      rw [← partFun₂_congr_ae (ν := S.nuFl) (W₁ := S.WoneT C) (W₁' := S.Wone C)
+        (W₂ := S.WtwoT C g) (W₂' := S.Wtwo C g)
+        ((S.ae_ball hp₁).mono fun x hx => S.WoneT_of_chi C s x hx)
+        ((S.ae_ball hp₁).mono fun x hx => S.WtwoT_of_chi C g 0 x hx)] at h
+      exact h)
+    (fun t ht => by
+      have h := hnv.seg2 t ht
+      unfold Zst at h
+      rw [← partFun₂_congr_ae (ν := S.nuFl) (W₁ := S.WoneT C) (W₁' := S.Wone C)
+        (W₂ := S.WtwoT C g) (W₂' := S.Wtwo C g)
+        ((S.ae_ball hp₁).mono fun x hx => S.WoneT_of_chi C 1 x hx)
+        ((S.ae_ball hp₁).mono fun x hx => S.WtwoT_of_chi C g t x hx)] at h
+      exact h)
+  have hI1 : (∫ s in (0 : ℝ)..1, avgFun₂ (fluctMeasure S.U N S.p₁) (S.WoneT C) (S.WtwoT C g)
+      (W₁' s) s 0) = S.E1 C := by
+    unfold E1
+    refine intervalIntegral.integral_congr (fun s hs => ?_)
+    have hsU : s ∈ U := h₁.Icc_subset (by rwa [Set.uIcc_of_le zero_le_one] at hs)
+    show avgFun₂ S.nuFl (S.WoneT C) (S.WtwoT C g) (W₁' s) s 0 = _
+    rw [avgFun_eq_avgFun₂ (W₂ := S.Wtwo C g) (fun x => S.Wtwo_zero C g x)]
+    refine avgFun₂_congr_ae ?_ ?_ ?_
+    · exact (S.ae_ball hp₁).mono fun x hx => S.WoneT_of_chi C s x hx
+    · exact (S.ae_ball hp₁).mono fun x hx => S.WtwoT_of_chi C g 0 x hx
+    · filter_upwards [S.ae_ball hp₁] with x hx
+      have hd := h₁.hasDerivAt x s hsU
+      have hfun : (fun r => S.WoneT C r x) = fun r => S.Wone C r x :=
+        funext fun r => S.WoneT_of_chi C r x hx
+      rw [hfun] at hd
+      exact hd.deriv.symm
+  have hI2 : (∫ t in (0 : ℝ)..1, avgFun₂ (fluctMeasure S.U N S.p₁) (S.WoneT C) (S.WtwoT C g)
+      (W₂' t) 1 t) = S.F0 C g := by
+    unfold F0
+    refine intervalIntegral.integral_congr (fun t ht => ?_)
+    have htU : t ∈ U := h₂.Icc_subset (by rwa [Set.uIcc_of_le zero_le_one] at ht)
+    show avgFun₂ S.nuFl (S.WoneT C) (S.WtwoT C g) (W₂' t) 1 t = _
+    refine avgFun₂_congr_ae ?_ ?_ ?_
+    · exact (S.ae_ball hp₁).mono fun x hx => S.WoneT_of_chi C 1 x hx
+    · exact (S.ae_ball hp₁).mono fun x hx => S.WtwoT_of_chi C g t x hx
+    · filter_upwards [S.ae_ball hp₁] with x hx
+      have hd := h₂.hasDerivAt x t htU
+      have hfun : (fun r => S.WtwoT C g r x) = fun r => S.Wtwo C g r x :=
+        funext fun r => S.WtwoT_of_chi C g r x hx
+      rw [hfun] at hd
+      exact hd.deriv.symm
+  have hconst := S.const_identity C hL ha₁ hβ hp₁
+  have hdetabs := S.abs_det_K H hδ'0 hδ' hD'R hδ0 hχ hfam hsm
+  show (∫ ψ, (S.tKernel ψ : ℂ) * (S.chiK ψ : ℂ) * S.rhoStep C g ψ) = _
+  rw [key, hI1, hI2]
+  unfold Pconst E0
+  rw [hdetabs]
+  set K0 : ℝ := (S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) with hK0
+  set bp : ℝ := S.betaU ^ (-((N * Fintype.card S.U : ℕ) : ℝ) / 2) with hbp
+  set Zc : ℝ := fluctNorm N S.p₁ ^ Fintype.card S.U with hZc
+  set Y : ℂ := -(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (C.Ek : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g with hY
+  have hX : -(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (S.Eppp C : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g +
+      ((S.halfLogDetC : ℂ) + S.E1 C) + S.F0 C g =
+      Y + ((-((S.Eppp C - C.Ek) * S.nU) : ℝ) : ℂ) + (S.halfLogDetC : ℂ) + (S.E1 C + S.F0 C g) := by
+    rw [hY]; push_cast; ring
+  have hE : Complex.exp (-(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (S.Eppp C : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g +
+      ((S.halfLogDetC : ℂ) + S.E1 C) + S.F0 C g) =
+      Complex.exp Y * ((Real.exp (-((S.Eppp C - C.Ek) * S.nU)) : ℝ) : ℂ) *
+        ((Real.exp S.halfLogDetC : ℝ) : ℂ) * Complex.exp (S.E1 C + S.F0 C g) := by
+    rw [hX, Complex.exp_add, Complex.exp_add, Complex.exp_add, Complex.ofReal_exp,
+      Complex.ofReal_exp]
+  rw [hE]
+  have hc' : (K0 : ℂ) * ((bp * Zc : ℝ) : ℂ) = ((Real.exp (-((S.Eppp C - C.Ek) * S.nU)) : ℝ) : ℂ) := by
+    rw [← Complex.ofReal_mul, hconst]
+  have hsplit : ((bp * Real.exp S.halfLogDetC * Zc : ℝ) : ℂ) =
+      ((bp * Zc : ℝ) : ℂ) * ((Real.exp S.halfLogDetC : ℝ) : ℂ) := by push_cast; ring
+  rw [hsplit]
+  linear_combination (Complex.exp Y * ((Real.exp S.halfLogDetC : ℝ) : ℂ) *
+    Complex.exp (S.E1 C + S.F0 C g)) * hc'
+
+end Final
 
 end StepSetting
 
