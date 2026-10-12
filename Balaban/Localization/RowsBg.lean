@@ -337,4 +337,101 @@ theorem i4a_local_of_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSe
 
 end Rows
 
+section Background
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- The raw-data set `A`: the sites of `resDep x` for `x ∈ B`, and of `approxDep y` for the
+sites `y` read by the rows (with `α₀ = 0` as in `i4b_local`). -/
+def RowsDep (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ)
+    (B : Finset (CTorus d L N₁ m₁ K)) (z : CTorus d L N₁ m₁ K) : Prop :=
+  (∃ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ B ∧ z ∈ resDep G (x : CTorus d L N₁ m₁ K)) ∨
+    ∃ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) B y ∧ z ∈ approxDep G (y : CTorus d L N₁ m₁ K)
+
+/-- **`i4b_local` with raw-data agreement on `A` only** (T3).  Conclusions: multiplier equality on
+`B`; equality of the correction `φ - φ₀` on `Y`; equality of `φ` at sites of `Y` whose
+`approxDep` lies in `A`, and at the sites read by the rows. -/
+theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (hconn : HatConn G)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
+    (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hdata : ∀ z, RowsDep G a ν (SY G X₁ 𝒞 Y) z → D.Ψ z = D₂.Ψ z ∧ (z ∈ G.Ω 1 → D.h z = D₂.h z))
+    {φ φ₂ : G.Ω 1 × Fin N → ℂ} {α α₂ : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h₂ : IsDecBg G a ν (rho4 d L N BG κ) s' D₂ φ₂ α₂) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → α x = α₂ x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ (y, i) - approxField G a ν D.Ψ D.h y i = φ₂ (y, i) - approxField G a ν D₂.Ψ D₂.h y i) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep G (y : CTorus d L N₁ m₁ K), RowsDep G a ν (SY G X₁ 𝒞 Y) z) →
+      ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) ∧
+    (∀ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) (SY G X₁ 𝒞 Y) y → ∀ i : Fin N,
+      φ (y, i) = φ₂ (y, i)) := by
+  classical
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hBG := hS.fam.2.1
+  obtain ⟨W⟩ := DataWit.exists hD
+  obtain ⟨W₂⟩ := DataWit.exists hD₂
+  have Hd := decHyp_of_data (N := N) HB hBG hδ0 hδε hε hδ hνε W
+  have Hd₂ := decHyp_of_data (N := N) HB hBG hδ0 hδε hε hδ hνε W₂
+  obtain ⟨-, h2, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδ0.le hδ
+  have hCδ : 0 < lemma53Const d L * δ := mul_pos (lemma53Const_pos d L) hδ0
+  have hdc := deltaClose_le_deltaStar' (d := d) (L := L) (N := N) (BG := BG) (κ := κ)
+  have hdcp := deltaClose_pos (d := d) (L := L) (N := N) (κ := κ) hd0 hBG
+  have hle : lemma53Const d L * δ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8) := by
+    linarith
+  have hfix : DecFixed G a ν s true (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D (approxField G a ν D.Ψ D.h))) α := by
+    rw [pertSource_zeroΨ]; exact h.fixed
+  have hfix₂ : DecFixed G a ν s' true (0 : G.Ω 1 → ℂ) (approxField G a ν D₂.Ψ D₂.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D₂ (approxField G a ν D₂.Ψ D₂.h))) α₂ := by
+    rw [pertSource_zeroΨ]; exact h₂.fixed
+  have hphiA : ∀ y : G.Ω 1, (∀ z ∈ approxDep G (y : CTorus d L N₁ m₁ K),
+      RowsDep G a ν (SY G X₁ 𝒞 Y) z) →
+      approxField G a ν D.Ψ D.h y = approxField G a ν D₂.Ψ D₂.h y := fun y hy =>
+    approxField_congr fun z hz => hdata z (hy z hz)
+  have hphi : ∀ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) (SY G X₁ 𝒞 Y) y →
+      approxField G a ν D.Ψ D.h y = approxField G a ν D₂.Ψ D₂.h y := fun y hy =>
+    hphiA y fun z hz => Or.inr ⟨y, hy, hz⟩
+  have hDA : DataAgreeRows G a ν N (SY G X₁ 𝒞 Y) (0 : G.Ω 1 → ℂ) 0
+      (approxField G a ν D.Ψ D.h) (approxField G a ν D₂.Ψ D₂.h)
+      (0 : CTorus d L N₁ m₁ K → Fin N → ℂ) 0
+      (residual G a ν D (approxField G a ν D.Ψ D.h))
+      (residual G a ν D₂ (approxField G a ν D₂.Ψ D₂.h)) :=
+    ⟨fun _ _ => rfl, hphi, fun _ _ => rfl, fun _ _ _ => rfl,
+      fun x hx i => residual_congr x i fun z hz => hdata z (Or.inl ⟨x, hx, hz⟩)⟩
+  obtain ⟨hα, hφ⟩ := i4a_local_rows hS.fam S hconn hκ hM hs hs' Hd Hd₂ hle hle hY hs1 hs0 hag hDA
+    hfix h.small hfix₂ h₂.small
+  have hcorr : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ (y, i) - approxField G a ν D.Ψ D.h y i = φ₂ (y, i) - approxField G a ν D₂.Ψ D₂.h y i := by
+    intro y hy i
+    have e := hφ y hy i
+    rw [pertSource_zeroΨ, pertSource_zeroΨ] at e
+    rw [h.field, h₂.field]
+    simp only [add_sub_cancel_left]
+    exact e
+  have hfull : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep G (y : CTorus d L N₁ m₁ K), RowsDep G a ν (SY G X₁ 𝒞 Y) z) →
+      ∀ i : Fin N, φ (y, i) = φ₂ (y, i) := by
+    intro y hy hA i
+    have := hcorr y hy i
+    rw [hphiA y hA] at this
+    linear_combination this
+  refine ⟨hα, hcorr, hfull, fun y hy i => hfull y (rowSite_subset S hy) ?_ i⟩
+  intro z hz
+  exact Or.inr ⟨y, hy, hz⟩
+
+end Background
+
 end Balaban.Localization
