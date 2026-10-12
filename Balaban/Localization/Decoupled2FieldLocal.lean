@@ -171,18 +171,18 @@ theorem dg5'_inner (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H)
       · by_cases hPC : P ∈ 𝒞
         · obtain ⟨hPi, y, hy, hyhat⟩ := C.mem_Qset.1 hPQ
           have hyP : y ∈ cubeP P := mem_cubeP.2 hy
-          have hyΩ : y ∈ H.Ω 1 := cubeP_subset_Ω' S hPi hyP
+          have hyΩ : y ∈ H.Ω 1 := cubeP_subset_Ω' S.toCoverLocalGeom hPi hyP
           have hyY : y ∈ Y := hhatYz ⟨y, hyΩ⟩ (mem_boxSet.2 hyhat)
           have hsubV : cubeP P ⊆ (Vset X₁ 𝒞).filter fun x => x ∈ H.Ω 1 := by
             intro x hx
             rw [Finset.mem_filter]
-            refine ⟨?_, cubeP_subset_Ω' S hPi hx⟩
+            refine ⟨?_, cubeP_subset_Ω' S.toCoverLocalGeom hPi hx⟩
             unfold Vset
             rw [Finset.mem_union]
             right
             exact Finset.mem_biUnion.2 ⟨P, hPC, hx⟩
           have hsubY : SubI H (cubeP P) Y := by
-            rcases connIn_dichotomy (cubeP_connIn' S hPi) hsubV hY with h | h
+            rcases connIn_dichotomy (cubeP_connIn' S.toCoverLocalGeom hPi) hsubV hY with h | h
             · intro x hx; exact h hx
             · exfalso; exact Finset.disjoint_left.1 h hyP hyY
           exact hag P hPC hsubY
@@ -199,7 +199,7 @@ theorem dg5'_inner (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H)
         (Gs C H a ν β u *ᵥ g) x = 0 := by
       intro u β g hu
       by_contra hne
-      have hc := dg5_support S u g x hne
+      have hc := dg5_support S.toCoverLocalGeom u g x hne
       unfold Core at hc
       obtain ⟨z, hzZ, hxz⟩ := Finset.mem_biUnion.1 hc
       have hzZ' := Finset.mem_filter.1 hzZ

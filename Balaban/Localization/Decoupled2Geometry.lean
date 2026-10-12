@@ -42,20 +42,27 @@ section Pair
 
 variable (C H a ν Kc Cx)
 
-/-- **The properties of the pair used by the locality of the parameters** (extends `CoverBase`). -/
-structure CoverLocal : Prop extends CoverBase C H a ν Kc Cx where
+/-- **The geometry of the cover used by the locality of the parameters** (extends `CoverGeom`):
+the centres are cube bases of layers `1 ≤ j ≤ K`, `supp χ_z ⊂ C_z`, and the `π¹`-cubes of the
+centres lie in `Ω₁(H)` and cover `Ω₁(H)`. -/
+structure CoverLocalGeom : Prop extends CoverGeom C H a ν Cx where
   idx_range : ∀ q ∈ C.cubeIdx, 1 ≤ q.1 ∧ q.1 ≤ K
   idx_base : ∀ q ∈ C.cubeIdx, CubeBase m₁ q.1 q.2
   chi_supp : ∀ q ∈ C.cubeIdx, ∀ x, C.chi q x ≠ 0 →
     InBox m₁ q.1 q.2 (3 / 2 * (L : ℝ) ^ (q.1 + m₁)) x
   cubeP_sub : ∀ q ∈ C.cubeIdx, ∀ x ∈ cubeP q, x ∈ H.Ω 1
   own_cover : ∀ x ∈ H.Ω 1, ∃ P ∈ C.cubeIdx, x ∈ cubeP P
+
+/-- **The properties of the pair used by the locality of the parameters** (extends `CoverBase` and
+`CoverLocalGeom`): in addition, the rows of the operator `H_D(α)` at the points of `□_z` lie in
+the thickened cube `□̂_z` (the operator footprint of a cover cube). -/
+structure CoverLocal : Prop extends CoverBase C H a ν Kc Cx, CoverLocalGeom C H a ν Cx where
   row_mem_hat : ∀ z ∈ C.cubeIdx, ∀ (α : H.Ω 1 → ℂ) {x : H.Ω 1}, (x : CTorus d L N₁ m₁ K) ∈ intBox z →
     ∀ {y : H.Ω 1}, dirichletOperator H a ν α x y ≠ 0 → (y : CTorus d L N₁ m₁ K) ∈ hatBox z
 
 end Pair
 
-theorem cubeP_eq_boxSet' (S : CoverLocal C H a ν Kc Cx) {q : ℕ × CTorus d L N₁ m₁ K}
+theorem cubeP_eq_boxSet' (S : CoverLocalGeom C H a ν Cx) {q : ℕ × CTorus d L N₁ m₁ K}
     (hq : q ∈ C.cubeIdx) :
     cubeP q = boxSet m₁ q.1 q.2 (1 / 2 * (L : ℝ) ^ (q.1 + m₁)) := by
   obtain ⟨hm1, hmK⟩ := S.idx_range q hq
@@ -63,11 +70,11 @@ theorem cubeP_eq_boxSet' (S : CoverLocal C H a ν Kc Cx) {q : ℕ × CTorus d L 
   ext x
   rw [mem_cubeP, mem_boxSet, inBox_half_iff_sameCell hmK hb]
 
-theorem cubeP_subset_Ω' (S : CoverLocal C H a ν Kc Cx) {q : ℕ × CTorus d L N₁ m₁ K}
+theorem cubeP_subset_Ω' (S : CoverLocalGeom C H a ν Cx) {q : ℕ × CTorus d L N₁ m₁ K}
     (hq : q ∈ C.cubeIdx) {x : CTorus d L N₁ m₁ K} (hx : x ∈ cubeP q) : x ∈ H.Ω 1 :=
   S.cubeP_sub q hq x hx
 
-theorem cubeP_connIn' (S : CoverLocal C H a ν Kc Cx) {q : ℕ × CTorus d L N₁ m₁ K}
+theorem cubeP_connIn' (S : CoverLocalGeom C H a ν Cx) {q : ℕ × CTorus d L N₁ m₁ K}
     (hq : q ∈ C.cubeIdx) : ConnIn (cubeP q) := by
   obtain ⟨hm1, hmK⟩ := S.idx_range q hq
   rw [cubeP_eq_boxSet' S hq]
@@ -106,7 +113,7 @@ theorem sProd_ne_zero_iff (s : ℕ × CTorus d L N₁ m₁ K → ℂ) (z : ℕ �
   rw [Finset.prod_ne_zero_iff]
 
 /-- **(DG5), support.** `G_s(A) f` vanishes outside `Core(ℛ)`. -/
-theorem dg5_support (S : CoverLocal C H a ν Kc Cx) (s : ℕ × CTorus d L N₁ m₁ K → ℂ) (f : H.Ω 1 → ℂ) (x : H.Ω 1)
+theorem dg5_support (S : CoverLocalGeom C H a ν Cx) (s : ℕ × CTorus d L N₁ m₁ K → ℂ) (f : H.Ω 1 → ℂ) (x : H.Ω 1)
     (hx : (Gs C H a ν α s *ᵥ f) x ≠ 0) : (x : CTorus d L N₁ m₁ K) ∈ Core C s := by
   classical
   set g : H.Ω 1 → ℂ := (1 - Kcal C H a ν α s)⁻¹ *ᵥ f with hg
@@ -274,7 +281,7 @@ theorem dg5' (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H) {𝒞 : Finse
       · by_cases hPC : P ∈ 𝒞
         · obtain ⟨hPi, y, hy, hyhat⟩ := C.mem_Qset.1 hPQ
           have hyP : y ∈ cubeP P := mem_cubeP.2 hy
-          have hyΩ : y ∈ H.Ω 1 := cubeP_subset_Ω' S hPi hyP
+          have hyΩ : y ∈ H.Ω 1 := cubeP_subset_Ω' S.toCoverLocalGeom hPi hyP
           have hyY : y ∈ Y := hhatY (by
             unfold hatI
             rw [Finset.mem_filter]
@@ -282,13 +289,13 @@ theorem dg5' (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H) {𝒞 : Finse
           have hsubV : cubeP P ⊆ (Vset X₁ 𝒞).filter fun x => x ∈ H.Ω 1 := by
             intro x hx
             rw [Finset.mem_filter]
-            refine ⟨?_, cubeP_subset_Ω' S hPi hx⟩
+            refine ⟨?_, cubeP_subset_Ω' S.toCoverLocalGeom hPi hx⟩
             unfold Vset
             rw [Finset.mem_union]
             right
             exact Finset.mem_biUnion.2 ⟨P, hPC, hx⟩
           have hsubY : SubI H (cubeP P) Y := by
-            rcases connIn_dichotomy (cubeP_connIn' S hPi) hsubV hY with h | h
+            rcases connIn_dichotomy (cubeP_connIn' S.toCoverLocalGeom hPi) hsubV hY with h | h
             · intro x hx; exact h hx
             · exfalso; exact Finset.disjoint_left.1 h hyP hyY
           exact hag P hPC hsubY

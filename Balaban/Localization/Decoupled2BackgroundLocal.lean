@@ -109,7 +109,7 @@ theorem i4b_vanish (S : CoverLocal C H a ν Kc Cx) {ρ : ℝ} {s : DecParams C} 
     unfold dphi
     rw [liftOp_mulVec]
     by_contra hne
-    exact hx (dg5_support S (extS C s) _ x hne)
+    exact hx (dg5_support S.toCoverLocalGeom (extS C s) _ x hne)
   rw [this, add_zero]
 
 
