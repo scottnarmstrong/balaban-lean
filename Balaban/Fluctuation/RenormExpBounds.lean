@@ -664,4 +664,252 @@ theorem norm_renC2On_le_renSol (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
 
 end Bounds
 
+section Classes
+
+variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν ε : ℝ}
+
+variable (G) in
+/-- **The class of decoupled background fields** over the datum `D` with closeness constant `c`
+(the bounds kept by the decoupled background `φ_{k+1}(s)` of LOC I-4b, cf. LOC (4.38)):
+`|ψ - Qφ| ≤ c`, `ℓ |∂φ̄| ≤ c`, `ν ℓ² |φ - h|² ≤ c²` at the points of `Ω₁`. -/
+def bgClass (ν c : ℝ) (D : BgData G N) : Set (G.Ω 1 × Fin N → ℂ) :=
+  {φ | (∀ x ∈ G.Ω 1, vn (fun i => D.Ψ x i - blockAvg G φ x i) ≤ c) ∧
+    (∀ x ∈ G.Ω 1, ∀ μ : Fin d,
+      vn (fun i => barField G D.Ψ φ (x + Pi.single μ 1) i - barField G D.Ψ φ x i) ≤
+        c / G.spacing x ∧
+      vn (fun i => barField G D.Ψ φ (x - Pi.single μ 1) i - barField G D.Ψ φ x i) ≤
+        c / G.spacing x) ∧
+    (∀ x ∈ G.Ω 1, ν * G.spacing x ^ 2 * vn (fun i => svec G φ x i - D.h x i) ^ 2 ≤ c ^ 2)}
+
+/-- The background of a member of the fixed-`h` class domain lies in the class with `c = 2ε`. -/
+theorem XiCOneReal.mem_bgClass (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
+    (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
+    {D : BgData G N} (hD : XiCOneReal G a ν ε D) :
+    bgFieldC G a ν (bgC0 d L N) D ∈ bgClass G ν (2 * ε) D := by
+  obtain ⟨hcl, hgr, hms, -⟩ := hD.factors H hε hsm hc1
+  refine ⟨fun x hx => (hcl x hx).le, fun x hx μ => ⟨(hgr x hx μ).1.le, (hgr x hx μ).2.le⟩,
+    fun x hx => (hms x hx).trans (le_of_eq (by ring))⟩
+
+/-- **The pointwise bound of `C₁` on the class**: for `φ` in the class with constant `c`,
+`|ψ| ≤ 3/2`, `ζ = ε_ζ ξ₁` with `ε_ζ ≤ c`, `|ξ|_∞ ≤ 1/16`: `|C₁(x)| ≤ (d + 6) c² |ξ|_∞ / ℓ(x)²`. -/
+theorem norm_renC1Site_le_of_mem (hw : IsAdmissibleWeights k a) (hν0 : 0 ≤ ν) {D : BgData G N}
+    (hΨ : ∀ x ∈ dataSites G, vn (D.Ψ x) ≤ 3 / 2) {c : ℝ} (hc : 0 ≤ c) {φ : G.Ω 1 × Fin N → ℂ}
+    (hφ : φ ∈ bgClass G ν c D) {εζ : ℝ} (hεζ0 : 0 ≤ εζ) (hεζ : εζ ≤ c) {ξ : Fin 3 → ℂ}
+    (hξ : ‖ξ‖ ≤ 1 / 16) (x : Torus d (N₀ * L ^ k)) :
+    ‖renC1Site G a ν εζ ξ D.Ψ D.h φ x‖ ≤ (d + 6) * c ^ 2 * ‖ξ‖ / G.spacing x ^ 2 := by
+  obtain ⟨hcl, hgr, hms⟩ := hφ
+  set ℓ := G.spacing x with hℓdef
+  have hsp : 0 < ℓ := spacing_pos G
+  have hℓ2 : 0 < ℓ ^ 2 := by positivity
+  have hξ0 := norm_nonneg ξ
+  have hξ1 : ‖ξ 1‖ ≤ ‖ξ‖ := norm_le_pi_norm ξ 1
+  have hξ2 : ‖ξ 2‖ ≤ ‖ξ‖ := norm_le_pi_norm ξ 2
+  have hz : ‖renZeta εζ ξ‖ ≤ c * ‖ξ‖ :=
+    (norm_renZeta_le hεζ0 ξ).trans (mul_le_mul_of_nonneg_right hεζ hξ0)
+  have h1ξ : ‖1 + ξ 2‖ ≤ 17 / 16 := (norm_add_le _ _).trans (by rw [norm_one]; linarith)
+  have hbond := norm_bondSite_le (G := G) (Ψ := D.Ψ) (φ := φ) (A := c) hc hgr x
+  have hd0 : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+  have hB : ‖(ξ 2 / 2) * bondSite G D.Ψ φ x‖ ≤ d / 2 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 := by
+    rw [norm_mul, norm_div, Complex.norm_ofNat]
+    calc ‖ξ 2‖ / 2 * ‖bondSite G D.Ψ φ x‖ ≤ ‖ξ‖ / 2 * (d * c ^ 2 / ℓ ^ 2) :=
+          mul_le_mul (by linarith) hbond (norm_nonneg _) (by positivity)
+      _ = d / 2 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 := by ring
+  have hc2 : 0 ≤ c ^ 2 * ‖ξ‖ / ℓ ^ 2 := by positivity
+  unfold renC1Site
+  split_ifs with hx
+  · have hxd : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl hx)
+    have hP := hΨ x hxd
+    have hC := hcl x hx
+    have hM := hms x hx
+    obtain ⟨hj1, hjk, -⟩ := G.layerIndex_spec hx
+    have hw0 : 0 ≤ blockWt G a x := by
+      unfold blockWt; have := (hw _ hj1 hjk).1; positivity
+    have hw2 : blockWt G a x ≤ 2 / ℓ ^ 2 := by
+      unfold blockWt; rw [hℓdef]; unfold GeneratingSet.spacing
+      exact div_le_div_of_nonneg_right (hw _ hj1 hjk).2 (by positivity)
+    have hv1 := vn_nonneg (fun i => D.Ψ x i - blockAvg G φ x i)
+    have hv2 := vn_nonneg (D.Ψ x)
+    have d1 : ‖∑ i, (D.Ψ x i - blockAvg G φ x i) * (D.Ψ x i - blockAvg G φ x i)‖ ≤ c ^ 2 :=
+      (Balaban.Multiscale.norm_dot_le _ _).trans (by nlinarith)
+    have d2 : ‖∑ i, D.Ψ x i * (D.Ψ x i - blockAvg G φ x i)‖ ≤ 3 / 2 * c :=
+      (Balaban.Multiscale.norm_dot_le _ _).trans (by nlinarith)
+    have d3 : ‖∑ i, D.Ψ x i * D.Ψ x i‖ ≤ 9 / 4 :=
+      (Balaban.Multiscale.norm_dot_le _ _).trans (by nlinarith)
+    have T1 : ‖ξ 2 / 2 * ∑ i, (D.Ψ x i - blockAvg G φ x i) * (D.Ψ x i - blockAvg G φ x i)‖ ≤
+        c ^ 2 * ‖ξ‖ / 2 := by
+      rw [norm_mul, norm_div, Complex.norm_ofNat]
+      calc ‖ξ 2‖ / 2 * _ ≤ ‖ξ‖ / 2 * c ^ 2 :=
+            mul_le_mul (by linarith) d1 (norm_nonneg _) (by positivity)
+        _ = c ^ 2 * ‖ξ‖ / 2 := by ring
+    have hz2 : ‖renZeta εζ ξ ^ 2 / 2‖ ≤ c ^ 2 * ‖ξ‖ / 32 := by
+      rw [norm_div, norm_pow, Complex.norm_ofNat]
+      have : ‖renZeta εζ ξ‖ ^ 2 ≤ (c * ‖ξ‖) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) hz 2
+      have : (c * ‖ξ‖) ^ 2 ≤ c ^ 2 * ‖ξ‖ / 16 := by
+        have := mul_nonneg (mul_nonneg (sq_nonneg c) hξ0) (sub_nonneg.2 hξ)
+        rw [mul_pow]; nlinarith
+      linarith
+    have T2 : ‖(1 + ξ 2) * (renZeta εζ ξ * ∑ i, D.Ψ x i * (D.Ψ x i - blockAvg G φ x i) +
+        (renZeta εζ ξ ^ 2 / 2) * ∑ i, D.Ψ x i * D.Ψ x i)‖ ≤ 2 * c ^ 2 * ‖ξ‖ := by
+      rw [norm_mul]
+      have hin : ‖renZeta εζ ξ * ∑ i, D.Ψ x i * (D.Ψ x i - blockAvg G φ x i) +
+          (renZeta εζ ξ ^ 2 / 2) * ∑ i, D.Ψ x i * D.Ψ x i‖ ≤
+          c * ‖ξ‖ * (3 / 2 * c) + c ^ 2 * ‖ξ‖ / 32 * (9 / 4) := by
+        refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
+        · rw [norm_mul]; exact mul_le_mul hz d2 (norm_nonneg _) (by positivity)
+        · rw [norm_mul]; exact mul_le_mul hz2 d3 (norm_nonneg _) (by positivity)
+      calc ‖1 + ξ 2‖ * _ ≤ 17 / 16 * (c * ‖ξ‖ * (3 / 2 * c) + c ^ 2 * ‖ξ‖ / 32 * (9 / 4)) :=
+            mul_le_mul h1ξ hin (norm_nonneg _) (by norm_num)
+        _ ≤ 2 * c ^ 2 * ‖ξ‖ := by
+            have := mul_nonneg (sq_nonneg c) hξ0
+            nlinarith
+    have T3 : ‖(ν : ℂ) * ξ 1 / 2 * ∑ i, (svec G φ x i - D.h x i) * (svec G φ x i - D.h x i)‖ ≤
+        c ^ 2 * ‖ξ‖ / 2 / ℓ ^ 2 := by
+      have hd4 := Balaban.Multiscale.norm_dot_le (fun i => svec G φ x i - D.h x i)
+        (fun i => svec G φ x i - D.h x i)
+      rw [norm_mul, norm_div, norm_mul, Complex.norm_real, Real.norm_of_nonneg hν0,
+        Complex.norm_ofNat]
+      have hM' : ν * vn (fun i => svec G φ x i - D.h x i) ^ 2 ≤ c ^ 2 / ℓ ^ 2 := by
+        rw [le_div_iff₀ hℓ2]
+        have e : ν * vn (fun i => svec G φ x i - D.h x i) ^ 2 * ℓ ^ 2 =
+            ν * ℓ ^ 2 * vn (fun i => svec G φ x i - D.h x i) ^ 2 := by ring
+        rw [e]; exact hM
+      have h5 : ‖∑ i, (svec G φ x i - D.h x i) * (svec G φ x i - D.h x i)‖ ≤
+          vn (fun i => svec G φ x i - D.h x i) ^ 2 := by rw [sq]; exact hd4
+      calc ν * ‖ξ 1‖ / 2 * ‖∑ i, (svec G φ x i - D.h x i) * (svec G φ x i - D.h x i)‖
+          ≤ ν * ‖ξ‖ / 2 * vn (fun i => svec G φ x i - D.h x i) ^ 2 :=
+            mul_le_mul (by have := mul_le_mul_of_nonneg_left hξ1 hν0; linarith) h5
+              (norm_nonneg _) (by positivity)
+        _ = ‖ξ‖ / 2 * (ν * vn (fun i => svec G φ x i - D.h x i) ^ 2) := by ring
+        _ ≤ ‖ξ‖ / 2 * (c ^ 2 / ℓ ^ 2) := mul_le_mul_of_nonneg_left hM' (by positivity)
+        _ = c ^ 2 * ‖ξ‖ / 2 / ℓ ^ 2 := by ring
+    have hwA : ‖(blockWt G a x : ℂ) * (ξ 2 / 2 * ∑ i, (D.Ψ x i - blockAvg G φ x i) *
+        (D.Ψ x i - blockAvg G φ x i) + (1 + ξ 2) * (renZeta εζ ξ * ∑ i, D.Ψ x i *
+          (D.Ψ x i - blockAvg G φ x i) + (renZeta εζ ξ ^ 2 / 2) * ∑ i, D.Ψ x i * D.Ψ x i))‖ ≤
+        5 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 := by
+      rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hw0]
+      calc blockWt G a x * ‖_‖ ≤ 2 / ℓ ^ 2 * (c ^ 2 * ‖ξ‖ / 2 + 2 * c ^ 2 * ‖ξ‖) :=
+            mul_le_mul hw2 ((norm_add_le _ _).trans (add_le_add T1 T2)) (norm_nonneg _)
+              (by positivity)
+        _ = 5 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 := by ring
+    have hsum := add_le_add (add_le_add hwA T3) hB
+    refine norm_add₃_le.trans (hsum.trans ?_)
+    have e : 5 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 + c ^ 2 * ‖ξ‖ / 2 / ℓ ^ 2 + d / 2 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 =
+        (11 / 2 + d / 2) * (c ^ 2 * ‖ξ‖ / ℓ ^ 2) := by ring
+    have e' : (d + 6) * c ^ 2 * ‖ξ‖ / ℓ ^ 2 = (d + 6) * (c ^ 2 * ‖ξ‖ / ℓ ^ 2) := by ring
+    rw [e, e']
+    exact mul_le_mul_of_nonneg_right (by linarith) hc2
+  · rw [zero_add]
+    refine hB.trans ?_
+    have e : d / 2 * c ^ 2 * ‖ξ‖ / ℓ ^ 2 = d / 2 * (c ^ 2 * ‖ξ‖ / ℓ ^ 2) := by ring
+    have e' : (d + 6) * c ^ 2 * ‖ξ‖ / ℓ ^ 2 = (d + 6) * (c ^ 2 * ‖ξ‖ / ℓ ^ 2) := by ring
+    rw [e, e']
+    exact mul_le_mul_of_nonneg_right (by linarith) hc2
+
+/-- `C₁(B)` on the class: `|C₁(B)| ≤ (d + 6) c² |ξ|_∞ W(B)`. -/
+theorem norm_renC1On_le_of_mem (hw : IsAdmissibleWeights k a) (hν0 : 0 ≤ ν) {D : BgData G N}
+    (hΨ : ∀ x ∈ dataSites G, vn (D.Ψ x) ≤ 3 / 2) {c : ℝ} (hc : 0 ≤ c) {φ : G.Ω 1 × Fin N → ℂ}
+    (hφ : φ ∈ bgClass G ν c D) {εζ : ℝ} (hεζ0 : 0 ≤ εζ) (hεζ : εζ ≤ c) {ξ : Fin 3 → ℂ}
+    (hξ : ‖ξ‖ ≤ 1 / 16) (B : Finset (Torus d (N₀ * L ^ k))) :
+    ‖renC1On G a ν εζ B D.Ψ D.h φ ξ‖ ≤ (d + 6) * c ^ 2 * ‖ξ‖ * blockWeight G B := by
+  unfold renC1On blockWeight
+  rw [Finset.mul_sum]
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
+  have := norm_renC1Site_le_of_mem hw hν0 hΨ hc hφ hεζ0 hεζ hξ x
+  rwa [div_eq_mul_inv] at this
+
+variable (G) in
+/-- **The class of decoupled perturbations** `(δφ, α_u)` with `‖δφ‖_* ≤ V` and
+`ℓ² |α_u + ν_u| ≤ A` (the bounds kept by the decoupled solution of LOC I-4a). -/
+def pertClass (V A : ℝ) (νu : ℂ) : Set ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) :=
+  {u | SupBounds G u.1 V ∧ ∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖u.2 x + νu‖ ≤ A}
+
+/-- `C₂(B)` on the class: `|C₂(B)| ≤ (17/32) N (3 + A) V² W(B)` for `|ξ|_∞ ≤ 1/16`. -/
+theorem norm_renC2On_le_of_mem (hw : IsAdmissibleWeights k a) {V A : ℝ} (hV : 0 ≤ V)
+    (hA0 : 0 ≤ A) {νu : ℂ} {u : (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)} (hu : u ∈ pertClass G V A νu)
+    {ξ : Fin 3 → ℂ} (hξ : ‖ξ‖ ≤ 1 / 16) (Bs : Finset (Torus d (N₀ * L ^ k))) :
+    ‖renC2On G a Bs ξ νu u.2 u.1‖ ≤ 17 / 32 * (N * ((3 + A) * V ^ 2)) * blockWeight G Bs := by
+  have h1ξ : ‖1 + ξ 2‖ / 2 ≤ 17 / 32 := by
+    have := (norm_add_le (1 : ℂ) (ξ 2)).trans (by rw [norm_one]; linarith [norm_le_pi_norm ξ 2] :
+      ‖(1 : ℂ)‖ + ‖ξ 2‖ ≤ 17 / 16)
+    linarith
+  set c := 17 / 32 * (N * ((3 + A) * V ^ 2))
+  have hc : 0 ≤ c := by positivity
+  unfold renC2On blockWeight
+  refine (norm_sum_le _ _).trans ?_
+  calc ∑ x ∈ Finset.univ.filter (fun x : G.Ω 1 => (x : Torus d (N₀ * L ^ k)) ∈ Bs), ‖_‖
+      ≤ ∑ x ∈ Finset.univ.filter (fun x : G.Ω 1 => (x : Torus d (N₀ * L ^ k)) ∈ Bs),
+          c * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2)⁻¹ := Finset.sum_le_sum fun x _ => by
+        have h := norm_renC2Site_le (G := G) (a := a) hw hV hA0 hu.1 hu.2 ξ x
+        have hsp := spacing_pos G (x := (x : Torus d (N₀ * L ^ k)))
+        refine h.trans ?_
+        rw [div_eq_mul_inv]
+        have hN : 0 ≤ (N : ℝ) * ((3 + A) * V ^ 2) := by positivity
+        exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right h1ξ hN) (by positivity)
+    _ ≤ ∑ y ∈ Bs, c * (G.spacing y ^ 2)⁻¹ :=
+        sum_filter_coe_le Bs (fun y => c * (G.spacing y ^ 2)⁻¹) fun y => by
+          have := spacing_pos G (x := y); positivity
+    _ = c * ∑ y ∈ Bs, (G.spacing y ^ 2)⁻¹ := by rw [Finset.mul_sum]
+
+/-- **The perturbation of Lemma 3.5 (ii) lies in the class**: `(δφ, α + δα)` with
+`V = c_K K₂ B |ξ|_∞`, `A = K₁ C₁ ε + c_K K₂ B r₀ + 2`, `ν_u = ν (1 + ξ₂)/(1 + ξ₃)`, for `c_K ≥ 1`,
+`|ξ|_∞ < r₀ ≤ r`. -/
+theorem renSol_mem_pertClass (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
+    (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
+    {εζ r r₀ B cK : ℝ}
+    {F : RawData d L N₀ k N × (Fin 3 → ℂ) → (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF : IsRenSol G a ν εζ ε r B F) (hB0 : 0 ≤ B) (hcK : 1 ≤ cK) (hr₀ : r₀ ≤ r)
+    (hr16 : r₀ ≤ 1 / 16) {D : BgData G N} (hD : XiCOne G a ν ε D) {ξ : Fin 3 → ℂ}
+    (hξ : ‖ξ‖ < r₀) :
+    ((F ((D.Ψ, D.h), ξ)).1, bgMultC G a ν (bgC0 d L N) D + (F ((D.Ψ, D.h), ξ)).2) ∈
+      pertClass G (cK * (cK2 d L N * (B * ‖ξ‖)))
+        (bgK1 d L N * (xiC1 d * ε) + cK * cK2 d L N * B * r₀ + 2) (renMassU ν ξ) := by
+  obtain ⟨-, -, hb, -⟩ := hD.bg H hsm hε hc1
+  have hξr : ‖ξ‖ < r := hξ.trans_le hr₀
+  have hξ0 := norm_nonneg ξ
+  have hξ16 : ‖ξ‖ ≤ 1 / 16 := hξ.le.trans hr16
+  have hK2 := cK2_pos d L N
+  have hν0 := H.mass
+  refine ⟨(hF.sup D hD ξ hξr).mono ?_, fun y => ?_⟩
+  · have : 0 ≤ cK2 d L N * (B * ‖ξ‖) := by positivity
+    nlinarith
+  have hsp := spacing_pos G (x := (y : Torus d (N₀ * L ^ k)))
+  have hℓ0 : 0 ≤ G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 := by positivity
+  have hνℓ : ν * G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 ≤ 1 :=
+    (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hsp.le (spacing_le G y.2) 2) hν0).trans
+      H.massLe
+  have h1 := hb.alpha y
+  have h2 := (hF.small D hD ξ hξr) y
+  have h3 : ‖renMassU ν ξ‖ ≤ 2 * ν := by
+    have := renMassU_sub_norm_le hν0 hξ16
+    have e : renMassU ν ξ = (renMassU ν ξ - ν) + (ν : ℂ) := by ring
+    rw [e]
+    refine (norm_add_le _ _).trans ?_
+    rw [Complex.norm_real, Real.norm_of_nonneg hν0]
+    nlinarith
+  have hKr : cK2 d L N * (B * ‖ξ‖) ≤ cK * cK2 d L N * B * r₀ := by
+    have : cK2 d L N * B * ‖ξ‖ ≤ cK2 d L N * B * r₀ :=
+      mul_le_mul_of_nonneg_left hξ.le (by positivity)
+    have : cK2 d L N * B * r₀ ≤ cK * (cK2 d L N * B * r₀) := by
+      have : 0 ≤ cK2 d L N * B * r₀ := by
+        have := hξ0.trans hξ.le; positivity
+      nlinarith
+    nlinarith
+  have h4 : G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * ‖renMassU ν ξ‖ ≤ 2 := by
+    calc G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * ‖renMassU ν ξ‖
+        ≤ G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * (2 * ν) := mul_le_mul_of_nonneg_left h3 hℓ0
+      _ = 2 * (ν * G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2) := by ring
+      _ ≤ 2 := by linarith
+  simp only [Pi.add_apply]
+  calc G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 *
+        ‖bgMultC G a ν (bgC0 d L N) D y + (F ((D.Ψ, D.h), ξ)).2 y + renMassU ν ξ‖
+      ≤ G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 *
+        (‖bgMultC G a ν (bgC0 d L N) D y‖ + ‖(F ((D.Ψ, D.h), ξ)).2 y‖ + ‖renMassU ν ξ‖) :=
+        mul_le_mul_of_nonneg_left norm_add₃_le hℓ0
+    _ = G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * ‖bgMultC G a ν (bgC0 d L N) D y‖ +
+        G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * ‖(F ((D.Ψ, D.h), ξ)).2 y‖ +
+        G.spacing (y : Torus d (N₀ * L ^ k)) ^ 2 * ‖renMassU ν ξ‖ := by ring
+    _ ≤ bgK1 d L N * (xiC1 d * ε) + cK * cK2 d L N * B * r₀ + 2 := by linarith
+
+end Classes
+
 end Balaban.Fluctuation
