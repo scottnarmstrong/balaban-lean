@@ -114,16 +114,14 @@ structure OpSetting (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → 
   sep : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)
 
 open Classical in
-/-- **The properties of the pair (cover `C`, operator `H`) used by (DG1)--(DG4).**
-
-Operator side: `OpSetting H a ν`.  Pair side: `blockAligned` (every cover cube `□_z` is a union of
-`H`-blocks, so its cut is a valid cut of `H`), `nc` (the block bounds (NC3) of the cut operator
-`H_z(A)⁻¹`), `chi_unit`, `sum_chi` (partition of unity on `Ω₁(H)`), `chi_smooth` (the `H`-scaled
-derivative bounds on `χ_z`), `inner_near` (`supp χ_z` and the stencil: the interior of the cube),
-`card_box` (at most `3 · 5^d` cubes meet a point), `card_qset` (`|𝒬(z)| ≤ N₀`). -/
-structure CoverBase : Prop extends OpSetting H a ν where
+/-- **The properties of the pair (cover `C`, operator `H`) that do not involve the cut-operator
+estimate (NC3)**: the operator side `OpSetting H a ν`, and, on the pair side, `blockAligned`
+(every cover cube `□_z` is a union of `H`-blocks, so its cut is a valid cut of `H`), `chi_unit`,
+`sum_chi` (partition of unity on `Ω₁(H)`), `chi_smooth` (the `H`-scaled derivative bounds on
+`χ_z`, with the constant `Cx`), `inner_near` (`supp χ_z` and the stencil: the interior of the
+cube), `card_box` (at most `3 · 5^d` cubes meet a point), `card_qset` (`|𝒬(z)| ≤ N₀`). -/
+structure CoverGeom : Prop extends OpSetting H a ν where
   blockAligned : ∀ q ∈ C.cubeIdx, BlockAligned H (intBox q)
-  nc : ∀ {α : H.Ω 1 → ℂ}, AdmPot H α → ∀ q ∈ C.cubeIdx, CubeBlockBounds H a ν α q Kc
   chi_unit : ∀ q ∈ C.cubeIdx, ∀ {x z : CTorus d L N₁ m₁ K}, x ∈ H.Ω 1 →
     (z = x ∨ ∃ μ : Fin d, z = x + Pi.single μ 1 ∨ z = x - Pi.single μ 1) →
     0 ≤ C.chi q z ∧ C.chi q z ≤ 1
@@ -134,6 +132,11 @@ structure CoverBase : Prop extends OpSetting H a ν where
       SameCell (L ^ H.layerIndex x) x y) → Inner q x
   card_box : ∀ x ∈ H.Ω 1, (C.cubeIdx.filter fun q => x ∈ intBox q).card ≤ 3 * 5 ^ d
   card_qset : ∀ q ∈ C.cubeIdx, (C.Qset q).card ≤ N0 d L
+
+/-- **The properties of the pair used by (DG1)--(DG4)**: `CoverGeom`, and `nc`, the block bounds
+(NC3) of the cut operator `H_z(A)⁻¹` of every cover cube, with the constant `Kc`. -/
+structure CoverBase : Prop extends CoverGeom C H a ν Cx where
+  nc : ∀ {α : H.Ω 1 → ℂ}, AdmPot H α → ∀ q ∈ C.cubeIdx, CubeBlockBounds H a ν α q Kc
 
 end Pair
 

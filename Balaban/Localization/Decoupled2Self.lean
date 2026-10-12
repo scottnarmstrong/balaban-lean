@@ -115,6 +115,7 @@ open Classical in
 `Cchi d L`. -/
 theorem coverBase_self (S : DGSetting G a ν) :
     CoverBase (coverOf G) G a ν (selfKc d L) (Cchi d L) where
+  nc hα q hq := selfKc_spec S.hd S.hL G S hα hq
   hd := S.hd
   hL := S.hL
   mass := S.mass
@@ -123,7 +124,6 @@ theorem coverBase_self (S : DGSetting G a ν) :
   sep := S.sep
   blockAligned q hq :=
     box_blockAligned S.aligned S.cover_sep (by have := S.hL; omega) hq
-  nc hα q hq := selfKc_spec S.hd S.hL G S hα hq
   chi_unit q hq x z hx hz := by
     obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec hx
     have hd0 : 0 < d := by have := S.hd; omega
