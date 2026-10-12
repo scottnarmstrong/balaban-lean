@@ -26,7 +26,7 @@ section Chain
 
 variable {d m : ℕ} [NeZero m]
 
-theorem supDist_add_single_le (y : Torus d m) (μ : Fin d) : supDist (y + Pi.single μ 1) y ≤ 1 := by
+theorem supDist_succ_le (y : Torus d m) (μ : Fin d) : supDist (y + Pi.single μ 1) y ≤ 1 := by
   rw [supDist_le_iff]
   intro i
   rw [cycNorm_le_iff]
@@ -63,8 +63,8 @@ theorem box_chain {E : Type*} [SeminormedAddCommGroup E] (hd : 0 < d) (a : Torus
       have := hs i0
       rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)] at e2
       omega
-    refine ⟨y + Pi.single i0 1, ⟨hy'box, y, hy, supDist_add_single_le y i0⟩, ?_⟩
-    have := hκ y (y + Pi.single i0 1) (Or.inl hy) (Or.inr ⟨hy'box, y, hy, supDist_add_single_le y i0⟩)
+    refine ⟨y + Pi.single i0 1, ⟨hy'box, y, hy, supDist_succ_le y i0⟩, ?_⟩
+    have := hκ y (y + Pi.single i0 1) (Or.inl hy) (Or.inr ⟨hy'box, y, hy, supDist_succ_le y i0⟩)
       ⟨i0, Or.inl rfl⟩
     simpa using this
   | succ n ih =>

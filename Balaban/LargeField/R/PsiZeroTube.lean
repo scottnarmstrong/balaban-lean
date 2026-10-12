@@ -76,8 +76,8 @@ theorem tube_R2 {X : Set (Torus d (N₀ * L ^ (k - k)))} {κ : ℝ} {ψ : BlockF
 
 theorem torusAdj_supDist {m : ℕ} [NeZero m] {y y' : Torus d m} (h : torusAdj y y') : supDist y' y ≤ 1 := by
   obtain ⟨μ, h | h⟩ := h
-  · rw [h]; exact supDist_add_single_le y μ
-  · rw [supDist_comm, h]; exact supDist_add_single_le y' μ
+  · rw [h]; exact supDist_succ_le y μ
+  · rw [supDist_comm, h]; exact supDist_succ_le y' μ
 
 /-- A block adjacent to a box block and outside the box lies in the layer of the box. -/
 theorem mem_shellOut_of_adj {m : ℕ} [NeZero m] {Z : Set (Torus d m)} {y y' : Torus d m} (hy : y ∈ Z)
