@@ -18,10 +18,22 @@ theorems about the P6 pair cover `F♯ = p6FsharpC` hold together, and instantia
 It is an instance of the cover geometry only: nothing is stated about the P6 boundary terms
 themselves.
 
-The data: dimension `d` (arbitrary), `L = 3`, step index `k = 1` (so the cover has top layer
-`k + 1 = 2`), `c = 15 = 5 L` (so `L ^ 1 ∣ c`, i.e. `m₀ = 1`), `m₁ = 2`, `M₁ = 9 = L ^ 2`, the old
-radius `R_{k-1} = 9` (so `⌊R_{k-1}⌋ = 9 = 3 L`) and new radius `R_k = 0`.  The step is a
-`RegionStep` with `P = Q = R = S = ∅` and old large-field region `Z = ∅`.
+The `RegionStep` structure does not depend on the step index, so no history is needed: a step
+is the old region `Z_k`, the new cubes and the two radii.  We use `P = Q = R = S = ∅`,
+`R_{k-1} = 9` (so `⌊R_{k-1}⌋ = 9 = 3 L`) and `R_k = 0`.
+
+Common data: `L = 3`, step index `k = 1` (the cover has top layer `k + 1 = 2`), `c = 15 = 5 L`
+(so `L ^ m₀ ∣ c` with `m₀ = 1`), `m₁ = 2`, `M₁ = 9 = L ^ 2`.
+
+* Namespace `P6PairWitness` (any dimension `d`, any `n₁`): `Z_k = ∅`, so the new active region is
+  the whole torus.  Nonempty top layer; no lower layer.
+* Namespace `Slab` (dimension `3`, `n₁ = 100`, torus of side `n₀ = 300` for `Z_k`): `Z_k` is the
+  slab `{x | |x₀| ≤ 60}`, nonempty.  The new active region contains the coarse point
+  `(50, 0, 0)`, and the cover has an index in the top layer and an index in layer `1 = k`.
+
+Premise on `n₁`: the concrete computations (decidable statements about `ZMod` residues) need the
+numerical value, so the `Slab` statements carry `n₁ = 100`; the Moore-degree and layer-uniqueness
+statements hold for every `n₁`.
 -/
 
 @[expose] public section
@@ -360,6 +372,64 @@ theorem ylow_mem_Ω_one (hn1 : n1 = 100) : ylow n1 ∈ (cover n1).Ω 1 := by
   show _ ∈ fineK 9 15 n1 3 1 (3 * n1) (thick2 _ _)
   rw [mem_fineK, thick2_eq]
   exact ylow_near n1 hn1
+
+theorem ylow_not_halo (hn1 : n1 = 100) :
+    blockMap (3 ^ (1 + 1) * (15 * 9)) n1 (ylow n1) ∉
+      p6HaloCubes 3 n1 ⌊(9 : ℝ)⌋₊ (step n1).Z := by
+  subst hn1
+  intro hmem
+  have hf : ⌊(9 : ℝ)⌋₊ = 9 := by norm_num
+  let qpt : Torus 3 100 := fun i => if i = 0 then 13 else 0
+  have e : blockMap (3 ^ (1 + 1) * (15 * 9)) 100 (ylow 100) = qpt := by
+    funext i
+    fin_cases i <;> decide
+  have eq0 : ∀ i, cycNorm 100 (qpt i - (0 : Torus 3 100) i) ≤ 13 := by
+    intro i
+    fin_cases i <;> decide
+  have hb0 : blockMap 3 100 (0 : Torus 3 (3 * 100)) = 0 := by
+    funext i
+    simp [blockMap, blockCoord]
+  rw [e] at hmem
+  obtain ⟨b, ⟨w, hw, rfl⟩, hbq⟩ := mem_nbhd.1 hmem
+  obtain ⟨z, hz, hwz⟩ := mem_nbhd.1 hw
+  have hz' : ¬ cycNorm (3 * 100) (z 0) ≤ 60 := hz
+  have h1 : supDist w z ≤ 10 := by
+    have : supDist w z ≤ ⌊(9 : ℝ)⌋₊ + 1 := hwz
+    omega
+  have h2 := cycNorm_le_supDist w z 0
+  have h3 := cycNorm_sub_le (n := 3 * 100) (z 0) (w 0) 0
+  have h3' : cycNorm (3 * 100) (z 0 - w 0) = cycNorm (3 * 100) (w 0 - z 0) :=
+    cycNorm_sub_comm _ _
+  have h4 : supDist qpt 0 ≤ 13 := supDist_le_iff.2 eq0
+  have h5 := supDist_triangle (blockMap 3 100 w) qpt 0
+  rw [supDist_comm (blockMap 3 100 w) qpt] at h5
+  have h6 := supDist_le_blockMap (L := 3) (m := 100) rfl w 0
+  rw [hb0] at h6
+  have h7 := cycNorm_le_supDist w 0 0
+  simp only [sub_zero, Pi.zero_apply] at h3 h7
+  have h8 : supDist (blockMap 3 100 w) 0 ≤ 14 := by omega
+  have h9 : supDist w 0 ≤ 44 := by omega
+  omega
+
+theorem ylow_not_mem_Ω_two (hn1 : n1 = 100) : ylow n1 ∉ (cover n1).Ω (1 + 1) := by
+  unfold cover
+  rw [mem_p6FsharpC_Ω_top (k := 1) (m₁ := 2) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl
+    P6PairWitness.hρ9 (by norm_num) (step n1).Z P6PairWitness.hM9 (ylow n1)]
+  exact ylow_not_halo n1 hn1
+
+/-- An index of `cubeIdx F♯` below the top layer: `(k, ylow)` with `k = 1`. -/
+theorem low_mem_cubeIdx (hn1 : n1 = 100) :
+    ((1, ylow n1) : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)) ∈ cubeIdx (cover n1) :=
+  (mem_cubeIdx _).2 ⟨⟨le_rfl, by norm_num⟩,
+    (cover n1).mem_layer.2 ⟨ylow_mem_Ω_one n1 hn1, ylow_not_mem_Ω_two n1 hn1⟩, ylow_base n1 hn1⟩
+
+/-- **Non-degeneracy of the slab instance** (`n₁ = 100`): the index set has an index in the top
+layer `k + 1 = 2` and an index in layer `k = 1`, and the root count at the active site `ustar` is
+between `1` and `3 ^ 3 * (3 ^ 1) ^ 3`. -/
+theorem nondegenerate (hn1 : n1 = 100) :
+    ((1 + 1, ustar n1) : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)) ∈ cubeIdx (cover n1) ∧
+      ((1, ylow n1) : ℕ × CTorus 3 3 (15 * n1) 2 (1 + 1)) ∈ cubeIdx (cover n1) ∧
+      ((1 : ℕ) ≠ 1 + 1) := ⟨top_mem_cubeIdx n1 hn1, low_mem_cubeIdx n1 hn1, by norm_num⟩
 
 end Slab
 
