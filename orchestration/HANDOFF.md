@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
 | W105 | `w105-cube-action` / W105 | cube action on H7 + trace entropy (Thm 4.2 pieces) |
 | W104 | `w104-lf-p6p7` / W104 | LFR Part III P6 (+P7 definitions, small factors) |
-| W102 | `w102-obs-o3` / W102 | observables O3 (+O4) |
+| W107 | `w107-obs-o6` / W107 | observables O6 + first-order step assembly |
 | W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
