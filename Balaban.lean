@@ -412,6 +412,7 @@ public import Balaban.Localization.DecoupledCovLocal2
 public import Balaban.Localization.DecoupledCovLocal2Free
 public import Balaban.Localization.RowsCov
 public import Balaban.Fluctuation.RowsHat
+public import Balaban.Fluctuation.RowsCompose
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
@@ -923,6 +924,7 @@ public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassChangeHessian
 public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.RegionalTails
+public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
 public import Balaban.LargeField.R.MassChangeCrossing
@@ -976,6 +978,7 @@ public import Balaban.Fluctuation.Prop33CloseC7
 public import Balaban.Fluctuation.Prop33CloseDomain
 public import Balaban.Fluctuation.Prop33CloseReal
 public import Balaban.Fluctuation.Prop33CloseNu
+public import Balaban.Fluctuation.PhysicalReadsV
 public import Balaban.Fluctuation.Prop33CloseBh
 public import Balaban.Fluctuation.Prop33CloseWitness
 public import Balaban.Fluctuation.Prop33Level
@@ -1279,3 +1282,4 @@ public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
+public import Balaban.Fluctuation.SharpAE
