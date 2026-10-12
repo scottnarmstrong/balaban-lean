@@ -91,6 +91,15 @@ theorem collar_eq_empty_of_overTop {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ) 
   have h1 := hΩX x (hdata x ((mem_dataSites G).2 (Or.inr hx)))
   exact ((mem_collar G).1 hx).1 (G.Ω_antitone le_rfl hk (by omega) h1)
 
+/-- `BlockTube` is inhabited: the constant unit field is in `Ψ̃(X; δ)` for every `δ > 0`. -/
+theorem blockTube_nonempty (X : Set (Torus d (N₀ * L ^ (k - k)))) {δ : ℝ} (hδ : 0 < δ) (hN : 0 < N) :
+    ∃ ψ : BlockField d L N₀ k N, BlockTube X δ ψ := by
+  refine ⟨fun _ i => if i = ⟨0, hN⟩ then 1 else 0, fun y _ y' _ _ => ?_, fun y _ => ?_⟩
+  · simpa using hδ
+  · have : ∑ i : Fin N, (if i = (⟨0, hN⟩ : Fin N) then (1 : ℝ) else 0) ^ 2 = 1 := by
+      simp [apply_ite (fun x : ℝ => x ^ 2)]
+    rw [this]; simpa using hδ
+
 end BlockTube
 
 section Spec
