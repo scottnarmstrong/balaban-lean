@@ -334,6 +334,7 @@ public import Balaban.LargeField.History.RegionLineage
 public import Balaban.LargeField.History.LocalHistory
 public import Balaban.LargeField.Counter.FlowHorizon
 public import Balaban.LargeField.Counter.InstantiationFlow
+public import Balaban.LargeField.History.FlowInv
 public import Balaban.SmallField.TaylorCauchy
 public import Balaban.SmallField.RenormDefs
 public import Balaban.SmallField.RenormRot
