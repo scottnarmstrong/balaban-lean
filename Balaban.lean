@@ -434,6 +434,9 @@ public import Balaban.LargeField.Background.StepGenSetsFlow
 public import Balaban.LargeField.Background.Factorization
 public import Balaban.LargeField.Background.StepBackgrounds
 public import Balaban.LargeField.History.SpineOps
+public import Balaban.LargeField.History.SpinePad
+public import Balaban.LargeField.History.ImageHist
+public import Balaban.LargeField.History.ImageHistBook
 public import Balaban.LargeField.History.JoinFamily
 public import Balaban.LargeField.History.StepSeeds
 public import Balaban.LargeField.History.StepSpine
