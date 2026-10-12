@@ -852,6 +852,7 @@ public import Balaban.LargeField.R.WindowCollarGeom
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
 public import Balaban.LargeField.R.DeltaPsiCollarInner
+public import Balaban.LargeField.R.DeltaPsiCollarWindow
 public import Balaban.LargeField.R.DeltaPsiPath
 public import Balaban.LargeField.R.DeltaPsiDef
 public import Balaban.LargeField.R.DeltaPsiComp
