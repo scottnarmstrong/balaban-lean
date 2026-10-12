@@ -1,6 +1,9 @@
 module
 
 public import Balaban.Inhabited.RadiiRipe
+public import Balaban.Inhabited.RadiiWitnessOps
+public import Balaban.LargeField.R.WindowOfHistory
+public import Balaban.LargeField.History.OmegaPost
 
 
 /-!
@@ -288,6 +291,140 @@ theorem book_facts : ∀ k, 1 ≤ k → k ≤ Tstar S → ∀ c : (H2).Comp k,
       rw [this, hs]
 
 end Comps
+
+
+section Final
+
+variable (hT : 1 ≤ Tstar S) (hK : Tstar S ≤ K)
+
+local notation "H2" => (hist2 S R N K ok h4 h5 RH hT)
+
+include hT hK in
+/-- The unique component at scale `T` is ripe (LF-RECONSTRUCTION §I.4: `t^* = T`). -/
+theorem exists_ripe : ∃ c : (H2).Comp (Tstar S), (∀ c' : (H2).Comp (Tstar S), c' = c) ∧
+    S.Ripe (Tstar S) ((H2).bk (Tstar S) c) := by
+  obtain ⟨c, hc⟩ := comp_unique (N := N) (K := K) ok h4 h5 RH hT hK (Tstar S) hT le_rfl
+  obtain ⟨hst, hs, -⟩ := book_facts (N := N) (K := K) ok h4 h5 RH hT hK (Tstar S) hT le_rfl c
+  exact ⟨c, hc, ⟨1, 1, ∅, hst⟩, tStar_of hst hs⟩
+
+include hT hK in
+/-- **The removal is admissible**: every removed component is ripe (Definition I.4.1). -/
+theorem admissible : (H2).Admissible := by
+  intro k c hc
+  by_cases hk : k = Tstar S
+  · subst hk
+    obtain ⟨c0, hc0, hrip⟩ := exists_ripe (N := N) (K := K) ok h4 h5 RH hT hK
+    rw [hc0 c]; exact hrip
+  · exfalso
+    have : (H2).rem k = ∅ := remAt_ne hk
+    rw [this] at hc
+    exact Finset.notMem_empty _ hc
+
+include hT hK in
+/-- The removed set at scale `T` is nonempty. -/
+theorem rem_nonempty : ((H2).rem (Tstar S)).Nonempty := by
+  obtain ⟨c, -, -⟩ := exists_ripe (N := N) (K := K) ok h4 h5 RH hT hK
+  refine ⟨c.1, ?_⟩
+  have hZ : (H2).F.Zp (Tstar S) = finOf (regions S R N K (Tstar S) (Tstar S)) := by
+    show finOf ((flowSteps2 S R N K ok h4 h5 RH).Zpre (Tstar S)) = _
+    rw [flowSteps2_Zpre ok h4 h5 RH _ le_rfl]
+  have h := c.2
+  show c.1 ∈ remAt S R N K (Tstar S)
+  generalize c.1 = Y at h ⊢
+  rw [hZ] at h
+  simp only [remAt, ↓reduceIte]
+  exact h
+
+end Final
+
+omit [NeZero S.L] in
+/-- Every removed component is nonempty, lies in `Z^pre_k` and is disjoint from `Z_k`
+(Definition I.3.11). -/
+theorem rem_visible {n : ℕ → ℕ} [∀ k, NeZero (n k)] {k0 K : ℕ} (H : RegionHistory S n R k0 K)
+    {k : ℕ} {Y : Finset (Torus S.d (n k))} (hY : Y ∈ H.rem k) :
+    Y.Nonempty ∧ (∀ x ∈ Y, x ∈ H.F.Zpre k) ∧ (∀ x ∈ Y, x ∉ (H.step k).Z) := by
+  have hc := H.rem_sub k hY
+  refine ⟨comp_nonempty hc, fun x hx => mem_finOf.mp (comp_subset hc hx), fun x hx hxZ => ?_⟩
+  have h := (H.Z_eq k) ▸ hxZ
+  simp only [Set.mem_sdiff, Set.mem_iUnion, Finset.mem_coe, exists_prop] at h
+  exact h.2 ⟨Y, hY, hx⟩
+
+section Omega
+
+variable {d L n0 n1 : ℕ} [NeZero L] [NeZero n0] [NeZero n1] {Rp Rk : ℝ}
+
+omit [NeZero L] in
+/-- A step whose `Z` is nonempty has `Ω ≠ 𝕋` (the cube over a point of `Z` is not in `Ω'`). -/
+theorem step_omega_ne_univ (st : RegionStep d L n0 n1 Rp Rk) (hZ : st.Z.Nonempty) :
+    st.Omega ≠ Set.univ := by
+  obtain ⟨x, hx⟩ := hZ
+  intro h
+  have hy : blockMap L n1 x ∈ (Set.univ : Set (Torus d n1)) := Set.mem_univ _
+  rw [← h] at hy
+  obtain ⟨c, hyc, hsub, -⟩ := hy
+  obtain ⟨c', hyc', hle⟩ := hsub hyc
+  have hxU : x ∈ Region.U ⌊Rp⌋₊ st.Z := subset_nbhd _ _ hx
+  have hyU : blockMap L n1 x ∈ Region.Uprime L n1 ⌊Rp⌋₊ st.Z := ⟨x, hxU, rfl⟩
+  have hyF : blockMap L n1 x ∈ nbhd 3 (Region.Uprime L n1 ⌊Rp⌋₊ st.Z) := subset_nbhd _ _ hyU
+  have := (le_setDist_iff).mp hle _ hyc' _ hyF
+  rw [supDist_self] at this
+  omega
+
+end Omega
+
+
+section Post
+
+variable (hT : 1 ≤ Tstar S) (hK : Tstar S ≤ K)
+
+local notation "H2" => (hist2 S R N K ok h4 h5 RH hT)
+
+omit [NeZero S.L] in
+theorem two_le_Tstar : 2 ≤ Tstar S := by
+  have := S.one_le_nq 1
+  unfold Tstar
+  exact le_trans (by omega) (le_max_left _ _)
+
+include hT hK in
+/-- **The post-removal domain differs from the raw one** (T3): at the removal scale `T`,
+`Ω_T^post ≠ Ω_T^pre`.  Indeed `(Ω_T^pre)ᶜ ⊆ Z^(0)_T ⊆ Z^pre_T = ⋃ Rem_T`, and `Ω_T^pre ≠ 𝕋_T`
+because the previous region `Z_{T-1}` is nonempty. -/
+theorem omegaPost_ne_OmegaCube :
+    (H2).omegaPost (Tstar S) ≠ Def7.OmegaCube (H2) (Tstar S) := by
+  have key : ∀ k, k = Tstar S → 2 ≤ k → (H2).omegaPost k ≠ Def7.OmegaCube (H2) k := by
+    intro k hk hk2
+    obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
+    obtain ⟨c, -⟩ := comp_unique (N := N) (K := K) ok h4 h5 RH hT hK j (by omega) (by omega)
+    obtain ⟨x, hx⟩ := comp_nonempty c.2
+    have hxZ : x ∈ ((H2).step j).Z := by
+      have h1 : x ∈ (H2).F.Zpre j := mem_finOf.mp (comp_subset c.2 hx)
+      have h2 : (H2).F.Zpre j = regions S R N K (Tstar S) j :=
+        flowSteps2_Zpre ok h4 h5 RH j (by omega)
+      show x ∈ (stepAt S R N K j (regs S R N K j)).Z
+      rw [stepAt_Z, regs_eq j (by omega)]
+      rwa [h2] at h1
+    obtain ⟨y, hy⟩ := (Set.ne_univ_iff_exists_notMem _).1
+      (step_omega_ne_univ ((H2).step j) ⟨x, hxZ⟩)
+    have hyZpre : y ∈ (H2).F.Zp (j + 1) :=
+      mem_finOf.mpr (((H2).step j).Z0_subset_Zpre _ _ (((H2).step j).Omega_compl_subset_Z0 hy))
+    obtain ⟨Y, hY, hyY⟩ := mem_comp_self (ω := S.omega (j + 1)) hyZpre
+    have hYrem : Y ∈ (H2).rem (j + 1) := by
+      show Y ∈ remAt S R N K (j + 1)
+      have h2 : (H2).F.Zp (j + 1) = finOf (regions S R N K (Tstar S) (j + 1)) := by
+        show finOf ((flowSteps2 S R N K ok h4 h5 RH).Zpre (j + 1)) = _
+        rw [flowSteps2_Zpre ok h4 h5 RH _ (by omega)]
+      rw [h2] at hY
+      unfold remAt
+      split_ifs
+      exact hY
+    intro heq
+    have : y ∈ (H2).omegaPost (j + 1) :=
+      Or.inr (RegionHistory.mem_removedSet_iff (H2) |>.mpr ⟨Y, hYrem, hyY⟩)
+    rw [heq] at this
+    exact hy this
+  exact key _ rfl (two_le_Tstar)
+
+end Post
 
 end RipeRemoval
 
