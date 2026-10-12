@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.Operators.LocOp
+public import Balaban.LargeField.Operators.KerBound
 public import Balaban.LargeField.Operators.PiTools
 public import Balaban.LargeField.Operators.GaussChange
 
@@ -13,9 +14,7 @@ the operator package `P` (`OpPkg`) of a localized history `a` at scale `k`: the 
 the internal variables is at most `e^{-κ}`, **for every value of the parameters**, the outputs on
 `V ∖ Z` (`OutPar`), every `h` and every `‖g‖_{ℓ¹} < 1`.  The statement integrates only the
 outputs on `T^{(k)} ∩ Z`, as in the source; the outputs on `V ∖ Z` are parameters, exactly as in
-`GaussStepSpec` (the `par` of the majorants).  (The earlier `Bound126` with the measure
-`outMeasure (Vblk ..)` integrates the outputs on all of `V`, parameters included; it cannot hold
-for a kernel that does not confine the parameters, and does not compose.)  The case `F ≡ 1` is
+`GaussStepSpec` (the `par` of the majorants).    The case `F ≡ 1` is
 equivalent to the general case by the support property `OpPkg.vanish`.
 
 **Lemma II.5.13.**  `preOp_pkgBound`: if the operators of the old parts satisfy (1.26) with the
@@ -49,56 +48,9 @@ section Bound
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ}
 
-/-- The finite type of output blocks (the instance used by `outPartMeasure`). -/
-noncomputable instance (priority := 2000) fintypeOutBlocks {j : ℕ} (V : Set (BlockAt S n M K j))
-    (P : BlockAt S n M K j → Prop) : Fintype {y : BlockAt S n M K j // y ∈ V ∧ P y} :=
-  Fintype.ofFinite _
-
-instance (N : ℕ) {j : ℕ} (V : Set (BlockAt S n M K j)) (P : BlockAt S n M K j → Prop) :
-    SigmaFinite (outPartMeasure N V P) := by
-  unfold outPartMeasure
-  infer_instance
-
-/-- The `k`-blocks of `T^{(k)} ∩ Z`: the blocks lying in the `Z_k` of the localized history. -/
-def ZBlk (a : LocalHistory S n M K) (k : ℕ) (y : BlockAt S n M K k) : Prop :=
-  BlockSub (S := S) (n := n) (M := M) (K := K) k y (a.Z k)
-
-/-- The output variables `ψ_k` on `T^{(k)} ∩ Z` (those integrated in (1.26)). -/
-abbrev OutZ (N : ℕ) (R : ℕ → ℝ) (a : LocalHistory S n M K) (k : ℕ) : Type :=
-  OutPart N (Vblk R a k) (ZBlk a k)
-
-/-- The output variables on `V ∖ Z` (parameters of (1.26)). -/
-abbrev OutPar (N : ℕ) (R : ℕ → ℝ) (a : LocalHistory S n M K) (k : ℕ) : Type :=
-  OutPart N (Vblk R a k) (fun y => ¬ ZBlk a k y)
-
-open Classical in
-/-- The output configuration with the given values on `Z` and the given parameters. -/
-noncomputable def mergeOut (a : LocalHistory S n M K) (k : ℕ) (oz : OutZ N R a k)
-    (par : OutPar N R a k) : OutT N R a k :=
-  fun y => if h : ZBlk a k y.1 then oz ⟨y.1, y.2, h⟩ else par ⟨y.1, y.2, h⟩
-
-theorem measurable_mergeOut (a : LocalHistory S n M K) (k : ℕ) (par : OutPar N R a k) :
-    Measurable fun oz : OutZ N R a k => mergeOut a k oz par := by
-  classical
-  refine measurable_pi_iff.mpr fun y => ?_
-  unfold mergeOut
-  by_cases h : ZBlk a k y.1
-  · simp only [h, ↓reduceDIte]
-    exact measurable_pi_apply _
-  · simp only [h, ↓reduceDIte]
-    exact measurable_const
-
-/-- **The bound (1.26) for a package** (Definition II.5.2): the integral over the output
-variables on `T^{(k)} ∩ Z` and the internal variables of `K e^{Re b}` is at most `e^{-κ}`, for all
-values of the parameters (the outputs on `V ∖ Z`), all `h` and all `‖g‖_{ℓ¹} < 1`
-(the case `F ≡ 1`, which is equivalent to the general case by the support property
-`OpPkg.vanish`). -/
-def PkgBound (a : LocalHistory S n M K) (k : ℕ) (P : OpPkg N R a k) (κ : ℝ) : Prop :=
-  ∀ (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
-    ∀ par : OutPar N R a k,
-      ∫⁻ oz, ∫⁻ x, P.T.absW (mergeOut a k oz par) x hv g ∂(subMeasure N a k P.A)
-        ∂(outPartMeasure N (Vblk R a k) (ZBlk a k)) ≤ ENNReal.ofReal (Real.exp (-κ))
-
+/-- The bound (1.26) for the package of an operator. -/
+abbrev PkgBound (a : LocalHistory S n M K) (k : ℕ) (P : OpPkg N R a k) (κ : ℝ) : Prop :=
+  KerBound a k P.T κ
 
 /-! ### Blocks, cubes and the components of the lineage -/
 

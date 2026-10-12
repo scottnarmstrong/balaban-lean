@@ -458,7 +458,6 @@ public import Balaban.SmallField.Def6BridgeLift
 public import Balaban.SmallField.Def6BridgeGeom
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
-public import Balaban.LargeField.Operators.Compose
 public import Balaban.LargeField.Operators.Ancestors
 public import Balaban.LargeField.Operators.HistGen
 public import Balaban.LargeField.Operators.Setup
@@ -469,11 +468,16 @@ public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
+public import Balaban.LargeField.Operators.KerBound
 public import Balaban.LargeField.Operators.PiTools
 public import Balaban.LargeField.Operators.GaussChange
 public import Balaban.LargeField.Operators.CompBound
 public import Balaban.LargeField.Operators.LocOpBound
 public import Balaban.LargeField.Operators.ShellVolume
+public import Balaban.LargeField.Operators.QuietIndep
+public import Balaban.LargeField.Operators.QuietShell
+public import Balaban.LargeField.Operators.QuietInt
+public import Balaban.LargeField.Operators.QuietBound
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
@@ -547,3 +551,8 @@ public import Balaban.Observables.LayerDictionary
 public import Balaban.Observables.LayerFirstOrder
 public import Balaban.Observables.LayerConst
 public import Balaban.Observables.LayerDictionaryBound
+public import Balaban.Fluctuation.CovarianceGeom
+public import Balaban.Fluctuation.CovarianceWeighted
+public import Balaban.Fluctuation.CovarianceSup
+public import Balaban.Fluctuation.CovarianceSpectral
+public import Balaban.Fluctuation.Covariance
