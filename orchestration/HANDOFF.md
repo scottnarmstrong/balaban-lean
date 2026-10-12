@@ -12,12 +12,12 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W83b | `w83-reynolds` / W83 | finish Reynolds average: SumConds, bridgeAvg, termwise corollary |
-| W89b | `w89-weighted51` / W89 | WeightedProp51S (defect-zero + OpSetting separation), lemma41_uncond, Lemma 3.5 analyticity |
-| W90b (Opus) | `w90-i6-aniso` / W90 | anisotropic I-6 (TubeAniso polydisc plan) |
+| W98 | `w98-i6-class` / W98 | full I-6 for class members on the anisotropic domain |
+| W96 | `w96-witnesses` / W96 | positive-scale non-vacuity witnesses (i5_background, bridgeInf, LiftCtx) |
+| W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
-Next Sonnet packages: I-5 with ψ′ on the footprint layer (Decoupled2Fp*); formal joint witnesses for the
+Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
 astra round 6 (sent ~11:10 UTC): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
