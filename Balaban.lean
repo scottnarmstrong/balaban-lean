@@ -462,6 +462,7 @@ public import Balaban.LargeField.Operators.PiTools
 public import Balaban.LargeField.Operators.GaussChange
 public import Balaban.LargeField.Operators.CompBound
 public import Balaban.LargeField.Operators.LocOpBound
+public import Balaban.LargeField.Operators.ShellVolume
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
