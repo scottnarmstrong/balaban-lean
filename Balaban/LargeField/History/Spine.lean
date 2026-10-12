@@ -58,7 +58,7 @@ def carrier : Set (Fin d → ℝ) := ⋃ s ∈ sp.segs, segment ℝ s.1 s.2
 /-- The length `ℓ(Γ)`: the sum of the Euclidean lengths of the segments. -/
 noncomputable def length : ℝ := ∑ s ∈ sp.segs, segLen s.1 s.2
 
-theorem length_nonneg : 0 ≤ sp.length := Finset.sum_nonneg (fun s _ => segLen_nonneg _ _)
+theorem length_nonneg : 0 ≤ sp.length := Finset.sum_nonneg (fun _ _ => segLen_nonneg _ _)
 
 theorem mem_carrier {y : Fin d → ℝ} : y ∈ sp.carrier ↔ ∃ s ∈ sp.segs, y ∈ segment ℝ s.1 s.2 := by
   unfold carrier; simp
