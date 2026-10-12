@@ -741,6 +741,8 @@ public import Balaban.LargeField.R.PsiZeroChain
 public import Balaban.LargeField.R.PsiZeroConvex
 public import Balaban.LargeField.R.PsiZeroData
 public import Balaban.LargeField.R.PsiZeroSmooth
+public import Balaban.LargeField.R.PsiZeroSpace
+public import Balaban.LargeField.R.PsiZeroTube
 public import Balaban.LargeField.R.ZeroDomainBox
 public import Balaban.LargeField.R.ZeroDomain
 public import Balaban.LargeField.R.HullUnion
