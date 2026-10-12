@@ -569,6 +569,9 @@ public import Balaban.LargeField.Operators.QuietEuclid
 public import Balaban.LargeField.Operators.QuietEuclidHist
 public import Balaban.LargeField.Operators.QuietStepDataMeas
 public import Balaban.LargeField.Operators.QuietStepData
+public import Balaban.LargeField.Operators.QuietLocalIso
+public import Balaban.LargeField.Operators.QuietLocalRest
+public import Balaban.LargeField.Operators.QuietLocalInput
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.AncVars
 public import Balaban.LargeField.Operators.DomainGeom
