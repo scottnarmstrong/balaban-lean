@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Localization.TreeLength
+public import Balaban.Localization.TreeLengthCov
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -17,7 +17,7 @@ import Mathlib.Tactic.Ring
   `(L ^ m₀) ^ d = (M / M₁) ^ d` parameter cubes (aligned bases of side `L ^ (n + m₁)`).
 * `gm3`: the Peierls count for the families `𝒞` with `Y[𝒞] = Y`, an instance of the landed
   `peierls_count_layers` with `G₀ = (2L+1)^d` (from `gm1`) and `A' = (L^{m₀})^d`.
-* `gm4`: the exponent inequality, combining `gm2` with the landed `exponent_inequality`.
+* `gm4`: the exponent inequality, combining the covering `gm2` (version 3) with the landed `exponent_inequality`.
 -/
 
 @[expose] public section
@@ -288,36 +288,30 @@ section Exponents
 
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ} {j : ℕ}
-variable {X X₁ : Set (CTorus d L N₁ m₁ K)}
+variable {X : Set (CTorus d L N₁ m₁ K)}
 
-omit [NeZero N₁] [NeZero L] in
-theorem dScale_nonneg (hX : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
-      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsCubesAt m₀ j X W₀) : 0 ≤ dScale m₀ j X := by
-  obtain ⟨W₀, E₀, h1, h2, h3⟩ := hX
-  refine Real.sInf_nonneg ?_
-  rintro x ⟨W, E, -, -, -, rfl⟩
-  refine Finset.sum_nonneg fun p _ => ?_
-  unfold scaleW; positivity
-
-/-- **(GM4) for the concrete tree lengths.**  For a connected family `𝒞`, with `Δ = d_j(X)` and
-`d̃ = d̃_{k+1}(Y[𝒞])`,
+/-- **(GM4) for the covering tree lengths.**  For a connected family `𝒞`, with
+`Δ = d^cov_j(X)` and `d̃ = d̃^cov_{k+1}(Y[𝒞])`,
 `(κ₁ - 1)|𝒞| + (κ - 1)Δ ≥ (κ₁/2 - 1)|𝒞| + κ₀ Δ + 2 κ d̃`, if `L ≥ 3`, `κ ≥ 3κ₀ + 3`,
-`κ₁ ≥ 4 d (2L+1)^d κ`. -/
-theorem gm4 {ι : Type*} [DecidableEq ι] {c : ι → ℕ × CTorus d L N₁ m₁ K}
-    (hS : GM2Setup G m₀ j X X₁) (hd : 3 ≤ d) (hL : 3 ≤ L) (hc : ∀ i, c i ∈ cubeIdx G)
-    (C : Finset ι) (hconn : IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c X₁) C)
-    (hX : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+`κ₁ ≥ 4 d (2L+1)^d κ`.  Here `𝒦_X` realizes `d^cov_j(X)` (see `gm2`). -/
+theorem gm4 {ι : Type*} [DecidableEq ι] {c : ι → ℕ × CTorus d L N₁ m₁ K} {𝒦X : Set (CTorus d L N₁ m₁ K)}
+    (hS : CovSetup G m₀ j X 𝒦X) (hd : 3 ≤ d) (hL : 3 ≤ L) (hc : ∀ i, c i ∈ cubeIdx G)
+    (C : Finset ι)
+    (hconn : IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c (X1 G m₀ j 𝒦X)) C)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
       (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsCubesAt m₀ j X W₀)
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
     (κ κ₀ κ₁ : ℝ) (hκ₀ : 0 ≤ κ₀) (hκ : 3 * κ₀ + 3 ≤ κ)
     (hκ₁ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κ ≤ κ₁) :
-    (κ₁ - 1) * C.card + (κ - 1) * dScale m₀ j X ≥
-      (κ₁ / 2 - 1) * C.card + κ₀ * dScale m₀ j X + 2 * κ * dTilde G m₀ (Ysites G m₀ c X₁ C) := by
-  have h2 := gm2 hS hd hc C hconn hX
-  refine exponent_inequality d L (((2 * L + 1) ^ d : ℕ) : ℝ) κ κ₀ κ₁ C.card (dScale m₀ j X)
-    (dTilde G m₀ (Ysites G m₀ c X₁ C)) (by exact_mod_cast hL) hκ₀ hκ hκ₁ (Nat.cast_nonneg _)
-    (dScale_nonneg hX) ?_
+    (κ₁ - 1) * C.card + (κ - 1) * treeLenCovOne m₀ j X ≥
+      (κ₁ / 2 - 1) * C.card + κ₀ * treeLenCovOne m₀ j X +
+        2 * κ * treeLenCov G m₀ (Ysites G m₀ c (X1 G m₀ j 𝒦X) C) := by
+  have h2 := gm2 hS hd hc C hconn hopt
+  refine exponent_inequality d L (((2 * L + 1) ^ d : ℕ) : ℝ) κ κ₀ κ₁ C.card
+    (treeLenCovOne m₀ j X) (treeLenCov G m₀ (Ysites G m₀ c (X1 G m₀ j 𝒦X) C))
+    (by exact_mod_cast hL) hκ₀ hκ hκ₁ (Nat.cast_nonneg _)
+    (treeLenCovOne_nonneg m₀ j X) ?_
   rw [div_eq_inv_mul]
   linarith
 
