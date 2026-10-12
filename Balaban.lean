@@ -860,11 +860,14 @@ public import Balaban.LargeField.R.WindowOfHistory
 public import Balaban.LargeField.R.WindowRegSet
 public import Balaban.LargeField.R.WindowRegSetBond
 public import Balaban.LargeField.R.WindowRegSetPath
-public import Balaban.LargeField.R.WindowRegSetBridge
 public import Balaban.LargeField.R.DeltaPsiCollarActual
 public import Balaban.LargeField.R.DeltaPsiCollarActualInner
 public import Balaban.LargeField.R.DeltaPsiCollarActualOuter
 public import Balaban.LargeField.R.DeltaPsiCollarActualWindow
+public import Balaban.LargeField.R.WindowRegSetBridge
+public import Balaban.LargeField.R.DeltaPsiCollarLambda21
+public import Balaban.LargeField.R.DeltaPsiCollarChiDom
+public import Balaban.Inhabited.WindowCollarWitness
 public import Balaban.LargeField.R.WindowOfHistoryCollar
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
@@ -1175,6 +1178,8 @@ public import Balaban.LargeField.R.RopConcreteMeas
 public import Balaban.LargeField.R.ZeroDomainSep
 public import Balaban.LargeField.R.ZeroDomainSepRho
 public import Balaban.LargeField.R.DenominatorRot
+public import Balaban.LargeField.R.RhoZeroPhysical
+public import Balaban.LargeField.R.RopPhysical
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
