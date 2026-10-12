@@ -176,6 +176,46 @@ theorem integrableOn_rpow_inv_add_sq {a : ℝ} (ha : 0 < a) :
           refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right h2 (by positivity)) h3.le
       _ = a⁻¹ * (x ^ (-(1 / 2 : ℝ)) * (a + x)⁻¹) := by ring
 
+theorem integral_inv_add_sq {a : ℝ} (ha : 0 < a) :
+    ∫ x in Ioi (0 : ℝ), ((a + x)⁻¹) ^ 2 = a⁻¹ := by
+  have h := integral_Ioi_of_hasDerivAt_of_tendsto (f := fun x : ℝ => -(a + x)⁻¹)
+    (f' := fun x : ℝ => ((a + x)⁻¹) ^ 2) (a := 0) (m := 0)
+    (by
+      refine ContinuousAt.continuousWithinAt ?_
+      have : a + 0 ≠ 0 := by simp [ha.ne']
+      fun_prop (disch := simp [ha.ne']))
+    (fun x hx => by
+      have hx' : 0 < a + x := by have := mem_Ioi.mp hx; linarith
+      have h := (((hasDerivAt_id x).const_add a).inv hx'.ne').neg
+      refine h.congr_deriv ?_
+      simp only [id_eq]
+      field_simp)
+    (integrableOn_inv_add_sq ha)
+    (by
+      have : Tendsto (fun x : ℝ => a + x) atTop atTop := tendsto_atTop_add_const_left _ _ tendsto_id
+      simpa using (tendsto_inv_atTop_zero.comp this).neg)
+  rw [h]
+  simp
+
+theorem integral_rpow_inv_add_sq_le {a : ℝ} (ha : 0 < a) :
+    ∫ x in Ioi (0 : ℝ), x ^ (-(1 / 2 : ℝ)) * ((a + x)⁻¹) ^ 2 ≤ a⁻¹ * (π / Real.sqrt a) := by
+  rw [← integral_rpow_inv_add ha, ← integral_const_mul]
+  refine integral_mono_of_nonneg ?_ ((integrableOn_rpow_inv_add ha).const_mul _) ?_
+  · exact (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun x hx => by
+      have := mem_Ioi.mp hx
+      have : 0 < x ^ (-(1 / 2 : ℝ)) := rpow_pos_of_pos this _
+      positivity)
+  · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun x hx => ?_)
+    have hx0 : 0 < x := mem_Ioi.mp hx
+    have h2 : (a + x)⁻¹ ≤ a⁻¹ := inv_anti₀ ha (by linarith)
+    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := rpow_pos_of_pos hx0 _
+    have h4 : 0 < (a + x)⁻¹ := inv_pos.2 (by linarith)
+    calc x ^ (-(1 / 2 : ℝ)) * ((a + x)⁻¹) ^ 2
+        = x ^ (-(1 / 2 : ℝ)) * ((a + x)⁻¹ * (a + x)⁻¹) := by ring
+      _ ≤ x ^ (-(1 / 2 : ℝ)) * (a⁻¹ * (a + x)⁻¹) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right h2 h4.le) h3.le
+      _ = a⁻¹ * (x ^ (-(1 / 2 : ℝ)) * (a + x)⁻¹) := by ring
+
 end Scalar
 
 section OpInt
@@ -222,14 +262,14 @@ theorem norm_star_dot_le_sqNorm (v w : ι → ℂ) :
 /-- **Operator bound for an integral of operators.** -/
 theorem sqNorm_intMat_le (μ : Measure ℝ) (F : ℝ → Matrix ι ι ℂ)
     (hint : ∀ p q, Integrable (fun x => F x p q) μ) (g : ℝ → ℝ) (hg : Integrable g μ)
-    (hg0 : ∀ x, 0 ≤ g x)
-    (hbd : ∀ x (f : ι → ℂ), Green.sqNorm (F x *ᵥ f) ≤ (g x) ^ 2 * Green.sqNorm f)
+    (hg0 : ∀ᵐ x ∂μ, 0 ≤ g x)
+    (hbd : ∀ᵐ x ∂μ, ∀ (f : ι → ℂ), Green.sqNorm (F x *ᵥ f) ≤ (g x) ^ 2 * Green.sqNorm f)
     (f : ι → ℂ) :
     Green.sqNorm (intMat μ F *ᵥ f) ≤ (∫ x, g x ∂μ) ^ 2 * Green.sqNorm f := by
   set v := intMat μ F *ᵥ f with hv
   set nv := Real.sqrt (Green.sqNorm v) with hnv
   set nf := Real.sqrt (Green.sqNorm f) with hnf
-  have hG0 : 0 ≤ ∫ x, g x ∂μ := integral_nonneg hg0
+  have hG0 : 0 ≤ ∫ x, g x ∂μ := integral_nonneg_of_ae hg0
   have hsv : 0 ≤ Green.sqNorm v := Green.sqNorm_nonneg v
   have hsf : 0 ≤ Green.sqNorm f := Green.sqNorm_nonneg f
   have hdot : star v ⬝ᵥ v = ∫ x, star v ⬝ᵥ (F x *ᵥ f) ∂μ := by
@@ -238,14 +278,14 @@ theorem sqNorm_intMat_le (μ : Measure ℝ) (F : ℝ → Matrix ι ι ℂ)
     rw [integral_finsetSum _ fun p _ => (integrable_mulVec_apply hint f p).const_mul _]
     refine Finset.sum_congr rfl fun p _ => ?_
     rw [integral_const_mul, ← this p]
-  have hbound : ∀ x, ‖star v ⬝ᵥ (F x *ᵥ f)‖ ≤ nv * nf * g x := by
-    intro x
+  have hbound : ∀ᵐ x ∂μ, ‖star v ⬝ᵥ (F x *ᵥ f)‖ ≤ nv * nf * g x := by
+    filter_upwards [hg0, hbd] with x hgx hbx
     refine (norm_star_dot_le_sqNorm v _).trans ?_
     have h1 : Real.sqrt (Green.sqNorm (F x *ᵥ f)) ≤ g x * nf := by
       calc Real.sqrt (Green.sqNorm (F x *ᵥ f)) ≤ Real.sqrt ((g x) ^ 2 * Green.sqNorm f) :=
-            Real.sqrt_le_sqrt (hbd x f)
+            Real.sqrt_le_sqrt (hbx f)
         _ = g x * nf := by
-            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq (hg0 x)]
+            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq hgx]
     calc nv * Real.sqrt (Green.sqNorm (F x *ᵥ f)) ≤ nv * (g x * nf) :=
           mul_le_mul_of_nonneg_left h1 (Real.sqrt_nonneg _)
       _ = nv * nf * g x := by ring
@@ -254,7 +294,7 @@ theorem sqNorm_intMat_le (μ : Measure ℝ) (F : ℝ → Matrix ι ι ℂ)
     refine (norm_integral_le_integral_norm _).trans ?_
     rw [← integral_const_mul]
     exact integral_mono_of_nonneg (Eventually.of_forall fun x => norm_nonneg _) hint2
-      (Eventually.of_forall hbound)
+      hbound
   have hsq : Green.sqNorm v ≤ nv * nf * ∫ x, g x ∂μ := by
     rw [sqNorm_eq_re_dot' v, hdot]
     exact (Complex.re_le_norm _).trans hle
