@@ -125,7 +125,7 @@ theorem continuousOn_massFunctional (H : BgHyp d L k ϱ a 0) {τ : ℝ} (hτ : 0
   have hb := continuousOn_bgField (G := G) (a := a) H hτ hτ0 hτ1
   unfold massFunctional
   refine ContinuousOn.div_const (ContinuousOn.mul continuousOn_const ?_) _
-  refine continuousOn_finset_sum _ fun x _ => continuousOn_finset_sum _ fun i _ => ?_
+  refine continuousOn_finsetSum _ fun x _ => continuousOn_finsetSum _ fun i _ => ?_
   have := ((continuous_apply (x, i)).comp_continuousOn hb).sub
     (continuousOn_const (c := ((h i : ℝ) : ℂ)))
   exact this.norm.pow 2
