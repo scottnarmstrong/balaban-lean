@@ -57,6 +57,8 @@ public import Balaban.Polymer.Gas
 public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Size
 public import Balaban.Polymer.MayerPE
+public import Balaban.Polymer.GasOperator
+public import Balaban.Polymer.HoleOperator
 public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerMarked
