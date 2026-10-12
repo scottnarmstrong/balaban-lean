@@ -145,6 +145,17 @@ vanishing on `Z'^{∼ρ}` (`step_dist_premise`). -/
 noncomputable def stepDist (L M1 c k ρ : ℕ) (ϱ : ℝ) : ℝ :=
   min ((((L ^ (k + 1) * (c * M1) : ℕ) : ℝ) * ρ - 1) / (L : ℝ) ^ (k + 1 + 1)) (ϱ - 1)
 
+theorem stepDist_nonneg {k ρ : ℕ} {ϱ : ℝ} (hρ : 1 ≤ ρ) (hϱ : 1 ≤ ϱ) :
+    0 ≤ stepDist L M1 c k ρ ϱ := by
+  unfold stepDist
+  refine le_min ?_ (by linarith)
+  refine div_nonneg ?_ (by positivity)
+  have hP : (1 : ℝ) ≤ ((L ^ (k + 1) * (c * M1) : ℕ) : ℝ) := by
+    have := NeZero.pos L; have := NeZero.pos M1; have := NeZero.pos c
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (by positivity)
+  have hρ' : (1 : ℝ) ≤ ρ := by exact_mod_cast hρ
+  nlinarith
+
 theorem mem_stepFarSites {k : ℕ} {Z' : Set (Torus d n1)} {ρ : ℕ}
     {e : Torus d (M1 * (c * n1) * L ^ (k + 1))} :
     e ∈ stepFarSites (M1 := M1) (c := c) (L := L) k Z' ρ ↔
@@ -159,6 +170,12 @@ theorem mem_stepNearSites {k : ℕ} {Z' : Set (Torus d n1)}
         Green.torusDist d (M1 * (c * n1) * L ^ (k + 1)) y x ≤ 1 := by
   classical
   simp only [stepNearSites, Finset.mem_filter, Finset.mem_univ, true_and]
+
+theorem stepNearSites_mono {k : ℕ} {Z1 Z2 : Set (Torus d n1)} (h : Z1 ⊆ Z2) :
+    stepNearSites (M1 := M1) (c := c) (L := L) k Z1 ⊆ stepNearSites (M1 := M1) (c := c) (L := L) k Z2 := by
+  intro y hy
+  obtain ⟨x, hx, hxy⟩ := mem_stepNearSites.1 hy
+  exact mem_stepNearSites.2 ⟨x, h hx, hxy⟩
 
 /-- **The distance premise of Step 3 for the real step**: for a data change vanishing on
 `E = Z'^{∼ρ}` (so supported in `stepFarSites`), the path distance from `X_{Z'}^{+1} ∩ Ω₁` to the

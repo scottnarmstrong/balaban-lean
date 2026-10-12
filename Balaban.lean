@@ -790,6 +790,7 @@ public import Balaban.Fluctuation.Theorem42WireAction
 public import Balaban.Fluctuation.Theorem42WireDist
 public import Balaban.Fluctuation.Theorem42WireTransfer
 public import Balaban.Fluctuation.Theorem42WireGeom
+public import Balaban.Fluctuation.Theorem42WireStep
 public import Balaban.Background.Prop51Mass
 public import Balaban.Fluctuation.RenormExpLemma35
 public import Balaban.Fluctuation.RenormExpCauchy
