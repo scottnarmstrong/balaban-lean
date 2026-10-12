@@ -476,6 +476,7 @@ public import Balaban.LargeField.Operators.LocOpBound
 public import Balaban.LargeField.Operators.ShellVolume
 public import Balaban.LargeField.Operators.QuietIndep
 public import Balaban.LargeField.Operators.QuietShell
+public import Balaban.LargeField.Operators.QuietInt
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
