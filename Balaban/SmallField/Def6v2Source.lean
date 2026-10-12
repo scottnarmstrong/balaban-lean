@@ -39,7 +39,10 @@ the source form are `SourceTerms`).
     (item 3, item 4: "the `ν_j`-weighted `b` derivative");
   - `refJet` (**PIN-I6 §3**): the reference-jet certificate `RefJet` of every centred term, with
     `r = r_j = anisoRadius` and `M_X = E₀ e^{-κ d_j(X)}`.  PIN-I6 §2 (`pinI6_no_uniform_bound`)
-    shows that the pinned class without it does not admit the I-6 bound.
+    shows that the I-6 bound fails on the pinned class without it.  Under Scheme A (W2-RESOLVE,
+    the author's decision) the main instance is the wide domain, where the certificate follows
+    from the class by Cauchy (`RefJet.of_polyAniso`); the clause is kept for the pinned
+    alternative and is not the main route.
 * `sourceOf`, `sourceForm_of_pos`: for `ν_j > 0` the factorization is the reparametrization
   `Ẽ(Ψ, b) = E(Ψ, b/ν_j)`, and `factE`, `factM`, analyticity and the bounds follow from the class
   ("for `ν_j > 0` mere reparametrization is vacuous"); the content of `SourceForm` is `dbE` and

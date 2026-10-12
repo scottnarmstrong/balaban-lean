@@ -18,14 +18,17 @@ import Mathlib.Tactic.Positivity
 `IsObs` is unchanged.
 
 * `Mk2`, `Ck2`, `Rk2`, `Gk2`: the objects (2.4), (2.5) of OBSERVABLES §2.1 with the **background
-  mass** `μ` as a parameter (item 2: the solver mass is `bgMassAt(k₀, k, ν_k)`);
+  mass** `μ` as a parameter (Scheme A, W2-RESOLVE (4.1): the solver mass of the small-field
+  class and of its observable layer is the complete mass `Rg.sfBgMass k = ν_k L^{-2k}`);
 * `IsObs2`: the clauses (O1)-(O4) of `IsObs` with every `XiDom … (bgMass …)` replaced by the field
   domain `Dom` (item 4: "replace every `XiDom` used for … observable `analyticM/R`, `boundM/R`,
   rotation, locality and realness by this restricted domain, preserving the birth-level tag `j`"),
   the normalization (2.7) at the physical unit fields `Dom.phys` (the axial normalization), and the
   identification (O4) on the support of `χ_k` at the background mass of the regime and the physical
-  fields.  The complex field line of a constant `h` is finite on the pinned domain, so the Liouville
-  argument of `Mobs_const_eq_zero_massFree` does not apply (item 4);
+  fields.  With complete backgrounds the background mass is positive whenever the physical mass
+  is (`Regime.sfBgMass_pos`), so the mass-free branch on which the Liouville argument of
+  `Mobs_const_eq_zero_massFree` runs does not occur; on the pinned alternative domain the complex
+  line of a constant `h` is moreover finite (item 4);
 * `ObsSourceTerms`, `ObsSourceForm`: the physical-source form `M^{obs}_j(x, X; Ψ, h) =
   M̃^{obs}_j(x, X; Ψ, ν_j h)`, `R^{obs}_{ij} = R̃^{obs}_{ij}(·, ν_j h)` (item 3), the bounds on the
   restricted `b`-domain and the **mass-weighted reference derivative** `dbM`
@@ -158,16 +161,16 @@ structure IsObs2 (P : Consts) (Q : ObsConsts) (Rg : Regime L) (β a : ℕ → �
   /-- (O4), on the support of `χ_k` (background mass of the regime) at the physical fields -/
   ident : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
     (D : BgData (topGS d L N₁ m₁ k ϱ) N), h₀ ∈ Dom.phys → Realizes D Ψ₀ h₀ →
-    Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) k 1
+    Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
       (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀ →
-    AnalyticOnNhd ℂ (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.bgMass k) D)
+    AnalyticOnNhd ℂ (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.sfBgMass k) D)
         {g | Def6.l1 g < 1} ∧
       (∀ u : Fld d L N₁ m₁ k N,
-        fderiv ℂ (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.bgMass k) D) 0 u =
-          ∑ x, ∑ i, u x i * Mk2 P β a (Rg.bgMass k) Ot D x i) ∧
+        fderiv ℂ (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.sfBgMass k) D) 0 u =
+          ∑ x, ∑ i, u x i * Mk2 P β a (Rg.sfBgMass k) Ot D x i) ∧
       ∀ u v : Fld d L N₁ m₁ k N,
-        D2 (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.bgMass k) D) 0 u v =
-          ∑ x, ∑ x', ∑ i, ∑ i', u x i * Gk2 P β a (Rg.bgMass k) Ot Gker D x x' i i' * v x' i'
+        D2 (Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.sfBgMass k) D) 0 u v =
+          ∑ x, ∑ x', ∑ i, ∑ i', u x i * Gk2 P β a (Rg.sfBgMass k) Ot Gker D x x' i i' * v x' i'
 
 /-- A small-field representation of the second version carrying an observable layer. -/
 structure IsSFObs2 (P : Consts) (Q : ObsConsts) (Rg : Regime L) (β a : ℕ → ℝ)

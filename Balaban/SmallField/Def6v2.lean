@@ -22,14 +22,17 @@ Changes with respect to the landed class:
 * **units** (item 1): the exponent of the density is
   `-(β_k L^{-k(d-2)}) action(G, a, ν_k L^{-2k}, D, φ_k^μ) + ℰ_k - E_k |T_1^{(k)}| + ℱ_k` (`expo2`),
   with the fine-unit coefficient `betaFine`;
-* **mass split** (items 1, 2): the mass argument of `action` is the **physical** mass
-  `Rg.physMass k = ν_k L^{-2k}`; the evaluated field is the solver output
-  `φ_k^μ = bgField(…, μ_k, D)` computed with the **background** mass `Rg.bgMass k = bgMassAt(k₀,
-  k, ν_k)`, which is also the mass of `χ_k` (`Xi`), of the compositions `ψ_k^{(j)}` and of the
-  domains;
-* **field domain** (items 4, 5, 7): every occurrence of `XiDom … (bgMass …)` in the term clauses
-  is the parameter `Dom : FieldDom`, with the birth-level tag `j`; the density identity is stated at
-  the real fields `Dom.phys`.
+* **masses** (item 1 and Scheme A, W2-RESOLVE (4.1), the author's decision): the mass argument of
+  `action` is the **physical** mass `Rg.physMass k = ν_k L^{-2k}`; the evaluated field is the
+  **complete** background `φ_k = bgField(…, Rg.sfBgMass k, D)`, `Rg.sfBgMass k = ν_k L^{-2k}` at
+  every scale (also below `k₀`), which is also the mass of `χ_k` (`Xi`), of the compositions
+  `ψ_k^{(j)}` and of the domains.  The LF solver mass `Rg.lfBgMass` (`bgMassAt` of
+  CLASS-RULINGS-2 item 2) does not enter the small-field class;
+* **field domain**: every occurrence of `XiDom … (bgMass …)` in the term clauses is the parameter
+  `Dom : FieldDom`, with the birth-level tag `j`; the density identity is stated at the real fields
+  `Dom.phys`.  The **main instance** (Scheme A) is the P1/P4 wide complex domain `xiFieldDom` at
+  the complete mass (`IsSFFamily.toXi`); the pinned domain of CLASS-RULINGS-2 items 4, 5, 7 is an
+  alternative instance (`IsSFFamily.toPin`).
 
 The term clauses are `SFTermClauses P Dom Tm` ((H.2)-(H.4), (H.7)); the class on one torus is
 `IsSF2` (`density` and `terms`), the class of families `IsSFFamily2`.  The volume normalization
@@ -38,18 +41,21 @@ torus (item 1, "check the volume normalization separately").
 
 **Restriction (theorem (c)).**  `SFTermClauses.mono`: the term clauses restrict to smaller
 domains.  `IsSF.termClauses`: a member of the landed class satisfies the term clauses on the landed
-domain.  `IsSF.toV2`, `IsSFFamily.toV2`: if the new domain is contained in the landed one and the
-background masses agree, the **terms** of a member of the landed class are the terms of a member of
-the new class, whose density is the old density multiplied by the explicit real factor
-`exp(β_k A_k(μ_k) - β_k L^{-k(d-2)} A_k(ν_k L^{-2k}))` (`rhoV2`).  The only clause that prevents a
-verbatim transfer (same density) is `density`: the unit prefactor and the mass of the action
-(items 1, 2).
+domain.  `IsSF.toV2`, `IsSFFamily.toV2`, `toXi`, `toPin`: in the **complete regime** of the landed
+class (its running-test mass at `k` is the physical mass, i.e. `β_k ν_k > 1`), where the two classes
+have the same backgrounds, the **terms** of a member of the landed class are the terms of a member
+of the new class on every domain contained in the landed one, whose density is the old density
+multiplied by the explicit real factor `exp((β_k - β_k L^{-k(d-2)}) A_k)` (`rhoV2`).  The only
+clause that prevents a verbatim transfer (same density) is `density`: the unit prefactor (item 1).
+Below the switch of the landed class (`β_k ν_k ≤ 1`, zero running-test mass) there is no transfer:
+the backgrounds differ.
 
 **Ambiguity recorded.**  The renormalization conditions (H.5) are kept verbatim (`Def6.RenormCond`:
 reference points `(e_{i₀}, e_{i₀})`, every coordinate direction `i₀`).  CLASS-RULINGS-2 does not say
 at which reference vector (H.5) is imposed on a single pinned chart; Q13-ANSWER (3.2) ("aligned
-constant background `ψ = U h_*`, `b = V h_*`") suggests `h_*`.  On `pinFieldDom h_*` only the
-reference point with `e_{i₀} = h_*` lies in the domain; on `pinAllFieldDom` all of them do.
+constant background `ψ = U h_*`, `b = V h_*`") suggests `h_*`.  On `pinFieldDom h_*` the
+reference point with `e_{i₀} = h_*` lies in the domain (`pin_const_single`); the others need not;
+on `pinAllFieldDom` and on the main instance `xiFieldDom` all of them do.
 -/
 
 @[expose] public section
@@ -178,17 +184,17 @@ theorem _root_.Balaban.SmallField.Def6.IsSF.termClauses {P : Consts} {β ν a : 
 /-- **The exponent of the density (H.1), second version** (CLASS-RULINGS-2 item 1):
 `-(β_k L^{-k(d-2)}) action(G, a, ν_k L^{-2k}, D, φ_k^μ) + ℰ_k - E_k |T_1^{(k)}| + ℱ_k`.
 The mass argument of the fine-unit `action` is the **physical** mass `Rg.physMass k`; its field is
-the solver output `φ_k^μ = bgField` computed with the **background** mass `Rg.bgMass k`, which is
-also the mass of the compositions inside `ℰ_k = Ecomp`, `ℱ_k = Fcomp`.  At `μ_k = 0` the physical
-mass term `(ν_k L^{-2k}/2) Σ |φ - h|²` is still present.  Draft pending Roland's answer to Q13. -/
+the solver output `φ_k = bgField` computed with the solver mass `Rg.sfBgMass k` of the small-field
+class, the physical mass (complete background, Scheme A), which is also the mass of the
+compositions inside `ℰ_k = Ecomp`, `ℱ_k = Fcomp`.  Draft pending Roland's answer to Q13. -/
 noncomputable def expo2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k N ϱ)
     (Ek : ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N) (g : Fld d L N₁ m₁ k N) : ℂ :=
   -((betaFine d L k (β k) : ℝ) : ℂ) *
       ((action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.physMass k) D
-        (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) D) : ℝ) : ℂ) +
-    Ecomp P.m₀ Tm (aIdeal L k (a k)) (Rg.bgMass k) D -
+        (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) D) : ℝ) : ℂ) +
+    Ecomp P.m₀ Tm (aIdeal L k (a k)) (Rg.sfBgMass k) D -
     (Ek : ℂ) * (((N₁ * L ^ m₁) ^ d : ℕ) : ℂ) +
-    Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.bgMass k) D g
+    Fcomp P.m₀ Tm (aIdeal L k (a k)) (Rg.sfBgMass k) D g
 
 /-- **The small-field class on one torus, second version** (Def-6 v2; CLASS-RULINGS-2 items 1, 2,
 4, 5, 7).  Parameters: the constants `P`, the regime `Rg` (a priori `k₀`, physical masses `ν_j`),
@@ -208,7 +214,7 @@ structure IsSF2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Dom : FieldDo
     h₀ ∈ Dom.phys → Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
     (ρ Ψ₀ h₀ g : ℂ) =
       open Classical in
-      if Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) k 1
+      if Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
           (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
       then Complex.exp (expo2 P Rg β a Tm Ek D (fun x i => (g x i : ℂ)))
       else 0
@@ -236,19 +242,17 @@ structure IsSFFamily2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ)
 (`d ≥ 3`, `L ≥ 3`, `ϱ ≥ R₀(d, L)`, the coefficient bounds (H.6)). -/
 theorem bgHyp_of_class2 {d L k : ℕ} [NeZero L] {ϱ : ℝ} {P : Consts} {Rg : Regime L}
     {β a : ℕ → ℝ} (hP : P.Admissible d L) (hC : CoeffBounds d L k P β Rg.ν a) (hd : 3 ≤ d)
-    (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.bgMass k) where
+    (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k) where
   hd := hd
   hL := hL
   hϱ := hϱ
   weights := fun _ hj hjk => aIdeal_mem hL hC.a_ge hC.a_lt hj hjk
-  mass := Rg.bgMass_nonneg hC.nu_pos.le
+  mass := Rg.sfBgMass_nonneg hC.nu_pos.le
   massLe := by
     have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
     have h1 := hP.νbar_le
     have h2 := hC.nu_le
-    have h3 : Rg.bgMass k * ((L : ℝ) ^ k) ^ 2 ≤ Rg.physMass k * ((L : ℝ) ^ k) ^ 2 :=
-      mul_le_mul_of_nonneg_right (Rg.bgMass_le_physMass hC.nu_pos.le) (by positivity)
-    have h4 : Rg.physMass k * ((L : ℝ) ^ k) ^ 2 = Rg.ν k := physMass_mul_sq k _
+    have h4 : Rg.sfBgMass k * ((L : ℝ) ^ k) ^ 2 = Rg.ν k := physMass_mul_sq k _
     have : ((L : ℝ) ^ 2)⁻¹ ≤ 1 := inv_le_one_of_one_le₀ (by nlinarith)
     linarith
 
@@ -264,10 +268,10 @@ noncomputable def rhoV2 (Rg : Regime L) (β a : ℕ → ℝ)
     (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
     (g : CTorus d L N₁ m₁ k → Fin N → ℝ) : ℝ :=
   if hD : ∃ D : BgData (topGS d L N₁ m₁ k ϱ) N, Realizes D Ψ₀ h₀ then
-    ρ Ψ₀ h₀ g * Real.exp (β k * action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k)
-        hD.choose (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) hD.choose) -
+    ρ Ψ₀ h₀ g * Real.exp (β k * action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k)
+        hD.choose (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) hD.choose) -
       betaFine d L k (β k) * action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.physMass k)
-        hD.choose (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) hD.choose))
+        hD.choose (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) hD.choose))
   else ρ Ψ₀ h₀ g
 
 /-- **Theorem (c), one torus: restriction of the landed class to the second version.**  Let
@@ -281,7 +285,7 @@ theorem _root_.Balaban.SmallField.Def6.IsSF.toV2 {P : Consts} {β ν a : ℕ →
     {Tm : Terms d L N₁ m₁ k N ϱ}
     {ρ : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℝ} (h : IsSF P β ν a Tm ρ Ek) {k₀ : ℕ}
-    (hμ : bgMassAt L k₀ k (ν k) = bgMass L k (β k) (ν k)) {Dom : FieldDom d L N₁ m₁ k N ϱ}
+    (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) {Dom : FieldDom d L N₁ m₁ k N ϱ}
     (hsub : ∀ j G Ψ h', Dom.dom j G Ψ h' →
       XiDom G (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h') :
     IsSF2 P ⟨k₀, ν⟩ β a Dom Tm (rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a ρ) Ek where
@@ -289,23 +293,24 @@ theorem _root_.Balaban.SmallField.Def6.IsSF.toV2 {P : Consts} {β ν a : ℕ →
   density := by
     intro Ψ₀ h₀ g D _ hR hg
     classical
-    have hb : (⟨k₀, ν⟩ : Regime L).bgMass k = bgMass L k (β k) (ν k) := hμ
+    have hb : (⟨k₀, ν⟩ : Regime L).sfBgMass k = bgMass L k (β k) (ν k) := hμ
+    have hp : (⟨k₀, ν⟩ : Regime L).physMass k = bgMass L k (β k) (ν k) := hμ
     have old := h.density Ψ₀ h₀ g D hR hg
     have e : rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a ρ Ψ₀ h₀ g =
         ρ Ψ₀ h₀ g * Real.exp (β k * action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
-            ((⟨k₀, ν⟩ : Regime L).bgMass k) D
-            (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) ((⟨k₀, ν⟩ : Regime L).bgMass k) D) -
+            ((⟨k₀, ν⟩ : Regime L).sfBgMass k) D
+            (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) ((⟨k₀, ν⟩ : Regime L).sfBgMass k) D) -
           betaFine d L k (β k) * action (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
             ((⟨k₀, ν⟩ : Regime L).physMass k) D
             (bgField (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k))
-              ((⟨k₀, ν⟩ : Regime L).bgMass k) D)) := by
+              ((⟨k₀, ν⟩ : Regime L).sfBgMass k) D)) := by
       unfold rhoV2
       split_ifs with hD
       · rw [show hD.choose = D from realizes_unique hD.choose_spec hR]
       · exact absurd ⟨D, hR⟩ hD
     rw [e]
     unfold expo2
-    rw [hb, Complex.ofReal_mul, Complex.ofReal_exp, old]
+    rw [hb, hp, Complex.ofReal_mul, Complex.ofReal_exp, old]
     by_cases hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) k 1
         (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
     · simp only [hX, ↓reduceIte]
@@ -324,7 +329,7 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toV2 {P : Consts} {β ν a : �
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) {k₀ : ℕ}
-    (hμ : bgMassAt L k₀ k (ν k) = bgMass L k (β k) (ν k))
+    (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k))
     {Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ}
     (hsub : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j G Ψ h', (Dom N₁).dom j G Ψ h' →
       XiDom G (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h') :
@@ -345,12 +350,30 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toPin {P : Consts} {β ν a : 
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) {k₀ : ℕ}
-    (hμ : bgMassAt L k₀ k (ν k) = bgMass L k (β k) (ν k)) (hStar : Fin N → ℝ) (rH : ℝ) :
+    (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) (hStar : Fin N → ℝ) (rH : ℝ) :
     IsSFFamily2 P ⟨k₀, ν⟩ β a
-      (fun _ _ => pinFieldDom hStar rH (aIdeal L k (a k)) (bgMassAt L k₀ k (ν k)) (P.eps d L)) Tm
+      (fun _ _ => pinFieldDom hStar rH (aIdeal L k (a k)) (physMass L k (ν k)) (P.eps d L)) Tm
       (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek :=
   h.toV2 hμ fun N₁ _ j G Ψ h' hp => by
-    have hp' : Pin hStar rH G (aIdeal L k (a k)) (bgMassAt L k₀ k (ν k)) j (P.eps d L j) Ψ h' := hp
+    have hp' : Pin hStar rH G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
     rw [← hμ]; exact hp'.xiDom
+
+/-- **Comparison theorem, main instance (Scheme A)**: in the complete regime of the landed class
+(`physMass = bgMass` at `k`, e.g. `β_k ν_k > 1`, `physMass_eq_bgMass_of_lt`) the landed class and
+the second version have the same backgrounds and the same wide domain `Ξ^c_j` in `b_j = ν_j h`; a
+member of the landed class is a member of the second version on `xiFieldDom`, with the density
+changed by the unit prefactor only. -/
+theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toXi {P : Consts} {β ν a : ℕ → ℝ}
+    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) (k₀ : ℕ)
+    (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) :
+    IsSFFamily2 P ⟨k₀, ν⟩ β a
+      (fun _ _ => xiFieldDom (aIdeal L k (a k)) (physMass L k (ν k)) (P.eps d L)) Tm
+      (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek :=
+  h.toV2 (k₀ := k₀) hμ fun N₁ _ j G Ψ h' hp => by
+    have hp' : XiDom G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
+    rw [← hμ]; exact hp'
 
 end Balaban.SmallField.Def6v2

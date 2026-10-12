@@ -20,7 +20,10 @@ certificate").
 The landed `IsObs` with `LiftCtx` and `β_k ν_k ≤ 1` forces `M^{(j)}(x; e_i, w) = 0` for every
 constant complex `w` (`Mobs_const_eq_zero_massFree`): at zero background mass the landed domain
 contains the whole complex line of constant fields `h`, and a bounded entire function is constant
-(Liouville).  On the pinned domain the line is finite, and:
+(Liouville).  In the second version the backgrounds are complete (Scheme A, W2-RESOLVE §§3-4): the
+background mass is positive whenever the physical mass is (`Regime.sfBgMass_pos`), so that branch
+does not occur.  The main instance (wide domain) is inhabited by `isObs2_xi_witness`; on the pinned
+alternative domain the line is finite, and:
 
 * `pinObs`: the observable terms `M^{(j)}(x, X; Ψ, h) = c_j e^{-κ|X|²} (h(x)·h(x) - 1) h(x)` on the
   whole-torus polymer (the observable layer of the field-dependent member `Def6v2.pinTerms`);
@@ -28,8 +31,8 @@ contains the whole complex line of constant fields `h`, and a bounded entire fun
   (the pinned domain with `r_h ≤ 1`), including the axial normalization `M^{(j)}(x; h, h) = 0` and
   the identification (O4) with the generating function of `pinTerms`;
 * `pinObs_response_ne_zero`: **the constant-spin response is not zero**:
-  `M^{(j)}(x; e, (1+s) e) ≠ 0` for `s > 0`; `pin_const_massFree`: at zero background mass the
-  constant pair `(e, (1+s) e)`, `s < r_h`, lies in the pinned domain;
+  `M^{(j)}(x; e, (1+s) e) ≠ 0` for `s > 0`; `pin_const_near`: the constant pairs `(e, c)` with `c`
+  close to `e` lie in the pinned domain, at every background mass;
 * `pinObs_not_landed`: **these terms are not the observable layer of any member of the landed
   class in the mass-free regime** (they would have to vanish at every constant `h`): the zero of
   `Mobs_const_eq_zero_massFree` is an artifact of the landed domain, not a property of the pinned
@@ -127,7 +130,7 @@ theorem isObs2_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a : ℕ �
     (hβ : ∀ j, 1 ≤ j → 0 < β (j - 1))
     (hcO : ∀ j, 10 * obsCoef β cj j ≤
       (β 0) ^ (-(1 / 2 : ℝ) + Q.ρ₁) * (L : ℝ) ^ (-((j : ℝ) * Q.ρ₀)))
-    (hB : ∀ j G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) :
+    (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) :
     IsObs2 P Q Rg β a Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj)) (fun _ _ _ _ _ => 0) where
   μ_euc := fun _ _ _ _ _ _ => rfl
@@ -190,14 +193,21 @@ theorem isObs2_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a : ℕ �
     have hcO0 : ∀ j, 0 ≤ obsCoef β cj j := fun j =>
       mul_nonneg (Real.sqrt_nonneg _) (hc0 j)
     show vn (((wCoef P.κ (obsCoef β cj) j X : ℝ) : ℂ) • mCore (h x)) ≤ _
-    rw [vn_smul_c, Complex.norm_real, Real.norm_of_nonneg (wCoef_nonneg hcO0 j X)]
-    have h1 := vn_mCore_le (hB j _ Ψ h hd x)
-    have h2 := wCoef_le hκ hcO0 (m₀ := P.m₀) hX
     have he := Real.exp_pos (-P.κ * sizeJ P.m₀ j X)
-    have h4 : wCoef P.κ (obsCoef β cj) j X * vn (mCore (h x)) ≤
-        obsCoef β cj j * Real.exp (-P.κ * sizeJ P.m₀ j X) * ((2 ^ 2 + 1) * 2) :=
-      mul_le_mul h2 h1 (vn_nonneg _) (mul_nonneg (hcO0 j) he.le)
-    nlinarith [mul_le_mul_of_nonneg_right (hcO j) he.le]
+    by_cases hcj : cj j = 0
+    · have hw : wCoef P.κ (obsCoef β cj) j X = 0 := by
+        unfold wCoef obsCoef; split_ifs <;> simp [hcj]
+      rw [hw]
+      simp only [Complex.ofReal_zero, zero_smul, vn_zero]
+      exact mul_nonneg (mul_nonneg (Real.rpow_nonneg hβ0 _)
+        (Real.rpow_nonneg (Nat.cast_nonneg L) _)) he.le
+    · rw [vn_smul_c, Complex.norm_real, Real.norm_of_nonneg (wCoef_nonneg hcO0 j X)]
+      have h1 := vn_mCore_le (hB j hcj _ Ψ h hd x)
+      have h2 := wCoef_le hκ hcO0 (m₀ := P.m₀) hX
+      have h4 : wCoef P.κ (obsCoef β cj) j X * vn (mCore (h x)) ≤
+          obsCoef β cj j * Real.exp (-P.κ * sizeJ P.m₀ j X) * ((2 ^ 2 + 1) * 2) :=
+        mul_le_mul h2 h1 (vn_nonneg _) (mul_nonneg (hcO0 j) he.le)
+      nlinarith [mul_le_mul_of_nonneg_right (hcO j) he.le]
   boundR := by
     intro i j _ _ _ x x' X _ _ _ Ψ h _
     show matNorm (0 : Matrix (Fin N) (Fin N) ℂ) ≤ _
@@ -229,11 +239,11 @@ theorem isObs2_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a : ℕ �
       push_cast
       have hs' : (Real.sqrt (β (j - 1)) : ℂ) ≠ 0 := by exact_mod_cast hs
       field_simp
-    · have hfd : fderiv ℂ ⇑(linF (cF P.κ cj (aIdeal L k (a k)) (Rg.bgMass k) D)) =
-          fun _ => linF (cF P.κ cj (aIdeal L k (a k)) (Rg.bgMass k) D) :=
+    · have hfd : fderiv ℂ ⇑(linF (cF P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D)) =
+          fun _ => linF (cF P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D) :=
         funext fun _ => ContinuousLinearMap.fderiv _
       have hG : ∀ x x' : CTorus d L N₁ m₁ k,
-          Gk2 P β a (Rg.bgMass k) (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj))
+          Gk2 P β a (Rg.sfBgMass k) (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj))
             (fun _ _ _ _ _ => 0) D x x' = 0 := by
         intro x x'
         simp [Gk2, Ck2, Rk2, Robs_pinObs]
@@ -266,14 +276,16 @@ theorem pinObs_response_ne_zero (m₀ : ℕ) {κ : ℝ} {cO : ℕ → ℝ} {j : 
     exact_mod_cast hw
   exact mul_ne_zero h4 (mul_ne_zero h2 h3) h1
 
-/-- **At zero background mass every constant field within `r_h` of `e` is in the pinned domain**
-(with the constant spin `e`): the finite chart `h = e + z`, `‖z‖ < r_h` of CLASS-RULINGS-2
-item 4. -/
-theorem pin_const_massFree {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ} {j : ℕ}
-    (H : BgHyp d L k ϱ a 0) (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {ε rH : ℝ} (hε : 0 < ε)
-    (i₀ : Fin N) (c : Fin N → ℂ)
-    (hpin : vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) < rH) :
-    Pin (Pi.single i₀ 1) rH G a 0 j ε (constFld (Pi.single i₀ 1)) (constFld c) := by
+/-- **Constant fields close to `e` are in the pinned domain** (with the constant spin `e`), at
+every background mass `μ ≥ 0`: there is `s₀ > 0`, depending on `(d, L, N, ε, μ, j)` only, such that
+every constant `h = c` with `|c - e| ≤ s₀` coordinatewise and `‖c - e‖ < r_h` gives a point of
+`Pin e r_h` over every level-`j` generating set. -/
+theorem pin_const_near {a : ℕ → ℝ} {μ : ℝ} {j : ℕ} (H : BgHyp d L k ϱ a μ) (hjk : j ≤ k)
+    {ε rH : ℝ} (hε : 0 < ε) (i₀ : Fin N) :
+    ∃ s₀ : ℝ, 0 < s₀ ∧ ∀ G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ, (∀ i, j < i → G.Ω i = ∅) →
+      ∀ c : Fin N → ℂ, (∀ i, ‖c i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ s₀) →
+        vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) < rH →
+        Pin (Pi.single i₀ 1) rH G a μ j ε (constFld (Pi.single i₀ 1)) (constFld c) := by
   have hd0 : 0 < d := by have := H.hd; omega
   have hK := bgK1_pos d L N
   have hc0 := bgC0_pos d L N hd0
@@ -288,12 +300,18 @@ theorem pin_const_massFree {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : �
   have hε' : (2 * bgK1 d L N + 2) * δ ≤ ε := by
     have h1 : δ ≤ ε / (2 * bgK1 d L N + 2) := min_le_right _ _
     rwa [le_div_iff₀ (by positivity), mul_comm] at h1
-  have key := pin_of_close (G := G) (rH := rH) H hΩ hjk i₀ hδ0
+  have hm0 : 0 ≤ μ * ((L : ℝ) ^ j) ^ 2 := mul_nonneg H.mass (by positivity)
+  have hden : 0 < μ * ((L : ℝ) ^ j) ^ 2 + 1 := by linarith
+  refine ⟨δ ^ 2 / (2 * N) / (μ * ((L : ℝ) ^ j) ^ 2 + 1), div_pos hρ0 hden,
+    fun G hΩ c hc hpin => ?_⟩
+  exact pin_of_close (G := G) (rH := rH) H hΩ hjk i₀ hδ0
     ((min_le_left _ _).trans (min_le_left _ _)) ((min_le_left _ _).trans (min_le_right _ _)) hρ0 hρ
     hε' (constFld (Pi.single i₀ 1)) c
     (fun x i => by simpa [constFld] using hρ0.le) (fun _ _ _ => rfl)
-    (fun i => by simpa using hρ0.le) hpin
-  exact key
+    (fun i => by
+      refine (mul_le_mul_of_nonneg_left (hc i) hm0).trans ?_
+      rw [← mul_div_assoc, div_le_iff₀ hden]
+      nlinarith [hρ0, hm0]) hpin
 
 /-- **Theorem (b): the terms `pinObs` are not the observable layer of any member of the landed
 class in the mass-free regime.**  If `pinObs` satisfied the landed `IsObs` in a context `LiftCtx`
@@ -356,7 +374,7 @@ theorem obsSourceForm_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a 
     (hβ0 : 0 ≤ β 0) (hβ : ∀ j, 1 ≤ j → 0 < β (j - 1))
     (hcO : ∀ j, 10 * obsCoef β cj j ≤
       (β 0) ^ (-(1 / 2 : ℝ) + Q.ρ₁) * (L : ℝ) ^ (-((j : ℝ) * Q.ρ₀)))
-    (hB : ∀ j G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) (hν : 0 < Rg.ν k) (i₀ : Fin N) :
+    (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) (hν : 0 < Rg.ν k) (i₀ : Fin N) :
     ObsSourceForm P Q β Rg.ν Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj))
       (obsSourceOf Rg.ν (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj))) i₀ (1 / 5) := by
@@ -479,54 +497,104 @@ theorem witness_obsCoef_le (j : ℕ) :
   push_cast
   nlinarith [mul_le_mul_of_nonneg_right h5 hx0.le]
 
-/-- **A member of the observable layer of the second version on the pinned domain, with a
-nonzero constant-spin response** (`d = L = 3`, `N = 2`, any `m₁`, `k`, switch index `k₀`, pin
-radius `r_h ≤ 1`; the member `isSFFamily2_pin_witness` of the small-field class). -/
+/-- **The main instance (Scheme A) of the observable layer is inhabited at every scale**: on the
+wide domain `Ξ^c_j` with complete backgrounds, for the member `isSFFamily2_xi_witness` (zero
+terms; `M_k = φ_k`, `G_k = 0`). -/
+theorem isObs2_xi_witness (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) {α₀ : ℝ} (hα : 0 < α₀) :
+    IsObs2 (d := 3) (L := 3) (N₁ := N₁) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
+      (witnessConsts α₀) witQ ⟨k₀, witnessν k⟩ witnessβ witnessa
+      (xiFieldDom (aIdeal 3 k (witnessa k)) (physMass 3 k (witnessν k k))
+        ((witnessConsts α₀).eps 3 3))
+      (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (fun _ => 0))
+      (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (fun _ => 0)))
+      (fun _ _ _ _ _ => 0) :=
+  isObs2_pinObs (witnessConsts_admissible hα).κ_pos.le (fun _ => le_rfl) (by simp [witnessβ])
+    (fun j _ => by simp only [witnessβ]; positivity)
+    (fun j => by
+      have h1 : obsCoef witnessβ (fun _ => 0) j = 0 := by simp [obsCoef]
+      rw [h1, mul_zero]
+      exact mul_nonneg (Real.rpow_nonneg (by simp [witnessβ]) _)
+        (Real.rpow_nonneg (Nat.cast_nonneg 3) _))
+    (fun j hj => absurd rfl hj)
+
+/-- **A member of the observable layer of the second version on the pinned domain (alternative
+instance), with a nonzero constant-spin response** (`d = L = 3`, `N = 2`, any `m₁`, `k`, `k₀`, pin
+radius `r_h ≤ 1`; complete backgrounds; the member `isSFFamily2_pin_witness`). -/
 theorem isObs2_pin_witness (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) {α₀ rH : ℝ} (hα : 0 < α₀)
     (hr1 : rH ≤ 1) :
     IsObs2 (d := 3) (L := 3) (N₁ := N₁) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
       (witnessConsts α₀) witQ ⟨k₀, witnessν k⟩ witnessβ witnessa
       (pinFieldDom (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
-        (bgMassAt 3 k₀ k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
+        (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
       (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))
       (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3)))
       (fun _ _ _ _ _ => 0) := by
   refine isObs2_pinObs (witnessConsts_admissible hα).κ_pos.le (fun j => (witCj_pos j).le)
     (by simp [witnessβ]) (fun j _ => by simp only [witnessβ]; positivity) witness_obsCoef_le
-    (fun j G Ψ h hd x => ?_)
+    (fun j _ G Ψ h hd x => ?_)
   have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))
-      (bgMassAt 3 k₀ k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
+      (physMass 3 k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
   linarith [hp.vn_lt x]
 
-/-- **Theorem (b), concrete form.**  At `d = L = 3`, `N = 2`, below the switch (`k ≤ k₀`, zero
-background mass), for `1 ≤ j ≤ k`, `0 < s < r_h ≤ 1`: the member `isObs2_pin_witness` of the
-pinned class has, at the constant pair `(ψ, h) = (e₀, (1+s) e₀)`, which lies in the pinned domain
-of every level-`j` generating set, the nonzero constant-spin response
+/-- **`IsSFObs2` is inhabited**: the member `isSFFamily2_pin_witness` of the small-field class
+with its observable layer `isObs2_pin_witness`, on every torus. -/
+theorem isSFObs2_pin_witness (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) {α₀ rH : ℝ}
+    (hα : 0 < α₀) (hr1 : rH ≤ 1) :
+    IsSFObs2 (d := 3) (L := 3) (N₁ := N₁) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
+      (witnessConsts α₀) witQ ⟨k₀, witnessν k⟩ witnessβ witnessa
+      (pinFieldDom (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
+        (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
+      (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))
+      (rho2 (witnessConsts α₀) ⟨k₀, witnessν k⟩ witnessβ witnessa
+        (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3)) 0) 0
+      (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3)))
+      (fun _ _ _ _ _ => 0) :=
+  ⟨(isSFFamily2_pin_witness m₁ k k₀ ϱ hϱ hα hr1).torus N₁, isObs2_pin_witness m₁ k k₀ N₁ ϱ hα hr1⟩
+
+/-- **`ObsSourceForm` is inhabited**: the source form of the observable terms of the member
+`isObs2_pin_witness`, with `C_D = 1/5`. -/
+theorem obsSourceForm_pin_witness (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) {α₀ rH : ℝ} (hα : 0 < α₀)
+    (hr1 : rH ≤ 1) :
+    ObsSourceForm (d := 3) (L := 3) (N₁ := N₁) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
+      (witnessConsts α₀) witQ witnessβ (witnessν k)
+      (pinFieldDom (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
+        (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
+      (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))
+      (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3)))
+      (obsSourceOf (witnessν k)
+        (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3)))) 0 (1 / 5) := by
+  refine obsSourceForm_pinObs (Rg := ⟨k₀, witnessν k⟩) (a := witnessa)
+    (witnessConsts_admissible hα).κ_pos.le (fun j => (witCj_pos j).le) (by simp [witnessβ])
+    (fun j _ => by simp only [witnessβ]; positivity) witness_obsCoef_le
+    (fun j _ G Ψ h hd x => ?_) (witness_coeff (α₀ := α₀) k).nu_pos 0
+  have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))
+      (physMass 3 k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
+  linarith [hp.vn_lt x]
+
+/-- **Theorem (b), concrete form (complete backgrounds).**  At `d = L = 3`, `N = 2`, every scale
+`1 ≤ j ≤ k` and every LF switch index `k₀`: there is `s₀ > 0` such that for `0 < s < s₀` the
+constant pair `(ψ, h) = (e₀, (1+s) e₀)` lies in the pinned domain of every level-`j` generating
+set, and the member `isObs2_pin_witness` has the nonzero constant-spin response
 `M^{(j)}(x; e₀, (1+s) e₀) ≠ 0`. -/
-theorem obs_pinned_response (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) {α₀ rH s : ℝ}
-    (hα : 0 < α₀) (hk : k ≤ k₀) {j : ℕ} (hjk : j ≤ k) (hs : 0 < s) (hsr : s < rH)
-    (x : CTorus 3 3 N₁ m₁ k) :
-    (∀ G : GeneratingSet 3 3 (N₁ * 3 ^ m₁) k ϱ, (∀ i, j < i → G.Ω i = ∅) →
-      (pinFieldDom (N := 2) (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
-        (bgMassAt 3 k₀ k (witnessν k k)) ((witnessConsts α₀).eps 3 3)).dom j G
-        (constFld (Pi.single 0 1)) (constFld (((1 + s : ℝ) : ℂ) • Pi.single 0 1))) ∧
-      Mobs (witnessConsts α₀).m₀
-        (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3))) j x
-        (constFld (Pi.single 0 1)) (constFld (((1 + s : ℝ) : ℂ) • Pi.single 0 1)) ≠ 0 := by
-  refine ⟨fun G hΩ => ?_, pinObs_response_ne_zero _ ?_ 0 hs x⟩
-  · have H := bgHyp_of_class2 (ϱ := ϱ) (Rg := ⟨k₀, witnessν k⟩) (witnessConsts_admissible hα)
-      (witness_coeff k) le_rfl le_rfl hϱ
-    have hμ : (⟨k₀, witnessν k⟩ : Regime 3).bgMass k = 0 := Regime.bgMass_of_le _ hk
-    rw [hμ] at H
-    have hμ' : bgMassAt 3 k₀ k (witnessν k k) = 0 := bgMassAt_of_le hk _
-    show Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k)) (bgMassAt 3 k₀ k (witnessν k k)) j
-      ((witnessConsts α₀).eps 3 3 j) _ _
-    rw [hμ']
-    refine pin_const_massFree H hΩ hjk (eps_pos (d := 3) (L := 3) hα j) 0 _ ?_
-    have e : (fun i => (((1 + s : ℝ) : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) i -
-        (Pi.single 0 1 : Fin 2 → ℂ) i) = (s : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ) := by
-      funext i; simp only [Pi.smul_apply, smul_eq_mul]; push_cast; ring
-    rw [e, vn_smul_c, Complex.norm_real, Real.norm_of_nonneg hs.le]
+theorem obs_pinned_response (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) {α₀ rH : ℝ}
+    (hα : 0 < α₀) (hr : 0 < rH) {j : ℕ} (hjk : j ≤ k) (x : CTorus 3 3 N₁ m₁ k) :
+    ∃ s₀ : ℝ, 0 < s₀ ∧ ∀ s : ℝ, 0 < s → s < s₀ →
+      (∀ G : GeneratingSet 3 3 (N₁ * 3 ^ m₁) k ϱ, (∀ i, j < i → G.Ω i = ∅) →
+        (pinFieldDom (N := 2) (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
+          (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3)).dom j G
+          (constFld (Pi.single 0 1)) (constFld (((1 + s : ℝ) : ℂ) • Pi.single 0 1))) ∧
+        Mobs (witnessConsts α₀).m₀
+          (pinObs 3 3 N₁ m₁ k 2 (witnessConsts α₀).κ (obsCoef witnessβ (witCj 3))) j x
+          (constFld (Pi.single 0 1)) (constFld (((1 + s : ℝ) : ℂ) • Pi.single 0 1)) ≠ 0 := by
+  have H := bgHyp_of_class2 (ϱ := ϱ) (Rg := ⟨k₀, witnessν k⟩) (witnessConsts_admissible hα)
+    (witness_coeff k) le_rfl le_rfl hϱ
+  obtain ⟨s₁, hs₁, hnear⟩ := pin_const_near (N₁ := N₁) (m₁ := m₁) (N := 2) (rH := rH) H hjk
+    (eps_pos (d := 3) (L := 3) (P := witnessConsts α₀) hα j) 0
+  refine ⟨min s₁ rH, lt_min hs₁ hr, fun s hs hss => ⟨fun G hΩ => ?_,
+    pinObs_response_ne_zero _ ?_ 0 hs x⟩⟩
+  · have e : ∀ i, (((1 + s : ℝ) : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) i -
+        (Pi.single 0 1 : Fin 2 → ℂ) i = ((s : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) i := by
+      intro i; simp only [Pi.smul_apply, smul_eq_mul]; push_cast; ring
     have hve : vn (Pi.single 0 1 : Fin 2 → ℂ) = 1 := by
       have h1 := Multiscale.vn_sq (Pi.single 0 1 : Fin 2 → ℂ)
       have h2 : ∑ l, ‖(Pi.single 0 1 : Fin 2 → ℂ) l‖ ^ 2 = 1 := by
@@ -534,7 +602,17 @@ theorem obs_pinned_response (m₁ k k₀ N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) (h
       rw [h2] at h1
       have h0 := vn_nonneg (Pi.single 0 1 : Fin 2 → ℂ)
       nlinarith
-    rw [hve, mul_one]; exact hsr
+    have key := hnear G hΩ (((1 + s : ℝ) : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) (fun i => ?_) ?_
+    · exact key
+    · rw [e i]
+      have h1 : ‖((s : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) i‖ ≤ vn ((s : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) :=
+        norm_le_vn _ i
+      rw [vn_smul_c, Complex.norm_real, Real.norm_of_nonneg hs.le, hve, mul_one] at h1
+      exact h1.trans (hss.le.trans (min_le_left _ _))
+    · have e' : (fun i => (((1 + s : ℝ) : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ)) i -
+          (Pi.single 0 1 : Fin 2 → ℂ) i) = (s : ℂ) • (Pi.single 0 1 : Fin 2 → ℂ) := funext e
+      rw [e', vn_smul_c, Complex.norm_real, Real.norm_of_nonneg hs.le, hve, mul_one]
+      exact hss.trans_le (min_le_right _ _)
   · exact mul_pos (Real.sqrt_pos.2 (by simp only [witnessβ]; positivity)) (witCj_pos j)
 
 end Balaban.Observables

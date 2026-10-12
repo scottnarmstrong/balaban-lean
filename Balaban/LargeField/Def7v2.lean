@@ -33,7 +33,7 @@ import Mathlib.Tactic.Positivity
 * `IsRepCorr`: `Def7.IsRep` together with `D1Corr`; `wIsRepCorr`: it is inhabited (the landed
   witness: the terms `ℰ` vanish, so `v₁ = v₂ = 0` and `corr = 0`).
 * `FieldClauses.regime`: the masses of the landed Def-7 are those of the regime record
-  `(k₀, ν)` of `Def6v2` (`cs.mu k = bgMassAt(k₀, k, ν_k)`, `cs.muAct k = ν_k L^{-2k}`), with the a
+  `(k₀, ν)` of `Def6v2` (`cs.mu k = lfBgMassAt(k₀, k, ν_k)`, `cs.muAct k = ν_k L^{-2k}`), with the a
   priori `k₀` of D-IV.11 (`Coh.k0_eq`); `sfActMass2`, `hDomR2`, `hSetB2`: the mass of the
   small-field action and the pinned field ball that a full second version of (D1), (D2), (D7)
   would use (items 1, 4).
@@ -138,11 +138,12 @@ section Field
 variable {S : Setting} [NeZero S.L] {k0 k : ℕ} {cs : OpConsts} {m₁ N : ℕ} {ϱ : ℝ}
   {sf : SFData S.d S.L m₁ k N ϱ} {hv : EuclideanSpace ℝ (Fin N)}
 
-/-- **The masses of the landed Def-7 are those of the regime record** (CLASS-RULINGS-2 item 2:
-"pass the same `k₀` to Def-6, IsObs, Def-7"): the solver mass is `bgMassAt(k₀, k, ν_k)` and the
-mass of the main action of the large-field operators is the physical mass `ν_k L^{-2k}`. -/
+/-- **The masses of the landed Def-7 are those of the regime record** (CLASS-RULINGS-2 item 2;
+W2-RESOLVE (4.1), Scheme A): the solver mass `cs.mu` of the large-field backgrounds and
+characteristic functions is `lfBgMassAt(k₀, k, ν_k)` (zero below `k₀`) and the mass `cs.muAct` of
+the main action is the physical mass `ν_k L^{-2k}`. -/
 theorem _root_.Balaban.LargeField.Def7.FieldClauses.regime (h : FieldClauses S k0 k cs sf hv) :
-    cs.mu k = (⟨k0, sf.ν⟩ : Regime S.L).bgMass k ∧
+    cs.mu k = (⟨k0, sf.ν⟩ : Regime S.L).lfBgMass k ∧
       cs.muAct k = (⟨k0, sf.ν⟩ : Regime S.L).physMass k := by
   refine ⟨?_, ?_⟩
   · rw [h.mu_eq k le_rfl]; exact (bgMassAt_eq_lfBgMass S.L k0 sf.ν k).symm
@@ -151,16 +152,16 @@ theorem _root_.Balaban.LargeField.Def7.FieldClauses.regime (h : FieldClauses S k
     rw [pow_mul, div_eq_mul_inv, inv_pow, ← pow_mul, ← pow_mul, mul_comm k 2]
 
 /-- **The mass of the small-field action `A*_k` in the second version** (CLASS-RULINGS-2 item 1;
-the docstring of `Def7.sfActMass`): the physical mass `cs.muAct k = ν_k L^{-2k}`, not the solver
-mass. -/
+W2-RESOLVE §4: "`cs.muAct` for the SF action now called `sfActMass`"): the physical mass
+`cs.muAct k = ν_k L^{-2k}`, not the LF solver mass. -/
 def sfActMass2 (cs : OpConsts) (k : ℕ) : ℝ := cs.muAct k
 
 theorem sfActMass2_eq (h : FieldClauses S k0 k cs sf hv) :
     sfActMass2 cs k = (⟨k0, sf.ν⟩ : Regime S.L).physMass k := h.regime.2
 
-/-- The landed small-field action mass is the background mass of the regime. -/
+/-- The landed small-field action mass is the LF solver mass of the regime. -/
 theorem sfActMass_eq (h : FieldClauses S k0 k cs sf hv) :
-    sfActMass cs k = (⟨k0, sf.ν⟩ : Regime S.L).bgMass k := h.regime.1
+    sfActMass cs k = (⟨k0, sf.ν⟩ : Regime S.L).lfBgMass k := h.regime.1
 
 /-- **The pinned field ball** `‖h - h_*‖ < r_h` around the physical field (CLASS-RULINGS-2
 item 4): the complex `h`-domain of the terms `ℛ^{(k)}_n` (D2) and of the boundary terms (D7) in the

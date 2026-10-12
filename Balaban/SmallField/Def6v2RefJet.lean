@@ -41,6 +41,18 @@ inherit the anisotropic I-6 estimate"), in the objects of `RenormAnisoDefs` / `R
 The other facts of `PinJet` (items 2-4 of PIN-I6 §3: the Taylor difference along the actual
 interpolation, the constant-potential bound (3.1) on connecting segments, the tail case) concern
 the output configurations and are not reference-point facts; they are not part of `RefJet`.
+
+**Relation to `RenormPinJet` / `RenormPinCounter` (W149, landed in parallel).**  The landed
+`PinJetTerm` / `PinJet` is the full, data-dependent certificate consumed by
+`termwise_irrelevant_pin` (`germ` with rotation invariance, the four tensor bounds, the
+small-polymer Taylor clause, the constant-potential clause (3.1)).  `RefJet` is its
+data-independent reference-point part, extended to all first and second coordinate jets (in
+particular `D²_{b⊥}`), and is the form used as a class clause in `Def6v2.SourceForm`;
+`RefJet.pinJet_tensors` gives the fields `tensA_le`, `tensB_le`, `tensAA_le`, `tensM_le` of
+`PinJetTerm`.  The counterexample here (`pinCexFamily`) and the landed `oneSite` family are the
+same term of PIN-I6 (2.1); the landed `pin_no_uniform_constant`, `pin_jet_fails` verify the data
+hypotheses `DataHypAniso` and the failure of the `potential` clause, the theorems here the
+failure of the reference-jet clause `RefJet` and the closed form of the remainder.
 -/
 
 @[expose] public section
@@ -132,6 +144,19 @@ theorem RefJet.d2_bperp (h : RefJet i₀ ν r M X f) {i₁ : Fin N} (hne : i₁ 
       4 * M / r ^ 2 := by
   have := h.d2 (Sum.inr i₁) (Sum.inr i₁)
   rwa [anisoWt_inr_ne hne, ← sq] at this
+
+/-- **The certificate gives the reference-tensor bounds of the landed `PinJetTerm`** (PIN-I6 §3
+item 1; `RenormPinJet`): for a term family `T` and `M_X = E₀ e^{-κ d_j(X)}`, the fields `tensA_le`,
+`tensB_le`, `tensAA_le`, `tensM_le` of `PinJetTerm T i₀ i₁ ν r E₀ κ A Λ ψ b σ ε R X`. -/
+theorem RefJet.pinJet_tensors {T : TermFamily d N} {i₁ : Fin N} {E₀ κ : ℝ} (hne : i₁ ≠ i₀)
+    (h : RefJet i₀ ν r (E₀ * Real.exp (-κ * T.dist X)) X (T.term X)) :
+    (∀ x : ↥X, ‖tensA i₀ ν X (T.term X) x‖ ≤ E₀ * Real.exp (-κ * T.dist X) / r) ∧
+      (∀ x x' : ↥X,
+        ‖tensB i₀ i₁ ν X (T.term X) x x'‖ ≤ 4 * (E₀ * Real.exp (-κ * T.dist X)) / r ^ 2) ∧
+      (∀ x x' : ↥X,
+        ‖tensAA i₀ ν X (T.term X) x x'‖ ≤ 4 * (E₀ * Real.exp (-κ * T.dist X)) / r ^ 2) ∧
+      ∀ x : ↥X, ‖tensM i₀ i₁ ν X (T.term X) x‖ ≤ 4 * (E₀ * Real.exp (-κ * T.dist X)) / r ^ 2 :=
+  ⟨h.tensA_le, h.tensB_le i₁, h.tensAA_le, h.tensM_le hne⟩
 
 end Cert
 
@@ -440,8 +465,7 @@ theorem pinCex_itw (hne : i₁ ≠ i₀) {m : ℝ} (hm : m ≠ 0) (c₀ θ : ℝ
   field_simp
   ring
 
-/-- **The pinned class without the reference-jet certificate does not admit the termwise I-6
-bound** (PIN-I6 §2, (2.3)).  For the one-site family (which satisfies the renormalization
+/-- **The termwise I-6 bound fails on the pinned class without the reference-jet certificate** (PIN-I6 §2, (2.3)).  For the one-site family (which satisfies the renormalization
 conditions `pinCex_sumConds` and the pinned bound `pinCex_pinned_bound`), every claimed constant
 `C` in the estimate `|Itw| ≤ C E₀ σ^{3-α₁} (ε/r)²` of PIN-I6 (3.2), with `E₀`, `r`, `ε`, `α₁ < 1`
 fixed, is violated at some `0 < σ ≤ 1`, with the mass `m = σ²`, the constant spin

@@ -31,6 +31,11 @@ step.
   `Regime.physMass`, `Regime.bgMass`; `Regime.aPriori`: the regime of LF-RECONSTRUCTION D-IV.11,
   `k₀ = max {k : β ν L^{kd} ≤ 1}` (`LargeField.kZero`); `Regime.IsFlow`: the regime of a flow.
 
+**Scheme A (W2-RESOLVE §§3-4, the author's decision).**  `k₀` is an LF regime index.  The regime
+has two solver masses: `sfBgMassAt = ν_k L^{-2k}` at every scale (complete backgrounds for the
+small-field class) and `lfBgMassAt = bgMassAt` (the large-field operators only);
+`Regime.sfBgMass`, `Regime.lfBgMass`, `Regime.sfBgMass_pos`, `Regime.lfBgMass_eq_sfBgMass_of_lt`.
+
 The flow facts (LF-RECONSTRUCTION Lemma IV.3.3 (a), from (I.2) = `LargeField.RunningHyp`):
 `RunningHyp.beta_mul_nu_le` (`β_j ν_j ≤ e^{2ε}` for `j ≤ k₀`, genuine `k₀`),
 `RunningHyp.beta_mul_nu_succ_le` (`β_{k₀+1} ν_{k₀+1} ≤ e^{2ε} L^d`),
@@ -107,6 +112,25 @@ theorem physMass_nuIdeal {L : ℕ} [NeZero L] {j k : ℕ} (hjk : j ≤ k) (νk :
   rw [Nat.add_sub_cancel_left, pow_add]
   field_simp
 
+/-- **The solver mass of the small-field class** (W2-RESOLVE (4.1), Scheme A, the author's
+decision): the physical mass `ν_k L^{-2k}` at **every** scale.  The whole-lattice small-field
+action, its localized energy and observable terms and its RG step use complete backgrounds, exactly
+as P1/P4 (P4 Theorem 1 includes arbitrarily small positive mass; P5 p. 490: the zero-mass convention
+"was unnecessary" for the small-field analysis). -/
+noncomputable def sfBgMassAt (L k : ℕ) (νk : ℝ) : ℝ := physMass L k νk
+
+/-- **The solver mass of the large-field operators** (W2-RESOLVE (4.1)): `0` for `k ≤ k₀`,
+`ν_k L^{-2k}` for `k > k₀`.  This is the `bgMassAt` of CLASS-RULINGS-2 item 2; it is used by the
+large-field solver and characteristic functions only and must **not** be fed to the small-field
+`XiDom`. -/
+noncomputable def lfBgMassAt (L k₀ k : ℕ) (νk : ℝ) : ℝ := bgMassAt L k₀ k νk
+
+/-- In the complete regime of the landed class (`β_k ν_k > 1`) its running-test mass is the
+physical mass: there the landed class and the second version use the same backgrounds. -/
+theorem physMass_eq_bgMass_of_lt {L k : ℕ} {βk νk : ℝ} (h : 1 < βk * νk) :
+    physMass L k νk = Def6.bgMass L k βk νk := by
+  simp [physMass, Def6.bgMass, not_le.2 h]
+
 /-- `bgMassAt` is the landed fine-unit background mass of LF-RECONSTRUCTION Definition II.1.1
 (`LargeField.bgMass`, used by Def-7's `FieldClauses.mu_eq`). -/
 theorem bgMassAt_eq_lfBgMass (L k₀ : ℕ) (ν : ℕ → ℝ) (k : ℕ) :
@@ -151,6 +175,17 @@ noncomputable def physMass (k : ℕ) : ℝ := Def6v2.physMass L k (Rg.ν k)
 /-- The background mass `μ_k = bgMassAt(k₀, k, ν_k)` of the regime (item 2). -/
 noncomputable def bgMass (k : ℕ) : ℝ := bgMassAt L Rg.kZero k (Rg.ν k)
 
+/-- The solver mass of the small-field class: the physical mass at every scale (W2-RESOLVE (4.1),
+Scheme A). -/
+noncomputable def sfBgMass (k : ℕ) : ℝ := sfBgMassAt L k (Rg.ν k)
+
+/-- The solver mass of the large-field operators: `bgMassAt(k₀, k, ν_k)` (W2-RESOLVE (4.1)). -/
+noncomputable def lfBgMass (k : ℕ) : ℝ := lfBgMassAt L Rg.kZero k (Rg.ν k)
+
+theorem sfBgMass_eq (k : ℕ) : Rg.sfBgMass k = Rg.physMass k := rfl
+
+theorem lfBgMass_eq (k : ℕ) : Rg.lfBgMass k = Rg.bgMass k := rfl
+
 theorem bgMass_of_le {k : ℕ} (h : k ≤ Rg.kZero) : Rg.bgMass k = 0 := bgMassAt_of_le h _
 
 theorem bgMass_of_lt {k : ℕ} (h : Rg.kZero < k) : Rg.bgMass k = Rg.physMass k :=
@@ -166,6 +201,22 @@ mass term is still present"): the two masses differ as soon as `ν_k > 0`. -/
 theorem bgMass_lt_physMass [NeZero L] {k : ℕ} (hk : k ≤ Rg.kZero) (h : 0 < Rg.ν k) :
     Rg.bgMass k < Rg.physMass k := by
   rw [Rg.bgMass_of_le hk]; exact physMass_pos k h
+
+theorem sfBgMass_nonneg {k : ℕ} (h : 0 ≤ Rg.ν k) : 0 ≤ Rg.sfBgMass k := physMass_nonneg L k h
+
+/-- **The background mass of the small-field class is positive whenever the physical mass is**
+(Scheme A).  The mass-free branch `bgMass = 0` of the landed class, on which the Liouville argument
+of `Observables.Mobs_const_eq_zero_massFree` runs, does not occur in the second version. -/
+theorem sfBgMass_pos [NeZero L] {k : ℕ} (h : 0 < Rg.ν k) : 0 < Rg.sfBgMass k := physMass_pos k h
+
+theorem lfBgMass_of_le {k : ℕ} (h : k ≤ Rg.kZero) : Rg.lfBgMass k = 0 := bgMassAt_of_le h _
+
+theorem lfBgMass_le_sfBgMass {k : ℕ} (h : 0 ≤ Rg.ν k) : Rg.lfBgMass k ≤ Rg.sfBgMass k :=
+  bgMassAt_le_physMass _ _ _ h
+
+/-- Above the switch the two solver masses coincide (complete regime). -/
+theorem lfBgMass_eq_sfBgMass_of_lt {k : ℕ} (h : Rg.kZero < k) : Rg.lfBgMass k = Rg.sfBgMass k :=
+  bgMassAt_of_lt h _
 
 /-- **The a priori regime** of LF-RECONSTRUCTION D-IV.11: `k₀ = max {k : β ν L^{kd} ≤ 1}`
 (`LargeField.kZero`; `0` by convention if `β ν > 1`), a function of the initial couplings `(β, ν)`

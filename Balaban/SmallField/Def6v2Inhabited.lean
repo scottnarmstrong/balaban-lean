@@ -13,29 +13,30 @@ import Mathlib.Tactic.Positivity
 # Def-6 v2: members of the second version of the class -- DRAFT
 
 **Draft, pending Roland's answer to Q13.**  Inhabitation of `IsSF2`, `IsSFFamily2`, `SourceForm`
-(hard rule 10), at choices that are not degenerate in the respects changed by CLASS-RULINGS-2:
+(hard rule 10), with complete backgrounds (Scheme A, W2-RESOLVE §§3-4):
 
-* **the regime** is genuine: the scale `k` may lie at or below the switch (`k ≤ k₀`), where the
-  background mass is `0` and the physical mass `ν_k L^{-2k} > 0` stays in the action
-  (`isSFFamily2_pin_witness`, any `k₀`);
-* **the pinned radius** `r_h ∈ (0, 1]` is positive, the pinned field is the coordinate vector
-  `e₀`;
-* **the terms `ℳ^{(j)}` depend on the field `h`**: `pinTerms` has
+* **the main instance** (the wide domain `xiFieldDom` at the complete mass) is inhabited at every
+  scale `k` and every LF switch index `k₀`, in particular below the switch, with the unit prefactor
+  `β_k L^{-k(d-2)}` and the physical mass in the action (`isSFFamily2_xi_witness`; zero terms), and
+  by the landed witness in its complete regime `k ≥ 3` (`isSFFamily2_of_landed_witness`);
+* **the pinned alternative instance** (`r_h ∈ (0, 1]`, pinned field `e₀`) is inhabited by a member
+  whose terms `ℳ^{(j)}` depend on the field `h`: `pinTerms` has
   `ℳ^{(j)}(x, X; Ψ, h, g) = c_j e^{-κ |X|²} (h(x)·h(x) - 1) h(x)` on the whole-torus polymer `X = 𝕋`
   (`0` on the other polymers), an `O(N)`-equivariant, Euclidean-covariant, local term, bounded on
-  the pinned domain (`‖h‖ < 1 + r_h`) and **unbounded on the landed domain at zero background
-  mass**, where `h` is unrestricted.  Its constant-spin response is not zero
+  the pinned domain (`‖h‖ < 1 + r_h`); its constant-spin response is not zero
   (`pinTerms_M_const_ne_zero`), and `𝕋` is a polymer of `𝒟_j` (`isPolyDom_univ`).
 
-The terms `ℰ^{(j)}` of this member are zero: a nonzero `ℰ` must be torus independent on
-non-winding polymers (`TorusIndep`), which excludes whole-torus terms, and needs the single-cell
-geometry of `𝒟_j`; this is not done here.  A second family of members is obtained from the landed
-class by the restriction theorem (`isSFFamily2_of_landed_witness`).
+Not done: a member of the main instance with nonzero terms (on the wide domain at positive mass the
+field is bounded by `1 + ε/√μ + ε/μ`, so `pinTerms` with small `c_j` should be a member; the bound
+of `h` on `Ξ^c_j` is not proved here), and nonzero terms `ℰ^{(j)}` (they must be torus independent
+on non-winding polymers, which excludes whole-torus terms and needs the single-cell geometry of
+`𝒟_j`).
 
 * `isPolyDom_univ`, `torus_reach`: the whole torus is a polymer;
 * `mCore`, `wCoef`, `pinTerms`, `Mloc_pinTerms`: the terms; `pinTerms_clauses`: `SFTermClauses`;
 * `rho2`, `isSF2_rho2`: the density of the second version for terms with a real exponent;
-* `isSF2_pinTerms`, `isSFFamily2_pin_witness`, `sourceForm_pin_witness`.
+* `isSF2_pinTerms`, `isSFFamily2_xi_witness`, `isSFFamily2_pin_witness`,
+  `isSFFamily2_of_landed_witness`, `sourceForm_pin_witness`, `sourceForm_witness`.
 -/
 
 @[expose] public section
@@ -270,13 +271,13 @@ theorem pinTerms_M_const_ne_zero {κ : ℝ} {cj : ℕ → ℝ} {j : ℕ} (hc : 0
 
 /-- **The field-dependent terms satisfy the term clauses** on every field domain on which the
 field is bounded by `2` (`‖h‖ ≤ B_h = 1 + r_h ≤ 2` on the pinned domain), with
-`20 c_j ≤ c₉ L^{-j((d-2)/2+γ-α₁)}`.  On the landed domain at zero background mass the clause
-`boundM` fails for them (the field is unbounded there). -/
+`20 c_j ≤ c₉ L^{-j((d-2)/2+γ-α₁)}`; the field bound is needed only at the levels with `c_j ≠ 0`
+(for `c ≡ 0` the terms vanish and the clauses hold on every domain). -/
 theorem pinTerms_clauses {P : Consts} {cj : ℕ → ℝ} {Dom : FieldDom d L N₁ m₁ k N ϱ}
     (hE₀ : 0 ≤ P.E₀) (hκ : 0 ≤ P.κ) (hc0 : ∀ j, 0 ≤ cj j)
     (hc : ∀ j, 20 * cj j ≤ P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (hB : ∀ j G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) :
+    (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) :
     SFTermClauses P Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj) where
   gs_spec := by
     intro j hj1 hjk X _
@@ -336,17 +337,22 @@ theorem pinTerms_clauses {P : Consts} {cj : ℕ → ℝ} {Dom : FieldDom d L N�
   boundM := by
     intro j _ _ x X hX _ Ψ h g hd _
     show vn (((wCoef P.κ cj j X : ℝ) : ℂ) • mCore (h x)) < _
-    rw [vn_smul_c, Complex.norm_real, Real.norm_of_nonneg (wCoef_nonneg hc0 j X)]
-    have h1 := vn_mCore_le (hB j _ Ψ h hd x)
-    have h2 := wCoef_le hκ hc0 (m₀ := P.m₀) hX
-    have h3 := wCoef_nonneg (κ := P.κ) hc0 j X
     have he := Real.exp_pos (-P.κ * sizeJ P.m₀ j X)
-    have h4 : wCoef P.κ cj j X * vn (mCore (h x)) ≤
-        cj j * Real.exp (-P.κ * sizeJ P.m₀ j X) * ((2 ^ 2 + 1) * 2) :=
-      mul_le_mul h2 h1 (vn_nonneg _) (mul_nonneg (hc0 j) he.le)
-    have h5 := hc j
     have h6 := hc9 j
-    nlinarith [mul_pos h6 he, mul_le_mul_of_nonneg_right h5 he.le]
+    by_cases hcj : cj j = 0
+    · have hw : wCoef P.κ cj j X = 0 := by
+        unfold wCoef; split_ifs <;> simp [hcj]
+      rw [hw]
+      simp only [Complex.ofReal_zero, zero_smul, vn_zero]
+      exact mul_pos h6 he
+    · rw [vn_smul_c, Complex.norm_real, Real.norm_of_nonneg (wCoef_nonneg hc0 j X)]
+      have h1 := vn_mCore_le (hB j hcj _ Ψ h hd x)
+      have h2 := wCoef_le hκ hc0 (m₀ := P.m₀) hX
+      have h4 : wCoef P.κ cj j X * vn (mCore (h x)) ≤
+          cj j * Real.exp (-P.κ * sizeJ P.m₀ j X) * ((2 ^ 2 + 1) * 2) :=
+        mul_le_mul h2 h1 (vn_nonneg _) (mul_nonneg (hc0 j) he.le)
+      have h5 := hc j
+      nlinarith [mul_pos h6 he, mul_le_mul_of_nonneg_right h5 he.le]
 
 /-! ### The density of the second version for terms with a real exponent -/
 
@@ -356,7 +362,7 @@ realizing datum (the exponent is real for real terms). -/
 noncomputable def rho2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k N ϱ)
     (Ek : ℝ) (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
     (g : CTorus d L N₁ m₁ k → Fin N → ℝ) : ℝ :=
-  if hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) k 1
+  if hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
       (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
   then Real.exp (expo2 P Rg β a Tm Ek (Classical.choose hX.2.2) (fun x i => (g x i : ℂ))).re
   else 0
@@ -367,7 +373,7 @@ theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : Fiel
     {Tm : Terms d L N₁ m₁ k N ϱ} {Ek : ℝ} (hT : SFTermClauses P Dom Tm)
     (hreal : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (g : CTorus d L N₁ m₁ k → Fin N → ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N),
-      XiAt (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) k 1
+      XiAt (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
         (P.p (β k) / Real.sqrt (β k)) D Ψ₀ h₀ →
       (expo2 P Rg β a Tm Ek D (fun x i => (g x i : ℂ))).im = 0) :
     IsSF2 P Rg β a Dom Tm (rho2 P Rg β a Tm Ek) Ek where
@@ -376,7 +382,7 @@ theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : Fiel
     intro Ψ₀ h₀ g D _ hD _
     classical
     unfold rho2
-    by_cases hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.bgMass k) k 1
+    by_cases hX : Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
         (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀
     · simp only [hX, ↓reduceDIte, ↓reduceIte]
       have hD0 := Classical.choose_spec hX.2.2
@@ -415,8 +421,8 @@ theorem isSF2_pinTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : �
     {Dom : FieldDom d L N₁ m₁ k N ϱ} (hE₀ : 0 ≤ P.E₀) (hκ : 0 ≤ P.κ) (hc0 : ∀ j, 0 ≤ cj j)
     (hc : ∀ j, 20 * cj j ≤ P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (hB : ∀ j G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2)
-    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.bgMass k)) :
+    (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2)
+    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
     IsSF2 P Rg β a Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (rho2 P Rg β a (pinTerms d L N₁ m₁ k N ϱ P.κ cj) 0) 0 := by
   refine isSF2_rho2 (pinTerms_clauses hE₀ hκ hc0 hc hc9 hB) ?_
@@ -424,7 +430,7 @@ theorem isSF2_pinTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : �
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
   rw [Fcomp_zero] at h1
-  have hF : (Fcomp P.m₀ (pinTerms d L N₁ m₁ k N ϱ P.κ cj) (aIdeal L k (a k)) (Rg.bgMass k) D
+  have hF : (Fcomp P.m₀ (pinTerms d L N₁ m₁ k N ϱ P.κ cj) (aIdeal L k (a k)) (Rg.sfBgMass k) D
       (fun x i => (g x i : ℂ))).im = 0 := by
     unfold Fcomp
     rw [Complex.add_im, h1, zero_add, Complex.im_sum]
@@ -435,10 +441,10 @@ theorem isSF2_pinTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : �
     rw [Complex.im_sum]
     refine Finset.sum_eq_zero fun i _ => ?_
     rw [Mloc_pinTerms]
-    have h2 := mCore_im (fun l => composedPair_h_im (a := aIdeal L k (a k)) (ν := Rg.bgMass k)
+    have h2 := mCore_im (fun l => composedPair_h_im (a := aIdeal L k (a k)) (ν := Rg.sfBgMass k)
       hDh j x l) i
     simp [Complex.mul_im, h2]
-  have hE : Ecomp P.m₀ (pinTerms d L N₁ m₁ k N ϱ P.κ cj) (aIdeal L k (a k)) (Rg.bgMass k) D = 0 := by
+  have hE : Ecomp P.m₀ (pinTerms d L N₁ m₁ k N ϱ P.κ cj) (aIdeal L k (a k)) (Rg.sfBgMass k) D = 0 := by
     simp [Ecomp, Edens, Eloc_pinTerms]
   unfold expo2
   rw [hE]
@@ -505,65 +511,89 @@ theorem witCj_le {c₉ s : ℝ} (hc : 1 ≤ c₉) (hs : s ≤ 2) (j : ℕ) :
   unfold witCj
   nlinarith
 
-/-- **A member of the second version of the class of families with field-dependent terms, on the
-pinned domain** (`d = L = 3`, `N = 2`, any `m₁`, `k`, any switch index `k₀`, `ϱ ≥ R₀(3,3)`, pinned
-field `e₀`, pin radius `0 < r_h ≤ 1`): the constants and running coefficients of the landed
-witness (`β_n = 3^n`, `ν_n = (7/72) 9^{n-k}`, `a_n = 5/4`), the regime `(k₀, ν)`, the terms
-`pinTerms` and the density `rho2`.  For `k ≤ k₀` the background mass is `0` and the physical mass
-`ν_k 9^{-k} > 0` is in the action. -/
+theorem witness_c9_pos (α₀ : ℝ) (j : ℕ) :
+    0 < (witnessConsts α₀).c₉ * (((3 : ℕ) : ℝ) ^ j)⁻¹ ^
+      ((((3 : ℕ) : ℝ) - 2) / 2 + (witnessConsts α₀).γ - (witnessConsts α₀).α₁) := by
+  have hx0 : (0 : ℝ) < (((3 : ℕ) : ℝ) ^ j)⁻¹ := by positivity
+  have := Real.rpow_pos_of_pos hx0
+    ((((3 : ℕ) : ℝ) - 2) / 2 + (witnessConsts α₀).γ - (witnessConsts α₀).α₁)
+  simp only [witnessConsts, one_mul] at this ⊢
+  exact this
+
+theorem witness_cj_le (α₀ : ℝ) (j : ℕ) :
+    20 * witCj 3 j ≤ (witnessConsts α₀).c₉ * (((3 : ℕ) : ℝ) ^ j)⁻¹ ^
+      ((((3 : ℕ) : ℝ) - 2) / 2 + (witnessConsts α₀).γ - (witnessConsts α₀).α₁) :=
+  witCj_le (by norm_num [witnessConsts]) (by norm_num [witnessConsts]) j
+
+/-- **The main instance (Scheme A) is inhabited at every scale**: a member of the second version
+of the class of families on the P1/P4 wide domain `Ξ^c_j` with **complete backgrounds**
+(`d = L = 3`, `N = 2`, any `m₁`, `k`, any LF switch index `k₀` — also `k ≤ k₀` —, `ϱ ≥ R₀(3,3)`):
+the constants and running coefficients of the landed witness (`β_n = 3^n`,
+`ν_n = (7/72) 9^{n-k}`, `a_n = 5/4`), zero terms and the density `rho2`, whose action has the
+unit prefactor `β_k L^{-k(d-2)}` and the physical mass `(7/72) 9^{-k} > 0`. -/
+theorem isSFFamily2_xi_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) {α₀ : ℝ} (hα : 0 < α₀) :
+    IsSFFamily2 (d := 3) (L := 3) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ) (witnessConsts α₀)
+      ⟨k₀, witnessν k⟩ witnessβ witnessa
+      (fun _ _ => xiFieldDom (aIdeal 3 k (witnessa k)) (physMass 3 k (witnessν k k))
+        ((witnessConsts α₀).eps 3 3))
+      (fun N₁ _ => pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (fun _ => 0))
+      (fun N₁ _ => rho2 (witnessConsts α₀) ⟨k₀, witnessν k⟩ witnessβ witnessa
+        (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (fun _ => 0)) 0) (fun _ => 0) where
+  admissible := witnessConsts_admissible hα
+  coeff := witness_coeff k
+  torus := fun N₁ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
+    (fun _ => le_rfl) (fun j => by simpa using (witness_c9_pos α₀ j).le) (witness_c9_pos α₀)
+    (fun j hj => absurd rfl hj)
+    (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
+  torusIndep := torusIndep_pinTerms _ _ _
+  renorm := fun _ _ _ => renormCond_pinTerms _ _ _ _ _ _
+
+/-- **A member with field-dependent terms, on the pinned domain (alternative instance)**
+(`d = L = 3`, `N = 2`, any `m₁`, `k`, `k₀`, `ϱ ≥ R₀(3,3)`, pinned field `e₀`, pin radius
+`0 < r_h ≤ 1`), with complete backgrounds: the terms `pinTerms` with `c_j = L^{-2j}/20` and the
+density `rho2`. -/
 theorem isSFFamily2_pin_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) {α₀ rH : ℝ}
     (hα : 0 < α₀) (hr1 : rH ≤ 1) :
     IsSFFamily2 (d := 3) (L := 3) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ) (witnessConsts α₀)
       ⟨k₀, witnessν k⟩ witnessβ witnessa
       (fun _ _ => pinFieldDom (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
-        (bgMassAt 3 k₀ k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
+        (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
       (fun N₁ _ => pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))
       (fun N₁ _ => rho2 (witnessConsts α₀) ⟨k₀, witnessν k⟩ witnessβ witnessa
         (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3)) 0) (fun _ => 0) where
   admissible := witnessConsts_admissible hα
   coeff := witness_coeff k
-  torus := fun N₁ _ => by
-    have hκ : 0 ≤ (witnessConsts α₀).κ := (witnessConsts_admissible hα).κ_pos.le
-    have hs : (((3 : ℕ) : ℝ) - 2) / 2 + (witnessConsts α₀).γ - (witnessConsts α₀).α₁ ≤ 2 := by
-      norm_num [witnessConsts]
-    refine isSF2_pinTerms le_rfl hκ (fun j => (witCj_pos j).le)
-      (fun j => witCj_le (by norm_num [witnessConsts]) hs j) (fun j => ?_) (fun j G Ψ h hd x => ?_)
-      (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
-    · have hx0 : (0 : ℝ) < (((3 : ℕ) : ℝ) ^ j)⁻¹ := by positivity
-      have := Real.rpow_pos_of_pos hx0
-        ((((3 : ℕ) : ℝ) - 2) / 2 + (witnessConsts α₀).γ - (witnessConsts α₀).α₁)
-      simp only [witnessConsts, one_mul] at this ⊢
-      exact this
-    · have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))
-          (bgMassAt 3 k₀ k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
-      linarith [hp.vn_lt x]
+  torus := fun N₁ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
+    (fun j => (witCj_pos j).le) (witness_cj_le α₀) (witness_c9_pos α₀)
+    (fun j _ G Ψ h hd x => by
+      have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))
+          (physMass 3 k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
+      linarith [hp.vn_lt x])
+    (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
   torusIndep := torusIndep_pinTerms _ _ _
   renorm := fun _ _ _ => renormCond_pinTerms _ _ _ _ _ _
 
-/-- **Members of the second version from the landed witness** (restriction theorem (c)): for
-`k ≤ 2` the landed witness has running-test mass `0` (`β_k ν_k = 3^k · 7/72 ≤ 1`); with a switch
-index `k₀ ≥ k` it gives a member of the second version on the pinned domain at every `h_*`, with
-the physical mass `(7/72) 9^{-k} > 0` in the action. -/
-theorem isSFFamily2_of_landed_witness (m₁ k j k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) (hk : k ≤ 2)
-    (hk₀ : k ≤ k₀) (hStar : Fin 2 → ℝ) (rH : ℝ) :
+/-- **Members of the second version from the landed witness** (comparison theorem, complete
+regime): for `k ≥ 3` the landed witness is in its complete regime (`β_k ν_k = 3^k · 7/72 > 1`), its
+running-test mass is the physical mass, and it gives a member of the second version on the wide
+domain. -/
+theorem isSFFamily2_of_landed_witness (m₁ k j k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 ≤ ϱ) (hk : 3 ≤ k) :
     ∃ ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus 3 3 N₁ m₁ k → Fin 2 → ℝ) → (Fin 2 → ℝ) →
         (CTorus 3 3 N₁ m₁ k → Fin 2 → ℝ) → ℝ,
       IsSFFamily2 (d := 3) (L := 3) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
         (witnessConsts (witnessα₀ j)) ⟨k₀, witnessν k⟩ witnessβ witnessa
-        (fun _ _ => pinFieldDom hStar rH (aIdeal 3 k (witnessa k))
-          (bgMassAt 3 k₀ k (witnessν k k)) ((witnessConsts (witnessα₀ j)).eps 3 3))
-        (zeroFam 3 3 m₁ k 2 ϱ) ρ (fun _ => 0) := by
-  have hβν : witnessβ k * witnessν k k ≤ 1 := by
+        (fun _ _ => xiFieldDom (aIdeal 3 k (witnessa k)) (physMass 3 k (witnessν k k))
+          ((witnessConsts (witnessα₀ j)).eps 3 3))
+        (Def6.zeroFam 3 3 m₁ k 2 ϱ) ρ (fun _ => 0) := by
+  have hβν : 1 < witnessβ k * witnessν k k := by
     have e : witnessν k k = 7 / 72 := by
       simp only [witnessν]; rw [mul_div_assoc, div_self (by positivity)]; norm_num
-    have h3 : witnessβ k ≤ 9 := by
+    have h3 : (27 : ℝ) ≤ witnessβ k := by
       simp only [witnessβ]
-      calc (3 : ℝ) ^ k ≤ 3 ^ 2 := pow_le_pow_right₀ (by norm_num) hk
-        _ = 9 := by norm_num
+      calc (27 : ℝ) = 3 ^ 3 := by norm_num
+        _ ≤ 3 ^ k := pow_le_pow_right₀ (by norm_num) hk
     rw [e]; linarith
-  have hμ : bgMassAt 3 k₀ k (witnessν k k) = bgMass 3 k (witnessβ k) (witnessν k k) :=
-    bgMassAt_eq_bgMass ⟨fun _ => hβν, fun _ => hk₀⟩
-  exact ⟨_, (isSFFamily_witness m₁ k j ϱ hϱ).toPin hμ hStar rH⟩
+  exact ⟨_, (isSFFamily_witness m₁ k j ϱ hϱ).toXi k₀ (physMass_eq_bgMass_of_lt hβν)⟩
 
 /-- **The source form of the field-dependent member** (`ν_j > 0`): the reparametrized source
 terms, with `C_D = 0` (the terms `ℰ` vanish) and the reference-jet certificate of PIN-I6. -/
@@ -572,7 +602,7 @@ theorem sourceForm_pin_witness {P : Consts} {ν : ℕ → ℝ} {cj : ℕ → ℝ
     (hc0 : ∀ j, 0 ≤ cj j)
     (hc : ∀ j, 20 * cj j ≤ P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (hB : ∀ j G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) (hν : 0 < ν k) (i₀ : Fin N) :
+    (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2) (hν : 0 < ν k) (i₀ : Fin N) :
     SourceForm P ν Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (sourceOf ν (pinTerms d L N₁ m₁ k N ϱ P.κ cj)) i₀ 0 := by
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
@@ -595,6 +625,24 @@ theorem sourceForm_pin_witness {P : Consts} {ν : ℕ → ℝ} {cj : ℕ → ℝ
     refine (refJet_const i₀ _ hr X' 0).mono hr ?_
     rw [norm_zero]
     exact mul_nonneg hE₀ (Real.exp_pos _).le
+
+/-- **`SourceForm` is inhabited** (`d = L = 3`, `N = 2`): the source form of the field-dependent
+member `isSFFamily2_pin_witness` on the pinned domain at `e₀`, on every torus. -/
+theorem sourceForm_witness (m₁ k N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) {α₀ rH : ℝ} (hα : 0 < α₀)
+    (hr1 : rH ≤ 1) :
+    SourceForm (d := 3) (L := 3) (N₁ := N₁) (m₁ := m₁) (k := k) (N := 2) (ϱ := ϱ)
+      (witnessConsts α₀) (witnessν k)
+      (pinFieldDom (Pi.single 0 1) rH (aIdeal 3 k (witnessa k))
+        (physMass 3 k (witnessν k k)) ((witnessConsts α₀).eps 3 3))
+      (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))
+      (sourceOf (witnessν k) (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3))) 0 0 :=
+  sourceForm_pin_witness hα le_rfl (witnessConsts_admissible hα).κ_pos.le
+    (fun j => (witCj_pos j).le) (witness_cj_le α₀) (witness_c9_pos α₀)
+    (fun j _ G Ψ h hd x => by
+      have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))
+          (physMass 3 k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
+      linarith [hp.vn_lt x])
+    (witness_coeff (α₀ := α₀) k).nu_pos 0
 
 end Family
 
