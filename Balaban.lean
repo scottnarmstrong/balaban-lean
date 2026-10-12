@@ -709,6 +709,9 @@ public import Balaban.Observables.LayerV2Inhabited
 public import Balaban.Observables.LayerV2Renorm
 public import Balaban.Observables.LayerV2RenormCompare
 public import Balaban.Observables.LayerV2RenormFirst
+public import Balaban.Observables.LayerV2Dictionary
+public import Balaban.Observables.LayerV2Improved
+public import Balaban.Observables.LayerV2DictionaryInhabited
 public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
@@ -925,6 +928,7 @@ public import Balaban.Fluctuation.InteractionAssemble
 public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionHatF
 public import Balaban.Fluctuation.InteractionHatAssemble
+public import Balaban.Fluctuation.InteractionHatEta
 public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionHatLC
 public import Balaban.Fluctuation.InteractionHatNu
