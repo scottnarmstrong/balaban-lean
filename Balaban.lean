@@ -541,3 +541,6 @@ public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
 public import Balaban.Fluctuation.CovarianceSpectral
 public import Balaban.Fluctuation.Covariance
+public import Balaban.LargeField.Base.ChordQuadratic
+public import Balaban.LargeField.Base.ConeVolume
+public import Balaban.LargeField.Base.SphereChart
