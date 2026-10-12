@@ -39,7 +39,7 @@ noncomputable abbrev T : ℕ := RadiiHist.Tstar S0
 /-- A side factor with `4 ρ_j + 21 ≤ n_j` (ripeness) and `4 ν_max(j) (crit_j + ω_j) + 4 ≤ n_j`
 (the premise `hT` of the collar bound), `1 ≤ j ≤ T`. -/
 noncomputable def N1 : ℕ :=
-  RadiiHist.bigN S0 + ∑ j ∈ Finset.range (T + 1), (4 * S0.numax j * (S0.crit j + S0.omega j) + 4)
+  RadiiHist.bigN S0 + ∑ j ∈ Finset.range (T + 1), (4 * S0.numax j * (S0.crit j + S0.omega j) + 4 + (S0.crit j + 2))
 
 instance : NeZero N1 := ⟨by have := (inferInstance : NeZero (RadiiHist.bigN S0)).out; unfold N1; omega⟩
 
@@ -58,7 +58,18 @@ theorem hT0 : ∀ j, 1 ≤ j → j ≤ T →
     4 * S0.numax j * (S0.crit j + S0.omega j) + 4 ≤ n0 j := by
   intro j _ hj
   have hk' : j ∈ Finset.range (T + 1) := Finset.mem_range.mpr (by omega)
-  have h1 := Finset.single_le_sum (f := fun j => 4 * S0.numax j * (S0.crit j + S0.omega j) + 4)
+  have h1 := Finset.single_le_sum
+    (f := fun j => 4 * S0.numax j * (S0.crit j + S0.omega j) + 4 + (S0.crit j + 2))
+    (fun _ _ => Nat.zero_le _) hk'
+  have := N1_le_side j
+  unfold N1 at this
+  omega
+
+theorem crit_le0 : ∀ j, 1 ≤ j → j ≤ T → S0.crit j + 2 ≤ n0 j := by
+  intro j _ hj
+  have hk' : j ∈ Finset.range (T + 1) := Finset.mem_range.mpr (by omega)
+  have h1 := Finset.single_le_sum
+    (f := fun j => 4 * S0.numax j * (S0.crit j + S0.omega j) + 4 + (S0.crit j + 2))
     (fun _ _ => Nat.zero_le _) hk'
   have := N1_le_side j
   unfold N1 at this
