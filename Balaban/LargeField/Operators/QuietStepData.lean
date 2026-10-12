@@ -79,11 +79,11 @@ structure QuietStepInput (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ
     ∀ o x hv, Rq k (H.localHistory M K (k + 1) Z') o x hv =
       quietRest geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
         (locRH_rem (k + 1) Z') o x hv
-  real_euclid : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K),
-    HistImage σ a a' → (QuietRealized R k0 k a ↔ QuietRealized R k0 k a')
-  euclid_K : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
-    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv, QuietRealized R k0 k a →
-    RelOut σ o o' → RelSub hI hk x x' →
+  real_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K),
+    HistImage σ.toTorusSym a a' → (QuietRealized R k0 k a ↔ QuietRealized R k0 k a')
+  euclid_K : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv, QuietRealized R k0 k a →
+    RelOut σ.toTorusSym o o' → RelSub hI hk x x' →
     gaussProd N a' k cs o' x' * Rq k a' o' x' hv = gaussProd N a k cs o x * Rq k a o x hv
   b : ∀ (k : ℕ) (a : LocalHistory S n M K), OutT N R a (k + 1) → NewCfg N a k →
     EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → ℂ
@@ -98,9 +98,9 @@ structure QuietStepInput (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ
       b k a o x hv g = b k a o x hv g'
   b_rot : ∀ k a (ρ : OrthN N) o x hv g, QuietRealized R k0 k a →
     b k a (rotOut ρ o) (rotSub ρ x) (ρ hv) (rotG ρ g) = b k a o x hv g
-  b_euclid : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
-    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
-    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' → b k a' o' x' hv g' = b k a o x hv g
+  b_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
+    RelOut σ.toTorusSym o o' → RelSub hI hk x x' → RelG σ.toTorusSym g g' → b k a' o' x' hv g' = b k a o x hv g
   b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
     1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
     ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
