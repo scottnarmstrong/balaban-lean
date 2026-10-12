@@ -13,12 +13,20 @@ public import Balaban.Localization.DecoupledMain
 
 The definitions of `Decoupled.lean` with the cover (`cubeIdx`, `χ`, `𝒬`, `s_z`) read from a
 `DecCover C` and the operator (`cutOperator`, `Ω₁`, `ℓ`) from a generating set `H`:
-`Kz C H`, `Gstar C H`, `Kcal C H`, `Gs C H`.
+`chiD C H`, `Kz C H`, `Gstar C H`, `Kcal C H`, `Gs C H`.  The cube operators `cubeH H`, `cubeG H`,
+`cD H` of `Decoupled.lean` do not involve the cover (only the box `intBox q` of the centre) and are
+reused.
 
-`CoverBase C H a ν Kc Cx` collects the properties of the pair `(C, H)` that the proofs of
-(DG1)--(DG4) use; it is the interface that the cut-operator estimates (NC), the partition of unity
-and the overlap counts of the cover have to provide.  For `C = H` (`coverOf H`) all of them are
-landed theorems (`coverBase_self`).
+* `OpSetting H a ν`: the hypotheses on the operator alone;
+* `CoverGeom C H a ν Cx`: the properties of the pair `(C, H)` that do not involve (NC3): block
+  alignment of the cubes, partition of unity, the `H`-scaled derivative bound on `χ`, the interior
+  of the cubes, the overlap counts;
+* `CoverBase C H a ν Kc Cx`: `CoverGeom` and the block bounds (NC3) of the cut operators with the
+  constant `Kc`.
+
+These are the interface that the cut-operator estimate (NC), the partition of unity and the overlap
+counts of the cover have to provide for a pair `(C, H)`.  For `C = H` (`coverOf H`) all of them
+are landed theorems (`coverBase_self` in `Decoupled2Self.lean`).
 -/
 
 @[expose] public section
