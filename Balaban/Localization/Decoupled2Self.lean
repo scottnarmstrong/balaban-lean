@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Localization.Decoupled2BackgroundLocal
+public import Balaban.Localization.Decoupled2XAnalytic
 
 /-!
 # The instance `C = H`: the landed decoupled layer is the generalized one
@@ -111,11 +112,9 @@ theorem selfKc_spec {d L : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) {N₁ m
   · exact absurd ⟨hd, hL⟩ h
 
 open Classical in
-/-- **The pair `(coverOf G, G)` satisfies `CoverBase`** with the constants `selfKc d L` and
-`Cchi d L`. -/
-theorem coverBase_self (S : DGSetting G a ν) :
-    CoverBase (coverOf G) G a ν (selfKc d L) (Cchi d L) where
-  nc hα q hq := selfKc_spec S.hd S.hL G S hα hq
+/-- **The pair `(coverOf G, G)` satisfies `CoverGeom`** with the constant `Cchi d L`. -/
+theorem coverGeom_self (S : DGSetting G a ν) :
+    CoverGeom (coverOf G) G a ν (Cchi d L) where
   hd := S.hd
   hL := S.hL
   mass := S.mass
@@ -152,18 +151,35 @@ theorem coverBase_self (S : DGSetting G a ν) :
     exact hf ▸ hcard
   card_qset q hq := card_Qset_le S.aligned S.cover_sep S.hM (by have := S.hL; omega) hq
 
-/-- **The pair `(coverOf G, G)` satisfies `CoverLocal`.** -/
-theorem coverLocal_self (S : DGSetting G a ν) :
-    CoverLocal (coverOf G) G a ν (selfKc d L) (Cchi d L) where
-  toCoverBase := coverBase_self S
+/-- **The pair `(coverOf G, G)` satisfies `CoverBase`** with the constants `selfKc d L` and
+`Cchi d L`. -/
+theorem coverBase_self (S : DGSetting G a ν) :
+    CoverBase (coverOf G) G a ν (selfKc d L) (Cchi d L) where
+  toCoverGeom := coverGeom_self S
+  nc hα _ hq := selfKc_spec S.hd S.hL G S hα hq
+
+/-- **The geometry of the cover of `G` for the locality** (`CoverLocalGeom`). -/
+theorem coverLocalGeom_self (S : DGSetting G a ν) :
+    CoverLocalGeom (coverOf G) G a ν (Cchi d L) where
+  toCoverGeom := coverGeom_self S
   idx_range q hq := ((mem_cubeIdx G).1 hq).1
   idx_base q hq := ((mem_cubeIdx G).1 hq).2.2
-  chi_supp q _ x h := inBox_of_chi_ne_zero h
+  chi_supp _ _ _ h := inBox_of_chi_ne_zero h
   cubeP_sub q hq x hx := cubeP_subset_Ω S hq hx
   own_cover x hx := by
     obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec hx
     exact ⟨_, own_mem_cubeIdx S.aligned hn1 hnK hxl, mem_cubeP.2 (ownBase_sameCell x)⟩
-  row_mem_hat z hz α x hx y h := row_mem_hatBox S hz α hx h
+
+/-- **The pair `(coverOf G, G)` satisfies `CoverLocal`.** -/
+theorem coverLocal_self (S : DGSetting G a ν) :
+    CoverLocal (coverOf G) G a ν (selfKc d L) (Cchi d L) where
+  toCoverBase := coverBase_self S
+  idx_range := (coverLocalGeom_self S).idx_range
+  idx_base := (coverLocalGeom_self S).idx_base
+  chi_supp := (coverLocalGeom_self S).chi_supp
+  cubeP_sub := (coverLocalGeom_self S).cubeP_sub
+  own_cover := (coverLocalGeom_self S).own_cover
+  row_mem_hat _ hz α _ hx _ h := row_mem_hatBox S hz α hx h
 
 /-! ### The landed specifications follow from the generalized ones -/
 
@@ -209,5 +225,59 @@ theorem decSpecs_exists_of_dec2 (hd : 3 ≤ d) (hL : 3 ≤ L) :
   obtain ⟨c, BG, h⟩ := decSpecs_exists (d := d) (L := L) (Kc := selfKc d L) (Cx := Cchi d L) hd hL
     (selfKc_nonneg hd hL) (Cchi_nonneg d L)
   exact ⟨c, BG, decSpecs_of_dec2 h⟩
+
+/-! ### The x-variant at `C = H` -/
+
+section XSelf
+
+variable {k : ℕ} {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT x ν : ℝ}
+
+theorem Kzx_self (a : ℕ → ℝ) (aT x ν : ℝ) (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    Kzx (coverOf G) G a aT x ν q = Balaban.Localization.Kzx G a aT x ν q := rfl
+
+theorem Gstarx_self (a : ℕ → ℝ) (aT x ν : ℝ) (α : G.Ω 1 → ℂ)
+    (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) :
+    Gstarx (coverOf G) G a aT x ν α s = Balaban.Localization.Gstarx G a aT x ν α s := rfl
+
+theorem Kcalx_self (a : ℕ → ℝ) (aT x ν : ℝ) (α : G.Ω 1 → ℂ)
+    (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) :
+    Kcalx (coverOf G) G a aT x ν α s = Balaban.Localization.Kcalx G a aT x ν α s := rfl
+
+/-- **`Gsx (coverOf G) G = Gsx G`**: the x-variant decoupled Green's operator of the cover of `G`
+and the operator of `G` is the landed one. -/
+theorem Gsx_self (a : ℕ → ℝ) (aT x ν : ℝ) (α : G.Ω 1 → ℂ)
+    (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) :
+    Gsx (coverOf G) G a aT x ν α s = Balaban.Localization.Gsx G a aT x ν α s := rfl
+
+theorem cstarX_self (d L : ℕ) : cstarX d L (Cchi d L) = Balaban.Localization.cstarX d L := rfl
+
+/-- **The pair `(coverOf G, G)` satisfies `XCover`.** -/
+theorem xCover_self (S : XSetting G a aT ν) : XCover (coverOf G) G a aT ν (Cchi d L) where
+  toCoverGeom := coverGeom_self S.dg
+  hk := S.hk
+  haT1 := S.haT1
+  haT2 := S.haT2
+
+/-- **The pair `(coverOf G, G)` satisfies `XCoverLocal`.** -/
+theorem xCoverLocal_self (S : XSetting G a aT ν) :
+    XCoverLocal (coverOf G) G a aT ν (Cchi d L) where
+  toXCover := xCover_self S
+  idx_range := (coverLocalGeom_self S.dg).idx_range
+  idx_base := (coverLocalGeom_self S.dg).idx_base
+  chi_supp := (coverLocalGeom_self S.dg).chi_supp
+  cubeP_sub := (coverLocalGeom_self S.dg).cubeP_sub
+  own_cover := (coverLocalGeom_self S.dg).own_cover
+
+/-- The landed (DG1) for the x-variant, from the generalized one at `C = H`. -/
+theorem dg1x_of_dec2 {α : G.Ω 1 → ℂ} (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x) {κ : ℝ}
+    (hκ : 0 ≤ κ) (hMκ : Balaban.Localization.cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    {r : CTorus d L N₁ m₁ (k + 1) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (f : G.Ω 1 → ℂ) :
+    agmonSource G ε r (Balaban.Localization.Kcalx G a aT x ν α s *ᵥ f) ≤
+      (1 / 16) * agmonSource G ε r f :=
+  dg1x (xCover_self S) (Cchi_nonneg d L) hα hx hκ hMκ hs hr hε0 hε1 f
+
+end XSelf
 
 end Balaban.Localization.Dec2
