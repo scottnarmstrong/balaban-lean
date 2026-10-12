@@ -16,9 +16,9 @@ import Mathlib.Tactic.Ring
 
 If every centre `z` with `s_z ≠ 1` has its interaction cube inside a set `W` then
 `G_{k,x,s}(A) f - H_{k,x}(A)⁻¹ f` decays away from `W`, in the weighted `L²` form with the weight
-`e^{ε r}`, `r` the (truncated) path distance to `W` (`truncSetDist`), and an unweighted source:
+`e^{ε r}`, `r` the (truncated) path distance to `W` (`truncSetDistR`), and an unweighted source:
 
-* `truncSetDist`, `isAgmonWeight_truncSetDist`: the weight exponent;
+* `truncSetDistR`, `isAgmonWeight_truncSetDistR`: the weight exponent;
 * `Gsx_sub_Gd`: `(G_s - G_D) f = (G*_s - G*_1) g + G_D (𝒦_s - 𝒦_1) g`, `g = (1 - 𝒦_s)⁻¹ f`;
 * `Gsx_one`: `G_{k,x,1} = H_{k,x}⁻¹` (the identification at `s ≡ 1`);
 * `XData.dg6`: `‖ℓ⁻¹ e^{ε r}(G_s - G_D) f‖² ≤ B e^{2 N₀ κ} ‖ℓ f‖²`.
@@ -35,15 +35,15 @@ variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 section Weight
 
 /-- The path distance to a set of sites, truncated at `T`, as a real number. -/
-noncomputable def truncSetDist {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+noncomputable def truncSetDistR {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     (W : Finset (CTorus d L N₁ m₁ K)) (T : ℝ) (y : CTorus d L N₁ m₁ K) : ℝ :=
   (min (siteSetDist G W y) (ENNReal.ofReal T)).toReal
 
-theorem abs_truncSetDist_sub_le {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+theorem abs_truncSetDistR_sub_le {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     (W : Finset (CTorus d L N₁ m₁ K)) (T : ℝ) {y y' : CTorus d L N₁ m₁ K} {c : ℝ} (hc : 0 ≤ c)
     (h1 : siteSetDist G W y ≤ ENNReal.ofReal c + siteSetDist G W y')
     (h2 : siteSetDist G W y' ≤ ENNReal.ofReal c + siteSetDist G W y) :
-    |truncSetDist G W T y - truncSetDist G W T y'| ≤ c := by
+    |truncSetDistR G W T y - truncSetDistR G W T y'| ≤ c := by
   have key : ∀ a b : ENNReal, a ≤ ENNReal.ofReal c + b →
       min a (ENNReal.ofReal T) ≤ ENNReal.ofReal c + min b (ENNReal.ofReal T) := by
     intro a b hab
@@ -52,11 +52,11 @@ theorem abs_truncSetDist_sub_le {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m�
     · rw [min_eq_right hb]; exact (min_le_right _ _).trans le_add_self
   exact abs_toReal_sub_le hc (key _ _ h1) (key _ _ h2)
 
-theorem isAgmonWeight_truncSetDist {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
-    (W : Finset (CTorus d L N₁ m₁ K)) (T : ℝ) : IsAgmonWeight G (truncSetDist G W T) where
+theorem isAgmonWeight_truncSetDistR {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+    (W : Finset (CTorus d L N₁ m₁ K)) (T : ℝ) : IsAgmonWeight G (truncSetDistR G W T) where
   bond := by
     intro y y' hy hy' hadj
-    refine abs_truncSetDist_sub_le G W T (G.bondCost_nonneg y y') ?_ ?_
+    refine abs_truncSetDistR_sub_le G W T (G.bondCost_nonneg y y') ?_ ?_
     · exact (setDist_triangle W y y').trans (by
         gcongr; exact G.pathDist_le_bondCost hy hy' hadj)
     · refine (setDist_triangle W y' y).trans (by
@@ -68,14 +68,14 @@ theorem isAgmonWeight_truncSetDist {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ 
     have h1 := G.pathDist_block_le hj hjk hy h
     have h2 : G.pathDist y' y ≤ ENNReal.ofReal (2 * d) := by
       rw [GeneratingSet.pathDist_comm]; exact h1
-    refine abs_truncSetDist_sub_le G W T hd ?_ ?_
+    refine abs_truncSetDistR_sub_le G W T hd ?_ ?_
     · exact (setDist_triangle W y y').trans (by gcongr)
     · exact (setDist_triangle W y' y).trans (by gcongr)
 
-theorem truncSetDist_of_mem {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+theorem truncSetDistR_of_mem {K : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     {W : Finset (CTorus d L N₁ m₁ K)} (T : ℝ) {y : CTorus d L N₁ m₁ K} (hy : y ∈ W)
-    (hyΩ : y ∈ G.Ω 1) : truncSetDist G W T y = 0 := by
-  simp [truncSetDist, setDist_of_mem W hy hyΩ]
+    (hyΩ : y ∈ G.Ω 1) : truncSetDistR G W T y = 0 := by
+  simp [truncSetDistR, setDist_of_mem W hy hyΩ]
 
 end Weight
 
@@ -220,11 +220,11 @@ interaction cube inside `W`, then with the weight `e^{ε r}`, `r` the truncated 
 theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) (f : G.Ω 1 → ℂ) :
-    cwsq G (agmonField G ε (truncSetDist G W T)
+    cwsq G (agmonField G ε (truncSetDistR G W T)
         (Gsx G a aT x ν α s *ᵥ f - (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f)) ≤
       closeConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G 0 (fun _ => 0) f := by
   have hd : 0 < d := by have := D.st.dg.hd; omega
-  have hr := isAgmonWeight_truncSetDist G W T
+  have hr := isAgmonWeight_truncSetDistR G W T
   have H0 : XWeight G 0 (fun _ => 0) :=
     ⟨isAgmonWeight_zero G, le_rfl, (xAgmonRate_pos hd D.st.dg.hL).le⟩
   have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
@@ -237,20 +237,20 @@ theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m
   set A := (Gstarx G a aT x ν α s - Gstarx G a aT x ν α (fun _ => 1)) *ᵥ g with hA
   set h := (Kcalx G a aT x ν α s - Kcalx G a aT x ν α (fun _ => 1)) *ᵥ g with hh
   rw [Gsx_sub_Gd D.st D.pot D.x0 D.isUnit_one_sub f]
-  have hsplit : cwsq G (agmonField G ε (truncSetDist G W T)
+  have hsplit : cwsq G (agmonField G ε (truncSetDistR G W T)
       (A + (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)) ≤
-      2 * cwsq G (agmonField G ε (truncSetDist G W T) A) +
-      2 * cwsq G (agmonField G ε (truncSetDist G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)) := by
+      2 * cwsq G (agmonField G ε (truncSetDistR G W T) A) +
+      2 * cwsq G (agmonField G ε (truncSetDistR G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)) := by
     unfold cwsq
     rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
     refine Finset.sum_le_sum fun z _ => ?_
-    have e : agmonField G ε (truncSetDist G W T) (A + (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z =
-        agmonField G ε (truncSetDist G W T) A z +
-          agmonField G ε (truncSetDist G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z := by
+    have e : agmonField G ε (truncSetDistR G W T) (A + (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z =
+        agmonField G ε (truncSetDistR G W T) A z +
+          agmonField G ε (truncSetDistR G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z := by
       unfold agmonField; rw [zeroExt_add']; ring
     rw [e]
-    set p := agmonField G ε (truncSetDist G W T) A z
-    set q := agmonField G ε (truncSetDist G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z
+    set p := agmonField G ε (truncSetDistR G W T) A z
+    set q := agmonField G ε (truncSetDistR G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) z
     have h2 : ‖p + q‖ ^ 2 ≤ 2 * ‖p‖ ^ 2 + 2 * ‖q‖ ^ 2 := by
       have h := norm_add_le p q
       nlinarith [sq_nonneg (‖p‖ - ‖q‖), norm_nonneg p, norm_nonneg q, norm_nonneg (p + q)]
@@ -261,7 +261,7 @@ theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m
   have hg0 := D.neumann_src H0 f
   have hgnn := agmonSource_nonneg G 0 (fun _ => 0) g
   -- the term `A`
-  have hAeq : cwsq G (agmonField G ε (truncSetDist G W T) A) =
+  have hAeq : cwsq G (agmonField G ε (truncSetDistR G W T) A) =
       cwsq G (agmonField G 0 (fun _ => 0) A) := by
     unfold cwsq
     refine Finset.sum_congr rfl fun z _ => ?_
@@ -277,7 +277,7 @@ theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m
         have := Gstarx_diff_zero D.st D.pot D.x0 hW g hn
         rw [hA, Matrix.sub_mulVec, zeroExt_sub']
         exact this
-      rw [truncSetDist_of_mem G T hzW hzΩ]
+      rw [truncSetDistR_of_mem G T hzW hzΩ]
       simp
   have hAbd : cwsq G (agmonField G 0 (fun _ => 0) A) ≤
       2 * (256 * (3 * 5 ^ d : ℝ) ^ 2 * Real.exp (N0 d L * κ) ^ 2 * agmonSource G 0 (fun _ => 0) g) +
@@ -295,12 +295,12 @@ theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m
     intro z hz
     by_contra hn
     exact hz (Kcalx_diff_zero D.st hW g hn)
-  have hSrc : agmonSource G ε (truncSetDist G W T) h = agmonSource G 0 (fun _ => 0) h := by
+  have hSrc : agmonSource G ε (truncSetDistR G W T) h = agmonSource G 0 (fun _ => 0) h := by
     simp only [agmonSource_eq]
     refine Finset.sum_congr rfl fun z _ => ?_
     by_cases hz : h z = 0
     · rw [hz]; simp
-    · rw [truncSetDist_of_mem G T (hh_supp z hz) z.2]; simp
+    · rw [truncSetDistR_of_mem G T (hh_supp z hz) z.2]; simp
   have hhK : agmonSource G 0 (fun _ => 0) h ≤ (1 / 4) * agmonSource G 0 (fun _ => 0) g := by
     rw [hh, Matrix.sub_mulVec]
     have := agmonSource_sub_le G 0 (fun _ => 0) (Kcalx G a aT x ν α s *ᵥ g)
@@ -315,7 +315,7 @@ theorem XData.dg6 (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m
   simp only [mul_zero, Real.exp_zero, one_pow, mul_one] at hAbd
   have hS0 := agmonSource_nonneg G 0 (fun _ => 0) f
   have key : 2 * cwsq G (agmonField G 0 (fun _ => 0) A) +
-      2 * cwsq G (agmonField G ε (truncSetDist G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)) ≤
+      2 * cwsq G (agmonField G ε (truncSetDistR G W T) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)) ≤
       (1024 * (3 * 5 ^ d : ℝ) ^ 2 * (Real.exp (N0 d L * κ) ^ 2 + 1) + 128) *
         agmonSource G 0 (fun _ => 0) g := by
     have := mul_le_mul_of_nonneg_left hhK (by norm_num : (0 : ℝ) ≤ 256)
