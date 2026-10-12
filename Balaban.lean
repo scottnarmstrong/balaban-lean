@@ -759,6 +759,8 @@ public import Balaban.LargeField.R.PsiZeroTube
 public import Balaban.LargeField.R.PsiZeroWindowBlock
 public import Balaban.LargeField.R.PsiZeroWindowBox
 public import Balaban.LargeField.R.PsiZeroWindowGeom
+public import Balaban.LargeField.R.PsiZeroWindowRipe
+public import Balaban.LargeField.R.PsiZeroWindowSpec
 public import Balaban.LargeField.R.ZeroDomainBox
 public import Balaban.LargeField.R.ZeroDomain
 public import Balaban.LargeField.R.HullUnion
