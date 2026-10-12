@@ -20,7 +20,13 @@ import Mathlib.Tactic.Linarith
 * `Rep.budget_of_LF2`, `Rep.budgetPre_of_LF2`, `Rep.budgetFlat_of_LF2`: LF-2 (i), (ii) give
   (D6), (H6′)^pre and (H6♭) for a representation (the source's (D6) is LF-2's conclusion,
   §II.6.4).
-* `Rep.tau_le_Gpost`: Lemma II.6.3 (c), first inequality: under (D6), `G_k(Z) ≥ τ_{k+1}`.
+* `Rep.tau_le_Gpost`, `Rep.p2_le_Gpost`, `Rep.p2_le_Gpost_flat`: Lemma II.6.3 (c): under (D6),
+  `G_k(Z) ≥ τ_{k+1} ≥ 2 p₂(β_k)`; under (H6♭), `G_k(Z) ≥ p₂(β_{k₀})`.
+* `Rep.budgetFlat_of_budget`, `IsRep.toFlat`: Lemma IV.2.1 (transfer): `IsRep_{k₀}` implies
+  `IsRep^♭_{k₀}` for the same representation.
+Lemma II.6.3 (a) ("(D4) implies (D5)") is `Rep.opBound_of_data` (`Def7Counts`).  Lemma II.6.3 (b)
+(the sum over the localized histories with labels) is not formalized: the landed Lemma II.5.15
+(`sum_inv_logC_le_one`) sums over unlabelled localized histories without the kept decorations.
 -/
 
 @[expose] public section
@@ -257,6 +263,64 @@ theorem Rep.p2_le_Gpost_flat (G : S.Good) {khat : ℕ} (h : D6Flat khat rep) {β
   have : 0 ≤ 2 * S.sigma k * (A.H.bk k c.1).len := by positivity
   linarith
 
+/-- **(H6′) at `k₀` implies (H6♭) at `k₀`** for a representation (the transfer of Part I §I.5.6,
+(B.20), (Λ11); Lemma IV.2.1). -/
+theorem Rep.budgetFlat_of_budget (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
+    (hpin : D4Pin top rep) (hKtop : K ≤ top) (hkt : k < top) (hk : k = k0) {khat : ℕ}
+    (hk0 : k0 ≤ khat) (hH1 : (khat : ℝ) - k0 < S.lam k0)
+    (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) (h : D6Budget rep) : D6Flat khat rep := by
+  subst hk
+  intro A hA c
+  have hpost : ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok).PostH6 k c.1 := by
+    have hG : ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok).G k c.1 =
+        rep.Gpost A k c.1 := rep.gtrunc_of_lt A c.1 hkt
+    obtain ⟨h1, h2⟩ := h A hA c
+    refine ⟨h1, ?_⟩
+    rw [hG]
+    exact h2
+  have h := G.transfer ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok) hk0 hH1 hH2 c.1
+    hpost
+  have hG : ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok).G k c.1 =
+      rep.Gpost A k c.1 := rep.gtrunc_of_lt A c.1 hkt
+  unfold CounterHist.H6flat at h
+  rw [hG] at h
+  exact h
+
 end LF2
+
+section Transfer
+
+variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] {N : ℕ}
+  {geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M} {cs : OpConsts} {P : BudgetConsts}
+  {P6 : SmallField.Def6.Consts} {C7 : Consts7} {β ν : ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+  {k : ℕ} {ϱ : ℝ} {hM6 : M = S.L ^ (P6.m₀ + C7.m₁)} {hkK : k ≤ K}
+
+/-- **Lemma IV.2.1 (transfer): `IsRep_{k₀}` implies `IsRep^♭_{k₀}`** for the same representation
+(the window states are derived data, discarded by `(T7)`): the clauses (D1), (D3)-(D5), (D7), (D8)
+are the same, (D2) ⇒ (D2♭), (D9) ⇒ (D9♭), and (D6) ⇒ (H6♭) by the transfer of Part I §I.5.6,
+under the conditions of LF-2 (`S.Good`, Lemma B), a horizon `K ≤ k₀ + 1`, and the horizon
+conditions of LF-2 for `k̂_f = khat`. -/
+theorem IsRep.toFlat {F : RepFam S R k0 K M N geo cs P k C7.m₁ ϱ}
+    {ρ : ∀ (nK : ℕ) [NeZero nK], (BlockAt S (sides S.L K nK) M K k → EuclideanSpace ℝ (Fin N)) →
+      (GIdx S (sides S.L K nK) M K N → ℂ) → ℂ}
+    (h : IsRep S R k0 K M N geo cs P P6 C7 β ν hv k hM6 hkK F ρ) (hk : k = k0) (G : S.Good)
+    (B : BudgetSetup S P) (hK : K ≤ k + 1) {khat : ℕ} (hk0 : k0 ≤ khat)
+    (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) :
+    IsRepFlat S R k0 K M N geo cs P P6 C7 β ν hv k khat hM6 hkK F ρ where
+  range := hk.ge
+  coh := h.coh
+  field := h.field
+  complete := h.complete
+  form := h.form
+  sfData := h.sfData.toFlat
+  pin := h.pin
+  opBound := h.opBound
+  budget := fun nK _ => (F.lf nK).budgetFlat_of_budget G B (h.pin nK) hK (Nat.lt_succ_self k) hk
+    hk0 hH1 hH2 (h.budget nK)
+  bdry := h.bdry
+  coherent := h.coherent
+  coeff := h.coeff.toFlat (by obtain ⟨_, hF⟩ := h.sfData.sfClass; exact hF.admissible)
+
+end Transfer
 
 end Balaban.LargeField.Def7
