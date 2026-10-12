@@ -15,12 +15,24 @@ import Mathlib.Tactic.Positivity
 /-!
 # The objects of one small-field RG step at `λ = ∞` (FLUCTUATION.md §2.1-§2.6)
 
-Part A, the class composites on the step torus.  The class of Def-6 (`Ecomp`, `Fcomp`) is stated for
-the torus index equal to the top level.  In the step `k → k+1` the old spin `ψ_k` is a field of level
-`k` on the fine torus `CTorus d L N₁ m₁ (k+1)` (the torus on which the new level `k+1` lives, §1.1),
-so the composites are re-stated for a top level `k ≤ K` on the torus of index `K`
-(`composedDataAt`, `EcompAt`, `FcompAt`, `McompAt`); for `K = k` they are the composites of Def-6
-(`EcompAt_top`, `FcompAt_top`).
+Whole-lattice step `k → k+1`, complete convention (the `ν`-free convention is the same objects at
+`ν = 0`, `bgMass = 0` of Def-6, the mass term of the action entering through `ℰ_k`).  Units: the
+Background action in fine units (`β` multiplies it); the old spin `ψ` lives on the unit lattice
+`T^{(k)}_1 = unitPts G'` and is lifted to the fine torus `CTorus d L N₁ m₁ (k+1)`
+(`liftU`); the paper's `β_k` is `betaU = β L^{k(d-2)}`.
+
+* Part A (`composedDataAt`, `EcompAt`, `McompAt`, `FcompAt`): the class composites `ℰ_k`, `ℳ_k`,
+  `ℱ_k` of Def-6 for the top level `k` on the torus of index `K ≥ k` (the step torus has index
+  `k + 1`; for `K = k` they are `Ecomp`, `Fcomp`, `EcompAt_top`, `FcompAt_top`);
+* `StepSetting`, `StepClass`: the data `θ`, `h`, `a`, `ν`, `β`, `p₁`, `δ` and the class terms;
+* `psiKd` (`ψ^{(k)}(θ)`), `covSqrt`, `covA`, `K` (`C^{(k)1/2}`), `psi0`, `shiftU`
+  (`ψ' = β_k^{-1/2} C^{(k)1/2} ψ̂`), `psiAt`, `dataU`;
+* `Aold`, `Anew`, `tKernel` (the kernel `∏ t_k`), `rhoStep` (`ρ_k`, (H.1)), `chiK`
+  (`χ^{(k)} = χ_{(2.2)} χ_fl`), `Tstep` (`T^{(k)} χ^{(k)} ρ_k`);
+* `Vk` (`V^{(k)}`), `dE`, `dF` (`δℰ_k`, `δℱ_k`), `Wone`, `Wtwo` (the exponents of `μ_{s,t}`),
+  `nuFl` (`ν_{p₁}`), `Zst` (`Z_{s,t}`), `muSt` (`μ_{s,t}`);
+* `E1`, `E0`, `F0`, `M0`, `Ep`, `Epp`, `Eppp` (`ℰ₁`, `ℰ₀`, `ℱ₀`, `ℳ₀`, the vacuum constants
+  `E'_k`, `E''_k`, `E'''_k`), and the localized forms `E1loc`, `E0loc` (P4 (2.56)-(2.60)).
 -/
 
 @[expose] public section
@@ -426,7 +438,10 @@ noncomputable def M0 (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁
       (fun x => deriv (fun r => McompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
         (S.dataU (S.psiAt r x)) g y i) t) 1 t
 
-/-- `E'_k = E_k - ½ N L^{-d} log (c/2π)` (normalisation of `t_k`; Definition 2.1). -/
+/-- `E'_k = E_k - ½ N L^{-d} log (c/2π)` (normalisation of `t_k`; Definition 2.1).  Here `c` is the
+Gaussian coefficient of `t_k` of Definition 2.1, `β_k a L^{d-2}` in the paper's units; the printed
+formula of (2.6) has `β_k a L^{-2}`, which differs from it by a vacuum constant only (as the text
+of (2.6) itself remarks), and we follow Definition 2.1. -/
 noncomputable def Ep : ℝ :=
   C.Ek - (N : ℝ) / 2 * ((L : ℝ) ^ d)⁻¹ * Real.log (S.cKernel / (2 * Real.pi))
 

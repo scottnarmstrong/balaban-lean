@@ -14,11 +14,16 @@ import Mathlib.Tactic.Positivity
 
 The interpolation identity needs the exponents `W₁(s, ψ̂) = -β V^{(k)}(s ψ') + δℰ_k(s ψ')`,
 `W₂(t, ψ̂) = δℱ_k(t ψ', g)` to be `C¹` in the parameter, bounded with their derivatives, on the
-support of `ν_{p₁}`.  For the interaction `V^{(k)}` this is derived here: `V^{(k)}` is a polynomial in
-the tangent `ψ'` and the field `φ' = φ_k(ψ) - φ_{k+1}`, and the background field is the restriction
-of the analytic function of the raw data of Theorem 7.2.  The only input is the margin
-`p₁ < p⁺` in the two conditions "`β` large" (P4 (2.40), the radius of Lemma 2.3 (d)), which makes
-the data of the point `s ψ'` lie in the domain also for `|s| ≤ 1 + ε`.
+support of `ν_{p₁}`.  For the interaction `V^{(k)}` this is derived here (`isC1Family_WVT`):
+`V^{(k)}` is a polynomial in the tangent `ψ'` and the field `φ' = φ_k(ψ) - φ_{k+1}`, and the
+background field is the restriction of the analytic function of the raw data of Theorem 7.2
+(`contDiffAt_Vjoint`).  The margin `p₁ < p⁺` in the two conditions "`β` large" (P4 (2.40), the
+radius of Lemma 2.3 (d)) puts the data of `s ψ'` in the domain also for `|s| ≤ 1 + ε`.
+
+The analytic input on the class is the single structure `ClassRegular`: the exponents `δℰ_k`,
+`δℱ_k` (the composites of the analytic terms, (H.2), (H.7)) are `C¹` along the ray.  Public
+theorems: `prop26_complex_class` (with `StepNonvanishing`), `prop26_real_class` (real data),
+`stepNonvanishing_of_real`, `integral_muSt` (the measures `μ_{s,t}`), `halfLogDetC_eq_trace`.
 -/
 
 @[expose] public section

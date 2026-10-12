@@ -13,8 +13,16 @@ import Mathlib.Tactic.Ring
 /-!
 # Proposition 2.6 for the actual step objects (FLUCTUATION.md §2.6, whole lattice, `λ = ∞`)
 
-Basic facts on the step objects of `StepObjects`: the datum of a real old spin on the unit lattice,
-the background `ψ^{(k)}(θ)` and the substitution (2.7).
+* `fluctPsi_eq`, `chi_absorb`, `chiXi_eq_one`, `dataU_inDomainR`: the landed Lemma 2.5 on the ray;
+* `Jbg_expansion`: the exact expansion (Lemma 2.3 (b)) at the path point `s = 1`,
+  `J_k = A^η_{k+1} + ‖ψ̂‖²/(2β) + V^{(k)}`, using `quad_identity` (the identification of the quadratic
+  part with `½ β ⟨ψ', 𝒜 ψ'⟩`, `StepIdentityQuad`) and the facts on `C^{(k)1/2}`
+  (`covSqrt_T_mul`: `C^{1/2} 𝒜 C^{1/2} = 1`; `abs_det_K`: `|det C^{1/2}| = exp (½ log det C)`);
+* `integrand_eq`: `t_k χ^{(k)} ρ_k (ψ^{(k)} + ψ') = P χ_fl e^{-‖ψ̂‖²/2} e^{W₁(1) + W₂(1)}`;
+* `const_identity`: the vacuum constants;
+* `prop26_complex`: (2.6)-(2.9) for the exponents `C¹` along the ray (`StepRegular`) with
+  `Z_{s,0}, Z_{1,t} ≠ 0` (`StepNonvanishing`); `prop26_real`: for real data the nonvanishing is
+  automatic (`Zst_real_pos`).
 -/
 
 @[expose] public section
