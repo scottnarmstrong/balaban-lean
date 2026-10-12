@@ -1151,3 +1151,9 @@ public import Balaban.Fluctuation.StepActivityWitnessMain
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
+public import Balaban.Fluctuation.StepComplex
+public import Balaban.Fluctuation.StepComplexAgree
+public import Balaban.Fluctuation.StepComplexHat
+public import Balaban.Fluctuation.StepComplexNonvanish
+public import Balaban.Fluctuation.StepComplexAnalytic
+public import Balaban.Fluctuation.StepComplexExponent
