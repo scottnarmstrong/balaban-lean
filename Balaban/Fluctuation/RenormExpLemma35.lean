@@ -285,21 +285,21 @@ theorem strictData_of_prop51Hyp {α₀ : G.Ω 1 → ℂ} {φ₀ δΨ : Torus d (
   · exact (H.smooth.lap x x.2).trans_lt (div_lt_div_of_pos_right h0 (by have := hsp x; positivity))
 
 /-- **The `Ξ`-domain instantiation of Proposition 5.1** (FLUCTUATION.md §3.6, Lemma 3.5 (ii)),
-for a bound `c_m` on the mass factor `ν ℓ² |h - φ|`: the data
+for a bound `c_m` on the mass factor `ν ℓ² |h - φ|` and the scale `ε_ζ` of `ζ = ε_ζ ξ₁`: the data
 `(φ̄, α + (ν_u - ν), ζ ψ, (ν_u - ν)(h - φ))` satisfy (P1)–(P4) with
-`δ₀ = K₁ C₁ ε + 3 |ξ|_∞`, `δ₁ = ((3/2) ε + (32/15) c_m) |ξ|_∞`, and `|φ̄| < 3/2` on `Ω₁`. -/
+`δ₀ = K₁ C₁ ε + 3 |ξ|_∞`, `δ₁ = ((3/2) ε_ζ + (32/15) c_m) |ξ|_∞`, and `|φ̄| < 3/2` on `Ω₁`. -/
 theorem prop51Hyp_xi_aux (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
     (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
-    {D : BgData G N} (hD : XiCOne G a ν ε D) {cm : ℝ} (hcm : 0 ≤ cm)
+    {D : BgData G N} (hD : XiCOne G a ν ε D) {εζ cm : ℝ} (hεζ : 0 ≤ εζ) (hcm : 0 ≤ cm)
     (hm : ∀ x : G.Ω 1, ν * G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
       vn (fun i => D.h x i - bgFieldC G a ν (bgC0 d L N) D (x, i)) ≤ cm)
     {ξ : Fin 3 → ℂ} (hξ : ‖ξ‖ ≤ 1 / 16)
     (hK : bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖ ≤ deltaStar d L N)
-    (hζ : (3 / 2 * ε + 32 / 15 * cm) * ‖ξ‖ ≤ deltaStar d L N) :
+    (hζ : (3 / 2 * εζ + 32 / 15 * cm) * ‖ξ‖ ≤ deltaStar d L N) :
     Prop51Hyp G a ν (bgMultC G a ν (bgC0 d L N) D + fun _ => renMassU ν ξ - ν)
-      (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta ε ξ * D.Ψ x i)
+      (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta εζ ξ * D.Ψ x i)
       (renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D))
-      (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) ((3 / 2 * ε + 32 / 15 * cm) * ‖ξ‖) ∧
+      (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) ((3 / 2 * εζ + 32 / 15 * cm) * ‖ξ‖) ∧
     ∀ x ∈ G.Ω 1, vn (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D) x) < 3 / 2 := by
   have hd0 : 0 < d := by have := H.hd; omega
   set δ := xiC1 d * ε with hδdef
@@ -313,16 +313,16 @@ theorem prop51Hyp_xi_aux (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
   have hK' : bgK1 d L N * δ ≤ deltaStar d L N := le_trans (by linarith) hK
   set φc := bgFieldC G a ν (bgC0 d L N) D
   set α := bgMultC G a ν (bgC0 d L N) D
-  set δ₁ := (3 / 2 * ε + 32 / 15 * cm) * ‖ξ‖ with hδ₁def
+  set δ₁ := (3 / 2 * εζ + 32 / 15 * cm) * ‖ξ‖ with hδ₁def
   have hδ₁0 : 0 ≤ δ₁ := by positivity
   have hvΨ : ∀ x ∈ dataSites G, vn (D.Ψ x) ≤ 1 + 3 * δ := fun x hx =>
     (W.vn_le hδ0 hx).trans (by linarith)
-  have hdΨ : ∀ x ∈ dataSites G, vn (fun i => renZeta ε ξ * D.Ψ x i) ≤ δ₁ := by
+  have hdΨ : ∀ x ∈ dataSites G, vn (fun i => renZeta εζ ξ * D.Ψ x i) ≤ δ₁ := by
     intro x hx
     rw [vn_smul_complex]
-    have hz := norm_renZeta_le hε.le ξ
+    have hz := norm_renZeta_le hεζ ξ
     have h32 : vn (D.Ψ x) ≤ 3 / 2 := (hvΨ x hx).trans (by linarith)
-    calc ‖renZeta ε ξ‖ * vn (D.Ψ x) ≤ (ε * ‖ξ‖) * (3 / 2) :=
+    calc ‖renZeta εζ ξ‖ * vn (D.Ψ x) ≤ (εζ * ‖ξ‖) * (3 / 2) :=
           mul_le_mul hz h32 (vn_nonneg _) (by positivity)
       _ ≤ δ₁ := by
           rw [hδ₁def]
@@ -392,7 +392,7 @@ theorem prop51Hyp_xi_aux (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
       _ ≤ 32 / 15 * ‖ξ‖ * cm := mul_le_mul_of_nonneg_left hm' (by positivity)
       _ ≤ δ₁ := by
           rw [hδ₁def]
-          have : 0 ≤ 3 / 2 * ε * ‖ξ‖ := by positivity
+          have : 0 ≤ 3 / 2 * εζ * ‖ξ‖ := by positivity
           nlinarith
 
 /-- **The `Ξ_{k+1}`-domain instantiation of Proposition 5.1, complete convention**
@@ -410,7 +410,7 @@ theorem prop51Hyp_xi (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
       (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (8 * ε * ‖ξ‖) := by
   have hξ0 := norm_nonneg ξ
   have hle : (3 / 2 * ε + 32 / 15 * (3 * ε)) * ‖ξ‖ ≤ 8 * ε * ‖ξ‖ := by nlinarith
-  have hP := (prop51Hyp_xi_aux H hε hsm hc1 hD (by linarith) (hD.mass_le H) hξ hK
+  have hP := (prop51Hyp_xi_aux H hε hsm hc1 hD hε.le (by linarith) (hD.mass_le H) hξ hK
     (hle.trans hζ)).1
   exact { hP with
     δ₁_nn := by positivity
@@ -431,7 +431,7 @@ theorem prop51Hyp_xi_nuFree (H : BgHyp d L k ϱ a 0) (hε : 0 < ε)
       (fun x i => renZeta ε ξ * D.Ψ x i) 0
       (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (3 / 2 * ε * ‖ξ‖) := by
   have e : (3 / 2 * ε + 32 / 15 * (0 : ℝ)) * ‖ξ‖ = 3 / 2 * ε * ‖ξ‖ := by ring
-  have hP := (prop51Hyp_xi_aux H hε hsm hc1 hD le_rfl (fun x => by simp) hξ hK
+  have hP := (prop51Hyp_xi_aux H hε hsm hc1 hD hε.le le_rfl (fun x => by simp) hξ hK
     (by rw [e]; exact hζ)).1
   rw [e] at hP
   have eα : (bgMultC G a 0 (bgC0 d L N) D + fun _ => renMassU 0 ξ - ((0 : ℝ) : ℂ)) =
@@ -503,54 +503,54 @@ variable (G)
 
 /-- **The solution map of Lemma 3.5 (ii)** and its properties: `F ((Ψ, h̃), ξ) = (δφ, δα)` is
 complex-analytic jointly in `(Ψ, h̃, ξ)` on `Ξ^c_k(𝔹; 1, ε) × {|ξ|_∞ < r}`, solves the perturbed
-system with base `(φ̄, α) = (bgFieldC, bgMultC)` of `(Ψ, h̃)`, mass `ν_u`, lifted datum `ζ Ψ` and
-`f₁ = (ν_u - ν)(h̃ - φ)`, is unique in `|δα|₂ ≤ c₆`, and `‖δφ‖_*, |δα|₂ ≤ K₂ B ε |ξ|_∞`. -/
-structure IsRenSol (a : ℕ → ℝ) (ν ε r B : ℝ)
+system with base `(φ̄, α) = (bgFieldC, bgMultC)` of `(Ψ, h̃)`, mass `ν_u`, lifted datum `ζ Ψ`
+(`ζ = ε_ζ ξ₁`; the source has `ε_ζ = ε = ε_{k+1}`) and `f₁ = (ν_u - ν)(h̃ - φ)`, is unique in
+`|δα|₂ ≤ c₆`, and `‖δφ‖_*, |δα|₂ ≤ K₂ B |ξ|_∞`. -/
+structure IsRenSol (a : ℕ → ℝ) (ν εζ ε r B : ℝ)
     (F : RawData d L N₀ k N × (Fin 3 → ℂ) → (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) : Prop where
   analytic : AnalyticOnNhd ℂ F (renDom G a ν ε r)
   solves : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
     IsPerturbedM G a (renMassU ν ξ) (bgMultC G a ν (bgC0 d L N) D)
       (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D))
-      (pertSource G a (fun x i => renZeta ε ξ * D.Ψ x i)
+      (pertSource G a (fun x i => renZeta εζ ξ * D.Ψ x i)
         (renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D)))
       (F ((D.Ψ, D.h), ξ)).1 (F ((D.Ψ, D.h), ξ)).2
   small : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
-    Small G (F ((D.Ψ, D.h), ξ)).2 (cK2 d L N * (B * ε * ‖ξ‖))
+    Small G (F ((D.Ψ, D.h), ξ)).2 (cK2 d L N * (B * ‖ξ‖))
   sup : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
-    SupBounds G (F ((D.Ψ, D.h), ξ)).1 (cK2 d L N * (B * ε * ‖ξ‖))
+    SupBounds G (F ((D.Ψ, D.h), ξ)).1 (cK2 d L N * (B * ‖ξ‖))
   unique : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
     ∀ (δφ' : G.Ω 1 × Fin N → ℂ) (δα' : G.Ω 1 → ℂ),
       IsPerturbedM G a (renMassU ν ξ) (bgMultC G a ν (bgC0 d L N) D)
         (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D))
-        (pertSource G a (fun x i => renZeta ε ξ * D.Ψ x i)
+        (pertSource G a (fun x i => renZeta εζ ξ * D.Ψ x i)
           (renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D))) δφ' δα' →
       Small G δα' (c6 d L N) → δφ' = (F ((D.Ψ, D.h), ξ)).1 ∧ δα' = (F ((D.Ψ, D.h), ξ)).2
 
 variable {G}
 
-/-- The construction of the solution map, for a bound `c_m` on the mass factor and the constant
-`B ≥ 3/2 + (32/15) c_m / ε` (common to both conventions). -/
-theorem exists_isRenSol_aux {a : ℕ → ℝ} {ν ε r : ℝ} (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
-    (hr : r ≤ 1 / 16) (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1)
+/-- The construction of the solution map, for a bound `c_m` on the mass factor, the scale `ε_ζ`
+of `ζ`, and a constant `B ≥ (3/2) ε_ζ + (32/15) c_m` (common to both conventions). -/
+theorem exists_isRenSol_aux {a : ℕ → ℝ} {ν εζ ε r : ℝ} (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
+    (hεζ : 0 ≤ εζ) (hr : r ≤ 1 / 16) (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1)
     (hc1 : xiC1 d * ε ≤ bgC1 d L N) {cm B : ℝ} (hcm : 0 ≤ cm)
     (hm : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ x : G.Ω 1,
       ν * G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
         vn (fun i => D.h x i - bgFieldC G a ν (bgC0 d L N) D (x, i)) ≤ cm)
-    (hB : 3 / 2 * ε + 32 / 15 * cm ≤ B * ε)
+    (hB : 3 / 2 * εζ + 32 / 15 * cm ≤ B) (hB0 : 0 < B)
     (hK : bgK1 d L N * (xiC1 d * ε) + 3 * r ≤ deltaStar d L N)
-    (hζ : B * ε * r ≤ deltaStar d L N) :
-    ∃ F, IsRenSol (N := N) G a ν ε r B F := by
+    (hζ : B * r ≤ deltaStar d L N) :
+    ∃ F, IsRenSol (N := N) G a ν εζ ε r B F := by
   have hd0 : 0 < d := by have := H.hd; omega
   obtain ⟨Fbg, hFan, hFeq⟩ := theorem72_analytic (G := G) (a := a) (ν := ν) (N := N) H
   have hδs := deltaStar_pos d L N hd0
   obtain ⟨sol, hsan, hsol⟩ := prop51_mass_analytic (N := N) hd0 (H.green (G := G)) hδs.le hδs.le
     le_rfl le_rfl
-  have hBε : 0 < B * ε := lt_of_lt_of_le (by positivity) hB
   -- the data at a point of the domain
   have hR : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ,
-      renRaw G ν ε Fbg ((D.Ψ, D.h), ξ) =
+      renRaw G ν εζ Fbg ((D.Ψ, D.h), ξ) =
         ((barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D), bgMultC G a ν (bgC0 d L N) D,
-          fun x i => renZeta ε ξ * D.Ψ x i, renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D)),
+          fun x i => renZeta εζ ξ * D.Ψ x i, renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D)),
           renMassU ν ξ) := by
     intro D hD ξ
     have hDU := (hD.bg H hsm hε hc1).1
@@ -558,24 +558,24 @@ theorem exists_isRenSol_aux {a : ℕ → ℝ} {ν ε r : ℝ} (H : BgHyp d L k �
   -- the hypotheses of Proposition 5.1 at a point, with the point bound
   have hyp : ∀ D : BgData G N, XiCOne G a ν ε D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
       Prop51Hyp G a ν (bgMultC G a ν (bgC0 d L N) D + fun _ => renMassU ν ξ - ν)
-        (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta ε ξ * D.Ψ x i)
+        (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta εζ ξ * D.Ψ x i)
         (renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D))
-        (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (B * ε * ‖ξ‖) ∧
+        (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (B * ‖ξ‖) ∧
       StrictData G N (deltaStar d L N) (deltaStar d L N)
-        (massShift G N ν (renRaw G ν ε Fbg ((D.Ψ, D.h), ξ))) := by
+        (massShift G N ν (renRaw G ν εζ Fbg ((D.Ψ, D.h), ξ))) := by
     intro D hD ξ hξ
     have hξ0 := norm_nonneg ξ
-    have hle : (3 / 2 * ε + 32 / 15 * cm) * ‖ξ‖ ≤ B * ε * ‖ξ‖ :=
+    have hle : (3 / 2 * εζ + 32 / 15 * cm) * ‖ξ‖ ≤ B * ‖ξ‖ :=
       mul_le_mul_of_nonneg_right hB hξ0
-    obtain ⟨hP, hphi⟩ := prop51Hyp_xi_aux H hε hsm hc1 hD hcm (hm D hD) (hξ.le.trans hr)
-      (by linarith) (hle.trans ((mul_le_mul_of_nonneg_left hξ.le hBε.le).trans hζ))
+    obtain ⟨hP, hphi⟩ := prop51Hyp_xi_aux H hε hsm hc1 hD hεζ hcm (hm D hD) (hξ.le.trans hr)
+      (by linarith) (hle.trans ((mul_le_mul_of_nonneg_left hξ.le hB0.le).trans hζ))
     have hP' : Prop51Hyp G a ν (bgMultC G a ν (bgC0 d L N) D + fun _ => renMassU ν ξ - ν)
-        (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta ε ξ * D.Ψ x i)
+        (barField G D.Ψ (bgFieldC G a ν (bgC0 d L N) D)) (fun x i => renZeta εζ ξ * D.Ψ x i)
         (renF1 ν ξ D.h (bgFieldC G a ν (bgC0 d L N) D))
-        (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (B * ε * ‖ξ‖) :=
+        (bgK1 d L N * (xiC1 d * ε) + 3 * ‖ξ‖) (B * ‖ξ‖) :=
       { hP with
         δ₁_nn := by positivity
-        δ₁_le := (mul_le_mul_of_nonneg_left hξ.le hBε.le).trans hζ
+        δ₁_le := (mul_le_mul_of_nonneg_left hξ.le hB0.le).trans hζ
         f₁_bd := fun x i => (hP.f₁_bd x i).trans hle
         dPsi := fun x hx => (hP.dPsi x hx).trans hle
         g0 := fun x => (hP.g0 x).trans hle
@@ -583,17 +583,17 @@ theorem exists_isRenSol_aux {a : ℕ → ℝ} {ν ε r : ℝ} (H : BgHyp d L k �
     refine ⟨hP', ?_⟩
     rw [hR D hD ξ]
     exact strictData_of_prop51Hyp hP' (by linarith)
-      (lt_of_lt_of_le (mul_lt_mul_of_pos_left hξ hBε) hζ) hphi
-  refine ⟨fun q => sol (renRaw G ν ε Fbg q), ⟨?_, ?_, ?_, ?_, ?_⟩⟩
+      (lt_of_lt_of_le (mul_lt_mul_of_pos_left hξ hB0) hζ) hphi
+  refine ⟨fun q => sol (renRaw G ν εζ Fbg q), ⟨?_, ?_, ?_, ?_, ?_⟩⟩
   · rintro q ⟨D, hD, hq1, hq2⟩
     have hDU := (hD.bg H hsm hε hc1).1
     have hFa : AnalyticAt ℂ Fbg q.1 := hFan _ ⟨D, hDU, hq1⟩
     have hne : 1 + q.2 2 ≠ 0 := one_add_ne_zero_of_norm (by linarith) 2
     have hS : StrictData G N (deltaStar d L N) (deltaStar d L N)
-        (massShift G N ν (renRaw G ν ε Fbg q)) := by
+        (massShift G N ν (renRaw G ν εζ Fbg q)) := by
       have e : q = ((D.Ψ, D.h), q.2) := Prod.ext hq1 rfl
       rw [e]; exact (hyp D hD q.2 hq2).2
-    exact (hsan _ hS).comp (analyticAt_renRaw ν ε hFa hne)
+    exact (hsan _ hS).comp (analyticAt_renRaw ν εζ hFa hne)
   all_goals intro D hD ξ hξ
   all_goals obtain ⟨hP, hS⟩ := hyp D hD ξ hξ
   all_goals obtain ⟨hPs, -, -, hc6, hu⟩ := hsol _ hS
@@ -615,9 +615,9 @@ theorem exists_isRenSol {a : ℕ → ℝ} {ν ε r : ℝ} (H : BgHyp d L k ϱ a 
     (hc1 : xiC1 d * ε ≤ bgC1 d L N)
     (hK : bgK1 d L N * (xiC1 d * ε) + 3 * r ≤ deltaStar d L N)
     (hζ : 8 * ε * r ≤ deltaStar d L N) :
-    ∃ F, IsRenSol (N := N) G a ν ε r 8 F :=
-  exists_isRenSol_aux H hε hr hsm hc1 (cm := 3 * ε) (by linarith)
-    (fun D hD x => hD.mass_le H x) (by nlinarith) hK hζ
+    ∃ F, IsRenSol (N := N) G a ν ε ε r (8 * ε) F :=
+  exists_isRenSol_aux H hε hε.le hr hsm hc1 (cm := 3 * ε) (by linarith)
+    (fun D hD x => hD.mass_le H x) (by linarith) (by linarith) hK hζ
 
 /-- **Lemma 3.5 (ii), analyticity and bound, `ν`-free convention**: mass `0` in the variational
 problems and `f₁ = 0`; `‖δφ‖_*, |δα|₂ ≤ (3/2) K₂ ε |ξ|_∞`. -/
@@ -626,14 +626,14 @@ theorem exists_isRenSol_nuFree {a : ℕ → ℝ} {ε r : ℝ} (H : BgHyp d L k �
     (hc1 : xiC1 d * ε ≤ bgC1 d L N)
     (hK : bgK1 d L N * (xiC1 d * ε) + 3 * r ≤ deltaStar d L N)
     (hζ : 3 / 2 * ε * r ≤ deltaStar d L N) :
-    ∃ F, IsRenSol (N := N) G a 0 ε r (3 / 2) F :=
-  exists_isRenSol_aux H hε hr hsm hc1 (cm := 0) le_rfl (fun D _ x => by simp)
-    (by linarith) hK hζ
+    ∃ F, IsRenSol (N := N) G a 0 ε ε r (3 / 2 * ε) F :=
+  exists_isRenSol_aux H hε hε.le hr hsm hc1 (cm := 0) le_rfl (fun D _ x => by simp)
+    (by linarith) (by positivity) hK hζ
 
 /-- **Inhabitation of `IsRenSol` for admissible parameters** (hard rule 10): for every generating
 set and mass with the hypotheses of Theorem 5.2 there are `ε, r > 0` and a solution map. -/
 theorem exists_isRenSol_params {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) :
-    ∃ ε r : ℝ, 0 < ε ∧ 0 < r ∧ ∃ F, IsRenSol (N := N) G a ν ε r 8 F := by
+    ∃ ε r : ℝ, 0 < ε ∧ 0 < r ∧ ∃ F, IsRenSol (N := N) G a ν ε ε r (8 * ε) F := by
   have hd0 : 0 < d := by have := H.hd; omega
   have hδs := deltaStar_pos d L N hd0
   have hc1p : 0 < bgC1 d L N := by
@@ -678,11 +678,11 @@ end Analytic
 
 section Consequences
 
-variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν ε r B : ℝ}
+variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν εζ ε r B : ℝ}
   {F : RawData d L N₀ k N × (Fin 3 → ℂ) → (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
 
 /-- **Lemma 3.5 (ii): `(δφ, δα)` vanishes at `ξ = 0`.** -/
-theorem IsRenSol.eq_zero (hF : IsRenSol G a ν ε r B F) (hr : 0 < r) {D : BgData G N}
+theorem IsRenSol.eq_zero (hF : IsRenSol G a ν εζ ε r B F) (hr : 0 < r) {D : BgData G N}
     (hD : XiCOne G a ν ε D) : F ((D.Ψ, D.h), 0) = 0 := by
   have h0 : ‖(0 : Fin 3 → ℂ)‖ < r := by simpa using hr
   have hs := hF.small D hD 0 h0
@@ -706,13 +706,14 @@ theorem IsRenSol.eq_zero (hF : IsRenSol G a ν ε r B F) (hr : 0 < r) {D : BgDat
 
 /-- **Lemma 3.5 (ii), identification for real `ξ`**: for `ξ = t` real with `|t|_∞ < r`, and
 `(φ_u, α_u)` a small solution (`|α_u|₂ < c₀`, `2 c₀ ≤ c₆`) of (EL) for the unrenormalized datum
-`((1 + ε t₁) ψ, h)` at the mass `ν_u = ν (1 + t₂)/(1 + t₃)`, the solution map is
+`((1 + ε_ζ t₁) ψ, h)` at the mass `ν_u = ν (1 + t₂)/(1 + t₃)`, the solution map is
 `F = (φ_u - φ, α_u - α)` with `(φ, α) = (bgFieldC, bgMultC)` of `(ψ, h)` at the mass `ν`. -/
-theorem IsRenSol.eq_bg (hF : IsRenSol G a ν ε r B F) (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
+theorem IsRenSol.eq_bg (hF : IsRenSol G a ν εζ ε r B F) (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
     (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
     {D Du : BgData G N} (hD : XiCOne G a ν ε D) {t : Fin 3 → ℝ}
     (ht : ‖(fun i => (t i : ℂ))‖ < r)
-    (hΨ : ∀ x i, Du.Ψ x i = (1 + ((ε * t 0 : ℝ) : ℂ)) * D.Ψ x i) (hh : ∀ x i, Du.h x i = D.h x i)
+    (hΨ : ∀ x i, Du.Ψ x i = (1 + ((εζ * t 0 : ℝ) : ℂ)) * D.Ψ x i)
+    (hh : ∀ x i, Du.h x i = D.h x i)
     {c₀ : ℝ} (hc₀ : 2 * c₀ ≤ c6 d L N) {φu : G.Ω 1 × Fin N → ℂ} {αu : G.Ω 1 → ℂ}
     (hφu : IsSmallSolution G a (ν * (1 + t 1) / (1 + t 2)) c₀ Du φu αu) :
     F ((D.Ψ, D.h), fun i => (t i : ℂ)) =
@@ -721,11 +722,11 @@ theorem IsRenSol.eq_bg (hF : IsRenSol G a ν ε r B F) (H : BgHyp d L k ϱ a ν)
   obtain ⟨-, hs, hb, -⟩ := hD.bg H hsm hε hc1
   set φ := bgFieldC G a ν (bgC0 d L N) D
   set α := bgMultC G a ν (bgC0 d L N) D
-  have hP := lemma35_ii_perturbed a (μ := ν) (μu := ν * (1 + t 1) / (1 + t 2)) (ζ := ε * t 0)
+  have hP := lemma35_ii_perturbed a (μ := ν) (μu := ν * (1 + t 1) / (1 + t 2)) (ζ := εζ * t 0)
     hΨ hh hs.1 hφu.1
   have hPM : IsPerturbedM G a (renMassU ν fun i => (t i : ℂ)) α
       (barField G D.Ψ φ)
-      (pertSource G a (fun x i => renZeta ε (fun i => (t i : ℂ)) * D.Ψ x i)
+      (pertSource G a (fun x i => renZeta εζ (fun i => (t i : ℂ)) * D.Ψ x i)
         (renF1 ν (fun i => (t i : ℂ)) D.h φ)) (φu - φ) (αu - α) := by
     rw [renMassU_ofReal, renZeta_ofReal]
     have ef : renF1 (G := G) ν (fun i => (t i : ℂ)) D.h φ =
