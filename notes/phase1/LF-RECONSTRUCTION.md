@@ -201,23 +201,23 @@ statement that the condition has that form.
 | 1 | $\gamma\in(0,\min\{\frac{d-2}2,\frac12\})$, $\delta:=\gamma/2$, $\alpha:=\frac{d-2}2-\gamma$ | P4 (H.1) | definition | — |
 | 2 | $\kappa,c_9$ | given (Root-F) | — | — |
 | 3 | $L$; $a$, $\theta$ derived | $L\ge3$ (P2 (4.26)); $\log L>\frac12$, $(d-2)\log L>1$; G-1–G-6 | lower | the explicit ones checked; G-1–G-6 **UNCERTAIN** (Part II must state each as $L\ge L_i(d)$) |
-| 4 | constants depending on $(d,L)$ (and $N$) only: $\gamma_0$, $K_0,K_1,K_2$, $C_3,C_4$, Green constants of G-1–G-3, $R_0(d,L)$ of BACKGROUND §2; $s_*:=4$, $s':=5$ (Lemma I.3.8); $c_0$ (I.0 item 3); $D_0:=3c_0+4$; $K_6,c_{11}$ of P7 Lemma 2.1 for boxes of size $<D_0$ | outputs of G-1–G-3, P2, P7 Lemma 2.1 | outputs ($\exists$) / definitions | the constants of I-4 depend on $\kappa_1$ and are in row 5$'$ |
+| 4 | constants depending on $(d,L)$ (and $N$) only: $\gamma_0$, $K_0,K_1,K_2$, $C_3,C_4$, Green constants of G-1–G-3, $R_0(d,L)$ of BACKGROUND §2; $s_*:=4$, $s':=5$ (Lemma I.3.8); $c_0$ (I.0 item 3); $D_0:=3c_0+4$; $K_6,c_{11}$ of P7 Lemma 2.1 for boxes of size $<D_0$; Part III: $D''_0:=9(2c_0+1)+8$, $c_{D_0}$, $C_{2.20}$, $C_6:=3dD_0(K_6+1)$, $C_{23}$, $C_{24}$ (§§III.3–III.4, III.8) | outputs of G-1–G-3, P2, P7 Lemma 2.1 | outputs ($\exists$) / definitions | the constants of I-4 depend on $\kappa_1$ and are in row 5$'$ |
 | 5 | $\kappa_0$; $\kappa_{\rm flow}:=\max\{C_d(\kappa+1),16\kappa_0+16\}$ | $\kappa_0$ an output of row 4 (LOCALIZATION-review L-04: it enters only through $K_0$) | output / definition | $\kappa_0$ independent of $M$ and $M_1$ |
 | 5a | $m_0$ (**definition**, audit P1-01) | $m_0:=\min\{m\ge1:\ L^m\ge\max\{14d,\ L+9\}\}$, so $M/M_1:=L^{m_0}$ is a function of $(d,L)$; $L^{m_0}\ge14d$ is P3 p. 81 (LOCALIZATION §1.1, §5.3), $L^{m_0}\ge L+9$ is the range bound of the minimal generating sets (Part II, Lemma II.2.3) | definition | since $L^{m_0}\ge42\ge6$ and $\ge4+8/L$, also $6M_1\le M$ (P3 (4.8)) and $(4L+r_0)M_1\le LM$ with $r_0=8$ (LOCALIZATION §4.0) hold by definition |
 | 5b | $\kappa_1$ | $\kappa_1\ge\max\{4d(2L+1)^d\kappa_{\rm flow},\ 4d\log((2L+1)L^{m_0})+2\}$ (the second is the walk-expansion condition of I-4, LOCALIZATION §5.3 (3); with $M/M_1=L^{m_0}$ it depends on $(d,L)$ only) | lower | checked: both are lower bounds on $\kappa_1$ in terms of earlier rows (audit P1-01 resolved) |
 | 5$'$ | localization constants $c_*,B_G,c_6,\delta_*,K_3,K_4,c_7,B_4,B_5$ | outputs of I-4 (walk expansion), depending on $(d,L,N,\kappa_1)$ and not on $M_1$, $M$ (LOCALIZATION §5.3 (4)) | outputs ($\exists$) | moved after $\kappa_1$ (L-04) |
 | 6 | $M_1=L^{m_1}$; then $M:=L^{m_0}M_1$ (definition) | $M_1\ge M_*(\kappa_1):=\max\{4L^2,c_Me^{N_0\kappa_1}\}$ ($c_M,N_0$ of LOCALIZATION §1.2); P3 (4.38) first part $e^{\gamma_wM_1}\ge4(d+2)(K_2+1)K_4/\eta_\varepsilon$; $M\ge2(7L)^d\kappa_1/\gamma_0$; $M\ge M(\kappa)$ (P4, ER-025); P7 (2.70) $3(d+1)K_1K_3K_6e^{-\gamma_0M/5}\le\frac18$; $5LM_1\ge R_0(d,L)$ (minimal generating sets are generating sets for I-1, Lemma II.2.3 (a)) | lower bounds on $M_1$ | every condition is $M_1\ge$ (function of rows 0–5b and of the $(d,L)$-constants $K_1,K_6$ of row 4, $K_3,K_4$ of row 5$'$): the conditions on $M$ become conditions on $M_1$ because $M=L^{m_0}M_1$ is increasing in $M_1$; no upper bound on $M$ or $M_1$ anywhere in Part I or ARCH §5 |
 | 6b | $K_5$ (P4 (5.24), contains $M$), $B_6=NL^dB_4+2$ | outputs depending on $M$ | outputs ($\exists$) | after $M$; $E_0\ge4C_4B_6K_0K_5$ stays after them (row 11) |
-| 7 | $R_{\rm base}$ | $R_{\rm base}\ge\max\{6K_1K_6,\ C(L),\ 4L+20,\ R_0(d,L)/(LM)\}$ (P7 p. 514; P3 (2.14); Lemma I.3.8; the separation $\varrho=LMR_{\rm base}\ge R_0(d,L)$ of BACKGROUND §2) | lower | checked; $K_6=K_6(d,L,D_0)$ is the "absolute" constant of P7 Lemma 2.1 for boxes of size $<D_0$ (P7 p. 507 [checked]: "with the size smaller than 15 we obtain absolute constants"), so row 4 |
+| 7 | $R_{\rm base}$ | $R_{\rm base}\ge\max\{44K_1K_6,\ C(L),\ 4L+20,\ R_0(d,L)/(LM)\}$ (P7 p. 514 with the threshold $8$ of $k_3$, Lemma III.7.1; P7 has $6K_1K_6$; P3 (2.14); Lemma I.3.8; the separation $\varrho=LMR_{\rm base}\ge R_0(d,L)$ of BACKGROUND §2) | lower | checked; $K_6=K_6(d,L,D_0)$ is the "absolute" constant of P7 Lemma 2.1 for boxes of size $<D_0$ (P7 p. 507 [checked]: "with the size smaller than 15 we obtain absolute constants"), so row 4 |
 | 8 | $p_2:=2d+3$, $p_0:=$ least even integer $\ge d^2+7d+2$, $A_2:=1$, $C_\nu:=C_r$ | (K) of §I.5.2 | definitions | (K) holds: $p_R\ge5d+4>p_2+2d$, $2p_0>p_2$ |
 | 9 | $A_0$; $A_1,A_3,A'_3,A''_3$ derived | P7 p. 505; P6 (3.9) | lower | $A_3,A'_3$ are increasing in $A_0$ [review] |
 | 10 | $\alpha_1$, $c_8$; $c_9^{\rm flow}$ | P4 Thm 1 "sufficiently small" | upper | as stated in P5 p. 499 [review] |
 | 11 | $\alpha_0,E_0,B,\bar\nu$; $C_b$, $C_{\psi'}$ | outputs of P4 Thm 1, P5 Thm 1; the constants of P6 (2.33) and P5 (1.25) (Part II, (S0) and Definition II.3.4) | outputs | $C_b$, $C_{\psi'}$: open item O-II-4 |
-| 12 | $B_0$ | $B_0\ge B^\sharp$ (P7 p. 529) | lower | $B^\sharp$ independent of $H_0,c_1,c_2$: **UNCERTAIN** (ARCH row 12) |
+| 12 | $B_0$ | $B_0\ge B^\sharp:=B_{\rm st}+1$ (P7 p. 529; Lemma III.10.7) | lower | $B^\sharp$ is independent of $H_0,c_1,c_2$ provided LF-3's step constant $B_{\rm st}$ is (Lemma III.10.7; obligation on Part IV.1) |
 | 13 | $H_0$ | $H_0>2B_0K_0M^{-d}$; P7 (4.12) | lower | checked [review] |
-| 14 | $c_1,c_2$ | $\ge$ P6's coefficients and $C_{39},C'_{39}$; $c_1\ge C_b$, $c_2\ge C_bB_0+2(L^d+1)$ (Lemma II.5.14) | lower | checked (a larger cost coefficient keeps P6 (3.9) true) |
-| 15 | $c_v:=M^d(H_0+c_1+3)$; $C_R$ | Lemma B; LF-4R | definition / output | $c_v\ge1$ |
-| 16 | $\lambda_*$, then $\beta_0:=\max\{e^{\lambda_*-1}/a,B\}$ | §I.5.3: abstract (Λ0)–(Λ11), flow (Λ12), (Λ12′), (Λ13), (Λ14); Part II (Λ15)–(Λ17); the analytic "$\beta$ large" conditions of Parts III–IV | lower | the Part I conditions are listed in §I.5.3 and each is eventually true; the analytic ones are Part II–IV's |
+| 14 | $c_1,c_2$ | $\ge$ P6's coefficients; $c_1\ge C_b$, $c_2\ge C_bB_0$ (Lemma II.5.14, version 1.1, audit P2-02); the refund constants $c_1\ge C_W$, $c_2\ge C'_W$ of Part III §III.8.2 (they contain P7's $C_{39},C'_{39}$) | lower | checked (a larger cost coefficient keeps P6 (3.9) true) |
+| 15 | $c_v:=M^d(H_0+c_1+3)$; $C_R$ | Lemma B; LF-4R, Definition III.8.6 ((III.8.4); depends on rows 0–11 only) | definition / output | $c_v\ge1$ |
+| 16 | $\lambda_*$, then $\beta_0:=\max\{e^{\lambda_*-1}/a,B\}$ | §I.5.3: abstract (Λ0)–(Λ11), flow (Λ12), (Λ12′), (Λ13), (Λ14); Part II (Λ15)–(Λ17), (Λ17′); Part III (Λ18)–(Λ25) (§III.O.3); the analytic "$\beta$ large" conditions of Part IV | lower | the Part I conditions are listed in §I.5.3 and each is eventually true; the analytic ones are Part II–IV's |
 | 17 | Root-C only: $\rho_2,\rho_1,\rho_0$ | P9 p. 511 | — | — |
 
 The Part I constants $s_*,s',c_0,\omega_j,D_j,h_j,C_\nu$ are fixed in rows 4, 7 and 8; $\lambda_*$ depends on
@@ -1611,7 +1611,7 @@ with explicit $s_*=4$, $s'=5$ and $R_{\rm base}\ge4L+20$; the hull trigger is "h
 Lemma V avoids Hausdorff measure; short spines are replaced by a point only under pure shadows, with the projected
 epoch $k+\max\{1,\lceil\log_L\max(\ell,1)\rceil\}$; the event bound (4.1) and the cover of Lemma C4 are proved through the hull
 rounds; Lemma C (a) has a floor invariant; $c'=c_*(1+3\theta_+)$, $c_H=\frac{(d+3)(d-2)}2\log L$; $\lambda_*$ is an explicit
-list (Λ0)–(Λ13); Case 2b's large-$\Lambda'$ branch is direct; (H-λ) is derived from (I.2) only; LF-2 has a final scale
+list (Λ0)–(Λ14) (with (Λ15)–(Λ17) of Part II and (Λ18)–(Λ25) of Part III); Case 2b's large-$\Lambda'$ branch is direct; (H-λ) is derived from (I.2) only; LF-2 has a final scale
 $K\le\hat k_f$, is stated for $d\ge3$, and covers $k_0=0$; locality (Lemma I.3.9) is new; the minimal generating sets
 move to Part II; the constant order follows LOCALIZATION-review L-04; Lemma L (c) is restricted to the ripe lineage
 (V4-01). P5 (2.46)'s radius $\frac{L-1}2$ is replaced by $L-1$ (remark after Definition I.3.1). Version 1.1 (§I.0 item 16) fixes
@@ -1659,7 +1659,9 @@ $k_0$, labels the hull closure as an extension of P6 p. 22, renames the coeffici
 
 # Large-field reconstruction document, Part II: analytic objects, operators, Def-7
 
-Version 1 (Part II, sections II.1–II.6), 2026-10-11. Brief: `orchestration/briefs/D-LFR-partII.md`. Input: Part I above
+Version 1.1 (Part II, sections II.1–II.6), 2026-10-12: version 1 (2026-10-11) with the repairs of the audit `LFR-PART2-AUDIT-astra.md`
+(findings P2-01–P2-06) and the amendments required by Part III, listed in §II.O.5 and marked "(audit P2-xx)" or "(Part III)" where
+they occur. Brief: `orchestration/briefs/D-LFR-partII.md`. Input: Part I above
 (version 1.1), ARCH v4 (§§3, 5, 8, 9), `LEMMA-F-astra.md` (cited as **LF-astra**), `BACKGROUND.md` v2 (**BG**),
 `LOCALIZATION.md` v2 (**LOC**), `SMALLFIELD.md` v2 (**SF**), `GREEN.md`, `POLYMER.md` and their reviews; the landed Lean of
 `Balaban/Background`, `Balaban/Localization`, `Balaban/Flow`, `Balaban/Multiscale`, `Balaban/Green`, `Balaban/Polymer`.
@@ -1821,6 +1823,7 @@ For all real $x\ge\lambda^{\rm II}_*$ (combined with Part I's lists into $\lambd
 | (Λ15) | $x\ge3/(1-2^{-1/(2p_0)})$ | Lemma II.1.2 (d), Lemma B |
 | (Λ16) | $H_0\big[(1-L^{-d})(x-3)-L^{-d}((d-2)\log L+1)\big]\ge1$ and $x\ge c_2+2$ | Lemma B (old volume, new volume) |
 | (Λ17) | $3dL\,\bar\delta(x)\le\min\{c_1^{\rm BG},\,c_{11}\}/C_4$ and $\bar\delta(x)\le\min\{\delta_{**},\delta_*\}/(C_3C_4)$ | Remark II.2.8 (the backgrounds of the step exist on the support of the kernels), Lemma II.3.3 (faithfulness) |
+| (Λ17′) | $3dL\,c_N\,\bar\delta(x)\le\frac12$, $c_N=Nv_N(\frac32)^{N/2}$ (version 1.1, audit P2-02) | Lemma II.5.14 (shell volumes $\le1$) |
 
 $c_1^{\rm BG},C_3,C_4,\delta_{**}$ are the constants of BG Theorem 5.2, Lemma 5.3 and Theorem 6.1 ($(d,L,N)$-constants, row 4), $\delta_*$ that of
 BG Prop 5.1, $c_{11}$ that of P7 Lemma 2.1 (row 4). Each condition compares a fixed constant with a function tending to $\infty$
@@ -1862,11 +1865,18 @@ $|\log(\gamma_j/\gamma_k)|\le\sum_{i=j}^{k-1}|\log(1+\xi^{(i)}_3)|\le2C_\xi\beta
 So the composition of item 3 is exact up to relative errors $O(\beta^{-1}L^{-2\gamma k_1})$ in the coefficients. **Carried to Part III
 (O-8′):** the Gaussian algebra of P2 §4 holds for arbitrary positive coefficients (landed `integral_blockSpin_comp`,
 `Gaussian/BlockSpin.lean`), with composed weights $a^{(b)}(\Delta,\mathbb B)$ given by the actual coefficients; what fails is the identity
-P2 (4.18), equivalently (C1) of BG §6.1, for these weights. Part III §III.2 must either (i) carry the weights $a^{(b)}$ through
-(2.9)–(2.58) and put the difference $a^{(b)}-a^{(6.1)}=O(\beta^{-1}L^{-2\gamma k_1})a$ into $C_{k_1,k}$ of (2.15) (the cancellation (2.55)/(2.57) then
-leaves a quadratic remainder bounded by $O(\beta^{-1})\times$ the window volume, which (2.15)'s budget absorbs), or (ii) use $c=0$ for
-the whole flow, which would require the perturbation statement for the Gaussian kernels that SF §3.1 says no source provides.
-Route (i) is recommended. Def-7 itself does not depend on the choice beyond the values of the running constants.
+P2 (4.18), equivalently (C1) of BG §6.1, for these weights. Part III must either (i) carry the actual composed transformation through
+(2.9)–(2.58), or (ii) use $c=0$ for the whole flow, which would require the perturbation statement for the Gaussian kernels that SF §3.1
+says no source provides. Route (i) is adopted. *(Audit P2-05; version 1 claimed here that route (i) "leaves a quadratic remainder bounded by
+$O(\beta^{-1})\times$ the window volume". That is not correct: expanding at the ideal stationary point leaves a **linear** first-variation residual,
+and every coefficient error is multiplied by $\beta_k$. Moreover the field renormalizations $\theta=z_{j+1}\psi_{j+1}$ of the window Gaussians shift
+the mean of the composed Gaussian, an effect that version 1 did not list.)* The repair is Part III: Lemma III.1.6 computes the actual composed
+transformation exactly for arbitrary positive coefficients and arbitrary $z_j$ (weights $a^\natural_z=a_z(1+\eta_z)$, mean $\mathcal Q^\natural_z$ with the factors
+$\varpi_n=\prod_{i>n}z_i^{-1}$), Lemma III.1.7 bounds the mean shift after weighting by the volume fractions of the deep layers, and Lemma III.6.3 is the
+perturbative composition lemma: the cancellation (2.53)–(2.58) is done exactly with the ideal weights and the ideal minimizer, and the complete
+difference $C^\natural$ (its linear part, its quadratic part and the normalization constants, with the factor $\beta_k$) splits into a part absorbed by
+$\frac38$ of the composed-Gaussian term and a part bounded by $1$ on the real window domain and by $C_\natural\hat\lambda_k^{2d+1}$ on the complex window domain
+(paid by $C_R$, (III.8.4)). Def-7 itself does not depend on the choice beyond the values of the running constants.
 
 ---
 
@@ -2193,14 +2203,22 @@ $V_Y\subset U^{\sim}_k\subset\Omega^c_{k+1}$ as fine sets (Lemma I.3.5 (a), (i))
 ### II.5.2 Kernels, operators, and the bound (1.26)
 
 **Definition II.5.2 (large-field operators).** A *large-field kernel* at $(Z,\mathfrak a)$ is a pair $(K,b)$: $K\ge0$ a Borel function of the output and
-internal variables, independent of $g$; $b$ a function of the output and internal variables and of $(h,g)$, $\|g\|_{\ell^1}<1$, analytic in $g$ and real for real
-arguments. Its operator is
+internal variables and of $h$, independent of $g$; $b$ a function of the output and internal variables and of $(h,g)$, $\|g\|_{\ell^1}<1$, analytic in $g$ and real for real
+arguments. (Version 1 said "$K$ a function of the output and internal variables"; the quiet kernel of Definition II.5.6 depends on $h$ through the
+$\nu$-term of the main action, so $K$ may depend on $h$ (Part III).) **Convention on $g$ (audit P2-04).** The operators of Def-7 depend on $g$, through
+the factor $e^{b}$ only; this is P5 H5 [checked, p. 493: the kernel "depends on $\psi_k,\psi,\psi',g$ restricted to $U^\sim_k$"]. The $g$-dependence cannot be moved
+out of the operators, because $b$ contains boundary terms that depend on the integrated variables. LF-3 and LF-4 use this convention. Consequently
+the assertion (L4) of `OBSERVABLES.md` §4.1 ("the integral operators $\mathbb T_k$ do not depend on $g$") is not available: the observable argument must
+differentiate the large-field operators in $g$, which it can do by Cauchy estimates, since (1.26) holds uniformly on the whole polydisc (open item
+O-II-9, §II.O.4). Its operator is
 $$\mathbb T F(\psi_k):=\int K(\psi_k,x)\,e^{b(\psi_k,x;h,g)}\,F(\psi_k,x)\,\mu_{Z,\mathfrak a}(dx)$$
 on Borel functions $F$ of the output, internal and other (parameter) variables for which the integral converges absolutely. The **bound (1.26)**
 with exponent $\kappa$ (P5 (1.26) [checked], in the form with the modulus inside, which is the form that composes) is
 $$\int d\psi_k\!\restriction_{T^{(k)}\cap Z}\int\mu_{Z,\mathfrak a}(dx)\,K\,e^{{\rm Re}\,b}\,|F|\ \le\ e^{-\kappa}\ \sup\big\{\chi^{\rm dom}_k(Z,\mathfrak a)|F|\big\}\qquad\text{for all Borel }F\text{ and all }\|g\|_{\ell^1}<1,\tag{1.26}$$
 the supremum over all variables. For real $g$ the kernel $Ke^b$ is non-negative, as P5 H5 requires; for complex $g$ the bound is the sup bound on
-the whole polydisc (OBSERVABLES §4.2 (4)).
+the whole polydisc (OBSERVABLES §4.2 (4)). *Reduction to $F\equiv1$ (audit P2-06).* If the kernel vanishes unless $\chi^{\rm dom}_k(Z,\mathfrak a)=1$ (Lemma II.5.9 (d)),
+then $K|F|=K\chi^{\rm dom}|F|\le K\,\sup\{\chi^{\rm dom}|F|\}$ pointwise, so (1.26) for all $F$ is equivalent to (1.26) for $F\equiv1$. This is how (1.26) is used below; it
+avoids suprema of Borel functions over a subset of the variables, which need not be Borel.
 
 **Lemma II.5.3 (products and compositions).** (a) Operators at distinct components of $Z_k$ act on disjoint sets of internal variables and have
 kernels depending on disjoint sets of output variables and of $g$-values (once Lemma II.5.9 (a) is proved); their product is the operator
@@ -2260,25 +2278,42 @@ history prefix $\mathfrak a$ (up to and including the step record of the step $k
   symmetries of the torus preserving $\pi_{k+1}$ applied to all variables and the history. ($C_b$: an output constant of the small-field step,
   P6 (2.33) "const."; row 11. It contains the vacuum constants of P6 (3.2), the term $\exp\mathcal B^{(k)}(Z^c_k\cap Z_{k+1})$ of P6 (3.3), and, by D-II.1, the
   correction terms of the background change whose localization domains lie in $Z_{k+1}$.)
+  (Version 1.1: $b_k$ depends on $\psi_{k+1}$ only through the multiscale field, i.e. on $T^{(k+1)}\cap\Omega_{k+1}\cap V_{Z'}$.)
 - (S1) *Step kernel.* If the step is quiet in $Z'$: $K_k(Z',\mathfrak a):=K^{\rm q}_k(Z')$. Otherwise $K_k(Z',\mathfrak a)$ is a datum: a non-negative Borel function of
-  $\psi_{k+1}$ on $T^{(k+1)}\cap V_{Z'}$ and of the variables $I^{\rm new}_k(Z')$ and $\psi_k$ on $T^{(k)}\cap Z_k\cap Z'$, independent of $g$, vanishing unless
-  $\chi^{\rm new}_k(Z')=1$, O(N)- and Euclid-invariant as in (S0).
-- (S2) *One-step bound.* For all values of $\psi_{k+1}$ on $V_{Z'}\setminus Z'$, of $\psi_k$ on $T^{(k)}\cap Z_k\cap Z'$, of $h$, and all $\|g\|_{\ell^1}<1$:
-  $$\int d\psi_{k+1}\!\restriction_{T^{(k+1)}\cap Z'}\int d\psi_k\!\restriction_{T^{(k)}\cap Z^c_k\cap\Omega^c_{k+1}\cap Z'}\int d\psi'_k\ K_k(Z',\mathfrak a)\,e^{{\rm Re}\,b_k(Z',\mathfrak a)}\ \le\ e^{-\kappa^{(k)}(Z',\mathfrak a)},$$
-  with $\kappa^{(k)}$ of Definition II.5.10. For quiet steps this is Lemma II.5.14; for the others it is a requirement (P6 (3.4)–(3.9)).
-- (S3) *Kept data* (scale $k\le k_0$, $Z$ a ripe component of $Z^{\rm pre}_k$ that is kept): a label $\varkappa$ from a finite set $\mathfrak K(Z,\mathfrak a)$, numbers
-  $C_{\rm dec}(\varkappa)\ge1$ with $\sum_{\varkappa\in\mathfrak K}C_{\rm dec}(\varkappa)^{-1}\le1$, a *kept exponent* $\gamma(\varkappa)$ with $\gamma(\varkappa)-\log C_{\rm dec}(\varkappa)\ge A'_3\hat\lambda_k^{p_R}$, and a
-  large-field kernel $(K'',b'')$ at $(Z,\mathfrak a)$ (same output and internal variables and reference measure as $\mathbb T^{\rm pre}_k(Z,\mathfrak a)$), with $K''$ vanishing
-  unless $\chi^{\rm dom}_k(Z,\mathfrak a)=1$, $b''$ as in (S0) with the bound replaced by a bound uniform on the H7 domain, invariance as in (S0), and the bound
-  (1.26) with exponent $\kappa''_k(Z,\mathfrak a,\varkappa):=\kappa_k(Z,\mathfrak a)-C_R\hat\lambda_k^{2d+1}+\gamma(\varkappa)$.
+  $\psi_{k+1}$ on $T^{(k+1)}\cap V_{Z'}$, of the variables $I^{\rm new}_k(Z')$ and $\psi_k$ on $T^{(k)}\cap Z_k\cap Z'$ and of $h$, independent of $g$, vanishing unless
+  $\chi^{\rm new}_k(Z')=1$, O(N)- and Euclid-invariant as in (S0). *Gaussian factorization* (audit P2-06; P5 (2.47): the factor $T^{(k)}(\Omega^c_{k+1})$):
+  $$K_k(Z',\mathfrak a)=\prod_{y\in T^{(k+1)}\cap\Omega^c_{k+1}\cap Z'}z_{k+1}^N\,t_k\big(z_{k+1}\psi_{k+1}(y),(Q\psi_k)(y)\big)\cdot\tilde K_k(Z',\mathfrak a),\qquad\tilde K_k\ \text{independent of }\psi_{k+1}\restriction_{\Omega^c_{k+1}} .$$
+  For the quiet kernel this holds by Definition II.5.6 and the support argument of Lemma III.1.5 (one step).
+- (S2) *One-step bound* (restated in version 1.1, audit P2-06). Call *new* the variables $\psi_{k+1}$ on $T^{(k+1)}\cap Z'$, $\psi_k$ on $T^{(k)}\cap Z^c_k\cap\Omega^c_{k+1}\cap Z'$ and
+  $\psi'_k$, *new′* the new variables other than $\psi_{k+1}\restriction_{\Omega^c_{k+1}}$, and *old* the variables $\psi_k$ on $T^{(k)}\cap Z_k\cap Z'$ and the internal variables of the
+  ancestors. There is a Borel function $S_k(Z',\mathfrak a)\ge0$ of the new′ variables and of the parameters ($\psi_{k+1}$ on $V_{Z'}\setminus Z'$, $h$, $g$) such that, for
+  **all values of the old variables** and all $\|g\|_{\ell^1}<1$,
+  $$\tilde K_k(Z',\mathfrak a)\,e^{{\rm Re}\,b_k(Z',\mathfrak a)}\le S_k(Z',\mathfrak a),\qquad\int d(\text{new}')\,S_k(Z',\mathfrak a)\ \le\ e^{-\kappa^{(k)}(Z',\mathfrak a)},$$
+  with $\kappa^{(k)}$ of Definition II.5.11. For quiet steps this is Lemma II.5.14; for the others it is a requirement (P6 (3.4)–(3.9), whose bound has
+  exactly this form: P6 (3.4) takes the supremum over $\psi'_k$ and the old variables after bounding the new integrals [checked]). Version 1 required only the
+  integral of $K_ke^{{\rm Re}\,b_k}$ for fixed old outputs, which is not enough to compose (audit P2-06).
+- (S3) *Kept data* (scale $k\le k_0$, $Z$ a ripe component of $Z^{\rm pre}_k$ that is kept): a label $\varkappa$ from the finite set $\mathfrak K$ ($\mathfrak K=\{\varkappa_1,\dots,\varkappa_5\}$ in
+  Part III, Definition III.5.2), numbers $C_{\rm dec}(\varkappa)\ge1$ with $\sum_{\varkappa\in\mathfrak K}C_{\rm dec}(\varkappa)^{-1}\le1$, a *kept exponent* $\gamma(\varkappa)$ with
+  $\gamma(\varkappa)-\log C_{\rm dec}(\varkappa)\ge A'_3\hat\lambda_k^{p_R}$, and a large-field kernel $(K'',b'')$ at $(Z,\mathfrak a)$ with the output variables of $\mathbb T^{\rm pre}_k(Z,\mathfrak a)$ and
+  internal variables $I''\subset I(Z,\mathfrak a)$ that contain all variables of the multiscale field and of the fluctuation fields of the lineage (Part III, D-III.9;
+  the reference measure is the restriction of $\mu_{Z,\mathfrak a}$), with $K''$ vanishing unless $\chi^{\rm dom}_k(Z,\mathfrak a)=1$ (a function of the multiscale and fluctuation
+  fields, hence of $I''$ and the outputs), $b''$ as in (S0) with the bound replaced by a bound uniform on the H7 domain, invariance as in (S0), and the bound
+  (1.26) with exponent $\kappa''_k(Z,\mathfrak a,\varkappa):=\kappa_k(Z,\mathfrak a)-C_R\hat\lambda_k^{2d+1}+\gamma(\varkappa)$. In (II.3) a kept ancestor $Y$ contributes $I''(Y)$.
 - (S4) *Locality.* All these data depend on the history only through the localized history prefix of $Z'$ (resp. $Z$); in particular they are
   the same for two global histories with the same localized prefix (P5 p. 493: the multi-index "is determined completely by its restrictions";
   P6 p. 15).
+- (S5) *Rotation form* (Part III, D-III.6; needed by the coset average of $R$, P7 p. 521 [checked]). For $k+1\le k_0$ (resp. $k\le k_0$ for kept data) the
+  kernel has the form $K=\mathbf 1_A\,e^{-a}$, where (i) $A$ is a Borel set of values of the output and internal variables that is invariant under
+  $R\in O(N)$ acting on all spin-valued variables ($h$ not acted on); (ii) $a$ is a real function of the variables and of $h$, jointly invariant,
+  $a(Rx;Rh)=a(x;h)$, which extends analytically in $(x,h)$ to the complex neighbourhood of $A\times S^{N-1}$ formed by the displacements of modulus
+  $<\varepsilon_j$ of the variables of scale $j$ and $<1$ of $h$; (iii) on that neighbourhood $|a(x;h')-a(x;h)|\le C_{\rm S5}|h'-h|\,|Z|_k$. The quiet kernel has
+  this form ($A$ is the support of its characteristic functions, which contain no $h$-condition for $k+1\le k_0$; $a$ is the Gaussian exponent plus the
+  main action; (iii) with $C_{\rm S5}=2$ because $h$ enters only through the term $\frac{\nu_{k+1}}2\beta_{k+1}\|\phi-h\|^2$ and $\beta_{k+1}\nu_{k+1}\le1$).
 
 (S3) is ARCH's kept exponent (§3.4, R3-08) with the kept operator and its decomposition data left to LF-4 (D-II.2). P7's two kinds K1, K2 are
-instances; Part III must show that P7's construction yields kernels of this form, in particular that the $g$-dependence of the kept operator
-sits in a factor $e^{b''}$ with $K''\ge0$ independent of $g$ and that the coset average (M4) is taken on the full integrand so that $b''$ is jointly
-covariant (OBSERVABLES §4.2 (2); open item O-II-5).
+instances; Part III constructs them (§III.5, §III.8) and shows that the $g$-dependence of the kept operators sits in a factor $e^{b''}$ with $K''\ge0$
+independent of $g$, and that the coset average (M4) is taken on the full integrand, so that everything is jointly covariant (OBSERVABLES §4.2 (2);
+open item O-II-5, closed in Part III).
 
 ### II.5.5 The localized operators and Lemma F
 
@@ -2377,25 +2412,39 @@ step data satisfy (S2), then $\mathbb T^{\rm pre}_{k+1}(Z',\mathfrak a)$ satisfi
 at level $k+1$ that involve scale $k$ or $k+1$ inside $Z'$: (1.24) for $j=k$ (the $\pi_{k+1}$-cubes of $\Omega^\sim_{k+1}\cap Z'$) and for $\pi_k$-cubes of $Z^c_k\cap(\Omega^\sim_{k+1})^c\cap Z'$,
 and (1.25) for $j=k$. Indeed, for $j<k$ the cubes of (1.24) lie in $Z_{j+1}\cap Z'=\bigsqcup_Y(Z_{j+1}\cap Y)$ or in $Z^c_j\cap(\Omega^\sim_{j+1})^c\cap Z'$, and the latter is
 contained in $\bigsqcup_Y Y$ because $Z^c_k\subset\Omega_{j+1}$ for $j<k$ (P5 (1.20)); near those cubes $\mathbb B_{k+1}\cap\square^\sim=\mathbb B_k\cap\square^\sim$ because $Z_k$ is at
-distance $>LMR_k$ from $\Omega_{k+1}$ (Lemma I.3.5 (f)); and for $j=k+1$ the conditions are void since $Z'\subset Z_{k+1}$. Now, by Lemma II.5.3 (b) and
-Tonelli, for fixed new variables put $\Phi:=\prod_Y\int\mu_Y\,K_Ye^{{\rm Re}\,b_Y}|F|$ (each factor integrates only the internal variables of $Y$). The ancestors act on
-disjoint variables, so applying (1.26) to them one at a time, $\int d\psi_k\!\restriction_{T^{(k)}\cap Z_k\cap Z'}\Phi\le e^{-\sum_Y\kappa_k(Y)}\sup\prod_Y\chi^{\rm dom}_k(Y)|F|$ for every value of
-the new variables at which $\chi^{\rm new}_k=1$ (elsewhere the step kernel vanishes, (S1)). Integrating the new variables with (S2), uniformly in the old
-ones, gives the factor $e^{-\kappa^{(k)}}$. $\square$
+distance $>LMR_k$ from $\Omega_{k+1}$ (Lemma I.3.5 (f)); and for $j=k+1$ the conditions are void since $Z'\subset Z_{k+1}$. Hence the composed kernel vanishes
+unless $\chi^{\rm dom}_{k+1}(Z')=1$ (step kernel by (S1), ancestors by the induction hypothesis), and by the reduction after (1.26) it suffices to prove (1.26)
+with $F\equiv1$. *Order of integration (version 1.1, audit P2-06).* The integrand is $K_ke^{{\rm Re}\,b_k}\prod_YK_Ye^{{\rm Re}\,b_Y}\ge0$, so Tonelli allows any order.
+(1) Integrate $\psi_{k+1}$ on the $(k+1)$-blocks of $\Omega^c_{k+1}\cap Z'$: by the Gaussian factorization (S1) they occur only in the factors
+$z^N_{k+1}t_k(z_{k+1}\psi_{k+1}(y),\cdot)$ (the ancestors' kernels are functions of scale-$k$ and older variables), each of which integrates to $1$. (2) Bound
+$\tilde K_ke^{{\rm Re}\,b_k}\le S_k(\text{new}')$ by (S2); $S_k$ does not depend on the old variables. (3) For fixed new′ variables, integrate the old variables:
+the ancestors act on disjoint sets of old variables, and the remaining variables on which $K_Y$ depends (its outputs on $V_Y\setminus Y$, which are new′
+variables, and the parameters) are fixed; applying (1.26) with $F\equiv1$ to one ancestor at a time gives $\int d(\text{old})\prod_YK_Ye^{{\rm Re}\,b_Y}\le e^{-\sum_Y\kappa_k(Y)}$, a
+constant. (4) Integrate $S_k$ over the new′ variables: $\le e^{-\kappa^{(k)}}$ by (S2). The product is $e^{-\kappa_{k+1}(Z')}$ by (3.10). No supremum over a part of the
+variables is taken, so no measurability question arises. $\square$
 
-**Lemma II.5.14 (one-step bound for quiet steps).** If the step is quiet in $Z'$, (S0) holds, $c_1\ge C_b$ and $c_2\ge C_bB_0+2(L^d+1)$, then (S2)
-holds with $\kappa^{(k)}(Z',\mathfrak a)=-(c_1\log\beta_k+c_2)|Z^c_k\cap Z'|_{k+1}$ (no gain), for real $z_{k+1}\in[\frac12,2]$ and $\delta_k\le\frac25$.
+**Lemma II.5.14 (one-step bound for quiet steps; version 1.1, audit P2-02).** If the step is quiet in $Z'$, (S0) holds, $c_1\ge C_b$, $c_2\ge C_bB_0$ and
+$\hat\lambda_k$ satisfies (Λ17′) of §II.1.3, then (S2) holds with $\kappa^{(k)}(Z',\mathfrak a)=-(c_1\log\beta_k+c_2)|Z^c_k\cap Z'|_{k+1}$ (no gain), for every $z_{k+1}>0$.
 
-*Proof.* Fix the old variables. The action is $\ge0$ for real arguments, so $e^{-\mathcal A}\le1$, and $e^{{\rm Re}\,b_k}\le e^{(C_b\log\beta_k+C_bB_0)|Z^c_k\cap Z'|_{k+1}}$. Integrate
-$\psi_{k+1}$ on the $(k+1)$-blocks of $\Omega^c_{k+1}\cap Z'$: $\int z^N_{k+1}t_k(z_{k+1}\psi_{k+1}(y),w)\,d^N\psi_{k+1}(y)=1$. Every $(k+1)$-block of $\Omega_{k+1}\cap Z'$ lies in a cube carrying
-$\chi'_{k+1}$ (if within $3$ of $\Omega^c_{k+1}$) or $\chi_{k+1}$ (otherwise), which confines $\theta(y)=z_{k+1}\psi_{k+1}(y)$, resp. $\psi_{k+1}(y)$, to a ball of radius $\le\frac54\delta_k$,
-so $\psi_{k+1}(y)$ to a ball of radius $\le\frac52\delta_k\le1$; the $\psi_{k+1}(y)$-integral is $\le v_N\le6$ ($v_N=\pi^{N/2}/\Gamma(\frac N2+1)$, the volume of the unit ball).
-Every $k$-block of $Z^c_k\cap\Omega^c_{k+1}\cap Z'$ lies in a $\pi_k$-cube carrying $\chi_k$ (outside $\Omega^{\sim3}_{k+1}$) or in a $\pi_{k+1}$-cube carrying $\chi'_{k+1}$ (inside), which
-confines $\psi_k(y)$ to a ball of radius $\le\delta_k$; the $\psi_k(y)$-integral is $\le6$. There are at most $(L^d+1)|Z^c_k\cap Z'|_{k+1}$ such blocks, and
-$\log6\le2$. $\square$
+*Proof.* *Shell volume.* For $0<t\le\frac12$ the shell $\{u\in\mathbb R^N:\ |u\cdot u-1|<t\}$ has volume $v_N\big((1+t)^{N/2}-(1-t)^{N/2}\big)\le c_Nt$, $c_N:=Nv_N(\frac32)^{N/2}$
+($v_N$ the volume of the unit ball; mean value theorem). *The new′ variables are confined to shells.* In the quiet step the new′ variables are
+$\psi_{k+1}$ on the $(k+1)$-blocks of $\Omega_{k+1}\cap Z'$ and $\psi_k$ on the $k$-blocks of $Z^c_k\cap\Omega^c_{k+1}\cap Z'$ (no fluctuation variables). Each of these blocks is
+a block of the multiscale field $\mathbb B_{k+1}$ inside a cube $\square$ to which $\chi^{\rm new}_k(Z')$ attaches a condition of (1.24): a $(k+1)$-block of $\Omega_{k+1}\cap Z'$ lies in a
+$\pi_{k+1}$-cube $\square\subset\Omega^\sim_{k+1}\cap Z'$ (first family, $\psi\in\tilde\Psi(\mathbb B_{k+1}\cap\square^\sim;3dL\delta_k)$); a $k$-block of $Z^c_k\cap\Omega^c_{k+1}\cap Z'$ lies in a $\pi_k$-cube $\square$; if
+$\square\cap\Omega^\sim_{k+1}=\varnothing$ the second family applies ($\psi_k\in\tilde\Psi(T_k(\square^\sim);3\delta_k)$), and otherwise the $\pi_{k+1}$-cube $\square'\supset\square$ meets the union of $\pi_{k+1}$-cubes
+$\Omega^\sim_{k+1}$, hence lies in it, and the first family applies to $\square'$. Both spaces contain the condition $|\psi(y)\cdot\psi(y)-1|<3dL\delta_k$ for the block $y$ (BG (R2);
+Definition II.3.4). So $\chi^{\rm new}_k(Z')\le\prod_{y\in\text{new}'}\mathbf 1[|\psi(y)\cdot\psi(y)-1|<3dL\delta_k]$, a function of the new′ variables only. *The majorant.* The main action is
+$\ge0$ for real arguments, so $e^{-\mathcal A}\le1$; all other characteristic functions are $\le1$; $e^{{\rm Re}\,b_k}\le e^{(C_b\log\beta_k+C_bB_0)|Z^c_k\cap Z'|_{k+1}}$ by (S0). Hence
+$$\tilde K_k\,e^{{\rm Re}\,b_k}\le S_k:=e^{(C_b\log\beta_k+C_bB_0)|Z^c_k\cap Z'|_{k+1}}\prod_{y\in\text{new}'}\mathbf 1\big[|\psi(y)\cdot\psi(y)-1|<3dL\delta_k\big]$$
+for all values of the old variables, and $\int d(\text{new}')S_k\le e^{(C_b\log\beta_k+C_bB_0)|Z^c_k\cap Z'|_{k+1}}(3dLc_N\delta_k)^{\#\text{new}'}\le e^{(C_b\log\beta_k+C_bB_0)|Z^c_k\cap Z'|_{k+1}}$ by
+(Λ17′). The Gaussian factorization of (S1) holds because the characteristic functions, the main action and $b_k$ read $\psi_{k+1}$ only on $\Omega_{k+1}$ (Definition
+II.3.2, II.5.4, (S0)). Finally $c_1\log\beta_k+c_2\ge C_b\log\beta_k+C_bB_0$. $\square$
 
-(P6 (3.4)'s "$(O(1)\log\beta_k+{\rm const.}E_0)|Z^c_k\cap Z_{k+1}|$" is the same estimate; the $\log\beta_k$ there comes from the normalizations of the fluctuation
-integrals and from the vacuum constants, which here are in $b_k$.)
+*Remark (audit P2-02).* Version 1 asserted that $\chi'_{k+1}$ and $\chi_{k+1}$ confine $\theta(y)$ to a ball of radius $\frac54\delta_k$. They do not: $|\theta-Q\phi'(\theta)|<\frac54\delta_k$ is a
+self-consistent condition whose set contains, for every unit vector $v$, the constant configuration $v$ (the audit's example). The shell condition
+of (1.24) is a condition on each variable separately and does not suffer from this; it makes the per-block volume $\le1$, so the term $2(L^d+1)$ of
+version 1 in $c_2$ disappears. P6 (3.4)'s "$(O(1)\log\beta_k+{\rm const.}E_0)|Z^c_k\cap Z_{k+1}|$" is the corresponding estimate; the $\log\beta_k$ there comes from the
+normalizations of the fluctuation integrals and from the vacuum constants, which here are in $b_k$.
 
 **Lemma II.5.15 (the summability (1.27) for localized histories).** Let $L^d\ge8$. For every $k\ge1$ and every component $Z$ (of $Z^{\rm pre}_k$ or $Z_k$),
 $$\sum_{\mathfrak a\in\mathfrak H_k(Z)}C_k(Z,\mathfrak a)^{-1}\le1,$$
@@ -2425,8 +2474,10 @@ $ML^{k+1}\mid\ell$, a **representation** $\mathrm{rep}=(\mathfrak s,\mathfrak A,
 - $\mathfrak s$ (*small-field data at scale $k$*): the running constants $(\beta_j,\nu_j)_{j\le k}$, $(z_j,E_j)_{1\le j\le k}$; the localized functions
   $\mathcal E^{(j)}(y,X;\cdot)$, $\mathcal M^{(j)}(x,X;\cdot)$ ($j\le k$, $X\in\mathcal D_j$) and $\mathcal R^{(k)}_n(X;\cdot)$ ($n\le m$, $L^m=M$, $X\in\mathcal D_k$), given on finite subsets of $\mathbb Z^d$ and
   pushed to the torus (SF §1.3 (H.4), P5 H4);
-- $\mathfrak A$: a finite set of admissible global region histories up to scale $k$ (Definition I.4.1, with the overwrite of Definition I.3.11), whose
-  $R$-records at each scale $j\le\min(k,k_0)$ mark every ripe component of $Z^{\rm pre}_j$ as removed or as kept with a label;
+- $\mathfrak A$: **the set of all** admissible global region histories up to scale $k$ (Definition I.4.1, with the overwrite of Definition I.3.11), whose
+  $R$-records at each scale $j\le\min(k,k_0)$ mark every ripe component of $Z^{\rm pre}_j$ as removed or as kept with a label from $\mathfrak K$; it is finite.
+  (Version 1 said "a finite set"; completeness is P5's "maximal set of the multi-indices" (p. 494 [checked]) and is needed for the polymer
+  expansion of $R$, Part III D-III.8, Lemma III.10.4. Histories whose operator vanishes are harmless.)
 - $\mathfrak D$: for every localized history prefix occurring in $\mathfrak A$, the step data (S0)–(S1) of every step and the kept data (S3) of every kept
   component (Definition II.5.7), indexed by the localized prefix (so (S4) holds by construction);
 - $\mathcal B$: for every $\mathbb A\in\mathfrak A$ the boundary terms $\mathcal B^{(k)}(X,\mathbb A;\psi,\psi',h,g)$, $X\in\mathcal D_k(\mathrm{mod}\,\Omega^c_k(\mathbb A))$ with $X\cap Z_k\ne\varnothing\ne X\cap Z^c_k$ (P5 (1.38)).
@@ -2475,13 +2526,33 @@ $\mathcal R_k(\mathsf c):=\{\rho:\exists\,\mathrm{rep},\ \mathrm{IsRep}_k(\maths
 
 - $\mathrm{IsRep}^{\rm pre}_k$ (the image of $S^{(k-1)}T^{(k-1)}$ before $R^{(k)}$; ARCH §3.6): as $\mathrm{IsRep}_k$ with $Z^{\rm pre}_k$ in place of $Z_k$ (no $R$-record
   at scale $k$, operators $\mathbb T^{\rm pre}_k$), and (D6) replaced by (H6′)$^{\rm pre}$: $t^*(Z)\ge k$ and $G^{\rm pre}_k(Z)\ge\tau_{t^*(Z)}+V_k(Z)+\nu(Z)+U(Z)$ for every
-  component of $Z^{\rm pre}_k$ (ripe components allowed).
-- $\mathrm{IsRep}^\flat_k$ ($k_0\le k\le k_f$; ARCH §3.6): as $\mathrm{IsRep}_k$ except that there are no window data and no $R$-records at scales $>k_0$, the
-  backgrounds at scales $j>k_0$ carry the mass $\mu_j=\nu_jL^{-2j}$ (complete backgrounds, P5 p. 490, P6 p. 2), the characteristic functions at
-  scales $>k_0$ contain the $h$-conditions, (D9) is $\beta_k>BL^{k(d-2)}$, $0<\nu_k$ only, and (D6) is replaced by
+  component of $Z^{\rm pre}_k$ (ripe components allowed). *(Part III, D-III.4.)* Its (D7) holds with $\kappa_+:=\frac32\kappa$ in place of $\kappa$ and with $B_{\rm st}$ in place
+  of $B_0$, where $B_{\rm st}$ is the constant of the boundary terms created by a step, which does not depend on $B_0$ (P5 Theorem 1, p. 499 [checked]:
+  "(H.2), (H.3), (H.4), (H.7) are satisfied with the constant $\frac32\kappa$ instead of $\kappa$ for functions with the superscript $j=k+1$"; P6 p. 15 [checked]:
+  "contributions to $\mathcal B^{(k+1)}$ ... have bounds independent of $B_0$"). This is an obligation on LF-3; $B_0\ge B_{\rm st}+1$ is row 12 (Lemma III.10.7).
+  Its (D2) requires $\mathcal R^{(k)}_m$ to satisfy P5 H4 with the bound $\frac12\beta_k^{-m-1}$ in place of $\beta_k^{-m-1}$ (P5 Proposition 3.2, p. 517 [checked]: "the bounds
+  (3.4) with $\frac12\beta_k^{-m-1}$"), so that $R$ can add $\mathcal R''^{(k)}_m$ (P5 p. 491 [checked]: "the sum of the two satisfies all the properties and bounds required
+  by Hypothesis (H.4)"); also an obligation on LF-3 (Part III, Theorem III.10.8 (c)).
+- $\mathrm{IsRep}^\flat_k$ ($k_0\le k\le k_f$; ARCH §3.6; version 1.1, audit P2-01): as $\mathrm{IsRep}_k$ except that
+  (i) there are no window data and no $R$-records at scales $>k_0$;
+  (ii) the backgrounds at scales $j>k_0$ carry the mass $\mu_j=\nu_jL^{-2j}$ (complete backgrounds, P5 p. 490, P6 p. 2), and the characteristic functions at
+  scales $>k_0$ contain the $h$-conditions;
+  (iii) (D2) is replaced by **(D2♭)**: $\mathfrak s$ satisfies the clauses (H.1)–(H.7) of Def-6 at scale $k$ verbatim (SF §1.3), read for scales $j>k_0$ in P4's
+  convention with complete backgrounds (SF §1.6 item 1 is applied only to the scales $j\le k_0$), and the mass range of the "Space" clause of SF §1.3,
+  $0<\nu_k\le\bar\nu$ with $\bar\nu\le\frac78L^{-2}$, is replaced by $0<\nu_k\le1$; the $\mathcal R^{(k)}_n$ satisfy P5 H4 as in (D2);
+  (iv) (D9) is replaced by **(D9♭)**: $\beta_k>BL^{k(d-2)}$ and $0<\nu_k\le1$;
+  (v) (D6) is replaced by
   $$\text{(H6}^\flat)\qquad G_k(Z,\mathbb A\cap Z)\ \ge\ A_2\hat\lambda_{k_0}^{p_2}+2\sigma_k\ell(\Gamma(Z))+W_{k+1}(\hat k_f)$$
   for every component (spines and clocks continue in the frozen regime, Part I §I.4.4 (T7)); for the conventional $k_0=0$ the threshold is
   $A_2\hat\lambda_0^{p_2}\ge p_2(\beta)$. This is the only place where $\hat k_f(\nu)$ enters Def-7 (§II.1.4).
+  *Which clauses used $\nu\le\bar\nu$ (audit P2-01).* In Def-6 the bound $\nu_k\le\bar\nu\le\frac78L^{-2}$ occurs only in the "Space" clause of SF §1.3; the clauses
+  (H.1)–(H.7) are stated for every $\nu_k>0$, and their $\nu$-dependent domain conditions ($|\phi-h|<\sigma\varepsilon/\sqrt\nu$, $\nu||h|^2-1|<\sigma^2\varepsilon^2$, and (R3), (R4),
+  (C3) of BG §1.3) are uniform for $\nu\in(0,1]$. The bound $\nu_k\le\frac78L^{-2}$ is a hypothesis of the step $k\to k+1$ (I-9, SF §5.1, P4 Theorem 1, P5
+  Theorem 1), not of the class. Version 1 imported it through (D2), which made $\mathrm{IsRep}^\flat_{k_f}$ empty since $\nu_{k_f}>\frac78L^{-2}$.
+  *Preservation.* For $k_0\le k<k_f$, $\nu_k\le\frac78L^{-2}$ by the definition of $k_f$, so the step (LF-5, with I-9 at $\bar\nu=\frac78L^{-2}$) applies to $\mathrm{IsRep}^\flat_k$;
+  its output has $\nu_{k+1}=\nu_kL^2\frac{1+\xi_3}{1+\xi_2}\le\frac78e^{c_\xi/\beta}<1$ (P4 (5.28), SF Theorem 5.3), so (D9♭) holds at $k+1$, in particular at $k+1=k_f$; at
+  $k_f$ no step is applied (LF-8 consumes $\mathrm{IsRep}^\flat_{k_f}$). The switch of convention at $k_0$ is part of LF-5's step at $k_0$ (ARCH §3.7, Part IV),
+  and the compatibility of Def-6 with complete backgrounds is SF's requirement R-ν (open item O-II-2); neither is changed here.
 
 **Lemma II.6.3 (consequences).** Assume $\mathrm{IsRep}_k$ (resp. a variant) and the hypotheses of Lemmas II.5.12–II.5.15.
 (a) (D4) implies (D5).
@@ -2496,6 +2567,24 @@ LF-2 not involving $R$ hold for every representation.
 $\int\cdots\le e^{-\kappa_k}\sup\chi|F|=C_k\,e^{-\kappa_k}\cdot C_k^{-1}\sup\chi|F|$ and sum with Lemma II.5.15; $C_ke^{-\kappa_k}=e^{-G_k-H_k|Z|_k}$ by definition.
 (c) (D6) gives $G_k\ge\tau_{t^*}\ge\tau_{k+1}=2A_2\hat\lambda_{k+1}^{p_2}\ge2A_2\lambda_k^{p_2}\ge2p_2(\beta_k)$ (Lemma II.1.2 (b); $\lambda_k\ge\log\beta_k$); (H6♭) gives
 $G_k\ge A_2\hat\lambda_{k_0}^{p_2}\ge p_2(\beta_{k_0})$. (d) Part I Lemmas I.3.7–I.3.8 and (R8)–(R9). $\square$
+
+**Definition II.6.4 (the continuous family class $\mathrm{IsRepFam}_k$; version 1.1, audit P2-03).** $\mathrm{IsRep}_k$ is a predicate at fixed $\nu$ and puts no relation
+between the data at different $\nu$; the audit's example (multiply a kernel by $1+\epsilon\sin(1/\nu)$) satisfies it and has no limit at $\nu=0$. The observable limit
+(OBSERVABLES §4.2 (5)) and LF-7 therefore use the following family class. Fix $\beta$, $h$, the constants, $k\ge1$, and $\nu_*(k)>0$ with $\beta_k(\nu)\nu_k(\nu)\le1$
+for $\nu\in(0,\nu_*(k)]$ (it exists by (I.2)). A family $(\mathrm{rep}(\nu),\rho(\nu))_{0<\nu\le\nu_*(k)}$ satisfies $\mathrm{IsRepFam}_k$ (resp. $\mathrm{IsRepFam}^{\rm pre}_k$) iff
+- (F-i) $\mathrm{IsRep}_k(\mathsf c,\mathrm{rep}(\nu),\rho(\nu))$ (resp. $\mathrm{IsRep}^{\rm pre}_k$) for every $\nu$;
+- (F-ii) the history set $\mathfrak A$ does not depend on $\nu$ (it is the set of all admissible histories; the bookkeeping uses $\hat\lambda$, which does not depend
+  on $\nu$, and all scales $\le k$ are $\le k_0(\nu)$);
+- (F-iii) **(CONT$^{\rm LF}$)** for every localized prefix, each datum — the step kernels and boundary factors $(K_j,b_j)$, $j<k$, the kept kernels $(K'',b'')$,
+  the boundary terms $\mathcal B^{(k)}(X,\mathbb A)$, and the small-field data $\mathfrak s$ — depends on $\nu$ through the running constants $(\beta_j,\nu_j,z_j,E_j)_{j\le k}$
+  and the variable $b=\nu h$ only; for almost every value of the internal and output variables (for the reference measure) and every value of the
+  complex arguments in the analyticity domains (which do not depend on $\nu$ for $k\le k_0$: no $h$-condition occurs), it is a continuous function of
+  $\nu\in(0,\nu_*(k)]$ with a limit as $\nu\downarrow0$; and the bounds (S0)–(S3), (S5), (D7) hold uniformly in $\nu\in(0,\nu_*(k)]$ (uniform domination);
+  for $\mathfrak s$ this is SF's (CONT) (SF §3.5, Theorem 5.3).
+Continuity in $\nu$ is distinct from analyticity in $g$, which holds for each fixed $\nu$. "Almost every" is needed because the thresholds $\delta_j$ of the
+characteristic functions depend on $\nu$ through $\beta_j(\nu)$; dominated convergence then gives continuity of all operators and of $\rho(\nu)$. LF-3 and LF-4
+must map $\mathrm{IsRepFam}_k$ to $\mathrm{IsRepFam}^{\rm pre}_{k+1}$, resp. $\mathrm{IsRepFam}^{\rm pre}_k$ to $\mathrm{IsRepFam}_k$; their data are explicit formulas in the input data
+with uniformly dominated integrals (for LF-4: Theorem III.10.8 (f)). LF-7 and the observable induction use $\mathrm{IsRepFam}$.
 
 ### II.6.4 What Def-7 changes in the interfaces of ARCH §3.7, §8.3
 
@@ -2514,15 +2603,17 @@ $G_k\ge A_2\hat\lambda_{k_0}^{p_2}\ge p_2(\beta_{k_0})$. (d) Part I Lemmas I.3.7
 
 1. *$g$ is an analytic parameter of every object.* Kernels are $g$-independent and non-negative; $g$ enters only through the step and kept
    boundary factors (S0), (S3), the boundary terms (D7) and the small-field functional $\mathcal F_k$ (D2), all analytic on $\|g\|_{\ell^1}<1$. The hard-spin
-   factor $e^{\langle g,\phi\rangle}$ of the large-field sites of scale $0$ enters $b_0$ with $|\langle g,\phi\rangle|\le\|g\|_{\ell^1}\le1$ (§II.7).
-2. *Joint covariance of $R''$*: required of the kept data in (S3) and of the new small-field terms by (D2); whether P7's coset average (M4) is
-   taken on the full integrand is a Part III item (O-II-5).
+   factor $e^{\langle g,\phi\rangle}$ of the large-field sites of scale $0$ enters $b_0$ with $|\langle g,\phi\rangle|\le\|g\|_{\ell^1}\le1$ (§II.7). **The operators therefore depend on $g$**
+   (through $e^b$), as in P5 H5; this is the convention of LF-3 and LF-4 (Definition II.5.2, audit P2-04). The observable argument must differentiate them
+   (open item O-II-9).
+2. *Joint covariance of $R''$*: required of the kept data in (S3) and of the new small-field terms by (D2); P7's coset average (M4) is taken on the
+   full integrand, and joint covariance holds (Part III, Lemma III.9.6; O-II-5 closed).
 3. *Locality in $g$*: (S0), (S3), (D7) require dependence on $g$ restricted to $V_Z$, resp. $X$.
 4. *Sup bounds on the complex polydisc*: (1.26) (Definition II.5.2), (S0) and (D7) are stated for all complex $\|g\|_{\ell^1}<1$.
 5. *$\nu\downarrow0$ and the horizon*: no object of Def-7 uses $\hat k_f(\nu)$ (§II.1.4); the bookkeeping uses $\hat\lambda$ (a function of $\beta$); for fixed $k$ and
    $\nu<\nu_*(k)$ (any $\nu_*(k)$ with $\beta_k\nu_k\le1$) all scales $j\le k$ are in the regime $j\le k_0$, where the backgrounds are $\nu$-free and $\nu$ enters
-   only through the running constants and the $\nu$-term of the actions. $\mathrm{IsRep}_k$ is a predicate at fixed $\nu$, so continuity of the large-field
-   data in $\nu$ is a property of the flow (LF-7), to be stated there as a clause analogous to SF's (CONT) (open item O-II-6).
+   only through the running constants and the $\nu$-term of the actions. $\mathrm{IsRep}_k$ is a predicate at fixed $\nu$; continuity of the large-field
+   data in $\nu$ is the family clause (CONT$^{\rm LF}$) of Definition II.6.4 (version 1.1, audit P2-03), which LF-3 and LF-4 must preserve (open item O-II-6).
 P9's marked polymer expansion PE-M with large-field holes is a Part IV / POLYMER item; nothing in Def-7 obstructs it (the large-field
 operators are local and their bounds are of the form used by PE).
 
@@ -2586,7 +2677,7 @@ Def-5 and Def-6 are frozen, and the open items O-II-1, O-II-2, O-II-5 below are 
 
 | Statement | Status |
 |---|---|
-| Defs. II.1.1, II.2.1, II.2.2, II.2.4, II.2.7, II.3.1–II.3.5, II.5.1, II.5.2, II.5.4–II.5.8, II.5.11, II.6.1–II.6.2 and the variants | definitions (sources [checked] as marked) |
+| Defs. II.1.1, II.2.1, II.2.2, II.2.4, II.2.7, II.3.1–II.3.5, II.5.1, II.5.2, II.5.4–II.5.8, II.5.11, II.6.1–II.6.2, II.6.4 and the variants | definitions (sources [checked] as marked); II.5.7 (S1)–(S5), II.6.1, II.6.3, II.6.4 amended in version 1.1 (§II.O.5) |
 | Lemma II.1.2 | proved here from (I.2) (landed Lean) |
 | Lemmas II.2.3, II.2.5, II.2.6 | proved here (II.2.6 uses BG's (EL) and domains; the uniqueness statement is BG Theorem 5.2, proved on paper) |
 | Remark II.2.8 (backgrounds evaluated only on the domain; identification with P5–P6) | the identification is cited (P5 (2.7), (2.10), P6 (2.6), P1 Lemma 3.1); not needed by Def-7 |
@@ -2594,7 +2685,8 @@ Def-5 and Def-6 are frozen, and the open items O-II-1, O-II-2, O-II-5 below are 
 | Theorem II.4.1 (LF-1), Lemmas II.4.2–II.4.3 | proved here ($\gamma_0=1/(28d)$; Lemma II.4.3 from the landed `blockPoincare_sharp`) |
 | Lemma II.5.3, II.5.9 (structural Lemma F), II.5.10 | proved here |
 | analytic half of Lemma F (background change into $b_k$ and $\mathcal B$) | cited route (P6 (2.12)–(2.17), LOC I-4b, I-5, Lemma AE); LF-3's proof; conditional on LOC's open items (O-2′) |
-| Lemma II.5.12 (Lemma B), II.5.13, II.5.14, II.5.15 ((1.27)) | proved here |
+| Lemma II.5.12 (Lemma B), II.5.15 ((1.27)) | proved here (survived the audit) |
+| Lemma II.5.13, II.5.14 | proved here in version 1.1 (proofs rewritten after audit findings P2-06, P2-02: integration order with the uniform majorant of (S2); shell volumes from (1.24)) |
 | (S2) for non-quiet steps | P6 (3.4)–(3.9) [checked]; to be re-derived in LF-3 with the local background |
 | Lemma II.6.3 | proved here from the above |
 
@@ -2630,7 +2722,7 @@ collar) is not Part I's $s_*=4$; the gap used here is $[R_k]$ cubes of side $ML^
 - **O-2′ (analytic half of Lemma F; replaces O-2).** The localization expansion of the background change from $\mathbb B_{k+1}(\partial\Omega_{k+1})$ to $\mathbb B^{\rm loc}$ (route
   in §II.5.5) must be written in LF-3 (Part IV.1). It needs LOC I-4b (v), I-5 (with the variation for one-cube anchors) and inherits LOC's open
   items (NC, GM2, the $h'$-conditions of $\Xi^c$).
-- **O-3 (Lemma L (c), (3.11)′).** Unchanged (Part III).
+- **O-3 (Lemma L (c), (3.11)′).** **Closed in Part III** (D-III.1, Lemma III.9.1: local sets $U,W$ of the ripe lineage).
 - **O-4 (range of P3's minimal generating sets).** **Closed**: range $1$ cube (Lemma II.2.3 (c)).
 - **O-5 ($\pi'$ offsets; adjacency of components of $\Omega^c$ in P5 (1.33)).** Open; neither affects the form of Def-7 (both enter only the summability
   (1.35) with a constant $K_0$, to be fixed in Part III/IV).
@@ -2638,23 +2730,1331 @@ collar) is not Part I's $s_*=4$; the gap used here is $[R_k]$ cubes of side $ML^
   spin variables, (S2) with the gain $\kappa^{(0)}$, and $b_0\ni\langle g,\phi\rangle$): §II.7.
 - **O-7 (constant order).** **Closed** in Part I v1.1.
 - **O-8′ (free flow versus $c=0$; replaces O-8).** The exact composition of the window transformations (P7 p. 499, (2.7), (2.9), (2.55), (2.57)) uses
-  P5's $c=0$; under the free flow it holds up to relative errors $O(\beta^{-1}L^{-2\gamma k_1})$. Part III §III.2 must carry the actual composed weights
-  (route (i) of §II.1.5).
+  P5's $c=0$ and ignores the field renormalizations $z_j$. **Closed in Part III** (Lemmas III.1.6, III.1.7, III.6.3; audit P2-05): the actual composed transformation
+  is computed exactly and the complete action difference, with its linear part and the factor $\beta_k$, is controlled: $\frac38$ of the composed-Gaussian
+  term absorbs the linear part, the rest is $\le1$ on the real domain and $\le C_\natural\hat\lambda_k^{2d+1}$ on the complex domain (part of $L_{\rm res}$).
 - **O-9, O-10.** Unchanged.
-- **O-II-1 (Def-5 in Lean).** `bgField`, `bgFieldC` and the assembly of BG Theorem 5.2 are not landed; BG Lemmas 6.2/6.3 (W28) are open. Def-7 needs
-  the first two.
+- **O-II-1 (Def-5 in Lean).** **Closed** since version 1: `bgField`, `bgFieldC`, `theorem71`, `theorem72` (`Background/Def5.lean`), I-2 `theorem73_real`,
+  `theorem73_system`, `theorem73_perturb`, BG Lemmas 6.2/6.3 (`lemma62`, `lemma63`, W28) and I-1(e) (W33b) are landed (ledger, 2026-10-11).
 - **O-II-2 (Def-6).** (D2) is Def-6; SF's open requirement R-ν (the RG equations with $\nu$-free backgrounds) must be settled before Def-7 is frozen.
 - **O-II-3 (new errata candidates).** N-II-1: P6 (3.2) prints $(\Omega''^c_{k+1})^{\sim3}\cap\mathsf S_{k+1}$ where p. 4 has $\cup$ (Definition II.5.6). N-II-2: P7 p. 499 cites
   "(1.36), (1.37) [4]", which do not exist in P4; read as P5 (1.40)–(1.41). N-II-3: the index of the fluctuation variables (P5 p. 492 versus P6
   p. 5). Minor: P5 (1.19) prints $|h^2-1|<\delta^2_k/\sqrt{\nu_k}$; whether P6 (3.2)'s background is evaluated at $\psi_{k+1}$ or $\theta=z_{k+1}\psi_{k+1}$.
 - **O-II-4 (constants of the small-field step).** $C_b$ (P6 (2.33) "const.") and $C_{\psi'}$ (P5 (1.25) "const.") are outputs of LF-3, chosen with row 11;
-  $c_1\ge C_b$, $c_2\ge C_bB_0+2(L^d+1)$ (row 14) must be added to the chain.
-- **O-II-5 (kept data from P7).** Part III must show that P7's kept operators K1, K2 have the form (S3): non-negative $g$-independent kernel on
-  the lineage's variables, $g$ in an analytic factor, the coset average (M4) taken on the full integrand (joint covariance, OBSERVABLES §4.2 (2)),
-  and the bound with $\kappa''$.
-- **O-II-6 ($\nu\downarrow0$).** The continuity of the flow's large-field data in $\nu$ is a clause of LF-7, analogous to SF's (CONT) (OBSERVABLES §4.2 (5));
-  Def-7 does not obstruct it (§II.6.5).
+  $c_1\ge C_b$, $c_2\ge C_bB_0$ (row 14, version 1.1) and the refund constants $c_1\ge C_W$, $c_2\ge C'_W$ of §III.8.2 are in the chain.
+- **O-II-5 (kept data from P7).** **Closed in Part III** (§III.8, Lemma III.9.6): the kept kernels K1, K2 have the form (S3) with $I''$ (D-III.9), the coset
+  average is taken on the full integrand, and joint covariance holds.
+- **O-II-6 ($\nu\downarrow0$).** Version 1.1 adds the family class $\mathrm{IsRepFam}_k$ with (CONT$^{\rm LF}$) (Definition II.6.4, audit P2-03). Open: LF-3 must
+  preserve it (Part IV); LF-4 does (Theorem III.10.8 (f)).
 - **O-II-7 (torus coherence of constructed data).** LF-3 and LF-4 must construct their step and kept data from finite-set objects so that (D8) holds;
   by Lemma II.5.9 they are local, so this is a matter of stating the constructions on $\mathbb Z^d$.
 - **O-II-8 (row 3 of the constant chain).** The conditions G-1–G-6 on $L$ are still to be written as $L\ge L_i(d)$ (Part I row 3, UNCERTAIN); Part II added
   no condition on $L$ beyond $L^d\ge8$ (Lemma II.5.15) and $\varrho\ge2dL$ (LF-1, implied by $R_0(d,L)\ge4dL$).
+- **O-II-9 ($g$ in the operators; audit P2-04).** The operators of Def-7 depend on $g$ through $e^b$ (Definition II.5.2, P5 H5). `OBSERVABLES.md` §4.1 (L4)
+  ("$\mathbb T_k$ does not depend on $g$") must be replaced: the derivatives in $g$ of the large-field part are bounded by Cauchy estimates from the sup bound
+  (1.26) on the polydisc, and the observable reduction must include these terms. This is a change to `OBSERVABLES.md`, not to Def-7.
+- **O-II-10 (frozen class; audit P2-01).** Closed by (D2♭), (D9♭) of §II.6.3. LF-5 must prove the switch of conventions at $k_0$ (Part IV).
+
+### II.O.5 Version 1.1: fixes after `LFR-PART2-AUDIT-astra.md` and amendments required by Part III
+
+| Finding | Fix | Where |
+|---|---|---|
+| P2-01 (BLOCKER) $\mathrm{IsRep}^\flat_{k_f}$ empty | (D2♭): Def-6 clauses (H.1)–(H.7) verbatim, complete backgrounds above $k_0$, mass range $0<\nu_k\le1$; (D9♭); list of the clauses that used $\nu\le\bar\nu$ (only the "Space" clause); preservation for $k_0\le k<k_f$ | §II.6.3 |
+| P2-02 (MAJOR) volume argument of Lemma II.5.14 | per-block shell condition of (1.24) (in $\chi^{\rm new}$), volume $\le c_N\cdot3dL\delta_k\le1$ by (Λ17′); $c_2\ge C_bB_0$ (the term $2(L^d+1)$ disappears); valid for every $z_{k+1}>0$ | Lemma II.5.14, §II.1.3, row 14 |
+| P2-03 (MAJOR) $\nu$-discontinuous data | family class $\mathrm{IsRepFam}_k$ with (CONT$^{\rm LF}$): $\nu$-dependence through the running constants and $b=\nu h$, a.e. continuity with limits at $\nu=0$, uniform domination; LF-3, LF-4 must preserve it | Definition II.6.4, §II.6.5 item 5 |
+| P2-04 (MAJOR) $g$ in operators vs OBSERVABLES (L4) | convention stated: operators depend on $g$ through $e^b$ only (P5 H5); (L4) must be replaced in `OBSERVABLES.md` (O-II-9) | Definition II.5.2, §II.6.5 item 1 |
+| P2-05 (MAJOR) O-8′ route | the claim of a quadratic $O(\beta^{-1})$ remainder withdrawn; perturbative composition lemma with linear residual, $\beta_k$ factor and field renormalizations: Part III Lemmas III.1.6, III.1.7, III.6.3 | §II.1.5, O-8′ |
+| P2-06 (MINOR) integration order in Lemma II.5.13 | (S2) restated with the Gaussian factorization and a majorant uniform in all old variables; proof integrates the Gaussian variables, then the old variables (ancestor bounds with $F\equiv1$), then the new′ variables; reduction of (1.26) to $F\equiv1$ by the support property | (S1), (S2), Definition II.5.2, Lemma II.5.13 |
+| §I.7.2 stale "(Λ0)–(Λ13)" | corrected | §I.7.2 |
+| Part III D-III.4 | $\mathrm{IsRep}^{\rm pre}_k$'s (D7) with $\kappa_+=\frac32\kappa$ and $B_{\rm st}$; its (D2) with $\frac12\beta_k^{-m-1}$ for $\mathcal R^{(k)}_m$ | §II.6.3 |
+| Part III D-III.6 | (S5) rotation form; $K$ may depend on $h$ | Definitions II.5.2, II.5.7 |
+| Part III D-III.8, D-III.9 | $\mathfrak A$ = all admissible histories; kept kernels on $I''\subset I$ | Definitions II.6.1, II.5.7 (S3) |
+
+The lemmas that survived the audit (II.1.2, II.2.3, II.3.3, II.4.1–II.4.3, II.5.3, II.5.12, II.5.15) are unchanged. The audit's conditional verdicts on
+II.2.5 (v) (the buffer argument for $W_k\cap U_{Z'}$) and II.5.9 (d) are answered as follows. *II.2.5 (v).* $G^{Z'}_{k+1}$ is the family of (iv) with $W_k$, $U_{k+1}$ replaced
+by $X':=W_k\cap U_{Z'}$ (a union of $\pi_k$-cubes) and $U_{Z'}$. Let $x\notin\Omega_n(G^{Z'})$, $y\in\Omega_{n+1}(G^{Z'})$. If $x,y$ lie on the same side of $\partial\Omega_{k+1}$, the separation
+is that of the generating set $\mathbb B_k(X')$, resp. $\mathbb B_{k+1}(U_{Z'})$ (Lemma II.2.3 (a), valid for every union of cubes). If $y\in\Omega_{k+1}$ and $x\in\Omega^c_{k+1}\setminus\Omega_n(X')$:
+either $x\notin W_k$, and the argument of (iv) applies, or $x\in W_k\setminus U_{Z'}$; then $x\in\Omega^c_{k+1}\subset Z^{\rm pre}_{k+1}$ lies in another component, at distance $\ge\omega_{k+1}-([R_k]+2)$
+cubes of side $ML^{k+1}$ from $U^{\sim1}_{Z'}\supset\Omega_{n+1}(G^{Z'})$. If $y\in\Omega^c_{k+1}$ and $x\in\Omega_{k+1}\setminus\Omega_n(U_{Z'})$: $y\in X'^{\sim1}\cap\Omega^c_{k+1}$ lies in $Z'$ (other components are
+far), and $x\notin U_{Z'}\supset(\Omega^c_{k+1}\cap Z')^{\sim([R_k]+1)}$ (since $\Omega_n(U_{Z'})\supset U_{Z'}$), so the distance is $\ge([R_k]+1)ML^{k+1}$. All these exceed $\varrho_3L^n$ under (RH).
+*II.5.9 (d)* follows from the rewritten Lemma II.5.13.
+
+
+---
+---
+
+# Large-field reconstruction document, Part III: $R$ on covered windows (LF-4)
+
+Version 1 (Part III, sections III.0–III.10, III.L, III.O), 2026-10-12. Brief: `orchestration/briefs/D-LFR-partIII.md`. Input: Parts I
+(version 1.1) and II above; ARCH v4 §3.8 (Steps 0–6, Lemma CH, Lemma L), §8.3, §9; `LF-V4-AUDIT-astra.md` (V4-01), REV3 (R3-03);
+`OBSERVABLES.md` §4.2 (cited as **OBS**), `POLYMER.md` (**PE**), `SMALLFIELD.md` (**SF**), `BACKGROUND.md` (**BG**). P7 was re-read for this
+Part in its text layer, pp. 495–529; displays whose symbols the text layer drops ($\Omega$, $\Psi$, $\Delta$, $\Lambda$) were reconstructed from
+context and are tagged [checked, text layer]. Status: draft for independent review; nothing here is approved or frozen. Tags, status
+words and the UNCERTAIN convention are those of Parts I–II.
+
+**Purpose.** Part III constructs the large-field renormalization operation $R^{(k)}$ on the ripe components of a representation
+(Def-7, §II.6), proves the internal lemma LF-4R (the hypothesis (Rg) of LF-2), and states and proves LF-4 in the existential form of
+ARCH §8.3 as amended by Part II §II.6.4: the only hypotheses are $\mathrm{IsRep}^{\rm pre}_k$ and $\beta_k\nu_k\le1$. It follows the outline of
+ARCH §9 (III.1–III.10). P7's argument is cited page by page where it is used unchanged; every estimate that changes because the
+window contains up to $\nu_{\max}$ merged pieces, because the flow is the free flow, or because the bookkeeping is that of Part I, is
+written out.
+
+## III.0 Setting, design decisions, summary
+
+### III.0.1 Standing assumptions of Part III
+
+Throughout Part III:
+
+- **(A-III.1)** The constants of the prefix §I.1.4 are fixed up to row 15, $\hat\lambda_0\ge\lambda_*$ with $\lambda_*$ satisfying the conditions of
+  §I.5.3, §II.1.3 and §III.O.3, and $\beta\ge\beta_0$.
+- **(A-III.2)** $1\le k$ and $\beta_k\nu_k\le1$, so $k\le k_0$ with $k_0$ genuine (Definition II.1.1); in particular the backgrounds of all scales
+  $j\le k$ are massless ($\mu_j=0$), no characteristic function at scales $\le k$ contains an $h$-condition, and (H-T) of Part I holds at
+  every scale $\le k$ (Lemma I.5.6 (c)).
+- **(A-III.3)** $\mathrm{rep}=(\mathfrak s,\mathfrak A,\mathfrak D,\mathcal B)$ is a representation with $\mathrm{IsRep}^{\rm pre}_k(\mathsf c,\mathrm{rep},\rho)$ (Definition II.6.2 and §II.6.3, with the
+  amendments of §III.0.3), on a fixed admissible torus; everything below is done on each admissible torus separately and is local
+  (proof of Theorem III.10.8 for (D8)).
+
+All bookkeeping (radii, widths, windows, ripeness, $h_j$, $\nu_{\max}$, $\hat W$) uses $\hat\lambda$ (ARCH R3-06); the running constants
+$\beta_j,\nu_j,z_j$ enter only the analytic objects. Constants named $C,C',\dots$ depend only on rows 0–15 of the chain; every condition of
+the form "$\beta$ large" is written as a condition on $\lambda_*$ and collected in §III.O.3.
+
+### III.0.2 Notation for one ripe component
+
+Fix a global history $\mathbb A\in\mathfrak A$ and a ripe component $Z$ of $Z^{\rm pre}_k(\mathbb A)$ (Definition I.4.6), with localized history
+$\mathfrak a=\mathbb A\cap Z\in\mathfrak H_k(Z)$. As in P7 p. 498 [checked] ("we assume that $Z_k=Z$, so that these intersections are equal to $Z_j$,
+$\mathbb A_k$, etc."), **all sets below are intersected with $Z$ as fine sets**, i.e. they are the sets of the localized history (Definition
+I.4.4), and are written without the intersection. In particular:
+
+| Symbol | Meaning |
+|---|---|
+| $q=q(Z)$, $k_1$ | the core scale of the Active state of $Z$; $k_1:=q$ (Lemma III.1.2 (a): $k_1=k_1(k)$ of §I.1.2), $n_1:=k-k_1$ |
+| $s=s(Z)$ | the smallness clock (Definition I.4.6) |
+| $\mathrm{Lin}_j$, $\mathcal C_*$ | the lineage $\mathrm{Lin}_j(Z)$, $k_1\le j\le k$; the core components $\mathcal C_*:=\mathrm{Anc}_{k_1}(Z)$ (components of $Z_{k_1}$) |
+| $Z_j$ | $\mathrm{Lin}_j$ for $k_1\le j<k$, and $Z_k:=Z$ (P7's convention) |
+| $X_j$ | the new region of the step $j\to j+1$: $X_j:=Z^c_j\cap Z_{j+1}$, $k_1\le j<k$; the *window region* $X_{\rm win}:=\bigsqcup_jX_j=Z\setminus Z_{k_1}$ |
+| $\Omega_j,\Omega''_j$ | the localized domains; on $X_j$ the step is quiet, so $\Omega'_{j+1}=\Omega_{j+1}=\Omega''_{j+1}$ (Lemma III.1.2 (b)) |
+| $\Lambda_j$ | the layer $(\Omega_j\setminus\Omega_{j+1})$ of the localized generating set $\mathbb B_k$, $k_1\le j<k$; $\Lambda_k:=\Omega_k$ |
+| $U,\ W$ | the **local** core sets $U:=\bigcup_{C\in\mathcal C_*}C^{\approx}$, $W:=(Z^c_{k_1})^{\approx2}$, at scale $k_1$ (ARCH writes $U_{k_1},W_{k_1}$; by V4-01 only the local sets occur) |
+| $\delta_j,\ \delta_{j,1},\ \varepsilon_j$ | $\delta_j=(\beta_ja)^{-1/2}p_0(\beta_j)$, $\delta_{j,1}=\frac{A_1}{A_0}\delta_j$ (P7 (2.61)), $\varepsilon_j$ of Definition II.1.1 |
+| $\lambda_j$ | the running $\log(\beta_ja)$ (Definition II.1.1); $p_0(\beta_j)=A_0\lambda_j^{p_0}$, so $\beta_j\delta_j^2=A_0^2\lambda_j^{2p_0}/a$ |
+| $\mathbb T^{\rm pre}_k(Z,\mathfrak a)$ | the localized operator of Definition II.5.8, kernel $(K^{\rm pre},b^{\rm pre})$ |
+
+Volumes: $|X|_j$ in scale-$j$ units, $|X|_{\#j}$ the number of $\pi_j$-cubes, as in Part II. "$k$-block" is a cube of $T^{(k)}_1$ (side $L^k$
+fine units), as in P7.
+
+### III.0.3 Design decisions
+
+Rulings 1–2 (approved, AGENTS.md) are in force: $R$ acts on ripe components, i.e. on Active windows covered by at most $\nu_{\max}$ boxes
+with merge strips, and may be redefined wherever P7's construction needs it. The following decisions make P7 precise in that setting.
+
+**D-III.1 (localization; V4-01, O-3).** $R$ is defined on one ripe component at a time, on its localized history, with the local sets
+$U,W$ of the core. The global sets $U_{k_1}=Z_{k_1}^\approx$, $W_{k_1}$ of ARCH's Lemma L never occur. Lemma L becomes a statement about
+local sets (§III.9.1) and needs no assumption on far components; this closes O-3.
+
+**D-III.2 (binary decompositions).** P7 introduces five decompositions of unity: (2.18) on $Z^c_0\cap(\Omega^c_k)^{\sim3}$, "the second
+decomposition" over $S''_k\subset Z''^c_0\cap(\Omega^c_k)^{\sim3}$ (p. 502), the decomposition over $Q''_{k_1}\subset U^c\cap U^{\sim6}$ (p. 503), $\chi''$ (2.61),
+and (3.20) over $S''_k\subset Z''_0$. In P7 the large-field terms are indexed by the subsets $S''_k$, $Q''_{k_1}$, because the large-field
+region of the multi-index is enlarged by them. Here a kept component keeps its region and spine ((T6) of §I.4.4), so no subset needs to
+be recorded: **each decomposition is binary**, $1=\chi+(1-\chi)$ with $\chi$ the product of the small-field functions, and the
+large-field branch uses the small factor of a single violation. This removes the entropy of the subset sums (P7's factors
+$\exp O(1)|\cdot|$ and the ring term of (2.33)). The kept labels are $\mathfrak K:=\{\varkappa_1,\dots,\varkappa_5\}$ with $C_{\rm dec}\equiv5$
+(Definition III.5.2).
+
+**D-III.3 (the actual composed transformation; O-8′).** P7 p. 499 composes the window transformations $T^{(j)}$ exactly, using P5's
+choice $c=0$ ("the equalities (1.37) [4]", read as P5 (1.40)–(1.41), Part II §II.1.5 item 3). Under the free flow (D-II.3) two things
+differ: the coefficients $\beta_ja$ are not exactly canonical (ratio $\gamma_j/\gamma_k$), and the field renormalizations $\theta=z_{j+1}\psi_{j+1}$
+(P4 (4.1), P6 p. 4 [checked]) multiply the large-field Gaussians of the window. **New finding:** the second effect is not mentioned by P7,
+and it shifts the mean of the composed Gaussian by $\sum_{i>n}\zeta_i$ for a leaf of layer $n$, which is large compared with the Gaussian width
+$\beta_k^{-1/2}$ for deep layers. It is harmless only after weighting by the volume fraction of the deep layers in a $k$-block, which is
+$O(L^{-(k-n)d})$ (Lemmas III.1.7, III.1.7′). Route (i) of §II.1.5 is adopted: the actual composed kernel is computed exactly (Lemma III.1.6), the
+cancellation (2.53)–(2.58) is done with the ideal weights of P2 (4.6)–(4.7), and the difference is an explicit remainder $C^\natural=C^\natural_0+C^\natural_1$:
+$C^\natural_1$ is absorbed by $\frac38$ of the composed-Gaussian term, $|C^\natural_0|\le1$ on the real domain and $\le C_\natural\hat\lambda_k^{2d+1}$ on the complex domain
+(Lemma III.6.3; the latter is part of $L_{\rm res}$). No perturbation statement for the Gaussian kernels in the sequence $(a_i)$ is needed (SF §3.1).
+
+**D-III.4 (decay margin of the input).** P5 Theorem 1 (p. 499 [checked]) states that the functions with the new superscript produced by
+the step satisfy (H.2)–(H.4), (H.7) "with the constant $\frac32\kappa$ instead of $\kappa$", and P7 p. 528 [checked] uses "the exponential decay
+properties obtained after the last fluctuation integral and the scaling operation, and they are better than the properties formulated
+in the inductive hypothesis (H.7)". The polymer expansion of §III.10 needs this margin. **$\mathrm{IsRep}^{\rm pre}_k$ is amended**: its (D7)
+holds with $\kappa_+:=\frac32\kappa$ in place of $\kappa$ (and with the constant $B_{\rm st}$ of LF-3, Lemma III.10.7), and its (D2) gives $\mathcal R^{(k)}_m$ the bound $\frac12\beta_k^{-m-1}$
+(P5 Proposition 3.2), leaving room for $\mathcal R''^{(k)}_m$. This is an obligation on LF-3
+(P5 Theorem 1), recorded as a change to §II.6.3 (§III.O.2).
+
+**D-III.5 (the refund route; ARCH Step 6, (M3)).** Every loss of $R$ that is proportional to the window volume $\sum_j|X_j|_{j+1}$ (the
+renormalization remainder $C_{k_1,k}$, the step boundary factors, the integration volumes of the window variables) is paid by the slack in
+the quiet-step charges $(c_1\log\beta_j+c_2)|X_j|_{j+1}$ of $\kappa^{\rm pre}$ (Definition II.5.11), once $c_1\ge C_W$, $c_2\ge C'_W$ (§III.8.2). Only the
+losses that are not proportional to the window volume ($L_{\rm res}$, (III.8.4)) are paid by $C_R\hat\lambda_k^{2d+1}$. This is P7 p. 520 [checked]:
+"We can take the constants in the sum (3.8) large enough, so that the sum in (3.9) is cancelled by the sum in (3.8)".
+
+**D-III.6 (rotation form of the kernels; OBS requirement 2).** P7's coset average (p. 521 [checked]) rotates the integration variables of the
+core operator and needs that "the integral operators with the characteristic functions ... are invariant with respect to the orthogonal
+group", while "some expressions in the exponentials ... depend on the vector variables $h,g$ ... but they depend analytically on
+$(\psi,\psi')$". Part II version 1 did not state this structure. It is added as requirement (S5) on all kernels at scales $\le k_0$ (Definition
+II.5.7, version 1.1): indicator of an $O(N)$-invariant set times the exponential of a jointly covariant analytic function. It holds for the quiet
+kernels and for the kept kernels constructed here; LF-3 and LF-6 must supply it for their kernels.
+
+**D-III.7 (removed clusters in the polymer expansion).** P7 (3.26) sums over sets $\{Z_1,\dots,Z_n\}$ of removed components without saying
+which sets occur together with a given kept region. Joint admissibility of components is not a pairwise condition (§III.10.1: gap
+filling in the openings can involve three components). The heavy objects of the gas are therefore *removed clusters*, the classes of
+removed components under "distance $\le4\omega_k$"; joint admissibility factorizes over them (Lemmas III.10.2, III.10.4). This is new.
+
+**D-III.8 (completeness of $\mathfrak A$).** The history set of a representation is the set of **all** admissible histories (with $R$-records
+valued in $\{\text{removed}\}\cup\mathfrak K$), as in P5 (1.27) ("the maximal set of the multi-indices", p. 494 [checked]). Terms with zero operator are
+harmless; completeness is needed for the gas identity (Lemma III.10.4). Change to Definition II.6.1 (§III.O.2).
+
+**D-III.9 (variables of kept kernels).** After $R$'s normalization, the kept kernels of the second kind (K2) no longer contain the window
+variables that occur only in Gaussians (they are integrated by the composition). (S3) is amended to allow a kept kernel whose internal
+variables $I''\subset I(Z,\mathfrak a)$ contain all variables of the multiscale field and of the fluctuation fields ((S3) of Definition II.5.7, version 1.1).
+
+**D-III.10 (LF-1 (b) replaces P7's segment arguments).** P7 uses segments of length $<6M[R_{k-1}]$ (p. 502) to verify the hypothesis
+$||\psi|-1|<c_5$ of P6 (3.6). LF-1 (b) (Theorem II.4.1) holds for hard spins without that hypothesis, so these segments are not needed;
+the constants $C(c_0)$ of (M7) attached to them disappear.
+
+### III.0.4 Summary of results
+
+Proved here: the structure of the window operator and the exact composition with the actual coefficients (§III.1); the late-scale
+geometry with $D_0=3c_0+4$ (§III.3); **Lemma CH** with explicit $\hat W_k\le C_{\hat W}\hat\lambda_k^{w_0}$ (§III.4); the small factors of the five
+decompositions (§III.5); the cancellation identity with the remainder $C^\natural$ (§III.6); Lemma 2.5 with the changed constants (§III.7);
+the window integral, the kept data K1, K2 and **LF-4R** (§III.8); **Lemma L** for the local sets, the bounds (3.11)′–(3.19)′, the coset
+average with joint covariance (§III.9); the clique lemma, the removed-cluster gas, and **LF-4** (§III.10). Cited: the renormalization of
+the window actions P7 (2.10)–(2.15) with P6 (2.31) (same inputs as Part II's O-2′), P7 Lemmas 2.1–2.2 (existence and bounds of $\psi^0_k$, with $D_0$), the denominator (3.3)–(3.5),
+P2 Proposition 3.1 / P3 Proposition 2.1 (through BG and LOC), the background re-expansion (3.22)–(3.25) (P6 §2), and the abstract
+polymer expansion PE with a hole (landed `pe_hole`).
+
+---
+
+## III.1 Ripe components, the window, and the composition (P7 pp. 498–500)
+
+### III.1.1 What ripeness gives
+
+**Lemma III.1.2 ((RQ1)–(RQ5); P7 (2.1)–(2.2), (2.31)–(2.32)).** Under (A-III.1)–(A-III.3), let $Z$ be ripe at scale $k$, Active$(q,\nu,\mathcal M)$ with
+$t^*(Z)=k$. Then:
+
+(a) $q=k_1(k)$ (the core of §I.1.2), $n_1=k-k_1$ satisfies $n_1\ge n_q(k_1)$, hence
+$$n_1\log L>\alpha^{-1}\hat\lambda_{k_1}\ge\alpha^{-1}\log(\beta_{k_1}a)\qquad(\text{the first inequality of P7 (2.31)}),\tag{III.1.1}$$
+and $\hat\lambda_k\le c_*\hat\lambda_{k_1}+(c_*+1)\theta\le2c_*\hat\lambda_{k_1}$ (RQ4), so that $\lambda_j\ge\lambda_{k_1}\ge\hat\lambda_k/(4c_*)$ for $k_1\le j\le k$ (replacing P7 (2.32),
+$\log\beta_{k_1}a/\log\beta_ka>\alpha/d$).
+
+(b) (RQ1) For $k_1\le j<k$ no new large-field cube lies in $Z_{j+1}$: the step $j\to j+1$ is quiet in every component of $Z_{j+1}$
+(Definition II.5.5), so $\Omega'_{j+1}=\Omega_{j+1}=\Omega''_{j+1}$; no ancestor of $Z$ at a scale in $(k_1,k)$ is ripe, removed or kept.
+
+(c) (RQ2) For $k_1\le j\le k$, $Z_j$ is covered by $\nu\le\nu_{\max}(k)$ boxes of side $\le\mathrm{crit}_j$; it has at most $\nu(M\mathrm{crit}_j)^d$ $j$-blocks
+per $\pi_j$-cube count, and $\Lambda_j$ has at most $\nu(LM\mathrm{crit}_{j+1})^d$ $j$-blocks.
+
+(d) (RQ3) $\Gamma(Z)$ is a point, $s+n_2(s)\le k$, and $Z_j$ is one box of side $\le\mathrm{crit}_j$ for $s\le j\le k$; in particular $Z$ is one box.
+
+(e) (RQ5) The core $Z_{k_1}=\bigsqcup_{C\in\mathcal C_*}C$ is a union of boxes of side $\le\mathrm{crit}_{k_1}$, at mutual distance $\ge\omega_{k_1}$; the sets
+$(C^{\approx})^{\sim m}$, $C\in\mathcal C_*$, are pairwise disjoint for $m\le\frac{L+8}2$ (Lemma I.2.13).
+
+(f) (P7 (2.1), (2.23) for the lineage) For $k_1\le j<k$: $\Omega^c_j\subset\Omega^c_{j+1}\subset Z_{j+1}$, $Z_j\subset\Omega^c_{j+1}$, and, as fine sets,
+$\mathrm{dist}_\infty(Z_j,\Omega_{j+1})\ge(([R_j]+4)LM+([R_{j-1}]+1)M)L^j$ (Lemma I.3.5 (f)). The ring $U^c\cap U^{\sim9}$ (scale $k_1$) lies in
+$X_{k_1}\cap\Omega^c_{k_1+1}=Z^c_{k_1}\cap\Omega^c_{k_1+1}$, i.e. in the layer $\Lambda_{k_1}$, and $U^{\sim9}\subset Z_{k_1+1}$ (Lemma I.3.5 (i) for the localized history).
+
+*Proof.* (a) Lemma I.4.13 (f4): $k_1(t^*(Z))=q$ and $t^*=k$. By Lemma I.4.9 (b), $q+n_q(q)\le k$, and $n_q(q)>\hat\lambda_q/(\alpha\log L)$ by (F1);
+$\hat\lambda_q\ge\lambda_q=\log(\beta_qa)$ by Lemma II.1.2 (a). By Lemma I.4.9 (b) also $k<(q+1)+n_q(q+1)$, so $\hat\lambda_k\le\hat\lambda_{q+1+n_q(q+1)}\le c_*\hat\lambda_{q+1}+\theta$
+by (F1), and $\hat\lambda_{q+1}=\hat\lambda_q+\theta$. The last bound uses $\hat\lambda_{k_1}\ge(c_*+1)\theta/c_*$ ((Λ0)), $\lambda_j\ge\hat\lambda_j-2\ge\hat\lambda_j/2$ ((Λ14) with
+$\hat\lambda\ge4$) and monotonicity. (b)–(e) Lemma I.4.13 (a), (b), (g), (e4) and Lemma I.4.10 (a); quietness is (a) of Lemma I.4.13 with
+Definition II.5.5. No ancestor in $(k_1,k)$ is ripe: a ripe ancestor would be removed (then it has no successor, Lemma I.4.3 (a)) or kept
+(a reset, excluded by Lemma I.4.13 (a)). The block counts in (c): $\Lambda_j\subset\Omega^c_{j+1}\subset Z_{j+1}$, covered by $\nu$ boxes of $\pi_{j+1}$-cubes,
+each containing $(LM)^d$ $j$-blocks. (f) Lemma I.3.5 (a), (e), (f), (i) applied to the localized history (Lemma I.3.9 (d)); $Z_j=\mathrm{Lin}_j$
+and $Z_{j+1}=\mathrm{Lin}_{j+1}$ by Lemma I.4.3 (c). $\square$
+
+P7's second inequality of (2.31) ($n_1\log L\le\alpha^{-1}\log\beta_{k_1}a+\log L$) is replaced by (RQ4); it was used only for (2.32).
+
+### III.1.2 The window operator (P7 (2.6))
+
+**Lemma III.1.3 (the window operator).** With the notation of §III.0.2,
+$$\mathbb T^{\rm pre}_k(Z,\mathfrak a)=\big(K_{\rm win},b_{\rm win}\big)\circ\bigotimes_{C\in\mathcal C_*}\mathbb T_{k_1}(C,\mathfrak a|_C),\qquad
+K_{\rm win}:=\prod_{j=k_1}^{k-1}\ \prod_{Y'\in\mathrm{Anc}_{j+1}(Z)}K^{\rm q}_j(Y'),\quad b_{\rm win}:=\sum_{j=k_1}^{k-1}\ \sum_{Y'\in\mathrm{Anc}_{j+1}(Z)}b_j(Y'),\tag{III.1.2}$$
+in the sense of Lemma II.5.3, where $K^{\rm q}_j$ is the quiet kernel of Definition II.5.6 and $b_j$ the step boundary factor (S0). The internal
+variables of $(K_{\rm win},b_{\rm win})$ are $\psi_j$ on $T^{(j)}\cap\Omega^c_{j+1}$, $k_1\le j\le k-1$ (no fluctuation variables); its output variables are
+$\psi_k$ on $T^{(k)}\cap V_Z$. This is P7 (2.6) [checked, text layer], with P6 (3.2)'s background replaced by the local background (D-II.1) and
+with the constants $-E_j|Z^c_j\cap\Omega^c_{j+1}|-E'''_j|\Omega_{j+1}\cap Z_{j+1}|$ inside $b_j$ (P7 p. 499: "The constants in the exponentials are
+unimportant, so we separate them").
+
+*Proof.* Induction on $j$ from $k_1+1$ to $k$ with Definition II.5.8: by Lemma III.1.2 (b) every step on $[k_1,k)$ is quiet in every lineage
+component, so its step kernel is $K^{\rm q}_j$ by (S1), and no ancestor at a scale in $(k_1,k)$ is ripe, so $\mathbb T_j=\mathbb T^{\rm pre}_j$ there. Products
+and compositions are those of Lemma II.5.3 (b); the internal variables of the quiet steps are listed in Definition II.5.6. $\square$
+
+By Lemma III.1.2 (b) and Definition II.5.6 the window kernel is explicit:
+$$K_{\rm win}=\prod_{j=k_1}^{k-1}\Big[\prod_{y\in T^{(j+1)}\cap\Omega^c_{j+1}}z_{j+1}^Nt_j\big(z_{j+1}\psi_{j+1}(y),(Q\psi_j)(y)\big)\Big]\cdot\mathcal X_{\rm win}\cdot e^{-\sum_j\mathcal A_{j+1}(X_j)},\tag{III.1.3}$$
+where $\mathcal X_{\rm win}$ is the product of the characteristic functions of Definition II.5.6 over the window, $\chi_j(X_j\cap(\Omega^{\sim3}_{j+1})^c)$,
+$\chi'_{j+1}(\Omega^{\sim3}_{j+1}\cap(\Omega^c_{j+1})^{\sim3}\cap Z_{j+1})$ (both sides of $\partial\Omega_{j+1}$), $\chi_{j+1}(\Omega^{\sim-3}_{j+1}\cap Z_{j+1})$, $\chi^{\rm new}_j$ and
+$\mathbf 1[\cdot\in\mathcal D_{\mathbb R}]$, and $\mathcal A_{j+1}(X_j):=\sum_{Y'}\mathcal A_{j+1}(Y';\psi)$ (Definition II.5.4).
+
+### III.1.3 Leaves, Gaussian-only variables, and the composition (P7 (2.7)–(2.9))
+
+**Definition III.1.4 (leaves and Gaussian-only variables).**
+- The *Gaussian-only variables* are $\mathcal J:=\{\psi_j(y):\ y\in T^{(j)},\ y\subset\Omega^c_j,\ k_1<j\le k-1\}$.
+- The *leaves* are the variables of the generating set $G:=(\mathbb B_k\cap Z^c_{k_1}\cap\Omega^c_k)\cup(T^{(k_1)}\cap Z_{k_1})$ (P7 p. 499: "the one generating
+  set equal to $(\mathbb B_k\cap Z^c_{k_1})\cup(T^{(k_1)}\cap Z_{k_1})$"): the multiscale field $\psi_n$ on the blocks of $\Lambda_n\cap Z^c_{k_1}$, $k_1\le n\le k-1$, and $\psi_{k_1}$
+  on the $k_1$-blocks of $Z_{k_1}$. For a leaf block $x$ write $n_x$ for its layer and $\psi^G(x)$ for its variable.
+- The *top variables* are $\psi_k(z)$, $z$ a $k$-block of $\Omega^c_k$.
+
+**Lemma III.1.5 (support of the Gaussian-only variables).** A Gaussian-only variable $\psi_j(y)$ occurs in $K_{\rm win}e^{b_{\rm win}}\prod_CK_C e^{b_C}$ only
+in the two factors $z_j^Nt_{j-1}(z_j\psi_j(y),(Q\psi_{j-1})(y))$ and $z_{j+1}^Nt_j(z_{j+1}\psi_{j+1}(y''),(Q\psi_j)(y''))$, $y''\supset y$ the $(j+1)$-block. A top variable
+$\psi_k(z)$, $z\subset\Omega^c_k$, occurs only in $t_{k-1}$. In particular the main actions, the characteristic functions, the boundary factors and the
+core kernels do not depend on $\mathcal J$ nor on $\psi_k|_{\Omega^c_k}$.
+
+*Proof.* $y\subset\Omega^c_j\subset Z_j$ is at fine distance $\ge(([R_j]+4)LM)L^j$ from $\Omega_{j+1}$ (Lemma III.1.2 (f)), and at index distance
+$\ge[2R_{j-1}]+7$ (scale $j$) from $Z^c_j$ (Lemma I.3.5 (d), (e) at scale $j$: $Z^{(0)}_j\supset(F^Z_j)^{\sim([2R_{j-1}]+2)}\supset(\Omega''^c_j)^{\sim([2R_{j-1}]+6)}$). The
+characteristic functions read their variables within three cubes of cubes of $X_j$, of $\Omega^{\sim3}_{j+1}\cap(\Omega^c_{j+1})^{\sim3}$ or of $\Omega_{j+1}$ (Lemma
+II.3.3), hence not on $\Omega^c_j$. The main action $\mathcal A_{j+1}(X_j)$ reads the multiscale field on $X_j^{+1}$ (which consists of $\psi_j$ on $\Lambda_j$ and
+$\psi_{j+1}$ on $\Omega_{j+1}$) and the local background, whose data live on $\Omega_1(G^{Y'}_{j+1})\cup C(\Omega_1(G^{Y'}_{j+1}))$; its part from $\mathbb B_j(W_j)$ lies within
+one cube of $W_j=(Z^c_j)^{\sim2([R_{j-1}]+1)}$ (Lemma II.2.3 (c)), at distance $\ge[2R_{j-1}]+7-2[R_{j-1}]-3>0$ from $\Omega^c_j$, and its part from
+$\mathbb B_{j+1}(U_{Y'})\cap\Omega_{j+1}$ reads $\psi_{j+1}$ on $\Omega_{j+1}$ only (the mixed lift, Definition II.2.1 (b)). Boundary factors and core kernels depend on
+the multiscale field, the fluctuation fields and the core variables only ((S0), Lemma II.5.9 (a)). For $\psi_k$ on $\Omega^c_k$: the multiscale
+field at scale $k$ is $\psi_k$ on $\Omega_k$, and $\chi'_k$ reads $\theta=z_k\psi_k$ only on $\Omega_k$ (Definition II.3.2 item 3). $\square$
+
+**Lemma III.1.6 (the actual composed transformation; O-8′ part 1).** Put $c_j:=\beta_jaL^{d-2}$, $\varpi_n:=\prod_{i=n+1}^kz_i^{-1}$ ($\varpi_k=1$), and for a
+$k$-block $z\subset\Omega^c_k$ and a leaf $x\subset z$, $w_x:=L^{(n_x-k)d}$ (its volume fraction). Then, for every value of the leaves and of the other
+variables,
+$$\int\prod_{j=k_1}^{k-1}\ \prod_{y\subset\Omega^c_{j+1}}z_{j+1}^Nt_j\big(z_{j+1}\psi_{j+1}(y),(Q\psi_j)(y)\big)\ \prod_{\mathcal J}d^N\psi\ =\ \prod_{z\subset\Omega^c_k}g_z\big(\psi_k(z)-\mathcal Q^\natural_z\psi^G\big),\tag{III.1.4}$$
+$$\mathcal Q^\natural_z\psi^G:=\sum_{x\subset z}w_x\varpi_{n_x}\psi^G(x),\qquad g_z(u):=\Big(\frac{\beta_ka^\natural_z}{2\pi}\Big)^{N/2}e^{-\frac12\beta_ka^\natural_z|u|^2},\qquad
+\frac1{\beta_ka^\natural_z}:=\sum_{j=k_1}^{k-1}\ \sum_{y}\frac{\varpi_j^2\,w_y^2}{c_j},\tag{III.1.5}$$
+the last sum over the $(j+1)$-blocks $y\subset z$ that are not leaves, $w_y:=L^{(j+1-k)d}$. Each $g_z$ is a probability density on $\mathbb R^N$. Write
+$\mathcal Q_z\psi^G:=\sum_{x\subset z}w_x\psi^G(x)$ (P2 (4.6), the volume average) and $a_z:=a(\Delta_k(z),G)$ for the weight of P2 (4.7) = BG (6.5),
+$\frac1{a_z}=\sum_{x\subset z}w_xu_{k-n_x}$, $u_r=1/\texttt{compWeight}\ L\ a\ r$. Then
+$$a^\natural_z=a_z(1+\eta_z),\quad|\eta_z|\le\eta_k:=\frac{12c_\xi q^k}{\beta(1-q)};\qquad|\varpi_n-1|\le\varsigma_n:=\frac{6\alpha_0c_\xi}{\beta}L^{-(n+1)(\alpha+2\gamma)}\quad(k_1\le n<k),\tag{III.1.6}$$
+with $c_\xi$, $q=L^{-2\gamma}$ of SF Theorem 5.3. With the ideal coefficients ($z_i\equiv1$, $\beta_j=\beta_kL^{-(k-j)(d-2)}$) the right side of (III.1.4) is P7 (2.9):
+$\mathrm{const}\cdot\exp(-\frac12\sum_z\beta_ka(\Delta_k(z),\mathbb B_k)|\psi_k(z)-Q(\Delta_k(z),\mathbb B_k)\psi|^2)$, and (III.1.4) restricted to $Z_0$ gives P7 (2.8).
+
+*Proof.* *Change of variables.* Put $Z_j:=\prod_{i=k_1+1}^jz_i$ ($Z_{k_1}=1$; the scalar, not the region) and $\hat\psi_j:=Z_j\psi_j$ for all variables of scale
+$j\in[k_1,k]$ (leaves, Gaussian-only, top). Since $z_{j+1}/Z_{j+1}=1/Z_j$ and $Q$ is linear,
+$z_{j+1}\psi_{j+1}(y)-(Q\psi_j)(y)=Z_j^{-1}\big(\hat\psi_{j+1}(y)-(Q\hat\psi_j)(y)\big)$. So the factor $z^N_{j+1}t_j(\dots)\,d^N\psi_{j+1}(y)$ is the Gaussian probability measure in
+$\hat\psi_{j+1}(y)$ with mean $(Q\hat\psi_j)(y)$ and covariance $(Z_j^2/c_j)I$. *Markov chain.* Integrating the Gaussian-only variables layer by layer
+from $j=k_1+1$ upwards, for fixed leaves, is computing the law of the top variables of a Gaussian chain on the tree of blocks of $z$: with
+$e(y):=\hat\psi_{j+1}(y)-(Q\hat\psi_j)(y)$, independent centred Gaussians, and $Q$ the plain average over the $L^d$ children,
+$\hat\psi_k(z)=\sum_{x\subset z}w_x\hat\psi^G(x)+\sum_{y}w_ye(y)$, the second sum over the non-leaf blocks $y\subset z$ of scales $k_1+1,\dots,k$. (Each non-leaf block
+of scale $j+1$ is the average of its children plus $e(y)$; unfold the averages.) Different $k$-blocks involve disjoint variables. Hence the
+law of $\hat\psi_k(z)$ is Gaussian with mean $\sum_xw_x\hat\psi^G(x)$ and covariance $\sum_yw_y^2Z_j^2/c_j$; dividing by $Z_k$ gives (III.1.4)–(III.1.5) with
+$\varpi_n=Z_n/Z_k$. The Jacobians cancel because every factor is a probability measure. This is the landed `integral_blockSpin_comp`
+(`Gaussian/BlockSpin.lean`) iterated, for arbitrary positive coefficients. *Ideal case.* With $Z\equiv1$ and $c_j=c_j^{\rm id}:=\beta_kaL^{d-2}L^{-(k-j)(d-2)}$:
+$w_y^2/c^{\rm id}_j=\beta_k^{-1}a^{-1}w_yL^{-2(k-j-1)}$, and $\sum_{y\text{ non-leaf of scale }j+1}w_y=\sum_{x:\,n_x\le j}w_x$; so $\beta_k^{-1}a_z^{-1}=\beta_k^{-1}\sum_xw_x\sum_{j=n_x}^{k-1}a^{-1}L^{-2(k-j-1)}=\beta_k^{-1}\sum_xw_xu_{k-n_x}$,
+which is BG (6.5) (P2 (4.7)). *Bounds.* $c_j=c_j^{\rm id}\gamma_j/\gamma_k$ (Part I (I.2)), so each term of (III.1.5) is the ideal term times $\rho_j:=\varpi_j^2\gamma_k/\gamma_j$.
+Write $W_j:=\sum_yw_y^2/c^{\rm id}_j=(\beta_ka)^{-1}L^{-2(k-j-1)}f_{\le j}(z)$, $f_{\le j}(z):=\sum_{x:\,n_x\le j}w_x\le1$; then $a_z/a^\natural_z=\sum_j\rho_jW_j/\sum_jW_j$ and $\sum_jW_j\ge W_{k-1}=(\beta_ka)^{-1}$
+(every leaf has layer $\le k-1$), so $|a_z/a^\natural_z-1|\le\sum_{j=k_1}^{k-1}L^{-2(k-j-1)}|\rho_j-1|$: **the coefficient error is weighted towards the top scales.** SF Theorem 5.3 gives,
+for the constants of the step $i-1\to i$, $|\zeta_i|=\varepsilon_i|\xi_1^{(i-1)}|\le\varepsilon_i\frac{c_\xi}{4\beta}q^i$ and $|\xi^{(i-1)}_3|\le\frac{c_\xi}{4\beta}q^i$; with $\gamma_i=\gamma_{i-1}/(1+\xi_3^{(i-1)})$ (P4 (5.28)) and
+$\varepsilon_i\le1$, $x_j:=2|\log\varpi_j|+|\log(\gamma_k/\gamma_j)|\le\sum_{i>j}(4|\zeta_i|+2|\xi^{(i-1)}_3|)\le\frac{3c_\xi q^{j+1}}{2\beta(1-q)}$, and $|\rho_j-1|\le2x_j$. Hence
+$|a_z/a^\natural_z-1|\le\frac{3c_\xi q^k}{\beta(1-q)}\sum_{m\ge0}(L^{-2}q^{-1})^m\le\frac{6c_\xi q^k}{\beta(1-q)}$, since $L^{-2}q^{-1}=L^{2\gamma-2}\le L^{-1}\le\frac12$; this gives $\eta_k$ (with $\eta_k\le\frac12$). For
+$\varsigma_n$ use $\varepsilon_i\le3\alpha_0L^{-i\alpha}$ (Definition II.1.1): $|\varpi_n-1|\le e^{x}-1\le2x$ with $x=\sum_{i>n}2|\zeta_i|\le\frac{3\alpha_0c_\xi}{2\beta}\sum_{i>n}L^{-i(\alpha+2\gamma)}\le\frac{3\alpha_0c_\xi}\beta L^{-(n+1)(\alpha+2\gamma)}$. $\square$
+
+**Lemma III.1.7 (volume fractions of deep layers).** For a $k$-block $z\subset\Omega^c_k$ and $k_1\le n<k$, the fraction $f_n(z):=\sum_{x\subset z,\,n_x=n}w_x$ of $z$
+in the layer $n$ satisfies $f_n(z)\le\nu_{\max}(k)(LM\mathrm{crit}_k)^dL^{-(k-n)d}$. Consequently
+$$\bar\varsigma_z:=\sum_{x\subset z}w_x|\varpi_{n_x}-1|\le\sum_{n=k_1}^{k-1}f_n(z)\varsigma_n,\qquad\Sigma^\natural:=\beta_k^{1/2}\max_z\bar\varsigma_z\le C_\varsigma\,\beta^{-1/2}\,\hat\lambda_k^{\,p_2+2d}L^{-k\gamma},\tag{III.1.7}$$
+with $C_\varsigma:=6e\,\alpha_0c_\xi(LM)^d\,\sup_{x\ge1}\big[x^{-(p_2+2d)}\bar\nu(x)\overline{\mathrm{crit}}(x)^d\big]\big/\big(L^{\alpha+2\gamma}(1-L^{-(d+2)/2+\gamma})\big)$, a constant of rows 0–10. Since $\hat\lambda_k\le\hat\lambda_0(1+k\theta)$,
+for every polynomial $P$ of degree $p$, $\Sigma^\natural P(\hat\lambda_k)\le C_\varsigma C_P\,\beta^{-1/2}\hat\lambda_0^{\,p+p_2+2d}$ with $C_P:=\sup_k(1+k\theta)^{p+p_2+2d}L^{-k\gamma}\sup_{x\ge1}x^{-p}P(x)$; all uses of
+$\Sigma^\natural$ below are of this form and are made $\le1$ (or small) by conditions on $\lambda_*$ (§III.O.3; $\beta^{-1/2}\le\sqrt a\,e^{-(\hat\lambda_0-1)/2}$).
+
+*Proof.* The first bound is Lemma III.1.2 (c): $\Lambda_n$ has at most $\nu(LM\mathrm{crit}_{n+1})^d$ blocks of volume $L^{nd}$, and $|z|=L^{kd}$. Then, with
+$\beta_k^{1/2}\le e^{\epsilon}\beta^{1/2}L^{k(d-2)/2}$ and $m:=k-n\ge1$,
+$$\beta_k^{1/2}f_n(z)\varsigma_n\le6e\,\alpha_0c_\xi\,\beta^{-1/2}\nu_{\max}(k)(LM\mathrm{crit}_k)^dL^{\frac{k(d-2)}2-(k-m+1)(\alpha+2\gamma)-md}
+=6e\,\alpha_0c_\xi\beta^{-1/2}\nu_{\max}(k)(LM\mathrm{crit}_k)^dL^{-\alpha-2\gamma}\,L^{-k\gamma}L^{-m(\frac{d+2}2-\gamma)},$$
+because $\frac{d-2}2-\alpha-2\gamma=-\gamma$ and $d-\alpha-2\gamma=\frac{d+2}2-\gamma>0$. Sum over $m\ge1$ and use (F5). $\square$
+
+**Lemma III.1.7′ (total shift).** Let $V_n:=\sum_{z\subset Z^c_0\cap\Omega^c_k}f_n(z)$ be the volume of $\Lambda_n\cap Z^c_0$ in $k$-blocks. Then $V_n\le(M\mathrm{crit}_k)^dL^{-(k-n-1)d}$ if $n+1\ge s$, and
+$V_n\le\min\{(M\mathrm{crit}_k)^dL^{-(k-s)d},\ \nu_{\max}(k)(M\mathrm{crit}_k)^dL^{-(k-n-1)d}\}$ if $n+1<s$; and
+$$\Theta^\natural:=\beta_k\varepsilon_k\sum_{z\subset Z^c_0\cap\Omega^c_k}\bar\varsigma_z\ \le\ C_\vartheta\,\hat\lambda_k^{\,2d+1},\tag{III.1.8}$$
+with $C_\vartheta$ a constant of rows 0–10. *Proof.* For $n+1\ge s$ the lineage at scale $n+1$ is one box of side $\le\mathrm{crit}_{n+1}$ $\pi_{n+1}$-cubes (Lemma III.1.2 (d)), of volume
+$\le(M\mathrm{crit}_k)^dL^{-(k-n-1)d}$ $k$-blocks, and $\Lambda_n\subset Z_{n+1}$. For $n+1<s$, $\Lambda_n\subset Z_{n+1}\subset Z_s$ as fine sets (regions grow, Lemma I.4.3 (b)), which gives the
+first bound without $\nu$; the second is Lemma III.1.2 (c). Next $\sum_z\bar\varsigma_z\le\sum_n\varsigma_nV_n$, and $\beta_k\varepsilon_k\varsigma_n\le18e^{\epsilon}\alpha_0^2c_\xi L^{(k-n-1)(\alpha+2\gamma)}$ (as
+$\beta_k\le e^{\epsilon}\beta L^{k(d-2)}$, $\varepsilon_k\le3\alpha_0L^{-k\alpha}$, $d-2-\alpha=\alpha+2\gamma$). Put $t:=k-n-1$. The terms with $t\le k-s$ sum to $\le(M\mathrm{crit}_k)^d\sum_tL^{-t(d-\alpha-2\gamma)}\le2(M\mathrm{crit}_k)^d$.
+The terms with $t>k-s$ (they occur only if $s>k_1+1$, and then $\hat\lambda_s\ge\hat\lambda_{k_1}\ge\hat\lambda_k/(2c_*)$) are $\le\sum_t\min\{AL^{t(\alpha+2\gamma)},\nu_{\max}(M\mathrm{crit}_k)^dL^{-t(d-\alpha-2\gamma)}\}$ with
+$A=(M\mathrm{crit}_k)^dL^{-(k-s)d}$; summing the two geometric series at the crossover gives $\le4(M\mathrm{crit}_k)^dL^{-(k-s)(d-\alpha-2\gamma)}\nu_{\max}^{(\alpha+2\gamma)/d}$. Since $k-s\ge n_2(s)$,
+$L^{k-s}>LM\mathrm{crit}_s\ge LMR_{\rm base}\hat\lambda_k^2/(4c_*^2)$; with $d-\alpha-2\gamma\ge\frac{d+1}2$ and $\frac{\alpha+2\gamma}d<\frac12$ this is $\le C\hat\lambda_k^{2d-(d+1)+p_2/2}=C\hat\lambda_k^{2d+\frac12}$
+($p_2=2d+3$). $\square$
+
+*Remark (why this matters).* For a leaf of layer $n$ close to $k_1$, $\beta_k^{1/2}\varsigma_n\approx\beta^{-1/2}L^{n_1(d-2)/2-\gamma k_1}$, which is large since
+$L^{n_1}\ge(\beta_{k_1}a)^{1/\alpha}$ and $\frac{d-2}{2\alpha}>1$: the composed Gaussian is shifted by much more than its width for the deep leaves. The
+shift enters the cancellation only through the averages $\mathcal Q^\natural_z$, where the deep leaves have weight $O(L^{-(k-n)d})$; that is what
+(III.1.7) uses. P7's exact composition holds only for $z_i\equiv1$.
+
+---
+
+## III.2 Renormalization of the window actions (P7 (2.10)–(2.17))
+
+**Definition III.2.1 (the window generating set; P7 (2.13), local).** With the local sets of §III.0.2 and $U_k:=Z^{\approx}$ (scale $k$),
+$$\mathbb B_{k_1,k}:=\big(\mathbb B_{k_1}(W)\cap Z_{k_1}\big)\cup\big(\mathbb B_k\cap Z^c_{k_1}\cap Z\big)\cup\big(\mathbb B_k(U_k)\cap Z^c\cap U_k^{\sim}\big),$$
+"the set $\mathbb B_k$ on $W_{k_1}\cap U_k$, completed by the minimal generating sets in a neighbourhood of the boundaries" (P7 p. 500 [checked]), and
+$\phi_{k_1,k}:=\phi_k(\mathbb B_{k_1,k};\tilde\psi)$ (the Def-5 background $\mathrm{bg}(\mathbb B_{k_1,k};\cdot)$ of Part II §II.2.1, massless by (A-III.2)). By Lemma I.3.16 with the range
+$\varpi\le2$ of the minimal generating sets (Lemma II.2.3 (c), D-II.5) and Lemma III.1.2 (e), on each $(C^{\approx})^{\sim m}$, $C\in\mathcal C_*$, $m\le\frac{L+4}2$, the first piece of
+$\mathbb B_{k_1,k}$ is the single-box object of P7 for the box $C$; so P2 (1.1)–(1.3) for $\mathbb B_{k_1,k}$ reduce to P7's single-box check made box by box (ARCH Lemma G,
+R3-14 (e)), and $\mathbb B_{k_1,k}$ is a `GeneratingSet` with separation $\varrho_3$.
+
+**Lemma III.2.2 (renormalized window action; P7 (2.10)–(2.16), cited).** On the window domain (the configurations with $\mathcal X_{\rm win}=1$, extended to the
+complex domain (1.32) [5] with $X=W\cap U_k$),
+$$\sum_{j=k_1}^{k-1}\mathcal A_{j+1}(X_j;\psi)=\beta_kA^*_k\big(X_{\rm win},\mathbb B_k;\psi,\phi_{k_1,k}\big)-C_{k_1,k}(\psi),\qquad|C_{k_1,k}(\psi)|\le C_{15}\sum_{j=k_1}^{k-1}|X_j|_{j+1},\tag{2.15′}$$
+where $A^*_k(\cdot,\mathbb B_k;\cdot)$ is the multiscale action with the coefficients renormalized to scale $k$ (P7 (2.10); under the free flow the weights are
+$a_n$ of (II.1) for every $n$, since $a^{(k)}_n=a_n$, and $\beta^{(k)}_n=\beta_kL^{-(k-n)(d-2)}$, $\nu^{(k)}_n=\nu_kL^{-2(k-n)}$), $C_{k_1,k}$ is analytic, depends on $\psi$ restricted to
+$W^\sim\cap U_k^\sim$, and $C_{15}$ is an output of rows 0–11 (it does not depend on $B_0,H_0,c_1,c_2$).
+
+*Source and route.* P7 pp. 500–501 [checked, text layer]: (i) each step action is converted to the coefficients of scale $k$ in $k-j-1$ steps by the
+renormalization formula P6 (2.31) (the actions only; "we do not renormalize the spin variables"), each conversion bounded by (2.11),
+$\mathrm{const}\cdot\beta_{j+1}\varepsilon_{j+1}^2(\beta_n\varepsilon_n^2)^{-1}|X_j|_{j+1}\le\mathrm{const}\cdot L^{-2\gamma(n-j-1)}|X_j|_{j+1}$, summable in $n$; (ii) the background of each step is replaced by
+$\phi_{k_1,k}$ through the composition identity (I-2, landed `theorem73_real`/`theorem73_complex`) and the exponential decay of P3 (2.55)–(2.56),
+P6 (2.13)–(2.14), with a remainder $\le\mathrm{const}\cdot e^{-R_{j-1}}|X_j|_{j+1}$. Under the free flow (i) is unchanged (Part II §II.1.5 item 4). In (ii) the step backgrounds
+are the local ones $\phi^{\rm loc}_{j+1}$ of D-II.1 instead of $\phi_{j+1}(\mathbb B_{j+1}(\partial\Omega_{j+1});\tilde\psi)$; the data change from $\mathbb B^{\rm loc}_{j+1}$ to $\mathbb B_{k_1,k}$ vanishes on
+$Y'^{\sim[R_j]}$ (Lemma II.2.5 (c)) for every lineage component $Y'$, so the same decay estimate applies. *Status:* cited; the inputs are those of Part II's
+O-2′ (LOC I-4b, I-5; conditional on LOC's open items). P7's second bound in (2.15), $<\mathrm{const}\,M^dR_0^d(\log\beta_{k-1}a)^{2d+1}$, is false for a window with $\nu$
+pieces and is not used (ARCH Step 1): (2.15′) is per unit of new volume and is paid by the refund (§III.8).
+
+**Lemma III.2.3 (the composed Gaussian dominates the single-scale action; P7 (2.17)′).** For every value of the window field and of $\psi_k$, with
+$\mathcal G^\natural:=\sum_{z\subset Z^c_0\cap\Omega^c_k}\frac12\beta_ka^\natural_z|\psi_k(z)-\mathcal Q^\natural_z\psi^G|^2$ (the exponent of the composed kernel (III.1.4) outside $Z_0$),
+$$\mathcal G^\natural+\beta_kA^*_k\big(Z^c_0\cap Z,\mathbb B_k;\psi,\phi\big)\ \ge\ \tfrac12(1-\eta_k)\,\beta_kA^*_k\big(Z^c_0\cap Z;\psi_k,\phi\big)-8(\Sigma^\natural)^2(M\mathrm{crit}_k)^d\max_x|\psi^G(x)|^2\tag{2.17′}$$
+for every field $\phi$, where the right action is the single-scale action (generating set $T^{(k)}_1$). With the ideal composed weights the inequality holds
+with $1$ in place of $\frac12(1-\eta_k)$ and without the last term (P7 (2.17)).
+
+*Proof.* *Ideal case.* Fix a $k$-block $z\subset Z^c_0\cap\Omega^c_k$ and write $t_0:=\psi_k(z)-\mathcal Q_z\psi^G$, $t_x:=\psi^G(x)-(Q_{n_x}\phi)(x)$ for the leaves $x\subset z$. Since
+$\sum_xw_x(Q_{n_x}\phi)(x)=(Q_k\phi)(z)$ (nested block averages), $\psi_k(z)-(Q_k\phi)(z)=t_0+\sum_xw_xt_x$. In fine units the composed term of $z$ is $\frac12\beta^{(k)}_0a_zL^{k(d-2)}|t_0|^2$ and the
+block terms of the leaves are $\frac12\beta^{(k)}_0a_{n_x}L^{n_x(d-2)}|t_x|^2$ (P5 (1.5)). By Cauchy–Schwarz,
+$|t_0+\sum_xw_xt_x|^2\le\big(\frac1{a_zL^{k(d-2)}}+\sum_x\frac{w_x^2}{a_{n_x}L^{n_x(d-2)}}\big)\big(a_zL^{k(d-2)}|t_0|^2+\sum_xa_{n_x}L^{n_x(d-2)}|t_x|^2\big)$, and, with $w_x=L^{(n_x-k)d}$ and (C1)
+$L^{2(n-k)}u_n=u_k-u_{k-n}$, the first factor is $L^{-k(d-2)}\big(u^{(k)}_z+\sum_xw_x(u_k-u_{k-n_x})\big)=L^{-k(d-2)}u_k$, because $u^{(k)}_z:=1/a_z=\sum_xw_xu_{k-n_x}$ (BG (6.5)). So
+the composed term plus the block terms of the leaves of $z$ are $\ge\frac12\beta^{(k)}_0a_kL^{k(d-2)}|\psi_k(z)-Q_k\phi(z)|^2$, the block term of the single-scale action. The
+gradient, mass and boundary terms of the two actions coincide. *Actual case.* $a^\natural_z\ge(1-\eta_k)a_z$ and $|u-s|^2\ge\frac12|u|^2-|s|^2$ with $u=\psi_k-\mathcal Q_z\psi^G$,
+$s=s_z:=\mathcal Q^\natural_z\psi^G-\mathcal Q_z\psi^G=\sum_xw_x(\varpi_{n_x}-1)\psi^G(x)$, $|s_z|\le\bar\varsigma_z\max|\psi^G|$; then $\frac12\beta_ka^\natural_z|u-s|^2\ge\frac12(1-\eta_k)\cdot\frac12\beta_ka_z|u|^2-\beta_ka_z|s_z|^2$,
+$a_z\le2$, and the number of $k$-blocks of $Z$ is $\le(M\mathrm{crit}_k)^d$ (Lemma III.1.2 (d)); the action terms are multiplied by $\frac12(1-\eta_k)\le1$, which is allowed since
+they are $\ge0$. $\square$
+
+On the window domain $|\psi^G|\le2$, and by (Λ19) of §III.O.3 the last term of (2.17′) is $\le1$.
+
+---
+
+## III.3 Late scales (P7 pp. 498, 502–508)
+
+**Definition III.3.1 (late scales, $Z_0$, $Z''_0$; P7 (2.2)–(2.5)).** Measure lengths at scale $k$ in $k$-blocks. Put
+$$k_2:=\min\{j\le k:\ L^{-(k-j)}LM[R_j]\ge1\},\qquad k_3:=\min\{j\le k:\ L^{-(k-j)}L[R_j]\ge8\},\qquad n_2:=k-k_2,\ n_3:=k-k_3,$$
+with the running radii $R_j$ (P5 (1.2)); $Z_0$ := the union of the $k$-blocks that meet $Z_{k_2}$ (P7 (2.3)); $Z''_0$ := the $3$-neighbourhood (in $\pi_k$-cubes) of the
+union of the $\pi_k$-cubes that meet $Z_{k_3}$. (P7 (2.5) has the threshold $1$ in $k_3$ and no neighbourhood; the change is needed by the second
+decomposition and is explained before Lemma III.5.0.)
+
+**Lemma III.3.2 (geometry of the late scales).** Under (A-III.1)–(A-III.3) and (Λ18) of §III.O.3:
+(a) $k_1<k_2\le k_3\le k$ and $s<k_2$; the sequence $j\mapsto L^{-(k-j)}LM[R_j]$ is nondecreasing, and $L^{-n_2}LM[R_{k_2}]<\frac98L$, $L^{-n_3}L[R_{k_3}]<9L$.
+(b) For $k_2\le j\le k$, $Z_j$ is one box of side $\le\mathrm{crit}_j$ $\pi_j$-cubes; $\mathrm{diam}_k(Z_{k_2})<\frac98(2c_0+1)$ and $\mathrm{diam}_k(Z_{k_3})<9(2c_0+1)M$.
+(c) $Z_0$ is a box of $k$-blocks with $\mathrm{diam}_k(Z_0)<D_0:=3c_0+4$, $|Z_0|\le D_0^d$; $Z_0\subset Z''_0$, and $Z''_0$ is a box of $\pi_k$-cubes with $\mathrm{diam}_k(Z''_0)<D''_0M$,
+$D''_0:=9(2c_0+1)+8$.
+(d) (P7 (2.4)) $Z_{k_2}\subset Z_0\subset\Omega^c_{k_2+1}\subset\Omega^c_k$; in scale-$k_2$ units $\mathrm{dist}(Z_0,\Omega_{k_2+1})>2(L+1)M+M[R_{k_2-1}]$ and $\mathrm{dist}(Z^c_0,\Omega^c_{k_2})\ge([2R_{k_2-1}]+6)M$;
+in scale-$k$ units $\mathrm{dist}(Z_0,\Omega_k)>MR_{k-1}-1\ge M$. In particular $U^{\sim9}\subset Z_{k_1+1}\subset Z_{k_2}\subset Z_0$ as fine sets.
+
+*Proof.* (a) $[R_j]$ is nondecreasing, so the sequence is. At $j=k$ it is $LM[R_k]\ge1$ and $L[R_k]\ge8$, so $k_2,k_3$ exist, and $k_3\ge k_2$ since $M\ge1$. At $j=k_1$:
+$n_1\ge n_q(k_1)\ge n_2(k_1)$ (by (F4) and (Λ0), $n_2(j)\le\bar n_2(\hat\lambda_j)\le\hat\lambda_j/(\alpha\log L)<n_q(j)$), and $L^{n_2(k_1)}>LM\mathrm{crit}_{k_1}\ge LM[R_{k_1}]$, so the term is $<1$
+and $k_2>k_1$. At $j=s$: $k-s\ge n_2(s)$ (Lemma III.1.2 (d)), so likewise $k_2>s$. Minimality gives $L^{-(n_2+1)}LM[R_{k_2-1}]<1$, hence $L^{-n_2}LM[R_{k_2}]<L[R_{k_2}]/[R_{k_2-1}]\le\frac98L$
+by (Λ18) ($[R_j]\le\frac98[R_{j-1}]$); the same for $k_3$ with the threshold $8$. (b) $j\ge k_2>s$ and Lemma III.1.2 (d). In scale-$k$ units a $\pi_{k_2}$-cube has side $ML^{-n_2}$, so
+$\mathrm{diam}_k(Z_{k_2})\le\mathrm{crit}_{k_2}ML^{-n_2}<\frac98\mathrm{crit}_{k_2}/[R_{k_2}]$ by (a), and $\mathrm{crit}_{k_2}=2c_0r_{k_2}+10\le(2c_0+1)[R_{k_2}]$ by (Λ18) (which contains
+$2c_0(r_j-[R_j])+10\le[R_j]$; $r_j=\lceil R_{\rm base}\hat\lambda_j^2\rceil$, $\hat\lambda_j\le\lambda_j+2$). The same with $L[R_{k_3}]<9L\,L^{n_3}$ for $k_3$. (c) $Z_{k_2}$ is a box, so $Z_0$ is a box, and its
+diameter exceeds that of $Z_{k_2}$ by at most $2$; $\frac98(2c_0+1)+2<3c_0+4$. $Z_{k_2}\subset Z_{k_3}$ as fine sets (regions grow, Lemma I.4.3 (b)) and a $k$-block lies in a
+$\pi_k$-cube, so $Z_0\subset Z''_0$; the diameter of $Z''_0$ exceeds that of $Z_{k_3}$ by at most $8M$. (d) Lemma III.1.2 (f) at $j=k_2$ gives the margin
+$([R_{k_2}]+4)LM+([R_{k_2-1}]+1)M$ between $Z_{k_2}$ and $\Omega_{k_2+1}$; $Z_0$ lies within one $k$-block $=L^{n_2}$ scale-$k_2$ units of $Z_{k_2}$, and $L^{n_2}\le LM[R_{k_2}]$ by the
+definition of $k_2$. The second distance is Lemma I.3.5 (d), (e) at scale $k_2$. The third: $Z_{k-1}\supset Z_{k_2}$ is at distance $>([R_{k-1}]+4)LM$ (scale $k-1$) from
+$\Omega_k$. The last chain: Lemma III.1.2 (f) and $k_1+1\le k_2$. $\square$
+
+This is ARCH (M7): P7's $15$ becomes $D_0=3c_0+4$ (P7 p. 507: "for size smaller than 15 we obtain absolute constants"; ours depend on $D_0$, row 4).
+
+**Lemma III.3.3 (P7 Lemma 2.1 with $D_0$; cited).** Let $c_{D_0}:=4(D_0+1)^{-2}$. There are $c_{11},K_6>0$, depending on $d,L,N,D_0$ (row 4), such that if
+$\psi_k\restriction_{U^\sim_k\cap Z^c_0}\in\tilde\Psi(U^\sim_k\cap Z^c_0;\delta)$ with $\delta\le c_{11}$, the variational problem
+$$\inf_{\psi_k\restriction Z_0}A_k\big(\mathbb B_k(U_k);\tilde\psi_k,\phi_k(\mathbb B_k(U_k);\tilde\psi_k)\big)\qquad(\nu_k\text{-term absent; P7 (2.34)})\tag{2.34}$$
+has a unique solution $\psi^0_k$ in $\tilde\Psi(U^\sim_k;K_6\delta)$, equal to $\psi_k$ on $U^\sim_k\cap Z^c_0$, analytic in $\psi_k\restriction_{U^\sim_k\cap Z^c_0}$ with the analytic extension mapping the
+complex spaces into each other, and $O(N)$-equivariant: $\psi^0_k(R\psi_k)=R\psi^0_k(\psi_k)$, also for $R\in O(N,\mathbb C)$ near $O(N)$ where defined.
+
+*Source and route.* P7 pp. 506–507 [checked, text layer]: expansion (2.35)–(2.36) around $\psi_{k,0}$ ($=\psi_k$ off $Z_0$, $=\psi_0$ on $Z_0$), the coercivity (2.37)–(2.38),
+and a contraction for (2.39). The coercivity with $D_0$: each coordinate line meets the box $Z_0$ in an interval of at most $D_0$ points, on which the
+Dirichlet Laplacian has smallest eigenvalue $2-2\cos\frac\pi{D_0+1}\ge4(D_0+1)^{-2}$; so $\langle\delta\psi,(-\Delta_1)\delta\psi\rangle\ge c_{D_0}\|\delta\psi\|^2$ for $\delta\psi$ supported in $Z_0$, replacing
+P7's $\frac1{36}$, and $\langle\delta\psi,\Delta^{(k)}\delta\psi\rangle\ge\frac12\gamma_0c_{D_0}\|\delta\psi\|^2$ for $\delta$ small (P7 (2.37), P4 (2.24)). Uniqueness and analyticity: the landed analytic
+contraction (`Background/ContractionAnalytic.lean`) with the linear response of BG Prop 5.4 (`theorem72_linearResponse`). Equivariance: the problem
+(2.34) has no $h$-term, so it is $O(N)$-invariant, and uniqueness gives equivariance for real $R$; for complex $R$ by analytic continuation. *Status:*
+cited from P7 with the changed constant; the contraction is to be written out in Lean (§III.L, item P3).
+
+**Definition III.3.4 (reference vector; P7 (2.19)).** $\tilde\psi:=|\partial(Z^c_0\cap T^{(k)}_1)|^{-1}\sum_{z\in\partial(Z^c_0\cap T^{(k)}_1)}\psi_k(z)$ (the average over the $k$-blocks outside $Z_0$
+adjacent to it) and $\psi_0:=\tilde\psi/(\tilde\psi\cdot\tilde\psi)^{1/2}$ (principal branch; $\psi_0:=e_1$ if $\tilde\psi\cdot\tilde\psi\in(-\infty,0]$, which does not occur on the support of
+$\tilde\chi_k$ below). For complex $\psi_k$ this is the analytic continuation, with $\psi_0\cdot\psi_0=1$.
+
+**Lemma III.3.5 ((2.20)′).** If $|\partial^1\psi_k(b)|<3\delta_k$ for the bonds of the boundary layer $\partial(Z^c_0\cap T^{(k)}_1)$ and $||\psi_k(z)|-1|<3\delta_k$ there (both implied by
+$\tilde\chi_k=1$, Definition III.5.1), then, with $C_{2.20}:=12d(D_0+2)+3$,
+$$|\psi_k(z)-\psi_0|<C_{2.20}\,\delta_k\qquad(z\in\partial(Z^c_0\cap T^{(k)}_1)).\tag{2.20′}$$
+*Proof.* The boundary layer of the box $Z_0$ is connected, and two of its points are joined inside it by a path of at most $2d(D_0+2)$ bonds, so
+$|\psi_k(z)-\tilde\psi|\le C_{20}\delta_k$, $C_{20}:=6d(D_0+2)$. Hence $|\tilde\psi|\ge|\psi_k(z)|-C_{20}\delta_k\ge1-(3+C_{20})\delta_k$ and $|\tilde\psi|\le1+3\delta_k$, so $|\tilde\psi-\psi_0|=||\tilde\psi|-1|\le(3+C_{20})\delta_k$,
+and $|\psi_k(z)-\psi_0|\le(2C_{20}+3)\delta_k$. $\square$ (P7 (2.20) has $90d$; the layer lies in $(\Omega^c_k)^{\sim1}$ by Lemma III.3.2 (d).)
+
+---
+
+## III.4 Chains: Lemma CH and its consequences (P7 (2.22)–(2.30), Lemmas 2.3–2.4)
+
+P7's chain (2.22)–(2.26) uses that every point of a layer $\Lambda_j$ lies within $3LMR_j$ of $\Omega_{j+1}$ (p. 504 [checked]: "$\mathrm{dist}_j(\Omega^c_j,\Omega_{j+1})<3LMR_j$").
+For a window with several pieces this fails (gap filling; ARCH §2.7.1). Lemma CH replaces it: the chain goes from a window block to $\Omega_k$
+through layers of scale $\ge j-h_k+2$, never through the core, and its length is bounded by the number of blocks of the window.
+
+### III.4.1 The chain graph
+
+**Definition III.4.1 (window blocks and the chain graph $\mathcal G$).** The *window blocks* are the $j$-blocks of $\Lambda_j\cap Z^c_{k_1}$, $k_1\le j\le k-1$ (blocks of $\mathbb B_k$ in
+$X_{\rm win}$), and the *terminal blocks* are the $k$-blocks of $\Omega_k\cap Z$. $\mathcal G$ has these blocks as vertices and two kinds of edges:
+- *intra edges*: two $i$-blocks of the same layer $\Lambda_i$ that are nearest-neighbour translates ($y'=y\pm L^ie_m$);
+- *cross edges*: a $(i+1)$-block $b_+\subset\Lambda_{i+1}$ (a window or terminal block) and an $i$-block $y'\subset b_-$, where $b_-$ is a $(i+1)$-block nearest-neighbour
+  adjacent to $b_+$ with $b_-\cap\Omega_{i+1}=\varnothing$ (P7 (2.22): "$b\subset T^{(j+1)}$, $b_+\in\Lambda_{j+1}$, $b_-\in\Lambda_j$").
+Write $B_i$ for the number of window blocks of layer $i$; by Lemma III.1.2 (c), $B_i\le\nu_{\max}(k)(LM\mathrm{crit}_{i+1})^d$.
+
+**Lemma III.4.2 (cross pairs; R3-03 (ii)).** Assume $\varrho_3\ge2dL$. (a) For a cross edge, $b_-\subset\Lambda_i\cap Z^c_{k_1}$: all $i$-blocks of $b_-$ are window blocks, and any two
+of them are joined by at most $d(L-1)$ intra edges inside $b_-$. (b) If $x,x'$ are nearest-neighbour fine sites with $x\in\Lambda_{i'}$, $x'\in\Lambda_{i''}$, then $|i'-i''|\le1$;
+if $i'=i+1$, $i''=i$, then the $(i+1)$-block $b_+$ of $x$ and the $i$-block $y'$ of $x'$ form a cross edge (with $b_-$ the $(i+1)$-block of $x'$).
+
+*Proof.* (b) first. A site of $\Omega_{i+2}$ is at $\ell^1$-distance $>\varrho_3L^{i+1}>1$ from $\Omega^c_{i+1}$ (separation of $\mathbb B_k$, Lemma I.3.10, I.3.12), so nearest neighbours lie in
+layers differing by at most one. Let $i'=i+1$. $\Omega_{i+1}$ is a union of $(i+1)$-blocks and $\Omega_{i+2}$ of $(i+2)$-blocks; $x\in\Omega_{i+1}\setminus\Omega_{i+2}$ gives $b_+\subset\Lambda_{i+1}$,
+and $x'\notin\Omega_{i+1}$ gives $b_-\cap\Omega_{i+1}=\varnothing$; $b_+,b_-$ are nearest-neighbour adjacent since $x,x'$ are. (a) Every site of $b_-$ is within $\ell^1$-distance $2dL^{i+1}<\varrho_3L^i$
+of $b_+\subset\Omega_{i+1}$, so it lies in $\Omega_i$ by separation; with $b_-\cap\Omega_{i+1}=\varnothing$, $b_-\subset\Lambda_i$. For $i>k_1$, $\Lambda_i\subset\Omega_{k_1+1}\subset Z^c_{k_1}$; for $i=k_1$, $b_-$ is
+within $2dL^{k_1+1}$ of $\Omega_{k_1+1}$, while $Z_{k_1}$ is at fine distance $\ge([R_{k_1}]+4)LML^{k_1}$ from $\Omega_{k_1+1}$ (Lemma III.1.2 (f)). The intra edges: monotone lattice
+paths inside the block. $\square$
+
+So P7's requirement that "the whole block $B(b_-)$ lie in $\Lambda_j$" (REV3 R3-03 (ii)) holds automatically; no corner detour is needed.
+
+### III.4.2 Non-enclosure
+
+**Lemma III.4.3 (paths avoid the core and the deep obstacles; ARCH Lemma CH (a)).** Let $y$ be a window block of layer $j$ and
+$i_0:=\max\{k_1,\ j-h_k+2\}$. There is a nearest-neighbour path of fine sites from a site of $y$ to a site of $\Omega_k\cap Z$ all of whose sites except the last lie
+in $\bigcup_{i=i_0}^{k-1}\Lambda_i\cap Z^c_{k_1}$.
+
+*Proof.* *Lift* (R3-03 (v)). $Z$ is one box of side $\le\mathrm{crit}_k$ (Lemma III.1.2 (d)) and $n_k\ge4\nu_{\max}(k)(\mathrm{crit}_k+\omega_k)+4$ by (H-T); so $Z^{\sim1}$ is small and has an
+injective lift to $\mathbb Z^d$ preserving distances (Lemma I.2.10 (e)); all sets below lie in $Z$ and are identified with their lifts. *Obstacles* (R3-03 (iii)).
+For $k_1\le i\le j$ put $O_i:=(\Omega^c_i\cup Z_{k_1})\cap Z$, with the overwritten domains (Definition I.3.11; removals at scales $<k$ have already acted on the
+localized history, Lemma I.4.3). $O_i\subset Z_i$ (as $\Omega^c_i\subset Z_i$ and $Z_{k_1}\subset Z_i$, Lemma I.4.3 (b)), $O_i$ increases with $i$, and $O_{k_1}=Z_{k_1}$ (as $\Omega^c_{k_1}\subset Z_{k_1}$).
+The block $y$ is disjoint from $O_i$ for $i\le j$: $y\subset\Lambda_j\subset\Omega_j\subset\Omega_i$, and $y\cap Z_{k_1}=\varnothing$ ($Z_{k_1}$ is a union of $k_1$-blocks and $y$ a $j$-block with $j\ge k_1$, $y\not\subset Z_{k_1}$).
+*Enclosure forces a large component.* Let $x\in y$ and suppose $x$ is enclosed by $O_i$ in $\mathbb Z^d$ (every nearest-neighbour path from $x$ that leaves every finite set
+meets $O_i$). Let $\{C'_m\}$ be the components of $Z_i$ in the sense of Definition I.2.11 (width $\omega_i$); as fine sets they are at mutual distance $\ge(\omega_i-1)ML^i\ge2$, so
+the sets $A_m:=O_i\cap C'_m$ are pairwise $*$-separated. By Lemma S (Lemma I.3.13 (a), (b), with the box $Q:=y$, disjoint from $O_i$), $x$ is enclosed by a single
+$*$-component $K$ of some $A_m$, and $K$ has sup-diameter $\ge L^j+1$ (R3-03 (iv): the exterior boundary of the finite nn-component containing a box of side $s$
+has extent $\ge s+1$ in the coordinate of that side). But $C'_m$ is covered by at most $\nu$ boxes of side $\le\mathrm{crit}_i$ (Lemma III.1.2 (c)), so its sup-diameter is
+$\le\nu(\mathrm{crit}_i+\omega_i)$ cubes (Lemma I.2.12 (c)), i.e. $\le\nu(\mathrm{crit}_i+\omega_i)ML^i$ fine units. Hence $L^{j-i}<\nu_{\max}(k)M(\mathrm{crit}_k+\omega_k)\le L^{h_k-2}$ (definition of $h_k$,
+§I.1.2), i.e. $i>j-h_k+2$. *Conclusion.* If $i_0=j-h_k+2>k_1$, $x$ is not enclosed by $O_{i_0}$. If $i_0=k_1$, $O_{k_1}=Z_{k_1}$ is the core, a union of boxes at mutual
+index distance $\ge\omega_{k_1}$ (Lemma III.1.2 (e)), hence pairwise $*$-separated as fine sets; by Lemma I.3.13 (c) it encloses no point. So there is a path from $x$
+to infinity avoiding $O_{i_0}$. It leaves the finite set $Z$; before that it meets $\Omega_k\cap Z$, because the sites of $Z$ within $([2R_{k-1}]+6)ML^k$ of $Z^c$ lie in $\Omega_k$
+(Lemma I.3.5 (d), (e) at scale $k$: $Z\supset(\Omega''^c_k)^{\sim([2R_{k-1}]+6)}$). Stop at the first site of $\Omega_k$. The earlier sites lie in $Z\cap\Omega^c_k\setminus O_{i_0}=\bigcup_{i=i_0}^{k-1}\Lambda_i\cap Z^c_{k_1}$.
+Project back to the torus. $\square$
+
+The landed Lean covers the lattice part: `Balaban.LatticeGeom.enclosed_by_single_component`, `enclosed_component_diam`, `not_enclosed_boxes`
+(`LargeField/Geometry/LemmaS.lean`), resting on `exteriorBoundary_starConn` (`Timar.lean`), and its torus version via the box lift (W37).
+
+### III.4.3 Lemma CH
+
+**Lemma III.4.4 (Lemma CH; ARCH §3.8 Step 3, R3-03 (i)–(v)).** Let $y$ be a window block of layer $j$, $i_0$ as in Lemma III.4.3. There is a chain
+$y=x_0,x_1,\dots,x_p$ in $\mathcal G$, $x_p$ a terminal block, all of whose vertices except $x_p$ are window blocks of layers $\ge i_0$, which visits every vertex at most once.
+Let $(\bar\delta_i)_{k_1\le i\le k}$ be positive with $\bar\delta_{i+1}\le\bar\delta_i$, $\bar\delta_i\le e^{\epsilon}L^{\frac{d-2}2(j-i)}\bar\delta_j$ ($i\le j$), $\sum_{i\ge i_0}\bar\delta_i\le4\bar\delta_{i_0}$, and $\bar c>0$. If a configuration
+satisfies, along the chain, $|\psi(x_{m+1})-\psi(x_m)|\le\bar c\,\bar\delta_i$ for every intra edge in layer $i$ and $\le dL\bar c\,\bar\delta_i$ for every cross edge between layers $i+1$ and
+$i$, then
+$$|\psi_j(y)-\psi_k(x_p)|\ <\ \hat W_k\,\bar c\,\bar\delta_j,\qquad\hat W_k:=4e^{\epsilon}(1+2dL)\,\nu_{\max}(k)\,(LM\mathrm{crit}_k)^d\,L^{\frac{d-2}2(h_k-2)}\ \le\ C_{\hat W}\hat\lambda_k^{\,w_0-2},\tag{2.26′}$$
+with $C_{\hat W}:=4e^{\epsilon}(1+2dL)L^{d-2}(2C_\nu)^{d/2}(LM)^d(2\sqrt dM)^{\frac{d-2}2}\big(2c_0(R_{\rm base}+1)+10\big)^d\big(2c_0(R_{\rm base}+1)+2R_{\rm base}+L+21\big)^{\frac{d-2}2}$.
+
+*Proof.* *Chain* (R3-03 (i)). Take the path of Lemma III.4.3 and the sequence of blocks of $\mathbb B_k$ containing its sites. Consecutive sites in the same block
+give nothing; in the same layer and different blocks, an intra edge; in different layers, a cross edge by Lemma III.4.2 (b), whose $b_-$ consists of window
+blocks of layer $\ge i_0$ (Lemma III.4.2 (a); the site $x'$ is a path site, so its layer is $\ge i_0$). The last site is in $\Omega_k\cap Z$; its $k$-block is terminal. So a chain
+exists in the subgraph of $\mathcal G$ spanned by the window blocks of layers $\ge i_0$ and the terminal blocks; take a shortest one. It visits each vertex at most
+once. *Count.* Each vertex of layer $i$ has at most two chain edges, so the chain has at most $B_i$ intra edges in layer $i$ and at most $2B_i$ cross edges between
+layers $i+1$ and $i$. Hence
+$$|\psi_j(y)-\psi_k(x_p)|\le\sum_{i=i_0}^{k-1}B_i(1+2dL)\bar c\,\bar\delta_i\le(1+2dL)\nu_{\max}(k)(LM\mathrm{crit}_k)^d\bar c\cdot4\bar\delta_{i_0}\le\hat W_k\bar c\,\bar\delta_j,$$
+using $j-i_0\le h_k-2$. *Constant.* $L^{h_k-2}\le L\cdot2\sqrt d\,\nu_{\max}(k)M(\mathrm{crit}_k+\omega_k)$, $\nu_{\max}(k)\le2C_\nu\hat\lambda_k^{p_2}$, $\mathrm{crit}_k\le(2c_0(R_{\rm base}+1)+10)\hat\lambda_k^2$,
+$\mathrm{crit}_k+\omega_k\le(2c_0(R_{\rm base}+1)+2R_{\rm base}+L+21)\hat\lambda_k^2$ ((F5)); the exponent of $\hat\lambda_k$ is $p_2+2d+\frac{(p_2+2)(d-2)}2=\frac{p_2d}2+3d-2=w_0-2$. Strictness: the
+first inequality is strict because $\bar\delta_i>0$ and the sum has at least one term. $\square$
+
+**Lemma III.4.5 (the sequences $\delta_j$ and $\delta_{j,1}$ are admissible).** If the running $\lambda_i\ge12p_0$ for all $i$ ((Λ20)), then $\bar\delta=\delta$ and $\bar\delta=(\delta_{i,1})$
+satisfy the hypotheses of Lemma III.4.4: $\delta_{i+n}\le e^{\epsilon}L^{-n/3}\delta_i$ (P7 (2.25)), hence $\sum_{n\ge0}\delta_{i+n}\le4\delta_i$ for $L\ge3$, and
+$\delta_i\le e^{\epsilon}L^{\frac{d-2}2(j-i)}\delta_j$ for $i\le j$.
+
+*Proof.* $\delta_i=A_0(\beta_ia)^{-1/2}\lambda_i^{p_0}$, $\beta_{i+n}/\beta_i=L^{n(d-2)}\gamma_{i+n}/\gamma_i$ and $\lambda_{i+n}-\lambda_i\le n\theta+2\epsilon$. For $n\ge0$, with $1+x\le e^x$,
+$$\frac{\delta_{i+n}}{\delta_i}\le e^{\epsilon}L^{-\frac{n(d-2)}2}\Big(1+\frac{n\theta+2\epsilon}{\lambda_i}\Big)^{p_0}\le e^{\epsilon}L^{-n(d-2)(\frac12-\frac{p_0}{\lambda_i})}e^{2\epsilon np_0/\lambda_i}\le e^{\epsilon}L^{-\frac{5n}{12}}e^{\frac n{120}}\le e^{\epsilon}L^{-n/3},$$
+for $\lambda_i\ge12p_0$, $d\ge3$, $\epsilon\le\frac1{20}$, $L\ge3$. The sum: $e^{\epsilon}/(1-L^{-1/3})\le e^{1/20}/(1-3^{-1/3})<3.5$. For $i\le j$: $\lambda_i\le\lambda_j$ gives
+$\delta_i/\delta_j\le(\beta_j/\beta_i)^{1/2}\le e^{\epsilon}L^{\frac{d-2}2(j-i)}$. The same for $\delta_{i,1}=\frac{A_1}{A_0}\delta_i$. $\square$
+
+### III.4.4 Consequences: (2.48)′ and (2.49)′ (P7 Lemmas 2.3–2.4)
+
+The window characteristic functions $\mathcal X_{\rm win}$ contain the conditions (1.24) of Definition II.3.4 on every window block (through $\chi^{\rm new}_j$): adjacent blocks
+of the multiscale field in layers $\{n,n-1\}$ differ by $<3dL\delta_n$. Hence every intra edge of $\mathcal G$ in layer $i$ costs $<3dL\delta_i$, and every cross edge $(b_+,y')$ costs
+$<3dL\delta_i+d(L-1)3dL\delta_i\le dL\cdot3dL\delta_i$ (go from $y'$ inside $b_-$ to an $i$-block adjacent to $b_+$, Lemma III.4.2 (a)). So Lemma CH applies with $\bar c=3dL$, $\bar\delta=\delta$
+(P7: "if $c$ is sufficiently large, for example if $c=3dL$ by (1.24) [5]").
+
+Let $\psi^0_k$ be the solution of (2.34) (Lemma III.3.3), $\phi^0_k:=\phi_k(\mathbb B_k(U_k);\tilde\psi^0_k)$, $\psi^0_{k_1,k}:=\psi(\mathbb B_{k_1,k},\mathbb B_k(U_k);\tilde\psi^0_k)$ (P7 (2.40); the composed field
+`composeField` of I-2, BG (6.2)), and $\delta\psi:=\tilde\psi-\psi^0_{k_1,k}$ on $\mathbb B_{k_1,k}$ (P7 (2.46)), $\tilde\psi=Q^*(\mathbb B_{k_1,k},\mathbb B_k)\psi$.
+
+**Lemma III.4.6 ((2.48)′; P7 Lemma 2.3).** On the support of $\mathcal X_{\rm win}$ and of the decompositions' small-field functions $\tilde\chi_k$ and $\chi_k(\Omega^{\sim-3}_k\cap Z)$
+(Definition III.5.1), $\delta\psi=0$ on $\mathbb B_{k_1,k}\cap\Omega_k$, and
+$$|\delta\psi|<C_{23}\hat W_k\,\delta_j\quad\text{on }\mathbb B_{k_1,k}\cap\Lambda_j,\ k_1\le j\le k-1,\qquad C_{23}:=3dL+2.\tag{2.48′}$$
+*Proof.* As P7 p. 509 [checked], with Lemma CH in place of the reasoning between (2.22) and (2.26). $\delta\psi=0$ on $\Omega_k$ because $\mathbb B_{k_1,k}\cap\Omega_k=\mathbb B_k(W_k)\cap\Omega_k$
+and $\psi^0_k=\psi_k$ off $Z_0$ ((2.44)). For $x\in\mathbb B_{k_1,k}\cap\Lambda_j\cap Z^c_{k_1}$, $\tilde\psi(x)=\psi_j(y)$ for the window block $y\ni x$; Lemma CH gives a terminal block $y_k$ with
+$|\psi_j(y)-\psi_k(y_k)|<3dL\hat W_k\delta_j$. Then $|\psi_k(y_k)-\psi^0_k(z(x))|\le3K_6\delta_k\cdot d\,M\mathrm{crit}_k$ ($\psi^0_k\in\tilde\Psi(U^\sim_k;3K_6\delta_k)$ by Lemma III.3.3 and $\psi^0_k(y_k)=\psi_k(y_k)$;
+a monotone path inside the box $Z$, Lemma III.1.2 (d)), and $|\psi^0_k(z(x))-\psi^0_{k_1,k}(x)|<4K_1K_6\delta_k$ ((2.43), from BG (6.2) and Theorem 5.2 (3)). For $x$ in the core
+part ($j=k_1$, $x\in\mathbb B_{k_1}(W)\cap Z_{k_1}$): $W$ reaches at most $2[R_{k_1-1}]+3$ cubes into $Z_{k_1}$, while $\Omega^c_{k_1}$ is at distance $\ge[2R_{k_1-1}]+6$ cubes from
+$Z^c_{k_1}$ (Lemma I.3.5 (d), (e)), so $x\in\Omega_{k_1}\cap Z_{k_1}$, where $\psi_{k_1}$ is regular by the small-field functions of the step $k_1-1\to k_1$ (Definition II.5.6,
+$\chi_{k_1}(\Omega^{\sim-3}_{k_1})$, $\chi'_{k_1}$); a path of at most $d(2[R_{k_1-1}]+4)M$ blocks to a window block adds $\le3d(2[R_{k_1-1}]+4)M\delta_{k_1}\le\hat W_k\delta_{k_1}$. Finally
+$3dK_6M\mathrm{crit}_k+4K_1K_6\le\hat W_k$ by (Λ21) and $\delta_k\le\delta_j$. $\square$
+
+**Lemma III.4.7 ((2.49)′; P7 Lemma 2.4, cited input P3 Proposition 2.1).** The function $\delta\phi_{k_1,k}:=\phi_k(\mathbb B_{k_1,k};\tilde\psi)-\phi_k(\mathbb B_{k_1,k};\psi^0_{k_1,k})$ and its multiplier satisfy, for
+$y\in\Lambda_j\cap\Omega^c_{j+1}\cap(Z^c_{k_1})^\sim$,
+$$|\delta\phi_{k_1,k}|,\ L^j|\partial\delta\phi_{k_1,k}|,\ L^{2j}|\Delta\delta\phi_{k_1,k}|,\ L^{2j}|\delta\alpha_{k_1,k}|\ <\ C_{24}L^{\frac{d+2}2}\hat W_k\,\delta_j\,e^{-\frac14\gamma_0d(y,(\Omega^c_k)^\sim)},\qquad C_{24}:=2K_3C_{23},\tag{2.49′}$$
+(fine units; P7's $\eta$-scale derivatives). *Proof.* P7 p. 509 [checked]: P3 Proposition 2.1 (in the project: the perturbation theorem BG Prop 5.1 with the
+decay of the Green functions G-2, LOC) applied to the data change $\delta\psi$ bounded by (2.48′); the numbers $C_{23}\hat W_k\delta_j$ differ at consecutive $j$ by at most
+$e^{\epsilon}L^{\frac{d-2}2}\le2L^{\frac{d-2}2}$ (Lemma III.4.5), which gives the factor $L^{\frac{d+2}2}$. The smallness hypothesis $C_{23}\hat W_k\delta_{k_1}\le c'_6$ is (Λ22). *Status:* cited (P7, with $\hat W_k$
+in place of $54dK_1K_6L^2MR_j$). $\square$
+
+All bounds of this section hold for the analytic extensions with $\delta$ replaced by $2\varepsilon$ (P7 Lemma 2.2, last sentence [checked]), on the domain where the
+characteristic functions hold for the real part.
+
+---
+
+## III.5 The decompositions and the kept operators of the first kind (P7 pp. 501–505, 512)
+
+### III.5.1 The small-field functions of $R$
+
+**Definition III.5.1 (the five small-field functions of $R$).** With the notation of §III.0.2 and §III.3:
+1. *(P7 (2.18))* $\tilde\chi_k:=\mathbf 1\big[\psi_k\in\tilde\Psi_k(Z^c_0\cap(\Omega^c_k)^{\sim3};3\delta_k)\big]$: $|\partial^1\psi_k(b)|<3\delta_k$ for the bonds $b$ of $T^{(k)}_1$ in $Z^c_0\cap(\Omega^c_k)^{\sim3}$ and $||\psi_k(z)|-1|<3\delta_k$
+   for its points (P7 p. 501 [checked]: "the space $\tilde\Psi_k(X;\delta)$ ... is defined by the conditions $|(\partial^1\psi_k)(b)|<\delta$ ... and $||\psi_k(z)|-1|<\delta$").
+2. *(P7 p. 502, "the second decomposition")* $\chi_S:=\prod\chi_k(\square)$ over the $\pi_k$-cubes $\square\subset Z''^c_0\cap(\Omega^c_k)^{\sim3}\cap Z$, $\chi_k(\square)$ of Definition II.3.2 item 1 at scale $k$.
+3. *(P7 p. 503)* $\chi^0:=\prod\chi^0_{k_1,\frac12}(\square)$ over the $\pi_{k_1}$-cubes $\square\subset U^c\cap U^{\sim6}$ (local $U$), where $\chi^0_{k_1,\frac12}(\square)$ is $\chi_{k_1}(\square)$ with $\delta_{k_1}$ replaced by $\frac12\delta_{k_1}$
+   and $\psi_{k_1}$ by $\psi'_{k_1}$: $\psi'_{k_1}:=\psi_{k_1}$ on $\Lambda_{k_1}\cap U^{\sim3}$, $:=\psi_0$ on $\Lambda_{k_1}\cap(U^{\sim3})^c$ (P7 [checked]). It reads $\psi'_{k_1}$ on $(U^c)^{\sim3}\cap U^{\sim9}\subset\Lambda_{k_1}\cap Z^c_{k_1}$ and
+   $\psi_k$ through $\psi_0$.
+4. *(P7 (2.61))* $\chi'':=\mathbf 1\big[|\delta\psi(y)|<\delta_{j,1}\ \text{for all blocks }y\text{ of }D''\text{ of layer }j\big]$, $D'':=(\mathbb B_k\cap Z^c_{k_1}\cap\Omega^c_k)\setminus(\Lambda_{k_1}\cap U^{\sim3})$, with $\delta\psi$ of
+   §III.4.4. *Reading* (UNCERTAIN, minor): P7 (2.61) writes "$\psi''=\delta\psi$ on $Z^c_{k_1}\cap\Omega^c_k\cap\mathbb B_k$, $\chi''$ on $\Lambda_j\cap Z^c_{k_1}$", but (3.7) integrates $\psi_{k_1}$ on $U^{\sim3}$ and
+   $\psi''$ separately, and p. 516 says $\chi''$ improves (2.48) only on $(U^{\sim3}_{k_1})^c$; we take $D''$ as above.
+5. *(P7 (3.20))* $\chi_{Z''}:=\prod\chi_k(\square)$ over the $\pi_k$-cubes $\square\subset Z''_0\cap Z$.
+
+*Change to P7's $Z''_0$ (needed by item 2).* The violation that makes $\chi_k(\square)=0$ may lie anywhere in $\square^{\sim3}$, and inside $Z_0$ no new restriction can be
+paid for (P7 p. 506: "the main actions localized on it could have been already used"). P7's $Z''_0$ (cubes meeting $Z_{k_3}$) does not keep $\square^{\sim3}$
+away from $Z_0$ (the lineage grows by less than one $\pi_k$-cube between $k_2$ and $k_3$). Definition III.3.1 therefore uses $k_3:=\min\{j:L^{-(k-j)}L[R_j]\ge8\}$ and
+$Z''_0:=(\text{the }\pi_k\text{-cubes meeting }Z_{k_3})^{\sim3}$. **Lemma III.5.0.** (a) Every $\pi_k$-cube $\square\subset Z''^c_0$ has $\square^{\sim3}\cap Z_0=\varnothing$. (b) $(Z''_0)^{\sim3}\subset\Omega^c_{k_3+1}\subset Z$ (as
+fine sets, $\pi_k$-cube neighbourhoods). (c) $\mathrm{diam}_k(Z''_0)<D''_0M$, $D''_0:=9(2c_0+1)+8$, and $L^{-n_3}<9/[R_{k_3}]$. *Proof.* (a) $Z_0$ lies in the $\pi_k$-cubes meeting
+$Z_{k_3}$ ($Z_{k_2}\subset Z_{k_3}$, a $k$-block lies in a $\pi_k$-cube); a cube outside the $3$-neighbourhood is at index distance $\ge4$ from them. (b) By Lemma III.1.2 (f)
+at $j=k_3$ the margin of $Z_{k_3}$ to $\Omega_{k_3+1}$ is $\ge([R_{k_3}]+4)LM$ scale-$k_3$ units $=([R_{k_3}]+4)LML^{-n_3}\ge8M$ scale-$k$ units, by the definition of $k_3$;
+$(Z''_0)^{\sim3}$ lies within $7M$ of $Z_{k_3}$. (c) Lemma III.3.2 (a)–(c): $L^{-n_3}L[R_{k_3}]<8\cdot\frac98L$. $\square$
+The constant $D_0$ of $Z_0$ is unchanged; the late-scale constant attached to $Z''_0$ is $D''_0$ (ARCH (M7): "$15M$").
+
+### III.5.2 Outcomes and labels
+
+**Definition III.5.2 (the outcomes of $R$ on a ripe component; D-III.2).** Insert the binary decompositions $1=\chi+(1-\chi)$ for $\chi=\tilde\chi_k,\chi_S,\chi^0,\chi''$ in this
+order into the kernel of $\mathbb T^{\rm pre}_k(Z,\mathfrak a)$ (Lemma III.1.3):
+$$K^{\rm pre}=\underbrace{K^{\rm pre}(1-\tilde\chi_k)}_{\varkappa_1}+\underbrace{K^{\rm pre}\tilde\chi_k(1-\chi_S)}_{\varkappa_2}+\underbrace{K^{\rm pre}\tilde\chi_k\chi_S(1-\chi^0)}_{\varkappa_3}+\underbrace{K^{\rm pre}\tilde\chi_k\chi_S\chi^0(1-\chi'')}_{\varkappa_4}+\underbrace{K^{\rm pre}\tilde\chi_k\chi_S\chi^0\chi''}_{\text{to }R}.$$
+The terms $\varkappa_1,\dots,\varkappa_4$ are the **kept outcomes of the first kind (K1)**: the kernel $K^{(\varkappa_i)}$ with $b^{(\varkappa_i)}:=b^{\rm pre}$, on the variables of $\mathbb T^{\rm pre}_k(Z,\mathfrak a)$.
+The last term is normalized by $R$ (§III.8) and then split by $1=\chi_{Z''}+(1-\chi_{Z''})$ into the **kept outcome of the second kind (K2)**, label $\varkappa_5$, and the
+**removed outcome**. The label set is $\mathfrak K=\{\varkappa_1,\dots,\varkappa_5\}$, with $C_{\rm dec}(\varkappa):=5$, so $\sum_{\varkappa}C_{\rm dec}(\varkappa)^{-1}=1$.
+
+All five functions are indicators of Borel sets, $O(N)$-invariant under the simultaneous rotation of all spin-valued variables ($\psi_0$ rotates with $\psi_k$, and
+$\psi^0_k$, $\psi^0_{k_1,k}$ are equivariant by Lemma III.3.3 and BG Theorem 6.1), and contain no $h$ and no $g$ ((A-III.2)). So the K1 kernels satisfy (S1)-type
+measurability, $g$-independence, invariance and (S5) (§III.9.3), and vanish unless $\chi^{\rm dom}_k(Z,\mathfrak a)=1$ because $K^{\rm pre}$ does.
+
+### III.5.3 The small factors
+
+Write $\mathcal G^\natural$ for the exponent of the composed Gaussian on $Z^c_0\cap\Omega^c_k$ (Lemma III.2.3) and $\mathcal A_{\rm win}:=\sum_j\mathcal A_{j+1}(X_j)$; by Lemma III.2.2,
+$\mathcal A_{\rm win}=\beta_kA^*_k(X_{\rm win},\mathbb B_k;\psi,\phi_{k_1,k})-C_{k_1,k}$. By (Λ20), $\lambda_j\ge\lambda_{k_1}\ge\hat\lambda_k/(4c_*)$ for $j\in[k_1,k]$ (Lemma III.1.2 (a)), and $\beta_j\delta_j^2=A_0^2\lambda_j^{2p_0}/a$.
+The *canonical* coefficients of $A^*_k(\cdot,\mathbb B_k)$ satisfy $\beta^{(k)}_j\ge e^{-2\epsilon}\beta_j$.
+
+**Lemma III.5.3 (small factors; P7 pp. 501–505, 512, (2.33), (2.62), P6 (3.7)–(3.8)).** On the support of $K^{\rm pre}$ (all window characteristic functions hold):
+(a) *($\varkappa_1$)* if $\tilde\chi_k=0$: $\frac12\mathcal G^\natural+\mathcal A_{\rm win}+C_{k_1,k}\ \ge\ \gamma_1:=\frac98(1-\eta_k)\gamma_0A_0^2\lambda_k^{2p_0}/a-\frac12$;
+(b) *($\varkappa_2$)* if $\tilde\chi_k=1$, $\chi_S=0$: $\mathcal G^\natural+\mathcal A_{\rm win}+C_{k_1,k}\ \ge\ \gamma_2:=\frac{1-\eta_k}{144K_1^2}\gamma_0A_0^2\lambda_k^{2p_0}/a-1$;
+(c) *($\varkappa_3$)* if $\tilde\chi_k=\chi_S=1$, $\chi^0=0$: $\mathcal A_{\rm win}+C_{k_1,k}\ \ge\ \gamma_3:=\frac{e^{-2\epsilon}\gamma_0A_0^2\lambda_{k_1}^{2p_0}}{72aK_1^2\hat W_k^2}$;
+(d) *($\varkappa_4$)* if $\tilde\chi_k=\chi_S=\chi^0=1$, $\chi''=0$: the curly bracket of (2.58) (Lemma III.6.3) satisfies $\beta_k\{\cdots\}\ \ge\ \gamma_4:=\frac{e^{-2\epsilon}\gamma_0A_1^2\lambda_{k_1}^{2p_0}}{2a\hat W_k^2}-1$;
+(e) *($\varkappa_5$)* if $\chi_{Z''}=0$ and $\chi_{Z_0}=1$: $\beta_kA^*_k\big(Z;\psi_k,\phi_k(\mathbb B_k(Z^\approx);\tilde\psi_k)\big)\ \ge\ \gamma_5:=\frac{1}{72K_1^2}\gamma_0A_0^2\lambda_k^{2p_0}/a$.
+Consequently, with $p_R=2p_0-2w_0$ and $A'_3:=\frac{e^{-2\epsilon}\gamma_0}{8a\,C_{\hat W}^2(4c_*)^{2p_0}}\min\{\frac{A_0^2}{72K_1^2},\frac{A_1^2}2\}$, for $\hat\lambda_k\ge\lambda_*$ ((Λ24)):
+$$\gamma_i-\log C_{\rm dec}(\varkappa_i)\ \ge\ 2A'_3\hat\lambda_k^{p_R}\qquad(i=1,\dots,5).\tag{III.5.1}$$
+
+*Proof.* Everything uses LF-1 (Theorem II.4.1), which holds for every generating set and every field, with $\gamma_0=\frac1{28d}$, in the scaled form: for a
+generating set at level $q$ and $X$, $\beta_qA^*_q(X,\mathbb B;\psi,\phi)\ge\gamma_0\sum_n\frac{\beta^{(q)}_n}2\big[\sum_{P_n(X)}|\psi_n(y)-\psi_n(y')|^2+\sum_{P^\times_n(X)}|\psi_n(b_+)-(Q\psi_{n-1})(b_-)|^2\big]$ and, for $|\phi|=1$,
+$\ge\gamma_0\sum_n\beta^{(q)}_n\sum_y\frac12(|\psi_n(y)|-1)^2$. Actions are additive over disjoint domains (the half-bonds of P5 (1.5)) and non-negative, so they may be restricted.
+
+(a) If a bond $b\subset Z^c_0\cap(\Omega^c_k)^{\sim3}$ has $|\partial^1\psi_k(b)|\ge3\delta_k$, or a point has $||\psi_k|-1|\ge3\delta_k$, LF-1 for the single-scale action on $Z^c_0\cap Z$ gives
+$\beta_kA^*_k(Z^c_0\cap Z;\psi_k,\phi_{k_1,k})\ge\frac92\gamma_0\beta_k\delta_k^2$. Since $\mathcal A_{\rm win}+C_{k_1,k}=\beta_kA^*_k(X_{\rm win},\mathbb B_k)\ge\beta_kA^*_k(Z^c_0\cap Z,\mathbb B_k)$ (additivity,
+$Z_{k_1}\subset Z_0$), (2.17′) gives $\frac12\mathcal G^\natural+\mathcal A_{\rm win}+C_{k_1,k}\ge\frac12\big(\mathcal G^\natural+\beta_kA^*_k(Z^c_0\cap Z,\mathbb B_k)\big)\ge\frac14(1-\eta_k)\frac92\gamma_0\beta_k\delta_k^2-\frac12=\gamma_1$. (P7 p. 502 uses a
+segment of length $<6M[R_{k-1}]$ to check the hypothesis of P6 (3.6); LF-1 (b) needs no such hypothesis, D-III.10.)
+(b) $\chi_k(\square)=0$ for some $\square\subset Z''^c_0\cap(\Omega^c_k)^{\sim3}\cap Z$. If $\psi_k\in\tilde\Psi(T_k(\square^{\sim3});\delta)$ with $K_1\delta<\delta_k$, then by BG Theorem 5.2 (3) (landed `theorem52_exists`
+bounds) the background of $\mathbb B_k(\square^{\sim2})$ satisfies every inequality of Definition II.3.1 with $\delta_k$, and the data lie in $\mathcal D_{\mathbb R}$ by (Λ17), so $\chi_k(\square)=1$. Hence
+a bond in $\square^{\sim3}$ has $|\partial^1\psi_k|\ge\delta_k/(2K_1)$ or a point has $|\psi_k\cdot\psi_k-1|\ge\delta_k/(2K_1)$, hence $||\psi_k|-1|\ge\delta_k/(6K_1)$ (as $|\psi_k|\le2$ on $\tilde\chi_k=1$). By Lemma III.5.0 (a)
+and $\square^{\sim3}\subset(\Omega^c_k)^{\sim6}\subset Z$, the violation lies in $Z^c_0\cap Z$; LF-1 and (2.17′) give $\ge\frac12(1-\eta_k)\frac{\gamma_0\beta_k\delta_k^2}{72K_1^2}-1$.
+(c) $\chi^0(\square)=0$ for some $\square\subset U^c\cap U^{\sim6}$. As in (b) with $\frac12\delta_{k_1}$ and $\delta^0:=\delta_{k_1}/(3K_1)$ ($K_1\delta^0<\frac12\delta_{k_1}$): one of P7 (2.21) [checked] holds,
+(i) $|\partial^1\psi_{k_1}(b)|\ge\delta^0$ or (ii) $|\psi_{k_1}\cdot\psi_{k_1}-1|\ge\delta^0$ at a bond or point of $\square^{\sim3}\cap U^{\sim3}\cap\Lambda_{k_1}$, or (iii) $|\psi_{k_1}(y)-\psi_0|\ge\delta^0$ at a block $y$ of
+$\square^{\sim3}\cap\partial(U^{\sim3}\cap T^{(k_1)})$. These blocks are window blocks of layer $k_1$ (Lemma III.1.2 (f)). In cases (i), (ii), LF-1 for $A^*_k(X_{\rm win},\mathbb B_k)$ gives
+$\ge\gamma_0e^{-2\epsilon}\beta_{k_1}(\delta^0)^2/18=\gamma_0e^{-2\epsilon}A_0^2\lambda_{k_1}^{2p_0}/(162K_1^2a)$. Case (iii) is the chain argument (P7 (2.22)–(2.30)): put $c:=(6K_1\hat W_k)^{-1}$ and suppose every
+intra edge of $\mathcal G$ in layer $i$ has $|\psi_i(y)-\psi_i(y')|<c\delta_i$ and every cross pair has $|\psi_{i+1}(b_+)-(Q\psi_i)(b_-)|<c\delta_i$ (then every cross edge costs $<dLc\delta_i$,
+Lemma III.4.2 (a)). Lemma CH from $y$ ($j=k_1$, $i_0=k_1$) gives a terminal block $y_k$ with $|\psi_{k_1}(y)-\psi_k(y_k)|<\hat W_kc\,\delta_{k_1}=\delta_{k_1}/(6K_1)$ (Lemma III.4.5). From $y_k$ go
+to the point $z_0$ of the boundary layer of $Z_0$ obtained by clamping the coordinates of $y_k$ to the box $Z_0^{+1}$, along a monotone path that first moves a
+coordinate in which $y_k$ lies outside $Z_0$; the path stays in the box $Z$ and outside $Z_0$, has at most $dM\mathrm{crit}_k$ bonds, each with $|\partial^1\psi_k|<3dL\delta_k$ (by $\tilde\chi_k$
+and the conditions (1.24) at scale $k$), so $|\psi_k(y_k)-\psi_k(z_0)|<3d^2LM\mathrm{crit}_k\delta_k$; and $|\psi_k(z_0)-\psi_0|<C_{2.20}\delta_k$ by (2.20′). With $\delta_k\le e^{\epsilon}L^{-n_1/3}\delta_{k_1}$
+(Lemma III.4.5) and (Λ23), $(3d^2LM\mathrm{crit}_k+C_{2.20})\delta_k\le\delta_{k_1}/(6K_1)$, so $|\psi_{k_1}(y)-\psi_0|<\delta_{k_1}/(3K_1)=\delta^0$, contradicting (iii). Hence some intra edge or cross pair
+violates the bound with $c$, and LF-1 gives $\ge\gamma_0e^{-2\epsilon}c^2\min_{i\ge k_1}\beta_i\delta_i^2/2\ge\gamma_3$ (and $\gamma_3$ is smaller than the bound of (i), (ii) as $\hat W_k\ge2$).
+(d) $|\delta\psi(y)|\ge\delta_{j,1}$ at a block $y$ of $D''$, layer $j$. $\delta\psi=0$ on terminal blocks (Lemma III.4.6). With $c'':=1/\hat W_k$, if every edge of the chain of Lemma CH
+from $y$ satisfied the bounds of Lemma III.4.4 for $\delta\psi$ with $\bar c=c''$, $\bar\delta=(\delta_{i,1})$ (admissible by Lemma III.4.5), we would get $|\delta\psi(y)|<\delta_{j,1}$. So some intra edge
+or cross pair of $\delta\psi$ has $|\cdot|\ge c''\delta_{i,1}$, $i\ge k_1$. The curly bracket of (2.58) is $\ge$ the LF-1 bracket of $\delta\psi$ on $X_{\rm win}$ (the fluctuation action $\delta A^*_k$ has the
+same first two terms as $A^*_k$ in $(\delta\psi,\delta\phi_{k_1,k})$, LF-1 holds for every field; its third term is bounded by (2.60)′, its last terms are $\ge0$, and the composed
+Gaussian term is $\ge0$; P7 p. 512 [checked]). So $\beta_k\{\cdots\}\ge\gamma_0e^{-2\epsilon}(c'')^2\beta_i\delta_{i,1}^2/2-1\ge\gamma_4$.
+(e) As (b), for $\square\subset Z''_0$, with the single-scale action of $\rho_{k,0}(Z)$ on $Z\supset\square^{\sim3}$ (Lemma III.5.0 (b)), on which $|\psi_k|\le2$ by $\chi_k$ of $Z\cap Z''^c_0$, $\tilde\chi_k$ and $\chi_{Z_0}$.
+*(III.5.1).* $\lambda_k\ge\hat\lambda_k/2$, $\lambda_{k_1}\ge\hat\lambda_k/(4c_*)$, $\hat W_k\le C_{\hat W}\hat\lambda_k^{w_0-2}$, $\eta_k\le\frac12$; each $\gamma_i\ge4A'_3\hat\lambda_k^{2p_0-2w_0+4}-3\ge4A'_3\hat\lambda_k^{p_R}-3$ for $i=3,4$, and $\gamma_1,\gamma_2,\gamma_5$ are
+larger (exponent $2p_0$); (Λ24) absorbs $3+\log5$. $\square$
+
+*Comparison with P7.* P7's factors are $\exp(-\frac92\gamma_0p_0^2(\beta_k))$ for (2.18), $\exp(-\frac{\gamma_0}{2\cdot6^dK_1^2}p_0^2M^{-d}|S''_k|)$ (P6 (3.8)), $\exp(-\frac12\gamma_0(64K_1LMR_{k_1})^{-2}p_0^2(\beta_{k_1}))$ for (2.21)
+(2.30), and $\exp(-\frac12\gamma_0(16LMR_j)^{-2}p_1^2+1)$ for (2.62). Here $64K_1LMR_{k_1}$ and $16LMR_j$ become $6K_1\hat W_k$ and $\hat W_k$: the window has $\nu$ pieces and the chain is
+longer. The exponent $2p_0-2w_0=p_R>p_2+2d$ is what LF-2 needs ((K), (Λ10)). The subset entropy of P7 (2.33) ("$+M^{-d}|(Z^c_{k_1})^{\sim3}\cap Z^{\sim3}_{k_1}|$") does not occur
+(D-III.2).
+
+---
+
+## III.6 The cancellation of the main actions (P7 pp. 506–512, (2.34)–(2.60))
+
+### III.6.1 Backgrounds of the window
+
+**Definition III.6.1 (P7 (2.40), (2.46), (2.50)).** On the support of $\tilde\chi_k$ (and of the window characteristic functions), with $\psi^0_k$ of Lemma III.3.3 for $\delta=3\delta_k$:
+$\phi^0_k:=\phi_k(\mathbb B_k(U_k);\tilde\psi^0_k)$ and $\alpha^0_k$ its multiplier (massless, $U_k=Z^\approx$); $\psi^0_{k_1,k}:=\psi(\mathbb B_{k_1,k},\mathbb B_k(U_k);\tilde\psi^0_k)$, the composed field of BG (6.2)
+(landed `composeField`) with the weights $a_n$ of (II.1); $\delta\psi:=\tilde\psi-\psi^0_{k_1,k}$ on $\mathbb B_{k_1,k}$; $\delta\phi_{k_1,k}:=\phi_k(\mathbb B_{k_1,k};\tilde\psi)-\phi^0_k$ (by I-2, landed `theorem73_real`,
+$\phi_k(\mathbb B_{k_1,k};\psi^0_{k_1,k})=\phi^0_k$ on $\Omega_1(\mathbb B_{k_1,k})$, so this is P7 (2.50)). Write $r_z:=\psi_k(z)-(Q_k\phi^0_k)(z)$ for the $k$-blocks $z\subset Z^c_0$ (there $\psi^0_k=\psi_k$).
+
+**Lemma III.6.2 (P7 Lemma 2.2, (2.41)–(2.45); cited).** Under the characteristic functions introduced so far, in scale-$k$ units:
+$|Q^*_k\psi^0_k-\phi^0_k|,|\partial\phi^0_k|,|\Delta\phi^0_k|,|\alpha^0_k|<3K_1K_6\delta_k$ on $U_k$ (2.41); the same quantities are $<\frac98\delta_k$ on $Z''^c_0\cap U_k$ (2.42); $|\psi^0_k(z)-\psi^0_{k_1,k}(x)|<4K_1K_6\delta_k$
+for $x\in\Delta_k(z)\subset\Omega^c_k$ (2.43); $\psi^0_k-\psi^0_{k_1,k}=0$ on $\Omega_k\cap U^\sim_k$ (2.44); and (2.45). In particular $|r_z|<3K_1K_6\delta_k$. The analytic extensions satisfy the same bounds with
+$\delta_k$ replaced by $2\varepsilon_k$. *Source.* P7 p. 508 [checked]: (2.41) from BG Theorem 5.2 (3) and Lemma III.3.3; (2.43)–(2.45) from BG (6.2) and (2.41); (2.42) by the
+comparison argument of Lemma 2.5 (§III.7); with our larger $Z''_0$ (Lemma III.5.0) the region $Z''^c_0$ is smaller, so (2.42) holds a fortiori.
+
+The pair $(\psi^0_k,\phi^0_k)$ minimizes $A_k(\mathbb B_k(U_k);\tilde\psi_k,\phi)$ jointly over $\psi_k\restriction_{Z_0}$ and $\phi$ (P7 (2.34), (2.51): "$\inf_{\psi_k}\inf_\phi$"); the stationarity in $\psi_k\restriction_{Z_0}$ gives
+$$\psi^0_k-Q_k\phi^0_k=0\ \text{on }Z_0,\qquad\text{hence}\qquad\psi^0_{k_1,k}-Q(\mathbb B_{k_1,k})\phi^0_k=0\ \text{on }Z_0\qquad(\text{P7 (2.52)}),\tag{2.52}$$
+the second by BG (6.2) ($\psi^0_{k_1,k}=Q_n\phi^0_k+\frac{a_k}{a_n}L^{2(n-k)}(\psi^0_k-Q_k\phi^0_k)$ on the layer $n$).
+
+### III.6.2 The cancellation identity with the actual composed transformation
+
+**Lemma III.6.3 (the fundamental formula; P7 (2.53)–(2.58); perturbative composition lemma for O-8′, audit P2-05).** On the domain of Definition III.6.1, real and
+complex, with $\mathcal G^\natural$ the exponent and $\mathrm{const}^\natural:=\prod_z(\beta_ka^\natural_z/2\pi)^{N/2}$ the constant of the composed kernel (III.1.4) on $Z^c_0\cap\Omega^c_k$,
+$$\mathcal G^\natural+\beta_kA^*_k\big(X_{\rm win},\mathbb B_k;\psi,\phi_{k_1,k}\big)-\log\mathrm{const}^\natural=\beta_kA^*_k(Z;\psi^0_k,\phi^0_k)-\beta_kA^*_{0,k}(Z_{k_1};\phi^0_k)+\beta_k\{\cdots\}+\beta_kS_{\rm st}-\log\mathrm{const}+C^\natural,\tag{2.58′}$$
+where $\mathrm{const}:=\prod_z(\beta_ka_z/2\pi)^{N/2}$ (ideal), $A^*_{0,k}$ is the main action without the block terms of the renormalization transformations (P7 p. 511),
+$$\{\cdots\}:=\sum_{z\subset Z^c_0\cap\Omega^c_k}\tfrac12a^\natural_z|\mathcal Q_z\delta\psi|^2+\delta A^*_k\big(X_{\rm win},\mathbb B_k;\delta\psi,\delta\phi_{k_1,k}\big)+\nu_k\langle\delta\phi_{k_1,k},\phi^0_k-h\rangle_{X_{\rm win}},\qquad S_{\rm st}:=\big\langle\tfrac12[(\delta\phi_{k_1,k})_++(\delta\phi_{k_1,k})_-],\partial\phi^0_k\big\rangle_{{\rm st}(X_{\rm win})},$$
+$\delta A^*_k$ the fluctuation action of P5 (2.24), and the remainder $C^\natural=C^\natural_0+C^\natural_1$ satisfies
+$$|C^\natural_1|\le\tfrac38\sum_z\beta_ka^\natural_z|\mathcal Q_z\delta\psi|^2,\qquad|C^\natural_0|\le\begin{cases}1&\text{on the real domain},\\ C_\natural\,\hat\lambda_k^{2d+1}&\text{on the complex domain},\end{cases}\tag{III.6.1}$$
+with $C_\natural$ a constant of rows 0–11 (it is part of $L_{\rm res}$, (III.8.4)). With the ideal composition ($z_i\equiv1$, $\beta_j$ canonical) $C^\natural=0$ and $a^\natural=a$: this is P7 (2.58).
+
+*Proof.* *Expansion of the action* (P7 (2.53) [checked, text layer]). By (2.50) and P5 (2.23) (the expansion of the action at a stationary point; the
+background $\phi^0_k$ solves (EL) for $\mathbb B_{k_1,k}$ with the datum $\psi^0_{k_1,k}$ by I-2),
+$$A^*_k(X_{\rm win},\mathbb B_k;\psi,\phi_{k_1,k})=A^*_k(X_{\rm win},\mathbb B_k;\psi^0_{k_1,k},\phi^0_k)+\langle\delta\psi,a(\mathbb B_{k_1,k})(\psi^0_{k_1,k}-Q(\mathbb B_{k_1,k})\phi^0_k)\rangle_{X_{\rm win}}+\nu_k\langle\delta\phi,\phi^0_k-h\rangle+\delta A^*_k+S_{\rm st}.$$
+The second term vanishes on $X_{\rm win}\cap Z_0$ by (2.52) and on $\Omega_k$ since $\delta\psi=0$ there (Lemma III.4.6); on $Z^c_0\cap\Omega^c_k$, by BG (6.2) and
+$a_nL^{-2n}\cdot\frac{a_k}{a_n}L^{2(n-k)}=a_kL^{-2k}$, it equals (P7 (2.54))
+$$\sum_{z}a_k\,(\mathcal Q_z\delta\psi)\cdot r_z\qquad(\text{in scale-}k\text{ units; }\mathcal Q_z\text{ the volume average over }z).$$
+*Expansion of the composed Gaussian.* On $z\subset Z^c_0\cap\Omega^c_k$ the leaves are window leaves outside $U^{\sim3}$ (Lemma III.3.2 (d)), and
+$\psi_k(z)-\mathcal Q^\natural_z\tilde\psi=\varrho_z-\mathcal Q_z\delta\psi-s_z$, with $\varrho_z:=\psi_k(z)-\mathcal Q_z\psi^0_{k_1,k}$ and $s_z:=\sum_xw_x(\varpi_{n_x}-1)\tilde\psi(x)$. By BG (6.2) and (C1),
+$\mathcal Q_z\psi^0_{k_1,k}=(Q_k\phi^0_k)(z)+a_k(u_k-u^{(k)}_z)r_z$, so $\varrho_z=a_ku^{(k)}_zr_z=\frac{a_k}{a_z}r_z$ (this is P2 (4.18) in the form used in P7 (2.55)). Hence, with
+$a^\natural_z=a_z(1+\eta_z)$,
+$$\tfrac12\beta_ka^\natural_z|\varrho_z-\mathcal Q_z\delta\psi-s_z|^2=\tfrac12\beta_k\frac{a_k^2}{a_z}|r_z|^2-\beta_ka_k\,r_z\cdot\mathcal Q_z\delta\psi+\tfrac12\beta_ka^\natural_z|\mathcal Q_z\delta\psi|^2+R_{\eta,z}+R_{s,z},$$
+$$R_{\eta,z}:=\beta_k\eta_z\Big(\tfrac{a_k^2}{2a_z}r_z\cdot r_z-a_k\,r_z\cdot\mathcal Q_z\delta\psi\Big),\qquad R_{s,z}:=\beta_ka^\natural_z\Big(-(\varrho_z-\mathcal Q_z\delta\psi)\cdot s_z+\tfrac12s_z\cdot s_z\Big)$$
+(bilinear products; for complex arguments the identity is the same polynomial identity). The term $-\beta_ka_kr_z\cdot\mathcal Q_z\delta\psi$ cancels $\beta_k$ times (2.54) exactly (P7 p. 510:
+"the second term above is equal to (2.54) with the minus sign, so their sum is equal to 0"). *Minimal value* (P7 (2.56)–(2.57)). The block terms of
+$\beta_kA^*_k(X_{\rm win},\mathbb B_k;\psi^0_{k_1,k},\phi^0_k)$ on $Z^c_0\cap\Omega^c_k$ plus $\sum_z\frac12\beta_k\frac{a_k^2}{a_z}|r_z|^2$ equal $\sum_z\frac12\beta_ka_k|r_z|^2$: per $z$, the block term of a leaf of layer $n$ is
+$\frac12\beta^{(k)}_0a_nL^{n(d-2)}L^{nd}\cdot L^{-nd}|\frac{a_k}{a_n}L^{2(n-k)}r_z|^2$, and summing with (C1) as in the proof of Lemma III.2.3 gives $\frac12\beta_ka_k^2|r_z|^2(u_k-u^{(k)}_z)$, to which
+$\frac12\beta_ka_k^2u^{(k)}_z|r_z|^2$ is added. The block terms on $X_{\rm win}\cap Z_0$ vanish by (2.52), those on $\Omega_k$ coincide with the single-scale ones. So the block terms
+together form the single-scale block terms of $\beta_kA^*_k(Z;\psi^0_k,\phi^0_k)$ on $Z\setminus Z_{k_1}$ (on $Z_0$ they vanish, $r=0$), and the gradient, mass and boundary terms of
+$A^*_k(X_{\rm win})$ are those of $A^*_k(Z)$ minus those of $Z_{k_1}$, which is $-A^*_{0,k}(Z_{k_1};\phi^0_k)$ (P7: "we can extend the form (2.57) to the whole set $Z_k\cap T^{(k)}_1$ writing $\psi^0_k$
+instead of $\psi_k$"). *Constants.* $\log\mathrm{const}^\natural-\log\mathrm{const}=\frac N2\sum_z\log(1+\eta_z)$. Collecting, $C^\natural=\sum_z(R_{\eta,z}+R_{s,z})-\frac N2\sum_z\log(1+\eta_z)$.
+*Bounds.* By Cauchy–Schwarz, $|\beta_k\eta_za_kr_z\cdot\mathcal Q_z\delta\psi|\le\frac18\beta_ka^\natural_z|\mathcal Q_z\delta\psi|^2+8\beta_k\eta_k^2a_k^2|r_z|^2/a^\natural_z$ and
+$|\beta_ka^\natural_z\mathcal Q_z\delta\psi\cdot s_z|\le\frac14\beta_ka^\natural_z|\mathcal Q_z\delta\psi|^2+\beta_ka^\natural_z|s_z|^2$; these two $\frac18+\frac14=\frac38$ parts form $C^\natural_1$. The rest, $C^\natural_0$, is bounded by
+$$\sum_z\Big[3\beta_k\eta_k|r_z|^2+4\beta_k|r_z||s_z|+3\beta_k|s_z|^2\Big]+N\eta_k\#\{z\}\qquad(a_k,a_z,a^\natural_z\in[\tfrac12,2],\ \eta_k\le\tfrac12).$$
+On the real domain $|r_z|\le3K_1K_6\delta_k$ and $|s_z|\le2\bar\varsigma_z$, so with $\#\{z\}\le(M\mathrm{crit}_k)^d$: the first term is $\le27K_1^2K_6^2\eta_kA_0^2\lambda_k^{2p_0}a^{-1}(M\mathrm{crit}_k)^d$, the second
+$\le24K_1K_6(\delta_k/\varepsilon_k)\Theta^\natural$, the third $\le12(\Sigma^\natural)^2(M\mathrm{crit}_k)^d$, the fourth $\le N\eta_k(M\mathrm{crit}_k)^d$; each is $\le\frac14$ by (Λ19) (they carry $\beta^{-1}q^k$,
+$\delta_k/\varepsilon_k\le\alpha_0^{-1}A_0\lambda_k^{p_0}\beta^{-1/2}L^{-k\gamma}$, or $(\Sigma^\natural)^2$, times polynomials in $\hat\lambda_k$). On the complex domain $|r_z|\le6K_1K_6\varepsilon_k$ (Lemma III.6.2) and $|\tilde\psi|\le2$:
+$\beta_k\eta_k\varepsilon_k^2\le e^{\epsilon}\beta L^{k(d-2)}\cdot9\alpha_0^2L^{-2k\alpha}\cdot\frac{12c_\xi L^{-2\gamma k}}{\beta(1-q)}=\frac{108e^{\epsilon}\alpha_0^2c_\xi}{1-q}$ (as $d-2-2\alpha-2\gamma=0$), so the first term is $\le C\hat\lambda_k^{2d}$, and the second is
+$\le48K_1K_6\Theta^\natural\le C\hat\lambda_k^{2d+1}$ by (III.1.8). $\square$
+
+*Remark.* The audit's point P2-05 is visible here: $R_{\eta,z}$ and $R_{s,z}$ contain terms linear in $\delta\psi$, and every coefficient error carries $\beta_k$. The linear terms
+are absorbed into $\frac38$ of the non-negative composed-Gaussian term $\frac12\sum_z\beta_ka^\natural_z|\mathcal Q_z\delta\psi|^2$ (which then keeps $\frac18$), and the $\beta_k$ factors are
+compensated by $\eta_k=O(\beta^{-1}q^k)$ (the coefficient error is weighted towards the top scales, Lemma III.1.6) and by the volume fractions of the deep layers
+(Lemma III.1.7′). On the complex domain the remainder is not small but polynomial, $O(\hat\lambda_k^{2d+1})$, and is paid by $C_R$.
+
+### III.6.3 The remaining terms (P7 (2.59)–(2.60))
+
+**Lemma III.6.4 ((2.59)′, (2.60)′, surface and $\nu$-terms).** On the domain of Lemma III.6.3 and for $\hat\lambda_0\ge\lambda_*$ ((Λ25)):
+(a) $|\beta_kA^*_{0,k}(Z_{k_1};\phi^0_k)|<1$, real and complex (P7 (2.59));
+(b) $\frac12\beta_k|\langle\delta\phi_{k_1,k},\alpha^0_k\delta\phi_{k_1,k}\rangle_{X_{\rm win}}|<1$, and on the complex domain the same with $\alpha^0_k+\nu_k$ (P7 (2.60), (3.19));
+(c) $\beta_k|S_{\rm st}|<1$ and $\beta_k\nu_k|\langle\delta\phi_{k_1,k},\phi^0_k-h\rangle_{X_{\rm win}}|<1$.
+Consequently, on the real domain, $\beta_k\{\cdots\}\ge\gamma_0\cdot(\text{the LF-1 bracket of }\delta\psi\text{ on }X_{\rm win})-1$ (P7 p. 512 [checked]), and $\beta_k\{\cdots\}+C^\natural_1\ge-1$.
+
+*Proof.* (a) With (2.41) for the extension ($2\varepsilon_k$ in place of $\delta_k$) and $|Z_{k_1}|_k\le\nu_{\max}(k)(M\mathrm{crit}_{k_1})^dL^{-n_1d}$ (Lemma III.1.2 (c)):
+$|\beta_kA^*_{0,k}(Z_{k_1};\phi^0_k)|\le(6K_1K_6)^2\beta_k\varepsilon_k^2\,\nu_{\max}(k)(M\mathrm{crit}_{k_1})^dL^{-n_1d}$. Since $\beta_k\varepsilon_k^2\le e^{2\epsilon}\beta_{k_1}\varepsilon_{k_1}^2L^{2\gamma n_1}$ and $d-2\gamma=2+2\alpha$, the right side is
+$\le C\nu_{\max}(k)(M\mathrm{crit}_k)^d\beta_{k_1}\varepsilon_{k_1}^2L^{-2(1+\alpha)n_1}\le C'\hat\lambda_k^{p_2+2d}\alpha_0^2\beta_{k_1}^{-1-2/\alpha}$ by (III.1.1) ($L^{\alpha n_1}>\beta_{k_1}a$), which is $<1$ (ARCH (2.59)′). (b) As P7 p. 511 with (2.49′):
+$\frac12\beta_k|\langle\delta\phi,\alpha^0\delta\phi\rangle|\le\frac12\sum_{j=k_1}^{k}\beta_j(C_{24}L^{\frac{d+2}2}\hat W_k\delta_j)^2\cdot3K_1K_6\delta_k\cdot|\Lambda_j\cap Z|_jL^{-2(k-j)}$, and $|\Lambda_j\cap Z|_j\le L^d\nu_{\max}(k)(LM\mathrm{crit}_k)^d$,
+$\beta_j\delta_j^2=A_0^2\lambda_j^{2p_0}/a$, $\delta_k=A_0\lambda_k^{p_0}(\beta_ka)^{-1/2}$, $\sum_jL^{-2(k-j)}\le2$: the bound is $\le CA_0^3\nu_{\max}(k)\hat W_k^2(LM\mathrm{crit}_k)^d\lambda_k^{3p_0}\beta_k^{-1/2}<1$ (ARCH (2.60)′; P7 used
+$(10LMR_j)^d$ per layer). On the complex domain replace $3K_1K_6\delta_k$ by $6K_1K_6\varepsilon_k+L^{2j-2k}\beta_k^{-1}$ ($|(\alpha^0_k+\nu_k)|$ in scale-$j$ units) and sum as in (3.17) [P7 p. 524]: the factor
+$\varepsilon_k\le\varepsilon_{k_1}L^{-\alpha n_1}\le\varepsilon_{k_1}(\beta_{k_1}a)^{-1}$ replaces $\delta_k$. (c) The surface term on ${\rm st}(Z_{k_1})$ as (a); on ${\rm st}(Z)$ the decay factor of (2.49′) gives $e^{-\frac14\gamma_0MR_k}$
+times a polynomial (P7 p. 511: "a large power of $\beta_k^{-1}$"). The $\nu$-term: $\beta_k\nu_k\le1$, $|\phi^0_k-h|\le2$, and $\sum_j|\Lambda_j\cap Z|_kC_{24}L^{\frac{d+2}2}\hat W_k\delta_j\le C(M\mathrm{crit}_k)^d\hat W_k\delta_{k_1}<1$.
+The consequence: LF-1 (a) holds for every pair of fields, in particular for $(\delta\psi,\delta\phi_{k_1,k})$ in the first two terms of $\delta A^*_k$ (P5 (2.24)); the third term is (b);
+the remaining terms of $\delta A^*_k$ and the composed-Gaussian term are $\ge0$; $|C^\natural_1|$ is at most $\frac34$ of the composed-Gaussian term. $\square$
+
+---
+
+## III.7 Lemma 2.5: the new small-field functions imply the old ones (P7 pp. 512–516; ARCH (M5))
+
+**Lemma III.7.1 (P7 Lemma 2.5).** On the support of the window kernel $K_{\rm win}$ and of $\tilde\chi_k\chi_S\chi^0\chi''$, every characteristic function of $\mathcal X_{\rm win}$ whose
+localization cube lies outside $U$ equals $1$: $\chi_j(\square)=1$ for $\square\in\pi_j$, $\square\subset\Omega^{\sim-3}_j\cap(\Omega^{\sim3}_{j+1})^c\cap U^c$, and $\chi'_{j+1}(\square')=1$ for $\square'\in\pi_{j+1}$,
+$\square'\subset\Omega^{\sim3}_{j+1}\cap(\Omega^c_{j+1})^{\sim3}$, $k_1\le j\le k-1$ [checked, text layer]; and the conditions (1.24) of $\chi^{\rm new}_j$ on these cubes hold. Consequently, on that support,
+$K_{\rm win}\tilde\chi_k\chi_S\chi^0\chi''=K_{\rm win}^{\rm red}\,\tilde\chi_k\chi_S\chi^0\chi''$, where $K^{\rm red}_{\rm win}$ is $K_{\rm win}$ with these characteristic functions replaced by $1$; the only window characteristic
+functions left are $\chi_{k_1}(Z^c_{k_1}\cap U)$ and those at scale $k$ (on $\Omega^{\sim-3}_k\cap Z$, which enter $\chi_k(Z\cap Z''^c_0)$, P7 p. 502).
+
+*Proof* (P7's, with the changed constants; every estimate is listed). Two cases.
+
+*Case A: $\square^{\sim3}\cap U^{\sim3}=\varnothing$.* Then $\square^{\sim3}\subset\Lambda_j\cap\Omega^c_{j+1}$ and $\delta\psi=\psi''$ on $\square^{\sim3}$ (Definition III.5.1 item 4), so $|\psi''_j|<\delta_{j,1}$ there. Write
+$\phi_j(\square;\tilde\psi_j)=\phi_j(\square;\tilde\psi^0_{k_1,k})+\delta\phi_j(\square;\tilde\psi''_j)$ (P7 (2.63), $\phi_j(\square):=\mathrm{bg}(\mathbb B_j(\square^{\sim2});\cdot)$).
+- (2.64) By BG Proposition 5.1 (landed `prop51_exists_unique`, constant $K_2$): $|\delta\phi_j|,L^j|\partial\delta\phi_j|,L^{2j}|\Delta\delta\phi_j|,L^{2j}|\delta\alpha_j|<K_2\delta_{j,1}=\frac{K_2A_1}{A_0}\delta_j\le\frac18\delta_j$, using the
+  relation $A_0=4K_2B_5A_1$ (P7 p. 513 [checked]; row 9).
+- (2.65)–(2.67) The background $\phi_j(\square)$ is determined by the coefficients of scale $j$, $\psi^0_{k_1,k}$ by those of scale $k$; renormalizing in $k-j$ steps by P4 (4.12) with
+  the bounds P4 (4.11), (5.31) gives $\phi_{j,u}(\square;\tilde\psi^0_{k_1,k})=\phi_j(\square;\tilde\psi^0_{k_1,k})+\delta\phi_{j,u}$ with $|\delta\phi_{j,u}|,\dots<56B_6K_1^2K_2K_5K_6\alpha_0^{-1/2}\gamma^{-1}\beta^{-1}L^{-2\gamma j}L^{j-k}\delta_k<\frac18\delta_j$
+  for $\beta$ large ((Λ25)); the input is $\tilde\psi^0_{k_1,k}\in\tilde\Psi(\mathbb B_j(\square^{\sim2});4K_1K_6L^{j-k}\delta_k)$ (2.66), from (2.45). *Status:* cited (P7 p. 513; the free flow does not change
+  P4 (4.11)–(4.12), SF §3). Under the free flow the factors $z_i$ enter here as in P4 (4.12) (field renormalization of the coefficients), not as in §III.1.
+- (2.68)–(2.70) $\phi_j(\mathbb B_j(\square^{\sim2});\psi(\mathbb B_j(\square^{\sim2}),\mathbb B_k(U_k);\tilde\psi^0_k))=\phi^0_k$ on $\square^{\sim3}$ (I-2, `theorem73_real`; $\mathbb B_j(\square^{\sim2})\prec\mathbb B_k(U_k)$ by Lemma II.2.3 (b)).
+  The data difference $\tilde\psi^0_{k_1,k}-\psi(\mathbb B_j(\square^{\sim2}),\mathbb B_k(U_k);\tilde\psi^0_k)$ vanishes on $\square^{\sim2}$ and is $<3(d+1)K_1K_6L^{j-k}\delta_k$ elsewhere (P7 (2.69), from (2.41) and
+  BG (6.2)); by the exponential decay of the background's response (P3 Proposition 2.1; in the project LOC/G-2) the induced change is
+  $<3(d+1)K_1K_3K_6e^{-\frac15\gamma_0M}L^{j-k}\delta_k\le\frac18L^{j-k}\delta_k$, which is P7 (2.70), the row-6 condition (vi) on $M$ ("one of the strongest conditions on $M$").
+- (2.71) Hence $|L^j\partial\phi_j|,|L^{2j}\Delta\phi_j|,|L^{2j}\alpha_j|<\max\{|L^j\partial\phi^0_k|,|L^{2j}\Delta\phi^0_k|,L^{2j}|\alpha^0_k|\}+\frac38\delta_j$ on $\square^\sim$. If $\square^\sim\cap Z''_0\ne\varnothing$: then
+  $\square^\sim\subset\Omega^c_{k_3+1}$ (Lemma III.5.0 (b)), so $j\le k_3$, $k-j\ge n_3\ge4$, and by (2.41) the maximum is $<3K_1K_6L^{j-k}\delta_k\le3K_1K_6L^{-\frac43(k-j)}\delta_j\le3K_1K_6L^{-n_3}\delta_j<\frac{27K_1K_6}{[R_{k_3}]}\delta_j\le\frac58\delta_j$
+  (Lemma III.5.0 (c) and $R_{\rm base}\ge44K_1K_6$, row 7; P7 has $R_0\ge6K_1K_6$ with its threshold $1$ for $k_3$). If $\square^\sim\subset Z''^c_0$: by (2.42) the maximum is $<\frac98L^{j-k}\delta_k\le\frac38\delta_k<\frac38\delta_j$.
+  In both cases the three conditions on $\phi_j(\square)$ in $\chi_j(\square)$ hold with $\delta_j$.
+- (2.72) $|\psi_j-Q_j\phi_j(\square;\tilde\psi_j)|<\frac{A_1}{A_0}\delta_j+|\psi^0_{k_1,k}-Q_j\phi^0_k|+\frac38\delta_j<(L^{j-k})^2|\psi^0_k-Q_k\phi^0_k|+\frac12\delta_j$ ((2.52)-type identity of BG (6.2)), and the first term is
+  $<\frac12\delta_j$ in both cases as above. So the fourth condition of $\chi_j(\square)$ holds. The domain conjunct $\mathbf 1[\cdot\in\mathcal D_{\mathbb R}]$ holds by (Λ17).
+
+*Case B: $\square^{\sim3}\cap U^{\sim3}\ne\varnothing$.* Then $j=k_1$ and $\square\subset U^c\cap U^{\sim6}$ (the window cubes of layer $k_1$ near the core). Write
+$\phi_{k_1}(\square;\tilde\psi_{k_1})=\phi_{k_1}(\square;\tilde\psi'_{k_1})+\delta\phi_{k_1}(\square;\tilde\psi_{k_1}-\tilde\psi'_{k_1})$ (P7 (2.73)); the first configuration satisfies all conditions of $\chi_{k_1}(\square)$ with $\frac12\delta_{k_1}$ by $\chi^0$.
+The difference vanishes on $\mathbb B_{k_1}(\square^{\sim2})\cap U^{\sim3}$; on the rest it is $\tilde\psi_{k_1}-\psi_0$, and for $x$ there, with $z$ the $k$-block of $x$ and $z_0$ the clamped point of
+§III.5.3 (c) (now $|z-z_0|\le D_0$),
+$\tilde\psi_{k_1}(x)-\psi_0=\tilde\psi''(x)+(\tilde\psi^0_{k_1,k}(x)-\psi^0_k(z))+(\psi^0_k(z)-\psi_k(z_0))+(\psi_k(z_0)-\psi_0)$, so
+$$|\tilde\psi_{k_1}-\tilde\psi'_{k_1}|<\delta_{k_1,1}+4K_1K_6\delta_k+3dD_0K_6\delta_k+C_{2.20}\delta_k<\Big(\frac{A_1}{A_0}+(4K_1K_6+3dD_0K_6+C_{2.20})e^{\epsilon}L^{-n_1/3}\Big)\delta_{k_1}$$
+(ARCH (M7): P7's $7K_6\cdot3$ and $90d$ become $3dD_0K_6$ and $C_{2.20}$). By BG Prop 5.1 the second configuration then changes the conditions by at most
+$K_2\times$ this, and $(K_2+1)\big(\frac{A_1}{A_0}+(4K_1K_6+3dD_0K_6+C_{2.20})e^{\epsilon}L^{-n_1/3}\big)\le\frac12$ by the relation of row 9 and (Λ23). So $\chi_{k_1}(\square)=1$.
+
+*The functions $\chi'_{j+1}(\square')$.* "Obviously the same way" (P7 p. 515): the constant $4K_1K_6L^{j-k}\delta_k$ of (2.66) becomes $3(d+2)K_1K_6L^{j+1-k}\delta_k$, and for $j+1=k$ the last
+inequality is done separately (P7 p. 516 [checked]): on $\square'^\sim\cap\Omega^c_k$, $\frac{A_1}{A_0}\delta_{k-1}+\frac18\delta_k+\frac38\delta_{k-1}<\frac34\delta_{k-1}$; on $\square'^\sim\cap\Omega_k$, $|\psi_k-Q_k\phi^0_k|+\frac38\delta_{k-1}<\frac98\delta_k+\frac38\delta_{k-1}<\frac45\delta_{k-1}$ (P7's $\frac98L^{-1/3}+\frac38<\frac45$).
+*Conditions (1.24).* They follow from the characteristic functions by P1 Lemma 3.1 (SF §1.2 (D1)) as in Remark II.2.8. $\square$
+
+*Status:* proved here from the cited inputs listed (BG Prop 5.1 and I-2 landed; P4 (4.11)–(4.12) and P3 Prop 2.1 cited). This is also the proof of P5 Lemma
+2.1 (the known gap of LF-3, ARCH §3.7; P7 p. 512: "The analysis in this case covers in particular a proof of Lemma 2.1 [5]"). The two constant changes
+relative to P7 are $R_{\rm base}\ge44K_1K_6$ (row 7) and the threshold $8$ in $k_3$ (Lemma III.5.0). Lemma 2.5 uses no chains (R3-14 (a)).
+
+---
+
+## III.8 The normalization of $R$, the outcome operators, the refund, and LF-4R (P7 pp. 517–520, 525; ARCH Step 6)
+
+### III.8.1 The definition of $R$ on a representation
+
+**Definition III.8.1 (the reference density of a component; P7 (1.5), (3.1)–(3.2)).** For a ripe component $Z$ with outcome "to $R$", put $C_6:=3dD_0(K_6+1)$ and
+$$\chi_{Z_0}:=\mathbf 1\big[\,|\psi_k(z)-\psi^0_k(z)|<C_6\,\beta_k^{-1/2}p_0(\beta_k)\ \ \forall z\in Z_0\,\big],\qquad\rho_{k,0}(Z):=\chi_{Z_0}\exp\big(-\beta_kA^*_k\big(Z;\psi_k,\phi_k(\mathbb B_k(U_k);\tilde\psi_k)\big)\big),$$
+$U_k=Z^\approx$, the action with its $\nu$-term (P5 p. 490). (P7: $C_6=21(K_6+1)$ for $\mathrm{diam}(Z_0)<15$; the same argument with $|z-z_0|\le D_0$ gives ours, (3.21).)
+
+**Lemma III.8.2 (the denominator; P7 (3.3)–(3.5), cited).** $\int d\psi_k\!\restriction_{Z_0}\rho_{k,0}(Z)=\exp\big(-\beta_kA^*_k(Z;\psi^0_k,\phi^0_k)-\frac N2\log\beta_k|Z_0|+\tilde{\mathcal E}^{(k)}_0(Z_0;\psi^0_k)\big)$,
+where $\tilde{\mathcal E}^{(k)}_0$ is analytic in $\psi_k\restriction_{U^\sim_k\cap Z^c_0}$ on the large domain of Lemma III.3.3, $O(N)$-invariant jointly in $(\psi_k,h)$, and $|\tilde{\mathcal E}^{(k)}_0|\le C_{\tilde E}D_0^d$ with
+$C_{\tilde E}=C(N,d,D_0,\gamma_0,C_6)$. *Source.* P7 pp. 517–518 [checked, text layer]: the expansion (3.3) around $\psi^0_k$ (the linear term vanishes by (2.52) and $\psi=0$ off $Z_0$),
+the quadratic form bounded below by (2.38) with $c_{D_0}$ (Lemma III.3.3), the cubic remainder $O(\beta_k^{-1/2}p_0^3)|Z_0|$, the $\nu$-term $O(\beta_k^{-3/2}p_0^2)|Z_0|$ by $\beta_k\nu_k\le1$, the surface term a
+high power of $\beta_k^{-1}$; "$|Z_0|\le14^d$, so the integral is very simple and elementary" (ours $|Z_0|\le D_0^d$). The lower bound on the integral (needed for $|\tilde{\mathcal E}_0|$) is the
+integral over $|\psi|<1$, where the integrand is $\ge e^{-C|Z_0|}$. *Status:* cited; a finite-dimensional Gaussian estimate.
+
+**Definition III.8.3 ($R^{(k)}$ on a representation; P7 (1.3)–(1.6)).** For $\mathbb A\in\mathfrak A$ let $\mathrm{Rip}(\mathbb A)$ be the set of ripe components of $Z^{\rm pre}_k(\mathbb A)$. Inserting the
+decompositions of Definition III.5.2 in every ripe component gives $\rho=\sum_{\mathbb A}\sum_\sigma\rho(\mathbb A,\sigma)$, the inner sum over the maps $\sigma:\mathrm{Rip}(\mathbb A)\to\{\varkappa_1,\dots,\varkappa_4,\to\!R\}$,
+$\rho(\mathbb A,\sigma)$ the term of (D1) with the kernel $K^{(\sigma(Z))}$ in each ripe component (Lemma II.5.3: the decompositions act on disjoint variables). Let
+$\mathcal Z_\sigma:=\sigma^{-1}(\to\!R)$ and $\mathcal Z_{\sigma,0}:=\bigcup_{Z\in\mathcal Z_\sigma}Z_0$. Define (P7 (1.6))
+$$R\big[\rho(\mathbb A,\sigma)\big]:=\prod_{Z\in\mathcal Z_\sigma}\rho_{k,0}(Z)\cdot\frac{\int d\psi_k\!\restriction_{\mathcal Z_{\sigma,0}}\rho(\mathbb A,\sigma)}{\prod_{Z\in\mathcal Z_\sigma}\int d\psi_k\!\restriction_{Z_0}\rho_{k,0}(Z)},\qquad\rho':=\sum_{\mathbb A\in\mathfrak A}\sum_\sigma R\big[\rho(\mathbb A,\sigma)\big].$$
+
+**Lemma III.8.4 (normalization; P7 (1.7)–(1.8)).** On every admissible torus and for all $(h,g)$, $\|g\|_{\ell^1}<1$: $\int\rho'\,d\psi_k=\int\rho\,d\psi_k$.
+
+*Proof.* Fix $(\mathbb A,\sigma)$. (i) The integrand of $\rho(\mathbb A,\sigma)$ depends on $\psi_k\restriction_{\mathcal Z_{\sigma,0}}$ only through the part over $Z_0$ of the composed Gaussian (III.1.4) of each
+$Z\in\mathcal Z_\sigma$: by Lemma III.1.5 the window kernel reads $\psi_k\restriction_{\Omega^c_k}$ only in the Gaussians; the functions of Definition III.5.1 read $\psi_k$ only on $Z^c_0$ (items 1–2, $\psi_0$,
+$\psi^0_k$, $\psi^0_{k_1,k}$); the boundary terms read the multiscale field, i.e. $\psi_k$ only on $\Omega_k$, and $Z_0\subset\Omega^c_k$ (Lemma III.3.2 (d)); the small-field functions read $\psi_k$ on
+$(Z^{\rm pre c}_k)^{\approx2}$, disjoint from $\Omega^c_k$ (Lemma I.3.5 (g)). So the numerator does not depend on $\psi_k\restriction_{\mathcal Z_{\sigma,0}}$, and by (2.8) (each composed Gaussian is a
+probability density, Lemma III.1.6) it is the same expression with those Gaussians removed. (ii) The denominator is positive (Lemma III.8.2) and does not
+depend on $\psi_k\restriction_{\mathcal Z_{\sigma,0}}$. (iii) Hence, by Fubini (absolute integrability: (1.26) and Lemma II.6.3 (b) for the numerator; the small-field factor is bounded on the
+support of $\chi_k$),
+$\int d\psi_k\,R[\rho(\mathbb A,\sigma)]=\int d\psi_k\!\restriction_{\mathcal Z^c_{\sigma,0}}\frac{\int d\psi_k\restriction_{\mathcal Z_{\sigma,0}}\rho(\mathbb A,\sigma)}{\prod\int\rho_{k,0}}\cdot\prod_Z\int d\psi_k\!\restriction_{Z_0}\rho_{k,0}(Z)=\int d\psi_k\,\rho(\mathbb A,\sigma)$.
+Sum over the finitely many $(\mathbb A,\sigma)$. For complex $g$ the identity holds term by term (the same Fubini argument with $|\cdot|$). $\square$
+
+### III.8.2 The outcome operators and the refund
+
+**Definition III.8.5 (the operator (3.7); P7 (2.74)–(2.75), (3.6)–(3.7)).** For $Z\in\mathcal Z_\sigma$ with localized history $\mathfrak a$, carry out in $\rho(\mathbb A,\sigma)$: the composition of
+Lemma III.1.6 (integrating $\mathcal J$), the integral over $\psi_k\restriction_{Z_0}$ by (2.8), Lemma III.7.1 (removing the window characteristic functions outside $U$), the change of
+integration variables $\psi''=\tilde\psi-\psi^0_{k_1,k}(\psi_k)$ on $D''$ (a translation for fixed $\psi_k$), the identity (2.58′), and the division by Lemma III.8.2. The result is
+$R[\rho(\mathbb A,\sigma)]=\prod_{Z\in\mathcal Z_\sigma}\rho_{k,0}(Z)\,\mathbb T^{(3.7)}(Z,\mathfrak a)\otimes(\text{the other factors of }\rho(\mathbb A,\sigma))$, where $\mathbb T^{(3.7)}(Z,\mathfrak a)$ has the kernel
+$$\begin{aligned}K^{(3.7)}:=&\ \chi_k(Z\cap Z''^c_0)\,\tilde\chi_k(Z''_0\cap Z^c_0)\,\chi_{Z_0}\cdot e^{\frac N2\log\beta_k|Z_0|-\tilde{\mathcal E}^{(k)}_0+\beta_kA^*_{0,k}(Z_{k_1};\phi^0_k)}\cdot\mathrm{const}\cdot\chi''\,\chi^0\,\chi_{k_1}(Z^c_{k_1}\cap U)\,K^{\rm red}_{\rm win,0}\\
+&\cdot e^{-\beta_k\{\cdots\}-\beta_kS_{\rm st}-C^\natural+C_{k_1,k}}\cdot\prod_{C\in\mathcal C_*}K_{k_1}(C)\end{aligned}\tag{3.7′}$$
+and the exponent $b^{(3.7)}:=b_{\rm win}+\sum_Cb_C$; $K^{\rm red}_{\rm win,0}$ is the product of the remaining factors of $K^{\rm red}_{\rm win}$ other than Gaussians and main actions (the indicators
+$\mathbf 1[\cdot\in\mathcal D_{\mathbb R}]$ and $\chi^{\rm new}$ on the cubes in $U$), "const" the ideal normalization of the composed Gaussian on $Z^c_0\cap\Omega^c_k$. Its internal variables are
+$I^{(3.7)}:=\{\psi''\text{ on }D''\}\cup\{\psi_{k_1}\text{ on }T^{(k_1)}\cap U^{\sim3}\}\cup\bigcup_CI(C)$; its output variables are $\psi_k$ on $T^{(k)}\cap V_Z$ (it depends on $\psi_k\restriction_{Z_0}$ only through
+$\chi_{Z_0}$, and on $\psi_k\restriction_{Z^c_0}$ through $\psi^0_k$, $\phi^0_k$, $\psi_0$ and the front functions). The boundary terms and $b_{\rm win}$ are evaluated at $\tilde\psi=\psi^0_{k_1,k}+\psi''$ on $D''$ (P7 p. 519:
+"the function $C_{k_1,k}$ and the boundary terms depend now on $((\psi,\psi')\restriction_{U^{\sim3}},(\psi^0_{k_1,k}+\psi'')\restriction_{(U^{\sim3})^c})$"). The decomposition (3.20) then splits
+$\rho_{k,0}(Z)\mathbb T^{(3.7)}(Z)=\rho_{k,0}(Z)\mathbb T^{(3.7)}(Z)\chi_{Z''}+\rho_{k,0}(Z)\mathbb T^{(3.7)}(Z)(1-\chi_{Z''})$ (Definition III.5.1 item 5): the **removed outcome** and the **kept outcome $\varkappa_5$ (K2)**.
+
+**Definition III.8.6 (residual loss).** $L_{\rm res}(k):=C_R\hat\lambda_k^{2d+1}$, where $C_R$ is the least constant such that, for all $\hat\lambda_k\ge\lambda_*$,
+$$\Big[\tfrac N2\log2+Np_0\log\lambda_k+C_{\rm vol}\Big](M\mathrm{crit}_k)^d+D_0^d\big(Np_0\log\lambda_k+C_{\rm vol}+C_{\tilde E}\big)+(C'_E\lambda_k+C'_E)(M\mathrm{crit}_k)^d+C_\natural\hat\lambda_k^{2d+1}+10\ \le\ C_R\hat\lambda_k^{2d+1},\tag{III.8.4}$$
+with $C_{\rm vol}:=\log\big(v_N\max\{3,C_6\}^NA_0^Na^{-N/2}\big)$ and $|E_k|\le C'_E\lambda_k+C'_E$ (P7 p. 520 [checked]: "$|E_k|<O(1)\log\beta_k+\mathrm{const}$"). It depends on rows 0–11 only.
+
+**Lemma III.8.7 (the window integral; P7 (3.8)–(3.10), ARCH (M3)).** Put $C_W:=C_b$ and $C'_W:=C_bB_0+C_{15}$. For each outcome $o\in\{\varkappa_1,\dots,\varkappa_5,{\rm rem}\}$ let $K^{(o)}$ be its
+kernel ($K^{(\varkappa_i)}$ of Definition III.5.2 for $i\le4$; $\rho_{k,0}(Z)K^{(3.7)}(1-\chi_{Z''})$ for $\varkappa_5$; $K^{(3.7)}\chi_{Z''}e^{E_k|Z|}$ for the removed outcome, without $\rho_{k,0}$, as in P7 (3.10)) and
+$b^{(o)}$ its exponent. Then for all values of the parameters,
+$$\int d\psi_k\!\restriction_{T^{(k)}\cap Z}\int d(\text{internal})\ K^{(o)}e^{{\rm Re}\,b^{(o)}}\ \le\ \exp\Big(-\sum_{C\in\mathcal C_*}\kappa_{k_1}(C)+\sum_{j=k_1}^{k-1}(C_W\log\beta_j+C'_W)|X_j|_{j+1}+L_{\rm res}(k)-\gamma(o)\Big),\tag{III.8.5}$$
+with $\gamma(\varkappa_i):=\gamma_i$ of Lemma III.5.3 and $\gamma({\rm rem}):=0$.
+
+*Proof.* The integrand is non-negative; integrate in this order (the order of the rewritten Lemma II.5.13). *(1) Gaussian-only variables and $\psi_k\restriction_{Z_0}$.* For
+$\varkappa_1,\dots,\varkappa_4$: integrate $\mathcal J$ by Lemma III.1.6 and $\psi_k\restriction_{Z_0}$ by (2.8); what remains is the composed Gaussian on $Z^c_0\cap\Omega^c_k$, $\mathrm{const}^\natural e^{-\mathcal G^\natural}$. For
+$\varkappa_5$ and the removed outcome this was done in Definition III.8.5. *(2) The exponentials.* Bound pointwise, uniformly in the core variables:
+$e^{{\rm Re}\,b_{\rm win}}\le e^{\sum_j(C_b\log\beta_j+C_bB_0)|X_j|_{j+1}}$ ((S0)); $|e^{C_{k_1,k}}|\le e^{C_{15}\sum_j|X_j|_{j+1}}$ (2.15′); and
+- $\varkappa_1$: $\mathrm{const}^\natural e^{-\mathcal G^\natural-\mathcal A_{\rm win}}\le\mathrm{const}^\natural e^{-\frac12\mathcal G^\natural}\cdot e^{C_{k_1,k}-\gamma_1}$ by Lemma III.5.3 (a);
+- $\varkappa_2$: $e^{-\mathcal G^\natural-\mathcal A_{\rm win}}\le e^{C_{k_1,k}-\gamma_2}$ by Lemma III.5.3 (b); $\varkappa_3$: $e^{-\mathcal G^\natural-\mathcal A_{\rm win}}\le e^{-\mathcal A_{\rm win}}\le e^{C_{k_1,k}-\gamma_3}$ by (c);
+- $\varkappa_4$, $\varkappa_5$, removed: by (2.58′) and Lemma III.6.4, $e^{-\mathcal G^\natural-\mathcal A_{\rm win}}\cdot\frac{\mathrm{const}^\natural}{\mathrm{const}}\le e^{-\beta_kA^*_k(Z;\psi^0_k,\phi^0_k)+1+3+|C^\natural_0|+C_{k_1,k}}\cdot e^{-(\beta_k\{\cdots\}+C^\natural_1)}$, and
+  $e^{-(\beta_k\{\cdots\}+C^\natural_1)}\le e^{1}$, resp. $\le e^{1-\gamma_4}$ on $\chi''=0$ (Lemma III.5.3 (d), with $\frac58$ of the composed-Gaussian term left); for $\varkappa_5$ and the removed outcome the factor
+  $e^{-\beta_kA^*_k(Z;\psi^0_k,\phi^0_k)}$ has been divided by Lemma III.8.2, which leaves $e^{\frac N2\log\beta_k|Z_0|-\tilde{\mathcal E}_0}$, and for $\varkappa_5$ the factor $\rho_{k,0}(Z)$ is $\le e^{-\gamma_5}$ on $1-\chi_{Z''}$ (Lemma III.5.3 (e)).
+*(3) Volumes.* Integrate $\psi_k\restriction_{Z\setminus Z_0}$ and the window variables, for fixed core variables: every window variable (multiscale field of layers $k_1\le j<k$,
+or $\psi''$, or $\psi_{k_1}$ on $U^{\sim3}\setminus Z_{k_1}$) lies in a shell $\{|u\cdot u-1|<3dL\delta_j\}$ ((1.24) in $\chi^{\rm new}$) or in the ball $|\psi''|<\delta_{j,1}$ ($\chi''$), of volume $\le1$ ((Λ17′)).
+$\psi_k$ on $\Omega_k\cap Z$: shells, volume $\le1$. $\psi_k$ on $Z^c_0\cap\Omega^c_k$: for $\varkappa_1$, $\int\mathrm{const}^\natural e^{-\frac12\mathcal G^\natural}d\psi_k\restriction_z=2^{N/2}$ per block; otherwise, along a spanning tree of the
+$k$-blocks of $Z^c_0\cap Z$ rooted in $\Omega_k\cap Z$, each $\psi_k(z)$ lies in a ball of radius $3\delta_k$ around its parent ($\tilde\chi_k$), and with the constant $\mathrm{const}$ of the
+composed Gaussian ($\beta_ka_z\le2\beta_k$) the factor per block is $\le v_N(3\delta_k)^N(\beta_k/\pi)^{N/2}\le e^{Np_0\log\lambda_k+C_{\rm vol}}$. $\psi_k$ on $Z_0$ for $\varkappa_5$ and removed: $\chi_{Z_0}$ gives a ball of
+radius $C_6\beta_k^{-1/2}p_0$, and with $e^{\frac N2\log\beta_k|Z_0|}$ the factor is $\le e^{(Np_0\log\lambda_k+C_{\rm vol})|Z_0|}$. The number of $k$-blocks of $Z$ is $|Z|_k\le(M\mathrm{crit}_k)^d$ (a box of side $\le\mathrm{crit}_k$ $\pi_k$-cubes,
+Lemma III.1.2 (d)). The removed outcome also carries $|e^{E_k|Z|}|\le e^{(C'_E\lambda_k+C'_E)|Z|_k}$. *(4) The core.* For fixed window variables, $\prod_C\int K_{k_1}(C)e^{{\rm Re}\,b_C}\le e^{-\sum_C\kappa_{k_1}(C)}$ by (D5) at scale $k_1$ ((1.26) with $F\equiv1$, one core box at a
+time; the window factors were bounded uniformly in the core variables in (2) and (3)). Collecting: the window-proportional terms give $\sum_j(C_W\log\beta_j+C'_W)|X_j|_{j+1}$,
+the others are $\le L_{\rm res}(k)$ by (III.8.4), and the small factor is $e^{-\gamma(o)}$. $\square$
+
+*Remark (the refund).* P7 p. 520 bounds the whole expression (3.9) by $\mathrm{const}(\log\beta_k)^{2d+2}$ and uses $-p_2(\beta_k)$ to cancel it; with $\nu$ pieces the window sum is of order
+$\nu_{\max}\hat\lambda^{2d+2}$ and that route is not available (ARCH Step 6). Here the window-proportional part is charged against the quiet-step charges of $\kappa^{\rm pre}$, which
+are larger than the actual costs by the slack $(c_1-C_W)\log\beta_j+(c_2-C'_W)$ per unit of new volume: P7's own alternative ("we can take the constants in the sum (3.8)
+large enough, so that the sum in (3.9) is cancelled", p. 520).
+
+### III.8.3 The kept data and LF-4R
+
+**Definition III.8.8 (kept data of $R$).** For a ripe $Z$ with localized history $\mathfrak a$ and label $\varkappa\in\mathfrak K$:
+- $\varkappa_1,\dots,\varkappa_4$ (K1): $K'':=K^{(\varkappa)}$ (Definition III.5.2), $b'':=b^{\rm pre}$, $I'':=I(Z,\mathfrak a)$;
+- $\varkappa_5$ (K2): $K'':=\chi^{\rm dom}_k(Z,\mathfrak a)\cdot\rho_{k,0}(Z)\,K^{(3.7)}(1-\chi_{Z''})$ written in the original multiscale variables (undo the translation $\psi''=\tilde\psi-\psi^0_{k_1,k}$), $b'':=b^{(3.7)}$,
+  $I'':=I(Z,\mathfrak a)\setminus\mathcal J$ (all multiscale and core variables; D-III.9). The factor $\chi^{\rm dom}_k$ equals $1$ on the support of the rest by Lemma III.7.1 (P7 p. 519: "these
+  configurations belong to the original integration domain by Lemma 2.5, hence to (1.24)"), so it changes nothing and gives the support clause of (S3) by definition;
+- $\gamma(\varkappa_i):=\gamma_i$ (Lemma III.5.3), $C_{\rm dec}(\varkappa_i):=5$.
+
+**Theorem III.8.9 (LF-4R; ARCH (Rg), Part I (Rg), Part II (S3)).** Under (A-III.1)–(A-III.3) and $c_1\ge C_W$, $c_2\ge C'_W$ (row 14), for every ripe component $Z$ of $Z^{\rm pre}_k(\mathbb A)$,
+$\mathbb A\in\mathfrak A$, with localized history $\mathfrak a$:
+(a) for every $\varkappa\in\mathfrak K$ the kept data of Definition III.8.8 satisfy (S3) of Definition II.5.7 (version 1.1): $K''\ge0$ Borel, independent of $g$, vanishing unless $\chi^{\rm dom}_k=1$;
+$b''$ real for real arguments, analytic in $g$ on the polydisc, local, jointly covariant, bounded on the H7 domain; (S5); and (1.26) with
+$$\kappa''_k(Z,\mathfrak a,\varkappa)=\kappa^{\rm pre}_k(Z,\mathfrak a)-C_R\hat\lambda_k^{2d+1}+\gamma(\varkappa),\qquad\gamma(\varkappa)-\log C_{\rm dec}(\varkappa)\ \ge\ 2A'_3\hat\lambda_k^{p_R};$$
+(b) consequently (**(Rg)**): $G''_k(Z,\mathfrak a,\varkappa)=G^{\rm pre}_k(Z,\mathfrak a)-C_R\hat\lambda_k^{2d+1}+\gamma(\varkappa)-\log C_{\rm dec}(\varkappa)\ \ge\ G^{\rm pre}_k(Z,\mathfrak a)-C_R\hat\lambda_k^{2d+1}+A'_3\hat\lambda_k^{p_R}$;
+(c) (P7 (3.10)) for the removed outcome, with $T^{\rm rem}(Z,\mathfrak a)$ its operator and every Borel $F$,
+$$\sum_{\mathfrak a}\int d\psi_k\!\restriction_{T^{(k)}\cap Z}\big|T^{\rm rem}(Z,\mathfrak a)e^{E_k|Z|_k}F\big|\ \le\ e^{-A_2\hat\lambda_k^{p_2}-H_k|Z|_k}\,\sup|F|,\tag{3.10′}$$
+the sum over the localized histories of $Z$ in $\mathfrak A$ for which $Z$ is ripe and goes to $R$.
+
+*Proof.* (a) *Structure.* K1: $K^{\rm pre}$ times indicators of Definition III.5.1, which are Borel, $g$- and $h$-free and $O(N)$-invariant (§III.5.2); the support and (S5) are
+inherited from $K^{\rm pre}$. K2: indicators (invariant: $\psi^0_k,\psi_0$ are equivariant) times the exponential of the real analytic, jointly covariant functions of (3.7′) (the
+$h$-dependence through $\nu_k$-terms only), $g$ only in $b^{(3.7)}$. Locality: all objects live in $V_Z$ (Lemma II.5.9 (a), Lemma III.1.2 (f)). *Bound.* In the quiet window
+$\kappa^{\rm pre}_k(Z,\mathfrak a)=\sum_C\kappa_{k_1}(C)-\sum_{j=k_1}^{k-1}(c_1\log\beta_j+c_2)|X_j|_{j+1}$ exactly (Definition II.5.11; no gains, $\mathcal N_{j+1}\cap Z=\varnothing$). By Lemma III.8.7 with $c_1\ge C_W$,
+$c_2\ge C'_W$ ($\log\beta_j\ge0$), the left side of (1.26) for $F\equiv1$ is $\le e^{-\kappa^{\rm pre}_k+L_{\rm res}-\gamma(\varkappa)}=e^{-\kappa''_k}$; for general $F$ by the support property (Definition II.5.2).
+The inequality for $\gamma-\log C_{\rm dec}$ is (III.5.1). (b) $\log C''=\log C^{\rm pre}+\log5$ (Definition II.5.11) and $G=\kappa-\log C-H_k|Z|_k$. (c) By Lemma III.8.7 with $\gamma({\rm rem})=0$ and
+Lemma II.6.3 (b): the sum is $\le\sup_{\mathfrak a}e^{-G^{\rm pre}_k(Z,\mathfrak a)-H_k|Z|_k+L_{\rm res}}\sup|F|$ (the combinatoric factors are summed by Lemma II.5.15). For a ripe $Z$, (H6′)$^{\rm pre}$
+gives $G^{\rm pre}_k\ge\tau_k+\nu+U\ge2A_2\hat\lambda_k^{p_2}+1$ (Part I §I.5.5), and $C_R\hat\lambda_k^{2d+1}\le A_2\hat\lambda_k^{p_2}$ by (Λ10) ($p_2>2d+1$). $\square$
+
+*Remarks.* (1) LF-4R is (Rg) of LF-2 (Part I §I.5.2) with $\lambda=\hat\lambda$; with it, LF-2 (i) (§I.5.5) gives (H6′) after $R$. (2) Kept components keep their set and
+spine and become $\mathsf{Active}(k,1,\varnothing)$ ((T6)); nothing in the kept data records a new large-field region (D-III.2). (3) For K1 the operator is not normalized, so P7's
+"$\frac12N\log\beta_k|Z_0|$" is absent (ARCH Step 6); the bound above treats K1 and K2 by one route. (4) This closes O-II-5.
+
+---
+
+## III.9 The core: Lemma L, the analytic extension, and the coset average (P7 pp. 520–525; ARCH Lemma L, (M4))
+
+### III.9.1 Lemma L for the local sets (closes O-3)
+
+**Lemma III.9.1 (Lemma L; ARCH §3.8 as repaired by V4-01).** Let $a:=[R_{k_1-1}]+1$ and, for a core box $C\in\mathcal C_*$, $U^C:=C^{\approx}$, $W^C:=(C^c)^{\approx2}$ (scale $k_1$). Recall $U=\bigcup_CU^C$,
+$W=(Z^c_{k_1})^{\approx2}$ (local, §III.0.2). Then:
+(a) the sets $(U^C)^{\sim m}$, $C\in\mathcal C_*$, are pairwise disjoint for $m\le\frac{L+8}2$, and on $(U^C)^{\sim4}$: $U^{\sim n}=(U^C)^{\sim n}$ ($n\le4$) and $W=W^C$;
+(b) every $x\in\mathbb B_{k_1}(W)\cap U^{\sim3}$ lies in $(U^C)^{\sim3}$ for exactly one $C$, and there is a nearest-neighbour path of fine sites from $x$, of length $\le M(3[R_{k_1-1}]+8)L^{k_1}$, inside
+$W^\sim\cap(U^C)^{\sim4}$, ending at a site of $(U^{\sim3})^c$;
+(c) on the support of the kernel (3.7′) after the rotation of Definition III.9.4 by $R=R_\sigma(\psi_0)$ (so that $\psi'_{k_1}=e_1$ on $(U^{\sim3})^c$),
+$$|\delta\psi|<10MR_{k_1}\delta_{k_1}\ \text{on }\mathbb B_{k_1}(W)\cap U^{\sim3},\qquad|\delta\psi|<\delta_{k_1,1}\ \text{on }\Lambda_{k_1}\cap(U^{\sim3})^c,\qquad|\delta\psi|<\delta_{j,1}\ \text{on }\Lambda_j,\ k_1<j<k,\tag{3.11′}$$
+for the real configuration $\delta\psi=\delta\psi(\psi_k)$, $\delta\psi=R\tilde\psi_{k_1}-\psi^0_{k_1,k}$ on $\mathbb B_{k_1}(W)\cap U^{\sim3}$; for the complex configuration $\psi_k+\psi'_k$, $|\psi'_k|<2\varepsilon_k$, the same bounds hold
+with an additional $C\varepsilon_k\le C\varepsilon_{k_1}\beta_{k_1}^{-1}$.
+
+*Proof.* (a) Lemma I.2.13 and Lemma I.2.14 with the width $\omega_{k_1}$ (the core boxes are distinct components of $Z_{k_1}$ at mutual distance $\ge\omega_{k_1}$, Lemma III.1.2 (e)); here
+there are no other components at all, since the sets are local (D-III.1): this is the point of V4-01. (b) $x\in(U^C)^{\sim3}$ for exactly one $C$ by (a). $x\in\mathbb B_{k_1}(W)$ means $x$ is within
+$2a+1$ cubes of $C^c$ (range of the minimal generating set, Lemma II.2.3 (c)). Move from $x$ along a coordinate direction towards the nearest face of the box $C$, through
+it and on until the first site outside $C^{\sim(a+3)}=(U^C)^{\sim3}$: at most $(2a+1)+(a+4)=3a+5=3[R_{k_1-1}]+8$ cubes of side $ML^{k_1}$. Inside $C$ the path stays within $2a+1$ cubes of $C^c$,
+hence in $W^C\subset W^\sim$; outside $C$ it is in $C^c\subset W$; it stays in $(U^C)^{\sim4}$; its end is outside every $(U^{C'})^{\sim3}$ by (a). This is P7 p. 522 and ARCH Lemma P with
+$N_{\mathcal C}=1$. (c) As P7 p. 522 [checked, text layer], with the constants of §III.3: along the path of (b), $|\partial^1\psi'_{k_1}|<3\delta_{k_1}$ (inside $C$ the path lies in $\Omega_{k_1}\cap C$ at depth
+$\le2a+1<[2R_{k_1-1}]+3$, where the small-field functions of the step $k_1-1\to k_1$ apply (proof of Lemma III.4.6); outside $C$, $\chi_{k_1}(Z^c_{k_1}\cap U)$ and $\chi^0$), and $\psi'_{k_1}=e_1$ at its
+end, so $|R\tilde\psi_{k_1}(x)-\psi_0|=|\tilde\psi_{k_1}(x)-e_1|<3\delta_{k_1}M(3[R_{k_1-1}]+8)$. Then, with $z$ the $k$-block of $x$ and $z_0$ the clamped point (§III.5.3 (c)):
+$|\psi_0-\psi_k(z_0)|<C_{2.20}\delta_k$, $|\psi_k(z_0)-\psi^0_k(z)|<3dD_0K_6\delta_k$, $|\psi^0_k(z)-\psi^0_{k_1,k}(x)|<4K_1K_6\delta_k$ ((2.43)); summing,
+$|\delta\psi(x)|<(9[R_{k_1-1}]+24)M\delta_{k_1}+C\delta_k<10MR_{k_1}\delta_{k_1}$, since $R_{k_1}\ge R_{\rm base}\ge4L+20$ and $\delta_k\le\delta_{k_1}$. The other two bounds are $\chi''$ (Definition III.5.1 item 4). For the
+complex configuration, $\delta\psi$ is analytic on the large domain $\tilde\Psi^c(U^\sim;c'_1,c'_0)$ of P7 p. 522 and $|\delta\psi(\psi_k+\psi'_k)-\delta\psi(\psi_k)|\le C|\psi'_k|$ (P7: "$|\delta\psi'(\psi'_k)|\le O(1)|\psi'_k|+K_2|\psi'_k|$"),
+and $\varepsilon_k=\varepsilon_{k_1}L^{-\alpha n_1}<\varepsilon_{k_1}(\beta_{k_1}a)^{-1}$ by (III.1.1). $\square$
+
+*Remark (O-3 closed).* ARCH's Lemma L (c) was false for the global sets (V4-01: a far Pre component of grid shape). In Part III every set is local: $U,W$ are built
+from the core boxes of the ripe lineage only, and the characteristic functions $\chi_{k_1}(Z^c_{k_1}\cap U)$, $\chi^0$ are defined with them (Definition III.5.1); the factors of the
+localized operator near the core are exactly the single-box objects of P7 for each box (Lemma II.5.9, Lemma I.3.16 with $\varpi\le2$, Definition III.2.1). So (3.11)′ holds on
+the localized support, as V4-01 requires, and P7's (3.11) constant $10MR_{k_1}\delta_{k_1}$ survives (no $\hat W$ is needed there).
+
+### III.9.2 The two-chart section and the rotation of the core
+
+**Definition III.9.2 (the sections; ARCH (M4)).** For $u\in\mathbb C^N$ put $A(u):=ue_1^\top-e_1u^\top$ and
+$$R_+(u):=I+A(u)+\frac{A(u)^2}{1+u\cdot e_1}\quad(u\cdot e_1\ne-1),\qquad R_-(u):=\Big(I-A(u)+\frac{A(u)^2}{1-u\cdot e_1}\Big)D\quad(u\cdot e_1\ne1),$$
+with $D\in SO(N)$ fixed, $De_1=-e_1$ (a rotation by $\pi$ in the plane of $e_1,e_2$). For a configuration, the chart is $\sigma:=+$ if ${\rm Re}(\psi_0\cdot e_1)\ge0$ and $\sigma:=-$ otherwise.
+
+**Lemma III.9.3 (properties of the sections).** On the complex quadric $\mathcal Q:=\{u:u\cdot u=1\}$ (bilinear product):
+(a) $R_\pm$ are analytic, $R_\pm(u)^\top R_\pm(u)=I$ (complex orthogonal) and $R_\pm(u)e_1=u$; for real unit $u$ they are real rotations;
+(b) for real unit $u$ with $u\cdot e_1\ne\pm1$, $R_-(u)=R_+(u)V(u)$ with $V(u)\in O_{e_1}(N):=\{V\in O(N):Ve_1=e_1\}$;
+(c) if $u_0$ is real, $|u_0|=1$, $\sigma u_0\cdot e_1\ge0$, and $u\in\mathcal Q$, $|u-u_0|\le\epsilon'\le\frac14$, then $|R_\sigma(u)-R_\sigma(u_0)|\le C_{\rm rot}\epsilon'$ with $C_{\rm rot}=C(N)$.
+
+*Proof.* (a) With $c:=u\cdot e_1$ and $u\cdot u=1$: $A(u)e_1=u-ce_1$, $A(u)u=cu-e_1$, hence $A(u)^2e_1=A(u)u-cA(u)e_1=(c^2-1)e_1$, and $R_+(u)e_1=e_1+u-ce_1+\frac{c^2-1}{1+c}e_1=u$. The same with $-e_1$ gives $R_-(u)e_1=(I-A+\frac{A^2}{1-c})(-e_1)=u$. Orthogonality
+$R^\top R=I$ is a polynomial identity in $u$ (after clearing the denominator) that holds on the real unit sphere, where $R_+(u)$ is the rotation by the angle $\arccos c$
+in the plane of $e_1,u$ (Rodrigues' formula with $A=\sin\vartheta\,K$, $\frac{1-c}{\sin^2\vartheta}=\frac1{1+c}$); the real sphere is Zariski dense in the irreducible quadric $\mathcal Q$, so the identity holds on
+$\mathcal Q$ off the pole. (b) $R_+(u)^{-1}R_-(u)$ is a real orthogonal matrix fixing $e_1$. (c) The denominators are $\ge\frac12$ in modulus on the stated set. $\square$
+
+**Definition III.9.4 (rotated representation).** For a real configuration in the chart $\sigma$ put $R:=R_\sigma(\psi_0)$ and change the integration variables of (3.7′) by
+$x_{\rm in}\mapsto Rx_{\rm in}$, where $x_{\rm in}$ are the variables $\psi_{k_1}$ on $T^{(k_1)}\cap U^{\sim3}$ and the internal variables of the core operators $\mathbb T_{k_1}(C)$ (P7 p. 521: "(ψ, ψ′) → (Rψ, Rψ′)
+on $U^{\sim3}_{k_1}$"); the variables $\psi''$ on $D''$ are not changed. The reference measure is invariant (Lebesgue measure and the a priori measure of the scale-$0$ spins are
+$O(N)$-invariant). In the rotated integrand: (i) $\chi^0$ becomes the function with $\psi_0$ replaced by $e_1$ ($\chi^0(Rx;\psi_0)=\chi^0(x;R^{-1}\psi_0)$); (ii) $\chi_{k_1}(Z^c_{k_1}\cap U)$, the indicator parts of
+the core kernels and of $K^{\rm red}_{\rm win,0}$ (on cubes in $U$) are invariant (no $h$-condition at scales $\le k_0$; (S5)(i)); (iii) $\chi''$ does not involve $x_{\rm in}$; (iv) every other factor is
+the exponential of a function analytic in $(Rx_{\rm in},x_{\rm out},\psi_k,h,g)$.
+
+### III.9.3 The analytic extension (Lemma 3.1′) and joint covariance
+
+**Lemma III.9.5 (complex rotation of the core).** Let $\tilde R\in O(N,\mathbb C)$ with $|\tilde R-I|\le C_{\rm rot}\cdot4\varepsilon_k$. Then for every core box $C$ and all values of the other variables,
+$$\int d(\text{variables of }C)\,\big|K_{k_1}(C)(\tilde Rx)\,e^{b_C(\tilde Rx;h,g)}\big|\ \le\ e^{-\kappa_{k_1}(C)+1}.$$
+*Proof.* By (S5), $K_{k_1}(C)=\mathbf 1_Ae^{-a}$ with $A$ invariant and $a$ jointly invariant and analytic; joint invariance continues analytically to $O(N,\mathbb C)$ near $I$
+($\tilde R\mapsto a(\tilde Rx;\tilde Rh)-a(x;h)$ is analytic on a connected neighbourhood of $I$ in the complex group and vanishes on the real points, a totally real submanifold of full
+dimension). So $a(\tilde Rx;h)=a(x;\tilde R^{-1}h)$ and $|a(x;\tilde R^{-1}h)-a(x;h)|\le C_{\rm S5}|\tilde R^{-1}h-h||C|_{k_1}\le\frac12$ by (S5)(iii) and (Λ25). The boundary factor $b_C$ is analytic
+on the H7 domain, which contains $\tilde Rx$ (the displacement is $\le C\varepsilon_k|x|\le C\varepsilon_k$, much smaller than the radii $\varepsilon_j$, $j\le k_1$), with the bound of (S0); by the one-variable Cauchy
+estimate along the complex line from $x$ to $\tilde Rx$, $|b_C(\tilde Rx)-b_C(x)|\le2\sup|b_C|\cdot C\varepsilon_k/\varepsilon_{k_1}\le\frac12$ (as $\varepsilon_k/\varepsilon_{k_1}<(\beta_{k_1}a)^{-1}$ and $\sup|b_C|$ is polynomial in $\hat\lambda$).
+Then (D5) at scale $k_1$ with $F\equiv1$. $\square$
+
+**Lemma III.9.6 (Lemma 3.1′: analytic extension, coset average, joint covariance; P7 Lemma 3.1, ARCH (M4), OBS requirement 2).** Let
+$\Phi(\psi_k,h,g):=\int d(\text{internal})\,K^{(3.7)}_{\rm in}e^{b^{(3.7)}}F$, where $K^{(3.7)}_{\rm in}$ is (3.7′) without the front functions $\chi_k(Z\cap Z''^c_0)\tilde\chi_k(Z''_0\cap Z^c_0)\chi_{Z_0}$, and $F$ a bounded function of the
+internal variables, analytic in the parameters. Then:
+(a) (*chart representation*) for real $\psi_k$ in the chart $\sigma$, $\Phi(\psi_k)=\int d(\text{internal})\,\big[K^{(3.7)}_{\rm in}e^{b^{(3.7)}}F\big](R_\sigma(\psi_0)x_{\rm in},x_{\rm out})$, and in this integrand the indicators do not
+depend on $\psi_k$; equivalently (P7's coset average) $\Phi(\psi_k)=\int_{O_{e_1}(N)}dV\int d(\text{internal})[\cdots](R_\sigma(\psi_0)Vx_{\rm in},x_{\rm out})$ for either chart;
+(b) (*analytic extension*) $\Phi$ extends analytically in $\psi_k$ to the complex domain $\Delta^c_k(U_k;1,\varepsilon_k)$ (P5 (1.36) at scale $k$; the tube of complex displacements of modulus
+$<2\varepsilon_k$ around the real $\varepsilon_k$-regular configurations), jointly with $g$ on $\{\|g\|_{\ell^1(V_Z)}<1\}$, and with the front functions removed the removed operator satisfies (3.10′) with
+$\int d\psi_k\restriction_Z$ replaced by the supremum over this domain:
+$$\sup_{\psi_k\in\Delta^c}\Big|\sum_{\mathfrak a}\int d(\text{internal})\,K^{(3.7)}_{\rm in}\,\chi_{Z''}\,e^{E_k|Z|_k+b^{(3.7)}}F\Big|\ \le\ e^{-A_2\hat\lambda_k^{p_2}-H_k|Z|_k}\sup|F|;\tag{3.10″}$$
+(c) (*joint covariance*) for $S\in O(N)$, $\Phi(S\psi_k;Sh,Sg)=\Phi(\psi_k;h,g)$ when $F$ is jointly invariant, on the real domain and on the complex domain.
+
+*Proof.* (a) Definition III.9.4: the change of variables is exact for each fixed real $\psi_k$, and $\chi^0(R_\sigma(\psi_0)x;\psi_0)=\chi^0(x;e_1)$; integrating over $V\in O_{e_1}(N)$ (normalized Haar
+measure) changes nothing because $V$ preserves $e_1$ and the integrand at $R_\sigma(\psi_0)Vx$ is the integrand at $R_\sigma(\psi_0)x$ after the change of variables $x\mapsto Vx$. By Lemma
+III.9.3 (b) the two charts differ by such a $V$, so the coset form is independent of the chart (P7 p. 521: "we integrate ... over the coset $O_{\psi_0}(N)$ and we divide the integral
+by the volume of the coset"). **The average is taken on the full integrand**, including the $h$- and $g$-dependent exponentials (OBS §4.2 (2)). (b) In the chart representation
+the integrand depends on $\psi_k$ only through analytic functions ($\psi^0_k$, $\phi^0_k$, $\psi^0_{k_1,k}$, $\psi_0$ and $R_\sigma(\psi_0)$; Lemma III.3.3, Lemma III.9.3). For complex $\psi_k$ define
+$\Phi^c$ by the same integral with $R_\sigma(\psi_0)$ complex orthogonal; it is analytic by dominated convergence, given the bounds below. The chart extensions agree on overlaps:
+the intersection of two polydiscs centred at real points is convex, invariant under complex conjugation, hence contains real points, where both equal $\Phi$; by the identity
+theorem they agree on the (connected) intersection. So they glue to an analytic function on the tube. *Bounds.* Write $R_\sigma(\psi_0+\psi'_0)=R_\sigma(\psi_0^r)\tilde R$, $\psi^r_0$ the reference
+vector of the real part ($|\psi'_0|\le C\varepsilon_k$ by (2.20′) in its complex form), $|\tilde R-I|\le C_{\rm rot}\cdot4\varepsilon_k$ by Lemma III.9.3 (c). Undo the real rotation $R_\sigma(\psi_0^r)$ by a change of
+variables. The core: Lemma III.9.5. The window and (3.7′) exponentials: P7's estimates (3.11)–(3.19) with the constants of Part III, i.e. (3.11)′ (Lemma III.9.1 (c)); the
+expansion (3.12)–(3.14) of $\delta\phi_{k_1,k}(\psi_k+\psi'_k,\delta\psi+\delta\psi')$ by P2 Proposition 3.1 (in the project BG Prop 5.1, analytic on $\{|\delta\psi|<c'_6\}$, which contains the
+configurations by (3.11)′ and (Λ22)), giving
+$$|\delta\phi'_{k_1,k}|,\ L^j|\partial\delta\phi'|,\ L^{2j}|\Delta\delta\phi'|,\ L^{2j}|\delta\alpha'|<C\big(\hat W_k\delta_j\varepsilon_k+\varepsilon_j\beta_j^{-1}\big)\ \text{on }\Lambda_j\cap X_{\rm win}\tag{3.15′}$$
+(the real part $\delta\phi_{k_1,k}$ with $C\hat W_k\delta_j$, by (2.49′)); the real part of the fluctuation action is $\ge0$ (3.16); the six cross terms of $\beta_k\delta A'^*_k$ are bounded as in (3.17):
+$$|\beta_k\langle\partial\delta\phi,\partial\delta\phi'\rangle|\le\sum_{j=k_1}^k\beta_jC^2\hat W_k\delta_j(\hat W_k\delta_j\varepsilon_k+\varepsilon_j\beta_j^{-1})L^d\nu_{\max}(LM\mathrm{crit}_k)^d\le C'\hat\lambda_k^{a_{17}}\Big(n_1\varepsilon_k+\sum_j\varepsilon_j\beta_j^{-1/2}\Big)\le\beta_{k_1}^{-1/4}\tag{3.17′}$$
+with $a_{17}:=p_2+2w_0+2d+2p_0$, using $\varepsilon_k\le\varepsilon_{k_1}(\beta_{k_1}a)^{-1}$ and $\varepsilon_j\beta_j^{-1/2}\le\varepsilon_0\beta_j^{-1/2}$; so $|\beta_k\delta A'^*_k|<6\beta_{k_1}^{-1/4}\le1$ (3.18′) and
+$|\exp(-\beta_k\delta A^*_k)|<e^3$ (3.19′), where (2.60′) is redone with $|L^{2j}(\alpha^0_k+\nu_k)|\le6K_1K_6\varepsilon_k+L^{2(j-k)}\beta_k^{-1}$ (ARCH Step 4). The composed-Gaussian term
+$\frac12\sum_z\beta_ka^\natural_z|\mathcal Q_z\psi''|^2$ is real and $\ge0$ ($\psi''$ real). $|C^\natural|$ is bounded by (III.6.1) (complex case, part of $L_{\rm res}$), $|\beta_kA^*_{0,k}(Z_{k_1})|<1$ (Lemma III.6.4 (a)),
+$\tilde{\mathcal E}_0$ by Lemma III.8.2, and the arguments of $C_{k_1,k}$, $b_{\rm win}$ and of the boundary terms lie in their analyticity domains by (3.11)′ (P7 p. 525). With these bounds the
+proof of Lemma III.8.7 and of Theorem III.8.9 (c) goes through with the supremum over $\Delta^c$ in place of the integral over $\psi_k\restriction_Z$ (the volume factors of $\psi_k$ were
+counted in $L_{\rm res}$ and are not needed here; the front functions are removed). (c) In the original (unrotated) integral, change all integration variables by $x\mapsto Sx$: the
+reference measure is invariant, and every factor is jointly covariant (quiet kernels: Lemma II.5.10; data: (S0), (S3); the functions of $R$: $\psi^0_k$, $\phi^0_k$, $\psi^0_{k_1,k}$ are
+equivariant and $\psi_0(S\psi_k)=S\psi_0(\psi_k)$; boundary terms: (D7)). So $\Phi(S\psi_k;Sh,Sg)=\Phi(\psi_k;h,g)$ on the real domain. The complex domain is invariant under $S$ (its
+conditions are invariant under real orthogonal maps), and both sides are analytic, so the identity extends (identity theorem on each connected component, each of which
+contains real points). $\square$
+
+*Remark.* P7 states that $R$ "can be chosen locally analytic" and that the coset average gives a "globally defined analytic function of $\psi_0$" (p. 521). The chart
+representation with the two sections $R_\pm$ and the gluing by the identity theorem is the precise form of that sentence; the coset average is an equivalent way to write
+the glued function. P7's bound "$|R(\psi_0+\psi'_0)|<e^{O(\varepsilon_k)}<\frac32$" is Lemma III.9.3 (c), and the effect of the non-orthogonal $R$ on the core operator is Lemma III.9.5,
+which P7 does not discuss.
+
+---
+
+## III.10 The polymer expansion, the new boundary terms, and LF-4 (P7 pp. 525–529; ARCH (M6), §8.3)
+
+### III.10.1 Joint admissibility of components (D-III.7)
+
+For an admissible history the pre-$R$ components at scale $k$ are determined by their localized histories (Lemma I.3.9, Definition I.4.4). The polymer expansion of $R$
+sums over families of removed components with a fixed kept part, so it needs the converse: when is a family of localized histories the family of components of an
+admissible history?
+
+**Definition III.10.1.** A *configuration* is a finite family $\mathfrak F=\{(Z,\mathfrak a_Z)\}$ of sets $Z\subset\mathbb T_k$ with localized histories $\mathfrak a_Z\in\mathfrak H_k(Z)$ (each an admissible history with
+the single pre-$R$ component $Z$), the $Z$ pairwise at index distance $\ge\omega_k$. It is *admissible* if there is an admissible global history whose pre-$R$ components at scale $k$
+are exactly the $Z$'s, with localized histories $\mathfrak a_Z$ (R-records at scales $<k$ included). Two members are *linked* if their sets are at index distance $\le2\omega_k$.
+
+**Lemma III.10.2 (cliques suffice).** A configuration is admissible iff every subfamily whose members are pairwise linked (a clique) is admissible. Subfamilies of admissible
+configurations are admissible.
+
+*Proof.* *Subfamilies.* Remove some members. By monotonicity of the set functions (proof of Lemma I.3.9) the outputs at every step can only shrink, and each remaining
+member's local output is still produced (its own seeds remain). A point produced by the remaining seeds is attributed (Lemma I.3.8) to a remaining seed by a chain of steps
+$<\omega$ inside the output; in the full history the same chain lies inside the full output, so the point lies in the component of that seed, i.e. in the local output of a
+remaining member. Hence the outputs of the subfamily are the disjoint union of the remaining local outputs, at every scale and hull round; R-records are per component.
+*Cliques suffice.* Induction over the steps $j\to j+1\le k$ and the hull rounds. At a step, the set functions of Definition I.3.1 are openings $\mathrm{Op}_m(F)$ and $\mathrm{Op}_m(F;\Omega)$
+with $m\le[2R_j]+3$: a site $x$ lies in the complement of the global opening iff every $L$-block containing $x$ is within $m-1$ of $F$, which depends only on the parts of $F$
+within $m+L-2$ of $x$. These parts come from seeds of members whose lineages at scale $j+1$ lie within $m+L$ cubes of $x$; two such members are, as fine sets, within
+$2(m+L)ML^{j+1}$ of each other, i.e. within $2(m+L)L^{j+1-k}\le2([2R_j]+3+L)\le2\omega_k$ cubes at scale $k$ (lineages lie in the final sets, Lemma I.4.3 (c)). So the members
+involved at $x$ form a clique, and by the clique's admissibility $x$ is in the global output iff it is in the union of the local outputs. Two local outputs at distance
+$<\omega$ would form a linked pair whose admissibility excludes it. The hull closure acts on separated components and its boxes are those of the local closures. The
+bookkeeping (spines, clocks, states, ripeness) and the R-records are functions of the localized histories (Part I §I.4). $\square$
+
+### III.10.2 Removed clusters and the gas identity
+
+Fix a kept history $\mathbb A'$: an admissible pre-$R$ history of the non-removed components (non-ripe, and ripe with a kept label), whose pre-$R$ region at scale $k$ is
+$Y_k$. Its underlying pre-$R$ history $\mathbb A'_{\rm pre}$ (labels forgotten) is in $\mathfrak A$ (D-III.8 and Lemma III.10.2).
+
+**Definition III.10.3 (removed clusters).** A *removed component* is a pair $(Z,\mathfrak a)$ with $Z$ ripe at $k$ and the removed outcome. A *removed cluster* $\mathcal C$ is a
+nonempty finite family of removed components whose sets are connected under "index distance $\le4\omega_k$" and at distance $\ge\omega_k$ from each other and from $Y_k$. Its *support*
+is $S(\mathcal C):=\bigcup_{Z\in\mathcal C}Z^{\sim2\omega_k}$ and its *core* $c(\mathcal C):=\bigcup_{Z\in\mathcal C}Z$. Two clusters are *compatible* if their supports are disjoint (equivalently, all their members are at
+distance $>4\omega_k$). The *admissibility factor* is $a(\mathcal C;\mathbb A'):=1$ if $\mathcal C\cup\mathcal Y(\mathcal C)$ is admissible, where $\mathcal Y(\mathcal C)$ is the set of components of $Y_k$ within distance
+$2\omega_k$ of a member of $\mathcal C$ (with their localized histories), and $:=0$ otherwise.
+
+**Lemma III.10.4 (gas identity).** For fixed $\mathbb A'$, the histories $\mathbb A\in\mathfrak A$ whose non-removed part is $\mathbb A'$ correspond bijectively to the families of pairwise compatible
+removed clusters $\{\mathcal C_1,\dots,\mathcal C_n\}$ with $\prod_ia(\mathcal C_i;\mathbb A')=1$ (the clusters of the removed components of $\mathbb A$ under "distance $\le4\omega_k$"). Moreover $a(\mathcal C;\mathbb A')$
+does not depend on $\mathbb A'$ if $S(\mathcal C)\cap Y_k=\varnothing$.
+
+*Proof.* Given $\mathbb A$, its removed components split into the classes of "distance $\le4\omega_k$"; distinct classes are compatible. Conversely, by Lemma III.10.2 a family of removed
+components together with $\mathbb A'$ is admissible iff every clique is; a clique containing a removed $Z$ consists of members within $2\omega_k$ of $Z$, hence of members of the
+cluster of $Z$ and of $\mathcal Y$ of that cluster; cliques inside $\mathbb A'$ are admissible. So joint admissibility is $\prod_ia(\mathcal C_i;\mathbb A')$. If $S(\mathcal C)\cap Y_k=\varnothing$, no component of
+$Y_k$ is within $2\omega_k$ of $\mathcal C$, so $\mathcal Y(\mathcal C)=\varnothing$. Completeness of $\mathfrak A$ (D-III.8) makes every admissible $\mathbb A$ a term. $\square$
+
+### III.10.3 The expansion (P7 (3.20)–(3.29))
+
+**The terms.** By Definition III.8.3, $\rho'=\sum_{\mathbb A,\sigma}R[\rho(\mathbb A,\sigma)]$. Group the terms by the kept history $\mathbb A'$ (which records the K1 and K2 labels: a K2 outcome is
+kept). In each term:
+- *Boundary terms.* For $X\in\mathcal X(\mathbb A'):=\{X\in\mathcal D_k(\mathrm{mod}\,\Omega^c_k(\mathbb A')):X\cap Y_k\ne\varnothing\ne X\cap Y^c_k\}$ put $\hat{\mathcal B}(X;\mathbb A'):=\mathcal B^{(k)}(X,\mathbb A'_{\rm pre})$ (the datum of rep). If $X$ does
+  not meet a removed component of $\mathbb A$, then $\mathcal B^{(k)}(X,\mathbb A)=\hat{\mathcal B}(X;\mathbb A')$, because by (D7) the term depends on the history only through $\mathbb A\cap X$, and $\Omega^c_j\cap X\subset Z_k\cap X=Y_k\cap X$.
+  So $\mathcal B^{(k)}(\mathbb A)=\sum_{X\in\mathcal X(\mathbb A')}\hat{\mathcal B}(X;\mathbb A')+\mathcal B''(\mathbb A)$, where $\mathcal B''(\mathbb A)$ collects $\mathcal B^{(k)}(X,\mathbb A)$ over the $X$ that meet a removed component, minus
+  $\hat{\mathcal B}(X;\mathbb A')$ over the $X\in\mathcal X(\mathbb A')$ that meet one (P7 p. 527: "all the terms with localization domains disjoint with ($\Omega^c_k\cap Z_i$) are cancelled"; we cancel the larger class
+  of domains disjoint from $Z_i$, which is what makes the remaining terms functions of $\mathbb A'$).
+- *Small-field part* (P7 (3.20)–(3.25), cited). For a removed $Z$, $\chi_{Z''}$ and the front functions give $\chi_k(Z)$ (3.21) [$\chi_{Z_0}=1$ there since $C_6=3dD_0(K_6+1)$]; so
+  $\chi_k((Y_k\cup\bigcup Z_i)^c)\prod_i\chi_k(Z_i)=\chi_k(Y^c_k)$. The main actions $-\beta_kA^*_k(Z_i;\psi_k,\phi_k(\mathbb B_k(Z_i^\approx)))$ of the $\rho_{k,0}(Z_i)$ and the small-field functions on
+  $(Y_k\cup\bigcup Z_i)^c$ are re-expanded around the backgrounds of $Y^c_k$ (P7 (3.22)–(3.24): background change by I-2 and P3 (2.55)–(2.56); the effective actions by P1 (3.127),
+  Corollary 3.10 and P3 Proposition 4.3; P6 §2): the result is $\big[\mathcal A_k+\mathcal F_k+\mathcal R^{(k)}\big](Y^c_k)+\sum_X\mathcal B'(X)$, with new terms $\mathcal B'(X)$ whose domains meet some $Z_i$, local, analytic on the
+  H7 domain, jointly covariant, bounded by $B'e^{-\kappa_+d_k(X\,\mathrm{mod}\,\Omega^c_k)}$ with $B'$ an output of rows 0–11 ("the constant (3.129) [1]", P7 p. 527 [checked]; P7 adds that the background part
+  of these terms is $O(e^{-\frac14\gamma_0(2R_k-2M_1)})$). *Status:* cited; same inputs as O-2′. The vacuum term $-E_k|Z_i|$ of the extended action is compensated by $e^{E_k|Z_i|}$ in the
+  removed operator (P7 (3.26)).
+Hence (P7 (3.26))
+$$\rho'=\sum_{\mathbb A'}\chi_k(Y^c_k)\,e^{[\mathcal A_k+\mathcal F_k+\mathcal R^{(k)}](Y^c_k)}\ \mathbb T_k(Y_k,\mathbb A')\Big[e^{\sum_{X\in\mathcal X(\mathbb A')}\hat{\mathcal B}(X;\mathbb A')}\ \Xi(\mathbb A')\Big],\qquad
+\Xi(\mathbb A'):=\sum_{\{\mathcal C_i\}}\prod_ia(\mathcal C_i;\mathbb A')\,\Big[\bigotimes_i\bigotimes_{Z\in\mathcal C_i}T^{\rm rem}(Z)e^{E_k|Z|_k}\Big]e^{\mathcal B''+\sum\mathcal B'},\tag{3.26′}$$
+the sum over the families of compatible removed clusters (Lemma III.10.4), $T^{\rm rem}(Z)$ the removed operator without front functions, acting on the internal variables of $Z$;
+$\mathbb T_k(Y_k,\mathbb A')$ is the product of the operators of the non-removed components (kept ones with their kept kernels, Definition III.8.8).
+
+**Lemma III.10.5 (the polymer expansion; P7 (3.27)–(3.28), PE §2.6 (GAS), landed `gas_eq`, `gas_activity_bound`, `pe_hole`).** Assume (Λ25) and $\kappa\ge\kappa_{\rm flow}$. Pointwise in the
+variables of $Y_k$ and in $(h,g)$:
+$$\Xi(\mathbb A')=\exp\sum_{X}P^{(k)}(X;\mathbb A'),\qquad|P^{(k)}(X;\mathbb A')|\le\tfrac12\beta_k^{-m-1}e^{-\kappa d_k(X\,\mathrm{mod}\,\Omega^c_k\cap Y_k)},\tag{3.28′}$$
+the sum over the connected sets $X$ of cubes that contain every component of the hole $S_0:=\Omega^c_k\cap Y_k$ they meet and are not contained in it. Each $P^{(k)}(X;\mathbb A')$
+depends only on $\psi,\psi',h,g$ restricted to $X$ and on $\mathbb A'\cap X$, is analytic (in $\psi_k$ on $\Xi_k(1,\varepsilon_k)$ localized to $X$, in the fluctuation variables on (1.37), in $g$ on the polydisc), real
+for real arguments, jointly $O(N)$-covariant and invariant under the Euclidean symmetries preserving $\pi_k$. If $X\cap Y_k=\varnothing$, then $P^{(k)}(X;\mathbb A')=P^{(k)}_\varnothing(X)$, the term of
+the same expansion with no kept region.
+
+*Proof.* GAS (PE §2.6) with: heavy objects the removed clusters (families of pairs $(Z,\mathfrak a)$), weight $\tau(\mathcal C):=a(\mathcal C;\mathbb A')\bigotimes_{(Z,\mathfrak a)\in\mathcal C}T^{\rm rem}(Z,\mathfrak a)e^{E_k|Z|}$
+(operators acting on disjoint sets of variables; GAS is applied pointwise in the external variables, with $|\tau|$ read as the operator norm of (3.10″), since every coupling of a polymer is a function of the
+variables integrated by the weights of that polymer); cores $c(\mathcal C)$; couplings the terms of $\mathcal B''+\sum\mathcal B'$, all with domains meeting a core, bounded by
+$B_{\rm cpl}e^{-\kappa_+d}$, $B_{\rm cpl}:=2B_{\rm st}+B'$ (an old term and its subtracted copy each $\le B_{\rm st}e^{-\kappa_+d}$ by D-III.4); hole $S_0$. *Weights.* By (3.10″) and Lemma III.9.6 (b), summed over the localized histories of the members ($0\le a\le1$),
+$\sum_{(\mathfrak a_Z)}\|\tau(\mathcal C)\|\le\prod_{Z\in\mathcal C}e^{-A_2\hat\lambda_k^{p_2}-H_k|Z|_k}$ for every family of sets $\{Z\}$ of a cluster. The support has $|S(\mathcal C)|_\#\le\sum_Z(\mathrm{crit}_k+4\omega_k+1)^d$ cubes, and the number of clusters through a cube with $n$
+members is $\le(C\hat\lambda_k^2)^{dn}$ (each member within $4\omega_k+\mathrm{crit}_k$ of another, a box of side $\le\mathrm{crit}_k$); so $\sum_{(\mathfrak a_Z)}\|\tau(\mathcal C)\|\le e^{-p-h|S(\mathcal C)|_\#}$ with $p:=\frac14A_2\hat\lambda_k^{p_2}$ and
+$h:=\frac14A_2\hat\lambda_k^{p_2}(\mathrm{crit}_k+4\omega_k+1)^{-d}$, and the entropy hypothesis of GAS holds with $K''_0=(C\hat\lambda_k^2)^d$ (the remaining $\frac14A_2\hat\lambda_k^{p_2}$ per member pays it). The condition
+$h\ge B_{\rm cpl}e^{B_{\rm cpl}}e^{\kappa'c}K'_0+\kappa'(c_2+c)+c_1+3+\log K''_0$ of GAS is (Λ25), since $h\ge c\hat\lambda_k^{p_2-2d}\to\infty$ and all other quantities are fixed before $\lambda_*$. *Output of
+GAS:* $\Xi=\Xi_{\mathcal P}$ with activities $|K(X)|\le3c_1e^{-p}e^{-(\kappa_+-2)d(X)}$ (rate loss $2$). *PE with the hole* (landed `pe_hole`, with the Steiner size of $X\setminus S_0$, PE finding (ii)):
+with $\kappa_+-2\ge\kappa+\kappa_0+c_1$ (true for $\kappa\ge\kappa_{\rm flow}\ge16\kappa_0+16$ since $\kappa_+-\kappa=\frac\kappa2$) and $\alpha:=3c_1e^{-p}K_0e^{c_1+\kappa c}\le\frac12\beta_k^{-m-1}$ (Λ25), $\Xi_{\mathcal P}=\exp\sum_XP^{(k)}(X)$ with
+$|P^{(k)}(X)|\le\alpha e^{-\kappa d(X)}$. The conversion between the Steiner size of $X\setminus S_0$ and $d_k(X\,\mathrm{mod}\,\Omega^c_k\cap Y_k)$ of P5 (1.34) is (G1)–(G3) of PE §3.6 (constants $c_1,c$ of PE, not the
+cost coefficients). *Properties.* Locality and analyticity: PE (c) and `pe_PY_analyticOnNhd`, from the analyticity of the weights (Lemma III.9.6 (b)) and of the couplings (D7);
+covariance: PE's terms are universal polynomials in the activities, which are jointly covariant (Lemma III.9.6 (c), (D7), (S0)); the activities of polymers with $X\cap Y_k=\varnothing$
+do not depend on $\mathbb A'$ (Lemma III.10.4: $S(\mathcal C)\subset X$; couplings meeting only removed cores and $Y^c_k$), so PE's locality gives $P^{(k)}(X;\mathbb A')=P^{(k)}_\varnothing(X)$ (P7 p. 528: "as it follows
+from the standard formula for a term in the cluster expansion"). $\square$
+
+*Status:* proved here from GAS and PE (both proved on paper in POLYMER.md; `pe_hole`, `gas_eq`, `gas_activity_bound`, `gas_pe` landed), except that the combination GAS +
+PE-with-hole for operator-valued weights is not landed (§III.L item P10) and the bounds of the cited re-expansion (3.22)–(3.25).
+
+### III.10.4 The new small-field term, the new boundary terms, and $B^\sharp$
+
+**Definition III.10.6 (P7 (3.29) and p. 528–529).** $\mathcal R''^{(k)}_m(\psi_k,h,g):=\sum_{X}P^{(k)}_\varnothing(X;\psi_k,h,g)$, the whole-torus expansion with no kept region; its restriction to $Y^c_k$ is
+$\sum_{X\subset Y^c_k}P^{(k)}_\varnothing(X)$. The boundary terms of $\mathrm{rep}'$ for $\mathbb A'$ are, for $X\in\mathcal X(\mathbb A')$,
+$$\mathcal B^{(k)}_{\rm rep'}(X,\mathbb A'):=\hat{\mathcal B}(X;\mathbb A')+P^{(k)}(X;\mathbb A')\,\mathbf 1[X\cap Y_k\ne\varnothing],$$
+and $\mathcal B^{(k)}_{\rm rep'}(X,\mathbb A'):=P^{(k)}(X;\mathbb A')$ for the polymers $X$ meeting $Y_k$ that are not in $\mathcal X(\mathbb A')$ (they meet $Y_k$, and they meet $Y^c_k$ because they contain a removed core).
+
+**Lemma III.10.7 ($B^\sharp$; ARCH §5 row 12).** $|\mathcal B^{(k)}_{\rm rep'}(X,\mathbb A')|\le(B_{\rm st}+\frac12\beta_k^{-m-1})e^{-\kappa d_k(X\,\mathrm{mod}\,\Omega^c_k(\mathbb A'))}\le B^\sharp e^{-\kappa d_k(X\,\mathrm{mod}\,\Omega^c_k(\mathbb A'))}$ with
+$$B^\sharp:=B_{\rm st}+1 .$$
+$B^\sharp$ depends only on the constant $B_{\rm st}$ of the boundary terms created by the step (LF-3), which is an output of the small-field analysis (rows 0–11; P6 p. 15 [checked]:
+"contributions to $\mathcal B^{(k+1)}$ constructed in various operations have bounds independent of $B_0$"); it does not depend on $B_0$, $H_0$, $c_1$, $c_2$ or $C_R$. The polymer part
+is $\le\beta_k^{-m-1}\le1$ because $\lambda_*$ is chosen after $B_0,H_0,c_1,c_2$; the constants $B_{\rm cpl}$, $B'$ enter only through (Λ25). So the row-12 condition is $B_0\ge B^\sharp$, with no
+cycle, **provided** LF-3 supplies $B_{\rm st}$ independent of $H_0,c_1,c_2$ (the large-field cost coefficients do not enter the small-field expansions; to be confirmed in Part IV.1).
+*Proof.* $|\hat{\mathcal B}|\le B_{\rm st}e^{-\kappa_+d}\le B_{\rm st}e^{-\kappa d}$ (D-III.4) and (3.28′); $d_k(X\,\mathrm{mod}\,\Omega^c_k\cap Y_k)=d_k(X\,\mathrm{mod}\,\Omega^c_k(\mathbb A'))$ since $\Omega^c_k(\mathbb A')=\Omega^c_k\cap Y_k$. $\square$
+
+*Remark (the B₀ bookkeeping across steps).* Version 4 of ARCH asked whether $B^\sharp$ is independent of $H_0,c_1,c_2$ (row 12 UNCERTAIN). In this construction the old boundary
+terms are carried unchanged with the step constant $B_{\rm st}$ and decay $\kappa_+$, and $R$'s own terms are smaller than $\beta_k^{-m-1}$; the non-small constants of the cluster
+expansion ($B_{\rm cpl}$, the GAS constant) are absorbed by $H_k$ and $\lambda_*$, which come last. The answer is yes, conditional on the stated property of $B_{\rm st}$.
+
+### III.10.5 LF-4
+
+**Theorem III.10.8 (LF-4; $R$ on covered windows; existential form; ARCH §8.3 as amended in §II.6.4).** Fix $d\ge3$, $N\ge2$ and the constants of the prefix §I.1.4 up to row 15,
+with $B_0\ge B^\sharp$ (row 12), $c_1\ge C_W$, $c_2\ge C'_W$ (row 14) and $C_R$ of Definition III.8.6 (row 15). There is $\lambda^{\rm III}_*$, depending only on these constants (conditions (Λ18)–(Λ25)
+of §III.O.3), such that, with $\lambda_*\ge\lambda^{\rm III}_*$ and $\beta\ge\beta_0$: for every $\nu\in(0,1]$, $h\in S^{N-1}$ and $k\ge1$, if $\mathrm{IsRep}^{\rm pre}_k(\mathsf c,\mathrm{rep},\rho)$ (Definition II.6.2, §II.6.3, version 1.1) and
+$\beta_k\nu_k\le1$ for the running constants of $\mathrm{rep}$, then there are families $\rho'$, $\mathrm{rep}'$ over the same admissible tori with:
+- (a) $\int\rho'\,d\psi_k=\int\rho\,d\psi_k$ on every admissible torus, identically in $(h,g)$, $\|g\|_{\ell^1}<1$;
+- (b) $\mathrm{IsRep}_k(\mathsf c,\mathrm{rep}',\rho')$;
+- (c) the small-field data of $\mathrm{rep}'$ are those of $\mathrm{rep}$ except that $\mathcal R^{(k)}_m$ is replaced by $\mathcal R^{(k)}_m+\mathcal R''^{(k)}_m$, where $\mathcal R''^{(k)}_m$ has the properties of P5 H4 with the bound
+  $\frac12\beta_k^{-m-1}e^{-\kappa d_k(X)}$ for its localized terms, so that the sum satisfies H4 with $\beta_k^{-m-1}$ (the pre-class gives $\frac12\beta_k^{-m-1}$ for $\mathcal R^{(k)}_m$, §II.6.3) (analytic on $\Xi_k(1,\varepsilon_k)\times\{\|g\|_{\ell^1}<1\}$, local, jointly $O(N)$-covariant, invariant under the Euclidean symmetries preserving $\pi_k$,
+  torus coherent);
+- (d) the histories of $\mathrm{rep}'$ are those of $\mathrm{rep}$ with an $R$-record at scale $k$ marking every ripe component removed or kept with a label in $\mathfrak K$; the kept data are those of
+  Definition III.8.8 and satisfy (S3) with LF-4R (Theorem III.8.9), in particular (Rg);
+- (e) the boundary terms of $\mathrm{rep}'$ at scale $k$ are $\hat{\mathcal B}+P^{(k)}$ (Definition III.10.6), bounded by $B^\sharp e^{-\kappa d_k(X\,\mathrm{mod}\,\Omega^c_k)}$;
+- (f) if $(\mathrm{rep}(\nu),\rho(\nu))_\nu$ satisfies $\mathrm{IsRepFam}^{\rm pre}_k$ (Definition II.6.4), then $(\mathrm{rep}'(\nu),\rho'(\nu))_\nu$ satisfies $\mathrm{IsRepFam}_k$.
+
+*Proof.* Fix an admissible torus. $\rho'$ is Definition III.8.3, and (a) is Lemma III.8.4. *(D1).* By (3.26′), Lemma III.10.5 and Definition III.10.6,
+$$\rho'=\sum_{\mathbb A'}\mathbb T_k(Y_k,\mathbb A')\Big[e^{\sum_X\mathcal B^{(k)}_{\rm rep'}(X,\mathbb A')}\,\chi_k(Y^c_k)\,\exp\big(\mathcal A_k+\mathcal F_k+\mathcal R^{(k)}+\mathcal R''^{(k)}_m\big)(Y^c_k)\Big],$$
+where we used that $\sum_XP^{(k)}(X;\mathbb A')=\sum_{X\subset Y^c_k}P^{(k)}_\varnothing(X)+\sum_{X\cap Y_k\ne\varnothing}P^{(k)}(X;\mathbb A')$ and that the first sum is $\mathcal R''^{(k)}_m(Y^c_k)$; the history set of $\mathrm{rep}'$ is the set of
+all kept histories $\mathbb A'$, i.e. all admissible histories with $R$-records at scale $k$ (it is complete). Absolute convergence: (1.26) for the operators, (3.28′). *(D2).* Only $\mathcal R^{(k)}_m$
+changes; $\mathcal R''^{(k)}_m$ has the H4 properties by Lemma III.10.5 (the terms $P^{(k)}_\varnothing(X)$ with the bound $\frac12\beta_k^{-m-1}$; P7 (3.28) states const$\cdot\beta_k^{-m-1}\le\frac12\beta_k^{-m}$), and
+$\mathcal R^{(k)}_m+\mathcal R''^{(k)}_m$ satisfies H4 with $\beta_k^{-m-1}$ because the pre-class gives $\frac12\beta_k^{-m-1}$ for $\mathcal R^{(k)}_m$ (§II.6.3; P5 p. 491); the other functions with superscript $k$
+satisfy (D2) with $\kappa_+\ge\kappa$. *(D3).* $\chi_k(Y^c_k)$ by (3.21). *(D4).* The step data at scales $<k$ are unchanged; the kept data satisfy (S3) by Theorem III.8.9; (S4) holds
+since all constructions use the localized history only. *(D5).* Lemma II.6.3 (a). *(D6).* For the components of $Y_k$: non-ripe ones are unchanged with $G_k=G^{\rm pre}_k$ and
+$t^*>k$; kept ones satisfy (Rg) (Theorem III.8.9 (b)), so LF-2's $R$-step (Part I §I.5.5, with (Λ10)) gives (H6′) with the state $\mathsf{Active}(k,1,\varnothing)$. *(D7).* Lemma III.10.7
+and the properties of $P^{(k)}$ in Lemma III.10.5. *(D8).* Every datum created here is a function of a localized history and of the variables in a set of diameter
+$\le D''_0M+\dots$ around $Z$, defined by the same formulas on $\mathbb Z^d$; the polymer terms of sets in a small cube are torus-independent by PE (f) (transport) and
+POLYMER §4.5. *(D9).* Unchanged. (d), (e) were shown. (f) The constructions are explicit formulas in the data of $\mathrm{rep}$ (indicators with thresholds $\delta_j(\nu)$, Gaussian
+integrals, analytic functions of the running constants, the convergent expansion (3.28′)); for almost every value of the variables they are continuous in $\nu$ with limits at
+$\nu=0$, and all bounds above are uniform in $\nu$, so dominated convergence and the uniform convergence of the cluster expansion give (CONT$^{\rm LF}$). $\square$
+
+*What LF-4 replaces in P7.* Theorem 2 of P7 removes the components with $K=0$; LF-4 removes or keeps the ripe components. The kept ones carry the explicit kept data;
+the removed ones are exponentiated into $\mathcal R''^{(k)}_m$ and new boundary terms. With LF-2 (ii) ((Rg) from LF-4R) and LF-3 this is the step $\mathcal R_{k-1}\to\mathcal R_k$ of LF-7
+for $k\le k_0$.
+
+---
+
+## III.L Lean declarations asked for by Part III
+
+Namespace `Balaban.LargeField`; all files Lean modules; files under `LargeField/R/`. Items are numbered P1–P16 in the order of the sections
+(P10 is independent infrastructure and can be done first). Sizes are estimates including docstrings. "Needs" lists the landed Lean used and
+the Part I–II blocks of §I.6 and §II.L; **bold** marks prerequisites that are not landed.
+
+| # | Declaration(s) | Kind | Content | Needs | Est. lines |
+|---|---|---|---|---|---|
+| P1 | `ripe_quiet`, `ripe_core_boxes`, `ripe_layer_count`, `ripe_one_box`; `windowKernel`, `windowOp_eq`, `gaussOnly`, `gaussOnly_support` | def/thm | Lemmas III.1.2, III.1.3, Def. III.1.4, Lemma III.1.5 | Part I B, C (ripeness, lineages, Lemma I.4.13), J4, J6 | 600 |
+| P2 | `composedWeight`, `composedMean`, `integral_window_comp` (Gaussian chain on the block tree, arbitrary positive $c_j$ and $z_j$), `composedWeight_ideal` (= `compWeight`), `composedWeight_err`, `meanShift_le`, `deepLayer_frac_le`, `totalShift_le` | def/thm | Lemmas III.1.6, III.1.7, III.1.7′ | `integral_blockSpin_comp` (`Gaussian/BlockSpin.lean`), `compWeight`, `compWeight_C1`; SF Theorem 5.3 bounds (**W43** renormalization analysis) | 900 |
+| P3 | `kTwo`, `kThree`, `Zzero`, `ZzeroDD`, `lateScale_geom`, `ZzeroDD_sep` (Lemma III.5.0); `dirichlet_box_coercive` ($c_{D_0}$); `psiZero` with `psiZero_exists_unique`, `psiZero_analytic`, `psiZero_equivariant`; `refVec`, `refVec_close` | def/thm | Def. III.3.1, Lemmas III.3.2, III.3.3, III.5.0, Def. III.3.4, Lemma III.3.5 | `Background/ContractionAnalytic.lean`, `theorem72_linearResponse`, G5 | 1 100 |
+| P4 | `windowBlocks`, `chainGraph`, `crossPair_window`, `nn_layers_adj`, `path_avoids_obstacles`, `lemmaCH` (with $\hat W_k$), `hatW_le`, `deltaSeq_admissible` | def/thm | Def. III.4.1, Lemmas III.4.2–III.4.5 | `enclosed_by_single_component`, `enclosed_component_diam`, `not_enclosed_boxes` (`LemmaS.lean`), `exteriorBoundary_starConn` (`Timar.lean`), torus lift (W37), Part I B | 1 000 |
+| P5 | `deltaPsi`, `deltaPsi_le` ((2.48′)), `deltaPhi_le` ((2.49′)) | def/thm | Lemmas III.4.6, III.4.7 | P3, P4, `composeField`, `lemma62`, `prop51_exists_unique`; **G-2 decay / LOC** for (2.49′) | 600 |
+| P6 | `windowGenSet` (a `GeneratingSet`), `windowAction_renorm` ((2.15′)), `composed_dominates` ((2.17′)) | def/thm | Def. III.2.1, Lemmas III.2.2, III.2.3 | G1–G3, `theorem73_real`, `theorem73_complex`, `compWeight_C1`; **P6 (2.31) renormalization formula and LOC I-4b, I-5** for (2.15′) | 900 |
+| P7 | `chiTilde`, `chiS`, `chiZero`, `chiDD`, `chiZ''`; `Outcome` (`ϰ₁`–`ϰ₅`, `rem`), `kernel_decomp`, `smallFactor_1`–`smallFactor_5`, `smallFactor_ge` ((III.5.1)) | def/thm | Defs. III.5.1–III.5.2, Lemma III.5.3 | I2 (`lf1_gradient`, `lf1_hardSpin`), `theorem52_exists`, P3–P6 | 1 000 |
+| P8 | `psiZeroMulti` (via `composeField`), `cancellation_identity` ((2.58′) with `Cnat0`, `Cnat1`), `Cnat_le`, `remaining_terms` (Lemma III.6.4) | def/thm | Def. III.6.1, Lemmas III.6.2–III.6.4 | P2, P5, BG (6.2) (`lemma62`), `isEL_compose`; **P7 Lemma 2.2** (cited) | 1 000 |
+| P9 | `lemma25` (Cases A, B and the $\chi'$ functions) | thm | Lemma III.7.1 | `prop51_exists_unique`, `theorem73_real`, P5, P8; **P4 (4.11)–(4.12)**, **P3 Prop 2.1** (LOC) | 800 |
+| P10 | `gasOp_eq`, `gasOp_activity_bound`, `gasOp_pe_hole`: GAS and PE with a hole for weights that are integral operators on disjoint sets of variables (pointwise in the external variables; norms = sup bounds of (3.10″)) | thm | Lemma III.10.5 (abstract part) | `gas_eq`, `gas_activity_bound`, `gas_pe` (`Polymer/Gas*.lean`), `pe_hole` (`Polymer/Hole.lean`), `pe_PY_analyticOnNhd` | 900 |
+| P11 | `rhoZero`, `denominator_eq` (Lemma III.8.2), `Rop` (Def. III.8.3), `R_normalization` | def/thm | Defs. III.8.1, III.8.3, Lemmas III.8.2, III.8.4 | P2, P3, L1–L3; **P7 (3.3)–(3.5)** (finite-dimensional Gaussian estimate, to be proved) | 700 |
+| P12 | `kernel37`, `Lres`, `CR`, `windowIntegral_le` ((III.8.5)), `keptData`, `lf4R` | def/thm | Defs. III.8.5, III.8.6, III.8.8, Lemma III.8.7, Theorem III.8.9 | P7–P9, P11, K1–K4, J5 | 900 |
+| P13 | `lemmaL` ((3.11′)); `Aof`, `secPlus`, `secMinus`, `sec_orth`, `sec_e1`, `sec_lip`; `rotRep`; `core_complexRot_le`; `lemma31'` (chart representation, gluing by the identity theorem, (3.10″), joint covariance) | def/thm | Lemmas III.9.1, III.9.3, III.9.5, III.9.6, Defs. III.9.2, III.9.4 | P5, P8, P12, J7, (S5) in J5, Mathlib `AnalyticOnNhd` identity theorem | 1 100 |
+| P14 | `Config`, `IsAdmConfig`, `adm_of_cliques`, `adm_sub`; `RemCluster`, `clusterSupp`, `admFactor`, `gas_identity` | def/thm | Def. III.10.1, Lemma III.10.2, Def. III.10.3, Lemma III.10.4 | Part I B, C (Lemma I.3.8, I.3.9, histories) | 800 |
+| P15 | `expansion_326` ((3.26′); the re-expansion as a cited hypothesis-free statement once LF-3's background-change lemma lands), `polyExp`, `Rmm''`, `newBoundary`, `Bsharp`, `newBoundary_le` | def/thm | §III.10.3, Lemma III.10.5, Def. III.10.6, Lemma III.10.7 | P10, P13, P14; **LF-3 background change (O-2′)** | 900 |
+| P16 | `lf4` (Theorem III.10.8, existential form, clauses (a)–(f)); `lf4_fam` | thm | Theorem III.10.8 | P11–P15, L2 (`IsRepPre`, `IsRep`, `IsRepFam`), Part I E (LF-2 $R$-step) | 600 |
+| | **Total** | | | | **≈13 800** |
+
+No file need exceed 1 200 lines. P1, P2 (given W43), P4, P10 and P14 can be drafted now (they need only landed Lean and Parts I–II blocks that
+do not depend on Def-5/Def-6); P3, P6–P9 need Def-5 (landed) and the cited analytic inputs marked in bold; P11–P13, P15–P16 need Def-7 (L2).
+The bold prerequisites are the open items O-2′ and O-III-2 below.
+
+---
+
+## III.O Status, changes, open items
+
+### III.O.1 Status of the statements of Part III
+
+| Statement | Status |
+|---|---|
+| Lemma III.1.2 ((RQ1)–(RQ5)) | proved here from Part I (Lemmas I.3.5, I.4.3, I.4.9, I.4.10, I.4.13) |
+| Lemma III.1.3, Def. III.1.4, Lemma III.1.5 | proved here (P7 (2.6) [checked, text layer]) |
+| Lemma III.1.6 (actual composed transformation) | proved here; one-step Gaussian identity landed (`integral_blockSpin_comp`); flow bounds of SF Theorem 5.3 cited from SF |
+| Lemmas III.1.7, III.1.7′ (deep-layer fractions, total shift) | proved here (new) |
+| Def. III.2.1 | definition; the generating-set property proved here (box by box) |
+| Lemma III.2.2 ((2.15′)) | cited (P7 (2.10)–(2.16), P6 (2.31), P3 (2.55)–(2.56)); conditional on LOC (O-2′); P7's second bound in (2.15) is false for $\nu$ pieces and is not used |
+| Lemma III.2.3 ((2.17′)) | proved here |
+| Def. III.3.1, Lemma III.3.2, Lemma III.5.0 | proved here; the threshold $8$ of $k_3$ and the neighbourhood in $Z''_0$ are new |
+| Lemma III.3.3 (P7 Lemma 2.1 with $D_0$) | cited, with the coercivity constant $c_{D_0}$ proved here; route via the landed analytic contraction (Lean P3) |
+| Def. III.3.4, Lemma III.3.5 ((2.20′)) | proved here ($C_{2.20}=12d(D_0+2)+3$) |
+| Def. III.4.1, Lemmas III.4.2–III.4.5 (Lemma CH) | proved here (Lemma S landed); $\hat W_k\le C_{\hat W}\hat\lambda_k^{w_0-2}$ explicit |
+| Lemma III.4.6 ((2.48′)) | proved here from Lemma CH, Lemma III.3.3 and P7 (2.43) (cited; BG (6.2)) |
+| Lemma III.4.7 ((2.49′)) | cited (P7 Lemma 2.4; P3 Prop 2.1 = BG Prop 5.1 with G-2/LOC decay) |
+| Defs. III.5.1, III.5.2 | definitions; item 4 of III.5.1 (the set $D''$) is a reading of P7 (2.61), **UNCERTAIN** (minor) |
+| Lemma III.5.3 (small factors) | proved here from LF-1, BG Theorem 5.2 (3), Lemma CH |
+| Def. III.6.1, Lemma III.6.2 | cited (P7 (2.40)–(2.46), Lemma 2.2) |
+| Lemma III.6.3 ((2.58′), remainder $C^\natural$) | proved here (new) |
+| Lemma III.6.4 ((2.59′), (2.60′)) | proved here following P7 pp. 511–512, with $\nu$ pieces |
+| Lemma III.7.1 (Lemma 2.5) | proved here from the cited inputs P4 (4.11)–(4.12), P3 Prop 2.1; BG Prop 5.1 and I-2 landed |
+| Defs. III.8.1, III.8.3, III.8.5, III.8.6, III.8.8 | definitions |
+| Lemma III.8.2 (denominator) | cited (P7 (3.3)–(3.5)); a finite-dimensional Gaussian estimate |
+| Lemma III.8.4 (normalization) | proved here |
+| Lemma III.8.7 (window integral, refund) | proved here |
+| Theorem III.8.9 (LF-4R) | proved here |
+| Lemma III.9.1 (Lemma L, local sets) | proved here; closes O-3 |
+| Def. III.9.2, Lemma III.9.3, Def. III.9.4 | proved here |
+| Lemma III.9.5 (complex rotation of the core) | proved here (new; uses (S5)) |
+| Lemma III.9.6 (Lemma 3.1′) | proved here, except the expansion (3.12)–(3.14) of $\delta\phi$ (cited: P2 Prop 3.1 = BG Prop 5.1) |
+| Def. III.10.1, Lemma III.10.2, Def. III.10.3, Lemma III.10.4 | proved here (new: cliques, removed clusters) |
+| (3.26′): re-expansion around the backgrounds of $Y^c_k$ | cited (P7 (3.20)–(3.25), P6 §2, P1 Cor 3.10, P3 Prop 4.3); same inputs as O-2′ |
+| Lemma III.10.5 (polymer expansion) | proved here from GAS and PE with a hole (POLYMER.md; scalar versions landed); the operator-valued combination is Lean item P10 |
+| Def. III.10.6, Lemma III.10.7 ($B^\sharp=B_{\rm st}+1$) | proved here; independence of $H_0,c_1,c_2$ conditional on LF-3's $B_{\rm st}$ |
+| Theorem III.10.8 (LF-4) | proved here, given the cited inputs listed above (the O-2′ group and O-III-2) and the LF-3 obligations O-III-1 |
+
+### III.O.2 Changes to Parts I–II and to ARCH v4
+
+*Part I* (made in place):
+1. Row 4: the Part III constants $D''_0=9(2c_0+1)+8$, $c_{D_0}=4(D_0+1)^{-2}$, $C_{2.20}$, $C_6=3dD_0(K_6+1)$, $C_{23}=3dL+2$, $C_{24}=2K_3C_{23}$.
+2. Row 7: $R_{\rm base}\ge44K_1K_6$ (was $6K_1K_6$; Lemma III.7.1 with the threshold $8$ of $k_3$).
+3. Row 12: $B_0\ge B^\sharp:=B_{\rm st}+1$; the UNCERTAIN of ARCH row 12 is resolved, conditional on LF-3 (Lemma III.10.7).
+4. Row 15: $C_R$ is defined by (III.8.4) and depends on rows 0–11 only; row 16 and §I.7.2: the conditions (Λ18)–(Λ25) of §III.O.3.
+5. The constant $A'_3$ of rows 9 and (Λ10) is the explicit value of Lemma III.5.3; LF-2's (Rg) is Theorem III.8.9 (b). No change to LF-2 itself.
+
+*Part II* (version 1.1, made in place; listed in §II.O.5): the audit fixes P2-01–P2-06, and the amendments required by Part III: (D7) of $\mathrm{IsRep}^{\rm pre}_k$
+with $\kappa_+=\frac32\kappa$ and $B_{\rm st}$ (D-III.4) and its (D2) with $\frac12\beta_k^{-m-1}$ for $\mathcal R^{(k)}_m$ (Theorem III.10.8 (c)); (S5) and the $h$-dependence of kernels (D-III.6); $\mathfrak A$ = all admissible histories (D-III.8); kept kernels on
+$I''\subset I$ (D-III.9). In this version of Part III also: the text of §II.1.5 and of O-8′ now states the actual bound on $C^\natural$ ($\frac38$ of the
+composed-Gaussian term, $\le1$ real, $\le C_\natural\hat\lambda_k^{2d+1}$ complex); O-3 is marked closed; the forward references to Part III are to Lemma III.10.4,
+Lemma III.10.7 and Theorem III.10.8 (f).
+
+*ARCH v4* (to be carried into v5):
+1. §3.8 Step 0 and (M7): $Z_0$ with $D_0=3c_0+4$; $k_3$ with the threshold $8$ and $Z''_0$ with a $3$-neighbourhood ($D''_0$); P7's $15$ and $15M$ replaced.
+2. §3.8 Step 1: P7's second bound in (2.15) is dropped; (2.15′) is per unit of new volume and paid by the refund.
+3. §3.8 Step 2: the decompositions are binary (D-III.2); five kept labels with $C_{\rm dec}=5$; no subset entropy.
+4. §3.8 Step 3: Lemma CH with the chain graph of Definition III.4.1 (R3-03 (ii) holds automatically), $\hat W_k\le C_{\hat W}\hat\lambda_k^{w_0-2}$; the admissibility of
+   $(\delta_j)$ needs the running $\lambda\ge12p_0$ ((Λ20)).
+5. §3.8 (2.53)–(2.58): **new finding** — the field renormalizations $z_j$ shift the mean of the composed window Gaussian; the actual composition is
+   Lemma III.1.6 and the remainder $C^\natural$ is controlled by the top-scale weighting of the coefficient errors and the deep-layer volume fractions.
+6. §3.8 Step 6: $C_W=C_b$, $C'_W=C_bB_0+C_{15}$, $L_{\rm res}=C_R\hat\lambda_k^{2d+1}$, $p_R=2p_0-2w_0$, explicit $A'_3$.
+7. Lemma L: local sets only (V4-01); P7's constant $10MR_{k_1}\delta_{k_1}$ in (3.11) is kept.
+8. (M4): the two-chart sections $R_\pm$, gluing by the identity theorem, Lemma III.9.5 for the complex rotation of the core, requirement (S5).
+9. (M6), §8.3: removed clusters and the clique lemma; $\mathfrak A$ complete; the decay margin $\kappa_+$ of the input; $B^\sharp=B_{\rm st}+1$; LF-4 with the family clause (f).
+10. §5 row 7: $R_{\rm base}\ge44K_1K_6$; row 12 resolved as above.
+11. §3.7: Lemma III.7.1 is also the proof of P5 Lemma 2.1 (the known gap of LF-3), with the constants of Part III.
+12. D-III.10: P7's segments of length $<6M[R_{k-1}]$ are not needed (LF-1 (b)); the constants $C(c_0)$ attached to them in (M7) disappear.
+
+*OBSERVABLES.md*: requirement 2 (coset average on the full integrand, joint covariance in $(\psi,h,g)$) is met by Lemma III.9.6 (a), (c); the
+replacement of (L4) (O-II-9) is unchanged.
+
+### III.O.3 The conditions on $\lambda_*$ added by Part III
+
+For all real $x$ in the stated range (combined with Parts I–II into $\lambda_*$, §I.5.3, §II.1.3). In (Λ18), $x$ plays the role of a running $\lambda_j$
+($\ge\hat\lambda_j-2\ge\lambda_*-2$); elsewhere $x$ is a value of $\hat\lambda$ (for (Λ22), (Λ23) the value $\hat\lambda_{k_1}$, using $\hat\lambda_k\le2c_*\hat\lambda_{k_1}$, Lemma III.1.2 (a)). Write
+$C_{\rm crit}:=2c_0(R_{\rm base}+1)+10$ (so $\mathrm{crit}_k\le C_{\rm crit}\hat\lambda_k^2$), $\bar\delta(x)=eA_0x^{p_0}e^{-x/2}$ (Lemma II.1.2 (c)), and use $\beta^{-1}\le a\,e^{1-x}$ for $x=\hat\lambda_0$.
+
+| | Condition | Used in |
+|---|---|---|
+| (Λ18) | $R_{\rm base}(x+\theta+1)^2+1\le\frac98(R_{\rm base}x^2-1)$ and $2c_0\big(R_{\rm base}(4x+4)+2\big)+11\le R_{\rm base}x^2$, for $x\ge\lambda_*-2$ | Lemma III.3.2 ($[R_j]\le\frac98[R_{j-1}]$, $\mathrm{crit}_j\le(2c_0+1)[R_j]$), Lemma III.5.0 |
+| (Λ19) | $C_{19}\,x^{2p_0+2d}e^{-(x-1)/2}\le1$ for $x\ge\lambda_*$, where $C_{19}:=\sqrt a\,C_P\max\big\{\frac{24c_\xi}{1-q},\ 32C_\varsigma^2(MC_{\rm crit})^d,\ \frac{108K_1^2K_6^2A_0^2c_\xi}{a(1-q)}(MC_{\rm crit})^d,\ \frac{96K_1K_6A_0C_\vartheta}{\alpha_0},\ 48C_\varsigma^2(MC_{\rm crit})^d,\ \frac{48Nc_\xi}{1-q}(MC_{\rm crit})^d\big\}$ and $C_P:=\sup_k(1+k\theta)^{2p_0+2d}L^{-k\gamma}$ (each entry of the max bounds one of the listed quantities after $\beta^{-1}\le\beta^{-1/2}\le\sqrt a\,e^{-(x-1)/2}$, $\mathrm{crit}_k\le C_{\rm crit}\hat\lambda_k^2$ and $\hat\lambda_k^pL^{-k\gamma}\le C_P\hat\lambda_0^p$, $p\le2p_0+2d$) | $\eta_k\le\frac12$; last term of (2.17′) $\le1$; the four terms of $C^\natural_0$ in Lemma III.6.3 $\le\frac14$ each |
+| (Λ20) | $\lambda_*\ge\max\{12p_0+2,\ 4c_*p_0\}$ | Lemma III.4.5 (running $\lambda_i\ge12p_0$), §III.5.3; the second bound makes $\bar\delta$ decreasing at $\hat\lambda_k/(2c_*)$ ((Λ25)(c)) |
+| (Λ21) | $\overline{\mathrm{crit}}(x)\ge3dK_6+4K_1K_6+3d$ for $x\ge\lambda_*$ | Lemma III.4.6 ($\hat W_k\ge4(LM\mathrm{crit}_k)^d$ exceeds $3dK_6M\mathrm{crit}_k+4K_1K_6$ and $3d(2[R_{k_1-1}]+4)M$, as $c_0\ge6$) |
+| (Λ22) | $C_{23}C_{\hat W}(2c_*)^{w_0-2}x^{w_0-2}\bar\delta(x)\le c'_6$ for $x\ge\lambda_*$ | Lemma III.4.7, Lemma III.9.6 (analyticity domain of BG Prop 5.1) |
+| (Λ23) | $6K_1e^{\epsilon}\big(3d^2LMC_{\rm crit}(2c_*x)^2+C_{2.20}\big)e^{-x/(3\alpha)}\le1$ and $(K_2+1)(4K_1K_6+3dD_0K_6+C_{2.20})e^{\epsilon}e^{-x/(3\alpha)}\le\frac12-(K_2+1)\frac{A_1}{A_0}$ for $x\ge\lambda_*$ (the right side is positive by $A_0=4K_2B_5A_1$, row 9, with $K_2,B_5\ge1$) | Lemma III.5.3 (c), Lemma III.7.1 Case B ($L^{-n_1/3}<e^{-\hat\lambda_{k_1}/(3\alpha)}$ by (III.1.1)) |
+| (Λ24) | $x\ge4$ and $2A'_3x^{p_R}\ge3+\log5$ for $x\ge\lambda_*$ | (III.5.1) |
+| (Λ25) | the following, each a polynomial in $x$ times $e^{-cx}$ or $e^{-cx^2}$ or $e^{-cx^{p_2}}$, $\le$ a constant of rows 0–15, for $x\ge\lambda_*$: (a) Lemma III.6.4 (a): $C'(2c_*x)^{p_2+2d}\alpha_0^2(ae^{2-x})^{1+2/\alpha}<1$; (b) Lemma III.6.4 (b) real and complex: $CA_0^3\bar\nu(x)C_{\hat W}^2x^{2w_0-4}(LMC_{\rm crit}x^2)^dx^{3p_0}\sqrt ae^{-(x-2)/2}<1$; (c) Lemma III.6.4 (c): the surface factor $e^{-\frac14\gamma_0MR_{\rm base}(x-2)^2}$ times its polynomial $<1$ and $C(MC_{\rm crit}x^2)^dC_{\hat W}x^{w_0-2}\bar\delta(x/(2c_*))<1$; (d) Lemma III.7.1 (2.65)–(2.67): $56B_6K_1^2K_2K_5K_6\alpha_0^{-1/2}\gamma^{-1}ae^{1-x}\le\frac18$; (e) Lemma III.9.5: $4C_{\rm rot}C_{\rm S5}(MC_{\rm crit}x^2)^de^{2-x}\le\frac12$ and $2C\,\overline{b}(x)e^{2-x}\le\frac12$, $\overline b$ the polynomial bound of (S0); (f) Lemma III.9.6: $C'x^{a_{17}}\big((\frac{x+\theta}{\alpha\log L}+2)e^{2-x}+\sum_j\varepsilon_j\beta_j^{-1/2}\big)\le e^{-(x-2)/4}$ ($n_1<1+n_q(k_1+1)$, Lemma I.4.9 (b)) and $6e^{-(x-2)/4}\le1$; (g) Lemma III.10.5: $\frac14A_2x^{p_2}(C_{\rm crit}x^2+4\bar\omega(x)+1)^{-d}\ge B_{\rm cpl}e^{B_{\rm cpl}}e^{\kappa'c}K'_0+\kappa'(c^{\rm PE}_2+c)+c^{\rm PE}_1+3+d\log(Cx^2)$ and $6c^{\rm PE}_1K_0e^{c^{\rm PE}_1+\kappa c}e^{-\frac14A_2x^{p_2}}\le a^{m+1}e^{-(m+1)x}$; (h) $e^{x-2}/a\ge2$ (so $\beta_k\ge2$) | Lemmas III.6.4, III.7.1, III.9.5, III.9.6, III.10.5, Theorem III.10.8 |
+
+Each condition compares a fixed constant with a function tending to $0$ or $\infty$, so $\lambda^{\rm III}_*$ exists. (Λ25)(g) contains $B_{\rm cpl}=2B_{\rm st}+B'$ and the
+PE constants, which are fixed before $\lambda_*$; it is the only place where a non-small constant of the cluster expansion enters, and it is absorbed
+by $\lambda_*$ (this is why $B^\sharp$ does not contain $B_{\rm cpl}$). $\lambda_*$ is chosen after rows 0–15, as in §I.1.3.
+
+### III.O.4 Open items (Parts I–III together)
+
+- **O-1 (Timár's lemma, Lean).** **Closed**: `exteriorBoundary_starConn` (`LargeField/Geometry/Timar.lean`) and Lemma S on the torus (W37) are landed without
+  `sorry`.
+- **O-2′ (analytic half of Lemma F and the background changes).** Open (Part IV.1). Part III uses the same inputs twice more: Lemma III.2.2 (P6 (2.31) and
+  the replacement of the step backgrounds by $\phi_{k_1,k}$) and the re-expansion (3.20)–(3.25) of §III.10.3. Conditional on LOC's open items.
+- **O-3.** **Closed** (Lemma III.9.1).
+- **O-5 ($\pi'$ offsets; adjacency in P5 (1.33)).** Open; enters Part III only through the constant $K_0$ of PE in Lemma III.10.5 and the conversion of PE
+  §3.6 (G1)–(G3) between Steiner size and $d_k(X\,\mathrm{mod}\,\Omega^c_k)$.
+- **O-6 (base rule at $k=0$).** Unchanged (Part IV).
+- **O-8′.** **Closed** (Lemmas III.1.6, III.1.7, III.1.7′, III.6.3).
+- **O-9, O-10.** Unchanged.
+- **O-II-2 (Def-6, R-ν), O-II-3 (errata candidates), O-II-8 (row 3), O-II-9 (OBSERVABLES (L4)), O-II-10 (switch at $k_0$).** Unchanged. Part III adds no
+  condition on $L$ beyond $L\ge3$.
+- **O-II-4 (constants of the small-field step).** $C_b$, $C_{\psi'}$, $C_{15}$ and $B_{\rm st}$ are outputs of LF-3/LOC (rows 0–11); see O-III-1.
+- **O-II-5.** **Closed** (Theorem III.8.9, Lemma III.9.6).
+- **O-II-6 (IsRepFam).** LF-4 preserves it (Theorem III.10.8 (f)); LF-3 must (Part IV).
+- **O-II-7 (torus coherence).** LF-4's data are local and defined on $\mathbb Z^d$ (proof of Theorem III.10.8, (D8)); LF-3 open.
+- **O-III-1 (obligations on LF-3, Part IV.1).** (i) The boundary terms produced by the step satisfy (D7) with the decay $\kappa_+=\frac32\kappa$ (P5 Theorem 1, p. 499)
+  and a constant $B_{\rm st}$ that does not depend on $B_0,H_0,c_1,c_2$ (P6 p. 15); this is what makes row 12 acyclic. (ii) The kernels of non-quiet steps have the
+  rotation form (S5). (iii) $\mathrm{IsRepFam}$ is preserved. (iv) $C_b$, $C_{15}$ are outputs of rows 0–11. (v) $\mathcal R^{(k)}_m$ satisfies H4 with $\frac12\beta_k^{-m-1}$ (P5
+  Proposition 3.2), so that $R$ can add $\mathcal R''^{(k)}_m$ (Theorem III.10.8 (c)).
+- **O-III-2 (cited analytic inputs of Part III).** To be proved in Part IV or in Lean: P7 Lemma 2.1 with $c_{D_0}$ (Lemma III.3.3), Lemma 2.2 (Lemma III.6.2),
+  Lemma 2.4 with P3 Proposition 2.1 (Lemma III.4.7), P4 (4.11)–(4.12) (Lemma III.7.1), the denominator (3.3)–(3.5) (Lemma III.8.2), P2 Proposition 3.1 in the
+  form (3.12)–(3.14) (Lemma III.9.6). All of them concern a single box of bounded size or the background perturbation theory of BG/LOC.
+- **O-III-3 (operator-valued gas).** GAS and PE with a hole for weights that are integral operators (Lean P10). On paper this is a direct transcription of
+  POLYMER §2.6 with sup norms; it should be checked by the audit of Part III.
+- **O-III-4 (reading of P7 (2.61)).** The set $D''$ of $\chi''$ (Definition III.5.1 item 4), UNCERTAIN (minor); only the constant of Lemma III.9.1 (c) depends on it.
+- **O-III-5 (errata candidates for `notes/ERRATA.md`).** N-III-1: P7's $Z''_0$ (cubes meeting $Z_{k_3}$, threshold $1$) does not keep $\square^{\sim3}$ away from $Z_0$
+  (Lemma III.5.0); the repair changes $R_0\ge6K_1K_6$ to $44K_1K_6$. N-III-2: P7 pp. 499–510 compose the window transformations as if $z_j\equiv1$; the field
+  renormalizations shift the composed mean (Lemma III.1.6). N-III-3: P7 (3.26) does not say which families of removed components occur with a given
+  kept region; joint admissibility is not pairwise (§III.10.1). N-III-4: P7 p. 521 does not treat the effect of a complex (non-real) rotation on the core
+  operator (Lemma III.9.5). N-III-5: P7 (2.15)'s second bound depends on one piece per window (not an erratum of P7; recorded for ARCH).
