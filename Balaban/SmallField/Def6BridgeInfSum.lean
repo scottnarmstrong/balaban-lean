@@ -225,7 +225,7 @@ theorem IsSFFamily.liftInf_ren_val (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L
 
 /-- **(H.5)(2) for `T∞`**: `∂_b 𝒱 · e = 0` for `liftInf`, from the `h`-derivative condition of
 `RenormCond` (differentiation under the sum, `hasFDerivAt_tsum_term`). -/
-theorem IsSFFamily.liftInf_ren_b (hE0 : 0 ≤ P.E₀) (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ)
+theorem IsSFFamily.liftInf_ren_b (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ)
     (hκ : aEnt d L + 3 ≤ P.κ) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
@@ -236,6 +236,7 @@ theorem IsSFFamily.liftInf_ren_b (hE0 : 0 ≤ P.E₀) (hd : 3 ≤ d) (hL : 3 ≤
         (Pi.single (Sum.inr i₀) 1) = 0 := by
   have hνj := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
   have hρ0 := liftRadius_pos (d := d) (L := L) (eps_pos hF.admissible.α₀_pos j) i₀
+  have hE0 := hF.admissible.E₀_nonneg
   have hP := hF.premisesCoreInf hd hL hϱ hκ hj1 hjk hsmall hne
   set T := liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (nuIdeal L k (ν k) j)
     (liftRadius d L N P j) with hT
@@ -305,7 +306,7 @@ theorem IsSFFamily.liftInf_ren_b (hE0 : 0 ≤ P.E₀) (hd : 3 ≤ d) (hL : 3 ≤
 
 /-- **(H.5)(3) for `T∞`**: `∑_{y'} ∂_{ψ(y')} 𝓔 · e = 0` for `liftInf`, from the `ψ`-derivative
 condition of `RenormCond`. -/
-theorem IsSFFamily.liftInf_ren_psi (hE0 : 0 ≤ P.E₀) (hd : 3 ≤ d) (hL : 3 ≤ L)
+theorem IsSFFamily.liftInf_ren_psi (hd : 3 ≤ d) (hL : 3 ≤ L)
     (hϱ : bgR0 d L ≤ ϱ) (hκ : aEnt d L + 3 ≤ P.κ) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
@@ -316,6 +317,7 @@ theorem IsSFFamily.liftInf_ren_psi (hE0 : 0 ≤ P.E₀) (hd : 3 ≤ d) (hL : 3 �
           (liftRadius d L N P j)).term X.1) x = 0 := by
   have hνj := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
   have hρ0 := liftRadius_pos (d := d) (L := L) (eps_pos hF.admissible.α₀_pos j) i₀
+  have hE0 := hF.admissible.E₀_nonneg
   have hP := hF.premisesCoreInf hd hL hϱ hκ hj1 hjk hsmall hne
   set T := liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (nuIdeal L k (ν k) j)
     (liftRadius d L N P j) with hT
