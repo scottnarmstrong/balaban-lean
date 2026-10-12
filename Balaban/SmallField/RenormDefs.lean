@@ -159,6 +159,7 @@ structure Premises (T : TermFamily d N) (i₀ i₁ : Fin N) (ν ρ E₀ κ A K�
 configuration and its constant version lie in the domain `Dom`. -/
 structure DataHyp (Dom : Set ((Site d → Spin N) × Spin N)) (ν σ ε K₂ : ℝ)
     (ψ : Site d → Spin N) (b : Spin N) : Prop where
+  K2_nonneg : 0 ≤ K₂
   sq : ∀ x, ‖dot (ψ x) (ψ x) - 1‖ ≤ σ ^ 2 * ε
   bdd0 : ‖ψ 0‖ ≤ 2
   adj : ∀ x μ, ‖ψ (x + Pi.single μ 1) - ψ x‖ ≤ σ * ε
