@@ -1015,6 +1015,7 @@ public import Balaban.Inhabited.PsiZeroWitness
 public import Balaban.Inhabited.PsiZeroWitnessSpec
 public import Balaban.Inhabited.PsiZeroWitnessDen
 public import Balaban.Inhabited.PsiZeroWitnessTilt
+public import Balaban.Inhabited.ActionConvWitnessFull
 public import Balaban.Inhabited.CancelWitness
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
@@ -1123,6 +1124,12 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31bInhab
+public import Balaban.Fluctuation.Thm31WitnessAnalytic
+public import Balaban.Fluctuation.Thm31WitnessData
+public import Balaban.Fluctuation.Thm31Witness
+public import Balaban.Fluctuation.Thm31WitnessMain
+public import Balaban.Fluctuation.Thm31bWitnessData
+public import Balaban.Fluctuation.Thm31bWitness
 public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
@@ -1147,6 +1154,9 @@ public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
 public import Balaban.Localization.P6ActiveHalo
+public import Balaban.Localization.MooreDegreeGrid
+public import Balaban.Localization.MooreDegree
+public import Balaban.Localization.MooreDegreeWitness
 public import Balaban.SmallField.RenormPinJet
 public import Balaban.SmallField.RenormPinBridge
 public import Balaban.SmallField.RenormPinSum
@@ -1220,6 +1230,8 @@ public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepRates
+public import Balaban.Fluctuation.HatLabelsDirect
+public import Balaban.Fluctuation.StepRatesDirect
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.LargeField.R.CancelStationary
@@ -1234,8 +1246,6 @@ public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
-public import Balaban.LargeField.R.RotSections
-public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
