@@ -7,7 +7,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux; AT MOST 3 astra sessions working at once — Scott 2026-10-12; close idle ones after committing results), Lean to Sonnet workers in worktrees.
 
-## STATE (2026-10-12 ~11:15 UTC, session on claude-1)
+## STATE (2026-10-12 ~12:30 UTC, session on claude-1)
 
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
@@ -15,13 +15,14 @@ Claude workers (background subagents of this session):
 | W212 (Opus) | `w212-complex-step3` / W212 | complex step part 3: sum_E1locC, F0C_eq_pair, analyticity of the outputs in the datum |
 | W219 | `w219-marks-witness` / W219 | non-degenerate InterpMarks/ObsMarks witnesses; Thm 3.1 instantiated |
 | W221 | `w221-ripe-geo` / W221 | inner collar of the actual window (RadiiSet family): nonempty or proved empty; premises of the collar bound |
-| W222 | `w222-packing` / W222 | packing bound for the actual cover (VMOD-23 (2.1)–(2.5)) |
 | W223 | `w223-source-witness` / W223 | joint witness of the hat-derived activity bound, nonzero source; amplitude question |
-| W224 | `w224-region-shrink` / W224 | region-shrink identity for inherited terms (shared by A and hybrid) |
 | W225 | `w225-rlane-instance` / W225 | psiZero hypotheses and R normalization at the actual ripe window of ripeRemHistory |
+| W226 | `w226-actionconv-witness` / W226 | non-degenerate witness of ActionConvInput (nonempty generating set, k ≥ k1 + 2), window_conversion instantiated |
+| W227 | `w227-flux-limits` / W227 | Q13-TESTS §A in Lean: the unpaired regional flux admits no irrelevant bound (scaled nearest-neighbour model, also on Torus d ℓ) |
+| W228 | `w228-region-energy-algebra` / W228 | grouped regional term: AtermRegion − restricted correction = far crossing sum; tail bound; coefficient mismatch; (A2) regrouping; Fres/Rres shrink identities |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): round 26 — fluctfix TRUE-LOCAL (TRUELOCAL), q13 Q13-TESTS (Q13TESTS), vmod VMOD-24 (VMOD24). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces it if `hybrid_sf_factorization` is proved (Q13-FACTOR/Q13-REEXPAND: not proved; the re-expansion is shared; open sets of A and hybrid not ordered by inclusion). Nothing interface-specific or hybrid-specific to be written. RATE PROBLEM: PAPER-RATES identified the loss (post-expansion label conversion); Y-LOCAL showed a collared completion cannot have coefficient L⁻¹ (comb counterexample), q < 1/2 suffices; open question (TRUE-LOCAL): is the collar real — the landed locality lemmas read psiThick Y, P3 uses the generating set of the fixed Y. NON-VACUITY program: psiZero lane witnessed (W207), hat expansion jointly witnessed (W202), history with removal exists but not admissible (W211 → W214), window inner collar instance pending (W216). Landing: when several branches are finished, merge them into an integration branch (`.git/info/attributes` has `Balaban.lean merge=union`) and land once with scripts/land.sh.
+astra (cap 3): fluctfix TRUE-LOCAL (TRUELOCAL, running), vmod VMOD-24 (VMOD24, running), q13 Q13-GROUPED (round 22, tag Q13GROUPED, running; Q13-TESTS done: A stays, hybrid factorization open, grouped regional bound open). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces it if `hybrid_sf_factorization` is proved (Q13-FACTOR/Q13-REEXPAND: not proved; the re-expansion is shared; open sets of A and hybrid not ordered by inclusion). Nothing interface-specific or hybrid-specific to be written. RATE PROBLEM: PAPER-RATES identified the loss (post-expansion label conversion); Y-LOCAL showed a collared completion cannot have coefficient L⁻¹ (comb counterexample), q < 1/2 suffices; open question (TRUE-LOCAL): is the collar real — the landed locality lemmas read psiThick Y, P3 uses the generating set of the fixed Y. NON-VACUITY program: psiZero lane witnessed (W207), hat expansion jointly witnessed (W202), history with removal exists but not admissible (W211 → W214), window inner collar instance pending (W216). Landing: when several branches are finished, merge them into an integration branch (`.git/info/attributes` has `Balaban.lean merge=union`) and land once with scripts/land.sh.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
