@@ -1167,6 +1167,7 @@ public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
 public import Balaban.Fluctuation.StepTaylor
 public import Balaban.Fluctuation.StepTaylorW
+public import Balaban.Fluctuation.StepTaylorComplex
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
@@ -1177,3 +1178,5 @@ public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
 public import Balaban.Fluctuation.StepRates
+public import Balaban.LargeField.R.RotSections
+public import Balaban.LargeField.R.RotSectionsLip
