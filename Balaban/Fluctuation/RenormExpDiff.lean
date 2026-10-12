@@ -132,7 +132,7 @@ theorem oldDiff_cauchy (hF : IsRenSol G a ν εζ ε r B F) {D : BgData G N}
     fun ξ' hξ' => ((hE ξ' (mem_ball_zero_iff.1 hξ')).comp
       (analyticAt_composedRawU hF hD (mem_ball_zero_iff.1 hξ'))).differentiableAt
         |>.differentiableWithinAt
-  have h := norm_sub_le_of_ball hd (fun ξ' hξ' => hEM ξ' (mem_ball_zero_iff.1 hξ'))
+  have h := norm_sub_le_two_mul_of_ball hd (fun ξ' hξ' => hEM ξ' (mem_ball_zero_iff.1 hξ'))
     (mem_ball_zero_iff.2 hξ)
   rwa [composedRawU_zero hF hr hD] at h
 

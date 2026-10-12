@@ -51,7 +51,7 @@ theorem norm_le_of_vanish {f : E → F} {r M : ℝ} (hd : DifferentiableOn ℂ f
 
 /-- The difference form: `‖f x - f 0‖ ≤ (2 M / r) ‖x‖` for `f` analytic and bounded by `M` on the
 ball of radius `r`. -/
-theorem norm_sub_le_of_ball {f : E → F} {r M : ℝ} (hd : DifferentiableOn ℂ f (ball 0 r))
+theorem norm_sub_le_two_mul_of_ball {f : E → F} {r M : ℝ} (hd : DifferentiableOn ℂ f (ball 0 r))
     (hM : ∀ x ∈ ball (0 : E) r, ‖f x‖ ≤ M) {x : E} (hx : x ∈ ball (0 : E) r) :
     ‖f x - f 0‖ ≤ 2 * M / r * ‖x‖ := by
   have h0 : (0 : E) ∈ ball (0 : E) r := mem_ball_self (pos_of_mem_ball hx)
