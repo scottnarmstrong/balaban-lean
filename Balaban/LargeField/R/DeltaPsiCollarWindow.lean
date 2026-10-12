@@ -5,11 +5,11 @@ public import Balaban.LargeField.R.DeltaPsiCollarInner
 /-!
 # `DataChangeBound'` for the window (COLLAR-FIX §3)
 
-`dataChangeBound'_window`: `|δψ′| ≤ τ(n_G(x))` on `Ω₁(G)` and `≤ τ(1)` on the whole collar `C_G`, with
+`dataChangeBound'_window_of_coreTop`: `|δψ′| ≤ τ(n_G(x))` on `Ω₁(G)` and `≤ τ(1)` on the whole collar `C_G`, with
 `τ(n) = C_* Ŵ_k δ_{max(k₁, min(n,k))}`, `C_* = 3dL + 3`.  Pieces: the landed interior bound
 `deltaPsi_le_pieces'` on `Ω₁(G)` (the parent and window layers agree there: top core layer `k₁` by `hcore`
 and `hZk1top`, `Z ∖ Z_{k₁}` by `layerIndex_window_eq_full`, the top-layer boundary piece by `hxb`), the exact outer
-identity (2.1), and the inner-collar bound (2.3) (`inner_collar_data_change_bound`).
+identity (2.1), and the inner-collar bound (2.3) (`inner_collar_data_change_bound_of_coreTop`).
 -/
 
 @[expose] public section
@@ -25,8 +25,8 @@ namespace RegionHistory
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
   {H : RegionHistory S n R k0 K} {k : ℕ} {Z : H.Comp k} [NeZero S.L] [NeZero S.M]
 
-/-- **`DataChangeBound′` for the window** (COLLAR-FIX §3, (2.1), (2.3), P7 (2.48′)). -/
-theorem dataChangeBound'_window
+/-- **`DataChangeBound′` for the window** (COLLAR-FIX §3, (2.1), (2.3), P7 (2.48′)). Conditional on `hcoreTop` (every core site of the window lies in the top layer `k₁`), which COLLAR-FIX §2 does not derive for the actual core; no instance with a nonempty inner collar is landed, so non-vacuity of the premise set is open. It is restricted to top-layer boundary sites through `hxb`, as in `deltaPsi_le_pieces'`. -/
+theorem dataChangeBound'_window_of_coreTop
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -145,7 +145,7 @@ theorem dataChangeBound'_window
   · intro c hc
     have hmax : max (S.k1 k) (min 1 k) = S.k1 k := by omega
     rw [hmax]
-    exact inner_collar_data_change_bound hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1 href
+    exact inner_collar_data_change_bound_of_coreTop hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1 href
       hprec hBg ψ ψ0 h hK6 hθ1 hθc hspec hwin hΛ21 T mW hCreg hTband hΛ21' hcoreTop hreach hexitLayer
       hcT hwT hmargin hZk1top hc
 

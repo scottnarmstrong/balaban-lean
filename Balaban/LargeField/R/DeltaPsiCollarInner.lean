@@ -15,8 +15,8 @@ there to a terminal block, and the final comparison of LFR III.4.6 (P7 (2.43) at
 `psiZeroWin_collar_sub_le`) to the reference value at `c`.
 
 * `psiZeroWin_collar_sub_le`: (2.43) at a site of the collar `C_G`;
-* `inner_collar_data_change_lt`: `|D^ph.Ψ(c) - D⁰.Ψ(c)| < (3dL + 2) Ŵ_k δ_{k₁}`;
-* `inner_collar_data_change_bound`: COLLAR-FIX (2.3) with `C_∂ = 3dL + 3`.
+* `inner_collar_data_change_lt_of_coreTop`: `|D^ph.Ψ(c) - D⁰.Ψ(c)| < (3dL + 2) Ŵ_k δ_{k₁}`;
+* `inner_collar_data_change_bound_of_coreTop`: COLLAR-FIX (2.3) with `C_∂ = 3dL + 3`.
 -/
 
 @[expose] public section
@@ -105,8 +105,8 @@ last comparison is the collar-site version (constant `K₁·3θ`, not `2K₁·3�
 Premises: the geometry of `inner_collar_shell_bound` (`hZ`, `hcoreTop`, `hreach`, `hexitLayer`, `hcT`,
 `hwT`, `hmargin`, `hZk1top`), the band regularity `hT` with constant `C_reg` and the strengthened (Λ21)
 `hΛ21'`: `(m_W + 1) C_reg ≤ Ŵ_k` (a condition on the constants of LFR §I.1.3), together with the
-premises of `deltaPsi_core_lt` that concern the chain and the final comparison. -/
-theorem inner_collar_data_change_lt
+premises of `deltaPsi_core_lt` that concern the chain and the final comparison. Conditional on `hcoreTop` (every core site of the window lies in the top layer `k₁`), which COLLAR-FIX §2 does not derive for the actual core; no instance with a nonempty inner collar is landed, so non-vacuity of the premise set is open. -/
+theorem inner_collar_data_change_lt_of_coreTop
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -271,9 +271,9 @@ theorem inner_collar_data_change_lt
   nlinarith [hdist, hD2, hD3', hθm, hΛ', hWδ, hT0, e1, e2, e3, t1, t2, eW, hcore, t0, hBK]
 
 /-- **COLLAR-FIX (2.3)**: `|D^ph.Ψ(c) - D⁰.Ψ(c)| ≤ C_∂ Ŵ_k δ_{k₁}`, `C_∂ = 3dL + 3`, for `c ∈ C_in`.  The
-constant obtained from the landed pieces is `3dL + 2` (`inner_collar_data_change_lt`); the extra unit of
-the note is not needed.  Premises as in `inner_collar_data_change_lt`. -/
-theorem inner_collar_data_change_bound
+constant obtained from the landed pieces is `3dL + 2` (`inner_collar_data_change_lt_of_coreTop`); the extra unit of
+the note is not needed.  Premises as in `inner_collar_data_change_lt_of_coreTop`. Conditional on `hcoreTop` (every core site of the window lies in the top layer `k₁`), which COLLAR-FIX §2 does not derive for the actual core; no instance with a nonempty inner collar is landed, so non-vacuity of the premise set is open. -/
+theorem inner_collar_data_change_bound_of_coreTop
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -309,7 +309,7 @@ theorem inner_collar_data_change_bound
     {c : Torus S.d (S.M * n k * S.L ^ k)} (hc : c ∈ collarIn W hWh) :
     vn (deltaPsiColl W hWh href hprec (compWeight S.L a₁) ψ ψ0 h c) ≤
       (3 * S.d * S.L + 3) * S.hatW ε k * δ (S.k1 k) := by
-  have hlt := inner_collar_data_change_lt hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1 href
+  have hlt := inner_collar_data_change_lt_of_coreTop hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1 href
     hprec hBg ψ ψ0 h hK6 hθ1 hθc hspec hwin hΛ21 T mW hCreg hTband hΛ21' hcoreTop hreach hexitLayer hcT
     hwT hmargin hZk1top hc
   have hS := H.F.ok
