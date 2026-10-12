@@ -1223,3 +1223,6 @@ public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
+public import Balaban.Inhabited.StepActivityHatWitnessRay
+public import Balaban.Inhabited.StepActivityHatWitnessNum
+public import Balaban.Inhabited.StepActivityHatWitness
