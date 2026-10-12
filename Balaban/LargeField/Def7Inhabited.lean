@@ -240,7 +240,7 @@ theorem wIsRep (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) :
   budget := fun nK _ => (wRep ν _ (1 + 1) nK).budget_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl (by norm_num)
-  bdry := fun nK _ => wBdry ν _ _ nK _ _ _ _ _ _ _ _ one_pos
+  bdry := fun nK _ => wBdryPost ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos
   coherent := wSF_D8 ν 3
   coeff := wSF_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
@@ -289,7 +289,7 @@ theorem wIsRepFlat :
       have : ((wS.d : ℕ) : ℝ) = 3 := by norm_num [wS, setting, typing, typing0]
       rw [this]
       linarith
-  bdry := fun nK _ => wBdry wν₀ _ _ nK _ _ _ _ _ _ _ _ one_pos
+  bdry := fun nK _ => wBdryPost wν₀ _ _ nK _ _ _ _ _ _ _ _ _ one_pos
   coherent := wSF_D8 wν₀ 3
   coeff := (wSF_D9 wν₀ wν₀_pos wν₀_nine 3 _ (one_le_kZero wν₀_pos wν₀_mul.le)).toFlat
     (witnessConsts_admissible one_pos)

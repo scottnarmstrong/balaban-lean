@@ -30,8 +30,9 @@ LF-RECONSTRUCTION v1.3, §II.6.1 (the history set `𝔄` of a representation) an
   fluctuation field `ψ'` read from `ψ_k` and the internal variables of all components.
 * `OmegaCube`, `IsBdryDom`, `bdryDoms`: the localization domains `X ∈ 𝒟_k(mod Ω^c_k(𝔸))` with
   `X ∩ Z ≠ ∅ ≠ X ∩ Zᶜ` of the boundary terms (P5 (1.38)).
-* `dCovMod`: the modular covering size `d^cov_k(X mod Ω^c)` (LFR v1.3 §I.2.8, FLUCTUATION
-  Definition 1.1) at the cube level.
+* `dCovMod`: a cube-level modular covering size (continuous segments through closed cubes, chosen
+  cover).  It is the size in the bound of the pre-`R` records `D7Bdry`, `D7Bdry2` only; the
+  post-`R` records use the fine size `d7Size` of `Def7FineSize`.
 * `globalLH`: the records of a global history as fine sets (the history argument of
   `H7Domain`).
 -/
@@ -298,9 +299,11 @@ theorem mem_bdryDoms [NeZero n] {Om Z : Set (Torus d n)} {X : Finset (Torus d n)
   classical
   simp [bdryDoms]
 
-/-- An admissible curve for `d^cov_k(X mod Ω^c)`: a set `𝒦` of aligned `L`-blocks of cubes
-(`π'_k`-cubes) contained in `X` whose union covers `X ∩ Ω`, and a connected finite union of
-segments inside `⋃_{x ∈ X} □_x` meeting every chosen block. -/
+/-- An admissible curve for the cube-level size `dCovMod`: a set `𝒦` of `L`-blocks of cubes with
+corners at the multiples of `L`, contained in `X`, whose union covers `X ∩ Ω`, and a connected
+finite union of straight segments of the continuous torus inside the union `⋃_{x ∈ X} □_x` of the
+*closed* cubes of `X`, meeting every chosen block.  (Two blocks of `X` whose closed cubes share
+only a corner are met by the single corner point, a segment of length `0`.) -/
 def IsCovCurve [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n))
     (𝒦 : Set (Torus d n)) (Γ : Finset (Seg d n)) : Prop :=
   (∀ c ∈ 𝒦, (∀ i, L ∣ (c i).val) ∧ lblock L c ⊆ (X : Set (Torus d n))) ∧
@@ -309,12 +312,21 @@ def IsCovCurve [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d 
   (⋃ s ∈ Γ, s.carrier) ⊆ ⋃ x ∈ X, cube x ∧
   ∀ c ∈ 𝒦, ∃ y ∈ lblock L c, ∃ q ∈ ⋃ s ∈ Γ, s.carrier, q ∈ cube y
 
-/-- **The modular covering size** `d^cov_k(X mod Ω^c)` (LFR v1.3 §I.2.8, FLUCTUATION
-Definition 1.1, LOCALIZATION v3 Def-L8), in cube units of `𝕋_k`: choose `π'_k`-cubes contained
-in `X` whose union covers `X ∩ Ω`, minimize the length of a connected union of segments in `X`
-meeting each chosen cube.  `⊤` if there is no admissible choice (no bound is then asserted with
-it, LFR §I.2.8).  It is at most P5's `d_k(X mod Ω^c)` (`treeLengthMod`); the operative bound of
-(D7) uses this size (v1.3). -/
+/-- **A cube-level modular covering size**, in cube units of `𝕋_k`: choose `L`-blocks of cubes
+contained in `X` whose union covers `X ∩ Ω`, minimize the total length of a connected finite union
+of straight segments, inside the union of the closed cubes of `X`, meeting each chosen block
+(`IsCovCurve`).  `⊤` if there is no admissible choice; its real value is then `0`, so the bound
+of `D7Bdry` at such a domain is `fac`.
+
+**Status.**  This is the size in the bound of the pre-`R` records `D7Bdry`, `D7Bdry2` (used by
+`IsRepPre`, `IsRepPre2`).  It is no longer the size of (D7) for the post-`R` classes `IsRep`,
+`IsRepFlat`, `IsRep2`, `IsRepFlat2`: their records `D7BdryPost`, `D7Bdry2Post` use the fine
+chosen-cover modular size `d7Size` (`Def7FineSize`), the size of the fluctuation step
+(`Fluctuation.dcovModE`).  The two sizes are not comparable: for two blocks meeting at a corner
+and joined inside `X` by a long chain of blocks, this size is `0` (the corner point) while the
+fine size is large, because there is no nearest-neighbour bond across a corner
+(`notes/phase1/VMOD-25.md` §2).  No inequality between this size and `treeLengthMod`, the papers'
+`d_k(X mod Ω^c)` (P5 (1.34), open cubes and all cover cubes) or the fine size is proved. -/
 noncomputable def dCovMod [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n)) :
     ENNReal :=
   ⨅ (𝒦 : Set (Torus d n)) (Γ : Finset (Seg d n)) (_ : IsCovCurve L Ω X 𝒦 Γ),

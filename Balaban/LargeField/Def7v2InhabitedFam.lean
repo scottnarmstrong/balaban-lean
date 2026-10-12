@@ -54,7 +54,7 @@ theorem wIsRepFlat2 (rH : ℝ) :
       have : ((wS.d : ℕ) : ℝ) = 3 := by norm_num [wS, setting, typing, typing0]
       rw [this]
       linarith
-  bdry := fun nK _ => wBdry2 wν₀ _ _ nK _ _ _ _ _ _ _ _ one_pos rH
+  bdry := fun nK _ => wBdry2Post wν₀ _ _ nK _ _ _ _ _ _ _ _ _ one_pos rH
   coherent := wSF2_D8 wν₀ 3
   coeff := (wSF2_D9 wν₀ wν₀_pos wν₀_nine 3 _ (one_le_kZero wν₀_pos wν₀_mul.le)).toFlat
     (witnessConsts_admissible one_pos)

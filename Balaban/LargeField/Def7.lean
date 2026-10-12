@@ -19,6 +19,12 @@ with the step and kept data `StepData`, `KeptData` (Definition II.5.7), the boun
 * `Rep`: the representation on one torus: `𝔄` (`hist`), `𝔇` (`SD`, `KD`, the kept exponents
   `κK`), `ℬ` (`B`); `RepFam`: the family over the admissible tori with the small-field data `𝔰`.
 * `D1Form` … `D9Coeff`: the clauses (D1)-(D9); `IsRep`: Definition II.6.2; `RepClass`: `𝓡_k(𝖼)`.
+* (D7) has two records.  `D7Bdry` is the pre-`R` record (used by `IsRepPre`): boundary domains
+  `bdryDoms` at the raw region `OmegaCube`, bound in the cube-level size `dCovMod`.  `D7BdryPost`
+  is the post-`R` record (used by `IsRep`, `IsRepFlat`): boundary domains `bdryDomsPost` (at the
+  post-`R` region `RegionHistory.omegaPost`, with a valid fine set), bound in the fine
+  chosen-cover modular size `d7Size`, and vanishing of the boundary terms off the valid domains
+  (`Def7FineSize`, where the difference from the papers' size is recorded).
 
 The torus of the history with `n_K` top cubes has the cube tori `n_j = n_K L^{K-j}` (`sides`); the
 horizon `K` is a typing parameter (`k ≤ K`, the flow takes `K = k̂_f + 1`), and a history *up to
@@ -349,20 +355,22 @@ def symM (σ : LatTorusSym S n M K) (ψ : MultiFieldC S n M K N) : MultiFieldC S
 def symG (σ : LatTorusSym S n M K) (g : GIdx S n M K N → ℂ) : GIdx S n M K N → ℂ :=
   fun p => g (σ.ef.symm p.1, p.2)
 
-/-- **(D7) Boundary terms** (P5 H7, (1.38)-(1.39); P5 H5).  For every history `𝔸` of `𝔄` and
-boundary domain `X` of `𝔸` at scale `k` (`Z` is `Z_k(𝔸)`, `Zof A`):
+/-- **(D7) Boundary terms, pre-`R` record** (P5 H7, (1.38)-(1.39); P5 H5).  This record is the
+clause (D7) of the pre-`R` class `IsRepPre` (`Zof 𝔸 = Z^pre_k(𝔸)`); the post-`R` classes use
+`D7BdryPost`.  For every history `𝔸` of `𝔄` and boundary domain `X` of `𝔸` at scale `k` at the raw
+region `OmegaCube` (`Z` is `Zof A`):
 * `loc_field`: `ℬ^{(k)}(X, 𝔸)` depends only on `ψ, ψ', g` restricted to `X`;
 * `loc_hist`: and on the history only through `𝔸 ∩ X` (the domains `Ω_j ∩ X`, `Ω''_j ∩ X`,
   `Z_j ∩ X`, and the localized histories of the components of `Z_k` meeting `X`);
 * `real`: it is real for real arguments;
 * `analytic`, `bound`: it is analytic on the H7 domain at `X` (Definition II.3.5 (d), with the
   ideal weights of scale `k`, the masses `μ_j`, the radii `ε_j` of Def-6 and `ε_{1,j}`) and bounded
-  there by `B₀ e^{-κ d^cov_k(X mod Ω^c_k)}` (`κ` the decay rate of Def-6), at the external fields
-  `hSetB` (open point Q13);
+  there by `fac · e^{-rate · dCovMod}` with the cube-level size `dCovMod` (`Def7Hist`; its real
+  value is `0` where it is `⊤`), at the external fields `hSetB` (open point Q13);
 * `rot`: it is jointly `O(N)`-covariant in `(ψ, ψ', h, g)`;
 * `euclid`: it is invariant under the lattice symmetries of the torus (`LatTorusSym`, mapping the
   history to the history `RegionIso` with the same kept labels).
-`fac` and `rate` are `B₀` and `κ` for `IsRep` (`B_st`, `3κ/2` for `IsRepPre`). -/
+`fac` and `rate` are `B_st`, `3κ/2` for `IsRepPre`. -/
 structure D7Bdry (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
     (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) : Prop where
@@ -433,7 +441,8 @@ size is finite), and:
   `FineValid` (the papers' boundary terms are indexed by `𝒟_k(mod Ω^c_k)`; the cube-level
   `bdryDoms` contains sets that are not unions of `π'_k`-cubes).
 The regions `OmegaCube` inside `loc_hist` and the history `globalLH` of the H7 domain are those of
-`D7Bdry`.  `Fr` is the typing frame of the fine size. -/
+`D7Bdry`.  `Fr` is the typing frame of the fine size; `fac` and `rate` are `B₀` and `κ` for
+`IsRep` and `IsRepFlat`. -/
 structure D7BdryPost {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
@@ -667,7 +676,11 @@ noncomputable def epsOne (S : Setting) (P6 : Def6.Consts) (C7 : Consts7) : ℕ �
 * `complete`: `𝔄` is the set of all histories up to scale `k` (§II.6.1);
 * `form` (D1), `sfData` (D2), `pin` (D4, the pinned exponents), `opBound` (D5), `budget` (D6),
   `bdry` (D7), `coherent` (D8, small-field part), `coeff` (D9).
-(D3) is built into (D1) and (D4) into the types of `Rep`. -/
+(D3) is built into (D1) and (D4) into the types of `Rep`.  (D7) is the post-`R` record
+`D7BdryPost` on the frame `fineFrame` (`m₀ = P6.m₀`, `m₁ = C7.m₁`, `N₁ = L^{m₀} n_K`): the bound
+of the boundary terms is in the fine chosen-cover modular size `d7Size` at the post-`R` region
+(`Def7FineSize`; it is not the functional of P5 (1.34)).  (D1) sums over the boundary domains at
+the raw region (`Rep.bdrySum`); see `D7BdryPost.bdrySum_eq`. -/
 structure IsRep (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N : ℕ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ)
@@ -683,7 +696,8 @@ structure IsRep (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZer
   pin : ∀ (nK : ℕ) [NeZero nK], D4Pin (k + 1) (F.lf nK)
   opBound : ∀ (nK : ℕ) [NeZero nK], D5Bound (k + 1) hkK (F.lf nK)
   budget : ∀ (nK : ℕ) [NeZero nK], D6Budget (F.lf nK)
-  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry (sides_hnn S.L K nK) hkK (F.lf nK)
+  bdry : ∀ (nK : ℕ) [NeZero nK], D7BdryPost (fineFrame S (sides S.L K nK) K hM6)
+    (sides_hnn S.L K nK) hkK (F.lf nK)
     (fun A => (A.H.step k).Z) F.weights cs.mu (P6.eps S.d S.L) (epsOne S P6 C7) cs.nu C7.B0 P6.κ hv
   coherent : D8SF P6.m₀ F.sf
   coeff : D9Coeff P6 k0 F.sf

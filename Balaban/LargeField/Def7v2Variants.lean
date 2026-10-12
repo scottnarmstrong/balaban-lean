@@ -12,8 +12,10 @@ public import Balaban.LargeField.Def7v2Class
 
 **Draft, pending Roland's answer to Q13.**  The second versions of the variant classes of §II.6.3
 and Definition IV.3.1 (`Def7Variants`), assembled from `D1PreForm2`/`D1Form2` (physical action mass
-and the P5 (1.8) correction), `D2SF2`/`SFFlat2` (`IsSFFamily2` on the wide domain), `D7Bdry2`
-(pinned ball `hSetB2`) and the unchanged clauses (D4)-(D6), (H6♭), (D8), (D9), (D9♭).  As for
+and the P5 (1.8) correction), `D2SF2`/`SFFlat2` (`IsSFFamily2` on the wide domain), (D7) on the
+pinned ball `hSetB2` (the pre-`R` record `D7Bdry2` for `IsRepPre2`, the post-`R` record
+`D7Bdry2Post` with the fine size `d7Size` for `IsRepFlat2`) and the unchanged clauses (D4)-(D6),
+(H6♭), (D8), (D9), (D9♭).  As for
 `IsRep2`, the SF-to-LF interface is not a field.  The continuity clauses `FamCont` of the family
 classes are the landed ones (they are statements about the data `𝔰(ν)`; the domain on which the
 limits are taken is the wide `Ξ^c_j` of Def-6).
@@ -35,8 +37,8 @@ variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] 
 
 /-- **`IsRep^pre_k`, second version** (§II.6.3, first item): as `IsRep2` with `Z^pre_k` in place of
 `Z_k` (no `R`-record at scale `k`, the operators `𝕋^pre_k`, `D1PreForm2`), (H6′)^pre in place of
-(D6), (D7) with `κ_+ = 3κ/2` and `B_st` (on the pinned ball), and (D2) with `½ β_k^{-m-1}` for
-`ℛ^{(k)}_m`. -/
+(D6), (D7) with `κ_+ = 3κ/2` and `B_st` (on the pinned ball; the pre-`R` record `D7Bdry2`: raw
+region `OmegaCube`, cube-level size `dCovMod`), and (D2) with `½ β_k^{-m-1}` for `ℛ^{(k)}_m`. -/
 structure IsRepPre2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N : ℕ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ)
@@ -64,7 +66,8 @@ structure IsRepPre2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [N
 
 /-- **`IsRep^♭_k`, second version** (§II.6.3, second item; `k₀ ≤ k ≤ k_f`): as `IsRep2` except no
 `R`-records beyond `k₀` (built into the histories), (D2♭) `SFFlat2`, (D9♭) `D9Flat`, (H6♭)
-`D6Flat` with the a priori horizon `khat = k̂_f`. -/
+`D6Flat` with the a priori horizon `khat = k̂_f`.  (D7) is the post-`R` record `D7Bdry2Post`, as
+in `IsRep2`. -/
 structure IsRepFlat2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N : ℕ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ)
@@ -85,7 +88,8 @@ structure IsRepFlat2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [
   pin : ∀ (nK : ℕ) [NeZero nK], D4Pin (k + 1) (F.lf nK)
   opBound : ∀ (nK : ℕ) [NeZero nK], D5Bound (k + 1) hkK (F.lf nK)
   budget : ∀ (nK : ℕ) [NeZero nK], D6Flat khat (F.lf nK)
-  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2 (sides_hnn S.L K nK) hkK (F.lf nK)
+  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2Post (fineFrame S (sides S.L K nK) K hM6)
+    (sides_hnn S.L K nK) hkK (F.lf nK)
     (fun A => (A.H.step k).Z) F.weights cs.mu (P6.eps S.d S.L) (epsOne S P6 C7) cs.nu C7.B0 P6.κ
     hv rH
   coherent : D8SF P6.m₀ F.sf

@@ -273,7 +273,7 @@ theorem wIsRep2 (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) (rH : ℝ
   budget := fun nK _ => (wRep ν _ (1 + 1) nK).budget_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl (by norm_num)
-  bdry := fun nK _ => wBdry2 ν _ _ nK _ _ _ _ _ _ _ _ one_pos rH
+  bdry := fun nK _ => wBdry2Post ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos rH
   coherent := wSF2_D8 ν 3
   coeff := wSF2_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
