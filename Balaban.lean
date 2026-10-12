@@ -289,3 +289,4 @@ public import Balaban.LargeField.Geometry.LemmaSTorus
 public import Balaban.LargeField.Region.Hull
 public import Balaban.LargeField.Region.Step
 public import Balaban.LargeField.Region.Inclusions
+public import Balaban.LargeField.Region.Seeds
