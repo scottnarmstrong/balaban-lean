@@ -638,6 +638,10 @@ public import Balaban.Polymer.MarkedCubesTwo
 public import Balaban.Observables.Cauchy
 public import Balaban.Observables.CauchyPackages
 public import Balaban.Observables.LayerConstants
+public import Balaban.Observables.MarkedCoupled
+public import Balaban.Observables.MarkedRadius
+public import Balaban.Observables.FirstOrderScale
+public import Balaban.Observables.FirstOrderBounds
 public import Balaban.Observables.LayerSchur
 public import Balaban.Observables.LayerStructure
 public import Balaban.Observables.LayerDef
