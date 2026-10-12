@@ -1,0 +1,30 @@
+import Balaban.LargeField.History.RegionHistory
+
+open Balaban.LargeField
+
+private theorem no_infinite_positive_division (L : ℕ) (n : ℕ → ℕ)
+    (hL : 2 ≤ L) (hn : ∀ k, 0 < n k) (hdiv : ∀ k, n k = L * n (k + 1)) : False := by
+  have key : ∀ m, n 0 = L ^ m * n m := by
+    intro m
+    induction m with
+    | zero => simp
+    | succ m ih => rw [ih, hdiv m, pow_succ]; ring
+  have h1 := key (n 0)
+  have h2 := hn (n 0)
+  have h3 : n 0 < L ^ (n 0) := Nat.lt_pow_self (by omega)
+  nlinarith
+
+theorem flowSteps_empty (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)]
+    (R : ℕ → ℝ) (k0 : ℕ) (F : FlowSteps S n R k0) : False := by
+  exact no_infinite_positive_division S.L n F.ok.two_le_L
+    (fun k => Nat.pos_of_ne_zero (NeZero.ne _)) F.hnn
+
+theorem regionSeq_empty (d L : ℕ) (nn : ℕ → ℕ) [∀ i, NeZero (nn i)]
+    (hL : 2 ≤ L) (Rbase : ℝ) (lam R : ℕ → ℝ) (crit : ℕ → Option ℕ)
+    (Q : RegionSeq d L nn Rbase lam R crit) : False := by
+  exact no_infinite_positive_division L nn hL
+    (fun i => Nat.pos_of_ne_zero (NeZero.ne _)) Q.hnn
+
+theorem regionHistory_empty (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)]
+    (R : ℕ → ℝ) (k0 : ℕ) (H : RegionHistory S n R k0) : False :=
+  flowSteps_empty S n R k0 H.F

@@ -403,3 +403,97 @@ The remaining order is now concrete. First construct the exact core/collar secto
 | D6 | Check `gasOp_pe`, `pe_blockTorus_frozen`, then B.6 | 2,500–5,000 | Conditional on D4–D5; landed GAS/PE and frozen Root-F |
 
 Confidence is high in Theorem D.1 and the empty-domain obstruction for literal Route H. The comparison in D.3 identifies the precise unsolved part of the selected route. The note therefore does not claim an unconditional proof of (B.5), Proposition II.7.9, or Root-F in the $k_f=0$ regime.
+
+## Part E. Hole normalization, local walks, and the remaining operator-gas input
+
+The request in `followup4.txt` is for the **actual** (B.5) activity, then torus-exact localized activities, then Root-F. The two estimates proved below settle the pure Gaussian hole normalization and the locality of each massive walk term. They do not construct the finite-support product-reference functions $\tau_z$ and $\beta_y$ required by `GasOperator.gasOp_pe`. The last subsection gives a direct test showing why applying that theorem to the unlocalized chart cutoff would be invalid. Thus this Part E records completed sublemmas and the exact unresolved theorem, rather than asserting the requested Root-F proof.
+
+### E.1. The Gaussian normalization of an arbitrary hole
+
+For any finite set of sites $S\subset\Lambda$, let $K_S=-\Delta_S^{\rm free}+\nu I$ on real scalar fields on $S$, with $(K_S)_{xx}=\nu+d_S(x)$ and $(K_S)_{xy}=-1$ for internal nearest neighbours. Put $m=N-1$, $a_N=|\mathbb S^{N-1}|$, and
+$$z_\beta:=a_N^{-1}(2\pi/\beta)^{m/2},\qquad G_S:=z_\beta^{|S|}(\det K_S)^{-m/2},\quad G_\varnothing:=1.\tag{E.1}$$
+The factor $a_N^{-1}$ matches the normalized sphere measure used in (D.2); $G_S$ is the uncut tangent Gaussian normalization, **not** the full good-spin partition function. In particular, the full crossing energy is not part of $K_S$.
+
+**Theorem E.1 (uniform free-Gaussian hole ratio).** If $C\subset S$, $R=S\setminus C$, $\nu_*<\nu\le1$, and
+$$D_L:=(4d+1)(1+2d/\nu_*)^{2d},$$
+then
+$$\nu_*^{|C|}\le\frac{\det K_S}{\det K_R}\le D_L^{|C|},\qquad
+z_\beta^{|C|}D_L^{-m|C|/2}\le\frac{G_S}{G_R}\le z_\beta^{|C|}\nu_*^{-m|C|/2}.\tag{E.2}$$
+All bounds are independent of the shape of the hole, $S$, and the torus.
+
+*Proof.* The quadratic form is
+$$\langle v,K_Sv\rangle=\sum_{\{x,y\}\subset S,x\sim y}|v_x-v_y|^2+\nu\sum_{x\in S}|v_x|^2,$$
+so $\nu I\le K_S\le(4d+1)I$. Write $K_S$ in the $R,C$ block order. Its $R,R$ principal block is $P=K_R+V$, where $V$ is diagonal and $V_{xx}$ is the number of neighbours of $x\in R$ in $C$. Thus $0\le V\le2dI$ and $\operatorname{rank}V\le2d|C|$. If $H_C$ is the Schur complement of $P$, then
+$$v^*H_Cv=\min_{w\in\mathbb R^R}(w,v)^*K_S(w,v),$$
+whence $\nu I\le H_C\le(4d+1)I$; the upper bound follows by taking $w=0$. Also
+$$1\le\frac{\det P}{\det K_R}=\det(I+K_R^{-1/2}VK_R^{-1/2})
+\le(1+2d/\nu_*)^{2d|C|}.$$
+The matrix in the middle has at most $2d|C|$ nonzero eigenvalues, all at most $2d/\nu_*$. Multiply this inequality by $\det H_C$ in $\det K_S=\det P\det H_C$ to obtain the determinant bounds. Formula (E.1) gives the Gaussian bounds. The case $R=\varnothing$ uses the determinant-one convention. $\square$
+
+The simpler Schur argument in D.3 applied to a principal submatrix. Theorem E.1 is the correct comparison for the **free** operator in (B′.1): removing sites also deletes their bonds and changes the diagonal degrees on the remaining sites. The rank estimate charges precisely those changed diagonals. It gives the pure determinant part of the hole normalization with an explicit constant $D_L$.
+
+### E.2. An exact sector identity and a determinant-normalized heavy weight
+
+For $B\subset\Lambda$, put $S=\Lambda\setminus B$, and let $\mathscr C(B)$ be the connected components of the nearest-neighbour graph on $B$. At fixed good spins $q_x$, $x\in S$, define $I_C^{\rm bad}(q;g_C)$ by (D.1)–(D.2). Let $E_S(q)$ contain the bonds internal to $S$ and the mass terms on $S$, with **no** crossing bonds. Splitting every bond once gives the exact finite-volume identity
+$$Z_\Lambda(g)=\sum_{B\subset\Lambda}\int_{\forall x\in S:\ |q_x-h|<r_\beta}
+e^{-\beta E_S(q)+\sum_{x\in S}g_x\cdot q_x}
+\prod_{C\in\mathscr C(B)}I_C^{\rm bad}(q;g_C)\,d\sigma^S(q).\tag{E.3}$$
+There is no compatibility approximation here: components of $B$ have no bond between them, and every bond from $B$ to $S$ occurs in its component's conditional energy. On the measure-zero threshold surface either convention for equality can be used.
+
+For $B\ne\varnothing$ define the **sector weight before whitening**
+$$A_B(q;g):=\frac{G_S}{G_\Lambda}\prod_{C\in\mathscr C(B)}I_C^{\rm bad}(q;g_C).\tag{E.4}$$
+Theorem D.1 and its proof give the stronger raw numerator estimate
+$$|I_C^{\rm bad}(q;g_C)|\le e^{\|g_C\|_1}e^{-\beta c_{d,L}r_\beta^2|C|},\tag{E.5}$$
+because the minimizing conditional energy is nonnegative. Apply the lower bound in (E.2) with $S=\Lambda$, $C=B$, and note $|\mathscr C(B)|\le|B|$ and $\sum_C\|g_C\|_1<1$. Then, with
+$$Q_\beta:=c_{d,L}A^2\log^2(\beta a)-\log(z_\beta^{-1})-\frac m2\log D_L-1,\tag{E.6}$$
+one has the **pointwise** bound
+$$|A_B(q;g)|\le e^{-Q_\beta|B|},\qquad Q_\beta\longrightarrow\infty,\qquad\|g\|_1<1,\tag{E.7}$$
+uniformly for all good real $q$, $B$, $\nu$, and tori. The source factor $e^{\|g_B\|_1}<e$ is absorbed by $e^{|B|}$. The same proof holds with $g=0$ and gives $Q_\beta+1$ in place of $Q_\beta$. Each factor in (E.4) is entire in its displayed source coordinates for fixed real $q$.
+
+Equation (E.3) can be rewritten, exactly, as $G_\Lambda$ times the sum of integrals of $A_B(q;g)$ against the good-region measure $G_S^{-1}e^{-\beta E_S(q)}d\sigma^S(q)$, with the source factor on $S$. **That measure depends on $B$ and is correlated.** Moreover $G_S/G_\Lambda$ generally does not factor over the components of $B$: walks can encounter more than one hole. Consequently (E.7) is a determinant-normalized *sector* estimate, including all crossing bonds, but it is not yet a family of individual finite-support $\tau_z$ over one fixed product probability measure. In particular, (E.7) cannot be inserted as the `hτ` argument of `gasOp_pe` without an exact activity decomposition.
+
+### E.3. Exact support and bounds for the massive walks
+
+Here is the walk result needed for such a decomposition. It also makes precise the torus comparison available **before** nonlinear interactions are expanded. Define $D_S(x)=\nu+d_S(x)$ and $T_S=D_S^{-1}A_S$, as in B′.4, and $q_L=2d/(2d+\nu_*)<1$. A directed nearest-neighbour walk $w=(x_0,\ldots,x_n)$ in $S$ has occupancy halo
+$$H(w):=\bigcup_{i=0}^n\bigl(\{x_i\}\cup\{y:y\sim x_i\}\bigr).\tag{E.8}$$
+Its inverse-matrix weight is $\prod_{i=0}^{n}D_S(x_i)^{-1}$; a closed walk in the logarithmic determinant has weight $n^{-1}\prod_{i=0}^{n-1}D_S(x_i)^{-1}$. These are the terms of (B′.5). Each weight and the permission for the walk to occur depend **only** on $S\cap H(w)$. The length-zero term $\log D_S(x)$ has the same one-step halo. The Stieltjes integral for $K_S^{-1/2}$ gives nonnegative walk terms with the same halo.
+
+**Theorem E.2 (walkwise locality and block rate).** Let $s=ML\ge8$ and let $k(w)$ be the number of aligned $s$-blocks meeting $H(w)$. Then
+$$k(w)\le3^d(1+8n/s).\tag{E.9}$$
+For fixed start $x$, the total absolute weight of inverse walks of length at least $n_0$ is at most $\nu_*^{-1}q_L^{n_0}/(1-q_L)$; for square-root walks it is at most $\nu_*^{-1/2}q_L^{n_0}/(1-q_L)$. For closed determinant walks rooted at $x$, the corresponding bound is $q_L^{n_0}/(1-q_L)$ when $n_0\ge1$. In particular, if the halo meets at least $k$ blocks, all three tails are bounded, up to their displayed prefactors, by
+$$\frac{1}{1-q_L}\exp\left[-\frac{(-\log q_L)s}{8}\left(\frac{k}{3^d}-1\right)_+\right].\tag{E.10}$$
+If a halo is contained in a non-winding box with the same lifted occupancy pattern on two tori, its individual walk coefficient is **identical** on the two tori. Every winding walk has a halo that winds, so it cannot contribute to a coefficient grouped by a support inside the quarter-box of Root-F.
+
+*Proof.* Split the $n$ steps into at most $1+8n/s$ consecutive pieces of at most $\lfloor s/4\rfloor$ steps. The occupancy halo of one piece has coordinate diameter at most $\lfloor s/4\rfloor+2\le s/2$. It therefore meets at most three aligned blocks in each coordinate, including at a torus seam. The union bound proves (E.9). Each row sum of $T_S$ is at most $q_L$, hence the sum of all length-$n$ walk weights from $x$ in $T_S^nD_S^{-1}$ is at most $q_L^n/\nu_*$. For $K_S^{-1/2}$, insert the resolvent walks into $\pi^{-1}\int_0^\infty t^{-1/2}(K_S+tI)^{-1}dt$; their row sum is at most
+$$q_L^n\pi^{-1}\int_0^\infty\frac{t^{-1/2}}{\nu_*+t}\,dt=\nu_*^{-1/2}q_L^n.$$
+For closed walks, the rooted trace contribution is no greater than the whole row sum $q_L^n$; the factor $1/n$ only improves it. Sum the geometric tails. Inequality (E.9) forces $n\ge (s/8)(k/3^d-1)$ for a halo meeting $k$ blocks, giving (E.10). The coefficient of a fixed walk reads $D_S$ only at visited sites, and each such degree reads the occupancy of its nearest neighbours. This proves the finite-halo assertion. A path contained in a non-winding lifted box uses exactly the same edges and degrees in either torus. A winding path must cross every residue of a coordinate cycle and thus cannot have its halo inside a quarter-box. $\square$
+
+Taking $M$ after $L$ and $\kappa$ so that $(-\log q_L)ML/(8\cdot3^d)>\kappa+1$ gives an arbitrarily large *tail rate* per block in (E.10), at the cost of a prefactor depending on $L,M$. This repairs the unsupported immediate per-block inference flagged in B′.4 by supplying its missing geometric lemma. It is a bound on sums of **walk terms**, not on completed polymer activities. Short determinant walks have order-one coefficients and only become harmless after their source-independent part is canceled or attached to a charged hole.
+
+### E.4. Why the operator-gas hypothesis is still missing
+
+`Polymer/GasOperator.lean` defines `gasXiOp` using a single product probability measure $\bigotimes_b\mu_b$. Its `gasOp_pe` requires bounded measurable functions $\beta_y,\tau_z$ with exact `DepOn` supports, the sup bound $\|\beta_y\|\le B_0e^{-\kappa''d(c_y)}$, and, for every heavy object separately,
+$$\int|\tau_z(\Phi;g)|\,d\bigotimes_b\mu_b(\Phi)\le e^{-p-h|z_s|}.\tag{E.11}$$
+It also assumes the entropy count, the connected-set geometry, and the explicit inequality
+$$B_0e^{B_0}e^{\kappa_g c}K_{0g}+\kappa_g(c_2+c)+c_1+3+\log K_{0h}\le h,\tag{E.12}$$
+followed by the PE inequalities including $3c_1e^{-p}K_{0P}e^{c_1+\kappa'c_P}\le1$. These are the statement's actual interfaces, not conclusions of `Peierls.lean`. Theorem E.1 supplies the determinant magnitude, E.2 supplies local coefficients for individual walks, and (E.7) supplies a bad-set magnitude. None supplies a function $\tau_z$ whose product-reference integral is (E.11), or an exact identity identifying its gas with (E.3).
+
+There is a concrete exact-support obstruction to the direct whitening proposed in B′.5. On a connected full good region $S=\Lambda$, every entry of $K_S^{-1/2}$ is strictly positive: the Stieltjes formula integrates positive resolvent walks between any two sites. Hence for
+$$\xi_x=\beta^{-1/2}\sum_{y\in S}K_S^{-1/2}(x,y)\psi_y$$
+the hard real event $\mathbf1_{\{|\xi_x|<r_\beta\}}$ changes when **any** one $\psi_y$ is varied while the other variables are fixed appropriately. It is therefore not `DepOn` any proper subset of the Gaussian site variables. Replacing the inverse square root by a finite walk truncation destroys the exact sector identity; telescoping by ball radius gives supports of order $R^d$ blocks while the available walk-tail estimate decays only as $e^{-c_LR}$, which does not meet an arbitrary $e^{-\kappa|Z|}$ activity bound in $d\ge3$. A pathwise or cumulant localization of the cutoff, together with the nonlinear Jacobian and chart energy, is a new theorem. E.2 alone cannot provide it.
+
+One further factorization is needed even if that cutoff theorem is established. The ratio $G_S/G_\Lambda$ in (E.4) couples distinct bad components through determinant walks meeting more than one hole. For a single bad site, loops winding around the torus and returning to its occupancy halo contribute nonzero terms to this ratio; the ungrouped $A_B$ therefore does not already have exact equality between different tori. Such walks must be assigned to connected core/collar objects or to finite-support couplings with a proved summable norm. Theorem E.1 controls their **total magnitude** for a prescribed bad set; it does not give the disjoint-support product structure used by `integral_prod_depOn` in `GasOperator.lean`. The exact nonlinear good-region hole ratio has the same issue. Thus the outstanding proposition is:
+
+> **E.3 (open product-reference localization).** Starting from (E.3), construct a fixed product probability reference, bounded measurable finite-support functions $\beta_y(\Phi;g)$ and $\tau_z(\Phi;g)$, and an exact identity with `gasXiOp`; allocate all cutoff, Jacobian, crossing, determinant, and hole terms. Prove the ordinary sup bound, (E.11), the entropy and geometry hypotheses, (E.12), source analyticity on the full open $\ell^1$ ball, and equality of each local activity under non-winding torus lift, uniformly for $\nu\in(\nu_*,1]$. The heavy rate may use $Q_\beta$ from (E.6) after all localization losses are quantified.
+
+No cited P4–P7 result or landed Lean declaration proves E.3 for this one-scale $k_f=0$ construction. Theorem D.1 and E.1–E.2 substantially narrow its estimates, but they do not prove E.3. If E.3 were proved with a final one-scale activity bound $B_\beta\to0$, B.6 would give the frozen locality, open-ball analyticity, $c_9L^{-((d-2)/2+\delta)}e^{-\kappa|X|}$ estimate, logarithm identity, and torus agreement with the declared quantifier order. Since E.3 is open, that conditional assembly cannot be invoked as an unconditional Root-F proof.
+
+| Order | Lean declaration | Estimated new lines | Proof status and landed reuse |
+|---|---|---:|---|
+| E1 | `freeK_hole_schur`, `freeK_det_ratio`, `gaussianHole_normalization` | 700–1,500 | Mathematical proof E.1; finite-matrix determinant and `Frozen/Model/Energy` |
+| E2 | `badSector_exact`, `badSector_normalized` | 800–1,600 | Mathematical proof E.2 and D.1; chart measure and crossing energy |
+| E3 | `walk_halo_depOn`, `walk_blockCount`, `walk_exactLift`, resolvent/square-root tail | 1,500–3,000 | Mathematical proof E.3; `Green/OneScaleDecay`, `Polymer/BoxTransport` later |
+| E4 | `kf0_productReference_localization` constructing actual $\beta_y,\tau_z$ and all GAS hypotheses | 6,000–12,000 or more | **Open**; `MayerPE`, `GasOperator`, `HoleOperator`, `Peierls` accept its output |
+| E5 | `kf0_oneScale_input`, `kf0_to_rootF` | 2,000–4,000 | **Conditional** on E4; `BlockTorus`, `FrozenTorus`, `Holomorphic`, B.6 |
+
+Confidence is high in E.1, (E.3)–(E.10), and the exact-support obstruction. The requested full (B.5), completed torus-exact **polymer** activities, and $k_f=0$ Root-F proof remain open at E.3. No source is being cited as if it supplied that missing product-reference localization.
