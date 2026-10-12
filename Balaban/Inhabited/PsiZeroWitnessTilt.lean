@@ -13,7 +13,7 @@ public import Balaban.Inhabited.PsiZeroWitnessSpec
 The block datum `ψ_θ` equals `e₀ = (1, 0)` except on the blocks `z` with `z_{i₀} = 2` (a slab outside the
 box `box 0 (2,…,2)`), where it equals the rotated unit vector `(cos θ, sin θ)`.  For `0 < θ < δ` it lies in the
 tube `Ψ̃(X ∖ Z₀; δ)` (strict inequalities), so `psiZero_exists_unique` applies to it for every `δ ≤ c₁₁`:
-the reference minimizer exists and is unique for a datum that is not constant, even on the layer of the box.
+the reference minimizer exists and is unique for a datum that is not constant,.
 -/
 
 @[expose] public section
