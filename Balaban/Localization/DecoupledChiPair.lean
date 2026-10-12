@@ -201,7 +201,7 @@ theorem abs_le_div_of_mul {D1 δ X E : ℝ} (hδ : 0 < δ) (h1 : δ ≤ D1) (hE 
   rw [this]
   exact div_le_div_of_nonneg_left (abs_nonneg _) hδ h1
 
-theorem product_second (a1 a2 a3 a4 c1 c2 c3 c4 : ℝ) :
+theorem product_second {R : Type*} [CommRing R] (a1 a2 a3 a4 c1 c2 c3 c4 : R) :
     a4 * c4 - a3 * c3 - a2 * c2 + a1 * c1 =
       a4 * (c4 - c3 - c2 + c1) + c1 * (a4 - a3 - a2 + a1) + (a4 - a3) * (c3 - c1) +
         (a4 - a2) * (c2 - c1) := by ring
