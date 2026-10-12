@@ -7,6 +7,7 @@ module
 
 public import Balaban.Observables.FirstOrderBounds
 public import Balaban.Observables.ImprovedBound
+public import Balaban.SmallField.Def6
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -18,8 +19,9 @@ The scalar inequalities of the first-order step (`FirstOrderBounds.lean`) are ch
 
 * `T1_pre_bound`: the *pre-conversion* form of (3.17), `x ≤ C β^{-1/2+2ρ₂} ξ^{(d-2)/2-2(d-2)ρ₂}`
   (the form `mu_bound` consumes; `T1_bound` is the final form);
-* `T2_bound_ge`: `T2_bound` with `ε_{k+1} ≥ α₀ ξ^{(d-2)/2-γ}` (the actual `ε_{k+1} = α₀ (1 + ∑_{n ≥
-  k+1} n^{-2}) ξ_{k+1}^α` is *larger* than `α₀ ξ^α`; the landed `T2_bound` assumes equality);
+* `T2_bound_ge`: T2 (3.6) with `ε_{k+1} ≥ α₀ ξ^{(d-2)/2-γ}` (the actual `ε_{k+1} = α₀ (1 + ∑_{n ≥
+  k+1} n^{-2}) ξ_{k+1}^α` is *larger* than `α₀ ξ^α`; the former `T2_bound` assumed equality, which
+  no admissible `ε` satisfies (`T2_bound_hyp_false`), and was deleted);
 * `F0_of_improved`: the size `F₀` of Lemma 3.4 on `Ψ^c_j(C₀ L^j η, ε_k)`:
   `C₁ s / ε_j ≤ C (L^j η)^{(d-2)/2+1-γ}` for `s = σ ε_k`, `σ = C₀ L^j η`, `ε_k ≤ C_ε (L^jη)^α ε_j`;
 * `T2_total_pre`, `T2_scale_total`: the sum over the scales `j ≤ k` of the terms (3.6) in the form
@@ -93,7 +95,7 @@ theorem T1_pre_bound {d : ℕ} {γ α₁ ρ₀ ρ₁ ρ₂ : ℝ} (hE : Exponent
         (S.η ^ (-(2 * ((d - 2 : ℝ) * ρ₂))) * S.η ^ ((d - 2 : ℝ) / 2)) := by ring
     _ = _ := by rw [e1, e2, e3]; ring
 
-/-- **T2 with `ε_{k+1} ≥ α₀ ξ^{D/2-γ}`** (the landed `T2_bound` assumes the equality). -/
+/-- **T2 with `ε_{k+1} ≥ α₀ ξ^{D/2-γ}`** (the former `T2_bound` assumed the equality, impossible by `T2_bound_hyp_false`). -/
 theorem T2_bound_ge {D γ ρ₀ ρ₁ ρ₂ : ℝ} (S : StepScale D ρ₂)
     (hρ2 : 0 < ρ₂) (hρ2' : ρ₂ ≤ 1)
     {c c₁ a α₀ εo εn C₃ ξj bj x : ℝ} (hc : 0 < c) (ha : 0 < a) (hα₀ : 0 < α₀) (hC₃ : 0 ≤ C₃)
@@ -118,7 +120,62 @@ theorem T2_bound_ge {D γ ρ₀ ρ₁ ρ₂ : ℝ} (S : StepScale D ρ₂)
   have hx' : x ≤ bj * (1 / fieldRadius c c₁ a εo (α₀ * S.ξ ^ (D / 2 - γ)) S.p1 RadiusCase.new) *
       (C₃ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ)) :=
     hx.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hmono hbj0) hF0)
-  exact T2_bound S hρ2 hρ2' hc ha hα₀ hC₃ hξj hbj rfl hx'
+  have key : ∀ εn : ℝ, εn = α₀ * S.ξ ^ (D / 2 - γ) →
+      x ≤ bj * (1 / fieldRadius c c₁ a εo εn S.p1 RadiusCase.new) *
+        (C₃ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ)) →
+      x ≤ √2 * S.L ^ (D / 2) * (2 * S.Cp) * S.L ^ (D / 2 - γ) * C₃ /
+        (c * a * α₀) * S.β ^ (-1 + ρ₁ + ρ₂) * ξj ^ (ρ₀ + γ - 1) * S.η ^ (1 - D * ρ₂) := by
+    intro εn hεn hx
+    have hβp := S.β_pos
+    have hη0 := S.hη0
+    have hLp := S.L_pos
+    have hp1 : 0 < S.p1 := by linarith [S.hp1]
+    have hξk : 0 < S.ξ := S.ξ_pos
+    have hξα : 0 < S.ξ ^ (D / 2 - γ) := Real.rpow_pos_of_pos hξk _
+    have hr : 1 / fieldRadius c c₁ a εo εn S.p1 RadiusCase.new = S.p1 / (c * a * εn) := by
+      simp only [fieldRadius]
+      rw [one_div_div]
+    have hεpos : 0 < εn := by rw [hεn]; positivity
+    have hp1b := S.p1_pow_le hρ2.le hρ2' (s := 1) (by norm_num)
+    simp only [Real.rpow_one, one_mul] at hp1b
+    have hF0 : 0 ≤ C₃ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ) := by
+      positivity
+    have h1 : x ≤ (√2 * S.L ^ (D / 2) * S.β ^ (-(1 / 2 : ℝ)) * ξj ^ (D / 2)) *
+        ((2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * εn)) *
+        (C₃ * S.β ^ (-(1 / 2 : ℝ)  + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ)) := by
+      rw [hr] at hx
+      refine hx.trans ?_
+      have hd : 0 ≤ S.p1 / (c * a * εn) := by positivity
+      have e1 : S.p1 / (c * a * εn) ≤ (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * εn) :=
+        div_le_div_of_nonneg_right (by simpa [mul_assoc] using hp1b) (by positivity)
+      exact mul_le_mul_of_nonneg_right (mul_le_mul hbj e1 hd (by positivity)) hF0
+    refine h1.trans (le_of_eq ?_)
+    -- exponent arithmetic
+    have eξ : (S.ξ ^ (D / 2 - γ))⁻¹ = S.L ^ (D / 2 - γ) * S.η ^ (-(D / 2 - γ)) := by
+      unfold StepScale.ξ
+      rw [Real.div_rpow hη0.le hLp.le, Real.rpow_neg hη0.le]
+      field_simp
+    have eη : (S.η / ξj) ^ (D / 2 + 1 - γ) = S.η ^ (D / 2 + 1 - γ) * (ξj ^ (D / 2 + 1 - γ))⁻¹ := by
+      rw [Real.div_rpow hη0.le hξj.le]; ring
+    have eβ : S.β ^ (-(1 / 2 : ℝ)) * S.β ^ ρ₂ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) = S.β ^ (-1 + ρ₁ + ρ₂) := by
+      rw [← Real.rpow_add hβp, ← Real.rpow_add hβp]; congr 1; ring
+    have eξj : ξj ^ (D / 2) * ξj ^ ρ₀ * (ξj ^ (D / 2 + 1 - γ))⁻¹ = ξj ^ (ρ₀ + γ - 1) := by
+      rw [← Real.rpow_neg hξj.le, ← Real.rpow_add hξj, ← Real.rpow_add hξj]; congr 1; ring
+    have eη' : S.η ^ (-(D * ρ₂)) * S.η ^ (-(D / 2 - γ)) * S.η ^ (D / 2 + 1 - γ) =
+        S.η ^ (1 - D * ρ₂) := by
+      rw [← Real.rpow_add hη0, ← Real.rpow_add hη0]; congr 1; ring
+    rw [hεn, eη]
+    have hc' : c * a * (α₀ * S.ξ ^ (D / 2 - γ)) ≠ 0 := by positivity
+    have : (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * (α₀ * S.ξ ^ (D / 2 - γ))) =
+        (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * α₀) * (S.ξ ^ (D / 2 - γ))⁻¹ := by
+      field_simp
+    rw [this, eξ]
+    calc _ = √2 * S.L ^ (D / 2) * (2 * S.Cp) * S.L ^ (D / 2 - γ) * C₃ / (c * a * α₀) *
+          (S.β ^ (-(1 / 2 : ℝ)) * S.β ^ ρ₂ * S.β ^ (-(1 / 2 : ℝ) + ρ₁)) *
+          (ξj ^ (D / 2) * ξj ^ ρ₀ * (ξj ^ (D / 2 + 1 - γ))⁻¹) *
+          (S.η ^ (-(D * ρ₂)) * S.η ^ (-(D / 2 - γ)) * S.η ^ (D / 2 + 1 - γ)) := by ring
+      _ = _ := by rw [eβ, eξj, eη']
+  exact key _ rfl hx'
 
 /-- **The size `F₀` of Lemma 3.4 on `Ψ^c_j(C₀ L^j η, ε_k)`** (P9 (3.21), OBSERVABLES (3.6)):
 with `u = L^j η`, `s ≤ C₀ u ε_k` (`s = σ ε`, `σ = C₀ L^j η`), `ε_k ≤ C_ε u^α ε_j`
@@ -367,6 +424,28 @@ theorem epsSeq_gt_geom (L : ℕ) [NeZero L] (α α₀ : ℝ) (hα₀ : 0 < α₀
   unfold epsSeq
   have := one_lt_epsTail n
   nlinarith [mul_pos hα₀ hq]
+
+/-- **The equality hypothesis of the deleted `T2_bound` is unsatisfiable**: for `ξ_{n} = L^{-n}`
+(`StepScale.ξ`) and `α = D/2 - γ`, the class sequence `ε_n = α₀ (1 + ∑_{m ≥ n} m^{-2}) L^{-nα}`
+(`Consts.eps`) is never `α₀ ξ^{α}`. -/
+theorem T2_bound_hyp_false {D γ ρ₂ : ℝ} (S : StepScale D ρ₂) (L : ℕ) [NeZero L] (n : ℕ)
+    {α₀ : ℝ} (hα₀ : 0 < α₀) (hξ : S.ξ = ((L : ℝ) ^ n)⁻¹) :
+    epsSeq L (D / 2 - γ) α₀ n ≠ α₀ * S.ξ ^ (D / 2 - γ) := by
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have e : S.ξ ^ (D / 2 - γ) = ((L : ℝ) ^ (-(D / 2 - γ))) ^ n := by
+    rw [hξ, Real.inv_rpow (by positivity), ← Real.rpow_natCast, ← Real.rpow_mul hL.le,
+      ← Real.rpow_neg_one, ← Real.rpow_mul hL.le, ← Real.rpow_natCast, ← Real.rpow_mul hL.le]
+    congr 1; ring
+  rw [e]
+  exact (epsSeq_gt_geom L (D / 2 - γ) α₀ hα₀ n).ne'
+
+/-- `T2_bound_hyp_false` for the sequence `Consts.eps` of the class. -/
+theorem T2_bound_hyp_false_eps {D γ ρ₂ : ℝ} (S : StepScale D ρ₂) (d L : ℕ) [NeZero L] (n : ℕ)
+    (P : Balaban.SmallField.Def6.Consts) (hα₀ : 0 < P.α₀) (hα : P.alpha d = D / 2 - γ) (hξ : S.ξ = ((L : ℝ) ^ n)⁻¹) :
+    P.eps d L n ≠ P.α₀ * S.ξ ^ (D / 2 - γ) := by
+  unfold Balaban.SmallField.Def6.Consts.eps
+  rw [hα]
+  exact T2_bound_hyp_false S L n hα₀ hξ
 
 end Eps
 
