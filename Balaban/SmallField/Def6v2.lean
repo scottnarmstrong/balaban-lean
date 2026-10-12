@@ -7,6 +7,7 @@ module
 
 public import Balaban.SmallField.Def6v2Domain
 public import Balaban.SmallField.Def6Inhabited
+public import Balaban.SmallField.GsSpecDef
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -203,7 +204,12 @@ and the constant `Ek`.
 * `density` (H.1) (items 1, 2): for the real physical fields `h₀ ∈ Dom.phys`,
   `ρ_k = χ_k exp[expo2]`, `χ_k` the characteristic function of `Ξ_k(1, β_k^{-1/2} p(β_k))` at the
   background mass;
-* `terms`: the clauses (H.2)-(H.4), (H.7) on the field domain `Dom` (`SFTermClauses`).
+* `terms`: the clauses (H.2)-(H.4), (H.7) on the field domain `Dom` (`SFTermClauses`);
+* `gsStrong`: the generating set `Tm.gs j X` attached to a polymer `X ∈ 𝒟_j` satisfies
+  `GsSpecStrong` (P3 (4.4)-(4.6): it is the minimal set `𝔹_j(X)` whose restriction to `X` is the
+  top layer `j`).  The weaker clause `gs_spec` of `SFTermClauses` does not pin the composed field
+  down: W171's `weakTerms` (`GsSpecCounter.composeField_local_ne_whole`) satisfy it and have a
+  wrong composed field; `weakTerms` violate `gsStrong` (`weakTerms_not_isSF2`).
 Draft pending Roland's answer to Q13. -/
 structure IsSF2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Dom : FieldDom d L N₁ m₁ k N ϱ)
     (Tm : Terms d L N₁ m₁ k N ϱ)
@@ -219,6 +225,8 @@ structure IsSF2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Dom : FieldDo
       then Complex.exp (expo2 P Rg β a Tm Ek D (fun x i => (g x i : ℂ)))
       else 0
   terms : SFTermClauses P Dom Tm
+  gsStrong : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+    GsSpec.GsSpecStrong j hjk X (Tm.gs j X)
 
 /-- **Def-6 v2: the small-field class of families over the tori** (CLASS-RULINGS-2): `IsSF2` on
 every torus (with a field domain on every torus), torus independence of the terms (P4 (H.4)), the
@@ -285,11 +293,14 @@ theorem _root_.Balaban.SmallField.Def6.IsSF.toV2 {P : Consts} {β ν a : ℕ →
     {Tm : Terms d L N₁ m₁ k N ϱ}
     {ρ : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℝ} (h : IsSF P β ν a Tm ρ Ek) {k₀ : ℕ}
+    (hS : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X (Tm.gs j X))
     (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) {Dom : FieldDom d L N₁ m₁ k N ϱ}
     (hsub : ∀ j G Ψ h', Dom.dom j G Ψ h' →
       XiDom G (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h') :
     IsSF2 P ⟨k₀, ν⟩ β a Dom Tm (rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a ρ) Ek where
   terms := h.termClauses.mono hsub
+  gsStrong := hS
   density := by
     intro Ψ₀ h₀ g D _ hR hg
     classical
@@ -329,6 +340,8 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toV2 {P : Consts} {β ν a : �
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) {k₀ : ℕ}
+    (hS : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X))
     (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k))
     {Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ}
     (hsub : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j G Ψ h', (Dom N₁).dom j G Ψ h' →
@@ -337,7 +350,7 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toV2 {P : Consts} {β ν a : �
       (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek where
   admissible := h.admissible
   coeff := h.coeff
-  torus := fun N₁ _ => (h.torus N₁).toV2 hμ (hsub N₁)
+  torus := fun N₁ _ => (h.torus N₁).toV2 (hS N₁) hμ (hsub N₁)
   torusIndep := h.torusIndep
   renorm := h.renorm
 
@@ -350,11 +363,13 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toPin {P : Consts} {β ν a : 
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) {k₀ : ℕ}
+    (hS : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X))
     (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) (hStar : Fin N → ℝ) (rH : ℝ) :
     IsSFFamily2 P ⟨k₀, ν⟩ β a
       (fun _ _ => pinFieldDom hStar rH (aIdeal L k (a k)) (physMass L k (ν k)) (P.eps d L)) Tm
       (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek :=
-  h.toV2 hμ fun N₁ _ j G Ψ h' hp => by
+  h.toV2 hS hμ fun N₁ _ j G Ψ h' hp => by
     have hp' : Pin hStar rH G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
     rw [← hμ]; exact hp'.xiDom
 
@@ -368,11 +383,13 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toXi {P : Consts} {β ν a : �
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     {Ek : ℕ → ℝ} (h : IsSFFamily P β ν a Tm ρ Ek) (k₀ : ℕ)
+    (hS : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X))
     (hμ : physMass L k (ν k) = bgMass L k (β k) (ν k)) :
     IsSFFamily2 P ⟨k₀, ν⟩ β a
       (fun _ _ => xiFieldDom (aIdeal L k (a k)) (physMass L k (ν k)) (P.eps d L)) Tm
       (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek :=
-  h.toV2 (k₀ := k₀) hμ fun N₁ _ j G Ψ h' hp => by
+  h.toV2 (k₀ := k₀) hS hμ fun N₁ _ j G Ψ h' hp => by
     have hp' : XiDom G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
     rw [← hμ]; exact hp'
 
