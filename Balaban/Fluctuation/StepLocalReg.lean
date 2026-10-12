@@ -30,6 +30,21 @@ namespace Balaban.Fluctuation
 open Balaban.SmallField.Def6 Balaban.Background Balaban.Multiscale Balaban.Localization
   Balaban.SmallField Finset MeasureTheory Set
 
+section Param0
+
+variable {Ω : Type*} [MeasurableSpace Ω] {ν : Measure Ω} [IsFiniteMeasure ν]
+
+/-- Continuity on `[0,1]` of a parameter integral: measurable slices, an almost-everywhere bound,
+almost-everywhere continuity in the parameter. -/
+theorem continuousOn_integral_param' {F : ℝ → Ω → ℂ} {M : ℝ}
+    (hm : ∀ s ∈ Icc (0 : ℝ) 1, AEStronglyMeasurable (F s) ν)
+    (hb : ∀ s ∈ Icc (0 : ℝ) 1, ∀ᵐ ω ∂ν, ‖F s ω‖ ≤ M)
+    (hc : ∀ᵐ ω ∂ν, ContinuousOn (fun s => F s ω) (Icc (0 : ℝ) 1)) :
+    ContinuousOn (fun s => ∫ ω, F s ω ∂ν) (Icc (0 : ℝ) 1) :=
+  continuousOn_of_dominated (bound := fun _ => M) hm hb (integrable_const M) hc
+
+end Param0
+
 section Param
 
 variable {Ω : Type*} [TopologicalSpace Ω] [T2Space Ω] [MeasurableSpace Ω] [OpensMeasurableSpace Ω]
