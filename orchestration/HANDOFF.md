@@ -14,11 +14,11 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W103 | `w103-quiet-euclid` / W103 | II.5.10 lattice part (quietKernel_euclid) |
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
-| W100 | `w100-lemmaF` / W100 | FLUCT Thm 4.2 + Cor 4.3 |
-| W101 | `w101-gm2-graph` / W101 | corrected cover partition + anchored graph GM2 |
-| W102 | `w102-obs-o3` / W102 | observables O3 (+O4) |
+| W105 | `w105-cube-action` / W105 | cube action on H7 + trace entropy (Thm 4.2 pieces) |
+| W104 | `w104-lf-p6p7` / W104 | LFR Part III P6 (+P7 definitions, small factors) |
+| W107 | `w107-obs-o6` / W107 | observables O6 + first-order step assembly |
 | W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
-| W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
+| W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
 Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
