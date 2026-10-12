@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Def7FineSize
 
 /-!
 # Def-7: the representation `rep = (𝔰, 𝔄, 𝔇, ℬ)` and the predicate `IsRep_k` — DRAFT
@@ -418,6 +419,119 @@ structure D7Bdry (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
       (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
       rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') h (symG σ g) =
         rep.B A X ψ ψ' h g
+
+/-- **(D7) Boundary terms of the post-`R` class** (P5 H7, (1.38)-(1.39); P5 H5), with the fine
+chosen-cover modular size at the post-`R` region (`Def7FineSize`).  The clauses are those of
+`D7Bdry` with the boundary domains `bdryDomsPost Fr 𝔸 k Z`: the domains
+`X ∈ 𝒟_k(mod (Ω_k^post(𝔸))^c)` at cube level meeting `Z` and its complement that are `FineValid`
+(the fine set of `X` belongs to `𝒟_k(mod Ω_f^c)` in the sense of the fluctuation step and its
+size is finite), and:
+* `bound`: on the H7 domain at `X`, `‖ℬ^{(k)}(X, 𝔸)‖ < fac · e^{-rate · d7Size Fr 𝔸 k X}`, the
+  size being the fine chosen-cover modular size `d^cov_k(X_f mod Ω_f^c)` of the fine sets of `X`
+  and of `Ω_k^post(𝔸)` (`d7Size`; it is not the functional of P5 (1.34), see `Def7FineSize`);
+* `support`: `ℬ^{(k)}(X, 𝔸) = 0` at the cube-level boundary domains at `Ω_k^post(𝔸)` that are not
+  `FineValid` (the papers' boundary terms are indexed by `𝒟_k(mod Ω^c_k)`; the cube-level
+  `bdryDoms` contains sets that are not unions of `π'_k`-cubes).
+The regions `OmegaCube` inside `loc_hist` and the history `globalLH` of the H7 domain are those of
+`D7Bdry`.  `Fr` is the typing frame of the fine size. -/
+structure D7BdryPost {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
+    (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) : Prop where
+  loc_field : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A),
+    ∀ (ψ₁ ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₁ g₂ : GIdx S n M K N → ℂ),
+      (∀ j, j ≤ K → ∀ y : BlockAt S n M K j,
+        BlockSub (S := S) (n := n) (M := M) (K := K) j y
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+          ψ₁ j y = ψ₂ j y ∧ ψ'₁ j y = ψ'₂ j y) →
+      (∀ x i, x ∈ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) →
+        g₁ (x, i) = g₂ (x, i)) →
+      rep.B A X ψ₁ ψ'₁ h g₁ = rep.B A X ψ₂ ψ'₂ h g₂
+  loc_hist : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ X : Finset (Torus S.d (n k)),
+    X ∈ bdryDomsPost Fr A k (Zof A) → X ∈ bdryDomsPost Fr A' k (Zof A') →
+    (∀ j, j ≤ k →
+      fineSet (S := S) (n := n) M K j (OmegaCube A.H j) ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLH A'.H M).OmegaDD j ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+      (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+    (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
+      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) →
+    (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) →
+    ∀ ψ ψ' h g, rep.B A X ψ ψ' h g = rep.B A' X ψ ψ' h g
+  real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A),
+    ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      (∀ j y i, (ψ j y i).im = 0 ∧ (ψ' j y i).im = 0) → (∀ i, (h i).im = 0) →
+      (∀ p, (g p).im = 0) → (rep.B A X ψ ψ' h g).im = 0
+  analytic : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB hv,
+    AnalyticOnNhd ℂ
+      (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
+        rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
+      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
+  bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB hv,
+    ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
+      ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <
+        fac * Real.exp (-rate * d7Size Fr A k X)
+  rot : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ (ρ : OrthN N)
+    (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A X (rotM ρ ψ) (rotM ρ ψ') (rotC ρ h) (rotG ρ g) = rep.B A X ψ ψ' h g
+  euclid : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ σ : LatTorusSym S n M K, RegionIso σ A.H A'.H →
+    (∀ j (c : Finset (Torus S.d (n j))), A'.keptLab j (c.map (σ.ec j).toEmbedding) =
+      A.keptLab j c) →
+    ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ (ψ ψ' : MultiFieldC S n M K N)
+      (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') h (symG σ g) =
+        rep.B A X ψ ψ' h g
+  support : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (A.H.omegaPost k) (Zof A), ¬ FineValid Fr A k X →
+    ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A X ψ ψ' h g = 0
+
+/-- Under (D7) of the post-`R` class, a term of the sum `Rep.bdrySum` of (D1) (a boundary domain
+at the raw region `OmegaCube`) is either a term at a boundary domain of the post-`R` class, to
+which the clauses of `D7BdryPost` apply, or zero. -/
+theorem D7BdryPost.mem_or_eq_zero {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+    (h : D7BdryPost Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv) {A : LabHist S n R k0 K}
+    (hA : A ∈ rep.hist) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ bdryDoms (OmegaCube A.H k) (Zof A)) :
+    X ∈ bdryDomsPost Fr A k (Zof A) ∨
+      ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+        rep.B A X ψ ψ' h g = 0 := by
+  have hX' := bdryDoms_OmegaCube_subset_omegaPost A.H k (Zof A) hX
+  by_cases hv' : FineValid Fr A k X
+  · exact Or.inl (mem_bdryDomsPost.2 ⟨hX', hv'⟩)
+  · exact Or.inr (h.support A hA X hX' hv')
+
+open Classical in
+/-- Under (D7) of the post-`R` class, the sum `Rep.bdrySum` of (D1) is the sum of the terms at
+the boundary domains of the post-`R` class among the boundary domains at the raw region. -/
+theorem D7BdryPost.bdrySum_eq {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+    (h : D7BdryPost Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv) {A : LabHist S n R k0 K}
+    (hA : A ∈ rep.hist) (ψ ψ' : MultiFieldC S n M K N) (h' : Fin N → ℂ)
+    (g : GIdx S n M K N → ℂ) :
+    rep.bdrySum A (Zof A) ψ ψ' h' g =
+      ∑ X ∈ (bdryDoms (OmegaCube A.H k) (Zof A)).filter (· ∈ bdryDomsPost Fr A k (Zof A)),
+        rep.B A X ψ ψ' h' g := by
+  unfold Rep.bdrySum
+  rw [Finset.sum_filter]
+  refine Finset.sum_congr rfl fun X hX => ?_
+  rcases h.mem_or_eq_zero hA hX with h1 | h1
+  · simp only [h1, ↓reduceIte]
+  · rw [h1, ite_self]
 
 end Rep
 

@@ -124,6 +124,13 @@ theorem nonempty_d7Bdry2 (rH : ℝ) : Nonempty (D7Bdry2 (sides_hnn wS.L 1 1) le_
     whv rH) :=
   ⟨wBdry2 wν₀ _ _ 1 _ _ _ _ _ _ _ _ one_pos rH⟩
 
+theorem nonempty_d7Bdry2Post (rH : ℝ) : Nonempty (D7Bdry2Post (wFrame 1) (sides_hnn wS.L 1 1)
+    le_rfl (wRep wν₀ (kZero wS.d wS.L wβ wν₀) 2 1) (fun A => (A.H.step 1).Z)
+    (wFam2 wν₀ (kZero wS.d wS.L wβ wν₀) 2).weights (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).mu
+    (wP6.eps wS.d wS.L) (epsOne wS wP6 wC7) (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).nu wC7.B0 wP6.κ
+    whv rH) :=
+  ⟨wBdry2Post wν₀ _ _ 1 _ _ _ _ _ _ _ _ _ one_pos rH⟩
+
 /-- **`IsRep2_k` is inhabited** (hard rule 10), at `k₀ = 1`, positive small-field mass and
 zero large-field mass (`wIsRep2_mass_split`). -/
 theorem nonempty_isRep2 (rH : ℝ) : Nonempty (IsRep2 wS wR (kZero wS.d wS.L wβ wν₀) 1 27 2 wGeoF

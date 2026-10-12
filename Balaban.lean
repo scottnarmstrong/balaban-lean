@@ -1081,6 +1081,7 @@ public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Def7FineSize
 public import Balaban.LargeField.Def7
 public import Balaban.LargeField.Def7Variants
 public import Balaban.LargeField.Def7Basic

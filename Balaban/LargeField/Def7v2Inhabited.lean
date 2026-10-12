@@ -231,6 +231,26 @@ theorem wBdry2 (nK : ℕ) [NeZero nK] (Zof : LabHist wS (sides wS.L 1 nK) wR k0 
   rot := by intros; rfl
   euclid := by intros; rfl
 
+/-- (D7) of the post-`R` class, second version, for the zero boundary terms of the witness, for
+every frame of the fine size. -/
+theorem wBdry2Post (nK : ℕ) [NeZero nK] {m₀ m₁ : ℕ}
+    (Fr : FineSizeFrame wS (sides wS.L 1 nK) 27 1 m₀ m₁)
+    (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 → Set (Torus wS.d (sides wS.L 1 nK 1)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hfac : 0 < fac) (rH : ℝ) :
+    D7Bdry2Post Fr (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv
+      rH where
+  loc_field := by intros; rfl
+  loc_hist := by intros; rfl
+  real := by intros; simp [wRep]
+  analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
+  bound := by
+    intros
+    simp only [wRep, norm_zero]
+    positivity
+  rot := by intros; rfl
+  euclid := by intros; rfl
+  support := by intros; rfl
+
 end Clauses
 
 /-! ### The witnesses -/
