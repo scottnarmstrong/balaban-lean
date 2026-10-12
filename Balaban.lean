@@ -644,8 +644,6 @@ public import Balaban.Fluctuation.Covariance
 public import Balaban.Fluctuation.CovarianceComplex
 public import Balaban.Fluctuation.CovarianceComplexPath
 public import Balaban.Fluctuation.CovarianceComplexCoercive
-public import Balaban.Fluctuation.CovarianceComplexPath
-public import Balaban.Fluctuation.CovarianceComplexCoercive
 public import Balaban.LargeField.Base.ChordQuadratic
 public import Balaban.LargeField.Base.ConeVolume
 public import Balaban.LargeField.Base.SphereChart
@@ -683,3 +681,5 @@ public import Balaban.SmallField.RenormClassGE
 public import Balaban.SmallField.RenormClassCrude
 public import Balaban.SmallField.RenormClassFamily
 public import Balaban.SmallField.RenormClassTheorem
+public import Balaban.Localization.CoverPartition
+public import Balaban.Localization.Decoupled2FpCount
