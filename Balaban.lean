@@ -965,3 +965,8 @@ public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Fluctuation.HatEngineDom
 public import Balaban.Fluctuation.HatEngineLift
 public import Balaban.Fluctuation.HatEngineFan
+public import Balaban.Localization.GraphGmCount
+public import Balaban.Localization.GraphGmWalk
+public import Balaban.Localization.GraphGmDefs
+public import Balaban.Localization.GraphGmTree
+public import Balaban.Localization.GraphGmExponent
