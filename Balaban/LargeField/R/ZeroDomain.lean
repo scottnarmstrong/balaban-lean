@@ -43,7 +43,7 @@ def cubeOf (S : Setting) (n : ℕ → ℕ) (k j : ℕ) : Torus S.d (fineSide S n
   blockMap (S.M * S.L ^ j) (n j)
 
 /-- The `k`-block of a fine site (blocks of side `L^k`); there are `M n_k` per side. -/
-def blockOf (S : Setting) (n : ℕ → ℕ) (k : ℕ) : Torus S.d (fineSide S n k) → Torus S.d (S.M * n k) :=
+def zeroBlockOf (S : Setting) (n : ℕ → ℕ) (k : ℕ) : Torus S.d (fineSide S n k) → Torus S.d (S.M * n k) :=
   blockMap (S.L ^ k) (S.M * n k)
 
 theorem blockMap_one {d ℓ : ℕ} [NeZero ℓ] (x : Torus d ℓ) : blockMap 1 ℓ x = x := by
@@ -95,8 +95,8 @@ theorem cubeOf_comp {j i k : ℕ} (hji : j ≤ i) (hik : i ≤ k) (hkK : k ≤ K
   rw [blockMap_comp h1 h2, mul_assoc, ← pow_add, show j + (i - j) = i by omega]
 
 theorem block_cube {k : ℕ} (s : Torus S.d (fineSide S n k)) :
-    blockMap S.M (n k) (blockOf S n k s) = cubeOf S n k k s := by
-  unfold blockOf cubeOf
+    blockMap S.M (n k) (zeroBlockOf S n k s) = cubeOf S n k k s := by
+  unfold zeroBlockOf cubeOf
   have h1 : fineSide S n k = S.L ^ k * (S.M * n k) := by unfold fineSide; ring
   rw [blockMap_comp h1 rfl, mul_comm]
 
@@ -122,7 +122,7 @@ theorem blockMap_pow_mem_lin {a b : ℕ} (hbK : b ≤ K) (Z : H.Comp b) {x : Tor
 
 /-- `Z₀`: the `k`-blocks that meet `Z_{k₂}` (P7 (2.3)); `Z_j = Lin_j(Z)`. -/
 def Zzero (k : ℕ) (Z : H.Comp k) : Set (Torus S.d (S.M * n k)) :=
-  {b | ∃ s : Torus S.d (fineSide S n k), blockOf S n k s = b ∧
+  {b | ∃ s : Torus S.d (fineSide S n k), zeroBlockOf S n k s = b ∧
     cubeOf S n k (S.kTwo k) s ∈ (H.lin (S.kTwo k) k Z : Set (Torus S.d (n (S.kTwo k))))}
 
 /-- The `π_k`-cubes that meet `Z_{k₃}`. -/
