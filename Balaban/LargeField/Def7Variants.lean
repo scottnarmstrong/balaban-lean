@@ -202,8 +202,9 @@ variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 "outside a Lebesgue-null set of values of its variables it has a limit as `ν ↓ 0`"), on the Def-6
 torus `N₁`: in the variables `b = ν_j h`, for almost every value of the variables at which the
 data lie in their analyticity domain for all small `ν`, the terms `ℰ^{(j)}(y, X)`, `ℳ^{(j)}(x, X)`
-and `ℛ^{(k)}_n(X)` have limits.  (Def-6's `ContAtZero` is not used: it asks for an open set of
-complex fields inside `XiDom`, which has empty interior, see the handoff.) -/
+and `ℛ^{(k)}_n(X)` have limits.  (Def-6's `ContAtZero` is not used here: its
+open set is now taken in the space of block-constant fields (`Def6.blockConstE`), where `XiDom`
+has interior; this a.e. form is the Def-7 variant of the same clause.) -/
 structure SFLimit (P6 : Def6.Consts) (N₁ : ℕ) [NeZero N₁] (sfν : ℝ → SFData d L m₁ k N ϱ) :
     Prop where
   limE : ∀ j y X, ∀ᵐ p : Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N,

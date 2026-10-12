@@ -501,6 +501,8 @@ public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
 public import Balaban.SmallField.XiD1
 public import Balaban.SmallField.XiD1C
+public import Balaban.SmallField.XiLevel
+public import Balaban.SmallField.XiLevelC
 public import Balaban.SmallField.XiD2
 public import Balaban.SmallField.XiProps
 public import Balaban.SmallField.PsiGeomPath
@@ -513,6 +515,7 @@ public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
 public import Balaban.SmallField.Def6Inhabited
+public import Balaban.SmallField.Def6ContInhabited
 public import Balaban.SmallField.Def6Terms
 public import Balaban.SmallField.Def6
 public import Balaban.SmallField.Def6BridgeDomain
