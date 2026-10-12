@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Background.Def5Response
+public import Balaban.Fluctuation.Interaction
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -111,6 +112,87 @@ theorem derivs_zero_of_isLittleO_sq {f : ℝ → ℂ} (hf : ContDiffAt ℝ 2 f 0
   exact ⟨h0, h1, by simpa using h2⟩
 
 
+
+/-- **Taylor's formula with integral remainder** of order three for a scalar function vanishing to
+second order at `0`: `f(s) = ∫₀ˢ (s-u)²/2 · f‴(u) du` for `s ≥ 0` (HAT-RATE (2.3), first form). -/
+theorem taylor3_integral_unscaled {f : ℝ → ℂ} {s : ℝ} (hs : 0 ≤ s)
+    (hf : ∀ t ∈ Icc (0 : ℝ) s, ContDiffAt ℝ 3 f t) (h0 : f 0 = 0) (h1 : deriv f 0 = 0)
+    (h2 : deriv (deriv f) 0 = 0) :
+    f s = ∫ u in (0 : ℝ)..s, (((s - u) ^ 2 / 2 : ℝ) : ℂ) * iteratedDeriv 3 f u := by
+  rcases hs.eq_or_lt with rfl | hpos
+  · simp [h0]
+  have hU : uIcc (0 : ℝ) s = Icc 0 s := uIcc_of_le hs
+  have hcd : ContDiffOn ℝ ((2 + 1 : ℕ)) f (uIcc 0 s) := by
+    intro t ht
+    rw [hU] at ht
+    exact (hf t ht).contDiffWithinAt
+  have hR := taylor_integral_remainder (n := 2) hcd
+  have hud : UniqueDiffOn ℝ (uIcc (0 : ℝ) s) := uniqueDiffOn_uIcc hpos.ne
+  have hm0 : (0 : ℝ) ∈ uIcc (0 : ℝ) s := by rw [hU]; exact ⟨le_rfl, hs⟩
+  have hT : taylorWithinEval f 2 (uIcc 0 s) 0 s = 0 := by
+    rw [taylor_within_apply]
+    have e : ∀ n : ℕ, n ≤ 3 → iteratedDerivWithin n f (uIcc 0 s) 0 = iteratedDeriv n f 0 :=
+      fun n hn => iteratedDerivWithin_eq_iteratedDeriv hud
+        ((hf 0 ⟨le_rfl, hs⟩).of_le (by exact_mod_cast hn)) hm0
+    simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty]
+    rw [e 0 (by norm_num), e 1 (by norm_num), e 2 (by norm_num)]
+    simp [iteratedDeriv_succ, h0, h1, h2]
+  rw [hT, sub_zero] at hR
+  rw [hR]
+  have hcongr : ∫ t in (0 : ℝ)..s, ((s - t) ^ 2 / (2 : ℕ).factorial) •
+        iteratedDerivWithin (2 + 1) f (uIcc 0 s) t =
+      ∫ t in (0 : ℝ)..s, (((s - t) ^ 2 / 2 : ℝ) : ℂ) * iteratedDeriv 3 f t := by
+    refine intervalIntegral.integral_congr fun t ht => ?_
+    have ht' : t ∈ Icc (0 : ℝ) s := by rw [← hU]; exact ht
+    rw [iteratedDerivWithin_eq_iteratedDeriv hud (hf t ht') ht]
+    simp [Complex.real_smul]
+  rw [hcongr]
+
+
+/-- **Taylor's formula with integral remainder** of order three for a scalar function vanishing to
+second order at `0`: `f(s) = ∫₀¹ (1-u)²/2 · s³ f‴(u s) du` for `s ≥ 0` (HAT-RATE (2.3), second
+form). -/
+theorem taylor3_integral {f : ℝ → ℂ} {s : ℝ} (hs : 0 ≤ s)
+    (hf : ∀ t ∈ Icc (0 : ℝ) s, ContDiffAt ℝ 3 f t) (h0 : f 0 = 0) (h1 : deriv f 0 = 0)
+    (h2 : deriv (deriv f) 0 = 0) :
+    f s = ∫ u in (0 : ℝ)..1,
+      (((1 - u) ^ 2 / 2 : ℝ) : ℂ) * ((s : ℂ) ^ 3 * iteratedDeriv 3 f (u * s)) := by
+  rw [taylor3_integral_unscaled hs hf h0 h1 h2]
+  rcases hs.eq_or_lt with rfl | hpos
+  · simp
+  have hsub := intervalIntegral.integral_comp_mul_left
+    (fun t : ℝ => (((s - t) ^ 2 / 2 : ℝ) : ℂ) * iteratedDeriv 3 f t) (a := 0) (b := 1)
+    (c := s) hpos.ne'
+  simp only [mul_zero, mul_one] at hsub
+  have hsub' : ∫ t in (0 : ℝ)..s, (((s - t) ^ 2 / 2 : ℝ) : ℂ) * iteratedDeriv 3 f t =
+      (s : ℂ) • ∫ u in (0 : ℝ)..1, (((s - s * u) ^ 2 / 2 : ℝ) : ℂ) * iteratedDeriv 3 f (s * u) := by
+    rw [hsub]
+    simp only [Complex.real_smul, smul_eq_mul]
+    rw [← mul_assoc]
+    push_cast
+    rw [mul_inv_cancel₀ (by exact_mod_cast hpos.ne'), one_mul]
+  rw [hsub', smul_eq_mul, ← intervalIntegral.integral_const_mul]
+  refine intervalIntegral.integral_congr fun u _ => ?_
+  rw [mul_comm u s]
+  push_cast
+  ring
+
+/-- The fundamental theorem of calculus for a scalar function that is `C¹` at every point of
+`[0, s]`. -/
+theorem ftc_of_contDiffAt {f : ℝ → ℂ} {s : ℝ} (hs : 0 ≤ s)
+    (hf : ∀ t ∈ Icc (0 : ℝ) s, ContDiffAt ℝ 1 f t) :
+    f s - f 0 = ∫ u in (0 : ℝ)..s, deriv f u := by
+  have hU : uIcc (0 : ℝ) s = Icc 0 s := uIcc_of_le hs
+  have hcont : ContinuousOn (deriv f) (Icc 0 s) := by
+    intro t ht
+    have h1 := (hf t ht).continuousAt_fderiv (by simp)
+    have h2 : ContinuousAt (fun r => fderiv ℝ f r 1) t := h1.clm_apply continuousAt_const
+    exact (h2.congr (Eventually.of_forall fun r => fderiv_apply_one_eq_deriv)).continuousWithinAt
+  symm
+  refine intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t ht => ?_) ?_
+  · rw [hU] at ht
+    exact ((hf t ht).differentiableAt one_ne_zero).hasDerivAt
+  · exact (hU ▸ hcont).intervalIntegrable
 
 namespace StepSetting
 
@@ -468,6 +550,158 @@ theorem Vk_ray_deriv2_zero_of_baseDomain (R : S.RayData pp)
   (Vk_ray_vanish_of_baseDomain R hbase x).2.2
 
 end Vanish
+
+section Taylor
+
+variable {S} {pp : ℝ}
+
+/-- The ray function is `C³` on a neighbourhood of the segment `[0, 1]` for `‖ψ̂‖ ≤ p₁ < p⁺`. -/
+theorem RayData.contDiffAt_Vk_segment (R : S.RayData pp) (hlt : S.p₁ < pp) {x : S.E}
+    (hx : ‖x‖ ≤ S.p₁) {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) :
+    ContDiffAt ℝ 3 (fun s : ℝ => S.Vk (S.psiAt s x)) t := by
+  have hq : |t| * ‖x‖ < pp := by
+    rw [abs_of_nonneg ht.1]
+    calc t * ‖x‖ ≤ 1 * S.p₁ := mul_le_mul ht.2 hx (norm_nonneg _) zero_le_one
+      _ < pp := by linarith
+  have hg := R.contDiffAt_Vray (q := (t, x)) hq
+  have hf : ContDiffAt ℝ ⊤ (fun s : ℝ => (s, x)) t :=
+    (contDiff_id.prodMk contDiff_const).contDiffAt
+  exact (hg.comp t hf).of_le (by exact_mod_cast le_top)
+
+/-- **HAT-RATE §2 (2.3): the Taylor remainder along the ray.**  For `‖ψ̂‖ ≤ p₁ < p⁺` and
+`0 ≤ s ≤ 1`, with `V(s) = Vk (ψ_s)`,
+`V(s) = ∫₀¹ taylorWeight(u) · (s³ V‴(u s)) du`, `taylorWeight u = (1 - u)²/2`.
+The base-domain witness of `theorem72_linearResponse` is the premise of HAT-RATE §2. -/
+theorem Vk_ray_taylor_of_baseDomain (R : S.RayData pp) (hlt : S.p₁ < pp)
+    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
+      (S.dataU S.psi0)) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) :
+    S.Vk (S.psiAt s x) = ∫ u in (0 : ℝ)..1,
+      taylorWeight (u : ℂ) * ((s : ℂ) ^ 3 *
+        iteratedDeriv 3 (fun r : ℝ => S.Vk (S.psiAt r x)) (u * s)) := by
+  obtain ⟨h0, h1, h2⟩ := Vk_ray_vanish_of_baseDomain R hbase x
+  have key := taylor3_integral (f := fun r : ℝ => S.Vk (S.psiAt r x)) hs.1
+    (fun t ht => R.contDiffAt_Vk_segment hlt hx ⟨ht.1, ht.2.trans hs.2⟩) h0 h1 h2
+  rw [key]
+  refine intervalIntegral.integral_congr fun u _ => ?_
+  simp only [taylorWeight]
+  push_cast
+  ring
+
+end Taylor
+
+section FTC
+
+variable {S} {pp : ℝ} (C : StepClass d L N₁ m₁ k N ϱ) {g : Fld d L N₁ m₁ (k + 1) N}
+  {A : ℕ → ℝ} {μ : ℝ} {ε : ℕ → ℝ}
+  (R : S.RayData pp) (hT : StepTermsAnalytic C A μ ε) (hD : S.RayInDomain C g A μ ε pp)
+
+include R hT hD in
+/-- **HAT-RATE §2 (2.4), old energy.**  `δℰ_k(ψ_s) = ∫₀ˢ E'(u) du` along the ray, for
+`‖ψ̂‖ ≤ p₁ < p⁺`, `0 ≤ s ≤ 1`, under `RayData`, `StepTermsAnalytic` and `RayInDomain`. -/
+theorem dE_ray_ftc (hlt : S.p₁ < pp) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {s : ℝ}
+    (hs : s ∈ Icc (0 : ℝ) 1) :
+    S.dE C (S.psiAt s x) = ∫ u in (0 : ℝ)..s, deriv (fun r : ℝ =>
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x))) u := by
+  have := ftc_of_contDiffAt (f := fun r : ℝ =>
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x))) hs.1 (fun t ht => by
+    have hq : |((t : ℝ), x).1| * ‖((t : ℝ), x).2‖ < pp := by
+      show |t| * ‖x‖ < pp
+      rw [abs_of_nonneg ht.1]
+      calc t * ‖x‖ ≤ 1 * S.p₁ := mul_le_mul (ht.2.trans hs.2) hx (norm_nonneg _) zero_le_one
+        _ < pp := by linarith
+    have hf : ContDiffAt ℝ ⊤ (fun r : ℝ => (r, x)) t :=
+      (contDiff_id.prodMk contDiff_const).contDiffAt
+    exact ((contDiffAt_EcompRay C R hT hD hq).comp t hf).of_le (by exact_mod_cast le_top))
+  rw [← this]
+  unfold dE
+  rw [S.psiAt_zero]
+
+include R hT hD in
+/-- **HAT-RATE §2 (2.4), observable.**  `δℱ_k(ψ_t, g) = ∫₀ᵗ F_g'(u) du` along the ray. -/
+theorem dF_ray_ftc (hlt : S.p₁ < pp) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {t : ℝ}
+    (ht : t ∈ Icc (0 : ℝ) 1) :
+    S.dF C g (S.psiAt t x) = ∫ u in (0 : ℝ)..t, deriv (fun r : ℝ =>
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x)) g) u := by
+  have := ftc_of_contDiffAt (f := fun r : ℝ =>
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x)) g) ht.1 (fun r hr => by
+    have hq : |((r : ℝ), x).1| * ‖((r : ℝ), x).2‖ < pp := by
+      show |r| * ‖x‖ < pp
+      rw [abs_of_nonneg hr.1]
+      calc r * ‖x‖ ≤ 1 * S.p₁ := mul_le_mul (hr.2.trans ht.2) hx (norm_nonneg _) zero_le_one
+        _ < pp := by linarith
+    have hf : ContDiffAt ℝ ⊤ (fun r : ℝ => (r, x)) r :=
+      (contDiff_id.prodMk contDiff_const).contDiffAt
+    have hF : ContDiffAt ℝ ⊤ (fun q : ℝ × S.E => FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+        (S.dataU (S.psiAt q.1 q.2)) g) (r, x) := by
+      simp only [FcompAt_eq_pair]
+      exact ContDiffAt.sum fun y _ => ContDiffAt.sum fun i _ =>
+        contDiffAt_const.mul (contDiffAt_McompRay C R hT hD hq y i)
+    exact (hF.comp r hf).of_le (by exact_mod_cast le_top))
+  rw [← this]
+  unfold dF
+  rw [S.psiAt_zero]
+
+end FTC
+
+section Complete
+
+variable {S} {pp : ℝ} (C : StepClass d L N₁ m₁ k N ϱ) {g : Fld d L N₁ m₁ (k + 1) N}
+  {A : ℕ → ℝ} {μ : ℝ} {ε : ℕ → ℝ}
+  (R : S.RayData pp) (hT : StepTermsAnalytic C A μ ε) (hD : S.RayInDomain C g A μ ε pp)
+
+include R in
+/-- **HAT-RATE §2 (2.3), unscaled form:** `V(s) = ∫₀ˢ (s-u)²/2 · V‴(u) du`. -/
+theorem Vk_ray_taylor_unscaled_of_baseDomain (hlt : S.p₁ < pp)
+    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
+      (S.dataU S.psi0)) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) :
+    S.Vk (S.psiAt s x) = ∫ u in (0 : ℝ)..s, (((s - u) ^ 2 / 2 : ℝ) : ℂ) *
+        iteratedDeriv 3 (fun r : ℝ => S.Vk (S.psiAt r x)) u := by
+  obtain ⟨h0, h1, h2⟩ := Vk_ray_vanish_of_baseDomain R hbase x
+  exact taylor3_integral_unscaled hs.1
+    (fun t ht => R.contDiffAt_Vk_segment hlt hx ⟨ht.1, ht.2.trans hs.2⟩) h0 h1 h2
+
+/-- **The exponent `𝒰(s,t;x,g)` of HAT-RATE §2 (2.5)**:
+`-β ∫₀ˢ (s-u)²/2 · V‴(u) du + ∫₀ˢ E'(u) du + ∫₀ᵗ F_g'(u) du`, written through the ray
+derivatives of the landed `EcompAt`, `FcompAt` and `Vk`. -/
+noncomputable def completeW (g : Fld d L N₁ m₁ (k + 1) N) (s t : ℝ) (x : S.E) : ℂ :=
+  -(S.β : ℂ) * (∫ u in (0 : ℝ)..s, (((s - u) ^ 2 / 2 : ℝ) : ℂ) *
+        iteratedDeriv 3 (fun r : ℝ => S.Vk (S.psiAt r x)) u) +
+    (∫ u in (0 : ℝ)..s, deriv (fun r : ℝ =>
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x))) u) +
+    ∫ u in (0 : ℝ)..t, deriv (fun r : ℝ =>
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU (S.psiAt r x)) g) u
+
+include R hT hD in
+/-- **HAT-RATE §2 (2.6), exact identity.**  For `‖ψ̂‖ ≤ p₁ < p⁺` and `s, t ∈ [0,1]`,
+`𝒰(s,t;x,g) = W₁(s, ψ̂) + W₂(t, ψ̂)`.  Premises: `RayData`, `StepTermsAnalytic`, `RayInDomain` and
+the base-domain witness of `theorem72_linearResponse` (HAT-RATE §2). -/
+theorem completeW_taylor_of_baseDomain (hlt : S.p₁ < pp)
+    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
+      (S.dataU S.psi0)) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {s t : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
+    (ht : t ∈ Icc (0 : ℝ) 1) :
+    completeW C g s t x = S.Wone C s x + S.Wtwo C g t x := by
+  unfold completeW Wone Wtwo
+  rw [← Vk_ray_taylor_unscaled_of_baseDomain R hlt hbase hx hs, ← dE_ray_ftc C R hT hD hlt hx hs,
+    ← dF_ray_ftc C R hT hD hlt hx ht]
+
+include R hT hD in
+/-- First segment `(s, 0)`: `𝒰(s,0;x,g) = W₁(s, ψ̂)`. -/
+theorem completeW_taylor_first_of_baseDomain (hlt : S.p₁ < pp)
+    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
+      (S.dataU S.psi0)) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) :
+    completeW C g s 0 x = S.Wone C s x := by
+  rw [completeW_taylor_of_baseDomain C R hT hD hlt hbase hx hs ⟨le_rfl, zero_le_one⟩,
+    S.Wtwo_zero C g x, add_zero]
+
+include R hT hD in
+/-- Second segment `(1, t)`: `𝒰(1,t;x,g) = W₁(1, ψ̂) + W₂(t, ψ̂)`. -/
+theorem completeW_taylor_second_of_baseDomain (hlt : S.p₁ < pp)
+    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
+      (S.dataU S.psi0)) {x : S.E} (hx : ‖x‖ ≤ S.p₁) {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) :
+    completeW C g 1 t x = S.Wone C 1 x + S.Wtwo C g t x :=
+  completeW_taylor_of_baseDomain C R hT hD hlt hbase hx ⟨zero_le_one, le_rfl⟩ ht
+
+end Complete
 
 end StepSetting
 
