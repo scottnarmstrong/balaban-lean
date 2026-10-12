@@ -1179,6 +1179,13 @@ public import Balaban.Fluctuation.StepComplexHat
 public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
+public import Balaban.Fluctuation.StepComplexOut
+public import Balaban.Fluctuation.StepComplexCov
+public import Balaban.Fluctuation.StepComplexProp26
+public import Balaban.Fluctuation.StepComplexProp26Agree
+public import Balaban.Fluctuation.StepComplexThm31
+public import Balaban.Fluctuation.StepComplexSmall
+public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepRates
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
