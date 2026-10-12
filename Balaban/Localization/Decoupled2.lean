@@ -206,7 +206,7 @@ theorem chiD_dirichlet_cubeG (S : CoverBase C H a ν Kc Cx) (hα : AdmPot H α) 
     unfold cubeH at h2
     rw [h2]
 
-theorem sum_chiD (S : CoverBase C H a ν Kc Cx) : ∑ q ∈ C.cubeIdx, chiD C H q = 1 := by
+theorem sum_chiD (S : CoverGeom C H a ν Cx) : ∑ q ∈ C.cubeIdx, chiD C H q = 1 := by
   ext x y
   rw [Matrix.sum_apply]
   unfold chiD
@@ -221,7 +221,7 @@ theorem sum_chiD (S : CoverBase C H a ν Kc Cx) : ∑ q ∈ C.cubeIdx, chiD C H 
 theorem parametrix (S : CoverBase C H a ν Kc Cx) (hα : AdmPot H α) :
     dirichletOperator H a ν α * Gstar C H a ν α (fun _ => 1) = 1 - Kcal C H a ν α (fun _ => 1) :=
   parametrix_algebra a ν α (fun _ hq => chiD_dirichlet_cubeG S hα hq)
-    (sum_chiD S)
+    (sum_chiD S.toCoverGeom)
 
 end Alg
 

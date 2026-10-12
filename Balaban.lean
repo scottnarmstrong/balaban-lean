@@ -298,6 +298,7 @@ public import Balaban.Localization.Decoupled2FieldLocal
 public import Balaban.Localization.Decoupled2Background
 public import Balaban.Localization.Decoupled2BackgroundLocal
 public import Balaban.Localization.Decoupled2Self
+public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
