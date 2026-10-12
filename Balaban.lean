@@ -849,7 +849,10 @@ public import Balaban.Fluctuation.InteractionSymmSolRot
 public import Balaban.Fluctuation.InteractionSymmSolCoef
 public import Balaban.Fluctuation.InteractionSymmSolConj
 public import Balaban.Fluctuation.InteractionSymmSolReal
+public import Balaban.Fluctuation.Prop33SymmRay
+public import Balaban.Fluctuation.Prop33SymmDef
 public import Balaban.Fluctuation.Prop33SymmEnergy
+public import Balaban.Fluctuation.Prop33SymmV
 public import Balaban.Fluctuation.InteractionDir3
 public import Balaban.Fluctuation.InteractionEnergy
 public import Balaban.Fluctuation.InteractionVBlock

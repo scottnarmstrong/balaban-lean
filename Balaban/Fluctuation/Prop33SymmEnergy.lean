@@ -109,26 +109,28 @@ theorem blockMean_conj (n : ℕ) (v : CTorus d L N₁ m₁ K → ℂ) (x : CToru
   unfold blockMean
   simp [map_sum]
 
-/-- **Reality of the energy density**: conjugating `(α, δφ)` conjugates the density for real `ψ'`. -/
+/-- **Conjugation covariance of the energy density**: conjugating `(α, δφ, ψ')` conjugates the
+density. -/
 theorem energyDensity_conj (a : ℕ → ℝ) (ν : ℝ) (n : ℕ) (α : Gp.Ω 1 → ℂ)
     (δφ : Hm.Ω 1 × Fin N → ℂ) (ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ)
-    (hψ : ∀ x i, (ψ' x i).im = 0) (x : CTorus d L N₁ m₁ K) :
+    (x : CTorus d L N₁ m₁ K) :
     cj (energyDensity Gp Hm a ν n α δφ ψ' x) =
-      energyDensity Gp Hm a ν n (fun y => cj (α y)) (fun p => cj (δφ p)) ψ' x := by
+      energyDensity Gp Hm a ν n (fun y => cj (α y)) (fun p => cj (δφ p))
+        (DecEquiv.cjSite ψ') x := by
   classical
-  have hψ' : ∀ i, cj (ψ' x i) = ψ' x i := fun i => Complex.conj_eq_iff_im.2 (hψ x i)
   unfold energyDensity
   simp only [svec_conj, zeroExt_conj, blockMean_conj, map_add, map_mul, map_sum, map_sub,
-    map_div₀, map_one, map_ofNat, Complex.conj_ofReal, hψ', apply_ite cj, map_zero]
+    map_div₀, map_one, map_ofNat, Complex.conj_ofReal, apply_ite cj, map_zero, DecEquiv.cjSite]
 
 theorem energyBlock_conj (a : ℕ → ℝ) (ν : ℝ) (n : ℕ) (α : Gp.Ω 1 → ℂ)
     (δφ : Hm.Ω 1 × Fin N → ℂ) (ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ)
-    (hψ : ∀ x i, (ψ' x i).im = 0) (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1)))) :
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1)))) :
     cj (energyBlock Gp Hm a ν n α δφ ψ' z) =
-      energyBlock Gp Hm a ν n (fun y => cj (α y)) (fun p => cj (δφ p)) ψ' z := by
+      energyBlock Gp Hm a ν n (fun y => cj (α y)) (fun p => cj (δφ p))
+        (DecEquiv.cjSite ψ') z := by
   unfold energyBlock
   rw [map_sum]
-  exact Finset.sum_congr rfl fun x _ => energyDensity_conj a ν n α δφ ψ' hψ x
+  exact Finset.sum_congr rfl fun x _ => energyDensity_conj a ν n α δφ ψ' x
 
 end Energy
 
