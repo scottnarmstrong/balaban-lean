@@ -950,3 +950,5 @@ public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
+public import Balaban.Localization.P6PairCover
+public import Balaban.Localization.P6PairSep
