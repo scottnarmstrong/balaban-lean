@@ -652,3 +652,6 @@ public import Balaban.LargeField.R.ChainSeq
 public import Balaban.LargeField.R.HatW
 public import Balaban.LargeField.R.ChainBound
 public import Balaban.LargeField.R.ChainEstimate
+public import Balaban.Background.WeightedProp51Basic
+public import Balaban.Fluctuation.WeightedProp51
+public import Balaban.Fluctuation.FarDecayUncond
