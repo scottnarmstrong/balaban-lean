@@ -13,8 +13,9 @@ public import Balaban.LargeField.R.DeltaPsiDef
 
 `psiZeroOf` is the unique solution of (2.34) (defined from the `∃!` statement of
 `psiZero_exists_unique_of_input`), `psiZeroOf_spec` characterizes it, `psiZeroOf_rot` is its `O(N)`-equivariance
-(the effective action is rotation invariant, `effAction_rot`), and `psiZeroSpec_of_input` shows that it provides
-the properties `PsiZeroSpec` of `DeltaPsiDef`.
+(the effective action is rotation invariant, `effAction_rot`), and `solveBlockV` assembles it into a block field
+(`PsiZeroSpec` is derived in `PsiZeroWindowSpec` / `PsiZeroWindowRipe`; the earlier `psiZeroSpec_of_input` was deleted since its
+premises force an empty collar, see `collar_eq_empty_of_overTop`).
 -/
 
 @[expose] public section
@@ -130,49 +131,6 @@ theorem solveBlockV_k (ψ : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) (s
   have := h.choose_spec
   have e : h.choose = z := (eq_of_heq (Sigma.mk.inj_iff.1 this).2).symm
   rw [e]
-
-/-- **Lemma III.3.3 gives `PsiZeroSpec`** (conditional on the cited expansion estimate `PsiZeroInput`): for the
-block field `ψ_k = ψ↾(k-blocks)` in `Ψ̃(X ∖ Z₀; δ)`, `δ ≤ c₁₁`, the block field `ψ⁰_k` (the unique solution of (2.34))
-lies in `Ψ̃(X; K₆ δ)` over `X = U^∼_k ⊇ Z`, contains the data blocks of `𝔹_k(U_k)`, and equals `ψ_k` on the
-terminal blocks (which lie off `Z₀`). -/
-theorem psiZeroSpec_of_input {ϱ' : ℝ} {D : ℕ} (Gk : GeneratingSet d L N₀ k ϱ') (hd : 2 ≤ d) (hk : 1 ≤ k)
-    (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ) (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D)
-    (hm : D + 2 ≤ N₀ * L ^ (k - k)) (hXreg : box b0 w ∪ shellOut (box b0 w) ⊆ X)
-    (hΩX : OverTop G X) (hdata : ∀ x ∈ dataSites G, jBlock d L N₀ k k x ∈ X)
-    (Zf : Set (Torus d (N₀ * L ^ k))) (hZX : ∀ x ∈ Zf, jBlock d L N₀ k k x ∈ X)
-    (hterm : ∀ z, IsTerminalBlock Gk Zf (⟨k, z⟩ : BlockV d L N₀ k) → z ∉ box b0 w)
-    (H : BgHyp d L k ϱ a 0) (inp : PsiZeroInput (N := N) G a b0 w X) :
-    ∃ K c11 : ℝ, 0 < K ∧ 0 < c11 ∧ ∀ δ : ℝ, 0 < δ → δ ≤ c11 →
-      ∀ ψ : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N),
-        TubeOn G (X \ box b0 w) δ (fun z i => ψ ⟨k, z⟩ i) →
-        ∃ ψ0 : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N), PsiZeroSpec Gk G Zf (K * δ) ψ ψ0 := by
-  have hΩ : OverTop G (box b0 w ∪ shellOut (box b0 w)) := fun x hx => hΩX x (hXreg hx)
-  obtain ⟨K, c11, hK, hc11, hmain⟩ := psiZero_exists_unique_of_input G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H inp
-  refine ⟨K, c11, hK, hc11, fun δ hδ hδc ψ hψ => ?_⟩
-  have h := hmain δ hδ hδc _ hψ
-  obtain ⟨hs1, hs2, -⟩ := (psiZeroOf_spec G a h).1
-  set sol := psiZeroOf G a h with hsol
-  refine ⟨solveBlockV ψ sol, X, hZX, hdata, ⟨?_, ?_⟩, fun b hb => ?_⟩
-  · intro y hy y' hy' hadj
-    beta_reduce
-    rw [solveBlockV_k, solveBlockV_k]
-    have := tube_R1 hs1 hk hy hy' hadj.2 (fun x hx => by
-      rcases hx with h | h
-      · exact hΩX x (h ▸ hy)
-      · exact hΩX x (by rw [Set.mem_singleton_iff.1 h]; exact hy'))
-    exact this
-  · intro y hy
-    beta_reduce
-    rw [solveBlockV_k]
-    exact tube_R2 hs1 hy (fun x hx => hΩX x (by rw [Set.mem_singleton_iff.1 hx]; exact hy)) hk
-  · obtain ⟨i, u⟩ := b
-    have hi : i = k := hb.1
-    subst hi
-    rw [solveBlockV_k]
-    have hu : u ∉ box b0 w := hterm u hb
-    ext j
-    have := congrFun (psiZeroOf_eq_off G a h hu) j
-    simpa using this
 
 end Spec
 
