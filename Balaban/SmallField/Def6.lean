@@ -58,7 +58,8 @@ structure Consts where
 noncomputable def Consts.alpha (d : ℕ) (P : Consts) : ℝ := ((d : ℝ) - 2) / 2 - P.γ
 
 /-- **The admissible ranges of the constants** (SMALLFIELD §1.1; P4 §6): `0 < γ < 1/2`,
-`0 < α₁ < 1 - 2γ`, `0 < α₀`, `0 < κ`, `0 < ν̄ ≤ 7/8 L^{-2}`. -/
+`0 < α₁ < 1 - 2γ`, `0 < α₀`, `0 < κ`, `0 < ν̄ ≤ 7/8 L^{-2}`, and `0 ≤ E₀` (the bound `E₀ e^{-κ d_j}` of (H.4) is a nonnegative
+number; this is a numerical premise on the constants, used by the bridge to I-6). -/
 structure Consts.Admissible (d L : ℕ) (P : Consts) : Prop where
   γ_pos : 0 < P.γ
   γ_lt : P.γ < 1 / 2
@@ -69,6 +70,7 @@ structure Consts.Admissible (d L : ℕ) (P : Consts) : Prop where
   νbar_pos : 0 < P.νbar
   νbar_le : P.νbar ≤ 7 / 8 * ((L : ℝ) ^ 2)⁻¹
   c₈_pos : 0 < P.c₈
+  E₀_nonneg : 0 ≤ P.E₀
 
 /-- `ε_j = α₀ (1 + Σ_{n ≥ j} n^{-2}) L^{-jα}` (P4 (H.1)). -/
 noncomputable def Consts.eps (d L : ℕ) (P : Consts) (j : ℕ) : ℝ :=
