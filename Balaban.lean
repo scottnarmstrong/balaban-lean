@@ -999,6 +999,7 @@ public import Balaban.LargeField.Def7v2Class
 public import Balaban.LargeField.Def7v2Variants
 public import Balaban.LargeField.Def7v2Basic
 public import Balaban.LargeField.Def7v2Inhabited
+public import Balaban.LargeField.Def7v2InhabitedFam
 public import Balaban.Localization.CubeFoldGeometry
 public import Balaban.Localization.CubeFoldRow
 public import Balaban.Localization.CubeFoldPoisson
