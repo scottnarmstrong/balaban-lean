@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.StepNonvanishBound
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.StepIdentityInhabited
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -16,7 +17,7 @@ import Mathlib.Tactic.Positivity
 For a step datum with `β > 0`, `p₁ > 0` on the torus with `N₁ = 1` (one block `π_{k+1}`-cube) whose
 truncated exponents `W₁(s) + W₂(t)` on the two segments are measurable and uniformly below the
 cluster threshold `stepActivityThreshold` (the activities are the truncated exponents themselves,
-in general nonzero), `StepActivityBound` holds (`nonempty_stepActivityBound`).  The smallness is the
+in general nonzero), `StepActivityBound` holds (`stepActivityBound_of_small`).  The smallness is the
 physical content of the structure and is a hypothesis of the witness only.
 -/
 
@@ -70,7 +71,7 @@ open Classical in
 /-- **`StepActivityBound` is inhabited** (non-vacuity): on the one-cube torus, for every `β` (in particular `β > 0`),
 `p₁ > 0`, measurable truncated exponents whose sum is below the cluster threshold along the
 segments.  The activities are `W₁(s) + W₂(t)` truncated to the support of `ν_{p₁}`. -/
-theorem nonempty_stepActivityBound (hN₁ : N₁ = 1) (hp₁ : 0 < S.p₁)
+theorem stepActivityBound_of_small (hN₁ : N₁ = 1) (hp₁ : 0 < S.p₁)
     (hmeas : ∀ p ∈ stepSegments, Measurable (fun x => S.WoneT C p.1 x + S.WtwoT C g p.2 x))
     (hsmall : ∀ p ∈ stepSegments, ∀ x,
       ‖S.WoneT C p.1 x + S.WtwoT C g p.2 x‖ ≤ stepActivityThreshold d L N₁ m₁ (k + 1)) :
@@ -159,6 +160,41 @@ theorem nonempty_stepActivityBound (hN₁ : N₁ = 1) (hp₁ : 0 < S.p₁)
   filter_upwards [S.ae_ball hp₁] with x hx
   simp only [A, hp, ite_true, Finset.univ_unique, Finset.sum_singleton, BS]
   rw [S.WoneT_of_chi C p.1 x hx, S.WtwoT_of_chi C g p.2 x hx]
+
+/-- The cluster threshold is nonnegative. -/
+theorem stepActivityThreshold_nonneg (d L N₁ m₁ K : ℕ) [NeZero L] [NeZero N₁] :
+    0 ≤ stepActivityThreshold d L N₁ m₁ K := by
+  have hK0 : 0 < K0 d L (aEnt d L + 1) := by
+    unfold K0
+    have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
+    exact div_pos (Real.exp_pos _) (by linarith [aEnt_nonneg d L])
+  have hc1 := one_le_c1 d L
+  unfold stepActivityThreshold
+  positivity
+
+/-- **`StepActivityBound` is inhabited** (rule 10), at the zero-interaction datum: `N₁ = 1`, the
+step datum `θ = 0` of `nonempty_stepSetting` with `β = 0`, `p₁ = 1`, the zero class and source
+`g = 0`.  DEGENERATE: all exponents and activities vanish.  A non-degenerate instance (`β > 0`)
+needs the bound on `Vk` along the ray (W162). -/
+theorem nonempty_stepActivityBound (hk1 : 1 ≤ k) (a₁ ν δ : ℝ) :
+    ∃ S : StepSetting d L 1 m₁ k N ϱ,
+      Nonempty (StepActivityBound S (zeroClass d L 1 m₁ k N ϱ) 0) := by
+  obtain ⟨S₀⟩ := nonempty_stepSetting (d := d) (L := L) (N₁ := 1) (m₁ := m₁) (k := k) (N := N)
+    (ϱ := ϱ) hk1 a₁ ν 0 1 δ
+  let S : StepSetting d L 1 m₁ k N ϱ := { S₀ with β := 0, p₁ := 1 }
+  have hβ : S.β = 0 := rfl
+  have h0 : ∀ p : ℝ × ℝ, (fun x => S.WoneT (zeroClass d L 1 m₁ k N ϱ) p.1 x +
+      S.WtwoT (zeroClass d L 1 m₁ k N ϱ) 0 p.2 x) = fun _ => 0 := by
+    intro p
+    funext x
+    simp [StepSetting.WoneT, StepSetting.WtwoT, Wone_zero_of_beta S hβ, Wtwo_zero_class]
+  refine ⟨S, stepActivityBound_of_small S _ _ rfl one_pos ?_ ?_⟩
+  · intro p _; rw [h0 p]; exact measurable_const
+  · intro p _ x
+    have := congrFun (h0 p) x
+    simp only at this
+    rw [this, norm_zero]
+    exact stepActivityThreshold_nonneg _ _ _ _ _
 
 end Inhab
 
