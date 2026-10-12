@@ -192,7 +192,6 @@ theorem nonempty_stepActivityBound (hk1 : 1 ≤ k) (a₁ ν δ : ℝ) :
   · intro p _; rw [h0 p]; exact measurable_const
   · intro p _ x
     have := congrFun (h0 p) x
-    simp only at this
     rw [this, norm_zero]
     exact stepActivityThreshold_nonneg _ _ _ _ _
 
