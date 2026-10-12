@@ -145,7 +145,7 @@ analytic domain of the polymers of `T∞` containing `y`, and `κ ≥ a_ent + 1`
 `X' ↦ ℰ_∞(y, X'; ψ, h)` over the polymers of `T∞` containing `y` is absolutely summable, with
 `∑ |ℰ_∞(y, X')| ≤ E₀ K₀`, `K₀ = K0 d L κ` (the entropy constant of (G2), independent of the scale
 and of the torus). -/
-theorem ElocInf_summable_norm_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hE0 : 0 ≤ P.E₀)
+theorem ElocInf_summable_norm_le (hF : IsSFFamily P β ν a Tm ρd Ek)
     (hκ : aEnt d L + 1 ≤ P.κ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (y : Fin d → ℤ)
     (ψ h : InfFld d N) (hdom : InfDom P β ν a Tm j y ψ h) :
     Summable (fun X' => ‖ElocInfTerm P Tm j y ψ h X'‖) ∧
@@ -183,7 +183,7 @@ theorem ElocInf_summable_norm_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hE0 : 0 
       _ = P.E₀ * ∑ X' ∈ u', Real.exp (-P.κ * sizeJ (L := L) (N₁ := torusSeq L P.m₀ n)
             (m₁ := m₁) (k := k) P.m₀ j (Ypoly j X')) := by rw [Finset.mul_sum]
       _ ≤ P.E₀ * K0 d L P.κ := by
-          refine mul_le_mul_of_nonneg_left ?_ hE0
+          refine mul_le_mul_of_nonneg_left ?_ hF.admissible.E₀_nonneg
           exact exp_sum_le_at hjk (torusSeq_dvd P.m₀ n) hκ y u' fun X' hX' =>
             ⟨(Finset.mem_filter.1 hX').2.2, (hn X' hX').1, (hn X' hX').2.1⟩
   have hs : Summable (fun X' => ‖ElocInfTerm P Tm j y ψ h X'‖) :=
@@ -192,22 +192,22 @@ theorem ElocInf_summable_norm_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hE0 : 0 
 
 
 /-- **`ElocInf_summable`**: the family of terms of `T∞` at the centre `y` is summable. -/
-theorem ElocInf_summable (hF : IsSFFamily P β ν a Tm ρd Ek) (hE0 : 0 ≤ P.E₀)
+theorem ElocInf_summable (hF : IsSFFamily P β ν a Tm ρd Ek)
     (hκ : aEnt d L + 1 ≤ P.κ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (y : Fin d → ℤ)
     (ψ h : InfFld d N) (hdom : InfDom P β ν a Tm j y ψ h) :
     Summable (ElocInfTerm P Tm j y ψ h) :=
-  (ElocInf_summable_norm_le hF hE0 hκ hj1 hjk y ψ h hdom).1.of_norm
+  (ElocInf_summable_norm_le hF hκ hj1 hjk y ψ h hdom).1.of_norm
 
 /-- `ElocInf` is the sum of `ElocInfTerm`. -/
 theorem ElocInf_eq_tsum (j : ℕ) (y : Fin d → ℤ) (ψ h : InfFld d N) :
     ElocInf P.m₀ Tm j y ψ h = ∑' X', ElocInfTerm P Tm j y ψ h X' := rfl
 
 /-- **The bound of `ElocInf`**: `|ℰ_∞^{(j)}(y; ψ, h)| ≤ E₀ K₀`. -/
-theorem norm_ElocInf_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hE0 : 0 ≤ P.E₀)
+theorem norm_ElocInf_le (hF : IsSFFamily P β ν a Tm ρd Ek)
     (hκ : aEnt d L + 1 ≤ P.κ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (y : Fin d → ℤ)
     (ψ h : InfFld d N) (hdom : InfDom P β ν a Tm j y ψ h) :
     ‖ElocInf P.m₀ Tm j y ψ h‖ ≤ P.E₀ * K0 d L P.κ := by
-  obtain ⟨hs, hle⟩ := ElocInf_summable_norm_le hF hE0 hκ hj1 hjk y ψ h hdom
+  obtain ⟨hs, hle⟩ := ElocInf_summable_norm_le hF hκ hj1 hjk y ψ h hdom
   exact (norm_tsum_le_tsum_norm hs).trans hle
 
 end Summable

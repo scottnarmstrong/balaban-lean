@@ -399,7 +399,6 @@ structure MomNum (d L N k j : ℕ) [NeZero L] (ϱ : ℝ) (P : Consts) : Prop whe
   hj1 : 1 ≤ j
   hjk : j ≤ k
   hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N)
-  hE0 : 0 ≤ P.E₀
 
 /-- **The tail estimate for one shape**: a shape that is not small on the `n`-th torus contributes
 at most `C e^{-τ_n} e^{-κ₀ d_j}` to the second moment of that torus. -/
@@ -445,7 +444,7 @@ theorem norm_SnSeq_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNum d L N k
       Finset.sum_nonneg fun μ _ => sq_nonneg _
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg h3]
     exact mul_le_mul h1 h2 h3 (by
-      have := hn.hE0
+      have := hF.admissible.E₀_nonneg
       positivity)
   have hcardB := liftPolys_card_le (P := P) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) hn.hjk
     (torusSeq_dvd P.m₀ n) hlp
@@ -466,7 +465,7 @@ theorem norm_SnSeq_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNum d L N k
     have : (Rb - 4 * Q - 4) / (4 * A) ≤ 1 + s := by
       rw [div_le_iff₀ h4A]; nlinarith
     linarith
-  have hE0 := hn.hE0
+  have hE0 := hF.admissible.E₀_nonneg
   -- the sum
   calc ‖SnSeq Tm P j i₀ i₁ νj ρ n X'‖
       ≤ ∑ z : ↥X', ∑ z' : ↥X', ‖tensB i₀ i₁ νj X' (termL (Tm (torusSeq L P.m₀ n)) j i₀ νj ρ X') z z' *
@@ -517,7 +516,7 @@ theorem norm_tailAt_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNum d L N 
   have hρ0 := liftRadius_pos (d := d) (L := L) (eps_pos hF.admissible.α₀_pos j) i₀
   have hC0 : 0 ≤ tailConst d L m₁ P (liftRadius d L N P j) := by
     unfold tailConst
-    have := hn.hE0
+    have := hF.admissible.E₀_nonneg
     have : 0 ≤ c1 d L := by unfold c1; positivity
     positivity
   calc ‖tailAt (ν := ν) Tm P j i₀ i₁ n‖

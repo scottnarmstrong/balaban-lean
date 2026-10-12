@@ -112,7 +112,7 @@ theorem norm_gInf_le (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNum d L N k 
   by_cases h : (0 : Fin d → ℤ) ∈ X' ∧ InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X'
   · rw [ite_eq_left h, Set.indicator_of_mem (show X' ∈ (liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀
       (nuIdeal L k (ν k) j) (liftRadius d L N P j)).polys from h)]
-    exact hP.norm_moment_term_le hρ0 hn.hE0 (X := X') h
+    exact hP.norm_moment_term_le hρ0 hF.admissible.E₀_nonneg (X := X') h
   · rw [ite_eq_right h, Set.indicator_of_notMem (show X' ∉ (liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀
       (nuIdeal L k (ν k) j) (liftRadius d L N P j)).polys from h)]
     simp
@@ -190,7 +190,7 @@ theorem IsSFFamily.tendsto_momentSeq (hF : IsSFFamily P β ν a Tm ρd Ek)
     rw [← summable_subtype_iff_indicator]
     exact hP.count_summable.mul_left _
   have hbd0 : ∀ X, 0 ≤ bd X := fun X => by
-    have := hn.hE0
+    have := hF.admissible.E₀_nonneg
     have : 0 ≤ wt P.κ X (dInf L m₁ k P.m₀ j X) := by unfold wt; positivity
     simp only [hbd]; positivity
   have hdct := tendsto_tsum_of_dominated_convergence (𝓕 := atTop) (bound := S.indicator bd)
@@ -271,8 +271,8 @@ theorem IsSFFamily.sumCondsInf (hF : IsSFFamily P β ν a Tm ρd Ek) (hn : MomNu
     SumConds (liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (nuIdeal L k (ν k) j)
       (liftRadius d L N P j)) i₀ i₁ (nuIdeal L k (ν k) j) :=
   ⟨hF.liftInf_ren_val hn.hd hn.hL hn.hϱ hn.hj1 hn.hjk hn.hsmall hne,
-    hF.liftInf_ren_b hn.hE0 hn.hd hn.hL hn.hϱ hn.hκ hn.hj1 hn.hjk hn.hsmall hne,
-    hF.liftInf_ren_psi hn.hE0 hn.hd hn.hL hn.hϱ hn.hκ hn.hj1 hn.hjk hn.hsmall hne,
+    hF.liftInf_ren_b hn.hd hn.hL hn.hϱ hn.hκ hn.hj1 hn.hjk hn.hsmall hne,
+    hF.liftInf_ren_psi hn.hd hn.hL hn.hϱ hn.hκ hn.hj1 hn.hjk hn.hsmall hne,
     hF.liftInf_moment hn hne⟩
 
 /-- **The bridge from the infinite-volume family**: a term family that represents the class term of
