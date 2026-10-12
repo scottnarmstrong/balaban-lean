@@ -443,6 +443,7 @@ public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
 public import Balaban.LargeField.Background.MinimalGenSet
 public import Balaban.LargeField.Background.LocalGen
+public import Balaban.LargeField.Background.LocalGenNeg
 public import Balaban.LargeField.Background.Lift
 public import Balaban.LargeField.Background.LiftSymm
 public import Balaban.LargeField.Background.CubeUnion
