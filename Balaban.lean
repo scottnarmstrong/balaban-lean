@@ -687,3 +687,11 @@ public import Balaban.LargeField.R.Outcome
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
 public import Balaban.LargeField.R.SmallFactorGe
+public import Balaban.LargeField.R.WindowGenLeaf
+public import Balaban.LargeField.R.WindowGenCS
+public import Balaban.LargeField.R.WindowGenSingle
+public import Balaban.LargeField.R.WindowGenCompose
+public import Balaban.LargeField.R.WindowGenGlue
+public import Balaban.LargeField.R.SmallFactorTilde
+public import Balaban.LargeField.R.SmallFactorAction
+public import Balaban.LargeField.R.SmallFactorOne
