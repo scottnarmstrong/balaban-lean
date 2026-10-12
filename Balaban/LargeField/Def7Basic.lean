@@ -219,6 +219,44 @@ theorem Rep.tau_le_Gpost (G : S.Good) (h : D6Budget rep) {A : LabHist S n R k0 K
   have : 0 ≤ 2 * S.sigma k * (S.postBook k0 k (A.H.bk k c.1)).len := by positivity
   linarith
 
+/-- **Lemma II.6.3 (c)** (the threshold of (1.31), `ℓ = 2`): under (D6), with the running constants
+satisfying (I.2) and the bookkeeping on the a priori `λ̂` (`λ̂_0 ≥ 3`),
+`G_k(Z) ≥ τ_{k+1} = 2A₂ λ̂_{k+1}^{p₂} ≥ 2 p₂(β_k)`. -/
+theorem Rep.p2_le_Gpost (G : S.Good) (h : D6Budget rep) {β ν a ε : ℝ} {nRun : ℕ → ℝ}
+    (hrun : RunningHyp S.d S.L β ν a ε P.beta nRun)
+    (hlam : ∀ j, S.lam j = lamHat S.d S.L β a j) (h3 : 3 ≤ lamHat S.d S.L β a 0)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (c : PostComp A k) :
+    2 * p2Run S.A2 S.p2 P.beta k ≤ rep.Gpost A k c.1 := by
+  have h1 := hrun.p2Run_le G.ok.A2_pos.le S.p2 h3 k
+  have h2 := rep.tau_le_Gpost G h hA c
+  unfold Setting.tau at h2
+  rw [hlam (k + 1)] at h2
+  have hθ := hrun.theta_nonneg
+  have hm : lamHat S.d S.L β a k ≤ lamHat S.d S.L β a (k + 1) := by
+    unfold lamHat; push_cast; nlinarith
+  have h0 : 0 ≤ lamHat S.d S.L β a k := by have := hrun.lamHat_mono k; linarith
+  have hp : lamHat S.d S.L β a k ^ S.p2 ≤ lamHat S.d S.L β a (k + 1) ^ S.p2 :=
+    pow_le_pow_left₀ h0 hm _
+  have hA2 := G.ok.A2_pos
+  nlinarith
+
+/-- **Lemma II.6.3 (c)** for `IsRep^♭` (the frozen threshold, `ℓ = 1`, the repaired P6 Theorem 4):
+under (H6♭), `G_k(Z) ≥ A₂ λ̂_{k₀}^{p₂} ≥ p₂(β_{k₀})`. -/
+theorem Rep.p2_le_Gpost_flat (G : S.Good) {khat : ℕ} (h : D6Flat khat rep) {β ν a ε : ℝ}
+    {nRun : ℕ → ℝ} (hrun : RunningHyp S.d S.L β ν a ε P.beta nRun)
+    (hlam : ∀ j, S.lam j = lamHat S.d S.L β a j) (h3 : 3 ≤ lamHat S.d S.L β a 0)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (c : PostComp A k) :
+    p2Run S.A2 S.p2 P.beta k0 ≤ rep.Gpost A k c.1 := by
+  have h1 := hrun.p2Run_le G.ok.A2_pos.le S.p2 h3 k0
+  have h2 := h A hA c
+  rw [hlam k0] at h2
+  have hs := G.ok.sigma_nonneg k
+  have hl : 0 ≤ (A.H.bk k c.1).len := by
+    rw [A.H.bk_len]; exact (A.H.spine k c.1).length_nonneg
+  have hW := G.ok.W_nonneg (k + 1) khat
+  have : 0 ≤ 2 * S.sigma k * (A.H.bk k c.1).len := by positivity
+  linarith
+
 end LF2
 
 end Balaban.LargeField.Def7
