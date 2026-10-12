@@ -42,7 +42,8 @@ theorem parts_card (k : ℕ) (Z' : H.Comp (k + 1)) :
     (H.parts k Z').card = ((H.step k).oldIn (S.omega k) Z'.1).card := by
   rw [← H.parts_image, Finset.card_image_of_injective _ Subtype.val_injective]
 
-theorem parts_sum (k : ℕ) (Z' : H.Comp (k + 1)) (g : Finset (Torus S.d (n k)) → ℝ) :
+theorem parts_sum {β : Type*} [AddCommMonoid β] (k : ℕ) (Z' : H.Comp (k + 1))
+    (g : Finset (Torus S.d (n k)) → β) :
     ∑ c ∈ H.parts k Z', g c.1 = ∑ Y ∈ (H.step k).oldIn (S.omega k) Z'.1, g Y := by
   rw [← H.parts_image, Finset.sum_image (fun _ _ _ _ h => Subtype.val_injective h)]
 
