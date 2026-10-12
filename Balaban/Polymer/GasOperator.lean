@@ -169,6 +169,17 @@ theorem gasK_bound_eq (X : NePoly B) :
   rw [prod_gasW]
   simp [gasBetaBound, gasTauBound, Complex.ofReal_exp]
 
+omit [Fintype B] in
+theorem norm_gasK_bound (hB0 : 0 ≤ B0) (X : NePoly B) :
+    ‖gasK cy zs cr (gasBetaBound cy B0 κ'' d) (gasTauBound zs p h) X‖ =
+      ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
+        ((∏ y ∈ C.toLeft, (Real.exp (B0 * Real.exp (-κ'' * d (cy y))) - 1)) *
+          ∏ z ∈ C.toRight, Real.exp (-p - h * (zs z).card)) := by
+  rw [gasK_bound_eq, Complex.norm_real, Real.norm_eq_abs]
+  refine abs_of_nonneg (Finset.sum_nonneg (fun C _ => mul_nonneg
+    (Finset.prod_nonneg (fun y _ => ?_)) (Finset.prod_nonneg (fun z _ => (Real.exp_pos _).le))))
+  simp only [sub_nonneg]; exact Real.one_le_exp (by positivity)
+
 theorem norm_expm1_le_exp (w : ℂ) {b : ℝ} (hw : ‖w‖ ≤ b) :
     ‖Complex.exp w - 1‖ ≤ Real.exp b - 1 := by
   have h1 := Complex.norm_exp_sub_sum_le_exp_norm_sub_sum w 1
@@ -247,6 +258,35 @@ theorem norm_integral_family_le (hB0 : 0 ≤ B0)
           (fun z _ => integral_nonneg (fun Φ => norm_nonneg _)) (fun z _ => hτ z))
           (Finset.prod_nonneg (fun y _ => hs0 y))
 
+/-- The scalar GAS bound for the dominating weights `B₀ e^{-κ'' d(Y)}` and `e^{-p-h|Z|}`: the
+scalar input of `gasOp_activity_bound`. -/
+theorem gasBound_norm_le (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c)
+    (hc1 : 0 ≤ c1) (hp : 0 ≤ p) (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
+    (hcr : ∀ z, cr z ⊆ zs z)
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → gasA cy zs cr C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    {K0' K0'' : ℝ} (hK0' : 0 ≤ K0')
+    (hent : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y),
+      Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0')
+    (hK1 : 1 ≤ K0'')
+    (hcount : ∀ (b : B) (v : ℕ),
+      ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0'' ^ v)
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 + Real.log K0'' ≤ h)
+    (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
+    ‖gasK cy zs cr (gasBetaBound cy B0 κ'' d) (gasTauBound zs p h) X‖ ≤
+      3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) :=
+  gas_activity_bound (β := gasBetaBound cy B0 κ'' d) (τ := gasTauBound zs p h)
+    hB0 hκ' hκ'' hc hc1 hp hd hz hcr
+    (fun y => by
+      simp only [gasBetaBound, Complex.norm_real, Real.norm_eq_abs]
+      exact le_of_eq (abs_of_nonneg (by positivity)))
+    (fun z => by
+      simp only [gasTauBound, Complex.norm_real, Real.norm_eq_abs]
+      exact le_of_eq (abs_of_pos (Real.exp_pos _)))
+    hzd hG3 hK0' hent hK1 hcount hh X hG1
+
+
 omit [Fintype Yt] [Fintype Zt] in
 theorem integrable_prod_gasW (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
     (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z)) (C : Finset (Yt ⊕ Zt)) :
@@ -281,24 +321,9 @@ theorem gasOp_activity_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' �
     (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 + Real.log K0'' ≤ h)
     (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
     ‖gasKOp cy zs cr β τ μ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) := by
-  have hscal := gas_activity_bound (β := gasBetaBound cy B0 κ'' d) (τ := gasTauBound zs p h)
-    hB0 hκ' hκ'' hc hc1 hp hd hz hcr
-    (fun y => by
-      simp only [gasBetaBound, Complex.norm_real, Real.norm_eq_abs]
-      exact le_of_eq (abs_of_nonneg (by positivity)))
-    (fun z => by
-      simp only [gasTauBound, Complex.norm_real, Real.norm_eq_abs]
-      exact le_of_eq (abs_of_pos (Real.exp_pos _)))
-    hzd hG3 hK0' hent hK1 hcount hh X hG1
+  have hscal := gasBound_norm_le hB0 hκ' hκ'' hc hc1 hp hd hz hcr hzd hG3 hK0' hent hK1 hcount hh X hG1
   refine le_trans ?_ hscal
-  have hnn : ‖gasK cy zs cr (gasBetaBound cy B0 κ'' d) (gasTauBound zs p h) X‖ =
-      ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-        ((∏ y ∈ C.toLeft, (Real.exp (B0 * Real.exp (-κ'' * d (cy y))) - 1)) *
-          ∏ z ∈ C.toRight, Real.exp (-p - h * (zs z).card)) := by
-    rw [gasK_bound_eq, Complex.norm_real, Real.norm_eq_abs]
-    refine abs_of_nonneg (Finset.sum_nonneg (fun C _ => mul_nonneg
-      (Finset.prod_nonneg (fun y _ => ?_)) (Finset.prod_nonneg (fun z _ => (Real.exp_pos _).le))))
-    simp only [sub_nonneg]; exact Real.one_le_exp (by positivity)
+  have hnn := norm_gasK_bound (cy := cy) (zs := zs) (cr := cr) (d := d) (κ'' := κ'') (p := p) (h := h) hB0 X
   rw [hnn]
   unfold gasKOp gasActOp gasK polyAct
   rw [integral_finsetSum _ (fun C _ => integrable_prod_gasW hβm hτm hβb hτb C)]
