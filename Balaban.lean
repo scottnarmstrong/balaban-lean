@@ -488,6 +488,7 @@ public import Balaban.LargeField.Operators.QuietBound
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.LF1
 public import Balaban.LargeField.Characteristic.Reg
+public import Balaban.LargeField.Characteristic.RegSymm
 public import Balaban.LargeField.Characteristic.RealDomain
 public import Balaban.LargeField.Characteristic.Functions
 public import Balaban.LargeField.Characteristic.Stencil
