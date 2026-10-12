@@ -39,7 +39,8 @@ in the ledger row and the branch state):
 - W77: DONE (landed 7c6b40b).
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
 - W83 (`w83-reynolds`): Reynolds average → full I-6 Premises from Def-6.
-- W84 (`w84-fluct-wire`): FLUCT Lemma 2.5 source form, Lemma 3.5, Lemma 4.1.
+- W84: DONE (landed b1e5034).
+- W89 (`w89-weighted51`): weighted Prop 5.1 → Lemma 4.1 unconditional; Lemma 3.5 analyticity.
 - W85: DONE (landed b3b1f92; P4 estimate half). Found the vacuous-history defect.
 - W87 (`w87-horizon`): fix vacuous FlowSteps/RegionSeq/RegionHistory (finite horizon), Nonempty witnesses, repair ~60 consumers. PRIORITY.
 - W86: DONE (landed 6637c62; χ^dom identity proved).
