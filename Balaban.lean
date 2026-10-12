@@ -942,3 +942,4 @@ public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.SmallField.RenormPinJet
 public import Balaban.SmallField.RenormPinBridge
+public import Balaban.SmallField.RenormPinSum
