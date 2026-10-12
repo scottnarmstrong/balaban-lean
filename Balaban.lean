@@ -759,6 +759,7 @@ public import Balaban.LargeField.R.PsiZeroExists
 public import Balaban.LargeField.R.PsiZeroInput
 public import Balaban.LargeField.R.PsiZeroHessTop
 public import Balaban.LargeField.R.PsiZeroHessLine
+public import Balaban.LargeField.R.PsiZeroHessEnv
 public import Balaban.LargeField.R.PsiZeroSmooth
 public import Balaban.LargeField.R.PsiZeroSolve
 public import Balaban.LargeField.R.PsiZeroSpace
