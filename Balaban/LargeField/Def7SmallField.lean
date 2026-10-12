@@ -33,6 +33,11 @@ summarized in `review/papers/P1-LTE-I-RG-flow.md`, Lemma 3.8).  The pair terms
 as a datum `corr` of `𝔰` (`SFData.corr`); the clause tying `corr` to `ℰ^{(j)}` (P1 (3.106)) is
 missing, so the class contains representations with an arbitrary correction.  See the handoff.
 
+**Units of the action.**  `β_k A*_k` is `β^{(k)}_0 (A + ¼ ∑_{st} |∂φ̄|²)` with the fine-unit action
+`A` (`actionG`) and `β^{(k)}_0 = β_k L^{-k(d-2)}` (`betaCanon`), as in Definition II.5.4 and SF (H.1)
+(`A_k` in `η`-units, `η = L^{-k}`).  Def-6's `IsSF.density` writes `-β_k · action` with the
+fine-unit Def-5 `action` (recorded in the handoff as a units discrepancy to be checked).
+
 **Masses (open point Q13).**  The background `φ_k` and the characteristic functions use the
 solver mass `cs.mu k` (`0` for `k ≤ k₀`, P5 (1.9)); the small-field action `A*_k` uses
 `sfActMass` (currently the same, as in Def-6's `IsSF`, where the `ν`-term is carried by `ℰ`).
