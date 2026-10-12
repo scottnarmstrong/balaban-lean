@@ -20,9 +20,9 @@ argument stays in a space `Ξ^c_j(𝔹_j(X); C₀, ε₂)`, for every `s` in the
 * `XiCData`, `XiCRaw`: the data (and raw data) of `Ξ^c_n(𝔹; σ, ε)` with a realization by a
   `BgData`;
 * `xiCData_compose`: (Ξ3) at the level of realizations;
-* `stage1`: `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) ∈ Ξ^c_{k+1}(𝔹_k(X); 1, ε₂)`, from (Ξ3), the rescaling
+* `i5_stage1`: `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) ∈ Ξ^c_{k+1}(𝔹_k(X); 1, ε₂)`, from (Ξ3), the rescaling
   `Ξ^c(σ, ε) ⊆ Ξ^c(1, σ² ε)`, closeness on `X₀` and (Ξ2);
-* `stage2`: its composition with `𝔹_j(X) ≺ 𝔹_k(X)` lies in `Ξ^c_j(𝔹_j(X); C₀, ε₂)`.
+* `i5_stage2`: its composition with `𝔹_j(X) ≺ 𝔹_k(X)` lies in `Ξ^c_j(𝔹_j(X); C₀, ε₂)`.
 
 Constants (differing from LOCALIZATION.md §4.3 where `σ = 1`): the landed (Ξ3) maps
 `Ξ^c(𝔹'; 1, ε)` into `Ξ^c(𝔹; C₀ θ, ε)` with `C₀ = 8d + 12`; the factor `C₀` is absorbed by
@@ -153,7 +153,7 @@ theorem isLayerConstant_zero (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
 
 /-- **Stage 1 of Lemma DL**: the composed datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled
 background field lies in `Ξ^c_{K}(𝔹_k(X); 1, ε₂)`. -/
-theorem stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
     (ha₁ : 0 < a₁) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
     (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (hP : Precedes Gk Gp)
     (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ} (hκ : 0 ≤ κ)
@@ -240,7 +240,7 @@ theorem xiCData_level_mono {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : �
 
 /-- **Stage 2 of Lemma DL**: the composition of a member of `Ξ^c_K(𝔹_k(X); 1, ε₂)` with
 `𝔹_j(X) ≺ 𝔹_k(X)` lies in `Ξ^c_{j'}(𝔹_j(X); C₀, ε₂)`, `j' ≤ K`. -/
-theorem stage2 (ha₁ : 0 < a₁) (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν)
+theorem i5_stage2 (ha₁ : 0 < a₁) (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν)
     (HBj : BgHyp d L K ϱ₂ (compWeight L a₁) ν) (hq : Precedes Gj Gk)
     (hcol : ∀ z ∈ collar Gj, z ∈ Gk.Ω 1) {ε₂ : ℝ}
     (hsmall : (4 * d + 6) * ((2 * d + 1) * ε₂) ≤ 1) (hth : xiC1 d * ε₂ ≤ thm73C1 d L N)

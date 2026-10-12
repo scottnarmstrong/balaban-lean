@@ -307,6 +307,16 @@ public import Balaban.Localization.DecoupledBackground
 public import Balaban.Localization.DecoupledBackgroundLocal
 public import Balaban.Localization.DecoupledDefect
 public import Balaban.Localization.DecoupledCompose
+public import Balaban.Localization.I5Param
+public import Balaban.Localization.I5Expansion
+public import Balaban.Localization.I5Xi
+public import Balaban.Localization.I5Glue
+public import Balaban.Localization.I5Close
+public import Balaban.Localization.I5Chain
+public import Balaban.Localization.I5Fan
+public import Balaban.Localization.DomainLemma
+public import Balaban.Localization.I5Local
+public import Balaban.Localization.I5
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity

@@ -62,7 +62,7 @@ theorem mem_connFams {X₁ Y : Set (CTorus d L N₁ m₁ K)} {C : Finset ι} :
 
 open Classical in
 /-- The domains `Y[𝒞]` of the connected families. -/
-noncomputable def domains (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ : ℕ)
+noncomputable def polymerDomains (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ : ℕ)
     (X₁ : Set (CTorus d L N₁ m₁ K)) : Finset (Set (CTorus d L N₁ m₁ K)) :=
   (Finset.univ.filter fun C : Finset ι =>
       IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c X₁) C).image (Ysites G m₀ c X₁)
@@ -124,7 +124,7 @@ theorem localization_expansion (hS : CovSetup G m₀ j X 𝒦X) (hd : 3 ≤ d) (
     (hbd : ∀ u ∈ S, ∀ s ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ₁),
       ‖F u s‖ ≤ Eb * Real.exp (-(κ - 1) * treeLenCovOne m₀ j X))
     (hloc : LocalityAEOn (Real.exp κ₁) S (fun i => Pset m₁ (c i)) (compY c (X1 G m₀ j 𝒦X)) Ag F) :
-    (∀ u ∈ S, F u 1 = ∑ Y ∈ domains c G m₀ (X1 G m₀ j 𝒦X), evTerm c G m₀ (X1 G m₀ j 𝒦X) F Y u) ∧
+    (∀ u ∈ S, F u 1 = ∑ Y ∈ polymerDomains c G m₀ (X1 G m₀ j 𝒦X), evTerm c G m₀ (X1 G m₀ j 𝒦X) F Y u) ∧
     (∀ Y, ∀ u ∈ S, ∀ u' ∈ S, AgY Y u u' →
       evTerm c G m₀ (X1 G m₀ j 𝒦X) F Y u = evTerm c G m₀ (X1 G m₀ j 𝒦X) F Y u') ∧
     (∀ Y, ∀ u ∈ S, ‖evTerm c G m₀ (X1 G m₀ j 𝒦X) F Y u‖ ≤
@@ -147,7 +147,7 @@ theorem localization_expansion (hS : CovSetup G m₀ j X 𝒦X) (hd : 3 ≤ d) (
     (Yc := compY c (X1 G m₀ j 𝒦X)) (Ag := Ag) (F := F) hκ1 hanau hbd hloc hrefl
   refine ⟨fun u hu => ?_, fun Y u hu u' hu' huu => ?_, fun Y u hu => ?_, fun Y => ?_⟩
   · rw [hsum u hu]
-    unfold domains evTerm
+    unfold polymerDomains evTerm
     rw [← Finset.sum_fiberwise_of_maps_to (g := Ysites G m₀ c (X1 G m₀ j 𝒦X))
       (t := (Finset.univ.filter fun C : Finset ι =>
         IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c (X1 G m₀ j 𝒦X)) C).image

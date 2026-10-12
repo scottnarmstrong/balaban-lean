@@ -137,7 +137,7 @@ theorem point_facts (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X�
     hδ0' hδ1 hνε hDom
   obtain ⟨φ1, α1, hI1, -⟩ := i4b_exists_unique hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM hone hδ0 le_rfl
     hδ0' hδ1 hνε hDom
-  have hst := stage1 hB.hS hB.Sp hB.ha₁ hB.HBp hB.HBk hB.hP hB.colk hB.hκ.le hB.hM hB.num
+  have hst := i5_stage1 hB.hS hB.Sp hB.ha₁ hB.HBp hB.HBk hB.hP hB.colk hB.hκ.le hB.hM hB.num
     hB.dsX₀ hB.hN hB.hr hB.hr₀ hsle hs1 hD hI hI1
   have hFeq : F₁ (s, rawOf D) = (φ, α) := hF₁ s D hs hU φ α hI
   have hD1 : D1raw Gp Gk (compWeight L a₁) F₁ (s, rawOf D) =
@@ -147,7 +147,7 @@ theorem point_facts (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X�
   have hFk' := hFk _ hUk
   refine ⟨φ, α, hI, hFeq, hst, hD1, ?_, ?_⟩
   · rw [D2raw_rawOf, hFk']
-  · exact stage2 hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hB.num.small₂ hB.num.th2 hB.hj hst
+  · exact i5_stage2 hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hB.num.small₂ hB.num.th2 hB.hj hst
 
 /-- At `s ≡ 1` the decoupled background field is the background field of Theorem 5.2. -/
 theorem decBg_one_eq (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {D : BgData Gp N}

@@ -61,7 +61,7 @@ theorem i5_background (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ 
             (composeData hB.hP (compWeight L a₁) (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D) D))
           (composeData hB.hP (compWeight L a₁) (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D)
             D))) =
-        ∑ Y ∈ domains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp m₀
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp m₀
           (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D)) ∧
       (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps, ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps,
         agreeOn (thickSet Gp Y) u u' → Ev Y u = Ev Y u') ∧
