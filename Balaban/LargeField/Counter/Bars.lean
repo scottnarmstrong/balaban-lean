@@ -207,6 +207,16 @@ theorem h_mono : Monotone S.h := by
   have := Nat.ceil_le_ceil this
   omega
 
+theorem CE_nonneg : 0 ≤ S.CE := by
+  have h1 := ok.Csigma_nonneg
+  have h2 := ok.one_le_cv
+  have h3 := S.CV_ge
+  have h4 : (0 : ℝ) ≤ S.c0 := Nat.cast_nonneg _
+  have h5 := ok.Rb_pos
+  have h6 := ok.cast_L_ge
+  unfold Typing.CE
+  positivity
+
 theorem n2_le_bar (j : ℕ) : (S.n2 j : ℝ) ≤ S.n2Bar (S.lam j) := by
   unfold Typing.n2Bar
   have hL := ok.cast_L_ge
