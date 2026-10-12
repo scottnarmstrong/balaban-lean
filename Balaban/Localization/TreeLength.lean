@@ -11,7 +11,7 @@ import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
 
 /-!
-# Connected lattice structures, tree length and (GM2) (LOCALIZATION.md §4.2)
+# Connected lattice structures and the tree length `d̃` of P1 (LOCALIZATION.md §4.2)
 
 A *connected structure* `(W, E)` on the torus is a nonempty finite set `W` of sites together with
 a finite set `E` of oriented nearest-neighbour bonds between sites of `W` such that `W` is
@@ -20,6 +20,9 @@ of `(W, E)` has no larger cost, so infima over connected structures equal infima
 (the only property of trees used is connectedness).  `Covers R ω c A` says that some connected
 structure inside the region `R`, of cost at most `c`, contains the set `A`; `Linked R ω c x y` is
 `Covers R ω c {x, y}`.
+
+The covering functional and the corrected (GM2) (version 3) are in `TreeLengthCov.lean`; here
+only P1's tree lengths `dTilde`, `dScale` and the geometry shared by both are kept.
 
 `assemble` is the combinatorial heart of (GM2): nodes of a connected "nerve" carry covers, adjacent
 nodes are linked at cost `ρ`, and then all node sets are covered at cost `∑ σ + (#nodes - 1) ρ`.
@@ -556,16 +559,6 @@ structure PolySetup (X₁ : Set (CTorus d L N₁ m₁ K)) : Prop where
   X₁_cubes : ∀ x ∈ X₁, ∃ b, Aligned (cellSide L m₀ m₁ K) b ∧
     x ∈ box b (L * cellSide L m₀ m₁ K) ∧ box b (L * cellSide L m₀ m₁ K) ⊆ X₁
 
-/-- The geometric data of (GM2): `X ⊆ X₁ ⊆ Λ_K`, `X₁` a union of `π'_K`-cubes each of which
-contains a `π'_j`-cube lying in `X`, and `j < K`. -/
-structure GM2Setup (j : ℕ) (X X₁ : Set (CTorus d L N₁ m₁ K)) : Prop
-    extends PolySetup G m₀ X₁ where
-  hjK : j + 1 ≤ K
-  X_sub : X ⊆ X₁
-  contains : ∀ b, Aligned (cellSide L m₀ m₁ K) b → box b (L * cellSide L m₀ m₁ K) ⊆ X₁ →
-    ∃ b', Aligned (cellSide L m₀ m₁ j) b' ∧ box b' (L * cellSide L m₀ m₁ j) ⊆ X ∧
-      box b' (L * cellSide L m₀ m₁ j) ⊆ box b (L * cellSide L m₀ m₁ K)
-
 variable {G m₀}
 
 /-- A point of the parameter cube is joined to the base of its cell inside `D(P)` at cost `d`. -/
@@ -581,26 +574,6 @@ theorem attach_some (hU : LayerUnion G m₀) (hN : L ^ m₀ ∣ N₁) {q : ℕ �
   refine Covers.mono_c this (le_of_eq ?_)
   have : ((cellSide L m₀ m₁ q.1 : ℕ) : ℝ) ≠ 0 := by
     have := cellSide_pos (L := L) m₀ m₁ q.1; positivity
-  field_simp
-
-/-- A point of `X₁` is joined, inside `X₁`, to a point of the tree `Γ₀` at cost `2 d L`. -/
-theorem attach_none {j : ℕ} {X X₁ : Set (CTorus d L N₁ m₁ K)} (hS : GM2Setup G m₀ j X X₁)
-    {W₀ : Finset (CTorus d L N₁ m₁ K)} (hmeet : MeetsCubesAt m₀ j X W₀)
-    {x : CTorus d L N₁ m₁ K} (hx : x ∈ X₁) :
-    ∃ q ∈ W₀, Linked X₁ (bondW G m₀) (2 * d * L) x q := by
-  have hK : 1 ≤ K := by have := hS.hjK; omega
-  obtain ⟨b, hbal, hxb, hbX⟩ := hS.X₁_cubes x hx
-  obtain ⟨b', hb'al, hb'X, hb'sub⟩ := hS.contains b hbal hbX
-  obtain ⟨q, hqW, hqb'⟩ := hmeet b' hb'al hb'X
-  have hqb : q ∈ box b (L * cellSide L m₀ m₁ K) := hb'sub hqb'
-  have hc : ∀ x ∈ X₁, ∀ y ∈ X₁, bondW G m₀ x y ≤ ((cellSide L m₀ m₁ K : ℕ) : ℝ)⁻¹ :=
-    fun x hx y hy => (bondW_of_layer G m₀ hK le_rfl (hS.X₁_layer hx) (hS.X₁_layer hy)).le
-  refine ⟨q, hqW, ?_⟩
-  have := linked_box_pair (bondW_nonneg G m₀) _ _ hbX hc hxb hqb
-  refine Covers.mono_c this (le_of_eq ?_)
-  have : ((cellSide L m₀ m₁ K : ℕ) : ℝ) ≠ 0 := by
-    have := cellSide_pos (L := L) m₀ m₁ K; positivity
-  push_cast
   field_simp
 
 /-! #### The nerve -/
@@ -681,131 +654,6 @@ theorem Dsites_subset_Ysites {i : ι} (hi : i ∈ C) :
     Dsites G m₀ (c i) ⊆ Ysites G m₀ c X₁ C := fun _ hx =>
   Or.inr (Set.mem_iUnion₂.2 ⟨i, hi, hx⟩)
 
-theorem Pset_subset_Ysites (hS : GM2Setup G m₀ j X X₁) (hc : ∀ i, c i ∈ cubeIdx G) {i : ι}
-    (hi : i ∈ C) : Pset m₁ (c i) ⊆ Ysites G m₀ c X₁ C :=
-  (Pset_subset_Dsites hS.hU hS.hN (hc i)).trans (Dsites_subset_Ysites hi)
-
-theorem link_some_none (hS : GM2Setup G m₀ j X X₁) (hc : ∀ i, c i ∈ cubeIdx G)
-    {W₀ : Finset (CTorus d L N₁ m₁ K)} (hmeet : MeetsCubesAt m₀ j X W₀) {i : ι} (hi : i ∈ C)
-    (h : Nerve X₁ c (some i) none) :
-    ∃ a ∈ Dbases G m₀ (c i), ∃ b ∈ W₀,
-      Linked (Ysites G m₀ c X₁ C) (bondW G m₀) (gm2Rho d L) a b := by
-  obtain ⟨z, hz, z', hz', hzz⟩ := h
-  have hz : z ∈ Pset m₁ (c i) := hz
-  have hz' : z' ∈ X₁ := hz'
-  obtain ⟨q, hqW, hq⟩ := attach_none hS hmeet hz'
-  refine ⟨cbase (cellSide L m₀ m₁ (c i).1) (c i).2, cbase_mem_Dbases hS.hU hS.hN (hc i), q, hqW, ?_⟩
-  have hzR : z ∈ Ysites G m₀ c X₁ C := Pset_subset_Ysites hS hc hi hz
-  have hz'R : z' ∈ Ysites G m₀ c X₁ C := subset_Ysites (G := G) (m₀ := m₀) (c := c) X₁ C hz'
-  have h1 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) d _ z :=
-    (attach_some hS.hU hS.hN (hc i) hz).mono_R (Dsites_subset_Ysites hi)
-  have h2 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) 1 z z' := by
-    rcases hzz with rfl | hn
-    · exact Linked.refl (by norm_num) hzR
-    · exact Linked.step hn hzR hz'R (bondW_le_one G m₀ _ _)
-  have h3 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) (2 * d * L) z' q :=
-    hq.mono_R (subset_Ysites (G := G) (m₀ := m₀) (c := c) X₁ C)
-  have := ((h1.trans (bondW_nonneg G m₀) h2).trans (bondW_nonneg G m₀) h3)
-  refine Covers.mono_c this ?_
-  unfold gm2Rho; linarith
-
-theorem link_some_some (hS : GM2Setup G m₀ j X X₁) (hc : ∀ i, c i ∈ cubeIdx G) {i i' : ι}
-    (hi : i ∈ C) (hi' : i' ∈ C) (h : Nerve X₁ c (some i) (some i')) :
-    ∃ a ∈ Dbases G m₀ (c i), ∃ b ∈ Dbases G m₀ (c i'),
-      Linked (Ysites G m₀ c X₁ C) (bondW G m₀) (gm2Rho d L) a b := by
-  obtain ⟨z, hz, z', hz', hzz⟩ := h
-  have hz : z ∈ Pset m₁ (c i) := hz
-  have hz' : z' ∈ Pset m₁ (c i') := hz'
-  refine ⟨cbase (cellSide L m₀ m₁ (c i).1) (c i).2, cbase_mem_Dbases hS.hU hS.hN (hc i),
-    cbase (cellSide L m₀ m₁ (c i').1) (c i').2, cbase_mem_Dbases hS.hU hS.hN (hc i'), ?_⟩
-  have hzR : z ∈ Ysites G m₀ c X₁ C := Pset_subset_Ysites hS hc hi hz
-  have hz'R : z' ∈ Ysites G m₀ c X₁ C := Pset_subset_Ysites hS hc hi' hz'
-  have h1 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) d _ z :=
-    (attach_some hS.hU hS.hN (hc i) hz).mono_R (Dsites_subset_Ysites hi)
-  have h2 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) 1 z z' := by
-    rcases hzz with rfl | hn
-    · exact Linked.refl (by norm_num) hzR
-    · exact Linked.step hn hzR hz'R (bondW_le_one G m₀ _ _)
-  have h3 : Linked (Ysites G m₀ c X₁ C) (bondW G m₀) d _ z' :=
-    (attach_some hS.hU hS.hN (hc i') hz').mono_R (Dsites_subset_Ysites hi')
-  have := ((h1.trans (bondW_nonneg G m₀) h2).trans (bondW_nonneg G m₀) h3.symm)
-  refine Covers.mono_c this ?_
-  unfold gm2Rho; have : (0 : ℝ) ≤ 2 * d * L := by positivity
-  linarith
-
-theorem link_nerve (hS : GM2Setup G m₀ j X X₁) (hc : ∀ i, c i ∈ cubeIdx G)
-    {W₀ : Finset (CTorus d L N₁ m₁ K)} (hW₀X : ↑W₀ ⊆ X) (hne : W₀.Nonempty)
-    (hmeet : MeetsCubesAt m₀ j X W₀) {u v : Option ι} (hu : u ∈ Finset.insertNone C)
-    (hv : v ∈ Finset.insertNone C) (h : Nerve X₁ c u v) :
-    ∃ a ∈ nodeSet G m₀ c W₀ u, ∃ b ∈ nodeSet G m₀ c W₀ v,
-      Linked (Ysites G m₀ c X₁ C) (bondW G m₀) (gm2Rho d L) a b := by
-  cases u with
-  | none =>
-    cases v with
-    | none =>
-      obtain ⟨q, hq⟩ := hne
-      refine ⟨q, hq, q, hq, Linked.refl (by unfold gm2Rho; positivity)
-        (subset_Ysites (G := G) (m₀ := m₀) (c := c) X₁ C (hS.X_sub (hW₀X hq)))⟩
-    | some j' =>
-      have hj' : j' ∈ C := Finset.some_mem_insertNone.1 hv
-      obtain ⟨a, ha, b, hb, hl⟩ := link_some_none hS hc hmeet hj' h.symm
-      exact ⟨b, hb, a, ha, hl.symm⟩
-  | some i =>
-    have hi : i ∈ C := Finset.some_mem_insertNone.1 hu
-    cases v with
-    | none => exact link_some_none hS hc hmeet hi h
-    | some j' => exact link_some_some hS hc hi (Finset.some_mem_insertNone.1 hv) h
-
-theorem meets_Y (hS : GM2Setup G m₀ j X X₁) (hc : ∀ i, c i ∈ cubeIdx G)
-    {W₀ : Finset (CTorus d L N₁ m₁ K)} (hmeet : MeetsCubesAt m₀ j X W₀)
-    {W : Finset (CTorus d L N₁ m₁ K)}
-    (hW : (Finset.insertNone C).biUnion (nodeSet G m₀ c W₀) ⊆ W) :
-    MeetsCubes G m₀ (Ysites G m₀ c X₁ C) W := by
-  intro n hn1 hnK b hbal hbY hbL
-  have ha0 := cellSide_pos (L := L) m₀ m₁ n
-  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hS.hN hnK
-  have hbQ : b ∈ box b (L * cellSide L m₀ m₁ n) :=
-    mem_box_self b (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha0)
-  by_cases hQX : box b (L * cellSide L m₀ m₁ n) ⊆ X₁
-  · -- the cube lies in `X₁`, hence `n = K`
-    have hnK' : n = K := by
-      by_contra hne
-      have hK1 : 1 ≤ K := by omega
-      have h1 := hbL hbQ
-      have h2 := hS.X₁_layer (hQX hbQ)
-      exact G.layer_disjoint hn1 hnK hK1 le_rfl hne (Finset.mem_coe.1 h1) (Finset.mem_coe.1 h2)
-    subst hnK'
-    obtain ⟨b', hb'al, hb'X, hb'sub⟩ := hS.contains b hbal hQX
-    obtain ⟨q, hqW, hqb'⟩ := hmeet b' hb'al hb'X
-    refine ⟨q, hW (Finset.mem_biUnion.2 ⟨none, Finset.none_mem_insertNone, hqW⟩), hb'sub hqb'⟩
-  · obtain ⟨z, hzQ, hzX⟩ := Set.not_subset.1 hQX
-    rcases hbY hzQ with hzX₁ | hzD
-    · exact absurd hzX₁ hzX
-    · obtain ⟨i, hi, hzD⟩ := Set.mem_iUnion₂.1 hzD
-      obtain ⟨⟨hi1, hiK⟩, -, -⟩ := (mem_cubeIdx G).1 (hc i)
-      have hzn : z ∈ G.layer n := Finset.mem_coe.1 (hbL hzQ)
-      have hzi : z ∈ G.layer (c i).1 := Finset.mem_coe.1 (Dsites_subset_layer (c i) hzD)
-      have hni : (c i).1 = n := by
-        by_contra hne
-        exact G.layer_disjoint hi1 hiK hn1 hnK hne hzi hzn
-      obtain ⟨b'', hb'', hzb''⟩ : ∃ b'' ∈ Dcubes G m₀ (c i),
-          z ∈ box b'' (L * cellSide L m₀ m₁ (c i).1) := by
-        simpa only [Dsites, Set.mem_iUnion, exists_prop] using hzD
-      have hal'' : Aligned (cellSide L m₀ m₁ n) b'' := hni ▸ hb''.1
-      have hzb''' : z ∈ box b'' (L * cellSide L m₀ m₁ n) := hni ▸ hzb''
-      have hsub := cell_subset_cube hdvd ha0 hal'' hzb'''
-      have hsubQ := cell_subset_cube hdvd ha0 hbal hzQ
-      have hx : cbase (cellSide L m₀ m₁ n) z ∈ Dbases G m₀ (c i) := by
-        simp only [Dbases, Finset.mem_filter, Finset.mem_univ, true_and]
-        rw [hni]
-        refine ⟨aligned_cbase _, ?_⟩
-        simp only [Dsites, Set.mem_iUnion, exists_prop]
-        refine ⟨b'', hb'', ?_⟩
-        rw [hni]
-        exact hsub (mem_box_self _ ha0)
-      exact ⟨_, hW (Finset.mem_biUnion.2 ⟨some i, Finset.some_mem_insertNone.2 hi, hx⟩),
-        hsubQ (mem_box_self _ ha0)⟩
-
 end Nerve
 
 omit [NeZero L] in
@@ -839,124 +687,6 @@ theorem gm2_arith (hd : 3 ≤ d) (hL : 1 ≤ L) :
     exact this
   unfold gm2Rho
   nlinarith
-
-section Main
-
-variable {ι : Type*} {c : ι → ℕ × CTorus d L N₁ m₁ K}
-variable {X X₁ : Set (CTorus d L N₁ m₁ K)} {j : ℕ}
-
-/-- **(GM2), tree form.**  Let `Γ₀ = (W₀, E₀)` be a connected structure in `X` meeting every
-`π'_j`-cube contained in `X`.  Then for every connected family `𝒞` there is a connected structure
-`Γ` in `Y[𝒞]` meeting every `π'_n`-cube contained in `Y[𝒞] ∩ Λ_n` whose `bondW`-cost is at most
-`L⁻¹ · (M⁻¹ ℓ_j⁻¹ |E₀|) + d (2L+1)^d |𝒞|`. -/
-theorem gm2_tree [DecidableEq ι] (hS : GM2Setup G m₀ j X X₁) (hd : 3 ≤ d)
-    (hc : ∀ i, c i ∈ cubeIdx G) (C : Finset ι)
-    (hconn : IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c X₁) C)
-    {W₀ : Finset (CTorus d L N₁ m₁ K)} {E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
-    (hΓ : ConnStruct W₀ E₀) (hΓX : ↑W₀ ⊆ X) (hmeet : MeetsCubesAt m₀ j X W₀) :
-    ∃ (W : Finset (CTorus d L N₁ m₁ K)) (E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
-      ConnStruct W E ∧ (↑W ⊆ Ysites G m₀ c X₁ C) ∧
-        MeetsCubes G m₀ (Ysites G m₀ c X₁ C) W ∧
-        bondCost (bondW G m₀) E ≤ (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E₀ +
-          d * (((2 * L + 1) ^ d : ℕ) : ℝ) * C.card := by
-  classical
-  have hK : 1 ≤ K := by have := hS.hjK; omega
-  have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  have hLR : (1 : ℝ) ≤ L := by exact_mod_cast hL1
-  set R := Ysites G m₀ c X₁ C with hR
-  set ω := bondW G m₀ with hω
-  set σ₀ : ℝ := (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E₀ with hσ₀
-  -- the cover of `Γ₀`
-  have cov₀ : Covers R ω σ₀ W₀ := by
-    refine ⟨W₀, E₀, hΓ, fun x hx => subset_Ysites (G := G) (m₀ := m₀) (c := c) X₁ C
-      (hS.X_sub (hΓX hx)), subset_rfl, ?_⟩
-    unfold bondCost
-    rw [hσ₀]
-    unfold bondCost
-    rw [Finset.mul_sum]
-    refine Finset.sum_le_sum fun p hp => ?_
-    obtain ⟨h1, h2, -⟩ := hΓ.2.1 p hp
-    have h1' := hS.X₁_layer (hS.X_sub (hΓX h1))
-    have h2' := hS.X₁_layer (hS.X_sub (hΓX h2))
-    rw [hω, bondW_of_layer G m₀ hK le_rfl h1' h2']
-    unfold scaleW cellSide
-    push_cast
-    rw [← mul_inv, ← pow_succ']
-    apply inv_anti₀ (by positivity)
-    exact pow_le_pow_right₀ hLR (by have := hS.hjK; omega)
-  -- assembly along the nerve
-  let σ : Option ι → ℝ := fun o => o.elim σ₀ (fun i => ((Dbases G m₀ (c i)).card : ℝ) - 1)
-  have key := assemble (R := R) (ω := ω) (bondW_nonneg G m₀) (Finset.insertNone C)
-    (Nerve X₁ c) none Finset.none_mem_insertNone (reach_nerve X₁ C hconn)
-    (nodeSet G m₀ c W₀) σ ?_ (gm2Rho d L) ?_
-  rotate_left
-  · intro o ho
-    cases o with
-    | none => exact cov₀
-    | some i =>
-      exact (covers_Dbases hS.hU hS.hN (hc i)).mono_R
-        (Dsites_subset_Ysites (Finset.some_mem_insertNone.1 ho))
-  · intro u hu v hv h
-    exact link_nerve hS hc hΓX hΓ.1 hmeet hu hv h
-  obtain ⟨W, E, hconnW, hWR, hAW, hcost⟩ := key
-  refine ⟨W, E, hconnW, hWR, meets_Y hS hc hmeet hAW, hcost.trans ?_⟩
-  -- the cost bound
-  have hsum : ∑ o ∈ Finset.insertNone C, σ o =
-      σ₀ + ∑ i ∈ C, (((Dbases G m₀ (c i)).card : ℝ) - 1) := by
-    rw [Finset.sum_insertNone]
-    rfl
-  have hcardS : ((Finset.insertNone C).card : ℝ) - 1 = C.card := by
-    rw [Finset.card_insertNone]; push_cast; ring
-  have hG : ∀ i ∈ C, ((Dbases G m₀ (c i)).card : ℝ) - 1 ≤ (((2 * L + 1) ^ d : ℕ) : ℝ) - 1 := by
-    intro i _
-    have := card_Dbases_le (G := G) (m₀ := m₀) hS.hN (((mem_cubeIdx G).1 (hc i)).1.2)
-    have : ((Dbases G m₀ (c i)).card : ℝ) ≤ (((2 * L + 1) ^ d : ℕ) : ℝ) := by exact_mod_cast this
-    linarith
-  have hsum2 : ∑ i ∈ C, (((Dbases G m₀ (c i)).card : ℝ) - 1) ≤
-      C.card * ((((2 * L + 1) ^ d : ℕ) : ℝ) - 1) := by
-    calc _ ≤ ∑ _i ∈ C, ((((2 * L + 1) ^ d : ℕ) : ℝ) - 1) := Finset.sum_le_sum hG
-      _ = _ := by simp; ring
-  rw [hsum, hcardS]
-  have ha := gm2_arith (L := L) hd hL1
-  have hC0 : (0 : ℝ) ≤ C.card := Nat.cast_nonneg _
-  nlinarith [mul_le_mul_of_nonneg_left ha hC0]
-
-/-- **(GM2).**  `d̃_{k+1}(Y[𝒞]) ≤ L⁻¹ d_j(X) + d (2L+1)^d |𝒞|` (`K = k+1`, `j ≤ k`), for the tree
-lengths `dTilde`, `dScale` defined above, provided `X` carries at least one connected structure
-meeting its `π'_j`-cubes. -/
-theorem gm2 [DecidableEq ι] (hS : GM2Setup G m₀ j X X₁) (hd : 3 ≤ d)
-    (hc : ∀ i, c i ∈ cubeIdx G) (C : Finset ι)
-    (hconn : IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c X₁) C)
-    (hX : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
-      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsCubesAt m₀ j X W₀) :
-    dTilde G m₀ (Ysites G m₀ c X₁ C) ≤ (L : ℝ)⁻¹ * dScale m₀ j X +
-      d * (((2 * L + 1) ^ d : ℕ) : ℝ) * C.card := by
-  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  set B : ℝ := d * (((2 * L + 1) ^ d : ℕ) : ℝ) * C.card with hB
-  have hbdd : BddBelow {x | ∃ W E, ConnStruct W E ∧ (↑W ⊆ Ysites G m₀ c X₁ C) ∧
-      MeetsCubes G m₀ (Ysites G m₀ c X₁ C) W ∧ x = bondCost (bondW G m₀) E} := by
-    refine ⟨0, ?_⟩
-    rintro x ⟨W, E, -, -, -, rfl⟩
-    exact Finset.sum_nonneg fun p _ => bondW_nonneg G m₀ _ _
-  have key : (dTilde G m₀ (Ysites G m₀ c X₁ C) - B) * L ≤ dScale m₀ j X := by
-    obtain ⟨W₀, E₀, h1, h2, h3⟩ := hX
-    refine le_csInf ⟨_, W₀, E₀, h1, h2, h3, rfl⟩ ?_
-    rintro x ⟨W₀', E₀', h1', h2', h3', rfl⟩
-    obtain ⟨W, E, hW1, hW2, hW3, hW4⟩ := gm2_tree hS hd hc C hconn h1' h2' h3'
-    have hle : dTilde G m₀ (Ysites G m₀ c X₁ C) ≤ bondCost (bondW G m₀) E :=
-      csInf_le hbdd ⟨W, E, hW1, hW2, hW3, rfl⟩
-    have : dTilde G m₀ (Ysites G m₀ c X₁ C) - B ≤ (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E₀' := by
-      linarith
-    calc (dTilde G m₀ (Ysites G m₀ c X₁ C) - B) * L
-        ≤ ((L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E₀') * L :=
-          mul_le_mul_of_nonneg_right this hL.le
-      _ = bondCost (scaleW L m₀ m₁ j) E₀' := by field_simp
-  have : dTilde G m₀ (Ysites G m₀ c X₁ C) - B ≤ (L : ℝ)⁻¹ * dScale m₀ j X := by
-    rw [inv_mul_eq_div, le_div_iff₀ hL]; exact key
-  linarith
-
-end Main
 
 end GM2
 
