@@ -623,3 +623,5 @@ public import Balaban.LargeField.Base.BaseGauss
 public import Balaban.LargeField.Base.BaseWitnessGauss
 public import Balaban.LargeField.R.ChainSeq
 public import Balaban.LargeField.R.HatW
+public import Balaban.LargeField.R.ChainBound
+public import Balaban.LargeField.R.ChainEstimate
