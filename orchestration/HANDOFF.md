@@ -12,7 +12,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W109 | `w109-window-renorm` / W109 | P6 (2.31), windowAction_renorm, factor 2/5 bridge |
+| W115 | `w115-obs-o8` / W115 | observables O5 (second order) |
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
 | W114 | `w114-thm42-real` / W114 | Thm 4.2 real-step pieces |
 | W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
