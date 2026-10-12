@@ -15,7 +15,7 @@ Claude workers (background subagents of this session):
 | W178 (Opus) | `w178-complex-step` / W178 | holomorphic complex step (OPEN-STEP-COMPLEX-COMPATIBILITY) |
 | W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
 | W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
-| W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
+| W182 | `w182-collar-inner` / W182 | COLLAR-FIX (2.3) inner-collar bound, DataChangeBound' for the window |
 | W179 | `w179-mass-prop51` / W179 (on W177) | Prop51Hyp for the mass source; response under (1.3) only |
 | W180 | `w180-mass-hessian` / W180 | localized Hessian (2.1), wall sum (2.4), (2.5) |
 | W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
