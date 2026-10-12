@@ -472,6 +472,8 @@ public import Balaban.LargeField.Operators.Pullback
 public import Balaban.LargeField.Operators.MainAction
 public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.QuietSymm
+public import Balaban.LargeField.Operators.ActionSymm
+public import Balaban.LargeField.Operators.QuietSymmEuclid
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
