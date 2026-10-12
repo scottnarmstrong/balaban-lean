@@ -75,23 +75,29 @@ theorem exists_complexStep_cert_of_xiCData {m₁ : ℕ} {c BG κ t c₂ BG₂ δ
           S.FlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g ∧
           (∀ y i, S.MlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) ∧
           Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
-          (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))), S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
-            S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
+          (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))),
+            S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
+              S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
           S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-            ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2, g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
+            ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2,
+              g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
           S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = Complex.exp (-(S.β : ℂ) * S.AnewC +
-            EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-              (Nat.le_succ 1) S.psiKdC - (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
-            FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-              (Nat.le_succ 1) S.psiKdC g + S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+            EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+              (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC -
+            (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
+            FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+              (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC g +
+            S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
             S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
           (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
             AnalyticOnNhd ℂ F (XiCRaw S.G' S.a S.ν 2 1 t) ∧
             F (rawOf S.D') = S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
           (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ, AnalyticAt ℂ F (rawOf S.D') ∧
-            F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) + S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
+            F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+              S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
           (∀ (y : CTorus 3 3 6 m₁ 2) (i : Fin 2), ∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
-            AnalyticAt ℂ F (rawOf S.D') ∧ F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
+            AnalyticAt ℂ F (rawOf S.D') ∧
+            F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
   classical
   have ht0 : 0 < t := hFl.eps_pos
   set cS : ℝ := covSupConstC 3 3 2 (compWeight 3 1 1) κ with hcS
@@ -197,23 +203,29 @@ theorem exists_complexStep_nonreal_datum :
         S.FlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g ∧
         (∀ y i, S.MlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) ∧
         Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
-        (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))), S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
-          S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
+        (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))),
+          S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
+            S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
         S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-          ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2, g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
+          ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2,
+            g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
         S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = Complex.exp (-(S.β : ℂ) * S.AnewC +
-          EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-            (Nat.le_succ 1) S.psiKdC - (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
-          FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-            (Nat.le_succ 1) S.psiKdC g + S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+          EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+            (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC -
+          (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
+          FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+            (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC g +
+          S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
           S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
           AnalyticOnNhd ℂ F (XiCRaw S.G' S.a S.ν 2 1 t) ∧
           F (rawOf S.D') = S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ, AnalyticAt ℂ F (rawOf S.D') ∧
-          F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) + S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
+          F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+            S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∀ (y : CTorus 3 3 6 m₁ 2) (i : Fin 2), ∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
-          AnalyticAt ℂ F (rawOf S.D') ∧ F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
+          AnalyticAt ℂ F (rawOf S.D') ∧
+          F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
   obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, ht0, hFl, hMX, hdm, hα, hsm, hc7, hsmR⟩ :=
     exists_chart_params
   obtain ⟨D, hXi, hDh, hnr⟩ := exists_nonreal_xiCData (bgHyp_rho m₁) (GP m₁ (rhoSep m₁))
@@ -247,23 +259,29 @@ theorem exists_complexStep_real_datum :
         S.FlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g ∧
         (∀ y i, S.MlocAnalyticOnPath (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) ∧
         Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
-        (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))), S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
-          S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
+        (∑ z : Torus 3 (6 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))),
+          S.E0locC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) z =
+            S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))) ∧
         S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-          ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2, g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
+          ∑ y : CTorus 3 3 6 m₁ 2, ∑ i : Fin 2,
+            g y i * S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i ∧
         S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g = Complex.exp (-(S.β : ℂ) * S.AnewC +
-          EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-            (Nat.le_succ 1) S.psiKdC - (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
-          FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀ (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν
-            (Nat.le_succ 1) S.psiKdC g + S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+          EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+            (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC -
+          (S.Eppp (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) : ℂ) * (S.nU : ℂ) +
+          FcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
+            (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKdC g +
+          S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
           S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
           AnalyticOnNhd ℂ F (XiCRaw S.G' S.a S.ν 2 1 t) ∧
           F (rawOf S.D') = S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ, AnalyticAt ℂ F (rawOf S.D') ∧
-          F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) + S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
+          F (rawOf S.D') = S.E0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) +
+            S.F0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
         (∀ (y : CTorus 3 3 6 m₁ 2) (i : Fin 2), ∃ F : RawData 3 3 (6 * 3 ^ m₁) 2 2 → ℂ,
-          AnalyticAt ℂ F (rawOf S.D') ∧ F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
+          AnalyticAt ℂ F (rawOf S.D') ∧
+          F (rawOf S.D') = S.M0C (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g y i) := by
   obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, ht0, hFl, hMX, hdm, hα, hsm, hc7, hsmR⟩ :=
     exists_chart_params
   have hX := exists_xiC (bgHyp_rho m₁) (GP m₁ (rhoSep m₁)) hN2 (by simp) ht0
