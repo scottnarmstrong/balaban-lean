@@ -710,6 +710,7 @@ public import Balaban.LargeField.R.SmallFactorTilde
 public import Balaban.LargeField.R.SmallFactorAction
 public import Balaban.LargeField.R.SmallFactorOne
 public import Balaban.LargeField.R.ChiBridge
+public import Balaban.LargeField.R.ChiBridgeHist
 public import Balaban.Fluctuation.BackgroundChangeCompare
 public import Balaban.Fluctuation.BackgroundChangeExpansion
 public import Balaban.Fluctuation.BackgroundChangeLate
