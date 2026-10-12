@@ -16,7 +16,7 @@ The three pieces of the window generating set `𝔹_{k₁,k} = (𝔹_{k₁}(W) �
 * boundary piece (`deltaPsi_bdry_eq_zero`): a site of `U^∼_k ∖ Z` lies in the single top layer of
   `𝔹_k(U_k)`, and `ψ⁰_k = ψ_k` off `Z` (P7 (2.44)), so `δψ = 0`.
 
-`deltaPsi_le` is (2.48′) on `Ω₁(𝔹_{k₁,k})`: `|δψ| ≤ C₂₃ Ŵ_k δ_{max(k₁, min(n,k))}` for `x` of layer `n`.
+`deltaPsi_le_pieces` is (2.48′) on `Ω₁(𝔹_{k₁,k})`: `|δψ| ≤ C₂₃ Ŵ_k δ_{max(k₁, min(n,k))}` for `x` of layer `n`.
 `dataChangeBound_of_collar` assembles `DataChangeBound` from it and the collar inequality.
 -/
 
@@ -80,7 +80,7 @@ section Assemble
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
 
 /-- **`DataChangeBound` from (2.48′) on `Ω₁` and the collar inequality**: if `|δψ| ≤ C δ_{max(k₁,min(n,k))}`
-on the sites of layer `n` of `Ω₁(G)` (`deltaPsi_le`), and the collar inequality holds with `τ₁ = C δ_{k₁}`, then
+on the sites of layer `n` of `Ω₁(G)` (`deltaPsi_le_pieces`), and the collar inequality holds with `τ₁ = C δ_{k₁}`, then
 the data-change hypothesis of `deltaPhi_le_of_dataChange` holds. -/
 theorem dataChangeBound_of_le (G : GeneratingSet d L N₀ k ϱ) (G' : GeneratingSet d L N₀ k ϱ')
     (a : ℕ → ℝ) (ψ ψ0 : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ) (C : ℝ) (k1 : ℕ)
@@ -108,8 +108,12 @@ bounds on `Ω_k` and `< C₂₃ Ŵ_k δ_j` on `Λ_j`, `k₁ ≤ j < k`, and `≤
 
 Premises beyond `deltaPsi_le_outer` are those of the core piece (`deltaPsi_core_lt`: `hTreg`, `hmW`,
 `hreach`, and `hcoreTop`: the core sites of `Z_{k₁}` lie in the top layer `k₁` of `𝔹_{k₁}(W)`) and of the
-boundary piece (`hbl`, `hoff`). -/
-theorem deltaPsi_le
+boundary piece (`hbl`, `hoff`).
+
+*Naming*: this is stated for an abstract `WindowPieces`, with `hreach`, `hcoreTop`, `hbl` and `hoff` as
+premises. The name `deltaPsi_le` stays reserved for the version on the actual ripe window, with the reach,
+top-layer and off-`Z` facts derived from the history and `psiZero`. -/
+theorem deltaPsi_le_pieces
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
