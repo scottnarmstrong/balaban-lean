@@ -12,7 +12,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W98 | `w98-i6-class` / W98 | full I-6 for class members on the anisotropic domain |
+| W103 | `w103-quiet-euclid` / W103 | II.5.10 lattice part (quietKernel_euclid) |
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
 | W100 | `w100-lemmaF` / W100 | FLUCT Thm 4.2 + Cor 4.3 |
 | W101 | `w101-gm2-graph` / W101 | corrected cover partition + anchored graph GM2 |
