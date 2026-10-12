@@ -590,3 +590,89 @@ The quantifier order remains $\delta=1/8$, then arbitrary $\kappa,c_9>0$, then $
 | F6 | `kf0_gasPe`, one-scale activity and `kf0_to_rootF` | 2,000–4,000 | Conditional on F5, entropy/PE checks, and B.6 |
 
 Confidence is high in the exact representation, cutoff implication, and the analytic path-majorant theorem. The full product-reference heavy activity (B.5), its torus-exact localized complement, and the unconditional $k_f=0$ branch of Root-F remain open. No landed polymer theorem has been invoked outside its stated hypotheses.
+
+## Part G. Conditional removal of the chart singularity and the remaining support obstruction
+
+The request in `followup_r6.txt` is for bounded finite-support heavy functions to which `Polymer/GasOperator.lean` applies, followed by the full $k_f=0$ conclusion. The conditional integration below proves a genuine integrated heavy estimate, including the singular Jacobian and either kind of marked site in the two-sheet representation. It also proves the connected-support count for the natural candidate objects. The integrated function still reads Gaussian variables arbitrarily far away, so it is **not** the required `DepOn` heavy activity. Accordingly neither (B.5) nor Root-F follows from Part G. This distinction is part of the result, not a convention about support.
+
+### G.1. A uniform conditional moment of the marked-site chart Jacobian
+
+Keep $m=N-1$, $\nu_* =7/(8L^2)$, $K=-\Delta_\Lambda+\nu I$, and $C=K^{-1/2}$ from F.1. For a nonempty set of sites $D\subset\Lambda$, hold $\psi_{D^c}$ fixed and write
+$$u_D=\beta^{-1/2}C_{DD}\psi_D+b_D,\qquad
+b_D=\beta^{-1/2}C_{D,D^c}\psi_{D^c}.\tag{G.1}$$
+The matrix $C_{DD}$ is a principal submatrix, not the inverse square root of a hole operator. Since $\nu I\le K\le(4d+1)I$, its eigenvalues lie in $[(4d+1)^{-1/2},\nu^{-1/2}]$. In particular it is invertible and $\det C_{DD}^{-1}\le(4d+1)^{|D|/2}$. Let
+$$J_D(u_D)=\prod_{x\in D}\mathbf1_{\{|u_x|<1\}}(1-|u_x|^2)^{-1/2},\quad
+I_{m,q}=\int_{|u|<1}(1-|u|^2)^{-q/2}\,du
+=\frac{\pi^{m/2}\Gamma(1-q/2)}{\Gamma(1+m/2-q/2)},\tag{G.2}$$
+where $1<q<2$. The integral is finite precisely because $q<2$. Put $C_{m,d,q}=(2\pi)^{-m/2}(4d+1)^{m/2}I_{m,q}$.
+
+**Theorem G.1 (conditional chart moment).** For every $D$, every exterior real configuration $\psi_{D^c}$, every $\nu\in(\nu_*,1]$, and every $\beta>0$,
+$$\int J_D(u_D)^q\,d\gamma_D(\psi_D)
+\le\bigl(C_{m,d,q}\beta^{m/2}\bigr)^{|D|}.\tag{G.3}$$
+The estimate is uniform in the shift $b_D$, the torus, and the shape of $D$.
+
+*Proof.* The density of $\gamma_D$ with respect to Lebesgue measure is at most $(2\pi)^{-m|D|/2}$. In each of the $m$ tangent coordinates make the affine change of variables (G.1). Its inverse Jacobian is $\beta^{m|D|/2}(\det C_{DD})^{-m}$, at most $\beta^{m|D|/2}(4d+1)^{m|D|/2}$. The integrand in the new variables is the product of $|D|$ copies of the integral in (G.2). Multiplication gives (G.3). No bound on the exterior shift was used. $\square$
+
+For a specified Gaussian-bad set $B\subset D$ and minus-sheet set $M\subset D$ with $B\cup M=D$, set $\sigma_x=-1$ on $M$ and $+1$ elsewhere in $D$. Let $E_B$ be the exact product event $|\psi_x|>p_\beta$ for $x\in B$ and $|\psi_x|\le p_\beta$ for $x\in D\setminus B$. Define the **bare integrated marked kernel**
+$$\mathcal H_{D;B,M}(\psi_{D^c};g_D)
+=\int_{E_B}J_D(u_D)
+ \exp\!\left[-\frac{\beta\nu}{2}\sum_{x\in D}(\sigma_xt_x-1)^2
+       +\sum_{x\in D}g_x\cdot\Phi(u_x,\sigma_x)\right]d\gamma_D(\psi_D).\tag{G.4}$$
+The integrand is defined as zero outside $|u_x|<1$ for any $x\in D$. One may multiply it by any measurable factor of modulus at most one, including the *real* crossing-bond exponential from (F.2) and chart indicators at other sites, without changing the following upper bound. Formula (G.4) itself does not include the exterior Jacobians and is not asserted to be an exact factor of (F.4).
+
+**Theorem G.2 (bounded integrated marked kernel).** Fix $q=3/2$ and put
+$$C_0=\max\{1,C_{m,d,3/2}\},\qquad
+H_\beta=\min\left\{\frac{p_\beta^2}{12},\frac{\beta\nu_*}{2}\right\}
+-\frac m3\log\beta-\frac23\log C_0-\frac m6\log2-1.\tag{G.5}$$
+For $\beta\ge1$, $\|g\|_1<1$, and every nonempty $D=B\cup M$,
+$$\sup_{\psi_{D^c}}|\mathcal H_{D;B,M}(\psi_{D^c};g_D)|
+\le e^{-H_\beta|D|},\qquad H_\beta\longrightarrow\infty.\tag{G.6}$$
+The same inequality holds after integration over the exterior product Gaussian measure. For each fixed exterior configuration, $\mathcal H_{D;B,M}$ is entire in the displayed source coordinates.
+
+*Proof.* The scalar mass term of a minus-sheet site is $\nu(1+t_x)^2/2\ge\nu_*/2$; all other scalar mass terms are nonnegative. On real spins, the source exponential has modulus at most $e^{\|g_D\|_1}$. The one-site Gaussian tail (F.14) and independence give
+$$\gamma_D(E_B)\le\bigl(2^{m/2}e^{-p_\beta^2/4}\bigr)^{|B|}.\tag{G.7}$$
+Hölder with exponents $3/2$ and $3$, followed by (G.3), therefore bounds (G.4) by
+$$e^{\|g_D\|_1}e^{-\beta\nu_*|M|/2}
+ \bigl(C_0\beta^{m/2}\bigr)^{2|D|/3}
+ \bigl(2^{m/2}e^{-p_\beta^2/4}\bigr)^{|B|/3}.\tag{G.8}$$
+Because $D=B\cup M$, one has $|B|+|M|\ge|D|$; also $\|g_D\|_1<1\le|D|$ and $|B|\le|D|$. Taking logarithms in (G.8) gives (G.6). Since $p_\beta=b\log(\beta a)$ with fixed $b>0$, its square eventually dominates $\log\beta$, while $\beta\nu_*/2$ does too; hence $H_\beta\to\infty$. The uniform bound makes the conditional integral finite for every exterior configuration; parameterized Fubini gives measurability in the exterior Gaussian variables. On a compact set of complex sources, the integrand and all its source derivatives are dominated by a fixed multiple of the integrable function used in (G.8); differentiation under the integral proves entire dependence. $\square$
+
+Thus integrating **the marked sites themselves** removes the $t^{-1}$ singularities there, even in the presence of real crossing-bond factors. This is stronger than the Gaussian tail estimate (F.14). It does not control the Jacobians at unmarked sites, which also depend on $\psi_D$ through $C_{D^c,D}$.
+
+### G.2. The support count and the precise failure of `DepOn`
+
+Let $s=ML$ and let $Z(D)$ be the set of aligned $s$-blocks meeting $D$. If the marked sites $D$ form a nearest-neighbour connected set, then $Z(D)$ is a connected block set and $v=|Z(D)|\le|D|$. Hence (G.6) implies the *numerical* estimate
+$$\int|\mathcal H_{D;B,M}|\,d\gamma_{D^c}
+\le e^{-P_\beta-h_\beta v},\qquad
+P_\beta=h_\beta=H_\beta/2,\quad v\ge1,\tag{G.9}$$
+once $H_\beta\ge0$. The inequality also holds with an essential supremum over the exterior in place of the integral. Here $P_\beta$ is a prospective GAS heavy prefactor, **not** the Gaussian cutoff $p_\beta$.
+
+The shape count can be proved independently. On a block torus of nearest-neighbour degree at most $2d$, the number of connected $v$-block sets containing a fixed block is at most $(2d)^{2(v-1)}$. Choose a deterministic rooted spanning tree for each set and perform its depth-first contour walk: the $2(v-1)$ directed steps, each with at most $2d$ choices, determine the visited set. At each of the at most $s^dv$ sites in such a set, a proposed heavy object may record one of four labels (unmarked, Gaussian-bad, minus-sheet, both). Thus the number of these **candidate marked shapes** through a fixed block is at most
+$$K_{0h}^{v},\qquad K_{0h}=(2d)^2\,4^{s^d}.\tag{G.10}$$
+Restrictions such as $D=B\cup M$, connectedness, and exact block support only decrease this count. This is the combinatorial `hcount` inequality of `gasOp_pe` for an object type consisting of one such label pattern per connected block support. If exact localization needs separate path decorations as objects, they must first be summed into one function per pattern; (G.10) says nothing about an ungrouped path index.
+
+Neither (G.9) nor (G.10) proves `hτd`. In fact the most direct candidate (G.4) fails that hypothesis even when $D=\{x\}$, $B=\{x\}$, $M=\varnothing$, and $g=0$. Write $\alpha=\beta^{-1/2}C(x,x)>0$ and $b=\beta^{-1/2}\sum_{y\ne x}C(x,y)\psi_y$. Then
+$$\mathcal H_{\{x\};\{x\},\varnothing}(b;0)
+=\int_{|\psi_x|>p_\beta}\mathbf1_{\{|\alpha\psi_x+b|<1\}}
+(1-|\alpha\psi_x+b|^2)^{-1/2}
+e^{-\beta\nu(t(\alpha\psi_x+b)-1)^2/2}\,d\gamma_m(\psi_x).\tag{G.11}$$
+For sufficiently large $\beta$, $\alpha p_\beta<1/4$ by (F.6), so (G.11) is strictly positive at $b=0$. It tends to zero as $|b|\to\infty$: after $u=\alpha\psi_x+b$, the integrable Jacobian is supported in $|u|<1$, whereas the Gaussian density is bounded there by a constant times $\exp[-(|b|-1)^2/(2\alpha^2)]$. The full massive torus is connected, and the positive-resolvent walk formula used in E.4 gives $C(x,y)>0$ for **every** $y$. Varying any exterior $\psi_y$ alone therefore moves $b$ from zero to arbitrary magnitude. On any admissible torus with at least two $s$-blocks, the function in (G.11) is not `DepOn` $Z(\{x\})$; more generally it is not `DepOn` any proper set of blocks, since a site in an omitted block can be varied.
+
+The additional bond factor cannot justify dropping that dependence; it is merely bounded above by one in the real integral. Nor can one replace $C$ by a finite-range truncation while retaining (F.4). To repair `hτd` one needs an exact decomposition of the conditional kernel and of the exterior Jacobians into connected finite-halo functions, with a sum of absolute integrated norms bounded as in (G.9) **after** each halo enlargement. The path-majorant argument F.1 applies only when all Gaussian variables in its analytic function are cut off; (G.11) integrates an unbounded Gaussian variable through the nonanalytic chart boundary. Theorems G.1–G.2 do not give the required halo majorant.
+
+### G.3. GAS interface, Root-F status, and Lean order
+
+The exact hypotheses still absent for `gasOp_pe` are now localized precisely. The candidate kernel is bounded, measurable, entire in $g_D$, and has the integrated estimate (G.9); (G.10) handles its possible undecorated shape count. It is not an exact finite-support factor of (F.4), because it depends on all exterior $\psi$ and because the unmarked Jacobians and crossing factors remain in the full integrand. Extending it to the original full product space by ignoring the integrated coordinates does not restore finite support; moreover different marked sets integrate different coordinates. Consequently products of two such kernels with disjoint declared block supports need not have independent expectations, the step using `integral_prod_depOn` in `GasOperator.gasOp_eq`. The ordinary functions in F.2 live on the fully product-cutoff sector, while (G.4) is conditioned against the full Gaussian reference. An exact common-reference identity matching `gasXiOp` has not been proved. The geometry assumptions `hzd`, `hG3`, `hG1`, the ordinary entropy bound `hent`, and torus agreement of **completed** activities also require the actual object construction; a count of candidate shapes cannot supply them.
+
+If an exact finite-halo decomposition satisfying those conditions is found, choose $\delta=1/8$, then the requested $\kappa,c_9>0$, then $L$ and $M$ as in F.3, then $\beta_0$ large enough that $H_\beta/2$ exceeds $\log K_{0h}$, the explicit GAS inequality (E.12), and the PE inequalities in `gasOp_pe`, and that the final one-scale coefficient is at most $c_9L^{-((d-2)/2+\delta)}$. The resulting local cluster coefficients would be analytic on the open $\ell^1$ ball; the normalization in (F.4) would cancel between $g$ and zero; and the standard source factorization described in B.6 would yield the frozen logarithm and quarter-box torus agreement. These are **conditional deductions**. No value of $\beta_0$ can be claimed to complete Root-F from (G.1)–(G.10), since the missing `DepOn` and exact partition-function identity are logical hypotheses rather than numerical inequalities.
+
+| Order | Lean declaration | Estimated new lines | Proof status and landed reuse |
+|---|---|---:|---|
+| G1 | `principal_sqrtInverse_spectrum`, `chartJacobian_conditionalLp` | 600–1,200 | G.1 proved here; finite spectral calculus and chart measure |
+| G2 | `markedKernel_bdd`, `markedKernel_integrated`, `markedKernel_entire` | 800–1,600 | G.2 proved here; Gaussian tail (F.14), Hölder, `Frozen/Model/Energy` |
+| G3 | `connectedBlockShapes_count`, `markedPatterns_count` | 400–800 | (G.10) proved here; elementary depth-first walk count; `Localization/Peierls` is an aggregate count with different hypotheses |
+| G4 | `singletonMarkedKernel_notDepOn` | 300–600 | (G.11) proved here; positivity of massive resolvent walks |
+| G5 | `heavyHalo_exact`, `heavyHalo_integrated`, `kf0_gasIdentity`, all `gasOp_pe` geometry and torus hypotheses | At least 6,000–12,000 | **Open**; no landed result or cited source gives the singular-chart finite-halo decomposition |
+| G6 | `kf0_gasPe`, `kf0_to_rootF` | 2,000–4,000 | **Conditional** on G5; `Polymer/GasOperator`, `MayerPE`, `HoleOperator`, frozen Root-F |
+
+Confidence is high in G.1–G.2, the elementary candidate count, and the explicit `DepOn` counterexample for the bare integrated kernel. The requested completed (B.5), all-clause $k_f=0$ Root-F proof, and any claim that `gasOp_pe` already applies remain open. The mathematical gap is the exact finite-support heavy localization, not the size of the Gaussian tail.
