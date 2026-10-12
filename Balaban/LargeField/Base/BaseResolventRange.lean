@@ -240,6 +240,101 @@ theorem baseHamiltonian_row_le {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha
         rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
     _ ≤ ν + 12 * d + 3 := by linarith
 
+theorem layerProjMatrix_symm (x y : Torus d (N₀ * L ^ 1)) :
+    layerProjMatrix G 1 x y = layerProjMatrix G 1 y x := by
+  unfold layerProjMatrix
+  rw [blockProjMatrix_symm (d := d) (L := L) (N₀ := N₀) (k := 1) 1 x y]
+  by_cases h : x ∈ G.layer 1 ∧ y ∈ G.layer 1
+  · simp [h, h.symm]
+  · have h' : ¬ (y ∈ G.layer 1 ∧ x ∈ G.layer 1) := fun hh => h hh.symm
+    simp [h, h']
+
+theorem cutFull_symm (a : ℕ → ℝ) (ν : ℝ) (cut : Finset (FineBond d L N₀)) (x y : Torus d (N₀ * L ^ 1)) :
+    cutFullMatrix G a ν cut x y = cutFullMatrix G a ν cut y x := by
+  rw [cutFullMatrix_eq]
+  simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, Matrix.sum_apply, avgMatrix_eq,
+    smul_eq_mul, bondMatrix, Matrix.vecMulVec_apply, layerProjMatrix_symm G x y]
+  have : (if x = y then (1 : ℝ) else 0) = if y = x then 1 else 0 := by simp [eq_comm]
+  rw [this]
+  congr 2
+  refine Finset.sum_congr rfl fun b _ => mul_comm _ _
+
+theorem baseHamiltonian_symm (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (s : FineBond d L N₀ → ℂ)
+    (z y : G.Ω 1) : baseHamiltonian G a ν α s z y = baseHamiltonian G a ν α s y z := by
+  rw [baseHamiltonian_apply, baseHamiltonian_apply, cutFull_symm G a ν _ (z : Torus d _) y]
+  have : (if z = y then α z else 0) = if y = z then α y else 0 := by
+    by_cases h : z = y
+    · subst h; simp
+    · simp [h, Ne.symm h]
+  rw [this]
+  congr 1
+  refine Finset.sum_congr rfl fun b _ => ?_
+  rw [baseBond_symm]
+
+theorem torusDist_le_one_of_bond {b : FineBond d L N₀} {x y : Torus d (N₀ * L ^ 1)}
+    (h : bondMatrix b x y ≠ 0) : Green.torusDist d (N₀ * L ^ 1) x y ≤ 1 := by
+  have hx : bondVec b x ≠ 0 := fun h0 => h (by simp [bondMatrix, Matrix.vecMulVec_apply, h0])
+  have hy : bondVec b y ≠ 0 := fun h0 => h (by simp [bondMatrix, Matrix.vecMulVec_apply, h0])
+  have hadj : Adj (L := L) (k := 1) b.1 (bondTip b) := ⟨b.2, Or.inl rfl⟩
+  have hd := Adj.torusDist_le hadj
+  have hd' := Adj.torusDist_le hadj.symm
+  rcases bondVec_ne_zero_mem b x hx with rfl | rfl <;>
+    rcases bondVec_ne_zero_mem b y hy with rfl | rfl
+  · rw [torusDist_self_eq_zero]; norm_num
+  · exact hd
+  · exact hd'
+  · rw [torusDist_self_eq_zero]; norm_num
+
+theorem torusDist_le_of_avg {a : ℕ → ℝ} {x y : Torus d (N₀ * L ^ 1)}
+    (h : avgMatrix G a x y ≠ 0) : Green.torusDist d (N₀ * L ^ 1) x y ≤ d * L := by
+  have hb : blockProjMatrix d (N₀ * L ^ 1) (L ^ 1) (N₀ * L ^ (1 - 1)) x y ≠ 0 := by
+    intro h0
+    apply h
+    rw [avgMatrix_eq, Matrix.smul_apply]
+    have : layerProjMatrix G 1 x y = 0 := by
+      unfold layerProjMatrix; split_ifs
+      · exact h0
+      · rfl
+    rw [this]; simp
+  have hbl : blockMap (L ^ 1) (N₀ * L ^ (1 - 1)) x = blockMap (L ^ 1) (N₀ * L ^ (1 - 1)) y := by
+    by_contra hne
+    apply hb
+    unfold blockProjMatrix
+    exact if_neg hne
+  have hN : 0 < L ^ 1 := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
+  have := torusDist_le_of_blockMap_eq (side_eq (le_refl 1)) hN hbl
+  simpa using this
+
+theorem siteDist_le_of_ne_zero (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (s : FineBond d L N₀ → ℂ)
+    (z y : G.Ω 1) (hzy : z ≠ y) (h : baseHamiltonian G a ν α s z y ≠ 0) :
+    siteDist G z y ≤ d * L + 1 := by
+  by_contra hlt
+  push Not at hlt
+  apply h
+  rw [baseHamiltonian_apply, if_neg hzy, add_zero]
+  have hne : (z : Torus d (N₀ * L ^ 1)) ≠ y := fun e => hzy (Subtype.ext e)
+  have hdz : Green.torusDist d (N₀ * L ^ 1) z.1 y.1 > d * L + 1 := hlt
+  have hLpos : (0 : ℝ) ≤ d * L := by positivity
+  have hbond : ∀ b : FineBond d L N₀, bondMatrix b z.1 y.1 = 0 := fun b => by
+    by_contra hb
+    have := torusDist_le_one_of_bond hb
+    linarith
+  have hcf : cutFullMatrix G a ν (baseCutBonds G) z.1 y.1 = 0 := by
+    rw [cutFullMatrix_eq]
+    simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, Matrix.sum_apply,
+      smul_eq_mul, hbond, Finset.sum_const_zero, if_neg hne]
+    have : avgMatrix G a z.1 y.1 = 0 := by
+      by_contra hav
+      have := torusDist_le_of_avg G hav
+      linarith
+    rw [this]; simp
+  have hbb : ∀ b, baseBond G b z y = 0 := fun b => by
+    have := hbond b
+    rw [bondMatrix, Matrix.vecMulVec_apply] at this
+    rw [baseBond_apply]
+    exact_mod_cast this
+  simp [hcf, hbb]
+
 end Rows
 
 section Blocks
