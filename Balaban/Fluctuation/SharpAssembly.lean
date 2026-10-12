@@ -1062,6 +1062,24 @@ theorem interaction_expansion_hat_dm_dir :
     (XW' := physXW S cψ R₁ Rσ r) (fun xw h => h) (AgF' := AgFPair S)
     (fun Y a a' h => agFDirPair_of_agFPair S h) (e' := fun ψ => (ψ, ψ)) (fun _ => rfl)
 
+variable (hN : L ^ m₀ ∣ N₁) (hp : 0 < S.p₁)
+
+include hRσ hc hΘ₀ hεb hN hp
+
+/-- **`physical_directTerms` (unconditional).**  Under the hypotheses of the landed assembler
+`interaction_expansion_hat_dm` (with `hRσ`, `hc`, `hΘ₀`, the bound `hεb`, the divisibility
+`L ^ m₀ ∣ N₁` and `0 < p₁`) the physical expansion is a `DirectTerms` instance, whose labels and
+terms `I.𝒴`, `I.T` are a `PhysExpansion` that is sharply local, and whose bounds are `physB`.  No
+locality premise remains: the sharp locality is `interaction_expansion_hat_dm_dir`. -/
+theorem physical_directTerms :
+    ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛ S a₁ ν eps)
+      (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFDirPair S),
+      PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν I.𝒴 I.T ∧
+        PhysicalSharpLoc S cψ R₁ Rσ r a₁ ν eps I.𝒴 I.T ∧
+        I.b = physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν := by
+  obtain ⟨𝒴, T, hD, hS⟩ := interaction_expansion_hat_dm_dir (S := S) (hC := hC) (cβ := cβ) (hconn := hconn) (hrow := hrow) (hκ₀ := hκ₀) (hκdec := hκdec) (hκ := hκ) (h1 := h1) (hR₁ := hR₁) (hr := hr) (hk := hk) (hG := hG) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hdm := hdm) (hα := hα) (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := ha₁) (H := H) (hc7 := hc7) (hR := hR) (hRs := hRs) (hsmall := hsmall) (hnum := hnum) (hnum' := hnum') (hsm := hsm) (hcovV := hcovV) (hX₁V := hX₁V) (hoptV := hoptV) (hΔV := hΔV) (hlogV := hlogV) (hZV := hZV) (hmarV := hmarV) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (hcovE := hcovE) (hX₁E := hX₁E) (hoptE := hoptE) (hlogE := hlogE) (hEbE := hEbE) (hEanE := hEanE) (hEbdE := hEbdE) (hcovF := hcovF) (hX₁F := hX₁F) (hoptF := hoptF) (hΔF := hΔF) (hlogF := hlogF) (hyF := hyF) (𝒯M := 𝒯M) (ys := ys) (is := is) (hys := hys) (hBM := hBM) (hFM := hFM) (hcovM := hcovM) (hX₁M := hX₁M) (hoptM := hoptM) (hlogM := hlogM) (hEbM := hEbM) (hEanM := hEanM) (hEbdM := hEbdM) (rE := rE) (hrE := hrE) (hρE0 := hρE0) (hρE := hρE) (hρM0 := hρM0) (hρM := hρM) (hBh0 := hBh0) (hBh := hBh) (cν := cν) (hZν := hZν)
+  exact ⟨physicalDirectTerms_of_sharpLoc (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) hN hp 𝒴 T hD hS, hD, hS, rfl⟩
+
 end SharpPhysical
 
 end Balaban.Fluctuation
