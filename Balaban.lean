@@ -678,3 +678,5 @@ public import Balaban.LargeField.R.ChainEstimate
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
+public import Balaban.Localization.CoverPartition
+public import Balaban.Localization.Decoupled2FpCount
