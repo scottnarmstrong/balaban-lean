@@ -4,6 +4,7 @@ public import Balaban.LargeField.Operators.QuietBound
 public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOpBound
+public import Balaban.LargeField.Operators.QuietStepDataMeas
 
 /-!
 # Step data of the quiet steps (Part II, Definition II.5.7 (S0)-(S2), Lemma II.5.14)
@@ -59,8 +60,8 @@ quiet step, with the properties (S0) of Definition II.5.7.
   cube; Lemma II.7.2 (c));
 * `quiet_local`: quietness of a step is a property of the localized history (S4);
 * `Rq_eq`: `Rq` is `quietRest` at the quiet steps (S4 for the quiet kernel, Lemma I.3.9);
-* `K_meas`, `b_meas`, `b_analytic`, `b_real`: the kernel is Borel and `b` is analytic and real
-  (typing of an `LFKernel`);
+* `b_meas`, `b_analytic`, `b_real`: `b` is Borel, analytic and real (typing of an `LFKernel`; the
+  kernel itself is Borel by `quietKernel_measurable`);
 * `real_euclid`, `euclid_K`, `euclid_b`: lattice covariance (Lemma II.5.10) between localized
   histories related by a symmetry;
 * `b_supp`, `b_rot`, `b_bound`: (S0) for `b`. -/
@@ -78,10 +79,6 @@ structure QuietStepInput (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ
     ∀ o x hv, Rq k (H.localHistory M K (k + 1) Z') o x hv =
       quietRest geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
         (locRH_rem (k + 1) Z') o x hv
-  K_meas : ∀ (k : ℕ) (a : LocalHistory S n M K) (hv : EuclideanSpace ℝ (Fin N)),
-    QuietRealized R k0 k a →
-    Measurable fun p : OutT N R a (k + 1) × NewCfg N a k =>
-      gaussProd N a k cs p.1 p.2 * Rq k a p.1 p.2 hv
   real_euclid : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K),
     HistImage σ a a' → (QuietRealized R k0 k a ↔ QuietRealized R k0 k a')
   euclid_K : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
@@ -129,6 +126,7 @@ steps, and `0` at every other `a`. -/
 noncomputable def quietKer (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (k : ℕ) (a : LocalHistory S n M K) :
     LFKernel (OutT N R a (k + 1)) (NewCfg N a k) (EuclideanSpace ℝ (Fin N))
       (GIdx S n M K N) where
@@ -146,7 +144,20 @@ noncomputable def quietKer (inp : QuietStepInput K k0 geo cs N)
   measurable_K hv := by
     by_cases hr : QuietRealized R k0 k a
     · simp only [hr, ↓reduceIte]
-      exact inp.K_meas k a hv hr
+      obtain ⟨H, hH, Z', hk1, hk, hq, rfl⟩ := hr
+      have heq : (fun p : OutT N R (H.localHistory M K (k + 1) Z') (k + 1) ×
+          NewCfg N (H.localHistory M K (k + 1) Z') k =>
+            gaussProd N (H.localHistory M K (k + 1) Z') k cs p.1 p.2 *
+              inp.Rq k (H.localHistory M K (k + 1) Z') p.1 p.2 hv) =
+          fun p => quietKernel geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
+            (locRH_rem (k + 1) Z') p.1 p.2 hv := by
+        funext p
+        rw [inp.Rq_eq H hH k hk hk1 Z' hq]
+        exact (quietKernel_eq geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
+          (locRH_rem (k + 1) Z') p.1 p.2 hv).symm
+      rw [heq]
+      exact quietKernel_measurable geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
+        (locRH_rem (k + 1) Z') hv hbg
     · simp only [hr, ↓reduceIte]
       exact measurable_const
   measurable_b hv g := by
@@ -171,18 +182,20 @@ noncomputable def quietKer (inp : QuietStepInput K k0 geo cs N)
 theorem quietKer_K (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (k : ℕ) (a : LocalHistory S n M K) (o : OutT N R a (k + 1)) (x : NewCfg N a k)
     (hv : EuclideanSpace ℝ (Fin N)) :
-    (quietKer inp hz hc hβ haw hμ k a).K o x hv =
+    (quietKer inp hz hc hβ haw hμ hbg k a).K o x hv =
       open Classical in
       if QuietRealized R k0 k a then gaussProd N a k cs o x * inp.Rq k a o x hv else 0 := rfl
 
 theorem quietKer_b (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (k : ℕ) (a : LocalHistory S n M K) (o : OutT N R a (k + 1)) (x : NewCfg N a k)
     (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) :
-    (quietKer inp hz hc hβ haw hμ k a).b o x hv g =
+    (quietKer inp hz hc hβ haw hμ hbg k a).b o x hv g =
       open Classical in
       if QuietRealized R k0 k a then inp.b k a o x hv g else 0 := rfl
 
@@ -190,11 +203,12 @@ theorem quietKer_b (inp : QuietStepInput K k0 geo cs N)
 theorem quietKer_K_quiet (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (H : RegionHistory S n R k0 K) (hH : H.Admissible) (k : ℕ) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
     (Z' : H.Comp (k + 1)) (hq : IsQuiet (H.locRH (k + 1) Z') k Z'.1)
     (o : OutT N R (H.localHistory M K (k + 1) Z') (k + 1))
     (x : NewCfg N (H.localHistory M K (k + 1) Z') k) (hv : EuclideanSpace ℝ (Fin N)) :
-    (quietKer inp hz hc hβ haw hμ k (H.localHistory M K (k + 1) Z')).K o x hv =
+    (quietKer inp hz hc hβ haw hμ hbg k (H.localHistory M K (k + 1) Z')).K o x hv =
       quietKernel geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
         (locRH_rem (k + 1) Z') o x hv := by
   classical
@@ -243,6 +257,7 @@ theorem gaussSpec_zero (cs : OpConsts) (a : LocalHistory S n M K) (k : ℕ) (κ 
 theorem quietKer_gauss_exists [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -250,10 +265,10 @@ theorem quietKer_gauss_exists [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
     (k : ℕ) (a : LocalHistory S n M K) (hr : QuietRealized R k0 k a) :
     ∃ wit : GaussWit N R a k, GaussStepSpec cs R a k (quietKappaStep cs c1 c2 k a)
-      (quietKer inp hz hc hβ haw hμ k a) wit := by
+      (quietKer inp hz hc hβ haw hμ hbg k a) wit := by
   obtain ⟨H, hH, Z', hk1, hk, hq, rfl⟩ := hr
-  exact quietKernel_bound geo cs hN hk1 hk Z' hq (quietKer inp hz hc hβ haw hμ k _)
-    (fun o x hv => quietKer_K_quiet inp hz hc hβ haw hμ H hH k hk hk1 Z' hq o x hv)
+  exact quietKernel_bound geo cs hN hk1 hk Z' hq (quietKer inp hz hc hβ haw hμ hbg k _)
+    (fun o x hv => quietKer_K_quiet inp hz hc hβ haw hμ hbg H hH k hk hk1 Z' hq o x hv)
     (fun o x hv g hg hchi => by
       have hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z') :=
         ⟨H, hH, Z', hk1, hk, hq, rfl⟩
@@ -268,6 +283,7 @@ histories of quiet steps, `zeroWit` elsewhere. -/
 noncomputable def quietWit [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -275,7 +291,7 @@ noncomputable def quietWit [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
     (k : ℕ) (a : LocalHistory S n M K) : GaussWit N R a k :=
   if hr : QuietRealized R k0 k a then
-    Classical.choose (quietKer_gauss_exists inp hz hc hβ haw hμ hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1
+    Classical.choose (quietKer_gauss_exists inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1
       hΛ k a hr)
   else zeroWit N R a k
 
@@ -295,6 +311,7 @@ quiet steps the kernel is `0`. -/
 noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -302,8 +319,8 @@ noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
     (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) :
     StepData k0 geo cs N (quietKappaStep (K := K) cs c1 c2) where
-  ker := quietKer inp hz hc hβ haw hμ
-  wit := quietWit inp hz hc hβ haw hμ hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+  ker := quietKer inp hz hc hβ haw hμ hbg
+  wit := quietWit inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
   b_supp k a o x hv g g' hgg := by
     rw [quietKer_b, quietKer_b]
     by_cases hr : QuietRealized R k0 k a
@@ -313,8 +330,8 @@ noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
   rot_K k a ρ o x hv := by
     by_cases hr : QuietRealized R k0 k a
     · obtain ⟨H, hH, Z', hk1, hk, hq, rfl⟩ := hr
-      rw [quietKer_K_quiet inp hz hc hβ haw hμ H hH k hk hk1 Z' hq,
-        quietKer_K_quiet inp hz hc hβ haw hμ H hH k hk hk1 Z' hq]
+      rw [quietKer_K_quiet inp hz hc hβ haw hμ hbg H hH k hk hk1 Z' hq,
+        quietKer_K_quiet inp hz hc hβ haw hμ hbg H hH k hk hk1 Z' hq]
       exact quietKernel_rot geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
         (locRH_rem (k + 1) Z') ρ o x hv
     · rw [quietKer_K, quietKer_K]
@@ -361,7 +378,7 @@ noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     cases k with
     | zero => exact absurd hq (inp.not_quiet_zero H hH Z' hk)
     | succ k' =>
-      exact quietKer_K_quiet inp hz hc hβ haw hμ H hH (k' + 1) hk (by omega) Z' hq o x hv
+      exact quietKer_K_quiet inp hz hc hβ haw hμ hbg H hH (k' + 1) hk (by omega) Z' hq o x hv
   dom H hH k Z' o x hv hchi := by
     rw [quietKer_K]
     by_cases hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z')
@@ -376,7 +393,7 @@ noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     · simp only [hr, ↓reduceIte]
   gauss H hH k Z' := by
     by_cases hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z')
-    · have h := Classical.choose_spec (quietKer_gauss_exists inp hz hc hβ haw hμ hN c1 c2 hc1 hc2
+    · have h := Classical.choose_spec (quietKer_gauss_exists inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2
         hlog hcpos hδ hδ1 hΛ k _ hr)
       unfold quietWit
       simp only [hr, ↓reduceDIte]
@@ -414,6 +431,7 @@ component whose step is not quiet the step kernel is `0`. -/
 theorem quiet_locOp_pkgBound [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -425,11 +443,11 @@ theorem quiet_locOp_pkgBound [NeZero N] (inp : QuietStepInput K k0 geo cs N)
     (lab : ∀ k, H.Comp k → Fin 5) (hzpos : ∀ k, 0 < cs.z (k + 1)) (κK : ∀ k, H.Comp k → ℝ)
     (hkept : ∀ (k : ℕ) (hk : k ≤ K) (Z : H.Comp k), IsKept H k Z →
       PkgBound (H.localHistory M K k Z) k
-        (locOp geo cs (quietStepData inp hz hc hβ haw hμ hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+        (locOp geo cs (quietStepData inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
           hCb hB0) KD hH lab k hk Z) (κK k Z)) :
     ∀ (k : ℕ) (hk : k ≤ K) (Z : H.Comp k),
       PkgBound (H.localHistory M K k Z) k
-        (locOp geo cs (quietStepData inp hz hc hβ haw hμ hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+        (locOp geo cs (quietStepData inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
           hCb hB0) KD hH lab k hk Z)
         (lineageKappa H M (quietKappaStep (K := K) cs c1 c2) κK k Z) := by
   refine locOp_pkgBound geo cs _ KD hH lab hzpos (fun k => (hcpos k).le) _ ?_ ?_
@@ -462,7 +480,6 @@ theorem quietStepInput_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ)
     quiet_local := fun _ _ _ _ _ _ _ _ hk => by omega
     Rq := fun _ _ _ _ _ => 0
     Rq_eq := fun _ _ _ hk => by omega
-    K_meas := fun _ _ _ hr => by have := QuietRealized.le hr; omega
     real_euclid := fun _ _ a a' _ => by
       constructor <;> intro hr <;> have := QuietRealized.le hr <;> omega
     euclid_K := fun _ _ _ _ _ hk => by omega
