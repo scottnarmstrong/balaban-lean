@@ -154,6 +154,39 @@ noncomputable def LabelAct.mono (A : LabelAct Lab Ωb εH κH κ0 Kc) {ε' κH' 
     · exact Real.exp_le_exp.2 (by nlinarith [Lab.dl_nonneg y])
     · exact le_rfl
 
+/-- The sum of two label activities on the same labels with the same rates and constants: the
+bound constants add, `εH + εH'`, the entropy bound is unchanged. -/
+noncomputable def LabelAct.add {ε₁ : ℝ} (A : LabelAct Lab Ωb εH κH κ0 Kc)
+    (B : LabelAct Lab Ωb ε₁ κH κ0 Kc) : LabelAct Lab Ωb (εH + ε₁) κH κ0 Kc where
+  H y Φ := A.H y Φ + B.H y Φ
+  meas y := (A.meas y).add (B.meas y)
+  dep y Φ Φ' h := by simp only [A.dep y Φ Φ' h, B.dep y Φ Φ' h]
+  bound y Φ := by
+    calc ‖A.H y Φ + B.H y Φ‖ ≤ ‖A.H y Φ‖ + ‖B.H y Φ‖ := norm_add_le _ _
+      _ ≤ εH * Real.exp (-κH * Lab.dl y) + ε₁ * Real.exp (-κH * Lab.dl y) :=
+          add_le_add (A.bound y Φ) (B.bound y Φ)
+      _ = _ := by ring
+  entropy := A.entropy
+
+@[simp] theorem LabelAct.add_H {ε₁ : ℝ} (A : LabelAct Lab Ωb εH κH κ0 Kc)
+    (B : LabelAct Lab Ωb ε₁ κH κ0 Kc) (y : Lb) (Φ : ∀ b, Ωb b) :
+    (A.add B).H y Φ = A.H y Φ + B.H y Φ := rfl
+
+/-- The difference of two label activities on the same labels. -/
+noncomputable def LabelAct.sub {ε₁ : ℝ} (A : LabelAct Lab Ωb εH κH κ0 Kc)
+    (B : LabelAct Lab Ωb ε₁ κH κ0 Kc) : LabelAct Lab Ωb (εH + ε₁) κH κ0 Kc :=
+  A.add B.neg
+
+@[simp] theorem LabelAct.sub_H {ε₁ : ℝ} (A : LabelAct Lab Ωb εH κH κ0 Kc)
+    (B : LabelAct Lab Ωb ε₁ κH κ0 Kc) (y : Lb) (Φ : ∀ b, Ωb b) :
+    (A.sub B).H y Φ = A.H y Φ - B.H y Φ := by
+  show A.H y Φ + -B.H y Φ = _
+  ring
+
+@[simp] theorem LabelAct.mono_H (A : LabelAct Lab Ωb εH κH κ0 Kc) {ε' κH' κ0' Kc' : ℝ}
+    (h0 : 0 ≤ εH) (hε : εH ≤ ε') (hκH : κH' ≤ κH) (hκ0 : κ0 ≤ κ0') (hK : Kc ≤ Kc') (y : Lb)
+    (Φ : ∀ b, Ωb b) : (A.mono h0 hε hκH hκ0 hK).H y Φ = A.H y Φ := rfl
+
 end Neg
 
 end Balaban.Fluctuation
