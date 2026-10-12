@@ -675,6 +675,9 @@ public import Balaban.LargeField.R.ChainSeq
 public import Balaban.LargeField.R.HatW
 public import Balaban.LargeField.R.ChainBound
 public import Balaban.LargeField.R.ChainEstimate
+public import Balaban.LargeField.R.WindowGaussTree
+public import Balaban.LargeField.R.WindowChain
+public import Balaban.LargeField.R.WindowIdeal
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
