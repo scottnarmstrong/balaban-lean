@@ -42,7 +42,8 @@ kernels of the step), whose structure at the constant configuration is Lemma 2.1
 (`Balaban/Observables/LayerStructure.lean`).
 
 (O5) (CONT, TORUS) is not part of this file: it is the family-level clause to be added together
-with `ContAtZero` and `IsSFFamily` of Def-6.
+with `ContAtZero` and `IsSFFamily` of Def-6 (`ContAtZero` asks for a `ν`-independent set that is
+open in the space of block-constant fields, `Def6.blockConstE`, `Def6.blockConstM`).
 -/
 
 @[expose] public section
