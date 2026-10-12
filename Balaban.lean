@@ -709,6 +709,9 @@ public import Balaban.Observables.LayerV2Inhabited
 public import Balaban.Observables.LayerV2Renorm
 public import Balaban.Observables.LayerV2RenormCompare
 public import Balaban.Observables.LayerV2RenormFirst
+public import Balaban.Observables.LayerV2Dictionary
+public import Balaban.Observables.LayerV2Improved
+public import Balaban.Observables.LayerV2DictionaryInhabited
 public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
@@ -887,6 +890,7 @@ public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassChangeHessian
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
+public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
 public import Balaban.LargeField.R.MassChangeOneSite
 public import Balaban.LargeField.R.MassChangeUniv
@@ -925,6 +929,7 @@ public import Balaban.Fluctuation.InteractionAssemble
 public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionHatF
 public import Balaban.Fluctuation.InteractionHatAssemble
+public import Balaban.Fluctuation.InteractionHatEta
 public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionHatLC
 public import Balaban.Fluctuation.InteractionHatNu
@@ -1070,6 +1075,12 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.HatLabelsSplit
+public import Balaban.Fluctuation.HatLabelsGeom
+public import Balaban.Fluctuation.HatLabelsDep
+public import Balaban.Fluctuation.HatLabelsAct
+public import Balaban.Fluctuation.HatLabelsTerms
+public import Balaban.Fluctuation.HatLabelsExpansion
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
