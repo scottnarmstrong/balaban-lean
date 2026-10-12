@@ -1,9 +1,6 @@
 # FLUCTUATION: one small-field step in full at $\lambda=\infty$ (phase 1, document D-FLUCT; roadmap I-8, I-9; open item O-2′)
 
-**Version 1** (2026-10-12). Brief: `orchestration/briefs/D-FLUCT-fluctuation.md`. Status: draft for independent review; nothing here is
-approved or frozen. Mathematics on paper only; no Lean was written or run. Labels: **proved** (a complete argument is written here,
-possibly from named inputs), **cited** (a source or another phase-1 note proves it; the exact form used is stated), **sketched** (plan with
-the key estimate written), **UNCERTAIN:** (a doubt). Document key: **FL** (this document); SF = `SMALLFIELD.md` v3, LOC = `LOCALIZATION.md` v3,
+**Version 2** (2026-10-12). Brief: `orchestration/briefs/D-FLUCT-fluctuation.md`. Status: working repair of the independent FL-A01–FL-A13 audit; nothing here is approved or frozen. Mathematics on paper only; no Lean was written or run in this directory. Status labels throughout mean **proved** (the displayed argument closes without an open input), **proved conditional on a PROVED cited result** (the cited theorem has the stated hypotheses and conclusion), and **conditional on an OPEN assertion** (the assertion is named at the point of use). A Lean theorem about an abstract interface does not prove that this RG step satisfies its premises. Document key: **FL** (this document); SF = `SMALLFIELD.md` v3, LOC = `LOCALIZATION.md` v3,
 BG = `BACKGROUND.md` v2, PE = `POLYMER.md`, GR = `GREEN.md`, LFR = `LF-RECONSTRUCTION.md` (Parts I–IV), OBS = `OBSERVABLES.md`.
 
 **What was read.** AGENTS.md; the brief; SF (all, v3); LOC (all, v3); PE §§0–6; BG §§1, 5, 6; GR §3 (G-1 … G-6); LFR §II.0, §§II.2–II.3,
@@ -20,55 +17,39 @@ renormalization (4.1)–(4.24) with Propositions 4.1, 4.2, the bound (5.15)–(5
 `Balaban/Multiscale/Constrained.lean` (`constrainedOp`), `Balaban/SmallField/Xi.lean` (`Xi`, `XiC`, `GapE`),
 `Balaban/SmallField/RenormTheorem.lean` (`renormalization_local`, the landed I-6 local form).
 
+**[v2 source check]** The v2 repair is anchored to the independent audit `notes/phase1/FLUCT-AUDIT-astra.md` (SHA-256 `baeda7ea93ace96b95b180ef293787e10b00e00a397c34097ec53137ac3f5b1d`) of the unchanged version-1 source (SHA-256 `860d4b39e44d96a21d26d9dad4ef008bfd6ac9281b18537f5b2565b19763fb2a`). I read the statements of `RenormTermwise*.lean`, `Polymer/MayerMarked.lean`, `Localization/I5.lean`, `SmallField/XiProps.lean`, `XiComposeField.lean`, and the draft `SmallField/Def6.lean` in the read-only Balaban tree. Their abstract conclusions and premises are distinguished in §1.3. The formulas newly used in §4 are checked against LFR Definition II.3.5 and the P5/P6 text layers; P4 (4.19) on printed p. 704 and (5.39)–(5.41) on printed p. 718 were checked against PDF images. No conclusion is drawn from the unreliable P1–P4 OCR.
+
 ---
 
 ## 0. Summary
 
 *(Written last; see the end of the drafting log in §6.6. This section is the reply asked for by the brief.)*
 
-**Statements and status** (one line each; "given inputs" = the cited inputs of §1.3: LOC I-4a/b/c, I-5, AE, GM; BG I-1, I-2; GR; landed PE/MY/PE-M, I-6, RG equations).
+**Statements and status [v2: FL-A01–FL-A13].** “Conditional on a PROVED cited result” names an abstract theorem whose premises are verified here; “conditional on an OPEN assertion” names a remaining mathematical input. A target estimate is not counted as proved merely because its abstract Lean interface is landed.
 
 | # | Statement | Status |
 |---|---|---|
-| Def 1.1, Lemma 1.2 | modular covering size $d^{\rm cov}_j(X\bmod\Omega^c)$, $\hat Y(S)$, $d_\Omega$; (G1) block count (P6 (4.11) for $d^{\rm cov}$), (G2) entropy, (G3) union, (G4) support, (G5) diameter | proved |
-| Def 2.1 | one step $\chi_{k+1}S^{(k)}T^{(k)}\chi^{(k)}$ at $\lambda=\infty$, both conventions | definition |
-| Lemma 2.2 | critical point of the Gaussian step; it is the unique global minimiser (FL-10) | proved |
-| Lemma 2.3 | exact expansion by the chord identity; $V^{(k)}=\frac12\langle\alpha^{(1)},\phi'\cdot\phi'\rangle+\frac12\langle\phi_2,H_k\phi_2\rangle$; $\nu$-free term $V^{(k)}_\nu$ | proved |
-| Lemma 2.4 | constrained covariance $C^{(k)}=(aL^{-2}Q^*Q+\Delta^{(k)})^{-1}$, square root, kernel decay | cited (GR, LOC I-4c); identification and $\ell^\infty$ bound proved |
-| Lemma 2.5 | only $\chi_{\rm fl}$ remains; product measure (2.5) | proved |
-| Prop 2.6 | the fluctuation integral (2.6) and the interpolating measures (2.7)–(2.9) | proved (algebra) |
-| §2.7 | subdomain form of the step (P5 §§2–3) | cited |
-| Def 2.7, Lemma 2.8 | auxiliary generating set $\mathbb B^\sharp_{k+1}$; its cover is admissible | sketched (margins inherit LOC open item 5) |
-| Lemma 2.9 | switch at $k_0$: quadratic switching term, $O(\beta^{-1})$ per block (FL-2) | proved given inputs |
-| Thm 3.1 (a)–(e) | I-8: $\mathscr E''_0$, $\mathscr E'_1$ off $\Omega$, $\mathscr M''_0$, $\mathcal B''$, $\mathcal R'_m$, $\mathcal R'_{n-1}$ with rates $\kappa_a,\kappa_b$ in $d^{\rm cov}(\cdot\bmod\Omega^c)$ | proved given inputs, (V0), (Vmod) |
-| Thm 3.1 (f) | old action and background changes on $\Omega^c_{k+1}$ (P6 Props 2.1–2.2) | sketched |
-| Thm 3.1 (g), (h) | renormalization expansions $C_1,C_2,\mathscr E_u$ and $\mathscr M$ (P4 Props 4.1, 4.2; P6 Prop 2.3), jointly analytic in $\xi$ | proved given inputs |
-| Lemma 3.2 | termwise I-6 (each $I(y,X)$ separately; subdomain counterterms) | proved |
-| (V0) / (Vmod) | I-5 with the scaled hypothesis / with modular sizes for boundary terms | proved by inspection / sketched |
-| Prop 3.3 | localized interaction (3.4): $\varepsilon_U=C_U(E_0+1)\alpha_0^{-1}\beta^{-3/8+3\alpha_1/4}$, rate $\kappa_U=2\kappa-1$ | proved given (V0), (Vmod) |
-| Thm 3.4 | marked cluster expansion on the cubes of $\Omega_{k+1}$ (one and two marks), from landed `mayer_marked` | proved |
-| Lemma 3.5 | renormalization identity $C^{(k+1)}=C_1-C_2+C_3$, exact at $\lambda=\infty$ | proved |
-| (IC) | $\kappa\ge7+8\kappa_0+2c_1$; implied by SF's $\kappa\ge8+14\kappa_0$ and by LFR's $\kappa_{\rm flow}\ge16\kappa_0+16$ | proved |
-| Lemma 4.1 | far data changes decay like $e^{-\gamma_w\mathrm d(x,W)}$ (also decoupled) | proved from cited weighted bounds |
-| Thm 4.2 | **O-2′** (LFR Lemma IV.1.3): background change $=\sum\Delta(Y)$, $|\Delta(Y)|\le e^{-\hat R_k/2}e^{-\frac32\kappa d^{\rm cov}(Y\bmod\Omega^c)}$, under (Λ28′) | proved given LOC I-4a/b, AE, GM |
-| Cor 4.3 | P6 (2.12)–(2.17) background changes | proved (same proof) |
-| Thm 5.1, 5.2 | **I-9** whole lattice: the class is preserved, new terms at rate $\frac32\kappa$; recursion (5.1), $|\xi^{(k)}|\le C_\xi\beta^{-1}L^{-2\gamma(k+1)}$; $E_0^*=400C_4'B_6K_0K_5$ | proved given inputs and SF Lemma 3.1′ |
-| Thm 5.3 | **(F1) clause** of SF Thm 5.3, incl. continuity at $\nu=0$ | proved given inputs (via Lemma 5.8) |
-| Thm 5.4 | subdomain step P6 (2.32)–(2.33) (what LF-3, LF-5 cite) | proved modulo Thm 3.1 (f), (Vmod), P1 (3.77)/(3.80), P5 §2 bookkeeping |
-| Lemmas 5.5–5.7 | $\chi_{k+1}\chi_{k+1,u}=\chi_{k+1}$; domain inclusion P4 (4.19) (deferred in P4); SF (B1) with $d^{\rm cov}$ | proved |
-| Lemma 5.8 | (CONT) is preserved by the step | proved at paper level |
+| Def 1.1, Lemma 1.2 | modular covering size and finite $d_\Omega$ on every nonempty support; (G1)–(G5) | finite extension and (G1)–(G3) arithmetic proved here; source geometry for connected covers conditional on cited P5/P6 geometry |
+| Def 2.1, Lemmas 2.2–2.5, Prop 2.6 | Gaussian step, chord identity, covariance, product measure and interpolation | algebra proved; analytic/covariance conclusions conditional on PROVED cited BG/GR results and their stated input domains |
+| §2.7 | subdomain decomposition P5 §§2–3 | cited P5; transfer to amended class conditional on OPEN cover/NC |
+| Def 2.7, Lemma 2.8 | auxiliary generating set and margins | definition; margins conditional on OPEN assertion, VMOD.md |
+| Lemma 2.9 | switch at $k_0$ | scalar chord identity and $O(\beta^{-1})$ cost proved; joint $\xi$/RG part conditional on OPEN RGFREE.md |
+| Thm 3.1 (a)–(e), (g), (h) | I-8 expansions | conditional on OPEN cover/NC, fluctuation I-5 and, for (c), (Vmod) |
+| Thm 3.1 (f) | old action/background changes | conditional on OPEN P6 Props 2.1–2.2 transfer, VMOD.md |
+| Lemma 3.2 | termwise I-6 on $X\cup\operatorname{st}_+(y)$ and (3.2) | proved conditional on PROVED landed `RenormTermwise*` declarations and their explicit `PremisesTerm`/`SumConds`; actual RG premises remain to be instantiated |
+| (V0), (Vmod), Prop 3.3 | scaled and modular I-5; localized interaction | (V0) domain reduction checked; full fluctuation and modular inputs OPEN, VMOD.md |
+| Thm 3.4 | one and two marks, finite support size | proved conditional on PROVED `mayer_marked`, Lemma 1.2, and the stronger two-mark slack $\varepsilon_H\le\varepsilon_{\rm PE}/4$ |
+| Lemma 3.5; (IC) | exact renormalization identity; rate arithmetic | proved algebraically |
+| Lemma 4.1 | weighted far-data response | conditional on the stated LOC weighted response/NC input |
+| Thm 4.2, Cor 4.3 | O-2′ and related background changes | complex prefactor and (Λ28′) proved under stated H7/LOC inputs; full decoupled cover/NC OPEN |
+| Thms 5.1, 5.2 | amended-class I-9 and recursion | conditional on OPEN I-8, VMOD.md and RGFREE.md; quantifier order corrected |
+| Thm 5.3, Lemma 5.8 | family (CONT) and its preservation | family implication proved under common working neighbourhoods and OPEN step/RG inputs; `ContAtZero` alone does not supply those neighbourhoods |
+| Thm 5.4 | subdomain step | conditional on OPEN (Vmod), Thm 3.1(f), cover/NC and stated P1/P5 transfers |
+| Lemmas 5.5–5.7 | cutoff/domain/(B1) estimates | conditional on their stated cited P4, BG and LOC inputs; (DL-gap) is explicit |
 
-**Main risk.** Proposition 3.3 (Lean module 8): it composes every decoupled object of LOC (I-4a in both modes, I-4b, I-4c) with the old effective action, so it carries the full
-weight of LOC's NC and of the cover of Lemma 2.8; second, the F-1 decision (§1.4): the step produces terms analytic on $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$, not on the data
-domain of SF ruling (iv), so Def-6/Def-7 (D2) must be restated before anything here is frozen.
+**Remaining dependencies [v2: FL-A13].** The amended $\Xi^c$ class is the stated input (§1.4; landed draft Def-6 and accepted LFR Def-7 amendment). The complete I-8/I-9 chain still needs the auxiliary cover, NC and modular/fluctuation I-5 (notes/phase1/VMOD.md (in preparation)); the old-action expansion (same document); and the actual $\nu$-free divided RG system and switch derivatives (notes/phase1/RGFREE.md (in preparation)). The base $k=0$ covariance analogue and the cited P1 counterterm bounds remain separate inputs. The family limit needs the common Cauchy neighbourhood condition of Theorem 5.3 in addition to the bare `ContAtZero` clause.
 
-**Size.** This document about 15,000 words. Lean: 17 new modules, 47k–88k lines (§6.4), on top of LOC's 24k–38k for I-4/I-5 and the landed PE/MY/PE-M, AE, GM, I-6, RG
-equations. First milestone: modules 1, 3, 6, 9 (no dependence on NC).
-
-**Open items** (§6.5): (1) F-1 decision; (2) (Vmod) sketched; (3) Theorem 3.1 (f) sketched; (4) Lemma 2.8 margins (LOC open item 5); (5) SF Lemma 3.1′ entry $\varrho_{31}$
-(UNCERTAIN in SF); (6) NC (LOC); (7) base case $k=0$: LOC I-4c analogue for $C^{(0)}$; (8) P1 (3.77), (3.80) taken from the review; (9) H7 domain versus $\tilde\Psi^c$ cited.
-**Questions:** Q1 accept F-1; Q2 accept the two-step switch (drops SF (R-switch) and LFR (L1′)); Q3 freeze Theorems 5.3 and 5.4 instead of SF 5.1–5.3; Q4 sharpen PE-L
-in the landed `mayer_pe` ($c_1\to1$) or keep (IC) with $2c_1$. None for Roland.
+**Lean scope.** §6.4 records a proposed module order, not a proof status. The termwise I-6 declarations are now landed, while the RG-to-`PremisesTerm` identification, the new cover and the full I-5 variants are not. No claim of a complete Lean fluctuation step is made here.
 
 ---
 
@@ -98,8 +79,9 @@ contain or miss each connected component of $\Omega^c$.
 
 **Definition 1.1 (modular covering size).** For $X\in\mathcal D_j(\bmod\,\Omega^c)$ with $X\cap\Omega\ne\varnothing$,
 $$d^{\rm cov}_j(X\bmod\Omega^c):=\inf\big\{M^{-1}|\Gamma|:\ \mathcal K\ \text{a set of }\pi'_j\text{-cubes contained in }X\text{ whose union contains }X\cap\Omega,\ \ \Gamma\subset X\ \text{a tree meeting every cube of }\mathcal K\big\}.$$
-For a set $S$ of $\pi_j$-cubes of $\Omega$ let $\hat Y(S)$ be $S$ together with all components of $\Omega^c$ adjacent to $S$, and put
-$d_\Omega(S):=d^{\rm cov}_j(\hat Y(S)\bmod\Omega^c)$ (when $\hat Y(S)$ is connected; $+\infty$ otherwise).
+For a nonempty set $S$ of $\pi_j$-cubes of $\Omega$ let $\hat Y(S)$ be $S$ together with all components of $\Omega^c$ adjacent to $S$. **[v2: FL-A12]** Fix $\kappa_0>0$ as in §1.5, put $B_\Omega:=|\{\pi_j\text{-cubes in }\Omega\}|$ and
+$$D_\Omega:=B_\Omega+\kappa_0^{-1}B_\Omega\log2+\max_{\varnothing\ne T\subset\Omega,\ \hat Y(T)\text{ connected}}d^{\rm cov}_j(\hat Y(T)\bmod\Omega^c),\qquad d_\Omega(S):=\begin{cases}d^{\rm cov}_j(\hat Y(S)\bmod\Omega^c),&\hat Y(S)\text{ connected},\\D_\Omega,&\hat Y(S)\text{ disconnected}.\end{cases}$$
+The maximum is finite on each finite torus, and the family in it contains every singleton. This is a finite real extension, exactly equal to the original modular size on every support that occurs in a connected cluster. Its large value on disconnected supports is used only to instantiate the all-support hypotheses of the landed Mayer theorem; it does not introduce an activity on such a support.
 
 P5's $d_j(X\bmod\Omega^c)$ (1.34) asks the tree to meet every cover cube meeting $X\cap\Omega$; those contained in $X$ form an admissible $\mathcal K$,
 so $d^{\rm cov}_j(X\bmod\Omega^c)\le d_j(X\bmod\Omega^c)$, and for $X\subset\Omega$ the definition reduces to $d^{\rm cov}_j(X)$.
@@ -107,7 +89,7 @@ so $d^{\rm cov}_j(X\bmod\Omega^c)\le d_j(X\bmod\Omega^c)$, and for $X\subset\Ome
 **Lemma 1.2 (geometry of the covering sizes; proved).** Let $c_1:=(2L+3)^d$ and $c_G:=2dL$. For $X,X_1,X_2\in\mathcal D_j(\bmod\,\Omega^c)$ and sets
 $S,S_1,S_2$ of $\pi_j$-cubes of $\Omega$:
 
-- **(G1)** $n_\pi(X\cap\Omega)\le c_1\,(1+d^{\rm cov}_j(X\bmod\Omega^c))$; in particular $|X|\le((2L+3)M)^d(1+d^{\rm cov}_j(X))$ (P6 (4.11) for $d^{\rm cov}$).
+- **(G1)** $n_\pi(X\cap\Omega)\le c_1\,(1+d^{\rm cov}_j(X\bmod\Omega^c))$; for **every nonempty** support $S\subset\Omega$, $|S|\le c_1(1+d_\Omega(S))$; in particular $|X|\le((2L+3)M)^d(1+d^{\rm cov}_j(X))$ (P6 (4.11) for $d^{\rm cov}$).
 - **(G2)** There are $a_{\rm ent}=a_{\rm ent}(d,L)$ and, for $\kappa_0\ge a_{\rm ent}+1$, a constant $K_0=K_0(d,L,\kappa_0)$ such that for every $\pi_j$-cube
   $\square\subset\Omega$: $\sum_{X\ni\square}e^{-\kappa_0d^{\rm cov}_j(X\bmod\Omega^c)}\le K_0$ and $\sum_{S\ni\square}e^{-\kappa_0d_\Omega(S)}\le K_0$ (P5 (1.35)).
 - **(G3)** If $X_1\cap X_2$ contains a $\pi_j$-cube of $\Omega$ then $X_1\cup X_2\in\mathcal D_j(\bmod\,\Omega^c)$ and
@@ -117,7 +99,9 @@ $S,S_1,S_2$ of $\pi_j$-cubes of $\Omega$:
   $Y\in\mathcal D_j(\bmod\,\Omega^c)$ then $d_\Omega(S)\le d^{\rm cov}_j(Y\bmod\Omega^c)$.
 - **(G5)** Any two points $x,x'$ of $X\in\mathcal D_j$ satisfy $|x-x'|\le M(d^{\rm cov}_j(X)+2\sqrt d\,L)$ (replaces P1 (3.54) in P4 (5.16)–(5.17)).
 
-*Proof.* (G1) P6's proof of (4.11) (pp. 25–26 [checked]) covers a tree $\Gamma$ by at most $1+M^{-1}|\Gamma|$ cubes of side $(2L+3)M$ such that every
+*Proof.* **[v2: FL-A12]** If $\hat Y(S)$ is connected, apply the first (G1) inequality to $X=\hat Y(S)$, whose intersection with $\Omega$ is $S$. For a disconnected $\hat Y(S)$, $|S|\le B_\Omega\le D_\Omega\le c_1(1+d_\Omega(S))$, proving its (G1). At most $2^{B_\Omega}$ supports contain a fixed cube, and their total disconnected contribution to (G2) is at most $2^{B_\Omega}e^{-\kappa_0D_\Omega}\le1$. Enlarge the constant obtained for connected supports by one. If $S_1\cap S_2\ne\varnothing$ and both $\hat Y(S_i)$ are connected, their union is connected and the tree joining argument below proves (G3). Otherwise $d_\Omega(S_1\cup S_2)$ is either $D_\Omega$ or at most the maximum in the definition of $D_\Omega$; one of $d_\Omega(S_i)$ is $D_\Omega$, so (G3) follows from nonnegativity. In a connected cluster every input support $Y\cap\Omega$ has connected $\hat Y$, and overlap in an $\Omega$-cube keeps the union connected; hence the finite extension never weakens the cluster coefficients actually used below.
+
+(G1) P6's proof of (4.11) (pp. 25–26 [checked]) covers a tree $\Gamma$ by at most $1+M^{-1}|\Gamma|$ cubes of side $(2L+3)M$ such that every
 $LM$-cube meeting $\Gamma$ lies in one of them; the cubes of $\mathcal K$ meet $\Gamma$ and their union contains $X\cap\Omega$. Take the infimum.
 (G2) A tree of length $\ell M$ meets at most $C_d(\ell+1)$ cubes of $\pi_j$, which form a connected set; $X\cap\Omega$ is contained in the union of
 the $\pi'_j$-cubes meeting it, i.e. in its $L$-neighbourhood, and $\square$ lies there. The number of connected sets of $C_d(\ell+1)$ cubes within distance
@@ -142,10 +126,10 @@ $\le\frac13\kappa-1$ is allowed there), so a single $\kappa_0=\kappa_0(d,L)$ and
 | I-1 | BG Thm 5.2 (unique small solution, analytic, bounds $K_1$, real global minimiser), Prop 5.1 (perturbed system, $\exists!$, analytic, $\le K_2\delta_1$), Prop 5.4 (linear response $\dot\phi=(G-\Pi)\dot S$) | BG §5; landed `prop51_*`, `lemma53`, `linearResponse` | cited |
 | I-2 | BG Thm 6.1 (ii), (iv): $\phi(\mathbb B_j;\Psi)=\phi(\mathbb B'_k;\Psi')|_{\Omega_1}$ for $\Psi=$ `composeField`; Prop 6.4 | BG §6; landed `isEL_compose`, `theorem73_real`, `theorem73_complex`, `prop64` | cited |
 | G | GR G-1(b), (d)(1)–(3) (coercivity of the constrained $aL^{-2}Q^*Q+\Delta^{(k)}$), G-4 (Combes–Thomas), G-6(b) (Schur form of $C_x$) | GR §4; landed `constrainedOp`, `constrained_G2v`, `xVariant_constrained_reduction` | cited |
-| I-4 | LOC I-4a (both modes), I-4b, I-4c, DG1–DG7 | LOC §3; partly landed (`dg1`–`dg6`, `i4a_*`, `i4b_*`) | cited |
-| I-5 | LOC Theorem I-5 and its proof (AE + GM + DL), variants V2–V5 | LOC §4; landed `abstract_expansion`, `gm2`, `gm3`, `gm4` | cited; two further variants in §3.3 |
-| I-6 | SF Theorem 2.1 (local form) and its proof; (R-S), (Σ2) | SF §2; landed `renormalization_local` | cited; termwise form Lemma 3.2 here |
-| I-7 | SF Theorem 3.2, Lemma 3.1, 3.1′, 3.3 | SF §3; landed `rg_step_infty`, `rg_flow_infty`, `tendsto_rg_solution`, `matrixInfty`, `matrixFree`, `matrixSel` | cited |
+| I-4 | LOC I-4a (both modes), I-4b, I-4c, DG1–DG7 | LOC §3; partly landed (`dg1`–`dg6`, `i4a_*`, `i4b_*`) | abstract pieces PROVED; NC/new cover OPEN |
+| I-5 | LOC Theorem I-5 and its proof (AE + GM + DL), variants V2–V5 | LOC §4; landed background-only `i5_background`, `abstract_expansion`, `gm2`, `gm3`, `gm4` | background-only theorem PROVED; fluctuation and modular variants OPEN, VMOD.md |
+| I-6 | SF Theorem 2.1; termwise `PremisesTerm`, `SumConds`, `Itw_congr`, `Itw_analytic`, `termwise_irrelevant_all_scales`, `energyW_sub_AW_eq_tsum_IW`, `IW_bound_outside` | SF §2; landed `RenormTermwise*.lean` | abstract termwise results PROVED; actual RG premises to be checked |
+| I-7 | SF Theorem 3.2, Lemma 3.1, 3.1′, 3.3 | SF §3; landed abstract `rg_step_infty`, `rg_flow_infty`, `tendsto_rg_solution`, `matrixInfty`, `matrixFree`, `matrixSel` | abstract results PROVED; actual $\nu$-free coefficient and switch OPEN, RGFREE.md |
 | PE | PE Theorem PE, PE-L, MY, PE-M | PE §§2–3; landed `pe_xi_eq_exp`, `pe_PY_bound`, `mayer_pe`, `mayer_marked`, `norm_D1_Ff_le` | cited |
 | LF | LFR §II.2 (generating sets of a step, $\mathbb B^{\rm loc}$, Lemmas II.2.3, II.2.5, II.2.6), Def II.3.2, II.3.5, II.6.1–II.6.3 | LFR | cited |
 
@@ -156,29 +140,28 @@ terms (D7) (LFR Definition II.6.2, the restricted functions (1.6)–(1.17) of LF
 $j\le k_0$ and complete at scales $j>k_0$, with the a priori regime index $k_0:=\max\{k:\beta\nu L^{kd}\le1\}$ (LFR D-IV.11); the free flow
 $c_{k+1}=a_{k+1}b_{k+1}$ is used (SF §3.1 ruling), so $a_{k+1}=a_{k+1,u}=aa_k/(a_k+aL^{-2})$ exactly and $d_{k+1}$ does not occur.
 
-**Finding F-1 (the analyticity domain of the class must be $\Xi^c$, not the data domain).** SF §1.7 ruling (iv) takes as the analyticity domain of
-$\mathscr E^{(j)}(y,X;\cdot)$ the data domain $\tilde\Psi^c_j(\mathbb B_j(X);K\varepsilon_j,K\varepsilon_j)$ with $K\ge2C_4K_1$. The induction cannot close with it.
-*Input side:* at $j=k$ the argument of $\mathscr E^{(k)}(X;\cdot)$ in the fluctuation integral ranges over (a subset of) $\Xi^c_k(\mathbb B_k(X);1,\varepsilon_k)$ (LOC
-Lemma DL step (4)), whose data image is only contained in $\tilde\Psi^c(2(d+2)\varepsilon_k,2(d+2)\varepsilon_k)$ (LOC (Ξ1), landed with $(4d+8)(2d+1)$), so
-$K\ge2(d+2)$ is needed. *Output side:* the new terms produced by I-5/I-8 are analytic on $\Xi^c_{k+1}(\mathbb B_{k+1}(Y);1,\varepsilon')$ with $\varepsilon'\le\varepsilon_{k+1}$
-(LOC Lemma DL: the gap (E) is consumed by $\varepsilon'+(K_2+1)\delta_3\le\varepsilon_k$); by (D2) the data domain of radius $K\varepsilon_{k+1}$ is contained only in
-$\Xi^c_{k+1}(1,(1+K_1)K\varepsilon_{k+1})$, which would require $(1+K_1)K\varepsilon_{k+1}\le\varepsilon_k$, i.e. $L^{\alpha}\gtrsim2(d+2)(1+K_1)$, a condition with $K_1=K_1(d,L)$ on
-both sides. With P4's own domain (H.4), $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ (now landed as `XiC`), both sides close for every $L$: the input by (Ξ3)
-($\Xi^c_j(\sigma,\varepsilon_k)\subset\Xi^c_j(1,\varepsilon_j)$ for $\sigma\le1$, $\varepsilon_k\le\varepsilon_j$; all defining inequalities are monotone in $(\sigma,\varepsilon)$), the output by
-Lemma DL with $\varepsilon'=\varepsilon_{k+1}$. **Recommendation:** Def-6 (and Def-7 (D2)) state the analyticity of the localized terms on
-$\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$; the data-domain form may be kept as a consequence (Ξ1) for consumers that want it. Everything below uses $\Xi^c$.
-(Question Q1, §6.5.)
+**[v2: FL-A11] Amended class input (F-1).** At each scale $j$, require every localized $\mathscr E^{(j)}(y,X;\cdot)$ and $\mathscr M^{(j)}(x,X;\cdot)$ to be analytic on an open neighbourhood of $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ (for $\mathscr M$, also $\|g\|_{\ell^1}<1$), with the stated bounds on that set. This is the `analyticE` and `analyticM` clause of the landed draft `Balaban/SmallField/Def6.lean` (`IsSF`, through `XiDom`); for subdomains it is the author-accepted amendment to Def-7 (D2) recorded in LFR §II.3.3. The amendment is an **input class** for Theorems 3.1, 5.1 and 5.4. It supersedes SF §1.7 ruling (iv), whose larger data-domain demand is not reproduced by the step. The boundary class (D7) continues to use the H7 domain of LFR Definition II.3.5.
+
+The exact landed inclusions matter. Put $C_0=\mathrm{scaledC0}(d)=8d+12$ and $C_{\Xi1}=\mathrm{xiC1}(d)=(4d+8)(2d+1)$. The landed (Ξ1), `xiC_inPsiTildeC` in `Balaban/SmallField/XiProps.lean`, sends $\Xi^c_j(1,\varepsilon)$ into the complex data domain with radii $C_{\Xi1}\varepsilon$, under $(4d+6)(2d+1)\varepsilon\le1$ and $C_{\Xi1}\varepsilon\le C_1^{\rm BG}$. The landed (Ξ3), `xiC_compose` in `XiComposeField.lean`, sends a scale-$k$ member of $\Xi^c_k(1,\varepsilon)$ under the exact composition (6.2) into $\Xi^c_j(C_0s_{jk},\varepsilon)$; the factor $C_0$ cannot be dropped at $j=k$. The landed background-only `i5_background` in `Balaban/Localization/I5.lean` takes an input $E$ analytic and bounded on
+$$\Xi^c_j\bigl(C_0,\ C_0^2\varepsilon'+K_2^{\Xi}\delta_3\bigr),\tag{DL-in}$$
+and returns local coefficients analytic on neighbourhoods of $\Xi^c_{k+1}(1,\varepsilon')$, bounded by $E_b e^{-\kappa_0d_j^{\rm cov}(X)-2\kappa\tilde d_{k+1}^{\rm cov}(Y)}$ and local on its landed thickening `thickSet Y`. Its other explicit hypotheses are `BgSetting` (including `ChainNum`), `CovSetup`, `HatConn`, the optimum-tree witness `hopt`, and the rate inequalities in `i5_background`; in particular `ChainNum` includes the $C_{\Xi1}$ smallness and background-domain inequalities. Those hypotheses must be instantiated for the chosen cover. This is a **background-only** theorem; its fluctuation-variable version, the modular version, and their cover hypotheses remain OPEN, with the modular work assigned to notes/phase1/VMOD.md (in preparation).
+
+Here is the required input/output check, including the Cauchy margin. The defining inequalities of $\Xi^c(\sigma,\varepsilon)$ are monotone in $\sigma\varepsilon$ and $\sigma^2\varepsilon$, so (DL-in) is contained in the amended class domain $\Xi^c_j(1,\varepsilon_j)$ if
+$$C_0^2(C_0^2\varepsilon'+K_2^{\Xi}\delta_3)<\varepsilon_j.\tag{DL-gap}$$
+For all $j\le k$ it suffices to use $\varepsilon'\le\varepsilon_{k+1}$ and prove (DL-gap) with $\varepsilon_j$ replaced by $\varepsilon_k$. Choose $L$ so $L^\alpha>2C_0^4$; then $C_0^4\varepsilon_{k+1}<\varepsilon_k/2$. For the remaining half of the gap, the **landed** `ChainNum.close` hypothesis is
+$$N\,\mathrm{composedCloseBound}(d,L,N,m_1,B_G,\kappa,C_{\Xi1}\varepsilon',r_0)\le\delta_3,$$
+where `composedCloseBound` (in `Localization/I5Close.lean`) is $10e^{2d\gamma_w}\mathrm{closeConst}(d,L,N,B_G,\kappa,\mathrm{lemma53Const}\,C_{\Xi1}\varepsilon')\exp\{-\gamma_w(r_0-4dL^3)M_1/L\}$, with $M_1=L^{m_1}$. The landed `closeConst` in `DecoupledFieldClose.lean` is exactly linear in its last argument, so this expression equals $K_{\rm close}\varepsilon'\exp\{-\gamma_w(r_0-4dL^3)M_1/L\}$ for a constant $K_{\rm close}$ depending only on the earlier rows. For this sufficient way to make $\delta_3$ small by increasing $M_1$, the cover must supply $r_0^{\rm Lean}>4dL^3$ in these landed units. LFR §I.1.3 row 5a selects $r_0^{\rm Lean}=4dL^3+L$ for the standard cover, giving exactly $e^{-\gamma_wM_1}$ here. At equality the exponential supplies no decay, and at a smaller collar it grows; another argument would then be needed. Admissibility of this collar at the **auxiliary** interface and the remaining `ChainNum` inequalities are OPEN cover inputs, not consequences of `i5_background`. Under those inputs set $\delta_3=N K_{\rm close}\varepsilon'e^{-\gamma_wM_1}$ and choose $M_1$ in row 6 so $C_0^2K_2^{\Xi}N K_{\rm close}e^{-\gamma_wM_1}<1/2$. Since $\varepsilon'\le\varepsilon_k$, this gives $C_0^2K_2^{\Xi}\delta_3<\varepsilon_k/2$ **uniformly in the later choice of $\alpha_0$**. In the fluctuation variant there is an additional perturbation of size $(2K_3+1)\delta_1$ (LOC Lemma DL); the scaled estimate $\delta_1/\varepsilon_k=O(\beta^{-3/8})$ lets the final $\beta_*(\alpha_0,E_0)$ pay it, provided that OPEN variant retains the same strict margin. These inequalities prove (DL-gap) in the stated order. Strictness and `AnalyticOnNhd` of the input give an open neighbourhood of each evaluated closed Cauchy polydisc. The background-only theorem's output is analytic on a neighbourhood of $\Xi^c_{k+1}(1,\varepsilon_{k+1})$ when $\varepsilon'=\varepsilon_{k+1}$. This is the exact input/output radius check; the numerical `ChainNum`, full fluctuation and modular instantiations remain OPEN.
 
 ### 1.5 Constants and their order
 
 In the order of the LFR prefix (§I.1.3–§I.1.4, rows as amended there). Rows 0–3: $d\ge3$, $N\ge2$; $\gamma\in(0,\frac12)$, $\alpha=\frac{d-2}2-\gamma$,
 $\alpha_1\in(0,\min\{1-2\gamma,\gamma/2\})$ and the auxiliary exponent $\alpha':=\alpha_1/4$ (used only to absorb powers of $p_1(\beta_k)$, Finding
-F-4); $L\ge3$. Row 4: the $(d,L,N)$-constants $\gamma_0,K_1,K_2,C_3,C_4$ (BG, GR), $c_1,c_G,a_{\rm ent}$ (Lemma 1.2). Row 5: $\kappa_0,K_0$ (§1.2); the class
-rate $\kappa:=\kappa_{\rm flow}$, subject to the iteration condition (IC) of §3.7. Row 5b: $\kappa_1\ge\max\{4d(2L+1)^d\kappa,\ 4d\log((2L+1)L^{m_0})+2\}$
-(LOC). Row 5′: the I-4 constants $c_*,B_G,c_6,\delta_*,K_3,K_4,c_7,B_4,B_5$ and $B_{\mathbb L}$ (the bound of LOC's $\mathbb L(s)$). Row 6: $M_1,M$. Row 6b:
+F-4); $L\ge3$ is chosen large enough that $L^\alpha>2(8d+12)^4$ for (DL-gap). Row 4: the $(d,L,N)$-constants $\gamma_0,K_1,K_2,C_3,C_4$ (BG, GR), $c_1,c_G,a_{\rm ent}$ (Lemma 1.2). Row 5: $\kappa_0,K_0$ (§1.2); the class
+rate $\kappa:=\kappa_{\rm flow}$, subject to the iteration condition (IC) of §3.7. Row 5a: set $r_0^{\rm Lean}=4dL^3+L$ and choose $m_0$ with $L^{m_0}\ge\max\{14d,L+9,4+r_0^{\rm Lean}/L\}$, as in LFR §I.1.3; then $M/M_1=L^{m_0}$ and the standard cover has $(4L+r_0^{\rm Lean})M_1\le LM$. Row 5b: $\kappa_1\ge\max\{4d(2L+1)^d\kappa,\ 4d\log((2L+1)L^{m_0})+2\}$
+(LOC). Row 5′: the I-4 constants $c_*,B_G,c_6,\delta_*,K_3,K_4,c_7,B_4,B_5$ and $B_{\mathbb L}$ (the bound of LOC's $\mathbb L(s)$). Row 6: choose $M_1=L^{m_1}$ sufficiently large that $C_0^2K_2^{\Xi}N K_{\rm close}e^{-\gamma_wM_1}<1/2$ as in §1.4 and for the other stated I-4/I-5 lower bounds, then put $M=L^{m_0}M_1$; `ChainNum.close` holds with $\delta_3=N K_{\rm close}\varepsilon'e^{-\gamma_wM_1}$. This choice precedes $\alpha_0$ because the required ratio has no $\varepsilon'$ in it. The standard-cover margin is numerical; verifying the **auxiliary** interface with that collar is OPEN in Lemma 2.8. The older LOC integer cube collar $r_0^{\rm LOC}=8$ uses different units. Row 6b:
 $K_5:=9K_0(16dK_1LM)^2((2L+3)M)^d$ (P4 (5.24) with (G1), (G5)), $B_6:=NL^dB_{\mathbb L}+2$, and the constants $C_U,C_{\rm PE},C_4',C_5,C_6$ defined below.
-Rows 10–11: $c_8$, $\alpha_0$ (all $\varepsilon_j=\alpha_0(1+\sum_{n\ge j}n^{-2})L^{-j\alpha}$), $E_0\ge E_0^*:=400C_4'B_6K_0K_5$ (§5.2, Step 8), $c_9:=\beta^{-1/4}$ (P4 (5.40)); last $\beta$
-(row 16). Every "for $\beta$ large" below is a lower bound on $\beta$ in terms of the earlier constants.
+Rows 10–11: $c_8$, a fixed $0<\alpha_0\le\alpha_0^*$ (all $\varepsilon_j=\alpha_0(1+\sum_{n\ge j}n^{-2})L^{-j\alpha}$ for $j\ge1$, with $\varepsilon_0:=\alpha_0(1+\sum_{n\ge1}n^{-2})$), then a fixed $E_0\ge E_0^*:=400C_4'B_6K_0K_5$ (§5.2, Step 8), $c_9:=\beta^{-1/4}$ (P4 (5.40)); last $\beta$
+(row 16). **[v2: FL-A10]** The final threshold is $\beta_*(\alpha_0,E_0)$: it must enforce $168C_5E_0B_6K_5\alpha_0^{-2}\beta^{-1}\le1$ and therefore cannot be uniform as $\alpha_0\downarrow0$ or $E_0\uparrow\infty$. The late geometric threshold $\lambda_*$ in (Λ28′) is chosen after the same earlier constants and is included in row 16. Every "for $\beta$ large" below has this quantifier order.
 
 Two elementary consequences of (H.6) used repeatedly ($\gamma_k\in[\frac12,2]$): $\beta_k^{-1/2}\le2\beta^{-1/2}\eta^{\frac{d-2}2}$, and for every $\alpha'>0$
 $$p_n(\beta_k)=A_n(\log\beta_k)^{p_n}\le C_{\alpha'}\,\beta^{\alpha'}\eta^{-\alpha'}\qquad(n=0,1),\tag{1.1}$$
@@ -361,7 +344,7 @@ uniform.
 $\mathbb B^\sharp_{k+1}:=(\mathbb B_k(W_k)\cap(\Omega^\sharp_{k+1})^c)\cup(\Omega^\sharp_{k+1})^{(k+1)}$. The decoupling cover of LOC §1.2 for every expansion of the step is built from
 $\mathbb B^\sharp_{k+1}$; the operators, backgrounds and covariances are those of the actual generating sets ($\mathbb B_k(W_k)$, $\mathbb B_{k+1}$ and the local ones).
 
-**Lemma 2.8 (the auxiliary cover is admissible; sketched).** (a) $\Omega^\sharp_{k+1}\subset W_k$ at distance $\ge([R_{k-1}]+1)ML^k$ from $W_k^c$, so $\mathbb B^\sharp_{k+1}$ is a generating set
+**Lemma 2.8 (the auxiliary cover is admissible; conditional on an OPEN assertion).** **[v2: FL-A02]** See notes/phase1/VMOD.md (in preparation). The calculation below establishes only the geometric separation, not the new-interface margins or modular decoupling. (a) $\Omega^\sharp_{k+1}\subset W_k$ at distance $\ge([R_{k-1}]+1)ML^k$ from $W_k^c$, so $\mathbb B^\sharp_{k+1}$ is a generating set
 with separation $\ge\varrho$ and it is cube-aligned (Def-L1) because $(Z^c_k)^\approx$ is a union of $\pi_k$-cubes and $\pi_{k+1}$-cubes are unions of $\pi^1$-cubes. (b) On
 $\Omega^\sharp_{k+1}\setminus\Omega_{k+1}$ the actual blocks (side $L^k$) are finer than the cover scale ($M_1L^{k+1}$); LOC §1.1b shows that (Cov3), (K), NC, DG1–DG7 then hold
 with $C_\chi$ multiplied by $L$, so LOC I-4a–c and I-5 hold with the cover of $\mathbb B^\sharp_{k+1}$ and constants depending on $(d,L,N,\kappa_1)$ only. (c) Every
@@ -377,7 +360,7 @@ For $k<k_0$ every object of the step is $\nu$-free (backgrounds, covariance, the
 object is complete (P4's system, `matrixInfty`). At $k=k_0$ the fluctuation integral is $\nu$-free (it is built from the scale-$k_0$ data) and the output must be
 complete. We follow P6's own suggestion (p. 11 [checked]: "we could divide the operations in the case $k=k_0$ into two steps") and **switch before renormalizing**.
 
-**Lemma 2.9 (the switch; resolves SF (R-switch); proved given the cited inputs).** Let $k=k_0$, let $\phi^0:=\phi^0_{k+1,u}(\theta)$ be the unrenormalized $\nu$-free
+**Lemma 2.9 (the switch; scalar quadratic identity proved, RG conclusion conditional on an OPEN assertion).** **[v2: FL-A07]** See notes/phase1/RGFREE.md (in preparation) for the joint $\xi$ dependence and scale-sensitive RG estimates. The calculation below proves the scalar switching cost. Let $k=k_0$, let $\phi^0:=\phi^0_{k+1,u}(\theta)$ be the unrenormalized $\nu$-free
 background of the step and $\phi^\nu:=\phi^\nu_{k+1,u}(\theta)$ the complete one (same data, mass $\mu=\nu_{k+1,u}$), and $\delta\phi:=\phi^0-\phi^\nu$. Then:
 (a) $A^\star_{k+1,u}(\theta,\phi^0)=A^\eta_{k+1,u}(\theta,\phi^\nu)+\frac12\langle\delta\phi,(H^\nu+\alpha^\nu)\delta\phi\rangle$ exactly ($H^\nu=-\Delta+a_{k+1}Q^*Q+\mu$, $\alpha^\nu$ the multiplier of $\phi^\nu$), and
 $\delta\phi$ is the solution of BG Prop 5.1 for the mass-free operator $H^0=H^\nu-\mu$ with $\phi_0=\phi^\nu$, $\alpha_0=\alpha^\nu$, $\delta\Psi=0$, $f_1=\mu(\phi^\nu-h)$, so $|\delta\phi|$-norms $\le K_2\nu_{k+1,u}|\phi^\nu-h|\le2K_2\nu_{k+1,u}$ (unit scale).
@@ -385,9 +368,7 @@ $\delta\phi$ is the solution of BG Prop 5.1 for the mass-free operator $H^0=H^\n
 $\mathscr E^{(j)}(\psi^{(j),0}_{k+1,u})-\mathscr E^{(j)}(\psi^{(j),\nu}_{k+1,u})$, $j\le k_0$ (composition (6.2) with $\phi^0$ resp. $\phi^\nu$), and the corresponding $\mathscr F$-differences,
 have localization expansions over $Y\in\mathcal D_{k+1}$ with terms analytic on the domains of Theorem 3.1 and bounded by $C_{\rm sw}\beta_{k+1}^{-1}e^{-(2\kappa-1)d^{\rm cov}_{k+1}(Y)}$ (resp.
 $C_{\rm sw}\beta^{-1}\alpha_0^{-1}E_0$ for the re-expression terms), $C_{\rm sw}=C(d,L,N,\kappa_1)L^{2d}$.
-(c) Adding these terms to $\mathscr E_0^{(k+1)}$ (resp. $\mathscr F_0^{(k+1)}$) before the renormalization, the renormalization of the step $k_0\to k_0+1$ is the one of the
-complete convention (P4's system with `matrixInfty`), with data perturbed by $O(C_{\rm sw}\beta^{-1})$ per block. In particular the condition `hcond` of
-`rg_step_infty` holds with $\eta$ replaced by $(1+C_{\rm sw}L^{2d}\beta^{-1})\eta$, and no matrix perturbation (SF's (L1′)) is needed.
+(c) The insertion of these terms before the complete-convention renormalization is an **OPEN** RG assertion: the terms depend jointly on $\xi$ through the renormalized background and re-expression maps, and their derivatives can change the matrix. The exact scale-sensitive input required by `rg_step_infty` is delegated to notes/phase1/RGFREE.md (in preparation). No assertion that the matrix is unchanged follows from (a)–(b).
 
 *Proof.* (a) Lemma II.7.3 of LFR (the chord identity) for the minimiser $\phi^\nu$ of $A^\eta_{k+1,u}$ and the sphere configuration $\phi^0$; $\phi^0$ solves $H^0\phi^0+\alpha^0\phi^0=S$, so
 $H^\nu\phi^0+\alpha^0\phi^0=S+\mu\phi^0$; subtracting $H^\nu\phi^\nu+\alpha^\nu\phi^\nu=S+\mu h$ and moving $\mu\delta\phi$ to the left gives $(H^0+\alpha^\nu+\delta\alpha)\delta\phi+\delta\alpha\,\phi^\nu=\mu(\phi^\nu-h)$,
@@ -395,9 +376,7 @@ $(\phi^\nu+\delta\phi)\cdot(\phi^\nu+\delta\phi)=1$, $\delta\alpha=\alpha^0-\alp
 \beta_kL^{d-2}\nu_kL^2\le e^{2\epsilon}L^d$ (LFR D-IV.11), so per unit block $\beta_{k+1,u}|\delta\phi|^2\le4K_2^2\beta_{k+1,u}\nu_{k+1,u}^2\le4K_2^2e^{4\epsilon}L^{2d}\beta_{k+1,u}^{-1}$. The localization is
 LOC I-4a (mode U, data $f_1=\mu(\phi^\nu-h)$) and Lemma AE, with the prefactor just computed (the decay rate is limited only by $\kappa_1$, §3.3). The re-expression terms:
 $\psi^{(j),0}-\psi^{(j),\nu}$ is (6.2) applied to $\delta\phi$ (affine), of scaled size $\le C s_{jk}\cdot2K_2\nu_{k+1}$; with Lemma 3.2 below and the Cauchy estimate on a disc of radius
-$\asymp\varepsilon_{k+1}$ the first variation of $\sum_j\mathscr E^{(j)}$ is $\le CE_0\nu_{k+1}\varepsilon_{k+1}^{-1}\le CE_0\alpha_0^{-1}L^d\beta^{-1}\eta^{\frac{d-2}2+\gamma}$ per unit block. (c) The added
-terms do not depend on the renormalization constants $\xi$; they enter the system only through the zeroth-order data $f$, whose bound (5.25) is $B_6K_5\beta_{k+1}^{-1}\varepsilon_{k+1}^{-2}$;
-the added contribution after division by $\beta\varepsilon_{k+1}$ is $\le C_{\rm sw}\beta^{-2}\varepsilon_{k+1}^{-2}$. $\square$
+$\asymp\varepsilon_{k+1}$ the first variation of $\sum_j\mathscr E^{(j)}$ is $\le CE_0\nu_{k+1}\varepsilon_{k+1}^{-1}\le CE_0\alpha_0^{-1}L^d\beta^{-1}\eta^{\frac{d-2}2+\gamma}$ per unit block. (c) remains conditional on the named OPEN RG assertion. The preceding $O(\beta^{-1})$ scalar cost does not bound $\partial_\xi$ of the re-expression terms, nor does it by itself verify the scale factor in the landed `rg_step_infty` hypothesis `hηbd`. $\square$
 
 *Comparison.* SF §3.7 estimated the switch contribution to $\eta$ as $C\nu_{k_0}p(\beta)^2\varepsilon^{-2}$ and marked the size condition UNCERTAIN. The chord identity shows the
 switching term is *quadratic* in $\delta\phi=O(\nu)$, hence $O(\beta^{-1})$ per block: the condition holds with room (Finding F-3). P6's one-step treatment (the term
@@ -429,72 +408,48 @@ Domains $Y$ in (a)–(e) are of the form $\hat Y(S)\in\mathcal D_{k+1}(\bmod\,\O
 - **(d)** $\mathcal R'^{(k+1)}_m:=\mathcal R'^{(k+1)}-\delta D^{(k)}$ (P5 (3.9), p. 520) $=\sum_Y\mathcal R'^{(k+1)}_m(Y)$, $|\cdot|\le\frac12\beta_{k+1}^{-m-1}e^{-\kappa_b d^{\rm cov}(Y\bmod\Omega^c)}$; for $Y\subset\Omega''_{k+1}$ the
   term does not depend on $Z^c_k,\Omega_{k+1},\Omega''_{k+1}$.
 - **(e)** $\mathcal R'^{(k+1)}_{n-1}$ of P5 (3.11), $2\le n\le m$: the terms $\mathcal R^{(k)}_n(X)$ with $X\cap\Omega_{k+1}=\varnothing$ unchanged, plus $\sum_Y$ with $|\cdot|\le\frac12\beta_{k+1}^{-n}e^{-\kappa_b d^{\rm cov}(Y\bmod\Omega^c)}$.
-- **(f)** (P6 Props 2.1, 2.2.) The second term and the sum over $j$ of P6 (2.19), and the $\mathscr F$-analogue, are $\sum_{X\in\mathcal D_k,X\subset W^\sim_k\cap\Omega^c_{k+1}}(\cdot)(X)+\sum_{Y\in\mathcal D_{k+1}(\bmod\Omega^c),Y\cap Z_{k+1}\ne\varnothing}(\cdot)(Y)$
+- **(f)** **[v2: FL-A03] Conditional on an OPEN old-action expansion; see notes/phase1/VMOD.md (in preparation).** (P6 Props 2.1, 2.2.) The second term and the sum over $j$ of P6 (2.19), and the $\mathscr F$-analogue, are $\sum_{X\in\mathcal D_k,X\subset W^\sim_k\cap\Omega^c_{k+1}}(\cdot)(X)+\sum_{Y\in\mathcal D_{k+1}(\bmod\Omega^c),Y\cap Z_{k+1}\ne\varnothing}(\cdot)(Y)$
   with bounds $C_fE_0e^{-(\kappa-1)d^{\rm cov}_k(X)}$ and $C_fE_0e^{-(2\kappa-\kappa_0-1)d^{\rm cov}_{k+1}(Y\bmod\Omega^c)}$ ($E_0$ replaced by $2$ for $\mathscr F$).
 - **(g)** (P4 Prop 4.1, P6 Prop 2.3.) For $\xi$ in the polydisc $\mathcal P_\epsilon=\{|\xi_i|<\epsilon\}$, $\epsilon\le\epsilon_R$: $C_1^{(k+1)}(z)$, $C_2^{(k+1)}(z)$, $\mathscr E^{(k+1)}_u(z)$ of §3.6 have
   expansions over $Y\ni z$ with terms analytic jointly on $\Xi^c_{k+1}(\mathbb B_{k+1}(Y);1,\varepsilon_{k+1})\times\mathcal P_\epsilon$ and bounds $C_4'\varepsilon_{k+1}^2\epsilon$, $C_4'\varepsilon_{k+1}^2\epsilon^2$,
   $(NL^dB_{\mathbb L}+1+C_5E_0\epsilon)K_0$ times $e^{-\kappa_a d^{\rm cov}_{k+1}(Y)}$; terms with $Y\subset(Z^c_{k+1})^\approx$ equal the whole-lattice terms.
 - **(h)** (P4 Prop 4.2.) $\mathscr M^{(k+1)}(x)$ of (3.11) below has an expansion with the (H.7) bound in which $c_9$ is replaced by $\frac12\beta^{-1/4}+C_6\epsilon L^{(k+1)(2\gamma-\alpha_1)}$ and $\kappa$ by $\kappa_b$.
 
-**Status.** (a)–(e), (g), (h) **proved** from the inputs of §1.3, Lemma 1.2, Lemma 3.2, Proposition 3.3 and Theorem 3.4 (with the two I-5 variants of
-§3.3, of which (V0) is proved and (Vmod) sketched). (f) **sketched** (P6 itself sketches it; the tools are those of (g) plus Lemma 4.1). The constants
+**Status [v2: FL-A13].** The algebraic decomposition and the landed termwise I-6 conclusions are proved under their displayed premises. Parts (a)–(e), (g), (h) are **conditional on OPEN assertions**: the actual RG-to-termwise premises, the auxiliary cover and NC, the fluctuation I-5, and for (c) the modular (Vmod). Part (f) is **conditional on the OPEN** P6 Props 2.1–2.2 transfer; see notes/phase1/VMOD.md (in preparation). The PROVED abstract AE, GM and Mayer declarations yield the displayed bounds only after those premises are established. The constants
 $C_4',C_5,C_6,C_f$ depend on rows 0–6b and on $\kappa$, not on $E_0,B_0,\beta$.
 
 ### 3.2 The termwise irrelevant decomposition (I-6 localized; P6 (4.13)–(4.14))
 
-SF Theorem 2.1 (landed `renormalization_local`) bounds the *sum* over $X\ni y$. The fluctuation integral needs the decomposition term by term,
-because each term is fed separately into I-5. Notation of SF §2.2–§2.3: $s=s_{jk}$, $\sigma=C_0s$, $\varepsilon=\varepsilon_k$, $R=\varepsilon_k/\varepsilon_j$, $P_0=(e_1,\nu_je_1)$, $f_X(u,v,w)$
-the potential of the single term $\mathscr E(y,X)$ in the invariants of SF Step 3, $a_X,B_X,m_X$ its tensors at $P_0$ (SF Step 5).
+**[v2: FL-A01]** Write $\operatorname{st}_+(y)=\{y\}\cup\{y+e_\mu:1\le\mu\le d\}$. The forward differences in the counterterm use this star even when $y$ is on the boundary of $X$. For each $X\ni y$ choose $X^\star$ to be $X$ together with the at most $d$ additional $\pi'_j$-cubes needed to contain $\operatorname{st}_+(y)$; use the connected cube hull if a covering convention requires it. The choice is translation covariant and local. A tree for a chosen cover of $X$ meets a cover cube containing $y$. Extend it through that cube to each new cube. Each extension has length at most $4LM$ in scale-$j$ units, so
+$$d^{\rm cov}_j(X^\star)\le d^{\rm cov}_j(X)+c_\star,\qquad c_\star:=4dL.\tag{3.0}$$
+There are at most $n_\star:=2^{(2d+1)L^d}$ possible $X$ for a fixed $X^\star$ (only the at most $2d+1$ cubes meeting the star can be removed); this deliberately loose constant is independent of scale and volume. Consequently a term bounded by $Ee^{-(\kappa-1)d^{\rm cov}_j(X)}$ has, as an $X^\star$-term, the bound $Ee^{(\kappa-1)c_\star}e^{-(\kappa-1)d^{\rm cov}_j(X^\star)}$, and every entropy sum over the new supports costs at most $n_\star e^{\kappa_0c_\star}K_0$. The rate is unchanged; the cost is a fixed prefactor. In a subdomain application $y\in Z_k^c$ has the $W=(Z_k^c)^\approx$ margin, so $\operatorname{st}_+(y)\subset W$ and this enlargement remains in the auxiliary cover of Definition 2.7. The cover and its interface margins remain the OPEN assertion of Lemma 2.8; see notes/phase1/VMOD.md (in preparation).
 
-**Lemma 3.2 (termwise irrelevance; proved).** Assume the hypotheses of SF Theorem 2.1 for the family $\mathscr E^{(j)}(y,X)$ (constants $E_0,\kappa$). For $y\in T^{(j)}_1$,
-$X\ni y$ define
-$$T_X(\psi(y),b):=f_X(P_0)+\partial_uf_X(P_0)(u-1)+\partial_vf_X(P_0)(v-\nu_j),\qquad A_{y,X}(\psi):=\tfrac12\sum_{x\in X}a_X(x-y)\big(\psi\cdot\psi(x)-\psi\cdot\psi(y)\big),$$
-$$\Phi_{y,X}(\psi):=-\tfrac14\sum_{\mu,\nu}S^{\mu\nu}_X\Big[\partial_\mu\psi\cdot\partial_\nu\psi-\big(\hat\psi\cdot\partial_\mu\psi\big)\big(\hat\psi\cdot\partial_\nu\psi\big)\Big](y),\quad S^{\mu\nu}_X:=\sum_{x,x'}B_X(x,x')(x-x')_\mu(x-x')_\nu,\ \hat\psi=\psi(y)/\sqrt{\psi\cdot\psi(y)},$$
-and $I(y,X;\psi,b):=\mathscr E(y,X;\psi,b)-T_X-A_{y,X}-\Phi_{y,X}$. Then:
-(i) $\sum_{X\ni y}T_X\equiv0$ and $\sum_{X\ni y}\Phi_{y,X}\equiv0$ (as functions), $\sum_{X\ni y}A_{y,X}=A_y$ of SF Theorem 2.1, and $\sum_{y\in\Lambda}A_y\equiv0$ on every torus $\Lambda$;
-(ii) $T_X$, $A_{y,X}$, $\Phi_{y,X}$, $I(y,X)$ depend on $(\psi,b)$ only through $X$ (the first and third only through the star of $y$), are analytic wherever $\mathscr E(y,X)$ is, and are
-$O(N)$-invariant;
-(iii) for data satisfying (Σ1), (Σ2) of SF §2.2,
-$$|I(y,X;\psi,b)|\le C_IE_0\,s^{d+\alpha_3}\,e^{-(\kappa-1)d^{\rm cov}_j(X)},\qquad\alpha_3=1-2\gamma-\alpha_1>0,\tag{3.1}$$
-with $C_I=C(d,N,L,M,\kappa,\gamma,\alpha_1,K_\Sigma)L^{n_1(d+\alpha_3)}$, for **all** $j\le k$;
-(iv) (*subdomain form*, P5 (1.8), P6 (4.13)–(4.14)) for $W:=(Z^c_k)^\approx$, $y\in Z^c_k$ and the counterterm $A^W_y:=\frac12\sum_{x\in W}a^{(j)}(x-y)(\psi\cdot\psi(x)-\psi\cdot\psi(y))$:
-$$\sum_{X\ni y,\,X\subset W}\mathscr E(y,X)-A^W_y=\sum_{X\ni y}I^W(y,X),\qquad I^W(y,X):=\begin{cases}I(y,X)&X\subset W\\-T_X-\Phi_{y,X}-A^W_{y,X}&X\not\subset W\end{cases}\tag{3.2}$$
-($A^W_{y,X}$ = the sum of $A_{y,X}$ over $x\in X\cap W$), each term depending on $\psi$ only on $X\cap W$, and for $X\not\subset W$: $|I^W(y,X)|\le C_mE_0s^me^{-R_k/2}e^{-(\kappa-1)d^{\rm cov}_j(X)}$
-for every $m$. The same holds with P5's counterterm (1.8) (the $v^{(j)}_1$, $v^{(j)}_2$ form, LFR (1.8)) in place of $A^W_y$: at the reference point $a^{(j)}=v^{(j)}_1+\nu_jv^{(j)}_2$ (SF §2.5 (iii)), and
-the difference of the two counterterms is, term by term in $X$, of the irrelevant size (the $b'_\perp$- and $\nu_j m$-estimates of SF Step 5).
+Use the notation of SF §2.2–§2.3: $s=s_{jk}$, $\sigma=C_0s$, $R=\varepsilon_k/\varepsilon_j$, $P_0=(e_1,\nu_je_1)$, and $f_X,a_X,B_X,m_X$ for the tensors of the single term $\mathscr E(y,X)$. Set
+$$T_X=f_X(P_0)+\partial_uf_X(P_0)(u-1)+\partial_vf_X(P_0)(v-\nu_j),\qquad A_{y,X}=\tfrac12\sum_{x\in X}a_X(x-y)(\psi(x)\cdot\psi(x)-\psi(y)\cdot\psi(y)),$$
+$$\Phi_{y,X}=-\tfrac14\sum_{\mu,\nu}S_X^{\mu\nu}\left[\partial_\mu\psi\cdot\partial_\nu\psi-(\hat\psi\cdot\partial_\mu\psi)(\hat\psi\cdot\partial_\nu\psi)\right](y),\quad S_X^{\mu\nu}=\sum_{x,x'}B_X(x,x')(x-x')_\mu(x-x')_\nu,\quad \hat\psi=\psi(y)/\sqrt{\psi(y)\cdot\psi(y)},$$
+and $I(y,X)=\mathscr E(y,X)-T_X-A_{y,X}-\Phi_{y,X}$.
 
-*Proof.* (i) $\sum_Xf_X=f$ of SF Step 3 and the first three conditions of (H.5) say $f(P_0)=\partial_uf(P_0)=\partial_vf(P_0)=0$; $\sum_XS_X=S^{(y)}=0$ by (H.5)(4) and the
-point-group isotropy (SF Step 5, version 2: $S^{(y)}_{\mu\nu}=\frac1d\delta_{\mu\nu}\sum_zG_{22}(z)|z|^2$); the torus sum is SF Theorem 2.1 (b) ($a^{(j)}$ even). (ii) By construction;
-$\Phi_{y,X}$ is the invariant form of $-\frac14\sum S^{\mu\nu}_X\partial_\mu\Theta\cdot\partial_\nu\Theta(y)$ ($\Theta$ the component orthogonal to $\psi(y)$), analytic near the sphere. (iii) Run SF's proof for
-the single term $\mathscr E(y,X)$: Step 1 (tail $d_j(X)>d_*$) bounds each of $\mathscr E(y,X)$, $T_X$, $A_{y,X}$, $\Phi_{y,X}$ by $CE_0(1+d)^4e^{-\kappa d}$ and $e^{-c/(\sigma R)}\le C(\sigma R)^3$; Step 3
-gives $|f_X-T_X|\le CE_0e^{-\kappa d_j(X)}\sigma^4R^2$ (second-order Taylor remainder of $f_X$ on the polydisc, Cauchy); Step 4 (third-order remainder in $\tau$) and the base-point
-changes of Step 5 are termwise bounds; the first-order term of $X$ is $A_{y,X}$ plus irrelevant terms; the second-order term of $X$ is, by the identity (WI) **for the single term**
-(each $\mathscr E(y,X)$ is invariant, (H.3)), $-\frac{\nu_j}2\sum m_X|\delta_\perp|^2-\frac14\sum B_X|\Theta(x)-\Theta(x')|^2$, whose leading part after freezing the gradients at $y$ is
-$\Phi_{y,X}$; the remainders are bounded as in SF Step 5 with the weights of $X$. The class is stated with $d^{\rm cov}_j$ (LOC v3), and SF's Step 0 geometry (P1 (3.54), P6 (4.11))
-holds for $d^{\rm cov}_j$ by Lemma 1.2 (G5), (G1); so every bound carries $(1+d^{\rm cov}_j(X))^6e^{-\kappa d^{\rm cov}_j(X)}\le C e^{-(\kappa-1)d^{\rm cov}_j(X)}$. With $\sigma=C_0s$, $R\le Cs^\alpha$: $\sigma^{3-\alpha_1}R^2\le Cs^{d+\alpha_3}$ (SF (2.2)). For the last $n_1$ scales (Corollary 2.2's
-"crude" range), $|I|\le CE_0e^{-(\kappa-1)d}\le CL^{n_1(d+\alpha_3)}E_0s^{d+\alpha_3}e^{-(\kappa-1)d}$. (iv) $\sum_{X\subset W}A_{y,X}-A^W_y=-\sum_{X\not\subset W}A^W_{y,X}$ and
-$\sum_{X\subset W}(T_X+\Phi_{y,X})=-\sum_{X\not\subset W}(T_X+\Phi_{y,X})$ by (i). For $X\ni y\in Z^c_k$ with $X\not\subset W$, $X$ reaches from $Z^c_k$ to $W^c$, so $d_j(X)\ge L^{k-j}[R_k]-C$ and
-$e^{-d_j(X)}\le C_ms^me^{-R_k/2}$. $\square$
+**Lemma 3.2 (termwise irrelevance; proved conditional on the PROVED landed termwise I-6 declarations and their stated premises).** Assume the termwise bounds and analyticity premises `PremisesTerm` and the summed cancellation premises `SumConds` of `Balaban/SmallField/RenormTermwiseDefs.lean`. Then (i) $\sum_XT_X=\sum_X\Phi_{y,X}=0$, $\sum_XA_{y,X}=A_y$, and $\sum_{y\in\Lambda}A_y=0$ on a torus. (ii) $I(y,X)$ depends on $\psi$ only on $X\cup\operatorname{st}_+(y)$, hence on $X^\star$; $T_X$ uses $y$, $A_{y,X}$ uses $X$, and $\Phi_{y,X}$ uses the star. The terms are $O(N)$-invariant and analytic on the intersection of the term's tube with $\{\psi(y)\cdot\psi(y)\in\mathbb C\setminus(-\infty,0]\}$, including an open neighbourhood of every point of that intersection. (iii) Under (Σ1), (Σ2), for all $j\le k$,
+$$|I(y,X)|\le C_IE_0s^{d+\alpha_3}e^{-(\kappa-1)d^{\rm cov}_j(X)}\le C_Ie^{(\kappa-1)c_\star}E_0s^{d+\alpha_3}e^{-(\kappa-1)d^{\rm cov}_j(X^\star)},\quad\alpha_3=1-2\gamma-\alpha_1>0.\tag{3.1}$$
+(iv) For $W=(Z_k^c)^\approx$ and $y\in Z_k^c$, let $A^W_y$ be the restriction of $A_y$ to $x\in W$ and let $A^W_{y,X}$ be the corresponding restriction of $A_{y,X}$. Then
+$$\sum_{X\ni y,\,X\subset W}\mathscr E(y,X)-A^W_y=\sum_{X\ni y}I^W(y,X),\quad I^W(y,X):=\begin{cases}I(y,X),&X\subset W,\\-T_X-\Phi_{y,X}-A^W_{y,X},&X\not\subset W.\end{cases}\tag{3.2}$$
+The support of $I^W(y,X)$ is $(X\cap W)\cup\operatorname{st}_+(y)$ (the field $b$ is included as before). For $X\not\subset W$ its bound is $C_mE_0s^me^{-R_k/2}e^{-(\kappa-1)d^{\rm cov}_j(X)}$ for each fixed $m$, with the same fixed enlargement cost if indexed by $X^\star$. The comparison with P5 (1.8) uses $a^{(j)}=v^{(j)}_1+\nu_jv^{(j)}_2$ at the reference point and the irrelevant remainder estimates of SF Step 5; that comparison remains conditional on the cited P5/P6 transfer.
 
-*Lean note.* `renormalization_local` is stated for the sum; Lemma 3.2 needs a version whose `Premises` carry the three cancellations (i) as separate
-hypotheses and whose conclusion is per term. Every estimate in the landed proof is already termwise except those three places (`Ctx.potential_bound`
-uses (H.5)(1)–(3), the isotropy step uses (H.5)(4), `Aterm_torus_sum` the torus).
+*Proof.* `Ttw_tsum_zero`, `Phitw_tsum_zero`, `Ax_tsum_eq` and `Aterm_torus_sum_tw` prove (i), with exactly the separate summed hypotheses in `SumConds`. `Itw_congr` proves the support $X\cup\operatorname{st}_+(y)$; `IW_congr` proves the restricted support in (iv). `Ttw_analytic`, `Ax_analytic`, `Phitw_analytic` and `Itw_analytic` prove (ii): the square root is analytic on the slit plane, whereas $\Phi$ needs only its nonzero denominator. `termwise_irrelevant_all_scales` proves the first bound in (3.1) from `PremisesTerm`; (3.0) gives the second. `energyW_sub_AW_eq_tsum_IW` proves the equality (3.2), and `IW_bound_outside` proves its far-support estimate. To see the geometric factor in that last estimate, $X\ni y\in Z_k^c$ and $X\not\subset W$ force a connected path from $y$ across the $[R_k]$-cube collar, whence $d_j^{\rm cov}(X)\ge L^{k-j}[R_k]-O(1)$ by (G5); split its exponential in half and absorb any fixed power of $s^{-1}$ in the other half. All cited declarations concern the abstract term family. Identifying the actual RG terms with `PremisesTerm` and `SumConds`, including the tube bounds on the scaled evaluation locus, is the stated hypothesis here; the landed declarations do not prove that identification. $\square$
+
+**I-5 input.** The evaluation of $I(y,X)$ is on the scaled locus (Σ1), (Σ2) of SF, which lies in its tube and in the slit-plane component around the real unit spin. Apply I-5 to the local support $X^\star$, with size $d^{\rm cov}_j(X^\star)$, source neighbourhood containing that locus, and prefactor $C_Ie^{(\kappa-1)c_\star}E_0s^{d+\alpha_3}$. Its conclusion contains the thickening of $X^\star$, so the forward differences are genuinely inside the decoupling core. The fixed factor $n_\star e^{\kappa_0c_\star}$ is included in $C_U$ of (3.4). For a boundary term the modular I-5 is still OPEN; see notes/phase1/VMOD.md (in preparation).
 
 ### 3.3 Two variants of I-5, and the localized interaction
 
-**Variant (V0) (scaled hypothesis; proved by inspection of LOC's proof).** In LOC Theorem I-5 the hypothesis on $\mathscr E(X;\cdot)$ may be weakened to:
+**Variant (V0) (scaled hypothesis; conditional on the OPEN fluctuation-variable I-5 extension).** In LOC Theorem I-5 the hypothesis on $\mathscr E(X;\cdot)$ may be weakened to:
 analytic on an open neighbourhood of $\mathcal S_j(X):=\{\psi(\mathbb B_j(X),\mathbb B_k(X);\hat\Psi)|_X:\hat\Psi\in\Xi^c_k(\mathbb B_k(X);1,\varepsilon_k)\}$ and bounded there by $Ee^{-(\kappa-1)d_j(X)}$. Indeed
 Lemma DL step (5) evaluates $\mathscr E$ only at points of $\mathcal S_j(X)$, and Lemma AE uses only the bound at these points. By (R-S) (SF §1.7) and (Ξ4) (LOC §4.0),
 every point of $\mathcal S_j(X)$ satisfies (Σ1) with $\sigma=C_0s_{jk}$ and (Σ2) on $X$, so Lemma 3.2 (iii) applies on $\mathcal S_j(X)$. (This is P6's "Lemma 4.2[3] holds ... with a
 slight modification", p. 29; ER-095.)
 
-**Variant (Vmod) (boundary terms; sketched).** Let $\mathcal B(X)$, $X\in\mathcal D_k(\bmod\Omega^c_k)$ with $X\cap\Omega_{k+1}\ne\varnothing$, be analytic on the H7 domain with
-$|\mathcal B(X)|\le B'e^{-(\kappa-1)d^{\rm cov}_k(X\bmod\Omega^c_k)}$. After the substitution (2.39) it has an expansion over $Y\in\mathcal D_{k+1}(\bmod\Omega^c_{k+1})$, $Y\supset X\cap\Omega_{k+1}$, with terms
-$\le B'e^{-\kappa_0d^{\rm cov}_k(X\bmod\Omega^c_k)-2\kappa d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})}$ (P6 p. 34: "the inequalities (4.48), (4.49)[3] hold with $d_j(X)$, $\tilde d_{k+1}(Y)$ replaced by $d_k(X\bmod\Omega^c_k)$,
-$d_{k+1}(Y\bmod\Omega^c_{k+1})$"). *Sketch.* AE and GM3 do not involve the size functional; GM2 holds in the modular form by the proof of LOC (GM2) (version 3), with
-$\mathcal K_X$ a family covering $X\cap\Omega_k$ and $\mathcal Q_0$ the coarse cubes containing its cubes that lie in $\Omega_{k+1}$; GM4 is then unchanged. UNCERTAIN: the components of
-$X\cap\Omega_{k+1}$ may be several (P6 p. 34 notes it); the tree for $Y$ must join them through $\Omega^c_{k+1}$, which the modular size does not charge; this is why the output is
-stated mod $\Omega^c_{k+1}$. Written out as a Lean statement it is GM2 with a hole parameter (cf. landed `pe_hole` for the counting side).
+**Variant (Vmod) (boundary terms; conditional on an OPEN assertion).** **[v2: FL-A02]** See notes/phase1/VMOD.md (in preparation). The required input is a modular I-5 expansion for every old boundary term $\mathcal B(X)$ with $X\in\mathcal D_k(\bmod\Omega_k^c)$ and $X\cap\Omega_{k+1}\ne\varnothing$, analytic on the H7 neighbourhood, with input bound $B'e^{-(\kappa-1)d_k^{\rm cov}(X\bmod\Omega_k^c)}$ and output supports $Y\in\mathcal D_{k+1}(\bmod\Omega_{k+1}^c)$ satisfying
+$$|\mathcal B(X,Y)|\le B'e^{-\kappa_0d_k^{\rm cov}(X\bmod\Omega_k^c)-2\kappa d_{k+1}^{\rm cov}(Y\bmod\Omega_{k+1}^c)}.$$
+The component, margin, source-domain and output-domain conditions are part of that OPEN input. The landed background-only `i5_background` does not imply this variant.
 
 **The interaction.** For the measures of P5 (3.16) (and their variants (3.2), (3.9), (3.11)) define, with $\psi'(\hat\psi):=\beta_k^{-1/2}C^{(k)1/2}_{\rm loc}\hat\psi$ and a complex parameter $\sigma$
 introduced linearly as in P6 (4.1) (so that $\sigma=1$ gives the true exponent and $\sigma=0$ gives $0$):
@@ -503,7 +458,7 @@ $$+\beta_k^{-1/2}\sigma\!\int_0^1\!\!dt'\,\big\langle\delta\mathscr E_k'\big(\si
 where $V^{(k)}_{\nu,1}:=\nu_k^{-1}V^{(k)}_\nu$ (only for $k\le k_0$; $\beta_k\nu_k\le e^{2\epsilon}$), $V^{(k)}$, $\delta\mathscr E_k$, $\delta\mathscr F_k$ restricted to $Z^c_k$ as in P5 (2.29)–(2.30), (2.49), and
 $C^{1/2}=C^{(k)1/2}_{\rm loc}$. Put $R_\sigma:=\beta^{1/8}\eta^{-(\gamma-\alpha_1/2)}$.
 
-**Proposition 3.3 (localized interaction; P6 Lemma 4.1, Lemma 4.2, (4.32)–(4.34); proved given (V0), (Vmod)).** For $(\theta,h)$ in the analyticity space of (4.25) (P6),
+**Proposition 3.3 (localized interaction; P6 Lemma 4.1, Lemma 4.2, (4.32)–(4.34); conditional on the OPEN (Vmod), auxiliary-cover and fluctuation I-5 assertions).** **[v2: FL-A01, FL-A02]** For $(\theta,h)$ in the analyticity space of (4.25) (P6),
 real $\hat\psi$ with $|\hat\psi(x)|<p_1(\beta_k)$, $\|g\|_{\ell^1}<1$, $|\sigma|<R_\sigma$, $t,u\in[0,1]$:
 $$\mathscr U_{t,u}(\sigma;\hat\psi)=\sum_{Y\in\mathcal D_{k+1}(\Omega^\sharp_{k+1}):\,Y\cap\Omega_{k+1}\ne\varnothing}\mathscr U_{t,u}(Y;\sigma,\hat\psi),\qquad|\mathscr U_{t,u}(Y)|\le\varepsilon_Ue^{-\kappa_Ud^{\rm cov}_{k+1}(Y)},\qquad\varepsilon_U:=C_U(E_0+1)\alpha_0^{-1}\beta^{-\frac38+\frac{3\alpha_1}4},\tag{3.4}$$
 each term depending on $(\theta,h,g,\hat\psi)$ restricted to $Y$, analytic in $(\theta,h,g,\sigma)$, vanishing at $\sigma=0$, with the symmetry properties of Theorem 3.1; terms with $Y\subset\Omega''_{k+1}$
@@ -522,12 +477,11 @@ $d_j(X)=0$ and $\kappa_1\ge4d(2L+1)^d\kappa$ resum them to $Y=Y[\mathcal C]$ wit
 blocks $z\subset Y$ costs $|Y|\le((2L+3)M)^d(1+d^{\rm cov})$ (Lemma 1.2 (G1)), i.e. $e^{-(2\kappa-1)d}$ and a constant. With (1.1),
 $\beta_k^{-1/2}|\sigma|p_1^3\le C\beta^{-1/2+3\alpha'}\eta^{\frac{d-2}2-3\alpha'}R_\sigma\le C\beta^{-\frac38+\frac{3\alpha_1}4}\eta^{\alpha-\frac{\alpha_1}4}$ ($\alpha'=\alpha_1/4$), and $\alpha-\frac{\alpha_1}4>0$, $-\frac38+\frac{3\alpha_1}4<-\frac3{16}$ since $\alpha_1<\frac14$.
 *The $\nu$-part* ($k\le k_0$) is the same with $V_{\nu,1}$ (linear and quadratic in $\phi'$, $|\phi^0_{k+1}-h|\le2$); bound $\beta_k^{-1/2}|\sigma|e^{2\epsilon}C K_3B_5p_1$.
-*The $\delta\mathscr E$-part* (P6 (4.13)–(4.21)). By Lemma 3.2 (iv) (whole lattice: (i)), $\mathscr E_k(Z^c_k;\psi)=\sum_j\sum_{y\in Z^c_k}\sum_{X\ni y}I^W(y,X;\psi^{(j)}_k(\psi))$ exactly, the
+*The $\delta\mathscr E$-part* (P6 (4.13)–(4.21)). **[v2: FL-A01]** By Lemma 3.2 (iv) (whole lattice: (i)), $\mathscr E_k(Z^c_k;\psi)=\sum_j\sum_{y\in Z^c_k}\sum_{X\ni y}I^W(y,X;\psi^{(j)}_k(\psi))$ exactly, the
 cancelling terms $T_X,\Phi_{y,X}$ and the counterterm having been absorbed. Write $\delta\mathscr E'$ in (3.3) by the Cauchy formula in an auxiliary variable $\tau$ on $|\tau|=r$
 (P6 (4.15)): the argument is $\psi'=(\beta_k^{-1/2}\sigma t'+\tau)tC^{1/2}\hat\psi$, of size $\le(\beta_k^{-1/2}|\sigma|+r)B_5p_1=:\delta_1$, and the radius $r:=\frac14\eta_\varepsilon\varepsilon_k\big((K_2+1)(2K_3+1)B_5p_1\big)^{-1}$
-makes $\delta_1$ satisfy LOC (4.38) for $\beta$ large ($\beta_k^{-1/2}R_\sigma B_5p_1\ll\varepsilon_k$, as $\beta_k^{-1/2}R_\sigma\varepsilon_k^{-1}\le2\alpha_0^{-1}\beta^{-3/8}\eta^{\alpha_1/2}$). Apply I-5 in the variant (V0) (and V2:
-$\psi'$ as a fluctuation variable through $C^{1/2}(s)$, LOC §4.6) to each $I^W(y,X;\cdot)$ with $E=C_IE_0s^{d+\alpha_3}$: terms over $Y\supset X_1$ bounded by
-$\beta_k^{-1/2}|\sigma|r^{-1}C_IE_0s^{d+\alpha_3}e^{-\kappa_0d^{\rm cov}_j(X)-2\kappa d^{\rm cov}_{k+1}(Y)}$. Resum with $Y$ fixed: $\sum_{y\in Y\cap T^{(j)}}s^{d+\alpha_3}\le L^d|Y|_{k+1}s^{\alpha_3}$ ($Y$ contains
+makes $\delta_1$ satisfy LOC (4.38) for $\beta$ large ($\beta_k^{-1/2}R_\sigma B_5p_1\ll\varepsilon_k$, as $\beta_k^{-1/2}R_\sigma\varepsilon_k^{-1}\le2\alpha_0^{-1}\beta^{-3/8}\eta^{\alpha_1/2}$). Apply I-5 in the scaled variant (V0) and its OPEN fluctuation-variable variant to the genuine local support $X^\star$ of each $I^W(y,X;\cdot)$, with $E=C_Ie^{(\kappa-1)c_\star}E_0s^{d+\alpha_3}$ and an open tube/slit-plane neighbourhood of the evaluation locus. Terms over $Y\supset X_1^\star$ are bounded by
+$\beta_k^{-1/2}|\sigma|r^{-1}C_Ie^{(\kappa-1)c_\star}E_0s^{d+\alpha_3}e^{-\kappa_0d^{\rm cov}_j(X^\star)-2\kappa d^{\rm cov}_{k+1}(Y)}$. Resum with $Y$ fixed: the preimage count and entropy sum cost at most $n_\star e^{\kappa_0c_\star}K_0$ by (3.0), while $\sum_{y\in Y\cap T^{(j)}}s^{d+\alpha_3}\le L^d|Y|_{k+1}s^{\alpha_3}$ ($Y$ contains
 $L^ds^{-d}|Y|_{k+1}$ unit sites of scale $j$), $\sum_{X\ni y}e^{-\kappa_0d}\le K_0$, $\sum_{j\le k}s^{\alpha_3}\le(1-L^{-\alpha_3})^{-1}$, $|Y|_{k+1}\le C(1+d^{\rm cov})$. With
 $\beta_k^{-1/2}r^{-1}\le C\alpha_0^{-1}\beta^{-1/2}\eta^\gamma p_1\le C\alpha_0^{-1}\beta^{-1/2+\alpha'}\eta^{\gamma-\alpha'}$ (1.1) and $|\sigma|<R_\sigma$: the bound is
 $CE_0\alpha_0^{-1}\beta^{-\frac38+\alpha'}\eta^{\frac{\alpha_1}2-\alpha'}e^{-(2\kappa-1)d^{\rm cov}_{k+1}(Y)}$, and $\frac{\alpha_1}2-\alpha'>0$. The terms $X\not\subset W$ carry $e^{-R_k/2}$ (Lemma 3.2 (iv)).
@@ -549,21 +503,22 @@ The abstract input is MY + PE-L + PE-M (PE §§2.3–2.5; landed `mayer_marked`,
 $\mathfrak B:=\{\pi_{k+1}\text{-cubes of }\Omega_{k+1}\}$ and the size $d_\Omega$ of Definition 1.1 on subsets of $\mathfrak B$; the hole is thereby removed from the polymer system:
 two terms are incompatible iff their supports in $\Omega_{k+1}$ overlap, which is P6's connectivity modulo $\Omega^c$ (p. 44: "$Y_1\cap Y_2\cap\Omega_{k+1}\ne\varnothing$").
 
-**Theorem 3.4 (marked cluster expansion; proved from the landed MY/PE-L/PE-M and Lemma 1.2).** Let $\nu=\bigotimes_{b\in\mathfrak B}\nu_b$, $\nu_b$ the product of the measures
+**Theorem 3.4 (marked cluster expansion; [v2: FL-A06, FL-A12]; proved conditional on the PROVED `mayer_marked` theorem and the geometric hypotheses of Lemma 1.2).** Let $\nu=\bigotimes_{b\in\mathfrak B}\nu_b$, $\nu_b$ the product of the measures
 $\nu_1$ of (2.5) over the unit sites of $b\cap\Omega''_{k+1}$ (the Dirac measure on a point if there are none). Let $\mathcal T$ be a finite set of labels $Y$ (connected sets of
 $\pi_{k+1}$-cubes with $Y\cap\Omega_{k+1}\ne\varnothing$) with sizes $\mathsf d(Y)$ equal to $d^{\rm cov}_{k+1}(Y)$ or $d^{\rm cov}_{k+1}(Y\bmod\Omega^c)$, satisfying
 $\sum_{Y\in\mathcal T,\,b\subset Y}e^{-\kappa_0\mathsf d(Y)}\le K_0$. Let $H(Y;\Phi,u)$, $Y\in\mathcal T$, depend on the integration variable $\Phi$ only through $\Phi|_{Y\cap\Omega_{k+1}}$, be
 measurable in $\Phi$, holomorphic in $u\in\mathcal U$ (open), and satisfy $|H(Y)|\le\varepsilon_He^{-\kappa_H\mathsf d(Y)}$ on $\mathrm{supp}\,\nu$; let $G=G(Y_0;\Phi,u)$ be one more such function with
 $|G|\le F_0e^{-\kappa_G\mathsf d(Y_0)}$, $\kappa_G\ge\kappa_H$. Let $\kappa'\ge0$ with
-$$\kappa_H\ge\kappa'+3\kappa_0+c_1+\tfrac32,\qquad\varepsilon_H\le\varepsilon_{\rm PE}:=\big(8K_0^3c_1e^{(\kappa_H-2\kappa_0)c_G+c_1+\kappa'c_G}\big)^{-1}.\tag{3.5}$$
+$$\kappa_H\ge\kappa'+3\kappa_0+c_1+\tfrac32,\qquad 0<\varepsilon_H\le\varepsilon_{\rm PE}:=\big(8K_0^3c_1e^{(\kappa_H-2\kappa_0)c_G+c_1+\kappa'c_G}\big)^{-1}.\tag{3.5}$$
 Then $\Xi:=\int e^{\sum_YH(Y)}d\nu\ne0$, and the expectation $\langle G\rangle:=\Xi^{-1}\int Ge^{\sum H}d\nu$ equals $\sum_{S}G^*(Y_0,S)$, the sum over sets $S\subset\mathfrak B$ with
 $S\supset Y_0\cap\Omega_{k+1}$, where $G^*(Y_0,S)$ is holomorphic in $u$, depends on the non-integrated variables only through their restriction to $\hat Y(S)$, depends only on the $H(Y)$ with
 $Y\cap\Omega_{k+1}\subset S$, on $G$ and on $\nu$ restricted to $S$, and
 $$|G^*(Y_0,S)|\le C_{\rm PE}\,F_0\,e^{-\kappa_0\mathsf d(Y_0)}\,e^{-\kappa'd_\Omega(S)},\qquad C_{\rm PE}:=8K_0^2c_1e^{(\kappa_H-2\kappa_0)c_G+c_1+\kappa'c_G}.\tag{3.6}$$
-Moreover $\log(\Xi/\Xi_0)=\sum_SP(S)$ ($\Xi_0$: $H\equiv0$) with $|P(S)|\le\varepsilon_HK_0C_{\rm PE}e^{-\kappa'd_\Omega(S)}$, and for two marks $G_1,G_2$ the truncated expectation is
-$\sum_{S\supset(Y_1\cup Y_2)\cap\Omega_{k+1}}G^{**}(S)$ with $|G^{**}(S)|\le4\varepsilon_{\rm PE}^{-1}C_{\rm PE}F_1F_2e^{-\kappa_0(\mathsf d(Y_1)+\mathsf d(Y_2))}e^{-\kappa'd_\Omega(S)}$ (OBS X2).
+Moreover $\log(\Xi/\Xi_0)=\sum_SP(S)$ ($\Xi_0$: $H\equiv0$) with $|P(S)|\le\varepsilon_HK_0C_{\rm PE}e^{-\kappa'd_\Omega(S)}$. **For two marks assume the strictly stronger $\varepsilon_H\le\varepsilon_{\rm PE}/4$.** Then the truncated expectation is $\sum_{S\supset(Y_1\cup Y_2)\cap\Omega_{k+1}}G^{**}(S)$ with
+$$|G^{**}(S)|\le16\varepsilon_{\rm PE}^{-2}F_1F_2e^{-\kappa_0(\mathsf d(Y_1)+\mathsf d(Y_2))}e^{-\kappa'd_\Omega(S)}.\tag{3.6a}$$
+This is the two-mark input for OBS X2; its application must verify the stronger activity bound.
 
-*Proof.* *Pre-summation.* For $S\subset\mathfrak B$ put $\tilde H(S):=\sum_{Y\in\mathcal T:\,Y\cap\Omega_{k+1}=S}H(Y)$. By (G4), $\mathsf d(Y)\ge d_\Omega(S)$ for such $Y$, so
+*Proof.* If $F_0=0$, then $G=0$ almost surely and the one-mark claim is immediate; otherwise $F_0>0$. *Pre-summation.* For $S\subset\mathfrak B$ put $\tilde H(S):=\sum_{Y\in\mathcal T:\,Y\cap\Omega_{k+1}=S}H(Y)$. By (G4), $\mathsf d(Y)\ge d_\Omega(S)$ for such $Y$, so
 $|\tilde H(S)|\le\varepsilon_He^{-(\kappa_H-\kappa_0)d_\Omega(S)}\sum_{Y\ni b}e^{-\kappa_0\mathsf d(Y)}\le\varepsilon_HK_0e^{-(\kappa_H-\kappa_0)d_\Omega(S)}$ ($b\in S$ fixed), and $\tilde H(S)$ depends on $\Phi$ only on $S$ and on the
 other variables only on $\hat Y(S)$ (G4). Add the mark to the term of $S_0:=Y_0\cap\Omega_{k+1}$: $\tilde H_\lambda(S_0):=\tilde H(S_0)+\lambda G$, with
 $$r:=\frac{\varepsilon_HK_0}{F_0}e^{\kappa_0\mathsf d(Y_0)}\ \Longrightarrow\ |\lambda G|\le\varepsilon_HK_0e^{\kappa_0\mathsf d(Y_0)-\kappa_G\mathsf d(Y_0)}\le\varepsilon_HK_0e^{-(\kappa_H-\kappa_0)d_\Omega(S_0)}\quad(|\lambda|<r),$$
@@ -574,8 +529,7 @@ $2(2H_0K_0e^{\kappa_1c})c_1K_0e^{c_1+\kappa'c}=8\varepsilon_HK_0^3c_1e^{\kappa_1
 and $\sup_{|\lambda|<r}|P(S)|\le\alpha e^{-\kappa'd_\Omega(S)}$ with $\alpha=8\varepsilon_HK_0^3c_1e^{\kappa_1c_G+c_1+\kappa'c_G}$ (`pe_PY_bound` inside `mayer_pe`). Cauchy (`norm_D1_Ff_le`):
 $|\partial_\lambda P(S)|\le r^{-1}\alpha e^{-\kappa'd_\Omega(S)}=C_{\rm PE}F_0e^{-\kappa_0\mathsf d(Y_0)}e^{-\kappa'd_\Omega(S)}$. $\partial_\lambda P(S)=0$ unless $S\supset S_0$ (PE-M (M1)). Locality: PE (c) and MY's
 factorization (the activity of a polymer $S$ is an integral over the variables of $S$ of functions of the $\tilde H(S')$, $S'\subset S$). Holomorphy: PE (d), MY (ii). $\Xi\ne0$: PE (e).
-$\log\Xi$: the same with $\lambda=0$. Two marks: radii $r_i=\frac12\varepsilon_{\rm PE}F_i^{-1}e^{\kappa_0\mathsf d(Y_i)}$ and $H_0=2\varepsilon_HK_0+\varepsilon_{\rm PE}\le2\varepsilon_{\rm PE}$, then `mayer_marked`'s second
-conclusion and the two-variable Cauchy estimate. $\square$
+$\log\Xi$: the same with $\lambda=0$. **[v2: FL-A06]** If $F_i=0$, then the corresponding mark vanishes almost surely and the two-mark bound is trivial; assume $F_1,F_2>0$ below. Take $r_i=\varepsilon_{\rm PE}(8F_i)^{-1}e^{\kappa_0\mathsf d(Y_i)}$. After pre-summation, each $|\lambda_iG_i|$ contributes at most $\varepsilon_{\rm PE}/8$ to the coefficient of $e^{-(\kappa_H-\kappa_0)d_\Omega(S)}$; hence the exact `mayer_marked` activity parameter is $H_0=\varepsilon_HK_0+\varepsilon_{\rm PE}/4\le\varepsilon_{\rm PE}K_0/2$ ($K_0\ge1$). Put $\kappa_1=\kappa_H-2\kappa_0$, $c=c_P=c_G$ and $K_{0P}=K_0$. Its `hq` left side is at most $\varepsilon_{\rm PE}K_0^2e^{\kappa_1c_G}c_1=1/(8K_0e^{c_1+\kappa'c_G})\le1/8<1/2$; `hκ` is exactly the first inequality of (3.5); `hα` is at most $4(\varepsilon_{\rm PE}K_0/2)K_0^2c_1e^{\kappa_1c_G+c_1+\kappa'c_G}=1/4$; and $H_0\le1/16<\log2$. The theorem's two-mark identity therefore applies. The two-variable Cauchy estimate gives at most $(1/4)(r_1r_2)^{-1}=16\varepsilon_{\rm PE}^{-2}F_1F_2e^{-\kappa_0(\mathsf d(Y_1)+\mathsf d(Y_2))}$, proving (3.6a). $\square$
 
 *Losses.* From the label rate $\kappa_H$ to the output rate $\kappa'$: $\kappa_0$ (pre-summation of labels with the same support), $\kappa_0$ (MY entropy), $\frac32$ (MY), $\kappa_0+c_1$
 (PE-L). The reserve $e^{-\kappa_0\mathsf d(Y_0)}$ comes from the mark's own decay and pays the later sum over $Y_0$. P6's corresponding losses are $5\kappa_0$ in (4.43), $\kappa_0$ in the tree
@@ -586,8 +540,7 @@ becomes $1$ (optional Lean refinement, §6.4).
 
 Throughout, the measure of each item is the one of P5 named there, its interaction is expanded by Proposition 3.3 (labels in $\mathcal D_{k+1}(\Omega^\sharp_{k+1})$ and,
 for the boundary part, in $\mathcal D_{k+1}(\bmod\Omega^c)$; $\varepsilon_H=\varepsilon_U$, $\kappa_H=\kappa_U$; the entropy hypothesis of Theorem 3.4 is Lemma 1.2 (G2)), and
-Theorem 3.4 is applied with $\kappa'=\kappa_a$, which is admissible because $\kappa_U-\kappa_a=3\kappa_0+c_1+\frac32$ (equality in (3.5)) and $\varepsilon_U\le\varepsilon_{\rm PE}$ for
-$\beta$ large. Integrals over the interpolation parameters $s,t,u\in[0,1]$ preserve the bounds and the analyticity. Final labels are the $\hat Y(S)$; a quantity indexed by labels
+Theorem 3.4 is applied with $\kappa'=\kappa_a$, which is admissible because $\kappa_U-\kappa_a=3\kappa_0+c_1+\frac32$ (equality in (3.5)) and, **[v2: FL-A06]** $\beta_*(\alpha_0,E_0)$ is increased until $\varepsilon_U\le\varepsilon_{\rm PE}/4$ so the same hypothesis also supports two marks. Integrals over the interpolation parameters $s,t,u\in[0,1]$ preserve the bounds and the analyticity. Final labels are the $\hat Y(S)$; a quantity indexed by labels
 $Y$ with $Y\cap\Omega=S$ is pre-summed into $\hat Y(S)$ at the cost of $\kappa_0$ in the rate (as in the proof of Theorem 3.4), which we do only where stated.
 
 *(a).* By P5 (3.14), (3.17) and P6 (4.35)–(4.36), $\mathscr E'^{(k+1)}_1(z)=\int_0^1ds\,\langle U_{s,0}(z)\rangle_{s,0}$, where $U_{s,0}(z;\sigma,\hat\psi)$ is (3.3) with $t=s$, $u=0$, the
@@ -714,7 +667,7 @@ are only restricted), so the class is preserved with the same $\kappa$; the impr
 
 ### 4.1 Decay of the response to a far data change
 
-**Lemma 4.1 (far data changes; P3 Prop 2.1 (2.55)–(2.56) and P6 (2.13) at $\lambda=\infty$; proved from cited weighted bounds).** Let $\mathbb B$ be a generating set at
+**Lemma 4.1 (far data changes; P3 Prop 2.1 (2.55)–(2.56) and P6 (2.13) at $\lambda=\infty$; conditional on the OPEN weighted decoupled NC input).** Let $\mathbb B$ be a generating set at
 level $q$ (BG §1.1, separation $\varrho\ge R_0$), admissible weights, mass $0\le\mu\le L^{-2q}$, $(\Psi,h)\in\tilde\Psi^c(\mathbb B;\delta,\varepsilon)$ with $\delta\le c_1$ (BG Thm 5.2), and let
 $\delta\Psi$ be a lifted data change supported in a set $W$ of blocks and collar sites, $|\delta\Psi|\le\delta_1\le\delta_*$, such that $(\Psi+\delta\Psi,h)$ is in the domain as well. Let
 $(\phi,\alpha)$ and $(\phi+\delta\phi,\alpha+\delta\alpha)$ be the small solutions and $\mathrm d$ the path metric of GR §1.4 (scaled distance). Then for every $x\in\Omega_1$
@@ -737,52 +690,33 @@ Notation of LFR §II.2.3 and §II.5: at the step $k\to k+1$ ($k\ge0$), $Z'$ a co
 (P6 (2.15)), $\mathbb B^{\rm loc}:=\bigcup_{Z'}G^{Z'}_{k+1}$, $\tilde\psi$ the lifted multiscale data, $\phi^\partial:=\phi(\mathbb B^\partial;\tilde\psi)$, $\phi^{\rm loc}:=\phi(\mathbb B^{\rm loc};\tilde\psi)$ (LFR Definition II.2.7 (iv)),
 $\mathcal A_{k+1}(Z';\psi)$ of LFR Definition II.5.4. $D_k:=M([\hat R_k]-1)-2M_1$.
 
-**Theorem 4.2 (O-2′; LFR Lemma IV.1.3; proved given LOC I-4a/b, AE, GM and Lemma 4.1).** On the support of the step's characteristic functions (real arguments) and on the
-H7 domain (complex arguments),
-$$\beta_{k+1}A^*_{k+1}\big(Z^c_k\cap Z_{k+1},\mathbb B_{k+1};\psi,\phi^\partial\big)=\sum_{Z'}\mathcal A_{k+1}(Z';\psi)+\sum_{Y\in\mathcal D_{k+1}(\bmod\Omega^c_{k+1})}\Delta(Y),\tag{4.2}$$
-where $\Delta(Y)$ depends only on the variables in $Y$, is analytic on the H7 domain at $Y$, real for real arguments, $O(N)$-invariant, covariant under the Euclidean symmetries
-preserving $\pi_{k+1}$ (applied also to the history), and
-$$|\Delta(Y)|\le C_F\,p_0(\beta_k)^2e^{-\gamma_wD_k}\,e^{-(2\kappa-1-\kappa_0)d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})}\le e^{-\hat R_k/2}\,e^{-\frac32\kappa\,d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})},\tag{4.3}$$
-the second inequality under (IC) and the condition (Λ28′) below; $C_F=C_F(d,L,N,\kappa,\kappa_1,M)$. Terms with $Y$ inside one component of $Z_{k+1}$ go into $b_k$, the others into
-$\mathcal B^{(k+1)}$.
+**Theorem 4.2 (O-2′; [v2: FL-A04, FL-A05]; conditional on the OPEN decoupled cover/NC input of Lemma 2.8 and on the stated LOC I-4a/b hypotheses).** Work in the admissible step range $0\le\nu_{k+1}\le1$ (LFR Def-7 (D9), (D9$^\flat$)). Put $\varepsilon_{H,k}:=\max_{0\le j\le k+1}(\varepsilon_j+\varepsilon_{1,j})$, with $\varepsilon_{1,j}=(A_1/A_0)\varepsilon_j$ as in LFR §II.3.3, and $r_{H,k}:=\delta_k+\varepsilon_{H,k}$. The $j=0$ term covers the $\varepsilon_0$ radius of $\Delta'^c_1$ in H7 (1.36); every retained fluctuation is covered by $\varepsilon_{1,j}$ from (1.37). On the real support and on the complex H7 domain of LFR Definition II.3.5, the action difference has a local expansion. First put every term whose support $Y$ satisfies $Y\cap\Omega_{k+1}=\varnothing$ into $b_k$; such a connected $Y$ lies in one component of $\Omega_{k+1}^c$ and is an internal complement term. Its allocation to a $Z_{k+1}$ component uses the LFR region bookkeeping cited in §5.4. For the remaining terms,
+$$\beta_{k+1}A^*_{k+1}\big(Z^c_k\cap Z_{k+1},\mathbb B_{k+1};\psi,\phi^\partial\big)=\sum_{Z'}\mathcal A_{k+1}(Z';\psi)+b_k+\sum_{\substack{Y\in\mathcal D_{k+1}(\bmod\Omega^c_{k+1})\\Y\cap\Omega_{k+1}\ne\varnothing}}\Delta(Y).\tag{4.2}$$
+Each $\Delta(Y)$ depends only on the variables in $Y$, is analytic on an open H7 neighbourhood at $Y$, real on real arguments, $O(N)$-invariant and covariant under the Euclidean symmetries preserving $\pi_{k+1}$. With $D_k=M([\hat R_k]-1)-2M_1$,
+$$|\Delta(Y)|\le C_F\beta_{k+1}r_{H,k}^{2}e^{-\gamma_wD_k}e^{-(2\kappa-1-\kappa_0)d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})}\le e^{-\hat R_k/2}e^{-\frac32\kappa d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})}.\tag{4.3}$$
+The second inequality uses (IC) and the corrected (Λ28′) below. The first bound applies to complex H7 data. The real characteristic-function estimate is a separate bound and is not used in the complex Cauchy argument. Only the terms with $Y\cap\Omega_{k+1}\ne\varnothing$ enter the modular expansion and $\mathcal B^{(k+1)}$.
 
-*Proof.* *Step 1 (reduction to a data change).* $\mathbb B^{\rm loc}\prec\mathbb B^\partial$ layer by layer (LFR Lemma II.2.3 (b)). By BG Thm 6.1 (ii), (iv) (landed `theorem73_real`, `theorem73_complex`),
-$\phi^\partial|_{\Omega_1(\mathbb B^{\rm loc})}=\phi(\mathbb B^{\rm loc};\Psi)$ with $\Psi:=$ `composeField`$(\mathbb B^{\rm loc},\mathbb B^\partial;\phi^\partial,\tilde\psi)$. Put $\delta\Psi:=\Psi-\tilde\psi$. On $E_{Z'}$ the layers of
-$G^{Z'}_{k+1}$ and $\mathbb B^\partial$ coincide (LFR Lemma II.2.5 (c)), so (6.2) has $n=p$ there and gives $\Psi=\tilde\psi$, also on collar sites (a collar site of one generating set inside
-$E_{Z'}$ is a collar site of the other, with datum $\tilde\psi$): **$\delta\Psi=0$ on $E_{Z'}$**. Elsewhere $|\delta\Psi|\le C_4K_1\cdot3dL\delta_k$ (BG Thm 6.1 (i), (iv); the characteristic functions put the
-data in $\tilde\psi(\cdot;3dL\delta_k)$, LFR Remark II.2.8). Hence $\phi^\partial-\phi^{\rm loc}=\phi(\mathbb B^{\rm loc};\tilde\psi+\delta\Psi)-\phi(\mathbb B^{\rm loc};\tilde\psi)$, and by LFR Lemma II.2.6 the restriction of
-$\phi^{\rm loc}$ to the piece of $Z'$ is $\phi(G^{Z'}_{k+1};\cdot)$, so the first sum in (4.2) is $\beta_{k+1}A^*_{k+1}(Z^c_k\cap Z_{k+1},\mathbb B_{k+1};\psi,\phi^{\rm loc})$ (distinct $X_{Z'}$ share no bond).
-*Step 2 (decoupled version and the bound).* Fix the decoupling cover of the step (LOC §1.2, built from $\mathbb B^\sharp_{k+1}$ or $\mathbb B_{k+1}$; one vector $s$ for all generating sets involved,
-LOC §1.1b). For $s$ in the polydisc put $\delta\Psi(s):=$ `composeField`$(\mathbb B^{\rm loc},\mathbb B^\partial;\phi^\partial(s),\tilde\psi)-\tilde\psi$ with the decoupled $\phi^\partial(s)$ of LOC I-4b, and
-$\delta\phi(s):=\phi^{\rm loc}(\tilde\psi+\delta\Psi(s);s)-\phi^{\rm loc}(\tilde\psi;s)$. At $s=1$ this is $\phi^\partial-\phi^{\rm loc}$ (Step 1). $\delta\Psi(s)$ vanishes on $E_{Z'}$ for every $s$ (the vanishing used only
-$n=p$, not the equation), and $|\delta\Psi(s)|\le C\delta_k$. By the decoupled Lemma 4.1, on $X^{+1}_{Z'}$ (the scaled distance to $E^c_{Z'}$ is $\ge D_k$: $[\hat R_k]$ cubes of side $M$ in scale-$(k+1)$
-units, less one cube and the cover margin $2M_1$) the four quantities of (4.1) for $\delta\phi(s)$ are $\le CK_{\rm far}e^{N_0\kappa_1}\delta_ke^{-\gamma_wD_k}$.
-*Step 3 (pre-localization).* For a $\pi_{k+1}$-cube $\square\subset X_{Z'}$ let $F_\square(s):=\beta_{k+1}\big[A^*_\square(\psi,\phi^{\rm loc}(\cdot;s)+\delta\phi(s))-A^*_\square(\psi,\phi^{\rm loc}(\cdot;s))\big]$, $A^*_\square$ the part of the
-restricted action (P5 (1.5), half bonds on ${\rm st}(Z^c_k)$) belonging to the sites, bonds and blocks of $\square$; $\sum_\square F_\square(1)$ is the left side of (4.2) minus the first sum on the right.
-$A^*_\square$ is a sum of $\le C(LM)^d$ quadratic expressions in $\psi-Q\phi$, $\partial\phi$, $\sqrt{\nu}(\phi-h)$, each $O(\delta_k)$ on the support of the characteristic functions; hence
-$|F_\square(s)|\le C(LM)^d\beta_{k+1}\delta_k\cdot K_{\rm far}e^{N_0\kappa_1}\delta_ke^{-\gamma_wD_k}\le C_F'p_0(\beta_k)^2e^{-\gamma_wD_k}=:B_\square$ ($\beta_{k+1}\delta_k^2\le2L^{d-2}p_0(\beta_k)^2$). No cancellation of the first
-variation is needed (P6 (2.14) keeps the first-order surface terms; they are bounded the same way). $F_\square$ is analytic in $s$ on the polydisc (composition of analytic maps: I-4b, (6.2),
-the decoupled perturbation of I-4a) and in the complex data; (AE2) holds by I-4a (e), I-4b (iv) and the locality of (6.2) (range one block).
-*Step 4 (expansion).* Lemma AE with $X_1$ the $r_0$-neighbourhood of $\square$ and (GM3), (GM4) with $d_j(X)=0$ give $F_\square(1)=\sum_{Y\supset\square}F_\square(Y)$ with
-$|F_\square(Y)|\le B_\square e^{-2\kappa\tilde d^{\rm cov}_{k+1}(Y)}$ ($\kappa_1\ge4d(2L+1)^d\kappa$); the multiscale $\tilde d^{\rm cov}_{k+1}$ dominates $d^{\rm cov}_{k+1}(Y\bmod\Omega^c_{k+1})$ (layers $\le k$ are weighted by
-$\ell_n^{-1}>\ell_{k+1}^{-1}$, and the modular size does not charge $\Omega^c_{k+1}$). Pre-sum over $Y$ with the same $Y\cap\Omega_{k+1}$ into $\hat Y(S)$ ($-\kappa_0$) and over $\square\subset Y$ (Lemma 1.2 (G1),
-$-1$): $\Delta(\hat Y(S)):=\sum F_\square(Y)$ satisfies the first inequality of (4.3). The second: $2\kappa-1-\kappa_0\ge\frac32\kappa$ under (IC), and
-$$\textbf{(Λ28′)}\qquad C_FA_0^2x^{2p_0}\,e^{-\gamma_w(M([R_{\rm base}(x-2)^2]-1)-2M_1)}\le e^{-R_{\rm base}x^2/2}\quad(x\ge\lambda_*),$$
-which is LFR's (Λ28) (second part) with the geometric distance $M[\hat R_k]$ in place of P6's $2M\hat R_k$ (Finding F-6); it holds for $x$ large since $\gamma_wM\ge2$ ($M$ is chosen before $\lambda_*$).
-*Step 5 (properties).* Analyticity on the H7 domain: the decoupled backgrounds are analytic for complex data in $\tilde\Psi^c$ (LOC I-4b (i)), into which the H7 domain maps by (Ξ1)
-(LFR Definition II.3.5 and SF §1.7); reality and covariance: every construction is real and equivariant; locality: AE. The split between $b_k$ and $\mathcal B^{(k+1)}$ is by the position of
-$Y$ (LFR Lemma IV.1.3). $\square$
+*Proof.* *Step 1 (the data change).* The generating-set nesting and BG Theorem 6.1 give the identity of the old Step 1, namely $\phi^\partial-\phi^{\rm loc}=\phi(\mathbb B^{\rm loc};\tilde\psi+\delta\Psi)-\phi(\mathbb B^{\rm loc};\tilde\psi)$, with $\delta\Psi=0$ on $E_{Z'}$. The vanishing uses only equality of the generating-set layers there (LFR Lemma II.2.5(c)) and therefore holds for every decoupling parameter. On the real support BG Theorem 6.1 and the characteristic functions give $|\delta\Psi|\le C\delta_k$. On complex H7 data the defining inequalities (1.36)–(1.37) of LFR Definition II.3.5 give the background-source norm $|\delta\Psi|+\nu_{k+1}|\delta h|\le C r_{H,k}$ (here the two constructions use the same $h$, so $\delta h=0$): the real H7 reference and complex displacement at each scale satisfy the $\varepsilon_j$ inequalities, and each retained fluctuation has size at most $\varepsilon_{1,j}$. The composition formula (6.2) is affine in these data and has bounded block averaging coefficients. This is the asserted complex estimate; the real cutoff is used only in the real estimate.
 
-**Corollary 4.3 (P6 (2.12)–(2.17); the same proof).** The background changes of P6 (2.12) ($\mathbb B'_{k+1}\to\mathbb B_{k+1}(W_{k+1})$ on $Z^c_{k+1}$) and (2.16) ($\mathbb B'_{k+1}\to\mathbb B_{k+1}(\partial\Omega_{k+1})$ on
+*Step 2 (weighted response).* Apply Lemma 4.1 to the source $\delta\Psi(s)$, which is zero on $E_{Z'}$. In the decoupling polydisc, the background difference, first differences and multiplier difference on $X_{Z'}^{+1}$ are bounded by $C K_{\rm far}e^{N_0\kappa_1}r_{H,k}e^{-\gamma_wD_k}$, since the distance from $X_{Z'}^{+1}$ to $E_{Z'}^c$ is at least $D_k$. This uses the decoupled I-4a/b bounds and their common cover. These bounds are conditional on the OPEN NC and new-interface cover conditions of Lemma 2.8; see notes/phase1/VMOD.md (in preparation).
+
+*Step 3 (pre-localization).* Partition the restricted action into cubes $\square\subset X_{Z'}$ as in P5 (1.5), counting half bonds on the star once. For each $\square$ let $F_\square(s)$ be the difference of its action at $\phi^{\rm loc}(s)+\delta\phi(s)$ and at $\phi^{\rm loc}(s)$, multiplied by $\beta_{k+1}$. The coefficients of the first variation of the restricted action are bounded by $Cr_{H,k}$ on H7. For the block and kinetic terms this is the direct H7 bound on $\psi-Q\phi$ and $\partial\phi$: the H7 fields, including their real reference and complex increments, satisfy the $\varepsilon_j$ inequalities (1.36)–(1.37). For the mass term, the coefficient is $\nu_{k+1}(\phi-h)$, not $\sqrt{\nu_{k+1}}(\phi-h)$. The real reference condition inside the H7 domain gives $\sqrt{\nu_{k+1}}|\phi_r-h_r|\le C\varepsilon_{H,k}$, hence $\nu_{k+1}|\phi_r-h_r|\le C\varepsilon_{H,k}$ because $\nu_{k+1}\le1$; the H7 complex conditions give $|\phi_c-\phi_r|\le C\varepsilon_{H,k}$ and $\nu_{k+1}|h_c-h_r|\le C\varepsilon_{H,k}$. Thus $\nu_{k+1}|\phi_c-h_c|\le Cr_{H,k}$ even when $|h_c-h_r|$ itself grows as $\nu_{k+1}\downarrow0$. For the corresponding background change $w$, Step 2 gives $|w|+|\partial w|\le Cr_{H,k}e^{-\gamma_wD_k}$. Expanding each block or kinetic square by $Q(v+w)-Q(v)=2B(v,w)+Q(w)$, and the mass term by $\nu_{k+1}(\phi-h)\cdot w+\frac12\nu_{k+1}w\cdot w$, bounds every difference by $Cr_{H,k}^2e^{-\gamma_wD_k}$. There are at most $C(LM)^d$ such terms per cube. Thus $|F_\square(s)|\le C_F'\beta_{k+1}r_{H,k}^2e^{-\gamma_wD_k}$ uniformly on the complex H7 set and the decoupling polydisc. The surface first variation of P6 (2.14) is included in $2B(v,w)$; it has the same bound. I-4a/b and the affine composition make $F_\square$ holomorphic on an open neighbourhood of every closed parameter polydisc used by AE. The strict H7 inequalities and the strict numerical inclusions of §1.4 supply the data neighbourhood needed for Cauchy estimates.
+
+*Step 4 (expand, then split the empty intersection).* AE and GM3–GM4 give $F_\square(1)=\sum_{Y\supset\square}F_\square(Y)$ with $|F_\square(Y)|\le C_F'\beta_{k+1}r_{H,k}^2e^{-\gamma_wD_k}e^{-2\kappa\tilde d^{\rm cov}_{k+1}(Y)}$. Before assigning a modular size, split this sum into $Y\cap\Omega_{k+1}=\varnothing$ and its complement. A connected support in the first part is inside one component of $\Omega_{k+1}^c$; summing its local coefficient into that component defines $b_k$. The ordinary entropy sum (G2) bounds the absolute sum there by $C\beta_{k+1}r_{H,k}^2e^{-\gamma_wD_k}$ times the number of its cubes, so $b_k$ has the required volume bound after (Λ28′). In the second part, $S=Y\cap\Omega_{k+1}$ is nonempty, $\hat Y(S)$ and $d_\Omega(S)$ are defined, and (G4) gives the comparison with the modular size. Pre-summing labels with the same $S$ costs $\kappa_0$ by (G2); summing $\square\subset Y$ costs one unit by (G1). This gives the first bound in (4.3). No modular expression is assigned to the empty-intersection terms.
+
+*Step 5 (the late threshold).* For $\beta$ chosen after $\alpha_0,E_0$ as in §1.5, $\delta_k\le\varepsilon_0$ for every $k$; hence $r_{H,k}\le C_H\alpha_0$, since the $\varepsilon_j$ decrease and $\varepsilon_{1,j}=(A_1/A_0)\varepsilon_j$. Let $x:=\hat\lambda_k$ in the operative LFR flow (§I.3). Then $\hat R_k=R_{\rm base}x^2$ exactly, $\beta_{k+1}\le C_La^{-1}e^x$, and $D_k=M([R_{\rm base}x^2]-1)-2M_1\ge M([R_{\rm base}(x-2)^2]-1)-2M_1$ for $x\ge2$. Enlarge $C_F$ by $C_H^2C_L$ and impose the corrected late condition
+$$\textbf{(Λ28′)}\qquad C_Fa^{-1}\alpha_0^2e^x\exp\{-\gamma_w[M([R_{\rm base}(x-2)^2]-1)-2M_1]\}\le e^{-R_{\rm base}x^2/2}\quad(x\ge\lambda_*).$$
+It is checked after $L,\kappa_0,\kappa,\kappa_1,M,\alpha_0,E_0$ are fixed and before or with the final lower bound on $\beta$ (row 16). Indeed $[R_{\rm base}(x-2)^2]\ge R_{\rm base}(x-2)^2-1$, so the logarithm of the left/right ratio is at most $\log(C_Fa^{-1}\alpha_0^2)+x-\gamma_wM R_{\rm base}(x-2)^2+2\gamma_w(M+M_1)+R_{\rm base}x^2/2$. Its quadratic coefficient is $-(\gamma_wM-1/2)R_{\rm base}<0$ by the row-6 choice $\gamma_wM>1$. Thus a finite $\lambda_*$ exists, and the actual $x=\hat\lambda_k\ge\lambda_*$ satisfies the inequality. The exact identity $\hat R_k=R_{\rm base}x^2$ makes its right side $e^{-\hat R_k/2}$; this, together with $2\kappa-1-\kappa_0\ge3\kappa/2$ from (IC), proves the second bound of (4.3). Analyticity, reality and covariance follow from the corresponding properties of the decoupled backgrounds and AE. $\square$
+
+**Corollary 4.3 (P6 (2.12)–(2.17); conditional on the same OPEN decoupled input as Theorem 4.2).** The background changes of P6 (2.12) ($\mathbb B'_{k+1}\to\mathbb B_{k+1}(W_{k+1})$ on $Z^c_{k+1}$) and (2.16) ($\mathbb B'_{k+1}\to\mathbb B_{k+1}(\partial\Omega_{k+1})$ on
 $Z^c_k\cap Z_{k+1}$) produce, in the main action, terms with the expansion and bound of Theorem 4.2 (with $\hat R_k$ replaced by the margin of $W_{k+1}$, resp. of $W_k\cap U_{k+1}$); they are the
 "very small" boundary terms of P6 p. 6 ("the bounds hold with constants smaller than any power of $\beta_k^{-1}$"). This supplies the first part of Theorem 3.1 (f).
 
 ### 4.3 What this changes in LFR
 
-(i) O-2′ is closed at paper level, conditional only on LOC's I-4 (hence on NC) and LOC's multiscale (GM2)–(GM4); (Vmod) is not used (Step 4 compares
+**[v2: FL-A04, FL-A05, FL-A13]** (i) O-2′ has the complex estimate (4.3) conditional on the OPEN decoupled cover/NC input and the stated LOC I-4a/b hypotheses; (Vmod) is not used (Step 4 compares
 $\tilde d^{\rm cov}_{k+1}$ with the modular size directly: the layer-$(k+1)$ cubes of a chosen multiscale family form an admissible family of Definition 1.1, and $\ell_n^{-1}\ge1$); nothing of P6 §2 beyond (2.12)–(2.17) is cited. (ii) The rate
-of $\Delta(Y)$ can be any $\kappa'\le2\kappa-1-\kappa_0$; LFR asks for $\kappa_+=\frac32\kappa$. (iii) (Λ28) should be read as (Λ28′) (distance $M[\hat R_k]$, not $2M\hat R_k$); it remains
-"eventually true", so no constant of the prefix changes. (iv) The size is $d^{\rm cov}_{k+1}(\cdot\bmod\Omega^c_{k+1})$ (LOC v3), weaker than P5's $d_{k+1}(\cdot\bmod\Omega^c)$; LFR's (D7) must be
+of $\Delta(Y)$ can be any $\kappa'\le2\kappa-1-\kappa_0$; LFR asks for $\kappa_+=\frac32\kappa$. (iii) (Λ28) should be read as the new (Λ28′), with the complex prefactor $C_Fa^{-1}\alpha_0^2e^x$ and the chosen distance $M[\hat R_k]$; it is eventually true in the order of §1.5. (iv) The size is $d^{\rm cov}_{k+1}(\cdot\bmod\Omega^c_{k+1})$ (LOC v3), weaker than P5's $d_{k+1}(\cdot\bmod\Omega^c)$; LFR's (D7) must be
 stated with it (LOC v3 "Consequences for consumers" (2)).
 
 ---
@@ -790,11 +724,10 @@ stated with it (LOC v3 "Consequences for consumers" (2)).
 
 ### 5.1 Statements
 
-Def-6 is read with the analyticity domain $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ (Finding F-1), the convention of scale $j$ ($\nu$-free iff $j\le k_0$), (CONT) as a clause (SF §3.5), and
-P4's numbering (H.1)–(H.7). "For $\beta$ large" means $\beta\ge\beta_*$ with $\beta_*$ depending on all constants of §1.5 chosen before $\beta$.
+**[v2: FL-A09, FL-A10, FL-A11]** The pointwise input is the amended Def-6/Def-7 (D2) class of §1.4, with local terms analytic on open neighbourhoods of $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$. The family input for a $\nu\downarrow0$ conclusion is the separate `ContAtZero` clause of the landed draft Def-6. The convention is $\nu$-free iff $j\le k_0$. "For $\beta$ large" means $\beta\ge\beta_*(\alpha_0,E_0)$ after fixing $\alpha_0,E_0$ and all earlier constants of §1.5.
 
 **Theorem 5.1 (I-9, whole lattice; P4 Theorem 1 at $\lambda=\infty$).** Fix $d\ge3$, $N\ge2$, $L\ge3$, the constants of §1.5 in their order, and $\kappa$ satisfying (IC). There are
-$\alpha_0^*>0$, $E_0^*:=400C_4'B_6K_0K_5$ (Step 8; P4 (5.39) has $4C_4B_6K_0K_5$ with its constant $2$ in place of the landed $84$) and $\beta_*$ such that, with $c_9:=\beta^{-1/4}$, for $\alpha_0\le\alpha_0^*$, $E_0\ge E_0^*$, $\beta\ge\beta_*$, $\bar\nu\le\frac78L^{-2}$ and every $k\ge1$:
+$\alpha_0^*>0$ and $E_0^*:=400C_4'B_6K_0K_5$ (Step 8; P4 (5.39) has $4C_4B_6K_0K_5$ with its constant $2$ in place of the landed $84$) such that **[v2: FL-A10]** for each fixed $0<\alpha_0\le\alpha_0^*$ and each fixed $E_0\ge E_0^*$ there is $\beta_*(\alpha_0,E_0)$, and with $c_9:=\beta^{-1/4}$, for $\beta\ge\beta_*(\alpha_0,E_0)$, $\bar\nu\le\frac78L^{-2}$ and every $k\ge1$:
 $\chi_{k+1}S^{(k)}T^{(k)}\chi^{(k)}$ maps $\mathbb R^{\rm sf}_k(\beta,a,\nu;B,\bar\nu;\mathsf c)$ (convention of scale $k$) into $\mathbb R^{\rm sf}_{k+1}(\beta,a,\nu;BL^{d-2},\bar\nu L^2;\mathsf c)$ (convention of scale
 $k+1$), and the new terms $\mathscr E^{(k+1)},\mathscr M^{(k+1)}$ satisfy (H.4), (H.7) with $\frac32\kappa$ in place of $\kappa$.
 
@@ -804,9 +737,9 @@ where $\xi^{(k)}$ is the unique solution in the polydisc of radius $r_0$ of the 
 $k=k_0$), real for real data, analytic in every finite-dimensional analytic parametrization of the data (SF (L1)), and $|\xi^{(k)}|_\infty\le C_\xi\beta^{-1}L^{-2\gamma(k+1)}$; in the notation of
 P4 (1.9), $b_{k+1}=\beta_{k+1}\xi_3$, $c_{k+1}=a_{k+1}b_{k+1}$, $e_{k+1}=\beta_{k+1}\xi_2$, and (1.10) holds with $c_8=4C_\xi/\beta$. The additive constants are $E_{k+1}=E'''_kL^d-E^{(k+1)}(0)$.
 
-**Theorem 5.3 (the (F1) clause; SF Theorem 5.3).** For the flow generated by Theorem 5.1 from $\rho_1\in\mathbb R^{\rm sf}_1$ along $k<k_f(\nu)$: $|\xi(\nu,k)|_\infty\le\frac{c_\xi}{4\beta}q^{k+1}$, $c_\xi=4C_\xi$,
-$q=L^{-2\gamma}$; $\beta_k=\beta L^{k(d-2)}\gamma_k$, $\nu_k=\nu L^{2k}\delta_k$ are `betaSeq`, `nuSeq`; $\gamma_\infty=\lim\gamma_k$ exists with $|\gamma_\infty-1|\le\frac{2C_\xi q}{(1-q)\beta}$; for each $k$,
-$\lim_{\nu\downarrow0}\xi(\nu,k)$ exists; convention $\xi(\nu,k):=0$ for $k\ge k_f(\nu)$ or $\nu>\bar\nu$, $\xi(0,k):=\lim_{\nu\downarrow0}\xi(\nu,k)$. The constants do not depend on $\nu$, $k$ or the torus.
+**Theorem 5.3 (the (F1) clause for families; [v2: FL-A09]; conditional on the OPEN step and $\nu$-free RG inputs named below).** Let $\nu\mapsto\rho_1(\nu)$, $0<\nu\le\nu_*$, be a family on a common torus and common localized-term indices. Assume each member belongs to the amended pointwise class of §1.4 with uniform constants, and assume the family satisfies the precise (CONT) clause `ContAtZero` of the landed draft `Balaban/SmallField/Def6.lean`: the relevant coefficients converge as $\nu\downarrow0$, and for each $j,y,X$ (respectively $j,x,X$) the functions $\mathscr E^{(j)}_\nu(y,X;\psi,b)$ (respectively $\mathscr M^{(j)}_\nu(x,X;\psi,b,g)$), with $b=\nu_jh$, converge uniformly on a nonempty $\nu$-independent open set $U$ lying in the corresponding $\Xi^c_j$ domain for all sufficiently small $\nu$. For the RG coefficient evaluations assume, in addition, that these common sets include fixed closed Cauchy polydiscs around the reference configurations, or that uniform analytic continuation from $U$ to those polydiscs has been established. This last working-neighbourhood condition is explicit because the bare `ContAtZero` declaration specifies only a nonempty open set.
+
+For every flow generated by Theorem 5.1 from this family while $k<k_f(\nu)$, the pointwise bounds are $|\xi(\nu,k)|_\infty\le\frac{c_\xi}{4\beta}q^{k+1}$, $c_\xi=4C_\xi$, $q=L^{-2\gamma}$; $\beta_k=\beta L^{k(d-2)}\gamma_k$, $\nu_k=\nu L^{2k}\delta_k$; and $\gamma_\infty=\lim\gamma_k$ exists with $|\gamma_\infty-1|\le2C_\xi q/((1-q)\beta)$. The output family at every fixed $k$ satisfies `ContAtZero`, and $\lim_{\nu\downarrow0}\xi(\nu,k)$ exists. Set $\xi(\nu,k)=0$ for $k\ge k_f(\nu)$ or $\nu>\bar\nu$, and $\xi(0,k)=\lim_{\nu\downarrow0}\xi(\nu,k)$. The constants are independent of $\nu,k$ and the torus. The family conclusion is conditional on the OPEN actual $\nu$-free divided equations and $\varrho_{31}$; see notes/phase1/RGFREE.md (in preparation).
 
 **Theorem 5.4 (subdomain form; the small-field part of P5 Theorem 1 / P6 Theorem 1 and Proposition 2.4; what LFR's LF-3 and LF-5 cite).** Let $\mathrm{IsRep}_k$ (resp.
 $\mathrm{IsRep}^\flat_k$) hold with the hypotheses of Theorem 5.1, and fix a history and a step record. Then the exponent of P5 (3.18) is transformed into P6 (2.32):
@@ -815,9 +748,7 @@ where the small-field data at scale $k+1$ satisfy Def-7 (D2) (new terms at rate 
 $\kappa_+=\frac32\kappa$ and a constant $B_{\rm st}$ that depends on rows 0–11 (including $E_0$) but not on $B_0,H_0,c_1,c_2$, and $|\mathcal B^{(k)}(Z^c_k\cap Z_{k+1})|\le C_b(B_0+1)(|Z^c_k\cap\Omega^c_{k+1}|_\eta+|Z_{k+1}\cap\Omega_{k+1}|)$
 (P6 (2.33)), analytic and covariant, depending on the variables in $U^\sim_{k+1}$.
 
-**Status.** Theorems 5.1–5.3: **proved** given the cited inputs (§1.3), Theorem 3.1 (a), (b), (g), (h), Theorem 3.4, Lemmas 2.2–2.9, and SF's matrix bound for the
-$\nu$-free system (SF Lemma 3.1′, whose entry $\varrho_{31}$ is SF's open UNCERTAIN item). Theorem 5.4: **proved modulo** the sketched Theorem 3.1 (f), the variant (Vmod), the
-cited bounds of P1 (3.77), (3.80) for the counterterm restoration P6 (2.30), and P5 §2's bookkeeping of decompositions (cited; its large-field half is LFR Parts I–IV).
+**Status [v2: FL-A13].** Theorems 5.1 and 5.2 are **conditional on OPEN assertions**: the actual fluctuation/cover localization of Proposition 3.3, NC, the $\nu$-free coefficient $\varrho_{31}$ and divided equations, and the switch's joint $\xi$ estimates. See notes/phase1/VMOD.md (in preparation) and notes/phase1/RGFREE.md (in preparation). The landed `rg_step_infty` is a PROVED abstract theorem, but its premises have not been established for this step. Theorem 5.3 is a family statement whose preservation argument is proved under its working-neighbourhood hypothesis and those same OPEN step/RG assertions. Theorem 5.4 is **conditional on OPEN assertions** (Vmod), Theorem 3.1(f), the auxiliary cover/NC, and the cited P1 (3.77), (3.80) bounds and P5 §2 bookkeeping; see notes/phase1/VMOD.md (in preparation). None of these is a proved complete I-9 step.
 
 ### 5.2 Proof of Theorems 5.1 and 5.2
 
@@ -833,10 +764,7 @@ domains $\Xi^c_{j,u}(1,\varepsilon_{j,u})$, $\varepsilon_{j,u}=\varepsilon_j+k^{
 *Step 6 (renormalization).* Lemma 3.5 for every $\xi$ in the polydisc $\mathcal P_\epsilon$: the density equals P4 (4.21) at $\lambda=\infty$, i.e.
 $\chi_{k+1,u}\exp[-\beta_{k+1}A_{k+1}(\psi_{k+1},\phi_{k+1})+\sum_{j\le k}\mathscr E^{(j)}(\psi^{(j)}_{k+1})+\sum_z\{\mathscr E^{(k+1)}_u(z)-\beta_{k+1}C^{(k+1)}(z)-E^{(k+1)}(z)\}-E_{k+1}|T^{(k+1)}_1|+\mathscr F_{k+1}]$ with
 $\mathscr F_{k+1}=\langle g,\phi_{k+1}\rangle+\sum_{j\le k}\mathscr F^{(j)}(\psi^{(j)}_{k+1})+\langle g,\mathscr M^{(k+1)}\rangle$ (P4 (4.21) [image p. 705]); Theorem 3.1 (g), (h) expand the new functions jointly in $\xi$.
-*Step 7 (the equations).* The renormalization conditions (H.5) for $\mathscr E^{(k+1)}$ are, as functions of $\xi$, the system (E1)–(E3) of SF §3.2 (complete) resp. (E1-free)–(E3-free) of SF
-§3.7 ($\nu$-free); the first condition is satisfied by the choice of $E^{(k+1)}(z)$. Lemma 5.7 below gives SF's hypothesis (B1) with $\eta=B_6K_5(1+C_{\rm sw}L^{2d}\beta^{-1})\beta_{k+1}^{-1}\varepsilon_{k+1}^{-2}$ (the factor only
-at $k=k_0$). The matrix is `matrixInfty` resp. `matrixFree` (selected by `matrixSel`), with `TriangularBounds` from SF Lemma 3.1 resp. 3.1′. The landed `rg_step_infty` (SF Theorem 3.2 (a)
-with (L1), (L2)) gives the unique $\xi^{(k)}$ with $|\xi^{(k)}|_\infty\le C_\xi\beta^{-1}q^{k+1}$ (using Step 0 for (5.29)), analytic and real; its hypothesis `hcond` is P4 (5.30) for $\beta$ large.
+*Step 7 (the equations; [v2: FL-A07, FL-A08], conditional on OPEN inputs).* The renormalization conditions (H.5) for $\mathscr E^{(k+1)}$ have the complete divided system of SF §3.2 or the $\nu$-free system of SF §3.7. The first condition fixes $E^{(k+1)}(z)$. The landed `matrixFree` accepts an external $\varrho_{31}$ with a bound; it does not compute the coefficient of this fluctuation integral. At the switch, the added re-expression terms depend on $\xi$ and cannot be declared absent from the derivative matrix. See notes/phase1/RGFREE.md (in preparation) for both calculations. Only after that OPEN assertion supplies the actual `TriangularBounds`, the analytic divided data and the scale-sensitive `hηbd` may one apply the PROVED abstract `rg_step_infty` to obtain $|\xi^{(k)}|_\infty\le C_\xi\beta^{-1}q^{k+1}$. The bounds in Step 8 are conditional on this application.
 *Step 8 (the hypotheses at $k+1$).* With $\epsilon:=|\xi^{(k)}|_\infty$:
 - (H.1): multiply by $\chi_{k+1}$ and use Lemma 5.5; analyticity domains: Lemma 5.6 for the old terms, Theorem 3.1 (g) for the new ones.
 - (H.2): the structure is that of Step 6 ($\psi^{(j)}_{k+1}$ is `composeField` of the renormalized background, Lemma 3.5 (iii)).
@@ -879,22 +807,15 @@ $b$-variable domain does not depend on $\nu$ (SF §3.5, S-11). $\square$
 
 ### 5.3 (CONT) and the proof of Theorem 5.3
 
-**Lemma 5.8 ((CONT) is preserved; SF §3.5; proved at paper level).** Fix $k$ and let $(\rho_k(\nu))_{0<\nu\le\nu_*(k+1)}$ be a family in the class with (CONT): the running constants
-$(\beta_j,\nu_j,z_j,E_j)_{j\le k}(\nu)$ converge as $\nu\downarrow0$, and the localized terms $\mathscr E^{(j)}_\nu(y,X;\psi,b)$, $\mathscr M^{(j)}_\nu(x,X;\psi,b,g)$ ($b=\nu_jh$) converge uniformly on
-$\nu$-independent open sets containing the analyticity domains, with $\nu$-uniform bounds. Then the data of $\rho_{k+1}(\nu)$ have the same property, and $\xi^{(k)}(\nu)$ converges.
-*Proof.* For $\nu\le\nu_*(k+1)$ all scales $\le k+1$ are $\le k_0(\nu)$ (LFR D-IV.11, Definition IV.3.1), so every background is $\nu$-free, hence independent of $\nu$, and the domains
-$\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$ have no $h$-conditions and do not depend on $\nu$. $\nu$ enters the step only through (i) $\beta_k(\nu)$ (the Gaussian coefficient, the factor $\beta_k^{-1/2}$, and the
-thresholds $p_0(\beta_k)$, $p_1(\beta_k)$ of $\chi_{\rm fl}$), (ii) $(\nu_k,b_k)$ polynomially in $V^{(k)}_\nu$ and in $C_1$, $C_3$, (iii) the old terms, (iv) $\xi^{(k)}$. Each new localized term is one of:
-an AE coefficient (an iterated integral of derivatives in $s$ of a function analytic and uniformly bounded on the polydisc; uniform convergence of the function gives convergence of the
-derivatives by Cauchy); a cluster-expansion coefficient $G^*(S)$ (an absolutely convergent series over clusters of integrals against $\nu_{p_1(\beta_k(\nu))}$ of products of
-$e^{H}-1$: each integrand converges off the null set $\{|\hat\psi_x|=p_1(\beta_k(0^+))\}$ and is dominated uniformly, so dominated convergence applies termwise, and the bounds of
-Theorem 3.4 are $\nu$-uniform, so the series converge by Tannery); or a composition of these with analytic maps of $\xi$. For $\xi^{(k)}$: the matrix `matrixFree` is continuous in
-$(a,m=\nu_{k+1},\tau,\varrho_{31})$, the data $f-c$ converge uniformly on the closed ball (they are built from the converging localized terms), and the limit map is a $\frac12$-contraction
-(uniform bounds); the landed `tendsto_rg_solution` gives $\xi^{(k)}(\nu)\to\xi^{(k)}(0^+)$. Then $\beta_{k+1},\nu_{k+1},z_{k+1}$ converge by (5.1) and the renormalized terms converge. $\square$
+**Lemma 5.8 ((CONT) is preserved; [v2: FL-A09]; proved conditional on the OPEN step/RG inputs and the working-neighbourhood hypothesis of Theorem 5.3).** Suppose the scale-$k$ family satisfies the hypotheses of Theorem 5.3 through $k$, and the step maps each pointwise member to the amended scale-$(k+1)$ class. Then the output family satisfies the exact `ContAtZero` clause and $\xi^{(k)}(\nu)$ converges.
 
-*Proof of Theorem 5.3.* The bound: induction on $k$ with Theorem 5.1, Step 7 and `norm_xi_le_of_step`; all constants are independent of $\nu$, $k$ and the torus (Lemma 5.7, Theorem
-3.1). The rate: the landed `rg_flow_infty` with $C=C_\xi$ (its hypothesis $6C_\xi q\le\beta(1-q)$ is a lower bound on $\beta$). Continuity at $\nu=0$: Lemma 5.8 inductively from $\rho_1(\nu)$
-(LF-6 provides (CONT) at $k=1$, LFR Theorem II.7.10 (e)). The convention is SF §3.5. $\square$
+*Proof.* Fix $k$ and restrict to $0<\nu\le\nu_*(k+1)$. Every scale through $k+1$ is in the $\nu$-free convention (LFR D-IV.11), so the generating sets and the formulas for the backgrounds have a common domain; their weights $a_j(\nu)$ can still vary with $\nu$. The coefficients $\beta_j(\nu),a_j(\nu),\nu_j(\nu)$ converge by the induction hypothesis and the recursion; $\nu_j(\nu)\to0$. On a smaller common data neighbourhood, the uniform contraction used in BG Theorem 5.2 shows that the $\nu$-free background fixed points converge with their weights: if $T_{a,D}$ is the contraction, $\|\phi_{a,D}-\phi_{a_0,D_0}\|\le(1-q_{\rm BG})^{-1}\|T_{a,D}(\phi_{a_0,D_0})-T_{a_0,D_0}(\phi_{a_0,D_0})\|$, and the right side tends uniformly to zero because the finite-volume equations depend continuously on $(a,D)$. The same argument applies to the multiplier and, by Cauchy's formula, their derivatives on smaller closed polydiscs. Write the old local terms in $(\psi,b=\nu_jh)$ coordinates. Uniform convergence on the common working polydiscs and Cauchy's formula give uniform convergence of every derivative needed in the AE and RG coefficients on smaller fixed polydiscs.
+
+The AE coefficients are finite sums of contour integrals of these derivatives against analytic background maps, so they converge uniformly there. For a Mayer coefficient, the finite cluster truncations converge by dominated convergence: the truncated Gaussian density has a cutoff $p_1(\beta_k(\nu))$ converging with $\beta_k(\nu)$; its indicator converges off the sphere $|\hat\psi_x|=p_1(\beta_k(0^+))$, a set of Gaussian measure zero. All products are bounded by the same small activity majorant of Theorem 3.4, and its entropy sum is independent of $\nu$; the tail is uniformly summable. Taking first the $\nu$ limit of a finite truncation and then the uniformly small tail proves uniform convergence of the full coefficient on the smaller common open polydisc. Its bound and holomorphy pass to the limit. Compositions with the old terms and backgrounds preserve this property.
+
+For the RG solution, the coefficient functions and their first derivatives on the closed contraction ball converge by the preceding Cauchy argument. The actual $\nu$-free matrix and divided data are assumed to satisfy the uniform triangular and scale bounds assigned to notes/phase1/RGFREE.md (in preparation). The PROVED `tendsto_rg_solution` (or the elementary inequality $|\xi_\nu-\xi_0|\le2\sup_{\xi}|T_\nu(\xi)-T_0(\xi)|$ for half contractions) then gives $\xi^{(k)}(\nu)\to\xi^{(k)}(0^+)$. Formula (5.1) gives the new coefficients, and analytic composition gives the new local terms. Their convergence on a common smaller nonempty open set and the pointwise amended class bounds are exactly `ContAtZero` at scale $k+1$. $\square$
+
+*Proof of Theorem 5.3.* Induct on $k$ using Theorem 5.1 for the pointwise estimates and Lemma 5.8 for the family clause. The initial family condition is an input; for the physical base family LFR Theorem II.7.10(e) is the cited base assertion and its compatibility with the amended domain must be checked. The PROVED abstract `rg_flow_infty` gives the stated $\gamma_\infty$ bound once its numerical hypothesis $6C_\xi q\le\beta(1-q)$ is imposed in the final $\beta_*$ choice. The convention at $k_f$ is a definition. Every use of Theorem 5.1, and therefore the family preservation in this application, remains conditional on the OPEN inputs identified in its status paragraph. $\square$
 
 ### 5.4 Proof of Theorem 5.4 (subdomain form)
 
@@ -903,7 +824,7 @@ substitution and the main action at $\lambda=\infty$ (§2.7; Lemmas 2.2–2.5 on
 Lemma IV.1.2). (4) P5 (3.1)–(3.18): Theorem 3.1 (a)–(e). (5) P6 (2.1)–(2.10): the new small-field region $Z^c_{k+1}$ (P6 (2.3)–(2.7)); the expansions of $\mathscr E''_0$, $\mathscr F''_0$, $\mathcal R'_n$
 are split by the position of the localization domain: domains inside $(Z^c_{k+1})^\approx$ (resp. $Z^c_{k+1}$ for $\mathcal R$) form the small-field functions, by the whole-torus clauses of Theorem
 3.1 (a), (d) these are the localizations of the whole-torus functions (P6 p. 3, "the crucial property"); the rest goes to $\mathcal B''^{(k+1)}$, with rates $\ge\kappa_b\ge\frac32\kappa$. (6) P6
-(2.11)–(2.17): Theorem 4.2 and Corollary 4.3. (7) P6 (2.18)–(2.20) and Props 2.1, 2.2: Theorem 3.1 (f). (8) P6 (2.21)–(2.29): Lemma 3.5 restricted to $Z^c_{k+1}$ (the counterterm is
+(2.11)–(2.17): Theorem 4.2 and Corollary 4.3; **[v2: FL-A05]** its $Y\cap\Omega_{k+1}=\varnothing$ part is the internal $b_k$ contribution, allocated to $\mathcal B^{(k)}$ under the LFR component bookkeeping, while only $Y\cap\Omega_{k+1}\ne\varnothing$ enters the modular $\mathcal B^{(k+1)}$ expansion. (7) P6 (2.18)–(2.20) and Props 2.1, 2.2: Theorem 3.1 (f), conditional on notes/phase1/VMOD.md (in preparation). (8) P6 (2.21)–(2.29): Lemma 3.5 restricted to $Z^c_{k+1}$ (the counterterm is
 pre-localized in blocks, (4.15)), the RG system solved for the whole-torus functions (P6 p. 3: "we have to take the thermodynamic limits"; the same $\xi^{(k)}$ as in Theorem 5.2),
 Theorem 3.1 (g), (h). (9) P6 (2.30): the counterterm of P5 (1.8) for the new term is subtracted and added; by antisymmetry its added copy is a sum over
 $z\in(Z^c_{k+1})^\approx\cap Z_{k+1}$, $y\in Z^c_{k+1}$, a boundary term with the decay of $v^{(k+1)}_1,v^{(k+1)}_2$ (P1 (3.77), (3.80), cited). (10) P6 (2.31): the renormalization of the main action on
@@ -920,7 +841,7 @@ in regime (A), the explicit field term; the covariance is $C^{(0)}=(P^\perp G^{-
 3.3 then needs only the $V$-part (with the chart terms in place of $V^{(0)}$) and the localization of $C^{(0)1/2}$, and Theorem 3.4 applies unchanged; the renormalization at $k=0$ is §3.6
 with $\mathscr E^{(j)}=0$. So the analytic part of O-IV-1 reduces to the analogue of LOC I-4c for $C^{(0)}$ (sketched; not done here).
 *Last step.* P4 §6, P7 §4: LF-8, not part of I-9; Theorem 3.4 is the cluster input there too (with GAS for the large fields).
-*Observable layer (OBS X1–X7).* The second-order components ride on the same constructions: X2 is Theorem 3.4 with two marks; X3 is the normalization of $\mathscr M^{(k+1)}$ at
+*Observable layer (OBS X1–X7).* The second-order components ride on the same constructions: X2 uses Theorem 3.4 only after the stronger two-mark activity condition $\varepsilon_H\le\varepsilon_{\rm PE}/4$ is checked; X3 is the normalization of $\mathscr M^{(k+1)}$ at
 $\psi=h$ with the irrelevance of Lemma 3.2 for the one-point terms; X6 is Lemma 5.8 for the second-order data.
 
 ---
@@ -937,23 +858,40 @@ $\psi=h$ with the irrelevance of Lemma 3.2 for the one-point terms; X6 is Lemma 
 | Theorem 3.4 | marked cluster expansion on the cubes of $\Omega_{k+1}$ (one and two marks) | no; editable lemma of the polymer layer | Thm 3.1, OBS X2, LF-8 |
 | Lemma 4.1, Theorem 4.2 | far data changes; O-2′ | no; editable lemma | LF-3 (LFR Lemma IV.1.3), LF-5 |
 | I-9 = Theorems 5.1, 5.2 | whole-lattice step and recursion | editable (the $Z_k=\varnothing$ case of 5.4) | SF milestone |
-| Theorem 5.3 | (F1) clause | **yes** (as SF §7.1) | Root-C via `C1StarF1` |
-| Theorem 5.4 | subdomain step (P6 (2.32)–(2.33)) | **yes** (recommended; it is what LF-3/LF-5 cite) | LF-3, LF-5 |
+| Theorem 5.3 | family (F1)/(CONT) clause | **no**, until family and working-neighbourhood inputs are accepted | Root-C via `C1StarF1` |
+| Theorem 5.4 | subdomain step (P6 (2.32)–(2.33)) | **no**, until VMOD.md and RGFREE.md inputs close | LF-3, LF-5 |
 
-The frozen statements have class membership as their only hypothesis (AGENTS.md rule 4): Theorem 5.3's hypotheses are $\rho_1\in\mathbb R^{\rm sf}_1$ and the flow; Theorem 5.4's are
-$\mathrm{IsRep}_k$/$\mathrm{IsRep}^\flat_k$, a history and a step record. I-8 is a proved theorem used inside, never a hypothesis.
+**[v2: FL-A09, FL-A13]** Theorem 5.3 now quantifies over a common $\nu$-family satisfying `ContAtZero` and the displayed working-neighbourhood condition. Pointwise membership alone cannot imply a family limit. Theorem 5.4 uses the amended Def-7 class and remains conditional on its named OPEN inputs. I-8 is an editable target; it is not currently a proved theorem available to close I-9.
 
 ### 6.2 Findings and errata candidates (new rows for `ERRATA.md`, keyed FL-…)
 
+**[v2: FL-A01–FL-A13] Audit errata ledger.** These rows amend the earlier FL-1–FL-13 candidates below; they are not claims that the corresponding external notes are complete.
+
+| Finding | Correction here | Status |
+|---|---|---|
+| FL-A01 | §3.2, §3.3: termwise support $X\cup\operatorname{st}_+(y)$, rate cost (3.0), slit-plane domain and actual I-5 support | termwise abstract proof PROVED; RG instantiation/cover OPEN |
+| FL-A02 | §2.7, §3.3: modular I-5 and auxiliary margins | DELEGATED to notes/phase1/VMOD.md (in preparation); OPEN |
+| FL-A03 | Thm 3.1(f), §5.4: P6 Props 2.1–2.2 transfer | DELEGATED to notes/phase1/VMOD.md (in preparation); OPEN |
+| FL-A04 | §4.2: H7 prefactor $C_F\beta_{k+1}r_{H,k}^2$ and corrected (Λ28′) | complex estimate proved under stated decoupled input; NC/cover OPEN |
+| FL-A05 | §4.2: $Y\cap\Omega=\varnothing$ terms enter $b_k$ first | REPAIRED algebraically |
+| FL-A06 | §3.4: two marks require $\varepsilon_H\le\varepsilon_{\rm PE}/4$; `hq`, `hκ`, `hα` checked | REPAIRED under landed Mayer hypotheses |
+| FL-A07 | Lemma 2.9, §5.2: scalar switch cost separated from joint RG derivative claim | RG part DELEGATED to notes/phase1/RGFREE.md (in preparation); OPEN |
+| FL-A08 | §5.2: actual $\varrho_{31}$ and divided free equations | DELEGATED to notes/phase1/RGFREE.md (in preparation); OPEN |
+| FL-A09 | Thm 5.3, Lemma 5.8: family premise `ContAtZero` plus working neighbourhoods; preservation proof | conditional on OPEN step/RG inputs; bare `ContAtZero` needs neighbourhood transport |
+| FL-A10 | §1.5, Thm 5.1: $\alpha_0,E_0$ fixed before $\beta_*(\alpha_0,E_0)$ | REPAIRED |
+| FL-A11 | §1.4: amended $\Xi^c$ input class, exact `i5_background` radii and (DL-gap) | domain arithmetic REPAIRED; fluctuation/modular I-5 OPEN |
+| FL-A12 | §1.2, §3.4: finite real penalty $D_\Omega$ on disconnected supports, all-support (G1)–(G3) | REPAIRED subject to connected-cover geometry |
+| FL-A13 | summary and theorem status paragraphs: named OPEN premises | REPAIRED as a status correction |
+
 - **FL-1 = F-1** (SF §1.7 ruling (iv)). The data-domain analyticity class cannot be reproduced by the step; use $\Xi^c$ (P4 (H.4)). §1.4. *Design defect in SF, not in the sources.*
 - **FL-2 = F-3** (SF §3.7 (R-switch), UNCERTAIN there; P6 p. 11, ER-098, ER-099). With the two-step treatment and the chord identity the switching term is quadratic in
-  $\delta\phi=O(\nu)$, i.e. $O(\beta^{-1})$ per block; no size condition beyond $\beta$ large; P6's assumption $\nu_{k+1}<\frac16\varepsilon_{k+1}\epsilon$ is not needed. Lemma 2.9. *Resolved.*
+  $\delta\phi=O(\nu)$, i.e. $O(\beta^{-1})$ per block; the scalar action cost is $O(\beta^{-1})$ per block. Its joint $\xi$ derivatives and RG matrix remain OPEN (RGFREE.md); no complete switch claim is made.
 - **FL-3** (LFR N-IV-1, Lemma IV.1.8). P5 Prop 3.2's printed $\frac12\beta_k^{-m-1}$ suffices for H4 at $k+1$ because the construction gives $\beta_k^{-m-2}$ (P6 Lemma 4.2). Theorem 3.1 (d). *Resolved.*
 - **FL-4 = F-4** (P6 (4.67)). P6 obtains $\eta^{\frac{d-2}2+\gamma-2\alpha_1}$ and claims (H.7)'s $\eta^{\frac{d-2}2+\gamma-\alpha_1}$; the gap closes by using a smaller exponent ($\alpha'=\alpha_1/4$) in the bound
   $p_1(\beta_k)\le C\beta^{\alpha'}\eta^{-\alpha'}$ (P6 uses the same letter $\alpha_1$ for both). *Minor gap, repaired.*
 - **FL-5 = F-5** (P4 (2.39); LOC I-4c (ii)). The $\ell^\infty$ bound of $C^{(k)1/2}$ is used but LOC states only $\ell^2$; it follows from the uniform kernel decay (Lemma 2.4 (c)). *Minor.*
 - **FL-6 = F-6** (LFR (Λ28), Lemma IV.1.3 route (ii)). P6 (2.13)'s distance $2MR_k$ refers to the margin of $W_{k+1}=(Z^c_{k+1})^{\approx2}$; for the local backgrounds the margin is $E_{Z'}=Z'^{\sim[\hat R_k]}$,
-  distance $\approx M[\hat R_k]$; (Λ28) is to be read as (Λ28′). *Minor, eventually true.*
+  distance $\approx M[\hat R_k]$; (Λ28) is to be read as the v2 (Λ28′) of §4.2 with prefactor $C_Fa^{-1}\alpha_0^2e^x$, after the empty-intersection split. Its exponential comparison is proved there conditional on the decoupled H7 input.
 - **FL-7** (P4 Prop 2.2, p. 696, image). The constant is "const. $\beta^{-\frac58+\alpha_1}\le\frac12\beta^{-\frac14}$"; the P4 review and SF Theorem 4.1 (b) transcribe $\beta^{-(3/8+\alpha_1)}$. *Transcription
   error in the review; no consequence.*
 - **FL-8** (P6 (4.1)). The interaction listed in P6 (4.1) omits the $\nu$-free linear term $\nu_k\langle\delta\phi_k,\phi_{k+1}-h\rangle$ of P5 (2.33), which belongs to $V^{(k)}_{\rm eff}$ (P5 (2.38)); it is
@@ -961,12 +899,12 @@ $\mathrm{IsRep}_k$/$\mathrm{IsRep}^\flat_k$, a history and a step record. I-8 is
 - **FL-9** (P4 (2.27)). At $\lambda=\infty$ the interaction simplifies to $V^{(k)}=\frac12\langle\alpha^{(1)},\phi'\cdot\phi'\rangle+\frac12\langle\phi_2,H_k\phi_2\rangle$ (Lemma 2.3 (b)). *Not an error.*
 - **FL-10** (P4 (2.4)–(2.14)). For hard spins the critical point of the Gaussian step is the unique **global** minimiser (Lemma 2.2 (b)); P4 has local uniqueness via P2 Prop 4.1. *Strengthening.*
 - **FL-11** (P6 (4.37)–(4.54), p. 44; ER-102). The polymer system modulo $\Omega^c$ is realized on the cubes of $\Omega_{k+1}$ with the size $d_\Omega$ and a pre-summation of labels with equal
-  support (Theorem 3.4); no hole parameter is needed in MY, and the landed hole-free `mayer_marked` suffices. *Precision added.*
+  support (Theorem 3.4); no hole parameter is needed in MY, and the landed hole-free `mayer_marked` applies with the finite size of §1.2 and, for two marks, $\varepsilon_H\le\varepsilon_{\rm PE}/4$. *Corrected hypothesis.*
 - **FL-12** (P4 (5.31) vs landed `rg_step_infty`). The landed fixed-point bound is $84\eta$ (P4: $2|f(0)|$), so $E_0^*=400C_4'B_6K_0K_5$ instead of P4's $4C_4B_6K_0K_5$. *Constant bookkeeping.*
 - **FL-13** (SF §4.4 item 3, P6 (4.54)–(4.56), ER-069, ER-100). Exponent bookkeeping redone: (IC) $\kappa\ge7+8\kappa_0+2c_1$, implied by LFR's $\kappa_{\rm flow}\ge16\kappa_0+16$; P6's own Prop 3.3
   needs $\kappa\ge10+16\kappa_0$, also implied. *Consistent.*
 
-Existing rows touched: ER-059 (I-8 now proved here, modulo FL's open items), ER-060 (P6 (4.11) re-proved for $d^{\rm cov}$, Lemma 1.2 (G1)), ER-069 (κ iteration: (IC)), ER-095
+Existing rows touched: ER-059 (I-8 remains conditional on the named OPEN inputs), ER-060 (P6 (4.11) re-proved for $d^{\rm cov}$, Lemma 1.2 (G1)), ER-069 (κ iteration: (IC)), ER-095
 (variant (V0)), ER-096 (P6 Props 2.1–2.4: 2.3 proved, 2.1–2.2 sketched, 2.4 = Theorem 5.4), ER-098, ER-099 (FL-2), ER-100 (σ-analyticity, Theorem 3.1 (b)), ER-101 (settled:
 $\chi_{\rm fl}$ is a product by definition), ER-102 (FL-11), ER-103 (both values of $\varepsilon$ in P6 Lemma 4.2 are admissible; we use $\beta_k^{-m-2}$).
 
@@ -978,55 +916,42 @@ expansion around the critical point exact (Lemma 2.3) and the counterterm $C_2$ 
 $k_0$ is a quadratic term (FL-2). (6) The fluctuation measure is a product of truncated Gaussians on $\mathbb R^N$ (2.5). (7) At $k=0$ the sphere chart replaces P4 (2.42)–(2.50)
 (LFR §II.7, §5.5 here).
 
-### 6.4 Lean plan
+### 6.4 Lean plan [v2: FL-A01, FL-A04, FL-A06, FL-A09–FL-A12]
 
-New modules (namespace `Balaban.Fluctuation` unless stated); dependency order top to bottom; sizes are estimates including docstrings, on top of the landed PE/MY/PE-M,
-AE, GM, I-6 and of LOC's budget for I-4/I-5 (24k–38k lines).
+The rows are proposed integration work, not current proof status. The abstract termwise I-6 is already landed in `Balaban/SmallField/RenormTermwise*.lean`. No new module should reprove it; the task is to instantiate its premises for the actual local terms. The background-only `i5_background` is landed, while the fluctuation and modular variants remain separate OPEN gates. Proposed sizes below are retained only as rough planning estimates.
 
 | # | Module | Content | Needs | Lines |
 |---|---|---|---|---|
-| 1 | `SizeMod.lean` | Definition 1.1 ($d^{\rm cov}$ mod $\Omega^c$, $\hat Y$, $d_\Omega$), Lemma 1.2 (G1)–(G5) | `TreeLengthCov`, `PolymerCount`, `Hole` | 1.5k–2.5k |
+| 1 | `SizeMod.lean` | Definition 1.1 with finite $D_\Omega$ on disconnected supports; prove all-support G1–G3 and connected G4–G5 | `TreeLengthCov`, `PolymerCount`, `Hole` | 1.5k–2.5k |
 | 2 | `CriticalPoint.lean` | Lemma 2.2 (Gaussian composition; global minimiser; (2.2)) | Def-5 (`bgField`, BG Thm 5.2 (4)), `theorem73_*` | 0.8k–1.5k |
 | 3 | `Expansion.lean` | Lemma 2.3 (chord identity, (2.4), $\nu$-free variant, bounds) | `prop51_*`, `linearResponse`, `constrainedOp` | 1.5k–2.5k |
 | 4 | `Covariance.lean` | Lemma 2.4 ($C^{(k)}$, square root by the resolvent integral, $\ell^\infty$ bound, $\log\det$) | GR G-1, G-4 (landed parts), LOC I-4c at $s=1$ | 2k–4k |
 | 5 | `Measure.lean` | Lemma 2.5, (2.5), change of variables (2.7), Proposition 2.6 (interpolation identities) | Mathlib `Measure.pi`, linear change of variables | 3k–5k |
-| 6 | `Irrelevant.lean` | Lemma 3.2 (termwise I-6; refactor of `Renorm*.lean` premises) | landed `renormalization_local` | 2k–4k |
-| 7 | `I5Variants.lean` | (V0); (Vmod) = GM2 with a hole; Lemma 2.8 (auxiliary cover) | LOC I-5, `gm2`, `gm4` | 2.5k–5.5k |
+| 6 | `Irrelevant.lean` | instantiate `PremisesTerm`/`SumConds`, star support, (3.0), and I-5 evaluation locus for the actual RG terms | landed `RenormTermwise*.lean` | 1k–3k |
+| 7 | `I5Variants.lean` | (V0), fluctuation I-5, (Vmod), Lemma 2.8; include (DL-gap) with $C_0=8d+12$ and $C_{\Xi1}=(4d+8)(2d+1)$ | landed background-only `i5_background`; OPEN NC/cover and VMOD.md | 2.5k–5.5k |
 | 8 | `Interaction.lean` | Proposition 3.3 | I-4a/b/c (decoupled), AE, 6, 7 | 5k–9k |
-| 9 | `Polymer/MarkedCubes.lean` | Theorem 3.4 (pre-summation, instantiation of `mayer_marked`, two marks) | `mayer_marked`, `norm_D1_Ff_le`, 1 | 1.5k–3k |
+| 9 | `Polymer/MarkedCubes.lean` | Theorem 3.4 with finite size, all-support G1–G3 and two-mark $\varepsilon_H\le\varepsilon_{\rm PE}/4$ | `mayer_marked`, `norm_D1_Ff_le`, 1 | 1.5k–3k |
 | 10 | `Contributions.lean` | Theorem 3.1 (a)–(e) | 8, 9 | 3k–6k |
 | 11 | `Renorm.lean` | Lemma 3.5, Theorem 3.1 (g), (h) | 3, 6, 7, I-4a | 4k–7k |
 | 12 | `OldTerms.lean` | Theorem 3.1 (f) | 6, 7, 13 | 3k–5k |
-| 13 | `FarDecay.lean`, `BackgroundChange.lean` | Lemma 4.1, Theorem 4.2, Corollary 4.3 | `prop51_*` (weighted), `isWeight_of_dist`, `theorem73_*`, AE, GM | 3k–5k |
-| 14 | `Switch.lean` | Lemma 2.9 | 3, 6, 13 | 1.5k–2.5k |
-| 15 | `SmallField/Step.lean` | Theorems 5.1, 5.2, Lemmas 5.5–5.7 | 2–14, `rg_step_infty`, `matrixSel`, `norm_xi_le_of_step` | 5k–9k |
-| 16 | `SmallField/StepCont.lean` | Lemma 5.8, Theorem 5.3 | 15, `tendsto_rg_solution`, `rg_flow_infty`, Mathlib dominated convergence / Tannery | 2k–4k |
+| 13 | `FarDecay.lean`, `BackgroundChange.lean` | Lemma 4.1, complex H7 prefactor, empty-intersection split, new (Λ28′) | weighted LOC/NC, `isWeight_of_dist`, `theorem73_*`, AE, GM | 3k–5k |
+| 14 | `Switch.lean` | scalar Lemma 2.9 plus joint $\xi$ derivatives and scale-sensitive `hηbd` (RGFREE.md) | 3, 6, 13 | 1.5k–2.5k |
+| 15 | `SmallField/Step.lean` | Theorems 5.1, 5.2 with $\alpha_0,E_0\prec\beta_*$ and actual $\varrho_{31}$ (RGFREE.md) | 2–14, `rg_step_infty`, `matrixSel`, `norm_xi_le_of_step` | 5k–9k |
+| 16 | `SmallField/StepCont.lean` | Lemma 5.8, family Theorem 5.3; prove working-neighbourhood transport to the exact `ContAtZero` output | 15, draft Def-6 `ContAtZero`, `tendsto_rg_solution`, dominated convergence | 2k–4k |
 | 17 | `SmallField/StepSub.lean` | Theorem 5.4 | 15, LF Parts I–II declarations | 6k–12k |
 | | **Total** | | | **47k–88k** |
 
-Compared with SF §7.5 (I-8 60k–100k, I-9 40k–75k) the estimate is lower because Theorem 3.4 reduces the cluster expansion to an instantiation of landed `mayer_marked`, the
-localization is LOC's (budgeted there), and I-6 is landed. Risks: (i) module 8 (largest; it composes every decoupled object of LOC with the old effective action); (ii) module 5
-(measure-theoretic change of variables with the truncated product measure); (iii) module 17 (bookkeeping of P5 §2 on histories); (iv) the I-5 variant (Vmod).
-**First Lean milestone:** modules 1, 3, 6, 9 (no dependence on NC), then the whole-lattice chain 2–5, 8, 10, 11, 15 for a fixed cover.
+**Gates before closure.** Module 1 must use a real-valued size on *all* nonempty supports; module 6 must establish actual `PremisesTerm` and the star enlargement; module 9 must verify `hq`, `hκ`, `hα` with two-mark slack; module 13 must use the complex H7 prefactor. Modules 7, 12 and the $\nu$-free part of 14–16 remain OPEN until VMOD.md and RGFREE.md are available. The rough total above is not revised by subtracting already landed termwise files. The first independent milestone is modules 1, 6 and 9; a whole-lattice step still waits for the cover/NC and divided RG gates.
 
-### 6.5 Open items and questions
+### 6.5 Open items and questions [v2: FL-A01–FL-A13]
 
-**Open items.**
-1. *F-1 decision* (Q1): the class domain; until decided, the frozen Def-6 text and SF ruling (iv) disagree with what the step produces.
-2. *(Vmod)*: the modular GM2 (boundary terms) is sketched (§3.3); needed for Theorem 3.1 (c) and Proposition 3.3's $\mathcal B''$-part.
-3. *Theorem 3.1 (f)* (P6 Props 2.1–2.2): sketched; P6's "pseudo-scale" device for $j=k$ is formalized only by Definition 2.7.
-4. *Lemma 2.8* (auxiliary cover): separation proved, the margins $r_0,r_1$ at the new interface inherited (LOC open item 5); UNCERTAIN until LOC's cover lemma is written.
-5. *SF Lemma 3.1′*: the entry $\varrho_{31}$ of the $\nu$-free RG matrix (SF §3.7, UNCERTAIN there) is needed in Theorem 5.2 for $k<k_0$; (B1) itself is convention-independent (Lemma 5.7).
-6. *NC* (LOC): everything decoupled rests on it.
-7. *Base case* (LFR O-IV-1): the analogue of LOC I-4c for $C^{(0)}$ (§5.5).
-8. *P1 (3.77), (3.80)*: the bounds of $v^{(k+1)}_{1,2}$ used for the counterterm restoration P6 (2.30) are taken from the P1 review, not re-derived.
-9. *The H7 domain versus $\tilde\Psi^c$* (Theorem 4.2 Step 5): cited from LFR Definition II.3.5 and SF (Ξ1).
+1. **VMOD.md (in preparation), OPEN:** auxiliary-cover margins and NC at the new interface, including the landed `ChainNum.close` condition and either the sufficient $r_0^{\rm Lean}>4dL^3$ margin or another proof of its required smallness; full fluctuation I-5 and (Vmod); P6 Props 2.1–2.2 in the amended class. These inputs block Proposition 3.3, Theorem 3.1(c),(f), Theorems 5.1–5.4 and the complete O-2′ application.
+2. **RGFREE.md (in preparation), OPEN:** the actual $\nu$-free divided equations, $\varrho_{31}$, their analytic/scale bounds, and the joint $\xi$ derivatives of the switch. The scalar identity of Lemma 2.9(a)–(b) is independent of this work.
+3. **Actual I-6 premises, OPEN:** instantiate landed `PremisesTerm` and `SumConds` for the scale-$j$ RG terms, including the scaled tube/slit-plane evaluation locus and the support enlargement (3.0). The abstract termwise theorem itself is PROVED in Lean.
+4. **Family neighbourhoods, OPEN for the bare class:** either show that `ContAtZero`'s nonempty common open sets transport by analytic continuation to the fixed RG Cauchy polydiscs, or retain the additional working-neighbourhood premise in Theorem 5.3. Verify the physical base family of LFR Theorem II.7.10(e) in the amended class.
+5. **Other cited inputs and downstream text:** the $k=0$ covariance analogue of LOC I-4c (§5.5); P1 (3.77), (3.80) for the restored counterterm; P5 §2 bookkeeping and the H7-to-data-domain inclusion with $C_{\Xi1}=(4d+8)(2d+1)$. LFR Lemma IV.1.3 still prints the older $p_0(\beta_k)^2$ complex prefactor and must be updated separately to Theorem 4.2's $\beta_{k+1}r_{H,k}^2$. These are not discharged by the v2 local repairs.
 
-**Questions** (none for Roland).
-- **Q1 (orchestrator, author):** accept F-1: Def-6/Def-7 (D2) state analyticity of $\mathscr E^{(j)}(y,X;\cdot)$, $\mathscr M^{(j)}(x,X;\cdot)$ on $\Xi^c_j(\mathbb B_j(X);1,\varepsilon_j)$, reverting SF ruling (iv) on the output side?
-- **Q2 (orchestrator):** accept the two-step switch (Lemma 2.9), which removes SF's (R-switch) and LFR's Lean requirement (L1′)?
-- **Q3 (orchestrator):** freeze Theorems 5.3 and 5.4 (the subdomain step LF-3/LF-5 cite) instead of SF's 5.1–5.3 (whole lattice)?
-- **Q4 (Lean):** sharpen PE-L to $\alpha c_1\le1$ in the landed `mayer_pe` (loss $c_1\to1$), or keep the landed form and (IC) $\kappa\ge7+8\kappa_0+2c_1$?
+The F-1 class-domain amendment is recorded as accepted in LFR §II.3.3 and in the landed draft Def-6; its subdomain implementation remains an input. The (IC) choice is retained without a PE-L sharpening. No frozen I-8/I-9 claim is proposed while the OPEN items above remain.
 
 ### 6.6 Drafting log
 
