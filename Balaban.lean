@@ -376,3 +376,5 @@ public import Balaban.SmallField.XiFour
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Compose
+public import Balaban.LargeField.Analytic.Constants
+public import Balaban.LargeField.LF1
