@@ -829,6 +829,7 @@ public import Balaban.LargeField.R.WindowGenSingle
 public import Balaban.LargeField.R.WindowGenCompose
 public import Balaban.LargeField.R.WindowGenGlue
 public import Balaban.LargeField.R.WindowCollarGeom
+public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiPath
 public import Balaban.LargeField.R.DeltaPsiDef
 public import Balaban.LargeField.R.DeltaPsiComp
