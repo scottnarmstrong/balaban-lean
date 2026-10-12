@@ -1182,6 +1182,9 @@ public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
 public import Balaban.Fluctuation.StepComplexObs
 public import Balaban.Fluctuation.StepComplexSource
+public import Balaban.Fluctuation.StepComplexLocalAgree
+public import Balaban.Fluctuation.StepComplexJoint
+public import Balaban.Fluctuation.StepComplexOutAnalytic
 public import Balaban.Fluctuation.StepRates
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
