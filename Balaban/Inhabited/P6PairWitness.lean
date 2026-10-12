@@ -134,6 +134,27 @@ theorem layer_unique {j j' : ℕ} {y : CTorus d 3 (15 * n1) 2 (1 + 1)}
   p6FsharpC_cubeIdx_layer_unique (k := 1) (n0 := 3 * n1) (M1 := 9) (c := 15) rfl hρ9
     (by norm_num) (stepZ0 d n1).Z hM9 h h'
 
+/-- The index `(k + 1, 0)` (top layer, site `0`) belongs to `cubeIdx F♯`: the index set of the
+cover is nonempty. -/
+theorem top_mem_cubeIdx : ((1 + 1, 0) : ℕ × CTorus d 3 (15 * n1) 2 (1 + 1)) ∈ cubeIdx (pairCover d n1) := by
+  have h0 : (0 : CTorus d 3 (15 * n1) 2 (1 + 1)) ∈ topCell 1 (1 + 1, (0 : CTorus d 3 (15 * n1) 2 (1 + 1))) :=
+    mem_box_cbase (cellSide_pos 1 2 (1 + 1)) _
+  have hΩ : (0 : CTorus d 3 (15 * n1) 2 (1 + 1)) ∈ (pairCover d n1).Ω (1 + 1) :=
+    Finset.mem_coe.1 (active_top_halo d n1 0 0 ⟨0, h0, 0, h0, ⟨0, fun _ => by simp, by funext μ; simp⟩⟩ h0)
+  refine (mem_cubeIdx _).2 ⟨⟨by norm_num, le_rfl⟩, ?_, fun μ => by simp⟩
+  exact (pairCover d n1).mem_layer.2 ⟨hΩ, by rw [(pairCover d n1).top]; simp⟩
+
+open Classical in
+/-- The root count of `p6_root_patch_count` is at least `1` at the site `0`: the patch of the
+index `(k + 1, 0)` Moore-touches the active top cell of `0`. -/
+theorem root_patch_count_pos :
+    1 ≤ ((cubeIdx (pairCover d n1)).filter
+        fun P => MooreTouch (topCell 1 (1 + 1, (0 : CTorus d 3 (15 * n1) 2 (1 + 1)))) (Pset 2 P)).card := by
+  refine Finset.card_pos.2 ⟨(1 + 1, 0), Finset.mem_filter.2 ⟨top_mem_cubeIdx d n1, ?_⟩⟩
+  have h0 : (0 : CTorus d 3 (15 * n1) 2 (1 + 1)) ∈ topCell 1 (1 + 1, (0 : CTorus d 3 (15 * n1) 2 (1 + 1))) :=
+    mem_box_cbase (cellSide_pos 1 2 (1 + 1)) _
+  exact ⟨0, h0, 0, self_mem_Pset (1 + 1, (0 : CTorus d 3 (15 * n1) 2 (1 + 1))), ⟨0, fun _ => by simp, by funext μ; simp⟩⟩
+
 end P6PairWitness
 
 end Balaban.Inhabited
