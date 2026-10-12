@@ -91,4 +91,50 @@ theorem Aterm_eq_sum (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ :
   refine tsum_congr fun x => ?_
   rw [tsum_mul_right]
 
+theorem aCoef_summable (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀) :
+    Summable fun z : Site d => aCoef T i₀ ν z := by
+  have h1 : Summable fun p : T.polys × Site d => aCoefX T i₀ ν p.1.1 p.2 :=
+    Summable.of_norm (aCoefX_summable_prod hP hρ hE0)
+  have h2 : Summable fun p : Site d × T.polys => aCoefX T i₀ ν p.2.1 p.1 := by
+    have := (Equiv.prodComm (Site d) T.polys).summable_iff
+      (f := fun p : T.polys × Site d => aCoefX T i₀ ν p.1.1 p.2)
+    exact this.mpr h1
+  have h3 := h2.prod
+  exact h3
+
+/-- The lift of a lattice point to the torus. -/
+def liftSite (ℓ : ℕ) (z : Site d) : Torus d ℓ := fun μ => ((z μ : ℤ) : ZMod ℓ)
+
+theorem liftSite_add (ℓ : ℕ) (x y : Site d) : liftSite ℓ (x + y) = liftSite ℓ x + liftSite ℓ y := by
+  ext μ; simp [liftSite]
+
+/-- **Theorem 2.1 (b)**: on a torus the antisymmetric terms `A_y` sum to zero, where
+`A_y = ½ Σ_z a^{(j)}(z) (g(y + z) - g(y))`, `g = ψ·ψ` periodic. -/
+theorem Aterm_torus_sum (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀)
+    (ℓ : ℕ) [NeZero ℓ] (ψT : Torus d ℓ → Spin N) :
+    ∑ y : Torus d ℓ, (1 / 2 : ℂ) * ∑' z : Site d, aCoef T i₀ ν z *
+      (dot (ψT (y + liftSite ℓ z)) (ψT (y + liftSite ℓ z)) - dot (ψT y) (ψT y)) = 0 := by
+  classical
+  set g : Torus d ℓ → ℂ := fun y => dot (ψT y) (ψT y) with hg
+  set B : ℝ := ∑ y, ‖g y‖ with hB
+  have hbd : ∀ y, ‖g y‖ ≤ B := fun y =>
+    Finset.single_le_sum (f := fun y => ‖g y‖) (fun _ _ => norm_nonneg _) (Finset.mem_univ y)
+  have hsum : ∀ y : Torus d ℓ, Summable fun z : Site d => aCoef T i₀ ν z *
+      (g (y + liftSite ℓ z) - g y) := by
+    intro y
+    refine Summable.of_norm_bounded ((aCoef_summable hP hρ hE0).norm.mul_right (2 * B)) ?_
+    intro z
+    rw [norm_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
+    calc ‖g (y + liftSite ℓ z) - g y‖ ≤ ‖g (y + liftSite ℓ z)‖ + ‖g y‖ := norm_sub_le _ _
+      _ ≤ 2 * B := by linarith [hbd (y + liftSite ℓ z), hbd y]
+  rw [← Finset.mul_sum, Summable.tsum_finsetSum (fun y _ => hsum y) |>.symm]
+  have : ∑' z : Site d, ∑ y : Torus d ℓ, aCoef T i₀ ν z * (g (y + liftSite ℓ z) - g y) = 0 := by
+    refine (tsum_congr fun z => ?_).trans tsum_zero
+    rw [← Finset.mul_sum, Finset.sum_sub_distrib]
+    have : ∑ y : Torus d ℓ, g (y + liftSite ℓ z) = ∑ y : Torus d ℓ, g y :=
+      Equiv.sum_comp (Equiv.addRight (liftSite ℓ z)) g
+    rw [this, sub_self, mul_zero]
+  rw [this, mul_zero]
+
 end Balaban.SmallField
