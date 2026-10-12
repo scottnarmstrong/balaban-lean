@@ -855,6 +855,7 @@ public import Balaban.LargeField.R.WindowCollarGeom
 public import Balaban.LargeField.R.WindowOfHistory
 public import Balaban.LargeField.R.WindowRegSet
 public import Balaban.LargeField.R.WindowRegSetBond
+public import Balaban.LargeField.R.WindowRegSetPath
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
 public import Balaban.LargeField.R.DeltaPsiCollarInner
