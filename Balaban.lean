@@ -1141,6 +1141,7 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
+public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Fluctuation.Thm31WitnessAnalytic
 public import Balaban.Fluctuation.Thm31WitnessData
