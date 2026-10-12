@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
 | W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
 | W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
-| W123 | `w123-ripe-witness` / W123 | ripe-regime joint witness at L = 4 (k₀ ≥ 1) |
+| W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
 | W124 | `w124-prop33-bound` / W124 | Prop 3.3 bound shape, ν-part, symmetry |
 | W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
