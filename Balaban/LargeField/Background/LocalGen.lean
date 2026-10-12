@@ -186,4 +186,151 @@ theorem localGen_dataSites_mono (hj : j ≤ q) {X' : Finset (Torus d (M1 * N₁ 
 
 end Range'
 
+/-! ### T3: locality -/
+
+section Local
+
+variable {j : ℕ} {X X' : Finset (Torus d (M1 * N₁ * L ^ q))}
+
+/-- **Locality on a set** (`ρ_j = 12 M₁ L ^ j`, the radius of the landed `minLayer_local`): if `X`
+and `X'` agree within sup-distance `12 M₁ L ^ j` of a set `A`, then `B_j(X)` and `B_j(X')` have the
+same domains on `A`. -/
+theorem localGen_local (hL : 2 ≤ L) (hj : j ≤ q) {A : Finset (Torus d (M1 * N₁ * L ^ q))}
+    (h : ∀ x ∈ A, ∀ y, supDist x y ≤ 12 * M1 * L ^ j → (y ∈ X ↔ y ∈ X'))
+    {x : Torus d (M1 * N₁ * L ^ q)} (hx : x ∈ A) (n : ℕ) :
+    x ∈ (minimalGenSet hj X).Ω n ↔ x ∈ (minimalGenSet hj X').Ω n := by
+  rw [minimalGenSet_Ω, minimalGenSet_Ω]
+  by_cases hn : n ≤ j
+  · exact minLayer_local X hL hj hn (h x hx)
+  · rw [minLayer_of_gt X (by omega), minLayer_of_gt X' (by omega)]
+
+/-- **Locality of the layers** on `A` (same hypothesis as `localGen_local`). -/
+theorem localGen_layer_local (hL : 2 ≤ L) (hj : j ≤ q) {A : Finset (Torus d (M1 * N₁ * L ^ q))}
+    (h : ∀ x ∈ A, ∀ y, supDist x y ≤ 12 * M1 * L ^ j → (y ∈ X ↔ y ∈ X'))
+    {x : Torus d (M1 * N₁ * L ^ q)} (hx : x ∈ A) (n : ℕ) :
+    x ∈ (minimalGenSet hj X).layer n ↔ x ∈ (minimalGenSet hj X').layer n := by
+  rw [GeneratingSet.mem_layer, GeneratingSet.mem_layer, localGen_local hL hj h hx n,
+    localGen_local hL hj h hx (n + 1)]
+
+/-- **Locality of the layer index** on `A` (same hypothesis as `localGen_local`). -/
+theorem localGen_layerIndex_local (hL : 2 ≤ L) (hj : j ≤ q)
+    {A : Finset (Torus d (M1 * N₁ * L ^ q))}
+    (h : ∀ x ∈ A, ∀ y, supDist x y ≤ 12 * M1 * L ^ j → (y ∈ X ↔ y ∈ X'))
+    {x : Torus d (M1 * N₁ * L ^ q)} (hx : x ∈ A) :
+    (minimalGenSet hj X).layerIndex x = (minimalGenSet hj X').layerIndex x := by
+  by_cases h1 : x ∈ (minimalGenSet hj X).Ω 1
+  · obtain ⟨n, hn1, hnq, hl⟩ := GeneratingSet.exists_layer _ h1
+    rw [GeneratingSet.layerIndex_eq _ hn1 hnq hl,
+      GeneratingSet.layerIndex_eq _ hn1 hnq ((localGen_layer_local hL hj h hx n).1 hl)]
+  · have h2 : x ∉ (minimalGenSet hj X').Ω 1 := fun h2 => h1 ((localGen_local hL hj h hx 1).2 h2)
+    rw [layerIndex_of_not_mem _ h1, layerIndex_of_not_mem _ h2]
+
+end Local
+
+/-! ### T5: covariance under translations of the `C_j` grid -/
+
+section Translate
+
+omit [NeZero L] [NeZero M1] [NeZero N₁] in
+theorem blockCoord_add_of_dvd {ℓ P m : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = P * m)
+    (x a : ZMod ℓ) (ha : P ∣ a.val) :
+    blockCoord P m (x + a) = blockCoord P m x + blockCoord P m a := by
+  unfold blockCoord
+  have e : (x.val + a.val) % ℓ / P = (x.val + a.val) / P % m := by
+    have : (x.val + a.val) % ℓ = (x.val + a.val) % (P * m) := by rw [← hℓ]
+    rw [this, Nat.mod_mul_right_div_self]
+  rw [ZMod.val_add, e, ZMod.natCast_mod, add_comm x.val a.val,
+    Nat.add_div_of_dvd_right ha, Nat.cast_add, add_comm]
+
+/-- The cube index is additive for translations aligned to the grid of the cubes. -/
+theorem fineCubeIdx_add {n : ℕ} (hn : n ≤ q) (x a : Torus d (M1 * N₁ * L ^ q))
+    (ha : ∀ μ, L ^ n * M1 ∣ (a μ).val) :
+    fineCubeIdx M1 N₁ L q n (x + a) = fineCubeIdx M1 N₁ L q n x + fineCubeIdx M1 N₁ L q n a := by
+  funext μ
+  simp only [fineCubeIdx, blockMap_apply, Pi.add_apply]
+  exact blockCoord_add_of_dvd (fine_eq_cube hn) _ _ (ha μ)
+
+omit [NeZero L] [NeZero M1] [NeZero N₁] in
+theorem supDist_add_add_right {m : ℕ} [NeZero m] (x y c : Torus d m) :
+    supDist (x + c) (y + c) = supDist x y := by
+  unfold supDist
+  congr 1
+  funext i
+  rw [Pi.add_apply, Pi.add_apply, add_sub_add_right_eq_sub]
+
+variable {j : ℕ} (a : Torus d (M1 * N₁ * L ^ q))
+
+private theorem translate_aux (ha : ∀ μ, L ^ j * M1 ∣ (a μ).val) (hj : j ≤ q)
+    (X : Finset (Torus d (M1 * N₁ * L ^ q))) :
+    ∀ (t : ℕ) (x : Torus d (M1 * N₁ * L ^ q)),
+      x + a ∈ minLayerAux M1 N₁ L q j (X.map (Equiv.addRight a).toEmbedding) t ↔
+        x ∈ minLayerAux M1 N₁ L q j X t := by
+  have hmem : ∀ y, y + a ∈ X.map (Equiv.addRight a).toEmbedding ↔ y ∈ X := fun y =>
+    Finset.mem_map' (Equiv.addRight a).toEmbedding
+  intro t
+  induction t with
+  | zero =>
+    intro x
+    show x + a ∈ cubeInterior M1 N₁ L q j _ ↔ x ∈ cubeInterior M1 N₁ L q j X
+    rw [mem_cubeInterior, mem_cubeInterior]
+    constructor
+    · intro H y hy
+      have := H (y + a) (by rw [fineCubeIdx_add hj y a ha, fineCubeIdx_add hj x a ha, hy])
+      exact (hmem y).1 this
+    · intro H y hy
+      have e : y = (y - a) + a := by abel
+      have h2 : fineCubeIdx M1 N₁ L q j (y - a) = fineCubeIdx M1 N₁ L q j x := by
+        have := fineCubeIdx_add (d := d) (M1 := M1) (N₁ := N₁) (L := L) hj (y - a) a ha
+        rw [← e, hy, fineCubeIdx_add hj x a ha] at this
+        exact (add_right_cancel this).symm
+      rw [e]
+      exact (hmem _).2 (H _ h2)
+  | succ t ih =>
+    intro x
+    show x + a ∈ nearStep M1 N₁ L q (j - (t + 1)) _ ↔ x ∈ nearStep M1 N₁ L q (j - (t + 1)) _
+    have hn : j - (t + 1) ≤ j := Nat.sub_le _ _
+    have han : ∀ μ, L ^ (j - (t + 1)) * M1 ∣ (a μ).val := fun μ =>
+      (Nat.mul_dvd_mul_right (pow_dvd_pow L hn) M1).trans (ha μ)
+    have hnq : j - (t + 1) ≤ q := hn.trans hj
+    rw [mem_nearStep, mem_nearStep]
+    constructor
+    · rintro ⟨y, hy, hd⟩
+      refine ⟨y - a, (ih _).1 (by rwa [sub_add_cancel]), ?_⟩
+      have e : y = (y - a) + a := by abel
+      rw [e, fineCubeIdx_add hnq _ a han, fineCubeIdx_add hnq _ a han,
+        supDist_add_add_right] at hd
+      exact hd
+    · rintro ⟨y, hy, hd⟩
+      refine ⟨y + a, (ih y).2 hy, ?_⟩
+      rw [fineCubeIdx_add hnq _ a han, fineCubeIdx_add hnq _ a han, supDist_add_add_right]
+      exact hd
+
+/-- **Translation covariance** (the "paving covariance" of the class): for a translation by a
+vector `a` whose coordinates are multiples of the side `L ^ j M₁` of the `C_j`-cubes, a site
+`x + a` lies in the domain `Ω_n` of `B_j(X + a)` iff `x` lies in the domain `Ω_n` of `B_j(X)`. -/
+theorem localGen_translate_mem (hj : j ≤ q) (ha : ∀ μ, L ^ j * M1 ∣ (a μ).val)
+    (X : Finset (Torus d (M1 * N₁ * L ^ q))) (n : ℕ) (x : Torus d (M1 * N₁ * L ^ q)) :
+    x + a ∈ (minimalGenSet hj (X.map (Equiv.addRight a).toEmbedding)).Ω n ↔
+      x ∈ (minimalGenSet hj X).Ω n := by
+  rw [minimalGenSet_Ω, minimalGenSet_Ω]
+  unfold minLayer
+  split_ifs
+  · exact translate_aux a ha hj X _ x
+  · simp
+
+/-- **Translation covariance**, as an equality of domains: `Ω_n(B_j(X + a)) = Ω_n(B_j(X)) + a`.
+Reflections and coordinate permutations are not treated: they would need the cube-index map to
+commute with the symmetry (a permutation of coordinates does; a reflection `x ↦ c - x` does only
+if `c + 1` is a multiple of the cube sides, and then it reverses the order of the indices). -/
+theorem localGen_translate_Ω (hj : j ≤ q) (ha : ∀ μ, L ^ j * M1 ∣ (a μ).val)
+    (X : Finset (Torus d (M1 * N₁ * L ^ q))) (n : ℕ) :
+    (minimalGenSet hj (X.map (Equiv.addRight a).toEmbedding)).Ω n =
+      ((minimalGenSet hj X).Ω n).map (Equiv.addRight a).toEmbedding := by
+  ext y
+  obtain ⟨x, rfl⟩ : ∃ x, y = x + a := ⟨y - a, by abel⟩
+  rw [localGen_translate_mem a hj ha X n x]
+  exact (Finset.mem_map' (Equiv.addRight a).toEmbedding).symm
+
+end Translate
+
 end Balaban.LargeField
