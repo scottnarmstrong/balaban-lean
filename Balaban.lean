@@ -572,3 +572,6 @@ public import Balaban.LargeField.Base.PiLintegral
 public import Balaban.LargeField.Base.GaussianLift
 public import Balaban.LargeField.Base.HemispherePi
 public import Balaban.LargeField.Base.ChartIntegral
+public import Balaban.LargeField.Base.BaseRecord
+public import Balaban.LargeField.Base.BaseHistory
+public import Balaban.LargeField.Base.BaseSupport
