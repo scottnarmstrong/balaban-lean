@@ -13,7 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W141 (Opus) | `w141-class-v2` / W141 | class v2 per CLASS-RULINGS-2 + PIN-I6 jet certificate clause |
-| W148 | `w148-graphgm2` / W148 | GRAPH-GM-2 counting lemmas |
+| W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
 | W149 | `w149-pin-i6` / W149 | PIN-I6: counterexample, reference-jet certificate ⇒ I-6 |
 | W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
 | W156 | `w156-hat-local` / W156 | locality of the ψ̂ fan + engine theorem |
