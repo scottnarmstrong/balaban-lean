@@ -113,6 +113,33 @@ theorem physicalSharpLoc_empty (S : StepSetting d L N₁ m₁ k N ϱ) (cψ R₁ 
     PhysicalSharpLoc S cψ R₁ Rσ r a₁ ν eps ∅ T :=
   fun _ hY => absurd hY (Finset.notMem_empty _)
 
+/-- **Cell-union property of a label.**  For a domain `Y ∈ 𝒟_{k+1}` and `L ^ m₀ ∣ N₁`, every
+`m₀`-cell containing a site of `Y` lies in `Y`. -/
+theorem cell_subset_of_isDj {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsDj m₀ (k + 1) Y) :
+    ∀ y ∈ Y, box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y := by
+  intro y hy
+  obtain ⟨b, hb, hyb, hbY⟩ := hY.2.1 y hy
+  exact (cell_subset_cube (cellSide_dvd (K := k + 1) (m₁ := m₁) hN le_rfl)
+    (cellSide_pos (L := L) m₀ m₁ (k + 1)) hb hyb).trans hbY
+
+/-- **The hat variable of block variables is sharply local.**  If every `m₀`-cell containing a
+site of `Y` lies in `Y`, block configurations that agree on the blocks inside `Y` have hat
+variables that agree at the unit points of the sites of `Y` (`AgHatFDir`). -/
+theorem StepSetting.agHatFDir_hatOf (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y)
+    (ρ : ℝ) (hp : 0 < S.p₁) (Φ Φ' : ∀ b, (S.blockSplit m₀ hp).Ωb b)
+    (h : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y, Φ b = Φ' b) :
+    AgHatFDir S.hG' Y (S.hatOf m₀ ρ hp Φ) (S.hatOf m₀ ρ hp Φ') := by
+  intro y hy i
+  have hcube : S.cellOf m₀ (unitPt S.hG' y) ∈ blocksOf m₀ (k + 1) Set.univ Y := by
+    rw [S.cellOf_unitPt]
+    exact mem_blocksOf.2 (hY y hy)
+  have := h _ hcube
+  simp only [StepSetting.hatOf]
+  rw [this]
+
 variable (S : StepSetting d L N₁ m₁ k N ϱ)
     {ρ εU : ℝ} {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
@@ -360,6 +387,93 @@ theorem physical_hatTerms :
 
 end Existence
 
+
+section Corollaries
+
+variable (hN : L ^ m₀ ∣ N₁) (hp : 0 < S.p₁) (hpρ : S.p₁ ≤ ρ) (hεpos : 0 < εU)
+
+include hR₁ hr hRσ hc hΘ₀ hεb hN hp hpρ hεpos hκ₀ hκdec
+
+/-- **Check of the packaging (thick route).**  `labelAct_of_hatTerms` applied to
+`physicalHatTerms` gives the label activities of `labelAct_of_interaction_expansion_hat`
+(before its numerics), for a physical witness `(𝒴, T)`. -/
+theorem labelAct_of_physical_hatTerms (hL2 : 2 ≤ L)
+    (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (T : Set (CTorus d L N₁ m₁ (k + 1)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) → ℂ →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (hD : PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν 𝒴 T) {κ0 Kc' : ℝ}
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 ≤ Kc') :
+    ∃ (Lb : Type) (_ : Fintype Lb)
+      (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+        Set.univ Lb)
+      (A : ℂ → LabelAct Lab (S.blockSplit m₀ hp).Ωb
+        (hatEpsH d L Rσ εU (2 * κdec - 1)) (hatKappaH d L (2 * κdec - 1)) κ0 Kc'),
+      (∀ y Φ, DifferentiableOn ℂ (fun u => (A u).H y Φ) (Metric.ball 0 Rσ)) ∧
+      (∀ u : ℂ, ‖u‖ < Rσ → ∀ Φ, ∑ y, (A u).H y Φ =
+        physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatOf m₀ ρ hp Φ, S.hatOf m₀ ρ hp Φ) (S.hatOf m₀ ρ hp Φ, S.hatOf m₀ ρ hp Φ) u Θ₀) :=
+  labelAct_of_hatTerms S m₀ (physicalHatTerms (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) 𝒴 T hD) hN hL2 hp
+    (lt_of_lt_of_le hp hpρ) hRσ.le hεpos.le
+    (by linarith) hκ0 hKc
+
+
+/-- **`DirectTerms` for the physical expansion, conditional on `PhysicalSharpLoc`.**  The domains,
+terms, bounds, source set, ray set, expanded function and source agreement are those of
+`physicalHatTerms`; the four fields `sum`, `analytic`, `bound`, `zero` of `LocInt` are unchanged;
+the field `loc` for the sharp relation `AgFDirPair` is the hypothesis `hsharp` (**open**); the field
+`ag` is proved from the cell-union property of the labels (a consequence of `IsDj` and
+`L ^ m₀ ∣ N₁`). -/
+noncomputable def physicalDirectTerms_of_sharpLoc
+    (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (T : Set (CTorus d L N₁ m₁ (k + 1)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) → ℂ →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (hD : PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν 𝒴 T)
+    (hsharp : PhysicalSharpLoc S cψ R₁ Rσ r a₁ ν eps 𝒴 T) :
+    DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛ S a₁ ν eps) (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFDirPair S) :=
+  let I0 := physicalHatTerms (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) 𝒴 T hD
+  { 𝒴 := 𝒴
+    T := T
+    b := physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν
+    loc := { I0.loc with loc := hsharp }
+    dom := I0.dom
+    bd := I0.bd
+    mem := I0.mem
+    agΘ := I0.agΘ
+    xw := I0.xw
+    ag := fun Y hY Φ Φ' h => by
+      have h' := S.agHatFDir_hatOf m₀ (cell_subset_of_isDj hN (I0.dom Y hY)) ρ hp Φ Φ' h
+      exact ⟨h', h'⟩
+    meas := I0.meas }
+
+omit hκ₀ hκdec in
+/-- **The chain (conditional on `PhysicalSharpLoc`).**  `labelAct_of_directTerms` applied to
+`physicalDirectTerms_of_sharpLoc`: label activities with rate `a = 2κ_dec - 1` and prefactor
+`R_σ ε_U` for the physical expansion, on the labels `thickLabels I.𝒴 I.dom` of the `DirectTerms`
+instance `I`. -/
+theorem labelAct_of_physical_directTerms_of_sharpLoc
+    (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (T : Set (CTorus d L N₁ m₁ (k + 1)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
+      ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) → ℂ →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (hD : PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν 𝒴 T)
+    (hsharp : PhysicalSharpLoc S cψ R₁ Rσ r a₁ ν eps 𝒴 T) {κ0 Kc' : ℝ}
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 ≤ Kc') :
+    ∃ A : ℂ → LabelAct (thickLabels
+        (physicalDirectTerms_of_sharpLoc (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) hN hp 𝒴 T hD hsharp).𝒴
+        (physicalDirectTerms_of_sharpLoc (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) hN hp 𝒴 T hD hsharp).dom)
+        (S.blockSplit m₀ hp).Ωb (Rσ * εU) (2 * κdec - 1) κ0 Kc',
+      (∀ y Φ, DifferentiableOn ℂ (fun u => (A u).H y Φ) (Metric.ball 0 Rσ)) ∧
+      (∀ u : ℂ, ‖u‖ < Rσ → ∀ Φ, ∑ y, (A u).H y Φ =
+        physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatOf m₀ ρ hp Φ, S.hatOf m₀ ρ hp Φ) (S.hatOf m₀ ρ hp Φ, S.hatOf m₀ ρ hp Φ) u Θ₀) :=
+  labelAct_of_directTerms S m₀
+    (physicalDirectTerms_of_sharpLoc (S := S) (cβ := cβ) (hG := hG) (cc := cc) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (cν := cν) (hR₁ := hR₁) (hr := hr) (hRσ := hRσ) (hc := hc) (hΘ₀ := hΘ₀) (hεb := hεb) hN hp 𝒴 T hD hsharp) hN
+    (lt_of_lt_of_le hp hpρ) hRσ.le hεpos.le hκ0 hKc
+
+end Corollaries
 
 end PhysicalTerms
 
