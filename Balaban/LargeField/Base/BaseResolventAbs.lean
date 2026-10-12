@@ -151,6 +151,29 @@ theorem isCoercive_proj_split {P : Matrix ι ι ℂ} (hPh : Pᴴ = P) (hPP : P *
   nlinarith
 
 omit [DecidableEq ι] in
+theorem reQuad_zero (v : ι → ℂ) : reQuad (0 : Matrix ι ι ℂ) v = 0 := by
+  simp [reQuad]
+
+omit [DecidableEq ι] in
+theorem reQuad_realSmul (r : ℝ) (T : Matrix ι ι ℂ) (v : ι → ℂ) :
+    reQuad (((r : ℝ) : ℂ) • T) v = r * reQuad T v := by
+  simp only [reQuad_eq_dot, Matrix.smul_mulVec, dotProduct_smul, smul_eq_mul, Complex.re_ofReal_mul]
+
+omit [DecidableEq ι] in
+theorem reQuad_sum_nonneg {κ : Type*} [DecidableEq κ] {S : Finset κ}
+    (M : κ → Matrix ι ι ℂ) (r : κ → ℝ) (v : ι → ℂ)
+    (hr : ∀ b ∈ S, 0 ≤ r b) (hM : ∀ b ∈ S, 0 ≤ reQuad (M b) v) :
+    0 ≤ reQuad (∑ b ∈ S, ((r b : ℝ) : ℂ) • M b) v := by
+  induction S using Finset.induction_on with
+  | empty => simp [reQuad_zero]
+  | insert b S hb ih =>
+    rw [Finset.sum_insert hb, reQuad_add, reQuad_realSmul]
+    have := ih (fun c hc => hr c (Finset.mem_insert_of_mem hc))
+      (fun c hc => hM c (Finset.mem_insert_of_mem hc))
+    have h2 := mul_nonneg (hr b (Finset.mem_insert_self _ _)) (hM b (Finset.mem_insert_self _ _))
+    linarith
+
+omit [DecidableEq ι] in
 /-- The componentwise lift of a coercive matrix is coercive. -/
 theorem isCoercive_liftOp {N : ℕ} {H : Matrix ι ι ℂ} {γ : ℝ} (hH : IsCoercive H γ) :
     IsCoercive (Balaban.Multiscale.liftOp N H) γ := by
