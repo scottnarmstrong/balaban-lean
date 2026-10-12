@@ -35,9 +35,6 @@ structure RegionHistory (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R
   rem_empty : ∀ k, (k = 0 ∨ k0 < k) → rem k = ∅
   /-- `Z_k = Z^pre_k ∖ ⋃ Rem_k` -/
   Z_eq : ∀ k, (F.step k).Z = F.Zpre k \ ⋃ c ∈ rem k, (c : Set (Torus S.d (n k)))
-  /-- if `Z^pre_k` has a removed component, then `Z^pre_{k+1}` has a component (the abstract
-  history `LF2Hyp` has a total successor map) -/
-  removed_succ : ∀ k, (rem k).Nonempty → Nonempty (F.Comp (k + 1))
 
 namespace RegionHistory
 
@@ -82,48 +79,35 @@ theorem exists_succ (k : ℕ) {c : H.Comp k} (hc : c.1 ∉ H.rem k) :
   obtain ⟨C, hC, hsub⟩ := (H.step k).seed_in_comp_Zpre hg.hn hg.hlt (critOpt S k0 (k + 1)) hσ
   exact ⟨⟨C, hC⟩, hsub⟩
 
-theorem nonempty_succ (k : ℕ) (c : H.Comp k) : Nonempty (H.Comp (k + 1)) := by
-  by_cases hc : c.1 ∈ H.rem k
-  · exact H.removed_succ k ⟨c.1, hc⟩
-  · obtain ⟨Z', -⟩ := H.exists_succ k hc
-    exact ⟨Z'⟩
-
-open Classical in
-/-- The successor of a component of `Z^pre_k`: the component of `Z^pre_{k+1}` containing its
-coarsening (for removed components, an arbitrary component). -/
-noncomputable def succ (k : ℕ) (c : H.Comp k) : H.Comp (k + 1) :=
-  if h : ∃ Z' : H.Comp (k + 1), blockMap S.L (n (k + 1)) '' (c.1 : Set (Torus S.d (n k))) ⊆
-      (Z'.1 : Set (Torus S.d (n (k + 1)))) then h.choose
-  else Classical.choice (H.nonempty_succ k c)
+/-- The successor of a non-removed component of `Z^pre_k`: the component of `Z^pre_{k+1}`
+containing its coarsening. -/
+noncomputable def succ (k : ℕ) (c : H.Comp k) (hc : c.1 ∉ H.rem k) : H.Comp (k + 1) :=
+  (H.exists_succ k hc).choose
 
 theorem succ_spec (k : ℕ) {c : H.Comp k} (hc : c.1 ∉ H.rem k) :
     blockMap S.L (n (k + 1)) '' (c.1 : Set (Torus S.d (n k))) ⊆
-      ((H.succ k c).1 : Set (Torus S.d (n (k + 1)))) := by
-  classical
-  have h := H.exists_succ k hc
-  unfold succ
-  split_ifs
-  exact h.choose_spec
+      ((H.succ k c hc).1 : Set (Torus S.d (n (k + 1)))) :=
+  (H.exists_succ k hc).choose_spec
 
 theorem succ_eq_iff (k : ℕ) {c : H.Comp k} (hc : c.1 ∉ H.rem k) {Z' : H.Comp (k + 1)} :
-    H.succ k c = Z' ↔ blockMap S.L (n (k + 1)) '' (c.1 : Set (Torus S.d (n k))) ⊆
+    H.succ k c hc = Z' ↔ blockMap S.L (n (k + 1)) '' (c.1 : Set (Torus S.d (n k))) ⊆
       (Z'.1 : Set (Torus S.d (n (k + 1)))) := by
   constructor
   · rintro rfl; exact H.succ_spec k hc
   · intro h
     obtain ⟨x, hx⟩ := comp_nonempty c.2
-    have hx' : blockMap S.L (n (k + 1)) x ∈ (H.succ k c).1 := H.succ_spec k hc ⟨x, hx, rfl⟩
+    have hx' : blockMap S.L (n (k + 1)) x ∈ (H.succ k c hc).1 := H.succ_spec k hc ⟨x, hx, rfl⟩
     have hx'' : blockMap S.L (n (k + 1)) x ∈ Z'.1 := h ⟨x, hx, rfl⟩
-    exact Subtype.ext (comp_eq_of_mem (H.succ k c).2 Z'.2 hx' hx'')
+    exact Subtype.ext (comp_eq_of_mem (H.succ k c hc).2 Z'.2 hx' hx'')
 
 open Classical in
 /-- The old parts of a component of `Z^pre_{k+1}`: the non-removed components with this
 successor. -/
 noncomputable def parts (k : ℕ) (Z' : H.Comp (k + 1)) : Finset (H.Comp k) :=
-  Finset.univ.filter fun c => c.1 ∉ H.rem k ∧ H.succ k c = Z'
+  Finset.univ.filter fun c => ∃ hc : c.1 ∉ H.rem k, H.succ k c hc = Z'
 
 theorem mem_parts (k : ℕ) (c : H.Comp k) (Z' : H.Comp (k + 1)) :
-    c ∈ H.parts k Z' ↔ c.1 ∉ H.rem k ∧ H.succ k c = Z' := by
+    c ∈ H.parts k Z' ↔ ∃ hc : c.1 ∉ H.rem k, H.succ k c hc = Z' := by
   classical
   simp [parts]
 

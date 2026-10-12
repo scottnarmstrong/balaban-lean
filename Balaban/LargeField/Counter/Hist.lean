@@ -33,11 +33,11 @@ structure CounterHist (S : Setting) (k0 K : ℕ) (Cp : ℕ → Type) [∀ k, Fin
   rem : ∀ k, Finset (Cp k)
   rem_empty : ∀ k, (k = 0 ∨ k0 < k) → rem k = ∅
   rem_ripe : ∀ k, ∀ c ∈ rem k, S.Ripe k (bk k c)
-  /-- the component of `Z^pre_{k+1}` containing the old component -/
-  succ : ∀ k, Cp k → Cp (k + 1)
+  /-- the component of `Z^pre_{k+1}` containing the old component (only for non-removed ones) -/
+  succ : ∀ k (c : Cp k), c ∉ rem k → Cp (k + 1)
   /-- the old parts of a component of `Z^pre_{k+1}` (non-removed components with this successor) -/
   parts : ∀ k, Cp (k + 1) → Finset (Cp k)
-  mem_parts : ∀ k (c : Cp k) (Z' : Cp (k + 1)), c ∈ parts k Z' ↔ c ∉ rem k ∧ succ k c = Z'
+  mem_parts : ∀ k (c : Cp k) (Z' : Cp (k + 1)), c ∈ parts k Z' ↔ ∃ h : c ∉ rem k, succ k c h = Z'
   /-- the number of new cubes `|𝒩_k ∩ Z|_#` -/
   newc : ∀ k, Cp k → ℕ
   /-- the number of cubes `|Z|_#` -/

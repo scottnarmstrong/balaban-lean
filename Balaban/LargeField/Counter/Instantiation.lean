@@ -51,10 +51,15 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (K : ℕ) (Gp G : ∀ k, H.Comp
   bk := H.bk
   bk_len := H.bk_len
   rem_ripe := fun k c hc => hadm k c ((H.mem_remC k c).mp hc)
-  succ := H.succ
+  succ := fun k c hc => H.succ k c (fun h => hc ((H.mem_remC k c).mpr h))
   parts := H.parts
   mem_parts := fun k c Z' => by
-    rw [H.mem_parts, H.mem_remC]
+    rw [H.mem_parts]
+    constructor
+    · rintro ⟨h, e⟩
+      exact ⟨fun h' => h ((H.mem_remC k c).mp h'), e⟩
+    · rintro ⟨h, e⟩
+      exact ⟨fun h' => h ((H.mem_remC k c).mpr h'), e⟩
   Gp := Gp
   G := G
   spine_contains := fun k _ _ c => H.spine_contains k c
