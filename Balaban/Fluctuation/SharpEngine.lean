@@ -460,6 +460,29 @@ theorem i5_functional_hatLC_dir (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLeve
     (fun {F₁} hF₁ {Sol} hSol => fanHL_local_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hF₁ hSol hZ
       hBM hΦlocDir)
 
+
+omit hC in
+/-- **A non-constant instance of the premise `hΦlocDir`**: the coordinate `i` of the fluctuation
+variable `ψ'` at a site `y₀` of `Z` reads `ψ'` only on `Z`.  Since `ψ'` is a free component of the
+triple, this functional is not constant in general; it shows that the premise is satisfied by a
+functional that genuinely reads `ψ'`. -/
+theorem hΦlocDir_psiCoord {T : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
+    {Z Zα : Set (CTorus d L N₁ m₁ (k + 1))} {y₀ : CTorus d L N₁ m₁ (k + 1)} (hy₀ : y₀ ∈ Z)
+    (i : Fin N) :
+    ∀ t ∈ T, ∀ t' ∈ T,
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Z → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Zα → t.1.2 y = t'.1.2 y) →
+      (∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Z → ∀ i, t.2.1 (y, i) = t'.2.1 (y, i)) →
+      agreeOn (thickSet Gp Z) t.2.2.1 t'.2.2.1 → (∀ y ∈ Z, t.2.2.2 y = t'.2.2.2 y) →
+      (fun (_ : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) (_ : Hm.Ω 1 × Fin N → ℂ)
+        (r : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
+          r.2 y₀ i) t.1 t.2.1 t.2.2 =
+      (fun (_ : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) (_ : Hm.Ω 1 × Fin N → ℂ)
+        (r : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
+          r.2 y₀ i) t'.1 t'.2.1 t'.2.2 :=
+  fun _ _ _ _ _ _ _ _ hψ => congrFun (hψ y₀ hy₀) i
+
 end Fan
 
 end Balaban.Localization

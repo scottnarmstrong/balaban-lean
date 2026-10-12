@@ -21,6 +21,15 @@ row-local theorems `hatPsiF_rows` and `fluct_correction_rows_of_agree_on_compone
 This proves sharp locality of the fan for functionals that read `ψ'` only on `Z`.  That the four
 physical summands satisfy this premise is NOT proved here; `PhysicalSharpLoc` and
 `physical_directTerms` remain open.
+
+Survey of the four landed functional-locality lemmas (reading only, nothing proved):
+* V: `blockEnergyFun_local` (`InteractionVBlock.lean:106`) takes `ψ'` on `psiThick (readSites)` but
+  its proof uses it only at `x ∈ readSites` (`hψ x (Or.inl hxr)`, line 122): with `Z = readSites`
+  the premise `hΦlocDir` holds, but the lemma as stated must be re-proved with the weaker hypothesis.
+* E: `eTermFun_local` (`InteractionHatE.lean:319`) uses `ψ'` only at the data sites `x`, which lie in
+  `X₁` (`hψ x (Or.inl …)`, line 346): `hΦlocDir` holds with `Z = X₁`; re-proof needed likewise.
+* F: the site functional `siteFun` (`InteractionHatF.lean:117-122`) reads no `ψ'`: `hΦlocDir` holds.
+* ν: `nuBlockFun_local` (`Prop33Nu.lean:207`) has no `ψ'` hypothesis: `hΦlocDir` holds.
 -/
 
 @[expose] public section
