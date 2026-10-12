@@ -8,6 +8,7 @@ module
 public import Balaban.SmallField.PsiGeomPath
 public import Balaban.SmallField.Def6BridgeDomain
 public import Balaban.SmallField.XiProps
+public import Balaban.SmallField.Def6InfShapes
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -459,5 +460,185 @@ theorem xiDom_of_psiTildeC (H : BgHyp d L k ϱ a ν) (hjk : j ≤ k) {δ ε εb 
     xiC_level_mono H.mass hjk (psiTildeC_subset_xiC H hδ0 hδε hε hδc hνε hP hεb)⟩
 
 end ToXi
+
+section Paths
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {j m₀ : ℕ}
+
+/-- A layer-constant function is constant on the `j`-block of a site of the top layer `j`. -/
+theorem top_block_const {β : Type*} {f : CTorus d L N₁ m₁ k → β} (hf : IsLayerConstant G f)
+    {X : Set (CTorus d L N₁ m₁ k)} (hXΩ : X ⊆ ↑(G.Ω 1)) (hlayer : ∀ z ∈ X, G.layerIndex z = j)
+    {z z' : CTorus d L N₁ m₁ k} (hz : z ∈ X)
+    (h : jBlock d L (N₁ * L ^ m₁) k j z = jBlock d L (N₁ * L ^ m₁) k j z') : f z' = f z := by
+  obtain ⟨h1, hk, hzl⟩ := G.layerIndex_spec (hXΩ hz)
+  rw [hlayer z hz] at h1 hk hzl
+  exact hf j h1 hk z hzl z' (G.mem_blk.2 h.symm)
+
+/-- Nearest neighbours in the top layer of the polymer form an interface pair of the data domain. -/
+theorem isInterfacePair_of_nbr {X : Set (CTorus d L N₁ m₁ k)} (hXΩ : X ⊆ ↑(G.Ω 1))
+    (hlayer : ∀ z ∈ X, G.layerIndex z = j) {p q : CTorus d L N₁ m₁ k} (hp : p ∈ X) (hq : q ∈ X)
+    (hn : Nbr p q) : IsInterfacePair G p q := by
+  refine ⟨(mem_dataSites G).2 (Or.inl (hXΩ hp)), (mem_dataSites G).2 (Or.inl (hXΩ hq)),
+    Or.inl (by rw [hlayer p hp, hlayer q hq]), ?_⟩
+  have hp1 : p ∈ G.Ω 1 := hXΩ hp
+  have hq1 : q ∈ G.Ω 1 := hXΩ hq
+  refine ⟨p, ?_, q, ?_, hn⟩
+  · simp only [blockSet, hp1, ↓reduceIte]
+    exact G.mem_blk.2 rfl
+  · simp only [blockSet, hq1, ↓reduceIte]
+    exact G.mem_blk.2 rfl
+
+/-- **(3.54) for a function constant on the blocks of the top layer of `X`**: the variation on `X`
+of a function that is block constant on `X` and varies by at most `δ` across the bonds of `X`. -/
+theorem top_path_le {F : Type*} [SeminormedAddCommGroup F] (hjk : j ≤ k) (hN : L ^ m₀ ∣ N₁)
+    {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X) {f : CTorus d L N₁ m₁ k → F}
+    (hf : ∀ z ∈ X, ∀ z', jBlock d L (N₁ * L ^ m₁) k j z = jBlock d L (N₁ * L ^ m₁) k j z' →
+      f z' = f z) {δ : ℝ} (hδ : 0 < δ)
+    (hstep : ∀ p ∈ X, ∀ q ∈ X, Nbr p q → ‖f p - f q‖ ≤ δ) {y z : CTorus d L N₁ m₁ k}
+    (hy : y ∈ X) (hz : z ∈ X) :
+    ‖f z - f y‖ ≤ δ * (3 ^ d * ((L : ℝ) ^ (m₀ + m₁) * (4 * d * L + sizeJ m₀ j X) + 1)) := by
+  classical
+  have hblock : ∀ u v, jBlock d L (N₁ * L ^ m₁) k j u = jBlock d L (N₁ * L ^ m₁) k j v →
+      u ∈ X → v ∈ X := fun u v h hu => IsPolyDom.block_closed hjk hN hX hu h
+  have h := psi_path_le (m₁ := m₁) hjk hX (f := fun w => if w ∈ X then f w else f y)
+    (fun u v h => by
+      by_cases hu : u ∈ X
+      · have hv := hblock u v h hu
+        simp only [hu, hv, ↓reduceIte]; exact (hf u hu v h).symm
+      · have hv : v ∉ X := fun hv => hu (hblock v u h.symm hv)
+        simp only [hu, hv, ↓reduceIte]) hδ
+    (fun p hp q hq hn => by simp only [hp, hq, ↓reduceIte]; exact hstep p hp q hq hn) hy hz
+  simpa only [hy, hz, ↓reduceIte] using h
+
+theorem norm_toLp_real (v : Fin N → ℝ) :
+    ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin N))‖ = rn v := by
+  rw [EuclideanSpace.norm_eq]
+  unfold rn
+  congr 1
+  exact Finset.sum_congr rfl fun i _ => by simp [sq_abs]
+
+/-- **The path bounds for a datum of `Ψ̃^c(𝔹; δ, ε)`** (P1 (3.54)-(3.55)): on a polymer `X` in the top
+layer, both the real part `Ψ₀` and the complex part `Ψ''` deviate from their values at `y ∈ X` by at
+most `δ · 3^d (M (4 d L + d_j(X)) + 1)`. -/
+theorem psi_path_bounds (hjk : j ≤ k) (hN : L ^ m₀ ∣ N₁) {ν δ ε : ℝ}
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' h'' : CTorus d L N₁ m₁ k → Fin N → ℂ} (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' h'')
+    {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X) (hXΩ : X ⊆ ↑(G.Ω 1))
+    (hlayer : ∀ z ∈ X, G.layerIndex z = j) (hδ : 0 < δ) {y z : CTorus d L N₁ m₁ k}
+    (hy : y ∈ X) (hz : z ∈ X) :
+    rn (fun i => Ψ₀ z i - Ψ₀ y i) ≤
+      δ * (3 ^ d * ((L : ℝ) ^ (m₀ + m₁) * (4 * d * L + sizeJ m₀ j X) + 1)) ∧
+    vn (fun i => Ψ'' z i - Ψ'' y i) ≤
+      δ * (3 ^ d * ((L : ℝ) ^ (m₀ + m₁) * (4 * d * L + sizeJ m₀ j X) + 1)) := by
+  constructor
+  · have := top_path_le (m₁ := m₁) hjk hN hX
+      (f := fun w => (WithLp.toLp 2 (Ψ₀ w) : EuclideanSpace ℝ (Fin N)))
+      (fun w hw w' h => by rw [top_block_const hP.layerConst hXΩ hlayer hw h])
+      hδ (fun p hp q hq hn => by
+        have := hP.r1 p q (isInterfacePair_of_nbr hXΩ hlayer hp hq hn)
+        rw [← WithLp.toLp_sub, norm_toLp_real]; exact this.le) hy hz
+    rwa [← WithLp.toLp_sub, norm_toLp_real] at this
+  · have := top_path_le (m₁ := m₁) hjk hN hX
+      (f := fun w => (WithLp.toLp 2 (Ψ'' w) : EuclideanSpace ℂ (Fin N)))
+      (fun w hw w' h => by rw [top_block_const hP.layerConst' hXΩ hlayer hw h])
+      hδ (fun p hp q hq hn => by
+        have := hP.c1 p q (isInterfacePair_of_nbr hXΩ hlayer hp hq hn)
+        rw [← WithLp.toLp_sub]; exact this.le) hy hz
+    rwa [← WithLp.toLp_sub] at this
+
+end Paths
+
+section Mono
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {j : ℕ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **Monotonicity** of the data domain (P1 (3.22): `Ψ̄^c(δ, ε) ⊆ Ψ̄^c(δ₀, ε₀)` for `δ ≤ δ₀`,
+`ε ≤ ε₀`, `δ/ε ≤ δ₀/ε₀`), here with `ε₀ = δ₀`: `δ ≤ ε ≤ δ₀`. -/
+theorem inPsiTildeC_mono {δ ε δ₀ : ℝ} (hδ : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ δ₀)
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' h'' : CTorus d L N₁ m₁ k → Fin N → ℂ} (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' h'') :
+    InPsiTildeC G ν δ₀ δ₀ Ψ₀ h₀ Ψ'' h'' := by
+  have hδ₀ : 0 < δ₀ := by linarith
+  have hδ2 : δ ^ 2 ≤ δ₀ ^ 2 := pow_le_pow_left₀ hδ.le (by linarith) 2
+  refine
+    { layerConst := hP.layerConst
+      r1 := fun x x' h => (hP.r1 x x' h).trans_le (by linarith)
+      r2 := fun x hx => (hP.r2 x hx).trans_le (by linarith)
+      r3 := fun x hx => (hP.r3 x hx).trans_le hδ2
+      r4 := hP.r4.trans_le hδ2
+      eps_pos := hδ₀
+      layerConst' := hP.layerConst'
+      hLayerConst' := hP.hLayerConst'
+      c1 := fun x x' h => (hP.c1 x x' h).trans_le (by linarith)
+      c2a := fun x hx => (hP.c2a x hx).trans_le (by linarith)
+      c2b := fun x hx => (hP.c2b x hx).trans_le (by linarith)
+      c3a := fun x hx => ?_
+      c3b := fun x hx => (hP.c3b x hx).trans_le hδ2 }
+  have h := hP.c3a x hx
+  have hδ' : δ ^ 2 / ε ≤ δ := by
+    rw [div_le_iff₀ (hδ.trans_le hδε)]; nlinarith
+  have : δ₀ ^ 2 / δ₀ = δ₀ := by field_simp
+  rw [this]
+  exact h.trans_le (hδ'.trans (by linarith))
+
+/-- **The truncated slice lies in `Ξ^c_j(𝔹; 1, ε̄)`** (P1 Lemma 3.6 and (3.21)): the data of
+`inPsiTildeC_slice` form a point of the analyticity domain `XiDom` as soon as
+`(2 K₁ + 2) δ₀ ≤ ε̄`, `δ₀ ≤ min (c₀, c₁)`. -/
+theorem xiDom_slice (H : BgHyp d L k ϱ a ν) (hjk : j ≤ k) (hΩ : ∀ i, j < i → G.Ω i = ∅)
+    {δ ε δ₀ Q εb : ℝ} {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' : CTorus d L N₁ m₁ k → Fin N → ℂ} {h' : Fin N → ℂ}
+    (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' (fun _ => h'))
+    {X : Set (CTorus d L N₁ m₁ k)} (hXΩ : X ⊆ ↑(G.Ω 1)) (hlayer : ∀ z ∈ X, G.layerIndex z = j)
+    (hblock : ∀ z z', jBlock d L (N₁ * L ^ m₁) k j z = jBlock d L (N₁ * L ^ m₁) k j z' →
+      z ∈ X → z' ∈ X)
+    {y : CTorus d L N₁ m₁ k} (hy : y ∈ X)
+    (hpath0 : ∀ z ∈ X, rn (fun i => Ψ₀ z i - Ψ₀ y i) ≤ Q)
+    (hpath1 : ∀ z ∈ X, vn (fun i => Ψ'' z i - Ψ'' y i) ≤ Q)
+    (hδ : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ δ₀) (hδQ : δ ≤ Q) (hδ₀1 : δ₀ ≤ 1 / 16)
+    (h4δ : 4 * δ ≤ δ₀) (hc0 : δ₀ ≤ bgC0 d L N) (hc1 : δ₀ ≤ bgC1 d L N)
+    (hεb : δ₀ + (2 * bgK1 d L N + 1) * δ₀ ≤ εb) (t : ℂ)
+    (hT : (1 + 2 * ‖t‖) * Q ≤ δ₀ / 32) :
+    XiDom G a ν j εb
+      (fun z i => (sliceBase X Ψ₀ y z i : ℂ) + slicePert X Ψ₀ Ψ'' y t z i)
+      (fun _ i => (h₀ i : ℂ) + h' i) := by
+  have hδ₀ : 0 < δ₀ := by linarith
+  have hS := inPsiTildeC_slice hjk hΩ H.mass hP hXΩ hlayer hblock hy hpath0 hpath1 hδ hδε hε hδQ
+    hδ₀ hδ₀1 h4δ t hT
+  refine xiDom_of_psiTildeC (G := G) H hjk hδ₀ le_rfl hc0 hc1 ?_ hεb hS
+  have := H.massLe
+  nlinarith [sq_nonneg δ₀]
+
+/-- **The constant configuration `(Ψ(y), h)` lies in `Ξ^c_j(𝔹; 1, ε̄)`** (the space
+`Ψ^c_{j,const}` of P1 p. 125 and (D2)): for a datum of `Ψ̃^c(𝔹; δ, ε)` with `δ ≤ ε ≤ δ₀` and a site
+`y` of the top layer. -/
+theorem xiDom_const (H : BgHyp d L k ϱ a ν) (hjk : j ≤ k) (hΩ : ∀ i, j < i → G.Ω i = ∅)
+    {δ ε δ₀ εb : ℝ} {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' : CTorus d L N₁ m₁ k → Fin N → ℂ} {h' : Fin N → ℂ}
+    (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' (fun _ => h'))
+    {y : CTorus d L N₁ m₁ k} (hyΩ : y ∈ G.Ω 1) (hyj : G.layerIndex y = j)
+    (hδ : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ δ₀) (hc0 : δ₀ ≤ bgC0 d L N) (hc1 : δ₀ ≤ bgC1 d L N)
+    (hεb : δ₀ + (2 * bgK1 d L N + 1) * δ₀ ≤ εb) :
+    XiDom G a ν j εb (fun _ i => (Ψ₀ y i : ℂ) + Ψ'' y i) (fun _ i => (h₀ i : ℂ) + h' i) := by
+  have hδ₀ : 0 < δ₀ := by linarith
+  have hS := inPsiTildeC_mono hδ hδε hε (inPsiTildeC_const hΩ H.mass hP hyΩ hyj)
+  refine xiDom_of_psiTildeC (G := G) H hjk hδ₀ le_rfl hc0 hc1 ?_ hεb hS
+  have := H.massLe
+  nlinarith [sq_nonneg δ₀]
+
+/-- **The original datum lies in `Ξ^c_j(𝔹; 1, ε̄)`** ((D2), P1 (3.21)). -/
+theorem xiDom_orig (H : BgHyp d L k ϱ a ν) (hjk : j ≤ k)
+    {δ ε δ₀ εb : ℝ} {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' : CTorus d L N₁ m₁ k → Fin N → ℂ} {h' : Fin N → ℂ}
+    (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' (fun _ => h'))
+    (hδ : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ δ₀) (hc0 : δ₀ ≤ bgC0 d L N) (hc1 : δ₀ ≤ bgC1 d L N)
+    (hεb : δ₀ + (2 * bgK1 d L N + 1) * δ₀ ≤ εb) :
+    XiDom G a ν j εb (fun z i => (Ψ₀ z i : ℂ) + Ψ'' z i) (fun _ i => (h₀ i : ℂ) + h' i) := by
+  have hδ₀ : 0 < δ₀ := by linarith
+  have hS := inPsiTildeC_mono hδ hδε hε hP
+  refine xiDom_of_psiTildeC (G := G) H hjk hδ₀ le_rfl hc0 hc1 ?_ hεb hS
+  have := H.massLe
+  nlinarith [sq_nonneg δ₀]
+
+end Mono
 
 end Balaban.SmallField

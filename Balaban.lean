@@ -505,6 +505,7 @@ public import Balaban.SmallField.XiD2
 public import Balaban.SmallField.XiProps
 public import Balaban.SmallField.PsiGeomPath
 public import Balaban.SmallField.PsiGeomSlice
+public import Balaban.SmallField.PsiGeomTube
 public import Balaban.SmallField.XiLatSymm
 public import Balaban.SmallField.XiSymm
 public import Balaban.SmallField.XiPerturb
@@ -667,6 +668,7 @@ public import Balaban.Observables.LayerDictionaryBound
 public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
+public import Balaban.Observables.ImprovedFirst
 public import Balaban.Observables.FirstOrderStep
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
