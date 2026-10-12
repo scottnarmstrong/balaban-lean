@@ -24,7 +24,11 @@ with the cover parameters `s`, `hatPsiF … F₁ s Θ ψ̂`.  For every step dat
   lift of `shiftUC` (no hypothesis);
 * `hatPsiF_one_eq_liftC_shiftUC`: the decoupled lift at `s ≡ 1`, for a datum of
   `Ξ^c(𝔹_{k+1}; 1, ε)` under `FlCore` (the domain of the engine);
-* `liftC_shiftUC_mem_flBallLC`: the sup bound (RAY-CHART (3.5)) for the shift of the complex step.
+* `liftC_shiftUC_mem_flBallLC`: the sup bound (RAY-CHART (3.5)) for the shift of the complex step;
+* `compTangent_psiAtC`, `VkC_psiAtC_eq_interactionOne`, `VkC_psiAtC_eq_hatFun`: on the path of the
+  interpolation the tangent `ψ - ψ^{(k)}` is `hatLift (β_k^{-1/2}) θ (s ψ̂)`, and the potential part
+  `V^{(k)}` of `W₁` of the complex step is the functional `interactionOne` expanded by
+  `vpart_locInt_hat`.
 
 `RAY-CHART` (3.2) (`liftC_hatField_covSqrt`) has this identification for the landed real `shiftU`
 on the real chart only; `StepComplexAgree.shiftUC_eq` is the comparison of the two shifts there.
@@ -178,6 +182,61 @@ theorem liftC_shiftUC_mem_flBallLC
     show ‖((x p.1 p.2 : ℝ) : ℂ)‖ ≤ S.p₁
     rw [Complex.norm_real]
     exact ((PiLp.norm_apply_le (x p.1) p.2).trans (norm_le_pi_norm x p.1)).trans hx.le
+
+/-! ### The potential part of the exponent is the functional expanded by the hat engine -/
+
+/-- **The tangent of the datum of a complex old spin**: `ψ' = D.Ψ - ψ^{(k)}(θ)` (`compTangent`) for
+`D = dataUC ψ` is the lift of `ψ - ψ^{(k)}`, at every datum. -/
+theorem compTangent_dataUC (ψ : S.EC) :
+    compTangent S.hG S.hG' (le_refl (k + 1)) S.a (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D'
+      (S.dataUC ψ) = liftC S.hG' (ψ - S.psi0C) := by
+  funext z i
+  have h0 : S.psiKdC.Ψ z i = S.psi0C (unitPt S.hG' z, i) := by
+    rw [← S.dataUC_psi0C, S.dataUC_Ψ]
+  show (S.dataUC ψ).Ψ z i - S.psiKdC.Ψ z i = (ψ - S.psi0C) (unitPt S.hG' z, i)
+  rw [S.dataUC_Ψ, h0]
+  rfl
+
+/-- **On the path of the interpolation the tangent is the fluctuation field of the hat engine**, at
+every datum: `ψ' = hatLift (β_k^{-1/2}) θ (s ψ̂)`, the ray `t ↦ t ψ̂` of the hat variable at the
+real point `t = s`. -/
+theorem compTangent_psiAtC (s : ℝ) (x : S.E) :
+    compTangent S.hG S.hG' (le_refl (k + 1)) S.a (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D'
+      (S.dataUC (S.psiAtC s x)) =
+      hatLift S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.D'
+        ((s : ℂ) • yhat x) := by
+  rw [S.compTangent_dataUC, hatLift_smul, ← S.liftC_shiftUC, ← map_smul]
+  congr 1
+  unfold psiAtC
+  abel
+
+variable {eps : ℝ}
+
+/-- **The potential part of `W₁` of the complex step is the functional `interactionOne` of the
+hat engine**, evaluated on the ray of the hat variable: for a (complex) datum of
+`Ξ^c(𝔹_{k+1}; 1, ε)`,
+`V^{(k)}(ψ^{(k)} + s ψ') = interactionOne (Θ, hatLift (β_k^{-1/2}) θ (s ψ̂))`.  This is the
+identification of the exponent with the source term of `vpart_locInt_hat`, with no realness
+hypothesis. -/
+theorem VkC_psiAtC_eq_interactionOne (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') (s : ℝ)
+    (x : S.E) :
+    S.VkC (S.psiAtC s x) =
+      interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps
+        (rawOf S.D', hatLift S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.D'
+          ((s : ℂ) • yhat x)) := by
+  rw [← S.compTangent_psiAtC s x]
+  exact (interactionOne_eq S.hG S.hG' (le_refl (k + 1)) hD
+    (D := S.dataUC (S.psiAtC s x)) (fun z i => by rw [S.dataUC_h, S.hh₀])).symm
+
+/-- The potential part of `W₁` of the complex step as the hat function `hatFun` of
+`interactionOne` (the function of `(Θ, ψ̂)` expanded by `vpart_locInt_hat`), on the ray of the hat
+variable. -/
+theorem VkC_psiAtC_eq_hatFun (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') (s : ℝ) (x : S.E) :
+    S.VkC (S.psiAtC s x) =
+      hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)
+        (rawOf S.D', (s : ℂ) • yhat x) := by
+  rw [hatFun_rawOf S.hG' _ _ hD, S.VkC_psiAtC_eq_interactionOne hD]
 
 end StepSetting
 
