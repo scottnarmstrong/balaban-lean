@@ -189,7 +189,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ K)}
 `i5_functional` and `i5_functional_taylor`): a function `Fn(u, s)` of the data `u = (Θ, z)`,
 `z ∈ B'`, and the decoupling parameters, analytic and bounded on the polydisc and local, expands
 at `s = 1` over the domains `Y ⊃ X₁` with the bound `Eb e^{-κ₀ Δ - 2 κ d̃^{cov}_{k+1}(Y)}`. -/
-theorem expansion_of_AE (hd : 3 ≤ d) (hL : 3 ≤ L) (hκpos : 0 < κ)
+theorem expansion_of_AE (hd : 3 ≤ d) (hL : 3 ≤ L)
     (hcov : CovSetup Gp m₀ j X 𝒦X)
     (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ K)) = X1 Gp m₀ j 𝒦X)
     (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
@@ -730,7 +730,7 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
     rw [hFeq, hSeq]
     exact hΦbd _ hmem
   have hloc := fanF_local hC hcov hX₁ hconn hrow hF₁ hSolprop hZ hmar hΦloc
-  obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE (a₁ := a₁) hC.HBp.hd hC.HBp.hL hC.hκ
+  obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE (a₁ := a₁) hC.HBp.hd hC.HBp.hL
     hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
   refine ⟨Ev, fun D hD ψ' hψ => ?_, hlocY, hbound, hanY⟩
   have hsum' := hsum (rawOf D, ψ') ⟨⟨D, hD, rfl⟩, hψ⟩

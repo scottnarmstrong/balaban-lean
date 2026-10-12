@@ -116,6 +116,105 @@ theorem LocInt.finsum {κ : Type*} [DecidableEq ι] (𝒯 : Finset κ) {𝒴 : �
     · simp only [hY, ite_true]; exact (h τ hτ).zero Y hY xw hxw Θ hΘ
     · simp [hY]
 
+/-- Restriction of the set of admissible directions. -/
+theorem LocInt.mono_XW {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ} {val : F → F → ℂ → Λ → ℂ}
+    {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF) {XW' : Set (F × F)} (hsub : XW' ⊆ XW) :
+    LocInt S XW' Rσ 𝒴 T val b AgΘ AgF where
+  sum := fun xw hxw => h.sum xw (hsub hxw)
+  analytic := fun Y hY xw hxw => h.analytic Y hY xw (hsub hxw)
+  bound := fun Y hY xw hxw => h.bound Y hY xw (hsub hxw)
+  loc := fun Y hY xw hxw xw' hxw' => h.loc Y hY xw (hsub hxw) xw' (hsub hxw')
+  zero := fun Y hY xw hxw => h.zero Y hY xw (hsub hxw)
+
+/-- Strengthening the agreement relations. -/
+theorem LocInt.mono_Ag {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ} {val : F → F → ℂ → Λ → ℂ}
+    {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF) {AgΘ' : ι → Λ → Λ → Prop}
+    {AgF' : ι → F → F → Prop} (h1 : ∀ Y Θ Θ', AgΘ' Y Θ Θ' → AgΘ Y Θ Θ')
+    (h2 : ∀ Y a a', AgF' Y a a' → AgF Y a a') :
+    LocInt S XW Rσ 𝒴 T val b AgΘ' AgF' where
+  sum := h.sum
+  analytic := h.analytic
+  bound := h.bound
+  loc := fun Y hY xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a b' c =>
+    h.loc Y hY xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' (h1 _ _ _ a) (h2 _ _ _ b') (h2 _ _ _ c)
+  zero := h.zero
+
+/-- The sum of two localized expansions with the same labels and bounds added. -/
+theorem LocInt.add₂ [DecidableEq ι] {𝒴 𝒴' : Finset ι} {T T' : ι → F → F → ℂ → Λ → ℂ}
+    {val val' : F → F → ℂ → Λ → ℂ} {b b' : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF)
+    (h' : LocInt S XW Rσ 𝒴' T' val' b' AgΘ AgF) :
+    LocInt S XW Rσ (𝒴 ∪ 𝒴')
+      (fun Y x w σ Θ => (if Y ∈ 𝒴 then T Y x w σ Θ else 0) +
+        (if Y ∈ 𝒴' then T' Y x w σ Θ else 0))
+      (fun x w σ Θ => val x w σ Θ + val' x w σ Θ)
+      (fun Y => (if Y ∈ 𝒴 then b Y else 0) + (if Y ∈ 𝒴' then b' Y else 0)) AgΘ AgF where
+  sum := fun xw hxw σ hσ Θ hΘ => by
+    classical
+    rw [h.sum xw hxw σ hσ Θ hΘ, h'.sum xw hxw σ hσ Θ hΘ, Finset.sum_add_distrib]
+    congr 1
+    · rw [← Finset.sum_subset (Finset.subset_union_left (s₂ := 𝒴')) (fun Y _ hY => by simp [hY])]
+      exact Finset.sum_congr rfl fun Y hY => by simp [hY]
+    · rw [← Finset.sum_subset (Finset.subset_union_right (s₁ := 𝒴)) (fun Y _ hY => by simp [hY])]
+      exact Finset.sum_congr rfl fun Y hY => by simp [hY]
+  analytic := fun Y _ xw hxw => by
+    classical
+    by_cases h1 : Y ∈ 𝒴 <;> by_cases h2 : Y ∈ 𝒴'
+    · simp only [h1, h2, ite_true]
+      intro p hp
+      exact (h.analytic Y h1 xw hxw p hp).add (h'.analytic Y h2 xw hxw p hp)
+    · simpa [h1, h2] using h.analytic Y h1 xw hxw
+    · simpa [h1, h2] using h'.analytic Y h2 xw hxw
+    · exfalso; rename_i hu; simp [h1, h2] at hu
+  bound := fun Y _ xw hxw σ hσ Θ hΘ => by
+    classical
+    by_cases h1 : Y ∈ 𝒴 <;> by_cases h2 : Y ∈ 𝒴'
+    · simp only [h1, h2, ite_true]
+      refine (norm_add_le _ _).trans ?_
+      have := add_le_add (h.bound Y h1 xw hxw σ hσ Θ hΘ) (h'.bound Y h2 xw hxw σ hσ Θ hΘ)
+      linarith
+    · simpa [h1, h2] using h.bound Y h1 xw hxw σ hσ Θ hΘ
+    · simpa [h1, h2] using h'.bound Y h2 xw hxw σ hσ Θ hΘ
+    · exfalso; rename_i hu; simp [h1, h2] at hu
+  loc := fun Y _ xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d => by
+    classical
+    by_cases h1 : Y ∈ 𝒴 <;> by_cases h2 : Y ∈ 𝒴'
+    · simp only [h1, h2, ite_true]
+      rw [h.loc Y h1 xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d,
+        h'.loc Y h2 xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d]
+    · simp only [h1, h2, ite_true, ite_false]
+      rw [h.loc Y h1 xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d]
+    · simp only [h1, h2, ite_true, ite_false]
+      rw [h'.loc Y h2 xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d]
+    · exfalso; rename_i hu; simp [h1, h2] at hu
+  zero := fun Y _ xw hxw Θ hΘ => by
+    classical
+    by_cases h1 : Y ∈ 𝒴 <;> by_cases h2 : Y ∈ 𝒴'
+    · simp [h1, h2, h.zero Y h1 xw hxw Θ hΘ, h'.zero Y h2 xw hxw Θ hΘ]
+    · simp [h1, h2, h.zero Y h1 xw hxw Θ hΘ]
+    · simp [h1, h2, h'.zero Y h2 xw hxw Θ hΘ]
+    · exfalso; rename_i hu; simp [h1, h2] at hu
+
+section Comap
+
+variable {F' : Type*}
+
+/-- **Pulling back along projections of the directions.** -/
+theorem LocInt.comap {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ} {val : F → F → ℂ → Λ → ℂ}
+    {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF) (π : F' → F) {XW' : Set (F' × F')}
+    (hXW : ∀ xw ∈ XW', (π xw.1, π xw.2) ∈ XW) {AgF' : ι → F' → F' → Prop}
+    (hAg : ∀ Y a a', AgF' Y a a' → AgF Y (π a) (π a')) :
+    LocInt S XW' Rσ 𝒴 (fun Y x w σ Θ => T Y (π x) (π w) σ Θ)
+      (fun x w σ Θ => val (π x) (π w) σ Θ) b AgΘ AgF' where
+  sum := fun xw hxw => h.sum (π xw.1, π xw.2) (hXW xw hxw)
+  analytic := fun Y hY xw hxw => h.analytic Y hY (π xw.1, π xw.2) (hXW xw hxw)
+  bound := fun Y hY xw hxw => h.bound Y hY (π xw.1, π xw.2) (hXW xw hxw)
+  loc := fun Y hY xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' a c d =>
+    h.loc Y hY (π xw.1, π xw.2) (hXW xw hxw) (π xw'.1, π xw'.2) (hXW xw' hxw') σ hσ Θ hΘ Θ' hΘ'
+      a (hAg _ _ _ c) (hAg _ _ _ d)
+  zero := fun Y hY xw hxw => h.zero Y hY (π xw.1, π xw.2) (hXW xw hxw)
+
+end Comap
+
 section Amp
 
 variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
