@@ -120,6 +120,7 @@ public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RGParam
 public import Balaban.Flow.RunningCoefficients
 public import Balaban.Flow.MatrixInfty
+public import Balaban.Flow.MatrixFree
 public import Balaban.Flow.RGInfty
 public import Balaban.Green.Summation
 public import Balaban.Green.DomainDifference
@@ -264,6 +265,7 @@ public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Localization.PolymerGeometry
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
+public import Balaban.Localization.BlockCount
 public import Balaban.Localization.PolymerCount
 public import Balaban.Localization.Reflection
 public import Balaban.Localization.ReflectedGeneratingSet
@@ -325,3 +327,4 @@ public import Balaban.SmallField.XiProps
 public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
+public import Balaban.SmallField.XiFour
