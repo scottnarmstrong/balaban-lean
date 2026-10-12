@@ -89,6 +89,27 @@ theorem TermOK.lin_pack (hf : TermOK i₀ ν ρ X f) (φ : Site d → Spin N) :
     rw [hf.fderiv_inl_transverse hj]; simp
   · simp
 
+theorem pack_zero_eq_sum_inr (X : Finset (Site d)) (b : Spin N) :
+    pack X (fun _ => 0) b = ∑ i, b i • (Pi.single (Sum.inr i) (1 : ℂ) : Cfg d N X) := by
+  ext (⟨x, j⟩ | j)
+  · simp [pack, Finset.sum_apply]
+  · simp [pack, Finset.sum_apply, Pi.single_apply]
+
+theorem pack_eq_add (X : Finset (Site d)) (φ : Site d → Spin N) (b : Spin N) :
+    pack X φ b = pack X φ 0 + pack X (fun _ => 0) b := by
+  ext (⟨x, j⟩ | j) <;> simp [pack]
+
+theorem TermOK.lin_pack_b (hf : TermOK i₀ ν ρ X f) (φ : Site d → Spin N) (b : Spin N) :
+    fderiv ℂ f (refPt i₀ ν X) (pack X φ b) = ∑ x : ↥X, tensA i₀ ν X f x * φ x.1 i₀ +
+      b i₀ * fderiv ℂ f (refPt i₀ ν X) (Pi.single (Sum.inr i₀) 1) := by
+  rw [pack_eq_add, map_add, hf.lin_pack, pack_zero_eq_sum_inr]
+  simp only [map_sum, map_smul, smul_eq_mul]
+  congr 1
+  rw [Finset.sum_eq_single i₀]
+  · intro j _ hj
+    rw [hf.fderiv_inr_transverse hj]; simp
+  · simp
+
 theorem TermOK.D2_basis (hf : TermOK i₀ ν ρ X f) (hi : i₁ ≠ i₀) (x x' : ↥X) (j k : Fin N) :
     D2 f (refPt i₀ ν X) (Pi.single (Sum.inl (x, j)) 1) (Pi.single (Sum.inl (x', k)) 1) =
       if j = k then (if j = i₀ then tensAA i₀ ν X f x x' else tensB i₀ i₁ ν X f x x') else 0 := by
@@ -182,7 +203,7 @@ theorem norm_single_one_le {ι : Type*} [Fintype ι] [DecidableEq ι] (p : ι) :
     ‖(Pi.single p (1 : ℂ) : ι → ℂ)‖ ≤ 1 := by
   rw [pi_norm_le_iff_of_nonneg zero_le_one]
   intro q
-  by_cases h : q = p <;> simp [Pi.single_apply, h]
+  by_cases h : q = p <;> simp [h]
 
 theorem TermOK.norm_tensA_le (hf : TermOK i₀ ν ρ X f) {M : ℝ}
     (hM : ∀ c ∈ ball (refPt i₀ ν X) ρ, ‖f c‖ ≤ M) (x : ↥X) :
