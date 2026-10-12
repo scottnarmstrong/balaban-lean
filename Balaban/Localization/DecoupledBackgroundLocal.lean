@@ -227,6 +227,23 @@ theorem i4b_local {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (
   simp only
   rw [hphi y hy, e]
 
+/-- **Theorem I-4b (iv), support**: `φ_k(s) - φ₀ = δφ(s)` vanishes outside `Core(ℛ)`, the union of
+the cubes `C_z` of the centres `z` with all factors `s_P ≠ 0` (DG5). -/
+theorem i4b_vanish {ρ : ℝ} {s : DecParams G} {D : BgData G N} {φ : G.Ω 1 × Fin N → ℂ}
+    {α : G.Ω 1 → ℂ} (h : IsDecBg G a ν ρ s D φ α) (x : G.Ω 1)
+    (hx : (x : CTorus d L N₁ m₁ K) ∉ Core G (extS G s)) (i : Fin N) :
+    φ (x, i) = approxField G a ν D.Ψ D.h x i := by
+  rw [h.field]
+  show approxField G a ν D.Ψ D.h x i + dphi G (decG G a ν s) (0 : G.Ω 1 → ℂ)
+    (approxField G a ν D.Ψ D.h) (residual G a ν D (approxField G a ν D.Ψ D.h)) α (x, i) = _
+  have : dphi G (decG G a ν s) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (residual G a ν D (approxField G a ν D.Ψ D.h)) α (x, i) = 0 := by
+    unfold dphi
+    rw [liftOp_mulVec]
+    by_contra hne
+    exact hx (dg5_support (G := G) (a := a) (ν := ν) (α := (0 : G.Ω 1 → ℂ) + α) (extS G s) _ x hne)
+  rw [this, add_zero]
+
 end Local
 
 end Balaban.Localization

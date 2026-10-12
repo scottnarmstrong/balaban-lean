@@ -63,7 +63,8 @@ noncomputable def rho4 : ℝ := c6' d L N (famConst d L BG κ) (gamma1 d / 8)
 /-- The constant `c₇` of Theorem I-4b: the smallness of `δ`. -/
 noncomputable def c7 : ℝ :=
   min (bgC1 d L N) (min (deltaClose d L N BG κ / (2 * lemma53Const d L))
-    (bgC0 d L N / (2 * (cK2' d L N (famConst d L BG κ) * lemma53Const d L + 1))))
+    (min (bgC0 d L N / (2 * (cK2' d L N (famConst d L BG κ) * lemma53Const d L + 1)))
+      (1 / ((1 + N * cK2' d L N (famConst d L BG κ)) * lemma53Const d L + 1))))
 
 /-- The constant `K₄` of Theorem I-4b. -/
 noncomputable def K4 : ℝ :=
@@ -106,7 +107,7 @@ theorem c7_pos (hd : 0 < d) (hBG : 0 ≤ BG) : 0 < c7 d L N BG κ := by
   have h4 := lemma53Const_pos d L
   have h5 := cK2'_nonneg (d := d) (L := L) (N := N) hB0
   unfold c7
-  refine lt_min h1 (lt_min ?_ ?_) <;> positivity
+  refine lt_min h1 (lt_min ?_ (lt_min ?_ ?_)) <;> positivity
 
 end Constants
 
@@ -139,9 +140,22 @@ theorem c7_facts {BG κ δ : ℝ} (hd : 0 < d) (hBG : 0 ≤ BG) (hδ0 : 0 ≤ δ
   · have := hδ.trans ((min_le_right _ _).trans (min_le_left _ _))
     rw [le_div_iff₀ (by positivity)] at this
     linarith
-  · have := hδ.trans ((min_le_right _ _).trans (min_le_right _ _))
+  · have := hδ.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
     rw [le_div_iff₀ (by positivity)] at this
     nlinarith
+
+/-- `W := (1 + N K₂') C₃ δ < 1` for `δ ≤ c₇`. -/
+theorem c7_small {BG κ δ : ℝ} (hd : 0 < d) (hBG : 0 ≤ BG) (hδ0 : 0 ≤ δ)
+    (hδ : δ ≤ c7 d L N BG κ) :
+    (1 + N * cK2' d L N (famConst d L BG κ)) * (lemma53Const d L * δ) ≤ 1 := by
+  have hC := lemma53Const_pos d L
+  have hB0 : 0 ≤ famConst d L BG κ := by
+    have := famConst_ge_one (L := L) hBG κ hd; linarith
+  have hk := cK2'_nonneg (d := d) (L := L) (N := N) hB0
+  unfold c7 at hδ
+  have := hδ.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
+  rw [le_div_iff₀ (by positivity)] at this
+  nlinarith
 
 /-- **Lemma 5.3 gives the data of Theorem I-4a**: for data in `Ψ̃^c(δ, ε)` with `δ ≤ c₇`, the
 approximate field, `α₀ = 0`, `δΨ = 0`, `f₁ = residual` satisfy the hypotheses of I-4a in mode U
