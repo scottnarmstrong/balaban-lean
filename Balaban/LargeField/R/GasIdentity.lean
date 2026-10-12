@@ -168,17 +168,17 @@ theorem omega_ge_eleven (S : Setting) (k : ℕ) : 11 ≤ S.omega k := by
 end Supports
 
 /-- `IsAdmConfig` only depends on the members. -/
-theorem isAdmConfig_congr {F F' : Config S n R k0 K M k} (h : F.members = F'.members)
+theorem isAdmConfig_congr {F F' : HistConfig S n R k0 K M k} (h : F.members = F'.members)
     (hF : IsAdmConfig F) : IsAdmConfig F' := by
   obtain ⟨H, hadm, hc1, hc2⟩ := hF
   exact ⟨H, hadm, fun c => h ▸ hc1 c, fun m hm => hc2 m (h ▸ hm)⟩
 
 /-- The configuration with members `Kc ∪ Rm`. -/
-noncomputable def unionConfig (Kc : Config S n R k0 K M k) (Rm : Finset (ConfigPair S n M K k))
+noncomputable def unionConfig (Kc : HistConfig S n R k0 K M k) (Rm : Finset (ConfigPair S n M K k))
     (hmem : ∀ m ∈ Rm, m.2 ∈ localizedHistories (S := S) (n := n) R k0 K M k m.1)
     (hsepR : ∀ m ∈ Rm, ∀ m' ∈ Rm, m ≠ m' → ∀ x ∈ m.1, ∀ y ∈ m'.1, S.omega k ≤ supDist x y)
     (hsepK : ∀ m ∈ Rm, ∀ m' ∈ Kc.members, ∀ x ∈ m.1, ∀ y ∈ m'.1, S.omega k ≤ supDist x y) :
-    Config S n R k0 K M k where
+    HistConfig S n R k0 K M k where
   members := Kc.members ∪ Rm
   mem_hist m hm := by
     rcases Finset.mem_union.mp hm with h | h
@@ -200,7 +200,7 @@ include hk
 
 /-- **Lemma III.10.4**, first half: the clusters of an admissible `Kc ∪ Rm` form a family of
 pairwise compatible removed clusters with `∏ admFactor = 1`. -/
-theorem isClusterFamily_clusters {Kc : Config S n R k0 K M k}
+theorem isClusterFamily_clusters {Kc : HistConfig S n R k0 K M k}
     {Rm : Finset (ConfigPair S n M K k)} (h : IsRemSet Kc Rm) :
     IsClusterFamily Kc (clusters S n M K k Rm) := by
   obtain ⟨hrip, hdis, F, hFm, hFadm⟩ := h
@@ -235,7 +235,7 @@ theorem isClusterFamily_clusters {Kc : Config S n R k0 K M k}
 
 /-- A family of pairwise compatible removed clusters with `∏ admFactor = 1` is the family of
 clusters of an admissible `Kc ∪ Rm`, `Rm` the union of the clusters. -/
-theorem isRemSet_biUnion {Kc : Config S n R k0 K M k} (hKc : IsAdmConfig Kc)
+theorem isRemSet_biUnion {Kc : HistConfig S n R k0 K M k} (hKc : IsAdmConfig Kc)
     {𝒞 : Finset (Finset (ConfigPair S n M K k))} (h : IsClusterFamily Kc 𝒞) :
     IsRemSet Kc (𝒞.biUnion id) ∧ clusters S n M K k (𝒞.biUnion id) = 𝒞 := by
   obtain ⟨hcl, hcomp, hprod⟩ := h
@@ -352,7 +352,7 @@ theorem isRemSet_biUnion {Kc : Config S n R k0 K M k} (hKc : IsAdmConfig Kc)
 /-- **Lemma III.10.4 (gas identity)**: for an admissible kept configuration `Kc`, the removed
 parts `Rm` with `Kc ∪ Rm` admissible correspond bijectively, by `Rm ↦ clusters Rm`, to the
 families of pairwise compatible removed clusters with `∏ admFactor = 1`. -/
-theorem gas_identity {Kc : Config S n R k0 K M k} (hKc : IsAdmConfig Kc) :
+theorem gas_identity {Kc : HistConfig S n R k0 K M k} (hKc : IsAdmConfig Kc) :
     Set.BijOn (clusters S n M K k) {Rm | IsRemSet Kc Rm} {𝒞 | IsClusterFamily Kc 𝒞} := by
   refine ⟨fun Rm h => isClusterFamily_clusters hk h, fun Rm1 h1 Rm2 h2 he => ?_, fun 𝒞 h => ?_⟩
   · rw [← biUnion_clusters (Rm := Rm1), ← biUnion_clusters (Rm := Rm2)]
@@ -362,10 +362,10 @@ theorem gas_identity {Kc : Config S n R k0 K M k} (hKc : IsAdmConfig Kc) :
 end Main
 
 /-- The region `Y_k = ⋃ Z` of a kept configuration. -/
-def keptRegion (Kc : Config S n R k0 K M k) : Set (Torus S.d (n k)) :=
+def keptRegion (Kc : HistConfig S n R k0 K M k) : Set (Torus S.d (n k)) :=
   ⋃ m ∈ Kc.members, ((m.1 : Finset (Torus S.d (n k))) : Set (Torus S.d (n k)))
 
-theorem keptNear_eq_empty (Kc : Config S n R k0 K M k) {C : Finset (ConfigPair S n M K k)}
+theorem keptNear_eq_empty (Kc : HistConfig S n R k0 K M k) {C : Finset (ConfigPair S n M K k)}
     (h : Disjoint (clusterSupp S n M K k C) (keptRegion Kc)) : keptNear Kc C = ∅ := by
   rw [Finset.eq_empty_iff_forall_notMem]
   intro q hq
@@ -377,7 +377,7 @@ theorem keptNear_eq_empty (Kc : Config S n R k0 K M k) {C : Finset (ConfigPair S
 
 /-- **Lemma III.10.4**, second half: the admissibility factor of a cluster does not depend on the
 kept history if its support is disjoint from `Y_k`. -/
-theorem admFactor_eq_of_supp_disjoint (Kc Kc' : Config S n R k0 K M k)
+theorem admFactor_eq_of_supp_disjoint (Kc Kc' : HistConfig S n R k0 K M k)
     (C : Finset (ConfigPair S n M K k))
     (h : Disjoint (clusterSupp S n M K k C) (keptRegion Kc))
     (h' : Disjoint (clusterSupp S n M K k C) (keptRegion Kc')) :
@@ -386,7 +386,7 @@ theorem admFactor_eq_of_supp_disjoint (Kc Kc' : Config S n R k0 K M k)
 
 /-- Inhabitation of `RemCluster`: a single ripe member, separated from `Y_k`, is a removed
 cluster. -/
-theorem RemCluster.singleton (Kc : Config S n R k0 K M k) {m : ConfigPair S n M K k}
+theorem RemCluster.singleton (Kc : HistConfig S n R k0 K M k) {m : ConfigPair S n M K k}
     (hr : IsRipeMember R k0 K M k m)
     (hh : m.2 ∈ localizedHistories (S := S) (n := n) R k0 K M k m.1)
     (hsep : ∀ m' ∈ Kc.members, ∀ x ∈ m.1, ∀ y ∈ m'.1, S.omega k ≤ supDist x y) :
@@ -405,11 +405,11 @@ theorem RemCluster.singleton (Kc : Config S n R k0 K M k) {m : ConfigPair S n M 
     rw [ha, hb]
 
 /-- Inhabitation of `IsRemSet` and `IsClusterFamily`: the empty removed part. -/
-theorem isRemSet_empty {Kc : Config S n R k0 K M k} (hKc : IsAdmConfig Kc) :
+theorem isRemSet_empty {Kc : HistConfig S n R k0 K M k} (hKc : IsAdmConfig Kc) :
     IsRemSet Kc ∅ :=
   ⟨by simp, Finset.disjoint_empty_left _, ⟨Kc, by simp, hKc⟩⟩
 
-theorem isClusterFamily_empty (Kc : Config S n R k0 K M k) : IsClusterFamily Kc ∅ :=
+theorem isClusterFamily_empty (Kc : HistConfig S n R k0 K M k) : IsClusterFamily Kc ∅ :=
   ⟨by simp, by simp, by simp⟩
 
 end Balaban.LargeField

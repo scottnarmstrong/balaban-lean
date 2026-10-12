@@ -39,7 +39,7 @@ def localizedHistories (R : ℕ → ℝ) (k0 K M k : ℕ) [NeZero M] (Z : Finset
 
 /-- **Definition III.10.1**: a configuration at scale `k`: a finite family of pairs `(Z, 𝔞_Z)` with
 `𝔞_Z` a localized history in `𝔥_k(Z)`, the sets `Z` pairwise at index distance `≥ ω_k`. -/
-structure Config (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 K M k : ℕ)
+structure HistConfig (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 K M k : ℕ)
     [NeZero M] where
   /-- the members `(Z, 𝔞_Z)` -/
   members : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K)
@@ -48,19 +48,19 @@ structure Config (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ 
   /-- the sets are pairwise at index distance `≥ ω_k` -/
   sep : ∀ m ∈ members, ∀ m' ∈ members, m ≠ m' → ∀ x ∈ m.1, ∀ y ∈ m'.1, S.omega k ≤ supDist x y
 
-namespace Config
+namespace HistConfig
 
 variable {M k : ℕ} [NeZero M]
 
 /-- A subfamily of a configuration is a configuration. -/
-def sub (F : Config S n R k0 K M k) (G : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K))
-    (hG : G ⊆ F.members) : Config S n R k0 K M k where
+def sub (F : HistConfig S n R k0 K M k) (G : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K))
+    (hG : G ⊆ F.members) : HistConfig S n R k0 K M k where
   members := G
   mem_hist m hm := F.mem_hist m (hG hm)
   sep m hm m' hm' := F.sep m (hG hm) m' (hG hm')
 
 /-- The empty configuration. -/
-def empty : Config S n R k0 K M k where
+def empty : HistConfig S n R k0 K M k where
   members := ∅
   mem_hist := by simp
   sep := by simp
@@ -76,13 +76,13 @@ def IsClique (S : Setting) (n : ℕ → ℕ) (k M K : ℕ)
     (C : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K)) : Prop :=
   ∀ m ∈ C, ∀ m' ∈ C, Linked S n k M K m m'
 
-end Config
+end HistConfig
 
 /-- **Definition III.10.1**: the configuration `F` is *admissible* if there is an admissible global
 history whose pre-`R` components at scale `k` are exactly the sets `Z` of the members, with the
 members' localized histories (the `R`-records at scales `< k` being part of the localized
 history). -/
-def IsAdmConfig {M k : ℕ} [NeZero M] (F : Config S n R k0 K M k) : Prop :=
+def IsAdmConfig {M k : ℕ} [NeZero M] (F : HistConfig S n R k0 K M k) : Prop :=
   ∃ H : RegionHistory S n R k0 K, H.Admissible ∧
     (∀ c : H.Comp k, ∃ m ∈ F.members, m.1 = c.1) ∧
     ∀ m ∈ F.members, ∃ c : H.Comp k, c.1 = m.1 ∧ H.localHistory M K k c = m.2

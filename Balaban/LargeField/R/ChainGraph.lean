@@ -114,6 +114,14 @@ def CrossAdj (bp y : BlockV d L N₀ k) : Prop :=
   y.1 + 1 = bp.1 ∧ ∃ x ∈ bp.sites, ∃ x'', NNAdj x x'' ∧ x'' ∉ G.Ω bp.1 ∧
     ∃ x' ∈ y.sites, jBlock d L N₀ k bp.1 x' = jBlock d L N₀ k bp.1 x''
 
+/-- The set of window blocks. -/
+def windowBlocks (Zc : Set (Torus d (N₀ * L ^ k))) (k1 : ℕ) : Set (BlockV d L N₀ k) :=
+  {b | IsWindowBlock G Zc k1 b}
+
+/-- The set of terminal blocks. -/
+def terminalBlocks (Zf : Set (Torus d (N₀ * L ^ k))) : Set (BlockV d L N₀ k) :=
+  {b | IsTerminalBlock G Zf b}
+
 /-- The chain vertices: window blocks and terminal blocks. -/
 def IsChainVertex (Zc Zf : Set (Torus d (N₀ * L ^ k))) (k1 : ℕ) (b : BlockV d L N₀ k) : Prop :=
   IsWindowBlock G Zc k1 b ∨ IsTerminalBlock G Zf b

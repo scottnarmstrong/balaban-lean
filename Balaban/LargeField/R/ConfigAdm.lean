@@ -24,8 +24,8 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- A configuration is admissible if every clique of it occurs in some history with the same
 localized histories (and some `FlowSteps` exist for the typing). -/
-theorem adm_of_witness (hk : k ≤ K) (F0 : FlowSteps S n R k0 K) (G : Config S n R k0 K M k)
-    (hW : ∀ C ⊆ G.members, Config.IsClique S n k M K C →
+theorem adm_of_witness (hk : k ≤ K) (F0 : FlowSteps S n R k0 K) (G : HistConfig S n R k0 K M k)
+    (hW : ∀ C ⊆ G.members, HistConfig.IsClique S n k M K C →
       ∃ H : RegionHistory S n R k0 K, ∀ m ∈ C, ∃ c : H.Comp k, c.1 = m.1 ∧
         H.localHistory M K k c = m.2) :
     IsAdmConfig G := by
@@ -73,7 +73,7 @@ theorem adm_of_witness (hk : k ≤ K) (F0 : FlowSteps S n R k0 K) (G : Config S 
     exact ⟨c, hc.trans (hcm1 ⟨m, hm⟩), hc'.trans (hcm2 ⟨m, hm⟩)⟩
 
 /-- **Lemma III.10.2**, subfamilies of admissible configurations are admissible. -/
-theorem adm_sub (hk : k ≤ K) {F : Config S n R k0 K M k} (hF : IsAdmConfig F)
+theorem adm_sub (hk : k ≤ K) {F : HistConfig S n R k0 K M k} (hF : IsAdmConfig F)
     {G : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K)} (hG : G ⊆ F.members) :
     IsAdmConfig (F.sub G hG) := by
   obtain ⟨H, -, -, hc2⟩ := hF
@@ -81,10 +81,10 @@ theorem adm_sub (hk : k ≤ K) {F : Config S n R k0 K M k} (hF : IsAdmConfig F)
   exact hc2 m (hG (hC hm))
 
 /-- **Lemma III.10.2**, a configuration is admissible if every clique is. -/
-theorem adm_of_cliques (hk : k ≤ K) (F : Config S n R k0 K M k)
+theorem adm_of_cliques (hk : k ≤ K) (F : HistConfig S n R k0 K M k)
     (hcl : ∀ (C : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K)) (hC : C ⊆ F.members),
-      Config.IsClique S n k M K C → IsAdmConfig (F.sub C hC)) : IsAdmConfig F := by
-  obtain ⟨H0, -, -, -⟩ := hcl ∅ (Finset.empty_subset _) (by simp [Config.IsClique])
+      HistConfig.IsClique S n k M K C → IsAdmConfig (F.sub C hC)) : IsAdmConfig F := by
+  obtain ⟨H0, -, -, -⟩ := hcl ∅ (Finset.empty_subset _) (by simp [HistConfig.IsClique])
   refine adm_of_witness hk H0.F F fun C hC hCl => ?_
   obtain ⟨H, -, -, hc2⟩ := hcl C hC hCl
   exact ⟨H, hc2⟩
@@ -92,10 +92,10 @@ theorem adm_of_cliques (hk : k ≤ K) (F : Config S n R k0 K M k)
 /-- **Lemma III.10.2 (cliques suffice)**: a configuration is admissible iff every clique (a
 subfamily whose members are pairwise linked) is admissible; subfamilies of admissible
 configurations are admissible (`adm_sub`). -/
-theorem adm_iff_cliques (hk : k ≤ K) (F : Config S n R k0 K M k) :
+theorem adm_iff_cliques (hk : k ≤ K) (F : HistConfig S n R k0 K M k) :
     IsAdmConfig F ↔
       ∀ (C : Finset (Finset (Torus S.d (n k)) × LocalHistory S n M K)) (hC : C ⊆ F.members),
-        Config.IsClique S n k M K C → IsAdmConfig (F.sub C hC) :=
+        HistConfig.IsClique S n k M K C → IsAdmConfig (F.sub C hC) :=
   ⟨fun hF _ hC _ => adm_sub hk hF hC, adm_of_cliques hk F⟩
 
 end Balaban.LargeField

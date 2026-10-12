@@ -67,7 +67,7 @@ theorem Near4.symm {m m' : ConfigPair S n M K k} (h : Near4 S n M K k m m') :
 /-- **Definition III.10.3 (removed cluster)**: a nonempty finite family of removed components,
 connected under "index distance `≤ 4ω_k`", at index distance `≥ ω_k` from each other and from
 `Y_k` (the sets of the kept configuration `Kc`). -/
-structure RemCluster (Kc : Config S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) : Prop where
+structure RemCluster (Kc : HistConfig S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) : Prop where
   nonempty : C.Nonempty
   ripe : ∀ m ∈ C, IsRipeMember R k0 K M k m
   mem_hist : ∀ m ∈ C, m.2 ∈ localizedHistories (S := S) (n := n) R k0 K M k m.1
@@ -87,29 +87,29 @@ def clusterCore (S : Setting) (n : ℕ → ℕ) (M K k : ℕ) (C : Finset (Confi
   ⋃ m ∈ C, ((m.1 : Finset (Torus S.d (n k))) : Set (Torus S.d (n k)))
 
 /-- The kept components within `2ω_k` of the cluster: `𝒴(𝒞)`. -/
-noncomputable def keptNear (Kc : Config S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) :
+noncomputable def keptNear (Kc : HistConfig S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) :
     Finset (ConfigPair S n M K k) :=
   Kc.members.filter fun m' => ∃ x ∈ m'.1, ∃ y ∈ clusterCore S n M K k C,
     supDist x y ≤ 2 * S.omega k
 
 /-- A finite family of members is the family of members of an admissible configuration. -/
 def IsAdmFamily (R : ℕ → ℝ) (k0 K M k : ℕ) [NeZero M] (G : Finset (ConfigPair S n M K k)) : Prop :=
-  ∃ F : Config S n R k0 K M k, F.members = G ∧ IsAdmConfig F
+  ∃ F : HistConfig S n R k0 K M k, F.members = G ∧ IsAdmConfig F
 
 /-- **Definition III.10.3 (admissibility factor)**: `1` if `𝒞 ∪ 𝒴(𝒞)` is an admissible
 configuration, `0` otherwise. -/
-noncomputable def admFactor (Kc : Config S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) : ℕ :=
+noncomputable def admFactor (Kc : HistConfig S n R k0 K M k) (C : Finset (ConfigPair S n M K k)) : ℕ :=
   if IsAdmFamily (S := S) (n := n) R k0 K M k (C ∪ keptNear Kc C) then 1 else 0
 
 /-- Removed parts `Rm` with non-removed part `Kc`: removed components, disjoint from `Kc`, such
 that `Kc ∪ Rm` is an admissible configuration. -/
-def IsRemSet (Kc : Config S n R k0 K M k) (Rm : Finset (ConfigPair S n M K k)) : Prop :=
+def IsRemSet (Kc : HistConfig S n R k0 K M k) (Rm : Finset (ConfigPair S n M K k)) : Prop :=
   (∀ m ∈ Rm, IsRipeMember R k0 K M k m) ∧ Disjoint Rm Kc.members ∧
     IsAdmFamily (S := S) (n := n) R k0 K M k (Kc.members ∪ Rm)
 
 /-- Families of pairwise compatible (disjoint supports) removed clusters with
 `∏ admFactor = 1`. -/
-def IsClusterFamily (Kc : Config S n R k0 K M k)
+def IsClusterFamily (Kc : HistConfig S n R k0 K M k)
     (𝒞 : Finset (Finset (ConfigPair S n M K k))) : Prop :=
   (∀ C ∈ 𝒞, RemCluster Kc C) ∧
     (∀ C ∈ 𝒞, ∀ C' ∈ 𝒞, C ≠ C' →
