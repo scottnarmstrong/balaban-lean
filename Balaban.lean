@@ -448,6 +448,7 @@ public import Balaban.LargeField.History.NextBook
 public import Balaban.LargeField.History.RegionHistory
 public import Balaban.LargeField.History.Inhabited
 public import Balaban.LargeField.History.InhabitedJoint
+public import Balaban.LargeField.History.InhabitedRemoval
 public import Balaban.LargeField.History.FlowBook
 public import Balaban.LargeField.Counter.Instantiation
 public import Balaban.LargeField.History.BoxCover
