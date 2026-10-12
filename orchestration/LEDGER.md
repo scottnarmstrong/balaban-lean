@@ -190,3 +190,5 @@
 | 2026-10-12 | W59 localHistory fix | running | Sonnet; lineage localization for localHistory (or no-leak proof); Part III Lean P1–P2 if budget |
 | 2026-10-12 | W58 LF block H | landed | `Reg`/`RegC`, `chiK`, `chiNext`, `chiPrimeOld`, `chiPrimeNew`, `chiFluct` (real indicators, never continued), stencils (Lemma II.3.3), `measurable_chi*` (via continuity of bgFieldC on 𝒟_ℝ), `chiDom`, `PsiTildeMulti`, `DeltaC`, `DeltaPrimeC`, `H7Domain` (≈2,150 lines). Note: Operators/Variables indexes ψ_j by cubes, block-indexed MultiField used here; link pending |
 | 2026-10-12 | W59 localHistory fix | landed | `localHistory` now from `locRH` (lineage of Z; no records of removed components); old definition kept as `rawLocalHistory`; `localHistory_subset_raw` |
+| 2026-10-12 | W60 LF local operators | running | Sonnet; J3–J7 (main action, quiet kernel, StepData/KeptData, locOp + Lemma II.5.9, invariance) + cube/block indexing link |
+| 2026-10-12 | W61 LF budget | running | Sonnet; K1 (κ, C, G), K2 lemmaB (= (B) of toLF2Hyp), K5 summability (1.27) |
