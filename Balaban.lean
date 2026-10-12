@@ -701,6 +701,9 @@ public import Balaban.Observables.FirstOrderStep
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
+public import Balaban.Fluctuation.CovSqrtSupComplexWeighted
+public import Balaban.Fluctuation.CovSqrtSupComplex
+public import Balaban.Fluctuation.CovSqrtSupComplexDec
 public import Balaban.Fluctuation.CovarianceSpectral
 public import Balaban.Fluctuation.Covariance
 public import Balaban.Fluctuation.CovarianceComplex
