@@ -317,6 +317,16 @@ public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
+public import Balaban.LargeField.History.SpineOps
+public import Balaban.LargeField.History.JoinFamily
+public import Balaban.LargeField.History.StepSeeds
+public import Balaban.LargeField.History.StepSpine
+public import Balaban.LargeField.History.FlowSteps
+public import Balaban.LargeField.History.CompsRemove
+public import Balaban.LargeField.History.NextBook
+public import Balaban.LargeField.History.RegionHistory
+public import Balaban.LargeField.History.FlowBook
+public import Balaban.LargeField.Counter.Instantiation
 public import Balaban.SmallField.TaylorCauchy
 public import Balaban.SmallField.RenormDefs
 public import Balaban.SmallField.RenormRot
