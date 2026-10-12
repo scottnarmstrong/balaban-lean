@@ -1193,3 +1193,7 @@ public import Balaban.LargeField.R.CancelStationary
 public import Balaban.Inhabited.HatExpansionWitnessNum
 public import Balaban.Inhabited.HatExpansionWitness
 public import Balaban.Inhabited.HatExpansionWitnessLabels
+public import Balaban.Fluctuation.StepActivityHatRay
+public import Balaban.Fluctuation.StepActivityHat
+public import Balaban.Fluctuation.StepActivityHatBound
+public import Balaban.Fluctuation.StepActivityHatCor
