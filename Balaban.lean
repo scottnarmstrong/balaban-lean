@@ -910,6 +910,7 @@ public import Balaban.LargeField.R.ActionConvWitness
 public import Balaban.LargeField.R.MassChangeChord
 public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassChangeHessian
+public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
 public import Balaban.LargeField.R.MassChangeCrossing
