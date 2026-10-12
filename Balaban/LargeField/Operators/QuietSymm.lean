@@ -300,7 +300,7 @@ theorem subMultiscaleField_rot (ρ : OrthN N) (a : LocalHistory S n M K) (k : �
   unfold subMultiscaleField rotMF
   by_cases hj : j < k
   · simp only [hj, ↓reduceIte]
-    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+    by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a k j)
     · simp only [hc, ↓reduceIte]
       exact subVarField_rot ρ x j y
     · simp only [hc, ↓reduceIte]
@@ -309,7 +309,7 @@ theorem subMultiscaleField_rot (ρ : OrthN N) (a : LocalHistory S n M K) (k : �
     by_cases hjk : j = k
     · subst hjk
       simp only [↓reduceDIte]
-      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (a.Omega (j - 1))
+      by_cases hc : j = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) j y (lhOmega a j j)
       · simp only [hc, ↓reduceIte]
         exact outField_rot ρ o y
       · simp only [hc, ↓reduceIte]

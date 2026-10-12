@@ -237,15 +237,20 @@ theorem subMultiscaleField_agree (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     · subst hjk
       simp only [lt_irrefl, ↓reduceIte, ↓reduceDIte]
       by_cases hb : (k + 1 = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) (k + 1) y
-          ((H.localHistory M K (k + 1) Z').Omega (k + 1 - 1)))
+          (lhOmega (H.localHistory M K (k + 1) Z') (k + 1) (k + 1)))
       · simp only [hb, ↓reduceIte]
-        refine outField_agree hK Z' o o' hoo y (Or.inl ?_)
+        refine outField_agree hK Z' o o' hoo y ?_
         rcases hb with hb | hb
         · omega
         · obtain ⟨x0, hx0⟩ := exists_site_in_block (S := S) (n := n) (M := M) hK y
-          have h1 := (hb x0 hx0).1
-          have h2 : cubeMap n S.L M K (k + 1) x0 ∈ ((H.locRH (k + 1) Z').step k).Omega := h1
-          rwa [← blockCube_eq_cubeMap H.F.hnn hK hx0] at h2
+          have hc := blockCube_eq_cubeMap H.F.hnn hK hx0
+          rcases hb x0 hx0 with h1 | h1
+          · left
+            have h2 : cubeMap n S.L M K (k + 1) x0 ∈ ((H.locRH (k + 1) Z').step k).Omega := h1.1
+            rwa [← hc] at h2
+          · right
+            rw [hc]
+            exact fun h => h1 ((mem_localHistory_Z_top Z' x0).mpr h)
       · simp only [hb, ↓reduceIte]
     · simp only [hj, hjk, ↓reduceIte, ↓reduceDIte]
 

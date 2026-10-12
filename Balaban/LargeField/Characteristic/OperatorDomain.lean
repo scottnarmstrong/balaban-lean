@@ -23,6 +23,16 @@ identification of the two indexings is the user's responsibility, see the handof
   blocks of layers `n' ∈ {n, n - 1}` and `||ψ(y)|² - 1| < δ`;
 * `genBlocksIn` is `𝔹_k ∩ □^∼` (the blocks of `B` with their layer), `scaleBlocksIn` is
   `T_j(□^∼)`;
+* **`lhOmega`, `lhOmegaSim`**: Definition II.3.4 reads "the domains `Ω_j` of the lineage" of the
+  localized history, i.e. of the lineage localization of the region history (Definition I.4.4,
+  Lemma I.3.9 (b)), which contain the complement of the component (`Ωᶜ(loc) = Ωᶜ ∩ Lin`).  The
+  records of `LocalHistory` are intersected with the component; `lhOmega a k j` adds the complement
+  `(a.Z k)ᶜ`, and `lhOmegaSim` is the neighbourhood `Ω^∼_j` of these cubes.  The conditions (1.24)
+  for a cube `□ ⊂ Ω^∼_{j+1}` at the boundary of the component thereby involve the blocks of its
+  neighbours outside the component, whose field is the output `ψ_k` (Variables.lean).  This is
+  what makes the domain identity of the proof of Lemma II.5.13 hold at the boundary cubes of an
+  old part (`DomainIdentity.lean`).  `omegaNb`/`omegaSim` (records intersected with the component)
+  remain for the quiet-kernel factors and the analyticity domain `H7Domain`.
 * the cubes `□` are points of the cube torus `Torus d (n j)`, `□^∼ = nbhd 1 {□}`,
   `Ω^∼_{j} = nbhd 1 (cubes of Ω_j)` (`omegaSim`, with `Ω^∼_{k+1} := ∅`).
 -/
@@ -94,6 +104,22 @@ def omegaNb (r j : ℕ) : Set (Torus S.d (n j)) :=
 /-- `Ω^∼_j` (`r = 1`). -/
 abbrev omegaSim (j : ℕ) : Set (Torus S.d (n j)) := omegaNb a k 1 j
 
+/-- `Ω_j` of the *localized region history* of the component `Z` of `a` (the lineage localization
+`locRH`, Lemma I.3.9 (b); Definition II.3.4 reads the domains `Ω_j` "of the lineage"), as fine
+sites: the localized record `a.Omega (j - 1) = Ω_j ∩ Z` together with the complement of the
+component, `(a.Z k)ᶜ` (`a.Z k` is the fine set of `Z` for the localized history of a component `Z`
+of `Z_k`): the localized step has `Ω_j(loc) ⊇ Lin_j(Z)ᶜ`, so every site outside `Z` lies in
+every `Ω_j(loc)`, `j ≤ k`. -/
+def lhOmega (j : ℕ) : Set (Torus S.d (M * n K * S.L ^ K)) := a.Omega (j - 1) ∪ (a.Z k)ᶜ
+
+/-- `Ω^{∼r}_j` of the localized region history: the `r`-neighbourhood of the cubes of `lhOmega`,
+with `Ω^{∼r}_{k+1} := ∅`. -/
+def lhOmegaNb (r j : ℕ) : Set (Torus S.d (n j)) :=
+  if j = k + 1 then ∅ else nbhd r {y | CubeSub (S := S) (n := n) M K j y (lhOmega a k j)}
+
+/-- `Ω^∼_j` of the localized region history (`r = 1`). -/
+abbrev lhOmegaSim (j : ℕ) : Set (Torus S.d (n j)) := lhOmegaNb a k 1 j
+
 variable (B : GeneratingSet S.d S.L (M * n K) K ϱ) (Zc : Set (Torus S.d (M * n K * S.L ^ K)))
   (δ p0 : ℕ → ℝ) (Cpsi : ℝ)
 
@@ -102,12 +128,12 @@ fluctuation field `ψ'`): `Zc` is the fine set of the component `Z`, `δ j = δ_
 `p0 j = p_0(β_j)`, `Cpsi = C_{ψ'}`. -/
 def ChiDomProp (ψ ψ' : MultiField S n M K N) : Prop :=
   (∀ j, j < k → ∀ y : Torus S.d (n (j + 1)),
-      CubeSub (S := S) (n := n) M K (j + 1) y (a.Z (j + 1)) → y ∈ omegaSim a k (j + 1) →
+      CubeSub (S := S) (n := n) M K (j + 1) y (a.Z (j + 1)) → y ∈ lhOmegaSim a k (j + 1) →
         PsiTildeMulti ψ (genBlocksIn B (j + 1) (nbhd 1 {y}))
           (3 * S.d * S.L * δ j)) ∧
   (∀ j, 1 ≤ j → j ≤ k → ∀ y : Torus S.d (n j),
       CubeSub (S := S) (n := n) M K j y Zc → (∀ x, cubeMap n S.L M K j x = y → x ∉ a.Z j) →
-        (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ omegaSim a k (j + 1)) →
+        (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ lhOmegaSim a k (j + 1)) →
           PsiTildeMulti ψ (scaleBlocksIn j (nbhd 1 {y})) (3 * δ j)) ∧
   (∀ j, j < k → ∀ y : Torus S.d (M * n K * S.L ^ (K - j)),
       BlockSub (S := S) (n := n) j y (a.Omega j \ a.OmegaDD j) → ‖ψ' j y‖ < Cpsi * p0 j)
