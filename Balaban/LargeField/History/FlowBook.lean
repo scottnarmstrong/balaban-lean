@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.History.RegionHistory
+public import Balaban.LargeField.History.SpinePad
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -108,10 +109,61 @@ theorem exists_spineOK {k : ℕ} (hk : k < K) (Γs : H.Comp k → Spine S.d)
     exact h4 (S.crit (k + 1)) (by simp [critOpt, hk']) hsm hsd
 
 open Classical in
-/-- The spine of a component of `Z^pre_{k+1}`, given the spines at scale `k`. -/
+/-- The canonical length of the spine of a component `Z'` of `Z^pre_{k+1}`, given the lengths of the
+spines of its old parts: `0` for a box of side `≤ crit` (Definition I.4.7 item 3) and for a pure
+shadow of a spine of length `≤ L` (item 4), and otherwise the upper bound (4.1) of Lemma I.4.8. -/
+noncomputable def spineTarget (k : ℕ) (Γs : H.Comp k → Spine S.d) (Z' : H.Comp (k + 1)) : ℝ :=
+  if k + 1 ≤ k0 ∧ IsSmall (Z'.1 : Set (Torus S.d (n (k + 1)))) ∧
+      side (Z'.1 : Set (Torus S.d (n (k + 1)))) ≤ S.crit (k + 1) then 0
+  else if (Z'.1 ∩ H.newCubes (k + 1)).card = 0 ∧ ∃ c, H.parts k Z' = {c} ∧ (Γs c).length ≤ S.L
+    then 0
+  else ∑ c ∈ H.parts k Z', (Γs c).length / S.L +
+      ((((H.parts k Z').card + (Z'.1 ∩ H.newCubes (k + 1)).card : ℕ) : ℝ) - 1) * S.D (k + 1)
+
+/-- The canonical spines of a component `Z'` of `Z^pre_{k+1}`: the spines allowed by `SpineOK` of the
+prescribed length `spineTarget`.  (The source leaves the spine a free choice among those of
+Lemma I.4.8, Definition I.4.7; fixing its length makes the clock `s` and hence the ripeness a
+function of the lengths of the parts alone, hence invariant under lattice symmetries.) -/
+def SpineCan (k : ℕ) (Γs : H.Comp k → Spine S.d) (Z' : H.Comp (k + 1)) (Γ' : Spine S.d) : Prop :=
+  H.SpineOK k Γs Z' Γ' ∧ Γ'.length = H.spineTarget k Γs Z'
+
+theorem exists_spineCan {k : ℕ} (hk : k < K) (Γs : H.Comp k → Spine S.d)
+    (h : ∀ c : H.Comp k, (c.1 : Set (Torus S.d (n k))) ⊆
+      NR ((S.rho k : ℝ) + 4) ((Γs c).proj (n k))) (Z' : H.Comp (k + 1)) :
+    ∃ Γ', H.SpineCan k Γs Z' Γ' := by
+  classical
+  obtain ⟨Γ0, hok⟩ := H.exists_spineOK hk Γs h Z'
+  obtain ⟨c1, c2, c3, c4⟩ := hok
+  by_cases hA : k + 1 ≤ k0 ∧ IsSmall (Z'.1 : Set (Torus S.d (n (k + 1)))) ∧
+      side (Z'.1 : Set (Torus S.d (n (k + 1)))) ≤ S.crit (k + 1)
+  · obtain ⟨a, s, -, hl, -⟩ := c4 hA.1 hA.2.1 hA.2.2
+    refine ⟨Γ0, ⟨c1, c2, c3, c4⟩, ?_⟩
+    rw [hl, spineTarget]
+    split_ifs
+    rfl
+  by_cases hB : (Z'.1 ∩ H.newCubes (k + 1)).card = 0 ∧
+      ∃ c, H.parts k Z' = {c} ∧ (Γs c).length ≤ S.L
+  · obtain ⟨c, hc, hL⟩ := hB.2
+    refine ⟨Γ0, ⟨c1, c2, c3, c4⟩, ?_⟩
+    rw [c3 hB.1 c hc hL, spineTarget]
+    split_ifs
+    rfl
+  · obtain ⟨Γ', hsub, hlen⟩ := Spine.exists_pad (by have := H.F.ok.three_le_d; omega) Γ0 c2
+    refine ⟨Γ', ⟨?_, le_of_eq hlen, ?_, ?_⟩, ?_⟩
+    · refine c1.trans (NR_mono le_rfl ?_)
+      exact Set.image_mono hsub
+    · intro h0 c hc hL; exact absurd ⟨h0, c, hc, hL⟩ hB
+    · intro h1 h2 h3; exact absurd ⟨h1, h2, h3⟩ hA
+    · rw [hlen, spineTarget]
+      split_ifs
+      rfl
+
+open Classical in
+/-- The spine of a component of `Z^pre_{k+1}`, given the spines at scale `k`: a canonical spine
+(`SpineCan`). -/
 noncomputable def nextSpine (k : ℕ) (Γs : H.Comp k → Spine S.d) (Z' : H.Comp (k + 1)) :
     Spine S.d :=
-  if h : ∃ Γ', H.SpineOK k Γs Z' Γ' then h.choose else Spine.point 0
+  if h : ∃ Γ', H.SpineCan k Γs Z' Γ' then h.choose else Spine.point 0
 
 /-- The spines of the components of `Z^pre_k` (Definition I.4.7). -/
 noncomputable def spine : ∀ k, H.Comp k → Spine S.d
@@ -133,24 +185,28 @@ theorem spine_contains : ∀ k, k ≤ K → ∀ c : H.Comp k, (c.1 : Set (Torus 
   | succ k ih =>
     intro hkK Z'
     classical
-    have h := H.exists_spineOK (by omega) (H.spine k) (ih (by omega)) Z'
+    have h := H.exists_spineCan (by omega) (H.spine k) (ih (by omega)) Z'
     have : H.spine (k + 1) Z' = h.choose := by
       show H.nextSpine k (H.spine k) Z' = _
       unfold nextSpine
       simp only [h, ↓reduceDIte]
     rw [this]
-    exact h.choose_spec.1
+    exact h.choose_spec.1.1
 
-theorem spineOK_spine {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
-    H.SpineOK k (H.spine k) Z' (H.spine (k + 1) Z') := by
+theorem spineCan_spine {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
+    H.SpineCan k (H.spine k) Z' (H.spine (k + 1) Z') := by
   classical
-  have h := H.exists_spineOK hk (H.spine k) (H.spine_contains k hk.le) Z'
+  have h := H.exists_spineCan hk (H.spine k) (H.spine_contains k hk.le) Z'
   have : H.spine (k + 1) Z' = h.choose := by
     show H.nextSpine k (H.spine k) Z' = _
     unfold nextSpine
     simp only [h, ↓reduceDIte]
   rw [this]
   exact h.choose_spec
+
+theorem spineOK_spine {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
+    H.SpineOK k (H.spine k) Z' (H.spine (k + 1) Z') :=
+  (H.spineCan_spine hk Z').1
 
 theorem bk_len (k : ℕ) (c : H.Comp k) : (H.bk k c).len = (H.spine k c).length := by
   cases k <;> rfl
