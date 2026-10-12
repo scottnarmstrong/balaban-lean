@@ -42,10 +42,11 @@ in the ledger row and the branch state):
 - W84: DONE (landed b1e5034).
 - W89 (`w89-weighted51`): weighted Prop 5.1 → Lemma 4.1 unconditional; Lemma 3.5 analyticity.
 - W90 (OPUS, `w90-i6-aniso`): anisotropic I-6 per notes/phase1/I6-ANISO.md.
-Queued Sonnet (next free slots): (a) Dec2 locality redesign per VMOD-4 (footprint + incidence graph), then I-5 with ψ′;
+Queued Sonnet (next free slots): (a) [running as W91] then I-5 with ψ′ on the new interface;
 (b) base step Q5/Q6 per BASE-KERNEL.md (conditional on Prop II.7.9 parts).
 - W85: DONE (landed b3b1f92; P4 estimate half). Found the vacuous-history defect.
-- W87 (`w87-horizon`): fix vacuous FlowSteps/RegionSeq/RegionHistory (finite horizon), Nonempty witnesses, repair ~60 consumers. PRIORITY.
+- W87: DONE (landed 4a1bc48; histories inhabited).
+- W91 (`w91-dec2-locality`): VMOD-4 locality interface on Dec2.
 - W86: DONE (landed 6637c62; χ^dom identity proved).
 - W88 (`w88-complex-g1`): det∘exp, complex log det, Lemma 2.4(a) complex.
 - W78: DONE (landed c6f82f7).
@@ -59,8 +60,8 @@ codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and com
 - astra-rgfree: followup4.txt — RGFREE-5.md (FREE-ACT, SWITCH-JOINT on the repaired domain). Tag RGFREE5.
 - astra-kf0: followup5.txt — Part F (sector weights → gasOp_pe form, (B.5), k_f=0 assembly). Tag KF0F.
 - astra-fluctfix: followup3.txt — FLUCTUATION v2.3, Theorem 3.1(f). Tag FLUCTFIX4.
-- astra-class, astra-vacuity: idle. Next for vacuity: re-audit after W87 lands; joint positive-scale witnesses
-  for i5_background, bridgeInf, LiftCtx (SUSPICIOUS rows).
+- astra-vacuity: followup1.txt — VACUITY-AUDIT-2.md (post-W87 re-audit, joint witnesses). Tag VACUITY2.
+- astra-class: idle.
 If a session shows "Selected model is at capacity", resend the one-line pointer message.
 Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t S Enter`
 (long pastes get truncated — always point to a file).
