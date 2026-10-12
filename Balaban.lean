@@ -466,6 +466,7 @@ public import Balaban.SmallField.Def6InfShapes
 public import Balaban.SmallField.Def6InfCov
 public import Balaban.SmallField.Def6InfExpand
 public import Balaban.SmallField.Def6InfTail
+public import Balaban.SmallField.Def6BridgeInfMoment
 public import Balaban.SmallField.Def6BridgeInfLift
 public import Balaban.SmallField.Def6BridgeInfDer
 public import Balaban.SmallField.Def6BridgeInfSum
