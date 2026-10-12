@@ -183,3 +183,4 @@
 | 2026-10-12 | W50 LF constants + LF-1 | landed | block F (`runLam`, `kZero` a-priori, `RunningHyp.of_flow` from landed flow lemmas, Lemma II.1.2 items except (f)) and **LF-1 proved** (`lf1_gradient`, `lf1_hardSpin`, γ₀ = 1/(28d), from `blockPoincare_sharp`) (≈2,940 lines) |
 | 2026-10-12 | W56 DG2 Hölder + I-4a(d) on X₀ | running | Sonnet |
 | 2026-10-12 | W52 I-4b | landed | **I-4b proved**: `decBgField`/`decBgMult` (∃! characterization), `i4b_exists_unique` (K₄δ bounds), `i4b_one` (s=1 = bgFieldC), `i4b_analytic`, `i4b_close`, `i4b_local` (explicit dependency sets), `i4b_vanish`, `i4b_defect`, `i4b_compose_one/_analytic/_close/_local` (≈1,550 lines). Open: dependency sets ⊂ Y/Core_Y geometry, X₀ bound (W56 does the I-4a analogue) |
+| 2026-10-12 | W57 DG7 + I-4c | running | Sonnet; x-variant decoupled operator (block-L²), decoupled constrained covariance, C^{1/2} resolvent integral, 𝕃 |
