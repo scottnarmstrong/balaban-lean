@@ -29,6 +29,133 @@ namespace RegionHistory
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
   {H : RegionHistory S n R k0 K} {k : ℕ} {Z : H.Comp k} [NeZero S.L] [NeZero S.M]
 
+/-- **The Lemma-CH / final-comparison step, abstract in the site** (LFR III.4.6; the common part of the
+interior bound at a core site and of (2.3) at a collar site).  For a site `c ∈ Z_{k₁}` with a block `P`
+whose spin is within `Ŵ_k δ_{k₁}` of a window block (`hshell`), a value
+`Dv = ψ(P) - C` where `C` is within `2 K₁ · 3θ` of the block value `ψ⁰_k(b_k(c))` (`hcmp`: the
+comparison (2.43) of `psiZeroWin_sub_le`, or of `psiZeroWin_collar_sub_le` at a collar site), one has
+`|Dv| < (3dL + 2) Ŵ_k δ_{k₁}`. -/
+theorem data_change_lt_of_shell_site
+    (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
+    (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
+    (hϱ : (2 * S.d * S.L : ℝ) ≤ (S.L : ℝ) * S.M * S.Rb)
+    {ε : ℝ} {δ : ℕ → ℝ} (hδ : IsAdmDelta S.d S.L ε (S.k1 k) k δ)
+    {N : ℕ} (ψ ψ0 : BlockV S.d S.L (S.M * n k) k → EuclideanSpace ℝ (Fin N))
+    {K6 : ℝ} (hK6 : 0 < K6) (hθ1 : 3 * K6 * δ k ≤ 1)
+    {ϱb : ℝ} (Gb : GeneratingSet S.d S.L (S.M * n k) k ϱb)
+    (hspec : PsiZeroSpec (H.locGen Z S.M hkK hL hR) Gb (H.locFine Z S.M k) (3 * K6 * δ k) ψ ψ0)
+    (hwin : WinBond (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k)
+      (S.k1 k) (3 * S.d * S.L) δ ψ)
+    (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
+    {c : Torus S.d (S.M * n k * S.L ^ k)} (hcZ1 : c ∈ H.locFine Z S.M (S.k1 k))
+    (P : BlockV S.d S.L (S.M * n k) k) (Dv C : Fin N → ℂ)
+    (hdel : Dv = (fun i => ((ψ P i : ℝ) : ℂ)) - C)
+    (hcmp : vn (C - fun i => ((ψ0 ⟨k, jBlock S.d S.L (S.M * n k) k k c⟩ i : ℝ) : ℂ)) ≤
+      2 * (bgK1 S.d S.L N * (3 * (3 * K6 * δ k))))
+    (hshell : ∃ s ∈ (H.locGen Z S.M hkK hL hR).layer (S.k1 k), s ∉ H.locFine Z S.M (S.k1 k) ∧
+      dist (ψ P) (ψ (blockOf S.d S.L (S.M * n k) k (S.k1 k) s)) ≤ S.hatW ε k * δ (S.k1 k)) :
+    vn Dv < (3 * S.d * S.L + 2) * S.hatW ε k * δ (S.k1 k) := by
+  classical
+  have hS := H.F.ok
+  have hW : H.RipeWindow k Z :=
+    ripe_window hG (fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).1) hk0 hkK hrip
+  have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
+  have hk1 : 1 ≤ S.k1 k := by rw [hqk1]; exact hq1
+  have hkq : S.k1 k < k := by
+    rw [hqk1]
+    have := hW.core_window.1
+    have : 1 ≤ S.nq (H.bk k Z).q := by unfold Setting.nq; omega
+    omega
+  have hd1 : 1 ≤ S.d := by have := hS.three_le_d; omega
+  have hcZ : c ∈ H.locFine Z S.M k := locFine_mono hkK hkq.le le_rfl hcZ1
+  have hnn := hnn_k H hkK
+  have hblk : ∀ x x' : Torus S.d (S.M * n k * S.L ^ k),
+      jBlock S.d S.L (S.M * n k) k (S.k1 k) x = jBlock S.d S.L (S.M * n k) k (S.k1 k) x' →
+        (x ∈ H.locFine Z S.M (S.k1 k) ↔ x' ∈ H.locFine Z S.M (S.k1 k)) := by
+    intro x x' h
+    have h1 := cubeMap_eq_of_jBlock_eq (S := S) (n := n) (M := S.M) (k := k) hnn
+      (m := S.k1 k) (j := S.k1 k) le_rfl hkq.le h
+    show cubeMap n S.L S.M k (S.k1 k) x ∈ ((H.locRH k Z).step (S.k1 k)).Z ↔
+      cubeMap n S.L S.M k (S.k1 k) x' ∈ ((H.locRH k Z).step (S.k1 k)).Z
+    rw [h1]
+  have hΩ : ∀ x ∈ H.locFine Z S.M (S.k1 k), x ∉ (H.locGen Z S.M hkK hL hR).Ω (S.k1 k + 1) :=
+    fun x hx => locFine_not_mem_Omega (hkK := hkK) (hL := hL) (hR := hR) hkq hx
+  have hT2 : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j :=
+    fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).2
+  have hZfar : ∀ z ∈ H.locFine Z S.M (S.k1 k), ∀ y ∈ (H.locGen Z S.M hkK hL hR).Ω (S.k1 k + 1),
+      (2 * S.d * (S.L : ℝ) ^ (S.k1 k + 1) : ℝ) <
+        Green.torusDist S.d (S.M * n k * S.L ^ k) z y := fun z hz y hy =>
+    locFine_far (hkK := hkK) (hL := hL) (hR := hR) hϱ hk1 hkq hz hy
+  have hδpos : ∀ i, S.k1 k ≤ i → i < k → 0 < δ i := fun i h1 h2 => hδ.pos i h1 h2.le
+  have hc3 : (0 : ℝ) < 3 * S.d * S.L := by
+    have : (1 : ℝ) ≤ S.d := by exact_mod_cast hd1
+    have : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+    positivity
+  have hδk1 := hδ.pos (S.k1 k) le_rfl hkq.le
+  obtain ⟨s, hsl', hsZ', hcore⟩ := hshell
+  have hyw : IsWindowBlock (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k)) (S.k1 k)
+      (blockOf S.d S.L (S.M * n k) k (S.k1 k) s) :=
+    isWindowBlock_blockOf (H.locGen Z S.M hkK hL hR) hblk hΩ hk1 le_rfl hkq hsl' hsZ'
+  obtain ⟨len, xs, hx0, hwinb, hterm, hadj, hinj, hdist⟩ :=
+    lemmaCH_of_ripe hG hkK hL hR hk0 hrip hT hδ hc3 ψ
+      (fun u v hu hv huv => winBond_intra hwin u v hu hv huv)
+      (fun u v hu hv huv => winBond_cross hϱ hd1 hL (H.locGen Z S.M hkK hL hR) hk1 hZfar hc3
+        hδpos hwin u v hu hv huv) hkq hyw rfl
+  obtain ⟨Ut, hZUt, -, hreg, hagree⟩ := hspec
+  generalize hyk : xs len = yk at hterm hdist
+  obtain ⟨ik, β⟩ := yk
+  obtain ⟨hik, hall⟩ := hterm
+  simp only at hik
+  subst hik
+  obtain ⟨s', hs'⟩ := exists_site_of_block (d := S.d) (L := S.L) (N₀ := S.M * n ik) (k := ik)
+    (j := ik) le_rfl β
+  have hsZ'' : s' ∈ H.locFine Z S.M ik := (hall s' hs').2
+  have hψk : ψ0 ⟨ik, β⟩ = ψ ⟨ik, β⟩ := hagree _ ⟨rfl, hall⟩
+  have hθ0 : 0 < 3 * K6 * δ ik := by
+    have := hδ.pos ik (by omega) le_rfl
+    positivity
+  obtain ⟨m', hm', hr⟩ := zblocks_reach (H := H) (Z := Z) hkK (by omega) hk0 hW
+    (by have := hT2 ik (by omega) hk0; omega) ⟨s', hsZ'', hs'⟩ ⟨c, hcZ, rfl⟩
+  have hPU : {γ | ∃ x ∈ H.locFine Z S.M ik, jBlock S.d S.L (S.M * n ik) ik ik x = γ} ⊆ Ut := by
+    rintro γ ⟨x', hx', rfl⟩
+    exact hZUt x' hx'
+  have hD2 := psi0_dist_le hPU hθ0 hreg hr
+  have hmR' : (m' : ℝ) ≤ S.d * (S.M * S.crit ik) := by exact_mod_cast hm'
+  have t1 := vn_triangle (fun i => ((ψ P i : ℝ) : ℂ)) (fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) C
+  have t2 := vn_triangle (fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ))
+    (fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) C
+  have e1 : vn ((fun i => ((ψ P i : ℝ) : ℂ)) - fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) =
+      dist (ψ P) (ψ ⟨ik, β⟩) := vn_cast_sub _ _
+  have e2 : vn ((fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) -
+      fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) =
+      dist (ψ0 ⟨ik, β⟩) (ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩) := by
+    rw [← hψk]; exact vn_cast_sub _ _
+  have e3 := vn_sub_comm (fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) C
+  have hD3' := hcmp
+  rw [hdel]
+  have hδk := hδ.pos ik (by omega) le_rfl
+  have hδj := hδ.pos (S.k1 ik) le_rfl hkq.le
+  have hδkj : δ ik ≤ δ (S.k1 ik) := hδ.le_of_le le_rfl hkq.le
+  have hWpos : 0 < S.hatW ε ik := by
+    by_contra hneg
+    push Not at hneg
+    have h0 := lt_of_le_of_lt dist_nonneg hdist
+    have : S.hatW ε ik * (3 * S.d * S.L) * δ (S.k1 ik) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonpos_of_nonneg hneg hc3.le) hδj.le
+    linarith
+  have hK1 := bgK1_pos S.d S.L N
+  have hθm : (m' : ℝ) * (3 * K6 * δ ik) ≤ S.d * (S.M * S.crit ik) * (3 * K6 * δ ik) :=
+    mul_le_mul_of_nonneg_right hmR' hθ0.le
+  have hΛ' : (3 * S.d * K6 * (S.M * S.crit ik) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6)))) * δ ik ≤
+      S.hatW ε ik * δ ik := mul_le_mul_of_nonneg_right hΛ21 hδk.le
+  have hWδ : S.hatW ε ik * δ ik ≤ S.hatW ε ik * δ (S.k1 ik) := mul_le_mul_of_nonneg_left hδkj hWpos.le
+  have hT0 : 0 < S.hatW ε ik * δ (S.k1 ik) := mul_pos hWpos hδj
+  have eW : S.hatW ε ik * (3 * S.d * S.L) * δ (S.k1 ik) = 3 * S.d * S.L * (S.hatW ε ik * δ (S.k1 ik)) := by ring
+  have hBK : 0 ≤ bgK1 S.d S.L N * (3 * (3 * K6 * δ ik)) := by positivity
+  have t0 := dist_triangle (ψ P) (ψ (blockOf S.d S.L (S.M * n ik) ik (S.k1 ik) s)) (ψ ⟨ik, β⟩)
+  nlinarith [hdist, hD2, hD3', hθm, hΛ', hWδ, hT0, e1, e2, e3, t1, t2, eW, hcore, t0, hBK]
+
 /-- **(2.3) from the shell bound**: for `c ∈ C_in` of a window `W` with the history objects
 (`hfull`, `hZk1`), if the parent spin of `c` is within `Ŵ_k δ_{k₁}` of a window block `s`
 (`hshell`, (2.2)), then `|D^ph.Ψ(c) - D⁰.Ψ(c)| < (3dL + 2) Ŵ_k δ_{k₁}` (Lemma CH, then P7 (2.43) at a
@@ -63,120 +190,36 @@ theorem inner_collar_data_change_lt_of_shell
   have hW : H.RipeWindow k Z :=
     ripe_window hG (fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).1) hk0 hkK hrip
   have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
-  have hk1 : 1 ≤ S.k1 k := by rw [hqk1]; exact hq1
   have hkq : S.k1 k < k := by
     rw [hqk1]
     have := hW.core_window.1
     have : 1 ≤ S.nq (H.bk k Z).q := by unfold Setting.nq; omega
     omega
-  have hd1 : 1 ≤ S.d := by have := hS.three_le_d; omega
   obtain ⟨hcol, hcZ1'⟩ := (mem_collarIn W hWh).1 hc
   have hcZ1 : c ∈ H.locFine Z S.M (S.k1 k) := by rw [← hZk1]; exact hcZ1'
-  have hcZ : c ∈ H.locFine Z S.M k := locFine_mono hkK hkq.le le_rfl hcZ1
-  have hnn := hnn_k H hkK
-  have hblk : ∀ x x' : Torus S.d (S.M * n k * S.L ^ k),
-      jBlock S.d S.L (S.M * n k) k (S.k1 k) x = jBlock S.d S.L (S.M * n k) k (S.k1 k) x' →
-        (x ∈ H.locFine Z S.M (S.k1 k) ↔ x' ∈ H.locFine Z S.M (S.k1 k)) := by
-    intro x x' h
-    have h1 := cubeMap_eq_of_jBlock_eq (S := S) (n := n) (M := S.M) (k := k) hnn
-      (m := S.k1 k) (j := S.k1 k) le_rfl hkq.le h
-    show cubeMap n S.L S.M k (S.k1 k) x ∈ ((H.locRH k Z).step (S.k1 k)).Z ↔
-      cubeMap n S.L S.M k (S.k1 k) x' ∈ ((H.locRH k Z).step (S.k1 k)).Z
-    rw [h1]
-  have hΩ : ∀ x ∈ H.locFine Z S.M (S.k1 k), x ∉ (H.locGen Z S.M hkK hL hR).Ω (S.k1 k + 1) :=
-    fun x hx => locFine_not_mem_Omega (hkK := hkK) (hL := hL) (hR := hR) hkq hx
-  have hT2 : ∀ j, 1 ≤ j → j ≤ k0 → 2 * S.crit j + 5 ≤ n j :=
-    fun j hj1 hj0 => (hT_forms hS (hT j hj1 hj0)).2
-  have hZfar : ∀ z ∈ H.locFine Z S.M (S.k1 k), ∀ y ∈ (H.locGen Z S.M hkK hL hR).Ω (S.k1 k + 1),
-      (2 * S.d * (S.L : ℝ) ^ (S.k1 k + 1) : ℝ) <
-        Green.torusDist S.d (S.M * n k * S.L ^ k) z y := fun z hz y hy =>
-    locFine_far (hkK := hkK) (hL := hL) (hR := hR) hϱ hk1 hkq hz hy
-  have hδpos : ∀ i, S.k1 k ≤ i → i < k → 0 < δ i := fun i h1 h2 => hδ.pos i h1 h2.le
-  have hc3 : (0 : ℝ) < 3 * S.d * S.L := by
-    have : (1 : ℝ) ≤ S.d := by exact_mod_cast hd1
-    have : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+  have hθ0 : 0 < 3 * K6 * δ k := by
+    have := hδ.pos k (by omega) le_rfl
     positivity
-  have hδk1 := hδ.pos (S.k1 k) le_rfl hkq.le
-  obtain ⟨s, hsl, hsZ, hcore⟩ := hshell
-  have hsl' : s ∈ (H.locGen Z S.M hkK hL hR).layer (S.k1 k) := by
-    have h1 := (GeneratingSet.mem_layer _).1 hsl
-    exact (GeneratingSet.mem_layer _).2 ⟨by rw [← hfull]; exact h1.1, by rw [← hfull]; exact h1.2⟩
-  have hsZ' : s ∉ H.locFine Z S.M (S.k1 k) := fun hh => hsZ (by rw [← Finset.mem_coe, hZk1]; exact hh)
-  have hyw : IsWindowBlock (H.locGen Z S.M hkK hL hR) (H.locFine Z S.M (S.k1 k)) (S.k1 k)
-      (blockOf S.d S.L (S.M * n k) k (S.k1 k) s) :=
-    isWindowBlock_blockOf (H.locGen Z S.M hkK hL hR) hblk hΩ hk1 le_rfl hkq hsl' hsZ'
-  obtain ⟨len, xs, hx0, hwinb, hterm, hadj, hinj, hdist⟩ :=
-    lemmaCH_of_ripe hG hkK hL hR hk0 hrip hT hδ hc3 ψ
-      (fun u v hu hv huv => winBond_intra hwin u v hu hv huv)
-      (fun u v hu hv huv => winBond_cross hϱ hd1 hL (H.locGen Z S.M hkK hL hR) hk1 hZfar hc3
-        hδpos hwin u v hu hv huv) hkq hyw rfl
-  obtain ⟨Ut, hZUt, hdUt, hreg, hagree⟩ := hspec
-  generalize hyk : xs len = yk at hterm hdist
-  obtain ⟨ik, β⟩ := yk
-  obtain ⟨hik, hall⟩ := hterm
-  simp only at hik
-  subst hik
-  obtain ⟨s', hs'⟩ := exists_site_of_block (d := S.d) (L := S.L) (N₀ := S.M * n ik) (k := ik)
-    (j := ik) le_rfl β
-  have hsZ'' : s' ∈ H.locFine Z S.M ik := (hall s' hs').2
-  have hψk : ψ0 ⟨ik, β⟩ = ψ ⟨ik, β⟩ := hagree _ ⟨rfl, hall⟩
-  have hθ0 : 0 < 3 * K6 * δ ik := by
-    have := hδ.pos ik (by omega) le_rfl
-    positivity
-  obtain ⟨m', hm', hr⟩ := zblocks_reach (H := H) (Z := Z) hkK (by omega) hk0 hW
-    (by have := hT2 ik (by omega) hk0; omega) ⟨s', hsZ'', hs'⟩ ⟨c, hcZ, rfl⟩
-  have hPU : {γ | ∃ x ∈ H.locFine Z S.M ik, jBlock S.d S.L (S.M * n ik) ik ik x = γ} ⊆ Ut := by
-    rintro γ ⟨x', hx', rfl⟩
-    exact hZUt x' hx'
-  have hD2 := psi0_dist_le hPU hθ0 hreg hr
-  have hmR' : (m' : ℝ) ≤ S.d * (S.M * S.crit ik) := by exact_mod_cast hm'
-  -- (2.43) at the collar site
+  obtain ⟨Ut, hZUt, hdUt, hreg, hagree⟩ := id hspec
   have hD3 := psiZeroWin_collar_sub_le hprec hBg ψ0 h hθ0 hθ1 hθc hdUt hreg hcol
-  set P := parentBlock W.full c with hPdef
-  set C := psiZeroWin (W.windowGenSet hWh) W.bdry (compWeight S.L a₁) ψ0 h c with hC
-  have hdel : deltaPsiColl W hWh href hprec (compWeight S.L a₁) ψ ψ0 h c =
-      (fun i => ((ψ P i : ℝ) : ℂ)) - C := by
-    funext i
+  have hK1 := bgK1_pos S.d S.L N
+  obtain ⟨s, hsl, hsZ, hsh⟩ := hshell
+  refine data_change_lt_of_shell_site hG hkK hS.two_le_L hR hk0 hrip hq1 hT hϱ hδ ψ ψ0 hK6 hθ1
+    W.bdry ?_ hwin hΛ21 hcZ1 (parentBlock W.full c)
+    (deltaPsiColl W hWh href hprec (compWeight S.L a₁) ψ ψ0 h c)
+    (psiZeroWin (W.windowGenSet hWh) W.bdry (compWeight S.L a₁) ψ0 h c) ?_ ?_ ⟨s, ?_, ?_, hsh⟩
+  · exact ⟨Ut, hZUt, hdUt, hreg, hagree⟩
+  · funext i
     rw [deltaPsiColl_of_mem W hWh href hprec _ ψ ψ0 h ((mem_dataSites _).2 (Or.inr hcol)) i]
     have := inheritedField_eq_parentBlock W ψ c i
     unfold inheritedField at this
     rw [this]
     rfl
-  have t1 := vn_triangle (fun i => ((ψ P i : ℝ) : ℂ)) (fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) C
-  have t2 := vn_triangle (fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ))
-    (fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) C
-  have e1 : vn ((fun i => ((ψ P i : ℝ) : ℂ)) - fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) =
-      dist (ψ P) (ψ ⟨ik, β⟩) := vn_cast_sub _ _
-  have e2 : vn ((fun i => ((ψ ⟨ik, β⟩ i : ℝ) : ℂ)) -
-      fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) =
-      dist (ψ0 ⟨ik, β⟩) (ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩) := by
-    rw [← hψk]; exact vn_cast_sub _ _
-  have e3 := vn_sub_comm (fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) C
-  have hD3' : vn (C - fun i => ((ψ0 ⟨ik, jBlock S.d S.L (S.M * n ik) ik ik c⟩ i : ℝ) : ℂ)) ≤
-      bgK1 S.d S.L N * (3 * (3 * K6 * δ ik)) := hD3
-  rw [hdel]
-  have hδk := hδ.pos ik (by omega) le_rfl
-  have hδj := hδ.pos (S.k1 ik) le_rfl hkq.le
-  have hδkj : δ ik ≤ δ (S.k1 ik) := hδ.le_of_le le_rfl hkq.le
-  have hWpos : 0 < S.hatW ε ik := by
-    by_contra hneg
-    push Not at hneg
-    have h0 := lt_of_le_of_lt dist_nonneg hdist
-    have : S.hatW ε ik * (3 * S.d * S.L) * δ (S.k1 ik) ≤ 0 :=
-      mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonpos_of_nonneg hneg hc3.le) hδj.le
-    linarith
-  have hK1 := bgK1_pos S.d S.L N
-  have hθm : (m' : ℝ) * (3 * K6 * δ ik) ≤ S.d * (S.M * S.crit ik) * (3 * K6 * δ ik) :=
-    mul_le_mul_of_nonneg_right hmR' hθ0.le
-  have hΛ' : (3 * S.d * K6 * (S.M * S.crit ik) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6)))) * δ ik ≤
-      S.hatW ε ik * δ ik := mul_le_mul_of_nonneg_right hΛ21 hδk.le
-  have hWδ : S.hatW ε ik * δ ik ≤ S.hatW ε ik * δ (S.k1 ik) := mul_le_mul_of_nonneg_left hδkj hWpos.le
-  have hT0 : 0 < S.hatW ε ik * δ (S.k1 ik) := mul_pos hWpos hδj
-  have eW : S.hatW ε ik * (3 * S.d * S.L) * δ (S.k1 ik) = 3 * S.d * S.L * (S.hatW ε ik * δ (S.k1 ik)) := by ring
-  have hBK : 0 ≤ bgK1 S.d S.L N * (3 * (3 * K6 * δ ik)) := by positivity
-  have t0 := dist_triangle (ψ P) (ψ (blockOf S.d S.L (S.M * n ik) ik (S.k1 ik) s)) (ψ ⟨ik, β⟩)
-  nlinarith [hdist, hD2, hD3', hθm, hΛ', hWδ, hT0, e1, e2, e3, t1, t2, eW, hcore, t0, hBK]
-
+  · refine hD3.trans ?_
+    nlinarith [mul_pos hK1 hθ0]
+  · have h1 := (GeneratingSet.mem_layer _).1 hsl
+    exact (GeneratingSet.mem_layer _).2 ⟨by rw [← hfull]; exact h1.1, by rw [← hfull]; exact h1.2⟩
+  · exact fun hh => hsZ (by rw [← Finset.mem_coe, hZk1]; exact hh)
 
 /-- **COLLAR-FIX (2.3) for the actual window, strict form, without `hcoreTop`**:
 for `c ∈ C_in` of `windowOfHistory H Z g hkK hW`,
