@@ -81,6 +81,50 @@ theorem rotSite_mem_flBall {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
   rw [vn_rot (isRealOrth_ofReal hQ)]
   exact h x hx
 
+
+omit [NeZero N₁] [NeZero L] in
+theorem TermRot.mono_XW {ι : Type*} {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW XW' : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    {Rσ : ℝ} {T : ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : TermRot S XW Rσ T) (hsub : XW' ⊆ XW) :
+    TermRot S XW' Rσ T := fun Q hQ Y xw hxw => h Q hQ Y xw (hsub hxw)
+
+omit [NeZero N₁] [NeZero L] in
+theorem TermReal.mono_XW {ι : Type*} {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW XW' : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    {Rσ : ℝ} {T : ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : TermReal S XW Rσ T) (hsub : XW' ⊆ XW) :
+    TermReal S XW' Rσ T := fun Y xw hxw => h Y xw (hsub hxw)
+
+omit [NeZero N₁] [NeZero L] in
+/-- Sums of covariant term families (the combination of `LocInt.finsum`). -/
+theorem TermRot.finsum {ι κ : Type*} [DecidableEq ι] {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))} {Rσ : ℝ}
+    (𝒯 : Finset κ) (𝒴 : κ → Finset ι)
+    {T : κ → ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : ∀ τ ∈ 𝒯, TermRot S XW Rσ (T τ)) :
+    TermRot S XW Rσ (fun Y x w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then T τ Y x w σ Θ else 0) := by
+  intro Q hQ Y xw hxw σ hσ Θ hΘ
+  refine Finset.sum_congr rfl fun τ hτ => ?_
+  split_ifs
+  · exact h τ hτ Q hQ Y xw hxw σ hσ Θ hΘ
+  · rfl
+
+omit [NeZero N₁] [NeZero L] in
+theorem TermReal.finsum {ι κ : Type*} [DecidableEq ι] {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))} {Rσ : ℝ}
+    (𝒯 : Finset κ) (𝒴 : κ → Finset ι)
+    {T : κ → ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : ∀ τ ∈ 𝒯, TermReal S XW Rσ (T τ)) :
+    TermReal S XW Rσ (fun Y x w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then T τ Y x w σ Θ else 0) := by
+  intro Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr
+  simp only
+  rw [map_sum]
+  refine Finset.sum_congr rfl fun τ hτ => ?_
+  split_ifs
+  · exact h τ hτ Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr
+  · simp
+
 /-- **The ray terms of an `O(N)`-invariant analytic family are `O(N)`-covariant.** -/
 theorem termRot_ray {ι : Type*} {Evs : ι → RawData d L (N₁ * L ^ m₁) K N ×
       (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
