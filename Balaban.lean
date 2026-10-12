@@ -774,3 +774,6 @@ public import Balaban.Inhabited.XiCDomains
 public import Balaban.Observables.SecondOrderCauchy
 public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
+public import Balaban.Fluctuation.StepMeasure
+public import Balaban.Fluctuation.StepObjects
+public import Balaban.Fluctuation.StepIdentityQuad
