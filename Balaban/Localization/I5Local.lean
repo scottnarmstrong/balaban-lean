@@ -55,8 +55,8 @@ theorem patchUnion_subset_Omega1 (hS : CovSetup G m₀ j X 𝒦X) (hc : ∀ i, c
   · obtain ⟨i, hi, hxi⟩ := Set.mem_iUnion₂.1 hx
     exact Pset_subset_Omega1 hS (hc i) hxi
 
-/-- `Y(𝒞)` is closed under adjacency inside `V(𝒞)`. -/
 omit [NeZero N₁] [NeZero L] in
+/-- `Y(𝒞)` is closed under adjacency inside `V(𝒞)`. -/
 theorem compY_closed {X₁ : Set (CTorus d L N₁ m₁ K)} {C : Finset ι} {x y : CTorus d L N₁ m₁ K}
     (hx : x ∈ compY c X₁ C)
     (hy : y ∈ patchUnion X₁ (fun i => Pset m₁ (c i)) C) (hxy : Adj x y) :
