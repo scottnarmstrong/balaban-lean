@@ -198,3 +198,4 @@
 | 2026-10-12 | W63 I-4c | running | Sonnet; decoupled constrained covariance C_x(s), C^{1/2}, 𝕃 on DG7 |
 | 2026-10-12 | W61 LF budget | landed | `kappaStep`, `budgetG`, `kappa`/`logC` recursions, **`lemmaB`** (Lemma II.5.12, exactly toLF2Hyp's (B)), `toLF2HypBudget` (only (Rg) left), **`sum_inv_logC_le_one`** (K5, (1.27) over all localized histories), `sum_inv_logC_labelled` (needs hpos: kept positions a function of the record — spines via Classical.choose → canonical bookkeeping needed) (≈1,500 lines) |
 | 2026-10-12 | W64 canonical bookkeeping | running | Sonnet; spine/book choice as a function of the localized record; discharge hpos |
+| 2026-10-12 | W64 canonical bookkeeping | landed | `record_forward`, `spine_bk_eq_of_localHistory_eq` (spines and books are functions of the localized record — the Classical.choose was already canonical), `keptPos`, **`sum_inv_logC_labelled_canonical`** (no hpos) (≈690 lines) |
