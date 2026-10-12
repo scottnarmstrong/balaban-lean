@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W148 | `w148-graphgm2` / W148 | GRAPH-GM-2 counting lemmas |
 | W149 | `w149-pin-i6` / W149 | PIN-I6: counterexample, reference-jet certificate ⇒ I-6 |
 | W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
-| W152b | `w152-decdom-bridge` / W152 | bridges + fan composition for the ψ̂-local engine |
+| W156 | `w156-hat-local` / W156 | locality of the ψ̂ fan + engine theorem |
 | W153 | `w153-p6-pair` / W153 | VMOD-11 rows 1–4: P6 mixed-pair geometry |
 | W154 | `w154-symm-engine` / W154 | symmetry of Prop 3.3 terms |
 | W155 | `w155-vmod10` / W155 | VMOD-10: Hölder at the mixed wall |
