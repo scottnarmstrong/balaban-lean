@@ -326,6 +326,17 @@ public import Balaban.Localization.DecoupledXGrad
 public import Balaban.Localization.DecoupledXAnalytic
 public import Balaban.Localization.DecoupledXLocal
 public import Balaban.Localization.DecoupledXClose
+public import Balaban.Localization.DecoupledCovariance
+public import Balaban.Localization.DecoupledCovBound
+public import Balaban.Localization.DecoupledIntegral
+public import Balaban.Localization.DecoupledCovCont
+public import Balaban.Localization.DecoupledSqrt
+public import Balaban.Localization.DecoupledIdent
+public import Balaban.Localization.DecoupledLimit
+public import Balaban.Localization.DecoupledIdentMain
+public import Balaban.Localization.DecoupledSpectral
+public import Balaban.Localization.DecoupledFunctional
+public import Balaban.Localization.DecoupledCovAnalytic
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
