@@ -1004,6 +1004,10 @@ public import Balaban.Inhabited.BaseStep
 public import Balaban.Inhabited.I5Settings
 public import Balaban.Inhabited.Misc
 public import Balaban.Inhabited.XiCDomains
+public import Balaban.Inhabited.PsiZeroWitness
+public import Balaban.Inhabited.PsiZeroWitnessSpec
+public import Balaban.Inhabited.PsiZeroWitnessDen
+public import Balaban.Inhabited.PsiZeroWitnessTilt
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
 public import Balaban.Inhabited.LocalizationSettings
@@ -1180,6 +1184,7 @@ public import Balaban.Fluctuation.StepActivityWitnessMain
 public import Balaban.Fluctuation.StepTaylor
 public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.Fluctuation.StepTaylorComplex
+public import Balaban.Fluctuation.StepBaseDomain
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
