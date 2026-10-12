@@ -14,7 +14,7 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
 | W118 | `w118-k1-hgeo` / W118 | discharge k₁ ≥ 1 and hgeo; III.5.0(b), III.3.2(b),(d) |
-| W114 | `w114-thm42-real` / W114 | Thm 4.2 real-step pieces |
+| W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
 | W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
 | W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
 | W116 | `w116-witness-sweep` / W116 | witnesses for the remaining 28 hypothesis structures |
