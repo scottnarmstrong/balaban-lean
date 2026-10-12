@@ -12,7 +12,7 @@ import Mathlib.Tactic.Positivity
 /-!
 # `PsiZeroSpec` from the cited expansion estimate, with the block tube on `U^∼_k ∖ Z₀`
 
-`psiZeroSpec_of_input` (`PsiZeroSolve`) takes the premise `OverTop G X` (every site in a `k`-block of `X` lies in
+The deleted theorem `psiZeroSpec_of_input` (formerly in `PsiZeroSolve`) took the premise `OverTop G X` (every site in a `k`-block of `X` lies in
 `Ω_k(G)`).  Together with `hdata` (the blocks of the data sites `Ω₁ ∪ C(Ω₁)` lie in `X`) it says that
 `Ω₁ ∪ C(Ω₁) ⊆ Ω_k`, i.e. that `G` has a single layer; for the actual `𝔹_k(U_k)` (several layers, nonempty collar)
 the two premises contradict each other.  `PsiZeroSpec` asks for the tube conditions (R1), (R2) on *all* adjacent
@@ -80,7 +80,7 @@ theorem abs_norm_sub_one_lt_of_sq {v : EuclideanSpace ℝ (Fin N)} {δ : ℝ}
     nlinarith [abs_nonneg (‖v‖ - 1)]
   linarith
 
-/-- **The premises `OverTop G X` and `hdata` of `psiZeroSpec_of_input` are contradictory unless the collar is empty**:
+/-- **The premises `OverTop G X` and `hdata` of the deleted `psiZeroSpec_of_input` were contradictory unless the collar is empty**:
 together they put every data site, in particular every site of the collar `C(Ω₁)`, into `Ω_k ⊆ Ω₁`. -/
 theorem collar_eq_empty_of_overTop {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ) (hk : 1 ≤ k)
     {X : Set (Torus d (N₀ * L ^ (k - k)))} (hΩX : OverTop G X)
