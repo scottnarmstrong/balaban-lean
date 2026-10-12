@@ -5,8 +5,9 @@ public import Balaban.LargeField.History.RegionLineage
 /-!
 # Localized histories and the gain clock (Part I, Definitions I.4.4, I.4.7 item 5)
 
-* `localHistory`: the records of a history intersected with a component `Z` of `Z^pre_k` as fine
-  sets (Definition I.4.4); `historiesWithFinal k Z` is the set `𝔥_k(Z)` of admissible region
+* `rawLocalHistory`: the raw records of a history intersected with a component `Z` of `Z^pre_k` as
+  fine sets (not the localized history; `localHistory` of `LocalRegion` is the lineage
+  localization of Definition I.4.4); `historiesWithFinal k Z` is the set `𝔥_k(Z)` of admissible region
   histories whose pre-`R` region at scale `k` is `Z`, with `Z` as only component.
 * `gain`: the gain clock `b(Z)` of Definition I.4.6: `b' = μ` if the component contains a new cube,
   otherwise the maximum of `b` over the old parts, where a kept ripe component has `b = k`.
@@ -42,8 +43,11 @@ structure LocalHistory (S : Setting) (n : ℕ → ℕ) (M K : ℕ) where
   Omega : ℕ → Set (Torus S.d (M * n K * S.L ^ K))
   OmegaDD : ℕ → Set (Torus S.d (M * n K * S.L ^ K))
 
-/-- The localized history of a component `Z` of `Z^pre_k`. -/
-def localHistory (M K k : ℕ) (Z : H.Comp k) : LocalHistory S n M K where
+/-- The *raw* records of a history intersected with the fine set of a component `Z` of `Z^pre_k`.
+It can contain records of components removed below `Z` (when later cubes re-cover their fine
+sites), so it is not the localized history; see `localHistory` in `LocalRegion`, which contains
+no such records and is contained in it. -/
+def rawLocalHistory (M K k : ℕ) (Z : H.Comp k) : LocalHistory S n M K where
   Z j := fineSet (S := S) (n := n) M K j (H.step j).Z ∩ fineSet M K k Z.1
   P j := fineSet M K (j + 1) (H.step j).P ∩ fineSet M K k Z.1
   Q j := fineSet M K (j + 1) (H.step j).Q ∩ fineSet M K k Z.1
