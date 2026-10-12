@@ -155,14 +155,23 @@ itself. The large-field factor belongs to the operator of the region, not to a s
 so using it would need a joint norm for the pair (operator, boundary term), that is, a different
 inductive hypothesis.
 
-**Question (revised).** Which of these did you intend?
+**Question (revised; details: `notes/phase1/VMOD-18.md`).** We examined three readings.
 
-(i) The modular size d_{k+1}(Y mod Ω_{k+1}^c) is not meant to charge the blocks of π′_{k+1} that lie
-    in Y only because they meet a hole component contained in Y; in other words a hole is taken
-    together with its one-block collar, and the tree of P5 (1.34) need only meet the other blocks of
-    Y ∩ Ω_{k+1}. Then the long thin hole costs nothing and the printed transfer holds.
-(ii) A boundary term that touches a new hole is not re-expanded as a boundary term at scale k+1 but
-    stays in the integrand of the new large-field operation for that component.
-(iii) Something else.
+(i) A hole is taken together with its one-block collar, and the collar is not charged in the modular
+    size. This removes the long thin hole example, but the counting estimates that use the size fail.
+    Take two parallel long thin holes F₁, F₂ of length T at a fixed distance, and for each position t
+    along them a bridge of blocks joining the two collars; put Y_t = F₁⁺ ∪ F₂⁺ ∪ (bridge at t).
+    All Y_t contain one fixed cube A, all have size bounded independently of t and T, and there are
+    about T/(2L) of them. So the sum over Y ∋ A of e^{−λ·size(Y)} is not bounded uniformly in T.
+    Also |Y ∩ Ω| is of order T while the size is O(1), so the volume factor on p. 34 is not absorbed.
+(ii) A boundary term that touches a new hole stays in the integrand of the new large-field operation.
+    But one term X can touch several disconnected components of the new region, which breaks the
+    product over components.
+(iii) The localization is an expansion in the set S of active cells actually visited (the old source,
+    the derivative cells, and the adjacent holes completed), not in a union of overlapping cubes, and
+    the labels (source, derivative cells) are kept while counting. For this support we can prove
+    D(S) ≤ d_k(X)/L + dL·|𝒞| under a rooted patch geometry.
 
-We are examining (i) and (ii).
+Is (iii) what was intended? Two assertions needed for it are not in the printed argument: that the
+two boundary operators of P6 have a common domain of analyticity and locality on such supports (the
+analogue of (H7)), and that the labels can be summed uniformly at fixed support.
