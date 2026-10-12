@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.MarkedCubesLocal
+public import Balaban.Polymer.MarkedCubesVanish
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedDeriv2
 import Mathlib.Tactic.Linarith
@@ -399,6 +400,83 @@ theorem marked_cubes_two {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
       rw [h0, norm_zero]
       unfold CPE2
       positivity
+
+/-- **Locality of `G**(S)`**: it depends only on the labels with `Y ∩ Ω ⊆ S`, on the marks (when
+`S ⊇ S₀ ∪ S₁`) and on the measure on `S`. -/
+theorem Gst2_congr {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    (μ μ' : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    [∀ b, IsProbabilityMeasure (μ' b)] {Lab : CubeLabels m₀ j Ω Lb} {εH κH κ0 Kc : ℝ}
+    (A : LabelAct Lab Ωb εH κH κ0 Kc) (H' : Lb → (∀ b, Ωb b) → ℂ) (S₀ S₁ S : Finset 𝔅)
+    {G₀ G₁ G₀' G₁' : (∀ b, Ωb b) → ℂ} (hG₀dep : DepOn S₀ G₀) (hG₁dep : DepOn S₁ G₁)
+    (hμ : ∀ b ∈ S, μ b = μ' b)
+    (hH : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → A.H y = H' y)
+    (hG₀ : S₀ ⊆ S → G₀ = G₀') (hG₁ : S₁ ⊆ S → G₁ = G₁') :
+    Gst2 μ Lab A.H S₀ S₁ G₀ G₁ S = Gst2 μ' Lab H' S₀ S₁ G₀' G₁' S := by
+  unfold Gst2
+  have hF : Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
+      (marksK μ Subtype.val (presum Lab A.H) (gMarks S₀ S₁ G₀ G₁)) S =
+      Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
+      (marksK μ' Subtype.val (presum Lab H') (gMarks S₀ S₁ G₀' G₁')) S := by
+    funext l
+    unfold Ff
+    refine PY_congr (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val S
+      (fun x hx => ?_)
+    unfold marksK
+    refine mayerK_congr μ μ' Subtype.val (fun t Φ Φ' h => ?_) x (fun b hb => hμ b (hx hb))
+      (fun t ht => ?_)
+    · rw [Hlam_two, Hlam_two, A.presum_dep t Φ Φ' h, gMark_dep S₀ hG₀dep t Φ Φ' h,
+        gMark_dep S₁ hG₁dep t Φ Φ' h]
+    · funext Φ
+      rw [Hlam_two, Hlam_two]
+      have h1 := congrFun (presum_congr Lab A.H H' t S (ht.trans hx) hH) Φ
+      have h2 : gMark S₀ G₀ () t Φ = gMark S₀ G₀' () t Φ := by
+        by_cases h : t.1 = S₀
+        · have := hG₀ (h ▸ ht.trans hx)
+          subst this; rfl
+        · simp [gMark, h]
+      have h3 : gMark S₁ G₁ () t Φ = gMark S₁ G₁' () t Φ := by
+        by_cases h : t.1 = S₁
+        · have := hG₁ (h ▸ ht.trans hx)
+          subst this; rfl
+        · simp [gMark, h]
+      rw [h1, h2, h3]
+  rw [hF]
+
+/-- **`G**(S) = 0` when `d_Ω(S) = +∞`.** -/
+theorem Gst2_eq_zero_of_dOmega_top {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω)
+    (Lab : CubeLabels m₀ j Ω Lb) (H : Lb → (∀ b, Ωb b) → ℂ) (y₀ y₁ : Lb)
+    (G₀ G₁ : (∀ b, Ωb b) → ℂ) (S : Finset 𝔅)
+    (hS : dOmega m₀ j Ω (sitesOf S) = ⊤) :
+    Gst2 μ Lab H (blocksOf m₀ j Ω (Lab.ysite y₀)) (blocksOf m₀ j Ω (Lab.ysite y₁)) G₀ G₁ S = 0 := by
+  classical
+  unfold Gst2
+  have hF : Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
+      (marksK μ Subtype.val (presum Lab H) (gMarks (blocksOf m₀ j Ω (Lab.ysite y₀))
+        (blocksOf m₀ j Ω (Lab.ysite y₁)) G₀ G₁)) S = fun _ => 0 := by
+    funext l
+    unfold Ff
+    refine PY_eq_zero_of_forall _ _ _ S (fun n X hXS hconn => ?_)
+    by_contra hne
+    apply (show ¬ FinSet m₀ j Ω S from fun h => h hS)
+    rw [← hXS]
+    refine finSet_unionOf X hconn (fun i => ?_)
+    by_contra hi
+    refine hne (Finset.prod_eq_zero (Finset.mem_univ i) ?_)
+    unfold marksK
+    refine mayerK_eq_zero_of_not_finSet μ _ (fun t => ?_) (X i) hi
+    by_cases ht0 : t.1 = blocksOf m₀ j Ω (Lab.ysite y₀)
+    · exact Or.inl (ht0 ▸ finSet_label hN hj hΩ Lab y₀)
+    by_cases ht1 : t.1 = blocksOf m₀ j Ω (Lab.ysite y₁)
+    · exact Or.inl (ht1 ▸ finSet_label hN hj hΩ Lab y₁)
+    rcases presum_finSet Lab hN hj hΩ H t with h | h
+    · exact Or.inl h
+    · refine Or.inr (funext fun Φ => ?_)
+      rw [Hlam_two, h]
+      simp [gMark, ht0, ht1]
+  rw [hF]
+  simp [D2]
 
 end Marks
 
