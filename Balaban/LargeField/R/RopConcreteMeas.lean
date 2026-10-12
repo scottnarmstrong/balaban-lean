@@ -22,7 +22,16 @@ Conventions: the landed objects are used unchanged (massless reference of P7: `e
   the competitors `ψ'` reduces to a countable dense family of competitors by continuity of `effAction` on the tube),
   it is the graph of a function (`psiZero_spec`), and a Borel graph over a Borel set of a Polish space is a Borel
   function (Lusin-Souslin, `measurable_piecewise_of_graph`).  This route does not need the constants of
-  `psiZero_analytic_of_input` to be identified with `psiZeroK`.
+  `psiZero_analytic_of_input` to be identified with `psiZeroK`.  (Continuity of `ψ⁰_k` in the outside field is not
+  proved; only its Borel measurability, which is all that Fubini needs.)
+* `measurable_rhoZeroTot`, `measurable_famRho`: the reference density `ρ_{k,0}(Z)` is jointly Borel in
+  `(ψ_k↾Z₀, ψ_k)`.  The exponent enters only through the Borel function `effTube` of the merged field (which agrees with
+  `effAction` on the support of the cutoff, where the merged field lies in the tube `Ψ̃(𝔹; etaDen)`), so adding a
+  continuous term to the exponent (the physical-mass reference of P7 Definition III.8.1, a separate pending
+  correction) does not change the argument.  Convention: the massless reference of the landed files.
+* `R_normalization`, `R_normalization_sum`, `R_normalization_one`: Lemma III.8.4 with only source premises:
+  integrability of `ρ`, the geometry (`hsep` is a hypothesis: its derivation from `ZzeroDD_sep` is not landed) and the
+  parameter conditions of `denominator_eq` (`hβ`, `hp0`, `hrad`).
 -/
 
 @[expose] public section
@@ -238,6 +247,226 @@ theorem measurable_psiZeroFun {δ : ℝ} (hδ : 0 < δ)
   · rintro ⟨-, hb⟩; exact huniq b hb
   · rintro rfl; exact ⟨hψ, hsol⟩
 
+
+local notation "Kz" => psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H
+
+/-- The reference density `ρ_{k,0}(Z)` of Definition III.8.1 as a total function of `(u, ψ_k)`, `u = ψ_k↾Z₀` the
+variable and `ψ_k` the fixed outside field (`0` off the tube `Ψ̃(X ∖ Z₀; δ)`). -/
+noncomputable def rhoZeroTot {δ : ℝ} (hδ : 0 < δ)
+    (hδc : δ ≤ psiZeroC11 N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) (β p0 : ℝ)
+    (p : SuppSpace (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w) N × BlockField d L N₀ k N) : ℝ := by
+  classical
+  exact if h : TubeOn G (X \ box b0 w) δ p.2 then
+    rhoZero G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc h β p0 p.1 else 0
+
+include hd hk hw1 hwD hm hXreg hΩ hdata H in
+/-- **T3.  The reference density is jointly Borel in `(ψ_k↾Z₀, ψ_k)`** (Definition III.8.1), under the parameter
+conditions of `denominator_eq` (`0 < β`, `C₆ p₀ ≥ 1`, `K₆ δ + 5 C₆ β^{-1/2} p₀ ≤ etaDen`).  The exponent is the
+effective action `effAction`; the proof only uses that the exponent is a Borel function of the merged field, so a
+continuous extra term in the exponent (the physical-mass version) does not change it. -/
+theorem measurable_rhoZeroTot {δ : ℝ} (hδ : 0 < δ)
+    (hδc : δ ≤ psiZeroC11 N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) {β p0 : ℝ} (hβ : 0 < β)
+    (hp0 : 1 ≤ cSix d D Kz * p0)
+    (hrad : Kz * δ + 5 * zeroRadius (cSix d D Kz) β p0 ≤ etaDen d L N D) :
+    Measurable (rhoZeroTot N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc β p0) := by
+  classical
+  set K := psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H with hKdef
+  have hK : 0 < K := psiZeroK_pos N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H
+  have hd0 : 0 < d := by omega
+  have hD1 : 1 ≤ D := (hw1 ⟨0, hd0⟩).trans (hwD _)
+  have hC6 : 0 < cSix d D K := by
+    unfold cSix
+    have : (0 : ℝ) < d := by exact_mod_cast hd0
+    have : (0 : ℝ) < D := by exact_mod_cast hD1
+    positivity
+  have hp0pos : 0 < p0 := by
+    by_contra h
+    push Not at h
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hC6.le h]
+  set ρ := zeroRadius (cSix d D K) β p0 with hρdef
+  have hρpos : 0 < ρ := by
+    rw [hρdef]; unfold zeroRadius; positivity
+  set η := etaDen d L N D with hηdef
+  have hη1 : η ≤ bgC1 d L N := min_le_left _ _
+  have hη0 : η ≤ bgC0 d L N := hη1.trans (bgC1_le_bgC0 d L N hd0)
+  have hηpos : 0 < η := by have := hK; have := mul_pos hK hδ; linarith
+  have hη16 : η ≤ 1 := hη0.trans ((bgC0_le d L N).trans (by norm_num))
+  have hKδ : 0 < K * δ := mul_pos hK hδ
+  have hKδ1 : K * δ ≤ 1 := by linarith
+  have hρ1 : ρ ≤ 1 := by linarith
+  have hpsi := measurable_psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc
+    (by linarith) (by linarith)
+  have hEffm : Measurable (effTube G a η : BlockField d L N₀ k N → ℝ) := measurable_effTube G a H hηpos hη0 hη1
+  set Zb := boxFinset (L := L) (N₀ := N₀) (k := k) b0 w with hZb
+  set E := BlockField d L N₀ k N with hE
+  have hmergeM : Measurable fun p : SuppSpace Zb N × E => mergeField Zb p.2 p.1 :=
+    (continuous_mergeField (N := N) Zb).measurable
+  let A : Set (SuppSpace Zb N × E) :=
+    {p | TubeOn G (X \ box b0 w) δ p.2} ∩
+      {p | ZeroCutoff (psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2) ρ p.1}
+  have hA : MeasurableSet A := by
+    refine ((measurableSet_tubeOn N G _ _).preimage measurable_snd).inter ?_
+    have : {p : SuppSpace Zb N × E | ZeroCutoff
+        (psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2) ρ p.1} =
+        ⋂ z : ↥Zb, {p : SuppSpace Zb N × E | rn (fun i => p.1 (z, i) -
+          psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2 z i) < ρ} := by
+      ext p; simp [ZeroCutoff]
+    rw [this]
+    refine MeasurableSet.iInter fun z => ?_
+    refine measurableSet_lt ?_ measurable_const
+    unfold rn
+    refine Real.continuous_sqrt.measurable.comp (Finset.measurable_sum _ fun i _ => ?_)
+    refine Measurable.pow_const (Measurable.sub ?_ ?_) 2
+    · exact (EuclideanSpace.proj ((z, i) : ↥Zb × Fin N)).continuous.measurable.comp measurable_fst
+    · exact (measurable_pi_apply i).comp ((measurable_pi_apply (z : Torus d (N₀ * L ^ (k - k)))).comp
+        (hpsi.comp measurable_snd))
+  let g : SuppSpace Zb N × E → ℝ := fun p =>
+    Real.exp (-β * (effTube G a η (mergeField Zb p.2 p.1) / (L : ℝ) ^ (k * (d - 2))))
+  have hg : Measurable g := by
+    refine Real.measurable_exp.comp (Measurable.const_mul ?_ _)
+    exact (hEffm.comp hmergeM).div_const _
+  have heq : rhoZeroTot N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc β p0 = A.indicator g := by
+    funext p
+    by_cases hT : TubeOn G (X \ box b0 w) δ p.2
+    · have hpz : psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2 =
+          psiZero N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hT := by simp [psiZeroFun, hT]
+      have hrz : rhoZeroTot N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc β p0 p =
+          rhoZeroWith G a Zb (psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2) p.2
+            (cSix d D K) β p0 p.1 := by
+        rw [hpz]
+        simp only [rhoZeroTot, hT, dite_true]
+        rfl
+      rw [hrz]
+      by_cases hc : ZeroCutoff (psiZeroFun N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc p.2) ρ p.1
+      · have hpA : p ∈ A := ⟨hT, hc⟩
+        rw [Set.indicator_of_mem hpA, rhoZeroWith_of_cutoff G a Zb _ _ _ β p0 _ hc]
+        have htube : TubeOn G Set.univ η (mergeField Zb p.2 p.1) := by
+          obtain ⟨hsol, -⟩ := psiZero_spec N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hT
+          set ψ0 := psiZero N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hT with hψ0
+          have ht0 : TubeOn G Set.univ (K * δ) ψ0 := tubeOn_univ_of_data G hdata hsol.1
+          have hc' : ∀ z : ↥Zb, rn (fun i => p.1 (z, i) - ψ0 z i) < ρ := by
+            intro z; have := hc z; rwa [hpz] at this
+          refine tubeOn_mono G hrad (tubeOn_perturb G hKδ1 hρpos.le hρ1 ht0 ?_)
+          intro z
+          by_cases hz : z ∈ Zb
+          · have h1 : (fun i => mergeField Zb p.2 p.1 z i - ψ0 z i) = fun i => p.1 (⟨z, hz⟩, i) - ψ0 z i := by
+              funext i; rw [mergeField_of_mem hz i]
+            rw [h1]; exact (hc' ⟨z, hz⟩).le
+          · have h1 : (fun i => mergeField Zb p.2 p.1 z i - ψ0 z i) = fun _ => 0 := by
+              funext i
+              rw [mergeField_of_not_mem hz, hsol.2.1 z (fun h => hz (mem_boxFinset.2 h))]
+              simp
+            rw [h1]
+            simp [rn, hρpos.le]
+        simp only [g, effTube_eq G a htube, effActionNorm]
+      · have hpA : p ∉ A := fun h => hc h.2
+        rw [Set.indicator_of_notMem hpA, rhoZeroWith_eq_zero G a Zb _ _ _ β p0 _ (by rwa [hρdef] at hc)]
+    · have hpA : p ∉ A := fun h => hT h.1
+      rw [Set.indicator_of_notMem hpA]
+      simp [rhoZeroTot, hT]
+  rw [heq]
+  exact hg.indicator hA
+
 end Psi
+
+section FamMeas
+
+variable (N : ℕ) {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] [NeZero N] {ϱ : ℝ} {ι : Type} [Fintype ι]
+  (G : ι → GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k)
+  (b0 : ι → Torus d (N₀ * L ^ (k - k))) (w : ι → Fin d → ℕ)
+  (hw1 : ∀ c i, 1 ≤ w c i) (hwD : ∀ c i, w c i ≤ D) (hm : D + 2 ≤ N₀ * L ^ (k - k))
+  (X : ι → Set (Torus d (N₀ * L ^ (k - k))))
+  (hXreg : ∀ c, box (b0 c) (w c) ∪ shellOut (box (b0 c) (w c)) ⊆ X c)
+  (hsep : ∀ c c', c ≠ c' → Disjoint (X c) (box (b0 c') (w c')))
+  (hΩ : ∀ c, OverTop (G c) (box (b0 c) (w c) ∪ shellOut (box (b0 c) (w c))))
+  (hdata : ∀ c, ∀ x ∈ dataSites (G c), jBlock d L N₀ k k x ∈ X c) (H : BgHyp d L k ϱ a 0)
+  (δ : ι → ℝ) (hδ : ∀ c, 0 < δ c)
+  (hδc : ∀ c, δ c ≤ psiZeroC11 N (G c) a hd hk (b0 c) (w c) (hw1 c) (hwD c) hm (hXreg c) (hΩ c) (hdata c) H)
+
+local notation "Kc[" c "]" => psiZeroK N (G c) a hd hk (b0 c) (w c) (hw1 c) (hwD c) hm (hXreg c) (hΩ c) (hdata c) H
+
+/-- **T3.  Joint measurability of the concrete reference densities** `famRho` in `(ψ_k↾Z₀(c), y)`, `y` the outside
+variables: the hypothesis `hmeas` of `R_normalization_of_measurable` is a theorem under the parameter conditions of
+`denominator_eq`. -/
+theorem measurable_famRho (σ : Finset ι) {β p0 : ℝ} (hβ : 0 < β) (c : ι) (hp0 : 1 ≤ cSix d D Kc[c] * p0)
+    (hrad : Kc[c] * δ c + 5 * zeroRadius (cSix d D Kc[c]) β p0 ≤ etaDen d L N D) :
+    Measurable (fun p : SuppSpace (zb b0 w c) N × (ZeroOutIdx (fun c : σ => zb b0 w c.1) N → ℝ) =>
+      famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c p.2 p.1) := by
+  have h := measurable_rhoZeroTot N (G c) a hd hk (b0 c) (w c) (hw1 c) (hwD c) hm (hXreg c) (hΩ c) (hdata c) H
+    (hδ c) (hδc c) hβ hp0 hrad
+  have hout : Measurable (famOut N b0 w X hXreg hsep σ) := famOut_measurable N b0 w X hXreg hsep σ
+  have h2 := h.comp (measurable_fst.prodMk (hout.comp measurable_snd))
+  convert h2 using 1
+  funext p
+  by_cases hT : FamTube N G b0 w X δ c (famOut N b0 w X hXreg hsep σ p.2)
+  · simp only [famRho, rhoZeroTot, Function.comp, hT, dite_true]
+  · simp only [famRho, rhoZeroTot, Function.comp, hT, dite_false]
+
+/-- **Lemma III.8.4 (normalization) for the concrete reference densities**: `∫ R[ρ] = ∫ ρ` over `Ψ̃`.  The only
+premises are the integrability of `ρ`, the geometry (`hsep` and the ripe data; `hsep` is the passage from
+`ZzeroDD_sep` which is not landed) and the parameter conditions of `denominator_eq`. -/
+theorem R_normalization (σ : Finset ι) {β p0 : ℝ} (hβ : 0 < β)
+    (hp0 : ∀ c ∈ σ, 1 ≤ cSix d D Kc[c] * p0)
+    (hrad : ∀ c ∈ σ, Kc[c] * δ c + 5 * zeroRadius (cSix d D Kc[c]) β p0 ≤ etaDen d L N D)
+    {ρ : BlockField d L N₀ k N → ℝ} (hρ : Integrable ρ (volume.restrict (famTubeSet N G b0 w X δ))) :
+    Integrable (Rop (famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0) ρ)
+        (volume.restrict (famTubeSet N G b0 w X δ)) ∧
+      ∫ ψ, Rop (famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0) ρ ψ
+          ∂(volume.restrict (famTubeSet N G b0 w X δ)) =
+        ∫ ψ, ρ ψ ∂(volume.restrict (famTubeSet N G b0 w X δ)) :=
+  R_normalization_of_measurable N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ hp0 hrad hρ
+    (fun c => measurable_famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ c.1
+      (hp0 c.1 c.2) (hrad c.1 c.2))
+
+/-- **Lemma III.8.4 for `ρ' = Σ_{(𝔸,σ)} R[ρ(𝔸,σ)]`**, unconditional in the measurability. -/
+theorem R_normalization_sum {T : Type} [Fintype T] (σ : T → Finset ι) {β p0 : ℝ} (hβ : 0 < β)
+    (hp0 : ∀ t, ∀ c ∈ σ t, 1 ≤ cSix d D Kc[c] * p0)
+    (hrad : ∀ t, ∀ c ∈ σ t, Kc[c] * δ c + 5 * zeroRadius (cSix d D Kc[c]) β p0 ≤ etaDen d L N D)
+    {ρ : T → BlockField d L N₀ k N → ℝ}
+    (hρ : ∀ t, Integrable (ρ t) (volume.restrict (famTubeSet N G b0 w X δ))) :
+    Integrable (RopSum (fun t => famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc (σ t) β p0) ρ)
+        (volume.restrict (famTubeSet N G b0 w X δ)) ∧
+      ∫ ψ, RopSum (fun t => famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc (σ t) β p0) ρ ψ
+          ∂(volume.restrict (famTubeSet N G b0 w X δ)) =
+        ∫ ψ, (∑ t, ρ t ψ) ∂(volume.restrict (famTubeSet N G b0 w X δ)) :=
+  R_normalization_sum_of_measurable N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ hp0 hrad hρ
+    (fun t c => measurable_famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc (σ t) hβ c.1
+      (hp0 t c.1 c.2) (hrad t c.1 c.2))
+
+end FamMeas
+
+section OneMeas
+
+variable (N : ℕ) {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] [NeZero N] {ϱ : ℝ}
+  (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k)
+  (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ)
+  (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D) (hm : D + 2 ≤ N₀ * L ^ (k - k))
+  {X : Set (Torus d (N₀ * L ^ (k - k)))} (hXreg : box b0 w ∪ shellOut (box b0 w) ⊆ X)
+  (hΩ : OverTop G (box b0 w ∪ shellOut (box b0 w)))
+  (hdata : ∀ x ∈ dataSites G, jBlock d L N₀ k k x ∈ X) (H : BgHyp d L k ϱ a 0)
+  {δ : ℝ} (hδ : 0 < δ) (hδc : δ ≤ psiZeroC11 N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)
+
+/-- **Lemma III.8.4 for one component** (normalization), unconditional in the measurability of `ρ_{k,0}(Z)`. -/
+theorem R_normalization_one {β p0 : ℝ} (hβ : 0 < β)
+    (hp0 : 1 ≤ cSix d D (psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) * p0)
+    (hrad : psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H * δ +
+      5 * zeroRadius (cSix d D (psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)) β p0 ≤ etaDen d L N D)
+    {ρ : BlockField d L N₀ k N → ℝ}
+    (hρ : Integrable ρ (volume.restrict (famTubeSet N (fun _ : Unit => G) (fun _ => b0) (fun _ => w)
+      (fun _ => X) (fun _ => δ)))) :
+    Integrable (Rop (oneDecomp N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc β p0) ρ)
+        (volume.restrict (famTubeSet N (fun _ : Unit => G) (fun _ => b0) (fun _ => w) (fun _ => X)
+          (fun _ => δ))) ∧
+      ∫ ψ, Rop (oneDecomp N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc β p0) ρ ψ
+          ∂(volume.restrict (famTubeSet N (fun _ : Unit => G) (fun _ => b0) (fun _ => w) (fun _ => X)
+            (fun _ => δ))) =
+        ∫ ψ, ρ ψ ∂(volume.restrict (famTubeSet N (fun _ : Unit => G) (fun _ => b0) (fun _ => w) (fun _ => X)
+          (fun _ => δ))) :=
+  R_normalization_one_of_measurable N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hβ hp0 hrad hρ
+    (measurable_famRho N (fun _ : Unit => G) a hd hk (fun _ => b0) (fun _ => w) (fun _ => hw1) (fun _ => hwD) hm
+      (fun _ => X) (fun _ => hXreg) (fun c c' h => absurd (Subsingleton.elim c c') h) (fun _ => hΩ)
+      (fun _ => hdata) H (fun _ => δ) (fun _ => hδ) (fun _ => hδc) Finset.univ hβ () hp0 hrad)
+
+end OneMeas
 
 end Balaban.LargeField
