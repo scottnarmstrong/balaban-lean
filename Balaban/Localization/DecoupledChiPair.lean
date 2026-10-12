@@ -53,17 +53,19 @@ theorem intTorus_add_single' {m : ℕ} (w : Fin d → ℤ) (μ : Fin d) :
   · subst h; simp [intTorus_apply]
   · simp [intTorus_apply, h]
 
-/-- **Increments along an arbitrary integer displacement.**  If all unit-step increments of `F`
-are `≤ c`, the increment along `z` is `≤ c ∑ |z_i|`. -/
-theorem lipschitz_lift {m : ℕ} {E : Type*} [SeminormedAddCommGroup E] (F : Torus d m → E)
-    {c : ℝ} (hp : ∀ y μ, ‖F (y + Pi.single μ 1) - F y‖ ≤ c)
-    (hm : ∀ y μ, ‖F (y - Pi.single μ 1) - F y‖ ≤ c) :
-    ∀ (N : ℕ) (w : Fin d → ℤ), ∑ i, (w i).natAbs = N → ∀ y : Torus d m,
+/-- **Increments along an integer displacement, from forward unit steps on a ball.**  If the
+forward unit-step increments of `F` at the points `y + w'`, `‖w'‖ ≤ R`, are `≤ c`, the increment
+along any `w` with `‖w‖ ≤ R` is `≤ c ∑ |w_i|`. -/
+theorem lipschitz_ball {m : ℕ} {E : Type*} [SeminormedAddCommGroup E] (F : Torus d m → E)
+    (y : Torus d m) {c R : ℝ}
+    (hp : ∀ w' : Fin d → ℤ, ‖w'‖ ≤ R → ∀ μ,
+      ‖F (y + intTorus w' + Pi.single μ 1) - F (y + intTorus w')‖ ≤ c) :
+    ∀ (N : ℕ) (w : Fin d → ℤ), ∑ i, (w i).natAbs = N → ‖w‖ ≤ R →
       ‖F (y + intTorus w) - F y‖ ≤ N * c := by
   intro N
   induction N with
   | zero =>
-      intro w hw y
+      intro w hw _
       have h0 : w = 0 := by
         funext i
         have := (Finset.sum_eq_zero_iff.1 hw) i (Finset.mem_univ i)
@@ -73,41 +75,47 @@ theorem lipschitz_lift {m : ℕ} {E : Type*} [SeminormedAddCommGroup E] (F : Tor
         funext μ; simp [intTorus_apply]
       simp [this]
   | succ N ih =>
-      intro w hw y
+      intro w hw hwR
       obtain ⟨μ, -, hμ⟩ := Finset.exists_ne_zero_of_sum_ne_zero (s := Finset.univ)
         (f := fun i => (w i).natAbs) (by rw [hw]; omega)
       have hwμ : w μ ≠ 0 := by
         intro h; apply hμ; simp [h]
-      obtain ⟨w', hsum, -, hw'⟩ := exists_descent w μ hwμ
-      have ih' := ih w' (by omega) y
-      have hc : 0 ≤ c := (norm_nonneg _).trans (hp y μ)
+      obtain ⟨w', hsum, hnorm, hw'⟩ := exists_descent w μ hwμ
+      have ih' := ih w' (by omega) (hnorm.trans hwR)
+      have hc : 0 ≤ c := by
+        have := hp 0 (by simpa using ((norm_nonneg w).trans hwR)) μ
+        exact (norm_nonneg _).trans this
       rcases hw' with rfl | rfl
       · -- w = w' + e_μ
-        have e : y + intTorus w = (y + intTorus (w - Pi.single μ 1)) + Pi.single μ 1 := by
+        have := hp (w - Pi.single μ 1) (hnorm.trans hwR) μ
+        have e : y + intTorus (w - Pi.single μ 1) + Pi.single μ 1 = y + intTorus w := by
           rw [intTorus_sub_single']; abel
-        have e2 : (intTorus (w - Pi.single μ 1) : Torus d m) = intTorus (w - Pi.single μ 1) := rfl
-        have := hp (y + intTorus (w - Pi.single μ 1)) μ
+        rw [e] at this
         calc ‖F (y + intTorus w) - F y‖
-            = ‖(F ((y + intTorus (w - Pi.single μ 1)) + Pi.single μ 1) -
-                F (y + intTorus (w - Pi.single μ 1))) +
-              (F (y + intTorus (w - Pi.single μ 1)) - F y)‖ := by
-              rw [e]; congr 1; abel
+            = ‖(F (y + intTorus w) - F (y + intTorus (w - Pi.single μ 1))) +
+              (F (y + intTorus (w - Pi.single μ 1)) - F y)‖ := by congr 1; abel
           _ ≤ c + (N * c) := (norm_add_le _ _).trans (add_le_add this ih')
           _ = ((N + 1 : ℕ) : ℝ) * c := by push_cast; ring
-      · have e : y + intTorus (w + Pi.single μ 1) =
-            (y + intTorus w) + Pi.single μ 1 := by
+      · -- w' = w + e_μ
+        have := hp w hwR μ
+        have e : y + intTorus w + Pi.single μ 1 = y + intTorus (w + Pi.single μ 1) := by
           rw [intTorus_add_single']; abel
-        have := hm (y + intTorus (w + Pi.single μ 1)) μ
-        have e3 : y + intTorus (w + Pi.single μ 1) - Pi.single μ 1 = y + intTorus w := by
-          rw [intTorus_add_single']; abel
-        rw [e3] at this
+        rw [e] at this
         calc ‖F (y + intTorus w) - F y‖
             = ‖(F (y + intTorus w) - F (y + intTorus (w + Pi.single μ 1))) +
               (F (y + intTorus (w + Pi.single μ 1)) - F y)‖ := by congr 1; abel
           _ ≤ c + (N * c) := by
               refine (norm_add_le _ _).trans (add_le_add ?_ ih')
-              exact this
+              rw [norm_sub_rev]; exact this
           _ = ((N + 1 : ℕ) : ℝ) * c := by push_cast; ring
+
+/-- **Increments along an arbitrary integer displacement.**  If all forward unit-step increments
+of `F` are `≤ c`, the increment along `w` is `≤ c ∑ |w_i|`. -/
+theorem lipschitz_lift {m : ℕ} {E : Type*} [SeminormedAddCommGroup E] (F : Torus d m → E)
+    {c : ℝ} (hp : ∀ y μ, ‖F (y + Pi.single μ 1) - F y‖ ≤ c) (N : ℕ) (w : Fin d → ℤ)
+    (hw : ∑ i, (w i).natAbs = N) (y : Torus d m) :
+    ‖F (y + intTorus w) - F y‖ ≤ N * c :=
+  lipschitz_ball F y (R := ‖w‖) (fun w' _ μ => hp (y + intTorus w') μ) N w hw le_rfl
 
 end Lift
 
@@ -135,9 +143,7 @@ theorem cubeBump_lip {j : ℕ} (hj : j ≤ K) (hlam : 2 ≤ L ^ (j + m₁))
       N * (150 * 4 ^ d / (L : ℝ) ^ (j + m₁)) := by
   have := lipschitz_lift (fun y => cubeBump m₁ j y0 y) (c := 150 * 4 ^ d / (L : ℝ) ^ (j + m₁))
     (fun y μ => by
-      rw [Real.norm_eq_abs]; exact (cubeBump_diff hj hlam y0 y μ).1)
-    (fun y μ => by
-      rw [Real.norm_eq_abs]; exact (cubeBump_diff hj hlam y0 y μ).2.1) N w hw y
+      rw [Real.norm_eq_abs]; exact (cubeBump_diff hj hlam y0 y μ).1) N w hw y
   simpa [Real.norm_eq_abs] using this
 
 /-- **Lipschitz bound of the first difference of the cube bump** (mixed second differences along
@@ -154,13 +160,7 @@ theorem cubeBump_mixed_lip {j : ℕ} (hj : j ≤ K) (hlam : 2 ≤ L ^ (j + m₁)
       rw [Real.norm_eq_abs]
       have h := cubeBump_sq_diff hj hlam y0 y μ ν
       refine le_trans (le_of_eq ?_) h
-      congr 1; ring)
-    (fun y μ => by
-      rw [Real.norm_eq_abs]
-      have h := cubeBump_sq_diff hj hlam y0 (y - Pi.single μ 1) μ ν
-      rw [sub_add_cancel] at h
-      refine le_trans (le_of_eq ?_) h
-      rw [← abs_neg]; congr 1; ring) N w hw y
+      congr 1; ring) N w hw y
   simpa [Real.norm_eq_abs] using this
 
 end Bump
