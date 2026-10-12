@@ -281,6 +281,11 @@ public import Balaban.Localization.NC3Small
 public import Balaban.Localization.Decoupled
 public import Balaban.Localization.BoxGeometry
 public import Balaban.Localization.DecoupledAlg
+public import Balaban.Localization.DecCover
+public import Balaban.Localization.Decoupled2
+public import Balaban.Localization.Decoupled2Dg
+public import Balaban.Localization.Decoupled2Gs
+public import Balaban.Localization.Decoupled2Analytic
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
