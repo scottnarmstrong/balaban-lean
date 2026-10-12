@@ -567,6 +567,8 @@ public import Balaban.LargeField.Operators.QuietEuclidDom
 public import Balaban.LargeField.Operators.QuietEuclidLoc
 public import Balaban.LargeField.Operators.QuietEuclid
 public import Balaban.LargeField.Operators.QuietEuclidHist
+public import Balaban.LargeField.Operators.QuietStepDataMeas
+public import Balaban.LargeField.Operators.QuietStepData
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.AncVars
 public import Balaban.LargeField.Operators.DomainGeom
@@ -703,6 +705,19 @@ public import Balaban.LargeField.R.ChainSeq
 public import Balaban.LargeField.R.HatW
 public import Balaban.LargeField.R.ChainBound
 public import Balaban.LargeField.R.ChainEstimate
+public import Balaban.LargeField.R.WindowGaussTree
+public import Balaban.LargeField.R.WindowChain
+public import Balaban.LargeField.R.WindowIdeal
+public import Balaban.LargeField.R.WindowErr
+public import Balaban.LargeField.R.WindowShift
+public import Balaban.LargeField.R.WindowTotalShift
+public import Balaban.LargeField.R.ZeroDomainCoercive
+public import Balaban.LargeField.R.ZeroDomainScales
+public import Balaban.LargeField.R.ZeroDomainPaths
+public import Balaban.LargeField.R.ZeroDomainRef
+public import Balaban.LargeField.R.PsiZeroAbstract
+public import Balaban.LargeField.R.ZeroDomainBox
+public import Balaban.LargeField.R.ZeroDomain
 public import Balaban.LargeField.R.HullUnion
 public import Balaban.LargeField.R.StepGlue
 public import Balaban.LargeField.R.StepGlueMain
@@ -777,3 +792,6 @@ public import Balaban.Inhabited.LocalizationSettings
 public import Balaban.Inhabited.BgDataStructures
 public import Balaban.Inhabited.StepData
 public import Balaban.Inhabited.RipeHistory
+public import Balaban.Observables.SecondOrderCauchy
+public import Balaban.Observables.SecondOrderSums
+public import Balaban.Observables.SecondOrderStep
