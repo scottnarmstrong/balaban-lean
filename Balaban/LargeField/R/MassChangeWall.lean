@@ -97,7 +97,7 @@ theorem starPair_norm_le (D : Region G) (w f : Torus d (N₀ * L ^ K) → Fin N 
 Euler-Lagrange system and `φ⁰` is hard-spin; the open inputs of the note, for the actual window,
 are `hgrad` (the gradient bound `|∂_b φ̄ᵐ| ≤ r_b` on crossing bonds), `hresp` (the mass response
 `|w(x)| ≤ K_m B_h m` for `w = φ̄⁰ - φ̄ᵐ`) and `hHess` (the Hessian bound
-`|⟨w,(H+α)w⟩| ≤ CH n (K B m)²`, `n = |Y|`).  Conclusion, for `β ≥ 0`:
+`|⟨w,(H+α)w⟩| ≤ C_H n (K_m B_h m)²`, `n = |Y|`).  Conclusion, for `β ≥ 0`:
 `β |ΔA_Y| ≤ ½ C_H K_m² B_h² β m² n + K_m B_h β m Σ_b r_b`. -/
 theorem massChange_wall_bound (D : Region G) {a : ℕ → ℝ} {ν : ℝ} {Dat : BgData G N}
     {φ0 φm : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ} (hEL : IsEL G a ν Dat φm α)
