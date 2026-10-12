@@ -1149,6 +1149,8 @@ public import Balaban.Fluctuation.StepActivityWitnessNe
 public import Balaban.Fluctuation.StepActivityWitnessRay
 public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
+public import Balaban.Fluctuation.StepTaylor
+public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
