@@ -1,0 +1,26 @@
+import Balaban.LargeField.Operators.QuietStepData
+
+namespace Balaban.LargeField
+
+open RegionHistory
+
+/-- At the parameter of the published `QuietStepInput` witness, no quiet
+step can be realized. -/
+theorem vacuity3_quietRealized_K0_false
+    {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
+    {M : ℕ} [NeZero M] [NeZero S.L] {k0 k : ℕ}
+    {a : LocalHistory S n M 0}
+    (h : QuietRealized R k0 k a) : False := by
+  have hk := h.le
+  omega
+
+/-- Every component quantified by `quiet_locOp_pkgBound` is absent at K=0. -/
+theorem vacuity3_quiet_pkg_K0_empty
+    {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
+    {k0 : ℕ} (H : RegionHistory S n R k0 0)
+    (k : ℕ) (hk : k ≤ 0) (Z : H.Comp k) : False := by
+  have h0 : k = 0 := Nat.eq_zero_of_le_zero hk
+  subst k
+  exact H.F.isEmpty_comp_zero.false Z
+
+end Balaban.LargeField

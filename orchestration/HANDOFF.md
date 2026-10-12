@@ -5,7 +5,7 @@ nearly exhausted). A new orchestrator session should read AGENTS.md, this file, 
 `orchestration/LEDGER.md`, then continue. Policies: at most 7 Sonnet + 1 Opus subagents (raised 2026-10-12), no
 sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.md verbatim in every brief
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
-(codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
+(codex, GPT-6-Sol xhigh, in tmux; AT MOST 3 astra sessions working at once — Scott 2026-10-12; close idle ones after committing results), Lean to Sonnet workers in worktrees.
 
 ## STATE (2026-10-12 ~11:15 UTC, session on claude-1)
 
@@ -13,16 +13,15 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
-| W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
-| W114 | `w114-thm42-real` / W114 | Thm 4.2 real-step pieces |
-| W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
-| W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
-| W116 | `w116-witness-sweep` / W116 | witnesses for the remaining 28 hypothesis structures |
-| W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
-| W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
-Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
-SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
-astra-q13 (effort HIGH): Roland Q13 → Q13-ANSWER.md (tag Q13). astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+| W131 | `w131-latsym` / W131 | LatTorusSym covariance + positive-scale quiet witness |
+| W129 (Opus) | `w129-fldatum` / W129 | repair flDatum (ψ′ term, FLDATUM.md) + mixed-pair FlCore witness |
+| W130 | `w130-d1j` / W130 | level-j D1 (MASS-LEVEL.md) + ContAtZero fix |
+| W127 | `w127-basek3` / W127 | base kernel: BASE-KERNEL-3 proved parts |
+| W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
+| W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
+| W132 | `w132-dec-equiv` / W132 | equivariance of decoupled localization objects |
+Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
+astra round 8 (sent ~12:00 UTC): vmod VMOD-8 (tag VMOD8), class GRAPH-GM (GRAPHGM), fluctfix P631-INPUTS (P631IN). astra-q13 idle (answer committed), awaiting Roland. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
