@@ -28,6 +28,7 @@ structure T4Facts {ι : Type*} (S : Setting) (k : ℕ) (parts : Finset ι) (f : 
   s_ge : k + 1 ≤ b'.s
   s_le : (b'.s : ℝ) ≤ (k + 1 : ℕ) + 1 + Real.logb S.L (max b'.len 1)
   q_eq : b'.q = S.t4q (k + 1) parts f b'.s
+  M_eq : b'.M = (Setting.t4E (k + 1) parts f).filter (fun ξ => S.t4q (k + 1) parts f b'.s < ξ)
 
 namespace Setting.Good
 
@@ -252,6 +253,17 @@ theorem t4_inv {ι : Type*} {k : ℕ} {parts : Finset ι} {f : ι → Book} {b' 
       refine max_le ?_ (le_max_right _ _)
       exact le_trans (Nat.add_le_add (hQc.trans hq1) (G.ok.nq_mono (hQc.trans hq1)))
         (le_max_left _ _)
+  have hMb : b'.M = (Setting.t4E (k + 1) parts f).filter
+      (fun ξ => S.t4q (k + 1) parts f b'.s < ξ) := by
+    rcases hcases with ⟨_, h⟩ | ⟨hq1', h⟩
+    · rw [Book.M_active h]; rfl
+    · rw [Book.M_pending h]
+      symm
+      rw [Finset.filter_eq_empty_iff]
+      intro ξ hξ
+      have := hE ξ hξ
+      change ¬ q' < ξ
+      omega
   have hadm : S.Admissible (k + 1) b' := by
     rcases hcases with ⟨hq1', h⟩ | ⟨hq1', h⟩
     · rw [S.adm_active h]
@@ -261,7 +273,7 @@ theorem t4_inv {ι : Type*} {k : ℕ} {parts : Finset ι} {f : ι → Book} {b' 
     · rw [S.adm_pending h]
       exact ⟨by omega, by omega, hnuν, hcap⟩
   refine ⟨⟨hadm, hlen, hptl, fun h => by rw [hpt h], hnp, ?_, ?_, ?_⟩, hE, hQ, hk1small,
-    hQc.trans hq1, hq2, htS, hlenν, hnub, hs_ge, hs_le, hqb⟩
+    hQc.trans hq1, hq2, htS, hlenν, hnub, hs_ge, hs_le, hqb, hMb⟩
   · intro _; rw [hnub]; exact hlenν
   · intro _
     rw [hqb, htS]
