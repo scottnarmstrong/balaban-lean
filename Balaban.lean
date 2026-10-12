@@ -683,3 +683,6 @@ public import Balaban.SmallField.RenormClassFamily
 public import Balaban.SmallField.RenormClassTheorem
 public import Balaban.Localization.CoverPartition
 public import Balaban.Localization.Decoupled2FpCount
+public import Balaban.Fluctuation.BackgroundChangeCompare
+public import Balaban.Fluctuation.BackgroundChangeExpansion
+public import Balaban.Fluctuation.BackgroundChangeLate
