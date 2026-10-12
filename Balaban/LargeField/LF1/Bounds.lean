@@ -359,6 +359,91 @@ theorem cross_dir_bound (G : GeneratingSet d L N₀ q ϱ) {n : ℕ} (hn : n < q)
         linarith
     _ = _ := by ring
 
+omit [NeZero L] in
+theorem weight_succ_le (hd : 2 ≤ d) (hL : 2 ≤ L) (n : ℕ) :
+    (L : ℝ) ^ ((n + 1) * (d - 2)) * ((L : ℝ) ^ d)⁻¹ ≤ (1 / 4) * (L : ℝ) ^ (n * (d - 2)) := by
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hd
+  have hL' : (2 : ℝ) ≤ L := by exact_mod_cast hL
+  have hpos : (0 : ℝ) < L := by linarith
+  simp only [Nat.add_sub_cancel_left]
+  have e : (L : ℝ) ^ ((n + 1) * k) * ((L : ℝ) ^ (2 + k))⁻¹ =
+      (L : ℝ) ^ (n * k) * ((L : ℝ) ^ 2)⁻¹ := by
+    rw [add_mul, one_mul, pow_add, pow_add, mul_inv]
+    field_simp
+  rw [e]
+  have h4 : (4 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
+  have hp : (0 : ℝ) < (L : ℝ) ^ (n * k) := by positivity
+  have : ((L : ℝ) ^ 2)⁻¹ ≤ 1 / 4 := by
+    rw [inv_eq_one_div]; exact one_div_le_one_div_of_le (by norm_num) h4
+  nlinarith
+
+open Classical in
+/-- **Cross bound**: `(L^{(n+1)(d-2)}/2) ∑_{P^×_{n+1}} ‖ψ_{n+1}(b₊) - (Qψ_n)(b₋)‖²
+ ≤ 3d Bk_{n+1} + (3d/4) Bk_n + 6 E(S^×)`. -/
+theorem cross_bound (G : GeneratingSet d L N₀ q ϱ) {n : ℕ} (hn : n < q) (hd : 2 ≤ d) (hL : 2 ≤ L)
+    (hϱ : 2 * (d : ℝ) * L ≤ ϱ) (X : Finset (Site d L N₀ q)) (φ : Site d L N₀ q → E)
+    (ψf : (m : ℕ) → Blk d L N₀ q m → E) (hψf0 : ∀ y, ψf 0 y = bavgL d L N₀ q 0 φ y) :
+    ((L : ℝ) ^ ((n + 1) * (d - 2)) / 2) * crossSumP G n X ψf ≤
+      3 * d * ((L : ℝ) ^ ((n + 1) * (d - 2)) *
+        ∑ y ∈ tBlocks d L N₀ q (n + 1) (lam G (n + 1) ∩ X),
+          ‖ψf (n + 1) y - bavgL d L N₀ q (n + 1) φ y‖ ^ 2) +
+      (3 * d / 4) * ((L : ℝ) ^ (n * (d - 2)) * ∑ s ∈ tBlocks d L N₀ q n (lam G n ∩ X),
+          ‖ψf n s - bavgL d L N₀ q n φ s‖ ^ 2) +
+      6 * bondE ((lam G n ∪ lam G (n + 1)) ∩ X) φ := by
+  have hL0 : 0 < L := by omega
+  have hψ0 : n = 0 → ∀ s, ψf n s = bavgL d L N₀ q n φ s := by
+    rintro rfl s; exact hψf0 s
+  set T1 := tBlocks d L N₀ q (n + 1) (lam G (n + 1) ∩ X) with hT1
+  set T0 := tBlocks d L N₀ q n (lam G n ∩ X) with hT0
+  set Sx := (lam G n ∪ lam G (n + 1)) ∩ X with hSx
+  set A1 := ∑ y ∈ T1, ‖ψf (n + 1) y - bavgL d L N₀ q (n + 1) φ y‖ ^ 2 with hA1
+  set A0 := ∑ s ∈ T0, ‖ψf n s - bavgL d L N₀ q n φ s‖ ^ 2 with hA0
+  have hA0n : 0 ≤ A0 := Finset.sum_nonneg fun _ _ => by positivity
+  have hA1n : 0 ≤ A1 := Finset.sum_nonneg fun _ _ => by positivity
+  set c1 : ℝ := ((L : ℝ) ^ (n + 1)) ^ 2 * (((L : ℝ) ^ (n + 1)) ^ d)⁻¹ with hc1
+  have hsum : crossSumP G n X ψf ≤
+      6 * d * A1 + 12 * c1 * bondE Sx φ + 6 * d * (((L : ℝ) ^ d)⁻¹ * A0) := by
+    have hF0 : ∀ bp bm : Blk d L N₀ q (n + 1), 0 ≤ ‖ψf (n + 1) bp - qCoarse d L N₀ q n (ψf n) bm‖ ^ 2 :=
+      fun _ _ => by positivity
+    have h1 := sum_adj_le (CrossK G n X)
+      (fun bp bm => ‖ψf (n + 1) bp - qCoarse d L N₀ q n (ψf n) bm‖ ^ 2) hF0
+    have h2 : crossSumP G n X ψf = ∑ bp : Blk d L N₀ q (n + 1), ∑ bm : Blk d L N₀ q (n + 1),
+        (if AdjT bp bm ∧ CrossK G n X bp bm then
+          ‖ψf (n + 1) bp - qCoarse d L N₀ q n (ψf n) bm‖ ^ 2 else 0) := by
+      unfold crossSumP CrossK
+      exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by congr
+    rw [h2]
+    refine h1.trans ?_
+    have hP := fun μ => cross_dir_bound G hn hϱ X φ (ψf (n + 1)) (ψf n) hψ0 μ
+      (v := Pi.single μ 1) (Or.inl rfl)
+    have hM := fun μ => cross_dir_bound G hn hϱ X φ (ψf (n + 1)) (ψf n) hψ0 μ
+      (v := -Pi.single μ 1) (Or.inr rfl)
+    calc _ ≤ ∑ μ : Fin d, (3 * A1 + 6 * c1 * bondEdir μ Sx φ + 3 * (((L : ℝ) ^ d)⁻¹ * A0)) +
+          ∑ μ : Fin d, (3 * A1 + 6 * c1 * bondEdir μ Sx φ + 3 * (((L : ℝ) ^ d)⁻¹ * A0)) :=
+          add_le_add (Finset.sum_le_sum fun μ _ => hP μ) (Finset.sum_le_sum fun μ _ => hM μ)
+      _ = _ := by
+          rw [← two_mul, Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_const,
+            Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, nsmul_eq_mul,
+            ← Finset.mul_sum]
+          unfold bondE
+          ring
+  have hw := weight_mul_c hd hL0 (n + 1)
+  have hws := weight_succ_le hd hL n
+  have hw0 : 0 ≤ (L : ℝ) ^ ((n + 1) * (d - 2)) / 2 := by positivity
+  have hd0 : (0 : ℝ) ≤ d := Nat.cast_nonneg _
+  calc ((L : ℝ) ^ ((n + 1) * (d - 2)) / 2) * crossSumP G n X ψf
+      ≤ ((L : ℝ) ^ ((n + 1) * (d - 2)) / 2) *
+        (6 * d * A1 + 12 * c1 * bondE Sx φ + 6 * d * (((L : ℝ) ^ d)⁻¹ * A0)) :=
+        mul_le_mul_of_nonneg_left hsum hw0
+    _ = 3 * d * ((L : ℝ) ^ ((n + 1) * (d - 2)) * A1) +
+        6 * ((L : ℝ) ^ ((n + 1) * (d - 2)) * c1) * bondE Sx φ +
+        3 * d * ((L : ℝ) ^ ((n + 1) * (d - 2)) * ((L : ℝ) ^ d)⁻¹) * A0 := by ring
+    _ ≤ 3 * d * ((L : ℝ) ^ ((n + 1) * (d - 2)) * A1) + 6 * 1 * bondE Sx φ +
+        3 * d * ((1 / 4) * (L : ℝ) ^ (n * (d - 2))) * A0 := by
+        rw [hc1, hw]
+        gcongr
+    _ = _ := by ring
+
 end Cross
 
 end Intra
