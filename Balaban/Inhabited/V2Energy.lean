@@ -509,6 +509,26 @@ theorem isSF2_eTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : ℕ
 
 end Member
 
+section Nonzero
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+/-- The density `ℰ^{(k)}(y; ψ, h)` of the energy terms is not zero at a constant field off the
+unit sphere (torus `N₁ = 1`, `E₀ > 0`). -/
+theorem Eloc_eTerms_const_ne_zero {P : Consts} {cj : ℕ → ℝ} (hE₀ : 0 < P.E₀) (hN : N₁ = 1)
+    (y : CTorus d L N₁ m₁ k) (Ψ : Fld d L N₁ m₁ k N) (i₀ : Fin N) {t : ℂ} (ht : t ^ 2 ≠ 1) :
+    Eloc P.m₀ (eTerms d L N₁ m₁ k N ϱ P cj) k y Ψ
+      (constFld (t • (Pi.single i₀ 1 : Fin N → ℂ))) ≠ 0 := by
+  classical
+  have hcond : N₁ = 1 ∧ k = k := ⟨hN, rfl⟩
+  rw [Eloc_eTerms, ite_eq_left_iff.2 (fun h => absurd hcond h), eAvg_const, fCore_smul_single]
+  have hc : (cEn d L N₁ m₁ k P : ℂ) ≠ 0 := by
+    have : 0 < cEn d L N₁ m₁ k P := by unfold cEn; positivity
+    exact_mod_cast this.ne'
+  exact mul_ne_zero hc (pow_ne_zero 2 (sub_ne_zero.2 ht))
+
+end Nonzero
+
 /-! ### The wide-domain witness with nonzero `ℰ` and `ℳ` -/
 
 /-- The constants of the witness with `E₀ = 1`. -/

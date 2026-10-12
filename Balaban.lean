@@ -967,6 +967,8 @@ public import Balaban.Fluctuation.StepMeasure
 public import Balaban.Fluctuation.StepEven
 public import Balaban.Inhabited.V2Wide
 public import Balaban.Inhabited.V2Energy
+public import Balaban.Inhabited.V2EnergySource
+public import Balaban.Inhabited.V2EnergyD1
 public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
