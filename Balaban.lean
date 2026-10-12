@@ -104,6 +104,9 @@ public import Balaban.Background.MinimizerAlg
 public import Balaban.Background.MinimizerExpansion
 public import Balaban.Background.Minimizer
 public import Balaban.Background.Def5
+public import Balaban.Background.Equivariance
+public import Balaban.Background.EquivarianceDomain
+public import Balaban.Background.EquivarianceLat
 public import Balaban.Background.Def5Response
 public import Balaban.Background.Holder
 public import Balaban.Background.NormalizeMixed
@@ -447,6 +450,8 @@ public import Balaban.SmallField.XiD1
 public import Balaban.SmallField.XiD1C
 public import Balaban.SmallField.XiD2
 public import Balaban.SmallField.XiProps
+public import Balaban.SmallField.XiLatSymm
+public import Balaban.SmallField.XiSymm
 public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
@@ -465,6 +470,7 @@ public import Balaban.LargeField.Operators.Symm
 public import Balaban.LargeField.Operators.Pullback
 public import Balaban.LargeField.Operators.MainAction
 public import Balaban.LargeField.Operators.Quiet
+public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
@@ -532,6 +538,7 @@ public import Balaban.Fluctuation.ExpansionCauchy
 public import Balaban.Fluctuation.ExpansionBounds
 public import Balaban.Fluctuation.ExpansionReal
 public import Balaban.Fluctuation.ExpansionLocal
+public import Balaban.Fluctuation.ExpansionSymm
 public import Balaban.Fluctuation.ExpansionAnalytic
 public import Balaban.Polymer.MarkedCubesLocal
 public import Balaban.Polymer.MarkedCubesVanish
