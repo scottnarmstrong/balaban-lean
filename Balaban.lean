@@ -650,6 +650,7 @@ public import Balaban.Polymer.MarkedCubesVanish
 public import Balaban.Polymer.MarkedHolo
 public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
+public import Balaban.LargeField.Base.BaseMarked
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
 public import Balaban.Observables.Cauchy
