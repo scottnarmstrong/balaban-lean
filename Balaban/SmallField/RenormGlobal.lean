@@ -112,4 +112,78 @@ theorem renormalization_level (N : ℕ) (A Λ Ksig α₁ K₀ : ℝ) (hA : 0 ≤
     _ ≤ _ := add_le_add b1 b2
     _ = _ := by ring
 
+/-- **Summation over the scales** (the end of the proof of Corollary 2.2).  `e j` is the total
+energy of the scale `j`, `L^{(k-j) D} t₁` the number of its sites, and `q = L^{-α₃}`.  The last
+`n₁` scales are bounded crudely, the others by the decay of Theorem 2.1. -/
+theorem global_bound (k n₁ D : ℕ) {L t₁ E₀ K₀ Cθ q : ℝ} (hL : 1 ≤ L) (ht₁ : 0 ≤ t₁)
+    (hE0 : 0 ≤ E₀) (hK0 : 0 ≤ K₀) (hCθ : 0 ≤ Cθ) (hq0 : 0 ≤ q) (hq1 : q < 1) (e : ℕ → ℂ)
+    (hnear : ∀ j ≤ k, k - j < n₁ → ‖e j‖ ≤ L ^ ((k - j) * D) * t₁ * (E₀ * K₀))
+    (hfar : ∀ j ≤ k, n₁ ≤ k - j → ‖e j‖ ≤ t₁ * E₀ * Cθ * q ^ (k - j)) :
+    ‖∑ j ∈ Finset.range (k + 1), e j‖ ≤
+      (K₀ * n₁ * L ^ (n₁ * D) + Cθ / (1 - q)) * E₀ * t₁ := by
+  have hrefl : ∑ j ∈ Finset.range (k + 1), e j = ∑ n ∈ Finset.range (k + 1), e (k - n) := by
+    rw [← Finset.sum_range_reflect]
+    refine Finset.sum_congr rfl fun n hn => ?_
+    simp only [Finset.mem_range] at hn
+    congr 1
+  rw [hrefl]
+  have hL0 : 0 < L := by linarith
+  set f : ℕ → ℝ := fun n => (if n < n₁ then L ^ (n * D) * t₁ * (E₀ * K₀) else 0) +
+    t₁ * E₀ * Cθ * q ^ n with hf
+  have hbd : ∀ n ∈ Finset.range (k + 1), ‖e (k - n)‖ ≤
+      (if n < n₁ then L ^ (n * D) * t₁ * (E₀ * K₀) else 0) +
+        (if n₁ ≤ n then t₁ * E₀ * Cθ * q ^ n else 0) := by
+    intro n hn
+    simp only [Finset.mem_range] at hn
+    have hjk : k - n ≤ k := Nat.sub_le _ _
+    have hkn : k - (k - n) = n := by omega
+    by_cases h : n < n₁
+    · have := hnear (k - n) hjk (by rw [hkn]; exact h)
+      rw [hkn] at this
+      have h2 : ¬ n₁ ≤ n := by omega
+      simp only [h, h2, ite_true, ite_false, add_zero]
+      exact this
+    · have h2 : n₁ ≤ n := by omega
+      have := hfar (k - n) hjk (by rw [hkn]; exact h2)
+      rw [hkn] at this
+      simp only [h, h2, ite_true, ite_false, zero_add]
+      exact this
+  refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hbd).trans ?_)
+  rw [Finset.sum_add_distrib]
+  have s1 : ∑ n ∈ Finset.range (k + 1), (if n < n₁ then L ^ (n * D) * t₁ * (E₀ * K₀) else 0) ≤
+      K₀ * n₁ * L ^ (n₁ * D) * E₀ * t₁ := by
+    calc _ ≤ ∑ n ∈ Finset.range n₁, L ^ (n₁ * D) * t₁ * (E₀ * K₀) := by
+          calc ∑ n ∈ Finset.range (k + 1), (if n < n₁ then L ^ (n * D) * t₁ * (E₀ * K₀) else 0)
+              ≤ ∑ n ∈ Finset.range (k + 1), (if n < n₁ then L ^ (n₁ * D) * t₁ * (E₀ * K₀) else 0) := by
+                refine Finset.sum_le_sum fun n _ => ?_
+                split_ifs with h
+                · have : L ^ (n * D) ≤ L ^ (n₁ * D) :=
+                    pow_le_pow_right₀ hL (Nat.mul_le_mul_right D h.le)
+                  have : 0 ≤ t₁ * (E₀ * K₀) := by positivity
+                  nlinarith
+                · exact le_rfl
+            _ ≤ ∑ n ∈ Finset.range n₁, L ^ (n₁ * D) * t₁ * (E₀ * K₀) := by
+                rw [← Finset.sum_filter]
+                refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun _ _ _ => by positivity)
+                intro n hn
+                simp only [Finset.mem_filter, Finset.mem_range] at hn ⊢
+                exact hn.2
+      _ = _ := by simp; ring
+  have s2 : ∑ n ∈ Finset.range (k + 1), (if n₁ ≤ n then t₁ * E₀ * Cθ * q ^ n else 0) ≤
+      Cθ / (1 - q) * E₀ * t₁ := by
+    calc _ ≤ ∑ n ∈ Finset.range (k + 1), t₁ * E₀ * Cθ * q ^ n := by
+          refine Finset.sum_le_sum fun n _ => ?_
+          split_ifs
+          · exact le_rfl
+          · positivity
+      _ ≤ t₁ * E₀ * Cθ * (1 / (1 - q)) := by
+          rw [← Finset.mul_sum]
+          refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+          have h1 := Summable.sum_le_tsum (Finset.range (k + 1)) (fun i _ => pow_nonneg hq0 i)
+            (summable_geometric_of_lt_one hq0 hq1)
+          rw [tsum_geometric_of_lt_one hq0 hq1] at h1
+          simpa [one_div] using h1
+      _ = _ := by ring
+  nlinarith
+
 end Balaban.SmallField
