@@ -547,15 +547,20 @@ noncomputable def dScale (j : ℕ) (X : Set (CTorus d L N₁ m₁ K)) : ℝ :=
   sInf {x | ∃ W E, ConnStruct W E ∧ (↑W ⊆ X) ∧ MeetsCubesAt m₀ j X W ∧
     x = bondCost (scaleW L m₀ m₁ j) E}
 
-/-- The geometric data of (GM2): `X ⊆ X₁ ⊆ Λ_K`, `X₁` a union of `π'_K`-cubes each of which
-contains a `π'_j`-cube lying in `X`, and `j < K`. -/
-structure GM2Setup (j : ℕ) (X X₁ : Set (CTorus d L N₁ m₁ K)) : Prop where
+/-- The geometric data of `X₁` used by (GM2), (GM3): `Λ_n` is a union of `π'_n`-cubes, the
+`π_n`-cubes tile the torus, and `X₁ ⊆ Λ_K` is a union of `π'_K`-cubes. -/
+structure PolySetup (X₁ : Set (CTorus d L N₁ m₁ K)) : Prop where
   hU : LayerUnion G m₀
   hN : L ^ m₀ ∣ N₁
-  hjK : j + 1 ≤ K
   X₁_layer : X₁ ⊆ ↑(G.layer K)
   X₁_cubes : ∀ x ∈ X₁, ∃ b, Aligned (cellSide L m₀ m₁ K) b ∧
     x ∈ box b (L * cellSide L m₀ m₁ K) ∧ box b (L * cellSide L m₀ m₁ K) ⊆ X₁
+
+/-- The geometric data of (GM2): `X ⊆ X₁ ⊆ Λ_K`, `X₁` a union of `π'_K`-cubes each of which
+contains a `π'_j`-cube lying in `X`, and `j < K`. -/
+structure GM2Setup (j : ℕ) (X X₁ : Set (CTorus d L N₁ m₁ K)) : Prop
+    extends PolySetup G m₀ X₁ where
+  hjK : j + 1 ≤ K
   X_sub : X ⊆ X₁
   contains : ∀ b, Aligned (cellSide L m₀ m₁ K) b → box b (L * cellSide L m₀ m₁ K) ⊆ X₁ →
     ∃ b', Aligned (cellSide L m₀ m₁ j) b' ∧ box b' (L * cellSide L m₀ m₁ j) ⊆ X ∧

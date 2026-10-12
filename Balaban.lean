@@ -258,6 +258,7 @@ public import Balaban.Localization.CutCommutator
 public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Localization.PolymerGeometry
 public import Balaban.Localization.TreeLength
+public import Balaban.Localization.PolymerCount
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
