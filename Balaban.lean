@@ -678,6 +678,8 @@ public import Balaban.LargeField.R.ChainEstimate
 public import Balaban.LargeField.R.WindowGaussTree
 public import Balaban.LargeField.R.WindowChain
 public import Balaban.LargeField.R.WindowIdeal
+public import Balaban.LargeField.R.WindowErr
+public import Balaban.LargeField.R.WindowShift
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond

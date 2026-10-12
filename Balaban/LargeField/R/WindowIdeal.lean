@@ -238,50 +238,63 @@ variable {m k1 k : ℕ} (B : BlockTree m k1 k)
 noncomputable def blockWeight (L : ℕ) (a : ℝ) : ℝ :=
   (∑ x : Fin B.nLeaf, blockFrac m k (B.leafScale x) * (compWeight L a (k - B.leafScale x))⁻¹)⁻¹
 
+/-- `β_k a_z`-normalized sum: `∑_y ϖ_j² w_y² / c_j`, the inverse of `composedPrecision`. -/
+noncomputable def precSum (c z : ℕ → ℝ) : ℝ :=
+  ∑ i ∈ Finset.range (B.n + 1),
+    varpi k z (B.scale i - 1) ^ 2 * blockFrac m k (B.scale i) ^ 2 / c (B.scale i - 1)
+
+theorem composedPrecision_eq (c z : ℕ → ℝ) : B.composedPrecision c z = (B.precSum c z)⁻¹ := rfl
+
+theorem varpi_one (n : ℕ) : varpi k (fun _ => (1 : ℝ)) n = 1 := by simp [varpi]
+
+/-- The term of the non-leaf block `i` for the ideal coefficients and `z ≡ 1`. -/
+theorem ideal_term {L d : ℕ} (hmL : m = L ^ d) (hL : 2 ≤ L) (hd : 2 ≤ d) {a βk : ℝ} (ha : 0 < a)
+    (hβ : 0 < βk) {i : ℕ} (hi : i ∈ Finset.range (B.n + 1)) :
+    varpi k (fun _ => (1 : ℝ)) (B.scale i - 1) ^ 2 * blockFrac m k (B.scale i) ^ 2 /
+        idealCoeff L d k βk a (B.scale i - 1) =
+      (βk * a)⁻¹ * ((((L : ℝ) ^ 2) ^ (k - B.scale i))⁻¹ * blockFrac m k (B.scale i)) := by
+  have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hge := B.scale_ge i (by have := Finset.mem_range.mp hi; omega)
+  have hle := B.scale_le i (by have := Finset.mem_range.mp hi; omega)
+  rw [varpi_one]
+  unfold idealCoeff blockFrac
+  have hk : k - (B.scale i - 1) = (k - B.scale i) + 1 := by omega
+  rw [hk, pow_succ ((L : ℝ) ^ (d - 2)) (k - B.scale i)]
+  have hx : (0 : ℝ) < ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i) := by positivity
+  have hy : (0 : ℝ) < ((L : ℝ) ^ 2) ^ (k - B.scale i) := by positivity
+  have hxy : ((m : ℝ)) ^ (k - B.scale i) = ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i) *
+      ((L : ℝ) ^ 2) ^ (k - B.scale i) := by
+    have hmR : (m : ℝ) = (L : ℝ) ^ d := by exact_mod_cast hmL
+    rw [← mul_pow, ← pow_add, show d - 2 + 2 = d by omega, hmR]
+  rw [hxy]
+  set x := ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i)
+  set y := ((L : ℝ) ^ 2) ^ (k - B.scale i)
+  have hL' : (0 : ℝ) < (L : ℝ) ^ (d - 2) := by positivity
+  field_simp
+
+/-- The inverse composed precision for the ideal data: `βk⁻¹ ∑_x w_x u_{k - n_x}`. -/
+theorem precSum_ideal {L d : ℕ} (hmL : m = L ^ d) (hL : 2 ≤ L) (hd : 2 ≤ d) {a βk : ℝ}
+    (ha : 0 < a) (hβ : 0 < βk) :
+    B.precSum (idealCoeff L d k βk a) (fun _ => 1) =
+      βk⁻¹ * ∑ x : Fin B.nLeaf, blockFrac m k (B.leafScale x) * (compWeight L a (k - B.leafScale x))⁻¹ := by
+  have hm : 0 < m := by rw [hmL]; positivity
+  have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  unfold precSum
+  rw [Finset.sum_congr rfl fun i hi => B.ideal_term hmL hL hd ha hβ hi, ← Finset.mul_sum]
+  rw [B.sum_scale hm (fun s => (((L : ℝ) ^ 2) ^ (k - s))⁻¹)]
+  rw [Finset.mul_sum, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [sum_Ioc_reflect (fun t => (((L : ℝ) ^ 2) ^ t)⁻¹) (B.leafScale_lt x).le,
+    geom_compWeight hL ha]
+  field_simp
+
 /-- **The ideal case of Lemma III.1.6**: with `z_i ≡ 1` and the ideal coefficients the composed weight `a^♮_z`
 is the weight `a_z` of P2 (4.7) = BG (6.5). -/
 theorem composedWeight_ideal {L d : ℕ} (hmL : m = L ^ d) (hL : 2 ≤ L) (hd : 2 ≤ d) {a βk : ℝ}
     (ha : 0 < a) (hβ : 0 < βk) :
     B.composedWeight βk (idealCoeff L d k βk a) (fun _ => 1) = B.blockWeight L a := by
-  have hm : 0 < m := by rw [hmL]; positivity
-  have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
-  have hvar : ∀ n, varpi k (fun _ => (1 : ℝ)) n = 1 := fun n => by simp [varpi]
-  -- the term of a non-leaf block of scale `s`
-  have hterm : ∀ i ∈ Finset.range (B.n + 1),
-      varpi k (fun _ => (1 : ℝ)) (B.scale i - 1) ^ 2 * blockFrac m k (B.scale i) ^ 2 /
-        idealCoeff L d k βk a (B.scale i - 1) =
-      (βk * a)⁻¹ * ((((L : ℝ) ^ 2) ^ (k - B.scale i))⁻¹ * blockFrac m k (B.scale i)) := by
-    intro i hi
-    have hge := B.scale_ge i (by have := Finset.mem_range.mp hi; omega)
-    have hle := B.scale_le i (by have := Finset.mem_range.mp hi; omega)
-    rw [hvar]
-    unfold idealCoeff blockFrac
-    have hk : k - (B.scale i - 1) = (k - B.scale i) + 1 := by omega
-    rw [hk, pow_succ ((L : ℝ) ^ (d - 2)) (k - B.scale i)]
-    have hx : (0 : ℝ) < ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i) := by positivity
-    have hy : (0 : ℝ) < ((L : ℝ) ^ 2) ^ (k - B.scale i) := by positivity
-    have hxy : ((m : ℝ)) ^ (k - B.scale i) = ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i) *
-        ((L : ℝ) ^ 2) ^ (k - B.scale i) := by
-      have hmR : (m : ℝ) = (L : ℝ) ^ d := by exact_mod_cast hmL
-      rw [← mul_pow, ← pow_add, show d - 2 + 2 = d by omega, hmR]
-    rw [hxy]
-    set x := ((L : ℝ) ^ (d - 2)) ^ (k - B.scale i)
-    set y := ((L : ℝ) ^ 2) ^ (k - B.scale i)
-    have hL' : (0 : ℝ) < (L : ℝ) ^ (d - 2) := by positivity
-    field_simp
-  have hS : ∑ i ∈ Finset.range (B.n + 1),
-      varpi k (fun _ => (1 : ℝ)) (B.scale i - 1) ^ 2 * blockFrac m k (B.scale i) ^ 2 /
-        idealCoeff L d k βk a (B.scale i - 1) =
-      βk⁻¹ * ∑ x : Fin B.nLeaf, blockFrac m k (B.leafScale x) * (compWeight L a (k - B.leafScale x))⁻¹ := by
-    rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
-    rw [B.sum_scale hm (fun s => (((L : ℝ) ^ 2) ^ (k - s))⁻¹)]
-    rw [Finset.mul_sum, Finset.mul_sum]
-    refine Finset.sum_congr rfl fun x _ => ?_
-    rw [sum_Ioc_reflect (fun t => (((L : ℝ) ^ 2) ^ t)⁻¹) (B.leafScale_lt x).le,
-      geom_compWeight hL ha]
-    field_simp
-  unfold composedWeight composedPrecision blockWeight
-  rw [hS, mul_inv_rev, inv_inv]
+  unfold composedWeight blockWeight
+  rw [composedPrecision_eq, precSum_ideal B hmL hL hd ha hβ, mul_inv_rev, inv_inv]
   have hne : (βk : ℝ) ≠ 0 := hβ.ne'
   field_simp
 
