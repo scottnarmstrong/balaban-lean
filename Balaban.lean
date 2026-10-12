@@ -952,3 +952,4 @@ public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
 public import Balaban.Localization.P6PairSep
+public import Balaban.Localization.P6PairOp
