@@ -97,30 +97,30 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
 
 /-- The `π_{k+1}`-cube (of `𝕋`) containing a site of the fine torus. -/
-def cellOfSite (m₀ : ℕ) (x : CTorus d L N₁ m₁ (k + 1)) :
+def cubeOfSite (m₀ : ℕ) (x : CTorus d L N₁ m₁ (k + 1)) :
     CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ :=
   ⟨cbase (cellSide L m₀ m₁ (k + 1)) x, aligned_cbase x, Set.subset_univ _⟩
 
-theorem cellOfSite_eq_of_unitBlock_eq {x x' : CTorus d L N₁ m₁ (k + 1)}
-    (h : unitBlock x = unitBlock x') : cellOfSite m₀ x = cellOfSite m₀ x' := by
+theorem cubeOfSite_eq_of_unitBlock_eq {x x' : CTorus d L N₁ m₁ (k + 1)}
+    (h : unitBlock x = unitBlock x') : cubeOfSite m₀ x = cubeOfSite m₀ x' := by
   refine Subtype.ext (funext fun i => ?_)
   have h1 := (unitBlock_eq_iff x x').1 h i
   have hcs : cellSide L m₀ m₁ (k + 1) = L ^ k * L ^ (1 + m₀ + m₁) := by
     unfold cellSide; rw [← pow_add]; congr 1; ring
   have h2 : (x i).val / cellSide L m₀ m₁ (k + 1) = (x' i).val / cellSide L m₀ m₁ (k + 1) := by
     rw [hcs, ← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul, h1]
-  simp only [cellOfSite, cbase]
+  simp only [cubeOfSite, cbase]
   rw [h2]
 
 /-- The `π_{k+1}`-cube containing a unit point. -/
 noncomputable def StepSetting.cellOf (u : S.U) :
     CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ :=
-  cellOfSite m₀ (Classical.choose ((mem_unitPts S.G').1 u.2))
+  cubeOfSite m₀ (Classical.choose ((mem_unitPts S.G').1 u.2))
 
 theorem StepSetting.cellOf_unitPt (x : CTorus d L N₁ m₁ (k + 1)) :
-    S.cellOf m₀ (unitPt S.hG' x) = cellOfSite m₀ x := by
+    S.cellOf m₀ (unitPt S.hG' x) = cubeOfSite m₀ x := by
   have h := (Classical.choose_spec ((mem_unitPts S.G').1 (unitPt S.hG' x).2)).2
-  exact cellOfSite_eq_of_unitBlock_eq m₀ h
+  exact cubeOfSite_eq_of_unitBlock_eq m₀ h
 
 open Classical in
 /-- **The block structure of `ν_{p₁}`**: the actual instance of `BlockSplit` for a step.  The
