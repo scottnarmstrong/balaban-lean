@@ -14,7 +14,7 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W109 | `w109-window-renorm` / W109 | P6 (2.31), windowAction_renorm, factor 2/5 bridge |
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
-| W108 | `w108-thm42` / W108 | FLUCT Thm 4.2 + Cor 4.3 assembly (undecoupled) |
+| W114 | `w114-thm42-real` / W114 | Thm 4.2 real-step pieces |
 | W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
 | W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
 | W113 | `w113-witness-cleanup` / W113 | non-vacuity loose ends, delete vacuous T2_bound |
