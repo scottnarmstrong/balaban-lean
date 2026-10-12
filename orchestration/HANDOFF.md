@@ -14,7 +14,7 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W165 (Opus) | `w165-v2-i6` / W165 | I-6 + renormalization for the v2 class (scheme A) |
 | W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
-| W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks — final build |
+| W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
 | W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
 | W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
 | W172 | `w172-def7v2` / W172 | Def-7 v2 main clauses (scheme A) |
