@@ -288,6 +288,11 @@ public import Balaban.Localization.DecoupledLocal
 public import Balaban.Localization.DecoupledClose
 public import Balaban.Localization.BoxConn
 public import Balaban.Localization.DecoupledGeometry
+public import Balaban.Localization.DecoupledField
+public import Balaban.Localization.DecoupledSolve
+public import Balaban.Localization.DecoupledOne
+public import Balaban.Localization.DecoupledSolveAnalytic
+public import Balaban.Localization.DecoupledFieldLocal
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
