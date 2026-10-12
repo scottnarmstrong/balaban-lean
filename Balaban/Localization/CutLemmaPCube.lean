@@ -329,4 +329,157 @@ theorem cubeFold_case2_bound {Ca Cb cG c0 : ℝ} (hCa : 0 ≤ Ca) (hCb : 0 ≤ C
   refine hfin.trans (le_of_eq ?_)
   ring
 
+/-- **VMOD-9 Lemma 3.1 (cut Lemma P at a mixed physical wall).** Uniformly in everything but `d, L`:
+for `x ∈ Ω₁(H)`, `0 ≤ t ≤ d_H(x, y')` and `M ≥ 0` with `U_D ≤ M` on the `H`-path ball of radius
+`2 d + 1` around `x`,
+`U_D(x) ≤ K₁ e^{-γ t} L^{2j'} M_f + ϑ M`. -/
+theorem cut_lemmaP_cube (hd : 3 ≤ d) (hL : 3 ≤ L) {G : GeneratingSet d L N₀ k ϱ} (hϱ : 1 ≤ ϱ)
+    (hsep : (L : ℝ) ^ d ≤ Real.exp (agmonRate d / 2 * (ϱ - 1)))
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (hν1 : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1)
+    (ha : IsAdmissibleWeights k a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    (S : ℕ) [NeZero S] (c : Fin d → ℕ) (hSℓ : S < N₀ * L ^ k)
+    (hΛ : BlockAligned G (cubeSet (N₀ * L ^ k) S c))
+    {j' : ℕ} (hj'1 : 1 ≤ j') (hj'k : j' ≤ k) {y' : Torus d (N₀ * L ^ k)} (hy' : y' ∈ G.layer j')
+    (hy'Λ : y' ∈ cubeSet (N₀ * L ^ k) S c) {f : G.Ω 1 → ℂ}
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ k j' z = jBlock d L N₀ k j' y')
+    {Mf : ℝ} (hMf0 : 0 ≤ Mf) (hMf : ∀ i, ‖f i‖ ≤ Mf) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist x y') {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ z ∈ G.Ω 1, G.pathDist z x ≤ ENNReal.ofReal (2 * d + 1) →
+      cutU G (cubeCut G (cubeSet (N₀ * L ^ k) S c))
+        (zeroExt (G.Ω 1) ((cutOperator G a ν (cubeCut G (cubeSet (N₀ * L ^ k) S c)) α)⁻¹ *ᵥ f))
+        z ≤ M) :
+    cutU G (cubeCut G (cubeSet (N₀ * L ^ k) S c))
+        (zeroExt (G.Ω 1) ((cutOperator G a ν (cubeCut G (cubeSet (N₀ * L ^ k) S c)) α)⁻¹ *ᵥ f))
+        x ≤
+      cutK1 d L * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * j') * Mf) +
+        thetaStar d * M := by
+  classical
+  have hd0 : 0 < d := by omega
+  have hd1 : (1 : ℝ) ≤ d := by exact_mod_cast hd0
+  have hd0' : (0 : ℝ) < d := by linarith
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hL0 : (0 : ℝ) < L := by linarith
+  have hc := poincareConst_pos hd0
+  obtain ⟨hCa, hLa⟩ := locCa_spec hd
+  obtain ⟨hCb, hLb⟩ := locCb_spec hd
+  obtain ⟨hcG, hG⟩ := locCG_spec hd
+  have hc0 := cutC0_pos (L := L) hd
+  have hc04 := cutC0_le (d := d) (L := L)
+  set cut := cubeCut G (cubeSet (N₀ * L ^ k) S c) with hcutdef
+  have hcut : CutAligned G cut := cubeCut_aligned G hΛ
+  set u := (cutOperator G a ν cut α)⁻¹ *ᵥ f with hudef
+  have hu : cutOperator G a ν cut α *ᵥ u = f := cutOperator_mulVec_inv G hcut hd0 hν ha α hα f
+  have hUnit : IsUnit (cutOperator G a ν cut α) := cutOperator_isUnit G hcut hd0 hν ha α hα
+  have hfΛ : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ k)) ∉ cubeSet (N₀ * L ^ k) S c → f z = 0 := by
+    intro z hz
+    by_contra hne
+    have hb := hsupp z hne
+    exact hz ((hΛ j' hj'1 hj'k y' z hy' hb).1 hy'Λ)
+  have hsuppu := cutOperator_inv_supported G hΛ α hUnit hfΛ hu
+  have hθ0 : 0 ≤ thetaStar d * M := by have := thetaStar_pos d; positivity
+  have hK1 := cutK1_nonneg (L := L) hd
+  have hFnn : 0 ≤ Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * j') * Mf) := by positivity
+  by_cases hxΛ : x ∈ cubeSet (N₀ * L ^ k) S c
+  · obtain ⟨hj1, hjk, hxl⟩ := G.layerIndex_spec hx
+    set j := G.layerIndex x with hj
+    by_cases hρ : 8 ≤ cutC0 d L * (L : ℝ) ^ (j - 1) / d
+    · -- the folded Loc estimate
+      have hj2 : 2 ≤ j := by
+        by_contra hlt
+        have : j = 1 := by omega
+        rw [this] at hρ
+        simp only [Nat.sub_self, pow_zero, mul_one] at hρ
+        have : cutC0 d L / d ≤ 1 / 4 := by
+          rw [div_le_iff₀ hd0']; nlinarith
+        linarith
+      obtain ⟨j₀, hj₀⟩ : ∃ j₀, j = j₀ + 1 := ⟨j - 1, by omega⟩
+      have hj01 : 1 ≤ j₀ := by omega
+      rw [hj₀] at hxl hjk hρ
+      simp only [Nat.add_sub_cancel] at hρ
+      have h2 := cubeFold_case2_bound hCa hCb hcG hc0 hc04 (G := G) hd hL hϱ hsep hν hν1 ha α hα S c
+        hSℓ hu hΛ hj01 hjk hj'1 hj'k hxl hy' hxΛ hsupp hρ hMf0 hMf ht0 ht hM0 hM
+        (fun p0 _ => by
+          have h := hLa _ hρ 0 0 (by simp; positivity)
+            (fun w => zeroExt (G.Ω 1) u (cubeFoldPt N₀ L k S c p0 w))
+            (fun w => negLap (fun w => zeroExt (G.Ω 1) u (cubeFoldPt N₀ L k S c p0 w)) w)
+            (fun z _ => rfl)
+          simpa using h)
+        (fun p0 _ μ => by
+          have h := hLb _ hρ 0 0 (by simp; positivity) μ
+            (fun w => zeroExt (G.Ω 1) u (cubeFoldPt N₀ L k S c p0 w))
+            (fun w => negLap (fun w => zeroExt (G.Ω 1) u (cubeFoldPt N₀ L k S c p0 w)) w)
+            (fun z _ => rfl)
+          simpa using h) hG
+      have hpot : locCG d * ((3 + 1) * (9 + 3 * L)) * cutC0 d L ≤ thetaStar d := by
+        have h1 : cutC0 d L ≤ thetaStar d / (locCG d * ((3 + 1) * (9 + 3 * L)) + 1) := min_le_right _ _
+        have hpos : 0 < locCG d * ((3 + 1) * (9 + 3 * (L : ℝ))) + 1 := by positivity
+        rw [le_div_iff₀ hpos] at h1
+        nlinarith
+      have hK2 : (((locCa d + d * (d * L / cutC0 d L) * locCb d) * (Real.sqrt (2 ^ d) *
+          (2 / poincareConst d * Real.exp (agmonRate d * (1 + 2 * d)) * (L : ℝ) ^ 2 *
+            bd d L ^ 2 / Real.sqrt ((cutC0 d L / d) ^ d))) +
+          locCG d * (9 + 3 * d * L) * Real.exp (agmonRate d / 2 * (2 * d + 1)))) ≤ cutK1 d L := by
+        refine le_trans (le_of_eq ?_) (le_max_right _ _)
+        unfold cutC2
+        ring
+      refine h2.trans ?_
+      have h3 : (((locCa d + d * (d * L / cutC0 d L) * locCb d) * (Real.sqrt (2 ^ d) *
+          (2 / poincareConst d * Real.exp (agmonRate d * (1 + 2 * d)) * (L : ℝ) ^ 2 *
+            bd d L ^ 2 / Real.sqrt ((cutC0 d L / d) ^ d))) +
+          locCG d * (9 + 3 * d * L) * Real.exp (agmonRate d / 2 * (2 * d + 1)))) *
+          Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * j') * Mf) ≤
+          cutK1 d L * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * j') * Mf) := by
+        have := mul_le_mul_of_nonneg_right hK2 hFnn
+        linarith
+      have h4 : locCG d * ((3 + 1) * (9 + 3 * L)) * cutC0 d L * M ≤ thetaStar d * M :=
+        mul_le_mul_of_nonneg_right hpot hM0
+      linarith
+    · -- bounded evaluation scale
+      push Not at hρ
+      have hLj : (L : ℝ) ^ j ≤ cutJ0 d L := by
+        have h2 : (L : ℝ) ^ (j - 1) < 8 * d / cutC0 d L := by
+          rw [lt_div_iff₀ hc0]
+          rw [div_lt_iff₀ hd0'] at hρ
+          nlinarith
+        have h3 : (L : ℝ) ^ j = L * (L : ℝ) ^ (j - 1) := by
+          rw [← pow_succ']; congr 1; omega
+        rw [h3]
+        unfold cutJ0
+        have : (L : ℝ) * (8 * d / cutC0 d L) = 8 * d * L / cutC0 d L := by ring
+        rw [← this]
+        exact mul_le_mul_of_nonneg_left h2.le hL0.le
+      have h1 := cut_case1_retained_unif hcut hd hϱ hsep hν ha α hα hj1 hjk hj'1 hj'k hxl hy' hu
+        hsupp hMf0 hMf ht0 ht hLj
+      refine h1.trans ?_
+      have h5 : cutA0 d * bd d L * Real.sqrt (cutJ0 d L ^ d) ≤ cutK1 d L := le_max_left _ _
+      have h6 : cutA0 d * bd d L * Real.sqrt (cutJ0 d L ^ d) * Real.exp (-(agmonRate d / 2 * t)) *
+          ((L : ℝ) ^ (2 * j') * Mf) ≤
+          cutK1 d L * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ (2 * j') * Mf) := by
+        rw [mul_assoc, mul_assoc (cutK1 d L)]
+        exact mul_le_mul_of_nonneg_right h5 hFnn
+      unfold cutA0 at h6
+      linarith
+  · -- outside the cube the solution and the retained gradients vanish
+    have hut0 : ∀ y : Torus d (N₀ * L ^ k), y ∉ cubeSet (N₀ * L ^ k) S c →
+        zeroExt (G.Ω 1) u y = 0 := by
+      intro y hy
+      unfold zeroExt
+      split_ifs with h
+      · exact hsuppu ⟨y, h⟩ hy
+      · rfl
+    have hz : cutU G cut (zeroExt (G.Ω 1) u) x = 0 := by
+      unfold cutU
+      rw [hut0 x hxΛ, norm_zero, zero_add]
+      refine mul_eq_zero_of_right _ (Finset.sum_eq_zero fun μ _ => ?_)
+      by_cases hμ : x + Pi.single μ 1 ∈ cubeSet (N₀ * L ^ k) S c
+      · have : (x, μ) ∈ cut := by
+          rw [hcutdef, mem_cubeCut]
+          exact Or.inr ⟨hxΛ, hx, hμ⟩
+        simp [this]
+      · rw [hut0 _ hμ]
+        simp
+    rw [hz]
+    positivity
+
 end Balaban.Localization
