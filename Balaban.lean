@@ -1085,6 +1085,10 @@ public import Balaban.Fluctuation.HatLabelsDep
 public import Balaban.Fluctuation.HatLabelsAct
 public import Balaban.Fluctuation.HatLabelsTerms
 public import Balaban.Fluctuation.HatLabelsExpansion
+public import Balaban.Fluctuation.HatDiagContBase
+public import Balaban.Fluctuation.HatLocIntDm
+public import Balaban.Fluctuation.HatPolyDom
+public import Balaban.Fluctuation.HatLabelsDm
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
@@ -1153,6 +1157,8 @@ public import Balaban.Fluctuation.StepActivityWitnessNe
 public import Balaban.Fluctuation.StepActivityWitnessRay
 public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
+public import Balaban.Fluctuation.StepTaylor
+public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
