@@ -13,7 +13,6 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W245 | `w245-avg-family` / W245 | averaged vs unaveraged term family in a_j = v₁ (links M2, M3 of W235) |
-| W247 | `w247-fnu-reads` / W247 | F and ν physical reads: Core dichotomy (SPLIT §3, F and ν) |
 | W248 | `w248-p6-pair-witness` / W248 | concrete P6 pair instance for P6ActiveHalo / MooreDegree / LedgerPacking |
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
 | W250 | `w250-v-reads` / W250 | V-summand physical reads (SPLIT §3, V) |
