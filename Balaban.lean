@@ -854,6 +854,7 @@ public import Balaban.LargeField.R.ActionConvRatio
 public import Balaban.LargeField.R.ActionConvReduce
 public import Balaban.LargeField.R.ActionConvWindow
 public import Balaban.LargeField.R.ActionConvWitness
+public import Balaban.LargeField.R.MassChangeChord
 public import Balaban.Fluctuation.BackgroundChangeCompare
 public import Balaban.Fluctuation.BackgroundChangeExpansion
 public import Balaban.Fluctuation.BackgroundChangeLate
