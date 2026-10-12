@@ -1054,3 +1054,4 @@ public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
 public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
+public import Balaban.SmallField.GsSpecAgree
