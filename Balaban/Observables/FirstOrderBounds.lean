@@ -116,72 +116,6 @@ theorem T1_bound {d : ℕ} {γ α₁ ρ₀ ρ₁ ρ₂ : ℝ} (hE : ExponentCons
         exact mul_le_mul_of_nonneg_right hle hprod
     _ = _ := by ring
 
-/-- **T2 (3.6)** (P9 p. 510-511), `D = d - 2`.  One `(X, Y)` term of `β_{j-1}^{-1/2} ⟨δM^{(j)}⟩`,
-`j ≤ k`: `x ≤ b_j · r₀⁻¹ · F₀` (single field Cauchy factor, radius of the case
-`RadiusCase.new`, with `ε_{k+1} = α₀ ξ_{k+1}^{D/2-γ}`), where `b_j = β_{j-1}^{-1/2} ≤ √2 L^{D/2}
-β^{-1/2} ξ_j^{D/2}` (B1) and `F₀ = C₃ β^{-1/2+ρ₁} ξ_j^{ρ₀} (η/ξ_j)^{D/2+1-γ}` (the size of
-Lemma 3.4 on `Ψ^c_j(C₀ L^j η, ε_k)`, `d/2 = D/2 + 1`).  Then
-`x ≤ K β^{-1+ρ₁+ρ₂} ξ_j^{ρ₀+γ-1} η^{1-Dρ₂}`. -/
-theorem T2_bound {D γ ρ₀ ρ₁ ρ₂ : ℝ} (S : StepScale D ρ₂)
-    (hρ2 : 0 < ρ₂) (hρ2' : ρ₂ ≤ 1)
-    {c c₁ a α₀ εo εn C₃ ξj bj x : ℝ} (hc : 0 < c) (ha : 0 < a) (hα₀ : 0 < α₀) (hC₃ : 0 ≤ C₃)
-    (hξj : 0 < ξj)
-    (hbj : bj ≤ √2 * S.L ^ (D / 2) * S.β ^ (-(1 / 2 : ℝ)) * ξj ^ (D / 2))
-    (hεn : εn = α₀ * S.ξ ^ (D / 2 - γ))
-    (hx : x ≤ bj * (1 / fieldRadius c c₁ a εo εn S.p1 RadiusCase.new) *
-      (C₃ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ))) :
-    x ≤ √2 * S.L ^ (D / 2) * (2 * S.Cp) * S.L ^ (D / 2 - γ) * C₃ /
-        (c * a * α₀) * S.β ^ (-1 + ρ₁ + ρ₂) * ξj ^ (ρ₀ + γ - 1) * S.η ^ (1 - D * ρ₂) := by
-  have hβp := S.β_pos
-  have hη0 := S.hη0
-  have hLp := S.L_pos
-  have hp1 : 0 < S.p1 := by linarith [S.hp1]
-  have hξk : 0 < S.ξ := S.ξ_pos
-  have hξα : 0 < S.ξ ^ (D / 2 - γ) := Real.rpow_pos_of_pos hξk _
-  have hr : 1 / fieldRadius c c₁ a εo εn S.p1 RadiusCase.new = S.p1 / (c * a * εn) := by
-    simp only [fieldRadius]
-    rw [one_div_div]
-  have hεpos : 0 < εn := by rw [hεn]; positivity
-  have hp1b := S.p1_pow_le hρ2.le hρ2' (s := 1) (by norm_num)
-  simp only [Real.rpow_one, one_mul] at hp1b
-  have hF0 : 0 ≤ C₃ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ) := by
-    positivity
-  have h1 : x ≤ (√2 * S.L ^ (D / 2) * S.β ^ (-(1 / 2 : ℝ)) * ξj ^ (D / 2)) *
-      ((2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * εn)) *
-      (C₃ * S.β ^ (-(1 / 2 : ℝ)  + ρ₁) * ξj ^ ρ₀ * (S.η / ξj) ^ (D / 2 + 1 - γ)) := by
-    rw [hr] at hx
-    refine hx.trans ?_
-    have hd : 0 ≤ S.p1 / (c * a * εn) := by positivity
-    have e1 : S.p1 / (c * a * εn) ≤ (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * εn) :=
-      div_le_div_of_nonneg_right (by simpa [mul_assoc] using hp1b) (by positivity)
-    exact mul_le_mul_of_nonneg_right (mul_le_mul hbj e1 hd (by positivity)) hF0
-  refine h1.trans (le_of_eq ?_)
-  -- exponent arithmetic
-  have eξ : (S.ξ ^ (D / 2 - γ))⁻¹ = S.L ^ (D / 2 - γ) * S.η ^ (-(D / 2 - γ)) := by
-    unfold StepScale.ξ
-    rw [Real.div_rpow hη0.le hLp.le, Real.rpow_neg hη0.le]
-    field_simp
-  have eη : (S.η / ξj) ^ (D / 2 + 1 - γ) = S.η ^ (D / 2 + 1 - γ) * (ξj ^ (D / 2 + 1 - γ))⁻¹ := by
-    rw [Real.div_rpow hη0.le hξj.le]; ring
-  have eβ : S.β ^ (-(1 / 2 : ℝ)) * S.β ^ ρ₂ * S.β ^ (-(1 / 2 : ℝ) + ρ₁) = S.β ^ (-1 + ρ₁ + ρ₂) := by
-    rw [← Real.rpow_add hβp, ← Real.rpow_add hβp]; congr 1; ring
-  have eξj : ξj ^ (D / 2) * ξj ^ ρ₀ * (ξj ^ (D / 2 + 1 - γ))⁻¹ = ξj ^ (ρ₀ + γ - 1) := by
-    rw [← Real.rpow_neg hξj.le, ← Real.rpow_add hξj, ← Real.rpow_add hξj]; congr 1; ring
-  have eη' : S.η ^ (-(D * ρ₂)) * S.η ^ (-(D / 2 - γ)) * S.η ^ (D / 2 + 1 - γ) =
-      S.η ^ (1 - D * ρ₂) := by
-    rw [← Real.rpow_add hη0, ← Real.rpow_add hη0]; congr 1; ring
-  rw [hεn, eη]
-  have hc' : c * a * (α₀ * S.ξ ^ (D / 2 - γ)) ≠ 0 := by positivity
-  have : (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * (α₀ * S.ξ ^ (D / 2 - γ))) =
-      (2 * S.Cp * S.β ^ ρ₂ * S.η ^ (-(D * ρ₂))) / (c * a * α₀) * (S.ξ ^ (D / 2 - γ))⁻¹ := by
-    field_simp
-  rw [this, eξ]
-  calc _ = √2 * S.L ^ (D / 2) * (2 * S.Cp) * S.L ^ (D / 2 - γ) * C₃ / (c * a * α₀) *
-        (S.β ^ (-(1 / 2 : ℝ)) * S.β ^ ρ₂ * S.β ^ (-(1 / 2 : ℝ) + ρ₁)) *
-        (ξj ^ (D / 2) * ξj ^ ρ₀ * (ξj ^ (D / 2 + 1 - γ))⁻¹) *
-        (S.η ^ (-(D * ρ₂)) * S.η ^ (-(D / 2 - γ)) * S.η ^ (D / 2 + 1 - γ)) := by ring
-    _ = _ := by rw [eβ, eξj, eη']
-
 /-- **(3.23)** `ξ_j^{ρ₀+γ-1} η^{1-Dρ₂} ≤ ξ_j^{γ-Dρ₂} η^{ρ₀}` for `η ≤ ξ_j` and `ρ₀ + Dρ₂ ≤ 1`:
 the irrelevant factor `η^{ρ₀}` is split off. -/
 theorem xi_eta_split {ξj η D γ ρ₀ ρ₂ : ℝ} (hξj : 0 < ξj) (hη : 0 < η) (hηξ : η ≤ ξj)
@@ -221,7 +155,7 @@ theorem sum_xi_pow_le {L θ : ℝ} (hL : 2 ≤ L) (hθ : 0 < θ) (k : ℕ) :
   rw [hq]; field_simp
 
 /-- **T2, summed over the scales `j ≤ k`** (P9 (3.23)).  If every scale contributes
-`x_j ≤ K β^{-1+ρ₁+ρ₂} ξ_j^{γ-Dρ₂} η^{ρ₀}` (`xi_eta_split` applied to `T2_bound`), then, since
+`x_j ≤ K β^{-1+ρ₁+ρ₂} ξ_j^{γ-Dρ₂} η^{ρ₀}` (`xi_eta_split` applied to `T2_bound_ge`), then, since
 `γ - Dρ₂ > 0` by (E4), the sum is `≤ ½ β^{-1/2+ρ₁} ξ_{k+1}^{ρ₀}` for `β ≥ β₀` (`hβ0`). -/
 theorem T2_total {d : ℕ} {γ α₁ ρ₀ ρ₁ ρ₂ : ℝ} (hE : ExponentConstraints d γ α₁ ρ₀ ρ₁ ρ₂)
     (S : StepScale ((d : ℝ) - 2) ρ₂) (k : ℕ) (xs : ℕ → ℝ) {Kc : ℝ} (hK : 0 ≤ Kc)
