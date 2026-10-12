@@ -88,27 +88,41 @@ namespace Balaban.Background
 open Balaban.Multiscale Matrix Finset
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
-/-- **A lattice symmetry from the generating set `G` to the generating set `G'`**: a permutation `σ`
-of the fine torus which
+/-- **A symmetry of the paved torus**: a permutation `σ` of the fine torus which
 
 * maps the nearest-neighbour structure to itself, permuting the coordinate directions by `perm`
   and reversing the orientation of exactly the directions `μ` with `flip μ` (the same orientation
   at every site): `σ (x + e_μ) = σ x ± e_{perm μ}` (`step`);
-* maps `Ω_j` onto `Ω'_j` for `1 ≤ j ≤ k + 1` (`omega`);
 * maps the `n`-blocks to `n`-blocks for `1 ≤ n ≤ k` (`block`).
 
-This is the class of Euclidean symmetries of the torus that preserve the paving: compositions of
-translations by multiples of the top block period `L ^ k`, reflections `x_μ ↦ -1 - x_μ`, and
-permutations of the coordinates, which preserve `G` (`LatSymm.ofTranslate`, `LatSymm.ofReflect`,
-`LatSymm.ofCoordPerm`, `LatSymm.trans`). -/
-structure LatSymm (G G' : GeneratingSet d L N₀ k ϱ) (σ : Equiv.Perm (Torus d (N₀ * L ^ k))) where
+These are the Euclidean symmetries of the torus that preserve the block structure up to the top
+level: compositions of translations by multiples of the top block period `L ^ k`, reflections
+`x_μ ↦ c - 1 - x_μ` (`L ^ k ∣ c`), and permutations of the coordinates (`TorusSymm.ofTranslate`,
+`TorusSymm.ofReflect`, `TorusSymm.ofCoordPerm`, `TorusSymm.trans`). -/
+structure TorusSymm (σ : Equiv.Perm (Torus d (N₀ * L ^ k))) where
+  /-- The permutation of the coordinate directions. -/
   perm : Equiv.Perm (Fin d)
+  /-- The directions whose orientation is reversed. -/
   flip : Fin d → Bool
   step : ∀ (x : Torus d (N₀ * L ^ k)) (μ : Fin d), σ (x + Pi.single μ 1) =
     if flip μ then σ x - Pi.single (perm μ) 1 else σ x + Pi.single (perm μ) 1
-  omega : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, σ x ∈ G'.Ω j ↔ x ∈ G.Ω j
   block : ∀ n, 1 ≤ n → n ≤ k → ∀ x y,
     jBlock d L N₀ k n (σ x) = jBlock d L N₀ k n (σ y) ↔ jBlock d L N₀ k n x = jBlock d L N₀ k n y
+
+omit [NeZero N₀] [NeZero L] in
+theorem TorusSymm.step_sub {σ : Equiv.Perm (Torus d (N₀ * L ^ k))} (S : TorusSymm σ)
+    (x : Torus d (N₀ * L ^ k)) (μ : Fin d) : σ (x - Pi.single μ 1) =
+    if S.flip μ then σ x + Pi.single (S.perm μ) 1 else σ x - Pi.single (S.perm μ) 1 := by
+  have h := S.step (x - Pi.single μ 1) μ
+  rw [sub_add_cancel] at h
+  generalize σ (x - Pi.single μ 1) = A at h ⊢
+  cases hf : S.flip μ <;> simp only [hf] at h ⊢ <;> simp at h ⊢ <;> rw [h] <;> abel
+
+/-- **A lattice symmetry from the generating set `G` to the generating set `G'`**: a symmetry of the
+paved torus (`TorusSymm`) which maps `Ω_j` onto `Ω'_j` for `1 ≤ j ≤ k + 1` (`omega`). -/
+structure LatSymm (G G' : GeneratingSet d L N₀ k ϱ) (σ : Equiv.Perm (Torus d (N₀ * L ^ k)))
+    extends TorusSymm σ where
+  omega : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, σ x ∈ G'.Ω j ↔ x ∈ G.Ω j
 
 namespace LatSymm
 
@@ -116,13 +130,6 @@ variable {G G' : GeneratingSet d L N₀ k ϱ} {σ : Equiv.Perm (Torus d (N₀ * 
   (S : LatSymm G G' σ)
 
 include S
-
-theorem step_sub (x : Torus d (N₀ * L ^ k)) (μ : Fin d) : σ (x - Pi.single μ 1) =
-    if S.flip μ then σ x + Pi.single (S.perm μ) 1 else σ x - Pi.single (S.perm μ) 1 := by
-  have h := S.step (x - Pi.single μ 1) μ
-  rw [sub_add_cancel] at h
-  generalize σ (x - Pi.single μ 1) = A at h ⊢
-  cases hf : S.flip μ <;> simp only [hf] at h ⊢ <;> simp at h ⊢ <;> rw [h] <;> abel
 
 theorem mem_Ω1 (x : Torus d (N₀ * L ^ k)) : σ x ∈ G'.Ω 1 ↔ x ∈ G.Ω 1 :=
   S.omega 1 le_rfl (by omega) x
@@ -570,11 +577,9 @@ theorem coordPerm_single (π : Equiv.Perm (Fin d)) (μ : Fin d) :
   simp only [coordPerm, Equiv.coe_fn_mk, Function.comp_apply, Pi.single_apply]
   simp [Equiv.symm_apply_eq]
 
-/-- The coordinate permutation is a lattice symmetry as soon as it preserves the generating
-set. -/
-def LatSymm.ofCoordPerm {G G' : GeneratingSet d L N₀ k ϱ} (π : Equiv.Perm (Fin d))
-    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, coordPerm π x ∈ G'.Ω j ↔ x ∈ G.Ω j) :
-    LatSymm G G' (coordPerm π) where
+/-- The coordinate permutations are symmetries of the paved torus. -/
+def TorusSymm.ofCoordPerm (π : Equiv.Perm (Fin d)) :
+    TorusSymm (coordPerm (N₀ := N₀) (L := L) (k := k) π) where
   perm := π
   flip := fun _ => false
   step := fun x μ => by
@@ -583,7 +588,6 @@ def LatSymm.ofCoordPerm {G G' : GeneratingSet d L N₀ k ϱ} (π : Equiv.Perm (F
         coordPerm π x + coordPerm π (Pi.single μ 1) := by
       funext i; rfl
     rw [this, coordPerm_single]
-  omega := hΩ
   block := fun n h1 hk x y => by
     have key : ∀ z : Torus d (N₀ * L ^ k), jBlock d L N₀ k n (coordPerm π z) =
         jBlock d L N₀ k n z ∘ π.symm := fun z => rfl
@@ -601,18 +605,15 @@ omit [NeZero N₀] [NeZero L] in
 theorem jBlock_apply (n : ℕ) (x : Torus d (N₀ * L ^ k)) (i : Fin d) :
     jBlock d L N₀ k n x i = blockCoord (L ^ n) (N₀ * L ^ (k - n)) (x i) := rfl
 
-/-- Translation by a multiple of the period `L ^ k` of the top blocks is a lattice symmetry as
-soon as it preserves the generating set. -/
-def LatSymm.ofTranslate {G G' : GeneratingSet d L N₀ k ϱ} (t : Torus d (N₀ * L ^ k))
-    (ht : ∀ μ, L ^ k ∣ (t μ).val)
-    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, x + t ∈ G'.Ω j ↔ x ∈ G.Ω j) :
-    LatSymm G G' (Equiv.addRight t) where
+/-- Translation by a multiple of the period `L ^ k` of the top blocks is a symmetry of the paved
+torus. -/
+def TorusSymm.ofTranslate (t : Torus d (N₀ * L ^ k)) (ht : ∀ μ, L ^ k ∣ (t μ).val) :
+    TorusSymm (Equiv.addRight t : Equiv.Perm (Torus d (N₀ * L ^ k))) where
   perm := 1
   flip := fun _ => false
   step := fun x μ => by
     simp only [Equiv.coe_addRight, Bool.false_eq_true, ↓reduceIte, Equiv.Perm.coe_one, id_eq]
     abel
-  omega := hΩ
   block := fun n h1 hk x y => by
     have hdvd : ∀ μ, L ^ n ∣ (t μ).val := fun μ => (pow_dvd_pow L hk).trans (ht μ)
     have hℓ : N₀ * L ^ k = L ^ n * (N₀ * L ^ (k - n)) := side_eq hk
@@ -625,35 +626,36 @@ def LatSymm.ofTranslate {G G' : GeneratingSet d L N₀ k ϱ} (t : Torus d (N₀ 
     · intro h; funext i; simpa using congrFun h i
     · intro h; funext i; simp [congrFun h i]
 
-/-- The reflection `x_μ ↦ -1 - x_μ` of the coordinate `μ` of the torus. -/
-def reflPerm (μ₀ : Fin d) : Equiv.Perm (Torus d (N₀ * L ^ k)) where
-  toFun x := Function.update x μ₀ (-1 - x μ₀)
-  invFun x := Function.update x μ₀ (-1 - x μ₀)
+/-- The reflection `x_μ ↦ c - 1 - x_μ` of the coordinate `μ` of the torus. -/
+def reflPerm (μ₀ : Fin d) (c : ZMod (N₀ * L ^ k)) : Equiv.Perm (Torus d (N₀ * L ^ k)) where
+  toFun x := Function.update x μ₀ (c - 1 - x μ₀)
+  invFun x := Function.update x μ₀ (c - 1 - x μ₀)
   left_inv x := by funext i; by_cases h : i = μ₀ <;> simp [h]
   right_inv x := by funext i; by_cases h : i = μ₀ <;> simp [h]
 
-/-- The reflection `x_μ ↦ -1 - x_μ` (which maps `L ^ n`-blocks to `L ^ n`-blocks for `n ≤ k`) is a
-lattice symmetry as soon as it preserves the generating set. -/
-def LatSymm.ofReflect {G G' : GeneratingSet d L N₀ k ϱ} (μ₀ : Fin d)
-    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, reflPerm μ₀ x ∈ G'.Ω j ↔ x ∈ G.Ω j) :
-    LatSymm G G' (reflPerm μ₀) where
+/-- The reflection `x_μ ↦ c - 1 - x_μ`, `L ^ k ∣ c`, maps `L ^ n`-blocks to `L ^ n`-blocks for
+`n ≤ k`: it is a symmetry of the paved torus. -/
+def TorusSymm.ofReflect (μ₀ : Fin d) (c : ZMod (N₀ * L ^ k)) (hcd : L ^ k ∣ c.val) :
+    TorusSymm (reflPerm μ₀ c) where
   perm := 1
   flip := fun μ => decide (μ = μ₀)
   step := fun x μ => by
     funext i
     by_cases hi : i = μ₀ <;> by_cases hm : μ = μ₀ <;> simp [reflPerm, hi, hm, Pi.single_apply]
     all_goals ring
-  omega := hΩ
   block := fun n h1 hk x y => by
     have hℓ : N₀ * L ^ k = L ^ n * (N₀ * L ^ (k - n)) := side_eq hk
     have hc : 0 < L ^ n := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
-    have key : ∀ (z : Torus d (N₀ * L ^ k)) i, jBlock d L N₀ k n (reflPerm μ₀ z) i =
-        if i = μ₀ then -1 - jBlock d L N₀ k n z i else jBlock d L N₀ k n z i := by
+    have hdvd : L ^ n ∣ c.val := (pow_dvd_pow L hk).trans hcd
+    have key : ∀ (z : Torus d (N₀ * L ^ k)) i, jBlock d L N₀ k n (reflPerm μ₀ c z) i =
+        if i = μ₀ then -1 - jBlock d L N₀ k n z i +
+          ((c.val / L ^ n : ℕ) : ZMod (N₀ * L ^ (k - n))) else jBlock d L N₀ k n z i := by
       intro z i
       by_cases hi : i = μ₀
       · subst hi
         simp only [jBlock_apply, reflPerm, Equiv.coe_fn_mk, Function.update_self, ite_true]
-        exact blockCoord_neg_one_sub hc hℓ _
+        have e : c - 1 - z i = (-1 - z i) + c := by ring
+        rw [e, blockCoord_add_of_dvd hℓ _ _ hdvd, blockCoord_neg_one_sub hc hℓ _]
       · simp [jBlock_apply, reflPerm, hi]
     constructor
     · intro h; funext i
@@ -671,17 +673,16 @@ def LatSymm.ofReflect {G G' : GeneratingSet d L N₀ k ϱ} (μ₀ : Fin d)
 end Generators
 
 
-/-- The identity is a lattice symmetry. -/
-def LatSymm.refl (G : GeneratingSet d L N₀ k ϱ) : LatSymm G G (1 : Equiv.Perm (Torus d (N₀ * L ^ k))) where
+/-- The identity is a symmetry of the paved torus. -/
+def TorusSymm.refl : TorusSymm (1 : Equiv.Perm (Torus d (N₀ * L ^ k))) where
   perm := 1
   flip := fun _ => false
   step := fun x μ => by simp
-  omega := fun _ _ _ _ => Iff.rfl
   block := fun _ _ _ _ _ => Iff.rfl
 
-/-- Composition of lattice symmetries (first `σ`, then `τ`). -/
-def LatSymm.trans {G G' G'' : GeneratingSet d L N₀ k ϱ} {σ τ : Equiv.Perm (Torus d (N₀ * L ^ k))}
-    (S : LatSymm G G' σ) (S' : LatSymm G' G'' τ) : LatSymm G G'' (σ.trans τ) where
+/-- Composition of symmetries of the paved torus (first `σ`, then `τ`). -/
+def TorusSymm.trans {σ τ : Equiv.Perm (Torus d (N₀ * L ^ k))} (S : TorusSymm σ) (S' : TorusSymm τ) :
+    TorusSymm (σ.trans τ) where
   perm := S.perm.trans S'.perm
   flip := fun μ => xor (S.flip μ) (S'.flip (S.perm μ))
   step := fun x μ => by
@@ -691,11 +692,74 @@ def LatSymm.trans {G G' G'' : GeneratingSet d L N₀ k ϱ} {σ τ : Equiv.Perm (
     simp only [Equiv.trans_apply, h1]
     cases hf : S.flip μ <;> cases hf' : S'.flip (S.perm μ) <;>
       simp [hf', h2, h3] at h2 h3 ⊢
-  omega := fun j h1 h2 x => by
-    simp only [Equiv.trans_apply]
-    rw [S'.omega j h1 h2, S.omega j h1 h2]
   block := fun n h1 hk x y => by
     simp only [Equiv.trans_apply]
     rw [S'.block n h1 hk, S.block n h1 hk]
+
+/-- The inverse of a symmetry of the paved torus. -/
+def TorusSymm.symm {σ : Equiv.Perm (Torus d (N₀ * L ^ k))} (S : TorusSymm σ) : TorusSymm σ.symm where
+  perm := S.perm.symm
+  flip := fun μ => S.flip (S.perm.symm μ)
+  step := fun y μ => by
+    have h1 := S.step (σ.symm y) (S.perm.symm μ)
+    have h2 := S.step_sub (σ.symm y) (S.perm.symm μ)
+    simp only [Equiv.apply_symm_apply] at h1 h2
+    cases hf : S.flip (S.perm.symm μ)
+    · simp only [hf, Bool.false_eq_true, ↓reduceIte] at h1 h2 ⊢
+      exact σ.symm_apply_eq.2 (by rw [h1])
+    · simp only [hf, ↓reduceIte] at h1 h2 ⊢
+      exact σ.symm_apply_eq.2 (by rw [h2])
+  block := fun n h1 hk x y => by
+    simpa using (S.block n h1 hk (σ.symm x) (σ.symm y)).symm
+
+section LatSymmGens
+
+variable {G G' G'' : GeneratingSet d L N₀ k ϱ}
+
+/-- A symmetry of the paved torus mapping `Ω_j` onto `Ω'_j` is a lattice symmetry. -/
+def LatSymm.ofTorusSymm {σ : Equiv.Perm (Torus d (N₀ * L ^ k))} (T : TorusSymm σ)
+    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, σ x ∈ G'.Ω j ↔ x ∈ G.Ω j) : LatSymm G G' σ :=
+  { T with omega := hΩ }
+
+/-- The identity is a lattice symmetry. -/
+def LatSymm.refl (G : GeneratingSet d L N₀ k ϱ) :
+    LatSymm G G (1 : Equiv.Perm (Torus d (N₀ * L ^ k))) :=
+  LatSymm.ofTorusSymm TorusSymm.refl (fun _ _ _ _ => Iff.rfl)
+
+/-- Composition of lattice symmetries (first `σ`, then `τ`). -/
+def LatSymm.trans {σ τ : Equiv.Perm (Torus d (N₀ * L ^ k))}
+    (S : LatSymm G G' σ) (S' : LatSymm G' G'' τ) : LatSymm G G'' (σ.trans τ) :=
+  LatSymm.ofTorusSymm (S.toTorusSymm.trans S'.toTorusSymm) (fun j h1 h2 x => by
+    simp only [Equiv.trans_apply]
+    rw [S'.omega j h1 h2, S.omega j h1 h2])
+
+/-- The inverse of a lattice symmetry is a lattice symmetry in the opposite direction. -/
+def LatSymm.symm {σ : Equiv.Perm (Torus d (N₀ * L ^ k))} (S : LatSymm G G' σ) :
+    LatSymm G' G σ.symm :=
+  LatSymm.ofTorusSymm S.toTorusSymm.symm (fun j h1 h2 y => by
+    simpa using (S.omega j h1 h2 (σ.symm y)).symm)
+
+/-- The coordinate permutation is a lattice symmetry as soon as it preserves the generating
+set. -/
+def LatSymm.ofCoordPerm (π : Equiv.Perm (Fin d))
+    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, coordPerm π x ∈ G'.Ω j ↔ x ∈ G.Ω j) :
+    LatSymm G G' (coordPerm π) :=
+  LatSymm.ofTorusSymm (TorusSymm.ofCoordPerm π) hΩ
+
+/-- Translation by a multiple of `L ^ k` is a lattice symmetry as soon as it preserves the
+generating set. -/
+def LatSymm.ofTranslate (t : Torus d (N₀ * L ^ k)) (ht : ∀ μ, L ^ k ∣ (t μ).val)
+    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, x + t ∈ G'.Ω j ↔ x ∈ G.Ω j) :
+    LatSymm G G' (Equiv.addRight t) :=
+  LatSymm.ofTorusSymm (TorusSymm.ofTranslate t ht) hΩ
+
+/-- The reflection `x_μ ↦ c - 1 - x_μ`, `L ^ k ∣ c`, is a lattice symmetry as soon as it preserves
+the generating set. -/
+def LatSymm.ofReflect (μ₀ : Fin d) (c : ZMod (N₀ * L ^ k)) (hcd : L ^ k ∣ c.val)
+    (hΩ : ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ x, reflPerm μ₀ c x ∈ G'.Ω j ↔ x ∈ G.Ω j) :
+    LatSymm G G' (reflPerm μ₀ c) :=
+  LatSymm.ofTorusSymm (TorusSymm.ofReflect μ₀ c hcd) hΩ
+
+end LatSymmGens
 
 end Balaban.Background
