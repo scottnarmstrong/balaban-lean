@@ -965,6 +965,7 @@ public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
 public import Balaban.Fluctuation.StepMeasure
 public import Balaban.Fluctuation.StepEven
+public import Balaban.Inhabited.V2Wide
 public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
