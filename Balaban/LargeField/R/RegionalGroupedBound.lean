@@ -209,5 +209,265 @@ theorem grouped_mismatch_corr_le
     _ = _ := by ring
 
 end Abstract
+/-! ### (T2) The power form for the landed objects -/
+
+section Concrete
+
+open Balaban Balaban.Localization Balaban.Fluctuation Balaban.SmallField Balaban.LargeField
+  Balaban.LargeField.Def7 Balaban.LargeField.Def7v2 Balaban.LargeField.RegionShrink
+  Balaban.LargeField.RegionalTails Balaban.LargeField.RegionalSourceTerm
+  Balaban.LargeField.RegionalArith Balaban.SmallField.Def6
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ)
+
+/-- The scale `s = L^{-(k-j)}` of the inherited level `j` seen from the current level `k`. -/
+noncomputable def scaleJ (L k j : ℕ) : ℝ := (((L : ℝ) ^ (k - j))⁻¹)
+
+/-- The distance weight `D(y, x) = supDist y x / L^(j+m₀+m₁)` (distance in units of `a_j`). -/
+noncomputable def distWeight (j : ℕ) (y x : Localization.CTorus S.d S.L C.N₁ m₁ k) : ℝ :=
+  (supDist y x : ℝ) / (S.L : ℝ) ^ (j + C.m₀ + m₁)
+
+/-- The constant `C_T = K0 e^{2 L ρ} (p / (e ρ c_h R_*))^p` of `rate_power_form`,
+`ρ = κ - κ₀`, `c_h = M / L^(m₀+m₁)`, `p = d + α₃`. -/
+noncomputable def tailConst (κ κ₀ Rs dd α₃ : ℝ) : ℝ :=
+  K0 S.d S.L κ₀ * exp (2 * S.L * (κ - κ₀)) *
+    ((dd + α₃) / (exp 1 * ((κ - κ₀) * ((M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁)) * Rs))) ^ (dd + α₃)
+
+/-- The constant `C₁ = C₀² K_r K_R C_T` of the far crossing term. -/
+noncomputable def farConst (κ κ₀ Rs dd α₃ C₀ K_r K_R : ℝ) : ℝ :=
+  C₀ ^ 2 * K_r * K_R * tailConst C κ κ₀ Rs dd α₃
+
+/-- The constant `C₂ = 4 C_s Cmom K0 C₀³ K_r² K_R²` of the near source term, `C_s = sourceConstC B`. -/
+noncomputable def v2Const (κ κ₀ B C₀ K_r K_R : ℝ) : ℝ :=
+  4 * sourceConstC B * Cmom (2 * S.L) (κ - κ₀) * K0 S.d S.L κ₀ * C₀ ^ 3 * K_r ^ 2 * K_R ^ 2
+
+theorem K0_nonneg (d L : ℕ) (κ₀ : ℝ) : 0 ≤ K0 d L κ₀ := by
+  unfold K0
+  exact div_nonneg (Real.exp_pos _).le (sub_nonneg.2 (Real.exp_le_one_iff.2 (by norm_num)))
+
+theorem scaleJ_pos (L k j : ℕ) [NeZero L] : 0 < scaleJ L k j := by
+  have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold scaleJ
+  positivity
+
+theorem scaleJ_le_one (L k j : ℕ) [NeZero L] : scaleJ L k j ≤ 1 := by
+  have : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  unfold scaleJ
+  exact inv_le_one_of_one_le₀ (one_le_pow₀ this)
+
+/-- The sizes and distance weights of `polyUniv` (typing data `hN`, `hj` only): `0 ≤ sizeJ` and
+`D(y, x) ≤ sizeJ X + 2 L` for `x, y ∈ X`. -/
+theorem polyUniv_weights {j : ℕ} (_hN : S.L ^ C.m₀ ∣ C.N₁) (_hj : j ≤ k) :
+    (∀ X ∈ polyUniv C j, 0 ≤ Def6.sizeJ C.m₀ j X) ∧
+    (∀ X ∈ polyUniv C j, ∀ y ∈ X, ∀ x ∈ X,
+      distWeight C j y x ≤ Def6.sizeJ C.m₀ j X + 2 * S.L) := by
+  refine ⟨fun X _ => ?_, fun X hX y hyX x hxX => ?_⟩
+  · unfold Def6.sizeJ
+    exact treeLenCovOne_nonneg _ _ _
+  · have := treeLenCovOne_ge_dist (L := S.L) (N₁ := C.N₁) (m₁ := m₁) (K := k) C.m₀ j
+      (exists_cover_struct (m₀ := C.m₀) (j := j) ((mem_polyUniv C).1 hX)) hyX hxX
+    unfold Def6.sizeJ distWeight
+    linarith
+
+theorem distWeight_nonneg (j : ℕ) (y x : Localization.CTorus S.d S.L C.N₁ m₁ k) :
+    0 ≤ distWeight C j y x := by
+  unfold distWeight
+  positivity
+
+/-- Scalar inequality behind the far term: `Bs · (C_T A₀ s^p) ≤ C₁ E₀ s^p` for
+`Bs = (C₀ s)² ε_q`, `A₀ = E₀ K_r / ε_j`, `ε_q/ε_j ≤ K_R s^α`, `s ≤ 1`, `2 + α ≥ 0`. -/
+theorem far_scalar {C₀ K_r K_R CT E₀ εj εq s α p : ℝ} (hCT : 0 ≤ CT) (hE : 0 ≤ E₀)
+    (hKr : 0 < K_r) (hεj : 0 < εj) (hεq : 0 ≤ εq) (hs : 0 < s) (hs1 : s ≤ 1) (hα : 0 ≤ 2 + α)
+    (hR : εq / εj ≤ K_R * s ^ α) :
+    (C₀ * s) ^ 2 * εq * (CT * (E₀ / (εj / K_r)) * s ^ p) ≤ (C₀ ^ 2 * K_r * K_R * CT) * E₀ * s ^ p := by
+  have hsα : 0 < s ^ α := Real.rpow_pos_of_pos hs α
+  have hKR : 0 ≤ K_R := by
+    have : 0 ≤ K_R * s ^ α := le_trans (div_nonneg hεq hεj.le) hR
+    exact (mul_nonneg_iff_of_pos_right hsα).1 this
+  have hsp : 0 < s ^ p := Real.rpow_pos_of_pos hs p
+  have h1 : εq ≤ εj * (K_R * s ^ α) := by rwa [div_le_iff₀ hεj, mul_comm] at hR
+  have h3 : εq * K_r / εj ≤ K_r * (K_R * s ^ α) := by
+    rw [div_le_iff₀ hεj]; nlinarith [h1, hKr]
+  have h2 : s ^ 2 * s ^ α ≤ 1 := by
+    have e : s ^ 2 * s ^ α = s ^ (2 + α) := by
+      rw [Real.rpow_add hs, show (s ^ (2 : ℝ)) = s ^ 2 by norm_cast]
+    rw [e]; exact Real.rpow_le_one hs.le hs1 hα
+  have e : (C₀ * s) ^ 2 * εq * (CT * (E₀ / (εj / K_r)) * s ^ p) =
+      (C₀ ^ 2 * CT * E₀ * s ^ p * s ^ 2) * (εq * K_r / εj) := by
+    field_simp
+  rw [e]
+  have hnn : 0 ≤ C₀ ^ 2 * CT * E₀ * s ^ p * s ^ 2 := by positivity
+  calc (C₀ ^ 2 * CT * E₀ * s ^ p * s ^ 2) * (εq * K_r / εj)
+      ≤ (C₀ ^ 2 * CT * E₀ * s ^ p * s ^ 2) * (K_r * (K_R * s ^ α)) :=
+        mul_le_mul_of_nonneg_left h3 hnn
+    _ = (C₀ ^ 2 * K_r * K_R * CT * E₀ * s ^ p) * (s ^ 2 * s ^ α) := by ring
+    _ ≤ (C₀ ^ 2 * K_r * K_R * CT * E₀ * s ^ p) * 1 :=
+        mul_le_mul_of_nonneg_left h2 (by positivity)
+    _ = _ := by ring
+
+open Classical in
+/-- **The hypotheses of the grouped regional bound** at the inherited level `j`, for the centres
+`R'`, the collar `Bc`, the composed field `ψ`, the source `h` and the coefficient `ν_j`.
+
+Every field is a class input, a data bound, a numeric relation or a geometric inclusion; the field
+that should discharge it is named.  The kernel `a`, the coefficient `v₂`, the per-polymer
+coefficients `c`, `cv` and the activity `E` are arguments.
+
+* `aligned`, `collar`: geometry.  `aligned` holds for `R' = alignedIn j Y` (`alignedIn_mono`);
+  `collar` is the inclusion of the fine set of `Y^≈` in the support of the correction.
+* numeric: `E₀_nonneg`, `κ₀_ge` (entropy margin `κ₀ ≥ aEnt + 1`), `κ₀_lt` (rate `ρ = κ - κ₀ > 0`),
+  `Rs_pos`, `Rs_le` (`0 < R_* ≤ R_{k-1}`), `M_pos`, `p_pos`, `dd_eq` (`d` real is `S.d`),
+  `α₁_nonneg`, `hrel` (`3 + 2α = d + α₃ + α₁`, `three_add_two_mul_eq`), `α_ge` (`0 ≤ 2 + α`),
+  `C₀_nonneg`, `K_r_pos`, `B_nonneg`, `εj_pos`, `εq_nonneg`, `scale_rel` (`ε_q/ε_j ≤ K_R s^α`,
+  the I6 spin bound).
+* class inputs: `a_decomp`, `a_coeff` (the kernel is the sum of per-polymer coefficients with row
+  sums `≤ (E₀ K_r / ε_j) e^{-κ sizeJ}`; PinJet `tensA_le`), `v2_decomp`, `v2_coeff` (same for
+  `v₂` with `4 E₀ K_r² / ε_j²`; PinJet `tensB_le`), `E_bound` (H4 polymer decay).
+* data bounds: `s_data` (`‖ψ·ψ - 1‖ ≤ σ² ε`, `σ = C₀ s`, `ε = ε_q`), `src_data` (the pointwise
+  source bound of `pair_bound_of_data`). -/
+structure GroupedInputs (j : ℕ) (Y : Set (Torus S.d (n k)))
+    (R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)) (ψ : Fld S.d S.L C.N₁ m₁ k N)
+    (h : Fin N → ℂ) (νj : ℝ) (a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ)
+    (v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ)
+    (c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ)
+    (E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ)
+    (E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ) : Prop where
+  aligned : R' ⊆ C.alignedIn j Y
+  collar : ∀ x, x ∈ C.sset (thickY R Y) → x ∈ Bc
+  E₀_nonneg : 0 ≤ E₀
+  κ₀_ge : aEnt S.d S.L + 1 ≤ κ₀
+  κ₀_lt : κ₀ < κ
+  Rs_pos : 0 < Rs
+  Rs_le : Rs ≤ R (k - 1)
+  M_pos : 0 < M
+  p_pos : 0 < dd + α₃
+  dd_eq : dd = (S.d : ℝ)
+  α₁_nonneg : 0 ≤ α₁
+  hrel : 3 + 2 * α = dd + α₃ + α₁
+  α_ge : 0 ≤ 2 + α
+  C₀_nonneg : 0 ≤ C₀
+  K_r_pos : 0 < K_r
+  B_nonneg : 0 ≤ B
+  εj_pos : 0 < εj
+  εq_nonneg : 0 ≤ εq
+  scale_rel : εq / εj ≤ K_R * scaleJ S.L k j ^ α
+  a_decomp : ∀ y ∈ R', ∀ x, a (x - y) =
+    ∑ X ∈ (polyUniv C j).filter (fun X => y ∈ X ∧ x ∈ X), c X y x
+  a_coeff : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ∑ x ∈ Finset.univ.filter (fun x => x ∈ X), ‖c X y x‖ ≤
+      (E₀ / (εj / K_r)) * exp (-κ * Def6.sizeJ C.m₀ j X)
+  v2_decomp : ∀ y ∈ R', ∀ x, v₂ y x =
+    ∑ X ∈ (polyUniv C j).filter (fun X => y ∈ X ∧ x ∈ X), cv X y x
+  v2_coeff : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ∑ x ∈ Finset.univ.filter (fun x => x ∈ X), ‖cv X y x‖ ≤
+      (4 * E₀ / (εj / K_r) ^ 2) * exp (-κ * Def6.sizeJ C.m₀ j X)
+  E_bound : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ‖E y X‖ ≤ E₀ * exp (-κ * Def6.sizeJ C.m₀ j X)
+  s_data : ∀ x, ‖dot (ψ x) (ψ x) - 1‖ ≤ (C₀ * scaleJ S.L k j) ^ 2 * εq
+  src_data : ∀ y ∈ R', ∀ x ∈ Bc,
+    ‖(νj : ℂ) * (dot h (unitDirC (ψ x)) - dot h (unitDirC (ψ y)))‖ ≤
+      sourceConstC B * (distWeight C j y x ^ 2 + distWeight C j y x) *
+        (C₀ * scaleJ S.L k j) ^ 3 * εq ^ 2
+
+variable {C}
+
+open Classical in
+/-- **(T2) The grouped regional correction in power form.**
+`‖Σ_{y∈R'} A_j(y) - Corr_j(R', Bc)‖ ≤ |R'| (C₁ + C₂) E₀ s^(d+α₃)`, `s = L^{-(k-j)}`, for the
+kernel `a` and `v₁(y, x) = a(x - y)` in the correction.  Typing data `L^m₀ ∣ N₁`, `j ≤ k`;
+the other hypotheses are collected in `GroupedInputs`. -/
+theorem grouped_bound_power {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    {Y : Set (Torus S.d (n k))} {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)}
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {h : Fin N → ℂ} {νj : ℝ}
+    {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputs C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖AtermRegion a (fun x => dot (ψ x) (ψ x)) R' -
+        corrSum (fun y x => a (x - y)) v₂ νj R' Bc ψ h‖ ≤
+      R'.card * ((farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R + v2Const (S := S) κ κ₀ B C₀ K_r K_R) *
+        E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  have hs0 := scaleJ_pos S.L k j
+  have hs1 := scaleJ_le_one S.L k j
+  have hK0 := K0_nonneg S.d S.L κ₀
+  have hCT : 0 ≤ tailConst C κ κ₀ Rs dd α₃ := by
+    unfold tailConst
+    have hρ : 0 < κ - κ₀ := sub_pos.2 g.κ₀_lt
+    have hM : (0 : ℝ) < M := by exact_mod_cast g.M_pos
+    have hL : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
+    have hRs := g.Rs_pos
+    have hp := g.p_pos
+    have hc : (0 : ℝ) < (M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁) := by positivity
+    have hden : 0 < exp 1 * ((κ - κ₀) * ((M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁)) * Rs) := by positivity
+    exact mul_nonneg (mul_nonneg hK0 (Real.exp_pos _).le)
+      (Real.rpow_nonneg (div_nonneg hp.le hden.le) _)
+  have hA₀ : 0 ≤ E₀ / (εj / K_r) := by
+    have := g.E₀_nonneg; have := g.εj_pos; have := g.K_r_pos; positivity
+  -- far crossing
+  have hfar := farCrossing_polyUniv_le_power C hN hj c a (fun x => dot (ψ x) (ψ x) - 1) Y R' Bc
+    g.aligned g.collar (A₀ := E₀ / (εj / K_r)) (κ := κ) (κ₀ := κ₀)
+    (Bs := (C₀ * scaleJ S.L k j) ^ 2 * εq) (Rs := Rs) (d := dd) (α₃ := α₃) hA₀ g.κ₀_ge g.κ₀_lt
+    g.Rs_pos g.Rs_le g.M_pos g.p_pos g.s_data g.a_decomp g.a_coeff
+  rw [farCrossing_sub_const] at hfar
+  have hfar2 : ‖farCrossing a (fun x => dot (ψ x) (ψ x)) R' Bc‖ ≤
+      R'.card * (farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+    refine hfar.trans ?_
+    rw [mul_comm _ (R'.card : ℝ)]
+    refine mul_le_mul_of_nonneg_left ?_ (Nat.cast_nonneg _)
+    have := far_scalar (C₀ := C₀) (K_r := K_r) (K_R := K_R) (CT := tailConst C κ κ₀ Rs dd α₃)
+      (E₀ := E₀) (εj := εj) (εq := εq) (s := scaleJ S.L k j) (α := α) (p := dd + α₃) hCT
+      g.E₀_nonneg g.K_r_pos g.εj_pos g.εq_nonneg hs0 hs1 g.α_ge g.scale_rel
+    unfold farConst
+    exact this
+  -- near source term
+  obtain ⟨hsz, hD⟩ := polyUniv_weights C hN hj
+  have hv2 := v2Part_le_power (polyUniv C j) cv v₂ νj R' Bc ψ h (Def6.sizeJ C.m₀ j)
+    (distWeight C j) (E₀ := E₀) (K₀ := K0 S.d S.L κ₀) (κ := κ) (κ₀ := κ₀) (c₀ := 2 * S.L)
+    (Cs := sourceConstC B) (C₀ := C₀) (K_r := K_r) (K_R := K_R) (s := scaleJ S.L k j) (α := α)
+    (εj := εj) (εq := εq) (r := εj / K_r) (dd := dd) (α₁ := α₁) (α₃ := α₃) g.E₀_nonneg hK0
+    (by positivity) g.κ₀_lt (by unfold sourceConstC; have := g.B_nonneg; positivity) g.C₀_nonneg
+    g.K_r_pos hs0 hs1 g.εj_pos g.εq_nonneg rfl g.scale_rel g.hrel g.α₁_nonneg
+    (fun y hy x => g.v2_decomp y hy x)
+    (fun y hy X hX hyX => g.v2_coeff y hy X ((mem_polyUniv C).1 hX) hyX)
+    (fun y _ X hX _ => hsz X hX)
+    (fun y _ x => distWeight_nonneg C j y x)
+    (fun y _ X hX hyX x hxX => hD X hX y hyX x hxX)
+    (fun y _ => entropy_polyUniv C hN hj y g.κ₀_ge) g.src_data
+  have hv2' : ‖v2Part v₂ νj R' Bc ψ h‖ ≤
+      R'.card * (v2Const (S := S) κ κ₀ B C₀ K_r K_R * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+    unfold v2Const; exact hv2
+  have := grouped_le_of_far a v₂ νj R' Bc ψ h hfar2 hv2'
+  refine this.trans (le_of_eq ?_)
+  ring
+
+open Classical in
+/-- **(T2) The omitted tail in power form.**
+`‖Σ_{y∈R'} tailAt‖ ≤ |R'| C_T E₀ s^(d+α₃)`. -/
+theorem omitted_tail_power {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    {Y : Set (Torus S.d (n k))} {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)}
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {h : Fin N → ℂ} {νj : ℝ}
+    {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputs C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖∑ y ∈ R', tailAt (polyUniv C j) E (C.sset (thickY R Y)) y‖ ≤
+      R'.card * (tailConst C κ κ₀ Rs dd α₃ * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  refine (norm_sum_le _ _).trans ?_
+  calc ∑ y ∈ R', ‖tailAt (polyUniv C j) E (C.sset (thickY R Y)) y‖
+      ≤ ∑ _y ∈ R', tailConst C κ κ₀ Rs dd α₃ * E₀ * scaleJ S.L k j ^ (dd + α₃) :=
+        Finset.sum_le_sum fun y hy =>
+          tailAt_polyUniv_le_power C hN hj E Y (g.aligned hy) g.E₀_nonneg g.κ₀_ge g.κ₀_lt g.Rs_pos
+            g.Rs_le g.M_pos g.p_pos (g.E_bound y hy)
+    _ = _ := by simp
+
+end Concrete
 
 end Balaban.LargeField.RegionalGroupedBound
