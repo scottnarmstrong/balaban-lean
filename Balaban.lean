@@ -1087,3 +1087,5 @@ public import Balaban.LargeField.R.DenominatorGauss
 public import Balaban.LargeField.R.DenominatorTube
 public import Balaban.LargeField.R.DenominatorSqueeze
 public import Balaban.LargeField.R.Denominator
+public import Balaban.LargeField.R.Rop
+public import Balaban.LargeField.R.RopNorm
