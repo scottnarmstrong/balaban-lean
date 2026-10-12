@@ -1,0 +1,31 @@
+import Balaban.LargeField.History.Inhabited
+import Balaban.LargeField.Budget.LemmaB
+
+open Balaban.LargeField
+
+/-- The landed history witness has `M = 1 < L = 2`, so it cannot be reused for Lemma B. -/
+theorem inhabited_setting_no_budget (P : BudgetConsts) :
+    BudgetSetup Witness.setting P → False := by
+  intro B
+  have h := B.L_le_M
+  norm_num [Witness.setting, Witness.typing, Witness.typing0] at h
+
+theorem inhabited_setting_no_good : Witness.setting.Good → False := by
+  intro G
+  have h := G.lc.l0_a 1 (by simp [Witness.setting])
+  have hc : 1 ≤ Witness.typing.cStar := by
+    unfold Typing.cStar
+    have hl : 0 < Witness.typing.logL := by
+      simpa [Typing.logL, Witness.typing, Witness.typing0] using
+        (Real.log_pos (by norm_num : (1 : ℝ) < 2))
+    have hq : 0 ≤ Witness.typing.θp / (Witness.typing.α * Witness.typing.logL) := by
+      apply div_nonneg
+      · norm_num [Witness.typing, Witness.typing0]
+      · apply mul_nonneg
+        · norm_num [Witness.typing, Witness.typing0]
+        · exact hl.le
+    linarith
+  have hθ : Witness.typing.θp = 1 := by rfl
+  change 4 * Witness.typing.cStar * Witness.typing.θp ≤ 1 at h
+  rw [hθ] at h
+  nlinarith

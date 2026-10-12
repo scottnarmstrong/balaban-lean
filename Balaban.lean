@@ -62,6 +62,8 @@ public import Balaban.Polymer.HoleOperator
 public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerMarked
+public import Balaban.Analysis.MatrixDetExp
+public import Balaban.Analysis.MatrixResolventLimit
 public import Balaban.Analysis.Cauchy
 public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
@@ -308,6 +310,11 @@ public import Balaban.Localization.Decoupled2XGrad
 public import Balaban.Localization.Decoupled2XLocal
 public import Balaban.Localization.Decoupled2XClose
 public import Balaban.Localization.Decoupled2XAnalytic
+public import Balaban.Localization.Decoupled2FpGeometry
+public import Balaban.Localization.Decoupled2FpLocal
+public import Balaban.Localization.Decoupled2FpField
+public import Balaban.Localization.Decoupled2FpBackground
+public import Balaban.Localization.Decoupled2FpX
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
@@ -610,6 +617,11 @@ public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
 public import Balaban.Fluctuation.CovarianceSpectral
 public import Balaban.Fluctuation.Covariance
+public import Balaban.Fluctuation.CovarianceComplex
+public import Balaban.Fluctuation.CovarianceComplexPath
+public import Balaban.Fluctuation.CovarianceComplexCoercive
+public import Balaban.Fluctuation.CovarianceComplexPath
+public import Balaban.Fluctuation.CovarianceComplexCoercive
 public import Balaban.LargeField.Base.ChordQuadratic
 public import Balaban.LargeField.Base.ConeVolume
 public import Balaban.LargeField.Base.SphereChart
