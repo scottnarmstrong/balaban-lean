@@ -373,6 +373,65 @@ structure GroupedInputs (j : ℕ) (Y : Set (Torus S.d (n k)))
 
 variable {C}
 
+theorem GroupedInputs.tailConst_nonneg {j : ℕ} {Y : Set (Torus S.d (n k))}
+    {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)} {ψ : Fld S.d S.L C.N₁ m₁ k N}
+    {h : Fin N → ℂ} {νj : ℝ} {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputs C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    0 ≤ tailConst C κ κ₀ Rs dd α₃ := by
+  have hK0 := K0_nonneg S.d S.L κ₀
+  unfold tailConst
+  have hρ : 0 < κ - κ₀ := sub_pos.2 g.κ₀_lt
+  have hM : (0 : ℝ) < M := by exact_mod_cast g.M_pos
+  have hL : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
+  have hRs := g.Rs_pos
+  have hp := g.p_pos
+  have hc : (0 : ℝ) < (M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁) := by positivity
+  have hden : 0 < exp 1 * ((κ - κ₀) * ((M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁)) * Rs) := by positivity
+  exact mul_nonneg (mul_nonneg hK0 (Real.exp_pos _).le)
+    (Real.rpow_nonneg (div_nonneg hp.le hden.le) _)
+
+theorem GroupedInputs.K_R_nonneg {j : ℕ} {Y : Set (Torus S.d (n k))}
+    {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)} {ψ : Fld S.d S.L C.N₁ m₁ k N}
+    {h : Fin N → ℂ} {νj : ℝ} {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputs C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    0 ≤ K_R := by
+  have hsα : 0 < scaleJ S.L k j ^ α := Real.rpow_pos_of_pos (scaleJ_pos S.L k j) α
+  have : 0 ≤ K_R * scaleJ S.L k j ^ α :=
+    le_trans (div_nonneg g.εq_nonneg g.εj_pos.le) g.scale_rel
+  exact (mul_nonneg_iff_of_pos_right hsα).1 this
+
+/-- The three constants are nonnegative. -/
+theorem GroupedInputs.consts_nonneg {j : ℕ} {Y : Set (Torus S.d (n k))}
+    {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)} {ψ : Fld S.d S.L C.N₁ m₁ k N}
+    {h : Fin N → ℂ} {νj : ℝ} {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {v₂ : Localization.CTorus S.d S.L C.N₁ m₁ k → Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E : Localization.CTorus S.d S.L C.N₁ m₁ k → Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputs C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    0 ≤ farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R ∧ 0 ≤ v2Const (S := S) κ κ₀ B C₀ K_r K_R := by
+  have hKR := g.K_R_nonneg
+  have hCT := g.tailConst_nonneg
+  have hK0 := K0_nonneg S.d S.L κ₀
+  have hKr := g.K_r_pos.le
+  have hL : (0 : ℝ) ≤ 2 * S.L := by positivity
+  have hCm := cmom_nonneg hL (sub_pos.2 g.κ₀_lt)
+  have hB := g.B_nonneg
+  refine ⟨?_, ?_⟩
+  · unfold farConst; positivity
+  · unfold v2Const sourceConstC; have := g.C₀_nonneg; positivity
+
 open Classical in
 /-- **(T2) The grouped regional correction in power form.**
 `‖Σ_{y∈R'} A_j(y) - Corr_j(R', Bc)‖ ≤ |R'| (C₁ + C₂) E₀ s^(d+α₃)`, `s = L^{-(k-j)}`, for the
@@ -395,17 +454,7 @@ theorem grouped_bound_power {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤
   have hs0 := scaleJ_pos S.L k j
   have hs1 := scaleJ_le_one S.L k j
   have hK0 := K0_nonneg S.d S.L κ₀
-  have hCT : 0 ≤ tailConst C κ κ₀ Rs dd α₃ := by
-    unfold tailConst
-    have hρ : 0 < κ - κ₀ := sub_pos.2 g.κ₀_lt
-    have hM : (0 : ℝ) < M := by exact_mod_cast g.M_pos
-    have hL : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
-    have hRs := g.Rs_pos
-    have hp := g.p_pos
-    have hc : (0 : ℝ) < (M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁) := by positivity
-    have hden : 0 < exp 1 * ((κ - κ₀) * ((M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁)) * Rs) := by positivity
-    exact mul_nonneg (mul_nonneg hK0 (Real.exp_pos _).le)
-      (Real.rpow_nonneg (div_nonneg hp.le hden.le) _)
+  have hCT : 0 ≤ tailConst C κ κ₀ Rs dd α₃ := g.tailConst_nonneg
   have hA₀ : 0 ≤ E₀ / (εj / K_r) := by
     have := g.E₀_nonneg; have := g.εj_pos; have := g.K_r_pos; positivity
   -- far crossing
@@ -467,6 +516,85 @@ theorem omitted_tail_power {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ 
           tailAt_polyUniv_le_power C hN hj E Y (g.aligned hy) g.E₀_nonneg g.κ₀_ge g.κ₀_lt g.Rs_pos
             g.Rs_le g.M_pos g.p_pos (g.E_bound y hy)
     _ = _ := by simp
+
+/-! ### (T3) The landed regional energy -/
+
+variable (vc : CorrCoef S.d) (hv : EuclideanSpace ℝ (Fin N))
+
+open Classical in
+/-- **(T3) The decomposition of the landed regional energy.**  With the premise `hv1` that the
+correction coefficient `v₁` is the marginal kernel `a` (`regionalRadialCoefficient`),
+`EresAt = Σ_{y∈R'} I_j(y) + (Σ_{y∈R'} A_j(y) - Corr_j) - (omitted tail)`,
+where `I_j(y) = Efull - AtermCentre` is the remainder of the I6 decomposition. -/
+theorem EresAt_eq_remainder_add_grouped_of_radialCoeff (j : ℕ)
+    (R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k))
+    (Bp : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)) (ψ : Fld S.d S.L C.N₁ m₁ k N)
+    (a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ)
+    (hv1 : ∀ y x, vc.v1 j (unlift j (x - y)) = a (x - y)) :
+    EresAt C vc hv j R' Bc Bp ψ =
+      ∑ y ∈ R', (Efull (polyUniv C j) (polyTerm C hv j ψ) y -
+          AtermCentre a (fun x => dot (ψ x) (ψ x)) y) +
+        (AtermRegion a (fun x => dot (ψ x) (ψ x)) R' -
+          corrSum (fun y x => a (x - y)) (fun y x => vc.v2 j (unlift j (x - y)))
+            (nuIdeal S.L k (C.sf.ν k) j) R' Bc ψ (hC hv)) -
+        ∑ y ∈ R', tailAt (polyUniv C j) (polyTerm C hv j ψ) Bp y := by
+  rw [EresAt_eq_energyAt, energyAt_decomposition]
+  have h1 : (fun y x => vc.v1 j (unlift j (x - y))) = fun y x => a (x - y) :=
+    funext fun y => funext fun x => hv1 y x
+  have h2 : RegionShrink.pairSum (corrFn C vc hv j ψ) R' Bc =
+      corrSum (fun y x => vc.v1 j (unlift j (x - y))) (fun y x => vc.v2 j (unlift j (x - y)))
+        (nuIdeal S.L k (C.sf.ν k) j) R' Bc ψ (hC hv) := rfl
+  rw [h2, h1]
+
+open Classical in
+/-- **(T3) The bound.**  Under `GroupedInputs` (for `ν_j = nuIdeal`, `v₂ = vc.v2 ∘ unlift`,
+the activity `polyTerm`) and `hv1`:
+`‖EresAt - Σ_{y∈R'} I_j(y)‖ ≤ |R'| (C₁ + C₂ + C_T) E₀ s^(d+α₃)`, `Bp = sset(Y^≈)`. -/
+theorem EresAt_sub_remainder_le_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    {Y : Set (Torus S.d (n k))} {R' Bc : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)}
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv1 : ∀ y x, vc.v1 j (unlift j (x - y)) = a (x - y))
+    (g : GroupedInputs C j Y R' Bc ψ (hC hv) (nuIdeal S.L k (C.sf.ν k) j) a
+      (fun y x => vc.v2 j (unlift j (x - y))) c cv (polyTerm C hv j ψ)
+      E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresAt C vc hv j R' Bc (C.sset (thickY R Y)) ψ -
+        ∑ y ∈ R', (Efull (polyUniv C j) (polyTerm C hv j ψ) y -
+          AtermCentre a (fun x => dot (ψ x) (ψ x)) y)‖ ≤
+      R'.card * ((farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R + v2Const (S := S) κ κ₀ B C₀ K_r K_R +
+        tailConst C κ κ₀ Rs dd α₃) * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  rw [EresAt_eq_remainder_add_grouped_of_radialCoeff vc hv j R' Bc _ ψ a hv1]
+  have e : ∀ I G T : ℂ, I + G - T - I = G - T := fun I G T => by ring
+  rw [e]
+  refine (norm_sub_le _ _).trans ?_
+  have h1 := grouped_bound_power hN hj g
+  have h2 := omitted_tail_power hN hj g
+  refine (add_le_add h1 h2).trans (le_of_eq ?_)
+  ring
+
+open Classical in
+/-- **(T3) for `EresJ2`** at the regions of `Y`: `R' = alignedIn j Y`, `Bc = alignedIn j (thickY R Y)`,
+the composed field `psiJ`. -/
+theorem EresJ2_sub_remainder_le_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    (Y : Set (Torus S.d (n k))) (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {c cv : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) → Localization.CTorus S.d S.L C.N₁ m₁ k →
+      Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv1 : ∀ y x, vc.v1 j (unlift j (x - y)) = a (x - y))
+    (g : GroupedInputs C j Y (C.alignedIn j Y) (C.alignedIn j (thickY R Y)) (C.psiJ Y ψk hv j)
+      (hC hv) (nuIdeal S.L k (C.sf.ν k) j) a (fun y x => vc.v2 j (unlift j (x - y))) c cv
+      (polyTerm C hv j (C.psiJ Y ψk hv j)) E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresJ2 C vc Y ψk hv j -
+        ∑ y ∈ C.alignedIn j Y, (Efull (polyUniv C j) (polyTerm C hv j (C.psiJ Y ψk hv j)) y -
+          AtermCentre a (fun x => dot (C.psiJ Y ψk hv j x) (C.psiJ Y ψk hv j x)) y)‖ ≤
+      (C.alignedIn j Y).card * ((farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R +
+        v2Const (S := S) κ κ₀ B C₀ K_r K_R + tailConst C κ κ₀ Rs dd α₃) * E₀ *
+          scaleJ S.L k j ^ (dd + α₃)) := by
+  rw [EresJ2_eq_EresAt]
+  exact EresAt_sub_remainder_le_of_radialCoeff vc hv hN hj hv1 g
 
 end Concrete
 
