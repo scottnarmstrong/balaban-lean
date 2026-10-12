@@ -821,6 +821,9 @@ public import Balaban.Inhabited.StepData
 public import Balaban.Inhabited.RipeHistory
 public import Balaban.Inhabited.JointL4Setting
 public import Balaban.Inhabited.JointL4
+public import Balaban.Inhabited.RipeL4Flow
+public import Balaban.Inhabited.RipeL4
+public import Balaban.Inhabited.RipeL4Witness
 public import Balaban.Observables.SecondOrderCauchy
 public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
