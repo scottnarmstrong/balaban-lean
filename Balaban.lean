@@ -294,6 +294,7 @@ public import Balaban.Localization.Decoupled2Solve
 public import Balaban.Localization.Decoupled2One
 public import Balaban.Localization.Decoupled2SolveAnalytic
 public import Balaban.Localization.Decoupled2FieldClose
+public import Balaban.Localization.Decoupled2FieldLocal
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube

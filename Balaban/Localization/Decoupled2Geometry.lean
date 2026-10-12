@@ -50,6 +50,8 @@ structure CoverLocal : Prop extends CoverBase C H a ν Kc Cx where
     InBox m₁ q.1 q.2 (3 / 2 * (L : ℝ) ^ (q.1 + m₁)) x
   cubeP_sub : ∀ q ∈ C.cubeIdx, ∀ x ∈ cubeP q, x ∈ H.Ω 1
   own_cover : ∀ x ∈ H.Ω 1, ∃ P ∈ C.cubeIdx, x ∈ cubeP P
+  row_mem_hat : ∀ z ∈ C.cubeIdx, ∀ (α : H.Ω 1 → ℂ) {x : H.Ω 1}, (x : CTorus d L N₁ m₁ K) ∈ intBox z →
+    ∀ {y : H.Ω 1}, dirichletOperator H a ν α x y ≠ 0 → (y : CTorus d L N₁ m₁ K) ∈ hatBox z
 
 end Pair
 
