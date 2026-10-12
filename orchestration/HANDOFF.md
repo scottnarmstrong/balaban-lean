@@ -31,7 +31,8 @@ in the ledger row and the branch state):
 - W75 (`w75-equivariance`): O(N)/lattice covariance of bgField/bgFieldC, Ξᶜ covariance, invariance of
   mainActionLoc/quietKernel, V(z).
 - W76: DONE (landed c9ac759).
-- W79 (`w79-def6-amend`): Def-6 amendments per CLASS-RULINGS Q-A/Q-B/Q-C (queued item 2 now running).
+- W79: DONE (landed dd7b11e).
+- W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
 - W77 (`w77-chart`): LFR Q2–Q4 (hard-spin chart, toSphere_eq_graph, (A.3), chord identity).
 - W78 (`w78-deccover`): DecCover abstraction (VMOD §3, orders 2, 4, 5) — queued item 1 below is now running.
 
