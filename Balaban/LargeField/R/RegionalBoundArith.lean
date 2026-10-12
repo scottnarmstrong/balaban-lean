@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Def7v2Corr
+public import Balaban.LargeField.LF1
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.InnerProductSpace.PiL2
@@ -278,8 +279,9 @@ section Real
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 
-/-- The unit direction `ψ / |ψ|`. -/
-noncomputable def unitDir (ψ : E) : E := ‖ψ‖⁻¹ • ψ
+open Balaban.LargeField (unitDir)
+
+-- `unitDir ψ = ‖ψ‖⁻¹ • ψ` is the landed `Balaban.LargeField.unitDir` (`LF1.lean`).
 
 /-- Step 1: `ψ ↦ ψ/|ψ|` is Lipschitz with constant `2/min |ψ| ≤ 4` on `|ψ| ≥ 1/2`. -/
 theorem unit_sub_le {x y : E} (hx : 1 / 2 ≤ ‖x‖) (hy : 1 / 2 ≤ ‖y‖) :
