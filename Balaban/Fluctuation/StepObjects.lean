@@ -261,7 +261,7 @@ include S in
 theorem hG : IsLevel (stepG d L N₁ m₁ k ϱ) k := isLevel_levelGS S.hk1 (Nat.le_succ k)
 
 /-- The weights `a_n = a₁ (1 - L⁻²)/(1 - L⁻²ⁿ)` (P2 (4.4)). -/
-noncomputable def a : ℕ → ℝ := compWeight L S.a₁
+noncomputable abbrev a : ℕ → ℝ := compWeight L S.a₁
 
 /-- `β_k` in the units of the paper (`η`-units): `β_k^{paper} = β L^{k(d-2)}`. -/
 noncomputable def betaU : ℝ := S.β * ((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2
