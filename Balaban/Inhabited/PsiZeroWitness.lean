@@ -8,6 +8,8 @@ module
 public import Balaban.LargeField.R.PsiZeroFinal
 public import Balaban.SmallField.Def6Terms
 public import Balaban.Fluctuation.StepRegUnit
+public import Balaban.LargeField.R.SmallFactorAction
+public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Fluctuation.CriticalPoint
 public import Balaban.Inhabited.XiCDomains
 
@@ -87,8 +89,8 @@ noncomputable def ϱ (d L : ℕ) : ℝ := bgR0 d L
 noncomputable def G (d L N₁ m₁ k : ℕ) [NeZero L] [NeZero N₁] : GeneratingSet d L (N₁ * L ^ m₁) k (ϱ d L) :=
   levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := ϱ d L) k le_rfl
 
-/-- The weights `a ≡ 1`. -/
-def a : ℕ → ℝ := fun _ => 1
+/-- The weights `a = compWeight L 1`. -/
+noncomputable def a (L : ℕ) : ℕ → ℝ := compWeight L 1
 
 /-- The corner of the box. -/
 def b0 (d L N₁ m₁ k : ℕ) : Torus d (N₁ * L ^ m₁ * L ^ (k - k)) := fun _ => 0
@@ -115,11 +117,11 @@ theorem hΩ (d L N₁ m₁ k : ℕ) [NeZero L] [NeZero N₁] :
 theorem hdata (d L N₁ m₁ k : ℕ) [NeZero L] [NeZero N₁] :
     ∀ x ∈ dataSites (G d L N₁ m₁ k), jBlock d L (N₁ * L ^ m₁) k k x ∈ X d L N₁ m₁ k :=
   fun _ _ => Set.mem_univ _
-theorem H (hd : 3 ≤ d) (hL : 3 ≤ L) : BgHyp d L k (ϱ d L) a 0 where
+theorem H (hd : 3 ≤ d) (hL : 3 ≤ L) : BgHyp d L k (ϱ d L) (a L) 0 where
   hd := hd
   hL := hL
   hϱ := le_rfl
-  weights := fun j _ _ => by simp [a]; norm_num
+  weights := isAdmissibleWeights_compWeight hL (by norm_num) (by norm_num) k
   mass := le_rfl
   massLe := by simp
 
@@ -141,9 +143,9 @@ conclusion holds at the instance, with a datum in the tube at every admissible `
 theorem psiZero_hyps_nonempty (hd3 : 3 ≤ d) (hL : 3 ≤ L) (hN : 4 ≤ N₁) (hk : 1 ≤ k) :
     (box (b0 d L N₁ m₁ k) (w d)).Nonempty ∧ ∃ K c11 : ℝ, 0 < K ∧ 0 < c11 ∧ ∀ δ : ℝ, 0 < δ → δ ≤ c11 →
       TubeOn (G d L N₁ m₁ k) (X d L N₁ m₁ k \ box (b0 d L N₁ m₁ k) (w d)) δ (ψk d L N₁ m₁ k) ∧
-      ∃! ψ, PsiZeroSol (G d L N₁ m₁ k) a (b0 d L N₁ m₁ k) (w d) (X d L N₁ m₁ k) (K * δ)
+      ∃! ψ, PsiZeroSol (G d L N₁ m₁ k) (a L) (b0 d L N₁ m₁ k) (w d) (X d L N₁ m₁ k) (K * δ)
         (ψk d L N₁ m₁ k) ψ := by
-  obtain ⟨K, c11, hK, hc, h⟩ := psiZero_exists_unique (N := 2) (D := 2) (G d L N₁ m₁ k) a
+  obtain ⟨K, c11, hK, hc, h⟩ := psiZero_exists_unique (N := 2) (D := 2) (G d L N₁ m₁ k) (a L)
     (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d) (hm hN) (hXreg d L N₁ m₁ k)
     (hΩ d L N₁ m₁ k) (hdata d L N₁ m₁ k) (H hd3 hL)
   exact ⟨box_nonempty d L N₁ m₁ k, K, c11, hK, hc, fun δ h0 h1 =>
@@ -153,30 +155,30 @@ theorem psiZero_hyps_nonempty (hd3 : 3 ≤ d) (hL : 3 ≤ L) (hN : 4 ≤ N₁) (
 theorem psiZero_hyps_nonempty_concrete :
     (box (b0 3 3 6 0 2) (w 3)).Nonempty ∧ ∃ K c11 : ℝ, 0 < K ∧ 0 < c11 ∧ ∀ δ : ℝ, 0 < δ → δ ≤ c11 →
       TubeOn (G 3 3 6 0 2) (X 3 3 6 0 2 \ box (b0 3 3 6 0 2) (w 3)) δ (ψk 3 3 6 0 2) ∧
-      ∃! ψ, PsiZeroSol (G 3 3 6 0 2) a (b0 3 3 6 0 2) (w 3) (X 3 3 6 0 2) (K * δ) (ψk 3 3 6 0 2) ψ :=
+      ∃! ψ, PsiZeroSol (G 3 3 6 0 2) (a 3) (b0 3 3 6 0 2) (w 3) (X 3 3 6 0 2) (K * δ) (ψk 3 3 6 0 2) ψ :=
   psiZero_hyps_nonempty (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
 /-- The constant datum is a solution of (2.34) in every tube. -/
 theorem sol_ψk (hd3 : 3 ≤ d) (hL : 3 ≤ L) (hk : 1 ≤ k) {κ : ℝ} (hκ : 0 < κ) :
-    PsiZeroSol (G d L N₁ m₁ k) a (b0 d L N₁ m₁ k) (w d) (X d L N₁ m₁ k) κ (ψk d L N₁ m₁ k)
+    PsiZeroSol (G d L N₁ m₁ k) (a L) (b0 d L N₁ m₁ k) (w d) (X d L N₁ m₁ k) κ (ψk d L N₁ m₁ k)
       (ψk d L N₁ m₁ k) := by
   refine ⟨tube_ψk hκ _, fun _ _ => rfl, fun ψ' _ _ => ?_⟩
-  have h0 : effAction (G d L N₁ m₁ k) a (ψk d L N₁ m₁ k) = 0 :=
-    effAction_constBlock _ (isLevel_G hk) _ (fun _ => by simp [a]) (H hd3 hL)
+  have h0 : effAction (G d L N₁ m₁ k) (a L) (ψk d L N₁ m₁ k) = 0 :=
+    effAction_constBlock _ (isLevel_G hk) _ (fun _ => compWeight_nonneg (by omega) one_pos _) (H hd3 hL)
   rw [h0]
-  exact action_nonneg_of (fun _ => by simp [a]) le_rfl _ _
+  exact action_nonneg_of (fun _ => compWeight_nonneg (by omega) one_pos _) le_rfl _ _
 
 /-- **The minimizer `ψ⁰_k` for the constant datum is the constant configuration.** -/
 theorem psiZero_ψk (hd3 : 3 ≤ d) (hL : 3 ≤ L) (hN : 4 ≤ N₁) (hk : 1 ≤ k) {δ : ℝ} (hδ : 0 < δ)
-    (hδc : δ ≤ psiZeroC11 2 (G d L N₁ m₁ k) a (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
+    (hδc : δ ≤ psiZeroC11 2 (G d L N₁ m₁ k) (a L) (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
       (hm hN) (hXreg d L N₁ m₁ k) (hΩ d L N₁ m₁ k) (hdata d L N₁ m₁ k) (H hd3 hL)) :
-    psiZero 2 (G d L N₁ m₁ k) a (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
+    psiZero 2 (G d L N₁ m₁ k) (a L) (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
       (hm hN) (hXreg d L N₁ m₁ k) (hΩ d L N₁ m₁ k) (hdata d L N₁ m₁ k) (H hd3 hL) hδ hδc
       (tube_ψk hδ _) = ψk d L N₁ m₁ k :=
-  ((psiZero_spec 2 (G d L N₁ m₁ k) a (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
+  ((psiZero_spec 2 (G d L N₁ m₁ k) (a L) (by omega) hk (b0 d L N₁ m₁ k) (w d) (hw1 d) (hwD d)
       (hm hN) (hXreg d L N₁ m₁ k) (hΩ d L N₁ m₁ k) (hdata d L N₁ m₁ k) (H hd3 hL) hδ hδc
       (tube_ψk hδ _)).2 _
-    (sol_ψk hd3 hL hk (mul_pos (psiZeroK_pos 2 (G d L N₁ m₁ k) a (by omega) hk (b0 d L N₁ m₁ k) (w d)
+    (sol_ψk hd3 hL hk (mul_pos (psiZeroK_pos 2 (G d L N₁ m₁ k) (a L) (by omega) hk (b0 d L N₁ m₁ k) (w d)
       (hw1 d) (hwD d) (hm hN) (hXreg d L N₁ m₁ k) (hΩ d L N₁ m₁ k) (hdata d L N₁ m₁ k)
       (H hd3 hL)) hδ))).symm
 
