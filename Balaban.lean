@@ -348,6 +348,7 @@ public import Balaban.Localization.I5Glue
 public import Balaban.Localization.I5Close
 public import Balaban.Localization.I5Chain
 public import Balaban.Localization.I5Fan
+public import Balaban.Localization.I5Inhabited
 public import Balaban.Localization.DomainLemma
 public import Balaban.Localization.I5Local
 public import Balaban.Localization.I5
@@ -491,6 +492,7 @@ public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
+public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6Terms
 public import Balaban.SmallField.Def6
 public import Balaban.SmallField.Def6BridgeDomain
