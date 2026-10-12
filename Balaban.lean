@@ -1027,6 +1027,8 @@ public import Balaban.Inhabited.RadiiSetting
 public import Balaban.Inhabited.RadiiRipe
 public import Balaban.Inhabited.RadiiWitness
 public import Balaban.Inhabited.RadiiWitnessOps
+public import Balaban.Inhabited.RipeGeoWitness
+public import Balaban.Inhabited.RipeGeoCollar
 public import Balaban.Inhabited.JointL4Setting
 public import Balaban.Inhabited.JointL4
 public import Balaban.Inhabited.RipeL4Flow
@@ -1197,6 +1199,7 @@ public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.Fluctuation.StepTaylorComplex
 public import Balaban.Fluctuation.StepBaseDomain
 public import Balaban.LargeField.R.RegionalFlux
+public import Balaban.LargeField.R.RegionalFluxLimits
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
 public import Balaban.LargeField.R.PositiveMassFacts
@@ -1228,3 +1231,11 @@ public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
+public import Balaban.LargeField.R.RotSections
+public import Balaban.LargeField.R.RotSectionsLip
+public import Balaban.Inhabited.StepActivityHatWitnessRay
+public import Balaban.Inhabited.StepActivityHatWitnessNum
+public import Balaban.Inhabited.StepActivityHatWitnessNe
+public import Balaban.Inhabited.StepActivityHatWitness
+public import Balaban.Inhabited.RLaneWitness
+public import Balaban.Inhabited.RLaneWitnessDen
