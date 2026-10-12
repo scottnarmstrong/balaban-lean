@@ -107,6 +107,7 @@ theorem eventually_add_single_mem_supN {C : Finset ι} {R : ℝ} {w : ι → ℂ
     (by simpa using h0 : (fun t : ℂ => ‖w a + t‖) 0 < (fun _ : ℂ => R) 0)] with t ht
   exact add_single_mem_supN hw ha ht
 
+omit [Fintype ι] in
 theorem pder_congr_near {C : Finset ι} {R : ℝ} {f g : (ι → ℂ) → ℂ}
     (hfg : ∀ w ∈ supN C R, f w = g w) {a : ι} (ha : a ∈ C) {w : ι → ℂ} (hw : w ∈ supN C R) :
     pder a f w = pder a g w := by
@@ -115,6 +116,7 @@ theorem pder_congr_near {C : Finset ι} {R : ℝ} {f g : (ι → ℂ) → ℂ}
   filter_upwards [eventually_add_single_mem_supN hw ha] with t ht
   exact hfg _ ht
 
+omit [Fintype ι] in
 theorem pderList_congr_near {C : Finset ι} {R : ℝ} :
     ∀ (l : List ι), (∀ a ∈ l, a ∈ C) → ∀ {f g : (ι → ℂ) → ℂ},
       (∀ w ∈ supN C R, f w = g w) → ∀ w ∈ supN C R, pderList l f w = pderList l g w := by
@@ -158,6 +160,7 @@ theorem coef_congr_near {C : Finset ι} {R : ℝ} (hR : 1 < R) {f g : (ι → �
 def InvAlongN (C : Finset ι) (R : ℝ) (i₀ : ι) (g : (ι → ℂ) → ℂ) : Prop :=
   ∀ w ∈ supN C R, ∀ τ : ℂ, ‖w i₀ + τ‖ < R → g (w + τ • (Pi.single i₀ 1 : ι → ℂ)) = g w
 
+omit [Fintype ι] in
 theorem invAlongN_pder {C : Finset ι} {R : ℝ} {i₀ : ι} {g : (ι → ℂ) → ℂ}
     (hg : InvAlongN C R i₀ g) {a : ι} (ha : a ∈ C) : InvAlongN C R i₀ (pder a g) := by
   intro w hw τ hτ
@@ -187,6 +190,7 @@ theorem invAlongN_pder_self_eq_zero {C : Finset ι} {R : ℝ} {i₀ : ι} {g : (
     exact hg w hw t ht
   rw [this.deriv_eq]; simp
 
+omit [Fintype ι] in
 theorem pderList_eq_zero_of_invN {C : Finset ι} {R : ℝ} {i₀ : ι} :
     ∀ (l : List ι), (∀ a ∈ l, a ∈ C) → i₀ ∈ l → ∀ {g : (ι → ℂ) → ℂ}, InvAlongN C R i₀ g →
       ∀ w ∈ supN C R, pderList l g w = 0 := by
