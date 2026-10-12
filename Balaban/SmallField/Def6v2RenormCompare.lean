@@ -84,7 +84,9 @@ theorem avgDomM_complete (i₀ : Fin N) (νj : ℝ) :
 /-- **Comparison for the premises of the anisotropic I-6**: for a member of the landed class in
 its complete regime, the statement `IsSFFamily2.premisesTermAnisoInf` of the second version at the
 member `toXi` is the landed statement `Def6.IsSFFamily.premisesTermAnisoInf`. -/
-theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek) (hd : 3 ≤ d) (hL : 3 ≤ L)
+theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek)
+    (hS : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X)) (hd : 3 ≤ d) (hL : 3 ≤ L)
     (hϱ : bgR0 d L ≤ ϱ) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     (hκ : aEnt d L + 3 ≤ P.κ) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
@@ -93,7 +95,7 @@ theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek) (hd : 3
       (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDomInf P β ν a Tm j i₀) := by
-  have h := (hF.toXi 0 hμ).premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
+  have h := (hF.toXi 0 hS hμ).premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
   rw [liftDomInfM_complete hμ 0] at h
   exact h
 
@@ -110,7 +112,9 @@ theorem renormalization_aniso_of_v2 (d L N m₁ : ℕ) [NeZero L] (P : Consts)
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily P β ν a Tm ρd Ek → 1 < β k * ν k → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+      IsSFFamily P β ν a Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+        GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X)) → 1 < β k * ν k → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (σ ε K₂ : ℝ),
       DataHypAniso (avgDom P β ν a Tm j i₀ (nuIdeal L k (ν k) j)) (nuIdeal L k (ν k) j) σ ε K₂
@@ -140,9 +144,9 @@ theorem renormalization_aniso_of_v2 (d L N m₁ : ℕ) [NeZero L] (P : Consts)
           (dot (ψT (y + liftSite ℓ z)) (ψT (y + liftSite ℓ z)) - dot (ψT y) (ψT y)) = 0 := by
   obtain ⟨C, hC0, hC⟩ := IsSFFamily2.renormalization_aniso d L N m₁ P hP Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ β ν a Ek Tm ρd hF hβν
+  intro k ϱ β ν a Ek Tm ρd hF hS hβν
   have hμ : physMass L k (ν k) = Def6.bgMass L k (β k) (ν k) := physMass_eq_bgMass_of_lt hβν
-  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hμ)
+  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hS hμ)
   simp only [avgFamilyAM_complete hμ 0, avgDomM_complete hμ 0] at h
   exact h
 
