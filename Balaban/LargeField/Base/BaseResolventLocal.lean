@@ -168,4 +168,109 @@ theorem logMat_entry_congr [Nonempty κ] {M M' : Matrix κ κ ℂ} (hM : BlockDi
 
 end Abstract
 
+section Concrete
+
+open Balaban Balaban.Multiscale Balaban.Green
+open scoped Matrix.Norms.L2Operator
+
+variable {d L N₀ : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} (G : GeneratingSet d L N₀ 1 ϱ) {N : ℕ}
+
+/-- `U` is a union of complete first blocks (of the chart domain). -/
+def IsFirstBlockUnion (U : Set (Torus d (N₀ * L ^ 1))) : Prop :=
+  ∀ x ∈ G.Ω 1, ∀ x' ∈ G.Ω 1, jBlock d L N₀ 1 1 x = jBlock d L N₀ 1 1 x' → (x ∈ U ↔ x' ∈ U)
+
+/-- The parameters vanish on the bonds of `𝓔` joining `U` to its complement. -/
+def CrossZero (U : Set (Torus d (N₀ * L ^ 1))) (s : FineBond d L N₀ → ℂ) : Prop :=
+  ∀ b ∈ baseCutBonds G, (b.1 ∈ U ↔ bondTip b ∉ U) → s b = 0
+
+theorem bond_joins {b : FineBond d L N₀} {x y : Torus d (N₀ * L ^ 1)} (hxy : x ≠ y)
+    (hx : bondVec b x ≠ 0) (hy : bondVec b y ≠ 0) :
+    (b.1 = x ∧ bondTip b = y) ∨ (bondTip b = x ∧ b.1 = y) := by
+  rcases bondVec_ne_zero_mem b x hx with h1 | h1 <;>
+    rcases bondVec_ne_zero_mem b y hy with h2 | h2
+  · exact absurd (h1.symm.trans h2) hxy
+  · exact Or.inl ⟨h1, h2⟩
+  · exact Or.inr ⟨h1, h2⟩
+  · exact absurd (h1.symm.trans h2) hxy
+
+/-- If `U` is a union of first blocks and `s` vanishes across `∂U`, then `H(s)` has no entries
+between `U` and its complement. -/
+theorem baseHamiltonian_cross_zero {U : Set (Torus d (N₀ * L ^ 1))} (hU : IsFirstBlockUnion G U)
+    (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) {s : FineBond d L N₀ → ℂ} (hs : CrossZero G U s)
+    (z y : G.Ω 1) (hzy : ((z : Torus d (N₀ * L ^ 1)) ∈ U ↔ (y : Torus d (N₀ * L ^ 1)) ∉ U)) :
+    baseHamiltonian G a ν α s z y = 0 := by
+  have hne : z ≠ y := by
+    rintro rfl
+    by_cases h : (z : Torus d (N₀ * L ^ 1)) ∈ U
+    · exact (hzy.1 h) h
+    · exact h (hzy.2 h)
+  have hblk : jBlock d L N₀ 1 1 z.1 ≠ jBlock d L N₀ 1 1 y.1 := by
+    intro hb
+    have := hU z.1 z.2 y.1 y.2 hb
+    by_cases h : (z : Torus d (N₀ * L ^ 1)) ∈ U
+    · exact (hzy.1 h) (this.1 h)
+    · exact h (hzy.2 (fun hy => h (this.2 hy)))
+  have hne' : (z : Torus d (N₀ * L ^ 1)) ≠ y := fun e => hne (Subtype.ext e)
+  -- bonds joining `z` and `y` belong to `𝓔` and cross `U`
+  have hjoin : ∀ b : FineBond d L N₀, bondMatrix b z.1 y.1 ≠ 0 →
+      b ∈ baseCutBonds G ∧ (b.1 ∈ U ↔ bondTip b ∉ U) := by
+    intro b hb
+    have hx : bondVec b z.1 ≠ 0 := fun h0 => hb (by simp [bondMatrix, Matrix.vecMulVec_apply, h0])
+    have hy : bondVec b y.1 ≠ 0 := fun h0 => hb (by simp [bondMatrix, Matrix.vecMulVec_apply, h0])
+    rcases bond_joins hne' hx hy with ⟨h1, h2⟩ | ⟨h1, h2⟩
+    · refine ⟨Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_, ?_, ?_⟩, ?_⟩
+      · rw [h1]; exact z.2
+      · have : b.1 + Pi.single b.2 1 = y.1 := h2
+        rw [this]; exact y.2
+      · have : b.1 + Pi.single b.2 1 = y.1 := h2
+        rw [this, h1]; exact hblk
+      · rw [h1, h2]; exact hzy
+    · refine ⟨Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_, ?_, ?_⟩, ?_⟩
+      · rw [h2]; exact y.2
+      · have : b.1 + Pi.single b.2 1 = z.1 := h1
+        rw [this]; exact z.2
+      · have : b.1 + Pi.single b.2 1 = z.1 := h1
+        rw [this, h2]; exact hblk.symm
+      · rw [h1, h2]
+        tauto
+  -- now the entry
+  have hbb : ∀ b, baseBond G b z y ≠ 0 → bondMatrix b z.1 y.1 ≠ 0 := by
+    intro b hb h0
+    apply hb
+    rw [baseBond_apply]
+    rw [bondMatrix, Matrix.vecMulVec_apply] at h0
+    exact_mod_cast h0
+  have hcf : cutFullMatrix G a ν (baseCutBonds G) z.1 y.1 = 0 := by
+    rw [cutFullMatrix_eq]
+    simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, ite_eq_right_iff.2 (fun h => absurd h hne'), smul_zero,
+      zero_add, Matrix.sum_apply, smul_eq_mul]
+    have h1 : ∑ b ∈ Finset.univ \ baseCutBonds G, bondMatrix b z.1 y.1 = 0 := by
+      refine Finset.sum_eq_zero fun b hb => ?_
+      by_contra hne0
+      exact (Finset.mem_sdiff.1 hb).2 (hjoin b hne0).1
+    have h2 : avgMatrix G a z.1 y.1 = 0 := by
+      by_contra hav
+      have hb : blockProjMatrix d (N₀ * L ^ 1) (L ^ 1) (N₀ * L ^ (1 - 1)) z.1 y.1 ≠ 0 := by
+        intro h0
+        apply hav
+        rw [avgMatrix_eq, Matrix.smul_apply]
+        have : layerProjMatrix G 1 z.1 y.1 = 0 := by
+          unfold layerProjMatrix; split_ifs
+          · exact h0
+          · rfl
+        rw [this]; simp
+      apply hblk
+      by_contra hne2
+      exact hb (by unfold blockProjMatrix; exact if_neg hne2)
+    rw [h1, h2]; simp
+  rw [baseHamiltonian_apply, hcf, if_neg hne]
+  simp only [Complex.ofReal_zero, zero_add]
+  refine Finset.sum_eq_zero fun b hb => ?_
+  by_cases hT : baseBond G b z y = 0
+  · rw [hT, mul_zero]
+  · have := hjoin b (hbb b hT)
+    rw [hs b hb this.2, zero_mul]
+
+end Concrete
+
 end Balaban.LargeField.Base
