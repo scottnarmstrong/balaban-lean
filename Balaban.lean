@@ -458,7 +458,6 @@ public import Balaban.SmallField.Def6BridgeLift
 public import Balaban.SmallField.Def6BridgeGeom
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
-public import Balaban.LargeField.Operators.Compose
 public import Balaban.LargeField.Operators.Ancestors
 public import Balaban.LargeField.Operators.HistGen
 public import Balaban.LargeField.Operators.Setup
@@ -469,6 +468,7 @@ public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
+public import Balaban.LargeField.Operators.KerBound
 public import Balaban.LargeField.Operators.PiTools
 public import Balaban.LargeField.Operators.GaussChange
 public import Balaban.LargeField.Operators.CompBound

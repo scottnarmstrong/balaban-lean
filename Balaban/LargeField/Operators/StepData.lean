@@ -1,7 +1,7 @@
 module
 
 public import Balaban.LargeField.Operators.Quiet
-public import Balaban.LargeField.Operators.Compose
+public import Balaban.LargeField.Operators.KerBound
 public import Balaban.LargeField.Operators.Symm
 
 /-!
@@ -89,20 +89,6 @@ def ChiDomAt (geo : Geo S n R M) (cs : OpConsts) (H : RegionHistory S n R k0) (k
     (fineSet (S := S) (n := n) M K k (Z.1 : Set (Torus S.d (n k)))) cs.delta cs.p0 cs.Cpsi
     (subMultiscaleField N (H.localHistory M K k Z) k (Vblk R (H.localHistory M K k Z) k) x o)
     (subFluctField N (H.localHistory M K k Z) k x)
-
-/-- Output variables on the blocks of `V` satisfying `P`. -/
-abbrev OutPart (N : ℕ) {α : Type} (V : Set α) (P : α → Prop) : Type :=
-  {y : α // y ∈ V ∧ P y} → EuclideanSpace ℝ (Fin N)
-
-/-- Restriction of an output configuration. -/
-def restrictOutPart {α : Type} {V : Set α} (o : OutConfig N V) (P : α → Prop) : OutPart N V P :=
-  fun y => o ⟨y.1, y.2.1⟩
-
-/-- Lebesgue measure on `OutPart`. -/
-noncomputable def outPartMeasure (N : ℕ) {α : Type} [Finite α] (V : Set α) (P : α → Prop) :
-    Measure (OutPart N V P) :=
-  haveI := Fintype.ofFinite {y : α // y ∈ V ∧ P y}
-  Measure.pi fun _ => volume
 
 /-- The witnesses `(W, F^w, K̃^w)` of the Gaussian structure (S1). -/
 structure GaussWit (N : ℕ) (R : ℕ → ℝ) (a : LocalHistory S n M K) (k : ℕ) where
@@ -263,9 +249,8 @@ structure KeptData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
   /-- the bound (1.26) of the kept operator (which includes the vanishing off `χ^dom_k`) -/
   bound : ∀ (H : RegionHistory S n R k0), H.Admissible → ∀ (k : ℕ) (Z : H.Comp k),
     1 ≤ k → k ≤ k0 → S.Ripe k (H.bk k Z) → ∀ ϰ : Fin 5,
-    Bound126 (datum k (H.localHistory M K k Z) ϰ).ker (outMeasure N (Vblk R (H.localHistory M K k Z) k))
-      (subMeasure N (H.localHistory M K k Z) k (datum k (H.localHistory M K k Z) ϰ).Ikeep)
-      (fun o x _ => ChiDomAt geo cs H k Z o x)
+    (∀ o x hv, ¬ ChiDomAt geo cs H k Z o x → (datum k (H.localHistory M K k Z) ϰ).ker.K o x hv = 0) ∧
+    KerBound (H.localHistory M K k Z) k (datum k (H.localHistory M K k Z) ϰ).ker
       (κ k (H.localHistory M K k Z) - S.CR * lamHat k ^ (2 * S.d + 1) + gam k ϰ)
 
 end Data
