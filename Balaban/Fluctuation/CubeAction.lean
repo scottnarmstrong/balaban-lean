@@ -40,6 +40,25 @@ section Def
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 variable (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) (ν : ℝ)
 
+/-- The block term of `actionC` at the site `x ∈ Ω₁`. -/
+noncomputable def cubeBlockTerm (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.Ω 1 × Fin N → ℂ)
+    (x : G.Ω 1) : ℂ :=
+  ((a (G.layerIndex (x : Torus d (N₀ * L ^ k))) /
+        ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) *
+        ∑ i, (Ψ x i - blockAvg G φ x i) * (Ψ x i - blockAvg G φ x i)
+
+/-- The bond term of `actionC` at the bonds `{x, x + e_μ}` based at the site `x`. -/
+noncomputable def cubeBondTerm (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.Ω 1 × Fin N → ℂ)
+    (x : Torus d (N₀ * L ^ k)) : ℂ :=
+  ∑ μ : Fin d, (if x ∈ G.Ω 1 ∨ x + Pi.single μ 1 ∈ G.Ω 1 then
+        ∑ i, (barField G Ψ φ (x + Pi.single μ 1) i - barField G Ψ φ x i) *
+          (barField G Ψ φ (x + Pi.single μ 1) i - barField G Ψ φ x i) else 0)
+
+/-- The mass term of `actionC` at the site `x ∈ Ω₁`. -/
+noncomputable def cubeMassTerm (h : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.Ω 1 × Fin N → ℂ)
+    (x : G.Ω 1) : ℂ :=
+  ∑ i, (φ (x, i) - h x i) * (φ (x, i) - h x i)
+
 open Classical in
 /-- **The bilinear action localized to a set `Q` of sites** (the cube action of FLUCTUATION
 §4.2 Step 3 / P5 (1.5)): the terms of `actionC` supported at the sites of `Q`.  The block term and
@@ -47,16 +66,9 @@ the mass term at `x ∈ Q ∩ Ω₁`, and the bond `{x, x + e_μ}` at its base s
 bond is counted exactly once in a partition of the torus into cubes. -/
 noncomputable def cubeActionR (Q : Finset (Torus d (N₀ * L ^ k)))
     (Ψ h : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.Ω 1 × Fin N → ℂ) : ℂ :=
-  (1 / 2) * ∑ x : G.Ω 1, (if (x : Torus d (N₀ * L ^ k)) ∈ Q then
-      ((a (G.layerIndex (x : Torus d (N₀ * L ^ k))) /
-        ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) *
-        ∑ i, (Ψ x i - blockAvg G φ x i) * (Ψ x i - blockAvg G φ x i) else 0) +
-  (1 / 2) * ∑ x : Torus d (N₀ * L ^ k), (if x ∈ Q then ∑ μ : Fin d,
-      (if x ∈ G.Ω 1 ∨ x + Pi.single μ 1 ∈ G.Ω 1 then
-        ∑ i, (barField G Ψ φ (x + Pi.single μ 1) i - barField G Ψ φ x i) *
-          (barField G Ψ φ (x + Pi.single μ 1) i - barField G Ψ φ x i) else 0) else 0) +
-  (ν : ℂ) / 2 * ∑ x : G.Ω 1, (if (x : Torus d (N₀ * L ^ k)) ∈ Q then
-      ∑ i, (φ (x, i) - h x i) * (φ (x, i) - h x i) else 0)
+  (1 / 2) * ∑ x : G.Ω 1, (if (x : Torus d (N₀ * L ^ k)) ∈ Q then cubeBlockTerm G a Ψ φ x else 0) +
+  (1 / 2) * ∑ x : Torus d (N₀ * L ^ k), (if x ∈ Q then cubeBondTerm G Ψ φ x else 0) +
+  (ν : ℂ) / 2 * ∑ x : G.Ω 1, (if (x : Torus d (N₀ * L ^ k)) ∈ Q then cubeMassTerm G h φ x else 0)
 
 /-- The cube action of the background data `D`. -/
 noncomputable def cubeActionC (Q : Finset (Torus d (N₀ * L ^ k))) (D : BgData G N)
@@ -68,7 +80,7 @@ variable {G a ν}
 /-- The cube action of the whole torus is the whole-lattice action `actionC`. -/
 theorem cubeActionC_univ (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) :
     cubeActionC G a ν Finset.univ D φ = actionC G a ν D φ := by
-  unfold cubeActionC cubeActionR actionC
+  unfold cubeActionC cubeActionR actionC cubeBlockTerm cubeBondTerm cubeMassTerm
   simp only [Finset.mem_univ, ↓reduceIte]
 
 /-- **Partition of the action into cubes**: if the cubes `Q ∈ 𝒬` partition the torus, the cube
@@ -158,7 +170,7 @@ theorem cubeActionR_analyticAt (Q : Finset (Torus d (N₀ * L ^ k)))
     fun z i => analyticAt_pi_iff.1 hΦ (z, i)
   have c4 := fun x i => analyticAt_blockAvg hΦ x i
   have c5 := fun x i => analyticAt_barField hΨ hΦ x i
-  unfold cubeActionR
+  unfold cubeActionR cubeBlockTerm cubeBondTerm cubeMassTerm
   refine AnalyticAt.add (AnalyticAt.add ?_ ?_) ?_
   · refine analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun x _ => ?_)
     by_cases hx : (x : Torus d (N₀ * L ^ k)) ∈ Q

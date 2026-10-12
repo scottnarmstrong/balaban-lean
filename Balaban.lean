@@ -690,3 +690,4 @@ public import Balaban.Fluctuation.TraceEntropyCells
 public import Balaban.Fluctuation.TraceEntropy
 public import Balaban.Fluctuation.TraceEntropyInhab
 public import Balaban.Fluctuation.CubeAction
+public import Balaban.Fluctuation.CubeActionShift
