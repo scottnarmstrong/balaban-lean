@@ -12,17 +12,17 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W165 (Opus) | `w165-v2-i6` / W165 | I-6 + renormalization for the v2 class (scheme A) |
-| W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) — final build |
-| W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks — final build |
-| W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
-| W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
-| W172 | `w172-def7v2` / W172 | Def-7 v2 main clauses (scheme A) |
-| W173 | `w173-collar` / W173 | COLLAR-FIX steps 1–2 (collar datum = inherited trace) |
-| W174 | `w174-activity-witness` / W174 | non-degenerate StepActivityBound witness |
-Temporary rule-10 exemption still open: `PsiZeroInput` (W157). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
+| W178 (Opus) | `w178-complex-step` / W178 | holomorphic complex step (OPEN-STEP-COMPLEX-COMPATIBILITY) |
+| W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
+| W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
+| W189 | `w189-w-taylor` / W189 | HAT-RATE §2: Taylor identities for the step potential (real data) |
+| W188 | `w188-source-norm` / W188 | HAT-RATE §3: source resummation with the factor 1/β kept |
+| W190 | `w190-window-hyp` / W190 (on W184) | REPAIR: weaken GluePieces.Hyp margin (false for the actual window), windowOfHistory_hyp |
+| W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
+| W191 | `w191-v2-obs-ports` / W191 | scheme-A observable layer: mscript_bound and improved bounds for v2 |
+No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): q13 MASS-RESPONSE (tag MASSRESP), vmod VMOD-17 (VMOD17), fluctfix ACTIVITY (ACTIVITY). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): round 21 working — q13 Q13-DECISION (tag Q13DEC), vmod VMOD-19 (VMOD19), fluctfix RATES (RATES). Round 20 notes committed (REGIONAL, VMOD-18, HAT-RATE). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
