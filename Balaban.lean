@@ -461,6 +461,8 @@ public import Balaban.SmallField.Def6InfBasic
 public import Balaban.SmallField.Def6InfSum
 public import Balaban.SmallField.Def6BridgeInfDict
 public import Balaban.SmallField.Def6BridgeInfLift
+public import Balaban.SmallField.Def6BridgeInfDer
+public import Balaban.SmallField.Def6BridgeInfSum
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Ancestors
