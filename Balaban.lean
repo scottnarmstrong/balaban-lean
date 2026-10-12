@@ -1223,6 +1223,7 @@ public import Balaban.LargeField.R.HaloDistance
 public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.RadialCoefficient
+public import Balaban.LargeField.R.RadialCoefficientAvg
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
