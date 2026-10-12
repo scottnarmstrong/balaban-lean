@@ -854,6 +854,7 @@ public import Balaban.Fluctuation.Prop33SymmDef
 public import Balaban.Fluctuation.Prop33SymmEnergy
 public import Balaban.Fluctuation.Prop33SymmV
 public import Balaban.Fluctuation.Prop33SymmNu
+public import Balaban.Fluctuation.Prop33SymmClose
 public import Balaban.Fluctuation.InteractionDir3
 public import Balaban.Fluctuation.InteractionEnergy
 public import Balaban.Fluctuation.InteractionVBlock

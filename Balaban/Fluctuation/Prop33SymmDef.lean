@@ -126,6 +126,39 @@ theorem TermReal.finsum {ι κ : Type*} [DecidableEq ι] {S : Set (RawData d L (
   · exact h τ hτ Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr
   · simp
 
+
+omit [NeZero N₁] [NeZero L] in
+/-- Covariance of a combination `c T + c' T'` (the combination of `LocInt.add₂` and `.smul`). -/
+theorem TermRot.add_smul {ι : Type*} [DecidableEq ι] {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))} {Rσ : ℝ}
+    {T T' : ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : TermRot S XW Rσ T) (h' : TermRot S XW Rσ T')
+    (𝒴 𝒴' : Finset ι) (c c' : ℂ) :
+    TermRot S XW Rσ (fun Y x w σ Θ => (if Y ∈ 𝒴 then c * T Y x w σ Θ else 0) +
+      (if Y ∈ 𝒴' then c' * T' Y x w σ Θ else 0)) := by
+  intro Q hQ Y xw hxw σ hσ Θ hΘ
+  simp only
+  rw [h Q hQ Y xw hxw σ hσ Θ hΘ, h' Q hQ Y xw hxw σ hσ Θ hΘ]
+
+omit [NeZero N₁] [NeZero L] in
+theorem TermReal.add_smul {ι : Type*} [DecidableEq ι] {S : Set (RawData d L (N₁ * L ^ m₁) K N)}
+    {XW : Set ((CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ))} {Rσ : ℝ}
+    {T T' : ι → (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+      RawData d L (N₁ * L ^ m₁) K N → ℂ} (h : TermReal S XW Rσ T) (h' : TermReal S XW Rσ T')
+    (𝒴 𝒴' : Finset ι) {c c' : ℂ} (hc : cj c = c) (hc' : cj c' = c') :
+    TermReal S XW Rσ (fun Y x w σ Θ => (if Y ∈ 𝒴 then c * T Y x w σ Θ else 0) +
+      (if Y ∈ 𝒴' then c' * T' Y x w σ Θ else 0)) := by
+  intro Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr
+  simp only
+  rw [map_add]
+  congr 1
+  · split_ifs
+    · rw [map_mul, hc, h Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr]
+    · simp
+  · split_ifs
+    · rw [map_mul, hc', h' Y xw hxw hx hw σ hσ hσi Θ hΘ hΘr]
+    · simp
+
 /-- **The ray terms of an `O(N)`-invariant analytic family are `O(N)`-covariant.** -/
 theorem termRot_ray {ι : Type*} {Evs : ι → RawData d L (N₁ * L ^ m₁) K N ×
       (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
