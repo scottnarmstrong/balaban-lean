@@ -15,11 +15,11 @@ Claude workers (background subagents of this session):
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
 | W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
 | W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
-| W261 | `w261-data-pair-bridge` / W261 | DataHyp → pair form of the data bounds for the regional source term |
 | W262 | `w262-grouped-bound` / W262 | grouped regional bound assembled from W228, W233, W234, W242, W253 |
 | W266 | `w266-sharp-assembly` / W266 | SharpAssembly: parallel assembler with sharp locality, physical_directTerms, direct activity bound, rate preservation (zero class) |
 | W265 | `w265-localgen` / W265 | P3 local generating set as an object (LOCALGEN §4: LocalGenAligned, LocalGenRange) |
 | W267 | `w267-general-class-match` / W267 | GeneralClassMatch (GENERAL §5 package 1) |
+| W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra (cap 3): q13 Q13-COVER (tag Q13COVER; LOCALGEN done: P3 local generator is a separate narrow object, not a parent of the landed engine; four class-neutral object packages ready — LocalGenAligned, LocalGenMixed, LocalGenRange, LocalGenHalo; GENERATOR DECISION PENDING WITH SCOTT: no class/generator-specific Lean), fluctfix PARAM (tag PARAM; GENERAL done: six general-class packages, GeneralClassMatch and GeneralXiRescale can start), vmod VMOD-30 MIXED-DECAY (tag VMOD30). NEXT SONNET PACKAGES: rate route — SharpAssembly/PhysicalSharpLoc after W263/W264, then compose with W256 and the landed direct assembler; then LocalGen object packages; GeneralClassMatch; W261 data pair bridge (worktree exists). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
