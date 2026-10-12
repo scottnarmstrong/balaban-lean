@@ -89,6 +89,16 @@ def Tube (i₀ : Fin N) (ν ρ : ℝ) (X : Finset (Site d)) : Set (Cfg d N X) :=
   {c | ∃ R : Matrix (Fin N) (Fin N) ℂ, IsOrth R ∧ EntryBd N R ∧
     rotCfgL R X c ∈ ball (refPt i₀ ν X) ρ}
 
+/-- The reflection `x_μ ↦ -x_μ` of the lattice. -/
+def latFlip (μ : Fin d) (x : Site d) : Site d := Function.update x μ (-x μ)
+
+/-- The exchange of the coordinates `μ` and `ν` of the lattice. -/
+def latSwap (μ ν : Fin d) (x : Site d) : Site d := x ∘ Equiv.swap μ ν
+
+/-- The generators of the point group of the lattice: reflections and coordinate exchanges. -/
+def IsLatGen (r : Site d → Site d) : Prop :=
+  (∃ μ, r = latFlip μ) ∨ ∃ μ ν, r = latSwap μ ν
+
 /-- The localized terms at one scale: the polymers (containing the origin), their distance
 `d_j`, and the terms `𝓔(y, X; ·)` in centred form. -/
 structure TermFamily (d N : ℕ) where
@@ -143,6 +153,12 @@ structure Premises (T : TermFamily d N) (i₀ i₁ : Fin N) (ν ρ E₀ κ A K�
   rot_inv : ∀ X ∈ T.polys, ∀ c ∈ Tube i₀ ν ρ X, ∀ R : Matrix (Fin N) (Fin N) ℂ,
     IsOrth R → EntryBd N R → rotCfgL R X c ∈ Tube i₀ ν ρ X →
       T.term X (rotCfgL R X c) = T.term X c
+  /-- (H.3), Euclid invariance: the polymer family is invariant under the generators of the point
+  group of the lattice -/
+  sym_mem : ∀ r : Site d → Site d, IsLatGen r → ∀ X ∈ T.polys, X.image r ∈ T.polys
+  /-- (H.3), Euclid invariance of the terms: `𝓔(rX; ψ ∘ r⁻¹) = 𝓔(X; ψ)` (`r` is an involution) -/
+  sym_inv : ∀ r : Site d → Site d, IsLatGen r → ∀ X ∈ T.polys, ∀ (ψ : Site d → Spin N) (b : Spin N),
+    T.term (X.image r) (pack (X.image r) (fun x => ψ (r x)) b) = T.term X (pack X ψ b)
   /-- (H.5)(1): `𝓥(e₁, ν e₁) = 0` -/
   ren_val : ∑' X : T.polys, T.term X.1 (refPt i₀ ν X.1) = 0
   /-- (H.5)(2): `∂_b 𝓥(e₁, ν e₁) · e₁ = 0` -/
