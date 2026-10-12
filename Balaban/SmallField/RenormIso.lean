@@ -200,4 +200,174 @@ theorem Sx_cov (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < �
   rw [he, tensB_cov hP hρ hr hX x x']
   simp only [IsLatGen.imageEquiv_val, ← hr.sub]
 
+theorem latFlip_apply (α : Fin d) (z : Site d) (μ : Fin d) :
+    latFlip α z μ = if μ = α then -z μ else z μ := by
+  by_cases h : μ = α <;> simp [latFlip, h]
+
+theorem latSwap_apply (α β : Fin d) (z : Site d) (μ : Fin d) :
+    latSwap α β z μ = z (Equiv.swap α β μ) := rfl
+
+theorem Sx_flip (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (α : Fin d)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) (μ ν' : Fin d) :
+    Sx T i₀ i₁ ν (X.image (latFlip α)) μ ν' =
+      (if μ = α then (-1 : ℂ) else 1) * (if ν' = α then (-1 : ℂ) else 1) * Sx T i₀ i₁ ν X μ ν' := by
+  rw [Sx_cov hP hρ (Or.inl ⟨α, rfl⟩) hX]
+  unfold Sx
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x' _ => ?_
+  have hs : ∀ (z : Site d) (ρ' : Fin d), (((latFlip α z) ρ' : ℤ) : ℂ) =
+      (if ρ' = α then (-1 : ℂ) else 1) * ((z ρ' : ℤ) : ℂ) := by
+    intro z ρ'
+    rw [latFlip_apply]; split_ifs <;> simp
+  rw [hs, hs]
+  ring
+
+theorem Sx_swap (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (α β : Fin d)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) (μ ν' : Fin d) :
+    Sx T i₀ i₁ ν (X.image (latSwap α β)) μ ν' =
+      Sx T i₀ i₁ ν X (Equiv.swap α β μ) (Equiv.swap α β ν') := by
+  rw [Sx_cov hP hρ (Or.inr ⟨α, β, rfl⟩) hX]
+  unfold Sx
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun x' _ => ?_
+  simp only [latSwap_apply]
+
+/-- The permutation of the polymers induced by an involution of the lattice. -/
+def IsLatGen.polysEquiv (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) {r : Site d → Site d}
+    (hr : IsLatGen r) : T.polys ≃ T.polys where
+  toFun X := ⟨X.1.image r, hP.sym_mem r hr X.1 X.2⟩
+  invFun X := ⟨X.1.image r, hP.sym_mem r hr X.1 X.2⟩
+  left_inv X := by
+    apply Subtype.ext
+    simp only [Finset.image_image]
+    have : r ∘ r = id := funext hr.invol
+    rw [this, Finset.image_id]
+  right_inv X := by
+    apply Subtype.ext
+    simp only [Finset.image_image]
+    have : r ∘ r = id := funext hr.invol
+    rw [this, Finset.image_id]
+
+theorem tsum_image_eq (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) {r : Site d → Site d}
+    (hr : IsLatGen r) (g : Finset (Site d) → ℂ) :
+    ∑' X : T.polys, g (X.1.image r) = ∑' X : T.polys, g X.1 :=
+  Equiv.tsum_eq (hr.polysEquiv hP) (fun X => g X.1)
+
+theorem norm_coord_le (z : Site d) (μ : Fin d) : ‖(((z μ : ℤ)) : ℂ)‖ ≤ (l1 z : ℝ) := by
+  rw [Complex.norm_intCast]
+  have : (z μ).natAbs ≤ l1 z := by
+    unfold l1
+    exact Finset.single_le_sum (f := fun ν => (z ν).natAbs) (fun _ _ => Nat.zero_le _)
+      (Finset.mem_univ μ)
+  calc |((z μ : ℤ) : ℝ)| = ((z μ).natAbs : ℝ) := by simp
+    _ ≤ _ := by exact_mod_cast this
+
+theorem Sx_le (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀) (hA : 0 ≤ A)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) (μ ν' : Fin d) :
+    ‖Sx T i₀ i₁ ν X μ ν'‖ ≤ (X.card : ℝ) ^ 2 * (4 * (E₀ * Real.exp (-κ * T.dist X)) / ρ ^ 2) *
+      (2 * (A * (1 + T.dist X))) ^ 2 := by
+  have hok := hP.termOK hρ hX
+  have hM : ∀ y ∈ ball (refPt i₀ ν X) ρ, ‖T.term X y‖ ≤ E₀ * Real.exp (-κ * T.dist X) :=
+    fun y hy => hP.bdd_tube X hX y (ball_subset_tube i₀ ν ρ X hy)
+  have hd0 : 0 ≤ T.dist X := hP.dist_nonneg X hX
+  have hcard : (Fintype.card ↥X : ℝ) = X.card := by simp
+  have hM0 : 0 ≤ E₀ * Real.exp (-κ * T.dist X) := by positivity
+  unfold Sx
+  have h1 : ‖∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+      ((((x.1 - x'.1) μ : ℤ) : ℂ) * (((x.1 - x'.1) ν' : ℤ) : ℂ))‖ ≤
+      (Fintype.card ↥X : ℝ) * ((Fintype.card ↥X : ℝ) *
+        (4 * (E₀ * Real.exp (-κ * T.dist X)) / ρ ^ 2 * (2 * (A * (1 + T.dist X))) ^ 2)) := by
+    refine norm_sum_le_card _ fun x => ?_
+    refine norm_sum_le_card _ fun x' => ?_
+    rw [norm_mul, norm_mul]
+    have hl : (l1 (x.1 - x'.1) : ℝ) ≤ 2 * (A * (1 + T.dist X)) := by
+      have := l1_sub_le x.1 x'.1
+      have h3 : (l1 (x.1 - x'.1) : ℝ) ≤ l1 x.1 + l1 x'.1 := by exact_mod_cast this
+      have h4 : (l1 x.1 : ℝ) ≤ A * (1 + T.dist X) := by
+        rw [l1_cast]; exact hP.diam X hX x.1 x.2
+      have h5 : (l1 x'.1 : ℝ) ≤ A * (1 + T.dist X) := by
+        rw [l1_cast]; exact hP.diam X hX x'.1 x'.2
+      linarith
+    have hc1 := norm_coord_le (x.1 - x'.1) μ
+    have hc2 := norm_coord_le (x.1 - x'.1) ν'
+    have hl0 : (0 : ℝ) ≤ l1 (x.1 - x'.1) := Nat.cast_nonneg _
+    have hz : ‖(((x.1 - x'.1) μ : ℤ) : ℂ)‖ * ‖(((x.1 - x'.1) ν' : ℤ) : ℂ)‖ ≤
+        (2 * (A * (1 + T.dist X))) ^ 2 := by
+      have h6 : (l1 (x.1 - x'.1) : ℝ) * l1 (x.1 - x'.1) ≤
+          (2 * (A * (1 + T.dist X))) * (2 * (A * (1 + T.dist X))) :=
+        mul_le_mul hl hl hl0 (by positivity)
+      have h7 := mul_le_mul hc1 hc2 (norm_nonneg _) hl0
+      nlinarith
+    exact mul_le_mul (hok.norm_D2_basis_le hM _ _) hz (by positivity) (by positivity)
+  rw [hcard] at h1
+  refine h1.trans (le_of_eq ?_)
+  ring
+
+theorem Sx_summable (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀)
+    (hA : 0 ≤ A) (μ ν' : Fin d) : Summable fun X : T.polys => Sx T i₀ i₁ ν X.1 μ ν' := by
+  refine Summable.of_norm_bounded (hP.count_summable.mul_left (E₀ * (4 / ρ ^ 2 * (2 * A) ^ 2))) ?_
+  intro X
+  have h1 := Sx_le hP hρ hE0 hA X.2 μ ν'
+  have h2 := wt_ge (κ := κ) X.1 (hP.dist_nonneg X.1 X.2)
+    (Finset.card_pos.mpr ⟨0, hP.zero_mem X.1 X.2⟩) 2 2 le_rfl (by norm_num)
+  refine h1.trans ?_
+  have hd0 := hP.dist_nonneg X.1 X.2
+  calc (X.1.card : ℝ) ^ 2 * (4 * (E₀ * Real.exp (-κ * T.dist X.1)) / ρ ^ 2) *
+        (2 * (A * (1 + T.dist X.1))) ^ 2
+      = (4 / ρ ^ 2 * (2 * A) ^ 2) * E₀ * ((X.1.card : ℝ) ^ 2 * (1 + T.dist X.1) ^ 2 *
+          Real.exp (-κ * T.dist X.1)) := by ring
+    _ ≤ (4 / ρ ^ 2 * (2 * A) ^ 2) * E₀ * wt κ X.1 (T.dist X.1) := by
+        have : 0 ≤ (4 / ρ ^ 2 * (2 * A) ^ 2) * E₀ := by positivity
+        exact mul_le_mul_of_nonneg_left h2 this
+    _ = _ := by ring
+
+theorem moment_tensor (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀)
+    (hA : 0 ≤ A) (μ ν' : Fin d) : ∑' X : T.polys, Sx T i₀ i₁ ν X.1 μ ν' = 0 := by
+  by_cases hne : μ = ν'
+  · subst hne
+    -- the diagonal entries are all equal
+    have hdiag : ∀ α β : Fin d, ∑' X : T.polys, Sx T i₀ i₁ ν X.1 α α =
+        ∑' X : T.polys, Sx T i₀ i₁ ν X.1 β β := by
+      intro α β
+      have h := tsum_image_eq hP (r := latSwap α β) (Or.inr ⟨α, β, rfl⟩)
+        (fun X => Sx T i₀ i₁ ν X α α)
+      have h2 : ∀ X : T.polys, Sx T i₀ i₁ ν (X.1.image (latSwap α β)) α α =
+          Sx T i₀ i₁ ν X.1 β β := fun X => by
+        rw [Sx_swap hP hρ α β X.2]; simp
+      simp only [h2] at h
+      exact h.symm
+    -- the trace vanishes
+    have htrace : ∑ α : Fin d, ∑' X : T.polys, Sx T i₀ i₁ ν X.1 α α = 0 := by
+      rw [← Summable.tsum_finsetSum (fun α _ => Sx_summable hP hρ hE0 hA α α)]
+      have hm := hP.moment
+      convert hm using 2
+      ext X
+      unfold Sx
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun x _ => ?_
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun x' _ => ?_
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun α _ => ?_
+      simp only [Pi.sub_apply]
+      ring
+    have hcard : ∑ α : Fin d, ∑' X : T.polys, Sx T i₀ i₁ ν X.1 α α =
+        (d : ℂ) * ∑' X : T.polys, Sx T i₀ i₁ ν X.1 μ μ := by
+      rw [Finset.sum_congr rfl fun α _ => hdiag α μ]
+      simp
+    rw [hcard] at htrace
+    have hd : (d : ℂ) ≠ 0 := by
+      have : 0 < d := Fin.pos μ
+      exact_mod_cast this.ne'
+    exact (mul_eq_zero.mp htrace).resolve_left hd
+  · have h := tsum_image_eq hP (r := latFlip μ) (Or.inl ⟨μ, rfl⟩) (fun X => Sx T i₀ i₁ ν X μ ν')
+    have h2 : ∀ X : T.polys, Sx T i₀ i₁ ν (X.1.image (latFlip μ)) μ ν' =
+        -Sx T i₀ i₁ ν X.1 μ ν' := fun X => by
+      rw [Sx_flip hP hρ μ X.2]
+      simp [Ne.symm hne]
+    simp only [h2, tsum_neg] at h
+    have : (2 : ℂ) * ∑' X : T.polys, Sx T i₀ i₁ ν X.1 μ ν' = 0 := by linear_combination -h
+    exact (mul_eq_zero.mp this).resolve_left two_ne_zero
+
 end Balaban.SmallField
