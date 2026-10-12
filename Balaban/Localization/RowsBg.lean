@@ -213,6 +213,128 @@ theorem local_step_of_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGS
   local_step_rows hF S hconn hκ hM hs hs' hα0 hα0' hρ hY hs1 hs0 hag
     (dataAgreeRows_of_dataAgree S hD) hξ hη hξη
 
+/-- **`i4a_local` with agreement on the sites read** (T2): the paired Picard iteration with
+`local_step_rows`. -/
+theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgreeRows G a ν N (SY G X₁ 𝒞 Y) α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν s' ιU α₀' φ₀' (pertSource G a δΨ' f₁') δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') δα' (y, i)) := by
+  classical
+  have hBG := hF.2.1
+  have hd0 : 0 < d := by have := S.hd; omega
+  set B : ℝ := famConst d L BG κ with hB
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hB0 : 0 ≤ B := by have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hΓ : 0 < Γ := by have := gamma1_pos hd0; positivity
+  have hC := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ H.δ₀_nn H.δ₁_nn hδ₀ hδ₁
+  obtain ⟨⟨hfam, -⟩, hunit⟩ := hF.2.2 G S hκ hM hs N
+  obtain ⟨⟨hfam', -⟩, hunit'⟩ := hF.2.2 G S hκ hM hs' N
+  obtain ⟨ξ, hξB, hξfix, hξuniq, hit⟩ := smap_fixed_iterates hfam H.setup hC
+  obtain ⟨ξ', hξB', hξfix', hξuniq', hit'⟩ := smap_fixed_iterates hfam' H'.setup hC
+  -- identify `toAlpha ξ` with `δα`
+  have hid : ∀ {s₀ : DecParams G} {α₀₀ : G.Ω 1 → ℂ} {φ₀₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+      {Fs₀ : G.Ω 1 × Fin N → ℂ} {ξ₀ δα₀ : G.Ω 1 → ℂ},
+      Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀ ξ₀ = ξ₀ →
+      ξ₀ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ) →
+      (∀ ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ),
+        Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀ ξ' = ξ' → ξ' = ξ₀) →
+      DecFixed G a ν s₀ ιU α₀₀ φ₀₀ Fs₀ δα₀ → Small G δα₀ (c6' d L N B Γ) →
+      toAlpha G ξ₀ = δα₀ := by
+    intro s₀ α₀₀ φ₀₀ Fs₀ ξ₀ δα₀ _ _ huniq hf hsm₀
+    have hm : ofAlpha G δα₀ ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) (c6' d L N B Γ) := by
+      rw [mem_closedBall_zero_iff]
+      refine (pi_norm_le_iff_of_nonneg (c6'_pos (d := d) (L := L) (N := N) hB0 hΓ).le).2
+        fun x => ?_
+      rw [norm_ofAlpha]; exact hsm₀ x
+    have hf' : Smap G (decG G a ν s₀) (dirichletOperator G a ν α₀₀) ιU α₀₀ φ₀₀ Fs₀
+        (ofAlpha G δα₀) = ofAlpha G δα₀ := by
+      funext x
+      unfold Smap
+      rw [toAlpha_ofAlpha]
+      have := congrFun hf x
+      unfold DecFixed at hf
+      rw [hf]
+      rfl
+    rw [← huniq _ hm hf', toAlpha_ofAlpha]
+  have e1 : toAlpha G ξ = δα := hid hξfix hξB hξuniq hfix hsm
+  have e2 : toAlpha G ξ' = δα' := hid hξfix' hξB' hξuniq' hfix' hsm'
+  have hpoly : ∀ {α₀₀ : G.Ω 1 → ℂ}, Small G α₀₀ δ₀ → δ₀ + c6' d L N B Γ ≤ Γ := by
+    intro _ _; linarith [hC.poly, hC.ρ_nn]
+  -- the pair induction
+  have hagreeξ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → ξ x = ξ' x := by
+    refine fixed_agree_of_step (T := fun x : G.Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y)
+      (fun u v hu hv huv i hi => ?_) (fun n => ⟨(hit n).1, (hit n).2⟩)
+      (fun n => ⟨(hit' n).1, (hit' n).2⟩) hC.ρ_nn
+    exact local_step_rows hF S hconn hκ hM hs hs' H.alpha0 H'.alpha0 (hpoly H.alpha0)
+      hY hs1 hs0 hag hD hu hv huv i hi
+  have hδ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x := by
+    intro x hx
+    rw [← e1, ← e2]
+    unfold toAlpha
+    rw [hagreeξ x hx]
+  refine ⟨hδ, fun y hy i => ?_⟩
+  have hA : Small G (α₀ + δα) Γ := fun z => ((Small.add H.alpha0 hsm) z).trans (hpoly H.alpha0)
+  have hA' : Small G (α₀' + δα') Γ := fun z =>
+    ((Small.add H'.alpha0 hsm') z).trans (hpoly H'.alpha0)
+  unfold dphi
+  rw [liftOp_mulVec, liftOp_mulVec]
+  refine dg5'_inner S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
+    (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hs1 hs0 hag
+    (fun z hz => ?_) (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) δα (b, i))
+    (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') δα' (b, i)) (fun b hb => ?_) y hy
+  · simp only [Pi.add_apply]
+    rw [hD.alpha z hz, hδ z hz]
+  · simp only [Fsrc]
+    rw [pertSource_congr_rows hD hb i, hD.phi b (Or.inl hb), hδ b hb]
+
+/-- The landed `i4a_local` from `i4a_local_rows` (T4). -/
+theorem i4a_local_of_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgree G N Y α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν s' ιU α₀' φ₀' (pertSource G a δΨ' f₁') δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') δα' (y, i)) :=
+  i4a_local_rows hF S hconn hκ hM hs hs' H H' hδ₀ hδ₁ hY hs1 hs0 hag
+    (dataAgreeRows_of_dataAgree S hD) hfix hsm hfix' hsm'
+
 end Rows
 
 end Balaban.Localization
