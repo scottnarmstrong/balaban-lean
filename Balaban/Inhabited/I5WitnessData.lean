@@ -299,5 +299,216 @@ theorem siteConnected_XD (m₁ : ℕ) : SiteConnected (XD m₁) := by
 
 end Connected
 
+/-! ### The minimizing chosen family and the region `X₁` -/
+
+section Minimizer
+
+variable {m₁ : ℕ}
+
+theorem zero_mem_KX (m₁ : ℕ) : (0 : T m₁) ∈ KX m₁ := by
+  refine ⟨fun μ => by simp, ?_⟩
+  rw [Green.torusDist_self_eq_zero]
+  positivity
+
+theorem zero_mem_XD (m₁ : ℕ) : (0 : T m₁) ∈ XD m₁ :=
+  mem_XD.2 ⟨0, zero_mem_KX m₁, mem_box_self _ (Nat.mul_pos (by norm_num) (cellSide_pos 0 m₁ 1))⟩
+
+theorem isDj_XD (m₁ : ℕ) : IsDj 0 1 (XD m₁) :=
+  ⟨⟨0, zero_mem_XD m₁⟩, fun z hz => by
+    obtain ⟨b, hb, hzb⟩ := mem_XD.1 hz
+    exact ⟨b, aligned_one_of_KX hb, hzb, fun w hw => mem_XD.2 ⟨b, hb, hw⟩⟩, siteConnected_XD m₁⟩
+
+/-- The admissible set defining `treeLenCovOne` for `X` is non-empty. -/
+theorem admissible_XD (m₁ : ℕ) : ∃ 𝒦 W E, ChosenOne 0 1 (XD m₁) 𝒦 ∧ ConnStruct W E ∧
+    (↑W ⊆ XD m₁) ∧ MeetsOne 0 1 𝒦 W := by
+  obtain ⟨W, E, h1, h2, h3⟩ := exists_tree_all (isDj_XD m₁)
+  exact ⟨_, W, E, fullCover_chosen (isDj_XD m₁), h1, h2, h3⟩
+
+theorem exists_minimizer (m₁ : ℕ) : ∃ (𝒦 : Set (T m₁)) (W : Finset (T m₁))
+    (E : Finset (T m₁ × T m₁)), ChosenOne 0 1 (XD m₁) 𝒦 ∧ ConnStruct W E ∧ (↑W ⊆ XD m₁) ∧
+      MeetsOne 0 1 𝒦 W ∧ bondCost (scaleW 3 0 m₁ 1) E = treeLenCovOne 0 1 (XD m₁) :=
+  treeLenCovOne_attained 0 1 (XD m₁) (admissible_XD m₁)
+
+/-- A chosen family of `X` that attains the infimum defining `d^cov_1(X)` (it exists since the
+infimum is over a finite non-empty set of costs). -/
+noncomputable def KM (m₁ : ℕ) : Set (T m₁) := (exists_minimizer m₁).choose
+
+theorem KM_spec (m₁ : ℕ) : ∃ (W : Finset (T m₁)) (E : Finset (T m₁ × T m₁)),
+    ChosenOne 0 1 (XD m₁) (KM m₁) ∧ ConnStruct W E ∧ (↑W ⊆ XD m₁) ∧
+      MeetsOne 0 1 (KM m₁) W ∧ bondCost (scaleW 3 0 m₁ 1) E = treeLenCovOne 0 1 (XD m₁) :=
+  (exists_minimizer m₁).choose_spec
+
+theorem KM_chosen (m₁ : ℕ) : ChosenOne 0 1 (XD m₁) (KM m₁) := by
+  obtain ⟨W, E, h, -⟩ := KM_spec m₁
+  exact h
+
+/-- **`hopt` for `𝒦_X = KM`**: a connected structure in `X` meeting every cube of `KM` whose cost is
+`d^cov_1(X)`. -/
+theorem hopt_data (m₁ : ℕ) : ∃ (W₀ : Finset (T m₁)) (E₀ : Finset (T m₁ × T m₁)),
+    ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XD m₁) ∧ MeetsOne 0 1 (KM m₁) W₀ ∧
+      bondCost (scaleW 3 0 m₁ 1) E₀ = treeLenCovOne 0 1 (XD m₁) := by
+  obtain ⟨W, E, -, h2, h3, h4, h5⟩ := KM_spec m₁
+  exact ⟨W, E, h2, h3, h4, h5⟩
+
+theorem box_subset_cbase {a : ℕ} (ha : 0 < a) {n d : ℕ} [NeZero n] (b : Torus d n) :
+    box b a ⊆ box (cbase a b) (3 * a) := by
+  rintro z ⟨w, hw, rfl⟩
+  obtain ⟨w₀, hw₀, hb⟩ := mem_box_cbase ha b
+  refine ⟨w₀ + w, fun μ => ?_, ?_⟩
+  · have := hw₀ μ; have := hw μ; simp only [Pi.add_apply]; omega
+  · rw [natT_add, ← add_assoc, ← hb]
+
+/-- `CovSetup` for the minimizing family. -/
+theorem covSetup_KM (m₁ : ℕ) (ρ : ℝ) : CovSetup (GpD m₁ ρ) 0 1 (XD m₁) (KM m₁) where
+  hU := layerUnion_GpD 0
+  hN := by simp
+  hjK := by norm_num
+  chosen := KM_chosen m₁
+  nest := fun b hb => ⟨cbase (cellSide 3 0 m₁ 2) b, aligned_cbase b, by
+      rw [three_cellSide_one]; exact box_subset_cbase (cellSide_pos 0 m₁ 2) b, by
+    rw [GpD_layer_two]; intro x _; simp⟩
+
+/-- **The ball of `hN` lies in `X`.** -/
+theorem ball_subset_XD (h4 : 4 ≤ m₁) {x y : T m₁}
+    (hx : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) x 0 ≤ 10)
+    (hy : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) x y < 324 * (cellSide 3 0 m₁ 2 : ℝ)) :
+    y ∈ XD m₁ := by
+  have hl := le_cellSide h4
+  have hpos : 0 < cellSide 3 0 m₁ 2 := cellSide_pos 0 m₁ 2
+  set b : T m₁ := cbase (cellSide 3 0 m₁ 2) y with hb
+  have hyb : y ∈ box b (cellSide 3 0 m₁ 2) := mem_box_cbase hpos y
+  have hdyb := dist_box_le hyb
+  have hcell : (3 : ℝ) * (cellSide 3 0 m₁ 2 : ℝ) = ((3 * cellSide 3 0 m₁ 2 : ℕ) : ℝ) := by
+    push_cast; ring
+  have hbK : b ∈ KX m₁ := by
+    refine ⟨aligned_cbase y, ?_⟩
+    have t1 := Green.torusDist_triangle_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) b y 0
+    have t2 := Green.torusDist_triangle_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) y x 0
+    have c1 := Green.torusDist_comm_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) y b
+    have c2 := Green.torusDist_comm_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) y x
+    linarith
+  exact mem_XD.2 ⟨b, hbK, by rw [three_cellSide_one]; exact hyb⟩
+
+theorem ball_subset_X1M (h4 : 4 ≤ m₁) {ρ : ℝ} {x y : T m₁}
+    (hx : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) x 0 ≤ 10)
+    (hy : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) x y < 324 * (cellSide 3 0 m₁ 2 : ℝ)) :
+    y ∈ X1 (GpD m₁ ρ) 0 1 (KM m₁) :=
+  (covSetup_KM m₁ ρ).X_sub (ball_subset_XD h4 hx hy)
+
+/-- **`X₁` is proper**: the point `(120 ℓ, 120 ℓ, 120 ℓ)` is not in `X1 (GpD) 0 1 (KM)`. -/
+theorem antipode_not_mem_X1M {ρ : ℝ} :
+    (fun _ => ((120 * cellSide 3 0 m₁ 2 : ℕ) : ZMod (240 * 3 ^ m₁ * 3 ^ 2)) : T m₁) ∉
+      X1 (GpD m₁ ρ) 0 1 (KM m₁) := by
+  intro hmem
+  obtain ⟨b, ⟨-, -, q, hq, hsub⟩, hy⟩ := Set.mem_iUnion₂.1 hmem
+  have hpos : 0 < cellSide 3 0 m₁ 2 := cellSide_pos 0 m₁ 2
+  have hq1 : q ∈ box q (3 * cellSide 3 0 m₁ 1) :=
+    mem_box_self _ (Nat.mul_pos (by norm_num) (cellSide_pos 0 m₁ 1))
+  have hqXD : q ∈ XD m₁ := (KM_chosen m₁).1 q hq |>.2 hq1
+  obtain ⟨c, hcK, hqc⟩ := mem_XD.1 hqXD
+  have hqb := dist_box_le (hsub hq1)
+  have hyb := dist_box_le hy
+  have hqc' := dist_box_le hqc
+  set y : T m₁ := (fun _ => ((120 * cellSide 3 0 m₁ 2 : ℕ) : ZMod (240 * 3 ^ m₁ * 3 ^ 2)))
+  have hS : 240 * 3 ^ m₁ * 3 ^ 2 = 240 * cellSide 3 0 m₁ 2 := side_eq_240 m₁
+  have hy0 : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) y 0 = 360 * (cellSide 3 0 m₁ 2 : ℝ) := by
+    unfold Green.torusDist
+    have : ∀ μ : Fin 3, ((Green.cycRep (y μ - (0 : T m₁) μ)).natAbs : ℝ) =
+        120 * (cellSide 3 0 m₁ 2 : ℝ) := by
+      intro μ
+      have hv : (y μ - (0 : T m₁) μ).val = 120 * cellSide 3 0 m₁ 2 := by
+        simp only [y, Pi.zero_apply, sub_zero]
+        exact ZMod.val_natCast_of_lt (by rw [hS]; omega)
+      unfold Green.cycRep
+      have hle : 120 * cellSide 3 0 m₁ 2 ≤ 240 * 3 ^ m₁ * 3 ^ 2 / 2 := by rw [hS]; omega
+      rw [hv]
+      simp only [hle, ite_true]
+      simp
+    simp only [this, Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+    norm_num; ring
+  have t1 := Green.torusDist_triangle_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) y b 0
+  have t2 := Green.torusDist_triangle_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) b q 0
+  have t3 := Green.torusDist_triangle_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) q c 0
+  have c1 := Green.torusDist_comm_gen (d := 3) (m := 240 * 3 ^ m₁ * 3 ^ 2) b q
+  have hcK' := hcK.2
+  have e1 : ((3 * cellSide 3 0 m₁ 2 : ℕ) : ℝ) = 3 * (cellSide 3 0 m₁ 2 : ℝ) := by push_cast; ring
+  have e2 : ((3 * cellSide 3 0 m₁ 1 : ℕ) : ℝ) = (cellSide 3 0 m₁ 2 : ℝ) := by
+    rw [three_cellSide_one]
+  rw [e1] at hyb hqb
+  rw [e2] at hqc'
+  have hposR : (0 : ℝ) < (cellSide 3 0 m₁ 2 : ℝ) := by exact_mod_cast hpos
+  linarith
+
+end Minimizer
+
+/-! ### The setting -/
+
+section Setting
+
+variable {m₁ : ℕ}
+
+/-- The region `X₁ = X1 (GpD) 0 1 (KM)` as a finset. -/
+noncomputable def X1fM (m₁ : ℕ) (ρ : ℝ) : Finset (T m₁) :=
+  (Set.toFinite (X1 (GpD m₁ ρ) 0 1 (KM m₁))).toFinset
+
+theorem mem_X1fM {ρ : ℝ} {y : T m₁} : y ∈ X1fM m₁ ρ ↔ y ∈ X1 (GpD m₁ ρ) 0 1 (KM m₁) :=
+  Set.Finite.mem_toFinset _
+
+theorem coe_X1fM (m₁ : ℕ) (ρ : ℝ) : (↑(X1fM m₁ ρ) : Set (T m₁)) = X1 (GpD m₁ ρ) 0 1 (KM m₁) :=
+  Set.Finite.coe_toFinset _
+
+theorem X1fM_ne_univ (m₁ : ℕ) (ρ : ℝ) : X1fM m₁ ρ ≠ Finset.univ := fun h =>
+  antipode_not_mem_X1M (m₁ := m₁) (ρ := ρ) (mem_X1fM.1 (h ▸ Finset.mem_univ _))
+
+/-- **`BgSetting` for the minimizing family.**  As `bgSetting_data_of`, with `X₁ = X1 (GpD) 0 1 (KM)`
+in place of `X1 (GpD) 0 1 (KX)`. -/
+theorem bgSetting_dataM {m₁ : ℕ} (h4 : 4 ≤ m₁) {c BG eps δ₃ : ℝ} (hS : DecSpecs 3 3 c BG)
+    (hm : c * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁)
+    (hnum : ChainNum 3 3 2 m₁ BG 100000 324 eps δ₃) :
+    BgSetting 2 (GpD m₁ (rhoSep m₁)) (GkD m₁ (rhoSep m₁)) (G0D m₁ (rhoSep m₁)) 1 0 c BG 100000
+      324 eps δ₃ (dataSites (GkD m₁ (rhoSep m₁))) (X1fM m₁ (rhoSep m₁)) 1 := by
+  have hBH := bgHyp_rho m₁
+  exact {
+    hS := hS
+    Sp := dgSetting_GpD h4
+    ha₁ := one_pos
+    HBp := hBH
+    HBk := hBH
+    HBj := hBH
+    hP := fun i hi hik x _ => by
+      have : i ≤ 2 := hik
+      simp [GpD_Ω, this]
+    hq := fun i hi _ => by rw [G0D_Ω i hi]; exact Finset.empty_subset _
+    colk := fun z _ => by simp [GpD_Ω]
+    colj := fun z hz => by rw [G0D_collar] at hz; simp at hz
+    hκ := by norm_num
+    hM := by exact_mod_cast hm
+    num := hnum
+    dsX₀ := fun x hx => hx
+    hN := fun x hx _ y hy => by
+      rw [mem_X1fM]
+      refine ball_subset_X1M h4 (dist_dataSites_le hx) ?_
+      rw [spacing_GpD] at hy
+      have : (324 : ℝ) * 3 ^ m₁ * 9 = 324 * (cellSide 3 0 m₁ 2 : ℝ) := by
+        rw [cellSide_two]; push_cast; ring
+      simp only [Nat.cast_ofNat] at hy
+      linarith
+    hr := by
+      have : (0:ℝ) ≤ 36 * 3 ^ m₁ := by positivity
+      have := rhoSep_tail_nonneg
+      have := rhoSep_ge m₁
+      push_cast
+      nlinarith
+    hr₀ := by norm_num
+    dep := fun x hx y hy => by
+      rw [mem_X1fM]
+      refine ball_subset_X1M h4 (dist_dataSites_le hx) ?_
+      have h27 := dist_composeDep_le hx hy
+      have := le_cellSide h4
+      linarith
+    hj := by norm_num }
+
+end Setting
+
 end I5WitnessData
 end Balaban.Inhabited
