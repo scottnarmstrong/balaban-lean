@@ -165,9 +165,10 @@ structure ZCell (d : ℕ) where
   base : Fin d → ℤ
   /-- the side -/
   side : ℕ
+  deriving DecidableEq
 
 /-- The sites of the integer cell. -/
-def ZCell.box (c : ZCell d) : Set (Fin d → ℤ) :=
+def ZCell.pts (c : ZCell d) : Set (Fin d → ℤ) :=
   {x | ∀ μ, c.base μ ≤ x μ ∧ x μ < c.base μ + c.side}
 
 /-- The centre point of a cell (the lower corner shifted by `⌊side / 2⌋`). -/
@@ -188,21 +189,21 @@ theorem ZFaceAdj.symm {c c' : ZCell d} (h : ZFaceAdj c c') : ZFaceAdj c' c := by
     · left; omega
   · exact ⟨(h2 ν hν).2, (h2 ν hν).1⟩
 
-theorem ZCell.rep_mem (c : ZCell d) (h : 0 < c.side) : c.rep ∈ c.box := by
+theorem ZCell.rep_mem (c : ZCell d) (h : 0 < c.side) : c.rep ∈ c.pts := by
   intro μ
   simp only [ZCell.rep]
   have : ((c.side / 2 : ℕ) : ℤ) < c.side := by omega
   constructor <;> omega
 
-theorem ZCell.box_subset_Icc (c : ZCell d) :
-    c.box ⊆ ZIcc c.base (fun μ => c.base μ + c.side - 1) := by
+theorem ZCell.pts_subset_Icc (c : ZCell d) :
+    c.pts ⊆ ZIcc c.base (fun μ => c.base μ + c.side - 1) := by
   intro x hx μ
   have := hx μ
   dsimp only at this ⊢
   constructor <;> omega
 
 theorem ZCell.Icc_subset_box (c : ZCell d) :
-    ZIcc c.base (fun μ => c.base μ + c.side - 1) ⊆ c.box := by
+    ZIcc c.base (fun μ => c.base μ + c.side - 1) ⊆ c.pts := by
   intro x hx μ
   have := hx μ
   dsimp only at this ⊢
@@ -241,7 +242,7 @@ centres of the cells are joined inside `c ∪ c'` by a walk of `ℓ` bonds with
 theorem zcell_walk_aux (c c' : ZCell d) (hs : 0 < c.side) (hs' : 0 < c'.side)
     (hdvd : (c'.side : ℤ) ∣ c.side) (hb : ∀ μ, (c.side : ℤ) ∣ c.base μ)
     (hb' : ∀ μ, (c'.side : ℤ) ∣ c'.base μ) (hadj : ZFaceAdj c c') :
-    ∃ ℓ, 2 * ℓ ≤ (d + 1) * c.side + 1 ∧ ZWalk (c.box ∪ c'.box) c.rep c'.rep ℓ := by
+    ∃ ℓ, 2 * ℓ ≤ (d + 1) * c.side + 1 ∧ ZWalk (c.pts ∪ c'.pts) c.rep c'.rep ℓ := by
   classical
   obtain ⟨μ, hn, ht⟩ := hadj
   have hss : c'.side ≤ c.side := by
@@ -263,7 +264,7 @@ theorem zcell_walk_aux (c c' : ZCell d) (hs : 0 < c.side) (hs' : 0 < c'.side)
       have : ((c'.side / 2 : ℕ) : ℤ) < c'.side := by omega
       constructor <;> omega
   have hrc : c.rep ∈ ZIcc c.base (fun ν => c.base ν + c.side - 1) :=
-    c.box_subset_Icc (c.rep_mem hs)
+    c.pts_subset_Icc (c.rep_mem hs)
   have hA := zwalk_box c.base (fun ν => c.base ν + c.side - 1) z hzc _ c.rep hrc rfl
   -- bound on the first leg
   have hAb : ∑ ν, (c.rep ν - z ν).natAbs ≤ (d - 1) * (c.side / 2) := by
@@ -285,7 +286,7 @@ theorem zcell_walk_aux (c c' : ZCell d) (hs : 0 < c.side) (hs' : 0 < c'.side)
     with hlo
   set hi' : Fin d → ℤ := fun ν => if ν = μ then
     max (c.base μ + c.side - 1) (c'.base μ + c'.side - 1) else c'.base ν + c'.side - 1 with hhi
-  have hslab : ZIcc lo' hi' ⊆ c.box ∪ c'.box := by
+  have hslab : ZIcc lo' hi' ⊆ c.pts ∪ c'.pts := by
     intro q hq
     by_cases hq1 : c.base μ ≤ q μ ∧ q μ < c.base μ + c.side
     · left
@@ -357,7 +358,7 @@ theorem zcell_walk (c c' : ZCell d) (hs : 0 < c.side) (hs' : 0 < c'.side)
     (hnest : (c'.side : ℤ) ∣ c.side ∨ (c.side : ℤ) ∣ c'.side)
     (hb : ∀ μ, (c.side : ℤ) ∣ c.base μ) (hb' : ∀ μ, (c'.side : ℤ) ∣ c'.base μ)
     (hadj : ZFaceAdj c c') :
-    ∃ ℓ, 2 * ℓ ≤ (d + 1) * max c.side c'.side + 1 ∧ ZWalk (c.box ∪ c'.box) c.rep c'.rep ℓ := by
+    ∃ ℓ, 2 * ℓ ≤ (d + 1) * max c.side c'.side + 1 ∧ ZWalk (c.pts ∪ c'.pts) c.rep c'.rep ℓ := by
   rcases hnest with h | h
   · obtain ⟨ℓ, h1, h2⟩ := zcell_walk_aux c c' hs hs' h hb hb' hadj
     exact ⟨ℓ, h1.trans (by have := le_max_left c.side c'.side; nlinarith), h2⟩
