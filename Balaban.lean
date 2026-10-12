@@ -883,6 +883,7 @@ public import Balaban.LargeField.R.ActionConvWitness
 public import Balaban.LargeField.R.MassChangeChord
 public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassResponse
+public import Balaban.LargeField.R.MassResponseHyp
 public import Balaban.LargeField.R.MassChangeOneSite
 public import Balaban.LargeField.R.MassChangeUniv
 public import Balaban.Fluctuation.BackgroundChangeCompare
@@ -1001,6 +1002,11 @@ public import Balaban.Observables.SecondOrderCauchy
 public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
 public import Balaban.Fluctuation.StepMeasure
+public import Balaban.Fluctuation.StepEven
+public import Balaban.Inhabited.V2Wide
+public import Balaban.Inhabited.V2Energy
+public import Balaban.Inhabited.V2EnergySource
+public import Balaban.Inhabited.V2EnergyD1
 public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
@@ -1109,3 +1115,9 @@ public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
 public import Balaban.Fluctuation.StepNonvanishInhab
+public import Balaban.Fluctuation.StepActivityWitnessSplit
+public import Balaban.Fluctuation.StepActivityWitnessMin
+public import Balaban.Fluctuation.StepActivityWitnessNe
+public import Balaban.Fluctuation.StepActivityWitnessRay
+public import Balaban.Fluctuation.StepActivityWitness
+public import Balaban.Fluctuation.StepActivityWitnessMain

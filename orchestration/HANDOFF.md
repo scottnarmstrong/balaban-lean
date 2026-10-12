@@ -15,11 +15,11 @@ Claude workers (background subagents of this session):
 | W178 (Opus) | `w178-complex-step` / W178 | holomorphic complex step (OPEN-STEP-COMPLEX-COMPATIBILITY) |
 | W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
 | W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
-| W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
-| W179 | `w179-mass-prop51` / W179 (on W177) | Prop51Hyp for the mass source; response under (1.3) only |
+| W182 | `w182-collar-inner` / W182 | COLLAR-FIX (2.3) inner-collar bound, DataChangeBound' for the window |
+| W183 | `w183-poly-minimal` / W183 | class polymers are cube unions; GsSpecStrong for minimal sets |
 | W180 | `w180-mass-hessian` / W180 | localized Hessian (2.1), wall sum (2.4), (2.5) |
 | W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
-| W174 | `w174-activity-witness` / W174 | non-degenerate StepActivityBound witness |
+| W184 | `w184-window-history` / W184 | WindowPieces from the actual history; W173's geometric premises |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra (cap 3): round 20 working — vmod VMOD-18 (tag VMOD18), q13 REGIONAL (REGIONAL), fluctfix HAT-RATE (HATRATE). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
