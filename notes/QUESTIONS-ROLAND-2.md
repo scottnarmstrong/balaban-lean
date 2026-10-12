@@ -43,3 +43,40 @@ to dominant (mass-dependent norms, an observable field, ...), we would gladly co
 
 Details, with the exact one-block counterexamples: `notes/phase1/RGFREE-6.md` §§2–4 and
 `RGFREE-3.md` §2.1.
+
+**13 (addendum, 2026-10-13). The transverse-source quadratic term.**
+
+We can now say exactly which term causes the trouble, and it is not only at the switch.
+
+Write b = ν_k h for the source and b⊥ for its part transverse to the spin. Take one block with penalty
+(a/2)|ψ − φ|² and field term (m/2)|φ − h|², m = ν_k.
+
+- **At the switch.** Changing the background from field-free to complete lowers the action by
+  β(√((a+m)² + |b⊥|²) − (a+m)) = β|b⊥|²/(2(a+m)) + …  (exact one-block formula).
+- **At every field-free step (k ≤ k₀).** Treating the field term as a perturbation, the Gaussian
+  fluctuation integral of exp(β b·δφ) with covariance 1/(βa) gives the same structure,
+  β|b⊥|²/(2a), at second order.
+
+On the physical field this is small: |b⊥| = m sin θ, so the term is β m² sin²θ/(2a) ≤ m sin²θ when
+βm ≤ 1. But as a function of the source it has coefficient β/(2a), with second transverse derivative
+β/(a+m) at the aligned point. An inductive bound E₀ on the term therefore holds only for
+|b⊥| ≲ β^{-1/2}, and Cauchy estimates on that domain do not give the irrelevance estimate (I-6) with
+the rate we need. It survives all four renormalization conditions, because it vanishes with its
+first derivatives on aligned configurations and has no spatial extent.
+
+P1 (3.13) has the domain condition |ν_j(1 − (ψ_j)₀·h)| < σ²ε², which gives |b⊥| ≲ ε√ν_j: on that
+domain the term is bounded by ε². P4 (5.1) writes the potential as f(U, V, W²), with W² the
+transverse source variable.
+
+**Question.** How does Balaban's induction treat the W²-dependence of the potential?
+
+(i) Is ∂f/∂W² (the coefficient of |b⊥|²) a tracked quantity with its own recursion, like the
+    mass and wave-function terms?
+(ii) Or is it only bounded on the P1 (3.13) domain (transverse radius ε√ν), with irrelevance in
+    d = 3 coming from the scaling L^{d−4} of that coefficient?
+(iii) Or is there a cancellation we are missing?
+
+Our current irrelevance proof uses a source polydisc with transverse radius ε_j independent of the
+mass (from P3 (4.26)), which is too wide for this term when ν_j ≪ 1.
+
+Details: `notes/phase1/PIN-I6.md` §2 and `notes/phase1/PIN-JET.md` §§2–3.
