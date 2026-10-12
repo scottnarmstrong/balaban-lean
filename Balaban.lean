@@ -787,6 +787,7 @@ public import Balaban.Fluctuation.Theorem42RealFlow
 public import Balaban.Fluctuation.Theorem42WireLayers
 public import Balaban.Fluctuation.Theorem42WireData
 public import Balaban.Fluctuation.Theorem42WireAction
+public import Balaban.Fluctuation.Theorem42WireDist
 public import Balaban.Background.Prop51Mass
 public import Balaban.Fluctuation.RenormExpLemma35
 public import Balaban.Fluctuation.RenormExpCauchy
