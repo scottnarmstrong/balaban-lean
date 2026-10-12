@@ -370,6 +370,7 @@ public import Balaban.Localization.I5FluctChain
 public import Balaban.Localization.I5FluctFacts
 public import Balaban.Localization.I5FluctFan
 public import Balaban.Localization.I5FluctStep
+public import Balaban.Localization.RowsFl
 public import Balaban.Localization.I5FluctGeom
 public import Balaban.Localization.I5FluctLocal
 public import Balaban.Localization.I5Fluct
