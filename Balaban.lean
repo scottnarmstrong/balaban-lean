@@ -859,11 +859,14 @@ public import Balaban.LargeField.R.WindowOfHistory
 public import Balaban.LargeField.R.WindowRegSet
 public import Balaban.LargeField.R.WindowRegSetBond
 public import Balaban.LargeField.R.WindowRegSetPath
-public import Balaban.LargeField.R.WindowRegSetBridge
 public import Balaban.LargeField.R.DeltaPsiCollarActual
 public import Balaban.LargeField.R.DeltaPsiCollarActualInner
 public import Balaban.LargeField.R.DeltaPsiCollarActualOuter
 public import Balaban.LargeField.R.DeltaPsiCollarActualWindow
+public import Balaban.LargeField.R.WindowRegSetBridge
+public import Balaban.LargeField.R.DeltaPsiCollarLambda21
+public import Balaban.LargeField.R.DeltaPsiCollarChiDom
+public import Balaban.Inhabited.WindowCollarWitness
 public import Balaban.LargeField.R.WindowOfHistoryCollar
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
