@@ -7,6 +7,8 @@ module
 
 public import Balaban.Fluctuation.HatEngineDom
 public import Balaban.Fluctuation.HatEngineLift
+public import Balaban.Fluctuation.CovSqrtSupComplexDec
+import Balaban.Fluctuation.Lemma25Xi
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -271,6 +273,70 @@ theorem fanH_analytic (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
   have hΦpt := hΦ _ hmem
   rw [← hval] at hΦpt
   exact hΦpt.comp_of_eq hg rfl
+
+/-- **The hypothesis `hSup` of `fanH_analytic` from the complex-`s` sup bound of `decCovSqrt`**
+(`decCovSqrt_supNorm`): for hat variables with `|ψ̂| ≤ cψ` the fluctuation `ψ'(s)` lies in
+`FlBallLC Hm δ₁` as soon as `√N · |cc| · C_sup · cψ < δ₁`. -/
+theorem hatPsiF_mem_flBallLC (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1))
+    (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {ψh : unitPts Gp × Fin N → ℂ}
+    (hψh : ∀ p, ‖ψh p‖ ≤ cψ) :
+    hatPsiF Gp a₁ ν hG' cc F₁ s (rawOf D) ψh ∈ FlBallLC Hm δ₁ := by
+  classical
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  obtain ⟨φ, α, hI, -⟩ := i4b_exists_unique hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
+    (fun P => (hs P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC hC.HBp hδ0 hδ0' hδ1 hDom
+  have hFeq := hF₁ s D hs hU φ α hI
+  have hdec := decDom_of_isDecBg hC hs hD hI hmar hα
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have hX : XSetting Gp (compWeight L a₁) a₁ ν := xSetting_of_flCore hC hk
+  have hsup := decCovSqrt_supNorm (N := N) hX hC.hκ.le hMX hδc hsm hdec ψh (c := cψ) hcψ hψh
+  refine liftC_mem_flBallLC hG hG' fun b => ?_
+  have hcoord : ∀ i, ‖(cc • (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh)) (b, i)‖ ≤
+      ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ) := by
+    intro i
+    rw [Pi.smul_apply, smul_eq_mul, norm_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
+    have := hsup (b, i)
+    unfold hatSqrtF
+    rw [hFeq]
+    exact this
+  rcases Nat.eq_zero_or_pos N with hN | hN
+  · subst hN
+    have : vn (fun i : Fin 0 => (cc • (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh)) (b, i)) = 0 := by
+      rw [vn_eq_sqrt]; simp
+    rw [this]; exact hC.δ₁_pos
+  · have hV : 0 ≤ ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ) :=
+      (norm_nonneg _).trans (hcoord ⟨0, hN⟩)
+    have := vn_le_sqrt_mul hV hcoord
+    exact lt_of_le_of_lt this hδ₁
 
 end Main
 
