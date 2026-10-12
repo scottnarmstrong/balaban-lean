@@ -303,6 +303,9 @@ public import Balaban.Localization.Decoupled2FieldLocal
 public import Balaban.Localization.Decoupled2Background
 public import Balaban.Localization.Decoupled2BackgroundLocal
 public import Balaban.Localization.Decoupled2Self
+public import Balaban.Localization.DecEquivRot
+public import Balaban.Localization.DecEquivReal
+public import Balaban.Localization.DecEquivCoef
 public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.Decoupled2XBounds
 public import Balaban.Localization.Decoupled2XGreen
@@ -793,6 +796,8 @@ public import Balaban.Fluctuation.InteractionDir
 public import Balaban.Fluctuation.InteractionLoc
 public import Balaban.Fluctuation.InteractionETerm
 public import Balaban.Fluctuation.InteractionEngine
+public import Balaban.Fluctuation.InteractionSymm
+public import Balaban.Fluctuation.InteractionSymmRot
 public import Balaban.Fluctuation.InteractionDir3
 public import Balaban.Fluctuation.InteractionEnergy
 public import Balaban.Fluctuation.InteractionVBlock
