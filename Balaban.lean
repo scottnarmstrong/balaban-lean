@@ -506,6 +506,9 @@ public import Balaban.Fluctuation.SizeModEntropy
 public import Balaban.Fluctuation.SizeMod
 public import Balaban.Fluctuation.ClusterUnion
 public import Balaban.Fluctuation.CubeSystem
+public import Balaban.Fluctuation.MeasureProduct
+public import Balaban.Fluctuation.MeasureAbsorb
+public import Balaban.Fluctuation.MeasureInterp
 public import Balaban.Polymer.MarkedTermwise
 public import Balaban.Polymer.MarkedDeriv
 public import Balaban.Polymer.MarkedCubes
