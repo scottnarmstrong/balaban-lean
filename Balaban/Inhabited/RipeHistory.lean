@@ -405,3 +405,68 @@ theorem t4Facts_exists (G : S.Good) (hcap : 2 ≤ S.numax (Tstar S + 1)) :
     exact mul_nonneg (by simp) (S.D_nonneg _)
 
 end T4
+
+end RipeHist
+
+section Concrete
+
+open JointWitness RipeHist
+
+theorem setting_Cν_gt (β : ℝ) : 1 < (setting β).Cν := by
+  have hl : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hcp : 0 < typing0.cPrime := by
+    show 0 < (1 + Real.log 2 / (1 * Real.log ((2 : ℕ) : ℝ))) * (1 + 3 * Real.log 2)
+    have : ((2 : ℕ) : ℝ) = 2 := by norm_num
+    rw [this]
+    positivity
+  show 1 < typing0.Cr
+  have h9 := pow_pos hcp 9
+  show 1 < 2 * (1 : ℝ) * typing0.cPrime ^ (9 : ℕ) + 1
+  linarith
+
+theorem setting_numax_two (β : ℝ) (hβ : 10 < β) (j : ℕ) : 2 ≤ (setting β).numax j := by
+  have hC := setting_Cν_gt β
+  have hlam : 1 ≤ (setting β).lam j := (setting_ok β hβ).one_le_lam j
+  have hp : (1 : ℝ) ≤ (setting β).lam j ^ (setting β).p2 := one_le_pow₀ hlam
+  have : (1 : ℝ) < (setting β).Cν * (setting β).lam j ^ (setting β).p2 := by nlinarith
+  unfold Setting.numax
+  have := Nat.lt_ceil.mpr (by exact_mod_cast this : ((1 : ℕ) : ℝ) <
+    (setting β).Cν * (setting β).lam j ^ (setting β).p2)
+  omega
+
+/-- **`RemCluster` is inhabited by a non-empty cluster with a ripe member**, for the setting of
+the joint witness (`d = 3`, `L = 2`, `λ_j = log (5β/4) + 1 + j log 2`, `β = jointBeta`). -/
+theorem remCluster_nonempty :
+    ∃ (n : ℕ → ℕ) (_ : ∀ k, NeZero (n k)) (R : ℕ → ℝ) (k0 K M k : ℕ) (_ : NeZero M)
+      (Kc : HistConfig (setting jointBeta) n R k0 K M k)
+      (C : Finset (ConfigPair (setting jointBeta) n M K k)), RemCluster Kc C :=
+  ⟨side (setting jointBeta) 1 (Tstar (setting jointBeta)), inferInstance, JointWitness.radii,
+    Tstar (setting jointBeta), Tstar (setting jointBeta), 1, Tstar (setting jointBeta),
+    ⟨one_ne_zero⟩,
+    remCluster_exists (setting_ok jointBeta jointBeta_gt) (setting_s4 _) (setting_s5 _)
+      (setting_Rb _) 1 1⟩
+
+/-- **`RipeWindow` is inhabited** (a ripe component of a non-empty region history). -/
+theorem ripeWindow_nonempty :
+    ∃ (n : ℕ → ℕ) (_ : ∀ k, NeZero (n k)) (R : ℕ → ℝ) (k0 K : ℕ)
+      (H : RegionHistory (setting jointBeta) n R k0 K) (k : ℕ) (Z : H.Comp k),
+      H.RipeWindow k Z := by
+  obtain ⟨c, hc⟩ := ripeWindow_exists (setting_ok jointBeta jointBeta_gt) (setting_s4 _)
+    (setting_s5 _) (setting_Rb _)
+    (setting_good jointBeta jointBeta_gt jointBeta_spec.2.1)
+  exact ⟨_, inferInstance, _, _, _, histT (setting_ok jointBeta jointBeta_gt) (setting_s4 _)
+    (setting_s5 _) (setting_Rb _) (bigN (setting jointBeta)), _, c, hc⟩
+
+/-- **`T4Facts` is inhabited** (a merge of two ripe-book parts at scale `T`). -/
+theorem t4Facts_nonempty :
+    ∃ (k : ℕ) (parts : Finset (Fin 2)) (f : Fin 2 → Book) (b' : Book),
+      parts.card = 2 ∧ T4Facts (setting jointBeta) k parts f b' := by
+  obtain ⟨parts, f, b', h1, h2⟩ := t4Facts_exists (setting_ok jointBeta jointBeta_gt)
+    (setting_s4 _) (setting_s5 _) (setting_Rb _)
+    (setting_good jointBeta jointBeta_gt jointBeta_spec.2.1)
+    (setting_numax_two jointBeta jointBeta_gt _)
+  exact ⟨_, parts, f, b', h1, h2⟩
+
+end Concrete
+
+end Balaban.Inhabited
