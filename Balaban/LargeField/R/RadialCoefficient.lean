@@ -11,7 +11,119 @@ public import Balaban.LargeField.Def7v2
 /-!
 # The radial coefficient: `a_j` and `v₁^{(j)}` (Q13-GROUPED §1, `regionalRadialCoefficient`)
 
-DICTIONARY_PLACEHOLDER
+The marginal kernel `a_j` of the renormalization step and the coefficient `v₁^{(j)}` of the
+correction (1.8) of P5 are the radial spin derivative of the same energy term (P1 p. 146 (3.104),
+(3.106)).  This file proves that identity termwise and for the sum over polymers of one torus,
+for the lifted family `liftTF`, and records which links to the limit family of `D1Corr` are not
+landed.
+
+## What is proved
+
+* `fderiv_eq_of_line`: the chain rule for `fderiv` along a line, through a reindexing.
+* `tensA_EauxC_eq_v1Loc` (T2): for a polymer `X'` of the lift and a block corner `u` with
+  `unlift u ∈ X'`, `tensA i₀ ν_j X' (EauxC …) ⟨unlift u, _⟩ = v1Loc Et j ν_j e_{i₀} u`, where `Et`
+  is a source form of the term (the shape of `D1Corr.src_pos`).  Hypotheses: the context `LiftCtx`
+  (analyticity at the reference point and at the constant field), non-winding, polymer, `y ∈ X'`.
+* `fderiv_termL_eq`, `aCoefX_liftTF_eq_v1Loc` (T3, one polymer): the same for the term `termL` of
+  `liftTF` at the origin, for every centred site `x` (for `x ∉ X'` both sides vanish: `aCoefX = 0`
+  by definition, and `v1Loc = 0` by locality `IsSF.localE`).
+* `aCoef_liftTF_eq_v1T_of_nonwinding` (T3, sum): `aCoef (liftTF …) i₀ ν_j x = v1T m₀ St j ν_j e_{i₀}
+  0 (blockPt j x)`, i.e. `a(x) = v₁(0, x)` on one torus, if every polymer of `𝒟_j` through `0` is
+  the torus polymer of a non-winding lattice polymer (`hsurj`).  The polymer sets are matched by the
+  bijection `Ypoly j` (`Set.BijOn`), and the two sums are finite sums (`shN_finite`).
+* `aCoef_liftTF_eq_v1T_of_D1Corr`: the same with the source relation supplied by `D1Corr.src_pos`.
+The centre `0` is the only centre needed: `v1_lim` is stated at the centre `0` (`blockPt j 0 = 0`),
+and the terms with centre `y` are handled by `EauxC` (T2 holds for every centre `y ∈ X'`).
+
+## T1: the dictionary, with declaration names
+
+Scale and carrier.  The torus is `CTorus d L N₁ m₁ k` (Localization/Cover.lean:30), fields
+`Fld = CTorus → ℂ^N` (Def6Terms.lean:44).  The class terms are `Tm.E j y X Ψ h`
+(`Terms`, Def6.lean:89), `y` the base point of a `j`-block, `X` a set of fine sites, `(Ψ, h)` the
+spin field and the source `h`.  The unit lattice at scale `j` is `Fin d → ℤ` (`Site d`,
+RenormDefs.lean:41); a fine site is sent to its centred block position by `unlift j`
+(Def6Terms.lean:171, via `ZMod.valMinAbs` of `jBlock`), a block position `y` is sent to the fine
+corner by `blockPt j y` (Def6Terms.lean:198) `= ibase j y` (Def6BridgeGeom.lean:82).
+`Ypoly j X'` (Def6Terms.lean:176) is the torus polymer of a lattice polymer `X'`; it is injective on
+non-winding `X'` (`NonWind`), with inverse `unlift` (`unlift_ibase`, Def6BridgeGeom.lean:85).
+
+Polymers and terms of the lift.  `liftPolys P j` (Def6BridgeLift.lean:642): finite sets
+`X' ∋ 0` that do not wind and have `Ypoly j X' ∈ 𝒟_j`.  The configuration of a polymer is
+`Cfg d N X' = (X' × Fin N ⊕ Fin N) → ℂ` (RenormDefs.lean:48) and is turned into torus data by
+`fieldOf j i₀ X' c` (Def6BridgeLift.lean:46: `c` on the blocks of `X'`, the constant `e_{i₀}`
+elsewhere) and `hOf ν_j X' c` (:52, `h = c(inr)/ν_j`).  The centred term is
+`Eaux Tm j i₀ ν_j X' c = Tm.E j 0 (Ypoly j X') (fieldOf c) (hOf c)` (:121; centre `y`:
+`EauxC`, Def6AvgLiftC.lean:40), and the term of the family is `termL` (:528, the same function
+composed with a complex orthogonal rotation on the tube, equal to `Eaux` on the ball:
+`fderiv_termL_eq`).  `liftTF P j i₀ ν_j ρ Tm` (:649) is the `TermFamily` with these polymers and
+terms.  The infinite-volume analogue is `liftInfA` (RenormAnisoBridgeInf.lean:61) with `termLInfA`
+and `EauxInf` (Def6BridgeInfDict.lean:204).  The family to which the renormalization theorem is
+applied, however, is `avgFamilyA` (RenormClassFamily.lean:140; used in
+`Def6v2RenormCompare.renormalization_aniso_of_v2`, RenormClassTheorem.lean:152): its term is the
+Reynolds average `avgB` (Def6AvgFamily.lean:214) over paving offsets and the point group
+of the terms of `T∞`.
+
+Source convention.  `TermFamily.term` is a function of `(ψ, b)`, `b = ν_j h`
+(RenormDefs.lean:18): `refPt i₀ ν X` (:63) is `(e_{i₀}, ν e_{i₀})`, i.e. `h = e_{i₀}`
+(`Def6BridgeLift.refPt_inr`; `hOf` divides by `ν_j`).  `v1Loc` (Def7v2Corr.lean:156) differentiates
+a source form `Et ψ b` at `(constFld e₁, constFld (ν e₁))`, also in the variable `b`.
+`D1Corr.src_pos` (Def7v2.lean:81) says `St.E … (constFld b) = Tm.E … (constFld (ν⁻¹ • b))`; so
+`v1Loc (St.E …) j ν e₁` is the `ψ`-derivative of the class term `Tm.E` at `h = e₁`, the same point
+as `refPt` (no mismatch; `tensA_EauxC_eq_v1Loc` proves it).  `sourceOf` (Def6v2Source.lean:192)
+is the landed instance of the relation.
+
+Landed links: `liftTF`/`Eaux` carry the torus term to `Cfg` (definitions, with analyticity
+`LiftCtx.analyticAt_EauxC`, locality `IsSF.localE`); `unlift`/`blockPt`/`Ypoly` match blocks and
+sites; `D1Corr.src_pos` relates `St` and `Tm`; `termL_eq`/`fderiv_termL_eq` relate the tube term to
+`Eaux`.  Not landed (before this file): any statement relating `tensA` to `v1Loc`, or `aCoef` of any
+family to `v1T`.
+
+## T4: missing links (not assumed)
+
+The identity `aCoef T i₀ ν z = vc.v1 j z` for a `D1Corr` datum needs, besides the above:
+
+* (M1, limit) `Summable`-type domination of the tails and the following proposition.  For
+  `P`, `Tm`, `St`, `hv`, `vc` as in `D1Corr P.m₀ sf St hv vc`, for `1 ≤ j ≤ k`, `z : Fin d → ℤ`,
+  `i₀`, with `TorusIndep`: `Tendsto (fun n => v1T P.m₀ (St (torusSeq L P.m₀ n)) j ν_j e_{i₀} 0
+  (blockPt j z)) atTop (𝓝 (aCoef (liftInfA P Tm j i₀ ν_j r) i₀ ν_j z))`.
+  The terms agree for large `n` polymer by polymer (`termLInfA_eq`, `aCoefX_liftTF_eq_v1Loc`), but
+  the torus sums also contain winding polymers, and the passage to the limit needs a bound
+  `Σ_{X ∋ 0} sup_n |∂ψ(x) ℰ_n| < ∞` uniform in `n` (the tube bound `E₀ e^{-κ d_j}` of the
+  class would give it by Cauchy estimates, but it is not stated for `v1Loc`).  Owner: a new bridge module
+  next to `Def6BridgeInfSum.lean` (which already contains `tensA` sums for the infinite family).
+* (M2, averaging) `aCoef (avgFamilyA P β ν a Tm j i₀ ν_j r) i₀ ν_j z = aCoef (liftInfA P Tm j i₀
+  ν_j r) i₀ ν_j z`, i.e. the kernel of the renormalization theorem (the Reynolds average over the
+  coset space `GG d L j ⧸ KK d L P.m₀ m₁ j`, `Def6AvgFamily.lean`) is the kernel of the unaveraged
+  family.  This is not a consequence of the landed covariance (`eucE` holds for `pavingSymGroup`
+  only); it needs that the whole-lattice kernel is invariant under the point group of `ℤ^d`
+  (a property of `v1_lim`, which `D1Corr` does not state).  Owner: `Def6v2RenormCompare` or a file
+  on `avgB`.
+* (M3, axis) `D1Corr` takes the direction `e₁ = hC hv` of the physical field `h`; the identities
+  above are at the coordinate axis `e_{i₀}`.  `v1Loc` at `hC hv` equals `v1Loc` at `e_{i₀}` by
+  the real rotation invariance `IsSF.rotE`, which needs membership of the rotated data in `XiDom`.
+* (M4, winding) `hsurj` of `aCoef_liftTF_eq_v1T_of_nonwinding`: every polymer of `𝒟_j` through `0`
+  on the torus `N₁` is non-winding.
+
+## T5: findings
+
+(a) `a = v₁`, not `v₁ + ν_j v₂`.  `aCoefX` (RenormDefs.lean:199) is `tensA` (:112), the derivative
+of the term at `refPt i₀ ν X = (e_{i₀}, ν e_{i₀})` in the single coordinate direction
+`Pi.single (Sum.inl (x, i₀)) 1`: only `ψ_{i₀}(x)` moves, `b` stays at `ν e_{i₀}`.  `v1Loc`
+(Def7v2Corr.lean:156) is the derivative in `ψ` in the direction `blockDirV x e₁` with the source
+fixed at `constFld (ν e₁)`.  `tensA_EauxC_eq_v1Loc` proves they are equal.  The second coefficient
+`v2Loc` (:164) is the `b`-derivative of the *transverse* derivative `D_{ψ(x)}[e₂]` at `b = ν e₁`
+in the direction `e₂ ⟂ e₁`; it is a different quantity and does not enter `aCoefX` at all.  The
+total derivative along the diagonal `(ψ, b) = (t e₁, ν t e₁)` is not what `aCoef` computes (that is
+(H.5)(3), `RenormDefs.lean:168`, which sums `tensA`).  The sentence in SMALLFIELD.md §2.5(iii)
+(line 231, "so `a = v₁ + ν_j v₂` at that point") conflates the two terms of the pair term
+(1.8), which agree on parallel configurations, with the coefficients; for the landed objects
+`a = v₁` is the correct statement (Q13-GROUPED line 15).
+
+(b) Source convention.  No mismatch: with `src_pos`, `v1Loc (St.E …) j ν e₁` is the derivative of
+the class term `Tm.E` at `(ψ, h) = (e₁, e₁)`, which is `(ψ, b) = (e₁, ν e₁)`, the point of `refPt`
+(the class term is in the variable `h`, the `TermFamily` and `St` in `b = ν h`).  What does not
+match is only the *averaging* and the *axis* (M2, M3 above).  `src_pos` is conditional on
+`ν_j > 0` and holds for `constFld b` only, which is all that `v1Loc` uses.
 -/
 
 @[expose] public section
@@ -230,6 +342,85 @@ theorem aCoefX_liftTF_eq_v1Loc (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i�
         have := (hcu z).1 h
         rw [← this]; exact hz)
       simp [blockDirV, hne']
+
+open Balaban.SmallField.Def6v2 in
+/-- **T3, sum over polymers, centre `0`.**  Let `Tm` be the class on the torus `N₁`, `St` a source
+form of its terms in the variable `b = ν_j h` (the shape of `D1Corr.src_pos` at the centre `0`),
+and suppose every polymer of `𝒟_j` through `0` is the torus polymer of a non-winding lattice
+polymer (`hsurj`, the geometric fact that no polymer of this torus winds; it is a premise of this
+theorem, not a landed statement).  Then for a centred site `x` the coefficient `aCoef` of the lifted
+family `liftTF` equals the whole-torus coefficient `v1T` at the block corner of `x`:
+`a(x) = v₁(0, x)`. -/
+theorem aCoef_liftTF_eq_v1T_of_nonwinding (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fin N}
+    (hne : i₁ ≠ i₀) (St : SourceTerms d L N₁ m₁ k N)
+    (hsrc : ∀ (Y : Set (Localization.CTorus d L N₁ m₁ k)) (Ψ : Fld d L N₁ m₁ k N)
+      (b : Fin N → ℂ), St.E j 0 Y Ψ (constFld b) =
+        Tm.E j 0 Y Ψ (constFld (((nuIdeal L k (ν k) j : ℝ) : ℂ)⁻¹ • b)))
+    (hsurj : ∀ Y ∈ polysAt P.m₀ j (0 : Localization.CTorus d L N₁ m₁ k),
+      ∃ X' ∈ liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
+        Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X' = Y)
+    (x : SmallField.Site d) (hx : CentredAt L N₁ m₁ k j x) :
+    aCoef (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ Tm) i₀ (nuIdeal L k (ν k) j) x =
+      v1T P.m₀ St j (nuIdeal L k (ν k) j) (Pi.single i₀ 1) 0 (blockPt j x) := by
+  classical
+  set T := liftTF P j i₀ (nuIdeal L k (ν k) j) ρ Tm with hT
+  set S := liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j with hS
+  have hfin : S.Finite := (shN_finite (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (j := j)
+    (0 : SmallField.Site d)).subset fun X' hX' => ⟨hX'.1, hX'.2.1⟩
+  have hpol : T.polys = S := rfl
+  unfold aCoef v1T
+  have h1 : ∑' X : T.polys, aCoefX T i₀ (nuIdeal L k (ν k) j) X.1 x =
+      ∑ᶠ X' ∈ S, aCoefX T i₀ (nuIdeal L k (ν k) j) X' x := by
+    change ∑' X : S, aCoefX T i₀ (nuIdeal L k (ν k) j) X.1 x = _
+    rw [tsum_subtype S (fun X' => aCoefX T i₀ (nuIdeal L k (ν k) j) X' x), tsum_eq_finsum,
+      finsum_mem_def]
+    exact (hfin.subset (fun X' hX' => by
+      by_contra hn
+      exact hX' (by simp [Set.indicator_of_notMem hn])))
+  rw [h1]
+  have hbij : Set.BijOn (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j) S
+      (polysAt P.m₀ j (0 : Localization.CTorus d L N₁ m₁ k)) := by
+    refine ⟨fun X' hX' => ⟨hX'.2.2, zero_mem_Ypoly hX'.1⟩, ?_, fun Y hY => ?_⟩
+    · have hdir : ∀ X₁ ∈ S, ∀ X₂ ∈ S,
+          Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X₁ =
+            Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X₂ → X₁ ⊆ X₂ := by
+        intro X₁ h₁ X₂ h₂ he z hz
+        have hm : blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z ∈
+            Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X₂ :=
+          he ▸ blockPt_mem_Ypoly ctx.jk h₁.2.1 hz
+        have hbp : blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z = ibase j z := by
+          funext μ; simp only [blockPt, ibase]; congr 1; ring
+        change unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j z) ∈ X₂ at hm
+        rwa [hbp, unlift_ibase ctx.jk (h₁.2.1 z hz)] at hm
+      intro X₁ h₁ X₂ h₂ he
+      exact Finset.Subset.antisymm (hdir X₁ h₁ X₂ h₂ he) (hdir X₂ h₂ X₁ h₁ he.symm)
+    · obtain ⟨X', hX', rfl⟩ := hsurj Y hY
+      exact ⟨X', hX', rfl⟩
+  rw [finsum_mem_eq_of_bijOn _ hbij (g := fun Y => v1Loc (St.E j 0 Y) j (nuIdeal L k (ν k) j)
+    (Pi.single i₀ 1) (blockPt j x))]
+  intro X' hX'
+  exact aCoefX_liftTF_eq_v1Loc ctx hne hX' x hx _ (fun Ψ b => hsrc _ Ψ b)
+
+open Balaban.SmallField.Def6v2 Balaban.LargeField.Def7 in
+/-- **T3 under the clause `D1Corr`**: the same identity with the hypothesis `hsrc` supplied by the
+field `src_pos` of `D1Corr P.m₀ sf St hv vc` (the landed relation between `St` and `sf.Tm`),
+at the torus `N₁`. -/
+theorem aCoef_liftTF_eq_v1T_of_D1Corr {sf : SFData d L m₁ k N ϱ}
+    {St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d L N₁ m₁ k N} {hv : EuclideanSpace ℝ (Fin N)}
+    {vc : CorrCoef d} {ρd : (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℝ} {j : ℕ} {ρ : ℝ} {i₀ i₁ : Fin N}
+    (hD : D1Corr P.m₀ sf St hv vc)
+    (ctx : LiftCtx P sf.β sf.ν sf.a (sf.Tm N₁) ρd Ek j ρ) (hne : i₁ ≠ i₀)
+    (hpos : 0 < nuIdeal L k (sf.ν k) j)
+    (hsurj : ∀ Y ∈ polysAt P.m₀ j (0 : Localization.CTorus d L N₁ m₁ k),
+      ∃ X' ∈ liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
+        Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X' = Y)
+    (x : SmallField.Site d) (hx : CentredAt L N₁ m₁ k j x) :
+    aCoef (liftTF P j i₀ (nuIdeal L k (sf.ν k) j) ρ (sf.Tm N₁)) i₀ (nuIdeal L k (sf.ν k) j) x =
+      v1T P.m₀ (St N₁) j (nuIdeal L k (sf.ν k) j) (Pi.single i₀ 1) 0 (blockPt j x) := by
+  refine aCoef_liftTF_eq_v1T_of_nonwinding ctx hne (St N₁) (fun Y Ψ b => ?_) hsurj x hx
+  exact hD.src_pos N₁ j ctx.j1 ctx.jk hpos 0 Y Ψ b
 
 end Sum
 
