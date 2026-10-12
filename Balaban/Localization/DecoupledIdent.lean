@@ -175,4 +175,43 @@ theorem exists_kernelEmbedding {ι σ : Type*} [Fintype ι] [DecidableEq ι] [Fi
 
 end Kernel
 
+/-! ### The constrained reduction with a unit-ness statement -/
+
+section Reduction
+
+variable {κ' ι' ρ σ : Type*} [Fintype κ'] [DecidableEq κ'] [Fintype ι'] [DecidableEq ι']
+  [Fintype ρ] [DecidableEq ρ] [Fintype σ] [DecidableEq σ]
+
+/-- The product form of `Balaban.Multiscale.xVariant_constrained_reduction` (G-6(b')): the matrix
+`T - c² Q E (E* H₀ E)⁻¹ E* Q*` times `A + c² A Q (G_{k,x} - Π_{k,x}) Q* A` is the identity, so
+both are invertible. -/
+theorem xVariant_constrained_mul (c : ℂ) (Q : Matrix κ' ι' ℂ) (Ht : Matrix ι' ι' ℂ)
+    (T : Matrix κ' κ' ℂ) (hT : IsUnit T) (B : Matrix σ ι' ℂ) (E : Matrix ι' ρ ℂ)
+    (hE : IsKernelEmbedding B E) (hH' : IsUnit (Eᵀ * (Ht + c • (Qᵀ * Q)) * E))
+    (hHx : IsUnit (xOperator Ht Q c T)) (hS : IsUnit (B * xGreen Ht Q c T * Bᵀ)) :
+    (T - c ^ 2 • (Q * (E * (Eᵀ * (Ht + c • (Qᵀ * Q)) * E)⁻¹ * Eᵀ) * Qᵀ)) *
+      (T⁻¹ + c ^ 2 • (T⁻¹ * Q * (xGreen Ht Q c T - constraintPi (xGreen Ht Q c T) B) * Qᵀ * T⁻¹))
+      = 1 := by
+  have hGH : xGreen Ht Q c T * xOperator Ht Q c T = 1 :=
+    Matrix.nonsing_inv_mul _ ((Matrix.isUnit_iff_isUnit_det _).1 hHx)
+  obtain ⟨hM, hEq⟩ := constrained_green_eq (xGreen Ht Q c T) (xOperator Ht Q c T) hGH B E hE hS
+  have hD : Eᵀ * (Ht + c • (Qᵀ * Q)) * E - c ^ 2 • ((Eᵀ * Qᵀ) * T⁻¹ * (Q * E)) =
+      Eᵀ * xOperator Ht Q c T * E := by
+    rw [xOperator_eq]
+    simp only [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_assoc]
+  have hW := woodbury_right_inverse c (Q * E) (Eᵀ * Qᵀ) T (Eᵀ * (Ht + c • (Qᵀ * Q)) * E) hT hH'
+    (by rw [hD]; exact hM)
+  rw [hD] at hW
+  have e1 : Q * (E * (Eᵀ * (Ht + c • (Qᵀ * Q)) * E)⁻¹ * Eᵀ) * Qᵀ =
+      Q * E * (Eᵀ * (Ht + c • (Qᵀ * Q)) * E)⁻¹ * (Eᵀ * Qᵀ) := by
+    simp only [Matrix.mul_assoc]
+  have e2 : T⁻¹ * Q * (xGreen Ht Q c T - constraintPi (xGreen Ht Q c T) B) * Qᵀ * T⁻¹ =
+      T⁻¹ * (Q * E) * (Eᵀ * xOperator Ht Q c T * E)⁻¹ * (Eᵀ * Qᵀ) * T⁻¹ := by
+    rw [← hEq]
+    simp only [Matrix.mul_assoc]
+  rw [e1, e2]
+  exact hW
+
+end Reduction
+
 end Balaban.Localization
