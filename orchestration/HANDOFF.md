@@ -22,7 +22,7 @@ To resume: for each, read `W<nn>_HANDOFF.md`, inspect the branch (`git -C <workt
 main); if the committed part is clean and useful, land it with the landing procedure (merge main +
 full build happens inside land.sh), then relaunch a fresh worker for the remainder in the same worktree
 (merge main first). astra sessions (tmux) were NOT stopped — they run on codex-1 and continue; collect
-their outputs (tags BASEK2, VMOD5, RGFREE5, KF0F, FLUCTIX4, VACUITY2) as they finish.
+their outputs (tags BASEK2, VMOD5, RGFREE5, KF0F, FLUCTFIX4, VACUITY2) as they finish.
 
 ## Landing procedure (unchanged; NEW: every new hypothesis structure must come with a `Nonempty` witness)
 
