@@ -16,7 +16,7 @@ For real data (`α` real, `φ` real, `Q = unitQ` real) the operator `covOp = �
 (`isRealMat_covOp`; the limit `xH0` of the x-variant operators, the constrained part, products and
 inverses of real matrices), hence so do its resolvents and the resolvent integral `sqrtMat`
 (`isRealMat_sqrtMat`), which is `C^{(k)1/2}` (`decCovSqrt_isRealMat`).  The fluctuation field
-`ψ = ψ^{(k)} + β^{-1/2} C^{(k)1/2} ψ̂` is thus a real field (`fluctField`), and `lemma25_field` is
+`ψ = ψ^{(k)} + β^{-1/2} C^{(k)1/2} ψ̂` is thus a real field (`fluctPsi`), and `lemma25_field` is
 Lemma 2.5 for it, without hypotheses on the field.
 -/
 
@@ -261,14 +261,14 @@ theorem fluctShift_im_zero (hG' : IsLevel G' (k + 1)) {a₁ : ℝ} {ν : ℝ}
 
 /-- **The fluctuation field** `ψ = ψ^{(k)}(θ) + β^{-1/2} C^{(k)1/2} ψ̂` as a real field on the fine
 torus (the real part; `C^{(k)1/2}` has real entries, `fluctShift_im_zero`). -/
-noncomputable def fluctField (hG : IsLevel G k) (hG' : IsLevel G' (k + 1)) (a : ℕ → ℝ)
+noncomputable def fluctPsi (hG : IsLevel G k) (hG' : IsLevel G' (k + 1)) (a : ℕ → ℝ)
     (aT ν : ℝ) (D' : BgData G' N) (β : ℝ) (ψh : unitPts G' → Rn N) :
     CTorus d L N₁ m₁ (k + 1) → Fin N → ℝ := fun x i =>
   ((psiK hG hG' a ν D').Ψ x i + fluctShift hG' a aT ν D' β ψh x i).re
 
-theorem fluctField_layerConst (hG : IsLevel G k) (hG' : IsLevel G' (k + 1)) (a : ℕ → ℝ)
+theorem fluctPsi_layerConst (hG : IsLevel G k) (hG' : IsLevel G' (k + 1)) (a : ℕ → ℝ)
     (aT ν : ℝ) (D' : BgData G' N) (β : ℝ) (ψh : unitPts G' → Rn N) :
-    IsLayerConstant G (fluctField hG hG' a aT ν D' β ψh) := by
+    IsLayerConstant G (fluctPsi hG hG' a aT ν D' β ψh) := by
   intro n hn1 hnk x hx x' hx'
   have hnk' : n = k := by
     have h1 := G.layerIndex_eq hn1 hnk hx
@@ -279,11 +279,11 @@ theorem fluctField_layerConst (hG : IsLevel G k) (hG' : IsLevel G' (k + 1)) (a :
   have hu : unitPt hG' x' = unitPt hG' x := Subtype.ext hb
   funext i
   have h1 := congrFun ((psiK hG hG' a ν D').Ψ_layerConst n hn1 hnk x hx x' hx') i
-  unfold fluctField fluctShift
+  unfold fluctPsi fluctShift
   rw [h1, hu]
 
 /-- **Lemma 2.5, for the fluctuation field itself**: for every real `ψ̂`, the real field
-`ψ = ψ^{(k)}(θ) + β^{-1/2} C^{(k)1/2} ψ̂` (`fluctField`) satisfies
+`ψ = ψ^{(k)}(θ) + β^{-1/2} C^{(k)1/2} ψ̂` (`fluctPsi`) satisfies
 `χ_k(ψ) χ_{(2.2)}(θ, ψ) χ_fl(ψ̂) = χ_fl(ψ̂)`.  Premises as in `lemma25`, without the field
 hypotheses (the field is constructed; `C^{(k)1/2}` is real). -/
 theorem lemma25_field {a₁ : ℝ} (ha₁ : 0 < a₁) {ν : ℝ} (hG : IsLevel G k)
@@ -303,22 +303,22 @@ theorem lemma25_field {a₁ : ℝ} (ha₁ : 0 < a₁) {ν : ℝ} (hG : IsLevel G
     (hp40 : p₁ / (β ^ (1 / 2 : ℝ) * δ) ≤ (3 * B₅ * K₂)⁻¹)
     (hrad : B₅ * β ^ (-(1 / 2 : ℝ)) * p₁ ≤ fluctRadius d L N)
     (ψh : unitPts G' → Rn N) :
-    chiXi G (compWeight L a₁) ν δ (fluctField hG hG' (compWeight L a₁) aT ν D' β ψh) h₀ *
-        chi22 G' δ D' (fluctField hG hG' (compWeight L a₁) aT ν D' β ψh) *
+    chiXi G (compWeight L a₁) ν δ (fluctPsi hG hG' (compWeight L a₁) aT ν D' β ψh) h₀ *
+        chi22 G' δ D' (fluctPsi hG hG' (compWeight L a₁) aT ν D' β ψh) *
         chiFl (unitPts G') N p₁ ψh = chiFl (unitPts G') N p₁ ψh := by
   have hd0 : 0 < d := by have := H.hd; omega
   obtain ⟨hδ'1, -, hδ'c1, -⟩ := theta_consts hd0 hδ'0 hδ'
   have hDU1 : InUnionDomainR G' (thm73C1 d L N) ν D' := ⟨δ', hδ'0, hδ'1, hD'R⟩
   have hBreal := (criticalPoint_real ha₁ hG hG' (le_refl (k + 1)) H H' D' hDU1).1
   have hχ := (chiU_eq_one_iff _ _ _ _).1 hχu
-  refine lemma25 ha₁ hG hG' H H' hδ'0 hδ' hD'R hh₀ (fluctField_layerConst hG hG' _ aT ν D' β ψh)
+  refine lemma25 ha₁ hG hG' H H' hδ'0 hδ' hD'R hh₀ (fluctPsi_layerConst hG hG' _ aT ν D' β ψh)
     hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad ψh ?_
   intro x i
   have hre : ((psiK hG hG' (compWeight L a₁) ν D').Ψ x i).im = 0 := (hBreal x i).1
   have him := fluctShift_im_zero hG' H' hδ'0 hδ'c1 hD'R hδ0 hχ hfam hsm β ψh x i
   apply Complex.ext
-  · simp [fluctField]
-  · simp [fluctField, hre, him]
+  · simp [fluctPsi]
+  · simp [fluctPsi, hre, him]
 
 end Field
 
