@@ -903,6 +903,397 @@ theorem wsup_close {c BG6 : ℝ} (hC : CloseSpec d L c BG6) (S : DGSetting G a �
       _ ≤ 1 * (BG6 * Real.exp (N0 d L * κ) * C) := mul_le_mul_of_nonneg_right hw hB6
       _ = _ := one_mul _
 
+
+/-- **The weighted bounds of `G_D(A) g`** for a weighted source `g` (from `dg2_sup` at `s = 1`). -/
+theorem wsup_green {c BG : ℝ} (hD : Dg2Spec d L c BG) (h1 : OneSpec d L c) (S : DGSetting G a ν)
+    (hM0 : c ≤ (L : ℝ) ^ m₁) {A : G.Ω 1 → ℂ} (hA : AdmPot G A)
+    {ω : CTorus d L N₁ m₁ K → ℝ} (hω : IsWeight G (gammaW d) ω)
+    (g : G.Ω 1 × Fin N → ℂ) {C : ℝ} (hC : 0 ≤ C)
+    (hg : ∀ (x : G.Ω 1) (i : Fin N), ω x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+      ‖g (x, i)‖ ≤ C) :
+    WSup G ω (liftOp N (dirichletOperator G a ν A)⁻¹ *ᵥ g) (L * Real.exp (gammaW d) * (BG * C)) := by
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hγ := gammaW_nonneg hd0
+  have hone : Gs G a ν A (fun _ => 1) = (dirichletOperator G a ν A)⁻¹ := (h1.2 G S hA hM0).2
+  have hM00 : c * Real.exp (N0 d L * 0) ≤ (L : ℝ) ^ m₁ := by simpa using hM0
+  refine wsup_liftOp S.one_lt_rho (by have := S.hL; omega) hγ hω hD.2.1 (fun f C' hC' hf => ?_)
+    g hC hg
+  have := (hD.2.2 G S hA (κ := 0) le_rfl hM00 (s := fun _ => 1) (by simp) hω f hC' hf).2
+  rw [hone] at this
+  simpa using this
+
+
+/-- **The resolvent identity for vector fields**:
+`(Ĝ(A) - Ĝ(A')) F = Ĝ(A) (-(A - A') Ĝ(A') F)`. -/
+theorem green_sub_vec (S : DGSetting G a ν) {A A' : G.Ω 1 → ℂ} (hA : AdmPot G A)
+    (hA' : AdmPot G A') (F : G.Ω 1 × Fin N → ℂ) :
+    liftOp N (dirichletOperator G a ν A)⁻¹ *ᵥ F - liftOp N (dirichletOperator G a ν A')⁻¹ *ᵥ F =
+      liftOp N (dirichletOperator G a ν A)⁻¹ *ᵥ
+        (fun p => -(A p.1 - A' p.1) * (liftOp N (dirichletOperator G a ν A')⁻¹ *ᵥ F) p) := by
+  have hd0 : 0 < d := by have := S.hd; omega
+  funext ⟨x, i⟩
+  rw [Pi.sub_apply, liftOp_mulVec, liftOp_mulVec, liftOp_mulVec]
+  have := congrFun (green_sub_eq_mulVec G hd0 S.mass S.weights A A' hA hA' (fun z => F (z, i))) x
+  rw [Pi.sub_apply] at this
+  rw [this]
+  congr 1
+  funext y
+  rw [liftOp_mulVec]
+
+theorem vec_telescope {M M0 M' : Matrix (G.Ω 1) (G.Ω 1) ℂ} (F F' : G.Ω 1 × Fin N → ℂ) :
+    liftOp N M *ᵥ F - liftOp N M' *ᵥ F' =
+      (liftOp N M *ᵥ F - liftOp N M0 *ᵥ F) + liftOp N M0 *ᵥ (F - F') +
+        (liftOp N M0 *ᵥ F' - liftOp N M' *ᵥ F') := by
+  rw [Matrix.mulVec_sub]
+  abel
+
+
+/-- The factor `e^{2 d γ_w}` by which a weight of rate `γ_w` changes over a site, its neighbours
+and its block. -/
+noncomputable def wFac (d : ℕ) : ℝ := Real.exp (gammaW d * (2 * d))
+
+theorem wFac_ge_one (d : ℕ) (hd : 0 < d) : 1 ≤ wFac d := by
+  unfold wFac; exact Real.one_le_exp (by have := gammaW_nonneg hd; positivity)
+
+/-- The smallness constant of the closeness estimate. -/
+noncomputable def closeLam (d L N : ℕ) [NeZero L] (B : ℝ) : ℝ :=
+  N * cF d L + commKConst d L N * wFac d + N * (2 * d + 8) * wFac d * cK2' d L N B
+
+noncomputable def closeM0 (d L N : ℕ) [NeZero L] (BG B : ℝ) : ℝ :=
+  L * Real.exp (gammaW d) * BG * (3 / 2 + cK2' d L N B)
+
+/-- The smallness of `δ₀, δ₁` under which the closeness estimate holds. -/
+noncomputable def deltaClose (d L N : ℕ) [NeZero L] (BG κ : ℝ) : ℝ :=
+  min (deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (min 1 (min (1 / (2 * closeLam d L N (famConst d L BG κ) *
+      closeM0 d L N BG (famConst d L BG κ) + 1))
+      (1 / (2 * closeLam d L N (famConst d L BG κ) + 1))))
+
+/-- The constant of the closeness estimate: `L e^{γ_w} B_G e^{N₀κ₁} (C_F + (3/2) K₂) δ₁`. -/
+noncomputable def closeConst (d L N : ℕ) [NeZero L] (BG κ δ₁ : ℝ) : ℝ :=
+  L * Real.exp (gammaW d) * (BG * Real.exp (N0 d L * κ) *
+    ((cF d L + 3 / 2 * cK2' d L N (famConst d L BG κ)) * δ₁))
+
+omit [NeZero L] in
+theorem cK2'_nonneg {B : ℝ} (hB0 : 0 ≤ B) : 0 ≤ cK2' d L N B := by
+  have h1 := cN'_pos (d := d) (L := L) (N := N) hB0
+  have h2 := Balaban.Background.cF_pos d L
+  unfold cK2'; positivity
+
+theorem closeLam_nonneg {B : ℝ} (hB0 : 0 ≤ B) (hd : 0 < d) : 0 ≤ closeLam d L N B := by
+  have h1 := cK2'_nonneg (d := d) (L := L) (N := N) hB0
+  have h2 := Balaban.Background.cF_pos d L
+  have h3 := wFac_ge_one d hd
+  have h3' : 0 ≤ wFac d := by linarith
+  unfold closeLam commKConst; positivity
+
+theorem closeM0_nonneg {BG B : ℝ} (hBG : 0 ≤ BG) (hB0 : 0 ≤ B) :
+    0 ≤ closeM0 d L N BG B := by
+  have h1 := cK2'_nonneg (d := d) (L := L) (N := N) hB0
+  unfold closeM0; positivity
+
+
+theorem close_arith {Λ M Va E : ℝ} (hM : 0 ≤ M) (hVa : 0 ≤ Va) (hΛM : 2 * Λ * M ≤ 1)
+    (hΛ1 : 2 * Λ ≤ 1) (hE : E ≤ Λ * (Va + M * E)) (hE0 : 0 ≤ E) :
+    E ≤ Va ∧ Va + M * E ≤ 2 * Va := by
+  have h1 : E ≤ 2 * Λ * Va := by
+    have : Λ * M * E ≤ E / 2 := by nlinarith
+    nlinarith
+  refine ⟨h1.trans ?_, ?_⟩
+  · nlinarith
+  · have : M * E ≤ M * (2 * Λ * Va) := mul_le_mul_of_nonneg_left h1 hM
+    nlinarith
+
+theorem extS_norm_le {κ : ℝ} (hκ : 0 ≤ κ) {s : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) :
+    ∀ P, ‖extS G s P‖ ≤ Real.exp κ := by
+  intro P
+  unfold extS
+  split_ifs with h
+  · exact hs ⟨P, h⟩
+  · simpa using Real.one_le_exp hκ
+
+theorem close_smallness {lam m0 dc Λ M : ℝ} (hlam : 0 ≤ lam) (hm0 : 0 ≤ m0)
+    (hM0 : 0 ≤ M) (hΛ : Λ ≤ lam * dc) (hM : M ≤ m0) (hdc0 : 0 ≤ dc)
+    (hdc2 : dc ≤ 1 / (2 * lam * m0 + 1)) (hdc3 : dc ≤ 1 / (2 * lam + 1)) :
+    2 * Λ * M ≤ 1 ∧ 2 * Λ ≤ 1 := by
+  have h2 : dc * (2 * lam * m0 + 1) ≤ 1 := by
+    have := (le_div_iff₀ (by positivity : (0 : ℝ) < 2 * lam * m0 + 1)).1 hdc2
+    exact this
+  have h3 : dc * (2 * lam + 1) ≤ 1 := (le_div_iff₀ (by positivity : (0 : ℝ) < 2 * lam + 1)).1 hdc3
+  constructor
+  · have : Λ * M ≤ (lam * dc) * m0 := mul_le_mul hΛ hM hM0 (by positivity)
+    nlinarith [mul_nonneg hlam hm0, mul_nonneg hdc0 (mul_nonneg hlam hm0)]
+  · nlinarith [mul_nonneg hdc0 hlam]
+
+/-- **The three pieces of `δφ(s) - δφ(1)`** (Step 4 of I-4a): the source term `G_s - G_D`
+(`dg6`), the linear term in the difference of the potentials and the resolvent term
+(`G_D(A) - G_D(A') = -G_D(A)(A - A')G_D(A')`). -/
+theorem close_pieces {c BG : ℝ} (hD : Dg2Spec d L c BG) (hCl : CloseSpec d L c BG)
+    (h1 : OneSpec d L c) (S : DGSetting G a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hM0 : c ≤ (L : ℝ) ^ m₁)
+    {s : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) {W : Finset (CTorus d L N₁ m₁ K)}
+    (hW : ∀ z ∈ cubeIdx G, sProd G (extS G s) z ≠ 1 → intBox z ⊆ W) (t : ℝ)
+    {α₀ : G.Ω 1 → ℂ} {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ} {Fs : G.Ω 1 × Fin N → ℂ}
+    {δα δα' : G.Ω 1 → ℂ} {CF X E : ℝ} (hCF0 : 0 ≤ CF) (hX0 : 0 ≤ X) (hE0 : 0 ≤ E)
+    (hAdm : AdmPot G (α₀ + δα)) (hAdm' : AdmPot G (α₀ + δα'))
+    (hF₀ : SrcBound G (Fsrc φ₀ Fs δα) CF) (hphi : ∀ x ∈ G.Ω 1, vn (φ₀ x) ≤ 3 / 2)
+    (he : ∀ x : G.Ω 1, wgt G W t (gammaW d) x *
+      (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖) ≤ E)
+    (hdp' : SupBounds G (dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα') X) :
+    WSup G (wgt G W t (gammaW d))
+      (dphi G (decG G a ν s) α₀ φ₀ Fs δα - dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα')
+      (L * Real.exp (gammaW d) * (BG * Real.exp (N0 d L * κ) * CF) +
+        L * Real.exp (gammaW d) * (BG * (3 / 2 * E)) +
+        L * Real.exp (gammaW d) * (BG * (E * X))) := by
+  classical
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hγ := gammaW_nonneg hd0
+  have hBG : 0 ≤ BG := hD.2.1
+  set ω : CTorus d L N₁ m₁ K → ℝ := wgt G W t (gammaW d) with hωdef
+  have hω : IsWeight G (gammaW d) ω := isWeight_wgt W t hγ
+  have hω0 : ∀ y, 0 ≤ ω y := fun y => (wgt_pos W t _ y).le
+  set F₀ : G.Ω 1 × Fin N → ℂ := Fsrc φ₀ Fs δα with hF₀def
+  set F₁ : G.Ω 1 × Fin N → ℂ := Fsrc φ₀ Fs δα' with hF₁def
+  have hs' := extS_norm_le hκ hs
+  have Ta := wsup_close (G := G) hCl S hAdm hκ hM hs' hW F₀ hCF0 hF₀ (t := t)
+  have hdiffsrc : ∀ (x : G.Ω 1) (i : Fin N), ω x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+      ‖(F₀ - F₁) (x, i)‖ ≤ 3 / 2 * E := by
+    intro x i
+    have hphi' : ‖φ₀ x i‖ ≤ 3 / 2 := (norm_le_vn _ i).trans (hphi x x.2)
+    have e2 : (F₀ - F₁) (x, i) = -((δα x - δα' x) * φ₀ x i) := by
+      simp only [hF₀def, hF₁def, Fsrc, Pi.sub_apply]; ring
+    rw [e2, norm_neg, norm_mul]
+    calc ω x * G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * (‖δα x - δα' x‖ * ‖φ₀ x i‖)
+        = (ω x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖)) * ‖φ₀ x i‖ := by ring
+      _ ≤ E * (3 / 2) := mul_le_mul (he x) hphi' (norm_nonneg _) hE0
+      _ = _ := by ring
+  have Tb := wsup_green (G := G) hD h1 S hM0 hAdm hω (F₀ - F₁) (by positivity) hdiffsrc
+  have hone' : decG G a ν (fun _ => 1) (α₀ + δα') = (dirichletOperator G a ν (α₀ + δα'))⁻¹ :=
+    decG_one h1 S hM0 hAdm'
+  have hsrcc : ∀ (x : G.Ω 1) (i : Fin N), ω x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+      ‖(fun p : G.Ω 1 × Fin N => -((α₀ + δα) p.1 - (α₀ + δα') p.1) *
+        (liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) p) (x, i)‖ ≤ E * X := by
+    intro x i
+    have hv : ‖(liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) (x, i)‖ ≤ X := by
+      have h2 := hdp'.val x i
+      rw [svec_of_mem] at h2
+      have : dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα' =
+          liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁ := by
+        unfold dphi; rw [hone']
+      rwa [this] at h2
+    simp only [norm_mul, norm_neg]
+    have e3 : (α₀ + δα) x - (α₀ + δα') x = δα x - δα' x := by simp
+    rw [e3]
+    calc ω x * G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 *
+          (‖δα x - δα' x‖ * ‖(liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) (x, i)‖)
+        = (ω x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖)) *
+          ‖(liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) (x, i)‖ := by ring
+      _ ≤ E * X := mul_le_mul (he x) hv (norm_nonneg _) hE0
+  have Tc := wsup_green (G := G) hD h1 S hM0 hAdm hω
+    (fun p : G.Ω 1 × Fin N => -((α₀ + δα) p.1 - (α₀ + δα') p.1) *
+      (liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) p) (by positivity) hsrcc
+  have hsum : dphi G (decG G a ν s) α₀ φ₀ Fs δα -
+      dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα' =
+      (liftOp N (Gs G a ν (α₀ + δα) (extS G s)) *ᵥ F₀ -
+        liftOp N (dirichletOperator G a ν (α₀ + δα))⁻¹ *ᵥ F₀) +
+      liftOp N (dirichletOperator G a ν (α₀ + δα))⁻¹ *ᵥ (F₀ - F₁) +
+      liftOp N (dirichletOperator G a ν (α₀ + δα))⁻¹ *ᵥ
+        (fun p : G.Ω 1 × Fin N => -((α₀ + δα) p.1 - (α₀ + δα') p.1) *
+          (liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁) p) := by
+    have e1' : dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα' =
+        liftOp N (dirichletOperator G a ν (α₀ + δα'))⁻¹ *ᵥ F₁ := by
+      unfold dphi; rw [hone']
+    rw [e1', ← green_sub_vec S hAdm hAdm' F₁]
+    exact vec_telescope (M0 := (dirichletOperator G a ν (α₀ + δα))⁻¹) F₀ F₁
+  rw [hsum]
+  exact (Ta.add hω0 Tb).add hω0 Tc
+
+/-- **The weighted bound for the difference of the potentials** from the weighted bounds of the
+difference of the fields (`δα = 𝒩(δφ)` at both parameters). -/
+theorem close_nmap {ιU : Bool} {α₀ : G.Ω 1 → ℂ}
+    {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ} {f₁ : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) {s : DecParams G}
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hfix' : DecFixed G a ν (fun _ => 1) ιU α₀ φ₀ (pertSource G a δΨ f₁) δα')
+    {X V : ℝ} (hX0 : 0 ≤ X) (hV0 : 0 ≤ V)
+    (hstar : StarBound G (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα) X)
+    (hstar' : StarBound G (dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') X)
+    {W : Finset (CTorus d L N₁ m₁ K)} {t : ℝ}
+    (hWS : WSup G (wgt G W t (gammaW d))
+      (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') V)
+    (x : G.Ω 1) :
+    wgt G W t (gammaW d) x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖) ≤
+      (N * (cF d L * δ₁) + commKConst d L N * δ₀ * wFac d + N * (2 * d + 8) * wFac d * X) * V := by
+  have hd0 : 0 < d := by have := H.green.hd; omega
+  have hγ := gammaW_nonneg hd0
+  have hω : IsWeight G (gammaW d) (wgt G W t (gammaW d)) := isWeight_wgt W t hγ
+  have hFsb : SrcBound G (pertSource G a δΨ f₁) (cF d L * δ₁) :=
+    pertSource_bound H.green H.δ₁_nn H.dPsi H.f₁_bd
+  have hN := Nmap_diff_weighted (G := G) (a := a) (ν := ν) (ιU := ιU) H.green (α₀ := α₀)
+    (φ₀ := φ₀) (Fs := pertSource G a δΨ f₁) H.smooth H.δ₀_nn hFsb (x := x)
+    ((H.alpha0 x).trans H.δ₀_le) hγ hω (E := V) hV0 hX0 hX0 hstar hstar' hWS.val
+    (fun μ i => hWS.fwd x x.2 μ i) (fun μ i => hWS.bwd x x.2 μ i)
+  have hx1 := congrFun hfix x
+  have hx2 := congrFun hfix' x
+  have : wgt G W t (gammaW d) x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖) =
+      wgt G W t (gammaW d) x * (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 *
+        ‖Nmap G (dirichletOperator G a ν α₀) ιU φ₀ (pertSource G a δΨ f₁)
+            (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα) x -
+          Nmap G (dirichletOperator G a ν α₀) ιU φ₀ (pertSource G a δΨ f₁)
+            (dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') x‖) := by
+    rw [hx1, hx2]
+  rw [this]
+  refine hN.trans (le_of_eq ?_)
+  unfold wFac; ring
+
+
+
+/-- **Theorem I-4a (d), the estimate.**  The solutions at `s` and at `s ≡ 1` differ by a weighted
+amount of the size of the source `G_s - G_D`, with the weight `e^{γ_w min(d(·, W), t)}`. -/
+theorem i4a_close_core {c BG : ℝ} (hF : FamSpec d L c BG) (hD : Dg2Spec d L c BG)
+    (hCl : CloseSpec d L c BG) (h1 : OneSpec d L c) (S : DGSetting G a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) {W : Finset (CTorus d L N₁ m₁ K)}
+    (hW : ∀ z ∈ cubeIdx G, sProd G (extS G s) z ≠ 1 → intBox z ⊆ W)
+    {ιU : Bool} {α₀ : G.Ω 1 → ℂ} {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ} (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaClose d L N BG κ) (hδ₁ : δ₁ ≤ deltaClose d L N BG κ)
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν (fun _ => 1) ιU α₀ φ₀ (pertSource G a δΨ f₁) δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) (t : ℝ) :
+    (∀ x : G.Ω 1, wgt G W t (gammaW d) x *
+        (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖) ≤ closeConst d L N BG κ δ₁) ∧
+    WSup G (wgt G W t (gammaW d))
+      (dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα')
+      (2 * closeConst d L N BG κ δ₁) := by
+  classical
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hBG : 0 ≤ BG := hF.2.1
+  set B : ℝ := famConst d L BG κ with hB
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hB0 : 0 ≤ B := by have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hΓ : 0 < Γ := by have := gamma1_pos hd0; positivity
+  have hdc : deltaClose d L N BG κ ≤ deltaStar' d L N B Γ := min_le_left _ _
+  have hdc1 : deltaClose d L N BG κ ≤ 1 := (min_le_right _ _).trans (min_le_left _ _)
+  have hdc2 : deltaClose d L N BG κ ≤
+      1 / (2 * closeLam d L N B * closeM0 d L N BG B + 1) :=
+    (min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _))
+  have hdc3 : deltaClose d L N BG κ ≤ 1 / (2 * closeLam d L N B + 1) :=
+    (min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hδ₀' : δ₀ ≤ deltaStar' d L N B Γ := hδ₀.trans hdc
+  have hδ₁' : δ₁ ≤ deltaStar' d L N B Γ := hδ₁.trans hdc
+  have hc0 : 0 ≤ c := hF.1
+  have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by unfold N0; positivity)
+  have hM0 : c ≤ (L : ℝ) ^ m₁ := by nlinarith
+  have hs1 : ∀ P : cubeIdx G, ‖(fun _ : cubeIdx G => (1 : ℂ)) P‖ ≤ Real.exp κ := fun P => by
+    simpa using Real.one_le_exp hκ
+  obtain ⟨δα₀, hfix₀, hs6₀, hsK₀, hdp₀, huniq₀, -⟩ :=
+    i4a_exists_unique hF G S hκ hM hs H hδ₀' hδ₁'
+  obtain ⟨δα₁, hfix₁, hs6₁, hsK₁, hdp₁, huniq₁, -⟩ :=
+    i4a_exists_unique hF G S hκ hM hs1 H hδ₀' hδ₁'
+  have e0 : δα = δα₀ := huniq₀ δα hsm hfix
+  have e1 : δα' = δα₁ := huniq₁ δα' hsm' hfix'
+  set Fs : G.Ω 1 × Fin N → ℂ := pertSource G a δΨ f₁ with hFsdef
+  set X : ℝ := cK2' d L N B * δ₁ with hXdef
+  have hcK := cK2'_nonneg (d := d) (L := L) (N := N) hB0
+  have hX0 : 0 ≤ X := by have := H.δ₁_nn; positivity
+  have hsK : Small G δα X := by rw [e0]; exact hsK₀
+  have hdp : SupBounds G (dphi G (decG G a ν s) α₀ φ₀ Fs δα) X := by rw [e0]; exact hdp₀
+  have hdp' : SupBounds G (dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα') X := by
+    rw [e1]; exact hdp₁
+  have hC' := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ H.δ₀_nn H.δ₁_nn hδ₀' hδ₁'
+  have hpoly : δ₀ + c6' d L N B Γ ≤ Γ := by linarith [hC'.poly, hC'.ρ_nn]
+  have hAdm : AdmPot G (α₀ + δα) :=
+    admPot_of_small hd0 (fun y => ((Small.add H.alpha0 hsm) y).trans hpoly)
+  have hAdm' : AdmPot G (α₀ + δα') :=
+    admPot_of_small hd0 (fun y => ((Small.add H.alpha0 hsm') y).trans hpoly)
+  have hγ := gammaW_nonneg hd0
+  have hω0 : ∀ y, 0 ≤ wgt G W t (gammaW d) y := fun y => (wgt_pos W t _ y).le
+  set e : G.Ω 1 → ℝ := fun x => wgt G W t (gammaW d) x *
+    (G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖) with hedef
+  have he0 : ∀ x, 0 ≤ e x := fun x => by
+    have := spacing_pos G (x := (x : CTorus d L N₁ m₁ K)); have := hω0 x; positivity
+  set E : ℝ := ⨆ x, e x with hEdef
+  have he_le : ∀ x, e x ≤ E := fun x => le_ciSup (Set.finite_range e).bddAbove x
+  have hE0 : 0 ≤ E := Real.iSup_nonneg he0
+  set CF : ℝ := cF d L * δ₁ + 3 / 2 * X with hCFdef
+  have hCF0 : 0 ≤ CF := by
+    have := Balaban.Background.cF_pos d L; have := H.δ₁_nn; positivity
+  have hF₀ : SrcBound G (Fsrc φ₀ Fs δα) CF := Fsrc_bd H.setup hsK
+  have hWS := close_pieces hD hCl h1 S hκ hM hM0 hs hW t hCF0 hX0 hE0 hAdm hAdm' hF₀ H.phiBd
+    he_le hdp'
+  set Va : ℝ := closeConst d L N BG κ δ₁ with hVa
+  have hVa0 : 0 ≤ Va := by
+    have := Balaban.Background.cF_pos d L; have := H.δ₁_nn
+    rw [hVa]; unfold closeConst; positivity
+  set M : ℝ := L * Real.exp (gammaW d) * BG * (3 / 2 + X) with hMdef
+  have hM_0 : 0 ≤ M := by positivity
+  have hV₁ : L * Real.exp (gammaW d) * (BG * Real.exp (N0 d L * κ) * CF) +
+      L * Real.exp (gammaW d) * (BG * (3 / 2 * E)) + L * Real.exp (gammaW d) * (BG * (E * X)) =
+      Va + M * E := by
+    rw [hVa, hMdef]; unfold closeConst; rw [hCFdef, hXdef]; ring
+  rw [hV₁] at hWS
+  set Λ : ℝ := N * (cF d L * δ₁) + commKConst d L N * δ₀ * wFac d +
+    N * (2 * d + 8) * wFac d * X with hΛdef
+  have hstar : StarBound G (dphi G (decG G a ν s) α₀ φ₀ Fs δα) X :=
+    Balaban.Background.SupBounds.star hdp
+  have hstar' : StarBound G (dphi G (decG G a ν (fun _ => 1)) α₀ φ₀ Fs δα') X :=
+    Balaban.Background.SupBounds.star hdp'
+  have hVaME : 0 ≤ Va + M * E := by positivity
+  have hall : ∀ x : G.Ω 1, e x ≤ Λ * (Va + M * E) := fun x =>
+    close_nmap H hfix hfix' hX0 hVaME hstar hstar' hWS x
+  have hw0 : 0 ≤ wFac d := by have := wFac_ge_one d hd0; linarith
+  have hcF0 := (Balaban.Background.cF_pos d L).le
+  have hKc0 : 0 ≤ commKConst d L N := by unfold commKConst; positivity
+  have hΛ0 : 0 ≤ Λ := by
+    have := H.δ₀_nn; have := H.δ₁_nn
+    rw [hΛdef]; positivity
+  have hEΛ : E ≤ Λ * (Va + M * E) := Real.iSup_le hall (mul_nonneg hΛ0 hVaME)
+  -- smallness
+  have hlam0 := closeLam_nonneg (d := d) (L := L) (N := N) hB0 hd0
+  have hm00 := closeM0_nonneg (d := d) (L := L) (N := N) hBG hB0
+  have hdc0 : 0 ≤ deltaClose d L N BG κ := by
+    have h1' := (deltaStar'_pos (d := d) (L := L) (N := N) hB0 hΓ).le
+    have h2' : 0 ≤ 1 / (2 * closeLam d L N B * closeM0 d L N BG B + 1) := by positivity
+    have h3' : 0 ≤ 1 / (2 * closeLam d L N B + 1) := by positivity
+    exact le_min h1' (le_min zero_le_one (le_min h2' h3'))
+  have hΛle : Λ ≤ closeLam d L N B * deltaClose d L N BG κ := by
+    have t1 : N * (cF d L * δ₁) ≤ (N * cF d L) * deltaClose d L N BG κ := by
+      rw [← mul_assoc]; exact mul_le_mul_of_nonneg_left hδ₁ (by positivity)
+    have t2 : commKConst d L N * δ₀ * wFac d ≤ (commKConst d L N * wFac d) *
+        deltaClose d L N BG κ := by
+      have := mul_le_mul_of_nonneg_left hδ₀ (mul_nonneg hKc0 hw0)
+      calc commKConst d L N * δ₀ * wFac d = commKConst d L N * wFac d * δ₀ := by ring
+        _ ≤ _ := this
+    have t3 : N * (2 * d + 8) * wFac d * X ≤ (N * (2 * d + 8) * wFac d * cK2' d L N B) *
+        deltaClose d L N BG κ := by
+      have := mul_le_mul_of_nonneg_left hδ₁ (by positivity :
+        (0 : ℝ) ≤ N * (2 * d + 8) * wFac d * cK2' d L N B)
+      calc N * (2 * d + 8) * wFac d * X = N * (2 * d + 8) * wFac d * cK2' d L N B * δ₁ := by
+            rw [hXdef]; ring
+        _ ≤ _ := this
+    calc Λ ≤ (N * cF d L) * deltaClose d L N BG κ + (commKConst d L N * wFac d) *
+          deltaClose d L N BG κ + (N * (2 * d + 8) * wFac d * cK2' d L N B) *
+          deltaClose d L N BG κ := by rw [hΛdef]; exact add_le_add (add_le_add t1 t2) t3
+      _ = _ := by unfold closeLam; ring
+  have hMle : M ≤ closeM0 d L N BG B := by
+    have hX1 : X ≤ cK2' d L N B := by
+      rw [hXdef]
+      calc cK2' d L N B * δ₁ ≤ cK2' d L N B * 1 :=
+            mul_le_mul_of_nonneg_left (hδ₁.trans hdc1) hcK
+        _ = _ := mul_one _
+    unfold closeM0
+    rw [hMdef]
+    exact mul_le_mul_of_nonneg_left (by linarith) (by positivity)
+  obtain ⟨hs2M, hs2⟩ := close_smallness hlam0 hm00 hM_0 hΛle hMle hdc0 hdc2 hdc3
+  obtain ⟨hEVa, hVE⟩ := close_arith hM_0 hVa0 hs2M hs2 hEΛ hE0
+  exact ⟨fun x => (he_le x).trans hEVa, hWS.mono hVE⟩
+
 end Close
 
 end Balaban.Localization
