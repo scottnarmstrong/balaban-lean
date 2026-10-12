@@ -31,7 +31,7 @@ section Svec
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ K ϱ}
 
 /-- The component `svec φ y i` of an analytic family of fields is analytic. -/
-theorem analyticAt_svec {X : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X] {x : X}
+theorem analyticAt_svecFam {X : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X] {x : X}
     {φ : X → G.Ω 1 × Fin N → ℂ} (hφ : ∀ r, AnalyticAt ℂ (fun v => φ v r) x)
     (y : Torus d (N₀ * L ^ K)) (i : Fin N) : AnalyticAt ℂ (fun v => svec G (φ v) y i) x := by
   classical
@@ -40,15 +40,6 @@ theorem analyticAt_svec {X : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X] {
     exact hφ (⟨y, hy⟩, i)
   · simp only [svec_of_not_mem G _ hy i]
     exact analyticAt_const
-
-theorem norm_svec_le (φ : G.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
-    ‖svec G φ y i‖ ≤ ‖φ‖ := by
-  classical
-  by_cases hy : y ∈ G.Ω 1
-  · rw [svec_of_mem G _ ⟨y, hy⟩ i]
-    exact norm_le_pi_norm φ (⟨y, hy⟩, i)
-  · rw [svec_of_not_mem G _ hy i, norm_zero]
-    exact norm_nonneg _
 
 theorem norm_svec_sub_le (φ ψ : G.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
     ‖svec G φ y i - svec G ψ y i‖ ≤ ‖φ - ψ‖ := by

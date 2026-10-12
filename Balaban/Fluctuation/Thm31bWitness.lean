@@ -286,9 +286,9 @@ theorem nonempty_obsMarks_of_tube (R : S.RayData pp) (hp₁ : 0 < S.p₁) (hlt :
   set Bd : S.EC → ℂ := fun v => svec (stepG d L N₁ m₁ k ϱ) (B v) y i with hBd
   have hPan : ∀ v : S.EC, ‖v‖ ≤ r → AnalyticAt ℂ P v := fun v hv => (hana v hv).1
   have hBan1 : ∀ v : S.EC, ‖v‖ ≤ r → AnalyticAt ℂ Bc1 v := fun v hv =>
-    analyticAt_svec (hana v hv).2 y₁ i₁
+    analyticAt_svecFam (hana v hv).2 y₁ i₁
   have hBand : ∀ v : S.EC, ‖v‖ ≤ r → AnalyticAt ℂ Bd v := fun v hv =>
-    analyticAt_svec (hana v hv).2 y i
+    analyticAt_svecFam (hana v hv).2 y i
   have hT := oThr_pos d L N₁ m₁ k
   -- the bound of the activity
   have hbdH : ∀ t σ : ℂ, ∀ x : S.E, ‖obsH S P Bc1 lam S.p₁ t σ x‖ ≤ oThr d L N₁ m₁ k := by
