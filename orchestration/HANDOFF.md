@@ -13,13 +13,13 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W212 (Opus) | `w212-complex-step3` / W212 | complex step part 3: sum_E1locC, F0C_eq_pair, analyticity of the outputs in the datum |
-| W232 | `w232-support-margin` / W232 | psiThick X ⊆ X₁ (full-level), whole-block property of compY/Ysites, outer-face read of approxDep (TRUE-LOCAL package 1) |
 | W233 | `w233-regional-arith` / W233 | Q13-GROUPED (5)–(8): source-term inequality, exponential-vs-power, scale sums |
 | W234 | `w234-halo-distance` / W234 | regionalHaloDistance: size ≥ diameter, halo separation at the current scale |
 | W235 | `w235-radial-coefficient` / W235 | a_j = v₁ (termwise chain rule; dictionary between RenormDefs and Def7v2Corr; source conventions) |
 | W236 | `w236-active-halo` / W236 | VMOD-24 rows 1–2: active-cell halo, top-layer, root patch count 3^d(L^{m₀})^d |
 | W237 | `w237-footprint-margin` / W237 | footprint inclusion (FP): resDep/approxDep of interaction-box rows inside hatBox, hence inside the component |
 | W238 | `w238-rows-bg` / W238 | row-local versions of local_step, i4a_local, i4b_local (FOOTPRINT items 1–3) |
+| W239 | `w239-rows-cov` / W239 | row-local versions of I4c_local_sqrt2/3, hatSqrtF_local, hatPsiF_local (FOOTPRINT items 4–5) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra (cap 3): fluctfix CHART (tag CHART; FOOTPRINT done: (FP) proved for all rows, physical reads and the fixed-Y chart open), q13 Q13-MARGIN (tag Q13MARGIN; Q13-TUBE done: common tube open, needs a strict joint data–mass margin; per-polymer D7 distance refuted for clusters; neither scheme closed), vmod VMOD-26 SIZE-UNIFY (tag VMOD26; VMOD-25 done: active rooting not implied; D7 size `LargeField.dCovMod` vs fluctuation size `Fluctuation.dcovMod` not comparable — OPEN DESIGN ISSUE). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
