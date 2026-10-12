@@ -35,6 +35,12 @@ Let `G` be a whole-lattice generating set of level `n` (`IsLevel G n`): every si
 Only this geometric inclusion is proved.  The row-local comparison theorems and the physical
 locality of the interaction terms (the open items OPEN-PHYSICAL-READS and OPEN-PAPER-REPLACEMENT
 of `notes/phase1/FOOTPRINT.md`) are not proved here.
+
+Consistency with `exists_outside_approxDep` (`SupportMarginExample.lean`).  There a site `x` on the
+outer face of `X₁` reads a block base `q ∉ X₁`.  This does not contradict the inclusion above:
+the inclusion concerns the sites `x` of an interaction box `□_z` with `□̂_z ⊆ Y₁`, and a site that
+reads outside `X₁` lies in no such box (`not_exists_box_of_outside_approxDep` in
+`FootprintFl.lean`: `x ∈ □_z` and `□̂_z ⊆ S` force `approxDep x ⊆ S`).
 -/
 
 @[expose] public section
