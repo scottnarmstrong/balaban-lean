@@ -163,6 +163,8 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
     {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ∀ x ∈ dataSites Hm, vn (ψ' x) < δ₁) :
     ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (δφ : Hm.Ω 1 × Fin N → ℂ),
       IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧ F₁ (s, rawOf D) = (φ, α) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
+        (flEdat Gp Hm (φ, α) D.Ψ ψ') ∧
       (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ ∧
       XiCData Gk (compWeight L a₁) ν K 1
         (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
@@ -240,7 +242,7 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
     exact (flDatum_Ψ hB.hP hF.hPm _ φ δφ D x i).symm
   have hUk := xiCData_unionC hX3
   have hFk' := hFk _ hUk
-  refine ⟨φ, α, δφ, hI, hFeq, rfl, hX3, hrawD, ?_, ?_⟩
+  refine ⟨φ, α, δφ, hI, hFeq, hstrict, rfl, hX3, hrawD, ?_, ?_⟩
   · rw [D2raw_rawOf, hFk']
   · exact i5_stage2 hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hF.num.small₃ hF.num.th₃ hB.hj hX3
 
