@@ -13,10 +13,12 @@ public import Mathlib.Analysis.CStarAlgebra.Matrix
 
 Draft for review.  Def-O is an extra conjunct of the small-field class (OBSERVABLES §2.4, A1): it
 is stated on the carriers of the landed draft `Balaban/SmallField/Def6.lean` (`Terms`, `Fld`,
-`XiDom`, `IsPolyDom`, `l1`, `Mloc`, `rotField`, `IsRot`, `latSymGroup`, `actField`) and is a
+`XiDom`, `IsPolyDom`, `l1`, `Mloc`, `rotField`, `IsRot`, `fullJSymGroup`, `pavingSymGroup`, `actField`) and is a
 separate structure `IsObs`, so that it can be added to `IsSF` as fields later.  The symmetry
-clauses `rotM`, `eucM` (resp. `rotR`, `eucR`) are copied from `rotM`/`eucM` of `IsSF`, so that
-one later repair of the symmetry clauses (paving versus point-group symmetry) covers both.
+clauses `rotM`, `eucM` (resp. `rotR`, `eucR`) are copied from `rotM`/`eucM` of `IsSF` and carry the same
+symmetry repair (CLASS-RULINGS Q-A): the termwise clauses `eucM`, `eucR` are for the group
+`pavingSymGroup` of the fixed paving only, the covariance of the densities `Mobs`, `Robs` (and of
+`μ_j`) is for the whole-lattice group `fullJSymGroup` (`eucMloc`, `eucRloc`, `μ_euc`).
 
 The data of the layer (`ObsTerms`, for `1 ≤ i ≤ j ≤ k`):
 
@@ -164,8 +166,8 @@ coefficients `β, ν, a`, the localized data `Tm` of Def-6, the data `Ot` of the
 Gaussian kernels `Gker`.  All clauses are for the scales `1 ≤ i ≤ j ≤ k`, polymers `X ∈ 𝒟_j` and
 sites `x, x' ∈ X`, on the domains `Ξ^c_j(𝔹_j(X); 1, ε_j)` of the class.
 
-* `μ_euc`, `μ_bound` (O1); `analyticM`, `rotM`, `eucM`, `localM`, `realM`, `boundM`, `normM` (O2);
-  `analyticR`, `rotR`, `eucR`, `localR`, `realR`, `boundR` (O3); `ident` (O4).
+* `μ_euc`, `μ_bound` (O1); `analyticM`, `rotM`, `eucM`, `eucMloc`, `localM`, `realM`, `boundM`, `normM` (O2);
+  `analyticR`, `rotR`, `eucR`, `eucRloc`, `localR`, `realR`, `boundR` (O3); `ident` (O4).
 * The symmetry clauses have the form of `IsSF.rotM`, `IsSF.eucM`. -/
 structure IsObs (P : Consts) (Q : ObsConsts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k N ϱ)
     (Ot : ObsTerms d L N₁ m₁ k N)
@@ -174,7 +176,7 @@ structure IsObs (P : Consts) (Q : ObsConsts) (β ν a : ℕ → ℝ) (Tm : Terms
   /-- (O1): `μ_j` is invariant under the isometries of the level-`j` lattice (hence
   `L^j`-periodic). -/
   μ_euc : ∀ j, 1 ≤ j → j ≤ k →
-    ∀ r ∈ latSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ x, Ot.μ j (r x) = Ot.μ j x
+    ∀ r ∈ fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ x, Ot.μ j (r x) = Ot.μ j x
   /-- (O1): `|μ_j(x)| ≤ β^{-1/2+ρ₁} L^{-jρ₀}`. -/
   μ_bound : ∀ j, 1 ≤ j → j ≤ k → ∀ x, |Ot.μ j x| ≤
     (β 0) ^ (-(1 / 2 : ℝ) + Q.ρ₁) * (L : ℝ) ^ (-((j : ℝ) * Q.ρ₀))
@@ -201,17 +203,31 @@ structure IsObs (P : Consts) (Q : ObsConsts) (β ν a : ℕ → ℝ) (Tm : Terms
         (rotField R Ψ) (rotField R h) →
       Ot.R i j x x' X (rotField R Ψ) (rotField R h) = R * Ot.R i j x x' X Ψ h * R.transpose
   eucM : ∀ j, 1 ≤ j → j ≤ k → ∀ x X, IsPolyDom P.m₀ j X → x ∈ X →
-    ∀ r ∈ latSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ Ψ h,
+    ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L P.m₀ j, ∀ Ψ h,
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
       XiDom (Tm.gs j (r '' X)) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (actField r Ψ) (actField r h) →
       Ot.M j (r x) (r '' X) (actField r Ψ) (actField r h) = Ot.M j x X Ψ h
   eucR : ∀ i j, 1 ≤ i → i ≤ j → j ≤ k → ∀ x x' X, IsPolyDom P.m₀ j X → x ∈ X → x' ∈ X →
-    ∀ r ∈ latSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ Ψ h,
+    ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L P.m₀ j, ∀ Ψ h,
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
       XiDom (Tm.gs j (r '' X)) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (actField r Ψ) (actField r h) →
       Ot.R i j (r x) (r x') (r '' X) (actField r Ψ) (actField r h) = Ot.R i j x x' X Ψ h
+  eucMloc : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ x,
+    ∀ r ∈ fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ Ψ h,
+      XiDom (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) j hjk) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
+      XiDom (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) j hjk) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) j (P.eps d L j) (actField r Ψ) (actField r h) →
+      Mobs P.m₀ Ot j (r x) (actField r Ψ) (actField r h) = Mobs P.m₀ Ot j x Ψ h
+  eucRloc : ∀ i j, 1 ≤ i → i ≤ j → ∀ hjk : j ≤ k, ∀ x x',
+    ∀ r ∈ fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k) (d := d) L j, ∀ Ψ h,
+      XiDom (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) j hjk) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
+      XiDom (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) j hjk) (aIdeal L k (a k))
+        (bgMass L k (β k) (ν k)) j (P.eps d L j) (actField r Ψ) (actField r h) →
+      Robs P.m₀ Ot i j (r x) (r x') (actField r Ψ) (actField r h) = Robs P.m₀ Ot i j x x' Ψ h
   localM : ∀ j x X Ψ Ψ' h h', (∀ z ∈ X, Ψ z = Ψ' z ∧ h z = h' z) →
     Ot.M j x X Ψ h = Ot.M j x X Ψ' h'
   localR : ∀ i j x x' X Ψ Ψ' h h', (∀ z ∈ X, Ψ z = Ψ' z ∧ h z = h' z) →
