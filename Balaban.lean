@@ -296,6 +296,7 @@ public import Balaban.Localization.Decoupled2SolveAnalytic
 public import Balaban.Localization.Decoupled2FieldClose
 public import Balaban.Localization.Decoupled2FieldLocal
 public import Balaban.Localization.Decoupled2Background
+public import Balaban.Localization.Decoupled2BackgroundLocal
 public import Balaban.Localization.DecoupledWeighted
 public import Balaban.Localization.BoxCube
 public import Balaban.Localization.DecoupledCube
