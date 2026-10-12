@@ -16,7 +16,7 @@ import Mathlib.Tactic.Ring
 * `starBond_le`: the bondwise implication (1.2): if `|∂_b φ̄| ≤ r_b` and `|w(x)| ≤ R_x` at the
   endpoints, the flux of the bond is at most `r_b (R_{b₋} + R_{b₊})/2`;
 * `starPair_norm_le`: the sum over the crossing bonds;
-* `massChange_wall_bound`: the conditional estimate (1.3), with the open inputs of the note as
+* `massChange_wall_bound_of_bounds`: the conditional estimate (1.3), with the open inputs of the note as
   hypotheses: the gradient bound `hgrad`, the mass response `hresp` and the Hessian bound `hHess`.
 -/
 
@@ -98,8 +98,11 @@ Euler-Lagrange system and `φ⁰` is hard-spin; the open inputs of the note, for
 are `hgrad` (the gradient bound `|∂_b φ̄ᵐ| ≤ r_b` on crossing bonds), `hresp` (the mass response
 `|w(x)| ≤ K_m B_h m` for `w = φ̄⁰ - φ̄ᵐ`) and `hHess` (the Hessian bound
 `|⟨w,(H+α)w⟩| ≤ C_H n (K_m B_h m)²`, `n = |Y|`).  Conclusion, for `β ≥ 0`:
-`β |ΔA_Y| ≤ ½ C_H K_m² B_h² β m² n + K_m B_h β m Σ_b r_b`. -/
-theorem massChange_wall_bound (D : Region G) {a : ℕ → ℝ} {ν : ℝ} {Dat : BgData G N}
+`β |ΔA_Y| ≤ ½ C_H K_m² B_h² β m² n + K_m B_h β m Σ_b r_b`. 
+
+The plain name `massChange_wall_bound` is reserved for the version in which the response and Hessian
+bounds are proved for the actual window. -/
+theorem massChange_wall_bound_of_bounds (D : Region G) {a : ℕ → ℝ} {ν : ℝ} {Dat : BgData G N}
     {φ0 φm : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ} (hEL : IsEL G a ν Dat φm α)
     (hφ0 : ∀ x : G.Ω 1, ∑ i, φ0 (x, i) * φ0 (x, i) = 1)
     {β m Km Bh CH n : ℝ} (hβ : 0 ≤ β)

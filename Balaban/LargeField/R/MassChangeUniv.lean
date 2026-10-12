@@ -26,8 +26,11 @@ open Balaban.Multiscale Balaban.Background Balaban.Fluctuation Finset
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ K ϱ}
 
 /-- **The whole-lattice chord bound** (INTERFACE-A (1.2)); hypotheses `hresp` (mass response,
-`K₂ B_h` as in the note) and `hHess` (`|⟨w,(H+α)w⟩| ≤ C_H n (2 K₂ B_h m)²`) are the open inputs. -/
-theorem massChange_univ_bound (D : Region G) (hD : D.sites = Finset.univ) {a : ℕ → ℝ} {ν : ℝ}
+`K₂ B_h` as in the note) and `hHess` (`|⟨w,(H+α)w⟩| ≤ C_H n (2 K₂ B_h m)²`) are the open inputs. 
+
+The plain name `massChange_univ_bound` is reserved for the version in which the response and Hessian
+bounds are proved for the actual window. -/
+theorem massChange_univ_bound_of_hess (D : Region G) (hD : D.sites = Finset.univ) {a : ℕ → ℝ} {ν : ℝ}
     {Dat : BgData G N} {φ0 φm : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ} (hEL : IsEL G a ν Dat φm α)
     (hφ0 : ∀ x : G.Ω 1, ∑ i, φ0 (x, i) * φ0 (x, i) = 1)
     {β m K2 Bh CH n : ℝ} (hβ : 0 ≤ β)
