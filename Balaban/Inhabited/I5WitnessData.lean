@@ -9,6 +9,7 @@ public import Balaban.Inhabited.BgSettingData
 public import Balaban.Localization.TreeLengthPaper
 public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.Geometry.Small
+public import Balaban.Fluctuation.Thm31Inhab
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -658,6 +659,135 @@ theorem exists_data_premises :
   exact ⟨m₁, c, BG, eps, δ₃, h4, hS, hm, hnum⟩
 
 end Instance
+
+/-! ### The support of `𝓔` has a single constituent in the expansion?  No: there are several domains -/
+
+section Domains
+
+variable {m₁ : ℕ}
+
+/-- First exit from a set along a chain. -/
+theorem exists_exit {α : Type*} {R : α → α → Prop} {S : Set α} {x y : α}
+    (h : Relation.ReflTransGen R x y) (hx : x ∈ S) (hy : y ∉ S) : ∃ u ∈ S, ∃ v ∉ S, R u v := by
+  have key : y ∈ S ∨ ∃ u ∈ S, ∃ v ∉ S, R u v := by
+    clear hy
+    induction h with
+    | refl => exact Or.inl hx
+    | @tail b c _ hbc ih =>
+      rcases ih with hb | hex
+      · by_cases hc : c ∈ S
+        · exact Or.inl hc
+        · exact Or.inr ⟨b, hb, c, hc, hbc⟩
+      · exact Or.inr hex
+  rcases key with h' | h'
+  · exact absurd h' hy
+  · exact h'
+
+theorem sameCell_cbase {n d a : ℕ} [NeZero n] (ha : 0 < a) (y : Torus d n) :
+    SameCell a y (cbase a y) := by
+  intro μ
+  have hlt : a * ((y μ).val / a) < n := by
+    calc a * ((y μ).val / a) ≤ (y μ).val := Nat.mul_div_le _ _
+      _ < n := ZMod.val_lt _
+  have : ((cbase a y) μ).val = a * ((y μ).val / a) := by
+    simp only [cbase]
+    rw [ZMod.val_natCast, Nat.mod_eq_of_lt hlt]
+  rw [this, Nat.mul_div_cancel_left _ ha]
+
+/-- **There is more than one polymer domain.**  `polymerDomains` contains `X₁` itself (the empty
+family) and `X₁ ∪ D(P)` for the `π¹`-cube `P` of level `2` containing a site just outside `X₁`. -/
+theorem one_lt_card_polymerDomains (h4 : 4 ≤ m₁) :
+    1 < (polymerDomains
+      (fun i : ParIdx (GpD m₁ (rhoSep m₁)) (↑(X1fM m₁ (rhoSep m₁)) : Set (T m₁)) => i.1.1)
+      (GpD m₁ (rhoSep m₁)) 0 (X1 (GpD m₁ (rhoSep m₁)) 0 1 (KM m₁))).card := by
+  classical
+  set ρ := rhoSep m₁ with hρ
+  set G := GpD m₁ ρ with hG
+  have hcov := covSetup_KM m₁ ρ
+  -- a crossing edge
+  have h0 : (0 : T m₁) ∈ X1 G 0 1 (KM m₁) := hcov.X_sub (zero_mem_XD m₁)
+  have ha := antipode_not_mem_X1M (m₁ := m₁) (ρ := ρ)
+  obtain ⟨x, hx, y, hy, hxy⟩ := exists_exit
+    (siteConnected_univ (d := 3) (L := 3) (N₁ := 240) (m₁ := m₁) (K := 2) 0 (Set.mem_univ _)
+      _ (Set.mem_univ _)) h0 ha
+  -- the cube containing y
+  set q : ℕ × T m₁ := (2, cbase (cellSide 3 0 m₁ 2) y) with hq
+  have hcs : cellSide 3 0 m₁ 2 = 3 ^ (2 + m₁) := by unfold cellSide; ring_nf
+  have hqc : q ∈ cubeIdx G := by
+    refine (mem_cubeIdx G).2 ⟨⟨by norm_num, le_rfl⟩, ?_, ?_⟩
+    · show cbase (cellSide 3 0 m₁ 2) y ∈ G.layer 2
+      rw [hG, GpD_layer_two]; exact Finset.mem_univ _
+    · intro μ
+      have := aligned_cbase (a := cellSide 3 0 m₁ 2) y μ
+      rwa [hcs] at this
+  have hyP : y ∈ Pset m₁ q := by
+    show SameCell (3 ^ (2 + m₁)) y (cbase (cellSide 3 0 m₁ 2) y)
+    rw [← hcs]
+    exact sameCell_cbase (cellSide_pos 0 m₁ 2) y
+  have hdisj : Disjoint (Pset m₁ q) (↑(X1fM m₁ ρ) : Set (T m₁)) := by
+    rw [coe_X1fM]
+    by_contra hnd
+    exact hy (Pset_subset_of_not_disjoint hcov.polySetup hqc hnd hyP)
+  set i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) := ⟨⟨q, hqc⟩, hdisj⟩ with hi
+  -- the family {i} is connected
+  have hconn : IsConnectedFamily (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1)
+      (compY (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => i.1.1) (X1 G 0 1 (KM m₁)))
+      ({i} : Finset _) := by
+    intro j hj z hz
+    rw [Finset.mem_singleton] at hj
+    subst hj
+    have hxy' : latGraph 3 (240 * 3 ^ m₁ * 3 ^ 2) |>.Adj x y := ⟨fun h => hy (h ▸ hx), hxy.2.2⟩
+    have hcp := cubeP_connIn (dgSetting_GpD h4) hqc
+    have hyc : y ∈ cubeP q := mem_cubeP.2 hyP
+    have hzc : z ∈ cubeP q := mem_cubeP.2 hz
+    have hpath := hcp y hyc z hzc
+    unfold compY
+    refine ⟨x, hx, ?_⟩
+    have hV : ∀ w ∈ cubeP q, w ∈ patchUnion (X1 G 0 1 (KM m₁))
+        (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i} :=
+      fun w hw => Or.inr (Set.mem_iUnion₂.2 ⟨i, Finset.mem_singleton_self _, mem_cubeP.1 hw⟩)
+    have hxV : x ∈ patchUnion (X1 G 0 1 (KM m₁))
+        (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i} := Or.inl hx
+    have step1 : Relation.ReflTransGen (fun a b => (latGraph 3 (240 * 3 ^ m₁ * 3 ^ 2)).Adj a b ∧
+        a ∈ patchUnion (X1 G 0 1 (KM m₁))
+          (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i} ∧
+        b ∈ patchUnion (X1 G 0 1 (KM m₁))
+          (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i}) x y :=
+      Relation.ReflTransGen.single ⟨hxy', hxV, hV y hyc⟩
+    refine step1.trans ?_
+    clear step1
+    have claim : ∀ w, Relation.ReflTransGen (stepIn (cubeP q)) y w →
+        Relation.ReflTransGen (fun a b => (latGraph 3 (240 * 3 ^ m₁ * 3 ^ 2)).Adj a b ∧
+        a ∈ patchUnion (X1 G 0 1 (KM m₁))
+          (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i} ∧
+        b ∈ patchUnion (X1 G 0 1 (KM m₁))
+          (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => Pset m₁ i.1.1) {i}) y w := by
+      intro w hp
+      induction hp with
+      | refl => exact Relation.ReflTransGen.refl
+      | @tail b c _ hbc ih =>
+        refine ih.trans ?_
+        by_cases hbc' : b = c
+        · subst hbc'; exact Relation.ReflTransGen.refl
+        · exact Relation.ReflTransGen.single ⟨⟨hbc', hbc.2.2⟩, hV b hbc.1, hV c hbc.2.1⟩
+    exact claim z hpath
+  -- the two domains
+  have hD := exists_Dcubes hcov.hU hcov.hN hqc
+  obtain ⟨b, hb⟩ := hD
+  have hyD : y ∈ Ysites G 0 (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => i.1.1)
+      (X1 G 0 1 (KM m₁)) ({i} : Finset _) :=
+    Or.inr (Set.mem_iUnion₂.2 ⟨i, Finset.mem_singleton_self _,
+      cellOf_subset_Dsites hb (Pset_subset_cellOf 0 q hyP)⟩)
+  unfold polymerDomains
+  refine Finset.one_lt_card.2 ⟨X1 G 0 1 (KM m₁), ?_,
+    Ysites G 0 (fun i : ParIdx G (↑(X1fM m₁ ρ) : Set (T m₁)) => i.1.1) (X1 G 0 1 (KM m₁))
+      ({i} : Finset _), ?_, fun h => hy (h ▸ hyD)⟩
+  · refine Finset.mem_image.2 ⟨∅, ?_, ?_⟩
+    · simp [IsConnectedFamily]
+    · simp [Ysites]
+  · exact Finset.mem_image.2 ⟨{i}, by simpa using hconn, rfl⟩
+
+end Domains
 
 end I5WitnessData
 end Balaban.Inhabited
