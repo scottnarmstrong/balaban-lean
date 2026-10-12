@@ -45,4 +45,20 @@ theorem big_pay {m r E τ g v H D B Pw Φ : ℝ} (hm : 0 ≤ m) (hr : 0 ≤ r) (
       nlinarith
     nlinarith
 
+/-- Case 2b/2a: a shift `Δ ≤ (m - 1) K` of the ripeness time is paid by `(m - 1) τ`. -/
+theorem shift_pay {m Δ K Ab E τ : ℝ} (hm : 1 ≤ m) (hΔ : Δ ≤ (m - 1) * K) (hAb : 0 ≤ Ab)
+    (hK : K * Ab + E ≤ τ) (hE : 0 ≤ E) : Δ * Ab + (m - 1) * E ≤ (m - 1) * τ := by
+  have h1 : Δ * Ab ≤ (m - 1) * K * Ab := by gcongr
+  have h2 : (m - 1) * (K * Ab + E) ≤ (m - 1) * τ := by
+    apply mul_le_mul_of_nonneg_left hK; linarith
+  nlinarith
+
+/-- Case 2b with a long spine: either the contracted old spines or the number of parts pay. -/
+theorem pre_big {m E τ Φ Q : ℝ} (hm : 2 ≤ m) (hE : 0 ≤ E) (hτ : E + 1 ≤ τ) (hQ0 : 0 ≤ Q)
+    (hQ : Φ ≤ Q ∨ Φ + 1 ≤ m) : Φ + (m - 1) * E + 1 ≤ m * τ + m + Q := by
+  have hmτ : m * (E + 1) ≤ m * τ := by gcongr
+  rcases hQ with h | h
+  · nlinarith
+  · nlinarith
+
 end Balaban.LargeField.Ineq
