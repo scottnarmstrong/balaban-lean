@@ -696,3 +696,7 @@ public import Balaban.Localization.Decoupled2FpCount
 public import Balaban.Fluctuation.BackgroundChangeCompare
 public import Balaban.Fluctuation.BackgroundChangeExpansion
 public import Balaban.Fluctuation.BackgroundChangeLate
+public import Balaban.Fluctuation.InteractionParam
+public import Balaban.Fluctuation.InteractionDir
+public import Balaban.Fluctuation.InteractionLoc
+public import Balaban.Fluctuation.InteractionETerm
