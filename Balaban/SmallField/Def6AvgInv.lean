@@ -354,29 +354,32 @@ theorem blockBase_image {N₁ : ℕ} [NeZero N₁] (hjk : j ≤ k) {γ : Equiv.P
   rw [blockPt_eq_toTorus, hlift, blockBase, cbase_toTorus hdvd, blockPt_eq_toTorus]
   rfl
 
+theorem InfPoly_act (hjk : j ≤ k)
+    {γ : Equiv.Perm (Fin d → ℤ)} (hγ : γ ∈ symZ (d := d) (L ^ j * L ^ (P.m₀ + m₁)))
+    {X' : Finset (Fin d → ℤ)} (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X') :
+    InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j (X'.image (blkZ (L ^ j) γ)) := by
+  show ∀ᶠ n in atTop, _
+  filter_upwards [hX, eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j X',
+    eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j (X'.image (blkZ (L ^ j) γ)),
+    eventually_nonWind (L := L) (m₁ := m₁) (k := k) P.m₀ j (X'.image (blkZ (L ^ j) γ))]
+    with n hn h1 h2 hnw
+  obtain ⟨γb, hγb, hlift⟩ := torus_lift_paving (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁)
+    (k := k) P.m₀ hγ
+  refine ⟨hnw, ?_⟩
+  rw [ypoly_image_torus hjk (dvd_paving_cell (L := L) (m₁ := m₁) (j := j) P.m₀) hγ hlift h1 h2]
+  exact isPolyDom_image_of_mem_pavingSymGroup (torusSeq_dvd P.m₀ n) hjk hn.2 hγb
+
 theorem Supp_act (hF : IsSFFamily P β ν a Tm ρd Ek) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     {γ : Equiv.Perm (Fin d → ℤ)} (hγ : γ ∈ symZ (d := d) (L ^ j * L ^ (P.m₀ + m₁)))
     {s : BSt d N} (hΦ : Supp P β ν a Tm j s) :
     Supp P β ν a Tm j (BSt.act (L ^ j) γ s) := by
   obtain ⟨hX, hy, hE⟩ := hΦ
-  refine ⟨?_, Finset.mem_image_of_mem _ hy, ?_⟩
-  · show ∀ᶠ n in atTop, _
-    filter_upwards [hX, eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j s.X,
-      eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j (s.X.image (blkZ (L ^ j) γ)),
-      eventually_nonWind (L := L) (m₁ := m₁) (k := k) P.m₀ j (s.X.image (blkZ (L ^ j) γ))]
-      with n hn h1 h2 hnw
-    obtain ⟨γb, hγb, hlift⟩ := torus_lift_paving (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁)
-      (k := k) P.m₀ hγ
-    refine ⟨hnw, ?_⟩
-    show IsPolyDom (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) P.m₀ j
-      (Ypoly j (s.X.image (blkZ (L ^ j) γ)))
-    rw [ypoly_image_torus hjk (dvd_paving_cell (L := L) (m₁ := m₁) (j := j) P.m₀) hγ hlift h1 h2]
-    exact isPolyDom_image_of_mem_pavingSymGroup (torusSeq_dvd P.m₀ n) hjk hn.2 hγb
-  · show ∀ᶠ n in atTop, _
-    filter_upwards [hX, hE, eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j s.X,
-      eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j (s.X.image (blkZ (L ^ j) γ))]
-      with n hn hEn h1 h2
-    exact ExtN_act hF hj1 hjk hγ hn.2 h1 h2 hEn
+  refine ⟨InfPoly_act hjk hγ hX, Finset.mem_image_of_mem _ hy, ?_⟩
+  show ∀ᶠ n in atTop, _
+  filter_upwards [hX, hE, eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j s.X,
+    eventually_zsmall (L := L) (m₁ := m₁) (k := k) P.m₀ j (s.X.image (blkZ (L ^ j) γ))]
+    with n hn hEn h1 h2
+  exact ExtN_act hF hj1 hjk hγ hn.2 h1 h2 hEn
 
 /-- **Covariance of the term of `T∞` under the paving symmetries** (the termwise (H.4-E), passed to
 the limit): for a state in the support, `ℰ_∞(γ y, γ X'; ψ∘γ⁻¹, h∘γ⁻¹) = ℰ_∞(y, X'; ψ, h)`. -/
