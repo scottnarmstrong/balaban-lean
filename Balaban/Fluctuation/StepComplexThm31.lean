@@ -24,6 +24,8 @@ restated here for the holomorphic ones:
 
 * `E1MarksC`, `e1locC_expansion_of_input`, `DetExpansionC`, `nonempty_detExpansionC`,
   `thm31aC_of_input`, `thm31aC_of_input_const`: Theorem 3.1 (a) for `E0locC`;
+* `sum_E0locC_of_sum_E1locC`: `∑_z ℰ₀(z) = ℰ₀` for the complex step, reduced to the interpolation
+  part;
 * `thm31bC_of_input_M0`: Theorem 3.1 (b) for `M0C`;
 * `thm31cC_of_input`: Theorem 3.1 (c) for an interpolation average with the exponent `WoneC` (the
   instance of the abstract statement, recorded for the consumers).
@@ -166,6 +168,17 @@ theorem thm31aC_of_input_const {BS : BlockSplit S m₀}
   obtain ⟨E, h1, h2⟩ := thm31aC_of_input I hκ'' D
   refine ⟨E, h1, fun T => (h2 T).trans ?_⟩
   exact mul_le_mul_of_nonneg_right (by nlinarith) (Real.exp_pos _).le
+
+/-- **`∑_z ℰ₀^{(k+1)}(z) = ℰ₀^{(k+1)}` for the complex step, reduced to the interpolation part**
+(P4 (2.56); the complex form of `sum_E0loc`): the trace parts add up to `halfLogDetCC`
+(`sum_trace_E0locC`, at every datum), so the identity for `E0locC` follows from the one for
+`E1locC`, `∑_z ℰ₁^{(k+1)}(z) = ℰ₁^{(k+1)}` (the complex form of `sum_E1loc`, which needs the complex
+differentiability of `Φ₁ = Phi1C` near the segments and is not proved here). -/
+theorem sum_E0locC_of_sum_E1locC (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
+    (h : ∑ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))), S.E1locC C z = S.E1C C) :
+    ∑ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))), S.E0locC C z = S.E0C C := by
+  unfold StepSetting.E0locC StepSetting.E0C
+  rw [Finset.sum_add_distrib, h, S.sum_trace_E0locC]
 
 open Classical in
 /-- **Theorem 3.1 (b) for the complex step, conditional on `ObsMarks`** (the complex form of

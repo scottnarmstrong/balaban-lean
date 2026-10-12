@@ -266,8 +266,8 @@ the chart** (`d = L = 3`, `N₁ = 6`, `k = 1`, `N = 2`, `a₁ = 1`, `ν = 0`): f
 `exists_chart_params` and every block datum `D` of `Ξ^c(𝔹_2; 1, t)` with `h ≡ e₀` (real or
 complex), there are `β > 0` and a radius `p > 0` such that at the step datum `chartSetting` with
 `θ = D` the bundle of `prop26C_class_of_activity` holds for the class with zero old terms and
-`g = 0` — `FlCore`, `XiCData`, `ClassRegularC`, `StepActivityBoundC` — and hence the identity (2.6)
-for the holomorphic objects.  (`β` is large for the margin `√N β_k^{-1/2} C_sup p⁺ < δ₁`, `p⁺ = 2`;
+`g = 0` — `FlCore`, `XiCData`, `ClassRegularC`, `StepRegularC`, `StepActivityBoundC` — and hence
+the identity (2.6) for the holomorphic objects.  (`β` is large for the margin `√N β_k^{-1/2} C_sup p⁺ < δ₁`, `p⁺ = 2`;
 `p` is small for the activity bound.) -/
 theorem exists_prop26C_datum_of_xiCData {m₁ : ℕ} {c BG κ t c₂ BG₂ δc : ℝ}
     (hFl : FlCore 2 (GP m₁ (rhoSep m₁)) (stepG 3 3 6 m₁ 1 (rhoSep m₁)) 1 0 c BG κ t
@@ -283,6 +283,7 @@ theorem exists_prop26C_datum_of_xiCData {m₁ : ℕ} {c BG κ t c₂ BG₂ δc :
     (hDh : ∀ x i, D.h x i = (unitVec hN2 i : ℂ)) :
     ∃ β p : ℝ, 0 < β ∧ 0 < p ∧
       (chartSetting m₁ D hDh β p).ClassRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
+      (chartSetting m₁ D hDh β p).StepRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
       Nonempty (StepActivityBoundC (chartSetting m₁ D hDh β p)
         (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0) ∧
       (chartSetting m₁ D hDh β p).TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 =
@@ -337,7 +338,10 @@ theorem exists_prop26C_datum_of_xiCData {m₁ : ℕ} {c BG κ t c₂ BG₂ δc :
   have ha₁ : 0 < S₀.a₁ := one_pos
   obtain ⟨p, hp0, hpp, ⟨I⟩⟩ := S₀.exists_activityBoundC_zeroClass (pp := 2) hFl hMX hdm hα hsm
     ha₁ hc7 (R := 2) (by norm_num) hsmR hβ (by norm_num) hδ₁ hXi
-  refine ⟨T ^ 2 / 3, p, hβ, hp0, classRegularC_zeroClass_zero _, ⟨I⟩, ?_⟩
+  refine ⟨T ^ 2 / 3, p, hβ, hp0, classRegularC_zeroClass_zero _,
+    (S₀.withRadius p).stepRegularC_of_class _ hFl hMX hdm hα hsm ha₁ hc7 (R := 2) (by norm_num)
+      hsmR hβ.le (by norm_num : (0 : ℝ) < 2) hδ₁ hXi hp0 hpp 0 (classRegularC_zeroClass_zero _),
+    ⟨I⟩, ?_⟩
   exact (S₀.withRadius p).prop26C_class_of_activity _ hFl hMX hdm hα hsm ha₁ hc7 (R := 2)
     (by norm_num) hsmR hβ hp0 hpp hδ₁ hXi 0 (classRegularC_zeroClass_zero _) I
 
@@ -352,6 +356,7 @@ theorem exists_prop26C_real_datum :
         FlCore 2 S.G' (stepG 3 3 6 m₁ 1 (rhoSep m₁)) S.a₁ S.ν c BG κ t (levelKc 3 3) (Cchi 3 3)
           c₂ BG₂ t ∧ XiCData S.G' S.a S.ν 2 1 t S.D') ∧
       S.ClassRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
+      S.StepRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
       Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0) ∧
       S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 = Complex.exp (-(S.β : ℂ) * S.AnewC +
         EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
@@ -372,11 +377,11 @@ theorem exists_prop26C_real_datum :
       rw [show (witnessD m₁).Ψ x i = (unitVec hN2 i : ℂ) from
         unitBg_Ψ_of_mem (GP m₁ (rhoSep m₁)) hN2 (unitVec hN2) hx i]
       simp, fun x hx i => by rw [hDh x i]; simp⟩
-  obtain ⟨β, p, hβ, hp, hcl, hI, hid⟩ := exists_prop26C_datum_of_xiCData hFl hMX hdm hα
+  obtain ⟨β, p, hβ, hp, hcl, hreg, hI, hid⟩ := exists_prop26C_datum_of_xiCData hFl hMX hdm hα
     hsm hc7 hsmR (witnessD m₁) hXi hDh
   exact ⟨m₁, chartSetting m₁ (witnessD m₁) hDh β p,
     isReal_of_inDomainR (witnessData_domain (m₁ := m₁) (β := 1) (δ := 1) (δ' := 1) one_pos),
-    hβ, hp, ⟨c, BG, κ, t, c₂, BG₂, hFl, hXi⟩, hcl, hI, hid⟩
+    hβ, hp, ⟨c, BG, κ, t, c₂, BG₂, hFl, hXi⟩, hcl, hreg, hI, hid⟩
 
 /-- **Proposition 2.6 for the complex step at a nonreal block datum, with all premises
 discharged**: there is a step datum (`d = L = 3`, `N₁ = 6`, `k = 1`, `N = 2`, `β > 0`, `p₁ > 0`)
@@ -390,6 +395,7 @@ theorem exists_prop26C_nonreal_datum :
         FlCore 2 S.G' (stepG 3 3 6 m₁ 1 (rhoSep m₁)) S.a₁ S.ν c BG κ t (levelKc 3 3) (Cchi 3 3)
           c₂ BG₂ t ∧ XiCData S.G' S.a S.ν 2 1 t S.D') ∧
       S.ClassRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
+      S.StepRegularC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 ∧
       Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0) ∧
       S.TstepC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) 0 = Complex.exp (-(S.β : ℂ) * S.AnewC +
         EcompAtC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)).m₀
@@ -403,9 +409,9 @@ theorem exists_prop26C_nonreal_datum :
     exists_chart_params
   obtain ⟨D, hXi, hDh, hnr⟩ := exists_nonreal_xiCData (bgHyp_rho m₁) (GP m₁ (rhoSep m₁))
     (fun x => (isLevel_GP m₁ x).1) (by norm_num : 1 < 2) (by simp) ht0
-  obtain ⟨β, p, hβ, hp, hcl, hI, hid⟩ := exists_prop26C_datum_of_xiCData hFl hMX hdm hα
+  obtain ⟨β, p, hβ, hp, hcl, hreg, hI, hid⟩ := exists_prop26C_datum_of_xiCData hFl hMX hdm hα
     hsm hc7 hsmR D hXi hDh
-  exact ⟨m₁, chartSetting m₁ D hDh β p, hnr, hβ, hp, ⟨c, BG, κ, t, c₂, BG₂, hFl, hXi⟩, hcl, hI,
-    hid⟩
+  exact ⟨m₁, chartSetting m₁ D hDh β p, hnr, hβ, hp, ⟨c, BG, κ, t, c₂, BG₂, hFl, hXi⟩, hcl, hreg,
+    hI, hid⟩
 
 end Balaban.Fluctuation

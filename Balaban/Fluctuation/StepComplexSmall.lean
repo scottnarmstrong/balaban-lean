@@ -16,7 +16,8 @@ The hypotheses of `prop26C_class_of_activity` at a complex datum of the chart, f
 zero old terms and the source `g = 0`:
 
 * `classRegularC_zeroClass_zero`: `ClassRegularC` holds for the zero class and
-  `g = 0` at every step datum (rule 10 for `ClassRegularC`);
+  `g = 0` at every step datum (rule 10 for `ClassRegularC`); `stepRegularC_of_beta_zero` (rule 10
+  for `StepRegularC`, degenerate);
 * `stepActivityBoundC_of_small`: the one-label activity bound for the exponents of the complex step
   (the complex form of `stepActivityBound_of_small_gen`): if the truncated exponent
   `W₁(s) + W₂(t)` of the complex step is measurable and below the cluster threshold
@@ -74,6 +75,24 @@ theorem classRegularC_zeroClass_zero :
     S.ClassRegularC (zeroClass d L N₁ m₁ k N ϱ) 0 := by
   refine ⟨⟨Set.univ, fun _ _ => 0, fun _ _ => 0, ?_, ?_⟩⟩
   · rw [dECT_zeroClass]
+    exact isC1Family_zero
+  · rw [WtwoCT_zeroClass_zero]
+    exact isC1Family_zero
+
+/-- **`StepRegularC` is not contradictory** (rule 10; the complex form of
+`stepRegular_of_beta_zero`): for the zero effective action, the source `g = 0` and `β = 0` the
+exponents of the complex step vanish.  DEGENERATE; the non-degenerate statement is
+`stepRegularC_of_class` on the complex chart (`β > 0`, `W₁ = -β V^{(k)}`), which holds at the data
+of `exists_prop26C_nonreal_datum`. -/
+theorem stepRegularC_of_beta_zero (hβ : S.β = 0) :
+    S.StepRegularC (zeroClass d L N₁ m₁ k N ϱ) 0 := by
+  have h1 : S.WoneCT (zeroClass d L N₁ m₁ k N ϱ) = fun _ _ => 0 := by
+    funext s x
+    unfold StepSetting.WoneCT
+    rw [WoneC_zero_of_beta S hβ]
+    simp
+  refine ⟨⟨Set.univ, fun _ _ => 0, fun _ _ => 0, ?_, ?_⟩⟩
+  · rw [h1]
     exact isC1Family_zero
   · rw [WtwoCT_zeroClass_zero]
     exact isC1Family_zero
