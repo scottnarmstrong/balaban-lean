@@ -17,9 +17,9 @@ Claude workers (background subagents of this session):
 | W108 | `w108-thm42` / W108 | FLUCT Thm 4.2 + Cor 4.3 assembly (undecoupled) |
 | W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
 | W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
-| W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
+| W113 | `w113-witness-cleanup` / W113 | non-vacuity loose ends, delete vacuous T2_bound |
 | W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
-| W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
+| W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
 Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
 astra-q13 (effort HIGH): Roland Q13 → Q13-ANSWER.md (tag Q13). astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
