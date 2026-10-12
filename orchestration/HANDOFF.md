@@ -12,17 +12,17 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W178 (Opus) | `w178-complex-step` / W178 | holomorphic complex step (OPEN-STEP-COMPLEX-COMPATIBILITY) |
-| W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
-| W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
-| W186 | `w186-regional-flux` / W186 | REGIONAL proved parts: marginal flux (1.3), (1.3a), measure comparison |
-| W183 | `w183-poly-minimal` / W183 | class polymers are cube unions; GsSpecStrong for minimal sets |
-| W187 | `w187-crossing-count` / W187 (on W185) | sharp crossing count for cube unions; scale-uniform wall constant |
-| W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
-| W184 | `w184-window-history` / W184 | WindowPieces from the actual history; W173's geometric premises |
+| W197 (Opus) | `w197-complex-step2` / W197 (on W178) | complex step output side: E0C/F0C/M0C/TstepC, Prop 2.6 at complex data |
+| W195 | `w195-lf-p13-sections` / W195 | LFR Part III P13 algebra: rotation sections (Def III.9.2, Lemma III.9.3) |
+| W196 | `w196-regset` / W196 | regularity set T of the window, hcT/hwT, hcoreTop classification |
+| W192 | `w192-hat-export` / W192 (on W176) | export dom/meas from the hat expansion; unconditional label construction |
+| W200 | `w200-taylor-complex` / W200 (on W189) | Taylor identities for the holomorphic step at complex data |
+| W198 | `w198-class-gsstrong` / W198 | REPAIR: strong generating-set clause into IsSF2/IsSFFamily2 |
+| W201 | `w201-stationarity` / W201 (on W181) | P7 (2.52) stationarity; unconditional cancellation_identity |
+| W199 | `w199-r-concrete` / W199 | R normalization for the concrete rhoZero; independence of components |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): round 21 working — q13 Q13-DECISION (tag Q13DEC), vmod VMOD-19 (VMOD19), fluctfix RATES (RATES). Round 20 notes committed (REGIONAL, VMOD-18, HAT-RATE). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): round 22 working — q13 Q13-HYBRID (tag Q13HYB), fluctfix LABELS (LABELS), vmod VMOD-20 (VMOD20). Round 21 notes committed (Q13-DECISION, VMOD-19, RATES). OPEN DECISION for Scott: astra recommends variant A0 (complete backgrounds also in the large-field operators); NOT adopted — scheme A stands until Scott rules; see LEDGER row 'astra Q13-DECISION'. STRUCTURAL: the rate induction of the small-field step does not close with W176's multiplicative label conversion (RATES.md); repair pending (LABELS). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
