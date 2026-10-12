@@ -13,7 +13,6 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W256 | `w256-physical-terms` / W256 | physical_hatTerms packaging; physical_directTerms given PhysicalSharpLoc |
 | W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
 | W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
 | W261 | `w261-data-pair-bridge` / W261 | DataHyp → pair form of the data bounds for the regional source term |
