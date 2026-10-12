@@ -14,9 +14,9 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
 | W256 | `w256-physical-terms` / W256 | physical_hatTerms packaging; physical_directTerms given PhysicalSharpLoc |
-| W258 | `w258-output-fixed-coeff` / W258 | canonical coefficients of Theorem 3.1 with congruence lemmas (OUTPUT package 2) |
 | W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
 | W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
+| W261 | `w261-data-pair-bridge` / W261 | DataHyp → pair form of the data bounds for the regional source term |
 | W262 | `w262-grouped-bound` / W262 | grouped regional bound assembled from W228, W233, W234, W242, W253 |
 | W263 | `w263-sharp-vf` / W263 | sharp V and F summands on the sharp engine |
 | W264 | `w264-sharp-enu` / W264 | sharp E and ν/ℳ summands on the sharp engine |
