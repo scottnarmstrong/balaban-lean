@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.InteractionHatLC
 public import Balaban.Fluctuation.InteractionHatF
 public import Balaban.Fluctuation.InteractionETerm
+public import Balaban.Fluctuation.Prop33Parts
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -593,16 +594,17 @@ theorem eterms_locInt_hat {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι)
     {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
     (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
     (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
-    ∃ (𝒴 : τι → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
-      (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+    ∃ (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
         (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
       LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
-        (𝒯.biUnion 𝒴)
-        (fun Y x₀ w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then T τ Y x₀ w σ Θ else 0)
+        (𝒯.biUnion fun τ => polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ))
+        (fun Y x₀ w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          T τ Y x₀ w σ Θ else 0)
         (fun x₀ w σ Θ => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
           dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ Θ
           else 0)
-        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
+        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
         (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
   classical
@@ -626,9 +628,8 @@ theorem eterms_locInt_hat {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι)
       exact ⟨Ev, fun _ => by simpa [hτ] using hEv⟩
     · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
   choose Ev hEv using hex
-  exact ⟨fun τ => polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) =>
-      i.1.1) Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)),
-    fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ, LocInt.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
+  exact ⟨fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ,
+    LocInt.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
 
 /-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
 `mterms_locInt`). -/

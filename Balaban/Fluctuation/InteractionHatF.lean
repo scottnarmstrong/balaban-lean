@@ -133,6 +133,66 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **The amplitude-free expansion of one site of `⟨g, δφ⟩`, in the variable `ψ̂`** (the base
+of `fsite_locInt_hat`; hat version of `fsite_base_locInt`). -/
+theorem fsite_base_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (i : Fin N)
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X))
+        (fun Y x₀ w σ Θ => dirTerm (Ev Y) ω x₀ w σ Θ)
+        (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
+          (fun D ψ' => svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ') y i))) ω x₀ w σ Θ)
+        (fun Y => Mω * (((cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+  classical
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := fsite_expansion_hat hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
+  refine ⟨Ev, ?_⟩
+  exact locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
+    (B := hatBall (N := N) Gp cψ)
+    (f := hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
+      (fun D ψ' => svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ') y i)))
+    (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+      (X1 Gp m₀ j 𝒦X)) (Evs := Ev)
+    (b := fun Y => (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y))
+    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgF := AgHatF Gp hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
+    (isOpen_hatBall cψ) (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ)))
+    (fun Y u hu => hbd Y u ⟨hu.1, hatBall_subset cψ hu.2⟩)
+    (fun Y a a' c' c'' p q ha hb y hy i => by simp [ha y hy i, hb y hy i])
+    (fun Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2' =>
+      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩)
+    (fun Θ hΘ ψh hψ => by
+      obtain ⟨D, hD, rfl⟩ := hΘ
+      rw [hatFun_rawOf hG' cc _ hD, onXi_rawOf hD]
+      exact hsum D hD ψh (hatBall_subset cψ hψ))
+
 /-- **The source part `⟨g, ∂_w δφ⟩` of the localized interaction, one site, in the variable
 `ψ̂`.** -/
 theorem fsite_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)

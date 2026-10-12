@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.HatEngineLocalEngine
 public import Balaban.Fluctuation.InteractionVPart
+public import Balaban.Fluctuation.Prop33Parts
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -396,17 +397,17 @@ theorem vpart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
     {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
     (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
     (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
-    ∃ (𝒴 : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-        Finset (Set (CTorus d L N₁ m₁ (k + 1))))
-      (T : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) →
+    ∃ (T : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) →
         (unitPts Gp × Fin N → ℂ) → (unitPts Gp × Fin N → ℂ) → ℂ →
         RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
       LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRays Gp cψ R₁ Rσ r) Rσ
-        (Finset.univ.biUnion 𝒴)
-        (fun Y x₀ w σ Θ => ∑ z, if Y ∈ 𝒴 z then T z Y x₀ w σ Θ else 0)
+        (Finset.univ.biUnion fun z => polyDom Gp (X₁f z) (m₀ z) (j z) (𝒦X z))
+        (fun Y x₀ w σ Θ => ∑ z, if Y ∈ polyDom Gp (X₁f z) (m₀ z) (j z) (𝒦X z) then
+          T z Y x₀ w σ Θ else 0)
         (fun x₀ w σ Θ => raySrc3 (hatFun Gp a₁ ν eps hG' cc
           (interactionOne hG hG' le_rfl a₁ ν eps)) ω x₀ w σ Θ)
-        (fun Y => ∑ z, if Y ∈ 𝒴 z then Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν k
+        (fun Y => ∑ z, if Y ∈ polyDom Gp (X₁f z) (m₀ z) (j z) (𝒦X z) then
+          Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3) else 0)
         (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
@@ -433,9 +434,7 @@ theorem vpart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
     vblock_locInt_hat hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ (hcov z) (hX₁ z) hconn hrow (hopt z)
       (hΔ z) hκ₀ hκdec hκ h1 (hlog z) z (hZ z) (hmar z) hωc hR₁ hω hMω hωb hr
   choose Ev hEvsum hEvan hEv using hex
-  refine ⟨fun z => polymerDomains (fun i : ParIdx Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) =>
-      i.1.1) Gp (m₀ z) (X1 Gp (m₀ z) (j z) (𝒦X z)),
-    fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ, ?_⟩
+  refine ⟨fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ, ?_⟩
   refine (LocInt.finsum Finset.univ (fun z _ => hEv z)).congr_val ?_
   rintro ⟨x₀, w⟩ hxw σ hσ Θ ⟨D', hD, rfl⟩
   have hreal1 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖(t : ℂ)‖ < R₁ := fun t ht => by
