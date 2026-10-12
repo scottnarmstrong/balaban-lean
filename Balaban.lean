@@ -1005,3 +1005,4 @@ public import Balaban.SmallField.RenormPinSum
 public import Balaban.SmallField.RenormPinCounter
 public import Balaban.Localization.PairedLocalGraph
 public import Balaban.Localization.PairedLocalAgree
+public import Balaban.Localization.PairedLocalX0
