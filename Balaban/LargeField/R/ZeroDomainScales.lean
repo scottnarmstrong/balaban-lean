@@ -259,6 +259,25 @@ theorem lateScale_geom
       _ < 9 / 8 * (8 * (S.L : ℝ) ^ (S.lateN3 k + 1)) := by linarith
       _ = _ := by ring
 
+/-- **Lemma III.5.0 (c), second part**: `L^{-n_3} < 9 / [R̂_{k₃}]`. -/
+theorem inv_pow_lateN3_lt
+    (h18 : ∀ j, S.Rb * (S.lam j + S.θp + 1) ^ 2 + 1 ≤ 9 / 8 * (S.Rb * S.lam j ^ 2 - 1))
+    {k q s : ℕ} (hq : q + S.nq q ≤ k) (hs : s + S.n2 s ≤ k) (h3 : 8 ≤ S.L * S.lateR k) :
+    ((S.L : ℝ) ^ S.lateN3 k)⁻¹ < 9 / (S.lateR (S.kThree k) : ℝ) := by
+  have ok := G.ok
+  obtain ⟨-, -, -, -, -, -, h⟩ := G.lateScale_geom h18 hq hs h3
+  have hL : (0 : ℝ) < S.L := by have := ok.two_le_L; exact_mod_cast (by omega : 0 < S.L)
+  have hR : (0 : ℝ) < S.lateR (S.kThree k) := by
+    have := ok.two_le_lateR (S.kThree k); exact_mod_cast (by omega : 0 < S.lateR (S.kThree k))
+  have hp : (0 : ℝ) < (S.L : ℝ) ^ S.lateN3 k := by positivity
+  push_cast at h
+  have h2 : (S.lateR (S.kThree k) : ℝ) < 9 * (S.L : ℝ) ^ S.lateN3 k := by
+    by_contra hcon
+    push Not at hcon
+    nlinarith
+  rw [inv_lt_comm₀ hp (by positivity), inv_div]
+  linarith
+
 end Good
 
 end Setting
