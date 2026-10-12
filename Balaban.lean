@@ -341,6 +341,7 @@ public import Balaban.Localization.DecoupledSolve
 public import Balaban.Localization.DecoupledOne
 public import Balaban.Localization.DecoupledSolveAnalytic
 public import Balaban.Localization.DecoupledFieldLocal
+public import Balaban.Localization.FootprintMargin
 public import Balaban.Localization.DecoupledFieldClose
 public import Balaban.Localization.DecoupledChiPair
 public import Balaban.Localization.DecoupledCubeHolder
