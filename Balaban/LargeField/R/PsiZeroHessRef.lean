@@ -263,6 +263,83 @@ theorem psiZero_ref_tube {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k) (b0 : Torus d (
     (by simp)
   rwa [tubeRad_zero] at this
 
+/-- **Row 7: the gradient at the reference vector under the geometry (1.1) and the `X`-hypotheses**. -/
+theorem psiZero_grad_of_geometry {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
+    (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ) (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D)
+    (hm : D + 2 ≤ N₀ * L ^ (k - k))
+    {X : Set (Torus d (N₀ * L ^ (k - k)))} (hXreg : box b0 w ∪ shellOut (box b0 w) ⊆ X)
+    (hΩ : OverTop G (box b0 w ∪ shellOut (box b0 w)))
+    (hdata : ∀ x ∈ dataSites G, jBlock d L N₀ k k x ∈ X) {δ : ℝ} (hδ : 0 < δ)
+    (hδη : δ ≤ etaGrad d L N D) {ψk : BlockField d L N₀ k N} (hψk : TubeOn G (X \ box b0 w) δ ψk) :
+    ‖fderiv ℝ (effOn G a (boxFinset b0 w) ψk) (centrePt ψk b0 w)‖ ≤ gradConst d L N k D * δ := by
+  have hd3 := H.hd
+  have hd : 0 < d := by omega
+  have ht := psiZero_ref_tube (G := G) (by omega : 2 ≤ d) hk b0 w hw1 hwD hm hXreg hΩ hdata hδ hψk
+  set η := tubeConst d D * δ with hη
+  have hCT := tubeConst_pos d D
+  have hηpos : 0 < η := by positivity
+  have hηle : η ≤ min (min (bgC0 d L N) (bgC1 d L N)) (etaHess d L N D) := by
+    have : δ * tubeConst d D ≤ min (min (bgC0 d L N) (bgC1 d L N)) (etaHess d L N D) := by
+      unfold etaGrad at hδη
+      exact (le_div_iff₀ hCT).1 hδη
+    rw [hη]; linarith
+  have hη0 : η ≤ bgC0 d L N := hηle.trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hη1 : η ≤ bgC1 d L N := hηle.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hηh : η ≤ etaHess d L N D := hηle.trans (min_le_right _ _)
+  set ψ0 := mergeField (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w) ψk (centrePt ψk b0 w) with hψ0
+  have hrest : restrictSupp (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w) ψ0 = centrePt ψk b0 w :=
+    restrict_mergeField _ _
+  have hF : effOn G a (boxFinset b0 w) ψ0 = effOn G a (boxFinset b0 w) ψk := effOn_merge G a _ _ _
+  have hDdom : InDomainR G 0 η (dataR G ψ0) := inDomainR_of_tube G hηpos ht
+  have hUnion : InUnionDomainR G (bgC1 d L N) 0 (dataR G ψ0) := ⟨η, hηpos, hη1, hDdom⟩
+  obtain ⟨-, -, -, -, hbd⟩ := theorem71 H hUnion
+  have hbb := hbd η hηpos hη1 hDdom
+  have hρ0 : 0 ≤ bgK1 d L N * η := mul_nonneg (bgK1_pos (d := d) (L := L) (N := N)).le hηpos.le
+  have hΩZ : OverTop G ((boxFinset (L := L) (N₀ := N₀) (k := k) b0 w : Finset _) : Set _) := by
+    intro x hx
+    exact hΩ x (Or.inl (mem_boxFinset.1 (Finset.mem_coe.1 hx)))
+  have hcard := card_boxFinset_le (L := L) (N₀ := N₀) (k := k) b0 w hwD
+  have hsq : Real.sqrt (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card ≤ Real.sqrt ((D : ℝ) ^ d) :=
+    Real.sqrt_le_sqrt hcard
+  have hsk : 0 ≤ (L : ℝ) ^ (k * (d - 2)) := by positivity
+  have hak := (H.weights k hk le_rfl).2
+  have hak0 : 0 ≤ a k := by linarith [(H.weights k hk le_rfl).1]
+  refine ContinuousLinearMap.opNorm_le_bound _ (mul_nonneg (gradConst_nonneg d L N k D) hδ.le) fun v => ?_
+  have hderiv := (psiZero_derivs_core H hk b0 w (boxFinset b0 w) (coe_boxFinset b0 w) hw1 hwD hm hΩ
+    hηpos hη0 hη1 hηh ht v).1
+  rw [hF, hrest] at hderiv
+  rw [hderiv, Real.norm_eq_abs]
+  have hres : ∀ x ∈ G.layer k, jBlock d L N₀ k k x ∈ boxFinset (L := L) (N₀ := N₀) (k := k) b0 w →
+      vn (fun i => (dataR G ψ0).Ψ x i - blockAvg G (bgField G a 0 (dataR G ψ0)) x i) ≤
+        bgK1 d L N * η := by
+    intro x hx _
+    refine residual_vn_le hk _ _ hx fun y hy => ?_
+    exact hbb.val ⟨y, blk_subset_Ω G hk le_rfl hx hy⟩
+  have hb := firstVar_re_le (a := a) (by omega : 2 ≤ d) hk H.weights hΩZ v (dataR G ψ0)
+    (bgField G a 0 (dataR G ψ0)) hρ0 hres
+  refine hb.trans ?_
+  unfold gradConst
+  rw [hη]
+  have hnn : 0 ≤ ‖v‖ := norm_nonneg v
+  have h1 : a k * (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) *
+      Real.sqrt (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card ≤
+      2 * (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) * Real.sqrt ((D : ℝ) ^ d) := by
+    have hB := bgK1_pos (d := d) (L := L) (N := N)
+    have hp : 0 ≤ (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) := by positivity
+    calc a k * (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) *
+          Real.sqrt (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card
+        = a k * ((L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ))) *
+          Real.sqrt (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card := by ring
+      _ ≤ 2 * ((L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ))) *
+          Real.sqrt ((D : ℝ) ^ d) :=
+        mul_le_mul (mul_le_mul_of_nonneg_right hak hp) hsq (Real.sqrt_nonneg _) (by positivity)
+      _ = _ := by ring
+  calc a k * (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) *
+        Real.sqrt (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card * ‖v‖
+      ≤ 2 * (L : ℝ) ^ (k * (d - 2)) * (bgK1 d L N * (tubeConst d D * δ)) * Real.sqrt ((D : ℝ) ^ d) * ‖v‖ :=
+        mul_le_mul_of_nonneg_right h1 hnn
+    _ = _ := by ring
+
 end GradFinal
 
 
