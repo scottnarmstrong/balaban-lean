@@ -278,4 +278,281 @@ theorem dg5'_inner (S : DGSetting G a ν) (hconn : HatConn G)
 
 end Inner
 
+section Rows
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **Support of a row of `H_D(α)`**: the entry `H x y` vanishes unless `y` is `x`, a neighbour of
+`x` or in the block of `x`. -/
+theorem dirichlet_entry_eq_zero (α : G.Ω 1 → ℂ) {x y : G.Ω 1}
+    (hxy : (y : CTorus d L N₁ m₁ K) ≠ x)
+    (hnb : ∀ μ : Fin d, (y : CTorus d L N₁ m₁ K) ≠ (x : CTorus d L N₁ m₁ K) + Pi.single μ 1 ∧
+      (y : CTorus d L N₁ m₁ K) ≠ (x : CTorus d L N₁ m₁ K) - Pi.single μ 1)
+    (hblk : (y : CTorus d L N₁ m₁ K) ∉ G.blk (G.layerIndex (x : CTorus d L N₁ m₁ K)) x) :
+    dirichletOperator G a ν α x y = 0 := by
+  classical
+  have h := dirichlet_apply G a ν α (Pi.single y 1) x
+  have e : (dirichletOperator G a ν α *ᵥ (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ)) x =
+      dirichletOperator G a ν α x y := by
+    rw [Matrix.mulVec_single_one]; rfl
+  rw [e] at h
+  have hz : ∀ w : CTorus d L N₁ m₁ K, w ≠ (y : CTorus d L N₁ m₁ K) →
+      zeroExt (G.Ω 1) (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ) w = 0 := by
+    intro w hw
+    unfold zeroExt
+    split_ifs with hwΩ
+    · have : (⟨w, hwΩ⟩ : G.Ω 1) ≠ y := fun h' => hw (congrArg Subtype.val h')
+      exact Pi.single_eq_of_ne this _
+    · rfl
+  have hx0 : (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ) x = 0 :=
+    Pi.single_eq_of_ne (fun h' => hxy (by rw [h'])) _
+  rw [h]
+  unfold negLap blockTerm
+  have h1 : zeroExt (G.Ω 1) (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ) (x : CTorus d L N₁ m₁ K) = 0 :=
+    hz _ (fun h' => hxy h'.symm)
+  have h2 : ∀ μ : Fin d, zeroExt (G.Ω 1) (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ)
+      ((x : CTorus d L N₁ m₁ K) + Pi.single μ 1) = 0 := fun μ => hz _ (fun h' => (hnb μ).1 h'.symm)
+  have h3 : ∀ μ : Fin d, zeroExt (G.Ω 1) (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ)
+      ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) = 0 := fun μ => hz _ (fun h' => (hnb μ).2 h'.symm)
+  have h4 : ∑ y' ∈ G.blk (G.layerIndex (x : CTorus d L N₁ m₁ K)) x,
+      zeroExt (G.Ω 1) (Pi.single y (1 : ℂ) : G.Ω 1 → ℂ) y' = 0 := by
+    refine Finset.sum_eq_zero fun y' hy' => hz _ ?_
+    rintro rfl
+    exact hblk hy'
+  simp [h1, h2, h3, h4, hx0]
+
+
+theorem inBox_hat_of_add_int {z : ℕ × CTorus d L N₁ m₁ K}
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ intBox z) (w : Fin d → ℤ) {B : ℝ}
+    (hw : ∀ μ, |(w μ : ℝ)| ≤ B) (hB : B ≤ 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ z.1) :
+    x + (intTorus w : CTorus d L N₁ m₁ K) ∈ hatBox z := by
+  unfold hatBox
+  rw [mem_boxSet]
+  refine ((mem_intBox.1 hx).add_int w hw).mono ?_
+  unfold hatRad
+  linarith
+
+/-- **The row of `H_D(α)` at a site of `□_z` lies in `□̂_z`.**  If `x ∈ □_z ∩ Ω₁` and
+`H_D(α) x y ≠ 0` then `y ∈ □̂_z`. -/
+theorem row_mem_hatBox (S : DGSetting G a ν) {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ cubeIdx G)
+    (α : G.Ω 1 → ℂ) {x : G.Ω 1} (hx : (x : CTorus d L N₁ m₁ K) ∈ intBox z) {y : G.Ω 1}
+    (h : dirichletOperator G a ν α x y ≠ 0) : (y : CTorus d L N₁ m₁ K) ∈ hatBox z := by
+  classical
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast S.hL
+  have hLr : (1 : ℝ) ≤ L := by linarith
+  have hLj : (1 : ℝ) ≤ (L : ℝ) ^ z.1 := one_le_pow₀ hLr
+  have hbig : (1 : ℝ) ≤ 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ z.1 := by nlinarith
+  by_contra hyH
+  apply h
+  apply dirichlet_entry_eq_zero (G := G) α
+  · intro hyx
+    exact hyH (hyx ▸ box_subset_hatBox z hx)
+  · intro μ
+    constructor
+    · intro hyx
+      have hw : ((x : CTorus d L N₁ m₁ K) + Pi.single μ 1) =
+          (x : CTorus d L N₁ m₁ K) + (intTorus (Pi.single μ (1 : ℤ)) : CTorus d L N₁ m₁ K) := by
+        congr 1
+        funext ν'
+        by_cases h' : ν' = μ <;> simp [intTorus_apply, h']
+      refine hyH (hyx ▸ ?_)
+      rw [hw]
+      refine inBox_hat_of_add_int hx _ (B := 1) (fun ν' => ?_) (by linarith)
+      by_cases h' : ν' = μ <;> simp [h']
+    · intro hyx
+      have hw : ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) =
+          (x : CTorus d L N₁ m₁ K) + (intTorus (Pi.single μ (-1 : ℤ)) : CTorus d L N₁ m₁ K) := by
+        funext ν'
+        by_cases h' : ν' = μ <;> simp [intTorus_apply, h', sub_eq_add_neg]
+      refine hyH (hyx ▸ ?_)
+      rw [hw]
+      refine inBox_hat_of_add_int hx _ (B := 1) (fun ν' => ?_) (by linarith)
+      by_cases h' : ν' = μ <;> simp [h']
+  · intro hy
+    have hy' := G.mem_blk.1 hy
+    obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
+    have hnle := layer_le_of_mem_box S.cover_sep (by have := S.hL; omega) hz hn1 hnK hxl hx
+    have hcell : SameCell (L ^ G.layerIndex (x : CTorus d L N₁ m₁ K))
+        (y : CTorus d L N₁ m₁ K) x := sameCell_of_jBlock_eq hnK hy'
+    have hlpos : 0 < L ^ G.layerIndex (x : CTorus d L N₁ m₁ K) :=
+      pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+    obtain ⟨w, hw, hwb⟩ := exists_int_of_sameCell hlpos hcell
+    refine hyH ?_
+    rw [hw]
+    refine inBox_hat_of_add_int hx w (B := (L : ℝ) ^ (z.1 + 1)) (fun ν' => ?_) ?_
+    · have h1 := hwb ν'
+      have h3 : (((L ^ G.layerIndex (x : CTorus d L N₁ m₁ K) : ℕ)) : ℝ) =
+          (L : ℝ) ^ G.layerIndex (x : CTorus d L N₁ m₁ K) := by push_cast; rfl
+      rw [h3] at h1
+      exact h1.le.trans (pow_le_pow_right₀ hLr hnle)
+    · have : (L : ℝ) ^ (z.1 + 1) = L * (L : ℝ) ^ z.1 := by ring
+      rw [this]
+      nlinarith
+
+end Rows
+
+section Congr
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **`𝒩` at a site only sees the data on the support of the row of `H₀`.** -/
+theorem Nexp_congr (ιU : Bool) {φ φ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {Fs Fs' dφ dφ' : G.Ω 1 × Fin N → ℂ} {H H' : Matrix (G.Ω 1) (G.Ω 1) ℂ} {x : G.Ω 1}
+    (hHx : ∀ y, H x y = H' x y) (hφx : ∀ i, φ x i = φ' x i) (hFx : ∀ i, Fs (x, i) = Fs' (x, i))
+    (hdx : ∀ i, dφ (x, i) = dφ' (x, i))
+    (hy : ∀ y : G.Ω 1, H x y ≠ 0 → (∀ i, φ y i = φ' y i) ∧ (∀ i, dφ (y, i) = dφ' (y, i))) :
+    Nexp ιU φ Fs dφ H x = Nexp ιU φ' Fs' dφ' H' x := by
+  have hH' : ∀ y, H' x y = H x y := fun y => (hHx y).symm
+  unfold Nexp
+  simp only [hH']
+  have t1 : ∑ i, (φ x i + dφ (x, i)) * Fs (x, i) = ∑ i, (φ' x i + dφ' (x, i)) * Fs' (x, i) :=
+    Finset.sum_congr rfl fun i _ => by rw [hφx i, hdx i, hFx i]
+  have t2 : ∑ y, ∑ i, H x y * (φ x i - φ y i) * dφ (y, i) =
+      ∑ y, ∑ i, H x y * (φ' x i - φ' y i) * dφ' (y, i) := by
+    refine Finset.sum_congr rfl fun y _ => ?_
+    by_cases h0 : H x y = 0
+    · simp [h0]
+    · obtain ⟨h1, h2⟩ := hy y h0
+      exact Finset.sum_congr rfl fun i _ => by rw [hφx i, h1 i, h2 i]
+  have t3 : ∑ y, H x y * ∑ i, dφ (y, i) * dφ (y, i) = ∑ y, H x y * ∑ i, dφ' (y, i) * dφ' (y, i) := by
+    refine Finset.sum_congr rfl fun y _ => ?_
+    by_cases h0 : H x y = 0
+    · simp [h0]
+    · obtain ⟨-, h2⟩ := hy y h0
+      congr 1
+      exact Finset.sum_congr rfl fun i _ => by rw [h2 i]
+  have t4 : ∑ i, dφ (x, i) * ∑ y, H x y * dφ (y, i) = ∑ i, dφ' (x, i) * ∑ y, H x y * dφ' (y, i) := by
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [hdx i]
+    congr 1
+    refine Finset.sum_congr rfl fun y _ => ?_
+    by_cases h0 : H x y = 0
+    · simp [h0]
+    · obtain ⟨-, h2⟩ := hy y h0
+      rw [h2 i]
+  have t5 : ∑ y, H x y * (∑ i, φ y i * φ y i - 1) = ∑ y, H x y * (∑ i, φ' y i * φ' y i - 1) := by
+    refine Finset.sum_congr rfl fun y _ => ?_
+    by_cases h0 : H x y = 0
+    · simp [h0]
+    · obtain ⟨h1, -⟩ := hy y h0
+      congr 2
+      exact Finset.sum_congr rfl fun i _ => by rw [h1 i]
+  rw [t1, t2, t3, t4, t5]
+
+end Congr
+
+section Step
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **Agreement of two data sets on `Y`**: `α₀, φ₀, f₁` agree at the sites of `Y ∩ Ω₁`, and `δΨ`
+at those sites and at the collar sites adjacent to them (the source `F_s` of the linear problem
+reads `δΨ` on the neighbours of a site). -/
+structure DataAgree (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (N : ℕ)
+    (Y : Finset (CTorus d L N₁ m₁ K))
+    (α₀ α₀' : G.Ω 1 → ℂ) (φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ)
+    (f₁ f₁' : G.Ω 1 × Fin N → ℂ) : Prop where
+  alpha : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → α₀ x = α₀' x
+  phi : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → φ₀ x = φ₀' x
+  psi : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → δΨ x = δΨ' x
+  psi_collar : ∀ y ∈ collar G, (∃ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y ∧ Adj (x : CTorus d L N₁ m₁ K) y) →
+    δΨ y = δΨ' y
+  src : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → ∀ i, f₁ (x, i) = f₁' (x, i)
+
+theorem pertSource_congr {Y : Finset (CTorus d L N₁ m₁ K)} {α₀ α₀' : G.Ω 1 → ℂ}
+    {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ} {f₁ f₁' : G.Ω 1 × Fin N → ℂ}
+    (hD : DataAgree G N Y α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁') {z : G.Ω 1}
+    (hz : (z : CTorus d L N₁ m₁ K) ∈ Y) (i : Fin N) :
+    pertSource G a δΨ f₁ (z, i) = pertSource G a δΨ' f₁' (z, i) := by
+  unfold pertSource qStar boundaryTerm
+  simp only [Pi.add_apply]
+  rw [hD.psi z hz, hD.src z hz i]
+  congr 2
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  congr 1
+  · by_cases h : (z : CTorus d L N₁ m₁ K) + Pi.single μ 1 ∈ collar G
+    · simp only [h, ↓reduceIte]
+      rw [hD.psi_collar _ h ⟨z, hz, μ, Or.inl rfl⟩]
+    · simp only [h, ↓reduceIte]
+  · by_cases h : (z : CTorus d L N₁ m₁ K) - Pi.single μ 1 ∈ collar G
+    · simp only [h, ↓reduceIte]
+      rw [hD.psi_collar _ h ⟨z, hz, μ, Or.inr (by simp)⟩]
+    · simp only [h, ↓reduceIte]
+
+
+/-- **One step of the comparison (the heart of Step 5 of I-4a).**  If the rescaled potentials
+`ξ, η` agree on `S_Y`, then `𝒩_s(ξ)` and `𝒩_{s'}(η)` (for data agreeing on `Y`) agree on `S_Y`. -/
+theorem local_step {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν) (hconn : HatConn G)
+    {κ : ℝ} (hκ : 0 ≤ κ) (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ ρ : ℝ} (hα0 : Small G α₀ δ₀) (hα0' : Small G α₀' δ₀)
+    (hρ : δ₀ + ρ ≤ gamma1 d / 8)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgree G N Y α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {ξ η : G.Ω 1 → ℂ} (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hη : ∀ x, ‖η x‖ ≤ ρ)
+    (hξη : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → ξ x = η x) :
+    ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y →
+      Smap G (decG G a ν s) (dirichletOperator G a ν α₀) ιU α₀ φ₀ (pertSource G a δΨ f₁) ξ x =
+      Smap G (decG G a ν s') (dirichletOperator G a ν α₀') ιU α₀' φ₀' (pertSource G a δΨ' f₁') η x := by
+  classical
+  intro x hxT
+  have hxY : (x : CTorus d L N₁ m₁ K) ∈ Y := SY_subset hxT
+  have hd0 : 0 < d := by have := S.hd; omega
+  obtain ⟨-, hunit⟩ := hF.2.2 G S hκ hM hs N
+  obtain ⟨-, hunit'⟩ := hF.2.2 G S hκ hM hs' N
+  have hδα : Small G (toAlpha G ξ) ρ := small_toAlpha G ξ hξ
+  have hδα' : Small G (toAlpha G η) ρ := small_toAlpha G η hη
+  have hA : Small G (α₀ + toAlpha G ξ) (gamma1 d / 8) := fun y =>
+    ((Small.add hα0 hδα) y).trans hρ
+  have hA' : Small G (α₀' + toAlpha G η) (gamma1 d / 8) := fun y =>
+    ((Small.add hα0' hδα') y).trans hρ
+  have hAeq : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y →
+      (α₀ + toAlpha G ξ) y = (α₀' + toAlpha G η) y := by
+    intro y hy
+    simp only [Pi.add_apply]
+    rw [hD.alpha y (SY_subset hy), show toAlpha G ξ y = toAlpha G η y by
+      unfold toAlpha; rw [hξη y hy]]
+  have hdphi : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) (toAlpha G ξ) (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') (toAlpha G η) (y, i) := by
+    intro y hy i
+    unfold dphi
+    rw [liftOp_mulVec, liftOp_mulVec]
+    refine dg5'_inner S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
+      (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hs1 hs0 hag hAeq
+      (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) (toAlpha G ξ) (b, i))
+      (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') (toAlpha G η) (b, i)) ?_ y hy
+    intro b hb
+    simp only [Fsrc]
+    rw [pertSource_congr hD (SY_subset hb) i, hD.phi b (SY_subset hb)]
+    congr 2
+    unfold toAlpha; rw [hξη b hb]
+  -- the geometry of `x`
+  obtain ⟨z, hzZ, hxz⟩ := Finset.mem_biUnion.1 hxT
+  have hzZ' := Finset.mem_filter.1 hzZ
+  unfold Smap
+  rw [Nmap_explicit, Nmap_explicit]
+  congr 1
+  refine Nexp_congr ιU ?_ (fun i => by rw [hD.phi x hxY]) (fun i => pertSource_congr hD hxY i)
+    (fun i => hdphi x hxY i) (fun y hy => ?_)
+  · intro y
+    rw [dirichletOperator_eq_add a ν α₀, dirichletOperator_eq_add a ν α₀']
+    simp only [Matrix.add_apply, Matrix.diagonal_apply]
+    by_cases hxy : x = y
+    · subst hxy; simp [hD.alpha x hxY]
+    · simp [hxy]
+  · have hyhat := row_mem_hatBox S hzZ'.1 α₀ hxz hy
+    have hyY : (y : CTorus d L N₁ m₁ K) ∈ Y := hzZ'.2.2 y hyhat
+    exact ⟨fun i => by rw [hD.phi y hyY], fun i => hdphi y hyY i⟩
+
+end Step
+
 end Balaban.Localization
