@@ -434,18 +434,17 @@ variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 /-- **`IsSFFamily.premisesTerm`**: a member of the class supplies the premises of the termwise I-6
 at each scale `1 ≤ j ≤ k` on every torus (`N₁` divisible by `L^{m₀}`), for the lifted family
 `liftTF`: the geometric fields from (G1), (G2), (G5) (with `κ ≥ a_ent + 3`), the analytic fields
-from the class (radius `ρ ≍ ε_j²`, `hrad`).  Only the point-group invariance (`sym_mem`, `sym_inv`)
+from the class (radius `ρ = liftRadius ≍ ε_j²`; numerical condition `hsmall`).  Only the point-group invariance (`sym_mem`, `sym_inv`)
 remains as the internal hypotheses (see the module docstring of `Def6BridgeLift`). -/
 theorem IsSFFamily.premisesTerm {P : Consts} {β ν a : ℕ → ℝ} {Ek : ℕ → ℝ}
     {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
     {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
-    {j : ℕ} {ρ : ℝ}
+    {j : ℕ}
     (hF : IsSFFamily P β ν a Tm ρd Ek) (N₁ : ℕ) [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
     (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) (hκ : aEnt d L + 3 ≤ P.κ)
-    (hj1 : 1 ≤ j) (hjk : j ≤ k) (hρ0 : 0 < ρ)
-    (hrad : ∃ δ : ℝ, 0 < δ ∧ δ ≤ bgC0 d L N ∧ δ ≤ bgC1 d L N ∧
-      (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j ∧ (N : ℝ) * (ρ * (1 + N * rotB N)) < δ ^ 2)
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     (sym_mem : ∀ r : Site d → Site d, IsLatGen r →
       ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
@@ -453,14 +452,16 @@ theorem IsSFFamily.premisesTerm {P : Consts} {β ν a : ℕ → ℝ} {Ek : ℕ �
     (sym_inv : ∀ r : Site d → Site d, IsLatGen r →
       ∀ X ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j,
         ∀ (ψ : Site d → Spin N) (b : Spin N),
-          termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) ρ (X.image r)
+          termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) (liftRadius d L N P j) (X.image r)
               (pack (X.image r) (fun x => ψ (r x)) b) =
-            termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) ρ X (pack X ψ b)) :
-    PremisesTerm (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ (Tm N₁)) i₀ i₁ (nuIdeal L k (ν k) j) ρ
+            termL (Tm N₁) j i₀ (nuIdeal L k (ν k) j) (liftRadius d L N P j) X (pack X ψ b)) :
+    PremisesTerm (liftTF P j i₀ (nuIdeal L k (ν k) j) (liftRadius d L N P j) (Tm N₁)) i₀ i₁
+      (nuIdeal L k (ν k) j) (liftRadius d L N P j)
       P.E₀ P.κ (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDom P β ν a (Tm N₁) j i₀) :=
-  (hF.liftCtx N₁ hd hL hϱ hj1 hjk hρ0 hrad).premisesTerm hne
+  (hF.liftCtx N₁ hd hL hϱ hj1 hjk (liftRadius_pos (eps_pos hF.admissible.α₀_pos j) i₀)
+    (liftRadius_spec (eps_pos hF.admissible.α₀_pos j) i₀ hsmall)).premisesTerm hne
     (fun _ hX _ hx => liftPolys_diam hjk hX hx) (liftPolys_summable P j)
     (liftPolys_count_le hjk hN hκ) sym_mem sym_inv
 

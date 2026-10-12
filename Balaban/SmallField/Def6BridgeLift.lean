@@ -430,6 +430,51 @@ omit [NeZero L] [NeZero N₁] in
 theorem isOrth_mul_transpose {R : Matrix (Fin N) (Fin N) ℂ} (hR : IsOrth R) :
     R * R.transpose = 1 := mul_eq_one_comm.1 hR
 
+omit [NeZero N₁] in
+theorem eps_pos {P : Consts} (hα : 0 < P.α₀) (j : ℕ) : 0 < P.eps d L j := by
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold Consts.eps epsSeq
+  have := epsTail_pos j
+  have h2 : 0 < ((L : ℝ) ^ (-(P.alpha d))) := Real.rpow_pos_of_pos hL _
+  positivity
+
+/-- **The radius of the tube**: `ρ_j = (ε_j / (2 K₁ + 2))² / (2 N (1 + N · rotB N))`, of order
+`ε_j²`; it satisfies the radius relation of `LiftCtx` (`liftRadius_spec`). -/
+noncomputable def liftRadius (d L N : ℕ) [NeZero L] (P : Consts) (j : ℕ) : ℝ :=
+  (P.eps d L j / (2 * bgK1 d L N + 2)) ^ 2 / (2 * N * (1 + N * rotB N))
+
+omit [NeZero N₁] in
+theorem liftRadius_pos {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : Fin N) :
+    0 < liftRadius d L N P j := by
+  have hK := bgK1_pos d L N
+  have hN : 0 < N := Fin.pos i₀
+  unfold liftRadius rotB
+  positivity
+
+omit [NeZero N₁] in
+/-- The radius relation holds for `liftRadius` as soon as `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`. -/
+theorem liftRadius_spec {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : Fin N)
+    (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N)) :
+    ∃ δ : ℝ, 0 < δ ∧ δ ≤ bgC0 d L N ∧ δ ≤ bgC1 d L N ∧
+      (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j ∧
+      (N : ℝ) * (liftRadius d L N P j * (1 + N * rotB N)) < δ ^ 2 := by
+  have hK := bgK1_pos d L N
+  have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+  have hK2 : 0 < 2 * bgK1 d L N + 2 := by positivity
+  refine ⟨P.eps d L j / (2 * bgK1 d L N + 2), by positivity, ?_, ?_, ?_, ?_⟩
+  · rw [div_le_iff₀ hK2]; exact hsmall.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) hK2.le)
+      |>.trans_eq (by ring)
+  · rw [div_le_iff₀ hK2]; exact hsmall.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) hK2.le)
+      |>.trans_eq (by ring)
+  · rw [mul_div_cancel₀ _ hK2.ne']
+  · unfold liftRadius
+    have hpos : 0 < (1 + N * rotB N) := by unfold rotB; positivity
+    have hδ : 0 < (P.eps d L j / (2 * bgK1 d L N + 2)) ^ 2 := by positivity
+    have : (N : ℝ) * ((P.eps d L j / (2 * bgK1 d L N + 2)) ^ 2 / (2 * N * (1 + N * rotB N)) *
+        (1 + N * rotB N)) = (P.eps d L j / (2 * bgK1 d L N + 2)) ^ 2 / 2 := by
+      field_simp
+    rw [this]; linarith
+
 /-- The class context: the class (per-torus form), the background hypotheses, the scale, and the
 radius relation `N ρ (1 + N · rotB N) < δ²`, `0 < δ ≤ min (c₀, c₁)`, `(2 K₁ + 2) δ ≤ ε_j`. -/
 structure LiftCtx (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k N ϱ)
