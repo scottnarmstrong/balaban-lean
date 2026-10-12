@@ -12,7 +12,7 @@ public import Balaban.Fluctuation.Theorem42RealFlow
 # Theorem 4.2, Step 3 for the real step, one action cube (FLUCTUATION.md §4.2)
 
 The local family `G^{Z'}_{k+1}` precedes the global boundary family `𝔹^∂_{k+1}` (`bdGen`), the data
-`ψ̃` of both are the mixed lift of `(ψ_k, ψ_{k+1}, h)` (`locData`, `locDataBd`):
+`ψ̃` of both are the mixed lift of `(ψ_k, ψ_{k+1}, h)` (`locDataC`, `bdDataC`):
 
 * `composed_change`: **Step 1** for nested generating sets: the composed datum `Du` of the local
   family is in the domain `𝒟`, has background `φ^∂ = φ(𝔹^∂; ψ̃)` restricted to `Ω₁(G^{Z'})`
@@ -133,21 +133,23 @@ theorem locGen_bd_agree {x : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)
 
 /-- The lifted datum of the boundary family `𝔹^∂_{k+1}` for the configuration `(ψ_k, ψ_{k+1})`
 (`ψ̃` of Definition II.2.7 on `𝔹^∂`). -/
-noncomputable abbrev locDataBd (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
-    (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
+noncomputable abbrev bdDataC (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+    (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+    (hC : Fin N → ℂ) :
     BgData (bdGen g Hl k hk) N :=
   stepDataBd (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
     (g.three_L_le_floor Hl (k - 1)) (Zp := Hl.F.Zpre (k + 1))
     (Omega_compl_subset_Zpre' k (Hl.step k) _ _)
-    (locLiftPsi g Hl k Zc hk xc).toC (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))
+    ψ ϑ hC
 
 include Hl in
-theorem locData_eq_bd (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
-    (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
+theorem locData_eq_bd (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+    (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+    (hC : Fin N → ℂ) :
     (∀ x ∈ dataSites (locGen g Hl k Zc hZc hk),
-      (locData g Hl k Zc hZc hk o xc hv).Ψ x = (locDataBd g Hl k Zc hk o xc hv).Ψ x) ∧
+      (locDataC g Hl k Zc hZc hk ψ ϑ hC).Ψ x = (bdDataC g Hl k hk ψ ϑ hC).Ψ x) ∧
     (∀ x ∈ (locGen g Hl k Zc hZc hk).Ω 1,
-      (locData g Hl k Zc hZc hk o xc hv).h x = (locDataBd g Hl k Zc hk o xc hv).h x) := by
+      (locDataC g Hl k Zc hZc hk ψ ϑ hC).h x = (bdDataC g Hl k hk ψ ϑ hC).h x) := by
   classical
   have hprec := locGen_precedes_bd g Hl k Zc hZc hk
   refine ⟨fun x hx => ?_, fun x hx => ?_⟩
@@ -157,9 +159,9 @@ theorem locData_eq_bd (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
       · by_cases h' : x ∈ (bdGen g Hl k hk).Ω 1
         · exact (mem_dataSites _).2 (Or.inl h')
         · exact (mem_dataSites _).2 (Or.inr (mem_collar_of_not_mem hprec h h'))
-    unfold locData locDataBd stepDataBd
+    unfold locDataC bdDataC stepDataBd
     exact (liftMixed_Ψ _ _ _ _ _ _ hx).trans (liftMixed_Ψ _ _ _ _ _ _ hxd).symm
-  · unfold locData locDataBd stepDataBd
+  · unfold locDataC bdDataC stepDataBd
     exact (liftMixed_h _ _ _ _ _ _ hx).trans (liftMixed_h _ _ _ _ _ _ (hprec.mem_Ω1 hx)).symm
 
 /-- The sites of the fine cube of `y0`. -/
@@ -173,25 +175,26 @@ include Hl hZc hk in
 theorem realStep_cubeDiffStar_bound (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) {Cδ : ℝ} (hCδ : 0 ≤ Cδ) :
     ∃ CF Kw δw : ℝ, 0 < CF ∧ 0 < Kw ∧ 0 < δw ∧
       ∀ {a₁ ν r δ1 ε1 δ0 ε0 δb εb β : ℝ} {y0 : Torus S.d (n (k + 1))}
-        (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
-        (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
+        (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+        (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+        (hC : Fin N → ℂ)
         (Q : Finset (Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)))),
         0 < a₁ →
         BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν →
         2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1) →
         y0 ∈ (Zc : Set (Torus S.d (n (k + 1)))) → nbhd 4 {y0} ⊆ (Hl.step k).Omega → 0 ≤ r →
-        (locLiftTheta g Hl k Zc hk o).toC ∈ DeltaC (q := k + 1) (M1 := g.M1) (N₁ := g.c * n (k + 1))
-          (L := S.L) (compWeight S.L a₁) ν r (fun i => (hv i : ℂ)) g.c (n (k + 1)) y0 →
+        ϑ ∈ DeltaC (q := k + 1) (M1 := g.M1) (N₁ := g.c * n (k + 1))
+          (L := S.L) (compWeight S.L a₁) ν r hC g.c (n (k + 1)) y0 →
         0 < δ1 → δ1 ≤ ε1 → ε1 ≤ bgC0 S.d S.L N → δ1 ≤ thm73C1 S.d S.L N →
         ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε1 ^ 2 ≤ δ1 ^ 2 →
-        InDomainC (locGen g Hl k Zc hZc hk) ν δ1 ε1 (locData g Hl k Zc hZc hk o xc hv) →
+        InDomainC (locGen g Hl k Zc hZc hk) ν δ1 ε1 (locDataC g Hl k Zc hZc hk ψ ϑ hC) →
         0 < δ0 → δ0 ≤ ε0 → ε0 ≤ bgC0 S.d S.L N → δ0 ≤ bgC1 S.d S.L N →
         ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε0 ^ 2 ≤ δ0 ^ 2 →
         InDomainC (genCubeLoc g k y0) ν δ0 ε0
-          (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) →
+          (liftSingle (genCubeLoc g k y0) ϑ hC) →
         0 < δb → δb ≤ εb → εb ≤ bgC0 S.d S.L N → δb ≤ thm73C1 S.d S.L N →
         ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * εb ^ 2 ≤ δb ^ 2 →
-        InDomainC (bdGen g Hl k hk) ν δb εb (locDataBd g Hl k Zc hk o xc hv) →
+        InDomainC (bdGen g Hl k hk) ν δb εb (bdDataC g Hl k hk ψ ϑ hC) →
         bgK1 S.d S.L N * δ0 ≤ deltaStar S.d S.L N → bgK1 S.d S.L N * δ0 ≤ δw →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ deltaStar S.d S.L N →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ δw →
@@ -203,15 +206,15 @@ theorem realStep_cubeDiffStar_bound (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) {Cδ : ℝ
           (stepDist S.L g.M1 g.c k 1 (minSep S.L g.M1))) →
         0 ≤ β →
         ‖(β : ℂ) * (cubeActionStar (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) ν Q
-              (locData g Hl k Zc hZc hk o xc hv).Ψ (locData g Hl k Zc hZc hk o xc hv).h
+              (locDataC g Hl k Zc hZc hk ψ ϑ hC).Ψ (locDataC g Hl k Zc hZc hk ψ ϑ hC).h
               (bgFieldC (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) ν (bgC0 S.d S.L N)
                 (composeData (locGen_precedes_bd g Hl k Zc hZc hk) (compWeight S.L a₁)
                   (bgFieldC (bdGen g Hl k hk) (compWeight S.L a₁) ν (bgC0 S.d S.L N)
-                    (locDataBd g Hl k Zc hk o xc hv)) (locDataBd g Hl k Zc hk o xc hv))) -
+                    (bdDataC g Hl k hk ψ ϑ hC)) (bdDataC g Hl k hk ψ ϑ hC))) -
             cubeActionStar (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) ν Q
-              (locData g Hl k Zc hZc hk o xc hv).Ψ (locData g Hl k Zc hZc hk o xc hv).h
+              (locDataC g Hl k Zc hZc hk ψ ϑ hC).Ψ (locDataC g Hl k Zc hZc hk ψ ϑ hC).h
               (bgFieldC (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) ν (bgC0 S.d S.L N)
-                (locData g Hl k Zc hZc hk o xc hv)))‖ ≤
+                (locDataC g Hl k Zc hZc hk ψ ϑ hC)))‖ ≤
           CF * β * Q.card * (r + transferShift S.d S.L N (k + 1) ν Kw δ1
             (stepDist S.L g.M1 g.c k 1 (minSep S.L g.M1))) ^ 2 *
             Real.exp (-(gammaW S.d * stepDist S.L g.M1 g.c k ⌊R k⌋₊ (minSep S.L g.M1))) := by
@@ -220,18 +223,18 @@ theorem realStep_cubeDiffStar_bound (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) {Cδ : ℝ
     hd hL hCδ
   obtain ⟨Kw, δwr, hKw, hδwr, htr⟩ := regIneq_locGen_of_deltaC g Hl k Zc hZc hk (N := N) hd hL
   refine ⟨CF, Kw, min δwr δws, hCF, hKw, lt_min hδwr hδws, ?_⟩
-  intro a₁ ν r δ1 ε1 δ0 ε0 δb εb β y0 o xc hv Q ha₁ H hsep hy0 hΩ hr hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1
+  intro a₁ ν r δ1 ε1 δ0 ε0 δb εb β y0 ψ ϑ hC Q ha₁ H hsep hy0 hΩ hr hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1
     hδ00 hδε0 hε0 hδ0c hνε0 hD0 hδb0 hδεb hεb hδbc hνεb hDb hK0 hKw0 hK1 hKw1 hK11 hKw11 hKb hKwb
     hQ hCr hβ
   have hmin1 : ∀ x : ℝ, x ≤ min δwr δws → x ≤ δwr := fun x h => h.trans (min_le_left _ _)
   have hmin2 : ∀ x : ℝ, x ≤ min δwr δws → x ≤ δws := fun x h => h.trans (min_le_right _ _)
   -- regularity of the local background on the cube neighbourhood
   have hreg := htr (a₁ := a₁) (ν := ν) (r := r) (δ1 := δ1) (ε1 := ε1) (δ0 := δ0) (ε0 := ε0) (y0 := y0)
-    o xc hv ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0 hδ0c hνε0 hD0 hK0
+    ψ ϑ hC ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0 hδ0c hνε0 hD0 hK0
     (hmin1 _ hKw0) hK1 (hmin1 _ hKw1)
   -- the data change of the composition
   have hprec := locGen_precedes_bd g Hl k Zc hZc hk
-  obtain ⟨hΨ, hh⟩ := locData_eq_bd g Hl k Zc hZc hk o xc hv
+  obtain ⟨hΨ, hh⟩ := locData_eq_bd g Hl k Zc hZc hk ψ ϑ hC
   obtain ⟨hDuU, hfield, hsupp, hhh, hbd⟩ := composed_change ha₁ H H hprec hδb0 hδεb hεb hδbc hνεb hDb
     hΨ hh (E := {x | blockMap (S.L ^ (k + 1) * (g.c * g.M1)) (n (k + 1)) x ∈
       nbhd ⌊R k⌋₊ (Zc : Set (Torus S.d (n (k + 1))))})

@@ -156,18 +156,30 @@ theorem genCubeLoc_dataSites {y0 : Torus S.d (n (k + 1))} {x}
     rw [supDist_comm] at hc
     omega
 
+/-- The lifted datum `lift_{k,k+1}(ψ, ϑ, h)` of the local family `G^{Z'}_{k+1}` for arbitrary (complex)
+fields `ψ = ψ_k`, `ϑ = ψ_{k+1}` and external direction `h` (Definition II.2.1 (b)). -/
+noncomputable abbrev locDataC (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+    (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+    (hC : Fin N → ℂ) : BgData (locGen g Hl k Zc hZc hk) N :=
+  liftMixed (locGen g Hl k Zc hZc hk)
+    ((isCubeUnion_fineK1 (Hl.step k).Omega).isBlockUnion (le_refl _))
+    (genBoundaryLocal_top_subset (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
+      (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
+      (Omega_compl_subset_Zpre' k (Hl.step k) _ _) hZc) ψ ϑ hC
+
 include Hl in
 theorem cube_locData_agree {y0 : Torus S.d (n (k + 1))}
     (hy0 : y0 ∈ (Zc : Set (Torus S.d (n (k + 1)))))
     (hΩ : nbhd 4 {y0} ⊆ (Hl.step k).Omega)
-    (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
-    (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
+    (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+    (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+    (hC : Fin N → ℂ) :
     (∀ x ∈ dataSites (genCubeLoc g k y0),
-      (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC
-        (fun i => (hv i : ℂ))).Ψ x = (locData g Hl k Zc hZc hk o xc hv).Ψ x) ∧
+      (liftSingle (genCubeLoc g k y0) ϑ
+        hC).Ψ x = (locDataC g Hl k Zc hZc hk ψ ϑ hC).Ψ x) ∧
     (∀ x ∈ (genCubeLoc g k y0).Ω 1,
-      (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC
-        (fun i => (hv i : ℂ))).h x = (locData g Hl k Zc hZc hk o xc hv).h x) := by
+      (liftSingle (genCubeLoc g k y0) ϑ
+        hC).h x = (locDataC g Hl k Zc hZc hk ψ ϑ hC).h x) := by
   classical
   have hprec := genCubeLoc_precedes g Hl k Zc hZc hk hy0 hΩ
   refine ⟨fun x hx => ?_, fun x hx => ?_⟩
@@ -180,14 +192,14 @@ theorem cube_locData_agree {y0 : Torus S.d (n (k + 1))}
     have hxO : x ∈ fineK1 g.M1 g.c (n (k + 1)) S.L k (Hl.step k).Omega := by
       rw [mem_fineK1]; exact hΩ (genCubeLoc_dataSites g Hl k hx)
     rw [liftSingle_Ψ _ _ _ hx]
-    unfold locData
+    unfold locDataC
     rw [liftMixed_Ψ _ _ _ _ _ _ hxd]
     unfold mixedLift
     simp only [hxO, ↓reduceIte]
     rfl
   · have hx1 : x ∈ (locGen g Hl k Zc hZc hk).Ω 1 := hprec.mem_Ω1 hx
     rw [liftSingle_h _ _ _ hx]
-    unfold locData
+    unfold locDataC
     rw [liftMixed_h _ _ _ _ _ _ hx1]
 
 /-- `1 ≤ minSep`. -/
@@ -306,42 +318,43 @@ G^{Z'}_{k+1}`). -/
 theorem regIneq_locGen_of_deltaC (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
       ∀ {a₁ ν r δ1 ε1 δ0 ε0 : ℝ} {y0 : Torus S.d (n (k + 1))}
-        (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
-        (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)),
+        (ψ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ)
+        (ϑ : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ)
+        (hC : Fin N → ℂ),
         0 < a₁ →
         BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) (ν) →
         2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1) →
         y0 ∈ (Zc : Set (Torus S.d (n (k + 1)))) → nbhd 4 {y0} ⊆ (Hl.step k).Omega →
-        (locLiftTheta g Hl k Zc hk o).toC ∈ DeltaC (q := k + 1) (M1 := g.M1) (N₁ := g.c * n (k + 1))
-          (L := S.L) (compWeight S.L a₁) (ν) r (fun i => (hv i : ℂ)) g.c (n (k + 1)) y0 →
+        ϑ ∈ DeltaC (q := k + 1) (M1 := g.M1) (N₁ := g.c * n (k + 1))
+          (L := S.L) (compWeight S.L a₁) (ν) r hC g.c (n (k + 1)) y0 →
         0 < δ1 → δ1 ≤ ε1 → ε1 ≤ bgC0 S.d S.L N → δ1 ≤ thm73C1 S.d S.L N →
         ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε1 ^ 2 ≤ δ1 ^ 2 →
-        InDomainC (locGen g Hl k Zc hZc hk) (ν) δ1 ε1 (locData g Hl k Zc hZc hk o xc hv) →
+        InDomainC (locGen g Hl k Zc hZc hk) (ν) δ1 ε1 (locDataC g Hl k Zc hZc hk ψ ϑ hC) →
         0 < δ0 → δ0 ≤ ε0 → ε0 ≤ bgC0 S.d S.L N → δ0 ≤ bgC1 S.d S.L N →
         ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * ε0 ^ 2 ≤ δ0 ^ 2 →
         InDomainC (genCubeLoc g k y0) (ν) δ0 ε0
-          (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) →
+          (liftSingle (genCubeLoc g k y0) ϑ hC) →
         bgK1 S.d S.L N * δ0 ≤ deltaStar S.d S.L N → bgK1 S.d S.L N * δ0 ≤ δw →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ deltaStar S.d S.L N →
         (2 * S.d + 2) * (bgK1 S.d S.L N * δ1) ≤ δw →
         RegIneq (locGen g Hl k Zc hZc hk) (compWeight S.L a₁) (ν)
-          (locData g Hl k Zc hZc hk o xc hv)
+          (locDataC g Hl k Zc hZc hk ψ ϑ hC)
           (r + transferShift S.d S.L N (k + 1) ν Kw δ1 (stepDist S.L g.M1 g.c k 1 (minSep S.L g.M1)))
           (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1)))))
           (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1))))) := by
   obtain ⟨Kw, δw, hK, hδ, htr⟩ := regIneq_transfer (d := S.d) (L := S.L) (N := N) hd hL
   refine ⟨Kw, δw, hK, hδ, ?_⟩
-  intro a₁ ν r δ1 ε1 δ0 ε0 y0 o xc hv ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0
+  intro a₁ ν r δ1 ε1 δ0 ε0 y0 ψ ϑ hC ha₁ H hsep hy0 hΩ hΔ hδ10 hδε1 hε1 hδ1c hνε1 hD1 hδ00 hδε0 hε0
     hδ0c hνε0 hD0 hK0 hKw0 hK1 hKw1
   classical
   have hprec := genCubeLoc_precedes g Hl k Zc hZc hk hy0 hΩ
-  obtain ⟨hΨ, hh⟩ := cube_locData_agree g Hl k Zc hZc hk hy0 hΩ o xc hv
+  obtain ⟨hΨ, hh⟩ := cube_locData_agree g Hl k Zc hZc hk hy0 hΩ ψ ϑ hC
   have hΔreg := (show RegC (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
-      (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) r
+      (liftSingle (genCubeLoc g k y0) ϑ hC) r
       (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0)
       (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0) from hΔ).2
   have hReg : RegIneq (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
-      (liftSingle (genCubeLoc g k y0) (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))) r
+      (liftSingle (genCubeLoc g k y0) ϑ hC) r
       (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1)))))
       (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1))))) := by
     have hsub : stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k
