@@ -193,3 +193,4 @@
 | 2026-10-12 | W60 LF local operators | running | Sonnet; J3–J7 (main action, quiet kernel, StepData/KeptData, locOp + Lemma II.5.9, invariance) + cube/block indexing link |
 | 2026-10-12 | W61 LF budget | running | Sonnet; K1 (κ, C, G), K2 lemmaB (= (B) of toLF2Hyp), K5 summability (1.27) |
 | 2026-10-12 | W56 DG2 Hölder + X₀ | landed | `dg2_holder` (Hölder part of DG2), `chi_pair` (bump differences at arbitrary displacement), `i4a_holder`, `scaled_dist_X0`, `i4a_close_X0` (≈2,210 lines). Constant change: X₀ separation r₁ = (r₀ − 4dL³)/L, not r₀ − 6 → r₀ must be ≈ 4dL³+L (e.g. ≈330 for d=L=3), so M/M₁ ≥ 4 + r₀/L needs larger L^{m₀}: LOCALIZATION/LF constant tables to update |
+| 2026-10-12 | W62 Lemma DL + I-5 | running | Sonnet; domain lemma and the localization expansion theorem I-5 from AE, GM, I-4a/b, Ξ |
