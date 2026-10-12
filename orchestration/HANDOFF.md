@@ -25,13 +25,14 @@ Worktree setup: `git worktree add -q <path> -b <branch>`, `mkdir -p <path>/.lake
 
 Sonnet (background subagents of scott-41; they die with the session — if so, restart from the brief
 in the ledger row and the branch state):
-- W70 (`w70-lf-k34`, worktree W70): K3 landed; continuing — replace mis-stated `Bound126` by the source
-  form `PkgBound` everywhere (authorized edits), K4 `quietKernel_bound` (scratch
-  /home/scott/Balaban-scratch/w70/Q1.lean), χ^dom identity.
+- W70: DONE (landed 017b7c9; χ^dom identity still open).
+
+
 - W75 (`w75-equivariance`): O(N)/lattice covariance of bgField/bgFieldC, Ξᶜ covariance, invariance of
   mainActionLoc/quietKernel, V(z).
 - W76 (`w76-obs-layer`): OBSERVABLES O1–O2 (Def-O, Schur O(N−1), Cauchy Lemma 3.2).
 - W77 (`w77-chart`): LFR Q2–Q4 (hard-spin chart, toSphere_eq_graph, (A.3), chord identity).
+- W78 (`w78-deccover`): DecCover abstraction (VMOD §3, orders 2, 4, 5) — queued item 1 below is now running.
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
 codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and committed):
