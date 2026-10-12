@@ -1040,3 +1040,6 @@ public import Balaban.Localization.P6PairLocBase
 public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
 public import Balaban.Fluctuation.StepNonvanishId
+public import Balaban.Fluctuation.StepNonvanishCluster
+public import Balaban.Fluctuation.StepNonvanishBound
+public import Balaban.Fluctuation.StepNonvanishInhab
