@@ -25,6 +25,12 @@ variable (S : Setting)
 noncomputable def stripSet (E : Finset ℕ) (t0 : ℕ) : Finset ℕ :=
   E.filter (fun ξ => ξ < S.k1 (S.Tmin E t0) ∧ S.k1 t0 ≤ ξ + S.h ξ)
 
+
+theorem mem_stripSet {E : Finset ℕ} {t0 ξ : ℕ} :
+    ξ ∈ S.stripSet E t0 ↔
+      ξ ∈ E ∧ ξ < S.k1 (S.Tmin E t0) ∧ S.k1 t0 ≤ ξ + S.h ξ := by
+  unfold Setting.stripSet; simp [Finset.mem_filter]
+
 end Setting
 
 namespace Setting.Good
@@ -32,11 +38,6 @@ namespace Setting.Good
 variable {S : Setting} (G : S.Good)
 
 include G
-
-theorem mem_stripSet {E : Finset ℕ} {t0 ξ : ℕ} :
-    ξ ∈ S.stripSet E t0 ↔
-      ξ ∈ E ∧ ξ < S.k1 (S.Tmin E t0) ∧ S.k1 t0 ≤ ξ + S.h ξ := by
-  unfold Setting.stripSet; simp [Finset.mem_filter, and_assoc]
 
 theorem strip_card (E : Finset ℕ) (t0 : ℕ) :
     S.k1 (S.Tmin E t0) - S.k1 t0 ≤ ∑ ξ ∈ S.stripSet E t0, (S.h ξ + 1) := by
@@ -48,7 +49,7 @@ theorem strip_card (E : Finset ℕ) (t0 : ℕ) :
     have hb := G.ok.q'_min (E := E) (t0 := t0) hv.1 hv.2
     obtain ⟨ξ, hξ, h1, h2⟩ := hb
     rw [Finset.mem_biUnion]
-    refine ⟨ξ, G.mem_stripSet.mpr ⟨hξ, by omega, by omega⟩, Finset.mem_Icc.mpr ⟨h1, h2⟩⟩
+    refine ⟨ξ, S.mem_stripSet.mpr ⟨hξ, by omega, by omega⟩, Finset.mem_Icc.mpr ⟨h1, h2⟩⟩
   have h1 := Finset.card_le_card hsub
   have h2 := Finset.card_biUnion_le (s := S.stripSet E t0) (t := fun ξ => Finset.Icc ξ (ξ + S.h ξ))
   simp only [Nat.card_Icc, Nat.card_Ico] at h1 h2
@@ -85,12 +86,12 @@ theorem delta2_bound {E : Finset ℕ} {t0 μ : ℕ} (ht0 : S.nq 0 ≤ t0) (hE : 
         · exfalso; apply hspec.2; rw [← h]; exact hc
         · exact h
       obtain ⟨ξ, hξ, h1, h2⟩ := hc
-      exact ⟨ξ, G.mem_stripSet.mpr ⟨hξ, by omega, by omega⟩⟩
+      exact ⟨ξ, S.mem_stripSet.mpr ⟨hξ, by omega, by omega⟩⟩
     have hstrip := G.strip_card E t0
     have hsum : ∑ ξ ∈ S.stripSet E t0, (S.h ξ + 1) ≤ (S.stripSet E t0).card * (S.h μ + 1) := by
       have := Finset.sum_le_card_nsmul (S.stripSet E t0) (fun ξ => S.h ξ + 1) (S.h μ + 1)
         (fun ξ hξ => by
-          have := (G.mem_stripSet.mp hξ).1
+          have := (S.mem_stripSet.mp hξ).1
           have := G.ok.h_mono (hE ξ this)
           omega)
       simpa using this

@@ -64,7 +64,7 @@ theorem mergePre_small {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} 
     unfold Setting.tau; linarith
   have hpay := Ineq.shift_pay (m := (P.card : ℝ)) (Δ := ((S.tStar b' - S.tStar (f i0) : ℕ) : ℝ))
     (K := S.Gbar (S.lam (k + 1)) + 2 * S.cStar) (Ab := S.Abar (S.cPrime * S.lam (k + 1)))
-    (E := S.E (k + 1)) (τ := S.tau (k + 1)) (by linarith) hdelta hAb0' hK (G.ok.E_nonneg _)
+    (E := S.E (k + 1)) (τ := S.tau (k + 1)) (by linarith) hdelta hAb0' hK
   have hΔA : ((S.tStar b' - S.tStar (f i0) : ℕ) : ℝ) * S.Abar (S.lam (S.tStar b')) ≤
       ((S.tStar b' - S.tStar (f i0) : ℕ) : ℝ) * S.Abar (S.cPrime * S.lam (k + 1)) := by
     gcongr
@@ -88,8 +88,7 @@ theorem mergePre_small {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} 
   unfold Setting.B7
   rw [hnu, hbank]
   push_cast
-  simp only [add_zero, Nat.cast_zero, mul_zero] at *
-  push_cast at *
+  simp only [add_zero, mul_zero] at *
   linarith
 
 /-- (B.7) for a merge with a `Pre` part when the new spine is long. -/
@@ -186,8 +185,7 @@ theorem mergePre_big {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} {b
   unfold Setting.B7
   rw [hnu, hbank]
   push_cast
-  simp only [add_zero, Nat.cast_zero, mul_zero] at *
-  push_cast at *
+  simp only [add_zero, mul_zero] at *
   nlinarith [hfin, hsumlow, hΦ]
 
 /-- Case 2b: (B.7) for a merge with a `Pre` part ((T3)). -/

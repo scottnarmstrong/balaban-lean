@@ -47,7 +47,7 @@ theorem case_cap {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} {b' : 
   have hQc : Q ≤ S.k1 t0 := S.le_k1 (le_max_left _ _)
   have hqdef : S.k1 (S.Tmin E t0) = S.t4q (k + 1) P f b'.s := rfl
   -- shifts
-  have hD1 := G.delta1_bound hinv hpost hact hne hcap hmax0 hi1 hmax1 hlen hT
+  have hD1 := G.delta1_bound hinv hpost hne hcap hmax0 hi1 hmax1 hlen hT
   have hD2 := G.delta2_bound (E := E) (t0 := t0) (μ := k + 1) ht0nq hT.E_le
   have hT0 : k + 1 ≤ S.tStar (f i0) := hμt i0 hi0
   have htel := G.telescope hT0 (S.tStar b')
@@ -74,7 +74,7 @@ theorem case_cap {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} {b' : 
   have hpayξ : ∀ ξ ∈ S.stripSet E t0,
       (S.cStar * (S.h (k + 1) + 1) + 1) * S.Abar (S.lam (S.Tmin E t0)) ≤ 1 / 2 * S.tau ξ := by
     intro ξ hξ
-    obtain ⟨hξE, -, hξc⟩ := G.mem_stripSet.mp hξ
+    obtain ⟨hξE, -, hξc⟩ := S.mem_stripSet.mp hξ
     have hξμ := hT.E_le ξ hξE
     have hh := G.ok.h_mono hξμ
     have hQξ : Q ≤ ξ + S.h (k + 1) := by omega
@@ -109,7 +109,7 @@ theorem case_cap {k : ℕ} {ι : Type*} {P : Finset ι} {f : ι → Book} {b' : 
             _ ≤ _ := by gcongr
       _ ≤ _ := h5a
   -- the banks
-  have hbank := G.bank_ineq hinv hT
+  have hbank := G.bank_ineq hT
   -- the sum of the parts
   have hsplit := sum_split (P := P) (i0 := i0)
     (h := fun j => S.tau (S.tStar (f j)) + S.W (k + 1) (S.tStar (f j))) (c := S.tau (k + 1))

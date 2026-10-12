@@ -43,6 +43,11 @@ structure CounterConclusion {S : Setting} {k0 K : ℕ} {Cp : ℕ → Type} [∀ 
   G_frozen : ∀ k, k0 ≤ k → 1 ≤ k → k ≤ K → ∀ c : Cp k, c ∉ H.rem k →
     S.A2 * S.lam k0 ^ S.p2 ≤ H.G k c
 
+theorem CounterHist.len_nonneg_succ {S : Setting} {k0 K : ℕ} {Cp : ℕ → Type}
+    [∀ k, Fintype (Cp k)] [∀ k, DecidableEq (Cp k)] (H : CounterHist S k0 K Cp) {j : ℕ}
+    (hj : j < K) (Z' : Cp (j + 1)) : 0 ≤ (H.bk (j + 1) Z').len :=
+  (H.book_rule j hj Z').len_nonneg
+
 namespace Setting.Good
 
 variable {S : Setting} (G : S.Good)
@@ -76,11 +81,6 @@ theorem window_budget {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [
     exact G.post_of_pre H (by omega) hk0 c hc
       ((G.window_inv H (k + 1) (by omega) hk0 hkK c).1) (hpre c)
 
-theorem len_nonneg_succ {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)]
-    [∀ k, DecidableEq (Cp k)] (H : CounterHist S k0 K Cp) {j : ℕ} (hj : j < K) (Z' : Cp (j + 1)) :
-    0 ≤ (H.bk (j + 1) Z').len :=
-  (H.book_rule j hj Z').len_nonneg
-
 /-- (ii) of LF-2: (H6♭) for `k₀ ≤ k ≤ K`, `k ≥ 1`. -/
 theorem frozen_budget {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [∀ k, DecidableEq (Cp k)]
     (H : CounterHist S k0 K Cp) {khat : ℕ} (hk0K : k0 ≤ K) (hKk : K ≤ khat)
@@ -94,7 +94,7 @@ theorem frozen_budget {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [
     intro k hkk0 hk1 hkK ih Z' _
     obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
     exact G.frozen_step H hKk hH1 hH2 hkk0 hkK Z'
-      (fun i _ => G.len_nonneg_succ H (by omega) i)
+      (fun i _ => H.len_nonneg_succ (by omega) i)
       (fun i hi => ih i ((H.mem_parts _ i Z').mp hi).1)
   by_cases hk0 : 1 ≤ k0
   · intro k hkk0
@@ -173,7 +173,7 @@ theorem counter_main {k0 K : ℕ} {Cp : ℕ → Type} [∀ k, Fintype (Cp k)] [�
     have h3 := G.ok.sigma_nonneg k
     have h4 : 0 ≤ (H.bk k c).len := by
       obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
-      exact G.len_nonneg_succ H (by omega) c
+      exact H.len_nonneg_succ (by omega) c
     have : 0 ≤ 2 * S.sigma k * (H.bk k c).len := by positivity
     linarith
 

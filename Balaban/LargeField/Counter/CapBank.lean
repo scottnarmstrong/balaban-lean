@@ -37,7 +37,7 @@ theorem sum_biUnion_le_aux {ι : Type*} (P : Finset ι) (M : ι → Finset ℕ) 
 theorem sum_eq_erase_add (s : Finset ℕ) (μ : ℕ) (g : ℕ → ℝ) :
     ∑ x ∈ s, g x = ∑ x ∈ s.erase μ, g x + if μ ∈ s then g μ else 0 := by
   by_cases h : μ ∈ s
-  · rw [if_pos h]; exact (Finset.sum_erase_add s g h).symm
+  · simp only [h, ite_true]; exact (Finset.sum_erase_add s g h).symm
   · rw [Finset.erase_eq_of_notMem h]; simp [h]
 
 namespace Setting.Good
@@ -47,7 +47,7 @@ variable {S : Setting} (G : S.Good)
 include G
 
 theorem bank_ineq {ι : Type*} {k : ℕ} {P : Finset ι} {f : ι → Book} {b' : Book}
-    (hinv : ∀ i ∈ P, BookInv S k (f i)) (hT : T4Facts S k P f b') :
+    (hT : T4Facts S k P f b') :
     S.bank b' + 1 / 2 * ∑ ξ ∈ S.stripSet (Setting.t4E (k + 1) P f) (S.t4t0 P f b'.s), S.tau ξ ≤
       ∑ i ∈ P, S.bank (f i) + 1 / 2 * S.tau (k + 1) := by
   classical
@@ -79,13 +79,13 @@ theorem bank_ineq {ι : Type*} {k : ℕ} {P : Finset ι} {f : ι → Book} {b' :
     rw [Finset.disjoint_left]
     intro ξ h1 h2
     have a1 := (Finset.mem_filter.mp (Finset.mem_of_mem_erase h1)).2
-    have a2 := (G.mem_stripSet.mp (Finset.mem_of_mem_erase h2)).2.1
+    have a2 := (S.mem_stripSet.mp (Finset.mem_of_mem_erase h2)).2.1
     omega
   have hsubU : M'.erase (k + 1) ∪ X.erase (k + 1) ⊆ Ub := by
     intro ξ hξ
     rcases Finset.mem_union.mp hξ with h | h
     · exact hEsub ξ (Finset.mem_filter.mp (Finset.mem_of_mem_erase h)).1 (Finset.ne_of_mem_erase h)
-    · exact hEsub ξ (G.mem_stripSet.mp (Finset.mem_of_mem_erase h)).1 (Finset.ne_of_mem_erase h)
+    · exact hEsub ξ (S.mem_stripSet.mp (Finset.mem_of_mem_erase h)).1 (Finset.ne_of_mem_erase h)
   have hsum_le : ∑ ξ ∈ M'.erase (k + 1), S.tau ξ + ∑ ξ ∈ X.erase (k + 1), S.tau ξ ≤
       ∑ ξ ∈ Ub, S.tau ξ := by
     rw [← Finset.sum_union hdisj]
@@ -97,7 +97,7 @@ theorem bank_ineq {ι : Type*} {k : ℕ} {P : Finset ι} {f : ι → Book} {b' :
     by_cases h1 : k + 1 ∈ M'
     · have h2 : k + 1 ∉ X := by
         intro h2
-        have := (G.mem_stripSet.mp h2).2.1
+        have := (S.mem_stripSet.mp h2).2.1
         have := (Finset.mem_filter.mp h1).2
         omega
       simp [h1, h2]

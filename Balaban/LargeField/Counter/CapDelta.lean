@@ -40,7 +40,7 @@ theorem DeltaBar_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ S.DeltaBar x := by
 /-- (B.11): the smallness shift `Δ₁ = (t₀ - t^*_{i₀})₊` is at most `Δ̄(λ_μ)`. -/
 theorem delta1_bound {ι : Type*} {k : ℕ} {P : Finset ι} {f : ι → Book} {b' : Book} {i0 i1 : ι}
     (hinv : ∀ i ∈ P, BookInv S k (f i)) (hpost : ∀ i ∈ P, k < S.tStar (f i))
-    (hact : ∀ i ∈ P, (f i).IsActive ∨ (f i).IsPending) (hne : P.Nonempty)
+    (hne : P.Nonempty)
     (hcap : ∑ i ∈ P, (f i).nu ≤ S.numax (k + 1))
     (hmax0 : ∀ j ∈ P, S.tStar (f j) ≤ S.tStar (f i0))
     (hi1 : i1 ∈ P) (hmax1 : ∀ j ∈ P, (f j).len ≤ (f i1).len)

@@ -47,7 +47,7 @@ theorem big_pay {m r E τ g v H D B Pw Φ : ℝ} (hm : 0 ≤ m) (hr : 0 ≤ r) (
 
 /-- Case 2b/2a: a shift `Δ ≤ (m - 1) K` of the ripeness time is paid by `(m - 1) τ`. -/
 theorem shift_pay {m Δ K Ab E τ : ℝ} (hm : 1 ≤ m) (hΔ : Δ ≤ (m - 1) * K) (hAb : 0 ≤ Ab)
-    (hK : K * Ab + E ≤ τ) (hE : 0 ≤ E) : Δ * Ab + (m - 1) * E ≤ (m - 1) * τ := by
+    (hK : K * Ab + E ≤ τ) : Δ * Ab + (m - 1) * E ≤ (m - 1) * τ := by
   have h1 : Δ * Ab ≤ (m - 1) * K * Ab := by gcongr
   have h2 : (m - 1) * (K * Ab + E) ≤ (m - 1) * τ := by
     apply mul_le_mul_of_nonneg_left hK; linarith
