@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Base.BaseResolventAbs
 public import Balaban.Multiscale.CutCoercivity
 public import Balaban.Localization.DecoupledCovAnalytic
+public import Balaban.Localization.DecoupledCovPrincipal
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -417,6 +418,151 @@ theorem baseResolvent_norm_le {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
   have hc := baseCoercivity_pos hL
   have h := (baseOp_isCoercive_of_close G hν ha hα hη0 hη hs e he).add_smul_one x
   exact opNorm_inv_le_of_isCoercive (by linarith) h
+
+/-- **Endpoint identity.**  At `s = 1` the family is the base operator
+`A_e = Q (H_sc ⊗ I) Q + P` with `H_sc` the one-layer Dirichlet operator (BASE-KERNEL-2 (1.2)),
+and `𝒞_{e,0}(1) = A_e⁻¹ = C^{(0)}`. -/
+theorem baseOp_one (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (e : G.Ω 1 → Fin N → ℂ) :
+    baseOp N e (baseHamiltonian G a ν α (fun _ => 1)) = baseOp N e (dirichletOperator G a ν α) ∧
+      baseResolvent N e (baseHamiltonian G a ν α (fun _ => 1)) 0 =
+        (baseOp N e (dirichletOperator G a ν α))⁻¹ := by
+  rw [baseHamiltonian_one]
+  refine ⟨rfl, ?_⟩
+  simp [baseResolvent]
+
+theorem baseHamiltonian_affine (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ)
+    (s0 v : FineBond d L N₀ → ℂ) (z : ℂ) :
+    baseHamiltonian G a ν α (fun b => s0 b + z * v b) =
+      baseHamiltonian G a ν α s0 + z • ∑ b ∈ baseCutBonds G, v b • baseBond G b := by
+  unfold baseHamiltonian
+  simp only [add_smul, mul_smul, Finset.sum_add_distrib, Finset.smul_sum]
+  abel
+
+theorem rectAt_smul_id {ι : Type*} (M : Matrix ι ι ℂ) (z0 : ℂ) :
+    Balaban.Localization.RectAt (fun z : ℂ => z • M) z0 := by
+  intro i j
+  simp only [Matrix.smul_apply, smul_eq_mul]
+  exact analyticAt_id.mul analyticAt_const
+
+/-- The family `A_e(s0 + z v)` is entrywise analytic in the complex line parameter `z`. -/
+theorem baseOp_rectAt (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (e : G.Ω 1 → Fin N → ℂ)
+    (s0 v : FineBond d L N₀ → ℂ) (z0 : ℂ) :
+    Balaban.Localization.RectAt
+      (fun z : ℂ => baseOp N e (baseHamiltonian G a ν α (fun b => s0 b + z * v b))) z0 := by
+  have hH : Balaban.Localization.RectAt
+      (fun z : ℂ => baseHamiltonian G a ν α (fun b => s0 b + z * v b)) z0 := by
+    simp only [baseHamiltonian_affine]
+    exact (Balaban.Localization.RectAt.const _ _).add (rectAt_smul_id _ _)
+  unfold baseOp
+  exact (((Balaban.Localization.RectAt.const _ _).mul
+    (Balaban.Localization.RectAt.liftOp hH)).mul (Balaban.Localization.RectAt.const _ _)).add
+    (Balaban.Localization.RectAt.const _ _)
+
+theorem isOpen_baseParamNbhdOpen (η : ℝ) : IsOpen (baseParamNbhdOpen G η) := by
+  have hW : IsOpen {w : ℂ | ∃ r : ℝ, 0 ≤ r ∧ r ≤ 1 ∧ ‖w - (r : ℂ)‖ < η} := by
+    have : {w : ℂ | ∃ r : ℝ, 0 ≤ r ∧ r ≤ 1 ∧ ‖w - (r : ℂ)‖ < η} =
+        ⋃ r ∈ {r : ℝ | 0 ≤ r ∧ r ≤ 1}, Metric.ball (r : ℂ) η := by
+      ext w; simp [dist_eq_norm, and_assoc]
+    rw [this]
+    exact isOpen_biUnion fun _ _ => Metric.isOpen_ball
+  have : baseParamNbhdOpen G η = ⋂ b ∈ baseCutBonds G,
+      {s : FineBond d L N₀ → ℂ | s b ∈ {w : ℂ | ∃ r : ℝ, 0 ≤ r ∧ r ≤ 1 ∧ ‖w - (r : ℂ)‖ < η}} := by
+    ext s; simp [baseParamNbhdOpen]
+  rw [this]
+  exact isOpen_biInter_finset fun b _ => hW.preimage (continuous_apply b)
+
+theorem baseParamNbhdOpen_subset {η : ℝ} : baseParamNbhdOpen G η ⊆ baseParamNbhd G η :=
+  fun _ hs b hb => by
+    obtain ⟨r, h0, h1, h2⟩ := hs b hb
+    exact ⟨r, h0, h1, h2.le⟩
+
+/-- The line domain `{z | s0 + z v ∈ strict η-neighbourhood}` is open. -/
+theorem isOpen_lineDomain (η : ℝ) (s0 v : FineBond d L N₀ → ℂ) :
+    IsOpen {z : ℂ | (fun b => s0 b + z * v b) ∈ baseParamNbhdOpen G η} := by
+  refine (isOpen_baseParamNbhdOpen G η).preimage ?_
+  exact continuous_pi fun b => continuous_const.add (continuous_id.mul continuous_const)
+
+theorem resOK_baseOp {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    Balaban.Localization.ResOK (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) :=
+  fun x hx => by
+    have := (baseResolvent_norm_le G hν ha hα hη0 hη hs e he hx).1
+    rwa [add_comm] at this
+
+section Holomorphy
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+
+omit [Nonempty (G.Ω 1)] [NeZero N] in
+/-- **Holomorphy of the resolvent** (Theorem 1.1): along every complex line `z ↦ s0 + z v` the
+entries of `𝒞_{e,x}(s0 + z v)` are analytic on the (open) set of `z` for which `s0 + z v` lies
+strictly within `η` of `[0,1]^𝓔`. -/
+theorem baseResolvent_analyticOn {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) (s0 v : FineBond d L N₀ → ℂ) {x : ℝ} (hx : 0 ≤ x)
+    (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => baseResolvent N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b => s0 b + z * v b)) x p q)
+      {z : ℂ | (fun b => s0 b + z * v b) ∈ baseParamNbhdOpen G η} := by
+  intro z0 hz0
+  have hU := (baseResolvent_norm_le G hν ha hα hη0 hη (baseParamNbhdOpen_subset G hz0) e he hx).1
+  have hdet := ((Matrix.isUnit_iff_isUnit_det _).1 hU).ne_zero
+  have hR : Balaban.Localization.RectAt
+      (fun z : ℂ => (baseOp N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α (fun b => s0 b + z * v b)) +
+        (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ))⁻¹) z0 :=
+    Balaban.Localization.RectAt.inv ((baseOp_rectAt G a ν α _ s0 v z0).add
+      (Balaban.Localization.RectAt.const _ _)) hdet
+  exact hR p q
+
+/-- **Holomorphy of the principal inverse square root** `A_e(s)^{-1/2}` (Stieltjes integral). -/
+theorem baseSqrt_analyticOn {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) (s0 v : FineBond d L N₀ → ℂ) (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => Balaban.Localization.sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b => s0 b + z * v b))) p q)
+      {z : ℂ | (fun b => s0 b + z * v b) ∈ baseParamNbhdOpen G η} :=
+  Balaban.Localization.analyticOnNhd_sqrtMat_fam (isOpen_lineDomain G η s0 v)
+    (fun _ hz => resOK_baseOp G hν ha hα hη0 hη (baseParamNbhdOpen_subset G hz) e he)
+    (fun z _ => baseOp_rectAt G a ν α _ s0 v z) p q
+
+/-- **Holomorphy of the principal logarithm** `log A_e(s)` (subtracted-resolvent integral). -/
+theorem baseLog_analyticOn {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) (s0 v : FineBond d L N₀ → ℂ) (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => Balaban.Localization.logMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b => s0 b + z * v b))) p q)
+      {z : ℂ | (fun b => s0 b + z * v b) ∈ baseParamNbhdOpen G η} :=
+  Balaban.Localization.analyticOnNhd_logMat_fam (isOpen_lineDomain G η s0 v)
+    (fun _ hz => resOK_baseOp G hν ha hα hη0 hη (baseParamNbhdOpen_subset G hz) e he)
+    (fun z _ => baseOp_rectAt G a ν α _ s0 v z) p q
+
+/-- The Stieltjes matrix is a square root of the inverse, and `exp (log A) = A`. -/
+theorem baseSqrt_log_principal {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights 1 a) {α : G.Ω 1 → ℂ}
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    Balaban.Localization.sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) *
+        Balaban.Localization.sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+          (baseHamiltonian G a ν α s)) =
+      (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s))⁻¹ ∧
+    NormedSpace.exp (Balaban.Localization.logMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α s))) =
+      baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) :=
+  ⟨Balaban.Localization.sqrtMat_mul_self (resOK_baseOp G hν ha hα hη0 hη hs e he),
+   Balaban.Localization.exp_logMat (resOK_baseOp G hν ha hα hη0 hη hs e he)⟩
+
+end Holomorphy
 
 end Main
 
