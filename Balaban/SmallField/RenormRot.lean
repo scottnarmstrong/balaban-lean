@@ -326,4 +326,101 @@ theorem rod_entry_le (ha : ∀ k, ‖a k‖ ≤ 1) (hq : ∀ k, ‖q k‖ ≤ 8 
 
 end Rodrigues
 
+theorem flipMat_mul_apply (j : Fin N) (M : Matrix (Fin N) (Fin N) ℂ) (i k : Fin N) :
+    (flipMat j * M) i k = if i = j then -M i k else M i k := by
+  unfold flipMat
+  rw [sub_mul, one_mul, Matrix.sub_apply, Matrix.smul_mul, Matrix.smul_apply]
+  simp only [Matrix.mul_apply, Matrix.single_apply]
+  by_cases h : i = j
+  · subst h; simp; ring
+  · simp [h, Ne.symm h]
+
+theorem flipMat_mulVec_single (j : Fin N) (x : ℂ) :
+    (flipMat j).mulVec (Pi.single j x) = -Pi.single j x := by
+  ext i
+  simp only [Matrix.mulVec, dotProduct]
+  have h2 : ∀ k, flipMat j i k * (Pi.single j x : Spin N) k =
+      if k = j then flipMat j i j * x else 0 := by
+    intro k; by_cases hk : k = j <;> simp [hk]
+  simp only [h2, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
+  unfold flipMat
+  by_cases h : i = j
+  · subst h; simp; ring
+  · simp [h, Ne.symm h]
+
+theorem exists_normalizing_rot (i₀ : Fin N) {p : Spin N} {u : ℂ} (hp : ∀ k, ‖p k‖ ≤ 2)
+    (hu : u * u = dot p p) (hu1 : ‖u - 1‖ ≤ 1 / 4) :
+    ∃ R : Matrix (Fin N) (Fin N) ℂ, IsOrth R ∧ EntryBd N R ∧
+      R.mulVec p = u • (Pi.single i₀ 1 : Spin N) := by
+  have hun : 3 / 4 ≤ ‖u‖ := by
+    have := norm_sub_norm_le (1 : ℂ) u
+    rw [norm_sub_rev] at this
+    simp at this; linarith
+  have hu0 : u ≠ 0 := by intro h; rw [h] at hun; simp at hun; linarith
+  set q : Spin N := u⁻¹ • p with hqdef
+  have hq : dot q q = 1 := by
+    rw [hqdef, dot_smul_left, dot_smul_right, ← hu]
+    field_simp
+  have hqb : ∀ k, ‖q k‖ ≤ 8 / 3 := by
+    intro k
+    simp only [hqdef, Pi.smul_apply, smul_eq_mul, norm_mul, norm_inv]
+    have : ‖u‖⁻¹ ≤ 4 / 3 := by
+      rw [inv_le_comm₀ (by linarith) (by norm_num)]; linarith
+    calc ‖u‖⁻¹ * ‖p k‖ ≤ 4 / 3 * 2 := mul_le_mul this (hp k) (norm_nonneg _) (by norm_num)
+      _ = 8 / 3 := by norm_num
+  -- the sign
+  obtain ⟨σ, hσ, hσre⟩ : ∃ σ : ℂ, (σ = 1 ∨ σ = -1) ∧ 0 ≤ (σ * q i₀).re := by
+    by_cases h : 0 ≤ (q i₀).re
+    · exact ⟨1, Or.inl rfl, by simpa using h⟩
+    · exact ⟨-1, Or.inr rfl, by simp; linarith [not_le.mp h]⟩
+  have hσσ : σ * σ = 1 := by rcases hσ with rfl | rfl <;> simp
+  have hσn : ‖σ‖ = 1 := by rcases hσ with rfl | rfl <;> simp
+  set a : Spin N := Pi.single i₀ σ with hadef
+  have ha : dot a a = 1 := by rw [hadef, dot_single_left]; simp [hσσ]
+  have hac : dot a q = σ * q i₀ := by rw [hadef, dot_single_left]
+  have hD1 : 1 ≤ ‖1 + dot a q‖ := by
+    rw [hac]
+    calc (1 : ℝ) ≤ (1 + σ * q i₀).re := by rw [Complex.add_re, Complex.one_re]; linarith
+      _ ≤ ‖1 + σ * q i₀‖ := Complex.re_le_norm _
+  have hD : 1 + dot a q ≠ 0 := by intro h; rw [h] at hD1; simp at hD1; linarith
+  have habd : ∀ k, ‖a k‖ ≤ 1 := by
+    intro k; simp only [hadef, Pi.single_apply]; split_ifs <;> simp [hσn]
+  have hcb : ‖dot a q‖ ≤ 8 / 3 := by
+    rw [hac, norm_mul, hσn, one_mul]; exact hqb i₀
+  set R1 := rod a q with hR1
+  have hR1o : IsOrth R1 := rod_isOrth ha hq hD
+  have hR1a : R1.mulVec a = q := rod_mulVec ha hD
+  have hR1b : ∀ i k, ‖R1 i k‖ ≤ 30 := rod_entry_le habd hqb hcb hD1
+  have hR1c : R1 * R1.transpose = 1 := by
+    have := hR1o; unfold IsOrth at this
+    exact mul_eq_one_comm.mp this
+  have htq : R1.transpose.mulVec q = a := by
+    rw [← hR1a, Matrix.mulVec_mulVec]; unfold IsOrth at hR1o; rw [hR1o, Matrix.one_mulVec]
+  have htb : ∀ i k, ‖R1.transpose i k‖ ≤ 30 := fun i k => hR1b k i
+  have hpu : p = u • q := by rw [hqdef, smul_smul, mul_inv_cancel₀ hu0, one_smul]
+  rcases hσ with rfl | rfl
+  · refine ⟨R1.transpose, ?_, ?_, ?_⟩
+    · unfold IsOrth; rw [transpose_transpose]; exact hR1c
+    · intro i k; exact (htb i k).trans (by norm_num [rotBound])
+    · rw [hpu, Matrix.mulVec_smul, htq, hadef]
+  · refine ⟨flipMat i₀ * R1.transpose, ?_, ?_, ?_⟩
+    · unfold IsOrth
+      rw [Matrix.transpose_mul, transpose_transpose]
+      have hF := flipMat_isOrth i₀
+      unfold IsOrth at hF
+      calc R1 * (flipMat i₀).transpose * (flipMat i₀ * R1.transpose)
+          = R1 * ((flipMat i₀).transpose * flipMat i₀) * R1.transpose := by
+            simp only [Matrix.mul_assoc]
+        _ = 1 := by rw [hF, Matrix.mul_one, hR1c]
+    · intro i k
+      rw [flipMat_mul_apply]
+      split_ifs
+      · rw [norm_neg]; exact (htb i k).trans (by norm_num [rotBound])
+      · exact (htb i k).trans (by norm_num [rotBound])
+    · rw [hpu, Matrix.mulVec_smul, ← Matrix.mulVec_mulVec, htq, hadef]
+      have : (Pi.single i₀ (-1 : ℂ) : Spin N) = -(Pi.single i₀ 1) := by
+        ext k; by_cases h : k = i₀ <;> simp [h]
+      rw [this, Matrix.mulVec_neg, flipMat_mulVec_single]
+      simp
+
 end Balaban.SmallField
