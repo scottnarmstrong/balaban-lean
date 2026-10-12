@@ -175,3 +175,4 @@
 | 2026-10-12 | W53 LF-2 succ fix | running | Sonnet; succ on non-removed components, delete removed_succ; Lemma C (b),(d),(e4) if budget |
 | 2026-10-12 | W53 LF-2 succ fix | landed | succ : ∀ k c, c ∉ rem k → Comp (k+1); `removed_succ` deleted; LF2 statement unchanged (≈60 lines). Lemma C (b),(d),(e4), clock b(Z) still open |
 | 2026-10-12 | disk cleanup | done | per OC orchestrator warning (/ at 24 GB free): deleted old .lake/build/ir/*.setup.json in Balaban worktrees (+40 GB), removed 63 landed worktrees (+14 GB); policy: remove worktree after landing |
+| 2026-10-12 | W54 LF operators J1–J2 | running | Sonnet; InternalVars, refMeasure, LFKernel, Bound126 (v1.2 witnesses), comp/tensor, Lemma II.5.3 |
