@@ -575,3 +575,6 @@ public import Balaban.LargeField.Base.ChartIntegral
 public import Balaban.LargeField.Base.BaseRecord
 public import Balaban.LargeField.Base.BaseHistory
 public import Balaban.LargeField.Base.BaseSupport
+public import Balaban.LargeField.Base.BaseWitness
+public import Balaban.LargeField.Base.BaseGauss
+public import Balaban.LargeField.Base.BaseWitnessGauss
