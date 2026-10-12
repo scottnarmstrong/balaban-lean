@@ -664,6 +664,46 @@ theorem sum_block_single {z : Torus d (N₀ * L ^ (k - k))}
 
 end Site
 
+section Varrho
+
+variable {a₁ : ℝ}
+
+/-- **`ϱ_z = ψ_k(z) - 𝒬_z ψ⁰_{k₁,k} = (a_k/a_z) r_z`** (proof of Lemma III.6.3, "Expansion of the composed
+Gaussian"; P2 (4.18) in the form used in P7 (2.55)): from BG (6.2) and (C1). -/
+theorem varrho_block (D : Region G) (hL : 2 ≤ L) {z : Torus d (N₀ * L ^ (k - k))}
+    (hzg : GoodBlock D z) (hak : compWeight L a₁ k ≠ 0) (haz : compWeightZ G a₁ z ≠ 0)
+    (Dat : BgData G N) (φw : G.Ω 1 × Fin N → ℂ) (φp : G'.Ω 1 × Fin N → ℂ) (rb : Fin N → ℂ)
+    (hres : ∀ x ∈ fib d L N₀ k k z, ∀ i, Dat.Ψ x i - blockAvg G φw x i =
+      (cfk G (compWeight L a₁) x : ℂ) * rb i)
+    (hsvec : ∀ y ∈ fib d L N₀ k k z, ∀ i, svec G φw y i = svec G' φp y i)
+    (ψz : Fin N → ℂ) (hψ : ∀ i, ψz i = rb i + kAvg (fun y j => svec G' φp y j) z i) (i : Fin N) :
+    ψz i - kAvg Dat.Ψ z i = ((compWeight L a₁ k / compWeightZ G a₁ z : ℝ) : ℂ) * rb i := by
+  have hV := blockVol_pos (d := d) (k := k) (by omega : 0 < L)
+  have hm := sum_mean_block D hL hzg Dat φw rb hres i
+  have hs : ∑ y ∈ fib d L N₀ k k z, svec G φw y i = ∑ y ∈ fib d L N₀ k k z, svec G' φp y i :=
+    Finset.sum_congr rfl fun y hy => hsvec y hy i
+  rw [hs] at hm
+  have hkA : kAvg Dat.Ψ z i = kAvg (fun y j => svec G' φp y j) z i +
+      ((blockVol d L k : ℝ)⁻¹ : ℂ) * (((compWeight L a₁ k * (blockVol d L k *
+        (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹) : ℝ) : ℂ) * rb i) := by
+    unfold kAvg
+    rw [hm]; ring
+  rw [hkA, hψ i]
+  have hR : 1 - (blockVol d L k)⁻¹ * (compWeight L a₁ k * (blockVol d L k *
+      (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹)) =
+      compWeight L a₁ k / compWeightZ G a₁ z := by
+    field_simp
+    ring
+  have hRc : (1 : ℂ) - (((blockVol d L k)⁻¹ * (compWeight L a₁ k * (blockVol d L k *
+      (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹)) : ℝ) : ℂ) =
+      ((compWeight L a₁ k / compWeightZ G a₁ z : ℝ) : ℂ) := by
+    rw [← hR]; push_cast; ring
+  rw [← hRc]
+  push_cast
+  ring
+
+end Varrho
+
 section Core
 
 variable {a₁ : ℝ}
@@ -866,30 +906,9 @@ theorem cancel_core (hd : 2 ≤ d) (hL : 2 ≤ L) (hk : 1 ≤ k) (ha₁ : 0 < a�
     have haz : compWeightZ G a₁ z ≠ 0 := hazpos.ne'
     have hVc : (blockVol d L k : ℂ) ≠ 0 := by exact_mod_cast hV.ne'
     have hϱ : ∀ i, ψk z i - kAvg Dat.Ψ z i =
-        ((compWeight L a₁ k / compWeightZ G a₁ z : ℝ) : ℂ) * rb z i := by
-      intro i
-      have hm := sum_mean_block D hL hzg Dat φw (rb z) (hresz z hz) i
-      have hs : ∑ y ∈ fib d L N₀ k k z, svec G φw y i = ∑ y ∈ fib d L N₀ k k z, svec G' φp y i :=
-        Finset.sum_congr rfl fun y hy => hsvec y (hfibD z hz hy) i
-      rw [hs] at hm
-      have hkA : kAvg Dat.Ψ z i = kAvg (fun y j => svec G' φp y j) z i +
-          ((blockVol d L k : ℝ)⁻¹ : ℂ) * (((compWeight L a₁ k * (blockVol d L k *
-            (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹) : ℝ) : ℂ) * rb z i) := by
-        unfold kAvg
-        rw [hm]; ring
-      rw [hkA, hψk z hz i]
-      have hR : 1 - (blockVol d L k)⁻¹ * (compWeight L a₁ k * (blockVol d L k *
-          (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹)) =
-          compWeight L a₁ k / compWeightZ G a₁ z := by
-        field_simp
-        ring
-      have hRc : (1 : ℂ) - (((blockVol d L k)⁻¹ * (compWeight L a₁ k * (blockVol d L k *
-          (compWeight L a₁ k)⁻¹ - blockVol d L k * (compWeightZ G a₁ z)⁻¹)) : ℝ) : ℂ) =
-          ((compWeight L a₁ k / compWeightZ G a₁ z : ℝ) : ℂ) := by
-        rw [← hR]; push_cast; ring
-      rw [← hRc]
-      push_cast
-      ring
+        ((compWeight L a₁ k / compWeightZ G a₁ z : ℝ) : ℂ) * rb z i := fun i =>
+      varrho_block D hL hzg hak haz Dat φw φp (rb z) (hresz z hz)
+        (fun y hy i => hsvec y (hfibD z hz hy) i) (ψk z) (hψk z hz) i
     have hv : ∀ i, ψk z i - compMeanT G ϖ Du.Ψ z i =
         (ψk z i - kAvg Dat.Ψ z i) - kAvg (dataInc Dat Du) z i - sBlk G ϖ Du.Ψ z i := by
       intro i
