@@ -85,16 +85,17 @@ variable {ϱ : ℝ}
 
 /-- The conditions of Definition II.3.4 at level `k + 1` that involve scales `k` or `k + 1`
 (Lemma II.5.13): (1.24) for `j = k` (the `π_{k+1}`-cubes of `Ω^∼_{k+1} ∩ Z'`) and for the
-`π_k`- and `π_{k+1}`-cubes of the second family, (1.25) for `j = k`. -/
+`π_k`- and `π_{k+1}`-cubes of the second family (`1 ≤ j`, as in Definition II.3.4: the second
+family is indexed by `1 ≤ j ≤ k`), (1.25) for `j = k`. -/
 def ChiNewProp (a : LocalHistory S n M K) (k : ℕ) (B : GeneratingSet S.d S.L (M * n K) K ϱ)
     (Zc : Set (Torus S.d (M * n K * S.L ^ K))) (δ p0 : ℕ → ℝ) (Cpsi : ℝ)
     (ψ ψ' : MultiField S n M K N) : Prop :=
   (∀ y : Torus S.d (n (k + 1)), CubeSub (S := S) (n := n) M K (k + 1) y (a.Z (k + 1)) →
-      y ∈ omegaSim a (k + 1) (k + 1) →
+      y ∈ lhOmegaSim a (k + 1) (k + 1) →
         PsiTildeMulti ψ (genBlocksIn B (k + 1) (nbhd 1 {y})) (3 * S.d * S.L * δ k)) ∧
-  (∀ j, (j = k ∨ j = k + 1) → ∀ y : Torus S.d (n j), CubeSub (S := S) (n := n) M K j y Zc →
+  (∀ j, 1 ≤ j → (j = k ∨ j = k + 1) → ∀ y : Torus S.d (n j), CubeSub (S := S) (n := n) M K j y Zc →
       (∀ x, cubeMap n S.L M K j x = y → x ∉ a.Z j) →
-      (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ omegaSim a (k + 1) (j + 1)) →
+      (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ lhOmegaSim a (k + 1) (j + 1)) →
         PsiTildeMulti ψ (scaleBlocksIn j (nbhd 1 {y})) (3 * δ j)) ∧
   (∀ y : BlockAt S n M K k,
       BlockSub (S := S) (n := n) (M := M) (K := K) k y (a.Omega k \ a.OmegaDD k) →
