@@ -38,8 +38,8 @@ section QuietRestBounds
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ}
-  (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
-  (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (cs : OpConsts) (hk : k + 1 ≤ K)
+  (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ) (Zc : Finset (Torus S.d (n (k + 1))))
+  (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (hk : k + 1 ≤ K) (cs : OpConsts)
   (hrem : ∀ j, Hl.rem j = ∅)
 
 open Classical in
@@ -47,8 +47,8 @@ theorem quietRest_unit (hb : 0 ≤ cs.beta (k + 1)) (ha : ∀ n, 0 ≤ cs.aw n)
     (hμ : 0 ≤ cs.muAct (k + 1))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    0 ≤ quietRest g Hl k Zc hZc cs hk hrem o x hv ∧ quietRest g Hl k Zc hZc cs hk hrem o x hv ≤ 1 := by
-  have hA := mainActionLoc_nonneg g Hl k Zc hZc cs hk hrem hb ha hμ o x hv
+    0 ≤ quietRest g Hl k Zc hZc hk cs hrem o x hv ∧ quietRest g Hl k Zc hZc hk cs hrem o x hv ≤ 1 := by
+  have hA := mainActionLoc_nonneg g Hl k Zc hZc hk cs hrem hb ha hμ o x hv
   unfold quietRest
   refine unit_mul (unit_mul (unit_mul (unit_mul (unit_mul (unit_mul ?_ ?_) ?_) ?_) ?_) ?_) ?_
   · exact cubeProd_unit (fun y x => ⟨by unfold chiK; exact charFn_nonneg' _ _,
@@ -68,16 +68,16 @@ theorem quietRest_eq_zero
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
     (hn : ¬ ChiNewProp (locHist Hl M K (k + 1) Zc) k
-      (Hl.histGen (M := M) hrem Hl.F.ok.two_le_L K (fun j _ _ => g.hRlow j))
+      (Hl.histGen (M := M) (K' := K) le_rfl hrem Hl.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (fineSet (S := S) (n := n) M K (k + 1) (Zc : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
       cs.Cpsi
       (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o)
       (subFluctField N (locHist Hl M K (k + 1) Zc) (k + 1) x)) :
-    quietRest g Hl k Zc hZc cs hk hrem o x hv = 0 := by
+    quietRest g Hl k Zc hZc hk cs hrem o x hv = 0 := by
   unfold quietRest
   have : chiNew (locHist Hl M K (k + 1) Zc) k
-      (Hl.histGen (M := M) hrem Hl.F.ok.two_le_L K (fun j _ _ => g.hRlow j))
+      (Hl.histGen (M := M) (K' := K) le_rfl hrem Hl.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (fineSet (S := S) (n := n) M K (k + 1) (Zc : Set (Torus S.d (n (k + 1))))) cs.delta cs.p0
       cs.Cpsi
       (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)

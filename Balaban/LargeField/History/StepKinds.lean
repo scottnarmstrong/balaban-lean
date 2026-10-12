@@ -90,8 +90,8 @@ end Book
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- The post-`R` book of a component of `Z^pre_k`. -/
 noncomputable abbrev pb (k : ℕ) (c : H.Comp k) : Book := S.postBook k0 k (H.bk k c)
@@ -113,28 +113,28 @@ variable (G : S.Good)
 include G
 
 /-- The invariant, the case of the step, and the state rules, for `k + 1 ≤ k₀`. -/
-theorem step_facts {k : ℕ} (hk0 : k + 1 ≤ k0) (Z' : H.Comp (k + 1)) :
+theorem step_facts {k : ℕ} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) :
     BookInv S (k + 1) (H.bk (k + 1) Z') ∧
       StepCase S k (H.parts k Z') (fun c => H.pb k c) (H.nr k Z') (H.bk (k + 1) Z') ∧
       S.StateRule (k + 1) (H.parts k Z') (fun c => H.pb k c) (H.nr k Z')
         (H.bk (k + 1) Z').pt (H.bk (k + 1) Z').s (H.bk (k + 1) Z').st := by
-  have hrule := H.book_rule k Z'
+  have hrule := H.book_rule (k := k) (by omega) Z'
   have hinvp : ∀ c ∈ H.parts k Z', BookInv S k (H.pb k c) ∧ k < S.tStar (H.pb k c) := by
     intro c _
     cases k with
     | zero => exact (H.F.isEmpty_comp_zero.false c).elim
     | succ k =>
-      exact ⟨(H.window_inv' G (k + 1) (by omega) (by omega) c).2.1,
-        (H.window_inv' G (k + 1) (by omega) (by omega) c).2.2⟩
+      exact ⟨(H.window_inv' G (k + 1) (by omega) (by omega) (by omega) c).2.1,
+        (H.window_inv' G (k + 1) (by omega) (by omega) (by omega) c).2.2⟩
   obtain ⟨hinv, hcase⟩ := G.step_classify (k := k) (parts := H.parts k Z')
     (f := fun c => H.pb k c) (fun i hi => (hinvp i hi).1) (fun i hi => (hinvp i hi).2)
-    (H.seed_pos k Z') (Setting.BookRule.toTrue S hrule hk0)
+    (H.seed_pos (k := k) (by omega) Z') (Setting.BookRule.toTrue S hrule hk0)
   exact ⟨hinv, hcase, hrule.state hk0⟩
 
 /-- The floor invariant of Lemma I.4.12 for one step. -/
-theorem floor_step {k : ℕ} (hk0 : k + 1 ≤ k0) (Z' : H.Comp (k + 1)) {m : ℕ} (hm : m ≤ k + 1)
+theorem floor_step {k : ℕ} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) {m : ℕ} (hm : m ≤ k + 1)
     {c : H.Comp k} (hc : c ∈ H.parts k Z') (hF : (H.pb k c).Fl m) : (H.bk (k + 1) Z').Fl m := by
-  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Z'
+  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 hkK Z'
   cases hcase with
   | shadow i hparts hr hle hge hnu hbank =>
     have hci : c = i := by rw [hparts] at hc; simpa using hc
@@ -169,9 +169,9 @@ theorem floor_post {k : ℕ} (hk1 : 1 ≤ k) (hk0 : k ≤ k0) {m : ℕ} (hm : m 
     exact hF
 
 /-- A step is live, or its output is `Pre` or has core `k + 1`. -/
-theorem live_or_floor {k : ℕ} (hk0 : k + 1 ≤ k0) (Z' : H.Comp (k + 1)) :
+theorem live_or_floor {k : ℕ} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) :
     H.Live k Z' ∨ (H.bk (k + 1) Z').Fl (k + 1) := by
-  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Z'
+  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 hkK Z'
   cases hcase with
   | shadow i hparts hr hle hge hnu hbank =>
     have hmem : i ∈ H.parts k Z' := by rw [hparts]; exact Finset.mem_singleton_self i
@@ -199,10 +199,10 @@ theorem live_or_floor {k : ℕ} (hk0 : k + 1 ≤ k0) (Z' : H.Comp (k + 1)) :
     · exact Or.inl h
 
 /-- The number of pieces adds up over a live step. -/
-theorem Live.nu_eq {k : ℕ} (hk0 : k + 1 ≤ k0) {Z' : H.Comp (k + 1)} (hL : H.Live k Z') :
+theorem Live.nu_eq {k : ℕ} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (hL : H.Live k Z') :
     (H.bk (k + 1) Z').nu = ∑ c ∈ H.parts k Z', (H.pb k c).nu := by
   obtain ⟨hr, hact, hcap⟩ := hL
-  obtain ⟨-, hcase, -⟩ := H.step_facts G hk0 Z'
+  obtain ⟨-, hcase, -⟩ := H.step_facts G hk0 hkK Z'
   cases hcase with
   | shadow i hparts hr' hle hge hnu hbank => rw [hnu, hparts, Finset.sum_singleton]
   | new hr' hf => omega
@@ -240,11 +240,11 @@ theorem t4_recInv {ι : Type*} {k : ℕ} {parts : Finset ι} {f : ι → Book} {
     exact this ⟨hlt, not_lt.mp hcon⟩
 
 /-- The merge record `ξ` is kept or released with core `> ξ + h_ξ`, over a live step. -/
-theorem recInv_step {k : ℕ} (hk0 : k + 1 ≤ k0) {Z' : H.Comp (k + 1)} (hL : H.Live k Z') {ξ : ℕ}
+theorem recInv_step {k : ℕ} (hk0 : k + 1 ≤ k0) (hkK : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (hL : H.Live k Z') {ξ : ℕ}
     {c : H.Comp k} (hc : c ∈ H.parts k Z') (hR : S.RecInv ξ (H.pb k c)) :
     S.RecInv ξ (H.bk (k + 1) Z') := by
   obtain ⟨hr, hact, hcap⟩ := hL
-  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Z'
+  obtain ⟨-, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 hkK Z'
   cases hcase with
   | shadow i hparts hr' hle hge hnu hbank =>
     have hci : c = i := by rw [hparts] at hc; simpa using hc

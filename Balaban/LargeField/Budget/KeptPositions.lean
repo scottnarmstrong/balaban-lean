@@ -24,8 +24,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 open Classical in
 /-- The positions of the kept ripe events in the lineage of a component (itself included):
@@ -50,11 +50,11 @@ theorem keptPosO_comp (k : ℕ) (c : H.Comp k) : H.keptPosO k c.1 = H.keptPos k 
   classical
   simp [keptPosO, c.2]
 
-theorem biUnion_parts_eq (k : ℕ) (Z' : H.Comp (k + 1))
+theorem biUnion_parts_eq {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1))
     (g : Finset (Torus S.d (n k)) → Finset (KeptPos S n)) :
     (H.parts k Z').biUnion (fun c => g c.1) = (comps (S.omega k) (H.oldCubes k Z')).biUnion g := by
   classical
-  rw [← H.parts_image_eq_comps k Z']
+  rw [← H.parts_image_eq_comps hk Z']
   ext p
   simp only [Finset.mem_biUnion, Finset.mem_image]
   constructor
@@ -69,7 +69,7 @@ variable {M K : ℕ} [NeZero M]
 
 /-- **The kept positions are a function of the localized history.** -/
 theorem keptPos_eq_of_localHistory_eq :
-    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
+    ∀ (k : ℕ), k ≤ K → ∀ (H1 H2 : RegionHistory S n R k0 K) (Z1 : H1.Comp k) (Z2 : H2.Comp k),
       localHistory H1 M K k Z1 = localHistory H2 M K k Z2 →
       H1.keptPos k Z1 = H2.keptPos k Z2 := by
   classical
@@ -81,9 +81,9 @@ theorem keptPos_eq_of_localHistory_eq :
     obtain ⟨hZ, hold, -, hfam⟩ := record_forward hkK Z1 Z2 h
     obtain ⟨-, -, hbk⟩ := spine_bk_eq_of_localHistory_eq (k + 1) hkK H1 H2 Z1 Z2 h
     have hmem1 := fun Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)) =>
-      mem_Zp_of_old H1 k Z1 hY
+      mem_Zp_of_old H1 (by omega) Z1 hY
     have hmem2 := fun Y (hY : Y ∈ comps (S.omega k) (H1.oldCubes k Z1)) =>
-      mem_Zp_of_old H2 k Z2 (hold ▸ hY)
+      mem_Zp_of_old H2 (by omega) Z2 (hold ▸ hY)
     have hO : ∀ Y ∈ comps (S.omega k) (H1.oldCubes k Z1), H1.keptPosO k Y = H2.keptPosO k Y := by
       intro Y hY
       have e1 := H1.keptPosO_comp k ⟨Y, hmem1 Y hY⟩
@@ -97,8 +97,8 @@ theorem keptPos_eq_of_localHistory_eq :
     rw [keptPos_succ, keptPos_succ]
     have hu : (H1.parts k Z1).biUnion (fun c => H1.keptPos k c) =
         (H2.parts k Z2).biUnion (fun c => H2.keptPos k c) := by
-      have a1 := H1.biUnion_parts_eq k Z1 (H1.keptPosO k)
-      have a2 := H2.biUnion_parts_eq k Z2 (H2.keptPosO k)
+      have a1 := H1.biUnion_parts_eq (k := k) (by omega) Z1 (H1.keptPosO k)
+      have a2 := H2.biUnion_parts_eq (k := k) (by omega) Z2 (H2.keptPosO k)
       simp only [keptPosO_comp] at a1 a2
       rw [a1, a2, hold]
       exact Finset.biUnion_congr rfl fun Y hY => hO Y (by rw [hold]; exact hY)
@@ -112,7 +112,7 @@ theorem keptPos_eq_of_localHistory_eq :
     rw [hu, hB]
 
 /-- Ripeness (and the kept event) of a component is a function of its localized history. -/
-theorem isKeptEvent_iff_of_localHistory_eq {k : ℕ} (hkK : k ≤ K) {H1 H2 : RegionHistory S n R k0}
+theorem isKeptEvent_iff_of_localHistory_eq {k : ℕ} (hkK : k ≤ K) {H1 H2 : RegionHistory S n R k0 K}
     (Z1 : H1.Comp k) (Z2 : H2.Comp k)
     (h : localHistory H1 M K k Z1 = localHistory H2 M K k Z2) :
     H1.IsKeptEvent k Z1 ↔ H2.IsKeptEvent k Z2 := by
@@ -137,7 +137,7 @@ theorem sum_inv_logC_labelled_canonical (hLd : 8 ≤ S.L ^ S.d) {k : ℕ} (hkK :
     (Y : Finset (Torus S.d (n k))) (cdec : Lab → ℝ)
     (hlab : ∀ F : Finset Lab, ∑ ϰ ∈ F, Real.exp (-cdec ϰ) ≤ 1)
     (𝒜 : Finset (LocalHistory S n M K × Finset (KeptPos S n × Lab)))
-    (hhist : ∀ x ∈ 𝒜, ∃ (H : RegionHistory S n R k0) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
+    (hhist : ∀ x ∈ 𝒜, ∃ (H : RegionHistory S n R k0 K) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
       x.1 = localHistory H M K k ⟨Y, hY⟩ ∧ x.2.image Prod.fst = H.keptPos k ⟨Y, hY⟩)
     (hfun : ∀ x ∈ 𝒜, ∀ p ϰ ϰ', (p, ϰ) ∈ x.2 → (p, ϰ') ∈ x.2 → ϰ = ϰ') :
     ∑ x ∈ 𝒜, Real.exp (-(x.1.logC k + ∑ t ∈ x.2, cdec t.2)) ≤ 1 := by

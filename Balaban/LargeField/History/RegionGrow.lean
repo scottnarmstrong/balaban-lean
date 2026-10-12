@@ -26,14 +26,14 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {M : ℕ} [NeZero M]
 
 include H in
 theorem neZero_L : NeZero S.L := ⟨by have := H.F.ok.two_le_L; omega⟩
 
 /-- The coarsening `cm s j` is compatible with the maps from the fine torus. -/
-theorem cm_cubeMap [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1))
+theorem cm_cubeMap [NeZero S.L] (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
     (x : Torus S.d (M * n K * S.L ^ K)) :
     ∀ (s j : ℕ), j + s ≤ K → cm (S := S) (n := n) s j (cubeMap n S.L M K j x) =
       cubeMap n S.L M K (j + s) x := by
@@ -89,7 +89,7 @@ theorem fine_lineage_subset {j t : ℕ} (hjt : j + t ≤ K) (Z : H.Comp (j + t))
   have := H.neZero_L
   intro x hx
   have h : cubeMap n S.L M K j x ∈ {y | y ∈ H.Zov j t ∧ cm (S := S) (n := n) t j y ∈ Z.1} := by
-    rw [← H.lineage_eq_inter j t Z]; exact hx
+    rw [← H.lineage_eq_inter j t Z hjt]; exact hx
   have h2 : cm (S := S) (n := n) t j (cubeMap n S.L M K j x) ∈ Z.1 := h.2
   show cubeMap n S.L M K (j + t) x ∈ (Z.1 : Set (Torus S.d (n (j + t))))
   rwa [cm_cubeMap H.F.hnn x t j hjt] at h2

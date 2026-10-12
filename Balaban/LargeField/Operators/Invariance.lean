@@ -50,7 +50,7 @@ theorem subVarField_rot (ρ : OrthN N) {a : LocalHistory S n M K} {k : ℕ}
   · simp only [h, ↓reduceDIte]
     simp
 
-variable {H : RegionHistory S n R k0}
+variable {H : RegionHistory S n R k0 K}
 
 theorem rotSub_newRestrict (ρ : OrthN N) {k : ℕ} (a : LocalHistory S n M K)
     {A' : Set (InternalVars a (k + 1))} (h : newVars a k ⊆ A') (x : SubCfg N a (k + 1) A') :
@@ -173,7 +173,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- A Euclidean symmetry `σ` maps the region history `H` to the region history `H'`: it matches
 the components of every scale, the localized histories (`H'` at the image component is the image
 of `H` at the component), the old parts of every component, and the ripe components. -/
-structure HistIso (H H' : RegionHistory S n R k0) (σ : TorusSym S n M K) where
+structure HistIso (H H' : RegionHistory S n R k0 K) (σ : TorusSym S n M K) where
   /-- the matching of the components -/
   e : ∀ k, H.Comp k ≃ H'.Comp k
   /-- the localized histories correspond -/
@@ -185,7 +185,7 @@ structure HistIso (H H' : RegionHistory S n R k0) (σ : TorusSym S n M K) where
   /-- ripe components correspond -/
   kept : ∀ (k : ℕ) (Z : H.Comp k), IsKept H' k (e k Z) ↔ IsKept H k Z
 
-variable {H H' : RegionHistory S n R k0} {σ : TorusSym S n M K}
+variable {H H' : RegionHistory S n R k0 K} {σ : TorusSym S n M K}
 
 theorem symVar_ancInc (hiso : HistIso H H' σ) {k : ℕ} (hk : k ≤ K) (hK : k + 1 ≤ K) {Y : H.Comp k}
     {Z' : H.Comp (k + 1)} (hY : Y ∈ H.parts k Z') (hY' : hiso.e k Y ∈ H'.parts k (hiso.e (k + 1) Z'))

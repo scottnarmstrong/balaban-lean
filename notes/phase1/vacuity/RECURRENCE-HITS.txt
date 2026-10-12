@@ -1,0 +1,33 @@
+Balaban/LargeField/Base/BaseWitness.lean:196:    (hnn : ∀ i, n i = S.L * n (i + 1)) :
+Balaban/LargeField/Base/BaseWitnessGauss.lean:87:theorem card_blocks_cube (hnn : ∀ i, n i = S.L * n (i + 1)) (hK : k + 1 ≤ K)
+Balaban/LargeField/Base/BaseWitnessGauss.lean:102:theorem mWit_baseF_le [NeZero N] (hnn : ∀ i, n i = S.L * n (i + 1)) (hK : k + 1 ≤ K) {c : ℝ}
+Balaban/LargeField/Base/BaseRecord.lean:156:    [NeZero M] [NeZero L] (hnn : ∀ i, nn i = L * nn (i + 1)) (hK : 1 ≤ K)
+Balaban/LargeField/Base/BaseSupport.lean:50:theorem exists_near_of_mem_dataSites (hnn : ∀ i, nn i = L * nn (i + 1)) {Rk : ℝ}
+Balaban/LargeField/Base/BaseSupport.lean:73:theorem baseSpinSupport_of_baseRecord (hnn : ∀ i, nn i = L * nn (i + 1)) {Rk : ℝ}
+Balaban/LargeField/Characteristic/Analytic.lean:43:theorem histScale_eq (hM : M = c * M1) (hnn : ∀ i, n i = L * n (i + 1)) {i q : ℕ} (hiq : i ≤ q)
+Balaban/LargeField/Characteristic/Analytic.lean:124:  (hM : M = c * M1) (hnn : ∀ i, n i = S.L * n (i + 1))
+Balaban/LargeField/History/RegionGrow.lean:36:theorem cm_cubeMap [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1))
+Balaban/LargeField/History/LocalRegion.lean:251:theorem cubeMap_mem_of_desc [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1)) {M K a b : ℕ}
+Balaban/LargeField/History/FlowSteps.lean:105:  hnn : ∀ k, n k = S.L * n (k + 1)
+Balaban/LargeField/Operators/Symm.lean:175:theorem TorusSym.blockCube_eb (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hj : j ≤ K)
+Balaban/LargeField/Operators/Symm.lean:183:theorem HistImage.mem_Vblk (hI : HistImage σ a a') (hnn : ∀ i, n i = S.L * n (i + 1)) (R : ℕ → ℝ)
+Balaban/LargeField/Operators/QuietIndep.lean:39:theorem blockCube_torusCast (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q : ℕ}
+Balaban/LargeField/Operators/Setup.lean:147:def blockCfgOf (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
+Balaban/LargeField/Operators/LocOp.lean:67:theorem exists_site_of_cube (hnn : ∀ i, n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
+Balaban/LargeField/Operators/CompBound.lean:61:theorem blockCube_eq_cubeMap (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Operators/CompBound.lean:69:theorem blockSub_fineSet_succ_iff (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Operators/Variables.lean:406:theorem cubeMap_jBlock (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Operators/Variables.lean:412:theorem blockSub_fineSet_iff (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Operators/QuietSymm.lean:263:theorem blockCfgOf_rot (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
+Balaban/LargeField/Region/Lineage.lean:79:theorem thick_lineage_subset (hnn : ∀ i, nn i = L * nn (i + 1)) (hL : 0 < L) (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {K j t : ℕ}
+Balaban/LargeField/Region/Lineage.lean:96:theorem thick_lineage_le_one (hnn : ∀ i, nn i = L * nn (i + 1)) (hL : 0 < L) (hR : ∀ i, ⌊R (i - 1)⌋₊ ≤ ⌊R i⌋₊) {K j t : ℕ}
+Balaban/LargeField/Region/Overwrite.lean:138:theorem fineCubes_isBlockUnion (hnn : ∀ i, nn i = L * nn (i + 1)) {K k : ℕ} (hkK : k ≤ K)
+Balaban/LargeField/Region/Generating.lean:72:  hnn : ∀ i, nn i = L * nn (i + 1)
+Balaban/LargeField/Region/Generating.lean:103:theorem nn_eq_pow {L : ℕ} {nn : ℕ → ℕ} (hnn : ∀ i, nn i = L * nn (i + 1)) (j t : ℕ) :
+Balaban/LargeField/Region/Generating.lean:111:theorem nn_eq_pow' {L : ℕ} {nn : ℕ → ℕ} (hnn : ∀ i, nn i = L * nn (i + 1)) {j K : ℕ} (h : j ≤ K) :
+Balaban/LargeField/Region/Generating.lean:130:theorem fine_eq (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K) :
+Balaban/LargeField/Region/Generating.lean:136:theorem cubeMap_eq_comp (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Region/Generating.lean:143:theorem cubeMap_succ (hnn : ∀ i, nn i = L * nn (i + 1)) {K j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Budget/Fine.lean:31:theorem card_fineSet (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Budget/Fine.lean:47:theorem cubeMap_surjective (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)
+Balaban/LargeField/Budget/Fine.lean:61:theorem fineSet_injective (hnn : ∀ i, n i = S.L * n (i + 1)) {j : ℕ} (hjK : j ≤ K)

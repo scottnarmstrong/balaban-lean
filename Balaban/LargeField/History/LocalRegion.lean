@@ -32,11 +32,11 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 theorem Desc.first {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (h : H.Desc a b Y Z) (hab : a < b) :
-    ∃ hrem : Y.1 ∉ H.rem a, H.Desc (a + 1) b (H.succ a Y hrem) Z := by
+    Y.1 ∉ H.rem a ∧ ∃ Y1 : H.Comp (a + 1), H.IsSucc a Y Y1 ∧ H.Desc (a + 1) b Y1 Z := by
   induction h with
   | refl => omega
   | step b' W' Y' Y'' hd hrem hs ih =>
@@ -44,9 +44,9 @@ theorem Desc.first {a b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (h : H.Desc a b Y Z
     · subst heq
       have : Y' = W' := (desc_self_unique' hd)
       subst this
-      exact ⟨hrem, hs ▸ Desc.refl _⟩
-    · obtain ⟨hr, hd'⟩ := ih hlt
-      exact ⟨hr, Desc.step b' _ Y' Y'' hd' hrem hs⟩
+      exact ⟨hrem, Y'', hs, Desc.refl _⟩
+    · obtain ⟨hr, Y1, hs1, hd'⟩ := ih hlt
+      exact ⟨hr, Y1, hs1, Desc.step b' _ Y' Y'' hd' hrem hs⟩
 where
   desc_self_unique' {b : ℕ} {Y Z : H.Comp b} (h : H.Desc b b Y Z) : Z = Y := by
     cases h with
@@ -73,17 +73,18 @@ def emptyStep (S : Setting) (n : ℕ → ℕ) (R : ℕ → ℝ) (j : ℕ) (Z' : 
 noncomputable def tailZ (k : ℕ) (Z : H.Comp k) : ∀ j, Set (Torus S.d (n j))
   | 0 => ∅
   | j + 1 =>
-    if j + 1 ≤ k then ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)
+    if j + 1 ≤ k ∧ j + 1 ≤ K then ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)
     else (emptyStep S n R j (tailZ k Z j)).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1))
 
 /-- The steps of the lineage localization. -/
 noncomputable def locStep (k : ℕ) (Z : H.Comp k) (j : ℕ) :
     RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j) :=
-  if j < k then (H.step j).restrict ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)
+  if j < k ∧ j < K then
+    (H.step j).restrict ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)
   else emptyStep S n R j (H.tailZ k Z j)
 
 /-- The steps of the lineage localization, as `FlowSteps`. -/
-noncomputable def locF (k : ℕ) (Z : H.Comp k) : FlowSteps S n R k0 :=
+noncomputable def locF (k : ℕ) (Z : H.Comp k) : FlowSteps S n R k0 K :=
   { H.F with step := H.locStep k Z }
 
 variable {H}
@@ -110,16 +111,16 @@ theorem lin_zero (b : ℕ) (Z : H.Comp b) : H.lin 0 b Z = ∅ := by
   rintro ⟨Y, -, -⟩
   exact (H.F.isEmpty_comp_zero.false Y)
 
-theorem tailZ_eq_lin {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) :
+theorem tailZ_eq_lin {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) (hjK : j ≤ K) :
     H.tailZ k Z j = ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) := by
   cases j with
   | zero => rw [lin_zero]; simp [tailZ]
-  | succ j => simp [tailZ, hj]
+  | succ j => simp [tailZ, hj, hjK]
 
 theorem locStep_Z (k : ℕ) (Z : H.Comp k) (j : ℕ) : (H.locStep k Z j).Z = H.tailZ k Z j := by
   unfold locStep
-  by_cases hj : j < k
-  · rw [ite_eq_left_of_eq_true _ _ (eq_true hj), tailZ_eq_lin Z hj.le]
+  by_cases hj : j < k ∧ j < K
+  · rw [ite_eq_left_of_eq_true _ _ (eq_true hj), tailZ_eq_lin Z hj.1.le hj.2.le]
     ext z
     show (z ∈ (H.step j).Z ∧ blockMap S.L (n (j + 1)) z ∈
       ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _)) ↔ _
@@ -129,17 +130,17 @@ theorem locStep_Z (k : ℕ) (Z : H.Comp k) (j : ℕ) : (H.locStep k Z j).Z = H.t
       have hzp : z ∈ H.F.Zpre j := H.Z_subset_Zpre j hz
       obtain ⟨Y, hY, hzY⟩ := mem_comp_self (ω := S.omega j) (mem_finOf.mpr hzp)
       have hrem : Y ∉ H.rem j := (H.mem_Z_iff (Y := ⟨Y, hY⟩) hzY).mp hz
-      have hs := H.succ_spec j (c := ⟨Y, hY⟩) hrem ⟨z, hzY, rfl⟩
-      have heq : Y1 = H.succ j ⟨Y, hY⟩ hrem :=
-        Subtype.ext (comp_eq_of_mem Y1.2 (H.succ j ⟨Y, hY⟩ hrem).2 hzY1 hs)
+      have hs := H.succ_spec hj.2 (c := ⟨Y, hY⟩) hrem ⟨z, hzY, rfl⟩
+      have heq : Y1 = H.succ hj.2 ⟨Y, hY⟩ hrem :=
+        Subtype.ext (comp_eq_of_mem Y1.2 (H.succ hj.2 ⟨Y, hY⟩ hrem).2 hzY1 hs)
       subst heq
-      exact Finset.mem_coe.mpr (mem_lin.mpr ⟨⟨Y, hY⟩, (Desc.single hrem rfl).trans hd1, hzY⟩)
+      exact Finset.mem_coe.mpr
+        (mem_lin.mpr ⟨⟨Y, hY⟩, (Desc.single hrem ((H.succ_eq_iff hj.2 hrem).mp rfl)).trans hd1, hzY⟩)
     · intro hz
       obtain ⟨Y, hd, hzY⟩ := mem_lin.mp (Finset.mem_coe.mp hz)
-      obtain ⟨hrem, hd'⟩ := Desc.first hd hj
+      obtain ⟨hrem, Y1, hs1, hd'⟩ := Desc.first hd hj.1
       refine ⟨(H.mem_Z_iff hzY).mpr hrem, ?_⟩
-      have hs := H.succ_spec j hrem ⟨z, hzY, rfl⟩
-      exact Finset.mem_coe.mpr (mem_lin.mpr ⟨H.succ j Y hrem, hd', hs⟩)
+      exact Finset.mem_coe.mpr (mem_lin.mpr ⟨Y1, hd', hs1 ⟨z, hzY, rfl⟩⟩)
   · rw [ite_eq_right_of_eq_false _ _ (eq_false hj)]; rfl
 
 theorem locF_Zpre (k : ℕ) (Z : H.Comp k) : ∀ j, (H.locF k Z).Zpre j = H.tailZ k Z j := by
@@ -148,23 +149,23 @@ theorem locF_Zpre (k : ℕ) (Z : H.Comp k) : ∀ j, (H.locF k Z).Zpre j = H.tail
   | zero => rfl
   | succ j ih =>
     show (H.locStep k Z j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1)) = _
-    by_cases hj : j < k
-    · have hg := H.stepGeom j
+    by_cases hj : j < k ∧ j < K
+    · have hg := H.stepGeom hj.2
       have e : H.locStep k Z j = (H.step j).restrict
           ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _) := by
         unfold locStep; exact ite_eq_left_of_eq_true _ _ (eq_true hj)
-      rw [e, tailZ_eq_lin Z (show j + 1 ≤ k by omega)]
+      rw [e, tailZ_eq_lin Z (show j + 1 ≤ k by omega) (show j + 1 ≤ K by omega)]
       exact (H.step j).restrict_Zpre_closed (critOpt S k0 (j + 1)) hg.hn hg.rad
         (lin_linkClosed (j + 1) k Z) hg.hω2 (lin_sub_Zpre (j + 1) k Z)
     · have e : H.locStep k Z j = emptyStep S n R j (H.tailZ k Z j) := by
         unfold locStep; exact ite_eq_right_of_eq_false _ _ (eq_false hj)
       rw [e]
-      have : ¬ j + 1 ≤ k := by omega
-      simp [tailZ, this]
+      have : ¬ (j + 1 ≤ k ∧ j + 1 ≤ K) := by omega
+      simp only [tailZ, this, ↓reduceIte]
 
 /-- **The localized history is a region history (Lemma I.3.9 at every step)**: the lineage
 localization of the component `Z` of `Z^pre_k`. -/
-noncomputable def locRH (k : ℕ) (Z : H.Comp k) : RegionHistory S n R k0 where
+noncomputable def locRH (k : ℕ) (Z : H.Comp k) : RegionHistory S n R k0 K where
   F := H.locF k Z
   rem := fun _ => ∅
   rem_sub := fun _ => Finset.empty_subset _
@@ -176,32 +177,32 @@ noncomputable def locRH (k : ℕ) (Z : H.Comp k) : RegionHistory S n R k0 where
 
 theorem locRH_rem (k : ℕ) (Z : H.Comp k) (j : ℕ) : (H.locRH k Z).rem j = ∅ := rfl
 
-theorem locRH_step {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) :
+theorem locRH_step {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) (hjK : j < K) :
     (H.locRH k Z).step j = (H.step j).restrict
       ((H.lin (j + 1) k Z : Finset (Torus S.d (n (j + 1)))) : Set _) := by
   show H.locStep k Z j = _
-  unfold locStep; exact ite_eq_left_of_eq_true _ _ (eq_true hj)
+  unfold locStep; exact ite_eq_left_of_eq_true _ _ (eq_true ⟨hj, hjK⟩)
 
 /-- `Z^pre_j(loc) = Lin_j(Z)` for `j ≤ k`: Lemma I.3.9 (c) at every step. -/
-theorem locRH_Zpre {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) :
+theorem locRH_Zpre {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) (hjK : j ≤ K) :
     (H.locRH k Z).F.Zpre j = ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) := by
-  rw [show (H.locRH k Z).F.Zpre j = (H.locF k Z).Zpre j from rfl, locF_Zpre, tailZ_eq_lin Z hj]
+  rw [show (H.locRH k Z).F.Zpre j = (H.locF k Z).Zpre j from rfl, locF_Zpre, tailZ_eq_lin Z hj hjK]
 
 /-- `Z_j(loc) = Lin_j(Z)` for `j ≤ k`. -/
-theorem locRH_Z {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) :
+theorem locRH_Z {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j ≤ k) (hjK : j ≤ K) :
     ((H.locRH k Z).step j).Z = ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) := by
   show (H.locStep k Z j).Z = _
-  rw [locStep_Z, tailZ_eq_lin Z hj]
+  rw [locStep_Z, tailZ_eq_lin Z hj hjK]
 
 /-- The pre-`R` region of the localized history at scale `k` is `Z`. -/
-theorem locRH_Zp {k : ℕ} (Z : H.Comp k) : (H.locRH k Z).F.Zp k = Z.1 := by
+theorem locRH_Zp {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) : (H.locRH k Z).F.Zp k = Z.1 := by
   show finOf ((H.locRH k Z).F.Zpre k) = _
-  rw [locRH_Zpre Z le_rfl, lin_self, finOf_coe]
+  rw [locRH_Zpre Z le_rfl hkK, lin_self, finOf_coe]
 
 /-- `Z` is the only component of the pre-`R` region of the localized history at scale `k`. -/
-theorem locRH_comps {k : ℕ} (Z : H.Comp k) :
+theorem locRH_comps {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) :
     comps (S.omega k) ((H.locRH k Z).F.Zp k) = {Z.1} := by
-  rw [locRH_Zp]
+  rw [locRH_Zp hkK]
   ext Y
   rw [Finset.mem_singleton]
   constructor
@@ -220,17 +221,17 @@ theorem locRH_comps {k : ℕ} (Z : H.Comp k) :
     exact comp_mem_comps_self Z.2
 
 /-- The new cubes of the local step are the global ones in the lineage. -/
-theorem locRH_new {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) :
+theorem locRH_new {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) (hjK : j < K) :
     ((H.locRH k Z).step j).P = (H.step j).P ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
     ((H.locRH k Z).step j).Q = (H.step j).Q ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
     ((H.locRH k Z).step j).R = (H.step j).R ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
     ((H.locRH k Z).step j).S = (H.step j).S ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) := by
-  rw [locRH_step Z hj]
+  rw [locRH_step Z hj hjK]
   exact ⟨rfl, rfl, rfl, rfl⟩
 
 /-- **Lemma I.3.9 (b)** along the lineage: for `j < k` the complements `Ω'ᶜ, Ωᶜ, Ω''ᶜ, Z^{(0)}` of
 the local step are the global ones intersected with `Lin_{j+1}(Z)`. -/
-theorem locRH_derived {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) :
+theorem locRH_derived {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) (hjK : j < K) :
     (H.step j).OmegaPrimeᶜ ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) =
       ((H.locRH k Z).step j).OmegaPrimeᶜ ∧
     (H.step j).Omegaᶜ ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) =
@@ -238,8 +239,8 @@ theorem locRH_derived {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) :
     (H.step j).OmegaDDᶜ ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) =
       ((H.locRH k Z).step j).OmegaDDᶜ ∧
     (H.step j).Z0 ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) = ((H.locRH k Z).step j).Z0 := by
-  have hg := H.stepGeom j
-  rw [locRH_step Z hj]
+  have hg := H.stepGeom hjK
+  rw [locRH_step Z hj hjK]
   have hcl : LinkClosed (S.omega (j + 1)) ((H.step j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1)))
       ((H.lin (j + 1) k Z : Finset _) : Set _) := lin_linkClosed (j + 1) k Z
   exact ⟨(H.step j).OmegaPrime_compl_inter_closed _ hg.hn hg.rad hcl,
@@ -248,7 +249,7 @@ theorem locRH_derived {k : ℕ} (Z : H.Comp k) {j : ℕ} (hj : j < k) :
     (H.step j).Z0_inter_closed _ hg.hn hg.rad hcl⟩
 
 /-- Cubes of the lineage coarsen into `Z`. -/
-theorem cubeMap_mem_of_desc [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1)) {M K a b : ℕ}
+theorem cubeMap_mem_of_desc [NeZero S.L] (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {M a b : ℕ}
     [NeZero M] (hbK : b ≤ K) {Y : H.Comp a} {Z : H.Comp b} (h : H.Desc a b Y Z)
     {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K a x ∈ Y.1) :
     cubeMap n S.L M K b x ∈ Z.1 := by
@@ -257,7 +258,7 @@ theorem cubeMap_mem_of_desc [NeZero S.L] (hnn : ∀ i, n i = S.L * n (i + 1)) {M
   | step b' W' Y' Y'' hd hrem hs ih =>
     have h1 := ih (by omega) hx
     have h2 : blockMap S.L (n (b' + 1)) (cubeMap n S.L M K b' x) ∈ Y''.1 := by
-      rw [← hs]; exact H.succ_spec b' hrem ⟨_, h1, rfl⟩
+      exact hs ⟨_, h1, rfl⟩
     rwa [cubeMap_succ hnn (by omega) x] at h2
 
 variable (H) in
@@ -275,7 +276,7 @@ noncomputable def localHistory (M K k : ℕ) (Z : H.Comp k) : LocalHistory S n M
 
 /-- The records of the localized history are contained in the raw records (the new cubes and the
 regions `Z_j`, `j < k`). -/
-theorem localHistory_subset_raw {k : ℕ} (Z : H.Comp k) {M K : ℕ} [NeZero M] (hkK : k ≤ K) {j : ℕ}
+theorem localHistory_subset_raw {k : ℕ} (Z : H.Comp k) {M : ℕ} [NeZero M] (hkK : k ≤ K) {j : ℕ}
     (hj : j < k) :
     (localHistory H M K k Z).Z j ⊆
         (rawLocalHistory H M K k Z).Z j ∧
@@ -294,11 +295,11 @@ theorem localHistory_subset_raw {k : ℕ} (Z : H.Comp k) {M K : ℕ} [NeZero M] 
     intro a ha x hx
     obtain ⟨Y, hd, hxY⟩ := mem_lin.mp (Finset.mem_coe.mp hx)
     exact cubeMap_mem_of_desc H.F.hnn hkK hd hxY
-  obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj
+  obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj (by omega)
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · intro x hx
     have hx' : cubeMap n S.L M K j x ∈ ((H.locRH k Z).step j).Z := hx.1
-    rw [locRH_Z Z hj.le] at hx'
+    rw [locRH_Z Z hj.le (by omega)] at hx'
     refine ⟨?_, hin hj.le x hx'⟩
     obtain ⟨Y, hd, hxY⟩ := mem_lin.mp (Finset.mem_coe.mp hx')
     obtain ⟨hrem, -⟩ := Desc.first hd hj

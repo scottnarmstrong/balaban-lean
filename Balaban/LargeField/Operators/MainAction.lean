@@ -61,11 +61,11 @@ theorem actionG_nonneg {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {d
 section Step
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0) (k : ℕ)
-  (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
+  [NeZero S.L] {N : ℕ} (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ)
+  (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) (hk : k + 1 ≤ K)
 
 include g in
-theorem Geo.three_L_le_floor (Hl : RegionHistory S n R k0) (j : ℕ) : 3 * S.L ≤ ⌊R j⌋₊ := by
+theorem Geo.three_L_le_floor (Hl : RegionHistory S n R k0 K) (j : ℕ) : 3 * S.L ≤ ⌊R j⌋₊ := by
   apply Nat.le_floor
   have h1 := Hl.F.RH.base
   have h2 := g.hRlow j
@@ -82,11 +82,11 @@ theorem Omega_compl_subset_Zpre' (st : RegionStep S.d S.L (n k) (n (k + 1)) (R (
 /-- The generating set `G^{Z'}_{k+1}` of the local background (Definition II.2.4 (v)). -/
 noncomputable abbrev locGen :
     GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) (minSep S.L g.M1) :=
-  genBoundaryLocal g.M1 g.c (n (k + 1)) S.L k (Hl.step k) g.hc (Hl.F.hnn k) Hl.F.ok.two_le_L
-    (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom k).rad.omega_rho
+  genBoundaryLocal g.M1 g.c (n (k + 1)) S.L k (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
+    (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
     (Omega_compl_subset_Zpre' k (Hl.step k) _ _) hZc
 
-variable (cs : OpConsts) (hk : k + 1 ≤ K)
+variable (cs : OpConsts)
 
 /-- The lifted data `ψ_k` of the local background: the large-field variable of scale `k`. -/
 noncomputable def locLiftPsi (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) :
@@ -102,20 +102,20 @@ noncomputable def locLiftTheta (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1)
 configuration `(ψ_k, ψ_{k+1})` and the external direction `h`. -/
 noncomputable def locBg (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    (locGen g Hl k Zc hZc).Ω 1 × Fin N → ℂ :=
-  bgLocPiece (k := k) (Hl.step k) g.hc (Hl.F.hnn k) Hl.F.ok.two_le_L
-    (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom k).rad.omega_rho
+    (locGen g Hl k Zc hZc hk).Ω 1 × Fin N → ℂ :=
+  bgLocPiece (k := k) (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
+    (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
     (Omega_compl_subset_Zpre' k (Hl.step k) _ _) cs.aw (cs.mu (k + 1)) (bgC0 S.d S.L N) hZc
     (locLiftPsi g Hl k Zc hk x).toC (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))
 
 /-- The data `lift_{k,k+1}(ψ_k, ψ_{k+1})` of the local background. -/
 noncomputable def locData (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    BgData (locGen g Hl k Zc hZc) N :=
-  liftMixed (locGen g Hl k Zc hZc)
+    BgData (locGen g Hl k Zc hZc hk) N :=
+  liftMixed (locGen g Hl k Zc hZc hk)
     ((isCubeUnion_fineK1 (Hl.step k).Omega).isBlockUnion (le_refl _))
-    (genBoundaryLocal_top_subset (Hl.step k) g.hc (Hl.F.hnn k) Hl.F.ok.two_le_L
-      (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom k).rad.omega_rho
+    (genBoundaryLocal_top_subset (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
+      (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
       (Omega_compl_subset_Zpre' k (Hl.step k) _ _) hZc)
     (locLiftPsi g Hl k Zc hk x).toC (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))
 
@@ -125,7 +125,7 @@ noncomputable def locPhi (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
     Site S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) → EuclideanSpace ℝ (Fin N) :=
   fun z => WithLp.toLp 2 fun i =>
-    (barField (locGen g Hl k Zc hZc) (locData g Hl k Zc hZc hk o x hv).Ψ (locBg g Hl k Zc hZc cs hk o x hv)
+    (barField (locGen g Hl k Zc hZc hk) (locData g Hl k Zc hZc hk o x hv).Ψ (locBg g Hl k Zc hZc hk cs o x hv)
       z i).re
 
 /-- The fine sites of `X_{Z'} = Z^c_k ∩ Z'` in the level-`(k+1)` torus. -/
@@ -147,7 +147,7 @@ variable (hrem : ∀ j, Hl.rem j = ∅)
 noncomputable def histGenLevel :
     GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) ((S.L : ℝ) * M * S.Rb) :=
   castGen ((congrArg (· * n (k + 1)) g.hM).trans (by ring))
-    (Hl.histGen (M := M) hrem Hl.F.ok.two_le_L (k + 1) (fun j _ _ => g.hRlow j))
+    (Hl.histGen (M := M) (K' := k + 1) hk hrem Hl.F.ok.two_le_L (fun j _ _ => g.hRlow j))
 
 /-- **Definition II.5.4 (main action of the new large-field region)** at the configuration
 `(o, x) = (ψ_{k+1}|_V, I^new_k)` (the variables the action reads) and the external direction `h`:
@@ -155,24 +155,24 @@ noncomputable def histGenLevel :
 noncomputable def mainActionLoc (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
   betaCanon S.d S.L (cs.beta (k + 1)) (k + 1) 0 *
-    (actionG (histGenLevel g Hl k hrem) cs.aw (cs.muAct (k + 1)) hv (Xfine g Hl k Zc)
+    (actionG (histGenLevel g Hl k hk hrem) cs.aw (cs.muAct (k + 1)) hv (Xfine g Hl k Zc)
         (psiLevel g Hl k hk
           (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
             (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o))
-        (locPhi g Hl k Zc hZc cs hk o x hv) +
-      1 / 4 * starBondE (Xfine g Hl k Zc) (locPhi g Hl k Zc hZc cs hk o x hv))
+        (locPhi g Hl k Zc hZc hk cs o x hv) +
+      1 / 4 * starBondE (Xfine g Hl k Zc) (locPhi g Hl k Zc hZc hk cs o x hv))
 
 theorem mainActionLoc_nonneg (hb : 0 ≤ cs.beta (k + 1)) (ha : ∀ n, 0 ≤ cs.aw n)
     (hμ : 0 ≤ cs.muAct (k + 1)) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    0 ≤ mainActionLoc g Hl k Zc hZc cs hk hrem o x hv := by
+    0 ≤ mainActionLoc g Hl k Zc hZc hk cs hrem o x hv := by
   unfold mainActionLoc betaCanon
-  have h1 := actionG_nonneg (histGenLevel g Hl k hrem) ha hμ hv (Xfine g Hl k Zc)
+  have h1 := actionG_nonneg (histGenLevel g Hl k hk hrem) ha hμ hv (Xfine g Hl k Zc)
     (psiLevel g Hl k hk
       (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o))
-    (locPhi g Hl k Zc hZc cs hk o x hv)
-  have h2 := starBondE_nonneg (Xfine g Hl k Zc) (locPhi g Hl k Zc hZc cs hk o x hv)
+    (locPhi g Hl k Zc hZc hk cs o x hv)
+  have h2 := starBondE_nonneg (Xfine g Hl k Zc) (locPhi g Hl k Zc hZc hk cs o x hv)
   have h3 : 0 ≤ cs.beta (k + 1) / (S.L : ℝ) ^ ((k + 1 - 0) * (S.d - 2)) := by positivity
   positivity
 

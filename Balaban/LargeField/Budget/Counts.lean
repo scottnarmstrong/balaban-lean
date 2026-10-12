@@ -49,8 +49,8 @@ end Preimage
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 open Classical in
 /-- The `π_k`-cubes of `Z_k` over the component `Z'` of `Z^pre_{k+1}`:
@@ -63,10 +63,10 @@ open Classical in
 noncomputable def outCubes (k : ℕ) (Z' : H.Comp (k + 1)) : Finset (Torus S.d (n k)) :=
   Finset.univ.filter fun x => x ∉ (H.step k).Z ∧ blockMap S.L (n (k + 1)) x ∈ Z'.1
 
-theorem card_oldCubes_add_outCubes (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem card_oldCubes_add_outCubes {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     (H.oldCubes k Z').card + (H.outCubes k Z').card = S.L ^ S.d * Z'.1.card := by
   classical
-  have hℓ : n k = S.L * n (k + 1) := H.F.hnn k
+  have hℓ : n k = S.L * n (k + 1) := H.F.hnn k hk
   rw [← card_preimage_blockMap hℓ Z'.1, ← Finset.card_union_of_disjoint]
   · congr 1
     ext x
@@ -77,7 +77,7 @@ theorem card_oldCubes_add_outCubes (k : ℕ) (Z' : H.Comp (k + 1)) :
     simp only [oldCubes, outCubes, Finset.mem_filter, Finset.mem_univ, true_and] at hx hx'
     exact hx'.1 hx.1
 
-theorem oldCubes_eq (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem oldCubes_eq {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     H.oldCubes k Z' = (H.parts k Z').biUnion fun c => c.1 := by
   classical
   ext x
@@ -87,20 +87,18 @@ theorem oldCubes_eq (k : ℕ) (Z' : H.Comp (k + 1)) :
     have hzp : x ∈ H.F.Zpre k := H.Z_subset_Zpre k hx
     obtain ⟨Y, hY, hxY⟩ := mem_comp_self (ω := S.omega k) (mem_finOf.mpr hzp)
     have hrem : Y ∉ H.rem k := (H.mem_Z_iff (Y := ⟨Y, hY⟩) hxY).mp hx
-    have hs := H.succ_spec k (c := ⟨Y, hY⟩) hrem ⟨x, hxY, rfl⟩
-    have heq : H.succ k ⟨Y, hY⟩ hrem = Z' :=
-      Subtype.ext (comp_eq_of_mem (H.succ k ⟨Y, hY⟩ hrem).2 Z'.2 hs hy)
-    exact ⟨⟨Y, hY⟩, (H.mem_parts k _ Z').mpr ⟨hrem, heq⟩, hxY⟩
+    have hs := H.succ_spec hk (c := ⟨Y, hY⟩) hrem ⟨x, hxY, rfl⟩
+    have heq : H.succ hk ⟨Y, hY⟩ hrem = Z' :=
+      Subtype.ext (comp_eq_of_mem (H.succ hk ⟨Y, hY⟩ hrem).2 Z'.2 hs hy)
+    exact ⟨⟨Y, hY⟩, (H.mem_parts k _ Z').mpr ⟨hrem, (H.succ_eq_iff hk hrem).mp heq⟩, hxY⟩
   · rintro ⟨c, hc, hxc⟩
     obtain ⟨hrem, hs⟩ := (H.mem_parts k c Z').mp hc
     refine ⟨(H.mem_Z_iff hxc).mpr hrem, ?_⟩
-    have := H.succ_spec k hrem ⟨x, hxc, rfl⟩
-    rw [hs] at this
-    exact this
+    exact hs ⟨x, hxc, rfl⟩
 
-theorem sum_parts_card (k : ℕ) (Z' : H.Comp (k + 1)) :
+theorem sum_parts_card {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) :
     ∑ c ∈ H.parts k Z', c.1.card = (H.oldCubes k Z').card := by
-  rw [H.oldCubes_eq, Finset.card_biUnion]
+  rw [H.oldCubes_eq hk, Finset.card_biUnion]
   intro c hc c' hc' hne
   show Disjoint c.1 c'.1
   rw [Finset.disjoint_left]

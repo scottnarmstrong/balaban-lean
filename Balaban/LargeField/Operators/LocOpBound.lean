@@ -25,7 +25,7 @@ open MeasureTheory Balaban Balaban.Multiscale RegionHistory
 section LocOpBound
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0}
+  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K}
   (geo : Geo S n R M) (cs : OpConsts) {κs κ' : ℕ → LocalHistory S n M K → ℝ} {lamHat : ℕ → ℝ}
   (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ' lamHat)
 
