@@ -344,6 +344,7 @@ public import Balaban.Localization.DecoupledSolve
 public import Balaban.Localization.DecoupledOne
 public import Balaban.Localization.DecoupledSolveAnalytic
 public import Balaban.Localization.DecoupledFieldLocal
+public import Balaban.Localization.FootprintMargin
 public import Balaban.Localization.DecoupledFieldClose
 public import Balaban.Localization.DecoupledChiPair
 public import Balaban.Localization.DecoupledCubeHolder
@@ -1257,3 +1258,4 @@ public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
 public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
+public import Balaban.Inhabited.FootprintMarginWitness
