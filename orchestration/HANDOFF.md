@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
 | W158 | `w158-step-followups` / W158 | step-object identities (ΣE1loc, ℱ₀ vs ℳ₀, ∫t_k) |
 | W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
-| W156 | `w156-hat-local` / W156 | locality of the ψ̂ fan + engine theorem |
+| W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
 | W160 | `w160-p6-base` / W160 | VMOD-11 rows 6–8: P6 pair CoverBase, FootLocal, s ≡ 1 identities |
 | W154 | `w154-symm-engine` / W154 | symmetry of Prop 3.3 terms |
 | W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
