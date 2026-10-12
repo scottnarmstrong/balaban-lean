@@ -157,4 +157,102 @@ theorem root_patch_count_pos :
 
 end P6PairWitness
 
+/-! ### A nonempty old large-field region -/
+
+namespace Slab
+
+open Balaban Balaban.LargeField Balaban.Localization Balaban.Multiscale
+
+/-- The old large-field region `Z`: the slab `{x | |x₀| ≤ 60}` of the torus of side `300 = 3 · 100`
+(dimension `3`). -/
+def slab : Set (Torus 3 (3 * 100)) := {x | cycNorm (3 * 100) (x 0) ≤ 60}
+
+/-- The region step with old region the slab and no new cubes. -/
+def step : RegionStep 3 3 (3 * 100) 100 9 0 where
+  Z := slab
+  P := ∅
+  Q := ∅
+  R := ∅
+  S := ∅
+  P_sub := Set.empty_subset _
+  Q_sub := Set.empty_subset _
+  R_sub := Set.empty_subset _
+  S_sub := Set.empty_subset _
+
+/-- The coordinate-`0` size of a point of `nbhd 3 U'_k` is at most `27`. -/
+theorem cyc_le_of_mem_nbhd_uprime {y : Torus 3 100} (hy : y ∈ nbhd 3 step.Uprime) :
+    cycNorm 100 (y 0 - 0) ≤ 27 := by
+  obtain ⟨u', ⟨w, hw, rfl⟩, hyu⟩ := mem_nbhd.1 hy
+  have hf : ⌊(9 : ℝ)⌋₊ = 9 := by norm_num
+  obtain ⟨z, hz, hwz⟩ := mem_nbhd.1 hw
+  have h1 : cycNorm (3 * 100) (w 0 - 0) ≤ 70 := by
+    have := cycNorm_sub_le (n := 3 * 100) (w 0) (z 0) 0
+    have h2 := cycNorm_le_supDist w z 0
+    have h3 : cycNorm (3 * 100) (z 0) ≤ 60 := hz
+    have h4 : supDist w z ≤ 10 := by
+      have : supDist w z ≤ ⌊(9 : ℝ)⌋₊ + 1 := hwz
+      omega
+    simp only [sub_zero] at this ⊢
+    omega
+  have h2 := cycNorm_blockCoord_le (L := 3) (m := 100) rfl (w 0) 0 h1
+  have h3 : blockCoord 3 100 (0 : ZMod (3 * 100)) = 0 := by simp [blockCoord]
+  rw [h3] at h2
+  have h4 := cycNorm_le_supDist y (blockMap 3 100 w) 0
+  have h5 := cycNorm_sub_le (n := 100) (y 0) (blockMap 3 100 w 0) 0
+  have hb : blockMap 3 100 w 0 = blockCoord 3 100 (w 0) := rfl
+  rw [hb] at h4 h5
+  simp only [sub_zero] at h2 h5 ⊢
+  omega
+
+/-- The coarse point with first coordinate `50`, all others `0`. -/
+def u0 : Torus 3 100 := fun i => if i = 0 then 50 else 0
+
+/-- The point `u0` lies in the new active region `Ω_{k+1}` of the step. -/
+theorem u0_mem_omega : u0 ∈ step.Omega := by
+  have hf : ⌊(0 : ℝ)⌋₊ = 0 := by norm_num
+  refine ⟨u0, ⟨fun _ => 0, fun _ => by norm_num, by funext i; simp⟩, ?_, ?_⟩
+  · intro a ha
+    refine ⟨u0, ha, ?_⟩
+    rw [le_setDist_iff]
+    intro a' ha' y hy
+    obtain ⟨v, hv, rfl⟩ := ha'
+    have h1 := cyc_le_of_mem_nbhd_uprime hy
+    have h2 := cycNorm_sub_le (n := 100) (u0 0 + ((v 0 : ℕ) : ZMod 100)) (y 0) 0
+    have h3 : cycNorm 100 (u0 0 + ((v 0 : ℕ) : ZMod 100) - y 0) ≤
+        supDist (fun i => u0 i + (v i : ZMod 100)) y :=
+      cycNorm_le_supDist (fun i => u0 i + (v i : ZMod 100)) y 0
+    have h4 : 48 ≤ cycNorm 100 (u0 0 + ((v 0 : ℕ) : ZMod 100) - 0) := by
+      have := hv 0
+      interval_cases (v 0) <;> simp [u0] <;> decide
+    simp only [sub_zero] at h2 h4 h1
+    omega
+  · rw [le_setDist_iff]
+    intro a' _ y hy
+    have : step.P = ∅ := rfl
+    rw [this, nbhd_empty] at hy
+    exact absurd hy (Set.notMem_empty _)
+
+/-- The cover `F♯` of the slab setting. -/
+noncomputable def cover : GeneratingSet 3 3 ((15 * 100) * 3 ^ 2) (1 + 1) (minSep 3 9) :=
+  p6FsharpC (k := 1) (m₁ := 2) (n0 := 3 * 100) (M1 := 9) (c := 15) (n1 := 100) (L := 3)
+    (Z := step.Z) rfl P6PairWitness.hρ9 (by norm_num) P6PairWitness.hM9
+
+/-- The fine site over `u0`: first coordinate `50 · 1215`, all others `0`. -/
+def ustar : CTorus 3 3 (15 * 100) 2 (1 + 1) := fun i => if i = 0 then 60750 else 0
+
+theorem ustar_over_omega :
+    LargeField.torusCast (by rw [p6_side P6PairWitness.hM9] : (15 * 100) * 3 ^ 2 * 3 ^ (1 + 1) =
+        9 * (15 * 100) * 3 ^ (1 + 1)) ustar ∈ fineK1 9 15 100 3 1 step.Omega := by
+  rw [mem_fineK1]
+  have : blockMap (3 ^ (1 + 1) * (15 * 9)) 100
+      (LargeField.torusCast (by rw [p6_side P6PairWitness.hM9] : (15 * 100) * 3 ^ 2 * 3 ^ (1 + 1) =
+        9 * (15 * 100) * 3 ^ (1 + 1)) ustar) = u0 := by
+    funext i
+    fin_cases i <;> decide
+  rw [this]
+  exact u0_mem_omega
+
+end Slab
+
+
 end Balaban.Inhabited
