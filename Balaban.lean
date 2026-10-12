@@ -276,6 +276,7 @@ public import Balaban.Localization.SupportMargin
 public import Balaban.Localization.SupportMarginExample
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
+public import Balaban.Localization.TreeLengthDiam
 public import Balaban.Localization.TreeLengthPaper
 public import Balaban.Localization.TreeLengthPaperExample
 public import Balaban.Localization.BlockCount
@@ -344,6 +345,7 @@ public import Balaban.Localization.DecoupledSolve
 public import Balaban.Localization.DecoupledOne
 public import Balaban.Localization.DecoupledSolveAnalytic
 public import Balaban.Localization.DecoupledFieldLocal
+public import Balaban.Localization.FootprintMargin
 public import Balaban.Localization.DecoupledFieldClose
 public import Balaban.Localization.DecoupledChiPair
 public import Balaban.Localization.DecoupledCubeHolder
@@ -352,6 +354,7 @@ public import Balaban.Localization.DecoupledFieldHolder
 public import Balaban.Localization.DecoupledFieldX0
 public import Balaban.Localization.DecoupledBackground
 public import Balaban.Localization.DecoupledBackgroundLocal
+public import Balaban.Localization.RowsBg
 public import Balaban.Localization.DecoupledDefect
 public import Balaban.Localization.DecoupledCompose
 public import Balaban.Localization.I5Param
@@ -914,6 +917,7 @@ public import Balaban.LargeField.R.ActionConvWitness
 public import Balaban.LargeField.R.MassChangeChord
 public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassChangeHessian
+public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
 public import Balaban.LargeField.R.MassChangeCrossing
@@ -1156,6 +1160,7 @@ public import Balaban.Localization.GraphGmTree
 public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
+public import Balaban.Localization.P6ActiveHalo
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.MooreDegreeWitness
@@ -1215,8 +1220,10 @@ public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxLimits
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
+public import Balaban.LargeField.R.HaloDistance
 public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
+public import Balaban.LargeField.R.RadialCoefficient
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
@@ -1261,3 +1268,4 @@ public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
 public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
+public import Balaban.Inhabited.FootprintMarginWitness

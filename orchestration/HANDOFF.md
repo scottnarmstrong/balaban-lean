@@ -13,16 +13,16 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W212 (Opus) | `w212-complex-step3` / W212 | complex step part 3: sum_E1locC, F0C_eq_pair, analyticity of the outputs in the datum |
-| W233 | `w233-regional-arith` / W233 | Q13-GROUPED (5)–(8): source-term inequality, exponential-vs-power, scale sums |
-| W234 | `w234-halo-distance` / W234 | regionalHaloDistance: size ≥ diameter, halo separation at the current scale |
-| W235 | `w235-radial-coefficient` / W235 | a_j = v₁ (termwise chain rule; dictionary between RenormDefs and Def7v2Corr; source conventions) |
-| W236 | `w236-active-halo` / W236 | VMOD-24 rows 1–2: active-cell halo, top-layer, root patch count 3^d(L^{m₀})^d |
-| W237 | `w237-footprint-margin` / W237 | footprint inclusion (FP): resDep/approxDep of interaction-box rows inside hatBox, hence inside the component |
-| W238 | `w238-rows-bg` / W238 | row-local versions of local_step, i4a_local, i4b_local (FOOTPRINT items 1–3) |
 | W239 | `w239-rows-cov` / W239 | row-local versions of I4c_local_sqrt2/3, hatSqrtF_local, hatPsiF_local (FOOTPRINT items 4–5) |
+| W240 | `w240-rows-fl` / W240 | row-local versions of local_step_fpS, i4a_local_fpS (FOOTPRINT item 6) |
+| W241 | `w241-actionconv-nonzero` / W241 | ActionConvInput witness with a nonzero correction C |
+| W242 | `w242-regional-tails` / W242 | omitted-polymer tail and kernel tail from entropy + halo distance (Q13-GROUPED (4), (8)) |
+| W243 | `w243-footprint-fl` / W243 | (FP) for SYF, RowsDep ⊆ Y₁, i4b_local from raw agreement on the component |
+| W244 | `w244-sfctx-multicube` / W244 | SFCtx with many cubes; non-vacuous instance of regionalHaloDistance |
+| W245 | `w245-avg-family` / W245 | averaged vs unaveraged term family in a_j = v₁ (links M2, M3 of W235) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): fluctfix CHART (tag CHART; FOOTPRINT done: (FP) proved for all rows, physical reads and the fixed-Y chart open), q13 Q13-MARGIN (tag Q13MARGIN; Q13-TUBE done: common tube open, needs a strict joint data–mass margin; per-polymer D7 distance refuted for clusters; neither scheme closed), vmod VMOD-26 SIZE-UNIFY (tag VMOD26; VMOD-25 done: active rooting not implied; D7 size `LargeField.dCovMod` vs fluctuation size `Fluctuation.dcovMod` not comparable — OPEN DESIGN ISSUE). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
+astra (cap 3): fluctfix SHARPLOC (tag SHARPLOC; SPLIT done: the rate closes on the global domain from (FP) + row-local theorems + PhysicalReads + PhysicalSharpLoc, no fixed-Y chart needed; output class clauses and the direct-label StepActivityBound assembler still open), q13 Q13-TRANSFER (tag Q13TRANSFER; Q13-COLLAR done: mass path settled, history transfer open for both schemes), vmod VMOD-27 HOLE-READS (tag VMOD27; VMOD-26 done: RECOMMENDED D7 size change to the fine chosen-cover size at the post-R region — 3 files, NOT YET APPLIED, needs an Opus worker; active rooting needs a physical statement). NEXT SONNET PACKAGES (rate route): the four PhysicalReads lemmas of notes/phase1/SPLIT.md §3 (E-read first), then the physical fan congruence, PhysicalSharpLoc, physical_directTerms. AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
