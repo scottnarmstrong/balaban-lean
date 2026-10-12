@@ -1161,6 +1161,8 @@ public import Balaban.LargeField.R.RopConcreteMeas
 public import Balaban.LargeField.R.ZeroDomainSep
 public import Balaban.LargeField.R.ZeroDomainSepRho
 public import Balaban.LargeField.R.DenominatorRot
+public import Balaban.LargeField.R.RhoZeroPhysical
+public import Balaban.LargeField.R.RopPhysical
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
