@@ -8,6 +8,8 @@ module
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Fluctuation.StepActivityHatSourceCor
+public import Balaban.Inhabited.StepActivityHatWitnessNe
+public import Balaban.Fluctuation.StepActivityWitness
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FunProp
@@ -48,22 +50,24 @@ theorem exists_cpsi_le_one (a b C : ℝ) {t : ℝ} (ht : 0 < t) :
   obtain ⟨x, ⟨h1, h2⟩, h3⟩ := (((eventually_nhdsWithin_of_eventually_nhds e).and hp).and h1).exists
   exact ⟨x, h2, h3, h1⟩
 
-/-- The source with a single nonzero component of size `β / 2`. -/
-noncomputable def hatSource (m₁ : ℕ) (β : ℝ) : Fld 3 3 9 m₁ 2 2 :=
-  fun y i => if y = 0 ∧ i = 0 then ((β / 2 : ℝ) : ℂ) else 0
+/-- The source with a single nonzero component, of size `β / 2`, at `(y₁, i₁)`. -/
+noncomputable def hatSource (m₁ : ℕ) (β : ℝ) (y₁ : CTorus 3 3 9 m₁ 2) (i₁ : Fin 2) :
+    Fld 3 3 9 m₁ 2 2 :=
+  fun y i => if y = y₁ ∧ i = i₁ then ((β / 2 : ℝ) : ℂ) else 0
 
-theorem hatSource_ne (m₁ : ℕ) {β : ℝ} (hβ : 0 < β) : hatSource m₁ β ≠ 0 := by
+theorem hatSource_ne (m₁ : ℕ) {β : ℝ} (hβ : 0 < β) (y₁ : CTorus 3 3 9 m₁ 2) (i₁ : Fin 2) :
+    hatSource m₁ β y₁ i₁ ≠ 0 := by
   intro h
-  have := congrFun (congrFun h 0) 0
+  have := congrFun (congrFun h y₁) i₁
   simp [hatSource] at this
   linarith
 
-theorem hatSource_norm (m₁ : ℕ) {β : ℝ} (hβ : 0 < β) :
-    ∑ x, ∑ i, ‖hatSource m₁ β x i / (β : ℂ)‖ < 1 := by
+theorem hatSource_norm (m₁ : ℕ) {β : ℝ} (hβ : 0 < β) (y₁ : CTorus 3 3 9 m₁ 2) (i₁ : Fin 2) :
+    ∑ x, ∑ i, ‖hatSource m₁ β y₁ i₁ x i / (β : ℂ)‖ < 1 := by
   have hβ' : (β : ℂ) ≠ 0 := by exact_mod_cast hβ.ne'
-  have : ∑ x, ∑ i, ‖hatSource m₁ β x i / (β : ℂ)‖ = 1 / 2 := by
-    rw [Finset.sum_eq_single (0 : CTorus 3 3 9 m₁ 2)]
-    · rw [Finset.sum_eq_single (0 : Fin 2)]
+  have : ∑ x, ∑ i, ‖hatSource m₁ β y₁ i₁ x i / (β : ℂ)‖ = 1 / 2 := by
+    rw [Finset.sum_eq_single y₁]
+    · rw [Finset.sum_eq_single i₁]
       · simp only [hatSource, and_self, ↓reduceIte]
         rw [← Complex.ofReal_div, Complex.norm_real, Real.norm_eq_abs]
         rw [abs_of_pos (by positivity)]
@@ -82,11 +86,11 @@ open Classical in
 /-- **The main assembly**: the step `hatStep m₁ β p₁ δ` carries `RayData`, and the hat-derived
 activity bound for the source `0` and for every source `g` with `‖g/β‖₁ < 1`. -/
 theorem hatActivity_main :
-    ∃ (m₁ : ℕ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)),
-      0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧
-      Nonempty (StepActivityBound S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) 0) ∧
-      ∀ g : Fld 3 3 9 m₁ 2 2, ∑ x, ∑ i, ‖g x i / (S.β : ℂ)‖ < 1 →
-        Nonempty (StepActivityBound S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g) := by
+    ∃ (m₁ : ℕ) (β p₁ δ : ℝ), 0 < β ∧ 0 < p₁ ∧ p₁ < 2 ∧
+      Nonempty ((hatStep m₁ β p₁ δ).RayData 2) ∧
+      Nonempty (StepActivityBound (hatStep m₁ β p₁ δ) (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) 0) ∧
+      ∀ g : Fld 3 3 9 m₁ 2 2, ∑ x, ∑ i, ‖g x i / ((hatStep m₁ β p₁ δ).β : ℂ)‖ < 1 →
+        Nonempty (StepActivityBound (hatStep m₁ β p₁ δ) (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g) := by
   classical
   obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
     exists_witness_params (fun _ => 0)
@@ -154,7 +158,7 @@ theorem hatActivity_main :
           (K4 3 3 2 BG κ * (xiC1 3 * t) + (1 + 3 * (xiC1 3 * t)) + (1 + 2 / nuW)) / 1)) ≤ εU := by
     rw [norm_zero, zero_mul, add_zero, Complex.norm_real, Real.norm_of_nonneg (show (0 : ℝ) ≤ S.β from hβ0.le)]
     exact hamp
-  refine ⟨m₁, S, hβ0, hp, hlt, ⟨R0⟩, ?_, ?_⟩
+  refine ⟨m₁, β, cψ / 6, δ, hβ0, by positivity, by linarith, ⟨R0⟩, ?_, ?_⟩
   · exact stepActivityBound_zeroClass_of_hatExpansion' S
       (ρ := cψ / 6) (εU := εU) (κ0 := κ0) (κ' := 0) (Kc' := Kc')
       (Rσ := 2) (R₁ := 2) (r := 1) (R := 2) (m₀ := 1) (κdec := κdec) (κ₀ := κ0) (ρE := 0)
@@ -240,19 +244,19 @@ theorem hatActivity_main :
 /-- **T2: the hypotheses of `stepActivityBound_zeroClass_of_hatExpansion'` (source `0`) are jointly
 satisfiable** at an actual step with `β > 0`; the conclusion is instantiated. -/
 theorem stepActivityBound_zeroClass_of_hatExpansion_hyps_nonempty :
-    ∃ (m₁ : ℕ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)),
-      0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧
+    ∃ (m₁ : ℕ) (β p₁ δ : ℝ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)),
+      S = hatStep m₁ β p₁ δ ∧ 0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧
       Nonempty (StepActivityBound S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) 0) := by
-  obtain ⟨m₁, S, hβ, hp, hlt, hR, hA, -⟩ := hatActivity_main
-  exact ⟨m₁, S, hβ, hp, hlt, hR, hA⟩
+  obtain ⟨m₁, β, p₁, δ, hβ, hp, hlt, hR, hA, -⟩ := hatActivity_main
+  exact ⟨m₁, β, p₁, δ, hatStep m₁ β p₁ δ, rfl, hβ, hp, hlt, hR, hA⟩
 
 /-- **T3: the hypotheses of `stepActivityBound_zeroClass_source_of_hatExpansion` are jointly
 satisfiable with a nonzero source** `g` (a single component of size `β / 2`, so that
 `‖g/β‖₁ = 1/2 < 1`): the activity bound, `StepNonvanishing` and the Proposition 2.6 identity hold
 at the datum. -/
 theorem stepActivityBound_zeroClass_source_hyps_nonempty :
-    ∃ (m₁ : ℕ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)) (g : Fld 3 3 9 m₁ 2 2),
-      0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧ g ≠ 0 ∧
+    ∃ (m₁ : ℕ) (β p₁ δ : ℝ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)) (g : Fld 3 3 9 m₁ 2 2),
+      S = hatStep m₁ β p₁ δ ∧ 0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧ g ≠ 0 ∧
       ∑ x, ∑ i, ‖g x i / (S.β : ℂ)‖ < 1 ∧
       Nonempty (StepActivityBound S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g) ∧
       S.StepNonvanishing (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g ∧
@@ -263,13 +267,63 @@ theorem stepActivityBound_zeroClass_source_hyps_nonempty :
           (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)).Tm S.a S.ν (Nat.le_succ 1) S.psiKd g +
         S.E0 (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) +
         S.F0 (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g) := by
-  obtain ⟨m₁, S, hβ, hp, hlt, ⟨R0⟩, -, hA⟩ := hatActivity_main
-  have hg := hatSource_norm m₁ hβ
-  obtain ⟨I⟩ := hA (hatSource m₁ S.β) hg
-  refine ⟨m₁, S, hatSource m₁ S.β, hβ, hp, hlt, ⟨R0⟩, hatSource_ne m₁ hβ, hg, ⟨I⟩,
-    stepNonvanishing_of_activityBound I, ?_⟩
+  obtain ⟨m₁, β, p₁, δ, hβ, hp, hlt, ⟨R0⟩, -, hA⟩ := hatActivity_main
+  set S := hatStep m₁ β p₁ δ with hS
+  have hβS : 0 < S.β := hβ
+  have hg := hatSource_norm m₁ hβS 0 0
+  obtain ⟨I⟩ := hA (hatSource m₁ S.β 0 0) hg
+  refine ⟨m₁, β, p₁, δ, S, hatSource m₁ S.β 0 0, rfl, hβS, hp, hlt, ⟨R0⟩,
+    hatSource_ne m₁ hβS 0 0, hg, ⟨I⟩, stepNonvanishing_of_activityBound I, ?_⟩
   exact prop26_complex_class_of_activity S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) R0.ha₁ R0.H
     R0.hδ'0 R0.hδ' R0.hD'R R0.hδ0 R0.hfam R0.hsm R0.hχu R0.hnorm R0.hβ hp hlt R0.hB5 R0.hK2
-    R0.hp40 R0.hrad (hatSource m₁ S.β) (classRegular_zeroClass R0 hp hlt _) I
+    R0.hp40 R0.hrad (hatSource m₁ S.β 0 0) (classRegular_zeroClass R0 hp hlt _) I
+
+/-- **T4 (non-degeneracy)**: for the datum of T2/T3 with a single-component source `g` of size
+`β / 2` at a suitable `(y₁, i₁)`, the exponent `W₁(s, x) + W₂(t, x)` of the activity bound is not
+identically zero on the segments: at a point `x₀` with `‖x₀‖ < p₁` the background field moves
+along the ray (`RayData.bgField_ne_nu`), and either `V_k(ψ^{(k)} + ψ̂)` is nonzero at `s = 1`
+(`(s, t) = (1, 0)`) or the background term gives `(1, 1)`. -/
+theorem stepActivityBound_zeroClass_source_nondegenerate :
+    ∃ (m₁ : ℕ) (β p₁ δ : ℝ) (S : StepSetting 3 3 9 m₁ 1 2 (rhoSep m₁)) (g : Fld 3 3 9 m₁ 2 2),
+      S = hatStep m₁ β p₁ δ ∧ 0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) ∧ g ≠ 0 ∧
+      ∑ x, ∑ i, ‖g x i / (S.β : ℂ)‖ < 1 ∧
+      Nonempty (StepActivityBound S (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g) ∧
+      ∃ p ∈ stepSegments, ∃ x : S.E,
+        S.WoneT (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) p.1 x +
+          S.WtwoT (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) g p.2 x ≠ 0 := by
+  obtain ⟨m₁, β, p₁, δ, hβ, hp, hlt, ⟨R0⟩, -, hA⟩ := hatActivity_main
+  set S := hatStep m₁ β p₁ δ with hS
+  have hβS : 0 < S.β := hβ
+  have hcons := theta_consts (d := 3) (L := 3) (N := 2) (by norm_num) R0.hδ'0 R0.hδ'
+  have hDU : InUnionDomainR S.G' (bgC1 3 3 2) S.ν S.D' := ⟨R0.δ', R0.hδ'0, hcons.2.2.1, R0.hD'R⟩
+  have ha : ∀ n, 0 ≤ compWeight 3 (1 : ℝ) n := fun n => compWeight_nonneg_three 1 zero_le_one n
+  have hbg0 : bgField S.G' S.a S.ν S.D' = unitPhi S.G' hN2 :=
+    bgField_unitBg_nu (isLevel_Gp (m₁ := m₁) (ϱ := rhoSep m₁)) hN2 (a := compWeight 3 1) ha
+      R0.H hDU
+  obtain ⟨x₀, hx₀, y₁, i₁, hne⟩ := R0.exists_move (rfl : S.h₀ = unitVec hN2) hbg0 hp
+    (show S.p₁ < 2 from hlt)
+  have hg := hatSource_norm m₁ hβS y₁ i₁
+  obtain ⟨I⟩ := hA (hatSource m₁ S.β y₁ i₁) hg
+  refine ⟨m₁, β, p₁, δ, S, hatSource m₁ S.β y₁ i₁, rfl, hβS, hp, hlt, ⟨R0⟩,
+    hatSource_ne m₁ hβS y₁ i₁, hg, ⟨I⟩, ?_⟩
+  have hχ : chiFl S.U 2 S.p₁ x₀ = 1 := (chiFl_eq_one_iff hp x₀).2 hx₀
+  have hexp : ∀ s t : ℝ, S.WoneT (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) s x₀ +
+      S.WtwoT (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) (hatSource m₁ S.β y₁ i₁) t x₀ =
+      -(S.β : ℂ) * S.Vk (S.psiAt s x₀) + ((S.β / 2 : ℝ) : ℂ) *
+        (S.bgComp y₁ i₁ (t, x₀) - S.bgComp y₁ i₁ (0, x₀)) := by
+    intro s t
+    rw [S.WoneT_of_chi _ s x₀ hχ, S.WtwoT_of_chi _ _ t x₀ hχ, S.Wone_zeroClass]
+    exact congrArg _ (S.Wtwo_single y₁ i₁ (S.β / 2) t x₀)
+  have hβc : (S.β : ℂ) ≠ 0 := by exact_mod_cast hβS.ne'
+  have hlam : ((S.β / 2 : ℝ) : ℂ) ≠ 0 := by exact_mod_cast (by positivity : (S.β / 2 : ℝ) ≠ 0)
+  by_cases hV : S.Vk (S.psiAt 1 x₀) = 0
+  · refine ⟨(1, 1), Or.inr ⟨rfl, ⟨zero_le_one, le_rfl⟩⟩, x₀, ?_⟩
+    show S.WoneT _ 1 x₀ + S.WtwoT _ _ 1 x₀ ≠ 0
+    rw [hexp 1 1, hV, mul_zero, zero_add]
+    exact mul_ne_zero hlam (sub_ne_zero.2 hne)
+  · refine ⟨(1, 0), Or.inr ⟨rfl, ⟨le_rfl, zero_le_one⟩⟩, x₀, ?_⟩
+    show S.WoneT _ 1 x₀ + S.WtwoT _ _ 0 x₀ ≠ 0
+    rw [hexp 1 0, sub_self, mul_zero, add_zero]
+    exact mul_ne_zero (neg_ne_zero.2 hβc) hV
 
 end Balaban.Inhabited
