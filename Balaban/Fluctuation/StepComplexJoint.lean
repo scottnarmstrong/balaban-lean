@@ -20,22 +20,26 @@ for all `ψ̂` at once, with joint regularity.  This file gives them as function
 `Q = RawData × (ℂ^N)^{T^{(k)}_1}`, jointly analytic at every point `(Θ, ψ̂)` with `Θ` in the chart
 `Ξ^c(𝔹_{k+1}; 1, ε)` and `|ψ̂(b)_i| ≤ p⁺`:
 
-* `exists_analytic_oldSpin_joint`: the raw data of the old spin with tangent `hatLift cc θ ψ̂` and
-  its small solution `(φ_k(ψ), α_k(ψ))` (the joint form of `exists_analytic_oldSpin`);
+* `exists_oldSpin_of_hat`: for a datum of the chart and every complex hat variable bounded by
+  `c_ψ`, the old spin with tangent `hatLift cc θ ψ̂` exists in `𝒟(𝔹_k)`, with raw data given by the
+  critical point and the square root (`hreal_level`; the existence part of
+  `exists_analytic_oldSpin`, uniformly in the hat variable);
 * `StepSetting.psiHat`: the complex old spin `ψ^{(k)}(θ) + β_k^{-1/2} C^{(k)1/2}(θ) ψ̂` of a complex
   hat variable (`psiAtC s ψ̂ = psiHat (s ψ̂)`);
 * `StepSetting.JointRep`: a bundle of analytic representatives (the background of `θ`, the square
   root `C^{(k)1/2}`, the critical point, the small solution of `𝔹_k`) with their specifications on
   the chart; `nonempty_jointRep`: it exists under the hypotheses of the complex chart;
-* for `J : JointRep`: the joint functions `J.gJ` (raw data of the old spin), `J.FJ` (its small
-  solution), `J.VJ` (the interaction `V^{(k)}`), `J.PJ j` (the composed pairs `(ψ_k^{(j)}, h)` of
-  (H.2)), `J.EJ`, `J.FcJ`, `J.McJ` (the composites `ℰ_k`, `ℱ_k`, `ℳ_k`), `J.W1`, `J.W2` (the
-  exponents of `μ_{s,t}`), `J.tKJ`, `J.rhoJ` (the kernel `∏ t_k` and the density `ρ_k`), with
-  - their values at `(rawOf D, ψ̂)` for a datum `D` of the chart with `h = h₀`: the objects of the
-    complex step with the block datum `D` at the old spin `psiHat ψ̂` (`J.VJ_eq`, `J.W1_eq`, …);
-  - their joint analyticity at `(Θ, ψ̂)`, `Θ` in the chart (`J.analyticAt_VJ`, `J.analyticAt_W1`,
-    …); for the class terms it is conditional on the analyticity of `ℰ^{(j)}`, `ℱ^{(j)}`,
-    `ℳ^{(j)}` at the composed pairs `J.PJ j (Θ, ψ̂)`.
+* for `Jr : JointRep`: the joint functions `Jr.gJ` (raw data of the old spin), `Jr.FJ` (its small
+  solution), `Jr.VJ` (the interaction `V^{(k)}`), `Jr.PJ j` (the composed pairs `(ψ_k^{(j)}, h)` of
+  (H.2)), `Jr.EJ`, `Jr.FcJ`, `Jr.McJ` (the composites `ℰ_k`, `ℱ_k`, `ℳ_k`), `Jr.W1`, `Jr.W2` (the
+  exponents of `μ_{s,t}`), `Jr.tKJ`, `Jr.rhoJ` (the kernel `∏ t_k` and the density `ρ_k`), with
+  - their values at `(rawOf θ, ψ̂)` for the block datum `θ` of the step, in the chart: the objects of
+    the complex step at the old spin `psiHat ψ̂` (`VJ_eq`, `W1_eq`, `W1_path`, …), and, since the
+    bundle does not depend on the block datum (`JointRep.withDatum`), for the step with any datum
+    `D` of the chart with `h = h₀` (`W1_withDatum`, `W2_withDatum`, `McJ_withDatum`, …);
+  - their joint analyticity at `(Θ, ψ̂)`, `Θ` in the chart (`analyticAt_VJ`, `analyticAt_W1`, …);
+    for the class terms it is conditional on the analyticity of `ℰ^{(j)}`, `ℱ^{(j)}`, `ℳ^{(j)}` at
+    the composed pairs `Jr.PJ j (Θ, ψ̂)`.
 -/
 
 @[expose] public section

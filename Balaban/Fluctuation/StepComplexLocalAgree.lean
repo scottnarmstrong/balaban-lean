@@ -9,6 +9,7 @@ public import Balaban.Fluctuation.StepComplexSource
 public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepRegWitness
+public import Balaban.Fluctuation.Thm31WitnessAnalytic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -19,8 +20,8 @@ For a real block datum satisfying the premises of the landed step with the margi
 bundle `RayData p⁺`: the hypothesis block (R) of `StepIdentity`), and a class whose exponent
 `Φ₁ = Phi1C` is complex-differentiable near the segments (`ClassRegularLocC`):
 
-* `yhatL`, `maskUC_yhat`: the complexification of real fields as a real-linear map, and its
-  compatibility with the restriction to a block;
+* `maskUC_yhat`: the complexification of real fields (the real-linear map `yhatL`) is compatible
+  with the restriction to a block;
 * `RayData.Phi1_eventuallyEq`: near every real shift of the segments, the landed `Φ₁ = Phi1` is the
   restriction of `Phi1C` to real shifts;
 * `RayData.fderiv_Phi1C_yhat`: hence the complex derivative of `Phi1C` in a real direction is the
@@ -48,18 +49,6 @@ namespace StepSetting
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
-
-/-- The complexification `ψ ↦ (ψ(b)_i : ℂ)` of the real fields of the unit lattice, as a continuous
-real-linear map into the complex fields. -/
-noncomputable def yhatL : S.E →L[ℝ] S.EC :=
-  LinearMap.toContinuousLinearMap
-    { toFun := fun y => yhat y
-      map_add' := S.yhat_add
-      map_smul' := fun c y => by
-        funext q
-        simp [yhat] }
-
-theorem yhatL_apply (y : S.E) : S.yhatL y = yhat y := rfl
 
 /-- The restriction to a block commutes with the complexification. -/
 theorem maskUC_yhat (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (v : S.E) :

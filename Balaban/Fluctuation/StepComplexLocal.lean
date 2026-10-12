@@ -23,7 +23,7 @@ The complex form of `StepLocal`, for the holomorphic objects of `StepComplexOut`
 * `sum_E1locC`: `∑_z ℰ₁^{(k+1)}(z) = ℰ₁^{(k+1)}`, `sum_E0locC`: `∑_z ℰ₀^{(k+1)}(z) = ℰ₀^{(k+1)}`
   for `E1locC`, `E0locC`, under `ClassRegularLocC` and `StepNonvanishingC`, at every (complex)
   block datum;
-* `hatOf`, `shiftDomC`, `dataUC_inUnionDomainC_of_shiftDomC`, `analyticAt_bgC_shift`,
+* `hatOfShift`, `shiftDomC`, `dataUC_inUnionDomainC_of_shiftDomC`, `exists_analytic_bgC_shift`,
   `analyticAt_VkC_shift`: on the complex chart the complex old spin `ψ^{(k)}(θ) + ψ'` lies in the
   domain `𝒟(𝔹_k)` of the small solution for every complex shift `ψ'` whose hat variable
   `β_k^{1/2} C^{(k)-1/2} ψ'` is below `p⁺`; on this open set the small solution `φ_k(ψ)` and the
@@ -214,14 +214,14 @@ theorem sum_E0locC (hp₁ : 0 < S.p₁) (g : Fld d L N₁ m₁ (k + 1) N) (hc : 
 /-- The hat variable `ψ̂ = β_k^{1/2} C^{(k)-1/2}(θ) ψ'` of a complex shift `ψ'` of the unit lattice
 (the inverse of the substitution (2.7) at a complex datum, with the inverse matrix of
 `covSqrtC`). -/
-noncomputable def hatOf (y : S.EC) : S.EC :=
+noncomputable def hatOfShift (y : S.EC) : S.EC :=
   (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))⁻¹ • (S.covSqrtC⁻¹ *ᵥ y)
 
 /-- The complex shifts `ψ'` whose hat variable is below `p⁺` in every coordinate: an open set of
 `(ℂ^N)^{T^{(k)}_1}` containing the shifts `s ψ'(ψ̂)` of the path (`s ∈ [0,1]`, `‖ψ̂‖ < p⁺`). -/
-def shiftDomC (pp : ℝ) : Set S.EC := {y | ∀ p, ‖S.hatOf y p‖ < pp}
+def shiftDomC (pp : ℝ) : Set S.EC := {y | ∀ p, ‖S.hatOfShift y p‖ < pp}
 
-theorem continuous_hatOf : Continuous S.hatOf := by
+theorem continuous_hatOfShift : Continuous S.hatOfShift := by
   have h : Continuous (fun y : S.EC => S.covSqrtC⁻¹ *ᵥ y) := by
     refine continuous_pi fun p => ?_
     simp only [Matrix.mulVec, dotProduct]
@@ -230,11 +230,11 @@ theorem continuous_hatOf : Continuous S.hatOf := by
   exact h.const_smul (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))⁻¹
 
 theorem isOpen_shiftDomC (pp : ℝ) : IsOpen (S.shiftDomC pp) := by
-  have : S.shiftDomC pp = ⋂ p, {y : S.EC | ‖S.hatOf y p‖ < pp} := by
+  have : S.shiftDomC pp = ⋂ p, {y : S.EC | ‖S.hatOfShift y p‖ < pp} := by
     ext y; simp [shiftDomC]
   rw [this]
   exact isOpen_iInter_of_finite fun p =>
-    isOpen_lt (continuous_norm.comp ((continuous_apply p).comp S.continuous_hatOf))
+    isOpen_lt (continuous_norm.comp ((continuous_apply p).comp S.continuous_hatOfShift))
       continuous_const
 
 theorem shiftUC_eq_smul_mulVec (x : S.E) :
@@ -257,17 +257,17 @@ variable (hdet : IsUnit S.covSqrtC.det) (hcc : ((S.betaU ^ (-(1 / 2 : ℝ)) : �
 include hdet hcc in
 /-- The substitution (2.7) of the hat variable of a shift returns the shift, when `C^{(k)1/2}` is
 invertible. -/
-theorem smul_mulVec_hatOf (y : S.EC) :
-    ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (S.covSqrtC *ᵥ S.hatOf y) = y := by
-  unfold hatOf
+theorem smul_mulVec_hatOfShift (y : S.EC) :
+    ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (S.covSqrtC *ᵥ S.hatOfShift y) = y := by
+  unfold hatOfShift
   rw [Matrix.mulVec_smul, smul_smul, mul_inv_cancel₀ hcc, one_smul, Matrix.mulVec_mulVec,
     Matrix.mul_nonsing_inv _ hdet, Matrix.one_mulVec]
 
 include hdet hcc in
 /-- The hat variable of the shift `s ψ'(ψ̂)` of the path is `s ψ̂`. -/
-theorem hatOf_smul_shiftUC (s : ℝ) (x : S.E) :
-    S.hatOf ((s : ℂ) • S.shiftUC x) = (s : ℂ) • yhat x := by
-  unfold hatOf
+theorem hatOfShift_smul_shiftUC (s : ℝ) (x : S.E) :
+    S.hatOfShift ((s : ℂ) • S.shiftUC x) = (s : ℂ) • yhat x := by
+  unfold hatOfShift
   rw [S.shiftUC_eq_smul_mulVec, Matrix.mulVec_smul, Matrix.mulVec_smul, Matrix.mulVec_mulVec,
     Matrix.nonsing_inv_mul _ hdet, Matrix.one_mulVec, smul_smul, smul_smul, mul_right_comm,
     inv_mul_cancel₀ hcc, one_mul]
@@ -276,7 +276,7 @@ include hdet hcc in
 /-- The shifts of the path lie in `shiftDomC p⁺` for `|s| ‖ψ̂‖ < p⁺`. -/
 theorem smul_shiftUC_mem_shiftDomC {pp : ℝ} {s : ℝ} {x : S.E} (h : |s| * ‖x‖ < pp) :
     (s : ℂ) • S.shiftUC x ∈ S.shiftDomC pp := fun p => by
-  rw [S.hatOf_smul_shiftUC hdet hcc]
+  rw [S.hatOfShift_smul_shiftUC hdet hcc]
   exact lt_of_le_of_lt (S.norm_smul_yhat_le_mul s x p) h
 
 end HatInverse
@@ -317,10 +317,10 @@ theorem dataUC_inUnionDomainC_of_shiftDomC {y : S.EC} (hy : y ∈ S.shiftDomC pp
     InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
       (S.dataUC (S.psi0C + y)) := by
   refine inUnionDomainC_of_tangent_hatLift hC S.hk1 S.hG S.hG' ha₁ hC.HBp hc7 hR hsmR hMX hdm hα
-    hsm _ hpp.le (by rwa [S.norm_betaU_rpow hβ.le]) (ψh := S.hatOf y) (fun p => (hy p).le) hD
+    hsm _ hpp.le (by rwa [S.norm_betaU_rpow hβ.le]) (ψh := S.hatOfShift y) (fun p => (hy p).le) hD
     (fun z i => by rw [S.dataUC_h, S.hh₀]) ?_
   rw [S.compTangent_dataUC, add_sub_cancel_left, S.hatLift_eq_liftC,
-    S.smul_mulVec_hatOf (S.isUnit_det_covSqrtC hC hMX hdm hα hsm hD) (S.betaU_rpow_ne_zero hβ)]
+    S.smul_mulVec_hatOfShift (S.isUnit_det_covSqrtC hC hMX hdm hα hsm hD) (S.betaU_rpow_ne_zero hβ)]
 
 /-- The raw data of the complex old spin `ψ^{(k)}(θ) + ψ'` are analytic (affine) in the shift. -/
 theorem analyticAt_rawUC_shift (y₀ : S.EC) :
