@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.Operators.Quiet
+public import Balaban.LargeField.R.SmallFactorTilde
 
 /-!
 # The five small-field functions of `R` (Part III, Definition III.5.1)
@@ -37,18 +38,12 @@ section Defs
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ} {ϱ : ℝ}
 
-/-- `ψ ∈ Ψ̃_k(X; δ)` at one scale: `|ψ_k(y) - ψ_k(y')| < δ` for the adjacent `k`-blocks `y, y'`
-contained in the fine set `X` (the bonds of `T^{(k)}_1` in `X`) and `||ψ_k(y)| - 1| < δ` for the
+/-- `ψ ∈ Ψ̃_k(X; δ)` at one scale: `|ψ_k(y) - ψ_k(y')| < δ` for the nearest-neighbour `k`-blocks
+`y, y'` (bonds of `T^{(k)}_1`) contained in the fine set `X` and `||ψ_k(y)| - 1| < δ` for the
 `k`-blocks `y ⊂ X` (P7 p. 501). -/
 def PsiTildeOne (k : ℕ) (ψ : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
     (X : Set (Torus S.d (M * n K * S.L ^ K))) (δ : ℝ) : Prop :=
-  (∀ y y' : BlockAt S n M K k,
-      BlockSub (S := S) (n := n) (M := M) (K := K) k y X →
-      BlockSub (S := S) (n := n) (M := M) (K := K) k y' X →
-      y ≠ y' → BlockAdj (S := S) (n := n) (M := M) (K := K) ⟨k, y⟩ ⟨k, y'⟩ →
-        ‖ψ y - ψ y'‖ < δ) ∧
-    ∀ y : BlockAt S n M K k, BlockSub (S := S) (n := n) (M := M) (K := K) k y X →
-      |‖ψ y‖ - 1| < δ
+  PsiTildeSet {y : BlockAt S n M K k | BlockSub (S := S) (n := n) (M := M) (K := K) k y X} ψ δ
 
 variable (a : LocalHistory S n M K) (k : ℕ)
 
