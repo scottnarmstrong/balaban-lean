@@ -706,3 +706,8 @@ public import Balaban.Fluctuation.TraceEntropyInhab
 public import Balaban.Fluctuation.CubeAction
 public import Balaban.Fluctuation.CubeActionShift
 public import Balaban.Fluctuation.CubeActionBound
+public import Balaban.Fluctuation.H7Bridge
+public import Balaban.Fluctuation.H7BridgeCube
+public import Balaban.Fluctuation.Theorem42Geom
+public import Balaban.Fluctuation.Theorem42Input
+public import Balaban.Fluctuation.Theorem42
