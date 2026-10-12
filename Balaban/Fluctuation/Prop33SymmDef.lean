@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.Prop33SymmRay
 public import Balaban.Fluctuation.InteractionSymmSolReal
 public import Balaban.Fluctuation.InteractionLoc
+public import Balaban.Fluctuation.InteractionETerm
 
 /-!
 # The symmetry clause of Proposition 3.3 for the terms of a localized expansion
@@ -170,6 +171,59 @@ theorem termReal_ray {ι : Type*} {Evs : ι → RawData d L (N₁ * L ^ m₁) K 
     (funext fun p => funext fun i => Complex.conj_eq_iff_im.2 (hw p i))
     (fun t ht => Complex.conj_eq_iff_im.2 (hω t ht))
     (fun t ht τ hτ => hxw σ hσ t (hreal1 t ht) τ hτ)
+
+
+/-- **The first-order directional terms of an `O(N)`-invariant analytic family are covariant.** -/
+theorem termRot_dir {ι : Type*} {Evs : ι → RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
+    (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y)
+      (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁))
+    (hinv : ∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 → ∀ Y, ∀ u ∈
+      XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁, Evs Y (rotU (cmat Q) u) = Evs Y u)
+    {ω : ℂ → ℂ} {R₁ Rσ r : ℝ} (hr : 0 < r) (hR₁ : 1 < R₁) :
+    TermRot (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
+      {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
+        ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+          (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+      (fun Y x₀ w σ Θ => dirTerm (Evs Y) ω x₀ w σ Θ) := by
+  intro Q hQ Y xw hxw σ hσ Θ hΘ
+  have hreal1 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖(t : ℂ)‖ < R₁ := fun t ht => by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg ht.1]; linarith [ht.2]
+  exact dirTerm_equiv (isOpen_flBall (N := N) Hm δ₁) (hEv Y) (rotRaw (cmat Q))
+    (DecEquiv.rotSite (cmat Q)) (rotSite_add _) (rotSite_smul _)
+    (fun Θ hΘ z hz => hinv Q hQ Y (Θ, z) ⟨hΘ, hz⟩)
+    (fun Θ hΘ => rotRaw_mem hQ hΘ) (fun z hz => rotSite_mem_flBall hQ hz) hΘ
+    (fun t ht => by simpa using hxw σ hσ t (hreal1 t ht) 0 (by simp [hr.le]))
+
+/-- **The first-order directional terms of a conjugation-covariant analytic family are real.** -/
+theorem termReal_dir {ι : Type*} {Evs : ι → RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
+    (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y)
+      (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁))
+    (hreal : ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁,
+      IsRealRaw u.1 → cj (Evs Y u) = Evs Y (cjU u))
+    {ω : ℂ → ℂ} (hω : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → (ω (t : ℂ)).im = 0)
+    {R₁ Rσ r : ℝ} (hr : 0 < r) (hR₁ : 1 < R₁) :
+    TermReal (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
+      {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
+        ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+          (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+      (fun Y x₀ w σ Θ => dirTerm (Evs Y) ω x₀ w σ Θ) := by
+  intro Y xw hxw hx hw σ hσ hσim Θ hΘ hΘr
+  have hreal1 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖(t : ℂ)‖ < R₁ := fun t ht => by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg ht.1]; linarith [ht.2]
+  have hline : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → (σ * (t : ℂ)) • xw.1 ∈ FlBall Hm δ₁ := fun t ht => by
+    simpa using hxw σ hσ t (hreal1 t ht) 0 (by simp [hr.le])
+  have h1 : ∀ z ∈ FlBall Hm δ₁, cj (Evs Y (Θ, z)) = Evs Y (Θ, DecEquiv.cjSite z) := fun z hz =>
+    hreal Y (Θ, z) ⟨hΘ, hz⟩ hΘr
+  have h2 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 →
+      DifferentiableAt ℂ (Evs Y) (Θ, (σ * (t : ℂ)) • xw.1) := fun t ht =>
+    (hEv Y (Θ, (σ * (t : ℂ)) • xw.1) ⟨hΘ, hline t ht⟩).differentiableAt
+  exact dirTerm_conj (Ev := Evs Y) (isOpen_flBall (N := N) Hm δ₁) (DecEquiv.cjSite (N := N))
+    cjSite_add cjSite_smul h1 (Complex.conj_eq_iff_im.2 hσim)
+    (funext fun p => funext fun i => Complex.conj_eq_iff_im.2 (hx p i))
+    (funext fun p => funext fun i => Complex.conj_eq_iff_im.2 (hw p i))
+    (fun t ht => Complex.conj_eq_iff_im.2 (hω t ht)) hline h2
 
 end Def
 

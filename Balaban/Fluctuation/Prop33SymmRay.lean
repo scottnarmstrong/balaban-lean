@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.InteractionDir3
+public import Balaban.Fluctuation.InteractionDir
 import Mathlib.Analysis.Calculus.Deriv.Star
 
 /-!
@@ -123,6 +124,82 @@ theorem rayTerm_dl3_conj {S : Set Λ} {B : Set F} {Ev : Λ × F → ℂ}
     have hτ' : ‖τ‖ ≤ r := by simpa using (mem_ball_zero_iff.1 hτ).le
     have hτ'' : ‖starRingEnd ℂ τ‖ ≤ r := by simpa using hτ'
     have h1 := hreal _ (hz _ hτ'')
+    rw [h1, hadd ((σ * (t : ℂ)) • x₀) (starRingEnd ℂ τ • w), hcz, hsm (starRingEnd ℂ τ) w, hw]
+    simp
+
+
+/-- **Transport of the first-order directional terms under a symmetry of `Ev`.** -/
+theorem dirTerm_equiv {S : Set Λ} {B : Set F} {Ev : Λ × F → ℂ} (hB0 : IsOpen B)
+    (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (fΛ : Λ → Λ) (fF : F → F)
+    (hadd : ∀ x y, fF (x + y) = fF x + fF y) (hsm : ∀ (c : ℂ) x, fF (c • x) = c • fF x)
+    (hinv : ∀ Θ ∈ S, ∀ z ∈ B, Ev (fΛ Θ, fF z) = Ev (Θ, z))
+    (hS : ∀ Θ ∈ S, fΛ Θ ∈ S) (hB : ∀ z ∈ B, fF z ∈ B)
+    {ω : ℂ → ℂ} {x₀ w : F} {σ : ℂ} {Θ : Λ} (hΘ : Θ ∈ S)
+    (hline : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → (σ * (t : ℂ)) • x₀ ∈ B) :
+    dirTerm Ev ω (fF x₀) (fF w) σ (fΛ Θ) = dirTerm Ev ω x₀ w σ Θ := by
+  unfold dirTerm
+  congr 1
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  congr 1
+  have hz := hline t ht
+  have h1 : (σ * (t : ℂ)) • fF x₀ = fF ((σ * (t : ℂ)) • x₀) := (hsm _ _).symm
+  rw [h1]
+  rw [dirD_eq_lineD _ (hEv _ ⟨hS Θ hΘ, hB _ hz⟩).differentiableAt,
+    dirD_eq_lineD _ (hEv _ ⟨hΘ, hz⟩).differentiableAt]
+  unfold lineD
+  refine Filter.EventuallyEq.deriv_eq ?_
+  have hc : Continuous fun τ : ℂ => (σ * (t : ℂ)) • x₀ + τ • w := by fun_prop
+  have hmem : (fun τ : ℂ => (σ * (t : ℂ)) • x₀ + τ • w) ⁻¹' B ∈ nhds (0 : ℂ) :=
+    hc.continuousAt.preimage_mem_nhds (by simpa using hB0.mem_nhds hz)
+  filter_upwards [hmem] with τ hτ
+  have : fF ((σ * (t : ℂ)) • x₀) + τ • fF w = fF ((σ * (t : ℂ)) • x₀ + τ • w) := by
+    rw [hadd, hsm τ w]
+  show Ev (fΛ Θ, fF ((σ * (t : ℂ)) • x₀) + τ • fF w) = Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w)
+  rw [this]
+  exact hinv Θ hΘ _ hτ
+
+/-- **Reality of the first-order directional terms.** -/
+theorem dirTerm_conj {B : Set F} {Ev : Λ × F → ℂ} (hB0 : IsOpen B)
+    (cF : F → F)
+    (hadd : ∀ x y, cF (x + y) = cF x + cF y)
+    (hsm : ∀ (c : ℂ) x, cF (c • x) = (starRingEnd ℂ c) • cF x)
+    {Θ : Λ} (hreal : ∀ z ∈ B, starRingEnd ℂ (Ev (Θ, z)) = Ev (Θ, cF z))
+    {ω : ℂ → ℂ} {x₀ w : F} {σ : ℂ}
+    (hσ : starRingEnd ℂ σ = σ) (hx : cF x₀ = x₀) (hw : cF w = w)
+    (hω : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → starRingEnd ℂ (ω (t : ℂ)) = ω (t : ℂ))
+    (hline : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → (σ * (t : ℂ)) • x₀ ∈ B)
+    (hEv : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → DifferentiableAt ℂ Ev (Θ, (σ * (t : ℂ)) • x₀)) :
+    starRingEnd ℂ (dirTerm Ev ω x₀ w σ Θ) = dirTerm Ev ω x₀ w σ Θ := by
+  unfold dirTerm
+  rw [map_mul, hσ]
+  congr 1
+  have hcI : ∀ G : ℝ → ℂ, starRingEnd ℂ (∫ t in (0 : ℝ)..1, G t) =
+      ∫ t in (0 : ℝ)..1, starRingEnd ℂ (G t) := fun G => by
+    rw [intervalIntegral.integral_of_le zero_le_one, intervalIntegral.integral_of_le zero_le_one,
+      integral_conj]
+  rw [hcI]
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  simp only [map_mul]
+  rw [hω t ht]
+  congr 1
+  have hz := hline t ht
+  rw [dirD_eq_lineD _ (hEv t ht)]
+  unfold lineD
+  have hcz : cF ((σ * (t : ℂ)) • x₀) = (σ * (t : ℂ)) • x₀ := by
+    rw [hsm, hx]
+    simp [hσ]
+  have := iteratedDeriv_conj_conj_aux 1 (fun τ : ℂ => Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w))
+    (fun τ : ℂ => Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w)) 0 ?_
+  · simpa [iteratedDeriv_one] using this.symm
+  · have hc : Continuous fun τ : ℂ => (σ * (t : ℂ)) • x₀ + τ • w := by fun_prop
+    have hmem : (fun τ : ℂ => (σ * (t : ℂ)) • x₀ + τ • w) ⁻¹' B ∈ nhds (0 : ℂ) :=
+      hc.continuousAt.preimage_mem_nhds (by simpa using hB0.mem_nhds hz)
+    have hmem' : (fun τ : ℂ => (σ * (t : ℂ)) • x₀ + (starRingEnd ℂ τ) • w) ⁻¹' B ∈ nhds (0 : ℂ) :=
+      Complex.continuous_conj.continuousAt.preimage_mem_nhds (by rw [map_zero]; exact hmem)
+    filter_upwards [hmem'] with τ hτ
+    have h1 := hreal _ hτ
     rw [h1, hadd ((σ * (t : ℂ)) • x₀) (starRingEnd ℂ τ • w), hcz, hsm (starRingEnd ℂ τ) w, hw]
     simp
 
