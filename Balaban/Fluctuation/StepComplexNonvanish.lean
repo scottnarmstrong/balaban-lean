@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.StepComplexAgree
 public import Balaban.Fluctuation.StepNonvanishInhab
+public import Balaban.Fluctuation.StepActivityWitnessMain
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -20,13 +21,15 @@ complex block datum (`StepComplex`): the same fields, with the almost-everywhere
 * `StepActivityBoundC.ZstC_eq_exp`, `ZstC_ne_zero`: `Z_{s,t} = exp 𝓛_{s,t}` with
   `‖𝓛_{s,t}‖ ≤ |𝔅| ε_H K_c C_PE` on the two segments;
 * `StepNonvanishingC`, `stepNonvanishingC_of_activityBoundC`;
-* `StepActivityBound.toC`, `StepActivityBoundC.toReal`, `stepActivityBoundEquiv`: the two
-  structures are equivalent as soon as the exponents agree almost everywhere on the segments;
+* `StepActivityBound.toC_of_ae`, `StepActivityBoundC.toReal_of_ae`,
+  `stepActivityBoundEquiv_of_ae`: the two structures are equivalent as soon as the exponents agree
+  almost everywhere on the segments;
   `stepActivityBoundEquivReal`, `stepNonvanishingC_iff`, `stepNonvanishing_of_activityBoundC`,
   `prop26_complex_class_of_activityC`: on real data (the hypotheses of the landed step) they are
   equivalent, and `StepActivityBoundC` is an input of Proposition 2.6;
 * `nonempty_stepActivityBoundC` (rule 10): the degenerate witness of `StepActivityBound`,
-  transported.
+  transported; `exists_activityC_datum`: the non-degenerate witness of `exists_activity_datum`
+  (`β > 0`, exponent not identically zero), transported by the equivalence on real data.
 -/
 
 @[expose] public section
@@ -34,7 +37,8 @@ complex block datum (`StepComplex`): the same fields, with the almost-everywhere
 namespace Balaban.Fluctuation
 
 open Balaban Balaban.Localization Balaban.Polymer Balaban.Multiscale Balaban.SmallField.Def6
-  Balaban.Background Balaban.SmallField MeasureTheory
+  Balaban.Background Balaban.SmallField Balaban.Inhabited Balaban.Localization.I5Inhabited
+  MeasureTheory
 
 section Bound
 
@@ -141,7 +145,7 @@ theorem stepNonvanishingC_of_activityBoundC (I : StepActivityBoundC S C g) :
 
 /-- The activity bound of the complex step from the landed one, when the two exponents agree
 almost everywhere on the segments. -/
-def StepActivityBound.toC (I : StepActivityBound S C g)
+def StepActivityBound.toC_of_ae (I : StepActivityBound S C g)
     (h : ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
       S.WoneC C p.1 x + S.WtwoC C g p.2 x = S.Wone C p.1 x + S.Wtwo C g p.2 x) :
     StepActivityBoundC S C g where
@@ -168,7 +172,7 @@ def StepActivityBound.toC (I : StepActivityBound S C g)
 
 /-- The landed activity bound from the one of the complex step, when the two exponents agree
 almost everywhere on the segments. -/
-def StepActivityBoundC.toReal (I : StepActivityBoundC S C g)
+def StepActivityBoundC.toReal_of_ae (I : StepActivityBoundC S C g)
     (h : ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
       S.WoneC C p.1 x + S.WtwoC C g p.2 x = S.Wone C p.1 x + S.Wtwo C g p.2 x) :
     StepActivityBound S C g where
@@ -195,12 +199,12 @@ def StepActivityBoundC.toReal (I : StepActivityBoundC S C g)
 
 /-- **The two activity bounds are equivalent** when the exponents of the complex step and of the
 landed step agree almost everywhere on the segments. -/
-def stepActivityBoundEquiv
+def stepActivityBoundEquiv_of_ae
     (h : ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
       S.WoneC C p.1 x + S.WtwoC C g p.2 x = S.Wone C p.1 x + S.Wtwo C g p.2 x) :
     StepActivityBoundC S C g ≃ StepActivityBound S C g where
-  toFun I := I.toReal h
-  invFun I := I.toC h
+  toFun I := I.toReal_of_ae h
+  invFun I := I.toC_of_ae h
   left_inv I := by cases I; rfl
   right_inv I := by cases I; rfl
 
@@ -233,7 +237,7 @@ include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 h
 (an equivalence which keeps the labels, the block split, the activities and the constants). -/
 noncomputable def stepActivityBoundEquivReal (g : Fld d L N₁ m₁ (k + 1) N) :
     StepActivityBoundC S C g ≃ StepActivityBound S C g :=
-  stepActivityBoundEquiv
+  stepActivityBoundEquiv_of_ae
     (S.ae_exponentsC_eq C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g)
 
 include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad in
@@ -336,7 +340,7 @@ theorem WtwoC_zero_class (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) (x : S
 `nonempty_stepActivityBound`: `N₁ = 1`, the step datum `θ = 0` of `nonempty_stepSetting` with
 `β = 0`, `p₁ = 1`, the zero class and source `g = 0`.  DEGENERATE: all exponents and activities
 vanish, for the complex step as for the landed one; the witness is the landed one, transported by
-`StepActivityBound.toC`. -/
+`StepActivityBound.toC_of_ae`. -/
 theorem nonempty_stepActivityBoundC (hk1 : 1 ≤ k) (a₁ ν δ : ℝ) :
     ∃ S : StepSetting d L 1 m₁ k N ϱ,
       Nonempty (StepActivityBoundC S (zeroClass d L 1 m₁ k N ϱ) 0) := by
@@ -355,7 +359,7 @@ theorem nonempty_stepActivityBoundC (hk1 : 1 ≤ k) (a₁ ν δ : ℝ) :
       have := congrFun (h0 p) x
       rw [this, norm_zero]
       exact stepActivityThreshold_nonneg _ _ _ _ _)
-  refine ⟨S, ⟨I.toC fun p _ => Filter.Eventually.of_forall fun x => ?_⟩⟩
+  refine ⟨S, ⟨I.toC_of_ae fun p _ => Filter.Eventually.of_forall fun x => ?_⟩⟩
   rw [WoneC_zero_of_beta S hβ, WtwoC_zero_class, Wone_zero_of_beta S hβ, Wtwo_zero_class]
 
 /-- **`StepNonvanishingC` is not contradictory**: it holds at the witness of
@@ -365,6 +369,33 @@ theorem nonempty_stepNonvanishingC (hk1 : 1 ≤ k) (a₁ ν δ : ℝ) :
   obtain ⟨S, ⟨I⟩⟩ := nonempty_stepActivityBoundC (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ)
     hk1 a₁ ν δ
   exact ⟨S, stepNonvanishingC_of_activityBoundC I⟩
+
+/-- **A non-degenerate `StepActivityBoundC`** (rule 10, with genuine content): at the datum of
+`exists_activity_datum` (`d = L = 3`, `N₁ = 6`, `k = 1`, `N = 2`, `β > 0`, a real block datum with
+`RayData`, the zero class and a nonzero source `g`), the activity bound of the complex step holds,
+and its exponent `W₁ + W₂` is not identically zero on the segments.  The witness is the landed
+one, transported by the equivalence on real data (`stepActivityBoundEquivReal`). -/
+theorem exists_activityC_datum :
+    ∃ (m₁ : ℕ) (S : StepSetting 3 3 6 m₁ 1 2 (rhoSep m₁)) (g : Fld 3 3 6 m₁ 2 2),
+      0 < S.β ∧ 0 < S.p₁ ∧
+      Nonempty (StepActivityBoundC S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g) ∧
+      (∃ p ∈ stepSegments, ∃ x : S.E, S.WoneC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) p.1 x +
+        S.WtwoC (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁)) g p.2 x ≠ 0) := by
+  classical
+  obtain ⟨m₁, S, g, hβ, hp1, hlt, ⟨R⟩, ⟨I⟩, p, hp, x, hne⟩ := exists_activity_datum
+  obtain ⟨h40, hr⟩ := S.margin_small R.hδ0 R.hβ hlt R.hB5 R.hp40 R.hrad
+  refine ⟨m₁, S, g, hβ, hp1, ⟨(stepActivityBoundEquivReal S (zeroClass 3 3 6 m₁ 1 2 (rhoSep m₁))
+    R.ha₁ R.H R.hδ'0 R.hδ' R.hD'R R.hδ0 R.hfam R.hsm R.hχu R.hnorm R.hβ hp1 R.hB5 R.hK2 h40 hr
+    g).symm I⟩, p, hp, x, ?_⟩
+  have hx : chiFl S.U 2 S.p₁ x = 1 := by
+    by_contra hx
+    exact hne (by simp [StepSetting.WoneT, StepSetting.WtwoT, hx])
+  obtain ⟨hp1', hp2'⟩ := mem_Icc_of_mem_stepSegments hp
+  rw [S.WoneC_eq _ R.ha₁ R.H R.hδ'0 R.hδ' R.hD'R R.hδ0 R.hfam R.hsm R.hχu R.hnorm R.hβ hp1 R.hB5
+      R.hK2 h40 hr hp1' x hx,
+    S.WtwoC_eq _ R.ha₁ R.H R.hδ'0 R.hδ' R.hD'R R.hδ0 R.hfam R.hsm R.hχu R.hnorm R.hβ hp1 R.hB5
+      R.hK2 h40 hr g hp2' x hx]
+  rwa [S.WoneT_of_chi _ p.1 x hx, S.WtwoT_of_chi _ g p.2 x hx] at hne
 
 end Inhab
 
