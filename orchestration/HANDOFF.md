@@ -13,9 +13,9 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
-| W118 | `w118-k1-hgeo` / W118 | discharge k₁ ≥ 1 and hgeo; III.5.0(b), III.3.2(b),(d) |
+| W128 | `w128-vmod7` / W128 | VMOD-7 proved items (GM3 obstruction, star bound, gluing) |
 | W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
-| W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
+| W127 | `w127-basek3` / W127 | base kernel: BASE-KERNEL-3 proved parts |
 | W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
 | W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
 | W124 | `w124-prop33-bound` / W124 | Prop 3.3 bound shape, ν-part, symmetry |

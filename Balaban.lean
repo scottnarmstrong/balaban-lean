@@ -671,6 +671,7 @@ public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
 public import Balaban.Observables.ImprovedFirst
+public import Balaban.Observables.ConstPartTube
 public import Balaban.Observables.FirstOrderStep
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
