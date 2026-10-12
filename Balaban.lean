@@ -853,6 +853,7 @@ public import Balaban.LargeField.R.WindowGenCompose
 public import Balaban.LargeField.R.WindowGenGlue
 public import Balaban.LargeField.R.WindowCollarGeom
 public import Balaban.LargeField.R.WindowOfHistory
+public import Balaban.LargeField.R.WindowOfHistoryCollar
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
 public import Balaban.LargeField.R.DeltaPsiCollarInner
@@ -1148,6 +1149,8 @@ public import Balaban.Fluctuation.StepActivityWitnessNe
 public import Balaban.Fluctuation.StepActivityWitnessRay
 public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
+public import Balaban.Fluctuation.StepTaylor
+public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.PositiveMassFacts
@@ -1157,3 +1160,4 @@ public import Balaban.Fluctuation.StepComplexHat
 public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
+public import Balaban.Fluctuation.StepRates
