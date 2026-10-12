@@ -445,6 +445,8 @@ public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
 public import Balaban.SmallField.Def6Terms
 public import Balaban.SmallField.Def6
+public import Balaban.SmallField.Def6BridgeDomain
+public import Balaban.SmallField.Def6BridgeLift
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Compose
