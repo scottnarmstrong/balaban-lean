@@ -445,6 +445,22 @@ theorem dataSites_near (hL : 2 ≤ L) (hj : j ≤ q) {x : Torus d (M1 * N₁ * L
       exact_mod_cast this
     exact ⟨y, hy, (supDist_triangle x x' y).trans (by omega)⟩
 
+/-- **Lemma II.2.3 (c)** (range, in `π_j`-cubes): the data sites `Ω₁ ∪ C(Ω₁)` of `𝔹_j(X)` lie in
+`X^{∼1}`: each is in the `π_j`-cube of, or an adjacent `π_j`-cube to, a site of `X`
+(`π_j`-cubes of side `L ^ j M`, `12 M1 ≤ M`). -/
+theorem minimalGenSet_range (hL : 2 ≤ L) (hj : j ≤ q) {M : ℕ} (hM : 12 * M1 ≤ M) {m' : ℕ}
+    [NeZero m'] (hP : M1 * N₁ * L ^ q = (L ^ j * M) * m') {x : Torus d (M1 * N₁ * L ^ q)}
+    (hx : x ∈ Background.dataSites (minimalGenSet hj X)) :
+    ∃ y ∈ X, supDist (blockMap (L ^ j * M) m' x) (blockMap (L ^ j * M) m' y) ≤ 1 := by
+  obtain ⟨y, hy, hd⟩ := dataSites_near X hL hj hx
+  refine ⟨y, hy, supDist_blockMap_le_one hP (D := 11 * M1 * L ^ j + 1) ?_ x y hd⟩
+  have hB : 1 ≤ M1 * L ^ j := Nat.one_le_iff_ne_zero.2 (by
+    have := NeZero.ne L; have := NeZero.ne M1; positivity)
+  have h1 : L ^ j * (12 * M1) ≤ L ^ j * M := Nat.mul_le_mul_left _ hM
+  have h2 : L ^ j * (12 * M1) = 12 * (M1 * L ^ j) := by ring
+  have h3 : 11 * M1 * L ^ j = 11 * (M1 * L ^ j) := by ring
+  omega
+
 end Range
 
 /-! ### Lemma II.2.3 (d): disjoint unions -/
@@ -559,5 +575,20 @@ theorem dataSites_far (hL : 2 ≤ L) (hj : j ≤ q) {M : ℕ} (hM : 14 * M1 ≤ 
   omega
 
 end Union
+
+/-- **Lemma II.2.3 (d)** (disjoint unions): the layers of `𝔹_j(X₁ ∪ X₂)` are the unions of those
+of `𝔹_j(X₁)`, `𝔹_j(X₂)` and the data sites of the two are at sup-distance `≥ 2`, when the
+`π_j`-cubes of `X₁`, `X₂` are at index distance `≥ 3` (`14 M1 ≤ M`). -/
+theorem minimalGenSet_disjoint {j : ℕ} (hL : 2 ≤ L) (hj : j ≤ q) {M : ℕ} (hM : 14 * M1 ≤ M) {m' : ℕ}
+    [NeZero m'] (hP : M1 * N₁ * L ^ q = (L ^ j * M) * m')
+    {X₁ X₂ : Finset (Torus d (M1 * N₁ * L ^ q))}
+    (hfar : ∀ x₁ ∈ X₁, ∀ x₂ ∈ X₂,
+      3 ≤ supDist (blockMap (L ^ j * M) m' x₁) (blockMap (L ^ j * M) m' x₂)) :
+    (∀ n, (minimalGenSet hj (X₁ ∪ X₂)).Ω n =
+      (minimalGenSet hj X₁).Ω n ∪ (minimalGenSet hj X₂).Ω n) ∧
+    ∀ u ∈ Background.dataSites (minimalGenSet hj X₁), ∀ w ∈ Background.dataSites (minimalGenSet hj X₂),
+      2 ≤ supDist u w :=
+  ⟨fun n => minLayer_union hj (by omega : M1 ≤ M) hP hfar n,
+    fun _ hu _ hw => dataSites_far hL hj hM hP hfar hu hw⟩
 
 end Balaban.LargeField

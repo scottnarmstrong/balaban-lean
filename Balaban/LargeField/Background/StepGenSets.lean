@@ -115,6 +115,16 @@ noncomputable def genCubeMixed (hm : N₁ * L ^ (q - q) = c * n) (a : Torus d n)
       rw [genCube_Ω, minLayer_self, hc.cubeInterior_eq]
       exact (Finset.mem_inter.1 hx).2)
 
+theorem genCubeMixed_top_subset (hm : N₁ * L ^ (q - q) = c * n) (a : Torus d n)
+    (Om : Finset (Torus d (M1 * N₁ * L ^ q))) (hOm : IsBlockUnion L (M1 * N₁) q q Om) :
+    (genCubeMixed hm a Om hOm).Ω q ⊆ Om := by
+  intro x hx
+  have hx' : x ∈ (if q = q then
+      Om ∩ cubePre M1 N₁ L q (L ^ q * (c * M1)) n (nbhd 2 {a}) else
+      (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n a).Ω q) := hx
+  simp only [↓reduceIte] at hx'
+  exact (Finset.mem_inter.1 hx').1
+
 /-- **Definition II.2.4 (iii)**: `𝔹_j(W)` for `j ≤ q`, `W` a set of `π_q`-cubes (the cube
 `π_q` has side `L ^ q * (c * M1)`), as a level-`q` generating set. -/
 noncomputable def genSF {j : ℕ} (hj : j ≤ q) (W : Set (Torus d n)) :
@@ -229,6 +239,15 @@ noncomputable def boundaryGenSet (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k +
 theorem boundaryGenSet_Ω (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
     (h : BoundaryHyp M1 N₁ L k W U Om) (n : ℕ) :
     (boundaryGenSet W U Om h).Ω n = boundaryLayer M1 N₁ L k W U Om n := rfl
+
+theorem boundaryGenSet_top_subset (W U Om : Finset (Torus d (M1 * N₁ * L ^ (k + 1))))
+    (h : BoundaryHyp M1 N₁ L k W U Om) : (boundaryGenSet W U Om h).Ω (k + 1) ⊆ Om := by
+  rw [boundaryGenSet_Ω]
+  unfold boundaryLayer
+  rw [minLayer_of_gt W (by omega : k < k + 1)]
+  intro x hx
+  simp only [Finset.empty_sdiff, Finset.empty_union, Finset.mem_inter] at hx
+  exact hx.2
 
 end
 
