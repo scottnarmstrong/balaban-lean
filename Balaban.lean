@@ -836,6 +836,7 @@ public import Balaban.LargeField.R.DeltaPsiZ
 public import Balaban.LargeField.R.DeltaPsi
 public import Balaban.LargeField.R.DeltaPsiCore
 public import Balaban.LargeField.R.DeltaPsiCoreFinal
+public import Balaban.LargeField.R.DeltaPsiBdryLayer
 public import Balaban.LargeField.R.DeltaPhiWeight
 public import Balaban.LargeField.R.DeltaPhiResp
 public import Balaban.LargeField.R.DeltaPhi
@@ -1009,6 +1010,14 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.Thm31bVanish
+public import Balaban.Fluctuation.Thm31bSchwarz
+public import Balaban.Fluctuation.Thm31bResum
+public import Balaban.Fluctuation.Thm31bFirst
+public import Balaban.Fluctuation.Thm31bRem
+public import Balaban.Fluctuation.Thm31b
+public import Balaban.Fluctuation.Thm31bStep
+public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
