@@ -12,7 +12,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W83b | `w83-reynolds` / W83 | finish Reynolds average: SumConds, bridgeAvg, termwise corollary |
+| W98 | `w98-i6-class` / W98 | full I-6 for class members on the anisotropic domain |
 | W96 | `w96-witnesses` / W96 | positive-scale non-vacuity witnesses (i5_background, bridgeInf, LiftCtx) |
 | W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
