@@ -371,6 +371,8 @@ noncomputable def rho2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Tm : T
 of `χ_k` form a member of `IsSF2`, with the density `rho2`. -/
 theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : FieldDom d L N₁ m₁ k N ϱ}
     {Tm : Terms d L N₁ m₁ k N ϱ} {Ek : ℝ} (hT : SFTermClauses P Dom Tm)
+    (hS : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.GsSpecStrong j hjk X (Tm.gs j X))
     (hreal : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (g : CTorus d L N₁ m₁ k → Fin N → ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N),
       XiAt (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
@@ -378,6 +380,7 @@ theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : Fiel
       (expo2 P Rg β a Tm Ek D (fun x i => (g x i : ℂ))).im = 0) :
     IsSF2 P Rg β a Dom Tm (rho2 P Rg β a Tm Ek) Ek where
   terms := hT
+  gsStrong := hS
   density := by
     intro Ψ₀ h₀ g D _ hD _
     classical
@@ -425,7 +428,9 @@ theorem isSF2_pinTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : �
     (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
     IsSF2 P Rg β a Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (rho2 P Rg β a (pinTerms d L N₁ m₁ k N ϱ P.κ cj) 0) 0 := by
-  refine isSF2_rho2 (pinTerms_clauses hE₀ hκ hc0 hc hc9 hB) ?_
+  refine isSF2_rho2 (pinTerms_clauses hE₀ hκ hc0 hc hc9 hB)
+    (fun j hj1 hjk X _ => by
+      rw [pinTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X) ?_
   intro Ψ₀ h₀ g D hD
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
@@ -593,7 +598,10 @@ theorem isSFFamily2_of_landed_witness (m₁ k j k₀ : ℕ) (ϱ : ℝ) (hϱ : bg
       calc (27 : ℝ) = 3 ^ 3 := by norm_num
         _ ≤ 3 ^ k := pow_le_pow_right₀ (by norm_num) hk
     rw [e]; linarith
-  exact ⟨_, (isSFFamily_witness m₁ k j ϱ hϱ).toXi k₀ (physMass_eq_bgMass_of_lt hβν)⟩
+  exact ⟨_, (isSFFamily_witness m₁ k j ϱ hϱ).toXi k₀
+    (fun N₁ _ j hj1 hjk X _ => by
+      rw [Def6.zeroTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X)
+    (physMass_eq_bgMass_of_lt hβν)⟩
 
 /-- **The source form of the field-dependent member** (`ν_j > 0`): the reparametrized source
 terms, with `C_D = 0` (the terms `ℰ` vanish) and the reference-jet certificate of PIN-I6. -/

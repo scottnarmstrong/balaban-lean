@@ -367,6 +367,36 @@ theorem IsSFObs2.improved_first_of_const_strong
     (fun _ hz => (hS' j hj1 hjk X hX).toGsSpecCore.layerIndex_eq hj1 hjk hz) hP hβ0 hδ hδε hε hc0
     hc1 hεj hsmall hconst
 
+/-- **`improved_first_of_const`, class form**: the strong specification of the local sets is the
+clause `gsStrong` of `IsSF2`, so the premise `hS'` of `improved_first_of_const_strong` is
+discharged from `hS`. -/
+theorem IsSFObs2.improved_first_of_const'
+    (hS : IsSFObs2 P Q Rg β a (completeXiDom P Rg a N₁) Tm ρd Ek Ot Gker)
+    (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k))
+    (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
+    {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom P.m₀ j X) {x : CTorus d L N₁ m₁ k} (hx : x ∈ X)
+    {y : CTorus d L N₁ m₁ k} (hy : y ∈ X)
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' : CTorus d L N₁ m₁ k → Fin N → ℂ} {h' : Fin N → ℂ} {δ ε δ₀ : ℝ}
+    (hP : InPsiTildeC (Tm.gs j X) (Rg.sfBgMass k) δ ε Ψ₀ h₀ Ψ'' (fun _ => h'))
+    (hβ0 : 0 < β 0) (hδ : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ δ₀) (hc0 : δ₀ ≤ bgC0 d L N)
+    (hc1 : δ₀ ≤ bgC1 d L N)
+    (hεj : δ₀ + (2 * bgK1 d L N + 1) * δ₀ ≤ P.eps d L j)
+    (hsmall : 128 * (3 ^ d * ((L : ℝ) ^ (P.m₀ + m₁) * (4 * d * L) + 1)) * δ ≤ δ₀)
+    {v : Fin N → ℝ} {bc : ℝ}
+    (hconst : vn (Ot.M j x X (constFld (fun i => (Ψ₀ y i : ℂ) + Ψ'' y i))
+        (constFld (fun i => (h₀ i : ℂ) + h' i)) -
+      Ot.M j x X (constFld (fun i => (v i : ℂ))) (constFld (fun i => (v i : ℂ)))) ≤ bc) :
+    vn (Ot.M j x X (fun z i => (Ψ₀ z i : ℂ) + Ψ'' z i) (constFld (fun i => (h₀ i : ℂ) + h' i)) -
+        Ot.M j x X (constFld (fun i => (v i : ℂ))) (constFld (fun i => (v i : ℂ)))) ≤
+      improvedConst
+          (max (3 ^ d * ((L : ℝ) ^ (P.m₀ + m₁) * (4 * d * L) + 1)) (2 * L * (3 ^ d * (L : ℝ) ^ (P.m₀ + m₁))))
+          (δ₀ / 128) (δ₀ / (128 * (3 ^ d * (L : ℝ) ^ (P.m₀ + m₁)))) *
+        ((β 0) ^ (-(1 / 2 : ℝ) + Q.ρ₁) * (L : ℝ) ^ (-((j : ℝ) * Q.ρ₀)) * δ *
+          Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X)) + bc :=
+  hS.improved_first_of_const_strong (fun j hj1 hjk X hX => hS.sf.gsStrong j hj1 hjk X hX) hBg hj1
+    hjk hN hX hx hy hP hβ0 hδ hδε hε hc0 hc1 hεj hsmall hconst
+
 end Const
 
 section Second
@@ -481,6 +511,8 @@ regime, with its observable layer, the landed statement is `IsSFObs2.improved_fi
 (`IsSF.toV2`, `IsObs.toObs2`). -/
 theorem improved_first_of_const_of_v2 (hβν : 1 < β k * ν k) (k₀ : ℕ)
     (hO : IsObs P Q β ν a Tm Ot Gker) (hsf : IsSF P β ν a Tm ρd Ek)
+    (hGS : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
+      GsSpecStrong j hjk X (Tm.gs j X))
     (hbg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
     (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom P.m₀ j X) {x : CTorus d L N₁ m₁ k} (hx : x ∈ X)
@@ -508,7 +540,7 @@ theorem improved_first_of_const_of_v2 (hβν : 1 < β k * ν k) (k₀ : ℕ)
   have hs : (⟨k₀, ν⟩ : Regime L).sfBgMass k = bgMass L k (β k) (ν k) := hμ
   have hS : IsSFObs2 P Q ⟨k₀, ν⟩ β a (completeXiDom P ⟨k₀, ν⟩ a N₁) Tm
       (rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a ρd) Ek Ot Gker :=
-    ⟨hsf.toV2 (k₀ := k₀) hμ (Dom := completeXiDom P ⟨k₀, ν⟩ a N₁)
+    ⟨hsf.toV2 (k₀ := k₀) hGS hμ (Dom := completeXiDom P ⟨k₀, ν⟩ a N₁)
       (fun j G Ψ h' hp => by
         have hp' : XiDom G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
         rw [← hμ]; exact hp'), hO.toObs2 k₀ hμ⟩
