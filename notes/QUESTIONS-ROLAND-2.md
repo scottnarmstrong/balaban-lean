@@ -138,3 +138,40 @@ The printed transfer has no term that grows with T.
 large-field cubes that Y contains, paid by the large-field factor of the new region (the exponent
 p(β_k)-type smallness per new cube)? That is the repair we plan to use. Or is there a restriction on
 𝖯, or on which boundary terms X occur next to a new hole, that we have missed?
+
+**Addendum to 14 (after working out the proposed repair; details: `notes/phase1/VMOD-17.md`).**
+
+The repair named in the question does not go through as stated, for two reasons.
+
+(a) The positive part of the large-field exponent counts the new seed cubes of the step only:
+κ^{(k)}(Z′) = a_k·N(Z′) − b_k·O(Z′) with N(Z′) the number of cubes of 𝖯 ∪ 𝖰 ∪ 𝖱 ∪ 𝖲 in Z′
+(P6 (3.9)–(3.11)). But Ω_{k+1}^c also grows around the old region with no new seed: if
+𝖯 = 𝖰 = 𝖱 = 𝖲 = ∅ at step k+1 and Z_k ≠ ∅, the neighbourhood of Z_k removed by P5 (2.8) at the
+new scale contains cells outside the old hole, while N = 0. A collar made of such cells has
+nothing to be charged to.
+
+(b) P5 (H7) and the boundary clause of P6 ask for a bound on each boundary coefficient B(Y) by
+itself. The large-field factor belongs to the operator of the region, not to a single coefficient,
+so using it would need a joint norm for the pair (operator, boundary term), that is, a different
+inductive hypothesis.
+
+**Question (revised; details: `notes/phase1/VMOD-18.md`).** We examined three readings.
+
+(i) A hole is taken together with its one-block collar, and the collar is not charged in the modular
+    size. This removes the long thin hole example, but the counting estimates that use the size fail.
+    Take two parallel long thin holes F₁, F₂ of length T at a fixed distance, and for each position t
+    along them a bridge of blocks joining the two collars; put Y_t = F₁⁺ ∪ F₂⁺ ∪ (bridge at t).
+    All Y_t contain one fixed cube A, all have size bounded independently of t and T, and there are
+    about T/(2L) of them. So the sum over Y ∋ A of e^{−λ·size(Y)} is not bounded uniformly in T.
+    Also |Y ∩ Ω| is of order T while the size is O(1), so the volume factor on p. 34 is not absorbed.
+(ii) A boundary term that touches a new hole stays in the integrand of the new large-field operation.
+    But one term X can touch several disconnected components of the new region, which breaks the
+    product over components.
+(iii) The localization is an expansion in the set S of active cells actually visited (the old source,
+    the derivative cells, and the adjacent holes completed), not in a union of overlapping cubes, and
+    the labels (source, derivative cells) are kept while counting. For this support we can prove
+    D(S) ≤ d_k(X)/L + dL·|𝒞| under a rooted patch geometry.
+
+Is (iii) what was intended? Two assertions needed for it are not in the printed argument: that the
+two boundary operators of P6 have a common domain of analyticity and locality on such supports (the
+analogue of (H7)), and that the labels can be summed uniformly at fixed support.
