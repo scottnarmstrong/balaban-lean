@@ -1085,3 +1085,4 @@ public import Balaban.LargeField.R.DenominatorTaylor
 public import Balaban.LargeField.R.DenominatorHess
 public import Balaban.LargeField.R.DenominatorGauss
 public import Balaban.LargeField.R.DenominatorTube
+public import Balaban.LargeField.R.DenominatorSqueeze
