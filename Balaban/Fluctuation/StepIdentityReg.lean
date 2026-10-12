@@ -454,6 +454,37 @@ theorem stepRegular_of_class (hp₁ : 0 < S.p₁) (hlt : S.p₁ < pp) (g : Fld d
 
 end Reg2
 
+section Trace
+
+variable {δ' : ℝ} (H' : BgHyp d L (k + 1) ϱ S.a S.ν) (hδ'0 : 0 < δ')
+  (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hχ : ChiUBounds S.G' S.ν S.δ S.D' (bgField S.G' S.a S.ν S.D') (bgMult S.G' S.a S.ν S.D'))
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+
+include S H' hδ'0 hδ' hD'R hδ0 hχ hfam hsm in
+/-- **`½ log det C^{(k)} = -½ ∑_y tr 𝕃(y,y)`** (Lemma 2.4 (c), (2.8)): the two forms of the
+logarithmic term of `ℰ₀^{(k+1)}`. -/
+theorem halfLogDetC_eq_trace :
+    S.halfLogDetC = -(1 / 2 : ℝ) * (∑ y : S.U, ∑ i : Fin N, S.logA (y, i) (y, i)).re := by
+  have h := (lemma24_c_logdet hfam (S.constraintField_bg H' hδ'0 hδ' hD'R hδ0 hχ) hδ0.le hsm
+    (S.bgMult_real_S H' hδ'0 hδ' hD'R) (S.svec_bg_real H' hδ'0 hδ' hD'R)).2.2.2
+  exact h
+
+/-- The blocks `B_{k+1}(z)` partition the unit lattice: the localized traces add up to the total. -/
+theorem sum_blockU_trace :
+    ∑ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
+      ∑ y ∈ S.blockU z, ∑ i : Fin N, S.logA (y, i) (y, i) =
+        ∑ y : S.U, ∑ i : Fin N, S.logA (y, i) (y, i) := by
+  classical
+  unfold blockU
+  exact Finset.sum_fiberwise (Finset.univ : Finset S.U)
+    (fun b : S.U => unitBlock1 (b : UnitTorus d L N₁ m₁ k))
+    (fun y => ∑ i : Fin N, S.logA (y, i) (y, i))
+
+end Trace
+
 section Public
 
 variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
@@ -529,6 +560,96 @@ theorem stepNonvanishing_of_real (g : Fld d L N₁ m₁ (k + 1) N) (hrc : S.Real
     simp at h
   exact ⟨fun s hs => key s 0 hs (Set.left_mem_Icc.2 zero_le_one),
     fun t ht => key 1 t (Set.right_mem_Icc.2 zero_le_one) ht⟩
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hlt hB5 hK2 hp40 hrad in
+/-- **`μ_{s,t}` is the interpolating measure of (2.6)**: for real data, `s, t ∈ [0,1]`, the
+expectation `⟨f⟩_{s,t} = Z_{s,t}^{-1} ∫ f e^{W₁(s) + W₂(t)} dν_{p₁}` is the integral against the
+probability measure `dμ_{s,t} = Z_{s,t}^{-1} e^{W₁(s) + W₂(t)} dν_{p₁}`. -/
+theorem integral_muSt (g : Fld d L N₁ m₁ (k + 1) N) (hrc : S.RealClassTerms C g)
+    (hc : S.ClassRegular C g) {s t : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1) (ht : t ∈ Set.Icc (0 : ℝ) 1)
+    (f : S.E → ℂ) :
+    ∫ x, f x ∂ S.muSt C g s t = avgFun₂ S.nuFl (S.Wone C) (S.Wtwo C g) f s t := by
+  have hpp : 0 < pp := hp₁.trans hlt
+  obtain ⟨h40, hr⟩ := S.margin_small hδ0 hβ hlt hB5 hp40 hrad
+  have hreg := S.stepRegular_of_class C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hpp hB5 hK2
+    hp40 hrad hp₁ hlt g hc
+  obtain ⟨U, W₁', W₂', h₁, h₂⟩ := hreg.c1
+  have hprob : MeasureTheory.IsProbabilityMeasure S.nuFl :=
+    isProbabilityMeasure_fluctMeasure S.U N hp₁
+  have hsU : s ∈ U := h₁.Icc_subset hs
+  have htU : t ∈ U := h₂.Icc_subset ht
+  -- the truncated exponents are real
+  have hre1 : ∀ x, (S.WoneT C s x).im = 0 := fun x => by
+    unfold WoneT
+    by_cases hx : chiFl S.U N S.p₁ x = 1
+    · simp only [hx, ↓reduceIte]
+      exact S.Wone_im C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 h40 hr g hrc hs
+        x hx
+    · simp [hx]
+  have hre2 : ∀ x, (S.WtwoT C g t x).im = 0 := fun x => by
+    unfold WtwoT
+    by_cases hx : chiFl S.U N S.p₁ x = 1
+    · simp only [hx, ↓reduceIte]
+      exact S.Wtwo_im C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 h40 hr g hrc ht
+        x hx
+    · simp [hx]
+  set r1 : S.E → ℝ := fun x => (S.WoneT C s x).re with hr1
+  set r2 : S.E → ℝ := fun x => (S.WtwoT C g t x).re with hr2
+  have e1 : ∀ x, S.WoneT C s x = (r1 x : ℂ) := fun x => Complex.ext (by simp [hr1]) (by simp [hre1 x])
+  have e2 : ∀ x, S.WtwoT C g t x = (r2 x : ℂ) := fun x => Complex.ext (by simp [hr2]) (by simp [hre2 x])
+  have hm : Measurable fun x => r1 x + r2 x :=
+    (Complex.measurable_re.comp (h₁.measurable s hsU)).add
+      (Complex.measurable_re.comp (h₂.measurable t htU))
+  -- the measure is the truncated one
+  have hae1 : ∀ᵐ x ∂S.nuFl, (S.Wone C s x).re = r1 x :=
+    (S.ae_ball hp₁).mono fun x hx => by simp [hr1, S.WoneT_of_chi C s x hx]
+  have hae2 : ∀ᵐ x ∂S.nuFl, (S.Wtwo C g t x).re = r2 x :=
+    (S.ae_ball hp₁).mono fun x hx => by simp [hr2, S.WtwoT_of_chi C g t x hx]
+  have hdens : (fun x => ENNReal.ofReal (Real.exp ((S.Wone C s x).re + (S.Wtwo C g t x).re))) =ᵐ[S.nuFl]
+      fun x => ENNReal.ofReal (Real.exp (r1 x + r2 x)) := by
+    filter_upwards [hae1, hae2] with x h1 h2
+    rw [h1, h2]
+  have hZR : partFunR₂ S.nuFl (fun r x => (S.Wone C r x).re) (fun r x => (S.Wtwo C g r x).re) s t =
+      ∫ x, Real.exp (r1 x + r2 x) ∂S.nuFl := by
+    unfold partFunR₂
+    refine MeasureTheory.integral_congr_ae ?_
+    filter_upwards [hae1, hae2] with x h1 h2
+    rw [h1, h2]
+  have hZpos : 0 < ∫ x, Real.exp (r1 x + r2 x) ∂S.nuFl := by
+    obtain ⟨M₁, hM₁⟩ := h₁.bound
+    obtain ⟨M₂, hM₂⟩ := h₂.bound
+    refine MeasureTheory.integral_exp_pos
+      (MeasureTheory.Integrable.of_bound (C := Real.exp (M₁ + M₂)) ?_ ?_)
+    · exact (Real.measurable_exp.comp hm).aestronglyMeasurable
+    · refine MeasureTheory.ae_of_all _ fun x => ?_
+      rw [Real.norm_eq_abs, abs_of_pos (Real.exp_pos _)]
+      refine Real.exp_le_exp.2 ?_
+      have h1 : r1 x ≤ M₁ := (Complex.re_le_norm _).trans (hM₁ x s hsU).1
+      have h2 : r2 x ≤ M₂ := (Complex.re_le_norm _).trans (hM₂ x t htU).1
+      linarith
+  have hmu : S.muSt C g s t = interpMeasure S.nuFl (fun _ x => r1 x) (fun _ x => r2 x) s t := by
+    unfold muSt interpMeasure
+    rw [hZR]
+    unfold partFunR₂
+    congr 1
+    exact MeasureTheory.withDensity_congr_ae hdens
+  have hZ' : 0 < partFunR₂ S.nuFl (fun _ x => r1 x) (fun _ x => r2 x) s t := hZpos
+  rw [hmu, integral_interpMeasure_complex S.nuFl (fun _ x => r1 x) (fun _ x => r2 x) hZ' hm f]
+  unfold avgFun₂
+  have hnum : ∫ x, f x * Complex.exp (S.Wone C s x + S.Wtwo C g t x) ∂S.nuFl =
+      ∫ x, f x * ((Real.exp (r1 x + r2 x) : ℝ) : ℂ) ∂S.nuFl := by
+    refine MeasureTheory.integral_congr_ae ?_
+    filter_upwards [S.ae_ball hp₁] with x hx
+    rw [← S.WoneT_of_chi C s x hx, ← S.WtwoT_of_chi C g t x hx, e1 x, e2 x, ← Complex.ofReal_add,
+      Complex.ofReal_exp]
+  have hden : partFun₂ S.nuFl (S.Wone C) (S.Wtwo C g) s t =
+      ((partFunR₂ S.nuFl (fun _ x => r1 x) (fun _ x => r2 x) s t : ℝ) : ℂ) := by
+    rw [← partFun₂_ofReal]
+    unfold partFun₂
+    refine MeasureTheory.integral_congr_ae ?_
+    filter_upwards [S.ae_ball hp₁] with x hx
+    rw [← S.WoneT_of_chi C s x hx, ← S.WtwoT_of_chi C g t x hx, e1 x, e2 x]
+  rw [hnum, hden, div_eq_inv_mul]
 
 end Public
 

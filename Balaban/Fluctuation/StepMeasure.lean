@@ -194,6 +194,22 @@ theorem integral_interpMeasure (ν : Measure X) (W₁ W₂ : ℝ → X → ℝ) 
   · exact (Real.measurable_exp.comp hm).ennreal_ofReal
   · exact ae_of_all _ fun x => ENNReal.ofReal_lt_top
 
+theorem integral_interpMeasure_complex (ν : Measure X) (W₁ W₂ : ℝ → X → ℝ) {s t : ℝ}
+    (hZ : 0 < partFunR₂ ν W₁ W₂ s t) (hm : Measurable fun x => W₁ s x + W₂ t x) (f : X → ℂ) :
+    ∫ x, f x ∂interpMeasure ν W₁ W₂ s t =
+      ((partFunR₂ ν W₁ W₂ s t : ℝ) : ℂ)⁻¹ *
+        ∫ x, f x * ((Real.exp (W₁ s x + W₂ t x) : ℝ) : ℂ) ∂ν := by
+  unfold interpMeasure
+  rw [integral_smul_measure, ENNReal.toReal_ofReal (inv_nonneg.2 hZ.le),
+    integral_withDensity_eq_integral_toReal_smul]
+  · simp only [ENNReal.toReal_ofReal (Real.exp_pos _).le, Complex.real_smul]
+    rw [Complex.ofReal_inv]
+    congr 1
+    refine integral_congr_ae (ae_of_all _ fun x => ?_)
+    ring
+  · exact (Real.measurable_exp.comp hm).ennreal_ofReal
+  · exact ae_of_all _ fun x => ENNReal.ofReal_lt_top
+
 end Interp
 
 section Core
