@@ -394,4 +394,247 @@ theorem source_term_sample :
     (by norm_num) (by norm_num) (by norm_num) le_rfl (by norm_num) zero_le_one le_rfl
     zero_le_one
 
+/-! ### (V): the source term (5), complex vectors with the bilinear `dot` -/
+
+section Complex
+
+open Balaban.SmallField Balaban.LargeField.Def7v2
+
+variable {N : ℕ}
+
+/-- The `ℓ²` norm on `Fin N → ℂ`: `(∑ i, ‖v i‖²)^{1/2}`. -/
+noncomputable def nrm2 (v : Fin N → ℂ) : ℝ := ‖(WithLp.toLp 2 v : EuclideanSpace ℂ (Fin N))‖
+
+theorem nrm2_nonneg (v : Fin N → ℂ) : 0 ≤ nrm2 v := norm_nonneg _
+
+theorem nrm2_add (v w : Fin N → ℂ) : nrm2 (v + w) ≤ nrm2 v + nrm2 w := by
+  unfold nrm2
+  have := norm_add_le (WithLp.toLp 2 v : EuclideanSpace ℂ (Fin N)) (WithLp.toLp 2 w)
+  rwa [← WithLp.toLp_add] at this
+
+theorem nrm2_smul (c : ℂ) (v : Fin N → ℂ) : nrm2 (c • v) = ‖c‖ * nrm2 v := by
+  unfold nrm2
+  rw [WithLp.toLp_smul, norm_smul]
+
+theorem nrm2_eq (v : Fin N → ℂ) : nrm2 v = Real.sqrt (∑ i, ‖v i‖ ^ 2) := by
+  unfold nrm2
+  rw [EuclideanSpace.norm_eq]
+
+/-- Cauchy--Schwarz for the bilinear pairing: `‖v · w‖ ≤ |v|₂ |w|₂`. -/
+theorem norm_dot_le (v w : Fin N → ℂ) : ‖dot v w‖ ≤ nrm2 v * nrm2 w := by
+  rw [nrm2_eq, nrm2_eq]
+  calc ‖dot v w‖ ≤ ∑ i, ‖v i * w i‖ := norm_sum_le _ _
+    _ = ∑ i, ‖v i‖ * ‖w i‖ := by simp
+    _ ≤ _ := Real.sum_mul_le_sqrt_mul_sqrt _ _ _
+
+/-- The principal root of `a` with `‖a - 1‖ ≤ 1/2` has real part `≥ 7/10`. -/
+theorem sqrtC_re_ge {a : ℂ} (h : ‖a - 1‖ ≤ 1 / 2) : 7 / 10 ≤ (sqrtC a).re := by
+  have h1 : |(a - 1).re| ≤ 1 / 2 := (Complex.abs_re_le_norm _).trans h
+  have h2 : 1 / 2 ≤ a.re := by
+    have := (abs_le.1 h1).1; simp at this; linarith
+  have h3 := congrArg Complex.re (sqrtC_mul_self a)
+  rw [Complex.mul_re] at h3
+  have h4 := sqrtC_re_nonneg a
+  nlinarith [sq_nonneg (sqrtC a).im]
+
+theorem sqrtC_norm_ge {a : ℂ} (h : ‖a - 1‖ ≤ 1 / 2) : 7 / 10 ≤ ‖sqrtC a‖ :=
+  (sqrtC_re_ge h).trans (Complex.re_le_norm _)
+
+/-- `‖√a - 1‖ ≤ ‖a - 1‖` on the disc. -/
+theorem sqrtC_sub_one_le {a : ℂ} (h : ‖a - 1‖ ≤ 1 / 2) : ‖sqrtC a - 1‖ ≤ ‖a - 1‖ := by
+  have e : (sqrtC a - 1) * (sqrtC a + 1) = a - 1 := by
+    linear_combination sqrtC_mul_self a
+  have h1 : 1 ≤ ‖sqrtC a + 1‖ :=
+    le_trans (by have := sqrtC_re_ge h; simp; linarith) (Complex.re_le_norm _)
+  calc ‖sqrtC a - 1‖ ≤ ‖sqrtC a - 1‖ * ‖sqrtC a + 1‖ := le_mul_of_one_le_right (norm_nonneg _) h1
+    _ = ‖a - 1‖ := by rw [← norm_mul, e]
+
+/-- `(7/5) ‖√a - √a'‖ ≤ ‖a - a'‖` on the disc. -/
+theorem sqrtC_sub_le {a a' : ℂ} (h : ‖a - 1‖ ≤ 1 / 2) (h' : ‖a' - 1‖ ≤ 1 / 2) :
+    7 / 5 * ‖sqrtC a - sqrtC a'‖ ≤ ‖a - a'‖ := by
+  have e : (sqrtC a - sqrtC a') * (sqrtC a + sqrtC a') = a - a' := by
+    linear_combination sqrtC_mul_self a - sqrtC_mul_self a'
+  have h1 : 7 / 5 ≤ ‖sqrtC a + sqrtC a'‖ :=
+    le_trans (by have := sqrtC_re_ge h; have := sqrtC_re_ge h'; simp; linarith)
+      (Complex.re_le_norm _)
+  calc 7 / 5 * ‖sqrtC a - sqrtC a'‖ ≤ ‖sqrtC a + sqrtC a'‖ * ‖sqrtC a - sqrtC a'‖ :=
+        mul_le_mul_of_nonneg_right h1 (norm_nonneg _)
+    _ = ‖a - a'‖ := by rw [mul_comm, ← norm_mul, e]
+
+theorem dot_ne_zero_of_near {a : ℂ} (h : ‖a - 1‖ ≤ 1 / 2) : a ≠ 0 := by
+  intro h0; subst h0; norm_num at h
+
+theorem dot_sub_dot (x y : Fin N → ℂ) : dot x x - dot y y = dot (x - y) (x + y) := by
+  rw [dot_add_right, dot_sub_left, dot_sub_left, dot_comm y x]; ring
+
+/-- Step 1, complex: `|u_x - u_y|₂ ≤ (2 + 3B²) |ψ_x - ψ_y|₂` when `|ψ·ψ - 1| ≤ 1/2` and
+`|ψ|₂ ≤ B` at both points. -/
+theorem unitDirC_sub_le {ψx ψy : Fin N → ℂ} {B : ℝ} (hax : ‖dot ψx ψx - 1‖ ≤ 1 / 2)
+    (hay : ‖dot ψy ψy - 1‖ ≤ 1 / 2) (hBx : nrm2 ψx ≤ B) (hBy : nrm2 ψy ≤ B) :
+    nrm2 (unitDirC ψx - unitDirC ψy) ≤ (2 + 3 * B ^ 2) * nrm2 (ψx - ψy) := by
+  set sx := sqrtC (dot ψx ψx) with hsx
+  set sy := sqrtC (dot ψy ψy) with hsy
+  have hnx : 7 / 10 ≤ ‖sx‖ := sqrtC_norm_ge hax
+  have hny : 7 / 10 ≤ ‖sy‖ := sqrtC_norm_ge hay
+  have hB0 : 0 ≤ B := (nrm2_nonneg _).trans hBx
+  have hΔ := nrm2_nonneg (ψx - ψy)
+  have hsxz : sx ≠ 0 := norm_pos_iff.1 (by linarith)
+  have hsyz : sy ≠ 0 := norm_pos_iff.1 (by linarith)
+  have e : unitDirC ψx - unitDirC ψy = sx⁻¹ • (ψx - ψy) + (sx⁻¹ - sy⁻¹) • ψy := by
+    unfold unitDirC; rw [← hsx, ← hsy]; module
+  -- the difference of the roots
+  have hA : ‖dot ψx ψx - dot ψy ψy‖ ≤ nrm2 (ψx - ψy) * (2 * B) := by
+    rw [dot_sub_dot]
+    refine (norm_dot_le _ _).trans (mul_le_mul_of_nonneg_left ?_ hΔ)
+    have := nrm2_add ψx ψy; linarith
+  have hS : 7 / 5 * ‖sx - sy‖ ≤ nrm2 (ψx - ψy) * (2 * B) :=
+    (sqrtC_sub_le hax hay).trans hA
+  have hI : ‖sx⁻¹ - sy⁻¹‖ ≤ 100 / 49 * ‖sx - sy‖ := by
+    rw [inv_sub_inv hsxz hsyz, norm_div, norm_mul, div_le_iff₀ (by positivity), norm_sub_rev]
+    have : 49 / 100 ≤ ‖sx‖ * ‖sy‖ := by nlinarith
+    nlinarith [norm_nonneg (sy - sx), norm_nonneg (sx - sy), norm_sub_rev sx sy]
+  have hi : ‖sx⁻¹‖ ≤ 10 / 7 := by
+    rw [norm_inv]; exact inv_le_of_inv_le₀ (by norm_num) (by linarith)
+  rw [e]
+  refine (nrm2_add _ _).trans ?_
+  rw [nrm2_smul, nrm2_smul]
+  have t1 : ‖sx⁻¹‖ * nrm2 (ψx - ψy) ≤ 10 / 7 * nrm2 (ψx - ψy) :=
+    mul_le_mul_of_nonneg_right hi hΔ
+  have t2 : ‖sx⁻¹ - sy⁻¹‖ * nrm2 ψy ≤ 3 * B ^ 2 * nrm2 (ψx - ψy) := by
+    have h1 : ‖sx⁻¹ - sy⁻¹‖ ≤ 100 / 49 * (5 / 7 * (nrm2 (ψx - ψy) * (2 * B))) := by
+      refine hI.trans ?_
+      have : ‖sx - sy‖ ≤ 5 / 7 * (nrm2 (ψx - ψy) * (2 * B)) := by linarith
+      linarith
+    calc ‖sx⁻¹ - sy⁻¹‖ * nrm2 ψy ≤ (100 / 49 * (5 / 7 * (nrm2 (ψx - ψy) * (2 * B)))) * B :=
+          mul_le_mul h1 hBy (nrm2_nonneg _) (by positivity)
+      _ ≤ _ := by nlinarith [mul_nonneg hΔ (sq_nonneg B)]
+  nlinarith
+
+/-- Step 2, complex: `|b - ν u_y|₂ ≤ (1 + 2B) η` when `|b - νψ_y|₂ ≤ η`, `|ψ_y·ψ_y - 1| ≤ η`,
+`η ≤ 1/2`, `|ψ_y|₂ ≤ B`, `0 ≤ ν ≤ 1`. -/
+theorem source_sub_le_C {b ψy : Fin N → ℂ} {B ν η : ℝ} (hη : η ≤ 1 / 2)
+    (hn : ‖dot ψy ψy - 1‖ ≤ η) (hB : nrm2 ψy ≤ B) (hν0 : 0 ≤ ν) (hν1 : ν ≤ 1)
+    (hb : nrm2 (b - (ν : ℂ) • ψy) ≤ η) :
+    nrm2 (b - (ν : ℂ) • unitDirC ψy) ≤ (1 + 2 * B) * η := by
+  have hay : ‖dot ψy ψy - 1‖ ≤ 1 / 2 := hn.trans hη
+  set s := sqrtC (dot ψy ψy) with hs
+  have hns : 7 / 10 ≤ ‖s‖ := sqrtC_norm_ge hay
+  have hsz : s ≠ 0 := norm_pos_iff.1 (by linarith)
+  have hη0 : 0 ≤ η := (norm_nonneg _).trans hn
+  have e : b - (ν : ℂ) • unitDirC ψy =
+      (b - (ν : ℂ) • ψy) + ((ν : ℂ) * (1 - s⁻¹)) • ψy := by
+    unfold unitDirC; rw [← hs]; module
+  have h1 : ‖1 - s⁻¹‖ ≤ 2 * η := by
+    have : 1 - s⁻¹ = (s - 1) / s := by field_simp
+    rw [this, norm_div, div_le_iff₀ (by linarith)]
+    have := sqrtC_sub_one_le hay
+    nlinarith
+  have hB0 : 0 ≤ B := (nrm2_nonneg _).trans hB
+  rw [e]
+  refine (nrm2_add _ _).trans ?_
+  rw [nrm2_smul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hν0]
+  have : ν * ‖1 - s⁻¹‖ * nrm2 ψy ≤ 1 * (2 * η) * B := by
+    have : ν * ‖1 - s⁻¹‖ ≤ 1 * (2 * η) :=
+      mul_le_mul hν1 h1 (norm_nonneg _) zero_le_one
+    exact mul_le_mul this hB (nrm2_nonneg _) (by positivity)
+  nlinarith
+
+/-- Step 3, complex: for the bilinear `dot`, `u_y · (u_x - u_y) = -½ (u_x - u_y) · (u_x - u_y)`
+whenever `u_x · u_x = u_y · u_y = 1`. -/
+theorem dot_unit_sub {u v : Fin N → ℂ} (hu : dot u u = 1) (hv : dot v v = 1) :
+    dot u (v - u) = -(1 / 2) * dot (v - u) (v - u) := by
+  simp only [dot_sub_left, dot_sub_right, hu, hv, dot_comm u v]; ring
+
+/-- The constant of `dotC_source_term_le`. -/
+noncomputable def sourceConstC (B : ℝ) : ℝ :=
+  (1 + 2 * B) * (2 + 3 * B ^ 2) + (2 + 3 * B ^ 2) ^ 2 / 2
+
+/-- (V), complex case.  Norm: `ℓ²` on `Fin N → ℂ`.  Hypotheses: `|ψ_x·ψ_x - 1| ≤ 1/2` (principal
+branch, `|√| ≥ 7/10`), `|ψ_x|₂, |ψ_y|₂ ≤ B`, `|ψ_x - ψ_y|₂ ≤ Dσε`, `|b - νψ_y|₂ ≤ σ²ε`,
+`|ψ_y·ψ_y - 1| ≤ σ²ε ≤ 1/2`, `0 ≤ ν ≤ σ² ≤ 1`, `0 ≤ σ ≤ 1`, `ε, D ≥ 0`.  Then
+`‖b · (u_x - u_y)‖ ≤ C_B (D² + D) σ³ ε²`, with `C_B = (1+2B)(2+3B²) + (2+3B²)²/2`.
+The dependence on `B` is genuine: for complex vectors `|ψ·ψ - 1|` small does not bound `|ψ|₂`. -/
+theorem dotC_source_term_le {ψx ψy b : Fin N → ℂ} {B ν σ ε D : ℝ}
+    (hax : ‖dot ψx ψx - 1‖ ≤ 1 / 2) (hBx : nrm2 ψx ≤ B) (hBy : nrm2 ψy ≤ B)
+    (hD : nrm2 (ψx - ψy) ≤ D * σ * ε) (hb : nrm2 (b - (ν : ℂ) • ψy) ≤ σ ^ 2 * ε)
+    (hn : ‖dot ψy ψy - 1‖ ≤ σ ^ 2 * ε) (hη : σ ^ 2 * ε ≤ 1 / 2) (hν0 : 0 ≤ ν)
+    (hνσ : ν ≤ σ ^ 2) (hσ0 : 0 ≤ σ) (hσ1 : σ ≤ 1) (hε0 : 0 ≤ ε) (hD0 : 0 ≤ D) :
+    ‖dot b (unitDirC ψx - unitDirC ψy)‖ ≤ sourceConstC B * (D ^ 2 + D) * σ ^ 3 * ε ^ 2 := by
+  have hσ2 : σ ^ 2 ≤ 1 := by nlinarith
+  have hν1 : ν ≤ 1 := hνσ.trans hσ2
+  have hay : ‖dot ψy ψy - 1‖ ≤ 1 / 2 := hn.trans hη
+  have hB0 : 0 ≤ B := (nrm2_nonneg _).trans hBx
+  have hxu : dot (unitDirC ψx) (unitDirC ψx) = 1 :=
+    unitDirC_dot (dot_ne_zero_of_near hax)
+  have hyu : dot (unitDirC ψy) (unitDirC ψy) = 1 :=
+    unitDirC_dot (dot_ne_zero_of_near hay)
+  have hw : nrm2 (unitDirC ψx - unitDirC ψy) ≤ (2 + 3 * B ^ 2) * (D * σ * ε) :=
+    (unitDirC_sub_le hax hay hBx hBy).trans (mul_le_mul_of_nonneg_left hD (by positivity))
+  have hc : nrm2 (b - (ν : ℂ) • unitDirC ψy) ≤ (1 + 2 * B) * (σ ^ 2 * ε) :=
+    source_sub_le_C hη hn hBy hν0 hν1 hb
+  set w := unitDirC ψx - unitDirC ψy with hwdef
+  have hid : dot (unitDirC ψy) w = -(1 / 2) * dot w w := dot_unit_sub hyu hxu
+  have e : dot b w = dot (b - (ν : ℂ) • unitDirC ψy) w + (ν : ℂ) * dot (unitDirC ψy) w := by
+    rw [dot_sub_left, dot_smul_left]; ring
+  rw [e, hid]
+  have hw0 := nrm2_nonneg w
+  set K := 2 + 3 * B ^ 2 with hK
+  have hK0 : 0 ≤ K := by positivity
+  have t1 : ‖dot (b - (ν : ℂ) • unitDirC ψy) w‖ ≤ (1 + 2 * B) * (σ ^ 2 * ε) * (K * (D * σ * ε)) :=
+    (norm_dot_le _ _).trans (mul_le_mul hc hw hw0 (by positivity))
+  have t2 : ‖(ν : ℂ) * (-(1 / 2) * dot w w)‖ ≤ ν * (1 / 2) * nrm2 w ^ 2 := by
+    rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hν0]
+    have : ‖dot w w‖ ≤ nrm2 w ^ 2 := by rw [sq]; exact norm_dot_le _ _
+    have h12 : ‖(-(1 / 2 : ℂ))‖ = 1 / 2 := by simp
+    rw [h12]
+    calc ν * (1 / 2 * ‖dot w w‖) ≤ ν * (1 / 2 * nrm2 w ^ 2) := by gcongr
+      _ = _ := by ring
+  have t3 : ν * (1 / 2) * nrm2 w ^ 2 ≤ σ ^ 2 * (1 / 2) * (K * (D * σ * ε)) ^ 2 := by
+    have : nrm2 w ^ 2 ≤ (K * (D * σ * ε)) ^ 2 := pow_le_pow_left₀ hw0 hw 2
+    calc ν * (1 / 2) * nrm2 w ^ 2 ≤ σ ^ 2 * (1 / 2) * nrm2 w ^ 2 := by gcongr
+      _ ≤ _ := by gcongr
+  have s4 : σ ^ 4 ≤ σ ^ 3 := pow_le_pow_of_le_one hσ0 hσ1 (by norm_num)
+  have t4 : σ ^ 2 * (1 / 2) * (K * (D * σ * ε)) ^ 2 ≤ K ^ 2 / 2 * D ^ 2 * σ ^ 3 * ε ^ 2 := by
+    have h8 : 0 ≤ K ^ 2 / 2 * D ^ 2 * ε ^ 2 := by positivity
+    nlinarith [mul_le_mul_of_nonneg_left s4 h8]
+  have hfin : (1 + 2 * B) * (σ ^ 2 * ε) * (K * (D * σ * ε)) + K ^ 2 / 2 * D ^ 2 * σ ^ 3 * ε ^ 2
+      ≤ sourceConstC B * (D ^ 2 + D) * σ ^ 3 * ε ^ 2 := by
+    unfold sourceConstC
+    rw [← hK]
+    have hp : 0 ≤ σ ^ 3 * ε ^ 2 := by positivity
+    have h1 : 0 ≤ (1 + 2 * B) * K := by positivity
+    have h2 : 0 ≤ K ^ 2 / 2 := by positivity
+    have : (1 + 2 * B) * (σ ^ 2 * ε) * (K * (D * σ * ε)) =
+        (1 + 2 * B) * K * D * (σ ^ 3 * ε ^ 2) := by ring
+    rw [this]
+    have h3 : K ^ 2 / 2 * D ^ 2 * σ ^ 3 * ε ^ 2 = K ^ 2 / 2 * D ^ 2 * (σ ^ 3 * ε ^ 2) := by ring
+    rw [h3]
+    have h4 : ((1 + 2 * B) * K + K ^ 2 / 2) * (D ^ 2 + D) * σ ^ 3 * ε ^ 2 =
+        ((1 + 2 * B) * K + K ^ 2 / 2) * (D ^ 2 + D) * (σ ^ 3 * ε ^ 2) := by ring
+    rw [h4]
+    have hDD : 0 ≤ D ^ 2 := sq_nonneg D
+    nlinarith [mul_nonneg (mul_nonneg h1 hD0) hp, mul_nonneg (mul_nonneg h2 hDD) hp,
+      mul_nonneg (mul_nonneg h1 hDD) hp, mul_nonneg (mul_nonneg h2 hD0) hp]
+  refine (norm_add_le _ _).trans ?_
+  have : ‖dot (b - (ν : ℂ) • unitDirC ψy) w‖ + ‖(ν : ℂ) * (-(1 / 2) * dot w w)‖ ≤
+      (1 + 2 * B) * (σ ^ 2 * ε) * (K * (D * σ * ε)) + K ^ 2 / 2 * D ^ 2 * σ ^ 3 * ε ^ 2 := by
+    linarith
+  linarith
+
+/-- Non-vacuity of the complex case: `ψ_x = ψ_y = e₀`, `b = 0`, `ν = 0`, `D = 0`, `σ = ε = 1/2`,
+`B = 1` (`N = 1`). -/
+theorem dotC_source_term_sample :
+    ‖dot (0 : Fin 1 → ℂ) (unitDirC (Pi.single 0 1 : Fin 1 → ℂ) - unitDirC (Pi.single 0 1))‖ ≤
+      sourceConstC 1 * (0 ^ 2 + 0) * (1 / 2 : ℝ) ^ 3 * (1 / 2 : ℝ) ^ 2 := by
+  have h1 : nrm2 (Pi.single 0 1 : Fin 1 → ℂ) ≤ 1 := by
+    rw [nrm2_eq]; simp
+  have h0 : dot (Pi.single 0 1 : Fin 1 → ℂ) (Pi.single 0 1) = 1 := by
+    simp [dot_single_left]
+  refine dotC_source_term_le (ψx := Pi.single 0 1) (ψy := Pi.single 0 1) (ν := 0) (B := 1)
+    (σ := 1 / 2) (ε := 1 / 2) (D := 0) (by rw [h0]; norm_num) h1 h1 (by simp [nrm2_eq])
+    (by simp [nrm2_eq]) (by rw [h0]; norm_num) (by norm_num) le_rfl (by norm_num)
+    (by norm_num) (by norm_num) (by norm_num) le_rfl
+
+end Complex
+
 end Balaban.LargeField.RegionalArith
