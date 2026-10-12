@@ -13,16 +13,16 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W141 (Opus) | `w141-class-v2` / W141 | class v2 per CLASS-RULINGS-2 + PIN-I6 jet certificate clause |
-| W152b | `w152-decdom-bridge` / W152 | bridges + fan composition for the ψ̂-local engine |
-| W138b | `w138-prop279` / W138 | conditional Prop II.7.9 (BASE-KERNEL-4) |
-| W142 | `w142-vmod9` / W142 | VMOD-9: pointwise mixed-wall NC3 |
-| W151 | `w151-covsqrt-sup` / W151 | complex-s sup bound of decCovSqrt (first piece of Prop 3.3 local in ψ̂) |
-| W148 | `w148-graphgm2` / W148 | GRAPH-GM-2 counting lemmas |
-| W149 | `w149-pin-i6` / W149 | PIN-I6: counterexample, reference-jet certificate ⇒ I-6 |
+| W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
+| W162 | `w162-obs-witness` / W162 | step regularity from background analyticity; ClassRegularObs witness |
 | W150 | `w150-psizero-e` / W150 | psiZero analyticity + geometric premises |
-Opus queue after W141: (1) psiZero Hessian bound (after astra PSIZERO-HESS, request at /home/scott/Balaban-scratch/psizero_hess_request.txt); (2) Lean of VMOD-10 (Hölder at the mixed wall) after W142.
+| W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
+| W160 | `w160-p6-base` / W160 | VMOD-11 rows 6–8: P6 pair CoverBase, FootLocal, s ≡ 1 identities |
+| W154 | `w154-symm-engine` / W154 | symmetry of Prop 3.3 terms |
+| W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
+Opus queue after W141: psiZero Hessian bound (after astra PSIZERO-HESS). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): q13 W2-TERM (tag W2TERM), vmod PSIZERO-HESS (PSIHESS), fluctfix COLLAR-2 (COLLAR2). Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): q13 WALL-COLLAR (tag WALLCOLLAR), vmod VMOD-14 (VMOD14), fluctfix COMPLETE-STEP (COMPLETESTEP). DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
