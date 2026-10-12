@@ -512,6 +512,8 @@ public import Balaban.SmallField.Def6AvgLimit
 public import Balaban.SmallField.Def6AvgDens
 public import Balaban.SmallField.Def6AvgSumConst
 public import Balaban.SmallField.Def6AvgSumConds
+public import Balaban.SmallField.Def6AvgMomTorus
+public import Balaban.SmallField.Def6AvgMomLimit
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Ancestors

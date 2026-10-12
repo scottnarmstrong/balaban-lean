@@ -162,6 +162,38 @@ noncomputable def tauY (m₀ j n : ℕ) (y : Site d) : ℝ :=
   (((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) / 4 - ∑ μ, |(y μ : ℝ)| -
     ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) - 1) / ((L : ℝ) ^ (m₀ + m₁)) - 2 * Real.sqrt d * L
 
+/-- **The coordinates of a good shape through `y` whose size is below the threshold are small**
+compared with the side of the torus. -/
+theorem small_coords_of_tauY {m₀ j : ℕ} (hjk : j ≤ k) {y : Site d} {X' : Finset (Site d)} {n : ℕ}
+    (hy : y ∈ X') (hgood : GoodAt L m₁ k m₀ j X' n)
+    (hsz : sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y) :
+    ∀ z ∈ X', ∀ μ, 4 * (|z μ| + ((L * L ^ (m₀ + m₁) : ℕ) : ℤ) + 1) <
+      ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℤ) := by
+  have : NeZero (torusSeq L m₀ n) := ⟨torusSeq_ne_zero m₀ n⟩
+  have hMb : (0 : ℝ) < (L : ℝ) ^ (m₀ + m₁) := by
+    have : (0 : ℝ) < L := by exact_mod_cast NeZero.pos L
+    positivity
+  intro z hz μ
+  have h1 := coord_le_of_good (m₀ := m₀) hjk hgood.1 hgood.2 hy hz μ
+  have h2 : |(y μ : ℝ)| ≤ ∑ ν, |(y ν : ℝ)| :=
+    Finset.single_le_sum (f := fun ν => |(y ν : ℝ)|) (fun _ _ => abs_nonneg _) (Finset.mem_univ μ)
+  have h3 : ((L : ℝ) ^ (m₀ + m₁)) * (sizeSeq L m₁ k m₀ j X' n + 2 * Real.sqrt d * L) <
+      ((L : ℝ) ^ (m₀ + m₁)) * (tauY d L m₁ k m₀ j n y + 2 * Real.sqrt d * L) :=
+    mul_lt_mul_of_pos_left (by linarith) hMb
+  have h4 : ((L : ℝ) ^ (m₀ + m₁)) * (tauY d L m₁ k m₀ j n y + 2 * Real.sqrt d * L) =
+      (((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) / 4 - ∑ μ, |(y μ : ℝ)| -
+        ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) - 1) := by
+    unfold tauY; field_simp; ring
+  have h5 : ((|z μ| : ℤ) : ℝ) < ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) / 4 -
+      ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) - 1 := by
+    have : ((|z μ| : ℤ) : ℝ) ≤ |(y μ : ℝ)| + ((L : ℝ) ^ (m₀ + m₁)) *
+        (sizeSeq L m₁ k m₀ j X' n + 2 * Real.sqrt d * L) := by
+      simpa [Int.cast_abs, sizeSeq, sizeJ, Int.cast_abs] using h1
+    linarith
+  have h6 : (4 : ℝ) * (((|z μ| : ℤ) : ℝ) + ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) + 1) <
+      ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) := by linarith
+  exact_mod_cast h6
+
 /-- **A good shape through `y` whose size is below the threshold is a polymer of `T∞`** (it is
 good on every later torus): its coordinates are small by (G5) (`coord_le_of_good`) and a small good
 shape stays good (`goodAt_of_small`). -/
@@ -169,32 +201,7 @@ theorem infPoly_of_small {m₀ j : ℕ} (hjk : j ≤ k) {y : Site d} {X' : Finse
     (hy : y ∈ X') (hgood : GoodAt L m₁ k m₀ j X' n)
     (hsz : sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y) :
     InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X' := by
-  have : NeZero (torusSeq L m₀ n) := ⟨torusSeq_ne_zero m₀ n⟩
-  have hMb : (0 : ℝ) < (L : ℝ) ^ (m₀ + m₁) := by
-    have : (0 : ℝ) < L := by exact_mod_cast NeZero.pos L
-    positivity
-  have hsmall : ∀ z ∈ X', ∀ μ, 4 * (|z μ| + ((L * L ^ (m₀ + m₁) : ℕ) : ℤ) + 1) <
-      ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℤ) := by
-    intro z hz μ
-    have h1 := coord_le_of_good (m₀ := m₀) hjk hgood.1 hgood.2 hy hz μ
-    have h2 : |(y μ : ℝ)| ≤ ∑ ν, |(y ν : ℝ)| :=
-      Finset.single_le_sum (f := fun ν => |(y ν : ℝ)|) (fun _ _ => abs_nonneg _) (Finset.mem_univ μ)
-    have h3 : ((L : ℝ) ^ (m₀ + m₁)) * (sizeSeq L m₁ k m₀ j X' n + 2 * Real.sqrt d * L) <
-        ((L : ℝ) ^ (m₀ + m₁)) * (tauY d L m₁ k m₀ j n y + 2 * Real.sqrt d * L) :=
-      mul_lt_mul_of_pos_left (by linarith) hMb
-    have h4 : ((L : ℝ) ^ (m₀ + m₁)) * (tauY d L m₁ k m₀ j n y + 2 * Real.sqrt d * L) =
-        (((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) / 4 - ∑ μ, |(y μ : ℝ)| -
-          ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) - 1) := by
-      unfold tauY; field_simp; ring
-    have h5 : ((|z μ| : ℤ) : ℝ) < ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) / 4 -
-        ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) - 1 := by
-      have : ((|z μ| : ℤ) : ℝ) ≤ |(y μ : ℝ)| + ((L : ℝ) ^ (m₀ + m₁)) *
-          (sizeSeq L m₁ k m₀ j X' n + 2 * Real.sqrt d * L) := by
-        simpa [Int.cast_abs, sizeSeq, sizeJ, Int.cast_abs] using h1
-      linarith
-    have h6 : (4 : ℝ) * (((|z μ| : ℤ) : ℝ) + ((L * L ^ (m₀ + m₁) : ℕ) : ℝ) + 1) <
-        ((torusSeq L m₀ n * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) := by linarith
-    exact_mod_cast h6
+  have hsmall := small_coords_of_tauY hjk hy hgood hsz
   show ∀ᶠ n' in atTop, _
   filter_upwards [Filter.eventually_ge_atTop n] with n' hn'
   exact goodAt_of_small hjk hgood hsmall hn'
