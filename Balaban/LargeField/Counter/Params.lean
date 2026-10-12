@@ -213,40 +213,43 @@ noncomputable def E (k : ℕ) : ℝ := (1 + 2 ^ (3 * S.d + 1) * S.Csigma) * S.v 
 /-- The partial sums `W_a(t) = ∑_{j=a}^t w_j` (zero if `t < a`). -/
 noncomputable def W (a t : ℕ) : ℝ := ∑ j ∈ Finset.Icc a t, S.w j
 
-/-- The typing conditions: §I.1.2 (with `d ≥ 3`, as in LF-2), the condition (K) of §I.5.2, and
-the first part of (H-λ), together with `λ₀ ≥ max {1, θ₊}`. -/
-structure Ok (S : Setting) : Prop where
-  three_le_d : 3 ≤ S.d
-  two_le_L : 2 ≤ S.L
-  one_le_M : 1 ≤ S.M
-  two_le_Rb : 2 ≤ S.Rb
-  θm_pos : 0 < S.θm
-  θm_le_θp : S.θm ≤ S.θp
-  α_pos : 0 < S.α
-  A2_pos : 0 < S.A2
-  A3_pos : 0 < S.A3
-  A3'_pos : 0 < S.A3'
-  CR_nonneg : 0 ≤ S.CR
-  Cν_pos : 0 < S.Cν
-  one_le_cv : 1 ≤ S.cv
-  cH_nonneg : 0 ≤ S.cH
+end Setting
+
+/-- The typing conditions: §I.1.2 (with `d ≥ 3`, as in LF-2) and the condition (K) of §I.5.2. -/
+structure Typing.Ok (T : Typing) : Prop where
+  three_le_d : 3 ≤ T.d
+  two_le_L : 2 ≤ T.L
+  one_le_M : 1 ≤ T.M
+  two_le_Rb : 2 ≤ T.Rb
+  θm_pos : 0 < T.θm
+  θm_le_θp : T.θm ≤ T.θp
+  α_pos : 0 < T.α
+  A2_pos : 0 < T.A2
+  A3_pos : 0 < T.A3
+  A3'_pos : 0 < T.A3'
+  CR_nonneg : 0 ≤ T.CR
+  Cν_pos : 0 < T.Cν
+  one_le_cv : 1 ≤ T.cv
+  cH_nonneg : 0 ≤ T.cH
   /-- (K): `p₂ ≥ 2d + 3`. -/
-  p2_ge : 2 * S.d + 3 ≤ S.p2
+  p2_ge : 2 * T.d + 3 ≤ T.p2
   /-- (K): `p_R > p₂ + 2d`. -/
-  pR_gt : S.p2 + 2 * S.d < S.pR
+  pR_gt : T.p2 + 2 * T.d < T.pR
   /-- (K): `2 p₀ > p₂`. -/
-  p0_gt : S.p2 < 2 * S.p0
+  p0_gt : T.p2 < 2 * T.p0
   /-- (K): `c₀ (1 - L⁻¹) ≥ s_* + 1`. -/
-  c0_sS : (S.sS : ℝ) + 1 ≤ S.c0 * (1 - 1 / (S.L : ℝ))
+  c0_sS : (T.sS : ℝ) + 1 ≤ T.c0 * (1 - 1 / (T.L : ℝ))
   /-- (K): `c₀ ≥ s' + 1`. -/
-  c0_sP : S.sP + 1 ≤ S.c0
+  c0_sP : T.sP + 1 ≤ T.c0
   /-- (K): `C_ν ≥ C_r`. -/
-  Cr_le : S.Cr ≤ S.Cν
+  Cr_le : T.Cr ≤ T.Cν
+
+/-- The typing conditions together with (H-λ), first part (`θ₋ ≤ λ_{j+1} - λ_j ≤ θ₊`), and
+`λ₀ ≥ max {1, θ₊}`. -/
+structure Setting.Ok (S : Setting) : Prop extends Typing.Ok S.toTyping where
   /-- (H-λ), first part: `θ₋ ≤ λ_{j+1} - λ_j ≤ θ₊`. -/
   lam_step : ∀ j, S.θm ≤ S.lam (j + 1) - S.lam j ∧ S.lam (j + 1) - S.lam j ≤ S.θp
   one_le_lam0 : 1 ≤ S.lam 0
   θp_le_lam0 : S.θp ≤ S.lam 0
-
-end Setting
 
 end Balaban.LargeField
