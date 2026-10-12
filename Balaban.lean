@@ -963,6 +963,7 @@ public import Balaban.Fluctuation.InteractionAssemble
 public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionHatF
 public import Balaban.Fluctuation.InteractionHatAssemble
+public import Balaban.Fluctuation.PhysicalReadsE
 public import Balaban.Fluctuation.InteractionHatEta
 public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionHatLC
