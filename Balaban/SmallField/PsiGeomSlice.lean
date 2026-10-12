@@ -8,6 +8,7 @@ module
 public import Balaban.SmallField.PsiGeomPath
 public import Balaban.SmallField.Def6BridgeDomain
 public import Balaban.SmallField.XiProps
+public import Balaban.Localization.I5Xi
 public import Balaban.SmallField.Def6InfShapes
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -433,19 +434,6 @@ section ToXi
 
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {j : ℕ} {a : ℕ → ℝ} {ν : ℝ}
 
-/-- The level `n` of `Ξ^c_n` is monotone: the mass condition `ν L^{2n} | |h₀|² - 1 | < (σε)²` at
-level `k` implies it at every level `j ≤ k` (for `ν ≥ 0`). -/
-theorem xiC_level_mono {ε : ℝ} (hν : 0 ≤ ν) (hjk : j ≤ k)
-    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
-    {Ψ'' h'' : CTorus d L N₁ m₁ k → Fin N → ℂ}
-    (h : XiC G a ν k 1 ε Ψ₀ h₀ Ψ'' h'') : XiC G a ν j 1 ε Ψ₀ h₀ Ψ'' h'' := by
-  obtain ⟨hσ, hε, Dr, Dc, ⟨hR, hU, hb⟩, hC, hDc, hbC⟩ := h
-  refine ⟨hσ, hε, Dr, Dc, ⟨hR, hU, { hb with hnorm := ?_ }⟩, hC, hDc, hbC⟩
-  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  have hw : ν * ((L : ℝ) ^ j) ^ 2 ≤ ν * ((L : ℝ) ^ k) ^ 2 :=
-    mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 hjk) 2) hν
-  exact lt_of_le_of_lt (mul_le_mul_of_nonneg_right hw (abs_nonneg _)) hb.hnorm
-
 /-- **(D2) at the level `j`**: a datum of `Ψ̃^c(𝔹; δ, ε)` lies in `Ξ^c_j(𝔹; 1, ε̄)` if
 `ε + (2 K₁ + 1) δ ≤ ε̄` (P1 (3.21); the landed `psiTildeC_subset_xiC`, with the level `k` of the
 mass condition lowered to `j`). -/
@@ -457,7 +445,8 @@ theorem xiDom_of_psiTildeC (H : BgHyp d L k ϱ a ν) (hjk : j ≤ k) {δ ε εb 
     {Ψ'' h'' : CTorus d L N₁ m₁ k → Fin N → ℂ} (hP : InPsiTildeC G ν δ ε Ψ₀ h₀ Ψ'' h'') :
     XiDom G a ν j εb (fun z i => (Ψ₀ z i : ℂ) + Ψ'' z i) (fun z i => (h₀ i : ℂ) + h'' z i) :=
   ⟨Ψ₀, h₀, Ψ'', h'', fun _ _ => rfl, fun _ _ => rfl,
-    xiC_level_mono H.mass hjk (psiTildeC_subset_xiC H hδ0 hδε hε hδc hνε hP hεb)⟩
+    xiC_level_mono hjk H.mass (Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+      (psiTildeC_subset_xiC H hδ0 hδε hε hδc hνε hP hεb)⟩
 
 end ToXi
 

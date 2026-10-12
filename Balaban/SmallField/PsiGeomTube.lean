@@ -489,7 +489,7 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 /-- **Lemma 3.3 on the landed data domain**: the landed `Ψ̃^c(𝔹; δ, δ)` at a site `x ∈ Ω₁` is the
 constant tube `Ψ^c_{const}(1, δ; ν_x)` of (3.13)-(3.14) with `σ = 1`, `ε = δ`, `ν_x = ν ℓ(x)²`
 (the weight of the layer of `x`).  So `U, V, W²` of the configuration `(Ψ₀(x), Ψ''(x); h₀, h')` lie in the
-polydisc (3.31): `|U - 1| < 49 δ / 6`, `|V - 1| < 49 δ² / (2 ν_x)`, `|W²| < 2401 δ² ... / (4 ν_x²)`,
+polydisc (3.31): `|U - 1| < 49 δ / 6`, `|V - 1| < 49 δ² / (2 ν_x)`, `|W²| < 2401 δ² / (4 ν_x²)`,
 for `0 < ν_x ≤ 1` and `δ ≤ 1/100`. -/
 theorem tube_of_inPsiTildeC (hν : 0 ≤ ν) (hνk : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1)
     {δ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1 / 100) {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ}
