@@ -307,3 +307,4 @@ public import Balaban.SmallField.XiD2
 public import Balaban.SmallField.XiProps
 public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
+public import Balaban.SmallField.XiComposeField
