@@ -340,6 +340,48 @@ theorem psiZero_grad_of_geometry {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ 
         mul_le_mul_of_nonneg_right h1 hnn
     _ = _ := by ring
 
+theorem etaGrad_le (d L N D : ℕ) [NeZero L] (hd : 0 < d) :
+    etaGrad d L N D ≤ min (min (bgC0 d L N) (bgC1 d L N)) (etaHess d L N D) := by
+  have hM : 0 < min (min (bgC0 d L N) (bgC1 d L N)) (etaHess d L N D) := by
+    have := bgC0_pos d L N hd
+    have := Balaban.Localization.bgC1_pos' (d := d) (L := L) (N := N) hd
+    have := etaHess_pos d L N D hd
+    positivity
+  have hCT : (1 : ℝ) ≤ tubeConst d D := by unfold tubeConst; nlinarith [(Nat.cast_nonneg d : (0 : ℝ) ≤ d),
+    (Nat.cast_nonneg D : (0 : ℝ) ≤ D), mul_nonneg (Nat.cast_nonneg d : (0 : ℝ) ≤ d) (Nat.cast_nonneg D : (0 : ℝ) ≤ D)]
+  unfold etaGrad
+  exact div_le_self hM.le hCT
+
+theorem hessConst_pos (d L k D : ℕ) (hd : 0 < d) [NeZero L] : 0 < hessConst d L k D := by
+  have := gaussConst_pos d D hd
+  have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold hessConst; positivity
+
+/-- **Row 8: `PsiZeroInput` under the geometry (1.1) and the `X`-hypotheses** with the explicit constants
+`c = ½ γ_LF c_D L^{k(d-2)}`, `Gr = 2 K₁ C_T D^{d/2} L^{k(d-2)}`, `η₀ = etaGrad`. -/
+noncomputable def psiZeroInput_of_geometry {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
+    (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ) (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D)
+    (hm : D + 2 ≤ N₀ * L ^ (k - k))
+    {X : Set (Torus d (N₀ * L ^ (k - k)))} (hXreg : box b0 w ∪ shellOut (box b0 w) ⊆ X)
+    (hΩ : OverTop G (box b0 w ∪ shellOut (box b0 w)))
+    (hdata : ∀ x ∈ dataSites G, jBlock d L N₀ k k x ∈ X) :
+    PsiZeroInput (N := N) G a b0 w X where
+  c := hessConst d L k D
+  Gr := gradConst d L N k D
+  η₀ := etaGrad d L N D
+  c_pos := hessConst_pos d L k D (by have := H.hd; omega)
+  Gr_nonneg := gradConst_nonneg d L N k D
+  η₀_pos := etaGrad_pos d L N D (by have := H.hd; omega)
+  hess := fun ψ η hη hηle ht v => by
+    have hd : 0 < d := by have := H.hd; omega
+    have hle := hηle.trans (etaGrad_le d L N D hd)
+    exact psiZero_hess_of_geometry H hk b0 w hw1 hwD hm hΩ hη
+      (hle.trans ((min_le_left _ _).trans (min_le_left _ _)))
+      (hle.trans ((min_le_left _ _).trans (min_le_right _ _)))
+      (hle.trans (min_le_right _ _)) ht v
+  grad := fun ψk δ hδ hδle hψk =>
+    psiZero_grad_of_geometry H hk b0 w hw1 hwD hm hXreg hΩ hdata hδ hδle hψk
+
 end GradFinal
 
 
