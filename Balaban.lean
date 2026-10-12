@@ -516,3 +516,5 @@ public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
+public import Balaban.Fluctuation.CovarianceGeom
+public import Balaban.Fluctuation.CovarianceWeighted
