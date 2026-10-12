@@ -356,7 +356,10 @@ theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {κ : ℝ}, 0 ≤ κ → cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
       ∀ {s : DecParams G}, (∀ P, ‖s P‖ ≤ Real.exp κ) → ∀ (N : ℕ),
-      GreenFamily G N (fun α => Gs G a ν α (extS G s)) (famConst d L BG κ) (gamma1 d / 8) := by
+      GreenFamily G N (fun α => Gs G a ν α (extS G s)) (famConst d L BG κ) (gamma1 d / 8) ∧
+      ∀ {α : G.Ω 1 → ℂ}, Small G α (gamma1 d / 8) → ∀ (g : G.Ω 1 × Fin N → ℂ) {C : ℝ}, 0 ≤ C →
+        SrcBound G g C →
+        SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L BG κ * C) := by
   obtain ⟨c1, B1, hc1, hB1, H1⟩ := dg2_sup (d := d) (L := L) hd hL
   obtain ⟨c2, B2, hc2, hB2, H2⟩ := dg4_lipschitz_fwd' (d := d) (L := L) hd hL
   have hd0 : 0 < d := by omega
@@ -390,16 +393,21 @@ theorem decGreenFamily (hd : 3 ≤ d) (hL : 3 ≤ L) :
     unfold famConst
     have : 0 ≤ (L : ℝ) * (max B1 B2 * Real.exp (N0 d L * κ)) := by positivity
     rw [hb]; linarith
-  refine ⟨by linarith, ?_, ?_⟩
-  · intro α hα g C hC hg
+  have hsup : ∀ {α : G.Ω 1 → ℂ}, Small G α (gamma1 d / 8) → ∀ (g : G.Ω 1 × Fin N → ℂ) {C : ℝ},
+      0 ≤ C → SrcBound G g C →
+      SupBounds G (liftOp N (Gs G a ν α (extS G s)) *ᵥ g) (famConst d L (max B1 B2) κ * C) := by
+    intro α hα g C hC hg
     have hadm := admPot_of_small hd0 hα
     have hsc := supBounds_liftOp (N := N) (G := G) (M := Gs G a ν α (extS G s)) hϱ hL2 hb0
       (fun f C' hC' hf => (((H1 G S hadm hκ hMκ1 hs' hw1 f hC' (fun x => by simpa using hf x)).2).mono
         (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_max_left _ _) hE.le) hC')))
       g hC hg
-    refine (Balaban.Background.SupBounds.star hsc).mono ?_
+    refine hsc.mono ?_
     calc (L : ℝ) * (b * C) = (L * b) * C := by ring
       _ ≤ famConst d L (max B1 B2) κ * C := mul_le_mul_of_nonneg_right hLb hC
+  refine ⟨⟨by linarith, ?_, ?_⟩, hsup⟩
+  · intro α hα g C hC hg
+    exact (Balaban.Background.SupBounds.star (hsup hα g hC hg))
   · intro α α' hα hα' g C Δ hC hg hΔ0 hΔ
     have hadm := admPot_of_small hd0 hα
     have hadm' := admPot_of_small hd0 hα'
