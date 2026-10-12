@@ -711,3 +711,4 @@ public import Balaban.Fluctuation.InteractionBridge
 public import Balaban.Fluctuation.InteractionVPart
 public import Balaban.Fluctuation.InteractionMPart
 public import Balaban.Fluctuation.InteractionAssemble
+public import Balaban.Fluctuation.Interaction
