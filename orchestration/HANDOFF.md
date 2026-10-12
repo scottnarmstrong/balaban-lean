@@ -33,7 +33,8 @@ in the ledger row and the branch state):
 - W76: DONE (landed c9ac759).
 - W79: DONE (landed dd7b11e).
 - W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
-- W77 (`w77-chart`): LFR Q2–Q4 (hard-spin chart, toSphere_eq_graph, (A.3), chord identity).
+- W77: DONE (landed 7c6b40b).
+- W82 (`w82-base`): LFR Q1, Q5, Q6 (base record, base kernels, (S2) at k=0).
 - W78 (`w78-deccover`): DecCover abstraction (VMOD §3, orders 2, 4, 5) — queued item 1 below is now running.
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
