@@ -12,17 +12,16 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W109 | `w109-window-renorm` / W109 | P6 (2.31), windowAction_renorm, factor 2/5 bridge |
-| W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
-| W108 | `w108-thm42` / W108 | FLUCT Thm 4.2 + Cor 4.3 assembly (undecoupled) |
-| W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
-| W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
-| W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
-| W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
-| W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
-Next Sonnet packages: Lemma 3.5 analyticity (prop51_analytic in the mass ν, 3K₂ε|ξ| bound); a non-empty-component witness for quietKernel_bound / preOp_pkgBound; the
-SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
-astra-q13 (effort HIGH): Roland Q13 → Q13-ANSWER.md (tag Q13). astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+| W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
+| W118 | `w118-k1-hgeo` / W118 | discharge k₁ ≥ 1 and hgeo; III.5.0(b), III.3.2(b),(d) |
+| W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
+| W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
+| W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
+| W125 | `w125-lf-p5` / W125 | LFR Part III P5 (δψ, (2.48′), (2.49′)) |
+| W124 | `w124-prop33-bound` / W124 | Prop 3.3 bound shape, ν-part, symmetry |
+| W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
+Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
+astra round 8 (sent ~12:00 UTC): vmod VMOD-8 (tag VMOD8), class GRAPH-GM (GRAPHGM), fluctfix P631-INPUTS (P631IN). astra-q13 idle (answer committed), awaiting Roland. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
