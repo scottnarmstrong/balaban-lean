@@ -1112,3 +1112,9 @@ public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
 public import Balaban.Fluctuation.StepNonvanishInhab
+public import Balaban.Fluctuation.StepActivityWitnessSplit
+public import Balaban.Fluctuation.StepActivityWitnessMin
+public import Balaban.Fluctuation.StepActivityWitnessNe
+public import Balaban.Fluctuation.StepActivityWitnessRay
+public import Balaban.Fluctuation.StepActivityWitness
+public import Balaban.Fluctuation.StepActivityWitnessMain
