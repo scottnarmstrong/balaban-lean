@@ -7,7 +7,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux), Lean to Sonnet workers in worktrees.
 
-## Landing procedure (unchanged)
+## Landing procedure (unchanged; NEW: every new hypothesis structure must come with a `Nonempty` witness)
 
 1. Read the worker's handoff; `git diff --stat origin/main...HEAD`, grep new files for
    `sorry|^axiom|maxHeartbeats`.
@@ -40,7 +40,8 @@ in the ledger row and the branch state):
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
 - W83 (`w83-reynolds`): Reynolds average → full I-6 Premises from Def-6.
 - W84 (`w84-fluct-wire`): FLUCT Lemma 2.5 source form, Lemma 3.5, Lemma 4.1.
-- W85 (`w85-lf-p14`): LFR Part III P14 + P4 (`Balaban/LargeField/R/`).
+- W85: DONE (landed b3b1f92; P4 estimate half). Found the vacuous-history defect.
+- W87 (`w87-horizon`): fix vacuous FlowSteps/RegionSeq/RegionHistory (finite horizon), Nonempty witnesses, repair ~60 consumers. PRIORITY.
 - W86 (`w86-lf-domain`): LF localized-field domain fix + χ^dom identity (queued item 8).
 - W78: DONE (landed c6f82f7).
 
