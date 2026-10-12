@@ -374,6 +374,13 @@ theorem analyticOnNhd_integral_Ioi [FiniteDimensional ℂ E] {U : Set E} (hU : I
     (fun x hx => (hG x hx).mono hsub) (fun e he => hcont e (hsub he)) hgc hgi
     (fun x hx e he => hbd x hx e (hsub he))
 
+theorem continuousOn_inv_add_Ioi {ak : ℝ} (hak : 0 < ak) :
+    ContinuousOn (fun y : ℝ => (ak + y)⁻¹) (Ioi 0) :=
+  (continuousOn_const.add continuousOn_id).inv₀ fun y hy => by
+    have := mem_Ioi.mp hy
+    show ak + y ≠ 0
+    exact (by linarith : 0 < ak + y).ne'
+
 end Param
 
 end Balaban.Localization

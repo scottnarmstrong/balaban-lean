@@ -238,13 +238,6 @@ theorem covStanding_of_mem (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 ≤ κ)
     · simpa using Real.one_le_exp hκ
   exact ⟨fun x hx => ⟨S, hα, hx, hκ, hM, hs⟩, he.2.1.toIsConstraintField, hδ, hsm, hU⟩
 
-theorem continuousOn_inv_add_Ioi {ak : ℝ} (hak : 0 < ak) :
-    ContinuousOn (fun y : ℝ => (ak + y)⁻¹) (Ioi 0) :=
-  (continuousOn_const.add continuousOn_id).inv₀ fun y hy => by
-    have := mem_Ioi.mp hy
-    show ak + y ≠ 0
-    exact (by linarith : 0 < ak + y).ne'
-
 theorem XSetting.hak_pos (S : XSetting G a aT ν) : 0 < a k := by
   have := S.ha k S.hk le_rfl
   linarith [this.1]
