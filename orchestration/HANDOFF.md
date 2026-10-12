@@ -13,13 +13,13 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W165 (Opus) | `w165-v2-i6` / W165 | I-6 + renormalization for the v2 class (scheme A) |
-| W166 | `w166-window-fix` / W166 | remove vacuous psiZeroSpec_of_input; settle hbl |
 | W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
-| W159 | `w159-thm31b` / W159 | Thm 3.1(b) ingredients |
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
 | W162 | `w162-obs-witness` / W162 | step regularity; ClassRegularObs witness |
-| W163 | `w163-p6-action` / W163 | P6 action identity on the step torus, CoverBase for locGen |
 | W164 | `w164-vmod12` / W164 | VMOD-12 proved parts (two-operator locality) |
+| W167 | `w167-masschange` / W167 | mass-change regional chord with wall flux |
+| W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
+| W170 | `w170-nonvanish` / W170 | complex StepNonvanishing from the cluster expansion |
 Temporary rule-10 exemptions to clear: `PsiZeroInput` (W157), `ClassRegularObs` at N = 0 (W162). Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra (cap 3): q13 COLLAR-FIX (tag COLLARFIX), vmod VMOD-15 (VMOD15), fluctfix RAY-DOMAIN (RAYDOMAIN). DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
