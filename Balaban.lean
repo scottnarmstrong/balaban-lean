@@ -546,3 +546,7 @@ public import Balaban.LargeField.Base.ConeVolume
 public import Balaban.LargeField.Base.SphereChart
 public import Balaban.LargeField.Base.BlockPath
 public import Balaban.LargeField.Base.SpinsNearBackground
+public import Balaban.LargeField.Base.PiLintegral
+public import Balaban.LargeField.Base.GaussianLift
+public import Balaban.LargeField.Base.HemispherePi
+public import Balaban.LargeField.Base.ChartIntegral
