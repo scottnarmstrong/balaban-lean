@@ -242,7 +242,7 @@ theorem xiC_scaledComposition (H' : BgHyp d L k ϱ' a ν) {a₁ ε₀ θ : ℝ} 
         have := (hbr.mass z).le
         rw [one_mul] at this
         exact this.trans (by nlinarith),
-      hbc := fieldBounds_congr hfc (fun x hx => by funext i; simp [psiC, hC.1 x hx i]),
+      hbc := fieldBounds_congr hfc (fun x hx => by funext i; simp [psiC]),
       hdiff := fun z => (hb.val z).le.trans (by nlinarith) }
   exact scaledComposition HS
 
