@@ -1220,6 +1220,8 @@ public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepRates
+public import Balaban.Fluctuation.HatLabelsDirect
+public import Balaban.Fluctuation.StepRatesDirect
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.LargeField.R.CancelStationary
