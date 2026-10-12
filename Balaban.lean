@@ -1015,6 +1015,7 @@ public import Balaban.Inhabited.PsiZeroWitness
 public import Balaban.Inhabited.PsiZeroWitnessSpec
 public import Balaban.Inhabited.PsiZeroWitnessDen
 public import Balaban.Inhabited.PsiZeroWitnessTilt
+public import Balaban.Inhabited.ActionConvWitnessFull
 public import Balaban.Inhabited.CancelWitness
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
