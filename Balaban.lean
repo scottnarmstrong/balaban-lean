@@ -684,6 +684,7 @@ public import Balaban.LargeField.R.ZeroDomainCoercive
 public import Balaban.LargeField.R.ZeroDomainScales
 public import Balaban.LargeField.R.ZeroDomainPaths
 public import Balaban.LargeField.R.ZeroDomainRef
+public import Balaban.LargeField.R.PsiZeroAbstract
 public import Balaban.LargeField.R.ZeroDomainBox
 public import Balaban.LargeField.R.ZeroDomain
 public import Balaban.Background.WeightedProp51Basic
