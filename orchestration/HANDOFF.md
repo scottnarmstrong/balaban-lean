@@ -15,7 +15,7 @@ Claude workers (background subagents of this session):
 | W83b | `w83-reynolds` / W83 | finish Reynolds average: SumConds, bridgeAvg, termwise corollary |
 | W89b | `w89-weighted51` / W89 | WeightedProp51S (defect-zero + OpSetting separation), lemma41_uncond, Lemma 3.5 analyticity |
 | W90b (Opus) | `w90-i6-aniso` / W90 | anisotropic I-6 (TubeAniso polydisc plan) |
-| W92 | `w92-base-kernel` / W92 | base step Q5/Q6 per BASE-KERNEL (BaseSmallFieldInput for open Prop II.7.9 parts) |
+| W94 | `w94-i5-psi` / W94 | I-5 with ψ′ on Dec2 + footprint layer |
 | W93 | `w93-joint-witness` / W93 | joint non-vacuity witness for flow_counter / lemmaB |
 Next Sonnet packages: I-5 with ψ′ on the footprint layer (Decoupled2Fp*); formal joint witnesses for the
 SUSPICIOUS rows (i5_background, bridgeInf, LiftCtx).
