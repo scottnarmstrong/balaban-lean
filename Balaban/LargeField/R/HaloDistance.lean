@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Def7SmallField
 public import Balaban.Localization.TreeLengthDiam
 public import Balaban.SmallField.PsiGeomPath
+import Balaban.SmallField.Def6v2Inhabited
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -236,5 +237,26 @@ theorem exp_sizeJ_le_of_halo {Y : Set (Torus S.d (n k))} {j : ℕ} (hj : j ≤ k
   nlinarith
 
 end Halo
+
+section Example
+
+/-- **Non-vacuity of the size-diameter step** on a small torus (`d = 1`, `L = 2`, `N₁ = 1`,
+`m₁ = 0`, `k = 4`, torus of `16` sites): the whole torus is a polymer of `𝒟_0`
+(`isPolyDom_univ`), the admissible set defining `treeLenCovOne` is nonempty, and the points
+`0` and `8` are at distance `8`, so `treeLenCovOne 0 0 univ ≥ 8 - 4`. -/
+theorem treeLenCovOne_ge_dist_example :
+    (8 : ℝ) - 2 * 2 ≤ treeLenCovOne (d := 1) (L := 2) (N₁ := 1) (m₁ := 0) (K := 4) 0 0
+      (Set.univ : Set (Localization.CTorus 1 2 1 0 4)) := by
+  have hX := exists_cover_struct (d := 1) (L := 2) (N₁ := 1) (m₁ := 0) (k := 4) (m₀ := 0) (j := 0)
+    (Balaban.SmallField.Def6v2.isPolyDom_univ 0 0)
+  have h := treeLenCovOne_ge_dist (d := 1) (L := 2) (N₁ := 1) (m₁ := 0) (K := 4) 0 0 hX
+    (y := fun _ => 0) (x := fun _ => 8) trivial trivial
+  have hd : supDist (fun _ : Fin 1 => (0 : ZMod 16)) (fun _ => (8 : ZMod 16)) = 8 := by
+    decide +kernel
+  simp only [hd] at h
+  norm_num at h ⊢
+  linarith
+
+end Example
 
 end Balaban.LargeField.Def7
