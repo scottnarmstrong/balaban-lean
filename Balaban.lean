@@ -748,6 +748,7 @@ public import Balaban.LargeField.R.ZeroDomainRef
 public import Balaban.LargeField.R.PsiZeroAbstract
 public import Balaban.LargeField.R.PsiZeroAnalyticAction
 public import Balaban.LargeField.R.PsiZeroAnalyticIFT
+public import Balaban.LargeField.R.PsiZeroAnalyticLocal
 public import Balaban.LargeField.R.PsiZeroBlocks
 public import Balaban.LargeField.R.PsiZeroChain
 public import Balaban.LargeField.R.PsiZeroConvex
