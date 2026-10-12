@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
 | W182 | `w182-collar-inner` / W182 | COLLAR-FIX (2.3) inner-collar bound, DataChangeBound' for the window |
 | W183 | `w183-poly-minimal` / W183 | class polymers are cube unions; GsSpecStrong for minimal sets |
-| W180 | `w180-mass-hessian` / W180 | localized Hessian (2.1), wall sum (2.4), (2.5) |
+| W185 | `w185-mass-region` / W185 (on W180) | regional mass-change bound (2.5) from (1.3) + region geometry |
 | W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
 | W184 | `w184-window-history` / W184 | WindowPieces from the actual history; W173's geometric premises |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
