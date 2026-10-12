@@ -75,6 +75,14 @@ theorem logB_const (c : ℝ) : LogB (fun _ => c) := ⟨c, 0, le_rfl, fun x _ => 
 theorem LogB.add_const {f : ℝ → ℝ} (hf : LogB f) (c : ℝ) : LogB (fun x => f x + c) := by
   have := hf.add (logB_const c); exact this
 
+theorem PolyB.congr' {f g : ℝ → ℝ} {m : ℕ} (h : ∀ x, f x = g x) (hg : PolyB g m) : PolyB f m := by
+  obtain ⟨K, hK, hg⟩ := hg
+  exact ⟨K, hK, fun x hx => by rw [h x]; exact hg x hx⟩
+
+theorem LogB.congr' {f g : ℝ → ℝ} (h : ∀ x, f x = g x) (hg : LogB g) : LogB f := by
+  obtain ⟨a, b, hb, hg⟩ := hg
+  exact ⟨a, b, hb, fun x hx => by rw [h x]; exact hg x hx⟩
+
 /-- `log_L` of a polynomially bounded quantity `≥ 1` is logarithmically bounded. -/
 theorem logB_logb {L : ℝ} (hL : 1 < L) {y : ℝ → ℝ} {m : ℕ} (hy : PolyB y m)
     (hy1 : ∀ x : ℝ, 1 ≤ x → 1 ≤ y x) : LogB (fun x => Real.logb L (y x)) := by
