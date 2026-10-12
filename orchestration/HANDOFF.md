@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W99 | `w99-lf-p2p3` / W99 | LFR Part III P2 + P3 |
 | W108 | `w108-thm42` / W108 | FLUCT Thm 4.2 + Cor 4.3 assembly (undecoupled) |
 | W110 | `w110-quiet-stepdata` / W110 | quiet StepData instance + non-empty-component witness |
-| W107 | `w107-obs-o6` / W107 | observables O6 + first-order step assembly |
+| W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
 | W97 (Opus) | `w97-renorm-exp` / W97 | Prop 5.1 in the mass, Lemma 3.5, Thm 3.1(g),(h) |
 | W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
 | W95 | `w95-lf-p14` / W95 | LFR Part III P14 + P4 geometric half |
