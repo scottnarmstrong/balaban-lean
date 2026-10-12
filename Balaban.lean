@@ -512,3 +512,4 @@ public import Balaban.Fluctuation.ExpansionCauchy
 public import Balaban.Fluctuation.ExpansionBounds
 public import Balaban.Fluctuation.ExpansionReal
 public import Balaban.Fluctuation.ExpansionLocal
+public import Balaban.Fluctuation.ExpansionAnalytic
