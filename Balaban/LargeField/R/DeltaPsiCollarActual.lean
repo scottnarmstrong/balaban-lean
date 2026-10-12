@@ -150,20 +150,63 @@ theorem windowOfHistory_regPath_in {x : Torus S.d (M * n k * S.L ^ k)}
     obtain ⟨μ', hμ'⟩ := hpa i (by have := hn0spec.1; omega)
     exact adjT_of_step hM2 μ' hμ'
 
-/-- Telescoping of the bond bound along a path whose blocks before the last lie in `regSetT`. -/
+/-- Every block of `regSetT` is a layer block of the parent: it contains a site of the layer `k₁` of
+`𝔹_k`.  Its cube lies in `Ω_{k₁} ∩ Z_{k₁}` (`regCubes_eq`), so every site of the block is in `Ω_{k₁}(𝔹_k)`
+and, being in `Z_{k₁}`, off `Ω_{k₁+1}(𝔹_k)` (`windowOfHistory_hZk1top`). -/
+theorem regSetT_isLayer {b : Torus S.d (M * n k * S.L ^ (k - S.k1 k))}
+    (hb : b ∈ regSetT H Z M (S.k1 k)) :
+    ∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+      jBlock S.d S.L (M * n k) k (S.k1 k) x = b := by
+  have hq1 : 1 ≤ S.k1 k := hW.k1_pos hkK
+  have hqk : S.k1 k ≤ k := k1_le hW
+  have hnn : ∀ i, i < k → n i = S.L * n (i + 1) := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hkK)
+  obtain ⟨x, hx⟩ := exists_site_of_block (d := S.d) (L := S.L) (N₀ := M * n k) (k := k)
+    (j := S.k1 k) hqk b
+  have hcube : cubeMap n S.L M k (S.k1 k) x = blockCube S n M k (S.k1 k) b := by
+    rw [← hx]; exact (cubeMap_jBlock hnn hqk x).symm
+  rw [mem_regSetT, regCubes_eq] at hb
+  refine ⟨x, (GeneratingSet.mem_layer _).2 ⟨?_, ?_⟩, hx⟩
+  · rw [windowOfHistory_full_Ω]
+    have h2 : cubeMap n S.L M k (S.k1 k) x ∈ regOmega H Z (S.k1 k) := by rw [hcube]; exact hb.2
+    generalize S.k1 k = q at hq1 hqk h2
+    obtain ⟨i, rfl⟩ : ∃ i, q = i + 1 := ⟨q - 1, by omega⟩
+    exact (mem_locGen_succ (hkK := hkK) (hL := H.F.ok.two_le_L) (hR := fun j _ _ => g.hRlow j)
+      (Z := Z) (M := M) (by omega)).2 h2
+  · apply windowOfHistory_hZk1top (g := g) hkK hW x
+    rw [windowOfHistory_Zk1, mem_locFineFin]
+    show cubeMap n S.L M k (S.k1 k) x ∈ regZ H Z (S.k1 k)
+    rw [hcube]; exact hb.1
+
+/-- Telescoping of the bond bound along a path whose blocks before the last lie in `regSetT`; the bond
+bound is asked only for pairs of layer blocks (blocks containing a site of the layer `k₁` of `𝔹_k`, the
+blocks on which the retained domain condition `ChiDomProp` speaks).  The blocks `u i`, `i < m`, are layer
+blocks by `regSetT_isLayer`; the last one by `hlm`. -/
 theorem regPath_dist_le {E : Type*} [PseudoMetricSpace E] (ψ : BlockV S.d S.L (M * n k) k → E) {C : ℝ}
-    (hband : ∀ y ∈ regSetT H Z M (S.k1 k), ∀ y' ∈ regSetTExt H Z M (S.k1 k), AdjT y y' →
+    (hband : ∀ y ∈ regSetT H Z M (S.k1 k), ∀ y' ∈ regSetTExt H Z M (S.k1 k),
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = y) →
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = y') → AdjT y y' →
       dist (ψ ⟨S.k1 k, y⟩) (ψ ⟨S.k1 k, y'⟩) ≤ C)
     {m : ℕ} {u : ℕ → Torus S.d (M * n k * S.L ^ (k - S.k1 k))}
     (huT : ∀ i < m, u i ∈ regSetT H Z M (S.k1 k)) (huA : ∀ i < m, AdjT (u i) (u (i + 1)))
-    (hum : u m ∈ regSetTExt H Z M (S.k1 k)) :
+    (hum : u m ∈ regSetTExt H Z M (S.k1 k))
+    (hlm : ∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+      jBlock S.d S.L (M * n k) k (S.k1 k) x = u m) :
     dist (ψ ⟨S.k1 k, u 0⟩) (ψ ⟨S.k1 k, u m⟩) ≤ m * C := by
   have hext : ∀ i ≤ m, u i ∈ regSetTExt H Z M (S.k1 k) := fun i hi => by
     rcases Nat.lt_or_ge i m with h | h
     · exact regSetT_subset_ext H Z M _ (huT i h)
     · have : i = m := by omega
       subst this; exact hum
-  exact dist_walk_le (fun v => ψ ⟨S.k1 k, v⟩) u (fun i hi => hband _ (huT i hi) _ (hext (i + 1) hi) (huA i hi))
+  have hlay : ∀ i ≤ m, ∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+      jBlock S.d S.L (M * n k) k (S.k1 k) x = u i := fun i hi => by
+    rcases Nat.lt_or_ge i m with h | h
+    · exact regSetT_isLayer (g := g) hkK hW (huT i h)
+    · have : i = m := by omega
+      subst this; exact hlm
+  exact dist_walk_le (fun v => ψ ⟨S.k1 k, v⟩) u (fun i hi =>
+    hband _ (huT i hi) _ (hext (i + 1) hi) (hlay i hi.le) (hlay (i + 1) hi) (huA i hi))
 
 /-- **Inner-collar shell bound (COLLAR-FIX (2.2)) for the actual window.**  For `c ∈ C_in` of
 `windowOfHistory H Z g hkK hW`, the parent spin `ψ(parentBlock 𝔹_k c)` is within `(m_W + 1) C` of the spin of
@@ -176,7 +219,11 @@ core (any layer, `windowOfHistory_regPath_in`) or off `Z_{k₁}` (the window blo
 bridge, not formalized). -/
 theorem inner_collar_shell_bound_actual {E : Type*} [PseudoMetricSpace E]
     (ψ : BlockV S.d S.L (M * n k) k → E) {C : ℝ} (hC : 0 ≤ C)
-    (hband : ∀ y ∈ regSetT H Z M (S.k1 k), ∀ y' ∈ regSetTExt H Z M (S.k1 k), AdjT y y' →
+    (hband : ∀ y ∈ regSetT H Z M (S.k1 k), ∀ y' ∈ regSetTExt H Z M (S.k1 k),
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = y) →
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = y') → AdjT y y' →
       dist (ψ ⟨S.k1 k, y⟩) (ψ ⟨S.k1 k, y'⟩) ≤ C)
     {c : Torus S.d (M * n k * S.L ^ k)}
     (hc : c ∈ collarIn (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)) :
@@ -192,12 +239,14 @@ theorem inner_collar_shell_bound_actual {E : Type*} [PseudoMetricSpace E]
   have hcb := jBlock_eq_or_adjT (k1_le hW) hadj
   -- one step from the block of `c` to an equal or adjacent block of `regSetTExt`
   have step : ∀ b : Torus S.d (M * n k * S.L ^ (k - S.k1 k)), b ∈ regSetTExt H Z M (S.k1 k) →
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = b) →
       (jBlock S.d S.L (M * n k) k (S.k1 k) c = b ∨ AdjT (jBlock S.d S.L (M * n k) k (S.k1 k) c) b) →
       dist (ψ ⟨S.k1 k, jBlock S.d S.L (M * n k) k (S.k1 k) c⟩) (ψ ⟨S.k1 k, b⟩) ≤ C := by
-    intro b hb h
+    intro b hb hbl h
     rcases h with rfl | h
     · simpa using hC
-    · exact hband _ hcT _ hb h
+    · exact hband _ hcT _ hb (regSetT_isLayer (g := g) hkK hW hcT) hbl h
   rw [hpar]
   have e : blockOf S.d S.L (M * n k) k (S.k1 k) c = ⟨S.k1 k, jBlock S.d S.L (M * n k) k (S.k1 k) c⟩ := rfl
   rw [e]
@@ -217,12 +266,17 @@ theorem inner_collar_shell_bound_actual {E : Type*} [PseudoMetricSpace E]
       rcases Nat.eq_zero_or_pos m with h0 | h0
       · subst h0; exact hum
       · exact regSetT_subset_ext H Z M _ (huT 0 h0)
-    have h1 := step (u 0) hu0ext (by
+    have hu0l : ∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (M * n k) k (S.k1 k) x = u 0 := by
+      rcases Nat.eq_zero_or_pos m with h0 | h0
+      · subst h0; exact ⟨s, hs, hsu⟩
+      · exact regSetT_isLayer (g := g) hkK hW (huT 0 h0)
+    have h1 := step (u 0) hu0ext hu0l (by
       rw [hu0]
       rcases hcb with h | h
       · exact Or.inl h.symm
       · exact Or.inr (adjT_symm' h))
-    have h2 := regPath_dist_le ψ hband huT huA hum
+    have h2 := regPath_dist_le (g := g) hkK hW ψ hband huT huA hum ⟨s, hs, hsu⟩
     have e2 : blockOf S.d S.L (M * n k) k (S.k1 k) s = ⟨S.k1 k, u m⟩ := by
       simp only [blockOf]; rw [hsu]
     rw [e2]
@@ -234,7 +288,7 @@ theorem inner_collar_shell_bound_actual {E : Type*} [PseudoMetricSpace E]
     refine ⟨x, hxl, hxZ, ?_⟩
     have hxext := windowOfHistory_hwT (g := g) hkK hW
       (by rw [WindowPieces.windowGenSet_Ω]; rw [WindowPieces.windowGenSet_Ω] at hx; exact hx) hadj hcZ
-    have h1 := step _ hxext (by
+    have h1 := step _ hxext ⟨x, hxl, rfl⟩ (by
       rcases hcb with h | h
       · exact Or.inl h.symm
       · exact Or.inr (adjT_symm' h))

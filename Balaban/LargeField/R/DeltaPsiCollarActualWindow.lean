@@ -84,7 +84,11 @@ theorem dataChangeBound'_windowOfHistory_of_bdryTop
       (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ ψ)
     (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
     {Creg : ℝ} (hCreg : 0 ≤ Creg)
-    (hband : ∀ y ∈ regSetT H Z S.M (S.k1 k), ∀ y' ∈ regSetTExt H Z S.M (S.k1 k), AdjT y y' →
+    (hband : ∀ y ∈ regSetT H Z S.M (S.k1 k), ∀ y' ∈ regSetTExt H Z S.M (S.k1 k),
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (S.M * n k) k (S.k1 k) x = y) →
+      (∃ x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k),
+        jBlock S.d S.L (S.M * n k) k (S.k1 k) x = y') → AdjT y y' →
       dist (ψ ⟨S.k1 k, y⟩) (ψ ⟨S.k1 k, y'⟩) ≤ Creg * δ (S.k1 k))
     (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * Creg ≤ S.hatW ε k)
     (hoff : ∀ x ∈ dataSites (windowOfHistory H Z g hkK hW).bdry,
