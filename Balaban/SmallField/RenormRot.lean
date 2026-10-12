@@ -146,7 +146,7 @@ theorem entryBd_flipMat (j : Fin N) : EntryBd N (flipMat j) := by
     (((2 : ℂ) • (single j j (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ)) a b)
   linarith
 
-theorem entryBd_planeRot (i k : Fin N) (c s : ℂ) (hc : ‖c‖ ≤ 1) (hs : ‖s‖ ≤ 1) :
+theorem entryBd_planeRot (i k : Fin N) (c s : ℂ) (hc : ‖c‖ ≤ 2) (hs : ‖s‖ ≤ 2) :
     EntryBd N (planeRot i k c s) := by
   intro a b
   have h1 : ‖(1 : Matrix (Fin N) (Fin N) ℂ) a b‖ ≤ 1 := by
@@ -157,13 +157,13 @@ theorem entryBd_planeRot (i k : Fin N) (c s : ℂ) (hc : ‖c‖ ≤ 1) (hs : �
   have e2 := entry_single_le k k a b
   have e3 := entry_single_le k i a b
   have e4 := entry_single_le i k a b
-  have hc' : ‖c - 1‖ ≤ 2 := by
+  have hc' : ‖c - 1‖ ≤ 3 := by
     calc ‖c - 1‖ ≤ ‖c‖ + ‖(1 : ℂ)‖ := norm_sub_le _ _
-      _ ≤ 2 := by simp; linarith
+      _ ≤ 3 := by rw [norm_one]; linarith
   unfold planeRot planeProj planeGen rotBound
   simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.sub_apply, smul_eq_mul]
   have t1 : ‖(c - 1) * ((single i i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b +
-      (single k k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)‖ ≤ 4 := by
+      (single k k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)‖ ≤ 6 := by
     rw [norm_mul]
     have : ‖(single i i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b +
         (single k k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b‖ ≤ 2 :=
@@ -171,11 +171,12 @@ theorem entryBd_planeRot (i k : Fin N) (c s : ℂ) (hc : ‖c‖ ≤ 1) (hs : �
     nlinarith [norm_nonneg (c - 1), norm_nonneg ((single i i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b +
         (single k k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)]
   have t2 : ‖s * ((single k i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b -
-      (single i k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)‖ ≤ 2 := by
+      (single i k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)‖ ≤ 4 := by
     rw [norm_mul]
     have : ‖(single k i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b -
         (single i k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b‖ ≤ 2 :=
       (norm_sub_le _ _).trans (by linarith)
+    have hs2 : ‖s‖ ≤ 2 := hs
     nlinarith [norm_nonneg s, norm_nonneg ((single k i (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b -
         (single i k (1 : ℂ) : Matrix (Fin N) (Fin N) ℂ) a b)]
   calc _ ≤ ‖(1 : Matrix (Fin N) (Fin N) ℂ) a b‖ + ‖(c - 1) * ((single i i (1 : ℂ) :
