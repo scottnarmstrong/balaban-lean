@@ -1203,6 +1203,7 @@ public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
 public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
+public import Balaban.LargeField.R.RadialCoefficient
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
