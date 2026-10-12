@@ -37,8 +37,8 @@ theorem Kcal_weighted_of_dg1 {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
         (Kcal G a ν α s *ᵥ h) (C / 4) :=
   fun h _ hC hh => hK h hC hh
 
-/-- **(DG1)--(DG3), pointwise form.** -/
-theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
+/-- **(DG1)--(DG3), pointwise form, with the contraction.** -/
+theorem dg2_all (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ cstar BG : ℝ, 0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
@@ -47,8 +47,12 @@ theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
       ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
       ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
       (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
-      IsUnit (1 - Kcal G a ν α s) ∧
-      SupBdW G w (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) (BG * Real.exp (N0 d L * κ) * C) := by
+      (IsUnit (1 - Kcal G a ν α s) ∧
+      SupBdW G w (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) (BG * Real.exp (N0 d L * κ) * C)) ∧
+      (∀ (f' : G.Ω 1 → ℂ) {C' : ℝ}, 0 ≤ C' →
+        (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f' x‖ ≤ C') →
+        ∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+          ‖(Kcal G a ν α s *ᵥ f') x‖ ≤ C' / 4) := by
   obtain ⟨cstar, hcs, hD1⟩ := dg1 (d := d) (L := L) hd hL
   obtain ⟨Bw, hBw, hS⟩ := cube_star (d := d) (L := L) hd hL
   have hFc := Fc_bounds d L
@@ -70,7 +74,7 @@ theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have := hD1 G S hα hκ hMκ hs hw1 h hC0 (fun y => by simpa using hh y) x
     simpa using this
   have hU : IsUnit (1 - Kcal G a ν α s) := neumann_isUnit hspos hK1
-  refine ⟨hU, ?_⟩
+  refine ⟨⟨hU, ?_⟩, fun f' C' hC' hf' => hD1 G S hα hκ hMκ hs hw f' hC' hf'⟩
   -- the solution of `(1 - 𝒦) g = f`
   set g : G.Ω 1 → ℂ := (1 - Kcal G a ν α s)⁻¹ *ᵥ f with hgdef
   have hg : g - Kcal G a ν α s *ᵥ g = f := by
@@ -253,6 +257,23 @@ theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (hmono (1 + Cchi d L + d * Cchi d L * (1 + L)) (Fc_bounds d L).2.2.1)
     have := (hq q hqA).2.2
     nlinarith [this]
+
+/-- **(DG1)--(DG3), pointwise form.** -/
+theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar BG : ℝ, 0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
+      ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      IsUnit (1 - Kcal G a ν α s) ∧
+      SupBdW G w (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) (BG * Real.exp (N0 d L * κ) * C) := by
+  obtain ⟨c, B, hc, hB, H⟩ := dg2_all (d := d) (L := L) hd hL
+  refine ⟨c, B, hc, hB, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hMκ s hs w hw f C hC hfC
+  exact (H G S hα hκ hMκ hs hw f hC hfC).1
 
 /-- **(DG1), the identity `G_1(A) = G_D(A)`**: for `M₁ ≥ c_*`. -/
 theorem Gs_one (hd : 3 ≤ d) (hL : 3 ≤ L) :

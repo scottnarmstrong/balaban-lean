@@ -161,7 +161,7 @@ theorem rowSupp_chi_cubeG (S : DGSetting G a ν) (hα : AdmPot G α) {q : ℕ ×
   intro f x hx
   rw [← Matrix.mulVec_mulVec, chiD_mulVec, cubeG_supp S hα hq f x hx, mul_zero]
 
-theorem rowSupp_Kz_cubeG (S : DGSetting G a ν) (hα : AdmPot G α) {q : ℕ × CTorus d L N₁ m₁ K}
+theorem rowSupp_Kz_cubeG (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K}
     (hq : q ∈ cubeIdx G) : RowSupp (Kz G a ν q * cubeG G a ν α q) (box q) := by
   intro f x hx
   by_contra hne
@@ -296,11 +296,11 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
   have hMK : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α q) (box q) ∧
       Kz G a ν q * cubeG G a ν α q * cD G q = Kz G a ν q * cubeG G a ν α q := by
     intro q hq
-    exact ⟨rowSupp_Kz_cubeG S hα hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
+    exact ⟨rowSupp_Kz_cubeG S hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
   have hMK' : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α' q) (box q) ∧
       Kz G a ν q * cubeG G a ν α' q * cD G q = Kz G a ν q * cubeG G a ν α' q := by
     intro q hq
-    exact ⟨rowSupp_Kz_cubeG S hα' hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
+    exact ⟨rowSupp_Kz_cubeG S hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
   have hd1 : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → box q ⊆ Y ∨ Disjoint (box q) Y :=
     fun q hq hc => hdich q hq (Or.inl hc)
   have hd2 : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → box q ⊆ Y ∨ Disjoint (box q) Y :=
