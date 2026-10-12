@@ -790,6 +790,7 @@ public import Balaban.Fluctuation.Prop33Agg
 public import Balaban.Fluctuation.Prop33Parts
 public import Balaban.Fluctuation.Prop33Bound
 public import Balaban.Fluctuation.Prop33
+public import Balaban.Fluctuation.Prop33Nu
 public import Balaban.Fluctuation.TraceEntropyCells
 public import Balaban.Fluctuation.TraceEntropy
 public import Balaban.Fluctuation.TraceEntropyInhab
