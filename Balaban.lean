@@ -1243,3 +1243,4 @@ public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
 public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
+public import Balaban.Inhabited.FootprintMarginWitness
