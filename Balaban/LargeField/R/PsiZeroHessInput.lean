@@ -69,7 +69,7 @@ theorem coe_boxFinset (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ) :
 
 variable [NeZero N]
 
-theorem psiZero_hess_core {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
+theorem psiZero_derivs_core {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
     (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ)
     (Z : Finset (Torus d (N₀ * L ^ (k - k)))) (hZ : (Z : Set (Torus d (N₀ * L ^ (k - k)))) = box b0 w)
     (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D)
@@ -78,8 +78,10 @@ theorem psiZero_hess_core {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
       shellOut (box b0 w : Set (Torus d (N₀ * L ^ (k - k)))))) {η : ℝ} (hη : 0 < η)
     (hη0 : η ≤ bgC0 d L N) (hη1 : η ≤ bgC1 d L N) (hηh : η ≤ etaHess d L N D)
     {ψ : BlockField d L N₀ k N} (ht : TubeOn G Set.univ η ψ) (v : SuppSpace Z N) :
-    hessConst d L k D * ‖v‖ ^ 2 ≤
-      fderiv ℝ (fderiv ℝ (effOn G a Z ψ)) (restrictSupp Z ψ) v v := by
+    fderiv ℝ (effOn G a Z ψ) (restrictSupp Z ψ) v =
+        (firstVar a (dataR G ψ) (topTangent G v) (bgField G a 0 (dataR G ψ))).re ∧
+      hessConst d L k D * ‖v‖ ^ 2 ≤
+        fderiv ℝ (fderiv ℝ (effOn G a Z ψ)) (restrictSupp Z ψ) v v := by
   have hd : 0 < d := by have := H.hd; omega
   have hD1 : 1 ≤ D := (hw1 ⟨0, hd⟩).trans (hwD _)
   have hL2 : 2 ≤ L := by have := H.hL; omega
@@ -110,6 +112,7 @@ theorem psiZero_hess_core {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ k)
         unfold gaussConst; ring
       rw [e]
       exact h)
+  refine ⟨key.1, ?_⟩
   unfold hessConst
   linarith [key.2]
 
@@ -124,7 +127,7 @@ theorem psiZero_hess_of_geometry {D : ℕ} (H : BgHyp d L k ϱ a 0) (hk : 1 ≤ 
     (v : SuppSpace (boxFinset (L := L) (N₀ := N₀) (k := k) b0 w) N) :
     hessConst d L k D * ‖v‖ ^ 2 ≤
       fderiv ℝ (fderiv ℝ (effOn G a (boxFinset b0 w) ψ)) (restrictSupp (boxFinset b0 w) ψ) v v :=
-  psiZero_hess_core H hk b0 w (boxFinset b0 w) (coe_boxFinset b0 w) hw1 hwD hm hΩ hη hη0 hη1 hηh ht v
+  (psiZero_derivs_core H hk b0 w (boxFinset b0 w) (coe_boxFinset b0 w) hw1 hwD hm hΩ hη hη0 hη1 hηh ht v).2
 
 end HessInput
 
