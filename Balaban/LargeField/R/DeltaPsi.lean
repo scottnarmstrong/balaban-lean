@@ -13,8 +13,8 @@ import Mathlib.Tactic.Positivity
 For a ripe component `Z` of scale `k` with window `𝔹_{k₁,k}`, on the sites of the window generating set in
 `Z ∖ Z_{k₁}` (the region `𝔹_k ∩ Z^c_{k₁} ∩ Z` of Definition III.2.1):
 
-* `δψ = 0` on `Ω_k` (`deltaPsi_top`);
-* `|δψ| < C_{23} Ŵ_k δ_j` on `Λ_j`, `k₁ ≤ j ≤ k - 1`, `C_{23} = 3dL + 2` (`deltaPsi_layer_lt`).
+* `δψ = 0` on `Ω_k` (`deltaPsi_top_outer`);
+* `|δψ| < C_{23} Ŵ_k δ_j` on `Λ_j`, `k₁ ≤ j ≤ k - 1`, `C_{23} = 3dL + 2` (`deltaPsi_layer_lt_outer`).
 
 Proof of the second bound: the chain of Lemma CH from the window block of `x` to a terminal block
 `y_k` (`lemmaCH_of_ripe`, edge costs from `WinBond`: `winBond_intra`, `winBond_cross`) gives
@@ -23,6 +23,9 @@ monotone path in the box `Z` (`zblocks_reach`, at most `d M crit_k` bonds) give
 `|ψ_k(y_k) - ψ⁰_k(z(x))| ≤ 3 d K₆ M crit_k δ_k`; and (2.43) (`psiZeroWin_sub_le`) gives
 `|ψ⁰_k(z(x)) - ψ⁰_{k₁,k}(x)| ≤ 2 K₁ · 3 · 3K₆ δ_k`.  The last two are `≤ Ŵ_k δ_k ≤ Ŵ_k δ_j` by the
 hypothesis (Λ21).
+
+*Naming*: these results are partial (outer region only); the names `deltaPsi_le` (and the pieces
+`deltaPsi_top`, `deltaPsi_layer_lt`) are reserved for the final unconditional (2.48′).
 
 *Not covered*: the sites of the core `Z_{k₁}` (`j = k₁`, `x ∈ 𝔹_{k₁}(W) ∩ Z_{k₁}`), which need the
 regularity of `ψ_{k₁}` from the step `k₁ - 1 → k₁` (Definition II.5.6).
@@ -114,7 +117,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   {H : RegionHistory S n R k0 K} {k : ℕ} {Z : H.Comp k} [NeZero S.L] [NeZero S.M]
 
 /-- **Lemma III.4.6 (2.48′), layers `k₁ ≤ j < k`** on the region `𝔹_k ∩ Z^c_{k₁} ∩ Z` of the window. -/
-theorem deltaPsi_layer_lt
+theorem deltaPsi_layer_lt_outer
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -257,7 +260,7 @@ theorem deltaPsi_layer_lt
   nlinarith [hdist, hD2, hD3', hθm, hΛ', hWδ, hT0, e1, e2, e3, t1, t2, eW]
 
 /-- **Lemma III.4.6 (2.48′), `δψ = 0` on `Ω_k`**, on the region `𝔹_k ∩ Z^c_{k₁} ∩ Z` of the window. -/
-theorem deltaPsi_top
+theorem deltaPsi_top_outer
     (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (W : WindowPieces S.d S.L (S.M * n k) k ((S.L : ℝ) * S.M * S.Rb)) (hWh : W.Hyp)
     (hfull : W.full = H.locGen Z S.M hkK hL hR)
@@ -321,7 +324,7 @@ function setting of `𝔹_k(U_k)` (BG (6.2) is defined for such pairs), the admi
 (Lemma III.4.5), the block field `ψ⁰_k` of Lemma III.3.3 with `θ = 3 K₆ δ_k` small (`PsiZeroSpec`, (Λ22)),
 the window domain (`WinBond`, (1.24)), and the constant condition (Λ21) in the normalisation of this
 file: `3 d K₆ M crit_k + 2 K₁ · 3 · 3K₆ ≤ Ŵ_k`, `K₁ = bgK1`. -/
-theorem deltaPsi_le
+theorem deltaPsi_le_outer
     (hG : S.Good) (hkK : k ≤ K) (hL : 2 ≤ S.L) (hR : ∀ j, 1 ≤ j → j < k → S.Rb ≤ R j)
     (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
@@ -347,8 +350,8 @@ theorem deltaPsi_le
     ∀ j, S.k1 k ≤ j → j < k → x ∈ (W.windowGenSet hWh).layer j →
       vn (deltaPsi (W.windowGenSet hWh) W.bdry (compWeight S.L a₁) ψ ψ0 h x) <
         (3 * S.d * S.L + 2) * S.hatW ε k * δ j :=
-  ⟨fun hxk => deltaPsi_top hkK hL hR W hWh hfull hZ hZk1 ha₁ hprec ψ ψ0 h hspec hx hxZ hxc hxk,
-    fun _ hk1j hjk hxl => deltaPsi_layer_lt hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1
+  ⟨fun hxk => deltaPsi_top_outer hkK hL hR W hWh hfull hZ hZk1 ha₁ hprec ψ ψ0 h hspec hx hxZ hxc hxk,
+    fun _ hk1j hjk hxl => deltaPsi_layer_lt_outer hG hkK hL hR hk0 hrip hq1 hT hϱ hδ W hWh hfull hZ hZk1
       ha₁ hprec hBg ψ ψ0 h hK6 hθ1 hθc hspec hwin hΛ21 hx hxZ hxc hk1j hjk hxl⟩
 
 end RegionHistory

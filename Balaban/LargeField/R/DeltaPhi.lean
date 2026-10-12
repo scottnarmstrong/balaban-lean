@@ -7,11 +7,15 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
+*Naming*: `deltaPhi_le_of_dataChange` and `layerBounds_window_of_dataChange` are conditional on
+`DataChangeBound` (the full (2.48′)); the names `deltaPhi_le`, `layerBounds_window` are reserved for the
+final unconditional (2.49′).
+
 # Lemma III.4.7: the response `δφ_{k₁,k}` to the window data change (P7 Lemma 2.4, (2.49′))
 
 `δφ_{k₁,k} := φ_k(𝔹_{k₁,k}; ψ̃) - φ_k(𝔹_{k₁,k}; ψ⁰_{k₁,k})` (`deltaPhi`) and its multiplier
 `δα_{k₁,k}` (`deltaAlpha`) are the differences of the Def-5 backgrounds of the window generating set for
-the data `ψ̃` (`psiTildeData`) and `ψ⁰_{k₁,k}` (`windowData`).  `deltaPhi_le` is the layered bound
+the data `ψ̃` (`psiTildeData`) and `ψ⁰_{k₁,k}` (`windowData`).  `deltaPhi_le_of_dataChange` is the layered bound
 (2.49′) from the layered bound (2.48′) on the data change, by P3 Proposition 2.1 in its layered form
 (`layered_response`).
 -/
@@ -179,7 +183,7 @@ for `y ∈ Ω₁` of layer `j` the quantities `|δφ|`, `ℓ|∂δφ|`, `ℓ²|�
 `K_w C_F e^ε L^{(d-2)/2} · C δ_j` (`LayerBounds`).  Since `L^{(d-2)/2} = L^{-2} L^{(d+2)/2}` this is
 (2.49′) with `C₂₄ = K_w C_F e^ε C₂₃ / L²` (the decay factor `e^{-γ_w d(y, (Ω_k^c)^∼)}` is `1` for
 `y ∈ Λ_j`, `j < k`, since then `y ∈ Ω_k^c`). -/
-theorem deltaPhi_le (N : ℕ) {d L : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) :
+theorem deltaPhi_le_of_dataChange (N : ℕ) {d L : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
       ∀ {N₀ k : ℕ} [NeZero N₀] {ϱ ϱ' : ℝ} (G : GeneratingSet d L N₀ k ϱ)
         (G' : GeneratingSet d L N₀ k ϱ') (hprec : Precedes G G') {a : ℕ → ℝ},
@@ -262,10 +266,10 @@ theorem rpow_half_sub (hL : 0 < (L : ℝ)) :
   push_cast; ring
 
 /-- **(2.49′) in the shape of the source**: for `y ∈ Λ_j`, `k₁ ≤ j ≤ k - 1`, with `C = C₂₃ Ŵ_k` the
-bounds of `deltaPhi_le` read
+bounds of `deltaPhi_le_of_dataChange` read
 `|δφ|, ℓ|∂δφ|, ℓ²|Δδφ|, ℓ²|δα| ≤ C₂₄ L^{(d+2)/2} Ŵ_k δ_j`, `C₂₄ = K_w C_F e^ε C₂₃ / L²`
 (`ℓ = L^j` is the spacing at `y`). -/
-theorem layerBounds_window {G : GeneratingSet d L N₀ k ϱ} {Kw ε Wh : ℝ} {k1 : ℕ} {δ : ℕ → ℝ}
+theorem layerBounds_window_of_dataChange {G : GeneratingSet d L N₀ k ϱ} {Kw ε Wh : ℝ} {k1 : ℕ} {δ : ℕ → ℝ}
     {δφ : G.Ω 1 × Fin N → ℂ} {δα : G.Ω 1 → ℂ}
     (hb : LayerBounds G (fun n => ((3 * d * L + 2) * Wh) * δ (max k1 (min n k)))
       (Kw * (cF d L * (Real.exp ε * (L : ℝ) ^ (((d : ℝ) - 2) / 2)))) δφ δα)
