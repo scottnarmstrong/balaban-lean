@@ -667,3 +667,4 @@ public import Balaban.Fluctuation.RenormExpLemma35
 public import Balaban.Fluctuation.RenormExpCauchy
 public import Balaban.Fluctuation.RenormExpBounds
 public import Balaban.Fluctuation.RenormExpG
+public import Balaban.Fluctuation.RenormExpDiff
