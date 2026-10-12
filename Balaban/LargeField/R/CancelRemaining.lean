@@ -182,7 +182,7 @@ theorem lemma262_nonempty (G' : GeneratingSet d L N₀ k ϱ') (a : ℕ → ℝ)
   · exact Finset.sum_nonneg fun x _ => hal0 x
 
 
-theorem starWeight_ne_zero (D : Region G') {x : Torus d (N₀ * L ^ k)} {μ : Fin d}
+theorem region_starWeight_ne_zero (D : Region G') {x : Torus d (N₀ * L ^ k)} {μ : Fin d}
     (h : D.starWeight x μ ≠ 0) : x ∈ D.sites ∨ x + Pi.single μ 1 ∈ D.sites := by
   by_contra hcon
   push Not at hcon
@@ -202,7 +202,7 @@ theorem norm_actionRegion0_le (a : ℕ → ℝ) (ψ0 : BlockV d L N₀ k → Euc
   · rw [norm_mul]
     have := norm_bondPair_le Zk1
       (barField G' (psiZeroData G' ψ0 h).Ψ (phiZero G' a ψ0 h)) (B := Bgrad)
-      (fun x μ hw => hL.grad x μ (starWeight_ne_zero Zk1 hw))
+      (fun x μ hw => hL.grad x μ (region_starWeight_ne_zero Zk1 hw))
     have e : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
     rw [e]
     linarith
