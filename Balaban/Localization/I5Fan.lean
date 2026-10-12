@@ -149,6 +149,23 @@ theorem point_facts (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X�
   · rw [D2raw_rawOf, hFk']
   · exact stage2 hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hB.num.small₂ hB.num.th2 hB.hj hst
 
+/-- At `s ≡ 1` the decoupled background field is the background field of Theorem 5.2. -/
+theorem decBg_one_eq (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D) {φ : Gp.Ω 1 × Fin N → ℂ} {α : Gp.Ω 1 → ℂ}
+    (h1 : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D φ α) :
+    bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D = φ := by
+  have hd0 : 0 < d := by have := hB.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hB.num.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hB.num.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hB.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  exact (i4b_one hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM hδ0 le_rfl hδ0' hδ1 hνε hDom h1).2.1
+
 end Fan
 
 end Balaban.Localization

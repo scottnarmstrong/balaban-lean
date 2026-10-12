@@ -93,6 +93,10 @@ theorem thickSet_mono {Y Y' : Set (CTorus d L N₁ m₁ K)} (h : Y ⊆ Y') :
   · exact Or.inr ⟨x, h hx, hxΩ, hyx⟩
 
 omit [NeZero N₁] [NeZero L] in
+theorem agreeOn_refl (A : Set (CTorus d L N₁ m₁ K)) (u : RawData d L (N₁ * L ^ m₁) K N) :
+    agreeOn A u u := fun _ _ => ⟨rfl, rfl⟩
+
+omit [NeZero N₁] [NeZero L] in
 theorem agreeOn_mono {A A' : Set (CTorus d L N₁ m₁ K)} (h : A ⊆ A')
     {u u' : RawData d L (N₁ * L ^ m₁) K N} (hu : agreeOn A' u u') : agreeOn A u u' :=
   fun x hx => hu x (h hx)
