@@ -23,7 +23,7 @@ Worktree setup: `git worktree add -q <path> -b <branch>`, `mkdir -p <path>/.lake
 
 ## Running at handoff
 
-Sonnet (background subagents of scott-41; they die with the session — if so, restart from the brief
+Sonnet (none running at 08:20 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
 in the ledger row and the branch state):
 - W70: DONE (landed 017b7c9; χ^dom identity still open).
 
@@ -38,16 +38,19 @@ in the ledger row and the branch state):
 - W78: DONE (landed c6f82f7).
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
-codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and committed). Round 3
-(sent ~07:30 UTC):
-- astra-kf0: followup3.txt — choose Route H (high-mass extension of BG Thm 5.2 / H7 / base step /
-  LF-8) or Route D (direct one-scale) and prove its first missing piece; LF-BASE-KF0 Part D. Tag KF0D.
-- astra-class: followup1.txt — I6-ANISO.md (anisotropic I-6, Lean-ready). Tag I6ANISO.
-- astra-vmod: followup2.txt — VMOD-3.md: prove the Dec2 `CoverGeom`/`CoverBase.nc`/`CoverLocal`
-  fields for the mixed pairs (OPEN-NC3-MIXED-WALL, OPEN-EMBED-MIXED, OPEN-BLOCKCOUNT-MINIMAL). Tag VMOD3.
-- astra-rgfree: followup2.txt — RGFREE-3.md: FREE-LOC, SWITCH-LOC, SWITCH-H7. Tag RGFREE3.
-- astra-fluctfix: followup2.txt — FLUCTUATION v2.2: Theorem 3.1(f) in full. Tag FLUCTFIX3.
-- astra-basek (new, prompt.txt): BASE-KERNEL.md — k=0 kernel factor list, C^{(0)}, H, b₀, baseMainAction, (S5), proofs of II.7.7/II.7.8 (unblocks queued item 9). Tag BASEK.
+codex-1; each prints "<TAG> DONE"; results are copied into notes/phase1/ and committed). State at
+~08:20 UTC (round 3 committed in e98dcbe):
+- astra-kf0: followup4.txt — Route D: (B.5) activity estimate with hole normalization for gasOp_pe,
+  torus-exact walk activities, k_f=0 assembly; LF-BASE-KF0 Part E. Tag KF0E.
+- astra-class: followup1.txt — I6-ANISO.md (anisotropic I-6, Lean-ready). Tag I6ANISO. (long-running)
+- astra-vmod: followup3.txt — VMOD-4.md: redesign the Dec2 locality fields (cubeP_sub/own_cover force
+  equal first domains — VMOD-3 obstruction) and prove the replacements for mixed pairs. Tag VMOD4.
+- astra-rgfree: followup3.txt — RGFREE-4.md: repaired switch domain / density class, mass-free IsSF
+  domain, H7 domain (RGFREE-3 counterexample), SWITCH-JOINT, FREE-ACT. Tag RGFREE4.
+- astra-fluctfix: IDLE (v2.2 committed). Next: Theorem 3.1(f) once I6-ANISO lands (needs anisotropic
+  I-6 and the mixed-background H7 inclusion).
+- astra-basek: prompt.txt — BASE-KERNEL.md (k=0 kernel, C^{(0)}, H, b₀, baseMainAction, II.7.7-8).
+  Tag BASEK.
 If a session shows "Selected model is at capacity", resend the one-line pointer message.
 Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t S Enter`
 (long pastes get truncated — always point to a file).
