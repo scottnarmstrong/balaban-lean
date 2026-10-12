@@ -18,7 +18,7 @@ Claude workers (background subagents of this session):
 | W215 | `w215-rho-physical` / W215 | rhoZeroPhysical (physical mass term), R_normalization_ripe, R_normalizationPhysical |
 | W216 | `w216-collar-chidom` / W216 | collar bounds from ChiDomProp; Geo + nonempty inner collar witness; (Λ21′) check |
 | W217 | `w217-cover-equiv` / W217 | chosen-cover size vs the papers' all-cubes size (OPEN-COVER-EQUIVALENCE) |
-| W218 | `w218-hbase` / W218 | derive the base-domain premise hbase of the Taylor identities |
+| W220 | `w220-cancel-witness` / W220 (on W207) | concrete instance of cancellation_identity (P8 non-vacuity) |
 | W219 | `w219-marks-witness` / W219 | non-degenerate InterpMarks/ObsMarks witnesses; Thm 3.1 instantiated |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
