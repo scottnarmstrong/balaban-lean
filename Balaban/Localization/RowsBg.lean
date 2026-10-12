@@ -432,6 +432,54 @@ theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
   intro z hz
   exact Or.inr ⟨y, hy, hz⟩
 
+/-- A site read by a row at `x` lies in `resSites x`. -/
+theorem mem_resSites_of_entry_ne_zero {α : G.Ω 1 → ℂ} {x y : G.Ω 1}
+    (h : dirichletOperator G a ν α x y ≠ 0) :
+    (y : CTorus d L N₁ m₁ K) ∈ resSites G (x : CTorus d L N₁ m₁ K) := by
+  classical
+  by_contra hn
+  apply h
+  unfold resSites at hn
+  simp only [Finset.mem_insert, Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and,
+    not_or, not_exists] at hn
+  obtain ⟨hxy, ⟨hblk, hp⟩, hm⟩ := hn
+  refine dirichlet_entry_eq_zero (G := G) α hxy (fun μ => ⟨fun e => hp μ e.symm, fun e => hm μ e.symm⟩) hblk
+
+/-- The landed `i4b_local` from `i4b_local_rows` (T4): no inclusion hypothesis is needed. -/
+theorem i4b_local_of_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (hconn : HatConn G)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
+    (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hdata : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y →
+      ∀ y ∈ resDep G (x : CTorus d L N₁ m₁ K), D.Ψ y = D₂.Ψ y ∧ (y ∈ G.Ω 1 → D.h y = D₂.h y))
+    {φ φ₂ : G.Ω 1 × Fin N → ℂ} {α α₂ : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h₂ : IsDecBg G a ν (rho4 d L N BG κ) s' D₂ φ₂ α₂) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → α x = α₂ x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) := by
+  classical
+  have hA : ∀ z, RowsDep G a ν (SY G X₁ 𝒞 Y) z →
+      D.Ψ z = D₂.Ψ z ∧ (z ∈ G.Ω 1 → D.h z = D₂.h z) := by
+    rintro z (⟨x, hx, hz⟩ | ⟨y, hy | ⟨x, hx, hxy⟩, hz⟩)
+    · exact hdata x (SY_subset hx) z hz
+    · exact hdata y (SY_subset hy) z (approxDep_subset_resDep (mem_resSites_self _) hz)
+    · exact hdata x (SY_subset hx) z (approxDep_subset_resDep (mem_resSites_of_entry_ne_zero hxy) hz)
+  obtain ⟨hα, hcorr, -, -⟩ := i4b_local_rows hS S hconn HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂ hY hs1 hs0 hag hA h h₂
+  refine ⟨hα, fun y hy i => ?_⟩
+  have hphi : approxField G a ν D.Ψ D.h y = approxField G a ν D₂.Ψ D₂.h y :=
+    approxField_congr fun z hz => hdata y hy z (approxDep_subset_resDep (mem_resSites_self _) hz)
+  have := hcorr y hy i
+  rw [hphi] at this
+  linear_combination this
+
 end Background
 
 end Balaban.Localization
