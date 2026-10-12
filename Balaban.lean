@@ -1290,6 +1290,7 @@ public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
+public import Balaban.Fluctuation.SharpAssembly
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpENu
