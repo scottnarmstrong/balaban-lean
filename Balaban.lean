@@ -662,6 +662,10 @@ public import Balaban.Observables.LayerDictionary
 public import Balaban.Observables.LayerFirstOrder
 public import Balaban.Observables.LayerConst
 public import Balaban.Observables.LayerDictionaryBound
+public import Balaban.Observables.ImprovedBound
+public import Balaban.Observables.ImprovedConst
+public import Balaban.Observables.ImprovedLemma
+public import Balaban.Observables.FirstOrderStep
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
