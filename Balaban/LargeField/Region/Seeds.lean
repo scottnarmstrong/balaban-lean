@@ -152,7 +152,7 @@ theorem newCubes_disjoint_Uprime : Disjoint st.newCubes st.Uprime := by
     rw [supDist_comm]; omega
   · exact hUP (st.Omega_subset_OmegaPrime (st.R_sub hq))
   · exact hUP (st.Omega_subset_OmegaPrime
-      (st.OmegaDD_subset_Omega (nbhdNeg_subset _ _ (st.S_sub hq))))
+      (st.OmegaDD_subset_Omega (nbhdNeg_subset_self _ _ (st.S_sub hq))))
 
 /-- Linkage in `Z_k` (width `ω_k`) gives linkage of the coarsenings in `Z^{(0)}` (width `ω_{k+1}`),
 provided `⌈(ω_k - 1)/L⌉ < ω_{k+1}`. -/

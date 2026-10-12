@@ -61,7 +61,7 @@ theorem nbhd_union (m : ℕ) (A B : Set (Torus d n)) : nbhd m (A ∪ B) = nbhd m
 theorem nbhd_mono_right {m : ℕ} {X Y : Set (Torus d n)} (h : X ⊆ Y) : nbhd m X ⊆ nbhd m Y :=
   nbhd_mono le_rfl h
 
-theorem nbhdNeg_subset [NeZero n] (m : ℕ) (X : Set (Torus d n)) : nbhdNeg m X ⊆ X := by
+theorem nbhdNeg_subset_self [NeZero n] (m : ℕ) (X : Set (Torus d n)) : nbhdNeg m X ⊆ X := by
   intro y hy
   by_contra hyX
   exact hy (subset_nbhd m Xᶜ hyX)
