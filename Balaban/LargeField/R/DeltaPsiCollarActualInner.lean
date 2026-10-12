@@ -287,6 +287,134 @@ theorem inner_collar_data_change_lt_actual
   · calc _ = (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * Creg * δ (S.k1 k) := by ring
       _ ≤ S.hatW ε k * δ (S.k1 k) := mul_le_mul_of_nonneg_right hΛ21' hδk1.le
 
+/-- A site of `Z_{k₁} ∩ Ω₁(𝔹_{k₁}(W))` (any layer of the core piece) lies in the layer exactly `k₁` of
+the parent `𝔹_k`: its `π_{k₁}`-cube is within `2⌊R_{k₁-1}⌋ + 3` of a cube off `Z_{k₁}` (Lemma II.2.3 (c) for
+the minimal set of `W = (Z_{k₁}ᶜ)^{≈2}`), hence in `Ω_{k₁}` (Lemma I.3.5 (g), `mem_regOmega_of_near`), and
+`Z_{k₁} ∩ Ω_{k₁+1} = ∅` (Lemma III.1.2 (f)). -/
+theorem windowOfHistory_core_mem_full_layer (hkK : k ≤ K) (hW : H.RipeWindow k Z) (g : Geo S n R S.M)
+    {x : Torus S.d (S.M * n k * S.L ^ k)}
+    (hxZ : x ∈ (windowOfHistory H Z g hkK hW).Zk1)
+    (hx1 : x ∈ (windowOfHistory H Z g hkK hW).core.Ω 1) :
+    x ∈ (windowOfHistory H Z g hkK hW).full.layer (S.k1 k) := by
+  classical
+  have hq1 : 1 ≤ S.k1 k := hW.k1_pos hkK
+  have hqk : S.k1 k ≤ k := k1_le hW
+  have hnn : ∀ i, i < k → n i = S.L * n (i + 1) := fun i hi => H.F.hnn i (lt_of_lt_of_le hi hkK)
+  have hR0 : ∀ i, 0 ≤ R i := fun i =>
+    le_trans (by have := H.F.ok.two_le_Rb; linarith) (g.hRlow i)
+  have hc0 : cubeMap n S.L S.M k (S.k1 k) x ∈ nbhd 1 (coreW H Z (S.k1 k)) :=
+    cubeMap_nbhd_of_mem_cast (g := g) H.F.ok.two_le_L hnn hqk (A := coreW H Z (S.k1 k))
+      (min_le_right _ _) hx1
+  obtain ⟨w, hw, h1⟩ := mem_nbhd.1 hc0
+  have hw' := hw
+  simp only [coreW, thick2, thick, nbhd_nbhd] at hw'
+  obtain ⟨e, he, h2⟩ := mem_nbhd.1 hw'
+  have hce : supDist (cubeMap n S.L S.M k (S.k1 k) x) e ≤ 2 * ⌊R (S.k1 k - 1)⌋₊ + 3 :=
+    (supDist_triangle _ w e).trans (by omega)
+  have hcube : cubeMap n S.L S.M k (S.k1 k) x ∈ regOmega H Z (S.k1 k) :=
+    mem_regOmega_of_near H Z hR0 hq1 he (by omega)
+  have hΩ : x ∈ (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j)).Ω (S.k1 k) := by
+    generalize S.k1 k = q at hq1 hqk hcube
+    obtain ⟨i, rfl⟩ : ∃ i, q = i + 1 := ⟨q - 1, by omega⟩
+    exact (mem_locGen_succ (hkK := hkK) (hL := H.F.ok.two_le_L) (hR := fun j _ _ => g.hRlow j)
+      (Z := Z) (M := S.M) (by omega)).2 hcube
+  exact (GeneratingSet.mem_layer _).2 ⟨by rw [windowOfHistory_full_Ω]; exact hΩ,
+    windowOfHistory_hZk1top (g := g) hkK hW x hxZ⟩
+
+/-- **The interior bound on the core piece, without `hcoreTop`** (LF-RECONSTRUCTION III.4.6 (2.48′) on
+`Ω₁(G) ∩ Z_{k₁}`, any layer of the core): for `x ∈ Ω₁(G) ∩ Z_{k₁}`,
+`|D^ph.Ψ(x) - D⁰.Ψ(x)| < (3dL + 2) Ŵ_k δ_{k₁}`.  Three steps: the parent spin `ψ(b_{k₁}(x))` (the parent
+layer of `x` is `k₁`, `windowOfHistory_core_mem_full_layer`) is within `(m_W + 1) C_reg δ_{k₁} ≤ Ŵ_k δ_{k₁}`
+of a window block (`windowOfHistory_regPath_in`, any core layer), Lemma CH to a terminal block, and the
+landed interior comparison `psiZeroWin_sub_le` (valid at every site of `Ω₁(G)`, no top-layer
+requirement; constant `2 K₁ · 3θ`).  Hypotheses as in `inner_collar_data_change_lt_actual`, with `0 < a₁`
+for `psiZeroWin_sub_le`. -/
+theorem deltaPsiColl_interior_lt_actual
+    (hG : S.Good) (hkK : k ≤ K) (hW : H.RipeWindow k Z) (g : Geo S n R S.M)
+    (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (hq1 : 1 ≤ (H.bk k Z).q)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.numax j * (S.crit j + S.omega j) + 4 ≤ n j)
+    (hϱ : (2 * S.d * S.L : ℝ) ≤ (S.L : ℝ) * S.M * S.Rb)
+    {ε : ℝ} {δ : ℕ → ℝ} (hδ : IsAdmDelta S.d S.L ε (S.k1 k) k δ)
+    {a₁ : ℝ} (ha₁ : 0 < a₁)
+    (hprec : Precedes ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW))
+      (windowOfHistory H Z g hkK hW).bdry)
+    (hBg : BgHyp S.d S.L k (winSep g) (compWeight S.L a₁) 0)
+    {N : ℕ} (ψ ψ0 : BlockV S.d S.L (S.M * n k) k → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ)
+    {K6 : ℝ} (hK6 : 0 < K6) (hθ1 : 3 * K6 * δ k ≤ 1)
+    (hθc : 3 * (3 * K6 * δ k) ≤ bgC1 S.d S.L N)
+    (hspec : PsiZeroSpec (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
+      (windowOfHistory H Z g hkK hW).bdry (H.locFine Z S.M k) (3 * K6 * δ k) ψ ψ0)
+    (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
+      (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ ψ)
+    (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
+    {Creg : ℝ} (hCreg : 0 ≤ Creg)
+    (hband : ∀ y ∈ regSetT H Z S.M (S.k1 k), ∀ y' ∈ regSetTExt H Z S.M (S.k1 k), AdjT y y' →
+      dist (ψ ⟨S.k1 k, y⟩) (ψ ⟨S.k1 k, y'⟩) ≤ Creg * δ (S.k1 k))
+    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * Creg ≤ S.hatW ε k)
+    {x : Torus S.d (S.M * n k * S.L ^ k)}
+    (hx : x ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω 1)
+    (hxZ : x ∈ (windowOfHistory H Z g hkK hW).Zk1) :
+    vn (deltaPsiColl (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)
+        (windowOfHistory_parentRefines H Z g hkK hW) hprec (compWeight S.L a₁) ψ ψ0 h x) <
+      (3 * S.d * S.L + 2) * S.hatW ε k * δ (S.k1 k) := by
+  have hS := H.F.ok
+  have hk1 : 1 ≤ S.k1 k := hW.k1_pos hkK
+  have hqk1 : S.k1 k = (H.bk k Z).q := hW.core_k1
+  have hkq : S.k1 k < k := by
+    rw [hqk1]
+    have := hW.core_window.1
+    have : 1 ≤ S.nq (H.bk k Z).q := by unfold Setting.nq; omega
+    omega
+  have hδk1 := hδ.pos (S.k1 k) le_rfl hkq.le
+  have hC0 : 0 ≤ Creg * δ (S.k1 k) := mul_nonneg hCreg hδk1.le
+  have hxcore : x ∈ (windowOfHistory H Z g hkK hW).core.Ω 1 := by
+    have := hx
+    rw [WindowPieces.windowGenSet_Ω] at this
+    simp only [Finset.mem_union, Finset.mem_inter, Finset.mem_sdiff] at this
+    rcases this with (⟨h1, _⟩ | ⟨_, h2, h3⟩) | ⟨_, _, h3⟩
+    · exact h1
+    · exact absurd hxZ h3
+    · exact absurd (windowOfHistory_hZ (g := g) hkK hW hxZ) h3
+  have hxl := windowOfHistory_core_mem_full_layer hkK hW g hxZ hxcore
+  have hxF1 : x ∈ (windowOfHistory H Z g hkK hW).full.Ω 1 :=
+    (windowOfHistory H Z g hkK hW).full.layer_subset hk1 hkq.le hxl
+  have hli := (windowOfHistory H Z g hkK hW).full.layerIndex_eq hk1 hkq.le hxl
+  have hxZ1 : x ∈ H.locFine Z S.M (S.k1 k) := by
+    have := hxZ
+    rwa [windowOfHistory_Zk1, mem_locFineFin] at this
+  obtain ⟨m, hm, u, hu0, huT, huA, hum, s, hs, hsZ, hsu⟩ :=
+    windowOfHistory_regPath_in (g := g) hkK hW hxZ hxcore
+  have h2 := regPath_dist_le ψ hband huT huA hum
+  have hθ0 : 0 < 3 * K6 * δ k := by
+    have := hδ.pos k (by omega) le_rfl
+    positivity
+  obtain ⟨Ut, hZUt, hdUt, hreg, hagree⟩ := id hspec
+  have hD3 := psiZeroWin_sub_le hS.two_le_L ha₁ hprec hBg ψ0 h hθ0 hθ1 hθc hdUt hreg hx
+  have e0 : blockOf S.d S.L (S.M * n k) k (S.k1 k) x =
+      ⟨S.k1 k, jBlock S.d S.L (S.M * n k) k (S.k1 k) x⟩ := rfl
+  have e2 : blockOf S.d S.L (S.M * n k) k (S.k1 k) s = ⟨S.k1 k, u m⟩ := by
+    simp only [blockOf]; rw [hsu]
+  refine data_change_lt_of_shell_site hG hkK hS.two_le_L (fun j _ _ => g.hRlow j) hk0 hrip hq1 hT hϱ hδ
+    ψ ψ0 hK6 hθ1 (windowOfHistory H Z g hkK hW).bdry ?_ hwin hΛ21 hxZ1
+    (blockOf S.d S.L (S.M * n k) k (S.k1 k) x)
+    (deltaPsiColl (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)
+      (windowOfHistory_parentRefines H Z g hkK hW) hprec (compWeight S.L a₁) ψ ψ0 h x)
+    (psiZeroWin ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW))
+      (windowOfHistory H Z g hkK hW).bdry (compWeight S.L a₁) ψ0 h x) ?_ hD3
+    ⟨s, hs, fun hh => hsZ (by rw [windowOfHistory_Zk1, mem_locFineFin]; exact hh), ?_⟩
+  · exact ⟨Ut, hZUt, hdUt, hreg, hagree⟩
+  · funext i
+    rw [deltaPsiColl_of_mem _ _ _ _ _ ψ ψ0 h ((Balaban.Background.mem_dataSites _).2 (Or.inl hx)) i,
+      psiTilde_of_mem _ ψ hxF1, hli]
+    rfl
+  · rw [e0, e2]
+    rw [hu0] at h2
+    have hm' : (m : ℝ) ≤ (S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) := by exact_mod_cast hm
+    calc _ ≤ (m : ℝ) * (Creg * δ (S.k1 k)) := h2
+      _ ≤ ((((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * Creg) * δ (S.k1 k) := by
+          nlinarith
+      _ ≤ S.hatW ε k * δ (S.k1 k) := mul_le_mul_of_nonneg_right hΛ21' hδk1.le
+
 end RegionHistory
 
 end Balaban.LargeField
