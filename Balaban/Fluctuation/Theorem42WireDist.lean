@@ -140,6 +140,21 @@ noncomputable def stepNearSites (k : ℕ) (Z' : Set (Torus d n1)) :
   Finset.univ.filter fun y => ∃ x, blockMap (L ^ (k + 1) * (c * M1)) n1 x ∈ Z' ∧
     Green.torusDist d (M1 * (c * n1) * L ^ (k + 1)) y x ≤ 1
 
+theorem mem_stepFarSites {k : ℕ} {Z' : Set (Torus d n1)} {ρ : ℕ}
+    {e : Torus d (M1 * (c * n1) * L ^ (k + 1))} :
+    e ∈ stepFarSites (M1 := M1) (c := c) (L := L) k Z' ρ ↔
+      blockMap (L ^ (k + 1) * (c * M1)) n1 e ∉ nbhd ρ Z' := by
+  classical
+  simp only [stepFarSites, Finset.mem_filter, Finset.mem_univ, true_and]
+
+theorem mem_stepNearSites {k : ℕ} {Z' : Set (Torus d n1)}
+    {y : Torus d (M1 * (c * n1) * L ^ (k + 1))} :
+    y ∈ stepNearSites (M1 := M1) (c := c) (L := L) k Z' ↔
+      ∃ x, blockMap (L ^ (k + 1) * (c * M1)) n1 x ∈ Z' ∧
+        Green.torusDist d (M1 * (c * n1) * L ^ (k + 1)) y x ≤ 1 := by
+  classical
+  simp only [stepNearSites, Finset.mem_filter, Finset.mem_univ, true_and]
+
 /-- **The distance premise of Step 3 for the real step**: for a data change vanishing on
 `E = Z'^{∼ρ}` (so supported in `stepFarSites`), the path distance from `X_{Z'}^{+1} ∩ Ω₁` to the
 shadow of its support is at least `min((L^{k+1} c M₁ ρ - 1)/L^{k+2}, ϱ - 1)`. -/
@@ -152,9 +167,8 @@ theorem step_dist_premise (k : ℕ) (G : GeneratingSet d L (M1 * (c * n1)) (k + 
   classical
   refine pathDist_shadow_ge G hϱ _ (fun y _ hyΩ => (G.layerIndex_spec hyΩ).2.1) _ ?_
   intro y hy w hw
-  obtain ⟨-, hy1⟩ := Finset.mem_filter.1 hy
-  obtain ⟨x, hx, hxy⟩ := hy1
-  exact torusDist_ge_of_not_nbhd k Z' ρ hx hxy (Finset.mem_filter.1 hw).2
+  obtain ⟨x, hx, hxy⟩ := mem_stepNearSites.1 hy
+  exact torusDist_ge_of_not_nbhd k Z' ρ hx hxy (mem_stepFarSites.1 hw)
 
 end Step
 
