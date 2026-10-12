@@ -244,4 +244,31 @@ theorem cubeFoldPt_single_up (S : ℕ) [NeZero S] (c : Fin d → ℕ) (p0 : Toru
   rw [e, dblPt_zero]
   exact h1
 
+/-- **VMOD-9 Lemma 2.1 (local geometry of the fold).** A block-aligned cube that meets the layer `j`
+has side `S ≥ L^j`; a point `x` of the cube has a lower-half preimage `p₀` under the fold, and the
+local fold `P(z) = foldMap (p₀ + z)` has `P(0) = x`, stays in the cube, moves `x` by a displacement
+of sup-norm at most `‖z‖` (so that `P(z)` is the lift of `x` by `h`), and has at most `2^d`
+preimages in every ball of radius `R < S`. -/
+theorem cubeFold_local_geometry (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {S : ℕ} [NeZero S]
+    {c : Fin d → ℕ} (hSℓ : S < N₀ * L ^ k) (hΛ : BlockAligned G (cubeSet (N₀ * L ^ k) S c))
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.layer j)
+    (hxΛ : x ∈ cubeSet (N₀ * L ^ k) S c) :
+    L ^ j ≤ S ∧ ∃ p0 : Torus d (2 * S),
+      foldMap (N₀ * L ^ k) S (2 * S) c p0 = x ∧ (∀ i, (p0 i).val < S) ∧
+      cubeFoldPt N₀ L k S c p0 0 = x ∧
+      (∀ z, cubeFoldPt N₀ L k S c p0 z ∈ cubeSet (N₀ * L ^ k) S c) ∧
+      (∀ z : Fin d → ℤ, ∃ h : Fin d → ℤ, ‖h‖ ≤ ‖z‖ ∧
+        cubeFoldPt N₀ L k S c p0 z = liftPt x h) ∧
+      (∀ {R : ℝ}, 0 ≤ R → R < S → ∀ y : Torus d (N₀ * L ^ k),
+        ((latticeBall (0 : Fin d → ℤ) R).filter
+          fun z => cubeFoldPt N₀ L k S c p0 z = y).card ≤ 2 ^ d) := by
+  refine ⟨side_ge_of_blockAligned G hd hΛ hj1 hjk hx hxΛ, ?_⟩
+  obtain ⟨p0, hp0, hlow⟩ := exists_lowerHalf (c := c) hxΛ
+  have h0 : cubeFoldPt N₀ L k S c p0 0 = x := by rw [cubeFoldPt_zero, hp0]
+  refine ⟨p0, hp0, hlow, h0, fun z => cubeFoldPt_mem S c p0 z, fun z => ?_,
+    fun {R} hR hRS y => card_fibre_cubeFoldPt_le S c p0 hSℓ hR hRS y⟩
+  obtain ⟨h, hh, hP⟩ := cubeFoldPt_disp (N₀ := N₀) (L := L) (k := k) S c p0 z
+  rw [h0] at hP
+  exact ⟨h, hh, hP⟩
+
 end Balaban.Localization
