@@ -407,6 +407,8 @@ public import Balaban.Localization.DecoupledCovWeighted
 public import Balaban.Localization.DecoupledCovLocal
 public import Balaban.Localization.DecoupledCovLocal2
 public import Balaban.Localization.DecoupledCovLocal2Free
+public import Balaban.Localization.RowsCov
+public import Balaban.Fluctuation.RowsHat
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
