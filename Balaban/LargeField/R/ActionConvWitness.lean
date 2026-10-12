@@ -69,7 +69,7 @@ variable {U : Type*} [NormedAddCommGroup U] [NormedSpace ℂ U]
 setup exists and the input holds. -/
 theorem ActionConvInput.nonempty (S : Set U) :
     ∃ W : WindowSetup d L N₀ K N S 0 1,
-      Nonempty (ActionConvInput W 0 1 0 0 0 0 0 0 (fun _ => 1) (fun _ => 0) (fun _ _ _ => 0)) := by
+      Nonempty (ActionConvInput W 0 0 0 0 0 0 0 (fun _ => 1) (fun _ => 0) (fun _ _ _ => 0)) := by
   let G : GeneratingSet d L N₀ K (0 : ℝ) := GeneratingSet.emptySet
   let W : WindowSetup d L N₀ K N S 0 1 :=
     { ϱw := 0
@@ -109,14 +109,13 @@ theorem ActionConvInput.nonempty (S : Set U) :
     simp [ConvChain.T, W, actionRegionC_bot]
   have hB : ∀ (j : ℕ) (u : U), (W.βk : ℂ) * actionRegionC (W.Xw j) W.ak W.νk (W.Datw u) (W.φw u) = 0 :=
     fun j u => by simp [W, actionRegionC_bot]
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro j _ n h1 h2; omega
   · intro j _ n h1 h2
     have : n = 1 := by omega
     subst this
     have : (fun u => (W.chain j).T u 1) = fun _ => (0 : ℂ) := funext fun u => hA j u
     rw [this]; exact analyticOnNhd_const
-  · intro j _ n h1 h2; omega
   · intro j _ n h1 h2; omega
   · intro j _ n h1 h2; omega
   · intro j _ n h1 h2; omega
