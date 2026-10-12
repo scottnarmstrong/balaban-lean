@@ -91,7 +91,8 @@ structure IsLocExp (Dom : BgData G N → Prop) (r : ℝ) (Ys : Finset (Finset (T
     RawAgree Y q.1 q'.1 → term Y q = term Y q'
   bound : ∀ Y ∈ Ys, ∀ q ∈ expDom G Dom r, ‖term Y q‖ ≤ B * Real.exp (-κ * dY Y)
 
-variable {Dom : BgData G N → Prop} {r r' r₀ κ κ' B B' : ℝ} {Ys : Finset (Finset (Torus d (N₀ * L ^ k)))}
+variable {Dom : BgData G N → Prop} {r r' r₀ κ κ' B B' : ℝ}
+  {Ys : Finset (Finset (Torus d (N₀ * L ^ k)))}
   {dY : Finset (Torus d (N₀ * L ^ k)) → ℝ} {f g : BgData G N → (Fin 3 → ℂ) → E}
   {term term' : Finset (Torus d (N₀ * L ^ k)) → RawData d L N₀ k N × (Fin 3 → ℂ) → E}
 
@@ -102,7 +103,8 @@ theorem expDom_mono {r r' : ℝ} (h : r ≤ r') : expDom G Dom r ⊆ expDom (N :
 /-- The sum of two expansions over the same domains. -/
 theorem IsLocExp.add (h₁ : IsLocExp G Dom r Ys dY κ B f term)
     (h₂ : IsLocExp G Dom r Ys dY κ B' g term') :
-    IsLocExp G Dom r Ys dY κ (B + B') (fun D ξ => f D ξ + g D ξ) (fun Y q => term Y q + term' Y q) where
+    IsLocExp G Dom r Ys dY κ (B + B') (fun D ξ => f D ξ + g D ξ)
+      (fun Y q => term Y q + term' Y q) where
   sum_eq D hD ξ hξ := by rw [h₁.sum_eq D hD ξ hξ, h₂.sum_eq D hD ξ hξ, Finset.sum_add_distrib]
   analytic Y hY q hq := (h₁.analytic Y hY q hq).add (h₂.analytic Y hY q hq)
   local_ Y hY q hq q' hq' h2 hag := by

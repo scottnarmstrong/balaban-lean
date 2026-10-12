@@ -15,7 +15,8 @@ import Mathlib.Tactic.Positivity
 FLUCTUATION.md v2.3 §3.6, (3.10), (3.11) and the proofs of (g), (h): the old terms enter through
 `ℰ^{(j)}(ψ^{(j)}_{k+1} + δψ^{(j)}) - ℰ^{(j)}(ψ^{(j)}_{k+1})`, where (Lemma 3.5 (iii)) the composed
 datum `ψ^{(j)}_{k+1} = composeField(𝔹_j, 𝔹_{k+1}; φ, ψ)` is perturbed to
-`ψ^{(j)}_{k+1,u} = composeField(𝔹_j, 𝔹_{k+1}; φ + δφ, (1 + ζ) ψ)` with `(δφ, δα)` the solution map of
+`ψ^{(j)}_{k+1,u} = composeField(𝔹_j, 𝔹_{k+1}; φ + δφ, (1 + ζ) ψ)` with `(δφ, δα)` the solution map
+of
 Lemma 3.5 (ii) (`IsRenSol`).  This file proves, for the actual objects:
 
 * `composedRaw`, `composedRawU`: the composed and the perturbed composed raw data;
@@ -93,7 +94,8 @@ variable {ν εζ ε r B : ℝ}
 /-- At `ξ = 0` the composed datum is not perturbed. -/
 theorem composedRawU_zero (hF : IsRenSol G a ν εζ ε r B F) (hr : 0 < r) {D : BgData G N}
     (hD : XiCOne G a ν ε D) :
-    composedRawU G' G a ν εζ F D 0 = composedRaw G' G a (bgFieldC G a ν (bgC0 d L N) D) D.Ψ D.h := by
+    composedRawU G' G a ν εζ F D 0 =
+      composedRaw G' G a (bgFieldC G a ν (bgC0 d L N) D) D.Ψ D.h := by
   unfold composedRawU
   rw [hF.eq_zero hr hD]
   simp [renZeta]

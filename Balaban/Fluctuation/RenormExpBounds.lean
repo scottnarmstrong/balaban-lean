@@ -60,7 +60,8 @@ noncomputable def bondSite (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ :
 
 /-- **The site density of `C₁`** (Lemma 3.5 (i), complex `ξ`, `ζ = ε_ζ ξ₁`): at `x ∈ Ω₁` the block
 terms `a_n L^{-2n} [½ ξ₃ |ψ - Qφ|² + (1 + ξ₃)(ζ ψ·(ψ - Qφ) + ½ ζ² ψ·ψ)]` and the mass term
-`½ ν ξ₂ (φ - h)·(φ - h)`; at every `x` the bond terms `½ ξ₃ ∑_μ |∂_μ φ̄(x)|²` (bilinear products). -/
+`½ ν ξ₂ (φ - h)·(φ - h)`; at every `x` the bond terms `½ ξ₃ ∑_μ |∂_μ φ̄(x)|²` (bilinear
+products). -/
 noncomputable def renC1Site (ν εζ : ℝ) (ξ : Fin 3 → ℂ) (Ψ h : Torus d (N₀ * L ^ k) → Fin N → ℂ)
     (φ : G.Ω 1 × Fin N → ℂ) (x : Torus d (N₀ * L ^ k)) : ℂ :=
   (if x ∈ G.Ω 1 then

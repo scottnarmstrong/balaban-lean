@@ -32,7 +32,8 @@ The datum `ψ` (fine units: the lifted field `D.Ψ` with `h̃ = D.h`) ranges ove
 `Ξ^c_{k+1}(𝔹; 1, ε)` (`XiCOne`, the top level of the generating set).  The base is the background
 `(φ, α) = (bgFieldC, bgMultC)` of `(ψ, h)` at the mass `ν` (Def-5(b)).
 
-* `prop51Hyp_xi` (complete) and `prop51Hyp_xi_nuFree`: the `Ξ`-domain instantiation of the hypotheses
+* `prop51Hyp_xi` (complete) and `prop51Hyp_xi_nuFree`: the `Ξ`-domain instantiation of the
+  hypotheses
   (P1)–(P4) of Proposition 5.1 for the shifted multiplier, with `δ₁ = 8 ε |ξ|_∞` (complete) resp.
   `δ₁ = (3/2) ε |ξ|_∞` (`ν`-free);
 * `IsRenSol` — the properties of the solution map `F : ((Ψ, h̃), ξ) ↦ (δφ, δα)`; `exists_isRenSol`,

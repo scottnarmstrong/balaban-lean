@@ -14,7 +14,8 @@ import Mathlib.Tactic.Ring
 # Theorem 3.1 (g), (h): the renormalization expansions, conditional on the open inputs
 
 FLUCTUATION.md v2.3 §3.1 Theorem 3.1 (g) (P4 Prop 4.1, P6 Prop 2.3) and (h) (P4 Prop 4.2), proofs in
-§3.6.  Whole-lattice case (`Z_k = ∅`); the subdomain clause "terms with `Y ⊂ (Z^c_{k+1})^≈` equal the
+§3.6.  Whole-lattice case (`Z_k = ∅`); the subdomain clause "terms with `Y ⊂ (Z^c_{k+1})^≈` equal
+the
 whole-lattice terms" (P6 (2.27)–(2.30), the P5 (1.8) restriction) is not treated.
 
 **Open inputs** (FLUCTUATION v2.3 marks (g), (h) conditional on them) are packaged in ONE structure,
@@ -68,7 +69,8 @@ section Analytic
 variable {G : GeneratingSet d L N₀ k ϱ} {Q : Type*} [NormedAddCommGroup Q] [NormedSpace ℂ Q]
   {q : Q}
 
-theorem an_svec (φ : Q → G.Ω 1 × Fin N → ℂ) (hφ : ∀ (y : G.Ω 1) i, AnalyticAt ℂ (fun q => φ q (y, i)) q)
+theorem an_svec (φ : Q → G.Ω 1 × Fin N → ℂ)
+    (hφ : ∀ (y : G.Ω 1) i, AnalyticAt ℂ (fun q => φ q (y, i)) q)
     (y : Torus d (N₀ * L ^ k)) (i : Fin N) : AnalyticAt ℂ (fun q => svec G (φ q) y i) q := by
   unfold svec zeroExt
   by_cases hy : y ∈ G.Ω 1
@@ -228,26 +230,28 @@ structure RenormExpInput (ν ε εp r₀ : ℝ)
     (M0θ oldM : G.Ω 1 × Fin N → BgData G N → (Fin 3 → ℂ) → ℂ) : Prop where
   /-- (OPEN: cover/NC, Lemma 2.8, VMOD.md) LOC I-4b decoupling of `φ_{k+1}` and AE for `C₁(z)`
   (FLUCTUATION §3.6, proof of (g), first sentence). -/
-  locC1 : ∀ z, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (Ys z) dY κa Kloc
-    (fun D ξ => renC1On G a ν ε (blk z) D.Ψ D.h (bgFieldC G a ν (bgC0 d L N) D) ξ)
+  locC1 : ∀ z, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (Ys z) dY κa
+    Kloc (fun D ξ => renC1On G a ν ε (blk z) D.Ψ D.h (bgFieldC G a ν (bgC0 d L N) D) ξ)
   /-- (OPEN: cover/NC and the decoupled I-4a mode U at the complex mass `ν_u`) LOC I-4a for `δφ`
   with the sources of Lemma 3.5 (ii), decoupled with the same `s`, and AE, for `C₂(z)`. -/
-  locC2 : ∀ z, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (Ys z) dY κa Kloc
-    (fun D ξ => renC2On G a (blk z) ξ (renMassU ν ξ)
+  locC2 : ∀ z, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (Ys z) dY κa
+    Kloc (fun D ξ => renC2On G a (blk z) ξ (renMassU ν ξ)
       (bgMultC G a ν (bgC0 d L N) D + (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1)
   /-- (OPEN: Theorem 3.1 (a), I-8, at `θ = (1 + ζ) ψ` via (Ξ2)) the expansion of `ℰ''₀(z)(θ)`. -/
   expE0 : ∀ z, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (Ys z) dY κa BE0 (E0θ z) term
   /-- (OPEN: fluctuation I-5 (V0, simple variation) and Proposition 3.3) the expansion of the
   pre-localized old-term differences of (3.10) on the polydisc `r₀`, terms vanishing at `ξ = 0`. -/
-  expOld : ∀ z, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (Ys z) dY κa Bold (oldE z) term ∧
+  expOld : ∀ z, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (Ys z) dY κa Bold (oldE z)
+    term ∧
     ∀ Y ∈ Ys z, ∀ D : BgData G N, XiCOneReal G a ν ε D → term Y ((D.Ψ, D.h), 0) = 0
   /-- (OPEN: as `locC2`) LOC I-4a and AE for `δφ(x)` in (3.11). -/
-  locDφ : ∀ p, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (YsM p) dY κb Kloc
-    (fun D ξ => (F ((D.Ψ, D.h), ξ)).1 p)
+  locDφ : ∀ p, HasLocPrinciple (N := N) G (XiCOneReal G a ν ε) (XiCOneReal G a ν εp) r₀ (YsM p)
+    dY κb Kloc (fun D ξ => (F ((D.Ψ, D.h), ξ)).1 p)
   /-- (OPEN: Theorem 3.1 (b), I-8, at `θ`) the expansion of `β_k^{-1/2} ℳ''₀(x)(θ)`. -/
   expM0 : ∀ p, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (YsM p) dY κb BM0 (M0θ p) term
   /-- (OPEN: as `expOld`) the `ℳ^{(j)}`-differences of (3.11), terms vanishing at `ξ = 0`. -/
-  expOldM : ∀ p, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (YsM p) dY κb BoldM (oldM p) term ∧
+  expOldM : ∀ p, ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) r₀ (YsM p) dY κb BoldM (oldM p)
+    term ∧
     ∀ Y ∈ YsM p, ∀ D : BgData G N, XiCOneReal G a ν ε D → term Y ((D.Ψ, D.h), 0) = 0
 
 end Input
@@ -269,7 +273,8 @@ variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν ε εp r₀ r B
 theorem thm31g_C1_of_input (H : BgHyp d L k ϱ a ν) (hε : 0 < ε) (hεp : ε ≤ εp)
     (hsm : (4 * d + 6) * ((2 * d + 1) * εp) ≤ 1) (hc1 : xiC1 d * εp ≤ bgC1 d L N)
     (hr₀ : r₀ ≤ 1 / 16)
-    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ oldM)
+    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ
+      oldM)
     (hK : 0 ≤ Kloc) {εR : ℝ} (hεR : εR ≤ r₀) (z : ι) :
     ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) εR (Ys z) dY κa
       (Kloc * ((2 * d + 14) * εp ^ 2 * blockWeight G (blk z)) * εR ^ 1)
@@ -289,7 +294,8 @@ polydisc radius. -/
 theorem thm31g_C2_of_input (H : BgHyp d L k ϱ a ν) (hεp0 : 0 < εp)
     (hsm : (4 * d + 6) * ((2 * d + 1) * εp) ≤ 1) (hc1 : xiC1 d * εp ≤ bgC1 d L N)
     (hF : IsRenSol G a ν ε εp r B F) (hB0 : 0 ≤ B) (hr : r ≤ 1 / 16) (hr₀ : r₀ ≤ r)
-    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ oldM)
+    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ
+      oldM)
     (hK : 0 ≤ Kloc) {εR : ℝ} (hεR0 : 0 ≤ εR) (hεR : εR ≤ r₀) (z : ι) :
     ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) εR (Ys z) dY κa
       (Kloc * (17 / 32 * (N * ((5 + bgK1 d L N * (xiC1 d * εp) + cK2 d L N * B * r) *
@@ -316,7 +322,8 @@ old-term differences, which vanish at `ξ = 0` (FLUCTUATION: "the `τ`-derivativ
 Cauchy on `|τ| = c_r/ε`"; with `B_{E0} = (N L^d B_𝕃 + 1) K₀` from (a) and `B_old = C₅ E₀ r₀`
 this is `(N L^d B_𝕃 + 1 + C₅ E₀ ε_R) K₀`). -/
 theorem thm31g_Eu_of_input
-    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ oldM)
+    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ
+      oldM)
     (hr₀ : 0 < r₀) {εR : ℝ} (hεR : εR ≤ r₀) (z : ι) :
     ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) εR (Ys z) dY κa (BE0 + Bold * (εR / r₀))
       (fun D ξ => E0θ z D ξ + oldE z D ξ) term := by
@@ -325,12 +332,14 @@ theorem thm31g_Eu_of_input
   exact ⟨_, (h1.mono_radius hεR).add (h2.cauchy hr₀ hεR h20)⟩
 
 /-- **Theorem 3.1 (h)** (FLUCTUATION.md §3.6, (3.11); P4 Prop 4.2): `ℳ(x) = β_k^{-1/2} ℳ''₀(θ)(x) +
-δφ(x) + (ℳ^{(j)}-differences)` expands with the bound `B_{M0} + K_loc K₂ B ε_R + B_{old,M} ε_R / r₀`.
+δφ(x) + (ℳ^{(j)}-differences)` expands with the bound
+`B_{M0} + K_loc K₂ B ε_R + B_{old,M} ε_R / r₀`.
 With `B_{M0} = ½ β^{-1/4} ξ_{k+1}^{(d-2)/2+γ-α₁}` from (b), `B = 8 ε⁺`,
 `ε_{k+1} = α₀ ξ_{k+1}^{(d-2)/2+γ-α₁} L^{(k+1)(2γ-α₁)}`, this is the (H.7) bound with `c₉` replaced
 by `½ β^{-1/4} + C₆ ε_R L^{(k+1)(2γ-α₁)}`. -/
 theorem thm31h_of_input (hF : IsRenSol G a ν ε εp r B F) (hr₀r : r₀ ≤ r)
-    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ oldM)
+    (I : RenormExpInput G a ν ε εp r₀ F blk Ys YsM dY κa κb Kloc BE0 Bold BM0 BoldM E0θ oldE M0θ
+      oldM)
     (hK : 0 ≤ Kloc) (hB0 : 0 ≤ B) (hr₀ : 0 < r₀) {εR : ℝ} (hεR : εR ≤ r₀) (p : G.Ω 1 × Fin N) :
     ∃ term, IsLocExp (N := N) G (XiCOneReal G a ν ε) εR (YsM p) dY κb
       (BM0 + Kloc * (cK2 d L N * B) * εR ^ 1 + BoldM * (εR / r₀))

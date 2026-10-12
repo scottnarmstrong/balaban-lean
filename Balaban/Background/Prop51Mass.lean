@@ -13,7 +13,8 @@ import Mathlib.Tactic.Ring
 /-!
 # Proposition 5.1 jointly analytic in the data and the mass
 
-BACKGROUND.md §5.1 (Proposition 5.1), used in FLUCTUATION.md §3.6, Lemma 3.5 (ii) (P4 (4.10)–(4.11)),
+BACKGROUND.md §5.1 (Proposition 5.1), used in FLUCTUATION.md §3.6, Lemma 3.5 (ii)
+(P4 (4.10)–(4.11)),
 where the mass `ν_u = ν (1 + ξ₂) / (1 + ξ₃)` of the perturbed system depends on the complex
 renormalization parameters `ξ`.
 
@@ -30,7 +31,8 @@ the mass.  Hence:
   `α₀ + (m - ν)` at a reference mass `ν`;
 * `prop51_mass_analytic`: the solution is a complex-analytic function of `(data, m)` jointly on the
   open set where the shifted data satisfy (P1)–(P4) strictly;
-* `prop51_mass_analytic_uniform`: one function, analytic jointly in `(data, m)` on the union of these
+* `prop51_mass_analytic_uniform`: one function, analytic jointly in `(data, m)` on the union of
+  these
   open sets over **all** admissible real reference masses `0 ≤ ν ≤ L^{-2k}` (the contraction
   constants of Proposition 5.1 do not depend on `ν` in this range).
 -/
@@ -222,7 +224,8 @@ theorem prop51_analytic_small (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (S : Gre
 
 /-- **Proposition 5.1, analyticity jointly in the data and the mass.**  Fix a real reference mass
 `ν` with the standing hypotheses of the Green's function bounds.  On the open set of
-`(data, m) = ((φ₀, α₀, δΨ, f₁), m)` whose shifted data `(φ₀, α₀ + (m - ν), δΨ, f₁)` satisfy (P1)–(P4)
+`(data, m) = ((φ₀, α₀, δΨ, f₁), m)` whose shifted data `(φ₀, α₀ + (m - ν), δΨ, f₁)` satisfy
+(P1)–(P4)
 with strict inequalities, the solution `(δφ, δα)` of the complex-mass perturbed system (the unique
 one with `|δα|₂ ≤ c₆`) is a complex-analytic function of `(data, m)`, with the bounds `K₂ δ₁`. -/
 theorem prop51_mass_analytic (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (S : GreenSetting G a ν)
