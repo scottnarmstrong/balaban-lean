@@ -216,6 +216,70 @@ theorem integral_rpow_inv_add_sq_le {a : ℝ} (ha : 0 < a) :
           mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right h2 h4.le) h3.le
       _ = a⁻¹ * (x ^ (-(1 / 2 : ℝ)) * (a + x)⁻¹) := by ring
 
+theorem integrableOn_inv_add_sub {l n : ℝ} (hl : 0 < l) (hn : 0 < n) :
+    IntegrableOn (fun x : ℝ => (l + x)⁻¹ - (n + x)⁻¹) (Ioi 0) := by
+  set m := min l n with hm
+  have hm0 : 0 < m := lt_min hl hn
+  refine Integrable.mono' ((integrableOn_inv_add_sq hm0).const_mul |n - l|) ?_ ?_
+  · refine ContinuousOn.aestronglyMeasurable ?_ measurableSet_Ioi
+    refine ContinuousOn.sub (ContinuousOn.inv₀ (by fun_prop) fun x hx => ?_)
+      (ContinuousOn.inv₀ (by fun_prop) fun x hx => ?_)
+    · have := mem_Ioi.mp hx; linarith
+    · have := mem_Ioi.mp hx; linarith
+  · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun x hx => ?_)
+    have hx0 : 0 < x := mem_Ioi.mp hx
+    have h1 : 0 < l + x := by linarith
+    have h2 : 0 < n + x := by linarith
+    have h3 : (m + x)⁻¹ ≥ (l + x)⁻¹ := inv_anti₀ (by linarith) (by have := min_le_left l n; linarith)
+    have h4 : (m + x)⁻¹ ≥ (n + x)⁻¹ := inv_anti₀ (by linarith) (by have := min_le_right l n; linarith)
+    have e : (l + x)⁻¹ - (n + x)⁻¹ = (n - l) * ((l + x)⁻¹ * (n + x)⁻¹) := by
+      field_simp; ring
+    rw [Real.norm_eq_abs, e, abs_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (abs_nonneg _)
+    rw [abs_of_nonneg (by positivity)]
+    calc (l + x)⁻¹ * (n + x)⁻¹ ≤ (m + x)⁻¹ * (m + x)⁻¹ :=
+          mul_le_mul h3 h4 (by positivity) (by positivity)
+      _ = ((m + x)⁻¹) ^ 2 := by ring
+
+theorem integral_inv_add_sub {l n : ℝ} (hl : 0 < l) (hn : 0 < n) :
+    ∫ x in Ioi (0 : ℝ), ((l + x)⁻¹ - (n + x)⁻¹) = Real.log n - Real.log l := by
+  have h := integral_Ioi_of_hasDerivAt_of_tendsto (f := fun x : ℝ => Real.log (l + x) - Real.log (n + x))
+    (f' := fun x : ℝ => (l + x)⁻¹ - (n + x)⁻¹) (a := 0) (m := 0)
+    (by
+      refine ContinuousAt.continuousWithinAt ?_
+      have h1 : l + 0 ≠ 0 := by simp [hl.ne']
+      have h2 : n + 0 ≠ 0 := by simp [hn.ne']
+      fun_prop (disch := simp [hl.ne', hn.ne']))
+    (fun x hx => by
+      have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
+      have h1 : (l + x) ≠ 0 := by linarith
+      have h2 : (n + x) ≠ 0 := by linarith
+      have a1 := ((hasDerivAt_id x).const_add l).log h1
+      have a2 := ((hasDerivAt_id x).const_add n).log h2
+      have := a1.sub a2
+      simp only [id_eq, one_div] at this
+      exact this)
+    (integrableOn_inv_add_sub hl hn)
+    (by
+      have h1 : Tendsto (fun x : ℝ => (l + x) / (n + x)) atTop (𝓝 1) := by
+        have : Tendsto (fun x : ℝ => (l / x + 1) / (n / x + 1)) atTop (𝓝 ((0 + 1) / (0 + 1))) := by
+          refine Tendsto.div (Tendsto.add ?_ tendsto_const_nhds) (Tendsto.add ?_ tendsto_const_nhds)
+            (by norm_num)
+          · exact tendsto_const_nhds.div_atTop tendsto_id
+          · exact tendsto_const_nhds.div_atTop tendsto_id
+        simp only [zero_add, div_one] at this
+        refine this.congr' ?_
+        filter_upwards [eventually_gt_atTop 0] with x hx
+        field_simp
+      have h2 := (Real.continuousAt_log one_ne_zero).tendsto.comp h1
+      simp only [Real.log_one] at h2
+      refine h2.congr' ?_
+      filter_upwards [eventually_gt_atTop 0] with x hx
+      simp only [Function.comp]
+      rw [Real.log_div (by linarith) (by linarith)])
+  rw [h]
+  simp
+
 end Scalar
 
 section OpInt
