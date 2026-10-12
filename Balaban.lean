@@ -307,6 +307,15 @@ public import Balaban.Localization.DecoupledBackground
 public import Balaban.Localization.DecoupledBackgroundLocal
 public import Balaban.Localization.DecoupledDefect
 public import Balaban.Localization.DecoupledCompose
+public import Balaban.Localization.XCutOperator
+public import Balaban.Localization.XCommutator
+public import Balaban.Localization.DecoupledX
+public import Balaban.Localization.DecoupledXBounds
+public import Balaban.Localization.DecoupledXGreen
+public import Balaban.Localization.DecoupledXGrad
+public import Balaban.Localization.DecoupledXAnalytic
+public import Balaban.Localization.DecoupledXLocal
+public import Balaban.Localization.DecoupledXClose
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
