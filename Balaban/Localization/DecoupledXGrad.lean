@@ -313,4 +313,266 @@ theorem gradP_le (S : XSetting G a aT ν) {q : ℕ × CTorus d L N₁ m₁ (k + 
 
 end Cut
 
+/-! ### The overlap at a bond and the gradient of `G*_{x,s} g` -/
+
+section Overlap2
+
+variable {κ : ℝ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {ε : ℝ}
+  {r : CTorus d L N₁ m₁ (k + 1) → ℝ} {δ : ℝ}
+
+theorem sq_norm_sum_overlap2 (S : XSetting G a aT ν)
+    {F : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} (y : G.Ω 1) (b : CTorus d L N₁ m₁ (k + 1))
+    (hF : ∀ q ∈ cubeIdx G, F q ≠ 0 → ((y : CTorus d L N₁ m₁ (k + 1)) ∈ intBox q ∨
+      (b ∈ G.Ω 1 ∧ b ∈ intBox q))) :
+    ‖∑ q ∈ cubeIdx G, F q‖ ^ 2 ≤ (2 * (3 * 5 ^ d) : ℝ) * ∑ q ∈ cubeIdx G, ‖F q‖ ^ 2 := by
+  classical
+  set Q1 := (cubeIdx G).filter (fun q => (y : CTorus d L N₁ m₁ (k + 1)) ∈ intBox q) with hQ1
+  set Q2 := (cubeIdx G).filter (fun q => b ∈ G.Ω 1 ∧ b ∈ intBox q) with hQ2
+  set Q := Q1 ∪ Q2 with hQ
+  have hsum : ∑ q ∈ cubeIdx G, F q = ∑ q ∈ Q, F q := by
+    symm
+    refine Finset.sum_subset (Finset.union_subset (Finset.filter_subset _ _)
+      (Finset.filter_subset _ _)) fun q hq hnq => ?_
+    by_contra hne
+    apply hnq
+    rcases hF q hq hne with h | h
+    · exact Finset.mem_union_left _ (Finset.mem_filter.2 ⟨hq, h⟩)
+    · exact Finset.mem_union_right _ (Finset.mem_filter.2 ⟨hq, h⟩)
+  have hc1 : (Q1.card : ℝ) ≤ 3 * 5 ^ d := by exact_mod_cast card_overlap_le S y
+  have hc2 : (Q2.card : ℝ) ≤ 3 * 5 ^ d := by
+    by_cases hb : b ∈ G.Ω 1
+    · have := card_overlap_le S ⟨b, hb⟩
+      have e : Q2 = (cubeIdx G).filter (fun q => b ∈ intBox q) :=
+        Finset.filter_congr fun q _ => by simp [hb]
+      rw [e]
+      exact_mod_cast this
+    · have : Q2 = ∅ := by
+        refine Finset.filter_false_of_mem fun q _ => ?_
+        simp [hb]
+      rw [this]; simp
+  have hcQ : (Q.card : ℝ) ≤ 2 * (3 * 5 ^ d) := by
+    have := Finset.card_union_le Q1 Q2
+    have h : (Q.card : ℝ) ≤ Q1.card + Q2.card := by exact_mod_cast this
+    linarith
+  rw [hsum]
+  have h1 : ‖∑ q ∈ Q, F q‖ ≤ ∑ q ∈ Q, ‖F q‖ := norm_sum_le _ _
+  have h2 : (∑ q ∈ Q, ‖F q‖) ^ 2 ≤ (Q.card : ℝ) * ∑ q ∈ Q, ‖F q‖ ^ 2 :=
+    sq_sum_le_card_mul_sum_sq
+  have h4 : ∑ q ∈ Q, ‖F q‖ ^ 2 ≤ ∑ q ∈ cubeIdx G, ‖F q‖ ^ 2 :=
+    Finset.sum_le_sum_of_subset_of_nonneg (Finset.union_subset (Finset.filter_subset _ _)
+      (Finset.filter_subset _ _)) fun _ _ _ => sq_nonneg _
+  have h5 : 0 ≤ ∑ q ∈ Q, ‖F q‖ ^ 2 := Finset.sum_nonneg fun _ _ => sq_nonneg _
+  calc ‖∑ q ∈ Q, F q‖ ^ 2 ≤ (∑ q ∈ Q, ‖F q‖) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) h1 2
+    _ ≤ (Q.card : ℝ) * ∑ q ∈ Q, ‖F q‖ ^ 2 := h2
+    _ ≤ (2 * (3 * 5 ^ d) : ℝ) * ∑ q ∈ Q, ‖F q‖ ^ 2 := mul_le_mul_of_nonneg_right hcQ h5
+    _ ≤ (2 * (3 * 5 ^ d) : ℝ) * ∑ q ∈ cubeIdx G, ‖F q‖ ^ 2 :=
+        mul_le_mul_of_nonneg_left h4 (by positivity)
+
+theorem bond_overlap_bound (D : XData G a aT ν x α κ s) (g : G.Ω 1 → ℂ) (y : G.Ω 1)
+    (b : CTorus d L N₁ m₁ (k + 1)) :
+    ‖zeroExt (G.Ω 1) (Gstarx G a aT x ν α s *ᵥ g) b - zeroExt (G.Ω 1) (Gstarx G a aT x ν α s *ᵥ g) y‖
+        ^ 2 ≤ (2 * (3 * 5 ^ d) : ℝ) * (Real.exp (N0 d L * κ) ^ 2 * ∑ q ∈ cubeIdx G,
+          ‖Pq G q (cubeGx G a aT x ν α q *ᵥ g) b - Pq G q (cubeGx G a aT x ν α q *ᵥ g) y‖ ^ 2) := by
+  have hL1 : 1 ≤ L := by have := D.st.dg.hL; omega
+  set F : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ := fun q => sProd G s q *
+    (Pq G q (cubeGx G a aT x ν α q *ᵥ g) b - Pq G q (cubeGx G a aT x ν α q *ᵥ g) y) with hF
+  have hsum : zeroExt (G.Ω 1) (Gstarx G a aT x ν α s *ᵥ g) b -
+      zeroExt (G.Ω 1) (Gstarx G a aT x ν α s *ᵥ g) y = ∑ q ∈ cubeIdx G, F q := by
+    rw [zeroExt_Gstarx, zeroExt_Gstarx, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun q _ => ?_
+    simp only [hF, Pq]
+    ring
+  rw [hsum]
+  have hsupp : ∀ q ∈ cubeIdx G, F q ≠ 0 → ((y : CTorus d L N₁ m₁ (k + 1)) ∈ intBox q ∨
+      (b ∈ G.Ω 1 ∧ b ∈ intBox q)) := by
+    intro q hq hne
+    by_contra hcon
+    push Not at hcon
+    apply hne
+    have h1 : Pq G q (cubeGx G a aT x ν α q *ᵥ g) y = 0 := by
+      by_contra h
+      exact hcon.1 (Pq_ne_zero D.st D.pot D.x0 hq g h).2
+    have h2 : Pq G q (cubeGx G a aT x ν α q *ᵥ g) b = 0 := by
+      by_contra h
+      have := Pq_ne_zero D.st D.pot D.x0 hq g h
+      exact hcon.2 this.1 this.2
+    simp only [hF, h1, h2, sub_self, mul_zero]
+  refine (sq_norm_sum_overlap2 D.st y b hsupp).trans (mul_le_mul_of_nonneg_left ?_ (by positivity))
+  rw [Finset.mul_sum]
+  refine Finset.sum_le_sum fun q hq => ?_
+  have hsp : ‖sProd G s q‖ ≤ Real.exp (N0 d L * κ) :=
+    norm_sProd_le D.st.dg.aligned D.st.dg.cover_sep D.st.dg.hM hL1 hq D.κ0 D.sb
+  simp only [hF, norm_mul, mul_pow]
+  exact mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (norm_nonneg _) hsp 2) (sq_nonneg _)
+
+
+theorem Cchi_le_cstarX (d L : ℕ) : Cchi d L ≤ cstarX d L := by
+  have h1 := commXConst_nonneg d L
+  have h2 := Cchi_nonneg d L
+  have h5 : (1 : ℝ) ≤ 5 ^ d := one_le_pow₀ (by norm_num)
+  unfold cstarX
+  nlinarith [mul_nonneg h1 h2, mul_nonneg (mul_nonneg h1 h2) (by positivity : (0 : ℝ) ≤ 5 ^ d)]
+
+theorem delta_le_one (D : XData G a aT ν x α κ s) : Cchi d L / (L : ℝ) ^ m₁ ≤ 1 := by
+  have hL1 : 1 ≤ L := by have := D.st.dg.hL; omega
+  have hM0 : (0 : ℝ) < (L : ℝ) ^ m₁ := by
+    have : (0 : ℝ) < L := by exact_mod_cast hL1
+    positivity
+  rw [div_le_one hM0]
+  have hE : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
+  have hc := cstarX_pos d L
+  calc Cchi d L ≤ cstarX d L := Cchi_le_cstarX d L
+    _ ≤ cstarX d L * Real.exp (N0 d L * κ) := by nlinarith
+    _ ≤ _ := D.big
+
+theorem sum_swap_aux {ι κ' : Type*} (s : Finset ι) (t : Finset κ') (K E w : ℝ)
+    (c : κ' → ι → ℝ) :
+    ∑ μ ∈ s, w * (K * (E * ∑ q ∈ t, c q μ)) = K * (E * ∑ q ∈ t, ∑ μ ∈ s, w * c q μ) := by
+  calc ∑ μ ∈ s, w * (K * (E * ∑ q ∈ t, c q μ)) = ∑ μ ∈ s, ∑ q ∈ t, w * (K * (E * c q μ)) := by
+        simp only [Finset.mul_sum]
+    _ = ∑ q ∈ t, ∑ μ ∈ s, w * (K * (E * c q μ)) := Finset.sum_comm
+    _ = _ := by
+        simp only [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun q _ => Finset.sum_congr rfl fun μ _ => by ring
+
+theorem gradOn_Gstarx_le (D : XData G a aT ν x α κ s) (g : G.Ω 1 → ℂ) :
+    gradOn G ε r Finset.univ (Gstarx G a aT x ν α s *ᵥ g) ≤
+      (2 * (3 * 5 ^ d) : ℝ) * (Real.exp (N0 d L * κ) ^ 2 * ∑ q ∈ cubeIdx G,
+        gradP G q ε r (cubeGx G a aT x ν α q *ᵥ g)) := by
+  classical
+  unfold gradOn gradP
+  simp only [Finset.mem_univ, ↓reduceIte]
+  set K₀ : ℝ := 2 * (3 * 5 ^ d) with hK₀
+  set E₀ : ℝ := Real.exp (N0 d L * κ) ^ 2 with hE₀
+  set U := zeroExt (G.Ω 1) (Gstarx G a aT x ν α s *ᵥ g) with hU
+  set c : (ℕ × CTorus d L N₁ m₁ (k + 1)) → CTorus d L N₁ m₁ (k + 1) → Fin d → ℝ := fun q y μ =>
+    (‖Pq G q (cubeGx G a aT x ν α q *ᵥ g) (y + Pi.single μ 1) -
+        Pq G q (cubeGx G a aT x ν α q *ᵥ g) y‖ ^ 2 +
+      ‖Pq G q (cubeGx G a aT x ν α q *ᵥ g) (y - Pi.single μ 1) -
+        Pq G q (cubeGx G a aT x ν α q *ᵥ g) y‖ ^ 2) with hc
+  have hpt : ∀ y ∈ G.Ω 1, Real.exp (ε * r y) ^ 2 * ∑ μ : Fin d,
+      (‖U (y + Pi.single μ 1) - U y‖ ^ 2 + ‖U (y - Pi.single μ 1) - U y‖ ^ 2) ≤
+      K₀ * (E₀ * ∑ q ∈ cubeIdx G, ∑ μ : Fin d, Real.exp (ε * r y) ^ 2 * c q y μ) := by
+    intro y hy
+    have hμ : ∀ μ : Fin d, ‖U (y + Pi.single μ 1) - U y‖ ^ 2 + ‖U (y - Pi.single μ 1) - U y‖ ^ 2 ≤
+        K₀ * (E₀ * ∑ q ∈ cubeIdx G, c q y μ) := by
+      intro μ
+      have h1 := bond_overlap_bound D g ⟨y, hy⟩ (y + Pi.single μ 1)
+      have h2 := bond_overlap_bound D g ⟨y, hy⟩ (y - Pi.single μ 1)
+      simp only [hc, Finset.sum_add_distrib]
+      simp only [hK₀, hE₀, hU]
+      linarith
+    calc Real.exp (ε * r y) ^ 2 * ∑ μ : Fin d,
+          (‖U (y + Pi.single μ 1) - U y‖ ^ 2 + ‖U (y - Pi.single μ 1) - U y‖ ^ 2)
+        = ∑ μ : Fin d, Real.exp (ε * r y) ^ 2 *
+          (‖U (y + Pi.single μ 1) - U y‖ ^ 2 + ‖U (y - Pi.single μ 1) - U y‖ ^ 2) := by
+          rw [Finset.mul_sum]
+      _ ≤ ∑ μ : Fin d, Real.exp (ε * r y) ^ 2 *
+          (K₀ * (E₀ * ∑ q ∈ cubeIdx G, c q y μ)) :=
+          Finset.sum_le_sum fun μ _ => mul_le_mul_of_nonneg_left (hμ μ) (sq_nonneg _)
+      _ = _ := sum_swap_aux _ _ _ _ _ _
+  calc _ ≤ ∑ y ∈ G.Ω 1, K₀ * (E₀ * ∑ q ∈ cubeIdx G, ∑ μ : Fin d,
+        Real.exp (ε * r y) ^ 2 * c q y μ) := Finset.sum_le_sum fun y hy => hpt y hy
+    _ = K₀ * (E₀ * ∑ q ∈ cubeIdx G, ∑ y ∈ G.Ω 1, ∑ μ : Fin d,
+        Real.exp (ε * r y) ^ 2 * c q y μ) := by
+        rw [← Finset.mul_sum, ← Finset.mul_sum]
+        congr 2
+        rw [Finset.sum_comm]
+
+
+end Overlap2
+
+/-! ### (DG2) -/
+
+section DG2
+
+variable {κ : ℝ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {ε : ℝ}
+  {r : CTorus d L N₁ m₁ (k + 1) → ℝ}
+
+/-- The constant of the weighted gradient bound (DG2). -/
+noncomputable def gradConstX (d : ℕ) : ℝ := 2 * (3 * 5 ^ d) ^ 2 * (136 + 1024 * d) * (16 / 9)
+
+/-- The constant of the weighted value bound (DG2). -/
+noncomputable def valConstX (d : ℕ) : ℝ := 256 * (3 * 5 ^ d) ^ 2 * (16 / 9)
+
+theorem XData.gradP_cube_le (D : XData G a aT ν x α κ s) (W : XWeight G ε r)
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) (g : G.Ω 1 → ℂ) :
+    gradP G q ε r (cubeGx G a aT x ν α q *ᵥ g) ≤
+      (136 + 1024 * d) * agmonSource G ε r (cD G q *ᵥ g) := by
+  have hd : 0 < d := by have := D.st.dg.hd; omega
+  have hL1 : 1 ≤ L := by have := D.st.dg.hL; omega
+  have hε2 : ε ≤ agmonRate d := W.ε1.trans (xAgmonRate_le_agmonRate hd hL1)
+  have hsm := chiField_isSmooth D.st.dg.aligned D.st.dg.cover_sep (by omega : 1 ≤ d)
+    (by have := D.st.dg.hL; omega : 2 ≤ L) hq
+  have hg := gradP_le D.st hq hsm W.agm W.ε0 (by linarith [agmonRate_le hd]) (cubeGx G a aT x ν α q *ᵥ g)
+  have hE := cube_cutEnergy_le D.st D.pot D.x0 hq W.agm W.ε0 W.ε1 g
+  have hWq := cube_cwsq_le D.st D.pot D.x0 hq W.agm W.ε0 W.ε1 g
+  have hS0 := agmonSource_nonneg G ε r (cD G q *ᵥ g)
+  have hW0 := cwsq_nonneg G (agmonField G ε r (cubeGx G a aT x ν α q *ᵥ g))
+  have hδ1 := delta_le_one D
+  have hδ0 : 0 ≤ Cchi d L / (L : ℝ) ^ m₁ := by
+    have : (0 : ℝ) < (L : ℝ) ^ m₁ := by
+      have : (0 : ℝ) < L := by exact_mod_cast hL1
+      positivity
+    exact div_nonneg (Cchi_nonneg d L) this.le
+  have hdd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+  have hε3 : ε ^ 2 * d ≤ 1 / 1024 := by
+    have h1 := rate_mul_le hd hε2
+    have h2 : ε ≤ 1 / 32 := hε2.trans (agmonRate_le hd)
+    have := mul_le_mul h2 h1 (mul_nonneg W.ε0 hdd) (by norm_num : (0 : ℝ) ≤ 1 / 32)
+    calc ε ^ 2 * d = ε * (ε * d) := by ring
+      _ ≤ 1 / 32 * (1 / 32) := this
+      _ = 1 / 1024 := by norm_num
+  have hδ2 : (Cchi d L / (L : ℝ) ^ m₁) ^ 2 ≤ 1 := by nlinarith
+  have hcoef : 32 * ε ^ 2 * d + 4 * d * (Cchi d L / (L : ℝ) ^ m₁) ^ 2 ≤ 1 / 32 + 4 * d := by
+    nlinarith [mul_nonneg hdd (by linarith : (0 : ℝ) ≤ 1 - (Cchi d L / (L : ℝ) ^ m₁) ^ 2)]
+  have hc0 : 0 ≤ 32 * ε ^ 2 * d + 4 * d * (Cchi d L / (L : ℝ) ^ m₁) ^ 2 := by positivity
+  calc _ ≤ _ := hg
+    _ ≤ 8 * (16 * agmonSource G ε r (cD G q *ᵥ g)) + (1 / 32 + 4 * d) *
+        (256 * agmonSource G ε r (cD G q *ᵥ g)) := by
+        refine add_le_add (mul_le_mul_of_nonneg_left hE (by norm_num)) ?_
+        exact mul_le_mul hcoef hWq hW0 (by positivity)
+    _ = _ := by ring
+
+theorem XData.dg2_grad (D : XData G a aT ν x α κ s) (W : XWeight G ε r) (f : G.Ω 1 → ℂ) :
+    gradOn G ε r Finset.univ (Gsx G a aT x ν α s *ᵥ f) ≤
+      gradConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G ε r f := by
+  rw [Gsx_mulVec]
+  set g := (1 - Kcalx G a aT x ν α s)⁻¹ *ᵥ f with hg
+  have h1 := gradOn_Gstarx_le (ε := ε) (r := r) D g
+  have h2 := D.neumann_src W f
+  have h3 := sum_agmonSource_cD_le D.st ε r g
+  have h4 : ∑ q ∈ cubeIdx G, gradP G q ε r (cubeGx G a aT x ν α q *ᵥ g) ≤
+      (136 + 1024 * d) * ((3 * 5 ^ d : ℝ) * agmonSource G ε r g) := by
+    calc _ ≤ ∑ q ∈ cubeIdx G, (136 + 1024 * d) * agmonSource G ε r (cD G q *ᵥ g) :=
+          Finset.sum_le_sum fun q hq => D.gradP_cube_le W hq g
+      _ = (136 + 1024 * d) * ∑ q ∈ cubeIdx G, agmonSource G ε r (cD G q *ᵥ g) := by
+          rw [Finset.mul_sum]
+      _ ≤ _ := mul_le_mul_of_nonneg_left h3 (by positivity)
+  have hE0 : 0 ≤ Real.exp (N0 d L * κ) ^ 2 := sq_nonneg _
+  have hS0 := agmonSource_nonneg G ε r f
+  calc _ ≤ _ := h1
+    _ ≤ (2 * (3 * 5 ^ d) : ℝ) * (Real.exp (N0 d L * κ) ^ 2 *
+        ((136 + 1024 * d) * ((3 * 5 ^ d : ℝ) * ((16 / 9) * agmonSource G ε r f)))) := by
+        refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (h4.trans ?_) hE0)
+          (by positivity)
+        exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left h2 (by positivity))
+          (by positivity)
+    _ = _ := by unfold gradConstX; ring
+
+theorem XData.dg2_cwsq (D : XData G a aT ν x α κ s) (W : XWeight G ε r) (f : G.Ω 1 → ℂ) :
+    cwsq G (agmonField G ε r (Gsx G a aT x ν α s *ᵥ f)) ≤
+      valConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G ε r f := by
+  rw [Gsx_mulVec]
+  have h1 := cwsq_Gstarx_le D W ((1 - Kcalx G a aT x ν α s)⁻¹ *ᵥ f)
+  have h2 := D.neumann_src W f
+  have hE0 : 0 ≤ Real.exp (N0 d L * κ) ^ 2 := sq_nonneg _
+  calc _ ≤ _ := h1
+    _ ≤ 256 * (3 * 5 ^ d : ℝ) ^ 2 * Real.exp (N0 d L * κ) ^ 2 *
+        ((16 / 9) * agmonSource G ε r f) :=
+        mul_le_mul_of_nonneg_left h2 (by positivity)
+    _ = _ := by unfold valConstX; ring
+
+end DG2
+
 end Balaban.Localization
