@@ -502,6 +502,14 @@ public import Balaban.SmallField.Def6BridgeInfMoment
 public import Balaban.SmallField.Def6BridgeInfLift
 public import Balaban.SmallField.Def6BridgeInfDer
 public import Balaban.SmallField.Def6BridgeInfSum
+public import Balaban.SmallField.Def6AvgGroup
+public import Balaban.SmallField.Def6AvgInv
+public import Balaban.SmallField.Def6AvgLiftC
+public import Balaban.SmallField.Def6AvgTube
+public import Balaban.SmallField.Def6AvgGeom
+public import Balaban.SmallField.Def6AvgFamily
+public import Balaban.SmallField.Def6AvgLimit
+public import Balaban.SmallField.Def6AvgDens
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Ancestors

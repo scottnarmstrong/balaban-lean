@@ -276,12 +276,13 @@ theorem summable_shapes {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d 
 open Classical in
 /-- **The generic thermodynamic limit around a centre `y`**: if the torus quantities `an n X'` of the
 shapes through `y` that are good on the `n`-th torus agree with the quantities `ainf X'` of `T∞` on
-the polymers of `T∞`, and both are bounded by `C e^{-κ d}` (`κ ≥ a_ent + 3`), then the sums over
-the shapes of the torus converge to the sum of `T∞`. -/
-theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d L + 3 ≤ κ) (y : Site d)
+the good shapes of size below the threshold `tauY` (these are polymers of `T∞`), and both are
+bounded by `C e^{-κ d}` (`κ > a_ent + 1`), then the sums over the shapes of the torus converge to the
+sum of `T∞`. -/
+theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d L + 1 < κ) (y : Site d)
     (an : ℕ → Finset (Site d) → ℂ) (ainf : Finset (Site d) → ℂ) {C : ℝ} (hC : 0 ≤ C)
     (h1 : ∀ n X', y ∈ X' → GoodAt L m₁ k m₀ j X' n →
-      InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X' → an n X' = ainf X')
+      sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y → an n X' = ainf X')
     (h2 : ∀ n X', y ∈ X' → GoodAt L m₁ k m₀ j X' n →
       ‖an n X'‖ ≤ C * Real.exp (-κ * sizeSeq L m₁ k m₀ j X' n))
     (h3 : ∀ X', y ∈ X' → InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X' →
@@ -289,7 +290,7 @@ theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d
     (h4 : ∀ X', ¬ (y ∈ X' ∧ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X') → ainf X' = 0) :
     Tendsto (fun n => ∑ᶠ X' ∈ ShAt (d := d) L m₁ k m₀ j y n, an n X') atTop
       (nhds (∑' X', ainf X')) := by
-  obtain ⟨hs, -⟩ := summable_shapes (m₀ := m₀) (j := j) hjk (by linarith [aEnt_nonneg d L]) y ainf hC h3 h4
+  obtain ⟨hs, -⟩ := summable_shapes (m₀ := m₀) (j := j) hjk (by linarith) y ainf hC h3 h4
   set S : ℕ → Finset (Finset (Site d)) :=
     fun n => (shAt_finite (d := d) (L := L) (m₁ := m₁) (k := k) m₀ j y n).toFinset with hS
   have hmemS : ∀ n X', X' ∈ S n ↔ y ∈ X' ∧ GoodAt L m₁ k m₀ j X' n := by
@@ -297,14 +298,15 @@ theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d
   have hfin : ∀ n, ∑ᶠ X' ∈ ShAt (d := d) L m₁ k m₀ j y n, an n X' = ∑ X' ∈ S n, an n X' :=
     fun n => finsum_mem_eq_finite_toFinset_sum _ _
   set f : ℕ → Finset (Site d) → ℂ := fun n X' =>
-    if (X' ∈ S n ∧ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X') then ainf X' else 0 with hf
+    if (X' ∈ S n ∧ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y) then ainf X' else 0 with hf
   have hdec : ∀ n, ∑ X' ∈ S n, an n X' = ∑' X', f n X' +
-      ∑ X' ∈ (S n).filter (fun X' => ¬ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'), an n X' := by
+      ∑ X' ∈ (S n).filter (fun X' => ¬ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y),
+        an n X' := by
     intro n
     rw [← Finset.sum_filter_add_sum_filter_not (S n)
-      (fun X' => InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X')]
+      (fun X' => sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y)]
     congr 1
-    rw [tsum_eq_sum (s := (S n).filter (fun X' => InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'))]
+    rw [tsum_eq_sum (s := (S n).filter (fun X' => sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y))]
     · refine Finset.sum_congr rfl fun X' hX' => ?_
       have hX'' := Finset.mem_filter.1 hX'
       rw [hf]; simp only
@@ -322,26 +324,31 @@ theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d
     · intro X'
       by_cases h : y ∈ X' ∧ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'
       · refine tendsto_const_nhds.congr' ?_
-        filter_upwards [h.2] with n hn
+        have hτ := (tendsto_tauY (L := L) (m₁ := m₁) (k := k) m₀ j y).eventually_gt_atTop
+          (dInf L m₁ k m₀ j X')
+        filter_upwards [h.2, hτ] with n hn hτn
+        have hsz := sizeSeq_le_dInf hjk hn
         rw [hf]; simp only
-        rw [ite_eq_left ⟨(hmemS n X').2 ⟨h.1, hn⟩, h.2⟩]
+        rw [ite_eq_left ⟨(hmemS n X').2 ⟨h.1, hn⟩, lt_of_le_of_lt hsz hτn⟩]
       · rw [h4 X' h]
         refine tendsto_const_nhds.congr fun n => ?_
         rw [hf]; simp only
         rw [ite_eq_right]
         rintro ⟨hm, hI⟩
-        exact h ⟨((hmemS n X').1 hm).1, hI⟩
+        have hm' := (hmemS n X').1 hm
+        exact h ⟨hm'.1, infPoly_of_small hjk hm'.1 hm'.2 hI⟩
     · rw [hf]; simp only
-      by_cases h : X' ∈ S n ∧ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'
+      by_cases h : X' ∈ S n ∧ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y
       · rw [ite_eq_left h]
       · rw [ite_eq_right h, norm_zero]; exact norm_nonneg _
   -- tail
   set κ₁ : ℝ := aEnt d L + 1 with hκ₁
-  have htail : ∀ n, ‖∑ X' ∈ (S n).filter (fun X' => ¬ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'),
-      an n X'‖ ≤ C * K0 d L κ₁ * Real.exp (-((κ - κ₁) * tauY d L m₁ k m₀ j n y)) := by
+  have htail : ∀ n, ‖∑ X' ∈ (S n).filter
+      (fun X' => ¬ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y), an n X'‖ ≤
+      C * K0 d L κ₁ * Real.exp (-((κ - κ₁) * tauY d L m₁ k m₀ j n y)) := by
     intro n
     have : NeZero (torusSeq L m₀ n) := ⟨torusSeq_ne_zero m₀ n⟩
-    set T := (S n).filter (fun X' => ¬ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X') with hT
+    set T := (S n).filter (fun X' => ¬ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y) with hT
     have hκκ : 0 ≤ κ - κ₁ := by rw [hκ₁]; linarith
     calc ‖∑ X' ∈ T, an n X'‖ ≤ ∑ X' ∈ T, ‖an n X'‖ := norm_sum_le _ _
       _ ≤ ∑ X' ∈ T, C * (Real.exp (-((κ - κ₁) * tauY d L m₁ k m₀ j n y)) *
@@ -351,9 +358,7 @@ theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d
           have hm := (hmemS n X').1 hX''.1
           refine (h2 n X' hm.1 hm.2).trans ?_
           refine mul_le_mul_of_nonneg_left ?_ hC
-          have hτ : tauY d L m₁ k m₀ j n y ≤ sizeSeq L m₁ k m₀ j X' n := by
-            by_contra hlt
-            exact hX''.2 (infPoly_of_small hjk hm.1 hm.2 (not_le.1 hlt))
+          have hτ : tauY d L m₁ k m₀ j n y ≤ sizeSeq L m₁ k m₀ j X' n := not_lt.1 hX''.2
           rw [← Real.exp_add]
           refine Real.exp_le_exp.2 ?_
           nlinarith
@@ -368,11 +373,11 @@ theorem tendsto_shapeSum {m₀ j : ℕ} (hjk : j ≤ k) {κ : ℝ} (hκ : aEnt d
             exact ⟨hm.1, hm.2.1, hm.2.2⟩
       _ = _ := by ring
   have hsecond : Tendsto (fun n => ∑ X' ∈ (S n).filter
-      (fun X' => ¬ InfPoly (L := L) (m₁ := m₁) (k := k) m₀ j X'), an n X') atTop (nhds 0) := by
+      (fun X' => ¬ sizeSeq L m₁ k m₀ j X' n < tauY d L m₁ k m₀ j n y), an n X') atTop (nhds 0) := by
     have h1' : Tendsto (fun n => Real.exp (-((κ - κ₁) * tauY d L m₁ k m₀ j n y))) atTop (nhds 0) :=
       Real.tendsto_exp_neg_atTop_nhds_zero.comp
         ((tendsto_tauY (L := L) (m₁ := m₁) (k := k) m₀ j y).const_mul_atTop
-          (by rw [hκ₁]; linarith [aEnt_nonneg d L]))
+          (by rw [hκ₁]; linarith))
     have h2' := h1'.const_mul (C * K0 d L κ₁)
     rw [mul_zero] at h2'
     refine squeeze_zero_norm (fun n => ?_) h2'
