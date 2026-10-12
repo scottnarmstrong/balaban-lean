@@ -337,6 +337,7 @@ public import Balaban.Localization.DecoupledIdentMain
 public import Balaban.Localization.DecoupledSpectral
 public import Balaban.Localization.DecoupledFunctional
 public import Balaban.Localization.DecoupledCovAnalytic
+public import Balaban.Localization.DecoupledCovReal
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
