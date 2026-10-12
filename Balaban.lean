@@ -272,6 +272,8 @@ public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Localization.PolymerGeometry
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
+public import Balaban.Localization.TreeLengthPaper
+public import Balaban.Localization.TreeLengthPaperExample
 public import Balaban.Localization.BlockCount
 public import Balaban.Localization.PolymerCount
 public import Balaban.Localization.Reflection
@@ -449,6 +451,7 @@ public import Balaban.LargeField.History.RegionHistory
 public import Balaban.LargeField.History.Inhabited
 public import Balaban.LargeField.History.InhabitedJoint
 public import Balaban.LargeField.History.InhabitedRemoval
+public import Balaban.LargeField.History.InhabitedRipeRemoval
 public import Balaban.LargeField.History.FlowBook
 public import Balaban.LargeField.Counter.Instantiation
 public import Balaban.LargeField.History.BoxCover
@@ -663,6 +666,7 @@ public import Balaban.Fluctuation.MeasureInterp
 public import Balaban.Polymer.MarkedTermwise
 public import Balaban.Polymer.MarkedDeriv
 public import Balaban.Polymer.MarkedCubes
+public import Balaban.Polymer.LabelSum
 public import Balaban.Fluctuation.CriticalPointGauss
 public import Balaban.Fluctuation.CriticalPoint
 public import Balaban.Fluctuation.ExpansionGauss
@@ -1216,3 +1220,7 @@ public import Balaban.Fluctuation.StepActivityHatRay
 public import Balaban.Fluctuation.StepActivityHat
 public import Balaban.Fluctuation.StepActivityHatBound
 public import Balaban.Fluctuation.StepActivityHatCor
+public import Balaban.Fluctuation.StepActivityHatFlRay
+public import Balaban.Fluctuation.StepActivityHatSource
+public import Balaban.Fluctuation.StepActivityHatSourceBound
+public import Balaban.Fluctuation.StepActivityHatSourceCor
