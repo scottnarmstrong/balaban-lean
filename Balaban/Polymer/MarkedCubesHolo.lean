@@ -110,11 +110,12 @@ theorem Pst_Gst_differentiableOn {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace 
           (2 * εH * Kc) * Real.exp (-(κ0 + (κH - 2 * κ0)) * dExt t.1) :=
       fun l hl t Φ => hHlam_bound hN hj hΩ (A u) y0 (G u) (hG u) hεpos hF0 (by linarith) hκHge hκG l
         (by simpa using hl ()) t Φ
-    exact marked_bounds μ (Subtype.val : NePoly 𝔅 → Finset 𝔅) (fun t => t.2)
+    have hmb := marked_bounds μ (Subtype.val : NePoly 𝔅 → Finset 𝔅) (fun t => t.2)
       (fun t => (A u).presum_meas t) hab (fun _ t => gMark_measurable S0 (hGm u) t)
       (fun _ t => gMark_bdd S0 hF0.le (hGC u) t) hH0 hH0log hκ0nn hκ1nn hcG
       (fun Y => dExt_nonneg Y) hHb (fun b => by rw [Finset.sum_filter]; convert hG2c b) hG3T
       (by linarith) hq hG1 hKc0 hκ' hcG
+    exact ⟨hmb.1, hmb.2.2⟩
   -- holomorphy in `u` of the activities, for fixed marks
   have hKu : ∀ (Z : NePoly 𝔅), ∀ l ∈ Balaban.Analysis.polydisc (0 : Unit → ℂ) (fun _ : Unit => r0),
       DifferentiableOn ℂ (fun u => marksK μ Subtype.val (presum Lab (A u).H)

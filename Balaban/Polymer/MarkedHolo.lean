@@ -194,6 +194,9 @@ theorem marked_bounds (hne : ∀ t, (sup t).Nonempty)
     (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hcP : 0 ≤ cP) :
     (∀ Z : NePoly B, AnalyticOnNhd ℂ (marksK μ sup a g Z) (polydisc 0 r)) ∧
     (∀ (Z : NePoly B), ∀ l ∈ polydisc (0 : ι → ℂ) r,
+      ‖marksK μ sup a g Z l‖ ≤
+        (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1) * Real.exp (-(κ1 - 3 / 2) * d Z.1)) ∧
+    (∀ (Z : NePoly B), ∀ l ∈ polydisc (0 : ι → ℂ) r,
       ‖marksK μ sup a g Z l‖ ≤ sizeW (Subtype.val : NePoly B → Finset B) d
         (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1) (κ1 - 3 / 2) κ' cP Z) := by
   set ε : ℝ := 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 with hε
@@ -213,7 +216,7 @@ theorem marked_bounds (hne : ∀ t, (sup t).Nonempty)
       ‖marksK μ sup a g Z l‖ ≤ ε * Real.exp (-(κ1 - 3 / 2) * d Z.1) := fun Z l hl =>
     mayer_activity_bound μ hH0 hH0' hκ0 hκ1 hc hd hne (hH l hl) hG2T hG3T hc1 hq Z (hG1 Z)
   have hg0 : ∀ Y : Finset B, 0 ≤ κ' * (d Y + cP) := fun Y => by have := hd Y; positivity
-  refine ⟨hKan, fun Z l hl => (hKbd Z l hl).trans ?_⟩
+  refine ⟨hKan, hKbd, fun Z l hl => (hKbd Z l hl).trans ?_⟩
   unfold sizeW
   calc ε * Real.exp (-(κ1 - 3 / 2) * d Z.1) = ε * Real.exp (-(κ1 - 3 / 2) * d Z.1) * 1 := by
         rw [mul_one]
