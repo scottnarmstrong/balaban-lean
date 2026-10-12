@@ -1015,6 +1015,7 @@ public import Balaban.Inhabited.PsiZeroWitness
 public import Balaban.Inhabited.PsiZeroWitnessSpec
 public import Balaban.Inhabited.PsiZeroWitnessDen
 public import Balaban.Inhabited.PsiZeroWitnessTilt
+public import Balaban.Inhabited.ActionConvWitnessFull
 public import Balaban.Inhabited.CancelWitness
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
@@ -1219,6 +1220,8 @@ public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepRates
+public import Balaban.Fluctuation.HatLabelsDirect
+public import Balaban.Fluctuation.StepRatesDirect
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.LargeField.R.CancelStationary
@@ -1233,8 +1236,6 @@ public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
-public import Balaban.LargeField.R.RotSections
-public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
