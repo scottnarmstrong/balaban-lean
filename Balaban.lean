@@ -298,6 +298,10 @@ public import Balaban.Localization.DecoupledOne
 public import Balaban.Localization.DecoupledSolveAnalytic
 public import Balaban.Localization.DecoupledFieldLocal
 public import Balaban.Localization.DecoupledFieldClose
+public import Balaban.Localization.DecoupledBackground
+public import Balaban.Localization.DecoupledBackgroundLocal
+public import Balaban.Localization.DecoupledDefect
+public import Balaban.Localization.DecoupledCompose
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
@@ -325,6 +329,13 @@ public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
+public import Balaban.LargeField.Background.MinimalGenSet
+public import Balaban.LargeField.Background.Lift
+public import Balaban.LargeField.Background.CubeUnion
+public import Balaban.LargeField.Background.StepGenSets
+public import Balaban.LargeField.Background.StepGenSetsFlow
+public import Balaban.LargeField.Background.Factorization
+public import Balaban.LargeField.Background.StepBackgrounds
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.JoinFamily
 public import Balaban.LargeField.History.StepSeeds
@@ -376,3 +387,5 @@ public import Balaban.SmallField.XiFour
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
 public import Balaban.LargeField.Operators.Compose
+public import Balaban.LargeField.Analytic.Constants
+public import Balaban.LargeField.LF1
