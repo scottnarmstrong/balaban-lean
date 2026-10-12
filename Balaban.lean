@@ -662,3 +662,5 @@ public import Balaban.LargeField.R.ChainEstimate
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
+public import Balaban.Background.Prop51Mass
+public import Balaban.Fluctuation.RenormExpLemma35
