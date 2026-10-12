@@ -370,4 +370,51 @@ theorem moment_tensor (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ 
     have : (2 : ℂ) * ∑' X : T.polys, Sx T i₀ i₁ ν X.1 μ ν' = 0 := by linear_combination -h
     exact (mul_eq_zero.mp this).resolve_left two_ne_zero
 
+theorem sum4_comm {ι₁ ι₂ ι₃ ι₄ : Type*} [Fintype ι₁] [Fintype ι₂] [Fintype ι₃] [Fintype ι₄]
+    (F : ι₁ → ι₂ → ι₃ → ι₄ → ℂ) :
+    ∑ a, ∑ b, ∑ c, ∑ e, F a b c e = ∑ c, ∑ e, ∑ a, ∑ b, F a b c e := by
+  calc ∑ a, ∑ b, ∑ c, ∑ e, F a b c e = ∑ a, ∑ c, ∑ b, ∑ e, F a b c e :=
+        Finset.sum_congr rfl fun a _ => Finset.sum_comm
+    _ = ∑ c, ∑ a, ∑ b, ∑ e, F a b c e := Finset.sum_comm
+    _ = ∑ c, ∑ a, ∑ e, ∑ b, F a b c e :=
+        Finset.sum_congr rfl fun c _ => Finset.sum_congr rfl fun a _ => Finset.sum_comm
+    _ = ∑ c, ∑ e, ∑ a, ∑ b, F a b c e := Finset.sum_congr rfl fun c _ => Finset.sum_comm
+
+theorem Lx_eq (T : TermFamily d N) (i₀ i₁ : Fin N) (ν : ℝ) (R : Matrix (Fin N) (Fin N) ℂ)
+    (ψ : Site d → Spin N) (X : Finset (Site d)) :
+    Lx T i₀ i₁ ν R ψ X = (1 / 4 : ℂ) * ∑ μ, ∑ μ', gradTensor i₀ R ψ μ μ' * Sx T i₀ i₁ ν X μ μ' := by
+  unfold Lx Sx wquad
+  congr 1
+  have h1 : ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+      ∑ μ, ∑ μ', (((x.1 μ - x'.1 μ : ℤ) : ℂ)) * (((x.1 μ' - x'.1 μ' : ℤ) : ℂ)) *
+        gradTensor i₀ R ψ μ μ' =
+      ∑ x : ↥X, ∑ x' : ↥X, ∑ μ, ∑ μ', gradTensor i₀ R ψ μ μ' * (tensB i₀ i₁ ν X (T.term X) x x' *
+        ((((x.1 - x'.1) μ : ℤ) : ℂ) * (((x.1 - x'.1) μ' : ℤ) : ℂ))) := by
+    refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun x' _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun μ _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun μ' _ => ?_
+    simp only [Pi.sub_apply]
+    ring
+  rw [h1, sum4_comm]
+  refine Finset.sum_congr rfl fun μ _ => Finset.sum_congr rfl fun μ' _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [Finset.mul_sum]
+
+theorem Lx_tsum_zero (hP : Premises T i₀ i₁ ν ρ E₀ κ A K₀ Dom) (hρ : 0 < ρ) (hE0 : 0 ≤ E₀)
+    (hA : 0 ≤ A) (R : Matrix (Fin N) (Fin N) ℂ) (ψ : Site d → Spin N) :
+    ∑' X : T.polys, Lx T i₀ i₁ ν R ψ X.1 = 0 := by
+  simp only [Lx_eq]
+  rw [tsum_mul_left]
+  have : ∑' X : T.polys, ∑ μ, ∑ μ', gradTensor i₀ R ψ μ μ' * Sx T i₀ i₁ ν X.1 μ μ' = 0 := by
+    rw [Summable.tsum_finsetSum (fun μ _ => summable_sum fun μ' _ =>
+      (Sx_summable hP hρ hE0 hA μ μ').mul_left _)]
+    refine Finset.sum_eq_zero fun μ _ => ?_
+    rw [Summable.tsum_finsetSum (fun μ' _ => (Sx_summable hP hρ hE0 hA μ μ').mul_left _)]
+    refine Finset.sum_eq_zero fun μ' _ => ?_
+    rw [tsum_mul_left, moment_tensor hP hρ hE0 hA μ μ', mul_zero]
+  rw [this, mul_zero]
+
 end Balaban.SmallField
