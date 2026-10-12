@@ -41,19 +41,6 @@ variable {d L N₁ m₁ k N : ℕ} {ϱ : ℝ}
 
 /-! ### The dictionary: the torus `j`-blocks and the lattice `ℤ^d` -/
 
-/-- The centred integer position of the `j`-block of a fine site `x` (representative of minimal
-absolute value of the block coordinate). -/
-def unlift (j : ℕ) (x : CTorus d L N₁ m₁ k) : Site d :=
-  fun μ => (ZMod.valMinAbs (jBlock d L (N₁ * L ^ m₁) k j x μ) : ℤ)
-
-/-- The torus set of the polymer of `ℤ^d`-blocks `X'`: the fine sites whose block lies in `X'`. -/
-def Ypoly (j : ℕ) (X' : Finset (Site d)) : Set (CTorus d L N₁ m₁ k) :=
-  {x | unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x ∈ X'}
-
-/-- `X'` does not wind around the torus: its block coordinates are the centred representatives. -/
-def NonWind (L N₁ m₁ k j : ℕ) (X' : Finset (Site d)) : Prop :=
-  ∀ z ∈ X', ∀ μ, ZMod.valMinAbs (((z μ : ℤ) : ZMod (N₁ * L ^ m₁ * L ^ (k - j)))) = z μ
-
 /-- The torus field of a configuration `c` of the polymer `X'`: `c` on the blocks of `X'`, the
 constant `e_{i₀}` elsewhere. -/
 def fieldOf (j : ℕ) (i₀ : Fin N) (X' : Finset (Site d)) (c : Cfg d N X') :

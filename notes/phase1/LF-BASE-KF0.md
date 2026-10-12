@@ -144,6 +144,84 @@ $$M\ge\max\left\{1,\left\lceil\frac{4(\kappa+2)}{\theta_L L}\right\rceil\right\}
 
 this makes $\theta_L ML\ge4(\kappa+2)$. Further lower bounds on $M$ imposed by the localized Gaussian and heavy-object geometry must be added before $\beta_0$ is selected. No value of those bounds is presently proved. Finally $\beta_0$ must make the chart radius $\sqrt{8/7}L\delta_0(\beta)\le1/4$, the first-step interaction and heavy-object hypotheses valid, and $4\sqrt N B_\beta\le c_9 L^{-((d-2)/2+1/8)}$ for all $\beta\ge\beta_0$. Equation (B.7) is **not** a complete choice of $M$ or $\beta_0$; assigning numerical values to the missing activity constants would invent a proof. This order matches the frozen binders and keeps $M,\beta_0$ independent of $\nu,h,\ell$.
 
+## Part B′. Adversarial check of the proposed sitewise, one-scale route
+
+This section tests the route in `followup1.txt` against the actual hard-spin integral and the hypotheses of the landed polymer theorems. The exact sector and walk identities below are useful. The proposed derivation of the one-scale input in B.4 does **not** follow from them: two required estimates are false in the proposed form, and two further localization estimates remain unproved. Consequently Part B′ does not turn the conditional assembly (B.6) into an unconditional proof of Root-F.
+
+### B′.1. Exact sector identity and the boundary interaction
+
+Fix a finite periodic torus $\Lambda$, $\nu_*:=7/(8L^2)<\nu\le1$, a unit $h$, and $0<r<1/2$. Write $S=\{x:|\phi_x-h|<r\}$ and $B=\Lambda\setminus S$. There is an exact disjoint partition of the real integration domain by these sets, up to null boundaries. On $S$, write $\phi_x=h+\xi_x+n_xh$, where $\xi_x\perp h$, $n_x=\sqrt{1-|\xi_x|^2}-1$. The exact chart domain is $\{\xi:2(1-\sqrt{1-|\xi|^2})<r^2\}$, equivalently $|\xi|<r\sqrt{1-r^2/4}$. Since $r<1/2$, this domain lies entirely in the upper hemisphere; the opposite hemisphere belongs to $B$. The spherical density is $(1-|\xi_x|^2)^{-1/2}d\xi_x/|\mathbb S^{N-1}|$ in the normalized surface measure convention of A.1.
+
+Let $E(S)$ and $E(B)$ be the bonds with both endpoints in $S$ and $B$, respectively, and $\partial S$ those with one endpoint in $S$. With $K_S=-\Delta_S^{\rm free}+\nu I$, acting on each of the $N-1$ tangent components, the exact real energy is
+
+$$\begin{aligned}H(\phi)={}&\tfrac12\langle\xi,K_S\xi\rangle
++\tfrac12\sum_{\{x,y\}\in E(S)}(n_x-n_y)^2
++\tfrac\nu2\sum_{x\in S}n_x^2\\
+&+\tfrac12\sum_{\{x,y\}\in\partial S}|h+\xi_x+n_xh-\phi_y|^2
++\tfrac12\sum_{\{x,y\}\in E(B)}|\phi_x-\phi_y|^2
++\tfrac\nu2\sum_{y\in B}|\phi_y-h|^2.\tag{B′.1}
+\end{aligned}$$
+
+Indeed, on an internal good bond the tangent and normal components are orthogonal, and $|\phi_x-h|^2=|\xi_x|^2+n_x^2$; all remaining terms are literally those of the original energy. This proves that the crossing factors $\exp[-\beta|\phi_x-\phi_y|^2/2]$ lie in $(0,1]$. It does **not** remove the boundary source: for a fixed bad spin $q=\phi_y$, their exponent contains $-\beta q\cdot\xi_x$ after expansion. The global constant $h$ minimizes the unrestricted energy, but need not minimize the conditional energy on $S$ for fixed $q$. Keeping the full positive crossing energy is a legitimate exact splitting; a normalized polymer estimate for that splitting is still needed.
+
+For a fixed $S$, the uncut tangent Gaussian normalization is
+$$Z_{G,S}=\left(\frac{2\pi}{\beta}\right)^{(N-1)|S|/2}(\det K_S)^{-(N-1)/2}.\tag{B′.2}$$
+The actual sector integral multiplies this by the real chart cutoff, the Jacobians, the three nonquadratic terms in (B′.1), the bad-spin integrals, and $\exp(\sum_xg_x\cdot\phi_x)$. The last factor is entire in the finitely many complex coordinates of $g$, and has modulus at most $e^{\|g\|_1}<e$ on the frozen open ball. Indicators remain functions of real spins. Dominated differentiation proves analyticity of the **complete fixed-sector integral**; it does not prove analyticity of a separately continued chart integral in a complex background $e$, the false assertion of P4 Lemma II.7.4(c) discussed in A.2.
+
+### B′.2. The sitewise normalized estimate is false
+
+The proposed comparison $\beta^{(N-1)/2}\exp(-\beta\nu r^2/2)$ uses a pointwise factor from the numerator and an unconditioned small-site Gaussian normalization from the denominator. These quantities belong to different conditional measures. Here is a direct counterexample to the required uniform sitewise estimate. Fix the $2d$ neighbours of $x$ to $-h$, and let $u=\phi_x\cdot h$. The conditional energy involving $x$ is
+$$E_x(\phi_x)=\tfrac12\sum_{y\sim x}|\phi_x+h|^2+\tfrac\nu2|\phi_x-h|^2=(2d+\nu)+(2d-\nu)u.\tag{B′.3}$$
+Because $d\ge3$ and $\nu\le1$, the unique conditional minimizer is $\phi_x=-h$. In particular $E_x(h)=4d$ and $E_x(-h)=2\nu$. For every fixed $0<r<1$, the conditional probability of $|\phi_x-h|\ge r$ tends to one as $\beta\to\infty$; this follows directly by Laplace concentration on the compact sphere, since the unique minimum lies in the interior of that bad event. Thus no uniform conditional penalty $\exp(-c\beta\nu r^2)$ per bad site can hold. A bounded source on the frozen $\ell^1$ ball does not change this conclusion.
+
+The global pointwise inequality $H\ge\nu r^2|B|/2$ is true, and (B.4) gives a better witness version. Neither inequality compares the sector integral with its Gaussian reference after removing bad sites. The determinant $(\det K_S)^{-(N-1)/2}$, the shifted conditional good-spin integral, and bonds in $\partial S$ all vary with the shape and the prescribed bad spins. A valid replacement is the connected heavy-core/collar estimate (B.5), which charges **a connected object** while retaining every crossing bond and its conditional partition-function ratio. One may instead solve the conditional massive background problem and prove the same integrated bound around that background. `Localization/Peierls.lean` sums charged contours after such a normalized bound; its combinatorial conclusion cannot establish the bound.
+
+### B′.3. The chart radius must shrink with temperature
+
+Even in the all-good sector, a fixed chart radius does not give a perturbatively small local potential. Set $|\xi_x|=r/2$ at one site. Since $1-\sqrt{1-t}\ge t/2$ for $0\le t<1$, its normal mass term satisfies
+$$\frac{\beta\nu}{2}n_x^2\ge\frac{\beta\nu r^4}{128}\ge\frac{7\beta r^4}{1024L^2}.\tag{B′.4}$$
+For fixed $r,L$, this diverges with $\beta$. The chart interaction $H_t$ required by `Polymer/Mayer.mayer_activity_bound` therefore fails the uniform pointwise hypothesis $|H_t|\le H_0e^{-(\kappa_0+\kappa_1)d(\operatorname{supp}t)}$ with $H_0\le\log2$. Writing $e^{-H_t}-1$ instead does not make it small: at that configuration it approaches $-1$. The hard cutoff also cannot be inserted as the logarithm of a bounded local interaction.
+
+A mathematically consistent cutoff scale is $r_\beta=A\log(\beta a)/\sqrt\beta$ with fixed $a>1$ and $A>0$, once $\beta$ is large enough that $r_\beta<1/4$. For $|\xi_x|\le r_\beta$, $|n_x|\le|\xi_x|^2$, so the normal-bond and normal-mass terms in (B′.1) are bounded, sitewise, by $C(d)\beta r_\beta^4=O_{d,A}(\log^4(\beta a)/\beta)$; the logarithmic Jacobian is $O_A(\log^2(\beta a)/\beta)$. A bad site has raw mass energy at least $\beta\nu r_\beta^2/2\ge 7A^2\log^2(\beta a)/(16L^2)$. This is a superpolynomial raw weight, not $e^{-c\beta}$, and B′.2 still prevents promoting it to a uniform normalized sitewise weight. On the shrinking chart the Gaussian tail, cutoff removal, boundary-source treatment, and heavy-object normalization must be proved together.
+
+### B′.4. Exact massive walk identities and their limit
+
+For each $S$, let $d_S(x)$ be the number of neighbours of $x$ in $S$, $D_S(x)=\nu+d_S(x)$, $A_S$ the adjacency matrix, and $T_S=D_S^{-1}A_S$. Then $K_S=D_S(I-T_S)$. Set $q_L:=2d/(2d+\nu_*)<1$. Every row sum of $T_S$ is at most $q_L$: $d_S(x)/(d_S(x)+\nu)$ is increasing in $d_S(x)$ and is at most $2d/(2d+\nu_*)$. The nonnegative walk series converge absolutely and uniformly in $S,\ell,\nu$:
+$$K_S^{-1}=\sum_{n\ge0}T_S^nD_S^{-1},\qquad
+\log\det K_S=\sum_{x\in S}\log D_S(x)-\sum_{n\ge1}\frac{\operatorname{tr}(T_S^n)}{n}.\tag{B′.5}$$
+The second identity follows from the power series for $\log\det(I-T_S)$, since the spectral radius is below one. If $m=d_S(x,y)$ is graph distance within $S$, terms of length below $m$ vanish. Consequently
+$$0\le K_S^{-1}(x,y)\le\frac{q_L^m}{\nu_*(1-q_L)},\qquad
+\sum_{n\ge1}\frac{|\operatorname{tr}(T_S^n)|}{n}\le |S|[-\log(1-q_L)].\tag{B′.6}$$
+The harmless first constant can be sharpened; it is chosen uniform in all sets $S$. The Stieltjes formula $K_S^{-1/2}=\pi^{-1}\int_0^\infty t^{-1/2}(K_S+tI)^{-1}dt$ and the same walks with $\nu$ replaced by $\nu+t$ show $|K_S^{-1/2}(x,y)|\le C(d,L)q_L^m$, with $C(d,L)<\infty$ given by the resulting one-dimensional integral. These are valid massive estimates, including for disconnected $S$ (cross-component entries vanish).
+
+Two locality details defeat the proposed immediate polymer conclusion. First, even the length-zero term $D_S(x)^{-1}$ depends on which neighbours of $x$ belong to $S$; a walk activity must carry the one-step occupancy halo of every visited vertex. Second, (B′.5) has **infinite** walk sums even on a finite torus; only each individual walk has finite support. A candidate for exact torus independence would group walks and their occupancy halos by a lifted finite support and assign winding walks to winding supports. This grouping, its absolute convergence after all interactions and sector summations, and the exact identification of lifted polymer membership remain to be proved. Mere exponential closeness of two finite-torus Green functions does not give Root-F's equality clause.
+
+There is also a geometric error in the suggested $e^{-c_LML}$ **per-block** bound. A walk whose endpoints are separated by one full block width may have length at least $ML$, giving such a distance factor. A walk can enter an adjacent $ML$-block through one edge; thus visiting two blocks need not cost even two steps, much less $ML$ steps per block. In larger clusters the minimum length depends on the shape and cannot be replaced by $ML$ times the number of blocks without a separate geometric lemma. Consequently (B′.6) alone does not give arbitrary prescribed $\kappa$ per block. That requires a small-activity and support-counting estimate, possibly after allocating interactions to cores and collars. The spacing target (B.7) controls widely separated pieces only; it does not solve adjacent-block entropy.
+
+### B′.5. Where the landed theorems apply
+
+`Polymer/Mayer.mayer_integral_eq` starts from a **product probability measure** and bounded, measurable interactions $H_t$ with finite `DepOn` supports. `mayer_activity_bound` additionally asks $H_0\le\log2$, pointwise exponential support decay, the geometry and entropy hypotheses (G1)–(G3), and $2H_0K_0e^{\kappa_1c}c_1\le1/2$. `MayerPE.mayer_pe` adds the PE summability and exponent inequalities. The Gaussian in (B′.2) is correlated, so these declarations cannot be applied directly. Whitening $\xi=\beta^{-1/2}K_S^{-1/2}\psi$ gives a product Gaussian in $\psi$, but each $\xi_x$ reads arbitrarily distant $\psi_y$ by (B′.5), and its real cutoff is no longer a finite `DepOn` event. The fact that matrix entries decay does not meet the exact support hypothesis.
+
+`Polymer/GasOperator.gasOp_pe` requires the integrated heavy estimate $\int|\tau_z|\,d\mu\le e^{-p-h|Z|}$ against its product reference measure, as well as pointwise bounded ordinary activities, exact support, entropy/counting, and a collection of explicit inequalities between $p,h$ and the polymer rates. The raw energy estimate is not that integrated hypothesis. `Polymer/BlockTorus.pe_blockTorus` and `FrozenTorus.pe_blockTorus_frozen` start with already constructed activities $|K(X)|\le\varepsilon e^{-\kappa|X|_{\rm block}}$ and explicit convergence inequalities. `Polymer/Holomorphic.pe_PY_analyticOnNhd` propagates analyticity once analytic activities and uniform KP bounds are given. `Polymer/KP.lean` supplies summability for an activity satisfying its KP condition. `Polymer/BoxTransport.frozenPY_boxMap` transports exactly equal local activities; it cannot manufacture equality from Green-function decay. These theorem hypotheses are the precise point at which the proposed direct invocation stops.
+
+One repair is to prove a new **Gaussian-with-holes localization theorem** for (B′.1): decouple or expand $K_S^{-1/2}$ into finite-support terms including their occupancy halos; treat the shrinking real indicators within the real integrals; bound the resulting ordinary activities, their support entropy, and source derivatives uniformly on the open $\ell^1$ ball. A second theorem must prove (B.5) for connected bad cores and their collars with the crossing energies retained and with the determinant/conditional-integral ratio included. Only after these two results is it legitimate to instantiate `mayer_pe`, `gasOp_pe`, `pe_blockTorus_frozen`, `pe_PY_analyticOnNhd`, and `frozenPY_boxMap` to derive B.4. The present sources and landed Lean declarations do not furnish those two theorems. This is a specified proof obligation, not a proved one-scale expansion.
+
+### B′.6. Constants and Lean dependency plan
+
+The frozen binder order is: choose $\delta=1/8>0$; then receive arbitrary $\kappa,c_9>0$; then choose the common campaign integer $L\ge3$ and $M\ge1$; finally choose $\beta_0$, uniformly for all $\beta\ge\beta_0$, $\nu\in(\nu_*,1]$, unit $h$, and admissible tori. In the $k_f=0$ branch one chooses $k_f=0$ because $\sqrt\nu\le1\le L$ and $L\sqrt\nu>\sqrt{7/8}>1/2$. After $L$ is fixed, $q_L$ is as in B′.4. After $M$ is fixed, choose $A,a$ for the shrinking chart and make $\beta_0$ large enough for $r_\beta<1/4$, the desired ordinary and heavy activity inequalities, and $4\sqrt N B_\beta\le c_9L^{-((d-2)/2+\delta)}$. The last two requirements have no proved threshold, so a numerical $M$ or $\beta_0$ meeting every condition cannot be stated. Formula (B.7) is only a distance-spacing target and must not be presented as a complete selection.
+
+| Order | Lean lemma or group | Estimated lines | Landed reuse and remaining work |
+|---|---|---:|---|
+| B′1 | `kf0_mass_range`, `siteSector_partition`, exact chart Jacobian and `(B′.1)` | 800–1,600 | `Frozen/Model/Energy`; chart measure from A1 |
+| B′2 | `fixedBadNeighbor_counterexample`, shrinking-radius estimates and source domination | 700–1,300 | elementary sphere concentration and `Frozen/Model/PartitionFunction`; new |
+| B′3 | `freeHoleWalk_inverse`, `freeHoleWalk_logdet`, square-root decay, halo support | 1,500–3,000 | finite matrix lemmas, `Green/OneScaleDecay.lean`; support decomposition new |
+| B′4 | `kf0_gaussianWithHoles_local` with exact lift, cutoff and uniform small ordinary activities | 5,000–10,000 | `Localization/DecoupledX*.lean`, `Mayer.mayer_integral_eq`; **open** |
+| B′5 | `kf0_connectedHeavy_bound` proving (B.5), including crossing bonds and normalized determinants | 5,000–10,000 | `Localization/Peierls.lean`, `Polymer/HoleOperator.lean`; **open** |
+| B′6 | `kf0_mayer_gas_pe` checking (G1)–(G3), KP, PE and source analyticity | 2,500–5,000 | `MayerPE.mayer_pe`, `GasOperator.gasOp_pe`, `KP.lean`, `Holomorphic.pe_PY_analyticOnNhd`; depends on B′4–5 |
+| B′7 | `kf0_exactTorusLift`, `kf0_to_rootF` with (B.6) and principal log | 1,500–3,000 | `FrozenTorus.pe_blockTorus_frozen`, `BoxTransport.frozenPY_boxMap`; depends on B′4–6 |
+
+**Status and confidence.** Equations (B′.1)–(B′.6), the conditional counterexample, and the failure of the direct theorem instantiations are high confidence. The proposed repair is mathematically specific but lacks the two stated model estimates. Thus the one-scale input (B.4), the heavy-object bound (B.5), and the unconditional $k_f=0$ branch of Root-F remain open here.
+
 ## Lean plan, in dependency order
 
 Sizes are estimates in lines of Lean, not proof-status claims. The provider modules listed below must live below the frozen anchor and must not import its `by sorry` proof. No file under `/home/scott/Balaban` was edited for this note.
