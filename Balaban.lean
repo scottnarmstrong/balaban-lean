@@ -945,6 +945,11 @@ public import Balaban.Fluctuation.StepLocal
 public import Balaban.Fluctuation.StepLocalInhabited
 public import Balaban.Fluctuation.StepObs
 public import Balaban.Fluctuation.StepObsInhabited
+public import Balaban.Fluctuation.StepRegFamily
+public import Balaban.Fluctuation.StepRegBg
+public import Balaban.Fluctuation.StepRegCompose
+public import Balaban.Fluctuation.StepRegTerms
+public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepNormGauss
 public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
