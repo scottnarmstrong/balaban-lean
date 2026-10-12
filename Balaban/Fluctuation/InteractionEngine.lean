@@ -72,28 +72,38 @@ theorem flCore_of (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀
     δ₁_le := hF.num.δ₁_le, B_le := hF.num.B_le, B_one := hF.num.B_one,
     phi_lt := hF.num.phi_lt }
 
+variable (Gp X₁f) in
+/-- **The margin of a set of sites against the cover** (LOCALIZATION.md, proof of Lemma DL: "every
+centre `z` with `C_z ∩ X₀ ≠ ∅` has `□̂_z` inside `X₁`, hence `𝒬(z) ∩ 𝔓 = ∅` and `z ∈ Z_Y`"): each
+site `x` of `Z_α ∩ Ω₁` lies in the interaction box of a centre `z` whose thickened box lies in `X₁`
+and which interacts with no parameter cube.  It makes the multiplier `α_{k+1}(s)` at `x` depend
+on the decoupling parameters only through the cubes of the polymer (Theorem I-4b (iv)). -/
+def BlockMargin (Zα : Set (CTorus d L N₁ m₁ K)) : Prop :=
+  ∀ x ∈ Zα, x ∈ Gp.Ω 1 → ∃ z ∈ (coverOf Gp).cubeIdx, x ∈ intBox z ∧
+    (∀ P ∈ (coverOf Gp).Qset z, P ∉ (coverOf Gp).parCubes X₁f) ∧ SubI Gp (hatBox z) X₁f
+
 variable (Gp Hm a₁ ν BG BG₂ κ eps δ₁ X₁f) in
 /-- **The realizable triples** `(φ_{k+1}(s), δφ(s), (Θ, ψ'))`: `Θ = rawOf D` for a datum
 `D ∈ Ξ^c_K(𝔹_{k+1}; 1, ε')`, `ψ'` in the ball of fluctuations, `s` in the polydisc with `s = 1` off
 the parameter cubes, `(φ_{k+1}(s), α_{k+1}(s))` the decoupled background of `D`, and `δφ(s)` the
 fluctuation field (a fixed point `δα(s)` of the mode-P equation in the ball `c₆`). -/
-def FlReal : Set ((Gp.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 × Fin N → ℂ) ×
+def FlReal : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
     (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))) :=
   {t | ∃ (s : DecParams Gp) (D : BgData Gp N) (ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ)
-      (α : Gp.Ω 1 → ℂ) (δα : Hm.Ω 1 → ℂ),
+      (δα : Hm.Ω 1 → ℂ),
     (∀ P, ‖s P‖ < Real.exp κ) ∧
     (∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f → s ⟨P, hP⟩ = 1) ∧
     XiCData Gp (compWeight L a₁) ν K 1 eps D ∧ ψ' ∈ FlBall Hm δ₁ ∧
-    IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D t.1 α ∧
+    IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D t.1.1 t.1.2 ∧
     t.2.2 = (rawOf D, ψ') ∧
     t.2.1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν s)
-      (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.1 (flEdat Gp Hm (t.1, α) D.Ψ ψ').1
-      (pertSource Hm (compWeight L a₁) (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.2.1
-        (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.2.2) δα ∧
+      (flEdat Gp Hm t.1 D.Ψ ψ').2.1 (flEdat Gp Hm t.1 D.Ψ ψ').1
+      (pertSource Hm (compWeight L a₁) (flEdat Gp Hm t.1 D.Ψ ψ').2.2.1
+        (flEdat Gp Hm t.1 D.Ψ ψ').2.2.2) δα ∧
     Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν s false
-      (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.1 (flEdat Gp Hm (t.1, α) D.Ψ ψ').1
-      (pertSource Hm (compWeight L a₁) (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.2.1
-        (flEdat Gp Hm (t.1, α) D.Ψ ψ').2.2.2) δα ∧
+      (flEdat Gp Hm t.1 D.Ψ ψ').2.1 (flEdat Gp Hm t.1 D.Ψ ψ').1
+      (pertSource Hm (compWeight L a₁) (flEdat Gp Hm t.1 D.Ψ ψ').2.2.1
+        (flEdat Gp Hm t.1 D.Ψ ψ').2.2.2) δα ∧
     Small Hm δα (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
     Small Hm δα (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
     SupBounds Hm t.2.1 (cK2' d L N (famConst d L BG₂ κ) * δ₁)}
@@ -132,7 +142,7 @@ theorem point_facts_core (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
       StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
         (flEdat Gp Hm (φ, α) D.Ψ ψ') ∧
       Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ') = (δφ, δα) ∧
-      (φ, δφ, (rawOf D, ψ')) ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
+      ((φ, α), δφ, (rawOf D, ψ')) ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
   classical
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hc1 := one_le_xiC1 d
@@ -166,10 +176,105 @@ theorem point_facts_core (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
   obtain ⟨hfld, hfix, hs6, hsK, hdp, -⟩ := hSol (s, flEdat Gp Hm (φ, α) D.Ψ ψ') hs hstrict
   refine ⟨φ, α, (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1, (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2,
     hI, hFeq, hstrict, rfl, ?_⟩
-  exact ⟨s, D, ψ', α, (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2, hs, hs1, hD, hψ, hI, rfl,
+  exact ⟨s, D, ψ', (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2, hs, hs1, hD, hψ, hI, rfl,
     hfld, hfix, hs6, hsK, hdp⟩
 
 end Facts
+
+section Tail
+
+variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ K)}
+
+/-- **Lemma AE and the resummation, for an arbitrary set of fluctuations** (the common tail of
+`i5_functional` and `i5_functional_taylor`): a function `Fn(u, s)` of the data `u = (Θ, z)`,
+`z ∈ B'`, and the decoupling parameters, analytic and bounded on the polydisc and local, expands
+at `s = 1` over the domains `Y ⊃ X₁` with the bound `Eb e^{-κ₀ Δ - 2 κ d̃^{cov}_{k+1}(Y)}`. -/
+theorem expansion_of_AE (hd : 3 ≤ d) (hL : 3 ≤ L) (hκpos : 0 < κ)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ K)) = X1 Gp m₀ j 𝒦X)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {B' : Set (CTorus d L N₁ m₁ K → Fin N → ℂ)}
+    {FF : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) →
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) → ℂ}
+    (hana : AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+        (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
+        (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) => FF p.1 p.2)
+      ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B') ×ˢ
+        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) (fun _ => Real.exp κ)))
+    (hbd : ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ B',
+      ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
+        (fun _ => Real.exp κ),
+      ‖FF u s‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
+    (hloc : LocalityAEOn (Real.exp κ) (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B')
+      (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => Pset m₁ i.1.1)
+      (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ K)))
+      (fun C u u' => agreeOn (thickSet Gp (compY
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ K)) C)) u.1 u'.1 ∧
+        ∀ y ∈ psiThick (compY
+          (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
+          (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y) FF) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ K) →
+        RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ,
+      (∀ u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B',
+        FF u 1 = ∑ Y ∈ polymerDomains
+          (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X), Ev Y u) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B',
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B',
+        agreeOn (thickSet Gp Y) u.1 u'.1 → (∀ y ∈ psiThick Y, u.2 y = u'.2 y) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B',
+        ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ B')) := by
+  classical
+  have hc : ∀ i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)), (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) i ∈ cubeIdx Gp := fun i => i.1.2
+  have hcinj : Function.Injective (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) := fun i i' h => Subtype.ext (Subtype.ext h)
+  have hdisj : ∀ i, Disjoint (Pset m₁ ((fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) i)) (X1 Gp m₀ j 𝒦X) := fun i => hX₁ ▸ i.2
+  have hrefl : ∀ (C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)))) (u : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)), u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ B' →
+      (fun C u u' => agreeOn (N := N) (thickSet Gp (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
+        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
+        C u u := fun C u _ => ⟨agreeOn_refl _ u.1, fun _ _ => rfl⟩
+  have hlink : ∀ (C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)))) (u u' : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)), (agreeOn (N := N) (thickSet Gp (Ysites Gp m₀ (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X) C)) u.1 u'.1 ∧
+        ∀ y ∈ psiThick (Ysites Gp m₀ (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X) C), u.2 y = u'.2 y) →
+      (agreeOn (N := N) (thickSet Gp (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C)) u.1 u'.1 ∧
+        ∀ y ∈ psiThick (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y) := by
+    intro C u u' h
+    have hsub : compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C ⊆
+        Ysites Gp m₀ (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X) C := by
+      have e1 : compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C =
+          compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X) C :=
+        congrArg (fun S => compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) S C) hX₁
+      rw [e1]; exact compY_subset_Ysites hcov.hU hcov.hN hc _ C
+    exact ⟨agreeOn_mono (thickSet_mono hsub) h.1, fun y hy => h.2 y (psiThick_mono hsub hy)⟩
+  have hloc' : LocalityAEOn (Real.exp κ)
+      (XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ B')
+      (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => Pset m₁ ((fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) i)) (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X))
+      (fun C u u' => agreeOn (N := N) (thickSet Gp (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
+        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
+      FF := by
+    have e2 : compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (X1 Gp m₀ j 𝒦X) =
+        compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) :=
+      congrArg (fun S => compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) S) hX₁.symm
+    rw [e2]; exact hloc
+  obtain ⟨hsum, hlocY, hbound, hanY⟩ := localization_expansion (c := (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)) hcov hd hL hc hcinj hdisj
+    hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Ag := fun C u u' => agreeOn (N := N) (thickSet Gp (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
+        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
+    (AgY := fun Y u u' => agreeOn (N := N) (thickSet Gp Y) u.1 u'.1 ∧
+      ∀ y ∈ psiThick Y, u.2 y = u'.2 y) hrefl hlink hana hbd hloc'
+  exact ⟨evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp m₀ (X1 Gp m₀ j 𝒦X) FF, hsum,
+    fun Y u hu u' hu' h1 h2 => hlocY Y u hu u' hu' ⟨h1, h2⟩, hbound, hanY⟩
+
+
+end Tail
 
 section Fan
 
@@ -200,14 +305,14 @@ theorem fanF_analytic
         (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
-    {Φ : (Gp.Ω 1 × Fin N → ℂ) → (Hm.Ω 1 × Fin N → ℂ) →
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
     (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
       (FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)) :
     AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
         (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
         (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
-      Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1)).1
+      Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1))
         (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2,
           flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1))
             p.1.1.1 p.1.2)).1 p.1)
@@ -267,19 +372,19 @@ theorem fanF_analytic
     rw [this]; exact hstrict
   have hg : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
       (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
-      ((F₁ (g0 p)).1, (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, ed p)).1,
+      (F₁ (g0 p), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, ed p)).1,
         p.1)) pt :=
-    hφ1.prod ((analyticAt_fst.comp hSolpt).prod analyticAt_fst)
-  have hval : ((F₁ (g0 pt)).1, (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) pt.2,
-      ed pt)).1, pt.1) = (φ, δφ, (rawOf D, ψ')) := by
+    ha1.prod ((analyticAt_fst.comp hSolpt).prod analyticAt_fst)
+  have hval : (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) pt.2,
+      ed pt)).1, pt.1) = ((φ, α), δφ, (rawOf D, ψ')) := by
     have e1 : F₁ (g0 pt) = (φ, α) := hFeq
     have e2 : ed pt = flEdat Gp Hm (φ, α) D.Ψ ψ' := by
       show flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)) D.Ψ ψ' = _
       rw [hFeq]
-    show ((F₁ (g0 pt)).1, (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)).1,
+    show (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)).1,
       (rawOf D, ψ')) = _
     rw [e1, e2, hSeq]
-  have hΦpt := hΦ (φ, δφ, (rawOf D, ψ')) hmem
+  have hΦpt := hΦ ((φ, α), δφ, (rawOf D, ψ')) hmem
   rw [← hval] at hΦpt
   exact hΦpt.comp_of_eq hg rfl
 
@@ -308,12 +413,13 @@ theorem fanF_local
         (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
-    {Φ : (Gp.Ω 1 × Fin N → ℂ) → (Hm.Ω 1 × Fin N → ℂ) →
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
-    {Z : Set (CTorus d L N₁ m₁ K)} (hZ : Z ⊆ ↑X₁f)
+    {Z Zα : Set (CTorus d L N₁ m₁ K)} (hZ : Z ⊆ ↑X₁f) (hmar : BlockMargin Gp X₁f Zα)
     (hΦloc : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
       ∀ t' ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
-      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.1 (y, i) = t'.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Zα → t.1.2 y = t'.1.2 y) →
       (∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.2.1 (y, i) = t'.2.1 (y, i)) →
       agreeOn (thickSet Gp Z) t.2.2.1 t'.2.2.1 → (∀ y ∈ psiThick Z, t.2.2.2 y = t'.2.2.2 y) →
       Φ t.1 t.2.1 t.2.2 = Φ t'.1 t'.2.1 t'.2.2) :
@@ -327,7 +433,7 @@ theorem fanF_local
         ∀ y ∈ psiThick (compY
           (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
           (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
-      (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1)).1
+      (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
         (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
           flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
             u.1.1 u.2)).1 u) := by
@@ -348,11 +454,11 @@ theorem fanF_local
     point_facts_core hC hF₁ hSol hsx hs1 hD hψ
   obtain ⟨φ', α', δφ', δα', hI', hFeq', hstrict', hSeq', hmem'⟩ :=
     point_facts_core hC hF₁ hSol hsx' hs1' hD' hψ'
-  show Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)).1
+  show Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
           D.Ψ ψ)).1 (rawOf D, ψ) =
-    Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s', rawOf D')).1
+    Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s', rawOf D'))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s',
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s', rawOf D'))
           D'.Ψ ψ')).1 (rawOf D', ψ')
@@ -513,11 +619,22 @@ theorem fanF_local
     exact hflloc.2 y hy i
   have hZY : ∀ y ∈ Z, y ∈ Yc := fun y hy =>
     subset_compY (↑X₁f : Set (CTorus d L N₁ m₁ K)) C (hZ hy)
-  refine hΦloc _ hmem _ hmem' (fun y hy i => ?_) (fun y hy i => ?_) ?_ ?_
+  have hXY' : ∀ x ∈ X₁f, x ∈ Y := fun x hx => (hmemY x).2 (subset_compY
+    (↑X₁f : Set (CTorus d L N₁ m₁ K)) C (Finset.mem_coe.2 hx))
+  have hαeq : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Zα → α y = α' y := by
+    intro y hy
+    obtain ⟨z, hz, hyz, hQ, hhat⟩ := hmar y hy y.2
+    refine hαSY y (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, ?_, ?_⟩, hyz⟩)
+    · intro P hP hPpar
+      exact absurd hPpar (hQ P hP)
+    · intro x hx
+      exact hXY' _ (hhat x hx)
+  refine hΦloc _ hmem _ hmem' (fun y hy i => ?_) (fun y hy => hαeq y hy) (fun y hy i => ?_) ?_ ?_
   · exact hφY y ((hmemY _).2 (hZY _ hy)) i
   · exact hδeq y ((hmemY _).2 (hZY _ hy)) i
   · exact agreeOn_mono (thickSet_mono (fun y hy => hZY y hy)) hAgΘ
   · exact fun y hy => hAgψ y (psiThick_mono (fun y hy => hZY y hy) hy)
+
 
 variable (Gp Hm) in
 /-- **The fluctuation field at `s ≡ 1`** for the datum `D` and the fluctuation `ψ'`: the field
@@ -548,16 +665,17 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
     (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
     (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
     (hEb : 0 ≤ Eb)
-    {Φ : (Gp.Ω 1 × Fin N → ℂ) → (Hm.Ω 1 × Fin N → ℂ) →
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
     (hΦan : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
       (FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
     (hΦbd : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
       ‖Φ t.1 t.2.1 t.2.2‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
-    {Z : Set (CTorus d L N₁ m₁ K)} (hZ : Z ⊆ ↑X₁f)
+    {Z Zα : Set (CTorus d L N₁ m₁ K)} (hZ : Z ⊆ ↑X₁f) (hmar : BlockMargin Gp X₁f Zα)
     (hΦloc : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
       ∀ t' ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
-      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.1 (y, i) = t'.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Zα → t.1.2 y = t'.1.2 y) →
       (∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Z → ∀ i, t.2.1 (y, i) = t'.2.1 (y, i)) →
       agreeOn (thickSet Gp Z) t.2.2.1 t'.2.2.1 → (∀ y ∈ psiThick Z, t.2.2.2 y = t'.2.2.2 y) →
       Φ t.1 t.2.1 t.2.2 = Φ t'.1 t'.2.1 t'.2.2) :
@@ -565,7 +683,8 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
         RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ,
       (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
         ∀ ψ' ∈ FlBall Hm δ₁,
-        Φ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D) (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ')
+        Φ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D,
+            bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D) (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ')
           (rawOf D, ψ') =
         ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp m₀
           (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψ')) ∧
@@ -586,19 +705,16 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
   obtain ⟨F₁, hF₁an, hF₁⟩ := i4b_analytic hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
   obtain ⟨Sol, hSolan, hSolprop⟩ := Dec2.i4a_analytic (N := N) hC.hS2.fam hC.hS2.an
     hC.SM.toCoverBase hC.hκ.le hC.hM2 false hB0 hC.δ₁_pos.le hC.B_le hC.δ₁_le
-  set ι := ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) with hι
-  set cc : ι → ℕ × CTorus d L N₁ m₁ K := fun i => i.1.1 with hcc
-  have hc : ∀ i, cc i ∈ cubeIdx Gp := fun i => i.1.2
-  have hcinj : Function.Injective cc := fun i i' h => Subtype.ext (Subtype.ext h)
-  have hdisj : ∀ i, Disjoint (Pset m₁ (cc i)) (X1 Gp m₀ j 𝒦X) := fun i => hX₁ ▸ i.2
-  set F : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → (ι → ℂ) → ℂ :=
-    fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1)).1
+  set F : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) →
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) → ℂ :=
+    fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
           u.1.1 u.2)).1 u with hF'
   have hana := fanF_analytic hC hF₁an hF₁ hSolan hSolprop hΦan
   have hbd : ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁,
-      ∀ s ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ),
+      ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
+        (fun _ => Real.exp κ),
       ‖F u s‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X) := by
     rintro ⟨u1, ψ'⟩ ⟨⟨D, hD, rfl⟩, hψ⟩ s hs
     have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
@@ -607,50 +723,25 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
       norm_extParams_lt hE1 hs'
     obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmem⟩ := point_facts_core hC hF₁ hSolprop hsx
       (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ
-    show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)).1
+    show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
           D.Ψ ψ')).1 (rawOf D, ψ')‖ ≤ _
     rw [hFeq, hSeq]
     exact hΦbd _ hmem
-  have hloc := fanF_local hC hcov hX₁ hconn hrow hF₁ hSolprop hZ hΦloc
-  have hrefl : ∀ (C : Finset ι) (u : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)), u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁ →
-      (fun C u u' => agreeOn (N := N) (thickSet Gp (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
-        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
-        C u u := fun C u _ => ⟨agreeOn_refl _ u.1, fun _ _ => rfl⟩
-  have hlink : ∀ (C : Finset ι) (u u' : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)), (agreeOn (N := N) (thickSet Gp (Ysites Gp m₀ cc (X1 Gp m₀ j 𝒦X) C)) u.1 u'.1 ∧
-        ∀ y ∈ psiThick (Ysites Gp m₀ cc (X1 Gp m₀ j 𝒦X) C), u.2 y = u'.2 y) →
-      (agreeOn (N := N) (thickSet Gp (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C)) u.1 u'.1 ∧
-        ∀ y ∈ psiThick (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y) := by
-    intro C u u' h
-    have hsub : compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C ⊆
-        Ysites Gp m₀ cc (X1 Gp m₀ j 𝒦X) C := by
-      rw [hX₁]; exact compY_subset_Ysites hcov.hU hcov.hN hc _ C
-    exact ⟨agreeOn_mono (thickSet_mono hsub) h.1, fun y hy => h.2 y (psiThick_mono hsub hy)⟩
-  have hloc' : LocalityAEOn (Real.exp κ)
-      (XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁)
-      (fun i : ι => Pset m₁ (cc i)) (compY cc (X1 Gp m₀ j 𝒦X))
-      (fun C u u' => agreeOn (N := N) (thickSet Gp (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
-        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
-      F := by
-    rw [← hX₁]; exact hloc
-  obtain ⟨hsum, hlocY, hbound, hanY⟩ := localization_expansion (c := cc) hcov hC.HBp.hd hC.HBp.hL hc hcinj hdisj
-    hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Ag := fun C u u' => agreeOn (N := N) (thickSet Gp (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C))
-        u.1 u'.1 ∧ ∀ y ∈ psiThick (compY cc (↑X₁f : Set (CTorus d L N₁ m₁ K)) C), u.2 y = u'.2 y)
-    (AgY := fun Y u u' => agreeOn (N := N) (thickSet Gp Y) u.1 u'.1 ∧
-      ∀ y ∈ psiThick Y, u.2 y = u'.2 y) hrefl hlink hana hbd hloc'
-  refine ⟨evTerm cc Gp m₀ (X1 Gp m₀ j 𝒦X) F, fun D hD ψ' hψ => ?_,
-    fun Y u hu u' hu' h1 h2 => hlocY Y u hu u' hu' ⟨h1, h2⟩, hbound, hanY⟩
+  have hloc := fanF_local hC hcov hX₁ hconn hrow hF₁ hSolprop hZ hmar hΦloc
+  obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE (a₁ := a₁) hC.HBp.hd hC.HBp.hL hC.hκ
+    hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
+  refine ⟨Ev, fun D hD ψ' hψ => ?_, hlocY, hbound, hanY⟩
+  have hsum' := hsum (rawOf D, ψ') ⟨⟨D, hD, rfl⟩, hψ⟩
+  rw [← hsum']
+  symm
   have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
   have hsx : ∀ P : ↥(cubeIdx Gp), ‖(fun _ : ↥(cubeIdx Gp) => (1 : ℂ)) P‖ < Real.exp κ :=
     fun P => by simpa using hE1
   have hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f →
       (fun _ : ↥(cubeIdx Gp) => (1 : ℂ)) ⟨P, hP⟩ = 1 := fun P hP hPn => rfl
-  have hsum' := hsum (rawOf D, ψ') ⟨⟨D, hD, rfl⟩, hψ⟩
-  rw [← hsum']
-  symm
-  show Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) 1, rawOf D)).1
+  show Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) 1, rawOf D))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) 1,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) 1, rawOf D))
           D.Ψ ψ')).1 (rawOf D, ψ') = _
@@ -681,7 +772,7 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
       (flEdat Gp Hm (φ, α) D.Ψ ψ').1 (pertSource Hm (compWeight L a₁)
       (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.1 (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.2)) hmult).trans
       (hfld.symm.trans hSol1)
-  rw [hφ1, hfl]
+  rw [hφ1, hα1, hfl]
 
 end Fan
 
