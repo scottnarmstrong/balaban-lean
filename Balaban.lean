@@ -845,6 +845,9 @@ public import Balaban.Inhabited.JointL4
 public import Balaban.Inhabited.RipeL4Flow
 public import Balaban.Inhabited.RipeL4
 public import Balaban.Inhabited.RipeL4Witness
+public import Balaban.Inhabited.QuietImage
+public import Balaban.Inhabited.QuietHist
+public import Balaban.Inhabited.QuietWitness
 public import Balaban.Observables.SecondOrderCauchy
 public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
