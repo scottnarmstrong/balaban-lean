@@ -40,6 +40,12 @@ theorem vn_le_sub_add (u v : Fin N → ℂ) : vn u ≤ vn (fun i => u i - v i) +
   exact h
 
 omit [NeZero N₀] [NeZero L] in
+/-- `vn (u - w) ≤ vn u + vn w`. -/
+theorem vn_sub_le_add (u w : Fin N → ℂ) : vn (u - w) ≤ vn u + vn w := by
+  have h := vn_triangle u 0 w
+  rwa [sub_zero, vn_sub_comm 0 w, sub_zero] at h
+
+omit [NeZero N₀] [NeZero L] in
 /-- The triangle inequality for functions written with `fun`. -/
 theorem vn_tri (u v w : Fin N → ℂ) :
     vn (fun i => u i - w i) ≤ vn (fun i => u i - v i) + vn (fun i => v i - w i) :=
