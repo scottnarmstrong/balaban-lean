@@ -39,6 +39,7 @@ public import Balaban.Polymer.Expansion
 public import Balaban.Polymer.PE
 public import Balaban.Polymer.Local
 public import Balaban.Polymer.Animals
+public import Balaban.Polymer.RootedAnimals
 public import Balaban.Polymer.Lattice
 public import Balaban.Polymer.BlockTorus
 public import Balaban.Polymer.Holomorphic
@@ -1016,6 +1017,7 @@ public import Balaban.Inhabited.PsiZeroWitness
 public import Balaban.Inhabited.PsiZeroWitnessSpec
 public import Balaban.Inhabited.PsiZeroWitnessDen
 public import Balaban.Inhabited.PsiZeroWitnessTilt
+public import Balaban.Inhabited.ActionConvWitnessFull
 public import Balaban.Inhabited.CancelWitness
 public import Balaban.Inhabited.Numerics
 public import Balaban.Inhabited.SmallFieldCtx
@@ -1147,6 +1149,9 @@ public import Balaban.Localization.GraphGmTree
 public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
+public import Balaban.Localization.MooreDegreeGrid
+public import Balaban.Localization.MooreDegree
+public import Balaban.Localization.MooreDegreeWitness
 public import Balaban.SmallField.RenormPinJet
 public import Balaban.SmallField.RenormPinBridge
 public import Balaban.SmallField.RenormPinSum
@@ -1203,6 +1208,8 @@ public import Balaban.LargeField.R.RegionalFlux
 public import Balaban.LargeField.R.RegionalFluxLimits
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
+public import Balaban.LargeField.R.RegionEnergyAlgebra
+public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
@@ -1218,6 +1225,8 @@ public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepRates
+public import Balaban.Fluctuation.HatLabelsDirect
+public import Balaban.Fluctuation.StepRatesDirect
 public import Balaban.LargeField.R.RotSections
 public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.LargeField.R.CancelStationary
@@ -1232,9 +1241,9 @@ public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
-public import Balaban.LargeField.R.RotSections
-public import Balaban.LargeField.R.RotSectionsLip
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
+public import Balaban.Inhabited.RLaneWitness
+public import Balaban.Inhabited.RLaneWitnessDen
