@@ -13,16 +13,16 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W197 (Opus) | `w197-complex-step2` / W197 (on W178) | complex step output side: E0C/F0C/M0C/TstepC, Prop 2.6 at complex data |
-| W195 | `w195-lf-p13-sections` / W195 | LFR Part III P13 algebra: rotation sections (Def III.9.2, Lemma III.9.3) |
-| W196 | `w196-regset` / W196 | regularity set T of the window, hcT/hwT, hcoreTop classification |
-| W192 | `w192-hat-export` / W192 (on W176) | export dom/meas from the hat expansion; unconditional label construction |
-| W200 | `w200-taylor-complex` / W200 (on W189) | Taylor identities for the holomorphic step at complex data |
-| W198 | `w198-class-gsstrong` / W198 | REPAIR: strong generating-set clause into IsSF2/IsSFFamily2 |
+| W202 | `w202-hat-joint-witness` / W202 | joint witness of all hypotheses of the hat expansion + label construction |
+| W203 | `w203-activity-vpart` / W203 | StepActivityBound for the zero class from the hat expansion (V-part, source) |
+| W204 | `w204-torus-bridge` / W204 (on W196) | bond bound hTband on the actual window from ChiDomProp (torus bridge) |
+| W205 | `w205-collar-actual` / W205 (on W196) | inner-collar bounds at the actual window without hcoreTop |
+| W206 | `w206-post-r-domains` / W206 | VMOD-21 rows 1–3: post-R domain, old cover lift |
 | W201 | `w201-stationarity` / W201 (on W181) | P7 (2.52) stationarity; unconditional cancellation_identity |
 | W199 | `w199-r-concrete` / W199 | R normalization for the concrete rhoZero; independence of components |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): round 22 working — q13 Q13-HYBRID (tag Q13HYB), fluctfix LABELS (LABELS), vmod VMOD-20 (VMOD20). Round 21 notes committed (Q13-DECISION, VMOD-19, RATES). OPEN DECISION for Scott: astra recommends variant A0 (complete backgrounds also in the large-field operators); NOT adopted — scheme A stands until Scott rules; see LEDGER row 'astra Q13-DECISION'. STRUCTURAL: the rate induction of the small-field step does not close with W176's multiplicative label conversion (RATES.md); repair pending (LABELS). Roland questions ready to relay: notes/QUESTIONS-ROLAND-2.md items 13 (+2 addenda) and 14. DECISION 2026-10-13: scheme A of notes/phase1/W2-RESOLVE.md (complete backgrounds for the small-field class at every scale). Lean of notes/phase1/PSIZERO-HESS.md is the next Opus job. Only these three sessions exist. astra round 6 (committed d30de28): vmod (VMOD-6: reverse-partition replacement, mixed-wall NC3, graph GM2),
+astra (cap 3): round 24 — q13 Q13-REEXPAND (tag Q13REX), fluctfix PAPER-RATES (PAPERRATES), vmod next round pending. AUTHOR RULING on Q13 (Scott, 2026-10-12, in AGENTS.md): fully massive variant A0 ruled out; scheme A stays recorded; hybrid A0′ replaces it if `hybrid_sf_factorization` is proved (Q13-FACTOR: not proved, not refuted — reduces to the re-expansion of inherited terms when the small-field region shrinks, needed under A too). Write nothing interface-specific or hybrid-specific until then. STRUCTURAL OPEN: the rate induction of the small-field step does not close (RATES, LABELS, HALO; ER-238); PAPER-RATES is reconstructing how the papers close it.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
