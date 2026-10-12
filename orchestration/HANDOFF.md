@@ -32,7 +32,7 @@ in the ledger row and the branch state):
 - W81: DONE (landed 6dd2084; χ^dom identity false as formalized → queued item 8).
 - W76: DONE (landed c9ac759).
 - W79: DONE (landed dd7b11e).
-- W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
+- W80: DONE (landed; bridgeInf gives PremisesCore ∧ SumConds from the class).
 - W77: DONE (landed 7c6b40b).
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
 - W78: DONE (landed c6f82f7).
