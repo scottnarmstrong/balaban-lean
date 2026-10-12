@@ -173,9 +173,8 @@ theorem smallFactor_one_hist (P : SmallFactorPar) (g : Geo S n R M)
 
 /-- **Lemma III.5.3 (b), `ϰ₂`, on the history torus**: if `χ_S(ψ_k) = 0` (`χ_S = ∏ χ_k(□)` over the
 `π_k`-cubes `□ ⊂ Z''^c_0 ∩ (Ω^c_k)^{∼3} ∩ Z`, with `δ_k = cs.delta k` and the massless `μ_k = 0`)
-and the data sites of the generating sets `G_k(□)` of those cubes lie in the fine set
-`Xc = Z^c_0 ∩ Z` (Lemma III.5.0 (a): `□^{∼3} ∩ Z_0 = ∅`, and `□^{∼3} ⊂ Z`; the data sites lie in
-`□^{∼3}` by `dataSites_genCube_near`), then `𝒢^♮ + β_kA^*_k(X_win, 𝔹_k; ψ, φ) ≥ γ₂`. -/
+and `□^{∼3} ⊂ Xc = Z^c_0 ∩ Z` as fine sets for those cubes (Lemma III.5.0 (a): `□^{∼3} ∩ Z_0 = ∅`,
+and `□^{∼3} ⊂ Z`; the hypothesis `hgeo`), then `𝒢^♮ + β_kA^*_k(X_win, 𝔹_k; ψ, φ) ≥ γ₂`. -/
 theorem smallFactor_two_hist (P : SmallFactorPar) (g : Geo S n R M)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K) (cs : OpConsts)
     (G : GeneratingSet S.d S.L (g.M1 * (g.c * n k)) k ϱ) (hk : 1 ≤ k)
@@ -205,14 +204,14 @@ theorem smallFactor_two_hist (P : SmallFactorPar) (g : Geo S n R M)
     (ψh : BlockAt S n M K k → EuclideanSpace ℝ (Fin Nspin))
     (hψk : ∀ z, ψ k z = ψh (torusCast (histScale_eq g.hM hnn (le_refl k) hkK) z))
     (hgeo : ∀ y0 ∈ cubeFin (S := S) (chiSCubes a k Z0DD),
-      ∀ x ∈ dataSites (genCube (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) g.c (n k) y0),
-        x ∈ Xc)
+      ∀ x : Site S.d S.L (g.M1 * (g.c * n k)) k,
+        blockMap (S.L ^ k * (g.c * g.M1)) (n k) x ∈ nbhd 3 {y0} → x ∈ Xc)
     (hχ : chiS a k g hnn cs h hkK Z0DD ψh = 0) :
     P.gamma2 ≤ composedGauss G βk aN ϖ ψ Xc +
       multiAction G (compWeight S.L a₁) βk μ h Xwin ψ φ := by
   refine smallFactor_two (c := g.c) (n := n k) P G hk hL hd hϱ ha₁ hadm hμ h hXc hXΩ hXk hX ψ φ
     hφ hβ ϖ aN hη0 hη haN hM hSig hN hΛ19 hδ hK1 hγ0 hβδ hK1b hδ1 hδc H (by simp)
-    (cubeFin (S := S) (chiSCubes a k Z0DD)) hgeo ?_
+    (cubeFin (S := S) (chiSCubes a k Z0DD)) (g.hc.trans' (by norm_num)) hgeo ?_
   have e : (fun z i => ψ k z i) = blockCfgOf g hnn le_rfl hkK ψh := by
     funext z i; rw [hψk]; rfl
   rw [e]
@@ -221,8 +220,8 @@ theorem smallFactor_two_hist (P : SmallFactorPar) (g : Geo S n R M)
   exact hχ
 
 /-- **Lemma III.5.3 (e), `ϰ₅`, on the history torus**: if `χ_{Z''}(ψ_k) = 0`
-(`∏ χ_k(□)` over the `π_k`-cubes `□ ⊂ Z''_0 ∩ Z`) and the data sites of those cubes lie in the fine
-set `X = Z` (`(Z''_0)^{∼3} ⊂ Z`, Lemma III.5.0 (b)), then `β_kA^*_k(Z; ψ_k, φ) ≥ γ₅`. -/
+(`∏ χ_k(□)` over the `π_k`-cubes `□ ⊂ Z''_0 ∩ Z`) and `□^{∼3} ⊂ X = Z` as fine sets for those cubes
+(`(Z''_0)^{∼3} ⊂ Z`, Lemma III.5.0 (b); the hypothesis `hgeo`), then `β_kA^*_k(Z; ψ_k, φ) ≥ γ₅`. -/
 theorem smallFactor_five_hist (P : SmallFactorPar) (g : Geo S n R M)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K) (cs : OpConsts)
     (hk : 1 ≤ k) (hd : 2 ≤ S.d) (hL : 2 ≤ S.L)
@@ -242,12 +241,13 @@ theorem smallFactor_five_hist (P : SmallFactorPar) (g : Geo S n R M)
     (ψh : BlockAt S n M K k → EuclideanSpace ℝ (Fin Nspin))
     (hψk : ∀ z, ψ k z = ψh (torusCast (histScale_eq g.hM hnn (le_refl k) hkK) z))
     (hgeo : ∀ y0 ∈ cubeFin (S := S) (chiZDDCubes a k Z0DD),
-      ∀ x ∈ dataSites (genCube (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) g.c (n k) y0),
-        x ∈ X)
+      ∀ x : Site S.d S.L (g.M1 * (g.c * n k)) k,
+        blockMap (S.L ^ k * (g.c * g.M1)) (n k) x ∈ nbhd 3 {y0} → x ∈ X)
     (hχ : chiZDD a k g hnn cs h hkK Z0DD ψh = 0) :
     P.gamma5 ≤ multiAction (singleGen S.d S.L (g.M1 * (g.c * n k)) k ϱ) cs.aw βk μ h X ψ φ := by
   refine smallFactor_five (c := g.c) (n := n k) P hk hd hL hϱ H.weights hμ h hXk ψ φ hφ hβ hδ hK1 hγ0
-    hβδ hK1b hδ1 hδc H (by simp) (cubeFin (S := S) (chiZDDCubes a k Z0DD)) hgeo ?_
+    hβδ hK1b hδ1 hδc H (by simp) (cubeFin (S := S) (chiZDDCubes a k Z0DD))
+    (g.hc.trans' (by norm_num)) hgeo ?_
   have e : (fun z i => ψ k z i) = blockCfgOf g hnn le_rfl hkK ψh := by
     funext z i; rw [hψk]; rfl
   rw [e]

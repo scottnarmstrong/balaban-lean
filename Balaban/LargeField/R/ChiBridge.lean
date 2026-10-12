@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.Characteristic.Functions
+public import Balaban.LargeField.Characteristic.Stencil
 public import Balaban.LargeField.LF1.BlockArith
 public import Balaban.LargeField.R.SmallFactorOne
 public import Balaban.Background.Theorem52
@@ -309,10 +310,11 @@ theorem toLp_ofLp_fun (ψ : Blk d L (M1 * N₁) k k → EuclideanSpace ℝ (Fin 
   funext z; simp
 
 /-- **Lemma III.5.3 (b), `ϰ₂`** (level-torus form): if `χ_S = ∏ χ_k(□) = 0` over the cubes `□ ∈ A`
-whose data sites lie in the fine set `Xc = Z^c_0 ∩ Z`, then
+with `□^{∼3} ⊂ Xc = Z^c_0 ∩ Z` (as fine sets), then
 `𝒢^♮ + β_kA^*_k(X_win, 𝔹_k; ψ, φ) ≥ γ₂`, the left side being `𝒢^♮ + 𝒜_win + C_{k₁,k}` by (2.15′).
-The bridge is `not_psiTilde_of_cubeProd_eq_zero` (BG Theorem 5.2 (3), `bg_real`); the geometric
-input (`□^{∼3} ⊂ Z^c_0 ∩ Z`, Lemma III.5.0 (a)) is the hypothesis `hX`. -/
+The bridge is `not_psiTilde_of_cubeProd_eq_zero` (BG Theorem 5.2 (3), `bg_real`); the data sites
+of `G_k(□)` lie in `□^{∼3}` (`dataSites_genCube_near`), and `□^{∼3} ⊂ Z^c_0 ∩ Z` is Lemma III.5.0
+(a), the hypothesis `hgeo`. -/
 theorem smallFactor_two (P : SmallFactorPar) (G : GeneratingSet d L (M1 * N₁) k ϱ) (hk : 1 ≤ k)
     (hL : 2 ≤ L) (hd : 2 ≤ d) (hϱ : 2 * (d : ℝ) * L ≤ ϱ) {a₁ : ℝ} (ha₁ : 0 < a₁)
     (hadm : IsAdmissibleWeights k (compWeight L a₁)) {μ : ℝ} (hμ : 0 ≤ μ)
@@ -333,20 +335,22 @@ theorem smallFactor_two (P : SmallFactorPar) (G : GeneratingSet d L (M1 * N₁) 
     (hK1b : bgK1 d L Nspin ≤ P.K1) (hδ1 : δ ≤ 6 * P.K1) (hδc : δ ≤ 2 * P.K1 * bgC1 d L Nspin)
     {aχ : ℕ → ℝ} (H : BgHyp d L k (minSep L M1) aχ 0) (hm : N₁ * L ^ (k - k) = c * n)
     (A : Finset (Torus d n))
-    (hgeo : ∀ y0 ∈ A, ∀ x ∈ dataSites (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := k) c n y0),
-      x ∈ Xc)
+    (hc : 12 ≤ c)
+    (hgeo : ∀ y0 ∈ A, ∀ x : Site d L (M1 * N₁) k,
+      blockMap (L ^ k * (c * M1)) n x ∈ nbhd 3 {y0} → x ∈ Xc)
     (hχ : cubeProd (fun y0 => chiK (M1 := M1) (N₁ := N₁) (L := L) (q := k) (N := Nspin) aχ 0 δ
       (fun i => h i) c n y0) A (fun z i => ψ k z i) = 0) :
     P.gamma2 ≤ composedGauss G βk aN ϖ ψ Xc +
       multiAction G (compWeight L a₁) βk μ h Xwin ψ φ := by
   have hv := not_psiTilde_of_cubeProd_eq_zero (N := Nspin) H hk hm hδ hK1 hK1b hδ1 hδc
-    (fun i => h i) A (fun z i => ψ k z i) hXk hgeo hχ
+    (fun i => h i) A (fun z i => ψ k z i) hXk
+    (fun y0 hy0 x hx => hgeo y0 hy0 x (dataSites_genCube_near hL hc hm y0 hx)) hχ
   rw [toLp_ofLp_fun] at hv
   exact smallFactor_two_gamma2 P G hk hL hd hϱ ha₁ hadm hμ h hXc hXΩ hXk hX ψ φ hφ hβ ϖ aN hη0 hη
     haN hM hSig hN hΛ19 hδ.le hK1 hγ0 hβδ hv
 
 /-- **Lemma III.5.3 (e), `ϰ₅`** (level-torus form): if `χ_{Z''} = ∏ χ_k(□) = 0` over the cubes
-`□ ∈ A` whose data sites lie in the fine set `X = Z`, then
+`□ ∈ A` with `□^{∼3} ⊂ X = Z` (as fine sets), then
 `β_kA^*_k(Z; ψ_k, φ) ≥ γ₅` for the single-scale action. -/
 theorem smallFactor_five (P : SmallFactorPar) (hk : 1 ≤ k) (hd : 2 ≤ d) (hL : 2 ≤ L)
     (hϱ : 2 * (d : ℝ) * L ≤ ϱ) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {μ : ℝ} (hμ : 0 ≤ μ)
@@ -359,13 +363,15 @@ theorem smallFactor_five (P : SmallFactorPar) (hk : 1 ≤ k) (hd : 2 ≤ d) (hL 
     (hK1b : bgK1 d L Nspin ≤ P.K1) (hδ1 : δ ≤ 6 * P.K1) (hδc : δ ≤ 2 * P.K1 * bgC1 d L Nspin)
     {aχ : ℕ → ℝ} (H : BgHyp d L k (minSep L M1) aχ 0) (hm : N₁ * L ^ (k - k) = c * n)
     (A : Finset (Torus d n))
-    (hgeo : ∀ y0 ∈ A, ∀ x ∈ dataSites (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := k) c n y0),
-      x ∈ X)
+    (hc : 12 ≤ c)
+    (hgeo : ∀ y0 ∈ A, ∀ x : Site d L (M1 * N₁) k,
+      blockMap (L ^ k * (c * M1)) n x ∈ nbhd 3 {y0} → x ∈ X)
     (hχ : cubeProd (fun y0 => chiK (M1 := M1) (N₁ := N₁) (L := L) (q := k) (N := Nspin) aχ 0 δ
       (fun i => h i) c n y0) A (fun z i => ψ k z i) = 0) :
     P.gamma5 ≤ multiAction (singleGen d L (M1 * N₁) k ϱ) a βk μ h X ψ φ := by
   have hv := not_psiTilde_of_cubeProd_eq_zero (N := Nspin) H hk hm hδ hK1 hK1b hδ1 hδc
-    (fun i => h i) A (fun z i => ψ k z i) hXk hgeo hχ
+    (fun i => h i) A (fun z i => ψ k z i) hXk
+    (fun y0 hy0 x hx => hgeo y0 hy0 x (dataSites_genCube_near hL hc hm y0 hx)) hχ
   rw [toLp_ofLp_fun] at hv
   exact smallFactor_five_gamma5 P hk hd hL hϱ ha hμ h hXk ψ φ hφ hβ hδ.le hK1 hγ0 hβδ hv
 
