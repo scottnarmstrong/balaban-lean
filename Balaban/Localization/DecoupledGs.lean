@@ -28,9 +28,10 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 /-- The weighted sup-norm bound `ω(x) ‖f(x)‖ ≤ C`. -/
 def WBd (ω : ι → ℝ) (f : ι → ℂ) (C : ℝ) : Prop := ∀ x, ω x * ‖f x‖ ≤ C
 
+omit [DecidableEq ι] in
 theorem neumann_bound {ω : ι → ℝ} (hω : ∀ x, 0 < ω x) {K : Matrix ι ι ℂ}
     (hK : ∀ (h : ι → ℂ) (C : ℝ), 0 ≤ C → WBd ω h C → WBd ω (K *ᵥ h) (C / 4))
-    {f g : ι → ℂ} (hg : g - K *ᵥ g = f) {C : ℝ} (hC : 0 ≤ C) (hf : WBd ω f C) :
+    {f g : ι → ℂ} (hg : g - K *ᵥ g = f) {C : ℝ} (hf : WBd ω f C) :
     WBd ω g (4 * C / 3) := by
   intro x
   rcases isEmpty_or_nonempty ι with hι | hι
@@ -64,12 +65,12 @@ theorem neumann_isUnit {ω : ι → ℝ} (hω : ∀ x, 0 < ω x) {K : Matrix ι 
     rw [Matrix.mulVec_sub, hgg, sub_self]
   have h1 : (g - g') - K *ᵥ (g - g') = 0 := by
     rw [Matrix.sub_mulVec, Matrix.one_mulVec] at hlin; exact hlin
-  have := neumann_bound hω hK h1 (C := 0) le_rfl (fun x => by simp)
+  have := neumann_bound hω hK h1 (C := 0) (fun x => by simp)
   have h0 : g - g' = 0 := by
     funext x
     have := this x
     have hx := hω x
-    simp only [mul_zero, div_zero] at this
+    simp only [mul_zero, zero_div] at this
     have : ‖(g - g') x‖ ≤ 0 := by
       by_contra hpos
       have : 0 < ‖(g - g') x‖ := lt_of_not_ge hpos

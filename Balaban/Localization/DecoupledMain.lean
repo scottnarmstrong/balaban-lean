@@ -35,7 +35,7 @@ theorem Kcal_weighted_of_dg1 {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
       WBd (fun x : G.Ω 1 => w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2) h C →
       WBd (fun x : G.Ω 1 => w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2)
         (Kcal G a ν α s *ᵥ h) (C / 4) :=
-  fun h C hC hh => hK h hC hh
+  fun h _ hC hh => hK h hC hh
 
 /-- **(DG1)--(DG3), pointwise form.** -/
 theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
@@ -84,7 +84,7 @@ theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hKw := Kcal_weighted_of_dg1 (a := a) (ν := ν) (α := α) (s := s)
     (fun f' C' hC' hf' => hD1 G S hα hκ hMκ hs hw f' hC' hf')
   have hgW : WBd (fun x : G.Ω 1 => w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2) g (4 * C / 3) :=
-    neumann_bound hωpos hKw hg hC (fun x => hfC x)
+    neumann_bound hωpos hKw hg (fun x => hfC x)
   have hgC : ∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖g z‖ ≤ 4 * C / 3 :=
     fun z => hgW z
   have hGsf : Gs G a ν α s *ᵥ f = Gstar G a ν α s *ᵥ g := by
@@ -253,5 +253,183 @@ theorem dg2_sup (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (hmono (1 + Cchi d L + d * Cchi d L * (1 + L)) (Fc_bounds d L).2.2.1)
     have := (hq q hqA).2.2
     nlinarith [this]
+
+/-- **(DG1), the identity `G_1(A) = G_D(A)`**: for `M₁ ≥ c_*`. -/
+theorem Gs_one (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar : ℝ, 0 ≤ cstar ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → cstar ≤ (L : ℝ) ^ m₁ →
+      IsUnit (1 - Kcal G a ν α (fun _ => 1)) ∧
+      Gs G a ν α (fun _ => 1) = (dirichletOperator G a ν α)⁻¹ := by
+  obtain ⟨cstar, BG, hc, hB, H⟩ := dg2_sup (d := d) (L := L) hd hL
+  refine ⟨cstar, hc, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα hM
+  have hd0 : 0 < d := by omega
+  obtain ⟨hU, -⟩ := H G S hα (κ := 0) le_rfl (by simpa using hM) (s := fun _ => 1) (by simp)
+    (w := fun _ => 1) (IsWeight.one G (gammaW_nonneg hd0)) 0 (C := 0) le_rfl (by simp)
+  refine ⟨hU, ?_⟩
+  have hHU := dirichletOperator_isUnit G hd0 S.mass S.weights α hα
+  have hdetH := (Matrix.isUnit_iff_isUnit_det _).1 hHU
+  have hdetK := (Matrix.isUnit_iff_isUnit_det _).1 hU
+  have hpar := parametrix S hα
+  have h1 : dirichletOperator G a ν α * Gs G a ν α (fun _ => 1) = 1 := by
+    unfold Gs
+    rw [← Matrix.mul_assoc, hpar, Matrix.mul_nonsing_inv _ hdetK]
+  exact (Matrix.inv_eq_right_inv h1).symm
+
+/-! ### (DG3): blockwise decay -/
+
+section Decay
+
+variable {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+
+/-- The weight `e^{γ d(x, y')}`, with the constant `T` on the sites not connected to `y'` inside
+`Ω₁`. -/
+noncomputable def wdist (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (γ T : ℝ)
+    (y' x : CTorus d L N₁ m₁ K) : ℝ :=
+  if G.pathDist x y' = ⊤ then T else Real.exp (γ * (G.pathDist x y').toReal)
+
+theorem wdist_nonneg (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {γ T : ℝ} (hT : 0 ≤ T)
+    (y' x : CTorus d L N₁ m₁ K) : 0 ≤ wdist G γ T y' x := by
+  unfold wdist
+  split_ifs
+  · exact hT
+  · exact (Real.exp_pos _).le
+
+theorem wdist_isWeight (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {γ T : ℝ} (hγ : 0 ≤ γ)
+    (hT : 1 ≤ T) (y' : CTorus d L N₁ m₁ K) : IsWeight G γ (wdist G γ T y') := by
+  have hT0 : 0 ≤ T := by linarith
+  refine ⟨fun x => ?_, fun x y => ?_⟩
+  · unfold wdist
+    split_ifs
+    · exact hT
+    · exact Real.one_le_exp (by positivity)
+  · by_cases hxy : G.pathDist x y = ⊤
+    · rw [hxy, decay_top, mul_zero]
+      exact wdist_nonneg G hT0 y' y
+    · have htri : G.pathDist x y' ≤ G.pathDist x y + G.pathDist y y' := G.pathDist_triangle x y y'
+      have htri' : G.pathDist y y' ≤ G.pathDist y x + G.pathDist x y' := G.pathDist_triangle y x y'
+      rw [G.pathDist_comm y x] at htri'
+      by_cases hy : G.pathDist y y' = ⊤
+      · have hx : G.pathDist x y' = ⊤ := by
+          by_contra hx
+          have : G.pathDist y y' ≠ ⊤ := ne_top_of_le_ne_top
+            (ENNReal.add_ne_top.2 ⟨hxy, hx⟩) htri'
+          exact this hy
+        unfold wdist
+        simp only [hx, hy, ↓reduceIte]
+        calc T * decay γ (G.pathDist x y) ≤ T * 1 :=
+              mul_le_mul_of_nonneg_left (decay_le_one hγ _) hT0
+          _ = T := mul_one T
+      · have hx : G.pathDist x y' ≠ ⊤ := ne_top_of_le_ne_top
+          (ENNReal.add_ne_top.2 ⟨hxy, hy⟩) htri
+        unfold wdist
+        simp only [hx, hy, ↓reduceIte]
+        rw [decay_of_ne_top hxy, ← Real.exp_add]
+        apply Real.exp_le_exp.2
+        have h1 : (G.pathDist x y').toReal ≤ (G.pathDist x y).toReal + (G.pathDist y y').toReal := by
+          rw [← ENNReal.toReal_add hxy hy]
+          exact ENNReal.toReal_mono (ENNReal.add_ne_top.2 ⟨hxy, hy⟩) htri
+        nlinarith
+
+/-- From bounds `w_T(x) Q ≤ M` for all `T ≥ 1` to the decay bound. -/
+theorem decay_of_dist_weights {γ M Q : ℝ} (hQ : 0 ≤ Q) (D : ENNReal)
+    (h : ∀ T : ℝ, 1 ≤ T → (if D = ⊤ then T else Real.exp (γ * D.toReal)) * Q ≤ M) :
+    Q ≤ M * decay γ D := by
+  by_cases hD : D = ⊤
+  · rw [hD, decay_top, mul_zero]
+    by_contra hpos
+    have hQpos : 0 < Q := lt_of_not_ge hpos
+    have := h (max 1 ((M + 1) / Q)) (le_max_left _ _)
+    simp only [hD, ↓reduceIte] at this
+    have h2 : (M + 1) / Q ≤ max 1 ((M + 1) / Q) := le_max_right _ _
+    have h3 : M + 1 ≤ max 1 ((M + 1) / Q) * Q := by
+      calc M + 1 = (M + 1) / Q * Q := by field_simp
+        _ ≤ _ := mul_le_mul_of_nonneg_right h2 hQ
+    linarith
+  · have := h 1 le_rfl
+    simp only [hD, ↓reduceIte] at this
+    rw [decay_of_ne_top hD]
+    have hE := Real.exp_pos (γ * D.toReal)
+    have e : Real.exp (-(γ * D.toReal)) = (Real.exp (γ * D.toReal))⁻¹ := Real.exp_neg _
+    rw [e, ← div_eq_mul_inv, le_div_iff₀ hE]
+    linarith
+
+/-- **(DG3)**: blockwise decay of `G_s(A) f` for `f` supported in one block. -/
+theorem dg3 (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar BG : ℝ, 0 ≤ cstar ∧ 0 ≤ BG ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {j' : ℕ} {y' : CTorus d L N₁ m₁ K}, 1 ≤ j' → j' ≤ K → y' ∈ G.layer j' →
+      ∀ (f : G.Ω 1 → ℂ),
+      (∀ z : G.Ω 1, f z ≠ 0 → jBlock d L (N₁ * L ^ m₁) K j' z = jBlock d L (N₁ * L ^ m₁) K j' y') →
+      ∀ {Mf : ℝ}, 0 ≤ Mf → (∀ z, ‖f z‖ ≤ Mf) →
+      ∀ x ∈ G.Ω 1,
+      ‖zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) x‖ ≤ BG * Real.exp (N0 d L * κ) *
+        decay (gammaW d) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf) ∧
+      (∀ μ : Fin d, G.spacing x * ‖zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + Pi.single μ 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) x‖ ≤ BG * Real.exp (N0 d L * κ) *
+          decay (gammaW d) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf)) ∧
+      (G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) x -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x + Pi.single μ 1) -
+        zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f) (x - Pi.single μ 1))‖ ≤ BG * Real.exp (N0 d L * κ) *
+          decay (gammaW d) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf) := by
+  obtain ⟨cstar, BG0, hc, hB, H⟩ := dg2_sup (d := d) (L := L) hd hL
+  refine ⟨cstar, BG0 * Real.exp (2 * gammaW d * d), hc, by positivity, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hMκ s hs j' y' hj'1 hj'k hy' f hsupp Mf hMf0 hMf x hx
+  have hd0 : 0 < d := by omega
+  have hγ0 := gammaW_nonneg hd0
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  set C : ℝ := Real.exp (2 * gammaW d * d) * ((L : ℝ) ^ (2 * j') * Mf) with hCdef
+  have hC0 : 0 ≤ C := by positivity
+  have hforT : ∀ T : ℝ, 1 ≤ T → SupBdW G (wdist G (gammaW d) T y')
+      (zeroExt (G.Ω 1) (Gs G a ν α s *ᵥ f)) (BG0 * Real.exp (N0 d L * κ) * C) := by
+    intro T hT
+    have hw := wdist_isWeight G hγ0 hT y'
+    have hfC : ∀ z : G.Ω 1, wdist G (gammaW d) T y' z *
+        (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖f z‖ ≤ C := by
+      intro z
+      by_cases hf0 : f z = 0
+      · rw [hf0, norm_zero, mul_zero]; exact hC0
+      · have hzb := hsupp z hf0
+        have hzl : (z : CTorus d L N₁ m₁ K) ∈ G.layer j' := (G.mem_layer_iff hj'1 hj'k hzb).2 hy'
+        have hdist : G.pathDist y' z ≤ ENNReal.ofReal (2 * d) := G.pathDist_block_le hj'1 hj'k hy' hzb
+        have hdist' : G.pathDist z y' ≤ ENNReal.ofReal (2 * d) := by rw [G.pathDist_comm]; exact hdist
+        have hne : G.pathDist z y' ≠ ⊤ := ne_top_of_le_ne_top ENNReal.ofReal_ne_top hdist'
+        have hwz : wdist G (gammaW d) T y' z ≤ Real.exp (2 * gammaW d * d) := by
+          unfold wdist
+          simp only [hne, ↓reduceIte]
+          apply Real.exp_le_exp.2
+          have : (G.pathDist z y').toReal ≤ 2 * d :=
+            ENNReal.toReal_le_of_le_ofReal (by positivity) hdist'
+          nlinarith
+        have hsp : G.spacing (z : CTorus d L N₁ m₁ K) = (L : ℝ) ^ j' := G.spacing_eq hj'1 hj'k hzl
+        rw [hsp]
+        have hw0 := wdist_nonneg G (γ := gammaW d) (by linarith : (0 : ℝ) ≤ T) y' z
+        calc wdist G (gammaW d) T y' z * ((L : ℝ) ^ j') ^ 2 * ‖f z‖
+            ≤ wdist G (gammaW d) T y' z * ((L : ℝ) ^ j') ^ 2 * Mf :=
+              mul_le_mul_of_nonneg_left (hMf z) (by positivity)
+          _ ≤ Real.exp (2 * gammaW d * d) * ((L : ℝ) ^ j') ^ 2 * Mf :=
+              mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hwz (by positivity)) hMf0
+          _ = C := by rw [hCdef, ← pow_mul, mul_comm j' 2]; ring
+    exact (H G S hα hκ hMκ hs hw f hC0 hfC).2
+  have hbound : ∀ Q : ℝ, 0 ≤ Q → (∀ T : ℝ, 1 ≤ T →
+      wdist G (gammaW d) T y' x * Q ≤ BG0 * Real.exp (N0 d L * κ) * C) →
+      Q ≤ BG0 * Real.exp (2 * gammaW d * d) * Real.exp (N0 d L * κ) *
+        decay (gammaW d) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf) := by
+    intro Q hQ hT
+    have := decay_of_dist_weights hQ (G.pathDist x y') hT
+    refine this.trans (le_of_eq ?_)
+    rw [hCdef]; ring
+  refine ⟨hbound _ (norm_nonneg _) fun T hT => (hforT T hT).val x hx,
+    fun μ => hbound _ (mul_nonneg (spacing_pos G).le (norm_nonneg _)) fun T hT => ?_,
+    hbound _ (mul_nonneg (by have := spacing_pos G (x := x); positivity) (norm_nonneg _))
+      fun T hT => ?_⟩
+  · exact (hforT T hT).fwd x hx μ
+  · exact (hforT T hT).lap x hx
+
+end Decay
 
 end Balaban.Localization
