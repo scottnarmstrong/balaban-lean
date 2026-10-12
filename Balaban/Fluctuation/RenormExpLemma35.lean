@@ -633,7 +633,8 @@ theorem exists_isRenSol_nuFree {a : ℕ → ℝ} {ε r : ℝ} (H : BgHyp d L k �
 /-- **Inhabitation of `IsRenSol` for admissible parameters** (hard rule 10): for every generating
 set and mass with the hypotheses of Theorem 5.2 there are `ε, r > 0` and a solution map. -/
 theorem exists_isRenSol_params {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) :
-    ∃ ε r : ℝ, 0 < ε ∧ 0 < r ∧ ∃ F, IsRenSol (N := N) G a ν ε ε r (8 * ε) F := by
+    ∃ ε r : ℝ, 0 < ε ∧ 0 < r ∧ r ≤ 1 / 16 ∧ (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1 ∧
+      xiC1 d * ε ≤ bgC1 d L N ∧ ∃ F, IsRenSol (N := N) G a ν ε ε r (8 * ε) F := by
   have hd0 : 0 < d := by have := H.hd; omega
   have hδs := deltaStar_pos d L N hd0
   have hc1p : 0 < bgC1 d L N := by
@@ -656,15 +657,18 @@ theorem exists_isRenSol_params {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ 
   set r := min (1 / 16) (min (deltaStar d L N / 6) (deltaStar d L N / (8 * ε))) with hrdef
   have hrp : 0 < r := by
     rw [hrdef]; refine lt_min (by norm_num) (lt_min (by positivity) (by positivity))
-  refine ⟨ε, r, hεp, hrp, exists_isRenSol H hεp (min_le_left _ _) ?_ ?_ ?_ ?_⟩
-  · have h1 : ε ≤ 1 / c := min_le_left _ _
+  have hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1 := by
+    have h1 : ε ≤ 1 / c := min_le_left _ _
     have : (4 * (d : ℝ) + 6) * ((2 * d + 1) * ε) = c * ε := by rw [hc]; ring
     rw [this]
     calc c * ε ≤ c * (1 / c) := mul_le_mul_of_nonneg_left h1 (by linarith)
       _ = 1 := by field_simp
-  · have h1 : ε ≤ bgC1 d L N / xiC1 d := (min_le_right _ _).trans (min_le_left _ _)
+  have hc1 : xiC1 d * ε ≤ bgC1 d L N := by
+    have h1 : ε ≤ bgC1 d L N / xiC1 d := (min_le_right _ _).trans (min_le_left _ _)
     rw [le_div_iff₀ (by linarith)] at h1
     linarith
+  refine ⟨ε, r, hεp, hrp, min_le_left _ _, hsm, hc1,
+    exists_isRenSol H hεp (min_le_left _ _) hsm hc1 ?_ ?_⟩
   · have h1 : ε ≤ deltaStar d L N / (2 * bgK1 d L N * xiC1 d) :=
       (min_le_right _ _).trans (min_le_right _ _)
     rw [le_div_iff₀ (by positivity)] at h1

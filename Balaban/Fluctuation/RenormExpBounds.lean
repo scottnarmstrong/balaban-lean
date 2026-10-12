@@ -61,21 +61,22 @@ noncomputable def bondSite (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ :
 /-- **The site density of `C₁`** (Lemma 3.5 (i), complex `ξ`, `ζ = ε_ζ ξ₁`): at `x ∈ Ω₁` the block
 terms `a_n L^{-2n} [½ ξ₃ |ψ - Qφ|² + (1 + ξ₃)(ζ ψ·(ψ - Qφ) + ½ ζ² ψ·ψ)]` and the mass term
 `½ ν ξ₂ (φ - h)·(φ - h)`; at every `x` the bond terms `½ ξ₃ ∑_μ |∂_μ φ̄(x)|²` (bilinear products). -/
-noncomputable def renC1Site (ν εζ : ℝ) (ξ : Fin 3 → ℂ) (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ)
-    (x : Torus d (N₀ * L ^ k)) : ℂ :=
+noncomputable def renC1Site (ν εζ : ℝ) (ξ : Fin 3 → ℂ) (Ψ h : Torus d (N₀ * L ^ k) → Fin N → ℂ)
+    (φ : G.Ω 1 × Fin N → ℂ) (x : Torus d (N₀ * L ^ k)) : ℂ :=
   (if x ∈ G.Ω 1 then
-      (blockWt G a x : ℂ) * ((ξ 2 / 2) * ∑ i, (D.Ψ x i - blockAvg G φ x i) *
-          (D.Ψ x i - blockAvg G φ x i) +
-        (1 + ξ 2) * (renZeta εζ ξ * ∑ i, D.Ψ x i * (D.Ψ x i - blockAvg G φ x i) +
-          (renZeta εζ ξ ^ 2 / 2) * ∑ i, D.Ψ x i * D.Ψ x i)) +
-      ((ν : ℂ) * ξ 1 / 2) * ∑ i, (svec G φ x i - D.h x i) * (svec G φ x i - D.h x i)
+      (blockWt G a x : ℂ) * ((ξ 2 / 2) * ∑ i, (Ψ x i - blockAvg G φ x i) *
+          (Ψ x i - blockAvg G φ x i) +
+        (1 + ξ 2) * (renZeta εζ ξ * ∑ i, Ψ x i * (Ψ x i - blockAvg G φ x i) +
+          (renZeta εζ ξ ^ 2 / 2) * ∑ i, Ψ x i * Ψ x i)) +
+      ((ν : ℂ) * ξ 1 / 2) * ∑ i, (svec G φ x i - h x i) * (svec G φ x i - h x i)
     else 0) +
-  (ξ 2 / 2) * bondSite G D.Ψ φ x
+  (ξ 2 / 2) * bondSite G Ψ φ x
 
-/-- `C₁(B)`: the sum of the site density over a set `B` of sites (`C₁(z)` for `B = B_{k+1}(z)`). -/
-noncomputable def renC1On (ν εζ : ℝ) (B : Finset (Torus d (N₀ * L ^ k))) (D : BgData G N)
-    (φ : G.Ω 1 × Fin N → ℂ) (ξ : Fin 3 → ℂ) : ℂ :=
-  ∑ x ∈ B, renC1Site G a ν εζ ξ D φ x
+/-- `C₁(B)`: the sum of the site density over a set `B` of sites (`C₁(z)` for `B = B_{k+1}(z)`),
+for the data `(Ψ, h̃)`. -/
+noncomputable def renC1On (ν εζ : ℝ) (B : Finset (Torus d (N₀ * L ^ k)))
+    (Ψ h : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.Ω 1 × Fin N → ℂ) (ξ : Fin 3 → ℂ) : ℂ :=
+  ∑ x ∈ B, renC1Site G a ν εζ ξ Ψ h φ x
 
 /-- **The site density of `C₂ = ½ (1 + ξ₃) ⟨δφ, (H_u + α_u) δφ⟩`**, with `H_u + α_u` the operator
 `H_D^{(0)}(α_u + ν_u)` at the complex mass `ν_u` (the operator of `IsPerturbedM`). -/
@@ -135,7 +136,7 @@ theorem massPair_eq_sum (h : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φ : G.�
 /-- The site density of `C₁` for real `ξ`, in the form of the summands of `renormC1`. -/
 theorem renC1Site_ofReal (ν εζ : ℝ) (t : Fin 3 → ℝ) (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ)
     (x : Torus d (N₀ * L ^ k)) :
-    renC1Site G a ν εζ (fun i => (t i : ℂ)) D φ x =
+    renC1Site G a ν εζ (fun i => (t i : ℂ)) D.Ψ D.h φ x =
       ((t 2 : ℂ) / 2) * (if x ∈ G.Ω 1 then (blockWt G a x : ℂ) *
           ∑ i, (D.Ψ x i - blockAvg G φ x i) * (D.Ψ x i - blockAvg G φ x i) else 0) +
         (1 + (t 2 : ℂ)) * (((εζ * t 0 : ℝ) : ℂ) * (if x ∈ G.Ω 1 then (blockWt G a x : ℂ) *
@@ -152,7 +153,7 @@ theorem renC1Site_ofReal (ν εζ : ℝ) (t : Fin 3 → ℝ) (D : BgData G N) (�
 
 /-- **Over the whole torus and for real `ξ`, `C₁` is the landed `renormC1`** (Lemma 3.5 (i)). -/
 theorem renC1On_univ_ofReal (ν εζ : ℝ) (t : Fin 3 → ℝ) (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) :
-    renC1On G a ν εζ Finset.univ D φ (fun i => (t i : ℂ)) =
+    renC1On G a ν εζ Finset.univ D.Ψ D.h φ (fun i => (t i : ℂ)) =
       renormC1 G a ν (t 1) (t 2) (εζ * t 0) D φ := by
   have e3 : bondPair G D.Ψ φ = ∑ x, bondSite G D.Ψ φ x := rfl
   unfold renormC1 renC1On
@@ -357,7 +358,7 @@ theorem norm_renC1Site_le (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
     (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
     {D : BgData G N} (hD : XiCOneReal G a ν ε D) {εζ : ℝ} (hεζ0 : 0 ≤ εζ) (hεζ : εζ ≤ ε)
     {ξ : Fin 3 → ℂ} (hξ : ‖ξ‖ ≤ 1 / 16) (x : Torus d (N₀ * L ^ k)) :
-    ‖renC1Site G a ν εζ ξ D (bgFieldC G a ν (bgC0 d L N) D) x‖ ≤
+    ‖renC1Site G a ν εζ ξ D.Ψ D.h (bgFieldC G a ν (bgC0 d L N) D) x‖ ≤
       (2 * d + 14) * ε ^ 2 * ‖ξ‖ / G.spacing x ^ 2 := by
   obtain ⟨hcl, hgr, hms, hvΨ⟩ := hD.factors H hε hsm hc1
   set φc := bgFieldC G a ν (bgC0 d L N) D
@@ -477,7 +478,7 @@ theorem norm_renC1On_le (H : BgHyp d L k ϱ a ν) (hε : 0 < ε)
     (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
     {D : BgData G N} (hD : XiCOneReal G a ν ε D) {εζ : ℝ} (hεζ0 : 0 ≤ εζ) (hεζ : εζ ≤ ε)
     {ξ : Fin 3 → ℂ} (hξ : ‖ξ‖ ≤ 1 / 16) (B : Finset (Torus d (N₀ * L ^ k))) :
-    ‖renC1On G a ν εζ B D (bgFieldC G a ν (bgC0 d L N) D) ξ‖ ≤
+    ‖renC1On G a ν εζ B D.Ψ D.h (bgFieldC G a ν (bgC0 d L N) D) ξ‖ ≤
       (2 * d + 14) * ε ^ 2 * ‖ξ‖ * blockWeight G B := by
   unfold renC1On blockWeight
   rw [Finset.mul_sum]

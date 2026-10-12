@@ -664,3 +664,6 @@ public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
 public import Balaban.Background.Prop51Mass
 public import Balaban.Fluctuation.RenormExpLemma35
+public import Balaban.Fluctuation.RenormExpCauchy
+public import Balaban.Fluctuation.RenormExpBounds
+public import Balaban.Fluctuation.RenormExpG
