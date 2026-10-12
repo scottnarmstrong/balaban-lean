@@ -420,6 +420,7 @@ public import Balaban.SmallField.RenormTermwiseProps
 public import Balaban.SmallField.RenormTermwiseAnalytic
 public import Balaban.SmallField.RenormTermwise
 public import Balaban.SmallField.RenormTermwiseCrude
+public import Balaban.SmallField.RenormTermwiseSub
 public import Balaban.SmallField.Xi
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
