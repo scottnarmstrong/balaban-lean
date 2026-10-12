@@ -11,6 +11,7 @@ public import Balaban.Localization.PolymerGeometry
 public import Balaban.Fluctuation.InteractionEngine
 public import Balaban.Fluctuation.InteractionFPart
 public import Balaban.Fluctuation.Prop33Nu
+public import Balaban.Fluctuation.InteractionLevelPair
 
 /-!
 # Support facts for the source summand `F` and the mass summand `ν`
@@ -282,5 +283,151 @@ theorem nu_site_dichotomy (hGp : IsLevel Gp (k + 1)) (hHm : IsLevel Hm k)
     exact Or.inr ⟨h, h1, h2, h5, h3⟩
 
 end Dichotomy
+
+section Raw
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
+variable {ι : Type*} (c : ι → ℕ × CTorus d L N₁ m₁ K)
+
+omit [NeZero N₁] [NeZero L] in
+/-- **The raw sites of `F` and `ν` lie in the component.**  Every site of `X₁` lies in the
+component `Y[𝒞] = compY` (landed `subset_compY`); if the finite set `Y` is this component, the
+source amplitude `g(y)` of `F` at `y ∈ X₁f` and the raw field `h(x)` of `ν` at `x ∈ X₁f` (in
+particular at the sites of `blockSites ⊆ X₁f`) are read at sites of `Y`. -/
+theorem raw_site_mem_comp (X₁f : Finset (CTorus d L N₁ m₁ K)) (C : Finset ι)
+    (Y : Finset (CTorus d L N₁ m₁ K)) (hmemY : ∀ x, x ∈ Y ↔ x ∈ compY c (↑X₁f : Set _) C)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ X₁f) : x ∈ Y :=
+  (hmemY x).2 (subset_compY (c := c) (↑X₁f : Set (CTorus d L N₁ m₁ K)) C (Finset.mem_coe.2 hx))
+
+omit [NeZero N₁] [NeZero L] in
+/-- The read of the source amplitude `g(y)` of `F` is determined by data on `Y`: two amplitudes
+that agree on `Y` agree at `y ∈ X₁f`. -/
+theorem source_amplitude_read {M : Type*} (X₁f : Finset (CTorus d L N₁ m₁ K)) (C : Finset ι)
+    (Y : Finset (CTorus d L N₁ m₁ K)) (hmemY : ∀ x, x ∈ Y ↔ x ∈ compY c (↑X₁f : Set _) C)
+    (g g' : CTorus d L N₁ m₁ K → M) (hg : ∀ z ∈ Y, g z = g' z) {y : CTorus d L N₁ m₁ K}
+    (hy : y ∈ X₁f) : g y = g' y :=
+  hg y (raw_site_mem_comp c X₁f C Y hmemY hy)
+
+omit [NeZero N₁] [NeZero L] in
+/-- The read of the raw field `h(x)` of `ν` is determined by data on `Y`: two raw fields that
+agree on `Y` agree at `x ∈ X₁f`. -/
+theorem raw_field_read {M : Type*} (X₁f : Finset (CTorus d L N₁ m₁ K)) (C : Finset ι)
+    (Y : Finset (CTorus d L N₁ m₁ K)) (hmemY : ∀ x, x ∈ Y ↔ x ∈ compY c (↑X₁f : Set _) C)
+    (hh hh' : CTorus d L N₁ m₁ K → M) (hag : ∀ z ∈ Y, hh z = hh' z)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ X₁f) : hh x = hh' x :=
+  hag x (raw_site_mem_comp c X₁f C Y hmemY hx)
+
+end Raw
+
+section Witness
+
+open LevelPair I5Inhabited
+
+/-- The centre of a box lies in the box once the radius exceeds half the side. -/
+theorem inBox_centre {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] (j : ℕ)
+    (y0 : CTorus d L N₁ m₁ K) {R : ℝ} (hR : ((L : ℝ) ^ (j + m₁) - 1) / 2 < R) :
+    InBox m₁ j y0 R y0 := by
+  intro μ
+  refine ⟨0, ?_⟩
+  have hB : (1 : ℝ) ≤ (L : ℝ) ^ (j + m₁) :=
+    one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+  simp only [Int.cast_zero, zero_mul, add_zero, sub_add_cancel_left, abs_neg]
+  rw [abs_of_nonneg (by linarith)]
+  exact hR
+
+/-- The centre of a centre `z` lies in the core box of `z`. -/
+theorem centre_mem_coreBox {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L]
+    (z : ℕ × CTorus d L N₁ m₁ K) : z.2 ∈ coreBox z := by
+  rw [coreBox, mem_boxSet]
+  refine inBox_centre _ _ ?_
+  have hB : (1 : ℝ) ≤ (L : ℝ) ^ (z.1 + m₁) :=
+    one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+  linarith
+
+/-- A centre of the cover lies in its own `𝒬`-set. -/
+theorem self_mem_Qset {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {z : ℕ × CTorus d L N₁ m₁ K}
+    (hz : z ∈ (coverOf G).cubeIdx) : z ∈ (coverOf G).Qset z := by
+  refine (coverOf G).mem_Qset.2 ⟨hz, z.2, SameCell.refl _ _, inBox_centre _ _ ?_⟩
+  unfold hatRad
+  have hB : (1 : ℝ) ≤ (L : ℝ) ^ (z.1 + m₁) :=
+    one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+  have : (0 : ℝ) ≤ 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ z.1 := by positivity
+  linarith
+
+/-- **Both branches of the dichotomy occur** on the concrete level pair `LevelPair.Gp`,
+`LevelPair.Hm` (`d = L = 3`, `K = 2`, `m₁ ≥ 4`, `a = compWeight 3 1`, `ν = 0`), with `X₁` the
+whole torus, `𝒞 = ∅` and `Y` the whole torus:
+
+* (in) with the parameters `s ≡ 1` there is a site `y ∈ Core`, which lies in `S_Y^F`, and whose
+  residual footprint and `Hm`-row footprints lie in `Y`;
+* (out) with the parameters `s ≡ 0` the core is empty, and `δφ_m(s)` vanishes at every site, for
+  every datum `e` and radius `ρ`. -/
+theorem fnu_dichotomy_branches (N : ℕ) {m₁ : ℕ} (h4 : 4 ≤ m₁) :
+    ∃ Y : Finset (CTorus 3 3 9 m₁ 2),
+      IsNnComp ((Vset (Finset.univ : Finset (CTorus 3 3 9 m₁ 2)) ∅).filter
+        fun x => x ∈ (Gp m₁ (rhoSep m₁)).Ω 1) Y ∧
+      (∃ y ∈ Y, y ∈ Dec2.Core (coverOf (Gp m₁ (rhoSep m₁))) (fun _ => 1) ∧
+        y ∈ Dec2.SYF (coverOf (Gp m₁ (rhoSep m₁))) (Hm m₁ (rhoSep m₁)) (compWeight 3 1) 0
+          Finset.univ ∅ Y ∧ resDep (Gp m₁ (rhoSep m₁)) y ⊆ Y ∧
+        ∀ u ∈ resSites (Hm m₁ (rhoSep m₁)) y, approxDep (Gp m₁ (rhoSep m₁)) u ⊆ Y) ∧
+      (∃ s : Dec2.DecParams (coverOf (Gp m₁ (rhoSep m₁))),
+        (∀ y, y ∉ Dec2.Core (coverOf (Gp m₁ (rhoSep m₁))) (Dec2.extS _ s)) ∧
+        ∀ (ρ : ℝ) (e : Edat (Hm m₁ (rhoSep m₁)) N) (y : CTorus 3 3 9 m₁ 2) (i : Fin N),
+          svec (Hm m₁ (rhoSep m₁)) (flField (coverOf (Gp m₁ (rhoSep m₁))) (Hm m₁ (rhoSep m₁))
+            (compWeight 3 1) 0 ρ s e) y i = 0) := by
+  classical
+  have hΩ : ∀ x : CTorus 3 3 9 m₁ 2, x ∈ (Gp m₁ (rhoSep m₁)).Ω 1 := fun x => (isLevel_Gp x).1
+  set Y : Finset (CTorus 3 3 9 m₁ 2) := Finset.univ with hY
+  have hZ : (Vset (Finset.univ : Finset (CTorus 3 3 9 m₁ 2)) ∅).filter
+      (fun x => x ∈ (Gp m₁ (rhoSep m₁)).Ω 1) = Y := by
+    ext x; simp [Vset, hΩ x, hY]
+  have hYc : IsNnComp ((Vset (Finset.univ : Finset (CTorus 3 3 9 m₁ 2)) ∅).filter
+      fun x => x ∈ (Gp m₁ (rhoSep m₁)).Ω 1) Y := by
+    rw [hZ]; exact ⟨Finset.Subset.refl _, fun x _ y hy _ => hy⟩
+  refine ⟨Y, hYc, ?_, ?_⟩
+  · -- the centre of an own cube
+    have hG : IsLevel (Gp m₁ (rhoSep m₁)) 2 := isLevel_Gp
+    have hlay : (0 : CTorus 3 3 9 m₁ 2) ∈ (Gp m₁ (rhoSep m₁)).layer 2 := hG.mem_layer 0
+    have hz := own_mem_cubeIdx (Gp_cubeAligned (ϱ := rhoSep m₁) (by omega)) (n := 2) (by norm_num)
+      le_rfl hlay
+    set z : ℕ × CTorus 3 3 9 m₁ 2 := (2, ownBase (2 + m₁) (0 : CTorus 3 3 9 m₁ 2)) with hzdef
+    have hzc : z.2 ∈ coreBox z := centre_mem_coreBox z
+    have hcore : z.2 ∈ Dec2.Core (coverOf (Gp m₁ (rhoSep m₁))) (fun _ => 1) := by
+      unfold Dec2.Core
+      refine Finset.mem_biUnion.2 ⟨z, ?_, hzc⟩
+      unfold Dec2.Zs
+      refine Finset.mem_filter.2 ⟨hz, ?_⟩
+      simp [DecCover.sProd]
+    have hs0 : ∀ P ∈ (coverOf (Gp m₁ (rhoSep m₁))).parCubes Finset.univ, P ∉ (∅ : Finset _) →
+        (fun _ : ℕ × CTorus 3 3 9 m₁ 2 => (1 : ℂ)) P = 0 := by
+      intro P hP
+      exfalso
+      obtain ⟨-, hP2⟩ := Finset.mem_filter.1 hP
+      exact hP2 (fun _ _ => Finset.mem_univ _)
+    have hyΩ : z.2 ∈ (Hm m₁ (rhoSep m₁)).Ω 1 := (isLevel_Hm z.2).1
+    have hyY : z.2 ∈ Y := Finset.mem_univ _
+    have hdg := dgSetting h4
+    have hSYF := mem_SYF_of_mem_core (Hm := Hm m₁ (rhoSep m₁)) (k := 1) isLevel_Gp isLevel_Hm hdg
+      hatConn hYc hs0 hcore hyΩ hyY
+    exact ⟨z.2, hyY, hcore, hSYF, fluct_footprint_subset isLevel_Gp isLevel_Hm hdg hatConn hYc hSYF⟩
+  · refine ⟨fun _ => 0, fun y hy => ?_, fun ρ e y i => ?_⟩
+    · unfold Dec2.Core at hy
+      obtain ⟨z, hz, -⟩ := Finset.mem_biUnion.1 hy
+      obtain ⟨hzc, hne⟩ := Finset.mem_filter.1 hz
+      refine hne ?_
+      unfold DecCover.sProd
+      exact Finset.prod_eq_zero (self_mem_Qset hzc) (by simp [Dec2.extS, hzc])
+    · refine flField_svec_eq_zero_of_not_mem_core (Dec2.footLocalGeom_coverOf _) ρ _ e ?_ i
+      intro hy
+      unfold Dec2.Core at hy
+      obtain ⟨z, hz, -⟩ := Finset.mem_biUnion.1 hy
+      obtain ⟨hzc, hne⟩ := Finset.mem_filter.1 hz
+      refine hne ?_
+      unfold DecCover.sProd
+      exact Finset.prod_eq_zero (self_mem_Qset hzc) (by simp [Dec2.extS, hzc])
+
+end Witness
 
 end Balaban.Localization
