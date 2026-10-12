@@ -974,6 +974,7 @@ public import Balaban.Fluctuation.Prop33CloseC7
 public import Balaban.Fluctuation.Prop33CloseDomain
 public import Balaban.Fluctuation.Prop33CloseReal
 public import Balaban.Fluctuation.Prop33CloseNu
+public import Balaban.Fluctuation.PhysicalReadsV
 public import Balaban.Fluctuation.Prop33CloseBh
 public import Balaban.Fluctuation.Prop33CloseWitness
 public import Balaban.Fluctuation.Prop33Level
