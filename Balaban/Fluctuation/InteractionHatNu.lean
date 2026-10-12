@@ -125,7 +125,7 @@ variable {m₀ : ℕ}
 /-- **The `ν`-part of the localized interaction in the variable `ψ̂`**: `σ ∫₀¹ ω(t') ∂_w V_{ν,1}`
 along a `ψ̂`-ray, with `V_{ν,1}` along the decoupled fluctuation (`nuTotal`), is a localized
 expansion over the domains `Y ⊃ X₁(z)`. -/
-theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+theorem nupart_locInt_hat_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
@@ -154,7 +154,8 @@ theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
     (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
     ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
         (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
-      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
         (Finset.univ.biUnion fun z => polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)) T
         (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
           (fun D ψ' => nuTotal Gp Hm a₁ ν BG₂ κ D ψ'))) ω x₀ w σ Θ)
@@ -193,7 +194,16 @@ theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
   have hanO : ∀ z Y, AnalyticOnNhd ℂ (Ev z Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
       hatBall (N := N) Gp cψ) := fun z Y =>
     (han z Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ))
-  refine locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
+  have hd : 3 ≤ d := hC.HBp.hd
+  have hanS : ∀ Y, AnalyticOnNhd ℂ
+      (fun u => ∑ z, if Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z) then Ev z Y u else 0)
+      (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ hatBall (N := N) Gp cψ) := by
+    intro Y u hu
+    refine Finset.analyticAt_fun_sum _ fun z _ => ?_
+    by_cases hY : Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)
+    · simpa only [hY, ite_true] using hanO z Y u hu
+    · simp only [hY, ite_false]; exact analyticAt_const
+  refine LocIntDm.mk (locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
     (B := hatBall (N := N) Gp cψ)
     (f := hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
       (fun D ψ' => nuTotal Gp Hm a₁ ν BG₂ κ D ψ')))
@@ -205,7 +215,7 @@ theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
         Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0)
     (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
     (AgF := AgHatF Gp hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
-    (isOpen_hatBall cψ) ?_ ?_ ?_ ?_ ?_
+    (isOpen_hatBall cψ) ?_ ?_ ?_ ?_ ?_) ?_ ?_
   · intro Y u hu
     refine Finset.analyticAt_fun_sum _ fun z _ => ?_
     by_cases hY : Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)
@@ -232,6 +242,54 @@ theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
     rw [hsum z D hD ψh (hatBall_subset cψ hψ), Finset.sum_ite_mem,
       Finset.inter_eq_right.2 (Finset.subset_biUnion_of_mem
         (fun z => polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)) (Finset.mem_univ z))]
+  · intro Y hY
+    obtain ⟨z₀, -, hz₀⟩ := Finset.mem_biUnion.1 hY
+    exact isDj_of_polyDom hG' (hcov z₀) hd (hopt z₀) hz₀
+  · exact diagCont_dirTerm _ hR₁ hωc hr hanS
+
+/-- **The `ν`-part of the localized interaction in the variable `ψ̂`**: `σ ∫₀¹ ω(t') ∂_w V_{ν,1}`
+along a `ψ̂`-ray, with `V_{ν,1}` along the decoupled fluctuation (`nuTotal`), is a localized
+expansion over the domains `Y ⊃ X₁(z)`. -/
+theorem nupart_locInt_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {Bh : ℝ} (hBh0 : 0 ≤ Bh)
+    (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ x i, ‖D.h x i‖ ≤ Bh)
+    (hcov : ∀ z, CovSetup Gp m₀ (j z) (X z) (𝒦X z))
+    (hX₁ : ∀ z, (↑(X₁z z) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (j z) (𝒦X z))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ z, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X z) ∧ MeetsOne m₀ (j z) (𝒦X z) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (j z)) E₀ = treeLenCovOne m₀ (j z) (X z))
+    (hΔ : ∀ z, treeLenCovOne m₀ (j z) (X z) = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hZ : ∀ z, (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) ⊆
+      ↑(X₁z z))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (Finset.univ.biUnion fun z => polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)) T
+        (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
+          (fun D ψ' => nuTotal Gp Hm a₁ ν BG₂ κ D ψ'))) ω x₀ w σ Θ)
+        (fun Y => Mω * ((∑ z, if Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z) then
+          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
+            Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+  obtain ⟨T, h⟩ := nupart_locInt_hat_dm hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ (Bh := Bh) hBh0 hBh hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog hZ (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
+  exact ⟨T, h.loc⟩
 
 end NuPartHat
 
@@ -245,6 +303,102 @@ variable {j : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
 variable {X 𝒦X : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
 variable {X₁z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
 variable {m₀ : ℕ}
+
+/-- **The `ν`-part in the variable `ψ̂` with the volume-uniform bound**
+`C e^{-(2 κ_dec - 1) d^cov_{k+1}(Y)}` (the hat version of `nupart_locInt_bound`). -/
+theorem nupart_locInt_bound_hat_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {Bh : ℝ} (hBh0 : 0 ≤ Bh)
+    (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ x i, ‖D.h x i‖ ≤ Bh)
+    (hcov : ∀ z, CovSetup Gp m₀ (j z) (X z) (𝒦X z))
+    (hX₁ : ∀ z, (↑(X₁z z) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (j z) (𝒦X z))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ z, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X z) ∧ MeetsOne m₀ (j z) (𝒦X z) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (j z)) E₀ = treeLenCovOne m₀ (j z) (X z))
+    (hΔ : ∀ z, treeLenCovOne m₀ (j z) (X z) = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hZ : ∀ z, (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) ⊆
+      ↑(X₁z z))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (Finset.univ.biUnion fun z => polyDom Gp (X₁z z) m₀ (j z) (𝒦X z)) T
+        (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
+          (fun D ψ' => nuTotal Gp Hm a₁ ν BG₂ κ D ψ'))) ω x₀ w σ Θ)
+        (fun Y => Mω * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d *
+          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
+          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+  classical
+  have hd : 3 ≤ d := hC.HBp.hd
+  have hd0 : 0 < d := by omega
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  have hB1 : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
+    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hC.hS.fam.2.1 hd0
+    have hx1 := one_le_xiC1 d
+    have hx2 := hC.eps_pos
+    have hx3 : 0 ≤ xiC1 d * eps := by positivity
+    have hx4 := mul_nonneg hK4.le hx3
+    linarith
+  have hEb : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
+    unfold nuBd; positivity
+  obtain ⟨T, hT⟩ := nupart_locInt_hat_dm hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hBh0 hBh hcov hX₁
+    hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog hZ hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
+  refine ⟨T, hT.mono_on fun Y hY => ?_⟩
+  obtain ⟨z₀, -, hz₀⟩ := Finset.mem_biUnion.1 hY
+  have hMD := polyDom_isMultiDom (hcov z₀) hd (hopt z₀) hz₀
+  have hcard : ((Finset.univ.filter fun z => Y ∈ polyDom Gp (X₁z z) m₀ (j z)
+      (𝒦X z)).card : ℝ) ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) := by
+    refine card_blocks_filter_le hG' le_rfl (hcov z₀).hN hMD _ (fun z hz => ?_)
+    have h1' := subset_polyDom (Finset.mem_filter.1 hz).2
+    rw [← hX₁ z] at h1'
+    exact fun x hx => h1' (hZ z hx)
+  have ht0 := treeLenCov_nonneg Gp m₀ Y
+  have hv : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
+        Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) := by positivity
+  have hs := sum_ite_card_le _ hv hcard
+  rw [← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
+  have key := one_add_mul_exp_le (treeLenCov Gp m₀ Y) κdec
+  have hCn : 0 ≤ Mω * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d *
+      nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+        (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) := by positivity
+  calc Mω * ((∑ z, if Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z) then
+          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
+            Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0) / r)
+      ≤ Mω * ((c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) *
+          (nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
+            Real.exp (-2 * κdec * treeLenCov Gp m₀ Y))) / r) := by
+        refine mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hs hr.le) hMω
+    _ = (Mω * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d *
+          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r)) *
+          ((1 + treeLenCov Gp m₀ Y) * Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) := by ring
+    _ ≤ _ := mul_le_mul_of_nonneg_left key hCn
 
 /-- **The `ν`-part in the variable `ψ̂` with the volume-uniform bound**
 `C e^{-(2 κ_dec - 1) d^cov_{k+1}(Y)}` (the hat version of `nupart_locInt_bound`). -/
@@ -286,60 +440,8 @@ theorem nupart_locInt_bound_hat (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c
             (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
         (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-  classical
-  have hd : 3 ≤ d := hC.HBp.hd
-  have hd0 : 0 < d := by omega
-  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  have hB1 : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
-    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hC.hS.fam.2.1 hd0
-    have hx1 := one_le_xiC1 d
-    have hx2 := hC.eps_pos
-    have hx3 : 0 ≤ xiC1 d * eps := by positivity
-    have hx4 := mul_nonneg hK4.le hx3
-    linarith
-  have hEb : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
-    unfold nuBd; positivity
-  obtain ⟨T, hT⟩ := nupart_locInt_hat hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hBh0 hBh hcov hX₁
-    hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog hZ hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
-  refine ⟨T, hT.mono_on fun Y hY => ?_⟩
-  obtain ⟨z₀, -, hz₀⟩ := Finset.mem_biUnion.1 hY
-  have hMD := polyDom_isMultiDom (hcov z₀) hd (hopt z₀) hz₀
-  have hcard : ((Finset.univ.filter fun z => Y ∈ polyDom Gp (X₁z z) m₀ (j z)
-      (𝒦X z)).card : ℝ) ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) := by
-    refine card_blocks_filter_le hG' le_rfl (hcov z₀).hN hMD _ (fun z hz => ?_)
-    have h1' := subset_polyDom (Finset.mem_filter.1 hz).2
-    rw [← hX₁ z] at h1'
-    exact fun x hx => h1' (hZ z hx)
-  have ht0 := treeLenCov_nonneg Gp m₀ Y
-  have hv : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
-        Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) := by positivity
-  have hs := sum_ite_card_le _ hv hcard
-  rw [← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
-  have key := one_add_mul_exp_le (treeLenCov Gp m₀ Y) κdec
-  have hCn : 0 ≤ Mω * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d *
-      nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-        (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) := by positivity
-  calc Mω * ((∑ z, if Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z) then
-          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
-            Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0) / r)
-      ≤ Mω * ((c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) *
-          (nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
-            Real.exp (-2 * κdec * treeLenCov Gp m₀ Y))) / r) := by
-        refine mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hs hr.le) hMω
-    _ = (Mω * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d *
-          nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-            (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r)) *
-          ((1 + treeLenCov Gp m₀ Y) * Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) := by ring
-    _ ≤ _ := mul_le_mul_of_nonneg_left key hCn
+  obtain ⟨T, h⟩ := nupart_locInt_bound_hat_dm hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ (Bh := Bh) hBh0 hBh hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog hZ (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
+  exact ⟨T, h.loc⟩
 
 end NuBoundHat
 
