@@ -50,6 +50,12 @@ contains the leading term `⟨g, φ_k⟩`, whose difference `⟨g, φ^m - φ^0�
 and is `O(m_j)` (Q13-ANSWER (3.4)), so `dF_bound` has the form `C_F (m_k + E₀ m_k/ε_k)`.  (iii) The
 clause is the whole-lattice form; its restriction to the LF region and collar (the common-collar
 identity of COLLAR-RULING, the gluing at the collar, the support of the kernel) is not formalized.
+(iv) `notes/phase1/INTERFACE-A.md` (landed after this file was written, not incorporated): the
+full-action chord estimate follows from stationarity, but its localized version for P7's regional
+half-bond action is false in general without a wall term, and the observable comparison has the
+H7 coefficient `c₉ ξ_k^{ρ_F} m_k/ε_k` plus the leading source term; `chord_bound` and `dF_bound`
+here are the W2-RESOLVE forms for the whole-lattice action and must be revised accordingly before
+they are used for the regional kernels.
 -/
 
 @[expose] public section

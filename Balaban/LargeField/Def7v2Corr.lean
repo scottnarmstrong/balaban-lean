@@ -86,7 +86,7 @@ theorem unitDirC_real (v : Fin N → ℝ) (hv : 0 < rn v) :
   push_cast
   rw [div_eq_inv_mul]
 
-theorem sqrtC_ne_zero {z : ℂ} (hz : z ≠ 0) : sqrtC z ≠ 0 := by
+theorem sqrtC_ne_zero_of_ne {z : ℂ} (hz : z ≠ 0) : sqrtC z ≠ 0 := by
   intro h
   have := sqrtC_mul_self z
   rw [h, mul_zero] at this
@@ -97,7 +97,7 @@ theorem unitDirC_dot {v : Fin N → ℂ} (hv : dot v v ≠ 0) : dot (unitDirC v)
   unfold unitDirC
   rw [dot_smul_left, dot_smul_right]
   have h1 := sqrtC_mul_self (dot v v)
-  have h2 := sqrtC_ne_zero hv
+  have h2 := sqrtC_ne_zero_of_ne hv
   field_simp
   rw [← sq] at h1
   exact h1.symm
@@ -117,7 +117,7 @@ theorem unitDirC_analyticAt {v : Fin N → ℂ} (hv : dot v v ∈ Complex.slitPl
     AnalyticAt ℂ (unitDirC (N := N)) v := by
   have h1 : AnalyticAt ℂ (fun v : Fin N → ℂ => (dot v v) ^ (1 / 2 : ℂ)) v :=
     (analyticAt_dot_self v).cpow analyticAt_const hv
-  have h2 : (dot v v) ^ (1 / 2 : ℂ) ≠ 0 := sqrtC_ne_zero (Complex.slitPlane_ne_zero hv)
+  have h2 : (dot v v) ^ (1 / 2 : ℂ) ≠ 0 := sqrtC_ne_zero_of_ne (Complex.slitPlane_ne_zero hv)
   exact (h1.inv h2).smul analyticAt_id
 
 /-- `O(N)`-covariance (complex orthogonal `R`): `(Rψ)₀ = R (ψ)₀`. -/

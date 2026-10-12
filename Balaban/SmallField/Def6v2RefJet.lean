@@ -238,7 +238,7 @@ theorem srcOf_single_inr {X : Finset (Site d)} (i : Fin N) :
   · have h' : (Sum.inr l : Idx d N X) ≠ Sum.inr i := fun e => h (Sum.inr.inj e)
     simp [srcOf, Pi.single_eq_of_ne h', Pi.single_eq_of_ne h]
 
-theorem analyticAt_coord {X : Finset (Site d)} (p : Idx d N X) (c : Cfg d N X) :
+theorem analyticAt_cfgCoord {X : Finset (Site d)} (p : Idx d N X) (c : Cfg d N X) :
     AnalyticAt ℂ (fun c : Cfg d N X => c p) c :=
   (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Idx d N X => ℂ) p).analyticAt c
 
@@ -246,7 +246,7 @@ theorem analyticAt_dotCoord {X : Finset (Site d)} (u v : Fin N → Idx d N X) (c
     AnalyticAt ℂ (fun c : Cfg d N X => ∑ i, c (u i) * c (v i)) c := by
   have h := Finset.analyticAt_sum (𝕜 := ℂ)
     (f := fun (i : Fin N) (c : Cfg d N X) => c (u i) * c (v i)) (c := c) Finset.univ
-    (fun i _ => (analyticAt_coord (u i) c).mul (analyticAt_coord (v i) c))
+    (fun i _ => (analyticAt_cfgCoord (u i) c).mul (analyticAt_cfgCoord (v i) c))
   have e : (∑ i : Fin N, fun c : Cfg d N X => c (u i) * c (v i)) =
       fun c => ∑ i, c (u i) * c (v i) := by
     funext c; simp [Finset.sum_apply]
@@ -409,7 +409,7 @@ theorem pinCex_itw_eq (a : ℂ) (i₀ i₁ : Fin N) (ν : ℝ) (ψ : Site d → 
   rw [hT, hAx, hP, pinCexFamily_term, pinCexF_pack]
   ring
 
-theorem norm_dot_le {v w : Spin N} {B : ℝ} (hv : ∀ i, ‖v i‖ ≤ B) (hw : ∀ i, ‖w i‖ ≤ B)
+theorem pinCex_norm_dot_le {v w : Spin N} {B : ℝ} (hv : ∀ i, ‖v i‖ ≤ B) (hw : ∀ i, ‖w i‖ ≤ B)
     (hB : 0 ≤ B) : ‖dot v w‖ ≤ N * B ^ 2 := by
   unfold dot
   calc ‖∑ i, v i * w i‖ ≤ ∑ i : Fin N, ‖v i * w i‖ := norm_sum_le _ _
@@ -433,9 +433,9 @@ theorem pinCex_pinned_bound {m c₀ B : ℝ} (hm : 0 < m) (hc : 0 ≤ c₀) (hB 
     have hm' : (m : ℂ) ≠ 0 := by exact_mod_cast hm.ne'
     field_simp
   rw [e, norm_mul, Complex.norm_real, Real.norm_of_nonneg (mul_nonneg hc hm.le)]
-  have h1 := norm_dot_le hψ hψ hB
-  have h2 := norm_dot_le hh hh hB
-  have h3 := norm_dot_le hψ hh hB
+  have h1 := pinCex_norm_dot_le hψ hψ hB
+  have h2 := pinCex_norm_dot_le hh hh hB
+  have h3 := pinCex_norm_dot_le hψ hh hB
   have hNB : (0 : ℝ) ≤ N * B ^ 2 := by positivity
   have h4 : ‖dot (ψ 0) (ψ 0) * dot h h - dot (ψ 0) h ^ 2‖ ≤ 2 * ((N : ℝ) * B ^ 2) ^ 2 := by
     calc ‖dot (ψ 0) (ψ 0) * dot h h - dot (ψ 0) h ^ 2‖

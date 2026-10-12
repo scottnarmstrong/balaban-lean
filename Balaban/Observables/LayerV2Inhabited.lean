@@ -98,7 +98,7 @@ theorem linF_apply (c g : Fld d L N₁ m₁ k N) : linF c g = ∑ x, ∑ i, g x 
 
 /-- The coefficient field of the generating function of `pinTerms`:
 `φ_k(x) + ∑_j c_j e^{-κ|𝕋|²} m(h)(x)`. -/
-noncomputable def cF (κ : ℝ) (cj : ℕ → ℝ) (a : ℕ → ℝ) (ν : ℝ)
+noncomputable def genCoef (κ : ℝ) (cj : ℕ → ℝ) (a : ℕ → ℝ) (ν : ℝ)
     (D : BgData (topGS d L N₁ m₁ k ϱ) N) : Fld d L N₁ m₁ k N :=
   fun x i => svec (topGS d L N₁ m₁ k ϱ) (bgField (topGS d L N₁ m₁ k ϱ) a ν D) x i +
     ∑ j ∈ Finset.Icc 1 k, ((wCoef κ cj j (Set.univ : Set (CTorus d L N₁ m₁ k)) : ℝ) : ℂ) *
@@ -106,10 +106,10 @@ noncomputable def cF (κ : ℝ) (cj : ℕ → ℝ) (a : ℕ → ℝ) (ν : ℝ)
 
 theorem Fcomp_pinTerms (m₀ : ℕ) (κ : ℝ) (cj : ℕ → ℝ) (a : ℕ → ℝ) (ν : ℝ)
     (D : BgData (topGS d L N₁ m₁ k ϱ) N) :
-    Fcomp m₀ (pinTerms d L N₁ m₁ k N ϱ κ cj) a ν D = ⇑(linF (cF κ cj a ν D)) := by
+    Fcomp m₀ (pinTerms d L N₁ m₁ k N ϱ κ cj) a ν D = ⇑(linF (genCoef κ cj a ν D)) := by
   funext g
   rw [linF_apply]
-  unfold Fcomp Floc cF
+  unfold Fcomp Floc genCoef
   simp only [Mloc_pinTerms, Pi.smul_apply, smul_eq_mul, mul_add, Finset.sum_add_distrib,
     Finset.mul_sum]
   congr 1
@@ -226,7 +226,7 @@ theorem isObs2_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a : ℕ �
     · rw [ContinuousLinearMap.fderiv, linF_apply]
       refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
       congr 1
-      unfold cF Mk2
+      unfold genCoef Mk2
       have hm : mFactor β (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj)) x = 1 := by
         simp [mFactor, pinObs]
       rw [hm]
@@ -239,8 +239,8 @@ theorem isObs2_pinObs {P : Consts} {Q : ObsConsts} {Rg : Regime L} {β a : ℕ �
       push_cast
       have hs' : (Real.sqrt (β (j - 1)) : ℂ) ≠ 0 := by exact_mod_cast hs
       field_simp
-    · have hfd : fderiv ℂ ⇑(linF (cF P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D)) =
-          fun _ => linF (cF P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D) :=
+    · have hfd : fderiv ℂ ⇑(linF (genCoef P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D)) =
+          fun _ => linF (genCoef P.κ cj (aIdeal L k (a k)) (Rg.sfBgMass k) D) :=
         funext fun _ => ContinuousLinearMap.fderiv _
       have hG : ∀ x x' : CTorus d L N₁ m₁ k,
           Gk2 P β a (Rg.sfBgMass k) (pinObs d L N₁ m₁ k N P.κ (obsCoef β cj))
