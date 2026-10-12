@@ -16,9 +16,9 @@ Claude workers (background subagents of this session):
 | W195 | `w195-lf-p13-sections` / W195 | LFR Part III P13 algebra: rotation sections (Def III.9.2, Lemma III.9.3) |
 | W196 | `w196-regset` / W196 | regularity set T of the window, hcT/hwT, hcoreTop classification |
 | W192 | `w192-hat-export` / W192 (on W176) | export dom/meas from the hat expansion; unconditional label construction |
-| W189 | `w189-w-taylor` / W189 | HAT-RATE §2: Taylor identities for the step potential (real data) |
+| W200 | `w200-taylor-complex` / W200 (on W189) | Taylor identities for the holomorphic step at complex data |
 | W198 | `w198-class-gsstrong` / W198 | REPAIR: strong generating-set clause into IsSF2/IsSFFamily2 |
-| W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
+| W201 | `w201-stationarity` / W201 (on W181) | P7 (2.52) stationarity; unconditional cancellation_identity |
 | W199 | `w199-r-concrete` / W199 | R normalization for the concrete rhoZero; independence of components |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
