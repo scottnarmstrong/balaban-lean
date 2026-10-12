@@ -273,8 +273,8 @@ theorem locInt_dir3 {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → �
         (σ * t) • xw.1 + τ • xw.2 ∈ B}, ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ →
         (σ * t) • xw.1 ∈ B := fun xw hxw σ hσ t ht => by
     simpa using hxw σ hσ t ht 0 (by simp [hr.le])
-  refine ⟨fun xw hxw σ hσ Θ hΘ => ?_, fun Y xw hxw => ?_, fun Y xw hxw σ hσ Θ hΘ => ?_,
-    fun Y xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' h1 h2 h3 => ?_, fun Y xw hxw Θ hΘ => ?_⟩
+  refine ⟨fun xw hxw σ hσ Θ hΘ => ?_, fun Y _ xw hxw => ?_, fun Y _ xw hxw σ hσ Θ hΘ => ?_,
+    fun Y _ xw hxw xw' hxw' σ hσ Θ hΘ Θ' hΘ' h1 h2 h3 => ?_, fun Y _ xw hxw Θ hΘ => ?_⟩
   · exact raySrc3_sum 𝒴 hEv hsum hωc hΘ hr (fun t ht τ hτ => hxw σ hσ t (hreal t ht) τ hτ)
   · refine rayTerm_analytic hR₁ hω ?_ (hdom0 xw hxw)
     intro u hu
