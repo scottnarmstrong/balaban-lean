@@ -7,6 +7,8 @@ module
 
 public import Balaban.Localization.I5Inhabited
 public import Balaban.Fluctuation.PhysicalReadsE
+public import Balaban.Fluctuation.InteractionLevelPair
+public import Balaban.Inhabited.BgSettingDataNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -35,8 +37,18 @@ at most `10` from the origin.
 `ℓ`-aligned points at `ℓ¹` distance at most `328 ℓ` from the origin; `X₁ = X1 Gp 0 1 𝒦_X` then
 contains the ball and misses the antipodal point `(120 ℓ, 120 ℓ, 120 ℓ)`.
 
+**Remarks on the fields.**  No field of `BgSetting` is unsatisfiable once `dataSites Gk ≠ ∅`.  The
+fields `hr`, `hr₀` are independent of the torus (`r₀ L^{m₁} = 324 · 3^{m₁} ≤ ρ - 1`).  The field
+`hN` is what forces the size of the torus: on the landed side `N₁ = 6` the ball of radius
+`r₀ L^{m₁} L^K` wraps onto the whole torus, so `X₁ = 𝕋` for any non-empty `X₀`.
+`Precedes Gk Gp` holds for `Gk` of level `k` and `Gp` of level `k + 1` by `IsLevel.precedes`; here
+`Gk` is sparse and `Precedes Gk Gp` follows from `Ω_i(Gp) = 𝕋` for `i ≤ K`.
+
 * `bgSetting_data`: a `BgSetting` for these sets with all nineteen fields proved;
-* `bgSetting_data_eRead`: the instance of E-read at the origin and a neighbouring site.
+* `bgSetting_data_eRead`: the instance of E-read at the origin and a neighbouring site, with
+  `approxDep Gp u` containing `u` and the block base `0 ≠ u`;
+* `bgFlSetting_data`, `bgFlSetting_data_eRead`: the same with `FlSetting` for `Hm` the level-`1` set
+  (`FlCore` taken from `flCore_level_eventually`, joint constants from `joint_num_exists`).
 -/
 
 @[expose] public section
@@ -335,16 +347,12 @@ theorem coe_X1f (m₁ : ℕ) (ρ : ℝ) : (↑(X1f m₁ ρ) : Set (T m₁)) = X1
 `1`-block (so `dataSites Gk` is non-empty), `Gj` is empty, `X₀ = dataSites Gk`, and
 `X₁f = X1 Gp 0 1 𝒦_X` on the torus of side `240 · 3^{m₁} · 9`; all nineteen fields hold with
 `r₀ = 324 = 4 d L³`. -/
-theorem bgSetting_data :
-    ∃ (m₁ : ℕ) (ρ c BG κ eps δ₃ : ℝ), 4 ≤ m₁ ∧
-      BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ 324 eps δ₃
-        (dataSites (GkD m₁ ρ)) (X1f m₁ ρ) 1 := by
-  obtain ⟨c, BG, hS⟩ := decSpecs_exists (d := 3) (L := 3) (by norm_num) (by norm_num)
-  have hBG : 0 ≤ BG := hS.fam.2.1
-  obtain ⟨m₁, h4, hm⟩ := exists_m₁ (c * Real.exp ((N0 3 3 : ℝ) * 100000))
-  obtain ⟨eps, δ₃, hnum⟩ := chainNum_exists 3 3 2 m₁ (by norm_num) hBG 100000 324
+theorem bgSetting_data_of {m₁ : ℕ} (h4 : 4 ≤ m₁) {c BG eps δ₃ : ℝ} (hS : DecSpecs 3 3 c BG)
+    (hm : c * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁)
+    (hnum : ChainNum 3 3 2 m₁ BG 100000 324 eps δ₃) :
+    BgSetting 2 (GpD m₁ (rhoSep m₁)) (GkD m₁ (rhoSep m₁)) (G0D m₁ (rhoSep m₁)) 1 0 c BG 100000
+      324 eps δ₃ (dataSites (GkD m₁ (rhoSep m₁))) (X1f m₁ (rhoSep m₁)) 1 := by
   have hBH := bgHyp_rho m₁
-  refine ⟨m₁, rhoSep m₁, c, BG, 100000, eps, δ₃, h4, ?_⟩
   exact {
     hS := hS
     Sp := dgSetting_GpD h4
@@ -385,11 +393,228 @@ theorem bgSetting_data :
       linarith
     hj := by norm_num }
 
+theorem bgSetting_data :
+    ∃ (m₁ : ℕ) (ρ c BG κ eps δ₃ : ℝ), 4 ≤ m₁ ∧
+      BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ 324 eps δ₃
+        (dataSites (GkD m₁ ρ)) (X1f m₁ ρ) 1 := by
+  obtain ⟨c, BG, hS⟩ := decSpecs_exists (d := 3) (L := 3) (by norm_num) (by norm_num)
+  have hBG : 0 ≤ BG := hS.fam.2.1
+  obtain ⟨m₁, h4, hm⟩ := exists_m₁ (c * Real.exp ((N0 3 3 : ℝ) * 100000))
+  obtain ⟨eps, δ₃, hnum⟩ := chainNum_exists 3 3 2 m₁ (by norm_num) hBG 100000 324
+  exact ⟨m₁, rhoSep m₁, c, BG, 100000, eps, δ₃, h4, bgSetting_data_of h4 hS hm hnum⟩
+
 /-- `X₁f` is a proper subset of the torus. -/
 theorem X1f_ne_univ (m₁ : ℕ) (ρ : ℝ) : X1f m₁ ρ ≠ Finset.univ := fun h =>
   antipode_not_mem_X1 (m₁ := m₁) (ρ := ρ) (mem_X1f.1 (h ▸ Finset.mem_univ _))
 
 end Setting
+
+/-! ### The instance of E-read -/
+
+section ERead
+
+variable {m₁ : ℕ} {ρ : ℝ}
+
+theorem one_lt_side (m₁ : ℕ) : 1 < 240 * 3 ^ m₁ * 3 ^ 2 := by
+  have h : 1 ≤ 3 ^ m₁ := Nat.one_le_pow _ _ (by norm_num)
+  nlinarith
+
+/-- The site `(1, 1, 1)`. -/
+def one3 (m₁ : ℕ) : T m₁ := natT (fun _ => 1)
+
+theorem one3_val (m₁ : ℕ) (μ : Fin 3) : (one3 m₁ μ).val = 1 := by
+  unfold one3
+  simp only [natT_apply]
+  exact ZMod.val_natCast_of_lt (one_lt_side m₁)
+
+theorem one3_ne_zero (m₁ : ℕ) : one3 m₁ ≠ 0 := fun h => by
+  have := one3_val m₁ 0
+  rw [h] at this
+  simp at this
+
+theorem ownBase_one3 (m₁ : ℕ) : ownBase 2 (one3 m₁) = (0 : T m₁) := by
+  funext μ
+  unfold ownBase
+  rw [one3_val]
+  simp
+
+theorem zero_mem_approxDep_one3 : (0 : T m₁) ∈ approxDep (GpD m₁ ρ) (one3 m₁) := by
+  classical
+    unfold approxDep
+    refine Finset.mem_insert_of_mem (Finset.mem_image.2 ⟨(2, ownBase 2 (one3 m₁)), ?_, ?_⟩)
+    · refine (mem_active _).2 ⟨own_mem_blockIdx _ (by norm_num) le_rfl
+        ((isLevel_GpD (ρ := ρ)).mem_layer _), ?_⟩
+      have := bump_ge_of_jBlock_eq (d := 3) (L := 3) (N₀ := 240 * 3 ^ m₁) (k := 2) (m := 2)
+        le_rfl (ownBase_isBase (one3 m₁)) (ownBase_jBlock (one3 m₁)).symm
+      exact ne_of_gt (lt_of_lt_of_le (by positivity) this)
+    · exact ownBase_one3 m₁
+
+/-- **E-read, non-vacuously.**  For any `BgSetting` on the sets of this file, at the data site
+`0` and the composite site `u = (1,1,1)` (a site of the `2`-block of `0`), the approximate field of
+`Gp` at `u` reads `u` itself and the base `0` of its own block (so `approxDep Gp u` has at least
+two elements), and all reads lie in `X₁f`. -/
+theorem eRead_instance {c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (T m₁)}
+    (hB : BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ r₀ eps δ₃ X₀ X₁f 1) :
+    ∃ x u : T m₁, x ∈ dataSites (GkD m₁ ρ) ∧ u ∈ composeDep (GkD m₁ ρ) (GpD m₁ ρ) x ∧
+      u ≠ x ∧ x ∈ approxDep (GpD m₁ ρ) u ∧ u ∈ approxDep (GpD m₁ ρ) u ∧
+      approxDep (GpD m₁ ρ) u ⊆ X₁f := by
+  classical
+  have hx : (0 : T m₁) ∈ dataSites (GkD m₁ ρ) := (mem_dataSites _).2 (Or.inl origin_mem_GkD)
+  have hu : one3 m₁ ∈ composeDep (GkD m₁ ρ) (GpD m₁ ρ) 0 := by
+    unfold composeDep
+    simp only [origin_mem_GkD, ↓reduceIte, Finset.mem_insert, Finset.mem_union,
+      GeneratingSet.mem_blk]
+    right; right
+    rw [(isLevel_GpD (0 : T m₁)).2]
+    have := ownBase_jBlock (d := 3) (L := 3) (N₀ := 240 * 3 ^ m₁) (k := 2) (n := 2) (one3 m₁)
+    rw [ownBase_one3] at this
+    exact this.symm
+  have hmem := zero_mem_approxDep_one3 (m₁ := m₁) (ρ := ρ)
+  exact ⟨0, one3 m₁, hx, hu, one3_ne_zero m₁, hmem,
+    by unfold approxDep; exact Finset.mem_insert_self _ _,
+    approxDep_composeDep_subset_X1 hB isLevel_GpD hx hu⟩
+
+/-- **The joint statement:** a `BgSetting` with non-empty data sites, a full-level `Gp` and a proper
+`X₁f`, together with the non-vacuous E-read instance. -/
+theorem bgSetting_data_eRead :
+    ∃ (m₁ : ℕ) (ρ c BG κ eps δ₃ : ℝ),
+      BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ 324 eps δ₃
+        (dataSites (GkD m₁ ρ)) (X1f m₁ ρ) 1 ∧
+      IsLevel (GpD m₁ ρ) 2 ∧ (dataSites (GkD m₁ ρ)).Nonempty ∧ X1f m₁ ρ ≠ Finset.univ ∧
+      ∃ x u : T m₁, x ∈ dataSites (GkD m₁ ρ) ∧ u ∈ composeDep (GkD m₁ ρ) (GpD m₁ ρ) x ∧
+        u ≠ x ∧ x ∈ approxDep (GpD m₁ ρ) u ∧ approxDep (GpD m₁ ρ) u ⊆ X1f m₁ ρ := by
+  obtain ⟨m₁, ρ, c, BG, κ, eps, δ₃, -, hB⟩ := bgSetting_data
+  obtain ⟨x, u, hx, hu, hne, h1, -, h3⟩ := eRead_instance hB
+  exact ⟨m₁, ρ, c, BG, κ, eps, δ₃, hB, isLevel_GpD, dataSites_GkD_nonempty, X1f_ne_univ m₁ ρ,
+    x, u, hx, hu, hne, h1, h3⟩
+
+end ERead
+
+/-! ### The fluctuation side -/
+
+section Fluct
+
+variable {m₁ : ℕ} {ρ : ℝ}
+
+variable (m₁ ρ) in
+/-- The fluctuation set `𝔹_k`: whole lattice, level `1`. -/
+noncomputable abbrev HmD : GeneratingSet 3 3 (240 * 3 ^ m₁) 2 ρ :=
+  Def6.levelGS (d := 3) (L := 3) (N₁ := 240) (m₁ := m₁) (ϱ := ρ) 1 (by norm_num)
+
+theorem isLevel_HmD : IsLevel (HmD m₁ ρ) 1 := isLevel_levelGS le_rfl (by norm_num)
+
+theorem opSetting_HmD (h4 : 4 ≤ m₁) : Dec2.OpSetting (HmD m₁ (rhoSep m₁)) (compWeight 3 1) 0 :=
+  { hd := (dgSetting_GpD h4).hd, hL := (dgSetting_GpD h4).hL, mass := (dgSetting_GpD h4).mass,
+    massLe := (dgSetting_GpD h4).massLe, weights := (dgSetting_GpD h4).weights,
+    sep := (dgSetting_GpD h4).sep }
+
+theorem precedes_GkD_HmD : Precedes (GkD m₁ ρ) (HmD m₁ ρ) := by
+  intro i hi hik x hx
+  by_cases h1 : i = 1
+  · subst h1; simp [Def6.levelGS]
+  · rw [GkD_Ω_ne h1] at hx; simp at hx
+
+theorem dist_composeDep_hm_le {x u : T m₁} (hx : x ∈ dataSites (GkD m₁ ρ))
+    (hu : u ∈ composeDep (GkD m₁ ρ) (HmD m₁ ρ) x) :
+    Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) x u ≤ 9 := by
+  classical
+  unfold composeDep at hu
+  by_cases hxΩ : x ∈ (GkD m₁ ρ).Ω 1
+  · simp only [hxΩ, ↓reduceIte, Finset.mem_insert, Finset.mem_union,
+      GeneratingSet.mem_blk] at hu
+    rcases hu with rfl | hb | hb
+    · rw [Green.torusDist_self_eq_zero]; norm_num
+    · rw [GkD_layerIndex hxΩ] at hb
+      have := dist_jBlock_le (m₁ := m₁) (j := 1) (by norm_num) hb.symm
+      norm_num at this; linarith
+    · rw [(isLevel_HmD x).2] at hb
+      have := dist_jBlock_le (m₁ := m₁) (j := 1) (by norm_num) hb.symm
+      norm_num at this; linarith
+  · simp only [hxΩ, ↓reduceIte, Finset.mem_singleton] at hu
+    subst hu
+    rw [Green.torusDist_self_eq_zero]; norm_num
+
+/-- **`BgSetting` and `FlSetting` together, with data sites.**  `Gp` level `2`, `Hm` level `1`
+(the physical pair `𝔹_{k+1} ≻ 𝔹_k`), `Gk` the sparse set with `Ω₁` a `1`-block, the same
+`X₁f`, and the same `ε'`, `δ₃`. -/
+theorem bgFlSetting_data :
+    ∃ (m₁ : ℕ) (ρ c BG κ eps δ₃ c₂ BG₂ δ₁ δfl : ℝ),
+      BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ 324 eps δ₃
+        (dataSites (GkD m₁ ρ)) (X1f m₁ ρ) 1 ∧
+      FlSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (HmD m₁ ρ) 1 0 κ BG eps δ₃ (levelKc 3 3) (Cchi 3 3)
+        c₂ BG₂ δ₁ δfl (X1f m₁ ρ) := by
+  obtain ⟨c, BG, hS⟩ := decSpecs_exists (d := 3) (L := 3) (by norm_num) (by norm_num)
+  obtain ⟨c₂, BG₂, hS2⟩ := Dec2.decSpecs_exists (d := 3) (L := 3) (Kc := levelKc 3 3)
+    (Cx := Cchi 3 3) (by norm_num) (by norm_num) (levelKc_nonneg 3 3) (Cchi_nonneg 3 3)
+  obtain ⟨m₁, h4, hm⟩ := exists_m₁ (max (c * Real.exp ((N0 3 3 : ℝ) * 100000))
+    (c₂ * Real.exp ((N0 3 3 : ℝ) * 100000)))
+  have hm1 : c * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁ := (le_max_left _ _).trans hm
+  have hm2 : c₂ * Real.exp ((N0 3 3 : ℝ) * 100000) ≤ (3 : ℝ) ^ m₁ := (le_max_right _ _).trans hm
+  obtain ⟨eps, δ₃, δfl, hnum, hfl⟩ := joint_num_exists 3 3 2 m₁ (by norm_num) hS.fam.2.1
+    hS2.fam.2.1 100000 324
+  have hev := flCore_level_eventually (N := 2) (dgSetting_GpD h4) (opSetting_HmD h4)
+    isLevel_HmD isLevel_GpD (bgHyp_rho m₁) hS (κ := 100000) (by norm_num)
+    (by exact_mod_cast hm1) hS2 (by exact_mod_cast hm2)
+  obtain ⟨t, ⟨hC⟩, -⟩ := (hev.and (self_mem_nhdsWithin : ∀ᶠ t : ℝ in nhdsWithin 0 (Set.Ioi 0),
+    0 < t)).exists
+  refine ⟨m₁, rhoSep m₁, c, BG, 100000, eps, δ₃, c₂, BG₂, eps, δfl,
+    bgSetting_data_of h4 hS hm1 hnum, ?_⟩
+  exact {
+    hS2 := hS2
+    SM := hC.SM
+    hM2 := by exact_mod_cast hm2
+    hPm := precedes_GkD_HmD
+    hPmp := isLevel_HmD.precedes isLevel_GpD (by norm_num)
+    depm := fun x hx y hy => by
+      rw [mem_X1f]
+      refine ball_of_dataSite h4 hx ?_
+      have h9 := dist_composeDep_hm_le hx hy
+      have := le_cellSide h4
+      linarith
+    num := hfl }
+
+/-- **E-read for the fluctuation composite sites**, on the pair above: the conclusion of
+`approxDep_composeDep_hm_subset_X1` at the origin and the site `(1,1,1)`, which lies in the
+`1`-block of the origin and has `approxDep Gp` with at least two elements. -/
+theorem eReadHm_instance {c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X₀ X₁f : Finset (T m₁)}
+    (hB : BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ r₀ eps δ₃ X₀ X₁f 1)
+    (hF : FlSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (HmD m₁ ρ) 1 0 κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f) :
+    ∃ x u : T m₁, x ∈ dataSites (GkD m₁ ρ) ∧ u ∈ composeDep (GkD m₁ ρ) (HmD m₁ ρ) x ∧
+      u ≠ x ∧ x ∈ approxDep (GpD m₁ ρ) u ∧ approxDep (GpD m₁ ρ) u ⊆ X₁f := by
+  classical
+  have hx : (0 : T m₁) ∈ dataSites (GkD m₁ ρ) := (mem_dataSites _).2 (Or.inl origin_mem_GkD)
+  have hu : one3 m₁ ∈ composeDep (GkD m₁ ρ) (HmD m₁ ρ) 0 := by
+    unfold composeDep
+    simp only [origin_mem_GkD, ↓reduceIte, Finset.mem_insert, Finset.mem_union,
+      GeneratingSet.mem_blk]
+    right; right
+    rw [(isLevel_HmD (0 : T m₁)).2]
+    have := ownBase_jBlock (d := 3) (L := 3) (N₀ := 240 * 3 ^ m₁) (k := 2) (n := 1) (one3 m₁)
+    have h0 : ownBase 1 (one3 m₁) = (0 : T m₁) := by
+      funext μ
+      unfold ownBase
+      rw [one3_val]
+      simp
+    rw [h0] at this
+    exact this.symm
+  exact ⟨0, one3 m₁, hx, hu, one3_ne_zero m₁, zero_mem_approxDep_one3,
+    approxDep_composeDep_hm_subset_X1 hB hF isLevel_GpD hx hu⟩
+
+/-- The fluctuation E-read instance holds on the joint witness. -/
+theorem bgFlSetting_data_eRead :
+    ∃ (m₁ : ℕ) (ρ c BG κ eps δ₃ c₂ BG₂ δ₁ δfl : ℝ),
+      BgSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (G0D m₁ ρ) 1 0 c BG κ 324 eps δ₃
+        (dataSites (GkD m₁ ρ)) (X1f m₁ ρ) 1 ∧
+      FlSetting 2 (GpD m₁ ρ) (GkD m₁ ρ) (HmD m₁ ρ) 1 0 κ BG eps δ₃ (levelKc 3 3) (Cchi 3 3)
+        c₂ BG₂ δ₁ δfl (X1f m₁ ρ) ∧ X1f m₁ ρ ≠ Finset.univ ∧
+      ∃ x u : T m₁, x ∈ dataSites (GkD m₁ ρ) ∧ u ∈ composeDep (GkD m₁ ρ) (HmD m₁ ρ) x ∧
+        u ≠ x ∧ x ∈ approxDep (GpD m₁ ρ) u ∧ approxDep (GpD m₁ ρ) u ⊆ X1f m₁ ρ := by
+  obtain ⟨m₁, ρ, c, BG, κ, eps, δ₃, c₂, BG₂, δ₁, δfl, hB, hF⟩ := bgFlSetting_data
+  obtain ⟨x, u, h1, h2, h3, h4, h5⟩ := eReadHm_instance hB hF
+  exact ⟨m₁, ρ, c, BG, κ, eps, δ₃, c₂, BG₂, δ₁, δfl, hB, hF, X1f_ne_univ m₁ ρ, x, u, h1, h2, h3,
+    h4, h5⟩
+
+end Fluct
 
 end BgSettingData
 end Balaban.Inhabited
