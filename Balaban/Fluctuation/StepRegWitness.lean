@@ -201,10 +201,10 @@ theorem fluctRadius_pos_three : 0 < fluctRadius 3 3 2 := by
 
 /-- Parameters of the witness: all the numerical conditions are satisfiable, with the lower bound
 `T₀` on `T = β_k^{1/2}` arbitrary. -/
-theorem exists_witness_params (T₀ : ℝ) :
+theorem exists_witness_params (T₀ : ℕ → ℝ) :
     ∃ (m₁ : ℕ) (δ δ' T : ℝ), 4 ≤ m₁ ∧ cstarX 3 3 ≤ (3 : ℝ) ^ m₁ ∧ 0 < δ ∧
       δ ^ 2 * smallConstX 3 3 0 ≤ 1 / 4 ∧ 0 < δ' ∧ δ' ≤ thm73C3 3 3 2 / 2 ∧
-      bgK1 3 3 2 * δ' ≤ δ / 4 ∧ bgK1 3 3 2 * δ' ≤ coerciveConst 3 / 4 ∧ 0 < T ∧ T₀ ≤ T ∧
+      bgK1 3 3 2 * δ' ≤ δ / 4 ∧ bgK1 3 3 2 * δ' ≤ coerciveConst 3 / 4 ∧ 0 < T ∧ T₀ m₁ ≤ T ∧
       3 * witB5 * witK2 * 2 ≤ T * δ ∧ witB5 * 2 ≤ T * fluctRadius 3 3 2 := by
   obtain ⟨m₁, hm, hbig⟩ := exists_m₁ (cstarX 3 3)
   obtain ⟨δs, hδs, hδs'⟩ := exists_deltaStar 3 3 0
@@ -222,7 +222,7 @@ theorem exists_witness_params (T₀ : ℝ) :
   have hb2 : δ' ≤ coerciveConst 3 / (4 * bgK1 3 3 2) := (min_le_right _ _).trans (min_le_right _ _)
   obtain ⟨T, hT, hT1, hT2⟩ := exists_large_T (B₅ := witB5) (K₂ := witK2) (pp := 2) hδs
     fluctRadius_pos_three
-  refine ⟨m₁, δs, δ', max T (T₀ + 1) , hm, hbig, hδs, hsm, hδ'0, min_le_left _ _, ?_, ?_,
+  refine ⟨m₁, δs, δ', max T (T₀ m₁ + 1) , hm, hbig, hδs, hsm, hδ'0, min_le_left _ _, ?_, ?_,
     lt_of_lt_of_le hT (le_max_left _ _), (le_trans (by linarith) (le_max_right _ _)), ?_, ?_⟩
   · calc bgK1 3 3 2 * δ' ≤ bgK1 3 3 2 * (δs / (4 * bgK1 3 3 2)) :=
           mul_le_mul_of_nonneg_left hb1 hK.le
@@ -238,7 +238,7 @@ theorem nonempty_rayData :
     ∃ (m₁ : ℕ) (S : StepSetting 3 3 6 m₁ 1 2 (rhoSep m₁)),
       0 < S.β ∧ 0 < S.p₁ ∧ S.p₁ < 2 ∧ Nonempty (S.RayData 2) := by
   obtain ⟨m₁, δ, δ', T, hm, hbig, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
-    exists_witness_params 0
+    exists_witness_params (fun _ => 0)
   refine ⟨m₁, witnessSetting m₁ (T ^ 2 / 3) δ, ?_, one_pos, (by show (1 : ℝ) < 2; norm_num),
     rayData_witness hm hbig hδ hsm hδ'0 hδ'a hδ'b hδ'c hT hT1 hT2⟩
   show 0 < T ^ 2 / 3
