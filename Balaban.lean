@@ -1007,3 +1007,4 @@ public import Balaban.Localization.P6PairCast
 public import Balaban.Localization.P6PairCastReal
 public import Balaban.Localization.P6PairLocBase
 public import Balaban.Localization.P6PairLocComposed
+public import Balaban.Localization.P6PairLocFinal
