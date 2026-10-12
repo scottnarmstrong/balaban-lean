@@ -86,13 +86,21 @@ theorem analyticAt_hatPsi_of_decDom (hG' : IsLevel Gp (k + 1)) (hC : XSetting Gp
     AnalyticAt.prod (analyticAt_pi_iff.2 hs) (hbar.prod (analyticAt_pi_iff.2 hα))
   have hU := (isUnitLatticeB_unit (G := Gp)).toIsUnitLattice
   have hent : ∀ p r, AnalyticAt ℂ (fun q => decCovSqrt Gp (compWeight L a₁) a₁ ν (αF q)
-      (extS Gp (sF q)) (barField Gp (ΨF q) (φF q)) (unitQ Gp) (unitP Gp) p r) q := fun p r =>
-    AnalyticAt.comp (g := fun e : DecData Gp N =>
-      decCovSqrt Gp (compWeight L a₁) a₁ ν e.2.2 (extS Gp e.1) e.2.1 (unitQ Gp) (unitP Gp) p r)
-      (analyticOnNhd_decCovSqrt_entry (N := N) hC hκ hM hδ hsm hU p r _ hmem) he
-  refine analyticAt_liftC hG' (analyticAt_pi_iff.2 fun r => ?_)
-  simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
-  exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun t _ => (hent r t).mul (hψ t))
+      (extS Gp (sF q)) (barField Gp (ΨF q) (φF q)) (unitQ Gp) (unitP Gp) p r) q := by
+    intro p r
+    have hg : AnalyticAt ℂ (fun e : DecData Gp N =>
+        decCovSqrt Gp (compWeight L a₁) a₁ ν e.2.2 (extS Gp e.1) e.2.1 (unitQ Gp) (unitP Gp) p r)
+        (sF q, (barField Gp (ΨF q) (φF q), αF q)) :=
+      analyticOnNhd_decCovSqrt_entry (N := N) hC hκ hM hδ hsm hU p r _ hmem
+    have hg' := hg
+    exact AnalyticAt.comp (f := fun q => (sF q, (barField Gp (ΨF q) (φF q), αF q))) hg' he
+  have hv : AnalyticAt ℂ (fun q => cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (αF q)
+      (extS Gp (sF q)) (barField Gp (ΨF q) (φF q)) (unitQ Gp) (unitP Gp) *ᵥ ψh q)) q := by
+    rw [analyticAt_pi_iff]
+    intro r
+    simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
+    exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun t _ => (hent r t).mul (hψ t))
+  exact analyticAt_liftC hG' hv
 
 end Analytic
 

@@ -950,3 +950,4 @@ public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Fluctuation.HatEngineDom
 public import Balaban.Fluctuation.HatEngineLift
+public import Balaban.Fluctuation.HatEngineFan
