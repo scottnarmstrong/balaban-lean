@@ -156,6 +156,29 @@ theorem windowOfHistory_hwT_layers :
   · exact Or.inl h
   · exact Or.inr (adjT_symm' h)
 
+/-- **`hcT` in the shape of `inner_collar_in_regular_T`** at the actual window, with
+`WindowPieces.Hyp` supplied by `windowOfHistory_hyp`: the `k₁`-blocks of the inner collar lie in
+`regSetT`. -/
+theorem windowOfHistory_hcT {c : Torus S.d (M * n k * S.L ^ k)}
+    (hc : c ∈ collarIn (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)) :
+    jBlock S.d S.L (M * n k) k (S.k1 k) c ∈ regSetT H Z M (S.k1 k) := by
+  obtain ⟨hcol, hcZ⟩ := (mem_collarIn _ _).1 hc
+  obtain ⟨-, x, hx, hadj⟩ := (Balaban.Background.mem_collar _).1 hcol
+  rw [WindowPieces.windowGenSet_Ω] at hx
+  exact windowOfHistory_hcT_layers (g := g) hkK hW x hx c hadj hcZ
+
+/-- **`hwT`, corrected form, in the shape of `inner_collar_in_regular_T`**: a site `x` of `Ω₁(G)` off
+`Z_{k₁}` adjacent to a site of `Z_{k₁}` has its `k₁`-block in `regSetTExt`.  (The landed `hwT`, without the
+adjacency, asks this of every layer-`k₁` window site; a layer-`k₁` site far from `Z_{k₁}` is in no support
+of `χ`, `χ'`, so that form is not derivable.) -/
+theorem windowOfHistory_hwT {x : Torus S.d (M * n k * S.L ^ k)}
+    (hx : x ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω 1)
+    {c : Torus S.d (M * n k * S.L ^ k)} (hadj : Adj x c)
+    (hcZ : c ∈ (windowOfHistory H Z g hkK hW).Zk1) :
+    jBlock S.d S.L (M * n k) k (S.k1 k) x ∈ regSetTExt H Z M (S.k1 k) := by
+  rw [WindowPieces.windowGenSet_Ω] at hx
+  exact windowOfHistory_hwT_layers (g := g) hkK hW x hx c hadj hcZ
+
 /-- The top layer of the core piece `𝔹_{k₁}(W)` is `k₁`: `Ω_{k₁+1}(core) = ∅`. -/
 theorem windowCore_not_mem_succ (q : ℕ) (hqk : q ≤ k) (x : Torus S.d (M * n k * S.L ^ k)) :
     x ∉ (windowCore H Z g q hqk).Ω (q + 1) := by
