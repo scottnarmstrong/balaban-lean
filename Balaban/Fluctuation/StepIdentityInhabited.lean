@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.StepIdentity
+public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.SmallField.Def6Inhabited
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -136,5 +136,24 @@ theorem stepNonvanishing_of_beta_zero (S : StepSetting d L N₁ m₁ k N ϱ) (h�
     unfold StepSetting.Zst partFun₂
     simp [Wone_zero_of_beta S hβ, Wtwo_zero_class]
   exact ⟨fun s _ => by rw [hZ]; exact one_ne_zero, fun t _ => by rw [hZ]; exact one_ne_zero⟩
+
+/-- **`ClassRegular` is inhabited for every step datum**: the zero effective action with the
+source `g = 0`. -/
+theorem classRegular_zero (S : StepSetting d L N₁ m₁ k N ϱ) :
+    S.ClassRegular (zeroClass d L N₁ m₁ k N ϱ) 0 := by
+  refine ⟨⟨Set.univ, fun _ _ => 0, fun _ _ => 0, ?_, ?_⟩⟩
+  · have : S.dET (zeroClass d L N₁ m₁ k N ϱ) = fun _ _ => 0 := by
+      funext s x
+      unfold StepSetting.dET StepSetting.dE
+      show (if chiFl S.U N S.p₁ x = 1 then
+        EcompAt 0 (zeroTerms d L N₁ m₁ (k + 1) N ϱ) S.a S.ν (Nat.le_succ k) _ -
+          EcompAt 0 (zeroTerms d L N₁ m₁ (k + 1) N ϱ) S.a S.ν (Nat.le_succ k) _ else 0) = 0
+      simp [EcompAt_zero]
+    rw [this]; exact isC1Family_zero
+  · have : S.WtwoT (zeroClass d L N₁ m₁ k N ϱ) 0 = fun _ _ => 0 := by
+      funext s x
+      unfold StepSetting.WtwoT
+      simp [Wtwo_zero_class]
+    rw [this]; exact isC1Family_zero
 
 end Balaban.Fluctuation

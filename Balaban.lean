@@ -779,3 +779,4 @@ public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
 public import Balaban.Fluctuation.StepIdentityInhabited
+public import Balaban.Fluctuation.StepIdentityReg
