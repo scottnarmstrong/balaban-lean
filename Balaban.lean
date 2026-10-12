@@ -701,6 +701,9 @@ public import Balaban.Observables.FirstOrderStep
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
+public import Balaban.Fluctuation.CovSqrtSupComplexWeighted
+public import Balaban.Fluctuation.CovSqrtSupComplex
+public import Balaban.Fluctuation.CovSqrtSupComplexDec
 public import Balaban.Fluctuation.CovarianceSpectral
 public import Balaban.Fluctuation.Covariance
 public import Balaban.Fluctuation.CovarianceComplex
@@ -854,6 +857,12 @@ public import Balaban.Fluctuation.InteractionAssemble
 public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionInhab
 public import Balaban.Fluctuation.InteractionLevelPair
+public import Balaban.Fluctuation.Prop33CloseC7
+public import Balaban.Fluctuation.Prop33CloseDomain
+public import Balaban.Fluctuation.Prop33CloseReal
+public import Balaban.Fluctuation.Prop33CloseNu
+public import Balaban.Fluctuation.Prop33CloseBh
+public import Balaban.Fluctuation.Prop33CloseWitness
 public import Balaban.Fluctuation.Prop33Level
 public import Balaban.Fluctuation.Prop33Count
 public import Balaban.Fluctuation.Prop33Agg
