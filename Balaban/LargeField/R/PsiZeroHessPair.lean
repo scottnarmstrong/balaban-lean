@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.PsiZeroHessTop
+public import Balaban.LargeField.R.PsiZeroTube
 public import Balaban.LargeField.LF1
 
 /-!
@@ -177,6 +178,68 @@ theorem pairSumT_ge_dirichlet (hℓ : 3 ≤ ℓ) (T : Finset (Torus d ℓ)) (f :
   linarith
 
 end Dirichlet
+
+section Top
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
+  {Z : Finset (Torus d (N₀ * L ^ (k - k)))}
+
+/-- The `k`-blocks of `Z ∪ shellOut Z` meet `Ω_k`, hence belong to `T_k(Λ_k ∩ Ω₁)`. -/
+theorem mem_tBlocks_top (hk : 1 ≤ k)
+    (hΩ : OverTop G ((Z : Set (Torus d (N₀ * L ^ (k - k)))) ∪ shellOut (Z : Set (Torus d (N₀ * L ^ (k - k))))))
+    {y : Torus d (N₀ * L ^ (k - k))}
+    (hy : y ∈ (Z : Set (Torus d (N₀ * L ^ (k - k)))) ∪ shellOut (Z : Set (Torus d (N₀ * L ^ (k - k))))) :
+    y ∈ tBlocks d L N₀ k k (lam G k ∩ G.Ω 1) := by
+  have hN : 0 < L ^ k := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) k
+  obtain ⟨x, hx⟩ := Balaban.exists_blockMap_eq (fine_eq_block L N₀ k) hN y
+  have hxk : x ∈ G.Ω k := hΩ x (by simpa [jBlock] using (hx ▸ hy))
+  have h1 : x ∈ G.Ω 1 := G.Ω_antitone le_rfl hk (by omega) hxk
+  have hlam : x ∈ lam G k := by
+    have : k ≠ 0 := by omega
+    simp only [lam, this, ↓reduceIte]
+    exact G.mem_layer.2 ⟨hxk, by rw [G.top]; simp⟩
+  exact Finset.mem_image.2 ⟨x, Finset.mem_inter.2 ⟨hlam, h1⟩, hx⟩
+
+/-- **Row 5 (`top_pairSum_dirichlet`)**: the pair sum of `t ṽ` over the `k`-blocks meeting `Ω_k` dominates
+`t²` times the Dirichlet form of the zero extension `ṽ`. -/
+theorem top_pairSum_dirichlet (hk : 1 ≤ k) (hn : 3 ≤ N₀ * L ^ (k - k))
+    (hΩ : OverTop G ((Z : Set (Torus d (N₀ * L ^ (k - k)))) ∪ shellOut (Z : Set (Torus d (N₀ * L ^ (k - k))))))
+    (v : SuppSpace Z N) (t : ℝ) :
+    t ^ 2 * dirichletForm Z v ≤
+      pairSumT (tBlocks d L N₀ k k (lam G k ∩ G.Ω 1)) (fun y => t • extSupp Z v y) := by
+  have key := pairSumT_ge_dirichlet (d := d) hn (tBlocks d L N₀ k k (lam G k ∩ G.Ω 1))
+    (fun y => t • extSupp Z v y) ?_
+  · refine le_trans (le_of_eq ?_) key
+    unfold dirichletForm
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun μ _ => ?_
+    rw [← smul_sub, norm_smul, mul_pow, Real.norm_eq_abs, sq_abs]
+  · intro x μ hne
+    have hmem : ∀ y, y ∈ (Z : Set (Torus d (N₀ * L ^ (k - k)))) →
+        y ∈ tBlocks d L N₀ k k (lam G k ∩ G.Ω 1) := fun y hy =>
+      mem_tBlocks_top hk hΩ (Or.inl hy)
+    have hsh : ∀ y, y ∈ (Z : Set (Torus d (N₀ * L ^ (k - k)))) ∪ shellOut (Z : Set (Torus d (N₀ * L ^ (k - k)))) →
+        y ∈ tBlocks d L N₀ k k (lam G k ∩ G.Ω 1) := fun y hy => mem_tBlocks_top hk hΩ hy
+    by_cases hx : x ∈ (Z : Set (Torus d (N₀ * L ^ (k - k))))
+    · refine ⟨hsh x (Or.inl hx), hsh _ ?_⟩
+      by_cases hx' : x + Pi.single μ 1 ∈ (Z : Set (Torus d (N₀ * L ^ (k - k))))
+      · exact Or.inl hx'
+      · exact Or.inr (mem_shellOut_of_adj hx hx' ⟨μ, Or.inl rfl⟩)
+    · by_cases hx' : x + Pi.single μ 1 ∈ (Z : Set (Torus d (N₀ * L ^ (k - k))))
+      · exact ⟨hsh x (Or.inr (mem_shellOut_of_adj hx' hx ⟨μ, Or.inr rfl⟩)), hsh _ (Or.inl hx')⟩
+      · exfalso
+        apply hne
+        have h1 : extSupp Z v (x + Pi.single μ 1) = 0 := by
+          have hx'' : x + Pi.single μ 1 ∉ Z := fun h => hx' (by exact_mod_cast h)
+          simp [extSupp, hx'']
+        have h2 : extSupp Z v x = 0 := by
+          have hx'' : x ∉ Z := fun h => hx (by exact_mod_cast h)
+          simp [extSupp, hx'']
+        simp [h1, h2]
+
+end Top
 
 end Pair
 
