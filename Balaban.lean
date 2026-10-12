@@ -1009,6 +1009,14 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.Thm31bVanish
+public import Balaban.Fluctuation.Thm31bSchwarz
+public import Balaban.Fluctuation.Thm31bResum
+public import Balaban.Fluctuation.Thm31bFirst
+public import Balaban.Fluctuation.Thm31bRem
+public import Balaban.Fluctuation.Thm31b
+public import Balaban.Fluctuation.Thm31bStep
+public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Localization.P6PairHalo
 public import Balaban.Localization.P6PairBoundary
 public import Balaban.Localization.P6PairCover
