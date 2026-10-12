@@ -373,6 +373,7 @@ public import Balaban.Localization.I5FluctChain
 public import Balaban.Localization.I5FluctFacts
 public import Balaban.Localization.I5FluctFan
 public import Balaban.Localization.I5FluctStep
+public import Balaban.Localization.RowsFl
 public import Balaban.Localization.I5FluctGeom
 public import Balaban.Localization.I5FluctLocal
 public import Balaban.Localization.I5Fluct
@@ -407,6 +408,8 @@ public import Balaban.Localization.DecoupledCovWeighted
 public import Balaban.Localization.DecoupledCovLocal
 public import Balaban.Localization.DecoupledCovLocal2
 public import Balaban.Localization.DecoupledCovLocal2Free
+public import Balaban.Localization.RowsCov
+public import Balaban.Fluctuation.RowsHat
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
