@@ -62,7 +62,7 @@ theorem cover_step (k : ℕ) (Z' : H.Comp (k + 1)) (hnew : Z'.1 ∩ H.newCubes (
     have key : ∀ c ∈ H.parts k Z', (bxc c).card ≤ ν c ∧ (∀ b ∈ bxc c, ∀ i, b.2 i ≤ S.crit k) ∧
         (c.1 : Set (Torus S.d (n k))) ⊆ ⋃ b ∈ bxc c, box b.1 b.2 := by
       intro c hc
-      simp only [bxc, dif_pos hc]
+      simp only [bxc, hc, ↓reduceDIte]
       exact (hcov c hc).choose_spec
     refine ⟨?_, ?_, ?_, ?_⟩
     · rintro _ _ ⟨c, hc, rfl⟩
