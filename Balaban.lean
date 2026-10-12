@@ -469,6 +469,7 @@ public import Balaban.LargeField.History.PointChain
 public import Balaban.LargeField.History.GainClock
 public import Balaban.LargeField.History.RipeWindow
 public import Balaban.LargeField.History.RegionGrow
+public import Balaban.LargeField.History.OmegaPost
 public import Balaban.LargeField.History.LocalUnion
 public import Balaban.LargeField.History.LocalRegion
 public import Balaban.LargeField.History.Merges
@@ -647,6 +648,7 @@ public import Balaban.Fluctuation.SizeModG1
 public import Balaban.Fluctuation.SizeModUnion
 public import Balaban.Fluctuation.SizeModG4
 public import Balaban.Fluctuation.SizeModG5
+public import Balaban.Fluctuation.SizeModLift
 public import Balaban.Fluctuation.SizeModSum
 public import Balaban.Fluctuation.SizeModCount
 public import Balaban.Fluctuation.SizeModStruct
