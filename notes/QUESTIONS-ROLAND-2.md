@@ -113,3 +113,28 @@ P5 p. 490 says the ℰ^{(j)} "still satisfy the induction hypotheses" of P4 in t
 Our fallback, if there is no answer in the papers: complete backgrounds at all scales for the
 small-field class (as in P1/P4), and a separate treatment of the large-field operators for
 k ≤ k₀ with the tiny mass β_kν_k ≤ 1.
+
+**14. P6 p. 34: the size transfer for boundary terms across a new long hole.**
+
+P6 p. 34, after (4.32), says the estimates P3 (4.48)–(4.49) continue to hold with the sizes replaced
+by the modular ones d_k(X mod Ω_k^c), d_{k+1}(Y mod Ω_{k+1}^c), with the output Y ⊃ X. In P3 (4.48)
+the new size is bounded by L⁻¹·(old size) + d(2L+1)^d·|𝒞|, where 𝒞 is the set of derivative cubes.
+
+We think this cannot hold as printed, by the following example (details: `notes/phase1/VMOD-16.md`,
+`GRAPH-GM-3.md`).
+
+- Take a second step in which the new large-field set 𝖯 is a straight path of T cubes of π_{k+1}
+  (allowed by P5 (2.6)). P5 (2.8) removes its 3-neighbourhood, so Ω_{k+1}^c has a new component
+  F_T that is 7 cells wide and T + 7 cells long.
+- Take an old boundary term X ∈ 𝒟_k(mod Ω_k^c) of fixed size that touches one end of F_T.
+- By P5 (1.33) the output Y must contain all of F_T, and by P1 (2.26) Y must be a union of blocks of
+  π'_{k+1}, which are L ≥ 8 cells wide. A block containing a point of F_T therefore sticks out into
+  Ω_{k+1}. So Y ∩ Ω_{k+1} contains blocks all along the hole, and by P5 (1.34) the tree must meet
+  each of them: d_{k+1}(Y mod Ω_{k+1}^c) ≥ T − const, with no derivative cubes (𝒞 = ∅).
+
+The printed transfer has no term that grows with T.
+
+**Question.** Is the intended estimate the one with an extra term proportional to the number of new
+large-field cubes that Y contains, paid by the large-field factor of the new region (the exponent
+p(β_k)-type smallness per new cube)? That is the repair we plan to use. Or is there a restriction on
+𝖯, or on which boundary terms X occur next to a new hole, that we have missed?
