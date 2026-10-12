@@ -845,6 +845,7 @@ public import Balaban.Fluctuation.InteractionSymm
 public import Balaban.Fluctuation.InteractionSymmRot
 public import Balaban.Fluctuation.InteractionSymmLat
 public import Balaban.Fluctuation.InteractionSymmSol
+public import Balaban.Fluctuation.InteractionSymmSolRot
 public import Balaban.Fluctuation.InteractionDir3
 public import Balaban.Fluctuation.InteractionEnergy
 public import Balaban.Fluctuation.InteractionVBlock
