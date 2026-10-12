@@ -852,6 +852,8 @@ public import Balaban.LargeField.R.WindowCollarGeom
 public import Balaban.LargeField.R.WindowOfHistory
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
+public import Balaban.LargeField.R.DeltaPsiCollarInner
+public import Balaban.LargeField.R.DeltaPsiCollarWindow
 public import Balaban.LargeField.R.DeltaPsiPath
 public import Balaban.LargeField.R.DeltaPsiDef
 public import Balaban.LargeField.R.DeltaPsiComp
@@ -881,7 +883,10 @@ public import Balaban.LargeField.R.ActionConvWindow
 public import Balaban.LargeField.R.ActionConvWitness
 public import Balaban.LargeField.R.MassChangeChord
 public import Balaban.LargeField.R.MassChangeWall
+public import Balaban.LargeField.R.MassChangeHessian
 public import Balaban.LargeField.R.MassResponse
+public import Balaban.LargeField.R.MassResponseHyp
+public import Balaban.LargeField.R.MassChangeRegion
 public import Balaban.LargeField.R.MassChangeOneSite
 public import Balaban.LargeField.R.MassChangeUniv
 public import Balaban.Fluctuation.BackgroundChangeCompare
@@ -1113,3 +1118,9 @@ public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
 public import Balaban.Fluctuation.StepNonvanishInhab
+public import Balaban.Fluctuation.StepActivityWitnessSplit
+public import Balaban.Fluctuation.StepActivityWitnessMin
+public import Balaban.Fluctuation.StepActivityWitnessNe
+public import Balaban.Fluctuation.StepActivityWitnessRay
+public import Balaban.Fluctuation.StepActivityWitness
+public import Balaban.Fluctuation.StepActivityWitnessMain
