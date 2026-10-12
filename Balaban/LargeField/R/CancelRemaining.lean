@@ -22,7 +22,7 @@ The field estimates behind Lemma III.6.4, with the one cited input stated once:
 * `norm_alphaTerm_le`, `norm_massSelf_le` ((b), P7 (2.60)): `½ β_k |⟨δφ, (α⁰ + ν) δφ⟩|` for a pointwise
   bound on `δφ` (the layered bound (2.49′), `deltaPhi_le_of_dataChange`);
 * `norm_starPair_le` and the `ν`-term ((c));
-* `remaining_terms`: (a), (b), (c) with the strict bound `< ¼` from the numerical conditions.
+* `remaining_terms_of_lemma262`: (a), (b), (c) with the strict bound `< ¼` from the numerical conditions.
 
 The numerical conditions (`hΛa`, `hΛb`, `hΛb'`, `hΛc`, `hΛν`) are the strengthened (Λ25)(a)-(c) for the
 constants of the pointwise bounds; their derivation from the parameter chain (III.1.1), (III.1.2) (c),
@@ -285,11 +285,11 @@ bound `hδ`; landed as `deltaPhi_le_of_dataChange`).  With `X = X_win`, `Z_{k₁
 * (b) `½ β_k |⟨δφ, α⁰ δφ⟩_{X_win}| < ¼`, and with `α⁰ + ν` in place of `α⁰` (complex domain);
 * (c) `β_k |S_st| < ¼` and `β_k |ν⟨δφ, φ⁰ - h⟩_{X_win}| < ¼`;
 
-each from the corresponding numerical condition (the form of the strengthened (Λ25)(a)-(c) for the
+Conditional on the cited input `Lemma262` (P7 Lemma 2.2) and on the numerical premises `hΛa`, `hΛb`, `hΛb'`, `hΛc`, `hΛν` standing for the strengthened (Λ25); each from the corresponding numerical condition (the form of the strengthened (Λ25)(a)-(c) for the
 constants of the pointwise bounds): `hΛa`, `hΛb`, `hΛb'`, `hΛc`, `hΛν`.  The verification of these
 conditions from the parameter chain (III.1.1), (III.1.2) (c), `ν_max` is the content of (Λ25) and is not
 part of this theorem. -/
-theorem remaining_terms (hβ0 : 0 ≤ β0) {ν : ℝ} (Du : BgData G N) {φu : G.Ω 1 × Fin N → ℂ}
+theorem remaining_terms_of_lemma262 (hβ0 : 0 ≤ β0) {ν : ℝ} (Du : BgData G N) {φu : G.Ω 1 × Fin N → ℂ}
     (D : Region G) (Zk1 : Region G')
     {Bgrad Bmass Balpha Bgrad' Bmass' Balpha' Bδ Bφ Bw Bder : ℝ}
     (hZ : Lemma262 G' a ψ0 h ν Zk1.sites Bgrad Bmass Balpha)

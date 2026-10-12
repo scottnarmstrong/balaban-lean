@@ -527,10 +527,9 @@ theorem Cnat1_le (Du : BgData G N) (Zb : Finset (Torus d (N₀ * L ^ (k - k)))) 
   norm_CnatGen1_le Zb (by unfold betaK; positivity) _ _ _ haN _ _ _
 
 /-- **Lemma III.6.3, general bound on `C^♮_0`** (III.6.1, proof of the Bounds): with the geometry of
-`cancellation_identity` (only the facts needed for `ϱ_z = (a_k/a_z) r_z`), the BG weights
+`cancellation_identity_of_stationary` (only the facts needed for `ϱ_z = (a_k/a_z) r_z`), the BG weights
 `a_j ∈ [½, 2]` (1.5), `a^♮_z ∈ [½, 2]`, `|a^♮_z/a_z - 1| ≤ η_k ≤ ½`, `|r_z| ≤ ρ`, `|s_z| ≤ σ`, `#Zb ≤ n`:
-`|C^♮_0| ≤ n (36 β_k η_k ρ² + 8 β_k ρ σ + 9 β_k σ² + N η_k)`.  (The reconstruction writes the
-constants `3, 4, 3, 1` here; they do not follow from `a ∈ [½, 2]`, see the handoff.) -/
+`|C^♮_0| ≤ n (36 β_k η_k ρ² + 8 β_k ρ σ + 9 β_k σ² + N η_k)`.  LF-RECONSTRUCTION Lemma III.6.3 prints the constants (3, 4, 3, 1); the bound proved here has (36, 8, 9, 1), because the term `βη a_k²/(2a_z)|r|²` alone can reach `4βη|r|²` for `a ∈ [½, 2]`. -/
 theorem Cnat0_le (hL : 2 ≤ L) (hk : 1 ≤ k) (hadm : IsAdmissibleWeights k (compWeight L a₁))
     {β0 : ℝ} (hβ0 : 0 ≤ β0) (Du : BgData G N) (D : Region G)
     (Zb : Finset (Torus d (N₀ * L ^ (k - k))))

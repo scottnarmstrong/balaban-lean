@@ -27,7 +27,7 @@ The exact identity (2.58′) between the main action of the window with the actu
   (`compWeight_C1`) and the partition of a `k`-block into leaves;
 * `gauss_block_alg`: the expansion of the composed Gaussian (the polynomial identity with `R_η`, `R_s`);
 * `cancel_core`: the identity (2.58′) for abstract data;
-* `cancellation_identity`: (2.58′) for the window of Definition III.6.1 (`windowData`, `phiZero`), with
+* `cancellation_identity_of_stationary`: (2.58′) for the window of Definition III.6.1 (`windowData`, `phiZero`), with
   the Euler-Lagrange system of `ψ⁰_{k₁,k}` derived from I-2 (`isEL_phiZero_window`).
 
 The remainder is `Cnat = C^♮ = ∑_z (R_{η,z} + R_{s,z}) - (N/2) ∑_z log(a^♮_z/a_z)`.
@@ -1010,8 +1010,10 @@ composed mean.  Then, with `a_z = compWeightZ`,
 `A*`-terms `β^{(k)}_0`).  The geometry hypotheses are the partition `X_win = D₀ ⊔ D_ω ⊔ ⋃_{z∈Zb} z`,
 `Z = X_win ⊔ Z_{k₁}`, the layers (`1 ≤ n < k` on the `k`-blocks of `Zb`, `k` on `Ω_k` and in
 `𝔹_k(U_k)`), the vanishing of `r` on `Z_0 ⊇ Z_{k₁}` ((2.52): the stationarity of (2.34)) and
-`δψ = 0` on `Ω_k` (Lemma III.4.6); the field `ψ_k` equals `ψ⁰_k` on `Zb`. -/
-theorem cancellation_identity {a₁ : ℝ} (hd : 2 ≤ d) (hL : 2 ≤ L) (hk : 1 ≤ k) (ha₁ : 0 < a₁) {β0 ν : ℝ}
+`δψ = 0` on `Ω_k` (Lemma III.4.6); the field `ψ_k` equals `ψ⁰_k` on `Zb`.
+
+Conditional on the stationarity (2.52) of ψ⁰_k (premises `hD0r`, `hZk1r`), which follows from `effAction_squeeze` (vanishing derivative at ψ⁰_k), `psiZero_derivs_core` and the block computation of `firstVar`; that derivation is not landed. -/
+theorem cancellation_identity_of_stationary {a₁ : ℝ} (hd : 2 ≤ d) (hL : 2 ≤ L) (hk : 1 ≤ k) (ha₁ : 0 < a₁) {β0 ν : ℝ}
     (hβ0 : 0 < β0) (H' : BgHyp d L k ϱ' (compWeight L a₁) 0)
     (hDom : InUnionDomainR G' (bgC1 d L N) 0 (psiZeroData G' ψ0 h))
     (Du : BgData G N) {φu : G.Ω 1 × Fin N → ℂ} {αu : G.Ω 1 → ℂ}
