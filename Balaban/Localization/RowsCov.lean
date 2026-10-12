@@ -20,20 +20,24 @@ and the physical-reads lemma are not proved here.  The landed theorems are uncha
 
 ## Where the landed proofs use agreement (`DecoupledCovLocal2`, line numbers of that file)
 
-| use | site set needed |
+| use | set on which agreement is needed |
 | --- | --- |
-| `commK_Gvec_local2` l.84, field at the row's centre `z` | `z ∈ B` |
-| `commK_Gvec_local2` l.87, field at the row sites `y` | `y` with `x`-Dirichlet row entry `≠ 0`, `z ∈ B` (inside `R(B)`) |
-| `commK_Gvec_local2` l.88, `Gvec_local2` at the row sites | uses `row_in_Y` only to apply `dg5x'_inner`, which needs `w` on `B` only |
-| `decN_local2` l.97, `decM_local2` l.111-115 | `z ∈ B` (and `y ∈ B` for the inner `commK`) |
-| `decZ_local2` l.173 (second comparison) | `y ∈ B` |
-| `decCov_local2` `t0`, `t1` | hat inputs at unit points of `UnitOut` blocks (`unitP` reads one block) |
-| `decCov_local2` `z1`-`z2` | hat inputs at blocks meeting `B` (`UnitIn`); `unitQ` reads one `k`-block |
+| `commK_Gvec_local2` l.84, field at the centre `z` of the row | `z ∈ B` |
+| `commK_Gvec_local2` l.87, field at the row sites `y` (entries `≠ 0` of `xDirichletOperator` at `z ∈ B`) | `R(B)` |
+| `commK_Gvec_local2` l.87, `Gvec_local2` at row sites (`dg5x'_inner`) | the data `w` and `α` on `B` only; `row_in_Y` is used only to place `y` in `Y` |
+| `decN_local2` l.98, `decM_local2` l.114, l.120 (field in `fieldMul`, `restrictField`) | `z ∈ B` |
+| `decZ_local2` l.197-198 (fixed-point step), l.216 (field in the final identity) | `B` |
+| `decCov_local2` `t0`, `t1` (`unitP` reads one `(k+1)`-block) | hat input on the `UnitOut` blocks |
+| `decCov_local2` `z1`, `z2` (`unitQ` reads one `k`-block) | hat input on the blocks meeting `B` (`UnitIn`) |
 
-No use needs the field outside `R(B)` or the multiplier outside `B`.  The only hat reads outside
-`UnitOut` are the `UnitIn` blocks (blocks meeting `B`); with `CompleteBlocks` these are inside `Y`
-and are `UnitOut` blocks.  So no read of a block straddling the boundary of `Y` occurs, and the
-statements of the note are confirmed.  The free branch (`I4c_local_sqrt3`) uses no field at all.
+The field is never needed outside `R(B)`; `α` is never needed outside `B`.  The hat input is read
+on `UnitOut` blocks and on `UnitIn` blocks (blocks meeting `B`); with `CompleteBlocks` every
+`UnitIn` block is a `UnitOut` block (`unitOut_of_unitIn_or`).  No block straddling the boundary of
+`Y`, and no neighbour's block, is read in the `UnitOut` setting; so nothing contradicts the note.
+The free branch of `I4c_local_sqrt3` (`decCov_free`) uses no field and no multiplier agreement.
+In `hatPsiF_local` (HatEngineLocal) `blockThick Y` is needed for the conclusion at neighbours of
+`Y` and, inside `Y`, only where the `(k+1)`-block of the site is not inside `Y`; under
+`CompleteBlocks` it is needed for neighbours only.
 -/
 
 @[expose] public section
@@ -319,6 +323,36 @@ theorem decCov_rows (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X�
     exact z4 b3 (hbo b3 hP) _
   rw [t0, t1]
 
+/-- **Rows version of `I4c_local_sqrt2`, landed form of the hat hypothesis.**  Only the field
+hypothesis is narrowed: `φ = φ'` on `R(B)` instead of on `Y`. -/
+theorem I4c_local_sqrt2_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
+    (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y →
+      φ y = φ' y)
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h h' : unitPts G × Fin N → ℂ)
+    (hh : ∀ b' : unitPts G, (UnitOut G Y b' ∨ UnitIn G X₁ 𝒞 Y b') → ∀ i, h (b', i) = h' (b', i))
+    {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
+    (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) := by
+  classical
+  have Hs := (standing_pair hfam hφ hδ hsm).1
+  have Hs' := (standing_pair hfam' hφ' hδ hsm).1
+  have S := (hfam 0 le_rfl).st
+  have e1 := intMat_mulVec_apply (integrable_decSqrtInt Hs) h (b, i)
+  have e2 := intMat_mulVec_apply (integrable_decSqrtInt Hs') h' (b, i)
+  have e3 : ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α s φ (unitQ G) (unitP G) x *ᵥ h) (b, i) =
+      ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α' s' φ' (unitQ G) (unitP G) x *ᵥ h') (b, i) := by
+    refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+    have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
+    simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+    rw [decCov_rows S hx0 H hA hφR (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' hh b hb i]
+  simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+  rw [e1, e2, e3]
+
 /-- **Rows version of `I4c_local_sqrt2`.**  The background field is compared only on `R(B)`
 (`rowsCov_R`), the multipliers `α, α'` on `B = S_Y`, and the hat inputs only at the unit points
 whose `(k+1)`-block lies in `Y`; the hypothesis `hcomp` says that the `(k+1)`-block of every site of
@@ -336,23 +370,70 @@ theorem I4c_local_sqrt_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s
     (hh : ∀ b' : unitPts G, UnitOut G Y b' → ∀ i, h (b', i) = h' (b', i))
     {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
     (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
-      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) := by
-  classical
-  have Hs := (standing_pair hfam hφ hδ hsm).1
-  have Hs' := (standing_pair hfam' hφ' hδ hsm).1
-  have S := (hfam 0 le_rfl).st
-  have e1 := intMat_mulVec_apply (integrable_decSqrtInt Hs) h (b, i)
-  have e2 := intMat_mulVec_apply (integrable_decSqrtInt Hs') h' (b, i)
-  have e3 : ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α s φ (unitQ G) (unitP G) x *ᵥ h) (b, i) =
-      ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α' s' φ' (unitQ G) (unitP G) x *ᵥ h') (b, i) := by
-    refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
-    have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
-    simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
-    rw [decCov_rows S hx0 H hA hφR (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' (fun b' hb' i' => hh b' (unitOut_of_unitIn_or hcomp hb') i') b hb i]
-  simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
-  rw [e1, e2, e3]
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
+  I4c_local_sqrt2_rows hfam hfam' H hA hφR hφ hφ' hδ hsm h h'
+    (fun b' hb' i' => hh b' (unitOut_of_unitIn_or hcomp hb') i') hb i
+
+/-- **T5.**  `I4c_local_sqrt2` from `I4c_local_sqrt2_rows`, when `R(B) ⊆ Y`. -/
+theorem I4c_local_sqrt2_of_rows_subset (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
+    (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hRY : ∀ u ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y, u ∈ Y)
+    (hφY : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → φ y = φ' y)
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h h' : unitPts G × Fin N → ℂ)
+    (hh : ∀ b' : unitPts G, (UnitOut G Y b' ∨ UnitIn G X₁ 𝒞 Y b') → ∀ i, h (b', i) = h' (b', i))
+    {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
+    (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
+  I4c_local_sqrt2_rows hfam hfam' H hA (fun y hy => hφY y (hRY _ hy)) hφ hφ' hδ hsm h h' hh hb i
 
 end UnitLocal2
+
+section Sqrt3
+
+open MeasureTheory Set
+
+variable {δ κ : ℝ}
+
+/-- **Rows version of `I4c_local_sqrt3`** (the `FreeBlk` setting).  The free branch uses no field
+agreement.  The `UnitOut` branch is `I4c_local_sqrt_rows`; under `CompleteBlocks` the free branch is
+not needed for blocks inside `Y`, and is kept for the blocks next to `Y`. -/
+theorem I4c_local_sqrt3_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
+    (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y →
+      φ y = φ' y)
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcomp : CompleteBlocks G Y)
+    (h h' : unitPts G × Fin N → ℂ) {b : unitPts G}
+    (hb : UnitOut G Y b ∨ FreeBlk G s s' b)
+    (hh : ∀ b' : unitPts G, (UnitOut G Y b' ∨ unitBlock1 b.1 = unitBlock1 b'.1) →
+      ∀ i, h (b', i) = h' (b', i))
+    (i : Fin N) :
+    (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) := by
+  rcases hb with hb | hb
+  · exact I4c_local_sqrt_rows hfam hfam' H hA hφR hφ hφ' hδ hsm hcomp h h'
+      (fun b' hb' => hh b' (Or.inl hb')) hb i
+  · classical
+    have Hs := (standing_pair hfam hφ hδ hsm).1
+    have Hs' := (standing_pair hfam' hφ' hδ hsm).1
+    have e1 := intMat_mulVec_apply (integrable_decSqrtInt Hs) h (b, i)
+    have e2 := intMat_mulVec_apply (integrable_decSqrtInt Hs') h' (b, i)
+    have e3 : ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α s φ (unitQ G) (unitP G) x *ᵥ h) (b, i) =
+        ∫ x in Ioi (0:ℝ), (decSqrtInt G a aT ν α' s' φ' (unitQ G) (unitP G) x *ᵥ h') (b, i) := by
+      refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+      simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+      rw [decCov_free b hb h h' (fun b' hb' => hh b' (Or.inr hb')) i]
+    simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+    rw [e1, e2, e3]
+
+end Sqrt3
 
 end Two
 
