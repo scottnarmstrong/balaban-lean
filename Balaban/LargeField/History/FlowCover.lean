@@ -39,12 +39,12 @@ def CoveredBy (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (k : ℕ)
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 /-- **Lemma I.4.10 (a), cover** for (T1) and (T4): a component of `Z^pre_{k+1}` without new cubes
 whose old parts are covered by `ν_c ≥ 1` boxes is covered by `∑ ν_c` boxes. -/
-theorem cover_step (k : ℕ) (Z' : H.Comp (k + 1)) (hnew : Z'.1 ∩ H.newCubes (k + 1) = ∅)
+theorem cover_step {k : ℕ} (hk : k < K) (Z' : H.Comp (k + 1)) (hnew : Z'.1 ∩ H.newCubes (k + 1) = ∅)
     (ν : H.Comp k → ℕ) (hpos : ∀ c ∈ H.parts k Z', 1 ≤ ν c)
     (hcov : ∀ c ∈ H.parts k Z', CoveredBy S n k c.1 (ν c)) :
     CoveredBy S n (k + 1) Z'.1 (∑ c ∈ H.parts k Z', ν c) := by
@@ -83,7 +83,7 @@ theorem cover_step (k : ℕ) (Z' : H.Comp (k + 1)) (hnew : Z'.1 ∩ H.newCubes (
     unfold critOpt at hb
     split_ifs at hb
     · cases hb; exact le_rfl
-  obtain ⟨B, h1, h2, h3⟩ := (H.step k).exists_step_cover (G := G) (H.stepGeom k) hOC
+  obtain ⟨B, h1, h2, h3⟩ := (H.step k).exists_step_cover (G := G) (H.stepGeom hk) hOC
     (H.F.ok.cover_side H.F.s4 k) hcrit Z'.2 (by rw [← H.inter_newCubes]; exact hnew) hG
   refine ⟨B, ?_, h2, h3⟩
   have hsum : ∑ c ∈ H.parts k Z', ν c = ∑ Y ∈ (H.step k).oldIn (S.omega k) Z'.1, ν' Y := by

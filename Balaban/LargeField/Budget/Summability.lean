@@ -82,8 +82,8 @@ end KeyCubes
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K)
 
 open Classical in
 /-- The cubes of `Z_k` over a set `Y'` of `π_{k+1}`-cubes. -/
@@ -165,8 +165,8 @@ end KeySpace
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (H : RegionHistory S n R k0) {M K : ℕ} [NeZero M]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {M : ℕ} [NeZero M]
 
 instance : Inhabited (LocalHistory S n M K) :=
   ⟨⟨fun _ => ∅, fun _ => ∅, fun _ => ∅, fun _ => ∅, fun _ => ∅, fun _ => ∅, fun _ => ∅,
@@ -189,7 +189,7 @@ theorem logC_succ_comps {k : ℕ} (hkK : k + 1 ≤ K) (Z' : H.Comp (k + 1)) :
     (localHistory H M K (k + 1) Z').logC (k + 1) =
       ∑ Y ∈ comps (S.omega k) (H.oldCubes k Z'), (H.subHist M K k Y).logC k +
         (5 * ((S.L : ℝ) ^ S.d * Z'.1.card) - (H.oldCubes k Z').card) / 4 := by
-  rw [H.logC_succ hkK Z', ← H.parts_image_eq_comps k Z', Finset.sum_image
+  rw [H.logC_succ hkK Z', ← H.parts_image_eq_comps (by omega) Z', Finset.sum_image
     (fun _ _ _ _ h => Subtype.val_injective h)]
   congr 1
   refine Finset.sum_congr rfl fun c _ => ?_
@@ -201,7 +201,7 @@ end RegionHistory
 histories (on the given tori, with the given radii) in which `Y` is a component. -/
 def histSet (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 M K k : ℕ) [NeZero M]
     (Y : Finset (Torus S.d (n k))) : Set (RegionHistory.LocalHistory S n M K) :=
-  {a | ∃ (H : RegionHistory S n R k0) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
+  {a | ∃ (H : RegionHistory S n R k0 K) (hY : Y ∈ comps (S.omega k) (H.Zp k)),
     a = RegionHistory.localHistory H M K k ⟨Y, hY⟩}
 
 theorem inter_eq_of_newOf_eq {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {k : ℕ}
@@ -249,12 +249,12 @@ theorem sum_inv_logC_le_one (hLd : 8 ≤ S.L ^ S.d) :
     · simp [hAe]
     obtain ⟨a0, ha0⟩ := Finset.nonempty_iff_ne_empty.mpr hAe
     obtain ⟨H0, -, -⟩ := hA a0 ha0
-    have : Nonempty (RegionHistory S n R k0) := ⟨H0⟩
-    have hex : ∀ a ∈ A, ∃ (H : RegionHistory S n R k0)
+    have : Nonempty (RegionHistory S n R k0 K) := ⟨H0⟩
+    have hex : ∀ a ∈ A, ∃ (H : RegionHistory S n R k0 K)
         (hY : Y' ∈ comps (S.omega (k + 1)) (H.Zp (k + 1))),
         a = localHistory H M K (k + 1) ⟨Y', hY⟩ := hA
     choose! wit hmem heq using hex
-    have hnn : n k = S.L * n (k + 1) := H0.F.hnn k
+    have hnn : n k = S.L * n (k + 1) := H0.F.hnn k (by omega)
     -- the first-level data of a localized history
     let key : LocalHistory S n M K → Key S n k := fun a =>
       ⟨(wit a).oldOf k Y', (newOf S n ((wit a).step k).P Y', newOf S n ((wit a).step k).Q Y',
@@ -294,7 +294,7 @@ theorem sum_inv_logC_le_one (hLd : 8 ≤ S.L ^ S.d) :
         intro a ha Y hY
         obtain ⟨haA, hak⟩ := hΦA a ha
         have hold : (wit a).oldCubes k ⟨Y', hmem a haA⟩ = κ.1 := congrArg Sigma.fst hak
-        rw [hI, ← hold, ← (wit a).parts_image_eq_comps k ⟨Y', hmem a haA⟩] at hY
+        rw [hI, ← hold, ← (wit a).parts_image_eq_comps (by omega) ⟨Y', hmem a haA⟩] at hY
         obtain ⟨c, -, rfl⟩ := Finset.mem_image.mp hY
         exact c.2
       let Ψ : LocalHistory S n M K → ∀ Y ∈ I, LocalHistory S n M K :=

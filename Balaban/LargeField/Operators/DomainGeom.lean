@@ -28,8 +28,8 @@ open Balaban
 
 namespace RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  {H : RegionHistory S n R k0}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  {H : RegionHistory S n R k0 K}
 
 section Geom
 
@@ -38,12 +38,12 @@ variable [NeZero S.L]
 /-- **Margin (Lemma I.3.5 (i) for the lineage localization).** A cube of `𝕋_i` within `1` of the
 lineage `Lin_i(Z)` of a component `Z` of `Z^pre_b` lies over the lineage `Lin_{i+1}(Z)`
 (`i + 1 ≤ b`). -/
-theorem blockMap_nbhd_lin {b : ℕ} (Z : H.Comp b) {i : ℕ} (hi : i + 1 ≤ b)
+theorem blockMap_nbhd_lin {b : ℕ} (hbK : b ≤ K) (Z : H.Comp b) {i : ℕ} (hi : i + 1 ≤ b)
     {e : Torus S.d (n i)} (he : e ∈ nbhd 1 ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _)) :
     blockMap S.L (n (i + 1)) e ∈ ((H.lin (i + 1) b Z : Finset (Torus S.d (n (i + 1)))) : Set _) := by
   set st := (H.locRH b Z).step i with hst
-  have hZ : st.Z = ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _) := locRH_Z Z (by omega)
-  have hn := H.F.hnn i
+  have hZ : st.Z = ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _) := locRH_Z Z (by omega) (by omega)
+  have hn := H.F.hnn i (by omega)
   have hL : 0 < S.L := Nat.pos_of_ne_zero (NeZero.ne _)
   have he' : e ∈ nbhd 1 st.U := by
     refine nbhd_mono le_rfl ?_ he
@@ -56,18 +56,18 @@ theorem blockMap_nbhd_lin {b : ℕ} (Z : H.Comp b) {i : ℕ} (hi : i + 1 ≤ b)
   have h2 := st.Z0_subset_Zpre (S.omega (i + 1)) (critOpt S k0 (i + 1))
     (st.OmegaPrime_compl_subset_Z0 h1)
   have h3 : (H.locRH b Z).F.Zpre (i + 1) = st.Zpre (S.omega (i + 1)) (critOpt S k0 (i + 1)) := rfl
-  rw [← h3, locRH_Zpre Z hi] at h2
+  rw [← h3, locRH_Zpre Z hi (by omega)] at h2
   exact h2
 
 /-- **Margin, general radius.**  A cube of `𝕋_i` within `m` of the lineage `Lin_i(Z)` with
 `⌈m/L⌉ ≤ ⌊R_i⌋ + 4` lies over the lineage `Lin_{i+1}(Z)` (`i + 1 ≤ b`). -/
-theorem blockMap_nbhd_lin_of_le {b : ℕ} (Z : H.Comp b) {i : ℕ} (hi : i + 1 ≤ b) {m : ℕ}
+theorem blockMap_nbhd_lin_of_le {b : ℕ} (hbK : b ≤ K) (Z : H.Comp b) {i : ℕ} (hi : i + 1 ≤ b) {m : ℕ}
     (hm : (m + S.L - 1) / S.L ≤ ⌊R i⌋₊ + 4)
     {e : Torus S.d (n i)} (he : e ∈ nbhd m ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _)) :
     blockMap S.L (n (i + 1)) e ∈ ((H.lin (i + 1) b Z : Finset (Torus S.d (n (i + 1)))) : Set _) := by
   set st := (H.locRH b Z).step i with hst
-  have hZ : st.Z = ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _) := locRH_Z Z (by omega)
-  have hn := H.F.hnn i
+  have hZ : st.Z = ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _) := locRH_Z Z (by omega) (by omega)
+  have hn := H.F.hnn i (by omega)
   have he' : e ∈ nbhd m st.U := by
     refine nbhd_mono le_rfl ?_ he
     rw [← hZ]
@@ -76,12 +76,12 @@ theorem blockMap_nbhd_lin_of_le {b : ℕ} (Z : H.Comp b) {i : ℕ} (hi : i + 1 �
   have h2 := st.Z0_subset_Zpre (S.omega (i + 1)) (critOpt S k0 (i + 1))
     (st.OmegaPrime_compl_subset_Z0 h1)
   have h3 : (H.locRH b Z).F.Zpre (i + 1) = st.Zpre (S.omega (i + 1)) (critOpt S k0 (i + 1)) := rfl
-  rw [← h3, locRH_Zpre Z hi] at h2
+  rw [← h3, locRH_Zpre Z hi (by omega)] at h2
   exact h2
 
 /-- Beyond the lineage: a cube `c` of `𝕋_{k+1}` within `2` of the coarsening of a cube of the
 lineage `Lin_k(Z')` lies in `Z'` and is not over `Ω_{k+1}` of the localized step. -/
-theorem fibre_far {M K : ℕ} [NeZero M] {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+theorem fibre_far {M : ℕ} [NeZero M] {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
     {z0 : Torus S.d (n k)} (hz0 : z0 ∈ ((H.lin k (k + 1) Z' : Finset (Torus S.d (n k))) : Set _))
     {c : Torus S.d (n (k + 1))} (hd : supDist (blockMap S.L (n (k + 1)) z0) c ≤ 2) :
     c ∈ (Z'.1 : Set (Torus S.d (n (k + 1)))) ∧ c ∉ ((H.locRH (k + 1) Z').step k).Omega := by
@@ -92,7 +92,7 @@ theorem fibre_far {M K : ℕ} [NeZero M] {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Co
   have hby : blockMap S.L (n (k + 1)) y' = c := by
     rw [hy', cubeMap_succ hnn (by omega) w, hw]
   have hdist : supDist y' z0 ≤ 3 * S.L - 1 := by
-    have h1 := supDist_le_blockMap (L := S.L) (m := n (k + 1)) (hnn k) y' z0
+    have h1 := supDist_le_blockMap (L := S.L) (m := n (k + 1)) (hnn k (by omega)) y' z0
     rw [hby] at h1
     have h2 : supDist c (blockMap S.L (n (k + 1)) z0) ≤ 2 := by rw [supDist_comm]; exact hd
     have h3 : S.L * supDist c (blockMap S.L (n (k + 1)) z0) ≤ S.L * 2 := Nat.mul_le_mul_left _ h2
@@ -103,18 +103,18 @@ theorem fibre_far {M K : ℕ} [NeZero M] {k : ℕ} (hK : k + 1 ≤ K) (Z' : H.Co
         rw [Nat.div_le_iff_le_mul_add_pred (by omega)]
         omega
       omega
-    have h := blockMap_nbhd_lin_of_le Z' (show k + 1 ≤ k + 1 by omega) hm
+    have h := blockMap_nbhd_lin_of_le hK Z' (show k + 1 ≤ k + 1 by omega) hm
       (e := y') (mem_nbhd.mpr ⟨z0, hz0, hdist⟩)
     rw [hby, lin_self] at h
     exact h
   · intro hO
     have hzZ : z0 ∈ ((H.locRH (k + 1) Z').step k).Z := by
-      rw [locRH_Z Z' (by omega)]; exact hz0
-    have := ((H.locRH (k + 1) Z').step k).fine_far (by omega) (hnn k) (by rw [hby]; exact hO) hzZ
+      rw [locRH_Z Z' (by omega) (by omega)]; exact hz0
+    have := ((H.locRH (k + 1) Z').step k).fine_far (by omega) (hnn k (by omega)) (by rw [hby]; exact hO) hzZ
     have h4 : S.L * 4 ≤ S.L * (⌊R k⌋₊ + 4) := Nat.mul_le_mul_left _ (by omega)
     omega
 
-variable {M K : ℕ} [NeZero M]
+variable {M : ℕ} [NeZero M]
 
 /-- Splitting of a descent chain at an intermediate scale. -/
 theorem Desc.split {a c b : ℕ} {Y : H.Comp a} {Z : H.Comp b} (hac : a ≤ c) (hcb : c ≤ b)
@@ -167,31 +167,31 @@ theorem mem_lin_part_iff {k : ℕ} (hK : k + 1 ≤ K) {Y : H.Comp k} {Z' : H.Com
 
 /-- At a cube of `𝕋_{j+1}` the localized `Ω_{j+1}` is the global one inside the lineage, and
 contains the cube outside it (`j < b`). -/
-theorem mem_locOmega_iff' {b : ℕ} (Z : H.Comp b) {j : ℕ} (hj : j < b) (e : Torus S.d (n (j + 1))) :
+theorem mem_locOmega_iff' {b : ℕ} (hbK : b ≤ K) (Z : H.Comp b) {j : ℕ} (hj : j < b) (e : Torus S.d (n (j + 1))) :
     e ∈ ((H.locRH b Z).step j).Omega ↔
       e ∈ (H.step j).Omega ∨ e ∉ ((H.lin (j + 1) b Z : Finset (Torus S.d (n (j + 1)))) : Set _) := by
   by_cases hy : e ∈ ((H.lin (j + 1) b Z : Finset (Torus S.d (n (j + 1)))) : Set _)
   · simp only [hy, not_true_eq_false, or_false]
-    exact (mem_locOmega_iff Z hj hy).1
+    exact (mem_locOmega_iff Z hj (by omega) hy).1
   · simp only [hy, not_false_eq_true, or_true, iff_true]
     by_contra h
-    obtain ⟨-, h2, -, -⟩ := locRH_derived Z hj
+    obtain ⟨-, h2, -, -⟩ := locRH_derived Z hj (by omega)
     have : e ∈ ((H.locRH b Z).step j).Omegaᶜ := h
     rw [← h2] at this
     exact hy this.2
 
 /-- The same for `Ω''_{j+1}`. -/
-theorem mem_locOmegaDD_iff' {b : ℕ} (Z : H.Comp b) {j : ℕ} (hj : j < b)
+theorem mem_locOmegaDD_iff' {b : ℕ} (hbK : b ≤ K) (Z : H.Comp b) {j : ℕ} (hj : j < b)
     (e : Torus S.d (n (j + 1))) :
     e ∈ ((H.locRH b Z).step j).OmegaDD ↔
       e ∈ (H.step j).OmegaDD ∨
         e ∉ ((H.lin (j + 1) b Z : Finset (Torus S.d (n (j + 1)))) : Set _) := by
   by_cases hy : e ∈ ((H.lin (j + 1) b Z : Finset (Torus S.d (n (j + 1)))) : Set _)
   · simp only [hy, not_true_eq_false, or_false]
-    exact (mem_locOmega_iff Z hj hy).2
+    exact (mem_locOmega_iff Z hj (by omega) hy).2
   · simp only [hy, not_false_eq_true, or_true, iff_true]
     by_contra h
-    exact hy (mem_lin_of_not_mem_locOmegaDD Z hj h)
+    exact hy (mem_lin_of_not_mem_locOmegaDD Z hj (by omega) h)
 
 section Agree
 
@@ -211,13 +211,13 @@ theorem agree_Z {j : ℕ} (hj : j ≤ k) {x : Torus S.d (M * n K * S.L ^ K)}
   have h1 : x ∈ (H.localHistory M K k Y).Z j ↔ cubeMap n S.L M K j x ∈
       ((H.lin j k Y : Finset (Torus S.d (n j))) : Set _) := by
     show (cubeMap n S.L M K j x ∈ ((H.locRH k Y).step j).Z ∧ cubeMap n S.L M K k x ∈ Y.1) ↔ _
-    rw [locRH_Z Y hj]
+    rw [locRH_Z Y hj (by omega)]
     simp [hx]
   have h2 : x ∈ (H.localHistory M K (k + 1) Z').Z j ↔ cubeMap n S.L M K j x ∈
       ((H.lin j (k + 1) Z' : Finset (Torus S.d (n j))) : Set _) := by
     show (cubeMap n S.L M K j x ∈ ((H.locRH (k + 1) Z').step j).Z ∧
       cubeMap n S.L M K (k + 1) x ∈ Z'.1) ↔ _
-    rw [locRH_Z Z' (by omega)]
+    rw [locRH_Z Z' (by omega) (by omega)]
     simp [part_fine_sub hK hY hx]
   rw [h1, h2, mem_lin_part_iff hK hY hj hx]
 
@@ -228,7 +228,7 @@ theorem agree_Omega {j : ℕ} (hj : j < k) {x : Torus S.d (M * n K * S.L ^ K)}
   show (cubeMap n S.L M K (j + 1) x ∈ ((H.locRH k Y).step j).Omega ∧ cubeMap n S.L M K k x ∈ Y.1) ↔
     (cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (k + 1) Z').step j).Omega ∧
       cubeMap n S.L M K (k + 1) x ∈ Z'.1)
-  rw [mem_locOmega_iff' Y hj, mem_locOmega_iff' Z' (by omega), mem_lin_part_iff hK hY (show j + 1 ≤ k by omega) hx]
+  rw [mem_locOmega_iff' (by omega) Y hj, mem_locOmega_iff' (by omega) Z' (by omega), mem_lin_part_iff hK hY (show j + 1 ≤ k by omega) hx]
   simp [hx, part_fine_sub hK hY hx]
 
 include hK hY in
@@ -239,7 +239,7 @@ theorem agree_OmegaDD {j : ℕ} (hj : j < k) {x : Torus S.d (M * n K * S.L ^ K)}
       cubeMap n S.L M K k x ∈ Y.1) ↔
     (cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (k + 1) Z').step j).OmegaDD ∧
       cubeMap n S.L M K (k + 1) x ∈ Z'.1)
-  rw [mem_locOmegaDD_iff' Y hj, mem_locOmegaDD_iff' Z' (by omega),
+  rw [mem_locOmegaDD_iff' (by omega) Y hj, mem_locOmegaDD_iff' (by omega) Z' (by omega),
     mem_lin_part_iff hK hY (show j + 1 ≤ k by omega) hx]
   simp [hx, part_fine_sub hK hY hx]
 
@@ -251,9 +251,9 @@ theorem agree_lhOmega {i : ℕ} (hi1 : 1 ≤ i) (hik : i ≤ k) {x : Torus S.d (
     x ∈ lhOmega (H.localHistory M K k Y) k i ↔
       x ∈ lhOmega (H.localHistory M K (k + 1) Z') (k + 1) i := by
   have hY1 : x ∈ (H.localHistory M K k Y).Z k :=
-    (mem_localHistory_Z_top (M := M) (K := K) Y x).mpr hx
+    (mem_localHistory_Z_top (M := M) (K := K) (by omega) Y x).mpr hx
   have hZ1 : x ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) :=
-    (mem_localHistory_Z_top (M := M) (K := K) Z' x).mpr (part_fine_sub hK hY hx)
+    (mem_localHistory_Z_top (M := M) (K := K) (by omega) Z' x).mpr (part_fine_sub hK hY hx)
   unfold lhOmega
   simp only [Set.mem_union, Set.mem_compl_iff, hY1, hZ1, not_true_eq_false, or_false]
   exact agree_Omega hK hY (by omega) hx
@@ -295,11 +295,11 @@ theorem exists_part_of_mem_lin {k : ℕ} {Z' : H.Comp (k + 1)} {e : Torus S.d (n
   exact ⟨c, hc', hec⟩
 
 /-- A site of the record `Z_i` of the localized history of `Z'` lies over its lineage. -/
-theorem cubeMap_mem_lin_of_mem_Z {b i : ℕ} (hi : i ≤ b) {Z : H.Comp b}
+theorem cubeMap_mem_lin_of_mem_Z {b i : ℕ} (hi : i ≤ b) (hbK : b ≤ K) {Z : H.Comp b}
     {x : Torus S.d (M * n K * S.L ^ K)} (hx : x ∈ (H.localHistory M K b Z).Z i) :
     cubeMap n S.L M K i x ∈ ((H.lin i b Z : Finset (Torus S.d (n i))) : Set _) := by
   have h : cubeMap n S.L M K i x ∈ ((H.locRH b Z).step i).Z := hx.1
-  rwa [locRH_Z Z hi] at h
+  rwa [locRH_Z Z hi (by omega)] at h
 
 section Near
 
@@ -318,15 +318,15 @@ theorem part_sub_lin (hY : Y ∈ H.parts k Z') :
   exact Finset.mem_coe.mpr (mem_lin.mpr ⟨Y, Desc.single hrem hs, hz⟩)
 
 /-- A cube within `1` of an old part lies over `Z'`. -/
-theorem near_blockMap_mem (hY : Y ∈ H.parts k Z') {e : Torus S.d (n k)} (he : NearPart Y e) :
+theorem near_blockMap_mem (hK : k + 1 ≤ K) (hY : Y ∈ H.parts k Z') {e : Torus S.d (n k)} (he : NearPart Y e) :
     blockMap S.L (n (k + 1)) e ∈ (Z'.1 : Set (Torus S.d (n (k + 1)))) := by
   obtain ⟨z, hz, hd⟩ := he
-  have h := blockMap_nbhd_lin Z' (le_refl (k + 1)) (e := e)
+  have h := blockMap_nbhd_lin hK Z' (le_refl (k + 1)) (e := e)
     (mem_nbhd.mpr ⟨z, part_sub_lin hY hz, hd⟩)
   rwa [lin_self] at h
 
 /-- A cube within `1` of an old part `Y` is in `Y` or outside the lineage of `Z'`. -/
-theorem near_cases (hY : Y ∈ H.parts k Z') {e : Torus S.d (n k)} (he : NearPart Y e) :
+theorem near_cases (hK : k + 1 ≤ K) (hY : Y ∈ H.parts k Z') {e : Torus S.d (n k)} (he : NearPart Y e) :
     e ∈ Y.1 ∨ e ∉ ((H.lin k (k + 1) Z' : Finset (Torus S.d (n k))) : Set _) := by
   by_cases hmem : e ∈ ((H.lin k (k + 1) Z' : Finset (Torus S.d (n k))) : Set _)
   · left
@@ -334,7 +334,7 @@ theorem near_cases (hY : Y ∈ H.parts k Z') {e : Torus S.d (n k)} (he : NearPar
     obtain ⟨c, hd', hec⟩ := mem_lin.mp (Finset.mem_coe.mp hmem)
     have hzX : z ∈ H.Zp k := comp_subset Y.2 hz
     have hL : 2 ≤ S.L := H.F.ok.two_le_L
-    have hω : 2 ≤ S.omega k := hL.trans (H.stepGeom k).hLωk
+    have hω : 2 ≤ S.omega k := hL.trans (H.stepGeom (by omega : k < K)).hLωk
     have hzc : z ∈ c.1 := mem_comp_of_close c.2 hec hzX (by omega)
     have hcY : c = Y := Subtype.ext (comp_eq_of_mem c.2 Y.2 hzc hz)
     subst hcY

@@ -84,7 +84,7 @@ variable {k0 : ℕ}
 without removals: the records of `Hl` intersected with the fine set of `Zc`.  For the lineage
 localization `H.locRH k Z` of a component `Z` of a region history `H` and `Zc = Z.1` this is
 `H.localHistory M K k Z` (by `rfl`). -/
-def locHist (Hl : RegionHistory S n R k0) (M K k : ℕ) (Zc : Finset (Torus S.d (n k))) :
+def locHist (Hl : RegionHistory S n R k0 K) (M K k : ℕ) (Zc : Finset (Torus S.d (n k))) :
     LocalHistory S n M K where
   Z j := fineSet (S := S) (n := n) M K j (Hl.step j).Z ∩ fineSet M K k Zc
   P j := fineSet M K (j + 1) (Hl.step j).P ∩ fineSet M K k Zc
@@ -95,12 +95,12 @@ def locHist (Hl : RegionHistory S n R k0) (M K k : ℕ) (Zc : Finset (Torus S.d 
   Omega j := fineSet M K (j + 1) (Hl.step j).Omega ∩ fineSet M K k Zc
   OmegaDD j := fineSet M K (j + 1) (Hl.step j).OmegaDD ∩ fineSet M K k Zc
 
-theorem locHist_locRH (H : RegionHistory S n R k0) (M K k : ℕ) (Z : H.Comp k) :
+theorem locHist_locRH (H : RegionHistory S n R k0 K) (M K k : ℕ) (Z : H.Comp k) :
     locHist (H.locRH k Z) M K k Z.1 = H.localHistory M K k Z := rfl
 
-theorem locComp_mem (H : RegionHistory S n R k0) {k : ℕ} (Z : H.Comp k) :
+theorem locComp_mem (H : RegionHistory S n R k0 K) {k : ℕ} (hkK : k ≤ K) (Z : H.Comp k) :
     Z.1 ∈ comps (S.omega k) ((H.locRH k Z).F.Zp k) := by
-  rw [locRH_comps Z]
+  rw [locRH_comps hkK Z]
   exact Finset.mem_singleton_self _
 
 /-- The index set of the external field `g : 𝕋 → ℂ^N`. -/
@@ -144,7 +144,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- A field on the `i`-blocks of the fine torus, transported to the level-`q` torus
 `Torus d (M₁ (c n_q) L^{q-i})` of the characteristic functions (`i ≤ q ≤ K`). -/
-def blockCfgOf (g : Geo S n R M) (hnn : ∀ i, n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
+def blockCfgOf (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {q i : ℕ} (hiq : i ≤ q)
     (hqK : q ≤ K) (f : BlockAt S n M K i → EuclideanSpace ℝ (Fin N)) :
     BlockCfg S.d (g.M1 * (g.c * n q)) S.L q i N :=
   fun z j => f (torusCast (histScale_eq g.hM hnn hiq hqK) z) j

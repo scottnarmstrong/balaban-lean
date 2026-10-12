@@ -55,7 +55,7 @@ section Recursion
 
 variable (geo : Geo S n R M) (cs : OpConsts) {κs κ : ℕ → LocalHistory S n M K → ℝ}
   {lamHat : ℕ → ℝ} (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ lamHat)
-  {H : RegionHistory S n R k0}
+  {H : RegionHistory S n R k0 K}
 
 /-- The kernel of the pre-operator of `Z'`: `K_k · ∏_Y K_Y(ψ_k|_{V_Y}, x|_Y)` and
 `b_k + ∑_Y b_Y(ψ_k|_{V_Y}, x|_Y)`. -/
@@ -142,7 +142,7 @@ noncomputable def keptOp (hH : H.Admissible) {k : ℕ} (Z : H.Comp k) (hk1 : 1 �
 
 /-- A component is *kept* if it is ripe at a scale `1 ≤ k ≤ k₀` (removed components do not occur
 in the lineage, so every ripe component of `Z_k` is kept; Definition II.5.8). -/
-def IsKept (H : RegionHistory S n R k0) (k : ℕ) (Z : H.Comp k) : Prop :=
+def IsKept (H : RegionHistory S n R k0 K) (k : ℕ) (Z : H.Comp k) : Prop :=
   1 ≤ k ∧ k ≤ k0 ∧ S.Ripe k (H.bk k Z)
 
 open Classical in

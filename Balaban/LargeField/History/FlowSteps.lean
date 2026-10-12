@@ -96,19 +96,24 @@ theorem Setting.Ok.spineNum {S : Setting} (ok : S.Ok) (s4 : 4 ≤ S.sS) (s5 : 5 
     linarith
 
 /-- The steps `𝕋_k → 𝕋_{k+1}` of the region calculus with the parameters of the counter `S`
-(radii `R`, `n_k = L n_{k+1}`), and the side conditions `s_* ≥ 4`, `s' ≥ 5`. -/
-structure FlowSteps (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 : ℕ) where
+(radii `R`, `n_k = L n_{k+1}` for the scales `k < K` below the horizon `K`), and the side
+conditions `s_* ≥ 4`, `s' ≥ 5`.  The flow runs from scale `0` to the top scale `K` (the horizon
+`k̂_f + 1` of LF-RECONSTRUCTION); the relation `n_k = L n_{k+1}` for all `k` would be
+contradictory.  The region steps `step k` are geometry-free data (`RegionStep` does not refer to
+`n_k = L n_{k+1}`) and are given for every `k`; the geometry of the step `k` is
+`FlowSteps.stepGeom` for `k < K`. -/
+structure FlowSteps (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (R : ℕ → ℝ) (k0 K : ℕ) where
   ok : S.Ok
   s4 : 4 ≤ S.sS
   s5 : 5 ≤ S.sP
   RH : RadiusHyp S.L S.Rb S.lam R
-  hnn : ∀ k, n k = S.L * n (k + 1)
+  hnn : ∀ k, k < K → n k = S.L * n (k + 1)
   step : ∀ k, RegionStep S.d S.L (n k) (n (k + 1)) (R (k - 1)) (R k)
 
 namespace FlowSteps
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ}
-  (F : FlowSteps S n R k0)
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (F : FlowSteps S n R k0 K)
 
 /-- `Z^pre_k` (empty for `k = 0`). -/
 noncomputable def Zpre : ∀ k, Set (Torus S.d (n k))
@@ -132,7 +137,7 @@ theorem isEmpty_comp_zero : IsEmpty (F.Comp 0) := by
   simp at this
 
 include F in
-theorem stepGeom (k : ℕ) :
+theorem stepGeom {k : ℕ} (hk : k < K) :
     StepGeom S.L (n k) (n (k + 1)) (S.omega k) (S.omega (k + 1)) (S.r k) (R (k - 1)) (R k) := by
   have hL := F.ok.two_le_L
   have hRp : R (k - 1) ≤ S.Rb * S.lam k ^ 2 := by
@@ -146,7 +151,7 @@ theorem stepGeom (k : ℕ) :
     rw [Setting.omega_eq_omegaW]; exact le_omegaW _ _ _ _
   have h3 : S.L + 11 ≤ S.omega k := by
     rw [Setting.omega_eq_omegaW]; exact le_omegaW _ _ _ _
-  exact ⟨F.hnn k, hrad, coarse_width_lt hL h1 h2, by omega, by omega⟩
+  exact ⟨F.hnn k hk, hrad, coarse_width_lt hL h1 h2, by omega, by omega⟩
 
 end FlowSteps
 

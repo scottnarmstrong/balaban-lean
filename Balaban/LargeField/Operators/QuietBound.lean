@@ -24,7 +24,7 @@ open MeasureTheory Balaban Balaban.Multiscale Balaban.Background RegionHistory E
 section Final
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0} {k : ℕ}
+  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K} {k : ℕ}
   (geo : Geo S n R M) (cs : OpConsts)
 
 open Classical in
@@ -45,7 +45,7 @@ theorem quietKernel_bound [NeZero N] (hN : 2 ≤ N) (hk1 : 1 ≤ k) (hK : k + 1 
     (T : LFKernel (OutT N R (H.localHistory M K (k + 1) Z') (k + 1))
       (NewCfg N (H.localHistory M K (k + 1) Z') k) (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N))
     (hTK : ∀ o x hv, T.K o x hv = quietKernel geo (H.locRH (k + 1) Z') k Z'.1
-      (locComp_mem H Z') cs hK (locRH_rem (k + 1) Z') o x hv)
+      (locComp_mem H hK Z') hK cs (locRH_rem (k + 1) Z') o x hv)
     (hb : ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
       ChiNewAt geo cs H k Z' o x →
       ‖T.b o x hv g‖ ≤ (cs.Cb * Real.log (cs.beta k) + cs.Cb * cs.B0) *
@@ -79,17 +79,17 @@ theorem quietKernel_bound [NeZero N] (hN : 2 ≤ N) (hk1 : 1 ≤ k) (hK : k + 1 
   let wit : GaussWit N R (H.localHistory M K (k + 1) Z') k :=
     { W := Unit
       F := fun _ _ => 1
-      Kt := fun _ o x hv => quietRest geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hK
+      Kt := fun _ o x hv => quietRest geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hK Z') hK cs
         (locRH_rem (k + 1) Z') o x hv }
   refine ⟨wit, ?_⟩
-  have hunit := fun o x hv => quietRest_unit (N := N) geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hK
+  have hunit := fun o x hv => quietRest_unit (N := N) geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hK Z') hK cs
     (locRH_rem (k + 1) Z') hβ haw hμ o x hv
   refine ⟨fun _ _ => ⟨zero_le_one, le_rfl⟩, fun _ => measurable_const,
     fun _ o x hv => (hunit o x hv).1,
     fun _ o o' x hv hoo => quietRest_congr geo cs hK Z' o o' x hv hoo, ?_, ?_⟩
   · intro o x hv
     rw [hTK]
-    refine (quietKernel_eq geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hK
+    refine (quietKernel_eq geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hK Z') hK cs
       (locRH_rem (k + 1) Z') o x hv).trans ?_
     simp only [wit, Finset.univ_unique, Finset.sum_singleton, one_mul]
     rfl
@@ -152,7 +152,7 @@ theorem quietKernel_bound [NeZero N] (hN : 2 ≤ N) (hk1 : 1 ≤ k) (hK : k + 1 
         calc _ ≤ 1 * Real.exp (T.b o x hv g).re :=
               mul_le_mul_of_nonneg_right h1 (Real.exp_pos _).le
           _ ≤ _ := by rw [one_mul]; exact h2
-      · have hz0 := quietRest_eq_zero geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H Z') cs hK
+      · have hz0 := quietRest_eq_zero geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hK Z') hK cs
           (locRH_rem (k + 1) Z') o x hv hchi
         have hK0 : wit.Kt w o x hv = 0 := hz0
         show ENNReal.ofReal (wit.Kt w o x hv * _) ≤ _
