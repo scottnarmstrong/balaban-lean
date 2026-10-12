@@ -125,21 +125,21 @@ noncomputable def hatBox (q : ℕ × CTorus d L N₁ m₁ K) : Finset (CTorus d 
 noncomputable def coreBox (q : ℕ × CTorus d L N₁ m₁ K) : Finset (CTorus d L N₁ m₁ K) :=
   boxSet m₁ q.1 q.2 (3 / 2 * (L : ℝ) ^ (q.1 + m₁))
 
-theorem box_subset_hatBox (q : ℕ × CTorus d L N₁ m₁ K) : box q ⊆ hatBox q := by
+theorem box_subset_hatBox (q : ℕ × CTorus d L N₁ m₁ K) : intBox q ⊆ hatBox q := by
   intro x hx
   unfold hatBox
   rw [mem_boxSet]
-  refine (mem_box.1 hx).mono ?_
+  refine (mem_intBox.1 hx).mono ?_
   unfold hatRad
   have : (0 : ℝ) ≤ 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ q.1 := by positivity
   linarith
 
-theorem coreBox_subset_box {q : ℕ × CTorus d L N₁ m₁ K} (hM : 4 * L ^ 2 ≤ L ^ m₁) :
-    coreBox q ⊆ box q := by
+theorem coreBox_subset_box {q : ℕ × CTorus d L N₁ m₁ K} :
+    coreBox q ⊆ intBox q := by
   intro x hx
   unfold coreBox at hx
   rw [mem_boxSet] at hx
-  rw [mem_box]
+  rw [mem_intBox]
   refine hx.mono ?_
   have : (0 : ℝ) ≤ (L : ℝ) ^ (q.1 + m₁) := by positivity
   linarith
@@ -152,6 +152,7 @@ def ConnIn (S : Finset (CTorus d L N₁ m₁ K)) : Prop :=
 def IsNnComp (Z Y' : Finset (CTorus d L N₁ m₁ K)) : Prop :=
   Y' ⊆ Z ∧ ∀ x ∈ Y', ∀ y ∈ Z, Adj x y → y ∈ Y'
 
+omit [NeZero N₁] [NeZero L] in
 /-- **A connected set inside `Z` lies in a component or is disjoint from it.** -/
 theorem connIn_dichotomy {S Z Y' : Finset (CTorus d L N₁ m₁ K)} (hS : ConnIn S) (hSZ : S ⊆ Z)
     (hY : IsNnComp Z Y') : S ⊆ Y' ∨ Disjoint S Y' := by
@@ -172,7 +173,7 @@ theorem connIn_dichotomy {S Z Y' : Finset (CTorus d L N₁ m₁ K)} (hS : ConnIn
     intro x hxS hxY
     exact h ⟨x, hxS, hxY⟩
 
-theorem cubeP_eq_boxSet (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) :
+theorem cubeP_eq_boxSet {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) :
     cubeP q = boxSet m₁ q.1 q.2 (1 / 2 * (L : ℝ) ^ (q.1 + m₁)) := by
   obtain ⟨⟨hm1, hmK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hq
   ext x
@@ -189,7 +190,7 @@ theorem cubeP_subset_Ω (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ 
 theorem cubeP_connIn (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) :
     ConnIn (cubeP q) := by
   obtain ⟨⟨hm1, hmK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hq
-  rw [cubeP_eq_boxSet S hq]
+  rw [cubeP_eq_boxSet hq]
   have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast S.hL
   have hB : (2 : ℝ) ≤ (L : ℝ) ^ (q.1 + m₁) := by
     calc (2 : ℝ) ≤ L := by linarith
@@ -315,7 +316,7 @@ components of `V(𝒞) ∩ Ω₁`; `s, s'` equal to `1` off `𝔓` and `0` on `�
 `𝒞` inside `Y`; `A = A'`, `f = f'` on `Y`.  Then `G_s(A) f = G_{s'}(A') f'` on
 `Core_Y = ⋃_{z ∈ Z_Y} C_z`. -/
 theorem dg5' (S : DGSetting G a ν) (hconn : HatConn G) {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
-    (h𝒞 : 𝒞 ⊆ cubeIdx G) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
     {α α' : G.Ω 1 → ℂ} (hα : AdmPot G α) (hα' : AdmPot G α')
     {s s' : ℕ × CTorus d L N₁ m₁ K → ℂ}
@@ -361,7 +362,7 @@ theorem dg5' (S : DGSetting G a ν) (hconn : HatConn G) {𝒞 : Finset (ℕ × C
         exact hPP (Finset.mem_filter.2 ⟨hown, hc⟩)
       exact this (mem_cubeP.2 (ownBase_sameCell x))
   have hdich : ∀ z ∈ cubeIdx G, (sProd G s z ≠ 0 ∨ sProd G s' z ≠ 0) →
-      SubI G (box z) Y ∨ DisjI G (box z) Y := by
+      SubI G (intBox z) Y ∨ DisjI G (intBox z) Y := by
     intro z hz hactive
     have hP : ∀ P ∈ Qset G z, P ∈ parCubes G X₁ → P ∈ 𝒞 := by
       rcases hactive with h | h
@@ -380,7 +381,7 @@ theorem dg5' (S : DGSetting G a ν) (hconn : HatConn G) {𝒞 : Finset (ℕ × C
         unfold hatI
         rw [Finset.mem_filter]
         exact ⟨box_subset_hatBox z hx, x.2⟩) hxY
-  have hagree : ∀ z ∈ cubeIdx G, SubI G (box z) Y → sProd G s z = sProd G s' z := by
+  have hagree : ∀ z ∈ cubeIdx G, SubI G (intBox z) Y → sProd G s z = sProd G s' z := by
     intro z hz hbox
     by_cases hactive : sProd G s z ≠ 0 ∨ sProd G s' z ≠ 0
     · have hP : ∀ P ∈ Qset G z, P ∈ parCubes G X₁ → P ∈ 𝒞 := by
@@ -390,8 +391,8 @@ theorem dg5' (S : DGSetting G a ν) (hconn : HatConn G) {𝒞 : Finset (ℕ × C
       -- the base point of `z` lies in `□_z ∩ Ω₁`, hence in `Y`
       obtain ⟨⟨hm1, hmK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hz
       have hbaseΩ : z.2 ∈ G.Ω 1 := G.layer_subset hm1 hmK hl
-      have hbasebox : z.2 ∈ box z := by
-        rw [mem_box]
+      have hbasebox : z.2 ∈ intBox z := by
+        rw [mem_intBox]
         intro μ
         refine ⟨0, ?_⟩
         have hB : (1 : ℝ) ≤ (L : ℝ) ^ (z.1 + m₁) :=
@@ -441,7 +442,7 @@ theorem dg5' (S : DGSetting G a ν) (hconn : HatConn G) {𝒞 : Finset (ℕ × C
   have hzZ' := Finset.mem_filter.1 hzZ
   have hsub := hzZ'.2.2
   have hxbox : (x : CTorus d L N₁ m₁ K) ∈ hatBox z := by
-    refine box_subset_hatBox z (coreBox_subset_box S.hM hxz)
+    refine box_subset_hatBox z (coreBox_subset_box hxz)
   have hxY : (x : CTorus d L N₁ m₁ K) ∈ Y := hsub x hxbox
   exact Gs_local S hα hα' hU hU' hdich hagree hA hf x hxY
 

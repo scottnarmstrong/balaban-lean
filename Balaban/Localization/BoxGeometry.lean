@@ -11,7 +11,7 @@ public import Balaban.Localization.Decoupled
 # The interaction cube as a union of cells; block alignment
 
 For a centre `z = (j, y₀)` (`CubeBase`: the coordinates of `y₀` are multiples of `B = M₁ ℓ_j =
-L ^ (j + m₁)`) the interaction cube `□_z = box z` is described in terms of the cells of side `B`:
+L ^ (j + m₁)`) the interaction cube `□_z = intBox z` is described in terms of the cells of side `B`:
 a point lies in `□_z` iff in each coordinate its cell index differs from that of `y₀` by at most `2`
 (periodically).  Consequences: `□_z` is a union of cells of side `B` (`box_sameCell`), it lies in the
 layers `≤ j + 1` (`layer_le_of_mem_box`), hence is a union of blocks of every layer meeting it
@@ -99,18 +99,18 @@ theorem inBox_coord_iff {j : ℕ} (hj : j ≤ K) {y0 x : CTorus d L N₁ m₁ K}
 /-- Cell description of `□_z`. -/
 theorem mem_box_iff_cell {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G)
     {x : CTorus d L N₁ m₁ K} :
-    x ∈ box q ↔ ∀ μ, ∃ p : ℤ,
+    x ∈ intBox q ↔ ∀ μ, ∃ p : ℤ,
       |(((x μ).val / L ^ (q.1 + m₁) : ℕ) : ℤ) - (((q.2 μ).val / L ^ (q.1 + m₁) : ℕ) : ℤ) +
         p * ((((N₁ * L ^ m₁) * L ^ K) / L ^ (q.1 + m₁) : ℕ) : ℤ)| ≤ 2 := by
   obtain ⟨⟨hm1, hmK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hq
-  rw [mem_box]
+  rw [mem_intBox]
   unfold InBox
   exact forall_congr' fun μ => inBox_coord_iff hmK hb μ
 
 /-- `□_z` is a union of cells of side `M₁ ℓ_j`. -/
 theorem box_sameCell {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G)
     {x x' : CTorus d L N₁ m₁ K} (h : SameCell (L ^ (q.1 + m₁)) x x') :
-    x ∈ box q ↔ x' ∈ box q := by
+    x ∈ intBox q ↔ x' ∈ intBox q := by
   rw [mem_box_iff_cell hq, mem_box_iff_cell hq]
   refine forall_congr' fun μ => ?_
   rw [h μ]
@@ -120,10 +120,10 @@ theorem box_sameCell {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G)
 /-- The points of `□_z` lie in layers `≤ j + 1`. -/
 theorem layer_le_of_mem_box (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ) (hL : 1 ≤ L)
     {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) {n : ℕ} (hn1 : 1 ≤ n) (hnK : n ≤ K)
-    {x : CTorus d L N₁ m₁ K} (hx : x ∈ G.layer n) (hb : x ∈ box q) : n ≤ q.1 + 1 := by
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ G.layer n) (hb : x ∈ intBox q) : n ≤ q.1 + 1 := by
   obtain ⟨⟨hm1, hmK⟩, hl, hbase⟩ := (mem_cubeIdx G).1 hq
   have hLr : (1 : ℝ) ≤ L := by exact_mod_cast hL
-  have hdist := torusDist_le_of_inBox ((mem_box).1 hb)
+  have hdist := torusDist_le_of_inBox ((mem_intBox).1 hb)
   have hd1 : (0 : ℝ) ≤ d := by positivity
   have hl1 : (1 : ℝ) ≤ (L : ℝ) ^ (q.1 + m₁) := one_le_pow₀ hLr
   have := layer_bounds_cube m₁ G hϱ hm1 hmK hn1 hnK hx hl
@@ -136,7 +136,7 @@ theorem layer_le_of_mem_box (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ) 
 /-- **`□_z` is a union of blocks of every layer meeting it.** -/
 theorem box_blockAligned (hG : CubeAligned G m₁) (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ)
     (hL : 1 ≤ L) {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) :
-    BlockAligned G (box q) := by
+    BlockAligned G (intBox q) := by
   intro j hj1 hjK x x' hx hbl
   by_cases hj : j ≤ q.1 + m₁
   · have hcell : SameCell (L ^ j) x' x := sameCell_of_jBlock_eq hjK hbl
@@ -160,7 +160,7 @@ theorem intTorus_add_aux {m : ℕ} (w w' : Fin d → ℤ) :
 
 /-- `x` is an interior point of `□_z`: the points `x + w`, `‖w‖_∞ ≤ 2`, lie in `□_z`. -/
 def Inner (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) : Prop :=
-  ∀ w : Fin d → ℤ, (∀ μ, |(w μ : ℝ)| ≤ 2) → x + (intTorus w : CTorus d L N₁ m₁ K) ∈ box q
+  ∀ w : Fin d → ℤ, (∀ μ, |(w μ : ℝ)| ≤ 2) → x + (intTorus w : CTorus d L N₁ m₁ K) ∈ intBox q
 
 /-- **Interior of the cover.** If `y ∈ C_z` and `x` is a neighbour of `y` or in the `n`-block of
 `y`, then `x` is an interior point of `□_z`. -/
@@ -176,9 +176,9 @@ theorem inner_of_near (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ)
   have hLj : (1 : ℝ) ≤ (L : ℝ) ^ q.1 := one_le_pow₀ hLr
   have key : ∀ w' : Fin d → ℤ, x = y + (intTorus w' : CTorus d L N₁ m₁ K) →
       (∀ μ, |(w' μ : ℝ)| ≤ L * (L : ℝ) ^ q.1) →
-      x + (intTorus w : CTorus d L N₁ m₁ K) ∈ box q := by
+      x + (intTorus w : CTorus d L N₁ m₁ K) ∈ intBox q := by
     intro w' hw' hbd
-    rw [mem_box, hw', add_assoc, intTorus_add_aux]
+    rw [mem_intBox, hw', add_assoc, intTorus_add_aux]
     refine inBox_cov4 hM hy (w' + w) (fun μ => ?_)
     simp only [Pi.add_apply, Int.cast_add]
     have h1 := hbd μ

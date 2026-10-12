@@ -88,9 +88,10 @@ theorem inBox_intTorus {j : ℕ} {y0 : CTorus d L N₁ m₁ K} {R : ℝ} {X : Fi
 def stepIn (S : Finset (CTorus d L N₁ m₁ K)) (a b : CTorus d L N₁ m₁ K) : Prop :=
   a ∈ S ∧ b ∈ S ∧ Adj a b
 
-theorem stepIn_symm (S : Finset (CTorus d L N₁ m₁ K)) : Symmetric (stepIn S) := by
-  intro a b ⟨ha, hb, hab⟩
-  exact ⟨hb, ha, hab.symm⟩
+omit [NeZero N₁] [NeZero L] in
+theorem stepIn_symm (S : Finset (CTorus d L N₁ m₁ K)) {a b : CTorus d L N₁ m₁ K}
+    (h : stepIn S a b) : stepIn S b a :=
+  ⟨h.2.1, h.1, h.2.2.symm⟩
 
 /-- **Boxes are nearest-neighbour connected** (`R ≥ 1`). -/
 theorem boxSet_connected {j : ℕ} (y0 : CTorus d L N₁ m₁ K) {R : ℝ} (hR : 1 ≤ R) :
@@ -189,7 +190,7 @@ theorem boxSet_connected {j : ℕ} (y0 : CTorus d L N₁ m₁ K) {R : ℝ} (hR :
   obtain ⟨Y, hY, rfl⟩ := exists_lift_of_inBox (mem_boxSet.1 hy)
   have hx' := claim _ X hX rfl
   have hy' := claim _ Y hY rfl
-  haveI : Std.Symm (stepIn S) := ⟨fun _ _ h => stepIn_symm S h⟩
+  have : Std.Symm (stepIn S) := ⟨fun _ _ h => stepIn_symm S h⟩
   exact hx'.trans (Std.Symm.symm _ _ hy')
 
 end Balaban.Localization

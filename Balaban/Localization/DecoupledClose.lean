@@ -169,12 +169,12 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ}
 
 /-- The distance from a site to a set of sites in the path metric. -/
-noncomputable def setDist (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (W : Finset (CTorus d L N₁ m₁ K))
+noncomputable def siteSetDist (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (W : Finset (CTorus d L N₁ m₁ K))
     (x : CTorus d L N₁ m₁ K) : ENNReal := ⨅ w ∈ W, G.pathDist x w
 
 theorem setDist_triangle (W : Finset (CTorus d L N₁ m₁ K)) (x y : CTorus d L N₁ m₁ K) :
-    setDist G W x ≤ G.pathDist x y + setDist G W y := by
-  unfold setDist
+    siteSetDist G W x ≤ G.pathDist x y + siteSetDist G W y := by
+  unfold siteSetDist
   rw [ENNReal.add_iInf]
   refine le_iInf fun w => ?_
   rw [ENNReal.add_iInf]
@@ -182,12 +182,12 @@ theorem setDist_triangle (W : Finset (CTorus d L N₁ m₁ K)) (x y : CTorus d L
   exact (iInf₂_le w hw).trans (G.pathDist_triangle x y w)
 
 theorem setDist_of_mem (W : Finset (CTorus d L N₁ m₁ K)) {x : CTorus d L N₁ m₁ K}
-    (hx : x ∈ W) (hxΩ : x ∈ G.Ω 1) : setDist G W x = 0 :=
+    (hx : x ∈ W) (hxΩ : x ∈ G.Ω 1) : siteSetDist G W x = 0 :=
   le_antisymm ((iInf₂_le x hx).trans (by rw [G.pathDist_self hxΩ])) bot_le
 
 theorem setDist_adj_le (W : Finset (CTorus d L N₁ m₁ K)) {x y : CTorus d L N₁ m₁ K}
     (hx : x ∈ G.Ω 1) (hy : y ∈ G.Ω 1) (hyW : y ∈ W) (hadj : Adj x y) :
-    setDist G W x ≤ ENNReal.ofReal 1 :=
+    siteSetDist G W x ≤ ENNReal.ofReal 1 :=
   (iInf₂_le y hyW).trans ((G.pathDist_le_bondCost hx hy hadj).trans
     (ENNReal.ofReal_le_ofReal (G.bondCost_le_one hx y)))
 
@@ -265,7 +265,7 @@ theorem Gs_sub_Gd (S : DGSetting G a ν) (hα : AdmPot G α) {s : ℕ × CTorus 
 
 theorem cubeSolE_eq_zero_of_not_mem_box (S : DGSetting G a ν) (hα : AdmPot G α)
     {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) (g : G.Ω 1 → ℂ)
-    {y : CTorus d L N₁ m₁ K} (hy : y ∉ box q) : cubeSolE G a ν α q g y = 0 := by
+    {y : CTorus d L N₁ m₁ K} (hy : y ∉ intBox q) : cubeSolE G a ν α q g y = 0 := by
   by_cases hyΩ : y ∈ G.Ω 1
   · have h := cubeG_supp S hα hq g ⟨y, hyΩ⟩ hy
     rw [cubeG_mulVec] at h
@@ -277,7 +277,7 @@ theorem cubeSolE_eq_zero_of_not_mem_box (S : DGSetting G a ν) (hα : AdmPot G �
 /-- `(G*_s - G*_1) g` vanishes off `W`. -/
 theorem Gstar_diff_zero (S : DGSetting G a ν) (hα : AdmPot G α)
     {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {W : Finset (CTorus d L N₁ m₁ K)}
-    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → box z ⊆ W) (g : G.Ω 1 → ℂ)
+    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (g : G.Ω 1 → ℂ)
     {y : CTorus d L N₁ m₁ K} (hy : y ∉ W) :
     zeroExt (G.Ω 1) (Gstar G a ν α s *ᵥ g) y -
       zeroExt (G.Ω 1) (Gstar G a ν α (fun _ => 1) *ᵥ g) y = 0 := by
@@ -285,13 +285,13 @@ theorem Gstar_diff_zero (S : DGSetting G a ν) (hα : AdmPot G α)
   refine Finset.sum_eq_zero fun z hz => ?_
   by_cases hc : sProd G s z = 1
   · rw [hc, sProd_one]; ring
-  · have hb : y ∉ box z := fun h => hy (hW z hz hc h)
+  · have hb : y ∉ intBox z := fun h => hy (hW z hz hc h)
     rw [cubeSolE_eq_zero_of_not_mem_box S hα hz g hb]; simp
 
 /-- `(𝒦_s - 𝒦_1) g` vanishes off `W`. -/
 theorem Kcal_diff_zero (S : DGSetting G a ν)
     {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {W : Finset (CTorus d L N₁ m₁ K)}
-    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → box z ⊆ W) (g : G.Ω 1 → ℂ) {x : G.Ω 1}
+    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (g : G.Ω 1 → ℂ) {x : G.Ω 1}
     (hx : (x : CTorus d L N₁ m₁ K) ∉ W) :
     ((Kcal G a ν α s - Kcal G a ν α (fun _ => 1)) *ᵥ g) x = 0 := by
   rw [Matrix.sub_mulVec, Pi.sub_apply]
@@ -301,7 +301,7 @@ theorem Kcal_diff_zero (S : DGSetting G a ν)
   refine Finset.sum_eq_zero fun z hz => ?_
   by_cases hc : sProd G s z = 1
   · rw [hc, sProd_one]; ring
-  · have hb : (x : CTorus d L N₁ m₁ K) ∉ box z := fun h => hx (hW z hz hc h)
+  · have hb : (x : CTorus d L N₁ m₁ K) ∉ intBox z := fun h => hx (hW z hz hc h)
     have := rowSupp_Kz_cubeG (α := α) S hz g x hb
     rw [Matrix.smul_mulVec, Matrix.smul_mulVec, Pi.smul_apply, Pi.smul_apply, smul_eq_mul,
       smul_eq_mul, this]
@@ -337,15 +337,15 @@ theorem dg6_core {γ T1 Mb c : ℝ} (hγ : 0 ≤ γ) (hc : 0 ≤ c) (hT1 : 0 ≤
     (hvan : (∀ p ∈ pts, A p = 0) → o A = 0)
     (hAW : ∀ p ∈ pts, A p ≠ 0 → p ∈ W ∧ p ∈ G.Ω 1)
     (hA : c * ‖o A‖ ≤ T1)
-    (hB : ∀ T : ℝ, 1 ≤ T → (if setDist G W x = ⊤ then T else
-      Real.exp (γ * (setDist G W x).toReal)) * (c * ‖o B‖) ≤ Mb) :
-    c * ‖o Δ‖ ≤ (Real.exp γ * T1 + Mb) * decay γ (setDist G W x) := by
+    (hB : ∀ T : ℝ, 1 ≤ T → (if siteSetDist G W x = ⊤ then T else
+      Real.exp (γ * (siteSetDist G W x).toReal)) * (c * ‖o B‖) ≤ Mb) :
+    c * ‖o Δ‖ ≤ (Real.exp γ * T1 + Mb) * decay γ (siteSetDist G W x) := by
   have hΔ' : Δ = A + B := funext hΔ
   have hoΔ : o Δ = o A + o B := by rw [hΔ', map_add]
-  have hdec := decay_nonneg γ (setDist G W x)
-  have hBd : c * ‖o B‖ ≤ Mb * decay γ (setDist G W x) :=
+  have hdec := decay_nonneg γ (siteSetDist G W x)
+  have hBd : c * ‖o B‖ ≤ Mb * decay γ (siteSetDist G W x) :=
     decay_of_dist_weights (mul_nonneg hc (norm_nonneg _)) _ hB
-  have hAd : c * ‖o A‖ ≤ Real.exp γ * T1 * decay γ (setDist G W x) := by
+  have hAd : c * ‖o A‖ ≤ Real.exp γ * T1 * decay γ (siteSetDist G W x) := by
     by_cases hA0 : o A = 0
     · rw [hA0, norm_zero, mul_zero]; positivity
     · have hex : ∃ p ∈ pts, A p ≠ 0 := by
@@ -354,22 +354,22 @@ theorem dg6_core {γ T1 Mb c : ℝ} (hγ : 0 ≤ γ) (hc : 0 ≤ c) (hT1 : 0 ≤
         exact hA0 (hvan hne)
       obtain ⟨p, hp, hAp⟩ := hex
       obtain ⟨hpW, hpΩ⟩ := hAW p hp hAp
-      have hD : setDist G W x ≤ ENNReal.ofReal 1 := by
+      have hD : siteSetDist G W x ≤ ENNReal.ofReal 1 := by
         rcases hpts p hp with rfl | hadj
         · rw [setDist_of_mem W hpW hpΩ]; exact bot_le
         · exact setDist_adj_le W hx hpΩ hpW hadj
       have h1 := decay_ofReal_ge hγ zero_le_one hD
-      have h2 : T1 ≤ Real.exp γ * T1 * decay γ (setDist G W x) := by
+      have h2 : T1 ≤ Real.exp γ * T1 * decay γ (siteSetDist G W x) := by
         have hE : Real.exp γ * Real.exp (-(γ * 1)) = 1 := by rw [← Real.exp_add]; simp
         calc T1 = T1 * (Real.exp γ * Real.exp (-(γ * 1))) := by rw [hE, mul_one]
-          _ ≤ T1 * (Real.exp γ * decay γ (setDist G W x)) :=
+          _ ≤ T1 * (Real.exp γ * decay γ (siteSetDist G W x)) :=
               mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le) hT1
-          _ = Real.exp γ * T1 * decay γ (setDist G W x) := by ring
+          _ = Real.exp γ * T1 * decay γ (siteSetDist G W x) := by ring
       exact hA.trans h2
   rw [hoΔ]
   calc c * ‖o A + o B‖ ≤ c * (‖o A‖ + ‖o B‖) := mul_le_mul_of_nonneg_left (norm_add_le _ _) hc
     _ = c * ‖o A‖ + c * ‖o B‖ := by ring
-    _ ≤ Real.exp γ * T1 * decay γ (setDist G W x) + Mb * decay γ (setDist G W x) :=
+    _ ≤ Real.exp γ * T1 * decay γ (siteSetDist G W x) + Mb * decay γ (siteSetDist G W x) :=
         add_le_add hAd hBd
     _ = _ := by ring
 
@@ -388,17 +388,17 @@ theorem dg6 (hd : 3 ≤ d) (hL : 3 ≤ L) :
       cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
       ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
       ∀ {W : Finset (CTorus d L N₁ m₁ K)},
-      (∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → box z ⊆ W) →
+      (∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) →
       ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
       (∀ x : G.Ω 1, (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
       ∀ x ∈ G.Ω 1,
-      ‖Gdiff G a ν α s f x‖ ≤ BG * Real.exp (N0 d L * κ) * decay (gammaW d) (setDist G W x) * C ∧
+      ‖Gdiff G a ν α s f x‖ ≤ BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C ∧
       (∀ μ : Fin d, G.spacing x * ‖Gdiff G a ν α s f (x + Pi.single μ 1) -
         Gdiff G a ν α s f x‖ ≤
-        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (setDist G W x) * C) ∧
+        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C) ∧
       (G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * Gdiff G a ν α s f x -
         Gdiff G a ν α s f (x + Pi.single μ 1) - Gdiff G a ν α s f (x - Pi.single μ 1))‖ ≤
-        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (setDist G W x) * C := by
+        BG * Real.exp (N0 d L * κ) * decay (gammaW d) (siteSetDist G W x) * C := by
   obtain ⟨cstar, BG0, hc, hB, H2⟩ := dg2_all (d := d) (L := L) hd hL
   obtain ⟨Bd, hBd, hDw⟩ := dirichlet_weighted (d := d) (L := L) hd hL
   refine ⟨cstar, Real.exp (gammaW d) * (2 * BG0 + 2 * Bd / 3) + 2 * Bd / 3, hc, by positivity, ?_⟩
@@ -460,11 +460,11 @@ theorem dg6 (hd : 3 ≤ d) (hL : 3 ≤ L) :
     rw [← zeroExt_sub', hid, zeroExt_add', Matrix.sub_mulVec, zeroExt_sub']
     rfl
   -- the weights
-  have hwT : ∀ T : ℝ, 1 ≤ T → IsWeight G (gammaW d) (fun y => if setDist G W y = ⊤ then T else
-      Real.exp (gammaW d * (setDist G W y).toReal)) := fun T hT =>
-    isWeight_of_dist G hγ0 hT (setDist G W) (setDist_triangle W)
-  have hhWT : ∀ T : ℝ, 1 ≤ T → ∀ y : G.Ω 1, (fun y => if setDist G W y = ⊤ then T else
-      Real.exp (gammaW d * (setDist G W y).toReal)) (y : CTorus d L N₁ m₁ K) *
+  have hwT : ∀ T : ℝ, 1 ≤ T → IsWeight G (gammaW d) (fun y => if siteSetDist G W y = ⊤ then T else
+      Real.exp (gammaW d * (siteSetDist G W y).toReal)) := fun T hT =>
+    isWeight_of_dist G hγ0 hT (siteSetDist G W) (setDist_triangle W)
+  have hhWT : ∀ T : ℝ, 1 ≤ T → ∀ y : G.Ω 1, (fun y => if siteSetDist G W y = ⊤ then T else
+      Real.exp (gammaW d * (siteSetDist G W y).toReal)) (y : CTorus d L N₁ m₁ K) *
       (G.spacing (y : CTorus d L N₁ m₁ K)) ^ 2 * ‖h y‖ ≤ 2 * C / 3 := by
     intro T hT y
     by_cases hyW : (y : CTorus d L N₁ m₁ K) ∈ W
@@ -507,10 +507,10 @@ theorem dg6 (hd : 3 ≤ d) (hL : 3 ≤ L) :
       c * ‖o vs‖ ≤ BG0 * Real.exp (N0 d L * κ) * C →
       c * ‖o vD‖ ≤ BG0 * Real.exp (N0 d L * 0) * C →
       c * ‖o Bf‖ ≤ Bd * (2 * C / 3) →
-      (∀ T : ℝ, 1 ≤ T → (if setDist G W x = ⊤ then T else
-        Real.exp (gammaW d * (setDist G W x).toReal)) * (c * ‖o Bf‖) ≤ Bd * (2 * C / 3)) →
+      (∀ T : ℝ, 1 ≤ T → (if siteSetDist G W x = ⊤ then T else
+        Real.exp (gammaW d * (siteSetDist G W x).toReal)) * (c * ‖o Bf‖) ≤ Bd * (2 * C / 3)) →
       c * ‖o (Gdiff G a ν α s f)‖ ≤ (Real.exp (gammaW d) * T1 + Bd * (2 * C / 3)) *
-        decay (gammaW d) (setDist G W x) := by
+        decay (gammaW d) (siteSetDist G W x) := by
     intro o c hc pts hpts hvan h1 h2 h3 h4
     refine dg6_core hγ0 hc hT1pos W o Af Bf (Gdiff G a ν α s f) hΔ hx pts hpts
       (fun hz => hvan Af hz) ?_ ?_ h4
@@ -531,11 +531,11 @@ theorem dg6 (hd : 3 ≤ d) (hL : 3 ≤ L) :
               _ ≤ ‖o vs‖ + ‖o vD‖ + ‖o Bf‖ := by linarith [norm_sub_le (o vs) (o vD)]
         _ = c * ‖o vs‖ + c * ‖o vD‖ + c * ‖o Bf‖ := by ring
         _ ≤ T1 := by rw [hT1]; linarith
-  have hdecay := decay_nonneg (gammaW d) (setDist G W x)
+  have hdecay := decay_nonneg (gammaW d) (siteSetDist G W x)
   have hfin : (Real.exp (gammaW d) * T1 + Bd * (2 * C / 3)) *
-      decay (gammaW d) (setDist G W x) ≤
+      decay (gammaW d) (siteSetDist G W x) ≤
       (Real.exp (gammaW d) * (2 * BG0 + 2 * Bd / 3) + 2 * Bd / 3) * Real.exp (N0 d L * κ) *
-        decay (gammaW d) (setDist G W x) * C := by
+        decay (gammaW d) (siteSetDist G W x) * C := by
     have h1 : Real.exp (gammaW d) * T1 ≤
         Real.exp (gammaW d) * ((2 * BG0 + 2 * Bd / 3) * Real.exp (N0 d L * κ) * C) :=
       mul_le_mul_of_nonneg_left hT1le (Real.exp_pos _).le
@@ -545,9 +545,9 @@ theorem dg6 (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have h3 : Real.exp (gammaW d) * T1 + Bd * (2 * C / 3) ≤
         (Real.exp (gammaW d) * (2 * BG0 + 2 * Bd / 3) + 2 * Bd / 3) * Real.exp (N0 d L * κ) * C := by
       nlinarith
-    calc (Real.exp (gammaW d) * T1 + Bd * (2 * C / 3)) * decay (gammaW d) (setDist G W x)
+    calc (Real.exp (gammaW d) * T1 + Bd * (2 * C / 3)) * decay (gammaW d) (siteSetDist G W x)
         ≤ ((Real.exp (gammaW d) * (2 * BG0 + 2 * Bd / 3) + 2 * Bd / 3) * Real.exp (N0 d L * κ) * C) *
-          decay (gammaW d) (setDist G W x) := mul_le_mul_of_nonneg_right h3 hdecay
+          decay (gammaW d) (siteSetDist G W x) := mul_le_mul_of_nonneg_right h3 hdecay
       _ = _ := by ring
   have hsp := (spacing_pos G (x := x)).le
   refine ⟨?_, fun μ => ?_, ?_⟩

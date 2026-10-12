@@ -113,22 +113,22 @@ theorem cD_mul_self (q : ℕ × CTorus d L N₁ m₁ K) : cD G q * cD G q = cD G
   congr 1; funext x; split_ifs <;> simp
 
 theorem cD_mul_indY_of_subset {q : ℕ × CTorus d L N₁ m₁ K} {Y : Finset (CTorus d L N₁ m₁ K)}
-    (h : SubI G (box q) Y) : cD G q * indY G Y = cD G q := by
+    (h : SubI G (intBox q) Y) : cD G q * indY G Y = cD G q := by
   classical
   unfold cD indY
   rw [Matrix.diagonal_mul_diagonal]
   congr 1; funext x
-  by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ box q
+  by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ intBox q
   · simp [hx, h x hx]
   · simp [hx]
 
 theorem cD_mul_indY_of_disjoint {q : ℕ × CTorus d L N₁ m₁ K} {Y : Finset (CTorus d L N₁ m₁ K)}
-    (h : DisjI G (box q) Y) : cD G q * indY G Y = 0 := by
+    (h : DisjI G (intBox q) Y) : cD G q * indY G Y = 0 := by
   classical
   unfold cD indY
   rw [Matrix.diagonal_mul_diagonal, ← Matrix.diagonal_zero]
   congr 1; funext x
-  by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ box q
+  by_cases hx : (x : CTorus d L N₁ m₁ K) ∈ intBox q
   · have : (x : CTorus d L N₁ m₁ K) ∉ Y := h x hx
     simp [hx, this]
   · simp [hx]
@@ -165,12 +165,12 @@ theorem cubeG_mul_cD (q : ℕ × CTorus d L N₁ m₁ K) :
   rw [Matrix.mul_assoc, cD_mul_self]
 
 theorem rowSupp_chi_cubeG (S : DGSetting G a ν) (hα : AdmPot G α) {q : ℕ × CTorus d L N₁ m₁ K}
-    (hq : q ∈ cubeIdx G) : RowSupp (chiD G q * cubeG G a ν α q) (box q) := by
+    (hq : q ∈ cubeIdx G) : RowSupp (chiD G q * cubeG G a ν α q) (intBox q) := by
   intro f x hx
   rw [← Matrix.mulVec_mulVec, chiD_mulVec, cubeG_supp S hα hq f x hx, mul_zero]
 
 theorem rowSupp_Kz_cubeG (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K}
-    (hq : q ∈ cubeIdx G) : RowSupp (Kz G a ν q * cubeG G a ν α q) (box q) := by
+    (hq : q ∈ cubeIdx G) : RowSupp (Kz G a ν q * cubeG G a ν α q) (intBox q) := by
   intro f x hx
   by_contra hne
   rw [← Matrix.mulVec_mulVec] at hne
@@ -179,22 +179,22 @@ theorem rowSupp_Kz_cubeG (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁
 /-- The cube Green's function only depends on the potential inside the cube. -/
 theorem cubeG_congr (S : DGSetting G a ν) {α α' : G.Ω 1 → ℂ} (hα : AdmPot G α)
     (hα' : AdmPot G α') {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G)
-    (hαα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ box q → α x = α' x) :
+    (hαα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ intBox q → α x = α' x) :
     cubeG G a ν α q = cubeG G a ν α' q := by
   refine matrix_ext_mulVec fun f => ?_
   set u : G.Ω 1 → ℂ := cubeG G a ν α q *ᵥ f with hu
-  have hsupp : ∀ z : G.Ω 1, (z : CTorus d L N₁ m₁ K) ∉ box q → u z = 0 :=
+  have hsupp : ∀ z : G.Ω 1, (z : CTorus d L N₁ m₁ K) ∉ intBox q → u z = 0 :=
     fun z hz => cubeG_supp S hα hq f z hz
   have hH : cubeH G a ν α q *ᵥ u = cD G q *ᵥ f := cubeH_cubeG S hα hq f
   have hH' : cubeH G a ν α' q *ᵥ u = cD G q *ᵥ f := by
     funext x
-    by_cases hxb : (x : CTorus d L N₁ m₁ K) ∈ box q
-    · have e := cutOperator_eq_add (G := G) a ν (cubeCut G (box q)) α'
-      have e0 := cutOperator_eq_add (G := G) a ν (cubeCut G (box q)) α
-      have h1 : (cubeH G a ν α' q *ᵥ u) x = (cutOperator G a ν (cubeCut G (box q)) 0 *ᵥ u) x +
+    by_cases hxb : (x : CTorus d L N₁ m₁ K) ∈ intBox q
+    · have e := cutOperator_eq_add (G := G) a ν (cubeCut G (intBox q)) α'
+      have e0 := cutOperator_eq_add (G := G) a ν (cubeCut G (intBox q)) α
+      have h1 : (cubeH G a ν α' q *ᵥ u) x = (cutOperator G a ν (cubeCut G (intBox q)) 0 *ᵥ u) x +
           α' x * u x := by
         unfold cubeH; rw [e, Matrix.add_mulVec, Pi.add_apply, Matrix.mulVec_diagonal]
-      have h2 : (cubeH G a ν α q *ᵥ u) x = (cutOperator G a ν (cubeCut G (box q)) 0 *ᵥ u) x +
+      have h2 : (cubeH G a ν α q *ᵥ u) x = (cutOperator G a ν (cubeCut G (intBox q)) 0 *ᵥ u) x +
           α x * u x := by
         unfold cubeH; rw [e0, Matrix.add_mulVec, Pi.add_apply, Matrix.mulVec_diagonal]
       rw [h1, ← hαα x hxb, ← h2, hH]
@@ -216,7 +216,7 @@ open Classical in
 /-- The centres whose interaction cube lies inside `Y`. -/
 noncomputable def innerCentres (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     (Y : Finset (CTorus d L N₁ m₁ K)) : Finset (ℕ × CTorus d L N₁ m₁ K) :=
-  (cubeIdx G).filter fun q => SubI G (box q) Y
+  (cubeIdx G).filter fun q => SubI G (intBox q) Y
 
 /-- If every summand either lives inside `Y` (commutes with `P`) or is annihilated by `P` on both
 sides, then the sum commutes with `P` and `P (∑ B) = ∑_{inner} B`. -/
@@ -240,8 +240,8 @@ theorem sum_block_facts {Y : Finset (CTorus d L N₁ m₁ K)} (B : ℕ × CTorus
 
 theorem blk_conditions {Y : Finset (CTorus d L N₁ m₁ K)} {s : ℕ × CTorus d L N₁ m₁ K → ℂ}
     (M : ℕ × CTorus d L N₁ m₁ K → Matrix (G.Ω 1) (G.Ω 1) ℂ)
-    (hM : ∀ q ∈ cubeIdx G, RowSupp (M q) (box q) ∧ M q * cD G q = M q)
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y) :
+    (hM : ∀ q ∈ cubeIdx G, RowSupp (M q) (intBox q) ∧ M q * cD G q = M q)
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (intBox q) Y ∨ DisjI G (intBox q) Y) :
     (∀ q ∈ innerCentres G Y, indY G Y * (sProd G s q • M q) = sProd G s q • M q ∧
       (sProd G s q • M q) * indY G Y = sProd G s q • M q) ∧
     (∀ q ∈ cubeIdx G, q ∉ innerCentres G Y →
@@ -262,7 +262,7 @@ theorem blk_conditions {Y : Finset (CTorus d L N₁ m₁ K)} {s : ℕ × CTorus 
     obtain ⟨h1, h2⟩ := hM q hq
     by_cases hc : sProd G s q = 0
     · simp [hc]
-    · have hdis : DisjI G (box q) Y := by
+    · have hdis : DisjI G (intBox q) Y := by
         rcases hdich q hq hc with h | h
         · exact absurd (Finset.mem_filter.2 ⟨hq, h⟩) hnq
         · exact h
@@ -283,8 +283,8 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
     {s s' : ℕ × CTorus d L N₁ m₁ K → ℂ}
     (hU : IsUnit (1 - Kcal G a ν α s)) (hU' : IsUnit (1 - Kcal G a ν α' s'))
     (hdich : ∀ q ∈ cubeIdx G, (sProd G s q ≠ 0 ∨ sProd G s' q ≠ 0) →
-      SubI G (box q) Y ∨ DisjI G (box q) Y)
-    (hagree : ∀ q ∈ cubeIdx G, SubI G (box q) Y → sProd G s q = sProd G s' q)
+      SubI G (intBox q) Y ∨ DisjI G (intBox q) Y)
+    (hagree : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y → sProd G s q = sProd G s' q)
     (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → α x = α' x)
     {f f' : G.Ω 1 → ℂ} (hf : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y → f x = f' x) :
     ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y →
@@ -293,25 +293,25 @@ theorem Gs_local (S : DGSetting G a ν) {Y : Finset (CTorus d L N₁ m₁ K)}
   intro x hxY
   have hd0 : (3 : ℕ) ≤ d := S.hd
   -- the hypotheses of `block_locality`
-  have hMX : ∀ q ∈ cubeIdx G, RowSupp (chiD G q * cubeG G a ν α q) (box q) ∧
+  have hMX : ∀ q ∈ cubeIdx G, RowSupp (chiD G q * cubeG G a ν α q) (intBox q) ∧
       chiD G q * cubeG G a ν α q * cD G q = chiD G q * cubeG G a ν α q := by
     intro q hq
     exact ⟨rowSupp_chi_cubeG S hα hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
-  have hMX' : ∀ q ∈ cubeIdx G, RowSupp (chiD G q * cubeG G a ν α' q) (box q) ∧
+  have hMX' : ∀ q ∈ cubeIdx G, RowSupp (chiD G q * cubeG G a ν α' q) (intBox q) ∧
       chiD G q * cubeG G a ν α' q * cD G q = chiD G q * cubeG G a ν α' q := by
     intro q hq
     exact ⟨rowSupp_chi_cubeG S hα' hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
-  have hMK : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α q) (box q) ∧
+  have hMK : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α q) (intBox q) ∧
       Kz G a ν q * cubeG G a ν α q * cD G q = Kz G a ν q * cubeG G a ν α q := by
     intro q hq
     exact ⟨rowSupp_Kz_cubeG S hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
-  have hMK' : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α' q) (box q) ∧
+  have hMK' : ∀ q ∈ cubeIdx G, RowSupp (Kz G a ν q * cubeG G a ν α' q) (intBox q) ∧
       Kz G a ν q * cubeG G a ν α' q * cD G q = Kz G a ν q * cubeG G a ν α' q := by
     intro q hq
     exact ⟨rowSupp_Kz_cubeG S hq, by rw [Matrix.mul_assoc, cubeG_mul_cD]⟩
-  have hd1 : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y :=
+  have hd1 : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → SubI G (intBox q) Y ∨ DisjI G (intBox q) Y :=
     fun q hq hc => hdich q hq (Or.inl hc)
-  have hd2 : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → SubI G (box q) Y ∨ DisjI G (box q) Y :=
+  have hd2 : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → SubI G (intBox q) Y ∨ DisjI G (intBox q) Y :=
     fun q hq hc => hdich q hq (Or.inr hc)
   obtain ⟨hKin, hKout⟩ := blk_conditions (s := s) _ hMK hd1
   obtain ⟨hKin', hKout'⟩ := blk_conditions (s := s') _ hMK' hd2

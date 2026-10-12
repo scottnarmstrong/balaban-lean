@@ -90,18 +90,18 @@ forward neighbours in the cube; Laplacian: all neighbours in the cube) the bound
 structure CubeBlockBounds (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (q : ℕ × CTorus d L N₁ m₁ K)
     (Kc : ℝ) : Prop where
   bounds : ∀ {j' : ℕ} {y' : CTorus d L N₁ m₁ K}, 1 ≤ j' → j' ≤ K → y' ∈ G.layer j' →
-    y' ∈ box q → ∀ (f : G.Ω 1 → ℂ),
+    y' ∈ intBox q → ∀ (f : G.Ω 1 → ℂ),
     (∀ z : G.Ω 1, f z ≠ 0 → jBlock d L (N₁ * L ^ m₁) K j' z = jBlock d L (N₁ * L ^ m₁) K j' y') →
     ∀ {Mf : ℝ}, 0 ≤ Mf → (∀ z, ‖f z‖ ≤ Mf) →
-    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
+    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q →
       ‖solExt G (cubeH G a ν α q)⁻¹ f x‖ ≤
         Kc * decay (agmonRate d / 2) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf)) ∧
-    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q → (∀ ν' : Fin d, x + Pi.single ν' 1 ∈ box q) →
+    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q → (∀ ν' : Fin d, x + Pi.single ν' 1 ∈ intBox q) →
       ∀ μ : Fin d, G.spacing x * ‖solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
           solExt G (cubeH G a ν α q)⁻¹ f x‖ ≤
         Kc * decay (agmonRate d / 2) (G.pathDist x y') * ((L : ℝ) ^ (2 * j') * Mf)) ∧
-    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
-      (∀ μ : Fin d, x + Pi.single μ 1 ∈ box q ∧ x - Pi.single μ 1 ∈ box q) →
+    (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q →
+      (∀ μ : Fin d, x + Pi.single μ 1 ∈ intBox q ∧ x - Pi.single μ 1 ∈ intBox q) →
       (G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * solExt G (cubeH G a ν α q)⁻¹ f x -
           solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
           solExt G (cubeH G a ν α q)⁻¹ f (x - Pi.single μ 1))‖ ≤
@@ -154,7 +154,7 @@ theorem cubeBlockBounds_exists (hd : 3 ≤ d) (hL : 3 ≤ L) :
       ⟨Nat.mul_ne_zero (by norm_num) (pow_ne_zero _ (NeZero.ne L))⟩
     have hF := hc.foldSetting hm
     have hcb : cubeOf (N₁ * L ^ m₁) L K (min K (q.1 + 1)) (5 * L ^ (q.1 + m₁ - min K (q.1 + 1)))
-        (boxCorner q) = box q := by
+        (boxCorner q) = intBox q := by
       rw [hc.cubeOf_eq, ← box_eq_cubeSet S.big hq]
     have hyc : y' ∈ cubeOf (N₁ * L ^ m₁) L K (min K (q.1 + 1))
         (5 * L ^ (q.1 + m₁ - min K (q.1 + 1))) (boxCorner q) := by rw [hcb]; exact hy'b
@@ -166,7 +166,7 @@ theorem cubeBlockBounds_exists (hd : 3 ≤ d) (hL : 3 ≤ L) :
     · have key := hP G hF S.mass S.massLe S.weights α hα hρ1 hsep hj'1 hj'k hy' hyc f hsupp hMf0 hMf
         (x := x) (by rw [hcb]; exact hxb) (fun ν' => by rw [hcb]; exact hxe ν')
       rw [hcb] at key
-      have h1 := grad_le_of_sum (cubeSol G a ν (box q) α f) (spacing_pos G (x := x)).le x μ
+      have h1 := grad_le_of_sum (cubeSol G a ν (intBox q) α f) (spacing_pos G (x := x)).le x μ
       exact (h1.trans key).trans (mono K1 _ (by linarith) (decay_nonneg _ _) _ hF0)
     · have key := hLp G hF S.mass S.massLe S.weights α hα hρ1 hsep hj'1 hj'k hy' hyc f hsupp hMf0 hMf
         (x := x) (by rw [hcb]; exact hxb) (fun μ => by rw [hcb]; exact hxe μ)
@@ -182,20 +182,20 @@ theorem cubeBlockBounds_exists (hd : 3 ≤ d) (hL : 3 ≤ L) :
     · have key := small_value_cut G hcut hd0 S.mass S.weights α hα hj'1 hj'2 hj'k hxΩ hy' f hsupp
         hMf0 hMf hρ1 hsep1
       exact key.trans (mono (smallConst d L) _ (by linarith [hK1, hK2, hK3, hE]) (decay_nonneg _ _) _ hF0)
-    · have hμ : (x, μ) ∉ cubeCut G (box q) := by
+    · have hμ : (x, μ) ∉ cubeCut G (intBox q) := by
         intro hc
         rcases (mem_cubeCut G).1 hc with ⟨_, _, h3⟩ | ⟨h1, _, _⟩
         · exact h3 (hxe μ)
         · exact h1 hxb
       have key := small_pointwise_cut G hcut hd0 S.mass S.weights α hα hj'1 hj'2 hj'k hxΩ hy' f hsupp
         hMf0 hMf hρ1 hsep1 hμ
-      have h1 := norm_nonneg (cutSol G a ν (cubeCut G (box q)) α f x)
-      change G.spacing x * ‖cutSol G a ν (cubeCut G (box q)) α f (x + Pi.single μ 1) -
-        cutSol G a ν (cubeCut G (box q)) α f x‖ ≤ _
+      have h1 := norm_nonneg (cutSol G a ν (cubeCut G (intBox q)) α f x)
+      change G.spacing x * ‖cutSol G a ν (cubeCut G (intBox q)) α f (x + Pi.single μ 1) -
+        cutSol G a ν (cubeCut G (intBox q)) α f x‖ ≤ _
       refine (by linarith : _ ≤ _ + _).trans (key.trans ?_)
       exact mono (smallConst d L) _ (by linarith [hK1, hK2, hK3, hE]) (decay_nonneg _ _) _ hF0
-    · have hnc : NoCutAt (cubeCut G (box q)) x :=
-        noCutAt_cubeCut (box q) hxb hxe
+    · have hnc : NoCutAt (cubeCut G (intBox q)) x :=
+        noCutAt_cubeCut (intBox q) hxb hxe
       have key := small_laplacian_cut G hcut hd0 S.mass S.massLe S.weights α hα hj'1 hj'2 hj'k hxΩ hnc
         hy' f hsupp hMf0 hMf hρ1 hsep1
       exact key.trans (mono _ _ (by linarith [hK1, hK2, hK3, hsc]) (decay_nonneg _ _) _ hF0)
@@ -239,16 +239,16 @@ theorem cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {q : ℕ × CTorus d L N₁ m₁ K}, q ∈ cubeIdx G →
       ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
-      ∀ (f : G.Ω 1 → ℂ), (∀ z : G.Ω 1, f z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) →
+      ∀ (f : G.Ω 1 → ℂ), (∀ z : G.Ω 1, f z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ intBox q) →
       ∀ {C : ℝ}, 0 ≤ C → (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
-      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q →
         w x * ‖solExt G (cubeH G a ν α q)⁻¹ f x‖ ≤ Bw * C) ∧
-      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
-        (∀ ν' : Fin d, x + Pi.single ν' 1 ∈ box q) → ∀ μ : Fin d,
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q →
+        (∀ ν' : Fin d, x + Pi.single ν' 1 ∈ intBox q) → ∀ μ : Fin d,
         w x * (G.spacing x * ‖solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
           solExt G (cubeH G a ν α q)⁻¹ f x‖) ≤ Bw * C) ∧
-      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ box q →
-        (∀ μ : Fin d, x + Pi.single μ 1 ∈ box q ∧ x - Pi.single μ 1 ∈ box q) →
+      (∀ {x : CTorus d L N₁ m₁ K}, x ∈ G.Ω 1 → x ∈ intBox q →
+        (∀ μ : Fin d, x + Pi.single μ 1 ∈ intBox q ∧ x - Pi.single μ 1 ∈ intBox q) →
         w x * ((G.spacing x) ^ 2 * ‖∑ μ : Fin d, (2 * solExt G (cubeH G a ν α q)⁻¹ f x -
           solExt G (cubeH G a ν α q)⁻¹ f (x + Pi.single μ 1) -
           solExt G (cubeH G a ν α q)⁻¹ f (x - Pi.single μ 1))‖) ≤ Bw * C) := by

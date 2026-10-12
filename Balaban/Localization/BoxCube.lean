@@ -100,12 +100,12 @@ theorem torusSide_ge (hN : 5 < N₁) {j : ℕ} (hj : j ≤ K) :
     _ = _ := by ring
 
 theorem box_eq_cubeSet (hN : 5 < N₁) {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) :
-    box q = cubeSet ((N₁ * L ^ m₁) * L ^ K) (5 * L ^ (q.1 + m₁)) (boxCorner q) := by
+    intBox q = cubeSet ((N₁ * L ^ m₁) * L ^ K) (5 * L ^ (q.1 + m₁)) (boxCorner q) := by
   obtain ⟨⟨hm1, hmK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hq
   have hBpos : 0 < L ^ (q.1 + m₁) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
   have h6 := torusSide_ge (L := L) (m₁ := m₁) hN hmK
   ext x
-  rw [mem_box, mem_cubeSet]
+  rw [mem_intBox, mem_cubeSet]
   unfold InBox
   refine forall_congr' fun i => ?_
   have := inBox_coord_iff_inCube1 (N := (N₁ * L ^ m₁) * L ^ K) hBpos (by omega) (q.2 i) (x i)

@@ -400,7 +400,7 @@ theorem Gstar_repr (S : DGSetting G a ν) (α : G.Ω 1 → ℂ) (s : ℕ × CTor
     intro q hq
     rw [Finset.mem_filter] at hq ⊢
     exact ⟨hq.1, by
-      have := mem_box.1 (hq.2.self)
+      have := mem_intBox.1 (hq.2.self)
       simpa using this⟩
   · intro y hy
     rw [Gstar_apply]
@@ -455,7 +455,7 @@ theorem Fc_bounds (d L : ℕ) :
 theorem cD_source (q : ℕ × CTorus d L N₁ m₁ K) (g : G.Ω 1 → ℂ) {w : CTorus d L N₁ m₁ K → ℝ}
     {C : ℝ} (hC : 0 ≤ C)
     (hgC : ∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖g z‖ ≤ C) :
-    (∀ z : G.Ω 1, (cD G q *ᵥ g) z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) ∧
+    (∀ z : G.Ω 1, (cD G q *ᵥ g) z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ intBox q) ∧
     (∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖(cD G q *ᵥ g) z‖ ≤ C) := by
   refine ⟨fun z hz => ?_, fun z => ?_⟩
   · by_contra hnb

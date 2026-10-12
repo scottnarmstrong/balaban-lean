@@ -33,7 +33,7 @@ theorem matrix_ext_mulVec {ι : Type*} [Fintype ι] [DecidableEq ι] {M N : Matr
   Matrix.toLin'.injective (LinearMap.ext h)
 
 theorem cD_mulVec (q : ℕ × CTorus d L N₁ m₁ K) (f : G.Ω 1 → ℂ) (x : G.Ω 1) :
-    (cD G q *ᵥ f) x = if (x : CTorus d L N₁ m₁ K) ∈ box q then f x else 0 := by
+    (cD G q *ᵥ f) x = if (x : CTorus d L N₁ m₁ K) ∈ intBox q then f x else 0 := by
   classical
   unfold cD
   rw [Matrix.mulVec_diagonal]
@@ -59,17 +59,17 @@ theorem intTorus_single_aux (μ : Fin d) (c : ℤ) {m : ℕ} :
   · simp [intTorus_apply, h]
 
 theorem Inner.self {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} (h : Inner q x) :
-    x ∈ box q := by
+    x ∈ intBox q := by
   simpa [intTorus_zero_aux] using h 0 (fun μ => by simp)
 
 theorem Inner.add_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} (h : Inner q x)
-    (μ : Fin d) : x + Pi.single μ 1 ∈ box q := by
+    (μ : Fin d) : x + Pi.single μ 1 ∈ intBox q := by
   have := h (Pi.single μ 1) (fun ν => by
     by_cases hν : ν = μ <;> simp [hν])
   simpa [intTorus_single_aux] using this
 
 theorem Inner.sub_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} (h : Inner q x)
-    (μ : Fin d) : x - Pi.single μ 1 ∈ box q := by
+    (μ : Fin d) : x - Pi.single μ 1 ∈ intBox q := by
   have := h (Pi.single μ (-1)) (fun ν => by
     by_cases hν : ν = μ <;> simp [hν])
   have e : (intTorus (Pi.single μ (-1 : ℤ)) : CTorus d L N₁ m₁ K) = -Pi.single μ 1 := by
@@ -79,7 +79,7 @@ theorem Inner.sub_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N�
   exact this
 
 theorem Inner.sub_add_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K}
-    (h : Inner q x) (μ ν : Fin d) : x - Pi.single μ 1 + Pi.single ν 1 ∈ box q := by
+    (h : Inner q x) (μ ν : Fin d) : x - Pi.single μ 1 + Pi.single ν 1 ∈ intBox q := by
   have := h (Pi.single ν 1 - Pi.single μ 1) (fun ρ => by
     simp only [Pi.sub_apply, Pi.single_apply]
     split_ifs <;> norm_num)
@@ -91,8 +91,8 @@ theorem Inner.sub_add_single {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L
   rwa [e] at this
 
 theorem Inner.noCut {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} (h : Inner q x) :
-    NoCutAt (cubeCut G (box q)) x :=
-  noCutAt_cubeCut (box q) h.self fun μ => ⟨h.add_single μ, h.sub_single μ⟩
+    NoCutAt (cubeCut G (intBox q)) x :=
+  noCutAt_cubeCut (intBox q) h.self fun μ => ⟨h.add_single μ, h.sub_single μ⟩
 
 /-- The interior points contain the support of `χ_z`. -/
 theorem inner_of_chi_ne_zero (S : DGSetting G a ν) {q : ℕ × CTorus d L N₁ m₁ K}
@@ -116,7 +116,7 @@ theorem cubeG_mulVec (q : ℕ × CTorus d L N₁ m₁ K) (f : G.Ω 1 → ℂ) :
 
 /-- **`G^{(z)}(A) c_z f` is supported in the interaction cube.** -/
 theorem cubeG_supp (S : DGSetting G a ν) (hα : AdmPot G α) {q : ℕ × CTorus d L N₁ m₁ K}
-    (hq : q ∈ cubeIdx G) (f : G.Ω 1 → ℂ) (z : G.Ω 1) (hz : (z : CTorus d L N₁ m₁ K) ∉ box q) :
+    (hq : q ∈ cubeIdx G) (f : G.Ω 1 → ℂ) (z : G.Ω 1) (hz : (z : CTorus d L N₁ m₁ K) ∉ intBox q) :
     (cubeG G a ν α q *ᵥ f) z = 0 := by
   have hU := cubeH_isUnit S hα hq
   have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hU
@@ -141,7 +141,7 @@ theorem chiD_dirichlet_cubeG (S : DGSetting G a ν) (hα : AdmPot G α) {q : ℕ
   by_cases h0 : chi G q x = 0
   · simp [h0]
   · have hin := inner_of_chi_ne_zero S hq x.2 h0
-    have hrow := dirichlet_row_eq_cut_row a ν α (cut := cubeCut G (box q)) hin.noCut
+    have hrow := dirichlet_row_eq_cut_row a ν α (cut := cubeCut G (intBox q)) hin.noCut
       (cubeG G a ν α q *ᵥ f)
     have h1 := cubeH_cubeG S hα hq f
     have h2 := congrFun h1 x

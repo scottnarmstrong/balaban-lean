@@ -13,7 +13,7 @@ public import Balaban.Multiscale.Analyticity
 /-!
 # The decoupled Green's operator: definitions and the parametrix identity (LOCALIZATION.md §1.3)
 
-For a centre `z = (j, y₀)` of the cover (`cubeIdx`) let `□_z = box z` be the interaction cube
+For a centre `z = (j, y₀)` of the cover (`cubeIdx`) let `□_z = intBox z` be the interaction cube
 (`InBox` of half-width `5/2 M₁ ℓ_j`), `c_z = cD z` the multiplication by its indicator,
 `H_z(A) = cubeH z` the cut operator of the cube (`cutOperator G a ν (cubeCut G □_z) A`),
 `G^{(z)}(A) c_z = cubeG z`, `χ_z = chiD z` and `K_z = χ_z H - H χ_z = Kz z`.  Then
@@ -38,19 +38,19 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
 open Classical in
 /-- The interaction cube `□_z` of the centre `z = (j, y₀)`: the periodic box of half-width
 `5/2 M₁ ℓ_j` around the centre of the cube (a union of blocks of every layer meeting it). -/
-noncomputable def box (q : ℕ × CTorus d L N₁ m₁ K) : Finset (CTorus d L N₁ m₁ K) :=
+noncomputable def intBox (q : ℕ × CTorus d L N₁ m₁ K) : Finset (CTorus d L N₁ m₁ K) :=
   Finset.univ.filter fun x => InBox m₁ q.1 q.2 (5 / 2 * (L : ℝ) ^ (q.1 + m₁)) x
 
-theorem mem_box {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} :
-    x ∈ box q ↔ InBox m₁ q.1 q.2 (5 / 2 * (L : ℝ) ^ (q.1 + m₁)) x := by
+theorem mem_intBox {q : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K} :
+    x ∈ intBox q ↔ InBox m₁ q.1 q.2 (5 / 2 * (L : ℝ) ^ (q.1 + m₁)) x := by
   classical
-  simp [box]
+  simp [intBox]
 
 variable (G) in
 open Classical in
 /-- The multiplication by the indicator `c_z` of the interaction cube. -/
 noncomputable def cD (q : ℕ × CTorus d L N₁ m₁ K) : Matrix (G.Ω 1) (G.Ω 1) ℂ :=
-  Matrix.diagonal fun x => if (x : CTorus d L N₁ m₁ K) ∈ box q then 1 else 0
+  Matrix.diagonal fun x => if (x : CTorus d L N₁ m₁ K) ∈ intBox q then 1 else 0
 
 variable (G) in
 /-- The multiplication by `χ_z`. -/
@@ -61,7 +61,7 @@ variable (G) in
 /-- The Neumann cube operator `H_z(A)` of P3 (2.3): the cut operator of the cube cut. -/
 noncomputable def cubeH (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ) (q : ℕ × CTorus d L N₁ m₁ K) :
     Matrix (G.Ω 1) (G.Ω 1) ℂ :=
-  cutOperator G a ν (cubeCut G (box q)) α
+  cutOperator G a ν (cubeCut G (intBox q)) α
 
 variable (G) in
 /-- `G^{(z)}(A) c_z`: the inverse of the cube operator after restriction of the source to the

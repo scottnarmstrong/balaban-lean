@@ -185,7 +185,7 @@ theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
       (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
       ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {q : ℕ × CTorus d L N₁ m₁ K}, q ∈ cubeIdx G →
       ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
-      ∀ (g : G.Ω 1 → ℂ), (∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q) →
+      ∀ (g : G.Ω 1 → ℂ), (∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ intBox q) →
       ∀ {C : ℝ}, 0 ≤ C →
       (∀ z : G.Ω 1, w z * (G.spacing (z : CTorus d L N₁ m₁ K)) ^ 2 * ‖g z‖ ≤ C) →
       ∀ {x : G.Ω 1}, Inner q x →
@@ -202,7 +202,7 @@ theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hwx := hw.pos x
   have hBC := mul_nonneg hBw hC
   set u : CTorus d L N₁ m₁ K → ℂ := solExt G (cubeH G a ν α q)⁻¹ g with hudef
-  have hzero : ∀ y : CTorus d L N₁ m₁ K, y ∉ box q → u y = 0 := by
+  have hzero : ∀ y : CTorus d L N₁ m₁ K, y ∉ intBox q → u y = 0 := by
     intro y hy
     by_cases hyΩ : y ∈ G.Ω 1
     · have e : u y = ((cubeH G a ν α q)⁻¹ *ᵥ g) ⟨y, hyΩ⟩ := by
@@ -210,7 +210,7 @@ theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
       rw [e]
       have := cubeG_supp S hα hq g ⟨y, hyΩ⟩ hy
       have hcg : cD G q *ᵥ g = g := by
-        funext z; rw [cD_mulVec]; by_cases hz : (z : CTorus d L N₁ m₁ K) ∈ box q
+        funext z; rw [cD_mulVec]; by_cases hz : (z : CTorus d L N₁ m₁ K) ∈ intBox q
         · simp [hz]
         · have : g z = 0 := by_contra fun h => hz (hgsupp z h)
           simp [this]
@@ -223,7 +223,7 @@ theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
     intro y hyΩ ρ hρ0 hdist
     have hwxy := hw.le_mul hγ0 hρ0 hdist
     rw [le_div_iff₀ hwx]
-    by_cases hyb : y ∈ box q
+    by_cases hyb : y ∈ intBox q
     · have h1 := hW1 hyΩ hyb
       calc ‖u y‖ * w x ≤ ‖u y‖ * (w y * Real.exp (gammaW d * ρ)) :=
             mul_le_mul_of_nonneg_left hwxy (norm_nonneg _)
@@ -255,8 +255,8 @@ theorem cube_star (hd : 3 ≤ d) (hL : 3 ≤ L) :
   · by_cases hyΩ : ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) ∈ G.Ω 1
     · set y : CTorus d L N₁ m₁ K := (x : CTorus d L N₁ m₁ K) - Pi.single μ 1 with hy
       have hadj : Adj y (x : CTorus d L N₁ m₁ K) := ⟨μ, Or.inl (by rw [hy]; simp)⟩
-      have hyb : y ∈ box q := hI.sub_single μ
-      have hye : ∀ ν' : Fin d, y + Pi.single ν' 1 ∈ box q := fun ν' => hI.sub_add_single μ ν'
+      have hyb : y ∈ intBox q := hI.sub_single μ
+      have hye : ∀ ν' : Fin d, y + Pi.single ν' 1 ∈ intBox q := fun ν' => hI.sub_add_single μ ν'
       have h := hW2 hyΩ hyb hye μ
       have hyx : y + Pi.single μ 1 = (x : CTorus d L N₁ m₁ K) := by rw [hy]; simp
       rw [hyx] at h
@@ -318,7 +318,7 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hρ := S.one_lt_rho
   -- the source restricted to the cube
   set g : G.Ω 1 → ℂ := cD G q *ᵥ f with hgdef
-  have hgsupp : ∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ box q := by
+  have hgsupp : ∀ z : G.Ω 1, g z ≠ 0 → (z : CTorus d L N₁ m₁ K) ∈ intBox q := by
     intro z hz
     by_contra hnb
     exact hz (by rw [hgdef, cD_mulVec]; simp [hnb])
@@ -400,7 +400,7 @@ theorem dg1 (hd : 3 ≤ d) (hL : 3 ≤ L) :
     rw [Matrix.sum_mulVec, Finset.sum_apply]
     refine Finset.sum_congr rfl fun q _ => ?_
     rw [Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
-  have hfilter : ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), T q =
+  have hfilter : ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q), T q =
       ∑ q ∈ cubeIdx G, T q := by
     refine Finset.sum_filter_of_ne fun q hq hne => ?_
     have h1 : (((Kz G a ν q * cubeG G a ν α q) *ᵥ f) x) ≠ 0 := right_ne_zero_of_mul hne
@@ -409,7 +409,7 @@ theorem dg1 (hd : 3 ≤ d) (hL : 3 ≤ L) :
   obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
   have hcard := card_inBox_le (G := G) S.cover_sep (by omega : 1 ≤ L) hn1 hnK hxl
     (s := 5 / 2) (by norm_num) 5 (by norm_num)
-  have hterm : ∀ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+  have hterm : ∀ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q),
       w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖T q‖ ≤
         Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁) := by
     intro q hq
@@ -424,23 +424,23 @@ theorem dg1 (hd : 3 ≤ d) (hL : 3 ≤ L) :
           mul_le_mul h2 h1 (by positivity) hexp.le
   rw [hsum, ← hfilter]
   calc w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
-        ‖∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), T q‖
+        ‖∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q), T q‖
       ≤ w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
-        ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), ‖T q‖ :=
+        ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q), ‖T q‖ :=
         mul_le_mul_of_nonneg_left (norm_sum_le _ _) (by positivity)
-    _ = ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+    _ = ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q),
           w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖T q‖ := by rw [Finset.mul_sum]
-    _ ≤ ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+    _ ≤ ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q),
           Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁) := Finset.sum_le_sum hterm
-    _ = ((cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q)).card *
+    _ = ((cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q)).card *
           (Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁)) := by
         rw [Finset.sum_const, nsmul_eq_mul]
     _ ≤ (3 * 5 ^ d) * (Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁)) := by
         apply mul_le_mul_of_nonneg_right _ (by positivity)
-        have hf : (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q) =
+        have hf : (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ intBox q) =
             (cubeIdx G).filter (fun q => InBox m₁ q.1 q.2 (5 / 2 * (L : ℝ) ^ (q.1 + m₁))
               (x : CTorus d L N₁ m₁ K)) :=
-          Finset.filter_congr fun q _ => mem_box
+          Finset.filter_congr fun q _ => mem_intBox
         rw [hf]
         exact_mod_cast hcard
     _ ≤ C / 4 := by
