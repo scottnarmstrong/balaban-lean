@@ -547,6 +547,17 @@ public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
+public import Balaban.Observables.Cauchy
+public import Balaban.Observables.CauchyPackages
+public import Balaban.Observables.LayerConstants
+public import Balaban.Observables.LayerSchur
+public import Balaban.Observables.LayerStructure
+public import Balaban.Observables.LayerDef
+public import Balaban.Observables.LayerSums
+public import Balaban.Observables.LayerDictionary
+public import Balaban.Observables.LayerFirstOrder
+public import Balaban.Observables.LayerConst
+public import Balaban.Observables.LayerDictionaryBound
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
