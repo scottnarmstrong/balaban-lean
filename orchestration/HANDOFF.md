@@ -12,17 +12,17 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W197 (Opus) | `w197-complex-step2` / W197 (on W178) | complex step output side: E0C/F0C/M0C/TstepC, Prop 2.6 at complex data |
-| W202 | `w202-hat-joint-witness` / W202 | joint witness of all hypotheses of the hat expansion + label construction |
-| W203 | `w203-activity-vpart` / W203 | StepActivityBound for the zero class from the hat expansion (V-part, source) |
-| W204 | `w204-torus-bridge` / W204 (on W196) | bond bound hTband on the actual window from ChiDomProp (torus bridge) |
-| W205 | `w205-collar-actual` / W205 (on W196) | inner-collar bounds at the actual window without hcoreTop |
-| W206 | `w206-post-r-domains` / W206 | VMOD-21 rows 1–3: post-R domain, old cover lift |
-| W201 | `w201-stationarity` / W201 (on W181) | P7 (2.52) stationarity; unconditional cancellation_identity |
-| W199 | `w199-r-concrete` / W199 | R normalization for the concrete rhoZero; independence of components |
+| W212 (Opus) | `w212-complex-step3` / W212 | complex step part 3: sum_E1locC, F0C_eq_pair, analyticity of the outputs in the datum |
+| W213 | `w213-label-sum` / W213 | CubeLabels/LabelAct sums; source segment of the activity bound (zero class, g ≠ 0) |
+| W214 | `w214-ripe-removal` / W214 | admissible RegionHistory with a ripe removal; Geo; windowOfHistory at it |
+| W215 | `w215-rho-physical` / W215 | rhoZeroPhysical (physical mass term), R_normalization_ripe, R_normalizationPhysical |
+| W216 | `w216-collar-chidom` / W216 | collar bounds from ChiDomProp; Geo + nonempty inner collar witness; (Λ21′) check |
+| W217 | `w217-cover-equiv` / W217 | chosen-cover size vs the papers' all-cubes size (OPEN-COVER-EQUIVALENCE) |
+| W220 | `w220-cancel-witness` / W220 (on W207) | concrete instance of cancellation_identity (P8 non-vacuity) |
+| W219 | `w219-marks-witness` / W219 | non-degenerate InterpMarks/ObsMarks witnesses; Thm 3.1 instantiated |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): round 24 — q13 Q13-REEXPAND (tag Q13REX), fluctfix PAPER-RATES (PAPERRATES), vmod next round pending. AUTHOR RULING on Q13 (Scott, 2026-10-12, in AGENTS.md): fully massive variant A0 ruled out; scheme A stays recorded; hybrid A0′ replaces it if `hybrid_sf_factorization` is proved (Q13-FACTOR: not proved, not refuted — reduces to the re-expansion of inherited terms when the small-field region shrinks, needed under A too). Write nothing interface-specific or hybrid-specific until then. STRUCTURAL OPEN: the rate induction of the small-field step does not close (RATES, LABELS, HALO; ER-238); PAPER-RATES is reconstructing how the papers close it.
+astra (cap 3): round 25 — fluctfix Y-LOCAL (YLOCAL), q13 Q13-SHARED (Q13SH), vmod VMOD-23 (VMOD23). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces it if `hybrid_sf_factorization` is proved (Q13-FACTOR/Q13-REEXPAND: not proved; the re-expansion is shared; open sets of A and hybrid not ordered by inclusion). Nothing interface-specific or hybrid-specific to be written. RATE PROBLEM: repair identified (PAPER-RATES): a Y-local physical localization, no class change; halo plan dropped; proofs being written (Y-LOCAL). NON-VACUITY program: psiZero lane witnessed (W207), hat expansion jointly witnessed (W202), history with removal exists but not admissible (W211 → W214), window inner collar instance pending (W216). Landing: when several branches are finished, merge them into an integration branch (`.git/info/attributes` has `Balaban.lean merge=union`) and land once with scripts/land.sh.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
