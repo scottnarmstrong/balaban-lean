@@ -220,6 +220,12 @@ theorem sup_dist_le (sp : Spine d) {p q : Fin d → ℝ} (hp : p ∈ sp.carrier)
   push_cast at key
   linarith
 
+theorem eq_of_length_zero {sp : Spine d} (h : sp.length = 0) {p q : Fin d → ℝ}
+    (hp : p ∈ sp.carrier) (hq : q ∈ sp.carrier) : p = q := by
+  have := sp.sup_dist_le hp hq
+  rw [h, mul_zero] at this
+  exact sub_eq_zero.mp (norm_le_zero_iff.mp this)
+
 end Spine
 
 section Torus

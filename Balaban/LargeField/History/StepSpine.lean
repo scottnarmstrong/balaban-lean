@@ -457,6 +457,39 @@ theorem exists_step_spine (hg : StepGeom L n0 n1 ωk ω r Rprev Rk)
       rw [hY1, Finset.mem_singleton] at hY hY'
       rw [hY'] ; rw [hY] at hYL; exact hYL⟩ hsh
 
+/-- **Lemma I.4.8**, with the box rule: a component of the hull closure that is small of side
+`≤ b` is a box (Lemma I.3.4 (b)), and its spine can be taken to be the point `c(Z')`. -/
+theorem exists_step_spine_box (hg : StepGeom L n0 n1 ωk ω r Rprev Rk)
+    (hnum : SpineNum d L r ω ρk ρ D) (hΓ : st.OldSpined Γs ωk ρk) {crit : Option ℕ}
+    (hcrit : ∀ b, crit = some b → b ≤ 2 * ρ + 10) {Z' : Finset (Torus d n1)}
+    (hZ' : Z' ∈ comps ω (finOf (st.Zpre ω crit))) :
+    ∃ Γ' : Spine d, (Z' : Set (Torus d n1)) ⊆ NR ((ρ : ℝ) + 4) (Γ'.proj n1) ∧
+      Γ'.length ≤ ∑ Y ∈ st.oldIn ωk Z', (Γs Y).length / L +
+        (((st.oldIn ωk Z').card + (st.newIn Z').card : ℕ) - 1 : ℝ) * D ∧
+      ((st.oldIn ωk Z').card = 1 → (st.newIn Z').card = 0 → ∀ Y ∈ st.oldIn ωk Z',
+        (Γs Y).length ≤ L → Γ'.length = 0) ∧
+      (∀ b, crit = some b → IsSmall (Z' : Set (Torus d n1)) → side (Z' : Set (Torus d n1)) ≤ b →
+        ∃ (a : Torus d n1) (s : Fin d → ℕ), (Z' : Set (Torus d n1)) = box a s ∧
+          Γ'.length = 0 ∧ Γ'.proj n1 = {boxCentre a s}) := by
+  classical
+  obtain ⟨Γ0, h1, h2, h3⟩ := st.exists_step_spine Γs hg hnum hΓ hcrit hZ'
+  by_cases hbox : ∃ b, crit = some b ∧ IsSmall (Z' : Set (Torus d n1)) ∧
+      side (Z' : Set (Torus d n1)) ≤ b
+  · obtain ⟨b, rfl, hsm, hsd⟩ := hbox
+    have hZb : Z' ∈ comps ω (finOf (hullClosure ω b st.Z0)) := hZ'
+    have hEq := hullClosure_box hg.hω2 st.Z0 hZb hsm hsd
+    obtain ⟨a, s, hhull, -, hside⟩ := hull_eq_box (Finset.coe_nonempty.mpr (comp_nonempty hZb)) hsm
+    have hsi : ∀ i, s i ≤ 2 * ρ + 10 := fun i =>
+      le_trans (hside ▸ Finset.le_sup (f := s) (Finset.mem_univ i)) (hsd.trans (hcrit b rfl))
+    have hbox' : (Z' : Set (Torus d n1)) = box a s := hEq.trans hhull
+    obtain ⟨Γp, hl0, hproj⟩ := exists_point_spine (d := d) (n := n1) (boxCentre a s)
+    refine ⟨Γp, ?_, ?_, fun _ _ _ _ _ => hl0, fun b' hb' _ _ => ?_⟩
+    · rw [hproj, hbox']; exact box_subset_NR a s hsi
+    · rw [hl0]; exact (Γ0.length_nonneg).trans h2
+    · cases hb'
+      exact ⟨a, s, hbox', hl0, hproj⟩
+  · exact ⟨Γ0, h1, h2, h3, fun b hb hs hd => absurd ⟨b, hb, hs, hd⟩ hbox⟩
+
 end RegionStep
 
 end Balaban.LargeField
