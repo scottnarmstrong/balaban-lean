@@ -137,3 +137,4 @@
 | 2026-10-11 | W39 decoupled Green | running | Sonnet; LOCALIZATION DG1–DG6 on NC1–NC3 + cover |
 | 2026-10-11 | W40 LF region calculus | running | Sonnet; LF-RECONSTRUCTION block B |
 | 2026-10-11 | W41 LF abstract counter | running | Sonnet; LF-RECONSTRUCTION block D (+ needed C): `LF2Hyp`, budget cases, `LF2` (internal) |
+| 2026-10-12 | W38 localization GM | landed | `Ysites` (Y[𝒞]), `Dbases`, `gm1`, `componentOf_Ysites`, `gm2` (tree length, dimensionless normalization; extra hypothesis GM2Setup.contains — possible gap in LOCALIZATION GM2 sketch: every aligned π′_K-cube in X₁ contains a π′_j-cube in X), `gm3`, `gm4`, `isAdmissibleWeights_compWeight` (≈1,900 lines) |
