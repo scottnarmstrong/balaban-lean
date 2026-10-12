@@ -1,0 +1,41 @@
+import Mathlib.Tactic
+
+/- The numerical radius conditions in LiftCtx are jointly satisfiable whenever
+   the background constants and the small-field epsilon are positive. -/
+theorem liftCtx_radius_compatible {c0 c1 K eps N B : ℝ}
+    (hc0 : 0 < c0) (hc1 : 0 < c1) (hK : 0 ≤ K)
+    (heps : 0 < eps) (hN : 0 < N) (hB : 0 ≤ B) :
+    ∃ δ ρ : ℝ, 0 < δ ∧ δ ≤ c0 ∧ δ ≤ c1 ∧
+      (2 * K + 2) * δ ≤ eps ∧ 0 < ρ ∧ N * (ρ * (1 + N * B)) < δ ^ 2 := by
+  let m := min c0 (min c1 (eps / (2 * K + 2)))
+  have hKp : 0 < 2 * K + 2 := by linarith
+  have hm : 0 < m := lt_min hc0 (lt_min hc1 (div_pos heps hKp))
+  let δ := m / 2
+  have hδ : 0 < δ := by dsimp [δ]; linarith
+  have hδ0 : δ ≤ c0 := by
+    dsimp [δ, m]
+    have h := min_le_left c0 (min c1 (eps / (2 * K + 2)))
+    linarith
+  have hδ1 : δ ≤ c1 := by
+    dsimp [δ, m]
+    have h := (min_le_right c0 (min c1 (eps / (2 * K + 2)))).trans
+      (min_le_left c1 (eps / (2 * K + 2)))
+    linarith
+  have hδeps : (2 * K + 2) * δ ≤ eps := by
+    have h := (min_le_right c0 (min c1 (eps / (2 * K + 2)))).trans
+      (min_le_right c1 (eps / (2 * K + 2)))
+    have h' : m ≤ eps / (2 * K + 2) := h
+    have h'' : (2 * K + 2) * m ≤ eps := by
+      apply (le_div_iff₀ hKp).mp at h'
+      nlinarith
+    dsimp [δ]
+    nlinarith
+  have hfac : 0 < 1 + N * B := by nlinarith
+  let ρ := δ ^ 2 / (2 * N * (1 + N * B))
+  have hρ : 0 < ρ := by dsimp [ρ]; positivity
+  have hcalc : N * (ρ * (1 + N * B)) = δ ^ 2 / 2 := by
+    dsimp [ρ]
+    field_simp
+  refine ⟨δ, ρ, hδ, hδ0, hδ1, hδeps, hρ, ?_⟩
+  rw [hcalc]
+  nlinarith [sq_pos_of_pos hδ]

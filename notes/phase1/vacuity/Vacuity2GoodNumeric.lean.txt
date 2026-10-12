@@ -1,0 +1,14 @@
+import Balaban.LargeField.Counter.Conditions
+import Mathlib.Tactic.Linarith
+
+namespace Balaban.LargeField
+
+/- A unit starting scale cannot satisfy (Λ0) when θ₊ = 1 and c_* ≥ 1. -/
+theorem no_lamStar_at_one (T : Typing) (hθ : T.θp = 1)
+    (hc : 1 ≤ T.cStar) : LamStarConditions T 1 → False := by
+  intro H
+  have h := H.l0_a 1 le_rfl
+  rw [hθ] at h
+  nlinarith
+
+end Balaban.LargeField

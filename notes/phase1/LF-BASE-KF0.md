@@ -408,6 +408,8 @@ Confidence is high in Theorem D.1 and the empty-domain obstruction for literal R
 
 The request in `followup4.txt` is for the **actual** (B.5) activity, then torus-exact localized activities, then Root-F. The two estimates proved below settle the pure Gaussian hole normalization and the locality of each massive walk term. They do not construct the finite-support product-reference functions $\tau_z$ and $\beta_y$ required by `GasOperator.gasOp_pe`. The last subsection gives a direct test showing why applying that theorem to the unlocalized chart cutoff would be invalid. Thus this Part E records completed sublemmas and the exact unresolved theorem, rather than asserting the requested Root-F proof.
 
+Throughout E–F, $Z_\Lambda^{\rm prob}(g):=a_N^{-|\Lambda|}\operatorname{partitionFunction}(g)$ uses normalized sphere probability measure, while the frozen `aprioriMeasure` is Mathlib's unnormalized `toSphere`; $a_N=|\mathbb S^{N-1}|$. Every raw partition identity in these parts is for $Z^{\rm prob}$. Their ratio $Z^{\rm prob}(g)/Z^{\rm prob}(0)$ is exactly the frozen ratio. This convention leaves the unnormalized chart formula (A.1)–(A.3) unchanged.
+
 ### E.1. The Gaussian normalization of an arbitrary hole
 
 For any finite set of sites $S\subset\Lambda$, let $K_S=-\Delta_S^{\rm free}+\nu I$ on real scalar fields on $S$, with $(K_S)_{xx}=\nu+d_S(x)$ and $(K_S)_{xy}=-1$ for internal nearest neighbours. Put $m=N-1$, $a_N=|\mathbb S^{N-1}|$, and
@@ -435,7 +437,7 @@ The simpler Schur argument in D.3 applied to a principal submatrix. Theorem E.1 
 ### E.2. An exact sector identity and a determinant-normalized heavy weight
 
 For $B\subset\Lambda$, put $S=\Lambda\setminus B$, and let $\mathscr C(B)$ be the connected components of the nearest-neighbour graph on $B$. At fixed good spins $q_x$, $x\in S$, define $I_C^{\rm bad}(q;g_C)$ by (D.1)–(D.2). Let $E_S(q)$ contain the bonds internal to $S$ and the mass terms on $S$, with **no** crossing bonds. Splitting every bond once gives the exact finite-volume identity
-$$Z_\Lambda(g)=\sum_{B\subset\Lambda}\int_{\forall x\in S:\ |q_x-h|<r_\beta}
+$$Z_\Lambda^{\rm prob}(g)=\sum_{B\subset\Lambda}\int_{\forall x\in S:\ |q_x-h|<r_\beta}
 e^{-\beta E_S(q)+\sum_{x\in S}g_x\cdot q_x}
 \prod_{C\in\mathscr C(B)}I_C^{\rm bad}(q;g_C)\,d\sigma^S(q).\tag{E.3}$$
 There is no compatibility approximation here: components of $B$ have no bond between them, and every bond from $B$ to $S$ occurs in its component's conditional energy. On the measure-zero threshold surface either convention for equality can be used.
@@ -497,3 +499,94 @@ No cited P4–P7 result or landed Lean declaration proves E.3 for this one-scale
 | E5 | `kf0_oneScale_input`, `kf0_to_rootF` | 2,000–4,000 | **Conditional** on E4; `BlockTorus`, `FrozenTorus`, `Holomorphic`, B.6 |
 
 Confidence is high in E.1, (E.3)–(E.10), and the exact-support obstruction. The requested full (B.5), completed torus-exact **polymer** activities, and $k_f=0$ Root-F proof remain open at E.3. No source is being cited as if it supplied that missing product-reference localization.
+
+## Part F. A fixed product reference and its unresolved heavy tail
+
+The request in `followup5.txt` is to prove E.3, apply `gasOp_pe`, and finish Root-F. A fixed product reference can in fact be introduced **before** choosing holes, by using both sheets of the sphere chart. This removes the varying Gaussian determinant from the exact integral. The product-cutoff part of that representation admits the finite-support localization proved below. The unrestricted complement does not yet satisfy the bounded heavy-function and exact-support hypotheses of `gasOp_pe`; the final subsection exhibits the obstruction directly. Therefore this Part F is a proved improvement to E.3, not its completion.
+
+### F.1. Exact two-sheet formula with one Gaussian measure
+
+Identify $h^\perp$ isometrically with $\mathbb R^m$, $m=N-1$. For $|u|<1$ put $t(u)=\sqrt{1-|u|^2}$ and $\Phi(u,\sigma)=u+\sigma t(u)h$, $\sigma\in\{+1,-1\}$. Each hemisphere is the graph of this map, and the normalized spherical measure has the exact disintegration
+$$\int_{\mathbb S^{N-1}}f(\phi)\,d\sigma(\phi)=a_N^{-1}\sum_{\sigma=\pm1}\int_{|u|<1}f(\Phi(u,\sigma))\,t(u)^{-1}\,du.\tag{F.1}$$
+The equator has measure zero. The Jacobian is $t^{-1}$: the graph metric is $I+uu^T/t^2$, whose determinant is $t^{-2}$.
+
+On the **full** torus put $K=-\Delta_\Lambda+\nu I$ and $C=K^{-1/2}$, acting on each tangent coordinate. Set $u_x=\beta^{-1/2}\sum_y C(x,y)\psi_y$ and $t_x=t(u_x)$. Define the nonnegative real remainder
+$$V(u,\sigma)=\frac12\sum_{\{x,y\}:x\sim y}(\sigma_xt_x-\sigma_yt_y)^2
+ +\frac\nu2\sum_x(\sigma_xt_x-1)^2.\tag{F.2}$$
+The chord identity gives, without dropping crossing bonds,
+$$H(\Phi(u,\sigma))=\frac12\sum_{i=1}^m\langle u^i,Ku^i\rangle+V(u,\sigma).\tag{F.3}$$
+Let $\gamma=\bigotimes_{x\in\Lambda}\gamma_m$ be the product standard Gaussian probability measure. Changing variables $u=\beta^{-1/2}C\psi$ in (F.1) at every site proves the **exact** identity
+$$Z_\Lambda^{\rm prob}(g)=G_\Lambda\int\sum_{\sigma\in\{\pm1\}^\Lambda}
+\left[\prod_x\mathbf1_{\{|u_x|<1\}}t_x^{-1}\right]
+\exp\left[-\beta V(u,\sigma)+\sum_x g_x\cdot(u_x+\sigma_xt_xh)\right]d\gamma(\psi).\tag{F.4}$$
+Here $G_\Lambda$ is exactly (E.1). The change of variables is invertible because $\nu>0$. The integrand is measurable and integrable by its equality to the finite sphere integral; its Jacobian singularity at $|u_x|=1$ is integrable. Formula (F.4) uses a single product reference independent of any bad set. It does **not** make the integrand bounded.
+
+For the full free Laplacian, $K\mathbf1=\nu\mathbf1$. The Stieltjes resolvent formula and the nonnegative walk expansion imply $C(x,y)\ge0$, and functional calculus gives the exact row sum
+$$\sum_yC(x,y)=\nu^{-1/2}.\tag{F.5}$$
+Fix $b>0$, $p_\beta=b\log(\beta a)$, and the Part D radius $r_\beta=A\log(\beta a)/\sqrt\beta$. Choose $A>\sqrt2b/\sqrt{\nu_*}$, then take $\beta_0$ so that $r_\beta<1/4$ and $p_\beta/(\sqrt{\beta\nu_*})<1/4$. On the **product** event $\mathcal G_p:=\{\forall y:\ |\psi_y|\le p_\beta\}$, (F.5) gives
+$$|u_x|\le\frac{p_\beta}{\sqrt{\beta\nu_*}},\qquad
+|\Phi(u_x,+1)-h|\le\sqrt2|u_x|<r_\beta.\tag{F.6}$$
+Every minus-sheet spin is bad since $|\Phi(u_x,-1)-h|^2=2(1+t_x)\ge2$. Thus on $\mathcal G_p$ the physical good/bad condition is **exactly** the local sheet mark $\sigma_x=+/-$; the hard chart indicators in (F.4) are automatically one. This is the product-fluctuation cutoff mechanism used in FLUCTUATION §2.5, here established directly for the fixed massive operator.
+
+### F.2. Finite-support localization of analytic terms on the product cutoff
+
+The following lemma supplies an exact, torus-coherent expansion for every analytic site or bond function in the all-plus part of (F.4). It is stated with its majorant so the smallness assertion does not rely on a formal Taylor rearrangement.
+
+**Theorem F.1 (path-majorant localization).** Let $s=ML\ge8$, $\kappa>0$, and $U$ be one site or one nearest-neighbour bond. Let $F$ be holomorphic in the $D=m|U|$ complex tangent coordinates on the polydisc of radius $R$, with Taylor series $F(z)=\sum_\alpha c_\alpha z^\alpha$ and absolute majorant $\mathfrak M_F(\rho)=\sum_\alpha|c_\alpha|\rho^{|\alpha|}$. Put
+$$q_L=\frac{2d}{2d+\nu_*},\quad \eta_L=-\log q_L,\quad
+\gamma_\kappa=\frac{8\kappa3^d}{s},\quad
+A_\gamma=\frac{\nu_*^{-1/2}}{1-q_Le^{\gamma_\kappa}},\quad
+\rho_\beta=\frac{e^{\kappa3^d}p_\beta A_\gamma}{\sqrt\beta}.\tag{F.7}$$
+Assume $\gamma_\kappa<\eta_L$ and $\rho_\beta<R$. On $|\psi_y|\le p_\beta$ for all $y$, there are bounded functions $F_H(\psi)$, indexed by the finitely many connected site halos $H\subset\Lambda$ containing $U$, such that
+$$F((\beta^{-1/2}C\psi)|_U)=\sum_HF_H(\psi),\qquad
+\operatorname{DepOn}_H(F_H),\qquad
+\sum_H e^{\kappa k_s(H)}\|F_H\|_{\infty,\mathcal G_p}
+\le e^{2\kappa}\mathfrak M_F(\rho_\beta).\tag{F.8}$$
+Here $k_s(H)$ is the number of $s$-blocks meeting $H$. A term with a halo inside a non-winding quarter-box has the same function after the corresponding lift to another admissible torus. All equalities and bounds hold uniformly in $\nu\in(\nu_*,1]$ and the torus.
+
+*Proof.* Expand $C=K^{-1/2}$ by the nonnegative Stieltjes walks of E.3. If $a_w\ge0$ is the coefficient of a walk $w$ of length $n$ from $x$, the row-sum estimate in E.2 gives
+$$\sup_x\sum_{n\ge0}\sum_{w:\,w_0=x,\,|w|=n}e^{\gamma_\kappa n}a_w
+\le\nu_*^{-1/2}\sum_{n\ge0}(q_Le^{\gamma_\kappa})^n=A_\gamma.\tag{F.9}$$
+In each monomial $z^\alpha$, replace every occurrence of $z_{x,i}$ by $\beta^{-1/2}\sum_{w:w_0=x}a_w\psi_{w_n,i}$ and distribute. The resulting term reads only the endpoints of its finitely many paths; give it the union of $U$ and their occupancy halos as its declared support $H$. That union is connected. If $r=|\alpha|$ paths have total length $n_{\rm tot}$, E.9 and $|U|\le2$ imply
+$$k_s(H)\le2+3^dr+\frac{8\cdot3^d}{s}n_{\rm tot}.\tag{F.10}$$
+The product cutoff gives $|\psi_{w_n,i}|\le p_\beta$. Multiply the term's absolute value by $e^{\kappa k_s(H)}$ and use (F.10). Summing its path choices with (F.9) bounds its weighted norm by $e^{2\kappa}|c_\alpha|\rho_\beta^{|\alpha|}$. The assumed majorant is finite, so the expansion converges absolutely and uniformly on $\mathcal G_p$. Grouping by the exact halo is legitimate; there are only finitely many subsets of the finite torus, and the grouped functions are bounded and `DepOn` their halos. A walk and its weight lift identically when its halo does not wind, by E.2. Taylor coefficients of the same local $F$ are identical, which proves the torus claim. $\square$
+
+For the all-plus sheet, factor $e^{\langle g,h\rangle}$ and write the logarithm of the remaining integrand on $\mathcal G_p$ as a sum of the analytic site and bond functions
+$$\begin{aligned}
+F_x(u_x;g_x)&=-\tfrac12\log(1-u_x\cdot u_x)-\tfrac{\beta\nu}{2}(t(u_x)-1)^2
+ +g_x\cdot\bigl(u_x+(t(u_x)-1)h\bigr),\\
+F_{xy}(u_x,u_y)&=-\tfrac\beta2(t(u_x)-t(u_y))^2.
+\end{aligned}\tag{F.11}$$
+For the bilinear complex continuation $u\cdot u=\sum_i u_i^2$, the square root and logarithm are analytic on a fixed polydisc $mR^2<1/4$. Their Taylor series start in degrees $2$ for the logarithm, $4$ for the normal mass and bond terms, and $1$ for the source. Directly expanding $\sqrt{1-z}$ and $\log(1-z)$ gives, for $\rho$ sufficiently small,
+$$\mathfrak M_{F_x}(\rho)\le C_N\bigl(|g_x|_1\rho+\rho^2+\beta\rho^4\bigr),\qquad
+\mathfrak M_{F_{xy}}(\rho)\le C_N\beta\rho^4.\tag{F.12}$$
+For example, $|\sqrt{1-z}-1|$ has an absolute coefficient majorant at most $2|z|$ when $|z|\le1/4$, and $|\log(1-z)|$ at most $2|z|$; substitute the majorant $m\rho^2$ for $u\cdot u$. Consequently F.1 produces exact finite-support ordinary terms on $\mathcal G_p$ with weighted sup norm
+$$B_\beta\le C_{d,N,\kappa,L,M,b}\left(\frac{\log(\beta a)}{\sqrt\beta}
+ +\frac{\log^2(\beta a)}\beta+\frac{\log^4(\beta a)}\beta\right)\longrightarrow0.\tag{F.13}$$
+The cutoff reference itself is $\mu_p=\bigotimes_x\gamma_m(\cdot\mid |\psi_x|\le p_\beta)$; its normalizing factor $\gamma_m(|\psi|\le p_\beta)^{|\Lambda|}$ is source independent. Thus the all-plus, all-$\psi$-good contribution is **exactly** a product expectation of the exponential of the finite-support terms from F.1. Its local coefficients agree under non-winding lifts. This statement concerns that restricted contribution, not the full $Z_\Lambda$.
+
+### F.3. The missing heavy operator is not the Gaussian tail probability
+
+The product Gaussian tail is small at one site: the exponential Markov inequality gives
+$$\gamma_m\{|\psi|>p_\beta\}\le2^{m/2}e^{-p_\beta^2/4}.\tag{F.14}$$
+For fixed $\beta$, the probability of at least one bad Gaussian site is $1-(1-q_\beta)^{|\Lambda|}$, where $q_\beta=\gamma_m\{|\psi|>p_\beta\}>0$; it approaches one as the volume grows. Thus the complement cannot be treated as one globally small error. Also, $\mu_p$ is a reference for the **restricted** sector only; the full gas must use one product measure that includes bad variables, for example the full $\gamma$ with ordinary terms extended by a sitewise clip, or an equivalent product mixture of good and bad variables. The exact residual created by such an extension must be assigned to heavy objects. `gasOp_pe` then needs **integrated, bounded, finite-support functions** $\tau_z$ whose product with the ordinary factors gives that residual exactly. The raw complement of $\mathcal G_p$ in (F.4) does not have those properties. In particular, its chart Jacobian $\prod_x t_x^{-1}$ is unbounded: choose a real configuration with one $|u_x|\uparrow1$ and all other $|u_y|<1$; the linear transformation to $\psi$ is invertible, $V(u,\sigma)$ stays finite, and the factor $t_x^{-1}$ diverges. For large $\beta$ such a configuration lies outside $\mathcal G_p$ by (F.6). Hence multiplying (F.14) by a claimed pointwise bound on the remaining integrand is invalid, and the raw complement cannot be used as the bounded $\tau_z$ of `GasOperator.lean`.
+
+Nor does the analytic expansion F.1 apply there: its majorant requires every $|\psi_y|\le p_\beta$. A finite walk truncation of $C$ changes the exact chart map; a ball-radius telescoping expansion has the support-size problem of E.4. To close E.3 by this no-hole representation, one needs a new theorem that integrates singular chart variables inside connected $\psi$-bad and minus-sheet objects, localizes their dependence on the exterior product variables with exact finite supports, and proves both the `Bdd` condition and
+$$\int|\tau_z(\psi;g)|\,d\bigotimes_x\gamma_m(\psi_x)
+\le e^{-p_\beta-h_\beta|z_s|}$$
+after all crossing bonds, source factors, and chart Jacobians are included. Its identity must cover the complete complement of the all-plus product-cutoff sector, count compatible objects, and give the same lifted local functions on two tori. Theorem D.1 charges physical bad cores and (F.14) charges Gaussian bad sites separately, but neither theorem constructs that operator or proves its conditional integrability after localization. The normalizing ratio $Z_\Lambda(0)$ also must be handled in the gas identity; a bound on $Z_\Lambda(g)-Z_{\rm typ}(g)$ alone would not supply the exact logarithm.
+
+This no-hole representation makes E.1's determinant comparison unnecessary **if** the new heavy theorem is proved, since the fixed $G_\Lambda$ cancels from $Z(g)/Z(0)$. It does not certify the original sector-weight construction (E.3) as an input to `gasOp_pe`. The missing theorem is analytically substantive: the available results `MayerPE`, `GasOperator`, `HoleOperator`, and `Peierls` start after its bounded finite-support weights and their integrated estimates have been supplied.
+
+The quantifier order remains $\delta=1/8$, then arbitrary $\kappa,c_9>0$, then $L,M$, then $\beta_0$. For the ordinary expansion choose $M$ large enough that $s=ML\ge8$ and $8\kappa3^d/s<\eta_L$, choose $b>0$ and $A>\sqrt2b/\sqrt{\nu_*}$, and finally enlarge $\beta_0$ for (F.6), $\rho_\beta<R$, and the required small $B_\beta$. These are explicit **ordinary-sector** choices. No $\beta_0$ has been proved to satisfy the absent heavy-operator and GAS/PE inequalities (E.11)–(E.12), so B.6 remains conditional and Root-F at $k_f=0$ is not proved here.
+
+| Order | Lean declaration | Estimated lines | Mathematical status / reuse |
+|---|---|---:|---|
+| F1 | `sphere_twoSheet`, `globalTangentEnergy`, `globalProductGaussian` proving (F.1)–(F.4) | 1,000–2,000 | Proved above; `Frozen/Model/Energy`, finite Gaussian change of variables |
+| F2 | `fullCov_rowSum`, `productCutoff_implies_goodChart` proving (F.5)–(F.6) | 400–800 | Proved above; E.2 and functional calculus |
+| F3 | `analyticPath_majorant`, `localFunction_haloExpansion`, torus lift | 1,500–3,000 | Proved above; E.2 walk locality, `Polymer/BoxTransport` after indexing |
+| F4 | `allPlus_siteBond_majorants` and product-cutoff ordinary activity | 800–1,600 | Proved above; `Mayer.mayer_integral_eq` once its geometry hypotheses are checked |
+| F5 | `kf0_heavyProductOperator` with singular-chart integration, exact complement identity, integrated norm and all GAS hypotheses | At least 6,000–12,000 | **Open**; this is the missing model theorem before `gasOp_pe` |
+| F6 | `kf0_gasPe`, one-scale activity and `kf0_to_rootF` | 2,000–4,000 | Conditional on F5, entropy/PE checks, and B.6 |
+
+Confidence is high in the exact representation, cutoff implication, and the analytic path-majorant theorem. The full product-reference heavy activity (B.5), its torus-exact localized complement, and the unconditional $k_f=0$ branch of Root-F remain open. No landed polymer theorem has been invoked outside its stated hypotheses.
