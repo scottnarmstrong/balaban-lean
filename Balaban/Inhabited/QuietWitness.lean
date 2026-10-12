@@ -93,7 +93,7 @@ theorem quietStepInput'_nonempty_pos (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.C
     Nonempty (QuietStepInput' 2 0 (wGeo wn) cs N) := by
   refine ⟨{
     real_euclid := fun k σ a a' hI =>
-      quietRealized_iff_of_histImage (fun j hj => wn_top hj) rfl hI
+      quietRealized_iff_of_histImage (fun j hj => wn_top hj) (Nat.zero_le _) hI
     b := fun _ _ _ _ _ _ => 0
     b_meas := fun _ _ _ _ _ => measurable_const
     b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
