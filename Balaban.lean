@@ -962,3 +962,8 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Localization.GraphGmCount
+public import Balaban.Localization.GraphGmWalk
+public import Balaban.Localization.GraphGmDefs
+public import Balaban.Localization.GraphGmTree
+public import Balaban.Localization.GraphGmExponent

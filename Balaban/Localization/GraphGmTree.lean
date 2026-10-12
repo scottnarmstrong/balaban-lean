@@ -79,6 +79,10 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L]
 def ZCell.Layered (L m₀ m₁ K : ℕ) (c : ZCell d) : Prop :=
   ∃ n ≤ K, c.side = cellSide L m₀ m₁ n ∧ ∀ μ, ((c.side : ℕ) : ℤ) ∣ c.base μ
 
+/-- Layered cells exist (the typing data `Layered` is inhabited). -/
+theorem ZCell.layered_exists (L m₀ m₁ K d : ℕ) : ∃ c : ZCell d, c.Layered L m₀ m₁ K :=
+  ⟨⟨0, cellSide L m₀ m₁ 0⟩, 0, Nat.zero_le _, rfl, fun _ => dvd_zero _⟩
+
 theorem scaleW_eq_cellSide (L m₀ m₁ j : ℕ) {α : Type*} (x y : α) :
     scaleW L m₀ m₁ j x y = ((cellSide L m₀ m₁ j : ℕ) : ℝ)⁻¹ := by
   unfold scaleW cellSide
@@ -301,9 +305,9 @@ theorem modular_tree_of_witnesses {m₀ k : ℕ} (hK : k + 1 = K) (hN : L ^ m₀
     by_cases hgr : g ∈ roots
     · obtain ⟨-, p, hpW, hlk⟩ := hroot g hgr
       refine ⟨{p, zTorus L N₁ m₁ (k + 1) g.rep}, by simp, ?_, fun _ => ⟨p, hpW, by simp⟩⟩
-      rw [if_pos hgr]; exact hlk
+      simp only [hgr, ↓reduceIte]; exact hlk
     · refine ⟨{zTorus L N₁ m₁ (k + 1) g.rep}, by simp, ?_, fun h => absurd h hgr⟩
-      rw [if_neg hgr]
+      simp only [hgr, ↓reduceIte]
       refine ⟨{zTorus L N₁ m₁ (k + 1) g.rep}, ∅, connStruct_singleton _, ?_, subset_rfl, ?_⟩
       · simpa using hrepY
       · simp [bondCost]
