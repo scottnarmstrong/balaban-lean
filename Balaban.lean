@@ -1114,6 +1114,9 @@ public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
 public import Balaban.SmallField.GsSpecAgree
 public import Balaban.SmallField.GsSpecClass
+public import Balaban.SmallField.GsSpecPoly
+public import Balaban.SmallField.GsSpecPolyEqv
+public import Balaban.SmallField.GsSpecPolyClass
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
@@ -1124,3 +1127,5 @@ public import Balaban.Fluctuation.StepActivityWitnessNe
 public import Balaban.Fluctuation.StepActivityWitnessRay
 public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
+public import Balaban.LargeField.R.RegionalFlux
+public import Balaban.LargeField.R.RegionalFluxMeasure

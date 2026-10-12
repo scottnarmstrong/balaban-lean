@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W175 | `w175-lf-p11` / W175 | LFR Part III P11 (reference density, denominator, R) |
 | W176 | `w176-hat-labels` / W176 | cube labels + label activities from the hat terms |
 | W186 | `w186-regional-flux` / W186 | REGIONAL proved parts: marginal flux (1.3), (1.3a), measure comparison |
-| W183 | `w183-poly-minimal` / W183 | class polymers are cube unions; GsSpecStrong for minimal sets |
+| W188 | `w188-source-norm` / W188 | HAT-RATE §3: source resummation with the factor 1/β kept |
 | W187 | `w187-crossing-count` / W187 (on W185) | sharp crossing count for cube unions; scale-uniform wall constant |
 | W181 | `w181-lf-p8` / W181 | LFR Part III P8 (cancellation of the main actions) |
 | W184 | `w184-window-history` / W184 | WindowPieces from the actual history; W173's geometric premises |
