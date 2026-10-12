@@ -1041,6 +1041,7 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.HatLabelsSplit
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
