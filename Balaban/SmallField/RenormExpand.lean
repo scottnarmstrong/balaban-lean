@@ -171,6 +171,98 @@ theorem TermOK.quad_pack (hf : TermOK i₀ ν ρ X f) (hi : i₁ ≠ i₀) (φ �
   rw [Finset.sum_congr rfl h2]
   ring
 
+theorem norm_pack_le (X : Finset (Site d)) (φ : Site d → Spin N) {D : ℝ} (hD0 : 0 ≤ D)
+    (hD : ∀ x ∈ X, ‖φ x‖ ≤ D) : ‖pack X φ 0‖ ≤ D := by
+  rw [pi_norm_le_iff_of_nonneg hD0]
+  rintro (⟨x, j⟩ | i)
+  · exact (norm_le_pi_norm (φ x.1) j).trans (hD x.1 x.2)
+  · simpa [pack] using hD0
+
+theorem norm_single_one_le {ι : Type*} [Fintype ι] [DecidableEq ι] (p : ι) :
+    ‖(Pi.single p (1 : ℂ) : ι → ℂ)‖ ≤ 1 := by
+  rw [pi_norm_le_iff_of_nonneg zero_le_one]
+  intro q
+  by_cases h : q = p <;> simp [Pi.single_apply, h]
+
+theorem TermOK.norm_tensA_le (hf : TermOK i₀ ν ρ X f) {M : ℝ}
+    (hM : ∀ c ∈ ball (refPt i₀ ν X) ρ, ‖f c‖ ≤ M) (x : ↥X) :
+    ‖tensA i₀ ν X f x‖ ≤ M / ρ := by
+  have := norm_fderiv_apply_le hf.rho_pos hf.analytic_ball hM
+    (Pi.single (Sum.inl (x, i₀)) (1 : ℂ) : Cfg d N X)
+  have h1 := norm_single_one_le (Sum.inl (x, i₀) : Idx d N X)
+  have hM0 : 0 ≤ M := le_trans (norm_nonneg _) (hM _ (mem_ball_self hf.rho_pos))
+  unfold tensA
+  refine this.trans ?_
+  rw [div_le_div_iff_of_pos_right hf.rho_pos]
+  nlinarith
+
+theorem TermOK.norm_D2_basis_le (hf : TermOK i₀ ν ρ X f) {M : ℝ}
+    (hM : ∀ c ∈ ball (refPt i₀ ν X) ρ, ‖f c‖ ≤ M) (p q : Idx d N X) :
+    ‖D2 f (refPt i₀ ν X) (Pi.single p 1) (Pi.single q 1)‖ ≤ 4 * M / ρ ^ 2 := by
+  have := norm_D2_le hf.rho_pos hf.analytic_ball hM (Pi.single p (1 : ℂ) : Cfg d N X)
+    (Pi.single q (1 : ℂ) : Cfg d N X)
+  have h1 := norm_single_one_le p
+  have h2 := norm_single_one_le q
+  have hM0 : 0 ≤ M := le_trans (norm_nonneg _) (hM _ (mem_ball_self hf.rho_pos))
+  refine this.trans ?_
+  rw [div_le_div_iff_of_pos_right (by have := hf.rho_pos; positivity)]
+  nlinarith [mul_nonneg hM0 (norm_nonneg (Pi.single p (1 : ℂ) : Cfg d N X)),
+    mul_le_mul h1 h2 (norm_nonneg _) zero_le_one]
+
+theorem TermOK.tensB_symm (hf : TermOK i₀ ν ρ X f) (x x' : ↥X) :
+    tensB i₀ i₁ ν X f x x' = tensB i₀ i₁ ν X f x' x :=
+  D2_symm (hf.analytic_ball (refPt i₀ ν X) (mem_ball_self hf.rho_pos)) _ _
+
 end Pack
+
+section Algebra
+
+theorem dotT_comm (i₀ : Fin N) (u v : Spin N) : dotT i₀ u v = dotT i₀ v u := by
+  simp [dotT, mul_comm]
+
+theorem dotT_sub_self (i₀ : Fin N) (u v : Spin N) :
+    dotT i₀ (u - v) (u - v) = dotT i₀ u u - 2 * dotT i₀ u v + dotT i₀ v v := by
+  simp only [dotT, Pi.sub_apply, ← Finset.sum_sub_distrib, ← Finset.sum_add_distrib,
+    Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  ring
+
+/-- The algebraic consequence of the Ward identity: `Q_X` in terms of the differences. -/
+theorem ward_algebra {ι : Type*} [Fintype ι] (i₀ : Fin N) (ν : ℂ) (a m : ι → ℂ)
+    (B : ι → ι → ℂ) (hB : ∀ x x', B x x' = B x' x)
+    (hW : ∀ x', ∑ x, B x x' + ν * m x' - a x' = 0) (Θ : ι → Spin N) :
+    (1 / 2 : ℂ) * ∑ x, ∑ x', B x x' * dotT i₀ (Θ x) (Θ x') -
+        (1 / 2 : ℂ) * ∑ x, a x * dotT i₀ (Θ x) (Θ x) =
+      -(ν / 2) * ∑ x, m x * dotT i₀ (Θ x) (Θ x) -
+        (1 / 4 : ℂ) * ∑ x, ∑ x', B x x' * dotT i₀ (Θ x - Θ x') (Θ x - Θ x') := by
+  have hcol : ∀ x', ∑ x, B x x' = a x' - ν * m x' := fun x' => by linear_combination hW x'
+  have hrow : ∀ x, ∑ x', B x x' = a x - ν * m x := fun x => by
+    rw [← hcol x]; exact Finset.sum_congr rfl fun x' _ => hB x x'
+  simp only [dotT_sub_self, mul_add, mul_sub, Finset.sum_add_distrib, Finset.sum_sub_distrib]
+  have hsplit : ∑ x, (a x - ν * m x) * dotT i₀ (Θ x) (Θ x) =
+      ∑ x, a x * dotT i₀ (Θ x) (Θ x) - ν * ∑ x, m x * dotT i₀ (Θ x) (Θ x) := by
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun x _ => by ring
+  have e1 : ∑ x, ∑ x', B x x' * dotT i₀ (Θ x) (Θ x) =
+      ∑ x, a x * dotT i₀ (Θ x) (Θ x) - ν * ∑ x, m x * dotT i₀ (Θ x) (Θ x) := by
+    rw [← hsplit]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [← Finset.sum_mul, hrow]
+  have e2 : ∑ x, ∑ x', B x x' * dotT i₀ (Θ x') (Θ x') =
+      ∑ x, a x * dotT i₀ (Θ x) (Θ x) - ν * ∑ x, m x * dotT i₀ (Θ x) (Θ x) := by
+    rw [← hsplit, Finset.sum_comm]
+    refine Finset.sum_congr rfl fun x' _ => ?_
+    rw [← Finset.sum_mul, hcol]
+  have e3 : ∑ x, ∑ x', B x x' * (2 * dotT i₀ (Θ x) (Θ x')) =
+      2 * ∑ x, ∑ x', B x x' * dotT i₀ (Θ x) (Θ x') := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun x' _ => by ring
+  have e4 : ∑ x, m x * dotT i₀ (Θ x) (Θ x) = ∑ x, m x * dotT i₀ (Θ x) (Θ x) := rfl
+  rw [e1, e2, e3]
+  ring
+
+end Algebra
 
 end Balaban.SmallField
