@@ -67,6 +67,57 @@ theorem invSqrt_transpose_mul (A : Matrix ι ι ℂ) (hA : A.PosDef)
 
 end CovAlg
 
+/-- The exponent bookkeeping of the integrand (2.6): pure algebra. -/
+theorem step_exponent_algebra (K0 cp Ao An β sg Ek nU : ℝ) (Eψ E0 Fψ F0 V : ℂ) (hβ : β ≠ 0)
+    (hJ : (cp : ℂ) + (Ao : ℂ) = (An : ℂ) + ((1 / (2 * β) * sg : ℝ) : ℂ) + V) :
+    ((K0 * Real.exp (-(β * cp)) : ℝ) : ℂ) * ((1 : ℝ) : ℂ) *
+        (((1 : ℝ) : ℂ) * Complex.exp (-(β : ℂ) * (Ao : ℂ) + Eψ - (Ek : ℂ) * (nU : ℂ) + Fψ)) =
+      (K0 : ℂ) * Complex.exp (-(β : ℂ) * (An : ℂ) + E0 - (Ek : ℂ) * (nU : ℂ) + F0) *
+          ((1 * Real.exp ((-sg) / 2) : ℝ) : ℂ) *
+        Complex.exp (-(β : ℂ) * V + (Eψ - E0) + (Fψ - F0)) := by
+  have hβc : (β : ℂ) ≠ 0 := by exact_mod_cast hβ
+  have hJ2 : (β : ℂ) * ((cp : ℂ) + (Ao : ℂ)) = (β : ℂ) * An + (sg : ℂ) / 2 + (β : ℂ) * V := by
+    rw [hJ]; push_cast; field_simp
+  simp only [Complex.ofReal_mul, Complex.ofReal_exp, Complex.ofReal_one, one_mul, mul_one]
+  have hexp : Complex.exp (((-(β * cp) : ℝ) : ℂ)) * Complex.exp (-(β : ℂ) * (Ao : ℂ) + Eψ - (Ek : ℂ) * (nU : ℂ) + Fψ) =
+      Complex.exp (-(β : ℂ) * (An : ℂ) + E0 - (Ek : ℂ) * (nU : ℂ) + F0) *
+        Complex.exp ((((-sg) / 2 : ℝ) : ℂ)) *
+        Complex.exp (-(β : ℂ) * V + (Eψ - E0) + (Fψ - F0)) := by
+    rw [← Complex.exp_add, ← Complex.exp_add, ← Complex.exp_add]
+    congr 1
+    push_cast
+    linear_combination (-1 : ℂ) * hJ2
+  calc (K0 : ℂ) * Complex.exp (((-(β * cp) : ℝ) : ℂ)) *
+        Complex.exp (-(β : ℂ) * (Ao : ℂ) + Eψ - (Ek : ℂ) * (nU : ℂ) + Fψ)
+      = (K0 : ℂ) * (Complex.exp (((-(β * cp) : ℝ) : ℂ)) *
+        Complex.exp (-(β : ℂ) * (Ao : ℂ) + Eψ - (Ek : ℂ) * (nU : ℂ) + Fψ)) := by ring
+    _ = _ := by rw [hexp]; ring
+
+section ZeroTangent
+
+variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
+  {G : GeneratingSet d L N₀ K ϱ} {G' : GeneratingSet d L N₀ K ϱ'}
+
+theorem qStar_zero' (a : ℕ → ℝ) :
+    qStar G a (0 : Torus d (N₀ * L ^ K) → Fin N → ℂ) = 0 := by
+  funext p; simp [qStar]
+
+theorem phiOne_zero' (h : Precedes G G') (a : ℕ → ℝ) (ν : ℝ) (α₁ : G'.Ω 1 → ℂ)
+    (φ₁ : G'.Ω 1 × Fin N → ℂ) : phiOne h a ν α₁ φ₁ 0 = 0 := by
+  simp [phiOne]
+
+theorem alphaOne_zero' (h : Precedes G G') (a : ℕ → ℝ) (ν : ℝ) (α₁ : G'.Ω 1 → ℂ)
+    (φ₁ : G'.Ω 1 × Fin N → ℂ) : alphaOne h a ν α₁ φ₁ 0 = 0 := by
+  simp [alphaOne]
+
+/-- The interaction vanishes at the critical point. -/
+theorem interactionV_zero' (h : Precedes G G') (a : ℕ → ℝ) (ν : ℝ) (α₁ : G'.Ω 1 → ℂ)
+    (φ₁ : G'.Ω 1 × Fin N → ℂ) :
+    interactionV h a ν α₁ φ₁ (0 : Torus d (N₀ * L ^ K) → Fin N → ℂ) 0 = 0 := by
+  simp [interactionV, qStar_zero', phiOne_zero', alphaOne_zero', pair]
+
+end ZeroTangent
+
 namespace StepSetting
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
@@ -580,6 +631,150 @@ theorem Jbg_expansion (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
   linear_combination hqq
 
 end Main3
+
+section Main4
+
+variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+  {δ' : ℝ} (hδ'0 : 0 < δ') (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+  (hχu : chiU S.G' S.a S.ν S.δ S.D' = 1)
+  (hnorm : S.ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, S.h₀ i ^ 2 - 1| < (1 * S.δ) ^ 2)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
+  {B₅ K₂ : ℝ} (hB5 : max 1 (Real.sqrt N * covSupConst d L N (S.a k)) ≤ B₅)
+  (hK2 : max (max 1 (cK2 d L N)) (Real.sqrt N * cK2 d L N) ≤ K₂)
+  (hp40 : S.p₁ / (S.betaU ^ (1 / 2 : ℝ) * S.δ) ≤ (3 * B₅ * K₂)⁻¹)
+  (hrad : B₅ * S.betaU ^ (-(1 / 2 : ℝ)) * S.p₁ ≤ fluctRadius d L N)
+
+include S ha₁ H hδ'0 hδ' hD'R in
+theorem dataU_psi0 : S.dataU S.psi0 = S.psiKd := by
+  obtain ⟨hDU', -⟩ := S.D'_domains H hδ'0 hδ' hD'R
+  have hpsiReal := (criticalPoint_real ha₁ S.hG S.hG' (le_refl (k + 1)) H H S.D' hDU').1
+  refine bgData_ext' ?_ ?_
+  · funext z i
+    have hpr : S.psiKd.Ψ z i = (((S.psiKd.Ψ z i).re : ℝ) : ℂ) :=
+      Complex.ext (by simp) (by simpa using (show (S.psiKd.Ψ z i).im = 0 from (hpsiReal z i).1))
+    rw [S.dataU_Ψ, S.liftU_psi0, ← hpr]
+  · funext z i
+    rw [S.dataU_h]
+    show (S.h₀ i : ℂ) = (if z ∈ (stepG d L N₁ m₁ k ϱ).Ω 1 then S.D'.h z i else 0 : ℂ)
+    simp [(S.hG z).1, S.hh₀]
+
+include S ha₁ H hδ'0 hδ' hD'R in
+theorem Vk_psi0 : S.Vk S.psi0 = 0 := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  obtain ⟨hDU', -⟩ := S.D'_domains H hδ'0 hδ' hD'R
+  obtain ⟨hr, hdom, -, -, -, -, hfield, -⟩ :=
+    criticalPoint_real ha₁ S.hG S.hG' (le_refl (k + 1)) H H S.D' hDU'
+  obtain ⟨-, -, hδ'c1, -⟩ := theta_consts hd0 hδ'0 hδ'
+  have hDU1 : InUnionDomainR S.G' (bgC1 d L N) S.ν S.D' := ⟨δ', hδ'0, hδ'c1, hD'R⟩
+  obtain ⟨hf, hm⟩ := theorem72_real H hDU1
+  have hdp := S.dataU_psi0 ha₁ H hδ'0 hδ' hD'R
+  have hdom' : InUnionDomainR (stepG d L N₁ m₁ k ϱ) (bgC1 d L N) S.ν S.psiKd := hdom
+  have hfield' : bgField (stepG d L N₁ m₁ k ϱ) S.a S.ν S.psiKd =
+      (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ (bgField S.G' S.a S.ν S.D') := hfield
+  unfold Vk
+  rw [hdp]
+  have h1 : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' S.psiKd = 0 := by
+    funext z i
+    unfold compTangent
+    rw [hf]
+    exact sub_self _
+  have h2 : bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) S.psiKd -
+      (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')
+      = 0 := by
+    rw [(theorem72_real H hdom').1, hf, hfield']
+    exact sub_self _
+  rw [h1, h2]
+  exact interactionV_zero' _ _ _ _ _
+
+end Main4
+
+/-- The truncation of `W₁` to the support of `χ_fl` (where `ν_{p₁}` lives). -/
+noncomputable def WoneT (s : ℝ) (x : S.E) : ℂ :=
+  open Classical in if chiFl S.U N S.p₁ x = 1 then S.Wone C s x else 0
+
+/-- The truncation of `W₂` to the support of `χ_fl`. -/
+noncomputable def WtwoT (g : Fld d L N₁ m₁ (k + 1) N) (t : ℝ) (x : S.E) : ℂ :=
+  open Classical in if chiFl S.U N S.p₁ x = 1 then S.Wtwo C g t x else 0
+
+/-- The constant prefactor of (2.6)-(2.7): the normalisation of `t_k` and the background values of
+the exponent. -/
+noncomputable def Pconst (g : Fld d L N₁ m₁ (k + 1) N) : ℂ :=
+  (((S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) : ℝ) : ℂ) *
+    Complex.exp (-(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (C.Ek : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g)
+
+theorem psiAt_one_sub (x : S.E) : S.psiAt 1 x - S.psi0 = S.shiftU x := by
+  unfold psiAt; rw [one_smul]; abel
+
+section Main5
+
+variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+  {δ' : ℝ} (hδ'0 : 0 < δ') (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+  (hχu : chiU S.G' S.a S.ν S.δ S.D' = 1)
+  (hnorm : S.ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, S.h₀ i ^ 2 - 1| < (1 * S.δ) ^ 2)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
+  {B₅ K₂ : ℝ} (hB5 : max 1 (Real.sqrt N * covSupConst d L N (S.a k)) ≤ B₅)
+  (hK2 : max (max 1 (cK2 d L N)) (Real.sqrt N * cK2 d L N) ≤ K₂)
+  (hp40 : S.p₁ / (S.betaU ^ (1 / 2 : ℝ) * S.δ) ≤ (3 * B₅ * K₂)⁻¹)
+  (hrad : B₅ * S.betaU ^ (-(1 / 2 : ℝ)) * S.p₁ ≤ fluctRadius d L N)
+
+include S H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hβ in
+/-- `χ^{(k)}` at the path point `s = 1` is `χ_{(2.2)} χ_fl(ψ̂)`. -/
+theorem chiK_psiAt (x : S.E) :
+    S.chiK (S.psiAt 1 x) = chi22 S.G' S.δ S.D' (liftU S.hG' (S.psiAt 1 x)) * chiFl S.U N S.p₁ x := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hβU := betaU_pos' S hL hβ
+  have hχ := (chiU_eq_one_iff _ _ _ _).1 hχu
+  unfold chiK
+  rw [S.psiAt_one_sub]
+  unfold shiftU
+  rw [map_smul, S.Kinv_K H hδ'0 hδ' hD'R hδ0 hχ hfam hsm, smul_smul, ← Real.rpow_add hβU]
+  norm_num
+
+include S ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad in
+/-- **The integrand of the fluctuation integral after the substitution (2.7)**:
+`t_k χ^{(k)} ρ_k (ψ^{(k)} + ψ') = P χ_fl(ψ̂) e^{-‖ψ̂‖²/2} e^{W₁(1, ψ̂) + W₂(1, ψ̂)}`. -/
+theorem integrand_eq (g : Fld d L N₁ m₁ (k + 1) N) (x : S.E) :
+    (S.tKernel (S.psiAt 1 x) : ℂ) * (S.chiK (S.psiAt 1 x) : ℂ) * S.rhoStep C g (S.psiAt 1 x) =
+      S.Pconst C g * ((chiFl S.U N S.p₁ x * gaussWeight S.U N x : ℝ) : ℂ) *
+        Complex.exp (S.WoneT C 1 x + S.WtwoT C g 1 x) := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  by_cases hx : chiFl S.U N S.p₁ x = 1
+  · have hxi := S.chiXi_eq_one ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad
+      x hx
+    have hc22 : chi22 S.G' S.δ S.D' (liftU S.hG' (S.psiAt 1 x)) = 1 := by
+      have h := S.chi_absorb ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad x
+      rw [hx, mul_one, hxi, one_mul] at h
+      exact h
+    have hK := S.chiK_psiAt H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hβ x
+    rw [hc22, hx, mul_one] at hK
+    have hJ := S.Jbg_expansion ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad
+      x hx
+    have hdp := S.dataU_psi0 ha₁ H hδ'0 hδ' hD'R
+    simp only [Jbg] at hJ
+    rw [Complex.ofReal_add] at hJ
+    simp only [rhoStep, tKernel, Pconst, WoneT, WtwoT, hK, hxi, hx, ↓reduceIte, Wone, Wtwo, dE, dF,
+      Aold, hdp, gaussWeight]
+    exact step_exponent_algebra _ _ _ _ S.β _ C.Ek S.nU _ _ _ _ _ hβ.ne' hJ
+  · have h0 : chiFl S.U N S.p₁ x = 0 := by
+      rcases chiFl_eq_zero_or_one S.p₁ x with h | h
+      · exact h
+      · exact absurd h hx
+    have hK := S.chiK_psiAt H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hβ x
+    rw [h0, mul_zero] at hK
+    rw [hK, h0]
+    simp
+
+end Main5
 
 end StepSetting
 
