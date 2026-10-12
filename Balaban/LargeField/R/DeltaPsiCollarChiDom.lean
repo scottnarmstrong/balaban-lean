@@ -2,6 +2,7 @@ module
 
 public import Balaban.LargeField.R.DeltaPsiCollarActualWindow
 public import Balaban.LargeField.R.WindowRegSetBridge
+public import Balaban.LargeField.R.DeltaPsiCollarLambda21
 import Mathlib.Tactic.Positivity
 
 /-!
@@ -16,7 +17,8 @@ proves it when the multiscale field lies in the support of the retained characte
   `hband_of_chiDom` (the field `ψ` of the collar files is `windowFieldOfMulti` of a `MultiField`);
 * A2: `*_of_chiDom` versions of the four main theorems.  The premises `hCreg` and `hband` are gone; in
   their place stand `ChiDomProp` (the support hypothesis) and `IsAdmDelta (k₁-1) k₁` (Lemma III.4.5).
-  `C_reg = 3 d L e^ε L^((d-2)/2)`.
+  `C_reg = 3 d L e^ε L^((d-2)/2)`.  The constant condition (Λ21′) `(m_W+1) C_reg ≤ Ŵ_k` is itself a
+  theorem of the landed constants (`Setting.Ok.lambda21'_of_radiusHyp`), so it is no longer a premise.
 -/
 
 @[expose] public section
@@ -81,7 +83,6 @@ theorem inner_collar_data_change_lt_actual_of_chiDom
     (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ (windowFieldOfMulti ψm))
     (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
-    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * (3 * S.d * S.L * Real.exp ε * (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2)) ≤ S.hatW ε k)
     {c : Torus S.d (S.M * n k * S.L ^ k)}
     (hc : c ∈ collarIn (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)) :
     vn (deltaPsiColl (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)
@@ -89,7 +90,7 @@ theorem inner_collar_data_change_lt_actual_of_chiDom
       (3 * S.d * S.L + 2) * S.hatW ε k * δ (S.k1 k) := by
   have hband := hband_of_chiDom g hkK hW Zc δ p0 Cpsi ψm ψ' hdom hδ'
   exact inner_collar_data_change_lt_actual hG hkK hW g hk0 hrip hq1 hT hϱ hδ hprec hBg (windowFieldOfMulti ψm) ψ0 h hK6 hθ1 hθc hspec hwin hΛ21
-    (by positivity) hband hΛ21' hc
+    (by positivity) hband (H.F.ok.lambda21'_of_radiusHyp H.F.RH ε k) hc
 
 /-- `deltaPsiColl_interior_lt_actual`: the premise `hband` replaced by `ChiDomProp` (LFR Definition II.5.6, Lemma III.4.5). -/
 theorem deltaPsiColl_interior_lt_actual_of_chiDom
@@ -114,7 +115,6 @@ theorem deltaPsiColl_interior_lt_actual_of_chiDom
     (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ (windowFieldOfMulti ψm))
     (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
-    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * (3 * S.d * S.L * Real.exp ε * (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2)) ≤ S.hatW ε k)
     {x : Torus S.d (S.M * n k * S.L ^ k)}
     (hx : x ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω 1)
     (hxZ : x ∈ (windowOfHistory H Z g hkK hW).Zk1) :
@@ -123,7 +123,7 @@ theorem deltaPsiColl_interior_lt_actual_of_chiDom
       (3 * S.d * S.L + 2) * S.hatW ε k * δ (S.k1 k) := by
   have hband := hband_of_chiDom g hkK hW Zc δ p0 Cpsi ψm ψ' hdom hδ'
   exact deltaPsiColl_interior_lt_actual hG hkK hW g hk0 hrip hq1 hT hϱ hδ ha₁ hprec hBg (windowFieldOfMulti ψm) ψ0 h hK6 hθ1 hθc hspec hwin hΛ21
-    (by positivity) hband hΛ21' hx hxZ
+    (by positivity) hband (H.F.ok.lambda21'_of_radiusHyp H.F.RH ε k) hx hxZ
 
 /-- `inner_collar_data_change_bound_actual`: the premise `hband` replaced by `ChiDomProp` (LFR Definition II.5.6, Lemma III.4.5). -/
 theorem inner_collar_data_change_bound_actual_of_chiDom
@@ -148,7 +148,6 @@ theorem inner_collar_data_change_bound_actual_of_chiDom
     (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ (windowFieldOfMulti ψm))
     (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
-    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * (3 * S.d * S.L * Real.exp ε * (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2)) ≤ S.hatW ε k)
     {c : Torus S.d (S.M * n k * S.L ^ k)}
     (hc : c ∈ collarIn (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)) :
     vn (deltaPsiColl (windowOfHistory H Z g hkK hW) (windowOfHistory_hyp hkK hW)
@@ -156,7 +155,7 @@ theorem inner_collar_data_change_bound_actual_of_chiDom
       (3 * S.d * S.L + 3) * S.hatW ε k * δ (S.k1 k) := by
   have hband := hband_of_chiDom g hkK hW Zc δ p0 Cpsi ψm ψ' hdom hδ'
   exact inner_collar_data_change_bound_actual hG hkK hW g hk0 hrip hq1 hT hϱ hδ hprec hBg (windowFieldOfMulti ψm) ψ0 h hK6 hθ1 hθc hspec hwin hΛ21
-    (by positivity) hband hΛ21' hc
+    (by positivity) hband (H.F.ok.lambda21'_of_radiusHyp H.F.RH ε k) hc
 
 /-- `dataChangeBound'_windowOfHistory_of_bdryTop`: the premise `hband` replaced by `ChiDomProp` (LFR Definition II.5.6, Lemma III.4.5). -/
 theorem dataChangeBound'_windowOfHistory_of_bdryTop_of_chiDom
@@ -181,7 +180,6 @@ theorem dataChangeBound'_windowOfHistory_of_bdryTop_of_chiDom
     (hwin : WinBond (H.locGen Z S.M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j))
       (H.locFine Z S.M (S.k1 k)) (H.locFine Z S.M k) (S.k1 k) (3 * S.d * S.L) δ (windowFieldOfMulti ψm))
     (hΛ21 : 3 * S.d * K6 * (S.M * S.crit k) + 2 * (bgK1 S.d S.L N * (3 * (3 * K6))) ≤ S.hatW ε k)
-    (hΛ21' : (((S.d * ((2 * ⌊R (S.k1 k - 1)⌋₊ + 3) * S.M) : ℕ) : ℝ) + 1) * (3 * S.d * S.L * Real.exp ε * (S.L : ℝ) ^ (((S.d : ℝ) - 2) / 2)) ≤ S.hatW ε k)
     (hoff : ∀ x ∈ dataSites (windowOfHistory H Z g hkK hW).bdry,
       x ∉ (windowOfHistory H Z g hkK hW).Z →
       ψ0 ⟨k, jBlock S.d S.L (S.M * n k) k k x⟩ = (windowFieldOfMulti ψm) ⟨k, jBlock S.d S.L (S.M * n k) k k x⟩)
@@ -193,7 +191,7 @@ theorem dataChangeBound'_windowOfHistory_of_bdryTop_of_chiDom
       (fun m => (3 * S.d * S.L + 3) * S.hatW ε k * δ (max (S.k1 k) (min m k))) := by
   have hband := hband_of_chiDom g hkK hW Zc δ p0 Cpsi ψm ψ' hdom hδ'
   exact dataChangeBound'_windowOfHistory_of_bdryTop hG hkK hW g hk0 hrip hq1 hT hϱ hδ ha₁ hprec hBg (windowFieldOfMulti ψm) ψ0 h hK6 hθ1 hθc hspec hwin hΛ21
-    (by positivity) hband hΛ21' hoff hxb
+    (by positivity) hband (H.F.ok.lambda21'_of_radiusHyp H.F.RH ε k) hoff hxb
 
 
 end RegionHistory
