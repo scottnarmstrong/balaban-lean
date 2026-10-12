@@ -60,7 +60,7 @@ For a polymer `X'` of the lift (`X'` does not wind, `Ypoly j X'` is a polymer of
 a block corner `u` whose centred position lies in `X'`, and a source form `Et` of the term in the
 variable `b = ν_j h` (the shape of `D1Corr.src_pos`), the derivative of `EauxC` at the reference
 point `(e_{i₀}, ν_j e_{i₀})` in the coordinate `ψ_{i₀}(unlift u)` is `v1Loc` at the block `u`. -/
-theorem LiftCtx.tensA_EauxC_eq_v1Loc (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ : Fin N}
+theorem tensA_EauxC_eq_v1Loc (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ : Fin N}
     {y : SmallField.Site d} {X' : Finset (SmallField.Site d)} (hnw : NonWind L N₁ m₁ k j X')
     (hpd : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X')) (hy : y ∈ X')
     {u : Localization.CTorus d L N₁ m₁ k} (hu : Aligned (L ^ j) u)
@@ -125,5 +125,112 @@ theorem LiftCtx.tensA_EauxC_eq_v1Loc (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i
   rw [hf, hh]
 
 end Termwise
+
+section Sum
+
+open Balaban.SmallField.Def6v2 in
+/-- The centred integer positions: `x` is the representative of minimal absolute value of its
+block class on the torus (the condition under which the lattice site `x` and the block corner
+`blockPt j x` correspond; `NonWind` of `{x}`). -/
+def CentredAt (L N₁ m₁ k j : ℕ) {d : ℕ} (x : SmallField.Site d) : Prop :=
+  NonWind L N₁ m₁ k j ({x} : Finset (SmallField.Site d))
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ} {P : Consts} {β ν a : ℕ → ℝ}
+  {Tm : Terms d L N₁ m₁ k N ϱ}
+  {ρd : (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+    (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+  {Ek : ℝ} {j : ℕ} {ρ : ℝ}
+
+/-- On the ball of the tube radius the lifted term `termL` is the class term `Eaux`, so they have
+the same derivative at the reference point (the rotation is the identity). -/
+theorem fderiv_termL_eq (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fin N}
+    (hne : i₁ ≠ i₀) {X' : Finset (SmallField.Site d)}
+    (hpd : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
+    (h0 : (0 : SmallField.Site d) ∈ X') :
+    fderiv ℂ (termL Tm j i₀ (nuIdeal L k (ν k) j) ρ X') (refPt i₀ (nuIdeal L k (ν k) j) X') =
+      fderiv ℂ (Eaux Tm j i₀ (nuIdeal L k (ν k) j) X') (refPt i₀ (nuIdeal L k (ν k) j) X') := by
+  refine Filter.EventuallyEq.fderiv_eq ?_
+  filter_upwards [Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self ctx.rho_pos)] with c hc
+  have hR : IsOrth (1 : Matrix (Fin N) (Fin N) ℂ) := by simp [IsOrth]
+  have hRb : EntryBd N (1 : Matrix (Fin N) (Fin N) ℂ) := by
+    intro i k'
+    by_cases h : i = k' <;> simp [Matrix.one_apply, h, rotBound]
+  have := ctx.termL_eq hpd h0 hne hR hRb (by rwa [rotCfgL_one])
+  rw [this, rotCfgL_one]
+
+/-- **T3, one polymer**: for a polymer `X'` of the lift and a centred site `x`, the coefficient
+`aCoefX` of the lifted family is the local coefficient `v1Loc` of the source form at the block
+corner of `x` (including the case `x ∉ X'`, both sides being `0`, by locality `localE`). -/
+theorem aCoefX_liftTF_eq_v1Loc (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ i₁ : Fin N}
+    (hne : i₁ ≠ i₀) {X' : Finset (SmallField.Site d)}
+    (hX' : X' ∈ liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j)
+    (x : SmallField.Site d) (hx : CentredAt L N₁ m₁ k j x)
+    (Et : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+    (hEt : ∀ (Ψ : Fld d L N₁ m₁ k N) (b : Fin N → ℂ),
+      Et Ψ (constFld b) = Tm.E j 0 (Ypoly j X') Ψ
+        (constFld (((nuIdeal L k (ν k) j : ℝ) : ℂ)⁻¹ • b))) :
+    aCoefX (liftTF P j i₀ (nuIdeal L k (ν k) j) ρ Tm) i₀ (nuIdeal L k (ν k) j) X' x =
+      v1Loc Et j (nuIdeal L k (ν k) j) (Pi.single i₀ 1) (blockPt j x) := by
+  obtain ⟨h0, hnw, hpd⟩ := hX'
+  have hjk := ctx.jk
+  have hbp : blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x = ibase j x := by
+    funext μ; simp only [blockPt, ibase]; congr 1; ring
+  have hxc : ∀ μ, ZMod.valMinAbs (((x μ : ℤ) : ZMod (N₁ * L ^ m₁ * L ^ (k - j)))) = x μ :=
+    fun μ => hx x (Finset.mem_singleton_self x) μ
+  have hux : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j x) = x := by
+    rw [hbp]; exact unlift_ibase hjk hxc
+  have hal : Aligned (L ^ j) (blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x) := by
+    rw [hbp]; exact ibase_aligned hjk x
+  have hEt0 : ∀ (Ψ : Fld d L N₁ m₁ k N) (b : Fin N → ℂ),
+      Et Ψ (constFld b) = Tm.E j (blockPt j 0) (Ypoly j X') Ψ
+        (constFld (((nuIdeal L k (ν k) j : ℝ) : ℂ)⁻¹ • b)) := by
+    intro Ψ b; rw [hEt, blockPt_zero]
+  unfold aCoefX
+  by_cases hxX : x ∈ X'
+  · simp only [hxX, dite_true]
+    have hxu : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j x) ∈ X' := by
+      rw [hux]; exact hxX
+    have key := tensA_EauxC_eq_v1Loc ctx (i₀ := i₀) (y := 0) hnw hpd h0 hal hxu Et hEt0
+    unfold tensA at key ⊢
+    simp only [liftTF]
+    rw [fderiv_termL_eq ctx hne hpd h0]
+    have e : EauxC Tm j i₀ (nuIdeal L k (ν k) j) 0 X' =
+        Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' := by
+      funext c; simp [EauxC, Eaux, blockPt_zero]
+    rw [e] at key
+    convert key using 2
+    · simp only [hux]
+  · simp only [hxX, dite_false]
+    have hjh := ctx.analyticAt_E i₀ (blockPt j 0) hpd
+      (blockPt_mem_Ypoly hjk hnw h0)
+    have hcu : ∀ z : Localization.CTorus d L N₁ m₁ k,
+        (cbase (L ^ j) z = blockPt j x ↔ unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z = x) :=
+      fun z => by rw [cbase_eq_iff_jBlock hjk hal z, ← unlift_eq_iff, hux]
+    have hνj : 0 < nuIdeal L k (ν k) j := by
+      have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+      have := ctx.nu_pos
+      unfold nuIdeal; positivity
+    have hνc : ((nuIdeal L k (ν k) j : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hνj.ne'
+    have hEt' : (fun ψ : Fld d L N₁ m₁ k N =>
+        Et ψ (constFld (((nuIdeal L k (ν k) j : ℝ) : ℂ) • (Pi.single i₀ 1 : Fin N → ℂ)))) =
+        fun ψ => Tm.E j (blockPt j 0) (Ypoly j X') ψ (eFld d L N₁ m₁ k N i₀) := by
+      funext ψ
+      rw [hEt0, smul_smul, inv_mul_cancel₀ hνc, one_smul]
+    unfold v1Loc
+    rw [hEt']
+    have hloc := fderiv_eq_of_line (f := fun _ : ℂ => Tm.E j (blockPt j 0) (Ypoly j X')
+        (eFld d L N₁ m₁ k N i₀) (eFld d L N₁ m₁ k N i₀)) (p := (0 : ℂ))
+      (g := fun ψ : Fld d L N₁ m₁ k N => Tm.E j (blockPt j 0) (Ypoly j X') ψ
+        (eFld d L N₁ m₁ k N i₀)) (q := eFld d L N₁ m₁ k N i₀) (v := (0 : ℂ))
+      (w := blockDirV L j (blockPt j x) (Pi.single i₀ 1)) (differentiableAt_const _)
+      hjh.differentiableAt (fun s => ?_)
+    · rw [← hloc]; simp
+    · refine ctx.sf.localE j _ _ _ _ _ _ (fun z hz => ⟨?_, rfl⟩)
+      have hne' : ¬ cbase (L ^ j) z = blockPt j x := fun h => hxX (by
+        have := (hcu z).1 h
+        rw [← this]; exact hz)
+      simp [blockDirV, hne']
+
+end Sum
 
 end Balaban.LargeField.Def7v2
