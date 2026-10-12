@@ -682,6 +682,8 @@ public import Balaban.LargeField.R.WindowErr
 public import Balaban.LargeField.R.WindowShift
 public import Balaban.LargeField.R.ZeroDomainCoercive
 public import Balaban.LargeField.R.ZeroDomainScales
+public import Balaban.LargeField.R.ZeroDomainBox
+public import Balaban.LargeField.R.ZeroDomain
 public import Balaban.Background.WeightedProp51Basic
 public import Balaban.Fluctuation.WeightedProp51
 public import Balaban.Fluctuation.FarDecayUncond
