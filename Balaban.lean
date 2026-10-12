@@ -271,6 +271,8 @@ public import Balaban.Localization.Cover
 public import Balaban.Localization.CutCommutator
 public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Localization.PolymerGeometry
+public import Balaban.Localization.SupportMargin
+public import Balaban.Localization.SupportMarginExample
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
 public import Balaban.Localization.TreeLengthPaper
