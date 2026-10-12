@@ -88,6 +88,80 @@ theorem lintegral_perpK_preimage (he : ‖e‖ = 1) {s : Set (perp e)} (hs : Mea
   simp [mul_comm]
 
 
+/-- The Gaussian integral `∫ e^{-s a²/2} da = √(2π/s)`. -/
+theorem lintegral_gaussian_real_param {s : ℝ} (hs : 0 < s) :
+    ∫⁻ a : ℝ, ENNReal.ofReal (Real.exp (-(s / 2) * a ^ 2)) =
+      ENNReal.ofReal (Real.sqrt (2 * Real.pi / s)) := by
+  have hint : Integrable (fun a : ℝ => Real.exp (-(s / 2) * a ^ 2)) :=
+    integrable_exp_neg_mul_sq (by positivity)
+  rw [← ofReal_integral_eq_lintegral_ofReal hint (ae_of_all _ fun a => (Real.exp_pos _).le)]
+  congr 1
+  rw [integral_gaussian]
+  congr 1
+  field_simp
+
+/-- Parametric version of `lintegral_perpK_preimage` (Gaussian weight `e^{-s⟨e,u⟩²/2}`). -/
+theorem lintegral_perpK_preimage_param (he : ‖e‖ = 1) {s : ℝ} (hs : 0 < s) {t : Set (perp e)}
+    (ht : MeasurableSet t) :
+    ∫⁻ u in (perpK e he) ⁻¹' t, ENNReal.ofReal (Real.exp (-(s / 2) * inner ℝ e u ^ 2))
+      = ENNReal.ofReal (Real.sqrt (2 * Real.pi / s)) * volume t := by
+  have hp : Measurable (perpK e he) := (continuous_perpK e he).measurable
+  have hm : MeasurableSet ((perpK e he) ⁻¹' t) := ht.preimage hp
+  rw [← lintegral_indicator hm]
+  rw [← (measurePreserving_splitMap e he).lintegral_comp_emb (measurableEmbedding_splitMap e he)]
+  have : ∀ p : perp e × ℝ, ((perpK e he) ⁻¹' t).indicator
+      (fun u => ENNReal.ofReal (Real.exp (-(s / 2) * inner ℝ e u ^ 2))) (splitMap e he p) =
+      t.indicator (fun _ => (1 : ℝ≥0∞)) p.1 * ENNReal.ofReal (Real.exp (-(s / 2) * p.2 ^ 2)) := by
+    intro p
+    by_cases hp1 : p.1 ∈ t
+    · rw [Set.indicator_of_mem (by simpa [perpK_splitMap] using hp1 : splitMap e he p ∈ (perpK e he) ⁻¹' t),
+        Set.indicator_of_mem hp1, inner_splitMap]; simp
+    · rw [Set.indicator_of_notMem (by simpa [perpK_splitMap] using hp1 : splitMap e he p ∉ (perpK e he) ⁻¹' t),
+        Set.indicator_of_notMem hp1]; simp
+  simp_rw [this]
+  have hf : AEMeasurable (t.indicator fun _ => (1 : ℝ≥0∞)) (volume : Measure (perp e)) :=
+    (measurable_const.indicator ht).aemeasurable
+  have hg : AEMeasurable (fun a : ℝ => ENNReal.ofReal (Real.exp (-(s / 2) * a ^ 2))) volume :=
+    (ENNReal.measurable_ofReal.comp (by fun_prop)).aemeasurable
+  rw [Measure.volume_eq_prod]
+  rw [lintegral_prod_mul hf hg, lintegral_gaussian_real_param hs, lintegral_indicator ht]
+  simp [mul_comm]
+
+/-- **Lemma II.7.4 (b)** (the Gaussian lift of the tangent integral), for a unit vector `e` and
+`s > 0`: for every Borel `g ≥ 0` on `e^⊥`,
+`∫_{e^⊥} g(ξ) dξ = (s/2π)^{1/2} ∫ g(P^⊥_e u) e^{-s ⟨e,u⟩²/2} du`. -/
+theorem lintegral_perp_eq (he : ‖e‖ = 1) {s : ℝ} (hs : 0 < s) (g : perp e → ℝ≥0∞)
+    (hg : Measurable g) :
+    ∫⁻ ξ, g ξ = ENNReal.ofReal (Real.sqrt (s / (2 * Real.pi))) *
+      ∫⁻ u : E, g (perpK e he u) * ENNReal.ofReal (Real.exp (-(s / 2) * inner ℝ e u ^ 2)) := by
+  have hp : Measurable (perpK e he) := (continuous_perpK e he).measurable
+  set d : E → ℝ≥0∞ := fun u => ENNReal.ofReal (Real.exp (-(s / 2) * inner ℝ e u ^ 2)) with hd
+  have hdm : Measurable d := by
+    refine ENNReal.measurable_ofReal.comp (Real.measurable_exp.comp ?_)
+    have : Continuous fun u : E => inner ℝ e u := continuous_const.inner continuous_id
+    fun_prop
+  have hmap : (volume.withDensity d).map (perpK e he) =
+      (Real.sqrt (2 * Real.pi / s)).toNNReal • (volume : Measure (perp e)) := by
+    ext t ht
+    rw [Measure.map_apply hp ht, withDensity_apply _ (ht.preimage hp), Measure.coe_nnreal_smul_apply,
+      lintegral_perpK_preimage_param e he hs ht]
+    rfl
+  have h1 : ∫⁻ u, d u * g (perpK e he u) = ∫⁻ ξ, g ξ ∂((volume.withDensity d).map (perpK e he)) := by
+    rw [lintegral_map hg hp, lintegral_withDensity_eq_lintegral_mul₀ (f := d)
+      (g := fun u => g (perpK e he u)) hdm.aemeasurable (hg.comp hp).aemeasurable]
+    rfl
+  rw [hmap, lintegral_smul_measure] at h1
+  have hc : ENNReal.ofReal (Real.sqrt (s / (2 * Real.pi))) *
+      ((Real.sqrt (2 * Real.pi / s)).toNNReal : ℝ≥0∞) = 1 := by
+    have : ((Real.sqrt (2 * Real.pi / s)).toNNReal : ℝ≥0∞) = ENNReal.ofReal (Real.sqrt (2 * Real.pi / s)) := rfl
+    rw [this, ← ENNReal.ofReal_mul (Real.sqrt_nonneg _), ← Real.sqrt_mul (by positivity)]
+    have : s / (2 * Real.pi) * (2 * Real.pi / s) = 1 := by field_simp
+    rw [this]; simp
+  have h2 : ∫⁻ u, g (perpK e he u) * d u = ∫⁻ u, d u * g (perpK e he u) :=
+    lintegral_congr fun u => mul_comm _ _
+  rw [h2, h1, ENNReal.smul_def, smul_eq_mul, ← mul_assoc, hc, one_mul]
+
+
 end
 
 end Balaban.LargeField.SphereChart

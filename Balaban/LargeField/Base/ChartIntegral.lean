@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Base.HemispherePi
+import Mathlib.Analysis.SpecialFunctions.Gaussian.FourierTransform
 
 /-!
 # The exact real chart identity of the base step (LF-BASE-KF0 (A.3); Lemma II.7.4 (a), (b))
@@ -496,3 +497,101 @@ theorem lintegral_sphere_pi_eq_gaussian (e : Config ι N) (he : ∀ x, ‖e x‖
           ← ENNReal.ofReal_mul (by positivity), ha]
         congr 2
         rw [← hb]; ring
+
+/-- **(A.3) with the principal square root of the covariance.**  If `R` is a symmetric square
+root of the covariance `C_e = A_e⁻¹` (`A_e R R = 1`), the constant in (A.3) is
+`(2π)^{m/2} (det C_e)^{1/2}` with `det C_e = (det A_e)⁻¹`. -/
+theorem lintegral_sphere_pi_eq_gaussian_sqrt (e : Config ι N) (he : ∀ x, ‖e x‖ = 1) (hN : 1 ≤ N)
+    {β : ℝ} (hβ : 0 < β) (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hsymm : ∀ u v, cinner u (H v) = cinner (H u) v) (R : Config ι N ≃ₗ[ℝ] Config ι N)
+    (hRs : ∀ u v, cinner (R u) v = cinner u (R v))
+    (hRR : ∀ w, gaussForm e H (R (R w)) = w)
+    (F : Config ι N → ℝ≥0∞) (hF : Measurable F)
+    (hFsupp : ∀ u : Config ι N, (∃ x, ¬ 0 < inner ℝ (e x) (u x)) → F u = 0) :
+    ∫⁻ φ : ι → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1,
+        F (fun x => (φ x : EuclideanSpace ℝ (Fin N))) *
+          ENNReal.ofReal (Real.exp (sphereExponent β e H (fun x => (φ x : EuclideanSpace ℝ (Fin N)))))
+        ∂(Measure.pi fun _ : ι => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere) =
+      ENNReal.ofReal (β ^ (-(((N : ℝ) - 1) * Fintype.card ι) / 2) *
+          (2 * Real.pi) ^ ((((N : ℝ) - 1) * Fintype.card ι) / 2) *
+          Real.sqrt (LinearMap.det (gaussForm e H))⁻¹) *
+        ∫⁻ ψ, chartIntegrand β e H F (tangentOp e (R ψ)) ∂(stdGaussian ι N) := by
+  have hR : ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ := by
+    intro ψ
+    have h1 : gaussForm e H (R ψ) = R.symm ψ := by
+      have := hRR (R.symm ψ)
+      rwa [LinearEquiv.apply_symm_apply] at this
+    rw [h1, hRs, LinearEquiv.apply_symm_apply]
+  have hdet : (LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)) ^ 2 =
+      (LinearMap.det (gaussForm e H))⁻¹ := by
+    have h : gaussForm e H ∘ₗ (R : Config ι N →ₗ[ℝ] Config ι N) ∘ₗ (R : Config ι N →ₗ[ℝ] Config ι N)
+        = LinearMap.id := by
+      ext w : 1; exact hRR w
+    have := congrArg LinearMap.det h
+    rw [LinearMap.det_comp, LinearMap.det_comp, LinearMap.det_id] at this
+    have hne : LinearMap.det (gaussForm e H) ≠ 0 := by
+      intro h0; rw [h0] at this; simp at this
+    field_simp
+    nlinarith [this]
+  have habs : |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)| =
+      Real.sqrt (LinearMap.det (gaussForm e H))⁻¹ := by
+    rw [← hdet, Real.sqrt_sq_eq_abs]
+  rw [← habs]
+  exact lintegral_sphere_pi_eq_gaussian e he hN hβ H hsymm R hR F hF hFsupp
+
+/-- The Gaussian integral of `e^{-|u|²/2}` over `ℝ^N`. -/
+theorem lintegral_gaussian_norm (N : ℕ) :
+    ∫⁻ u : EuclideanSpace ℝ (Fin N), ENNReal.ofReal (Real.exp (-(1 / 2) * ‖u‖ ^ 2)) =
+      ENNReal.ofReal ((2 * Real.pi) ^ ((N : ℝ) / 2)) := by
+  have hint : Integrable (fun u : EuclideanSpace ℝ (Fin N) => Real.exp (-(1 / 2 : ℝ) * ‖u‖ ^ 2)) := by
+    have := (GaussianFourier.integrable_cexp_neg_mul_sq_norm_add (V := EuclideanSpace ℝ (Fin N))
+      (b := ((1 / 2 : ℝ) : ℂ)) (by simp) 0 0).norm
+    refine this.congr (ae_of_all _ fun x => ?_)
+    simp only [zero_mul, add_zero, Complex.norm_exp]
+    congr 1
+    rw [show (-((1 / 2 : ℝ) : ℂ) * (‖x‖ : ℂ) ^ 2) = ((-(1 / 2 : ℝ) * ‖x‖ ^ 2 : ℝ) : ℂ) by
+      push_cast; ring, Complex.ofReal_re]
+  rw [← ofReal_integral_eq_lintegral_ofReal hint (ae_of_all _ fun u => (Real.exp_pos _).le)]
+  rw [GaussianFourier.integral_rexp_neg_mul_sq_norm (by norm_num : (0 : ℝ) < 1 / 2)]
+  simp only [finrank_euclideanSpace_fin]
+  congr 2
+  field_simp
+
+
+/-- The standard Gaussian `stdGaussian` is a probability measure. -/
+theorem isProbabilityMeasure_stdGaussian : IsProbabilityMeasure (stdGaussian ι N) := by
+  refine ⟨?_⟩
+  unfold stdGaussian
+  rw [withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ]
+  have hpt : ∀ ψ : Config ι N, ENNReal.ofReal ((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
+      Real.exp (-(1 / 2) * cinner ψ ψ)) =
+      ENNReal.ofReal ((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2)) *
+        ∏ x, ENNReal.ofReal (Real.exp (-(1 / 2) * ‖ψ x‖ ^ 2)) := by
+    intro ψ
+    rw [ENNReal.ofReal_mul (by positivity), ← ENNReal.ofReal_prod_of_nonneg
+      (fun x _ => (Real.exp_pos _).le), ← Real.exp_sum]
+    congr 3
+    unfold cinner
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun x _ => by rw [real_inner_self_eq_norm_sq]
+  simp_rw [hpt]
+  rw [lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
+  have := PiTools.lintegral_fintype_prod_eq_prod ι
+    (E := fun _ : ι => EuclideanSpace ℝ (Fin N)) (μ := fun _ => volume)
+    (fun _ u => ENNReal.ofReal (Real.exp (-(1 / 2) * ‖u‖ ^ 2)))
+    (fun _ => ENNReal.measurable_ofReal.comp (by fun_prop))
+  have h2 : (volume : Measure (Config ι N)) = Measure.pi fun _ => volume := rfl
+  rw [h2, this]
+  simp_rw [lintegral_gaussian_norm]
+  rw [Finset.prod_const, Finset.card_univ, ← ENNReal.ofReal_pow (by positivity),
+    ← ENNReal.ofReal_mul (by positivity)]
+  have hp : 0 < 2 * Real.pi := by positivity
+  rw [← Real.rpow_natCast, ← Real.rpow_mul hp.le, ← Real.rpow_add hp]
+  rw [show -((N * Fintype.card ι : ℕ) : ℝ) / 2 + (N : ℝ) / 2 * (Fintype.card ι : ℕ) = 0 by
+    push_cast; ring]
+  simp
+
+
+end
+
+end Balaban.LargeField
