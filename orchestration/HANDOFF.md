@@ -23,7 +23,10 @@ Worktree setup: `git worktree add -q <path> -b <branch>`, `mkdir -p <path>/.lake
 
 ## Running at handoff
 
-Sonnet (none running at 08:20 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
+POLICY (Scott, 2026-10-12): keep 4 Sonnet (+≤1 Opus) Lean workers running regardless of quota; Scott resets
+accounts when quota runs out.
+
+Sonnet (W83–W86 launched ~08:35 UTC; background subagents of scott-41; they die with the session — if so, restart from the brief
 in the ledger row and the branch state):
 - W70: DONE (landed 017b7c9; χ^dom identity still open).
 
@@ -35,6 +38,10 @@ in the ledger row and the branch state):
 - W80: DONE (landed; bridgeInf gives PremisesCore ∧ SumConds from the class).
 - W77: DONE (landed 7c6b40b).
 - W82: DONE (landed; Q1 complete, Q5/Q6 blocked on an under-specified Def II.7.6 → queued item 9).
+- W83 (`w83-reynolds`): Reynolds average → full I-6 Premises from Def-6.
+- W84 (`w84-fluct-wire`): FLUCT Lemma 2.5 source form, Lemma 3.5, Lemma 4.1.
+- W85 (`w85-lf-p14`): LFR Part III P14 + P4 (`Balaban/LargeField/R/`).
+- W86 (`w86-lf-domain`): LF localized-field domain fix + χ^dom identity (queued item 8).
 - W78: DONE (landed c6f82f7).
 
 astra (tmux sessions `astra-<name>`, scratch dirs /home/scott/Balaban-scratch/astra-<name>/, all on
