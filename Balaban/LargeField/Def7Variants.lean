@@ -20,8 +20,8 @@ replacing Definition II.6.4) and §II.6.5 (the external field `g` and the limit 
   `0 < ν ≤ ν_*(k) = β^{-1} L^{-kd}`, each member on the tori of its `ν` (the regime index
   `k₀(ν) = kZero(β, ν)` and the horizon `K(ν)` vary with `ν`): (F-i) `IsRep_k` (resp.
   `IsRep^pre_k`) for every `ν`; the running constants have limits as `ν ↓ 0` (`runLim`); the
-  small-field part of (F-iii): Def-6's (CONT) on every Def-6 torus (`sfCont`) and its analogue
-  for the `ℛ^{(k)}_n` (`rCont`).  **Not formalized (open point):** (F-ii) and the large-field part
+  small-field part of (F-iii): almost-everywhere limits of the terms `ℰ`, `ℳ`, `ℛ` on every
+  Def-6 torus (`SFLimit`).  **Not formalized (open point):** (F-ii) and the large-field part
   of (F-iii), which are statements on the `ℤ^d` data of (D8) for the localized histories and their
   step, kept and boundary data; they need a transport of localized histories, variables and
   kernels between tori, which is not landed.
@@ -198,33 +198,44 @@ section Fam
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 
-/-- **(CONT) for the terms `ℛ^{(k)}_n`** on the Def-6 torus `N₁` (Definition IV.3.1 (F-iii), the
-analogue of Def-6's `ContAtZero.termsE`): as `ν ↓ 0` the terms in the variables `b = ν_k h`
-converge uniformly on a `ν`-independent nonempty open set which lies in their analyticity domain
-for all small `ν`. -/
-def RContAtZero (P6 : Def6.Consts) (N₁ : ℕ) [NeZero N₁] (sfν : ℝ → SFData d L m₁ k N ϱ) : Prop :=
-  ∀ nn, 1 ≤ nn → nn ≤ P6.m₀ + m₁ → ∀ X, Def6.IsPolyDom P6.m₀ k X →
-    ∃ U : Set (Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N),
-      IsOpen U ∧ U.Nonempty ∧
-      (∀ᶠ ν in 𝓝[>] 0, ∀ p ∈ U,
-        Def6.XiDom (Def6.topGS d L N₁ m₁ k ϱ) (Def6.aIdeal L k ((sfν ν).a k))
-          (Def6.bgMass L k ((sfν ν).β k) ((sfν ν).ν k)) k (P6.eps d L k) p.1
-          (((sfν ν).ν k)⁻¹ • p.2.1) ∧ Def6.l1 p.2.2 < 1) ∧
-      ∃ f : Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N → ℂ,
-        TendstoUniformlyOn (fun ν p => (sfν ν).Rt N₁ nn X p.1 (((sfν ν).ν k)⁻¹ • p.2.1) p.2.2)
-          f (𝓝[>] 0) U
+/-- **The limit `ν ↓ 0` of the small-field data** (Definition IV.3.1 (F-iii), small-field part:
+"outside a Lebesgue-null set of values of its variables it has a limit as `ν ↓ 0`"), on the Def-6
+torus `N₁`: in the variables `b = ν_j h`, for almost every value of the variables at which the
+data lie in their analyticity domain for all small `ν`, the terms `ℰ^{(j)}(y, X)`, `ℳ^{(j)}(x, X)`
+and `ℛ^{(k)}_n(X)` have limits.  (Def-6's `ContAtZero` is not used: it asks for an open set of
+complex fields inside `XiDom`, which has empty interior, see the handoff.) -/
+structure SFLimit (P6 : Def6.Consts) (N₁ : ℕ) [NeZero N₁] (sfν : ℝ → SFData d L m₁ k N ϱ) :
+    Prop where
+  limE : ∀ j y X, ∀ᵐ p : Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N,
+    (∀ᶠ ν in 𝓝[>] 0, Def6.XiDom (((sfν ν).Tm N₁).gs j X) (Def6.aIdeal L k ((sfν ν).a k))
+      (Def6.bgMass L k ((sfν ν).β k) ((sfν ν).ν k)) j (P6.eps d L j) p.1
+      ((Def6.nuIdeal L k ((sfν ν).ν k) j)⁻¹ • p.2)) →
+    ∃ l, Tendsto (fun ν => ((sfν ν).Tm N₁).E j y X p.1
+      ((Def6.nuIdeal L k ((sfν ν).ν k) j)⁻¹ • p.2)) (𝓝[>] 0) (𝓝 l)
+  limM : ∀ j x X (g : Def6.Fld d L N₁ m₁ k N), Def6.l1 g < 1 →
+    ∀ᵐ p : Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N,
+      (∀ᶠ ν in 𝓝[>] 0, Def6.XiDom (((sfν ν).Tm N₁).gs j X) (Def6.aIdeal L k ((sfν ν).a k))
+        (Def6.bgMass L k ((sfν ν).β k) ((sfν ν).ν k)) j (P6.eps d L j) p.1
+        ((Def6.nuIdeal L k ((sfν ν).ν k) j)⁻¹ • p.2)) →
+      ∃ l, Tendsto (fun ν => ((sfν ν).Tm N₁).M j x X p.1
+        ((Def6.nuIdeal L k ((sfν ν).ν k) j)⁻¹ • p.2) g) (𝓝[>] 0) (𝓝 l)
+  limR : ∀ nn X (g : Def6.Fld d L N₁ m₁ k N), Def6.l1 g < 1 →
+    ∀ᵐ p : Def6.Fld d L N₁ m₁ k N × Def6.Fld d L N₁ m₁ k N,
+      (∀ᶠ ν in 𝓝[>] 0, Def6.XiDom (Def6.topGS d L N₁ m₁ k ϱ) (Def6.aIdeal L k ((sfν ν).a k))
+        (Def6.bgMass L k ((sfν ν).β k) ((sfν ν).ν k)) k (P6.eps d L k) p.1
+        (((sfν ν).ν k)⁻¹ • p.2)) →
+      ∃ l, Tendsto (fun ν => (sfν ν).Rt N₁ nn X p.1 (((sfν ν).ν k)⁻¹ • p.2) g) (𝓝[>] 0) (𝓝 l)
 
-/-- **The continuity clauses of the family class** (Definition IV.3.1 (F-iii), small-field part,
-and "the running constants have limits as `ν ↓ 0`"), for the small-field data `ν ↦ 𝔰(ν)`. -/
+/-- **The continuity clauses of the family class** (Definition IV.3.1, (F-iii) small-field part
+and "the running constants have limits as `ν ↓ 0`"), for the small-field data `ν ↦ 𝔰(ν)`; the
+bounds are uniform in `ν` because the constants of `IsRep` do not depend on `ν`. -/
 structure FamCont (P6 : Def6.Consts) (sfν : ℝ → SFData d L m₁ k N ϱ) : Prop where
   runLim : ∀ j, j ≤ k → (∃ b, Tendsto (fun ν => (sfν ν).β j) (𝓝[>] 0) (𝓝 b)) ∧
     (∃ m, Tendsto (fun ν => (sfν ν).ν j) (𝓝[>] 0) (𝓝 m)) ∧
     (∃ z, Tendsto (fun ν => (sfν ν).z j) (𝓝[>] 0) (𝓝 z)) ∧
     (∃ a, Tendsto (fun ν => (sfν ν).a j) (𝓝[>] 0) (𝓝 a))
   vacLim : ∀ (N₁ : ℕ), ∃ e, Tendsto (fun ν => (sfν ν).E N₁) (𝓝[>] 0) (𝓝 e)
-  sfCont : ∀ (N₁ : ℕ) [NeZero N₁], Def6.ContAtZero P6 N₁ (fun ν => (sfν ν).β)
-    (fun ν => (sfν ν).a) (fun ν => (sfν ν).ν) (fun ν => (sfν ν).Tm N₁)
-  rCont : ∀ (N₁ : ℕ) [NeZero N₁], RContAtZero P6 N₁ sfν
+  sfLim : ∀ (N₁ : ℕ) [NeZero N₁], SFLimit P6 N₁ sfν
 
 end Fam
 
