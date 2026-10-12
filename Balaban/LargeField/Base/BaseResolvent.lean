@@ -298,6 +298,10 @@ theorem sum_bonds_norm_col_le (y : G.Ω 1) :
 def baseParamNbhd (η : ℝ) : Set (FineBond d L N₀ → ℂ) :=
   {s | ∀ b ∈ baseCutBonds G, ∃ r : ℝ, 0 ≤ r ∧ r ≤ 1 ∧ ‖s b - (r : ℂ)‖ ≤ η}
 
+/-- `baseParamNbhd` is inhabited by the parameters `s ≡ 0` (rule 10). -/
+theorem baseParamNbhd_nonempty {η : ℝ} (hη : 0 ≤ η) : (fun _ => (0 : ℂ)) ∈ baseParamNbhd G η :=
+  fun _ _ => ⟨0, le_rfl, zero_le_one, by simpa using hη⟩
+
 /-- The open version: parameters strictly within `η` of a real vector in `[0,1]^𝓔`. -/
 def baseParamNbhdOpen (η : ℝ) : Set (FineBond d L N₀ → ℂ) :=
   {s | ∀ b ∈ baseCutBonds G, ∃ r : ℝ, 0 ≤ r ∧ r ≤ 1 ∧ ‖s b - (r : ℂ)‖ < η}
