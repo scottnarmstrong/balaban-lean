@@ -1270,6 +1270,7 @@ public import Balaban.Inhabited.HatExpansionWitnessLabels
 public import Balaban.Fluctuation.StepActivityHatRay
 public import Balaban.Fluctuation.StepActivityHat
 public import Balaban.Fluctuation.StepActivityHatBound
+public import Balaban.Fluctuation.StepActivityDirectBound
 public import Balaban.Fluctuation.StepActivityHatCor
 public import Balaban.Fluctuation.StepActivityHatFlRay
 public import Balaban.Fluctuation.StepActivityHatSource
