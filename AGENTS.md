@@ -79,6 +79,8 @@ Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 8. Before handoff, merge the current `main` into your branch and build the whole default target
    (`lake build`, not only your modules); declaration names must not clash with existing ones
    (search before naming). The orchestrator lands branches only with `scripts/land.sh`.
+9. Never kill, stop or signal a process you did not start yourself: no `pkill`/`killall` by
+   pattern, no `kill` of another PID. The machine is shared with other campaigns.
 
 ## Building
 
