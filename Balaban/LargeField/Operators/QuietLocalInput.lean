@@ -14,11 +14,10 @@ the quiet kernel:
 * `quietRq`: the remainder as a function of the localized history `a` (the remainder of any
   realizing `(H, Z')`);
 * `quietRq_eq` (`Rq_eq`), `isQuiet_of_hist` (`quiet_local`), `not_isQuiet_zero`
-  (`not_quiet_zero`), and `euclid_K` for lattice symmetries (`quietKernel_of_histImage`, using only
+  (`not_quiet_zero`), and `euclid_K` (`quietKernel_of_histImage`, using only
   the localized histories);
 * `QuietStepInput'`: the remaining fields: `real_euclid` (the localized histories of quiet steps are
-  closed under symmetries), `euclid_K` for the symmetries that are not lattice symmetries, and the
-  boundary exponent `b`;
+  closed under lattice symmetries) and the boundary exponent `b`;
 * `QuietStepInput'.toInput`, `quietStepData'`, `quiet_locOp_pkgBound'`.
 -/
 
@@ -87,17 +86,10 @@ consequences of the landed results:
 
 * `real_euclid`: the localized histories of quiet steps are closed under symmetries (the image
   history of a region history under a symmetry is again admissible);
-* `euclid_K_nonlat`: the covariance of the kernel under the symmetries `σ : TorusSym` that are not
-  lattice symmetries (for lattice symmetries it is proved, `quietKernel_of_histImage`);
 * `b`, `b_*`: the boundary exponent of the quiet step with its properties (S0). -/
 structure QuietStepInput' (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ) where
-  real_euclid : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K),
-    HistImage σ a a' → (QuietRealized R k0 k a ↔ QuietRealized R k0 k a')
-  euclid_K_nonlat : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
-    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv, (¬ ∃ σ' : LatTorusSym S n M K,
-      σ'.toTorusSym = σ) → QuietRealized R k0 k a → RelOut σ o o' → RelSub hI hk x x' →
-    gaussProd N a' k cs o' x' * quietRq geo cs k0 k a' o' x' hv =
-      gaussProd N a k cs o x * quietRq geo cs k0 k a o x hv
+  real_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K),
+    HistImage σ.toTorusSym a a' → (QuietRealized R k0 k a ↔ QuietRealized R k0 k a')
   b : ∀ (k : ℕ) (a : LocalHistory S n M K), OutT N R a (k + 1) → NewCfg N a k →
     EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → ℂ
   b_meas : ∀ k a hv g, QuietRealized R k0 k a →
@@ -111,9 +103,9 @@ structure QuietStepInput' (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : �
       b k a o x hv g = b k a o x hv g'
   b_rot : ∀ k a (ρ : OrthN N) o x hv g, QuietRealized R k0 k a →
     b k a (rotOut ρ o) (rotSub ρ x) (ρ hv) (rotG ρ g) = b k a o x hv g
-  b_euclid : ∀ (k : ℕ) (σ : TorusSym S n M K) (a a' : LocalHistory S n M K)
-    (hI : HistImage σ a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
-    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' → b k a' o' x' hv g' = b k a o x hv g
+  b_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K)
+    (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
+    RelOut σ.toTorusSym o o' → RelSub hI hk x x' → RelG σ.toTorusSym g g' → b k a' o' x' hv g' = b k a o x hv g
   b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
     1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
     ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
@@ -135,20 +127,17 @@ noncomputable def QuietStepInput'.toInput (inp : QuietStepInput' K k0 geo cs N) 
   Rq_eq := fun H hH k hk hk1 Z' hq o x hv => quietRq_eq geo cs H hH k hk hk1 Z' hq o x hv
   real_euclid := inp.real_euclid
   euclid_K := fun k σ a a' hI hk o o' x x' hv hr ho hx => by
-    by_cases hlat : ∃ σ' : LatTorusSym S n M K, σ'.toTorusSym = σ
-    · obtain ⟨σ', rfl⟩ := hlat
-      have hr' := (inp.real_euclid k _ a a' hI).1 hr
-      obtain ⟨H, hH, Z', hk1, hkK, hq, rfl⟩ := hr
-      obtain ⟨H2, hH2, Z2, hk1', hkK', hq2, rfl⟩ := hr'
-      show gaussProd N _ k cs o' x' * quietRq geo cs k0 k _ o' x' hv =
-        gaussProd N _ k cs o x * quietRq geo cs k0 k _ o x hv
-      rw [quietRq_eq geo cs H hH k hkK hk1 Z' hq, quietRq_eq geo cs H2 hH2 k hkK' hk1' Z2 hq2]
-      have h := quietKernel_of_histImage σ' geo cs hk Z' Z2 hI ho hx.2 hv
-      exact ((quietKernel_eq geo (H2.locRH (k + 1) Z2) k Z2.1 (locComp_mem H2 hk Z2) hk cs
-        (locRH_rem _ _) o' x' hv).symm.trans h).trans
-        (quietKernel_eq geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
-          (locRH_rem _ _) o x hv)
-    · exact inp.euclid_K_nonlat k σ a a' hI hk o o' x x' hv hlat hr ho hx
+    have hr' := (inp.real_euclid k σ a a' hI).1 hr
+    obtain ⟨H, hH, Z', hk1, hkK, hq, rfl⟩ := hr
+    obtain ⟨H2, hH2, Z2, hk1', hkK', hq2, rfl⟩ := hr'
+    show gaussProd N _ k cs o' x' * quietRq geo cs k0 k _ o' x' hv =
+      gaussProd N _ k cs o x * quietRq geo cs k0 k _ o x hv
+    rw [quietRq_eq geo cs H hH k hkK hk1 Z' hq, quietRq_eq geo cs H2 hH2 k hkK' hk1' Z2 hq2]
+    have h := quietKernel_of_histImage σ geo cs hk Z' Z2 hI ho hx.2 hv
+    exact ((quietKernel_eq geo (H2.locRH (k + 1) Z2) k Z2.1 (locComp_mem H2 hk Z2) hk cs
+      (locRH_rem _ _) o' x' hv).symm.trans h).trans
+      (quietKernel_eq geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
+        (locRH_rem _ _) o x hv)
   b := inp.b
   b_meas := inp.b_meas
   b_analytic := inp.b_analytic
@@ -165,8 +154,6 @@ theorem quietStepInput'_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ
   refine ⟨{
     real_euclid := fun _ _ a a' _ => by
       constructor <;> intro hr <;> obtain ⟨H, -, Z', h1, h2, -⟩ := hr <;> omega
-    euclid_K_nonlat := fun _ _ _ _ _ _ _ _ _ _ _ _ hr => by
-      obtain ⟨H, -, Z', h1, h2, -⟩ := hr; omega
     b := fun _ _ _ _ _ _ => 0
     b_meas := fun _ _ _ _ _ => measurable_const
     b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
