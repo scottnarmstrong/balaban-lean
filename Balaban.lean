@@ -504,3 +504,4 @@ public import Balaban.Fluctuation.ExpansionGauss
 public import Balaban.Fluctuation.Expansion
 public import Balaban.Fluctuation.ExpansionDomain
 public import Balaban.Fluctuation.ExpansionQuad
+public import Balaban.Fluctuation.ExpansionNuFree
