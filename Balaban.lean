@@ -272,6 +272,7 @@ public import Balaban.Localization.CompWeightAdmissible
 public import Balaban.Localization.PolymerGeometry
 public import Balaban.Localization.TreeLength
 public import Balaban.Localization.TreeLengthCov
+public import Balaban.Localization.TreeLengthDiam
 public import Balaban.Localization.TreeLengthPaper
 public import Balaban.Localization.TreeLengthPaperExample
 public import Balaban.Localization.BlockCount
