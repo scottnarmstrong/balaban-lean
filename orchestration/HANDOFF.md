@@ -13,7 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W117 | `w117-step-objects` / W117 | RG step objects + FLUCT Prop 2.6 instance |
-| W126 | `w126-obs-const` / W126 | observables Lemma 3.4 constant part (hconst) |
+| W128 | `w128-vmod7` / W128 | VMOD-7 proved items (GM3 obstruction, star bound, gluing) |
 | W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
 | W127 | `w127-basek3` / W127 | base kernel: BASE-KERNEL-3 proved parts |
 | W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
