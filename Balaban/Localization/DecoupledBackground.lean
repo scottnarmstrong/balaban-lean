@@ -364,6 +364,175 @@ theorem i4b_one {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
     exact ⟨a1.trans b1.symm, a2.trans b2.symm⟩
   exact ⟨hsol, (bgFieldC_eq hsol hun).1, (bgFieldC_eq hsol hun).2⟩
 
+/-- **Theorem I-4b (iii): closeness.**  Let `W` be a set of sites containing the thickened
+interaction cubes of all the centres with `s_z ≠ 1` (`hW`, the set `𝒲` of (DG6)).  The decoupled
+background fields at `s` and at `s ≡ 1` differ at a site `x` by at most
+`closeConst · e^{-γ_w d(x, W)}` (value, forward gradient, Laplacian: twice that), and so do the
+multipliers.  Here `closeConst = O(C₃ δ)` (so `O(K₄ δ)`); `siteSetDist` is the scaled distance. -/
+theorem i4b_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) {W : Finset (CTorus d L N₁ m₁ K)}
+    (hW : ∀ z ∈ cubeIdx G, sProd G (extS G s) z ≠ 1 → intBox z ⊆ W)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D : BgData G N} (hD : InDomainC G ν δ ε D)
+    {φ φ1 : G.Ω 1 × Fin N → ℂ} {α α1 : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h1 : IsDecBg G a ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1) :
+    (∀ x : G.Ω 1, G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖α x - α1 x‖ ≤
+        closeConst d L N BG κ (lemma53Const d L * δ) *
+          decay (gammaW d) (siteSetDist G W x)) ∧
+    (∀ (y : CTorus d L N₁ m₁ K) (i : Fin N),
+      ‖svec G (φ - φ1) y i‖ ≤ 2 * closeConst d L N BG κ (lemma53Const d L * δ) *
+        decay (gammaW d) (siteSetDist G W y)) ∧
+    (∀ x ∈ G.Ω 1, ∀ (μ : Fin d) (i : Fin N), G.spacing x *
+      ‖svec G (φ - φ1) (x + Pi.single μ 1) i - svec G (φ - φ1) x i‖ ≤
+        2 * closeConst d L N BG κ (lemma53Const d L * δ) *
+          decay (gammaW d) (siteSetDist G W x)) ∧
+    (∀ x ∈ G.Ω 1, ∀ i : Fin N, G.spacing x ^ 2 * ‖∑ μ : Fin d,
+      (2 * svec G (φ - φ1) x i - svec G (φ - φ1) (x + Pi.single μ 1) i -
+        svec G (φ - φ1) (x - Pi.single μ 1) i)‖ ≤
+        2 * closeConst d L N BG κ (lemma53Const d L * δ) *
+          decay (gammaW d) (siteSetDist G W x)) := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hBG := hS.fam.2.1
+  obtain ⟨Wd⟩ := DataWit.exists hD
+  have Hd := decHyp_of_data (N := N) HB hBG hδ0 hδε hε hδ hνε Wd
+  obtain ⟨-, h2, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδ0.le hδ
+  have hCδ : 0 < lemma53Const d L * δ := mul_pos (lemma53Const_pos d L) hδ0
+  have hdcp := deltaClose_pos (d := d) (L := L) (N := N) (κ := κ) hd0 hBG
+  have hle : lemma53Const d L * δ ≤ deltaClose d L N BG κ := by linarith
+  have hfix : DecFixed G a ν s true (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D (approxField G a ν D.Ψ D.h))) α := by
+    rw [pertSource_zeroΨ]; exact h.fixed
+  have hfix1 : DecFixed G a ν (fun _ => 1) true (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D (approxField G a ν D.Ψ D.h))) α1 := by
+    rw [pertSource_zeroΨ]; exact h1.fixed
+  have hsol := i4a_close hS.fam hS.dg2 hS.close hS.one S hκ hM hs hW Hd hle hle hfix h.small
+    hfix1 h1.small
+  have e : φ - φ1 = dphi G (decG G a ν s) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D (approxField G a ν D.Ψ D.h))) α -
+      dphi G (decG G a ν (fun _ => 1)) (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+      (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual G a ν D (approxField G a ν D.Ψ D.h))) α1 := by
+    rw [pertSource_zeroΨ, h.field, h1.field]
+    funext p; simp only [Pi.sub_apply]; ring
+  rw [e]
+  exact hsol
+
+/-! ### Analyticity -/
+
+/-- The strict data inequalities of Theorem I-4a in mode U, from those of Proposition 5.1. -/
+theorem StrictDataM.of_strictData {p : Edat G N} {δ₀ δ₁ : ℝ} (h : StrictData G N δ₀ δ₁ p) :
+    StrictDataM G N true δ₀ δ₁ p :=
+  ⟨⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1⟩,
+    fun _ => ⟨h.2.2.2.2.2.2.1, h.2.2.2.2.2.2.2⟩⟩
+
+/-- The data `rawQ` of a datum of the union domain satisfy the strict inequalities of I-4a with
+`δ₀ = δ₁ = Δ` for any `Δ > C₃ δ`. -/
+theorem strictDataM_rawQ {BG κ δ ε Δ : ℝ} (HB : BgHyp d L K ϱ a ν) (hBG : 0 ≤ BG)
+    (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hΔ : lemma53Const d L * δ < Δ)
+    {D : BgData G N} (W : DataWit G ν δ ε D) :
+    StrictDataM G N true Δ Δ (rawQ G a ν ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  obtain ⟨h1, -, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδ0.le hδ
+  obtain ⟨hδa, h2, hC32, -⟩ := bgC1_facts d L N hd0 h1
+  have S : ApproxSetting d L K ϱ a ν δ ε :=
+    HB.approxSetting hδ0 hδε (hε.trans (bgC0_le d L N)) (approxDelta_le d L hδa).1 hνε
+  have hCδ : 0 < lemma53Const d L * δ := mul_pos (lemma53Const_pos d L) hδ0
+  have hyp := prop51Hyp_of_data (N := N) HB S hδa W (by linarith) hC32
+  have hq : rawQ G a ν ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N) =
+      (approxField G a ν D.Ψ D.h, 0, 0, residual G a ν D (approxField G a ν D.Ψ D.h)) :=
+    Prod.ext rfl (Prod.ext rfl (Prod.ext rfl (rawQ_residual G a ν D)))
+  rw [hq]
+  exact StrictDataM.of_strictData (StrictData.of_hyp (p := (approxField G a ν D.Ψ D.h, 0, 0,
+      residual G a ν D (approxField G a ν D.Ψ D.h))) hyp
+    (fun x => phi0_vn_lt S hδa W hC32 ((mem_dataSites G).2 (Or.inl x.2))) hΔ hΔ)
+
+/-- **Theorem I-4b (i): analyticity in `(s, data)`.**  There is one function `F` of the
+parameters `s` and the raw data `(Ψ, h̃)` of all fields, analytic at every `(s, (D.Ψ, D.h))` with
+`|s_P| < e^{κ₁}` and `D` in the union domain `𝒟` of Theorem 5.2 (with `c₁ = c₇`), which returns the
+decoupled background field `(φ_k(s), α_k(s))` there. -/
+theorem i4b_analytic {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) :
+    ∃ F : DecParams G × RawData d L (N₁ * L ^ m₁) K N →
+        (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ),
+      AnalyticOnNhd ℂ F {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData G N,
+        InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)} ∧
+      ∀ (s : DecParams G) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D →
+        ∀ (φ : G.Ω 1 × Fin N → ℂ) (α : G.Ω 1 → ℂ),
+          IsDecBg G a ν (rho4 d L N BG κ) s D φ α → F (s, (D.Ψ, D.h)) = (φ, α) := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hBG := hS.fam.2.1
+  have hΔ0 := deltaClose_pos (d := d) (L := L) (N := N) (κ := κ) hd0 hBG
+  have hΔ := deltaClose_le_deltaStar' (d := d) (L := L) (N := N) (BG := BG) (κ := κ)
+  obtain ⟨sol, hsolan, hsolprop⟩ := i4a_analytic (N := N) hS.fam hS.an S hκ hM true
+    hΔ0.le hΔ0.le hΔ hΔ
+  refine ⟨fun q => (fun r => approxField G a ν q.2.1 q.2.2 r.1 r.2 +
+    (sol (q.1, rawQ G a ν q.2)).1 r, (sol (q.1, rawQ G a ν q.2)).2), ?_, ?_⟩
+  · rintro ⟨s, p⟩ ⟨hs, D, ⟨δ, ε, hδ0, hδε, hε, hδc, hνε, hDC⟩, rfl⟩
+    obtain ⟨W⟩ := DataWit.exists hDC
+    obtain ⟨h1, h2, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδ0.le hδc
+    obtain ⟨hδa, -, hC32, -⟩ := bgC1_facts d L N hd0 h1
+    have Sa : ApproxSetting d L K ϱ a ν δ ε :=
+      HB.approxSetting hδ0 hδε (hε.trans (bgC0_le d L N)) (approxDelta_le d L hδa).1 hνε
+    have hp0 := data_mem_approxDomain Sa W hδa
+    have hq := analyticAt_rawQ G a ν hp0
+    have hStrict := strictDataM_rawQ (a := a) (ν := ν) (κ := κ) (Δ := deltaClose d L N BG κ) HB
+      hBG hδ0 hδε hε hδc hνε (by linarith) W
+    have hmem : ((s, rawQ G a ν ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :
+        DecParams G × Edat G N) ∈ {p : DecParams G × Edat G N |
+          (∀ P, ‖p.1 P‖ < Real.exp κ) ∧ StrictDataM G N true (deltaClose d L N BG κ)
+            (deltaClose d L N BG κ) p.2} := ⟨hs, hStrict⟩
+    have hmap : AnalyticAt ℂ (fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        (q.1, rawQ G a ν q.2)) (s, ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :=
+      analyticAt_fst.prod (AnalyticAt.comp_of_eq (f := fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N => q.2) hq analyticAt_snd rfl)
+    have hcomp : AnalyticAt ℂ (fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        sol (q.1, rawQ G a ν q.2)) (s, ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :=
+      AnalyticAt.comp_of_eq (f := fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        (q.1, rawQ G a ν q.2)) (hsolan _ hmem) hmap rfl
+    have hc1 : AnalyticAt ℂ (fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        (sol (q.1, rawQ G a ν q.2)).1) (s, ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :=
+      AnalyticAt.comp_of_eq (f := fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        sol (q.1, rawQ G a ν q.2)) (analyticAt_fst) hcomp rfl
+    have hc2 : AnalyticAt ℂ (fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        (sol (q.1, rawQ G a ν q.2)).2) (s, ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :=
+      AnalyticAt.comp_of_eq (f := fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        sol (q.1, rawQ G a ν q.2)) (analyticAt_snd) hcomp rfl
+    have hc0 : ∀ r : G.Ω 1 × Fin N, AnalyticAt ℂ
+        (fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+          approxField G a ν q.2.1 q.2.2 r.1 r.2) (s, ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N)) :=
+      fun r => AnalyticAt.comp_of_eq (f := fun q : DecParams G × RawData d L (N₁ * L ^ m₁) K N =>
+        q.2) (analyticAt_approx_coord hp0 r.1 r.2) analyticAt_snd rfl
+    refine AnalyticAt.prod (analyticAt_pi_iff.2 fun r => ?_) hc2
+    exact (hc0 r).add (analyticAt_pi_iff.1 hc1 r)
+  · intro s D hs ⟨δ, ε, hδ0, hδε, hε, hδc, hνε, hDC⟩ φ α hI
+    obtain ⟨W⟩ := DataWit.exists hDC
+    have hStrict := strictDataM_rawQ (a := a) (ν := ν) (κ := κ) (Δ := deltaClose d L N BG κ) HB
+      hBG hδ0 hδε hε hδc hνε (by
+        obtain ⟨-, h2, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδ0.le hδc
+        linarith) W
+    obtain ⟨hfx, -, -, -, -, huniq⟩ := hsolprop (s, rawQ G a ν ((D.Ψ, D.h) :
+      RawData d L (N₁ * L ^ m₁) K N)) hs hStrict
+    have hQ : rawQ G a ν ((D.Ψ, D.h) : RawData d L (N₁ * L ^ m₁) K N) =
+        (approxField G a ν D.Ψ D.h, 0, 0, residual G a ν D (approxField G a ν D.Ψ D.h)) :=
+      Prod.ext rfl (Prod.ext rfl (Prod.ext rfl (rawQ_residual G a ν D)))
+    simp only [hQ] at huniq hfx ⊢
+    have hfix : DecFixed G a ν s true (0 : G.Ω 1 → ℂ) (approxField G a ν D.Ψ D.h)
+        (pertSource G a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+          (residual G a ν D (approxField G a ν D.Ψ D.h))) α := by
+      rw [pertSource_zeroΨ]; exact hI.fixed
+    have e := huniq α hI.small hfix
+    rw [pertSource_zeroΨ] at hfx
+    refine Prod.ext ?_ e.symm
+    rw [hI.field, hfx, ← e]
+
 end Field
 
 end Balaban.Localization
