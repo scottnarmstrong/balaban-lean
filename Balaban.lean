@@ -1099,3 +1099,9 @@ public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
 public import Balaban.Fluctuation.StepNonvanishInhab
+public import Balaban.Fluctuation.StepComplex
+public import Balaban.Fluctuation.StepComplexAgree
+public import Balaban.Fluctuation.StepComplexHat
+public import Balaban.Fluctuation.StepComplexNonvanish
+public import Balaban.Fluctuation.StepComplexAnalytic
+public import Balaban.Fluctuation.StepComplexExponent

@@ -274,12 +274,14 @@ noncomputable def covSqrtC : Matrix (S.U × Fin N) (S.U × Fin N) ℂ :=
   decCovSqrt S.G' S.a S.a₁ S.ν (bgMultC S.G' S.a S.ν (bgC0 d L N) S.D') (fun _ => 1)
     (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')) (unitQ S.G') (unitP S.G')
 
-/-- `C^{(k)1/2}` at a complex datum as a complex-linear map of the complex fluctuation fields (the
-matrix `covSqrtC` itself, no real parts). -/
+/-- `C^{(k)1/2}` at a complex datum as a complex-linear map of the complex fluctuation fields
+(FLUCTUATION Lemma 2.4 (c); the operator of the substitution (2.7)): the matrix `covSqrtC` itself,
+no real parts.  It is `K` without `Complex.re`. -/
 noncomputable def KC : S.EC →ₗ[ℂ] S.EC := Matrix.mulVecLin S.covSqrtC
 
-/-- The background `ψ^{(k)}(θ)` at a complex datum as a complex field on the unit lattice (the
-restriction of `psiKdC.Ψ`, no real parts). -/
+/-- The background `ψ^{(k)}(θ)` of (2.1) at a complex datum as a complex field on the unit lattice
+`T^{(k)}_1`: the restriction of `psiKdC.Ψ` (its value at a site of each unit block), no real
+parts.  It is `psi0` without `Complex.re`. -/
 noncomputable def psi0C : S.EC := fun q => S.psiKdC.Ψ (unitRep (G' := S.G') q.1) q.2
 
 /-- **The substitution (2.7) at a complex datum**: `ψ' = β_k^{-1/2} C^{(k)1/2} ψ̂` for the real
@@ -287,11 +289,15 @@ integration variable `ψ̂`, complexified (`yhat`); a complex field on the unit 
 noncomputable def shiftUC (x : S.E) : S.EC :=
   ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • S.KC (yhat x)
 
-/-- The complex old spin `ψ = ψ^{(k)}(θ) + s ψ'(ψ̂)` on the path of the interpolation. -/
+/-- The complex old spin `ψ = ψ^{(k)}(θ) + s ψ'(ψ̂)`, `ψ' = β_k^{-1/2} C^{(k)1/2} ψ̂`, on the path
+of the interpolation: the argument of `V^{(k)}`, `δℰ_k`, `δℱ_k` in the measures `μ_{s,t}` of
+(2.6).  It is `psiAt` for the complex objects. -/
 noncomputable def psiAtC (s : ℝ) (x : S.E) : S.EC := S.psi0C + (s : ℂ) • S.shiftUC x
 
-/-- The datum of the complex old spin `ψ` (a field on the unit lattice, lifted by `liftC`) with the
-field `h`.  For a real `ψ` it is `dataU` (`dataUC_yhat`). -/
+/-- The datum `(ψ, h)` of the complex old spin `ψ` (a field on the unit lattice `T^{(k)}_1`, lifted
+to the fine torus by `liftC`: constant on the `L^k`-blocks) with the field `h` of the step, as
+`BgData` of `𝔹_k` (the argument `(ψ_k, h)` of `φ_k`, `ℰ_k`, `ℱ_k` in (H.1)).  For a real `ψ` it is
+`dataU` (`dataUC_yhat`). -/
 noncomputable def dataUC (ψ : S.EC) : BgData (stepG d L N₁ m₁ k ϱ) N :=
   BgData.clip (stepG d L N₁ m₁ k ϱ) (liftC S.hG' ψ) (fun _ i => (S.h₀ i : ℂ))
     (isLayerConstant_liftC S.hG S.hG' ψ) (fun _ _ _ _ _ _ _ => rfl)
