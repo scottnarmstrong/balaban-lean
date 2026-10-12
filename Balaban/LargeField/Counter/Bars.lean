@@ -81,6 +81,22 @@ theorem Abar_mono {x y : ℝ} (hx : 0 ≤ x) (hxy : x ≤ y) : S.Abar x ≤ S.Ab
 
 /-! ### the radii against their auxiliary functions -/
 
+theorem one_le_nuBar {x : ℝ} (hx : 0 ≤ x) : 1 ≤ S.nuBar x := by
+  unfold Typing.nuBar
+  have := ok.Cν_pos
+  have : 0 ≤ S.Cν * x ^ S.p2 := by positivity
+  linarith
+
+theorem one_le_Dbar (x : ℝ) : 1 ≤ S.Dbar x := by
+  unfold Typing.Dbar
+  have h1 := ok.sqrt_d_ge
+  have h2 := ok.critBar_ge x
+  have h3 := ok.omegaBar_ge x
+  nlinarith
+
+theorem nuBar_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ S.nuBar x := by
+  linarith [ok.one_le_nuBar hx]
+
 theorem crit_le_bar (j : ℕ) : (S.crit j : ℝ) ≤ S.critBar (S.lam j) := by
   unfold Setting.crit Typing.critBar
   push_cast
