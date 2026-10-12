@@ -80,7 +80,9 @@ theorem solve_core_crit {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k) (b0 : Torus d (N
       PsiZeroSol G a b0 w X (K * δ) ψk (mergeField (boxFinset b0 w) ψk x) ∧
       (∀ y : BlockField d L N₀ k N, TubeOn G X (K * δ) y → (∀ z, z ∉ box b0 w → y z = ψk z) →
         restrictSupp (boxFinset b0 w) y ∈ closedBall (centrePt ψk b0 w) r) ∧
-      (∀ y ∈ closedBall (centrePt ψk b0 w) r, fderiv ℝ (effOn G a (boxFinset b0 w) ψk) y = 0 → y = x) := by
+      (∀ y ∈ closedBall (centrePt ψk b0 w) r, fderiv ℝ (effOn G a (boxFinset b0 w) ψk) y = 0 → y = x) ∧
+      (∀ ψ : BlockField d L N₀ k N, PsiZeroSol G a b0 w X (K * δ) ψk ψ →
+        ψ = mergeField (boxFinset b0 w) ψk x) := by
   have hZfmem : ∀ z, z ∈ boxFinset (L := L) (N₀ := N₀) (k := k) b0 w ↔ z ∈ box b0 w := fun z => mem_boxFinset
   obtain ⟨x, hxB, hxcrit, hxuniq, hxdist, hxmin⟩ :=
     exists_unique_critical_ball hF hc hr.le hlow hres hεr
@@ -112,9 +114,21 @@ theorem solve_core_crit {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k) (b0 : Torus d (N
     by_cases he : restrictSupp (boxFinset b0 w) y = x
     · rw [← hmerge y hyag, he]
     · rw [e y hyag]; exact (hxmin _ hyB' he).le
-  refine ⟨x, hxB, hxcrit, hsol, ?_, hxuniq⟩
-  intro y hy hyag
-  rw [mem_closedBall, dist_eq_norm]; exact hclose y hy hyag
+  refine ⟨x, hxB, hxcrit, hsol, ?_, hxuniq, ?_⟩
+  · intro y hy hyag
+    rw [mem_closedBall, dist_eq_norm]; exact hclose y hy hyag
+  · intro y hy
+    obtain ⟨hyt, hyag, hymin⟩ := hy
+    have hyB' : restrictSupp (boxFinset b0 w) y ∈ closedBall (centrePt ψk b0 w) r := by
+      rw [mem_closedBall, dist_eq_norm]; exact hclose y hyt hyag
+    by_contra hne
+    have hne' : restrictSupp (boxFinset b0 w) y ≠ x := fun h => hne (by rw [← hmerge y hyag, h])
+    have hlt := hxmin _ hyB' hne'
+    have hle := hymin _ hxtube hag
+    rw [e y hyag] at hle
+    have e2 : effAction G a (mergeField (boxFinset b0 w) ψk x) = effOn G a (boxFinset b0 w) ψk x := rfl
+    rw [e2] at hle
+    linarith
 
 end Crit
 
@@ -147,7 +161,9 @@ theorem psiZero_local_of_input {D : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k) (b0 : Tor
           (∀ y : BlockField d L N₀ k N, TubeOn G X (K * δ) y → (∀ z, z ∉ box b0 w → y z = ψk z) →
             restrictSupp (boxFinset b0 w) y ∈ closedBall (centrePt ψk b0 w) r) ∧
           (∀ y ∈ closedBall (centrePt ψk b0 w) r,
-            fderiv ℝ (effOn G a (boxFinset b0 w) ψk) y = 0 → y = x) := by
+            fderiv ℝ (effOn G a (boxFinset b0 w) ψk) y = 0 → y = x) ∧
+          (∀ ψ : BlockField d L N₀ k N, PsiZeroSol G a b0 w X (K * δ) ψk ψ →
+            ψ = mergeField (boxFinset b0 w) ψk x) := by
   have hd0 : 0 < d := by omega
   have hD1 : 1 ≤ D := (hw1 ⟨0, hd0⟩).trans (hwD _)
   obtain ⟨K, c11, hK, hc11, hmain⟩ := psiZero_constants d D hd0 hD1 inp.c_pos inp.Gr_nonneg inp.η₀_pos
