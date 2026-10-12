@@ -363,6 +363,7 @@ public import Balaban.LargeField.Geometry.Small
 public import Balaban.LargeField.Geometry.Components
 public import Balaban.LargeField.Geometry.LocalGlobal
 public import Balaban.LargeField.Geometry.DomainsMod
+public import Balaban.LargeField.Geometry.DomainsModBridge
 public import Balaban.LargeField.Geometry.TorusLift
 public import Balaban.LargeField.Geometry.LemmaSTorus
 public import Balaban.LargeField.Counter.LamStar
