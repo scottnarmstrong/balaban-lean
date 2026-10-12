@@ -273,6 +273,70 @@ theorem vblock_locInt (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ 
     rw [blockEnergyOne_rawOf hD n z ψ']
     exact hsum D hD ψ' hψ
 
+/-- **The potential part of the localized interaction, all blocks.**  The block covers
+(`m₀, j, X, 𝒦X, X₁`) are indexed by the block. -/
+theorem vblocks_locInt {n : ℕ} (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {m₀ j : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))) → ℕ}
+    {X 𝒦X : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))) → Set (CTorus d L N₁ m₁ K)}
+    {X₁f : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))) → Finset (CTorus d L N₁ m₁ K)}
+    (hcov : ∀ z, CovSetup Gp (m₀ z) (j z) (X z) (𝒦X z))
+    (hX₁ : ∀ z, (↑(X₁f z) : Set (CTorus d L N₁ m₁ K)) = X1 Gp (m₀ z) (j z) (𝒦X z))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ z, ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X z) ∧ MeetsOne (m₀ z) (j z) (𝒦X z) W₀ ∧
+        bondCost (scaleW L (m₀ z) m₁ (j z)) E₀ = treeLenCovOne (m₀ z) (j z) (X z))
+    (hΔ : ∀ z, treeLenCovOne (m₀ z) (j z) (X z) = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : ∀ z, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀ z) ^ d : ℕ) : ℝ)) ≤
+      (κ / 2 - 1) / 2)
+    (hn1 : 1 ≤ n) (hn : n + 1 ≤ K)
+    (hZ : ∀ z, readSites Hm n z ⊆ ↑(X₁f z))
+    (hmar : ∀ z, BlockMargin Gp (X₁f z) (↑(blockSites d L N₁ m₁ K n z) : Set (CTorus d L N₁ m₁ K)))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ (𝒴 : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))) → Finset (Set (CTorus d L N₁ m₁ K)))
+      (T : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))) → Set (CTorus d L N₁ m₁ K) →
+        (CTorus d L N₁ m₁ K → Fin N → ℂ) → (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ →
+        RawData d L (N₁ * L ^ m₁) K N → ℂ),
+      LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
+        {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
+          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+        (Finset.univ.biUnion 𝒴)
+        (fun Y x₀ w σ Θ => ∑ z, if Y ∈ 𝒴 z then T z Y x₀ w σ Θ else 0)
+        (fun x₀ w σ Θ => ∑ z, raySrc3 (blockEnergyOne Gp Hm a₁ ν BG₂ κ eps n z) ω x₀ w σ Θ)
+        (fun Y => ∑ z, if Y ∈ 𝒴 z then Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν n
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
+          Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3) else 0)
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+        (fun Y z z' => ∀ y ∈ psiThick Y, z y = z' y) := by
+  classical
+  have hex : ∀ z, ∃ (Ev : Set (CTorus d L N₁ m₁ K) →
+      RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ),
+      LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
+        {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
+          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp
+          (m₀ z) (X1 Gp (m₀ z) (j z) (𝒦X z)))
+        (fun Y x₀ w σ Θ => rayTerm (dl3 (Ev Y) w) ω x₀ σ Θ)
+        (fun x₀ w σ Θ => raySrc3 (blockEnergyOne Gp Hm a₁ ν BG₂ κ eps n z) ω x₀ w σ Θ)
+        (fun Y => Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν n
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
+          Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+        (fun Y z z' => ∀ y ∈ psiThick Y, z y = z' y) := fun z =>
+    vblock_locInt hC (hcov z) (hX₁ z) hconn hrow (hopt z) (hΔ z) hκ₀ hκdec hκ h1 (hlog z) hn1 hn z
+      (hZ z) (hmar z) hωc hR₁ hω hMω hωb hr
+  choose Ev hEv using hex
+  exact ⟨fun z => polymerDomains (fun i : ParIdx Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ K)) =>
+      i.1.1) Gp (m₀ z) (X1 Gp (m₀ z) (j z) (𝒦X z)),
+    fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ,
+    LocInt.finsum Finset.univ (fun z _ => hEv z)⟩
+
 end VBlock
 
 end Balaban.Localization
