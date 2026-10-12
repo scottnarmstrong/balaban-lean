@@ -1003,3 +1003,5 @@ public import Balaban.SmallField.RenormPinJet
 public import Balaban.SmallField.RenormPinBridge
 public import Balaban.SmallField.RenormPinSum
 public import Balaban.SmallField.RenormPinCounter
+public import Balaban.Localization.P6PairCast
+public import Balaban.Localization.P6PairCastReal
