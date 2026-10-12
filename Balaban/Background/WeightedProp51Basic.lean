@@ -387,6 +387,48 @@ theorem Rsc_bound_weighted (hγ : 0 ≤ γ) (hw : IsWeight G γ w) {a : ℕ → 
     _ ≤ 2 * d * (U * W) + (4 * e + 2) * (U * W) + 2 * (U * W) := by linarith
     _ = _ := by ring
 
+/-- The weighted bound of the vector `R(u, v)`: `u` with weighted `StarBoundW`, `v` unweighted. -/
+theorem Rvec_bound_weighted (hγ : 0 ≤ γ) (hw : IsWeight G γ w) {a : ℕ → ℝ}
+    (ha : IsAdmissibleWeights k a) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1)
+    {α : G.Ω 1 → ℂ} (hα : ∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖α x‖ ≤ 1)
+    {u v : G.Ω 1 × Fin N → ℂ} {U W : ℝ} (hU : 0 ≤ U) (hW : 0 ≤ W)
+    (hu : StarBoundW G w u U) (hv : StarBound G v W) (x : G.Ω 1) :
+    w x * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+        ‖Rvec (dirichletOperator G a ν α) u v x‖) ≤ N * (RConstW d γ * (U * W)) := by
+  have hwp : 0 < w x := hw.pos x
+  have hνx : ν * G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 ≤ 1 := by
+    refine le_trans (mul_le_mul_of_nonneg_left ?_ hν0) hν
+    exact pow_le_pow_left₀ (spacing_pos G).le (spacing_le G x.2) 2
+  have hxe : ∀ (s : G.Ω 1 × Fin N → ℂ) (i : Fin N) (y : G.Ω 1),
+      zeroExt (G.Ω 1) (comp G s i) (y : Torus d (N₀ * L ^ k)) = s (y, i) :=
+    fun s i y => zeroExt_mem _ _ _
+  have hi : ∀ i : Fin N, w x * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+      ‖Rsc (dirichletOperator G a ν α) (comp G u i) (comp G v i) x‖) ≤ RConstW d γ * (U * W) := by
+    intro i
+    refine Rsc_bound_weighted hγ hw ha hν0 hνx (hα x) hU hW (fun y => hu.val y i)
+      (fun y => hv.val y i) (fun μ => ?_) (fun μ => ?_) (fun μ => ?_) (fun μ => ?_)
+    · have := hu.fwd x x.2 μ i
+      rwa [svec_of_mem] at this
+    · have := hu.bwd x x.2 μ i
+      rwa [svec_of_mem] at this
+    · have := hv.fwd x x.2 μ i
+      rwa [svec_of_mem] at this
+    · have := hv.bwd x x.2 μ i
+      rwa [svec_of_mem] at this
+  unfold Rvec
+  calc w x * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+        ‖∑ i, Rsc (dirichletOperator G a ν α) (comp G u i) (comp G v i) x‖)
+      ≤ w x * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+        ∑ i, ‖Rsc (dirichletOperator G a ν α) (comp G u i) (comp G v i) x‖) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (norm_sum_le _ _)
+          (by positivity)) hwp.le
+    _ = ∑ i, w x * (G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
+        ‖Rsc (dirichletOperator G a ν α) (comp G u i) (comp G v i) x‖) := by
+        rw [Finset.mul_sum, Finset.mul_sum]
+    _ ≤ ∑ _i : Fin N, RConstW d γ * (U * W) := Finset.sum_le_sum fun i _ => hi i
+    _ = _ := by simp
+
+
 end RBound
 
 end Balaban.Background
