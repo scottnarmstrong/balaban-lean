@@ -765,6 +765,7 @@ public import Balaban.LargeField.R.PsiZeroHessSmooth
 public import Balaban.LargeField.R.PsiZeroHessGrad
 public import Balaban.LargeField.R.PsiZeroHessPair
 public import Balaban.LargeField.R.PsiZeroHessGauss
+public import Balaban.LargeField.R.PsiZeroHessCoerc
 public import Balaban.LargeField.R.PsiZeroSmooth
 public import Balaban.LargeField.R.PsiZeroSolve
 public import Balaban.LargeField.R.PsiZeroSpace
