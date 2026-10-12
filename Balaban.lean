@@ -706,6 +706,8 @@ public import Balaban.Observables.LayerConst
 public import Balaban.Observables.LayerDictionaryBound
 public import Balaban.Observables.LayerV2
 public import Balaban.Observables.LayerV2Inhabited
+public import Balaban.Observables.LayerV2Renorm
+public import Balaban.Observables.LayerV2RenormCompare
 public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
