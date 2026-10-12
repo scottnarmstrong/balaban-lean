@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.BgSettingData
 public import Balaban.Localization.TreeLengthPaper
 public import Balaban.Localization.TreeLengthDiam
+public import Balaban.LargeField.Geometry.Small
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -509,6 +510,78 @@ theorem bgSetting_dataM {m₁ : ℕ} (h4 : 4 ≤ m₁) {c BG eps δ₃ : ℝ} (h
     hj := by norm_num }
 
 end Setting
+
+/-! ### A non-trivial lower bound on `d^cov_1(X)` -/
+
+section Lower
+
+variable {m₁ : ℕ}
+
+/-- The far point `(100 ℓ, 0, 0)`. -/
+def farPt (m₁ : ℕ) : T m₁ := natT (Pi.single 0 (100 * cellSide 3 0 m₁ 2))
+
+theorem farPt_apply_zero (m₁ : ℕ) : (farPt m₁ 0).val = 100 * cellSide 3 0 m₁ 2 := by
+  unfold farPt
+  simp only [natT_apply, Pi.single_eq_same]
+  have h : 0 < cellSide 3 0 m₁ 2 := cellSide_pos 0 m₁ 2
+  have h2 : 100 * cellSide 3 0 m₁ 2 < 240 * 3 ^ m₁ * 3 ^ 2 := by rw [side_eq_240]; omega
+  exact ZMod.val_natCast_of_lt (n := 240 * 3 ^ m₁ * 3 ^ 2) h2
+
+theorem farPt_apply_ne (m₁ : ℕ) {μ : Fin 3} (h : μ ≠ 0) : farPt m₁ μ = 0 := by
+  unfold farPt
+  simp [natT_apply, Pi.single_eq_of_ne h]
+
+theorem farPt_mem_KX (m₁ : ℕ) : farPt m₁ ∈ KX m₁ := by
+  refine ⟨fun μ => ?_, ?_⟩
+  · by_cases h : μ = 0
+    · subst h; rw [farPt_apply_zero]; simp
+    · rw [farPt_apply_ne m₁ h]; simp
+  · have hd : Green.torusDist 3 (240 * 3 ^ m₁ * 3 ^ 2) (farPt m₁) 0 ≤
+        ∑ μ : Fin 3, (((Pi.single 0 (100 * cellSide 3 0 m₁ 2) : Fin 3 → ℕ) μ : ℕ) : ℝ) := by
+      unfold Green.torusDist
+      refine Finset.sum_le_sum fun μ _ => ?_
+      have := Green.natAbs_cycRep_le_of_cast (farPt m₁ μ - (0 : T m₁) μ)
+        (((Pi.single 0 (100 * cellSide 3 0 m₁ 2) : Fin 3 → ℕ) μ : ℕ) : ℤ) (by
+          simp [farPt, natT_apply])
+      exact_mod_cast this
+    have hs : ∑ μ : Fin 3, (((Pi.single 0 (100 * cellSide 3 0 m₁ 2) : Fin 3 → ℕ) μ : ℕ) : ℝ) =
+        100 * (cellSide 3 0 m₁ 2 : ℝ) := by
+      rw [← Nat.cast_sum]
+      simp
+    have hpos : (0 : ℝ) < (cellSide 3 0 m₁ 2 : ℝ) := by exact_mod_cast cellSide_pos 0 m₁ 2
+    linarith
+
+theorem farPt_mem_XD (m₁ : ℕ) : farPt m₁ ∈ XD m₁ :=
+  mem_XD.2 ⟨farPt m₁, farPt_mem_KX m₁, mem_box_self _
+    (Nat.mul_pos (by norm_num) (cellSide_pos 0 m₁ 1))⟩
+
+theorem supDist_farPt (m₁ : ℕ) :
+    100 * cellSide 3 0 m₁ 2 ≤ LargeField.supDist (farPt m₁) (0 : T m₁) := by
+  have h := LargeField.cycNorm_le_supDist (farPt m₁) (0 : T m₁) 0
+  refine le_trans (le_of_eq ?_) h
+  have hc : farPt m₁ 0 - (0 : T m₁) 0 = (((100 * cellSide 3 0 m₁ 2 : ℕ) : ℤ) : ZMod (240 * 3 ^ m₁ * 3 ^ 2)) := by
+    simp [farPt, natT_apply]
+  rw [hc, LargeField.cycNorm_intCast_of_le]
+  · push_cast; omega
+  · rw [abs_of_nonneg (by positivity), side_eq_240]
+    have : 0 < cellSide 3 0 m₁ 2 := cellSide_pos 0 m₁ 2
+    push_cast; omega
+
+/-- **`d^cov_1(X) ≥ 294`**: the decay factor is not `1`. -/
+theorem treeLenCovOne_XD_ge (m₁ : ℕ) : 294 ≤ treeLenCovOne 0 1 (XD m₁) := by
+  have h := treeLenCovOne_ge_dist (L := 3) (N₁ := 240) (m₁ := m₁) (K := 2) 0 1
+    (X := XD m₁) (admissible_XD m₁) (farPt_mem_XD m₁) (zero_mem_XD m₁)
+  have hsup : (100 * (cellSide 3 0 m₁ 2 : ℝ)) ≤ (LargeField.supDist (farPt m₁) (0 : T m₁) : ℝ) := by
+    exact_mod_cast supDist_farPt m₁
+  have hpos : (0 : ℝ) < (3 : ℝ) ^ (1 + 0 + m₁) := by positivity
+  have hcs : (cellSide 3 0 m₁ 2 : ℝ) = 3 * (3 : ℝ) ^ (1 + 0 + m₁) := by
+    rw [cellSide_two]; push_cast; ring
+  have : (300 : ℝ) ≤ (LargeField.supDist (farPt m₁) (0 : T m₁) : ℝ) / (3 : ℝ) ^ (1 + 0 + m₁) := by
+    rw [le_div_iff₀ hpos]; rw [hcs] at hsup; linarith
+  push_cast at h
+  linarith
+
+end Lower
 
 end I5WitnessData
 end Balaban.Inhabited
