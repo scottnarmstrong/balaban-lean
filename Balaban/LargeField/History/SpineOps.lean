@@ -292,6 +292,34 @@ theorem exists_join (A B : Spine d) {P Q : Fin d → ℝ} (hP : P ∈ A.carrier)
     have := segLen_le_sqrt_mul hB0 (a := P) (b := v + Q) hvB
     linarith
 
+/-- A spine of length `≤ 1` has its projection inside `N_2` of any of its points. -/
+theorem NR_subset_point {sp : Spine d} (hl : sp.length ≤ 1) {P0 : Fin d → ℝ}
+    (hP0 : P0 ∈ sp.carrier) (r : ℝ) : NR r (sp.proj n) ⊆ NR (r + 2) {cl n P0} := by
+  intro x hx ε hε
+  obtain ⟨γ, ⟨P, hP, rfl⟩, q, hq, hlt⟩ := hx ε hε
+  refine ⟨cl n P0, rfl, q, hq, ?_⟩
+  have h1 : ‖cl n P0 - cl n P‖ ≤ 2 := by
+    rw [cl_sub]
+    refine norm_cl_le (by norm_num) ?_
+    have := sp.sup_dist_le hP0 hP
+    linarith
+  have h2 : ‖cl n P - q‖ < r + ε := hlt
+  calc ‖cl n P0 - q‖ = ‖(cl n P0 - cl n P) + (cl n P - q)‖ := by congr 1; abel
+    _ ≤ ‖cl n P0 - cl n P‖ + ‖cl n P - q‖ := norm_add_le _ _
+    _ < r + 2 + ε := by linarith
+
+/-- Every point of the continuous torus is the projection of a point spine. -/
+theorem exists_point_spine (p : CTorus d n) :
+    ∃ Γ : Spine d, Γ.length = 0 ∧ Γ.proj n = {p} := by
+  have hrep : ∀ i, ∃ P : ℝ, (P : AddCircle (n : ℝ)) = p i := fun i =>
+    QuotientAddGroup.mk_surjective (p i)
+  choose P hP using hrep
+  refine ⟨Spine.point P, Spine.length_point P, ?_⟩
+  unfold Spine.proj
+  rw [Spine.carrier_point, Set.image_singleton]
+  congr 1
+  funext i; exact hP i
+
 end Torus
 
 end Balaban.LargeField
