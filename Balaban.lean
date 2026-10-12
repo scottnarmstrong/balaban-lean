@@ -711,6 +711,7 @@ public import Balaban.Observables.LayerV2RenormCompare
 public import Balaban.Observables.LayerV2RenormFirst
 public import Balaban.Observables.LayerV2Dictionary
 public import Balaban.Observables.LayerV2Improved
+public import Balaban.Observables.LayerV2DictionaryInhabited
 public import Balaban.Observables.ImprovedBound
 public import Balaban.Observables.ImprovedConst
 public import Balaban.Observables.ImprovedLemma
