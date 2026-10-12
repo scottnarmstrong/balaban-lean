@@ -13,7 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W141 (Opus) | `w141-class-v2` / W141 | class v2 per CLASS-RULINGS-2 + PIN-I6 jet certificate clause |
-| W136b | `w136-prop33-close` / W136 | close Prop 3.3 premises + symmetry clause |
+| W152b | `w152-decdom-bridge` / W152 | bridges + fan composition for the ψ̂-local engine |
 | W138b | `w138-prop279` / W138 | conditional Prop II.7.9 (BASE-KERNEL-4) |
 | W142 | `w142-vmod9` / W142 | VMOD-9: pointwise mixed-wall NC3 |
 | W151 | `w151-covsqrt-sup` / W151 | complex-s sup bound of decCovSqrt (first piece of Prop 3.3 local in ψ̂) |
