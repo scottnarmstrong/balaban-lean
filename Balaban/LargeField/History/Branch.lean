@@ -106,6 +106,89 @@ theorem ShDesc.len_zero {a b : ℕ} {W : H.Comp a} {Y : H.Comp b} (h : H.ShDesc 
     rw [div_le_iff₀ hpos]
     linarith
 
+/-- What the last event of a branch looks like: a point, or a merge within the cap with its record
+bookkeeping and its length bound. -/
+def BackKind (ξ : ℕ) (W : H.Comp ξ) : Prop :=
+  (H.bk ξ W).len = 0 ∨
+    (S.RecInv ξ (H.bk ξ W) ∧ (H.bk ξ W).len ≤ S.numax ξ * S.D ξ ∧ ¬ S.Ripe ξ (H.bk ξ W))
+
+omit G in
+theorem len_zero_of_ripe {k : ℕ} {b : Book} (hb : BookInv S k b) (hr : S.Ripe k b) : b.len = 0 :=
+  (S.ripe_facts hb hr).2.1
+
+omit G in
+theorem not_isEmpty_comp {k : ℕ} (Y : H.Comp k) (hk : k ≤ k0) : 1 ≤ k := by
+  by_contra h
+  have : k = 0 := by omega
+  subst this
+  exact (H.F.isEmpty_comp_zero.false Y).elim
+
+/-- **Branches of the lineage**: every `Active` or `Pending` component of scale `κ ≤ k₀` is the
+pure-shadow descendant of a component `W` that is a point or a merge within the cap. -/
+theorem back : ∀ κ (Y : H.Comp κ), κ ≤ k0 → ((H.bk κ Y).IsActive ∨ (H.bk κ Y).IsPending) →
+    ∃ ξ, ∃ W : H.Comp ξ, H.ShDesc ξ κ W Y ∧ BackKind ξ W := by
+  intro κ
+  induction κ with
+  | zero => intro Y; exact (H.F.isEmpty_comp_zero.false Y).elim
+  | succ k ih =>
+    intro Y hk0 hact
+    obtain ⟨hinv, hcase, hs1, hs2, hs3, hs4, hs5⟩ := H.step_facts G hk0 Y
+    have hrestart : (H.bk (k + 1) Y).st = WState.restart (k + 1) (H.bk (k + 1) Y).pt →
+        (H.bk (k + 1) Y).len = 0 := by
+      intro hst
+      have hp : (H.bk (k + 1) Y).pt := by
+        by_contra hnp
+        rw [WState.restart_npt hnp] at hst
+        rcases hact with h | h
+        · exact Book.not_pre_of_active h hst
+        · exact Book.not_pre_of_pending h hst
+      exact hinv.pt_len hp
+    cases hcase with
+    | new hr hf => exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl (hrestart (hs1 hr))⟩
+    | mergePre hr hcard hpre hf =>
+      exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl (hrestart (hs3 hr hcard hpre))⟩
+    | overflow hr hcard hnpre hcap hf =>
+      exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl (hrestart (hs5 hr hcard hnpre hcap))⟩
+    | mergeCap hr hcard hnpre hcap hf =>
+      by_cases hrip : S.Ripe (k + 1) (H.bk (k + 1) Y)
+      · exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl (len_zero_of_ripe hinv hrip)⟩
+      · refine ⟨k + 1, Y, ShDesc.refl Y, Or.inr ⟨t4_recInv G hf, ?_, hrip⟩⟩
+        refine hf.len_le.trans ?_
+        have h1 : ((∑ i ∈ H.parts k Y, (H.pb k i).nu : ℕ) : ℝ) - 1 ≤ S.numax (k + 1) := by
+          have : ((∑ i ∈ H.parts k Y, (H.pb k i).nu : ℕ) : ℝ) ≤ S.numax (k + 1) := by
+            exact_mod_cast hcap
+          linarith
+        exact mul_le_mul_of_nonneg_right h1 (S.D_nonneg _)
+    | shadow i hparts hr hle hge hnu hbank =>
+      have hmem : i ∈ H.parts k Y := by rw [hparts]; exact Finset.mem_singleton_self i
+      obtain ⟨hrem, hsu⟩ := (H.mem_parts k i Y).mp hmem
+      by_cases hact' : (H.pb k i).IsActive ∨ (H.pb k i).IsPending
+      · by_cases hrip : S.Ripe k (H.bk k i)
+        · have hk1 := not_isEmpty_comp i (by omega)
+          have h0 := len_zero_of_ripe (H.window_inv' G k hk1 (by omega) i).1 hrip
+          obtain ⟨hl1, -⟩ := shadow_len hparts hr
+          have : (H.bk (k + 1) Y).len = 0 := by
+            have h2 := hinv.len_nonneg
+            rw [h0, zero_div] at hl1
+            exact le_antisymm hl1 h2
+          exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl this⟩
+        · have hbk : H.pb k i = H.bk k i := S.postBook_of_not_ripe hrip
+          obtain ⟨ξ, W, hsh, hkind⟩ := ih i (by omega) (by rw [← hbk]; exact hact')
+          exact ⟨ξ, W, ShDesc.step k W i Y hsh hrem hsu hparts hr hact' hrip, hkind⟩
+      · have hpre : (H.pb k i).st = .pre := by
+          rcases Book.cases_st (H.pb k i) with h | h | h
+          · exact h
+          · exact absurd (Or.inr h) hact'
+          · exact absurd (Or.inl h) hact'
+        have hst := hs2 hr i hparts
+        have hp : (H.bk (k + 1) Y).pt := by
+          by_contra hnp
+          rw [WState.shadow_pre_npt hpre hnp] at hst
+          rcases hact with h | h
+          · exact Book.not_pre_of_active h hst
+          · exact Book.not_pre_of_pending h hst
+        exact ⟨k + 1, Y, ShDesc.refl Y, Or.inl (hinv.pt_len hp)⟩
+
 end RegionHistory
 
 end Balaban.LargeField
