@@ -879,6 +879,12 @@ public import Balaban.Inhabited.QuietWitness
 public import Balaban.Observables.SecondOrderCauchy
 public import Balaban.Observables.SecondOrderSums
 public import Balaban.Observables.SecondOrderStep
+public import Balaban.Fluctuation.StepMeasure
+public import Balaban.Fluctuation.StepObjects
+public import Balaban.Fluctuation.StepIdentityQuad
+public import Balaban.Fluctuation.StepIdentity
+public import Balaban.Fluctuation.StepIdentityInhabited
+public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
 public import Balaban.LargeField.Def7
