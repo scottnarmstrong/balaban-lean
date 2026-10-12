@@ -187,8 +187,9 @@ theorem interaction_expansion_bound {Kc Cx c₂ BG₂ δ₁ : ℝ}
               (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} ∧
           (xw.1.2, xw.2.2) ∈ {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) ×
               (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-            ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-              (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁}} Rσ 𝒴 T
+            (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+              (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+            IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2}} Rσ 𝒴 T
         (fun x w σ p =>
           (-cβ) * raySrc3 (interactionOne hG hG' hp a₁ ν eps) taylorWeight x.1 w.1 σ p.1 +
           cβ * (∑ τ ∈ 𝒯E, if h : τ ∈ 𝒯E then
@@ -261,8 +262,9 @@ theorem interaction_expansion_bound {Kc Cx c₂ BG₂ δ₁ : ℝ}
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ), τ ∈ 𝒯E →
       LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
         {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+          (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+          IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2} Rσ
         (polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ))
         (fun Y x₀ w σ Θ => dirTerm (Ev Y) (fun _ => (1 : ℂ)) x₀ w σ Θ)
         (fun x₀ w σ Θ => if h : τ ∈ 𝒯E then
@@ -389,8 +391,9 @@ theorem interaction_expansion_bound {Kc Cx c₂ BG₂ δ₁ : ℝ}
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ), τ ∈ 𝒯M →
       LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps)
         {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+          (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+          IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2} Rσ
         (polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ))
         (fun Y x₀ w σ Θ => dirTerm (Ev Y) (fun _ => (1 : ℂ)) x₀ w σ Θ)
         (fun x₀ w σ Θ => if h : τ ∈ 𝒯M then
@@ -468,7 +471,8 @@ theorem interaction_expansion_bound {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ K → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
     hLV' hLE' hLF hLM' (-cβ) cβ cβ cβ hnV hnE hnF hnM
-  refine ⟨𝒴, T, hL.mono fun Y => (hb Y).trans (le_of_eq ?_)⟩
+  refine ⟨𝒴, T, (hL.mono_XW fun xw h => ⟨h.1, h.1, h.2.2.1, h.2.2.2⟩).mono
+    fun Y => (hb Y).trans (le_of_eq ?_)⟩
   simp only [norm_neg, prop33Eps]
   ring
 

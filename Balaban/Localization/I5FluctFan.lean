@@ -14,7 +14,8 @@ import Mathlib.Tactic.Positivity
 
 `fan_analytic_fl`: (AE1), the joint analyticity of
 `F(s; Θ, ψ') = 𝓔(X; ψ(𝔹_j(X), 𝔹_k(X); ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) + δψ(𝔹_k(X), 𝔹_k; ψ', s)))`
-on `Ξ^c_K(𝔹_{k+1}; 1, ε') × {|ψ'| < δ₁} × {|s_P| < e^κ}`; `fan_bound_fl`: its bound.
+on `Ξ^c_K(𝔹_{k+1}; 1, ε') × FlBallLC × {|s_P| < e^κ}` (`ψ'` layer-constant with `|ψ'| < δ₁`);
+`fan_bound_fl`: its bound.
 -/
 
 @[expose] public section
@@ -35,6 +36,26 @@ variable (Gp Hm δ₁) in
 /-- **The set of fluctuations** `{ψ' : |ψ'| < δ₁ on the data sites of H⁻}`. -/
 def FlBall : Set (CTorus d L N₁ m₁ K → Fin N → ℂ) :=
   {ψ' | ∀ x ∈ dataSites Hm, vn (ψ' x) < δ₁}
+
+variable (Hm δ₁) in
+/-- **The ball of block fluctuations** (P3 (4.17)): the fluctuations `ψ'` of the source are fields
+of the lattice of `𝔹_k`; their lifts to the fine lattice are the fields constant on the blocks of
+every layer of `H⁻ = 𝔹_k` (`IsLayerConstant`).  `FlBallLC` is the set of these with `|ψ'| < δ₁` on
+the data sites of `H⁻`. -/
+def FlBallLC : Set (CTorus d L N₁ m₁ K → Fin N → ℂ) :=
+  {ψ' | ψ' ∈ FlBall Hm δ₁ ∧ IsLayerConstant Hm ψ'}
+
+theorem isLayerConstant_line {z w : CTorus d L N₁ m₁ K → Fin N → ℂ} (hz : IsLayerConstant Hm z)
+    (hw : IsLayerConstant Hm w) (τ : ℂ) : IsLayerConstant Hm (z + τ • w) := by
+  intro m h1 h2 x hx x' hx'
+  simp only [Pi.add_apply, Pi.smul_apply]
+  rw [hz m h1 h2 x hx x' hx', hw m h1 h2 x hx x' hx']
+
+theorem isLayerConstant_smul {z : CTorus d L N₁ m₁ K → Fin N → ℂ} (hz : IsLayerConstant Hm z)
+    (c : ℂ) : IsLayerConstant Hm (c • z) := by
+  intro m h1 h2 x hx x' hx'
+  simp only [Pi.smul_apply]
+  rw [hz m h1 h2 x hx x' hx']
 
 theorem analyticAt_barField {Q : Type*} [NormedAddCommGroup Q] [NormedSpace ℂ Q] {q : Q}
     (φ : Q → Gp.Ω 1 × Fin N → ℂ) (Ψ : Q → CTorus d L N₁ m₁ K → Fin N → ℂ)
@@ -109,17 +130,17 @@ theorem fan_analytic_fl
         (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
       E (D2raw Gk Gj (compWeight L a₁) Fk (D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol
         (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2) p.1)))
-      ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁) ×ˢ
+      ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBallLC Hm δ₁) ×ˢ
         polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) (fun _ => Real.exp κ)) := by
   classical
-  rintro ⟨⟨u, ψ'⟩, s⟩ ⟨⟨⟨D, hD, rfl⟩, hψ⟩, hs⟩
+  rintro ⟨⟨u, ψ'⟩, s⟩ ⟨⟨⟨D, hD, rfl⟩, hψ, hψc⟩, hs⟩
   have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
   have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hB.hκ
   have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
     norm_extParams_lt hE1 hs'
   have hs1 := extParams_hs1 (X₁f := X₁f) (Gp := Gp) s
   obtain ⟨φ, α, δφ, hI, hFeq, hstrict, hδφ, hX3, hrawD, hD2, hX2⟩ :=
-    point_facts_fl hB hF hF₁ hFk hSol hsx hs1 hD hψ
+    point_facts_fl hB hF hF₁ hFk hSol hsx hs1 hD hψ hψc
   set pt : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) := ((rawOf D, ψ'), s) with hpt
   set g0 : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
@@ -149,6 +170,14 @@ theorem fan_analytic_fl
       (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
       p.1.1.1 y jj) pt := fun y jj =>
     (analyticAt_rawΨ y jj (rawOf D)).comp_of_eq (analyticAt_fst.comp analyticAt_fst) rfl
+  have hψ1 : ∀ y jj, AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+      p.1.2 y jj) pt := by
+    intro y jj
+    have h0 : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+        (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+        p.1.2) pt := analyticAt_snd.comp analyticAt_fst
+    exact analyticAt_pi_iff.1 (analyticAt_pi_iff.1 h0 y) jj
   -- the data of the fluctuation problem
   set ed : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) → Edat Hm N :=
@@ -180,8 +209,7 @@ theorem fan_analytic_fl
         (fun p : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
           (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
           (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, ed p)).1)
-        (fun _ => (0 : CTorus d L N₁ m₁ K → Fin N → ℂ))
-        hSolr (fun y jj => analyticAt_const) x i
+        (fun p => p.1.2) hSolr hψ1 x i
       exact hA.add hA'
     · by_cases hx : x ∈ Gk.Ω 1
       · simp only [hx, ↓reduceIte]
@@ -236,7 +264,7 @@ theorem fan_bound_fl
     (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
       (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B)
     {u : RawData d L (N₁ * L ^ m₁) K N} (hu : u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps)
-    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ψ' ∈ FlBall Hm δ₁)
+    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ψ' ∈ FlBallLC Hm δ₁)
     {s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ}
     (hs : s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
       (fun _ => Real.exp κ)) :
@@ -249,7 +277,7 @@ theorem fan_bound_fl
   have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
     norm_extParams_lt hE1 hs'
   obtain ⟨φ, α, δφ, hI, hFeq, hstrict, hδφ, hX3, hrawD, hD2, hX2⟩ :=
-    point_facts_fl hB hF hF₁ hFk hSol hsx (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ
+    point_facts_fl hB hF hF₁ hFk hSol hsx (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ.1 hψ.2
   rw [hrawD, hD2]
   exact hEb _ ⟨_, hX2, rfl⟩
 

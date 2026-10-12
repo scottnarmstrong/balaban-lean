@@ -225,6 +225,47 @@ theorem dirTermSrc_sum {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F →
   refine Finset.sum_congr rfl fun Y hY => ?_
   rw [dirD_eq_lineD w (hEv Y _ ⟨hΘ, hz⟩).differentiableAt]
 
+/-- **The terms add up**, when the expansion `f = ∑_Y Ev_Y` is only known on a set `B` (not
+necessarily open) that contains a neighbourhood of `0` on each line `τ ↦ σ t' x₀ + τ w`,
+`t' ∈ [0, 1]`: the directional derivative only sees these lines. -/
+theorem dirTermSrc_sum_line {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → ℂ} {f : Λ × F → ℂ}
+    (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y) (S ×ˢ B))
+    (hsum : ∀ Θ ∈ S, ∀ z ∈ B, f (Θ, z) = ∑ Y ∈ 𝒴, Evs Y (Θ, z)) (hωc : Continuous ω)
+    {Θ : Λ} (hΘ : Θ ∈ S) {σ : ℂ}
+    (hline : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 →
+      ∀ᶠ τ : ℂ in nhds 0, (σ * (t : ℂ)) • x₀ + τ • w ∈ B) :
+    dirTermSrc f ω x₀ w σ Θ = ∑ Y ∈ 𝒴, dirTerm (Evs Y) ω x₀ w σ Θ := by
+  have hdom : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → (σ * (t : ℂ)) • x₀ ∈ B := fun t ht => by
+    simpa using (hline t ht).self_of_nhds
+  unfold dirTermSrc dirTerm
+  rw [← Finset.mul_sum]
+  congr 1
+  have hint : ∀ Y ∈ 𝒴, IntervalIntegrable (fun t : ℝ => ω (t : ℂ) *
+      dirD (Evs Y) w Θ ((σ * (t : ℂ)) • x₀)) MeasureTheory.volume 0 1 := by
+    intro Y _
+    refine ContinuousOn.intervalIntegrable ?_
+    rw [Set.uIcc_of_le zero_le_one]
+    exact (hωc.comp Complex.continuous_ofReal).continuousOn.mul
+      (continuousOn_dirD_ray (hEv Y) hΘ σ hdom)
+  rw [← intervalIntegral.integral_finsetSum hint]
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  rw [← Finset.mul_sum]
+  congr 1
+  have hz := hdom t ht
+  have hdiff : ∀ Y ∈ 𝒴, DifferentiableAt ℂ (fun z => Evs Y (Θ, z)) ((σ * (t : ℂ)) • x₀) := by
+    intro Y _
+    exact ((hEv Y _ ⟨hΘ, hz⟩).comp (f := fun z : F => ((Θ, z) : Λ × F))
+      ((analyticAt_const (𝕜 := ℂ)).prod (analyticAt_id (𝕜 := ℂ)))).differentiableAt
+  have hev : lineD w (fun z => f (Θ, z)) ((σ * (t : ℂ)) • x₀) =
+      lineD w (fun z => ∑ Y ∈ 𝒴, Evs Y (Θ, z)) ((σ * (t : ℂ)) • x₀) := by
+    unfold lineD
+    refine Filter.EventuallyEq.deriv_eq ?_
+    filter_upwards [hline t ht] with τ hτ using hsum Θ hΘ _ hτ
+  rw [hev, lineD_sum 𝒴 w hdiff]
+  refine Finset.sum_congr rfl fun Y hY => ?_
+  rw [dirD_eq_lineD w (hEv Y _ ⟨hΘ, hz⟩).differentiableAt]
+
 end Dir
 
 end Balaban.Fluctuation
