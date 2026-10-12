@@ -397,6 +397,8 @@ public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
 public import Balaban.Localization.DecoupledCovLocal
+public import Balaban.Localization.DecoupledCovLocal2
+public import Balaban.Localization.DecoupledCovLocal2Free
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
@@ -984,6 +986,9 @@ public import Balaban.Localization.P6PairOp
 public import Balaban.Fluctuation.HatEngineDom
 public import Balaban.Fluctuation.HatEngineLift
 public import Balaban.Fluctuation.HatEngineFan
+public import Balaban.Fluctuation.HatEngineLocal
+public import Balaban.Fluctuation.HatEngineLocalFan
+public import Balaban.Fluctuation.HatEngineLocalEngine
 public import Balaban.Localization.GraphGmCount
 public import Balaban.Localization.GraphGmWalk
 public import Balaban.Localization.GraphGmDefs
