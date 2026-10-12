@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.RowsHat
 public import Balaban.Localization.FootprintFl
+public import Balaban.Localization.RowsFl
 public import Balaban.Localization.SupportMargin
 public import Balaban.Fluctuation.HatLabelsDep
 
@@ -30,9 +31,23 @@ is required outside `Y₁`.
   union of complete cells of side `L ^ (k+1)`; the notion `CompleteBlocks` (equal `unitBlock1 ∘
   unitBlock`) is the cell `SameCell (L ^ (k+1))`.
 * `hatSqrtF_rows`, `hatPsiF_rows`: the composed hat theorems.
+* `fluct_correction_rows_of_agree_on_component`: raw agreement on `Y₁` and hat agreement on its unit
+  blocks give agreement of the fluctuation correction (multiplier on `S_Y^F`, `dphi` on `Y₁`), the
+  data of `i4a_local_fpS_rows_level` being `α₀ = flAlpha α`, `φ₀ = barField Ψ φ`, `δΨ = hatPsiF`,
+  `f₁ = 0` (`flEdat`).  The sites `RowF` read by `H⁻_D` at `S_Y^F` lie in `resSites Hm` of a site
+  of `S_Y^F`, where `fluct_footprint_subset` puts the approximate-field footprint inside `Y₁`.
 * `hatOf_agree_unitOut`: agreement of two block configurations on `blocksOf m₀ (k+1) univ Y` (the
   hypothesis of `HatLabelsDirect.DirectTerms.ag`) gives agreement of the hat variables on the unit
   blocks of `Y₁ ⊆ Y`, when `Y` is a union of complete cells of side `cellSide L m₀ m₁ (k+1)`.
+
+Facts found while composing: (i) the sites read by the `x`-variant rows need not be sites read by
+`H_D` (an entry may vanish for `H_D` and not for the `x`-variant), so `rowsCov_R` is not contained
+in `RowSite`; both lie in `resSites`, and that inclusion is what is used.  (ii) The cells of
+`blocksOf` have side `cellSide L m₀ m₁ (k+1) = L ^ (k+1+m₀+m₁)`, those of `CompleteBlocks` side
+`L ^ (k+1)`; `hatOf_agree_unitOut` needs `Y` to be a union of cells of the larger side.  The
+component `compY` is only a union of cells of side `L ^ (k+1+m₁)` (`compY_isCellUnion`), the set
+`Ysites` of side `cellSide` (`Ysites_isCellUnion`); so the hat hypothesis in the `blocksOf` form is
+obtained for `Y = Ysites ⊇ Y₁`, not for `Y = Y₁`.
 
 The physical-reads lemmas, the fan/engine congruence (FOOTPRINT item 7) and `PhysicalSharpLoc` are
 separate packages and are not proved here.
@@ -71,6 +86,52 @@ theorem rowsCov_R_subset_resSites {a : ℕ → ℝ} {aT ν : ℝ} {α : Gp.Ω 1 
     exact xDirichlet_entry_eq_zero (G := Gp) (a := a) (aT := aT) (x₀ := x₀) (ν := ν) α hxy
       (fun μ => ⟨fun e => hp μ e.symm, fun e => hm μ e.symm⟩) hblk
 
+/-- **The background field from raw data on the component.**  At a whole-lattice generating set of
+level `k + 1`, if the raw data agree on `Y₁`, the multipliers of the decoupled backgrounds agree on
+`S_Y` and the fields agree at every site whose approximate-field footprint lies in `Y₁`. -/
+theorem bgField_of_agree_on_component
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hconn : HatConn Gp) (hG : IsLevel Gp (k + 1))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z)) :
+    ∀ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (φ₂ : Gp.Ω 1 × Fin N → ℂ)
+      (α₂ : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂ →
+      (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁ 𝒞 Y → α x = α₂ x) ∧
+      (∀ y : Gp.Ω 1, approxDep Gp (y : CTorus d L N₁ m₁ (k + 1)) ⊆ Y →
+          ∀ i, φ (y, i) = φ₂ (y, i)) := by
+  classical
+  intro φ α φ₂ α₂ hI hI₂
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
+  have hDom' := xiCData_inDomainC hC.HBp hC.small1 hD'
+  obtain ⟨hα, hcorr, -, -⟩ := i4b_local_of_agree_on_component hC.hS hC.Sp hconn hC.HBp hC.hκ.le
+    hC.hM (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom hDom' hG hY
+    hs1 hs0 hag hdata hI hI₂
+  refine ⟨hα, fun y happ i => ?_⟩
+  have hyY : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y := happ (mem_approxDep_self _)
+  have hphi : approxField Gp (compWeight L a₁) ν D.Ψ D.h y =
+      approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y :=
+    approxField_congr fun w hw => hdata w (happ hw)
+  have := hcorr y hyY i
+  rw [hphi] at this
+  linear_combination this
+
 /-- **T1.  The hypothesis `hbg` of `hatSqrtF_rows_of_bgAgree` from raw-data agreement on `Y₁`.**
 At a whole-lattice generating set of level `k + 1`, if the raw data `D, D'` agree on `Y₁` (`Ψ` on
 `Y₁`, `h` on `Y₁ ∩ Ω₁`), then the decoupled backgrounds `(φ, α)`, `(φ₂, α₂)` have multipliers equal on
@@ -95,31 +156,11 @@ theorem bgAgree_of_agree_on_component
           rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y → ∀ i, φ (y, i) = φ₂ (y, i)) := by
   classical
   intro φ α φ₂ α₂ hI hI₂
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hc1 := one_le_xiC1 d
-  have hε := hC.eps_pos
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
-  have hDom' := xiCData_inDomainC hC.HBp hC.small1 hD'
-  obtain ⟨hα, hcorr, -, -⟩ := i4b_local_of_agree_on_component hC.hS hC.Sp hconn hC.HBp hC.hκ.le
-    hC.hM (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom hDom' hG hY
-    hs1 hs0 hag hdata hI hI₂
+  obtain ⟨hα, hf⟩ := bgField_of_agree_on_component hC hconn hG hs hs' hD hD' hY hs1 hs0 hag hdata
+    φ α φ₂ α₂ hI hI₂
   refine ⟨hα, fun y hy i => ?_⟩
   obtain ⟨z, hz, hyz⟩ := rowsCov_R_subset_resSites hy
-  have happ : approxDep Gp (y : CTorus d L N₁ m₁ (k + 1)) ⊆ Y :=
-    (footprint_subset_component hG X₁ 𝒞 Y).2 z hz _ hyz
-  have hyY : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y := happ (mem_approxDep_self _)
-  have hphi : approxField Gp (compWeight L a₁) ν D.Ψ D.h y =
-      approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y :=
-    approxField_congr fun w hw => hdata w (happ hw)
-  have := hcorr y hyY i
-  rw [hphi] at this
-  linear_combination this
+  exact hf y ((footprint_subset_component hG X₁ 𝒞 Y).2 z hz _ hyz) i
 
 end Bg
 
@@ -283,6 +324,123 @@ theorem hatPsiF_rows (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ �
     ψh ψh' hh
 
 end Rows
+
+section Fl
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+
+/-- **T5.  The fluctuation correction on the component from raw data and hat variables on the
+component.**  In the physical fluctuation step (`flEdat`, `fan_local_fl`) the data of Theorem I-4a on
+`H⁻ = Hm` are `α₀ = flAlpha α` (the multiplier of `Gp` restricted to `Ω₁(Hm)`), `φ₀ = barField Gp Ψ φ`
+(the background field of `Gp` extended by the datum), `δΨ = ψ'` (the fluctuation field `hatPsiF`) and
+`f₁ = 0`.  If the raw data agree on `Y` and the hat variables on the unit blocks inside `Y`, the
+fluctuation corrections `δα, δα'` of the two problems agree on `S_Y^F` and the corrections `dphi`
+agree on `Y`.  The hypotheses `Hh, Hh'` (the bounds of Theorem I-4a (b)), `hfix, hsm, hfix', hsm'` (the
+fixed points) and `hrow` (the rows of `Hm` at the sites of an interaction cube stay in its thickened
+cube) are the premises of the landed theorems; no agreement hypothesis is made for the background
+field, the multiplier or the fluctuation field. -/
+theorem fluct_correction_rows_of_agree_on_component
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (hG : IsLevel Gp (k + 1)) (hHm : IsLevel Hm k) (cc : ℂ)
+    (hconn : HatConn Gp)
+    (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hX₁ : IsCellUnion (L ^ (k + 1)) (X₁ : Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒞 : ∀ P ∈ 𝒞, P ∈ cubeIdx Gp)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
+    (ψh ψh' : unitPts Gp × Fin N → ℂ)
+    (hh : ∀ b' : unitPts Gp, UnitOut Gp Y b' → ∀ i, ψh (b', i) = ψh' (b', i))
+    {φ φ₂ : Gp.Ω 1 × Fin N → ℂ} {α α₂ : Gp.Ω 1 → ℂ}
+    (hI : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
+    (hI₂ : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂)
+    (Hh : DecHyp Hm (compWeight L a₁) ν false (flAlpha Gp Hm α) (barField Gp D.Ψ φ)
+      (hatPsiF Gp a₁ ν hG cc F₁ s (rawOf D) ψh) 0
+      (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁)
+    (Hh' : DecHyp Hm (compWeight L a₁) ν false (flAlpha Gp Hm α₂) (barField Gp D'.Ψ φ₂)
+      (hatPsiF Gp a₁ ν hG cc F₁ s' (rawOf D') ψh') 0
+      (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁)
+    {δα δα' : Hm.Ω 1 → ℂ}
+    (hfix : Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν s false (flAlpha Gp Hm α)
+      (barField Gp D.Ψ φ) (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG cc F₁ s (rawOf D) ψh) 0)
+      δα)
+    (hsmδ : Small Hm δα (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)))
+    (hfix' : Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν s' false (flAlpha Gp Hm α₂)
+      (barField Gp D'.Ψ φ₂)
+      (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG cc F₁ s' (rawOf D') ψh') 0) δα')
+    (hsmδ' : Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))) :
+    (∀ x : Hm.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈
+        Dec2.SYF (coverOf Gp) Hm (compWeight L a₁) ν X₁ 𝒞 Y → δα x = δα' x) ∧
+    (∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i : Fin N,
+      dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν s) (flAlpha Gp Hm α)
+        (barField Gp D.Ψ φ)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG cc F₁ s (rawOf D) ψh) 0) δα (y, i) =
+      dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν s') (flAlpha Gp Hm α₂)
+        (barField Gp D'.Ψ φ₂)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG cc F₁ s' (rawOf D') ψh') 0)
+        δα' (y, i)) := by
+  classical
+  have hsubΩ : ∀ x, x ∈ Hm.Ω 1 → x ∈ Gp.Ω 1 := fun x hx => hC.hPmp.mem_Ω1 hx
+  have SL : Dec2.CoverLocal (coverOf Gp) Gp (compWeight L a₁) ν (Dec2.selfKc d L) (Cchi d L) :=
+    Dec2.coverLocal_self hC.Sp
+  have hconn' : Dec2.HatConn (coverOf Gp) Gp := hconn
+  have h𝒞c : ∀ P ∈ 𝒞, P ∈ (coverOf Gp).cubeIdx := h𝒞
+  obtain ⟨A, hIU, hAcube⟩ := incUnion_of_nnComp SL hconn' hsubΩ hrow h𝒞c hY
+  obtain ⟨hαSY, hφ⟩ := bgField_of_agree_on_component hC hconn hG hs hs' hD hD' hY hs1 hs0 hag
+    hdata φ α φ₂ α₂ hI hI₂
+  have hψ := hatPsiF_rows hC hk hG cc hconn hMX hmar hα hsm hF₁ hs hs' hD hD' hY hs1 hs0 hag hX₁
+    h𝒞 hdata ψh ψh' hh
+  have hDA : Dec2.RowsFl.DataAgreeRows Hm N (Dec2.SYF (coverOf Gp) Hm (compWeight L a₁) ν X₁ 𝒞 Y)
+      (Dec2.RowsFl.RowF Hm (compWeight L a₁) ν (Dec2.SYF (coverOf Gp) Hm (compWeight L a₁) ν X₁ 𝒞 Y))
+      (flAlpha Gp Hm α) (flAlpha Gp Hm α₂) (barField Gp D.Ψ φ) (barField Gp D'.Ψ φ₂)
+      (hatPsiF Gp a₁ ν hG cc F₁ s (rawOf D) ψh) (hatPsiF Gp a₁ ν hG cc F₁ s' (rawOf D') ψh')
+      (0 : Hm.Ω 1 × Fin N → ℂ) 0 := by
+    refine ⟨fun x hx => ?_, fun x hx => ?_, fun x hx => ?_, fun x hx i => rfl⟩
+    · have := hαSY ⟨x, hsubΩ x x.2⟩ (SYF_subset_SY_level hG hC.Sp hconn hY hx)
+      show flAlpha Gp Hm α x = flAlpha Gp Hm α₂ x
+      rw [flAlpha_of_prec hC.hPmp, flAlpha_of_prec hC.hPmp]
+      exact this
+    · have hxΩ := hsubΩ x x.2
+      -- the sites of `R(S_Y^F)` read the approximate field only on `Y`
+      have hres : ∀ u : Hm.Ω 1, (u : CTorus d L N₁ m₁ (k + 1)) ∈ Dec2.SYF (coverOf Gp) Hm
+          (compWeight L a₁) ν X₁ 𝒞 Y → ∀ w ∈ resSites Hm (u : CTorus d L N₁ m₁ (k + 1)),
+          approxDep Gp w ⊆ Y := fun u hu w hw =>
+        (fluct_footprint_subset hG hHm hC.Sp hconn hY hu).2 w hw
+      have hap : approxDep Gp (x : CTorus d L N₁ m₁ (k + 1)) ⊆ Y := by
+        unfold Dec2.RowsFl.RowF at hx
+        obtain ⟨-, u, hu, hxu⟩ := Finset.mem_filter.1 hx
+        rcases hxu with hxu | ⟨w, hw, hxw⟩
+        · rw [hxu]; exact hres u hu _ (mem_resSites_self _)
+        · rw [hxw]; exact hres u hu _ (mem_resSites_of_entry_ne_zero hw)
+      funext i
+      show barField Gp D.Ψ φ x i = barField Gp D'.Ψ φ₂ x i
+      simp only [barField, hxΩ, ↓reduceDIte]
+      exact hφ ⟨x, hxΩ⟩ hap i
+    · exact hψ x (Dec2.SYF_subset_Y hx)
+  exact Dec2.RowsFl.i4a_local_fpS_rows_level hC.hS2.fam hC.SM hC.hκ.le hC.hM2
+    (fun P => (hs P).le) (fun P => (hs' P).le) Hh Hh' hC.B_le hC.δ₁_le hIU hs1 hs0
+    (fun P hP hPA => hag P hP (fun x hx => (hAcube P hPA).2 x hx)) hDA hHm hfix hsmδ hfix' hsmδ'
+
+end Fl
 
 end Balaban.Localization
 
