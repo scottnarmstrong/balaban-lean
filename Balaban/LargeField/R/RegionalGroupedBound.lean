@@ -38,7 +38,10 @@ puts the pieces that landed separately into one chain.
 * **(T4) Sum over scales.**  `charge_sum_grouped`: summed over the gaps `q - j ≥ n₁`, with at most
   `Γ_E s^{-d}` centres per new cube, the charge per new cube is at most
   `Γ_E (C₁ + C₂ + C_T) E₀ L^{-n₁ α₃} / (1 - L^{-α₃})` (from `charge_sum_le`).
-* `groupedInputs_nonempty`: `GroupedInputs` is inhabited (zero kernels, any data).
+* `groupedInputs_nonempty`: `GroupedInputs` is inhabited (zero kernels, any data, `ν_j = 0`).  An
+  inhabitant with a nonzero kernel is not given: `GroupedInputs` lives on the torus of an
+  `SFCtx`, and no concrete context is available (the `ZMod 5` examples of `RegionalTails` are for
+  the abstract lemmas only).
 
 ## What is and is not proved
 
@@ -690,6 +693,73 @@ theorem charge_sum_grouped (hN : S.L ^ C.m₀ ∣ C.N₁) (hL : 1 < (S.L : ℝ))
   by_cases hi : n₁ + i ≤ k
   · simp [cs, hi]
   · simp [cs, hi]
+
+/-! ### Non-vacuity of `GroupedInputs` -/
+
+open Classical in
+/-- **`GroupedInputs` is inhabited.**  For any context with `R_{k-1} > 0`, `M > 0`, any
+composed field `ψ`, source `h` and region `Y`: the zero kernel, zero coefficients and zero
+activity with `ν_j = 0`, the collar the whole torus, and `C₀` large enough to cover the data
+`ψ·ψ - 1` satisfy every field (`E₀ = ε_j = ε_q = K_r = 1`, `α₁ = B = 0`, `α₃ = 1`, `d = S.d`,
+`κ₀ = aEnt + 1`, `κ = κ₀ + 1`, `R_* = R_{k-1}`, `α = (d - 2)/2`). -/
+theorem groupedInputs_nonempty (j : ℕ) (hRpos : 0 < R (k - 1)) (hM : 0 < M)
+    (Y : Set (Torus S.d (n k))) (ψ : Fld S.d S.L C.N₁ m₁ k N) (h : Fin N → ℂ) :
+    ∃ E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ,
+      Nonempty (GroupedInputs C j Y (C.alignedIn j Y) Finset.univ ψ h 0 (fun _ => 0)
+        (fun _ _ => 0) (fun _ _ _ => 0) (fun _ _ _ => 0) (fun _ _ => 0)
+        E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) := by
+  have hs := scaleJ_pos S.L k j
+  set s := scaleJ S.L k j with hsdef
+  set T : ℝ := ∑ x, ‖dot (ψ x) (ψ x) - 1‖ with hT
+  have hT0 : 0 ≤ T := Finset.sum_nonneg fun x _ => norm_nonneg _
+  have hsα : 0 < s ^ ((S.d - 2 : ℝ) / 2) := Real.rpow_pos_of_pos hs _
+  have hC0 : 0 ≤ (T + 1) / s := by positivity
+  have hCs : 0 ≤ sourceConstC 0 := by unfold sourceConstC; norm_num
+  refine ⟨1, aEnt S.d S.L + 2, aEnt S.d S.L + 1, R (k - 1), (S.d : ℝ), 1, 0, ((S.d : ℝ) - 2) / 2,
+    (T + 1) / s, 1, (s ^ (((S.d : ℝ) - 2) / 2))⁻¹, 0, 1, 1, ⟨?_⟩⟩
+  have hd : (0 : ℝ) ≤ S.d := Nat.cast_nonneg _
+  exact
+  { aligned := subset_rfl
+    collar := fun x _ => Finset.mem_univ x
+    E₀_nonneg := zero_le_one
+    κ₀_ge := le_rfl
+    κ₀_lt := by linarith
+    Rs_pos := hRpos
+    Rs_le := le_rfl
+    M_pos := hM
+    p_pos := by linarith
+    dd_eq := rfl
+    α₁_nonneg := le_rfl
+    hrel := by ring
+    α_ge := by linarith
+    C₀_nonneg := hC0
+    K_r_pos := one_pos
+    B_nonneg := le_rfl
+    εj_pos := one_pos
+    εq_nonneg := zero_le_one
+    scale_rel := by
+      rw [inv_mul_cancel₀ hsα.ne']; norm_num
+    a_decomp := fun y _ x => by simp
+    a_coeff := fun y _ X _ _ => by
+      simp only [norm_zero, Finset.sum_const_zero]; positivity
+    v2_decomp := fun y _ x => by simp
+    v2_coeff := fun y _ X _ _ => by
+      simp only [norm_zero, Finset.sum_const_zero]; positivity
+    E_bound := fun y _ X _ _ => by
+      simp only [norm_zero]; positivity
+    s_data := fun x => by
+      have e : (T + 1) / s * s = T + 1 := div_mul_cancel₀ _ hs.ne'
+      rw [e]
+      have : ‖dot (ψ x) (ψ x) - 1‖ ≤ T :=
+        Finset.single_le_sum (f := fun x => ‖dot (ψ x) (ψ x) - 1‖) (fun x _ => norm_nonneg _)
+          (Finset.mem_univ x)
+      nlinarith
+    src_data := fun y _ x _ => by
+      simp only [Complex.ofReal_zero, zero_mul, norm_zero]
+      have hD := distWeight_nonneg C j y x
+      have hcs : 0 ≤ (T + 1) / s * s := by positivity
+      exact mul_nonneg (mul_nonneg (mul_nonneg hCs (add_nonneg (sq_nonneg _) hD))
+        (pow_nonneg hcs 3)) (sq_nonneg _) }
 
 end Concrete
 
