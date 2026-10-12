@@ -852,6 +852,7 @@ public import Balaban.LargeField.R.WindowGenSingle
 public import Balaban.LargeField.R.WindowGenCompose
 public import Balaban.LargeField.R.WindowGenGlue
 public import Balaban.LargeField.R.WindowCollarGeom
+public import Balaban.LargeField.R.WindowOfHistory
 public import Balaban.LargeField.R.DeltaPsiCollar
 public import Balaban.LargeField.R.DeltaPsiCollarBound
 public import Balaban.LargeField.R.DeltaPsiCollarInner
@@ -888,6 +889,7 @@ public import Balaban.LargeField.R.MassChangeWall
 public import Balaban.LargeField.R.MassChangeHessian
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
+public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
 public import Balaban.LargeField.R.MassChangeOneSite
 public import Balaban.LargeField.R.MassChangeUniv
@@ -1071,6 +1073,12 @@ public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.HatLabelsSplit
+public import Balaban.Fluctuation.HatLabelsGeom
+public import Balaban.Fluctuation.HatLabelsDep
+public import Balaban.Fluctuation.HatLabelsAct
+public import Balaban.Fluctuation.HatLabelsTerms
+public import Balaban.Fluctuation.HatLabelsExpansion
 public import Balaban.Fluctuation.Thm31bVanish
 public import Balaban.Fluctuation.Thm31bSchwarz
 public import Balaban.Fluctuation.Thm31bResum
@@ -1129,3 +1137,5 @@ public import Balaban.Fluctuation.StepActivityWitnessNe
 public import Balaban.Fluctuation.StepActivityWitnessRay
 public import Balaban.Fluctuation.StepActivityWitness
 public import Balaban.Fluctuation.StepActivityWitnessMain
+public import Balaban.LargeField.R.RegionalFlux
+public import Balaban.LargeField.R.RegionalFluxMeasure
