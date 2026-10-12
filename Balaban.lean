@@ -765,3 +765,9 @@ public import Balaban.Fluctuation.RenormExpCauchy
 public import Balaban.Fluctuation.RenormExpBounds
 public import Balaban.Fluctuation.RenormExpG
 public import Balaban.Fluctuation.RenormExpDiff
+public import Balaban.Inhabited.Def6Density
+public import Balaban.Inhabited.DecHyp
+public import Balaban.Inhabited.BaseStep
+public import Balaban.Inhabited.I5Settings
+public import Balaban.Inhabited.Misc
+public import Balaban.Inhabited.XiCDomains
