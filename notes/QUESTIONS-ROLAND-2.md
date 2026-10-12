@@ -114,6 +114,30 @@ Our fallback, if there is no answer in the papers: complete backgrounds at all s
 small-field class (as in P1/P4), and a separate treatment of the large-field operators for
 k ≤ k₀ with the tiny mass β_kν_k ≤ 1.
 
+**Third addendum to 13 (our present reading of P5–P7, and the one point we need confirmed;
+details: `notes/phase1/Q13-HYBRID.md`).**
+
+We now read P5–P7 as follows for the scales j ≤ k₀ inside the large-field operators: the variational
+backgrounds and the sharp characteristic functions are massless, the reference configuration of the
+R operation (P7 Lemma 2.1) is massless, and the physical external-field term stays in the main
+action; this is consistent with the ν-term in P7 (2.58).
+
+For the small-field class we need complete backgrounds (mass ν_j L^{-2j} in the variational problem)
+at every scale, as in P1/P4; with massless backgrounds each step produces the transverse source term
+of the first addendum.
+
+So the two conventions meet where a small-field region becomes part of a new large-field region.
+We are trying the following: keep the massless characteristic functions and the massless reference
+of R exactly as in P5–P7, but evaluate the main action of the new region, and the inherited
+small-field terms, at the complete background. The massless characteristic functions are invariant
+under rotations with h fixed; the complete background differs from the massless one by O(ν_j) on a
+common real domain, which is much smaller than the tolerance δ_j.
+
+**Question.** In P5–P7, when a region turns large below k₀, at which background are the main action
+of that region and the inherited terms E, F of the old small-field region evaluated, and are the
+inherited terms carried into the large-field expression unchanged (with the correction of P5 (1.8)
+on the new region), or re-expressed?
+
 **14. P6 p. 34: the size transfer for boundary terms across a new long hole.**
 
 P6 p. 34, after (4.32), says the estimates P3 (4.48)–(4.49) continue to hold with the sizes replaced

@@ -7,6 +7,7 @@ module
 
 public import Balaban.SmallField.Def6v2Inhabited
 public import Balaban.SmallField.GsSpecStrong
+public import Balaban.SmallField.GsSpecAgree
 public import Balaban.Observables.ImprovedFirst
 
 /-!
@@ -22,7 +23,7 @@ public import Balaban.Observables.ImprovedFirst
 namespace Balaban.SmallField.GsSpec
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.SmallField
-  Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Balaban.Observables Finset
+  Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Balaban.Observables Balaban.Fluctuation Finset
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
@@ -33,6 +34,56 @@ structure SFTermClausesStrong (P : Consts) (Dom : FieldDom d L N₁ m₁ k N ϱ)
     (Tm : Terms d L N₁ m₁ k N ϱ) : Prop extends SFTermClauses P Dom Tm where
   gsStrong : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
     GsSpecStrong j hjk X (Tm.gs j X)
+
+/-! ### The strong clauses from the class `IsSF2` -/
+
+section FromClass
+
+variable {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : FieldDom d L N₁ m₁ k N ϱ}
+  {Tm : Terms d L N₁ m₁ k N ϱ}
+  {ρd : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+  {Ek : ℝ}
+
+/-- **The term clauses with the strong specification are part of the class `IsSF2`.** -/
+theorem _root_.Balaban.SmallField.Def6v2.IsSF2.termsStrong
+    (h : IsSF2 P Rg β a Dom Tm ρd Ek) : SFTermClausesStrong P Dom Tm where
+  toSFTermClauses := h.terms
+  gsStrong := h.gsStrong
+
+/-- `StrongGS` for the terms of a member of `IsSF2` (top level `k`). -/
+theorem _root_.Balaban.SmallField.Def6v2.IsSF2.strongGS
+    (h : IsSF2 P Rg β a Dom Tm ρd Ek) : StrongGS P.m₀ Tm (le_refl k) :=
+  fun j hj1 hjk X hX => h.gsStrong j hj1 hjk X hX
+
+open Classical in
+/-- **`ℰ_k` at the local composed pairs, class form**: `StrongGS` is discharged from `IsSF2`. -/
+theorem _root_.Balaban.SmallField.Def6v2.IsSF2.EcompAt_eq_local
+    (h : IsSF2 P Rg β a Dom Tm ρd Ek) (a' : ℕ → ℝ) (ν : ℝ)
+    (D : BgData (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := ϱ) k le_rfl) N) :
+    EcompAt P.m₀ Tm a' ν le_rfl D =
+      ∑ j ∈ Finset.Icc 1 k,
+        ∑ y ∈ (Finset.univ : Finset (CTorus d L N₁ m₁ k)).filter (Aligned (L ^ j)),
+          ∑ᶠ X ∈ polysAt P.m₀ j y,
+            Tm.E j y X (localPairAt a' ν le_rfl (Tm.gs j X) D).1
+              (localPairAt a' ν le_rfl (Tm.gs j X) D).2 :=
+  GsSpec.EcompAt_eq_local h.terms.localE h.strongGS a' ν D
+
+/-- **`ℳ_k` at the local composed pairs, class form**: `StrongGS` is discharged from `IsSF2`. -/
+theorem _root_.Balaban.SmallField.Def6v2.IsSF2.McompAt_eq_local
+    (h : IsSF2 P Rg β a Dom Tm ρd Ek) (a' : ℕ → ℝ) (ν : ℝ)
+    (D : BgData (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := ϱ) k le_rfl) N)
+    (g : Fld d L N₁ m₁ k N) (x : CTorus d L N₁ m₁ k) (i : Fin N) :
+    McompAt P.m₀ Tm a' ν le_rfl D g x i =
+      svec (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := ϱ) k le_rfl)
+        (bgField (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := ϱ) k le_rfl)
+          a' ν D) x i +
+      ∑ j ∈ Finset.Icc 1 k,
+        (∑ᶠ X ∈ polysAt P.m₀ j x,
+          Tm.M j x X (localPairAt a' ν le_rfl (Tm.gs j X) D).1
+            (localPairAt a' ν le_rfl (Tm.gs j X) D).2 g) i :=
+  GsSpec.McompAt_eq_local h.terms.localM h.strongGS a' ν D g x i
+
+end FromClass
 
 /-- **`hlayer` of W111** (`improved_first_of_const`): `X` lies in the top layer `j` of
 `Tm.gs j X`. -/

@@ -132,4 +132,20 @@ theorem composeField_local_ne_whole (hd : 0 < d) (hL : 2 ≤ L) (hk : 2 ≤ k) (
   have := inv_strictAnti₀ (by positivity) h1
   linarith
 
+/-- **The repaired class excludes the counterexample**: if some level-2 polymer exists and
+`k ≥ 2`, `weakTerms` are the terms of no member of `IsSF2` (they violate the clause `gsStrong`
+at that polymer: `weakTerms.gs 2 X = levelGS 1` has layer index `1 ≠ 2` on `X`). -/
+theorem weakTerms_not_isSF2 (hk : 2 ≤ k) {P : Consts} {Rg : Def6v2.Regime L} {β a : ℕ → ℝ}
+    {Dom : Def6v2.FieldDom d L N₁ m₁ k N ϱ}
+    {ρd : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℝ} {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom P.m₀ 2 X) (hne : X.Nonempty) :
+    ¬ Def6v2.IsSF2 P Rg β a Dom (weakTerms d L N₁ m₁ k N ϱ) ρd Ek := by
+  intro h
+  obtain ⟨z, hz⟩ := hne
+  have hs := h.gsStrong 2 (by norm_num) hk X hX
+  have e := hs.layerEq z hz
+  rw [weakTerms_gs_two X hk, levelGS_layerIndex (by norm_num) (by omega),
+    levelGS_layerIndex (by norm_num) hk] at e
+  omega
+
 end Balaban.SmallField.GsSpec

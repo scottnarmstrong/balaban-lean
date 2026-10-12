@@ -472,7 +472,9 @@ theorem isSF2_eTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : ℕ
     (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
     IsSF2 P Rg β a Dom (eTerms d L N₁ m₁ k N ϱ P cj)
       (rho2 P Rg β a (eTerms d L N₁ m₁ k N ϱ P cj) 0) 0 := by
-  refine isSF2_rho2 (eTerms_clauses hE₀ hκ hc0 hc hc9 hB) ?_
+  refine isSF2_rho2 (eTerms_clauses hE₀ hκ hc0 hc hc9 hB)
+    (fun j hj1 hjk X _ => by
+      rw [eTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X) ?_
   intro Ψ₀ h₀ g D hD
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
