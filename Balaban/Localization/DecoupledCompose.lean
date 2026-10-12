@@ -7,6 +7,7 @@ module
 
 public import Balaban.Localization.DecoupledBackground
 public import Balaban.Background.Composition
+public import Balaban.Background.Theorem73
 public import Balaban.Localization.NC3
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -37,42 +38,20 @@ section Algebra
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
 variable {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
 
-theorem blockMean_sub (n : ℕ) (w w' : Torus d (N₀ * L ^ k) → ℂ) (x : Torus d (N₀ * L ^ k)) :
-    blockMean G n (fun y => w y - w' y) x = blockMean G n w x - blockMean G n w' x := by
-  unfold blockMean
-  rw [Finset.sum_sub_distrib]; ring
-
 theorem svec_sub_apply (u w : G'.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ k)) (i : Fin N) :
     svec G' (u - w) y i = svec G' u y i - svec G' w y i := by
   unfold svec zeroExt
   split_ifs <;> simp
 
 /-- **Affine structure of (6.2)** (P3 (2.59)): the difference of two composed fields with the same
-`Ψ'` is the composed field of the difference with `Ψ' = 0`. -/
-theorem composeField_sub (a : ℕ → ℝ) (φ φ₁ : G'.Ω 1 × Fin N → ℂ)
+`Ψ'` is the composed field of the difference with `Ψ' = 0` (from `composeField_sub`). -/
+theorem composeField_sub_zero (a : ℕ → ℝ) (φ φ₁ : G'.Ω 1 × Fin N → ℂ)
     (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (x : Torus d (N₀ * L ^ k)) (i : Fin N) :
     composeField G G' a φ Ψ x i - composeField G G' a φ₁ Ψ x i =
       composeField G G' a (φ - φ₁) (0 : Torus d (N₀ * L ^ k) → Fin N → ℂ) x i := by
-  by_cases hx : x ∈ G.Ω 1
-  · rw [composeField_of_mem a φ Ψ hx, composeField_of_mem a φ₁ Ψ hx,
-      composeField_of_mem a (φ - φ₁) _ hx]
-    have e : (fun y => svec G' (φ - φ₁) y i) =
-        fun y => svec G' φ y i - svec G' φ₁ y i := funext fun y => svec_sub_apply _ _ y i
-    rw [e, blockMean_sub, blockMean_sub]
-    simp only [Pi.zero_apply]
-    ring
-  · by_cases hc : x ∈ collar G
-    · rw [composeField_of_collar a φ Ψ hc, composeField_of_collar a φ₁ Ψ hc,
-        composeField_of_collar a (φ - φ₁) _ hc]
-      unfold barField
-      split_ifs <;> simp
-    · have hd : x ∉ dataSites G := fun h => by
-        rcases (mem_dataSites G).1 h with h | h
-        · exact hx h
-        · exact hc h
-      rw [composeField_of_not_mem a φ Ψ hd, composeField_of_not_mem a φ₁ Ψ hd,
-        composeField_of_not_mem a (φ - φ₁) _ hd]
-      simp
+  have h := Balaban.Background.composeField_sub (G := G) (G' := G') a φ₁ (φ - φ₁) Ψ Ψ x i
+  rw [add_sub_cancel, sub_self] at h
+  exact h
 
 /-- The sites on which `composeField G G' a φ Ψ x` reads `φ`: the `n`-block and the `p`-block of
 `x`, and `x` itself. -/
@@ -365,7 +344,7 @@ theorem i4b_compose_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G
     have := hS.fam.2.1
     unfold closeConst
     positivity
-  rw [composeField_sub]
+  rw [composeField_sub_zero]
   have := composeField_close hP (a := a) HB.weights hγ (by positivity : 0 ≤ 2 * closeConst d L N BG κ
     (lemma53Const d L * δ)) hval x i
   refine this.trans (le_of_eq ?_)
