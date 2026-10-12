@@ -1293,3 +1293,4 @@ public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
+public import Balaban.Fluctuation.SharpENu
