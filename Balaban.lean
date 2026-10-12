@@ -397,6 +397,7 @@ public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
 public import Balaban.Localization.DecoupledCovLocal
+public import Balaban.Localization.DecoupledCovLocal2
 public import Balaban.LargeField.Geometry.Lattice
 public import Balaban.LargeField.Geometry.Plaquette
 public import Balaban.LargeField.Geometry.BoundaryConnectivity
