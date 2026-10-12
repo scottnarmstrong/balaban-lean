@@ -958,6 +958,13 @@ public import Balaban.Localization.CubeFoldSource
 public import Balaban.Localization.CutLemmaPCube
 public import Balaban.Localization.CutPointwiseWallMax
 public import Balaban.Localization.CubeBlockBoundsMixed
+public import Balaban.Localization.CubeFoldHolderChart
+public import Balaban.Localization.CubeFoldHolderScale
+public import Balaban.Localization.CubeFoldHolderLoc
+public import Balaban.Localization.CubeFoldHolderShort
+public import Balaban.Localization.CubeFoldHolderLong
+public import Balaban.Localization.CubeFoldHolderCut
+public import Balaban.Localization.CubeBlockHolderMixed
 public import Balaban.Fluctuation.Thm31Avg
 public import Balaban.Fluctuation.Thm31a
 public import Balaban.Fluctuation.Thm31cde
