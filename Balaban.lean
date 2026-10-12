@@ -1055,8 +1055,15 @@ public import Balaban.SmallField.RenormPinJet
 public import Balaban.SmallField.RenormPinBridge
 public import Balaban.SmallField.RenormPinSum
 public import Balaban.SmallField.RenormPinCounter
+public import Balaban.Localization.PairedLocalGraph
+public import Balaban.Localization.PairedLocalAgree
+public import Balaban.Localization.PairedLocalX0
 public import Balaban.Localization.P6PairCast
 public import Balaban.Localization.P6PairCastReal
 public import Balaban.Localization.P6PairLocBase
 public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
+public import Balaban.Fluctuation.StepNonvanishId
+public import Balaban.Fluctuation.StepNonvanishCluster
+public import Balaban.Fluctuation.StepNonvanishBound
+public import Balaban.Fluctuation.StepNonvanishInhab

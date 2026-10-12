@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W157 | `w157-psizero-hess` / W157 | psiZero Hessian per PSIZERO-HESS (8 rows) |
 | W161 | `w161-hat-parts` / W161 | Prop 3.3 parts on the ψ̂-local engine → InterpMarks |
 | W162 | `w162-obs-witness` / W162 | step regularity; ClassRegularObs witness |
-| W164 | `w164-vmod12` / W164 | VMOD-12 proved parts (two-operator locality) |
+| W172 | `w172-def7v2` / W172 | Def-7 v2 main clauses (scheme A) |
 | W171 | `w171-gsspec` / W171 | strengthen gs_spec; local/whole-level agreement |
 | W169 | `w169-v2-witness` / W169 | v2 members with nonzero ℰ/𝓜; even fluctuation measure |
 | W170 | `w170-nonvanish` / W170 | complex StepNonvanishing from the cluster expansion |
