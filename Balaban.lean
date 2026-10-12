@@ -1169,3 +1169,7 @@ public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
 public import Balaban.Fluctuation.StepRates
+import Balaban.Fluctuation.StepActivityHatRay
+import Balaban.Fluctuation.StepActivityHat
+import Balaban.Fluctuation.StepActivityHatBound
+import Balaban.Fluctuation.StepActivityHatCor
