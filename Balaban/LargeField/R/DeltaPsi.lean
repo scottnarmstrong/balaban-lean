@@ -183,7 +183,7 @@ theorem deltaPsi_layer_lt
       (blockOf S.d S.L (S.M * n k) k j x) :=
     isWindowBlock_blockOf (H.locGen Z S.M hkK hL hR) hblk hΩ hk1 hk1j hjk hxG hxc
   obtain ⟨len, xs, hx0, hwinb, hterm, hadj, hinj, hdist⟩ :=
-    lemmaCH_of_ripe hG hkK hL hR hk0 hrip hq1 hT hδ hc ψ
+    lemmaCH_of_ripe hG hkK hL hR hk0 hrip hT hδ hc ψ
       (fun u v hu hv huv => winBond_intra hwin u v hu hv huv)
       (fun u v hu hv huv => winBond_cross hϱ hd1 hL (H.locGen Z S.M hkK hL hR) hk1 hZfar hc
         hδpos hwin u v hu hv huv) hjk hy rfl
