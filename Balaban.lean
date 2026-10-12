@@ -860,6 +860,7 @@ public import Balaban.Fluctuation.InteractionMPart
 public import Balaban.Fluctuation.InteractionAssemble
 public import Balaban.Fluctuation.Interaction
 public import Balaban.Fluctuation.InteractionHatF
+public import Balaban.Fluctuation.InteractionHatNu
 public import Balaban.Fluctuation.InteractionHatV
 public import Balaban.Fluctuation.InteractionInhab
 public import Balaban.Fluctuation.InteractionLevelPair
