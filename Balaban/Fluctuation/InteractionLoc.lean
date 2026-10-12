@@ -126,6 +126,13 @@ theorem LocInt.mono_XW {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ →
   loc := fun Y hY xw hxw xw' hxw' => h.loc Y hY xw (hsub hxw) xw' (hsub hxw')
   zero := fun Y hY xw hxw => h.zero Y hY xw (hsub hxw)
 
+/-- Changing the expanded function by one that agrees with it on the admissible data. -/
+theorem LocInt.congr_val {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ}
+    {val val' : F → F → ℂ → Λ → ℂ} {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF)
+    (hv : ∀ xw ∈ XW, ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ Θ ∈ S, val' xw.1 xw.2 σ Θ = val xw.1 xw.2 σ Θ) :
+    LocInt S XW Rσ 𝒴 T val' b AgΘ AgF :=
+  { h with sum := fun xw hxw σ hσ Θ hΘ => by rw [hv xw hxw σ hσ Θ hΘ]; exact h.sum xw hxw σ hσ Θ hΘ }
+
 /-- Strengthening the agreement relations. -/
 theorem LocInt.mono_Ag {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ} {val : F → F → ℂ → Λ → ℂ}
     {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF) {AgΘ' : ι → Λ → Λ → Prop}

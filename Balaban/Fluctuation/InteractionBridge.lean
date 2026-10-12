@@ -247,7 +247,7 @@ variable {n : ℕ}
 
 /-- **The block energies add up to the chord energy** of the exact fluctuation:
 `∑_z ℰ_z = (a_n/2)‖ψ' - Q_n δφ‖² + ½ ⟨δφ, (-Δ + ν + α) δφ⟩` for a whole-lattice level `n`. -/
-theorem energyBlock_sum (hG : IsLevel Hm n) (hn : n + 1 ≤ K) (ν : ℝ) (α : Gp.Ω 1 → ℂ)
+theorem energyBlock_sum (hG : IsLevel Hm n) (ν : ℝ) (α : Gp.Ω 1 → ℂ)
     (δφ : Hm.Ω 1 × Fin N → ℂ) (ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ) :
     ∑ z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))),
         energyBlock Gp Hm a ν n α δφ ψ' z =
@@ -333,7 +333,7 @@ theorem interactionV_eq_energy (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc' Cx' 
   have hch := expansion_chord ha₁ hG hG' hp H hC.HBp D' hU1 D hh hDdom
   have hexact := exact_fluct_eq_flFieldOne hC hG hG' hp ha₁ H D' hD hc7 D hh hψ hR hdisc hRs
     hsmall hnum hnum'
-  rw [energyBlock_sum hG (by omega) ν _ _ _, ← hexact]
+  rw [energyBlock_sum hG ν _ _ _, ← hexact]
   linear_combination hch - hq
 
 end Chord

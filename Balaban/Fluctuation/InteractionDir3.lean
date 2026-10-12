@@ -251,6 +251,61 @@ theorem raySrc3_sum {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → �
   refine Finset.sum_congr rfl fun Y hY => ?_
   rw [dl3_apply, dirL3_eq hr (hfa Y hY)]
 
+theorem dirS3_eq_sum_dl3 {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → ℂ}
+    {f : Λ × F → ℂ} (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y) (S ×ˢ B))
+    (hsum : ∀ Θ ∈ S, ∀ z ∈ B, f (Θ, z) = ∑ Y ∈ 𝒴, Evs Y (Θ, z))
+    {Θ : Λ} (hΘ : Θ ∈ S) {z : F} {r : ℝ} (hr : 0 < r)
+    (hdom : ∀ τ : ℂ, ‖τ‖ ≤ r → z + τ • w ∈ B) :
+    dirS3 f w Θ z = ∑ Y ∈ 𝒴, dl3 (Evs Y) w (Θ, z) := by
+  have hfa : ∀ Y ∈ 𝒴, ∀ τ : ℂ, ‖τ‖ < r → AnalyticAt ℂ (Evs Y) (Θ, z + τ • w) :=
+    fun Y _ τ hτ => hEv Y _ ⟨hΘ, hdom τ hτ.le⟩
+  rw [dirS3_sum 𝒴 hr hfa (fun τ hτ => hsum Θ hΘ _ (hdom τ hτ.le))]
+  refine Finset.sum_congr rfl fun Y hY => ?_
+  rw [dl3_apply, dirL3_eq hr (hfa Y hY)]
+
+/-- A function that is a finite sum of analytic terms is smooth along a line. -/
+theorem contDiffAt_line_of_sum {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → ℂ}
+    {f : Λ × F → ℂ} (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y) (S ×ˢ B))
+    (hsum : ∀ Θ ∈ S, ∀ z ∈ B, f (Θ, z) = ∑ Y ∈ 𝒴, Evs Y (Θ, z))
+    {Θ : Λ} (hΘ : Θ ∈ S) {z : F} {r : ℝ} (hr : 0 < r)
+    (hdom : ∀ τ : ℂ, ‖τ‖ ≤ r → z + τ • w ∈ B) :
+    ContDiffAt ℂ 3 (fun τ : ℂ => f (Θ, z + τ • w)) 0 := by
+  have hev : (fun τ : ℂ => f (Θ, z + τ • w)) =ᶠ[nhds 0]
+      fun τ : ℂ => ∑ Y ∈ 𝒴, Evs Y (Θ, z + τ • w) := by
+    filter_upwards [Metric.ball_mem_nhds (0 : ℂ) hr] with τ hτ using
+      hsum Θ hΘ _ (hdom τ (mem_ball_zero_iff.1 hτ).le)
+  refine ContDiffAt.congr_of_eventuallyEq ?_ hev
+  have hline : AnalyticAt ℂ (fun τ : ℂ => ((Θ, z + τ • w) : Λ × F)) 0 := by
+    refine AnalyticAt.prod analyticAt_const ?_
+    exact analyticAt_const.add (analyticAt_id.smul analyticAt_const)
+  refine ContDiffAt.sum fun Y _ => ?_
+  have h0 : AnalyticAt ℂ (Evs Y) ((fun τ : ℂ => ((Θ, z + τ • w) : Λ × F)) 0) := by
+    simpa using hEv Y _ ⟨hΘ, by simpa using hdom 0 (by simp [hr.le])⟩
+  exact (h0.comp_of_eq hline rfl).contDiffAt
+
+/-- The ray integrand of `raySrc3` is integrable. -/
+theorem raySrc3_intervalIntegrable {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → ℂ}
+    {f : Λ × F → ℂ} (hEv : ∀ Y, AnalyticOnNhd ℂ (Evs Y) (S ×ˢ B))
+    (hsum : ∀ Θ ∈ S, ∀ z ∈ B, f (Θ, z) = ∑ Y ∈ 𝒴, Evs Y (Θ, z)) (hωc : Continuous ω)
+    {Θ : Λ} (hΘ : Θ ∈ S) {σ : ℂ} {r : ℝ} (hr : 0 < r)
+    (hdom : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ∀ τ : ℂ, ‖τ‖ ≤ r → (σ * (t : ℂ)) • x₀ + τ • w ∈ B) :
+    IntervalIntegrable (fun t : ℝ => ω (t : ℂ) * dirS3 f w Θ ((σ * (t : ℂ)) • x₀))
+      MeasureTheory.volume 0 1 := by
+  classical
+  refine ContinuousOn.intervalIntegrable ?_
+  rw [Set.uIcc_of_le zero_le_one]
+  have hcont : ContinuousOn (fun t : ℝ => ∑ Y ∈ 𝒴, ω (t : ℂ) *
+      dl3 (Evs Y) w (Θ, (σ * (t : ℂ)) • x₀)) (Icc (0 : ℝ) 1) := by
+    refine continuousOn_finsetSum _ fun Y _ => ?_
+    have hg : ContinuousOn (dl3 (Evs Y) w) (S ×ˢ B) := by
+      intro u hu
+      exact (analyticAt_dirL3 (hEv Y u hu) w).continuousAt.continuousWithinAt
+    have hc : Continuous fun t : ℝ => ((Θ, (σ * (t : ℂ)) • x₀) : Λ × F) := by fun_prop
+    exact (hωc.comp Complex.continuous_ofReal).continuousOn.mul
+      (hg.comp hc.continuousOn (fun t ht => ⟨hΘ, by simpa using hdom t ht 0 (by simp [hr.le])⟩))
+  refine hcont.congr fun t ht => ?_
+  rw [dirS3_eq_sum_dl3 𝒴 hEv hsum hΘ hr (hdom t ht), Finset.mul_sum]
+
 /-- **The third-derivative terms form a localized expansion.** -/
 theorem locInt_dir3 {ι : Type*} (𝒴 : Finset ι) {Evs : ι → Λ × F → ℂ} {f : Λ × F → ℂ}
     {b : ι → ℝ} {AgΘ : ι → Λ → Λ → Prop} {AgF : ι → F → F → Prop}

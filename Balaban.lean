@@ -708,3 +708,4 @@ public import Balaban.Fluctuation.InteractionLocDir
 public import Balaban.Fluctuation.InteractionFPart
 public import Balaban.Fluctuation.InteractionPoly
 public import Balaban.Fluctuation.InteractionBridge
+public import Balaban.Fluctuation.InteractionVPart
