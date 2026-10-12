@@ -1196,6 +1196,7 @@ public import Balaban.Fluctuation.StepTaylorW
 public import Balaban.Fluctuation.StepTaylorComplex
 public import Balaban.Fluctuation.StepBaseDomain
 public import Balaban.LargeField.R.RegionalFlux
+public import Balaban.LargeField.R.RegionalFluxLimits
 public import Balaban.LargeField.R.RegionalFluxMeasure
 public import Balaban.LargeField.R.RegionShrink
 public import Balaban.LargeField.R.PositiveMassFacts
