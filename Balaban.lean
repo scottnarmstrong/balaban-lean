@@ -545,6 +545,14 @@ public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.ActionSymm
 public import Balaban.LargeField.Operators.QuietSymmEuclid
+public import Balaban.LargeField.Region.SymmAff
+public import Balaban.LargeField.Region.SymmLat
+public import Balaban.LargeField.Region.SymmStep
+public import Balaban.LargeField.Region.SymmLevel
+public import Balaban.LargeField.Operators.QuietEuclidChi
+public import Balaban.LargeField.Operators.QuietEuclidDom
+public import Balaban.LargeField.Operators.QuietEuclidLoc
+public import Balaban.LargeField.Operators.QuietEuclid
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.AncVars
 public import Balaban.LargeField.Operators.DomainGeom
