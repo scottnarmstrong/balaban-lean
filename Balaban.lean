@@ -811,6 +811,8 @@ public import Balaban.LargeField.R.ActionConvIdentity
 public import Balaban.LargeField.R.ActionConvReal
 public import Balaban.LargeField.R.ActionConvAdd
 public import Balaban.LargeField.R.ActionConvChain
+public import Balaban.LargeField.R.ActionConvRatio
+public import Balaban.LargeField.R.ActionConvReduce
 public import Balaban.LargeField.R.ActionConvWindow
 public import Balaban.LargeField.R.ActionConvWitness
 public import Balaban.Fluctuation.BackgroundChangeCompare
