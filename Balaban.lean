@@ -621,3 +621,4 @@ public import Balaban.LargeField.Base.BaseSupport
 public import Balaban.LargeField.Base.BaseWitness
 public import Balaban.LargeField.Base.BaseGauss
 public import Balaban.LargeField.Base.BaseWitnessGauss
+public import Balaban.Fluctuation.RenormIdentity
