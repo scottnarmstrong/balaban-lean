@@ -123,7 +123,7 @@ theorem rhoZero_rot {δ : ℝ} (hδ : 0 < δ)
     rhoZero G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk' β p0 (rotSuppFun Q u) =
       rhoZero G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk β p0 u := by
   have hψ0 := psiZero_equivariant N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk hQ hψk'
-  unfold rhoZero rhoZeroWith chiZero
+  unfold rhoZero rhoZeroWith chiZeroCut
   rw [hψ0, merge_rot, effActionNorm_rot G a hQ]
   by_cases h : ZeroCutoff (psiZero N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk)
       (zeroRadius (cSix d D (psiZeroK N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)) β p0) u

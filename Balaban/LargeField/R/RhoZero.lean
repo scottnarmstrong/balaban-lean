@@ -56,7 +56,7 @@ def ZeroCutoff {Zf : Finset (Torus d (N₀ * L ^ (k - k)))} (ψ0 : BlockField d 
 
 open Classical in
 /-- **The cutoff `χ_{Z₀}`** (Definition III.8.1) about the centre `ψ⁰`. -/
-noncomputable def chiZero {Zf : Finset (Torus d (N₀ * L ^ (k - k)))} (ψ0 : BlockField d L N₀ k N) (r : ℝ)
+noncomputable def chiZeroCut {Zf : Finset (Torus d (N₀ * L ^ (k - k)))} (ψ0 : BlockField d L N₀ k N) (r : ℝ)
     (u : SuppSpace Zf N) : ℝ :=
   if ZeroCutoff ψ0 r u then 1 else 0
 
@@ -65,24 +65,24 @@ variable (G a)
 /-- **The reference density** `ρ_{k,0}(Z)(ψ_k↾Z₀)` for the centre `ψ⁰` (`ψ_k↾Z₀ = u`, the rest of `ψ_k` fixed). -/
 noncomputable def rhoZeroWith (Zf : Finset (Torus d (N₀ * L ^ (k - k)))) (ψ0 ψk : BlockField d L N₀ k N)
     (C6 β p0 : ℝ) (u : SuppSpace Zf N) : ℝ :=
-  chiZero ψ0 (zeroRadius C6 β p0) u * Real.exp (-β * effActionNorm G a (mergeField Zf ψk u))
+  chiZeroCut ψ0 (zeroRadius C6 β p0) u * Real.exp (-β * effActionNorm G a (mergeField Zf ψk u))
 
 theorem rhoZeroWith_nonneg (Zf : Finset (Torus d (N₀ * L ^ (k - k))))
     (ψ0 ψk : BlockField d L N₀ k N) (C6 β p0 : ℝ) (u : SuppSpace Zf N) :
     0 ≤ rhoZeroWith G a Zf ψ0 ψk C6 β p0 u := by
-  unfold rhoZeroWith chiZero
+  unfold rhoZeroWith chiZeroCut
   split_ifs <;> positivity
 
 theorem rhoZeroWith_eq_zero (Zf : Finset (Torus d (N₀ * L ^ (k - k))))
     (ψ0 ψk : BlockField d L N₀ k N) (C6 β p0 : ℝ) (u : SuppSpace Zf N)
     (h : ¬ ZeroCutoff ψ0 (zeroRadius C6 β p0) u) : rhoZeroWith G a Zf ψ0 ψk C6 β p0 u = 0 := by
-  simp [rhoZeroWith, chiZero, h]
+  simp [rhoZeroWith, chiZeroCut, h]
 
 theorem rhoZeroWith_of_cutoff (Zf : Finset (Torus d (N₀ * L ^ (k - k))))
     (ψ0 ψk : BlockField d L N₀ k N) (C6 β p0 : ℝ) (u : SuppSpace Zf N)
     (h : ZeroCutoff ψ0 (zeroRadius C6 β p0) u) :
     rhoZeroWith G a Zf ψ0 ψk C6 β p0 u = Real.exp (-β * effActionNorm G a (mergeField Zf ψk u)) := by
-  simp [rhoZeroWith, chiZero, h]
+  simp [rhoZeroWith, chiZeroCut, h]
 
 section Source
 
