@@ -29,7 +29,7 @@ in the ledger row and the branch state):
 
 
 - W75: DONE (landed d6829a5).
-- W81 (`w81-lf-consol`): DmodOmega nnComp (queued item 4), lattice II.5.10, χ^dom identity.
+- W81: DONE (landed 6dd2084; χ^dom identity false as formalized → queued item 8).
 - W76: DONE (landed c9ac759).
 - W79: DONE (landed dd7b11e).
 - W80 (`w80-tinf-bridge`): T∞ summability, tail lemma, bridge redirected to T∞ with SumConds.
@@ -69,6 +69,7 @@ Sending to a codex TUI: `tmux send-keys -t S -l "<one line>"; tmux send-keys -t 
 6. FLUCT modules 11 (Renorm, Lemma 3.5, Thm 3.1(g),(h)), 13 (Lemma 4.1), 14 (Switch scalar part);
    LFR Part III blocks P1–P16 (none started), Q1, Q5–Q7 after W77.
 7. Doc touch-up: LFR IV.1.3 prefactor per FLUCT v2 FL-A04.
+8. LF localized-field domain fix (W81 item 3): `subMultiscaleField` vs `genBlocksIn` on localized histories; decide the definition change (level-k field on the V-support, or restrict genBlocksIn to the component), then prove the χ^dom identity. Also `quietKernel_euclid` (II.5.10 lattice part; several thousand lines).
 
 ## Waiting on Scott
 
