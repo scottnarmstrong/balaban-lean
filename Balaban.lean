@@ -1169,3 +1169,6 @@ public import Balaban.Fluctuation.StepComplexNonvanish
 public import Balaban.Fluctuation.StepComplexAnalytic
 public import Balaban.Fluctuation.StepComplexExponent
 public import Balaban.Fluctuation.StepRates
+public import Balaban.Inhabited.HatExpansionWitnessNum
+public import Balaban.Inhabited.HatExpansionWitness
+public import Balaban.Inhabited.HatExpansionWitnessLabels
