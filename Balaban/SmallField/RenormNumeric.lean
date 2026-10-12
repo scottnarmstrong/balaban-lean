@@ -365,4 +365,78 @@ theorem smallBnd_le (N : ℕ) (A Λ Kc : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ) (h
   unfold smallBnd
   linarith
 
+theorem tailBnd_le (N : ℕ) (A Λ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ) :
+    ∃ Ct : ℝ, 0 ≤ Ct ∧ ∀ (M ρ σ r t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → 0 < r → r ≤ Λ → 1 ≤ t →
+      1 ≤ P → 1 < 2 * (cC1 N + cK1 N A) * t * σ * r → SigPow σ α₁ Tσ Sσ →
+      tailBnd N A M ρ σ (r * ρ) t P ≤ Ct * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2) := by
+  have hn : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  have hΛ0 : 0 ≤ Λ := by linarith
+  have hC1 : 0 ≤ cC1 N := by unfold cC1; positivity
+  have hK1 : 0 ≤ cK1 N A := by unfold cK1; positivity
+  set c2 : ℝ := cC1 N + cK1 N A with hc2
+  have hc20 : 0 ≤ c2 := by positivity
+  refine ⟨(2 + Λ + 6400 * N ^ 3 * A ^ 2 * Λ ^ 2) * (16 * c2 ^ 4 * Λ ^ 2), by positivity, ?_⟩
+  intro M ρ σ r t P Tσ Sσ α₁ hM hρ hr hrΛ ht hP htail hS
+  have hσ := hS.pos
+  have hσ1 := hS.le_one
+  have ht0 : 0 < t := lt_of_lt_of_le one_pos ht
+  have hP0 : 0 < P := lt_of_lt_of_le one_pos hP
+  have hP2 : 1 ≤ P ^ 2 := by nlinarith
+  have hPP : P ≤ P ^ 2 := by nlinarith
+  have ht2 : 1 ≤ t ^ 2 := by nlinarith
+  -- first: tailBnd ≤ C M P² t²
+  have h1 : tailBnd N A M ρ σ (r * ρ) t P ≤
+      (2 + Λ + 6400 * N ^ 3 * A ^ 2 * Λ ^ 2) * (M * P ^ 2 * t ^ 2) := by
+    unfold tailBnd
+    have e : P * (σ ^ 2 * (r * ρ) / ρ) = P * σ ^ 2 * r := by field_simp
+    have e2 : (σ * (r * ρ) / ρ) = σ * r := by field_simp
+    rw [e, e2]
+    have hσ2 : σ ^ 2 ≤ 1 := by nlinarith
+    have hr1 : r * σ ^ 2 ≤ Λ := by
+      have := mul_le_mul_of_nonneg_left hσ2 hr.le
+      linarith
+    have hσr : (σ * r) ^ 2 ≤ Λ ^ 2 := by
+      have : σ * r ≤ Λ := by nlinarith
+      exact pow_le_pow_left₀ (by positivity) this 2
+    have a1 : P * σ ^ 2 * r ≤ Λ * (P ^ 2 * t ^ 2) := by
+      have h1 : P * (σ ^ 2 * r) ≤ P * Λ := mul_le_mul_of_nonneg_left (by linarith) hP0.le
+      have h2 : Λ * P ≤ Λ * P ^ 2 := mul_le_mul_of_nonneg_left hPP hΛ0
+      have h3 : Λ * P ^ 2 ≤ Λ * (P ^ 2 * t ^ 2) := by
+        apply mul_le_mul_of_nonneg_left _ hΛ0
+        nlinarith [sq_nonneg P]
+      nlinarith
+    have a2 : 6400 * (N : ℝ) ^ 3 * A ^ 2 * P ^ 2 * t ^ 2 * (σ * r) ^ 2 ≤
+        6400 * N ^ 3 * A ^ 2 * Λ ^ 2 * (P ^ 2 * t ^ 2) := by
+      have hc : 0 ≤ 6400 * (N : ℝ) ^ 3 * A ^ 2 * P ^ 2 * t ^ 2 := by positivity
+      calc 6400 * (N : ℝ) ^ 3 * A ^ 2 * P ^ 2 * t ^ 2 * (σ * r) ^ 2
+          ≤ 6400 * N ^ 3 * A ^ 2 * P ^ 2 * t ^ 2 * Λ ^ 2 := mul_le_mul_of_nonneg_left hσr hc
+        _ = _ := by ring
+    have a3 : (2 : ℝ) ≤ 2 * (P ^ 2 * t ^ 2) := by nlinarith
+    have : M * (2 + P * σ ^ 2 * r + 6400 * N ^ 3 * A ^ 2 * P ^ 2 * t ^ 2 * (σ * r) ^ 2) ≤
+        M * ((2 + Λ + 6400 * N ^ 3 * A ^ 2 * Λ ^ 2) * (P ^ 2 * t ^ 2)) := by
+      apply mul_le_mul_of_nonneg_left _ hM
+      linarith
+    linarith [this]
+  -- second: use the tail condition
+  have h2 : 1 ≤ (2 * c2 * t * σ * r) ^ 4 := by
+    have := htail
+    exact one_le_pow₀ this.le
+  have hT := hS.quart
+  have hT0 : 0 ≤ Tσ := le_trans (by positivity) hS.cube
+  have h3 : M * P ^ 2 * t ^ 2 ≤ 16 * c2 ^ 4 * Λ ^ 2 * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2) := by
+    have hr4 : r ^ 4 ≤ Λ ^ 2 * r ^ 2 := by
+      have : r ^ 2 ≤ Λ ^ 2 := pow_le_pow_left₀ hr.le hrΛ 2
+      nlinarith [pow_pos hr 2]
+    calc M * P ^ 2 * t ^ 2 = M * P ^ 2 * t ^ 2 * 1 := by ring
+      _ ≤ M * P ^ 2 * t ^ 2 * (2 * c2 * t * σ * r) ^ 4 := by gcongr
+      _ = 16 * c2 ^ 4 * (M * P ^ 2 * t ^ 6 * σ ^ 4 * r ^ 4) := by ring
+      _ ≤ 16 * c2 ^ 4 * (M * P ^ 2 * t ^ 6 * Tσ * (Λ ^ 2 * r ^ 2)) := by gcongr
+      _ = _ := by ring
+  have hC : 0 ≤ 2 + Λ + 6400 * (N : ℝ) ^ 3 * A ^ 2 * Λ ^ 2 := by positivity
+  calc _ ≤ (2 + Λ + 6400 * N ^ 3 * A ^ 2 * Λ ^ 2) * (M * P ^ 2 * t ^ 2) := h1
+    _ ≤ (2 + Λ + 6400 * N ^ 3 * A ^ 2 * Λ ^ 2) *
+        (16 * c2 ^ 4 * Λ ^ 2 * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2)) :=
+        mul_le_mul_of_nonneg_left h3 hC
+    _ = _ := by ring
+
 end Balaban.SmallField
