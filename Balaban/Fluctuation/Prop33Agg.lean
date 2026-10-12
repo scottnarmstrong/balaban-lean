@@ -106,6 +106,13 @@ theorem LocInt.mono_on {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ →
   { h with bound := fun Y hY xw hxw σ hσ Θ hΘ =>
       (h.bound Y hY xw hxw σ hσ Θ hΘ).trans (mul_le_mul_of_nonneg_left (hb Y hY) (norm_nonneg _)) }
 
+/-- **The bound of one term**: for `‖σ‖ < R_σ` and `b ≥ 0`, `|T_Y| ≤ R_σ b_Y`. -/
+theorem LocInt.term_le {𝒴 : Finset ι} {T : ι → F → F → ℂ → Λ → ℂ} {val : F → F → ℂ → Λ → ℂ}
+    {b : ι → ℝ} (h : LocInt S XW Rσ 𝒴 T val b AgΘ AgF) {Y : ι} (hY : Y ∈ 𝒴) (hb : 0 ≤ b Y)
+    {xw : F × F} (hxw : xw ∈ XW) {σ : ℂ} (hσ : ‖σ‖ < Rσ) {Θ : Λ} (hΘ : Θ ∈ S) :
+    ‖T Y xw.1 xw.2 σ Θ‖ ≤ Rσ * b Y :=
+  (h.bound Y hY xw hxw σ hσ Θ hΘ).trans (mul_le_mul_of_nonneg_right hσ.le hb)
+
 end WSum
 
 end Balaban.Fluctuation
