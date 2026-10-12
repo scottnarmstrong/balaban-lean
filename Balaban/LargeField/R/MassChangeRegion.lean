@@ -174,3 +174,162 @@ theorem massChange_region_bound (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
     (massChange_hgrad_of_bgBounds R hδ₀ hℓ hℓR bm) hresp hbond
     (massChange_hcoef_of_weights R hℓ hO.weights hℓR)
     (massChange_hα_of_small R hℓ hℓR bm.alpha) hδ₀ hδ1 hμ hμ1 hcard hNc
+
+/-- The arithmetic of the per-cube specialization: `ℓ₀ = L^k`, `Nsite = M^d L^{(k+1)d}`,
+`β = β_q / L^{(k+1)(d-2)}`, `d = e + 2`. -/
+theorem cube_scale_arith (M Lr k e : ℕ) (hL : 0 < Lr) (Kb βq m δ₀ n : ℝ) :
+    (1 / 2) * ((2 * ((e + 2 : ℕ) : ℝ) + 4) * ((M : ℝ) ^ (e + 2) * (Lr : ℝ) ^ ((k + 1) * (e + 2))) /
+        ((Lr : ℝ) ^ k) ^ 2) * Kb ^ 2 * (βq / (Lr : ℝ) ^ ((k + 1) * e)) * m ^ 2 * n +
+      Kb * (βq / (Lr : ℝ) ^ ((k + 1) * e)) * m *
+        (2 * ((e + 2 : ℕ) : ℝ) * ((M : ℝ) ^ (e + 2) * (Lr : ℝ) ^ ((k + 1) * (e + 2))) * n *
+          (δ₀ / (Lr : ℝ) ^ k)) =
+    (((e + 2 : ℕ) + 2 : ℝ) * (M : ℝ) ^ (e + 2) * (Lr : ℝ) ^ 2 * Kb ^ 2 * βq * m ^ 2 +
+      2 * ((e + 2 : ℕ) : ℝ) * (M : ℝ) ^ (e + 2) * (Lr : ℝ) ^ (k + 2) * Kb * βq * m * δ₀) * n := by
+  have h0 : (Lr : ℝ) ≠ 0 := by exact_mod_cast hL.ne'
+  have h1 : (k + 1) * (e + 2) = (k + 1) * e + 2 * k + 2 := by ring
+  have h2 : (Lr : ℝ) ^ (k + 2) = (Lr : ℝ) ^ k * (Lr : ℝ) ^ 2 := pow_add _ _ _
+  rw [h1, pow_add, pow_add, h2]
+  push_cast
+  field_simp
+  ring
+
+/-- **The region bound at scale `q = k + 1`** (per-cube form of MASS-RESPONSE (2.5)).  Here
+`d = e + 2`, `ℓ₀ = L^k`, `Nsite = M^d L^{(k+1)d}`, `β = β_q / L^{(k+1)(d-2)}`, `Km = √N · Kw`.
+With the crude crossing count `2 d |D|` the wall constant is `C_W' = 2 d M^d L^{k+2} Km Bh`
+(it carries the factor `L^k` that the sharper count `2d (M L^k)^{d-1}` per scale-`k` cube removes). -/
+theorem massChange_region_bound_cube (N e : ℕ) (hd : 3 ≤ e + 2) (hL : 3 ≤ L) (M k : ℕ) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
+      ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet (e + 2) L (N₁ * L ^ m₁) K ϱ}
+        (a : ℕ → ℝ) (μ m Bh δ₀ : ℝ) (D : BgData G N)
+        {φ0 φm : G.Ω 1 × Fin N → ℂ} {α0 αm : G.Ω 1 → ℂ} (R : Region G) (βq n : ℝ),
+        IsEL G a 0 D φ0 α0 → IsEL G a μ D φm αm →
+        BgBounds G D φ0 α0 δ₀ → BgBounds G D φm αm δ₀ →
+        GreenSetting G a 0 → Dec2.OpSetting G a 0 →
+        0 ≤ δ₀ → δ₀ ≤ min (deltaStar (e + 2) L N) δw → 2 * δ₀ ≤ c6 (e + 2) L N →
+        0 ≤ m → 0 ≤ Bh → m * Bh ≤ min (deltaStar (e + 2) L N) δw →
+        0 ≤ μ → (∀ x : G.Ω 1, μ * G.spacing (x : CTorus (e + 2) L N₁ m₁ K) ^ 2 ≤ m) →
+        (∀ (x : G.Ω 1) (i : Fin N), ‖φm (x, i) - D.h x i‖ ≤ Bh) →
+        (∀ x : G.Ω 1, vn (fun i => φ0 (x, i)) ≤ 3 / 2) →
+        0 ≤ βq → (∀ x ∈ R.sites, (L : ℝ) ^ k ≤ G.spacing x) → μ ≤ 1 / ((L : ℝ) ^ k) ^ 2 →
+        δ₀ ≤ 1 →
+        (R.sites.card : ℝ) ≤ (M : ℝ) ^ (e + 2) * (L : ℝ) ^ ((k + 1) * (e + 2)) * n →
+        (βq / (L : ℝ) ^ ((k + 1) * e)) *
+            ‖actionRegionC R a μ D φ0 - actionRegionC R a μ D φm‖ ≤
+          (((e + 2 : ℕ) + 2 : ℝ) * (M : ℝ) ^ (e + 2) * (L : ℝ) ^ 2 *
+              ((Real.sqrt N * Kw) * Bh) ^ 2 * βq * m ^ 2 +
+            2 * ((e + 2 : ℕ) : ℝ) * (M : ℝ) ^ (e + 2) * (L : ℝ) ^ (k + 2) *
+              ((Real.sqrt N * Kw) * Bh) * βq * m * δ₀) * n := by
+  obtain ⟨Kw, δw, hK, hδ, H⟩ := massChange_region_bound (d := e + 2) N hd hL
+  refine ⟨Kw, δw, hK, hδ, ?_⟩
+  intro N₁ m₁ K _ ϱ G a μ m Bh δ₀ D φ0 φm α0 αm R βq n h0 hm b0 bm hG hO hδ₀ hδs h2 hm0
+    hBh0 hmB hμ hμℓ hB hφ hβ hℓR hμ1 hδ1 hcard
+  have hLpos : (0 : ℝ) < L := by
+    have : 0 < L := by omega
+    exact_mod_cast this
+  have hβ' : 0 ≤ βq / (L : ℝ) ^ ((k + 1) * e) := by positivity
+  have := H a μ m Bh δ₀ D R (βq / (L : ℝ) ^ ((k + 1) * e)) ((L : ℝ) ^ k)
+    ((M : ℝ) ^ (e + 2) * (L : ℝ) ^ ((k + 1) * (e + 2))) n h0 hm b0 bm hG hO hδ₀ hδs h2 hm0 hBh0
+    hmB hμ hμℓ hB hφ hβ' (by positivity) hℓR hμ1 hδ1 hcard
+  refine this.trans (le_of_eq ?_)
+  exact cube_scale_arith M L k e (by omega) ((Real.sqrt N * Kw) * Bh) βq m δ₀ n
+
+section Nonempty
+
+open Balaban.Inhabited Balaban.Localization.I5Inhabited Balaban.SmallField
+
+/-- **Non-vacuity of the premises of `massChange_region_bound`** (case `μ = 0`, `φᵐ = φ⁰`):
+the premises of `massChange_sameData_hyps_nonempty` hold together with a nonempty region, the whole
+`Ω₁` (block-closed), with `ℓ₀ = 1 ≤ ℓ(x)` on it, `μ ≤ 1/ℓ₀²` and `δ₀ ≤ 1`. -/
+theorem massChange_region_hyps_nonempty {δw : ℝ} (hδw : 0 < δw) :
+    ∃ (m₁ : ℕ) (ϱ : ℝ) (G : GeneratingSet 3 3 (6 * 3 ^ m₁) 2 ϱ) (a : ℕ → ℝ)
+      (μ m Bh δ₀ : ℝ) (D : BgData G 2) (φ0 φm : G.Ω 1 × Fin 2 → ℂ) (α0 αm : G.Ω 1 → ℂ),
+      IsEL G a 0 D φ0 α0 ∧ IsEL G a μ D φm αm ∧
+      BgBounds G D φ0 α0 δ₀ ∧ BgBounds G D φm αm δ₀ ∧
+      GreenSetting G a 0 ∧ Dec2.OpSetting G a 0 ∧
+      0 ≤ δ₀ ∧ δ₀ ≤ min (deltaStar 3 3 2) δw ∧ 2 * δ₀ ≤ c6 3 3 2 ∧
+      0 ≤ m ∧ 0 ≤ Bh ∧ m * Bh ≤ min (deltaStar 3 3 2) δw ∧
+      0 ≤ μ ∧ (∀ x : G.Ω 1, μ * G.spacing (x : CTorus 3 3 6 m₁ 2) ^ 2 ≤ m) ∧
+      (∀ (x : G.Ω 1) (i : Fin 2), ‖φm (x, i) - D.h x i‖ ≤ Bh) ∧
+      (∀ x : G.Ω 1, vn (fun i => φ0 (x, i)) ≤ 3 / 2) ∧
+      ∃ R : Region G, R.sites.Nonempty ∧ (∀ x ∈ R.sites, (1 : ℝ) ≤ G.spacing x) ∧
+        μ ≤ 1 / (1 : ℝ) ^ 2 ∧ δ₀ ≤ 1 := by
+  obtain ⟨m₁, h4, -⟩ := exists_m₁_cstar
+  have hN : 0 < 2 := by norm_num
+  have hd0 : 0 < 3 := by norm_num
+  have S := dgSetting_rho h4
+  have hH := bgHyp_rho m₁
+  set G : GeneratingSet 3 3 (6 * 3 ^ m₁) 2 (rhoSep m₁) := GP (m₁ := m₁) (ϱ := rhoSep m₁) with hG
+  have hOp : Dec2.OpSetting G (compWeight 3 1) 0 := ⟨S.hd, S.hL, S.mass, S.massLe, S.weights, S.sep⟩
+  have hK := bgK1_pos 3 3 2
+  have hds := deltaStar_pos 3 3 2 hd0
+  have hc6 := c6_pos 3 3 2 hd0
+  set M : ℝ := min (min (deltaStar 3 3 2) δw) (min (c6 3 3 2 / 2) (1 / 2)) with hM
+  have hM0 : 0 < M := lt_min (lt_min hds hδw) (lt_min (half_pos hc6) (by norm_num))
+  set δ : ℝ := min (min (bgC0 3 3 2) (bgC1 3 3 2)) (M / (bgK1 3 3 2 + 1)) with hδ
+  have hδ0 : 0 < δ :=
+    lt_min (lt_min (bgC0_pos 3 3 2 hd0) (bgC1_pos' hd0)) (by positivity)
+  have hδc0 : δ ≤ bgC0 3 3 2 := (min_le_left _ _).trans (min_le_left _ _)
+  have hδc1 : δ ≤ bgC1 3 3 2 := (min_le_left _ _).trans (min_le_right _ _)
+  have hδM : bgK1 3 3 2 * δ ≤ M := by
+    have h1 : δ ≤ M / (bgK1 3 3 2 + 1) := min_le_right _ _
+    rw [le_div_iff₀ (by positivity)] at h1
+    nlinarith
+  set D : BgData G 2 := complexData G (fun _ => unitVec hN) (unitVec hN) 0 0
+    (fun _ _ _ _ _ _ _ => rfl) (fun _ _ _ _ _ _ _ => rfl) (fun _ _ _ _ _ _ _ => rfl) with hD
+  have hR := complexData_realizes (G := G) (Ψ₀ := fun _ => unitVec hN) (h₀ := unitVec hN)
+    (Ψ'' := 0) (h'' := 0) (fun _ _ _ _ _ _ _ => rfl) (fun _ _ _ _ _ _ _ => rfl)
+    (fun _ _ _ _ _ _ _ => rfl)
+  have hDom : InDomainC G 0 δ δ D :=
+    ⟨fun _ => unitVec hN, unitVec hN, 0, 0, exists_inPsiTildeC G hN 0 hδ0 hδ0, hR.1, hR.2⟩
+  obtain ⟨φ, α, hsol, hbb, -⟩ := theorem52_exists (a := compWeight 3 1) (ν := 0) hH hδ0 le_rfl
+    hδc0 hδc1 (by rw [zero_mul, zero_mul]; positivity) hDom
+  have hMle : M ≤ min (deltaStar 3 3 2) δw := min_le_left _ _
+  have hM2 : M ≤ c6 3 3 2 / 2 := (min_le_right _ _).trans (min_le_left _ _)
+  have hM3 : M ≤ 1 / 2 := (min_le_right _ _).trans (min_le_right _ _)
+  have hδ₀0 : 0 ≤ bgK1 3 3 2 * δ := by positivity
+  -- the bound on `|φ⁰|`
+  have hvn : ∀ x : G.Ω 1, vn (fun i => φ (x, i)) ≤ 3 / 2 := by
+    intro x
+    have hxd : (x : CTorus 3 3 6 m₁ 2) ∈ dataSites G := (mem_dataSites G).2 (Or.inl x.2)
+    have h1 := hbb.val x
+    have e : (fun i => φ (x, i)) = (fun i => φ (x, i) - D.Ψ x i) + D.Ψ x := by
+      funext i; simp
+    have hΨ : vn (D.Ψ x) = 1 := by
+      have : D.Ψ x = fun i => ((unitVec hN i : ℝ) : ℂ) := by
+        funext i; have := hR.1 x hxd i; simp only [Pi.zero_apply, add_zero] at this; exact this
+      rw [this, vn_ofReal, rn_unitVec]
+    rw [e]
+    have := vn_add (fun i => φ (x, i) - D.Ψ x i) (D.Ψ x)
+    linarith
+  have hΩ1 : G.Ω 1 = Finset.univ := rfl
+  let R : Region G :=
+    { sites := G.Ω 1
+      sub_Ω := subset_rfl
+      blockClosed := fun x hx y hy => by
+        obtain ⟨h1, h2, hxl⟩ := G.layerIndex_spec hx
+        exact blk_subset_Ω G h1 h2 hxl hy }
+  have hne : R.sites.Nonempty := by
+    show (G.Ω 1).Nonempty
+    rw [hΩ1]; exact Finset.univ_nonempty
+  have hsp : ∀ x ∈ R.sites, (1 : ℝ) ≤ G.spacing x := fun x hx => by
+    show (1 : ℝ) ≤ ((3 : ℕ) : ℝ) ^ G.layerIndex x
+    exact one_le_pow₀ (by norm_num)
+  refine ⟨m₁, rhoSep m₁, G, compWeight 3 1, 0, 0, ∑ x : G.Ω 1, ∑ i : Fin 2, ‖φ (x, i) - D.h x i‖,
+    bgK1 3 3 2 * δ, D, φ, φ, α, α, hsol.1, ?_, hbb, hbb, hH.green, hOp, hδ₀0, ?_, ?_, le_rfl,
+    Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => norm_nonneg _, ?_, le_rfl, ?_, ?_,
+    hvn, R, hne, hsp, by norm_num, ?_⟩
+  · exact hsol.1
+  · exact hδM.trans hMle
+  · have := hδM.trans hM2; linarith
+  · simp only [zero_mul]; exact le_min hds.le hδw.le
+  · intro x; simp only [zero_mul]; exact le_rfl
+  · intro x i
+    exact (Finset.single_le_sum (f := fun i => ‖φ (x, i) - D.h x i‖) (fun _ _ => norm_nonneg _)
+      (Finset.mem_univ i)).trans (Finset.single_le_sum
+      (f := fun x => ∑ i : Fin 2, ‖φ (x, i) - D.h x i‖)
+      (fun _ _ => Finset.sum_nonneg fun _ _ => norm_nonneg _) (Finset.mem_univ x))
+  · linarith [hδM.trans hM3]
+
+end Nonempty
+
+end Balaban.LargeField.ActionConv
