@@ -174,6 +174,12 @@ theorem i5_functional_evTerm (hcov : CovSetup Gp m₀ j X 𝒦X)
         InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
           (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
           F₁ (s, rawOf D) = (φ, α)) ∧
+      AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+          (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+        fnOfDec Gp Hm X₁f F₁ Sol Φ p.1 p.2)
+        ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁) ×ˢ
+          polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
+            (fun _ => Real.exp κ)) ∧
       (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
         ∀ ψ' ∈ FlBall Hm δ₁,
         Φ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D,
@@ -234,7 +240,7 @@ theorem i5_functional_evTerm (hcov : CovSetup Gp m₀ j X 𝒦X)
   have hloc := fanF_local hC hcov hX₁ hconn hrow hF₁ hSolprop hZ hmar hΦloc
   obtain ⟨hsum, hlocY, hbound, hanY⟩ := expansion_of_AE_evTerm (a₁ := a₁) hC.HBp.hd hC.HBp.hL
     hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
-  refine ⟨F₁, Sol, hF₁, fun D hD ψ' hψ => ?_, hlocY, hbound, hanY⟩
+  refine ⟨F₁, Sol, hF₁, hana, fun D hD ψ' hψ => ?_, hlocY, hbound, hanY⟩
   have hsum' := hsum (rawOf D, ψ') ⟨⟨D, hD, rfl⟩, hψ⟩
   rw [show fnOfDec Gp Hm X₁f F₁ Sol Φ = F from rfl, ← hsum']
   symm
