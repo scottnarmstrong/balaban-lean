@@ -14,8 +14,9 @@ import Mathlib.Tactic.Positivity
 # The observable terms of the localized interaction (FLUCTUATION §3.3, "the `δ𝓕`-part", `𝓜`-terms)
 
 The source `𝓕_k` contains the terms `g(y, i) 𝓜^{(j)}_i(y, X)`, each a function of the raw data of
-`𝔹_j(X)`; they are treated as the `δ𝓔`-part with the amplitude `g(y, i)` analytic in the source
-(`mterms_locInt`; P6 (4.23): "without volume factor, `‖g‖_{ℓ¹} < 1`").
+`𝔹_j(X)`; they are treated as the `δ𝓔`-part (along the composite `flComp` with the datum of
+P3 (4.16), (4.17), for block fields `x₀`, `w` of `𝔹_k`) with the amplitude `g(y, i)` analytic in the
+source (`mterms_locInt`; P6 (4.23): "without volume factor, `‖g‖_{ℓ¹} < 1`").
 -/
 
 @[expose] public section
@@ -67,8 +68,9 @@ theorem mterms_locInt {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ
         (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) K N → ℂ),
       LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ l1Ball d L N₁ m₁ K N)
         {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+          (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+          IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2} Rσ
         (𝒯.biUnion 𝒴)
         (fun Y x₀ w σ p => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then p.2 (ys τ) (is τ) * T τ Y x₀ w σ p.1 else 0)
         (fun x₀ w σ p => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
@@ -82,8 +84,9 @@ theorem mterms_locInt {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ), τ ∈ 𝒯 →
       LocInt (XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ l1Ball d L N₁ m₁ K N)
         {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) × (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-          ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} Rσ
+          (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+            (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+          IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2} Rσ
         (polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ K)) => i.1.1) Gp
           (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)))
         (fun Y x₀ w σ p => p.2 (ys τ) (is τ) * dirTerm (Ev Y) ω x₀ w σ p.1)

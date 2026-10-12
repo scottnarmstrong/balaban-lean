@@ -17,8 +17,9 @@ The composite of P3 (4.41) at a realizable point `Θ = D ∈ Ξ^c_K(𝔹_{k+1}; 
 
 `F(s; Θ, ψ') = 𝓔(X; ψ(𝔹_j(X), 𝔹_k(X); ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) + δψ(𝔹_k(X), 𝔹_k; ψ', s)))`
 
-is computed through the analytic functions `F₁` (Theorem I-4b), `Sol` (Theorem I-4a, mode P) and
-`F_k` (Theorem 7.2), and its argument lies in `Ξ^c_j(𝔹_j(X); C₀, ε₃)` (`point_facts_fl`).
+(with `δψ` the composition of the pair `(δφ, ψ')`, P3 (4.17)) is computed through the analytic
+functions `F₁` (Theorem I-4b), `Sol` (Theorem I-4a, mode P) and `F_k` (Theorem 7.2), and for a
+layer-constant `ψ'` its argument lies in `Ξ^c_j(𝔹_j(X); C₀, ε₃)` (`point_facts_fl`).
 -/
 
 @[expose] public section
@@ -34,7 +35,8 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {Gk : GeneratingSet d L
 variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₂} {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
 
 /-- **The numerical conditions of the fluctuation** (beyond `ChainNum`): `δ₁` is the radius of the
-ball of `ψ'`, `δfl ≥ N · 5 K₂' δ₁` bounds the composed fluctuation, `ε₂ = C₀² ε' + K₂' δ₃`,
+ball of `ψ'`, `δfl ≥ N (5 K₂' + 1) δ₁` bounds the composed fluctuation (FLDATUM (4)),
+`ε₂ = C₀² ε' + K₂' δ₃`,
 `ε₃ = ε₂ + K₂' δfl`; the constants `BG₂` belong to the Green's function family of `(C, H⁻)`. -/
 structure FlNum (d L N : ℕ) [NeZero L] (BG BG₂ κ eps δ₃ δ₁ δfl : ℝ) : Prop where
   δ₁_pos : 0 < δ₁
@@ -43,7 +45,7 @@ structure FlNum (d L N : ℕ) [NeZero L] (BG BG₂ κ eps δ₃ δ₁ δfl : ℝ
     deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8)
   B_one : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ 1
   phi_lt : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2
-  flb : N * (5 * (cK2' d L N (famConst d L BG₂ κ) * δ₁)) ≤ δfl
+  flb : N * (5 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) + δ₁) ≤ δfl
   δfl_nn : 0 ≤ δfl
   δfl_le_one : δfl ≤ 1
   c1_f : xiC1 d * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃) + 5 * δfl ≤ bgC1 d L N
@@ -101,7 +103,8 @@ variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₂} {Hm : GeneratingSet 
 
 variable (Gp Gk Hm) in
 /-- The raw datum of `𝔹_k(X)` obtained by composing the background field with `Θ = u.1` and the
-fluctuation `ψ' = u.2`: `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) + δψ(𝔹_k(X), 𝔹_k; ψ', s)`. -/
+fluctuation field `δφ(ψ', s)` with `ψ' = u.2`: `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s) + δψ(𝔹_k(X), 𝔹_k; ψ', s)`,
+with `δψ = composeField 𝔹_k(X) 𝔹_k a δφ ψ'` (P3 (4.17)). -/
 noncomputable def D1rawFl (a : ℕ → ℝ)
     (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
     (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N →
@@ -110,8 +113,7 @@ noncomputable def D1rawFl (a : ℕ → ℝ)
     (u : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) :
     RawData d L (N₁ * L ^ m₁) K N :=
   (fun x i => composeField Gk Gp a (F₁ (s, u.1)).1 u.1.1 x i +
-      composeField Gk Hm a (Sol (s, flEdat Gp Hm (F₁ (s, u.1)) u.1.1 u.2)).1
-        (0 : CTorus d L N₁ m₁ K → Fin N → ℂ) x i,
+      composeField Gk Hm a (Sol (s, flEdat Gp Hm (F₁ (s, u.1)) u.1.1 u.2)).1 u.2 x i,
     fun x i => by classical exact if x ∈ Gk.Ω 1 then u.1.2 x i else 0)
 
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ K)} {j : ℕ}
@@ -160,7 +162,8 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
     (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f →
       s ⟨P, hP⟩ = 1)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
-    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ∀ x ∈ dataSites Hm, vn (ψ' x) < δ₁) :
+    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ∀ x ∈ dataSites Hm, vn (ψ' x) < δ₁)
+    (hψc : IsLayerConstant Hm ψ') :
     ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (δφ : Hm.Ω 1 × Fin N → ℂ),
       IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧ F₁ (s, rawOf D) = (φ, α) ∧
       StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
@@ -168,20 +171,20 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
       (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ ∧
       XiCData Gk (compWeight L a₁) ν K 1
         (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
-        (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D) ∧
+        (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) ∧
       D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol s (rawOf D, ψ') =
-        rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D) ∧
-      D2raw Gk Gj (compWeight L a₁) Fk (rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D)) =
+        rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) ∧
+      D2raw Gk Gj (compWeight L a₁) Fk (rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) =
         rawOf (composeData hB.hq (compWeight L a₁)
           (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
-            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D))
-          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D)) ∧
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) ∧
       XiCData Gj (compWeight L a₁) ν j (scaledC0 d)
         (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
         (composeData hB.hq (compWeight L a₁)
           (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
-            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D))
-          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D)) := by
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) := by
   classical
   have hd0 : 0 < d := by have := hB.HBp.hd; omega
   have hκ0 := hB.hκ.le
@@ -224,22 +227,22 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
   have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
     mul_nonneg (cK2'_nonneg hB0) hF.num.δ₁_pos.le
   have hδΨ : ∀ x ∈ dataSites Gk,
-      vn (fun i => composeField Gk Hm (compWeight L a₁) δφ
-        (0 : CTorus d L N₁ m₁ K → Fin N → ℂ) x i) ≤ δfl := fun x _ =>
-    (flPsi_bound hF.hPm hB.HBk.weights hV hdp.val x).trans hF.num.flb
+      vn (fun i => composeField Gk Hm (compWeight L a₁) δφ ψ' x i) ≤ δfl := fun x _ =>
+    (flPsi_bound hF.hPm (by have := hB.HBp.hL; omega) hB.ha₁ hV hF.num.δ₁_pos.le hdp.val
+      (fun y hy => (hψ y hy).le) x).trans hF.num.flb
   have hX3 : XiCData Gk (compWeight L a₁) ν K 1
       (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
-      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D) :=
+      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) :=
     xiCData_perturb hB.HBk hF.num.δfl_nn hF.num.δfl_le_one hB.num.small₂ hF.num.c1_f
-      hF.num.star_f hF.num.K1s_f hF.num.sm_f (flPsi_layerConst hF.hPm _ δφ) hδΨ hst
+      hF.num.star_f hF.num.K1s_f hF.num.sm_f (flPsi_layerConst hF.hPm _ δφ hψc) hδΨ hst
   have hrawD : D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol s (rawOf D, ψ') =
-      rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D) := by
+      rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) := by
     refine Prod.ext (funext fun x => funext fun i => ?_) rfl
     show composeField Gk Gp (compWeight L a₁) (F₁ (s, rawOf D)).1 D.Ψ x i +
       composeField Gk Hm (compWeight L a₁) (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1
-        (0 : CTorus d L N₁ m₁ K → Fin N → ℂ) x i = _
+        ψ' x i = _
     rw [hFeq]
-    exact (flDatum_Ψ hB.hP hF.hPm _ φ δφ D x i).symm
+    exact (flDatum_Ψ hB.hP hF.hPm _ φ δφ D ψ' hψc x i).symm
   have hUk := xiCData_unionC hX3
   have hFk' := hFk _ hUk
   refine ⟨φ, α, δφ, hI, hFeq, hstrict, rfl, hX3, hrawD, ?_, ?_⟩

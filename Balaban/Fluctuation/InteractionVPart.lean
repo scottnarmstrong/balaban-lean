@@ -109,18 +109,6 @@ theorem interactionOne_eq (hG : IsLevel Hm n) (hG' : IsLevel Gp (n + 1)) (hp : n
     rintro A B rfl rfl; rfl
   exact key _ _ e1 e2
 
-theorem isLayerConstant_line {z w : CTorus d L N₁ m₁ K → Fin N → ℂ} (hz : IsLayerConstant Hm z)
-    (hw : IsLayerConstant Hm w) (τ : ℂ) : IsLayerConstant Hm (z + τ • w) := by
-  intro m h1 h2 x hx x' hx'
-  simp only [Pi.add_apply, Pi.smul_apply]
-  rw [hz m h1 h2 x hx x' hx', hw m h1 h2 x hx x' hx']
-
-theorem isLayerConstant_smul {z : CTorus d L N₁ m₁ K → Fin N → ℂ} (hz : IsLayerConstant Hm z)
-    (c : ℂ) : IsLayerConstant Hm (c • z) := by
-  intro m h1 h2 x hx x' hx'
-  simp only [Pi.smul_apply]
-  rw [hz m h1 h2 x hx x' hx']
-
 variable {a₁ c BG κ eps Kc' Cx' c₂ BG₂ δ₁ : ℝ}
 
 /-- **The third derivative of `V^{(k)}` along a line is that of the block energies.** -/

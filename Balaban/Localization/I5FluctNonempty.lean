@@ -14,7 +14,7 @@ import Mathlib.Tactic.FunProp
 # Inhabitation of the hypotheses of Theorem I-5 with the fluctuation
 
 * `flNum_nonempty`: the numerical conditions `FlNum` hold for all sufficiently small
-  `ε', δ₃, δ₁` (and `δfl = N · 5 K₂' δ₁`);
+  `ε', δ₃, δ₁` (and `δfl = N (5 K₂' δ₁ + δ₁)`);
 * `rowInHat_self`: for the pair `(coverOf G, G)` the rows of the operator stay in the thickened
   cube (the landed `row_mem_hat`).
 -/
@@ -34,10 +34,10 @@ theorem ev_lt {f : ℝ → ℝ} (hf : Continuous f) {c : ℝ} (h : f 0 < c) :
   hf.continuousAt.eventually_lt continuousAt_const h
 
 /-- **Inhabitation of `FlNum`**: the conditions hold for `ε' = δ₃ = δ₁ = t` and
-`δfl = N · 5 K₂' t` for all small `t > 0`. -/
+`δfl = N (5 K₂' t + t)` for all small `t > 0`. -/
 theorem flNum_nonempty (hd : 0 < d) (BG : ℝ) {BG₂ : ℝ} (hBG₂ : 0 ≤ BG₂) (κ : ℝ) :
     ∃ t : ℝ, 0 < t ∧ Nonempty (FlNum d L N BG BG₂ κ t t t
-      (N * (5 * (cK2' d L N (famConst d L BG₂ κ) * t)))) := by
+      (N * (5 * (cK2' d L N (famConst d L BG₂ κ) * t) + t))) := by
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
     have := famConst_ge_one (L := L) hBG₂ κ hd; linarith
   have hk0 := cK2'_nonneg (d := d) (L := L) (N := N) hB0
@@ -60,39 +60,39 @@ theorem flNum_nonempty (hd : 0 < d) (BG : ℝ) {BG₂ : ℝ} (hBG₂ : 0 ≤ BG�
     (by simp)
   have e4 := ev_lt (f := fun t : ℝ => (3 + K4 d L N BG κ) * (xiC1 d * t)) (by fun_prop)
     (c := 1 / 2) (by simp)
-  have e5 := ev_lt (f := fun t : ℝ => N * (5 * (k * t))) (by fun_prop) (c := 1) (by simp)
+  have e5 := ev_lt (f := fun t : ℝ => N * (5 * (k * t) + t)) (by fun_prop) (c := 1) (by simp)
   have e6 := ev_lt (f := fun t : ℝ => xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t) +
-    5 * (N * (5 * (k * t)))) (by fun_prop) (c := bgC1 d L N) (by simpa using hC1)
-  have e7 := ev_lt (f := fun t : ℝ => N * (5 * (k * t))) (by fun_prop) (c := deltaStar d L N)
+    5 * (N * (5 * (k * t) + t))) (by fun_prop) (c := bgC1 d L N) (by simpa using hC1)
+  have e7 := ev_lt (f := fun t : ℝ => N * (5 * (k * t) + t)) (by fun_prop) (c := deltaStar d L N)
     (by simpa using hDs)
   have e8 := ev_lt (f := fun t : ℝ => bgK1 d L N * (xiC1 d * (scaledC0 d ^ 2 * t +
     xiK2 d L N * t))) (by fun_prop) (c := deltaStar d L N) (by simpa using hDs)
   have e9 := ev_lt (f := fun t : ℝ => bgK1 d L N * (xiC1 d * (scaledC0 d ^ 2 * t +
-    xiK2 d L N * t)) + cK2 d L N * (N * (5 * (k * t)))) (by fun_prop) (c := bgC0 d L N)
+    xiK2 d L N * t)) + cK2 d L N * (N * (5 * (k * t) + t))) (by fun_prop) (c := bgC0 d L N)
     (by simpa using hC0)
   have e10 := ev_lt (f := fun t : ℝ => (4 * d + 6) * ((2 * d + 1) * (scaledC0 d ^ 2 * t +
-    xiK2 d L N * t + xiK2 d L N * (N * (5 * (k * t)))))) (by fun_prop) (c := 1) (by simp)
+    xiK2 d L N * t + xiK2 d L N * (N * (5 * (k * t) + t))))) (by fun_prop) (c := 1) (by simp)
   have e11 := ev_lt (f := fun t : ℝ => xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t +
-    xiK2 d L N * (N * (5 * (k * t))))) (by fun_prop) (c := thm73C1 d L N) (by simpa using hT)
+    xiK2 d L N * (N * (5 * (k * t) + t)))) (by fun_prop) (c := thm73C1 d L N) (by simpa using hT)
   have hpos : ∀ᶠ t in 𝓝[>] (0 : ℝ), 0 < t := self_mem_nhdsWithin
   have hall : ∀ᶠ t in 𝓝[>] (0 : ℝ), 0 < t ∧ t < D1 ∧
       2 * (K4 d L N BG κ * (xiC1 d * t)) < D1 ∧ 2 * (K4 d L N BG κ * (xiC1 d * t)) < 1 ∧
-      (3 + K4 d L N BG κ) * (xiC1 d * t) < 1 / 2 ∧ (N : ℝ) * (5 * (k * t)) < 1 ∧
-      xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t) + 5 * (N * (5 * (k * t))) < bgC1 d L N ∧
-      (N : ℝ) * (5 * (k * t)) < deltaStar d L N ∧
+      (3 + K4 d L N BG κ) * (xiC1 d * t) < 1 / 2 ∧ (N : ℝ) * (5 * (k * t) + t) < 1 ∧
+      xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t) + 5 * (N * (5 * (k * t) + t)) < bgC1 d L N ∧
+      (N : ℝ) * (5 * (k * t) + t) < deltaStar d L N ∧
       bgK1 d L N * (xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t)) < deltaStar d L N ∧
       bgK1 d L N * (xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t)) +
-        cK2 d L N * (N * (5 * (k * t))) < bgC0 d L N ∧
+        cK2 d L N * (N * (5 * (k * t) + t)) < bgC0 d L N ∧
       (4 * d + 6) * ((2 * d + 1) * (scaledC0 d ^ 2 * t + xiK2 d L N * t +
-        xiK2 d L N * (N * (5 * (k * t))))) < 1 ∧
-      xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t + xiK2 d L N * (N * (5 * (k * t)))) <
+        xiK2 d L N * (N * (5 * (k * t) + t)))) < 1 ∧
+      xiC1 d * (scaledC0 d ^ 2 * t + xiK2 d L N * t + xiK2 d L N * (N * (5 * (k * t) + t))) <
         thm73C1 d L N := by
     have wk : ∀ {p : ℝ → Prop}, (∀ᶠ t in 𝓝 (0 : ℝ), p t) → ∀ᶠ t in 𝓝[>] (0 : ℝ), p t :=
       fun h => eventually_nhdsWithin_of_eventually_nhds h
     exact hpos.and ((wk e1).and ((wk e2).and ((wk e3).and ((wk e4).and ((wk e5).and ((wk e6).and
       ((wk e7).and ((wk e8).and ((wk e9).and ((wk e10).and (wk e11)))))))))))
   obtain ⟨t, ht0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11⟩ := hall.exists
-  have hk' : 0 ≤ (N : ℝ) * (5 * (k * t)) := by positivity
+  have hk' : 0 ≤ (N : ℝ) * (5 * (k * t) + t) := by positivity
   exact ⟨t, ht0, ⟨{
     δ₁_pos := ht0
     δ₁_le := h1.le
@@ -127,7 +127,7 @@ theorem flSetting_nonempty {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a₁
     (hS2 : Dec2.DecSpecs d L (Dec2.selfKc d L) (Cchi d L) c₂ BG₂)
     {κ : ℝ} (hM2 : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) :
     ∃ t : ℝ, 0 < t ∧ Nonempty (FlSetting N Gp Gp Gp a₁ ν κ BG t t (Dec2.selfKc d L) (Cchi d L)
-      c₂ BG₂ t (N * (5 * (cK2' d L N (famConst d L BG₂ κ) * t))) Finset.univ) := by
+      c₂ BG₂ t (N * (5 * (cK2' d L N (famConst d L BG₂ κ) * t) + t)) Finset.univ) := by
   obtain ⟨t, ht, ⟨hn⟩⟩ := flNum_nonempty (d := d) (L := L) (N := N) (by have := S.hd; omega) BG
     hS2.fam.2.1 κ
   obtain ⟨hSM⟩ := Dec2.footLocal_nonempty S

@@ -73,7 +73,10 @@ theorem norm_one_le (t : ℝ) (_ : t ∈ Icc (0 : ℝ) 1) : ‖(fun _ : ℂ => (
 
 `𝒰(σ; ψ̂)` is analytic in `(θ, h, g, σ)` on `Ξ^c × {‖g‖_{ℓ¹} < 1} × {|σ| < R_σ}`, vanishes at `σ = 0`,
 and is `∑_Y 𝒰(Y)` with `𝒰(Y)` depending on `(θ, h, g, x, w)` only through their restriction to the
-thickening of `Y`, bounded by `|σ|` times `‖c_β‖` times the sum of the term bounds. -/
+thickening of `Y`, bounded by `|σ|` times `‖c_β‖` times the sum of the term bounds.  The directions
+`(x_t, w_t)` and `(x_u, w_u)` are block fields of `𝔹_k` (`IsLayerConstant`), as in (3.3); the old
+terms are evaluated at the datum of P3 (4.16), (4.17) (`flComp`), whose derivative in the fluctuation
+contains the direct term `κ ψ'` of the composed fluctuation. -/
 theorem interaction_expansion {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -206,8 +209,9 @@ theorem interaction_expansion {Kc Cx c₂ BG₂ δ₁ : ℝ}
               (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁} ∧
           (xw.1.2, xw.2.2) ∈ {xw : (CTorus d L N₁ m₁ K → Fin N → ℂ) ×
               (CTorus d L N₁ m₁ K → Fin N → ℂ) |
-            ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
-              (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁}} Rσ 𝒴 T
+            (∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+              (σ * t) • xw.1 + τ • xw.2 ∈ FlBall Hm δ₁) ∧
+            IsLayerConstant Hm xw.1 ∧ IsLayerConstant Hm xw.2}} Rσ 𝒴 T
         (fun x w σ p =>
           (-cβ) * raySrc3 (interactionOne hG hG' hp a₁ ν eps) taylorWeight x.1 w.1 σ p.1 +
           cβ * (∑ τ ∈ 𝒯E, if h : τ ∈ 𝒯E then
@@ -268,7 +272,7 @@ theorem interaction_expansion {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ K → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
     hLV hLE hLF hLM (-cβ) cβ cβ cβ hbV hbE hbF hbM
-  refine ⟨𝒴, T, b, fun Y => ?_, hL⟩
+  refine ⟨𝒴, T, b, fun Y => ?_, hL.mono_XW fun xw h => ⟨h.1, h.1, h.2.2.1, h.2.2.2⟩⟩
   refine (hb Y).trans ?_
   simp only [norm_neg]
   have hle : ∀ (P : Prop) [Decidable P] (u : ℝ), 0 ≤ u → (if P then u else 0) ≤ u := by
