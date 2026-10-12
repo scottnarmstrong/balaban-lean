@@ -686,3 +686,4 @@ public import Balaban.Localization.Decoupled2FpCount
 public import Balaban.Fluctuation.BackgroundChangeCompare
 public import Balaban.Fluctuation.BackgroundChangeExpansion
 public import Balaban.Fluctuation.BackgroundChangeLate
+public import Balaban.Fluctuation.TraceEntropyCells
