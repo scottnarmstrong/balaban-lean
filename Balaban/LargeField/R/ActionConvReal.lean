@@ -108,4 +108,12 @@ theorem actionRegionC_univ (D : Region G) (hD : D.sites = Finset.univ) (a : ℕ 
   simp only [hΩ, Finset.mem_univ, true_or, ite_true]
   norm_num
 
+/-- For `D` the whole torus, `st(D)` is empty and the surface term vanishes. -/
+theorem starPair_univ (D : Region G) (hD : D.sites = Finset.univ)
+    (w f : Torus d (N₀ * L ^ K) → Fin N → ℂ) : D.starPair w f = 0 := by
+  have : D.crossing = ∅ := by
+    ext b
+    simp [Region.crossing, hD]
+  simp [Region.starPair, this]
+
 end Balaban.LargeField.ActionConv

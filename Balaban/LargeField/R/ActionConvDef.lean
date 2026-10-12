@@ -34,6 +34,7 @@ open Balaban.Multiscale Balaban.Background Balaban.Fluctuation Finset
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
 /-- A **region**: a finite union of cubes (blocks `B_{n(x)}(x)`) of the generating set `G`. -/
+@[ext]
 structure Region (G : GeneratingSet d L N₀ K ϱ) where
   /-- The sites of `D`. -/
   sites : Finset (Torus d (N₀ * L ^ K))
