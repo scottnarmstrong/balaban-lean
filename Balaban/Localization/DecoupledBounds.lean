@@ -345,4 +345,83 @@ theorem Kz_cube_weighted (hd : 3 ≤ d) (hL : 3 ≤ L) :
     _ = commKConst d L 1 * Cchi d L * Bw * Real.exp (2 * gammaW d * d) * C / (L : ℝ) ^ m₁ := by
         rw [hV]; field_simp
 
+/-- **(DG1)** `‖𝒦_s(A)‖ ≤ 1/4` in the weighted norm `|·|_{2,w}`, for `M₁ ≥ c_* e^{N₀ κ₁}`. -/
+theorem dg1 (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ cstar : ℝ, 0 ≤ cstar ∧ ∀ {N₁ m₁ K : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → ∀ {κ : ℝ}, 0 ≤ κ →
+      cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ →
+      ∀ {s : ℕ × CTorus d L N₁ m₁ K → ℂ}, (∀ P, ‖s P‖ ≤ Real.exp κ) →
+      ∀ {w : CTorus d L N₁ m₁ K → ℝ}, IsWeight G (gammaW d) w →
+      ∀ (f : G.Ω 1 → ℂ) {C : ℝ}, 0 ≤ C →
+      (∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖f x‖ ≤ C) →
+      ∀ x : G.Ω 1, w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+        ‖(Kcal G a ν α s *ᵥ f) x‖ ≤ C / 4 := by
+  obtain ⟨Bk, hBk, hK⟩ := Kz_cube_weighted (d := d) (L := L) hd hL
+  refine ⟨12 * 5 ^ d * Bk, by positivity, ?_⟩
+  intro N₁ m₁ K _ ϱ G a ν S α hα κ hκ hMκ s hs w hw f C hC hfC x
+  classical
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hM0 : (0 : ℝ) < (L : ℝ) ^ m₁ := by positivity
+  have hwx := hw.pos x
+  have hsp := (spacing_pos G (x := (x : CTorus d L N₁ m₁ K))).le
+  have hexp : 0 < Real.exp (N0 d L * κ) := Real.exp_pos _
+  -- the sum over centres
+  set T : (ℕ × CTorus d L N₁ m₁ K) → ℂ := fun q =>
+    sProd G s q * (((Kz G a ν q * cubeG G a ν α q) *ᵥ f) x) with hT
+  have hsum : (Kcal G a ν α s *ᵥ f) x = ∑ q ∈ cubeIdx G, T q := by
+    unfold Kcal
+    rw [Matrix.sum_mulVec, Finset.sum_apply]
+    refine Finset.sum_congr rfl fun q _ => ?_
+    rw [Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+  have hfilter : ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), T q =
+      ∑ q ∈ cubeIdx G, T q := by
+    refine Finset.sum_filter_of_ne fun q hq hne => ?_
+    have h1 : (((Kz G a ν q * cubeG G a ν α q) *ᵥ f) x) ≠ 0 := right_ne_zero_of_mul hne
+    rw [← Matrix.mulVec_mulVec] at h1
+    exact (inner_of_Kz_ne_zero S hq _ x h1).self
+  obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec x.2
+  have hcard := card_inBox_le (G := G) S.cover_sep (by omega : 1 ≤ L) hn1 hnK hxl
+    (s := 5 / 2) (by norm_num) 5 (by norm_num)
+  have hterm : ∀ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+      w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖T q‖ ≤
+        Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁) := by
+    intro q hq
+    have hqi := (Finset.mem_filter.1 hq).1
+    have h1 := hK G S hα hqi hw f hC hfC x
+    have h2 := norm_sProd_le S.aligned S.cover_sep S.hM (by omega : 1 ≤ L) hqi hκ hs
+    calc w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖T q‖
+        = ‖sProd G s q‖ * (w x * ((G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+            ‖((Kz G a ν q * cubeG G a ν α q) *ᵥ f) x‖)) := by
+          rw [hT]; simp only [norm_mul]; ring
+      _ ≤ Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁) :=
+          mul_le_mul h2 h1 (by positivity) hexp.le
+  rw [hsum, ← hfilter]
+  calc w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+        ‖∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), T q‖
+      ≤ w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 *
+        ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q), ‖T q‖ :=
+        mul_le_mul_of_nonneg_left (norm_sum_le _ _) (by positivity)
+    _ = ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+          w x * (G.spacing (x : CTorus d L N₁ m₁ K)) ^ 2 * ‖T q‖ := by rw [Finset.mul_sum]
+    _ ≤ ∑ q ∈ (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q),
+          Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁) := Finset.sum_le_sum hterm
+    _ = ((cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q)).card *
+          (Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁)) := by
+        rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ (3 * 5 ^ d) * (Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁)) := by
+        apply mul_le_mul_of_nonneg_right _ (by positivity)
+        have hf : (cubeIdx G).filter (fun q => (x : CTorus d L N₁ m₁ K) ∈ box q) =
+            (cubeIdx G).filter (fun q => InBox m₁ q.1 q.2 (5 / 2 * (L : ℝ) ^ (q.1 + m₁))
+              (x : CTorus d L N₁ m₁ K)) :=
+          Finset.filter_congr fun q _ => mem_box
+        rw [hf]
+        exact_mod_cast hcard
+    _ ≤ C / 4 := by
+        have h4 : 12 * 5 ^ d * Bk * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁ := hMκ
+        rw [show (3 * 5 ^ d : ℝ) * (Real.exp (N0 d L * κ) * (Bk * C / (L : ℝ) ^ m₁)) =
+          (3 * 5 ^ d * Bk * Real.exp (N0 d L * κ)) * C / (L : ℝ) ^ m₁ by ring]
+        rw [div_le_iff₀ hM0]
+        nlinarith [mul_le_mul_of_nonneg_right h4 hC]
+
 end Balaban.Localization
