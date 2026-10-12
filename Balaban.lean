@@ -104,6 +104,9 @@ public import Balaban.Background.MinimizerAlg
 public import Balaban.Background.MinimizerExpansion
 public import Balaban.Background.Minimizer
 public import Balaban.Background.Def5
+public import Balaban.Background.Equivariance
+public import Balaban.Background.EquivarianceDomain
+public import Balaban.Background.EquivarianceLat
 public import Balaban.Background.Def5Response
 public import Balaban.Background.Holder
 public import Balaban.Background.NormalizeMixed
@@ -471,6 +474,8 @@ public import Balaban.SmallField.XiD1
 public import Balaban.SmallField.XiD1C
 public import Balaban.SmallField.XiD2
 public import Balaban.SmallField.XiProps
+public import Balaban.SmallField.XiLatSymm
+public import Balaban.SmallField.XiSymm
 public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
@@ -489,6 +494,7 @@ public import Balaban.LargeField.Operators.Symm
 public import Balaban.LargeField.Operators.Pullback
 public import Balaban.LargeField.Operators.MainAction
 public import Balaban.LargeField.Operators.Quiet
+public import Balaban.LargeField.Operators.QuietSymm
 public import Balaban.LargeField.Operators.StepData
 public import Balaban.LargeField.Operators.LocOp
 public import Balaban.LargeField.Operators.Invariance
@@ -556,6 +562,7 @@ public import Balaban.Fluctuation.ExpansionCauchy
 public import Balaban.Fluctuation.ExpansionBounds
 public import Balaban.Fluctuation.ExpansionReal
 public import Balaban.Fluctuation.ExpansionLocal
+public import Balaban.Fluctuation.ExpansionSymm
 public import Balaban.Fluctuation.ExpansionAnalytic
 public import Balaban.Polymer.MarkedCubesLocal
 public import Balaban.Polymer.MarkedCubesVanish
@@ -564,6 +571,17 @@ public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
+public import Balaban.Observables.Cauchy
+public import Balaban.Observables.CauchyPackages
+public import Balaban.Observables.LayerConstants
+public import Balaban.Observables.LayerSchur
+public import Balaban.Observables.LayerStructure
+public import Balaban.Observables.LayerDef
+public import Balaban.Observables.LayerSums
+public import Balaban.Observables.LayerDictionary
+public import Balaban.Observables.LayerFirstOrder
+public import Balaban.Observables.LayerConst
+public import Balaban.Observables.LayerDictionaryBound
 public import Balaban.Fluctuation.CovarianceGeom
 public import Balaban.Fluctuation.CovarianceWeighted
 public import Balaban.Fluctuation.CovarianceSup
