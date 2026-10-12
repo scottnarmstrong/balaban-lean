@@ -125,6 +125,42 @@ theorem avgFun_eq_avgFun₂ {W₁ W₂ : ℝ → X → ℂ} (h0 : ∀ x, W₂ 0 
 
 end AeCongr
 
+section RealPos
+
+open MeasureTheory
+
+variable {X : Type*} [MeasurableSpace X] {ν : Measure X} [IsProbabilityMeasure ν]
+
+/-- A partition function with real, bounded, measurable exponents is a positive real. -/
+theorem partFun₂_real_pos {W₁ W₂ : ℝ → X → ℂ} {s t : ℝ} (hm1 : Measurable (W₁ s))
+    (hm2 : Measurable (W₂ t)) (hr1 : ∀ x, (W₁ s x).im = 0) (hr2 : ∀ x, (W₂ t x).im = 0)
+    {M₁ M₂ : ℝ} (hb1 : ∀ x, ‖W₁ s x‖ ≤ M₁) (hb2 : ∀ x, ‖W₂ t x‖ ≤ M₂) :
+    (partFun₂ ν W₁ W₂ s t).im = 0 ∧ 0 < (partFun₂ ν W₁ W₂ s t).re := by
+  set r1 : X → ℝ := fun x => (W₁ s x).re with hr1d
+  set r2 : X → ℝ := fun x => (W₂ t x).re with hr2d
+  have e1 : ∀ x, W₁ s x = (r1 x : ℂ) := fun x => Complex.ext (by simp [hr1d]) (by simp [hr1 x])
+  have e2 : ∀ x, W₂ t x = (r2 x : ℂ) := fun x => Complex.ext (by simp [hr2d]) (by simp [hr2 x])
+  have hZ : partFun₂ ν W₁ W₂ s t = ((∫ x, Real.exp (r1 x + r2 x) ∂ν : ℝ) : ℂ) := by
+    unfold partFun₂
+    rw [← integral_complex_ofReal]
+    refine integral_congr_ae (ae_of_all _ fun x => ?_)
+    show Complex.exp (W₁ s x + W₂ t x) = ((Real.exp (r1 x + r2 x) : ℝ) : ℂ)
+    rw [e1 x, e2 x, ← Complex.ofReal_add, Complex.ofReal_exp]
+  refine ⟨by rw [hZ]; exact Complex.ofReal_im _, ?_⟩
+  rw [hZ, Complex.ofReal_re]
+  have hm1' : Measurable r1 := Complex.measurable_re.comp hm1
+  have hm2' : Measurable r2 := Complex.measurable_re.comp hm2
+  refine integral_exp_pos (Integrable.of_bound (C := Real.exp (M₁ + M₂)) ?_ ?_)
+  · exact (Real.measurable_exp.comp (hm1'.add hm2')).aestronglyMeasurable
+  · refine ae_of_all _ fun x => ?_
+    rw [Real.norm_eq_abs, abs_of_pos (Real.exp_pos _)]
+    refine Real.exp_le_exp.2 ?_
+    have h1 : r1 x ≤ M₁ := (Complex.re_le_norm _).trans (hb1 x)
+    have h2 : r2 x ≤ M₂ := (Complex.re_le_norm _).trans (hb2 x)
+    linarith
+
+end RealPos
+
 section ZeroTangent
 
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
@@ -1016,6 +1052,159 @@ theorem prop26_complex (g : Fld d L N₁ m₁ (k + 1) N) (hreg : StepRegular S C
     Complex.exp (S.E1 C + S.F0 C g)) * hc'
 
 end Final
+
+/-- **Reality of the class terms on real data** (the terms `ℰ_k`, `ℱ_k` are real for real
+arguments in the domain `𝒟_ℝ`, (H.2), (H.7)). -/
+structure RealClassTerms (g : Fld d L N₁ m₁ (k + 1) N) : Prop where
+  E_real : ∀ ψ : S.E, InUnionDomainR (stepG d L N₁ m₁ k ϱ) (bgC1 d L N) S.ν (S.dataU ψ) →
+    (EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU ψ)).im = 0
+  F_real : ∀ ψ : S.E, InUnionDomainR (stepG d L N₁ m₁ k ϱ) (bgC1 d L N) S.ν (S.dataU ψ) →
+    (FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataU ψ) g).im = 0
+
+theorem chiFl_smul (hp₁ : 0 < S.p₁) {s : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1) {x : S.E}
+    (hx : chiFl S.U N S.p₁ x = 1) : chiFl S.U N S.p₁ (s • x) = 1 := by
+  rw [chiFl_eq_one_iff hp₁] at hx ⊢
+  rw [norm_smul, Real.norm_of_nonneg hs.1]
+  calc s * ‖x‖ ≤ 1 * ‖x‖ := by gcongr; exact hs.2
+    _ < S.p₁ := by simpa using hx
+
+section Real1
+
+variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+  {δ' : ℝ} (hδ'0 : 0 < δ') (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+  (hχu : chiU S.G' S.a S.ν S.δ S.D' = 1)
+  (hnorm : S.ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, S.h₀ i ^ 2 - 1| < (1 * S.δ) ^ 2)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
+  {B₅ K₂ : ℝ} (hB5 : max 1 (Real.sqrt N * covSupConst d L N (S.a k)) ≤ B₅)
+  (hK2 : max (max 1 (cK2 d L N)) (Real.sqrt N * cK2 d L N) ≤ K₂)
+  (hp40 : S.p₁ / (S.betaU ^ (1 / 2 : ℝ) * S.δ) ≤ (3 * B₅ * K₂)⁻¹)
+  (hrad : B₅ * S.betaU ^ (-(1 / 2 : ℝ)) * S.p₁ ≤ fluctRadius d L N)
+
+include S ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad in
+theorem dataU_inDomainR_path {s : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1) (x : S.E)
+    (hx : chiFl S.U N S.p₁ x = 1) :
+    InUnionDomainR (stepG d L N₁ m₁ k ϱ) (bgC1 d L N) S.ν (S.dataU (S.psiAt s x)) := by
+  have h := S.dataU_inDomainR ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad
+    (s • x) (S.chiFl_smul hp₁ hs hx)
+  rwa [S.psiAt_smul, one_mul] at h
+
+include S ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad in
+/-- The interaction `V^{(k)}` is real on the ray. -/
+theorem Vk_im {s : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1) (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
+    (S.Vk (S.psiAt s x)).im = 0 := by
+  have h := S.Jbg_expansion ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad
+    (s • x) (S.chiFl_smul hp₁ hs hx)
+  rw [S.psiAt_smul, one_mul] at h
+  have key : S.Vk (S.psiAt s x) =
+      (((Jbg (stepG d L N₁ m₁ k ϱ) S.G' S.a S.a₁ S.ν k S.D'.Ψ (S.dataU (S.psiAt s x)) - S.Anew -
+        1 / (2 * S.β) * ∑ b : S.U, ‖(s • x) b‖ ^ 2 : ℝ)) : ℂ) := by
+    simp only [Complex.ofReal_sub]
+    linear_combination -h
+  rw [key]
+  exact Complex.ofReal_im _
+
+end Real1
+
+section Real2
+
+variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+  {δ' : ℝ} (hδ'0 : 0 < δ') (hδ' : δ' ≤ thm73C3 d L N / 2) (hD'R : InDomainR S.G' S.ν δ' S.D')
+  (hδ0 : 0 < S.δ)
+  (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1))
+  (hsm : S.δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+  (hχu : chiU S.G' S.a S.ν S.δ S.D' = 1)
+  (hnorm : S.ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, S.h₀ i ^ 2 - 1| < (1 * S.δ) ^ 2)
+  (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
+  {B₅ K₂ : ℝ} (hB5 : max 1 (Real.sqrt N * covSupConst d L N (S.a k)) ≤ B₅)
+  (hK2 : max (max 1 (cK2 d L N)) (Real.sqrt N * cK2 d L N) ≤ K₂)
+  (hp40 : S.p₁ / (S.betaU ^ (1 / 2 : ℝ) * S.δ) ≤ (3 * B₅ * K₂)⁻¹)
+  (hrad : B₅ * S.betaU ^ (-(1 / 2 : ℝ)) * S.p₁ ≤ fluctRadius d L N)
+  (g : Fld d L N₁ m₁ (k + 1) N) (hrc : S.RealClassTerms C g)
+
+include S ha₁ H hδ'0 hδ' hD'R in
+theorem dataU_psi0_domain :
+    InUnionDomainR (stepG d L N₁ m₁ k ϱ) (bgC1 d L N) S.ν (S.dataU S.psi0) := by
+  obtain ⟨hDU', -⟩ := S.D'_domains H hδ'0 hδ' hD'R
+  have hdom := (criticalPoint_real ha₁ S.hG S.hG' (le_refl (k + 1)) H H S.D' hDU').2.1
+  rw [S.dataU_psi0 ha₁ H hδ'0 hδ' hD'R]
+  exact hdom
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc in
+theorem Wone_im {s : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1) (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
+    (S.Wone C s x).im = 0 := by
+  have hV := S.Vk_im ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad hs x hx
+  have hdom := S.dataU_inDomainR_path ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40
+    hrad hs x hx
+  have hdom0 := S.dataU_psi0_domain ha₁ H hδ'0 hδ' hD'R
+  unfold Wone dE
+  rw [Complex.add_im, Complex.sub_im, hrc.E_real _ hdom, hrc.E_real _ hdom0]
+  simp [hV]
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc in
+theorem Wtwo_im {t : ℝ} (ht : t ∈ Set.Icc (0 : ℝ) 1) (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
+    (S.Wtwo C g t x).im = 0 := by
+  have hdom := S.dataU_inDomainR_path ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40
+    hrad ht x hx
+  have hdom0 := S.dataU_psi0_domain ha₁ H hδ'0 hδ' hD'R
+  unfold Wtwo dF
+  rw [Complex.sub_im, hrc.F_real _ hdom, hrc.F_real _ hdom0]
+  simp
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc in
+/-- **Real data: `Z_{s,t}` is a positive real** (`s, t ∈ [0,1]`; this includes the nonvanishing
+of §2.6). -/
+theorem Zst_real_pos (hreg : StepRegular S C g) {s t : ℝ} (hs : s ∈ Set.Icc (0 : ℝ) 1)
+    (ht : t ∈ Set.Icc (0 : ℝ) 1) :
+    (S.Zst C g s t).im = 0 ∧ 0 < (S.Zst C g s t).re := by
+  obtain ⟨U, W₁', W₂', h₁, h₂⟩ := hreg.c1
+  have : MeasureTheory.IsProbabilityMeasure S.nuFl := isProbabilityMeasure_fluctMeasure S.U N hp₁
+  have hsU : s ∈ U := h₁.Icc_subset hs
+  have htU : t ∈ U := h₂.Icc_subset ht
+  have hZ : S.Zst C g s t = partFun₂ S.nuFl (S.WoneT C) (S.WtwoT C g) s t := by
+    unfold Zst
+    exact partFun₂_congr_ae ((S.ae_ball hp₁).mono fun x hx => (S.WoneT_of_chi C s x hx).symm)
+      ((S.ae_ball hp₁).mono fun x hx => (S.WtwoT_of_chi C g t x hx).symm)
+  rw [hZ]
+  obtain ⟨M₁, hM₁⟩ := h₁.bound
+  obtain ⟨M₂, hM₂⟩ := h₂.bound
+  refine partFun₂_real_pos (h₁.measurable s hsU) (h₂.measurable t htU) (fun x => ?_) (fun x => ?_)
+    (fun x => (hM₁ x s hsU).1) (fun x => (hM₂ x t htU).1)
+  · unfold WoneT
+    by_cases hx : chiFl S.U N S.p₁ x = 1
+    · simp only [hx, ↓reduceIte]
+      exact S.Wone_im C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc
+        hs x hx
+    · simp [hx]
+  · unfold WtwoT
+    by_cases hx : chiFl S.U N S.p₁ x = 1
+    · simp only [hx, ↓reduceIte]
+      exact S.Wtwo_im C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc
+        ht x hx
+    · simp [hx]
+
+include S C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g hrc in
+/-- **Proposition 2.6 for real data**: the nonvanishing is automatic (`Z_{s,t} > 0`). -/
+theorem prop26_real (hreg : StepRegular S C g) :
+    S.Tstep C g = Complex.exp (-(S.β : ℂ) * (S.Anew : ℂ) +
+      EcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd - (S.Eppp C : ℂ) * (S.nU : ℂ) +
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKd g + S.E0 C + S.F0 C g) := by
+  refine S.prop26_complex C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g
+    hreg ⟨fun s hs => ?_, fun t ht => ?_⟩
+  · have h := S.Zst_real_pos C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g
+      hrc hreg hs (Set.left_mem_Icc.2 zero_le_one)
+    intro h0
+    rw [h0] at h
+    simp at h
+  · have h := S.Zst_real_pos C ha₁ H hδ'0 hδ' hD'R hδ0 hfam hsm hχu hnorm hβ hp₁ hB5 hK2 hp40 hrad g
+      hrc hreg (Set.right_mem_Icc.2 zero_le_one) ht
+    intro h0
+    rw [h0] at h
+    simp at h
+
+end Real2
 
 end StepSetting
 
