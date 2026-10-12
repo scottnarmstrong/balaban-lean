@@ -655,6 +655,7 @@ public import Balaban.LargeField.Base.BaseResolventAbs
 public import Balaban.LargeField.Base.BaseResolvent
 public import Balaban.LargeField.Base.BaseResolventDecay
 public import Balaban.LargeField.Base.BaseResolventMain
+public import Balaban.LargeField.Base.BaseResolventRange
 public import Balaban.Polymer.MarkedTermwise2
 public import Balaban.Polymer.MarkedCubesTwo
 public import Balaban.Observables.Cauchy
