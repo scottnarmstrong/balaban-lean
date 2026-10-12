@@ -16,8 +16,8 @@ Claude workers (background subagents of this session):
 | W118 | `w118-k1-hgeo` / W118 | discharge k₁ ≥ 1 and hgeo; III.5.0(b), III.3.2(b),(d) |
 | W120 | `w120-quiet-local` / W120 | QuietStepInput locality fields from Lemma I.3.9 |
 | W119 | `w119-p631` / W119 | P6 (2.31) action conversion + window theorem (2.15′) |
-| W111 | `w111-p1-geometry` / W111 | P1 Lemmas 2.3, 2.4, 2.7, 2.8 (Ψᶜ geometry) + improved_first |
-| W116 | `w116-witness-sweep` / W116 | witnesses for the remaining 28 hypothesis structures |
+| W122 | `w122-thm42-wire` / W122 | wire Thm 4.2 to the real step |
+| W121 | `w121-joint-l3` / W121 | joint flow witness at L ≥ 3 with non-empty history |
 | W106 | `w106-interaction` / W106 | FLUCT Prop 3.3 localized interaction (non-modular part) |
 | W112 (Opus) | `w112-def7` / W112 | Def-7 large-field class draft |
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
