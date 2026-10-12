@@ -1021,6 +1021,7 @@ public import Balaban.Inhabited.RadiiSetting
 public import Balaban.Inhabited.RadiiRipe
 public import Balaban.Inhabited.RadiiWitness
 public import Balaban.Inhabited.RadiiWitnessOps
+public import Balaban.Inhabited.RipeGeoWitness
 public import Balaban.Inhabited.JointL4Setting
 public import Balaban.Inhabited.JointL4
 public import Balaban.Inhabited.RipeL4Flow
