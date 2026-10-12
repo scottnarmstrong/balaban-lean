@@ -1,0 +1,14 @@
+import Balaban.LargeField.R.ActionConvWitness
+
+namespace Balaban.LargeField.ActionConv
+
+open Balaban.Multiscale
+
+/-- The published action-conversion witness has no sites in its generating
+set, hence its regional actions have no region to convert. -/
+theorem vacuity3_actionConv_witness_empty
+    {d L N₀ K : ℕ} [NeZero N₀] [NeZero L] :
+    (GeneratingSet.emptySet (d := d) (L := L) (N₀ := N₀) (K := K)
+      (ϱ := (0 : ℝ))).Ω 1 = ∅ := rfl
+
+end Balaban.LargeField.ActionConv

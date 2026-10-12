@@ -1,0 +1,22 @@
+import Balaban.Background.Data
+import Mathlib.Tactic.Linarith
+
+namespace Balaban.Background
+
+open Balaban.Multiscale
+
+/-- The complex union domain is empty above the mass threshold, regardless
+of the generating set or the data. -/
+theorem vacuity3_supercritical_union_domain_empty
+    {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L N₀ k ϱ} {D : BgData G N}
+    {c₀ c₁ ν : ℝ} (hB : 1 < ν * ((L : ℝ) ^ k) ^ 2)
+    (h : InUnionDomainC G c₀ c₁ ν D) : False := by
+  obtain ⟨δ, ε, hδ0, hδε, -, -, hmass, -⟩ := h
+  have hε0 : 0 < ε := lt_of_lt_of_le hδ0 hδε
+  have hsq : δ ^ 2 ≤ ε ^ 2 := by nlinarith
+  have hprod : ε ^ 2 < (ν * ((L : ℝ) ^ k) ^ 2) * ε ^ 2 := by
+    simpa only [one_mul] using (mul_lt_mul_of_pos_right hB (sq_pos_of_pos hε0))
+  linarith
+
+end Balaban.Background

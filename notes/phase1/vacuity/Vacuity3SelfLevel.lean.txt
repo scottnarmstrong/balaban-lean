@@ -1,0 +1,15 @@
+import Balaban.Fluctuation.CriticalPoint
+
+namespace Balaban.Fluctuation
+
+/-- The self-pair witness of `FlCore` cannot satisfy the two level
+hypotheses required by `interaction_expansion`. -/
+theorem vacuity3_self_pair_levels_impossible
+    {d L N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    {G : Balaban.Multiscale.GeneratingSet d L N₀ K ϱ} {n : ℕ}
+    (h : IsLevel G n) (h' : IsLevel G (n + 1)) : False := by
+  have h₁ := (h 0).2
+  have h₂ := (h' 0).2
+  omega
+
+end Balaban.Fluctuation
