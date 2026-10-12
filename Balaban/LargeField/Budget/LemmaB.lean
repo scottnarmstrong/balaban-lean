@@ -250,27 +250,27 @@ theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → 
   nlinarith [h1, h2, h3, e4, e5]
 
 /-- **Lemma B along the history** (Definition II.5.11): the same for the recursive `kappa`,
-`logC` with kept data `κK`, `lK`. -/
-theorem lemmaB_recursive (B : BudgetSetup S P) (ok : S.Ok) (κK lK : ∀ k, H.Comp k → ℝ)
+`logC` with kept data `κK` and kept decoration `δ`. -/
+theorem lemmaB_recursive (B : BudgetSetup S P) (ok : S.Ok) (κK δ : ∀ k, H.Comp k → ℝ)
     (K : ℕ) :
     ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
-      ∑ c ∈ H.parts k Z', H.budgetPost P κK lK k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
-        S.cv * S.lam (k + 1) * Z'.1.card ≤ H.budgetPre P κK lK (k + 1) Z' :=
-  H.lemmaB B ok (H.kappa P κK) (H.logC lK) K
+      ∑ c ∈ H.parts k Z', H.budgetPost P κK δ k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
+        S.cv * S.lam (k + 1) * Z'.1.card ≤ H.budgetPre P κK δ (k + 1) Z' :=
+  H.lemmaB B ok (H.kappa P κK) (H.logC δ) K
 
 /-- The abstract history of LF-2 for the flow's region history, with (B) supplied by Lemma B for
 the recursive exponents of Definition II.5.11; (Rg) remain hypotheses (LF-4R, Part III). -/
 noncomputable def toLF2HypBudget (B : BudgetSetup S P) (ok : S.Ok) (hadm : H.Admissible)
-    (κK lK : ∀ k, H.Comp k → ℝ) (K : ℕ)
+    (κK δ : ∀ k, H.Comp k → ℝ) (K : ℕ)
     (rg_ripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → S.Ripe k (H.bk k c) →
-      H.budgetPre P κK lK k c - S.CR * S.lam k ^ (2 * S.d + 1) + S.A3' * S.lam k ^ S.pR ≤
-        H.budgetPost P κK lK k c)
+      H.budgetPre P κK δ k c - S.CR * S.lam k ^ (2 * S.d + 1) + S.A3' * S.lam k ^ S.pR ≤
+        H.budgetPost P κK δ k c)
     (rg_nonripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → ¬ S.Ripe k (H.bk k c) →
-      H.budgetPost P κK lK k c = H.budgetPre P κK lK k c)
+      H.budgetPost P κK δ k c = H.budgetPre P κK δ k c)
     (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k,
-      H.budgetPost P κK lK k c = H.budgetPre P κK lK k c) : LF2Hyp S n k0 K :=
-  H.toLF2Hyp hadm K (H.budgetPre P κK lK) (H.budgetPost P κK lK)
-    (H.lemmaB_recursive B ok κK lK K) rg_ripe rg_nonripe rg_frozen
+      H.budgetPost P κK δ k c = H.budgetPre P κK δ k c) : LF2Hyp S n k0 K :=
+  H.toLF2Hyp hadm K (H.budgetPre P κK δ) (H.budgetPost P κK δ)
+    (H.lemmaB_recursive B ok κK δ K) rg_ripe rg_nonripe rg_frozen
 
 end RegionHistory
 

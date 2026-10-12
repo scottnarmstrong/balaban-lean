@@ -16,7 +16,8 @@ sequence `β_j`.  For the step `k → k+1` and a component `Z'` of `Z^pre_{k+1}`
 * `logCPre`: `log C^pre_{k+1}(Z') = ∑_Y log C_k(Y) + |Z_k ∩ Z'|_{#k} + (5/4) |Z^c_k ∩ Z'|_{#k}`;
 * `budgetG`: `G = κ - log C - H_k |Z|_k`;
 * `kappa`, `logC`: the post-`R` functions along the history, recursively: the pre value, except
-  for the kept ripe components (`1 ≤ k ≤ k₀`, ripe), where the kept data (S3) replaces it.
+  for the kept ripe components (`1 ≤ k ≤ k₀`, ripe), where the kept data (S3) replaces `κ` and
+  the label cost `log C_dec(ϰ)` is added to `log C`.
 
 The volume of `c` cubes of `π_k` is `M^d c` (`cubeVol`).
 -/
@@ -82,8 +83,8 @@ noncomputable def Gpre (κ logC : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k →
 noncomputable def Gpost (κ logC : ∀ k, H.Comp k → ℝ) (k : ℕ) (c : H.Comp k) : ℝ :=
   P.budgetG S k (κ k c) (logC k c) c.1.card
 
-/-- The condition under which the kept data (S3) replaces the pre-`R` value: the component is
-ripe at a scale `1 ≤ k ≤ k₀`. -/
+/-- The condition under which the kept data (S3) enters: the component is ripe at a scale
+`1 ≤ k ≤ k₀`. -/
 def IsKeptEvent (k : ℕ) (c : H.Comp k) : Prop :=
   1 ≤ k ∧ k ≤ k0 ∧ S.Ripe k (H.bk k c)
 
@@ -97,20 +98,20 @@ noncomputable def kappa (κK : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k → �
 
 open Classical in
 /-- `log C_k(Z, 𝔞)` (Definition II.5.11): `log C_{k+1} = ∑ log C_k + |Z_k ∩ Z'|_{#k} +
-(5/4)|Z^c_k ∩ Z'|_{#k}`, with the kept data `lK` (`log C_k + log C_dec(ϰ)`) for the kept ripe
-components. -/
-noncomputable def logC (lK : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k → ℝ
+(5/4)|Z^c_k ∩ Z'|_{#k}`, plus the decoration `δ` (`log C_dec(ϰ)`, the kept label (S3)) for the
+kept ripe components: `log C_k(Z, 𝔞'') = log C_k(Z, 𝔞) + log C_dec(ϰ)`. -/
+noncomputable def logC (δ : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k → ℝ
   | 0, _ => 0
   | k + 1, Z' =>
-      if H.IsKeptEvent (k + 1) Z' then lK (k + 1) Z' else H.logCPre k (fun c => logC lK k c) Z'
+      H.logCPre k (fun c => logC δ k c) Z' + if H.IsKeptEvent (k + 1) Z' then δ (k + 1) Z' else 0
 
 /-- The budget `G_k` along the history (Definition II.5.11). -/
-noncomputable def budgetPost (κK lK : ∀ k, H.Comp k → ℝ) (k : ℕ) (c : H.Comp k) : ℝ :=
-  H.Gpost P (H.kappa P κK) (H.logC lK) k c
+noncomputable def budgetPost (κK δ : ∀ k, H.Comp k → ℝ) (k : ℕ) (c : H.Comp k) : ℝ :=
+  H.Gpost P (H.kappa P κK) (H.logC δ) k c
 
 /-- The pre-`R` budget `G^pre_k` along the history (Definition II.5.11). -/
-noncomputable def budgetPre (κK lK : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k → ℝ :=
-  H.Gpre P (H.kappa P κK) (H.logC lK)
+noncomputable def budgetPre (κK δ : ∀ k, H.Comp k → ℝ) : ∀ k, H.Comp k → ℝ :=
+  H.Gpre P (H.kappa P κK) (H.logC δ)
 
 end RegionHistory
 
