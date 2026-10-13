@@ -23,7 +23,7 @@ The last section lists the problems that have been resolved since the project st
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open; two workarounds ruled out; question drafted (item 14) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | open |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; reference family constructed |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | open; workaround designed |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | open; workaround in progress |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
@@ -143,9 +143,16 @@ from the relation between the two cube sizes (roughly M ≥ 6M₁); at the block
 level of cover this relation fails.
 
 This affects the *output class* of each step, not the values of its terms. The terms themselves
-are proved analytic and exactly local on the standard domain. The planned workaround is a separate
-cover adapted to 𝔹(Y), or an extension argument from local to global data, together with a larger
-cover index.
+are proved analytic and exactly local on the standard domain.
+
+Work around it (decided: a separate local class at a lower separation index, with the existing
+class structures). Proved so far: the local generating set's layers and data sites lie inside the
+whole-level domains; its paving covariance; the local chart data by restricting the fields to the
+local sites and recomputing the background (as in P3 (4.44)); and the pointwise inclusion of the
+ambient chart domain in the local one. The inclusion loses a constant factor in the chart radius,
+larger than 280 at d = 3, so it does not hold at the same class radius. What remains is the
+analyticity of the recomputed terms on the local domain (P3 (4.46)–(4.47)) with that radius
+bookkeeping, and the local successor family.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
@@ -192,9 +199,10 @@ These have no known mathematical gap, but they are substantial and not yet done.
   operators correspond, and the decoupled background and fluctuation solutions on a cut component
   are the same on two tori. Still to do: the covariance and its square root on a component, and
   the comparison of every coefficient. See `notes/phase1/TORUSCOH2.md`, `TORUSCOH3.md`.
-- **General d, L, N.** Most of the step is proved at d = L = 3, N = 2. The general constant record
-  and its producer are proved, and the fixed-parameter results are being turned into corollaries of
-  general ones. See `notes/phase1/STOWERG.md`, `STOWERG2.md`.
+- **General d, L, N.** The step is proved for general d ≥ 3, L, N, with the fixed d = L = 3, N = 2
+  results as corollaries. An arbitrary unit external field h is reduced to a coordinate vector by a
+  rotation; this needs the source radius √N along the chain, which is about 13 files of
+  generalization with no known obstruction. See `notes/phase1/STOWERG2.md`, `UNITH.md`.
 - **The logarithm and the assembly of the terms T_j.** See `notes/phase1/ROOTASM.md`,
   `OBSBUDGET.md`.
 

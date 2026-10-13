@@ -537,15 +537,23 @@ theorem obsPrefactor_tendsto (p : ℕ) {s : ℝ} (hs0 : 0 < s) :
   push_cast
   simp only [mul_comm (p : ℝ)]
 
+/-- Smallness of `obsPrefactor` at `b = β c^m`, uniformly in `m`, for any base `c ≥ 1`
+(the base `c = 3` is `obsPrefactor_small_scale`, an application of this theorem). -/
+theorem obsPrefactor_small_scale_pow (p : ℕ) {s : ℝ} (hs0 : 0 < s) (c : ℝ) (hc : 1 ≤ c)
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ β₁ : ℝ, 1 ≤ β₁ ∧ ∀ (m : ℕ) (β : ℝ), β₁ ≤ β → obsPrefactor p s (β * c ^ m) ≤ ε := by
+  have h := (obsPrefactor_tendsto p hs0).eventually (Iic_mem_nhds hε)
+  obtain ⟨B, hB⟩ := eventually_atTop.1 h
+  refine ⟨max B 1, le_max_right _ _, fun m β hβ => hB _ ?_⟩
+  have : (1 : ℝ) ≤ c ^ m := one_le_pow₀ hc
+  have hβ1 : 0 ≤ β := by linarith [le_max_right B 1]
+  nlinarith [le_max_left B 1]
+
 /-- Smallness, uniform in the scale index: for every `ε > 0` there is `β₁` with
 `obsPrefactor ≤ ε` at every `b = β 3^k`, `β ≥ β₁`, `k` arbitrary. -/
 theorem obsPrefactor_small_scale (p : ℕ) {s : ℝ} (hs0 : 0 < s) {ε : ℝ} (hε : 0 < ε) :
     ∃ β₁ : ℝ, 1 ≤ β₁ ∧ ∀ (k : ℕ) (β : ℝ), β₁ ≤ β → obsPrefactor p s (β * 3 ^ k) ≤ ε := by
-  have h := (obsPrefactor_tendsto p hs0).eventually (Iic_mem_nhds hε)
-  obtain ⟨B, hB⟩ := eventually_atTop.1 h
-  refine ⟨max B 1, le_max_right _ _, fun k β hβ => hB _ ?_⟩
-  have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-  have hβ1 : 0 ≤ β := by linarith [le_max_right B 1]
-  nlinarith [le_max_left B 1]
+  have h := obsPrefactor_small_scale_pow p hs0 3 (by norm_num) hε
+  simpa using h
 
 end Balaban.Inhabited

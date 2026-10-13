@@ -967,6 +967,109 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
     exact fun θ hθ => hmain θ hθ
   exact ⟨hfirst, hrem, hkern⟩
 
+include Dsc hS in
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsCoeffParam_fromTower` is its corollary.
+**The two families and the analyticity of the coefficient, for the one sharp-hat family.**
+There is one family `Ev` (that of `obsMarkHalves_of_sharpHat_param`, with `ObsMarkHalf` and
+`ObsRayIdentity` at every datum of `Ξ`) such that both `ParamMarkFamily` records exist and, for
+every finite set of cubes, the first-order terms, the kernel sum, the remainder coefficient and
+`obsCoeffParam` are analytic on `physVq … q`.  The numerical hypotheses carried are `hKc`
+(`K₀ + 1 ≤ K_c`, any `K_c ≥ K₀ + 1`), `hε` (the amplitude of the tilted extension is at most
+`stepTheta d L Kobs (2 κdec - 1) κ0 κ'`) and `1 < Rg`; the activity fields `hhol`, `hcont` are
+those of `obsTiltLabels_fromTower`.  This statement is conditional on them; they are discharged
+at the tower, by a compatible instantiation of `obsTiltLabels_fromTower`, in
+`obsCoeffFamily_fromTower`. -/
+theorem obsCoeffParam_fromTowerG (hϱ : ϱ = rhoSepG d L T.m₁) (hN : 5 < N₁) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ0 + 1 ≤ Kc)
+    (hhol : ∀ y', ∀ Φ ∈ physCarrier S T.m₀ hp, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+      (tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+        (ball (0 : ℂ) (3 / 2)) r.1 r.2 1).H y' Φ)
+      (physVq S S.a₁ S.ν T.t q ×ˢ ball (0 : ℂ) (3 / 2)))
+    (hcont : ∀ y', ∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ u ∈ ball (0 : ℂ) (3 / 2),
+      ContinuousOn ((tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+        Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y') (physCarrier S T.m₀ hp))
+    (hε : Rg * max (εH + εH) εH ≤ stepTheta d L Kobs (2 * T.κdec - 1) T.κ0 T.κ')
+    (i : Fin N) :
+    ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))})) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+        ∀ u' ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) ∧
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D →
+        ObsMarkHalf S T.m₀ hp Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (obsLab (Lab.sum Lab) hdj) (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
+          (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
+          (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))))
+          (2 * T.κdec) (rootCube (m₀ := T.m₀) (blockIndex y)) ∧
+        ObsRayIdentity S T.m₀ hp
+          (fun ψh => svec (lvLowG d L N₁ T.m₁ k ϱ)
+            (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
+              (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
+          (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) ∧
+      ((∀ m : ObsMarkIdx S, Nonempty (ParamMarkFamily (S.blockSplit T.m₀ hp).μ
+        (obsLab (Lab.sum Lab) hdj)
+        (fun θ t => tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+          Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
+        (fun _ : Unit => obsY1 T.m₀ S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+          (LocalCover.fam T.m₀ y)) m)
+        (fun _ _ _ => blockMarkC S T.m₀ hp m.1 m.2) (2 * T.κdec - 1)
+        (fun _ => S.p₁ * Real.exp ((2 * T.κdec - 1) * (obsLab (Lab.sum Lab) hdj).dl
+          (obsY1 T.m₀ S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)))
+        (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S T.m₀ hp))) ∧
+      Nonempty (ParamMarkFamily (S.blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj)
+        (fun θ t => tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+          Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
+        (obsRemLab (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 T.m₀ (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+            (rootCube (m₀ := T.m₀) (blockIndex y))))
+        (obsGrFam S T.m₀ hp Ev (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t)) (2 * T.κdec - 1)
+        (fun _ => 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
+          (S.p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2)
+        (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S T.m₀ hp))) ∧
+      ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+        Set.univ),
+      ((∀ (m : ObsMarkIdx S) (S' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+        (K := k + 1) T.m₀ (k + 1) Set.univ)),
+      AnalyticOnNhd ℂ (fun θ => markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ)
+        (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m) (blockMarkC S T.m₀ hp m.1 m.2) S')
+        (physVq S S.a₁ S.ν T.t q)) ∧
+    AnalyticOnNhd ℂ (fun θ => kernelMarkSum
+      (fun m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
+        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) T.m₀ T'')
+      (fun m S' => markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ) (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m)
+        (blockMarkC S T.m₀ hp m.1 m.2) S') T') (physVq S S.a₁ S.ν T.t q) ∧
+    AnalyticOnNhd ℂ (fun θ => gsumCoeff (S.blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj)
+      (fun t => Actₒ θ t 1)
+      (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))))
+      (obsGrFam S T.m₀ hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) T')
+      (physVq S S.a₁ S.ν T.t q) ∧
+    AnalyticOnNhd ℂ (fun θ => obsCoeffParam (S.blockSplit T.m₀ hp).μ Actₒ
+      (fun m => obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m) (fun m => blockMarkC S T.m₀ hp m.1 m.2)
+      (fun θ m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
+        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) T.m₀ T'')
+      (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))))
+      (fun θ => obsGrFam S T.m₀ hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) θ T')
+      (physVq S S.a₁ S.ν T.t q)) := by
+  obtain ⟨Ev, ha, hd, hb, hD⟩ := obsEv_fromTowerG T k hk N₁ ν β p₁ hN hνpos hν Dsc hϱ hS hp y i
+    (Lab.sum Lab)
+  exact ⟨Ev, ha, hd, hb, hD, obsFamilies_of_EvG T k hk N₁ ν β p₁ Dsc S hS hp y h3N Lab hεH Aact
+    hdj hK Rg hR hϱ hνpos hν hhol hcont Ev ha hb, fun T' => obsCoeffParam_analytic_of_EvG T k hk N₁
+    ν β p₁ Dsc S hS hp y h3N Lab hεH Aact hdj hK Rg hR hϱ hνpos hν hRg hKc hhol hcont hε Ev ha hd hb
+    T'⟩
+
+
 end TowerG
 
 section Tower
@@ -1204,13 +1307,12 @@ theorem obsCoeffParam_fromTower (hN : 5 < N₁) (hνpos : 0 < ν) (hν : ν * 3 
         (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))))
       (fun θ => obsGrFam S 1 hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ T')
       (physVq S S.a₁ S.ν T.t q)) := by
-  obtain ⟨Ev, ha, hd, hb, hD⟩ := obsEv_fromTower T k hk N₁ ν β p₁ hN hνpos hν Dsc
-    (by subst hS; exact hp) y i (Lab.sum Lab)
-  subst hS
-  exact ⟨Ev, ha, hd, hb, hD, obsFamilies_of_Ev T k hk N₁ ν β p₁ Dsc _ rfl hp y h3N Lab hεH Aact
-    hdj hK Rg hR hνpos hν hhol hcont Ev ha hb, fun T' => obsCoeffParam_analytic_of_Ev T k hk N₁
-    ν β p₁ Dsc _ rfl hp y h3N Lab hεH Aact hdj hK Rg hR hνpos hν hRg hKc hhol hcont hε Ev ha hd hb
-    T'⟩
+  have hb' : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := obsCoeffParam_fromTowerG T.toG k hk N₁ ν β p₁ (T.scaleDataG_of_fixed Dsc) S hS hp y
+    h3N Lab hεH Aact hdj hK Rg hR (rhoSepG_three _).symm hN hνpos (by simpa using hν) hRg hKc hhol
+    hcont hε i
+  rw [hb'] at h
+  exact h
 
 include Dsc hS in
 /-- **The uniform bounds of the three parts and of their sum on `physVq`**, with the constants of
