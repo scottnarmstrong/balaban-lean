@@ -348,4 +348,204 @@ theorem lintegral_goodInner_shifted {m : ℕ} [NeZero m] (s : ℕ) (r : ℝ) (B 
 
 end Sector
 
+/-! ### T4: the reduced constant is nonnegative -/
+
+section Positivity
+
+variable {d N ℓ : ℕ} [NeZero ℓ] (D : Finset (Torus d ℓ)) {h : EuclideanSpace ℝ (Fin N)}
+
+/-- The tangent part of the crossing squares, `S_tan = ∑_{crossing (x,μ)} ‖P(h - q_y)‖²`. -/
+noncomputable def goodSTan (hh : ‖h‖ = 1) (q : ↥D → SpinSphere N) : ℝ :=
+  ∑ x : Torus d ℓ, ∑ μ : Fin d,
+    (if IsCrossing D x μ then ‖goodTan D hh q (blockEnd D x μ)‖ ^ 2 else 0)
+
+/-- The normal part of the crossing squares, `S_norm = ∑_{crossing (x,μ)} ⟨h - q_y, h⟩²`. -/
+noncomputable def goodSNorm (h : EuclideanSpace ℝ (Fin N)) (q : ↥D → SpinSphere N) : ℝ :=
+  ∑ x : Torus d ℓ, ∑ μ : Fin d,
+    (if IsCrossing D x μ then inner ℝ (h - badExt D h q (blockEnd D x μ)) h ^ 2 else 0)
+
+theorem goodSTan_nonneg (hh : ‖h‖ = 1) (q : ↥D → SpinSphere N) : 0 ≤ goodSTan D hh q :=
+  Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by split_ifs <;> positivity
+
+theorem goodSNorm_nonneg (q : ↥D → SpinSphere N) : 0 ≤ goodSNorm D h q :=
+  Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by split_ifs <;> positivity
+
+/-- The crossing square splits into its tangent and normal parts. -/
+theorem goodBdryConst_eq (hh : ‖h‖ = 1) (β : ℝ) (q : ↥D → SpinSphere N) :
+    goodBdryConst D h β q = β / 2 * (goodSTan D hh q + goodSNorm D h q) := by
+  unfold goodBdryConst goodSTan goodSNorm
+  congr 1
+  rw [← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  split_ifs
+  · rw [norm_sq_eq_inner_sq_add h hh, real_inner_comm]
+    show _ = ‖perpProj h _‖ ^ 2 + _
+    ring
+  · simp
+
+/-- The multiplicity-weighted sum over the neighbours of `x` in `D` is the sum over the `2d` bonds
+at `x`. -/
+theorem sum_adj_D (w : Torus d ℓ → ℝ) (x : Torus d ℓ) :
+    ∑ y ∈ D, kwAdj d ℓ x y * w y =
+      ∑ μ : Fin d, ((if x + Pi.single μ 1 ∈ D then w (x + Pi.single μ 1) else 0)
+        + (if x - Pi.single μ 1 ∈ D then w (x - Pi.single μ 1) else 0)) := by
+  simp_rw [kwAdj_apply, Finset.sum_mul]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  simp only [add_mul, Finset.sum_add_distrib, ite_mul, one_mul, zero_mul]
+  congr 1
+  · rw [Finset.sum_ite_eq']
+  · have : ∀ y : Torus d ℓ, (x = y + Pi.single μ 1) ↔ (y = x - Pi.single μ 1) := fun y => by
+      rw [eq_sub_iff_add_eq, eq_comm]
+    simp_rw [this]
+    rw [Finset.sum_ite_eq']
+
+theorem goodCoord_goodJ (hh : ‖h‖ = 1) (q : ↥D → SpinSphere N) (i : Fin N) (x : Good D) :
+    goodCoord D (goodJ D hh q) i x =
+      bdryJ D (fun _ y => ((goodTan D hh q y : perp h) : EuclideanSpace ℝ (Fin N)) i) x.1 := by
+  unfold bdryJ
+  simp only [x.2, ite_false]
+  rw [sum_adj_D D (fun y => ((goodTan D hh q y : perp h) :
+    EuclideanSpace ℝ (Fin N)) i)]
+  simp only [goodCoord, goodJ, Submodule.coe_sum, Submodule.coe_add, apply_ite,
+    WithLp.ofLp_sum, Finset.sum_apply]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  split_ifs <;> simp
+
+theorem norm_sq_eq_sum_coord (u : perp h) :
+    ‖u‖ ^ 2 = ∑ i : Fin N, ((u : EuclideanSpace ℝ (Fin N)) i) ^ 2 := by
+  rw [← norm_coe_perp, EuclideanSpace.norm_sq_eq]
+  simp
+
+theorem goodSTan_eq (hh : ‖h‖ = 1) (q : ↥D → SpinSphere N) :
+    goodSTan D hh q = ∑ x : Torus d ℓ, if x ∈ D then 0 else
+      ∑ y ∈ D, kwAdj d ℓ x y * ‖goodTan D hh q y‖ ^ 2 := by
+  unfold goodSTan
+  rw [Finset.sum_comm]
+  have hge : ∀ (x : Torus d ℓ) (μ : Fin d), IsCrossing D x μ → goodEnd D x μ ∉ D := by
+    intro x μ hc
+    by_cases hx : x ∈ D <;> by_cases hy : x + Pi.single μ 1 ∈ D <;>
+      simp_all [IsCrossing, goodEnd]
+  have hrw : ∀ μ : Fin d, ∑ x : Torus d ℓ, (if IsCrossing D x μ then
+      ‖goodTan D hh q (blockEnd D x μ)‖ ^ 2 else 0) =
+      ∑ x : Torus d ℓ, (if IsCrossing D x μ then
+        (fun y z => if z ∈ D then (0 : ℝ) else ‖goodTan D hh q y‖ ^ 2)
+          (blockEnd D x μ) (goodEnd D x μ) else 0) := by
+    intro μ
+    refine Finset.sum_congr rfl fun x _ => ?_
+    by_cases hc : IsCrossing D x μ
+    · simp [hc, hge x μ hc]
+    · simp [hc]
+  rw [Finset.sum_congr rfl fun μ _ => hrw μ]
+  refine (Finset.sum_congr rfl fun μ _ => sum_crossing_reindex D μ
+    (fun y z => if z ∈ D then (0 : ℝ) else ‖goodTan D hh q y‖ ^ 2)
+    (fun y z hz => by simp [hz])).trans ?_
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun z _ => ?_
+  by_cases hz : z ∈ D
+  · simp [hz]
+  · simp only [hz, ite_false]
+    rw [sum_adj_D D (fun y => ‖goodTan D hh q y‖ ^ 2) z]
+    exact Finset.sum_congr rfl fun μ _ => add_comm _ _
+
+/-- Restriction of the quadratic form of the padded inverse to the good sites. -/
+theorem good_bridge {ν : ℝ} (hν : 0 < ν) (b : Torus d ℓ → ℝ) (hb : ∀ x ∈ D, b x = 0) :
+    (fun x : Good D => b x.1) ⬝ᵥ (kwOpSub d ℓ ν D)⁻¹ *ᵥ (fun x : Good D => b x.1) =
+      b ⬝ᵥ (kwOp d ℓ ν D)⁻¹ *ᵥ b := by
+  rw [kwOpSub_inv hν D]
+  unfold dotProduct Matrix.mulVec dotProduct
+  simp only [Matrix.submatrix_apply]
+  rw [sum_good_eq D (fun x => b x * ∑ y, (kwOp d ℓ ν D)⁻¹ x y * b y) (fun x hx => by simp [hb x hx])]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  congr 1
+  rw [sum_good_eq D (fun y => (kwOp d ℓ ν D)⁻¹ x.1 y * b y) (fun y hy => by simp [hb y hy])]
+
+/-- **Vector Schur bound.**  `⟨J, K_G⁻¹ J⟩ ≤ θ S_tan`, `θ = 2d/(2d+ν)`: the scalar `boundary_schur`
+applied to each Euclidean coordinate. -/
+theorem goodPair_inv_le (hh : ‖h‖ = 1) {ν : ℝ} (hν : 0 < ν) (q : ↥D → SpinSphere N) :
+    goodPair D (goodJ D hh q) (matAct (kwOpSub d ℓ ν D)⁻¹ (goodJ D hh q)) ≤
+      kwQ d ν * goodSTan D hh q := by
+  set a : Fin N → Torus d ℓ → Torus d ℓ → ℝ :=
+    fun i _ y => ((goodTan D hh q y : perp h) : EuclideanSpace ℝ (Fin N)) i with ha
+  rw [goodPair_eq_sum, goodSTan_eq]
+  simp_rw [goodCoord_matAct]
+  have hi : ∀ i : Fin N, goodCoord D (goodJ D hh q) i ⬝ᵥ (kwOpSub d ℓ ν D)⁻¹ *ᵥ
+      goodCoord D (goodJ D hh q) i ≤ kwQ d ν * bdryS D (a i) := by
+    intro i
+    have hb : goodCoord D (goodJ D hh q) i = fun x : Good D => bdryJ D (a i) x.1 :=
+      funext (goodCoord_goodJ D hh q i)
+    rw [hb, good_bridge D hν _ (fun x hx => by simp [bdryJ, hx])]
+    exact boundary_schur hν D (a i)
+  calc _ ≤ ∑ i : Fin N, kwQ d ν * bdryS D (a i) := Finset.sum_le_sum fun i _ => hi i
+    _ = kwQ d ν * ∑ i : Fin N, bdryS D (a i) := by rw [Finset.mul_sum]
+    _ = _ := by
+      congr 1
+      unfold bdryS
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun x _ => ?_
+      by_cases hx : x ∈ D
+      · simp [hx]
+      · simp only [hx, ite_false]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun y _ => ?_
+        rw [← Finset.mul_sum, norm_sq_eq_sum_coord]
+
+/-- **T4.**  `goodReducedConst ≥ (β/2)(1 - θ) S_tan + (β/2) S_norm`, `θ = kwQ d ν = 2d/(2d+ν)`. -/
+theorem goodReducedConst_ge (hh : ‖h‖ = 1) {ν β : ℝ} (hν : 0 < ν) (hβ : 0 ≤ β)
+    (q : ↥D → SpinSphere N) :
+    β / 2 * (1 - kwQ d ν) * goodSTan D hh q + β / 2 * goodSNorm D h q ≤
+      goodReducedConst D hh β ν q := by
+  unfold goodReducedConst
+  rw [goodBdryConst_eq D hh]
+  have := mul_le_mul_of_nonneg_left (goodPair_inv_le D hh hν q) (by positivity : 0 ≤ β / 2)
+  nlinarith
+
+/-- The reduced constant is nonnegative, and `θ < 1`. -/
+theorem goodReducedConst_nonneg (hh : ‖h‖ = 1) {ν β : ℝ} (hν : 0 < ν) (hβ : 0 ≤ β)
+    (q : ↥D → SpinSphere N) : 0 ≤ goodReducedConst D hh β ν q := by
+  refine le_trans ?_ (goodReducedConst_ge D hh hν hβ q)
+  have h1 : 0 ≤ 1 - kwQ d ν := by linarith [kwQ_lt_one (d := d) hν]
+  have := goodSTan_nonneg D hh q
+  have := goodSNorm_nonneg D (h := h) q
+  positivity
+
+end Positivity
+
+
+/-! ### T5: an instance -/
+
+section Instance
+
+/-- **Non-vacuity.**  `d = 3`, `N = 3`, torus of side `4`, bad set `goodChartInstD` (one block of
+side `2`), `h = e₀`, `β = ν = 1`, `F ≡ 1`, any bad spins `q`: the shifted Gaussian identity (T3)
+holds with the tangent source `goodJ`, the right side is positive, and the reduced constant is
+nonnegative (T4). -/
+theorem goodShifted_instance (q : ↥goodChartInstD → SpinSphere 3)
+    (hh : ‖(EuclideanSpace.single (0 : Fin 3) (1 : ℝ) : EuclideanSpace ℝ (Fin 3))‖ = 1) :
+    (∫⁻ v, (1 : ENNReal) * ENNReal.ofReal (Real.exp (-(1 / 2) * goodQuad goodChartInstD 1 v
+          - Real.sqrt 1 * goodPair goodChartInstD (goodJ goodChartInstD hh q) v))
+          ∂(goodVol goodChartInstD (EuclideanSpace.single (0 : Fin 3) (1 : ℝ))) =
+        ENNReal.ofReal (Real.exp (1 / 2 * goodPair goodChartInstD (goodJ goodChartInstD hh q)
+            (matAct (kwOpSub 3 4 1 goodChartInstD)⁻¹ (goodJ goodChartInstD hh q)))) *
+          ENNReal.ofReal (kwGaussNorm 3 4 3 1 goodChartInstD)) ∧
+      0 < ENNReal.ofReal (Real.exp (1 / 2 * goodPair goodChartInstD (goodJ goodChartInstD hh q)
+            (matAct (kwOpSub 3 4 1 goodChartInstD)⁻¹ (goodJ goodChartInstD hh q)))) *
+          ENNReal.ofReal (kwGaussNorm 3 4 3 1 goodChartInstD) ∧
+      0 ≤ goodReducedConst goodChartInstD hh 1 1 q := by
+  have hν : (0 : ℝ) < 1 := one_pos
+  have h1 := lintegral_good_gaussian_shift goodChartInstD hh hν (zero_le_one : (0 : ℝ) ≤ 1)
+    (goodJ goodChartInstD hh q) (fun _ => 1)
+  have hγ : ∫⁻ _ : Good goodChartInstD →
+      perp (EuclideanSpace.single (0 : Fin 3) (1 : ℝ) : EuclideanSpace ℝ (Fin 3)), (1 : ENNReal)
+      ∂(goodGaussian goodChartInstD (EuclideanSpace.single (0 : Fin 3) (1 : ℝ))) = 1 := by
+    rw [lintegral_const, one_mul, goodGaussian_univ _ hh]
+  simp only [hγ, mul_one] at h1
+  refine ⟨h1, ?_, goodReducedConst_nonneg goodChartInstD hh hν zero_le_one q⟩
+  exact ENNReal.mul_pos (ENNReal.ofReal_pos.2 (Real.exp_pos _)).ne'
+    (ENNReal.ofReal_pos.2 (kwGaussNorm_pos _ hν)).ne'
+
+end Instance
+
 end Balaban.LargeField
