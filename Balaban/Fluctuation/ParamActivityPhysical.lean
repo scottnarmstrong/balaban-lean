@@ -426,4 +426,54 @@ theorem physical_directTermsFamily
 
 end Physical
 
+section Inhabited
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
+
+/-- **`DirectTermsFamily` is inhabited**, with a nonempty open parameter set and a nonempty family
+of domains: the whole-torus label with zero terms (the instance of `nonempty_directTerms`), on
+`Λ = ℂ`, `SΛ = V = univ`. -/
+theorem nonempty_directTermsFamily (hp : 0 < S.p₁) (ρ Rσ εU a : ℝ) (hεU : 0 ≤ εU) :
+    ∃ (I : DirectTerms S m₀ hp (F' := Unit) (fun _ => ()) ρ Rσ εU a (0 : ℂ) Set.univ Set.univ
+      (fun _ _ _ _ => (0 : ℂ)) (fun _ _ _ => True) (fun _ _ _ => True))
+      (_ : DirectTermsFamily S m₀ I Set.univ), I.𝒴.Nonempty ∧ (Set.univ : Set ℂ).Nonempty := by
+  have hY : IsDj m₀ (k + 1) (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))) :=
+    isDj_univ d L N₁ m₁ (k + 1) m₀ (k + 1)
+  let I : DirectTerms S m₀ hp (F' := Unit) (fun _ => ()) ρ Rσ εU a (0 : ℂ) Set.univ Set.univ
+      (fun _ _ _ _ => (0 : ℂ)) (fun _ _ _ => True) (fun _ _ _ => True) :=
+    { 𝒴 := {Set.univ}
+      T := fun _ _ _ _ _ => 0
+      b := fun _ => 0
+      loc := ⟨by simp, fun Y _ _ _ => analyticOnNhd_const, by simp,
+        fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl, fun _ _ _ _ _ _ => rfl⟩
+      dom := fun Y hy => by rw [Finset.mem_singleton.1 hy]; exact hY
+      bd := fun _ _ => by positivity
+      mem := Set.mem_univ _
+      agΘ := fun _ => trivial
+      xw := fun _ _ => Set.mem_univ _
+      ag := fun _ _ _ _ _ => trivial
+      meas := fun _ _ _ _ => measurable_const }
+  exact ⟨I, ⟨isOpen_univ, Set.subset_univ _, fun _ _ _ => trivial,
+    fun _ _ _ _ _ _ => continuousOn_const⟩, ⟨Set.univ, Finset.mem_singleton_self _⟩, ⟨0, trivial⟩⟩
+
+/-- **The assembled `ParamMarkFamily` is inhabited** on the actual block spaces and measures of the
+step: for the whole-torus family of `nonempty_directTermsFamily` (`ρ = 1`, `Rσ = 2`), with no marks
+(`ι` empty), the activities of `labelActFamily` satisfy every activity field. -/
+theorem nonempty_paramMarkFamily_activityPhysical (hN : L ^ m₀ ∣ N₁) (hp : 0 < S.p₁) (a : ℝ) :
+    ∃ (I : DirectTerms S m₀ hp (F' := Unit) (fun _ => ()) 1 2 0 a (0 : ℂ) Set.univ Set.univ
+      (fun _ _ _ _ => (0 : ℂ)) (fun _ _ _ => True) (fun _ _ _ => True))
+      (hF : DirectTermsFamily S m₀ I Set.univ),
+      Nonempty (ParamMarkFamily (S.blockSplit m₀ hp).μ (thickLabels I.𝒴 I.dom)
+        (labelActFamily S m₀ I hF hN one_pos (by norm_num) le_rfl
+          (le_refl (aEnt d L + 1)) (le_refl (K0 d L (aEnt d L + 1))))
+        (fun e : Empty => e.elim) (fun _ _ _ _ => (0 : ℂ)) 0 (fun e : Empty => e.elim) Set.univ
+        (ball (0 : ℂ) 2) (physCarrier S m₀ hp)) := by
+  obtain ⟨I, hF, -⟩ := nonempty_directTermsFamily S m₀ hp 1 2 0 a le_rfl
+  exact ⟨I, hF, ⟨paramMarkFamily_zero_marks S m₀ hF hN one_pos (by norm_num) le_rfl
+    (le_refl (aEnt d L + 1)) (le_refl (K0 d L (aEnt d L + 1))) (by norm_num) _ 0
+    (fun e : Empty => e.elim) (fun e : Empty => e.elim)⟩⟩
+
+end Inhabited
+
 end Balaban.Fluctuation
