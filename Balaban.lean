@@ -218,6 +218,7 @@ public import Balaban.Green.TranslationInvariant
 public import Balaban.Green.CoarseOperator
 public import Balaban.Green.FinalMassGreen
 public import Balaban.Green.FinalMassSqrt
+public import Balaban.Green.FinalComplexMatrix
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
@@ -1258,6 +1259,8 @@ public import Balaban.SmallField.RenormPinSum
 public import Balaban.SmallField.RenormPinCounter
 public import Balaban.Localization.PairedLocalGraph
 public import Balaban.Localization.PairedLocalAgree
+public import Balaban.Localization.PairedReadLocality
+public import Balaban.Inhabited.PairedReadLocalityWitness
 public import Balaban.Localization.PairedLocalX0
 public import Balaban.Localization.P6PairCast
 public import Balaban.Localization.P6PairCastReal
@@ -1336,7 +1339,10 @@ public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Fluctuation.MarkedSharpCount
 public import Balaban.Fluctuation.MarkedHatRows
+public import Balaban.Fluctuation.MarkedDecBall
+public import Balaban.Fluctuation.MarkedDecAnalytic
 public import Balaban.Inhabited.MarkedHatRowsWitness
+public import Balaban.Fluctuation.MarkedFluctRows
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
