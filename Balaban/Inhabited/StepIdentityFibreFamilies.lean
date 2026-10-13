@@ -176,6 +176,13 @@ theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmi
                   (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → c θ C = c θ' C) ∧
             (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
                 (T.step k hk N₁ ν β p₁).ν T.t,
+              ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
+                c θ C = c θ' C) ∧
+            (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
               ‖c θ C‖ ≤ K0 3 3 T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
             (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
               dExt C = sizeJ 1 (k + 1) (sitesOf C))) ∧
