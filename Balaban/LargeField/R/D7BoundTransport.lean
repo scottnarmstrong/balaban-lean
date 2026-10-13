@@ -72,6 +72,30 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   {aw μs ε ε1 νs : ℕ → ℝ} {hv : EuclideanSpace ℝ (Fin N)} {rH : ℝ}
   {rin rout : Rep S n R k0 K M N geo cs P k}
 
+/-- **The `bound` field of `D7Bdry2Post`, as a statement about a record**: for every history of
+the record, every label of `bdryDomsPost` for the region `Zof A`, every external field in the
+pinned ball and every point of the domain `H7Domain`, the boundary term is bounded by
+`fac · e^{-rate · d7Size}`, strictly. -/
+def D7PostBound {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
+    (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Prop :=
+  ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
+    ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
+      ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ < fac * Real.exp (-rate * d7Size Fr A k X)
+
+/-- The `bound` field of `D7Bdry2Post` is `D7PostBound`. -/
+theorem D7Bdry2Post.d7PostBound {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)} {rH : ℝ}
+    (h : D7Bdry2Post Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) :
+    D7PostBound Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH :=
+  h.bound
+
 /-- **T4: the two-case bound theorem** (VMOD-40 "Proposed bound theorem").
 
 Data: the pre record `rin` with `hin : D7Bdry2 … (fun A => A.H.F.Zpre k) … Bst ((3/2) κ) …`;
@@ -111,12 +135,7 @@ theorem d7Post_bound_of_avoid_of_gas {κ Bst B0 : ℝ}
         (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
       ‖rout.B A Y (extK p.1) (extK p.2.1) h p.2.2‖ < B0 * Real.exp (-κ * d7Size Fr A k Y)) :
-    ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z, ∀ h ∈ hSetB2 hv rH,
-    ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
-      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
-        (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
-        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
-      ‖rout.B A Y (extK p.1) (extK p.2.1) h p.2.2‖ < B0 * Real.exp (-κ * d7Size Fr A k Y) := by
+    D7PostBound Fr hnn hkK rout (fun A => (A.H.step k).Z) aw μs ε ε1 νs B0 κ hv rH := by
   intro A hA Y hY h hh p hp
   by_cases hd : Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k)
   swap
