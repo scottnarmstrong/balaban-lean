@@ -105,4 +105,120 @@ theorem exX_not_isLevel (hd : 0 < d) (n : ℕ) : ¬ Fluctuation.IsLevel
   have h2 : 11 * M1 * L ^ 2 = 891 := by rw [hM, hL]; norm_num
   omega
 
+/-! ### The description of `Ω_1` -/
+
+section Coord
+
+omit [NeZero L] [NeZero M1] [NeZero N₁] in
+private theorem nat_nec {m P A B W U V : ℕ} (hm : m = 75) (hP : P = 27) (hA : A = U / P)
+    (hB : B = V / P) (hV : V < 81) (hAm : A < m) (hW : W < m) (h1 : A = (B + W) % m)
+    (h : min W (m - W) ≤ 15) : U < 486 ∨ 1620 ≤ U := by
+  subst hm hP; omega
+
+omit [NeZero L] [NeZero M1] [NeZero N₁] in
+private theorem nat_suff1 {m P A B U V : ℕ} (hm : m = 75) (hP : P = 27) (hA : A = U / P)
+    (hB : B = V / P) (hV : V = min U 80) (hU : U < 486) :
+    B ≤ A ∧ min (A - B) (m - (A - B)) ≤ 15 := by
+  subst hm hP; omega
+
+omit [NeZero L] [NeZero M1] [NeZero N₁] in
+private theorem nat_suff2 {m P A U : ℕ} (hm : m = 75) (hP : P = 27) (hA : A = U / P)
+    (hU : 1620 ≤ U) (hUl : U < 2025) : min A (m - A) ≤ 15 := by
+  subst hm hP; omega
+
+/-- One coordinate, necessity: a coordinate at cube distance `≤ 15` (in `C_1`-cubes of side 27,
+75 per direction) from a coordinate in `[0, 81)` lies in `[0, 486) ∪ [1620, 2025)`. -/
+theorem coord_necessary {ℓ P m : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = P * m) (hm : m = 75)
+    (hP : P = 27) (u v : ZMod ℓ) (hv : v.val < 81)
+    (h : cycNorm m (blockCoord P m u - blockCoord P m v) ≤ 15) : u.val < 486 ∨ 1620 ≤ u.val := by
+  have ha := blockCoord_val hℓ u
+  have hb := blockCoord_val hℓ v
+  have e : blockCoord P m u = blockCoord P m v + (blockCoord P m u - blockCoord P m v) := by
+    ring
+  have h1 := congrArg ZMod.val e
+  rw [ZMod.val_add] at h1
+  exact nat_nec hm hP ha hb hv (ZMod.val_lt _) (ZMod.val_lt _) h1 h
+
+/-- One coordinate, sufficiency. -/
+theorem coord_sufficient {ℓ P m : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = P * m) (hm : m = 75)
+    (hP : P = 27) (u : ZMod ℓ) (hu : u.val < 486 ∨ 1620 ≤ u.val) :
+    ∃ v : ZMod ℓ, v.val < 81 ∧
+      cycNorm m (blockCoord P m u - blockCoord P m v) ≤ 15 := by
+  have hℓ' : ℓ = 2025 := by rw [hℓ, hm, hP]
+  have hul : u.val < 2025 := hℓ' ▸ ZMod.val_lt u
+  have ha := blockCoord_val hℓ u
+  by_cases h : u.val < 486
+  · refine ⟨((min u.val 80 : ℕ) : ZMod ℓ), ?_, ?_⟩
+    · rw [ZMod.val_natCast_of_lt (by omega)]; omega
+    · have hv : ((min u.val 80 : ℕ) : ZMod ℓ).val = min u.val 80 :=
+        ZMod.val_natCast_of_lt (by omega)
+      have hb := blockCoord_val hℓ ((min u.val 80 : ℕ) : ZMod ℓ)
+      obtain ⟨hle, hc⟩ := nat_suff1 hm hP ha hb hv h
+      unfold cycNorm
+      rw [ZMod.val_sub hle]
+      exact hc
+  · have hu2 : 1620 ≤ u.val := hu.resolve_left h
+    refine ⟨0, by simp, ?_⟩
+    have hb : blockCoord P m (0 : ZMod ℓ) = 0 := by
+      unfold blockCoord; simp
+    rw [hb, sub_zero]
+    unfold cycNorm
+    have := nat_suff2 (m := m) (P := P) (A := (blockCoord P m u).val) (U := u.val) hm hP ha hu2 hul
+    exact this
+
+end Coord
+
+include hM hN hL hq in
+/-- **`Ω_1` on the instance**: the sites all of whose coordinates lie in `[0, 486)` or
+`[1620, 2025)`: the cube of side `891` about `X` (`81 + 2 · 405`). -/
+theorem exX_Ω_one {x : Torus d (M1 * N₁ * L ^ q)} :
+    x ∈ (minimalGenSet (d := d) (M1 := M1) (N₁ := N₁) (L := L) (q := q) (j := 2)
+      (by omega) (exX d M1 N₁ L q)).Ω 1 ↔ ∀ μ, (x μ).val < 486 ∨ 1620 ≤ (x μ).val := by
+  have hq1 : 1 ≤ q := by omega
+  have hℓ := fine_eq_cube (M1 := M1) (N₁ := N₁) (L := L) hq1
+  have hm : N₁ * L ^ (q - 1) = 75 := by rw [hN, hL, hq]; norm_num
+  have hP : L ^ 1 * M1 = 27 := by rw [hL, hM]; norm_num
+  have e : L ^ 2 * M1 = 81 := by rw [hL, hM]; norm_num
+  have e5 : 5 * L = 15 := by rw [hL]
+  rw [minimalGenSet_Ω, minLayer_of_lt _ (by omega : 1 < 2), mem_nearStep]
+  have htop : minLayer M1 N₁ L q 2 (exX d M1 N₁ L q) (1 + 1) = exX d M1 N₁ L q := by
+    rw [show 1 + 1 = 2 from rfl, minLayer_self, localGen_cubeInterior_eq _ (by omega)
+      (exX_isCellUnion hM hL)]
+  rw [htop]
+  constructor
+  · rintro ⟨y, hy, hd⟩ μ
+    rw [e5, supDist_le_iff] at hd
+    have := hd μ
+    unfold fineCubeIdx at this
+    simp only [blockMap_apply] at this
+    have hv := (mem_exX.1 hy) μ
+    rw [e] at hv
+    exact coord_necessary hℓ hm hP (x μ) (y μ) hv this
+  · intro h
+    choose v hv hd using fun μ => coord_sufficient hℓ hm hP (x μ) (h μ)
+    refine ⟨v, ?_, ?_⟩
+    · rw [mem_exX, e]; exact hv
+    · rw [e5, supDist_le_iff]
+      intro μ
+      unfold fineCubeIdx
+      simp only [blockMap_apply]
+      exact hd μ
+
+include hM hN hL hq in
+/-- On the instance, `B_2(X)` has a site of layer `1`, below the top layer `2` (`d ≥ 1`). -/
+theorem exX_lower (hd : 0 < d) : ∃ y, y ∈ (minimalGenSet (d := d) (M1 := M1) (N₁ := N₁)
+    (L := L) (q := q) (j := 2) (by omega) (exX d M1 N₁ L q)).layer 1 ∧
+    (minimalGenSet (d := d) (M1 := M1) (N₁ := N₁) (L := L) (q := q) (j := 2) (by omega)
+      (exX d M1 N₁ L q)).layerIndex y = 1 := by
+  have e : L ^ 2 * M1 = 81 := by rw [hL, hM]; norm_num
+  have hℓ : M1 * N₁ * L ^ q = 2025 := by rw [hM, hN, hL, hq]; norm_num
+  refine localGen_exists_lower _ (by omega) le_rfl (exX_isCellUnion hM hL) ⟨0, ?_⟩ ?_
+  · rw [mem_exX, e]; intro μ; simp
+  · intro h
+    have : (fun _ => ((81 : ℕ) : ZMod (M1 * N₁ * L ^ q))) ∈ exX d M1 N₁ L q := by
+      rw [h]; exact Finset.mem_univ _
+    have h2 := (mem_exX.1 this) ⟨0, hd⟩
+    rw [e, ZMod.val_natCast, hℓ] at h2
+    norm_num at h2
+
 end Balaban.LargeField
