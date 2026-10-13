@@ -8,6 +8,7 @@ module
 public import Balaban.Localization.P6PairGraph
 public import Balaban.Fluctuation.DetCauchyGraph
 public import Balaban.Localization.P6PairCover
+public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Polymer.RootedAnimals
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -36,10 +37,39 @@ operator) is *active* (`PairAct`) when `EligC` holds and the centre is live for 
 `jointSites_support`: every reached site is in the seed `U` (which contains `X₁`) or in the extended
 footprint of a centre of a root chain.  `pairRootChain_iff_jointIn` is the converse.
 
-Parameter-free centres (`PairParamFree`: `𝒬(z) ∩ parCubes X₁ = ∅`) are eligible for every `𝒞`;
-mathematically, outside the parameter region the operator is not decoupled, so dependence is carried
-by undecoupled rows and no marked patch is charged for it.  A chain centre is parameter-free or has
-a non-empty `𝒬(z) ∩ parCubes X₁ ⊆ 𝒞` (`chain_dichotomy`).
+Parameter-free centres (`PairParamFree`: `𝒬(z) ∩ parCubes X₁ = ∅`; the parameter cubes are the
+cubes of the cover that are NOT contained in `X₁`) are eligible for every `𝒞`; mathematically,
+outside the parameter region the operator is not decoupled, so dependence is carried by undecoupled
+rows and no marked patch is charged for it.  A chain centre is parameter-free or has a non-empty
+`𝒬(z) ∩ parCubes X₁ ⊆ 𝒞` (`chain_dichotomy`).  Parameter-free centres do occur (`paramFree_of_univ`;
+in general the centres deep inside `X₁`), but they are harmless for the count: all sites of their
+footprint lie in `X₁ ⊆ U` (`paramFree_foot_subset`), so a chain through such a centre can be cut
+and restarted at the seed.  No hypothesis on `X₁` beyond `X₁ ⊆ U` is therefore needed.
+
+## The patch graph of the chain and the count
+
+For `C = coverOf G` (`G` a generating set of layers `k + 1`):
+
+* `chainPatchGraph G`: the graph on the cubes `cubeIdx G` in which two distinct cubes are adjacent
+  when they are joined by at most three edges of `Fluctuation.paramGraph G` (common footprint
+  `𝒬(z)`, or Moore touching).  Unmarked cubes (contained in `X₁`) can lie on the path.
+* `jointParams_rooted`: every reached marked patch is joined, inside the set of reached patches, by
+  a walk of `chainPatchGraph G` to `pairRootSet U` (the pair analogue of
+  `Fluctuation.rooted_of_rootChain`).
+* `chainPatchGraph_degree_le`, `chainPatchGraph_degree_le_sup`: degree at most
+  `pairChainDeg d L = (detDeg d L + 1)^3`; the first under the self-cover separation
+  `4 d L M₁ ≤ ϱ`, the second (the one that applies to `F♯`, `ϱ = 5 L M₁`) under `SupSep`.
+* `card_pairRootNbhd_le`, `chainPatch_rooted_sum_le`, `chainPatch_rooted_sum_le_exp`: the
+  root neighbourhood of one seed site has at most `(2 d + 1)(detDeg d L + 1)` cubes, and the rooted
+  sum is at most `(1 / (1 - pairChainD² t))^|A|`, with the exponential form.
+* `jointParams_mem_rootedSets`: the reached patches are one of the sets counted.
+* `p6_jointParams_rooted`, `p6_chainPatchGraph_degree_le`, `p6_chainPatch_rooted_sum_le`: the
+  statements for the P6 pair.
+
+**Not proved here.**  Active-only coefficient support (`OPEN-P6-ACTIVE-COMPOSITE-LOC`) is open and
+is the subject of a question to the author; this file only supplies the count that a proved support
+statement would feed.  The seed must contain `X₁` (`hX`): the closure reaches the sites of `X₁`
+by nearest-neighbour steps and these are not tracked by the chain unless they are in the seed.
 -/
 
 @[expose] public section
@@ -294,6 +324,27 @@ theorem chain_dichotomy {u : Bool × (ℕ × CTorus d L N₁ m₁ K)}
   by_cases hne : (C.Qset u.2 ∩ C.parCubes X₁).Nonempty
   · exact Or.inr ⟨hne, fun P hP => h.act.1.2 P (Finset.mem_inter.1 hP).1 (Finset.mem_inter.1 hP).2⟩
   · exact Or.inl (Finset.not_nonempty_iff_eq_empty.1 hne)
+
+/-- If `X₁` is everything, every centre is parameter-free. -/
+theorem paramFree_of_univ [Fintype (CTorus d L N₁ m₁ K)] (hX : X₁ = Finset.univ)
+    (z : ℕ × CTorus d L N₁ m₁ K) : PairParamFree (C := C) (X₁ := X₁) z := by
+  unfold PairParamFree
+  refine Finset.eq_empty_of_forall_notMem fun P hP => ?_
+  obtain ⟨-, hpar⟩ := Finset.mem_inter.1 hP
+  exact (Finset.mem_filter.1 hpar).2 (fun x _ => hX ▸ Finset.mem_univ x)
+
+/-- **Sufficient condition for no parameter-free centre.**  If the cube of the centre `z` of the
+cover `coverOf G` is not contained in `X₁` (for example if `X₁ = ∅`), then `z` is not
+parameter-free: it is itself a parameter cube of its footprint. -/
+theorem not_paramFree_of_cell {ϱG : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱG}
+    {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ cubeIdx G) (h : ¬ cubeP z ⊆ X₁) :
+    ¬ PairParamFree (C := coverOf G) (X₁ := X₁) z := by
+  intro hpf
+  have : z ∈ (coverOf G).Qset z ∩ (coverOf G).parCubes X₁ :=
+    Finset.mem_inter.2 ⟨Balaban.Localization.self_mem_Qset (G := G) hz,
+      Finset.mem_filter.2 ⟨hz, h⟩⟩
+  rw [hpf] at this
+  simp at this
 
 /-- Every eligible centre that is parameter-free is eligible for every marked set. -/
 theorem eligC_of_paramFree {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ C.cubeIdx)
