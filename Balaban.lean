@@ -221,6 +221,8 @@ public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.FinalComplexMatrix
 public import Balaban.Green.FinalComplexHessian
 public import Balaban.Green.KF0Reference
+public import Balaban.Green.KF0KilledWalks
+public import Balaban.Green.KF0DetWalks
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
