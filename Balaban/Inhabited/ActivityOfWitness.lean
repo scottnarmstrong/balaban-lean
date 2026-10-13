@@ -341,7 +341,7 @@ general tower.**  The statement of `sourceWitness_analytic_fromTower_rho` at
 `T : StepTowerG d L N κmin`: block scale `T.m₀`, block coupling `β L^{k (d-2)}`, step `T.step`.
 The clauses of `commonWitness_joint_fromTowerG_rho` for one `val, 𝒴, Tt`, and for the same
 `val, 𝒴, Tt` the conclusion of `activityFamilyAnalytic_of_witnessG_rho` at `q = ρ`.  The fixed
-theorem is its corollary. -/
+statement `sourceWitness_analytic_fromTower_rho` is its corollary. -/
 theorem sourceWitness_analytic_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) :
     ∃ CE CF : ℝ, 0 < CE ∧ 0 < CF ∧
