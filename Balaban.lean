@@ -339,6 +339,8 @@ public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
 public import Balaban.Localization.DecEquivPermuteStep
 public import Balaban.Localization.DecEquivReflect
+public import Balaban.Localization.DetUnitIncidenceSymm
+public import Balaban.Localization.DetDecCovSymm
 public import Balaban.Localization.DecEquivReflectStep
 public import Balaban.Localization.DecEquivPermutePolymer
 public import Balaban.Localization.DecEquivReflectPolymer
@@ -1502,6 +1504,7 @@ public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
+public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
