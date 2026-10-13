@@ -199,9 +199,10 @@ These have no known mathematical gap, but they are substantial and not yet done.
   operators correspond, and the decoupled background and fluctuation solutions on a cut component
   are the same on two tori. Still to do: the covariance and its square root on a component, and
   the comparison of every coefficient. See `notes/phase1/TORUSCOH2.md`, `TORUSCOH3.md`.
-- **General d, L, N.** Most of the step is proved at d = L = 3, N = 2. The general constant record
-  and its producer are proved, and the fixed-parameter results are being turned into corollaries of
-  general ones. See `notes/phase1/STOWERG.md`, `STOWERG2.md`.
+- **General d, L, N.** The step is proved for general d ≥ 3, L, N, with the fixed d = L = 3, N = 2
+  results as corollaries. An arbitrary unit external field h is reduced to a coordinate vector by a
+  rotation; this needs the source radius √N along the chain, which is about 13 files of
+  generalization with no known obstruction. See `notes/phase1/STOWERG2.md`, `UNITH.md`.
 - **The logarithm and the assembly of the terms T_j.** See `notes/phase1/ROOTASM.md`,
   `OBSBUDGET.md`.
 
