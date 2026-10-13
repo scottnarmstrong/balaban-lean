@@ -231,6 +231,7 @@ public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.KF0HoleWalk
 public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
+public import Balaban.Green.KernelSeriesGeneral
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
