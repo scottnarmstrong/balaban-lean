@@ -12,12 +12,13 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W310 | `w310-scale-mass-weight` / W310 | mass premise for k ≤ k₀ and weight-uniform constants (SCALEUNIF) |
-| W311 | `w311-level-step-setting` / W311 | hatStepK: the step setting at general scale; BgHyp, DGSetting/OpSetting, HatConn (SCALEUNIF) |
-| W306 | `w306-root-mark-geom` / W306 | root geometry for the marked expansion (MARKS package 1) |
-| W307 | `w307-det-cauchy-chart` / W307 | composed cut family for the determinant: DecDom membership, Schwarz bound, endpoint (DETCAUCHY package 1) |
-| W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
-| W309 | `w309-physical-rates` / W309 | large-β activity bound at the rates that preserve the decay rate (tower with prescribed rates) |
+| W322 | `w322-det-endpoint` / W322 | determinant endpoint: support (`DetCauchyGraph`) + hull (`DetCauchyHull`) + cut-dependent backgrounds (`DetCauchyChart`) → activity bound per hull |
+| W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
+| W320 | `w320-dec2-cov` / W320 | decoupled covariance and square root for a cover pair; reduction to the self-cover; block diagonality (P6 mixed covariance rows, part A) |
+| W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
+| W319 | `w319-p6-pair-graph` / W319 | joint incidence graph of the two P6 operators; hypotheses of paired_locality for the old boundary composite (VMOD-34 package 3) |
+| W321 | `w321-stop-index` / W321 | stopping index k_f (first ν_k > (7/8)L^{-2}); mass premise for all ordinary steps; agreement with Root-F's scale clause (MASSIVE §3) |
+| W323 | `w323-r-history-labels` / W323 | R: six-outcome enumeration of histories, transport of `IsComplete`, top `D4Pin` (VMOD-37 package 5) |
 | W312 (Opus) | `w312-level-local-cover` / W312 | local cover on a general torus, radius tower at general scale, the zero-class activity bound at every scale with ν_k ≤ L^{−2} (SCALEUNIF) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
