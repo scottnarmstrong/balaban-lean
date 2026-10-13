@@ -14,10 +14,11 @@ import Mathlib.Tactic.Positivity
 /-!
 # The root assembly of the marked terms of the zero class (`MarkedRootAssembly`)
 
-For the zero class `Φ₁ = -β V^{(k)}`, and the marks of the first-order term at the root `z` are
-`G_{z,Y'}(e, u) = -β · markedOut z Y'`, `Y' ∈ 𝒴_z = bridgeFamily`, built with the tangent `Q(e.1)` of
-the family (`MarkedRootFamily`).  This file assembles the four clauses of the leaf
-`markedRoot_zero_family` of the note `MARKPARAM`.
+For the zero class the exponent is `Φ₁ = -β V^{(k)}`, and the marks of the first-order term at the
+root `z` are `G_{z,Y'}(e, u) = -β · markedOut z Y'`, `Y' ∈ 𝒴_z = bridgeFamily`, built with the
+tangent `Q(e.1)` of the family (`MarkedRootFamily`).  This file assembles the clauses of the leaf
+`markedRoot_zero_family` of the note `MARKPARAM` that do not involve the configuration: the finite
+sum, the bound, the root and domain clause and the analyticity in `(e, u)`.
 
 * `MarkRealAt`: the hypotheses `MARK-REAL` of the landed
   `hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom` at the datum of a step, in one statement: the
@@ -41,15 +42,17 @@ the family (`MarkedRootFamily`).  This file assembles the four clauses of the le
 * `markedRootAssembly_zero`: the same with `MARK-REAL` supplied by `markRealAt_of_chart`, for the
   terms of `vblock_expansion_scaled` and the tangent `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂` built from one
   matrix function `M` of the raw data that serves every hat field `‖ψ̂‖ ≤ p₁`
-  (`exists_analytic_hatCovSqrt_bdd`).
+  (`exists_analytic_hatCovSqrt_bdd`); it also returns the clauses of the block terms, the bound of
+  the tangent on the chart, `MARK-REAL` on the slice and the clauses of `MarkedRootFamily`.
 
 ## Scope
 
 Zero class, undecoupled level, generator-neutral.  NOT proved here: continuity and measurability
 in the configuration, the clamped extension of the marks to all parameters and configurations
 (the leaf `markedGlobalFields_zero`); one label system for all roots; the `E1MarksC` inhabitant.
-The marks are not local in the configuration `ψ̂` (the tangent `C^{1/2}(Θ) ψ̂` is not), so no `DepOn`
-statement is made.
+Locality in the configuration `ψ̂` is NOT proved: the tangent `β_k^{-1/2} C^{1/2}(Θ) ψ̂` reads the
+whole configuration through the square root of the covariance, and no `DepOn` statement is made
+(the rooted sums are local in the unit field, `markedOut_field_congr`).
 -/
 
 @[expose] public section
@@ -79,9 +82,9 @@ the mark radius `t₁` and the hat field `ψ̂ = x`:
 2. every layer-constant fluctuation `ψ'` with `|ψ'| < δ₁` is the tangent of an old spin with the
    same `h`, whose disc of radius `R` through `ψ^{(k)}(θ)` lies in the domain of the small solution
    (`hreal`, FLUCTUATION Lemma 2.3 (d));
-3. for every `s ∈ [0,1]` and `|t| < t₁`, the segment `ψ^{(k)}(θ) + ζ v_t`, `ζ ∈ [0,1]`, of the marked
-   tangent `v_t = s ψ' + t M_z ψ'`, `ψ' = shiftUC ψ̂`, has complex neighbourhoods in the domain of
-   the small solution (`hdomT`);
+3. for every `s ∈ [0,1]` and `|t| < t₁`, the segment `ψ^{(k)}(θ) + ζ v_t`, `ζ ∈ [0,1]`, of the
+   marked tangent `v_t = s ψ' + t M_z ψ'`, `ψ' = shiftUC ψ̂`, has complex neighbourhoods in the
+   domain of the small solution (`hdomT`);
 4. for every `s ∈ [0,1]` the exponent `Φ₁` of the zero class is complex differentiable at `s ψ'`. -/
 def MarkRealAt (δ₁ R t₁ : ℝ) (x : S.E) : Prop :=
   InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D' ∧

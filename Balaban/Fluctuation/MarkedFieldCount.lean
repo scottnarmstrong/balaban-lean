@@ -39,10 +39,11 @@ condition `(R₁ + r)(R_σ + t₁) Y₀ < δ₁`, uniform for the radial marks `
   `marked_count_field` returns one family `Ev` of block terms (the one of
   `vblock_expansion_scaled`, with its four clauses) serving every marked block `z`, every unit
   field and every datum of the chart.
-* `exists_radial_margin`, `marked_count_scaled_of_vblock_via_field`, `marked_count_scaled_via_field`:
-  the statements of the landed `marked_count_scaled_of_vblock` and `marked_count_scaled`, word for
-  word, deduced from the field-generic count at `y = shiftUC ψ̂` (a radius `R_σ > |u|` with the
-  uniform margin exists because the landed radius condition is strict).
+* `exists_radial_margin`, `marked_count_scaled_of_vblock_via_field`,
+  `marked_count_scaled_via_field`: the statements of the landed `marked_count_scaled_of_vblock`
+  and `marked_count_scaled`, word for word, deduced from the field-generic count at
+  `y = shiftUC ψ̂` (a radius `R_σ > |u|` with the uniform margin exists because the landed radius
+  condition is strict).
 * `markedOut_field_congr`: a rooted sum `markedOut z Y'` reads the unit field only through its
   lift on `psiThick Y'` and the datum only on `thickSet Y'`.
 
@@ -50,9 +51,10 @@ condition `(R₁ + r)(R_σ + t₁) Y₀ < δ₁`, uniform for the radial marks `
 
 Zero class, undecoupled level, generator-neutral (nothing depends on a choice of generating sets
 for the class terms).  The locality proved here is locality in the **unit field** `y`.  For
-`y = β_k^{-1/2} C^{1/2}(Θ) ψ̂` this is NOT locality in the configuration `ψ̂`, since `C^{1/2}` is not
-local; no `DepOn` statement for configurations is proved.  The clamped global marks, the common
-label system and the `E1MarksC` inhabitant are NOT constructed here.
+`y = β_k^{-1/2} C^{1/2}(Θ) ψ̂` this is NOT locality in the configuration `ψ̂` (the field `y` at one
+unit point reads `ψ̂` at all unit points through the matrix `C^{1/2}`); no `DepOn` statement for
+configurations is proved.  The clamped global marks, the common label system and the `E1MarksC`
+inhabitant are NOT constructed here.
 -/
 
 @[expose] public section
@@ -255,7 +257,8 @@ theorem markedBlockTerm_field_congr {y y' : S.EC} {u t : ℂ}
     (hag : agreeOn (thickSet S.G' Y) Θ Θ')
     (hyy : ∀ x ∈ psiThick Y, liftC S.hG' y x = liftC S.hG' y' x) :
     markedBlockTerm Ev taylorWeight (liftC S.hG' (u • y)) (liftC S.hG' (S.maskUC z y)) Θ t =
-      markedBlockTerm Ev taylorWeight (liftC S.hG' (u • y')) (liftC S.hG' (S.maskUC z y')) Θ' t := by
+      markedBlockTerm Ev taylorWeight (liftC S.hG' (u • y')) (liftC S.hG' (S.maskUC z y'))
+        Θ' t := by
   have hd : ∀ σ : ℂ, ‖σ‖ < R₁ + r →
       σ • (liftC S.hG' (u • y) + t • liftC S.hG' (S.maskUC z y)) ∈ FlBall Hm δ₁ :=
     fun σ hσ => S.markedDisc_field_mem_flBall z hHm hY hrad hu ht hσ
@@ -647,8 +650,8 @@ analytic on `Ξ^c × FlBall Hm δ₁` and local in the sense of `vblock_expansio
 margin and `|u| < R_σ`, the rooted sums `markedOut z Y'` built with `(y, Θ)` and with `(y', Θ')`
 are equal: every term of the fibre of `Y'` has its label inside `Y'`.
 
-This is locality in the unit field.  For `y = β_k^{-1/2} C^{1/2}(Θ) ψ̂` it is not locality in the
-configuration `ψ̂`. -/
+This is locality in the unit field.  For `y = β_k^{-1/2} C^{1/2}(Θ) ψ̂` it does not give locality in
+the configuration `ψ̂`. -/
 theorem markedOut_field_congr (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
     (dom : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
       Finset (Set (CTorus d L N₁ m₁ (k + 1)))) (hHm : IsLevel Hm k)

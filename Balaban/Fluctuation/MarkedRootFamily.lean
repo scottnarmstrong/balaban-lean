@@ -11,8 +11,8 @@ public import Balaban.Fluctuation.MarkedFieldCount
 # The rooted sums of the marked terms as an analytic family on the chart (`MarkedRootFamily`)
 
 For a family of data the tangent of the marked terms is a function `Q` of the raw data, analytic on
-the chart `Ξ^c(𝔹_{k+1}; 1, ε)`, with values unit fields of Euclidean norm at most `Y₀` there (for the
-physical step: `Q(Θ) = β_k^{-1/2} C^{1/2}(Θ) ψ̂`, `exists_analytic_shiftUC_chart`; on the fibre
+the chart `Ξ^c(𝔹_{k+1}; 1, ε)`, with values unit fields of Euclidean norm at most `Y₀` there (for
+the physical step: `Q(Θ) = β_k^{-1/2} C^{1/2}(Θ) ψ̂`, `exists_analytic_shiftUC_chart`; on the fibre
 `h = h₀` it is the shift of the step with the datum).  The rooted sums `markedOut z Y'` built with
 the tangent `Q(e.1)` are functions of the parameter `e ∈ physV` and of the radial mark `u`.  The
 index sets `markedIdx`, `bridgeFamily`, `polyDom` do not depend on the datum, so:
