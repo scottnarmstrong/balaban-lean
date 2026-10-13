@@ -31,6 +31,8 @@ For a set `B` of bad blocks, `D = siteUnion B`, and `G = Dᶜ`, the landed secto
   normalizer times `∑_B kwNormRatio(B) · (reduced sector integral)`.
 * `kwNormRatio_empty`, `goodMean_empty`, `goodReducedConst_empty`: the empty sector reduces to the
   all-good prefactor.
+* The common-reference form (one Gaussian on the whole torus for all sectors) is NOT proved here.
+* `kf0SectorSum_instance`: `d = 3`, `N = 3`, `ℓ = 4`, one bad block.
 * `kf0SectorLint_le_peierls`: a crude bound for a sector with the Peierls charge
   `exp(-β ν r² #B / 2)`; the good Gaussian integral with the indicators dropped stays a named
   quantity.
@@ -587,5 +589,40 @@ theorem kf0SectorLint_le_peierls (s m : ℕ) [NeZero m] (r : ℝ) (hr0 : 0 ≤ r
     _ = _ := by rw [ENNReal.ofReal_mul (Real.exp_pos _).le]; ring
 
 end T5
+
+section T6
+
+/-- **Non-vacuity (T6).**  `d = 3`, `N = 3` (Heisenberg), torus side `ℓ = 4`, blocks of side `2`
+(`s = m = 2`), `r = 1/4`, `h = e₀`, `β = ν = 1`, zero source, one bad block `{0}`: the sector
+integral is positive and finite, equals the sector normalizer times the reduced sector integral
+(T1), the normalizer ratio is positive and lies between the two bounds of T2. -/
+theorem kf0SectorSum_instance :
+    let h : EuclideanSpace ℝ (Fin 3) := EuclideanSpace.single (0 : Fin 3) (1 : ℝ)
+    let B : Finset (Torus 3 2) := {0}
+    (0 < kf0SectorLint (ℓ := 4) 2 2 (1 / 4 : ℝ) 1 1 h (0 : Torus 3 4 → Fin 3 → ℝ) B ∧
+      kf0SectorLint (ℓ := 4) 2 2 (1 / 4 : ℝ) 1 1 h (0 : Torus 3 4 → Fin 3 → ℝ) B < ⊤) ∧
+    (∀ hh : ‖h‖ = 1, kf0SectorLint (ℓ := 4) 2 2 (1 / 4 : ℝ) 1 1 h (0 : Torus 3 4 → Fin 3 → ℝ) B =
+      ENNReal.ofReal (kwSectorNorm 3 4 3 1 1 (siteUnion (ℓ := 4) 2 2 B)) *
+        kf0SectorReduced hh 2 2 (1 / 4 : ℝ) 1 1 (0 : Torus 3 4 → Fin 3 → ℝ) B) ∧
+    (0 < kwNormRatio 3 4 3 1 1 (siteUnion (ℓ := 4) 2 2 B) ∧
+      Real.exp (-((((3 - 1) * (siteUnion (ℓ := 4) 2 2 B).card : ℕ) : ℝ) * (2 * (3 : ℕ) / 1))) *
+        (1 * (2 * (3 : ℕ) + 1) / (2 * Real.pi)) ^
+          ((((3 - 1) * (siteUnion (ℓ := 4) 2 2 B).card : ℕ) : ℝ) / 2) ≤
+        kwNormRatio 3 4 3 1 1 (siteUnion (ℓ := 4) 2 2 B) ∧
+      kwNormRatio 3 4 3 1 1 (siteUnion (ℓ := 4) 2 2 B) ≤
+        (1 * (2 * (3 : ℕ) + 1) / (2 * Real.pi)) ^
+          ((((3 - 1) * (siteUnion (ℓ := 4) 2 2 B).card : ℕ) : ℝ) / 2)) := by
+  intro h B
+  have hh : ‖h‖ = 1 := by simp [h]
+  have h1 : (0 : ℝ) < 1 := one_pos
+  refine ⟨⟨?_, kf0SectorLint_lt_top _ _ _ _ _ _ _ _⟩, fun hh' => ?_, ?_, ?_, ?_⟩
+  · exact lintegral_sector_pos (ℓ := 4) 2 2 _ _ rfl (by norm_num) (by norm_num) hh _ _ _ B
+  · exact kf0SectorLint_eq 2 2 _ B h1 h1 hh' (by norm_num) _
+  · unfold kwNormRatio
+    exact div_pos (kwSectorNorm_pos 3 h1 h1 _) (fullNorm_pos 3 h1 h1)
+  · exact kwNormRatio_ge 3 h1 h1 _
+  · exact kwNormRatio_le 3 h1 h1 _
+
+end T6
 
 end Balaban.LargeField
