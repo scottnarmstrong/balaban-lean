@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W306 | `w306-root-mark-geom` / W306 | root geometry for the marked expansion (MARKS package 1) |
 | W307 | `w307-det-cauchy-chart` / W307 | composed cut family for the determinant: DecDom membership, Schwarz bound, endpoint (DETCAUCHY package 1) |
 | W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
-| W300 | `w300-scaled-propagation` / W300 | PHYSCUBIC package 3: propagate the scaled energy bound through the hat V-part, the sharp assembly at source zero, and the activity bound; combine with the tower and the threshold |
+| W309 | `w309-physical-rates` / W309 | large-β activity bound at the rates that preserve the decay rate (tower with prescribed rates) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
 | W305 | `w305-post-weight-support` / W305 | active-factor interface: W_A ≠ 0 ⇒ ChiDomAt with local output equality; repaired parent-domain hypothesis (Q13-ACTIVE) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.

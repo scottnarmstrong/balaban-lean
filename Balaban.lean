@@ -409,6 +409,8 @@ public import Balaban.Localization.DecoupledCovPrincipal
 public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
+public import Balaban.Localization.YregBlocks
+public import Balaban.Inhabited.YregBlocksWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -1347,6 +1349,9 @@ public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
 public import Balaban.Fluctuation.SharpAssemblyEta
+public import Balaban.Fluctuation.SharpAssemblyScaled
+public import Balaban.Fluctuation.StepActivityDirectScaled
+public import Balaban.Inhabited.StepActivityDirectScaledWitness
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
@@ -1360,6 +1365,10 @@ public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical
+public import Balaban.Fluctuation.ParamActivitySubspace
+public import Balaban.Inhabited.ParamActivitySubspaceWitness
+public import Balaban.Fluctuation.DetCauchyHull
+public import Balaban.Inhabited.DetCauchyHullWitness
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
