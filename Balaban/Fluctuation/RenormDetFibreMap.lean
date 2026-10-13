@@ -372,4 +372,248 @@ theorem renDY_renFibreMap_le (hS : CovSetup G m₀ j Xr 𝒦X) (hG : IsLevel G K
 
 end Size
 
+section Fibre
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ j : ℕ} {Xr 𝒦X : Set (CTorus d L N₁ m₁ K)}
+
+/-- **T3: the fibre count.**  The number of polymers `X` meeting the root neighbourhood with
+`Φ(X) = Y` is at most `exp(c₁ log 2) · exp(c₁ log 2 · renDY Y)`: such an `X` lies in `Y` and is
+the union of the cells it contains. -/
+theorem card_renFibre_le (hS : CovSetup G m₀ j Xr 𝒦X) (hG : IsLevel G K) (hd : 3 ≤ d)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ Xr) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j Xr)
+    (Y : Finset (CTorus d L N₁ m₁ K)) :
+    (((open Classical in Finset.univ.filter fun X : Set (CTorus d L N₁ m₁ K) =>
+        (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) ∧
+          renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y).card : ℕ) : ℝ) ≤
+      Real.exp (c1 d L * Real.log 2) * Real.exp (c1 d L * Real.log 2 * renDY G m₀ Y) := by
+  classical
+  set F := Finset.univ.filter fun X : Set (CTorus d L N₁ m₁ K) =>
+        (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) ∧
+          renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y with hF
+  have hexp : 0 < Real.exp (c1 d L * Real.log 2) * Real.exp (c1 d L * Real.log 2 * renDY G m₀ Y) :=
+    by positivity
+  by_cases hne : F.Nonempty
+  swap
+  · rw [Finset.not_nonempty_iff_eq_empty.1 hne]; simpa using hexp.le
+  obtain ⟨X0, hX0⟩ := hne
+  obtain ⟨⟨hX0p, hX0r⟩, hX0Y⟩ := (Finset.mem_filter.1 hX0).2
+  have hYmem := renFibreMap_mem_renYs hS hG hX0p hX0r
+  rw [hX0Y] at hYmem
+  have hYdj : IsDj m₀ K (↑Y : Set (CTorus d L N₁ m₁ K)) := by
+    have := (mem_renYs.1 hYmem)
+    exact isDj_of_polymerDomains (renCube G (X1 G m₀ j 𝒦X)) hG hS hd
+      (fun i => renCube_mem G (X1 G m₀ j 𝒦X) i) hopt this
+  set a := cellSide L m₀ m₁ K with ha
+  set cells : Set (CTorus d L N₁ m₁ K) → Finset (CTorus d L N₁ m₁ K) := fun Z =>
+    Finset.univ.filter fun b => Aligned a b ∧ box b a ⊆ Z with hcells
+  have hsub : ∀ X ∈ F, cells X ∈ (cells ↑Y).powerset := by
+    intro X hX
+    obtain ⟨-, hXY⟩ := (Finset.mem_filter.1 hX).2
+    have hXY' : X ⊆ ↑Y := by
+      have := subset_renFibreMap (X := X) hS hG
+      rwa [hXY] at this
+    refine Finset.mem_powerset.2 fun b hb => ?_
+    simp only [hcells, Finset.mem_filter, Finset.mem_univ, true_and] at hb ⊢
+    exact ⟨hb.1, hb.2.trans hXY'⟩
+  have hinj : Set.InjOn cells (↑F : Set (Set (CTorus d L N₁ m₁ K))) := by
+    intro X hX X' hX' h
+    have hXd := isDj_of_isPolyDom (Finset.mem_filter.1 hX).2.1.1
+    have hXd' := isDj_of_isPolyDom (Finset.mem_filter.1 hX').2.1.1
+    have key : ∀ (Z Z' : Set (CTorus d L N₁ m₁ K)), IsDj m₀ K Z → cells Z = cells Z' → Z ⊆ Z' := by
+      intro Z Z' hZ hZZ' x hx
+      have hc := cell_subset_of_isDj (j := K) (m₀ := m₀) hS.hN le_rfl hZ hx
+      have hb : cbase a x ∈ cells Z := by
+        simp only [hcells, Finset.mem_filter, Finset.mem_univ, true_and]
+        exact ⟨aligned_cbase x, hc⟩
+      rw [hZZ'] at hb
+      simp only [hcells, Finset.mem_filter, Finset.mem_univ, true_and] at hb
+      exact hb.2 (mem_box_cbase (cellSide_pos m₀ m₁ K) x)
+    exact Set.Subset.antisymm (key X X' hXd h) (key X' X hXd' h.symm)
+  have hcard : F.card ≤ 2 ^ (cells ↑Y).card := by
+    have := Finset.card_le_card_of_injOn cells (fun X hX => hsub X hX) hinj
+    simpa using this
+  have hcc : ((cells ↑Y).card : ℝ) ≤ c1 d L * (1 + renDY G m₀ Y) := by
+    have h2 := G1_cellCount hS.hN (le_refl K) (Ω := Set.univ) (X := (↑Y : Set (CTorus d L N₁ m₁ K)))
+      ⟨hYdj, fun z hz => absurd (Set.mem_univ z) hz⟩
+    rw [Set.inter_univ, dcovMod_of_subset (Set.subset_univ _)] at h2
+    unfold renDY
+    rw [treeLenCov_eq_treeLenCovOne hG]
+    exact h2
+  calc (F.card : ℝ) ≤ ((2 ^ (cells ↑Y).card : ℕ) : ℝ) := by exact_mod_cast hcard
+    _ = (2 : ℝ) ^ (((cells ↑Y).card : ℕ) : ℝ) := by
+        rw [Real.rpow_natCast]; push_cast; rfl
+    _ ≤ (2 : ℝ) ^ (c1 d L * (1 + renDY G m₀ Y)) :=
+        Real.rpow_le_rpow_of_exponent_le (by norm_num) hcc
+    _ = _ := by
+        rw [Real.rpow_def_of_pos (by norm_num), ← Real.exp_add]
+        congr 1; ring
+
+end Fibre
+
+section Regroup
+
+/-- **T4 (abstract): the regrouped bound.**  Let `Φ : α → β`, with sizes `s` on `α` and `D` on
+`β`, such that on `P` we have `D (Φ x) ≤ A s x + c` and the fibre of `y` has at most
+`C_f e^{σ D y}` elements of `P`.  If `‖t x‖ ≤ H e^{-λ s x}` on `P`, the regrouped sum
+`∑_{x ∈ P, Φ x = y} t x` has norm at most `H C_f e^{λ c / A} e^{-κ D y}` for every
+`κ ≤ λ / A - σ`. -/
+theorem regroup_norm_le {α β E : Type*} [Fintype α] [DecidableEq β] [NormedAddCommGroup E]
+    (P : α → Prop) [DecidablePred P] (Φ : α → β) (s : α → ℝ) (D : β → ℝ) (t : α → E)
+    {A c Cf σ H lam κ : ℝ} (hA : 0 < A) (hlam : 0 ≤ lam) (hH : 0 ≤ H)
+    (hD : ∀ x, P x → D (Φ x) ≤ A * s x + c)
+    (hfib : ∀ y, ((Finset.univ.filter fun x => P x ∧ Φ x = y).card : ℝ) ≤
+      Cf * Real.exp (σ * D y))
+    (ht : ∀ x, P x → ‖t x‖ ≤ H * Real.exp (-lam * s x)) (hκ : κ ≤ lam / A - σ) (y : β)
+    (hy : 0 ≤ D y) :
+    ‖∑ x ∈ Finset.univ.filter (fun x => P x ∧ Φ x = y), t x‖ ≤
+      H * Cf * Real.exp (lam * c / A) * Real.exp (-κ * D y) := by
+  set S := Finset.univ.filter (fun x => P x ∧ Φ x = y) with hS
+  have hCf : 0 ≤ Cf := by
+    by_contra h0'
+    have h := not_le.1 h0'
+    have := hfib y
+    have h0 : (0 : ℝ) ≤ (S.card : ℝ) := Nat.cast_nonneg _
+    have : Cf * Real.exp (σ * D y) < 0 := mul_neg_of_neg_of_pos h (Real.exp_pos _)
+    linarith [hfib y]
+  have hterm : ∀ x ∈ S, ‖t x‖ ≤ H * Real.exp (lam * c / A) * Real.exp (-(lam / A) * D y) := by
+    intro x hx
+    obtain ⟨hPx, hxy⟩ := (Finset.mem_filter.1 hx).2
+    have h1 := hD x hPx
+    rw [hxy] at h1
+    have h2 : -lam * s x ≤ lam * c / A + -(lam / A) * D y := by
+      have h3 : D y - c ≤ A * s x := by linarith
+      have h4 : (D y - c) / A ≤ s x := by
+        rw [div_le_iff₀ hA]; linarith
+      have h5 : lam * ((D y - c) / A) ≤ lam * s x := mul_le_mul_of_nonneg_left h4 hlam
+      have h6 : lam * ((D y - c) / A) = lam * D y / A - lam * c / A := by ring
+      have h7 : -(lam / A) * D y = -(lam * D y / A) := by ring
+      rw [h7]; linarith
+    calc ‖t x‖ ≤ H * Real.exp (-lam * s x) := ht x hPx
+      _ ≤ H * Real.exp (lam * c / A + -(lam / A) * D y) :=
+          mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 h2) hH
+      _ = _ := by rw [Real.exp_add]; ring
+  calc ‖∑ x ∈ S, t x‖ ≤ ∑ x ∈ S, ‖t x‖ := norm_sum_le _ _
+    _ ≤ ∑ _x ∈ S, H * Real.exp (lam * c / A) * Real.exp (-(lam / A) * D y) :=
+        Finset.sum_le_sum hterm
+    _ = (S.card : ℝ) * (H * Real.exp (lam * c / A) * Real.exp (-(lam / A) * D y)) := by simp
+    _ ≤ (Cf * Real.exp (σ * D y)) * (H * Real.exp (lam * c / A) * Real.exp (-(lam / A) * D y)) :=
+        mul_le_mul_of_nonneg_right (hfib y) (by positivity)
+    _ = H * Cf * Real.exp (lam * c / A) * Real.exp (-(lam / A - σ) * D y) := by
+        have : Real.exp (-(lam / A - σ) * D y) =
+            Real.exp (σ * D y) * Real.exp (-(lam / A) * D y) := by
+          rw [← Real.exp_add]; congr 1; ring
+        rw [this]; ring
+    _ ≤ H * Cf * Real.exp (lam * c / A) * Real.exp (-κ * D y) := by
+        refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by positivity)
+        nlinarith
+
+/-- **T4 (abstract): the sum identity.**  If `Φ` maps `P` into `T`, regrouping does not change
+the total. -/
+theorem sum_regroup_eq {α β E : Type*} [Fintype α] [DecidableEq β] [AddCommMonoid E]
+    (P : α → Prop) [DecidablePred P] (Φ : α → β) (T : Finset β) (t : α → E)
+    (hT : ∀ x, P x → Φ x ∈ T) (ht0 : ∀ x, ¬ P x → t x = 0) :
+    ∑ y ∈ T, ∑ x ∈ Finset.univ.filter (fun x => P x ∧ Φ x = y), t x = ∑ x, t x := by
+  have h := Finset.sum_fiberwise_of_maps_to (s := Finset.univ.filter P) (t := T) (g := Φ) (f := t)
+    (fun x hx => hT x (Finset.mem_filter.1 hx).2)
+  have e : ∀ y, (Finset.univ.filter P).filter (fun x => Φ x = y) =
+      Finset.univ.filter (fun x => P x ∧ Φ x = y) := by
+    intro y; ext x; simp
+  simp only [e] at h
+  rw [h]
+  symm
+  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ P]
+  rw [Finset.sum_eq_zero (s := Finset.univ.filter fun x => ¬ P x) (fun x hx => ht0 x (by simpa using hx))]
+  simp
+
+end Regroup
+
+section RegroupRen
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ j : ℕ} {Xr 𝒦X : Set (CTorus d L N₁ m₁ K)}
+
+open Classical in
+theorem sum_filter_renFibreMap_eq {E : Type*} [AddCommMonoid E] (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ K)) (t : Set (CTorus d L N₁ m₁ K) → E)
+    (ht0 : ∀ X, ¬ (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) → t X = 0)
+    (Y : Finset (CTorus d L N₁ m₁ K)) :
+    ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
+        (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) ∧
+          renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y), t X =
+      ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
+        renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y), t X := by
+  refine Finset.sum_subset (fun X hX => ?_) (fun X hX hX' => ?_)
+  · simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hX ⊢
+    exact hX.2
+  · simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hX hX'
+    exact ht0 X fun h => hX' ⟨h, hX⟩
+
+/-- **T4: the regrouped bound.**  Let `t X` be supported on the polymers meeting the root
+neighbourhood, with `‖t X‖ ≤ H e^{-λ sizeJ X}` there.  Then the regrouped terms
+`t'(Y) = ∑_{Φ X = Y} t X` satisfy, for every `κ ≤ λ / A - c₁ log 2`,
+`‖t' Y‖ ≤ H e^{c₁ log 2} e^{λ} e^{-κ renDY Y}` (`A = renDetA d L m₀`). -/
+theorem renRegroup_norm_le {E : Type*} [NormedAddCommGroup E]
+    (hS : CovSetup G m₀ j Xr 𝒦X) (hG : IsLevel G K) (hd : 3 ≤ d)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ Xr) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j Xr)
+    (hΔ : treeLenCovOne m₀ j Xr = 0)
+    (t : Set (CTorus d L N₁ m₁ K) → E) {H lam κ : ℝ} (hH : 0 ≤ H) (hlam : 0 ≤ lam)
+    (ht0 : ∀ X, ¬ (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) → t X = 0)
+    (ht : ∀ X, IsPolyDom m₀ K X → (∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) →
+      ‖t X‖ ≤ H * Real.exp (-lam * sizeJ m₀ K X))
+    (hκ : κ ≤ lam / renDetA d L m₀ - c1 d L * Real.log 2)
+    (Y : Finset (CTorus d L N₁ m₁ K)) :
+    ‖∑ X ∈ (open Classical in Finset.univ.filter fun X : Set (CTorus d L N₁ m₁ K) =>
+        renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y), t X‖ ≤
+      H * Real.exp (c1 d L * Real.log 2) * Real.exp lam * Real.exp (-κ * renDY G m₀ Y) := by
+  classical
+  have hA := renDetA_pos d L m₀ hd
+  have hD : ∀ X : Set (CTorus d L N₁ m₁ K),
+      (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) →
+      renDY G m₀ (renFibreMap G m₀ (X1 G m₀ j 𝒦X) X) ≤
+        renDetA d L m₀ * sizeJ m₀ K X + renDetA d L m₀ :=
+    fun X hX => renDY_renFibreMap_le hS hG hd hopt hΔ hX.1 hX.2
+  have hfib : ∀ Y' : Finset (CTorus d L N₁ m₁ K),
+      ((Finset.univ.filter fun X : Set (CTorus d L N₁ m₁ K) =>
+        (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) ∧
+          renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y').card : ℝ) ≤
+      Real.exp (c1 d L * Real.log 2) * Real.exp (c1 d L * Real.log 2 * renDY G m₀ Y') :=
+    fun Y' => card_renFibre_le hS hG hd hopt Y'
+  have h := regroup_norm_le (A := renDetA d L m₀) (c := renDetA d L m₀)
+    (Cf := Real.exp (c1 d L * Real.log 2)) (σ := c1 d L * Real.log 2) (H := H) (lam := lam)
+    (κ := κ)
+    (fun X : Set (CTorus d L N₁ m₁ K) => IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X)
+    (renFibreMap G m₀ (X1 G m₀ j 𝒦X)) (sizeJ m₀ K) (renDY G m₀) t hA hlam hH hD hfib
+    (fun X hX => ht X hX.1 hX.2) hκ Y (renDY_nonneg Y)
+  have e : lam * renDetA d L m₀ / renDetA d L m₀ = lam := by field_simp
+  rw [e] at h
+  have h2 := sum_filter_renFibreMap_eq (G := G) m₀ j 𝒦X t ht0 Y
+  rw [← h2]
+  exact h
+
+/-- **T4: the sum identity.**  Regrouping the terms supported on the polymers meeting the root
+neighbourhood over the cover `renYs` does not change the total. -/
+theorem sum_renRegroup {E : Type*} [AddCommMonoid E]
+    (hS : CovSetup G m₀ j Xr 𝒦X) (hG : IsLevel G K)
+    (t : Set (CTorus d L N₁ m₁ K) → E)
+    (ht0 : ∀ X, ¬ (IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) → t X = 0) :
+    ∑ Y ∈ renYs (renCube G (X1 G m₀ j 𝒦X)) G m₀ (X1 G m₀ j 𝒦X),
+        ∑ X ∈ (open Classical in Finset.univ.filter fun X : Set (CTorus d L N₁ m₁ K) =>
+          renFibreMap G m₀ (X1 G m₀ j 𝒦X) X = Y), t X =
+      ∑ X, t X := by
+  classical
+  rw [← sum_regroup_eq (fun X : Set (CTorus d L N₁ m₁ K) =>
+    IsPolyDom m₀ K X ∧ ∃ x ∈ X, x ∈ X1 G m₀ j 𝒦X) (renFibreMap G m₀ (X1 G m₀ j 𝒦X))
+    (renYs (renCube G (X1 G m₀ j 𝒦X)) G m₀ (X1 G m₀ j 𝒦X)) t
+    (fun X hX => renFibreMap_mem_renYs hS hG hX.1 hX.2) ht0]
+  exact Finset.sum_congr rfl fun Y _ => (sum_filter_renFibreMap_eq m₀ j 𝒦X t ht0 Y).symm
+
+end RegroupRen
+
 end Balaban.Fluctuation
