@@ -1258,6 +1258,7 @@ public import Balaban.Fluctuation.ObsRayActivity
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
+public import Balaban.Fluctuation.GsumActiveParam
 public import Balaban.Fluctuation.RootMarkedBound
 public import Balaban.Fluctuation.MarkedRootGeometry
 public import Balaban.Fluctuation.RootMarkGeom
