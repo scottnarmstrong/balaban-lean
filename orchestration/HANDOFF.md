@@ -12,11 +12,10 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W335 | `w335-initial-beta` / W335 | `InitialBetaBridge`: the largeness condition `hlam` of the early parent-domain theorem from β ≥ β₀; uniform smallness η < 1 (Q13-LATE package 1) |
 | W337 | `w337-marked-dec-ball` / W337 | marked decoupled tangent: ball bound on the cut polydisc and radial discs; joint analyticity (MARKASM packages 1–2) |
 | W338 | `w338-marked-fluct-rows` / W338 | fluctuation-correction rows for the masked tangent on the original component (MARKASM package 3) |
-| W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
-| W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
+| W340 | `w340-late-y-direction` / W340 | late scales: direction bound 2δ_k/√ν_k at the tested data sites; partition of the data sites into tested/outer (Q13-LATE2 L1–L2) |
+| W339 | `w339-p6-read-locality` / W339 | `paired_locality` restricted to an output read set (reads of the read set inside Y_f(J)); VMOD-39 package 5 |
 | W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
 | W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
 | W331 (Opus) | `w331-det-bg-support` / W331 | determinant with cut-dependent backgrounds: support (root chain) for `rootTraceBg`, composed activity per hull |
