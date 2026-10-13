@@ -5,10 +5,10 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 60% of the Lean by volume, and about 35% when weighted by difficulty and
+**Overall estimate: about 65% of the Lean by volume, and about 38% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 555,000 lines are written. The finished formalization should need roughly
+- **By volume.** About 590,723 lines are written. The finished formalization should need roughly
   0.8–1.0 million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
   estimates, and several depend on questions about the papers that are not yet answered; see
@@ -79,3 +79,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-11 | ~10% | — | Statements frozen; work starts |
 | 2026-10-12 | ~35% | 25–30% | Background fields, localization, the small-field class |
 | 2026-10-13 | ~60% | ~35% | One step without inherited terms nearly complete; exact locality; general constant record; first step, two-torus and assembly lanes started |
+| 2026-10-13 (evening) | ~65% | ~38% | General d, L, N through the step's records, determinant, activities, marks and E1/E0 families; two-torus comparison of every coefficient ingredient; zero-class step identity at a free datum; first-step chart and Hessian; research route for blockers 3–4 |
