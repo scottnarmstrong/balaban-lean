@@ -12,14 +12,13 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W337 | `w337-marked-dec-ball` / W337 | marked decoupled tangent: ball bound on the cut polydisc and radial discs; joint analyticity (MARKASM packages 1–2) |
-| W338 | `w338-marked-fluct-rows` / W338 | fluctuation-correction rows for the masked tangent on the original component (MARKASM package 3) |
-| W340 | `w340-late-y-direction` / W340 | late scales: direction bound 2δ_k/√ν_k at the tested data sites; partition of the data sites into tested/outer (Q13-LATE2 L1–L2) |
-| W339 | `w339-p6-read-locality` / W339 | `paired_locality` restricted to an output read set (reads of the read set inside Y_f(J)); VMOD-39 package 5 |
-| W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
-| W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
+| W348 | `w348-marked-i5` / W348 | marked fan analyticity; tangent-abstracted `i5_functional_hat_dir_of_fan`; `i5_functional_hat_marked` (MARKASM package 5) |
+| W347 | `w347-d7-avoid-geometry` / W347 | R: labels avoiding the removed set (sizes equal, validity), two-case transport of the D7 bound field (VMOD-40 packages 1, 3) |
+| W346 | `w346-kf0-reference` / W346 | k_f = 0 branch: reference operator K_ν = −Δ+ν and A₀ = K_ν(1−P_h)+P_h; gap, resolvent/inverse/square-root decay |
+| W351 | `w351-late-witness` / W351 | a context with positive cube mass on which the late-scale direction theorems have an instance; outer sites if within reach |
+| W350 | `w350-base-chart` / W350 | base / k_f = 0: the frozen energy in the hemisphere chart at the constant saddle (exact quadratic form + remainder), source, integrand |
 | W331 (Opus) | `w331-det-bg-support` / W331 | determinant with cut-dependent backgrounds: support (root chain) for `rootTraceBg`, composed activity per hull |
-| W341 | `w341-global-gen-regional` / W341 | no zero spin vector in `InUnionDomainC`; the regional composed field is outside `XiDom (levelGS j)` when the local generator is proper (GENFORCE §2) |
+| W349 | `w349-fan-witness` / W349 | non-vacuity of the decoupled fan chain at the tower witness (ball, rows, fan locality, marked versions) |
 | W342 | `w342-final-complex-hessian` / W342 | last integral: D = aP_h + U(1−P_h) for complex h; decay and analyticity of inverse and square root |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
