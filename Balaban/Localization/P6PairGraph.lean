@@ -34,6 +34,19 @@ site set `Y_f(J)`, containing the seed, with the cells of the selected patches i
 * `paired_graph_hyps`, `p6_paired_graph_hyps` (T5): the graph hypotheses of `paired_locality`
   (`hXY` and the four parts of `hG`) for `Y_f(J) := jointSites`.
 
+**Moore adjacency versus hat links (T4).**  Rootedness in the Moore graph (`mooreGraph`,
+`mem_rootedSets_fsharp_iff`) is *not* implied.  A reached patch `P ∈ 𝒬(z)` only has a cell meeting
+`□̂_z`, whose radius is about `3 L² ℓ_j`; two marked patches of `𝒬(z)` at opposite ends of `□̂_z`
+are joined in the joint graph through the (unmarked) centre `z` without touching, and likewise the
+first patch reached from the seed need not Moore-touch it.  The adjacency that is true is the hat
+link of `PairHatRooted`: consecutive patches (and the seed) are joined through chains of cover
+centres whose thickened boxes overlap or are adjacent.  The degree bound `mooreGraph_degree_le` does
+not cover this relation; its degree is bounded by a larger constant of the same type (`|𝒬(z)| ≤ N₀`
+and the number of centres with a given thickened box meeting a cell), which is not proved here.
+The old-wall operator can combinatorially read from the active region into the hole: the joint
+graph allows it, and the dependency set then extends into the hole only through hat-linked chains
+of marked patches (`jointParams_hatRooted`).
+
 **Not proved here** (open, see VMOD-32/34): the selectors `Fb`, `Sol` and their data domains and
 smallness hypotheses, the dependency `composeDep` of every read of the output set lying in the seed
 (OPEN-P6-AFFINE-DOMAIN), the covariance square root term.  Nothing is said about coefficients;
@@ -458,3 +471,46 @@ theorem paired_graph_hyps {ι : Type*} [DecidableEq ι] (cc : ι → ℕ × CTor
 end Paired
 
 end Balaban.Localization.Dec2
+
+namespace Balaban.LargeField
+
+open Balaban Balaban.Multiscale Balaban.Localization Balaban.Localization.Dec2
+
+set_option linter.unusedSectionVars false
+
+section P6
+
+variable {d M1 c n1 L k n0 m₁ : ℕ} [NeZero L] [NeZero M1] [NeZero c] [NeZero n0] [NeZero n1]
+  {Rprev Rk : ℝ} {Zp : Set (Torus d n1)} (st : RegionStep d L n0 n1 Rprev Rk)
+
+/-- **T4/T5 for the P6 pair.**  For `C = coverOf F♯`, `H_b = H^∂ = p6BoundaryC`, `H_m = H^- = p6OldC`
+(the old operator built from the same `Z = st.Z` and `ρ' = ⌊R_{k-1}⌋`), every parameter patch
+reached from a seed `U ⊇ X₁` in the joint closure over the marked set `𝒞` lies in `𝒞` and is
+hat-rooted at `U` (`PairHatRooted`), and every reached site is hat-linked to the seed or to the
+cell of a hat-rooted patch.  The source premises are those of `p6_coverGeom_old` and
+`p6_coverGeom_boundary`; the statement is combinatorial and says nothing about coefficients. -/
+theorem p6_joint_hatRooted (hc : 14 ≤ c) (hn : n0 = L * n1) (hL : 2 ≤ L)
+    (hρ : 3 * L ≤ ⌊Rprev⌋₊) (hZ : st.Omegaᶜ ⊆ Zp) (hM1 : M1 = L ^ m₁) (hm₁ : 2 ≤ m₁)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) {a : ℕ → ℝ} {ν : ℝ} (hd : 3 ≤ d) (hL3 : 3 ≤ L) (hν : 0 ≤ ν)
+    (hνL : ν * ((L : ℝ) ^ (k + 1)) ^ 2 ≤ 1) (ha : IsAdmissibleWeights (k + 1) a)
+    (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
+    (X₁ : Finset (Localization.CTorus d L (c * n1) m₁ (k + 1)))
+    (𝒞 : Finset (ℕ × Localization.CTorus d L (c * n1) m₁ (k + 1)))
+    (U : Set (Localization.CTorus d L (c * n1) m₁ (k + 1))) (hX : ∀ x ∈ X₁, x ∈ U) :
+    (∀ P ∈ jointParams (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))
+        (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ)
+        (p6OldC (k := k) (n1 := n1) (c := c) hM1 ⌊Rprev⌋₊ st.Z) a ν X₁ 𝒞 U,
+      P ∈ 𝒞 ∧ PairHatRooted (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1)) 𝒞 U P) ∧
+    (∀ x ∈ jointSites (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))
+        (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ)
+        (p6OldC (k := k) (n1 := n1) (c := c) hM1 ⌊Rprev⌋₊ st.Z) a ν X₁ 𝒞 U,
+      PairHatSite (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1)) 𝒞 U x) :=
+  jointParams_hatRooted
+    (footprint_hat_of_coverGeom (p6_coverGeom_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL
+      ha hsep))
+    (footprint_hat_of_coverGeom (p6_coverGeom_old hn hρ (by omega : 5 ≤ c) st.Z hM1 hm₁ hM hd hL3
+      hν hνL ha hsep)) hX
+
+end P6
+
+end Balaban.LargeField
