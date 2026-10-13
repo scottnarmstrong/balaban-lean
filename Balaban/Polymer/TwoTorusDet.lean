@@ -33,8 +33,8 @@ open scoped Classical
 
 namespace Balaban.Polymer.TwoTorusStep
 
-open Balaban Balaban.Localization Balaban.Fluctuation Balaban.SmallField.Def6 Balaban.Polymer
-  Balaban.Multiscale Balaban.Background Balaban.Analysis Matrix
+open Balaban Balaban.Localization Balaban.Fluctuation Balaban.SmallField Balaban.SmallField.Def6
+  Balaban.Polymer Balaban.Multiscale Balaban.Background Balaban.Analysis Matrix
 
 /-! ### D1: the diagonal of the decoupled logarithm on two tori -/
 
@@ -329,5 +329,82 @@ theorem decBg_inputs_twoTorus {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ →
   exact hfield ⟨u, levelGS_mem_Ω_one hj1 le_rfl u⟩ huY (fun z hz => hD z (hdep z hz)) i
 
 end BgInputs
+
+/-! ### D3: the rooted trace with its background on two tori -/
+
+section TraceBg
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ ϱm ϱm' : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bU" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) ((N₁' * L ^ m₁) * L ^ (k + 1 - k))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιu" b:max => Subtype.mk (bU (b : UnitTorus d L N₁ m₁ k))
+  (mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) _)
+
+/-- **D3 (one cut configuration): the rooted trace of one unit block with its background, on two
+tori.**  Let `D`, `D'` be data of the charts `Ξ^c(𝔹_{k+1}; 1, ε)` of the top levels of the two
+tori (`FlCore` on each torus, with the same constants), `s`, `s'` cut parameters in the polydisc of
+radius `e^κ`, and `(Y, S_Y)`, `(Y', S_{Y'})` corresponding components of the cut with
+corresponding cut factors (the hypotheses of `decLog_diag_transport` for `extS s`, `extS s'`).  If
+the raw data agree on `RowsDep (S_Y)`, then the rooted trace `rootTraceBg {b} D s` of a unit block
+`b` whose `(k+1)`-block lies in `Y` equals that of the corresponding block on the second torus.
+The background inputs are `decBg_inputs_twoTorus`; the standing hypotheses of the covariance at
+the background are `covStanding_rootTraceBg` on each torus; the trace is
+`rootTrace_single_transport`.  Margin: `4 R + 12 L^(k+1+m₁) + 7 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)`
+(and for `N₁'`). -/
+theorem rootTraceBg_single_twoTorus
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {s : DecParams (GA)} {s' : DecParams (GB)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → extS (GA) s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → extS (GB) s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) (extS (GB) s') (Prod.map id bm q) = sProd (GA) (extS (GA) s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | RowsDep (GA) (compWeight L a₁) ν (SY (GA) X₁ 𝒞 Y) z} (rawOf D)
+      (rawOf D'))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) :
+    rootTraceBg (GB) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GB)) (unitP (GB)) {ιu b}
+        D' s' =
+      rootTraceBg (GA) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GA)) (unitP (GA)) {b}
+        D s := by
+  have H := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hαK hD hs
+  have H' := covStanding_rootTraceBg hC' hk hδc hcap hsm hmar hαK hD' hs'
+  obtain ⟨hmult, hfld⟩ := decBg_inputs_twoTorus hC.hS hC.Sp hC'.Sp hconn hconn' hC.HBp hC.hκ.le
+    hC.hM hs hs' (inUnionDomainC_of_xiCData hC hD) (inUnionDomainC_of_xiCData hC' hD') hY hYc
+    hs0 hs0' hY' hB' hagree hYR hn hn' hraw (H.fam 0 le_rfl).st
+  unfold rootTraceBg
+  exact rootTrace_single_transport hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR (by omega)
+    (by omega) hmult hfld H.fam H'.fam H.field H'.field H.nonneg H.small hb
+
+end TraceBg
 
 end Balaban.Polymer.TwoTorusStep
