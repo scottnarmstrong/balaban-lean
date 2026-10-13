@@ -1507,6 +1507,7 @@ public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
 public import Balaban.Fluctuation.DetRootTraceSymm
+public import Balaban.Fluctuation.DetSymmGroup
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
