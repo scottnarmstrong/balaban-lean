@@ -244,6 +244,7 @@ public import Balaban.Green.LimitCauchy
 public import Balaban.Green.InfiniteVolumeUnique
 public import Balaban.Model.SphereMeasure
 public import Balaban.Model.Symmetry
+public import Balaban.Model.SymmetryPartition
 public import Balaban.Model.BlockStructure
 public import Balaban.Model.PartitionFunction
 public import Balaban.Model.Derivatives
