@@ -1583,6 +1583,7 @@ public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
 public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Fluctuation.DetSymmGroup
+public import Balaban.Inhabited.DetOutputTermsWitnessG
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetCollarHullWitness
 public import Balaban.Inhabited.DetCollarHullSymmWitness
@@ -1785,6 +1786,8 @@ public import Balaban.Fluctuation.ClassOldTermInputM
 public import Balaban.Fluctuation.ClassOldTermSiteSums
 public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
+public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
+public import Balaban.Fluctuation.StepComplexOffFibreJoint
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.SmallField.LocalGeneratorPoly
 public import Balaban.SmallField.LocalTraceDescent

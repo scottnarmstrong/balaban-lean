@@ -403,6 +403,184 @@ noncomputable def rhoJ (g : Fld d L N₁ m₁ (k + 1) N)
 
 /-! ### Values at the block datum of the step -/
 
+section DatumCores
+
+variable {ψh : S.EC}
+
+variable (D : BgData S.G' N) (hXD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+
+include hXD in
+/-- The joint raw spin at any block datum is its critical spin plus the covariance shift. -/
+theorem gJ_datum (ψh : S.EC) :
+    Jr.gJ (rawOf D, ψh) =
+      ((fun z i =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D).Ψ z i +
+        liftC S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+          (hatCovSqrt S.G' S.a₁ S.ν D *ᵥ ψh)) z i), D.h) := by
+  unfold gJ
+  dsimp only
+  rw [Jr.Pc_eq D hXD, Jr.Mx_eq D hXD]
+  rfl
+
+variable (D₀ : BgData (stepG d L N₁ m₁ k ϱ) N)
+  (hraw : Jr.gJ (rawOf D, ψh) = rawOf D₀)
+
+include hXD hraw in
+/-- The tangent at a represented old datum is the lifted covariance shift. -/
+theorem tangent_datum :
+    compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D D₀ =
+      liftC S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+        (hatCovSqrt S.G' S.a₁ S.ν D *ᵥ ψh)) := by
+  funext z i
+  have h := congrFun (congrFun (congrArg Prod.fst hraw) z) i
+  rw [Jr.gJ_datum D hXD ψh] at h
+  change D₀.Ψ z i -
+    (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D).Ψ z i = _
+  change _ = D₀.Ψ z i at h
+  rw [← h]
+  exact add_sub_cancel_left _ _
+
+include Jr hXD hraw in
+/-- A represented old datum in the bounded hat region lies in the old-level domain. -/
+theorem datum_hat_dom (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
+    InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν D₀ := by
+  obtain ⟨B, hdom, hB⟩ := Jr.dom D hXD ψh hψh
+  have heq : rawOf B = rawOf D₀ := by
+    rw [← hraw]
+    exact hB
+  rw [← BgData.eq_of_raw heq]
+  exact hdom
+
+include hXD hraw in
+/-- The joint small solution agrees with the small solution at the represented old datum. -/
+theorem FJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
+    Jr.FJ (rawOf D, ψh) =
+      (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀,
+       bgMultC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀) := by
+  unfold FJ
+  rw [hraw]
+  exact Jr.Fb_eq D₀ (Jr.datum_hat_dom D hXD D₀ hraw hψh)
+
+include hXD hraw in
+/-- The joint composed pair agrees with the pair at the represented old datum. -/
+theorem PJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp) (j : ℕ) :
+    Jr.PJ j (rawOf D, ψh) = composedPairAtC S.a S.ν (Nat.le_succ k) j D₀ := by
+  unfold PJ composedPairAtC
+  by_cases hj : j ≤ k
+  · simp only [hj, ↓reduceDIte]
+    rw [Jr.FJ_datum D hXD D₀ hraw hψh, hraw]
+    rfl
+  · simp only [hj, ↓reduceDIte]
+
+include hXD hraw in
+/-- The joint composed energy is the energy at the represented old datum. -/
+theorem EJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
+    Jr.EJ C (rawOf D, ψh) =
+      EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ := by
+  unfold EJ EcompAtC
+  simp only [Jr.PJ_datum D hXD D₀ hraw hψh]
+
+include hXD hraw in
+/-- The joint source term is the source term at the represented old datum. -/
+theorem FcJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp)
+    (g : Fld d L N₁ m₁ (k + 1) N) :
+    Jr.FcJ C g (rawOf D, ψh) =
+      FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g := by
+  unfold FcJ FcompAtC
+  simp only [Jr.PJ_datum D hXD D₀ hraw hψh,
+    Jr.FJ_datum D hXD D₀ hraw hψh]
+
+include hXD hraw in
+/-- The joint composite observable is the observable at the represented old datum. -/
+theorem McJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp)
+    (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
+    Jr.McJ C g y i (rawOf D, ψh) =
+      McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g y i := by
+  unfold McJ McompAtC
+  simp only [Jr.PJ_datum D hXD D₀ hraw hψh,
+    Jr.FJ_datum D hXD D₀ hraw hψh]
+
+include hXD hraw in
+/-- The joint interaction is the interaction at a represented old datum. -/
+theorem VJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
+    Jr.VJ (rawOf D, ψh) =
+      interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D D₀)
+        (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀ -
+          (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)) := by
+  unfold VJ
+  dsimp only
+  rw [Jr.FJ_datum D hXD D₀ hraw hψh, Jr.F₀_eq D hXD, Jr.Mx_eq D hXD,
+    Jr.tangent_datum D hXD D₀ hraw]
+
+include hraw in
+/-- The joint kernel is the kernel at a represented old datum. -/
+theorem tKJ_datum : Jr.tKJ (rawOf D, ψh) =
+    (((S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) : ℝ) : ℂ) *
+      Complex.exp (-((S.β : ℂ) * couplingC S.G' S.a₁ (k + 1) D.Ψ D₀.Ψ)) := by
+  unfold tKJ
+  rw [hraw]
+  rfl
+
+include hXD hraw in
+/-- The joint density is the density at a represented old datum. -/
+theorem rhoJ_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp)
+    (g : Fld d L N₁ m₁ (k + 1) N) :
+    Jr.rhoJ C g (rawOf D, ψh) =
+      Complex.exp (-(S.β : ℂ) * actionC (stepG d L N₁ m₁ k ϱ) S.a S.ν D₀
+          (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀) +
+        EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ -
+        (C.Ek : ℂ) * (S.nU : ℂ) +
+        FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g) := by
+  unfold rhoJ
+  rw [Jr.EJ_datum C D hXD D₀ hraw hψh,
+    Jr.FcJ_datum C D hXD D₀ hraw hψh g,
+    Jr.FJ_datum D hXD D₀ hraw hψh, hraw]
+  rfl
+
+include hXD hraw in
+/-- The second interpolation exponent is the source difference at represented old data. -/
+theorem W2_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp)
+    (g : Fld d L N₁ m₁ (k + 1) N)
+    (Dcrit : BgData (stepG d L N₁ m₁ k ϱ) N)
+    (hraw0 : Jr.gJ (rawOf D, 0) = rawOf Dcrit) :
+    Jr.W2 C g (rawOf D, ψh) =
+      FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g -
+      FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) Dcrit g := by
+  unfold W2
+  rw [Jr.FcJ_datum C D hXD D₀ hraw hψh g,
+    Jr.FcJ_datum C D hXD Dcrit hraw0 (fun p => by simpa using Jr.hpp) g]
+
+include hXD hraw in
+/-- The first interpolation exponent is the interaction and energy difference. -/
+theorem W1_datum (hψh : ∀ p, ‖ψh p‖ ≤ pp)
+    (Dcrit : BgData (stepG d L N₁ m₁ k ϱ) N)
+    (hraw0 : Jr.gJ (rawOf D, 0) = rawOf Dcrit) :
+    Jr.W1 C (rawOf D, ψh) =
+      -(S.β : ℂ) * interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D D₀)
+        (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀ -
+          (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)) +
+      (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ -
+        EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) Dcrit) := by
+  unfold W1
+  rw [Jr.VJ_datum D hXD D₀ hraw hψh,
+    Jr.EJ_datum C D hXD D₀ hraw hψh,
+    Jr.EJ_datum C D hXD Dcrit hraw0 (fun p => by simpa using Jr.hpp)]
+
+end DatumCores
+
 section Values
 
 variable (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp)
@@ -410,27 +588,16 @@ variable (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') {ψh : S.EC} (hψh : �
 include hX in
 theorem gJ_eq (ψh : S.EC) : Jr.gJ (rawOf S.D', ψh) =
     rawOf (S.dataUC (S.psiHat ψh)) := by
-  have h := S.rawOf_dataUC_psiHat ψh
-  have hc := S.covSqrtC_eq_hatCovSqrt
-  unfold gJ
-  dsimp only
-  rw [Jr.Pc_eq S.D' hX, Jr.Mx_eq S.D' hX]
-  show _ = ((S.dataUC (S.psiHat ψh)).Ψ,
-    (S.dataUC (S.psiHat ψh)).h)
-  rw [h, hc]
-  rfl
+  rw [Jr.gJ_datum S.D' hX ψh]
+  simpa only [StepSetting.psiKdC, S.covSqrtC_eq_hatCovSqrt, rawOf] using
+    (S.rawOf_dataUC_psiHat ψh).symm
 
 include Jr hX hψh in
 /-- The old spin of a bounded hat variable lies in the domain `𝒟(𝔹_k)` of the small solution. -/
 theorem dataUC_psiHat_dom :
     InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
       (S.dataUC (S.psiHat ψh)) := by
-  obtain ⟨D₀, hdom, hraw⟩ := Jr.dom S.D' hX ψh hψh
-  have h1 : rawOf D₀ = rawOf (S.dataUC (S.psiHat ψh)) := by
-    rw [← Jr.gJ_eq hX ψh]
-    exact hraw
-  rw [← BgData.eq_of_raw h1]
-  exact hdom
+  exact Jr.datum_hat_dom S.D' hX _ (Jr.gJ_eq hX ψh) hψh
 
 include hX hψh in
 theorem FJ_eq : Jr.FJ (rawOf S.D', ψh) =
@@ -438,49 +605,36 @@ theorem FJ_eq : Jr.FJ (rawOf S.D', ψh) =
         (S.dataUC (S.psiHat ψh)),
       bgMultC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N)
         (S.dataUC (S.psiHat ψh))) := by
-  unfold FJ
-  rw [Jr.gJ_eq hX ψh]
-  exact Jr.Fb_eq _ (Jr.dataUC_psiHat_dom hX hψh)
+  exact Jr.FJ_datum S.D' hX _ (Jr.gJ_eq hX ψh) hψh
 
 include hX hψh in
 theorem VJ_eq : Jr.VJ (rawOf S.D', ψh) = S.VkC (S.psiHat ψh) := by
-  unfold VJ VkC
-  dsimp only
-  rw [Jr.FJ_eq hX hψh, Jr.F₀_eq S.D' hX, Jr.Mx_eq S.D' hX, S.compTangent_psiHat]
-  rfl
+  exact Jr.VJ_datum S.D' hX _ (Jr.gJ_eq hX ψh) hψh
 
 include hX hψh in
 theorem PJ_eq (j : ℕ) : Jr.PJ j (rawOf S.D', ψh) =
     composedPairAtC S.a S.ν (Nat.le_succ k) j
       (S.dataUC (S.psiHat ψh)) := by
-  unfold PJ composedPairAtC
-  by_cases hj : j ≤ k
-  · simp only [hj, ↓reduceDIte]
-    rw [Jr.FJ_eq hX hψh, Jr.gJ_eq hX ψh]
-    rfl
-  · simp only [hj, ↓reduceDIte]
+  exact Jr.PJ_datum S.D' hX _ (Jr.gJ_eq hX ψh) hψh j
 
 include hX hψh in
 theorem EJ_eq : Jr.EJ C (rawOf S.D', ψh) =
     EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
       (S.dataUC (S.psiHat ψh)) := by
-  unfold EJ EcompAtC
-  simp only [Jr.PJ_eq hX hψh]
+  exact Jr.EJ_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh
 
 include hX hψh in
 theorem FcJ_eq (g : Fld d L N₁ m₁ (k + 1) N) : Jr.FcJ C g (rawOf S.D', ψh) =
     FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
       (S.dataUC (S.psiHat ψh)) g := by
-  unfold FcJ FcompAtC
-  simp only [Jr.PJ_eq hX hψh, Jr.FJ_eq hX hψh]
+  exact Jr.FcJ_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh g
 
 include hX hψh in
 theorem McJ_eq (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
     Jr.McJ C g y i (rawOf S.D', ψh) =
       McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
         (S.dataUC (S.psiHat ψh)) g y i := by
-  unfold McJ McompAtC
-  simp only [Jr.PJ_eq hX hψh, Jr.FJ_eq hX hψh]
+  exact Jr.McJ_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh g y i
 
 include Jr in
 theorem zero_le_pp (p : S.U × Fin N) : ‖(0 : S.EC) p‖ ≤ pp := by
@@ -490,32 +644,24 @@ include hX hψh in
 theorem W1_eq : Jr.W1 C (rawOf S.D', ψh) =
     -(S.β : ℂ) * S.VkC (S.psiHat ψh) +
       S.dEC C (S.psiHat ψh) := by
-  unfold W1 dEC
-  dsimp only
-  rw [Jr.VJ_eq hX hψh, Jr.EJ_eq C hX hψh, Jr.EJ_eq C hX Jr.zero_le_pp,
-    S.psiHat_zero]
+  simpa only [StepSetting.VkC, StepSetting.dEC, S.psiHat_zero] using
+    Jr.W1_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh _ (Jr.gJ_eq hX 0)
 
 include hX hψh in
 theorem W2_eq (g : Fld d L N₁ m₁ (k + 1) N) : Jr.W2 C g (rawOf S.D', ψh) =
     S.dFC C g (S.psiHat ψh) := by
-  unfold W2 dFC
-  dsimp only
-  rw [Jr.FcJ_eq C hX hψh, Jr.FcJ_eq C hX Jr.zero_le_pp, S.psiHat_zero]
+  simpa only [StepSetting.dFC, S.psiHat_zero] using
+    Jr.W2_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh g _ (Jr.gJ_eq hX 0)
 
 include hX in
 theorem tKJ_eq (ψh : S.EC) : Jr.tKJ (rawOf S.D', ψh) =
     S.tKernelC (S.psiHat ψh) := by
-  unfold tKJ tKernelC
-  dsimp only
-  rw [Jr.gJ_eq hX ψh]
-  rfl
+  exact Jr.tKJ_datum S.D' _ (Jr.gJ_eq hX ψh)
 
 include hX hψh in
 theorem rhoJ_eq (g : Fld d L N₁ m₁ (k + 1) N) : Jr.rhoJ C g (rawOf S.D', ψh) =
     S.rhoExpC C g (S.psiHat ψh) := by
-  unfold rhoJ rhoExpC AoldC
-  rw [Jr.EJ_eq C hX hψh, Jr.FcJ_eq C hX hψh, Jr.FJ_eq hX hψh, Jr.gJ_eq hX ψh]
-  rfl
+  exact Jr.rhoJ_datum C S.D' hX _ (Jr.gJ_eq hX ψh) hψh g
 
 /-- On the ray, the hat variable `s ψ̂` is bounded by `|s| ‖ψ̂‖`. -/
 theorem smul_yhat_le {s : ℝ} {x : S.E} (h : |s| * ‖x‖ ≤ pp) (p : S.U × Fin N) :

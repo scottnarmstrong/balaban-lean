@@ -31,12 +31,12 @@ separate line below.
 | One step, no inherited terms | P4–P6 | 96% | The step identity for the next density. Analytic, bounded and exactly local coefficient families for the new energy and observable terms. The renormalization of the new terms, with one solution for all sources. The combined statement at every scale, with constants independent of the scale. All of it at every datum with constant external field. | Identification of two representations of the energy bound. |
 | One step, space-dependent external field | P1 (H.4)–(H.7) | 15% | The setting with a free datum and its comparison with the constant-field case; the critical point, tangent and fluctuation path at a free datum. | The step identity and the coefficient values at a non-constant field. |
 | General inherited terms and the small-field induction | P4, P5 | 30% | The step identity and the activity bound for an arbitrary class member, under explicit hypotheses on its inherited terms; the split of the step into new terms and inherited terms; the inherited energy and observable terms as inputs of the step, given the chart inclusion and a composition identity on local generating sets. | The inherited terms as inputs of the expansion; the next class member; reality and symmetry clauses; the induction itself. |
-| First step from the unit lattice | P4 (2.42)–(2.54) | 18% | The block-averaged density, the hemisphere chart identity, and the physical cutoff of the first step with its support at the background centre. | The chart action at a variable centre; covariance, energy and observable terms of the first step; its large-field components. |
+| First step from the unit lattice | P4 (2.42)–(2.54) | 22% | The block-averaged density, the hemisphere chart identity, the physical cutoff with its support at the background centre, the chart integrand at the variable centre, and the constrained chord identity with the Gaussian/remainder split of the exponent. | Identification of the lifted action with the physical one; covariance, energy and observable terms of the first step; its large-field components. |
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
 | Last integral | P7 §4 | 35% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
 | No renormalization step (large field ν) | P7 §4 | 40% | The sector decomposition; the polymer gas for the sector where every spin is near h. | The sector containing reversed spins (blocker 1); currently paused. |
 | Independence of the torus | P4 (H.4) | 55% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, and the decoupled background and fluctuation solutions on a cut component. | The covariance and its square root on a component; the coefficients; the reading of the clause (blocker 7). |
-| General d, L, N and every unit h | — | 37% | General constant record, scale record and their producers, with an adjustable output decay rate; the renormalization-margin records for general parameters; the fixed-parameter scale producer, output constants and scalar lemmas are now corollaries of the general ones. | Moving the step theorems from d = L = 3, N = 2 to general parameters. |
+| General d, L, N and every unit h | — | 40% | All tower records for general parameters with one producer; every fixed-parameter producer, the scale producer, the output constants and the scalar lemmas are corollaries of the general ones. | Moving the step theorems from d = L = 3, N = 2 to general parameters (determinant package first). |
 | Assembly of Root-F | P4, P7, P9 | 20% | Step domains are polymers in the theorem's sense; every admissible torus is a step torus at every scale; conversion of the decay rate; the new observable terms of one step as a family with the theorem's support, locality, analyticity and per-term bound c₉ L^{-j((d-2)/2+δ)} e^{-κ|X|/(ML^j)^d} at their birth scale. | The terms of earlier scales; the logarithm; the large-field and final terms. |
 | Root-C from Root-F | P8, P9 | 30% | The deduction of the correlation estimates from the flow, assuming its inputs. | Infinite-volume limits, the limit ν ↓ 0, and the physical inputs. |
 
@@ -47,7 +47,7 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit bc85a232 2026-10-13.
+Computed at commit c6a45261 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
@@ -58,10 +58,10 @@ Computed at commit bc85a232 2026-10-13.
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
 | Small-field class (P1, P4, P5) | 121 | 37,950 | 1,945 |
 | Fluctuation step and renormalization (P4-P6) | 416 | 134,483 | 4,810 |
-| Instantiated step at fixed parameters | 243 | 63,444 | 2,161 |
-| Large-field regions (P5-P7, E9-E10) | 472 | 127,906 | 7,235 |
+| Instantiated step at fixed parameters | 245 | 63,510 | 2,189 |
+| Large-field regions (P5-P7, E9-E10) | 474 | 128,476 | 7,255 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1888** | **563,621** | **26,153** |
+| **Total** | **1892** | **564,257** | **26,201** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
