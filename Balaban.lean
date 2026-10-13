@@ -1726,6 +1726,7 @@ public import Balaban.Inhabited.E1RecordFromTower
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.RenormE1SiteRecord
+public import Balaban.Inhabited.RenormM0SiteRecord
 public import Balaban.Inhabited.ObsCoeffLocal
 public import Balaban.Inhabited.E1ParamFibreValue
 public import Balaban.Inhabited.E0CoeffFamily
