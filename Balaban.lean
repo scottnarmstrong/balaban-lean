@@ -1727,7 +1727,9 @@ public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Fluctuation.DecMarkCorrected
 public import Balaban.Fluctuation.DecMarkOfPair
 public import Balaban.Fluctuation.DecMarkCorrCount
+public import Balaban.Inhabited.DecMarkCorrCountFromTowerG
 public import Balaban.Inhabited.DecMarkCorrCountFromTower
+public import Balaban.Inhabited.DecMarkCorrFamilyFromTowerG
 public import Balaban.Inhabited.DecMarkCorrFamilyFromTower
 public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Inhabited.MarkCorrBudgetG
@@ -1763,11 +1765,14 @@ public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.Thm31bKernelSupport
 public import Balaban.Inhabited.Thm31SiteDomains
+public import Balaban.Inhabited.E1LabelsBudgetG
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
 public import Balaban.Inhabited.ObsCoeffFamily
 public import Balaban.Inhabited.ObsCoeffFibreValue
+public import Balaban.Inhabited.E1MarksCommonG
 public import Balaban.Inhabited.E1MarksCommon
+public import Balaban.Inhabited.E1MarkParamCommonG
 public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.ObsSourceLocal
 public import Balaban.Inhabited.E1RecordOfSum
