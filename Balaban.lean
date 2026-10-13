@@ -1652,3 +1652,4 @@ public import Balaban.Inhabited.StepTowerCoreMono
 public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Fluctuation.DecMarkCorrected
+public import Balaban.Fluctuation.DecMarkOfPair
