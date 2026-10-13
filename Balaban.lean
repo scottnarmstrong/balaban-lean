@@ -1461,6 +1461,7 @@ public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Fluctuation.PhysicalFNuRawY
+public import Balaban.Fluctuation.PhysicalFNuFanRawY
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE

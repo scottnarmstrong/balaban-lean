@@ -69,20 +69,14 @@ include hC
 
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **Exact locality of the potential summand `V` (`blockEnergyFun`) of the fan.**  This is
-`fanH_local_dir` for the block energy, with raw data agreeing on the component `Yc` itself
-(`agreeOn Yc`) instead of `thickSet Gp Yc`; the hat variables agree at the unit points of the sites
-of `Yc`.  For decoupling parameters `s, s'` that vanish off the marked family `C` (`hs.1`, `hs'.1`)
-and agree on the cubes inside `Yc` (`hag`), the composite (decoupled background, covariance square
-root `hatPsiF`, fluctuation correction, block energy) takes equal values.
-
-Inputs and the hypotheses each needs: `i4b_local_of_agree_on_component` (`hconn`, `hG'`, data on
-`Yc`) gives the multipliers on `S_Y`, hence on the block (`hBM`, `BlockMargin`);
-`hatPsiF_rows` (`hX₁` through `CovSetup`, complete blocks of `Yc`) gives `ψ'` on `Yc`;
-`fluct_correction_rows_of_agree_on_component` (`hrow`, `hG`) gives the correction on `Yc`;
-`hZ : readSites Hm k z ⊆ X₁` places the read sites in `Yc`.  The block energy reads `ψ'` only on
-the block (`blockEnergyFun_local_sharp`). -/
-theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+/-- **Exact locality of a fan functional of the form `Φ(background, δφ, raw data, ψ')`, from the row
+theorems.**  The shared opening of `vblock_fan_local_rawY`, `fsite_fan_local_rawY` and
+`nublock_fan_local_rawY`: for sharp agreement on a component `Yc = compY …` of the marked family
+`C`, it builds the component and the hypotheses of the row theorems from the fan hypotheses
+(`i4b_local_of_agree_on_component`, `hatPsiF_rows`) and hands them, with the equality of the
+multipliers on `S_Y` and of `ψ'` on `Y`, to the functional's own congruence `hΦ`.  The fluctuation
+field enters `hΦ` in the form `dphi` of the fixed points `δα, δα'`. -/
+theorem fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
@@ -110,9 +104,53 @@ theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel 
         (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (hZ : readSites Hm k z ⊆ ↑X₁f)
-    (hBM : BlockMargin Gp X₁f
-      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    (Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (hΦ : ∀ {sx sx' : DecParams Gp} (_ : ∀ P, ‖sx P‖ < Real.exp κ)
+      (_ : ∀ P, ‖sx' P‖ < Real.exp κ) {D D' : BgData Gp N}
+      (_ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+      (_ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+      {Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+      (C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1)))))
+      (_ : IsNnComp ((Vset X₁f (C.image fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)).filter fun x => x ∈ Gp.Ω 1) Y)
+      (_ : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁f → extS Gp sx P = 1 ∧ extS Gp sx' P = 1)
+      (_ : ∀ P ∈ parCubes Gp X₁f, P ∉ (C.image fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) → extS Gp sx P = 0 ∧ extS Gp sx' P = 0)
+      (_ : ∀ P ∈ (C.image fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1), SubI Gp (cubeP P) Y → extS Gp sx P = extS Gp sx' P)
+      (_ : IsCellUnion (L ^ (k + 1)) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))))
+      (_ : ∀ P ∈ (C.image fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1), P ∈ cubeIdx Gp)
+      (_ : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
+      (ψh ψh' : unitPts Gp × Fin N → ℂ)
+      (_ : ∀ b' : unitPts Gp, UnitOut Gp Y b' → ∀ i, ψh (b', i) = ψh' (b', i))
+      {φ φ₂ : Gp.Ω 1 × Fin N → ℂ} {α α₂ : Gp.Ω 1 → ℂ}
+      (_ : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) sx D φ α)
+      (_ : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) sx' D' φ₂ α₂)
+      (_ : DecHyp Hm (compWeight L a₁) ν false (flAlpha Gp Hm α) (barField Gp D.Ψ φ)
+        (hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh) 0
+        (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁)
+      (_ : DecHyp Hm (compWeight L a₁) ν false (flAlpha Gp Hm α₂) (barField Gp D'.Ψ φ₂)
+        (hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh') 0
+        (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁)
+      {δα δα' : Hm.Ω 1 → ℂ}
+      (_ : Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν sx false (flAlpha Gp Hm α)
+        (barField Gp D.Ψ φ)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh) 0) δα)
+      (_ : Small Hm δα (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)))
+      (_ : Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν sx' false (flAlpha Gp Hm α₂)
+        (barField Gp D'.Ψ φ₂)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh') 0) δα')
+      (_ : Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)))
+      (_ : ∀ x, x ∈ Y ↔ x ∈ compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C)
+      (_ : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁f (C.image fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Y → α x = α₂ x)
+      (_ : ∀ y ∈ Y, hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh y =
+        hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh' y),
+      Φ (φ, α) (dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν sx) (flAlpha Gp Hm α)
+        (barField Gp D.Ψ φ)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh) 0) δα)
+        (rawOf D, hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh) =
+      Φ (φ₂, α₂) (dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν sx') (flAlpha Gp Hm α₂)
+        (barField Gp D'.Ψ φ₂)
+        (pertSource Hm (compWeight L a₁) (hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh') 0) δα')
+        (rawOf D', hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh')) :
     LocalityAEOn (Real.exp κ)
       (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
       (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => Pset m₁ i.1.1)
@@ -124,7 +162,7 @@ theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel 
         ∀ y ∈ compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
           (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C,
           ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
-      (fun u s => (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+      (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
         (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
           flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
             u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
@@ -158,11 +196,11 @@ theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel 
     point_facts_core hC hF₁ hSol hsx hs1 hD hψ
   obtain ⟨φ', α', δφ', δα', hI', hFeq', hstrict', hSeq', hmem'⟩ :=
     point_facts_core hC hF₁ hSol hsx' hs1' hD' hψ₂
-  show (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
+  show Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
           D.Ψ ψ)).1 (rawOf D, ψ) =
-    (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s', rawOf D'))
+    Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s', rawOf D'))
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s',
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s', rawOf D'))
           D'.Ψ ψ₂)).1 (rawOf D', ψ₂)
@@ -331,30 +369,108 @@ theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel 
     congrArg Prod.snd hSeq'
   rw [h1'] at hfld hfix hs6
   rw [h2'] at hfld' hfix' hs6'
-  have hflc := fluct_correction_rows_of_agree_on_component hC hk hG' hG cc hconn hrow hMX hdm hα
-    hsm hF₁ hsx hsx' hD hD' hYnn hs1E hs0E hagE hX₁cell h𝒞' hdataY ψh ψh₂ hh hI hI' Hh Hh'
-    hfix hs6 hfix' hs6'
-  have hδeq : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i, δφ (y, i) = δφ' (y, i) := by
-    intro y hy i
-    rw [← h1, ← h2, hfld, hfld']
-    exact hflc.2 y hy i
-  have hZY : ∀ y ∈ readSites Hm k z, y ∈ Yc := fun y hy =>
-    subset_compY (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C (hZ hy)
-  have hXY' : ∀ x ∈ X₁f, x ∈ Y := fun x hx => (hmemY x).2 (subset_compY
-    (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C (Finset.mem_coe.2 hx))
-  have hαeq : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) → α y = α' y := by
-    intro y hy
-    obtain ⟨z, hz, hyz, hQ, hhat⟩ := hBM y hy y.2
-    refine hαSY y (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, ?_, ?_⟩, hyz⟩)
-    · intro P hP hPpar
-      exact absurd hPpar (hQ P hP)
-    · intro x hx
-      exact hXY' _ (hhat x hx)
-  exact blockEnergyFun_local_sharp (Gp := Gp) (Hm := Hm) (compWeight L a₁) ν k z
-    (t := ((φ, α), δφ, (rawOf D, ψ))) (t' := ((φ', α'), δφ', (rawOf D', ψ₂)))
-    (fun y hy => hαeq y hy)
-    (fun y hy i => hδeq y ((hmemY _).2 (hZY _ hy)) i)
-    (fun y hy => hψY y ((hmemY y).2 (hZY y (readSites_of_blockSites hy))))
+  have e1 : δφ = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν
+      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) (flAlpha Gp Hm α) (barField Gp D.Ψ φ)
+      (pertSource Hm (compWeight L a₁) ψ 0) δα := h1.symm.trans hfld
+  have e2 : δφ' = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν
+      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s')) (flAlpha Gp Hm α') (barField Gp D'.Ψ φ')
+      (pertSource Hm (compWeight L a₁) ψ₂ 0) δα' := h2.symm.trans hfld'
+  show Φ (φ, α) δφ (rawOf D, ψ) = Φ (φ', α') δφ' (rawOf D', ψ₂)
+  rw [e1, e2]
+  have hαY : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁f 𝒞 Y → α x = α' x := hαSY
+  exact hΦ hsx hsx' hD hD' C hYnn hs1E hs0E hagE hX₁cell h𝒞' hdataY ψh ψh₂ hh hI hI' Hh Hh'
+    hfix hs6 hfix' hs6' hmemY hαY hψY
+
+
+/-- **Exact locality of the potential summand `V` (`blockEnergyFun`) of the fan.**  This is
+`fanH_local_dir` for the block energy, with raw data agreeing on the component `Yc` itself
+(`agreeOn Yc`) instead of `thickSet Gp Yc`; the hat variables agree at the unit points of the sites
+of `Yc`.  For decoupling parameters `s, s'` that vanish off the marked family `C` (`hs.1`, `hs'.1`)
+and agree on the cubes inside `Yc` (`hag`), the composite (decoupled background, covariance square
+root `hatPsiF`, fluctuation correction, block energy) takes equal values.
+
+Inputs and the hypotheses each needs: `i4b_local_of_agree_on_component` (`hconn`, `hG'`, data on
+`Yc`) gives the multipliers on `S_Y`, hence on the block (`hBM`, `BlockMargin`);
+`hatPsiF_rows` (`hX₁` through `CovSetup`, complete blocks of `Yc`) gives `ψ'` on `Yc`;
+`fluct_correction_rows_of_agree_on_component` (`hrow`, `hG`) gives the correction on `Yc`;
+`hZ : readSites Hm k z ⊆ X₁` places the read sites in `Yc`.  The block energy reads `ψ'` only on
+the block (`blockEnergyFun_local_sharp`). -/
+theorem vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hBM : BlockMargin Gp X₁f
+      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    LocalityAEOn (Real.exp κ)
+      (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
+      (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => Pset m₁ i.1.1)
+      (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))))
+      (fun C u u' => agreeOn (compY
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) u.1 u'.1 ∧
+        ∀ y ∈ compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C,
+          ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
+      (fun u s => (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+        (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+          (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) :=
+  fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hF₁ hSol
+    (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) (fun {sx sx'} hs hs' {D D'} hD hD' {Y} C hY hs1 hs0
+      hag hX₁c h𝒞 hdata ψh ψh' hh {φ φ₂} {α α₂} hI hI₂ Hh Hh' {δα δα'} hfix hsmδ hfix' hsmδ'
+      hmemY hαY hψY => by
+    classical
+    have hflc := fluct_correction_rows_of_agree_on_component hC hk hG' hG cc hconn hrow hMX hdm hα
+      hsm hF₁ hs hs' hD hD' hY hs1 hs0 hag hX₁c h𝒞 hdata ψh ψh' hh hI hI₂ Hh Hh'
+      hfix hsmδ hfix' hsmδ'
+    have hZY : ∀ y ∈ readSites Hm k z, y ∈ Y := fun y hy =>
+      (hmemY y).2 (subset_compY (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C (hZ hy))
+    have hXY' : ∀ x ∈ X₁f, x ∈ Y := fun x hx => (hmemY x).2 (subset_compY
+      (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C (Finset.mem_coe.2 hx))
+    have hαeq : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) → α y = α₂ y := by
+      intro y hy
+      obtain ⟨z, hz, hyz, hQ, hhat⟩ := hBM y hy y.2
+      refine hαY y (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, ?_, ?_⟩, hyz⟩)
+      · intro P hP hPpar
+        exact absurd hPpar (hQ P hP)
+      · intro x hx
+        exact hXY' _ (hhat x hx)
+    exact blockEnergyFun_local_sharp (Gp := Gp) (Hm := Hm) (compWeight L a₁) ν k z
+      (t := ((φ, α), _, (rawOf D, hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh)))
+      (t' := ((φ₂, α₂), _, (rawOf D', hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh')))
+      (fun y hy => hαeq y hy)
+      (fun y hy i => hflc.2 y (hZY _ hy) i)
+      (fun y hy => hψY y (hZY y (readSites_of_blockSites hy))))
+
 
 end VBlockRaw
 
