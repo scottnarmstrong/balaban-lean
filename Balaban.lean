@@ -1706,6 +1706,7 @@ public import Balaban.Inhabited.Thm31aPolymer
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
+public import Balaban.Inhabited.ObsCoeffFamily
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.ObsSourceLocal
