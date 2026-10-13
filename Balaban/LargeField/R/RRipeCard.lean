@@ -83,7 +83,9 @@ theorem removed_ncard_le (G : S.Good)
   obtain ⟨a, sd, hbox, hsd⟩ := removed_eq_box G hT hadm hkK hc
   rw [hbox]
   refine (ncard_box_le a sd).trans ?_
-  calc ∏ i, sd i ≤ ∏ _i : Fin S.d, S.crit k := Finset.prod_le_prod (fun i _ => Nat.zero_le _) fun i _ => (hsd i).2
+  calc ∏ i, sd i ≤ ∏ _i : Fin S.d, S.crit k := by
+        apply Finset.prod_le_prod
+        intro i _; exact (hsd i).2
     _ = (2 * S.rho k + 10) ^ S.d := by simp [Setting.crit]
 
 /-- **Cardinality** (`Finset.card` form). -/
