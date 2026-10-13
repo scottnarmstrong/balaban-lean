@@ -23,11 +23,13 @@ For a record `E : DetExpansionLocC S m₀ z eps κ'' cdet` of the determinant ex
 `physV`, local in the raw datum on the thickening of `Ŷ(sitesOf T)`, bounded by
 `cdet · exp(-κ'' d_Ext T)` on `physV`, and supported on rooted polymer sets.
 
-`e0CoeffFamily_fromTower` adds this to the mark coefficient of `e1CoeffFamily_fromTower`: at a scale
+`e0CoeffFamily_value_fromTower` adds this to the mark coefficient of
+`e1CoeffFamily_value_fromTower` (`e0CoeffFamily_fromTower` is its corollary): at a scale
 of the tower, for every root `z`, the determinant term and the sum `e0 = dz + c` carry the same four
 properties (analyticity, locality, the bound `(2 · 27 · BL + 1) K₀ e^{-κ' d_Ext}`, polymer support),
 and the determinant half of the value at every datum of the chart is proved:
-`-½ ∑_{y ∈ B(z)} tr 𝕃(y,y) = ∑_T dz(θ') T` and `ℰ₀ = ∑_T dz(θ') T + ℰ₁`.
+`-½ ∑_{y ∈ B(z)} tr 𝕃(y,y) = ∑_T dz(θ') T` and `ℰ₀ = ∑_T dz(θ') T + ℰ₁`. The value
+clause is `ℰ₀ = ∑_T e0 (rawOf D′, 0) T` at every datum `D′` of the chart with constant field `h₀`.
 -/
 
 @[expose] public section
@@ -175,6 +177,217 @@ theorem towerDetConst_le_mul {κmin : ℝ} (T : StepTower κmin) :
   exact ⟨by positivity, by nlinarith [mul_nonneg hBL (sub_nonneg.2 hK1)]⟩
 
 open Classical in
+/-- **The energy coefficient family at the tower with its value on the fibre `h ≡ h₀`.**  See the
+module doc-string.  The first part is `e1CoeffFamily_value_fromTower`; then the determinant
+function `dz` (with the determinant half of the value at every datum of the chart) and the sum
+`e0 = dz + c`, whose coefficient sum at `(rawOf D′, 0)` is the local energy term `ℰ₀^{(k+1)}(z)`
+of the step with the datum `D′`, for every datum `D′` of the chart with constant field `h₀`. -/
+theorem e0CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
+    (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁), 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, ∀ hp : 0 < (T.step k hk N₁ ν β p₁).p₁, p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      ∀ D : StepScaleData T k hk N₁ ν β p₁,
+      ∃ (F₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+          DecParams (T.step k hk N₁ ν β p₁).G' × RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
+            ((T.step k hk N₁ ν β p₁).G'.Ω 1 × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).G'.Ω 1 → ℂ))
+        (Sol : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+          Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 →
+            ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) ×
+              ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ))
+        (Lb : Type) (_ : Fintype Lb)
+        (Lab₀ : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ Lb) (εH : ℝ)
+        (A₀ : physParam 2 (T.step k hk N₁ ν β p₁) → ℂ →
+          LabelAct (commonLabels Lab₀ (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
+            (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D))
+            ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 T.marksKc'),
+      (∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
+          (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
+        XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
+          (k + 1) 1 T.t D' → ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂(T.step k hk N₁ ν β p₁).nuFl,
+          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).WoneC
+              (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) s x =
+            ∑ y, (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ :
+                rawSub 2 (T.step k hk N₁ ν β p₁).G'), g) (s : ℂ)).H y
+              (((T.step k hk N₁ ν β p₁).blockSplit 1 hp).restr x)) ∧
+      ∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1),
+        (∀ b, MarkedBlockExpansionDecPair 2 (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+          (T.step k hk N₁ ν β p₁).hG' ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+          (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.BG T.BG₂ T.κ T.t T.t T.κdec p₁
+          ((T.step k hk N₁ ν β p₁).blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+          (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ (z, b)) (Sol (z, b))) ∧
+        Nonempty (ParamMarkFamily ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
+          (commonLabels Lab₀ (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
+            (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)) A₀
+          (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+              (e1Dom (T.step k hk N₁ ν β p₁)) z} =>
+            commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)
+          (fun θ i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+            (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ)
+          (2 * T.κdec - 1) (fun _ => corrF0 T k β p₁)
+          (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+            (T.step k hk N₁ ν β p₁).ν T.t)
+          (Metric.ball (0 : ℂ) corrU) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp)) ∧
+        ∃ c : physParam 2 (T.step k hk N₁ ν β p₁) →
+            Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ) → ℂ,
+          (∀ θ C, c θ C = gsumCoeff ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
+            (commonLabels Lab₀ (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
+              (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)) (A₀ θ)
+            (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+                (e1Dom (T.step k hk N₁ ν β p₁)) z} =>
+              commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)
+            (fun i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+              (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) C) ∧
+          (∀ C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => c θ C)
+              (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t) ∧
+            (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (thickSet (T.step k hk N₁ ν β p₁).G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → c θ C = c θ' C) ∧
+            (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              ‖c θ C‖ ≤ K0 3 3 T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
+            (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
+              dExt C = sizeJ 1 (k + 1) (sitesOf C))) ∧
+          (∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
+              (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
+            XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a
+              (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t D' →
+            ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E1locC
+                (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
+              ∑ C, c ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+                (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) C) ∧
+          ∃ dz : physParam 2 (T.step k hk N₁ ν β p₁) → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ) → ℂ,
+            (∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
+                (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
+              XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t D' →
+              ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+              -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
+                  ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
+                ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C ∧
+              ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E0locC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
+                ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C +
+                  ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E1locC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z) ∧
+            (∀ C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => dz θ C) (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t) ∧
+            (∀ θ ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              ∀ θ' ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (thickSet (T.step k hk N₁ ν β p₁).G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → dz θ C = dz θ' C) ∧
+            (∀ θ ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              ‖dz θ C‖ ≤ (27 * (covBLogMax 3 3 T.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) * Real.exp (-T.κ' * dExt C)) ∧
+            (∀ θ, dz θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C))) ∧
+            ∃ e0 : physParam 2 (T.step k hk N₁ ν β p₁) → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ) → ℂ,
+              (∀ θ C, e0 θ C = dz θ C + c θ C) ∧
+              (∀ C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => e0 θ C) (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t) ∧
+            (∀ θ ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              ∀ θ' ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (thickSet (T.step k hk N₁ ν β p₁).G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → e0 θ C = e0 θ' C) ∧
+            (∀ θ ∈ (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t),
+              ‖e0 θ C‖ ≤ ((2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) * K0 3 3 T.κ0) * Real.exp (-T.κ' * dExt C)) ∧
+            (∀ θ, e0 θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C))) ∧
+              ∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
+                (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
+              XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a
+                (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t D' →
+              ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E0locC
+                  (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
+                ∑ C, e0 ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+                  (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) C := by
+  obtain ⟨β₀, h3, h⟩ := e1CoeffFamily_value_fromTower T hHull hA p
+  refine ⟨β₀, h3, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hβ'⟩ :=
+    h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
+  refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
+  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hβ' z
+  obtain ⟨hE, hrate⟩ := detExpansionLocC_scale_fromTower T k hk N₁ h3N hN hν0.le hν β p₁
+  obtain ⟨E, -⟩ := hE z
+  obtain ⟨dz, hdz1, hdz2⟩ := detParamFamily (N := 2) E (bgHyp_lv (k := k) T.m₁ hν0.le hν)
+  obtain ⟨hc0, hdet⟩ := towerDetConst_le_mul T
+  have hdz1' : ∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
+      (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
+      XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
+        (k + 1) 1 T.t D' → ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+      -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
+          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
+        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C ∧
+      ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E0locC
+          (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
+        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C +
+          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E1locC
+            (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z := by
+    intro D' hDh hX g
+    have hs : -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
+        ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
+        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C := by
+      rw [(E.atDatum D' hDh hX).sum_eq]
+      exact Finset.sum_congr rfl fun C _ => (hdz1 D' hX g C).symm
+    refine ⟨hs, ?_⟩
+    unfold StepSetting.E0locC
+    rw [hs]
+  refine ⟨hP, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
+  · intro C
+    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
+    refine ⟨a1, a2, fun θ hθ => (a3 θ hθ).trans ?_, a4⟩
+    rw [mul_div_assoc]
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by rw [← mul_div_assoc]; exact hc0)
+    nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
+  · refine ⟨fun θ C => dz θ C + c θ C, fun _ _ => rfl, fun C => ?_, fun D' hDh hX => ?_⟩
+    swap
+    · obtain ⟨-, hsum⟩ := hdz1' D' hDh hX 0
+      rw [hsum, hcv D' hDh hX, ← Finset.sum_add_distrib]
+    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
+    obtain ⟨b1, b2, b3, b4⟩ := hC C
+    refine ⟨a1.add b1, fun θ hθ θ' hθ' h => ?_, fun θ hθ => ?_, fun θ hθ => ?_⟩
+    · show dz θ C + c θ C = dz θ' C + c θ' C
+      rw [a2 θ hθ θ' hθ' h, b2 θ hθ θ' hθ' h]
+    · refine (norm_add_le _ _).trans ?_
+      have h1 : ‖dz θ C‖ ≤ (2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
+          (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) * K0 3 3 T.κ0 *
+          Real.exp (-T.κ' * dExt C) := by
+        refine (a3 θ hθ).trans ((mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0).trans
+          (mul_le_mul_of_nonneg_right hdet (Real.exp_pos _).le))
+        nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
+      have h2 := b3 θ hθ
+      nlinarith
+    · have hne : dz θ C + c θ C ≠ 0 := hθ
+      by_cases h0 : dz θ C = 0
+      · rw [h0, zero_add] at hne
+        exact ⟨(b4 θ hne).1, (b4 θ hne).2.1⟩
+      · exact a4 θ h0
+
+
+open Classical in
 /-- **The energy coefficient family at the tower: determinant, marks and their sum.**  See the
 module doc-string.  The first part is `e1CoeffFamily_fromTower`; then the determinant function
 `dz` (with the determinant half of the value at every datum of the chart) and the sum
@@ -304,52 +517,12 @@ theorem e0CoeffFamily_fromTower {κmin : ℝ} (T : StepTower κmin)
                 (T.step k hk N₁ ν β p₁).ν T.t),
               ‖e0 θ C‖ ≤ ((2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) * K0 3 3 T.κ0) * Real.exp (-T.κ' * dExt C)) ∧
             (∀ θ, e0 θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C))) := by
-  obtain ⟨β₀, h3, h⟩ := e1CoeffFamily_fromTower T hHull hA p
-  refine ⟨β₀, h3, ?_⟩
-  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
-  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hβ'⟩ :=
-    h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
+  classical
+  obtain ⟨β₀, h3, H⟩ := e0CoeffFamily_value_fromTower T hHull hA p
+  refine ⟨β₀, h3, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D => ?_⟩
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := H k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hfam, c, hc, hC⟩ := hβ' z
-  obtain ⟨hE, hrate⟩ := detExpansionLocC_scale_fromTower T k hk N₁ h3N hN hν0.le hν β p₁
-  obtain ⟨E, -⟩ := hE z
-  obtain ⟨dz, hdz1, hdz2⟩ := detParamFamily (N := 2) E (bgHyp_lv (k := k) T.m₁ hν0.le hν)
-  obtain ⟨hc0, hdet⟩ := towerDetConst_le_mul T
-  refine ⟨hP, hfam, c, hc, hC, dz, ?_, ?_, ?_⟩
-  · intro D' hDh hX g
-    have hs : -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
-        ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
-        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C := by
-      rw [(E.atDatum D' hDh hX).sum_eq]
-      exact Finset.sum_congr rfl fun C _ => (hdz1 D' hX g C).symm
-    refine ⟨hs, ?_⟩
-    unfold StepSetting.E0locC
-    rw [hs]
-  · intro C
-    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
-    refine ⟨a1, a2, fun θ hθ => (a3 θ hθ).trans ?_, a4⟩
-    rw [mul_div_assoc]
-    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by rw [← mul_div_assoc]; exact hc0)
-    nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-  · refine ⟨fun θ C => dz θ C + c θ C, fun _ _ => rfl, fun C => ?_⟩
-    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
-    obtain ⟨b1, b2, b3, b4⟩ := hC C
-    refine ⟨a1.add b1, fun θ hθ θ' hθ' h => ?_, fun θ hθ => ?_, fun θ hθ => ?_⟩
-    · show dz θ C + c θ C = dz θ' C + c θ' C
-      rw [a2 θ hθ θ' hθ' h, b2 θ hθ θ' hθ' h]
-    · refine (norm_add_le _ _).trans ?_
-      have h1 : ‖dz θ C‖ ≤ (2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
-          (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) * K0 3 3 T.κ0 *
-          Real.exp (-T.κ' * dExt C) := by
-        refine (a3 θ hθ).trans ((mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0).trans
-          (mul_le_mul_of_nonneg_right hdet (Real.exp_pos _).le))
-        nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-      have h2 := b3 θ hθ
-      nlinarith
-    · have hne : dz θ C + c θ C ≠ 0 := hθ
-      by_cases h0 : dz θ C = 0
-      · rw [h0, zero_add] at hne
-        exact ⟨(b4 θ hne).1, (b4 θ hne).2.1⟩
-      · exact a4 θ h0
+  obtain ⟨h1, h2, c, hc, hcl, -, dz, hdz, hdzl, e0, he, hel, -⟩ := hz z
+  exact ⟨h1, h2, c, hc, hcl, dz, hdz, hdzl, e0, he, hel⟩
 
 end Balaban.Inhabited
