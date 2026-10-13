@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.Fluctuation.SourceFamilyRelative
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -256,34 +257,14 @@ theorem sourceFamilyRelative_scale_nonneg {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
   have hBh0 : (0 : ℝ) ≤ 1 + 2 / ν := by positivity
   have hη0 : 0 < q / β := div_pos hq0 hβ0
   -- the sign and the size of the amplitude
-  have hid := sourceEta_scaled_identity 3 3 2 m₁ k 1 1 BG BG₂ κ t (lvR κ t (β * 3 ^ k) p₁) q β
-    hβ0.ne'
-  rw [← hQdef] at hid
-  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * t) t (rho4 3 3 2 BG κ)‖ /
-        lvR κ t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR κ t (β * 3 ^ k) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
-      (by norm_num) le_rfl (compWeight_three_mem hk).2
-      (le_trans (by norm_num) (compWeight_three_mem hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0 (1 + m₁)
-    rw [hatStepK_betaU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * t) t (rho4 3 3 2 BG κ)‖ /
-        lvR κ t (β * 3 ^ k) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    positivity
-  have hsrc0 : 0 ≤ q * (Q * t) / lvR κ t (β * 3 ^ k) p₁ := by positivity
-  have hεnn : 0 ≤ β * prop33EpsEtaScaled 3 3 2 m₁ k 1 1 BG BG₂ κ t
-      (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / β) := by
-    rw [hid]; linarith
-  have hεle : β * prop33EpsEtaScaled 3 3 2 m₁ k 1 1 BG BG₂ κ t
-        (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / β) ≤
-      P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
-        Real.sqrt (β * 3 ^ k) +
-      q * (4 * A₁ * (Q * t) / lvKappa κ t) * (Real.log (β * 3 ^ k)) ^ p /
-        Real.sqrt (β * 3 ^ k) := by
-    rw [hid]
-    linarith
+  have hbU : (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).betaU = β * 3 ^ k :=
+    hatStepK_betaU k m₁ hk ν β p₁ δ
+  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+    (by norm_num) le_rfl 1 (compWeight_three_mem hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 hq0 hQdef
+    hPdef (εU := β * prop33EpsEtaScaled 3 3 2 m₁ k 1 1 BG BG₂ κ t
+      (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / β)) rfl
+  have hεnn := hεpos.le
+  have hεle := hεle' _ hamp
   have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := κ) (t := t) (P := P) (K := Q * t) (q := q) p
     hb0 (by linarith) hεle
   -- the direct terms

@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.Inhabited.SourceAmpScale
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Fluctuation.SourceDirectTermsScale
@@ -191,33 +192,12 @@ theorem stepActivityBound_zeroClass_source_scale_cutoff_rho {A₁ : ℝ} (hA : 0
   -- the physical amplitude on the slice `η = q/β`
   obtain ⟨εU, hεU⟩ : ∃ εU : ℝ, εU = β * prop33EpsEtaScaled 3 3 2 m₁ k 1 1 BG BG₂ κ t
       (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / β) := ⟨_, rfl⟩
-  have hid := sourceEta_scaled_identity 3 3 2 m₁ k 1 1 BG BG₂ κ t (lvR κ t (β * 3 ^ k) p₁) q β
-    hβ0.ne'
-  rw [← hεU, ← hQdef] at hid
-  have hmem := compWeight_three_mem hk
-  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * t) t (rho4 3 3 2 BG κ)‖ /
-        lvR κ t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR κ t (β * 3 ^ k) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
-      (by norm_num) le_rfl hmem.2 (le_trans (by norm_num) hmem.1) hβ0.le hQ0.le ht0.le hρ4 hr0
-      (1 + m₁)
-    rw [hatStepK_betaU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * t) t (rho4 3 3 2 BG κ)‖ /
-        lvR κ t (β * 3 ^ k) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    positivity
-  have hεle : εU ≤ P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
-        Real.sqrt (β * 3 ^ k) +
-      q * (4 * A₁ * (Q * t) / lvKappa κ t) * (Real.log (β * 3 ^ k)) ^ p /
-        Real.sqrt (β * 3 ^ k) := by
-    rw [hid]
-    linarith
-  have hεpos : 0 < εU := by
-    rw [hid]
-    have : 0 < q * (Q * t) / lvR κ t (β * 3 ^ k) p₁ := div_pos (mul_pos hq0 hK0) hr0
-    linarith
+  have hbU : (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).betaU = β * 3 ^ k :=
+    hatStepK_betaU k m₁ hk ν β p₁ δ
+  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+    (by norm_num) le_rfl 1 (compWeight_three_mem hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 hq0 hQdef
+    hPdef hεU
+  have hεle := hεle' _ hamp
   have hDA0 := sourceAmp_doubled_hDA_rho 3 3 (A₁ := A₁) (κ := κ) (t := t) (P := P) (K := Q * t)
     (q := q) (ρ := ρ)
     (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le hρ.le hq hℓ hb0 hKc''pos κdec κ0 κ'
