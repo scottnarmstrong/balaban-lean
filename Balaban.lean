@@ -1372,7 +1372,9 @@ public import Balaban.Fluctuation.MarkedI5Functional
 public import Balaban.Fluctuation.MarkedEvParam
 public import Balaban.Fluctuation.MarkedVBlockDec
 public import Balaban.Fluctuation.MarkedScaledCountDec
+public import Balaban.Fluctuation.MarkedTwoMarkLocal
 public import Balaban.Inhabited.MarkedVBlockDecWitness
+public import Balaban.Inhabited.MarkedTwoMarkWitness
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
