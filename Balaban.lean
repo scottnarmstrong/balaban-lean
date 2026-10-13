@@ -67,6 +67,7 @@ public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.TwoTorusCoef
+public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
