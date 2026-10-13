@@ -1867,3 +1867,4 @@ public import Balaban.SmallField.LocalGeneratorRadius
 public import Balaban.Fluctuation.GeneralRenormInput
 public import Balaban.Fluctuation.GeneralOldCoeffFamily
 public import Balaban.LargeField.Base.BaseChartCutSqrt
+public import Balaban.LargeField.Base.BaseChartComponentGauss
