@@ -552,7 +552,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The mass block expands over the domains `Y ⊃ X₁`, exact locality** (`nublock_expansion_hat_dir`
 with one locality clause, for raw data agreeing on `Y` itself and hat variables agreeing at the unit
 points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `nublock_fan_local_rawY`; the term
-`Ev` is the one of `nublock_expansion_hat_dir`, which is a corollary. -/
+The thick corollary uses the same `Ev` selected here. -/
 theorem nublock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
