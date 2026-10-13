@@ -66,6 +66,13 @@ theorem dec2_decParams_eq (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) :
 theorem dec2_extS_eq (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (s : DecParams G) :
     Dec2.extS (coverOf G) s = extS G s := rfl
 
+/-- The pair-cover notion of the decoupled background over the self-cover `coverOf G` is the
+self-cover notion `IsDecBg G`. -/
+theorem dec2_isDecBg_iff {N : ℕ} (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ)
+    (ν ρ : ℝ) (s : DecParams G) (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) (α : G.Ω 1 → ℂ) :
+    Dec2.IsDecBg (coverOf G) G a ν ρ s D φ α ↔ IsDecBg G a ν ρ s D φ α :=
+  ⟨fun h => ⟨h.small, h.fixed, h.field⟩, fun h => ⟨h.small, h.fixed, h.field⟩⟩
+
 end Params
 
 /-! ### The definition -/
@@ -95,6 +102,17 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
 variable {κι : Type*} [Fintype κι] [DecidableEq κι]
+
+/-- The numerical facts about the datum size `xiC1 d * eps` used for Theorem I-4b. -/
+theorem xiC_numerics (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) :
+    0 < xiC1 d * eps ∧ xiC1 d * eps ≤ bgC0 d L N ∧ xiC1 d * eps ≤ c7 d L N BG κ ∧
+      ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by have := one_le_xiC1 d; positivity
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  refine ⟨hδ0, hδ1.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0)), hδ1, ?_⟩
+  have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
 
 /-- A datum of the chart is in the union domain of Theorem I-4b. -/
 theorem inUnionDomainC_of_xiCData
@@ -294,5 +312,100 @@ theorem rootTraceBg_cut_expansion
     exact norm_rootTraceBg_le hC hk hδc hcap hsm hmar hα hU B hD hs
 
 end Chart
+
+/-! ### The endpoint `s = 1` -/
+
+section Endpoint
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ}
+variable {κι : Type*} [Fintype κι] [DecidableEq κι]
+
+/-- The decoupled logarithm depends on the field only through its restriction to `Ω₁`. -/
+theorem decLog_congr_restrict {aT ν : ℝ} {α : G.Ω 1 → ℂ}
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ)
+    (h : restrictField G φ = restrictField G φ') :
+    decLog G a aT ν α s φ Q P = decLog G a aT ν α s φ' Q P := by
+  simp only [decLog, decCov, decPi, decM, decN, h]
+
+/-- The rooted trace depends on the field only through its restriction to `Ω₁`. -/
+theorem rootTrace_congr_restrict {aT ν : ℝ} {α : G.Ω 1 → ℂ} {s : DecParams G}
+    {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ) (B : Finset κι)
+    (h : restrictField G φ = restrictField G φ') :
+    rootTrace G a aT ν Q P B s φ α = rootTrace G a aT ν Q P B s φ' α := by
+  simp only [rootTrace, decLog_congr_restrict Q P h]
+
+/-- On `Ω₁` the extension `barField` is the field, and so is `svec`. -/
+theorem restrictField_barField_eq_svec (Ψ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1)) → Fin N → ℂ)
+    (φ : G.Ω 1 × Fin N → ℂ) :
+    restrictField G (barField G Ψ φ) = restrictField G (svec G φ) := by
+  funext x i
+  simp [restrictField, barField, svec_of_mem, x.2]
+
+/-- **T4 (endpoint, general form)**: at `s = 1` the decoupled background is the uncut background
+`(bgFieldC, bgMultC)` (Theorem I-4b (i) at `s = 1`), and `rootTraceBg` is `rootTrace` at
+`(svec bgFieldC, bgMultC)`.  The two extensions of the field to the torus (`barField` with the
+datum outside `Ω₁`, `svec` with zero outside `Ω₁`) agree on `Ω₁`, where the decoupled logarithm
+reads the field. -/
+theorem rootTraceBg_one_eq {aT ν : ℝ} {c BG : ℝ} (hS : DecSpecs d L c BG)
+    (S : DGSetting G a ν) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+    (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D : BgData G N}
+    (hD : InDomainC G ν δ ε D) (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ)
+    (B : Finset κι) :
+    rootTraceBg G a aT ν (rho4 d L N BG κ) Q P B D (fun _ => 1) =
+      rootTrace G a aT ν Q P B (fun _ => 1) (svec G (bgFieldC G a ν (bgC0 d L N) D))
+        (bgMultC G a ν (bgC0 d L N) D) := by
+  obtain ⟨φ, α, hI, hu, -⟩ := i4b_exists_unique hS S HB hκ hM (s := fun _ => 1)
+    (fun P => by simpa using Real.one_le_exp hκ) hδ0 hδε hε hδ hνε hD
+  obtain ⟨-, e1, e2⟩ := i4b_one hS S HB hκ hM hδ0 hδε hε hδ hνε hD hI
+  obtain ⟨h1, h2⟩ := decBg_eq hI hu
+  unfold rootTraceBg
+  rw [h1, h2, ← e1, ← e2]
+  exact rootTrace_congr_restrict Q P B (restrictField_barField_eq_svec _ _)
+
+/-- **T4 (endpoint, step form)**: for the datum `S.D'` of a step, the rooted trace with the cut
+background at `s = 1` over the block of `z` is `-(1/2)` times the block trace of `S.logAC`. -/
+theorem rootTraceBg_one_eq_logAC (S : StepSetting d L N₁ m₁ k N ϱ) {c BG : ℝ}
+    (hS : DecSpecs d L c BG) (hDG : DGSetting S.G' S.a S.ν)
+    (HB : BgHyp d L (k + 1) ϱ S.a S.ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε)
+    (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD : InDomainC S.G' S.ν δ ε S.D')
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
+    rootTraceBg S.G' S.a S.a₁ S.ν (rho4 d L N BG κ) (unitQ S.G') (unitP S.G') (S.blockU z) S.D'
+        (fun _ => 1) =
+      -(1 / 2 : ℂ) * ∑ y ∈ S.blockU z, ∑ i : Fin N, S.logAC (y, i) (y, i) := by
+  rw [rootTraceBg_one_eq hS hDG HB hκ hM hδ0 hδε hε hδ hνε hD]
+  exact rootTrace_one_eq_logAC S z
+
+end Endpoint
+
+section EndpointChart
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+variable {κι : Type*} [Fintype κι] [DecidableEq κι]
+
+/-- **T4 for a datum of the chart**: the endpoint identity with all hypotheses supplied by
+`FlCore` and `XiCData`. -/
+theorem rootTraceBg_one_eq_of_flCore
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) (Q : Matrix κι (Gp.Ω 1) ℂ)
+    (P : Matrix κι κι ℂ) (B : Finset κι) :
+    rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D (fun _ => 1) =
+      rootTrace Gp (compWeight L a₁) a₁ ν Q P B (fun _ => 1)
+        (svec Gp (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D))
+        (bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D) := by
+  obtain ⟨hδ0, hδ0', hδ1, hνε⟩ := xiC_numerics hC
+  exact rootTraceBg_one_eq hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM hδ0 le_rfl hδ0' hδ1 hνε
+    (xiCData_inDomainC hC.HBp hC.small1 hD) Q P B
+
+end EndpointChart
 
 end Balaban.Fluctuation
