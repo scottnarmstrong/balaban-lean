@@ -317,3 +317,136 @@ end Phys
 end StepSetting.JointRep
 
 end Balaban.Fluctuation
+
+namespace Balaban.Inhabited
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
+  Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
+  Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
+
+/-- **The interaction half of the value bridge at the shared tower.**  For the step
+`S = T.step k hk N₁ ν β p₁` of the tower `T` with a per-scale package `D`, there is a `JointRep`
+`Jr` (the one of `sourcePhysVal_W2_fromTower`) such that:
+
+* for every datum `D'` of `Ξ^c(𝔹_{k+1}; 1, T.t)` with `h ≡ h₀`, every real hat variable `ψ̂` with
+  `‖ψ̂‖ < 2 p₁` and `s ∈ [0,1]`, `Jr.W1` of the zero class at `(rawOf D', s ψ̂)` is
+  `s² · ((−β) · raySrc3 (hatFun … interactionOne) taylorWeight ψ̂ ψ̂ s (rawOf D'))`;
+* for every chart point `e ∈ physV` of the fibre `h ≡ h₀`, `s, τ ∈ [0,1]`, the two segment sum of
+  `Jr.W1` at `s` and `Jr.W2` at `τ` is given by `physVal` as in `sourcePhysVal_jointRep_zero`. -/
+theorem wone_chartIdentity_fromTower {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) (hp0 : 0 < p₁)
+    (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁) :
+    ∃ Jr : S.JointRep T.t (2 * p₁),
+      (∀ (D' : BgData S.G' 2), (∀ y i, D'.h y i = (S.h₀ i : ℂ)) →
+        XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ x : S.E, ‖x‖ < 2 * p₁ →
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
+          Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D', (s : ℂ) • S.hatC x) =
+            (s : ℂ) ^ 2 * ((-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight
+              (S.hatC x) (S.hatC x) (s : ℂ) (rawOf D'))) ∧
+      ∀ {r₀ δ₃ δfl : ℝ} {τι μι : Type} [DecidableEq τι] [DecidableEq μι]
+        {ϱ₁ ϱ₂ : τι → ℝ} {ϱ₁M ϱ₂M : μι → ℝ}
+        {GkE : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₁ τ)}
+        {GjE : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₂ τ)}
+        {X₀E X₁E : τι → Finset (CTorus 3 3 N₁ T.m₁ (k + 1))} {jE : τι → ℕ}
+        {GkM : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₁M τ)}
+        {GjM : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₂M τ)}
+        {X₀M X₁M : μι → Finset (CTorus 3 3 N₁ T.m₁ (k + 1))} {jM : μι → ℕ}
+        {EE : τι → RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 → ℂ}
+        {EM : μι → RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 → ℂ}
+        (𝒯E : Finset τι) (𝒯M : Finset μι)
+        (hBE : ∀ τ ∈ 𝒯E, BgSetting 2 S.G' (GkE τ) (GjE τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀E τ)
+          (X₁E τ) (jE τ))
+        (hFE : ∀ τ ∈ 𝒯E, FlSetting 2 S.G' (GkE τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν
+          T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl (X₁E τ))
+        (ys : μι → CTorus 3 3 N₁ T.m₁ (k + 1)) (is : μι → Fin 2)
+        (hBM : ∀ τ ∈ 𝒯M, BgSetting 2 S.G' (GkM τ) (GjM τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀M τ)
+          (X₁M τ) (jM τ))
+        (hFM : ∀ τ ∈ 𝒯M, FlSetting 2 S.G' (GkM τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν
+          T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl (X₁M τ))
+        (cν : ℂ), 𝒯E = ∅ → 𝒯M = ∅ → cν = 0 → ∀ (e : physParam 2 S),
+        e ∈ physV S S.a₁ S.ν T.t →
+        (∀ y i, (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2).2 y i = (S.h₀ i : ℂ)) →
+        ∀ (x : S.E), ‖x‖ < 2 * p₁ → ∀ s τ : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → τ ∈ Set.Icc (0 : ℝ) 1 →
+          Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+              ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (s : ℂ) • S.hatC x) +
+            Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+              ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (τ : ℂ) • S.hatC x) =
+          (s : ℂ) ^ 2 * physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) +
+            (physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e) -
+            physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) (e.1, 0))) := by
+  classical
+  subst hS
+  have h4 := T.m₁_four
+  have ht0 := T.t_pos
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hMX := T.large_block
+  have hdm := T.dom_margin
+  have hα := T.coer_margin
+  have hsmX := T.δc_small
+  have hc7 := T.c7_cap
+  have g1 := T.t_cap
+  have g2 := T.bg0_cap
+  have g3 := T.cK2_cap
+  have g4 := T.cK2'_cap
+  have g5 := T.bg1_cap
+  have hcψ0 := D.cψ_pos
+  have hr0 := D.r_pos
+  have hδ₁ := D.fl_radius
+  obtain ⟨R0⟩ := D.ray
+  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
+  have hC := D.core
+  have hβ0 : 0 < β := by
+    by_contra hb
+    replace hb := not_lt.mp hb
+    have hb' : β * 3 ^ k ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hb (by positivity)
+    have : lvCpsi T.κ T.t (β * 3 ^ k) = 0 := by
+      unfold lvCpsi
+      rw [Real.sqrt_eq_zero_of_nonpos hb']; simp
+    linarith
+  have hmem := compWeight_three_mem hk
+  have hCs : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ :=
+    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) T.κ
+  have hpc : 2 * p₁ < lvCpsi T.κ T.t (β * 3 ^ k) := by
+    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp0
+    nlinarith [D.ray_margin]
+  have hbU : 0 ≤ (T.step k hk N₁ ν β p₁).betaU := R0.betaU_pos.le
+  have hδp : Real.sqrt ((2 : ℕ) : ℝ) *
+      ((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) *
+        (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ * (2 * p₁))) < T.t := by
+    refine lt_of_le_of_lt ?_ hδ₁
+    rw [(T.step k hk N₁ ν β p₁).norm_betaU_rpow (show 0 ≤ β by linarith)]
+    have hb := Real.rpow_nonneg hbU (-(1 / 2 : ℝ))
+    have hs := Real.sqrt_nonneg ((2 : ℕ) : ℝ)
+    refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
+      (mul_le_mul_of_nonneg_left hpc.le hCs) hb) hs
+  obtain ⟨Jr⟩ := (T.step k hk N₁ ν β p₁).nonempty_jointRep (pp := 2 * p₁)
+    hC hMX hdm hα hsmX one_pos hc7 (R := 2) (by norm_num) g5 (by
+      show 0 ≤ β
+      linarith) (by linarith) hδp
+  have hβne : ((T.step k hk N₁ ν β p₁).β : ℂ) ≠ 0 := by
+    have : (T.step k hk N₁ ν β p₁).β ≠ 0 := by
+      show β ≠ 0
+      exact hβ0.ne'
+    exact_mod_cast this
+  refine ⟨Jr, ?_, ?_⟩
+  · intro D' hDh hX x hxn s hs
+    exact Jr.W1_zeroClass_eq_hat_chart D' hDh hX hC one_pos hHB hc7 hk (R := 2) (by norm_num) g5
+      hMX hdm hα hsmX hcψ0.le hδ₁ hpc x hxn hs
+  · intro r₀ δ₃ δfl τι μι _ _ ϱ₁ ϱ₂ ϱ₁M ϱ₂M GkE GjE X₀E X₁E jE GkM GjM X₀M X₁M
+      jM EE EM 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν e he hh x hxn s τ hs hτ
+    exact Jr.sourcePhysVal_jointRep_zero hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX
+      hdm hα hsmX hcψ0.le hδ₁ hpc e he hh hβne x hxn hs hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν
+      h𝒯E h𝒯M hcν
+
+end Balaban.Inhabited
