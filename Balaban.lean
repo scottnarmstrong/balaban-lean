@@ -1640,7 +1640,6 @@ public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.RenormDecJoint
 public import Balaban.Fluctuation.RenormLocC2Zero
 public import Balaban.Inhabited.RenormLocC2ZeroTower
-public import Balaban.Inhabited.RenormExpInputTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayBase
@@ -1709,8 +1708,11 @@ public import Balaban.Inhabited.Thm31aPolymer
 public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.Thm31bKernelSupport
+public import Balaban.Inhabited.Thm31SiteDomains
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
+public import Balaban.Inhabited.ObsCoeffFamily
+public import Balaban.Inhabited.ObsCoeffFibreValue
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.ObsSourceLocal

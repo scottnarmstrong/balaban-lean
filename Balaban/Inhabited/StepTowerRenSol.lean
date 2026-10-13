@@ -133,42 +133,4 @@ theorem exists_stepTowerRenSol (κmin : ℝ) : Nonempty (StepTowerRenSol κmin) 
   · simp only [StepTowerRen.shrink]; nlinarith
   · simp only [StepTowerRen.shrink]; nlinarith
 
-/-- **`IsRenSol` at every scale of the tower**: the renormalized solution at radius `r₀` and
-bound `B = 8 t`. -/
-theorem exists_isRenSol_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ)
-    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
-    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) :
-    ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
-      ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ),
-      IsRenSol (N := 2) (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t R.t R.r₀
-        (8 * R.t) F := by
-  have hC := R.flCore_scale k hk N₁ hN hν0 hν
-  have hHB := bgHyp_lv (k := k) R.m₁ hν0 hν
-  exact exists_isRenSol hHB R.t_pos (R.r₀_le) hC.small1 (hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)) R.sol_K R.sol_ζ
-
-/-- **The endpoint at every scale of the tower with the solution margins**: no hypothesis besides
-the tower and the scale conditions. -/
-theorem renEndpoint_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ)
-    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
-    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
-    ∃ (F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
-        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ))
-      (Fcut : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
-        (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
-        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ)),
-      IsRenSol (N := 2) (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t R.t R.r₀
-        (8 * R.t) F ∧
-      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
-          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => Fcut p.1 p.2)
-        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁))
-          (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
-          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
-      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2,
-        XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
-        ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ) := by
-  obtain ⟨F, hF⟩ := exists_isRenSol_scale_of_tower R k hk N₁ hN hν0 hν
-  obtain ⟨Fcut, h1, h2⟩ := renDec_one_unique_sharp_scale_of_tower R.toStepTowerRenEnd k hk N₁ hN
-    hν0 hν X₁ hF le_rfl
-  exact ⟨F, Fcut, hF, h1, h2⟩
-
 end Balaban.Inhabited
