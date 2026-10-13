@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.ParamActivitySubspace
+public import Balaban.Fluctuation.SourceRadiusCarriers
 import Mathlib.Tactic.Positivity
 
 /-!
@@ -23,6 +24,9 @@ size `t > 0`:
 * `hatStepK_physV`: the set `physV` of the parameter space `rawSub × sources` is open, contains the
   step datum with source `0` (and with every source in the strict `ℓ¹` ball), and every point of it
   has a datum with `XiCData` and the given raw datum.
+
+`hatStepK_physVRho` is the same statement on the carrier `physVRho` of radius `ρ`, and
+`hatStepK_physV` is its case `ρ = 1`.
 
 What is proved: relative openness of the chart in the subspace `rawSub` at the general-scale step
 (it is the content of `isOpen_preimage_xiCRaw`).  What is not proved: any quantitative radius of the
@@ -67,6 +71,26 @@ theorem hatStepK_rawOf_mem_xiCRaw (k m₁ : ℕ) (hk : 1 ≤ k) {ν : ℝ} (hν0
       XiCRaw (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).G' (compWeight 3 1) ν (k + 1) 1 t :=
   ⟨_, hatStepK_xiCData k m₁ hk hν0 hν β p₁ δ ht0, rfl⟩
 
+/-- **A relatively open neighbourhood of the physical point at radius `ρ`.**  The set `physVRho` is
+open; it contains the step datum `rawOf S.D'` with every source of the ball `∑ |g| < ρ`; and every
+point of it is the raw datum of a datum satisfying `XiCData`. -/
+theorem hatStepK_physVRho (k m₁ : ℕ) (hk : 1 ≤ k) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ δ : ℝ) {t : ℝ} (ht0 : 0 < t) (ρ : ℝ) :
+    IsOpen (physVRho (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t ρ) ∧
+    (∀ g ∈ l1BallRho 3 3 N₁ m₁ (k + 1) 2 ρ,
+      (⟨rawOf (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).D',
+          rawOf_mem_rawSub _⟩, g) ∈
+        physVRho (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t ρ) ∧
+    (∀ e ∈ physVRho (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t ρ,
+      ∃ D, XiCData (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).G' (compWeight 3 1) ν (k + 1) 1 t D ∧
+        rawOf D = (e.1 : RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2)) := by
+  refine ⟨isOpen_physVRho _ _ _ _ _ (bgHyp_lv (k := k) (ν := ν) m₁ hν0 hν), ?_, ?_⟩
+  · intro g hg
+    exact ⟨hatStepK_rawOf_mem_xiCRaw k m₁ hk hν0 hν β p₁ δ ht0, hg⟩
+  · intro e he
+    obtain ⟨D, hD, h⟩ := he.1
+    exact ⟨D, hD, h.symm⟩
+
 /-- **A relatively open neighbourhood of the physical point at the general-scale step.**
 The set `physV` of the parameter space `rawSub × sources` is open; it contains the step datum
 `rawOf S.D'` with every source of the strict `ℓ¹` ball; and every point of it is the raw datum of a
@@ -80,13 +104,8 @@ theorem hatStepK_physV (k m₁ : ℕ) (hk : 1 ≤ k) {ν : ℝ} (hν0 : 0 ≤ ν
         physV (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t) ∧
     (∀ e ∈ physV (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t,
       ∃ D, XiCData (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).G' (compWeight 3 1) ν (k + 1) 1 t D ∧
-        rawOf D = (e.1 : RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2)) := by
-  refine ⟨isOpen_physV _ _ _ _ (bgHyp_lv (k := k) (ν := ν) m₁ hν0 hν), ?_, ?_⟩
-  · intro g hg
-    exact ⟨hatStepK_rawOf_mem_xiCRaw k m₁ hk hν0 hν β p₁ δ ht0, hg⟩
-  · intro e he
-    obtain ⟨D, hD, h⟩ := he.1
-    exact ⟨D, hD, h.symm⟩
+        rawOf D = (e.1 : RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2)) :=
+  hatStepK_physVRho k m₁ hk hν0 hν β p₁ δ ht0 1
 
 end Chart
 
