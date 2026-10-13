@@ -377,7 +377,7 @@ theorem zeroClassStep_families_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo,
     εHo, hεHo, Ao, mObs, hα,
     (fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z,
-      hd2 z, he0 z, he2 z, hev z⟩), hamp, ?_, ?_, ?_, ?_⟩
+      hd2 z, he0 z, he2 z, (hev z).1⟩), hamp, ?_, ?_, ?_, ?_⟩
   · intro y i hdj
     obtain ⟨hR, h1, hθ, Ev, ha, hd, hb, hmk, hcl⟩ := hsite y i hdj
     refine ⟨hR, h1, hθ, Ev, ha, hd, hb, hmk, fun T'' => ?_⟩
@@ -395,7 +395,7 @@ theorem zeroClassStep_families_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
   · intro D'' hDh hX g hg
     have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1
     rw [hid D'' hDh hX g hg1, (hpair D'' hDh hX g hg).2,
-      Finset.sum_congr rfl fun z _ => hev z D'' hDh hX]
+      Finset.sum_congr rfl fun z _ => (hev z).1 D'' hDh hX]
 
 open Classical in
 /-- The zero-class family and exponential step identity with one energy family and one

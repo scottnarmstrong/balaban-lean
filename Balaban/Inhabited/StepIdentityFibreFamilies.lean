@@ -386,12 +386,12 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
   have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
   choose hP hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
-    fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
+    fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, (hev z).1⟩,
     hamp, hsite, ?_⟩
   intro D' hDh hX g hg
   have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1
   rw [hid D' hDh hX g hg1, (hpair D' hDh hX g hg).2,
-    Finset.sum_congr rfl fun z _ => hev z D' hDh hX]
+    Finset.sum_congr rfl fun z _ => (hev z).1 D' hDh hX]
 
 open Classical in
 /-- **The uniform step identity of the zero class on the fibre `h ≡ h₀`, with the coefficient
