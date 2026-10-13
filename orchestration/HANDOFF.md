@@ -12,8 +12,8 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W332 | `w332-r-raw-hole` / W332 | R cover extension, package 1: a raw-hole component meeting a removed component lies in it (VMOD-38) |
-| W330 | `w330-final-mass-green` / W330 | last integral: decay of (U_k + t)^{-1}, C_k and C_k^{1/2} with torus-uniform constants (FINAL §3, package 4) |
+| W335 | `w335-initial-beta` / W335 | `InitialBetaBridge`: the largeness condition `hlam` of the early parent-domain theorem from β ≥ β₀; uniform smallness η < 1 (Q13-LATE package 1) |
+| W334 | `w334-final-cutoff` / W334 | last integral: final cutoff by block averaging from the late-regime tests (FINAL §2) |
 | W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
 | W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
 | W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
