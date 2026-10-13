@@ -21,14 +21,50 @@ box by `boxMap` (`bm`; `bc` on the coarse tori of the roots and blocks), this fi
 ## D1: the margins
 
 * `twoTorus_margins_of_lt`, `twoTorus_margins_of_lt_min`: the margins of the comparison of the
-  marks (`markedOutDec_twoTorus`) follow from `4 R + 19 L^(k+2+m₀+m₁) + 5 < n` for `m₁ ≥ 1`.
+  marks (`markedOutDec_twoTorus`) and of the root masks follow from
+  `4 R + 19 L^(k+2+m₀+m₁) + 5 < n` for `m₁ ≥ 1`.
 
 ## D2: the marks of the parameter family on two tori
 
-* `e1MarkGParamG_twoTorus`: at a bridge label `Y′` of the box and the corresponding label
-  `bm '' Y′` of the image root, for parameters `θ`, `θ′` whose raw data lie in the charts of the
-  two tori and agree on the box, and `‖u‖ < 17/16`, the marks `e1MarkGParamG` of the two tori are
-  equal.
+* `e1MarkGParamG_twoTorus` (general `d`, `L`, `N`) and `e1MarkGParam_twoTorus` (`d = L = 3`,
+  `N = 2`): at a bridge label `Y′` of the box and the label `bm '' Y′` of the image root, for
+  parameters whose raw data lie in the charts of the two tori and agree on the box, `‖u‖ < 17/16`,
+  and block variables agreeing at corresponding unit points of the box, the marks are equal.
+
+## D3: the block measures on two tori
+
+* `integral_pi_eq_of_depOn`, `integral_pi_comp_of_injOn`: integrals of local functions against
+  product measures, and their transport along a relabelling of the coordinates injective on the
+  support.
+* `integral_blockSplit_twoTorus`: the integrals of corresponding functions of the blocks of the box
+  against the block measures `(S.blockSplit m₀ hp).μ` of the two steps (products of the one-site
+  measure over the unit points of the block, a formula on both tori) are equal.
+
+## D4: the energy coefficient on two tori
+
+* `polyAct_transport`, `Gst_transport`, `Gst_eq_zero_of_not_subset`, `gsumCoeff_transport`:
+  the activities of the polymer gas, the local terms `G*(S₀, S)` of the marked cluster expansion and
+  the interpolation coefficient `gsumCoeff` are carried along a map of blocks injective on the set,
+  a correspondence of the active labels and of the marks, and a relation of configurations that
+  carries integrals.
+* `gsumCoeff_blockSplit_twoTorus`: the same for the block measures of the two steps, the blocks of
+  the box (`cubeMap`) and agreement of the block variables at corresponding unit points of the box.
+* `mem_bridgeFamily_boxMap_iff`, `blocksOf_image_boxMap`: the bridge labels of a root and the blocks
+  of a set of the box on two tori.
+* `gsumCoeff_e1_twoTorus_of_domainLabels`: the energy coefficient of a root (common labels, the
+  activity `commonAct (A θ)`, the marks `e1MarkGParamG` at the bridge labels) on the blocks of the
+  box agrees on two tori, given a correspondence of the domain labels `Lab₀` and of their
+  activities `A`.
+
+## What is not a formula on two tori
+
+The activity `A` on the domain labels is, in the landed construction
+(`zeroSourceActivity_common_fromTowerG`), `zeroSourceAct (labelActFamilyOn … I hF)` for a
+`DirectTerms` witness `I` whose domains `I.𝒴` and terms `I.T` are obtained from existential
+statements (`sourceDirectTerms_scale_fromTowerG_ray_rho`, from `sourceDirectTerms_slice_ray` and
+`interaction_expansion_hat_dm_core_dir_eta_scaled_ray`).  Their agreement on two tori is therefore
+a hypothesis of `gsumCoeff_e1_twoTorus_of_domainLabels`.  Only labels and blocks of a common box
+are compared; labels that wind around a torus are not covered.
 -/
 
 @[expose] public section
@@ -248,7 +284,8 @@ theorem e1MarkGParamG_twoTorus
     hp hp' Φ Φ' hΦ (fun x hx => ?_) hum _
   have h := rootMask_bc (N₁' := N₁') hnM hnM' hGA hGB z hz hrc hx
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at h
-  exact (mem_blockU_iff_unitBlock1 (SB) _ _).trans (h.trans (mem_blockU_iff_unitBlock1 (SA) _ _).symm)
+  exact (mem_blockU_iff_unitBlock1 (SB) _ _).trans
+    (h.trans (mem_blockU_iff_unitBlock1 (SA) _ _).symm)
 
 end MarkParam
 
@@ -1020,8 +1057,8 @@ for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the corresp
 the blocks (base point `bm b`), a set `T` of blocks inside the box of radius `R`, and the relation
 "agreement of the block variables at corresponding unit points of the box"; the integral
 hypothesis of `gsumCoeff_transport` is `integral_blockSplit_twoTorus`.  What remains as hypotheses
-are the correspondence of the active labels with blocks in `T`, of their activities, and of the marks
-(for the marks of the energy coefficient see `e1MarkGParamG_twoTorus`).  Margin:
+are the correspondence of the active labels with blocks in `T`, of their activities, and of the
+marks (for the marks of the energy coefficient see `e1MarkGParamG_twoTorus`).  Margin:
 `2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
 theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
     (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
@@ -1092,7 +1129,8 @@ section BridgePairs
 theorem mem_bridgeFamily_iff_pair {d L N₁ m₁ K m₀ : ℕ} [NeZero N₁] [NeZero L] {β : Type*}
     [Fintype β] {reads : β → Set (CTorus d L N₁ m₁ K)} {dom : β → Finset (Set (CTorus d L N₁ m₁ K))}
     {z : RootIdx d L N₁ m₁ K} {Y' : Set (CTorus d L N₁ m₁ K)} :
-    Y' ∈ bridgeFamily m₀ reads dom z ↔ ∃ b Y, (b, Y) ∈ markedIdx reads dom z ∧ bridge m₀ z Y = Y' := by
+    Y' ∈ bridgeFamily m₀ reads dom z ↔
+      ∃ b Y, (b, Y) ∈ markedIdx reads dom z ∧ bridge m₀ z Y = Y' := by
   rw [mem_bridgeFamily]
   constructor
   · rintro ⟨b, Y, hY, h1, h2, h3⟩
@@ -1155,7 +1193,8 @@ theorem mem_bridgeFamily_boxMap_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' :
     (hY'R : ∀ y ∈ Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
     bm '' Y' ∈ bridgeFamily m₀ (fun _ : TB => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1))))
         (domB) (bc z) ↔
-      Y' ∈ bridgeFamily m₀ (fun _ : TA => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (domA) z := by
+      Y' ∈ bridgeFamily m₀ (fun _ : TA => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (domA)
+        z := by
   have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
   have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
     Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
@@ -1417,7 +1456,8 @@ theorem gsumCoeff_e1_twoTorus_of_domainLabels
   have hcs : cellSide L 1 m₁ (k + 1) ≤ L * cellSide L 1 m₁ (k + 1) := cellSide_le_mul
   -- the bridge labels of `z` with blocks in `T` lie in the box
   have hiR : ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SA)) z},
-      blocksOf 1 (k + 1) Set.univ i.1 ⊆ T → ∀ y ∈ i.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+      blocksOf 1 (k + 1) Set.univ i.1 ⊆ T →
+        ∀ y ∈ i.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
     intro i hi y hy
     have hDj := bridgeFamily_isDj hN hL2 hdom z i.1 i.2
     have hs := sitesOf_blocksOf hN (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
