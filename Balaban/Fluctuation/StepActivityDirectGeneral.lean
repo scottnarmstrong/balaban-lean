@@ -46,12 +46,25 @@ admissible pairs of rays are star-shaped and `1 < R_σ`, so the landed expansion
 
 What is proved: for a class `C` whose old terms are represented by the old-term functionals of the
 expansion (the named hypotheses `OldEnergyHatMatch`, `OldObsHatMatch` of `StepActivityHatGeneral`),
-one fluctuation step preserves the label-activity decay rate.  What is not proved: those two
-hypotheses for functionals on localized generating sets; the hypotheses of the expansion on the
-old-term functionals (analyticity and bounds on `Ξ^c_j(𝔹_j(X); C₀, ε₂)`, which for a member of the
-class need the class-radius inequalities and the domain hypothesis `OldXiDomC` on the physical
-chart); the output terms of the class; and the smallness `(DA)` in the regime of the papers.  The
-class enters only through `S.Wone C`, `S.Wtwo C g`; no generating set of the class appears.
+one fluctuation step preserves the label-activity decay rate.  What is not proved:
+
+* those two hypotheses for functionals on localized generating sets (they are proved for the
+  whole-lattice sets in `StepActivityHatLevel`, and for classes whose terms do not depend on the
+  spin);
+* the hypotheses of the expansion on the old-term functionals, which are no longer vacuous: the
+  settings and covers of each old term, and its analyticity and bound on the chart
+  `Ξ^c_j(𝔹_j(X); C₀, ε₂)` (for a member of the class on the generating sets of its terms the last
+  two follow from the class-radius inequality `C₀² ε₂ ≤ ε_j`, `StepActivityClassChart`; the
+  inequality is not proved);
+* the domain hypothesis `OldXiDomC` on the physical chart (it is not used: `StepActivityBound` has
+  no regularity clause, and the analyticity along the fluctuation is that of the functionals on
+  their chart);
+* the output terms of the class, and the smallness `(DA)` in the regime of the papers;
+* an instance with an old term that varies along the fluctuation (the instances of
+  `StepActivityDirectGeneralWitness` are the zero class and a class with a non-zero old energy
+  that does not depend on the spin).
+
+The class enters only through `S.Wone C`, `S.Wtwo C g`; no generating set of the class appears.
 -/
 
 @[expose] public section

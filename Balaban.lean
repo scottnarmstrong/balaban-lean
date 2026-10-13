@@ -1366,3 +1366,4 @@ public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
 public import Balaban.Fluctuation.DARateNumerics
+public import Balaban.Fluctuation.StepActivityClassChart
