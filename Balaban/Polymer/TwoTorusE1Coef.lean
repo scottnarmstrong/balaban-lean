@@ -1252,4 +1252,285 @@ theorem blocksOf_image_boxMap {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m
 
 end BridgeLabels
 
+/-! ### D4 (f): the energy coefficient of the step on two tori -/
+
+section E1Coef
+
+open MeasureTheory Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TA" => Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TB" => Torus d (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "HA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "HB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "SA" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "SB" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁') hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "σc" => cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1)
+  (m₀ := 1) hN hN' (le_refl (k + 1))
+
+/-- **D4 (f): the energy coefficient `c θ C` of the step on two tori, given the domain labels.**
+The coefficient is `gsumCoeff μ (commonLabels Lab₀ …) (A₀ θ) (commonAnchor … z) (e1MarkGParamG …
+θ) C` with the block measures `μ = (S.blockSplit 1 hp).μ`, the common labels (the labels `Lab₀`
+and the bridge labels of all roots), the activity `A₀ θ = commonAct (A θ)` (zero on the bridge
+labels) and the marks `e1MarkGParamG` of the root `z` anchored at its bridge labels.  Let `T` be a
+set of blocks of the box of radius `R`.  Assume the hypotheses of `e1MarkGParamG_twoTorus` (the
+decoupling pairs, the charts, the agreement of the raw data on the box, the radius of the marks
+for `‖u‖ ≤ 1`), the locality of the marks of the first torus, and, for the labels `Lab₀`, `Lab₀′`
+and the activities `A`, `A′` (the part of `A₀` that is not given by a formula on two tori): a
+correspondence `ψ₀` of the labels with blocks in `T` and `cubeMap '' T`, with
+`blocks (ψ₀ y) = cubeMap '' blocks y`, and agreement of the activities at related configurations.
+Then the coefficients agree: `c′ θ′ (cubeMap '' T) = c θ T`.  The bridge labels of `z` correspond
+by `mem_bridgeFamily_boxMap_iff` and `blocksOf_image_boxMap`, the marks by
+`e1MarkGParamG_twoTorus`, the block measures by `integral_blockSplit_twoTorus`, and the cluster
+expansion by `gsumCoeff_blockSplit_twoTorus`. -/
+theorem gsumCoeff_e1_twoTorus_of_domainLabels
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
+    (hC : FlCore N (GA) (HA) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) (HB) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : TA → DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : TB → DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (b : TA) (s : DecParams (GA)) (D : BgData (GA) N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₁ b (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (b : TB) (s : DecParams (GB)) (D : BgData (GB) N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₁' b (s, rawOf D) = (φ, α))
+    {Sol : TA → Dec2.DecParams (coverOf (GA)) × Edat (HA) N →
+      ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol' : TB → Dec2.DecParams (coverOf (GB)) × Edat (HB) N →
+      ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol : ∀ (b : TA) (p : Dec2.DecParams (coverOf (GA)) × Edat (HA) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HA) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol b p).1 = dphi (HA) (Dec2.decG (coverOf (GA)) (HA) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol b p).2 ∧
+        Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol b p).2 ∧
+        Small (HA) (Sol b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HA) (Sol b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HA) (Sol b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small (HA) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol b p).2))
+    (hSol' : ∀ (b : TB) (p : Dec2.DecParams (coverOf (GB)) × Edat (HB) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HB) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol' b p).1 = dphi (HB) (Dec2.decG (coverOf (GB)) (HB) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol' b p).2 ∧
+        Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol' b p).2 ∧
+        Small (HB) (Sol' b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HB) (Sol' b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HB) (Sol' b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small (HB) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' b p).2))
+    (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁') (hm₁ : 1 ≤ m₁)
+    (z : TA) {rc R : ℕ} (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z)
+    (hrc : L ^ (k + 1) * rc ≤ R)
+    (hroot : ∀ x ∈ rootSet 1 z, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (θ : physParam N (SA)) (θ' : physParam N (SB))
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps)
+    (hθ' : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GB) (compWeight L 1) νS (k + 1) 1 eps)
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N))
+    {ρ : ℝ} (hρ : 0 < ρ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    (hum : ∀ u : ℂ, ‖u‖ ≤ 1 →
+      ‖u‖ * markedRad d L N k 1 κ ρ (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
+    (hGdep : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SA)) z}) (u : ℂ),
+      DepOn (blocksOf 1 (k + 1) Set.univ i.1) (e1MarkGParamG (SA) F₁ Sol ρ hp z eps θ i u))
+    (hL2 : 2 ≤ L) (hdom : ∀ b, ∀ Y ∈ e1DomG (SA) b, IsDj 1 (k + 1) Y)
+    (hdom' : ∀ b, ∀ Y ∈ e1DomG (SB) b, IsDj 1 (k + 1) Y)
+    {Lb Lb' : Type*} [Fintype Lb] [Fintype Lb']
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ Lb)
+    (Lab₀' : CubeLabels (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ
+      Lb')
+    {εH κH κ0 Kc εH' κH' κ0' Kc' : ℝ} (hεH : 0 ≤ εH) (hκ0 : aEnt d L + 2 ≤ κ0)
+    (hεH' : 0 ≤ εH') (hκ0' : aEnt d L + 2 ≤ κ0')
+    (A : physParam N (SA) → ℂ → LabelAct Lab₀ ((SA).blockSplit 1 hp).Ωb εH κH κ0 Kc)
+    (A' : physParam N (SB) → ℂ → LabelAct Lab₀' ((SB).blockSplit 1 hp').Ωb εH' κH' κ0' Kc')
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L 1 m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (ψ₀ : ∀ y, blocksOf 1 (k + 1) Set.univ (Lab₀.ysite y) ⊆ T → Lb')
+    (hψ₀b : ∀ y hy, blocksOf 1 (k + 1) Set.univ (Lab₀'.ysite (ψ₀ y hy)) =
+      (blocksOf 1 (k + 1) Set.univ (Lab₀.ysite y)).image (σc))
+    (hψ₀inj : ∀ y₁ hy₁ y₂ hy₂, ψ₀ y₁ hy₁ = ψ₀ y₂ hy₂ → y₁ = y₂)
+    (hψ₀surj : ∀ y', blocksOf 1 (k + 1) Set.univ (Lab₀'.ysite y') ⊆ T.image (σc) →
+      ∃ y hy, ψ₀ y hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
+      ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf 1 (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf 1 (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+        (A' θ' (s : ℂ)).H (ψ₀ y hy) Φ' = (A θ (s : ℂ)).H y Φ) :
+    gsumCoeff ((SB).blockSplit 1 hp').μ
+        (commonLabels Lab₀' hN' hL2 (fun _ => Set.univ) (e1DomG (SB)) hdom')
+        (commonAct A' hN' hL2 (fun _ => Set.univ) (e1DomG (SB)) hdom' hεH' hκ0' θ')
+        (fun i' => commonAnchor Lb' (fun _ => Set.univ) (e1DomG (SB)) (bc z) i')
+        (fun i' u Φ' => e1MarkGParamG (SB) F₁' Sol' ρ hp' (bc z) eps θ' i' u Φ') (T.image (σc)) =
+      gsumCoeff ((SA).blockSplit 1 hp).μ
+        (commonLabels Lab₀ hN hL2 (fun _ => Set.univ) (e1DomG (SA)) hdom)
+        (commonAct A hN hL2 (fun _ => Set.univ) (e1DomG (SA)) hdom hεH hκ0 θ)
+        (fun i => commonAnchor Lb (fun _ => Set.univ) (e1DomG (SA)) z i)
+        (fun i u Φ => e1MarkGParamG (SA) F₁ Sol ρ hp z eps θ i u Φ) T := by
+  classical
+  obtain ⟨⟨hn1, hnS, hnF, hnH, hnM⟩, ⟨hn1', hnS', hnF', hnH', hnM'⟩⟩ :=
+    twoTorus_margins_of_lt_min (R := R) (k := k) (m₀ := 1) (m₁ := m₁) hm₁ (lt_min hn hn')
+  have hcs : cellSide L 1 m₁ (k + 1) ≤ L * cellSide L 1 m₁ (k + 1) := cellSide_le_mul
+  -- the bridge labels of `z` with blocks in `T` lie in the box
+  have hiR : ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SA)) z},
+      blocksOf 1 (k + 1) Set.univ i.1 ⊆ T → ∀ y ∈ i.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+    intro i hi y hy
+    have hDj := bridgeFamily_isDj hN hL2 hdom z i.1 i.2
+    have hs := sitesOf_blocksOf hN (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
+    have hy' : y ∈ sitesOf (blocksOf 1 (k + 1) Set.univ i.1) := by rw [hs]; exact ⟨hy, trivial⟩
+    obtain ⟨b, hb, hyb⟩ := mem_sitesOf.1 hy'
+    exact hT b (hi hb) y hyb
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hκmem : ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SA)) z},
+      blocksOf 1 (k + 1) Set.univ i.1 ⊆ T →
+        bm '' i.1 ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SB)) (bc z) :=
+    fun i hi => (mem_bridgeFamily_boxMap_iff (ϱ := ϱ) hN hN' hn1 hn1' hnF hnF' hnH hnH' z hz hrc
+      hroot (hiR i hi)).2 i.2
+  refine gsumCoeff_blockSplit_twoTorus hN2 hk νS β p₁ δ hN hN' hnM hnM' hGA hGB hp hp'
+    (commonLabels Lab₀ hN hL2 (fun _ => Set.univ) (e1DomG (SA)) hdom)
+    (commonLabels Lab₀' hN' hL2 (fun _ => Set.univ) (e1DomG (SB)) hdom')
+    (commonAct A hN hL2 (fun _ => Set.univ) (e1DomG (SA)) hdom hεH hκ0 θ)
+    (commonAct A' hN' hL2 (fun _ => Set.univ) (e1DomG (SB)) hdom' hεH' hκ0' θ')
+    (fun i => commonAnchor Lb (fun _ => Set.univ) (e1DomG (SA)) z i)
+    (fun i' => commonAnchor Lb' (fun _ => Set.univ) (e1DomG (SB)) (bc z) i')
+    (fun i u Φ => e1MarkGParamG (SA) F₁ Sol ρ hp z eps θ i u Φ)
+    (fun i' u Φ' => e1MarkGParamG (SB) F₁' Sol' ρ hp' (bc z) eps θ' i' u Φ')
+    hGdep T hT (fun y => y.isLeft = true) (fun y => y.isLeft = true) ?_ ?_
+    (fun y => match y with
+      | Sum.inl y₀ => fun _ hy => Sum.inl (ψ₀ y₀ hy)
+      | Sum.inr _ => fun hP _ => absurd hP (by simp)) ?_ ?_ ?_ ?_ ?_
+    (fun i hi => ⟨bm '' i.1, hκmem i hi⟩) ?_ ?_ ?_ ?_
+  · intro s _ y hy Φ
+    cases y with
+    | inl y₀ => exact absurd rfl hy
+    | inr r => rfl
+  · intro s _ y hy Φ
+    cases y with
+    | inl y₀ => exact absurd rfl hy
+    | inr r => rfl
+  · intro y hP hy
+    cases y with
+    | inl y₀ => rfl
+    | inr r => exact absurd hP (by simp)
+  · intro y hP hy
+    cases y with
+    | inl y₀ => exact hψ₀b y₀ hy
+    | inr r => exact absurd hP (by simp)
+  · intro y₁ hP₁ hy₁ y₂ hP₂ hy₂ h
+    cases y₁ with
+    | inl a =>
+      cases y₂ with
+      | inl b => exact congrArg Sum.inl (hψ₀inj a hy₁ b hy₂ (Sum.inl_injective h))
+      | inr r => exact absurd hP₂ (by simp)
+    | inr r => exact absurd hP₁ (by simp)
+  · intro y' hP' hy'
+    cases y' with
+    | inl a =>
+      obtain ⟨y, hy, rfl⟩ := hψ₀surj a hy'
+      exact ⟨Sum.inl y, rfl, hy, rfl⟩
+    | inr r => exact absurd hP' (by simp)
+  · intro s hs y hP hy Φ Φ' hR
+    cases y with
+    | inl y₀ => exact hA s hs y₀ hy Φ Φ' hR
+    | inr r => exact absurd hP (by simp)
+  · intro i hi
+    show blocksOf 1 (k + 1) Set.univ (bm '' i.1) = (blocksOf 1 (k + 1) Set.univ i.1).image (σc)
+    exact blocksOf_image_boxMap hN hN' (by omega) (by omega) (hiR i hi)
+  · intro i₁ hi₁ i₂ hi₂ h
+    exact Subtype.ext (image_boxMap_inj (N₁' := N₁') hm' (hiR i₁ hi₁) (hiR i₂ hi₂)
+      (congrArg Subtype.val h))
+  · intro i' hi'
+    change blocksOf 1 (k + 1) Set.univ i'.1 ⊆ T.image (σc) at hi'
+    have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+      intro x hx
+      obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
+      exact hT b hb x hxb
+    have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T hT'
+    have hDj' := bridgeFamily_isDj hN' hL2 hdom' (bc z) i'.1 i'.2
+    have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
+    have hi'R : ∀ y' ∈ i'.1, InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) y' := by
+      intro y' hy'
+      have h1 : y' ∈ sitesOf (blocksOf 1 (k + 1) Set.univ i'.1) := by
+        rw [hs']; exact ⟨hy', trivial⟩
+      obtain ⟨b', hb', hyb'⟩ := mem_sitesOf.1 h1
+      have h2 : y' ∈ sitesOf (T.image (σc)) := mem_sitesOf.2 ⟨b', hi' hb', hyb'⟩
+      rw [hsT] at h2
+      obtain ⟨w, hw, rfl⟩ := h2
+      exact inBox_boxMap hm' (hT' w hw)
+    have hYR : ∀ y ∈ bm' '' i'.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+      rintro _ ⟨y', hy', rfl⟩
+      exact inBox_boxMap hm (hi'R y' hy')
+    have hYimg : bm '' (bm' '' i'.1) = i'.1 :=
+      image_image_boxMap (n' := (N₁ * L ^ m₁) * L ^ (k + 1)) hm hi'R
+    have hYmem : bm' '' i'.1 ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG (SA)) z :=
+      (mem_bridgeFamily_boxMap_iff (ϱ := ϱ) hN hN' hn1 hn1' hnF hnF' hnH hnH' z hz hrc hroot
+        hYR).1 (by rw [hYimg]; exact i'.2)
+    have hYT : blocksOf 1 (k + 1) Set.univ (bm' '' i'.1) ⊆ T := by
+      intro b hb
+      have hbimg : σc b ∈ blocksOf 1 (k + 1) Set.univ (bm '' (bm' '' i'.1)) := by
+        rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
+        exact Finset.mem_image_of_mem _ hb
+      rw [hYimg] at hbimg
+      obtain ⟨b₂, hb₂, he⟩ := Finset.mem_image.1 (hi' hbimg)
+      have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos 1 m₁ (k + 1)))
+      have hbR := hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ (cellSide_pos 1 m₁ (k + 1))))
+      have h1 := congrArg Subtype.val he
+      rw [cubeMap_val, cubeMap_val] at h1
+      have h2 : b₂ = b := Subtype.ext (boxMap_inj (hm' := hm') hb₂R hbR h1)
+      exact h2 ▸ hb₂
+    exact ⟨⟨_, hYmem⟩, hYT, Subtype.ext hYimg⟩
+  · intro s hs i hi Φ Φ' hR
+    have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
+    exact e1MarkGParamG_twoTorus hN2 hk νS β p₁ δ hC hC' hGA hGB hMX hmar hαK hsm hF₁ hF₁' hSol
+      hSol' hN hN' hm₁ z hz hrc hroot hn hn' i ⟨bm '' i.1, hκmem i hi⟩ rfl (hiR i hi) θ θ' hθ
+      hθ' hraw hρ hp hp' Φ Φ' hR (by linarith) (hum _ hs1)
+
+end E1Coef
+
 end Balaban.Polymer.TwoTorusStep
