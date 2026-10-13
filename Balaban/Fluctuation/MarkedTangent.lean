@@ -205,6 +205,31 @@ theorem markedDisc_mem_flBallLC {ϱm : ℝ}
     (lt_of_le_of_lt (mul_le_mul_of_nonneg_right hsτ hY0) h)
   rwa [← hm, map_smul] at this
 
+/-- **`MARK-RADIUS`, the form used by the Cauchy estimates.**  With `Y ≥ 0` bounding the Euclidean
+norm of `y` at the unit points and `(R₁ + r)(|u| + t₁) Y < δ₁`, for every `|t| < t₁` and every
+`|σ| < R₁ + r` the field `σ · lift(v_t)` lies in `FlBall Hm δ₁`, where
+`lift(v_t) = u · lift y + t · lift (M_z y)`. -/
+theorem markedDisc_hdom {ϱm : ℝ}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} (hG : IsLevel Hm k)
+    {δ₁ Y R₁ r t₁ : ℝ} (hY0 : 0 ≤ Y) {x : S.E} {u : ℂ}
+    (hY : ∀ b : S.U, vn (fun i => S.shiftUC x (b, i)) ≤ Y)
+    (h : (R₁ + r) * (‖(u : ℂ)‖ + t₁) * Y < δ₁) {t σ : ℂ} (ht : ‖t‖ < t₁) (hσ : ‖σ‖ < R₁ + r) :
+    σ • (liftC S.hG' (u • S.shiftUC x) + t • liftC S.hG' (S.maskUC z (S.shiftUC x))) ∈
+      FlBall Hm δ₁ := by
+  have hσ0 : 0 ≤ R₁ + r := (norm_nonneg σ).trans hσ.le
+  have hsum : ‖σ * u‖ + ‖σ * t‖ ≤ (R₁ + r) * (‖u‖ + t₁) := by
+    rw [norm_mul, norm_mul, ← mul_add]
+    exact mul_le_mul hσ.le (add_le_add le_rfl ht.le) (add_nonneg (norm_nonneg _) (norm_nonneg _))
+      hσ0
+  have hm : σ • (liftC S.hG' (u • S.shiftUC x) + t • liftC S.hG' (S.maskUC z (S.shiftUC x))) =
+      liftC S.hG' (S.markedTangentC z (σ * u) (σ * t) x) := by
+    rw [S.liftC_markedTangentC]
+    simp only [map_smul, smul_add, smul_smul]
+  rw [hm]
+  exact (S.liftC_markedTangentC_mem_flBallLC hG (z := z) (δ₁ := δ₁) (Y := Y) hY
+    (u := σ * u) (t := σ * t)
+    (lt_of_le_of_lt (mul_le_mul_of_nonneg_right hsum hY0) h)).1
+
 /-- **`MARK-RADIUS` in terms of a coordinate bound.**  If every coordinate of `y = shiftUC ψ̂`
 satisfies `|y(q)| ≤ V` (for the hat field of the landed engines
 `V = |c_c| · covSupConstC · c_ψ`, `decCovSqrt_supNorm`), then the marked tangent with `|u| < R_σ`,

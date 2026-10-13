@@ -641,6 +641,17 @@ noncomputable def markedTerm (Ev : Λ × F → ℂ) (ω : ℂ → ℂ) (a c : F)
 variable {S : Set Λ} {B : Set F} {Ev : Λ × F → ℂ} {ω : ℂ → ℂ} {a c : F} {Θ : Λ}
   {R₁ r t₁ : ℝ}
 
+/-- The two-variable function `(σ, t) ↦ Ev(Θ, σ (a + t c))` is analytic on `‖t‖ < t₁`,
+`‖σ‖ < R₁ + r`, when the whole disc of directions stays in the analytic region `S × B`. -/
+theorem analyticAt_marked_H (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (hΘ : Θ ∈ S)
+    (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
+    {q : ℂ × ℂ} (hq2 : ‖q.2‖ < t₁) (hq1 : ‖q.1‖ < R₁ + r) :
+    AnalyticAt ℂ (fun q : ℂ × ℂ => Ev (Θ, q.1 • (a + q.2 • c))) q := by
+  have hm : AnalyticAt ℂ (fun q : ℂ × ℂ => ((Θ, q.1 • (a + q.2 • c)) : Λ × F)) q :=
+    AnalyticAt.prod analyticAt_const (analyticAt_fst.smul
+      (analyticAt_const.add (analyticAt_snd.smul analyticAt_const)))
+  exact (hEv _ ⟨hΘ, hdom q.2 hq2 q.1 hq1⟩).comp_of_eq hm rfl
+
 /-- Joint analyticity of the third `σ`-derivative of `Ev(Θ, σ (a + t c))` in `(σ, t)`: it is the
 third directional derivative of `Ev` at `s w_t` in the direction `w_t`. -/
 theorem dirL3_marked_eq (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (hΘ : Θ ∈ S)
@@ -649,12 +660,8 @@ theorem dirL3_marked_eq (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (h�
     dirL3 Ev (a + t • c) Θ (s • (a + t • c)) =
       (lineD ((1 : ℂ), (0 : ℂ)))^[3] (fun q : ℂ × ℂ => Ev (Θ, q.1 • (a + q.2 • c))) (s, t) := by
   have hH : ∀ q : ℂ × ℂ, ‖q.2‖ < t₁ → ‖q.1‖ < R₁ + r →
-      AnalyticAt ℂ (fun q : ℂ × ℂ => Ev (Θ, q.1 • (a + q.2 • c))) q := by
-    intro q hq2 hq1
-    have hm : AnalyticAt ℂ (fun q : ℂ × ℂ => ((Θ, q.1 • (a + q.2 • c)) : Λ × F)) q :=
-      AnalyticAt.prod analyticAt_const (analyticAt_fst.smul
-        (analyticAt_const.add (analyticAt_snd.smul analyticAt_const)))
-    exact (hEv _ ⟨hΘ, hdom q.2 hq2 q.1 hq1⟩).comp_of_eq hm rfl
+      AnalyticAt ℂ (fun q : ℂ × ℂ => Ev (Θ, q.1 • (a + q.2 • c))) q := fun q hq2 hq1 =>
+    analyticAt_marked_H hEv hΘ hdom hq2 hq1
   have hr' : ∀ τ : ℂ, ‖τ‖ < r → ‖s + τ‖ < R₁ + r := fun τ hτ =>
     (norm_add_le _ _).trans_lt (add_lt_add hs hτ)
   have hf : ∀ τ : ℂ, ‖τ‖ < r →
@@ -676,6 +683,217 @@ theorem dirL3_marked_eq (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (h�
       (by simpa using hr' τ hτ)) 0 (by simpa using hr)
   simpa using this
 
+/-- **The marked term is analytic in `t`** on `‖t‖ < t₁`, when the discs `σ · w_t`, `‖σ‖ < R₁ + r`,
+`‖t‖ < t₁`, lie in the analytic region of `Ev` (formula (2) of the note) and the weight `ω` is
+analytic on `‖σ‖ < R₁`, `R₁ > 1`. -/
+theorem analyticOnNhd_markedTerm (hR₁ : 1 < R₁) (hr : 0 < r)
+    (hω : AnalyticOnNhd ℂ ω (Metric.ball (0 : ℂ) R₁)) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
+    (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B) :
+    AnalyticOnNhd ℂ (markedTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₁) := by
+  set H : ℂ × ℂ → ℂ := fun q => Ev (Θ, q.1 • (a + q.2 • c)) with hHdef
+  have hK : ∀ q : ℂ × ℂ, ‖q.1‖ < R₁ + r → ‖q.2‖ < t₁ →
+      AnalyticAt ℂ ((lineD ((1 : ℂ), (0 : ℂ)))^[3] H) q := by
+    intro q h1 h2
+    exact analyticAt_lineD _ (analyticAt_lineD _ (analyticAt_lineD _
+      (analyticAt_marked_H hEv hΘ hdom h2 h1)))
+  have hint : AnalyticOnNhd ℂ (fun t : ℂ => ∫ s in (0 : ℝ)..1,
+      ω (s : ℂ) * ((lineD ((1 : ℂ), (0 : ℂ)))^[3] H) ((s : ℂ), t)) (Metric.ball (0 : ℂ) t₁) := by
+    refine analyticOnNhd_unitIntegral (f := fun (t s : ℂ) =>
+      ω s * ((lineD ((1 : ℂ), (0 : ℂ)))^[3] H) (s, t)) hR₁ ?_
+    rintro ⟨t, s⟩ ⟨ht, hs⟩
+    have ht' : ‖t‖ < t₁ := mem_ball_zero_iff.1 ht
+    have hs' : ‖s‖ < R₁ := mem_ball_zero_iff.1 hs
+    have hm : AnalyticAt ℂ (fun p : ℂ × ℂ => (p.2, p.1)) (t, s) :=
+      analyticAt_snd.prod analyticAt_fst
+    exact ((hω s hs).comp (analyticAt_snd (𝕜 := ℂ))).mul
+      ((hK (s, t) (by simp only; linarith) ht').comp_of_eq hm rfl)
+  refine hint.congr Metric.isOpen_ball fun t ht => ?_
+  have ht' : ‖t‖ < t₁ := mem_ball_zero_iff.1 ht
+  unfold markedTerm rayTerm
+  rw [one_mul]
+  refine intervalIntegral.integral_congr fun s hs => ?_
+  rw [Set.uIcc_of_le zero_le_one] at hs
+  have hs' : ‖(s : ℂ)‖ < R₁ := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; linarith [hs.2]
+  rw [dl3_apply, one_mul, dirL3_marked_eq hr hEv hΘ hdom hs' ht']
+
+/-- **Bound for the marked term** by the Cauchy estimate for the third derivative
+(`norm_dirL3_le`): if `|Ev| ≤ b` on `S × B`, `|ω| ≤ Mω` on `[0,1]`, then
+`|P(Θ, w_t)| ≤ Mω · 6 b / r³` for `‖t‖ < t₁`. -/
+theorem norm_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
+    (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
+    {b Mω : ℝ} (hMω : 0 ≤ Mω) (hωb : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ‖ω (s : ℂ)‖ ≤ Mω)
+    (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) {t : ℂ} (ht : ‖t‖ < t₁) :
+    ‖markedTerm Ev ω a c Θ t‖ ≤ Mω * (6 * b / r ^ 3) := by
+  unfold markedTerm
+  have hmem : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ τ : ℂ, ‖τ‖ ≤ r →
+      ((1 : ℂ) * (s : ℂ)) • (a + t • c) + τ • (a + t • c) ∈ B := by
+    intro s hs τ hτ
+    rw [← add_smul]
+    refine hdom t ht _ ?_
+    have h1 : ‖(1 : ℂ) * (s : ℂ) + τ‖ ≤ 1 + r := by
+      refine (norm_add_le _ _).trans (add_le_add ?_ hτ)
+      rw [one_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
+    linarith
+  have := norm_rayTerm_le (g := dl3 Ev (a + t • c)) (x₀ := a + t • c) (b := 6 * b / r ^ 3)
+    (Θ := Θ) (σ := 1) hMω hωb (fun s hs => ?_)
+  · simpa using this
+  · rw [dl3_apply]
+    exact norm_dirL3_le hr (fun τ hτ => hEv _ ⟨hΘ, hmem s hs τ hτ⟩)
+      (fun τ hτ => hb _ ⟨hΘ, hmem s hs τ hτ⟩)
+
+/-- **The Cauchy estimate in `t` for the marked term** (formula (5) of the note, per block term):
+`|∂_t P(Θ, w_t)|_{t=0}| ≤ Mω · 6 b / (r³ t₀)` for `0 < t₀ < t₁`.  The constant term `P(Θ, w_0)`
+has zero `t`-derivative, so the difference `P(w_t) - P(w_0)` of the note has the same derivative
+and no factor `2` is needed. -/
+theorem norm_deriv_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r)
+    (hω : AnalyticOnNhd ℂ ω (Metric.ball (0 : ℂ) R₁)) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
+    (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
+    {b Mω t₀ : ℝ} (hMω : 0 ≤ Mω) (hωb : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ‖ω (s : ℂ)‖ ≤ Mω)
+    (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) (ht₀ : 0 < t₀) (ht₀₁ : t₀ < t₁) :
+    ‖deriv (markedTerm Ev ω a c Θ) 0‖ ≤ Mω * (6 * b / r ^ 3) / t₀ := by
+  have han := analyticOnNhd_markedTerm hR₁ hr hω hEv hΘ hdom
+  have hcl : DiffContOnCl ℂ (markedTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₀) := by
+    refine DifferentiableOn.diffContOnCl ?_
+    rw [closure_ball _ ht₀.ne']
+    intro t ht
+    have : t ∈ Metric.ball (0 : ℂ) t₁ := by
+      rw [mem_ball_zero_iff]
+      exact lt_of_le_of_lt (mem_closedBall_zero_iff.1 ht) ht₀₁
+    exact (han t this).differentiableAt.differentiableWithinAt
+  refine Complex.norm_deriv_le_of_forall_mem_sphere_norm_le ht₀ hcl (fun t ht => ?_)
+  refine norm_markedTerm_le hR₁ hr hEv hΘ hdom hMω hωb hb ?_
+  rw [mem_sphere_zero_iff_norm.1 ht]; exact ht₀₁
+
+/-- **The marked term of the Taylor weight**: `ω(s) = (1-s)²/2` (`taylorWeight`), `Mω = 1/2`,
+so the bound is `3 b / r³` and the Cauchy bound `3 b / (r³ t₀)`. -/
+theorem norm_deriv_markedTerm_taylorWeight_le {R₁ r t₁ : ℝ} (hR₁ : 1 < R₁) (hr : 0 < r)
+    (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (hΘ : Θ ∈ S)
+    (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
+    {b t₀ : ℝ} (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) (ht₀ : 0 < t₀) (ht₀₁ : t₀ < t₁) :
+    ‖deriv (markedTerm Ev taylorWeight a c Θ) 0‖ ≤ 3 * b / (r ^ 3 * t₀) := by
+  have := norm_deriv_markedTerm_le hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom
+    (Mω := 1 / 2) (by norm_num) (fun s hs => norm_taylorWeight_le s hs) hb ht₀ ht₀₁
+  refine this.trans (le_of_eq ?_)
+  field_simp
+  ring
+
 end MarkedTerm
+
+/-! ### T5: the block terms of the marked tangent of the step -/
+
+namespace StepSetting
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+
+/-- The marked term along the lifted marked tangent: the family `a + t c` of `markedTerm` is the
+fine-lattice lift of the marked tangent `v_t = u ψ' + t M_z ψ'`. -/
+theorem markedTerm_marked_eq (Ev : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ) (ω : ℂ → ℂ)
+    (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (u t : ℂ) (x : S.E) :
+    markedTerm Ev ω (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x))) Θ t =
+      rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x))) ω
+        (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ := by
+  unfold markedTerm
+  rw [S.liftC_markedTangentC, map_smul]
+
+/-- **T5 for one block term of a given expansion**: let `Ev` be analytic on
+`S' × FlBall Hm δ₁` and bounded by `b` there (the properties of the terms of
+`vblock_expansion_scaled`), `Θ ∈ S'`, and let the unit-lattice field `y = shiftUC ψ̂` have
+Euclidean norm at most `Y ≥ 0` at the unit points, with the radius condition of formula (2),
+`(R₁ + r)(|u| + t₁) Y < δ₁`, `1 < R₁`.  Then the marked term
+`t ↦ P(Θ, v_t) = ∫₀¹ ω(s) D³Ev(Θ, s v_t)[v_t]³ ds` is analytic on `|t| < t₁`, and for
+`0 < t₀ < t₁` its `t`-derivative at `0` is at most `3 b / (r³ t₀)`. -/
+theorem marked_term_cauchy {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} (hG : IsLevel Hm k)
+    {δ₁ Y R₁ r t₁ t₀ b : ℝ} (hY0 : 0 ≤ Y) {x : S.E} {u : ℂ}
+    (hY : ∀ q : S.U, vn (fun i => S.shiftUC x (q, i)) ≤ Y)
+    (hrad : (R₁ + r) * (‖u‖ + t₁) * Y < δ₁) (hR₁ : 1 < R₁) (hr : 0 < r) (ht₀ : 0 < t₀)
+    (ht₀₁ : t₀ < t₁) {S' : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N)}
+    {Ev : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hEv : AnalyticOnNhd ℂ Ev (S' ×ˢ FlBall Hm δ₁)) (hb : ∀ w ∈ S' ×ˢ FlBall Hm δ₁, ‖Ev w‖ ≤ b)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hΘ : Θ ∈ S') :
+    AnalyticOnNhd ℂ (fun t : ℂ => rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x)))
+        taylorWeight (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) (Metric.ball (0 : ℂ) t₁) ∧
+      ‖deriv (fun t : ℂ => rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x)))
+        taylorWeight (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) 0‖ ≤ 3 * b / (r ^ 3 * t₀) := by
+  have hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r →
+      σ • (liftC S.hG' (u • S.shiftUC x) + t • liftC S.hG' (S.maskUC z (S.shiftUC x))) ∈
+        FlBall Hm δ₁ := fun t ht σ hσ => S.markedDisc_hdom hG hY0 hY hrad ht hσ
+  have e : (fun t : ℂ => rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x)))
+        taylorWeight (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) =
+      markedTerm Ev taylorWeight (liftC S.hG' (u • S.shiftUC x))
+        (liftC S.hG' (S.maskUC z (S.shiftUC x))) Θ := by
+    funext t; exact (S.markedTerm_marked_eq z Ev taylorWeight Θ u t x).symm
+  rw [e]
+  exact ⟨analyticOnNhd_markedTerm hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom,
+    norm_deriv_markedTerm_taylorWeight_le hR₁ hr hEv hΘ hdom hb ht₀ ht₀₁⟩
+
+section VBlock
+
+open Balaban.Multiscale
+
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
+variable {Kc Cx c₂ BG₂ δ₁ : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **T5: the landed block expansion accepts the marked tangent, and the marked terms obey the
+Cauchy estimate.**  The hypotheses are those of `vblock_expansion_scaled` for the block `zb` (the
+step has `Gp = S.G'` of level `k+1`, `K = k+1`, `n = k`).  Its terms `E_{b,Y}` are analytic on
+`XiCRaw × FlBall Hm δ₁` and bounded there by `E* e^{-2 κ_dec d(Y)}`,
+`E* = energyBdScaled` (`vblock_expansion_scaled`); the expansion is valid for every tangent of the
+ball, in particular for the marked tangent.  Consequently, for every label `Y`, every datum
+`Θ ∈ XiCRaw`, and every field `y = shiftUC ψ̂` of Euclidean norm at most `Y₀` at the unit points
+with `(R₁ + r)(|u| + t₁) Y₀ < δ₁`, the marked term
+`t ↦ P_{b,Y}(Θ, v_t) = ∫₀¹ ω(s) D³E_{b,Y}(Θ, s v_t)[v_t]³ ds` is analytic on `|t| < t₁`, and for
+`0 < t₀ < t₁`
+`|∂_t P_{b,Y}(Θ, v_t)|_{t=0}| ≤ 3 E* e^{-2 κ_dec d(Y)} / (r³ t₀)`. -/
+theorem marked_vblock_term_cauchy
+    (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hHm : IsLevel Hm k) (zb : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k zb ⊆ ↑X₁f)
+    (hmar : BlockMargin S.G' X₁f (↑(blockSites d L N₁ m₁ (k + 1) k zb) :
+      Set (CTorus d L N₁ m₁ (k + 1)))) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ,
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψ' ∈ FlBall Hm δ₁,
+        energyBlock S.G' Hm (compWeight L a₁) ν k (bgMultC S.G' (compWeight L a₁) ν (bgC0 d L N) D)
+          (flFieldOne S.G' Hm BG₂ κ a₁ ν D ψ') ψ' zb =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+          i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), Ev Y (rawOf D, ψ')) ∧
+      ∀ Y, ∀ {Y₀ R₁ r t₁ t₀ : ℝ}, 0 ≤ Y₀ → ∀ {x : S.E} {u : ℂ},
+        (∀ q : S.U, vn (fun i => S.shiftUC x (q, i)) ≤ Y₀) →
+        (R₁ + r) * (‖u‖ + t₁) * Y₀ < δ₁ → 1 < R₁ → 0 < r → 0 < t₀ → t₀ < t₁ →
+        ∀ {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N},
+          Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps →
+        AnalyticOnNhd ℂ (fun t : ℂ => rayTerm (dl3 (Ev Y)
+            (liftC S.hG' (S.markedTangentC z u t x))) taylorWeight
+            (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) (Metric.ball (0 : ℂ) t₁) ∧
+        ‖deriv (fun t : ℂ => rayTerm (dl3 (Ev Y) (liftC S.hG' (S.markedTangentC z u t x)))
+            taylorWeight (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) 0‖ ≤
+          3 * (energyBdScaled d L N (compWeight L a₁) k
+            (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
+            Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) / (r ^ 3 * t₀) := by
+  obtain ⟨Ev, hsum, -, hbd, han⟩ := vblock_expansion_scaled hC hcov hX₁ hconn hrow hopt hΔ hκ₀
+    hκdec hκ h1 hlog S.hk1 le_rfl hHm S.hG' zb hZ hmar
+  refine ⟨Ev, hsum, fun Y Y₀ R₁ r t₁ t₀ hY0 x u hY hrad hR₁ hr ht₀ ht₀₁ Θ hΘ => ?_⟩
+  exact S.marked_term_cauchy z hHm hY0 hY hrad hR₁ hr ht₀ ht₀₁ (han Y)
+    (fun w hw => hbd Y w hw) hΘ
+
+end VBlock
+
+end StepSetting
 
 end Balaban.Fluctuation
