@@ -1520,6 +1520,11 @@ public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
+public import Balaban.Inhabited.MarkRealDiscSliceG
+public import Balaban.Inhabited.DecMarkCorrTotalFromTowerG
+public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
+public import Balaban.Inhabited.E1ParamFibreValueG
+public import Balaban.Inhabited.E1CoeffFamilyG
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots

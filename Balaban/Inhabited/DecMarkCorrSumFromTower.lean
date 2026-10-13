@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.DecMarkCorrRooted
 public import Balaban.Inhabited.DecMarkCorrTotalFromTower
+public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -50,17 +51,9 @@ theorem markedRad_slice_lt_fromTower {κmin : ℝ} (T : StepTower κmin) {k : �
     {u : ℂ} (hu : ‖u‖ ≤ 17 / 16) :
     (‖u‖ + ‖(0 : ℂ)‖) * markedRad 3 3 2 k 1 T.κ p₁
       ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < T.t := by
-  have hr0 := D.r_pos
-  have hmem := compWeight_three_mem hk
-  have hCs : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ :=
-    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) T.κ
-  have hmr : 0 ≤ markedRad 3 3 2 k 1 T.κ p₁
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
-    unfold markedRad
-    exact mul_nonneg (Real.sqrt_nonneg _) (mul_nonneg (norm_nonneg _) (mul_nonneg hCs hp.le))
-  refine lt_of_le_of_lt (mul_le_mul_of_nonneg_right ?_ hmr) (D.marked_radius_lt hp)
-  rw [norm_zero, add_zero]
-  nlinarith [hr0, hu]
+  have h := markedRad_slice_lt_fromTowerG T.toG (T.scaleDataG_of_fixed D) hp hu
+  rw [StepTower.toG_step_betaU] at h
+  exact h
 
 /-- **The physical sum identity for the corrected marks at every scale of the tower** (zero
 class).  Let `(F₁ b, Sol b)` be a pair with the eight clauses for every block `b`, at the step
@@ -99,37 +92,8 @@ theorem sum_decMarkCorr_physical_fromTower {κmin : ℝ} (T : StepTower κmin) {
           (S.blockU z) Y p₁ hSp (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hSp).restr x) =
       (fderiv ℂ (S.Phi1C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) ((s : ℂ) • S.shiftUC x))
         (S.maskUC z (S.shiftUC x)) := by
-  subst hS
-  have hxρ : ∀ u, ‖x u‖ ≤ p₁ := fun u => (norm_le_pi_norm x u).trans hx
-  have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
-    rw [Complex.norm_real, Real.norm_of_nonneg hs.1]; exact hs.2
-  have hrad := markedRad_slice_lt_fromTower T D hp (u := (s : ℂ)) (by linarith)
-  obtain ⟨f, hf⟩ : ∃ f : ℂ → ℂ, ∀ u : ℂ, f u = deriv (fun t : ℂ =>
-      ((T.step k hk N₁ ν β p₁).withDatum D' hDh).VkC
-        (((T.step k hk N₁ ν β p₁).withDatum D' hDh).psi0C +
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).markedTangentC z u t x) +
-      (1 / 2) * deltaForm (((T.step k hk N₁ ν β p₁).withDatum D' hDh).hG.precedes
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).hG' (le_refl (k + 1)))
-        (compWeight 3 ((T.step k hk N₁ ν β p₁).withDatum D' hDh).a₁)
-        ((T.step k hk N₁ ν β p₁).withDatum D' hDh).ν
-        (bgMultC ((T.step k hk N₁ ν β p₁).withDatum D' hDh).G'
-          (compWeight 3 ((T.step k hk N₁ ν β p₁).withDatum D' hDh).a₁)
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).ν (bgC0 3 3 2)
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).D')
-        (bgFieldC ((T.step k hk N₁ ν β p₁).withDatum D' hDh).G'
-          (compWeight 3 ((T.step k hk N₁ ν β p₁).withDatum D' hDh).a₁)
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).ν (bgC0 3 3 2)
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).D')
-        (liftC ((T.step k hk N₁ ν β p₁).withDatum D' hDh).hG'
-          (((T.step k hk N₁ ν β p₁).withDatum D' hDh).markedTangentC z u t x))) 0 :=
-    ⟨_, fun _ => rfl⟩
-  have hT := ((T.step k hk N₁ ν β p₁).withDatum D' hDh).sum_decMarkCorr_eq_taylor1_of_mark z F₁ Sol
-    hP hp le_rfl hSp D.core.δ₁_pos hD x hxρ (U := 17 / 16) (by norm_num) f
-    (fun u hu => mark_eq_deriv_blockEnergy_fromTower T D hβ hp D' hDh hD rfl x hx z f hf hu)
-    hrad (by linarith)
-  rw [fderiv_mask_corrected_total_fromTower T D hβ hp D' hDh hD rfl x hx z hs f hf, ← hT,
-    Finset.mul_sum]
-  exact Finset.sum_congr rfl fun b _ => (Finset.mul_sum _ _ _).symm
+  exact sum_decMarkCorr_physical_fromTowerG T.toG (T.scaleDataG_of_fixed D) hβ hp
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (S₀ := T.step k hk N₁ ν β p₁) rfl D' hDh hD hS hSp z F₁ Sol hP x hx hs
 
 /-- **The rooted physical identity for the corrected marks at every scale of the tower** (zero
 class).  Under the hypotheses of `sum_decMarkCorr_physical_fromTower`, with the terms
@@ -168,19 +132,8 @@ theorem sum_markedOutDec_decMarkCorr_physical_fromTower {κmin : ℝ} (T : StepT
           (S.blockU z) p₁ hSp (S.β : ℂ) (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hSp).restr x)) Y' =
       (fderiv ℂ (S.Phi1C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) ((s : ℂ) • S.shiftUC x))
         (S.maskUC z (S.shiftUC x)) := by
-  have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
-    rw [Complex.norm_real, Real.norm_of_nonneg hs.1]; exact hs.2
-  have hrad : (‖(s : ℂ)‖ + ‖(0 : ℂ)‖) *
-      markedRad 3 3 2 k S.a₁ T.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < T.t := by
-    subst hS
-    exact markedRad_slice_lt_fromTower T D hp (u := (s : ℂ)) (by linarith)
-  have hΘ : rawOf S.D' ∈ XiCRaw S.G' (compWeight 3 S.a₁) S.ν (k + 1) 1 T.t := by
-    subst hS
-    exact ⟨D', hD, rfl⟩
-  rw [S.sum_markedOutDec_eq_sum_decMarkCorr z F₁ Sol hP hp le_rfl hSp D.core.δ₁_pos hΘ hrad
-    ((S.blockSplit m₀ hSp).restr x) (-(S.β : ℂ)) _
-    (fun b Y => deriv_decMarkCorrTerm S F₁ Sol p₁ hSp (S.β : ℂ) (rawOf S.D') (s : ℂ) _ b Y)]
-  exact sum_decMarkCorr_physical_fromTower T D hβ hp D' hDh hD hS hSp z F₁ Sol hP x hx hs
+  exact sum_markedOutDec_decMarkCorr_physical_fromTowerG T.toG (T.scaleDataG_of_fixed D) hβ hp
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (S₀ := T.step k hk N₁ ν β p₁) rfl D' hDh hD hS hSp z F₁ Sol hP x hx hs
 
 /-- **The rooted physical identity for the corrected marks at every scale of the tower, almost
 everywhere** (zero class).  Under the hypotheses of `sum_decMarkCorr_physical_fromTower` on the
@@ -221,11 +174,7 @@ theorem ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr_fromTower {κmin : ℝ} (
             (decMarkCorrTerm S X₁V jV 𝒦XV m₀ S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁
               Sol (S.blockU z) p₁ hSp (S.β : ℂ) (rawOf S.D') (s : ℂ)
               ((S.blockSplit m₀ hSp).restr x)) Y' := by
-  have hpS : S.p₁ = p₁ := by subst hS; rfl
-  filter_upwards [S.ae_norm_nuFl hSp] with x hx
-  have hxn : ‖x‖ ≤ p₁ :=
-    (pi_norm_le_iff_of_nonneg hp.le).2 fun u => by rw [← hpS]; exact (hx u).le
-  exact (sum_markedOutDec_decMarkCorr_physical_fromTower T D hβ hp D' hDh hD hS hSp z F₁ Sol hP x
-    hxn hs).symm
+  exact ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr_fromTowerG T.toG (T.scaleDataG_of_fixed D) hβ hp
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (S₀ := T.step k hk N₁ ν β p₁) rfl D' hDh hD hS hSp z F₁ Sol hP hs
 
 end Balaban.Inhabited
