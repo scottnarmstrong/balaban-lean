@@ -1764,4 +1764,3 @@ public import Balaban.Fluctuation.ClassOldTermInputE
 public import Balaban.Fluctuation.ClassOldTermInputM
 public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
-public import Balaban.Fluctuation.ClassOldTermInputE
