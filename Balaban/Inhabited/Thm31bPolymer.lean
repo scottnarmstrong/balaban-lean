@@ -208,6 +208,64 @@ input rate is the factor `1 / 60751` and the shift `3375 log 2`.
 Still lacking against clause (b): termwise locality in the datum and the source (needs the
 coefficient family of the observable family program), analyticity in `g`, reality and symmetry,
 the paper's prefactor, and a localized treatment of the remainder `R` (it is one scalar with the
+bound above, with no domain index, locality or analyticity).  The fixed `thm31b_zeroClass_polymer_fromTower` is its corollary. -/
+theorem thm31b_zeroClass_polymer_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C : ℝ, 2 ≤ β₀ ∧ 0 ≤ C ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1Ball d L N₁ T.m₁ (k + 1) N →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    ∃ (E' : Set (CTorus d L N₁ T.m₁ (k + 1)) → ℂ) (R : ℂ),
+      (T.step k hk N₁ ν β p₁).M0C (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g y i =
+        (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
+          (∑ X ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+            (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1) Set.univ))).image detCollarHull, E' X + R) ∧
+      ‖R‖ ≤ C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) * Real.exp (-(3 / 2 * T.κdec)) ∧
+      (∀ X, E' X ≠ 0 → IsDj T.m₀ (k + 1) X ∧
+        box (rootCube (m₀ := T.m₀) (K := k + 1) (blockIndex y)).1 (cellSide L T.m₀ T.m₁ (k + 1)) ⊆ X) ∧
+      ∀ X, ‖E' X‖ ≤ hullConst d L (3 / 2 * T.κdec) (C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2)))) *
+        Real.exp (-hullRate d L (3 / 2 * T.κdec) * sizeJ T.m₀ (k + 1) X) := by
+  obtain ⟨β₀, C, hβ₀, -, hC, hmain⟩ := thm31b_zeroClass_fromTower_of_ray_rhoG T hA p hCR hs0 hs 1
+    one_pos (obsRay_hray_fromTowerG_rho T 1 one_pos)
+  refine ⟨β₀, C, hβ₀, hC, ?_⟩
+  intro k hk N₁ _ hLN h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
+  obtain ⟨E, h1, h2, h3'⟩ := hmain k hk N₁ hLN h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by have := T.hL; omega : 1 ≤ L)
+  have hβ1 : (1 : ℝ) ≤ β * (L : ℝ) ^ (k * (d - 2)) := by
+    have : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
+    have : (1 : ℝ) ≤ β := by linarith
+    nlinarith
+  have hc : 0 ≤ C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) :=
+    mul_nonneg hC (obsPrefactor_nonneg p s hβ1)
+  have hκ : 3 ≤ T.κdec := by have := T.κdec_lower; have := T.κ0_nonneg; linarith
+  have hlam : Real.log 2 ≤ 3 / 2 * T.κdec := by
+    have := Real.log_two_lt_d9; linarith
+  obtain ⟨R, hR1, hR2, hR3, hR4⟩ := rooted_regroup (m₀ := T.m₀) (K := k + 1) T.hL hLN hc hlam
+    (rootCube (m₀ := T.m₀) (K := k + 1) (blockIndex y)) E h2 h3'
+  refine ⟨_, R, ?_, hR2, hR3, hR4⟩
+  rw [h1, ← hR1]
+
+open Classical in
+/-- **Theorem 3.1 (b) for the zero-class step on localization domains, at the shared tower.**
+Under the hypotheses of `thm31b_zeroClass_fromTower` (and nothing else) the observable is
+`√b (∑_X E' X + R)`, the sum over the image of the collar hull map, where `E' X` is the sum of the
+coefficients `E T` over the sets `T` with polymer sites and hull `X`; `E' X ≠ 0` only for `X` in
+`𝒟_{k+1}` containing the box of the root cube of `y`; `‖E' X‖ ≤ C_hull e^{-λ_hull sizeJ X}` with
+`λ = (3/2) κ_dec`, constant `c = C · obsPrefactor`, and `R` collects the sets `T` that are not
+polymers, `‖R‖ ≤ c e^{-(3/2) κ_dec}` (not localized).  The rate is `hullRate 3 3 ((3/2) κ_dec)`,
+positive iff `60751 · 3375 · log 2 < (3/2) κ_dec` (`hullRate_three_pos_iff`); the loss against the
+input rate is the factor `1 / 60751` and the shift `3375 log 2`.
+
+Still lacking against clause (b): termwise locality in the datum and the source (needs the
+coefficient family of the observable family program), analyticity in `g`, reality and symmetry,
+the paper's prefactor, and a localized treatment of the remainder `R` (it is one scalar with the
 bound above, with no domain index, locality or analyticity). -/
 theorem thm31b_zeroClass_polymer_fromTower {κmin : ℝ} (T : StepTower κmin)
     {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
@@ -231,22 +289,20 @@ theorem thm31b_zeroClass_polymer_fromTower {κmin : ℝ} (T : StepTower κmin)
         box (rootCube (m₀ := 1) (K := k + 1) (blockIndex y)).1 (cellSide 3 1 T.m₁ (k + 1)) ⊆ X) ∧
       ∀ X, ‖E' X‖ ≤ hullConst 3 3 (3 / 2 * T.κdec) (C * obsPrefactor p s (β * 3 ^ k)) *
         Real.exp (-hullRate 3 3 (3 / 2 * T.κdec) * sizeJ 1 (k + 1) X) := by
-  obtain ⟨β₀, C, hβ₀, hC, hmain⟩ := thm31b_zeroClass_fromTower T hA p hCR hs0 hs
+  obtain ⟨β₀, C, hβ₀, hC, H⟩ := thm31b_zeroClass_polymer_fromTowerG T.toG hA p hCR hs0 hs
   refine ⟨β₀, C, hβ₀, hC, ?_⟩
   intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
-  obtain ⟨E, h1, h2, h3'⟩ := hmain k hk N₁ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
-  have hβ1 : (1 : ℝ) ≤ β * 3 ^ k := by
-    have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    have : (1 : ℝ) ≤ β := by linarith
-    nlinarith
-  have hc : 0 ≤ C * obsPrefactor p s (β * 3 ^ k) := mul_nonneg hC (obsPrefactor_nonneg p s hβ1)
-  have hκ : 3 ≤ T.κdec := by have := T.κdec_lower; have := T.κ0_nonneg; linarith
-  have hlam : Real.log 2 ≤ 3 / 2 * T.κdec := by
-    have := Real.log_two_lt_d9; linarith
-  have hN : 3 ^ 1 ∣ N₁ := by simpa using h3
-  obtain ⟨R, hR1, hR2, hR3, hR4⟩ := rooted_regroup (m₀ := 1) (K := k + 1) (le_refl 3) hN hc hlam
-    (rootCube (m₀ := 1) (K := k + 1) (blockIndex y)) E h2 h3'
-  refine ⟨_, R, ?_, hR2, hR3, hR4⟩
-  rw [h1, ← hR1]
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have G := H k hk N₁ (by simpa using h3) h5 ν hν (by simpa using hνk) β hβ p₁ hp
+    (by rw [e]; exact hp₁) (StepTower.scaleDataG_of_fixed T hsc) g hg y i
+  unfold StepTowerG.step at G
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G
+  exact G
 
 end Balaban.Inhabited
