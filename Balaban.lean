@@ -172,6 +172,7 @@ public import Balaban.Multiscale.PointwiseHolderI
 public import Balaban.Multiscale.PointwiseHolder
 public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
+public import Balaban.Multiscale.WeakenSep
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.CoercivitySharp
@@ -1216,6 +1217,7 @@ public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
 public import Balaban.Inhabited.MarkedRootGeometryWitness
 public import Balaban.Inhabited.MarkedSharpCountWitness
+public import Balaban.Inhabited.FanChainWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1462,4 +1464,6 @@ public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Inhabited.LateScaleWitness
+public import Balaban.Correlations.KF0Cauchy
+public import Balaban.Correlations.KF0RootFPartial
 public import Balaban.Inhabited.ProperLocalGenWitness
