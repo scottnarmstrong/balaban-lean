@@ -1592,3 +1592,4 @@ public import Balaban.Fluctuation.MarkRealRegular
 public import Balaban.Fluctuation.RenormSharedClass
 public import Balaban.Fluctuation.SourcePhysValBridge
 public import Balaban.Inhabited.MarksNumericsFromTower
+public import Balaban.Inhabited.ChartDetJointFromTower
