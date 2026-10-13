@@ -15,7 +15,18 @@ import Mathlib.Tactic.Ring
 /-!
 # Analyticity in a finite-dimensional parameter of `P(S)`, `G*(Y₀, S)` and `gsumCoeff`
 
-Several-parameter form of `Pst_Gst_differentiableOn`.
+Several-parameter form of `Pst_Gst_differentiableOn`, and the analyticity of the canonical
+coefficient `gsumCoeff` in a parameter `θ` of a finite-dimensional complex space when the label
+activities `A θ u` and the marks `G θ i u` are analytic in `(θ, u)`.
+
+`ParamMarkFamily` is the ANALYTIC part of a parameter-dependent `InterpMarks`: it records the
+regularity of the family (analytic in `(θ, u)` on `V × 𝒰` for each configuration of a compact set
+`Q` carrying the product measure, continuous in the configuration, measurable, and the mark bound
+uniform in `θ`).  It does not contain the numerical constants of Theorem 3.4 (they are explicit
+hypotheses of the theorems), nor the dependence (`DepOn`) fields, nor `W`/`f`/`hW`/`hF`.  The
+compact carrier `Q` is a genuine extra hypothesis: it does not hold for Gaussian reference
+measures, so the actual step data are not covered.  Producing a parameter family from the physical
+step (the actual activities and marks, and the determinant term) is not done here.
 -/
 
 @[expose] public section
@@ -178,5 +189,128 @@ theorem Pst_Gst_analyticOnNhd {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ω
   exact hmain.1
 
 end Holo
+
+section Family
+
+variable {Lb : Type*} [Fintype Lb] {ι : Type*} [Fintype ι]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+
+/-- **Analytic regularity of a parameter family of labels activities and marks.**  For `θ ∈ V ⊆ E`
+(open) and `u ∈ 𝒰 ⊆ ℂ` (open, containing `[0,1]`): the activities `(A θ u).H y Φ` and the marks
+`G θ i u Φ` are analytic in `(θ, u) ∈ V × 𝒰` for every configuration `Φ` of the compact set `Q`
+(which carries the product measure), continuous in `Φ ∈ Q`, the marks are measurable and bounded by
+`F0 i e^{-κG 𝗱(y0 i)}` uniformly in `(θ, u)`.  The constants `εH κH κ0 Kc` in the type of `A` are
+the same for all `θ, u`. -/
+structure ParamMarkFamily {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    [∀ b, TopologicalSpace (Ωb b)] (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (Lab : CubeLabels m₀ j Ω Lb) {εH κH κ0 Kc : ℝ}
+    (A : E → ℂ → LabelAct Lab Ωb εH κH κ0 Kc) (y0 : ι → Lb)
+    (G : E → ι → ℂ → (∀ b, Ωb b) → ℂ) (κG : ℝ) (F0 : ι → ℝ)
+    (V : Set E) (𝒰 : Set ℂ) (Q : Set (∀ b, Ωb b)) : Prop where
+  isOpenV : IsOpen V
+  isOpenU : IsOpen 𝒰
+  seg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰
+  compact : IsCompact Q
+  measQ : MeasurableSet Q
+  carried : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Q
+  meas : ∀ θ i u, Measurable (G θ i u)
+  bound : ∀ θ i u Φ, ‖G θ i u Φ‖ ≤ F0 i * Real.exp (-κG * Lab.dl (y0 i))
+  holA : ∀ y, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun p : E × ℂ => (A p.1 p.2).H y Φ) (V ×ˢ 𝒰)
+  holG : ∀ i, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun p : E × ℂ => G p.1 i p.2 Φ) (V ×ˢ 𝒰)
+  contA : ∀ y, ∀ θ ∈ V, ∀ u ∈ 𝒰, ContinuousOn ((A θ u).H y) Q
+  contG : ∀ i, ∀ θ ∈ V, ∀ u ∈ 𝒰, ContinuousOn (G θ i u) Q
+
+open Classical in
+/-- **Analyticity of `Gsum` in `(θ, u)`.** -/
+theorem Gsum_analyticOnNhd {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    [∀ b, TopologicalSpace (Ωb b)] [∀ b, OpensMeasurableSpace (Ωb b)]
+    [∀ b, SecondCountableTopology (Ωb b)] [FiniteDimensional ℂ E]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω)
+    {Lab : CubeLabels m₀ j Ω Lb} {εH κH κG κ0 κ' Kc : ℝ} {F0 : ι → ℝ}
+    {A : E → ℂ → LabelAct Lab Ωb εH κH κ0 Kc} {y0 : ι → Lb}
+    {G : E → ι → ℂ → (∀ b, Ωb b) → ℂ} {V : Set E} {𝒰 : Set ℂ} {Q : Set (∀ b, Ωb b)}
+    (hfam : ParamMarkFamily μ Lab A y0 G κG F0 V 𝒰 Q)
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 + 1 ≤ Kc) (hεpos : 0 < εH)
+    (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ') (hκG : κH ≤ κG)
+    (hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
+    (hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
+      Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)))
+    (T : Finset 𝔅) :
+    AnalyticOnNhd ℂ (fun p : E × ℂ =>
+      Gsum μ Lab (A p.1 p.2).H y0 (fun i => G p.1 i p.2) T) (V ×ˢ 𝒰) := by
+  unfold Gsum
+  refine Finset.analyticOnNhd_fun_sum _ (fun i _ => ?_)
+  exact (Pst_Gst_analyticOnNhd (E := E × ℂ) μ hN hj hΩ (V := V ×ˢ 𝒰)
+    (hfam.isOpenV.prod hfam.isOpenU) hfam.compact hfam.measQ hfam.carried
+    (fun p => A p.1 p.2) (y0 i) (fun p => G p.1 i p.2) (fun p => hfam.meas _ _ _)
+    (fun p Φ => hfam.bound _ _ _ _) (fun y Φ hΦ => hfam.holA y Φ hΦ)
+    (fun Φ hΦ => hfam.holG i Φ hΦ) (fun y p hp => hfam.contA y p.1 hp.1 p.2 hp.2)
+    (fun p hp => hfam.contG i p.1 hp.1 p.2 hp.2) hκ0 hKc hεpos (hF0 i) hκ' hκG hκ hε T).2
+
+open Classical in
+/-- **Analyticity of the canonical coefficient `gsumCoeff` in the parameter `θ ∈ V`.** -/
+theorem gsumCoeff_analyticOnNhd {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    [∀ b, TopologicalSpace (Ωb b)] [∀ b, OpensMeasurableSpace (Ωb b)]
+    [∀ b, SecondCountableTopology (Ωb b)] [FiniteDimensional ℂ E]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω)
+    {Lab : CubeLabels m₀ j Ω Lb} {εH κH κG κ0 κ' Kc : ℝ} {F0 : ι → ℝ}
+    {A : E → ℂ → LabelAct Lab Ωb εH κH κ0 Kc} {y0 : ι → Lb}
+    {G : E → ι → ℂ → (∀ b, Ωb b) → ℂ} {V : Set E} {𝒰 : Set ℂ} {Q : Set (∀ b, Ωb b)}
+    (hfam : ParamMarkFamily μ Lab A y0 G κG F0 V 𝒰 Q)
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 + 1 ≤ Kc) (hεpos : 0 < εH)
+    (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ') (hκG : κH ≤ κG)
+    (hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
+    (hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
+      Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)))
+    (T : Finset 𝔅) :
+    AnalyticOnNhd ℂ (fun θ => gsumCoeff μ Lab (A θ) y0 (G θ) T) V := by
+  intro θ0 hθ0
+  have hG := Gsum_analyticOnNhd μ hN hj hΩ hfam hκ0 hKc hεpos hF0 hκ' hκG hκ hε T
+  have hfin : IsFiniteMeasure (volume.restrict (Set.Ioc (0 : ℝ) 1)) :=
+    ⟨by rw [Measure.restrict_apply_univ, Real.volume_Ioc]; exact ENNReal.ofReal_lt_top⟩
+  have h := Balaban.Analysis.analyticAt_integral_comp (P := E) (V := ℂ) (X := ℝ)
+    (μ := volume.restrict (Set.Ioc (0 : ℝ) 1)) (K := Set.Icc (0 : ℝ) 1)
+    isCompact_Icc measurableSet_Icc
+    (ae_restrict_of_forall_mem measurableSet_Ioc (fun x hx => Set.Ioc_subset_Icc_self hx))
+    (ι := fun s : ℝ => (s : ℂ)) Complex.continuous_ofReal.continuousOn
+    (G := fun p : E × ℂ => Gsum μ Lab (A p.1 p.2).H y0 (fun i => G p.1 i p.2) T) (Θ₀ := θ0)
+    (fun s hs => hG _ ⟨hθ0, hfam.seg s hs⟩)
+  unfold gsumCoeff
+  simp only [intervalIntegral.integral_of_le (zero_le_one' ℝ)]
+  exact h
+
+/-- The bound of `interpCoeff_spec` is uniform in the parameter: it depends only on the constants
+`Kc κH κ0 κ'`, `F0` and `𝗱(y0 i)`, which are the same for all `θ`.  The conclusion is given by
+`avg_marks_expansion` at each `(θ, s)`; the integral over `s ∈ [0,1]` keeps the bound. -/
+theorem norm_gsumCoeff_le {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω)
+    {Lab : CubeLabels m₀ j Ω Lb} {εH κH κG κ0 κ' Kc : ℝ} {F0 : ι → ℝ}
+    (A : E → ℂ → LabelAct Lab Ωb εH κH κ0 Kc) (y0 : ι → Lb)
+    (G : E → ι → ℂ → (∀ b, Ωb b) → ℂ) (V : Set E)
+    (hGm : ∀ θ i u, Measurable (G θ i u))
+    (hGdep : ∀ θ i u, DepOn (blocksOf m₀ j Ω (Lab.ysite (y0 i))) (G θ i u))
+    (hG : ∀ θ i u Φ, ‖G θ i u Φ‖ ≤ F0 i * Real.exp (-κG * Lab.dl (y0 i)))
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 + 1 ≤ Kc) (hεpos : 0 < εH)
+    (hι : Nonempty ι) (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ') (hκG : κH ≤ κG)
+    (hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
+    (hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
+      Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L))) (T : Finset 𝔅) :
+    ∀ θ ∈ V, ‖gsumCoeff μ Lab (A θ) y0 (G θ) T‖ ≤ CPE d L Kc κH κ0 κ' *
+      (∑ i, F0 i * Real.exp (-κ0 * Lab.dl (y0 i))) * Real.exp (-κ' * dExt T) := by
+  intro θ _
+  unfold gsumCoeff
+  have hb : ∀ s ∈ Set.uIoc (0 : ℝ) 1, ‖Gsum μ Lab (A θ (s : ℂ)).H y0
+      (fun i => G θ i (s : ℂ)) T‖ ≤ CPE d L Kc κH κ0 κ' *
+      (∑ i, F0 i * Real.exp (-κ0 * Lab.dl (y0 i))) * Real.exp (-κ' * dExt T) := fun s _ =>
+    (avg_marks_expansion μ hN hj hΩ (A θ (s : ℂ)) y0 (fun i => G θ i (s : ℂ))
+      (fun i => hGm θ i _) (fun i => hGdep θ i _) (fun i Φ => hG θ i _ Φ) hκ0 hKc hεpos hι hF0
+      hκ' hκG hκ hε).2.2 T
+  have := intervalIntegral.norm_integral_le_of_norm_le_const hb
+  simpa using this
+
+end Family
 
 end Balaban.Fluctuation
