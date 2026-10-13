@@ -18,11 +18,44 @@ public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepActivityHatRay
 public import Balaban.Fluctuation.InteractionVPart
 public import Balaban.Fluctuation.InteractionVBlockScaled
+public import Balaban.Inhabited.DAPhysicalTower
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# The marked cubic Taylor form (placeholder header, replaced below)
+# The marked cubic Taylor form of the fluctuation step
+
+Companion of `MarkedTangent.lean` (formulas (1)-(5) of the note `MARKCUBIC`).  The first-order
+term of the step at a root `z` is the expectation of `f_z(u, ψ̂) = DΦ₁(u ψ')[1_{B(z)} ψ']`
+(`E1Marks`, `E1MarksC`).  With the marked tangent `v_t = u ψ' + t M_z ψ'` of `MarkedTangent.lean`
+this file proves:
+
+* **General complex tangents** (`psiAtV`, `VkC_rayV_vanish_of_baseDomain`,
+  `VkC_rayV_taylor_of_baseDomain`): the ray identities of `StepTaylorComplex` for an arbitrary
+  complex direction `v` of the unit lattice in place of `shiftUC ψ̂` (the proofs are those of the
+  landed theorems; the direction enters only through `liftC v`).  So `V^{(k)}` vanishes to second
+  order at the critical point along every complex line, in particular along the marked ones.
+* **`MARK-REAL`** (`hasDerivAt_Phi1_marked`, `deriv_Phi1_marked_eq_E1Marks_integrand`,
+  `hasDerivAt_Phi1C_marked`, `deriv_Phi1C_marked_eq_E1MarksC_integrand`): for every class, the
+  `t`-derivative at `0` of `Φ₁(v_t)` is exactly the landed `f_z(u, ψ̂)`; no factor of `u` or `β`
+  and no division by `u`.  The differentiability hypothesis holds at the ray points under the
+  landed `ClassRegularLoc` (`ClassRegularLocC`).
+* **`MARK-TAYLOR`** (`VkC_psi0C_add_eq_interactionOne`, `VkC_taylor_line`, `marked_difference_eq`,
+  `VkC_marked_eq_block_terms`, real chart: `Phi1_zeroClass_marked_eq_Phi1C`): for the zero class,
+  `V^{(k)}(ψ^{(k)} + v) = ∫₀¹ ω(s) D³f(Θ, s·lift v)[lift v]³ ds` with `f = interactionOne`, the marked
+  difference `Δ_z = Φ₁(v_t) - Φ₁(v_0)` is `-β` times the difference of these cubic terms, and,
+  given the block expansions of `vblock_expansion_scaled`, the cubic term is the sum over blocks and
+  labels of `rayTerm (dl3 E_{b,Y}) ...` (equalities only).
+* **T5** (`markedTerm`, `analyticOnNhd_markedTerm`, `norm_markedTerm_le`,
+  `norm_deriv_markedTerm_le`, `marked_term_cauchy`, `marked_vblock_term_cauchy`): each marked
+  block term `t ↦ ∫₀¹ ω(s) D³E_{b,Y}(Θ, s v_t)[v_t]³ ds` is analytic on `|t| < t₁` and its
+  `t`-derivative at `0` is at most `3 E* e^{-2 κ_dec d(Y)}/(r³ t₀)`; `vblock_expansion_scaled` is
+  stated for every tangent of `FlBall Hm δ₁`, so it accepts the marked tangent as is.
+* **T6** (`marked_radius_and_derivative_at_witness`): non-vacuity at the landed witness step.
+
+No mark family is constructed here and nothing depends on a choice of generating set for the class
+terms; the root anchoring, the count and the assembly (`ROOT-BRIDGE`, `ROOT-FIBRE`, `MARK-ROWS`,
+`MARK-SCALED-COUNT`, `MARK-ASSEMBLY`, `MARK-PARAM`) are not touched.
 -/
 
 @[expose] public section
@@ -982,3 +1015,91 @@ end BlockSum
 end StepSetting
 
 end Balaban.Fluctuation
+
+/-! ### T6: non-vacuity at the landed witness step -/
+
+namespace Balaban.Inhabited
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
+  Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
+  Balaban.Polymer Balaban.SmallField.Def6 Set
+
+/-- **Non-vacuity of `MARK-RADIUS` and of the exact derivative at the landed witness step.**  At
+the witness step `hatStep m₁ β p₁ δ` (`d = L = 3`, `N = 2`, `k = 1`, `p₁ = pLog 1 2 β`, the radii
+`towerCpsi`, `towerR = c_ψ/(2 p₁) - 4` of `StepActivityDirectScaledWitness` / `DAPhysicalRadii`,
+`R₁ = R_σ = 2`) there are `t₀ < t₁` with `t₀ > 0` for which the radius condition (2) holds,
+`(R₁ + r)(R_σ + t₁) · Y < δ₁`, with `Y = √N · |c_c| · covSupConstC · p₁` the hat-field bound for
+`‖ψ̂‖ ≤ p₁` and `δ₁ = t`; the step has `RayData` (so the landed regularity holds), and the
+exact identity of `MARK-REAL` holds at every mark `z`, every `‖ψ̂‖ ≤ p₁` and every `u ∈ [0,1]`:
+`d/ds Φ₁(v_s)|_{s=0} = DΦ₁(u ψ')[1_{B(z)} ψ']`, the integrand of `E1Marks`. -/
+theorem marked_radius_and_derivative_at_witness :
+    ∃ (m₁ : ℕ) (κ t δ β t₀ : ℝ), 2 ≤ β ∧ 0 < t ∧ 0 < t₀ ∧
+      (∃ t₁ : ℝ, t₀ < t₁ ∧
+        (2 + towerR κ t β (pLog 1 2 β)) * (2 + t₁) *
+          (Real.sqrt ((2 : ℕ) : ℝ) *
+            (‖(((hatStep m₁ β (pLog 1 2 β) δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+              (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) 1) κ * pLog 1 2 β))) < t) ∧
+      Nonempty ((hatStep m₁ β (pLog 1 2 β) δ).RayData (2 * pLog 1 2 β)) ∧
+      ∀ (z : Torus 3 (9 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1)))) (x : (hatStep m₁ β (pLog 1 2 β) δ).E),
+        ‖x‖ ≤ pLog 1 2 β → ∀ u ∈ Icc (0 : ℝ) 1,
+        HasDerivAt (fun s : ℝ => (hatStep m₁ β (pLog 1 2 β) δ).Phi1
+            (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁))
+            ((hatStep m₁ β (pLog 1 2 β) δ).markedTangent z u s x))
+          ((fderiv ℝ ((hatStep m₁ β (pLog 1 2 β) δ).Phi1 (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)))
+              (u • (hatStep m₁ β (pLog 1 2 β) δ).shiftU x))
+            ((hatStep m₁ β (pLog 1 2 β) δ).maskU z ((hatStep m₁ β (pLog 1 2 β) δ).shiftU x))) 0 := by
+  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
+    exists_witness_params (fun _ => 0)
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, κdec, κ0, δc, h4, ht0, -, hκ0, hκdec, hκ, -, -, -, hMX, -⟩ :=
+    tower_core_fixed 2
+  have hbig : cstarX 3 3 ≤ (3 : ℝ) ^ m₁ := by
+    have hκdec0 : 0 ≤ κdec := by linarith
+    have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
+    have h := Localization.cstarX_pos 3 3
+    have h2 : cstarX 3 3 ≤ cstarX 3 3 * Real.exp ((N0 3 3 : ℝ) * κ) :=
+      le_mul_of_one_le_right h.le (Real.one_le_exp (by positivity))
+    have h3 : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by norm_num
+    linarith
+  obtain ⟨β₀, hβ₀, hitems⟩ := tower_C_items (A₁ := 1) one_pos 2 m₁ h4 hbig κ ht0 hδ hsm hδ'0 hδ'a
+    hδ'b hδ'c
+  obtain ⟨hp, hcψ, hr, hδ₁, hc, hlt, ⟨R0⟩⟩ := hitems β₀ le_rfl
+  set p₁ := pLog 1 2 β₀ with hp₁def
+  set cψ := towerCpsi κ t β₀ with hcψdef
+  set W : ℝ := Real.sqrt ((2 : ℕ) : ℝ) *
+    (‖(((hatStep m₁ β₀ p₁ δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+      covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) 1) κ) with hW
+  have hWc : W * cψ < t := by rw [hW]; nlinarith [hδ₁]
+  set t₁ : ℝ := 8 * p₁ / cψ with ht₁
+  have ht₁0 : 0 < t₁ := by positivity
+  refine ⟨m₁, κ, t, δ, β₀, t₁ / 2, hβ₀, ht0, by positivity, ⟨t₁, by linarith, ?_⟩, ⟨R0⟩, ?_⟩
+  · have hmain : (2 + towerR κ t β₀ p₁) * (2 + t₁) * p₁ ≤ cψ := by
+      have e : (2 + towerR κ t β₀ p₁) * (2 + t₁) * p₁ = cψ - 16 * p₁ ^ 2 / cψ := by
+        unfold towerR
+        rw [ht₁]
+        field_simp
+        ring
+      rw [e]
+      have : 0 ≤ 16 * p₁ ^ 2 / cψ := by positivity
+      linarith
+    have e2 : (2 + towerR κ t β₀ p₁) * (2 + t₁) *
+        (Real.sqrt ((2 : ℕ) : ℝ) * (‖(((hatStep m₁ β₀ p₁ δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+          (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) 1) κ * p₁))) =
+        ((2 + towerR κ t β₀ p₁) * (2 + t₁) * p₁) * W := by
+      rw [hW]; ring
+    rw [e2]
+    by_cases hW0 : 0 ≤ W
+    · calc ((2 + towerR κ t β₀ p₁) * (2 + t₁) * p₁) * W ≤ cψ * W :=
+            mul_le_mul_of_nonneg_right hmain hW0
+        _ = W * cψ := by ring
+        _ < t := hWc
+    · have hneg : W < 0 := not_le.1 hW0
+      have hpos : 0 ≤ (2 + towerR κ t β₀ p₁) * (2 + t₁) * p₁ := by
+        have : 0 ≤ (2 + towerR κ t β₀ p₁) := by linarith [hr]
+        positivity
+      nlinarith [mul_nonneg hpos (neg_nonneg.2 hneg.le)]
+  · intro z x hx u hu
+    have hloc := classRegularLoc_zeroClass R0 hp hlt 0
+    exact (hatStep m₁ β₀ p₁ δ).hasDerivAt_Phi1_marked_of_classRegularLoc z
+      (zeroClass 3 3 9 m₁ 1 2 (rhoSep m₁)) hloc hx hu
+
+end Balaban.Inhabited
