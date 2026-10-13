@@ -242,4 +242,105 @@ theorem partitionFunction_eq_sum_kf0Sector (r : ℝ) (β ν : ℝ) (h : Euclidea
 
 end Blocks
 
+/-! ### T3: the exact energy split -/
+
+section Energy
+
+variable (ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+
+/-- The squared length of the bond `(x, μ)`: `‖φ(x + e_μ) - φ(x)‖²`. -/
+noncomputable def bondSq (φ : Cfg d N ℓ) (x : Torus d ℓ) (μ : Fin d) : ℝ :=
+  ‖(φ (x + Pi.single μ 1) : EuclideanSpace ℝ (Fin N)) - φ x‖ ^ 2
+
+/-- `H_B`: the mass terms on the sites of `D` and the bonds with both endpoints in `D`. -/
+noncomputable def blockEnergy (D : Finset (Torus d ℓ)) (φ : Cfg d N ℓ) : ℝ :=
+  (1 / 2) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+      (if x ∈ D ∧ x + Pi.single μ 1 ∈ D then bondSq φ x μ else 0)
+    + (ν / 2) * ∑ x : Torus d ℓ, (if x ∈ D then ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 else 0)
+
+/-- `H_G`: the mass terms on the complement of `D`, the bonds inside the complement and every
+bond crossing between `D` and its complement (every bond not having both endpoints in `D`). -/
+noncomputable def goodEnergy (D : Finset (Torus d ℓ)) (φ : Cfg d N ℓ) : ℝ :=
+  (1 / 2) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+      (if x ∈ D ∧ x + Pi.single μ 1 ∈ D then 0 else bondSq φ x μ)
+    + (ν / 2) * ∑ x : Torus d ℓ, (if x ∈ D then 0 else ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2)
+
+/-- (K0.2), the energy: `H₀ = H_B + H_G` exactly. -/
+theorem energy_split (D : Finset (Torus d ℓ)) (φ : Cfg d N ℓ) :
+    energy d N ℓ ν h φ = blockEnergy ν h D φ + goodEnergy ν h D φ := by
+  unfold energy blockEnergy goodEnergy
+  have h1 : ∑ x : Torus d ℓ, ∑ μ : Fin d, ‖(φ (x + Pi.single μ 1) : EuclideanSpace ℝ (Fin N)) - φ x‖ ^ 2 =
+      ∑ x : Torus d ℓ, ∑ μ : Fin d,
+        ((if x ∈ D ∧ x + Pi.single μ 1 ∈ D then bondSq φ x μ else 0)
+          + (if x ∈ D ∧ x + Pi.single μ 1 ∈ D then 0 else bondSq φ x μ)) := by
+    refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun μ _ => ?_
+    split_ifs <;> simp [bondSq]
+  have h2 : ∑ x : Torus d ℓ, ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 =
+      ∑ x : Torus d ℓ, ((if x ∈ D then ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 else 0)
+        + (if x ∈ D then 0 else ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2)) := by
+    refine Finset.sum_congr rfl fun x _ => ?_
+    split_ifs <;> simp
+  rw [h1, h2]
+  simp only [Finset.sum_add_distrib]
+  ring
+
+/-- The endpoint of the bond `(x, μ)` in the complement of `D` (the bond being crossing). -/
+def goodEnd (D : Finset (Torus d ℓ)) (x : Torus d ℓ) (μ : Fin d) : Torus d ℓ :=
+  if x ∈ D then x + Pi.single μ 1 else x
+
+/-- The endpoint of the bond `(x, μ)` in `D` (the bond being crossing). -/
+def blockEnd (D : Finset (Torus d ℓ)) (x : Torus d ℓ) (μ : Fin d) : Torus d ℓ :=
+  if x ∈ D then x else x + Pi.single μ 1
+
+/-- The bond `(x, μ)` is crossing for `D`: exactly one endpoint lies in `D`. -/
+def IsCrossing (D : Finset (Torus d ℓ)) (x : Torus d ℓ) (μ : Fin d) : Prop :=
+  ¬ (x ∈ D ↔ x + Pi.single μ 1 ∈ D)
+
+theorem crossing_expand (u v : EuclideanSpace ℝ (Fin N)) :
+    ‖u - v‖ ^ 2 = ‖u - h‖ ^ 2 + 2 * inner ℝ (h - v) (u - h) + ‖h - v‖ ^ 2 := by
+  have : u - v = (u - h) + (h - v) := by abel
+  rw [this, norm_add_sq_real, real_inner_comm]
+
+/-- (K0.3): the expansion of `H_G` around `h`, with `w = φ - h` on the complement of `D` and the
+exterior spins `φ(y)`, `y ∈ D`: the five sums are the internal bonds, the crossing bonds
+`½ |w_x|²`, the mass, the linear boundary term `(h - q_y)·w_x` and the constant
+`½ |h - q_y|²`. -/
+theorem goodEnergy_expand (D : Finset (Torus d ℓ)) (φ : Cfg d N ℓ) :
+    goodEnergy ν h D φ =
+      (1 / 2) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+        (if x ∉ D ∧ x + Pi.single μ 1 ∉ D then
+          ‖((φ (x + Pi.single μ 1) : EuclideanSpace ℝ (Fin N)) - h) - ((φ x : EuclideanSpace ℝ (Fin N)) - h)‖ ^ 2
+         else 0)
+      + (1 / 2) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+        (if IsCrossing D x μ then ‖(φ (goodEnd D x μ) : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 else 0)
+      + (ν / 2) * ∑ x : Torus d ℓ,
+        (if x ∈ D then 0 else ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2)
+      + ∑ x : Torus d ℓ, ∑ μ : Fin d,
+        (if IsCrossing D x μ then
+          inner ℝ (h - (φ (blockEnd D x μ) : EuclideanSpace ℝ (Fin N)))
+            ((φ (goodEnd D x μ) : EuclideanSpace ℝ (Fin N)) - h) else 0)
+      + (1 / 2) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+        (if IsCrossing D x μ then
+          ‖h - (φ (blockEnd D x μ) : EuclideanSpace ℝ (Fin N))‖ ^ 2 else 0) := by
+  unfold goodEnergy
+  have key : ∀ (x : Torus d ℓ) (μ : Fin d),
+      (if x ∈ D ∧ x + Pi.single μ 1 ∈ D then 0 else bondSq φ x μ) =
+        (if x ∉ D ∧ x + Pi.single μ 1 ∉ D then
+          ‖((φ (x + Pi.single μ 1) : EuclideanSpace ℝ (Fin N)) - h) - ((φ x : EuclideanSpace ℝ (Fin N)) - h)‖ ^ 2
+         else 0)
+        + (if IsCrossing D x μ then ‖(φ (goodEnd D x μ) : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 else 0)
+        + 2 * (if IsCrossing D x μ then
+          inner ℝ (h - (φ (blockEnd D x μ) : EuclideanSpace ℝ (Fin N)))
+            ((φ (goodEnd D x μ) : EuclideanSpace ℝ (Fin N)) - h) else 0)
+        + (if IsCrossing D x μ then
+          ‖h - (φ (blockEnd D x μ) : EuclideanSpace ℝ (Fin N))‖ ^ 2 else 0) := by
+    intro x μ
+    by_cases hx : x ∈ D <;> by_cases hy : x + Pi.single μ 1 ∈ D <;>
+      simp [IsCrossing, goodEnd, blockEnd, hx, hy, bondSq]
+    all_goals first | exact crossing_expand h _ _ | (rw [norm_sub_rev]; exact crossing_expand h _ _)
+  simp only [key, mul_add, Finset.sum_add_distrib, ← Finset.mul_sum]
+  ring
+
+end Energy
+
 end Balaban.LargeField
