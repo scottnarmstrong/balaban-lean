@@ -489,6 +489,8 @@ public import Balaban.LargeField.History.Branch
 public import Balaban.LargeField.History.Core
 public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
+public import Balaban.LargeField.History.ParentDomain
+public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
 public import Balaban.LargeField.History.PointChain
 public import Balaban.LargeField.History.GainClock
@@ -874,6 +876,7 @@ public import Balaban.Localization.Decoupled2FpCount
 public import Balaban.Localization.Vmod7Anchored
 public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
+public import Balaban.Localization.FootprintHat
 public import Balaban.LargeField.R.Outcome
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
@@ -940,6 +943,7 @@ public import Balaban.LargeField.R.RegionalTails
 public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalAligned
+public import Balaban.LargeField.R.RegionalAlignedSource
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1111,6 +1115,7 @@ public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Def7FineSize
 public import Balaban.LargeField.Def7
 public import Balaban.LargeField.Def7Variants
 public import Balaban.LargeField.Def7Basic
@@ -1324,11 +1329,15 @@ public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
+public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
+public import Balaban.Fluctuation.SharpAssemblyEta
 public import Balaban.Fluctuation.StepActivityDirectPhysical
+public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
+public import Balaban.Inhabited.StepActivityDirectEtaWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
@@ -1338,3 +1347,6 @@ public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical
+public import Balaban.Inhabited.DAPhysicalCutoff
+public import Balaban.Inhabited.DAPhysicalRadii
+public import Balaban.Inhabited.DAPhysicalTower
