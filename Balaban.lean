@@ -1588,6 +1588,10 @@ public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
 public import Balaban.Fluctuation.ExpSourceChart
+public import Balaban.Fluctuation.MarkedFieldCount
+public import Balaban.Fluctuation.MarkedRootFamily
+public import Balaban.Fluctuation.MarkedRootAssembly
+public import Balaban.Inhabited.MarkedRootFamilyWitness
 public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
@@ -1600,6 +1604,7 @@ public import Balaban.Fluctuation.MarkRealRegular
 public import Balaban.Fluctuation.RenormSharedClass
 public import Balaban.Fluctuation.WoneChartIdentity
 public import Balaban.Fluctuation.SourcePhysValBridge
+public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Inhabited.MarksNumericsFromTower
 public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.RenormDecJoint
