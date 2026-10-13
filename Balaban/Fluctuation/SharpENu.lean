@@ -387,8 +387,8 @@ theorem eterms_locInt_hat_dm_dir_ray {τι : Type*} [DecidableEq τι] (𝒯 : F
   apply DifferentiableOn.fun_sum
   intro τ hτ
   by_cases hY : Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ)
-  · simpa only [hY, if_true] using (hEv τ hτ).2 Y Θ hΘ ψ hψ
-  · simpa only [hY, if_false] using differentiableOn_const (0 : ℂ)
+  · simpa only [hY, ite_true] using (hEv τ hτ).2 Y Θ hΘ ψ hψ
+  · simpa only [hY, ite_false] using differentiableOn_const (0 : ℂ)
 
 /-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
 `eterms_locInt`).

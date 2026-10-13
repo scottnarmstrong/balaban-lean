@@ -171,9 +171,9 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
   apply DifferentiableOn.fun_sum
   intro s _
   by_cases hY : Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)
-  · simp only [hY, if_true]
+  · simp only [hY, ite_true]
     exact (differentiableOn_const _).mul (hrayF s Y q.1 hq.1 ψ hψ)
-  · simp only [hY, if_false]; exact differentiableOn_const _
+  · simp only [hY, ite_false]; exact differentiableOn_const _
 
 /-- The source sites with the resummed bound (sharp hat version). -/
 theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
@@ -370,9 +370,9 @@ theorem hat_mparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
   apply DifferentiableOn.fun_sum
   intro τ hτ
   by_cases hY : Y ∈ polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)
-  · simp only [hY, if_true]
+  · simp only [hY, ite_true]
     exact (differentiableOn_const _).mul ((hEvM' τ hτ).2 Y q.1 hq.1 ψ hψ)
-  · simp only [hY, if_false]; exact differentiableOn_const _
+  · simp only [hY, ite_false]; exact differentiableOn_const _
 
 /-- The observable terms with the resummed bound (sharp hat version). -/
 theorem hat_mparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
