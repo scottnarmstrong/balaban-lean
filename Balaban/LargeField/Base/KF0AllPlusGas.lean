@@ -602,4 +602,125 @@ theorem sum_blockActivity {β ν g γ κ p : ℝ} (hβ : 0 < β) (hg : 0 < g)
 
 end Regroup
 
+/-! ### (T4) The all-plus, all-small sector as a block gas -/
+
+section Sector
+
+open Balaban.LargeField.KF0Gas Balaban.Polymer SphereChart
+
+open scoped Classical
+
+variable {d N n s m' : ℕ} [NeZero s] [NeZero m'] {h : EuclideanSpace ℝ (Fin N)}
+
+/-- **(T4, fixed parameters)**  The all-plus, all-`ψ`-small contribution of the one-scale model.
+For a probability measure `γ₀` on the tangent space with `γ₀(‖w‖ ≤ p) ≠ 0`, the expectation under
+`⨂ γ₀` of the cutoff event times the all-plus integrand (chart Jacobian times the exponential of the
+interaction exponent at the tangent field `K_ν^{-1/2} ψ`) equals
+`(1 - τ)^{#sites} e^{sourceConst}` times the exponential of the cluster series of the regrouped
+activities `H_X` on the block torus, with the weighted cluster bound of `block_gas`.
+
+The hypotheses are the landed small-regime hypotheses of `site_halo_decomposition`,
+`bond_halo_decomposition`, `f1_integrand_eq`; the weighted bounds `hsite`, `hbond` (the
+conclusions of `f1_weighted_small`); and the numerical hypotheses of `block_gas` with
+`H0 = (1 + 2d) s^d ε`.  Only the all-plus, all-`ψ`-small sector is treated. -/
+theorem allPlus_gas_of_weighted {β ν g γ κ p ε κ0 κ1 κ' : ℝ} (hβ : 0 < β) (hg : 0 < g)
+    (hgν : g ≤ ν) (hν1 : ν ≤ 1) (hγ : 0 ≤ γ) (hq : 2 * d / (2 * d + g) * Real.exp γ < 1)
+    (hκ : 0 ≤ κ) (hγκ : κ * 3 ^ d / s ≤ γ) (hp : 0 < p) (hn : 1 ≤ n)
+    (hρ1 : kf0Rho d g γ κ p β ≤ 1) (hρ : (n : ℝ) * kf0Rho d g γ κ p β ^ 2 ≤ 1 / 4)
+    (e : OrthonormalBasis (Fin n) ℝ (perp h)) (src : Torus d (s * m') → Fin N → ℝ)
+    (hsite : ∀ x : Torus d (s * m'), ∑ H : Finset (Torus d (s * m')),
+      Real.exp (κ * kf0BlockCount s m' H) * cutoffSup p (f1SiteHalo e β ν src x H) ≤ ε)
+    (hbond : ∀ (x : Torus d (s * m')) (μ : Fin d), ∑ H : Finset (Torus d (s * m')),
+      Real.exp (κ * kf0BlockCount s m' H) * cutoffSup p (f1BondHalo e β ν x μ H) ≤ ε)
+    (hq0 : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
+    (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκg : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
+    (hH0 : 0 ≤ (1 + 2 * d) * s ^ d * ε) (hH0log : (1 + 2 * d) * s ^ d * ε ≤ Real.log 2)
+    (hH0K : (1 + 2 * d) * s ^ d * ε * (4 * Real.exp (-κ0)) ≤ 1 / 4)
+    (hκ01 : 1 + κ0 + κ1 ≤ κ)
+    (γ₀ : Measure (perp h)) [IsProbabilityMeasure γ₀] (hpos : γ₀ (smallSet p) ≠ 0) :
+    ((∫ ψ, Set.indicator (Set.pi Set.univ fun _ : Torus d (s * m') => smallSet p)
+        (fun ψ : Torus d (s * m') → perp h =>
+          chartJac β (fun x => ((tfield d (s * m') ν ψ x : perp h) : EuclideanSpace ℝ (Fin N))) *
+            Real.exp (chartInteractionExponent β ν h src (tfield d (s * m') ν ψ))) ψ
+        ∂(Measure.pi fun _ : Torus d (s * m') => γ₀) : ℝ) : ℂ) =
+      (((1 - γ₀.real (largeSet p)) ^ Fintype.card (Torus d (s * m')) *
+          Real.exp (sourceConst src h) : ℝ) : ℂ) *
+        Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Torus d m') →
+          Finset (Torus d m'))) (mayerK (blockRef (d := d) (s := s) (m' := m')
+            (ProbabilityTheory.cond γ₀ (smallSet p)))
+          (fun X : NePoly (Torus d m') => X.1) (gasTerm e β ν p src))) ∧
+    ∀ b : Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d m'))).filter
+        (fun Y => b ∈ Y),
+      ‖PY (shareBlock (Subtype.val : NePoly (Torus d m') → Finset (Torus d m')))
+          Subtype.val (mayerK (blockRef (d := d) (s := s) (m' := m')
+            (ProbabilityTheory.cond γ₀ (smallSet p)))
+          (fun X : NePoly (Torus d m') => X.1) (gasTerm e β ν p src)) Y‖ *
+        Real.exp (κ' * stSize Y) ≤
+          64 * Real.exp 1 * ((1 + 2 * d) * s ^ d * ε) * Real.exp (-(2 * κ0)) := by
+  have hs : 0 < s := Nat.pos_of_ne_zero (NeZero.ne s)
+  have hκ01' : 0 ≤ κ0 + κ1 := by
+    have : 0 ≤ Real.log 4 := Real.log_nonneg (by norm_num)
+    linarith
+  have : IsProbabilityMeasure (ProbabilityTheory.cond γ₀ (smallSet p)) :=
+    cond_smallSet_isProbabilityMeasure γ₀ p hpos
+  set pc := ProbabilityTheory.cond γ₀ (smallSet p) with hpc
+  -- the gas
+  have hgas := block_gas (Ω := BlockSpace d s m' (perp h)) (μ := blockRef (d := d) (s := s)
+    (m' := m') pc) hq0 hκ0 hκ' hκg hH0 hH0log hH0K (gasTerm e β ν p src)
+    (fun X => blockActivity_depOn e β ν p src X.1)
+    (fun X => measurable_blockActivity e β ν p src X.1)
+    (fun X Φ => by
+      have := blockActivity_abs_le hβ hg hgν hν1 hγ hq hκ hγκ hp hn hρ1 hρ e src hsite hbond
+        hκ01 hκ01' X.1 Φ
+      simpa [gasTerm, Complex.norm_real, Real.norm_eq_abs] using this)
+  refine ⟨?_, hgas.2⟩
+  -- the real integral
+  set K : (Torus d (s * m') → perp h) → ℝ := fun ψ =>
+    (∑ x : Torus d (s * m'), ∑ H : Finset (Torus d (s * m')), f1SiteHaloClip e β ν src x H p ψ) +
+      ∑ x : Torus d (s * m'), ∑ μ : Fin d, ∑ H : Finset (Torus d (s * m')),
+        f1BondHaloClip e β ν x μ H p ψ with hK
+  have hKmeas : Measurable K := by
+    refine Measurable.add (Finset.measurable_sum _ fun x _ => Finset.measurable_sum _ fun H _ =>
+      measurable_f1SiteHaloClip e β ν src x H p)
+      (Finset.measurable_sum _ fun x _ => Finset.measurable_sum _ fun μ _ =>
+        Finset.measurable_sum _ fun H _ => measurable_f1BondHaloClip e β ν x μ H p)
+  have hagree : Set.EqOn (fun ψ : Torus d (s * m') → perp h =>
+          chartJac β (fun x => ((tfield d (s * m') ν ψ x : perp h) : EuclideanSpace ℝ (Fin N))) *
+            Real.exp (chartInteractionExponent β ν h src (tfield d (s * m') ν ψ)))
+      (fun ψ => Real.exp (sourceConst src h) * Real.exp (K ψ))
+      (Set.pi Set.univ fun _ : Torus d (s * m') => smallSet p) := by
+    intro ψ hψ
+    have hψ' : ∀ y, ‖ψ y‖ ≤ p := fun y => hψ y (Set.mem_univ y)
+    simp only
+    rw [f1_integrand_eq (ℓ := s * m') hβ hg hgν hν1 hγ hq hs rfl hκ hγκ hp hn hρ1 hρ e src ψ hψ',
+      ← Real.exp_add, hK]
+    simp only [f1SiteHaloClip_eq_of_cutoff e β ν src _ _ hψ', f1BondHaloClip_eq_of_cutoff e β ν _ _
+      _ hψ']
+    rw [add_assoc]
+  rw [Set.indicator_congr hagree, integral_indicator_small_eq γ₀ p hpos, integral_const_mul]
+  have hI : ∫ ψ, Real.exp (K ψ) ∂(Measure.pi fun _ : Torus d (s * m') => pc) =
+      ∫ Φ, Real.exp (∑ X : NePoly (Torus d m'), blockActivity e β ν p src X.1 Φ)
+        ∂(Measure.pi (blockRef (d := d) (s := s) (m' := m') pc)) := by
+    have hm : AEStronglyMeasurable (fun ψ => Real.exp (K ψ)) (Measure.map toSites
+        (Measure.pi (blockRef (d := d) (s := s) (m' := m') pc))) :=
+      (Real.measurable_exp.comp hKmeas).aestronglyMeasurable
+    rw [← map_toSites_pi pc, integral_map measurable_toSites.aemeasurable hm]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun Φ => ?_)
+    dsimp only
+    rw [sum_blockActivity hβ hg hgν hν1 hγ hq hκ hγκ hp hn hρ1 hρ e src Φ, hK]
+  have hC : ((∫ Φ, Real.exp (∑ X : NePoly (Torus d m'), blockActivity e β ν p src X.1 Φ)
+        ∂(Measure.pi (blockRef (d := d) (s := s) (m' := m') pc)) : ℝ) : ℂ) =
+      ∫ Φ, Complex.exp (∑ X : NePoly (Torus d m'), gasTerm e β ν p src X Φ)
+        ∂(Measure.pi (blockRef (d := d) (s := s) (m' := m') pc)) := by
+    rw [← integral_complex_ofReal]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun Φ => ?_)
+    simp [gasTerm, Complex.ofReal_exp]
+  rw [hI]
+  push_cast
+  rw [mul_assoc]
+  congr 2
+  rw [hC, hgas.1]
+
+end Sector
+
 end Balaban.LargeField.KF0AllPlus
