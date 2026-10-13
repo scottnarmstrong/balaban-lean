@@ -1778,5 +1778,6 @@ public import Balaban.Fluctuation.ClassOldTermInputM
 public import Balaban.Fluctuation.ClassOldTermSiteSums
 public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
+public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.SmallField.LocalGeneratorPoly
 public import Balaban.SmallField.LocalTraceDescent
