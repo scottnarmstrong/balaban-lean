@@ -18,7 +18,6 @@ OPEN DESIGN (RATES): after regrouping onto collar hulls the observable/mark coef
 | W546 | `w546-e1-coeff-family` / W546 | energy coefficient family at the tower (analytic, local, bounded, support) |
 | W547 (Opus) | `w547-e1-fibre-value` / W547 | all-fibre value of the energy family for ONE pair family (E1PARAM target 4) |
 | W548 | `w548-source-exponent-rho` / W548 | `sourceExponentFamily_fromTower` at radius ρ; also adds `wone_chartIdentity_fromTower_rho` and its three inputs (edits `SourceExponentFamily.lean`, `WoneChartIdentity.lean`, `SourcePhysValBridge.lean`) |
-| W549 | `w549-thm31a-tower-supp` / W549 | root clause of the energy record (edits `E1RecordOfSum.lean`, `E1RecordFromTower.lean`); Theorem 3.1(a) at the tower with support |
 | W550 | `w550-obs-coeff-family` / W550 | observable coefficient family without carried hypotheses; bound; support |
 | W551 | `w551-obs-fibre-value` / W551 | fibre value of the observable family (OBSASSEMBLY leaf 6) |
 | W552 | worktree W552 (branch `w552-source-witness-rho`, no edits) | STOPPED: waits for the chart-identity `_rho` lemmas from W548; relaunch on W548's branch |
