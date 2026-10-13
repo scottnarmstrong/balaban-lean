@@ -367,3 +367,15 @@ required by the P6 localization established? We find no formula for this family 
 pp. 529-531 or P4 pp. 719-720.
 
 (Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`; Lean: `Balaban/Green/FinalCutComplex.lean`.)
+
+### Item 19 (2026-10-13): the exponent in P5 Proposition 3.3 (minor; confirmation only)
+
+P5 Proposition 3.3 (printed p. 518) states the bound C β_k^{-n-1} for the new part of
+R'^{(k+1)}_{n-1}, whereas the proof in P6 (printed p. 43, after (4.68)) begins with
+ε = β_k^{-n-1/2} and ends with C_6 β_k^{-n-1/2} < (1/2) β_k^{-n}.
+
+Is the exponent in P5 Proposition 3.3 intended to be -n (which is what the induction uses),
+or is an additional factor β_k^{-1/2} available in the proof?
+
+(Details: `notes/phase1/BUDGET31C.md` §1. We formalize the bound (1/2) β_{k+1}^{-n}, which the
+P6 half power pays for; nothing depends on the stronger printed exponent.)
