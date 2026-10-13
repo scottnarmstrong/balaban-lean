@@ -58,6 +58,97 @@ theorem obsPrefactor_nonneg (p : ℕ) (s : ℝ) {b : ℝ} (hb : 1 ≤ b) : 0 ≤
   have hb0 : 0 < b := by linarith
   unfold obsPrefactor; positivity
 
+/-- **Theorem 3.1 (b)** for the zero-class step at ONE scale, from the ray premise at that scale:
+thresholds `β₀, C` first; then, for every scale beyond `β₀` and every witness `val, 𝒴, Tt` with the
+clauses of the direct-terms construction at that scale (as in `obsMarks_zeroClass_at_of_ray`), the
+localized expansion of the observable term at the output rate `(3/2) κ_dec`. -/
+theorem thm31b_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C : ℝ, 2 ≤ β₀ ∧ 0 ≤ C ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁), S = T.step k hk N₁ ν β p₁ →
+  ∀ hpS : 0 < S.p₁,
+      ∀ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+        (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+        (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+          (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+      (hval : (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν T.t
+                (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                  (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                    s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))) →
+      (hcont : DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+          (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+          (physSΛEta S S.a₁ S.ν T.t (1 / S.β)) 2 𝒴 Tt) →
+      (hI : (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∃ I : DirectTerms S 1 hpS (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+              (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt)) →
+      (hmem0 : (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (1 / S.β)) →
+      (hmemg : (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < 1 →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β))) →
+      (hrayTt : (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∀ ψ ∈ hatDisk S.U 2 p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (ball (0 : ℂ) (3 / 2)))) →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    ∃ E : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → ℂ,
+      S.M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
+      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
+  obtain ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, hfam⟩ := obsMarks_zeroClass_at_of_ray T hA p hCR hs0 hs
+  refine ⟨β₀, max C₁ C₂, hβ₀, le_max_of_le_left hC₁, ?_⟩
+  intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
+  obtain ⟨I, -, hκ0, hκH, hκ', hκh, -, hB1, hB2⟩ := hfam k hk N₁ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
+  have hrate : 3 / 2 * T.κdec ≤ min I.κh I.κ' - I.κ0 - 1 := by
+    have := stepTower_outRate_le T
+    rw [hκh, hκ', hκ0]
+    exact this
+  obtain ⟨E, h1, h2, h3'⟩ := thm31bC_of_input_M0 _ _ _ g y i I hrate
+  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
+  have hb : 1 ≤ β * 3 ^ k := by
+    have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+    nlinarith
+  have hl : 0 ≤ Real.log (β * 3 ^ k) := Real.log_nonneg hb
+  have hW : 0 ≤ obsW p (β * 3 ^ k) := by unfold obsW; positivity
+  have hb0 : 0 < β * 3 ^ k := by linarith
+  have hP1 : 0 ≤ obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) := by positivity
+  have hP2 : 0 ≤ obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by positivity
+  have hsum : I.B1 + I.B2 ≤ max C₁ C₂ * obsPrefactor p s (β * 3 ^ k) := by
+    unfold obsPrefactor
+    have a1 : C₁ * obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ≤
+        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s)) := by
+      rw [mul_assoc]; exact mul_le_mul_of_nonneg_right (le_max_left _ _) hP1
+    have a2 : C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ≤
+        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k)) := by
+      rw [mul_div_assoc]; exact mul_le_mul_of_nonneg_right (le_max_right _ _) hP2
+    nlinarith [hB1, hB2]
+  exact mul_le_mul_of_nonneg_right hsum (Real.exp_nonneg _)
+
 /-- **Theorem 3.1 (b)** for the zero-class step at every scale of one tower, at the output rate
 `(3/2) κ_dec`, conditional on ray holomorphy of the direct terms. -/
 theorem thm31b_zeroClass_fromTower_of_ray {κmin : ℝ} (T : StepTower κmin)
@@ -121,34 +212,13 @@ theorem thm31b_zeroClass_fromTower_of_ray {κmin : ℝ} (T : StepTower κmin)
         (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
       (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
       ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
-  obtain ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, hfam⟩ := obsMarks_zeroClass_family_of_ray T hA p hCR hs0 hs hray
-  refine ⟨β₀, max C₁ C₂, hβ₀, le_max_of_le_left hC₁, ?_⟩
+  obtain ⟨β₀, C, hβ₀, hC, hat⟩ := thm31b_zeroClass_at_of_ray T hA p hCR hs0 hs
+  refine ⟨β₀, C, hβ₀, hC, ?_⟩
   intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
-  obtain ⟨I, -, hκ0, hκH, hκ', hκh, -, hB1, hB2⟩ := hfam k hk N₁ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
-  have hrate : 3 / 2 * T.κdec ≤ min I.κh I.κ' - I.κ0 - 1 := by
-    have := stepTower_outRate_le T
-    rw [hκh, hκ', hκ0]
-    exact this
-  obtain ⟨E, h1, h2, h3'⟩ := thm31bC_of_input_M0 _ _ _ g y i I hrate
-  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
-  have hb : 1 ≤ β * 3 ^ k := by
-    have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    nlinarith
-  have hl : 0 ≤ Real.log (β * 3 ^ k) := Real.log_nonneg hb
-  have hW : 0 ≤ obsW p (β * 3 ^ k) := by unfold obsW; positivity
-  have hb0 : 0 < β * 3 ^ k := by linarith
-  have hP1 : 0 ≤ obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) := by positivity
-  have hP2 : 0 ≤ obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by positivity
-  have hsum : I.B1 + I.B2 ≤ max C₁ C₂ * obsPrefactor p s (β * 3 ^ k) := by
-    unfold obsPrefactor
-    have a1 : C₁ * obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ≤
-        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s)) := by
-      rw [mul_assoc]; exact mul_le_mul_of_nonneg_right (le_max_left _ _) hP1
-    have a2 : C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ≤
-        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k)) := by
-      rw [mul_div_assoc]; exact mul_le_mul_of_nonneg_right (le_max_right _ _) hP2
-    nlinarith [hB1, hB2]
-  exact mul_le_mul_of_nonneg_right hsum (Real.exp_nonneg _)
+  obtain ⟨val, 𝒴, Tt, hval, hcont, hI, hmem0, hmemg, hrayTt⟩ :=
+    hray k hk N₁ h3 h5 ν hν hνk β (by linarith) p₁ hp hsc _ rfl hp
+  exact hat k hk N₁ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc _ rfl hp val 𝒴 Tt hval hcont hI hmem0 hmemg
+    hrayTt g hg y i
 
 /-- Powers of the logarithm times a negative power tend to zero. -/
 theorem log_rpow_mul_rpow_neg_tendsto (a : ℝ) {r : ℝ} (hr : 0 < r) :
