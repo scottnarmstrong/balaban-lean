@@ -46,6 +46,46 @@ sites of the block); `toSites` the restriction map from block configurations to 
 configurations; `map_toSites_pi` identifies the image of the block product measure with the site
 product measure; `depOn_comp_toSites` says that a function of the sites `H` composed with `toSites`
 depends only on the blocks meeting `H`.
+
+## T3. What is supplied
+
+For the block torus `Torus d m'` (`ℓ = s m'`) with the nearest-neighbour graph `blockGraph` and the
+Steiner size `stSize` (smallest connected block set containing a given block set), the hypotheses of
+`mayer_pe` for the terms indexed by `NePoly B` with `sup X = X` are supplied, with `c = cP = 0`,
+`c1 = 1`, `K0 = K0P = 4 e^{-κ0}`:
+
+* `blockGraph_connected`, `isAnimal_univ`: every block set lies in a connected one;
+* (G1) `card_le_stSize`; (G2) `card_sets_le`, `sum_exp_stSize_le` (uses the landed animal count
+  `card_animals_le`, needs `(2 d)² · 2 · e^{-κ0} ≤ 1/2`); (G3) `stSize_union_le`,
+  `stSize_unionCs_le` (families) and `stSize_union_cluster` (clusters), from `steiner_union_le`
+  and `phi_union_le`;
+* `block_gas`: the resulting theorem, for ANY measurable local terms `H X` on a product of
+  probability spaces with `DepOn X (H X)` and the bound `‖H X Φ‖ ≤ H0 e^{-(κ0+κ1) |X|_St}` for all
+  `Φ`; `block_gas_hypotheses_d3` shows its numerical hypotheses are satisfiable for `d = 3`;
+* `isAnimal_image_blockOf_of_nnConnected`: the blocks of a nearest-neighbour connected site set form
+  a connected block set (so the halo terms `F_H` live on animals, where the Steiner size is `|X|`).
+
+## T4. The target statement, and what is not proved in this file
+
+Target (not proved here).  For `γ` the one-site tangent Gaussian, `p` the cutoff, `X ↦ H_X` the
+function `H_X(Φ) = ∑_{anchors a} ∑_{H : blocks(H) = X} F^a_H(clip_p (toSites Φ))`
+(`F^a_H` = `f1SiteHalo` or `f1BondHalo`), and `μ = blockRef (γ(· | ‖ψ‖ ≤ p))`:
+`Z_good(g) = (1 - τ)^n e^{sourceConst} · ∫ exp (∑_X H_X) d⨂μ = (1 - τ)^n e^{sourceConst}
+exp (∑_Y P(Y))` with `∑_{Y ∋ b} ‖P(Y)‖ e^{κ' |Y|_St} ≤ 64 e H0 e^{-2κ0}`, `H0 = A ε`,
+`A = (1 + 2 d) s^d`.  Not supplied here, each needed to apply `block_gas` to this `H_X`:
+(i) measurability of `ψ ↦ F_H(ψ)` (a `tsum` over the countable walk index of continuous terms; the
+landed `f1SiteHalo`, `f1BondHalo` have no measurability theorem);
+(ii) the clipping `clip_p` (radial retraction onto `‖w‖ ≤ p`), so that the bound `‖H_X Φ‖ ≤ ...`
+holds for ALL `Φ` (the landed bounds are `cutoffSup`, on the cutoff event only), and the
+agreement `H_X = ∑ F` almost everywhere for the conditioned measure (`restrict_pi_smallSet_eq`);
+(iii) `‖H_X Φ‖ ≤ H0 e^{-(κ0+κ1)|X|}` from `site_halo_decomposition` and `bond_halo_decomposition`:
+at most `(1 + 2 d) s^d |X|` anchors have a nonzero halo term with blocks `X`; this needs
+`κ ≥ 1 + κ0 + κ1`, hence `s ≥ κ 3^d/γ` large (`f1_instance` has `s = 9`, `κ = 1/300`, far from it);
+(iv) the regrouping of `f1_integrand_eq` by block set, `H_X = 0` for non-connected `X`;
+(v) the transfer of the real integral to `Complex.exp`, `map_toSites_pi`, and the normalization
+`integral_indicator_small_eq`.
+
+The heavy sectors, the minus sheets and the one-scale theorem are NOT proved here.
 -/
 
 @[expose] public section
@@ -86,6 +126,10 @@ def blockRef (γ : Measure W) : ∀ b, Measure (BlockSpace d s m' W b) :=
 instance blockRef_sigmaFinite (γ : Measure W) [SigmaFinite γ] (b : Balaban.Torus d m') :
     SigmaFinite (blockRef (d := d) (s := s) (m' := m') γ b) :=
   inferInstanceAs (SigmaFinite (Measure.pi fun _ : Fibre d s m' b => γ))
+
+instance blockRef_isProbabilityMeasure (γ : Measure W) [IsProbabilityMeasure γ]
+    (b : Balaban.Torus d m') : IsProbabilityMeasure (blockRef (d := d) (s := s) (m' := m') γ b) :=
+  inferInstanceAs (IsProbabilityMeasure (Measure.pi fun _ : Fibre d s m' b => γ))
 
 omit [NeZero s] [NeZero m'] in
 theorem measurable_toSites : Measurable (toSites (d := d) (s := s) (m' := m') (W := W)) := by
@@ -475,5 +519,48 @@ theorem block_gas {κ0 κ1 κ' H0 : ℝ}
   convert (h2 b).trans h4
 
 end Consumer
+
+
+/-! ### Halos and non-vacuity -/
+
+section Halo
+
+/-- The blocks of a nearest-neighbour connected nonempty set of sites form a connected block
+set. -/
+theorem isAnimal_image_blockOf_of_nnConnected {H : Finset (Balaban.Torus d (s * m'))}
+    (hne : H.Nonempty) (hH : Balaban.Green.NNConnected H) :
+    IsAnimal (blockGraph d m') (H.image (blockOf d s m')) := by
+  rw [isAnimal_iff]
+  refine ⟨hne.image _, fun b₁ hb₁ b₂ hb₂ => ?_⟩
+  obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hb₁
+  obtain ⟨y, hy, rfl⟩ := Finset.mem_image.mp hb₂
+  refine site_rtg_to_block (H.image (blockOf d s m')) (s := s) ?_
+  refine Relation.ReflTransGen.mono (fun a b hab => ?_) _ _ (hH x hx y hy)
+  obtain ⟨ha, hb, μ, hμ⟩ := hab
+  rw [mem_siteSet, mem_siteSet]
+  exact ⟨Finset.mem_image_of_mem _ ha, Finset.mem_image_of_mem _ hb, μ, hμ⟩
+
+/-- Non-vacuity of the numerical hypotheses of `block_gas` for `d = 3` (every `m'`), with all
+local terms zero. -/
+theorem block_gas_hypotheses_d3 :
+    ∃ κ0 κ1 κ' H0 : ℝ, ((2 * 3 : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2 ∧
+      Real.log 4 + 1 ≤ κ0 ∧ 0 ≤ κ' ∧ κ' + κ0 + 1 ≤ κ1 - 3 / 2 ∧ 0 ≤ H0 ∧ H0 ≤ Real.log 2 ∧
+      H0 * (4 * Real.exp (-κ0)) ≤ 1 / 4 := by
+  have hl4 := Balaban.LargeField.log_four_bounds
+  have hl2 := Real.log_two_gt_d9
+  have he : Real.exp (-10) ≤ 1 / 200 := by
+    rw [Real.exp_neg, inv_eq_one_div]
+    refine one_div_le_one_div_of_le (by norm_num) ?_
+    have h1 : (2.7 : ℝ) < Real.exp 1 := lt_of_lt_of_le (by norm_num) Real.exp_one_gt_d9.le
+    have h2 : Real.exp 10 = Real.exp 1 ^ 10 := by rw [← Real.exp_nat_mul]; norm_num
+    rw [h2]
+    calc (200 : ℝ) ≤ 2.7 ^ 10 := by norm_num
+      _ ≤ Real.exp 1 ^ 10 := pow_le_pow_left₀ (by norm_num) h1.le 10
+  refine ⟨10, 13, 0, 1 / 100, ?_, by linarith [hl4.2], le_rfl, by norm_num, by norm_num,
+    by linarith, ?_⟩
+  · norm_num; linarith
+  · norm_num; linarith
+
+end Halo
 
 end Balaban.LargeField.KF0Gas
