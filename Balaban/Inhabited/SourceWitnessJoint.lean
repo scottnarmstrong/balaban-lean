@@ -416,4 +416,107 @@ theorem sourceWitness_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
           hxwz hAgF hcont₀ hcontg hN3 hp hRσ1 hεpos.le T.κ0_ent hKc ht
 
 
+open Classical in
+/-- **Drift check (activity).**  `sourceActivityC_scale_fromTower` follows from
+`sourceWitness_fromTower`: the bound on `BR.εH` is `BR.εH = 4 ε_U ≤ …`. -/
+theorem sourceActivityC_scale_fromTower_of_witness {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ CE CF : ℝ, 2 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+    p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+    ∃ 𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))),
+    ∃ hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y,
+    ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+    ∃ BR : StepActivityBound (T.step k hk N₁ ν β p₁)
+        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+    ∃ BC : StepActivityBoundC (T.step k hk N₁ ν β p₁)
+        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+      BR.m₀ = 1 ∧ BC.m₀ = 1 ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧ BC.Lb = BR.Lb ∧
+      HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
+      HEq BR.BS ((T.step k hk N₁ ν β p₁).blockSplit 1 hp) ∧ HEq BC.BS BR.BS ∧
+      BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
+      BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
+      BR.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
+      BR.εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+        CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
+  obtain ⟨β₀, CE, CF, h2, hCE, hCF, H⟩ := sourceWitness_fromTower T hA p
+  refine ⟨β₀, CE, CF, h2, hCE, hCF, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D
+  obtain ⟨val, 𝒴, Tt, hdom, -, εU, -, -, hb, ha, -, -⟩ :=
+    H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D _ rfl hp
+  refine ⟨𝒴, hdom, fun g hg => ?_⟩
+  obtain ⟨BR, BC, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, hε⟩ :=
+    ha g hg
+  exact ⟨BR, BC, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17,
+    by rw [hε]; exact hb⟩
+
+open Classical in
+/-- **Drift check (observable rays).**  `obsRayActivity_fromTower` follows from
+`sourceWitness_fromTower` for `β ≥ β₀` and `p₁ ≤ A₁ (log β_k)^p` (the landed statement has only
+`1 ≤ β`; the witness theorem has the threshold of the amplitude bound). -/
+theorem obsRayActivity_fromTower_of_witness {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+    StepScaleData T k hk N₁ ν β p₁ → ∀ (hp : 0 < p₁),
+    ∃ (val : (((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ)) →
+        (((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ)) →
+        ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+          (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) →
+        (((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ)) →
+        (((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ)) →
+        ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+          (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-((T.step k hk N₁ ν β p₁).β : ℂ)) * raySrc3 (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+          (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne (T.step k hk N₁ ν β p₁).hG (T.step k hk N₁ ν β p₁).hG' (le_refl (k + 1)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t)) taylorWeight
+          x.1 w.1 σ Θ.1 +
+        ((T.step k hk N₁ ν β p₁).β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+            (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t
+              (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      0 < β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β) ∧
+      ∃ A₀ : ℂ → LabelAct (thickLabels 𝒴 hdom) ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).Ωb
+          (β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+            (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β)) (2 * T.κdec - 1) T.κ0 (K0 3 3 T.κ0 + 1),
+        (∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ y Φ, (A₀ z).H y Φ =
+          Tt y.1 (z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ, z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ)
+            (z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ, z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) 1
+            (rawOf (T.step k hk N₁ ν β p₁).D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ))) ∧
+        (∀ z : ℂ, 3 / 2 ≤ ‖z‖ → ∀ y Φ, (A₀ z).H y Φ = 0) ∧
+        ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+        ∃ Ag : ℂ → LabelAct (thickLabels 𝒴 hdom) ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).Ωb
+            (β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+              (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β)) (2 * T.κdec - 1) T.κ0
+            (K0 3 3 T.κ0 + 1),
+          (∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ y Φ, (Ag z).H y Φ =
+            Tt y.1 (z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ, z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ)
+              (z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ, z • (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) 1
+              (rawOf (T.step k hk N₁ ν β p₁).D', fun y i => g y i / ((T.step k hk N₁ ν β p₁).β : ℂ))) ∧
+          (∀ z : ℂ, 3 / 2 ≤ ‖z‖ → ∀ y Φ, (Ag z).H y Φ = 0) ∧
+          ∀ t : ℝ, t ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂(T.step k hk N₁ ν β p₁).nuFl,
+            ∑ y, (((A₀ 1).sub (A₀ (t : ℂ))).sum (Ag (t : ℂ))).H y
+                (((T.step k hk N₁ ν β p₁).blockSplit 1 hp).restr x) =
+              (T.step k hk N₁ ν β p₁).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
+              (T.step k hk N₁ ν β p₁).WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x := by
+  obtain ⟨β₀, _CE, _CF, _h2, _hCE, _hCF, H⟩ := sourceWitness_fromTower T hA p
+  refine ⟨β₀, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D hp
+  obtain ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, -, -, -, hc⟩ :=
+    H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D _ rfl hp
+  subst hεU
+  exact ⟨val, 𝒴, Tt, hdom, hval, hc.1, hc.2⟩
+
 end Balaban.Inhabited
