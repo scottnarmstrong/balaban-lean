@@ -20,6 +20,7 @@ public import Balaban.Green.BlockPoincareSharp
 public import Balaban.Green.CoercivitySharp
 public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
+public import Balaban.Green.FinalHessian
 public import Balaban.Lattice.Blocks
 public import Balaban.Lattice.BlockAverage
 public import Balaban.Gaussian.Integral
@@ -555,6 +556,7 @@ public import Balaban.SmallField.RenormAnisoInhabited
 public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
+public import Balaban.SmallField.FinalCutoff
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
 public import Balaban.SmallField.XiD1
