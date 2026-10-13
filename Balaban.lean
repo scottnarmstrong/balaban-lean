@@ -497,6 +497,9 @@ public import Balaban.LargeField.History.ParentR2Y
 public import Balaban.Inhabited.BondLiftYWitness
 public import Balaban.LargeField.History.ParentDomain
 public import Balaban.LargeField.History.EarlyMassRatio
+public import Balaban.LargeField.History.PostWeightSupport
+public import Balaban.LargeField.History.LocalOutputTransport
+public import Balaban.LargeField.History.D1ParentDomain
 public import Balaban.Inhabited.EarlyMassRatioWitness
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
@@ -1362,6 +1365,10 @@ public import Balaban.Fluctuation.ParamDatumFamily
 public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
+public import Balaban.Fluctuation.StepActivityHatGeneral
+public import Balaban.Fluctuation.StepActivityDirectGeneral
+public import Balaban.Inhabited.StepActivityDirectGeneralWitness
+public import Balaban.Fluctuation.StepActivityHatLevel
 public import Balaban.Fluctuation.ParamActivityPhysical
 public import Balaban.Fluctuation.ParamActivitySubspace
 public import Balaban.Inhabited.ParamActivitySubspaceWitness
@@ -1371,3 +1378,4 @@ public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
 public import Balaban.Fluctuation.DARateNumerics
+public import Balaban.Fluctuation.StepActivityClassChart
