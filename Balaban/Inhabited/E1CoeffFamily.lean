@@ -399,6 +399,13 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
                   (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → c θ C = c θ' C) ∧
             (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
                 (T.step k hk N₁ ν β p₁).ν T.t,
+              ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
+                c θ C = c θ' C) ∧
+            (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
               ‖c θ C‖ ≤ K0 3 3 T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
             (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
               dExt C = sizeJ 1 (k + 1) (sitesOf C))) ∧
@@ -429,7 +436,7 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
   have hθ' := hstep
   refine ⟨F₁, Sol, {Y // Y ∈ I0.𝒴}, inferInstance, thickLabels I0.𝒴 I0.dom, _, A0, hdat, ?_⟩
   intro z
-  obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, -⟩ := hF z
+  obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, hspec⟩ := hF z
   obtain ⟨hdep, hbnd⟩ := hdb {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)
   have hfam : ParamMarkFamily ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
           (commonLabels (thickLabels I0.𝒴 I0.dom) (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
@@ -534,11 +541,28 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
     (fun θ => physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
           (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ))
     (hAloc C) (hGloc C)
+  have hmainY := fun C => paramMarked_analytic_local_bound (m₀ := 1) (j := k + 1)
+    (Ω := Set.univ) ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN1 le_rfl
+    isPiUnion_univ_K hfam (fun θ i s => hdep θ i s) T.marks_hκ0 T.marks_hKc hεpos hne
+    (fun _ => hF0) T.marks_hκ' T.marks_hκG T.marks_hκ
+    (by unfold stepTheta at hθ'; exact hθ') C
+    (fun θ => physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ))
+    (by
+      subst hA0eq
+      subst hAeq
+      exact commonAct_zeroSourceAct_hA_rawY (T.step k hk N₁ ν β p₁) 1 _ hFd hN1 hp0
+        zero_le_two hεU T.κ0_ent T.marks_K0_le (fun _ => Set.univ)
+        (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D) (by norm_num)
+        (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two one_pos C)
+    (by
+      exact e1Mark_hG_rawY_fromTower T D hN hν0.le hν hβpos hp hRU F₁ Sol z hspec
+        (thickLabels I0.𝒴 I0.dom) hN1 C)
   have hgm : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁)), ∀ (i : {Y' // Y' ∈ bridgeFamily 1
       (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
       Measurable (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
         (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) := hmeas
-  refine ⟨(hmain C).1, (hmain C).2.1, fun θ hθ => ?_, fun θ hne0 => ?_⟩
+  refine ⟨(hmain C).1, (hmain C).2.1, (hmainY C).2.1,
+    fun θ hθ => ?_, fun θ hne0 => ?_⟩
   · exact ((hmain C).2.2 θ hθ).trans (mul_le_mul_of_nonneg_right
       (hbud k hk N₁ h3N ν β hβ p₁ hp hp₁ D z) (Real.exp_pos _).le)
   · exact ⟨mem_of_gsumCoeff_ne_zero_of_labels hN1 ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
@@ -648,7 +672,8 @@ theorem e1CoeffFamily_fromTower {κmin : ℝ} (T : StepTower κmin)
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := H k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
   obtain ⟨h1, h2, c, hc, hcl, -⟩ := hz z
-  exact ⟨h1, h2, c, hc, hcl⟩
+  exact ⟨h1, h2, c, hc, fun C =>
+    ⟨(hcl C).1, (hcl C).2.1, (hcl C).2.2.2.1, (hcl C).2.2.2.2⟩⟩
 
 end Main
 end Balaban.Inhabited
