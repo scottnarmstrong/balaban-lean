@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Base.BaseChartCutSqrt
 public import Balaban.LargeField.Base.BaseComponentDeterminant
 public import Balaban.LargeField.Base.BaseComponentCovariance
+import Balaban.Fluctuation.StepComplexCov
 
 /-!
 # Real coordinate matrix of the selected cut operator
@@ -24,7 +25,7 @@ complexification of the real inverse square root (P4 (2.47)–(2.54)).
 namespace Balaban.LargeField
 
 open Balaban Balaban.Background Balaban.Multiscale Balaban.Green
-open Balaban.LargeField.Base Matrix Classical
+open Balaban.LargeField.Base Matrix Classical Balaban.Localization
 
 /-- The base operator of a symmetric matrix with real entries and a real unit
 background is the complexification of a real symmetric matrix. -/
@@ -240,6 +241,141 @@ theorem baseSector_selected_cut_component_posDef (ϱ : ℝ) (aw : ℕ → ℝ)
     half_pos (baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)))
   exact posDef_blocks_of_real_coercive A hsym hmap hc hcoer
     (fun p : G.Ω 1 × Fin N => (p.1 : Torus d (1 * n * L ^ 1)) ∈ U)
+
+variable [NeZero N]
+
+/-- For a real positive definite matrix `K`, the complexification of its real
+inverse square root is W711's principal inverse square root of the
+complexification `B = K`, and its determinant is `exp (-(1/2) tr log B)`
+(P4 (2.49)–(2.54)). -/
+theorem pdSqrtInv_det_eq_exp_trace_logMat {κ : Type*} [Fintype κ] [DecidableEq κ]
+    [Nonempty κ] (K : Matrix κ κ ℝ) (hK : K.PosDef) (B : Matrix κ κ ℂ)
+    (hB : K.map (algebraMap ℝ ℂ) = B) :
+    (pdSqrtInv K).map (algebraMap ℝ ℂ) = sqrtMat B ∧
+      (((pdSqrtInv K).det : ℝ) : ℂ) =
+        Complex.exp (-(1 / 2) * (logMat B).trace) := by
+  subst hB
+  have hres : ResOK (K.map (algebraMap ℝ ℂ)) :=
+    resOK_of_posDef (posDef_map_ofReal hK)
+  refine ⟨pdSqrtInv_map_eq_sqrtMat K hK, ?_⟩
+  rw [← Balaban.Localization.det_sqrtMat hres, ← pdSqrtInv_map_eq_sqrtMat K hK]
+  exact RingHom.map_det (algebraMap ℝ ℂ) _
+
+/-- The Gaussian normalization at a real selected cut factors between a
+first-block component and its complement. The real inverse square roots of the
+real cut matrices have determinants whose complexifications are the W711
+component normalizations `exp (-(1/2) tr log A_U)`, and the whole cut
+normalization is the product. -/
+theorem baseSector_selected_cut_gaussian_factorization (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+    (U : Set (Torus d (1 * n * L ^ 1)))
+    (hU : IsFirstBlockUnion (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ) U)
+    (hU0 : ∃ z : (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ).Ω 1,
+      (z : Torus d (1 * n * L ^ 1)) ∈ U)
+    (hUc : ∃ z : (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ).Ω 1,
+      (z : Torus d (1 * n * L ^ 1)) ∉ U)
+    {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d))
+    (s : FineBond d L (1 * n) → ℂ)
+    (hs : s ∈ baseParamNbhd (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ) η)
+    (hz : CrossZero (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ) U s)
+    (hsr : ∀ b ∈ baseCutBonds (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ), (s b).im = 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    let P : G.Ω 1 × Fin N → Prop := fun p =>
+      (p.1 : Torus d (1 * n * L ^ 1)) ∈ U
+    let I := {p : G.Ω 1 × Fin N // P p}
+    let J := {p : G.Ω 1 × Fin N // ¬ P p}
+    let A := baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G aw (if regimeB then ν else 0) α s)
+    let A_U : Matrix I I ℂ := A.submatrix Subtype.val Subtype.val
+    let A_V : Matrix J J ℂ := A.submatrix Subtype.val Subtype.val
+    let K := A.map Complex.re
+    let K_U := A_U.map Complex.re
+    let K_V := A_V.map Complex.re
+    (pdSqrtInv K_U).map (algebraMap ℝ ℂ) = sqrtMat A_U ∧
+      (pdSqrtInv K_V).map (algebraMap ℝ ℂ) = sqrtMat A_V ∧
+      (pdSqrtInv K).det = (pdSqrtInv K_U).det * (pdSqrtInv K_V).det ∧
+      Complex.exp (-(1 / 2) * (logMat A).trace) = (((pdSqrtInv K).det : ℝ) : ℂ) ∧
+      Complex.exp (-(1 / 2) * (logMat A_U).trace) =
+        (((pdSqrtInv K_U).det : ℝ) : ℂ) ∧
+      Complex.exp (-(1 / 2) * (logMat A_V).trace) =
+        (((pdSqrtInv K_V).det : ℝ) : ℂ) := by
+  intro G α e P I J A A_U A_V K K_U K_V
+  have hpd : K.PosDef ∧ K_U.PosDef ∧ K_V.PosDef ∧
+      K_U.map (algebraMap ℝ ℂ) = A_U ∧ K_V.map (algebraMap ℝ ℂ) = A_V :=
+    baseSector_selected_cut_component_posDef ϱ aw regimeB ν δ₀ hδ h hh H
+      hΛ1 θ φ hp U hη0 hη s hs hsr
+  obtain ⟨hK, hKU, hKV, hmU, hmV⟩ := hpd
+  have hreal : K.IsSymm ∧ K.map (algebraMap ℝ ℂ) = A :=
+    baseSector_selected_cut_real_matrix ϱ aw regimeB ν δ₀ hδ h hh H
+      hΛ1 θ φ hp s hsr
+  have hne : Nonempty I := by
+    obtain ⟨z, hzU⟩ := hU0
+    exact ⟨⟨(z, 0), hzU⟩⟩
+  have hneJ : Nonempty J := by
+    obtain ⟨z, hzU⟩ := hUc
+    exact ⟨⟨(z, 0), hzU⟩⟩
+  have c1 := pdSqrtInv_det_eq_exp_trace_logMat K_U hKU A_U hmU
+  have c2 := pdSqrtInv_det_eq_exp_trace_logMat K_V hKV A_V hmV
+  have hdets : A.det = A_U.det * A_V.det :=
+    (baseSector_component_logDet_factorization
+      ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp U hU hU0 hUc hη0 hη s hs hz).2.2.2.2
+  have hfac : Complex.exp (-(1 / 2) * (logMat A).trace) =
+      Complex.exp (-(1 / 2) * (logMat A_U).trace) *
+        Complex.exp (-(1 / 2) * (logMat A_V).trace) :=
+    baseSector_component_exp_normalization_factorization
+      ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp U hU hU0 hUc hη0 hη s hs hz
+  have e1 : (pdSqrtInv K_U).map (algebraMap ℝ ℂ) = sqrtMat A_U := c1.1
+  have e2 : (pdSqrtInv K_V).map (algebraMap ℝ ℂ) = sqrtMat A_V := c2.1
+  have e3 : (((pdSqrtInv K_U).det : ℝ) : ℂ) =
+      Complex.exp (-(1 / 2) * (logMat A_U).trace) := c1.2
+  have e4 : (((pdSqrtInv K_V).det : ℝ) : ℂ) =
+      Complex.exp (-(1 / 2) * (logMat A_V).trace) := c2.2
+  have hdK : ((K.det : ℝ) : ℂ) = A.det := by
+    have h0 := RingHom.map_det (algebraMap ℝ ℂ) K
+    rw [← hreal.2]
+    exact h0
+  have hdKU : ((K_U.det : ℝ) : ℂ) = A_U.det := by
+    have h0 := RingHom.map_det (algebraMap ℝ ℂ) K_U
+    rw [← hmU]
+    exact h0
+  have hdKV : ((K_V.det : ℝ) : ℂ) = A_V.det := by
+    have h0 := RingHom.map_det (algebraMap ℝ ℂ) K_V
+    rw [← hmV]
+    exact h0
+  have hreal_det : K.det = K_U.det * K_V.det := by
+    apply Complex.ofReal_injective
+    push_cast
+    rw [hdK, hdKU, hdKV]
+    exact hdets
+  have hd : (pdSqrtInv K).det = (pdSqrtInv K_U).det * (pdSqrtInv K_V).det := by
+    have h0 := pdSqrtInv_det_pos hK
+    have h1 := pdSqrtInv_det_pos hKU
+    have h2 := pdSqrtInv_det_pos hKV
+    have s0 := pdSqrtInv_det_sq hK
+    have s1 := pdSqrtInv_det_sq hKU
+    have s2 := pdSqrtInv_det_sq hKV
+    refine (sq_eq_sq₀ h0.le (mul_pos h1 h2).le).mp ?_
+    rw [s0, mul_pow, s1, s2, hreal_det, mul_inv]
+  refine ⟨e1, e2, hd, ?_, e3.symm, e4.symm⟩
+  rw [hfac, ← e3, ← e4, hd]
+  push_cast
+  rfl
 
 end Physical
 
