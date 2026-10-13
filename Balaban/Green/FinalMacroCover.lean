@@ -202,6 +202,110 @@ lemma macNear_card_le (hM : 0 < M) (t : ZMod m) : (macNear M t).card ≤ 7 := by
     have : 8 * M ≤ S.card * M := by nlinarith
     omega
 
+/-- Cells all of whose points lie in a finite set `N` number at most `1 + |N| / M`. -/
+lemma macCells_card_le (hM : 0 < M) (N : Finset (ZMod m)) (S : Finset (Fin (macK m M)))
+    (h : M ≤ m → ∀ j ∈ S, ∀ v : ZMod m, macCell m M v = j → v ∈ N) :
+    (S.card : ℝ) ≤ 1 + N.card / M := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  rcases lt_or_ge m M with hm | hm
+  · have hK : macK m M = 1 := macK_eq_one_of_lt (by omega)
+    have : S.card ≤ 1 := by
+      calc S.card ≤ (univ : Finset (Fin (macK m M))).card := card_le_univ _
+        _ = 1 := by simp [hK]
+    have h1 : (S.card : ℝ) ≤ 1 := by exact_mod_cast this
+    have : (0 : ℝ) ≤ N.card / M := div_nonneg (Nat.cast_nonneg _) hM'.le
+    linarith
+  · have hdisj : ∀ j ∈ S, ∀ j' ∈ S, j ≠ j' →
+        Disjoint (univ.filter fun v : ZMod m => macCell m M v = j)
+          (univ.filter fun v : ZMod m => macCell m M v = j') := by
+      intro j _ j' _ hne
+      rw [disjoint_filter]
+      intro v _ h1 h2; exact hne (h1.symm.trans h2)
+    have hsub : S.biUnion (fun j => univ.filter fun v : ZMod m => macCell m M v = j) ⊆ N := by
+      intro v hv
+      obtain ⟨j, hj, hvj⟩ := mem_biUnion.1 hv
+      exact h hm j hj v (mem_filter.1 hvj).2
+    have hc := card_le_card hsub
+    rw [card_biUnion hdisj] at hc
+    have hl : S.card • M ≤ ∑ j ∈ S, (univ.filter fun v : ZMod m => macCell m M v = j).card :=
+      card_nsmul_le_sum _ _ _ fun j _ => macCell_card_ge hM hm j
+    rw [smul_eq_mul] at hl
+    have h2 : (S.card : ℝ) * M ≤ N.card := by exact_mod_cast hl.trans hc
+    have : (S.card : ℝ) ≤ N.card / M := by rw [le_div_iff₀ hM']; exact h2
+    linarith
+
+/-- The arc from `a` in the direction of `b`, of `|cycRep (b - a)| + 1` points. -/
+def macArc (a b : ZMod m) : Finset (ZMod m) :=
+  (Finset.Icc (min 0 (cycRep (b - a))) (max 0 (cycRep (b - a)))).image
+    (fun e : ℤ => a + (e : ZMod m))
+
+/-- Cells whose interval lies within cyclic distance `< 2M` of a point of the arc. -/
+def macNearArc (M : ℕ) (a b : ZMod m) : Finset (Fin (macK m M)) :=
+  univ.filter fun j => ∃ u : ZMod m, macCell m M u = j ∧
+    ∃ t ∈ macArc a b, (cycRep (t - u)).natAbs < 2 * M
+
+lemma macNearArc_card_le (hM : 0 < M) (a b : ZMod m) :
+    ((macNearArc M a b).card : ℝ) ≤ 9 + (cycRep (b - a)).natAbs / (M : ℝ) := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  set δ := cycRep (b - a) with hδ
+  set R : ℤ := 4 * (M : ℤ) - 1 with hR
+  set N : Finset (ZMod m) := (Finset.Icc (min 0 δ - R) (max 0 δ + R)).image
+    (fun e : ℤ => a + (e : ZMod m)) with hN
+  have hNc : N.card ≤ δ.natAbs + 8 * M := by
+    refine card_image_le.trans ?_
+    rw [Int.card_Icc]; omega
+  have h := macCells_card_le hM N (macNearArc M a b) (by
+    intro hm j hj v hv
+    obtain ⟨u, hu, t, ht, htu⟩ := (mem_filter.1 hj).2
+    obtain ⟨e0, he0, rfl⟩ := mem_image.1 ht
+    have h1 := macCell_dist_lt hM hm (a := u) (b := v) (hu.trans hv.symm)
+    have h2 := natAbs_cycRep_add_le (a + (e0 : ZMod m) - u) (u - v)
+    rw [sub_add_sub_cancel] at h2
+    refine mem_image.2 ⟨e0 - cycRep (a + (e0 : ZMod m) - v), ?_, ?_⟩
+    · rw [mem_Icc] at he0 ⊢; omega
+    · push_cast; rw [cast_cycRep]; ring)
+  have hNr : (N.card : ℝ) ≤ δ.natAbs + 8 * M := by exact_mod_cast hNc
+  have h3 : (N.card : ℝ) / M ≤ δ.natAbs / M + 8 := by
+    calc (N.card : ℝ) / M ≤ (δ.natAbs + 8 * M) / M := by gcongr
+      _ = δ.natAbs / M + 8 := by field_simp
+  linarith
+
+/-- Cells with a point within cyclic distance `< 4M` of a point of the cell `j`. -/
+def macNear2 (M : ℕ) (j : Fin (macK m M)) : Finset (Fin (macK m M)) :=
+  univ.filter fun j' => ∃ u v : ZMod m, macCell m M u = j' ∧ macCell m M v = j ∧
+    (cycRep (u - v)).natAbs < 4 * M
+
+lemma macNear2_card_le (hM : 0 < M) (j : Fin (macK m M)) : (macNear2 M j).card ≤ 16 := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  obtain ⟨t0, ht0⟩ := macCell_nonempty (m := m) (M := M) j
+  set N : Finset (ZMod m) := univ.filter fun v : ZMod m => (cycRep (t0 - v)).natAbs ≤ 8 * M - 1
+  have hN : N.card ≤ 2 * (8 * M - 1) + 1 := card_cyc_ball_le t0 _
+  have h := macCells_card_le hM N (macNear2 M j) (by
+    intro hm j' hj' w hw
+    obtain ⟨u, v, hu, hv, huv⟩ := (mem_filter.1 hj').2
+    have h1 := macCell_dist_lt hM hm (a := u) (b := w) (hu.trans hw.symm)
+    have h2 := macCell_dist_lt hM hm (a := v) (b := t0) (hv.trans ht0.symm)
+    have h3 := natAbs_cycRep_add_le (t0 - v) (v - u)
+    have h4 := natAbs_cycRep_neg (u - v)
+    rw [sub_add_sub_cancel] at h3
+    rw [neg_sub] at h4
+    have h5 := natAbs_cycRep_add_le (t0 - u) (u - w)
+    rw [sub_add_sub_cancel] at h5
+    have h6 := natAbs_cycRep_neg (t0 - v)
+    rw [neg_sub] at h6
+    simp only [N, mem_filter, mem_univ, true_and]
+    omega)
+  have hNr : (N.card : ℝ) ≤ 2 * (8 * M - 1) + 1 := by
+    have : 1 ≤ 8 * M := by omega
+    have h' : (N.card : ℝ) ≤ ((2 * (8 * M - 1) + 1 : ℕ) : ℝ) := by exact_mod_cast hN
+    rw [Nat.cast_add, Nat.cast_mul, Nat.cast_sub this] at h'
+    push_cast at h'; linarith
+  have h3 : (N.card : ℝ) / M < 16 := by
+    rw [div_lt_iff₀ hM']; linarith
+  have : ((macNear2 M j).card : ℝ) < 17 := by linarith
+  have : (macNear2 M j).card < 17 := by exact_mod_cast this
+  omega
+
 end OneDim
 
 section Cover
@@ -477,5 +581,178 @@ theorem macChi_lipschitz (hM : 0 < M) (z : MacIdx d m M) (x y : L1Torus d m) :
   linarith
 
 end Cover
+
+section Tags
+
+variable (d m M : ℕ) [NeZero m]
+
+open scoped Classical
+
+/-- The deterministic path from `x` to `y`: the union over `k` of the axis-parallel segments on
+which coordinates `i < k` equal `y i`, coordinates `i > k` equal `x i`, and coordinate `k` runs
+along the shortest arc from `x k` to `y k`. -/
+def macPath (x y : L1Torus d m) : Set (L1Torus d m) :=
+  {p | ∃ k : Fin d, (∀ i, i < k → p i = y i) ∧ (∀ i, k < i → p i = x i) ∧
+    p k ∈ macArc (x k) (y k)}
+
+/-- Path tags: the cells `w` whose box meets the box `B_z`, or meets the path from `x` to `y`. -/
+noncomputable def macTags (z : MacIdx d m M) (x y : L1Torus d m) : Finset (MacIdx d m M) :=
+  univ.filter fun w => (∃ p, p ∈ macBox d m M w ∧ p ∈ macBox d m M z) ∨
+    ∃ p ∈ macPath d m x y, p ∈ macBox d m M w
+
+variable {d m M}
+
+omit [NeZero m] in
+lemma macArc_mem_start (a b : ZMod m) : a ∈ macArc a b := by
+  refine mem_image.2 ⟨0, ?_, by simp⟩
+  rw [mem_Icc]; exact ⟨min_le_left _ _, le_max_left _ _⟩
+
+lemma macArc_mem_end (a b : ZMod m) : b ∈ macArc a b := by
+  refine mem_image.2 ⟨cycRep (b - a), ?_, ?_⟩
+  · rw [mem_Icc]; exact ⟨min_le_right _ _, le_max_right _ _⟩
+  · rw [cast_cycRep]; ring
+
+lemma macPath_start (hd : 0 < d) (x y : L1Torus d m) : x ∈ macPath d m x y :=
+  ⟨⟨0, hd⟩, fun i hi => absurd hi (Nat.not_lt_zero _), fun _ _ => rfl, macArc_mem_start _ _⟩
+
+lemma macPath_end (hd : 0 < d) (x y : L1Torus d m) : y ∈ macPath d m x y := by
+  refine ⟨⟨d - 1, by omega⟩, fun _ _ => rfl, fun i hi => ?_, macArc_mem_end _ _⟩
+  exact absurd hi (by have := i.2; simp [Fin.lt_def]; omega)
+
+/-- Tags of the first kind: at most `16^d` cells have a box meeting `B_z`. -/
+lemma macTags_near_card (hM : 0 < M) (z : MacIdx d m M) :
+    (univ.filter fun w : MacIdx d m M => ∃ p, p ∈ macBox d m M w ∧ p ∈ macBox d m M z).card
+      ≤ 16 ^ d := by
+  have hsub : (univ.filter fun w : MacIdx d m M => ∃ p, p ∈ macBox d m M w ∧
+      p ∈ macBox d m M z) ⊆ Fintype.piFinset (fun i => macNear2 M (z i)) := by
+    intro w hw
+    obtain ⟨p, hpw, hpz⟩ := (mem_filter.1 hw).2
+    obtain ⟨q1, hq1, hd1⟩ := (Metric.infDist_lt_iff (macCore_nonempty w)).1 hpw
+    obtain ⟨q2, hq2, hd2⟩ := (Metric.infDist_lt_iff (macCore_nonempty z)).1 hpz
+    rw [Fintype.mem_piFinset]
+    intro i
+    refine mem_filter.2 ⟨mem_univ _, q1 i, q2 i, hq1 i, hq2 i, ?_⟩
+    have a1 := (dist_coord_le p q1 i).trans_lt hd1
+    have a2 := (dist_coord_le p q2 i).trans_lt hd2
+    have a3 := natAbs_cycRep_add_le (q1 i - p i) (p i - q2 i)
+    rw [sub_add_sub_cancel] at a3
+    have a4 := natAbs_cycRep_neg (p i - q1 i)
+    rw [neg_sub] at a4
+    have b1 : (cycRep (p i - q1 i)).natAbs < 2 * M := by exact_mod_cast a1
+    have b2 : (cycRep (p i - q2 i)).natAbs < 2 * M := by exact_mod_cast a2
+    omega
+  calc _ ≤ _ := card_le_card hsub
+    _ = ∏ i, (macNear2 M (z i)).card := Fintype.card_piFinset _
+    _ ≤ ∏ _i : Fin d, 16 := Finset.prod_le_prod fun i _ => macNear2_card_le hM _
+    _ = 16 ^ d := by simp
+
+/-- The cells whose box meets the segment `k` of the path from `x` to `y`. -/
+lemma macTags_seg_card (hM : 0 < M) (x y : L1Torus d m) (k : Fin d) :
+    ((univ.filter fun w : MacIdx d m M => ∃ p : L1Torus d m, (∀ i, i < k → p i = y i) ∧
+        (∀ i, k < i → p i = x i) ∧ p k ∈ macArc (x k) (y k) ∧ p ∈ macBox d m M w).card : ℝ)
+      ≤ (9 + (cycRep (y k - x k)).natAbs / (M : ℝ)) * 7 ^ d := by
+  let g : Fin d → Finset (Fin (macK m M)) := fun i =>
+    if i < k then macNear M (y i) else if k < i then macNear M (x i)
+      else macNearArc M (x k) (y k)
+  have hsub : (univ.filter fun w : MacIdx d m M => ∃ p : L1Torus d m, (∀ i, i < k → p i = y i) ∧
+        (∀ i, k < i → p i = x i) ∧ p k ∈ macArc (x k) (y k) ∧ p ∈ macBox d m M w) ⊆
+      Fintype.piFinset g := by
+    intro w hw
+    obtain ⟨p, h1, h2, h3, h4⟩ := (mem_filter.1 hw).2
+    obtain ⟨q, hq, hd⟩ := (Metric.infDist_lt_iff (macCore_nonempty w)).1 h4
+    rw [Fintype.mem_piFinset]
+    intro i
+    have a1 : (cycRep (p i - q i)).natAbs < 2 * M := by
+      exact_mod_cast (dist_coord_le p q i).trans_lt hd
+    simp only [g]
+    split_ifs with c1 c2
+    · refine mem_filter.2 ⟨mem_univ _, q i, hq i, ?_⟩
+      rw [← h1 i c1]; exact a1
+    · refine mem_filter.2 ⟨mem_univ _, q i, hq i, ?_⟩
+      rw [← h2 i c2]; exact a1
+    · have : i = k := le_antisymm (not_lt.1 c2) (not_lt.1 c1)
+      subst this
+      exact mem_filter.2 ⟨mem_univ _, q i, hq i, p i, h3, a1⟩
+  have hc := card_le_card hsub
+  rw [Fintype.card_piFinset] at hc
+  have hc' : ((univ.filter fun w : MacIdx d m M => ∃ p : L1Torus d m, (∀ i, i < k → p i = y i) ∧
+        (∀ i, k < i → p i = x i) ∧ p k ∈ macArc (x k) (y k) ∧ p ∈ macBox d m M w).card : ℝ)
+      ≤ ((∏ i, (g i).card : ℕ) : ℝ) := by exact_mod_cast hc
+  refine hc'.trans ?_
+  rw [Nat.cast_prod, ← Finset.mul_prod_erase univ (fun i => ((g i).card : ℝ)) (mem_univ k)]
+  have hk : g k = macNearArc M (x k) (y k) := by simp [g]
+  have e1 : ((g k).card : ℝ) ≤ 9 + (cycRep (y k - x k)).natAbs / (M : ℝ) := by
+    rw [hk]; exact macNearArc_card_le hM _ _
+  have e2 : ∏ i ∈ univ.erase k, ((g i).card : ℝ) ≤ 7 ^ d := by
+    calc _ ≤ ∏ _i ∈ univ.erase k, (7 : ℝ) := by
+          refine Finset.prod_le_prod₀ (fun i _ => Nat.cast_nonneg _) (fun i hi => ?_)
+          have hik : i ≠ k := (mem_erase.1 hi).1
+          have : g i = macNear M (y i) ∨ g i = macNear M (x i) := by
+            simp only [g]; split_ifs
+            · exact Or.inl rfl
+            · exact Or.inr rfl
+            · exact absurd (le_antisymm (not_lt.1 ‹¬ k < i›) (not_lt.1 ‹¬ i < k›)) hik
+          have h7 : (g i).card ≤ 7 := by
+            rcases this with h | h <;> rw [h] <;> exact macNear_card_le hM _
+          exact_mod_cast h7
+      _ = 7 ^ (univ.erase k).card := by simp
+      _ ≤ 7 ^ d := by
+          apply pow_le_pow_right₀ (by norm_num)
+          calc _ ≤ (univ : Finset (Fin d)).card := card_le_card (erase_subset _ _)
+            _ = d := by simp
+  have e0 : 0 ≤ ∏ i ∈ univ.erase k, ((g i).card : ℝ) :=
+    Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _
+  calc _ ≤ (9 + (cycRep (y k - x k)).natAbs / (M : ℝ)) * ∏ i ∈ univ.erase k, ((g i).card : ℝ) :=
+        mul_le_mul_of_nonneg_right e1 e0
+    _ ≤ _ := mul_le_mul_of_nonneg_left e2 (by positivity)
+
+/-- Path tags have a linear count: `|V_z(x, y)| ≤ H_d + C_p · dist(x, y) / M` with
+`H_d = 16^d + 9 d 7^d` and `C_p = 7^d`. -/
+theorem macTags_card_le (hM : 0 < M) (z : MacIdx d m M) (x y : L1Torus d m) :
+    ((macTags d m M z x y).card : ℝ) ≤
+      (16 ^ d + 9 * d * 7 ^ d) + 7 ^ d * (dist x y / M) := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  set A := univ.filter fun w : MacIdx d m M => ∃ p, p ∈ macBox d m M w ∧ p ∈ macBox d m M z
+  set B := univ.filter fun w : MacIdx d m M => ∃ p ∈ macPath d m x y, p ∈ macBox d m M w
+  have h1 : macTags d m M z x y ⊆ A ∪ B := by
+    intro w hw
+    have := (mem_filter.1 hw).2
+    rw [mem_union]
+    rcases this with h | h
+    · exact Or.inl (mem_filter.2 ⟨mem_univ _, h⟩)
+    · exact Or.inr (mem_filter.2 ⟨mem_univ _, h⟩)
+  have hBsub : B ⊆ univ.biUnion (fun k : Fin d => univ.filter fun w : MacIdx d m M =>
+      ∃ p : L1Torus d m, (∀ i, i < k → p i = y i) ∧
+        (∀ i, k < i → p i = x i) ∧ p k ∈ macArc (x k) (y k) ∧ p ∈ macBox d m M w) := by
+    intro w hw
+    obtain ⟨p, ⟨k, hk1, hk2, hk3⟩, hp⟩ := (mem_filter.1 hw).2
+    exact mem_biUnion.2 ⟨k, mem_univ _, mem_filter.2 ⟨mem_univ _, p, hk1, hk2, hk3, hp⟩⟩
+  have hA : (A.card : ℝ) ≤ 16 ^ d := by exact_mod_cast macTags_near_card hM z
+  have hB : (B.card : ℝ) ≤ ∑ k : Fin d, (9 + (cycRep (y k - x k)).natAbs / (M : ℝ)) * 7 ^ d := by
+    have h2 := (card_le_card hBsub).trans card_biUnion_le
+    have h3 : (B.card : ℝ) ≤ ((∑ k : Fin d, (univ.filter fun w : MacIdx d m M =>
+        ∃ p : L1Torus d m, (∀ i, i < k → p i = y i) ∧ (∀ i, k < i → p i = x i) ∧
+          p k ∈ macArc (x k) (y k) ∧ p ∈ macBox d m M w).card : ℕ) : ℝ) := by
+      exact_mod_cast h2
+    rw [Nat.cast_sum] at h3
+    exact h3.trans (Finset.sum_le_sum fun k _ => macTags_seg_card hM x y k)
+  have hdist : ∑ k : Fin d, ((cycRep (y k - x k)).natAbs : ℝ) = dist x y := by
+    rw [dist_L1Torus]
+    unfold torusDist
+    refine Finset.sum_congr rfl fun k _ => ?_
+    rw [← natAbs_cycRep_neg (x k - y k), neg_sub]
+  have hsum : ∑ k : Fin d, (9 + (cycRep (y k - x k)).natAbs / (M : ℝ)) * 7 ^ d =
+      (9 * d * 7 ^ d) + 7 ^ d * (dist x y / M) := by
+    have hq : ∑ k : Fin d, ((cycRep (y k - x k)).natAbs : ℝ) / (M : ℝ) = dist x y / M := by
+      simp_rw [div_eq_mul_inv]; rw [← Finset.sum_mul, hdist]
+    rw [← Finset.sum_mul, Finset.sum_add_distrib, hq]
+    simp; ring
+  have hc : (macTags d m M z x y).card ≤ A.card + B.card :=
+    (card_le_card h1).trans (card_union_le _ _)
+  have : ((macTags d m M z x y).card : ℝ) ≤ A.card + B.card := by exact_mod_cast hc
+  linarith
+
+end Tags
+
 
 end Balaban.Green
