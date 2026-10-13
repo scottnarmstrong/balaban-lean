@@ -1161,6 +1161,7 @@ public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
+public import Balaban.Fluctuation.RootMarkedBound
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1277,6 +1278,8 @@ public import Balaban.Fluctuation.StepComplexCov
 public import Balaban.Fluctuation.StepComplexProp26
 public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
+public import Balaban.Analysis.CutExpansion
+public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
@@ -1325,5 +1328,7 @@ public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
 public import Balaban.Fluctuation.SharpENu
 public import Balaban.Fluctuation.ParamDatumFamily
+public import Balaban.Inhabited.GeneralClassWitness
+public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical

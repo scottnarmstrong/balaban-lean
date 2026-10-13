@@ -13,13 +13,13 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W249 (Opus, FINISHED, HELD) | `w249-d7-fine-size` / W249 | D7 boundary size → fine chosen-cover size, pre and post records; branch b5ea946 checked by the worker; land with scripts/land.sh after Scott has seen the report (no objection = land) |
-| W277 | `w277-param-carrier-local` / W277 | compact carrier of the step's block measures; locality and bound for parameter families of marks (PARAM package 4, generic) |
-| W278 | `w278-root-det-chart` / W278 | RootDetChart: trace bound, cut expansion, bound of cut differences, endpoint identity (ROOTDET package 1) |
-| W279 | `w279-p6-top-rooted-fiber` / W279 | fixed-support sum for the top cover (VMOD-31 package v) |
-| W280 | `w280-root-det-zero` / W280 | decLog at zero cuts; DET-CUT-FACTOR stated (ROOTDET package 2, first half) |
-| W281 | `w281-general-class-witness` / W281 | a non-zero class member matched to a step: ClassParamMatch, OldXiDomC, path analyticity instantiated |
+| W284 | `w284-param-activity-physical` / W284 | physical label activities with the datum free: holA, contA, ParamMarkFamily with given marks |
+| W285 | `w285-general-regular-c` / W285 | ClassRegularLocC / ClassRegularObsC for a general class from an open-domain hypothesis (GENERAL package 4) |
+| W286 | `w286-gsx-dec2-bridge` / W286 | support and component locality of Gsx; block diagonality of decM/decPi/decCov as far as landed lemmas reach |
+| W287 | `w287-aligned-source-facing` / W287 | aligned source-facing A-term statements; coefficient bridge for the mass family (Q13-ALIGN §3) |
+| W288 | `w288-da-zero-source` / W288 | DAZeroSource: direct activity bound at source 0 from the η-weighted expansion (DAPHYS package 1) |
+| W289 | `w289-footprint-hat` / W289 | footprint ⊂ hatBox for Dirichlet-operator rows (general; discharges a premise of Vmod7Local) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
-| W283 | `w283-root-marked-bound` / W283 | markedTerm: rooted class bound for the marked part of the new energy terms (ROOT (R7), marked part) |
 | W276 | `w276-top-block-transport` / W276 | TopBlockTransport: datum sites and interface pairs of the retained shell read by ChiDomProp (Q13-COVER §2) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
