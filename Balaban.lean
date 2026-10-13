@@ -1667,6 +1667,7 @@ public import Balaban.Fluctuation.DecMarkCorrected
 public import Balaban.Fluctuation.DecMarkOfPair
 public import Balaban.Fluctuation.DecMarkCorrCount
 public import Balaban.Inhabited.DecMarkCorrCountFromTower
+public import Balaban.Inhabited.DecMarkCorrFamilyFromTower
 public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
