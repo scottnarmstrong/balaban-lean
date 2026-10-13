@@ -1540,6 +1540,7 @@ public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetCollarHull
 public import Balaban.Fluctuation.DetCollarHullSymm
 public import Balaban.Fluctuation.DetCollarCentered
+public import Balaban.Fluctuation.DetCollarCenteredFibre
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
@@ -1571,6 +1572,7 @@ public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
 public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.ObsRemainderMarks
+public import Balaban.Fluctuation.ObsRemainderParam
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormExpInputOn
 public import Balaban.Fluctuation.RenormLocFibre
@@ -1654,6 +1656,8 @@ public import Balaban.Green.FinalBoxResolvent
 public import Balaban.Inhabited.StepTowerCoreMono
 public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DecMarkBlocks
+public import Balaban.Fluctuation.DecMarkCorrected
+public import Balaban.Fluctuation.DecMarkOfPair
 public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
