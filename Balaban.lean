@@ -60,6 +60,7 @@ public import Balaban.Polymer.TwoTorusGreenRows
 public import Balaban.Polymer.TwoTorusDecBg
 public import Balaban.Polymer.TwoTorusSY
 public import Balaban.Polymer.TwoTorusSYF
+public import Balaban.Polymer.TwoTorusDecSol
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1500,6 +1501,7 @@ public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Inhabited.StepScaleDataG
 public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTowerGProducer
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas

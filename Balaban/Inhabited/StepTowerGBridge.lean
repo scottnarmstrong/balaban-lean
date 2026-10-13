@@ -13,7 +13,7 @@ public import Balaban.Inhabited.StepTowerG
 
 `StepTower.toG` maps the fixed `d = L = 3`, `N = 2` tower to `StepTowerG 3 3 2`.  The scalar
 fields are preserved; the core is transported along `rhoSepG 3 3 m₁ = rhoSep m₁` and
-`νref 3 = nuW`.  (`exists_stepTowerG_three` is in `StepTowerOfG`, downstream of the general
+`νref 3 = nuW`.  (`exists_stepTowerG_three` is in `StepTowerGProducers`, downstream of the general
 producers.)
 -/
 

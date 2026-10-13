@@ -35,8 +35,8 @@ separate line below.
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
 | Last integral | P7 §4 | 35% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
 | No renormalization step (large field ν) | P7 §4 | 40% | The sector decomposition; the polymer gas for the sector where every spin is near h. | The sector containing reversed spins (blocker 1); currently paused. |
-| Independence of the torus | P4 (H.4) | 45% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operator on a cut component, and the decoupled background on a cut component. | The decoupled fluctuation solution on a component; the coefficients; the reading of the clause (blocker 7). |
-| General d, L, N and every unit h | — | 35% | General constant record, scale record and their producers, with an adjustable output decay rate; the renormalization-margin records for general parameters; the fixed-parameter scale producer, output constants and scalar lemmas are now corollaries of the general ones. | Moving the step theorems from d = L = 3, N = 2 to general parameters. |
+| Independence of the torus | P4 (H.4) | 55% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, and the decoupled background and fluctuation solutions on a cut component. | The covariance and its square root on a component; the coefficients; the reading of the clause (blocker 7). |
+| General d, L, N and every unit h | — | 37% | General constant record, scale record and their producers, with an adjustable output decay rate; the renormalization-margin records for general parameters; the fixed-parameter scale producer, output constants and scalar lemmas are now corollaries of the general ones. | Moving the step theorems from d = L = 3, N = 2 to general parameters. |
 | Assembly of Root-F | P4, P7, P9 | 20% | Step domains are polymers in the theorem's sense; every admissible torus is a step torus at every scale; conversion of the decay rate; the new observable terms of one step as a family with the theorem's support, locality, analyticity and per-term bound c₉ L^{-j((d-2)/2+δ)} e^{-κ|X|/(ML^j)^d} at their birth scale. | The terms of earlier scales; the logarithm; the large-field and final terms. |
 | Root-C from Root-F | P8, P9 | 30% | The deduction of the correlation estimates from the flow, assuming its inputs. | Infinite-volume limits, the limit ν ↓ 0, and the physical inputs. |
 
@@ -47,21 +47,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 5a1c5c61 2026-10-13.
+Computed at commit bc85a232 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 137 | 43,721 | 2,245 |
+| Lattice, analysis, Gaussian and polymer tools | 138 | 45,335 | 2,287 |
 | Green's functions and random walks | 69 | 25,028 | 1,465 |
 | Background fields and generating sets (P2) | 110 | 39,057 | 2,078 |
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
-| Small-field class (P1, P4, P5) | 120 | 37,825 | 1,944 |
-| Fluctuation step and renormalization (P4-P6) | 415 | 134,210 | 4,798 |
-| Instantiated step at fixed parameters | 241 | 63,432 | 2,157 |
+| Small-field class (P1, P4, P5) | 121 | 37,950 | 1,945 |
+| Fluctuation step and renormalization (P4-P6) | 416 | 134,483 | 4,810 |
+| Instantiated step at fixed parameters | 243 | 63,444 | 2,161 |
 | Large-field regions (P5-P7, E9-E10) | 472 | 127,906 | 7,235 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1883** | **561,597** | **26,094** |
+| **Total** | **1888** | **563,621** | **26,153** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
