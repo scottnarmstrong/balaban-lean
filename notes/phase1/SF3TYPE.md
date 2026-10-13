@@ -140,8 +140,8 @@ For zero background mass, P3 (Ξ1) gives data radius
 `δ=ε=xiC1 d * εamb`; (D2) then gives local chart radius
 `K * εamb`, `K=(2*bgK1 d L N+2)*xiC1 d`. The smallness requirements are
 `(4d+6)(2d+1) εamb ≤ 1` and `xiC1 d * εamb ≤ min(bgC0,bgC1)`.
-Thus a local chart at the *same* physical radius requires a separate margin
-`K*εamb ≤ P.eps d L j`, impossible when `εamb=P.eps d L j` and `K>1`.
+This estimate certifies a local chart at the *same* physical radius only with
+`K*εamb ≤ P.eps d L j`; that budget fails when `εamb=P.eps d L j` and `K>1`.
 At `d=3`, `xiC1=140`, so `K=280*(bgK1 3 L N+1)>280`.
 For positive mass and `j<k`, landed (D1-j) controls only the level-`j` mass
 norm; landed (D2) consumes the full scale-`k` data norm. A level-`j` (D2)
