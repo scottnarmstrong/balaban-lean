@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.StepOutputConsts
+public import Balaban.Inhabited.StepOutputPhysicalG
 public import Balaban.Polymer.LabelRootUnion
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -42,11 +43,15 @@ noncomputable abbrev stepHullMin : ℝ := detHullThreshold
 theorem StepTower.kout_le_hullRate {κmin : ℝ} (T : StepTower κmin) (h : stepHullMin ≤ κmin) :
     3 / 2 * T.κdec ≤ hullRate 3 3
       ((T.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 : ℝ) + 1)) / 18) := by
-  have := towerDetHullRate_ge T h
+  have := T.toG.kout_le_hullRate (T.hhull_toG_of_stepHullMin h)
   have e : ((detDeg 3 3 + 1 : ℕ) : ℝ) = (detDeg 3 3 : ℝ) + 1 := by push_cast; ring
-  unfold towerDetRate at this
+  unfold detRateG at this
   rw [e] at this
-  linarith
+  have e2 : T.toG.κdec = T.κdec := rfl
+  have e3 : T.toG.κ = T.κ := rfl
+  rw [e2, e3] at this
+  norm_num at this ⊢
+  exact this
 
 /-- The constants of the tower as a `StepOutputConsts 3 3`. -/
 noncomputable def stepOutputPhysical {κmin : ℝ} (T : StepTower κmin) (h : stepHullMin ≤ κmin) :
@@ -106,10 +111,11 @@ theorem stepOutput_consts_physical {κmin : ℝ} (T : StepTower κmin) (h : step
       C.Bhull = collarB 3 3 ∧ C.lhull = hullRate 3 3 C.kdet ∧
       C.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧
       C.Kall = max (2 * K0 3 3 T.κ0) (rootUnionK 3 3 1 T.m₁ T.κ0) ∧ C.Ktot = C.Kc + C.Kall := by
-  refine ⟨stepOutputPhysical T h, rfl, rfl, rfl, rfl, rfl, rfl, ?_, rfl, rfl, rfl, rfl, rfl⟩
-  have e : ((detDeg 3 3 + 1 : ℕ) : ℝ) = (detDeg 3 3 : ℝ) + 1 := by push_cast; ring
-  show towerDetRate T.κ = _
-  unfold towerDetRate; rw [e]
+  obtain ⟨C, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩ :=
+    T.toG.exists_outputConsts (T.hhull_toG_of_stepHullMin h)
+  refine ⟨C, h1, h2, h3, h4, h5, h6, ?_, h8, h9, h10, h11, h12⟩
+  rw [h7]
+  norm_num
 
 /-- `K_tot` of the physical record pays the all-root label constant. -/
 theorem rootUnionK_le_stepOutputPhysical {κmin : ℝ} (T : StepTower κmin)

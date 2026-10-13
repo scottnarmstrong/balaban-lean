@@ -1647,6 +1647,7 @@ public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.StepOutputPhysical
+public import Balaban.Inhabited.StepOutputPhysicalG
 public import Balaban.Fluctuation.DetGroupedAnalytic
 public import Balaban.Correlations.C1StarLimits
 public import Balaban.Fluctuation.ObsMarksAssembly
@@ -1763,6 +1764,7 @@ public import Balaban.Inhabited.LevelCoversDef
 public import Balaban.Inhabited.LevelCoversG
 public import Balaban.Inhabited.RenJoinClassWitness
 public import Balaban.Inhabited.RenormPhysicalRecord
+public import Balaban.Inhabited.PhysicalZeroJoin
 public import Balaban.Inhabited.ObsPrefactorScale
 public import Balaban.Fluctuation.StepOldTermSplit
 public import Balaban.Fluctuation.StepClassPath
