@@ -1730,6 +1730,7 @@ public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.RenormE1SiteRecord
 public import Balaban.Inhabited.RenormM0SiteRecord
 public import Balaban.Inhabited.ObsCoeffLocal
+public import Balaban.Inhabited.ObsCoeffExactSites
 public import Balaban.Inhabited.E1ParamFibreValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
