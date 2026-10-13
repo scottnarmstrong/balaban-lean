@@ -1459,3 +1459,4 @@ public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Inhabited.LateScaleWitness
+public import Balaban.Inhabited.ProperLocalGenWitness
