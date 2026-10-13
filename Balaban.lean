@@ -1507,6 +1507,7 @@ public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
 public import Balaban.Fluctuation.DetRootTraceSymm
+public import Balaban.Fluctuation.DetSymmGroup
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
@@ -1537,3 +1538,4 @@ public import Balaban.LargeField.Base.KF0F1Assembly
 public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
+public import Balaban.Fluctuation.ExpSourceChart
