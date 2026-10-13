@@ -137,8 +137,8 @@ exponent `Jr.W2` on the segment `τ ↦ τ x`, `τ ∈ [0,1]`, is the difference
 at the scaled point `physInclScaled (1/β) e = (e.1, g/β)` and at `(e.1, 0)`, both at the hat
 arguments `(x,x)`, `(x,x)` and the parameter `τ`.  The factor `1/β` enters only through the scaling
 of the source. -/
-theorem W2_eq_physVal_sub (hpc : pp < cψ) (e : physParam N S)
-    (he : e ∈ physV S S.a₁ S.ν eps) (hβ : (S.β : ℂ) ≠ 0) (x : S.EC)
+theorem W2_eq_physVal_sub_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physVRho S S.a₁ S.ν eps ρ) (hβ : (S.β : ℂ) ≠ 0) (x : S.EC)
     (hxb : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ p, ‖((r : ℂ) • x) p‖ ≤ pp)
     {τ : ℝ} (hτ : τ ∈ Icc (0 : ℝ) 1)
     (𝒯E : Finset τι) (𝒯M : Finset μι)
@@ -172,6 +172,40 @@ theorem W2_eq_physVal_sub (hpc : pp < cψ) (e : physParam N S)
   have h0 : (fun y i => ((0 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) y i) / (S.β : ℂ)) = 0 := by
     funext y i; simp
   simp only [hq', h0]
+
+include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
+/-- **The source side of the value bridge (T1).**  For the zero class, a chart point
+`e ∈ physV S a₁ ν ε` (equivalently `physVq … 1`, `physVq_one`) with source `e.2 = g`, and a complex
+hat variable `x` whose rays `r x`, `r ∈ [0,1]`, stay within the radius `pp < c_ψ`, the source
+exponent `Jr.W2` on the segment `τ ↦ τ x`, `τ ∈ [0,1]`, is the difference of two values of
+`physVal` (with no old terms, no observable terms and no `ν`-part, `cβ = β`, `cc = β_U^{-1/2}`):
+at the scaled point `physInclScaled (1/β) e = (e.1, g/β)` and at `(e.1, 0)`, both at the hat
+arguments `(x,x)`, `(x,x)` and the parameter `τ`.  The factor `1/β` enters only through the scaling
+of the source. -/
+theorem W2_eq_physVal_sub (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physV S S.a₁ S.ν eps) (hβ : (S.β : ℂ) ≠ 0) (x : S.EC)
+    (hxb : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ p, ‖((r : ℂ) • x) p‖ ≤ pp)
+    {τ : ℝ} (hτ : τ ∈ Icc (0 : ℝ) 1)
+    (𝒯E : Finset τι) (𝒯M : Finset μι)
+    (hBE : ∀ τ ∈ 𝒯E, BgSetting N S.G' (GkE τ) (GjE τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀E τ)
+      (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ 𝒯E, FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁E τ))
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N)
+    (hBM : ∀ τ ∈ 𝒯M, BgSetting N S.G' (GkM τ) (GjM τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀M τ)
+      (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ 𝒯M, FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁M τ))
+    (cν : ℂ) (h𝒯E : 𝒯E = ∅) (h𝒯M : 𝒯M = ∅) (hcν : cν = 0) :
+    Jr.W2 (zeroClass d L N₁ m₁ k N ϱ) e.2
+        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), (τ : ℂ) • x) =
+      physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (x, x) (x, x) (τ : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e) -
+        physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (x, x) (x, x) (τ : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) := by
+  exact Jr.W2_eq_physVal_sub_rho (ρ := 1) hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ hpc e he hβ x hxb hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν
 
 end Chart
 

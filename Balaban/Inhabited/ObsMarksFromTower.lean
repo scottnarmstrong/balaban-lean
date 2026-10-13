@@ -240,16 +240,9 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   MeasureTheory Metric
 
 open Classical in
-/-- **The observable marks record of the zero-class step at ONE scale, from the ray premise at that
-scale.**  The thresholds `β₀, C₁, C₂` come first, and do not depend on the scale or on the witness.
-For every scale with `β ≥ β₀`, `p₁ ≤ pLog A₁ p (β 3^k)` and `StepScaleData`, and every witness
-`val, 𝒴, Tt` carrying the clauses of the direct-terms construction at that scale (the value formula
-`hval`, diagonal continuity `hcont`, the `DirectTerms` instances `hI`, the memberships `hmem0`,
-`hmemg` of the two source points, and the ray clause `hrayTt` on `hatDisk S.U 2 p₁`), every source
-`g` of the `ℓ¹` ball, site `y` and spin `i` carry one `ObsMarks` record with the bounds
-`B₁ ≤ C₁ w⁴ b^{-1/2-s}`, `B₂ ≤ C₂ w²/b` (`b = β 3^k`, `w = (log b)^p`).  The record's type does
-not mention the witness; the witness enters the proof only. -/
-theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
+/-- **`obsMarks_zeroClass_at_of_ray` with the kernel support**: moreover `I.hker j T` vanishes
+unless `dOmega 1 (k+1) univ (sitesOf T) ≠ ⊤`. -/
+theorem obsMarks_zeroClass_at_of_ray_ksupp {κmin : ℝ} (T : StepTower κmin)
     {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
     (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
   ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
@@ -312,7 +305,10 @@ theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
       I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * 3 ^ k) ∧
       I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
         (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
-      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by
+      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ∧
+      ∀ (j : I.ι1) (T : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1)
+        1 (k + 1) Set.univ)),
+        I.hker j T ≠ 0 → dOmega 1 (k + 1) Set.univ (sitesOf T) ≠ ⊤ := by
   classical
   have hc1 := one_le_c1 3 3
   have hK0 : 0 < K0 3 3 T.κ0 := T.marks_K0_pos
@@ -443,8 +439,8 @@ theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
     linarith [D.ray_margin]
   have hκ0h : T.κ0 ≤ 2 * T.κdec := by
     have := T.marks_κ0_le_κH; linarith
-  obtain ⟨I, hIKc, hIκH, -, hIκ0, hIκ', hIεH, hIRσ, hIκh, -, -, -, hIB2, hIB1⟩ :=
-    obsMarks_of_tilt S hC hk (isLevel_lvLow hk) ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0
+  obtain ⟨I, hIKc, hIκH, -, hIκ0, hIκ', hIεH, hIRσ, hIκh, -, -, -, hIB2, hIB1, hIsupp⟩ :=
+    obsMarks_of_tilt_ksupp S hC hk (isLevel_lvLow hk) ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0
       T.large_block T.dom_margin T.coer_margin T.δc_small D.fl_radius hcov hX₁ hatConn_lvTop
       (rowInHat_lv hk T.m₁_four hN hν0 hν) hopt hΔ T.κ0_nonneg T.κdec_lower
       (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq
@@ -482,7 +478,7 @@ theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
     rw [obsW_mul_eq_pLog]; exact hp₁
   have hb1 : 1 < β * 3 ^ k := by linarith [Real.exp_one_gt_d9, Real.add_one_le_exp 1]
   have hw0 : 0 ≤ obsW (p : ℝ) (β * 3 ^ k) := (obsW_pos _ _ hb1).le
-  refine ⟨?_, hIκ0, hIκH, hIκ', hIκh, hIRσ, ?_, ?_⟩
+  refine ⟨?_, hIκ0, hIκH, hIκ', hIκh, hIRσ, ?_, ?_, hIsupp⟩
   · show I.Kc = _
     rw [hIKc, hKobs]
   · show I.B1 ≤ _
@@ -527,6 +523,171 @@ theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
       (mul_nonneg (cK2'_pos' T.fam_nonneg).le T.t_pos.le) (by linarith) hκ1 hb0 hp.le hp₁w hcψ
     rw [hQdef, hCPEv]
     exact hmain
+
+open Classical in
+/-- **The observable marks record of the zero-class step at ONE scale, from the ray premise at that
+scale.**  The thresholds `β₀, C₁, C₂` come first, and do not depend on the scale or on the witness.
+For every scale with `β ≥ β₀`, `p₁ ≤ pLog A₁ p (β 3^k)` and `StepScaleData`, and every witness
+`val, 𝒴, Tt` carrying the clauses of the direct-terms construction at that scale (the value formula
+`hval`, diagonal continuity `hcont`, the `DirectTerms` instances `hI`, the memberships `hmem0`,
+`hmemg` of the two source points, and the ray clause `hrayTt` on `hatDisk S.U 2 p₁`), every source
+`g` of the `ℓ¹` ball, site `y` and spin `i` carry one `ObsMarks` record with the bounds
+`B₁ ≤ C₁ w⁴ b^{-1/2-s}`, `B₂ ≤ C₂ w²/b` (`b = β 3^k`, `w = (log b)^p`).  The record's type does
+not mention the witness; the witness enters the proof only. -/
+theorem obsMarks_zeroClass_at_of_ray {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁), S = T.step k hk N₁ ν β p₁ →
+  ∀ hpS : 0 < S.p₁,
+      ∀ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+        (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+        (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+          (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+      (hval : (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν T.t
+                (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                  (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                    s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))) →
+      (hcont : DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+          (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+          (physSΛEta S S.a₁ S.ν T.t (1 / S.β)) 2 𝒴 Tt) →
+      (hI : (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∃ I : DirectTerms S 1 hpS (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+              (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt)) →
+      (hmem0 : (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (1 / S.β)) →
+      (hmemg : (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < 1 →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β))) →
+      (hrayTt : (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∀ ψ ∈ hatDisk S.U 2 p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (ball (0 : ℂ) (3 / 2)))) →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+        let C := zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit 1 hpS)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := 1) (blockIndex y)),
+      I.Kc = 4 * K0 3 3 T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * 3 ^ k) ∧
+      I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
+        (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by
+
+  obtain ⟨β₀, C₁, C₂, h1, h2, h3, h⟩ := obsMarks_zeroClass_at_of_ray_ksupp T hA p hCR hs0 hs
+  refine ⟨β₀, C₁, C₂, h1, h2, h3, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg
+    hrayTt g hg y i C
+  obtain ⟨I, e1, e2, e3, e4, e5, e6, e7, e8, -⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D S
+    hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
+  exact ⟨I, e1, e2, e3, e4, e5, e6, e7, e8⟩
+
+open Classical in
+/-- **`obsMarks_zeroClass_family_of_ray` with the kernel support** (see
+`obsMarks_zeroClass_at_of_ray_ksupp`). -/
+theorem obsMarks_zeroClass_family_of_ray_ksupp {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2)
+    (hray : ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, 1 ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → StepScaleData T k hk N₁ ν β p₁ →
+      ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁), S = T.step k hk N₁ ν β p₁ →
+      ∀ hp : 0 < S.p₁,
+      ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+        (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+        (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+          ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+          (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+            (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+        (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν T.t
+                (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                  (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                    s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+        DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+          (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+          (physSΛEta S S.a₁ S.ν T.t (1 / S.β)) 2 𝒴 Tt ∧
+        (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∃ I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+              (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+        (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (1 / S.β) ∧
+        (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < 1 →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β)) ∧
+        (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (1 / S.β),
+          ∀ ψ ∈ hatDisk S.U 2 p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (ball (0 : ℂ) (3 / 2)))) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    let S := T.step k hk N₁ ν β p₁;
+    let C := zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit 1 hp)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := 1) (blockIndex y)),
+      I.Kc = 4 * K0 3 3 T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * 3 ^ k) ∧
+      I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
+        (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ∧
+      ∀ (j : I.ι1) (T : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1)
+        1 (k + 1) Set.univ)),
+        I.hker j T ≠ 0 → dOmega 1 (k + 1) Set.univ (sitesOf T) ≠ ⊤ := by
+  obtain ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, hat⟩ := obsMarks_zeroClass_at_of_ray_ksupp T hA p hCR hs0 hs
+  refine ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D g hg y i S C
+  obtain ⟨val, 𝒴, Tt, hval, hcont, hI, hmem0, hmemg, hrayTt⟩ :=
+    hray k hk N₁ h3N hN ν hνpos hν β (by linarith) p₁ hp D S rfl hp
+  exact hat k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D S rfl hp val 𝒴 Tt hval hcont hI hmem0 hmemg
+    hrayTt g hg y i
 
 open Classical in
 /-- **The observable marks record of the zero-class step at the shared tower, conditional on the
@@ -612,12 +773,12 @@ theorem obsMarks_zeroClass_family_of_ray {κmin : ℝ} (T : StepTower κmin)
       I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
         (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
       I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by
-  obtain ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, hat⟩ := obsMarks_zeroClass_at_of_ray T hA p hCR hs0 hs
-  refine ⟨β₀, C₁, C₂, hβ₀, hC₁, hC₂, ?_⟩
-  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D g hg y i S C
-  obtain ⟨val, 𝒴, Tt, hval, hcont, hI, hmem0, hmemg, hrayTt⟩ :=
-    hray k hk N₁ h3N hN ν hνpos hν β (by linarith) p₁ hp D S rfl hp
-  exact hat k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D S rfl hp val 𝒴 Tt hval hcont hI hmem0 hmemg
-    hrayTt g hg y i
+
+  obtain ⟨β₀, C₁, C₂, h1, h2, h3, h⟩ := obsMarks_zeroClass_family_of_ray_ksupp T hA p hCR hs0 hs hray
+  refine ⟨β₀, C₁, C₂, h1, h2, h3, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g hg y i S C
+  obtain ⟨I, e1, e2, e3, e4, e5, e6, e7, e8, -⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g
+    hg y i
+  exact ⟨I, e1, e2, e3, e4, e5, e6, e7, e8⟩
 
 end Balaban.Inhabited
