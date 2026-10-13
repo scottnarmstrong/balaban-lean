@@ -185,17 +185,34 @@ theorem liftC_shiftUC_mem_flBallLC
 
 /-! ### The potential part of the exponent is the functional expanded by the hat engine -/
 
+/-- The tangent of a complex old datum, expressed through its lifted unit-block spin.  The
+incoming field may vary across sites. -/
+theorem compTangent_of_unit_spin (D : BgData S.G' N)
+    (B : BgData (stepG d L N₁ m₁ k ϱ) N) (ψ ψ₀ : S.EC)
+    (hψ : ∀ z i, B.Ψ z i = ψ (unitPt S.hG' z, i))
+    (hψ₀ : ∀ z i,
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D).Ψ z i =
+        ψ₀ (unitPt S.hG' z, i)) :
+    compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D B =
+        liftC S.hG' (ψ - ψ₀) := by
+  funext z i
+  show B.Ψ z i -
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D).Ψ z i =
+      (ψ - ψ₀) (unitPt S.hG' z, i)
+  rw [hψ z i, hψ₀ z i]
+  rfl
+
 /-- **The tangent of the datum of a complex old spin**: `ψ' = D.Ψ - ψ^{(k)}(θ)` (`compTangent`) for
 `D = dataUC ψ` is the lift of `ψ - ψ^{(k)}`, at every datum. -/
 theorem compTangent_dataUC (ψ : S.EC) :
     compTangent S.hG S.hG' (le_refl (k + 1)) S.a (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D'
-      (S.dataUC ψ) = liftC S.hG' (ψ - S.psi0C) := by
-  funext z i
-  have h0 : S.psiKdC.Ψ z i = S.psi0C (unitPt S.hG' z, i) := by
-    rw [← S.dataUC_psi0C, S.dataUC_Ψ]
-  show (S.dataUC ψ).Ψ z i - S.psiKdC.Ψ z i = (ψ - S.psi0C) (unitPt S.hG' z, i)
-  rw [S.dataUC_Ψ, h0]
-  rfl
+      (S.dataUC ψ) = liftC S.hG' (ψ - S.psi0C) :=
+  S.compTangent_of_unit_spin S.D' (S.dataUC ψ) ψ S.psi0C
+    (fun z i => S.dataUC_Ψ ψ z i)
+    (fun z i => (S.critical_Ψ_unitRep S.psiKdC z i).symm)
 
 /-- **On the path of the interpolation the tangent is the fluctuation field of the hat engine**, at
 every datum: `ψ' = hatLift (β_k^{-1/2}) θ (s ψ̂)`, the ray `t ↦ t ψ̂` of the hat variable at the
