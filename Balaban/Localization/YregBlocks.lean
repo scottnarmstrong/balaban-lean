@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Localization.DecLogCutFactor
+public import Balaban.Fluctuation.RootDetCutSupport
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -312,3 +313,84 @@ theorem CovStanding.decLog_BD_unit {aT : ℝ} {N : ℕ} {α : G.Ω 1 → ℂ} {�
 end Components
 
 end Balaban.Localization
+
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.Analysis
+  Finset Matrix
+
+section UnitTrace
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν κ κ' δ δ' : ℝ}
+
+/-- **Locality of the rooted trace for the unit lattice, without `UnionOfBlocks`.** The specialisation
+of `rootTrace_eq_of_comp` to `Q = unitQ G`, `P = unitP G`, the labels `unitLabel G Y'`, and a set
+`B` of unit points whose blocks lie in `Y'`. -/
+theorem rootTrace_eq_of_comp_unit {s s' : DecParams G}
+    {α α' : G.Ω 1 → ℂ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    (H : CovStanding G a aT ν α κ (extS G s) δ φ (unitQ G) (unitP G))
+    (H' : CovStanding G a aT ν α' κ' (extS G s') δ' φ' (unitQ G) (unitP G)) (hconn : HatConn G)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G (extS G s)) Y')
+    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → ∀ R ∈ Qset G q, extS G s R = extS G s' R)
+    (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+    (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y)
+    (B : Finset (unitPts G)) (hB : ∀ y ∈ B, unitLabel G Y' y) :
+    rootTrace G a aT ν (unitQ G) (unitP G) B s φ α =
+      rootTrace G a aT ν (unitQ G) (unitP G) B s' φ' α' :=
+  rootTrace_eq_of_comp H H' hconn hY hY' hs hA hφ (unitLabel G Y')
+    (unitQ_label_top (unionOfTopBlocks_of_isNnComp (H.fam 0 le_rfl).st.dg hconn hY))
+    (unitP_label_top (unionOfTopBlocks_of_isNnComp (H.fam 0 le_rfl).st.dg hconn hY)) B hB
+
+section Cuts
+
+variable (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 < κ)
+  (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} (hφ : IsConstraintFieldStrict G δ φ)
+  {α : G.Ω 1 → ℂ}
+  (hα : ∀ w, ‖α w‖ < coerciveConst d / (2 * (G.spacing (w : CTorus d L N₁ m₁ (k + 1))) ^ 2))
+
+include S hκ hM hδ hsm hφ hα
+
+/-- **T4. Vanishing of the mixed difference of the rooted trace of the root block: geometric form.**
+`B` is a set of unit points (for the determinant, the unit points of one `L`-block of the unit
+lattice, `StepObjects.blockU z`). Let `J` contain the parameter cube `p`. Suppose that at every
+`{0,1}`-valued cut point `σ` and for `t ∈ {0,1}` there is a set `Y'` which is a union of
+nearest-neighbour components of both `Yreg (extS σ)` and `Yreg (extS (σ[p ↦ t]))`, which contains
+all the `Ω₁`-sites of the unit blocks of `B`, and such that no cube `q` of the cover with
+`□_q ⊆ Y'` has the parameter cube `p` in its footprint `𝒬(q)`. Then `mixDiff J` of the rooted trace
+vanishes. (The common component is the component of the root block, which is the same for the two
+values of the parameter `p`; the last condition says that the cut factors of the cubes inside it
+do not see `p`.) No `UnionOfBlocks` hypothesis. -/
+theorem mixDiff_rootTrace_unit_eq_zero_of_root_component (B : Finset (unitPts G))
+    (hconn : HatConn G) {J : Finset (cubeIdx G)} {p : cubeIdx G} (hp : p ∈ J)
+    (hgeom : ∀ σ : DecParams G, (∀ q, σ q = 0 ∨ σ q = 1) → ∀ t : ℂ, (t = 0 ∨ t = 1) →
+      ∃ Y' : Finset (CTorus d L N₁ m₁ (k + 1)),
+        IsNnComp (Yreg G (extS G σ)) Y' ∧
+        IsNnComp (Yreg G (extS G (Function.update σ p t))) Y' ∧
+        (∀ y ∈ B, unitLabel G Y' y) ∧
+        ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → (p : ℕ × CTorus d L N₁ m₁ (k + 1)) ∉ Qset G q) :
+    mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α) = 0 := by
+  classical
+  refine mixDiff_rootTrace_eq_zero_of_separated S hκ hM hδ hsm
+    (isUnitLatticeB_unit (G := G)).toIsUnitLattice hφ hα B hconn hp ?_
+  intro σ h01 t ht
+  obtain ⟨Y', hY, hY', hB, hpq⟩ := hgeom σ h01 t ht
+  refine ⟨Y', unitLabel G Y', hY, hY', ?_, unitQ_label_top
+    (unionOfTopBlocks_of_isNnComp S.dg hconn hY), unitP_label_top
+    (unionOfTopBlocks_of_isNnComp S.dg hconn hY), hB⟩
+  intro q hq hsub R hR
+  have hRc : R ∈ cubeIdx G := Qset_subset_cubeIdx q hR
+  have hne : (⟨R, hRc⟩ : cubeIdx G) ≠ p := by
+    intro h
+    exact hpq q hq hsub (by rw [← h]; exact hR)
+  unfold extS
+  simp [hRc, Function.update_of_ne hne]
+
+end Cuts
+
+end UnitTrace
+
+end Balaban.Fluctuation
