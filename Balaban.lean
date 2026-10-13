@@ -1686,6 +1686,7 @@ public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Green.FinalTaggedSqrt
 public import Balaban.Green.FinalTaggedLocal
+public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Fluctuation.DecMarkCorrSum
@@ -1693,13 +1694,13 @@ public import Balaban.Fluctuation.DecMarkCorrRooted
 public import Balaban.Inhabited.TowerCoreRatesGeneral
 public import Balaban.Inhabited.DecMarkCorrTotalFromTower
 public import Balaban.Inhabited.ObsTiltFamily
+public import Balaban.Fluctuation.SourceRadiusCarriers
 public import Balaban.Inhabited.ObsTiltLabels
 public import Balaban.Fluctuation.SourceRadius
-public import Balaban.Fluctuation.SourceFamilyRelativeRadius
-public import Balaban.Inhabited.SourceFamilyRelativeRadiusFromTower
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.DecMarkCorrSumFromTower
 public import Balaban.Inhabited.Thm31bPolymer
+public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.ObsSourceLocal
