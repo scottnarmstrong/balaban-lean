@@ -516,6 +516,116 @@ theorem exists_connStruct_hullOf (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L) (z : Ro
   calc E.card ≤ (F.card - 1) * ℓ := hE
     _ ≤ J.card * ℓ := Nat.mul_le_mul_right _ (by omega)
 
+/-- **T2.**  If the root cube and the patches of `J` are connected for Moore adjacency, the sites of
+the hull form a polymer: a nonempty, nearest-neighbour connected union of `π′_K` cubes. -/
+theorem isPolyDom_hullOf (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L) (z : RootIdx d L N₁ m₁ K)
+    (J : Finset (ℕ × CTorus d L N₁ m₁ K)) (hJK : ∀ P ∈ J, P.1 ≤ K)
+    (hconn : RootConnected m₀ z J) : IsPolyDom m₀ K (sitesOf (hullOf m₀ z J)) := by
+  obtain ⟨W, E, hc, hWX, hWanc, -⟩ := exists_connStruct_hullOf hN hL z J hJK hconn
+  set X := sitesOf (hullOf m₀ z J) with hX
+  have hsymm : ∀ a b : CTorus d L N₁ m₁ K, (a ∈ X ∧ b ∈ X ∧ Nbr a b) → (b ∈ X ∧ a ∈ X ∧ Nbr b a) :=
+    fun a b h => ⟨h.2.1, h.1, h.2.2.symm⟩
+  have hbox : ∀ b ∈ piBases m₀ (hullSet m₀ z J), ∀ x ∈ box b (L * cellSide L m₀ m₁ K),
+      Relation.ReflTransGen (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) b x := by
+    intro b hb x hx
+    have hβ : box b (L * cellSide L m₀ m₁ K) ⊆ X := by
+      rw [hX, hullOf, sitesOf_piHull hN]
+      exact Set.subset_iUnion₂ (s := fun b (_ : b ∈ piBases m₀ (hullSet m₀ z J)) =>
+        box b (L * cellSide L m₀ m₁ K)) b hb
+    obtain ⟨w, hw, rfl⟩ := hx
+    have := reach_box b w (box b (L * cellSide L m₀ m₁ K))
+      (fun w' hw' => mem_box_add b (fun μ => lt_of_le_of_lt (hw' μ) (hw μ)))
+    exact Relation.ReflTransGen.mono (fun a c h => ⟨hβ h.2.1, hβ h.2.2, h.1.2⟩) _ _ this
+  have hanc : ∀ x ∈ X, ∃ A, JNode J A ∧ Relation.ReflTransGen
+      (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) x (nodeAnchor m₀ z A) := by
+    intro x hx
+    rw [hX, hullOf, sitesOf_piHull hN] at hx
+    obtain ⟨b, hb, hxb⟩ := Set.mem_iUnion₂.1 hx
+    obtain ⟨A, hA, hAb⟩ := exists_node_of_piBases hN hJK hb
+    exact ⟨A, hA, (rtg_symm hsymm (hbox b hb x hxb)).trans (hbox b hb _ hAb)⟩
+  have hstruct : ∀ A B, JNode J A → JNode J B → Relation.ReflTransGen
+      (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) (nodeAnchor m₀ z A) (nodeAnchor m₀ z B) := by
+    intro A B hA hB
+    refine Relation.ReflTransGen.mono (fun a b hab => ?_) _ _
+      (hc.2.2 _ (hWanc A hA) _ (hWanc B hB))
+    rcases hab with hab | hab
+    · obtain ⟨h1, h2, h3⟩ := hc.2.1 _ hab
+      exact ⟨hWX h1, hWX h2, h3⟩
+    · obtain ⟨h1, h2, h3⟩ := hc.2.1 _ hab
+      exact ⟨hWX h2, hWX h1, h3.symm⟩
+  refine ⟨⟨_, nodeAnchor_mem_sitesOf hN hJK (Or.inl rfl : JNode J none)⟩,
+    ⟨_, chosenOne_piHull hN _⟩, fun x hx y hy => ?_⟩
+  obtain ⟨A, hA, hxA⟩ := hanc x hx
+  obtain ⟨B, hB, hyB⟩ := hanc y hy
+  exact (hxA.trans (hstruct A B hA hB)).trans (rtg_symm hsymm hyB)
+
+/-- **T3 (size, (8)).**  If `(z, J)` is connected to the root,
+`dExt (hullOf z J) ≤ 2 d L · |J| + 0`.  The slope `2 d L` and the constant term `0` depend only on
+`d` and `L`; they do not depend on `K`, `m₀`, the torus, or the layers of the patches. -/
+theorem dExt_hullOf_le (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L) (z : RootIdx d L N₁ m₁ K)
+    (J : Finset (ℕ × CTorus d L N₁ m₁ K)) (hJK : ∀ P ∈ J, P.1 ≤ K)
+    (hconn : RootConnected m₀ z J) :
+    dExt (hullOf m₀ z J) ≤ (2 * d * L : ℝ) * J.card + 0 := by
+  classical
+  have hpoly := isPolyDom_hullOf hN hL z J hJK hconn
+  obtain ⟨W, E, hc, hWX, hWanc, hE⟩ := exists_connStruct_hullOf hN hL z J hJK hconn
+  have hmeet : MeetsOne m₀ K (piBases m₀ (hullSet m₀ z J)) W := by
+    intro b hb
+    obtain ⟨A, hA, hAb⟩ := exists_node_of_piBases hN hJK hb
+    exact ⟨_, hWanc A hA, hAb⟩
+  rw [dExt_eq_sizeJ_of_isPolyDom hpoly]
+  have h1 := treeLenCovOne_le_of_chosen (chosenOne_piHull hN (hullSet m₀ z J)) hc hWX hmeet
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hpos : (0 : ℝ) < (L : ℝ) ^ (m₀ + m₁ + K) := by positivity
+  have hcost : bondCost (scaleW L m₀ m₁ K) E = (E.card : ℝ) / (L : ℝ) ^ (m₀ + m₁ + K) := by
+    unfold bondCost scaleW
+    simp [Finset.sum_const, div_eq_mul_inv]
+  have ha : ((cellSide L m₀ m₁ K : ℕ) : ℝ) = (L : ℝ) ^ (m₀ + m₁ + K) := by
+    unfold cellSide; push_cast; rw [show K + m₀ + m₁ = m₀ + m₁ + K by omega]
+  have hEr : (E.card : ℝ) ≤ J.card * (2 * d * (L * (L : ℝ) ^ (m₀ + m₁ + K))) := by
+    have := (Nat.cast_le (α := ℝ)).2 hE
+    push_cast at this
+    rwa [ha] at this
+  have h2 : sizeJ m₀ K (sitesOf (hullOf m₀ z J)) ≤ bondCost (scaleW L m₀ m₁ K) E := h1
+  refine h2.trans ?_
+  rw [hcost, div_le_iff₀ hpos]
+  nlinarith
+
+/-- **T4.**  The hull has at most `L ^ (2 d) (|J| + 1)` cubes (this needs no connectedness). -/
+theorem card_hullOf_le (hN : L ^ m₀ ∣ N₁) (z : RootIdx d L N₁ m₁ K)
+    (J : Finset (ℕ × CTorus d L N₁ m₁ K)) (hJK : ∀ P ∈ J, P.1 ≤ K) :
+    (hullOf m₀ z J).card ≤ L ^ d * L ^ d * (J.card + 1) := by
+  classical
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K)
+  have ha0 := cellSide_pos (L := L) m₀ m₁ K
+  set X := sitesOf (hullOf m₀ z J) with hX
+  let F : Finset (Option (ℕ × CTorus d L N₁ m₁ K)) := insert none (J.image some)
+  have hFcard : F.card ≤ J.card + 1 :=
+    (Finset.card_insert_le _ _).trans (Nat.add_le_add_right Finset.card_image_le 1)
+  have hinj : (hullOf m₀ z J).card ≤ cellCount (cellSide L m₀ m₁ K) X := by
+    unfold cellCount
+    refine Finset.card_le_card_of_injOn (fun b => b.1) (fun b hb => ?_)
+      (fun a _ b _ h => Subtype.ext h)
+    rw [Finset.mem_coe, Finset.mem_filter]
+    exact ⟨Finset.mem_univ _, b.2.1, fun y hy => mem_sitesOf.2 ⟨b, hb, hy⟩⟩
+  have hch := chosenOne_piHull (m₀ := m₀) hN (hullSet m₀ z J)
+  have hmeet : ∀ b ∈ piBases m₀ (hullSet m₀ z J),
+      ∃ x ∈ F.image (nodeAnchor m₀ z), x ∈ box b (L * cellSide L m₀ m₁ K) := by
+    intro b hb
+    obtain ⟨A, hA, hAb⟩ := exists_node_of_piBases hN hJK hb
+    refine ⟨_, Finset.mem_image_of_mem _ ?_, hAb⟩
+    simp only [F, Finset.mem_insert, Finset.mem_image]
+    rcases hA with h | ⟨P, hP, rfl⟩
+    · exact Or.inl h
+    · exact Or.inr ⟨P, hP, rfl⟩
+  have h3 := cellCount_le hdvd ha0 (fun b hb => hb.1) hch.2 hmeet
+  calc (hullOf m₀ z J).card ≤ cellCount (cellSide L m₀ m₁ K) X := hinj
+    _ ≤ L ^ d * L ^ d * ((F.image (nodeAnchor m₀ z)).image (cbase (cellSide L m₀ m₁ K))).card :=
+        h3
+    _ ≤ L ^ d * L ^ d * (J.card + 1) := by
+        refine Nat.mul_le_mul_left _ ?_
+        exact Finset.card_image_le.trans (Finset.card_image_le.trans hFcard)
+
 end Hull
 
 end Balaban.Fluctuation
