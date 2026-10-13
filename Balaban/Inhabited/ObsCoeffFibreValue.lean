@@ -212,7 +212,22 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 open Classical in
 /-- **The value of the observable coefficient at every chart datum and source, from one `Ev` and
-one activity.**  (Statement: see the module docstring.) -/
+one activity.**
+
+At a scale of the tower, for the site `(y, i)`: the activity `A` (of `obsTiltLabels_fromTower`),
+the amplitude `Rg = obsRg …` and the family `Ev` (of `obsEv_fromTower`, on the labels
+`Lab.sum Lab`) are chosen once.  Then
+
+* `obsCoeffParam` built from `tiltActObs A … Rg …`, `blockMarkC`, the kernel
+  `obsHker 𝒴 (hatCoeff (Ev ·) θ.1 (obsUnitVec S ·)) 1` and `obsGrFam` is analytic in `θ` on
+  `physVq S S.a₁ S.ν T.t q` for every finite set of cubes `T'` (`obsCoeffParam_analytic_of_Ev`);
+* for every chart datum `D` of the fibre `h = h₀`, every source `g` with `‖g‖₁ < q`, the value
+  `(S.withDatum D hDh).M0C … g y i` equals `√β_U · ∑_{T'} obsCoeffParam … θ T'` at
+  `θ = (rawOf D, g)`.
+
+The proof builds the record `ObsMarks` of `obsMarks_of_tilt` for the same `Ev` and the activity at
+`θ` (`obsRecord_of_halves`), applies `thm31b_coeff` to its consumer form (`ObsMarks.toConsumer`),
+and identifies `obsCoeff` of the record with `obsCoeffParam` termwise (`obsCoeffParam_fibre`). -/
 theorem obsCoeff_fibreValue_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {CR s : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧
@@ -239,6 +254,17 @@ theorem obsCoeff_fibreValue_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
           (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
             ‖Ev Y u‖ ≤ (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
               Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) ∧
+          (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ),
+            AnalyticOnNhd ℂ (fun θ : physParam 2 S => obsCoeffParam (S.blockSplit 1 hp).μ
+              (fun (θ : physParam 2 S) (t σ : ℂ) => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le (obsDomains_isDj (X₁f := LocalCover.nbhdF 1 y) S le_rfl (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1) (Kobs := (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + 1) + K0 3 3 T.κ0 + K0 3 3 T.κ0) le_rfl (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+              (fun m => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+              (fun m => blockMarkC S 1 hp m.1 m.2)
+              (fun θ m T'' => obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (fun Y' => hatCoeff (Ev Y')
+                (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) (obsUnitVec S m)) 1 T'')
+              (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (fun Y' => Sum.inl (Sum.inr Y'))
+                (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))))
+              (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ T')
+              (physVq S S.a₁ S.ν T.t q)) ∧
           ∀ (D : BgData S.G' 2) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
             XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
             ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i', ‖g x' i'‖ < q →
@@ -267,14 +293,20 @@ theorem obsCoeff_fibreValue_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
     hp₁ q hq0 hq1 Dsc S rfl hp (Kc := K0 3 3 T.κ0 + 1) (by linarith)
   have hdj := obsDomains_isDj (X₁f := LocalCover.nbhdF 1 y) S le_rfl (Dsc.covers.2 (y, i)).1
     (Dsc.covers.2 (y, i)).2.2.1
-  obtain ⟨-, -, hA3, -, hA5⟩ := h2 hdj (Kobs := (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + 1) +
+  obtain ⟨-, -, hA3, hA4, hA5⟩ := h2 hdj (Kobs := (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + 1) +
     K0 3 3 T.κ0 + K0 3 3 T.κ0) le_rfl
   have hg0 : ∑ x', ∑ i', ‖(0 : Fld 3 3 N₁ T.m₁ (k + 1) 2) x' i'‖ < q := by simpa using hq0
   obtain ⟨hRg1, hRgΘ, hR, -⟩ := hA5 0 hg0
   refine ⟨Lb, hLb, Lab, εH, hεH, A, hR, hRg1, by rw [← hΘdef]; exact hRgΘ, ?_⟩
   obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsEv_fromTower T k hk N₁ ν β p₁ hN hνpos hν Dsc hp y i
     (Lab.sum Lab)
-  refine ⟨Ev, ha, hd, hb, ?_⟩
+  refine ⟨Ev, ha, hd, hb, ?_, ?_⟩
+  · intro T'
+    obtain ⟨hhol, hcont⟩ := hA4 (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR hRg1
+    exact (obsCoeffParam_analytic_of_Ev T k hk N₁ ν β p₁ Dsc S rfl hp y h3N Lab hεH A hdj
+      (Kc := K0 3 3 T.κ0 + 1) (Kobs := (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + 1) + K0 3 3 T.κ0 +
+        K0 3 3 T.κ0) le_rfl (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR hνpos hν hRg1
+      (by linarith) hhol hcont (by rw [hΘdef] at hRgΘ; exact hRgΘ) Ev ha hd hb T').2.2.2
   intro D hDh hD g hg
   have hDx : XiCData S.G' (compWeight 3 1) ν (k + 1) 1 T.t D := hD
   obtain ⟨hhalf, hid⟩ := hEv D hDx
