@@ -560,18 +560,6 @@ theorem obsMarks_zeroClass_instance {κmin : ℝ} (T : StepTower κmin) :
     (by simp [l1Ball]) y i
   exact ⟨I⟩
 
-/-- Smallness of `obsPrefactor` at `b = β c^m`, uniformly in `m`, for any base `c ≥ 1`
-(the base `c = 3` is `obsPrefactor_small_scale`). -/
-theorem obsPrefactor_small_scale_pow (p : ℕ) {s : ℝ} (hs0 : 0 < s) (c : ℝ) (hc : 1 ≤ c)
-    {ε : ℝ} (hε : 0 < ε) :
-    ∃ β₁ : ℝ, 1 ≤ β₁ ∧ ∀ (m : ℕ) (β : ℝ), β₁ ≤ β → obsPrefactor p s (β * c ^ m) ≤ ε := by
-  have h := (obsPrefactor_tendsto p hs0).eventually (Iic_mem_nhds hε)
-  obtain ⟨B, hB⟩ := eventually_atTop.1 h
-  refine ⟨max B 1, le_max_right _ _, fun m β hβ => hB _ ?_⟩
-  have : (1 : ℝ) ≤ c ^ m := one_le_pow₀ hc
-  have hβ1 : 0 ≤ β := by linarith [le_max_right B 1]
-  nlinarith [le_max_left B 1]
-
 /-- **The coefficient sum and bound of Theorem 3.1 (b) for the zero-class step at every scale of
 one general tower and every source radius `ρ > 0`, with no hypothesis beyond the tower**, at the
 output rate `(3/2) κ_dec`: `thm31b_zeroClass_fromTower_of_ray_rhoG` with `hray` supplied by
