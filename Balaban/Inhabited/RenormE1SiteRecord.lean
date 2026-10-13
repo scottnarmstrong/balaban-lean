@@ -31,7 +31,11 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover
 
 open Classical in
-/-- **The marked energy at the renormalized datum is a localized expansion on site domains.** -/
+/-- **Conditional marked site record.**  Given a coefficient family with exact locality on
+`sitesOf T` (hypothesis `hloc`) and the stated analyticity, bound, support and value hypotheses, the
+marked energy at the renormalized datum has a localized expansion on site domains, on the fibre of
+constant field `h₀`.  The tower's family (`e1CoeffFamily_value_fromTower`) supplies every hypothesis
+except `hloc`, which it has only in the thick form. -/
 theorem renE1_siteRecord_of_family {κmin : ℝ} (R : StepTowerTheta κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) {ν : ℝ}
     (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
@@ -112,8 +116,8 @@ theorem renE0θ_det_eq_logAC {κmin : ℝ} (R : StepTowerTheta κmin)
   exact ((E z).atDatum (renThetaDatum (R.toStepTower.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hDh hx2).sum_eq.symm
 
 open Classical in
-/-- **The physical `E₀` at the renormalized datum as a localized expansion on the fibre.**  The
-determinant record (`renormDetOnlyZeroM_onFibre_half`) and the marked record
+/-- **Conditional physical `E₀` site record** (conditional on exact locality `hloc` of the mark
+family, as in `renE1_siteRecord_of_family`).  The determinant record (`renormDetOnlyZeroM_onFibre_half`) and the marked record
 (`renE1_siteRecord_of_family`) at the common rate `min (3/2 κ_dec) κ`, summed over the union of the
 two index families; the value function is `E₀^{(k+1)}(z)` of the step with the renormalized
 datum. -/
