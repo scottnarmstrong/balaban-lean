@@ -103,7 +103,7 @@ theorem barField_constUnitPhi (e : Fin N → ℝ) {y : Torus d (N₀ * L ^ K)} (
   · simp [barField, h, constUnitBg_Ψ hy]
 
 
-theorem mem_dataSites_of_adj {x : Torus d (N₀ * L ^ K)} (μ : Fin d)
+theorem mem_dataSites_pair_of_adj {x : Torus d (N₀ * L ^ K)} (μ : Fin d)
     (h : x ∈ G.Ω 1 ∨ x + Pi.single μ 1 ∈ G.Ω 1) :
     x ∈ dataSites G ∧ x + Pi.single μ 1 ∈ dataSites G := by
   rcases h with h | h
@@ -124,7 +124,7 @@ theorem mem_dataSites_sub {x : Torus d (N₀ * L ^ K)} (hx : x ∈ G.Ω 1) (μ :
   · exact Or.inr (mem_collar_of_adj G hx h' ⟨μ, Or.inr (sub_add_cancel x _).symm⟩)
 
 theorem mem_dataSites_add {x : Torus d (N₀ * L ^ K)} (hx : x ∈ G.Ω 1) (μ : Fin d) :
-    x + Pi.single μ 1 ∈ dataSites G := (mem_dataSites_of_adj μ (Or.inl hx)).2
+    x + Pi.single μ 1 ∈ dataSites G := (mem_dataSites_pair_of_adj μ (Or.inl hx)).2
 
 /-- **The constant field has action zero** for the constant datum, for every generating set,
 weights and mass. -/
@@ -141,7 +141,7 @@ theorem action_constUnitBg_eq_zero (e : Fin N → ℝ) (a : ℕ → ℝ) (ν : �
           barField G (constUnitBg G e).Ψ (constUnitPhi G e) x i‖ ^ 2 else 0) = 0 := by
     intro x μ
     split_ifs with h
-    · obtain ⟨hx, hx'⟩ := mem_dataSites_of_adj μ h
+    · obtain ⟨hx, hx'⟩ := mem_dataSites_pair_of_adj μ h
       simp [barField_constUnitPhi e hx, barField_constUnitPhi e hx']
     · rfl
   have h3 : ∀ x : G.Ω 1, ∑ i, ‖constUnitPhi G e (x, i) - (constUnitBg G e).h x i‖ ^ 2 = 0 := by
