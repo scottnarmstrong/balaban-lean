@@ -1320,6 +1320,8 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
+public import Balaban.Fluctuation.MarkedHatRows
+public import Balaban.Inhabited.MarkedHatRowsWitness
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1373,6 +1375,9 @@ public import Balaban.Fluctuation.SharpAssemblyScaled
 public import Balaban.Fluctuation.StepActivityDirectScaled
 public import Balaban.Inhabited.StepActivityDirectScaledWitness
 public import Balaban.Inhabited.StepActivityDirectPhysicalRates
+public import Balaban.Fluctuation.LevelLocalCover
+public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
