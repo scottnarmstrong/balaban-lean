@@ -1206,6 +1206,7 @@ public import Balaban.Fluctuation.MarkedRootGeometry
 public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
 public import Balaban.Inhabited.MarkedRootGeometryWitness
+public import Balaban.Inhabited.MarkedSharpCountWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1329,6 +1330,7 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
+public import Balaban.Fluctuation.MarkedSharpCount
 public import Balaban.Fluctuation.MarkedHatRows
 public import Balaban.Inhabited.MarkedHatRowsWitness
 public import Balaban.Analysis.CutExpansion
