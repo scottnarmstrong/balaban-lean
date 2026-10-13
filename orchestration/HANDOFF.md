@@ -12,9 +12,6 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W310 | `w310-scale-mass-weight` / W310 | mass premise for k ≤ k₀ and weight-uniform constants (SCALEUNIF) |
-| W311 | `w311-level-step-setting` / W311 | hatStepK: the step setting at general scale; BgHyp, DGSetting/OpSetting, HatConn (SCALEUNIF) |
-| W307 | `w307-det-cauchy-chart` / W307 | composed cut family for the determinant: DecDom membership, Schwarz bound, endpoint (DETCAUCHY package 1) |
 | W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
 | W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
 | W314 | `w314-marked-root-geometry` / W314 | root bridge, fibre and fixed labels for the marked family (MARKCUBIC package 3) |
