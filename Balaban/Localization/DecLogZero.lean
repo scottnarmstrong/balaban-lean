@@ -77,7 +77,7 @@ theorem zeroCuts_of_not_mem {P : ℕ × CTorus d L N₁ m₁ (k + 1)} (hP : P �
 /-! ### T1: the coefficients -/
 
 /-- Every centre of `cubeIdx G` lies in its own `Qset`. -/
-theorem self_mem_Qset {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
+theorem self_mem_Qset_zeroCuts {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
     q ∈ Qset G q := by
   refine mem_Qset.2 ⟨hq, q.2, SameCell.refl _ _, fun μ => ⟨0, ?_⟩⟩
   have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
@@ -100,7 +100,7 @@ theorem sProd_zeroCuts_eq_zero {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (h : (Q
 /-- Every `q ∈ cubeIdx G` has vanishing coefficient at zero cuts. -/
 theorem sProd_zeroCuts_of_mem {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
     sProd G (zeroCuts G) q = 0 :=
-  sProd_zeroCuts_eq_zero ⟨q, self_mem_Qset hq⟩
+  sProd_zeroCuts_eq_zero ⟨q, self_mem_Qset_zeroCuts hq⟩
 
 /-- Exactly which centres keep the coefficient `1` at zero cuts: those with empty `Qset`
 (the empty product). Such a centre is not in `cubeIdx G`. -/
@@ -117,7 +117,7 @@ theorem sProd_zeroCuts_eq_one_iff {q : ℕ × CTorus d L N₁ m₁ (k + 1)} :
 
 theorem not_mem_cubeIdx_of_Qset_eq_empty {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
     (h : Qset G q = ∅) : q ∉ cubeIdx G := fun hq => by
-  have := self_mem_Qset hq
+  have := self_mem_Qset_zeroCuts hq
   simp [h] at this
 
 /-! ### T2: the Green operator and covariance at zero cuts -/
