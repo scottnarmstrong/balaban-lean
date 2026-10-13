@@ -267,9 +267,15 @@ theorem obsMarks_zeroClass_instance {κmin : ℝ} (T : StepTower κmin) :
     (by simp [l1Ball]) y i
   exact ⟨I⟩
 
-/-- **Theorem 3.1 (b) for the zero-class step at every scale of one tower, unconditionally**, at
-the output rate `(3/2) κ_dec`: `thm31b_zeroClass_fromTower_of_ray` with `hray` supplied by
-`obsRay_hray_fromTower`. -/
+/-- **The coefficient sum and bound of Theorem 3.1 (b) for the zero-class step at every scale of
+one tower, with no hypothesis beyond the tower**, at the output rate `(3/2) κ_dec`:
+`thm31b_zeroClass_fromTower_of_ray` with `hray` supplied by `obsRay_hray_fromTower`.
+
+This is weaker than clause (b) of `notes/phase1/FLUCTUATION.md` Theorem 3.1 (audit
+`notes/phase1/AUDIT-OBS.md`, A1): the terms are indexed by finite sets of block cubes with a root
+clause, not by localization domains with a support clause; there is no termwise locality, no
+analyticity in the source `g` (the coefficients are chosen after `g`), no reality or symmetry
+clause; and the prefactor is `obsPrefactor`, not the paper's power of `β`. -/
 theorem thm31b_zeroClass_fromTower {κmin : ℝ} (T : StepTower κmin)
     {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
     (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
