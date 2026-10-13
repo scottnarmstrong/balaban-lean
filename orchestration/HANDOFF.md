@@ -12,7 +12,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W355 | `w355-p6-param-degree` / W355 | P6: sharp rootedness in the footprint graph (one-edge steps), degree D, rooted sum, rate ≈ 38 (VMOD-39 packages 2–4) |
+| W360 | `w360-kf0-walk-series` / W360 | one-scale branch: walk series of K_ν^{-1/2}, non-negative entries, row sums, finite-range truncations with tail q^R |
 | W356 | `w356-kf0-rootf-partial` / W356 | one-scale branch: Root-F clauses with k_f = 0 on ν ≥ 7/(8L²) from the one-scale input (conditional; Cauchy construction, principal log) |
 | W357 | `w357-kf0-block-split` / W357 | one-scale branch: exact sum over bad block sets (K0.2), boundary form (K0.3), Peierls charge (K0.4) |
 | W358 | `w358-kf0-gaussian` / W358 | one-scale branch: Gaussian change of variables in the all-good sector, row sum of K_ν^{-1/2}, product cutoff implication |
