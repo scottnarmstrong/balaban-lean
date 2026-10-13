@@ -270,6 +270,79 @@ theorem parentPsi_r3_of_tested (Y : Set (Torus S.d (n (j + 1))))
     _ < 8 * δ ^ 2 := by nlinarith
     _ ≤ _ := by nlinarith
 
+/-! ### Geometry of the partition -/
+
+/-- **The partition is the distance-one neighbourhood.**  A data site of `genW Y` is tested
+exactly when its scale-`k` cube lies within one cube of `Y`: the averaging block of a site over a
+cube never leaves that cube, so the block condition is automatic. -/
+theorem mem_testedSites_iff (Y : Set (Torus S.d (n (j + 1)))) {s : BgT Cx.geo (j + 1)} :
+    s ∈ testedSites Cx Y ↔ s ∈ dataSites (Cx.genW Y) ∧ parentSiteCube Cx s ∈ nbhd 1 Y := by
+  classical
+  have hm : Cx.geo.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = Cx.geo.c * n (j + 1) := by simp
+  have hbs : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s =
+      parentSiteCube Cx s := (cubeMap_bgToFine Cx s).symm
+  constructor
+  · rintro ⟨hsd, y₀, hy₀, hΩ, hT, -⟩
+    refine ⟨hsd, ?_⟩
+    have hy : y₀ ∈ Y := by simpa [cubeFin] using hy₀
+    rw [← hbs]
+    exact nbhd_mono (le_refl 1) (Set.singleton_subset_iff.2 hy) (mem_cubePre.1 hT)
+  · rintro ⟨hsd, hq⟩
+    obtain ⟨y₀, hy, hd⟩ := mem_nbhd.mp hq
+    have hq0 : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s ∈ nbhd 1 {y₀} :=
+      mem_nbhd.mpr ⟨y₀, rfl, hbs ▸ hd⟩
+    have hy₀ : y₀ ∈ cubeFin Y := by simp [cubeFin, hy]
+    have htop : s ∈ (cubeGen Cx y₀).Ω (j + 1) :=
+      (genCube_top_mem hm y₀).2 (nbhd_mono (by omega) subset_rfl hq0)
+    have hlay := layerIndex_top (cubeGen Cx y₀) (Nat.succ_pos j) htop
+    refine ⟨hsd, y₀, hy₀, mem_Ω_one_of_top _ (Nat.succ_pos j) htop, mem_cubePre.2 hq0, ?_⟩
+    intro z hz
+    rw [hlay] at hz
+    have hzj := GeneratingSet.mem_blk.1 hz
+    have hzc := cube_eq_of_jBlock_eq (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
+      (q := j + 1) (c := Cx.geo.c) (n := n (j + 1)) hm hzj
+    exact mem_cubePre.2 (hzc ▸ hq0)
+
+theorem mem_outerSites_iff (Y : Set (Torus S.d (n (j + 1)))) {s : BgT Cx.geo (j + 1)} :
+    s ∈ outerSites Cx Y ↔ s ∈ dataSites (Cx.genW Y) ∧ parentSiteCube Cx s ∉ nbhd 1 Y := by
+  simp only [outerSites, Set.mem_sdiff, Set.mem_ofPred_eq, mem_testedSites_iff]
+  tauto
+
+/-- **(a)** Every data site over a cube of `Y` is tested. -/
+theorem tested_of_over_Y (Y : Set (Torus S.d (n (j + 1)))) {s : BgT Cx.geo (j + 1)}
+    (hsd : s ∈ dataSites (Cx.genW Y)) (hY : parentSiteCube Cx s ∈ Y) :
+    s ∈ testedSites Cx Y :=
+  (mem_testedSites_iff Cx Y).2 ⟨hsd, subset_nbhd 1 Y hY⟩
+
+/-- **(b)** A tested site has its cube within one cube of `Y`. -/
+theorem testedSites_subset_nbhd_one (Y : Set (Torus S.d (n (j + 1)))) {s : BgT Cx.geo (j + 1)}
+    (hs : s ∈ testedSites Cx Y) : parentSiteCube Cx s ∈ nbhd 1 Y :=
+  ((mem_testedSites_iff Cx Y).1 hs).2
+
+/-- **(c)** An outer site has its cube strictly outside `Y`, at distance more than one cube and at
+most `2⌊R_{k-1}⌋ + 3` cubes from `Y`; and every data site whose cube is at distance more than one
+from `Y` is an outer site. -/
+theorem outerSites_cube_mem (hL : 2 ≤ S.L) (Y : Set (Torus S.d (n (j + 1))))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ outerSites Cx Y) :
+    parentSiteCube Cx s ∈ nbhd (2 * ⌊R j⌋₊ + 3) Y ∧ parentSiteCube Cx s ∉ nbhd 1 Y ∧
+      parentSiteCube Cx s ∉ Y := by
+  obtain ⟨hsd, hq⟩ := (mem_outerSites_iff Cx Y).1 hs
+  exact ⟨dataSite_cube_mem_nbhd Cx hL Y hsd, hq, fun hy => hq (subset_nbhd 1 Y hy)⟩
+
+theorem mem_outerSites_of_far (Y : Set (Torus S.d (n (j + 1)))) {s : BgT Cx.geo (j + 1)}
+    (hsd : s ∈ dataSites (Cx.genW Y)) (hq : parentSiteCube Cx s ∉ nbhd 1 Y) :
+    s ∈ outerSites Cx Y :=
+  (mem_outerSites_iff Cx Y).2 ⟨hsd, hq⟩
+
+/-- **(d)** For a retained component `C`, a data site over a cube of `C` is tested exactly when
+that cube is adjacent (distance at most one) to a cube of `Y`. -/
+theorem retained_tested_iff {k0 : ℕ} (H : RegionHistory S n R k0 K) (C : H.Comp (j + 1))
+    (_hC : C.1 ∉ H.rem (j + 1)) (Y : Set (Torus S.d (n (j + 1))))
+    {s : BgT Cx.geo (j + 1)} (hsd : s ∈ dataSites (Cx.genW Y)) (_hq : parentSiteCube Cx s ∈ C.1) :
+    s ∈ testedSites Cx Y ↔ ∃ y ∈ Y, supDist (parentSiteCube Cx s) y ≤ 1 := by
+  rw [mem_testedSites_iff, mem_nbhd]
+  simp [hsd]
+
 end Tested
 
 end Balaban.LargeField
