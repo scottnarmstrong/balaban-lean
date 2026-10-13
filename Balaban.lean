@@ -1708,6 +1708,7 @@ public import Balaban.Inhabited.Thm31aPolymer
 public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.Thm31bKernelSupport
+public import Balaban.Inhabited.Thm31SiteDomains
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
 public import Balaban.Inhabited.ObsCoeffFamily
