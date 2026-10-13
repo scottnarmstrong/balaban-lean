@@ -215,6 +215,8 @@ public import Balaban.Green.OneScaleDecay
 public import Balaban.Green.BlockNorm
 public import Balaban.Green.TranslationInvariant
 public import Balaban.Green.CoarseOperator
+public import Balaban.Green.FinalMassGreen
+public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
