@@ -1697,6 +1697,7 @@ public import Balaban.Inhabited.ObsTiltLabels
 public import Balaban.Fluctuation.SourceRadius
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.Thm31bPolymer
+public import Balaban.Inhabited.Thm31aPolymer
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
