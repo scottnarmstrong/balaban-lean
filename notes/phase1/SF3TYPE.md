@@ -79,7 +79,8 @@ structure LocalSuccessor (ϱhi ϱloc : ℝ) where
    canonical solutions differ. The remaining input is the local solution estimate
    of `Xi.lean` for the physical composed pair (P3 (4.46)–(4.47), printed pp. 78–79).
 
-**W715 status.** Item 1 is proved in `SmallField/LocalGeneratorClassDomain.lean`, including
-the pointwise field-domain statement for a specified raw field pair. Item 2 remains open:
-the present ambient high-index step supplies neither a local `XiCData` witness nor
+**W715 status.** The conditional `XiCData → XiDom → FieldDom.dom` part of item 1 is proved
+in `SmallField/LocalGeneratorClassDomain.lean`, including a specified raw field pair.
+The physical realization part of item 1 and item 2 remain open: the present ambient
+high-index step supplies neither a local `XiCData` witness for its composed pair nor
 the comparison of its canonical background solutions with those on `localB`.
