@@ -1337,6 +1337,7 @@ public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
 public import Balaban.Fluctuation.SharpAssemblyEta
 public import Balaban.Fluctuation.SharpAssemblyScaled
+public import Balaban.Fluctuation.StepActivityDirectScaled
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
