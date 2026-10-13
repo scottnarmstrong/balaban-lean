@@ -47,3 +47,22 @@ only for `S.withDatum D hDh`. Their off-fibre replacements must use
 `StepSettingH.dataUCH`, the free-datum critical point, and the raw ray/domain
 lemmas. Consequently no raw E1 coefficient-sum value theorem or fibre
 proof-body refactor is claimed here.
+
+## W690 status (2026-10-13)
+
+`OffFibreE1Compare.lean` proves the free-datum block-energy comparison through
+`StepSettingH.dataUCH`: `blockEnergy_mark_taylor_eq_fderiv_W1_raw` identifies the first
+Taylor remainder of the summed block energy with the derivative of `Jr.W1` in an arbitrary
+hat direction. The proof uses the raw marked disc, ray and domain, vanishing first jets,
+and the quadratic correction. `OffFibreE1Value.lean` applies this core and the W689
+parameter-mark Taylor identity to prove `e1_param_marks_eq_raw_deriv` at every datum
+satisfying `XiCData`, without a constant-field hypothesis.
+
+`OffFibreE1CoeffSum.lean` proves `e1_param_coeff_sum_eq_raw_deriv_of_activity`:
+for the common E1 labels and parameter marks at `(rawOf D, 0)`, their total `gsumCoeff`
+equals the interpolation integral of the localized derivative of raw `Jr.W1`.
+The free-datum activity identity is the named hypothesis `hact`; fixed-datum
+analyticity, measurability, locality, and bounds are stated explicitly. The theorem
+does not yet derive `hact` from W684's activity family, so a fully unconditional
+off-fibre coefficient family is still open. The old fibre comparison proofs remain
+unchanged because their lower modules cannot import this shared core without a cycle.
