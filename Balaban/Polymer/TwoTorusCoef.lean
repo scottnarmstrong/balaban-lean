@@ -754,6 +754,227 @@ theorem decMarkCorr_rootBlock_twoTorus
 
 end Marks
 
+/-! ### D3 (e): the sum of the marked energy terms over the domains of the box -/
+
+section EvSum
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "HA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "HB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "ρ₁" => R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)
+
+/-- **Sums over the sets of a box on two tori.**  Let `t_A`, `t_B` be finite families of sets of the
+boxes of radius `r` of the two tori such that a set `Y` of the box lies in `t_A` iff `boxMap '' Y`
+lies in `t_B`, and let `g (boxMap '' Y) = f Y` for `Y ∈ t_A`.  Then `∑_{t_B} g = ∑_{t_A} f`. -/
+theorem sum_image_boxMap_of_inBox {d n n' r : ℕ} {β : Type*} [AddCommMonoid β]
+    (hm : 2 * r + 1 < n) (hm' : 2 * r + 1 < n') (tA : Finset (Set (Torus d n)))
+    (tB : Finset (Set (Torus d n'))) (f : Set (Torus d n) → β) (g : Set (Torus d n') → β)
+    (hA : ∀ Y ∈ tA, ∀ y ∈ Y, InBox d r n y) (hB : ∀ Y' ∈ tB, ∀ y ∈ Y', InBox d r n' y)
+    (hmem : ∀ Y : Set (Torus d n), (∀ y ∈ Y, InBox d r n y) → (boxMap n n' '' Y ∈ tB ↔ Y ∈ tA))
+    (hfg : ∀ Y ∈ tA, g (boxMap n n' '' Y) = f Y) :
+    ∑ Y' ∈ tB, g Y' = ∑ Y ∈ tA, f Y := by
+  symm
+  refine Finset.sum_nbij' (fun Y => boxMap n n' '' Y) (fun Y' => boxMap n' n '' Y')
+    (fun Y hY => (hmem Y (hA Y hY)).2 hY) (fun Y' hY' => ?_)
+    (fun Y hY => image_image_boxMap hm' (hA Y hY)) (fun Y' hY' => image_image_boxMap hm (hB Y' hY'))
+    (fun Y hY => (hfg Y hY).symm)
+  have hYb2 : ∀ y ∈ boxMap n' n '' Y', InBox d r n y := by
+    rintro _ ⟨y, hy, rfl⟩
+    exact inBox_boxMap hm (hB Y' hY' y hy)
+  refine (hmem _ hYb2).1 ?_
+  rw [image_image_boxMap hm (hB Y' hY')]
+  exact hY'
+
+/-- `mem_polymerDomains_boxMap_iff` at the top level, for a set `S'` of the second torus equal to
+the image `bm '' X₁` (the parameter type `ParIdx GB S'` is not rewritten). -/
+theorem mem_polymerDomains_boxMap_iff_of_eq {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hX : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {S' : Set (CTorus d L N₁' m₁ (k + 1))} (hS' : S' = bm '' X₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    bm '' Y ∈ polymerDomains (fun i : ParIdx (GB) S' => i.1.1) (GB) m₀ S' ↔
+      Y ∈ polymerDomains (fun i : ParIdx (GA) X₁ => i.1.1) (GA) m₀ X₁ := by
+  subst hS'
+  exact mem_polymerDomains_boxMap_iff hN hN' le_rfl hn hn' (Nat.le_add_left 1 k) hX hY
+
+/-- **The domains `polyDom` of the box on two tori.**  For covering data `(X, 𝒦_X)`, `(X', 𝒦_X')`
+of the two tori with `X₁ = X1 … 𝒦_X` in the box of radius `R` and `X1 … 𝒦_X' = bm '' X₁`, a set
+`Y` of the box is a domain of the expansion of the first torus iff `bm '' Y` is one of the
+second torus (`mem_polymerDomains_boxMap_iff`). -/
+theorem mem_polyDom_boxMap_iff {m₀ j R : ℕ}
+    {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
+    (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
+    (hX₁R : ∀ x ∈ X₁f, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hY : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    bm '' Y ∈ polyDom (GB) (X₁f.image bm) m₀ j 𝒦X' ↔ Y ∈ polyDom (GA) X₁f m₀ j 𝒦X := by
+  have hXs : ∀ x ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := fun x hx => hX₁R x (Finset.mem_coe.1 hx)
+  show bm '' Y ∈ polymerDomains (fun i : ParIdx (GB)
+      (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) => i.1.1) (GB) m₀ (X1 (GB) m₀ j 𝒦X') ↔
+    Y ∈ polymerDomains (fun i : ParIdx (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      (GA) m₀ (X1 (GA) m₀ j 𝒦X)
+  rw [← hX₁, ← hX₁']
+  exact mem_polymerDomains_boxMap_iff_of_eq hcov.hN hcov'.hN hn hn' hXs Finset.coe_image hY
+
+/-- **D3 (e): the marked energy terms summed over the domains of the box.**  Under the hypotheses of
+`evDec_twoTorus` (for every domain), the sum of `evDec … Y` over the polymer domains `Y` of the
+expansion (`polyDom`, the domains `Y[𝒞]`) that lie in the box of radius `R` (the family `t_A`,
+for instance the filter of `polyDom` by the box condition) equals the same sum on the second torus
+(`t_B`).  The domains of the box correspond by `bm` (`mem_polymerDomains_boxMap_iff`);
+the domains not in the box (in particular those winding around the torus) are not compared. -/
+theorem sum_evDec_box_twoTorus
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams (GA)) (D : BgData (GA) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : DecParams (GB)) (D : BgData (GB) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁' (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf (GA)) × Edat (HA) N → ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf (GB)) × Edat (HB) N →
+      ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf (GA)) × Edat (HA) N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HA) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi (HA) (Dec2.decG (coverOf (GA)) (HA) (compWeight L a₁) ν p.1) p.2.2.1
+          p.2.1 (pertSource (HA) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource (HA) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small (HA) (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HA) (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HA) (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small (HA) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource (HA) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf (GB)) × Edat (HB) N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HB) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol' p).1 = dphi (HB) (Dec2.decG (coverOf (GB)) (HB) (compWeight L a₁) ν p.1) p.2.2.1
+          p.2.1 (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small (HB) (Sol' p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HB) (Sol' p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HB) (Sol' p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small (HB) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
+    (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
+    {Φ : (((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)) → ((HA).Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Φ' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) → ((HB).Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Rα Rδ Rψ : Set (CTorus d L N₁ m₁ (k + 1))} (hBM : BlockMargin (GA) X₁f Rα)
+    (hRδ : Rδ ⊆ ↑X₁f) (hRψ : Rψ ⊆ ↑X₁f)
+    (hΦ : ∀ (t : (((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)) × ((HA).Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
+      (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
+      (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
+        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
+          t'.1.2 y' = t.1.2 y) →
+      (∀ (w : (HA).Ω 1) (w' : (HB).Ω 1), (w : CTorus d L N₁ m₁ (k + 1)) ∈ Rδ →
+        (w' : CTorus d L N₁' m₁ (k + 1)) = bm (w : CTorus d L N₁ m₁ (k + 1)) →
+        ∀ i, t'.2.1 (w', i) = t.2.1 (w, i)) →
+      (∀ x ∈ Rψ, t'.2.2.2 (bm x) = t.2.2.2 x) →
+      Φ' t'.1 t'.2.1 t'.2.2 = Φ t.1 t.2.1 t.2.2)
+    {R : ℕ} (hX₁R : ∀ x ∈ X₁f, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (ρ₁) + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (ρ₁) + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnF : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hΦan : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlReal (GA) (HA) a₁ ν BG κ eps X₁f BG₂ δ₁))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D'))
+    {ψh : unitPts (GA) × Fin N → ℂ} {ψh' : unitPts (GB) × Fin N → ℂ}
+    (hψh : ∀ p, ‖ψh p‖ ≤ cψ) (hψh' : ∀ p, ‖ψh' p‖ ≤ cψ)
+    (hhat : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      ∀ i, ψh' (unitPt hGB (bm x), i) = ψh (unitPt hGA x, i))
+    {Zm : Finset (unitPts (GA))} {Zm' : Finset (unitPts (GB))}
+    (hZm : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      (unitPt hGB (bm x) ∈ Zm' ↔ unitPt hGA x ∈ Zm))
+    {um tm : ℂ} (hum : (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    (tA : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (tB : Finset (Set (CTorus d L N₁' m₁ (k + 1))))
+    (htA : ∀ Y, Y ∈ tA ↔
+      Y ∈ polyDom (GA) X₁f m₀ j 𝒦X ∧ ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    (htB : ∀ Y', Y' ∈ tB ↔
+      Y' ∈ polyDom (GB) (X₁f.image bm) m₀ j 𝒦X' ∧
+        ∀ y ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) y) :
+    ∑ Y' ∈ tB, evDec (X₁f.image bm) m₀ j 𝒦X' a₁ ν hGB cc F₁' Sol' Φ' Zm' um tm Y' (rawOf D', ψh') =
+      ∑ Y ∈ tA, evDec X₁f m₀ j 𝒦X a₁ ν hGA cc F₁ Sol Φ Zm um tm Y (rawOf D, ψh) := by
+  have hc1 : 1 ≤ 5 * (L * cellSide L m₀ m₁ (k + 1)) :=
+    Nat.succ_le_of_lt (Nat.mul_pos (by norm_num)
+      (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ (k + 1))))
+  have hR1 : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) :=
+    Nat.lt_of_le_of_lt (Nat.add_le_add_left hc1 _) hnF
+  have hR1' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) :=
+    Nat.lt_of_le_of_lt (Nat.add_le_add_left hc1 _) hnF'
+  have hmem := mem_polyDom_boxMap_iff hcov hX₁ hcov' hX₁' hX₁R hnF hnF'
+  apply sum_image_boxMap_of_inBox hR1 hR1'
+  · intro Y hY
+    exact ((htA Y).1 hY).2
+  · intro Y hY
+    exact ((htB Y).1 hY).2
+  · intro Y hY
+    rw [htA, htB, hmem Y hY]
+    refine and_congr_right fun _ => ⟨fun _ => hY, fun _ => ?_⟩
+    rintro _ ⟨y, hy, rfl⟩
+    exact inBox_boxMap hR1' (hY y hy)
+  · intro Y hY
+    exact evDec_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₁ hF₁' hSol hSol' hcov hX₁ hcov'
+      hX₁' hBM hRδ hRψ hΦ hX₁R ((htA Y).1 hY).2 hn hn' hnS hnS' hnF hnF' hΦan hD hD' hraw
+      hψh hψh' hhat hZm hum
+
+end EvSum
+
 /-! ### D3: the determinant part of the energy coefficient on two tori -/
 
 section Det
@@ -859,18 +1080,18 @@ theorem sum_detActivityBg_box_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ 
   refine Finset.sum_nbij' (fun Y => Y.image (cubeMap hN hN' le_rfl))
     (fun Y' => Y'.image (cubeMap hN' hN le_rfl)) (fun Y hY => ?_) (fun Y' hY' => ?_)
     (fun Y hY => ?_) (fun Y' hY' => ?_) (fun Y hY => ?_)
-  · have hY1 := (Finset.mem_filter.1 (Finset.mem_coe.1 hY)).2
-    refine Finset.mem_coe.2 (Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩)
+  · have hY1 := (Finset.mem_filter.1 hY).2
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
     rw [sitesOf_image_cubeMap hN hN' le_rfl hr Y hY1]
     rintro _ ⟨x, hx, rfl⟩
     exact inBox_boxMap (by omega) (hY1 x hx)
-  · have hY1 := (Finset.mem_filter.1 (Finset.mem_coe.1 hY')).2
-    refine Finset.mem_coe.2 (Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩)
+  · have hY1 := (Finset.mem_filter.1 hY').2
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
     rw [sitesOf_image_cubeMap hN' hN le_rfl hr' Y' hY1]
     rintro _ ⟨x, hx, rfl⟩
     exact inBox_boxMap (by omega) (hY1 x hx)
-  · exact image_image_cubeMap hN hN' le_rfl hr' Y (Finset.mem_filter.1 (Finset.mem_coe.1 hY)).2
-  · exact image_image_cubeMap hN' hN le_rfl hr Y' (Finset.mem_filter.1 (Finset.mem_coe.1 hY')).2
+  · exact image_image_cubeMap hN hN' le_rfl hr' Y (Finset.mem_filter.1 hY).2
+  · exact image_image_cubeMap hN' hN le_rfl hr Y' (Finset.mem_filter.1 hY').2
   · have hY1 := (Finset.mem_filter.1 hY).2
     by_cases hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y
     · exact (detActivityBg_twoTorus hN hN' hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' y Y
