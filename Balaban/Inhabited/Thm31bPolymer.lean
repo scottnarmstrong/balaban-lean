@@ -207,7 +207,8 @@ input rate is the factor `1 / 60751` and the shift `3375 log 2`.
 
 Still lacking against clause (b): termwise locality in the datum and the source (needs the
 coefficient family of the observable family program), analyticity in `g`, reality and symmetry,
-the paper's prefactor, and the remainder `R`. -/
+the paper's prefactor, and a localized treatment of the remainder `R` (it is one scalar with the
+bound above, with no domain index, locality or analyticity). -/
 theorem thm31b_zeroClass_polymer_fromTower {κmin : ℝ} (T : StepTower κmin)
     {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
     (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
