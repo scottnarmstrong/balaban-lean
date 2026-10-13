@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.XiCDomains
 public import Balaban.Inhabited.StepTowerScale
+public import Balaban.Inhabited.LevelStepSettingGeneral
 public import Balaban.Fluctuation.RenormExpInputOn
 
 /-!
@@ -58,6 +59,28 @@ theorem nonempty_renormExpInputOn_fibre_datum {d L N₀ k N : ℕ} [NeZero N₀]
     nonempty_renormExpInputOn_fibre (N := N) (G := G) H blk κa κb (unitVec hN)
   exact ⟨ε, r₀, hε, hr, F, hF, I, exists_xiCOneReal_fibre H G hN hν hΩ hε⟩
 
+/-- **The step's own datum lies in the fibre domain, at every radius `e > 0`, general tower.** -/
+theorem StepTowerG.exists_xiCOneReal_fibre_step {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {e : ℝ} (he : 0 < e) :
+    XiCOneReal (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν e
+        (T.step k hk N₁ ν β p₁).D' ∧
+      ∀ x i, (T.step k hk N₁ ν β p₁).D'.h x i = (((T.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ) := by
+  refine ⟨?_, (T.step k hk N₁ ν β p₁).hh₀⟩
+  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos T.hN
+  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
+  refine ⟨fun _ => unitVec hN0, unitVec hN0, 0,
+    exists_xiC hHB (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (massLe_lvG hν) he, ?_, ?_⟩
+  · intro x hx i
+    have := unitBg_Ψ_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
+    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).Ψ x i = _
+    rw [this]; simp
+  · intro x hx i
+    have := unitBg_h_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
+    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).h x i = _
+    rw [this]; simp
+
 /-- **The step's own datum lies in the fibre domain, at every radius `e > 0`.** -/
 theorem exists_xiCOneReal_fibre_step {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k)
     (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) {e : ℝ}
@@ -65,17 +88,16 @@ theorem exists_xiCOneReal_fibre_step {κmin : ℝ} (T : StepTower κmin) (k : �
     XiCOneReal (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν e
         (T.step k hk N₁ ν β p₁).D' ∧
       ∀ x i, (T.step k hk N₁ ν β p₁).D'.h x i = (((T.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ) := by
-  refine ⟨?_, (T.step k hk N₁ ν β p₁).hh₀⟩
-  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
-  refine ⟨fun _ => unitVec hN2, unitVec hN2, 0,
-    exists_xiC hHB (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (massLe_lv hν) he, ?_, ?_⟩
-  · intro x hx i
-    have := unitBg_Ψ_of_mem (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2) hx i
-    show (unitBg (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2)).Ψ x i = _
-    rw [this]; simp
-  · intro x hx i
-    have := unitBg_h_of_mem (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2) hx i
-    show (unitBg (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2)).h x i = _
-    rw [this]; simp
+  have h := T.toG.exists_xiCOneReal_fibre_step k hk N₁ ν β p₁ hν0 (by exact_mod_cast hν) he
+  have key : ∀ (ϱ : ℝ), ϱ = rhoSep T.m₁ → ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 ϱ,
+      HEq S (T.step k hk N₁ ν β p₁) →
+      (XiCOneReal S.G' S.a S.ν e S.D' ∧ ∀ x i, S.D'.h x i = ((S.h₀ i : ℝ) : ℂ)) →
+      (XiCOneReal (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a
+          (T.step k hk N₁ ν β p₁).ν e (T.step k hk N₁ ν β p₁).D' ∧
+        ∀ x i, (T.step k hk N₁ ν β p₁).D'.h x i = (((T.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ)) := by
+    intro ϱ hϱ S hS hP
+    subst hϱ
+    exact eq_of_heq hS ▸ hP
+  exact key _ (rhoSepG_three _) _ (StepTower.toG_step_heq T k hk N₁ ν β p₁) h
 
 end Balaban.Inhabited
