@@ -1845,6 +1845,8 @@ public import Balaban.Fluctuation.StepComplexOffFibreE1Loc
 public import Balaban.Inhabited.OffFibreCoeffFirst
 public import Balaban.Inhabited.OffFibreE1Marks
 public import Balaban.Inhabited.OffFibreE1CoeffSum
+public import Balaban.Inhabited.OffFibreE1ActivityG
+public import Balaban.Inhabited.OffFibreE1Family
 public import Balaban.Inhabited.OffFibreE1Activity
 public import Balaban.Inhabited.OffFibreE1CoeffValue
 public import Balaban.Inhabited.OffFibreM0CoeffSum
