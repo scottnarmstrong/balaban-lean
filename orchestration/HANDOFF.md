@@ -13,8 +13,6 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W363 | `w363-kf0-killed-walks` / W363 | one-scale branch: killed-walk inverse of the good-region operator, inward decay, determinant walk formula (H37-3) |
-| W357 | `w357-kf0-block-split` / W357 | one-scale branch: exact sum over bad block sets (K0.2), boundary form (K0.3), Peierls charge (K0.4) |
-| W358 | `w358-kf0-gaussian` / W358 | one-scale branch: Gaussian change of variables in the all-good sector, row sum of K_ν^{-1/2}, product cutoff implication |
 | W364 | `w364-r-field-projection` / W364 | R class map skeleton: five copied fields, assembly from seven named obligations, no-removal case (VMOD-37 package 1) |
 | W352 (Opus) | `w352-det-output-terms` / W352 | determinant as localized output terms (record + inhabitant), prefactor uniform in k, step theorem with the genuine `DetExpansionC`, symmetry, dependency radius |
 | W362 | `w362-d7-gas-root-entropy` / W362 | R gas, counting: rooted entropy at a removed component, touched components per label, union along an active-overlap tree (VMOD-41 packages 1, 3) |
