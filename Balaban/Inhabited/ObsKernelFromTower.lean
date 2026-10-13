@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Fluctuation.ObsKernelParam
 public import Balaban.Fluctuation.ObsMarksAssembly
 public import Balaban.Inhabited.ObsMarksFromTower
@@ -117,6 +118,76 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep
 
+/-- The label domains of the observable site `(y, i)` of a step equal to the step of the tower are
+domains of the level `k + 1`. -/
+theorem StepScaleDataG.isDj_obsDomains {d L N : ℕ} [NeZero L] {κmin : ℝ} {T : StepTowerG d L N κmin}
+    {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (D : StepScaleDataG T k hk N₁ ν β p₁) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ} (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+    (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N) :
+    ∀ Y ∈ obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y), IsDj T.m₀ (k + 1) Y := by
+  subst hϱ
+  subst hS
+  exact obsDomains_isDj (X₁f := LocalCover.nbhdF T.m₀ y) _ T.hd (D.covers.2 (y, i)).1
+    (D.covers.2 (y, i)).2.2.1
+
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsHker_param_fromTower` is its corollary.  **The observable kernel as an analytic, local, bounded function of the datum, at the shared
+tower.**  The instance of `obsHker_param_fromSharpHat` used by `obsMarks_zeroClass_family_of_ray`
+(same covers `Dsc.covers`, same constants `κ0 = T.κ0`, `κG = 2 κdec - 1`, `cψ = lvCpsi`, same root
+`rootCube (blockIndex y)`, same `cc = β_k^{-1/2}`), at one admissible scale with `StepScaleData`,
+for every site `y`, spin `i` and every label system `Lab₀`. -/
+theorem obsHker_param_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hN : 5 < N₁)
+    (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    (Dsc : StepScaleDataG T k hk N₁ ν β p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) {S : StepSetting d L N₁ T.m₁ k N ϱ}
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+    (hp : 0 < S.p₁) (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N)
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
+      (k + 1) Set.univ Lb₀) :
+    ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D →
+        ObsMarkHalf S T.m₀ hp Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (obsLab Lab₀ (Dsc.isDj_obsDomains hϱ hS y i)) (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
+          (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
+          (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))) (2 * T.κdec)
+          (rootCube (m₀ := T.m₀) (blockIndex y)) ∧
+        ObsRayIdentity S T.m₀ hp
+          (fun ψh => svec (lvLowG d L N₁ T.m₁ k ϱ) (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
+            (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) ∧
+      ∀ (m : ObsMarkIdx S) (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+        (K := k + 1) T.m₀ (k + 1) Set.univ)),
+      AnalyticOnNhd ℂ (fun r => obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) T.m₀ Tl)
+        (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) ∧
+      (∀ D : BgData S.G' N, rawOf D ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t →
+        obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (obsRowCoeff S Ev D m) T.m₀ Tl =
+          obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y) (rawOf D) (obsUnitVec S m)) T.m₀ Tl) ∧
+      (∀ Z : Set (CTorus d L N₁ T.m₁ (k + 1)),
+        (∀ Y ∈ (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)), obsRowLabel T.m₀ (k + 1) Y = Tl → Y ⊆ Z) →
+        ∀ r ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t, ∀ r' ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t, agreeOn (thickSet S.G' Z) r r' →
+          obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) T.m₀ Tl =
+            obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y) r' (obsUnitVec S m)) T.m₀ Tl) ∧
+      (∀ r ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t, ‖obsHker (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) T.m₀ Tl‖ ≤
+        (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))) * Real.exp (-(2 * T.κdec) * dExt Tl)) := by
+  subst hϱ
+  have hS' : S = T.step k hk N₁ ν β p₁ := hS
+  subst hS'
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hr0 := Dsc.r_pos
+  have hcψ0 := Dsc.cψ_pos
+  have hq : p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) ≤ 1 / 4 := by
+    rw [div_le_iff₀ hcψ0]
+    have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos hr0 hp
+    nlinarith [Dsc.ray_margin]
+  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
+  exact obsHker_param_fromSharpHat (T.step k hk N₁ ν β p₁) Dsc.core hk (isLevel_lvLowG hk)
+    ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin T.coer_margin T.δc_small
+    Dsc.fl_radius hcov hX₁ (hatConn_lvTopG T.hL) (rowInHat_lvG hk (dgSetting_lvG T.hd T.hL T.m₁_four hN hν0 hν)) hopt hΔ
+    T.κ0_nonneg T.κdec_lower (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀
+    T.marks_κG_le T.κ0_ent
+
+
 /-- **The observable kernel as an analytic, local, bounded function of the datum, at the shared
 tower.**  The instance of `obsHker_param_fromSharpHat` used by `obsMarks_zeroClass_family_of_ray`
 (same covers `Dsc.covers`, same constants `κ0 = T.κ0`, `κG = 2 κdec - 1`, `cψ = lvCpsi`, same root
@@ -156,18 +227,11 @@ theorem obsHker_param_fromTower {κmin : ℝ} (T : StepTower κmin)
       (∀ r ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t, ‖obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) 1 Tl‖ ≤
         (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / (lvCpsi T.κ T.t (β * 3 ^ k))) * Real.exp (-(2 * T.κdec) * dExt Tl)) := by
   intro S
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hr0 := Dsc.r_pos
-  have hcψ0 := Dsc.cψ_pos
-  have hq : p₁ / lvCpsi T.κ T.t (β * 3 ^ k) ≤ 1 / 4 := by
-    rw [div_le_iff₀ hcψ0]
-    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp
-    nlinarith [Dsc.ray_margin]
-  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
-  exact obsHker_param_fromSharpHat S Dsc.core hk (isLevel_lvLow hk)
-    ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin T.coer_margin T.δc_small
-    Dsc.fl_radius hcov hX₁ hatConn_lvTop (rowInHat_lv hk T.m₁_four hN hν0 hν) hopt hΔ
-    T.κ0_nonneg T.κdec_lower (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀
-    T.marks_κG_le T.κ0_ent
+  have e : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have G := obsHker_param_fromTowerG T.toG k hk N₁ ν β p₁ hN hνpos (by simpa using hν)
+    (T.scaleDataG_of_fixed Dsc) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    (S := T.step k hk N₁ ν β p₁) rfl hp y i Lab₀
+  rw [e] at G
+  exact G
 
 end Balaban.Inhabited
