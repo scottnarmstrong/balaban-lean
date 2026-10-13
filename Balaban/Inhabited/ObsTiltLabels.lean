@@ -275,10 +275,10 @@ section Tower
 open Set
 
 /-- **Locality of the activity family in the datum and the source, with the activity family of
-`obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with one more clause on
-the activity `A`: for `e, e'` of `physVq` whose raw data agree on `thickSet S.G' Z` and whose
-sources agree on `Z`, the activities of the labels with sites in `Z` agree, at the zero-source
-parameters and at `e, e'`, for every `u`. -/
+`obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with two locality
+clauses for the same activity `A`: raw agreement on `thickSet S.G' Z`, and raw agreement on `Z`
+itself. In both cases source agreement on `Z` gives equality of the activities of labels whose
+sites lie in `Z`, at the zero-source parameters and at `e, e'`, for every complex `u`. -/
 theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {CR s Θ : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2)
     (hΘ : 0 < Θ) :
@@ -297,6 +297,13 @@ theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
         (∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ e' ∈ physVq S S.a₁ S.ν T.t q,
           ∀ Z : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
           agreeOn (thickSet S.G' Z) (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+            (e'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) → (∀ x ∈ Z, e.2 x = e'.2 x) →
+          ∀ (u : ℂ) (w : Lb), Lab.ysite w ⊆ Z →
+            (A ((e.1, 0) : physParam 2 S) u).H w = (A ((e'.1, 0) : physParam 2 S) u).H w ∧
+            (A e u).H w = (A e' u).H w) ∧
+        (∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ e' ∈ physVq S S.a₁ S.ν T.t q,
+          ∀ Z : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+          agreeOn Z (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
             (e'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) → (∀ x ∈ Z, e.2 x = e'.2 x) →
           ∀ (u : ℂ) (w : Lb), Lab.ysite w ⊆ Z →
             (A ((e.1, 0) : physParam 2 S) u).H w = (A ((e'.1, 0) : physParam 2 S) u).H w ∧
@@ -477,7 +484,34 @@ theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
         (hag _ _ (agreeOn_mono (thickSet_mono hw) hr) (fun _ _ => rfl)) u w subset_rfl,
       labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc he he' w.1
         (hag _ _ (agreeOn_mono (thickSet_mono hw) hr) (fun x hx => hg x (hw hx))) u w subset_rfl⟩
-  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hamp, ?_, ?_⟩
+  have hlocExact : ∀ e ∈ physVq S S.a₁ S.ν T.t q,
+      ∀ e' ∈ physVq S S.a₁ S.ν T.t q,
+      ∀ Z : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+      agreeOn Z (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+        (e'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+      (∀ x ∈ Z, e.2 x = e'.2 x) → ∀ (u : ℂ) (w : {Y // Y ∈ I.𝒴}),
+      (thickLabels I.𝒴 I.dom).ysite w ⊆ Z →
+        (A ((e.1, 0) : physParam 2 S) u).H w =
+          (A ((e'.1, 0) : physParam 2 S) u).H w ∧
+        (A e u).H w = (A e' u).H w := by
+    intro e he e' he' Z hr hg u w hw
+    subst hAeq
+    have hag : ∀ (e₁ e₂ : physParam 2 S), agreeOn w.1
+        (e₁.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+        (e₂.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+        (∀ x ∈ w.1, e₁.2 x = e₂.2 x) → ∀ Y ∈ I.𝒴, Y ⊆ w.1 →
+        physAgΘ S Y (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₁)
+          (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₂) :=
+      fun e₁ e₂ h1 h2 Y _ hY =>
+        ⟨agreeOn_mono hY h1, fun x hx => by
+          simp [physInclScaled_apply, h2 x (hY hx)]⟩
+    exact ⟨labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
+        (hsub e he) (hsub e' he') w.1
+        (hag _ _ (agreeOn_mono hw hr) (fun _ _ => rfl)) u w subset_rfl,
+      labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
+        he he' w.1 (hag _ _ (agreeOn_mono hw hr) (fun x hx => hg x (hw hx)))
+        u w subset_rfl⟩
+  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hlocExact, hamp, ?_, ?_⟩
   · filter_upwards [hae] with x hx
     intro D' hDh hX g hg t ht 𝒴obs hdj Kobs hK
     have hphys := hx D' hDh hX g hg t ht
@@ -626,7 +660,7 @@ theorem obsTiltLabels_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
   obtain ⟨β₀, CE, CF, h3, hCE, hCF, hmain⟩ := obsTiltLabels_local_fromTower T hA p hCR hs0 hs hΘ
   refine ⟨β₀, CE, CF, h3, hCE, hCF, fun k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1
     D S hS hp Kc hKc => ?_⟩
-  obtain ⟨Lb, instLb, Lab, εH, hεH, A, -, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0
+  obtain ⟨Lb, instLb, Lab, εH, hεH, A, -, -, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0
     hp₁ q hq0 hq1 D S hS hp hKc
   exact ⟨Lb, instLb, Lab, εH, hεH, A, hrest⟩
 

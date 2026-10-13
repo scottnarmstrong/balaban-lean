@@ -9,6 +9,7 @@ public import Balaban.Inhabited.ObsCoeffFamily
 public import Balaban.Inhabited.ObsCoeffFibreValue
 public import Balaban.Inhabited.Thm31bFromTower
 public import Balaban.Inhabited.ObsCoeffLocal
+public import Balaban.Inhabited.ObsCoeffExactSites
 
 /-!
 # The coefficient family of the observable: analyticity, bound, support and value together
@@ -39,8 +40,8 @@ finite set `T'` of cubes the first-order terms, the kernel sum, the remainder co
 `(B₁ + B₂) e^{-λ dExt T'}` there and vanishes unless `T'` contains the root cube of the observable
 site and its sites form a polymer domain; the coefficient is local: `θ, θ'` of `physVq` whose raw
 data agree on `thickSet S.G' (sitesOf T')` and whose sources agree on `sitesOf T'` give the same
-`obsCoeffParam … T'` (locality on the thickened set; the exact locality on `sitesOf T'` itself is a
-separate, later statement); and at every chart datum `D` of the fibre and every source `g` with
+`obsCoeffParam … T'`; equality of `physRestrict (sitesOf T') (physIncl 2 S ·)` also gives the same
+coefficient (exact locality on the sites themselves); and at every chart datum `D` of the fibre and every source `g` with
 `‖g‖₁ < q`, `M0C … g y i = √β_U ∑_{T'} obsCoeffParam … (rawOf D, g) T'`.
 For each site `(y, i)`, after the labels and the activity are fixed for all sites, one `Ev` is chosen; that site's `obsCoeffParam` has the analyticity, bound, support, locality and fibre-value clauses. No `Ev` common to all sites is asserted. -/
 theorem obsFamily_full_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
@@ -209,6 +210,33 @@ theorem obsFamily_full_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ
         (fun Y => Sum.inl (Sum.inr Y))
         (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
           (rootCube (m₀ := 1) (blockIndex y))))
+      (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ' T') ∧
+      (∀ θ ∈ (physVq S S.a₁ S.ν T.t q), ∀ θ' ∈ (physVq S S.a₁ S.ν T.t q),
+        physRestrict (N := 2) (sitesOf T') (physIncl 2 S θ) =
+          physRestrict (sitesOf T') (physIncl 2 S θ') →
+        obsCoeffParam (S.blockSplit 1 hp).μ
+      (fun θ t σ => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj (le_refl _)
+        (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+      (fun m => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m) (fun m => blockMarkC S 1 hp m.1 m.2)
+      (fun θ m T'' => obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => hatCoeff (Ev Y) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec S m)) 1 T'')
+      (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (rootCube (m₀ := 1) (blockIndex y))))
+      (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ T' =
+        obsCoeffParam (S.blockSplit 1 hp).μ
+      (fun θ t σ => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj (le_refl _)
+        (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+      (fun m => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m) (fun m => blockMarkC S 1 hp m.1 m.2)
+      (fun θ m T'' => obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => hatCoeff (Ev Y) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec S m)) 1 T'')
+      (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (rootCube (m₀ := 1) (blockIndex y))))
       (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ' T'))) ∧
       ∀ (D : BgData S.G' 2) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
         XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
@@ -239,7 +267,7 @@ theorem obsFamily_full_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ
   obtain ⟨β₀, CE, CF, h3, hCE, hCF, hmain⟩ := obsTiltLabels_local_fromTower T hA p hCR hs0 hs hΘ
   refine ⟨β₀, CE, CF, h3, hCE, hCF, fun k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1
     Dsc S hS hp => ?_⟩
-  obtain ⟨Lb, instLb, Lab, εH, hεH, A, hAloc, hεb, hae, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁
+  obtain ⟨Lb, instLb, Lab, εH, hεH, A, hAloc, hAlocExact, hεb, hae, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁
     hp0 hp₁ q hq0 hq1 Dsc S hS hp (Kc := K0 3 3 T.κ0 + 1) (by linarith)
   refine ⟨Lb, instLb, Lab, εH, hεH, A, hεb, fun y i hdj => ?_⟩
   obtain ⟨-, -, A3, A4, A5⟩ := hrest hdj (le_refl _)
@@ -249,17 +277,33 @@ theorem obsFamily_full_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ
   have hcont := (A4 _ hR h1).2
   have hσ := fun e he => (A3 _ hR h1 e he).2.1
   have hzero := fun e he => (A3 _ hR h1 e he).2.2
-  obtain ⟨Ev, ha, hd, hb, hD, fam, hT'⟩ := obsCoeffParam_fromTower T k hk N₁ ν β p₁ Dsc S hS hp y
-    h3N Lab hεH A hdj (le_refl _) _ hR hN hνpos hν h1 (le_refl _) hhol hcont hεΘ i
-  refine ⟨Ev, ha, hd, hb, hD, fam, ⟨fun T' => ⟨(hT' T').1, (hT' T').2.1, (hT' T').2.2.1,
-    (hT' T').2.2.2, fun θ hθ => ?_, fun θ hθ => ?_, fun θ hθ θ' hθ' hr hg => ?_⟩, ?_⟩⟩
-  · exact obsCoeffParam_bound_of_Ev T k hk N₁ ν β p₁ Dsc S hS hp y h3N Lab hεH A hdj (le_refl _) _
-      hR h1 (le_refl _) hσ hzero hεΘ Ev ha hd hb (fun D hD' => (hD D hD').1) θ hθ T'
-  · exact obsCoeffParam_support_of_Ev T k hk N₁ ν β p₁ Dsc S hS hp y h3N Lab hεH A hdj (le_refl _) _
-      hR h1 (le_refl _) hεΘ Ev ha hd hb (fun D hD' => (hD D hD').1) θ hθ T'
-  · exact obsCoeffParam_local_of_Ev T k hk N₁ ν β p₁ Dsc S hS hp y h3N Lab hεH A hdj (le_refl _) _
-      hR hAloc Ev hd hθ hθ' T' hr hg
   subst hS
+  let S := T.step k hk N₁ ν β p₁
+  obtain ⟨Ev, ha, hdRaw, hb, hD⟩ := obsEv_fromTower_rawY T k hk N₁ ν β p₁ hN hνpos hν
+    Dsc hp y i (Lab.sum Lab)
+  have hd : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+        {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+      ∀ u' ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+        {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+      AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u' := by
+    intro Y u hu u' hu' h
+    exact hdRaw Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2
+  have fam := obsFamilies_of_Ev T k hk N₁ ν β p₁ Dsc _ rfl hp y h3N Lab hεH A
+    hdj (le_refl _) _ hR hνpos hν hhol hcont Ev ha hb
+  have hT' := fun T' => obsCoeffParam_analytic_of_Ev T k hk N₁ ν β p₁ Dsc _ rfl hp y
+    h3N Lab hεH A hdj (le_refl _) _ hR hνpos hν h1 (le_refl _) hhol hcont hεΘ
+    Ev ha hd hb T'
+  refine ⟨Ev, ha, hd, hb, hD, fam, ⟨fun T' => ⟨(hT' T').1, (hT' T').2.1, (hT' T').2.2.1,
+    (hT' T').2.2.2, fun θ hθ => ?_, fun θ hθ => ?_, fun θ hθ θ' hθ' hr hg => ?_,
+    fun θ hθ θ' hθ' hπ => ?_⟩, ?_⟩⟩
+  · exact obsCoeffParam_bound_of_Ev T k hk N₁ ν β p₁ Dsc S rfl hp y h3N Lab hεH A hdj (le_refl _) _
+      hR h1 (le_refl _) hσ hzero hεΘ Ev ha hd hb (fun D hD' => (hD D hD').1) θ hθ T'
+  · exact obsCoeffParam_support_of_Ev T k hk N₁ ν β p₁ Dsc S rfl hp y h3N Lab hεH A hdj (le_refl _) _
+      hR h1 (le_refl _) hεΘ Ev ha hd hb (fun D hD' => (hD D hD').1) θ hθ T'
+  · exact obsCoeffParam_local_of_Ev T k hk N₁ ν β p₁ Dsc S rfl hp y h3N Lab hεH A hdj (le_refl _) _
+      hR hAloc Ev hd hθ hθ' T' hr hg
+  · exact obsCoeffParam_local_of_Ev_physRestrict T k hk N₁ ν β p₁ Dsc S rfl hp y h3N Lab
+      hεH A hdj (le_refl _) _ hR Ev hAlocExact hdRaw hθ hθ' T' hπ
   intro D hDh hDx g hg
   have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
   have hDx' : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D := hDx
