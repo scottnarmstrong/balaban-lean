@@ -372,4 +372,181 @@ theorem hessC_resolvent {a t : ℂ} (hat : a + t ≠ 0) {U : Matrix ι ι ℂ}
 
 end Hess
 
+section HessEntries
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+/-- Entries of the resolvent: `(D + t)⁻¹ (x,i) (y,j) =
+(a+t)⁻¹ [x=y] hᵢhⱼ/(h·h) + (U+t)⁻¹ x y (δᵢⱼ - hᵢhⱼ/(h·h))`. -/
+theorem hessC_resolvent_apply {a t : ℂ} (hat : a + t ≠ 0) {U : Matrix ι ι ℂ}
+    (hU : IsUnit (U + t • (1 : Matrix ι ι ℂ))) {h : Fin N → ℂ} (hs : ∑ k, h k ^ 2 ≠ 0)
+    (x y : ι) (i j : Fin N) :
+    (hessC N a U h + t • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ))⁻¹ (x, i) (y, j) =
+      (a + t)⁻¹ * (if x = y then spinProj h i j else 0) +
+        (U + t • (1 : Matrix ι ι ℂ))⁻¹ x y * ((if i = j then 1 else 0) - spinProj h i j) := by
+  rw [(hessC_resolvent hat hU hs).2, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul,
+    liftOp_mul_one_sub_projHC_apply]
+  rfl
+
+/-- **Real special case of the algebra.** -/
+theorem hessC_ofReal {a : ℝ} (U : Matrix ι ι ℝ) {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) :
+    hessC N (a : ℂ) (U.map (algebraMap ℝ ℂ)) (fun i => (h i : ℂ)) =
+      (a • projH (ι := ι) h + spinLift N U * (1 - projH (ι := ι) h)).map (algebraMap ℝ ℂ) := by
+  have hm : ∀ M : Matrix (ι × Fin N) (ι × Fin N) ℝ,
+      M.map (algebraMap ℝ ℂ) = (algebraMap ℝ ℂ).mapMatrix M := fun M => rfl
+  have hs : ∀ (c : ℝ) (M : Matrix (ι × Fin N) (ι × Fin N) ℝ),
+      (c • M).map (algebraMap ℝ ℂ) = (c : ℂ) • M.map (algebraMap ℝ ℂ) := fun c M => by
+    ext p q; simp [Matrix.smul_apply]
+  have hl : (spinLift N U).map (algebraMap ℝ ℂ) = Multiscale.liftOp N (U.map (algebraMap ℝ ℂ)) := by
+    ext ⟨x, i⟩ ⟨y, j⟩
+    by_cases hij : i = j <;> simp [spinLift, Multiscale.liftOp, hij]
+  unfold hessC
+  rw [projHC_ofReal hh, hm (a • projH (ι := ι) h + spinLift N U * (1 - projH (ι := ι) h)),
+    map_add, map_mul, map_sub, map_one]
+  simp only [RingHom.mapMatrix_apply, hs, hl]
+
+end HessEntries
+
+section Final
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L]
+
+private instance : Nonempty (L1Torus d N₀) := ⟨(0 : Torus d N₀)⟩
+
+/-- **The complex final Hessian** `D(h) = a P_h + (U ⊗ 1)(1 - P_h)` for a complex direction `h`
+with `h·h ≠ 0`, where `U = finalOp d L N₀ k v a` is the scalar reference operator of
+`Green/FinalMassGreen.lean`. -/
+noncomputable def finalHessianC (d L N₀ k : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
+    (h : Fin N → ℂ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
+  hessC N (a : ℂ) (finalOp d L N₀ k v a) h
+
+/-- **Real special case.**  For a real unit vector `h`, `finalHessianC` is the complexification of
+the landed real `finalHessian` (on `Torus d N₀ × Fin N`; `L1Torus d N₀` is `Torus d N₀` with the
+`ℓ¹` metric, and `finalOp` is the complexified `unconstrainedUnitOperator`, so the identification
+is by definition). -/
+theorem finalHessianC_ofReal (hd : 0 < d) {v a : ℝ} (hv : 0 ≤ v) (ha : 0 < a) {h : Fin N → ℝ}
+    (hh : ∑ i, h i ^ 2 = 1) :
+    finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) =
+      (finalHessian d (N₀ * L ^ k) (L ^ k) N₀ v a h).map (algebraMap ℝ ℂ) := by
+  have hN : 0 < L ^ k := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
+  rw [finalHessian_eq_split (mul_comm _ _) hN hd hv ha hh]
+  exact hessC_ofReal (ι := Torus d N₀) _ hh
+
+end Final
+
+section FinalDecay
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L]
+
+/-- **Resolvent decay of the complex final Hessian (T3).**  For `h·h ≠ 0` with all entries of
+`P_h` (the spin part `hᵢhⱼ/(h·h)`) bounded by `p`, and `t ≥ 0`: `D(h) + t` is invertible and
+`‖(D(h) + t)⁻¹ (x,i) (y,j)‖ ≤ p (a+t)⁻¹ [x=y] + (1+p) · 2/(g_*+t) · e^{-r_* dist x y}`. -/
+theorem finalHessianC_resolvent_decay (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
+    {t : ℝ} (ht : 0 ≤ t) :
+    IsUnit (finalHessianC d L N₀ k v a h + (t : ℂ) •
+        (1 : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ)) ∧
+      ∀ (x y : L1Torus d N₀) (i j : Fin N),
+        ‖(finalHessianC d L N₀ k v a h + (t : ℂ) •
+            (1 : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ))⁻¹ (x, i) (y, j)‖ ≤
+          p * (a + t)⁻¹ * (if x = y then 1 else 0) +
+            (1 + p) * (2 / (finalGap d L + t)) * Real.exp (-finalRate d L * dist x y) := by
+  have ha0 : 0 < a := by linarith
+  have hat : (a : ℂ) + (t : ℂ) ≠ 0 := by
+    rw [← Complex.ofReal_add]; exact_mod_cast (by linarith : a + t ≠ 0)
+  obtain ⟨hU, hb⟩ := finalMass_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass ht
+  refine ⟨(hessC_resolvent hat hU hs).1, fun x y i j => ?_⟩
+  unfold finalHessianC
+  rw [hessC_resolvent_apply hat hU hs]
+  have hP : ‖(if x = y then spinProj h i j else 0)‖ ≤ p * (if x = y then 1 else 0) := by
+    split_ifs
+    · simpa using hp i j
+    · simp
+  have hD : ‖((if i = j then 1 else 0) - spinProj h i j : ℂ)‖ ≤ 1 + p :=
+    (norm_sub_le _ _).trans (add_le_add (by split_ifs <;> simp) (hp i j))
+  have hc : ‖((a : ℂ) + (t : ℂ))⁻¹‖ = (a + t)⁻¹ := by
+    rw [norm_inv, ← Complex.ofReal_add, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_pos (by linarith)]
+  have hW := hb x y
+  have hWn : 0 ≤ 2 / (finalGap d L + t) * Real.exp (-finalRate d L * dist x y) :=
+    le_trans (norm_nonneg _) hW
+  calc _ ≤ ‖((a : ℂ) + (t : ℂ))⁻¹ * (if x = y then spinProj h i j else 0)‖ +
+        ‖(finalOp d L N₀ k v a + (t : ℂ) • (1 : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ))⁻¹ x y *
+          ((if i = j then 1 else 0) - spinProj h i j)‖ := norm_add_le _ _
+    _ ≤ (a + t)⁻¹ * (p * (if x = y then 1 else 0)) +
+        (2 / (finalGap d L + t) * Real.exp (-finalRate d L * dist x y)) * (1 + p) := by
+        rw [norm_mul, norm_mul, hc]
+        exact add_le_add (mul_le_mul_of_nonneg_left hP (by positivity))
+          (mul_le_mul hW hD (norm_nonneg _) hWn)
+    _ = _ := by ring
+
+/-- **Uniform form of the resolvent bound.**  With `g' = min g_* a`, `K = 3p + 2` (and `p ≥ 0`):
+`‖(D(h) + t)⁻¹ (x,i) (y,j)‖ ≤ K/(g' + t) · e^{-r_* dist x y}`. -/
+theorem finalHessianC_resolvent_decay_uniform (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) {p : ℝ} (hp0 : 0 ≤ p)
+    (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {t : ℝ} (ht : 0 ≤ t)
+    (x y : L1Torus d N₀) (i j : Fin N) :
+    ‖(finalHessianC d L N₀ k v a h + (t : ℂ) •
+        (1 : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ))⁻¹ (x, i) (y, j)‖ ≤
+      (3 * p + 2) / (min (finalGap d L) a + t) * Real.exp (-finalRate d L * dist x y) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have ha0 : 0 < a := by linarith
+  have hm : 0 < min (finalGap d L) a := lt_min hg ha0
+  refine ((finalHessianC_resolvent_decay hd hk hv0 hv1 ha1 ha2 hmass hs hp ht).2 x y i j).trans ?_
+  have he : 0 < Real.exp (-finalRate d L * dist x y) := Real.exp_pos _
+  have h1 : (a + t)⁻¹ ≤ (min (finalGap d L) a + t)⁻¹ :=
+    inv_anti₀ (by linarith) (by linarith [min_le_right (finalGap d L) a])
+  have h2 : 1 / (finalGap d L + t) ≤ 1 / (min (finalGap d L) a + t) :=
+    one_div_le_one_div_of_le (by linarith) (by linarith [min_le_left (finalGap d L) a])
+  have h3 : (if x = y then (1 : ℝ) else 0) ≤ Real.exp (-finalRate d L * dist x y) := by
+    split_ifs with hxy
+    · subst hxy; simp
+    · exact he.le
+  have hinv : (0 : ℝ) ≤ (a + t)⁻¹ := by positivity
+  have e1 : p * (a + t)⁻¹ * (if x = y then 1 else 0) ≤
+      p * (min (finalGap d L) a + t)⁻¹ * Real.exp (-finalRate d L * dist x y) := by
+    have : (0 : ℝ) ≤ (if x = y then (1 : ℝ) else 0) := by split_ifs <;> norm_num
+    exact mul_le_mul (mul_le_mul_of_nonneg_left h1 hp0) h3 this (by positivity)
+  have e2 : (1 + p) * (2 / (finalGap d L + t)) * Real.exp (-finalRate d L * dist x y) ≤
+      (1 + p) * (2 / (min (finalGap d L) a + t)) * Real.exp (-finalRate d L * dist x y) := by
+    refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_ (by linarith)) he.le
+    have := mul_le_mul_of_nonneg_left h2 (by norm_num : (0 : ℝ) ≤ 2)
+    simpa [div_eq_mul_inv, mul_one] using this
+  calc _ ≤ _ := add_le_add e1 e2
+    _ = _ := by rw [div_eq_mul_inv, div_eq_mul_inv]; ring
+
+/-- **Inverse of the complex final Hessian (T3, `t = 0`).**  `D(h)` is invertible and
+`‖D(h)⁻¹ (x,i) (y,j)‖ ≤ p a⁻¹ [x=y] + (1+p) (2/g_*) e^{-r_* dist x y}`.  For real unit `h`
+(`p = 1`) compare the note's `(2 + 2/g_*)`: here `a⁻¹ + 4/g_*`, the factor `1 + p` bounding
+`δᵢⱼ - hᵢhⱼ/(h·h)` for complex `h`. -/
+theorem finalHessianC_inverse_decay (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) :
+    IsUnit (finalHessianC d L N₀ k v a h) ∧
+      ∀ (x y : L1Torus d N₀) (i j : Fin N),
+        ‖(finalHessianC d L N₀ k v a h)⁻¹ (x, i) (y, j)‖ ≤
+          p * a⁻¹ * (if x = y then 1 else 0) +
+            (1 + p) * (2 / finalGap d L) * Real.exp (-finalRate d L * dist x y) := by
+  obtain ⟨hu, hb⟩ := finalHessianC_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hs hp
+    (le_refl (0 : ℝ))
+  simp only [Complex.ofReal_zero, zero_smul, add_zero] at hu hb
+  refine ⟨hu, fun x y i j => ?_⟩
+  simpa using hb x y i j
+
+/-- The inverse is `a⁻¹ P_h + (U⁻¹ ⊗ 1)(1 - P_h)` (T2). -/
+theorem finalHessianC_inv_eq (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) :
+    (finalHessianC d L N₀ k v a h)⁻¹ =
+      (a : ℂ)⁻¹ • projHC h + Multiscale.liftOp N (finalOp d L N₀ k v a)⁻¹ * (1 - projHC h) := by
+  have ha0 : 0 < a := by linarith
+  have hU := (finalMass_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass (le_refl (0 : ℝ))).1
+  simp only [Complex.ofReal_zero, zero_smul, add_zero] at hU
+  exact (hessC_inv (by exact_mod_cast ha0.ne') hU hs).2
+
+end FinalDecay
+
 end Balaban.Green
