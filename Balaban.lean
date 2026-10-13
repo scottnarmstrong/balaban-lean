@@ -829,6 +829,7 @@ public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
 public import Balaban.LargeField.Base.KF0BlockSplit
+public import Balaban.LargeField.Base.KF0BoundarySquare
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
@@ -1498,6 +1499,7 @@ public import Balaban.Correlations.KF0RootFPartial
 public import Balaban.Inhabited.ProperLocalGenWitness
 public import Balaban.LargeField.R.RFieldProjection
 public import Balaban.Inhabited.RFieldProjectionWitness
+public import Balaban.Inhabited.UniformChartMargins
 public import Balaban.Inhabited.UniformChartRelative
 public import Balaban.Fluctuation.SourceSliceScaled
 public import Balaban.Fluctuation.SizeModAllDefs
