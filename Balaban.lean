@@ -409,6 +409,8 @@ public import Balaban.Localization.DecoupledCovPrincipal
 public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
+public import Balaban.Localization.YregBlocks
+public import Balaban.Inhabited.YregBlocksWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -491,7 +493,11 @@ public import Balaban.LargeField.History.Core
 public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
 public import Balaban.LargeField.History.BondLiftY
+public import Balaban.LargeField.History.ParentR2Y
+public import Balaban.Inhabited.BondLiftYWitness
 public import Balaban.LargeField.History.ParentDomain
+public import Balaban.LargeField.History.EarlyMassRatio
+public import Balaban.Inhabited.EarlyMassRatioWitness
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
 public import Balaban.LargeField.History.PointChain
@@ -1358,6 +1364,10 @@ public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical
+public import Balaban.Fluctuation.ParamActivitySubspace
+public import Balaban.Inhabited.ParamActivitySubspaceWitness
+public import Balaban.Fluctuation.DetCauchyHull
+public import Balaban.Inhabited.DetCauchyHullWitness
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
