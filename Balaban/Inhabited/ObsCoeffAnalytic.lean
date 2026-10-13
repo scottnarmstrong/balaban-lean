@@ -258,20 +258,20 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 section EvG
 
-/-- **The one sharp-hat expansion at the tower, exact locality.**  The statement of
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsEv_fromTower_rawY` is its corollary.  **The one sharp-hat expansion at the tower, exact locality.**  The statement of
 `obsEv_fromTower` with the locality clause for raw data agreeing on `Y` itself and hat variables
 agreeing at the unit points of `Y`; `obsEv_fromTower` is its corollary.  The family `Ev` of
 `obsMarkHalves_of_sharpHat_param_rawY` at the shared tower (the call of `obsHker_param_fromTower`),
 with its three clauses (analyticity, locality, decay with `treeLenCovOne`) and, for every datum of
 `Ξ`, `ObsMarkHalf` and `ObsRayIdentity`.  The same `Ev` serves the kernel and the remainder. -/
-theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1)
+theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hN : 5 < N₁)
     (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
     (Dsc : StepScaleDataG T k hk N₁ ν β p₁)
     {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) {S : StepSetting d L N₁ T.m₁ k N ϱ}
     (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
     (hp : 0 < S.p₁) (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N)
-    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
       (k + 1) Set.univ Lb₀) :
     ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
         RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
@@ -286,19 +286,19 @@ theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTo
       (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) ∧
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) ∧
       (∀ D : BgData S.G' N, XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D →
-        ObsMarkHalf S 1 hp Ev D (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
-          (obsLab Lab₀ (Dsc.isDj_obsDomains hm₀ hϱ hS y i))
+        ObsMarkHalf S T.m₀ hp Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (obsLab Lab₀ (Dsc.isDj_obsDomains hϱ hS y i))
           (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))))
-          (2 * T.κdec) (rootCube (m₀ := 1) (blockIndex y)) ∧
-        ObsRayIdentity S 1 hp
+          (2 * T.κdec) (rootCube (m₀ := T.m₀) (blockIndex y)) ∧
+        ObsRayIdentity S T.m₀ hp
           (fun ψh => svec (lvLowG d L N₁ T.m₁ k ϱ)
             (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
               (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
-          (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))) := by
+          (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) := by
   subst hϱ
   have hS' : S = T.step k hk N₁ ν β p₁ := hS
   subst hS'
@@ -309,29 +309,29 @@ theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTo
     rw [div_le_iff₀ hcψ0]
     have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos hr0 hp
     nlinarith [Dsc.ray_margin]
-  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := (Dsc.covers_one hm₀).2 (y, i)
+  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
   obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param_rawY (T.step k hk N₁ ν β p₁) Dsc.core hk
     (isLevel_lvLowG hk) ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin
     T.coer_margin T.δc_small Dsc.fl_radius hcov hX₁ (hatConn_lvTopG T.hL)
     (rowInHat_lvG hk (dgSetting_lvG T.hd T.hL T.m₁_four hN hν0 hν)) hopt hΔ T.κ0_nonneg T.κdec_lower
-    (by exact_mod_cast T.κ_lower) T.κ_one (by simpa [hm₀] using T.κ_log) y hy i hp hq Lab₀ T.marks_κG_le T.κ0_ent
+    (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀ T.marks_κG_le T.κ0_ent
   refine ⟨Ev, ha, hd, fun Y u hu => ?_, hEv⟩
   have := hb Y u hu
-  rwa [treeLenCov_eq_treeLenCovOne (T.step k hk N₁ ν β p₁).hG' 1 Y, show -2 * T.κdec = -(2 * T.κdec) by ring] at this
+  rwa [treeLenCov_eq_treeLenCovOne (T.step k hk N₁ ν β p₁).hG' T.m₀ Y, show -2 * T.κdec = -(2 * T.κdec) by ring] at this
 
 
-/-- **The one sharp-hat expansion at the tower.**  The family `Ev` of
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsEv_fromTower` is its corollary.  **The one sharp-hat expansion at the tower.**  The family `Ev` of
 `obsMarkHalves_of_sharpHat_param` at the shared tower (the call of `obsHker_param_fromTower`),
 with its three clauses (analyticity, locality, decay with `treeLenCovOne`) and, for every datum of
 `Ξ`, `ObsMarkHalf` and `ObsRayIdentity`.  The same `Ev` serves the kernel and the remainder. -/
-theorem obsEv_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1)
+theorem obsEv_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hN : 5 < N₁)
     (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
     (Dsc : StepScaleDataG T k hk N₁ ν β p₁)
     {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) {S : StepSetting d L N₁ T.m₁ k N ϱ}
     (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
     (hp : 0 < S.p₁) (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N)
-    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
       (k + 1) Set.univ Lb₀) :
     ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
         RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
@@ -345,20 +345,20 @@ theorem obsEv_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG 
       (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) ∧
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) ∧
       (∀ D : BgData S.G' N, XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D →
-        ObsMarkHalf S 1 hp Ev D (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
-          (obsLab Lab₀ (Dsc.isDj_obsDomains hm₀ hϱ hS y i))
+        ObsMarkHalf S T.m₀ hp Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (obsLab Lab₀ (Dsc.isDj_obsDomains hϱ hS y i))
           (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))))
-          (2 * T.κdec) (rootCube (m₀ := 1) (blockIndex y)) ∧
-        ObsRayIdentity S 1 hp
+          (2 * T.κdec) (rootCube (m₀ := T.m₀) (blockIndex y)) ∧
+        ObsRayIdentity S T.m₀ hp
           (fun ψh => svec (lvLowG d L N₁ T.m₁ k ϱ)
             (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
               (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
-          (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))) := by
-  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsEv_fromTower_rawYG T hm₀ k hk N₁ ν β p₁ hN hνpos hν Dsc hϱ hS hp y i Lab₀
+          (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) := by
+  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν Dsc hϱ hS hp y i Lab₀
   exact ⟨Ev, ha, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
     hb, hEv⟩
 
@@ -407,7 +407,7 @@ theorem obsEv_fromTower_rawY {κmin : ℝ} (T : StepTower κmin)
           (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))) := by
   intro S
   have e : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
-  have G := obsEv_fromTower_rawYG T.toG rfl k hk N₁ ν β p₁ hN hνpos (by simpa using hν)
+  have G := obsEv_fromTower_rawYG T.toG k hk N₁ ν β p₁ hN hνpos (by simpa using hν)
     (T.scaleDataG_of_fixed Dsc) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
     (S := T.step k hk N₁ ν β p₁) rfl hp y i Lab₀
   rw [e] at G
@@ -472,31 +472,31 @@ section TowerG
 variable {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
   (ν β p₁ : ℝ) (Dsc : StepScaleDataG T k hk N₁ ν β p₁)
   {ϱ : ℝ} (S : StepSetting d L N₁ T.m₁ k N ϱ) (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-  (hp : 0 < S.p₁) (y : CTorus d L N₁ T.m₁ (k + 1)) (h3N : L ∣ N₁)
+  (hp : 0 < S.p₁) (y : CTorus d L N₁ T.m₁ (k + 1)) (h3N : L ^ T.m₀ ∣ N₁)
   {Lb : Type} [Fintype Lb]
-  (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+  (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
     Set.univ Lb) {εH : ℝ} (hεH : 0 < εH) {Kc : ℝ}
-  (Aact : physParam N S → ℂ → LabelAct Lab (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 Kc)
-  (hdj : ∀ Y ∈ obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y), IsDj 1 (k + 1) Y)
+  (Aact : physParam N S → ℂ → LabelAct Lab (S.blockSplit T.m₀ hp).Ωb εH (2 * T.κdec - 1) T.κ0 Kc)
+  (hdj : ∀ Y ∈ obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y), IsDj T.m₀ (k + 1) Y)
   {Kobs : ℝ} (hK : Kc + Kc + K0 d L T.κ0 + K0 d L T.κ0 ≤ Kobs) (Rg : ℝ) (hR : 0 ≤ Rg)
 
 include Dsc hS in
-/-- **The first-order and remainder families, and the analyticity of the coefficient, for any
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsFamilies_of_Ev` is its corollary.  **The first-order and remainder families, and the analyticity of the coefficient, for any
 sharp-hat family `Ev`** (its three clauses as in `obsEv_fromTower`).  The activity is
 `tiltActObs … (e, t, σ)` on the labels `obsLab (Lab.sum Lab) hdj`, `V = physVq … q`,
-`𝒰 = ball 0 (3/2)`, carrier `physCarrier S 1 hp`.
+`𝒰 = ball 0 (3/2)`, carrier `physCarrier S T.m₀ hp`.
 
 Numerical hypothesis carried: `hε`, the amplitude of the tilted extension is at most
 `stepTheta d L Kobs (2 κdec - 1) κ0 κ'`; the other rates are the tower fields
 (`marks_hκ0`, `marks_hκ'`, `marks_hκ`, `marks_κG_le`, `marks_K0_pos`). -/
 theorem obsFamilies_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {q : ℝ}
-    (hhol : ∀ y', ∀ Φ ∈ physCarrier S 1 hp, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
-      (tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+    (hhol : ∀ y', ∀ Φ ∈ physCarrier S T.m₀ hp, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+      (tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
         (ball (0 : ℂ) (3 / 2)) r.1 r.2 1).H y' Φ)
       (physVq S S.a₁ S.ν T.t q ×ˢ ball (0 : ℂ) (3 / 2)))
     (hcont : ∀ y', ∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ u ∈ ball (0 : ℂ) (3 / 2),
-      ContinuousOn ((tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
-        Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y') (physCarrier S 1 hp))
+      ContinuousOn ((tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+        Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y') (physCarrier S T.m₀ hp))
     (Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
         RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ)
     (ha : ∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
@@ -504,29 +504,29 @@ theorem obsFamilies_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 0 < ν) (h�
     (hb : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) :
-    (∀ m : ObsMarkIdx S, Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) :
+    (∀ m : ObsMarkIdx S, Nonempty (ParamMarkFamily (S.blockSplit T.m₀ hp).μ
       (obsLab (Lab.sum Lab) hdj)
-      (fun θ t => tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+      (fun θ t => tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
         Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
-      (fun _ : Unit => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k
-        (LocalCover.fam 1 y)) m)
-      (fun _ _ _ => blockMarkC S 1 hp m.1 m.2) (2 * T.κdec - 1)
+      (fun _ : Unit => obsY1 T.m₀ S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+        (LocalCover.fam T.m₀ y)) m)
+      (fun _ _ _ => blockMarkC S T.m₀ hp m.1 m.2) (2 * T.κdec - 1)
       (fun _ => S.p₁ * Real.exp ((2 * T.κdec - 1) * (obsLab (Lab.sum Lab) hdj).dl
-        (obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)))
-      (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S 1 hp))) ∧
-    Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj)
-      (fun θ t => tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+        (obsY1 T.m₀ S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)))
+      (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S T.m₀ hp))) ∧
+    Nonempty (ParamMarkFamily (S.blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj)
+      (fun θ t => tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
         Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
-      (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+      (obsRemLab (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
         (fun Y => Sum.inl (Sum.inr Y))
-        (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
-          (rootCube (m₀ := 1) (blockIndex y))))
-      (obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (obsY0 T.m₀ (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
+          (rootCube (m₀ := T.m₀) (blockIndex y))))
+      (obsGrFam S T.m₀ hp Ev (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
         (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t)) (2 * T.κdec - 1)
       (fun _ => 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
         (S.p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2)
-      (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S 1 hp)) := by
+      (physVq S S.a₁ S.ν T.t q) (ball (0 : ℂ) (3 / 2)) (physCarrier S T.m₀ hp)) := by
   subst hS
   have hH : BgHyp d L (k + 1) ϱ (compWeight L (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁)
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν := by
@@ -550,16 +550,16 @@ theorem obsFamilies_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 0 < ν) (h�
       (fun Y _ => ha Y) hC0 (fun Y _ => hb Y) _ _ (fun Y => rfl) T.marks_κG_le hhol hcont
 
 set_option quotPrecheck false in
-local notation "𝒴ₒ" => obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)
+local notation "𝒴ₒ" => obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)
 set_option quotPrecheck false in
 local notation "Actₒ" => fun (θ : physParam N S) (t σ : ℂ) =>
-  tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+  tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
     (ball (0 : ℂ) (3 / 2)) θ t σ
 
 include Dsc hS in
-/-- **The three parts of the coefficient of the observable and their sum are analytic on
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsCoeffParam_analytic_of_Ev` is its corollary.  **The three parts of the coefficient of the observable and their sum are analytic on
 `physVq`**, for the one sharp-hat family `Ev` of the kernel and the remainder: for every finite
-set `T'` of cubes, with `μ = (S.blockSplit 1 hp).μ`, the kernel `θ ↦ obsHker 𝒴 (hatCoeff (Ev ·)
+set `T'` of cubes, with `μ = (S.blockSplit T.m₀ hp).μ`, the kernel `θ ↦ obsHker 𝒴 (hatCoeff (Ev ·)
 (θ.1) e_m) 1`,
 
 * each first-order term `θ ↦ markIntTerm μ (Act θ) (obsY1 m) (blockMarkC m) S'` is analytic,
@@ -571,13 +571,13 @@ Numerical hypothesis carried: `hε`, the amplitude of the tilted extension is be
 `stepTheta d L Kobs (2 κdec - 1) κ0 κ'`. -/
 theorem obsCoeffParam_analytic_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
     {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ0 + 1 ≤ Kc)
-    (hhol : ∀ y', ∀ Φ ∈ physCarrier S 1 hp, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
-      (tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+    (hhol : ∀ y', ∀ Φ ∈ physCarrier S T.m₀ hp, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+      (tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
         (ball (0 : ℂ) (3 / 2)) r.1 r.2 1).H y' Φ)
       (physVq S S.a₁ S.ν T.t q ×ˢ ball (0 : ℂ) (3 / 2)))
     (hcont : ∀ y', ∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ u ∈ ball (0 : ℂ) (3 / 2),
-      ContinuousOn ((tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
-        Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y') (physCarrier S 1 hp))
+      ContinuousOn ((tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+        Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y') (physCarrier S T.m₀ hp))
     (hε : Rg * max (εH + εH) εH ≤ stepTheta d L Kobs (2 * T.κdec - 1) T.κ0 T.κ')
     (Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
         RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ)
@@ -591,32 +591,32 @@ theorem obsCoeffParam_analytic_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 
     (hb : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y))
-    (T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y))
+    (T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
       Set.univ)) :
     (∀ (m : ObsMarkIdx S) (S' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
-        (K := k + 1) 1 (k + 1) Set.univ)),
-      AnalyticOnNhd ℂ (fun θ => markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ)
-        (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m) (blockMarkC S 1 hp m.1 m.2) S')
+        (K := k + 1) T.m₀ (k + 1) Set.univ)),
+      AnalyticOnNhd ℂ (fun θ => markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ)
+        (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m) (blockMarkC S T.m₀ hp m.1 m.2) S')
         (physVq S S.a₁ S.ν T.t q)) ∧
     AnalyticOnNhd ℂ (fun θ => kernelMarkSum
       (fun m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
-        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) 1 T'')
-      (fun m S' => markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ) (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m)
-        (blockMarkC S 1 hp m.1 m.2) S') T') (physVq S S.a₁ S.ν T.t q) ∧
-    AnalyticOnNhd ℂ (fun θ => gsumCoeff (S.blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj)
+        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) T.m₀ T'')
+      (fun m S' => markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ) (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m)
+        (blockMarkC S T.m₀ hp m.1 m.2) S') T') (physVq S S.a₁ S.ν T.t q) ∧
+    AnalyticOnNhd ℂ (fun θ => gsumCoeff (S.blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj)
       (fun t => Actₒ θ t 1)
       (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
-        (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))))
-      (obsGrFam S 1 hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) T')
+        (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))))
+      (obsGrFam S T.m₀ hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) T')
       (physVq S S.a₁ S.ν T.t q) ∧
-    AnalyticOnNhd ℂ (fun θ => obsCoeffParam (S.blockSplit 1 hp).μ Actₒ
-      (fun m => obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m) (fun m => blockMarkC S 1 hp m.1 m.2)
+    AnalyticOnNhd ℂ (fun θ => obsCoeffParam (S.blockSplit T.m₀ hp).μ Actₒ
+      (fun m => obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m) (fun m => blockMarkC S T.m₀ hp m.1 m.2)
       (fun θ m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
-        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) 1 T'')
+        (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) T.m₀ T'')
       (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
-        (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))))
-      (fun θ => obsGrFam S 1 hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) θ T')
+        (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))))
+      (fun θ => obsGrFam S T.m₀ hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) θ T')
       (physVq S S.a₁ S.ν T.t q) := by
   obtain ⟨hfam1, hfamr⟩ := obsFamilies_of_EvG T k hk N₁ ν β p₁ Dsc S hS hp y h3N Lab hεH Aact hdj
     hK Rg hR hϱ hνpos hν hhol hcont Ev ha hb
@@ -627,24 +627,24 @@ theorem obsCoeffParam_analytic_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 
     rw [div_le_iff₀ hcψ]
     have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos Dsc.r_pos hp
     nlinarith [Dsc.ray_margin]
-  have hN3 : L ^ 1 ∣ N₁ := by simpa using h3N
+  have hN3 : L ^ T.m₀ ∣ N₁ := by simpa using h3N
   have hkernel : ∀ (m : ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-      (T'' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+      (T'' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
         Set.univ)),
       AnalyticOnNhd ℂ (fun θ : physParam N (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) => obsHker
-        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
         (fun Y => hatCoeff (Ev Y) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) 1 T'')
+          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) T.m₀ T'')
         (physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
           (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q) := by
     intro m T''
-    have hk1 := obsHker_param_of_Ev (S := T.step k hk N₁ ν β p₁) (m₀ := 1)
+    have hk1 := obsHker_param_of_Ev (S := T.step k hk N₁ ν β p₁) (m₀ := T.m₀)
       (A := XiCRaw (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' (compWeight L 1) ν (k + 1) 1 T.t)
       (cψ := lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) (B := cK2' d L N (famConst d L T.BG₂ T.κ) * T.t)
       (κdec := T.κdec) hcψ hC0.le (by linarith [T.marks_κdec_nonneg]) Ev hd
       (fun Y u hu => by
         have := hb Y u hu
-        rwa [← treeLenCov_eq_treeLenCovOne (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).hG' 1 Y,
+        rwa [← treeLenCov_eq_treeLenCovOne (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).hG' T.m₀ Y,
           show -(2 * T.κdec) = -2 * T.κdec by ring] at this)
       ha _ hN3 hdj m T''
     exact analyticOnNhd_comp_rawFst hk1.1 (fun θ hθ => hθ.1.1)
@@ -653,40 +653,40 @@ theorem obsCoeffParam_analytic_of_EvG (hϱ : ϱ = rhoSepG d L T.m₁) (hνpos : 
     mul_pos (by linarith) (lt_of_lt_of_le (by linarith) (le_max_left _ _))
   have hpc : 0 < p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) := div_pos hp hcψ
   have hall := obsCoeffParam_analyticOnNhd (E := physParam N (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-    ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+    ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
     (Lab := obsLab (Lab.sum Lab) hdj)
     (Aact := fun θ t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
       (ball (0 : ℂ) (3 / 2)) θ t σ)
     (V := physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q)
-    (𝒰 := ball (0 : ℂ) (3 / 2)) (Q := physCarrier (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp)
-    (fun m => obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
-      (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-    (fun m => blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2)
+    (𝒰 := ball (0 : ℂ) (3 / 2)) (Q := physCarrier (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp)
+    (fun m => obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
+      (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+    (fun m => blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2)
     (fun m => (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).p₁ * Real.exp ((2 * T.κdec - 1) *
-      (obsLab (Lab.sum Lab) hdj).dl (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
-        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)))
+      (obsLab (Lab.sum Lab) hdj).dl (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
+        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)))
     (fun m => (hfam1 m).some)
-    (obsRemLab (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-        (LocalCover.fam 1 y)) (fun Y => Sum.inl (Sum.inr Y))
-      (obsY0 1 (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-        (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))))
-    (fun θ => obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-      (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+    (obsRemLab (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+        (LocalCover.fam T.m₀ y)) (fun Y => Sum.inl (Sum.inr Y))
+      (obsY0 T.m₀ (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+        (LocalCover.fam T.m₀ y)) (rootCube (m₀ := T.m₀) (blockIndex y))))
+    (fun θ => obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+      (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
       (XiCRaw (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' (compWeight L 1) ν (k + 1) 1 T.t) θ)
     (fun _ => 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
         (p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2) hfamr.some
-    (fun θ m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-      (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+    (fun θ m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+      (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y)
         (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-        (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) 1 T'') (fun m T'' => hkernel m T'')
+        (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) T.m₀ T'') (fun m T'' => hkernel m T'')
     T.marks_hκ0 (by linarith)
     hεpos (fun m => mul_pos hp (Real.exp_pos _)) (fun _ => by positivity) T.marks_hκ'
     T.marks_hκG T.marks_hκ (by unfold stepTheta at hε; exact hε) T'
   exact hall
 
 include Dsc hS in
-/-- **The uniform bounds of the three parts and of their sum on `physVq`**, with the constants of
+/-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsCoeffParam_norm_le_of_Ev` is its corollary.  **The uniform bounds of the three parts and of their sum on `physVq`**, with the constants of
 the fixed-parameter bounds (`norm_markIntTerm_le`, `norm_gsumCoeff_le`, `norm_kernelMarkSum_le`),
 for the sharp-hat family `Ev` (the clauses and `hD` as given by `obsEv_fromTower`).  With
 `C₀ = Q t`, `c_ψ = lvCpsi`, `F_r = 8 C₀ (p₁/c_ψ)²`, `κ' = T.κ'`, `n_* = 2 · 3^{3(1+m₁+1)}`:
@@ -702,10 +702,10 @@ Carried: the same numerical hypotheses as `obsCoeffParam_fromTower`; the activit
 `obsTiltLabels_fromTower`. -/
 theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ0 + 1 ≤ Kc)
     (hσ : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ t ∈ ball (0 : ℂ) (3 / 2), ∀ y' Φ, DifferentiableOn ℂ
-      (fun σ => (tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg
+      (fun σ => (tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg
         hR (ball (0 : ℂ) (3 / 2)) e t σ).H y' Φ) (ball (0 : ℂ) Rg))
     (hzero : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ t y' Φ,
-      (tiltActObs Aact (show L ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+      (tiltActObs Aact (show L ^ T.m₀ ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
         (ball (0 : ℂ) (3 / 2)) e t 0).H y' Φ = 0)
     (hε : Rg * max (εH + εH) εH ≤ stepTheta d L Kobs (2 * T.κdec - 1) T.κ0 T.κ')
     (Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
@@ -720,40 +720,40 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
     (hb : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y))
+          Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y))
     (hD : ∀ D : BgData S.G' N, XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D →
-        ObsMarkHalf S 1 hp Ev D (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        ObsMarkHalf S T.m₀ hp Ev D (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
           (obsLab (Lab.sum Lab) hdj) (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
           (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))))
-          (2 * T.κdec) (rootCube (m₀ := 1) (blockIndex y)))
-    (W : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          (2 * T.κdec) (rootCube (m₀ := T.m₀) (blockIndex y)))
+    (W : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
       Set.univ)) :
     (∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ (m : ObsMarkIdx S) (S' : Finset (CubeB (d := d) (L := L)
-        (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ)),
-      ‖markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ) (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m)
-        (blockMarkC S 1 hp m.1 m.2) S'‖ ≤
+        (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1) Set.univ)),
+      ‖markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ) (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m)
+        (blockMarkC S T.m₀ hp m.1 m.2) S'‖ ≤
         CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ * Real.exp (-T.κ' * dExt S') / Rg) ∧
     (∀ θ ∈ physVq S S.a₁ S.ν T.t q,
-      ‖gsumCoeff (S.blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj) (fun t => Actₒ θ t 1)
+      ‖gsumCoeff (S.blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj) (fun t => Actₒ θ t 1)
         (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
-          (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))))
-        (obsGrFam S 1 hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) W‖ ≤
+          (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))))
+        (obsGrFam S T.m₀ hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) W‖ ≤
         CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' *
           (∑ r, 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
             (S.p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2 * Real.exp (-T.κ0 *
             (obsLab (Lab.sum Lab) hdj).dl (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
-              (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))) r))) *
+              (obsY0 T.m₀ (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := T.m₀) (blockIndex y))) r))) *
           Real.exp (-T.κ' * dExt W)) ∧
     (∀ θ ∈ physVq S S.a₁ S.ν T.t q,
       ‖kernelMarkSum
         (fun m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
-          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) 1 T'')
-        (fun m S' => markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ) (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m)
-          (blockMarkC S 1 hp m.1 m.2) S') W‖ ≤
+          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) (obsUnitVec S m)) T.m₀ T'')
+        (fun m S' => markIntTerm (S.blockSplit T.m₀ hp).μ (Actₒ θ) (obsY1 T.m₀ S (Lb ⊕ Lb) 𝒴ₒ m)
+          (blockMarkC S T.m₀ hp m.1 m.2) S') W‖ ≤
         (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) *
           (CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ / Rg) *
-          (((N * L ^ (d * (1 + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kobs ^ 2 *
+          (((N * L ^ (d * (T.m₀ + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kobs ^ 2 *
           Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG d L) *
           Real.exp (-(min (2 * T.κdec) T.κ' - T.κ0 - 1) * dExt W)) := by
   subst hS
@@ -763,7 +763,7 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
     rw [div_le_iff₀ hcψ]
     have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos Dsc.r_pos hp
     nlinarith [Dsc.ray_margin]
-  have hN3 : L ^ 1 ∣ N₁ := by simpa using h3N
+  have hN3 : L ^ T.m₀ ∣ N₁ := by simpa using h3N
   have hK0 := T.marks_K0_pos
   have hKobs : K0 d L T.κ0 + 1 ≤ Kobs := by linarith
   have hεpos : 0 < Rg * max (εH + εH) εH :=
@@ -772,34 +772,34 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
       Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG d L + c1 d L + T.κ' * cG d L)) := by
     unfold stepTheta at hε; exact hε
   have hdl0 : ∀ m : ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ),
-      (obsLab (Lab.sum Lab) hdj).dl (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
-        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-        = 0 := fun m => obsCubeLab_dl 1 _
+      (obsLab (Lab.sum Lab) hdj).dl (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb)
+        (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+        = 0 := fun m => obsCubeLab_dl T.m₀ _
   have hcell : ∀ m : ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ),
-      obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 m ∈ blocksOf (d := d) (L := L) (N₁ := N₁)
-        (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ ((obsLab (Lab.sum Lab) hdj).ysite
-          (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)) :=
-    fun m => obsCubeLab_mem 1 (obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 m)
+      obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ m ∈ blocksOf (d := d) (L := L) (N₁ := N₁)
+        (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1) Set.univ ((obsLab (Lab.sum Lab) hdj).ysite
+          (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+            (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)) :=
+    fun m => obsCubeLab_mem T.m₀ (obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ m)
   have hfirst : ∀ θ ∈ physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q, ∀ (m : ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-      (S' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+      (S' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
         Set.univ)),
-      ‖markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ
+      ‖markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ
         (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
           (ball (0 : ℂ) (3 / 2)) θ t σ)
-        (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-        (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2) S'‖ ≤
+        (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+          (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+        (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2) S'‖ ≤
         CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).p₁ * Real.exp (-T.κ' * dExt S') / Rg := by
     intro θ hθ m S'
     have h := norm_markIntTerm_le (E := physParam N (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-      ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+      ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
       (Lab := obsLab (Lab.sum Lab) hdj) (κG := 2 * T.κdec - 1) (κ' := T.κ') (F0 := (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).p₁) (R := Rg)
       (fun θ t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t σ)
-      (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-      (fun _ => blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2)
+      (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+          (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+      (fun _ => blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2)
       (physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q)
       (fun _ => measurable_blockMarkC m.1 m.2)
       (fun _ => depOn_blockMarkC m.1 m.2 (hcell m))
@@ -812,32 +812,32 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
     simpa using h
   have hrem : ∀ θ ∈ physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q,
-      ‖gsumCoeff ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj)
+      ‖gsumCoeff ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ (obsLab (Lab.sum Lab) hdj)
         (fun t => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
-        (obsRemLab (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-            (LocalCover.fam 1 y)) (fun Y => Sum.inl (Sum.inr Y))
-          (obsY0 1 (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-            (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))))
-        (obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (obsRemLab (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+            (LocalCover.fam T.m₀ y)) (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 T.m₀ (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+            (LocalCover.fam T.m₀ y)) (rootCube (m₀ := T.m₀) (blockIndex y))))
+        (obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+          (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
           (XiCRaw (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' (compWeight L 1) ν (k + 1) 1 T.t) θ) W‖ ≤
         CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' *
           (∑ r, 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
             (p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2 * Real.exp (-T.κ0 *
             (obsLab (Lab.sum Lab) hdj).dl (obsRemLab (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-              (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (fun Y => Sum.inl (Sum.inr Y))
-              (obsY0 1 (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-                (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))) r))) *
+              (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) (fun Y => Sum.inl (Sum.inr Y))
+              (obsY0 T.m₀ (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                (LocalCover.fam T.m₀ y)) (rootCube (m₀ := T.m₀) (blockIndex y))) r))) *
           Real.exp (-T.κ' * dExt W) := by
     intro θ hθ
     exact norm_gsumCoeff_le (E := physParam N (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-      ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+      ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
       (Lab := obsLab (Lab.sum Lab) hdj) (κG := 2 * T.κdec - 1) (κ' := T.κ')
       (F0 := fun _ => 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
         (p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2)
       (fun θ t => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
-      _ (fun θ => obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+      _ (fun θ => obsGrFam (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp Ev (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+          (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))
           (XiCRaw (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' (compWeight L 1) ν (k + 1) 1 T.t) θ)
       (physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q)
       (fun θ i u => measurable_obsGrFam hcψ hq (fun Y _ => ha Y) θ i u)
@@ -851,14 +851,14 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q, ∃ D : BgData (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' N,
       XiCData (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).G' (compWeight L 1) ν (k + 1) 1 T.t D ∧
       ∀ (m : ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ))
-        (T'' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        (T'' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
           Set.univ)),
-        obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+        obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+          (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y)
             (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-            (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) 1 T'' =
-        obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-          (LocalCover.fam 1 y)) (obsRowCoeff (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) Ev D m) 1 T'' := by
+            (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) T.m₀ T'' =
+        obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+          (LocalCover.fam T.m₀ y)) (obsRowCoeff (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) Ev D m) T.m₀ T'' := by
     intro θ hθ
     obtain ⟨D, hDx, hDr⟩ := hθ.1.1
     have hDr' : (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) = rawOf D := hDr
@@ -866,19 +866,19 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
   have hkern : ∀ θ ∈ physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
       (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q,
       ‖kernelMarkSum
-        (fun m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+        (fun m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+          (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y)
           (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) 1 T'')
-        (fun m S' => markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ
+          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) T.m₀ T'')
+        (fun m S' => markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ
           (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
             (ball (0 : ℂ) (3 / 2)) θ t σ)
-          (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-          (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2) S') W‖ ≤
+          (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+            (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+          (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2) S') W‖ ≤
         (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) *
           (CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).p₁ / Rg) *
-          (((N * L ^ (d * (1 + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kobs ^ 2 *
+          (((N * L ^ (d * (T.m₀ + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kobs ^ 2 *
           Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG d L) *
           Real.exp (-(min (2 * T.κdec) T.κ' - T.κ0 - 1) * dExt W) := by
     have hCPE := CPE_nonneg' (d := d) (L := L) Kobs (2 * T.κdec - 1) T.κ0 T.κ'
@@ -888,21 +888,21 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
       (ι := ObsMarkIdx (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)) hN3 (le_refl (k + 1))
       (V := physVq (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).a₁
         (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).ν T.t q)
-      (fun m => obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 m)
-      (nmax := (((N * L ^ (d * (1 + T.m₁ + 1)) : ℕ)) : ℝ)) (Nat.cast_nonneg _)
+      (fun m => obsMarkCube (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ m)
+      (nmax := (((N * L ^ (d * (T.m₀ + T.m₁ + 1)) : ℕ)) : ℝ)) (Nat.cast_nonneg _)
       (fun c => by
         have := card_markIdx_cell_le_pow (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) c
         exact_mod_cast this)
-      (fun θ m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF 1 y) 1 k
-          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+      (fun θ m T'' => obsHker (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (LocalCover.nbhdF T.m₀ y) T.m₀ k
+          (LocalCover.fam T.m₀ y)) (fun Y => hatCoeff (Ev Y)
           (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) 1 T'')
-      (fun θ m S' => markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ
+          (obsUnitVec (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) m)) T.m₀ T'')
+      (fun θ m S' => markIntTerm ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ
           (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
             (ball (0 : ℂ) (3 / 2)) θ t σ)
-          (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-          (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2) S')
+          (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+            (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+          (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2) S')
       (Ch := cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
       (Cg := CPE d L Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).p₁ / Rg)
       (κh := 2 * T.κdec) (κg := T.κ')
@@ -921,12 +921,12 @@ theorem obsCoeffParam_norm_le_of_EvG {q : ℝ} (hRg : 1 < Rg) (hKc : K0 d L T.κ
         calc _ ≤ _ := hfirst θ hθ m S'
           _ = _ := by ring)
       (fun θ hθ m S' hS' => markIntTerm_support
-        ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+        ((hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ).blockSplit T.m₀ hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
         (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
           (ball (0 : ℂ) (3 / 2)) θ t σ)
-        (obsY1 1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
-          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
-        (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) 1 hp m.1 m.2)
+        (obsY1 T.m₀ (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Lb ⊕ Lb) (obsDomains (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+          (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y)) m)
+        (blockMarkC (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ) T.m₀ hp m.1 m.2)
         (measurable_blockMarkC m.1 m.2) (depOn_blockMarkC m.1 m.2 (hcell m))
         (fun Φ => by rw [hdl0 m]; simpa using norm_blockMarkC_le m.1 m.2 Φ)
         T.marks_hκ0 (by linarith) hεpos hp T.marks_hκ' T.marks_hκG T.marks_hκ hε' S'
