@@ -28,8 +28,8 @@ left in these five statements: every printed `t` of the landed ones is a renorma
 The proofs re-invoke the abstract theorems (which take any positive `ε`) with the core of the tower
 at the radii `(e, e)` (`StepTowerRen.flCore_scale_mono`) and the margins at `e`
 (`StepTowerRen.ren_margins_of_le`, `StepTowerRenEnd.end_margin_of_le`,
-`StepTowerRenSol.margins_of_le`).  After each theorem, an `example` checks that the landed
-statement is the case `e = t`.
+`StepTowerRenSol.margins_of_le`).  After each `_at` theorem, the landed theorem of the same name without `_at` is stated and proved
+as its corollary at `e = t`.
 -/
 
 @[expose] public section
@@ -127,11 +127,32 @@ theorem renDec_sharp_scale_of_tower_at {κmin : ℝ} (R : StepTowerRen κmin) (k
   exact renDec_sharp (R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het) R.r₀_pos R.r₀_le X₁
     h1 h2 h3
 
-/-- The landed `renDec_sharp_scale_of_tower` is the case `e = t`. -/
-example {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
-    (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
-    type_of% (renDec_sharp_scale_of_tower R k hk N₁ hN hν0 hν X₁) :=
+/-- **`renDec_sharp` at every scale of the tower with margins**: no margin hypothesis is left. -/
+theorem renDec_sharp_scale_of_tower {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
+    ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) → (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
+        (((lvTop N₁ R.m₁ k (rhoSep R.m₁))).Ω 1 × Fin 2 → ℂ) × (((lvTop N₁ R.m₁ k (rhoSep R.m₁))).Ω 1 → ℂ),
+      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
+          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => F p.1 p.2)
+        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
+      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2, XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ →
+        ∀ s ∈ polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ),
+        ∀ (s' : DecParams (lvTop N₁ R.m₁ k (rhoSep R.m₁))) (E : Edat (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2),
+          s' = extParams (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ (s ∘ (renLabelEquiv (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁).symm) →
+          E = renEdat ν R.t D (decBgField (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) s' D)
+            (decBgMult (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) s' D) ξ →
+          (F (rawOf D, ξ) s).1 = dphi (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (decG (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν s') E.2.1 E.1
+              (pertSource (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          DecFixed (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν s' false E.2.1 E.1
+              (pertSource (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          Small (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).2 (c6' 3 3 2 (famConst 3 3 R.BG R.κ) (gamma1 3 / 8)) ∧
+          Small (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).2 (cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * ‖ξ‖)) ∧
+          SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).1 (cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * ‖ξ‖)) ∧
+          (ξ = 0 → (F (rawOf D, ξ) s).2 = 0 ∧ (F (rawOf D, ξ) s).1 = 0) :=
   renDec_sharp_scale_of_tower_at R k hk N₁ hN hν0 hν R.t_pos le_rfl X₁
 
 /-- **`renDec_pertClass` at every scale of the tower, at the class radius `e ≤ t`**, at the
@@ -170,11 +191,35 @@ theorem renDec_pertClass_scale_of_tower_at {κmin : ℝ} (R : StepTowerRen κmin
   exact renDec_pertClass (R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het) R.r₀_pos R.r₀_le X₁
     h1 h2 h3 (B := 8 * e) (cK := renCK 3 3 2 R.BG R.κ) (by positivity) hcK hCB
 
-/-- The landed `renDec_pertClass_scale_of_tower` is the case `e = t`. -/
-example {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
-    (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
-    type_of% (renDec_pertClass_scale_of_tower R k hk N₁ hN hν0 hν X₁) :=
+/-- **`renDec_pertClass` at every scale of the tower** at the shared constant `c_K = renCK` and
+`B = 8 t`: the constant inequality (CB) is `renCK_mul_ge` times `t`. -/
+theorem renDec_pertClass_scale_of_tower {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
+    ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
+        (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
+        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ),
+      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
+          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => F p.1 p.2)
+        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁))
+          (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
+      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2,
+        XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
+        ‖ξ‖ < R.r₀ →
+        ∀ s ∈ polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ)
+          (fun _ => Real.exp R.κ),
+          SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).1
+            (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * R.t * ‖ξ‖))) ∧
+          ((F (rawOf D, ξ) s).1,
+            decBgMult (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ)
+              (extParams (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁
+                (s ∘ (renLabelEquiv (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁).symm)) D +
+              (F (rawOf D, ξ) s).2) ∈
+            pertClass (lvTop N₁ R.m₁ k (rhoSep R.m₁))
+              (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * R.t * ‖ξ‖)))
+              (bgK1 3 3 2 * (xiC1 3 * R.t) + renCK 3 3 2 R.BG R.κ * cK2 3 3 2 * (8 * R.t) * R.r₀ + 2)
+              (renMassU ν ξ) :=
   renDec_pertClass_scale_of_tower_at R k hk N₁ hN hν0 hν R.t_pos le_rfl X₁
 
 /-- **`renDec_one_unique_sharp` at every scale of the tower, at the class radius `e ≤ t`**: the
@@ -203,15 +248,27 @@ theorem renDec_one_unique_sharp_scale_of_tower_at {κmin : ℝ} (R : StepTowerRe
   exact renDec_one_unique_sharp (R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het) R.r₀_pos
     R.r₀_le X₁ hF hrF h1 h2 h3 (R.end_margin_of_le het)
 
-/-- The landed `renDec_one_unique_sharp_scale_of_tower` is the case `e = t`. -/
-example {κmin : ℝ} (R : StepTowerRenEnd κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
-    (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) {rF B : ℝ}
+/-- **`renDec_one_unique_sharp` at every scale of the tower with the endpoint margin**: the cut
+family at `s = 1` is the renormalized solution `F` (any `IsRenSol` solution map of radius
+`rF ≥ r₀`), with no margin hypothesis. -/
+theorem renDec_one_unique_sharp_scale_of_tower {κmin : ℝ} (R : StepTowerRenEnd κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) {rF B : ℝ}
     {F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
       ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ)}
     (hF : IsRenSol (N := 2) (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t R.t rF B F)
     (hrF : R.r₀ ≤ rF) :
-    type_of% (renDec_one_unique_sharp_scale_of_tower R k hk N₁ hN hν0 hν X₁ hF hrF) :=
+    ∃ Fcut : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
+        (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
+        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ),
+      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
+          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => Fcut p.1 p.2)
+        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁))
+          (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
+      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2,
+        XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
+        ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ) :=
   renDec_one_unique_sharp_scale_of_tower_at R k hk N₁ hN hν0 hν R.t_pos le_rfl X₁ hF hrF
 
 /-- **`IsRenSol` at every scale of the tower, at the class radius `e ≤ t`**: the renormalized
@@ -230,10 +287,15 @@ theorem exists_isRenSol_scale_of_tower_at {κmin : ℝ} (R : StepTowerRenSol κm
   exact exists_isRenSol hHB he R.r₀_le hC.small1
     (hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)) hK hζ
 
-/-- The landed `exists_isRenSol_scale_of_tower` is the case `e = t`. -/
-example {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) :
-    type_of% (exists_isRenSol_scale_of_tower R k hk N₁ hN hν0 hν) :=
+/-- **`IsRenSol` at every scale of the tower**: the renormalized solution at radius `r₀` and
+bound `B = 8 t`. -/
+theorem exists_isRenSol_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) :
+    ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
+      ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ),
+      IsRenSol (N := 2) (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t R.t R.r₀
+        (8 * R.t) F :=
   exists_isRenSol_scale_of_tower_at R k hk N₁ hN hν0 hν R.t_pos le_rfl
 
 /-- **The endpoint at every scale of the tower, at the class radius `e ≤ t`**: one solution map
@@ -262,11 +324,26 @@ theorem renEndpoint_scale_of_tower_at {κmin : ℝ} (R : StepTowerRenSol κmin) 
     hN hν0 hν he het X₁ hF le_rfl
   exact ⟨F, Fcut, hF, h1, h2⟩
 
-/-- The landed `renEndpoint_scale_of_tower` is the case `e = t`. -/
-example {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
-    (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
-    type_of% (renEndpoint_scale_of_tower R k hk N₁ hN hν0 hν X₁) :=
+/-- **The endpoint at every scale of the tower with the solution margins**: no hypothesis besides
+the tower and the scale conditions. -/
+theorem renEndpoint_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
+    ∃ (F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
+        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ))
+      (Fcut : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) →
+        (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
+        ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ) × ((lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 → ℂ)),
+      IsRenSol (N := 2) (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t R.t R.r₀
+        (8 * R.t) F ∧
+      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
+          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => Fcut p.1 p.2)
+        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁))
+          (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
+      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2,
+        XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
+        ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ) :=
   renEndpoint_scale_of_tower_at R k hk N₁ hN hν0 hν R.t_pos le_rfl X₁
 
 end Balaban.Inhabited

@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.RenormLabelNonempty
 public import Balaban.Inhabited.StepTowerRenEnd
+public import Balaban.Inhabited.RenormRadiusDec
 public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormRowAgree

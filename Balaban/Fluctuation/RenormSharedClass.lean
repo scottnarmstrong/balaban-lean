@@ -21,7 +21,8 @@ the larger of `2 + 2 K₄ ξ₁` and `K₂'(B_fam) b_* / (8 K₂)`, so that `8 c
 
 * `bgClass_mono`, `pertClass_mono`: monotonicity of the two classes;
 * `HasLocPrinciple.mono_class`: the localization principle persists when the class is enlarged;
-* `renLocC1_zero_of_le`, `renLocC1_scale_of_tower_of_le`: the `locC1` field at larger constants;
+* `renLocC1_zero_of_le`: the `locC1` field at larger constants (`renLocC1_scale_of_tower_of_le`, its
+  version at every scale of the tower, is in `Balaban.Inhabited.RenormRadiusLoc`);
 * `renCK`, `renCK_ge`, `renCK_mul_ge`: the shared constant and its two inequalities.
 
 The principles `locC2`, `locDφ` are NOT proved here.
@@ -114,39 +115,6 @@ theorem renLocC1_zero_of_le
     fun D _ ξ _ => bgClass_mono h0 (mul_le_mul_of_nonneg_right hcK hε.le) D
 
 end LocC1
-
-section Scale
-
-open Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited Balaban.Polymer
-  Balaban.SmallField.Def6 Balaban.Inhabited Balaban.Inhabited.LevelStep LocalCover
-
-/-- **`locC1` at every scale of the tower, at any class constant `cK' ≥ 2 + 2 K₄ ξ₁`.** -/
-theorem renLocC1_scale_of_tower_of_le {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k)
-    (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
-    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) {κa r₀ : ℝ} (hκa : κa ≤ 2 * T.κdec)
-    (hr₀0 : 0 < r₀) (hr₀1 : r₀ ≤ 1 / 16) (z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))))
-    {cK' : ℝ} (hcK : 2 + 2 * K4 3 3 2 T.BG T.κ * xiC1 3 ≤ cK') :
-    HasLocPrinciple (N := 2) (lvTop N₁ T.m₁ k (rhoSep T.m₁))
-      (XiCOneReal (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν T.t) r₀
-      (renYs (renCube (lvTop N₁ T.m₁ k (rhoSep T.m₁))
-          (X1 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1 k (fam 1 (blockSite k z))))
-        (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1
-        (X1 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1 k (fam 1 (blockSite k z))))
-      (renDY (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1) κa 1
-      (fun D _ => bgClass (lvTop N₁ T.m₁ k (rhoSep T.m₁)) ν (cK' * T.t) D)
-      (fun D φ ξ => renC1On (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν T.t
-        (blockSites 3 3 N₁ T.m₁ (k + 1) k z) D.Ψ D.h φ ξ)
-      (fun D _ => bgFieldC (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν (bgC0 3 3 2) D) := by
-  have hK4 := (K4_pos (d := 3) (L := 3) (N := 2) (κ := T.κ) (BG := T.BG)
-    (by simpa using T.core.some.hS.fam.2.1) (by norm_num)).le
-  have hC1pos : 0 < xiC1 3 := by unfold xiC1; positivity
-  have h0 : 0 ≤ (2 + 2 * K4 3 3 2 T.BG T.κ * xiC1 3) * T.t := by
-    have := T.t_pos; positivity
-  exact HasLocPrinciple.mono_class
-    (Balaban.Inhabited.renLocC1_scale_of_tower T k hk N₁ h3N hN hν0 hν hκa hr₀0 hr₀1 z)
-    fun D _ ξ _ => bgClass_mono h0 (mul_le_mul_of_nonneg_right hcK T.t_pos.le) D
-
-end Scale
 
 section SharedConstant
 
