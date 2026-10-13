@@ -32,6 +32,14 @@ it is not what is used: `unitQ`, `unitP` only see top-layer sites (`IsUnitLattic
 property that is proved, and used, is `UnionOfTopBlocks` (the same statement for a top-layer site
 `y`); it coincides with `UnionOfBlocks` when `Ω₁ = Ω_{k+1}`.
 
+**T3/T4 (consequences).** `CovStanding.decLog_BD_unit` (block diagonality of `decLog` for every
+union of components of `Yreg s`, no `UnionOfBlocks` hypothesis), `rootTrace_eq_of_comp_unit`
+(locality of the rooted trace with the labels `unitLabel`), and
+`mixDiff_rootTrace_unit_eq_zero_of_root_component`: the mixed difference of the rooted trace of a
+set `B` of unit points vanishes when, at every cut point, a common component `Y'` of the two
+`Yreg`'s contains the blocks of `B` and no cube inside `Y'` has the switched parameter in its
+footprint.
+
 The decay bound and the count of cut sets are not proved here.
 -/
 
