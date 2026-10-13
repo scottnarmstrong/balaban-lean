@@ -274,6 +274,244 @@ section Tower
 
 open Set
 
+/-- **Locality of the activity family in the datum and the source, with the activity family of
+`obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with one more clause on
+the activity `A`: for `e, e'` of `physVq` whose raw data agree on `thickSet S.G' Z` and whose
+sources agree on `Z`, the activities of the labels with sites in `Z` agree, at the zero-source
+parameters and at `e, e'`, for every `u`. -/
+theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) {CR s Θ : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2)
+    (hΘ : 0 < Θ) :
+    ∃ (β₀ CE CF : ℝ), 3 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁), 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) → ∀ q : ℝ, 0 < q → q ≤ 1 →
+      StepScaleData T k hk N₁ ν β p₁ →
+      ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁),
+        S = T.step k hk N₁ ν β p₁ → ∀ hp : 0 < S.p₁,
+      ∀ {Kc : ℝ}, K0 3 3 T.κ0 ≤ Kc →
+      ∃ (Lb : Type) (_ : Fintype Lb)
+        (Lab : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ Lb) (εH : ℝ) (hεH : 0 < εH)
+        (A : physParam 2 S → ℂ → LabelAct Lab (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 Kc),
+        (∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ e' ∈ physVq S S.a₁ S.ν T.t q,
+          ∀ Z : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+          agreeOn (thickSet S.G' Z) (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+            (e'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) → (∀ x ∈ Z, e.2 x = e'.2 x) →
+          ∀ (u : ℂ) (w : Lb), Lab.ysite w ⊆ Z →
+            (A ((e.1, 0) : physParam 2 S) u).H w = (A ((e'.1, 0) : physParam 2 S) u).H w ∧
+            (A e u).H w = (A e' u).H w) ∧
+        2 * εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+          q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ∧
+        (∀ᵐ x ∂S.nuFl, ∀ (D' : BgData S.G' 2) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+          ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i, ‖g x' i‖ < q → ∀ t ∈ Icc (0 : ℝ) 1,
+          ∀ {𝒴obs : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1)))}
+            (hdj : ∀ Y ∈ 𝒴obs, IsDj 1 (k + 1) Y) {Kobs : ℝ}
+            (hK : Kc + Kc + K0 3 3 T.κ0 + K0 3 3 T.κ0 ≤ Kobs),
+          (S.withDatum D' hDh).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (1 : ℝ) x +
+            (S.withDatum D' hDh).WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x =
+          ∑ y, (physActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+            ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (t : ℂ)).H y
+            ((S.blockSplit 1 hp).restr x) ∧
+          ∀ (Rg : ℝ) (hR : 0 ≤ Rg), 1 < Rg →
+          (S.withDatum D' hDh).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (1 : ℝ) x +
+            (S.withDatum D' hDh).WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x =
+          ∑ y, (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+            Rg hR (ball (0 : ℂ) (3 / 2))
+            ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (t : ℂ) 1).H y
+            ((S.blockSplit 1 hp).restr x)) ∧
+        ∀ {𝒴obs : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1)))}
+          (hdj : ∀ Y ∈ 𝒴obs, IsDj 1 (k + 1) Y) {Kobs : ℝ}
+          (hK : Kc + Kc + K0 3 3 T.κ0 + K0 3 3 T.κ0 ≤ Kobs),
+        (∀ y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+          AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ =>
+            (physActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+              r.1 r.2).H y Φ)
+            (physVq S S.a₁ S.ν T.t q ×ˢ ball (0 : ℂ) 2)) ∧
+        (∀ (Rg : ℝ) (hR : 0 ≤ Rg) y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+          AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ × ℂ =>
+            (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+              Rg hR (ball (0 : ℂ) (3 / 2)) r.1 r.2.1 r.2.2).H y Φ)
+            (physVq S S.a₁ S.ν T.t q ×ˢ (ball (0 : ℂ) (3 / 2) ×ˢ ball (0 : ℂ) Rg))) ∧
+        (∀ (Rg : ℝ) (hR : 0 ≤ Rg), 1 < Rg → ∀ e ∈ physVq S S.a₁ S.ν T.t q,
+          (∀ y Φ, DifferentiableOn ℂ
+            (fun t => (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le
+              hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) e t 1).H y Φ) (ball (0 : ℂ) (3 / 2))) ∧
+          (∀ t ∈ ball (0 : ℂ) (3 / 2), ∀ y Φ, DifferentiableOn ℂ
+            (fun σ => (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+              hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) e t σ).H y Φ) (ball (0 : ℂ) Rg)) ∧
+          (∀ t y Φ, (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+            hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) e t 0).H y Φ = 0)) ∧
+        (∀ (Rg : ℝ) (hR : 0 ≤ Rg), 1 < Rg →
+          (∀ y, ∀ Φ ∈ physCarrier S 1 hp, AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ =>
+            (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK
+              Rg hR (ball (0 : ℂ) (3 / 2)) r.1 r.2 1).H y Φ)
+            (physVq S S.a₁ S.ν T.t q ×ˢ ball (0 : ℂ) (3 / 2))) ∧
+          (∀ y, ∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ u ∈ ball (0 : ℂ) (3 / 2),
+            ContinuousOn ((tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+              hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ u 1).H y)
+              (physCarrier S 1 hp))) ∧
+        (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i, ‖g x' i‖ < q →
+          1 < obsRg CR s (p : ℝ) (β * 3 ^ k) ∧
+          obsRg CR s (p : ℝ) (β * 3 ^ k) * max (εH + εH) εH ≤ Θ ∧
+          ∃ hR : 0 ≤ obsRg CR s (p : ℝ) (β * 3 ^ k),
+            (∀ y Φ, DifferentiableOn ℂ
+              (fun t => (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+                hεH.le hdj hK (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2))
+                ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) t 1).H y Φ)
+              (ball (0 : ℂ) (3 / 2))) ∧
+            (∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ y Φ, DifferentiableOn ℂ
+              (fun σ => (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+                hεH.le hdj hK (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2))
+                ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (r : ℂ) σ).H y Φ)
+              (ball (0 : ℂ) (obsRg CR s (p : ℝ) (β * 3 ^ k)))) ∧
+            (∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ y Φ,
+              (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+                hεH.le hdj hK (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2))
+                ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (r : ℂ) 0).H y Φ = 0) ∧
+            (∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+              S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
+                S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g r x =
+              ∑ y, (tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent
+                hεH.le hdj hK (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2))
+                ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (r : ℂ) 1).H y
+                ((S.blockSplit 1 hp).restr x))) := by
+  classical
+  obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := activityFamilyAnalytic_fromTower T hA p
+  obtain ⟨b₀, hb₀, hb⟩ := obsTilt_of_physAct.{0} (CR := CR) (CU := CE + CF) (s := s)
+    (p := (p : ℝ)) (Θ := Θ) hCR (by positivity) hs0 hs hΘ
+  refine ⟨max (max β₁ b₀) 3, CE, CF, le_max_right _ _, hCE, hCF, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq D S hS hp Kc hKc
+  have hβ₁' : β₁ ≤ β := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hβ
+  have hβb₀ : b₀ ≤ β := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hβ
+  have hβ3 : 3 ≤ β := le_trans (le_max_right _ _) hβ
+  have hH : BgHyp 3 3 (k + 1) (rhoSep T.m₁) (compWeight 3 S.a₁) S.ν := by
+    subst hS
+    exact bgHyp_lv (k := k) T.m₁ hνpos.le hν
+  have hXi : XiCData S.G' S.a S.ν (k + 1) 1 T.t S.D' := by
+    subst hS
+    exact D.xi
+  obtain ⟨Jr, val, 𝒴, Tt, I, -, -, -, -, -, -, hF, hεU, hεpos, hε4, hrest⟩ :=
+    hfam k hk N₁ h3N hN ν hνpos hν β hβ₁' p₁ hp0 hp₁ q hq0 hq D S hS hp
+  obtain ⟨A, hAeq, hhol, hcont, -, -, -, -, h7, h8, -, -, -, -⟩ := hrest hKc
+  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  have hsub : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ((e.1, 0) : physParam 2 S) ∈
+      physVq S S.a₁ S.ν T.t q := fun e he =>
+    fst_zero_mem_physVq S (physVq_subset S _ _ _ _ he) hq0
+  have hV := isOpen_physVq S S.a₁ S.ν T.t q hH
+  have h𝒰R : ball (0 : ℂ) (3 / 2) ⊆ ball (0 : ℂ) 2 := ball_subset_ball (by norm_num)
+  have hR2 : (1 : ℝ) < 2 := by norm_num
+  have hseg : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → (r : ℂ) ∈ ball (0 : ℂ) (3 / 2) := fun r hr => by
+    rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr.1]
+    linarith [hr.2]
+  -- the identity with the physical activity, from the two fibre identities of the family
+  have hae : ∀ᵐ x ∂S.nuFl, ∀ (D' : BgData S.G' 2) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+      XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+      ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i, ‖g x' i‖ < q → ∀ t ∈ Icc (0 : ℝ) 1,
+      (S.withDatum D' hDh).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (1 : ℝ) x +
+        (S.withDatum D' hDh).WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x =
+      ∑ y, (physAct A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (t : ℂ)).H y
+        ((S.blockSplit 1 hp).restr x) := by
+    filter_upwards [h7, h8] with x hx7 hx8
+    intro D' hDh hX g hg t ht
+    have e7 := hx7 D' hDh hX 1 ⟨zero_le_one, le_rfl⟩
+    have e8 := hx8 D' hDh hX g hg t ht
+    simp only [Complex.ofReal_one, one_pow, one_mul] at e7
+    rw [physAct_total]
+    dsimp only
+    rw [e7, e8]
+    ring
+  -- the amplitude
+  have hb1 : (1 : ℝ) ≤ β * 3 ^ k := by
+    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+    nlinarith
+  have hbe : Real.exp 1 ≤ β * 3 ^ k := by
+    have := Real.exp_one_lt_three
+    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+    nlinarith
+  have hbb : b₀ ≤ β * 3 ^ k := by
+    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+    nlinarith
+  have hlog : 0 ≤ Real.log (β * 3 ^ k) := Real.log_nonneg hb1
+  have hsq : 0 ≤ Real.sqrt (β * 3 ^ k) := Real.sqrt_nonneg _
+  have hamp : 2 * (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) ≤
+      CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+        q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
+    linarith
+  have hεH : 0 < 2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) := by linarith
+  have hCFle : q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ≤
+      CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
+    refine div_le_div_of_nonneg_right ?_ hsq
+    have h0 : 0 ≤ CF * (Real.log (β * 3 ^ k)) ^ p := mul_nonneg hCF.le (pow_nonneg hlog p)
+    calc q * CF * (Real.log (β * 3 ^ k)) ^ p = q * (CF * (Real.log (β * 3 ^ k)) ^ p) := by ring
+      _ ≤ 1 * (CF * (Real.log (β * 3 ^ k)) ^ p) := mul_le_mul_of_nonneg_right hq h0
+      _ = _ := one_mul _
+  have hεb : max (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) + 2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) ≤
+      (CE + CF) * obsW (p : ℝ) (β * 3 ^ k) ^ 3 / Real.sqrt (β * 3 ^ k) := by
+    rw [max_add_self_eq hεH.le]
+    exact obs_eps_le_tilt_form hCF.le hbe (hamp.trans (by linarith))
+  have hloc : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ e' ∈ physVq S S.a₁ S.ν T.t q,
+      ∀ Z : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+      agreeOn (thickSet S.G' Z) (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+        (e'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) → (∀ x ∈ Z, e.2 x = e'.2 x) →
+      ∀ (u : ℂ) (w : {Y // Y ∈ I.𝒴}), (thickLabels I.𝒴 I.dom).ysite w ⊆ Z →
+        (A ((e.1, 0) : physParam 2 S) u).H w = (A ((e'.1, 0) : physParam 2 S) u).H w ∧
+        (A e u).H w = (A e' u).H w := by
+    intro e he e' he' Z hr hg u w hw
+    subst hAeq
+    have hag : ∀ (e₁ e₂ : physParam 2 S), agreeOn (thickSet S.G' w.1)
+        (e₁.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) (e₂.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+        (∀ x ∈ w.1, e₁.2 x = e₂.2 x) → ∀ Y ∈ I.𝒴, Y ⊆ w.1 →
+        physAgΘ S Y (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₁)
+          (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₂) := fun e₁ e₂ h1 h2 Y _ hY =>
+      ⟨agreeOn_mono (thickSet_mono hY) h1, fun x hx => by
+        simp [physInclScaled_apply, h2 x (hY hx)]⟩
+    exact ⟨labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
+        (hsub e he) (hsub e' he') w.1
+        (hag _ _ (agreeOn_mono (thickSet_mono hw) hr) (fun _ _ => rfl)) u w subset_rfl,
+      labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc he he' w.1
+        (hag _ _ (agreeOn_mono (thickSet_mono hw) hr) (fun x hx => hg x (hw hx))) u w subset_rfl⟩
+  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hamp, ?_, ?_⟩
+  · filter_upwards [hae] with x hx
+    intro D' hDh hX g hg t ht 𝒴obs hdj Kobs hK
+    have hphys := hx D' hDh hX g hg t ht
+    refine ⟨?_, fun Rg hR hRg => ?_⟩
+    · rw [physActObs_total]
+      exact hphys
+    · rw [tiltActObs_total_one A hN3 T.κ0_ent (by linarith) hdj hK hR hRg
+        (norm_ofReal_lt_of_mem ht (by norm_num : (1 : ℝ) < 3 / 2) |> fun h => by simpa using h)]
+      exact hphys
+  · intro 𝒴obs hdj Kobs hK
+    refine ⟨fun y Φ => physActObs_analyticOnNhd hR2 hsub hhol y Φ,
+      fun Rg hR y Φ => tiltActObs_analyticOnNhd hR hR2 hV isOpen_ball h𝒰R hsub hhol y Φ,
+      fun Rg hR hRg e he => tiltActObs_fields hR hRg hR2 h𝒰R hsub hhol he, ?_, ?_⟩
+    · intro Rg hR hRg
+      exact ⟨fun y Φ _ => tiltActObs_holA hR hRg hR2 hV isOpen_ball h𝒰R hsub hhol y Φ,
+        fun y θ hθ u hu => (tiltActObs_continuous hR hR2 h𝒰R hsub
+          (fun e he u hu => hcont e he u (by simpa using hu)) hθ hu 1 y).continuousOn⟩
+    · intro g hg
+      have he0 : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
+          physVq S S.a₁ S.ν T.t q :=
+        ⟨(mk_mem_physFibre S S.hh₀ hXi (g := g) (lt_of_lt_of_le hg hq)).1, hg⟩
+      exact hb (β * 3 ^ k) hbb (S.blockSplit 1 hp) _
+        (physActObs A hN3 T.κ0_ent hεH.le hdj hK ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ :
+          rawSub 2 S.G'), g)) (ball (0 : ℂ) (3 / 2))
+        (fun r x => S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
+          S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g r x)
+        hεb hseg
+        (fun y Φ => (physActObs_differentiableOn hR2 hsub hhol he0 y Φ).mono h𝒰R)
+        (fun r hr => hae.mono fun x hx => by
+          rw [physActObs_total]
+          exact hx S.D' S.hh₀ hXi g hg r hr)
+
+
+
 /-- **The observable activity family on the observable labels, at the shared tower.**  For the
 tower `T`, `A₁, p`, `C_R, s` and `Θ > 0` there are `β₀, C_E, C_F` such that at every admissible
 scale (`q ≤ 1`, `Kc ≥ K₀`) the family `A` of `obsTiltFamily_fromTower` has the amplitude `εH > 0`
@@ -385,117 +623,12 @@ theorem obsTiltLabels_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
                 hεH.le hdj hK (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2))
                 ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (r : ℂ) 1).H y
                 ((S.blockSplit 1 hp).restr x))) := by
-  classical
-  obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := activityFamilyAnalytic_fromTower T hA p
-  obtain ⟨b₀, hb₀, hb⟩ := obsTilt_of_physAct.{0} (CR := CR) (CU := CE + CF) (s := s)
-    (p := (p : ℝ)) (Θ := Θ) hCR (by positivity) hs0 hs hΘ
-  refine ⟨max (max β₁ b₀) 3, CE, CF, le_max_right _ _, hCE, hCF, ?_⟩
-  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq D S hS hp Kc hKc
-  have hβ₁' : β₁ ≤ β := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hβ
-  have hβb₀ : b₀ ≤ β := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hβ
-  have hβ3 : 3 ≤ β := le_trans (le_max_right _ _) hβ
-  have hH : BgHyp 3 3 (k + 1) (rhoSep T.m₁) (compWeight 3 S.a₁) S.ν := by
-    subst hS
-    exact bgHyp_lv (k := k) T.m₁ hνpos.le hν
-  have hXi : XiCData S.G' S.a S.ν (k + 1) 1 T.t S.D' := by
-    subst hS
-    exact D.xi
-  obtain ⟨Jr, val, 𝒴, Tt, I, -, -, -, -, -, -, hF, hεU, hεpos, hε4, hrest⟩ :=
-    hfam k hk N₁ h3N hN ν hνpos hν β hβ₁' p₁ hp0 hp₁ q hq0 hq D S hS hp
-  obtain ⟨A, -, hhol, hcont, -, -, -, -, h7, h8, -, -, -, -⟩ := hrest hKc
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  have hsub : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ((e.1, 0) : physParam 2 S) ∈
-      physVq S S.a₁ S.ν T.t q := fun e he =>
-    fst_zero_mem_physVq S (physVq_subset S _ _ _ _ he) hq0
-  have hV := isOpen_physVq S S.a₁ S.ν T.t q hH
-  have h𝒰R : ball (0 : ℂ) (3 / 2) ⊆ ball (0 : ℂ) 2 := ball_subset_ball (by norm_num)
-  have hR2 : (1 : ℝ) < 2 := by norm_num
-  have hseg : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → (r : ℂ) ∈ ball (0 : ℂ) (3 / 2) := fun r hr => by
-    rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr.1]
-    linarith [hr.2]
-  -- the identity with the physical activity, from the two fibre identities of the family
-  have hae : ∀ᵐ x ∂S.nuFl, ∀ (D' : BgData S.G' 2) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
-      XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
-      ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i, ‖g x' i‖ < q → ∀ t ∈ Icc (0 : ℝ) 1,
-      (S.withDatum D' hDh).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (1 : ℝ) x +
-        (S.withDatum D' hDh).WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x =
-      ∑ y, (physAct A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (t : ℂ)).H y
-        ((S.blockSplit 1 hp).restr x) := by
-    filter_upwards [h7, h8] with x hx7 hx8
-    intro D' hDh hX g hg t ht
-    have e7 := hx7 D' hDh hX 1 ⟨zero_le_one, le_rfl⟩
-    have e8 := hx8 D' hDh hX g hg t ht
-    simp only [Complex.ofReal_one, one_pow, one_mul] at e7
-    rw [physAct_total]
-    dsimp only
-    rw [e7, e8]
-    ring
-  -- the amplitude
-  have hb1 : (1 : ℝ) ≤ β * 3 ^ k := by
-    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    nlinarith
-  have hbe : Real.exp 1 ≤ β * 3 ^ k := by
-    have := Real.exp_one_lt_three
-    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    nlinarith
-  have hbb : b₀ ≤ β * 3 ^ k := by
-    have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    nlinarith
-  have hlog : 0 ≤ Real.log (β * 3 ^ k) := Real.log_nonneg hb1
-  have hsq : 0 ≤ Real.sqrt (β * 3 ^ k) := Real.sqrt_nonneg _
-  have hamp : 2 * (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) ≤
-      CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
-        q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
-    linarith
-  have hεH : 0 < 2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) := by linarith
-  have hCFle : q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ≤
-      CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
-    refine div_le_div_of_nonneg_right ?_ hsq
-    have h0 : 0 ≤ CF * (Real.log (β * 3 ^ k)) ^ p := mul_nonneg hCF.le (pow_nonneg hlog p)
-    calc q * CF * (Real.log (β * 3 ^ k)) ^ p = q * (CF * (Real.log (β * 3 ^ k)) ^ p) := by ring
-      _ ≤ 1 * (CF * (Real.log (β * 3 ^ k)) ^ p) := mul_le_mul_of_nonneg_right hq h0
-      _ = _ := one_mul _
-  have hεb : max (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) + 2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β))) ≤
-      (CE + CF) * obsW (p : ℝ) (β * 3 ^ k) ^ 3 / Real.sqrt (β * 3 ^ k) := by
-    rw [max_add_self_eq hεH.le]
-    exact obs_eps_le_tilt_form hCF.le hbe (hamp.trans (by linarith))
-  refine ⟨_, inferInstance, _, _, hεH, A, hamp, ?_, ?_⟩
-  · filter_upwards [hae] with x hx
-    intro D' hDh hX g hg t ht 𝒴obs hdj Kobs hK
-    have hphys := hx D' hDh hX g hg t ht
-    refine ⟨?_, fun Rg hR hRg => ?_⟩
-    · rw [physActObs_total]
-      exact hphys
-    · rw [tiltActObs_total_one A hN3 T.κ0_ent (by linarith) hdj hK hR hRg
-        (norm_ofReal_lt_of_mem ht (by norm_num : (1 : ℝ) < 3 / 2) |> fun h => by simpa using h)]
-      exact hphys
-  · intro 𝒴obs hdj Kobs hK
-    refine ⟨fun y Φ => physActObs_analyticOnNhd hR2 hsub hhol y Φ,
-      fun Rg hR y Φ => tiltActObs_analyticOnNhd hR hR2 hV isOpen_ball h𝒰R hsub hhol y Φ,
-      fun Rg hR hRg e he => tiltActObs_fields hR hRg hR2 h𝒰R hsub hhol he, ?_, ?_⟩
-    · intro Rg hR hRg
-      exact ⟨fun y Φ _ => tiltActObs_holA hR hRg hR2 hV isOpen_ball h𝒰R hsub hhol y Φ,
-        fun y θ hθ u hu => (tiltActObs_continuous hR hR2 h𝒰R hsub
-          (fun e he u hu => hcont e he u (by simpa using hu)) hθ hu 1 y).continuousOn⟩
-    · intro g hg
-      have he0 : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
-          physVq S S.a₁ S.ν T.t q :=
-        ⟨(mk_mem_physFibre S S.hh₀ hXi (g := g) (lt_of_lt_of_le hg hq)).1, hg⟩
-      exact hb (β * 3 ^ k) hbb (S.blockSplit 1 hp) _
-        (physActObs A hN3 T.κ0_ent hεH.le hdj hK ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ :
-          rawSub 2 S.G'), g)) (ball (0 : ℂ) (3 / 2))
-        (fun r x => S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
-          S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g r x)
-        hεb hseg
-        (fun y Φ => (physActObs_differentiableOn hR2 hsub hhol he0 y Φ).mono h𝒰R)
-        (fun r hr => hae.mono fun x hx => by
-          rw [physActObs_total]
-          exact hx S.D' S.hh₀ hXi g hg r hr)
+  obtain ⟨β₀, CE, CF, h3, hCE, hCF, hmain⟩ := obsTiltLabels_local_fromTower T hA p hCR hs0 hs hΘ
+  refine ⟨β₀, CE, CF, h3, hCE, hCF, fun k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1
+    D S hS hp Kc hKc => ?_⟩
+  obtain ⟨Lb, instLb, Lab, εH, hεH, A, -, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0
+    hp₁ q hq0 hq1 D S hS hp hKc
+  exact ⟨Lb, instLb, Lab, εH, hεH, A, hrest⟩
 
 end Tower
 
