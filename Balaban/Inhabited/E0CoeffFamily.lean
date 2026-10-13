@@ -259,6 +259,13 @@ theorem e0CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
                   (physIncl 2 (T.step k hk N₁ ν β p₁) θ') → c θ C = c θ' C) ∧
             (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
                 (T.step k hk N₁ ν β p₁).ν T.t,
+              ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
+              physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                physRestrict (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
+                c θ C = c θ' C) ∧
+            (∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t,
               ‖c θ C‖ ≤ K0 3 3 T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
             (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
               dExt C = sizeJ 1 (k + 1) (sitesOf C))) ∧
@@ -369,7 +376,7 @@ theorem e0CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
     · obtain ⟨-, hsum⟩ := hdz1' D' hDh hX 0
       rw [hsum, hcv D' hDh hX, ← Finset.sum_add_distrib]
     obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
-    obtain ⟨b1, b2, b3, b4⟩ := hC C
+    obtain ⟨b1, b2, -, b3, b4⟩ := hC C
     refine ⟨a1.add b1, fun θ hθ θ' hθ' h => ?_, fun θ hθ => ?_, fun θ hθ => ?_⟩
     · show dz θ C + c θ C = dz θ' C + c θ' C
       rw [a2 θ hθ θ' hθ' h, b2 θ hθ θ' hθ' h]
@@ -525,6 +532,8 @@ theorem e0CoeffFamily_fromTower {κmin : ℝ} (T : StepTower κmin)
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := H k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
   obtain ⟨h1, h2, c, hc, hcl, -, dz, hdz, hdzl, e0, he, hel, -⟩ := hz z
-  exact ⟨h1, h2, c, hc, hcl, dz, hdz, hdzl, e0, he, hel⟩
+  exact ⟨h1, h2, c, hc,
+    (fun C => ⟨(hcl C).1, (hcl C).2.1, (hcl C).2.2.2.1, (hcl C).2.2.2.2⟩),
+    dz, hdz, hdzl, e0, he, hel⟩
 
 end Balaban.Inhabited
