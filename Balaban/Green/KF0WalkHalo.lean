@@ -854,4 +854,99 @@ theorem kf0WalkSeriesTerm_hasSum {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ
 
 end Series
 
+/-! ### An explicit instance -/
+
+section Instance
+
+/-- The walk `e₀, e₁` of length two in `ℤ^3`. -/
+def kf0InstWalk : KF0Walk 3 := ⟨2, ![((0 : Fin 3), true), ((1 : Fin 3), true)]⟩
+
+theorem kf0InstWalk_pathPt (k : ℕ) (hk : k ≤ 2) :
+    pathPt (0 : Torus 3 18) kf0InstWalk k =
+      if k = 0 then 0 else if k = 1 then Pi.single 0 1 else Pi.single 0 1 + Pi.single 1 1 := by
+  interval_cases k
+  · simp [pathPt]
+  · ext μ
+    fin_cases μ <;> simp [pathPt, kf0InstWalk, walkStep, stepVec, intToTorus_apply]
+  · ext μ
+    fin_cases μ <;> simp [pathPt, kf0InstWalk, walkStep, stepVec, intToTorus_apply,
+      Finset.sum_range_succ]
+
+/-- The halo of the instance (`d = 3`, side `18`, anchor `0`) is the three sites `0`, `e₀`,
+`e₀ + e₁`. -/
+theorem kf0Inst_halo :
+    walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) (fun _ => kf0InstWalk) =
+      {0, Pi.single 0 1, Pi.single 0 1 + Pi.single 1 1} := by
+  ext a
+  rw [mem_walkHalo]
+  simp only [Finset.mem_insert, Finset.mem_singleton, exists_const]
+  constructor
+  · rintro ⟨k, hk, rfl⟩
+    rw [kf0InstWalk_pathPt k hk]
+    split_ifs <;> simp
+  · rintro (rfl | rfl | rfl)
+    · exact ⟨0, Nat.zero_le _, by rw [kf0InstWalk_pathPt 0 (by norm_num)]; simp⟩
+    · exact ⟨1, by simp [kf0InstWalk], by rw [kf0InstWalk_pathPt 1 (by norm_num)]; simp⟩
+    · exact ⟨2, by simp [kf0InstWalk], by rw [kf0InstWalk_pathPt 2 (by norm_num)]; simp⟩
+
+/-- The three sites lie in the block `0` of side `9` (the torus of side `18` has `2^3` blocks). -/
+theorem kf0Inst_blockCount :
+    kf0BlockCount 9 2 (walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) (fun _ => kf0InstWalk)) = 1 := by
+  rw [kf0BlockCount, Finset.card_eq_one]
+  refine ⟨0, ?_⟩
+  rw [kf0Inst_halo]
+  have e : ∀ μ : Fin 3, ((0 : ZMod 18).val / 9 : ℕ) = 0 ∧ ((1 : ZMod 18).val / 9 : ℕ) = 0 := by
+    intro μ; exact ⟨by decide, by decide⟩
+  ext b
+  simp only [Finset.mem_image, Finset.mem_insert, Finset.mem_singleton, Finset.mem_singleton]
+  constructor
+  · rintro ⟨a, ha, rfl⟩
+    funext μ
+    rcases ha with rfl | rfl | rfl <;> fin_cases μ <;>
+      simp [Balaban.blockMap, Balaban.blockCoord, (e 0).2]
+  · rintro rfl
+    exact ⟨0, Or.inl rfl, by
+      funext μ; simp [Balaban.blockMap, Balaban.blockCoord]⟩
+
+/-- **(T5)** Non-vacuity: `d = 3`, side `18 = 9 · 2`, `s = 9`, `ν = 1`, `g = 7/72`, `γ = 1/100`,
+`κ = 1/300` (so `κ 3^3 / s = γ`), one factor, `ψ` real-valued with `‖ψ‖ ≤ p`.  The halo of the
+walk `e₀, e₁` is connected, meets one block, and the weighted bounds and the sum hold. -/
+theorem kf0_instance_halo {β p : ℝ} (hp0 : 0 ≤ p) (ψ : Torus 3 18 → ℝ) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    NNConnected (walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) (fun _ => kf0InstWalk)) ∧
+    kf0BlockCount 9 2 (walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) (fun _ => kf0InstWalk)) = 1 ∧
+    Summable (fun ω : Fin 1 → KF0Walk 3 =>
+      Real.exp (1 / 300 * kf0BlockCount 9 2 (walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) ω)) *
+        ‖kf0WalkTerm 3 18 1 β (fun _ => 0) (fun _ => ContinuousLinearMap.id ℝ ℝ) ω ψ‖) ∧
+    ∑' ω : Fin 1 → KF0Walk 3,
+        Real.exp (1 / 300 * kf0BlockCount 9 2 (walkHalo (fun _ : Fin 1 => (0 : Torus 3 18)) ω)) *
+          ‖kf0WalkTerm 3 18 1 β (fun _ => 0) (fun _ => ContinuousLinearMap.id ℝ ℝ) ω ψ‖ ≤
+      Real.exp (27 / 300) * (p * 535 / Real.sqrt β) ∧
+    HasSum (fun ω : Fin 1 → KF0Walk 3 =>
+        kf0WalkTerm 3 18 1 β (fun _ => 0) (fun _ => ContinuousLinearMap.id ℝ ℝ) ω ψ)
+      ((Real.sqrt β)⁻¹ • matAct (kf0C 3 18 1) ψ 0) := by
+  have hg : (0 : ℝ) < 7 / 72 := by norm_num
+  have hgν : (7 / 72 : ℝ) ≤ 1 := by norm_num
+  have hq := kf0_instance_hq
+  refine ⟨walkHalo_nnConnected _ _ (fun i j => Or.inl rfl), kf0Inst_blockCount, ?_⟩
+  obtain ⟨h1, h2⟩ := kf0WalkTerm_blockweight_summable (d := 3) (m := 18) (ν := 1) (g := 7 / 72)
+    (γ := 1 / 100) hg hgν hq (s := 9) (m' := 2) (by norm_num) (by norm_num) (κ := 1 / 300)
+    (by norm_num) (by norm_num) β hp0 (ι := Fin 1) (fun _ => 0)
+    (fun _ => ContinuousLinearMap.id ℝ ℝ) (fun _ => ContinuousLinearMap.norm_id_le) ψ hp
+  obtain ⟨-, h3⟩ := kf0WalkTerm_hasSum (d := 3) (m := 18) (ν := 1) (g := 7 / 72)
+    (γ := 1 / 100) hg hgν (by norm_num) hq β hp0 (ι := Fin 1) (fun _ => 0)
+    (fun _ => ContinuousLinearMap.id ℝ ℝ) (fun _ => ContinuousLinearMap.norm_id_le) ψ hp
+  refine ⟨h1, ?_, by simpa using h3⟩
+  refine h2.trans ?_
+  simp only [Fintype.card_fin, pow_one]
+  have hA := kf0_instance_A_le
+  have hs0 : 0 ≤ Real.sqrt β := Real.sqrt_nonneg _
+  have : p * kf0WalkA 3 (7 / 72) (1 / 100) / Real.sqrt β ≤ p * 535 / Real.sqrt β :=
+    div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hA hp0) hs0
+  have e : Real.exp (1 / 300 * (3 : ℝ) ^ 3) = Real.exp (27 / 300) := by
+    congr 1; norm_num
+  rw [e]
+  exact mul_le_mul_of_nonneg_left this (Real.exp_pos _).le
+
+end Instance
+
 end Balaban.Green
