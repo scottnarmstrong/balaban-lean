@@ -1390,3 +1390,5 @@
 | 2026-10-13 | W749 | launched | GENCLASS-OLD observable analogue (M): endpoint identity and decoupled expansion of inherited observable labels. |
 | 2026-10-13 | W749 | landed `c96d35d5` | `Fluctuation/ClassOldDecInputM.lean`, `ClassOldEndpointM.lean`: `classOldDecObs_chart`, `classOldDecObs_expansion` (per-label decoupled expansion of inherited observable terms), **`classOldEndpointM_complex`, `classOldEndpointM_real`** (the observable `hid`). |
 | 2026-10-13 | W750 | launched | Cover data (CovSetup, hX₁, hopt) for inherited labels; expansions without them. |
+| 2026-10-13 | W750 | landed `c4a4aee7` | `Fluctuation/ClassOldCover.lean`: `exists_covSetup_of_isPolyDom` (CovSetup + optimal connected structure for one chosen family; nest trivial at a whole level), `classOldDec_expansion_cover`, `classOldDecObs_expansion_cover` (expansions without cover hypotheses; hB, hF still explicit). |
+| 2026-10-13 | W751 | launched | Per-label expansions of inherited terms from the tower (BgSetting/FlSetting from the step). |
