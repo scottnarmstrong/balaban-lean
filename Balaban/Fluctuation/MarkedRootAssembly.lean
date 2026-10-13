@@ -6,7 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.MarkedRootFamily
-public import Balaban.Fluctuation.Prop33CloseReal
+public import Balaban.Fluctuation.MarkRealDomain
+public import Balaban.Fluctuation.MarkRealRegular
 public import Balaban.Fluctuation.StepComplexOutAnalytic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -20,14 +21,14 @@ tangent `Q(e.1)` of the family (`MarkedRootFamily`).  This file assembles the cl
 `markedRoot_zero_family` of the note `MARKPARAM` that do not involve the configuration: the finite
 sum, the bound, the root and domain clause and the analyticity in `(e, u)`.
 
-* `MarkRealAt`: the hypotheses `MARK-REAL` of the landed
-  `hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom` at the datum of a step, in one statement: the
-  datum lies in the base domain; every layer-constant fluctuation of the ball is the tangent of an
-  old spin whose disc lies in the domain of the small solution (`hreal`, Lemma 2.3 (d)); the
-  marked segments have complex neighbourhoods in that domain; `Φ₁` is complex differentiable at
-  the ray points `s ψ'`, `s ∈ [0,1]`.
-* `inUnionDomainC_psiAtV_of_hreal`: the third clause follows from the second for every direction
-  whose lift lies in the ball.
+* `MarkRealAt`: the hypotheses `MARK-REAL` at the datum of a step, in one statement: the datum lies
+  in the base domain (`hD2`); every layer-constant fluctuation of the ball is the tangent of an old
+  spin whose disc lies in the domain of the small solution (`hreal`, Lemma 2.3 (d)); `Φ₁` is
+  complex differentiable at the ray points `s ψ'`, `s ∈ [0,1]`.  These are the hypotheses of the
+  landed `hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_disc` and `hasDerivAt_Phi1C_marked` that are
+  not numerical inequalities, block terms or discs.  (The premise `hdomT` of
+  `hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom` follows from `hreal` and the marked disc,
+  `markReal_hdomT_of_hreal`, and is not part of the bundle.)
 * `markRealAt_of_chart`: `MarkRealAt` holds at every datum of the chart with `h = h₀`, under the
   numerical hypotheses of the landed `hreal_level` and `classRegularLocC_zeroClass` (none of them
   depends on the datum).  So `MARK-REAL` is supplied on the whole constant-`h₀` slice.
@@ -73,20 +74,18 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 /-! ### `MARK-REAL` at the datum of a step -/
 
-/-- **`MARK-REAL` at the datum of the step** (the hypotheses on the datum and on the marked
-tangent of `hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom`, and the differentiability used by
-`hasDerivAt_Phi1C_marked`), for the marked block `z`, the ball radius `δ₁`, the disc radius `R`,
-the mark radius `t₁` and the hat field `ψ̂ = x`:
+/-- **`MARK-REAL` at the datum of the step**, for the ball radius `δ₁`, the disc radius `R` and
+the hat field `ψ̂ = x`: the hypotheses on the datum of
+`hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_disc`, and the differentiability used by
+`hasDerivAt_Phi1C_marked`.
 
-1. the datum `θ` lies in the base domain `𝒟(c₀, C₂)` (`hD2`);
-2. every layer-constant fluctuation `ψ'` with `|ψ'| < δ₁` is the tangent of an old spin with the
+1. The datum `θ` lies in the base domain `𝒟(c₀, C₂)` (`hD2`).
+2. Every layer-constant fluctuation `ψ'` with `|ψ'| < δ₁` is the tangent of an old spin with the
    same `h`, whose disc of radius `R` through `ψ^{(k)}(θ)` lies in the domain of the small solution
-   (`hreal`, FLUCTUATION Lemma 2.3 (d));
-3. for every `s ∈ [0,1]` and `|t| < t₁`, the segment `ψ^{(k)}(θ) + ζ v_t`, `ζ ∈ [0,1]`, of the
-   marked tangent `v_t = s ψ' + t M_z ψ'`, `ψ' = shiftUC ψ̂`, has complex neighbourhoods in the
-   domain of the small solution (`hdomT`);
-4. for every `s ∈ [0,1]` the exponent `Φ₁` of the zero class is complex differentiable at `s ψ'`. -/
-def MarkRealAt (δ₁ R t₁ : ℝ) (x : S.E) : Prop :=
+   (`hreal`, FLUCTUATION Lemma 2.3 (d)).
+3. For every `s ∈ [0,1]` the exponent `Φ₁` of the zero class is complex differentiable at `s ψ'`,
+   `ψ' = shiftUC ψ̂`. -/
+def MarkRealAt (δ₁ R : ℝ) (x : S.E) : Prop :=
   InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D' ∧
   (∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁, IsLayerConstant (stepG d L N₁ m₁ k ϱ) ψ' →
     ∃ D : BgData (stepG d L N₁ m₁ k ϱ) N, (∀ y i, D.h y i = S.D'.h y i) ∧
@@ -98,55 +97,7 @@ def MarkRealAt (δ₁ R t₁ : ℝ) (x : S.E) : Prop :=
         (tangentData D (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
           (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D')) t)) ∧
   ∀ s ∈ Icc (0 : ℝ) 1,
-    (∀ t : ℂ, ‖t‖ < t₁ → ∀ s' ∈ Icc (0 : ℝ) 1, ∀ᶠ ζ : ℂ in nhds (s' : ℂ),
-      InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
-        (S.dataUC (S.psiAtV ζ (S.markedTangentC z (s : ℂ) t x)))) ∧
     DifferentiableAt ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x)
-
-/-- **The domain premise along a complex line from `hreal`.**  If every layer-constant fluctuation
-of the ball is the tangent of an old spin whose disc of radius `R` lies in the domain of the small
-solution (`hreal`), then for every complex direction `v` of the unit lattice whose lift lies in the
-ball and every `|ζ| < R` the old spin `ψ^{(k)}(θ) + ζ v` lies in that domain. -/
-theorem inUnionDomainC_psiAtV_of_hreal {δ₁ R : ℝ}
-    (hreal : ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁, IsLayerConstant (stepG d L N₁ m₁ k ϱ) ψ' →
-      ∃ D : BgData (stepG d L N₁ m₁ k ϱ) N, (∀ y i, D.h y i = S.D'.h y i) ∧
-      compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' D = ψ' ∧
-      ∀ t : ℂ, ‖t‖ < R → InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
-        ((composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-          (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D').lineAt
-          (tangentData D (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-            (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D')) t))
-    {v : S.EC} (hv : liftC S.hG' v ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) {ζ : ℂ} (hζ : ‖ζ‖ < R) :
-    InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
-      (S.dataUC (S.psiAtV ζ v)) := by
-  obtain ⟨D₀, -, hDt, hDdisc⟩ := hreal _ hv (isLayerConstant_liftC S.hG S.hG' v)
-  have e : tangentData D₀ S.psiKdC = S.rayDatumV v := by
-    refine bgData_ext' ?_ ?_
-    · rw [S.rayDatumV_Ψ_eq]
-      exact hDt
-    · funext y i
-      rw [S.rayDatumV_h]
-      rfl
-  rw [S.dataUC_psiAtV_eq_lineAt, S.dataUC_psi0C, ← e]
-  exact hDdisc ζ hζ
-
-/-- **The lift of the marked tangent lies in the ball under the radial margin.**  If the shift
-`ψ' = shiftUC ψ̂` has Euclidean norm at most `Y₀` at the unit points and
-`(R₁ + r)(R_σ + t₁) Y₀ < δ₁` with `R₁ > 1`, `r > 0`, then for `|u| < R_σ`, `|t| < t₁` the lift of
-`v_t = u ψ' + t M_z ψ'` lies in `FlBall Hm δ₁` (the point `σ = 1` of the discs of
-`markedDisc_field_mem_flBall`). -/
-theorem liftC_markedTangentC_mem_flBall_of_margin {ϱm : ℝ}
-    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} (hG : IsLevel Hm k)
-    {δ₁ Y₀ R₁ r Rσ t₁ : ℝ} {x : S.E} (hY : ∀ b : S.U, vn (fun i => S.shiftUC x (b, i)) ≤ Y₀)
-    (hrad : (R₁ + r) * (Rσ + t₁) * Y₀ < δ₁) (hR₁ : 1 < R₁) (hr : 0 < r) {u t : ℂ}
-    (hu : ‖u‖ < Rσ) (ht : ‖t‖ < t₁) :
-    liftC S.hG' (S.markedTangentC z u t x) ∈ FlBall Hm δ₁ := by
-  have h := S.markedDisc_field_mem_flBall z hG hY hrad hu ht (σ := 1)
-    (by rw [norm_one]; linarith)
-  rw [one_smul, map_smul] at h
-  rw [S.liftC_markedTangentC]
-  exact h
 
 section Producer
 
@@ -155,10 +106,10 @@ variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ δc : ℝ}
 /-- **`MARK-REAL` holds at every datum of the chart.**  Let the datum `θ` of the step lie in the
 chart `Ξ^c(𝔹_{k+1}; 1, ε)`, with the numerical hypotheses of `hreal_level` (`hsmR`, the source
 condition `δ_b + 5 R δ₁ ≤ c₁` of Lemma 2.3 (d)) and of `classRegularLocC_zeroClass` (the covariance
-chart `hMX`, `hdm`, `hα`, `hsm`; `β > 0`; `p₁ < p⁺` with `√N β_k^{-1/2} C_sup p⁺ < δ₁`).  Let
-`‖ψ̂‖ ≤ p₁`, and let the lifts of the marked tangents `s ψ' + t M_z ψ'`, `s ∈ [0,1]`, `|t| < t₁`,
-lie in the ball `FlBall δ₁`.  Then `MarkRealAt` holds.  None of the numerical hypotheses depends on
-the datum, so this applies to `S.withDatum D hD` for every datum `D` of the chart with `h = h₀`. -/
+chart `hMX`, `hdm`, `hα`, `hsm`; `β > 0`; `p₁ < p⁺` with `√N β_k^{-1/2} C_sup p⁺ < δ₁`), and let
+`‖ψ̂‖ ≤ p₁`.  Then `MarkRealAt` holds (`isDecBg_one_of_xiCData`, `hreal_level`,
+`markReal_differentiableAt_Phi1C`).  None of the numerical hypotheses depends on the datum, so
+this applies to `S.withDatum D hD` for every datum `D` of the chart with `h = h₀`. -/
 theorem markRealAt_of_chart
     (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
@@ -171,23 +122,13 @@ theorem markRealAt_of_chart
     (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
       (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁)
     (hlt : S.p₁ < pp)
-    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') {t₁ : ℝ} {x : S.E} (hx : ‖x‖ ≤ S.p₁)
-    (hball : ∀ s ∈ Icc (0 : ℝ) 1, ∀ t : ℂ, ‖t‖ < t₁ →
-      liftC S.hG' (S.markedTangentC z (s : ℂ) t x) ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
-    S.MarkRealAt z δ₁ R t₁ x := by
-  have hreal := hreal_level hC S.hG S.hG' (le_refl (k + 1)) ha₁ hC.HBp hc7
-    (by linarith : (0 : ℝ) ≤ R) hsmR S.D' hD
-  refine ⟨(isDecBg_one_of_xiCData hC hD).2.mono (hc7.trans (thm73C3_le_thm73C2 d L N)), hreal,
-    fun s hs => ⟨fun t ht s' hs' => ?_, ?_⟩⟩
-  · have hs'1 : ‖(s' : ℂ)‖ < R := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs'.1]
-      linarith [hs'.2]
-    have hopen : {ζ : ℂ | ‖ζ‖ < R} ∈ nhds (s' : ℂ) :=
-      (isOpen_lt continuous_norm continuous_const).mem_nhds hs'1
-    filter_upwards [hopen] with ζ hζ
-    exact S.inUnionDomainC_psiAtV_of_hreal hreal (hball s hs t ht) hζ
-  · exact S.differentiableAt_Phi1C_of_classRegularLocC _
-      (S.classRegularLocC_zeroClass hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ hD hlt) hx hs
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') {x : S.E} (hx : ‖x‖ ≤ S.p₁) :
+    S.MarkRealAt δ₁ R x :=
+  ⟨(isDecBg_one_of_xiCData hC hD).2.mono (hc7.trans (thm73C3_le_thm73C2 d L N)),
+    hreal_level hC S.hG S.hG' (le_refl (k + 1)) ha₁ hC.HBp hc7 (by linarith : (0 : ℝ) ≤ R) hsmR
+      S.D' hD,
+    fun _ hs => S.markReal_differentiableAt_Phi1C hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ hD
+      hlt hx hs⟩
 
 end Producer
 
@@ -205,7 +146,8 @@ rooted sums add up to the sum of all the derivatives (clause 1 of the count), th
 `s ∈ [0,1]`
 `∑_{Y' ∈ 𝒴_z} -β · markedOut z Y' = DΦ₁(s ψ')[1_{B(z)} ψ']`,
 the integrand of `E1MarksC` for the zero class.  Both sides are the `t`-derivative at `0` of
-`Φ₁(v_t)` (`hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom`, `hasDerivAt_Phi1C_marked`). -/
+`Φ₁(v_t)` (`hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_disc`,
+`markReal_fderiv_mask_eq_of_hasDerivAt`). -/
 theorem neg_beta_sum_markedOut_eq_fderiv_of_markReal (ha₁ : 0 < S.a₁)
     (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R) (hRs : R * δ₁ ≤ deltaStar d L N)
@@ -230,7 +172,7 @@ theorem neg_beta_sum_markedOut_eq_fderiv_of_markReal (ha₁ : 0 < S.a₁)
     (hdisc : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r →
       σ • (liftC S.hG' ((s : ℂ) • S.shiftUC x) + t • liftC S.hG' (S.maskUC z (S.shiftUC x))) ∈
         FlBall (stepG d L N₁ m₁ k ϱ) δ₁)
-    (hMR : S.MarkRealAt z δ₁ R t₁ x)
+    (hMR : S.MarkRealAt δ₁ R x)
     (hid : ∑ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ) dom z,
         markedOut m₀ (fun _ => Set.univ) dom z Ev taylorWeight
           (liftC S.hG' ((s : ℂ) • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x)))
@@ -245,7 +187,6 @@ theorem neg_beta_sum_markedOut_eq_fderiv_of_markReal (ha₁ : 0 < S.a₁)
       (fderiv ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x))
         (S.maskUC z (S.shiftUC x)) := by
   obtain ⟨hD2, hreal, hray⟩ := hMR
-  obtain ⟨hdomT, hdiff⟩ := hray s hs
   have hsum' : ∀ b, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps,
       ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
       blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b (Θ, ψ') =
@@ -253,11 +194,10 @@ theorem neg_beta_sum_markedOut_eq_fderiv_of_markReal (ha₁ : 0 < S.a₁)
     rintro b _ ⟨D, hDX, rfl⟩ ψ' hψ'
     rw [blockEnergyOne_rawOf hDX]
     exact hsum b D hDX ψ' hψ'
-  have h1 := S.hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom z ha₁ hC.HBp hD2 hC hc7 hR hRs
-    hsmall hnum hnum' hD hreal dom Ev han hsum' hR₁ hr ht₁ x (s : ℂ) hdisc hdomT
-  have h2 := S.hasDerivAt_Phi1C_marked z (zeroClass d L N₁ m₁ k N ϱ) (s : ℂ) x hdiff
+  have h1 := S.hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_disc z ha₁ hC.HBp hD2 hC hc7 hR hRs
+    hsmall hnum hnum' hD hreal dom Ev han hsum' hR₁ hr ht₁ x (s : ℂ) hdisc
   rw [← Finset.mul_sum, hid]
-  exact h1.unique h2
+  exact (S.markReal_fderiv_mask_eq_of_hasDerivAt z _ (s : ℂ) x (hray s hs) h1).symm
 
 end Identity
 
@@ -338,9 +278,8 @@ of block terms with the four clauses of `vblock_expansion_scaled` for `Hm = 𝔹
 `marked_count_scaled`.  Let `Q` be a function of the raw data, analytic on the chart, with values
 unit fields of Euclidean norm at most `Y₀` there, and let the strict radial margin
 `(R₁ + r)(R_σ + t₁) Y₀ < δ₁` hold with `R₁ > 1`, `r > 0`, `0 < t₀ < t₁`, `R_σ > 1`.  Assume
-`MARK-REAL` (`hMR`): at every datum `D` of the chart with `D.h = h₀` and every hat field
-`‖ψ̂‖ ≤ p₁` for which `Q (rawOf D)` is the shift of the step with the datum `D`, `MarkRealAt` holds
-for that step.  Then the clauses of `MarkedRootAssembly` hold for the marks
+`MARK-REAL` on the constant-`h₀` slice (`hMR`): at every datum `D` of the chart with `D.h = h₀` and
+every hat field `‖ψ̂‖ ≤ p₁`, `MarkRealAt` holds for the step with the datum `D`.  Then the clauses of `MarkedRootAssembly` hold for the marks
 `G_{z,Y'}(e, u) = -β · markedOut z Y'`, with
 `F₀ = |β| · 3 ‖E‖/(r³ t₀) · c₁ M^d · nFibre · e^{(2κ_dec-1) cBr}` and the rate `2κ_dec - 1`. -/
 theorem markedRootAssembly_zero_of_markReal (ha₁ : 0 < S.a₁)
@@ -380,9 +319,9 @@ theorem markedRootAssembly_zero_of_markReal (ha₁ : 0 < S.a₁)
     (hQb : ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps, ∀ b : S.U, vn (fun i => Q Θ (b, i)) ≤ Y₀)
     (hrad : (R₁ + r) * (Rσ + t₁) * Y₀ < δ₁) (hR₁ : 1 < R₁) (hr : 0 < r) (ht₀ : 0 < t₀)
     (ht₀₁ : t₀ < t₁) (hRσ : 1 < Rσ)
-    (hMR : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)) (x : S.E),
-      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ‖x‖ ≤ S.p₁ →
-      Q (rawOf D) = (S.withDatum D hD).shiftUC x → (S.withDatum D hD).MarkRealAt z δ₁ R t₁ x) :
+    (hMR : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ x : S.E, ‖x‖ ≤ S.p₁ →
+      (S.withDatum D hD).MarkRealAt δ₁ R x) :
     S.MarkedRootAssembly z m₀ (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) Ev eps Rσ Q
       (|S.β| * (3 * ‖E‖ / (r ^ 3 * t₀) * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
         ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)))) (2 * κdec - 1) := by
@@ -415,7 +354,7 @@ theorem markedRootAssembly_zero_of_markReal (ha₁ : 0 < S.a₁)
     exact (S.withDatum D hD).neg_beta_sum_markedOut_eq_fderiv_of_markReal z ha₁ hC hc7 hR hRs
       hsmall hnum hnum' hDX _ Ev han hsum hR₁ hr (ht₀.trans ht₀₁) x hs
       (fun t ht σ hσ => S.markedDisc_field_mem_flBall z S.hG hY hrad hu ht hσ)
-      (hMR D hD x hDX hx hQx) hcl.1.1
+      (hMR D hD hDX x hx) hcl.1.1
 
 end Assembly
 
@@ -443,7 +382,8 @@ datum of the chart with `D.h = h₀`, and such that for **every** marked block `
 field `‖ψ̂‖ ≤ p₁`, with the tangent `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂`:
 
 * `|Q(Θ)(b)| ≤ markedRad` at every unit point, for every `Θ` of the chart;
-* `MARK-REAL` holds at every datum of the constant-`h₀` slice (`MarkRealAt` for `S.withDatum D hD`);
+* `MARK-REAL` holds at every datum of the constant-`h₀` slice (`MarkRealAt` for
+  `S.withDatum D hD`);
 * the clauses of `MarkedRootFamily` hold for the rooted sums `markedOut z Y'` (analyticity in
   `(e, u)`, the count at every point of `physV × {|u| < R_σ}`, the fibre identity);
 * the clauses of `MarkedRootAssembly` hold for the marks `G_{z,Y'}(e, u) = -β · markedOut z Y'`
@@ -518,7 +458,7 @@ theorem markedRootAssembly_zero
           vn (fun i => ((((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x)) (b, i)) ≤
             markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
         (∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
-          XiCData S.G' S.a S.ν (k + 1) 1 eps D → (S.withDatum D hD).MarkRealAt z δ₁ R t₁ x) ∧
+          XiCData S.G' S.a S.ν (k + 1) 1 eps D → (S.withDatum D hD).MarkRealAt δ₁ R x) ∧
         S.MarkedRootFamily z m₀ (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) Ev S.a₁ S.ν eps
           Rσ (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
           (3 * ‖energyBdScaled d L N (compWeight L S.a₁) k
@@ -554,23 +494,12 @@ theorem markedRootAssembly_zero
       vn (fun i => ((((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x)) (b, i)) ≤
         markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) :=
     fun Θ hΘ b => hMb _ hp₁ hyh Θ hΘ b
-  have hMR : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)) (x' : S.E),
-      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ‖x'‖ ≤ S.p₁ →
-      (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D) *ᵥ yhat x) =
-        (S.withDatum D hD).shiftUC x' → (S.withDatum D hD).MarkRealAt z δ₁ R t₁ x' := by
-    intro D hD x' hDX hx' hQx'
-    have hY : ∀ b : S.U, vn (fun i => (S.withDatum D hD).shiftUC x' (b, i)) ≤
-        markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
-      intro b
-      rw [← hQx']
-      exact hQb _ ⟨D, hDX, rfl⟩ b
-    refine (S.withDatum D hD).markRealAt_of_chart z hC hMX hdm hα hsm ha₁ hc7 (by linarith) hsmR
-      hβ (lt_of_le_of_lt hp₁ hlt) hδ₁ hlt hDX hx' fun s hs t ht => ?_
-    have hu : ‖((s : ℝ) : ℂ)‖ < Rσ := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]
-      linarith [hs.2]
-    exact (S.withDatum D hD).liftC_markedTangentC_mem_flBall_of_margin z S.hG hY hrad hR₁ hr hu ht
-  exact ⟨hQb, fun D hD hDX => hMR D hD x hDX hx (hfib D hD hDX x),
+  have hMR : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ x' : S.E, ‖x'‖ ≤ S.p₁ →
+      (S.withDatum D hD).MarkRealAt δ₁ R x' := fun D hD hDX x' hx' =>
+    (S.withDatum D hD).markRealAt_of_chart hC hMX hdm hα hsm ha₁ hc7 (by linarith) hsmR hβ
+      (lt_of_le_of_lt hp₁ hlt) hδ₁ hlt hDX hx'
+  exact ⟨hQb, fun D hD hDX => hMR D hD hDX x hx,
     S.markedRoot_family_of_vblock z hC.HBp.hd hcovV hX₁V hoptV (by linarith) S.hG hZV hL hC.HBp Ev
       hloc hbd han hQ hQb hrad hR₁ hr ht₀ ht₀₁,
     S.markedRootAssembly_zero_of_markReal z ha₁ hC hcovV hX₁V hoptV (by linarith) hZV hL hc7 hR

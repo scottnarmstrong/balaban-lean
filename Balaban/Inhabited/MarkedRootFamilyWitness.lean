@@ -104,8 +104,7 @@ that for every marked block `z` and every hat field `‖ψ̂‖ ≤ p₁`, with 
 `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂`:
 
 * `Q` at the step datum is `shiftUC ψ̂`;
-* `MARK-REAL` holds at the step datum (`MarkRealAt` with ball radius `t`, disc radius `2`, mark
-  radius `t₁`);
+* `MARK-REAL` holds at the step datum (`MarkRealAt` with ball radius `t` and disc radius `2`);
 * the clauses of `MarkedRootFamily` hold on `physV × {|u| < 2}`;
 * the clauses of `MarkedRootAssembly` hold for the marks `-β · markedOut z Y'`. -/
 theorem markedRootAssembly_instance :
@@ -124,7 +123,7 @@ theorem markedRootAssembly_instance :
             ‖x‖ ≤ pLog 1 2 β →
             ((((wStep m₁ β δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) •
                 (M (rawOf (wStep m₁ β δ).D') *ᵥ yhat x) = (wStep m₁ β δ).shiftUC x ∧
-            (wStep m₁ β δ).MarkRealAt z t 2 t₁ x ∧
+            (wStep m₁ β δ).MarkRealAt t 2 x ∧
             (wStep m₁ β δ).MarkedRootFamily z 1
               (fun _ => polyDom (wStep m₁ β δ).G'
                 (Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) 1 1
