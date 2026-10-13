@@ -391,4 +391,167 @@ theorem kw_jacobi {ν : ℝ} (hν : 0 < ν) (D : Finset (Torus d m)) :
   (det_mul_det_inv_block (latticeLaplacian d m ν)
     (latticeLaplacian_det_pos hν).ne'.isUnit (fun x => x ∈ D)).symm
 
+/-! ### Non-vacuity: `d = 3`, `m = 3`, `ν = 1/8`, `D = {0}` -/
+
+theorem one_le_torusDist_of_ne {x y : Torus d m} (h : x ≠ y) : 1 ≤ torusDist d m x y := by
+  obtain ⟨i, hi⟩ := Function.ne_iff.1 h
+  have hsub : x i - y i ≠ 0 := sub_ne_zero.2 hi
+  have hpos : 1 ≤ (cycRep (x i - y i)).natAbs := by
+    by_contra hc
+    have h0 : cycRep (x i - y i) = 0 := Int.natAbs_eq_zero.1 (by omega)
+    apply hsub
+    rw [← cast_cycRep (x i - y i), h0]; simp
+  unfold torusDist
+  calc (1 : ℝ) ≤ ((cycRep (x i - y i)).natAbs : ℝ) := by exact_mod_cast hpos
+    _ ≤ _ := Finset.single_le_sum (f := fun j => ((cycRep (x j - y j)).natAbs : ℝ))
+        (fun j _ => Nat.cast_nonneg _) (Finset.mem_univ i)
+
+/-- The one-site hole in the torus `(ℤ/3ℤ)^3`. -/
+def kwInstD : Finset (Torus 3 3) := {0}
+
+/-- The good-region operator of the instance is invertible. -/
+theorem kw_instance_isUnit : IsUnit (kwOp 3 3 (1 / 8 : ℝ) kwInstD).det :=
+  (kwOp_det_pos (by norm_num) kwInstD).ne'.isUnit
+
+/-- Inward decay in the instance: a unit source at the site `e₀` (a neighbour of the hole) is felt
+at the other neighbour `e₁` with weight at most `8 · 48/49`. -/
+theorem kw_instance_decay :
+    |((kwOp 3 3 (1 / 8 : ℝ) kwInstD)⁻¹ *ᵥ (fun y => if y = Pi.single 0 1 then (1 : ℝ) else 0))
+        (Pi.single 1 1)| ≤ 1 / (1 / 8 : ℝ) * kwQ 3 (1 / 8 : ℝ) ^ 1 := by
+  refine kwOp_inv_mulVec_decay (by norm_num) kwInstD _ (B := 1) (fun y => ?_) _ 1 (fun y hy => ?_)
+  · split_ifs <;> simp
+  · have hy' : y = Pi.single 0 1 := by by_contra h; exact hy (by simp [h])
+    subst hy'
+    have hne : (Pi.single 1 1 : Torus 3 3) ≠ Pi.single 0 1 := by
+      intro h
+      have := congrFun h 0
+      simp at this
+    simpa using one_le_torusDist_of_ne hne
+
+/-- The determinant walk formula in the instance. -/
+theorem kw_instance_logdet :
+    Real.log (latticeLaplacian 3 3 (1 / 8 : ℝ)).det - Real.log (kwOpSub 3 3 (1 / 8 : ℝ) kwInstD).det -
+      (kwInstD.card : ℝ) * Real.log (2 * 3 + 1 / 8) = -∑' k, kwLoopTerm 3 3 (1 / 8 : ℝ) kwInstD k := by
+  simpa using kw_logdet_eq (d := 3) (m := 3) (by norm_num : (0 : ℝ) < 1 / 8) kwInstD
+
+/-! ### The value of the `k = 2` loop term: `tr A² - tr A_G² = 4d` for a one-site hole -/
+
+/-- The `2d` unit steps `±e_μ`. -/
+def kwDir (μ : Fin d) (b : Bool) : Torus d m :=
+  if b then Pi.single μ 1 else -Pi.single μ 1
+
+theorem kwAdj_eq_sum_dirs (x y : Torus d m) :
+    kwAdj d m x y = ∑ j : Fin d × Bool, if y = x + kwDir j.1 j.2 then (1 : ℝ) else 0 := by
+  rw [kwAdj_apply, Fintype.sum_prod_type]
+  refine Finset.sum_congr rfl fun μ _ => ?_
+  have e2 : (x = y + Pi.single μ 1) ↔ (y = x + -Pi.single μ 1) := by
+    constructor
+    · intro h; subst h; abel
+    · intro h; subst h; abel
+  rw [Fintype.sum_bool]
+  simp [kwDir, e2]
+
+omit [NeZero m] in
+theorem kwDir_injective (h1 : (1 : ZMod m) ≠ 0) (h2 : (1 : ZMod m) ≠ -1) :
+    Function.Injective (fun j : Fin d × Bool => (kwDir j.1 j.2 : Torus d m)) := by
+  rintro ⟨μ, b⟩ ⟨ν, c⟩ h
+  have hμ := congrFun h μ
+  simp only [kwDir] at hμ
+  by_cases hνμ : ν = μ
+  · subst hνμ
+    cases b <;> cases c <;> simp_all
+  · exfalso
+    cases b <;> cases c <;> simp_all [Ne.symm hνμ]
+
+omit [NeZero m] in
+theorem kwDir_ne_zero (h1 : (1 : ZMod m) ≠ 0) (μ : Fin d) (b : Bool) :
+    (kwDir μ b : Torus d m) ≠ 0 := by
+  intro h
+  have := congrFun h μ
+  cases b <;> simp_all [kwDir]
+
+theorem kwAdj_diag (h1 : (1 : ZMod m) ≠ 0) (x : Torus d m) : kwAdj d m x x = 0 := by
+  rw [kwAdj_eq_sum_dirs]
+  refine Finset.sum_eq_zero fun j _ => ?_
+  have := kwDir_ne_zero h1 (d := d) (m := m) j.1 j.2
+  simp [this]
+
+theorem kwAdj_sq_rowSum (h1 : (1 : ZMod m) ≠ 0) (h2 : (1 : ZMod m) ≠ -1) (z : Torus d m) :
+    ∑ y, kwAdj d m z y ^ 2 = 2 * d := by
+  have hinj := kwDir_injective (d := d) (m := m) h1 h2
+  have e1 : ∀ y, kwAdj d m z y ^ 2 = ∑ j : Fin d × Bool, ∑ k : Fin d × Bool,
+      (if y = z + kwDir j.1 j.2 then (1 : ℝ) else 0) * (if y = z + kwDir k.1 k.2 then 1 else 0) := by
+    intro y
+    rw [sq, kwAdj_eq_sum_dirs, Finset.sum_mul_sum]
+  have e2 : ∀ a b : Torus d m, ∑ y : Torus d m, (if y = a then (1 : ℝ) else 0) *
+      (if y = b then 1 else 0) = if a = b then 1 else 0 := by
+    intro a b
+    simp only [ite_mul, one_mul, zero_mul]
+    rw [Finset.sum_ite_eq']
+    simp
+  simp_rw [e1]
+  rw [Finset.sum_comm]
+  have e3 : ∀ j : Fin d × Bool, ∑ y : Torus d m, ∑ k : Fin d × Bool,
+      (if y = z + kwDir j.1 j.2 then (1 : ℝ) else 0) * (if y = z + kwDir k.1 k.2 then 1 else 0) =
+      1 := by
+    intro j
+    rw [Finset.sum_comm]
+    simp_rw [e2]
+    have : ∀ k : Fin d × Bool, (z + kwDir j.1 j.2 = z + kwDir k.1 k.2) ↔ j = k := fun k => by
+      rw [add_right_inj]
+      exact (hinj.eq_iff (a := j) (b := k))
+    simp_rw [this]
+    simp
+  simp_rw [e3]
+  simp
+  ring
+
+/-- For a one-site hole the `k = 2` trace difference is `4d`: `2d` closed walks of length two
+rooted at the hole and `2d` rooted at its neighbours. -/
+theorem kwTraceDiff_two_single (h1 : (1 : ZMod m) ≠ 0) (h2 : (1 : ZMod m) ≠ -1) (z : Torus d m) :
+    kwTraceDiff d m {z} 2 = 4 * d := by
+  have hzz := kwAdj_diag h1 (d := d) z
+  have hsq := kwAdj_sq_rowSum h1 h2 z
+  have hpt : ∀ x y : Torus d m, kwAdj d m x y * kwAdj d m y x - kwAdjG d m {z} x y * kwAdjG d m {z} y x =
+      (if x = z then kwAdj d m x y ^ 2 else 0) + (if y = z then kwAdj d m x y ^ 2 else 0) := by
+    intro x y
+    have hs : kwAdj d m y x = kwAdj d m x y := kwAdj_symm y x
+    have hs' : kwAdjG d m {z} y x = kwAdjG d m {z} x y := kwAdjG_symm _ y x
+    rw [hs, hs']
+    by_cases hx : x = z <;> by_cases hy : y = z
+    · subst hx; subst hy; simp [hzz, kwAdjG]
+    · simp [kwAdjG, hx, hy, sq]
+    · simp [kwAdjG, hx, hy, sq]
+    · simp [kwAdjG, hx, hy]
+  unfold kwTraceDiff
+  simp only [pow_two, Matrix.trace, Matrix.diag, Matrix.mul_apply, ← Finset.sum_sub_distrib]
+  simp_rw [hpt]
+  have hA : ∀ x : Torus d m, ∑ y, (if x = z then kwAdj d m x y ^ 2 else 0) =
+      if x = z then ∑ y, kwAdj d m x y ^ 2 else 0 := by
+    intro x; split_ifs <;> simp
+  simp only [Finset.sum_add_distrib, hA, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
+  have : ∑ x : Torus d m, kwAdj d m x z ^ 2 = 2 * d := by
+    rw [← hsq]; exact Finset.sum_congr rfl fun x _ => by rw [kwAdj_symm x z]
+  rw [hsq, this]; ring
+
+theorem kwTraceDiff_one (h1 : (1 : ZMod m) ≠ 0) (D : Finset (Torus d m)) :
+    kwTraceDiff d m D 1 = 0 := by
+  have hz : ∀ x : Torus d m, kwAdjG d m D x x = 0 := fun x => by
+    simp [kwAdjG, kwAdj_diag h1 x]
+  simp [kwTraceDiff, Matrix.trace, Matrix.diag, kwAdj_diag h1, hz]
+
+/-- In the instance the `k = 1` loop term vanishes and the `k = 2` term equals
+`4d/(2 a²) = 6/(49/8)² = 384/2401`: the closed walks of length two through the hole. -/
+theorem kw_instance_loop_two :
+    kwTraceDiff 3 3 kwInstD 1 = 0 ∧ kwTraceDiff 3 3 kwInstD 2 = 12 ∧
+      kwLoopTerm 3 3 (1 / 8 : ℝ) kwInstD 2 = 384 / 2401 := by
+  have h1 : (1 : ZMod 3) ≠ 0 := by decide
+  have h2 : (1 : ZMod 3) ≠ -1 := by decide
+  have e2 : kwTraceDiff 3 3 kwInstD 2 = 12 := by
+    have := kwTraceDiff_two_single h1 h2 (d := 3) (0 : Torus 3 3)
+    rw [kwInstD]; rw [this]; norm_num
+  refine ⟨kwTraceDiff_one h1 _, e2, ?_⟩
+  unfold kwLoopTerm
+  rw [e2]; norm_num
+
 end Balaban
