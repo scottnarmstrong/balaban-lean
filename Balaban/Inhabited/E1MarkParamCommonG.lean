@@ -85,7 +85,7 @@ theorem e1MarkGParamG_of_not (h : ¬ ((θ.1 : RawData d L (N₁ * L ^ m₁) (k +
   simp [e1MarkGParamG, h]
 
 /-- **At the raw datum of the step** the mark of the parameter family is the landed `e1MarkG`. -/
-theorem e1MarkGParamG_eq_e1MarkG
+theorem e1MarkGParamG_eq_e1MarkGGen
     (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf S.D')
     (hΘ : rawOf S.D' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps) :
     e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ = e1MarkGGen S F₁ Sol ρ hp z Y' u Φ := by
