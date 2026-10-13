@@ -32,22 +32,36 @@ Index sets: `z : Torus d (N₁ L^{m₁} L^{(k+1)-(k+1)})` (the blocks `B_{k+1}(z
 | `hX₁V` | `∀ z, ↑(X₁V z) = X1 G' m₀ (jV z) (𝒦XV z)` | `X₁ = 𝕋`, `X1_eq_univ` (`box_univ`: the torus is `3` cells wide) |
 | `hoptV` | `∀ z, ∃ W₀ E₀, ConnStruct W₀ E₀ ∧ ↑W₀ ⊆ XV z ∧ MeetsOne m₀ (jV z) (𝒦XV z) W₀ ∧ bondCost (scaleW L m₀ m₁ (jV z)) E₀ = treeLenCovOne m₀ (jV z) (XV z)` | `LevelPair.hopt` |
 | `hΔV` | `∀ z, treeLenCovOne m₀ (jV z) (XV z) = 0` | `LevelPair.treeLen_zero` |
-| `hlogV` | `log ((2L+1)^d (L^{m₀})^d) ≤ (κ/2 - 1)/2` | numeric at `m₀ = 1` (no `k`, `N₁`) |
+| `hlogV` | `∀ z, Real.log (((2L+1)^d : ℕ) * ((L^m₀)^d : ℕ)) ≤ (κ/2 - 1)/2` | numeric at `m₀ = 1` (no `k`, `N₁`) |
 | `hZV` | `∀ z, readSites Hm k z ⊆ ↑(X₁V z)` | trivial, `X₁ = 𝕋` |
 | `hmarV` | `∀ z, BlockMargin G' (X₁V z) ↑(blockSites d L N₁ m₁ (k+1) k z)` | `blockMargin_univ`, `mem_some_intBox` |
 | `hZν` | `∀ z, ↑(blockSites d L N₁ m₁ (k+1) k z) ⊆ ↑(X₁V z)` | trivial, `X₁ = 𝕋` |
-| `hcovF`, `hX₁F`, `hoptF`, `hΔF`, `hlogF` | the same five statements with `s` in place of `z` | the same cube for every `s` |
+| `hcovF` | `∀ s, CovSetup G' m₀ (jF s) (XF s) (𝒦XF s)` | `LevelPair.covSetup`, the same cube for every `s` |
+| `hX₁F` | `∀ s, ↑(X₁F s) = X1 G' m₀ (jF s) (𝒦XF s)` | `X1_eq_univ` |
+| `hoptF` | `∀ s, ∃ W₀ E₀, ConnStruct W₀ E₀ ∧ ↑W₀ ⊆ XF s ∧ MeetsOne m₀ (jF s) (𝒦XF s) W₀ ∧ bondCost (scaleW L m₀ m₁ (jF s)) E₀ = treeLenCovOne m₀ (jF s) (XF s)` | `LevelPair.hopt` |
+| `hΔF` | `∀ s, treeLenCovOne m₀ (jF s) (XF s) = 0` | `LevelPair.treeLen_zero` |
+| `hlogF` | `∀ s, Real.log (((2L+1)^d : ℕ) * ((L^m₀)^d : ℕ)) ≤ (κ/2 - 1)/2` | numeric at `m₀ = 1` |
 | `hyF` | `∀ s, s.1 ∈ X₁F s` | trivial, `X₁ = 𝕋` |
-| `hC` | `FlCore N G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁` | `tower_core_rates` at the pair of the witness, `ν = 1/81` |
-| `hconn`, `hrow`, `hG`, `H` | `HatConn G'`, `RowInHat (coverOf G') Hm a ν`, `IsLevel Hm k`, `BgHyp d L (k+1) ϱ a ν` | `LevelPair.hatConn`, `rowInHat_level`, `isLevel_Hm`, `bgHypNu` (`k = 1`, `N₁ = 9`) |
-| `hδ₁` | `√N ‖β_k^{-1/2}‖ (covSupConstC d L N (a_k) κ · c_ψ) < δ₁` | `tower_C_items` (`β_k = 3β`, weight `a_1`) |
-| `hc`, `hp`, `hpρ`, `hlt`, `hr` | `(R_σ R₁ + r) ρ < c_ψ`, `0 < p₁ ≤ ρ`, `p₁ < p⁺`, `0 < r` | `tower_C_items` |
-| `R0`, `hbase` | `S.RayData p⁺`, `InUnionDomainC Hm c₀ c₂ ν (S.dataU S.psi0)` | `rayData_hatStep_pp` (`k = 1`, `N₁ = 9`, `ν = 1/81`) |
-| `hD`, `hBh` | `XiCData G' a ν (k+1) 1 eps S.D'`; `‖D.h x i‖ ≤ Bh` on that set | unit datum; `hBh_of_xi` with `Bh = 1 + 2/ν` |
-| `hεb`, `hDA` | the amplitude with `β_k` and `r`; the smallness of `R_σ ε_U` | `tower_amp_exists` (`β_k = 3β`), `amplitude_le` |
+| `hN` | `L ^ m₀ ∣ N₁` | `3 ∣ 9` |
+| `hC` | `FlCore N G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁` | `tower_core_rates` at the pair of the witness, `ν = 1/81` |
+| `hconn` | `HatConn G'` | `LevelPair.hatConn` (`K = 2`, `N₁ = 9`) |
+| `hrow` | `RowInHat (coverOf G') Hm (compWeight L S.a₁) S.ν` | `rowInHat_level (dgSettingNu h4) isLevel_Hm isLevel_Gp` |
+| `hk`, `hG` | `1 ≤ k`, `IsLevel Hm k` | `k = 1`, `LevelPair.isLevel_Hm` |
+| `H` | `BgHyp d L (k+1) ϱ (compWeight L S.a₁) S.ν` | `bgHypNu` (`k = 1`, `ν = 1/81`) |
+| `hβ`, `hak` | `1 ≤ S.β`, `compWeight L S.a₁ k ≤ 2` | `β ≥ 2`; the weight `a_1` |
+| `hδ₁` | `Real.sqrt N * (‖((S.betaU ^ (-(1/2 : ℝ)) : ℝ) : ℂ)‖ * (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ)) < δ₁` | `tower_C_items` (`S.betaU = 3β`, weight `a_1`, `towerCpsi`) |
+| `hr`, `hc`, `hp`, `hpρ`, `hlt` | `0 < r`, `(Rσ * R₁ + r) * ρ < cψ`, `0 < S.p₁`, `S.p₁ ≤ ρ`, `S.p₁ < pp` | `tower_C_items` (`towerR`) |
+| `R0` | `S.RayData pp` | `rayData_hatStep_pp` (`k = 1`, `N₁ = 9`, `ν = 1/81`; `witB5` at the weight `a_1`) |
+| `hbase` | `InUnionDomainC Hm (bgC0 d L N) (bgC2 d L N) S.ν (S.dataU S.psi0)` | `baseDomain_of_rayData` |
+| `hD` | `XiCData G' (compWeight L S.a₁) S.ν (k+1) 1 eps S.D'` | the unit datum on `LevelPair.Gp` |
+| `hBh` | `∀ D, XiCData G' (compWeight L S.a₁) S.ν (k+1) 1 eps D → ∀ x i, ‖D.h x i‖ ≤ Bh` | `hBh_of_xi` with `Bh = 1 + 2/ν`, `ν = 1/81` |
+| `hεb` | `S.betaU * (3 * c1 d L * (L^(m₀+m₁))^d * (L^d * ((N/2) * (2 * (1 + Q)^2 + (d + 1 + rho4 d L N BG κ) * Q^2) * δ₁^2)) / r^3) + S.β * (ρE * c1 d L * (L^(k+1))^d * (L^(m₀+m₁))^d / r) + (Q * δ₁ + ρM) / (S.β * r) + ‖(0 : ℂ)‖ * (…) ≤ εU`, `Q = cK2' d L N (famConst d L BG₂ κ)` | `tower_amp_exists` at `S.betaU = 3β` (in the form with `energyConstScaled` at `k = 1`) |
+| `hDA` | `Rσ * εU ≤ 1 / (8 * Kc'^3 * c1 d L * Real.exp ((2 κdec - 1 - 2 κ0) * cG d L + c1 d L + κ' * cG d L))` | `amplitude_le` at `β` |
 
-The rows `hcovV`–`hyF` are proved here for every `k` and `N₁`.  The rows `hconn`, `hrow`, `hG`, `H`
-are in `LevelStepSetting`; the remaining rows are in `LevelRayTower` and `ScaleActivityFinal`.
+The rows `hcovV`, `hX₁V`, `hoptV`, `hΔV`, `hZV`, `hmarV`, `hZν`, `hcovF`, `hX₁F`, `hoptF`, `hΔF`,
+`hyF` are proved here for every `k` and `N₁` with `L^{m₀} ∣ N₁`, `m₀ ≥ 1`
+(`LocalCover.levelLocalCover`).  The rows `hconn`, `hrow`, `hG`, `H` are in `LevelStepSetting`; the
+remaining rows are in `LevelRayTower` and `ScaleActivityFinal`.
 
 ## The local cover
 
@@ -60,7 +74,9 @@ For a site `x` of a torus whose generating set `G` is a whole-lattice set of the
 * `LocalCover.covSetup`: `CovSetup G m₀ j X {X}`.
 * `LocalCover.X1_eq`: `X₁ = ⋃ 𝒬₀` is `LocalCover.nbhd m₀ x`, the box of `2L - 1` cells of `π_K`
   per direction around the cell of `x` (`iUnion_cubes_eq_cellNbhd`).  It has at most
-  `((2L-1) a_K)^d` sites (`card_nbhdF_le`), whatever the torus.
+  `((2L-1) a_K)^d` sites (`card_nbhdF_le`), whatever the torus; it is the whole torus if
+  `N₁ ≤ (2L-1) L^{m₀}` (`nbhd_eq_univ`) and a proper subset if `N₁ > (2L-1) L^{m₀}`
+  (`nbhdF_ne_univ`).
 * `LocalCover.hopt`, `LocalCover.treeLen_eq_zero`: the optimal structure is one point and
   `d^cov_j(X) = 0` (`hopt_box`).
 * `LocalCover.blockMargin`: for `m₀ ≥ 1`, every set of sites in the cell has `BlockMargin` in `X₁`.
@@ -422,6 +438,30 @@ theorem nbhd_eq_univ {m₀ : ℕ} (h : N₁ ≤ (2 * L - 1) * L ^ m₀) (x : CTo
         unfold cellSide
         rw [← Nat.add_mul, show L - 1 + L = 2 * L - 1 by omega, pow_add, pow_add]
         ring
+
+/-- **Large tori**: if the torus has more than `2L - 1` cells of `π_K` per direction
+(`(2L - 1) L^{m₀} < N₁`), the region `X₁` is not the whole torus. -/
+theorem nbhdF_ne_univ {m₀ : ℕ} (hd : 0 < d) (h : (2 * L - 1) * L ^ m₀ < N₁)
+    (x : CTorus d L N₁ m₁ K) : nbhdF m₀ x ≠ Finset.univ := by
+  intro heq
+  have hL : 1 ≤ L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have h1 := card_nbhdF_le m₀ x
+  have hcard : Fintype.card (CTorus d L N₁ m₁ K) = (N₁ * L ^ m₁ * L ^ K) ^ d := by
+    simp [ZMod.card]
+  rw [heq, Finset.card_univ, hcard] at h1
+  have h2 := (Nat.pow_le_pow_iff_left hd.ne').1 h1
+  have e : (L - 1) * cellSide L m₀ m₁ K + L * cellSide L m₀ m₁ K =
+      (2 * L - 1) * L ^ m₀ * L ^ m₁ * L ^ K := by
+    unfold cellSide
+    rw [← Nat.add_mul, show L - 1 + L = 2 * L - 1 by omega, pow_add, pow_add]
+    ring
+  rw [e] at h2
+  have hpos : 0 < L ^ m₁ * L ^ K := by positivity
+  have h3 : N₁ * (L ^ m₁ * L ^ K) ≤ (2 * L - 1) * L ^ m₀ * (L ^ m₁ * L ^ K) := by
+    calc N₁ * (L ^ m₁ * L ^ K) = N₁ * L ^ m₁ * L ^ K := by ring
+      _ ≤ (2 * L - 1) * L ^ m₀ * L ^ m₁ * L ^ K := h2
+      _ = _ := by ring
+  exact absurd (Nat.le_of_mul_le_mul_right h3 hpos) (not_le.2 h)
 
 /-- **`CovSetup` for the local cube**, on every torus: `X` is one `π'_j`-cube (`j < K`), the chosen
 family is `{X}`, and `X` lies in a `π'_K`-cube of the top layer. -/

@@ -58,10 +58,12 @@ datum field in the data domains (`InPsiTilde`, `XiBounds`, `XiCBounds`) carries 
 is why the mass premise here is `0 < ν` and not `0 ≤ ν`; the cutoff, radius and `RayData`
 hypotheses (`scale_C_items`) and the cover hypotheses hold for `0 ≤ ν`.
 
-What is proved: zero class, every scale with `0 < ν`, `ν · 3^{2(k+1)} ≤ 1`, every torus with
+What is proved: zero class, at the step `hatStepK` (`d = L = 3`, `N = 2`, constant unit block
+datum, as in the landed witness), every scale with `0 < ν`, `ν · 3^{2(k+1)} ≤ 1`, every torus with
 `3 ∣ N₁`, `5 < N₁`, constants independent of the scale, the torus and the mass.  What is not
-proved: scales with `ν · 3^{2(k+1)} > 1` (massive backgrounds), the mass `ν = 0`, general classes
-(nonempty old-energy and observable families), and the output terms of the step.
+proved: scales with `ν · 3^{2(k+1)} > 1` (massive backgrounds), the mass `ν = 0`, block data other
+than the constant unit datum, general classes (nonempty old-energy and observable families), and
+the output terms of the step.
 -/
 
 @[expose] public section
