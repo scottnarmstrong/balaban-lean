@@ -1756,3 +1756,4 @@ public import Balaban.Fluctuation.StepOldTermSplit
 public import Balaban.Fluctuation.StepClassPath
 public import Balaban.Fluctuation.StepPhysicalActivityBridge
 public import Balaban.Fluctuation.ClassOldTermInputE
+public import Balaban.Fluctuation.ClassOldTermInputM
