@@ -1414,3 +1414,4 @@ public import Balaban.Fluctuation.StepActivityClassChart
 public import Balaban.LargeField.Background.CubeUnitBg
 public import Balaban.Inhabited.ChiYWitness
 public import Balaban.Fluctuation.SizeModCellPath
+public import Balaban.Fluctuation.SizeModExtend
