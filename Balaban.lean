@@ -1720,6 +1720,8 @@ public import Balaban.Inhabited.E1RecordOfSum
 public import Balaban.Inhabited.E1RecordFromTower
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Inhabited.E1CoeffFamily
+public import Balaban.Inhabited.E1ParamFibreValue
+public import Balaban.Inhabited.E1CoeffFamilyValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
