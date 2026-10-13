@@ -1530,6 +1530,8 @@ public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Inhabited.LevelRayTowerGeneral
 public import Balaban.Inhabited.LevelAmpGeneral
 public import Balaban.Inhabited.LevelRayDataGeneral
+public import Balaban.Inhabited.ScaleActivityFinalG
+public import Balaban.Inhabited.DetStepScaleG
 public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
