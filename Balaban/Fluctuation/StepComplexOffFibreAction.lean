@@ -61,22 +61,22 @@ theorem JbgC_expansion
           (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
             (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) := by
   dsimp only
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hβU := S.betaU_pos' hL hβ
   have h1 : (1 : ℝ) ∈ Set.Icc (0 : ℝ) 1 := Set.right_mem_Icc.2 zero_le_one
   have hDC := H.dataUCH_hatRay_inUnionDomainC hC hMX hdm hα hsm ha₁ hc7 hR hsmR
     hβ.le hp₁ hδ₁ hD h1 hx
   dsimp only at hDC
   simp only [Complex.ofReal_one, one_smul] at hDC
-  have hDC' : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν H.D' :=
-    (isDecBg_one_of_xiCData hC hD).2.mono (hc7.trans (thm73C3_le_thm73C2 d L N))
-  have hexp := expansion_quadratic ha₁ S.hG S.hG' (le_refl (k + 1)) hC.HBp hC.HBp
-    H.D' hDC' (H.dataUCH ((fun p =>
-      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
-          (unitRep (G' := S.G') p.1) p.2) +
-      S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x)))
-    (fun z i => H.dataUCH_h _ z i) hDC
+  have hb : barField S.G' H.D'.Ψ (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') =
+      svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') := by
+    funext z i
+    exact barField_eq_svec S.hG' _ _ z i
+  have hM : hatCovSqrt S.G' S.a₁ S.ν H.D' =
+      decCovSqrt S.G' S.a S.a₁ S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D') (fun _ => 1)
+        (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D'))
+        (unitQ S.G') (unitP S.G') := by
+    unfold hatCovSqrt
+    rw [hb]
   have ht : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
       (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
       (H.dataUCH ((fun p =>
@@ -84,53 +84,18 @@ theorem JbgC_expansion
           (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
             (unitRep (G' := S.G') p.1) p.2) +
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x))) =
-      liftC S.hG' (S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x)) := by
+      liftC S.hG' (S.hatField
+        (decCovSqrt S.G' S.a S.a₁ S.ν
+          (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D') (fun _ => 1)
+          (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D'))
+          (unitQ S.G') (unitP S.G')) (yhat x)) := by
     rw [H.compTangent_dataUCH]
     simp only [add_sub_cancel_left]
-  have hq := quad_identityC S.hG S.hG' S.a S.a₁ S.ν
-    (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
-    (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')
-    (S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x))
-  have hK := H.quad_hatField_of_chart hC hMX hdm hα hsm hD x
-  rw [hK, ← ht] at hq
-  have hc2 : (S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 = S.betaU⁻¹ := by
-    rw [← Real.rpow_natCast, ← Real.rpow_mul hβU.le]
-    norm_num
-    exact Real.rpow_neg_one S.betaU
-  have hbeta : S.betaU = S.β * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) := by
-    unfold StepSetting.betaU; ring
-  have hscale : (((1 / 2) * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) : ℝ)) *
-      ((S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 * ∑ b : S.U, ‖x b‖ ^ 2) =
-      1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 := by
-    rw [hc2, hbeta]
-    have hL' : (0 : ℝ) < L := by exact_mod_cast hL
-    have : 0 < ((L : ℝ) ^ k) ^ d := by positivity
-    field_simp
-  have hqq : couplingC S.G' S.a₁ (k + 1) (fun _ _ => 0)
-        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-          (H.dataUCH ((fun p =>
-            (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-              (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
-                (unitRep (G' := S.G') p.1) p.2) +
-            S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x)))) +
-      (1 / 2 : ℂ) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')
-        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-          (H.dataUCH ((fun p =>
-            (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-              (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
-                (unitRep (G' := S.G') p.1) p.2) +
-            S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (yhat x)))) =
-      ((1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) := by
-    rw [hq, ← hscale]
-    push_cast
-    ring
+    rw [hM]
   change couplingC S.G' S.a₁ (k + 1) H.D'.Ψ _ + actionC _ _ _ _ _ =
     actionC _ _ _ _ _ + _ + _
-  linear_combination hexp + hqq
+  exact S.action_expansion_core hC hMX hdm hα hsm ha₁ hc7 hβ
+    H.D' hD _ hDC (fun z i => H.dataUCH_h _ z i) x ht
 
 end StepSettingH
 

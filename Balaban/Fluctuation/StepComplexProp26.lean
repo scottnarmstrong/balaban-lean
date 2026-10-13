@@ -189,6 +189,35 @@ theorem integral_fluct_weight_eq {p : ℝ} (hp : 0 < p) (P : ℂ) (W₁ W₂ : �
 
 end Weight
 
+/-- Algebraic form of the Gaussian pointwise integrand identity. -/
+theorem integrand_of_action_expansion_core (β u : ℝ) (hβ : β ≠ 0)
+    (K J Aold Anew V Eold Enew Fold Fnew Ek : ℂ)
+    (hJ : J + Aold = Anew + ((u / (2 * β) : ℝ) : ℂ) + V) :
+    K * Complex.exp (-((β : ℂ) * J)) *
+      Complex.exp (-(β : ℂ) * Aold + Eold - Ek + Fold) =
+      K * Complex.exp (-(β : ℂ) * Anew + Enew - Ek + Fnew) *
+        ((Real.exp (-u / 2) : ℝ) : ℂ) *
+        Complex.exp (-(β : ℂ) * V + (Eold - Enew) + (Fold - Fnew)) := by
+  have hJ2 : (β : ℂ) * (J + Aold) =
+      (β : ℂ) * Anew + (u : ℂ) / 2 + (β : ℂ) * V := by
+    rw [hJ]
+    push_cast
+    have hβc : (β : ℂ) ≠ 0 := by exact_mod_cast hβ
+    field_simp [hβc]
+  rw [Complex.ofReal_exp]
+  calc
+    K * Complex.exp (-((β : ℂ) * J)) *
+        Complex.exp (-(β : ℂ) * Aold + Eold - Ek + Fold) =
+      K * Complex.exp (-((β : ℂ) * J) +
+        (-(β : ℂ) * Aold + Eold - Ek + Fold)) := by rw [mul_assoc, ← Complex.exp_add]
+    _ = K * Complex.exp ((-(β : ℂ) * Anew + Enew - Ek + Fnew) +
+        ((-u / 2 : ℝ) : ℂ) +
+        (-(β : ℂ) * V + (Eold - Enew) + (Fold - Fnew))) := by
+      apply congrArg (fun z : ℂ => K * Complex.exp z)
+      push_cast
+      linear_combination (-1 : ℂ) * hJ2
+    _ = _ := by rw [Complex.exp_add, Complex.exp_add]; ring
+
 namespace StepSetting
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
@@ -258,6 +287,28 @@ variable (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps 
     (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁)
   (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
 
+include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ in
+/-- The old datum of a represented hat ray lies in the small-solution domain. -/
+theorem data_hatRay_inUnionDomainC_plus_core (D : BgData S.G' N)
+    (hD₀ : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    {q : ℝ × S.E} (hq : |q.1| * ‖q.2‖ < pp)
+    (Dold : BgData (stepG d L N₁ m₁ k ϱ) N)
+    (hh : ∀ z i, Dold.h z i = D.h z i)
+    (htan : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D Dold =
+      hatLift S.G' S.a₁ S.ν S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ((q.1 : ℂ) • yhat q.2)) :
+    InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν Dold := by
+  refine inUnionDomainC_of_tangent_hatLift hC S.hk1 S.hG S.hG' ha₁ hC.HBp hc7 hR hsmR
+    hMX hdm hα hsm _ hpp.le (by rwa [S.norm_betaU_rpow hβ])
+    (ψh := (q.1 : ℂ) • yhat q.2) (fun p => ?_) hD₀ hh htan
+  have h1 : ‖((q.2 p.1 p.2 : ℝ) : ℂ)‖ ≤ ‖q.2‖ := by
+    rw [Complex.norm_real]
+    exact (PiLp.norm_apply_le (q.2 p.1) p.2).trans (norm_le_pi_norm q.2 p.1)
+  show ‖(q.1 : ℂ) * ((q.2 p.1 p.2 : ℝ) : ℂ)‖ ≤ pp
+  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+  exact (mul_le_mul_of_nonneg_left h1 (abs_nonneg _)).trans hq.le
+
 include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ hD in
 /-- **The complex old spin of the ray lies in the domain `𝒟` of the small solution, with margin**
 (the complex form of `dataU_inDomainR_plus`): if `|s| ‖ψ̂‖ < p⁺` then the datum of
@@ -266,15 +317,9 @@ include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ hD in
 theorem dataUC_psiAtC_inUnionDomainC_plus {q : ℝ × S.E} (hq : |q.1| * ‖q.2‖ < pp) :
     InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
       (S.dataUC (S.psiAtC q.1 q.2)) := by
-  refine inUnionDomainC_of_tangent_hatLift hC S.hk1 S.hG S.hG' ha₁ hC.HBp hc7 hR hsmR hMX hdm hα
-    hsm _ hpp.le (by rwa [S.norm_betaU_rpow hβ]) (ψh := (q.1 : ℂ) • yhat q.2) (fun p => ?_) hD
+  exact S.data_hatRay_inUnionDomainC_plus_core hC hMX hdm hα hsm ha₁ hc7 hR hsmR
+    hβ hpp hδ₁ S.D' hD hq (S.dataUC (S.psiAtC q.1 q.2))
     (fun z i => by rw [S.dataUC_h, S.hh₀]) (S.compTangent_psiAtC q.1 q.2)
-  have h1 : ‖((q.2 p.1 p.2 : ℝ) : ℂ)‖ ≤ ‖q.2‖ := by
-    rw [Complex.norm_real]
-    exact (PiLp.norm_apply_le (q.2 p.1) p.2).trans (norm_le_pi_norm q.2 p.1)
-  show ‖(q.1 : ℂ) * ((q.2 p.1 p.2 : ℝ) : ℂ)‖ ≤ pp
-  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
-  exact (mul_le_mul_of_nonneg_left h1 (abs_nonneg _)).trans hq.le
 
 include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hpp hδ₁ hD in
 /-- **The interaction of the complex step is smooth along the ray** (the complex form of
@@ -372,26 +417,126 @@ variable (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps 
     (covSupConstC d L N (compWeight L S.a₁ k) κ * S.p₁)) < δ₁)
   (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
 
+include hC hMX hdm hα hsm in
+/-- The Gaussian quadratic identity for the covariance at any chart datum. -/
+theorem quad_hatField_core (D : BgData S.G' N)
+    (hD₀ : XiCData S.G' S.a S.ν (k + 1) 1 eps D) (x : S.E) :
+    let M := decCovSqrt S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')
+    let A := covOp S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')
+    let shift := S.hatField M (yhat x)
+    shift ⬝ᵥ (A *ᵥ shift) =
+      (((S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) := by
+  let M := decCovSqrt S.G' S.a S.a₁ S.ν
+    (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+    (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+    (unitQ S.G') (unitP S.G')
+  let A := covOp S.G' S.a S.a₁ S.ν
+    (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+    (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+    (unitQ S.G') (unitP S.G')
+  obtain ⟨hfam, hφ, hδ, hsm0⟩ := S.covData_of_chart_core D hC hMX hdm hα hsm hD₀
+  have hT : Mᵀ * A * M = 1 := S.covSqrt_T_mul_core D hfam hφ hδ hsm0
+  have key : (M *ᵥ yhat x) ⬝ᵥ (A *ᵥ (M *ᵥ yhat x)) = yhat x ⬝ᵥ yhat x := by
+    calc
+      _ = (Mᵀ *ᵥ (A *ᵥ (M *ᵥ yhat x))) ⬝ᵥ yhat x := by
+        rw [dotProduct_comm, Matrix.dotProduct_mulVec, Matrix.mulVec_transpose]
+      _ = ((Mᵀ * A * M) *ᵥ yhat x) ⬝ᵥ yhat x := by
+        simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
+      _ = yhat x ⬝ᵥ yhat x := by rw [hT, Matrix.one_mulVec]
+  change (S.hatField M (yhat x)) ⬝ᵥ (A *ᵥ S.hatField M (yhat x)) = _
+  have hshift : S.hatField M (yhat x) =
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (M *ᵥ yhat x) := rfl
+  rw [hshift, Matrix.mulVec_smul, smul_dotProduct, dotProduct_smul, key, S.yhat_dot]
+  simp only [smul_eq_mul]
+  push_cast
+  ring
+
 include hC hMX hdm hα hsm hD in
 /-- **`β ⟨ψ', 𝒜 ψ'⟩ = |ψ̂|²` for `ψ' = β^{-1/2} C^{1/2} ψ̂` at a complex datum** (the Gaussian part
 of (2.6); the complex form of `quad_K`), with the bilinear product. -/
 theorem quad_shiftUC (x : S.E) :
     S.shiftUC x ⬝ᵥ (S.covAC *ᵥ S.shiftUC x) =
       (((S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) := by
-  have hT := S.covSqrtC_T_mul_of_chart hC hMX hdm hα hsm hD
-  have key : (S.covSqrtC *ᵥ yhat x) ⬝ᵥ (S.covAC *ᵥ (S.covSqrtC *ᵥ yhat x)) =
-      yhat x ⬝ᵥ yhat x := by
-    calc (S.covSqrtC *ᵥ yhat x) ⬝ᵥ (S.covAC *ᵥ (S.covSqrtC *ᵥ yhat x))
-        = (S.covSqrtCᵀ *ᵥ (S.covAC *ᵥ (S.covSqrtC *ᵥ yhat x))) ⬝ᵥ yhat x := by
-          rw [dotProduct_comm, Matrix.dotProduct_mulVec, Matrix.mulVec_transpose]
-      _ = ((S.covSqrtCᵀ * S.covAC * S.covSqrtC) *ᵥ yhat x) ⬝ᵥ yhat x := by
-          simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
-      _ = yhat x ⬝ᵥ yhat x := by rw [hT, Matrix.one_mulVec]
-  have hsh : S.shiftUC x = ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (S.covSqrtC *ᵥ yhat x) := rfl
-  rw [hsh, Matrix.mulVec_smul, smul_dotProduct, dotProduct_smul, key, S.yhat_dot]
-  simp only [smul_eq_mul]
-  push_cast
-  ring
+  exact S.quad_hatField_core hC hMX hdm hα hsm S.D' hD x
+
+include hC hMX hdm hα hsm ha₁ hc7 hβ in
+/-- The quadratic action expansion for a represented old datum over any incoming datum. -/
+theorem action_expansion_core (D : BgData S.G' N)
+    (hD₀ : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    (Dold : BgData (stepG d L N₁ m₁ k ϱ) N)
+    (hdom : InUnionDomainC (stepG d L N₁ m₁ k ϱ)
+      (bgC0 d L N) (bgC1 d L N) S.ν Dold)
+    (hh : ∀ z i, Dold.h z i = D.h z i)
+    (x : S.E)
+    (htan : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D Dold =
+        liftC S.hG' (S.hatField
+          (decCovSqrt S.G' S.a S.a₁ S.ν
+            (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+            (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+            (unitQ S.G') (unitP S.G')) (yhat x))) :
+    couplingC S.G' S.a₁ (k + 1) D.Ψ Dold.Ψ +
+      actionC (stepG d L N₁ m₁ k ϱ) S.a S.ν Dold
+        (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) Dold) =
+      actionC S.G' S.a S.ν D (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) +
+      ((1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) +
+      interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D Dold)
+        (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) Dold -
+          (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hβU := S.betaU_pos' hL hβ
+  have hD' : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν D :=
+    (isDecBg_one_of_xiCData hC hD₀).2.mono
+      (hc7.trans (thm73C3_le_thm73C2 d L N))
+  have hexp := expansion_quadratic ha₁ S.hG S.hG' (le_refl (k + 1))
+    hC.HBp hC.HBp D hD' Dold hh hdom
+  have hq := quad_identityC S.hG S.hG' S.a S.a₁ S.ν
+    (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+    (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+    (S.hatField (decCovSqrt S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')) (yhat x))
+  have hK := S.quad_hatField_core hC hMX hdm hα hsm D hD₀ x
+  dsimp only at hK
+  rw [hK, ← htan] at hq
+  have hc2 : (S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 = S.betaU⁻¹ := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hβU.le]
+    norm_num
+    exact Real.rpow_neg_one S.betaU
+  have hbeta : S.betaU = S.β * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) := by
+    unfold betaU; ring
+  have hscale : (((1 / 2) * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) : ℝ)) *
+      ((S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 * ∑ b : S.U, ‖x b‖ ^ 2) =
+      1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 := by
+    rw [hc2, hbeta]
+    have hL' : (0 : ℝ) < L := by exact_mod_cast hL
+    have : 0 < ((L : ℝ) ^ k) ^ d := by positivity
+    field_simp
+  have hqq : couplingC S.G' S.a₁ (k + 1) (fun _ _ => 0)
+        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D Dold) +
+      (1 / 2 : ℂ) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D Dold) =
+      ((1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) := by
+    rw [hq, ← hscale]
+    push_cast
+    ring
+  linear_combination hexp + hqq
 
 include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hδ₁ hD in
 /-- **The exact expansion (Lemma 2.3 (b)) on the complex path, at `s = 1`** (the complex form of
@@ -402,55 +547,18 @@ chart. -/
 theorem JbgC_expansion (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
     couplingC S.G' S.a₁ (k + 1) S.D'.Ψ (S.dataUC (S.psiAtC 1 x)).Ψ + S.AoldC (S.psiAtC 1 x) =
       S.AnewC + ((1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) + S.VkC (S.psiAtC 1 x) := by
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hβU := S.betaU_pos' hL hβ
   have h1 : (1 : ℝ) ∈ Set.Icc (0 : ℝ) 1 := Set.right_mem_Icc.2 zero_le_one
-  have hDC := S.dataUC_psiAtC_inUnionDomainC hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ.le hp₁ hδ₁ hD
-    h1 hx
-  have hDC' : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D' :=
-    (isDecBg_one_of_xiCData hC hD).2.mono (hc7.trans (thm73C3_le_thm73C2 d L N))
+  have hDC := S.dataUC_psiAtC_inUnionDomainC hC hMX hdm hα hsm ha₁ hc7 hR hsmR
+    hβ.le hp₁ hδ₁ hD h1 hx
   have hh : ∀ z i, (S.dataUC (S.psiAtC 1 x)).h z i = S.D'.h z i := fun z i => by
     rw [S.dataUC_h, S.hh₀]
-  have hexp := expansion_quadratic ha₁ S.hG S.hG' (le_refl (k + 1)) hC.HBp hC.HBp S.D' hDC'
-    (S.dataUC (S.psiAtC 1 x)) hh hDC
   have htan : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' (S.dataUC (S.psiAtC 1 x)) =
-      liftC S.hG' (S.shiftUC x) := by
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D'
+      (S.dataUC (S.psiAtC 1 x)) = liftC S.hG' (S.hatField S.covSqrtC (yhat x)) := by
     rw [S.compTangent_dataUC, S.psiAtC_one_sub]
-  have hq := quad_identityC S.hG S.hG' S.a S.a₁ S.ν (bgMultC S.G' S.a S.ν (bgC0 d L N) S.D')
-    (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') (S.shiftUC x)
-  have hK := S.quad_shiftUC hC hMX hdm hα hsm hD x
-  have hcov : covOp S.G' S.a S.a₁ S.ν (bgMultC S.G' S.a S.ν (bgC0 d L N) S.D')
-      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')) (unitQ S.G') (unitP S.G') =
-      S.covAC := rfl
-  rw [hcov, hK, ← htan] at hq
-  have hc2 : (S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 = S.betaU⁻¹ := by
-    rw [← Real.rpow_natCast, ← Real.rpow_mul hβU.le]
-    norm_num
-    exact Real.rpow_neg_one S.betaU
-  have hL' : (0 : ℝ) < L := by exact_mod_cast hL
-  have hLk : (0 : ℝ) < (L : ℝ) ^ k := by positivity
-  have hbeta : S.betaU = S.β * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) := by
-    unfold betaU; ring
-  have key : (((1 / 2) * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) : ℝ)) *
-      ((S.betaU ^ (-(1 / 2 : ℝ))) ^ 2 * ∑ b : S.U, ‖x b‖ ^ 2) =
-      1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 := by
-    rw [hc2, hbeta]
-    have : 0 < ((L : ℝ) ^ k) ^ d := by positivity
-    field_simp
-  have hqq : couplingC S.G' S.a₁ (k + 1) (fun _ _ => 0)
-        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')
-          S.D' (S.dataUC (S.psiAtC 1 x))) +
-      (1 / 2 : ℂ) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) S.D') (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')
-        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')
-          S.D' (S.dataUC (S.psiAtC 1 x))) =
-      ((1 / (2 * S.β) * ∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) := by
-    rw [hq, ← key]
-    push_cast
-    ring
-  unfold AoldC AnewC VkC
-  linear_combination hexp + hqq
+    rfl
+  exact S.action_expansion_core hC hMX hdm hα hsm ha₁ hc7 hβ
+    S.D' hD (S.dataUC (S.psiAtC 1 x)) hDC hh x htan
 
 include hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hδ₁ hD in
 /-- **The integrand of the fluctuation integral on the complex path** (the complex form of
@@ -461,21 +569,26 @@ theorem integrandC_eq (g : Fld d L N₁ m₁ (k + 1) N) (x : S.E) (hx : chiFl S.
       S.PconstC C g * ((gaussWeight S.U N x : ℝ) : ℂ) *
         Complex.exp (S.WoneC C 1 x + S.WtwoC C g 1 x) := by
   have hJ := S.JbgC_expansion hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hδ₁ hD x hx
-  have hβc : (S.β : ℂ) ≠ 0 := by exact_mod_cast hβ.ne'
-  have hJ2 : (S.β : ℂ) * (couplingC S.G' S.a₁ (k + 1) S.D'.Ψ (S.dataUC (S.psiAtC 1 x)).Ψ +
-      S.AoldC (S.psiAtC 1 x)) =
-      (S.β : ℂ) * S.AnewC + ((∑ b : S.U, ‖x b‖ ^ 2 : ℝ) : ℂ) / 2 +
-        (S.β : ℂ) * S.VkC (S.psiAtC 1 x) := by
-    rw [hJ]
-    push_cast
+  have hJ' : couplingC S.G' S.a₁ (k + 1) S.D'.Ψ
+        (S.dataUC (S.psiAtC 1 x)).Ψ + S.AoldC (S.psiAtC 1 x) =
+      S.AnewC + (((∑ b : S.U, ‖x b‖ ^ 2) / (2 * S.β) : ℝ) : ℂ) +
+        S.VkC (S.psiAtC 1 x) := by
+    convert hJ using 1
+    congr 1
     field_simp
-  unfold tKernelC rhoExpC PconstC WoneC WtwoC gaussWeight
-  rw [S.dEC_eq, S.dFC_eq, Complex.ofReal_exp, mul_assoc, mul_assoc, mul_assoc]
-  congr 1
-  rw [← Complex.exp_add, ← Complex.exp_add, ← Complex.exp_add]
-  congr 1
-  push_cast at hJ2 ⊢
-  linear_combination (-1 : ℂ) * hJ2
+  have hcore := integrand_of_action_expansion_core S.β
+    (∑ b : S.U, ‖x b‖ ^ 2) hβ.ne'
+    ((((S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) : ℝ) : ℂ))
+    (couplingC S.G' S.a₁ (k + 1) S.D'.Ψ (S.dataUC (S.psiAtC 1 x)).Ψ)
+    (S.AoldC (S.psiAtC 1 x)) S.AnewC (S.VkC (S.psiAtC 1 x))
+    (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataUC (S.psiAtC 1 x)))
+    (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC)
+    (FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (S.dataUC (S.psiAtC 1 x)) g)
+    (FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC g)
+    ((C.Ek : ℂ) * (S.nU : ℂ)) hJ'
+  unfold tKernelC rhoExpC PconstC WoneC WtwoC
+  rw [S.dEC_eq, S.dFC_eq]
+  simpa only [gaussWeight, neg_mul, add_assoc] using hcore
 
 /-! ### Proposition 2.6 at a complex datum -/
 
