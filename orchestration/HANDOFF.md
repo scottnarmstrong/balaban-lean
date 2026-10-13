@@ -15,7 +15,6 @@ Claude workers (background subagents of this session):
 | W458 | `w458-direct-terms-formula` / W458 | ray clause through the direct-terms construction — edits landed files by strengthening only |
 | W465 (Opus) | `w465-activity-family-analytic` / W465 | analytic activity family with W identity; zero-source family on common root labels |
 | W468 | `w468-obs-marks-family` / W468 | observable marks record at the tower, conditional on ray holomorphy (STEPSTATEMENT 5) |
-| W469 | `w469-tower-two-radii` / W469 | tower with two chart radii; determinant part of E0θ on the renormalization domain |
 | W471 | `w471-decmark-blocks` / W471 | marks: block locality of the decoupled marks (MARKDEP 1) |
 | W472 | `w472-decmark-total` / W472 | marks: decoupled marks sum to the physical mark on the slice (MARKDEP 2) |
 | W473 | `w473-mark-budget-audit` / W473 | marks: numerical audit of the Theorem 3.1(c) budget (MARKDEP 4) |
