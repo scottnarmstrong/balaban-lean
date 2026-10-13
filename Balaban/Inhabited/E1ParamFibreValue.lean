@@ -34,6 +34,14 @@ choice of the pairs and of the activity serves every root and every datum.
   interpolation coefficient is the parameter coefficient `gsumCoeff` at `θ′`.
 * `e1Param_fibre_value_of_fields_fromTower`: the local energy term of the step with the datum `D′`
   is the sum of the parameter coefficients at `θ′`.
+
+**On the statements.**  The step is a variable `S` with `hS : S = T.step k hk N₁ ν β p₁`.  The
+objects of `S.withDatum D′` and of `S` that do not depend on the datum (`nuFl`, `blockSplit`,
+`blockU`, `G'`, `a₁`, `ν`, `β`, the label domains `e1Dom`) are equal by unfolding `withDatum`
+only; the record is therefore stated with the block split `(S.withDatum D′).blockSplit 1 hp`
+(the same block split, `withDatum_blockSplit`), and the proofs give every argument explicitly
+where the two forms meet.  The proofs `hN3 : 3 ^ 1 ∣ N₁`, `hL : 2 ≤ 3` and `hdj` of the common
+label system are hypotheses, so that the statements contain no tactic blocks.
 -/
 
 @[expose] public section
