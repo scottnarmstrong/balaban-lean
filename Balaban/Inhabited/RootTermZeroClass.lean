@@ -94,7 +94,7 @@ theorem rootTermFamily_obs_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ :
       subst hS
       exact obsDomains_isDj (X₁f := LocalCover.nbhdF 1 y) _ le_rfl
         (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1)
-    exact ⟨(hfam T').1, (hfam T').2.2.1, (hfam T').2.2.2⟩
+    exact ⟨(hfam T').1, (hfam T').2.2.1, (hfam T').2.2.2.1⟩
   have hb : ∀ y i, ∃ b : ℝ, ∀ T', ∀ θ ∈ physVq S S.a₁ S.ν T.t 1,
       ‖mObs y i θ T'‖ ≤ b * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
     intro y i
