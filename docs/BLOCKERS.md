@@ -89,6 +89,12 @@ incidence restriction excludes such links.
 
 Details: `notes/phase1/VMOD-40.md` to `VMOD-42.md`. Item 16.
 
+A comparison with Dimock's large-field papers (`notes/phase1/LFDIMOCK.md`) found no direct substitute for the
+missing payment in blockers 3 and 4, but a possible route that does not depend on the author's answer:
+show that every coefficient linking across a retained hole is rooted in the new active region (as in
+Dimock's localization), and that the large-field gas factorizes conditionally on the retained spins.
+Both statements are being checked.
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The

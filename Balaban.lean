@@ -68,6 +68,7 @@ public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.TwoTorusCoef
 public import Balaban.Polymer.TwoTorusE1Coef
+public import Balaban.Polymer.TwoTorusDirectTerms
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1700,6 +1701,7 @@ public import Balaban.Fluctuation.RenormLocC2Zero
 public import Balaban.Inhabited.RenormLocC2ZeroTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Inhabited.SourceExponentFamily
+public import Balaban.Inhabited.SourceExponentProp26JZero
 public import Balaban.Fluctuation.ObsRayBase
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
