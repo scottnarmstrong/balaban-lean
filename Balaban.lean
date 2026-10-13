@@ -1644,6 +1644,7 @@ public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.StepOutputPhysical
+public import Balaban.Inhabited.StepOutputPhysicalG
 public import Balaban.Fluctuation.DetGroupedAnalytic
 public import Balaban.Correlations.C1StarLimits
 public import Balaban.Fluctuation.ObsMarksAssembly
