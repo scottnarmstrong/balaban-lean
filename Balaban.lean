@@ -1623,3 +1623,4 @@ public import Balaban.Inhabited.RenormThetaDatumWitness
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.StepPiecesRenSol
+public import Balaban.Fluctuation.RenormDetFibreMap
