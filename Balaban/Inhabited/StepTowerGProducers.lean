@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerRenSol
+public import Balaban.Inhabited.StepTowerThetaG
 public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerRenEndG
 public import Balaban.Inhabited.StepTowerRenG
@@ -20,11 +21,12 @@ import Mathlib.Tactic.Positivity
 /-!
 # The producers of the general towers
 
-One proof, `exists_stepTowerRenSolG`, shows that `StepTowerRenSolG d L N κmin` is inhabited for
+One proof, `exists_stepTowerThetaG`, shows that `StepTowerThetaG d L N κmin` is inhabited for
 every cover index `m₀ ≥ 1` and every requested output-rate floor: the rates are chosen first, then
-the radius `r₀` is decreased (`StepTowerRenG.shrink`) until the endpoint and solution margins hold.
-The producers of `StepTowerRenEndG`, `StepTowerRenG` and the fixed `3, 3, 2` records
-(`StepTower`, `StepTowerRen`, `StepTowerRenEnd`, `StepTowerRenSol`) are corollaries.
+the radius `r₀` is decreased (`StepTowerRenG.shrink`) until the endpoint, solution and chart-radius margins hold.
+The producers of `StepTowerRenSolG`, `StepTowerRenEndG`, `StepTowerRenG` and the fixed `3, 3, 2` records
+(`StepTower`, `StepTowerRen`, `StepTowerRenEnd`, `StepTowerRenSol`) are corollaries; so are the fixed
+`StepTowerTheta` producers in `Balaban.Inhabited.StepTowerTheta`.
 -/
 
 @[expose] public section
@@ -35,18 +37,23 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep
 
-/-- **The general record with the solution margins is inhabited**, with cover index `m₀` and
-output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`. -/
-theorem exists_stepTowerRenSolG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
+/-- **The general record with the determinant data at the doubled radius is inhabited**, with
+cover index `m₀` and output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`.  This is the single
+long producer of the chain. -/
+theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
     (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
-    ∃ T : StepTowerRenSolG d L N κmin, T.m₀ = m₀ ∧
+    ∃ T : StepTowerThetaG d L N κmin, T.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
       (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
   classical
-  obtain ⟨R, hm, hent, h0, hs⟩ : ∃ R : StepTowerRenG d L N κmin, R.m₀ = m₀ ∧
+  obtain ⟨R, hm, hent, h0, hs, hC2, hdm2, hα2⟩ : ∃ R : StepTowerRenG d L N κmin, R.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * R.κdec ∧
       (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → R.κ0 = aEnt d L + 2) ∧
-      bgK1 d L N * (xiC1 d * R.t) < deltaStar d L N := by
+      bgK1 d L N * (xiC1 d * R.t) < deltaStar d L N ∧
+      Nonempty (FlCore N (GpG d L 9 R.m₁ 1) (HmG d L 9 R.m₁ 1) 1 (νref L) R.c R.BG R.κ (2 * R.t)
+        (levelKc d L) (Cchi d L) R.c₂ R.BG₂ (2 * R.t)) ∧
+      decDomMargin d L N R.BG R.κ (xiC1 d * (2 * R.t)) < R.δc ∧
+      K4 d L N R.BG R.κ * (xiC1 d * (2 * R.t)) < coerciveConst d / 2 := by
     classical
     obtain ⟨-, δ, δ', -, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, -⟩ :=
       exists_witness_params_general d L N (by omega) (by omega) (fun _ => 0)
@@ -64,8 +71,8 @@ theorem exists_stepTowerRenSolG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 
     have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
     set κm : ℝ := max κmin (max (4 * Real.log A + 2) (2 * d * L * κ' + D + 1)) with hκmdef
     obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, hCn, hκ0n, hκdec, hκ, h1, -, hc7,
-      hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0, hmin, hmar, hsol⟩ :=
-      tower_core_rates_renSol_general (d := d) (L := L) N hd hL (ν := νref L)
+      hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0, hmin, hmar, hsol, hC2, hdm2, hα2⟩ :=
+      tower_core_rates_two_general (d := d) (L := L) N hd hL (ν := νref L)
         (by unfold νref; positivity)
         (by
           unfold νref
@@ -120,7 +127,7 @@ theorem exists_stepTowerRenSolG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 
       δ'_cap := hδ'a, δ'_step := hδ'b, δ'_coer := hδ'c, block_base := hbig, xi_small := hxi1
       rho_nonneg := hρ, det_z := hz, det_rate := hrate
       ren_margin := hmar, r₀ := r₀, r₀_pos := hr0, r₀_le := hr1, D₀_le_one := hD0
-      D₀_le_star := hDs, D₁_le_star := hD1 }, rfl, ?_, ?_, hsol⟩
+      D₀_le_star := hDs, D₁_le_star := hD1 }, rfl, ?_, ?_, hsol, hC2, hdm2, hα2⟩
     · show entropyLoss + c1 d L * κroot ≤ 3 / 2 * κdec
       rw [hκdecdef]
       linarith
@@ -148,25 +155,53 @@ theorem exists_stepTowerRenSolG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 
     mul_nonneg hK2 hcoef
   set A := cK2' d L N (famConst d L R.BG R.κ) *
       ((3 / 2 + 32 / 15 * (3 + (K4 d L N R.BG R.κ + bgK1 d L N) * xiC1 d)) * R.t) with hAdef
+  have hX : 0 < xiK2 d L N := by
+    have := cK2_pos d L N
+    unfold xiK2; positivity
   have hP : 0 < min (c6 d L N) (min (deltaStar d L N - bgK1 d L N * (xiC1 d * R.t))
-      (deltaStar d L N)) := lt_min hc6 (lt_min hsp hds)
-  obtain ⟨r, hr0, hr1, -, hr2, -⟩ := exists_radius_margins (A := A + 3 + 8 * R.t)
-    (by positivity) hP hP R.r₀_pos R.r₀_pos
-  have hm1 := (min_le_left _ _).trans' hr2
-  have hm2 : (A + 3 + 8 * R.t) * r ≤ deltaStar d L N - bgK1 d L N * (xiC1 d * R.t) :=
+      (min (deltaStar d L N) 1)) := lt_min hc6 (lt_min hsp (lt_min hds one_pos))
+  obtain ⟨r, hr0, hr1, -, hr2, -⟩ :=
+    exists_radius_margins (A := A + 3 + 8 * R.t + xiK2 d L N * (3 / 2))
+      (by positivity) hP hP R.r₀_pos R.r₀_pos
+  have hm1 : (A + 3 + 8 * R.t + xiK2 d L N * (3 / 2)) * r ≤ c6 d L N :=
+    hr2.trans (min_le_left _ _)
+  have hm2 : (A + 3 + 8 * R.t + xiK2 d L N * (3 / 2)) * r ≤
+      deltaStar d L N - bgK1 d L N * (xiC1 d * R.t) :=
     hr2.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have hm3 : (A + 3 + 8 * R.t) * r ≤ deltaStar d L N :=
-    hr2.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hm3 : (A + 3 + 8 * R.t + xiK2 d L N * (3 / 2)) * r ≤ deltaStar d L N :=
+    hr2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
+  have hm4 : (A + 3 + 8 * R.t + xiK2 d L N * (3 / 2)) * r ≤ 1 :=
+    hr2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
   have h1 : 0 ≤ A * r := mul_nonneg hA hr0.le
   have h2 : 0 ≤ R.t * r := mul_nonneg ht.le hr0.le
-  refine ⟨{ R.shrink r hr0 hr1 with end_margin := ?_, sol_margin := hs, sol_K := ?_, sol_ζ := ?_ },
-    hm, hent, h0⟩
+  have h3 : 0 ≤ xiK2 d L N * (3 / 2) * r := by positivity
+  refine ⟨{ R.shrink r hr0 hr1 with
+    end_margin := ?_
+    sol_margin := hs
+    sol_K := ?_
+    sol_ζ := ?_
+    core2 := hC2
+    dom_margin2 := hdm2
+    coer_margin2 := hα2
+    r₀_xi := ?_ }, hm, hent, h0⟩
   · simp only [StepTowerRenG.shrink]
     have : A * r ≤ c6 d L N := by nlinarith
     calc _ = A * r := by rw [hAdef]; ring
       _ ≤ c6 d L N := this
   · simp only [StepTowerRenG.shrink]; nlinarith
   · simp only [StepTowerRenG.shrink]; nlinarith
+  · simp only [StepTowerRenG.shrink]; nlinarith
+
+/-- **The general record with the solution margins is inhabited**, with cover index `m₀` and
+output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`. -/
+theorem exists_stepTowerRenSolG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
+    (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
+    ∃ T : StepTowerRenSolG d L N κmin, T.m₀ = m₀ ∧
+      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
+      (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
+  obtain ⟨T, hm, hent, h0⟩ :=
+    exists_stepTowerThetaG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
+  exact ⟨T.toStepTowerRenSolG, hm, hent, h0⟩
 
 /-- **The general record with the endpoint margin is inhabited**, with cover index `m₀` and
 output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`. -/

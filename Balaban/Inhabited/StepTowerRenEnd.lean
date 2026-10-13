@@ -18,7 +18,7 @@ import Mathlib.Tactic.Positivity
 
 `StepTowerRenEnd κmin` extends `StepTowerRen κmin` by the margin
 `K₂'(B_fam) (b_* t r₀) ≤ c₆` (the sharp bound at radius `r₀` fits in the ball `c₆`).
-`StepTowerRen.shrink` shows that all landed margins persist when `r₀` decreases.
+`StepTowerRenG.shrink` (general) shows that all landed margins persist when `r₀` decreases.
 
 At every scale of such a tower, `renDec_one_unique_sharp_scale_of_tower` gives the endpoint
 `s = 1` and `renDec_pertClass_scale_of_tower` the class bound at `c_K = renCK`, `B = 8 t`, with no
@@ -48,27 +48,6 @@ theorem StepTowerRen.coef_nonneg {κmin : ℝ} (R : StepTowerRen κmin) :
   have hX : 0 ≤ xiC1 3 := by unfold xiC1; positivity
   have := R.t_pos
   positivity
-
-/-- **The margins of the record persist when `r₀` decreases.** -/
-def StepTowerRen.shrink {κmin : ℝ} (R : StepTowerRen κmin) (r : ℝ) (hr0 : 0 < r)
-    (hr : r ≤ R.r₀) : StepTowerRen κmin :=
-  { R with
-    r₀ := r
-    r₀_pos := hr0
-    r₀_le := hr.trans R.r₀_le
-    D₀_le_one := by have := R.D₀_le_one; linarith
-    D₀_le_star := by have := R.D₀_le_star; linarith
-    D₁_le_star := by
-      have h := R.D₁_le_star
-      have hb := R.coef_nonneg
-      have : (3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * r ≤
-          (3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * R.r₀ :=
-        mul_le_mul_of_nonneg_left hr hb
-      linarith }
-
-/-- The shrunk record has the same constants. -/
-@[simp] theorem StepTowerRen.shrink_r₀ {κmin : ℝ} (R : StepTowerRen κmin) (r : ℝ) (hr0 : 0 < r)
-    (hr : r ≤ R.r₀) : (R.shrink r hr0 hr).r₀ = r := rfl
 
 /-- The shared tower with the renormalization margins and the endpoint margin. -/
 structure StepTowerRenEnd (κmin : ℝ) extends StepTowerRen κmin where
