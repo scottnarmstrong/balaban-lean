@@ -1647,6 +1647,7 @@ public import Balaban.Inhabited.ZeroSourceActivityCommon
 public import Balaban.Inhabited.ObsMarksFromTower
 public import Balaban.Inhabited.ObsKernelFromTower
 public import Balaban.Inhabited.Thm31bFromTower
+public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.SourceWitnessJoint
