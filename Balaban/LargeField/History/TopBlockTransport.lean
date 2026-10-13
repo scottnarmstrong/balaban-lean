@@ -452,4 +452,111 @@ theorem chiDomAt_pair_bounds {m₁ j : ℕ}
 
 end Factor
 
+section Small
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ)
+
+/-- **T4, the cube conditions.**  If `χ_{j+1}(Y) ≠ 0` (it is a product of indicator functions
+over the cubes of `Y`, `SFCtx.chiY`), then for every cube `y₀` of `Y` the condition `χ_{j+1}(y₀)`
+holds: `Reg_{j+1}(G_{j+1}(y₀), lift ψ_{j+1}, δ_{j+1}; T(y₀^∼), S(y₀^∼))` for the data
+`cubeData` of the cube, with the block field `blockCfgOf ψ_{j+1}` of the history. -/
+theorem chiKProp_of_chiY_ne_zero (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0) {y₀ : Torus S.d (n (j + 1))} (hy₀ : y₀ ∈ cubeFin Y) :
+    ChiKProp (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1) (N := N)
+      Cx.weights (Cx.cs.mu (j + 1)) (Cx.cs.delta (j + 1)) (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+      (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk) := by
+  by_contra hP
+  apply (Finset.prod_ne_zero_iff.1 h) y₀ hy₀
+  exact charFn_eq_zero hP
+
+/-- **T4, `BlockClose` and `GradClose`.**  Under `χ_{j+1}(Y) ≠ 0`, for a cube `y₀` of `Y`, the
+data `Ψ = lift ψ_{j+1}` of the single cube `y₀` and the background `φ` of the generating set
+`G_{j+1}(y₀) = 𝔹_{j+1}(y₀^{∼2})` satisfy `|Ψ(x) - (Qφ)(x)| < δ_{j+1}` (`BlockClose`) on the sites
+`x` over the cubes of `y₀^∼`, and `ℓ|∂φ̄|, ℓ²|Δφ̄|, ℓ²|α| < δ_{j+1}` (`GradClose`) at the sites of
+`Ω₁(G_{j+1}(y₀))` over those cubes.  Both statements concern the background of the cube
+`G_{j+1}(y₀)`, not the background of `G_{j+1}`; the `InUnionDomainR` conjunct of `Reg` is not used. -/
+theorem chiY_ne_zero_blockClose_gradClose (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0) {y₀ : Torus S.d (n (j + 1))} (hy₀ : y₀ ∈ cubeFin Y) :
+    BlockClose
+        (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          Cx.geo.c (n (j + 1)) y₀)
+        (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          (fun i => hv i) Cx.geo.c (n (j + 1)) y₀ (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk))
+        (bgFieldC
+          (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            Cx.geo.c (n (j + 1)) y₀)
+          Cx.weights (Cx.cs.mu (j + 1)) (bgC0 S.d S.L N)
+          (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+            (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)))
+        (cubeNbhd Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1) Cx.geo.c (n (j + 1)) 1 y₀)
+        (Cx.cs.delta (j + 1)) ∧
+      GradClose
+        (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          Cx.geo.c (n (j + 1)) y₀)
+        (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          (fun i => hv i) Cx.geo.c (n (j + 1)) y₀ (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk))
+        (bgFieldC
+          (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            Cx.geo.c (n (j + 1)) y₀)
+          Cx.weights (Cx.cs.mu (j + 1)) (bgC0 S.d S.L N)
+          (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+            (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)))
+        (bgMultC
+          (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            Cx.geo.c (n (j + 1)) y₀)
+          Cx.weights (Cx.cs.mu (j + 1)) (bgC0 S.d S.L N)
+          (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+            (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)))
+        ((S.L : ℝ) ^ (j + 1))
+        (cubeNbhd Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1) Cx.geo.c (n (j + 1)) 1 y₀)
+        (Cx.cs.delta (j + 1)) :=
+  let hK := chiKProp_of_chiY_ne_zero Cx Y ψk hv h hy₀
+  ⟨hK.2.1, hK.2.2.1⟩
+
+/-- **T4, the datum sites over the stencil.**  Under `χ_{j+1}(Y) ≠ 0`, for a cube `y₀` of `Y` and
+a site `s` of the level-`(j+1)` torus (in particular any datum site of `G_{j+1}`) over a cube
+within one cube of `y₀`, `|Ψ(s) - (Qφ)(s)| < δ_{j+1}` for the data and background of the
+cube `y₀`. -/
+theorem blockDev_lt_of_chiY_ne_zero (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0) {y₀ : Torus S.d (n (j + 1))} (hy₀ : y₀ ∈ cubeFin Y)
+    {s : BgT Cx.geo (j + 1)}
+    (hs : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s ∈ nbhd 1 {y₀}) :
+    blockDev
+        (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          Cx.geo.c (n (j + 1)) y₀)
+        (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+          (fun i => hv i) Cx.geo.c (n (j + 1)) y₀ (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk))
+        (bgFieldC
+          (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            Cx.geo.c (n (j + 1)) y₀)
+          Cx.weights (Cx.cs.mu (j + 1)) (bgC0 S.d S.L N)
+          (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+            (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+            (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk))) s < Cx.cs.delta (j + 1) :=
+  (chiY_ne_zero_blockClose_gradClose Cx Y ψk hv h hy₀).1 s (mem_cubePre.2 hs)
+
+/-- The data of the cube `y₀` and the data of `G_{j+1}` coincide at a site which is a data site of
+both: both read `ψ_{j+1}` at the top-scale block of the site. -/
+theorem cubeData_Ψ_eq_liftSingle_Ψ (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (y₀ : Torus S.d (n (j + 1))) {s : BgT Cx.geo (j + 1)}
+    (hs₁ : s ∈ dataSites (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
+      (q := j + 1) Cx.geo.c (n (j + 1)) y₀))
+    (hs₂ : s ∈ dataSites (Cx.genW Y)) :
+    (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
+        (fun i => hv i) Cx.geo.c (n (j + 1)) y₀ (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)).Ψ s =
+      (liftSingle (Cx.genW Y) (Cx.liftData ψk) (hC hv)).Ψ s := by
+  unfold cubeData
+  rw [liftSingle_Ψ _ _ _ hs₁, liftSingle_Ψ _ _ _ hs₂]
+  rfl
+
+end Small
+
 end Balaban.LargeField
