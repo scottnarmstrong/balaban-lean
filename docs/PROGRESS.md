@@ -29,7 +29,7 @@ separate line below.
 | Background fields | P2, E5 | 90% | Existence, uniqueness, analyticity and decay of the constrained minimizer on multiscale generating sets; its local dependence on the data. | Generating sets adapted to a single polymer (blocker 6). |
 | Localization expansions | P3, P6 | 75% | Expansion of background-dependent quantities into local terms; decoupling; the localized fluctuation solution and covariance; exact locality of each term on its own domain. | Analyticity on the local domains (blocker 6); the version for inherited boundary terms (blocker 3). |
 | One step, no inherited terms | P4–P6 | 96% | The step identity for the next density. Analytic, bounded and exactly local coefficient families for the new energy and observable terms. The renormalization of the new terms, with one solution for all sources. The combined statement at every scale, with constants independent of the scale. All of it at every datum with constant external field. | Identification of two representations of the energy bound. |
-| One step, space-dependent external field | P1 (H.4)–(H.7) | 30% | The setting with a free datum; at a free datum: the critical point, tangent and fluctuation path, the raw step functions, the action expansion and the pointwise integrand; the generic interpolation algebra of the step identity. | The step identity and the coefficient values at a non-constant field. |
+| One step, space-dependent external field | P1 (H.4)–(H.7) | 45% | The setting with a free datum; at a free datum: the critical point, tangent and fluctuation path, the raw step functions, the action expansion and the pointwise integrand; the step identity itself at a free datum (under explicit regularity and nonvanishing hypotheses). | The regularity input at a free datum; the coefficient values at a non-constant field. |
 | General inherited terms and the small-field induction | P4, P5 | 30% | The step identity and the activity bound for an arbitrary class member, under explicit hypotheses on its inherited terms; the split of the step into new terms and inherited terms; the inherited energy and observable terms as inputs of the step, given the chart inclusion and a composition identity on local generating sets. | The inherited terms as inputs of the expansion; the next class member; reality and symmetry clauses; the induction itself. |
 | First step from the unit lattice | P4 (2.42)–(2.54) | 25% | The block-averaged density, the hemisphere chart identity, the physical cutoff with its support at the background centre, the chart integrand at the variable centre, the identification of the lifted action with the physical one, and the constrained chord identity with the Gaussian/remainder split of the exponent. | The Hessian in the chart integral; covariance, energy and observable terms of the first step; its large-field components. |
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
@@ -47,7 +47,7 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit b2a889ce 2026-10-13.
+Computed at commit 1a629f38 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
@@ -57,11 +57,11 @@ Computed at commit b2a889ce 2026-10-13.
 | Background fields and generating sets (P2) | 110 | 39,057 | 2,078 |
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
 | Small-field class (P1, P4, P5) | 121 | 37,950 | 1,945 |
-| Fluctuation step and renormalization (P4-P6) | 421 | 135,296 | 4,837 |
-| Instantiated step at fixed parameters | 247 | 63,849 | 2,197 |
+| Fluctuation step and renormalization (P4-P6) | 422 | 135,594 | 4,842 |
+| Instantiated step at fixed parameters | 250 | 64,438 | 2,213 |
 | Large-field regions (P5-P7, E9-E10) | 475 | 128,987 | 7,279 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1903** | **568,523** | **26,328** |
+| **Total** | **1907** | **569,410** | **26,349** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
