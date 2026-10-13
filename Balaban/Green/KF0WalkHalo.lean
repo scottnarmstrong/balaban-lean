@@ -584,6 +584,83 @@ theorem kf0_walk_factor_hasSum {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ :
   rw [hsum_eq]
   exact hasSum_fintype _
 
+/-- **The walk terms sum to the monomial.**  On the event `sup ‖ψ‖ ≤ p` the walk terms are
+absolutely summable over all tuples of walks, with sum `∏_i ℓ_i(u_{x_i})`, `u = β^{-1/2} C ψ`. -/
+theorem kf0WalkTerm_hasSum {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ} (hγ : 0 ≤ γ)
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) (β : ℝ) {p : ℝ} (hp0 : 0 ≤ p)
+    (x : ι → Torus d m) (ℓ : ι → W →L[ℝ] 𝕜) (hℓ : ∀ i, ‖ℓ i‖ ≤ 1)
+    (ψ : Torus d m → W) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    Summable (fun ω : ι → KF0Walk d => ‖kf0WalkTerm d m ν β x ℓ ω ψ‖) ∧
+      HasSum (fun ω => kf0WalkTerm d m ν β x ℓ ω ψ)
+        (∏ i, ℓ i ((Real.sqrt β)⁻¹ • matAct (kf0C d m ν) ψ (x i))) := by
+  let f : ι → KF0Walk d → 𝕜 := fun i w =>
+    ((kf0WalkWt d ν β w.1 : ℝ) : 𝕜) * ℓ i (ψ (walkEnd (x i) w))
+  have hf := fun i => kf0_walk_factor_hasSum (d := d) (m := m) (ν := ν) hg hgν hγ hq β hp0
+    (x i) (ℓ i) (hℓ i) ψ hp
+  obtain ⟨h1, h2⟩ := pi_prod_summable_hasSum (𝕜 := 𝕜) ι f fun i => (hf i).1
+  refine ⟨h1.congr fun ω => by unfold kf0WalkTerm; exact (norm_prod _ _).symm, ?_⟩
+  rw [Finset.prod_congr rfl fun i _ => (hf i).2.tsum_eq] at h2
+  exact h2
+
+/-- **Weighted pointwise bound with the block count.**  If `κ ≥ 0` and `γ ≥ κ 3^d / s`, then
+`e^{κ k_s(H)} ‖term‖ ≤ e^{κ 3^d r} · bound` on the event `sup ‖ψ‖ ≤ p`. -/
+theorem kf0WalkTerm_blockweight_le {ν : ℝ} (hν : 0 < ν) {s m' : ℕ} [NeZero m'] (hs : 0 < s)
+    (hm : m = s * m') {κ γ : ℝ} (hκ : 0 ≤ κ) (hγ : κ * 3 ^ d / s ≤ γ) (β p : ℝ)
+    (x : ι → Torus d m) (ℓ : ι → W →L[ℝ] 𝕜) (hℓ : ∀ i, ‖ℓ i‖ ≤ 1) (ω : ι → KF0Walk d)
+    (ψ : Torus d m → W) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    Real.exp (κ * kf0BlockCount s m' (walkHalo x ω)) * ‖kf0WalkTerm d m ν β x ℓ ω ψ‖ ≤
+      Real.exp (κ * 3 ^ d * Fintype.card ι) * kf0WalkBound d ν β γ p ω := by
+  have hk := kf0BlockCount_walkHalo_le_real hs hm x ω
+  have hs' : (0 : ℝ) < s := by exact_mod_cast hs
+  have hN : (0 : ℝ) ≤ ∑ i, ((ω i).1 : ℝ) := Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _
+  have h1 : κ * (kf0BlockCount s m' (walkHalo x ω) : ℝ) ≤
+      κ * 3 ^ d * Fintype.card ι + γ * ∑ i, ((ω i).1 : ℝ) := by
+    have e : κ * (3 ^ d * ((Fintype.card ι : ℝ) + (∑ i, ((ω i).1 : ℝ)) / s)) =
+        κ * 3 ^ d * Fintype.card ι + (κ * 3 ^ d / s) * ∑ i, ((ω i).1 : ℝ) := by ring
+    have := mul_le_mul_of_nonneg_left hk hκ
+    have h2 := mul_le_mul_of_nonneg_right hγ hN
+    linarith
+  have h3 : Real.exp (κ * kf0BlockCount s m' (walkHalo x ω)) ≤
+      Real.exp (κ * 3 ^ d * Fintype.card ι) * Real.exp (γ * ∑ i, ((ω i).1 : ℝ)) := by
+    rw [← Real.exp_add]; exact Real.exp_le_exp.2 h1
+  have h4 := kf0WalkTerm_weighted_le_basic hν β γ p x ℓ hℓ ω ψ hp
+  calc _ ≤ (Real.exp (κ * 3 ^ d * Fintype.card ι) * Real.exp (γ * ∑ i, ((ω i).1 : ℝ))) *
+        ‖kf0WalkTerm d m ν β x ℓ ω ψ‖ := mul_le_mul_of_nonneg_right h3 (norm_nonneg _)
+    _ = Real.exp (κ * 3 ^ d * Fintype.card ι) *
+        (Real.exp (γ * ∑ i, ((ω i).1 : ℝ)) * ‖kf0WalkTerm d m ν β x ℓ ω ψ‖) := by ring
+    _ ≤ _ := mul_le_mul_of_nonneg_left h4 (Real.exp_pos _).le
+
+/-- **(F.8), monomial form.**  For `κ ≥ 0`, `γ ≥ κ 3^d / s` and `q e^γ < 1`,
+`∑_ω e^{κ k_s(H_ω)} ‖term_ω‖ ≤ (e^{κ 3^d} p A_γ / √β)^r` on the event `sup ‖ψ‖ ≤ p`. -/
+theorem kf0WalkTerm_blockweight_summable {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ}
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) {s m' : ℕ} [NeZero m'] (hs : 0 < s)
+    (hm : m = s * m') {κ : ℝ} (hκ : 0 ≤ κ) (hγ : κ * 3 ^ d / s ≤ γ) (β : ℝ) {p : ℝ}
+    (hp0 : 0 ≤ p) (x : ι → Torus d m) (ℓ : ι → W →L[ℝ] 𝕜) (hℓ : ∀ i, ‖ℓ i‖ ≤ 1)
+    (ψ : Torus d m → W) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    Summable (fun ω : ι → KF0Walk d =>
+      Real.exp (κ * kf0BlockCount s m' (walkHalo x ω)) * ‖kf0WalkTerm d m ν β x ℓ ω ψ‖) ∧
+    ∑' ω : ι → KF0Walk d,
+        Real.exp (κ * kf0BlockCount s m' (walkHalo x ω)) * ‖kf0WalkTerm d m ν β x ℓ ω ψ‖ ≤
+      (Real.exp (κ * 3 ^ d) * (p * kf0WalkA d g γ / Real.sqrt β)) ^ Fintype.card ι := by
+  have hν : 0 < ν := lt_of_lt_of_le hg hgν
+  obtain ⟨h1, h2⟩ := kf0WalkBound_summable (ι := ι) (d := d) hg hgν hq β hp0
+  have hle := fun ω => kf0WalkTerm_blockweight_le (m := m) hν hs hm hκ hγ β p x ℓ hℓ ω ψ hp
+  have hnn : ∀ ω : ι → KF0Walk d, 0 ≤ Real.exp (κ * kf0BlockCount s m' (walkHalo x ω)) *
+      ‖kf0WalkTerm d m ν β x ℓ ω ψ‖ := fun ω => mul_nonneg (Real.exp_pos _).le (norm_nonneg _)
+  have hs1 := h1.mul_left (Real.exp (κ * 3 ^ d * Fintype.card ι))
+  refine ⟨Summable.of_nonneg_of_le hnn hle hs1, ?_⟩
+  calc _ ≤ ∑' ω : ι → KF0Walk d, Real.exp (κ * 3 ^ d * Fintype.card ι) *
+        kf0WalkBound d ν β γ p ω :=
+        (Summable.of_nonneg_of_le hnn hle hs1).tsum_le_tsum hle hs1
+    _ = Real.exp (κ * 3 ^ d * Fintype.card ι) * ∑' ω, kf0WalkBound (ι := ι) d ν β γ p ω :=
+        tsum_mul_left
+    _ ≤ Real.exp (κ * 3 ^ d * Fintype.card ι) * (p * kf0WalkA d g γ / Real.sqrt β) ^ Fintype.card ι :=
+        mul_le_mul_of_nonneg_left h2 (Real.exp_pos _).le
+    _ = _ := by
+        have e : Real.exp (κ * 3 ^ d * Fintype.card ι) = Real.exp (κ * 3 ^ d) ^ Fintype.card ι := by
+          rw [mul_comm, Real.exp_nat_mul]
+        rw [e, mul_pow]
+
 end Terms
 
 end Balaban.Green
