@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
 module
 
 public import Balaban.LargeField.Base.BaseComponentDeterminant
@@ -126,6 +131,8 @@ theorem lintegral_tangent_gaussian_real {ι : Type*} [Fintype ι] {N : ℕ}
   have hG : Measurable G := by
     have ht : Measurable (tangentProj e he) := measurable_tangentProj e he
     have hc : Continuous H := LinearMap.continuous_of_finiteDimensional H
+    have hqt : Continuous (tangentOp e) :=
+      LinearMap.continuous_of_finiteDimensional (tangentOp e)
     have hq : Measurable fun u : Config ι N =>
         Real.exp (-(1 / 2) * cinner (tangentOp e u) (H (tangentOp e u))) := by
       unfold cinner
@@ -187,17 +194,118 @@ theorem lintegral_tangent_gaussian_real {ι : Type*} [Fintype ι] {N : ℕ}
           -((N * Fintype.card ι : ℕ) : ℝ) / 2 = 0 := by ring
       rw [this, Real.rpow_zero, one_mul]
     rw [hpow]
+    ac_rfl
   rw [hL]
   simp_rw [coe_tangentProj e he]
+  dsimp only [G] at hnormal
   simp_rw [hnormal]
   rw [hchange, hstd]
   rw [← mul_assoc, ← mul_assoc, ← ENNReal.ofReal_mul (by positivity),
     ← ENNReal.ofReal_mul (by positivity)]
   congr 2
   have hp : 0 < 2 * Real.pi := by positivity
+  rw [mul_right_comm]
   rw [← Real.rpow_add hp]
   congr 1
   push_cast
-  ring
+  ring_nf
+
+/-- The tangent Gaussian change of variables holds for a complex activity by
+identifying the two positive measures first. This is the complex counterpart
+of the real Gaussian lifting in P4 (2.47)–(2.50). -/
+theorem integral_tangent_gaussian_complex {ι : Type*} [Fintype ι] {N : ℕ}
+    (e : Config ι N) (he : ∀ x, ‖e x‖ = 1)
+    (H : Config ι N →ₗ[ℝ] Config ι N)
+    (R : Config ι N ≃ₗ[ℝ] Config ι N)
+    (hR : ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ)
+    (f : ((x : ι) → perp (e x)) → ℂ) (hf : Measurable f) :
+    ∫ v : (x : ι) → perp (e x),
+      (((Real.exp (-(1 / 2) * cinner
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+        (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))) : ℝ) : ℂ) * f v
+      ∂(Measure.pi fun x => (volume : Measure (perp (e x)))) =
+      (((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+        |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)| : ℝ) : ℂ) *
+        ∫ ψ, f (tangentProj e he (R ψ)) ∂(stdGaussian ι N) := by
+  classical
+  let μ : Measure ((x : ι) → perp (e x)) := Measure.pi fun x => volume
+  let q : ((x : ι) → perp (e x)) → ℝ := fun v =>
+    Real.exp (-(1 / 2) * cinner (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+      (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))
+  let t : Config ι N → ((x : ι) → perp (e x)) := fun ψ => tangentProj e he (R ψ)
+  let C : ℝ := (2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+    |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|
+  have hq : Measurable q := by
+    have hc : Continuous H := LinearMap.continuous_of_finiteDimensional H
+    have hv : Measurable fun v : (x : ι) → perp (e x) =>
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)) : Config ι N) :=
+      measurable_pi_iff.2 fun x => measurable_subtype_coe.comp (measurable_pi_apply x)
+    dsimp [q, cinner]
+    fun_prop
+  have ht : Measurable t :=
+    (measurable_tangentProj e he).comp
+      (LinearMap.continuous_of_finiteDimensional
+        (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
+  have hd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
+  have hmeas : μ.withDensity (fun v => ENNReal.ofReal (q v)) =
+      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) := by
+    apply Measure.ext_of_lintegral
+    intro g hg
+    rw [lintegral_withDensity_eq_lintegral_mul₀ hd.aemeasurable hg.aemeasurable,
+      lintegral_smul_measure, lintegral_map hg ht]
+    change (∫⁻ v, ENNReal.ofReal (q v) * g v ∂μ) =
+      ENNReal.ofReal C * ∫⁻ ψ, g (t ψ) ∂(stdGaussian ι N)
+    calc
+      _ = ∫⁻ v, g v * ENNReal.ofReal (q v) ∂μ := by
+        apply lintegral_congr
+        intro v
+        exact mul_comm _ _
+      _ = _ := lintegral_tangent_gaussian_real e he H R hR g hg
+  change ∫ v, (q v : ℂ) * f v ∂μ = (C : ℂ) * ∫ ψ, f (t ψ) ∂(stdGaussian ι N)
+  calc
+    _ = ∫ v, f v ∂μ.withDensity (fun v => ENNReal.ofReal (q v)) := by
+      rw [integral_withDensity_eq_integral_toReal_smul₀ hd.aemeasurable
+        (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top) f]
+      refine integral_congr_ae (Filter.Eventually.of_forall fun v => ?_)
+      simp only [Complex.real_smul]
+      rw [ENNReal.toReal_ofReal (show 0 ≤ q v from (Real.exp_pos _).le)]
+    _ = ∫ v, f v ∂(ENNReal.ofReal C • Measure.map t (stdGaussian ι N)) := by rw [hmeas]
+    _ = _ := by
+      rw [integral_smul_measure, integral_map ht.aemeasurable hf.aestronglyMeasurable]
+      simp [C, ENNReal.toReal_ofReal (by positivity : 0 ≤ C)]
+
+/-- The positive real matrix of the chart Gaussian form supplies its canonical
+inverse square root, its determinant, and the complex Gaussian integral formula. -/
+theorem integral_tangent_gaussian_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (he : ∀ x, ‖e x‖ = 1)
+    (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hK : (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)).PosDef)
+    (f : ((x : ι) → perp (e x)) → ℂ) (hf : Measurable f) :
+    ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      (∀ w, gaussForm e H (R (R w)) = w) ∧
+      (∀ u v, cinner (R u) v = cinner u (R v)) ∧
+      LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) =
+        Real.sqrt (LinearMap.det (gaussForm e H))⁻¹ ∧
+      (∫ v : (x : ι) → perp (e x),
+        (((Real.exp (-(1 / 2) * cinner
+          (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+          (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))) : ℝ) : ℂ) * f v
+        ∂(Measure.pi fun x => (volume : Measure (perp (e x))))) =
+        (((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+          Real.sqrt (LinearMap.det (gaussForm e H))⁻¹ : ℝ) : ℂ) *
+          ∫ ψ, f (tangentProj e he (R ψ)) ∂(stdGaussian ι N) := by
+  obtain ⟨R, hRR, hRs, hdet⟩ := gaussForm_sqrt_equiv_of_posDef e H hK
+  refine ⟨R, hRR, hRs, hdet, ?_⟩
+  have hR (ψ : Config ι N) :
+      cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ := by
+    have h1 : gaussForm e H (R ψ) = R.symm ψ := by
+      have h2 := hRR (R.symm ψ)
+      rwa [LinearEquiv.apply_symm_apply] at h2
+    rw [h1, hRs, LinearEquiv.apply_symm_apply]
+  simpa only [hdet, abs_of_nonneg (Real.sqrt_nonneg _)] using
+    integral_tangent_gaussian_complex e he H R hR f hf
 
 end Balaban.LargeField
