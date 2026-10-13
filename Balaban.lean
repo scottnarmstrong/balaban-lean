@@ -1447,6 +1447,9 @@ public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
+public import Balaban.LargeField.R.D7AvoidGeometry
+public import Balaban.LargeField.R.D7BoundTransport
+public import Balaban.Inhabited.D7AvoidGeometryWitness
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
