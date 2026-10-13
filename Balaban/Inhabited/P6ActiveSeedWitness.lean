@@ -26,9 +26,24 @@ needs `m₁ ≥ 7` (see `P6TopWitness`).  The region step is the one of `P6PairW
 large-field region, so the new region is the whole torus), the region `Om` is everything and the
 label `X` is the set of all cubes.
 
+Reused verbatim from the slab witnesses: `P6PairWitness.stepZ0` and `omega_stepZ0` (region step with
+`Z = ∅`, `R_{k-1} = 9`), `P6TopWitness.Pair.hsep7`, `hadm` (the numerical premise for `m₁ = 7` and
+the admissible weights).  Redone: the exponents and `c` (the slab has `c = 15`, `m₀ = 1`, `m₁ = 2`,
+for which `hside` is false and the boundary operator is not claimed here); the premise `14 ≤ c` of
+the boundary operator forces `m₀ ≥ 3` when `L = 3`, and `4 L² ≤ L^{m₁}` with the separation premise
+force `m₁ ≥ 7`.
+
+Contents.  `p6ActiveSeed_instance`: the active seed is non-empty, the cast of each cell lies in
+`fineK1` (activity), `|seed| ≤ 3375 (1 + Δ_X)` (`c₁ = 15 ^ 3`) and the rooted sum of `e^{-30 |C|}`
+is at most `e^{h c₁} e^{h c₁ Δ_X}` (`D = 531441`, `D² e^{-30} < 1`).  `sw_pair_instance`: the
+geometric structures `CoverGeom` and `FootLocal` of the pair `(H⁻, H^∂)` on the same cover.
+
+The numbers of cubes are made irreducible (`swn`) and so are `d` and `L` (`swd`, `swL`): otherwise
+the unifier evaluates the side lengths of the tori to numerals and exceeds the recursion depth.
+
 This is an instance of the geometric count only.  Active-only coefficient support
 (`OPEN-P6-ACTIVE-COMPOSITE-LOC`) and the region cast for a physical history are open; the region
-step here is a toy one (`Z = ∅`).
+step here has no old large-field region (`Z = ∅`), and the set `X` is the set of all cubes.
 -/
 
 @[expose] public section
@@ -246,6 +261,69 @@ theorem p6ActiveSeed_instance :
   · have := d7ActiveSeed_rooted_sum_le (k := swk) (M1 := swM1) (n0 := swn0) swF swHside rfl
       swHn swHρ swH5 swHm swHd swSt hΩ swValid swHz
     rwa [sw_c1] at this
+
+/-! ### The P6 pair on the same parameters (`c = L ^ m₀ = 27`) -/
+
+/-- The separation premise `2 d log L ≤ agmonRate d / 16 (5 L M₁ - 1)` for `d = L = 3`,
+`M₁ = 3 ^ 7` (the same numerical fact as in `P6TopWitness`). -/
+theorem swHsep : 2 * (swS.d : ℝ) * Real.log swS.L ≤
+    agmonRate swS.d / 16 * (minSep swS.L swM1 - 1) := by
+  show 2 * (swd : ℝ) * Real.log swL ≤ agmonRate swd / 16 * (minSep swL (swL ^ swm₁) - 1)
+  rw [swd_eq, swL_eq]
+  exact_mod_cast P6TopWitness.Pair.hsep7
+
+theorem swHM : 4 * swS.L ^ 2 ≤ swS.L ^ swm₁ := by
+  show 4 * swL ^ 2 ≤ swL ^ 7
+  rw [swL_eq]
+  norm_num
+
+theorem swHN : 5 < swc * swn (swk + 1) := by
+  show 5 < swL ^ 3 * swn (1 + 1)
+  rw [swL_eq, swn_eq]
+  norm_num
+
+theorem swH3d : 3 ≤ swS.d := by
+  show 3 ≤ swd
+  rw [swd_eq]
+
+theorem swH3L : 3 ≤ swS.L := by
+  show 3 ≤ swL
+  rw [swL_eq]
+
+theorem swHnu : (0 : ℝ) * ((swS.L : ℝ) ^ (swk + 1)) ^ 2 ≤ 1 := by norm_num
+
+/-- The old-wall operator `H⁻` on the cover torus of the instance. -/
+noncomputable def swHold :=
+  p6OldC (k := swk) (n1 := swn (swk + 1)) (c := swc) (M1 := swM1) (m₁ := swm₁)
+    (rfl : swM1 = swS.L ^ swm₁) ⌊(9 : ℝ)⌋₊ swSt.Z
+
+/-- The boundary operator `H^∂` on the cover torus of the instance. -/
+noncomputable def swHbd :=
+  p6BoundaryC (k := swk) (c := swc) (M1 := swM1) (m₁ := swm₁) (Zp := swSt.Omegaᶜ) swSt
+    (rfl : swM1 = swS.L ^ swm₁) (by show 14 ≤ swL ^ 3; rw [swL_eq]; norm_num) swHn
+    (by show 2 ≤ swL; rw [swL_eq]; norm_num) swHρ subset_rfl
+
+/-- **The P6 pair on the same parameters.**  For `d = L = 3`, `m₀ = 3`, `c = 27 = L ^ m₀`,
+`m₁ = 7`, `k = 1`: the common cover `F♯` and the two operators `H⁻`, `H^∂` have the geometric
+structures `Dec2.CoverGeom` (`p6_coverGeom_old`, `p6_coverGeom_boundary`) and `Dec2.FootLocal`
+(`p6_footLocal_old`, `p6_footLocal_boundary`), with `a ≡ 1`, `ν = 0`. -/
+theorem sw_pair_instance :
+    Dec2.CoverGeom (coverOf swCover) swHold (fun _ : ℕ => (1 : ℝ)) 0 (Cchi swS.d swS.L) ∧
+    Dec2.CoverGeom (coverOf swCover) swHbd (fun _ : ℕ => (1 : ℝ)) 0 (Cchi swS.d swS.L) ∧
+    Dec2.FootLocal (coverOf swCover) swHold (fun _ : ℕ => (1 : ℝ)) 0 (Dec2.mixedKc swS.d swS.L)
+      (Cchi swS.d swS.L) ∧
+    Dec2.FootLocal (coverOf swCover) swHbd (fun _ : ℕ => (1 : ℝ)) 0 (Dec2.mixedKc swS.d swS.L)
+      (Cchi swS.d swS.L) :=
+  ⟨p6_coverGeom_old (k := swk) swHn swHρ swH5 swSt.Z rfl swHm swHM swH3d swH3L le_rfl swHnu
+      P6TopWitness.Pair.hadm swHsep,
+    p6_coverGeom_boundary (k := swk) swSt (by show 14 ≤ swL ^ 3; rw [swL_eq]; norm_num) swHn
+      (by show 2 ≤ swL; rw [swL_eq]; norm_num) swHρ subset_rfl rfl swHm swHM swH3d swH3L le_rfl
+      swHnu P6TopWitness.Pair.hadm swHsep,
+    p6_footLocal_old (k := swk) swHn swHρ swH5 swHN swSt.Z rfl swHm swHM swH3d swH3L le_rfl swHnu
+      P6TopWitness.Pair.hadm swHsep,
+    p6_footLocal_boundary (k := swk) swSt (by show 14 ≤ swL ^ 3; rw [swL_eq]; norm_num) swHn
+      (by show 2 ≤ swL; rw [swL_eq]; norm_num) swHρ subset_rfl rfl swHm swHM swHN swH3d swH3L
+      le_rfl swHnu P6TopWitness.Pair.hadm swHsep⟩
 
 end P6ActiveSeedWitness
 
