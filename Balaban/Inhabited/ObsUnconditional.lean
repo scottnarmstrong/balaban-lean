@@ -32,10 +32,10 @@ open Classical in
 /-- **The direct terms of the zero class at the shared tower, with the ray clause on the full
 disc.**  As `sourceDirectTerms_scale_fromTower_ray`, with the hat fields of the ray clause
 ranging over `‖ψ̂ p‖ ≤ p₁` instead of `‖ψ̂ p‖ ≤ (2/3) p₁`. -/
-theorem sourceDirectTerms_scale_fromTower_ray_full {κmin : ℝ} (T : StepTower κmin)
+theorem sourceDirectTerms_scale_fromTower_ray_full_rho {κmin : ℝ} (T : StepTower κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
-    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (hβ1 : 1 ≤ β)
-    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ 1)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (ρ : ℝ) (hρ : 0 < ρ) (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ ρ)
     (D : StepScaleData T k hk N₁ ν β p₁)
     (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
     (hp : 0 < S.p₁) :
@@ -100,7 +100,7 @@ theorem sourceDirectTerms_scale_fromTower_ray_full {κmin : ℝ} (T : StepTower 
   have hlog := T.κ_log
   have hxi1 := T.xi_small
   have hν0 : 0 ≤ ν := hνpos.le
-  have hβ0 : 0 < β := by linarith
+  have hβ0 : 0 < β := lt_of_lt_of_le hρ (le_trans (le_max_right _ _) hβρ)
   obtain ⟨R0⟩ := D.ray
   have hcψ0 := D.cψ_pos
   have hr0 := D.r_pos
@@ -147,12 +147,66 @@ theorem sourceDirectTerms_scale_fromTower_ray_full {κmin : ℝ} (T : StepTower 
       exact le_of_eq rfl)
   exact ⟨val, 𝒴, Tt, hval, hloc, hcont, hI,
     mk_mem_physSΛEta (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ) 1 ν T.t hη0.le hD,
-    fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted hβ1 hg hq⟩,
+    fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted_radius hβρ hg hq⟩,
     fun Y Θ hΘ ψ hψ => hrayT Y Θ hΘ ψ fun p => by
       have hp1 := D.ray_margin_scaled hp
       have := hψ p
       have hpp : 0 < p₁ := hp
       nlinarith [norm_nonneg (ψ p), hr0]⟩
+
+open Classical in
+/-- **The direct terms of the zero class at the shared tower, with the ray clause on the full
+disc.**  As `sourceDirectTerms_scale_fromTower_ray`, with the hat fields of the ray clause
+ranging over `‖ψ̂ p‖ ≤ p₁` instead of `‖ψ̂ p‖ ≤ (2/3) p₁`. -/
+theorem sourceDirectTerms_scale_fromTower_ray_full {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (hβ1 : 1 ≤ β)
+    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ 1)
+    (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) :
+    ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+        (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+        (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν T.t
+              (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      PhysicalSharpLocEta S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁) S.a₁
+        S.ν T.t (q / S.β) 𝒴 Tt ∧
+      DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+        (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+        (physSΛEta S S.a₁ S.ν T.t (q / S.β)) 2 𝒴 Tt ∧
+      (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β),
+        ∃ I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+            (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+              (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1) Θ
+            (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+            (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+            (physAgΘ S) (AgFDirPair S),
+          I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+      (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+        physSΛEta S S.a₁ S.ν T.t (q / S.β) ∧
+      (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+        (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β)) ∧
+      ∀ (Y : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))
+        (Θ : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β) → ∀ ψ : S.U × Fin 2 → ℂ,
+        (∀ p, ‖ψ p‖ ≤ p₁) →
+        DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (Metric.ball (0 : ℂ) (3 / 2)) := by
+  exact sourceDirectTerms_scale_fromTower_ray_full_rho T k hk N₁ h3N hN ν hνpos hν β 1 one_pos (by rw [max_self]; exact hβ1) p₁ q hq0 hq D S hS hp
+
 
 /-- **The ray hypothesis of `obsMarks_zeroClass_family_of_ray` holds.**  Slice `q = 1` of
 `sourceDirectTerms_scale_fromTower_ray_full`. -/
