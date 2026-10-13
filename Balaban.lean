@@ -934,6 +934,7 @@ public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.RegionalTails
 public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
+public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1097,6 +1098,7 @@ public import Balaban.Fluctuation.StepRegUnit
 public import Balaban.Fluctuation.StepRegWitness
 public import Balaban.Fluctuation.StepRegDomain
 public import Balaban.Fluctuation.GeneralClassMatch
+public import Balaban.Fluctuation.GeneralClassPathAnalytic
 public import Balaban.Fluctuation.StepNormGauss
 public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
@@ -1157,6 +1159,8 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
+public import Balaban.Fluctuation.RootActiveSize
+public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Fluctuation.Thm31WitnessAnalytic
@@ -1189,6 +1193,8 @@ public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
 public import Balaban.Localization.P6ActiveHalo
+public import Balaban.Localization.P6TopCover
+public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.MooreDegreeWitness
@@ -1303,6 +1309,7 @@ public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
+public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
