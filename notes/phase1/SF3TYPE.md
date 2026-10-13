@@ -121,7 +121,7 @@ generator, including its new collar bonds. This assumes the source mass conditio
 **PROVED with radius loss.** `localB_xiCData_restrict` recomputes the local backgrounds through
 `psiTildeC_subset_xiC` and obtains `XiCData` at radius
 `ε + (2 bgK1 d L N + 1) δ` from an ambient data-domain witness `(δ, ε)`.
-`localB_xiFieldDom_of_ambient_xiDom` gives pointwise `hsub` for the *full ambient raw pair*,
+`localB_fieldDom_hsub` gives pointwise `hsub` for the *full ambient raw pair*,
 because `XiDom` may adjust its displacement off the local sites. Its sufficient class-radius
 condition is `bgC0 d L N + (2 bgK1 d L N + 1) bgC1 d L N ≤ εseq j`.
 

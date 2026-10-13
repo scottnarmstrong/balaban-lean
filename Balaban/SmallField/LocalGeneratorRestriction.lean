@@ -302,4 +302,17 @@ theorem localB_xiFieldDom_of_ambient_xiDom (hj1 : 1 ≤ j)
       (localB j hj X hsep) Ψ h :=
   localB_xiDom_of_ambient_xiDom hj1 H hμ hbudget hAmb
 
+/-- The pointwise `hsub` stated entirely in the two field-domain interfaces. -/
+theorem localB_fieldDom_hsub (hj1 : 1 ≤ j)
+    {hsep : bgR0 d L ≤ minSep L (L ^ m₁)} {ϱhi : ℝ}
+    {A : ℕ → ℝ} {μ : ℝ} {εamb εloc : ℕ → ℝ}
+    (H : BgHyp d L k (bgR0 d L) A μ) (hμ : 0 ≤ μ)
+    (hbudget : bgC0 d L N + (2 * bgK1 d L N + 1) * bgC1 d L N ≤ εloc j)
+    {Ψ h : Fld d L N₁ m₁ k N}
+    (hAmb : (xiFieldDom A μ εamb : FieldDom d L N₁ m₁ k N ϱhi).dom j
+      (levelGS j hj) Ψ h) :
+    (xiFieldDom A μ εloc : FieldDom d L N₁ m₁ k N (bgR0 d L)).dom j
+      (localB j hj X hsep) Ψ h :=
+  localB_xiFieldDom_of_ambient_xiDom hj1 H hμ hbudget hAmb
+
 end Balaban.SmallField.GsSpec
