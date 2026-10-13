@@ -975,6 +975,7 @@ public import Balaban.Fluctuation.InteractionDir3
 public import Balaban.Fluctuation.InteractionEnergy
 public import Balaban.Fluctuation.InteractionVBlock
 public import Balaban.Fluctuation.InteractionEnergyScaled
+public import Balaban.Fluctuation.InteractionVBlockScaled
 public import Balaban.Fluctuation.InteractionLocDir
 public import Balaban.Fluctuation.InteractionFPart
 public import Balaban.Fluctuation.InteractionPoly
