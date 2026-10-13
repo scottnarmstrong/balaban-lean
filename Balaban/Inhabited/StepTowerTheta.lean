@@ -9,6 +9,8 @@ public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.TowerCoreRatesTwoRadii
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.RenormThetaChartTower
+public import Balaban.Inhabited.StepTowerScale
+public import Balaban.Inhabited.DetPackageFromTower
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FieldSimp
@@ -223,5 +225,134 @@ theorem exists_stepTowerTheta (κmin : ℝ) : Nonempty (StepTowerTheta κmin) :=
   · simp only [StepTowerRen.shrink]; nlinarith
   · simp only [StepTowerRen.shrink]; nlinarith
   · simp only [StepTowerRen.shrink]; nlinarith
+
+section Ambient
+
+open Balaban.Fluctuation
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+variable {S : StepSetting d L N₁ m₁ k N ϱ}
+
+/-- **The renormalized datum lies in the step chart at every radius `ε₂ ≥ εs`.**  This is
+`renE0_theta_domain` followed by `xiCData_mono_radius`. -/
+theorem renE0_theta_domain_of_le (S : StepSetting d L N₁ m₁ k N ϱ)
+    (H : BgHyp d L (k + 1) ϱ S.a S.ν) (εren εstep ε₂ r₀ : ℝ)
+    (hM : ThetaChartMargin d L N εren εstep r₀) (hle : εstep ≤ ε₂)
+    (D : BgData S.G' N) (hD : XiCOneReal S.G' S.a S.ν εren D)
+    (ξ : Fin 3 → ℂ) (hξ : ‖ξ‖ < r₀) :
+    XiCData S.G' S.a S.ν (k + 1) 1 ε₂ (renThetaDatum S εren D ξ) :=
+  xiCData_mono_radius zero_le_one hle (renE0_theta_domain S H εren εstep r₀ hM D hD ξ hξ)
+
+/-- **The ambient analytic extension, for a record at a chart radius `ε₂ ≥ εs`.**  As
+`exists_renDetGrouped_ambient`, with the record `E` at any radius `ε₂ ≥ εstep`. -/
+theorem exists_renDetGrouped_ambient_of_le {m₀ : ℕ}
+    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {εstep ε₂ κ'' cdet : ℝ}
+    (E : DetExpansionLocC S m₀ z ε₂ κ'' cdet)
+    (H : BgHyp d L (k + 1) ϱ S.a S.ν) (εren r₀ : ℝ)
+    (hM : ThetaChartMargin d L N εren εstep r₀) (hle : εstep ≤ ε₂) (hm : m₀ = 1)
+    (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    ∃ F : RawData d L (N₁ * L ^ m₁) (k + 1) N × (Fin 3 → ℂ) → ℂ,
+      AnalyticOnNhd ℂ F (expDom S.G' (XiCOneReal S.G' S.a S.ν εren) r₀) ∧
+      ∀ (D : BgData S.G' N) (ξ : Fin 3 → ℂ), XiCOneReal S.G' S.a S.ν εren D → ‖ξ‖ < r₀ →
+        F ((D.Ψ, D.h), ξ) = E.detGrouped (renThetaDatum S εren D ξ) X := by
+  subst hm
+  choose A hAan hAeq using E.analyticAt_raw
+  refine ⟨fun q => ∑ T ∈ detCollarFibre 1 X,
+    A T ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), ?_, ?_⟩
+  · rintro ⟨p, ξ'⟩ ⟨D, hD, hp, hξ⟩
+    simp only at hp hξ
+    subst hp
+    have hθ := renE0_theta_domain_of_le S H εren εstep ε₂ r₀ hM hle D hD ξ' hξ
+    refine Finset.analyticAt_fun_sum _ fun T _ => ?_
+    have hTh := analyticOnNhd_renThetaRaw εren Set.univ ((D.Ψ, D.h), ξ') trivial
+    have hA : AnalyticAt ℂ (A T) ((fun x i => (1 + renZeta εren ξ') * D.Ψ x i), D.h) :=
+      hAan T _ hθ
+    exact AnalyticAt.comp_of_eq hA hTh rfl
+  · intro D ξ hD hξ
+    have hθ := renE0_theta_domain_of_le S H εren εstep ε₂ r₀ hM hle D hD ξ hξ
+    unfold DetExpansionLocC.detGrouped detCollarGrouped
+    refine Finset.sum_congr rfl fun T _ => ?_
+    exact hAeq T _ hθ
+
+end Ambient
+
+section TowerFamily
+
+/-- **The determinant family at every scale, at chart radius `2 t`.**  For every scale
+`k ≥ 1`, `3 ∣ N₁`, `5 < N₁`, `0 ≤ ν`, `ν 3^{2(k+1)} ≤ 1`: the datum of the step lies in the chart at
+radius `2 t`, and for every root `z` the record has an element at radius `2 t` with the same
+rate and constant as in `detExpansionLocC_scale_fromTower` and the same term formula. -/
+theorem StepTowerTheta.detExpansion_scale {κmin : ℝ} (R : StepTowerTheta κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁) {ν : ℝ}
+    (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) :
+    XiCData (R.toStepTower.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 (2 * R.t)
+        (R.toStepTower.step k hk N₁ ν β p₁).D' ∧
+      ∀ z, ∃ E : DetExpansionLocC (R.toStepTower.step k hk N₁ ν β p₁) 1 z (2 * R.t)
+          (towerDetRate R.κ) (towerDetConst R.κ),
+        ∀ D T', E.term D T' = ∑ y ∈ (R.toStepTower.step k hk N₁ ν β p₁).blockU z,
+          detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 R.BG R.κ) D y T' := by
+  have h := detExpansionLocC_scale_of_tower R.m₁_four (by have := R.t_pos; positivity)
+    (Classical.choice R.core2) R.large_block R.dom_margin2 R.coer_margin2 R.δc_small R.det_z
+    k hk N₁ h3N hN hν0 hν β p₁ R.δ
+  refine ⟨h.1, fun z => ?_⟩
+  have hz := h.2 z
+  rw [StepTower.det_rate_den, StepTower.det_const_eq] at hz
+  exact hz
+
+
+/-- **The determinant part of `E0θ` on the renormalization domain, at the tower.**  At every scale
+there is a family `E z` of determinant records at chart radius `2 t` with the term formula, and
+
+* the value at `ξ = 0`: `renE0θ_det R.t E z S.D' 0` is the determinant term
+  `-(1/2) ∑_y ∑_i log A_C(y, i)(y, i)` of the step;
+* for every root `z` and hull `X` an ambient function `F`, analytic on the renormalization domain
+  `expDom (XiCOneReal … R.t) R.r₀`, equal there to the regrouped determinant term at the
+  renormalized datum, bounded there by `C_hull e^{-λ_hull sizeJ X}`, and equal at `ξ = 0` to the
+  regrouped term at the datum itself. -/
+theorem StepTowerTheta.detGrouped_ambient {κmin : ℝ} (R : StepTowerTheta κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁) {ν : ℝ}
+    (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) :
+    ∃ E : ∀ z : Torus 3 (N₁ * 3 ^ R.m₁ * 3 ^ (k + 1 - (k + 1))),
+        DetExpansionLocC (R.toStepTower.step k hk N₁ ν β p₁) 1 z (2 * R.t)
+          (towerDetRate R.κ) (towerDetConst R.κ),
+      (∀ z D T', (E z).term D T' = ∑ y ∈ (R.toStepTower.step k hk N₁ ν β p₁).blockU z,
+          detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 R.BG R.κ) D y T') ∧
+      (∀ z, renE0θ_det R.t E z (R.toStepTower.step k hk N₁ ν β p₁).D' 0 =
+          -(1 / 2 : ℂ) * ∑ y ∈ (R.toStepTower.step k hk N₁ ν β p₁).blockU z, ∑ i : Fin 2,
+            (R.toStepTower.step k hk N₁ ν β p₁).logAC (y, i) (y, i)) ∧
+      ∀ (z : Torus 3 (N₁ * 3 ^ R.m₁ * 3 ^ (k + 1 - (k + 1))))
+        (X : Set (CTorus 3 3 N₁ R.m₁ (k + 1))),
+        ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) → ℂ,
+          AnalyticOnNhd ℂ F (expDom (R.toStepTower.step k hk N₁ ν β p₁).G'
+            (XiCOneReal (R.toStepTower.step k hk N₁ ν β p₁).G'
+              (R.toStepTower.step k hk N₁ ν β p₁).a (R.toStepTower.step k hk N₁ ν β p₁).ν R.t)
+            R.r₀) ∧
+          ∀ (D : BgData (R.toStepTower.step k hk N₁ ν β p₁).G' 2),
+            XiCOneReal (R.toStepTower.step k hk N₁ ν β p₁).G'
+              (R.toStepTower.step k hk N₁ ν β p₁).a (R.toStepTower.step k hk N₁ ν β p₁).ν R.t D →
+            (∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ →
+              F ((D.Ψ, D.h), ξ) =
+                (E z).detGrouped (renThetaDatum (R.toStepTower.step k hk N₁ ν β p₁) R.t D ξ) X ∧
+              ‖F ((D.Ψ, D.h), ξ)‖ ≤ hullConst 3 3 (towerDetRate R.κ) (towerDetConst R.κ) *
+                Real.exp (-hullRate 3 3 (towerDetRate R.κ) * sizeJ 1 (k + 1) X)) ∧
+            F ((D.Ψ, D.h), 0) = (E z).detGrouped D X := by
+  obtain ⟨hD0, hfam⟩ := R.detExpansion_scale k hk N₁ h3N hN hν0 hν β p₁
+  choose E hE using hfam
+  have hH := bgHyp_lv (k := k) R.m₁ hν0 hν
+  have hM := thetaChartMargin_of_stepTowerRenSol R.toStepTowerRenSol
+  have hN1 : (3 : ℕ) ^ 1 ∣ N₁ := by simpa using h3N
+  have hrate := towerDetRate_nonneg R.toStepTower
+  have hconst := towerDetConst_nonneg R.toStepTower
+  have hle := R.εs_le
+  refine ⟨E, hE, fun z => renE0θ_det_zero R.t E z hD0, fun z X => ?_⟩
+  obtain ⟨F, hFan, hFeq⟩ := exists_renDetGrouped_ambient_of_le (E z) hH R.t R.r₀ hM hle rfl X
+  refine ⟨F, hFan, fun D hD => ⟨fun ξ hξ => ⟨hFeq D ξ hD hξ, ?_⟩, ?_⟩⟩
+  · rw [hFeq D ξ hD hξ]
+    exact (E z).detGrouped_bound (by norm_num) hN1 hconst hrate
+      (renE0_theta_domain_of_le _ hH R.t _ (2 * R.t) R.r₀ hM hle D hD ξ hξ) X
+  · have := hFeq D 0 hD (by simpa using R.r₀_pos)
+    rwa [renThetaDatum_zero] at this
+
+end TowerFamily
 
 end Balaban.Inhabited
