@@ -727,6 +727,7 @@ public import Balaban.Polymer.MarkedTermwise
 public import Balaban.Polymer.MarkedDeriv
 public import Balaban.Polymer.MarkedCubes
 public import Balaban.Polymer.LabelSum
+public import Balaban.Polymer.LabelExtend
 public import Balaban.Fluctuation.CriticalPointGauss
 public import Balaban.Fluctuation.CriticalPoint
 public import Balaban.Fluctuation.ExpansionGauss
