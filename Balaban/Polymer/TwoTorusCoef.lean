@@ -1650,6 +1650,122 @@ theorem bridge_image {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N
     exact (image_box_boxMap (by omega) hLa fun x hx =>
       inBox_of_mem_box_right (by omega) (inBox_of_mem_box_left (by omega) hrbR hrp) hx).symm
 
+omit [NeZero N₁'] in
+/-- **The coarse site of a block whose corner site lies in the box.**  If the corner site
+`blockSite k b` of the block `B_{k+1}(b)` lies in the box of radius `r`, then
+`|b| ≤ r / L^(k+1)` in centred coarse coordinates. -/
+theorem inBox_coarse_of_blockSite {r : ℕ} (b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (h : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k b)) :
+    InBox d (r / L ^ (k + 1)) (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) b := by
+  have : NeZero (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) :=
+    ⟨by have := NeZero.pos N₁; have := NeZero.pos L; positivity⟩
+  have hside := side_eq (N₀ := N₁ * L ^ m₁) (L := L) (le_refl (k + 1))
+  have hpK : 0 < L ^ (k + 1) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  intro μ
+  set v := (b μ).valMinAbs with hv
+  have e : (LocalCover.blockSite k b μ) =
+      ((((L ^ (k + 1) : ℕ) : ℤ) * v : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) := by
+    have hzμ : b μ = ((v : ℤ) : ZMod (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :=
+      (ZMod.coe_valMinAbs _).symm
+    show ((L ^ (k + 1) * (b μ).val : ℕ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) = _
+    conv_lhs => rw [hzμ]
+    exact rootCoord_intCast hside _
+  have hIoc := ZMod.valMinAbs_mem_Ioc (b μ)
+  rw [← hv] at hIoc
+  have hval : (LocalCover.blockSite k b μ).valMinAbs = ((L ^ (k + 1) : ℕ) : ℤ) * v := by
+    rw [e, ZMod.valMinAbs_spec]
+    refine ⟨rfl, ?_, ?_⟩
+    · have h1 := hIoc.1
+      have hc : (((N₁ * L ^ m₁) * L ^ (k + 1) : ℕ) : ℤ) =
+          ((L ^ (k + 1) : ℕ) : ℤ) * ((N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)) : ℕ) : ℤ) := by
+        rw [hside]; push_cast; ring
+      rw [hc]
+      have hp : (0 : ℤ) < ((L ^ (k + 1) : ℕ) : ℤ) := by exact_mod_cast hpK
+      nlinarith
+    · have h1 := hIoc.2
+      have hc : (((N₁ * L ^ m₁) * L ^ (k + 1) : ℕ) : ℤ) =
+          ((L ^ (k + 1) : ℕ) : ℤ) * ((N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)) : ℕ) : ℤ) := by
+        rw [hside]; push_cast; ring
+      rw [hc]
+      have hp : (0 : ℤ) < ((L ^ (k + 1) : ℕ) : ℤ) := by exact_mod_cast hpK
+      nlinarith
+  have h1 := h μ
+  rw [hval, abs_mul, Nat.abs_cast] at h1
+  have hp : (0 : ℤ) < ((L ^ (k + 1) : ℕ) : ℤ) := by exact_mod_cast hpK
+  have h2 : |v| ≤ ((r : ℤ) / ((L ^ (k + 1) : ℕ) : ℤ)) :=
+    (Int.le_ediv_iff_mul_le hp).2 (by linarith)
+  have h3 : ((r / L ^ (k + 1) : ℕ) : ℤ) = (r : ℤ) / ((L ^ (k + 1) : ℕ) : ℤ) := by
+    push_cast; rfl
+  rw [h3]
+  exact h2
+
+omit [NeZero N₁] [NeZero N₁'] in
+/-- The coarse margin: `2 (r / L^(k+1)) + 1 < N₁ L^m₁` from `2 r + L^(k+1) < N₁ L^m₁ L^(k+1)`. -/
+theorem coarse_margin {r : ℕ} (hn : 2 * r + L ^ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1)) :
+    2 * (r / L ^ (k + 1)) + 1 < N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)) := by
+  have hpK : 0 < L ^ (k + 1) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have h0 : k + 1 - (k + 1) = 0 := Nat.sub_self _
+  rw [h0, pow_zero, mul_one]
+  have h1 : L ^ (k + 1) * (r / L ^ (k + 1)) ≤ r := Nat.mul_div_le r _
+  have h2 : L ^ (k + 1) * (2 * (r / L ^ (k + 1)) + 1) < L ^ (k + 1) * (N₁ * L ^ m₁) := by
+    rw [mul_comm (L ^ (k + 1)) (N₁ * L ^ m₁)]
+    calc L ^ (k + 1) * (2 * (r / L ^ (k + 1)) + 1)
+        = 2 * (L ^ (k + 1) * (r / L ^ (k + 1))) + L ^ (k + 1) := by ring
+      _ ≤ 2 * r + L ^ (k + 1) := by omega
+      _ < (N₁ * L ^ m₁) * L ^ (k + 1) := hn
+  exact Nat.lt_of_mul_lt_mul_left h2
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- The image map of sets of the box of radius `ρ` is injective. -/
+theorem image_boxMap_inj {ρ : ℕ} (hn' : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {A B : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hA : ∀ x ∈ A, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hB : ∀ x ∈ B, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) (h : bm '' A = bm '' B) : A = B := by
+  rw [← image_image_boxMap hn' hA, h, image_image_boxMap hn' hB]
+
+omit [NeZero N₁'] in
+/-- `Y` lies in its bridge to the root. -/
+theorem subset_bridge (m₀ : ℕ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) : Y ⊆ bridge m₀ z Y := by
+  unfold bridge
+  split_ifs
+  · exact subset_rfl
+  · exact Set.subset_union_left
+
+omit [NeZero N₁'] in
+/-- The bridge of a set of the box of radius `r` lies in the box of radius `r + 2 L a_K`, when the
+root cell lies in the box of radius `r`. -/
+theorem inBox_of_mem_bridge {m₀ r : ℕ}
+    (hnH : 2 * (r + 2 * (L * aK)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    ∀ x ∈ bridge m₀ z Y, InBox d (r + 2 * (L * aK)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+  have hrbR : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) (rootCube (m₀ := m₀) z).1 :=
+    hroot _ (mem_box_self _ (cellSide_pos m₀ m₁ _))
+  intro x hx
+  unfold bridge at hx
+  split_ifs at hx
+  · exact inBox_mono (by omega) (hY x hx)
+  · rcases hx with hx | hx
+    · exact inBox_mono (by omega) (hY x hx)
+    · obtain ⟨p, hp, hxp⟩ := Set.mem_iUnion₂.1 hx
+      have hrp := (Finset.mem_filter.1 (Finset.mem_filter.1 hp).1).2.2
+      have := inBox_of_mem_box_right (by omega) (inBox_of_mem_box_left (by omega) hrbR hrp) hxp
+      exact inBox_mono (by omega) this
+
+omit [NeZero N₁'] in
+/-- The region `X₁` of a block lies in each domain of its expansion. -/
+theorem nbhd_subset_of_mem_polyDom {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {ϱ : ℝ}
+    (x : CTorus d L N₁ m₁ (k + 1)) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : Y ∈ polyDom (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+      (k + 1) le_rfl) (LocalCover.nbhdF m₀ x) m₀ k (LocalCover.fam m₀ x)) :
+    LocalCover.nbhd m₀ x ⊆ Y := by
+  obtain ⟨C, -, rfl⟩ := Finset.mem_image.1 hY
+  rw [← LocalCover.X1_eq (isLevel_levelGS (Nat.le_add_left 1 k) le_rfl) hN le_rfl x]
+  exact subset_Ysites _ _
+
 end Labels
 
 end Balaban.Polymer.TwoTorusStep
