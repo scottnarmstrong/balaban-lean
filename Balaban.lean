@@ -70,6 +70,8 @@ public import Balaban.Polymer.TwoTorusCoef
 public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.TwoTorusDirectTerms
 public import Balaban.Polymer.TwoTorusDirectTermsTower
+public import Balaban.Polymer.TwoTorusE0Coef
+public import Balaban.Polymer.TwoTorusObsCoef
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1857,4 +1859,6 @@ public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.SmallField.LocalGeneratorCovariance
 public import Balaban.Fluctuation.GeneralEnergyMarks
 public import Balaban.Fluctuation.GeneralEnergyMarksBounds
+public import Balaban.Fluctuation.GeneralObsMarks
+public import Balaban.Fluctuation.GeneralEnergyValue
 public import Balaban.SmallField.LocalGeneratorRadius
