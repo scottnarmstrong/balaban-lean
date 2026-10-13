@@ -9,6 +9,7 @@ public import Balaban.Localization.Vmod7Local
 public import Balaban.Localization.DecoupledFieldLocal
 public import Balaban.Localization.Decoupled2
 public import Balaban.Localization.P6TopCover
+public import Balaban.Inhabited.LocalizationSettings
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -187,5 +188,38 @@ theorem star_bound_of_coverGeom (S : Dec2.CoverGeom C H a ν Cx) {m₀ : ℕ} (h
   star_bound hN (footprint_hat_of_coverGeom S) hscale hnear hM₁ hm₀ hp
 
 end Consumers
+
+section Witness
+
+open Balaban.Inhabited Balaban.Localization.I5Inhabited
+
+/-- **T4. Non-vacuity.**  On the landed self-cover witness of `LocalizationSettings` (the
+generating set `GP`, with `Ω₁ = Ω₂ = 𝕋`, at a scale `m₁ ≥ 4`) the centre `(2, 0)` of the cover has a
+footprint containing the site `0`, which lies in the thickened box, and the geometry `CoverGeom`
+holds, so the inclusion of T1 is applied to it. -/
+theorem footprint_witness :
+    ∃ (m₁ : ℕ) (ϱ : ℝ) (H : GeneratingSet 3 3 (6 * 3 ^ m₁) 2 ϱ)
+      (_ : Dec2.CoverGeom (coverOf H) H (compWeight 3 1) 0 (Cchi 3 3)),
+      ∃ z ∈ (coverOf H).cubeIdx, ∃ t : CTorus 3 3 6 m₁ 2,
+        t ∈ Dec2.footprint H (compWeight 3 1) 0 z ∧ t ∈ hatBox z := by
+  obtain ⟨m₁, h4, -⟩ := exists_m₁_cstar
+  have S := Dec2.coverGeom_self (dgSetting_rho h4)
+  have hz : ((2, 0) : ℕ × CTorus 3 3 6 m₁ 2) ∈ cubeIdx (GP m₁ (rhoSep m₁)) := by
+    refine (mem_cubeIdx _).2 ⟨⟨by norm_num, le_rfl⟩, ?_, fun μ => by simp⟩
+    rw [GP_layer_two]; exact Finset.mem_univ _
+  have hb : (0 : CTorus 3 3 6 m₁ 2) ∈ intBox ((2, 0) : ℕ × CTorus 3 3 6 m₁ 2) := by
+    rw [mem_intBox]
+    intro μ
+    refine ⟨0, ?_⟩
+    have h1 : (1 : ℝ) ≤ (3 : ℝ) ^ (2 + m₁) := one_le_pow₀ (by norm_num)
+    simp only [Int.cast_zero, zero_mul, add_zero, abs_lt]
+    simp
+    constructor <;> linarith
+  have hΩ : (0 : CTorus 3 3 6 m₁ 2) ∈ (GP m₁ (rhoSep m₁)).Ω 1 := by simp [GP_Ω]
+  refine ⟨m₁, rhoSep m₁, GP m₁ (rhoSep m₁), S, (2, 0), hz, 0, ?_, ?_⟩
+  · exact Dec2.mem_footprint_self (b := ⟨0, hΩ⟩) hb
+  · exact footprint_subset_hatBox_of_coverGeom S hz (Dec2.mem_footprint_self (b := ⟨0, hΩ⟩) hb)
+
+end Witness
 
 end Balaban.Localization
