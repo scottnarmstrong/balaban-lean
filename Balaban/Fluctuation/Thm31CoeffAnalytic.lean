@@ -24,8 +24,9 @@ regularity of the family (analytic in `(θ, u)` on `V × 𝒰` for each configur
 `Q` carrying the product measure, continuous in the configuration, measurable, and the mark bound
 uniform in `θ`).  It does not contain the numerical constants of Theorem 3.4 (they are explicit
 hypotheses of the theorems), nor the dependence (`DepOn`) fields, nor `W`/`f`/`hW`/`hF`.  The
-compact carrier `Q` is a genuine extra hypothesis: it does not hold for Gaussian reference
-measures, so the actual step data are not covered.  Producing a parameter family from the physical
+compact carrier `Q` is an extra hypothesis: it does not hold for Gaussian reference measures, but
+it does hold for the actual step measure, which has the sharp cutoff `‖ψ̂(u)‖ < p₁`
+(`physCarrier` in `ParamCarrierLocal`).  Producing a parameter family from the physical
 step (the actual activities and marks, and the determinant term) is not done here.
 
 Finite-dimensionality of `E` is used only through `analyticAt_integral_of_continuousOn` (the
