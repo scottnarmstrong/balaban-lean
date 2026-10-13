@@ -482,11 +482,8 @@ theorem obsMarks_zeroClass_at_of_ray_ksupp_rhoG {d L N : ℕ} [NeZero L] {κmin 
   have hdom : ∀ Y ∈ 𝒴, IsDj T.m₀ (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
   have hεpos : 0 < β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
       (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / β) := by
-    rw [sourceEta_scaled_identity d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
-      (lvRG d L N T.κ T.t b p₁) ρ β hβ0.ne']
-    have hc1' : (0 : ℝ) ≤ c1 d L := by linarith
-    have h3 : (0 : ℝ) ≤ 3 * c1 d L := by linarith
-    exact add_pos_of_nonneg_of_pos (by positivity) (div_pos (mul_pos hρ (mul_pos (cK2'_pos_general T.fam_nonneg) T.t_pos)) hr0)
+    exact sourceEta_scaled_pos d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t _ ρ β hβ0 hρ hr0 T.t_pos
+      (cK2'_pos_general T.fam_nonneg) (by linarith)
   have hxwz : ∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ ψ ∈ hatDisk S.U N p₁,
       ((z • ψ, z • ψ), (z • ψ, z • ψ)) ∈
         physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁) :=
