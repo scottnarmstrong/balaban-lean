@@ -87,20 +87,8 @@ theorem norm_le_of_mem_l1BallRho {ρ : ℝ} {g : CTorus d L N₁ m₁ K → Fin 
 /-- The scaled slice: `∑ |g| < q ≤ ρ` and `max 1 ρ ≤ β` give `g/β ∈ l1BallEta (q/β)`. -/
 theorem sourceSlice_mem_restricted_rho {ρ β q : ℝ} (hβ : max 1 ρ ≤ β)
     {g : CTorus d L N₁ m₁ K → Fin N → ℂ} (hg : ∑ x, ∑ i, ‖g x i‖ < q) (hq : q ≤ ρ) :
-    (fun y i => g y i / (β : ℂ)) ∈ l1BallEta d L N₁ m₁ K N (q / β) := by
-  have hβ1 : 1 ≤ β := le_trans (le_max_left _ _) hβ
-  have hβρ : ρ ≤ β := le_trans (le_max_right _ _) hβ
-  have hβ0 : 0 < β := by linarith
-  have hsum : ∑ x, ∑ i, ‖g x i / (β : ℂ)‖ = (∑ x, ∑ i, ‖g x i‖) / β := by
-    rw [Finset.sum_div]
-    refine Finset.sum_congr rfl fun x _ => ?_
-    rw [Finset.sum_div]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hβ0.le]
-  have h1 : (∑ x, ∑ i, ‖g x i‖) / β < q / β := div_lt_div_of_pos_right hg hβ0
-  have h2 : q / β ≤ 1 := by
-    rw [div_le_one hβ0]; linarith
-  exact ⟨by rw [l1Ball, Set.mem_ofPred_eq, hsum]; exact lt_of_lt_of_le h1 h2, by rw [hsum]; exact h1.le⟩
+    (fun y i => g y i / (β : ℂ)) ∈ l1BallEta d L N₁ m₁ K N (q / β) :=
+  sourceSlice_mem_restricted_radius hβ hg hq
 
 /-- The landed `sourceSlice_mem_restricted` is the case `ρ = 1`. -/
 theorem sourceSlice_mem_restricted_of_rho {β q : ℝ} (hβ : 1 ≤ β)
