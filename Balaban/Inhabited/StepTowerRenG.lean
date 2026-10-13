@@ -80,7 +80,8 @@ end StepTowerRen
 theorem exists_stepTowerRenG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
     (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
     ∃ T : StepTowerRenG d L N κmin, T.m₀ = m₀ ∧
-      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec := by
+      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
+      (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
   classical
   obtain ⟨-, δ, δ', -, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, -⟩ :=
     exists_witness_params_general d L N (by omega) (by omega) (fun _ => 0)
@@ -154,9 +155,13 @@ theorem exists_stepTowerRenG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤
     δ'_cap := hδ'a, δ'_step := hδ'b, δ'_coer := hδ'c, block_base := hbig, xi_small := hxi1
     rho_nonneg := hρ, det_z := hz, det_rate := hrate
     ren_margin := hmar, r₀ := r₀, r₀_pos := hr0, r₀_le := hr1, D₀_le_one := hD0
-    D₀_le_star := hDs, D₁_le_star := hD1 }, rfl, ?_⟩
-  show entropyLoss + c1 d L * κroot ≤ 3 / 2 * κdec
-  rw [hκdecdef]
-  linarith
+    D₀_le_star := hDs, D₁_le_star := hD1 }, rfl, ?_, ?_⟩
+  · show entropyLoss + c1 d L * κroot ≤ 3 / 2 * κdec
+    rw [hκdecdef]
+    linarith
+  · intro h
+    show κ0 = aEnt d L + 2
+    rw [hκ0def]
+    exact max_eq_left (by linarith)
 
 end Balaban.Inhabited

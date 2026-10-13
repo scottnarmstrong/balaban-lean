@@ -62,7 +62,7 @@ theorem exists_stepTowerRenEndG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 
     (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
     ∃ T : StepTowerRenEndG d L N κmin, T.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec := by
-  obtain ⟨R, hm, hent⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
+  obtain ⟨R, hm, hent, -⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
   obtain ⟨hC₀⟩ := R.core
   have hd0 : 0 < d := by omega
   have hB1 := famConst_ge_one (L := L) hC₀.hS.fam.2.1 R.κ hd0

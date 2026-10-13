@@ -1494,6 +1494,7 @@ public import Balaban.Inhabited.StepTowerRenEndG
 public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerG
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerGBridge
 public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Inhabited.StepScaleDataG
