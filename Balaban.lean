@@ -1247,6 +1247,7 @@ public import Balaban.Fluctuation.Thm31bFirst
 public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.ObsScalarTilt
+public import Balaban.Fluctuation.ObsRayActivity
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
@@ -1469,6 +1470,8 @@ public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
+public import Balaban.Inhabited.MarkedFamilyAllRoots
+public import Balaban.Fluctuation.MarkFibreSitesOf
 public import Balaban.Inhabited.ExpSourceChartFromTower
 public import Balaban.Inhabited.SourceFamilyRelativeFromTower
 public import Balaban.Inhabited.SourceDirectTermsFromTower
@@ -1566,6 +1569,7 @@ public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Inhabited.RenormLabelNonempty
+public import Balaban.Inhabited.RenormProperInstances
 public import Balaban.Fluctuation.RenormRowAgree
 public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormStrictData
@@ -1587,6 +1591,10 @@ public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
 public import Balaban.Fluctuation.ExpSourceChart
+public import Balaban.Fluctuation.MarkedFieldCount
+public import Balaban.Fluctuation.MarkedRootFamily
+public import Balaban.Fluctuation.MarkedRootAssembly
+public import Balaban.Inhabited.MarkedRootFamilyWitness
 public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
@@ -1599,9 +1607,15 @@ public import Balaban.Fluctuation.MarkRealRegular
 public import Balaban.Fluctuation.RenormSharedClass
 public import Balaban.Fluctuation.WoneChartIdentity
 public import Balaban.Fluctuation.SourcePhysValBridge
+public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Inhabited.MarksNumericsFromTower
 public import Balaban.Inhabited.ChartDetJointFromTower
+public import Balaban.Fluctuation.RenormDecJoint
+public import Balaban.Fluctuation.RenormLocC2Zero
+public import Balaban.Inhabited.RenormLocC2ZeroTower
+public import Balaban.Inhabited.RenormExpInputTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
+public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.RenormThetaDatumWitness
