@@ -1477,3 +1477,6 @@ public import Balaban.LargeField.R.RFieldProjection
 public import Balaban.Inhabited.RFieldProjectionWitness
 public import Balaban.Inhabited.UniformChartRelative
 public import Balaban.Fluctuation.SourceSliceScaled
+public import Balaban.Inhabited.SourceAmpScale
+public import Balaban.Fluctuation.SourceDirectTermsScale
+public import Balaban.Inhabited.SourceActivityScale
