@@ -89,6 +89,24 @@ theorem l1_le_add (e e₀ : α → β → ℂ) :
           (norm_le_pi_norm ((e - e₀) a) b).trans (norm_le_pi_norm (e - e₀) a)
     _ = (Fintype.card α * Fintype.card β : ℝ) * ‖e - e₀‖ := by simp; ring
 
+theorem convex_ball1 : Convex ℝ (ball1 α β) := by
+  intro g hg g' hg' a b ha hb hab
+  show l1 (a • g + b • g') < 1
+  have e : ∀ (c : ℝ) (x : α → β → ℂ), c • x = (c : ℂ) • x := fun c x => by
+    funext y j; simp [Complex.real_smul]
+  rw [e, e]
+  have h1 := l1_add_le ((a : ℂ) • g) ((b : ℂ) • g')
+  rw [l1_smul, l1_smul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs,
+    abs_of_nonneg ha, abs_of_nonneg hb] at h1
+  have hg1 : l1 g < 1 := hg
+  have hg2 : l1 g' < 1 := hg'
+  have hpos : 0 < a * (1 - l1 g) + b * (1 - l1 g') := by
+    rcases ha.eq_or_lt with h0 | h0
+    · have hb1 : b = 1 := by linarith
+      rw [← h0, hb1]; linarith
+    · exact add_pos_of_pos_of_nonneg (mul_pos h0 (by linarith)) (mul_nonneg hb (by linarith))
+  nlinarith
+
 variable [DecidableEq α] [DecidableEq β]
 
 theorem l1_unitSource (a : α) (b : β) : l1 (unitSource a b) = 1 := by
