@@ -9,6 +9,7 @@ public import Balaban.Polymer.TwoTorusGreenRows
 public import Balaban.Polymer.TwoTorusData
 public import Balaban.Localization.RowsBg
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Positivity
 
 /-!
@@ -16,8 +17,8 @@ import Mathlib.Tactic.Positivity
 
 For the whole-lattice generating set `levelGS j` of two step tori `CTorus d L N₁ m₁ K` and
 `CTorus d L N₁' m₁ K`, identified on a centred box by `boxMap`, this file compares the decoupled
-background systems `IsDecBg` on a component `Y` of the cut and its block set `B = S_Y`, for raw data
-that agree under the box map on the read set `RowsDep B`.
+background systems `IsDecBg` on a union `Y` of components of the cut and its block set `B = S_Y`,
+for raw data that agree under the box map on the read set `RowsDep B`.
 
 * `approxField_levelGS_boxMap`, `residual_levelGS_boxMap`: the approximate field `φ₀` and the
   residual `f₀` at corresponding sites agree when the data agree on `approxDep`, `resDep`.
@@ -27,6 +28,16 @@ that agree under the box map on the read set `RowsDep B`.
   background map `𝒩(δφ(α))` correspond on `B` and the corrections `δφ(α)` correspond on `Y`.  The
   rows of the cut Green operator are the landed `decBg_green_rows_transport`; the image of the block
   set (`hB'`) and the agreement of the cut factors on the inner cubes (`hagree`) are hypotheses.
+* `decBg_picard_rows_transport`: the rescaled background maps `Smap` of the two tori are conjugate
+  on `B` (their values on `B` only read the argument on `B`).
+* `fixed_agree_of_step_transport`: Picard iterations on two carriers that correspond at every step
+  have corresponding limits.
+* `decBg_component_unique` (D2): the decoupled background fields of the two tori have the same
+  multiplier on `B`, the same correction on `Y`, and the same field where the data agree.  The
+  proof compares the Picard iterations from `0` of the two rescaled maps on `B` and uses the landed
+  contraction `smap_fixed_iterates` on each torus; no whole-torus gluing is used.
+* `decBg_value_twoTorus` (D3): the same for the values `F₁ (s, rawOf D)` of maps with the defining
+  property of the pair.
 -/
 
 @[expose] public section
@@ -539,5 +550,318 @@ theorem decBg_rows_transport {cstar BG : ℝ} (hF : FamSpec d L cstar BG) {a : �
       fun i => (hdphi y (rowSite_subset SA hrow) i).symm⟩
 
 end Rows
+
+
+section Picard
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {j : ℕ}
+variable (hj1 : 1 ≤ j) (hj : j ≤ K)
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+omit [NeZero N₁'] in
+include hj1 in
+theorem spacing_levelGS (w : CTorus d L N₁ m₁ K) : (GA).spacing w = (L : ℝ) ^ j := by
+  unfold GeneratingSet.spacing; rw [layerIndex_levelGS hj1 hj]
+
+include hj1 in
+/-- **The restricted Picard map on two tori.**  Under the hypotheses of `decBg_rows_transport`,
+the rescaled background maps `ξ ↦ ℓ² 𝒩(δφ(ξ/ℓ²))` of the two tori (the maps `Smap` whose fixed
+points are the multipliers of `IsDecBg`, in the variable `ξ = ℓ² α`) are conjugate on `B`: for
+`‖ξ‖_∞, ‖ξ'‖_∞ ≤ ρ ≤ γ₁/8` with `ξ = ξ' ∘ bm` on `B`, their values at `x ∈ B` and `bm x` agree.  In
+particular the value on `B` only depends on the argument on `B`. -/
+theorem decBg_picard_rows_transport {cstar BG : ℝ} (hF : FamSpec d L cstar BG) {a : ℕ → ℝ}
+    {ν : ℝ} (SA : DGSetting GA a ν) (SB : DGSetting GB a ν) (hconn : HatConn GA)
+    (hconn' : HatConn GB) {κ : ℝ} (hκ : 0 ≤ κ) (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : DecParams GA} {s' : DecParams GB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes GA X₁, P ∉ 𝒞 → extS GA s P = 0)
+    (hs0' : ∀ P ∈ parCubes GB X₁', P ∉ 𝒞' → extS GB s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY GA X₁ 𝒞 Y).image bm = SY GB X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres GA (SY GA X₁ 𝒞 Y),
+      sProd GB (extS GB s') (Prod.map id bm q) = sProd GA (extS GA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {D : BgData GA N} {D' : BgData GB N}
+    (hD : RawBoxAgree {z | RowsDep GA a ν (SY GA X₁ 𝒞 Y) z} (rawOf D) (rawOf D'))
+    {ρ : ℝ} (hρ : ρ ≤ gamma1 d / 8) {ξ : (GA).Ω 1 → ℂ} {ξ' : (GB).Ω 1 → ℂ}
+    (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hξ' : ∀ x, ‖ξ' x‖ ≤ ρ)
+    (hξξ : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y → ξ x = ξ' (ιb x)) :
+    ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y →
+      Smap GA (decG GA a ν s) (dirichletOperator GA a ν 0) true 0 (approxField GA a ν D.Ψ D.h)
+          (residual GA a ν D (approxField GA a ν D.Ψ D.h)) ξ x =
+        Smap GB (decG GB a ν s') (dirichletOperator GB a ν 0) true 0
+          (approxField GB a ν D'.Ψ D'.h) (residual GB a ν D' (approxField GB a ν D'.Ψ D'.h)) ξ'
+          (ιb x) := by
+  intro x hx
+  have hspA := spacing_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hspB := spacing_levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hsm : Small GA (toAlpha GA ξ) (gamma1 d / 8) := fun z =>
+    (small_toAlpha GA ξ hξ z).trans hρ
+  have hsm' : Small GB (toAlpha GB ξ') (gamma1 d / 8) := fun z =>
+    (small_toAlpha GB ξ' hξ' z).trans hρ
+  have hα : ∀ z : (GA).Ω 1, (z : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y →
+      toAlpha GA ξ z = toAlpha GB ξ' (ιb z) := fun z hz => by
+    unfold toAlpha; rw [hξξ z hz, hspA, hspB]
+  unfold Smap
+  rw [hspA, hspB]
+  congr 1
+  exact (decBg_rows_transport hj1 hj hF SA SB hconn hconn' hκ hM hs hs' hY hYc hs0 hs0' hY' hB'
+    hagree hYR hn hn' hD hsm hsm' hα).1 x hx
+
+end Picard
+
+
+section Component
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {j : ℕ}
+variable (hj1 : 1 ≤ j) (hj : j ≤ K)
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+/-- A fixed point of `DecFixed` in the ball `|δα|₂ ≤ c₆` is the rescaling `δα = ξ / ℓ²` of the
+unique fixed point `ξ` of `Smap` in the ball `‖ξ‖_∞ ≤ c₆` (the identification in the proof of
+`i4a_local_rows`). -/
+theorem toAlpha_eq_of_decFixed {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {s : DecParams G} {ιU : Bool}
+    {α₀ : G.Ω 1 → ℂ} {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ} {Fs : G.Ω 1 × Fin N → ℂ}
+    {r : ℝ} (hr : 0 ≤ r) {ξ δα : G.Ω 1 → ℂ}
+    (huniq : ∀ ξ' ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) r,
+      Smap G (decG G a ν s) (dirichletOperator G a ν α₀) ιU α₀ φ₀ Fs ξ' = ξ' → ξ' = ξ)
+    (hf : DecFixed G a ν s ιU α₀ φ₀ Fs δα) (hsm : Small G δα r) :
+    toAlpha G ξ = δα := by
+  have hm : ofAlpha G δα ∈ Metric.closedBall (0 : G.Ω 1 → ℂ) r := by
+    rw [mem_closedBall_zero_iff]
+    refine (pi_norm_le_iff_of_nonneg hr).2 fun x => ?_
+    rw [norm_ofAlpha]; exact hsm x
+  have hf' : Smap G (decG G a ν s) (dirichletOperator G a ν α₀) ιU α₀ φ₀ Fs (ofAlpha G δα) =
+      ofAlpha G δα := by
+    funext x
+    unfold Smap
+    rw [toAlpha_ofAlpha]
+    unfold DecFixed at hf
+    rw [hf]
+    rfl
+  rw [← huniq _ hm hf', toAlpha_ofAlpha]
+
+include hj1 in
+/-- **D2 (component comparison of the decoupled background on two tori).**  Let `(φ, α)` and
+`(φ', α')` be the decoupled background fields (`IsDecBg` in the ball `ρ₄`) of data `D`, `D'` in
+the domains of Theorem I-4b on the two tori, and suppose the hypotheses of `decBg_rows_transport`
+(component, block set and its image, cut factors, margin, data agreement on `RowsDep B`).  Then
+
+* the multipliers correspond on the block set: `α'(bm x) = α(x)` for `x ∈ B`;
+* the corrections `φ - φ₀` correspond on `Y`;
+* the fields correspond at the sites `y ∈ Y` where the data agree on `approxDep y`, in
+  particular at the sites read by the rows of `H_D(0)` at `B`.
+
+Proof: the Picard iterations from `0` of the rescaled maps of the two tori correspond on `B` at
+every step (`decBg_picard_rows_transport`), and converge to the rescaled multipliers by the landed
+contraction `smap_fixed_iterates` (rate `1/2` in the ball `c₆ = ρ₄`, with the data of
+`decHyp_of_data` on each torus); no whole-torus gluing is used. -/
+theorem decBg_component_unique {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting GA a ν) (SB : DGSetting GB a ν) (hconn : HatConn GA)
+    (hconn' : HatConn GB) (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : DecParams GA} {s' : DecParams GB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε δ' ε' : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hδ0' : 0 < δ') (hδε' : δ' ≤ ε')
+    (hε' : ε' ≤ bgC0 d L N) (hδ' : δ' ≤ c7 d L N BG κ)
+    (hνε' : ν * ((L : ℝ) ^ K) ^ 2 * ε' ^ 2 ≤ δ' ^ 2)
+    {D : BgData GA N} {D' : BgData GB N} (hDd : InDomainC GA ν δ ε D)
+    (hDd' : InDomainC GB ν δ' ε' D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes GA X₁, P ∉ 𝒞 → extS GA s P = 0)
+    (hs0' : ∀ P ∈ parCubes GB X₁', P ∉ 𝒞' → extS GB s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY GA X₁ 𝒞 Y).image bm = SY GB X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres GA (SY GA X₁ 𝒞 Y),
+      sProd GB (extS GB s') (Prod.map id bm q) = sProd GA (extS GA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hD : RawBoxAgree {z | RowsDep GA a ν (SY GA X₁ 𝒞 Y) z} (rawOf D) (rawOf D'))
+    {φ : (GA).Ω 1 × Fin N → ℂ} {α : (GA).Ω 1 → ℂ} {φ' : (GB).Ω 1 × Fin N → ℂ}
+    {α' : (GB).Ω 1 → ℂ} (h : IsDecBg GA a ν (rho4 d L N BG κ) s D φ α)
+    (h' : IsDecBg GB a ν (rho4 d L N BG κ) s' D' φ' α') :
+    (∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y → α' (ιb x) = α x) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ' (ιb y, i) - approxField GB a ν D'.Ψ D'.h (bm (y : CTorus d L N₁ m₁ K)) i =
+        φ (y, i) - approxField GA a ν D.Ψ D.h (y : CTorus d L N₁ m₁ K) i) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep GA (y : CTorus d L N₁ m₁ K), D.Ψ z = D'.Ψ (bm z) ∧ D.h z = D'.h (bm z)) →
+      ∀ i : Fin N, φ' (ιb y, i) = φ (y, i)) ∧
+    (∀ y : (GA).Ω 1, RowSite GA a ν (0 : (GA).Ω 1 → ℂ) (SY GA X₁ 𝒞 Y) y → ∀ i : Fin N,
+      φ' (ιb y, i) = φ (y, i)) := by
+  classical
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hBG := hS.fam.2.1
+  obtain ⟨K1, -⟩ := pow_facts (L := L) hj
+  obtain ⟨W⟩ := DataWit.exists hDd
+  obtain ⟨W'⟩ := DataWit.exists hDd'
+  have Hd := decHyp_of_data (N := N) HB hBG hδ0 hδε hε hδ hνε W
+  have Hd' := decHyp_of_data (N := N) HB hBG hδ0' hδε' hε' hδ' hνε' W'
+  set Bc : ℝ := famConst d L BG κ with hBc
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hB0 : 0 ≤ Bc := by have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hΓ : 0 < Γ := by have := gamma1_pos hd0; positivity
+  have hle : ∀ {δ₂ : ℝ}, 0 < δ₂ → δ₂ ≤ c7 d L N BG κ →
+      lemma53Const d L * δ₂ ≤ deltaStar' d L N Bc Γ := by
+    intro δ₂ h0 h1
+    obtain ⟨-, h2, -⟩ := c7_facts (L := L) (N := N) hd0 hBG h0.le h1
+    have hdc := deltaClose_le_deltaStar' (d := d) (L := L) (N := N) (BG := BG) (κ := κ)
+    have hdcp := deltaClose_pos (d := d) (L := L) (N := N) (κ := κ) hd0 hBG
+    linarith
+  have hC := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ Hd.δ₀_nn Hd.δ₁_nn
+    (hle hδ0 hδ) (hle hδ0 hδ)
+  have hC' := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ Hd'.δ₀_nn Hd'.δ₁_nn
+    (hle hδ0' hδ') (hle hδ0' hδ')
+  obtain ⟨⟨hfam, -⟩, -⟩ := hS.fam.2.2 GA SA hκ hM hs N
+  obtain ⟨⟨hfam', -⟩, -⟩ := hS.fam.2.2 GB SB hκ hM hs' N
+  obtain ⟨ξ, -, -, hξuniq, hit⟩ := smap_fixed_iterates hfam Hd.setup hC
+  obtain ⟨ξ', -, -, hξuniq', hit'⟩ := smap_fixed_iterates hfam' Hd'.setup hC'
+  have hc6 : c6' d L N Bc Γ ≤ Γ := (min_le_left _ _).trans (by linarith)
+  have hc6p : 0 ≤ c6' d L N Bc Γ := (c6'_pos (d := d) (L := L) (N := N) hB0 hΓ).le
+  -- the multipliers are the rescaled fixed points
+  have hfix : DecFixed GA a ν s true 0 (approxField GA a ν D.Ψ D.h)
+      (pertSource GA a (0 : CTorus d L N₁ m₁ K → Fin N → ℂ)
+        (residual GA a ν D (approxField GA a ν D.Ψ D.h))) α := by
+    rw [pertSource_zeroΨ]; exact h.fixed
+  have hfix' : DecFixed GB a ν s' true 0 (approxField GB a ν D'.Ψ D'.h)
+      (pertSource GB a (0 : CTorus d L N₁' m₁ K → Fin N → ℂ)
+        (residual GB a ν D' (approxField GB a ν D'.Ψ D'.h))) α' := by
+    rw [pertSource_zeroΨ]; exact h'.fixed
+  have e1 : toAlpha GA ξ = α := toAlpha_eq_of_decFixed hc6p hξuniq hfix h.small
+  have e2 : toAlpha GB ξ' = α' := toAlpha_eq_of_decFixed hc6p hξuniq' hfix' h'.small
+  -- the iterations correspond on `B`
+  have hagreeξ : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y → ξ x = ξ' (ιb x) := by
+    refine fixed_agree_of_step_transport (fun x => ιb x)
+      (T := fun x : (GA).Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y)
+      (fun u v hu hv huv x hx => ?_) hit hit' hC.ρ_nn
+    rw [pertSource_zeroΨ, pertSource_zeroΨ]
+    exact decBg_picard_rows_transport hj1 hj hS.fam SA SB hconn hconn' hκ hM hs hs' hY hYc hs0
+      hs0' hY' hB' hagree hYR hn hn' hD hc6 hu hv huv x hx
+  have hspA := spacing_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hspB := spacing_levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y → α x = α' (ιb x) := by
+    intro x hx
+    rw [← e1, ← e2]
+    unfold toAlpha
+    rw [hagreeξ x hx, hspA, hspB]
+  -- the corrections on `Y`
+  have hsm : Small GA α Γ := fun z => (h.small z).trans hc6
+  have hsm' : Small GB α' Γ := fun z => (h'.small z).trans hc6
+  have hrows := decBg_rows_transport hj1 hj hS.fam SA SB hconn hconn' hκ hM hs hs' hY hYc hs0
+    hs0' hY' hB' hagree hYR hn hn' hD hsm hsm' hα
+  have hcorr : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ' (ιb y, i) - approxField GB a ν D'.Ψ D'.h (bm (y : CTorus d L N₁ m₁ K)) i =
+        φ (y, i) - approxField GA a ν D.Ψ D.h (y : CTorus d L N₁ m₁ K) i := by
+    intro y hy i
+    rw [h.field, h'.field]
+    simp only [add_sub_cancel_left]
+    exact (hrows.2 y hy i).symm
+  have hfull : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep GA (y : CTorus d L N₁ m₁ K), D.Ψ z = D'.Ψ (bm z) ∧ D.h z = D'.h (bm z)) →
+      ∀ i : Fin N, φ' (ιb y, i) = φ (y, i) := by
+    intro y hy hag i
+    have e := hcorr y hy i
+    rw [approxField_levelGS_boxMap hj1 hj (ρ := R) a ν (by omega) (by omega) (hYR _ hy) hag] at e
+    linear_combination e
+  refine ⟨fun x hx => (hα x hx).symm, hcorr, hfull, fun y hy i => ?_⟩
+  exact hfull y (rowSite_subset SA hy) (fun z hz => hD z (Or.inr ⟨y, hy, hz⟩)) i
+
+end Component
+
+
+section Value
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {j : ℕ}
+variable (hj1 : 1 ≤ j) (hj : j ≤ K)
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+include hj1 in
+/-- **D3 (BG-4, `decBg_value_twoTorus`): the values of the decoupled background on two tori.**
+Let `F₁`, `F₁'` be maps with the defining property of the pair (W587 `hF₁`): on parameters with
+`|s_P| < e^κ` and data in the union domain of Theorem I-4b, `F₁ (s, rawOf D)` is every decoupled
+background field `(φ, α)` of `(s, D)`.  Under the hypotheses of `decBg_rows_transport` for data
+`D`, `D'` in the union domains of the two tori, the values correspond: the multipliers on the
+block set `B`, the corrections `φ - φ₀` on `Y`, and the fields at the sites of `Y` where the data
+agree on `approxDep`, in particular at the sites read by the rows of `H_D(0)` at `B`.  The
+solutions exist by `i4b_exists_unique` on each torus, and are compared by
+`decBg_component_unique`. -/
+theorem decBg_value_twoTorus {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting GA a ν) (SB : DGSetting GB a ν) (hconn : HatConn GA)
+    (hconn' : HatConn GB) (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : DecParams GA × RawData d L (N₁ * L ^ m₁) K N → ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams GB × RawData d L (N₁' * L ^ m₁) K N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams GA) (D : BgData GA N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC GA (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg GA a ν (rho4 d L N BG κ) s D φ α → F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : DecParams GB) (D : BgData GB N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC GB (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg GB a ν (rho4 d L N BG κ) s D φ α → F₁' (s, rawOf D) = (φ, α))
+    {s : DecParams GA} {s' : DecParams GB} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData GA N} {D' : BgData GB N}
+    (hDd : InUnionDomainC GA (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDd' : InUnionDomainC GB (bgC0 d L N) (c7 d L N BG κ) ν D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes GA X₁, P ∉ 𝒞 → extS GA s P = 0)
+    (hs0' : ∀ P ∈ parCubes GB X₁', P ∉ 𝒞' → extS GB s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY GA X₁ 𝒞 Y).image bm = SY GB X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres GA (SY GA X₁ 𝒞 Y),
+      sProd GB (extS GB s') (Prod.map id bm q) = sProd GA (extS GA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hD : RawBoxAgree {z | RowsDep GA a ν (SY GA X₁ 𝒞 Y) z} (rawOf D) (rawOf D')) :
+    (∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y →
+      (F₁' (s', rawOf D')).2 (ιb x) = (F₁ (s, rawOf D)).2 x) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      (F₁' (s', rawOf D')).1 (ιb y, i) - approxField GB a ν D'.Ψ D'.h (bm (y : CTorus d L N₁ m₁ K)) i =
+        (F₁ (s, rawOf D)).1 (y, i) - approxField GA a ν D.Ψ D.h (y : CTorus d L N₁ m₁ K) i) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep GA (y : CTorus d L N₁ m₁ K), D.Ψ z = D'.Ψ (bm z) ∧ D.h z = D'.h (bm z)) →
+      ∀ i : Fin N, (F₁' (s', rawOf D')).1 (ιb y, i) = (F₁ (s, rawOf D)).1 (y, i)) ∧
+    (∀ y : (GA).Ω 1, RowSite GA a ν (0 : (GA).Ω 1 → ℂ) (SY GA X₁ 𝒞 Y) y → ∀ i : Fin N,
+      (F₁' (s', rawOf D')).1 (ιb y, i) = (F₁ (s, rawOf D)).1 (y, i)) := by
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hDC⟩ := id hDd
+  obtain ⟨δ', ε', hδ0', hδε', hε', hδ', hνε', hDC'⟩ := id hDd'
+  obtain ⟨φ, α, hsol, -⟩ := i4b_exists_unique hS SA HB hκ hM (fun P => (hs P).le) hδ0 hδε hε hδ
+    hνε hDC
+  obtain ⟨φ', α', hsol', -⟩ := i4b_exists_unique hS SB HB hκ hM (fun P => (hs' P).le) hδ0' hδε'
+    hε' hδ' hνε' hDC'
+  rw [hF₁ s D hs hDd φ α hsol, hF₁' s' D' hs' hDd' φ' α' hsol']
+  exact decBg_component_unique hj1 hj hS SA SB hconn hconn' HB hκ hM (fun P => (hs P).le)
+    (fun P => (hs' P).le) hδ0 hδε hε hδ hνε hδ0' hδε' hε' hδ' hνε' hDC hDC' hY hYc hs0 hs0' hY'
+    hB' hagree hYR hn hn' hD hsol hsol'
+
+end Value
 
 end Balaban.Polymer.TwoTorusStep
