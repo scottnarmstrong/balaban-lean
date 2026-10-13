@@ -15,3 +15,9 @@
 - Leaf A is proved in `StepActivityOffFibreTaylor.lean`: the free-datum interaction is `o(s²)`, has a holomorphic representative along its domain, has zero value and first two real derivatives at the critical spin, and equals the common cubic Taylor integral. The hat-lift comparison is also proved there.
 - Leaf B is proved in `WoneChartIdentity.lean`: `W1_zeroClass_eq_hat_freeDatum` identifies the joint first exponent with the cubic hat remainder for every `XiCData D`, and `W1_eq_physVal_freeDatum_rho` identifies it with `s²` times the physical value at `(e.1,0)` for every `e ∈ physVRho`, without a field-fibre condition. The old `W1_zeroClass_eq_hat_chart` and `W1_eq_physVal_rho` statements are unchanged and apply these free-datum results.
 - Leaves C–E remain open. In particular the existing `SourceExponentFamily` activity family still ranges over `physFibreRho`; this work does not assert an off-fibre activity bound, nonvanishing, or `prop26J_step_zeroClass`.
+
+## W684 status (2026-10-13)
+
+- Leaf C is proved in `SourceExponentFamily.lean`: `sourceExponentFamily_fromTower_freeDatum_rho` supplies the same labels and amplitude on every point of `physVRho`. The old `sourceExponentFamily_fromTower_rho` statement is unchanged and now restricts this family to `physFibreRho`.
+- Leaf D is proved by `sourceExponentFamily_freeDatum_slice_rho`: for any `XiCData D` and source in `l1BallRho`, the joint exponent at `(rawOf D,g)` is a label-activity sum on both `stepSegments`.
+- Leaf E is proved in `SourceExponentProp26JZero.lean`: `nonvanishing_zeroClass_fromTower_freeDatum_rho` applies `labelAct_integral_eq_exp` to that activity. `JointRep.prop26J_step_zeroClass` combines this with `isC1Family_zeroClass_freeDatum` and `prop26J_step_unbounded`. The amplitude positivity and smallness margins remain explicit numerical hypotheses, as specified in item 10; no fibre, regularity, nonvanishing, or activity hypothesis is added to the public target.
