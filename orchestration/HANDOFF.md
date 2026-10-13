@@ -12,7 +12,7 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W294 | `w294-da-physical-radii` / W294 | physical radius tower: cutoff/radius hypotheses of the direct activity bound for all large β (DAPHYS package 3) |
+| W298 | `w298-det-cauchy-hull` / W298 | canonical hull of a rooted cut set: polymer, size bound, symmetry (DETCAUCHY package 5) |
 | W295 | `w295-energy-scaled` / W295 | scale-uniform energy bound (E*), V-block expansion with it (PHYSCUBIC packages 1–2) |
 | W296 | `w296-p6-fsharp-count` / W296 | rooted count and layer tail for the multiscale P6 cover (VMOD-33 packages 4–5) |
 | W297 | `w297-da-rate-numerics` / W297 | threshold arithmetic: (DA) for β ≥ β₀ with amplitude C_*(log β)^q/√β |
