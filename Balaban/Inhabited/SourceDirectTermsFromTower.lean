@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerScale
+public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Fluctuation.SourceDirectTermsScale
 public import Balaban.Fluctuation.ParamActivitySubspace
 import Mathlib.Tactic.Linarith
@@ -86,6 +87,138 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
 
 open Classical in
+/-- **The direct terms of the zero class at the shared general tower `T`, on the source slice
+`η = q/β`, general `d`, `L`, `N`.**  As `sourceDirectTerms_scale_fromTower_ray_rho` for
+`T : StepTowerG d L N κmin` and `D : StepScaleDataG T …`, at the step
+`T.step k hk N₁ ν β p₁ = hatStepKG … T.δ`, the block scale `T.m₀` and the block coupling
+`β L^{k(d-2)}`.  The expanded function, the domains and the terms are chosen before the chart point
+and the source; the hypotheses are `max 1 ρ ≤ β`, `0 < q ≤ ρ`, `L ^ T.m₀ ∣ N₁` and `5 < N₁`. -/
+
+theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (ρ : ℝ) (hρ : 0 < ρ) (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ ρ)
+    (D : StepScaleDataG T k hk N₁ ν β p₁)
+    (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) :
+    ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+        (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+        (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν T.t
+              (fun D ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                (flFieldOne S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      PhysicalSharpLocEta S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) S.a₁
+        S.ν T.t (q / S.β) 𝒴 Tt ∧
+      DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+        (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁))
+        (physSΛEta S S.a₁ S.ν T.t (q / S.β)) 2 𝒴 Tt ∧
+      (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β),
+        ∃ I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+            (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+              (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1) Θ
+            (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+            (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+            (physAgΘ S) (AgFDirPair S),
+          I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+      (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+        physSΛEta S S.a₁ S.ν T.t (q / S.β) ∧
+      (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < q →
+        (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β)) ∧
+      ∀ (Y : Set (CTorus d L N₁ T.m₁ (k + 1)))
+        (Θ : RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β) → ∀ ψ : S.U × Fin N → ℂ,
+        (∀ p, ‖ψ p‖ ≤ 2 / 3 * p₁) →
+        DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (Metric.ball (0 : ℂ) (3 / 2)) := by
+  classical
+  subst hS
+  have h4 := T.m₁_four
+  have ht0 := T.t_pos
+  have hMX := T.large_block
+  have hdm := T.dom_margin
+  have hα := T.coer_margin
+  have hsmX := T.δc_small
+  have hc7 := T.c7_cap
+  have g1 := T.t_cap
+  have g2 := T.bg0_cap
+  have g3 := T.cK2_cap
+  have g4 := T.cK2'_cap
+  have g5 := T.bg1_cap
+  have hκ0 := T.κ0_nonneg
+  have hκdec := T.κdec_lower
+  have hκ := T.κ_lower
+  have h1 := T.κ_one
+  have hlog := T.κ_log
+  have hxi1 := T.xi_small
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hβ0 : 0 < β := lt_of_lt_of_le hρ (le_trans (le_max_right _ _) hβρ)
+  obtain ⟨R0⟩ := D.ray
+  have hcψ0 := D.cψ_pos
+  have hr0 := D.r_pos
+  have hδ₁ := D.fl_radius
+  have hc := D.ray_margin
+  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
+  have hSD := dgSetting_lvG (d := d) (L := L) (N₁ := N₁) (k := k) T.hd T.hL h4 hN hν0 hν
+  have hC := D.core
+  have hD := D.xi
+  have hBh := hBh_of_xi (N := N) (Gp := lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hHB hνpos
+    hC.small1 hC.eps_pos hxi1
+  obtain ⟨hV, hF⟩ := D.covers
+  have hBh0 : (0 : ℝ) ≤ 1 + 2 / ν := by positivity
+  have hη0 : 0 < q / β := div_pos hq0 hβ0
+  obtain ⟨val, 𝒴, Tt, hval, hloc, hcont, hI, hrayT⟩ := sourceDirectTerms_slice_ray
+    (T.step k hk N₁ ν β p₁)
+    (ρ := p₁) (εU := β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+      (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / β))
+    (Rσ := 2) (R₁ := 2) (r := lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) (R := 2)
+    (m₀ := T.m₀) (κdec := T.κdec)
+    (κ₀ := T.κ0) (Bh := 1 + 2 / ν) (δc := T.δc)
+    (cψ := lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
+    (jV := fun _ => k) (XV := fun z => LocalCover.cube T.m₀ k (LocalCover.blockSite k z))
+    (𝒦XV := fun z => LocalCover.fam T.m₀ (LocalCover.blockSite k z))
+    (X₁V := fun z => LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z))
+    (jF := fun _ => k) (XF := fun s => LocalCover.cube T.m₀ k s.1)
+    (𝒦XF := fun s => LocalCover.fam T.m₀ s.1) (X₁F := fun s => LocalCover.nbhdF T.m₀ s.1)
+    (hC := hC) (hconn := hatConn_lvTopG T.hL) (hrow := rowInHat_lvG hk hSD)
+    (hκ₀ := hκ0) (hκdec := hκdec) (hκ := hκ) (h1 := h1)
+    (hR₁ := by norm_num) (hr := hr0) (hcψ := hcψ0.le) (hMX := hMX) (hdm := hdm) (hα := hα)
+    (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := one_pos) (H := hHB) (hc7 := hc7) (hR := le_rfl)
+    (hRs := g1) (hsmall := g2) (hnum := g3) (hnum' := g4) (hsm := g5)
+    (hcovV := fun z => (hV z).1) (hX₁V := fun z => (hV z).2.1)
+    (hoptV := fun z => (hV z).2.2.1) (hΔV := fun z => (hV z).2.2.2.1)
+    (hlogV := fun _ => hlog) (hZV := fun z => (hV z).2.2.2.2.1)
+    (hmarV := fun z => (hV z).2.2.2.2.2.1)
+    (hcovF := fun s => (hF s).1) (hX₁F := fun s => (hF s).2.1)
+    (hoptF := fun s => (hF s).2.2.1) (hΔF := fun s => (hF s).2.2.2.1)
+    (hlogF := fun _ => hlog) (hyF := fun s => (hF s).2.2.2.2)
+    (hBh0 := hBh0) (hBh := hBh) (hZν := fun z => (hV z).2.2.2.2.2.2)
+    (hN := hLN) (hp := hp) (η := q / β) (hη0 := hη0) (hRσ := by norm_num) (hc := hc)
+    (hεb := by
+      have hnβ : ‖(((T.step k hk N₁ ν β p₁).β : ℝ) : ℂ)‖ = β := by
+        rw [Complex.norm_real]; exact Real.norm_of_nonneg hβ0.le
+      rw [hnβ, mul_comm]
+      exact le_of_eq rfl)
+  exact ⟨val, 𝒴, Tt, hval, hloc, hcont, hI,
+    mk_mem_physSΛEta (T.step k hk N₁ ν β p₁) 1 ν T.t hη0.le hD,
+    fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted_radius hβρ hg hq⟩,
+    fun Y Θ hΘ ψ hψ => hrayT Y Θ hΘ ψ fun p => by
+      have hp1 := D.ray_margin
+      have := hψ p
+      have hpp : 0 < p₁ := hp
+      nlinarith [norm_nonneg (ψ p), hr0]⟩
+
+open Classical in
 /-- **The direct terms of the zero class at the shared tower `T`, on the source slice
 `η = q/β`.**  For `S = T.step k hk N₁ ν β p₁` and `D : StepScaleData T …`, the conclusion of
 `sourceDirectTerms_scale` at the constants `T.m₁, T.t, T.δ, T.BG, T.BG₂, T.κ, T.κ0, T.κdec`:
@@ -148,78 +281,20 @@ theorem sourceDirectTerms_scale_fromTower_ray_rho {κmin : ℝ} (T : StepTower �
           (Metric.ball (0 : ℂ) (3 / 2)) := by
   classical
   subst hS
-  have h4 := T.m₁_four
-  have ht0 := T.t_pos
-  have hMX := T.large_block
-  have hdm := T.dom_margin
-  have hα := T.coer_margin
-  have hsmX := T.δc_small
-  have hc7 := T.c7_cap
-  have g1 := T.t_cap
-  have g2 := T.bg0_cap
-  have g3 := T.cK2_cap
-  have g4 := T.cK2'_cap
-  have g5 := T.bg1_cap
-  have hκ0 := T.κ0_nonneg
-  have hκdec := T.κdec_lower
-  have hκ := T.κ_lower
-  have h1 := T.κ_one
-  have hlog := T.κ_log
-  have hxi1 := T.xi_small
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hβ0 : 0 < β := lt_of_lt_of_le hρ (le_trans (le_max_right _ _) hβρ)
-  obtain ⟨R0⟩ := D.ray
-  have hcψ0 := D.cψ_pos
-  have hr0 := D.r_pos
-  have hδ₁ := D.fl_radius
-  have hc := D.ray_margin
-  have hHB := bgHyp_lv (k := k) T.m₁ hνpos.le hν
-  have hC := D.core
-  have hD := D.xi
-  have hBh := hBh_of_xi (N := 2) (Gp := lvTop N₁ T.m₁ k (rhoSep T.m₁)) hHB hνpos hC.small1
-    hC.eps_pos hxi1
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨hV, hF⟩ := D.covers
-  have hBh0 : (0 : ℝ) ≤ 1 + 2 / ν := by positivity
-  have hη0 : 0 < q / β := div_pos hq0 hβ0
-  obtain ⟨val, 𝒴, Tt, hval, hloc, hcont, hI, hrayT⟩ := sourceDirectTerms_slice_ray
-    (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ)
-    (ρ := p₁) (εU := β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / β))
-    (Rσ := 2) (R₁ := 2) (r := lvR T.κ T.t (β * 3 ^ k) p₁) (R := 2) (m₀ := 1) (κdec := T.κdec)
-    (κ₀ := T.κ0) (Bh := 1 + 2 / ν) (δc := T.δc) (cψ := lvCpsi T.κ T.t (β * 3 ^ k))
-    (jV := fun _ => k) (XV := fun z => LocalCover.cube 1 k (LocalCover.blockSite k z))
-    (𝒦XV := fun z => LocalCover.fam 1 (LocalCover.blockSite k z))
-    (X₁V := fun z => LocalCover.nbhdF 1 (LocalCover.blockSite k z))
-    (jF := fun _ => k) (XF := fun s => LocalCover.cube 1 k s.1)
-    (𝒦XF := fun s => LocalCover.fam 1 s.1) (X₁F := fun s => LocalCover.nbhdF 1 s.1)
-    (hC := hC) (hconn := hatConn_lvTop) (hrow := rowInHat_lv hk h4 hN hν0 hν)
-    (hκ₀ := hκ0) (hκdec := hκdec) (hκ := by exact_mod_cast hκ) (h1 := h1)
-    (hR₁ := by norm_num) (hr := hr0) (hcψ := hcψ0.le) (hMX := hMX) (hdm := hdm) (hα := hα)
-    (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := one_pos) (H := hHB) (hc7 := hc7) (hR := le_rfl)
-    (hRs := g1) (hsmall := g2) (hnum := g3) (hnum' := g4) (hsm := g5)
-    (hcovV := fun z => (hV z).1) (hX₁V := fun z => (hV z).2.1)
-    (hoptV := fun z => (hV z).2.2.1) (hΔV := fun z => (hV z).2.2.2.1)
-    (hlogV := fun _ => hlog) (hZV := fun z => (hV z).2.2.2.2.1)
-    (hmarV := fun z => (hV z).2.2.2.2.2.1)
-    (hcovF := fun s => (hF s).1) (hX₁F := fun s => (hF s).2.1)
-    (hoptF := fun s => (hF s).2.2.1) (hΔF := fun s => (hF s).2.2.2.1)
-    (hlogF := fun _ => hlog) (hyF := fun s => (hF s).2.2.2.2)
-    (hBh0 := hBh0) (hBh := hBh) (hZν := fun z => (hV z).2.2.2.2.2.2)
-    (hN := hN3) (hp := hp) (η := q / β) (hη0 := hη0) (hRσ := by norm_num) (hc := hc)
-    (hεb := by
-      have hnβ : ‖(((hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ).β : ℝ) : ℂ)‖ = β := by
-        rw [Complex.norm_real]; exact Real.norm_of_nonneg hβ0.le
-      rw [hnβ, mul_comm]
-      exact le_of_eq rfl)
-  exact ⟨val, 𝒴, Tt, hval, hloc, hcont, hI,
-    mk_mem_physSΛEta (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ) 1 ν T.t hη0.le hD,
-    fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted_radius hβρ hg hq⟩,
-    fun Y Θ hΘ ψ hψ => hrayT Y Θ hΘ ψ fun p => by
-      have hp1 := D.ray_margin
-      have := hψ p
-      have hpp : 0 < p₁ := hp
-      nlinarith [norm_nonneg (ψ p), hr0]⟩
+  have hp' : 0 < (T.toG.step k hk N₁ ν β p₁).p₁ := hp
+  have G := sourceDirectTerms_scale_fromTowerG_ray_rho T.toG k hk N₁ (by simpa using h3N) hN ν
+    hνpos (by simpa using hν) β ρ hρ hβρ p₁ q hq0 hq (StepTower.scaleDataG_of_fixed T D)
+    (T.toG.step k hk N₁ ν β p₁) rfl hp'
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  unfold StepTowerG.step at G
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G
+  exact G
 
 open Classical in
 /-- **The direct terms of the zero class at the shared tower `T`, on the source slice
