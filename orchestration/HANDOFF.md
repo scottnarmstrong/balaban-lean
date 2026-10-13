@@ -12,10 +12,9 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W337 | `w337-marked-dec-ball` / W337 | marked decoupled tangent: ball bound on the cut polydisc and radial discs; joint analyticity (MARKASM packages 1–2) |
-| W338 | `w338-marked-fluct-rows` / W338 | fluctuation-correction rows for the masked tangent on the original component (MARKASM package 3) |
+| W343 | `w343-marked-fan-local` / W343 | `MARK-FAN`: marked fan locality on the original decoupling component (mirror of `fanHL_local_dir` with the masked tangent); MARKASM package 4 |
+| W344 | `w344-raw-hole-witness` / W344 | history witness: admissible, removed component at scale k, raw hole of the pre-region meeting it; instances of the R geometry lemmas |
 | W340 | `w340-late-y-direction` / W340 | late scales: direction bound 2δ_k/√ν_k at the tested data sites; partition of the data sites into tested/outer (Q13-LATE2 L1–L2) |
-| W339 | `w339-p6-read-locality` / W339 | `paired_locality` restricted to an output read set (reads of the read set inside Y_f(J)); VMOD-39 package 5 |
 | W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
 | W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
 | W331 (Opus) | `w331-det-bg-support` / W331 | determinant with cut-dependent backgrounds: support (root chain) for `rootTraceBg`, composed activity per hull |

@@ -1259,6 +1259,8 @@ public import Balaban.SmallField.RenormPinSum
 public import Balaban.SmallField.RenormPinCounter
 public import Balaban.Localization.PairedLocalGraph
 public import Balaban.Localization.PairedLocalAgree
+public import Balaban.Localization.PairedReadLocality
+public import Balaban.Inhabited.PairedReadLocalityWitness
 public import Balaban.Localization.PairedLocalX0
 public import Balaban.Localization.P6PairCast
 public import Balaban.Localization.P6PairCastReal
@@ -1337,7 +1339,10 @@ public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Fluctuation.MarkedSharpCount
 public import Balaban.Fluctuation.MarkedHatRows
+public import Balaban.Fluctuation.MarkedDecBall
+public import Balaban.Fluctuation.MarkedDecAnalytic
 public import Balaban.Inhabited.MarkedHatRowsWitness
+public import Balaban.Fluctuation.MarkedFluctRows
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1426,3 +1431,7 @@ public import Balaban.Fluctuation.DARateNumerics
 public import Balaban.Fluctuation.StepActivityClassChart
 public import Balaban.LargeField.Background.CubeUnitBg
 public import Balaban.Inhabited.ChiYWitness
+public import Balaban.Fluctuation.SizeModCellPath
+public import Balaban.Fluctuation.SizeModExtend
+public import Balaban.Inhabited.SizeModExtendWitness
+public import Balaban.LargeField.R.SizeModExtendPull
