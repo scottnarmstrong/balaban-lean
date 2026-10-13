@@ -182,6 +182,60 @@ theorem baseSectorCenter_action_sub_eq_chord_of_product_ne_zero
     (baseSectorDatum_domain_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H
       hΛ1 θ φ hp) σ hσ
 
+/-- A physical sphere configuration is a real unit field of the single-scale lifted action. -/
+theorem baseSector_physical_isRealUnitField (ϱ : ℝ) (φ : CfgT d N L n) :
+    IsRealUnitField (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ)
+      (fun p => (((φ (baseSector_side L n ▸
+        (p.1 : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N)) p.2 : ℝ) : ℂ)) := by
+  intro x
+  constructor
+  · intro i
+    simp
+  · have hn : ‖(φ (baseSector_side L n ▸
+        (x : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N))‖ = 1 :=
+      mem_sphere_zero_iff_norm.mp (φ (baseSector_side L n ▸
+        (x : Torus d (1 * n * L ^ 1)))).property
+    have hs := EuclideanSpace.norm_sq_eq
+      (φ (baseSector_side L n ▸
+        (x : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N))
+    simp only [Real.norm_eq_abs, sq_abs] at hs
+    calc
+      _ = ∑ i, ((φ (baseSector_side L n ▸
+          (x : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N)) i : ℝ) ^ 2 := by
+            apply Finset.sum_congr rfl
+            intro i _
+            rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+      _ = ‖(φ (baseSector_side L n ▸
+          (x : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N))‖ ^ 2 := hs.symm
+      _ = 1 := by rw [hn]; norm_num
+
+/-- The lifted first-step action has the constrained chord expansion at every physical
+sphere spin on the nonzero all-good P5 support. -/
+theorem baseSector_physical_action_chord_of_product_ne_zero
+    (ϱ : ℝ) (aw : ℕ → ℝ) (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0) :
+    let G := GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ
+    let D := baseSectorDatum ϱ θ h
+    let e : G.Ω 1 × Fin N → ℂ := fun p =>
+      ((baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1))) p.2 : ℝ) : ℂ)
+    let σ : G.Ω 1 × Fin N → ℂ := fun p =>
+      (((φ (baseSector_side L n ▸
+        (p.1 : Torus d (1 * n * L ^ 1))) : EuclideanSpace ℝ (Fin N)) p.2 : ℝ) : ℂ)
+    let α := bgMult G aw (if regimeB then ν else 0) D
+    (((action G aw (if regimeB then ν else 0) D σ -
+      action G aw (if regimeB then ν else 0) D e : ℝ)) : ℂ) =
+        (1 / 2) * pair G (σ - e)
+          (liftOp N (dirichletOperator G aw (if regimeB then ν else 0) α) *ᵥ (σ - e)) := by
+  exact baseSectorCenter_action_sub_eq_chord_of_product_ne_zero
+    ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp _
+    (baseSector_physical_isRealUnitField ϱ φ)
+
 /-- The hard-spin normal-coordinate exponent after the exact chord identity: the Gaussian
 quadratic form plus the mixed/normal term, residual mass, complex source and logarithmic
 Jacobian. This is the sphere-chart counterpart of P4 (2.45)–(2.48). -/
