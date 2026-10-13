@@ -866,6 +866,8 @@ public import Balaban.LargeField.Base.BaseChartActionBridge
 public import Balaban.LargeField.Base.BaseChartHessian
 public import Balaban.LargeField.Base.BaseChartGaussian
 public import Balaban.LargeField.Base.BaseComponentCovariance
+public import Balaban.LargeField.Base.BaseComponentIdentity
+public import Balaban.LargeField.Base.BaseComponentDeterminant
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
@@ -1366,6 +1368,7 @@ public import Balaban.SmallField.GsSpecPolyEqv
 public import Balaban.SmallField.GsSpecPolyClass
 public import Balaban.SmallField.LocalGeneratorSource
 public import Balaban.SmallField.LocalGeneratorTyping
+public import Balaban.SmallField.LocalGeneratorClassDomain
 public import Balaban.Inhabited.LocalWindowTower
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
@@ -1724,6 +1727,8 @@ public import Balaban.Inhabited.StepTowerThetaDetG
 public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepTowerRadius
 public import Balaban.Inhabited.StepPiecesRenSol
+public import Balaban.Inhabited.StepPiecesRenSolG
+public import Balaban.Inhabited.StepPiecesJointG
 public import Balaban.Inhabited.StepPiecesJoint
 public import Balaban.Fluctuation.RenormDetFibreMap
 public import Balaban.Inhabited.ObsUnconditional
@@ -1747,6 +1752,7 @@ public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Inhabited.MarkCorrBudgetG
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
+public import Balaban.Analysis.RayJetMark
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Fluctuation.RenDom

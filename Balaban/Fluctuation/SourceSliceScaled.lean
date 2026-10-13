@@ -97,6 +97,18 @@ theorem sourceEta_scaled_identity (d L N m₁ n m₀ : ℕ) (a₁ BG BG₂ κ δ
   field_simp
   ring
 
+/-- The amplitude `β · prop33EpsEtaScaled … (q/β)` is positive for `β, q, r, δ₁ > 0` and
+`cK2' > 0`. -/
+theorem sourceEta_scaled_pos (d L N m₁ n m₀ : ℕ) (a₁ BG BG₂ κ δ₁ r q β : ℝ) (hβ : 0 < β)
+    (hq : 0 < q) (hr : 0 < r) (hδ : 0 < δ₁) (hQ : 0 < cK2' d L N (famConst d L BG₂ κ))
+    (hc1 : 0 ≤ c1 d L) :
+    0 < β * prop33EpsEtaScaled d L N m₁ n m₀ a₁ BG BG₂ κ δ₁ r 0 0 (q / β) := by
+  rw [sourceEta_scaled_identity d L N m₁ n m₀ a₁ BG BG₂ κ δ₁ r q β hβ.ne']
+  refine add_pos_of_nonneg_of_pos (mul_nonneg hβ.le (div_nonneg ?_ (by positivity))) ?_
+  · exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) hc1)
+      (pow_nonneg (by positivity) _)) (norm_nonneg _)
+  · exact div_pos (mul_pos hq (mul_pos hQ hδ)) hr
+
 /-- The physical slice `q = 1`: `β · prop33EpsEtaScaled … (1/β) = β E_sc / r³ + K / r`. -/
 theorem sourceEta_scaled_identity_one (d L N m₁ n m₀ : ℕ) (a₁ BG BG₂ κ δ₁ r β : ℝ) (hβ : β ≠ 0) :
     β * prop33EpsEtaScaled d L N m₁ n m₀ a₁ BG BG₂ κ δ₁ r 0 0 (1 / β) =
