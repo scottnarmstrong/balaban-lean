@@ -97,6 +97,7 @@ theorem modAdmissible_congr_inter {Ω Ω' X 𝒦 : Set (Localization.CTorus d L 
     Fluctuation.ModAdmissible m₀ j Ω' X 𝒦 W E :=
   ⟨hE.1, h ▸ hE.2.1, hE.2.2⟩
 
+omit [NeZero N₁] [NeZero L] in
 /-- **T2.** The modular covering size `d^cov_j(X mod Ω^c)` depends on `Ω` only through
 `X ∩ Ω` (the cover clause of `ModAdmissible` is `X ∩ Ω ⊆ ⋃ boxes`, every other clause is about
 `X`). -/
@@ -163,6 +164,7 @@ theorem omegaComp_subset_of_disjoint {Ω C : Set (Localization.CTorus d L N₁ m
   rintro y ⟨hy, hzy⟩
   exact ⟨fun h => h.elim hy (Set.disjoint_left.1 hC ⟨hy, hzy⟩), key y hzy⟩
 
+omit [NeZero N₁] [NeZero L] in
 /-- **T3 (geometry).**  Let `Ω_+ = Ω ∪ C`.  If `X ∈ 𝒟_j(mod Ω_+^c)` and every component of
 `Ω^c` that meets `X` without being contained in `X` contains no cell of `C`, then
 `X ∈ 𝒟_j(mod Ω^c)`. -/
@@ -187,6 +189,7 @@ theorem djMod_of_post_of_comp_avoids {Ω C X : Set (Localization.CTorus d L N₁
   · obtain ⟨y, hy1, hy2⟩ := hne
     exact Set.disjoint_left.1 h1 (hsub' hy1) hy2
 
+omit [NeZero N₁] [NeZero L] in
 /-- **T3 (failure).**  If `X ∈ 𝒟_j(mod (Ω ∪ C)^c)` but `X ∉ 𝒟_j(mod Ω^c)`, some component of
 `Ω^c` meets `X`, is not contained in `X`, and contains a cell of `C`: removal split a component
 of `Ω^c` into pieces, some in `X` and some not. -/
