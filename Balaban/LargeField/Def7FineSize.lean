@@ -82,12 +82,23 @@ components of sites.  **None of the following is proved in this development.**
 * **Reindexing of (D1).**  The form clause (D1) (`Rep.bdrySum`) still sums over the boundary
   domains `bdryDoms` at the raw region `OmegaCube`.  Every such domain is a boundary domain at
   `Ω_k^post` (`bdryDoms_OmegaCube_subset_omegaPost`), and under `support` the terms that are not
-  `FineValid` vanish (`D7BdryPost` in `Def7`), so every term of (D1) is either zero or bounded with
-  the fine size; the sum over all of `bdryDomsPost` is not what (D1) states.
+  `FineValid` vanish (`D7BdryPost.mem_or_eq_zero`, `D7BdryPost.bdrySum_eq` in `Def7`), so every
+  term of (D1) is either zero or bounded with the fine size; the sum over all of `bdryDomsPost`
+  (which may contain domains that are not boundary domains at the raw region) is not what (D1)
+  states.
+* **The pre-`R` class.**  `IsRepPre`, `IsRepPre2` keep the records `D7Bdry`, `D7Bdry2` with the
+  cube-level size `dCovMod` at the raw region.  A fine size at the raw region for these classes,
+  and the passage from the pre-`R` bound to the post-`R` bound through `R`, are not formalized.
+* **The H7 domain.**  The analyticity domain of the boundary terms (`H7Domain` at `globalLH`) and
+  the regions inside `loc_hist` are those of the pre-`R` record (raw regions `OmegaCube`); their
+  form after `R` has not been examined.
 
-A cube-level example with `dCovMod = 0` and fine size `⊤` (two blocks meeting at a corner;
-`notes/phase1/VMOD-25.md` §2) shows that there is no affine comparison between the cube-level size
-`dCovMod` and the fine size; this is the reason for the change.
+For two blocks of cubes meeting at a corner the cube-level size `dCovMod` is `0` and the fine
+size is `⊤` (`corner_dCovMod_zero_fine_top` in `Inhabited/D7FineSizeWitness`;
+`notes/phase1/VMOD-25.md` §2), so the fine size is not bounded by an affine function of the
+cube-level size; this is the reason for the change.  A boundary domain with finite fine size at a
+history with a large-field region, and an inhabitant of `D7BdryPost` with a nonzero boundary
+term, are in the same file (`d7SizeE_ne_top_at_boundary_domain`, `exists_d7BdryPost_nonzero`).
 
 ## Contents
 

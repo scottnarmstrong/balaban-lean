@@ -1276,3 +1276,4 @@ public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.SFCtxMulti
+public import Balaban.Inhabited.D7FineSizeWitness

@@ -322,11 +322,13 @@ of `D7Bdry` at such a domain is `fac`.
 `IsRepPre`, `IsRepPre2`).  It is no longer the size of (D7) for the post-`R` classes `IsRep`,
 `IsRepFlat`, `IsRep2`, `IsRepFlat2`: their records `D7BdryPost`, `D7Bdry2Post` use the fine
 chosen-cover modular size `d7Size` (`Def7FineSize`), the size of the fluctuation step
-(`Fluctuation.dcovModE`).  The two sizes are not comparable: for two blocks meeting at a corner
-and joined inside `X` by a long chain of blocks, this size is `0` (the corner point) while the
-fine size is large, because there is no nearest-neighbour bond across a corner
-(`notes/phase1/VMOD-25.md` §2).  No inequality between this size and `treeLengthMod`, the papers'
-`d_k(X mod Ω^c)` (P5 (1.34), open cubes and all cover cubes) or the fine size is proved. -/
+(`Fluctuation.dcovModE`).  The fine size is not bounded by an affine function of this one: for
+two blocks meeting at a corner this size is `0` (the corner point) while the fine size is `⊤`,
+because there is no nearest-neighbour bond across a corner (`corner_dCovMod_zero_fine_top` in
+`Inhabited/D7FineSizeWitness`; `notes/phase1/VMOD-25.md` §2 joins the two blocks inside `X` by a
+long chain of blocks to make the fine size finite and arbitrarily large, which is not
+formalized).  No inequality between this size and `treeLengthMod`, the papers' `d_k(X mod Ω^c)`
+(P5 (1.34), open cubes and all cover cubes) or the fine size is proved. -/
 noncomputable def dCovMod [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n)) :
     ENNReal :=
   ⨅ (𝒦 : Set (Torus d n)) (Γ : Finset (Seg d n)) (_ : IsCovCurve L Ω X 𝒦 Γ),
