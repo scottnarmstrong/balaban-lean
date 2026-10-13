@@ -407,13 +407,6 @@ theorem mem_pairRootNbhd {s : CTorus d L N₁ m₁ (k + 1)} {P : cubeIdx G} :
 def pairRootSet (U : Set (CTorus d L N₁ m₁ (k + 1))) : Set (cubeIdx G) :=
   ⋃ s ∈ U, ((pairRootNbhd (G := G) s : Finset (cubeIdx G)) : Set (cubeIdx G))
 
-/-- **The geometric condition `NoFree`**: every centre of the cover that is live for one of the two
-operators has a parameter cube in its footprint (no live centre is parameter-free). -/
-def PairNoFree (C : DecCover d L N₁ m₁ K) (X₁ : Finset (CTorus d L N₁ m₁ K))
-    (Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ') (Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
-    Prop :=
-  ∀ z ∈ C.cubeIdx, (LiveI Hb z ∨ LiveI Hm z) → (C.Qset z ∩ C.parCubes X₁).Nonempty
-
 theorem mem_Omega_of_mem_footprint {ϱ₀ : ℝ} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₀}
     {a : ℕ → ℝ} {ν : ℝ} {z : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K}
     (hx : x ∈ footprint H a ν z) : x ∈ H.Ω 1 := by
@@ -492,21 +485,30 @@ theorem mem_jointParams_of_chain {u : Bool × (ℕ × CTorus d L N₁ m₁ (k + 
     P ∈ jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U :=
   mem_jointParams.2 (JointIn.param (JointIn.pstep (pGraph_centre_param hu.act hP hP𝒞) hu.jointIn))
 
-theorem live_or {w : Bool × (ℕ × CTorus d L N₁ m₁ (k + 1))} (h : PairLive Hb Hm w.1 w.2) :
-    LiveI Hb w.2 ∨ LiveI Hm w.2 := by
-  obtain ⟨o, z⟩ := w
-  cases o
-  · exact Or.inr h
-  · exact Or.inl h
+/-- **Parameter-free centres have their footprint in `X₁`.**  If no parameter cube lies in `𝒬(z)`,
+every site of the footprint of `z` lies in a cube of `𝒬(z)` that is contained in `X₁`. -/
+theorem paramFree_foot_subset (hG : CubeAligned G m₁) (hΩb : ∀ x ∈ Hb.Ω 1, x ∈ G.Ω 1)
+    (hΩm : ∀ x ∈ Hm.Ω 1, x ∈ G.Ω 1)
+    (hfb : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hm a ν z, t ∈ hatBox z) {o : Bool}
+    {z : ℕ × CTorus d L N₁ m₁ (k + 1)} (hz : z ∈ cubeIdx G)
+    (hpf : PairParamFree (C := coverOf G) (X₁ := X₁) z)
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ pFoot Hb Hm a ν o z) : x ∈ X₁ := by
+  obtain ⟨Q, hxQ, hQz⟩ := pFoot_cube (a := a) (ν := ν) hG hΩb hΩm hfb hfm hz hx
+  by_contra hxX
+  have : Q.1 ∈ (coverOf G).Qset z ∩ (coverOf G).parCubes X₁ :=
+    Finset.mem_inter.2 ⟨hQz, Finset.mem_filter.2 ⟨Q.2, fun hsub => hxX (hsub (mem_cubeP.2
+      (mem_cubeP.1 hxQ)))⟩⟩
+  rw [hpf] at this
+  simp at this
 
-/-- **T2, conditional rootedness (pair analogue of `rooted_of_rootChain`).**  Under `PairNoFree`,
-every reached marked patch is joined, by a walk of the patch graph of the chain inside the set of
+/-- **T2, rootedness (pair analogue of `rooted_of_rootChain`).**  Every reached marked patch is joined, by a walk of the patch graph of the chain inside the set of
 reached patches, to the root neighbourhood of the seed. -/
-theorem jointParams_rooted_of_noFree (hG : CubeAligned G m₁)
+theorem jointParams_rooted (hG : CubeAligned G m₁)
     (hΩb : ∀ x ∈ Hb.Ω 1, x ∈ G.Ω 1) (hΩm : ∀ x ∈ Hm.Ω 1, x ∈ G.Ω 1)
     (hfb : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
     (hfm : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hm a ν z, t ∈ hatBox z)
-    (hX : ∀ x ∈ X₁, x ∈ U) (hnf : PairNoFree (coverOf G) X₁ Hb Hm) :
+    (hX : ∀ x ∈ X₁, x ∈ U) :
     Rooted (chainPatchGraph G) (pairRootSet (G := G) U)
       ((jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U).subtype (fun P => P ∈ cubeIdx G)) := by
   set J := (jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U).subtype (fun P => P ∈ cubeIdx G) with hJ
@@ -543,17 +545,23 @@ theorem jointParams_rooted_of_noFree (hG : CubeAligned G m₁)
         have hnear := att_near hatt
         have hnear' : y = x ∨ Adj y x := hnear.elim (fun h => Or.inl h.symm) (fun h => Or.inr h.symm)
         rcases hx with hx | ⟨P', hP'𝒞, hP'w, hxP'⟩
-        · obtain ⟨Qx, hxQ, hQxw⟩ := pFoot_cube hG hΩb hΩm hfb hfm hw.1.1 hx
-          obtain ⟨Pv, hPv⟩ := hnf w.2 hw.1.1 (live_or hw.2)
-          have hPv𝒞 : Pv ∈ 𝒞 := hw.1.2 Pv (Finset.mem_inter.1 hPv).1 (Finset.mem_inter.1 hPv).2
-          have hPvc : Pv ∈ cubeIdx G := Qset_subset_cubeIdx _ (Finset.mem_inter.1 hPv).1
-          obtain ⟨r, hr, wk⟩ := ih ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
-          refine ⟨r, hr, ?_⟩
-          have hPvJ := memJ hwc ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
-          have e1 := pg_common (P := P) (P' := Qy) hu'.1.1 hP hQyu
-          have e2 := pg_moore (P := Qy) (P' := Qx) hyQ hxQ hnear'
-          have e3 := pg_common (P := Qx) (P' := ⟨Pv, hPvc⟩) hw.1.1 hQxw (Finset.mem_inter.1 hPv).1
-          exact (walkJ hPJ hPvJ (chainPatch_of_path e1 e2 e3)).trans wk
+        · by_cases hne : ((coverOf G).Qset w.2 ∩ (coverOf G).parCubes X₁).Nonempty
+          · obtain ⟨Qx, hxQ, hQxw⟩ := pFoot_cube hG hΩb hΩm hfb hfm hw.1.1 hx
+            obtain ⟨Pv, hPv⟩ := hne
+            have hPv𝒞 : Pv ∈ 𝒞 := hw.1.2 Pv (Finset.mem_inter.1 hPv).1 (Finset.mem_inter.1 hPv).2
+            have hPvc : Pv ∈ cubeIdx G := Qset_subset_cubeIdx _ (Finset.mem_inter.1 hPv).1
+            obtain ⟨r, hr, wk⟩ := ih ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
+            refine ⟨r, hr, ?_⟩
+            have hPvJ := memJ hwc ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
+            have e1 := pg_common (P := P) (P' := Qy) hu'.1.1 hP hQyu
+            have e2 := pg_moore (P := Qy) (P' := Qx) hyQ hxQ hnear'
+            have e3 := pg_common (P := Qx) (P' := ⟨Pv, hPvc⟩) hw.1.1 hQxw
+              (Finset.mem_inter.1 hPv).1
+            exact (walkJ hPJ hPvJ (chainPatch_of_path e1 e2 e3)).trans wk
+          · have hxX : x ∈ X₁ := paramFree_foot_subset hG hΩb hΩm hfb hfm hw.1.1
+              (Finset.not_nonempty_iff_eq_empty.1 hne) hx
+            exact ⟨P, Set.mem_iUnion₂.2 ⟨x, hX x hxX, Finset.mem_coe.2 (mem_pairRootNbhd.2
+              ⟨Qy, y, hnear, hyQ, pg_common hu'.1.1 hP hQyu⟩)⟩, Polymer.WalkIn.refl hPJ⟩
         · have hP'c : P' ∈ cubeIdx G := Qset_subset_cubeIdx _ hP'w
           obtain ⟨r, hr, wk⟩ := ih ⟨P', hP'c⟩ hP'w hP'𝒞
           refine ⟨r, hr, ?_⟩
@@ -572,7 +580,112 @@ theorem jointParams_rooted_of_noFree (hG : CubeAligned G m₁)
   obtain ⟨v, hv, hr⟩ := hu
   exact claim u v hr hv P hPu hP𝒞
 
+
 end Rooted
+
+/-! #### Counting the root neighbourhood and the rooted sum -/
+
+section Sum
+
+/-- The root neighbourhood of one seed site has at most `(2 d + 1) (detDeg d L + 1)` cubes. -/
+theorem card_pairRootNbhd_le (hG : CubeAligned G m₁)
+    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (s : CTorus d L N₁ m₁ (k + 1)) :
+    (pairRootNbhd (G := G) s).card ≤ (2 * d + 1) * (detDeg d L + 1) := by
+  have hdeg := fun P => paramGraph_degree_le (G := G) hG hϱ hM hL P
+  set S : Finset (CTorus d L N₁ m₁ (k + 1)) :=
+    Finset.univ.filter fun y => s = y ∨ Adj s y with hS
+  have hSc : S.card ≤ 2 * d + 1 := by
+    let f : Fin d × Bool → CTorus d L N₁ m₁ (k + 1) := fun p =>
+      if p.2 then s + Pi.single p.1 1 else s - Pi.single p.1 1
+    have hsub : S ⊆ insert s (Finset.univ.image f) := by
+      intro y hy
+      obtain h | ⟨μ, h | h⟩ := (Finset.mem_filter.1 hy).2
+      · exact Finset.mem_insert.2 (Or.inl h.symm)
+      · exact Finset.mem_insert_of_mem (Finset.mem_image.2 ⟨(μ, true), Finset.mem_univ _, by
+          simp [f, h]⟩)
+      · exact Finset.mem_insert_of_mem (Finset.mem_image.2 ⟨(μ, false), Finset.mem_univ _, by
+          simp [f, h]⟩)
+    refine (Finset.card_le_card hsub).trans ((Finset.card_insert_le _ _).trans ?_)
+    have := Finset.card_image_le (s := (Finset.univ : Finset (Fin d × Bool))) (f := f)
+    simp only [Finset.card_univ, Fintype.card_prod, Fintype.card_fin, Fintype.card_bool] at this
+    omega
+  let g : CTorus d L N₁ m₁ (k + 1) → Finset (cubeIdx G) := fun y =>
+    if h : ∃ Q : cubeIdx G, y ∈ cubeP Q.1 then closedNbhd h.choose else ∅
+  have hsub : pairRootNbhd (G := G) s ⊆ S.biUnion g := by
+    intro P hP
+    obtain ⟨Q, y, hy, hyQ, hPQ⟩ := mem_pairRootNbhd.1 hP
+    refine Finset.mem_biUnion.2 ⟨y, Finset.mem_filter.2 ⟨Finset.mem_univ _, hy⟩, ?_⟩
+    have h : ∃ Q : cubeIdx G, y ∈ cubeP Q.1 := ⟨Q, hyQ⟩
+    simp only [g, h, ↓reduceDIte]
+    have hQ : h.choose = Q := cube_unique hG h.choose_spec hyQ
+    rw [hQ]
+    rcases hPQ with rfl | hPQ
+    · exact Finset.mem_insert_self _ _
+    · exact Finset.mem_insert_of_mem ((SimpleGraph.mem_neighborFinset _ _ _).2 hPQ.symm)
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ y ∈ S, (g y).card ≤ ∑ _y ∈ S, (detDeg d L + 1) := by
+        refine Finset.sum_le_sum fun y _ => ?_
+        by_cases h : ∃ Q : cubeIdx G, y ∈ cubeP Q.1
+        · simp only [g, h, ↓reduceDIte]; exact card_closedNbhd_le hdeg _
+        · simp only [g, h, ↓reduceDIte, Finset.card_empty]; omega
+    _ = S.card * (detDeg d L + 1) := by rw [Finset.sum_const, smul_eq_mul]
+    _ ≤ (2 * d + 1) * (detDeg d L + 1) := Nat.mul_le_mul_right _ hSc
+
+/-- The rooted-sum constant: `max (pairChainDeg d L + 1) ((2 d + 1) (detDeg d L + 1))`. -/
+def pairChainD (d L : ℕ) : ℕ := max (pairChainDeg d L + 1) ((2 * d + 1) * (detDeg d L + 1))
+
+/-- **T5.  The rooted sum for the chain patch graph.**  For a finite seed `A` of sites and
+`z = pairChainD² t < 1`: `Σ t^|C| ≤ (1 / (1 - z))^|A|` over the sets rooted at the root
+neighbourhoods of `A`. -/
+theorem chainPatch_rooted_sum_le (hG : CubeAligned G m₁)
+    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (A : Finset (CTorus d L N₁ m₁ (k + 1))) {t : ℝ} (ht : 0 ≤ t)
+    (hz : ((pairChainD d L : ℕ) : ℝ) ^ 2 * t < 1) :
+    ∑ C ∈ rootedSets (G := chainPatchGraph G)
+        (⋃ s ∈ A, (pairRootNbhd (G := G) s : Set (cubeIdx G))), t ^ C.card
+      ≤ (1 / (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * t)) ^ A.card := by
+  have key := sum_rooted_le (G := chainPatchGraph G) (b := pairChainDeg d L)
+    (b_root := (2 * d + 1) * (detDeg d L + 1))
+    (fun P => chainPatchGraph_degree_le hG hϱ hM hL P)
+    (fun s : {s // s ∈ A} => pairRootNbhd (G := G) s.1)
+    (fun s => card_pairRootNbhd_le hG hϱ hM hL s.1) ht hz A.attach
+  have hU : ((⋃ i ∈ A.attach, ((pairRootNbhd (G := G) i.1 : Finset _) : Set _)) : Set (cubeIdx G))
+      = ⋃ s ∈ A, ((pairRootNbhd (G := G) s : Finset _) : Set _) := by
+    ext x; simp
+  rw [hU, Finset.card_attach] at key
+  exact key
+
+/-- **T5, exponential form.**  With `t = exp (-κ₂)`, `z = pairChainD² t < 1`, `h = -log (1 - z)`:
+if `|A| ≤ c_A (1 + Δ)` then the rooted sum is at most `exp (h c_A) exp (h c_A Δ)`. -/
+theorem chainPatch_rooted_sum_le_exp (hG : CubeAligned G m₁)
+    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (A : Finset (CTorus d L N₁ m₁ (k + 1))) {κ₂ Δ c_A : ℝ}
+    (hz : ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) < 1)
+    (hR : (A.card : ℝ) ≤ c_A * (1 + Δ)) :
+    ∑ C ∈ rootedSets (G := chainPatchGraph G)
+        (⋃ s ∈ A, (pairRootNbhd (G := G) s : Set (cubeIdx G))), Real.exp (-κ₂ * C.card)
+      ≤ Real.exp (-Real.log (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) * c_A) *
+        Real.exp (-Real.log (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) * c_A * Δ) := by
+  set z : ℝ := ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) with hzdef
+  have hz0 : 0 ≤ z := by positivity
+  have hpos : 0 < 1 - z := by linarith
+  set h : ℝ := -Real.log (1 - z) with hh
+  have hh0 : 0 ≤ h := by
+    have : Real.log (1 - z) ≤ 0 := Real.log_nonpos (by linarith) (by linarith)
+    linarith
+  have hsum := chainPatch_rooted_sum_le hG hϱ hM hL A (Real.exp_pos (-κ₂)).le hz
+  have hterm : ∀ C : Finset (cubeIdx G), Real.exp (-κ₂ * C.card) = Real.exp (-κ₂) ^ C.card :=
+    fun C => by rw [← Real.exp_nat_mul]; ring_nf
+  simp only [hterm]
+  refine hsum.trans ?_
+  have : 1 / (1 - z) = Real.exp h := by
+    rw [hh, Real.exp_neg, Real.exp_log hpos, one_div]
+  rw [this, ← Real.exp_nat_mul, ← Real.exp_add]
+  apply Real.exp_le_exp.2
+  nlinarith [mul_le_mul_of_nonneg_left hR hh0]
+
+end Sum
 
 end Patch
 
