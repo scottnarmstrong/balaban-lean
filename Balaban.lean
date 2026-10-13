@@ -480,6 +480,7 @@ public import Balaban.LargeField.History.Floor
 public import Balaban.LargeField.History.WindowCover
 public import Balaban.LargeField.History.Branch
 public import Balaban.LargeField.History.Core
+public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.Entry
 public import Balaban.LargeField.History.PointChain
 public import Balaban.LargeField.History.GainClock
