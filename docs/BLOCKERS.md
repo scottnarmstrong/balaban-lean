@@ -22,7 +22,7 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | open |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; reference family constructed |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | open; workaround designed |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question |
 
@@ -101,7 +101,18 @@ presumably the random-walk parametrix of P3 (2.8), applied to the massive final 
 operator is a long-range Schur complement, however, and we find no formula for the family, or for
 its defect and radius of analyticity, in P7 pp. 529–531 or P4 pp. 719–720.
 
-Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`. Item 18.
+A proposed macroblock parametrix has now been constructed for the reference operator in Lean.
+It has an analytic resolvent family and an analytic Stieltjes family whose uncut value is the
+inverse square root. The weighted column estimates can retain the full row decay rate and the
+same constants: summing the existing pointwise commutator bound in the other order proves the
+column contraction directly. No right parametrix or symmetry of the tagged family is needed.
+This strengthens the reference estimates, but does not close this blocker. The physical matrix
+and action must still be connected to the family with the required analytic domain, physical
+locality, determinant expansion, and nonwinding torus comparison. The current abstract
+coefficient expansion does not by itself prove geometric connectedness of polymer supports.
+
+Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
+[`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
 
 ## 6. Local generating sets and analyticity on their domains
 
