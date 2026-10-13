@@ -205,8 +205,10 @@ section Assemble
 variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
 variable [DecidableEq ι]
 
-/-- **The assembly of the four parts** (`locInt_assemble`) with labels and diagonal continuity. -/
-theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
+/-- **The assembly of the four parts with a differentiability clause.**  As `LocIntDm.assemble`, together
+with the differentiability of the assembled term along the paths `u` (`P' u`) at a fixed datum, when the
+four parts have it (the parts `V`, `E` at `u`, the parts `F`, `M` at `u`). -/
+theorem LocIntDm.assemble_ray {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
     {𝒴V 𝒴E 𝒴F 𝒴M : Finset ι} {TV TE : ι → F → F → ℂ → Λ → ℂ}
     {TF TM : ι → F → F → ℂ → Λ × G → ℂ} {valV valE : F → F → ℂ → Λ → ℂ}
     {valF valM : F → F → ℂ → Λ × G → ℂ} {bV bE bF bM : ι → ℝ}
@@ -218,7 +220,14 @@ theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
     (hM : LocIntDm P e (S ×ˢ SG) XWM Rσ 𝒴M TM valM bM
       (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF)
     (cV cE cF cM : ℂ) (hbV : ∀ Y, 0 ≤ bV Y) (hbE : ∀ Y, 0 ≤ bE Y) (hbF : ∀ Y, 0 ≤ bF Y)
-    (hbM : ∀ Y, 0 ≤ bM Y) :
+    (hbM : ∀ Y, 0 ≤ bM Y)
+    {P' : (ℂ → F) → Prop} {s : Set ℂ}
+    (rV : ∀ Y (u : ℂ → F), P' u → ∀ Θ ∈ S, DifferentiableOn ℂ (fun z => TV Y (u z) (u z) 1 Θ) s)
+    (rE : ∀ Y (u : ℂ → F), P' u → ∀ Θ ∈ S, DifferentiableOn ℂ (fun z => TE Y (u z) (u z) 1 Θ) s)
+    (rF : ∀ Y (u : ℂ → F), P' u → ∀ p ∈ S ×ˢ SG,
+      DifferentiableOn ℂ (fun z => TF Y (u z) (u z) 1 p) s)
+    (rM : ∀ Y (u : ℂ → F), P' u → ∀ p ∈ S ×ˢ SG,
+      DifferentiableOn ℂ (fun z => TM Y (u z) (u z) 1 p) s) :
     ∃ (𝒴 : Finset ι) (T : ι → (F × F) → (F × F) → ℂ → Λ × G → ℂ) (b : ι → ℝ),
       (∀ Y, b Y ≤ ‖cV‖ * bV Y + ‖cE‖ * bE Y + ‖cF‖ * bF Y + ‖cM‖ * bM Y) ∧
       LocIntDm P (fun ψ => (e ψ, e ψ)) (S ×ˢ SG)
@@ -227,7 +236,9 @@ theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
         (fun x w σ p => cV * valV x.1 w.1 σ p.1 + cE * valE x.1 w.1 σ p.1 +
           cF * valF x.2 w.2 σ p + cM * valM x.2 w.2 σ p) b
         (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2)
-        (fun Y a a' => AgF Y a.1 a'.1 ∧ AgF Y a.2 a'.2) := by
+        (fun Y a a' => AgF Y a.1 a'.1 ∧ AgF Y a.2 a'.2) ∧
+      ∀ Y (u : ℂ → F), P' u → ∀ p ∈ S ×ˢ SG,
+        DifferentiableOn ℂ (fun z => T Y (u z, u z) (u z, u z) 1 p) s := by
   classical
   have hV1 := hV.mulAmp (SG := SG) (amp := fun _ => (1 : ℂ)) (Ma := 1)
     (analyticOnNhd_const) (fun _ _ => by simp) (AgG := AgG) (fun _ _ _ _ _ _ _ => rfl)
@@ -256,7 +267,7 @@ theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
   have h12 := hV2.add₂ hE2
   have h123 := h12.add₂ hF2
   have h1234 := h123.add₂ hM2
-  refine ⟨_, _, _, fun Y => ?_, h1234.congr_val ?_⟩
+  refine ⟨_, _, _, fun Y => ?_, h1234.congr_val ?_, ?_⟩
   · simp only [one_mul]
     have n1 := mul_nonneg (norm_nonneg cV) (hbV Y)
     have n2 := mul_nonneg (norm_nonneg cE) (hbE Y)
@@ -265,6 +276,97 @@ theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
     split_ifs <;> linarith
   · intro xw hxw σ hσ p hp
     simp only [one_mul]
+  · intro Y u hu p hp
+    have key : ∀ (c : Prop) [Decidable c] (f : ℂ → ℂ), (c → DifferentiableOn ℂ f s) →
+        DifferentiableOn ℂ (fun z => if c then f z else 0) s := fun c _ f h => by
+      by_cases hc : c
+      · simpa only [hc, ite_true] using h hc
+      · simpa only [hc, ite_false] using differentiableOn_const (0 : ℂ)
+    have hV3 : DifferentiableOn ℂ (fun z => cV * (1 * TV Y (u z) (u z) 1 p.1)) s :=
+      ((rV Y u hu p.1 hp.1).const_mul 1).const_mul cV
+    have hE3 : DifferentiableOn ℂ (fun z => cE * (1 * TE Y (u z) (u z) 1 p.1)) s :=
+      ((rE Y u hu p.1 hp.1).const_mul 1).const_mul cE
+    have hF3 : DifferentiableOn ℂ (fun z => cF * TF Y (u z) (u z) 1 p) s :=
+      (rF Y u hu p hp).const_mul cF
+    have hM3 : DifferentiableOn ℂ (fun z => cM * TM Y (u z) (u z) 1 p) s :=
+      (rM Y u hu p hp).const_mul cM
+    refine DifferentiableOn.add ?_ ?_
+    · apply key; intro _
+      refine DifferentiableOn.add ?_ ?_
+      · apply key; intro _
+        refine DifferentiableOn.add ?_ ?_
+        · apply key; intro _; exact hV3
+        · apply key; intro _; exact hE3
+      · apply key; intro _; exact hF3
+    · apply key; intro _; exact hM3
+
+/-- **The assembly of the four parts** (`locInt_assemble`) with labels and diagonal continuity. -/
+theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
+    {𝒴V 𝒴E 𝒴F 𝒴M : Finset ι} {TV TE : ι → F → F → ℂ → Λ → ℂ}
+    {TF TM : ι → F → F → ℂ → Λ × G → ℂ} {valV valE : F → F → ℂ → Λ → ℂ}
+    {valF valM : F → F → ℂ → Λ × G → ℂ} {bV bE bF bM : ι → ℝ}
+    {AgG : ι → G → G → Prop}
+    (hV : LocIntDm P e S XWV Rσ 𝒴V TV valV bV AgΘ AgF)
+    (hE : LocIntDm P e S XWE Rσ 𝒴E TE valE bE AgΘ AgF)
+    (hF : LocIntDm P e (S ×ˢ SG) XWF Rσ 𝒴F TF valF bF
+      (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF)
+    (hM : LocIntDm P e (S ×ˢ SG) XWM Rσ 𝒴M TM valM bM
+      (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF)
+    (cV cE cF cM : ℂ) (hbV : ∀ Y, 0 ≤ bV Y) (hbE : ∀ Y, 0 ≤ bE Y) (hbF : ∀ Y, 0 ≤ bF Y)
+    (hbM : ∀ Y, 0 ≤ bM Y) :
+    ∃ (𝒴 : Finset ι) (T : ι → (F × F) → (F × F) → ℂ → Λ × G → ℂ) (b : ι → ℝ),
+      (∀ Y, b Y ≤ ‖cV‖ * bV Y + ‖cE‖ * bE Y + ‖cF‖ * bF Y + ‖cM‖ * bM Y) ∧
+      LocIntDm P (fun ψ => (e ψ, e ψ)) (S ×ˢ SG)
+        {xw : (F × F) × (F × F) | (xw.1.1, xw.2.1) ∈ XWV ∧ (xw.1.1, xw.2.1) ∈ XWE ∧
+          (xw.1.2, xw.2.2) ∈ XWF ∧ (xw.1.2, xw.2.2) ∈ XWM} Rσ 𝒴 T
+        (fun x w σ p => cV * valV x.1 w.1 σ p.1 + cE * valE x.1 w.1 σ p.1 +
+          cF * valF x.2 w.2 σ p + cM * valM x.2 w.2 σ p) b
+        (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2)
+        (fun Y a a' => AgF Y a.1 a'.1 ∧ AgF Y a.2 a'.2) := by
+  classical
+  exact (LocIntDm.assemble_ray hV hE hF hM cV cE cF cM hbV hbE hbF hbM (P' := fun _ => False)
+    (s := ∅) (fun _ _ h => h.elim) (fun _ _ h => h.elim) (fun _ _ h => h.elim)
+    (fun _ _ h => h.elim)).imp fun _ => Exists.imp fun _ => Exists.imp fun _ h => ⟨h.1, h.2.1⟩
+
+/-- **Adding a `Θ`-only part to a localized expansion in `(Θ, g)`** (`LocIntDm.addLift`), together
+with the differentiability of the sum along the paths `u` (`P u`) at a fixed datum, when both parts
+have it. -/
+theorem LocIntDm.addLift_ray {SG : Set G} {F' : Type*} {XW : Set (F' × F')} {XWν : Set (F × F)}
+    {𝒴 𝒴ν : Finset ι} {T : ι → F' → F' → ℂ → Λ × G → ℂ} {Tν : ι → F → F → ℂ → Λ → ℂ}
+    {val : F' → F' → ℂ → Λ × G → ℂ} {valν : F → F → ℂ → Λ → ℂ} {b bν : ι → ℝ}
+    {AgG : ι → G → G → Prop} {AgF' : ι → F' → F' → Prop} {e' : E → F'} (π : F' → F)
+    (hXW : ∀ xw ∈ XW, (π xw.1, π xw.2) ∈ XWν)
+    (hAg : ∀ Y a a', AgF' Y a a' → AgF Y (π a) (π a'))
+    (he : ∀ ψ, π (e' ψ) = e ψ)
+    (hν : LocIntDm P e S XWν Rσ 𝒴ν Tν valν bν AgΘ AgF)
+    (hL : LocIntDm P e' (S ×ˢ SG) XW Rσ 𝒴 T val b
+      (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF')
+    (c : ℂ) {P' : (ℂ → F') → Prop} {s : Set ℂ}
+    (rL : ∀ Y (u : ℂ → F'), P' u → ∀ p ∈ S ×ˢ SG,
+      DifferentiableOn ℂ (fun z => T Y (u z) (u z) 1 p) s)
+    (rν : ∀ Y (u : ℂ → F'), P' u → ∀ Θ ∈ S,
+      DifferentiableOn ℂ (fun z => Tν Y (π (u z)) (π (u z)) 1 Θ) s) :
+    ∃ T' : ι → F' → F' → ℂ → Λ × G → ℂ,
+      LocIntDm P e' (S ×ˢ SG) XW Rσ (𝒴 ∪ 𝒴ν) T'
+        (fun x w σ p => val x w σ p + c * valν (π x) (π w) σ p.1)
+        (fun Y => (if Y ∈ 𝒴 then b Y else 0) + (if Y ∈ 𝒴ν then ‖c‖ * (1 * bν Y) else 0))
+        (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF' ∧
+      ∀ Y (u : ℂ → F'), P' u → ∀ p ∈ S ×ˢ SG,
+        DifferentiableOn ℂ (fun z => T' Y (u z) (u z) 1 p) s := by
+  have h1 := hν.mulAmp (SG := SG) (amp := fun _ => (1 : ℂ)) (Ma := 1)
+    (analyticOnNhd_const) (fun _ _ => by simp) (AgG := AgG) (fun _ _ _ _ _ _ _ => rfl)
+  have h2 := (h1.smul c).comap (F' := F') π (XW' := XW) hXW (AgF' := AgF') hAg he
+  refine ⟨_, (hL.add₂ h2).congr_val (fun xw hxw σ hσ p hp => by simp only [one_mul]), ?_⟩
+  intro Y u hu p hp
+  have key : ∀ (c : Prop) [Decidable c] (f : ℂ → ℂ), (c → DifferentiableOn ℂ f s) →
+      DifferentiableOn ℂ (fun z => if c then f z else 0) s := fun c _ f h => by
+    by_cases hc : c
+    · simpa only [hc, ite_true] using h hc
+    · simpa only [hc, ite_false] using differentiableOn_const (0 : ℂ)
+  refine DifferentiableOn.add ?_ ?_
+  · apply key; intro _; exact rL Y u hu p hp
+  · apply key; intro _
+    exact ((rν Y u hu p.1 hp.1).const_mul 1).const_mul c
 
 /-- **Adding a `Θ`-only part to a localized expansion in `(Θ, g)`** (`LocInt.addLift`) with
 labels and diagonal continuity. -/
@@ -284,10 +386,10 @@ theorem LocIntDm.addLift {SG : Set G} {F' : Type*} {XW : Set (F' × F')} {XWν :
         (fun x w σ p => val x w σ p + c * valν (π x) (π w) σ p.1)
         (fun Y => (if Y ∈ 𝒴 then b Y else 0) + (if Y ∈ 𝒴ν then ‖c‖ * (1 * bν Y) else 0))
         (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF' := by
-  have h1 := hν.mulAmp (SG := SG) (amp := fun _ => (1 : ℂ)) (Ma := 1)
-    (analyticOnNhd_const) (fun _ _ => by simp) (AgG := AgG) (fun _ _ _ _ _ _ _ => rfl)
-  have h2 := (h1.smul c).comap (F' := F') π (XW' := XW) hXW (AgF' := AgF') hAg he
-  exact ⟨_, (hL.add₂ h2).congr_val (fun xw hxw σ hσ p hp => by simp only [one_mul])⟩
+  classical
+  obtain ⟨T', hT'⟩ := LocIntDm.addLift_ray π hXW hAg he hν hL c (P' := fun _ => False) (s := ∅)
+    (fun _ _ h => h.elim) (fun _ _ h => h.elim)
+  exact ⟨T', hT'.1⟩
 
 end Assemble
 

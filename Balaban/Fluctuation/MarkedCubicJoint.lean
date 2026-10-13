@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Fluctuation.MarkedEvJoint
+public import Balaban.Fluctuation.ObsRayBase
 
 /-!
 # Joint analyticity of the marked cubic block terms in (datum, marks) (`MarkedCubicJoint`)
@@ -90,82 +91,6 @@ theorem analyticOnNhd_deriv_last {A : Set Q} {T : Set ℂ} {f : Q × ℂ → ℂ
 
 variable {S : Set Λ} {B : Set F} {Ev : Λ × F → ℂ} {ω : ℂ → ℂ} {R₁ r : ℝ}
   {V : Set Q} {Θf : Q → Λ} {wf : Q → F}
-
-/-- The function `(σ, q) ↦ Ev(Θ(q), σ w(q))` is analytic at `(σ, q)` for `q ∈ V`, `‖σ‖ < R₁ + r`,
-when `Θ`, `w` are analytic on `V`, `Θ(q) ∈ S` and the disc `σ w(q)` stays in `B`. -/
-theorem analyticAt_param_H (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (hΘ : AnalyticOnNhd ℂ Θf V)
-    (hw : AnalyticOnNhd ℂ wf V) (hmem : ∀ q ∈ V, Θf q ∈ S)
-    (hdom : ∀ q ∈ V, ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • wf q ∈ B) {x : ℂ × Q}
-    (hx1 : ‖x.1‖ < R₁ + r) (hx2 : x.2 ∈ V) :
-    AnalyticAt ℂ (fun x : ℂ × Q => Ev (Θf x.2, x.1 • wf x.2)) x := by
-  have hm : AnalyticAt ℂ (fun x : ℂ × Q => ((Θf x.2, x.1 • wf x.2) : Λ × F)) x :=
-    AnalyticAt.prod ((hΘ x.2 hx2).comp analyticAt_snd)
-      (analyticAt_fst.smul ((hw x.2 hx2).comp analyticAt_snd))
-  exact (hEv _ ⟨hmem x.2 hx2, hdom x.2 hx2 x.1 hx1⟩).comp_of_eq hm rfl
-
-/-- The third directional derivative of `Ev` at `s w(q)` in the direction `w(q)` is the third
-`σ`-derivative of `(σ, q) ↦ Ev(Θ(q), σ w(q))` at `σ = s`. -/
-theorem dirL3_param_eq (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
-    (hΘ : AnalyticOnNhd ℂ Θf V) (hw : AnalyticOnNhd ℂ wf V) (hmem : ∀ q ∈ V, Θf q ∈ S)
-    (hdom : ∀ q ∈ V, ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • wf q ∈ B) {q : Q} (hq : q ∈ V) {s : ℂ}
-    (hs : ‖s‖ < R₁) :
-    dirL3 Ev (wf q) (Θf q) (s • wf q) =
-      (lineD ((1 : ℂ), (0 : Q)))^[3] (fun x : ℂ × Q => Ev (Θf x.2, x.1 • wf x.2)) (s, q) := by
-  have hr' : ∀ τ : ℂ, ‖τ‖ < r → ‖s + τ‖ < R₁ + r := fun τ hτ =>
-    (norm_add_le _ _).trans_lt (add_lt_add hs hτ)
-  have hf : ∀ τ : ℂ, ‖τ‖ < r → AnalyticAt ℂ Ev (Θf q, s • wf q + τ • wf q) := fun τ hτ => by
-    rw [← add_smul]
-    exact hEv _ ⟨hmem q hq, hdom q hq _ (hr' τ hτ)⟩
-  rw [dirL3_eq hr hf]
-  unfold dirS3
-  have e : (fun τ : ℂ => Ev (Θf q, s • wf q + τ • wf q)) =
-      fun τ : ℂ => (fun x : ℂ × Q => Ev (Θf x.2, x.1 • wf x.2))
-        ((s, q) + τ • ((1 : ℂ), (0 : Q))) := by
-    funext τ
-    have h2 : ((s, q) + τ • ((1 : ℂ), (0 : Q)) : ℂ × Q) = (s + τ, q) := by ext <;> simp
-    rw [h2]
-    show Ev (Θf q, s • wf q + τ • wf q) = Ev (Θf q, (s + τ) • wf q)
-    rw [add_smul]
-  rw [e]
-  have := iteratedDeriv_line (E := ℂ × Q) (s, q) ((1 : ℂ), (0 : Q)) (r := r) 3
-    (fun x : ℂ × Q => Ev (Θf x.2, x.1 • wf x.2))
-    (fun τ hτ => analyticAt_param_H hEv hΘ hw hmem hdom (by simpa using hr' τ hτ)
-      (by simpa using hq)) 0 (by simpa using hr)
-  simpa using this
-
-/-- **The cubic Taylor term is analytic in a parameter.**  Let `Ev` be analytic on `S × B`, `V` an
-open set of a parameter space, `q ↦ Θ(q)` and `q ↦ w(q)` analytic on `V` with `Θ(q) ∈ S` and
-`σ w(q) ∈ B` for `‖σ‖ < R₁ + r` (`R₁ > 1`, `r > 0`), and `ω` analytic on `‖σ‖ < R₁`.  Then
-`q ↦ ∫₀¹ ω(s) D³Ev(Θ(q), s w(q))[w(q), w(q), w(q)] ds` is analytic on `V`. -/
-theorem analyticOnNhd_rayTerm_dl3_param (hV : IsOpen V) (hR₁ : 1 < R₁) (hr : 0 < r)
-    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
-    (hΘ : AnalyticOnNhd ℂ Θf V) (hw : AnalyticOnNhd ℂ wf V) (hmem : ∀ q ∈ V, Θf q ∈ S)
-    (hdom : ∀ q ∈ V, ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • wf q ∈ B) :
-    AnalyticOnNhd ℂ (fun q => rayTerm (dl3 Ev (wf q)) ω (wf q) 1 (Θf q)) V := by
-  set H : ℂ × Q → ℂ := fun x => Ev (Θf x.2, x.1 • wf x.2) with hHdef
-  have hK : ∀ x : ℂ × Q, ‖x.1‖ < R₁ + r → x.2 ∈ V →
-      AnalyticAt ℂ ((lineD ((1 : ℂ), (0 : Q)))^[3] H) x := by
-    intro x h1 h2
-    exact analyticAt_lineD _ (analyticAt_lineD _ (analyticAt_lineD _
-      (analyticAt_param_H hEv hΘ hw hmem hdom h1 h2)))
-  have hint : AnalyticOnNhd ℂ (fun q : Q => ∫ s in (0 : ℝ)..1,
-      ω (s : ℂ) * ((lineD ((1 : ℂ), (0 : Q)))^[3] H) ((s : ℂ), q)) V := by
-    refine analyticOnNhd_unitIntegral (f := fun (q : Q) (s : ℂ) =>
-      ω s * ((lineD ((1 : ℂ), (0 : Q)))^[3] H) (s, q)) hR₁ ?_
-    rintro ⟨q, s⟩ ⟨hq, hs⟩
-    have hs' : ‖s‖ < R₁ := mem_ball_zero_iff.1 hs
-    have hm : AnalyticAt ℂ (fun p : Q × ℂ => (p.2, p.1)) (q, s) :=
-      analyticAt_snd.prod analyticAt_fst
-    exact ((hω s hs).comp (analyticAt_snd (𝕜 := ℂ))).mul
-      ((hK (s, q) (by simp only; linarith) hq).comp_of_eq hm rfl)
-  refine hint.congr hV fun q hq => ?_
-  unfold rayTerm
-  rw [one_mul]
-  refine intervalIntegral.integral_congr fun s hs => ?_
-  rw [Set.uIcc_of_le zero_le_one] at hs
-  have hs' : ‖(s : ℂ)‖ < R₁ := by
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; linarith [hs.2]
-  rw [dl3_apply, one_mul, dirL3_param_eq hr hEv hΘ hw hmem hdom hq hs']
 
 /-- **The marked term is analytic jointly in a parameter and the mark.**  Let `Ev` be analytic on
 `S × B`, `V₀` an open set of a parameter space, and `p ↦ Θ(p) ∈ S`, `p ↦ a(p)`, `p ↦ c(p)` analytic
