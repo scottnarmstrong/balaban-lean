@@ -1463,6 +1463,7 @@ public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
+public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.ExpSourceChartFromTower
 public import Balaban.Inhabited.SourceFamilyRelativeFromTower
 public import Balaban.Inhabited.SourceDirectTermsFromTower
