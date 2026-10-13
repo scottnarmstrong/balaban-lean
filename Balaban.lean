@@ -404,6 +404,7 @@ public import Balaban.Localization.DecoupledCovReal
 public import Balaban.Localization.DecoupledCovParam
 public import Balaban.Localization.DecoupledCovAnalyticFull
 public import Balaban.Localization.DecoupledCovPrincipal
+public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -676,6 +677,8 @@ public import Balaban.Fluctuation.SizeModEntropy
 public import Balaban.Fluctuation.SizeMod
 public import Balaban.Fluctuation.ClusterUnion
 public import Balaban.Fluctuation.CubeSystem
+public import Balaban.Fluctuation.RootPavingMap
+public import Balaban.Inhabited.RootPavingWitness
 public import Balaban.Fluctuation.MeasureProduct
 public import Balaban.Fluctuation.MeasureAbsorb
 public import Balaban.Fluctuation.MeasureInterp
@@ -1157,6 +1160,8 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
+public import Balaban.Fluctuation.RootActiveSize
+public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Fluctuation.Thm31WitnessAnalytic
@@ -1189,6 +1194,10 @@ public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
 public import Balaban.Localization.P6ActiveHalo
+public import Balaban.Localization.P6TopCover
+public import Balaban.Localization.P6TopPair
+public import Balaban.Localization.P6TopRootedFiber
+public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.MooreDegreeWitness
@@ -1303,6 +1312,7 @@ public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
+public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
@@ -1317,3 +1327,4 @@ public import Balaban.Fluctuation.SharpENu
 public import Balaban.Fluctuation.ParamDatumFamily
 public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
+public import Balaban.Fluctuation.ParamCarrierLocal
