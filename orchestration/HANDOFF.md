@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W330 | `w330-final-mass-green` / W330 | last integral: decay of (U_k + t)^{-1}, C_k and C_k^{1/2} with torus-uniform constants (FINAL §3, package 4) |
 | W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
 | W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
-| W327 | `w327-r-ripe-card` / W327 | R: removed ripe component is a box of ≤ (2ρ_k+10)^d cubes (VMOD-37 package 2) |
+| W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
 | W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
 | W331 (Opus) | `w331-det-bg-support` / W331 | determinant with cut-dependent backgrounds: support (root chain) for `rootTraceBg`, composed activity per hull |
 | W329 | `w329-final-hessian` / W329 | last integral: final Hessian split D_k = aP_h + U_k(1−P_h) and coercivity γ₀ = (8d+3)^{-1} (FINAL §1) |
