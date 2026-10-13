@@ -238,7 +238,7 @@ theorem e0CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := G
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
   obtain ⟨h1, h2, c, hc, hcl, hcv, dz, hdz, hdzl, e0, he, hel, hev⟩ := hz z
-  refine ⟨h1, by simp only [corrF0_toG]; exact h2, c, hc, hcl, hcv, dz, hdz, fun C => ?_, e0, he, fun C => ?_, hev⟩
+  refine ⟨h1, by simp only [corrF0_toG]; exact h2, c, hc, hcl, hcv, dz, hdz, fun C => ?_, e0, he, fun C => ?_, hev.1⟩
   · obtain ⟨a1, a2, a3, a4⟩ := hdzl C
     refine ⟨a1, a2, fun θ hθ => ?_, a4⟩
     have := a3 θ hθ

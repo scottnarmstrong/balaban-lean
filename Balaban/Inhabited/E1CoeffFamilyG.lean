@@ -481,14 +481,39 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
                 (e1DomG_isDj_of_eq T hm₀ D hϱ hS)).dl
                 (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i))) ∧
       ∃ Jr : S.JointRep T.t (2 * p₁),
-        ∀ (D' : BgData S.G' N),
+        (∀ (D' : BgData S.G' N),
           XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
           ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
             Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
               (rawOf D', (s : ℂ) • Balaban.Fluctuation.yhat x) =
               ∑ y, (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
                 (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
-                ((S.blockSplit 1 hp).restr x) := by
+                ((S.blockSplit 1 hp).restr x)) ∧
+        ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+            ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+            (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+              (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+          (I0 : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+            (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+              (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))
+            (2 * T.κdec - 1)
+            (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+            (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+            (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2
+              (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+            (physAgΘ S) (AgFDirPair S))
+          (hFd : DirectTermsFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0
+            (physVq S S.a₁ S.ν T.t 1))
+          (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+            (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)),
+          HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
+          HEq A₀ (commonAct (zeroSourceAct
+            (labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0 hFd
+              (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by subst hS; exact hp) (by norm_num) hεU
+              T.κ0_ent T.marks_K0_le) 2 (by norm_num))
+            (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
+            (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)
+            (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two) := by
   classical
   obtain ⟨βa, CE, CF, hβa3, -, -, hact⟩ := zeroSourceActivity_common_fromTowerG T C hKc hKall hH h0 h' hA p
   rw [hm₀] at hact
@@ -528,11 +553,15 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
   · intro z θ i u Φ
     exact ((hF z).2.2.2.1 {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)).2 θ i u Φ
   swap
-  · refine ⟨Jr, fun D' hX => ?_⟩
-    have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
-    exact e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β
-      p₁ (show 0 < p₁ from hp) D _ rfl hp Jr val hval I0 hFd hεU A hAeq
-      A0 hsum D' hX
+  · refine ⟨Jr, fun D' hX => ?_, val, I0, hFd, hεU, ?_, ?_⟩
+    · have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
+      exact e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β
+        p₁ (show 0 < p₁ from hp) D _ rfl hp Jr val hval I0 hFd hεU A hAeq
+        A0 hsum D' hX
+    · exact HEq.rfl
+    · subst hA0eq
+      subst hAeq
+      exact HEq.rfl
   intro z
   obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, hspec⟩ := hF z
   obtain ⟨hdep, hbnd⟩ := hdb {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)

@@ -299,26 +299,63 @@ theorem e0CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
               XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
               (S.withDatum D' hDh).E0locC (zeroClass d L N₁ T.m₁ k N ϱ) z =
                 ∑ C, e0 ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
-                  (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C) := by
+                  (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C) ∧
+            ∃ E : DetExpansionLocC S 1 z T.t
+                ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+                ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+                  (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))),
+              (∀ D' C, E.term D' C = ∑ y ∈ S.blockU z,
+                detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D' y C) ∧
+              (∀ (D' : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+                ∀ g C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C = E.term D' C) ∧
+            ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+                ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+                (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                  (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+              (I0 : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))
+                (2 * T.κdec - 1)
+                (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+                (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+                (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2
+                  (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+                (physAgΘ S) (AgFDirPair S))
+              (hFd : DirectTermsFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0
+                (physVq S S.a₁ S.ν T.t 1))
+              (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)),
+              HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
+              HEq A₀ (commonAct (zeroSourceAct
+                (labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0 hFd
+                  (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by subst hS; exact hp) (by norm_num) hεU
+                  T.κ0_ent T.marks_K0_le) 2 (by norm_num))
+                (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
+                (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)
+                (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two) := by
   classical
   obtain ⟨β₀, h3, H⟩ := e1CoeffFamily_value_fromTowerG T hm₀ C hKc hKall hH h0 h' hA p
   refine ⟨β₀, h3, ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁ D ϱ hϱ S hS hp
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hβ'⟩ :=
     H k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁ D hϱ S hS hp
+  have hz1 := hβ'.1
+  obtain ⟨Jr, hraw, hExplicit⟩ := hβ'.2.2.2.2.2.2.2.2
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hβ'.1 z
+  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hz1 z
   subst hϱ
   obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
   have hLN : L ∣ N₁ := by rw [hm₀] at h3N; simpa using h3N
   have hE : ∃ E : DetExpansionLocC (T.step k hk N₁ ν β p₁) 1 z T.t
       ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
       ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
-        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))), True :=
+        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))),
+      ∀ D' C, E.term D' C = ∑ y ∈ (T.step k hk N₁ ν β p₁).blockU z,
+        detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D' y C :=
     ((detExpansionLocC_scale_of_towerG T.hd T.hL T.hN T.m₁_four T.t_pos (Classical.choice T.core)
       T.large_block T.dom_margin T.coer_margin T.δc_small T.det_z k hk N₁ hLN hN hν0.le hν β
-      p₁ T.δ).2 z).imp fun _ _ => trivial
-  obtain ⟨E, -⟩ := hE
+      p₁ T.δ).2 z)
+  obtain ⟨E, hEterm⟩ := hE
   obtain ⟨dz, hdz1, hdz2⟩ := detParamFamily (N := N) E
     (bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0.le hν)
   have hc0 := T.detConst_nonneg
@@ -358,7 +395,9 @@ theorem e0CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
   · intro C
     obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
     exact ⟨a1, a2, hdzB C, a4⟩
-  · refine ⟨fun θ C => dz θ C + c θ C, fun _ _ => rfl, fun C => ?_, fun D' hDh hX => ?_⟩
+  · refine ⟨fun θ C => dz θ C + c θ C, fun _ _ => rfl, fun C => ?_,
+      fun D' hDh hX => ?_, ⟨E, hEterm, fun D' hX g C => hdz1 D' hX g C,
+        hExplicit⟩⟩
     swap
     · obtain ⟨-, hsum⟩ := hdz1' D' hDh hX 0
       rw [hsum, hcv D' hDh hX, ← Finset.sum_add_distrib]

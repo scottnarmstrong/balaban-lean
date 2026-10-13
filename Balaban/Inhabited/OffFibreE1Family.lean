@@ -124,7 +124,7 @@ theorem e1CoeffFamily_raw_fromTower {κmin : ℝ} (T : StepTower κmin)
     (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl hp
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, -, hz, hεpos, hε, hAhol, hGhol, hdep,
     hmeas, hbnd, Jr, hraw⟩ := G
-  refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, Jr, hεpos, hε, hraw, fun z => ?_⟩
+  refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, Jr, hεpos, hε, hraw.1, fun z => ?_⟩
   obtain ⟨hP, -, c, hc, hC, -⟩ := hz z
   refine ⟨c, hc, fun C => ⟨(hC C).1, (hC C).2.2.1, (hC C).2.2.2.1,
     (hC C).2.2.2.2⟩, ?_⟩
@@ -170,7 +170,7 @@ theorem e1CoeffFamily_raw_fromTower {κmin : ℝ} (T : StepTower κmin)
   have hsum := e1_param_coeff_sum_eq_raw_deriv_of_activity T Dt _ rfl Jr hp hlt hβpos
     (fun b => F₁ (z, b)) (fun b => Sol (z, b)) z hP D hX
     (by simpa using h3N : 3 ^ 1 ∣ N₁) (e1Dom_isDj T Dt) Lab₀ A₀ _ rfl
-    (hraw D hX) hεpos hε hAhol
+    (hraw.1 D hX) hεpos hε hAhol
     (fun i u => hmeas z _ i u)
     (fun i u => hdep z _ i u)
     (fun i u Φ => by
