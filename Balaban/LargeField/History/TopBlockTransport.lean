@@ -14,7 +14,80 @@ public import Balaban.LargeField.Def7SmallField
 /-!
 # Top-scale blocks of the retained shell (Q13-COVER, `TopBlockTransport`)
 
-Geometric half of the package `TopBlockTransport` of `notes/phase1/Q13-COVER.md` §2.
+Geometric half of the package `TopBlockTransport` of `notes/phase1/Q13-COVER.md` §2.  Setting: a
+region history `H`, a scale `k = j + 1 ≤ K`, `Y = Z_kᶜ`, the small-field context `Cx : SFCtx`
+at scale `k` with generating set `G_k = Cx.genW Y = 𝔹_k(W₂(Y))`, and a component `C` of
+`Z^pre_k` not removed at scale `k` (a retained component).  `B = chiDomGen H Cx.geo k C` is
+literally the generating set of `ChiDomAt` (the `histGen` of the lineage localization `locRH k C`).
+
+## What is proved
+
+* **Cube level** (no small-field context).  `mem_layer_chiDomGen`: a fine site whose scale-`k`
+  cube is within one cube of `C` (and in `Ω_k` of the history if it belongs to `C`) lies in the
+  layer `k` of `B`, that is in `Ω_k` but not `Ω_{k+1}` of the localization (the steps of the
+  localization at scales `≥ k` have no new cubes, so `Ω_{k+1}(loc)` misses the cubes of
+  `U'_k ⊇ C`).  `cube_conditions_of_mem_Omega`: a cube `q` of `C` in `Ω_k` satisfies the two
+  conditions of the first family of `ChiDomProp` (`CubeSub … (a.Z k)` and
+  `q ∈ lhOmegaSim a k k`), through `locRH_derived` and `locRH_Z`.  `topBlock_mem_genBlocksIn`:
+  the top-scale block of such a site lies in `genBlocksIn B k (nbhd 1 {q})`.
+  `subMultiscaleField_top_eq_out`: at that block the gate of `subMultiscaleField` is open, the
+  block lies in the output set `Vblk`, and the multiscale field is the output variable.
+* **T1** (`dataSite_cube_near_W2`, `dataSite_cube_mem_nbhd`, `datum_site_topBlock`,
+  `liftSingle_genW_Ψ_top`, `datum_value_eq_tested`).  A datum site `s` of `G_k` lies over a cube
+  within `2⌊R_{k-1}⌋ + 3` of `Y` (`dataSites_cube_near` with `12 M₁ ≤ c M₁`, from `Geo.hc`,
+  and `W₂(Y) ⊆ nbhd_{2a+2}(Y)`); if that cube `q` lies in a retained component `C`, then
+  `q ∈ Ω''_k` (`retained_shell_subset_OmegaDD`), `q` satisfies the two conditions of the first
+  family of `ChiDomProp`, and the top-scale block `(k, blkToBlock (jBlock s))` is in
+  `genBlocksIn B k (nbhd 1 {q})`.  The datum `liftSingle (Cx.genW Y) (Cx.liftData ψ_k) …` takes
+  at `s` the value `ψ_k` at this block (`blkToBlock` is `blockCfgOf`'s cast), and for
+  `ψ_k = outField o` this is the value of `subMultiscaleField` that `PsiTildeMulti` tests.
+* **T2** (`interface_pair_topBlocks`).  For an `IsInterfacePair` pair `(s, s')` of `G_k` such that
+  one of the two sites (`t`) is over a cube `q` of a retained component `C`: the two cubes are
+  within one cube; `q` is a valid cube for the first family of `ChiDomProp`; both top-scale
+  blocks lie in `genBlocksIn B k (nbhd 1 {q})`; they have the same layer `k` and are adjacent
+  (`BlockAdj`).  The other site is arbitrary: collar sites and sites over `Y` are covered, and so
+  are collar–collar pairs with one site over `C`.  The pair's layer-`n` blocks are only used to
+  produce adjacent sites; the datum is constant on them with value `ψ_k` at the `k`-block.
+* **T3** (`psiTildeMulti_of_chiDomProp`, `chiDomAt_site_sphere`, `chiDomAt_pair_bounds`).  Under
+  `ChiDomAt` for `C`: `‖ψ_k(b) - ψ_k(b')‖ < 3 d L δ_{k-1}` and
+  `|‖ψ_k(b)‖² - 1| < 3 d L δ_{k-1}`, `|‖ψ_k(b')‖² - 1| < 3 d L δ_{k-1}` for the top blocks of an
+  interface pair as in T2.  These are the interface condition (R1) and the sphere condition (R2)
+  for the data `Ψ` (closeness of neighbouring block values, and of the block value to the sphere).
+  They are neither `BlockClose` (`|Ψ - Qφ|`, data against the block average of the solution)
+  nor `GradClose` (derivatives of the background).
+* **T4** (`chiKProp_of_chiY_ne_zero`, `chiY_ne_zero_blockClose_gradClose`,
+  `blockDev_lt_of_chiY_ne_zero`, `cubeData_Ψ_eq_liftSingle_Ψ`).  From `chiY ≠ 0`, for every cube
+  `y₀` of `Y`, `RegIneq` of the cube `y₀` gives `BlockClose` (on the sites over `y₀^∼`) and
+  `GradClose` (at the sites of `Ω₁(G_k(y₀))` over `y₀^∼`) with tolerance `δ_k`, for the data
+  `cubeData` of the cube and the background of the generating set `G_k(y₀) = 𝔹_k(y₀^{∼2})`.  The
+  data of the cube and of `G_k` agree at common data sites.  The `InUnionDomainR` conjunct is not
+  used.
+
+## What is not proved
+
+* Pairs `(s, s')` with both sites over cubes of `Y`, or over no retained component: T4 gives
+  only the site bounds `BlockClose`, `GradClose` for the background of one cube `G_k(y₀)`, which
+  is not the background of `G_k`; a bound on `|Ψ(s) - Ψ(s')|` for such pairs needs the difference
+  of the block averages `Qφ` of two blocks (not a consequence of `RegIneq`), `GradClose` does not
+  cover collar sites (it ranges over `Ω₁`), and the radius in `InUnionDomainR` is only
+  existential.  This is the separate bond lift.
+* The transfer to the composed inherited fields `ψ^{(j)}_k` of older scales (`psiJ`), which are
+  not the multiscale field `ψ_k` of the layer-`k` blocks tested here.
+* The strict-margin statements (comparison of the background of `G_k` with the cube backgrounds,
+  the eight `StrictData` tests); the numbers `3 d L δ_{k-1}` (here) and `δ_k` (in `chiY`) are
+  different tolerances.
+* `ActiveFactor`.  Statement (not proved): for every configuration `(o, x)` of the output and of
+  the internal variables at which a nonzero integrand of (D1) is evaluated, with the retained
+  component `C` of `Z^pre_k` the corresponding localized component operator
+  `locOp … k hk C` satisfies `ChiDomAt geo cs H k C o x` (this is what `locOp_vanish_chiDom`
+  gives for a nonvanishing kernel value), with `o` the output configuration (the block field
+  `ψ_k` read by `SFCtx.liftData` and `chiY` in the same integrand is `outField o`), and the
+  background datum of the small-field factor in that integrand is `Cx.liftData (outField o)` on
+  `Cx.genW Y`.  With this, `datum_value_eq_tested` identifies the datum values with the values
+  tested by `ChiDomProp`.
+* Nothing here depends on the mass convention of the backgrounds: only the generating set
+  `G_k`, the block fields and the history enter; the mass `Cx.cs.mu` occurs only inside the
+  background in T4.
 -/
 
 @[expose] public section
@@ -124,6 +197,65 @@ theorem topBlock_mem_genBlocksIn {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 
       genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q}) :=
   ⟨Nat.succ_pos j, hjK, x, mem_layer_chiDomGen H g hjK C hx hΩ, rfl,
     mem_nbhd.mpr ⟨q, rfl, hxq⟩⟩
+
+/-- **The field tested at a top-scale block is the output field `ψ_{j+1}`.**  For a fine site `x`
+whose scale-`(j+1)` cube is within one cube of `C` (and in `Ω_{j+1}` if it belongs to `C`), the
+top-scale block `b = jBlock x` lies in the output set `V = Vblk` (so `ψ_{j+1}(b)` is an actual
+output variable) and the multiscale field of `ChiDomAt` at `b` is that variable: the gate
+`b ⊂ lhOmega` of `subMultiscaleField` is open on `b`. -/
+theorem subMultiscaleField_top_eq_out {N j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ nbhd 1 C.1)
+    (hΩ : cubeMap n S.L M K (j + 1) x ∈ C.1 → cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega)
+    {A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1))}
+    (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
+    (xs : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A) :
+    ∃ hV : jBlock S.d S.L (M * n K) K (j + 1) x ∈ Vblk R (H.localHistory M K (j + 1) C) (j + 1),
+      subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+          (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) xs o (j + 1)
+          (jBlock S.d S.L (M * n K) K (j + 1) x) =
+        o ⟨jBlock S.d S.L (M * n K) K (j + 1) x, hV⟩ := by
+  have hcube : ∀ x' : Torus S.d (M * n K * S.L ^ K),
+      jBlock S.d S.L (M * n K) K (j + 1) x' = jBlock S.d S.L (M * n K) K (j + 1) x →
+      cubeMap n S.L M K (j + 1) x' = cubeMap n S.L M K (j + 1) x := by
+    intro x' h
+    rw [← cubeMap_eq_comp H.F.hnn hjK x', ← cubeMap_eq_comp H.F.hnn hjK x, h]
+  have hV : jBlock S.d S.L (M * n K) K (j + 1) x ∈
+      Vblk R (H.localHistory M K (j + 1) C) (j + 1) := by
+    show blockCube S n M K (j + 1) _ ∈ Vcubes R (H.localHistory M K (j + 1) C) (j + 1)
+    unfold blockCube Vcubes
+    rw [cubeMap_eq_comp H.F.hnn hjK x]
+    refine nbhd_mono le_rfl ?_ hx
+    intro q hq
+    refine mem_nbhd.mpr ⟨q, ?_, by simp [supDist_self]⟩
+    intro x' hx'
+    refine ⟨?_, ?_⟩
+    · show cubeMap n S.L M K (j + 1) x' ∈ ((H.locRH (j + 1) C).step (j + 1)).Z
+      rw [locRH_Z C le_rfl hjK, hx']
+      simp [lin_self, hq]
+    · show cubeMap n S.L M K (j + 1) x' ∈ C.1
+      rw [hx']; exact hq
+  refine ⟨hV, ?_⟩
+  have hgate : BlockSub (S := S) (n := n) (M := M) (K := K) (j + 1)
+      (jBlock S.d S.L (M * n K) K (j + 1) x) (lhOmega (H.localHistory M K (j + 1) C) (j + 1) (j + 1)) := by
+    intro x' hx'
+    have hc := hcube x' hx'
+    by_cases hqC : cubeMap n S.L M K (j + 1) x ∈ C.1
+    · left
+      refine ⟨?_, ?_⟩
+      · show cubeMap n S.L M K (j + 1) x' ∈ ((H.locRH (j + 1) C).step j).Omega
+        by_contra h
+        have h1 := ((H.locRH_derived C (Nat.lt_succ_self j) (by omega)).2.1).symm
+        have h2 : cubeMap n S.L M K (j + 1) x' ∈ ((H.locRH (j + 1) C).step j).Omegaᶜ := h
+        rw [h1, hc] at h2
+        exact h2.1 (hΩ hqC)
+      · show cubeMap n S.L M K (j + 1) x' ∈ C.1
+        rw [hc]; exact hqC
+    · right
+      intro hz
+      exact hqC (by have := hz.2; simpa [fineSet, hc] using this)
+  unfold subMultiscaleField
+  simp only [lt_irrefl, ite_false, dite_true, hgate, or_true, ite_true]
+  simp only [outField, hV, dite_true]
 
 end Core
 
@@ -360,6 +492,44 @@ theorem interface_pair_topBlocks (hC : C.1 ∉ H.rem (j + 1))
     · obtain ⟨μ, h | h⟩ := hadj
       · exact ⟨μ, Or.inl (by unfold bgToFine; rw [h, torusCast_add_single])⟩
       · exact ⟨μ, Or.inr (by unfold bgToFine; rw [h, torusCast_add_single])⟩
+
+/-- **T1 (c), the values agree.**  For a datum site `s` as in `datum_site_topBlock` and an output
+configuration `o`, the single-scale datum of `G_{j+1}` built from the output field
+`ψ_{j+1} = outField o` takes at `s` the value of the multiscale field of `ChiDomAt` at the
+top-scale block of `s`, i.e. the value tested by `PsiTildeMulti` in `genBlocksIn`. -/
+theorem datum_value_eq_tested {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem (j + 1))
+    {A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1))}
+    (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
+    (xs : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A) (hv : EuclideanSpace ℝ (Fin N))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈ C.1) :
+    (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ)
+        (Cx.liftData (outField N o)) (hC hv)).Ψ s =
+      fun i => ((subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+          (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) xs o (j + 1)
+          (blkToBlock Cx.geo Cx.hnn Cx.hkK
+            (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)) i : ℝ) : ℂ) := by
+  have hnb := dataSite_cube_mem_nbhd Cx H.F.ok.two_le_L _ hs
+  have hΩ := (H.step j).OmegaDD_subset_Omega (H.retained_shell_subset_OmegaDD j hret hq hnb)
+  obtain ⟨hV, hfield⟩ := subMultiscaleField_top_eq_out (R := R) H Cx.hkK C
+    (x := bgToFine Cx.geo Cx.hnn Cx.hkK s) (mem_nbhd.mpr ⟨_, hq, by simp [supDist_self]⟩)
+    (fun _ => hΩ) o xs
+  have e := jBlock_bgToFine Cx s
+  have hV' : blkToBlock Cx.geo Cx.hnn Cx.hkK
+      (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s) ∈
+      Vblk R (H.localHistory M K (j + 1) C) (j + 1) := e ▸ hV
+  have hgen : ∀ (b : BlockAt S n M K (j + 1))
+      (hb : b ∈ Vblk R (H.localHistory M K (j + 1) C) (j + 1)),
+      jBlock S.d S.L (M * n K) K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) = b →
+      subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+        (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) xs o (j + 1) b = o ⟨b, hb⟩ := by
+    intro b hb e'
+    subst e'
+    exact hfield
+  have hfield' := hgen _ hV' e
+  rw [liftSingle_genW_Ψ_top Cx _ (outField N o) hv hs, hfield']
+  funext i
+  simp [outField, hV']
 
 end Datum
 
