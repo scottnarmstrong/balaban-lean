@@ -106,6 +106,31 @@ theorem commonAct_zeroSourceAct_H_local_raw (hq : 0 < q)
   · funext Φ
     rw [commonAct_H_inr, commonAct_H_inr]
 
+/-- The zero-source common activity reads the raw datum on each label's own site set. -/
+theorem commonAct_zeroSourceAct_H_local_rawY (hq : 0 < q)
+    {θ θ' : physParam N S} (hθ : θ ∈ physV S a₁ ν eps) (hθ' : θ' ∈ physV S a₁ ν eps) (u : ℂ)
+    (y : {Y // Y ∈ I.𝒴} ⊕ RootUnionLb m₀ reads dom)
+    (hy : ∀ z : {Y // Y ∈ I.𝒴}, y = Sum.inl z →
+      agreeOn z.1 (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+        (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)) :
+    (commonAct (zeroSourceAct
+      (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc) 2 zero_le_two)
+      hN hL reads dom hdom hεH hκ0' θ u).H y =
+    (commonAct (zeroSourceAct
+      (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc) 2 zero_le_two)
+      hN hL reads dom hdom hεH hκ0' θ' u).H y := by
+  rcases y with z | z
+  · have hz := hy z rfl
+    have h := labelActFamilyOn_local_scaled_rawY S m₀ c hF hN hρ hRσ hεU hκ0 hKc
+      (zeroSource_mem_physVq S hq hθ) (zeroSource_mem_physVq S hq hθ') z hz
+      (fun _ _ => rfl) u
+    rw [commonAct_H_inl, commonAct_H_inl]
+    funext Φ
+    simp only [zeroSourceAct_H]
+    rw [h]
+  · funext Φ
+    rw [commonAct_H_inr, commonAct_H_inr]
+
 end Activity
 
 section Marks
@@ -355,6 +380,31 @@ theorem commonAct_zeroSourceAct_hA (hq : 0 < q) {P : Type*} (π : physParam N S 
     hεH hκ0' hq hθ hθ' _ y ?_
   rintro z rfl
   exact hπ θ hθ θ' hθ' hπθ z.1 hy
+
+/-- The activity premise of `paramMarked_analytic_local_bound` for restriction to the cluster's
+own sites. -/
+theorem commonAct_zeroSourceAct_hA_rawY (hq : 0 < q)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+      physRestrict (N := N) (sitesOf T) (physIncl N S θ) =
+        physRestrict (sitesOf T) (physIncl N S θ') →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
+      ∀ y, (commonLabels (thickLabels I.𝒴 I.dom) hN hL reads dom hdom).ysite y ⊆
+          Yhat Set.univ (sitesOf T) →
+        (commonAct (zeroSourceAct
+          (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc) 2
+          zero_le_two) hN hL reads dom hdom hεH hκ0' θ (s : ℂ)).H y =
+        (commonAct (zeroSourceAct
+          (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc) 2
+          zero_le_two) hN hL reads dom hdom hεH hκ0' θ' (s : ℂ)).H y := by
+  intro θ hθ θ' hθ' hπ s _ y hy
+  have hagT := ((physRestrict_physIncl_eq_iff S (sitesOf T) θ θ').1 hπ).1
+  rw [Yhat_univ] at hy
+  refine commonAct_zeroSourceAct_H_local_rawY S m₀ c hF hN hρ hRσ hεU hκ0 hKc
+    reads dom hdom hL hεH hκ0' hq hθ hθ' _ y ?_
+  rintro z rfl
+  exact agreeOn_mono hy hagT
 
 end Premises
 
