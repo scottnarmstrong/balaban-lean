@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.StepTowerRenSol
 import Mathlib.Tactic.Linarith

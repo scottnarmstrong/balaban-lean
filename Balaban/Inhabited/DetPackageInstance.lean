@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.StepTowerOfG
 import Mathlib.Tactic.Linarith
