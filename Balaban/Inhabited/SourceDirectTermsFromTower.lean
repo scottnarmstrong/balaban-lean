@@ -86,15 +86,39 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
 
+/-- **The radius margin at the ray `3/2`, general `d`, `L`, `N`** (OBSRAY §2–§3): with
+`r = c_ψ / (2 p₁) - 4`, positivity of `c_ψ` gives `(4 + r) (3/2) p₁ = 3 c_ψ / 4 < c_ψ`. -/
+theorem lvRG_ray_margin_scaled (d L N : ℕ) (κ t b p₁ : ℝ)
+    (hc : 0 < lvCpsiG d L N κ t b) (hp : 0 < p₁) :
+    ((2 : ℝ) * 2 + lvRG d L N κ t b p₁) * (3 / 2 * p₁) < lvCpsiG d L N κ t b := by
+  have e : ((2 : ℝ) * 2 + lvRG d L N κ t b p₁) * (3 / 2 * p₁) =
+      3 / 4 * lvCpsiG d L N κ t b := by
+    unfold lvRG
+    field_simp
+    ring
+  rw [e]
+  linarith
+
+/-- **The radius margin at the ray `3/2` at the general tower** (OBSRAY §2–§3): the landed
+`StepScaleDataG.ray_margin`-type bound `(4 + r) (3/2) p₁ < c_ψ`. -/
+theorem StepScaleDataG.ray_margin_scaled {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    {T : StepTowerG d L N κmin} {k : ℕ} {hk : 1 ≤ k}
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (hp : 0 < p₁) :
+    ((2 : ℝ) * 2 + lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) * (3 / 2 * p₁) <
+      lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) :=
+  lvRG_ray_margin_scaled d L N _ _ _ _ D.cψ_pos hp
+
+
 open Classical in
 /-- **The direct terms of the zero class at the shared general tower `T`, on the source slice
 `η = q/β`, general `d`, `L`, `N`.**  As `sourceDirectTerms_scale_fromTower_ray_rho` for
 `T : StepTowerG d L N κmin` and `D : StepScaleDataG T …`, at the step
 `T.step k hk N₁ ν β p₁ = hatStepKG … T.δ`, the block scale `T.m₀` and the block coupling
 `β L^{k(d-2)}`.  The expanded function, the domains and the terms are chosen before the chart point
-and the source; the hypotheses are `max 1 ρ ≤ β`, `0 < q ≤ ρ`, `L ^ T.m₀ ∣ N₁` and `5 < N₁`. -/
+and the source; the hypotheses are `max 1 ρ ≤ β`, `0 < q ≤ ρ`, `L ^ T.m₀ ∣ N₁` and `5 < N₁`.  The ray clause ranges over the hat fields with `‖ψ̂ p‖ ≤ p₁` (the full disc; the
+margin is `StepScaleDataG.ray_margin_scaled`). -/
 
-theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+theorem sourceDirectTerms_scale_fromTowerG_ray_full_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁) (hN : 5 < N₁)
     (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (ρ : ℝ) (hρ : 0 < ρ) (hβρ : max 1 ρ ≤ β)
     (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ ρ)
@@ -138,7 +162,7 @@ theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κm
       ∀ (Y : Set (CTorus d L N₁ T.m₁ (k + 1)))
         (Θ : RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)),
         Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β) → ∀ ψ : S.U × Fin N → ℂ,
-        (∀ p, ‖ψ p‖ ≤ 2 / 3 * p₁) →
+        (∀ p, ‖ψ p‖ ≤ p₁) →
         DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
           (Metric.ball (0 : ℂ) (3 / 2)) := by
   classical
@@ -213,10 +237,73 @@ theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κm
     mk_mem_physSΛEta (T.step k hk N₁ ν β p₁) 1 ν T.t hη0.le hD,
     fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted_radius hβρ hg hq⟩,
     fun Y Θ hΘ ψ hψ => hrayT Y Θ hΘ ψ fun p => by
-      have hp1 := D.ray_margin
+      have hp1 := D.ray_margin_scaled hp
       have := hψ p
       have hpp : 0 < p₁ := hp
       nlinarith [norm_nonneg (ψ p), hr0]⟩
+
+open Classical in
+/-- **The direct terms of the zero class at the shared general tower `T`, on the source slice
+`η = q/β`, general `d`, `L`, `N`.**  As `sourceDirectTerms_scale_fromTower_ray_rho` for
+`T : StepTowerG d L N κmin` and `D : StepScaleDataG T …`, at the step
+`T.step k hk N₁ ν β p₁ = hatStepKG … T.δ`, the block scale `T.m₀` and the block coupling
+`β L^{k(d-2)}`.  The expanded function, the domains and the terms are chosen before the chart point
+and the source; the hypotheses are `max 1 ρ ≤ β`, `0 < q ≤ ρ`, `L ^ T.m₀ ∣ N₁` and `5 < N₁`. -/
+
+theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (ρ : ℝ) (hρ : 0 < ρ) (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ ρ)
+    (D : StepScaleDataG T k hk N₁ ν β p₁)
+    (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) :
+    ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+        (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+        (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν T.t
+              (fun D ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                (flFieldOne S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      PhysicalSharpLocEta S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) S.a₁
+        S.ν T.t (q / S.β) 𝒴 Tt ∧
+      DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+        (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁))
+        (physSΛEta S S.a₁ S.ν T.t (q / S.β)) 2 𝒴 Tt ∧
+      (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β),
+        ∃ I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+            (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+              (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1) Θ
+            (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+            (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+            (physAgΘ S) (AgFDirPair S),
+          I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+      (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+        physSΛEta S S.a₁ S.ν T.t (q / S.β) ∧
+      (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < q →
+        (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β)) ∧
+      ∀ (Y : Set (CTorus d L N₁ T.m₁ (k + 1)))
+        (Θ : RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β) → ∀ ψ : S.U × Fin N → ℂ,
+        (∀ p, ‖ψ p‖ ≤ 2 / 3 * p₁) →
+        DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (Metric.ball (0 : ℂ) (3 / 2)) := by
+  classical
+  refine (sourceDirectTerms_scale_fromTowerG_ray_full_rho T k hk N₁ hLN hN ν hνpos hν β ρ hρ hβρ p₁ q hq0 hq D S hS hp).imp fun _ => Exists.imp fun _ => Exists.imp fun _ h => ?_
+  exact ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1,
+    fun Y Θ hΘ ψ hψ => h.2.2.2.2.2.2 Y Θ hΘ ψ fun p => by
+      have := hψ p
+      have hpp : 0 < p₁ := by subst hS; exact hp
+      linarith⟩
 
 open Classical in
 /-- **The direct terms of the zero class at the shared tower `T`, on the source slice

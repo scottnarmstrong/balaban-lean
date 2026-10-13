@@ -748,10 +748,35 @@ theorem Mx_withDatum : Jr.Mx (rawOf D) = (S.withDatum D hD).covSqrtC :=
   (Jr.Mx_eq D hX).trans (S.withDatum D hD).covSqrtC_eq_hatCovSqrt.symm
 
 include hX in
+/-- The joint covariance substitution agrees with that of the fibre step. -/
+theorem hatField_Mx_withDatum (u : S.EC) :
+    S.hatField (Jr.Mx (rawOf D)) u =
+      (S.withDatum D hD).hatField (S.withDatum D hD).covSqrtC u := by
+  rw [Jr.Mx_withDatum D hD hX]
+  rfl
+
+include hX in
 /-- **`W₁` of the step with the datum `D` on the path.** -/
 theorem W1_withDatum {s : ℝ} {x : S.E} (h : |s| * ‖x‖ ≤ pp) :
     Jr.W1 C (rawOf D, (s : ℂ) • yhat x) = (S.withDatum D hD).WoneC C s x :=
   (Jr.withDatum D hD).W1_path C hX h
+
+include hX in
+/-- On a bounded complex hat field, the first joint exponent is the fibre exponent after
+the covariance substitution. -/
+theorem W1_withDatum_hat {u : S.EC} (hu : ∀ p, ‖u p‖ ≤ pp) :
+    Jr.W1 C (rawOf D, u) =
+      (S.withDatum D hD).Phi1C C (S.hatField (Jr.Mx (rawOf D)) u) := by
+  have h := (Jr.withDatum D hD).W1_eq C hX hu
+  have hleft : (Jr.withDatum D hD).W1 C (rawOf (S.withDatum D hD).D', u) =
+      Jr.W1 C (rawOf D, u) := by
+    rfl
+  have hfield : (S.withDatum D hD).hatField (S.withDatum D hD).covSqrtC u =
+      S.hatField (Jr.Mx (rawOf D)) u := by
+    rw [Jr.Mx_withDatum D hD hX]
+    rfl
+  rw [hleft] at h
+  simpa only [StepSetting.Phi1C, StepSetting.psiHat, hfield] using h
 
 include hX in
 /-- **`W₂` of the step with the datum `D` on the path.** -/

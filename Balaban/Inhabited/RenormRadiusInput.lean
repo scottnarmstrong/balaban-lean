@@ -172,6 +172,110 @@ theorem thm31g_C2_scale_of_towerG_at {d L N : ℕ} [NeZero L] {κmin : ℝ}
     (bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν) he R.r₀_le zero_le_one
     (by positivity) (R.toStepTowerRenG.renCK_facts.1) hεR0 hεR z
 
+/-- **The renormalization input record at every scale of the general tower, with zero old terms, conditional on the two new-term expansions**: the case `e = t` of `renormExpInput_scale_of_towerG_of_exp_at`.  The functions `E0θ`, `M0θ` are binders, not the physical functions. -/
+theorem renormExpInput_scale_of_towerG_of_exp {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {κa κb : ℝ} (hκa : κa ≤ 2 * R.κdec)
+    (hκb : κb ≤ 2 * R.κdec) (BE0 BM0 : ℝ)
+    (E0θ : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) →
+      BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N → (Fin 3 → ℂ) → ℂ)
+    (M0θ : (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N →
+      BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N → (Fin 3 → ℂ) → ℂ) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t R.t R.r₀
+        (8 * R.t) F ∧
+      ((∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))), ∃ term,
+        IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa BE0 (E0θ z) term) →
+        (∀ p : (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N, ∃ term,
+        IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+                (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+              (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κb BM0 (M0θ p) term) →
+        RenormExpInput (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t R.r₀
+          (renCK d L N R.BG R.κ) (8 * R.t) F
+          (fun z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) =>
+            blockSites d L N₁ R.m₁ (k + 1) k z)
+          (fun z => renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+          (fun p => renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+                (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+              (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa κb 1 BE0 0 BM0 0 E0θ
+          (fun _ _ _ => 0) M0θ (fun _ _ _ => 0)) :=
+  renormExpInput_scale_of_towerG_of_exp_at R k hk N₁ hN₀ hN hν0 hν R.t_pos le_rfl hκa hκb BE0 BM0 E0θ M0θ
+
+/-- **Theorem 3.1 (g), `C₁(z)`, at every scale of the general tower, unconditional**: the case `e = t` of `thm31g_C1_scale_of_towerG_at`. -/
+theorem thm31g_C1_scale_of_towerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {κa : ℝ} (hκa : κa ≤ 2 * R.κdec) {εR : ℝ}
+    (hεR : εR ≤ R.r₀) (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) :
+    ∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+      (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) εR
+      (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+        (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+        (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+      (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa
+      (1 * ((d + 6) * (renCK d L N R.BG R.κ * R.t) ^ 2 *
+        blockWeight (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (blockSites d L N₁ R.m₁ (k + 1) k z)) *
+        εR ^ 1)
+      (fun D ξ => renC1On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t
+        (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h
+        (bgFieldC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (bgC0 d L N) D) ξ) term :=
+  thm31g_C1_scale_of_towerG_at R k hk N₁ hN₀ hN hν0 hν R.t_pos le_rfl hκa hεR z
+
+/-- **Theorem 3.1 (g), `C₂(z)`, at every scale of the general tower, unconditional**: the case `e = t` of `thm31g_C2_scale_of_towerG_at`. -/
+theorem thm31g_C2_scale_of_towerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {κa : ℝ} (hκa : κa ≤ 2 * R.κdec) {εR : ℝ}
+    (hεR0 : 0 ≤ εR) (hεR : εR ≤ R.r₀) (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t R.t R.r₀
+        (8 * R.t) F ∧
+      ∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+      (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) εR
+      (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+        (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+        (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+      (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa
+      (1 * (17 / 32 * (N * ((3 + (bgK1 d L N * (xiC1 d * R.t) +
+        renCK d L N R.BG R.κ * cK2 d L N * (8 * R.t) * R.r₀ + 2)) *
+        (renCK d L N R.BG R.κ * cK2 d L N * (8 * R.t)) ^ 2)) *
+        blockWeight (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (blockSites d L N₁ R.m₁ (k + 1) k z)) *
+        εR ^ 2)
+      (fun D ξ => renC2On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1)
+        (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
+        (bgMultC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (bgC0 d L N) D +
+          (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term :=
+  thm31g_C2_scale_of_towerG_at R k hk N₁ hN₀ hN hν0 hν R.t_pos le_rfl hκa hεR0 hεR z
+
 end General
 
 /-- **The renormalization input record at every scale of the tower, at the class radius `e ≤ t`,
@@ -285,8 +389,11 @@ theorem renormExpInput_scale_of_tower_of_exp {κmin : ℝ} (R : StepTowerRenSol 
               (fam 1 (p.1 : CTorus 3 3 N₁ R.m₁ (k + 1)))))
           (renDY (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 1) κa κb 1 BE0 0 BM0 0 E0θ
           (fun _ _ _ => 0) M0θ (fun _ _ _ => 0)) :=
-  renormExpInput_scale_of_tower_of_exp_at R k hk N₁ h3N hN hν0 hν R.t_pos le_rfl hκa hκb BE0 BM0
-    E0θ M0θ
+  by
+  have h := renormExpInput_scale_of_towerG_of_exp R.toG k hk N₁ (by simpa using h3N) hN hν0
+    (by simpa using hν) hκa hκb BE0 BM0
+  rw [rhoSepG_three] at h
+  exact h E0θ M0θ
 
 /-- **Theorem 3.1 (g), `C₁(z)`, at every scale of the tower, at the class radius `e ≤ t`,
 unconditional**: the localized expansion with the bound `(d + 6)(c_K e)² W(B_z) ε_R`,
@@ -336,7 +443,11 @@ theorem thm31g_C1_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : 
       (fun D ξ => renC1On (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t
         (blockSites 3 3 N₁ R.m₁ (k + 1) k z) D.Ψ D.h
         (bgFieldC (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (bgC0 3 3 2) D) ξ) term :=
-  thm31g_C1_scale_of_tower_at R k hk N₁ h3N hN hν0 hν R.t_pos le_rfl hκa hεR z
+  by
+  have h := thm31g_C1_scale_of_towerG R.toG k hk N₁ (by simpa using h3N) hN hν0
+    (by simpa using hν) hκa hεR z
+  rw [rhoSepG_three] at h
+  exact_mod_cast h
 
 /-- **Theorem 3.1 (g), `C₂(z)`, at every scale of the tower, at the class radius `e ≤ t`,
 unconditional**: bound `(17/32) N (3 + A)(c_K K₂ B)² W(B_z) ε_R²`, `K_loc = 1`, `N = 2`,
@@ -402,7 +513,11 @@ theorem thm31g_C2_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (k : 
         (blockSites 3 3 N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
         (bgMultC (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (bgC0 3 3 2) D +
           (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term :=
-  thm31g_C2_scale_of_tower_at R k hk N₁ h3N hN hν0 hν R.t_pos le_rfl hκa hεR0 hεR z
+  by
+  have h := thm31g_C2_scale_of_towerG R.toG k hk N₁ (by simpa using h3N) hN hν0
+    (by simpa using hν) hκa hεR0 hεR z
+  rw [rhoSepG_three] at h
+  exact_mod_cast h
 
 /-- The tower record is inhabited, so the theorems above are not vacuous: they apply at `k = 1`,
 `N₁ = 18`, `ν = 0` for every `κmin`. -/

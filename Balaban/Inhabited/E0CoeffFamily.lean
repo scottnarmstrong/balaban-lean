@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.E1CoeffFamily
+public import Balaban.Inhabited.E0CoeffFamilyG
 public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.StepTowerScale
 import Mathlib.Tactic.Linarith
@@ -41,107 +42,6 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep
   Balaban.Inhabited.MarkBudgetAudit Matrix Metric Set MeasureTheory
 
-section Det
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-
-open Classical in
-/-- **The determinant term as a function of the parameter.**  For a record of the determinant
-expansion at a step whose chart is open in the subspace of data, there is a function `dz` of the
-parameter `θ = (raw datum, source)` which equals `E.term D` at `θ = (rawOf D, g)` for every datum `D`
-of the chart, and which is analytic on `physV`, local (equal at two parameters of `physV` whose raw
-data and sources agree on the thickening of `Ŷ(sitesOf T)`), bounded by `cdet e^{-κ'' d_Ext T}` on
-`physV`, and non-zero only at rooted polymer sets.  No locality on `sitesOf T` itself is asserted
-for an individual `dz`: the determinant's locality on its own domain is supplied by the
-collar-grouped record on the `renYs` domains (`renE0_fibre_det_at`). -/
-theorem detParamFamily {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
-    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
-    (E : DetExpansionLocC S m₀ z eps κ'' cdet)
-    (H : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν) :
-    ∃ dz : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1)
-        m₀ (k + 1) Set.univ) → ℂ,
-      (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-        ∀ (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) T,
-          dz (⟨rawOf D, rawOf_mem_rawSub D⟩, g) T = E.term D T) ∧
-      ∀ T, AnalyticOnNhd ℂ (fun θ => dz θ T) (physV S S.a₁ S.ν eps) ∧
-        (∀ θ ∈ physV S S.a₁ S.ν eps, ∀ θ' ∈ physV S S.a₁ S.ν eps,
-          physRestrict (N := N) (thickSet S.G' (Yhat Set.univ (sitesOf T))) (physIncl N S θ) =
-            physRestrict (thickSet S.G' (Yhat Set.univ (sitesOf T))) (physIncl N S θ') →
-          dz θ T = dz θ' T) ∧
-        (∀ θ ∈ physV S S.a₁ S.ν eps, ‖dz θ T‖ ≤ cdet * Real.exp (-κ'' * dExt T)) ∧
-        (∀ θ, dz θ T ≠ 0 → rootCube (m₀ := m₀) (K := k + 1) z ∈ T ∧
-          IsPolyDom m₀ (k + 1) (sitesOf T)) := by
-  choose A hA1 hA2 using E.analyticAt_raw
-  let dz : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1)
-        m₀ (k + 1) Set.univ) → ℂ := fun θ T =>
-    if h : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps then E.term (Classical.choose h) T
-      else 0
-  have hdz : ∀ (θ : physParam N S) T (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf D → dz θ T = E.term D T := by
-    intro θ T D hD hθD
-    have hmem : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps := ⟨D, hD, hθD⟩
-    have hdef : dz θ T = E.term (Classical.choose hmem) T := by
-      simp only [dz, hmem, ↓reduceDIte]
-    obtain ⟨hD₀, hr₀⟩ := Classical.choose_spec hmem
-    have : Classical.choose hmem = D := BgData.eq_of_raw (hr₀.symm.trans hθD)
-    rw [hdef, this]
-  have hchart : ∀ θ ∈ physV S S.a₁ S.ν eps, ∃ D : BgData S.G' N,
-      XiCData S.G' S.a S.ν (k + 1) 1 eps D ∧
-        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf D := fun θ hθ => hθ.1
-  refine ⟨dz, fun D hD g T => hdz _ T D hD rfl, fun T => ?_⟩
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · intro θ hθ
-    obtain ⟨D, hD, hθD⟩ := hchart θ hθ
-    let f : physParam N S →L[ℂ] RawData d L (N₁ * L ^ m₁) (k + 1) N :=
-      (rawSub N S.G').subtypeL.comp (ContinuousLinearMap.fst ℂ _ _)
-    have hf : f θ = rawOf D := hθD
-    have han : AnalyticAt ℂ (A T) (f θ) := by
-      rw [hf]; exact hA1 T D hD
-    have hcomp : AnalyticAt ℂ (fun θ' => A T (f θ')) θ := han.comp (f.analyticAt θ)
-    have hU : IsOpen {θ' : physParam N S | (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps} :=
-      (isOpen_preimage_xiCRaw (N := N) (G := S.G') (σ := 1) (ε := eps) (n := k + 1) H).preimage
-        continuous_fst
-    refine hcomp.congr ?_
-    filter_upwards [hU.mem_nhds ⟨D, hD, hθD⟩] with θ' hθ'
-    obtain ⟨D', hD', hθ'D⟩ := hθ'
-    rw [hdz θ' T D' hD' hθ'D, ← hA2 T D' hD']
-    show A T (f θ') = A T (rawOf D')
-    rw [show f θ' = rawOf D' from hθ'D]
-  · intro θ hθ θ' hθ' h
-    obtain ⟨D, hD, hθD⟩ := hchart θ hθ
-    obtain ⟨D', hD', hθ'D⟩ := hchart θ' hθ'
-    rw [hdz θ T D hD hθD, hdz θ' T D' hD' hθ'D]
-    refine E.local_resDep D D' hD hD' T (fun x hx w hw => ?_)
-    have hwmem : w ∈ thickSet S.G' (Yhat Set.univ (sitesOf T)) :=
-      Or.inr ⟨x, Or.inl hx, x.2, hw⟩
-    have := congrFun h ⟨w, hwmem⟩
-    simp only [physRestrict, physIncl_apply, Prod.mk.injEq] at this
-    obtain ⟨e1, e2, -⟩ := this
-    have hΨ : D.Ψ w = D'.Ψ w := by
-      have a1 : D.Ψ w = (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).1 w := by rw [hθD]; rfl
-      have a2 : D'.Ψ w = (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).1 w := by rw [hθ'D]; rfl
-      rw [a1, a2, e1]
-    refine ⟨hΨ, fun _ => ?_⟩
-    have a1 : D.h w = (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 w := by rw [hθD]; rfl
-    have a2 : D'.h w = (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 w := by rw [hθ'D]; rfl
-    rw [a1, a2, e2]
-  · intro θ hθ
-    obtain ⟨D, hD, hθD⟩ := hchart θ hθ
-    rw [hdz θ T D hD hθD]
-    exact E.bound D hD T
-  · intro θ hθ
-    by_cases hmem : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps
-    · obtain ⟨D, hD, hθD⟩ := hmem
-      rw [hdz θ T D hD hθD] at hθ
-      exact E.anchor D hD T hθ
-    · exact absurd (by simp only [dz, hmem, ↓reduceDIte]) hθ
-
-end Det
-
 /-- The numerical facts about the determinant constant of the tower used in the sum:
 `27 BL ≥ 0`, and `27 BL ≤ 2 · 27 · BL · K₀`. -/
 theorem towerDetConst_le_mul {κmin : ℝ} (T : StepTower κmin) :
@@ -151,32 +51,22 @@ theorem towerDetConst_le_mul {κmin : ℝ} (T : StepTower κmin) :
         (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)) ≤
       2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
         (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) * K0 3 3 T.κ0 := by
-  have hz := T.det_z
-  have hzpos : 0 < 1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ) := by linarith
-  have hκ : 0 ≤ T.κ := by
-    have h1 := T.κ_lower
-    have h0 := T.κ0_nonneg
-    have h2 := T.κdec_lower
-    have : (0 : ℝ) ≤ 4 * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * T.κdec := by
-      have : (0 : ℝ) ≤ T.κdec := by linarith
-      positivity
-    linarith
-  have hBL : 0 ≤ covBLogMax 3 3 T.κ /
-      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)) := by
-    have h1 := one_le_covBLog 3 (L := 3) (by norm_num) (a := 2) (by norm_num)
-      (2 / (3 : ℝ) ^ 2) hκ
-    unfold covBLogMax
-    exact div_nonneg (by linarith) hzpos.le
-  have hK1 : 1 ≤ K0 3 3 T.κ0 := by
-    unfold K0
-    have h1 : Real.exp (-1) < 1 := Real.exp_lt_one_iff.2 (by norm_num)
-    have h2 : 0 < 1 - Real.exp (-1) := by linarith
-    rw [le_div_iff₀ h2]
-    have := Real.one_le_exp (aEnt_nonneg 3 3)
-    have := Real.exp_pos (-1)
-    linarith
-  rw [mul_div_assoc]
-  exact ⟨by positivity, by nlinarith [mul_nonneg hBL (sub_nonneg.2 hK1)]⟩
+  have h0 := T.toG.detConst_nonneg
+  have h1 := T.toG.detConst_le_mul
+  have e : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) =
+      27 * covBLogMax 3 3 T.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)) := by
+    push_cast; ring
+  have e2 : (27 : ℝ) * covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)) =
+      27 * (covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) := by ring
+  simp only [StepTower.toG_κ, StepTower.toG_κ0] at h0 h1
+  rw [e] at h0 h1
+  refine ⟨h0, ?_⟩
+  rw [e2] at h1 ⊢
+  refine h1.trans (le_of_eq ?_)
+  push_cast; ring
 
 open Classical in
 /-- **The energy coefficient family at the tower with its value on the fibre `h ≡ h₀`.**  See the
@@ -332,69 +222,37 @@ theorem e0CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
                   (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
                 ∑ C, e0 ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
                   (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) C := by
-  obtain ⟨β₀, h3, h⟩ := e1CoeffFamily_value_fromTower T hHull hA p
+  obtain ⟨β₀, h3, H⟩ := e0CoeffFamily_value_fromTowerG T.toG rfl (stepOutputPhysical T hHull)
+    rfl rfl rfl rfl rfl hA p
   refine ⟨β₀, h3, ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
-  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hβ'⟩ :=
-    h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
+  have e : (((3 : ℕ)) : ℝ) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have e27 : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) =
+      27 * (covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) := by
+    push_cast; ring
+  have G := H k hk N₁ (by simpa using h3N) hN ν hν0 (by simpa using hν) β hβ p₁
+    (by rw [e]; exact hp₁) (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    (T.step k hk N₁ ν β p₁) rfl hp
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := G
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hβ' z
-  obtain ⟨hE, hrate⟩ := detExpansionLocC_scale_fromTower T k hk N₁ h3N hN hν0.le hν β p₁
-  obtain ⟨E, -⟩ := hE z
-  obtain ⟨dz, hdz1, hdz2⟩ := detParamFamily (N := 2) E (bgHyp_lv (k := k) T.m₁ hν0.le hν)
-  obtain ⟨hc0, hdet⟩ := towerDetConst_le_mul T
-  have hdz1' : ∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
-      (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
-      XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
-        (k + 1) 1 T.t D' → ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
-      -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
-        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C ∧
-      ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E0locC
-          (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
-        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C +
-          ((T.step k hk N₁ ν β p₁).withDatum D' hDh).E1locC
-            (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z := by
-    intro D' hDh hX g
-    have hs : -(1 / 2 : ℂ) * ∑ y ∈ ((T.step k hk N₁ ν β p₁).withDatum D' hDh).blockU z, ∑ i,
-        ((T.step k hk N₁ ν β p₁).withDatum D' hDh).logAC (y, i) (y, i) =
-        ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C := by
-      rw [(E.atDatum D' hDh hX).sum_eq]
-      exact Finset.sum_congr rfl fun C _ => (hdz1 D' hX g C).symm
-    refine ⟨hs, ?_⟩
-    unfold StepSetting.E0locC
-    rw [hs]
-  refine ⟨hP, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
-  · intro C
-    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
-    refine ⟨a1, a2, fun θ hθ => (a3 θ hθ).trans ?_, a4⟩
-    rw [mul_div_assoc]
-    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by rw [← mul_div_assoc]; exact hc0)
-    nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-  · refine ⟨fun θ C => dz θ C + c θ C, fun _ _ => rfl, fun C => ?_, fun D' hDh hX => ?_⟩
-    swap
-    · obtain ⟨-, hsum⟩ := hdz1' D' hDh hX 0
-      rw [hsum, hcv D' hDh hX, ← Finset.sum_add_distrib]
-    obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
-    obtain ⟨b1, b2, -, b3, b4⟩ := hC C
-    refine ⟨a1.add b1, fun θ hθ θ' hθ' h => ?_, fun θ hθ => ?_, fun θ hθ => ?_⟩
-    · show dz θ C + c θ C = dz θ' C + c θ' C
-      rw [a2 θ hθ θ' hθ' h, b2 θ hθ θ' hθ' h]
-    · refine (norm_add_le _ _).trans ?_
-      have h1 : ‖dz θ C‖ ≤ (2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
-          (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) * K0 3 3 T.κ0 *
-          Real.exp (-T.κ' * dExt C) := by
-        refine (a3 θ hθ).trans ((mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0).trans
-          (mul_le_mul_of_nonneg_right hdet (Real.exp_pos _).le))
-        nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-      have h2 := b3 θ hθ
-      nlinarith
-    · have hne : dz θ C + c θ C ≠ 0 := hθ
-      by_cases h0 : dz θ C = 0
-      · rw [h0, zero_add] at hne
-        exact ⟨(b4 θ hne).1, (b4 θ hne).2.1⟩
-      · exact a4 θ h0
-
+  obtain ⟨h1, h2, c, hc, hcl, hcv, dz, hdz, hdzl, e0, he, hel, hev⟩ := hz z
+  refine ⟨h1, by simp only [corrF0_toG]; exact h2, c, hc, hcl, hcv, dz, hdz, fun C => ?_, e0, he, fun C => ?_, hev⟩
+  · obtain ⟨a1, a2, a3, a4⟩ := hdzl C
+    refine ⟨a1, a2, fun θ hθ => ?_, a4⟩
+    have := a3 θ hθ
+    simp only [StepTower.toG_κ, StepTower.toG_κ'] at this
+    rw [e27] at this
+    convert this using 3
+    all_goals rfl
+  · obtain ⟨a1, a2, a3, a4⟩ := hel C
+    refine ⟨a1, a2, fun θ hθ => ?_, a4⟩
+    have := a3 θ hθ
+    simp only [StepTower.toG_κ, StepTower.toG_κ'] at this
+    rw [e27] at this
+    convert this using 3
+    all_goals first | rfl | ring
 
 open Classical in
 /-- **The energy coefficient family at the tower: determinant, marks and their sum.**  See the

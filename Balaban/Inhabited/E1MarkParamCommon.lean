@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.E1MarksCommon
+public import Balaban.Inhabited.E1MarkParamCommonG
 public import Balaban.Inhabited.ZeroSourceActivityCommon
 public import Balaban.Fluctuation.ParamCarrierLocal
 import Mathlib.Tactic.Linarith
@@ -102,46 +103,11 @@ theorem e1MarkGParam_eq_e1MarkG
   rw [hθ]
   simp only [hΘ, true_and]
 
+/-- The general mark `e1MarkGParamG` at `d = L = 3`, `N = 2` is the fixed mark `e1MarkGParam`. -/
+theorem e1MarkGParamG_three :
+    e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ = e1MarkGParam S F₁ Sol ρ hp z eps θ Y' u Φ := rfl
+
 end Def
-
-section Rooted
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
-  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
-variable {a₁ ν cψ : ℝ} {m₀ : ℕ} {cc : ℂ} {Zm : Finset (unitPts S.G')}
-variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
-  {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
-  {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
-
-open Classical in
-/-- The rooted output of the corrected marks is continuous in the configuration when each block
-term is. -/
-theorem continuous_markedOutDec_decMarkCorrTerm
-    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
-        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
-    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-      Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
-    (ρ : ℝ) (hp : 0 < S.p₁) (β : ℂ) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (um : ℂ)
-    (zr : RootIdx d L N₁ m₁ (k + 1)) (Y' : Set (CTorus d L N₁ m₁ (k + 1)))
-    (hc : ∀ b, ∀ Y, Continuous (decMarkCorr S (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
-      (blockEnergyFun S.G' Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um)) :
-    Continuous (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-      markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') := by
-  have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
-        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorr S (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
-    funext fun Φ => markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
-  rw [e]
-  exact continuous_finsetSum _ fun q _ => continuous_const.mul (hc q.1 q.2)
-
-end Rooted
 
 section Main
 
@@ -207,103 +173,14 @@ theorem e1MarkParam_fields_fromTower {κmin : ℝ} (T : StepTower κmin) {k : �
         ∀ u ∈ Metric.ball (0 : ℂ) corrU,
           ContinuousOn (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
             (fun b => Sol (z, b)) p₁ hp z T.t θ i u) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp)) := by
-  classical
-  have hp' : 0 < (T.step k hk N₁ ν β p₁).p₁ := hp
-  have hp0 : 0 < p₁ := hp
-  obtain ⟨hV, -⟩ := D.covers
-  obtain ⟨F₁, Sol, hF⟩ := markCorrFamily_fromTower T D hN hν0 hν hβ hp0 hRU
-    (S := T.step k hk N₁ ν β p₁) rfl hp
-  refine ⟨F₁, Sol, fun z => ?_⟩
-  obtain ⟨hP, hJ2, hJ4, hcnt, hblk⟩ := hF z
-  have hout := markedOutDecCorr_fields (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).hG'
-    (by norm_num) (by simpa using h3N) (fun b => (hV b).1) (fun b => (hV b).2.2.1) z
-    (fun b => F₁ (z, b)) (fun b => Sol (z, b)) hP hJ2 hJ4 (ρ := p₁) hp le_rfl hp' T.t_pos
-    (((T.step k hk N₁ ν β p₁).β : ℝ) : ℂ)
-  obtain ⟨hmeas, hdep, hhol⟩ := hout
-  have hF0 := corrF0_pos T hk hβ hp0
-  have hR := corrR_pos T hk (by positivity : 0 < β * 3 ^ k) hp0
-  have hU := corrU_pos
-  have hdepG : ∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-        (T.step k hk N₁ ν β p₁).ν T.t,
-      ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
-      DepOn (blocksOf 1 (k + 1) Set.univ i.1)
-        (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp
-          z T.t θ i u) := by
-    intro θ hθ i u
-    by_cases hu : ‖u‖ < corrU
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hθ.1 hu
-      rw [e]
-      exact hdep i.1 i.2 _ hθ.1 u (e1_rad_lt T hk hβ hp0 hRU hu.le)
-    · intro Φ Φ' _
-      rw [e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ fun h => hu h.2,
-        e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ' fun h => hu h.2]
-  have hbdG : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁))
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ) Φ,
-      ‖e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z
-        T.t θ i u Φ‖ ≤
-        corrF0 T k β p₁ * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) i.1) := by
-    intro θ i u Φ
-    by_cases hc : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) ∈
-        XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ∧ ‖u‖ < corrU
-    · rw [e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2]
-      exact (hcnt _ hc.1 u hc.2.le Φ).1 i.1
-    · rw [e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ hc, norm_zero]
-      positivity
-  have hmeasG : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁))
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
-      Measurable (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u) := by
-    intro θ i u
-    by_cases hc : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) ∈
-        XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ∧ ‖u‖ < corrU
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2
-      rw [e]
-      exact hmeas i.1 _ hc.1 u (e1_rad_lt T hk hβ hp0 hRU hc.2.le)
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = fun _ => 0 :=
-        funext fun Φ => e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ hc
-      rw [e]
-      exact measurable_const
-  have hopen : IsOpen (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-      (T.step k hk N₁ ν β p₁).ν T.t) :=
-    isOpen_physV _ _ _ _ (bgHyp_lv (k := k) T.m₁ hν0 hν)
-  refine ⟨?_, hmeasG, fun Lb _ Lab => ⟨fun θ hθ => ?_, fun θ i u Φ => ?_⟩, ?_, ?_⟩
-  · obtain ⟨Y, hY⟩ := e1Dom_bridgeFamily_nonempty T D z
-    exact ⟨⟨Y, hY⟩⟩
-  · exact (commonAnchor_marks_fields (Lab := Lab)
-      (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num) (fun _ => Set.univ)
-      (e1Dom (T.step k hk N₁ ν β p₁)) ((e1Dom_isDj T D)) z (ι := {Y' // Y' ∈ bridgeFamily 1
-        (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z}) id (fun _ => corrF0 T k β p₁)
-      (2 * T.κdec - 1)
-      (fun i u => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-        p₁ hp z T.t θ i u) (hdepG θ hθ) (hbdG θ)).1
-  · exact hbdG θ i u Φ
-  · intro i Φ
-    have han := hhol i.1 Φ (corrR T k (β * 3 ^ k) p₁) (corrR T k (β * 3 ^ k) p₁) hR hR
-      (e1_rad_RR_lt T hk hβ hp0)
-    have hmono := han.mono (Set.prod_mono (subset_refl _)
-      (Metric.ball_subset_ball (by linarith : corrU ≤ corrR T k (β * 3 ^ k) p₁)))
-    refine hmono.congr (hopen.prod Metric.isOpen_ball) fun p hp'' => ?_
-    exact (e1MarkGParam_of_mem _ _ _ _ hp z T.t p.1 i p.2 Φ hp''.1.1
-      (mem_ball_zero_iff.1 hp''.2)).symm
-  · intro i θ hθ u hu
-    have hu' : ‖u‖ < corrU := mem_ball_zero_iff.1 hu
-    have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-      funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hθ.1 hu'
-    rw [e]
-    refine (continuous_markedOutDec_decMarkCorrTerm (T.step k hk N₁ ν β p₁) _ _ p₁ hp _ _ _ z
-      i.1 fun b Y => ?_).continuousOn
-    exact ((hblk b).2.1 Y _ hθ.1 u (e1_rad_lt T hk hβ hp0 hRU hu'.le)).1
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have hRU' : 2 * (17 / 16 : ℝ) ≤ corrRG T.toG k (β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2))) p₁ := by
+    rw [hb, ← corrR_toG]; exact hRU
+  have h := e1MarkParam_fields_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D)
+    (by simpa using h3N) hN hν0 (by simpa using hν) hβ (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    hp hRU'
+  simp only [corrF0_toG]
+  exact h
 
 open Classical in
 /-- **The `ParamMarkFamily` of the marks of the energy record on the common labels.**  One family
@@ -349,27 +226,14 @@ theorem e1MarkParamFamily_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ
         (2 * T.κdec - 1) (fun _ => corrF0 T k β p₁)
         (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t)
         (Metric.ball (0 : ℂ) corrU) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp)) := by
-  obtain ⟨F₁, Sol, hF⟩ := e1MarkParam_fields_fromTower T D h3N hN hν0 hν hβ hp hRU
-  refine ⟨F₁, Sol, fun z Lb _ Lab₀ εH κH κ0 Kc A₀ ⟨hA⟩ => ?_⟩
-  obtain ⟨-, hmeas, hdb, hholG, hcontG⟩ := hF z
-  have hle : corrU ≤ 2 := by unfold corrU; norm_num
-  exact ⟨{ isOpenV := hA.isOpenV
-           isOpenU := Metric.isOpen_ball
-           seg := fun s hs => by
-             rw [mem_ball_zero_iff]
-             refine norm_ofReal_lt_of_mem hs ?_
-             unfold corrU
-             norm_num
-           compact := hA.compact
-           measQ := hA.measQ
-           carried := hA.carried
-           meas := hmeas
-           bound := (hdb Lb Lab₀).2
-           holA := fun y Φ hΦ => (hA.holA y Φ hΦ).mono
-             (Set.prod_mono (subset_refl _) (Metric.ball_subset_ball hle))
-           holG := fun i Φ _ => hholG i Φ
-           contA := fun y θ hθ u hu => hA.contA y θ hθ u (Metric.ball_subset_ball hle hu)
-           contG := fun i θ hθ u hu => hcontG i θ hθ u hu }⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have hRU' : 2 * (17 / 16 : ℝ) ≤ corrRG T.toG k (β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2))) p₁ := by
+    rw [hb, ← corrR_toG]; exact hRU
+  have h := e1MarkParamFamily_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D)
+    (by simpa using h3N) hN hν0 (by simpa using hν) hβ (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    hp hRU'
+  simp only [corrF0_toG]
+  exact h
 
 end Main
 

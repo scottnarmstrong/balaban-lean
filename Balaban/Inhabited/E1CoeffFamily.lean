@@ -9,6 +9,7 @@ public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Fluctuation.GsumActiveParam
 public import Balaban.Inhabited.E1ParamFibreValue
+public import Balaban.Inhabited.E1CoeffFamilyG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NormNum
@@ -131,104 +132,14 @@ theorem e1MarkParam_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ
           (∀ δα' : (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ, Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) δα' (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) →
             Dec2.DecFixed (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1 false p.2.2.1 p.2.1
               (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) := by
-  classical
-  have hp' : 0 < (T.step k hk N₁ ν β p₁).p₁ := hp
-  have hp0 : 0 < p₁ := hp
-  obtain ⟨hV, -⟩ := D.covers
-  obtain ⟨F₁, Sol, hF⟩ := markCorrFamily_fromTower T D hN hν0 hν hβ hp0 hRU
-    (S := T.step k hk N₁ ν β p₁) rfl hp
-  refine ⟨F₁, Sol, fun z => ?_⟩
-  obtain ⟨hP, hJ2, hJ4, hcnt, hblk⟩ := hF z
-  have hout := markedOutDecCorr_fields (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).hG'
-    (by norm_num) (by simpa using h3N) (fun b => (hV b).1) (fun b => (hV b).2.2.1) z
-    (fun b => F₁ (z, b)) (fun b => Sol (z, b)) hP hJ2 hJ4 (ρ := p₁) hp le_rfl hp' T.t_pos
-    (((T.step k hk N₁ ν β p₁).β : ℝ) : ℂ)
-  obtain ⟨hmeas, hdep, hhol⟩ := hout
-  have hF0 := corrF0_pos T hk hβ hp0
-  have hR := corrR_pos T hk (by positivity : 0 < β * 3 ^ k) hp0
-  have hdepG : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁))
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
-      DepOn (blocksOf 1 (k + 1) Set.univ i.1)
-        (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp
-          z T.t θ i u) := by
-    intro θ i u
-    by_cases hc : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) ∈
-        XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ∧ ‖u‖ < corrU
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2
-      rw [e]
-      exact hdep i.1 i.2 _ hc.1 u (e1_rad_lt T hk hβ hp0 hRU hc.2.le)
-    · intro Φ Φ' _
-      rw [e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ hc,
-        e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ' hc]
-  have hbdG : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁))
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ) Φ,
-      ‖e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z
-        T.t θ i u Φ‖ ≤
-        corrF0 T k β p₁ * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) i.1) := by
-    intro θ i u Φ
-    by_cases hc : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) ∈
-        XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ∧ ‖u‖ < corrU
-    · rw [e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2]
-      exact (hcnt _ hc.1 u hc.2.le Φ).1 i.1
-    · rw [e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ hc, norm_zero]
-      positivity
-  have hmeasG : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁))
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
-      Measurable (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u) := by
-    intro θ i u
-    by_cases hc : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) ∈
-        XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ∧ ‖u‖ < corrU
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2
-      rw [e]
-      exact hmeas i.1 _ hc.1 u (e1_rad_lt T hk hβ hp0 hRU hc.2.le)
-    · have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = fun _ => 0 :=
-        funext fun Φ => e1MarkGParam_of_not _ _ _ _ hp z T.t θ i u Φ hc
-      rw [e]
-      exact measurable_const
-  have hopen : IsOpen (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-      (T.step k hk N₁ ν β p₁).ν T.t) :=
-    isOpen_physV _ _ _ _ (bgHyp_lv (k := k) T.m₁ hν0 hν)
-  refine ⟨hP, ?_, hmeasG, fun Lb _ Lab => ⟨fun θ i u => ?_, fun θ i u Φ => ?_⟩, ?_, ?_,
-    fun b => (hblk b).2.2.2.2.2⟩
-  · obtain ⟨Y, hY⟩ := e1Dom_bridgeFamily_nonempty T D z
-    exact ⟨⟨Y, hY⟩⟩
-  · exact (commonAnchor_marks_fields (Lab := Lab)
-      (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num) (fun _ => Set.univ)
-      (e1Dom (T.step k hk N₁ ν β p₁)) ((e1Dom_isDj T D)) z (ι := {Y' // Y' ∈ bridgeFamily 1
-        (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z}) id (fun _ => corrF0 T k β p₁)
-      (2 * T.κdec - 1)
-      (fun i u => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-        p₁ hp z T.t θ i u) (hdepG θ) (hbdG θ)).1 i u
-  · exact hbdG θ i u Φ
-  · intro i Φ
-    have han := hhol i.1 Φ (corrR T k (β * 3 ^ k) p₁) (corrR T k (β * 3 ^ k) p₁) hR hR
-      (e1_rad_RR_lt T hk hβ hp0)
-    have hmono := han.mono (Set.prod_mono (subset_refl _)
-      (Metric.ball_subset_ball (by linarith : corrU ≤ corrR T k (β * 3 ^ k) p₁)))
-    refine hmono.congr (hopen.prod Metric.isOpen_ball) fun p hp'' => ?_
-    exact (e1MarkGParam_of_mem _ _ _ _ hp z T.t p.1 i p.2 Φ hp''.1.1
-      (mem_ball_zero_iff.1 hp''.2)).symm
-  · intro i θ hθ u hu
-    have hu' : ‖u‖ < corrU := mem_ball_zero_iff.1 hu
-    have e : e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-      funext fun Φ => e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i u Φ hθ.1 hu'
-    rw [e]
-    refine (continuous_markedOutDec_decMarkCorrTerm (T.step k hk N₁ ν β p₁) _ _ p₁ hp _ _ _ z
-      i.1 fun b Y => ?_).continuousOn
-    exact ((hblk b).2.1 Y _ hθ.1 u (e1_rad_lt T hk hβ hp0 hRU hu'.le)).1
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have hRU' : 2 * (17 / 16 : ℝ) ≤ corrRG T.toG k (β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2))) p₁ := by
+    rw [hb, ← corrR_toG]; exact hRU
+  have h := e1MarkParam_pairs_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D)
+    (by simpa using h3N) hN hν0 (by simpa using hν) hβ (ϱ := rhoSep T.m₁)
+    (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl hp hRU'
+  simp only [corrF0_toG]
+  exact h
 
 open Classical in
 /-- **The sharp premise `hG` of `paramMarked_analytic_local_bound` at the tower.**  For pairs
@@ -285,22 +196,12 @@ theorem e1Mark_hG_rawY_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {
             (fun b => Sol (z, b)) p₁ hp z T.t θ i (s : ℂ) Φ) =
         (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
             (fun b => Sol (z, b)) p₁ hp z T.t θ' i (s : ℂ) Φ) := by
-  classical
-  have hp0 : 0 < p₁ := hp
-  obtain ⟨hV, -⟩ := D.covers
-  intro θ hθ θ' hθ' h s hs i hi
-  have hu : ‖(s : ℂ)‖ < corrU := norm_ofReal_lt_of_mem hs (by unfold corrU; norm_num)
-  have hagT := ((physRestrict_physIncl_eq_iff (T.step k hk N₁ ν β p₁) (sitesOf C) θ θ').1 h).1
-  rw [Yhat_univ] at hi
-  funext Φ
-  rw [e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i (s : ℂ) Φ hθ.1 hu,
-    e1MarkGParam_of_mem _ _ _ _ hp z T.t θ' i (s : ℂ) Φ hθ'.1 hu]
-  exact markedOutDec_decMarkCorrTerm_rawY_congr (T.step k hk N₁ ν β p₁) D.core
-    hk (T.step k hk N₁ ν β p₁).hG hp0.le T.large_block T.dom_margin T.coer_margin T.δc_small
-    hatConn_lvTop (rowInHat_lv hk T.m₁_four hN hν0 hν) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-    (fun b => (hV b).1) (fun b => (hV b).2.1) (fun b => (hspec b).1) (fun b => (hspec b).2)
-    (fun b => (hV b).2.2.2.2.1) (fun b => (hV b).2.2.2.2.2.1) hp0 le_rfl hp T.t_pos ((T.step k hk N₁ ν β p₁).β : ℂ) hθ.1 hθ'.1
-    (e1_rad_lt T hk hβ hp0 hRU hu.le) z Φ (agreeOn_mono hi hagT)
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have hRU' : 2 * (17 / 16 : ℝ) ≤ corrRG T.toG k (β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2))) p₁ := by
+    rw [hb, ← corrR_toG]; exact hRU
+  exact e1Mark_hG_rawY_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D) hN hν0 (by simpa using hν)
+    hβ (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl hp hRU' F₁ Sol
+    z hspec Lab hN1 C
 
 end Fields
 
@@ -417,160 +318,16 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
                 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
               ∑ C, c ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
                 (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) C := by
-  classical
-  obtain ⟨βa, CE, CF, hβa3, -, -, hact⟩ := zeroSourceActivity_common_fromTower T hHull hA p
-  obtain ⟨β₀, hmax, hR, hbud⟩ := exists_beta0_e1 T hA p βa
-  refine ⟨β₀, (le_max_left _ _).trans hmax, ?_⟩
+  obtain ⟨β₀, h3, H⟩ := e1CoeffFamily_value_fromTowerG T.toG rfl (stepOutputPhysical T hHull)
+    rfl rfl rfl rfl rfl hA p
+  refine ⟨β₀, h3, ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
-  have hβ3 : 3 ≤ β := ((le_max_left _ _).trans hmax).trans hβ
-  have hβpos : 0 < β := by linarith
-  have hβa : βa ≤ β := ((le_max_right _ _).trans hmax).trans hβ
-  have hRU := hR k hk β hβ p₁ hp hp₁
-  obtain ⟨F₁, Sol, hF⟩ := e1MarkParam_pairs_fromTower T D h3N hN hν0.le hν hβpos hp hRU
-  obtain ⟨Jr, val, I0, hFd, hεU, hval, hεpos, hamp, hθ, hstep, A, hAeq, hW1, hW2, hcom⟩ :=
-    hact k hk N₁ h3N hN ν hν0 hν β hβa p₁ hp hp₁ 1 one_pos le_rfl D (T.step k hk N₁ ν β p₁) rfl hp
-  obtain ⟨A0, hA0eq, hana, hdiffA, hcont, hsum, hdat, hWstep, hfam0, -⟩ :=
-    hcom (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)
-  have hU2 : corrU ≤ 2 := by unfold corrU; norm_num
-  have hF0 := corrF0_pos T hk hβpos (show 0 < p₁ from hp)
-  have hθ' := hstep
-  refine ⟨F₁, Sol, {Y // Y ∈ I0.𝒴}, inferInstance, thickLabels I0.𝒴 I0.dom, _, A0, hdat, ?_⟩
-  intro z
-  obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, hspec⟩ := hF z
-  obtain ⟨hdep, hbnd⟩ := hdb {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)
-  have hfam : ParamMarkFamily ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
-          (commonLabels (thickLabels I0.𝒴 I0.dom) (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
-            (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)) A0
-          (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-              (e1Dom (T.step k hk N₁ ν β p₁)) z} =>
-            commonAnchor {Y // Y ∈ I0.𝒴} (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)
-          (fun θ i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-            (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ)
-          (2 * T.κdec - 1) (fun _ => corrF0 T k β p₁)
-          (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-            (T.step k hk N₁ ν β p₁).ν T.t)
-          (Metric.ball (0 : ℂ) corrU) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp) := by
-    obtain ⟨hA'⟩ := hfam0
-    exact { isOpenV := hA'.isOpenV
-            isOpenU := Metric.isOpen_ball
-            seg := fun s hs => by
-              rw [mem_ball_zero_iff]
-              refine norm_ofReal_lt_of_mem hs ?_
-              unfold corrU
-              norm_num
-            compact := hA'.compact
-            measQ := hA'.measQ
-            carried := hA'.carried
-            meas := hmeas
-            bound := hbnd
-            holA := fun y Φ hΦ => (hA'.holA y Φ hΦ).mono
-              (Set.prod_mono (subset_refl _) (Metric.ball_subset_ball hU2))
-            holG := fun i Φ _ => hholG i Φ
-            contA := fun y θ hθ u hu => hA'.contA y θ hθ u (Metric.ball_subset_ball hU2 hu)
-            contG := fun i θ hθ u hu => hcontG i θ hθ u hu }
-  refine ⟨hP, ⟨hfam⟩, _, fun _ _ => rfl, fun C => ?_, fun D' hDh hD => ?_⟩
-  swap
-  · exact e1Param_fibre_value_of_fields_fromTower T D (by simpa using h3N) (by norm_num) hβpos
-      (S := T.step k hk N₁ ν β p₁) rfl hp (e1Dom_isDj T D) (fun b => F₁ (z, b))
-      (fun b => Sol (z, b)) z hP (thickLabels I0.𝒴 I0.dom) A0 hεpos hstep hdiffA hdat hmeas
-      (fun θ _ => hdep θ) hbnd hholG D' hDh hD
-  have hp0 : 0 < p₁ := hp
-  have hprob := isProbabilityMeasure_fluctMeasure1 2 hp
-  have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  have hlab : ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-      (e1Dom (T.step k hk N₁ ν β p₁)) z},
-      rootCube (m₀ := 1) z ∈ blocksOf 1 (k + 1) Set.univ
-        ((commonLabels (thickLabels I0.𝒴 I0.dom) hN1 (by norm_num) (fun _ => Set.univ)
-          (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).ysite
-          (commonAnchor {Y // Y ∈ I0.𝒴} (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z
-            i)) :=
-    fun i => (bridgeFamily_spec hN1 (by norm_num) (e1Dom_isDj T D) z i.2).2.1
-  have hAloc : ∀ C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
-      (k + 1) Set.univ), ∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-          (T.step k hk N₁ ν β p₁).ν T.t,
-      ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-          (T.step k hk N₁ ν β p₁).ν T.t,
-      physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
-          (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
-        physRestrict (thickSet (T.step k hk N₁ ν β p₁).G' (Yhat Set.univ (sitesOf C)))
-          (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
-      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
-      ∀ y, (commonLabels (thickLabels I0.𝒴 I0.dom) hN1 (by norm_num) (fun _ => Set.univ)
-          (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).ysite y ⊆
-          Yhat Set.univ (sitesOf C) → (A0 θ (s : ℂ)).H y = (A0 θ' (s : ℂ)).H y := by
-    intro C
-    subst hA0eq
-    subst hAeq
-    exact commonAct_zeroSourceAct_hA (T.step k hk N₁ ν β p₁) 1 _ hFd hN1 hp0 zero_le_two hεU
-      T.κ0_ent T.marks_K0_le (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)
-      (by norm_num) (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two one_pos
-      (fun θ => physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
-          (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ)) C
-      (fun θ _ θ' _ h Y hY => physRestrict_thickSet_agree _ _ h hY)
-  have hGloc : ∀ C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
-      (k + 1) Set.univ), ∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-          (T.step k hk N₁ ν β p₁).ν T.t,
-      ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-          (T.step k hk N₁ ν β p₁).ν T.t,
-      physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
-          (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
-        physRestrict (thickSet (T.step k hk N₁ ν β p₁).G' (Yhat Set.univ (sitesOf C)))
-          (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
-      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
-      ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z},
-        (commonLabels (thickLabels I0.𝒴 I0.dom) hN1 (by norm_num) (fun _ => Set.univ)
-          (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).ysite
-          (commonAnchor {Y // Y ∈ I0.𝒴} (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z
-            i) ⊆ Yhat Set.univ (sitesOf C) →
-        (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-            (fun b => Sol (z, b)) p₁ hp z T.t θ i (s : ℂ) Φ) =
-        (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-            (fun b => Sol (z, b)) p₁ hp z T.t θ' i (s : ℂ) Φ) := by
-    intro C θ hθ θ' hθ' h s hs i hi
-    have hu : ‖(s : ℂ)‖ < corrU := norm_ofReal_lt_of_mem hs (by unfold corrU; norm_num)
-    funext Φ
-    rw [e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i (s : ℂ) Φ hθ.1 hu,
-      e1MarkGParam_of_mem _ _ _ _ hp z T.t θ' i (s : ℂ) Φ hθ'.1 hu]
-    exact markedOutDec_decMarkCorrTerm_raw_congr (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-      (fun b => Sol (z, b)) hP (ρ := p₁) hp0 le_rfl hp T.t_pos _ hθ.1 hθ'.1
-      (e1_rad_lt T hk hβpos hp0 hRU hu.le) z Φ (physRestrict_thickSet_agree _ _ h hi)
-  have hmain := fun C => paramMarked_analytic_local_bound (m₀ := 1) (j := k + 1) (Ω := Set.univ)
-    ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN1 le_rfl isPiUnion_univ_K hfam
-    (fun θ i s => hdep θ i s) T.marks_hκ0 T.marks_hKc hεpos hne (fun _ => hF0) T.marks_hκ'
-    T.marks_hκG T.marks_hκ (by unfold stepTheta at hθ'; exact hθ') C
-    (fun θ => physRestrict (N := 2) (thickSet (T.step k hk N₁ ν β p₁).G'
-          (Yhat Set.univ (sitesOf C))) (physIncl 2 (T.step k hk N₁ ν β p₁) θ))
-    (hAloc C) (hGloc C)
-  have hmainY := fun C => paramMarked_analytic_local_bound (m₀ := 1) (j := k + 1)
-    (Ω := Set.univ) ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN1 le_rfl
-    isPiUnion_univ_K hfam (fun θ i s => hdep θ i s) T.marks_hκ0 T.marks_hKc hεpos hne
-    (fun _ => hF0) T.marks_hκ' T.marks_hκG T.marks_hκ
-    (by unfold stepTheta at hθ'; exact hθ') C
-    (fun θ => physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ))
-    (by
-      subst hA0eq
-      subst hAeq
-      exact commonAct_zeroSourceAct_hA_rawY (T.step k hk N₁ ν β p₁) 1 _ hFd hN1 hp0
-        zero_le_two hεU T.κ0_ent T.marks_K0_le (fun _ => Set.univ)
-        (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D) (by norm_num)
-        (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two one_pos C)
-    (by
-      exact e1Mark_hG_rawY_fromTower T D hN hν0.le hν hβpos hp hRU F₁ Sol z hspec
-        (thickLabels I0.𝒴 I0.dom) hN1 C)
-  have hgm : ∀ (θ : physParam 2 (T.step k hk N₁ ν β p₁)), ∀ (i : {Y' // Y' ∈ bridgeFamily 1
-      (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
-      Measurable (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) := hmeas
-  refine ⟨(hmain C).1, (hmain C).2.1, (hmainY C).2.1,
-    fun θ hθ => ?_, fun θ hne0 => ?_⟩
-  · exact ((hmain C).2.2 θ hθ).trans (mul_le_mul_of_nonneg_right
-      (hbud k hk N₁ h3N ν β hβ p₁ hp hp₁ D z) (Real.exp_pos _).le)
-  · exact ⟨mem_of_gsumCoeff_ne_zero_of_labels hN1 ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
-      (A0 θ) _ _ (hgm θ) (hdep θ) (hbnd θ) T.marks_hκ0 T.marks_hKc hεpos (fun _ => hF0)
-      T.marks_hκ' T.marks_hκG T.marks_hκ (by unfold stepTheta at hθ'; exact hθ') hlab hne0,
-      (gsumCoeff_ne_zero_active hN1 ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
-      (A0 θ) _ _ (hgm θ) (hdep θ) (hbnd θ) T.marks_hκ0 T.marks_hKc hεpos (fun _ => hF0)
-      T.marks_hκ' T.marks_hκG T.marks_hκ (by unfold stepTheta at hθ'; exact hθ') hne0).2⟩
+  have e : (((3 : ℕ)) : ℝ) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have G := H k hk N₁ (by simpa using h3N) hN ν hν0 (by simpa using hν) β hβ p₁
+    (by rw [e]; exact hp₁) (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    (T.step k hk N₁ ν β p₁) rfl hp
+  simp only [corrF0_toG]
+  exact G
 
 open Classical in
 /-- **One energy coefficient family at the tower.**  Beyond a threshold `β₀`, at every scale datum
@@ -666,7 +423,6 @@ theorem e1CoeffFamily_fromTower {κmin : ℝ} (T : StepTower κmin)
               ‖c θ C‖ ≤ K0 3 3 T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
             (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
               dExt C = sizeJ 1 (k + 1) (sitesOf C)) := by
-  classical
   obtain ⟨β₀, h3, H⟩ := e1CoeffFamily_value_fromTower T hHull hA p
   refine ⟨β₀, h3, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D => ?_⟩
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := H k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp hp₁ D

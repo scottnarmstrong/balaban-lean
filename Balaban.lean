@@ -66,6 +66,8 @@ public import Balaban.Polymer.TwoTorusDecCov
 public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
+public import Balaban.Polymer.TwoTorusCoef
+public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -862,6 +864,7 @@ public import Balaban.LargeField.Base.BaseChartQuadraticPhysical
 public import Balaban.LargeField.Base.BaseChartActionBridge
 public import Balaban.LargeField.Base.BaseChartHessian
 public import Balaban.LargeField.Base.BaseChartGaussian
+public import Balaban.LargeField.Base.BaseComponentCovariance
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
@@ -1362,6 +1365,7 @@ public import Balaban.SmallField.GsSpecPolyEqv
 public import Balaban.SmallField.GsSpecPolyClass
 public import Balaban.SmallField.LocalGeneratorSource
 public import Balaban.SmallField.LocalGeneratorTyping
+public import Balaban.Inhabited.LocalWindowTower
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
@@ -1518,6 +1522,12 @@ public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
+public import Balaban.Inhabited.MarkRealDiscSliceG
+public import Balaban.Inhabited.DecMarkCorrTotalFromTowerG
+public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
+public import Balaban.Inhabited.E1ParamFibreValueG
+public import Balaban.Inhabited.E1CoeffFamilyG
+public import Balaban.Inhabited.E0CoeffFamilyG
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots
@@ -1683,6 +1693,7 @@ public import Balaban.Fluctuation.SourcePhysValBridge
 public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Inhabited.MarksNumericsFromTower
 public import Balaban.Inhabited.MarkBudgetAudit
+public import Balaban.Inhabited.MarkBudgetAuditG
 public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.RenormDecJoint
 public import Balaban.Fluctuation.RenormLocC2Zero
@@ -1703,6 +1714,7 @@ public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTowerG
 public import Balaban.Inhabited.RenormThetaChartTower
+public import Balaban.Inhabited.SourceWitnessOfWitnessG
 public import Balaban.Inhabited.SourceWitnessJoint
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.CommonWitnessJoint
@@ -1726,9 +1738,12 @@ public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Fluctuation.DecMarkCorrected
 public import Balaban.Fluctuation.DecMarkOfPair
 public import Balaban.Fluctuation.DecMarkCorrCount
+public import Balaban.Inhabited.DecMarkCorrCountFromTowerG
 public import Balaban.Inhabited.DecMarkCorrCountFromTower
+public import Balaban.Inhabited.DecMarkCorrFamilyFromTowerG
 public import Balaban.Inhabited.DecMarkCorrFamilyFromTower
 public import Balaban.Inhabited.MarkCorrBudget
+public import Balaban.Inhabited.MarkCorrBudgetG
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
@@ -1761,11 +1776,14 @@ public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.Thm31bKernelSupport
 public import Balaban.Inhabited.Thm31SiteDomains
+public import Balaban.Inhabited.E1LabelsBudgetG
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
 public import Balaban.Inhabited.ObsCoeffFamily
 public import Balaban.Inhabited.ObsCoeffFibreValue
+public import Balaban.Inhabited.E1MarksCommonG
 public import Balaban.Inhabited.E1MarksCommon
+public import Balaban.Inhabited.E1MarkParamCommonG
 public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.ObsSourceLocal
 public import Balaban.Inhabited.E1RecordOfSum
@@ -1806,6 +1824,11 @@ public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
 public import Balaban.Fluctuation.StepComplexOffFibreCoeff
+public import Balaban.Fluctuation.StepComplexOffFibreE1Loc
+public import Balaban.Inhabited.OffFibreCoeffFirst
+public import Balaban.Inhabited.OffFibreE1Marks
+public import Balaban.Inhabited.OffFibreE1CoeffSum
+public import Balaban.Inhabited.OffFibreM0CoeffSum
 public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepActivityOffFibreRay
@@ -1814,3 +1837,4 @@ public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
 public import Balaban.SmallField.LocalTraceDescent
 public import Balaban.Inhabited.PhysAmpFacts
+public import Balaban.SmallField.LocalGeneratorCovariance
