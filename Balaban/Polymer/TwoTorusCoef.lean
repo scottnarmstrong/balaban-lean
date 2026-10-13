@@ -15,23 +15,39 @@ import Mathlib.Tactic.Positivity
 /-!
 # The coefficients of one zero-class step on two tori
 
-For two step tori `CTorus d L N₁ m₁ K` and `CTorus d L N₁' m₁ K` identified on a centred box by
-`boxMap` (`bm`), this file supplies the cover data of the second torus for the comparison of the
-energy coefficients of `TwoTorusEv` and `TwoTorusDet`.
+For two step tori `CTorus d L N₁ m₁ (k + 1)` and `CTorus d L N₁' m₁ (k + 1)` identified on a centred
+box by `boxMap` (`bm`; `bc` on the coarse tori of the roots and blocks), this file compares the
+explicit constituents of the energy and observable coefficients of one step for domains of the
+box: the covering data, the root block, the marks, the determinant terms and the labels.
 
 ## D1: the covering data on two tori
 
-* `mem_Q0_levelGS_iff`: for the whole-lattice set `levelGS K` of the top level the cubes `𝒬₀`
-  are the aligned `π'_K`-cubes containing a cube of `𝒦_X`.
-* `X1_levelGS_image`: `X₁ = ⋃ 𝒬₀` of the image family `bm '' 𝒦_X` on the second torus is the
-  image of `X₁` of `𝒦_X`, when `X₁` and the cubes of `𝒦_X` lie in the box of radius `R`;
-  margin `2 R + 5 L · cellSide L m₀ m₁ K < N₁ L^m₁ L^K, N₁' L^m₁ L^K`.
-* `covSetup_levelGS_image`, `X1_levelGS_image_of_covSetup`: a covering setup `(X, 𝒦_X)` of the
-  first torus with `X₁` in the box goes to the covering setup `(bm '' X, bm '' 𝒦_X)` of the second
-  torus, with `X₁` the image.
-* `X1_localCover_image`, `covSetup_localCover_image`: the local cover of a site `x`
-  (`LocalCover.cube`, `LocalCover.fam`, `LocalCover.nbhdF`) and that of `bm x`; with
-  `blockSite_boxMap` this is the cover of the block `B_{k+1}(b)` and of its image block.
+* `X1_levelGS_image`, `X1_levelGS_image_of_covSetup`, `covSetup_levelGS_image`: `X₁` of the image
+  family `bm '' 𝒦_X` is `bm '' X₁`, and a covering setup goes to a covering setup, when `X₁` lies in
+  the box (margin `2 R + 5 L a_K`).
+* `X1_localCover_image`, `nbhdF_image_finset`, `covSetup_localCover_image`: the local cover of a site
+  `x` and of `bm x` (the premises `hcov'`, `hX₁'` of `TwoTorusEv`).
+
+## D2: the root block, its masks and its hat variables
+
+* `rootBlock_premises`: `readSites ⊆ X₁` and `BlockMargin` for the block `B_{k+1}(b)`.
+* `blockSite_inBox`, `rootMask_boxMap`, `rootMask_bc`: the root masks `blockU z`, `blockU (bc z)`.
+* `hatOf_boxMap`: the clamped hat variables of block variables agreeing on the box.
+
+## D3: the coefficients
+
+* `evDec_rootBlock_twoTorus`, `decMarkG_rootBlock_twoTorus`, `decMarkCorr_rootBlock_twoTorus`: the
+  marked energy term and the block marks of the root block at a domain of the box.
+* `sum_evDec_box_twoTorus`: the marked energy terms summed over the domains of the box.
+* `Ev_localCover_twoTorus`: the site terms of the observable for the local cover of a site.
+* `detActivityBg_image_twoTorus`, `sum_detActivityBg_box_twoTorus`,
+  `sum_blockU_detActivityBg_twoTorus`: the determinant activities (with or without the root cube),
+  their sum over the polymers of the box, and the determinant term `∑_{y ∈ B(z)}` of the root block.
+* Labels: `psiThick_image`, `fineBlock_image`, `bridge_image`, `markedPair_boxMap_iff`, and
+  `markedOutDec_twoTorus`: the marks of the energy coefficient at a label of the box.
+
+Only domains, polymers and labels inside a common box are compared; domains that wind around a
+torus are not covered.
 -/
 
 @[expose] public section
@@ -1601,7 +1617,8 @@ theorem joinCubes_image {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ �
       hpp⟩
     · rw [← himg']
       exact ⟨bm rb, hroot', boxMap_boxMap (by omega) hrbR⟩
-    · have htbox : ∀ x ∈ box t' aK, InBox d (r + L * aK + L * aK) ((N₁' * L ^ m₁) * L ^ (k + 1)) x :=
+    · have htbox : ∀ x ∈ box t' aK,
+          InBox d (r + L * aK + L * aK) ((N₁' * L ^ m₁) * L ^ (k + 1)) x :=
         fun x hx => hbox' x (ht' hx).2
       rw [← image_box_boxMap (by omega) ha0 htbox, ← himg', ← hYimg]
       intro x hx
@@ -1880,7 +1897,8 @@ theorem markedPair_boxMap_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m
     rw [hpsi, ← hfine]
     constructor
     · rintro ⟨_, ⟨x, hx, rfl⟩, ⟨w, hw, hwx⟩⟩
-      have := boxMap_inj (hm' := (by omega : 2 * (R + L ^ (k + 1)) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)))
+      have := boxMap_inj
+        (hm' := (by omega : 2 * (R + L ^ (k + 1)) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)))
         (hfineR w hw) (hpsiR x hx) hwx
       exact ⟨x, hx, this ▸ hw⟩
     · rintro ⟨x, hx, hx'⟩
@@ -2023,8 +2041,8 @@ theorem markedOutDec_twoTorus
     (fun q1 hq1 q2 hq2 h => ?_) (fun q' hq' => ?_) (fun q hq => ?_)
   · obtain ⟨hYR, hbR⟩ := hpairA q hq
     obtain ⟨hq1, hbr⟩ := Finset.mem_filter.1 hq
-    exact Finset.mem_filter.2 ((markedPair_boxMap_iff (ϱ := ϱ) hN hN' hn hn' hnF hnF' hnH hnH' z hz hrc
-      hroot hY'R q.1 q.2 hYR hbR).2 ⟨hq1, hbr⟩)
+    exact Finset.mem_filter.2 ((markedPair_boxMap_iff (ϱ := ϱ) hN hN' hn hn' hnF hnF' hnH hnH' z hz
+      hrc hroot hY'R q.1 q.2 hYR hbR).2 ⟨hq1, hbr⟩)
   · obtain ⟨hYR1, hbR1⟩ := hpairA q1 hq1
     obtain ⟨hYR2, hbR2⟩ := hpairA q2 hq2
     have hx1 : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k q1.1) :=
