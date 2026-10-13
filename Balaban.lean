@@ -1435,6 +1435,10 @@ public import Balaban.Fluctuation.DARateNumerics
 public import Balaban.Fluctuation.StepActivityClassChart
 public import Balaban.LargeField.Background.CubeUnitBg
 public import Balaban.Inhabited.ChiYWitness
+public import Balaban.Fluctuation.DetCauchyBgSupport
+public import Balaban.Fluctuation.DetCauchyAssembly
+public import Balaban.Fluctuation.DetCauchyBgActivity
+public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
