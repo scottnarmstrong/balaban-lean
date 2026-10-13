@@ -171,6 +171,227 @@ theorem d7ToCover_topCell (F : FineSizeFrame S n M (k + 1) m₀ m₁) (c : ℕ)
   unfold d7ToCover
   rw [castT_cbase]
 
+open Classical in
+/-- **The active seed `A_X` of the old boundary term.**  The bases `u` of the top cells (side
+`L^{k+1+m₀+m₁}`) of the cover torus that meet the cast of `X_f ∩ Om_f ∩ ΩK_f`: the fine set of the
+domain `X ⊆ 𝕋_k`, of the region `Om ⊆ 𝕋_k` of its size and of the new region `ΩK ⊆ 𝕋_{k+1}`.
+A cell is *meeting*, not contained in, the region (the contained cells of side `L^{k+1+m₀+m₁}`
+are the bases of top cells inside `ΩK_f`; every meeting cell is also active, see
+`d7ActiveSeed_active`). -/
+noncomputable def d7ActiveSeed (F : FineSizeFrame S n M (k + 1) m₀ m₁) (c : ℕ) [NeZero c]
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    (Om : Set (Torus S.d (n k))) (ΩK : Set (Torus S.d (n (k + 1))))
+    (X : Finset (Torus S.d (n k))) :
+    Finset (Localization.CTorus S.d S.L (c * n (k + 1)) m₁ (k + 1)) :=
+  Finset.univ.filter fun u => Aligned (cellSide S.L m₀ m₁ (k + 1)) u ∧
+    (topCell m₀ (k + 1, u) ∩ d7ToCover F c hside ''
+      (d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F k Om ∩ d7Pull F (k + 1) ΩK)).Nonempty
+
+theorem mem_d7ActiveSeed {F : FineSizeFrame S n M (k + 1) m₀ m₁} {c : ℕ} [NeZero c]
+    {hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1)}
+    {Om : Set (Torus S.d (n k))} {ΩK : Set (Torus S.d (n (k + 1)))}
+    {X : Finset (Torus S.d (n k))} {u : Localization.CTorus S.d S.L (c * n (k + 1)) m₁ (k + 1)} :
+    u ∈ d7ActiveSeed F c hside Om ΩK X ↔ Aligned (cellSide S.L m₀ m₁ (k + 1)) u ∧
+      ∃ s, s ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F k Om ∩ d7Pull F (k + 1) ΩK ∧
+        d7ToCover F c hside s ∈ topCell m₀ (k + 1, u) := by
+  classical
+  unfold d7ActiveSeed
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  refine and_congr_right fun _ => ?_
+  constructor
+  · rintro ⟨y, hy1, s, hs, rfl⟩
+    exact ⟨s, hs, hy1⟩
+  · rintro ⟨s, hs, h⟩
+    exact ⟨_, h, s, hs, rfl⟩
+
+/-- The new region of the D7 history is the region of the region step, by definition. -/
+theorem omegaCube_succ_eq {R : ℕ → ℝ} {k0 K : ℕ} (H : RegionHistory S n R k0 K) (j : ℕ) :
+    Def7.OmegaCube H (j + 1) = (H.step j).Omega := rfl
+
+/-- **T2 (active region cast).**  Under the identification `hΩ` of the region `ΩK` (e.g.
+`Def7.OmegaCube H (k+1)`) with the region `st.Omega` of the region step of the P6 pair
+(VMOD-33 `OPEN-P6-REGION-CAST`), and the side identity `hside` of the two tori, every cell of the
+active seed satisfies the activity hypothesis of `p6_root_patch_count`. -/
+theorem d7ActiveSeed_active {M1 c n0 : ℕ} [NeZero c] [NeZero M1] {Rprev Rk : ℝ}
+    (F : FineSizeFrame S n M (k + 1) m₀ m₁)
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    (hM1 : M1 = S.L ^ m₁) (st : RegionStep S.d S.L n0 (n (k + 1)) Rprev Rk)
+    {Om : Set (Torus S.d (n k))} {ΩK : Set (Torus S.d (n (k + 1)))}
+    {X : Finset (Torus S.d (n k))} (hΩ : ΩK = st.Omega)
+    {u : Localization.CTorus S.d S.L (c * n (k + 1)) m₁ (k + 1)}
+    (hu : u ∈ d7ActiveSeed F c hside Om ΩK X) :
+    LargeField.torusCast (by rw [p6_side hM1] : (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1) =
+        M1 * (c * n (k + 1)) * S.L ^ (k + 1)) u ∈ fineK1 M1 c (n (k + 1)) S.L k st.Omega := by
+  have hc : c = S.L ^ m₀ := (hside_iff F c).1 hside
+  have hcM : c * M1 = M := by rw [hc, hM1, F.hM, pow_add]
+  obtain ⟨-, s, hs, hyT⟩ := mem_d7ActiveSeed.1 hu
+  have hmem : cubeMap n S.L M (k + 1) (k + 1) (castT F.side s) ∈ ΩK := hs.2
+  rw [mem_fineK1, blockMap_torusCast]
+  have hN : S.L ^ m₀ ∣ c * n (k + 1) := hc ▸ Dvd.intro _ rfl
+  have ha0 : 0 < cellSide S.L m₀ m₁ (k + 1) := cellSide_pos m₀ m₁ _
+  have hadvd := cellSide_dvd (L := S.L) (K := k + 1) (m₁ := m₁) hN le_rfl
+  have hs' : cellSide S.L m₀ m₁ (k + 1) ∣ S.L ^ (k + 1) * (c * M1) := by
+    rw [hcM, F.hM]
+    unfold cellSide
+    rw [show k + 1 + m₀ + m₁ = (k + 1) + (m₀ + m₁) by ring, pow_add]
+  have e1 := blockMap_eq_of_mem_box (m := n (k + 1)) ha0 hadvd hs' hyT
+  rw [← e1, hcM]
+  unfold d7ToCover
+  rw [blockMap_castT]
+  have h2 : blockMap (S.L ^ (k + 1) * M) (n (k + 1)) (castT F.side s) ∈ ΩK := hmem
+  rw [blockMap_castT] at h2
+  rw [← hΩ]
+  exact h2
+
+/-! ### The count -/
+
+/-- **T3 (the count).**  `|A_X| ≤ c₁ (1 + Δ_X)`, `c₁ = [3 (2 L - 1)]^d` (`Fluctuation.c1`) and
+`Δ_X = d7SizeAt F k Om X` the fine modular size of the valid boundary domain `X` at the region
+`Om`.  Distinct top cells are disjoint, and each one meeting `X_f ∩ Om_f` contains a cell of side
+`L^{k+m₀+m₁}` inside it (the fine sets are unions of such cells), so `|A_X| ≤ n_π(X_f ∩ Om_f)` and
+the landed `Fluctuation.G1_cellCount` applies. -/
+theorem d7ActiveSeed_card_le {c : ℕ} [NeZero c] (F : FineSizeFrame S n M (k + 1) m₀ m₁)
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    {Om : Set (Torus S.d (n k))} (ΩK : Set (Torus S.d (n (k + 1))))
+    {X : Finset (Torus S.d (n k))} (hv : FineValidAt F k Om X) :
+    ((d7ActiveSeed F c hside Om ΩK X).card : ℝ) ≤
+      Fluctuation.c1 S.d S.L * (1 + d7SizeAt F k Om X) := by
+  classical
+  have hc : c = S.L ^ m₀ := (hside_iff F c).1 hside
+  have hN := F.divN₁
+  have hN' : S.L ^ m₀ ∣ c * n (k + 1) := hc ▸ Dvd.intro _ rfl
+  set a := cellSide S.L m₀ m₁ k with ha
+  set A1 := cellSide S.L m₀ m₁ (k + 1) with hA1
+  have ha0 : 0 < a := cellSide_pos m₀ m₁ k
+  have hA10 : 0 < A1 := cellSide_pos m₀ m₁ _
+  have haA : a ∣ A1 := ⟨S.L, by rw [ha, hA1]; unfold cellSide; rw [show k + 1 + m₀ + m₁ = (k + m₀ + m₁) + 1 by ring, pow_succ]⟩
+  have haM : a = S.L ^ k * M := by rw [ha, F.hM, ← pow_add]; unfold cellSide; congr 1; ring
+  have hadvd : a ∣ (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) := cellSide_dvd hN (Nat.le_succ k)
+  have hA1dvd : A1 ∣ ((c * n (k + 1)) * S.L ^ m₁) * S.L ^ (k + 1) :=
+    cellSide_dvd (L := S.L) (K := k + 1) (m₁ := m₁) hN' le_rfl
+  -- fine sets are unions of cells of side `a`
+  have hinv : ∀ (Y : Set (Torus S.d (n k))) (s w : Localization.CTorus S.d S.L F.N₁ m₁ (k + 1)),
+      s ∈ d7Pull F k Y → w ∈ Localization.box (cbase a s) a → w ∈ d7Pull F k Y := by
+    intro Y s w hs hw
+    have h1 := blockMap_eq_of_mem_box (m := n k) ha0 hadvd (show a ∣ S.L ^ k * M from haM ▸ dvd_refl (S.L ^ k * M)) hw
+    rw [mem_d7Pull] at hs ⊢
+    unfold cubeMap at hs ⊢
+    rw [blockMap_castT] at hs ⊢
+    rw [h1]; exact hs
+  have hex : ∀ u ∈ d7ActiveSeed F c hside Om ΩK X, ∃ s, s ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∩
+      d7Pull F k Om ∩ d7Pull F (k + 1) ΩK ∧ d7ToCover F c hside s ∈ topCell m₀ (k + 1, u) :=
+    fun u hu => (mem_d7ActiveSeed.1 hu).2
+  choose! g hg using hex
+  have hrec : ∀ u ∈ d7ActiveSeed F c hside Om ΩK X,
+      cbase A1 (d7ToCover F c hside (g u)) = u := by
+    intro u hu
+    have hal := (mem_d7ActiveSeed.1 hu).1
+    have hT := (hg u hu).2
+    unfold topCell at hT
+    simp only at hT
+    rw [cbase_self_of_aligned hA1dvd hal hA10] at hT
+    exact cbase_eq_of_mem_box hA1dvd hal hT
+  have key : (d7ActiveSeed F c hside Om ΩK X).card ≤
+      cellCount a (d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F k Om) := by
+    unfold cellCount
+    refine Finset.card_le_card_of_injOn (fun u => cbase a (g u)) ?_ ?_
+    · intro u hu
+      have hgu := (hg u hu).1
+      simp only [Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq]
+      refine ⟨aligned_cbase _, fun w hw => ⟨hinv _ _ _ hgu.1.1 hw, hinv _ _ _ hgu.1.2 hw⟩⟩
+    · intro u hu v hv huv
+      have hu' : u ∈ d7ActiveSeed F c hside Om ΩK X := hu
+      have hv' : v ∈ d7ActiveSeed F c hside Om ΩK X := hv
+      have h1 : ∀ w ∈ d7ActiveSeed F c hside Om ΩK X,
+          w = cbase A1 (d7ToCover F c hside (cbase a (g w))) := by
+        intro w hw
+        unfold d7ToCover
+        rw [castT_cbase, cbase_cbase_of_dvd haA ha0]
+        exact (hrec w hw).symm
+      rw [h1 u hu', h1 v hv']
+      simp only at huv
+      rw [huv]
+  have hcount := Fluctuation.G1_cellCount (j := k) (m₀ := m₀) hN (Nat.le_succ k) hv.1
+  have hsz : Fluctuation.dcovMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) =
+      d7SizeAt F k Om X := rfl
+  rw [hsz] at hcount
+  exact (Nat.cast_le.2 key).trans hcount
+
+/-- **T3, in the constant of VMOD-33 (2.2).**  `|A_X| ≤ L^d [3 (2 L - 1)]^d (1 + Δ_X)`. -/
+theorem d7ActiveSeed_card_le_cA {c : ℕ} [NeZero c] (F : FineSizeFrame S n M (k + 1) m₀ m₁)
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    {Om : Set (Torus S.d (n k))} (ΩK : Set (Torus S.d (n (k + 1))))
+    {X : Finset (Torus S.d (n k))} (hv : FineValidAt F k Om X) :
+    ((d7ActiveSeed F c hside Om ΩK X).card : ℝ) ≤
+      ((S.L : ℝ) ^ S.d * Fluctuation.c1 S.d S.L) * (1 + d7SizeAt F k Om X) := by
+  refine (d7ActiveSeed_card_le F hside ΩK hv).trans ?_
+  have hL : (1 : ℝ) ≤ (S.L : ℝ) ^ S.d :=
+    one_le_pow₀ (by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L))
+  have h0 : 0 ≤ Fluctuation.c1 S.d S.L * (1 + d7SizeAt F k Om X) := by
+    unfold Fluctuation.c1 d7SizeAt
+    have := ENNReal.toReal_nonneg (a := d7SizeAtE F k Om X)
+    positivity
+  nlinarith
+
+/-! ### The rooted sum for the term -/
+
+section Rooted
+
+variable {M1 c n0 : ℕ} [NeZero c] [NeZero M1] [NeZero n0] {Rprev Rk : ℝ}
+
+/-- **T4 (fixed-support count for the actual domain).**  The sum over the families of patches of
+`F♯` rooted at the active seed `A_X` of the old boundary term of `e^{-κ₂ |C|}` is at most
+`e^{h c₁} e^{h c₁ Δ_X}`, `h = -log (1 - z)`, `z = D² e^{-κ₂} < 1`, `Δ_X` the fine modular size.
+Premises: the typing data of the P6 pair, the side identity `hside` of the two tori, the
+identification `hΩ` of the D7 region with the region step, a valid domain `X`, and the landed
+numerical premises.  Counting only: nothing is said about the coefficients. -/
+theorem d7ActiveSeed_rooted_sum_le (F : FineSizeFrame S n M (k + 1) m₀ m₁)
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    (hM1 : M1 = S.L ^ m₁) (hn : n0 = S.L * n (k + 1))
+    (hρ : 3 * S.L ≤ ⌊Rprev⌋₊) (h5 : 5 ≤ c) (hm₁ : 2 ≤ m₁) (hd : S.d < 5 * S.L ^ 3 * M1)
+    (st : RegionStep S.d S.L n0 (n (k + 1)) Rprev Rk)
+    {Om : Set (Torus S.d (n k))} {ΩK : Set (Torus S.d (n (k + 1)))}
+    {X : Finset (Torus S.d (n k))} (hΩ : ΩK = st.Omega) (hv : FineValidAt F k Om X)
+    {κ₂ : ℝ} (hz : ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) < 1) :
+    ∑ C ∈ rootedSets (G := mooreGraph (p6FsharpC (k := k) (m₁ := m₁) hn hρ h5 st.Z hM1))
+        (⋃ u ∈ d7ActiveSeed F c hside Om ΩK X,
+          (fsharpRootNbhd (k := k) (m₁ := m₁) hn hρ h5 st.Z hM1 m₀ u : Set _)),
+        Real.exp (-κ₂ * C.card)
+      ≤ Real.exp (-Real.log (1 - ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) *
+            Fluctuation.c1 S.d S.L) *
+        Real.exp (-Real.log (1 - ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) *
+            Fluctuation.c1 S.d S.L * d7SizeAt F k Om X) := by
+  have hc : c = S.L ^ m₀ := (hside_iff F c).1 hside
+  have hmc : S.L ^ m₀ ∣ c := hc ▸ dvd_rfl
+  exact fsharp_rooted_sum_le_of_rootCount st hM1 hmc hn (Nat.pos_of_ne_zero (NeZero.ne S.L)) hρ
+    h5 hm₁ hd _ (fun u hu => d7ActiveSeed_active F hside hM1 st hΩ hu) hz
+    (d7ActiveSeed_card_le F hside ΩK hv)
+
+/-- **T4, in the constant `c_A = L^d [3 (2 L - 1)]^d` of VMOD-33 (2.2).** -/
+theorem d7ActiveSeed_rooted_sum_le_cA (F : FineSizeFrame S n M (k + 1) m₀ m₁)
+    (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
+    (hM1 : M1 = S.L ^ m₁) (hn : n0 = S.L * n (k + 1))
+    (hρ : 3 * S.L ≤ ⌊Rprev⌋₊) (h5 : 5 ≤ c) (hm₁ : 2 ≤ m₁) (hd : S.d < 5 * S.L ^ 3 * M1)
+    (st : RegionStep S.d S.L n0 (n (k + 1)) Rprev Rk)
+    {Om : Set (Torus S.d (n k))} {ΩK : Set (Torus S.d (n (k + 1)))}
+    {X : Finset (Torus S.d (n k))} (hΩ : ΩK = st.Omega) (hv : FineValidAt F k Om X)
+    {κ₂ : ℝ} (hz : ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) < 1) :
+    ∑ C ∈ rootedSets (G := mooreGraph (p6FsharpC (k := k) (m₁ := m₁) hn hρ h5 st.Z hM1))
+        (⋃ u ∈ d7ActiveSeed F c hside Om ΩK X,
+          (fsharpRootNbhd (k := k) (m₁ := m₁) hn hρ h5 st.Z hM1 m₀ u : Set _)),
+        Real.exp (-κ₂ * C.card)
+      ≤ Real.exp (-Real.log (1 - ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) *
+            ((S.L : ℝ) ^ S.d * Fluctuation.c1 S.d S.L)) *
+        Real.exp (-Real.log (1 - ((fsharpD S.d S.L m₀ : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) *
+            ((S.L : ℝ) ^ S.d * Fluctuation.c1 S.d S.L) * d7SizeAt F k Om X) := by
+  have hc : c = S.L ^ m₀ := (hside_iff F c).1 hside
+  have hmc : S.L ^ m₀ ∣ c := hc ▸ dvd_rfl
+  exact fsharp_rooted_sum_le_of_rootCount st hM1 hmc hn (Nat.pos_of_ne_zero (NeZero.ne S.L)) hρ
+    h5 hm₁ hd _ (fun u hu => d7ActiveSeed_active F hside hM1 st hΩ hu) hz
+    (d7ActiveSeed_card_le_cA F hside ΩK hv)
+
+end Rooted
+
 end Tori
 
 end Balaban.LargeField
