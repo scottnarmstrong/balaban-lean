@@ -363,4 +363,93 @@ theorem interface_pair_topBlocks (hC : C.1 ∉ H.rem (j + 1))
 
 end Datum
 
+section Factor
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ} {M : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {ϱ : ℝ}
+
+/-- **T3, the factor.**  The first family of `ChiDomProp` at `j + 1 = k` applied at a cube `q`
+satisfying the two conditions of T1 (b) / T2 gives `Ψ̃(𝔹_k ∩ q^∼; 3 d L δ_j)` for the multiscale
+field. -/
+theorem psiTildeMulti_of_chiDomProp {a : LocalHistory S n M K} {j : ℕ}
+    {B : GeneratingSet S.d S.L (M * n K) K ϱ} {Zc : Set (Torus S.d (M * n K * S.L ^ K))}
+    {δ p0 : ℕ → ℝ} {Cpsi : ℝ} {ψ ψ' : MultiField S n M K N}
+    (h : ChiDomProp a (j + 1) B Zc δ p0 Cpsi ψ ψ') {q : Torus S.d (n (j + 1))}
+    (hZ : CubeSub (S := S) (n := n) M K (j + 1) q (a.Z (j + 1)))
+    (hsim : q ∈ lhOmegaSim a (j + 1) (j + 1)) :
+    PsiTildeMulti ψ (genBlocksIn B (j + 1) (nbhd 1 {q})) (3 * S.d * S.L * δ j) :=
+  h.1 j (Nat.lt_succ_self j) q hZ hsim
+
+/-- **T3, the inequalities on the blocks of a datum site.**  If `ChiDomAt` holds for the
+component `C` and `s` is a datum site over a cube of `C` as in T1, the multiscale field satisfies
+the sphere condition (R2 for the data) `|‖ψ_{j+1}(b)‖² - 1| < 3 d L δ_j` at the top-scale block
+`b = blkToBlock (jBlock s)` of the datum; by `liftSingle_genW_Ψ_top` this is the value of the
+datum `Ψ(s)`.  (The first conjunct of `PsiTildeMulti` is about pairs of blocks, T3 for pairs
+below.) -/
+theorem chiDomAt_site_sphere {m₁ j : ℕ}
+    {H : RegionHistory S n R k0 K} (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) {C : H.Comp (j + 1)}
+    (cs : OpConsts) {A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1))}
+    {o : OutT N R (H.localHistory M K (j + 1) C) (j + 1)}
+    {x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A}
+    (hχ : ChiDomAt Cx.geo cs H (j + 1) C o x) (hC : C.1 ∉ H.rem (j + 1))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈ C.1) :
+    |‖subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+          (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) x o (j + 1)
+        (blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s))‖ ^ 2 - 1| <
+      3 * S.d * S.L * cs.delta j := by
+  obtain ⟨-, -, hZ, hsim, hb⟩ := datum_site_topBlock H Cx hC hs hq
+  have h : ChiDomProp (H.localHistory M K (j + 1) C) (j + 1) (chiDomGen H Cx.geo (j + 1) C)
+      (fineSet (S := S) (n := n) M K (j + 1) (C.1 : Set (Torus S.d (n (j + 1))))) cs.delta cs.p0
+      cs.Cpsi (subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+        (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) x o)
+      (subFluctField N (H.localHistory M K (j + 1) C) (j + 1) x) := hχ
+  have key := (psiTildeMulti_of_chiDomProp h hZ hsim).2 _ hb
+  dsimp only at key
+  exact key
+
+/-- **T3, the inequalities on the blocks of an interface pair.**  Under `ChiDomAt` for the
+component `C`, for an interface pair `(s, s')` of `G_{j+1}` with `t ∈ {s, s'}` over a cube of `C`
+(T2), the multiscale field at the two top-scale blocks `b, b'` of the pair satisfies
+
+* `‖ψ_{j+1}(b) - ψ_{j+1}(b')‖ < 3 d L δ_j` (the interface condition (R1) for the data, between
+  the values of the datum at the two sites by `liftSingle_genW_Ψ_top`),
+* `|‖ψ_{j+1}(b)‖² - 1| < 3 d L δ_j` and the same for `b'` (the sphere condition (R2)).
+
+These are conditions on the data `Ψ` (closeness of neighbouring block values and of the block
+value to the sphere), not `BlockClose` (`|Ψ - Qφ|`, a comparison of the data with the block
+average of the background solution) and not `GradClose` (derivatives of the background). -/
+theorem chiDomAt_pair_bounds {m₁ j : ℕ}
+    {H : RegionHistory S n R k0 K} (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) {C : H.Comp (j + 1)}
+    (cs : OpConsts) {A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1))}
+    {o : OutT N R (H.localHistory M K (j + 1) C) (j + 1)}
+    {x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A}
+    (hχ : ChiDomAt Cx.geo cs H (j + 1) C o x) (hC : C.1 ∉ H.rem (j + 1))
+    {s s' t : BgT Cx.geo (j + 1)}
+    (hp : IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s') (hts : t = s ∨ t = s')
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t) ∈ C.1) :
+    let ψ := subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+      (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) x o
+    let b := blkToBlock Cx.geo Cx.hnn Cx.hkK
+      (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)
+    let b' := blkToBlock Cx.geo Cx.hnn Cx.hkK
+      (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s')
+    ‖ψ (j + 1) b - ψ (j + 1) b'‖ < 3 * S.d * S.L * cs.delta j ∧
+      |‖ψ (j + 1) b‖ ^ 2 - 1| < 3 * S.d * S.L * cs.delta j ∧
+      |‖ψ (j + 1) b'‖ ^ 2 - 1| < 3 * S.d * S.L * cs.delta j := by
+  intro ψ b b'
+  obtain ⟨-, hZ, hsim, hb, hb', hadj⟩ := interface_pair_topBlocks H Cx hC hp hts hq
+  have hχ' : ChiDomProp (H.localHistory M K (j + 1) C) (j + 1) (chiDomGen H Cx.geo (j + 1) C)
+      (fineSet (S := S) (n := n) M K (j + 1) (C.1 : Set (Torus S.d (n (j + 1))))) cs.delta cs.p0
+      cs.Cpsi (subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
+        (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) x o)
+      (subFluctField N (H.localHistory M K (j + 1) C) (j + 1) x) := hχ
+  have h := psiTildeMulti_of_chiDomProp hχ' hZ hsim
+  have key := (⟨h.1 _ hb _ hb' (Or.inl rfl) hadj, h.2 _ hb, h.2 _ hb'⟩ : _ ∧ _ ∧ _)
+  dsimp only at key ⊢
+  exact key
+
+end Factor
+
 end Balaban.LargeField
