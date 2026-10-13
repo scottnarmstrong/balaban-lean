@@ -1491,9 +1491,11 @@ public import Balaban.Inhabited.TowerCoreRatesRen
 public import Balaban.Inhabited.TowerCoreRatesRenSol
 public import Balaban.Inhabited.StepTowerRen
 public import Balaban.Inhabited.StepTowerRenEnd
+public import Balaban.Inhabited.StepTowerRenEndG
 public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerG
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerGBridge
 public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Inhabited.StepScaleDataG
@@ -1777,4 +1779,6 @@ public import Balaban.Fluctuation.ClassOldTermInputM
 public import Balaban.Fluctuation.ClassOldTermSiteSums
 public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
+public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.SmallField.LocalGeneratorPoly
+public import Balaban.SmallField.LocalTraceDescent

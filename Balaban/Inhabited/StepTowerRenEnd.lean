@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerRen
 public import Balaban.Fluctuation.RenormEndpointSharp
 public import Balaban.Fluctuation.RenormPertClass
