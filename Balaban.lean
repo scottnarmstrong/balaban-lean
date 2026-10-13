@@ -1391,6 +1391,7 @@ public import Balaban.Inhabited.RRawHoleComponentWitness
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
+public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
@@ -1436,8 +1437,15 @@ public import Balaban.Fluctuation.DARateNumerics
 public import Balaban.Fluctuation.StepActivityClassChart
 public import Balaban.LargeField.Background.CubeUnitBg
 public import Balaban.Inhabited.ChiYWitness
+public import Balaban.Fluctuation.DetCauchyBgSupport
+public import Balaban.Fluctuation.DetCauchyAssembly
+public import Balaban.Fluctuation.DetCauchyBgActivity
+public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
+public import Balaban.LargeField.R.CoarseFineComponents
+public import Balaban.LargeField.R.RExtraSize
+public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
