@@ -281,7 +281,7 @@ theorem obsFamily_full_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : St
   have hzero := fun e he => (A3 _ hR h1 e he).2.2
   subst hS
   let S := T.step k hk N₁ ν β p₁
-  obtain ⟨Ev, ha, hdRaw, hb, hD⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν
+  obtain ⟨Ev, ha, hdRaw, hb, hD, -⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν
     Dsc (ϱ := rhoSepG d L T.m₁) rfl (S := T.step k hk N₁ ν β p₁) rfl hp y i (Lab.sum Lab)
   have hd : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))},
