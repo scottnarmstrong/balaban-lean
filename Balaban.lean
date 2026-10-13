@@ -1461,6 +1461,8 @@ public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.ExpSourceChartFromTower
 public import Balaban.Inhabited.SourceFamilyRelativeFromTower
+public import Balaban.Inhabited.SourceDirectTermsFromTower
+public import Balaban.Inhabited.SourceActivityFromTower
 public import Balaban.Inhabited.StepOutputConsts
 public import Balaban.Fluctuation.LevelLocalCover
 public import Balaban.Inhabited.LevelRayTower
