@@ -1188,6 +1188,7 @@ public import Balaban.Fluctuation.StepRegTerms
 public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepRegUnit
 public import Balaban.Fluctuation.StepRegWitness
+public import Balaban.Fluctuation.StepRegWitnessGeneral
 public import Balaban.Fluctuation.StepRegDomain
 public import Balaban.Fluctuation.GeneralClassMatch
 public import Balaban.Fluctuation.GeneralClassPathAnalytic
@@ -1655,3 +1656,5 @@ public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Inhabited.RenFibreDatum
+public import Balaban.Green.FinalPathDefect
+public import Balaban.Fluctuation.MarkIntTermAnalytic
