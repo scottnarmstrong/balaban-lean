@@ -23,7 +23,7 @@ zero old terms and `θ′ = (rawOf D′, g)`.
 * the energy coefficient family `e0 z θ U = dz z θ U + c z θ U` of `e0CoeffFamily_value_fromTower`
   (determinant term and mark coefficient), with `ℰ₀(z) = ∑_U e0 z (rawOf D′, 0) U`;
 * the observable coefficient family `mObs y i θ V` of `obsFamily_pair_fibre_fromTower`
-  (`obsFamily_joint_fromTower`), with
+  (`obsFamily_full_fromTower`), with
   `β_U^{-1/2} ∑_{y,i} g(y,i) ℳ₀(y; g)_i = ∑_{y,i} g(y,i) ∑_V mObs y i θ′ V`;
 * the identity `stepIdentity_zeroClass_fibre_local_fromTower` at every datum of the fibre and every
   source of the unit ball (nonvanishing from the fibre activity of
@@ -58,9 +58,11 @@ and the source:
   local in the parameter on the thickening of `Ŷ(sitesOf U)`, bounded by a constant times
   `e^{-κ' d_Ext(U)}` and supported on rooted polymer sets, with
   `ℰ₀(z) = ∑_U e0 z (rawOf D′, 0) U` at every chart datum `D′` of the fibre;
-* the observable witnesses of `obsFamily_joint_fromTower`: labels, an activity `Ao`, and for every
+* the observable witnesses of `obsFamily_full_fromTower`: labels, an activity `Ao`, and for every
   site `(y, i)` an amplitude and a family `Ev`, with the coefficient `mObs y i θ V`
-  (`= obsCoeffParam …`), analytic and bounded on `physVq … q` and supported on rooted polymer sets;
+  (`= obsCoeffParam …`), analytic and bounded on `physVq … q`, supported on rooted polymer sets, and
+  equal at two parameters of `physVq … q` whose raw data agree on `thickSet (sitesOf V)` and whose
+  sources agree on `sitesOf V`;
 
 such that for every datum `D′` of the chart `Ξ^c(𝔹_{k+1}; 1, T.t)` with constant field `h₀` and
 every source `g` with `∑ |g| < q`,
@@ -79,8 +81,9 @@ Scope of the statement.
    measure.  The term `E''' |T₁|` records these conventions and is not zero for the zero class; the
    term `ℱ_k(ψ^{(k)}, g)` is the pairing of the source with the complex small solution.
 
-The coefficient families are local only on the thickened sets `thickSet (Ŷ(sitesOf U))` so far, not
-on the sets `sitesOf U` themselves. -/
+The coefficient families are local only on thickened sets so far (`thickSet (Ŷ(sitesOf U))` for the
+energy family, `thickSet (sitesOf V)` for the raw datum of the observable family), not on the sets
+`sitesOf U`, `sitesOf V` themselves. -/
 theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ} (hCR : 0 < CR)
     (hs0 : 0 < s) (hs : s < 1 / 2) :
@@ -332,7 +335,14 @@ theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmi
                   Real.exp (-(min (min (2 * T.κdec) T.κ' - T.κ0 - 1) T.κ') * dExt T')) ∧
                 (∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
                     (T.step k hk N₁ ν β p₁).ν T.t q, mObs y i θ T' ≠ 0 →
-                  rootCube (m₀ := 1) (blockIndex y) ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T'))) ∧
+                  rootCube (m₀ := 1) (blockIndex y) ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
+                (∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                    (T.step k hk N₁ ν β p₁).ν T.t q, ∀ θ' ∈ physVq (T.step k hk N₁ ν β p₁)
+                        (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t q,
+                  agreeOn (thickSet (T.step k hk N₁ ν β p₁).G' (sitesOf T'))
+                    (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+                    (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T')) ∧
       ∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
           (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
         XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν

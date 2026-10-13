@@ -32,6 +32,9 @@ with constant field `h₀`) and `C` for the class with zero old terms.
   every source of the unit ball,
   `TstepC = exp [-β A^η_{k+1} - E''' |T₁| + ℱ_k(ψ^{(k)}, g) + ∑_z ℰ₀(z)
     + β_U^{-1/2} ∑_{y,i} g(y,i) ℳ₀(y; g)_i]`.
+* `stepIdentity_zeroClass_fibre_of_values_fromTower`: the same identity with given values `E z` of
+  `ℰ₀(z)` and `M y i` of `β_U^{-1/2} ℳ₀(y; g)_i` in the exponent, the form in which coefficient
+  expansions are substituted.
 
 The term `ℰ_k(ψ^{(k)})` of Proposition 2.6 vanishes for the zero class (`EcompAtC_zero`); the
 normalization term `E''' |T₁|` does not (`E'''` contains the constants of the kernel and of the
@@ -306,5 +309,64 @@ theorem stepIdentity_zeroClass_fibre_local_fromTower {κmin : ℝ} (T : StepTowe
   have hnv := H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS D' hDh hX g hg
   subst hS
   exact stepIdentity_zeroClass_withDatum_of_nonvanishing T Dsc (by linarith) hp0 D' hDh hX g hnv
+
+/-- For `b > 0`, if `m₀(y,i) = b^{1/2} m(y,i)` then
+`b^{-1/2} ∑_{y,i} g(y,i) m₀(y,i) = ∑_{y,i} g(y,i) m(y,i)`. -/
+theorem rpow_neg_half_mul_sum_pair {ι κ : Type*} [Fintype ι] [Fintype κ] {b : ℝ} (hb : 0 < b)
+    (g m₀ m : ι → κ → ℂ) (h : ∀ y i, m₀ y i = ((b ^ (1 / 2 : ℝ) : ℝ) : ℂ) * m y i) :
+    ((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * ∑ y, ∑ i, g y i * m₀ y i = ∑ y, ∑ i, g y i * m y i := by
+  have hcc : ((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * ((b ^ (1 / 2 : ℝ) : ℝ) : ℂ) = 1 := by
+    rw [← Complex.ofReal_mul, ← Real.rpow_add hb]
+    norm_num
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [h y i, ← mul_assoc, mul_comm _ (g y i), mul_assoc, ← mul_assoc _ _ (m y i), hcc, one_mul]
+
+/-- **The step identity of the zero class on the fibre, for given values of the local energies and
+observables.**  Beyond the threshold of `stepActivityBoundC_fibre_fromTower`, at every scale datum,
+for every datum `D′` of the chart `Ξ^c(𝔹_{k+1}; 1, T.t)` with constant field `h₀` and every source
+`g` with `∑ |g| < 1`: if `ℰ₀(z) = E z` for every root `z` and `ℳ₀(y; g)_i = β_U^{1/2} M y i` for
+every site `(y, i)` (objects of the step with the datum `D′` and the class with zero old terms),
+then
+`TstepC = exp [-β A^η_{k+1} - E''' |T₁| + ℱ_k(ψ^{(k)}, g) + ∑_z E z + ∑_{y,i} g(y,i) M y i]`.
+This is the form in which coefficient expansions of `ℰ₀(z)` and `β_U^{-1/2} ℳ₀(y; g)_i` (over any
+index sets) are substituted; the factors `β_U^{-1/2}` and `β_U^{1/2}` cancel since
+`β_U = β 3^k > 0`. -/
+theorem stepIdentity_zeroClass_fibre_of_values_fromTower {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, 2 ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+    p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+    ∀ (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)), S = T.step k hk N₁ ν β p₁ →
+    ∀ (D' : BgData S.G' 2) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+      XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+      ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < 1 →
+      ∀ (E : RootIdx 3 3 N₁ T.m₁ (k + 1) → ℂ) (M : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ),
+        (∀ z, (S.withDatum D' hDh).E0locC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z = E z) →
+        (∀ y i, (S.withDatum D' hDh).M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+          ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * M y i) →
+        (S.withDatum D' hDh).TstepC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g =
+          Complex.exp (-(S.β : ℂ) * (S.withDatum D' hDh).AnewC -
+            ((S.withDatum D' hDh).Eppp (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) : ℂ) *
+              ((S.withDatum D' hDh).nU : ℂ) +
+            FcompAtC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)).m₀
+              (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)).Tm S.a S.ν (Nat.le_succ k)
+              (S.withDatum D' hDh).psiKdC g +
+            ∑ z : RootIdx 3 3 N₁ T.m₁ (k + 1), E z +
+            ∑ y : CTorus 3 3 N₁ T.m₁ (k + 1), ∑ i : Fin 2, g y i * M y i) := by
+  obtain ⟨β₀, h2, H⟩ := stepIdentity_zeroClass_fibre_local_fromTower T hA p
+  refine ⟨β₀, h2, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS D' hDh hX g hg E M hE hM
+  have hbU0 : 0 < S.betaU := by
+    rw [hS, show (T.step k hk N₁ ν β p₁).betaU = β * 3 ^ k from
+      hatStepK_betaU k T.m₁ hk ν β p₁ T.δ]
+    have : 0 < β := by linarith
+    positivity
+  rw [H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS D' hDh hX g hg,
+    rpow_neg_half_mul_sum_pair hbU0 g _ M hM, Finset.sum_congr rfl fun z _ => hE z]
 
 end Balaban.Inhabited

@@ -6,16 +6,19 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.ObsFamilyJoint
+public import Balaban.Inhabited.StepIdentityFibre
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
 # The observable half of the step identity on the fibre `h ≡ h₀`
 
-`obsFamily_joint_fromTower` gives, at a scale of the shared tower, one label system and one
+`obsFamily_full_fromTower` gives, at a scale of the shared tower, one label system and one
 activity, and for every observable site `(y, i)` one amplitude and one family `Ev`, whose
-coefficients `obsCoeffParam … θ T'` are analytic, bounded and supported on rooted polymer sets,
-and whose sum at `θ = (rawOf D, g)` is `β_U^{-1/2} ℳ₀(y; g)_i` of the step with the datum `D`.
+coefficients `obsCoeffParam … θ T'` are analytic, bounded, supported on rooted polymer sets and
+local (equal at two parameters whose raw data agree on the thickening of `sitesOf T'` and whose
+sources agree on `sitesOf T'`), and whose sum at `θ = (rawOf D, g)` is `β_U^{-1/2} ℳ₀(y; g)_i` of
+the step with the datum `D`.
 
 `obsFamily_pair_fibre_fromTower` collects the coefficients of all sites in one function
 `mObs y i θ T'` (equal to `obsCoeffParam …` for the amplitude and the `Ev` of the site), chosen
@@ -35,15 +38,17 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 open Classical in
 /-- **The observable coefficient family of all sites, and the source pairing on the fibre.**
-Beyond the threshold of `obsFamily_joint_fromTower`, at every scale datum and for `0 < q ≤ 1` there
+Beyond the threshold of `obsFamily_full_fromTower`, at every scale datum and for `0 < q ≤ 1` there
 are a label system, an amplitude `ε_H`, an activity `A` and a function `mObs y i θ T'` of the
 observable site `(y, i)`, the parameter `θ = (raw datum, source)` and the finite set `T'` of
 level-one blocks, chosen before the datum and the source, such that:
 * for every site `(y, i)` there are an amplitude `obsRg` and a family `Ev` (analytic, local,
   bounded) with `mObs y i θ T' = obsCoeffParam … θ T'` for the tilted activity of `A` and this
   `Ev`; `θ ↦ mObs y i θ T'` is analytic on `physVq … q`, bounded there by
-  `(B₁ + B₂) e^{-λ dExt T'}`, `λ = min (min (2 κ_dec) κ' - κ₀ - 1) κ'`, and non-zero only if `T'`
-  contains the root cube of `y` and its sites form a polymer;
+  `(B₁ + B₂) e^{-λ dExt T'}`, `λ = min (min (2 κ_dec) κ' - κ₀ - 1) κ'`, non-zero only if `T'`
+  contains the root cube of `y` and its sites form a polymer, and local:
+  `mObs y i θ T' = mObs y i θ' T'` for `θ, θ'` of `physVq … q` whose raw data agree on
+  `thickSet (sitesOf T')` and whose sources agree on `sitesOf T'`;
 * for every datum `D` of the chart `Ξ^c(𝔹_{k+1}; 1, T.t)` with constant field `h₀` and every source
   `g` with `∑ |g| < q`: `ℳ₀(y; g)_i = β_U^{1/2} ∑_{T'} mObs y i (rawOf D, g) T'` for every site, and
   `β_U^{-1/2} ∑_{y,i} g(y,i) ℳ₀(y; g)_i = ∑_{y,i} g(y,i) ∑_{T'} mObs y i (rawOf D, g) T'`,
@@ -131,7 +136,12 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
                               (rootCube (m₀ := 1) (blockIndex y))) r)))) *
                   Real.exp (-(min (min (2 * T.κdec) T.κ' - T.κ0 - 1) T.κ') * dExt T')) ∧
                 (∀ θ ∈ physVq S S.a₁ S.ν T.t q, mObs y i θ T' ≠ 0 →
-                  rootCube (m₀ := 1) (blockIndex y) ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T'))) ∧
+                  rootCube (m₀ := 1) (blockIndex y) ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
+                (∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ θ' ∈ physVq S S.a₁ S.ν T.t q,
+                  agreeOn (thickSet S.G' (sitesOf T'))
+                    (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+                    (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T')) ∧
         ∀ (D : BgData S.G' 2) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
           XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
           ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i', ‖g x' i'‖ < q →
@@ -146,7 +156,7 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
               ∑ y : CTorus 3 3 N₁ T.m₁ (k + 1), ∑ i : Fin 2,
                 g y i * ∑ T', mObs y i ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) T' := by
   classical
-  obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ := obsFamily_joint_fromTower T hA p hCR hs0 hs
+  obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ := obsFamily_full_fromTower T hA p hCR hs0 hs
   refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1 Dsc S hS hp
   obtain ⟨Lb, hLb, Lab, εH, hεH, A, hamp, hsite⟩ :=
@@ -162,7 +172,7 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
       hatStepK_betaU k T.m₁ hk ν β p₁ T.δ]
     have : 0 < β := by linarith
     positivity
-  choose hR hR1 hRθ Ev ha hd hb hcl hval using fun y i => hsite y i (hdj₀ y i)
+  choose hR hR1 hRθ Ev ha hd hb hDD hfam hcl hval using fun y i => hsite y i (hdj₀ y i)
   refine ⟨Lb, hLb, Lab, εH, hεH, A, fun y i θ T' => obsCoeffParam (S.blockSplit 1 hp).μ
     (fun θ t σ => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le
       (hdj₀ y i) (le_refl _) (obsRg CR s (p : ℝ) (β * 3 ^ k)) (hR y i) (ball (0 : ℂ) (3 / 2))
@@ -183,18 +193,11 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
       (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
       (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ T', hamp, ?_, ?_⟩
   · intro y i hdj
-    exact ⟨hR y i, hR1 y i, hRθ y i, Ev y i, ha y i, hd y i, hb y i, fun _ _ => rfl, hcl y i⟩
+    exact ⟨hR y i, hR1 y i, hRθ y i, Ev y i, ha y i, hd y i, hb y i, fun _ _ => rfl,
+      fun T' => ⟨(hcl y i T').2.2.2.1, (hcl y i T').2.2.2.2.1, (hcl y i T').2.2.2.2.2.1,
+        (hcl y i T').2.2.2.2.2.2⟩⟩
   · intro D hDh hX g hg
     have hM := fun y i => hval y i D hDh hX g hg
-    refine ⟨hM, ?_⟩
-    have hcc : ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) = 1 := by
-      rw [← Complex.ofReal_mul, ← Real.rpow_add hbU0]
-      norm_num
-    rw [Finset.mul_sum]
-    refine Finset.sum_congr rfl fun y _ => ?_
-    rw [Finset.mul_sum]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [hM y i, ← mul_assoc, mul_comm _ (g y i), mul_assoc, ← mul_assoc _ _ (∑ T', _), hcc,
-      one_mul]
+    exact ⟨hM, rpow_neg_half_mul_sum_pair hbU0 g _ _ hM⟩
 
 end Balaban.Inhabited
