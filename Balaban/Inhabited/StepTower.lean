@@ -79,24 +79,6 @@ structure StepTower (κmin : ℝ) where
   det_rate : κ' ≤ (κ - Real.log 2 -
     2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)) / 18
 
-/-- The general reference mass at `L = 3` is the landed mass `nuW = 1/81`. -/
-theorem νref_three : νref 3 = nuW := by
-  unfold νref nuW; norm_num
-
-/-- The core of the fixed tower, transported to the general level pair and mass. -/
-theorem flCore_three_transport {m₁ : ℕ} {c BG κ t c₂ BG₂ : ℝ}
-    (h : Nonempty (FlCore 2 (Gp m₁ (rhoSep m₁)) (Hm m₁ (rhoSep m₁)) 1 nuW c BG κ t
-      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t)) :
-    Nonempty (FlCore 2 (GpG 3 3 9 m₁ 1) (HmG 3 3 9 m₁ 1) 1 (νref 3) c BG κ t
-      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t) := by
-  rw [νref_three]
-  have e := rhoSepG_three (m₁ := m₁)
-  have key : ∀ ϱ : ℝ, ϱ = rhoSep m₁ →
-      Nonempty (FlCore 2 (Gp m₁ ϱ) (Hm m₁ ϱ) 1 nuW c BG κ t
-        (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t) := by
-    intro ϱ hϱ; subst hϱ; exact h
-  exact key _ e
-
 /-- **The bridge**: the fixed `3, 3, 2` tower is a general tower. -/
 noncomputable def StepTower.toG {κmin : ℝ} (T : StepTower κmin) : StepTowerG 3 3 2 κmin where
   hd := le_rfl
