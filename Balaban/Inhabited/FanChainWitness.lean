@@ -28,7 +28,7 @@ namespace Balaban.Inhabited
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
-  Balaban.Polymer Balaban.SmallField.Def6
+  Balaban.Polymer Balaban.SmallField.Def6 Matrix
 
 set_option hygiene false in
 /-- Local tactic: the tower data of `tower_core_fixed` and `tower_C_items` shared by the instances
@@ -585,5 +585,126 @@ theorem fanChain_fluct_rows_marked :
     fanChain_cellUnion_univ (fun P hP => absurd hP (by simp)) hdata' ψh ψh' hh' Z u τ hI hI₂ Hh Hh₂
     hfix hs6 hfix₂ hs6₂
   exact ⟨φ, φ₂, α, α₂, _, _, hI, hI₂, hfix, hs6, hfix₂, hs6₂, hflc⟩
+
+
+open Classical in
+/-- **Instances of `fanHL_local_dir` and `i5_functional_hat_dir` at the witness step**, for the
+block energy `blockEnergyFun` of every block `z` (the functional that the landed assembly
+`vblock_expansion_hat_dir_scaled` feeds to `i5_functional_hat_dir`), on the whole torus
+(`X₁ = univ`, `X = Xr`, `𝒦X = {0}`, `m₀ = j = 1`).  The first conjunct is the sharp locality of the
+fan for the cuts `s` of the polydisc, the second the expansion of `i5_functional_hat_dir`. -/
+theorem fanChain_fan_locality :
+    ∃ (m₁ : ℕ) (BG BG₂ κ κdec κ0 t δ β₀ : ℝ), 2 ≤ β₀ ∧ 0 < t ∧ 0 < κ ∧
+      ∀ β : ℝ, β₀ ≤ β → ∃ cψ : ℝ, 0 < cψ ∧
+        ∃ (F₁ : DecParams Gw[m₁, β, δ] × RawData 3 3 (9 * 3 ^ m₁) (1 + 1) 2 →
+            (Gw[m₁, β, δ].Ω 1 × Fin 2 → ℂ) × (Gw[m₁, β, δ].Ω 1 → ℂ))
+          (Sol : Dec2.DecParams (coverOf Gw[m₁, β, δ]) × Edat (Hm m₁ (rhoSep m₁)) 2 →
+            ((Hm m₁ (rhoSep m₁)).Ω 1 × Fin 2 → ℂ) × ((Hm m₁ (rhoSep m₁)).Ω 1 → ℂ)),
+          F1Spec Gw[m₁, β, δ] 1 nuW BG κ F₁ ∧
+          SolSpec Gw[m₁, β, δ] (Hm m₁ (rhoSep m₁)) 1 nuW BG BG₂ κ t t Sol ∧
+          ∀ z : Torus 3 (9 * 3 ^ m₁ * 3 ^ (1 + 1 - (1 + 1))),
+          (LocalityAEOn (Real.exp κ)
+            (XiCRaw Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t ×ˢ
+              {ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
+            (fun i : ParIdx Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+              Set (CTorus 3 3 9 m₁ (1 + 1))) => Pset m₁ i.1.1)
+            (compY (fun i : ParIdx Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+              Set (CTorus 3 3 9 m₁ (1 + 1))) => i.1.1)
+              (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) : Set (CTorus 3 3 9 m₁ (1 + 1))))
+            (fun C u u' => AgHatDir (wStep m₁ β δ).hG' (compY
+              (fun i : ParIdx Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                Set (CTorus 3 3 9 m₁ (1 + 1))) => i.1.1)
+              (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) : Set (CTorus 3 3 9 m₁ (1 + 1))) C)
+              u u')
+            (fun u s => blockEnergyFun Gw[m₁, β, δ] (Hm m₁ (rhoSep m₁)) (compWeight 3 1) nuW 1 z
+              (F₁ (extParams Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                Set (CTorus 3 3 9 m₁ (1 + 1))) s, u.1))
+              (Sol (extParams Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                  Set (CTorus 3 3 9 m₁ (1 + 1))) s,
+                flEdat Gw[m₁, β, δ] (Hm m₁ (rhoSep m₁))
+                  (F₁ (extParams Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                    Set (CTorus 3 3 9 m₁ (1 + 1))) s, u.1)) u.1.1
+                  (hatPsiF Gw[m₁, β, δ] 1 nuW (wStep m₁ β δ).hG' ccw[m₁, β, δ] F₁
+                    (extParams Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                      Set (CTorus 3 3 9 m₁ (1 + 1))) s) u.1 u.2))).1
+              (u.1, hatPsiF Gw[m₁, β, δ] 1 nuW (wStep m₁ β δ).hG' ccw[m₁, β, δ] F₁
+                (extParams Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) :
+                  Set (CTorus 3 3 9 m₁ (1 + 1))) s) u.1 u.2)) ∧
+          ∃ Ev : Set (CTorus 3 3 9 m₁ (1 + 1)) →
+              RawData 3 3 (9 * 3 ^ m₁) (1 + 1) 2 × (unitPts Gw[m₁, β, δ] × Fin 2 → ℂ) → ℂ,
+            (∀ D : BgData Gw[m₁, β, δ] 2, XiCData Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t D →
+              ∀ ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+              blockEnergyFun Gw[m₁, β, δ] (Hm m₁ (rhoSep m₁)) (compWeight 3 1) nuW 1 z
+                (bgFieldC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D,
+                  bgMultC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D)
+                (flFieldOne Gw[m₁, β, δ] (Hm m₁ (rhoSep m₁)) BG₂ κ 1 nuW D
+                  (liftC (wStep m₁ β δ).hG' (ccw[m₁, β, δ] • (decCovSqrt Gw[m₁, β, δ] (compWeight 3 1) 1 nuW
+                    (bgMultC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D) (fun _ => 1)
+                    (barField Gw[m₁, β, δ] D.Ψ (bgFieldC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D))
+                    (unitQ Gw[m₁, β, δ]) (unitP Gw[m₁, β, δ]) *ᵥ ψh))))
+                (rawOf D, liftC (wStep m₁ β δ).hG' (ccw[m₁, β, δ] • (decCovSqrt Gw[m₁, β, δ] (compWeight 3 1) 1 nuW
+                    (bgMultC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D) (fun _ => 1)
+                    (barField Gw[m₁, β, δ] D.Ψ (bgFieldC Gw[m₁, β, δ] (compWeight 3 1) nuW (bgC0 3 3 2) D))
+                    (unitQ Gw[m₁, β, δ]) (unitP Gw[m₁, β, δ]) *ᵥ ψh))) =
+              ∑ Y ∈ polymerDomains (fun i : ParIdx Gw[m₁, β, δ] (↑(Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) : Set (CTorus 3 3 9 m₁ (1 + 1))) => i.1.1) Gw[m₁, β, δ] 1
+                (X1 Gw[m₁, β, δ] 1 1 ({0} : Set (CTorus 3 3 9 m₁ (1 + 1)))), Ev Y (rawOf D, ψh)) ∧
+            (∀ Y, ∀ u ∈ XiCRaw Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t ×ˢ
+                {ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+              ∀ u' ∈ XiCRaw Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t ×ˢ
+                {ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+              AgHatDir (wStep m₁ β δ).hG' Y u u' → Ev Y u = Ev Y u') ∧
+            (∀ Y, ∀ u ∈ XiCRaw Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t ×ˢ
+                {ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+              ‖Ev Y u‖ ≤ energyBdScaled 3 3 2 (compWeight 3 1) 1
+                (cK2' 3 3 2 (famConst 3 3 BG₂ κ) * t) t (rho4 3 3 2 BG κ) *
+                Real.exp (-κ0 * treeLenCovOne (L := 3) (N₁ := 9) (m₁ := m₁) (K := 2) (d := 3) 1 1 Xr -
+                  2 * κdec * treeLenCov Gw[m₁, β, δ] 1 Y)) ∧
+            (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gw[m₁, β, δ] (compWeight 3 1) nuW (1 + 1) 1 t ×ˢ
+                {ψh : unitPts Gw[m₁, β, δ] × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ cψ}))) := by
+  classical
+  fan_setup
+  refine ⟨m₁, BG, BG₂, κ, κdec, κ0, t, δ, β₀t, hβ₀t, ht0, hκpos, ?_⟩
+  intro β hβ
+  obtain ⟨hp, hcψ0, hr0, hδ₁, hc, hlt, ⟨R0⟩⟩ := hitems β hβ
+  obtain ⟨F₁, hF₁⟩ := f1Spec_exists hC
+  obtain ⟨Sol, hSolspec⟩ := solSpec_exists hC
+  refine ⟨towerCpsi κ t β, hcψ0, F₁, Sol, hF₁, hSolspec, fun z => ⟨?_, ?_⟩⟩
+  swap
+  · have ha : 0 ≤ compWeight 3 (1 : ℝ) 1 :=
+      (hC.HBp.weights 1 le_rfl (by norm_num)).1.trans' (by norm_num)
+    have hd0 : 0 < 3 := by norm_num
+    have hV : 0 ≤ cK2' 3 3 2 (famConst 3 3 BG₂ κ) * t :=
+      mul_nonneg (cK2'_pos' hB0).le ht0.le
+    have hρ : 0 ≤ rho4 3 3 2 BG κ := by
+      have hBG := hC.hS.fam.2.1
+      have hB1 : 0 ≤ famConst 3 3 BG κ := by
+        have := famConst_ge_one (L := 3) hBG κ hd0; linarith
+      unfold rho4
+      exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
+    have hEb := energyBdScaled_nonneg (d := 3) (L := 3) (N := 2) ha hV ht0.le hρ
+    exact i5_functional_hat_dir hC le_rfl isLevel_Hm (wStep m₁ β δ).hG' _ hcψ0.le hMX hdm hα hsmX
+      hδ₁ (j := 1) (m₀ := 1) (X := Xr) (𝒦X := {0}) (X₁f := Finset.univ)
+      covSetup (by rw [Finset.coe_univ]; exact X1_eq_univ.symm) hatConn
+      (rowInHat_level (dgSettingNu h4) isLevel_Hm isLevel_Gp) hopt hκ0 hκdec
+      (by exact_mod_cast hκ) h1 hlog hEb
+      (Φ := blockEnergyFun (wStep m₁ β δ).G' (Hm m₁ (rhoSep m₁)) (compWeight 3 1) nuW 1 z)
+      ((blockEnergyFun_analytic _ nuW 1 z).mono (Set.subset_univ _))
+      (fun t ht => by
+        rw [treeLen_zero]; simp only [mul_zero, Real.exp_zero, mul_one]
+        exact (blockEnergyFun_bound_scaled_levelPair hC z ht).1)
+      (Z := readSites (Hm m₁ (rhoSep m₁)) 1 z) (Zα := ↑(blockSites 3 3 9 m₁ (1 + 1) 1 z))
+      (fun _ _ => Finset.mem_coe.2 (Finset.mem_univ _))
+      (blockMargin_univ fun x _ _ => mem_some_intBox h4 x)
+      (fun t _ t' _ _ hα hδ _ hψ => blockEnergyFun_local_dir _ nuW 1 z hα hδ hψ)
+  exact fanHL_local_dir hC le_rfl isLevel_Hm (wStep m₁ β δ).hG' _ hcψ0.le hMX hdm hα hsmX hδ₁
+    (j := 1) (m₀ := 1) (X := Xr) (𝒦X := {0}) (X₁f := Finset.univ)
+    covSetup (by rw [Finset.coe_univ]; exact X1_eq_univ.symm) hatConn
+    (rowInHat_level (dgSettingNu h4) isLevel_Hm isLevel_Gp) hF₁ hSolspec
+    (Φ := blockEnergyFun (wStep m₁ β δ).G' (Hm m₁ (rhoSep m₁)) (compWeight 3 1) nuW 1 z)
+    (Z := readSites (Hm m₁ (rhoSep m₁)) 1 z)
+    (Zα := ↑(blockSites 3 3 9 m₁ (1 + 1) 1 z))
+    (fun _ _ => Finset.mem_coe.2 (Finset.mem_univ _))
+    (blockMargin_univ fun x _ _ => mem_some_intBox h4 x)
+    (fun t _ t' _ _ hα hδ _ hψ => blockEnergyFun_local_dir _ nuW 1 z hα hδ hψ)
 
 end Balaban.Inhabited
