@@ -1548,6 +1548,8 @@ public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
 public import Balaban.Fluctuation.RenormC1Local
+public import Balaban.Fluctuation.RenormLocC1Zero
+public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.LargeField.R.D7ReserveArithmetic
@@ -1561,4 +1563,6 @@ public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
 public import Balaban.Fluctuation.ExpSourceChart
+public import Balaban.Fluctuation.DetRotation
+public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Correlations.C1StarLimits
