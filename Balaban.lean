@@ -52,8 +52,10 @@ public import Balaban.Polymer.Bridge
 public import Balaban.Polymer.FrozenTorus
 public import Balaban.Polymer.BoxTransport
 public import Balaban.Polymer.TwoTorusStepGeometry
-public import Balaban.Polymer.TwoTorusData
 public import Balaban.Polymer.TwoTorusThickSets
+public import Balaban.Polymer.TwoTorusDomainFamilies
+public import Balaban.Polymer.TwoTorusData
+public import Balaban.Polymer.TwoTorusCubeOps
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -837,6 +839,8 @@ public import Balaban.LargeField.Base.BaseHistory
 public import Balaban.LargeField.Base.BaseSupport
 public import Balaban.LargeField.Base.BaseWitness
 public import Balaban.LargeField.Base.BaseGauss
+public import Balaban.LargeField.Base.BasePhysicalDensity
+public import Balaban.LargeField.Base.BaseChartIdentity
 public import Balaban.LargeField.Base.BaseWitnessGauss
 public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
@@ -1744,6 +1748,7 @@ public import Balaban.Inhabited.ObsFamilyPrefactor
 public import Balaban.Inhabited.StepIdentityFibre
 public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
+public import Balaban.Inhabited.RootTermZeroClass
 public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Fluctuation.RootSupportBridge
@@ -1755,3 +1760,5 @@ public import Balaban.Inhabited.ObsPrefactorScale
 public import Balaban.Fluctuation.StepOldTermSplit
 public import Balaban.Fluctuation.StepClassPath
 public import Balaban.Fluctuation.StepPhysicalActivityBridge
+public import Balaban.Fluctuation.RootTorusParameters
+public import Balaban.Fluctuation.StepSettingH
