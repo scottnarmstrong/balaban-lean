@@ -1431,4 +1431,92 @@ theorem sum_blockU_detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m�
 
 end Det
 
+/-! ### D3: the labels of the marks on two tori -/
+
+section Labels
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L]
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- A neighbour of a site of the box of radius `r` lies in the box of radius `r + 1`. -/
+theorem inBox_of_adj {r : ℕ} (hn : 2 * (r + 1) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {x y : CTorus d L N₁ m₁ (k + 1)} (hx : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (h : Adj x y) : InBox d (r + 1) ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+  obtain ⟨μ, h | h⟩ := h
+  · rw [h]; exact inBox_add_single hn hx μ
+  · have : y = x - Pi.single μ 1 := by rw [h]; abel
+    rw [this]; exact inBox_sub_single hn hx μ
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+theorem inBox_of_mem_psiThick {r : ℕ} (hn : 2 * (r + 1) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    {y : CTorus d L N₁ m₁ (k + 1)} (h : y ∈ psiThick Y) :
+    InBox d (r + 1) ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+  rcases h with h | ⟨x, hx, hxy⟩
+  · exact inBox_mono (Nat.le_succ r) (hY y h)
+  · exact inBox_of_adj hn (hY x hx) hxy
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- **The set `Y` and its neighbours on two tori**: `psiThick (bm '' Y) = bm '' psiThick Y` for `Y`
+in the box of radius `r`.  Margin: `2 (r + 1) + 1 < N₁ L^m₁ L^(k+1), N₁' L^m₁ L^(k+1)`. -/
+theorem psiThick_image {r : ℕ} (hn : 2 * (r + 1) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * (r + 1) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    psiThick (bm '' Y) = bm '' psiThick Y := by
+  have hr1 : 2 * r + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  ext y'
+  constructor
+  · rintro (⟨x, hx, rfl⟩ | ⟨_, ⟨x, hx, rfl⟩, hxy⟩)
+    · exact ⟨x, Or.inl hx, rfl⟩
+    · have hxR := hY x hx
+      have hy'R : InBox d (r + 1) ((N₁' * L ^ m₁) * L ^ (k + 1)) y' :=
+        inBox_of_adj hn' (inBox_boxMap hr1 hxR) hxy
+      have hyR : InBox d (r + 1) ((N₁ * L ^ m₁) * L ^ (k + 1)) (bm' y') := inBox_boxMap hn hy'R
+      have hbb : bm (bm' y') = y' := boxMap_boxMap hn hy'R
+      refine ⟨bm' y', Or.inr ⟨x, hx, ?_⟩, hbb⟩
+      have h1 : Nbr (bm x) (bm (bm' y')) := by rw [hbb]; exact hxy
+      exact (nbr_boxMap_iff (by omega) hn' (inBox_mono (Nat.le_succ r) hxR) hyR).2 h1
+  · rintro ⟨y, hy | ⟨x, hx, hxy⟩, rfl⟩
+    · exact Or.inl ⟨y, hy, rfl⟩
+    · refine Or.inr ⟨bm x, ⟨x, hx, rfl⟩, ?_⟩
+      exact (nbr_boxMap_iff (by omega) hn' (inBox_mono (Nat.le_succ r) (hY x hx))
+        (inBox_of_adj hn (hY x hx) hxy)).1 hxy
+
+omit [NeZero N₁'] in
+/-- The fine block of a coarse site is the box of side `L^(k+1)` at its corner site. -/
+theorem fineBlock_eq_box (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
+    fineBlock (m₁ := m₁) (K := k + 1) z =
+      box (cbase (L ^ (k + 1)) (LocalCover.blockSite k z)) (L ^ (k + 1)) := by
+  ext x
+  show jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x = z ↔ _
+  rw [← jBlock_eq_iff_mem_box le_rfl, LocalCover.jBlock_blockSite le_rfl z]
+
+/-- **The fine block of a coarse site on two tori**: `bm '' fineBlock z = fineBlock (bc z)` for
+`|z| ≤ r_c`, `L^(k+1) r_c ≤ ρ`.  Margin: `2 (ρ + L^(k+1)) + L^(k+1) < N₁ L^m₁ L^(k+1)` and
+`2 ρ + 1 < N₁' L^m₁ L^(k+1)`. -/
+theorem fineBlock_image {ρ rc : ℕ}
+    (hn : 2 * (ρ + L ^ (k + 1)) + L ^ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ ρ) :
+    bm '' fineBlock (m₁ := m₁) (K := k + 1) z = fineBlock (m₁ := m₁) (K := k + 1) (bc z) := by
+  have hpK : 0 < L ^ (k + 1) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have hx₀ := blockSite_inBox (N₁ := N₁) (by omega) z hz hrc
+  have hcell : ∀ x ∈ box (cbase (L ^ (k + 1)) (LocalCover.blockSite k z)) (L ^ (k + 1)),
+      InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => inBox_of_mem_cell (by omega) hx₀ hx
+  rw [fineBlock_eq_box, fineBlock_eq_box, image_box_boxMap hn hpK hcell,
+    cbase_boxMap (Dvd.intro_left _ rfl) (Dvd.intro_left _ rfl) hpK (by omega) _ hcell,
+    blockSite_boxMap le_rfl z hz hrc (by omega)]
+
+end Labels
+
 end Balaban.Polymer.TwoTorusStep
