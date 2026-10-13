@@ -36,6 +36,20 @@ form, no conjugation) put `P_h = 1 ⊗ (h hᵀ / (h·h))` (`projHC`), an idempot
   estimates for the scalar operator.
 * analyticity in `h` on `{h·h ≠ 0}` and, with a scalar perturbation `U + E(z)`, jointly in `(z, h)`.
 
+Constants.  With `p` a bound for the entries of the spin part `hᵢhⱼ/(h·h)` (`p = ∑‖hₖ‖²/‖h·h‖` in
+general, `p = 25/7` in the ball `ρ ≤ 1/4`): resolvent entries are at most
+`p (a+t)⁻¹ [x=y] + (1+p)(2/(g_*+t)) e^{-r_* dist}`, uniformly `(3p+2)/(g'+t) e^{-r_* dist}` with
+`g' = min g_* a`; inverse square root entries at most
+`p a^{-1/2} [x=y] + (1+p)(2/√g_*) e^{-r_* dist}`.  The note's `(2 + 2/g_*)` (real unit `h`,
+`a ≥ 1/2`) is sharper in the factor of `U⁻¹`: for real unit `h` one has `|δᵢⱼ - hᵢhⱼ| ≤ 1`,
+while for complex `h` only `1 + p` is used here.
+
+Interface for `FINAL-COMPLEX-DOMAIN` (NOT PROVED here): an open set `Ω` of chart parameters, a
+holomorphic map `z ↦ (E z, h z)` with `WSmall r η (E z)`, `0 ≤ η < g_*`, `0 < r`, and `h z` in
+the ball `∑ᵢ ‖hᵢ - h₀ᵢ‖² ≤ ρ²` of a real unit vector (`ρ ≤ 1/4`) or merely `h·h ≠ 0`, together with
+the identification of the physical final Hessian at `z` with `hessC N a (finalOp + E z) (h z)`.
+Given these, the bounds and the holomorphy of this file apply (compose with `h`).
+
 NOT proved here: the identification of `finalHessianC` with the Hessian of the physical final
 density (`FINAL-HESSIAN-BRIDGE`); the complex chart (`FINAL-COMPLEX-DOMAIN`), which must supply an
 open set of chart parameters, a holomorphic map to `(E, h)` with `WSmall r η (E z)`, `η < g_*` and
@@ -845,5 +859,65 @@ theorem finalPert_hessC_sqrt_analytic (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (h
   rfl
 
 end AnalyticFinal
+
+section Instance
+
+/-- **Non-vacuity (T6).**  At the parameters of `finalMass_instance` (`d = 3`, `L = 3`, `k = 1`,
+`a = 1`, `N₀ = 1`, spin dimension `N = 2`, any `v ∈ (7/72, 1]`) and the genuinely complex
+direction `h = (1, i/8)` (with `h·h = 63/64`, within `ρ = 1/8` of `e₀ = (1,0)`): the resolvent,
+inverse and square-root bounds with `p = 25/7`, the identity `sqrtMat D² = D⁻¹`, and the
+analyticity of the entries of `D(h')⁻¹` and `sqrtMat D(h')` at every `h'` in the ball
+`∑ ‖h'ᵢ - e₀ᵢ‖² ≤ (1/8)²`. -/
+theorem finalComplexHessian_instance {v : ℝ} (hv : 7 / 72 < v) (hv1 : v ≤ 1) :
+    ∃ h : Fin 2 → ℂ, (h 1).im ≠ 0 ∧ ∑ i, h i ^ 2 = 63 / 64 ∧
+      (∀ t : ℝ, 0 ≤ t →
+        IsUnit (finalHessianC 3 3 1 1 v 1 h + (t : ℂ) •
+          (1 : Matrix (L1Torus 3 1 × Fin 2) (L1Torus 3 1 × Fin 2) ℂ)) ∧
+        ∀ (x y : L1Torus 3 1) (i j : Fin 2),
+          ‖(finalHessianC 3 3 1 1 v 1 h + (t : ℂ) •
+              (1 : Matrix (L1Torus 3 1 × Fin 2) (L1Torus 3 1 × Fin 2) ℂ))⁻¹ (x, i) (y, j)‖ ≤
+            25 / 7 * ((1 : ℝ) + t)⁻¹ * (if x = y then 1 else 0) +
+              (1 + 25 / 7) * (2 / (finalGap 3 3 + t)) *
+                Real.exp (-finalRate 3 3 * dist x y)) ∧
+      (∀ (x y : L1Torus 3 1) (i j : Fin 2),
+        ‖Localization.sqrtMat (finalHessianC 3 3 1 1 v 1 h) (x, i) (y, j)‖ ≤
+          25 / 7 * (1 / Real.sqrt 1) * (if x = y then 1 else 0) +
+            (1 + 25 / 7) * (2 / Real.sqrt (finalGap 3 3)) *
+              Real.exp (-finalRate 3 3 * dist x y)) ∧
+      Localization.sqrtMat (finalHessianC 3 3 1 1 v 1 h) *
+          Localization.sqrtMat (finalHessianC 3 3 1 1 v 1 h) = (finalHessianC 3 3 1 1 v 1 h)⁻¹ ∧
+      (∀ (h' : Fin 2 → ℂ), ∑ i, ‖h' i - ((![1, 0] : Fin 2 → ℝ) i : ℂ)‖ ^ 2 ≤ (1 / 8) ^ 2 →
+        ∀ (x y : L1Torus 3 1) (i j : Fin 2),
+          AnalyticAt ℂ (fun g : Fin 2 → ℂ => (finalHessianC 3 3 1 1 v 1 g)⁻¹ (x, i) (y, j)) h' ∧
+          AnalyticAt ℂ (fun g : Fin 2 → ℂ =>
+            Localization.sqrtMat (finalHessianC 3 3 1 1 v 1 g) (x, i) (y, j)) h') := by
+  have hm : 7 / 8 * (((3 : ℕ) : ℝ) ^ 2)⁻¹ < v := by norm_num; linarith
+  have hv0 : (0 : ℝ) ≤ v := by linarith
+  set e₀ : Fin 2 → ℝ := ![1, 0] with he₀
+  have hh0 : ∑ i, e₀ i ^ 2 = 1 := by simp [he₀, Fin.sum_univ_two]
+  set h : Fin 2 → ℂ := ![1, Complex.I / 8] with hhdef
+  have hd' : ∑ i, ‖h i - (e₀ i : ℂ)‖ ^ 2 ≤ (1 / 8) ^ 2 := by
+    simp [hhdef, he₀, Fin.sum_univ_two]
+  have hball : ∀ (h' : Fin 2 → ℂ), ∑ i, ‖h' i - (e₀ i : ℂ)‖ ^ 2 ≤ (1 / 8) ^ 2 →
+      ∑ k, h' k ^ 2 ≠ 0 ∧ ∀ i j, ‖spinProj h' i j‖ ≤ 25 / 7 := fun h' hh' =>
+    ⟨(spinProj_norm_le_ball hh0 (by norm_num) (by norm_num) hh' 0 0).1,
+      fun i j => (spinProj_norm_le_ball hh0 (by norm_num) (by norm_num) hh' i j).2⟩
+  obtain ⟨hs, hp⟩ := hball h hd'
+  refine ⟨h, by simp [hhdef], by simp [hhdef, Fin.sum_univ_two, div_pow]; norm_num, fun t ht => ?_, ?_, ?_, ?_⟩
+  · have := finalHessianC_resolvent_decay (L := 3) (N₀ := 1) (k := 1) (d := 3) (a := 1) (by norm_num) le_rfl
+      hv0 hv1 (by norm_num) (by norm_num) hm hs hp ht
+    simpa using this
+  · intro x y i j
+    simpa using finalHessianC_sqrt_decay (L := 3) (N₀ := 1) (k := 1) (d := 3) (a := 1) (by norm_num) le_rfl
+      hv0 hv1 (by norm_num) (by norm_num) hm hs hp x y i j
+  · exact (finalHessianC_sqrt_eq (L := 3) (N₀ := 1) (k := 1) (d := 3) (a := 1) (by norm_num) le_rfl
+      hv0 hv1 (by norm_num) (by norm_num) hm hs).2.2
+  · intro h' hh' x y i j
+    exact ⟨finalHessianC_inv_analytic (L := 3) (N₀ := 1) (k := 1) (d := 3) (a := 1) (by norm_num) le_rfl
+        hv0 hv1 (by norm_num) (by norm_num) hm x y i j h' (hball h' hh').1,
+      finalHessianC_sqrt_analytic (L := 3) (N₀ := 1) (k := 1) (d := 3) (a := 1) (by norm_num) le_rfl
+        hv0 hv1 (by norm_num) (by norm_num) hm x y i j h' (hball h' hh').1⟩
+
+end Instance
 
 end Balaban.Green
