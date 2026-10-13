@@ -1719,3 +1719,4 @@ public import Balaban.Inhabited.E1RecordFromTower
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.E1ParamFibreValue
+public import Balaban.Inhabited.E1CoeffFamilyValue

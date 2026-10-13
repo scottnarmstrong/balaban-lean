@@ -136,7 +136,7 @@ theorem e1_hF_param_of_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : 
 section Record
 
 variable {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
-  (D : StepScaleData T k hk N₁ ν β p₁) (hN3 : 3 ^ 1 ∣ N₁) (hβ : 0 < β)
+  (D : StepScaleData T k hk N₁ ν β p₁) (hN3 : 3 ^ 1 ∣ N₁) (hL : (2 : ℕ) ≤ 3) (hβ : 0 < β)
   {S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)} (hS : S = T.step k hk N₁ ν β p₁)
   (hp : 0 < S.p₁) (hdj : ∀ b, ∀ Y ∈ e1Dom S b, IsDj 1 (k + 1) Y) {BG κdec : ℝ}
   (F₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
@@ -155,7 +155,7 @@ variable {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k} {N₁ : �
   (Lab₀ : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
     Set.univ Lb) {εH : ℝ}
   (A₀ : physParam 2 S → ℂ →
-    LabelAct (commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj)
+    LabelAct (commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj)
       (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 T.marksKc')
   (hεpos : 0 < εH) (hε : εH ≤ stepTheta 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ')
   (hdiffA : ∀ e ∈ physV S S.a₁ S.ν T.t, ∀ y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
@@ -172,14 +172,14 @@ variable {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k} {N₁ : �
   (hdep : ∀ θ ∈ physV S S.a₁ S.ν T.t,
     ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z}) (u : ℂ),
     DepOn (blocksOf 1 (k + 1) Set.univ
-      ((commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj).ysite
+      ((commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj).ysite
         (commonAnchor Lb (fun _ => Set.univ) (e1Dom S) z i)))
       (e1MarkGParam S F₁ Sol p₁ hp z T.t θ i u))
   (hbnd : ∀ (θ : physParam 2 S)
     (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z}) (u : ℂ) Φ,
     ‖e1MarkGParam S F₁ Sol p₁ hp z T.t θ i u Φ‖ ≤
       corrF0 T k β p₁ * Real.exp (-(2 * T.κdec - 1) *
-        (commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj).dl
+        (commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj).dl
           (commonAnchor Lb (fun _ => Set.univ) (e1Dom S) z i)))
   (hholG : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z})
     (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
@@ -209,7 +209,7 @@ theorem e1MarksC_withDatum_of_fields_fromTower :
       I.𝒰 = Metric.ball (0 : ℂ) corrU ∧ I.κG = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
       I.F0 = (fun _ => corrF0 T k β p₁) ∧
       (∀ C, interpCoeff I C = gsumCoeff (S.blockSplit 1 hp).μ
-        (commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj)
+        (commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj)
         (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
           (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)))
         (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z} =>
@@ -237,7 +237,7 @@ theorem e1MarksC_withDatum_of_fields_fromTower :
       κH := 2 * T.κdec - 1
       κ0 := T.κ0
       Kc := T.marksKc'
-      Lab := commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj
+      Lab := commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj
       ι := {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z}
       nonempty := hne
       κG := 2 * T.κdec - 1
@@ -287,7 +287,7 @@ finite sets `C` of level-one blocks of the parameter coefficients
 theorem e1Param_fibre_value_of_fields_fromTower :
     (S.withDatum D' hDh).E1locC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z =
       ∑ C, gsumCoeff (S.blockSplit 1 hp).μ
-        (commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj)
+        (commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj)
         (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
           (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)))
         (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z} =>
@@ -295,7 +295,7 @@ theorem e1Param_fibre_value_of_fields_fromTower :
         (fun i u Φ => e1MarkGParam S F₁ Sol p₁ hp z T.t
           ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
             (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i u Φ) C := by
-  obtain ⟨I, -, -, -, -, hc, -⟩ := e1MarksC_withDatum_of_fields_fromTower T D hN3 hβ hS hp hdj
+  obtain ⟨I, -, -, -, -, hc, -⟩ := e1MarksC_withDatum_of_fields_fromTower T D hN3 hL hβ hS hp hdj
     F₁ Sol z hP Lab₀ A₀ hεpos hε hdiffA hdat hmeas hdep hbnd hholG D' hDh hD
   exact ((interpCoeff_spec I).1).trans (Finset.sum_congr rfl fun C _ => hc C)
 
