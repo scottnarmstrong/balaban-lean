@@ -759,6 +759,96 @@ theorem marked_count_scaled
 
 end Count
 
+section Phi
+
+variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+
+/-- **The `t`-derivative of the marked exponent in terms of the marked block terms.**  Under the
+hypotheses of `VkC_marked_eq_block_terms` (at every marked tangent `v_t`, `|t| < t₁`, whose
+complex segment has complex neighbourhoods in the domain of the small solution, `MARK-REAL`) and
+the radius condition (2),
+`d/dt Φ₁^ℂ(v_t)|_{t=0} = -β ∑_b ∑_{Y} ∂_t(markedBlockTerm (E_{b,Y}) …)|₀`, and by
+`sum_markedOut_eq` and `sum_markedIdx_eq` this is `-β ∑_{Y'} markedOut z Y'` when the terms left
+out of `markedIdx` vanish.  By `deriv_Phi1C_marked_eq_E1MarksC_integrand` the left side is the
+integrand of `E1MarksC` for the zero class. -/
+theorem hasDerivAt_Phi1C_marked_eq_neg_beta_sum_of_hdom (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+    (hD2 : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D')
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R) (hRs : R * δ₁ ≤ deltaStar d L N)
+    (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
+    (hreal : ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁, IsLayerConstant (stepG d L N₁ m₁ k ϱ) ψ' →
+      ∃ D : BgData (stepG d L N₁ m₁ k ϱ) N, (∀ x i, D.h x i = S.D'.h x i) ∧
+      compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' D = ψ' ∧
+      ∀ t : ℂ, ‖t‖ < R → InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+        ((composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D').lineAt
+          (tangentData D (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D')) t))
+    (𝒴 : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (han : ∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁))
+    (hsum : ∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k zb (Θ, ψ') =
+        ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ'))
+    {R₁ r t₁ : ℝ} (hR₁ : 1 < R₁) (hr : 0 < r) (ht₁ : 0 < t₁) (x : S.E) (u : ℂ)
+    (hdisc : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r →
+      σ • (liftC S.hG' (u • S.shiftUC x) + t • liftC S.hG' (S.maskUC z (S.shiftUC x))) ∈
+        FlBall (stepG d L N₁ m₁ k ϱ) δ₁)
+    (hdomT : ∀ t : ℂ, ‖t‖ < t₁ → ∀ s ∈ Icc (0 : ℝ) 1, ∀ᶠ ζ : ℂ in nhds (s : ℂ),
+      InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+        (S.dataUC (S.psiAtV ζ (S.markedTangentC z u t x)))) :
+    HasDerivAt (fun t : ℂ => S.Phi1C (zeroClass d L N₁ m₁ k N ϱ) (S.markedTangentC z u t x))
+      (-(S.β : ℂ) * ∑ zb, ∑ Y ∈ 𝒴 zb, deriv (markedBlockTerm (Ev zb Y) taylorWeight
+        (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x)))
+        (rawOf S.D')) 0) 0 := by
+  classical
+  have hΘ : rawOf S.D' ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps := ⟨S.D', hD, rfl⟩
+  set G : ℂ → ℂ := fun t => ∑ zb, ∑ Y ∈ 𝒴 zb, markedBlockTerm (Ev zb Y) taylorWeight
+    (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x))) (rawOf S.D') t
+    with hG
+  have hVt : ∀ t : ℂ, ‖t‖ < t₁ → S.VkC (S.psi0C + S.markedTangentC z u t x) = G t := by
+    intro t ht
+    have h := S.VkC_marked_eq_block_terms ha₁ H hD2 hC hc7 hR hRs hsmall hnum hnum' hD hreal 𝒴 Ev
+      han hsum (S.markedTangentC z u t x) (hdomT t ht) hr (fun s hs τ hτ => by
+        rw [S.liftC_markedTangentC]
+        have hm : ((1 : ℂ) * (s : ℂ)) • (u • liftC S.hG' (S.shiftUC x) +
+            t • liftC S.hG' (S.maskUC z (S.shiftUC x))) + τ • (u • liftC S.hG' (S.shiftUC x) +
+            t • liftC S.hG' (S.maskUC z (S.shiftUC x))) =
+            ((1 : ℂ) * (s : ℂ) + τ) • (liftC S.hG' (u • S.shiftUC x) +
+              t • liftC S.hG' (S.maskUC z (S.shiftUC x))) := by
+          rw [map_smul, add_smul]
+        rw [hm]
+        refine hdisc t ht _ ?_
+        calc ‖(1 : ℂ) * (s : ℂ) + τ‖ ≤ ‖(1 : ℂ) * (s : ℂ)‖ + ‖τ‖ := norm_add_le _ _
+          _ < R₁ + r := by
+            have : ‖(1 : ℂ) * (s : ℂ)‖ ≤ 1 := by
+              rw [one_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
+            linarith [lt_of_le_of_lt hτ (lt_add_of_pos_left r (by linarith : (0 : ℝ) < R₁ - 0))] )
+    rw [h]
+    refine Finset.sum_congr rfl fun zb _ => Finset.sum_congr rfl fun Y _ => ?_
+    exact (S.markedBlockTerm_marked_eq z (Ev zb Y) taylorWeight (rawOf S.D') u t x).symm
+  have hev : (fun t : ℂ => S.Phi1C (zeroClass d L N₁ m₁ k N ϱ) (S.markedTangentC z u t x)) =ᶠ[nhds (0 : ℂ)]
+      fun t => -(S.β : ℂ) * G t := by
+    filter_upwards [Metric.ball_mem_nhds (0 : ℂ) ht₁] with t ht
+    rw [S.Phi1C_zeroClass, hVt t (by simpa using ht)]
+  have hGd : HasDerivAt G (∑ zb, ∑ Y ∈ 𝒴 zb, deriv (markedBlockTerm (Ev zb Y) taylorWeight
+        (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x)))
+        (rawOf S.D')) 0) 0 := by
+    exact HasDerivAt.fun_sum fun zb _ => HasDerivAt.fun_sum fun Y _ =>
+      ((analyticOnNhd_markedBlockTerm hR₁ hr (analyticOnNhd_taylorWeight _) (han zb Y) hΘ hdisc)
+        0 (Metric.mem_ball_self ht₁)).differentiableAt.hasDerivAt
+  exact (hGd.const_mul (-(S.β : ℂ))).congr_of_eventuallyEq hev
+
+end Phi
+
 end StepSetting
 
 end Balaban.Fluctuation
