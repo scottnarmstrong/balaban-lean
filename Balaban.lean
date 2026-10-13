@@ -926,6 +926,7 @@ public import Balaban.LargeField.R.MassChangeHessian
 public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.RegionalTails
 public import Balaban.LargeField.R.RegionalSourceTerm
+public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1086,6 +1087,7 @@ public import Balaban.Fluctuation.StepRegClass
 public import Balaban.Fluctuation.StepRegUnit
 public import Balaban.Fluctuation.StepRegWitness
 public import Balaban.Fluctuation.StepRegDomain
+public import Balaban.Fluctuation.GeneralClassMatch
 public import Balaban.Fluctuation.StepNormGauss
 public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
@@ -1242,6 +1244,9 @@ public import Balaban.LargeField.R.RegionEnergyAlgebra
 public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.RadialCoefficient
 public import Balaban.LargeField.R.RadialCoefficientAvg
+public import Balaban.LargeField.R.RadialCoefficientLimit
+public import Balaban.LargeField.R.RadialCoefficientLimitEres
+public import Balaban.LargeField.R.RadialCoefficientLimitInhab
 public import Balaban.LargeField.R.PositiveMassFacts
 public import Balaban.Fluctuation.StepComplex
 public import Balaban.Fluctuation.StepComplexAgree
