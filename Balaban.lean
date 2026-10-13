@@ -442,6 +442,9 @@ public import Balaban.LargeField.Region.Generating
 public import Balaban.LargeField.Region.Overwrite
 public import Balaban.LargeField.Region.Lineage
 public import Balaban.LargeField.Background.MinimalGenSet
+public import Balaban.LargeField.Background.LocalGen
+public import Balaban.LargeField.Background.LocalGenNeg
+public import Balaban.LargeField.Background.LocalGenExample
 public import Balaban.LargeField.Background.Lift
 public import Balaban.LargeField.Background.LiftSymm
 public import Balaban.LargeField.Background.CubeUnion
@@ -480,6 +483,7 @@ public import Balaban.LargeField.History.Floor
 public import Balaban.LargeField.History.WindowCover
 public import Balaban.LargeField.History.Branch
 public import Balaban.LargeField.History.Core
+public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.Entry
 public import Balaban.LargeField.History.PointChain
 public import Balaban.LargeField.History.GainClock
@@ -1029,6 +1033,8 @@ public import Balaban.Inhabited.BaseStep
 public import Balaban.Inhabited.I5Settings
 public import Balaban.Inhabited.BgSettingDataNum
 public import Balaban.Inhabited.BgSettingData
+public import Balaban.Inhabited.I5WitnessData
+public import Balaban.Inhabited.I5WitnessDataMain
 public import Balaban.Inhabited.Misc
 public import Balaban.Inhabited.XiCDomains
 public import Balaban.Inhabited.PsiZeroWitness
@@ -1051,6 +1057,7 @@ public import Balaban.Inhabited.RadiiWitness
 public import Balaban.Inhabited.RadiiWitnessOps
 public import Balaban.Inhabited.RipeGeoWitness
 public import Balaban.Inhabited.RipeGeoCollar
+public import Balaban.Inhabited.RetainedShellWitness
 public import Balaban.Inhabited.JointL4Setting
 public import Balaban.Inhabited.JointL4
 public import Balaban.Inhabited.RipeL4Flow
@@ -1298,6 +1305,9 @@ public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
+public import Balaban.Fluctuation.SharpAssembly
+public import Balaban.Fluctuation.StepActivityDirectPhysical
+public import Balaban.Inhabited.StepActivityDirectWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
