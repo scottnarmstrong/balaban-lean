@@ -1550,6 +1550,7 @@ public import Balaban.Inhabited.MarkedJointWitness
 public import Balaban.LargeField.Base.KF0TaylorMajorant
 public import Balaban.LargeField.Base.KF0F1Assembly
 public import Balaban.LargeField.Base.KF0AllGoodGas
+public import Balaban.LargeField.Base.KF0AllPlusGas
 public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget

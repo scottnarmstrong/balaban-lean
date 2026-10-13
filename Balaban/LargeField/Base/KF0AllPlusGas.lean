@@ -798,4 +798,107 @@ theorem allPlus_gas {ν g γ κ a b G ε κ0 κ1 κ' : ℝ} (hg : 0 < g) (hgν :
 
 end Sector
 
+/-! ### (T5) The instance: the hypotheses hold together -/
+
+section Instance
+
+open Balaban.LargeField.KF0Gas Balaban.Polymer SphereChart
+
+open scoped Classical
+
+/-- `exp (-10) ≤ 1/200`. -/
+theorem exp_neg_ten_le : Real.exp (-10) ≤ 1 / 200 := by
+  rw [Real.exp_neg, inv_eq_one_div]
+  refine one_div_le_one_div_of_le (by norm_num) ?_
+  have h1 : (2.7 : ℝ) < Real.exp 1 := lt_of_lt_of_le (by norm_num) Real.exp_one_gt_d9.le
+  have h2 : Real.exp 10 = Real.exp 1 ^ 10 := by rw [← Real.exp_nat_mul]; norm_num
+  rw [h2]
+  calc (200 : ℝ) ≤ 2.7 ^ 10 := by norm_num
+    _ ≤ Real.exp 1 ^ 10 := pow_le_pow_left₀ (by norm_num) h1.le 10
+
+/-- **(T5, the hypotheses hold together)**  For `d = 3`: the hypotheses of `f1_weighted_small`
+(`s = 64800`, `ν = 1`, `g = 7/72`, `γ = 1/100`, `κ = 24`, so that `κ 3^d / s = γ`), the
+numerical hypotheses of `block_gas` (`κ0 = 10`, `κ1 = 13`, `κ' = 0`) with
+`H0 = (1 + 2d) s^d ε = 1/2`, and the exponent condition `κ ≥ 1 + κ0 + κ1` are satisfiable
+together.  (The landed instance `s = 9`, `κ = 1/300` has `κ 3^d / s = γ` with `κ` far below
+`24`; since `γ < 0.0158` is forced by `hq`, the condition `κ 3^d / s ≤ γ` just forces
+`s ≥ 24 · 27 / γ ≥ 41000`.  There is no incompatibility.) -/
+theorem allPlus_gas_hypotheses_d3 :
+    ∃ (s : ℕ) (ν g γ κ ε κ0 κ1 κ' : ℝ), 0 < s ∧ 0 < g ∧ g ≤ ν ∧ ν ≤ 1 ∧ 0 ≤ γ ∧
+      2 * ((3 : ℕ) : ℝ) / (2 * ((3 : ℕ) : ℝ) + g) * Real.exp γ < 1 ∧ 0 ≤ κ ∧
+      κ * 3 ^ 3 / s ≤ γ ∧ 0 < ε ∧
+      ((2 * 3 : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2 ∧ Real.log 4 + 1 ≤ κ0 ∧ 0 ≤ κ' ∧
+      κ' + κ0 + 1 ≤ κ1 - 3 / 2 ∧
+      (1 + 2 * ((3 : ℕ) : ℝ)) * (s : ℝ) ^ 3 * ε ≤ Real.log 2 ∧
+      (1 + 2 * ((3 : ℕ) : ℝ)) * (s : ℝ) ^ 3 * ε * (4 * Real.exp (-κ0)) ≤ 1 / 4 ∧
+      1 + κ0 + κ1 ≤ κ := by
+  have hl4 := log_four_bounds
+  have hl2 := Real.log_two_gt_d9
+  have he := exp_neg_ten_le
+  refine ⟨64800, 1, 7 / 72, 1 / 100, 24, 1 / (2 * ((1 + 2 * ((3 : ℕ) : ℝ)) *
+    ((64800 : ℕ) : ℝ) ^ 3)), 10, 13, 0, by norm_num, by norm_num, by norm_num, le_rfl, by norm_num,
+    kf0_instance_hq, by norm_num, by norm_num, by norm_num, ?_, by linarith [hl4.2], le_rfl,
+    by norm_num, ?_, ?_, by norm_num⟩
+  · norm_num; linarith
+  · norm_num; linarith
+  · norm_num; linarith
+
+/-- **(T5, the sector theorem at the instance)**  `d = 3`, `N = 2`, `h = e₀`, source `0`, side
+`64800 m'`, blocks of side `s = 64800`, `ν = 1`, `g = 7/72`, `γ = 1/100`, `κ = 24`, `a = b = 1`,
+`κ0 = 10`, `κ1 = 13`, `κ' = 0`, `ε = 1 / (2 (1 + 2d) s^d)`.  For all large `β` the conclusion of
+`allPlus_gas` holds. -/
+theorem allPlus_gas_instance {m' : ℕ} [NeZero m']
+    (e : OrthonormalBasis (Fin (2 - 1)) ℝ (perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ)))) :
+    ∃ β₁ : ℝ, ∀ β ≥ β₁, 0 < β ∧ 0 < 1 * Real.log (β * 1) ∧
+      ((∫ ψ, Set.indicator (Set.pi Set.univ fun _ : Torus 3 (64800 * m') =>
+            smallSet (1 * Real.log (β * 1)))
+          (fun ψ : Torus 3 (64800 * m') → perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ)) =>
+            chartJac β (fun x => ((tfield 3 (64800 * m') 1 ψ x :
+                perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ))) : EuclideanSpace ℝ (Fin 2))) *
+              Real.exp (chartInteractionExponent β 1 (EuclideanSpace.single (0 : Fin 2) (1 : ℝ))
+                (fun _ _ => (0 : ℝ)) (tfield 3 (64800 * m') 1 ψ))) ψ
+          ∂(Measure.pi fun _ : Torus 3 (64800 * m') =>
+            oneSiteGaussian (perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ)))) : ℝ) : ℂ) =
+        (((1 - (oneSiteGaussian (perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ)))).real
+              (largeSet (1 * Real.log (β * 1)))) ^ Fintype.card (Torus 3 (64800 * m')) *
+            Real.exp (sourceConst (fun (_ : Torus 3 (64800 * m')) (_ : Fin 2) => (0 : ℝ))
+              (EuclideanSpace.single (0 : Fin 2) (1 : ℝ))) : ℝ) : ℂ) *
+          Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Torus 3 m') →
+            Finset (Torus 3 m'))) (mayerK (blockRef (d := 3) (s := 64800) (m' := m')
+              (ProbabilityTheory.cond
+                (oneSiteGaussian (perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ))))
+                (smallSet (1 * Real.log (β * 1)))))
+            (fun X : NePoly (Torus 3 m') => X.1)
+            (gasTerm e β 1 (1 * Real.log (β * 1)) (fun _ _ => (0 : ℝ))))) ∧
+      ∀ c : Torus 3 m', ∑ Y ∈ (Finset.univ : Finset (Finset (Torus 3 m'))).filter
+          (fun Y => c ∈ Y),
+        ‖PY (shareBlock (Subtype.val : NePoly (Torus 3 m') → Finset (Torus 3 m')))
+            Subtype.val (mayerK (blockRef (d := 3) (s := 64800) (m' := m')
+              (ProbabilityTheory.cond
+                (oneSiteGaussian (perp (EuclideanSpace.single (0 : Fin 2) (1 : ℝ))))
+                (smallSet (1 * Real.log (β * 1)))))
+            (fun X : NePoly (Torus 3 m') => X.1)
+            (gasTerm e β 1 (1 * Real.log (β * 1)) (fun _ _ => (0 : ℝ)))) Y‖ *
+          Real.exp (0 * stSize Y) ≤
+          64 * Real.exp 1 * ((1 + 2 * ((3 : ℕ) : ℝ)) * ((64800 : ℕ) : ℝ) ^ 3 *
+            (1 / (2 * ((1 + 2 * ((3 : ℕ) : ℝ)) * ((64800 : ℕ) : ℝ) ^ 3)))) *
+            Real.exp (-(2 * 10)) := by
+  have hl4 := log_four_bounds
+  have hl2 := Real.log_two_gt_d9
+  have he := exp_neg_ten_le
+  have hz : ∀ x : Torus 3 (64800 * m'), (∑ j, |f1Lin e (fun (_ : Torus 3 (64800 * m'))
+      (_ : Fin 2) => (0 : ℝ)) x j|) + |f1Nrm (fun (_ : Torus 3 (64800 * m')) (_ : Fin 2) =>
+        (0 : ℝ)) (EuclideanSpace.single (0 : Fin 2) (1 : ℝ)) x| ≤ 0 := fun x => by
+    simp [f1Lin, f1Nrm]
+  exact allPlus_gas (d := 3) (N := 2) (n := 2 - 1) (s := 64800) (m' := m')
+    (h := EuclideanSpace.single (0 : Fin 2) (1 : ℝ)) (ν := 1) (g := 7 / 72) (γ := 1 / 100)
+    (κ := 24) (a := 1) (b := 1) (G := 0)
+    (ε := 1 / (2 * ((1 + 2 * ((3 : ℕ) : ℝ)) * ((64800 : ℕ) : ℝ) ^ 3))) (κ0 := 10) (κ1 := 13)
+    (κ' := 0) (by norm_num) (by norm_num) le_rfl (by norm_num) kf0_instance_hq (by norm_num)
+    (by norm_num) one_pos one_pos (by norm_num) e (fun _ _ => (0 : ℝ)) hz (by norm_num)
+    (by norm_num; linarith) (by linarith [hl4.2]) le_rfl (by norm_num)
+    (by norm_num; linarith) (by norm_num; linarith) (by norm_num)
+
+end Instance
+
 end Balaban.LargeField.KF0AllPlus
