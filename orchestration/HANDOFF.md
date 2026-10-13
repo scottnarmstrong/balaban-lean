@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W421 | `w421-kf0-allplus-gas` / W421 | one-scale: all-plus sector as a block gas (T4 of W408) |
 | W422 (Opus) | `w422-marked-field-count` / W422 | field-generic marked count; analytic rooted sums; root assembly conditional on MARK-REAL |
-| W424 | `w424-ren-strict-data` / W424 | renormalization: strict data of the shifted perturbation (RENPERT 1) |
 | W426 | `w426-obs-marks-assembly` / W426 | observable marks: record from its landed halves, conditional on the tilt family (COVROW C7) |
 | W427 | `w427-tower-endpoints-src` / W427 | shared tower: `expSourceChart` and `sourceFamilyRelative` from-tower endpoints (TOWERSPEC §4.4–5) |
 | W428 | `w428-ren-row-agree` / W428 | renormalization: row-data agreement for the shifted perturbation (RENPERT 6) |
