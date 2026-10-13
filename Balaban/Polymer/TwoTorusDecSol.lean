@@ -875,4 +875,454 @@ theorem decSol_green_rows_SYF {a : ℕ → ℝ} {ν Kc Cx : ℝ}
 
 end ComponentRows
 
+/-! ### The rows of the fluctuation map on two tori -/
+
+section Generic2
+
+/-- A fixed point of `Dec2.DecFixed` in the ball `|δα|₂ ≤ r` is the rescaling `δα = ξ / ℓ²` of the
+unique fixed point `ξ` of `Smap` in the ball `‖ξ‖_∞ ≤ r` (the `Dec2` form of
+`toAlpha_eq_of_decFixed`). -/
+theorem toAlpha_eq_of_decFixed2 {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {s : Dec2.DecParams C} {ιU : Bool} {α₀ : H.Ω 1 → ℂ} {φ₀ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {Fs : H.Ω 1 × Fin N → ℂ} {r : ℝ} (hr : 0 ≤ r) {ξ δα : H.Ω 1 → ℂ}
+    (huniq : ∀ ξ' ∈ Metric.closedBall (0 : H.Ω 1 → ℂ) r,
+      Smap H (Dec2.decG C H a ν s) (dirichletOperator H a ν α₀) ιU α₀ φ₀ Fs ξ' = ξ' → ξ' = ξ)
+    (hf : Dec2.DecFixed C H a ν s ιU α₀ φ₀ Fs δα) (hsm : Small H δα r) :
+    toAlpha H ξ = δα := by
+  have hm : ofAlpha H δα ∈ Metric.closedBall (0 : H.Ω 1 → ℂ) r := by
+    rw [mem_closedBall_zero_iff]
+    refine (pi_norm_le_iff_of_nonneg hr).2 fun x => ?_
+    rw [norm_ofAlpha]; exact hsm x
+  have hf' : Smap H (Dec2.decG C H a ν s) (dirichletOperator H a ν α₀) ιU α₀ φ₀ Fs
+      (ofAlpha H δα) = ofAlpha H δα := by
+    funext x
+    unfold Smap
+    rw [toAlpha_ofAlpha]
+    unfold Dec2.DecFixed at hf
+    rw [hf]
+    rfl
+  rw [← huniq _ hm hf', toAlpha_ofAlpha]
+
+end Generic2
+
+section FlRows
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ ϱp : ℝ} {j : ℕ}
+variable (hj1 : 1 ≤ j) (hj : j ≤ K) (hjp : j + 1 ≤ K)
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "HA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "HB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "CA" => coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+  (ϱ := ϱp) (j + 1) hjp)
+local notation "CB" => coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+  (ϱ := ϱp) (j + 1) hjp)
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+include hj1 in
+/-- **The perturbation source of `levelGS j` on two tori.**  The collar of `levelGS j` is empty,
+so `F_s = Q* a δΨ + 𝔟(δΨ) + f₁` at a site only reads `δΨ` and `f₁` at that site. -/
+theorem pertSource_levelGS_boxMap (a : ℕ → ℝ) {δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {δΨ' : CTorus d L N₁' m₁ K → Fin N → ℂ} {f₁ : (HA).Ω 1 × Fin N → ℂ}
+    {f₁' : (HB).Ω 1 × Fin N → ℂ} (x : (HA).Ω 1)
+    (hΨ : δΨ (x : CTorus d L N₁ m₁ K) = δΨ' (bm (x : CTorus d L N₁ m₁ K)))
+    (hf : ∀ i, f₁ (x, i) = f₁' (ιb x, i)) (i : Fin N) :
+    pertSource HB a δΨ' f₁' (ιb x, i) = pertSource HA a δΨ f₁ (x, i) := by
+  have hc := not_mem_collar_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hc' := not_mem_collar_levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  unfold pertSource qStar boundaryTerm
+  simp only [Pi.add_apply, hc, hc', ↓reduceIte, add_zero, Finset.sum_const_zero,
+    layerIndex_levelGS hj1 hj]
+  rw [hΨ, hf i]
+
+include hj1 in
+/-- **The Dirichlet operator with a potential, on two tori.**  The entries at two sites of the box
+of radius `ρ` of `H_D(α)` correspond if the potentials agree at the row site (the potential only
+enters on the diagonal).  Margin: `2 ρ + 3 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem dirichletOperator_pot_boxMap {ρ : ℕ} (a : ℕ → ℝ) (ν : ℝ)
+    (hn : 2 * ρ + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (HA).Ω 1 → ℂ} {α' : (HB).Ω 1 → ℂ} (x y : (HA).Ω 1) (hαx : α x = α' (ιb x))
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hy : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (y : CTorus d L N₁ m₁ K)) :
+    dirichletOperator HB a ν α' (ιb x) (ιb y) = dirichletOperator HA a ν α x y := by
+  rw [dirichletOperator_eq_add a ν α', dirichletOperator_eq_add a ν α]
+  simp only [Matrix.add_apply, Matrix.diagonal_apply]
+  rw [dirichletOperator_boxMap (α := 0) (α' := 0) hj1 hj a ν hn hn' (fun _ _ => rfl) x y hx hy]
+  by_cases hxy : x = y
+  · subst hxy
+    simp [hαx]
+  · have h2 : (ιb x : (HB).Ω 1) ≠ ιb y := fun h => hxy (Subtype.ext
+      (boxMap_inj (hm' := (by omega : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ K)) hx hy
+        (congrArg Subtype.val h)))
+    simp [hxy, h2]
+
+include hj1 in
+/-- **D2 (FL-2, `decSol_rows_transport`): the rows of the fluctuation map on two tori.**  For the
+pair `(coverOf (levelGS (j + 1)), levelGS j)` on each torus, let `(Y, A)`, `(Y', A')` be unions of
+components of the incidence graphs with `Y' = bm '' Y` and `S_{Y'}^F = bm '' S_Y^F` (`hB'`), all in
+the box of radius `R`; let the factors vanish on the parameter cubes outside `𝒞` (resp. `𝒞'`) and
+agree on the interaction cubes inside `B_F = S_Y^F` (`hagree`).  Let the data of the two
+fluctuation problems correspond: the base potential `α₀` and the perturbation `δΨ`, `f₁` on `B_F`,
+the base field `φ₀` on the row set `R(B_F)` (`RowF`) (the collar of `levelGS j` is empty, so no
+collar condition enters).  For candidate multipliers `δα`, `δα'` corresponding on `B_F` with
+`|α₀ + δα|₂, |α₀' + δα'|₂ ≤ γ₁/8`:
+
+* the rows at `x ∈ B_F` of `𝒩(δφ(δα))` (the left side of `Dec2.DecFixed`) correspond;
+* the corrections `δφ(δα) = G_s(α₀ + δα)(F_s - δα φ₀)` correspond at every site of `Y`.
+
+Margin: `4 R + 12 L^(j+1+m₁) + 7 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem decSol_rows_transport {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
+    {a : ℕ → ℝ} {ν : ℝ} (SA : Dec2.CoverBase CA HA a ν Kc Cx)
+    (SB : Dec2.CoverBase CB HB a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : Dec2.DecParams CA} {s' : Dec2.DecParams CB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {A : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    {A' : Finset (ℕ × CTorus d L N₁' m₁ K)}
+    (hY : Dec2.IsIncUnion CA HA a ν X₁ 𝒞 Y A) (hYc : Dec2.IsIncUnion CB HB a ν X₁' 𝒞' Y' A')
+    (hs0 : ∀ P ∈ (CA).parCubes X₁, P ∉ 𝒞 → Dec2.extS CA s P = 0)
+    (hs0' : ∀ P ∈ (CB).parCubes X₁', P ∉ 𝒞' → Dec2.extS CB s' P = 0)
+    (hY' : Y.image bm = Y')
+    (hB' : (Dec2.SYF CA HA a ν X₁ 𝒞 Y).image bm = Dec2.SYF CB HB a ν X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ Dec2.innerCentres CA HA (Dec2.SYF CA HA a ν X₁ 𝒞 Y),
+      (CB).sProd (Dec2.extS CB s') (Prod.map id bm q) = (CA).sProd (Dec2.extS CA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (ιU : Bool) {α₀ : (HA).Ω 1 → ℂ} {α₀' : (HB).Ω 1 → ℂ}
+    {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ} {φ₀' δΨ' : CTorus d L N₁' m₁ K → Fin N → ℂ}
+    {f₁ : (HA).Ω 1 × Fin N → ℂ} {f₁' : (HB).Ω 1 × Fin N → ℂ}
+    (hαB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      α₀ x = α₀' (ιb x))
+    (hφR : ∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y), φ₀ y = φ₀' (bm y))
+    (hΨB : ∀ x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y, δΨ x = δΨ' (bm x))
+    (hfB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, f₁ (x, i) = f₁' (ιb x, i))
+    {δα : (HA).Ω 1 → ℂ} {δα' : (HB).Ω 1 → ℂ}
+    (hsm : Small HA (α₀ + δα) (gamma1 d / 8)) (hsm' : Small HB (α₀' + δα') (gamma1 d / 8))
+    (hδ : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      δα x = δα' (ιb x)) :
+    (∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      Nmap HA (dirichletOperator HA a ν α₀) ιU φ₀ (pertSource HA a δΨ f₁)
+          (dphi HA (Dec2.decG CA HA a ν s) α₀ φ₀ (pertSource HA a δΨ f₁) δα) x =
+        Nmap HB (dirichletOperator HB a ν α₀') ιU φ₀' (pertSource HB a δΨ' f₁')
+          (dphi HB (Dec2.decG CB HB a ν s') α₀' φ₀' (pertSource HB a δΨ' f₁') δα') (ιb x)) ∧
+    (∀ y : (HA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi HA (Dec2.decG CA HA a ν s) α₀ φ₀ (pertSource HA a δΨ f₁) δα (y, i) =
+        dphi HB (Dec2.decG CB HB a ν s') α₀' φ₀' (pertSource HB a δΨ' f₁') δα' (ιb y, i)) := by
+  classical
+  have hd0 : 0 < d := by have := SA.hd; omega
+  obtain ⟨hK1, hjK⟩ := pow_facts (L := L) hj
+  have hBY : Dec2.SYF CA HA a ν X₁ 𝒞 Y ⊆ Y := SYF_subset_levelGS hj1 hj hjp
+  have hBR : ∀ x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x :=
+    fun x hx => hYR x (hBY hx)
+  obtain ⟨-, hunit⟩ := hF.2.2 CA HA SA hκ hM hs N
+  obtain ⟨-, hunit'⟩ := hF.2.2 CB HB SB hκ hM hs' N
+  have hA := admPot_of_small hd0 hsm
+  have hA' := admPot_of_small hd0 hsm'
+  -- the source at the sites of `B_F`
+  have hFs : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, pertSource HB a δΨ' f₁' (ιb x, i) = pertSource HA a δΨ f₁ (x, i) :=
+    fun x hx i => pertSource_levelGS_boxMap hj1 hj a x (hΨB _ hx) (hfB x hx) i
+  -- the correction on `Y`
+  have hdphi : ∀ y : (HA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi HA (Dec2.decG CA HA a ν s) α₀ φ₀ (pertSource HA a δΨ f₁) δα (y, i) =
+        dphi HB (Dec2.decG CB HB a ν s') α₀' φ₀' (pertSource HB a δΨ' f₁') δα' (ιb y, i) := by
+    intro y hy i
+    unfold dphi Dec2.decG
+    rw [liftOp_mulVec, liftOp_mulVec]
+    refine decSol_green_rows_SYF hj1 hj hjp SA SB hY hYc hs0 hs0' hY' hB' hagree hYR (by omega)
+      (by omega) hA hA' (hunit hA) (hunit' hA') (fun x hx => ?_) (fun x hx => ?_) y hy
+    · simp only [Pi.add_apply]
+      rw [hαB x hx, hδ x hx]
+    · simp only [Fsrc]
+      rw [← hFs x hx i, hδ x hx, hφR _ (Dec2.RowsFl.subset_RowF hx)]
+  refine ⟨fun x hx => ?_, hdphi⟩
+  have hxR := hBR _ hx
+  have hres := resSites_levelGS_image (ϱ := ϱ) (m₁ := m₁) (N₁ := N₁) (N₁' := N₁') (ρ := R) hj1 hj
+    (by omega) (by omega) hxR
+  have hrb : ∀ y ∈ resSites HA (x : CTorus d L N₁ m₁ K),
+      InBox d (R + L ^ K) ((N₁ * L ^ m₁) * L ^ K) y := fun y hy =>
+    inBox_of_mem_resSites_levelGS hj1 hj (by omega) hxR hy
+  have hxRow : (x : CTorus d L N₁ m₁ K) ∈
+      Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y) := Dec2.RowsFl.subset_RowF hx
+  rw [Nmap_explicit, Nmap_explicit]
+  symm
+  refine Nexp_transport ιU (fun y : (HA).Ω 1 => (y : CTorus d L N₁ m₁ K) ∈
+      resSites HA (x : CTorus d L N₁ m₁ K))
+    (fun y : (HB).Ω 1 => (y : CTorus d L N₁' m₁ K) ∈ resSites HB (bm (x : CTorus d L N₁ m₁ K)))
+    (fun y => ιb y) (fun y1 y2 h1 h2 h => ?_) (fun y hy => ?_) (fun y' hy' => ?_)
+    (fun y hy => ?_) (fun y hy => ?_) (fun y hy => ?_) (fun i => (congrFun (hφR _ hxRow) i).symm)
+    (fun i => hFs x hx i) (fun i => (hdphi x (hBY hx) i).symm) (fun y hy hne => ?_)
+  · exact Subtype.ext (boxMap_inj (hm' := (by omega : 2 * (R + L ^ K) + 1 < (N₁' * L ^ m₁) * L ^ K))
+      (hrb _ h1) (hrb _ h2) (congrArg Subtype.val h))
+  · show bm (y : CTorus d L N₁ m₁ K) ∈ resSites HB (bm (x : CTorus d L N₁ m₁ K))
+    have : bm (y : CTorus d L N₁ m₁ K) ∈ (↑(resSites HB (bm (x : CTorus d L N₁ m₁ K))) :
+        Set (CTorus d L N₁' m₁ K)) := by
+      rw [hres]; exact Set.mem_image_of_mem _ hy
+    exact this
+  · have : (y' : CTorus d L N₁' m₁ K) ∈ (↑(resSites HB (bm (x : CTorus d L N₁ m₁ K))) :
+        Set (CTorus d L N₁' m₁ K)) := hy'
+    rw [hres] at this
+    obtain ⟨y0, hy0, hyy⟩ := this
+    exact ⟨⟨y0, levelGS_mem_Ω_one hj1 hj y0⟩, hy0, Subtype.ext hyy⟩
+  · by_contra hne
+    exact hy (mem_resSites_of_entry_ne_zero (x := x) (y := y) hne)
+  · by_contra hne
+    exact hy (mem_resSites_of_entry_ne_zero (G := HB) (x := ιb x) (y := y) hne)
+  · exact dirichletOperator_pot_boxMap (ρ := R + L ^ K) hj1 hj a ν (by omega) (by omega) x y
+      (hαB x hx) (inBox_mono (by omega) hxR) (hrb _ hy)
+  · have hyR := Dec2.RowsFl.row_mem_RowF hx α₀ hne
+    exact ⟨fun i => (congrFun (hφR _ hyR) i).symm,
+      fun i => (hdphi y (Dec2.RowsFl.RowF_SYF_subset_Y hyR) i).symm⟩
+
+include hj1 in
+/-- **The restricted Picard map of the fluctuation on two tori.**  Under the hypotheses of
+`decSol_rows_transport` on the geometry and the data, with `|α₀|₂ ≤ δ₀`, `|α₀'|₂ ≤ δ₀'` and
+`δ₀ + ρ, δ₀' + ρ ≤ γ₁/8`, the rescaled fluctuation maps `ξ ↦ ℓ² 𝒩(δφ(ξ/ℓ²))` (the maps `Smap` whose
+fixed points are the multipliers of `Dec2.DecFixed`) are conjugate on `B_F`: for
+`‖ξ‖_∞, ‖ξ'‖_∞ ≤ ρ` with `ξ = ξ' ∘ bm` on `B_F`, their values at `x ∈ B_F` and `bm x` agree.  In
+particular the value on `B_F` only depends on the argument on `B_F`. -/
+theorem decSol_picard_rows_transport {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
+    {a : ℕ → ℝ} {ν : ℝ} (SA : Dec2.CoverBase CA HA a ν Kc Cx)
+    (SB : Dec2.CoverBase CB HB a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : Dec2.DecParams CA} {s' : Dec2.DecParams CB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {A : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    {A' : Finset (ℕ × CTorus d L N₁' m₁ K)}
+    (hY : Dec2.IsIncUnion CA HA a ν X₁ 𝒞 Y A) (hYc : Dec2.IsIncUnion CB HB a ν X₁' 𝒞' Y' A')
+    (hs0 : ∀ P ∈ (CA).parCubes X₁, P ∉ 𝒞 → Dec2.extS CA s P = 0)
+    (hs0' : ∀ P ∈ (CB).parCubes X₁', P ∉ 𝒞' → Dec2.extS CB s' P = 0)
+    (hY' : Y.image bm = Y')
+    (hB' : (Dec2.SYF CA HA a ν X₁ 𝒞 Y).image bm = Dec2.SYF CB HB a ν X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ Dec2.innerCentres CA HA (Dec2.SYF CA HA a ν X₁ 𝒞 Y),
+      (CB).sProd (Dec2.extS CB s') (Prod.map id bm q) = (CA).sProd (Dec2.extS CA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (ιU : Bool) {α₀ : (HA).Ω 1 → ℂ} {α₀' : (HB).Ω 1 → ℂ}
+    {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ} {φ₀' δΨ' : CTorus d L N₁' m₁ K → Fin N → ℂ}
+    {f₁ : (HA).Ω 1 × Fin N → ℂ} {f₁' : (HB).Ω 1 × Fin N → ℂ}
+    (hαB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      α₀ x = α₀' (ιb x))
+    (hφR : ∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y), φ₀ y = φ₀' (bm y))
+    (hΨB : ∀ x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y, δΨ x = δΨ' (bm x))
+    (hfB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, f₁ (x, i) = f₁' (ιb x, i))
+    {δ₀ δ₀' ρ : ℝ} (hα0 : Small HA α₀ δ₀) (hα0' : Small HB α₀' δ₀')
+    (hρ : δ₀ + ρ ≤ gamma1 d / 8) (hρ' : δ₀' + ρ ≤ gamma1 d / 8)
+    {ξ : (HA).Ω 1 → ℂ} {ξ' : (HB).Ω 1 → ℂ} (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hξ' : ∀ x, ‖ξ' x‖ ≤ ρ)
+    (hξξ : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ξ x = ξ' (ιb x)) :
+    ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      Smap HA (Dec2.decG CA HA a ν s) (dirichletOperator HA a ν α₀) ιU α₀ φ₀
+          (pertSource HA a δΨ f₁) ξ x =
+        Smap HB (Dec2.decG CB HB a ν s') (dirichletOperator HB a ν α₀') ιU α₀' φ₀'
+          (pertSource HB a δΨ' f₁') ξ' (ιb x) := by
+  intro x hx
+  have hspA := spacing_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hspB := spacing_levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hsm : Small HA (α₀ + toAlpha HA ξ) (gamma1 d / 8) := fun z =>
+    ((Small.add hα0 (small_toAlpha HA ξ hξ)) z).trans hρ
+  have hsm' : Small HB (α₀' + toAlpha HB ξ') (gamma1 d / 8) := fun z =>
+    ((Small.add hα0' (small_toAlpha HB ξ' hξ')) z).trans hρ'
+  have hα : ∀ z : (HA).Ω 1, (z : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      toAlpha HA ξ z = toAlpha HB ξ' (ιb z) := fun z hz => by
+    unfold toAlpha; rw [hξξ z hz, hspA, hspB]
+  unfold Smap
+  rw [hspA, hspB]
+  congr 1
+  exact (decSol_rows_transport hj1 hj hjp hF SA SB hκ hM hs hs' hY hYc hs0 hs0' hY' hB' hagree
+    hYR hn hn' ιU hαB hφR hΨB hfB hsm hsm' hα).1 x hx
+
+include hj1 in
+/-- **D3 (FL-3, `decSol_component_unique`): component comparison of the decoupled fluctuation on
+two tori.**  Let `δα`, `δα'` be fixed points of `Dec2.DecFixed` in the ball `|δα|₂ ≤ c₆'` for data
+satisfying the hypotheses `DecHyp` of Theorem I-4a on the two tori (with `δ₀, δ₁, δ₀', δ₁' ≤ δ*'`),
+and suppose the hypotheses of `decSol_rows_transport` on the geometry and the data.  Then the
+multipliers correspond on `B_F = S_Y^F` and the corrections `δφ` correspond on `Y`.
+
+Proof: the Picard iterations from `0` of the rescaled maps of the two tori correspond on `B_F` at
+every step (`decSol_picard_rows_transport`), and converge to the rescaled multipliers by the landed
+contraction `smap_fixed_iterates` (rate `1/2` in the ball `c₆'`); no whole-torus gluing is used. -/
+theorem decSol_component_unique {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
+    {a : ℕ → ℝ} {ν : ℝ} (SA : Dec2.CoverBase CA HA a ν Kc Cx)
+    (SB : Dec2.CoverBase CB HB a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : Dec2.DecParams CA} {s' : Dec2.DecParams CB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {A : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    {A' : Finset (ℕ × CTorus d L N₁' m₁ K)}
+    (hY : Dec2.IsIncUnion CA HA a ν X₁ 𝒞 Y A) (hYc : Dec2.IsIncUnion CB HB a ν X₁' 𝒞' Y' A')
+    (hs0 : ∀ P ∈ (CA).parCubes X₁, P ∉ 𝒞 → Dec2.extS CA s P = 0)
+    (hs0' : ∀ P ∈ (CB).parCubes X₁', P ∉ 𝒞' → Dec2.extS CB s' P = 0)
+    (hY' : Y.image bm = Y')
+    (hB' : (Dec2.SYF CA HA a ν X₁ 𝒞 Y).image bm = Dec2.SYF CB HB a ν X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ Dec2.innerCentres CA HA (Dec2.SYF CA HA a ν X₁ 𝒞 Y),
+      (CB).sProd (Dec2.extS CB s') (Prod.map id bm q) = (CA).sProd (Dec2.extS CA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (ιU : Bool) {α₀ : (HA).Ω 1 → ℂ} {α₀' : (HB).Ω 1 → ℂ}
+    {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ} {φ₀' δΨ' : CTorus d L N₁' m₁ K → Fin N → ℂ}
+    {f₁ : (HA).Ω 1 × Fin N → ℂ} {f₁' : (HB).Ω 1 × Fin N → ℂ} {δ₀ δ₁ δ₀' δ₁' : ℝ}
+    (Hh : DecHyp HA a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (Hh' : DecHyp HB a ν ιU α₀' φ₀' δΨ' f₁' δ₀' δ₁')
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁' : δ₁' ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hαB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      α₀ x = α₀' (ιb x))
+    (hφR : ∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y), φ₀ y = φ₀' (bm y))
+    (hΨB : ∀ x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y, δΨ x = δΨ' (bm x))
+    (hfB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, f₁ (x, i) = f₁' (ιb x, i))
+    {δα : (HA).Ω 1 → ℂ} {δα' : (HB).Ω 1 → ℂ}
+    (hfix : Dec2.DecFixed CA HA a ν s ιU α₀ φ₀ (pertSource HA a δΨ f₁) δα)
+    (hsm : Small HA δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : Dec2.DecFixed CB HB a ν s' ιU α₀' φ₀' (pertSource HB a δΨ' f₁') δα')
+    (hsm' : Small HB δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      δα' (ιb x) = δα x) ∧
+    (∀ y : (HA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi HB (Dec2.decG CB HB a ν s') α₀' φ₀' (pertSource HB a δΨ' f₁') δα' (ιb y, i) =
+        dphi HA (Dec2.decG CA HA a ν s) α₀ φ₀ (pertSource HA a δΨ f₁) δα (y, i)) := by
+  classical
+  have hd0 : 0 < d := by have := SA.hd; omega
+  have hBG := hF.2.1
+  set Bc : ℝ := famConst d L BG κ with hBc
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hB0 : 0 ≤ Bc := by have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hΓ : 0 < Γ := by have := gamma1_pos hd0; positivity
+  have hC := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ Hh.δ₀_nn Hh.δ₁_nn hδ₀ hδ₁
+  have hC' := coreHyp'_small (d := d) (L := L) (N := N) hB0 hΓ Hh'.δ₀_nn Hh'.δ₁_nn hδ₀' hδ₁'
+  obtain ⟨⟨hfam, -⟩, -⟩ := hF.2.2 CA HA SA hκ hM hs N
+  obtain ⟨⟨hfam', -⟩, -⟩ := hF.2.2 CB HB SB hκ hM hs' N
+  obtain ⟨ξ, -, -, hξuniq, hit⟩ := smap_fixed_iterates hfam Hh.setup hC
+  obtain ⟨ξ', -, -, hξuniq', hit'⟩ := smap_fixed_iterates hfam' Hh'.setup hC'
+  have e1 : toAlpha HA ξ = δα := toAlpha_eq_of_decFixed2 hC.ρ_nn hξuniq hfix hsm
+  have e2 : toAlpha HB ξ' = δα' := toAlpha_eq_of_decFixed2 hC.ρ_nn hξuniq' hfix' hsm'
+  have hpoly : δ₀ + c6' d L N Bc Γ ≤ Γ := by linarith [hC.poly, hC.ρ_nn]
+  have hpoly' : δ₀' + c6' d L N Bc Γ ≤ Γ := by linarith [hC'.poly, hC'.ρ_nn]
+  -- the iterations correspond on `B_F`
+  have hagreeξ : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ξ x = ξ' (ιb x) := by
+    refine fixed_agree_of_step_transport (fun x => ιb x)
+      (T := fun x : (HA).Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y)
+      (fun u v hu hv huv x hx => ?_) hit hit' hC.ρ_nn
+    exact decSol_picard_rows_transport hj1 hj hjp hF SA SB hκ hM hs hs' hY hYc hs0 hs0' hY' hB'
+      hagree hYR hn hn' ιU hαB hφR hΨB hfB Hh.alpha0 Hh'.alpha0 hpoly hpoly' hu hv huv x hx
+  have hspA := spacing_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hspB := spacing_levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (ϱ := ϱ) hj1 hj
+  have hα : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      δα x = δα' (ιb x) := by
+    intro x hx
+    rw [← e1, ← e2]
+    unfold toAlpha
+    rw [hagreeξ x hx, hspA, hspB]
+  -- the corrections on `Y`
+  have hsmA : Small HA (α₀ + δα) Γ := fun z => ((Small.add Hh.alpha0 hsm) z).trans hpoly
+  have hsmB : Small HB (α₀' + δα') Γ := fun z => ((Small.add Hh'.alpha0 hsm') z).trans hpoly'
+  have hrows := decSol_rows_transport hj1 hj hjp hF SA SB hκ hM hs hs' hY hYc hs0 hs0' hY' hB'
+    hagree hYR hn hn' ιU hαB hφR hΨB hfB hsmA hsmB hα
+  exact ⟨fun x hx => (hα x hx).symm, fun y hy i => (hrows.2 y hy i).symm⟩
+
+include hj1 in
+/-- **D4 (FL-4, `decSol_value_twoTorus`): the values of the decoupled fluctuation on two tori.**
+Let `Sol`, `Sol'` be maps with the defining property of the analytic solution of Theorem I-4a on
+the pair of each torus (the form of `Dec2.i4a_analytic` and of the hypothesis `hSol` of
+`point_facts_fl`): on parameters with `|s_P| < e^κ` and data `e` with the strict inequalities
+`StrictDataM`, `(Sol (s, e)).1 = δφ((Sol (s, e)).2)`, `(Sol (s, e)).2` is a fixed point of
+`Dec2.DecFixed` in the ball `c₆'`, with the bounds and the uniqueness.  Under the hypotheses of
+`decSol_rows_transport` on the geometry and on the data `e = (φ₀, α₀, δΨ, f₁)`, `e'`, the values
+correspond: the multipliers `(Sol p).2` on `B_F = S_Y^F` and the corrections `(Sol p).1` on `Y`. -/
+theorem decSol_value_twoTorus {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
+    {a : ℕ → ℝ} {ν : ℝ} (SA : Dec2.CoverBase CA HA a ν Kc Cx)
+    (SB : Dec2.CoverBase CB HB a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (ιU : Bool) {δ₀ δ₁ : ℝ}
+    (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams CA × Edat HA N → ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams CB × Edat HB N → ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams CA × Edat HA N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM HA N ιU δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi HA (Dec2.decG CA HA a ν p.1) p.2.2.1 p.2.1
+          (pertSource HA a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed CA HA a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource HA a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small HA (Sol p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small HA (Sol p).2 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        SupBounds HA (Sol p).1 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small HA δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          Dec2.DecFixed CA HA a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource HA a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams CB × Edat HB N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM HB N ιU δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi HB (Dec2.decG CB HB a ν p.1) p.2.2.1 p.2.1
+          (pertSource HB a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed CB HB a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource HB a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small HB (Sol' p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small HB (Sol' p).2 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        SupBounds HB (Sol' p).1 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small HB δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          Dec2.DecFixed CB HB a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource HB a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    {s : Dec2.DecParams CA} {s' : Dec2.DecParams CB} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ) {e : Edat HA N} {e' : Edat HB N}
+    (he : StrictDataM HA N ιU δ₀ δ₁ e) (he' : StrictDataM HB N ιU δ₀ δ₁ e')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {A : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    {A' : Finset (ℕ × CTorus d L N₁' m₁ K)}
+    (hY : Dec2.IsIncUnion CA HA a ν X₁ 𝒞 Y A) (hYc : Dec2.IsIncUnion CB HB a ν X₁' 𝒞' Y' A')
+    (hs0 : ∀ P ∈ (CA).parCubes X₁, P ∉ 𝒞 → Dec2.extS CA s P = 0)
+    (hs0' : ∀ P ∈ (CB).parCubes X₁', P ∉ 𝒞' → Dec2.extS CB s' P = 0)
+    (hY' : Y.image bm = Y')
+    (hB' : (Dec2.SYF CA HA a ν X₁ 𝒞 Y).image bm = Dec2.SYF CB HB a ν X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ Dec2.innerCentres CA HA (Dec2.SYF CA HA a ν X₁ 𝒞 Y),
+      (CB).sProd (Dec2.extS CB s') (Prod.map id bm q) = (CA).sProd (Dec2.extS CA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hαB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      e.2.1 x = e'.2.1 (ιb x))
+    (hφR : ∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y), e.1 y = e'.1 (bm y))
+    (hΨB : ∀ x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y, e.2.2.1 x = e'.2.2.1 (bm x))
+    (hfB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, e.2.2.2 (x, i) = e'.2.2.2 (ιb x, i)) :
+    (∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      (Sol' (s', e')).2 (ιb x) = (Sol (s, e)).2 x) ∧
+    (∀ y : (HA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      (Sol' (s', e')).1 (ιb y, i) = (Sol (s, e)).1 (y, i)) := by
+  set Bc : ℝ := famConst d L BG κ with hBc
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hle1 : δ₀ ≤ 1 := hδ₀.trans (by
+    have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
+      (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
+    exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have Hh := StrictDataM.hyp SA.toGreen h0 h1 hle1 he
+  have Hh' := StrictDataM.hyp SB.toGreen h0 h1 hle1 he'
+  obtain ⟨hfld, hfix, hsm, -⟩ := hSol (s, e) hs he
+  obtain ⟨hfld', hfix', hsm', -⟩ := hSol' (s', e') hs' he'
+  obtain ⟨hα, hcorr⟩ := decSol_component_unique hj1 hj hjp hF SA SB hκ hM (fun P => (hs P).le)
+    (fun P => (hs' P).le) hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' ιU Hh Hh' hδ₀ hδ₁ hδ₀ hδ₁
+    hαB hφR hΨB hfB hfix hsm hfix' hsm'
+  refine ⟨hα, fun y hy i => ?_⟩
+  rw [hfld, hfld']
+  exact hcorr y hy i
+
+end FlRows
+
 end Balaban.Polymer.TwoTorusStep
