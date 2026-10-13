@@ -55,15 +55,14 @@ the parameter of `FlCore`).  The assembly of `DetCauchyAssembly` gives:
 * `sum_detActivityBg_eq_halfLogDetCC`, `det_covSqrtC_eq_exp_sum_detActivityBg`: for the datum of a
   step on the chart, the activities of all blocks and polymers add up to `halfLogDetCC`, and
   `det C^{(k)1/2} = exp(∑_y ∑_Y detActivityBg y Y)`.
-* `exists_detExpansionC_of_chart`: the landed structure `DetExpansionC` of the step has an element
-  whose terms are the sums over the unit blocks `y ∈ B(z)` of the activities, with decay rate
-  `λ / (2 d L)` and constant `|B(z)| · ½ N covBLog / (1 - z)`.
+* `card_blockU_le`, `exists_detExpansionC_of_chart`: the landed structure `DetExpansionC` of the
+  step has an element whose terms are the sums over the unit blocks `y ∈ B(z)` of the activities,
+  with decay rate `λ / (2 d L)` and constant `L^d · ½ N covBLog / (1 - z)`.
 
 ## What is not proved here
 
 That the constant is absorbed by the energy constant `E₀` of the class (the prefactor
-`½ N covBLog d L a_k (a₁/L²) κ / (1 - z)` is not small); the bound `|B(z)| ≤ L^d`; that the
-dependency set `⋃_{x ∈ Y ∩ Ω₁} resDep x` lies in the thickening of `Y` allowed by the energy class;
+`½ N covBLog d L a_k (a₁/L²) κ / (1 - z)` is not small); that the dependency set `⋃_{x ∈ Y ∩ Ω₁} resDep x` lies in the thickening of `Y` allowed by the energy class;
 analyticity of the activity on an open set of data (only the pointwise analyticity of
 `analyticOnNhd_rootTraceBg_raw` at chart points is available); the symmetry (paving covariance) of
 the activities; and the use of these terms in the step identity.
@@ -437,13 +436,27 @@ theorem det_covSqrtC_eq_exp_sum_detActivityBg
       (∑ y : S.U, ∑ Y, detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) S.D' y Y) := by
   rw [S.det_covSqrtC_of_chart hC hMX hdm hα hsm hD, sum_detActivityBg_eq_halfLogDetCC S hC hD]
 
+/-- The block `B_{k+1}(z)` of the unit lattice has at most `L^d` points. -/
+theorem card_blockU_le (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
+    (S.blockU z).card ≤ L ^ d := by
+  classical
+  have hcard := card_blockFibre (d := d)
+    (unitBlock1_side (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)) z
+  have h1 : (L ^ 1) ^ d = L ^ d := by rw [pow_one]
+  rw [← h1, ← hcard]
+  refine Finset.card_le_card_of_injOn Subtype.val (fun b hb => ?_)
+    (fun _ _ _ _ h => Subtype.ext h)
+  rw [Finset.mem_coe, mem_blockFibre]
+  exact (Finset.mem_filter.1 hb).2
+
 open Classical in
 /-- **The determinant expansion of the step from the activities.**  For the block datum of a step
 on the chart, with `HatConn`, `L^{m₀} ∣ N₁` and the rate condition `e^κ > 2 (detDeg d L + 1)²`,
 the structure `DetExpansionC` of the block `B(z)` has an element whose term at the polymer `T` is
 the sum over the unit blocks `y ∈ B(z)` of the activities `detActivityBg y T`; its decay rate is
 `(κ - log 2 - 2 log (detDeg d L + 1)) / (2 d L)` and its constant is
-`|B(z)| · ½ N covBLog / (1 - (detDeg d L + 1)² · 2 / e^κ)`, which does not involve the torus. -/
+`L^d · ½ N covBLog d L a_k (a₁/L²) κ / (1 - (detDeg d L + 1)² · 2 / e^κ)`, which involves neither
+the torus nor `z`. -/
 theorem exists_detExpansionC_of_chart
     (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hδc : 0 ≤ δc)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
@@ -455,10 +468,18 @@ theorem exists_detExpansionC_of_chart
     (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
     ∃ E : DetExpansionC S m₀ z
         ((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
-        ((S.blockU z).card * ((1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+        ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
           (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)))),
       ∀ T, E.term T =
         ∑ y ∈ S.blockU z, detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) S.D' y T := by
+  have hc : 0 ≤ covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ := by
+    unfold covBLog
+    have := covB4_nonneg d L (S.a k) κ
+    have := (xSetting_of_flCore hC S.hk1).hak_pos
+    positivity
+  have hC0 : 0 ≤ (1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+      (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) :=
+    div_nonneg (by positivity) (by linarith)
   refine ⟨⟨fun T => ∑ y ∈ S.blockU z,
     detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) S.D' y T, ?_, fun T => ?_⟩, fun _ => rfl⟩
   · rw [← rootTrace_one_eq_logAC S z, ← rootTraceBg_one_eq_of_flCore hC hD,
@@ -474,9 +495,24 @@ theorem exists_detExpansionC_of_chart
           Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
             (2 * d * L)) * dExt T) := fun y _ =>
       norm_detActivityBg_le hC S.hk1 hδc hMX hsm hdm hα hconn hD hN y hz T
-    refine (Finset.sum_le_sum hb).trans (le_of_eq ?_)
+    refine (Finset.sum_le_sum hb).trans ?_
     rw [Finset.sum_const, nsmul_eq_mul]
-    ring
+    have hcard : ((S.blockU z).card : ℝ) ≤ (L : ℝ) ^ d := by
+      exact_mod_cast card_blockU_le S z
+    have he : 0 ≤ Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+        (2 * d * L)) * dExt T) := (Real.exp_pos _).le
+    calc ((S.blockU z).card : ℝ) * ((1 / 2 : ℝ) * N *
+            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+              (2 * d * L)) * dExt T))
+        ≤ (L : ℝ) ^ d * ((1 / 2 : ℝ) * N *
+            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+              (2 * d * L)) * dExt T)) :=
+          mul_le_mul_of_nonneg_right hcard (mul_nonneg hC0 he)
+      _ = _ := by ring
 
 end Step
 

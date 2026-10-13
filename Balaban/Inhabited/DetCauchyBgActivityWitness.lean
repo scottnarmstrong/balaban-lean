@@ -23,6 +23,12 @@ hypotheses and the rate condition have a common landed instance.  With `HatConn`
 whole-lattice generating set (`LevelPair.hatConn`), a datum of the chart and a unit block, all the
 hypotheses of the support, activity, decay and locality theorems hold simultaneously
 (`detCauchyBgActivity_nonempty`).
+
+`detCauchyBgStep_nonempty`: at the step `hatStep m₁ 1 1 1` (whose block datum is the constant unit
+datum, a datum of the chart) the hypotheses of the step-level theorems hold: the Jacobian
+`det C^{(k)1/2}` is the exponential of the sum of the activities, and for every `z` the structure
+`DetExpansionC` has an element whose terms are the sums of the activities over the unit blocks of
+`B(z)`, with a positive decay rate and a constant that does not depend on `z`.
 -/
 
 @[expose] public section
@@ -133,5 +139,60 @@ theorem detCauchyBgActivity_nonempty :
   · intro D₂ hD₂ Y hdata
     exact detActivityBg_eq_of_agree (m₀ := 0) hC (le_refl 1) hδc hMX hsmX hdm hα hconn hD hD₂ hN
       y Y hdata
+
+/-- **Non-vacuity of the step-level theorems.**  At the step `hatStep m₁ 1 1 1` (`G' = Gp`, the
+constant unit block datum, `a₁ = 1`, `ν = 1/81`) and one choice of `(m₁, BG, κ)`: the rate
+condition holds, the Jacobian of the step is the exponential of the sum of the activities, and
+there are a rate `κ'' > 0` and a constant `cdet` such that for every `z` the structure
+`DetExpansionC` of the block `B(z)` has an element whose term at `T` is the sum over `y ∈ B(z)` of
+the activities of `T`. -/
+theorem detCauchyBgStep_nonempty :
+    ∃ (m₁ : ℕ) (BG κ : ℝ),
+      ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1 ∧
+      (hatStep m₁ 1 1 1).covSqrtC.det = Complex.exp
+        (∑ y : (hatStep m₁ 1 1 1).U, ∑ Y, detActivityBg 0 (hatStep m₁ 1 1 1).a
+          (hatStep m₁ 1 1 1).a₁ (hatStep m₁ 1 1 1).ν (rho4 3 3 2 BG κ) (hatStep m₁ 1 1 1).D' y Y) ∧
+      ∃ κ'' cdet : ℝ, 0 < κ'' ∧ ∀ z, ∃ E : DetExpansionC (hatStep m₁ 1 1 1) 0 z κ'' cdet,
+        ∀ T, E.term T = ∑ y ∈ (hatStep m₁ 1 1 1).blockU z,
+          detActivityBg 0 (hatStep m₁ 1 1 1).a (hatStep m₁ 1 1 1).a₁ (hatStep m₁ 1 1 1).ν
+            (rho4 3 3 2 BG κ) (hatStep m₁ 1 1 1).D' y T := by
+  classical
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, κdec, κ0, δc, h4, ht0, ⟨hC⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, -⟩ := directWitness_core_amp 2 1
+  have hκ57 : (57 : ℝ) ≤ κ := by
+    have e : 4 * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) = 4116 := by norm_num
+    rw [e] at hκ
+    linarith
+  have hz := detDeg_three_rate hκ57
+  have hd0 : 0 < (3 : ℕ) := by norm_num
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin 3 3 2 BG κ (xiC1 3 * t) := by
+      have : 0 < K4 3 3 2 BG κ := K4_pos hC.hS.fam.2.1 hd0
+      have := one_le_xiC1 3
+      unfold decDomMargin; positivity
+    linarith
+  set S := hatStep m₁ 1 1 1 with hS
+  have hD : XiCData S.G' (compWeight 3 1) nuW (1 + 1) 1 t S.D' := by
+    refine ⟨fun _ => unitVec hN2, unitVec hN2, 0, 0,
+      exists_xiC (bgHypNu m₁) (Gp m₁ (rhoSep m₁)) hN2 (by unfold nuW; norm_num) ht0, ?_, ?_⟩
+    · intro x hx i
+      have := unitBg_Ψ_of_mem (Gp m₁ (rhoSep m₁)) hN2 (unitVec hN2) hx i
+      show (unitBg (Gp m₁ (rhoSep m₁)) hN2 (unitVec hN2)).Ψ x i = _
+      rw [this]; simp
+    · intro x hx i
+      have := unitBg_h_of_mem (Gp m₁ (rhoSep m₁)) hN2 (unitVec hN2) hx i
+      show (unitBg (Gp m₁ (rhoSep m₁)) hN2 (unitVec hN2)).h x i = _
+      rw [this]; simp
+  have hconn : HatConn S.G' := LevelPair.hatConn
+  have hN : (3 : ℕ) ^ 0 ∣ 9 := by norm_num
+  have hΔ0 : (0 : ℝ) < ((detDeg 3 3 + 1 : ℕ) : ℝ) := by exact_mod_cast Nat.succ_pos _
+  have hlam : 0 < κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) := by
+    have h := Real.log_neg (by positivity) hz
+    rw [log_cutRate hΔ0 κ] at h
+    linarith
+  refine ⟨m₁, BG, κ, hz, ?_, _, _, ?_, fun z =>
+    exists_detExpansionC_of_chart (m₀ := 0) S hC hδc hMX hdm hα hsmX hconn hD hN hz z⟩
+  · exact det_covSqrtC_eq_exp_sum_detActivityBg (m₀ := 0) S hC hMX hdm hα hsmX hD
+  · positivity
 
 end Balaban.Inhabited
