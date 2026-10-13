@@ -33,9 +33,9 @@ separate line below.
 | General inherited terms and the small-field induction | P4, P5 | 30% | The step identity and the activity bound for an arbitrary class member, under explicit hypotheses on its inherited terms; the split of the step into new terms and inherited terms; the inherited energy and observable terms as inputs of the step, given the chart inclusion and a composition identity on local generating sets. | The inherited terms as inputs of the expansion; the next class member; reality and symmetry clauses; the induction itself. |
 | First step from the unit lattice | P4 (2.42)–(2.54) | 30% | The block-averaged density, the hemisphere chart identity, the physical cutoff with its support at the background centre, the chart integrand at the variable centre, the identification of the lifted action with the physical one, the constrained chord identity, the physical Hessian with its coercivity, and the chart integral as a Gaussian integral times the hard-spin remainder. | Local covariance and determinant on a good component; energy and observable terms of the first step; its large-field components. |
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
-| Last integral | P7 §4 | 35% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
+| Last integral | P7 §4 | 38% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
 | No renormalization step (large field ν) | P7 §4 | 40% | The sector decomposition; the polymer gas for the sector where every spin is near h. | The sector containing reversed spins (blocker 1); currently paused. |
-| Independence of the torus | P4 (H.4) | 67% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, the decoupled background and fluctuation solutions, the decoupled covariance and its square root on a cut component, and the determinant activities. | The marked energy terms; the coefficient sums; the reading of the clause (blocker 7). |
+| Independence of the torus | P4 (H.4) | 75% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, the decoupled background and fluctuation solutions, the decoupled covariance and its square root on a cut component, the determinant activities and the marked energy coefficients. | The assembled coefficient values; the reading of the clause (blocker 7). |
 | General d, L, N and every unit h | — | 55% | All tower records for general parameters with one producer; every fixed-parameter producer, the scale producer, the output constants and the scalar lemmas are corollaries of the general ones; the determinant terms, the zero-class activity bound at every scale, the source activities and most of the renormalization chain of one step for general parameters. | The coefficient families, the step identity and the final combined statement at general parameters; arbitrary unit h. |
 | Assembly of Root-F | P4, P7, P9 | 20% | Step domains are polymers in the theorem's sense; every admissible torus is a step torus at every scale; conversion of the decay rate; the new observable terms of one step as a family with the theorem's support, locality, analyticity and per-term bound c₉ L^{-j((d-2)/2+δ)} e^{-κ|X|/(ML^j)^d} at their birth scale. | The terms of earlier scales; the logarithm; the large-field and final terms. |
 | Root-C from Root-F | P8, P9 | 30% | The deduction of the correlation estimates from the flow, assuming its inputs. | Infinite-volume limits, the limit ν ↓ 0, and the physical inputs. |
@@ -47,21 +47,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit a9eb0949 2026-10-13.
+Computed at commit 85953251 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 142 | 49,150 | 2,385 |
-| Green's functions and random walks | 69 | 25,028 | 1,465 |
+| Lattice, analysis, Gaussian and polymer tools | 143 | 50,880 | 2,404 |
+| Green's functions and random walks | 71 | 25,349 | 1,474 |
 | Background fields and generating sets (P2) | 110 | 39,057 | 2,078 |
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
 | Small-field class (P1, P4, P5) | 121 | 37,950 | 1,945 |
-| Fluctuation step and renormalization (P4-P6) | 422 | 135,841 | 4,853 |
-| Instantiated step at fixed parameters | 252 | 65,988 | 2,269 |
+| Fluctuation step and renormalization (P4-P6) | 425 | 136,296 | 4,865 |
+| Instantiated step at fixed parameters | 253 | 67,478 | 2,292 |
 | Large-field regions (P5-P7, E9-E10) | 477 | 129,925 | 7,305 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1912** | **573,357** | **26,472** |
+| **Total** | **1919** | **577,353** | **26,535** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
