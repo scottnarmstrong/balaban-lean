@@ -282,7 +282,14 @@ open Set
 `obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with two locality
 clauses for the same activity `A`: raw agreement on `thickSet S.G' Z`, and raw agreement on `Z`
 itself. In both cases source agreement on `Z` gives equality of the activities of labels whose
-sites lie in `Z`, at the zero-source parameters and at `e, e'`, for every complex `u`. -/
+sites lie in `Z`, at the zero-source parameters and at `e, e'`, for every complex `u`.
+The last conjunct makes the labels and the activity at the zero source explicit: the labels
+correspond (`ys`) to the domains of the potential and the source parts (the polymer domains of the
+local covers of the blocks and of the sites), and at a parameter `(e.1, 0)` of the chart and
+`‖σ‖ < 2` the activity of a label is the potential part
+`-β ∑_z [Y ∈ polyDom_z] rayTerm (∂³ evTerm_z(Y)) ω ψ̂ σ e.1` of the direct terms at its domain `Y`,
+at the clamped hat field `ψ̂ = S.hatOf T.m₀ p₁ hp Φ`, for a pair `(F₁, Sol)` of decoupled background
+and fluctuation maps per block with their defining properties. -/
 theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {CR s Θ : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2)
     (hΘ : 0 < Θ) :
@@ -332,7 +339,7 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
             Rg hR (ball (0 : ℂ) (3 / 2))
             ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (t : ℂ) 1).H y
             ((S.blockSplit T.m₀ hp).restr x)) ∧
-        ∀ {𝒴obs : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))}
+        (∀ {𝒴obs : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))}
           (hdj : ∀ Y ∈ 𝒴obs, IsDj T.m₀ (k + 1) Y) {Kobs : ℝ}
           (hK : Kc + Kc + K0 d L T.κ0 + K0 d L T.κ0 ≤ Kobs),
         (∀ y (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
@@ -387,9 +394,56 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
               ∑ y, (tiltActObs A (show L ^ T.m₀ ∣ N₁ from h3N) T.κ0_ent
                 hεH.le hdj hK (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2)))) hR (ball (0 : ℂ) (3 / 2))
                 ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (r : ℂ) 1).H y
-                ((S.blockSplit T.m₀ hp).restr x))) := by
+                ((S.blockSplit T.m₀ hp).restr x)))) ∧
+        ∃ (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))) (ys : Lb ≃ {Y // Y ∈ 𝒴}),
+          (∀ l, Lab.ysite l = (ys l).1) ∧
+          𝒴 = (Finset.univ.biUnion fun z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) =>
+              polyDom S.G' (LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) T.m₀ k
+                (LocalCover.fam T.m₀ (LocalCover.blockSite k z))) ∪
+            (Finset.univ.biUnion fun s : CTorus d L N₁ T.m₁ (k + 1) × Fin N =>
+              polyDom S.G' (LocalCover.nbhdF T.m₀ s.1) T.m₀ k (LocalCover.fam T.m₀ s.1)) ∧
+          ∃ (F₁ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N → (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) N → ((stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)).Ω 1 → ℂ)),
+        (∀ (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp T.κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N T.BG T.κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N T.BG T.κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) (p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) N), (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+          StrictDataM (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) N false (2 * (K4 d L N T.BG T.κ * (xiC1 d * T.t))) T.t p.2 →
+            (Sol z p).1 = dphi (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (Dec2.decG (coverOf S.G') (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) S.ν p.1) p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (Sol z p).2 (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) ∧
+            Small (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (Sol z p).2 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            SupBounds (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (Sol z p).1 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            (∀ δα' : (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)).Ω 1 → ℂ, Small (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+                (pertSource (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ σ : ℂ, ‖σ‖ < 2 → ∀ (l : Lb)
+          (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+          (A ((e.1, 0) : physParam N S) σ).H l Φ = -(S.β : ℂ) *
+            ∑ z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))), if Lab.ysite l ∈ polyDom S.G'
+                (LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) T.m₀ k
+                (LocalCover.fam T.m₀ (LocalCover.blockSite k z)) then
+              rayTerm (dl3 (evTerm
+                (fun i : ParIdx S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) => i.1.1)
+                S.G' T.m₀ (X1 S.G' T.m₀ k (LocalCover.fam T.m₀ (LocalCover.blockSite k z)))
+                (fun u s => blockEnergyFun S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) S.ν k z
+                  (F₁ z (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s, u.1))
+                  (Sol z (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s,
+                    flEdat S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (F₁ z (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s, u.1))
+                      u.1.1 (hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                        (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2))).1
+                  (u.1, hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                    (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2)) (Lab.ysite l))
+                (S.hatOf T.m₀ p₁ hp Φ)) taylorWeight (S.hatOf T.m₀ p₁ hp Φ) σ
+                (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
+            else 0 := by
   classical
-  obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := activityFamilyAnalytic_fromTowerG_rho T hA p
+  obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := sourceFamilyRelative_scale_fromTowerG_rho T hA p
   obtain ⟨b₀, hb₀, hb⟩ := obsTilt_of_physAct.{0} (CR := CR) (CU := CE + CF) (s := s)
     (p := (p : ℝ)) (Θ := Θ) hCR (by positivity) hs0 hs hΘ
   refine ⟨max (max β₁ b₀) 3, CE, CF, le_max_right _ _, hCE, hCF, ?_⟩
@@ -407,9 +461,16 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
     subst hS
     exact D.xi
   have hN3 : L ^ T.m₀ ∣ N₁ := h3N
-  obtain ⟨Jr, val, 𝒴, Tt, I, -, -, -, -, -, -, hF, hεU, hεpos, hε4, hrest⟩ :=
-    hfam k hk N₁ hN3 hN ν hνpos hν β hβ₁' 1 (by rw [max_self]; linarith) p₁ hp0 hp₁ q hq0 hq D S hS hp
-  obtain ⟨A, hAeq, hhol, hcont, -, -, -, -, h7, h8, -, -, -, -⟩ := hrest hKc
+  have hβρ : max 1 1 ≤ β := by rw [max_self]; linarith
+  obtain ⟨_, _, _, _, _, _, _, _, _, hε4, _⟩ := hfam k hk N₁ hN3 hN ν hνpos hν β hβ₁' 1 hβρ p₁ hp0
+    hp₁ q hq0 hq D S hS hp
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont₀, hI, hmem0, -, -, h𝒴x, F₂, Sol₂, hF₂, hSol₂, hTx⟩ :=
+    sourceDirectTerms_scale_fromTowerG_ray_rho T k hk N₁ hN3 hN ν hνpos hν β 1 one_pos hβρ p₁ q
+      hq0 hq D S hS hp
+  obtain ⟨Jr, I, h𝒴, hT, hF, hεU, hεpos, H⟩ := activityFamilyAnalytic_of_witnessG_rho T k hk N₁
+    hN3 ν hνpos hν β 1 hβρ p₁ hp0 q hq0 hq _ rfl D rfl S (heq_of_eq hS) hp val 𝒴 Tt hval hcont₀ hI
+    hmem0
+  obtain ⟨A, hAeq, hhol, hcont, -, -, -, -, h7, h8, -, -, -, -⟩ := H hKc
   have hsub : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ((e.1, 0) : physParam N S) ∈
       physVq S S.a₁ S.ν T.t q := fun e he =>
     fst_zero_mem_physVq S (physVq_subset S _ _ _ _ he) hq0
@@ -521,7 +582,7 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
       labelActFamilyOn_local S T.m₀ _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
         he he' w.1 (hag _ _ (agreeOn_mono hw hr) (fun x hx => hg x (hw hx)))
         u w subset_rfl⟩
-  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hlocExact, hamp, ?_, ?_⟩
+  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hlocExact, hamp, ?_, ?_, ?_⟩
   · filter_upwards [hae] with x hx
     intro D' hDh hX g hg t ht 𝒴obs hdj Kobs hK
     have hphys := hx D' hDh hX g hg t ht
@@ -553,6 +614,20 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
         (fun r hr => hae.mono fun x hx => by
           rw [physActObs_total]
           exact hx S.D' S.hh₀ hXi g hg r hr)
+  · -- the explicit labels and the explicit activity at the zero source
+    refine ⟨I.𝒴, Equiv.refl _, fun _ => rfl, h𝒴.trans h𝒴x, F₂, Sol₂, hF₂, hSol₂,
+      fun e he σ hσ l Φ => ?_⟩
+    subst hAeq
+    rw [labelActFamilyOn_H S T.m₀ _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc (hsub e he) hσ l Φ,
+      hT]
+    have hJ : physInclScaled N S (((1 / S.β : ℝ)) : ℂ) ((e.1, 0) : physParam N S) =
+        ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), 0) := by
+      rw [physInclScaled_apply]
+      refine Prod.ext rfl ?_
+      funext x i
+      simp
+    rw [hJ, hTx]
+    rfl
 
 
 
@@ -670,9 +745,9 @@ theorem obsTiltLabels_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : Ste
   obtain ⟨β₀, CE, CF, h3, hCE, hCF, hmain⟩ := obsTiltLabels_local_fromTowerG T hA p hCR hs0 hs hΘ
   refine ⟨β₀, CE, CF, h3, hCE, hCF, fun k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1
     D S hS hp Kc hKc => ?_⟩
-  obtain ⟨Lb, instLb, Lab, εH, hεH, A, -, -, hrest⟩ := hmain k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0
-    hp₁ q hq0 hq1 D S hS hp hKc
-  exact ⟨Lb, instLb, Lab, εH, hεH, A, hrest⟩
+  obtain ⟨Lb, instLb, Lab, εH, hεH, A, -, -, hamp, hae, hrest, -⟩ := hmain k hk N₁ h3N hN ν hνpos
+    hν β hβ p₁ hp0 hp₁ q hq0 hq1 D S hS hp hKc
+  exact ⟨Lb, instLb, Lab, εH, hεH, A, hamp, hae, hrest⟩
 
 end TowerG
 
@@ -792,6 +867,10 @@ theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
   have e : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
   have G := h k hk N₁ (by simpa using h3N) hN ν hνpos (by simpa using hν) β hβ p₁ hp0
     (by rw [e]; exact hp₁) q hq0 hq (T.scaleDataG_of_fixed D)
+  replace G := fun S hS hp {Kc} (hKc : K0 3 3 T.toG.κ0 ≤ Kc) => (G S hS hp hKc).imp fun _ =>
+    Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ =>
+      Exists.imp fun _ h => h.imp_right (fun x => x.imp_right (fun x => x.imp_right
+        (fun x => x.imp_right And.left)))
   unfold StepTowerG.step at G
   revert G
   generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b

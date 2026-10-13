@@ -264,7 +264,7 @@ theorem obsRowCoeff_of_sharpHat_rawY (hC : FlCore N S.G' Hm a₁ ν c BG κ eps 
           Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
-      ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
         ∀ m : ObsMarkIdx S,
         (deriv (fun ζ : ℂ => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
             (hatLift S.G' a₁ ν S.hG' cc D (ζ • obsUnitVec S m))) y iy) 0 =
@@ -287,11 +287,40 @@ theorem obsRowCoeff_of_sharpHat_rawY (hC : FlCore N S.G' Hm a₁ ν c BG κ eps 
           obsMarkCube S m₀ m ∈ T ∧ rootCube (m₀ := m₀) (blockIndex y) ∈ T) ∧
         (∀ T, ‖obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
             i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T‖ ≤
-          (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) * Real.exp (-(2 * κdec) * dExt T)) := by
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) * Real.exp (-(2 * κdec) * dExt T))) ∧
+      ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
+          (X1 S.G' m₀ j 𝒦X)
+          (fun u s => siteFun S.G' Hm y iy
+            (F₁ (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat S.G' Hm (F₁ (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF S.G' a₁ ν S.hG' cc F₁
+                  (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF S.G' a₁ ν S.hG' cc F₁
+              (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   classical
-  obtain ⟨Ev, hs, hd, hb, ha⟩ := fsite_expansion_hat_rawY hC hk hG S.hG' cc hcψ.le hMX hdm hα hsm hδ₁
-    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
-  refine ⟨Ev, hs, hd, hb, ha, fun D hD m => ?_⟩
+  obtain ⟨Ev, hs, hd, hb, ha, hex⟩ := fsite_expansion_hat_rawY hC hk hG S.hG' cc hcψ.le hMX hdm hα
+    hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  refine ⟨Ev, hs, hd, hb, ha, fun D hD m => ?_, hex⟩
   have hd3 : 3 ≤ d := hC.HBp.hd
   have hN : L ^ m₀ ∣ N₁ := hcov.hN
   have hdj : ∀ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
@@ -419,8 +448,8 @@ theorem obsRowCoeff_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx
         (∀ T, ‖obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
             i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T‖ ≤
           (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) * Real.exp (-(2 * κdec) * dExt T)) := by
-  obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm hα hsm
-    hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  obtain ⟨Ev, hs, hd, hb, ha, hrow', -⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm hα
+    hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
   exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
     hb, ha, hrow'⟩
 
