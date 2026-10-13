@@ -281,6 +281,7 @@ theorem gsumCoeff_analyticOnNhd {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (
   simp only [intervalIntegral.integral_of_le (zero_le_one' ℝ)]
   exact h
 
+omit [NormedAddCommGroup E] [NormedSpace ℂ E] in
 /-- The bound of `interpCoeff_spec` is uniform in the parameter: it depends only on the constants
 `Kc κH κ0 κ'`, `F0` and `𝗱(y0 i)`, which are the same for all `θ`.  The conclusion is given by
 `avg_marks_expansion` at each `(θ, s)`; the integral over `s ∈ [0,1]` keeps the bound. -/
@@ -311,6 +312,100 @@ theorem norm_gsumCoeff_le {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)
   have := intervalIntegral.norm_integral_le_of_norm_le_const hb
   simpa using this
 
+section Inhabited
+
+omit [Fintype ι] in
+/-- **`ParamMarkFamily` is inhabited (constant family).**  Activities and marks independent of
+`(θ, u)`, on configuration spaces that are finite and discrete (so that every configuration set is
+compact and every function continuous), for any label activity `A₀` and any measurable marks with
+the mark bound. -/
+theorem nonempty_paramMarkFamily_const
+    {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)] [∀ b, TopologicalSpace (Ωb b)]
+    [∀ b, Finite (Ωb b)] [∀ b, DiscreteTopology (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)] {Lab : CubeLabels m₀ j Ω Lb}
+    {εH κH κ0 Kc : ℝ}
+    (A₀ : LabelAct Lab Ωb εH κH κ0 Kc) (y0 : ι → Lb)
+    (G₀ : ι → (∀ b, Ωb b) → ℂ) (κG : ℝ) (F0 : ι → ℝ) (hG₀m : ∀ i, Measurable (G₀ i))
+    (hG₀ : ∀ i Φ, ‖G₀ i Φ‖ ≤ F0 i * Real.exp (-κG * Lab.dl (y0 i)))
+    (V : Set E) (hV : IsOpen V) :
+    Nonempty (ParamMarkFamily μ Lab (fun _ _ => A₀) y0 (fun _ i _ => G₀ i) κG F0 V Set.univ
+      Set.univ) :=
+  ⟨{ isOpenV := hV
+     isOpenU := isOpen_univ
+     seg := fun _ _ => Set.mem_univ _
+     compact := isCompact_univ
+     measQ := MeasurableSet.univ
+     carried := Filter.Eventually.of_forall (fun _ => Set.mem_univ _)
+     meas := fun _ i _ => hG₀m i
+     bound := fun _ i _ Φ => hG₀ i Φ
+     holA := fun _ _ _ => analyticOnNhd_const
+     holG := fun _ _ _ => analyticOnNhd_const
+     contA := fun _ _ _ _ _ => continuous_of_discreteTopology.continuousOn
+     contG := fun _ _ _ _ _ => continuous_of_discreteTopology.continuousOn }⟩
+
+/-- The label activity `A₀` multiplied by a complex factor `c` with `‖c‖ ≤ 2`; its size constant
+is `2 ε_H`. -/
+noncomputable def LabelAct.scale
+    {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)] {Lab : CubeLabels m₀ j Ω Lb}
+    {εH κH κ0 Kc : ℝ} (A₀ : LabelAct Lab Ωb εH κH κ0 Kc) (c : ℂ) (hc : ‖c‖ ≤ 2) :
+    LabelAct Lab Ωb (2 * εH) κH κ0 Kc where
+  H := fun y Φ => c * A₀.H y Φ
+  meas := fun y => (A₀.meas y).const_mul c
+  dep := fun y Φ Φ' h => by simp only [A₀.dep y Φ Φ' h]
+  bound := fun y Φ => by
+    rw [norm_mul]
+    calc ‖c‖ * ‖A₀.H y Φ‖ ≤ 2 * (εH * Real.exp (-κH * Lab.dl y)) :=
+        mul_le_mul hc (A₀.bound y Φ) (norm_nonneg _) (by norm_num)
+      _ = _ := by ring
+  entropy := A₀.entropy
+
+omit [Fintype ι] in
+/-- **`ParamMarkFamily` is inhabited by a genuinely `θ`-dependent family**: for `θ ∈ ℂ`,
+`‖θ‖ < 2⁻¹`, the activities `(1 + θ) A₀` and the constant marks. -/
+theorem nonempty_paramMarkFamily_scaled
+    {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)] [∀ b, TopologicalSpace (Ωb b)]
+    [∀ b, Finite (Ωb b)] [∀ b, DiscreteTopology (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)] {Lab : CubeLabels m₀ j Ω Lb}
+    {εH κH κ0 Kc : ℝ}
+    (A₀ : LabelAct Lab Ωb εH κH κ0 Kc) (y0 : ι → Lb)
+    (G₀ : ι → (∀ b, Ωb b) → ℂ) (κG : ℝ) (F0 : ι → ℝ) (hG₀m : ∀ i, Measurable (G₀ i))
+    (hG₀ : ∀ i Φ, ‖G₀ i Φ‖ ≤ F0 i * Real.exp (-κG * Lab.dl (y0 i))) :
+    ∃ A : ℂ → ℂ → LabelAct Lab Ωb (2 * εH) κH κ0 Kc,
+      (∀ θ u y Φ, ‖θ‖ < 2⁻¹ → (A θ u).H y Φ = (1 + θ) * A₀.H y Φ) ∧
+      Nonempty (ParamMarkFamily μ Lab A y0 (fun _ i _ => G₀ i) κG F0 (Metric.ball 0 (2⁻¹))
+        Set.univ Set.univ) := by
+  have hcb : ∀ θ : ℂ, ‖(if ‖θ‖ < 2⁻¹ then 1 + θ else 1 : ℂ)‖ ≤ 2 := fun θ => by
+    by_cases h : ‖θ‖ < 2⁻¹
+    · simp only [h, ite_true]
+      calc ‖(1 + θ : ℂ)‖ ≤ ‖(1 : ℂ)‖ + ‖θ‖ := norm_add_le _ _
+        _ ≤ 2 := by simp; linarith
+    · simp [h]
+  refine ⟨fun θ _ => A₀.scale _ (hcb θ), fun θ u y Φ h => ?_, ⟨?_⟩⟩
+  · simp [LabelAct.scale, h]
+  · refine
+      { isOpenV := Metric.isOpen_ball
+        isOpenU := isOpen_univ
+        seg := fun _ _ => Set.mem_univ _
+        compact := isCompact_univ
+        measQ := MeasurableSet.univ
+        carried := Filter.Eventually.of_forall (fun _ => Set.mem_univ _)
+        meas := fun _ i _ => hG₀m i
+        bound := fun _ i _ Φ => hG₀ i Φ
+        holA := fun y Φ _ => ?_
+        holG := fun _ _ _ => analyticOnNhd_const
+        contA := fun _ _ _ _ _ => continuous_of_discreteTopology.continuousOn
+        contG := fun _ _ _ _ _ => continuous_of_discreteTopology.continuousOn }
+    have h1 : AnalyticOnNhd ℂ (fun p : ℂ × ℂ => (1 + p.1) * A₀.H y Φ)
+        (Metric.ball (0 : ℂ) (2⁻¹) ×ˢ (Set.univ : Set ℂ)) :=
+      (analyticOnNhd_const.add analyticOnNhd_fst).mul analyticOnNhd_const
+    refine h1.congr (Metric.isOpen_ball.prod isOpen_univ) (fun p hp => ?_)
+    have : ‖p.1‖ < 2⁻¹ := by simpa using hp.1
+    simp [LabelAct.scale, this]
+
+end Inhabited
+
 end Family
 
 end Balaban.Fluctuation
+
+
