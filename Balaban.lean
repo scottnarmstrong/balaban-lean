@@ -1078,6 +1078,7 @@ public import Balaban.Fluctuation.Prop33CloseDomain
 public import Balaban.Fluctuation.Prop33CloseReal
 public import Balaban.Fluctuation.Prop33CloseNu
 public import Balaban.Fluctuation.PhysicalReadsV
+public import Balaban.Fluctuation.PhysicalVRawY
 public import Balaban.Fluctuation.Prop33CloseBh
 public import Balaban.Fluctuation.Prop33CloseWitness
 public import Balaban.Fluctuation.Prop33Level
@@ -1459,6 +1460,7 @@ public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
+public import Balaban.Fluctuation.PhysicalFNuRawY
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
@@ -1721,8 +1723,8 @@ public import Balaban.Inhabited.E1RecordFromTower
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.E1ParamFibreValue
-public import Balaban.Inhabited.E1CoeffFamilyValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
 public import Balaban.Inhabited.StepIdentityFibre
+public import Balaban.Fluctuation.RawAgreeSites
