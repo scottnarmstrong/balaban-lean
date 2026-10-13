@@ -1566,6 +1566,7 @@ public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Inhabited.RenormLabelNonempty
+public import Balaban.Inhabited.RenormProperInstances
 public import Balaban.Fluctuation.RenormRowAgree
 public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormStrictData
