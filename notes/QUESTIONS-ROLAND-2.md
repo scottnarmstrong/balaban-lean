@@ -439,3 +439,33 @@ Is that an acceptable reading of (g), (h), or must every term of (g), (h) be ind
 domains of one particular cover?
 
 (Details: `notes/phase1/HATY.md`, `HATY2.md` §T5.)
+
+### Item 23 (2026-10-13): the local generating set B_{k+1}(Y) of P3 p. 78 and the margin used in Lemma 4.2
+
+In P3 pp. 44, 57, 69 the minimal generating set is built with 5L layers of M_1 L^n cubes, and the
+localization uses r_0 >= 5, r_1 = r_0 - 4 and the fit X_0^{~ r_0} inside X_1, for which
+(4L + r_0) M_1 <= L M suffices (so 6 M_1 <= M for r_0 = 5, L >= 3). On p. 78, after (4.45), the
+generating set is replaced by B_{k+1}(Y) inside every term, and (4.46)-(4.47) are then obtained on
+the domain of B_{k+1}(Y) by Lemma 4.2.
+
+(a) Is B_{k+1}(Y) meant to be exactly the 5L recursion of Definition II.2.2 intersected with the
+old layers, with separation of order 5 L M_1 between consecutive layers?
+(b) Our proofs of the localization estimates use a much larger separation of the layers (and
+r_0 of order d L^3) in place of the two-size fit M >= 6 M_1. With the literal B_{k+1}(Y), which
+estimate of the support of the decoupling parameters replaces it when Lemma 4.2 is applied on
+B_{k+1}(Y)? Is the relation between M and M_1 (M >= 6 M_1, or larger) the intended source of the
+margin?
+(c) In a mixed history, is every site of the nearest-neighbour collar of B_{k+1}(Y) assigned to
+the characteristic domain of Y, or to an explicit boundary term?
+
+(Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`.)
+
+### Item 24 (2026-10-13): the support condition in the torus-agreement statement
+
+The statement that the terms on two tori agree is made for supports whose points y satisfy
+4|y_mu| < min(l, l'). A localized term T_j(X) is constructed through a larger region than X
+(of order M L^j around X). Is agreement asserted for every such support because the final terms
+depend on nothing outside X, or only for those X whose whole construction region fits in a common
+non-winding box? In the second case, which margin should the statement carry?
+
+(Details: `notes/phase1/TORUSCOH2.md` T6.)
