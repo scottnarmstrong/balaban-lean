@@ -497,6 +497,237 @@ theorem tiltActObs_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
     · exact absurd hP (hP0 Y)
     · exact absurd hP (hP1 Z)
 
+/-- **D3: the coefficient of the observable on two tori at the zero source.**  The hypotheses of
+`obsCoeffParam_twoTorus_of_activities` on the steps, the local covers of the site `y` and of
+`bm y`, the explicit terms `Ev`, `Ev'` of the site functionals, the parameters `θ`, `θ'` and the set
+`T` of cubes of the box, with parameters of zero source (`θ.2 = 0`, `θ'.2 = 0`); the activities are
+`tiltActObs A …`, `tiltActObs A' …` for activity families `A`, `A'` whose labels correspond (`ys`,
+`ys'`) to domain families with `bm '' Y ∈ 𝒴v′ ↔ Y ∈ 𝒴v` on the box and whose values at the zero
+source are the potential parts `-β ∑_z [Y ∈ polyDom_z] rayTerm (∂³ evDec_z(Y)) ω ψ̂ σ e.1`
+(`hAx`, `hAx'`, decoupled pairs `(F₂, Sol₂)`, `(F₂', Sol₂')` per block; the form exported by
+`obsTiltLabels_local_fromTowerG`).  Then the coefficients of the observable agree:
+`obsCoeffParam … θ' (cubeMap '' T) = obsCoeffParam … θ T`.  Radius: `2 p₁ ≤ c_ψ`,
+`markedRad … c_ψ cc < δ₁`. -/
+theorem obsCoeffParam_twoTorus_zeroSource (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) (HA) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) (HB) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (ρ₁) + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (ρ₁) + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    -- the site and the terms of its expansion
+    (y : CTorus d L N₁ m₁ (k + 1)) (iy : Fin N)
+    (hX₁R : ∀ x ∈ LocalCover.nbhd m₀ y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (cc : ℂ) {cψ : ℝ} (hcψ : 0 < cψ) (hq : p₁ / cψ ≤ 1 / 4)
+    (hrad : markedRad d L N k 1 κ cψ cc < δ₁)
+    {F₁ : DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams (GA)) (D : BgData (GA) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : DecParams (GB)) (D : BgData (GB) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₁' (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf (GA)) × Edat (HA) N → ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf (GB)) × Edat (HB) N →
+      ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf (GA)) × Edat (HA) N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HA) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi (HA) (Dec2.decG (coverOf (GA)) (HA) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small (HA) (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HA) (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HA) (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small (HA) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf (GB)) × Edat (HB) N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HB) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol' p).1 = dphi (HB) (Dec2.decG (coverOf (GB)) (HB) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small (HB) (Sol' p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HB) (Sol' p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HB) (Sol' p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small (HB) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    {Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × ((SA).U × Fin N → ℂ) → ℂ}
+    {Ev' : Set (CTorus d L N₁' m₁ (k + 1)) →
+      RawData d L (N₁' * L ^ m₁) (k + 1) N × ((SB).U × Fin N → ℂ) → ℂ}
+    (hEv : Ev = evTerm (fun i : ParIdx (GA) (XA) => i.1.1) (GA) m₀
+        (X1 (GA) m₀ k (LocalCover.fam m₀ y))
+        (fun u s => siteFun (GA) (HA) y iy (F₁ (extParams (GA) (XA) s, u.1))
+          (Sol (extParams (GA) (XA) s,
+            flEdat (GA) (HA) (F₁ (extParams (GA) (XA) s, u.1))
+              u.1.1 (hatPsiF (GA) 1 νS (SA).hG' cc F₁
+                (extParams (GA) (XA) s) u.1 u.2))).1
+          (u.1, hatPsiF (GA) 1 νS (SA).hG' cc F₁
+            (extParams (GA) (XA) s) u.1 u.2)))
+    (hEv' : Ev' = evTerm (fun i : ParIdx (GB) (XB) => i.1.1) (GB)
+        m₀ (X1 (GB) m₀ k (LocalCover.fam m₀ (bm y)))
+        (fun u s => siteFun (GB) (HB) (bm y) iy
+          (F₁' (extParams (GB) (XB) s, u.1))
+          (Sol' (extParams (GB) (XB) s,
+            flEdat (GB) (HB) (F₁' (extParams (GB)
+              (XB) s, u.1)) u.1.1
+              (hatPsiF (GB) 1 νS (SB).hG' cc F₁'
+                (extParams (GB) (XB) s) u.1 u.2))).1
+          (u.1, hatPsiF (GB) 1 νS (SB).hG' cc F₁'
+            (extParams (GB) (XB) s) u.1 u.2)))
+    (hdEv : ∀ Y ∈ 𝒴A, ∀ u ∈ XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps ×ˢ
+        {ψh : (SA).U × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ∀ u' ∈ XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps ×ˢ
+        {ψh : (SA).U × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      AgHatDir (SA).hG' Y u u' → Ev Y u = Ev Y u')
+    (hdj : ∀ Y ∈ 𝒴A, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴B, IsDj m₀ (k + 1) Y)
+    -- the parameters
+    (θ : physParam N (SA)) (θ' : physParam N (SB))
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps)
+    (hθ' : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GB) (compWeight L 1) νS (k + 1) 1 eps)
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N))
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    -- the activities at the zero source
+    (hθ0 : θ.2 = 0) (hθ0' : θ'.2 = 0) (hm₀ : 1 ≤ m₀) (hρ : 2 * p₁ ≤ cψ)
+    {Lb Lb' : Type} [Fintype Lb] [Fintype Lb']
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb)
+    (Lab' : CubeLabels (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb')
+    {𝒴v : Finset (Set (CTorus d L N₁ m₁ (k + 1)))}
+    {𝒴v' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (ys : Lb ≃ {Y // Y ∈ 𝒴v}) (ys' : Lb' ≃ {Y // Y ∈ 𝒴v'})
+    (hys : ∀ l, Lab.ysite l = (ys l).1) (hys' : ∀ l', Lab'.ysite l' = (ys' l').1)
+    (hmemV : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ 𝒴v' ↔ Y ∈ 𝒴v))
+    {εH κH κ0 Kco εH' κH' κ0' Kco' : ℝ}
+    (A : physParam N (SA) → ℂ → LabelAct Lab ((SA).blockSplit m₀ hp).Ωb εH κH κ0 Kco)
+    (A' : physParam N (SB) → ℂ → LabelAct Lab' ((SB).blockSplit m₀ hp').Ωb εH' κH' κ0' Kco')
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hκ0' : aEnt d L + 1 ≤ κ0') (hεH : 0 ≤ εH) (hεH' : 0 ≤ εH')
+    {Kobs Kobs' : ℝ} (hK : Kco + Kco + K0 d L κ0 + K0 d L κ0 ≤ Kobs)
+    (hK' : Kco' + Kco' + K0 d L κ0' + K0 d L κ0' ≤ Kobs')
+    (Rg : ℝ) (hR : 0 ≤ Rg) (𝒰 : Set ℂ)
+    {F₂ : TA → DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₂' : TB → DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₂ : ∀ (b : TA) (s : DecParams (GA)) (D : BgData (GA) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₂ b (s, rawOf D) = (φ, α))
+    (hF₂' : ∀ (b : TB) (s : DecParams (GB)) (D : BgData (GB) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₂' b (s, rawOf D) = (φ, α))
+    {Sol₂ : TA → Dec2.DecParams (coverOf (GA)) × Edat (HA) N →
+      ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol₂' : TB → Dec2.DecParams (coverOf (GB)) × Edat (HB) N →
+      ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol₂ : ∀ (b : TA) (p : Dec2.DecParams (coverOf (GA)) × Edat (HA) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HA) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol₂ b p).1 = dphi (HA) (Dec2.decG (coverOf (GA)) (HA) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂ b p).2 ∧
+        Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂ b p).2 ∧
+        Small (HA) (Sol₂ b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HA) (Sol₂ b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HA) (Sol₂ b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small (HA) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂ b p).2))
+    (hSol₂' : ∀ (b : TB) (p : Dec2.DecParams (coverOf (GB)) × Edat (HB) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HB) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol₂' b p).1 = dphi (HB) (Dec2.decG (coverOf (GB)) (HB) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂' b p).2 ∧
+        Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂' b p).2 ∧
+        Small (HB) (Sol₂' b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HB) (Sol₂' b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HB) (Sol₂' b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small (HB) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂' b p).2))
+    {V : Set (physParam N (SA))} {V' : Set (physParam N (SB))} (hθV : θ ∈ V) (hθV' : θ' ∈ V')
+    (hAx : ∀ e ∈ V, ∀ σ : ℂ, ‖σ‖ < 2 → ∀ (l : Lb) (Φ : ∀ b, ((SA).blockSplit m₀ hp).Ωb b),
+      (A ((e.1, 0) : physParam N (SA)) σ).H l Φ = -(β : ℂ) *
+        ∑ z : TA, if Lab.ysite l ∈ polyDom (GA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k z))
+            m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k z)) then
+          rayTerm (dl3 (evDec (LocalCover.nbhdF m₀ (LocalCover.blockSite k z)) m₀ k
+            (LocalCover.fam m₀ (LocalCover.blockSite k z)) 1 νS (SA).hG' cc (F₂ z) (Sol₂ z)
+            (blockEnergyFun (GA) (HA) (compWeight L 1) νS k z) ∅ 1 0 (Lab.ysite l))
+            ((SA).hatOf m₀ p₁ hp Φ)) taylorWeight ((SA).hatOf m₀ p₁ hp Φ) σ
+            (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+        else 0)
+    (hAx' : ∀ e ∈ V', ∀ σ : ℂ, ‖σ‖ < 2 → ∀ (l : Lb') (Φ : ∀ b, ((SB).blockSplit m₀ hp').Ωb b),
+      (A' ((e.1, 0) : physParam N (SB)) σ).H l Φ = -(β : ℂ) *
+        ∑ z : TB, if Lab'.ysite l ∈ polyDom (GB) (LocalCover.nbhdF m₀ (LocalCover.blockSite k z))
+            m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k z)) then
+          rayTerm (dl3 (evDec (LocalCover.nbhdF m₀ (LocalCover.blockSite k z)) m₀ k
+            (LocalCover.fam m₀ (LocalCover.blockSite k z)) 1 νS (SB).hG' cc (F₂' z) (Sol₂' z)
+            (blockEnergyFun (GB) (HB) (compWeight L 1) νS k z) ∅ 1 0 (Lab'.ysite l))
+            ((SB).hatOf m₀ p₁ hp' Φ)) taylorWeight ((SB).hatOf m₀ p₁ hp' Φ) σ
+            (e.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N)
+        else 0) :
+    obsCoeffParam ((SB).blockSplit m₀ hp').μ
+        (fun θ t σ => tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ t σ)
+        (fun m => obsY1 m₀ (SB) (Lb' ⊕ Lb') (𝒴B) m)
+        (fun m => blockMarkC (SB) m₀ hp' m.1 m.2)
+        (fun θ m T'' => obsHker (𝒴B) (fun Y => hatCoeff (Ev' Y)
+          (θ.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) (obsUnitVec (SB) m)) m₀ T'')
+        (obsRemLab (𝒴B) (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 m₀ (Lb' ⊕ Lb') (𝒴B) (rootCube (m₀ := m₀) (blockIndex (bm y)))))
+        (fun θ => obsGrFam (SB) m₀ hp' Ev' (𝒴B)
+          (XiCRaw (GB) (compWeight L 1) νS (k + 1) 1 eps) θ) θ' (T.image (σc)) =
+      obsCoeffParam ((SA).blockSplit m₀ hp).μ
+        (fun θ t σ => tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ t σ)
+        (fun m => obsY1 m₀ (SA) (Lb ⊕ Lb) (𝒴A) m)
+        (fun m => blockMarkC (SA) m₀ hp m.1 m.2)
+        (fun θ m T'' => obsHker (𝒴A) (fun Y => hatCoeff (Ev Y)
+          (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (obsUnitVec (SA) m)) m₀ T'')
+        (obsRemLab (𝒴A) (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 m₀ (Lb ⊕ Lb) (𝒴A) (rootCube (m₀ := m₀) (blockIndex y))))
+        (fun θ => obsGrFam (SA) m₀ hp Ev (𝒴A)
+          (XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps) θ) θ T := by
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  obtain ⟨P, P', ψ, hA0, hA0', hψP, hψb, hψinj, hψsurj, hA⟩ := tiltActObs_twoTorus hN2 hk νS β p₁ δ
+    hN hN' hnL hnL' hT Lab Lab' ys ys' hys hys' hmemV hdj hdj' hp hp' A A' hκ0 hκ0' hεH hεH' hK hK'
+    Rg hR 𝒰 θ θ' hθ0 hθ0'
+    (fun σ hσ l l' hlR hl' Φ Φ' hΦ => labelActZero_twoTorus hN2 hk νS β p₁ δ hC hC' hMX hmar hαK
+      hsm hm₀ hN hN' hn hn' hnS hnS' hnF hnF' cc hcψ.le hρ hrad hF₂ hF₂' hSol₂ hSol₂' hp hp' Lab
+      Lab' A A' hAx hAx' θ θ' hθV hθV' hθ hθ' hraw hσ l l' hlR hl' Φ Φ' hΦ)
+  exact obsCoeffParam_twoTorus_of_activities hN2 hk νS β p₁ δ hC hC' hMX hmar hαK hsm hN hN' hn hn'
+    hnS hnS' hnF hnF' y iy hX₁R cc hcψ hq hrad hF₁ hF₁' hSol hSol' hEv hEv' hdEv hdj hdj' θ θ' hθ
+    hθ' hraw hp hp' T hT (Lab.sum Lab) (Lab'.sum Lab')
+    (fun θ t σ => tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ t σ)
+    (fun θ t σ => tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ t σ) P P' hA0 hA0' ψ hψP hψb
+    hψinj hψsurj hA
+
 end Activity
 
 end Balaban.Polymer.TwoTorusStep
