@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.DetPackageFromTowerG
 public import Balaban.Inhabited.StepOutputConsts
+public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DetCollarHullSymm
 public import Balaban.Fluctuation.DetRotation
 import Mathlib.Tactic.Linarith
@@ -68,23 +69,34 @@ noncomputable def detHullThreshold : ℝ :=
   18 * 60751 * (3 / 2 * (100 * (aEnt 3 3 + 2 + 3375 + 10)) + 3375 * Real.log 2) +
     Real.log 2 + 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)
 
+/-- The general rate at `d = L = 3` is the landed `towerDetRate`. -/
+theorem _root_.Balaban.Fluctuation.detRateG_three (κ : ℝ) : detRateG 3 3 κ = towerDetRate κ := by
+  unfold detRateG towerDetRate
+  norm_num
+
 theorem collarB_three : collarB 3 3 = 60750 := by
   unfold collarB; rw [cG_three, c1_three]; norm_num
 
 /-- **The hull rate in terms of the rate.**  If `κ ≥ 18 (1 + B)(κ_out + c₁ log 2) + log 2 +
-2 log(detDeg + 1)` then `κ_out ≤ hullRate 3 3 ((κ - log 2 - 2 log(detDeg + 1))/18)`. -/
+2 log(detDeg + 1)` then `κ_out ≤ hullRate 3 3 ((κ - log 2 - 2 log(detDeg + 1))/18)`.  The
+instance `d = L = 3` of `hullRate_ge_general`. -/
 theorem hullRate_ge_of_le {κ kout : ℝ}
     (h : 18 * 60751 * (kout + 3375 * Real.log 2) + Real.log 2 +
       2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) ≤ κ) :
     kout ≤ hullRate 3 3 (towerDetRate κ) := by
-  unfold hullRate
+  rw [← detRateG_three]
+  refine hullRate_ge_general (by norm_num) (by norm_num) ?_
   rw [collarB_three, c1_three]
-  have : kout + 3375 * Real.log 2 ≤ towerDetRate κ / (1 + 60750) := by
-    rw [le_div_iff₀ (by norm_num)]
-    unfold towerDetRate
-    rw [le_div_iff₀ (by norm_num)]
-    linarith
+  norm_num
+  push_cast at h ⊢
   linarith
+
+/-- The landed `hullRate_ge_of_le` as the instance `d = L = 3` of `hullRate_ge_general`. -/
+theorem _root_.Balaban.Fluctuation.hullRate_ge_of_le_of_general {κ kout : ℝ}
+    (h : 18 * 60751 * (kout + 3375 * Real.log 2) + Real.log 2 +
+      2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) ≤ κ) :
+    kout ≤ hullRate 3 3 (towerDetRate κ) :=
+  hullRate_ge_of_le h
 
 /-- **The threshold for the hull rate.**  For `κmin ≥ detHullThreshold`, every tower
 `T : StepTower κmin` has hull rate at least `κ_out = 3 κ_dec / 2`. -/
