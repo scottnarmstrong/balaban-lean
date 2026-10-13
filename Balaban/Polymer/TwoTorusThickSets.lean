@@ -8,6 +8,7 @@ module
 public import Balaban.Polymer.TwoTorusStepGeometry
 public import Balaban.Localization.DecoupledBackgroundLocal
 public import Balaban.Localization.I5Local
+public import Balaban.Inhabited.LevelStepSetting
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -611,6 +612,29 @@ theorem pset_eq_box (hj : j ≤ K) {y0 : CTorus d L N₁ m₁ K} (hb : CubeBase 
   show (∀ μ, (x μ).val / L ^ (j + m₁) = (y0 μ).val / L ^ (j + m₁)) ↔ _
   rw [sameCell_iff_mem_box hdv ha0, hc]
 
+omit [NeZero N₁'] in
+/-- The cube centres of `levelGS j`: the layer-`j` centres with `y0` a cube base. -/
+theorem mem_cubeIdx_levelGS (hj : j ≤ K) (q : ℕ × CTorus d L N₁ m₁ K) :
+    q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) ↔
+      q.1 = j ∧ 1 ≤ j ∧ CubeBase (K := K) m₁ q.1 q.2 := by
+  rw [mem_cubeIdx, layer_levelGS hj]
+  constructor
+  · rintro ⟨⟨h1, h2⟩, h3, h4⟩
+    by_cases h : q.1 = j
+    · exact ⟨h, h ▸ h1, h4⟩
+    · simp [h] at h3
+  · rintro ⟨h1, h2, h3⟩
+    exact ⟨⟨h1 ▸ h2, h1 ▸ hj⟩, by simp [h1], h3⟩
+
+omit [NeZero N₁'] in
+theorem exists_of_mem_cubeIdx (hj : j ≤ K) {q : ℕ × CTorus d L N₁ m₁ K}
+    (hq : q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)) :
+    ∃ y, q = (j, y) ∧ CubeBase (K := K) m₁ j y := by
+  obtain ⟨m, y⟩ := q
+  obtain ⟨h1, -, h3⟩ := (mem_cubeIdx_levelGS hj _).1 hq
+  have hm : m = j := h1
+  exact ⟨y, by rw [hm], hm ▸ h3⟩
+
 section WithMargins
 
 variable {ρ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') (hj : j ≤ K)
@@ -722,8 +746,197 @@ theorem dsites_image {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ ((N₁ * L 
       (by omega) hzIn']
     exact ⟨z, hz, rfl⟩
 
+omit hN hN' hn' in
+/-- The patch of a cube centre of the layer `j` with base point in the box of radius `ρ`. -/
+theorem pset_image_q {q : ℕ × CTorus d L N₁ m₁ K}
+    (hq : q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj))
+    (hq0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) q.2) :
+    bm '' Pset m₁ q = Pset m₁ (Prod.map id bm q) := by
+  obtain ⟨y, rfl, hb⟩ := exists_of_mem_cubeIdx hj hq
+  exact pset_image hj hn hq0 hb
+
+/-- `D(P)` of a cube centre of the layer `j` with base point in the box of radius `ρ`. -/
+theorem dsites_image_q {q : ℕ × CTorus d L N₁ m₁ K}
+    (hq : q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj))
+    (hq0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) q.2) :
+    bm '' Dsites (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀ q =
+      Dsites (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        (Prod.map id bm q) := by
+  obtain ⟨y, rfl, -⟩ := exists_of_mem_cubeIdx hj hq
+  exact dsites_image hN hN' hj hn hn' hq0
+
+omit hN hN' in
+/-- **The decoupling parameter cubes.**  The patch of a cube centre in the box is disjoint from
+`bm '' X₁` exactly when the patch of the corresponding centre is disjoint from `X₁`;
+`X₁` lies in the box of radius `ρ`. -/
+theorem pset_disjoint_iff {q : ℕ × CTorus d L N₁ m₁ K}
+    (hq : q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj))
+    (hq0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) q.2) {X₁ : Set (CTorus d L N₁ m₁ K)}
+    (hX : ∀ x ∈ X₁, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x) :
+    Disjoint (Pset m₁ (Prod.map id bm q)) (bm '' X₁) ↔ Disjoint (Pset m₁ q) X₁ := by
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) m₀ m₁ j
+  obtain ⟨y, rfl, h3⟩ := exists_of_mem_cubeIdx hj hq
+  have hPbox : ∀ p ∈ Pset m₁ ((j, y) : ℕ × CTorus d L N₁ m₁ K),
+      InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j)
+        ((N₁ * L ^ m₁) * L ^ K) p := by
+    intro p hp
+    rw [pset_eq_box hj h3] at hp
+    exact inBox_mono (by omega) (inBox_of_mem_box_right (by omega) hq0 hp)
+  rw [← pset_image_q hj hn hq hq0]
+  constructor
+  · intro h
+    rw [Set.disjoint_left] at h ⊢
+    intro z hzP hzX
+    exact h (Set.mem_image_of_mem _ hzP) (Set.mem_image_of_mem _ hzX)
+  · intro h
+    rw [Set.disjoint_left] at h ⊢
+    rintro _ ⟨p, hp, rfl⟩ ⟨x, hx, hxp⟩
+    have : x = p := boxMap_inj (hm' := (by omega : 2 * (ρ + L * cellSide L m₀ m₁ j +
+      L * cellSide L m₀ m₁ j) + 1 < (N₁' * L ^ m₁) * L ^ K))
+      (inBox_mono (by omega) (hX x hx)) (hPbox p hp) hxp
+    exact h hp (this ▸ hx)
+
+/-- **`Y[𝒞]` on two tori.**  For a family of cube centres of the layer `j` with base points in the
+box of radius `ρ`, `Y[𝒞]` of the image data is the image of `Y[𝒞]`. -/
+theorem ysites_image {ι : Type*} (c : ι → ℕ × CTorus d L N₁ m₁ K) (C : Finset ι)
+    (hc : ∀ i ∈ C, c i ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) j hj) ∧ InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (c i).2)
+    (X₁ : Set (CTorus d L N₁ m₁ K)) :
+    Ysites (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        (fun i => Prod.map id bm (c i)) (bm '' X₁) C =
+      bm '' Ysites (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        c X₁ C := by
+  unfold Ysites
+  rw [Set.image_union, Set.image_iUnion₂]
+  congr 1
+  exact (Set.iUnion₂_congr fun i hi => (dsites_image_q hN hN' hj hn hn' (hc i hi).1 (hc i hi).2).symm)
+
+omit hN hN' in
+/-- **`Y(𝒞)` on two tori.**  The component `compY` of the image data is the image of `compY`. The
+set `X₁` and the base points of the centres lie in the box of radius `ρ`. -/
+theorem compY_image {ι : Type*} (c : ι → ℕ × CTorus d L N₁ m₁ K) (C : Finset ι)
+    (hc : ∀ i ∈ C, c i ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) j hj) ∧ InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (c i).2)
+    {X₁ : Set (CTorus d L N₁ m₁ K)} (hX : ∀ x ∈ X₁, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x) :
+    compY (fun i => Prod.map id bm (c i)) (bm '' X₁) C = bm '' compY c X₁ C := by
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) m₀ m₁ j
+  have hpatch : patchUnion (bm '' X₁) (fun i => Pset m₁ (Prod.map id bm (c i))) C =
+      bm '' patchUnion X₁ (fun i => Pset m₁ (c i)) C := by
+    unfold patchUnion
+    rw [Set.image_union, Set.image_iUnion₂]
+    congr 1
+    exact Set.iUnion₂_congr fun i hi => (pset_image_q hj hn (hc i hi).1 (hc i hi).2).symm
+  have hVbox : ∀ x ∈ patchUnion X₁ (fun i => Pset m₁ (c i)) C,
+      InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) ((N₁ * L ^ m₁) * L ^ K) x := by
+    rintro x (hx | hx)
+    · exact inBox_mono (by omega) (hX x hx)
+    · simp only [Set.mem_iUnion] at hx
+      obtain ⟨i, hi, hx⟩ := hx
+      obtain ⟨y, hqe, hb⟩ := exists_of_mem_cubeIdx hj (hc i hi).1
+      have h0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) y := by
+        have := (hc i hi).2; rw [hqe] at this; exact this
+      rw [hqe, pset_eq_box hj hb] at hx
+      exact inBox_mono (by omega) (inBox_of_mem_box_right (by omega) h0 hx)
+  unfold compY
+  rw [hpatch]
+  exact (componentOf_image (by omega) (by omega) (fun x hx => Or.inl hx) hVbox).symm
+
 end WithMargins
 
+/-- **T4 (the index type).**  The cube centres of the second torus with base point in the box of
+radius `ρ` are exactly the images, under `Prod.map id boxMap`, of the cube centres of the first
+torus with base point in the box of radius `ρ`. -/
+theorem cubeIdx_filter_image {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
+    (hn : 2 * ρ + 1 < (N₁ * L ^ m₁) * L ^ K) (hn' : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ K) :
+    (cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)).filter
+        (fun q => InBox d ρ ((N₁' * L ^ m₁) * L ^ K) q.2) =
+      ((cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)).filter
+        (fun q => InBox d ρ ((N₁ * L ^ m₁) * L ^ K) q.2)).image (Prod.map id bm) := by
+  ext q
+  simp only [Finset.mem_filter, Finset.mem_image]
+  constructor
+  · rintro ⟨hq, hin⟩
+    obtain ⟨y1, rfl, hb⟩ := exists_of_mem_cubeIdx (N₁ := N₁') hj hq
+    refine ⟨(j, bm' y1), ⟨(mem_cubeIdx_levelGS hj _).2 ⟨rfl, hj1,
+      aligned_boxMap (pow_dvd_side hj N₁') (pow_dvd_side hj N₁) hb⟩, inBox_boxMap hn (show InBox d ρ ((N₁' * L ^ m₁) * L ^ K) y1 from hin)⟩, ?_⟩
+    have hin' : InBox d ρ ((N₁' * L ^ m₁) * L ^ K) y1 := hin
+    show (j, bm (bm' y1)) = (j, y1)
+    rw [boxMap_boxMap hn hin']
+  · rintro ⟨q0, ⟨hq0, hin0⟩, rfl⟩
+    obtain ⟨y, rfl, hb⟩ := exists_of_mem_cubeIdx hj hq0
+    exact ⟨(mem_cubeIdx_levelGS hj _).2 ⟨rfl, hj1,
+      aligned_boxMap (pow_dvd_side hj N₁) (pow_dvd_side hj N₁') hb⟩, inBox_boxMap hn' hin0⟩
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- `Prod.map id boxMap` is injective on the centres with base point in the box. -/
+theorem injOn_idxMap {ρ : ℕ} (hn' : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ K) :
+    Set.InjOn (Prod.map id bm : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁' m₁ K)
+      {q | InBox d ρ ((N₁ * L ^ m₁) * L ^ K) q.2} := fun a ha b hb h =>
+  Prod.ext (by simpa using congrArg Prod.fst h)
+    (boxMap_inj (hm' := hn') ha hb (by simpa using congrArg Prod.snd h))
+
 end Index
+
+/-! ### Agreement of raw data on thick sets, and the instances `lvTop`, `lvLow` -/
+
+section Instances
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {j : ℕ}
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+
+/-- **Agreement of raw data on thick sets.**  If raw data `v, v'` of the second torus restrict, on
+the thick set of `Y`, to the transported raw data `u, u'` of the first torus (`v (boxMap x) = u x`
+for `x` in the thick set), then agreement on the thick set of `boxMap '' Y` is agreement on the
+thick set of `Y`. -/
+theorem agreeOn_thickSet_levelGS_iff {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
+    (hn : 2 * ρ + 7 * L ^ K < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 7 * L ^ K < (N₁' * L ^ m₁) * L ^ K) {Y : Set (CTorus d L N₁ m₁ K)}
+    (hY : ∀ x ∈ Y, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    (u u' : RawData d L (N₁ * L ^ m₁) K N) (v v' : RawData d L (N₁' * L ^ m₁) K N)
+    (hu : ∀ x ∈ thickSet (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+      Y, v.1 (bm x) = u.1 x ∧ v.2 (bm x) = u.2 x ∧ v'.1 (bm x) = u'.1 x ∧ v'.2 (bm x) = u'.2 x) :
+    agreeOn (thickSet (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+        (bm '' Y)) v v' ↔
+      agreeOn (thickSet (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+        Y) u u' := by
+  rw [thickSet_levelGS_image hj1 hj hn hn' hY]
+  constructor
+  · intro h x hx
+    obtain ⟨h1, h2, h3, h4⟩ := hu x hx
+    have := h (bm x) (Set.mem_image_of_mem _ hx)
+    rw [h1, h3] at this; rw [h2, h4] at this
+    exact this
+  · rintro h _ ⟨x, hx, rfl⟩
+    obtain ⟨h1, h2, h3, h4⟩ := hu x hx
+    rw [h1, h2, h3, h4]
+    exact h x hx
+
+/-- `thickSet` of the top level `lvTop` on two step tori. -/
+theorem thickSet_lvTop_image {k : ℕ} {ρ : ℕ} {N₁ N₁' m₁ : ℕ} [NeZero N₁] [NeZero N₁']
+    (hn : 2 * ρ + 7 * 3 ^ (k + 1) < (N₁ * 3 ^ m₁) * 3 ^ (k + 1))
+    (hn' : 2 * ρ + 7 * 3 ^ (k + 1) < (N₁' * 3 ^ m₁) * 3 ^ (k + 1))
+    {Y : Set (CTorus 3 3 N₁ m₁ (k + 1))}
+    (hY : ∀ x ∈ Y, InBox 3 ρ ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) x) (ϱ : ℝ) :
+    thickSet (Balaban.Inhabited.LevelStep.lvTop N₁' m₁ k ϱ)
+        (boxMap ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) ((N₁' * 3 ^ m₁) * 3 ^ (k + 1)) '' Y) =
+      boxMap ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) ((N₁' * 3 ^ m₁) * 3 ^ (k + 1)) ''
+        thickSet (Balaban.Inhabited.LevelStep.lvTop N₁ m₁ k ϱ) Y :=
+  thickSet_levelGS_image (by omega) le_rfl hn hn' hY
+
+/-- `thickSet` of the level `k` set `lvLow` on two step tori (`k ≥ 1`). -/
+theorem thickSet_lvLow_image {k : ℕ} (hk : 1 ≤ k) {ρ : ℕ} {N₁ N₁' m₁ : ℕ} [NeZero N₁]
+    [NeZero N₁']
+    (hn : 2 * ρ + 7 * 3 ^ (k + 1) < (N₁ * 3 ^ m₁) * 3 ^ (k + 1))
+    (hn' : 2 * ρ + 7 * 3 ^ (k + 1) < (N₁' * 3 ^ m₁) * 3 ^ (k + 1))
+    {Y : Set (CTorus 3 3 N₁ m₁ (k + 1))}
+    (hY : ∀ x ∈ Y, InBox 3 ρ ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) x) (ϱ : ℝ) :
+    thickSet (Balaban.Inhabited.LevelStep.lvLow N₁' m₁ k ϱ)
+        (boxMap ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) ((N₁' * 3 ^ m₁) * 3 ^ (k + 1)) '' Y) =
+      boxMap ((N₁ * 3 ^ m₁) * 3 ^ (k + 1)) ((N₁' * 3 ^ m₁) * 3 ^ (k + 1)) ''
+        thickSet (Balaban.Inhabited.LevelStep.lvLow N₁ m₁ k ϱ) Y :=
+  thickSet_levelGS_image hk (Nat.le_succ k) hn hn' hY
+
+end Instances
 
 end Balaban.Polymer.TwoTorusStep
