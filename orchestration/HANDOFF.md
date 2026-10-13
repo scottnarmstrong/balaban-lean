@@ -12,8 +12,8 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W298 | `w298-det-cauchy-hull` / W298 | canonical hull of a rooted cut set: polymer, size bound, symmetry (DETCAUCHY package 5) |
-| W303 | `w303-param-subspace` / W303 | physical activity family over the open subset of the layer-constant data subspace (repair after W292) |
+| W310 | `w310-scale-mass-weight` / W310 | mass premise for k ≤ k₀ and weight-uniform constants (SCALEUNIF) |
+| W311 | `w311-level-step-setting` / W311 | hatStepK: the step setting at general scale; BgHyp, DGSetting/OpSetting, HatConn (SCALEUNIF) |
 | W306 | `w306-root-mark-geom` / W306 | root geometry for the marked expansion (MARKS package 1) |
 | W307 | `w307-det-cauchy-chart` / W307 | composed cut family for the determinant: DecDom membership, Schwarz bound, endpoint (DETCAUCHY package 1) |
 | W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
