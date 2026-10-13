@@ -507,6 +507,100 @@ theorem commonWitness_extra_of_witness {κmin : ℝ} (T : StepTower κmin)
   simpa only [one_mul] using hz.2.1
 
 open Classical in
+/-- **The amplitude of the source direct terms at the slice `η = 1/β`, general tower.**  The statement
+of `commonWitness_amplitude_fromTower` at `T : StepTowerG d L N κmin` (block scale `T.m₀`, scale
+`β L^{k (d-2)}`); the fixed theorem is its corollary.  Original description of the fixed theorem:    For the tower `T` there are
+`β₀, C_E, C_F` such that at every admissible scale the amplitude `ε_U = β · ε^{η}` of the slice
+`η = 1/β` is positive, satisfies `4 ε_U ≤ C_E (log b)^{3p}/√b + C_F (log b)^p/√b`
+(`b = β 3^k`), and `2 (2 ε_U)` is at most the amplitude threshold of the activity records at the
+entropy constant `2 (K₀ + 1)`.  These are the numerical inputs of `sourceWitness_analytic_fromTower`,
+without the direct terms. -/
+theorem commonWitness_amplitude_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ CE CF : ℝ, 2 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν : ℝ), 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ p₁ : ℝ, 0 < p₁ →
+    p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) → StepScaleDataG T k hk N₁ ν β p₁ →
+    0 < β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β) ∧
+    4 * (β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β)) ≤
+      CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+        CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
+    2 * (2 * (β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β))) ≤
+      1 / (8 * (2 * (K0 d L T.κ0 + 1)) ^ 3 * c1 d L *
+        Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG d L + c1 d L + T.κ' * cG d L))   := by
+  classical
+  have hd := T.hd
+  have hL := T.hL
+  have hN := T.hN
+  have hd0 : 0 < d := by omega
+  have hent := aEnt_nonneg d L
+  have hc1 := one_le_c1 d L
+  have ht0 := T.t_pos
+  have hρ4 := T.rho_nonneg
+  have hB0 := T.fam_nonneg
+  have hκ0 := T.κ0_nonneg
+  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' d L N (famConst d L T.BG₂ T.κ) := ⟨_, rfl⟩
+  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos_general hB0
+  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
+    ((L : ℝ) ^ d * (((N : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
+      ((d : ℝ) + 1 + rho4 d L N T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
+  have hP0 : 0 ≤ P := by
+    rw [hPdef]; positivity
+  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
+  have hκ1 := lvKappaG_pos hd0 hL (by omega : 1 ≤ N) T.κ ht0
+  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale_general (d := d) (L := L) (N := N) hd0 hL
+    (by omega) (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
+  obtain ⟨Kc'', hKc''⟩ : ∃ x : ℝ, x = K0 d L T.κ0 + 1 := ⟨_, rfl⟩
+  have hKc''pos : 0 < Kc'' := by have := K0_pos d L T.κ0; rw [hKc'']; linarith
+  have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
+  have hκ'0 : 0 ≤ T.κ' := by rw [T.κ'_eq]; linarith
+  obtain ⟨CE, hCE⟩ : ∃ x : ℝ, x = 4 * (P * (4 * A₁ / lvKappaG d L N T.κ T.t) ^ 3 + 1) := ⟨_, rfl⟩
+  obtain ⟨CF, hCF⟩ : ∃ x : ℝ, x = 16 * A₁ * (Q * T.t) / lvKappaG d L N T.κ T.t := ⟨_, rfl⟩
+  have hCE0 : 0 < CE := by rw [hCE]; positivity
+  have hCF0 : 0 < CF := by rw [hCF]; positivity
+  refine ⟨max (max 2 β₁) (daThreshold ((CE + CF) / 4)
+      (daT d L 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p)),
+    CE, CF, le_trans (le_max_left _ _) (le_max_left _ _), hCE0, hCF0, ?_⟩
+  intro k hk N₁ _ ν hνpos hν β hβ p₁ hp0 hp₁ D
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hβ)
+  have hβd : daThreshold ((CE + CF) / 4)
+      (daT d L 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p) ≤ β := le_trans (le_max_right _ _) hβ
+  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hβ)
+  have hβ0 : 0 < β := by linarith
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have h3k : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
+  have hbβ : β ≤ β * (L : ℝ) ^ (k * (d - 2)) := le_mul_of_one_le_right hβ0.le h3k
+  have hb0 : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by positivity
+  have hexp : Real.exp 1 ≤ β * (L : ℝ) ^ (k * (d - 2)) := le_trans hexpβ₁ (hβ₁.trans hbβ)
+  have hℓ : 1 ≤ Real.log (β * (L : ℝ) ^ (k * (d - 2))) := (Real.le_log_iff_exp_le hb0).2 hexp
+  have hamp := (hA' (β * (L : ℝ) ^ (k * (d - 2))) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) 1 hP0
+    hK0.le one_pos.le
+  have hr0 := D.r_pos
+  obtain ⟨εU, hεU⟩ : ∃ εU : ℝ, εU = β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ
+      T.t (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β) := ⟨_, rfl⟩
+  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * (L : ℝ) ^ (k * (d - 2)) :=
+    hatStepKG_betaU (d := d) (L := L) (N₁ := N₁) hN (by omega) k T.m₁ (rhoSepG d L T.m₁) hk ν β
+      p₁ T.δ
+  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (T.step k hk N₁ ν β p₁)
+    (by omega) hL T.m₀ (compWeight_one_mem hL hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 one_pos hQdef
+    hPdef hεU
+  have hεle := hεle' _ hamp
+  have hε4 := sourceAmp_scale_four_general (A₁ := A₁) (κ₁ := lvKappaG d L N T.κ T.t) (P := P)
+    (K := Q * T.t) (q := 1) (CE := CE) (CF := CF) p hb0 (by linarith) hCE hCF hεle
+  have hDA0 := sourceAmp_doubled_hDA_rho_general d L (A₁ := A₁) (κ₁ := lvKappaG d L N T.κ T.t)
+    (P := P) (K := Q * T.t) (q := 1) (ρ := 1) (b := β * (L : ℝ) ^ (k * (d - 2))) (ε := εU)
+    (Kc' := Kc'') (CE := CE) (CF := CF) p hA hκ1 hP0 hK0.le zero_le_one le_rfl hCE hCF hℓ hb0
+    hKc''pos T.κdec T.κ0 T.κ' (by simpa only [one_mul] using hβd.trans hbβ) hεle
+  subst hKc''
+  rw [hεU] at hεpos hε4 hDA0
+  rw [one_mul] at hε4
+  exact ⟨hεpos, hε4, hDA0⟩
+
+open Classical in
 /-- **The amplitude of the source direct terms at the slice `η = 1/β`.**  For the tower `T` there are
 `β₀, C_E, C_F` such that at every admissible scale the amplitude `ε_U = β · ε^{η}` of the slice
 `η = 1/β` is positive, satisfies `4 ε_U ≤ C_E (log b)^{3p}/√b + C_F (log b)^p/√b`
@@ -530,67 +624,14 @@ theorem commonWitness_amplitude_fromTower {κmin : ℝ} (T : StepTower κmin) {A
       1 / (8 * (2 * (K0 3 3 T.κ0 + 1)) ^ 3 * c1 3 3 *
         Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3)) := by
   classical
-  have hent := aEnt_nonneg 3 3
-  have hc1 := one_le_c1 3 3
-  have ht0 := T.t_pos
-  have hρ4 := T.rho_nonneg
-  have hB0 := T.fam_nonneg
-  have hκ0 := T.κ0_nonneg
-  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) := ⟨_, rfl⟩
-  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos' hB0
-  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-    (((3 : ℕ) : ℝ) ^ 3 * ((((2 : ℕ) : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
-      (((3 : ℕ) : ℝ) + 1 + rho4 3 3 2 T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
-  have hP0 : 0 ≤ P := by
-    rw [hPdef]; positivity
-  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
-  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
-  obtain ⟨Kc'', hKc''⟩ : ∃ x : ℝ, x = K0 3 3 T.κ0 + 1 := ⟨_, rfl⟩
-  have hKc''pos : 0 < Kc'' := by have := K0_pos 3 3 T.κ0; rw [hKc'']; linarith
-  have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
-  have hκ'0 : 0 ≤ T.κ' := by rw [T.κ'_eq]; linarith
-  have hκa' : T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := by
-    rw [T.κ'_eq, T.κdec_eq]; linarith
-  refine ⟨max (max 2 β₁) (daThreshold ((srcCE A₁ T.κ T.t P + srcCF A₁ T.κ T.t (Q * T.t)) / 4)
-      (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p)),
-    srcCE A₁ T.κ T.t P, srcCF A₁ T.κ T.t (Q * T.t),
-    le_trans (le_max_left _ _) (le_max_left _ _), srcCE_pos hA ht0 hP0,
-    srcCF_pos hA ht0 hK0, ?_⟩
+  obtain ⟨β₀, CE, CF, h2, hCE, hCF, H⟩ := commonWitness_amplitude_fromTowerG T.toG hA p
+  refine ⟨β₀, CE, CF, h2, hCE, hCF, ?_⟩
   intro k hk N₁ _ ν hνpos hν β hβ p₁ hp0 hp₁ D
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hβ)
-  have hβd : daThreshold ((srcCE A₁ T.κ T.t P + srcCF A₁ T.κ T.t (Q * T.t)) / 4)
-      (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p) ≤ β := le_trans (le_max_right _ _) hβ
-  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hβ)
-  have hβ0 : 0 < β := by linarith
-  have hβ1 : 1 ≤ β := by linarith
-  have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-  have hbβ : β ≤ β * 3 ^ k := le_mul_of_one_le_right hβ0.le h3k
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
-  have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
-  have hamp := (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) 1 hP0 hK0.le one_pos.le
-  have hr0 := D.r_pos
-  -- the physical amplitude on the slice `η = 1/β`
-  set εU : ℝ := β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β) with hεU
-  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * 3 ^ k := hatStepK_betaU k T.m₁ hk ν β p₁ _
-  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (T.step k hk N₁ ν β p₁)
-    (by norm_num) le_rfl 1 (compWeight_three_mem hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 one_pos hQdef hPdef hεU
-  have hεle := hεle' _ hamp
-  have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t)
-    (q := 1) p hb0 (by linarith) hεle
-  have hDA0 := sourceAmp_doubled_hDA 3 3 (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P)
-    (K := Q * T.t) (q := 1) (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le le_rfl
-    hℓ hb0 hKc''pos T.κdec T.κ0 T.κ' (hβd.trans hbβ) hεle
-  have hbound : 4 * εU ≤ srcCE A₁ T.κ T.t P * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
-      srcCF A₁ T.κ T.t (Q * T.t) * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
-    have := hε4
-    rw [one_mul] at this
-    exact this
-  subst hKc''
-  exact ⟨hεpos, hbound, hDA0⟩
-
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have G := H k hk N₁ ν hνpos (by simpa using hν) β hβ p₁ hp0 (by rw [e]; exact hp₁)
+    (StepTower.scaleDataG_of_fixed T D)
+  rw [e] at G
+  exact G
 
 open Classical in
 /-- **The full joint statement on the common source witness, sources of `ℓ¹`-size `< ρ`.**
