@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.StepComplexOffFibreAction
+public import Balaban.Fluctuation.StepComplexJointH
 import Mathlib.Tactic.Ring
 
 /-!
@@ -141,5 +142,68 @@ theorem integrandC_eq
     rfl
 
 end StepSettingH
+
+namespace StepSetting.JointRep
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ eps pp : ℝ}
+  {S : StepSetting d L N₁ m₁ k N ϱ} (Jr : S.JointRep eps pp)
+  (H : StepSettingH S) (C : StepClass d L N₁ m₁ k N ϱ)
+  {c BG κ Kc Cx c₂ BG₂ δ₁ δc : ℝ}
+
+/-- The joint kernel and density have the Gaussian pointwise integrand at an arbitrary datum. -/
+theorem integrandJ_eq
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 1 < R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hβ : 0 < S.β) (hp₁ : 0 < S.p₁) (hpp : S.p₁ ≤ pp)
+    (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+      (covSupConstC d L N (compWeight L S.a₁ k) κ * S.p₁)) < δ₁)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
+    (g : Fld d L N₁ m₁ (k + 1) N)
+    (x : S.E) (hx : chiFl S.U N S.p₁ x = 1) :
+    let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
+    Jr.tKJ (rawOf H.D', yhat x) * Jr.rhoJ C g (rawOf H.D', yhat x) =
+      (((S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) : ℝ) : ℂ) *
+        Complex.exp (-(S.β : ℂ) *
+          actionRawC S.G' S.a S.ν H.D'.Ψ H.D'.h
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') +
+          EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) B -
+          (C.Ek : ℂ) * (S.nU : ℂ) +
+          FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) B g) *
+        ((gaussWeight S.U N x : ℝ) : ℂ) *
+        Complex.exp (Jr.W1 C (rawOf H.D', yhat x) +
+          Jr.W2 C g (rawOf H.D', yhat x)) := by
+  dsimp only
+  have h1 : (1 : ℝ) ∈ Set.Icc (0 : ℝ) 1 := Set.right_mem_Icc.2 zero_le_one
+  have hbound : ∀ p, ‖(yhat x) p‖ ≤ pp := by
+    intro p
+    have h := S.norm_smul_yhat_le hp₁ h1 hx p
+    simpa only [Complex.ofReal_one, one_smul] using h.trans hpp
+  have hcrit : H.dataUCH
+      ((fun q =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+            (unitRep (G' := S.G') q.1) q.2) +
+        S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') 0) =
+      composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' := by
+    have hz : S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') (0 : S.EC) = 0 := by
+      unfold StepSetting.hatField
+      rw [Matrix.mulVec_zero, smul_zero]
+    rw [hz, add_zero]
+    exact H.dataUCH_psi0C
+  rw [Jr.tKJ_dataUCH H hD (yhat x), Jr.rhoJ_dataUCH H C hD hbound g,
+    Jr.W1_dataUCH H C hD hbound, Jr.W2_dataUCH H C hD hbound g, hcrit]
+  have hint := H.integrandC_eq hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hδ₁ hD C g x hx
+  dsimp only at hint
+  rw [actionC_eq_rawC]
+  simpa only [neg_mul, add_assoc] using hint
+
+end StepSetting.JointRep
 
 end Balaban.Fluctuation
