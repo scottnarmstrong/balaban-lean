@@ -62,6 +62,119 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps : ℝ}
 
 
+/-- **Ray-differentiable form of `hat_fparts_bound_dm_dir_eta`.**  The statement of `hat_fparts_bound_dm_dir_eta` together with the
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    {R₁ : ℝ} (hR₁ : 1 < R₁) {r Rσ : ℝ} (hr : 0 < r)
+    {η : ℝ} (hη0 : 0 < η)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsmX : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {m₀ : ℕ}
+    {jF : CTorus d L N₁ m₁ (k + 1) × Fin N → ℕ}
+    {XF 𝒦XF : CTorus d L N₁ m₁ (k + 1) × Fin N → Set (CTorus d L N₁ m₁ (k + 1))}
+    {X₁F : CTorus d L N₁ m₁ (k + 1) × Fin N → Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hcovF : ∀ s, CovSetup Gp (m₀) (jF s) (XF s) (𝒦XF s))
+    (hX₁F : ∀ s, (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀) (jF s) (𝒦XF s))
+    (hoptF : ∀ s, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XF s) ∧ MeetsOne (m₀) (jF s) (𝒦XF s) W₀ ∧
+        bondCost (scaleW L (m₀) m₁ (jF s)) E₀ = treeLenCovOne (m₀) (jF s) (XF s))
+    (hΔF : ∀ s, treeLenCovOne (m₀) (jF s) (XF s) = 0)
+    (hlogF : ∀ _s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+      Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hyF : ∀ s : CTorus d L N₁ m₁ (k + 1) × Fin N, s.1 ∈ X₁F s) :
+    ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) → (unitPts Gp × Fin N → ℂ) →
+        ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ,
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η)
+        (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (Finset.univ.biUnion fun s => polymerDomains
+          (fun i : ParIdx Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ (jF s) (𝒦XF s))) T
+        (fun x w σ p => ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, p.2 s.1 s.2 *
+          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
+            (fun D ψ' => svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ') s.1 s.2)))
+            (fun _ => (1 : ℂ)) x w σ p.1)
+        (fun Y => (η * (cK2' d L N (famConst d L BG₂ κ) * δ₁) / r) *
+          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
+      ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
+        q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
+        ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
+        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 q) (ball (0 : ℂ) (3 / 2))) := by
+  classical
+  have hd : 3 ≤ d := hC.HBp.hd
+  have hd0 : 0 < d := by omega
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hK2 : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  have hr3 : 0 < r ^ 3 := by positivity
+  have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
+  have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
+  -- the sites of the source
+  have hexF := fun s : CTorus d L N₁ m₁ (k + 1) × Fin N =>
+    fsite_base_locInt_hat_dir_dm_ray hC hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ (hcovF s) (hX₁F s) hconn hrow
+      (hoptF s) (hΔF s) hκ₀ hκdec hκ h1 (hlogF s) s.1 (hyF s) s.2 (ω := fun _ => (1 : ℂ))
+      continuous_const hR₁ analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr
+      (Rσ := Rσ)
+  choose EvF hEvF hrayF using hexF
+  have hLF := LocIntDm.wsum (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) × Fin N))
+    (𝒴 := fun s => polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)) (fun s _ => hEvF s)
+    (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (amp := fun s g => g s.1 s.2)
+    (fun s _ => (analyticOnNhd_coord s.1 s.2).mono (Set.subset_univ _))
+    (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
+    (fun s _ Y hY g _ g' _ hag => by
+      have h1' := subset_polyDom hY
+      rw [← hX₁F s] at h1'
+      exact congrFun (hag s.1 (h1' (Finset.mem_coe.2 (hyF s)))) s.2)
+    (B := fun Y => (η * (cK2' d L N (famConst d L BG₂ κ) * δ₁) / r) *
+      Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+    (fun Y _ g hg => by
+      have ht0 := treeLenCov_nonneg Gp m₀ Y
+      rw [← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
+      set β := 1 * (((cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) / r) with hβ
+      have hβ0 : 0 ≤ β := by positivity
+      have hβle : β ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁ / r) *
+          Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y) := by
+        rw [hβ, one_mul, mul_div_right_comm]
+        refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 (by nlinarith)) (by positivity)
+      have hsum : ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖ ≤ η := by
+        rw [Fintype.sum_prod_type]; exact hg.2
+      calc ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, (if Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s) then
+            ‖g s.1 s.2‖ * β else 0) ≤ ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖ * β :=
+            Finset.sum_le_sum fun s _ => by
+              split_ifs
+              · exact le_rfl
+              · exact mul_nonneg (norm_nonneg _) hβ0
+        _ = (∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖) * β := by rw [Finset.sum_mul]
+        _ ≤ η * β := mul_le_mul_of_nonneg_right hsum hβ0
+        _ ≤ η * ((cK2' d L N (famConst d L BG₂ κ) * δ₁ / r) *
+            Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y)) :=
+            mul_le_mul_of_nonneg_left hβle hη0.le
+        _ = _ := by ring)
+  refine ⟨_, hLF, ?_⟩
+  intro Y q hq ψ hψ
+  apply DifferentiableOn.fun_sum
+  intro s _
+  by_cases hY : Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)
+  · simp only [hY, if_true]
+    exact (differentiableOn_const _).mul (hrayF s Y q.1 hq.1 ψ hψ)
+  · simp only [hY, if_false]; exact differentiableOn_const _
+
 /-- The source sites with the resummed bound (sharp hat version). -/
 theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
@@ -107,6 +220,67 @@ theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
         (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
   classical
+  exact (hat_fparts_bound_dm_dir_eta_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ (m₀ := m₀) (jF := jF) (XF := XF) (𝒦XF := 𝒦XF) (X₁F := X₁F) hcovF hX₁F hoptF hΔF hlogF hyF).imp fun _ h => h.1
+
+/-- **Ray-differentiable form of `hat_mparts_bound_dm_dir_eta`.**  The statement of `hat_mparts_bound_dm_dir_eta` together with the
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+theorem hat_mparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    {R₁ : ℝ} (hR₁ : 1 < R₁) {r Rσ : ℝ} (hr : 0 < r)
+    {η : ℝ} (hη0 : 0 < η)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsmX : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {m₀ : ℕ}
+    {μι : Type*} [DecidableEq μι] (𝒯M : Finset μι) {ϱ₁M ϱ₂M : μι → ℝ}
+    {GkM : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁M τ)}
+    {GjM : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂M τ)} {r₀ δ₃ δfl : ℝ}
+    {X₀M X₁M : μι → Finset (CTorus d L N₁ m₁ (k + 1))} {jM : μι → ℕ}
+    {XM 𝒦XM : μι → Set (CTorus d L N₁ m₁ (k + 1))} {EbM : μι → ℝ}
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N) (hys : ∀ τ ∈ 𝒯M, ys τ ∈ X₁M τ)
+    (hBM : ∀ τ ∈ 𝒯M, BgSetting N Gp (GkM τ) (GjM τ) a₁ ν c BG κ r₀ eps δ₃ (X₀M τ) (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ 𝒯M, FlSetting N Gp (GkM τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁M τ))
+    (hcovM : ∀ τ ∈ 𝒯M, CovSetup Gp (m₀) (jM τ) (XM τ) (𝒦XM τ))
+    (hX₁M : ∀ τ ∈ 𝒯M, (↑(X₁M τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀) (jM τ) (𝒦XM τ))
+    (hoptM : ∀ τ ∈ 𝒯M, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XM τ) ∧ MeetsOne (m₀) (jM τ) (𝒦XM τ) W₀ ∧
+        bondCost (scaleW L (m₀) m₁ (jM τ)) E₀ = treeLenCovOne (m₀) (jM τ) (XM τ))
+    (hlogM : ∀ τ ∈ 𝒯M, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) *
+      (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEbM : ∀ τ ∈ 𝒯M, 0 ≤ EbM τ) {EM : μι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEanM : ∀ τ ∈ 𝒯M, AnalyticOnNhd ℂ (EM τ) (XiCRaw (GjM τ) (compWeight L a₁) ν (jM τ)
+      (scaledC0 d) (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbdM : ∀ τ ∈ 𝒯M, ∀ r ∈ XiCRaw (GjM τ) (compWeight L a₁) ν (jM τ) (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖EM τ r‖ ≤ EbM τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀) (jM τ) (XM τ)))
+    {ρM : ℝ} (hρM0 : 0 ≤ ρM)
+    (hρM : ∀ p : CTorus d L N₁ m₁ (k + 1) × Fin N, ∑ τ ∈ 𝒯M.filter (fun τ => (ys τ, is τ) = p),
+      EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ) (XM τ)) ≤ ρM) :
+    ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) → (unitPts Gp × Fin N → ℂ) →
+        ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ,
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η)
+        (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (𝒯M.biUnion fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) T
+        (fun x w σ p => ∑ τ ∈ 𝒯M, if h : τ ∈ 𝒯M then
+          p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
+            (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x w σ p.1 else 0)
+        (fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
+      ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
+        q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
+        ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
+        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 q) (ball (0 : ℂ) (3 / 2))) := by
+  classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
   have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
@@ -118,49 +292,87 @@ theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
   have hr3 : 0 < r ^ 3 := by positivity
   have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
   have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
-  -- the sites of the source
-  have hexF := fun s : CTorus d L N₁ m₁ (k + 1) × Fin N =>
-    fsite_base_locInt_hat_dir_dm hC hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ (hcovF s) (hX₁F s) hconn hrow
-      (hoptF s) (hΔF s) hκ₀ hκdec hκ h1 (hlogF s) s.1 (hyF s) s.2 (ω := fun _ => (1 : ℂ))
-      continuous_const hR₁ analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr
-      (Rσ := Rσ)
-  choose EvF hEvF using hexF
-  have hLF := LocIntDm.wsum (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) × Fin N))
-    (𝒴 := fun s => polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)) (fun s _ => hEvF s)
-    (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (amp := fun s g => g s.1 s.2)
-    (fun s _ => (analyticOnNhd_coord s.1 s.2).mono (Set.subset_univ _))
+  -- the observable terms
+  have hexM : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯M →
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ))
+        (fun Y x₀ w σ Θ => dirTerm (Ev Y) (fun _ => (1 : ℂ)) x₀ w σ Θ)
+        (fun x₀ w σ Θ => if h : τ ∈ 𝒯M then
+          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hBM τ h) (hFM τ h) (EM τ)))
+            (fun _ => (1 : ℂ)) x₀ w σ Θ else 0)
+        (fun Y => 1 * ((EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ)
+          (XM τ) - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') ∧
+      (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+        Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
+        (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
+        DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) (fun _ => (1 : ℂ)) (z • ψ) (z • ψ) 1 Θ)
+          (ball (0 : ℂ) (3 / 2))) := by
+    intro τ
+    by_cases hτ : τ ∈ 𝒯M
+    · obtain ⟨Ev, hEv, hrayEv⟩ := eterm_locInt_hat_dm_dir_ray (hBM τ hτ) (hFM τ hτ) hk hG hG' cc hcψ hMX hdm hα hsmX
+        hδ₁ (hcovM τ hτ) (hX₁M τ hτ) hconn hrow (hoptM τ hτ) hκ₀ hκdec hκ h1 (hlogM τ hτ)
+        (hEbM τ hτ) (hEanM τ hτ) (hEbdM τ hτ) (ω := fun _ => (1 : ℂ)) continuous_const hR₁
+        analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr (Rσ := Rσ)
+      exact ⟨Ev, fun _ => ⟨by simpa [hτ] using hEv, hrayEv⟩⟩
+    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
+  choose EvM hEvM' using hexM
+  have hEvM := fun τ hτ => (hEvM' τ hτ).1
+  have hLM := LocIntDm.wsum 𝒯M (𝒴 := fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ))
+    (fun τ hτ => hEvM τ hτ) (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (amp := fun τ g => g (ys τ) (is τ))
+    (fun τ _ => (analyticOnNhd_coord (ys τ) (is τ)).mono (Set.subset_univ _))
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
-    (fun s _ Y hY g _ g' _ hag => by
+    (fun τ hτ Y hY g _ g' _ hag => by
       have h1' := subset_polyDom hY
-      rw [← hX₁F s] at h1'
-      exact congrFun (hag s.1 (h1' (Finset.mem_coe.2 (hyF s)))) s.2)
-    (B := fun Y => (η * (cK2' d L N (famConst d L BG₂ κ) * δ₁) / r) *
-      Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+      rw [← hX₁M τ hτ] at h1'
+      exact congrFun (hag (ys τ) (h1' (Finset.mem_coe.2 (hys τ hτ)))) (is τ))
+    (B := fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
     (fun Y _ g hg => by
+      classical
       have ht0 := treeLenCov_nonneg Gp m₀ Y
       rw [← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
-      set β := 1 * (((cK2' d L N (famConst d L BG₂ κ) * δ₁) *
-          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) / r) with hβ
-      have hβ0 : 0 ≤ β := by positivity
-      have hβle : β ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁ / r) *
-          Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y) := by
-        rw [hβ, one_mul, mul_div_right_comm]
-        refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 (by nlinarith)) (by positivity)
-      have hsum : ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖ ≤ η := by
-        rw [Fintype.sum_prod_type]; exact hg.2
-      calc ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, (if Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s) then
-            ‖g s.1 s.2‖ * β else 0) ≤ ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖ * β :=
-            Finset.sum_le_sum fun s _ => by
-              split_ifs
-              · exact le_rfl
-              · exact mul_nonneg (norm_nonneg _) hβ0
-        _ = (∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, ‖g s.1 s.2‖) * β := by rw [Finset.sum_mul]
-        _ ≤ η * β := mul_le_mul_of_nonneg_right hsum hβ0
-        _ ≤ η * ((cK2' d L N (famConst d L BG₂ κ) * δ₁ / r) *
-            Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y)) :=
-            mul_le_mul_of_nonneg_left hβle hη0.le
+      set w : μι → ℝ := fun τ => EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ) (XM τ)) with hw
+      have hw0 : ∀ τ ∈ 𝒯M, 0 ≤ w τ := fun τ hτ => mul_nonneg (hEbM τ hτ) (Real.exp_pos _).le
+      have hq : 0 ≤ Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r := by positivity
+      have hws := sum_weighted_le_eta 𝒯M w (fun τ => (ys τ, is τ))
+        (fun p : CTorus d L N₁ m₁ (k + 1) × Fin N => ‖g p.1 p.2‖) (fun p => norm_nonneg _)
+        (η := η) (by rw [Fintype.sum_prod_type]; exact hg.2) hρM0 hρM
+      calc ∑ τ ∈ 𝒯M, (if Y ∈ polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ) then
+            ‖g (ys τ) (is τ)‖ * (1 * ((EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ)
+              (XM τ) - 2 * κdec * treeLenCov Gp m₀ Y)) / r)) else 0)
+          ≤ ∑ τ ∈ 𝒯M, (‖g (ys τ) (is τ)‖ * w τ) *
+              (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) := by
+            refine Finset.sum_le_sum fun τ hτ => ?_
+            split_ifs
+            · refine le_of_eq ?_
+              simp only [hw, one_mul]
+              rw [sub_eq_add_neg, show -κ₀ * treeLenCovOne m₀ (jM τ) (XM τ) +
+                -(2 * κdec * treeLenCov Gp m₀ Y) = -κ₀ * treeLenCovOne m₀ (jM τ) (XM τ) +
+                (-2 * κdec * treeLenCov Gp m₀ Y) by ring, Real.exp_add]
+              ring
+            · exact mul_nonneg (mul_nonneg (norm_nonneg _) (hw0 τ hτ)) hq
+        _ = (∑ τ ∈ 𝒯M, ‖g (ys τ) (is τ)‖ * w τ) *
+              (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) := by rw [Finset.sum_mul]
+        _ ≤ (η * ρM) * (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) :=
+            mul_le_mul_of_nonneg_right hws hq
+        _ ≤ (η * ρM) * (Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y) / r) := by
+            refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hη0.le hρM0)
+            exact div_le_div_of_nonneg_right (Real.exp_le_exp.2 (by nlinarith)) hr.le
         _ = _ := by ring)
-  exact ⟨_, hLF⟩
+  have hLM' := hLM.congr_val (val' := fun x w σ p => ∑ τ ∈ 𝒯M, if h : τ ∈ 𝒯M then
+      p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
+        (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x w σ p.1 else 0)
+    (fun xw _ σ _ p _ => Finset.sum_congr rfl fun τ hτ => by simp [hτ])
+  refine ⟨_, hLM', ?_⟩
+  intro Y q hq ψ hψ
+  apply DifferentiableOn.fun_sum
+  intro τ hτ
+  by_cases hY : Y ∈ polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)
+  · simp only [hY, if_true]
+    exact (differentiableOn_const _).mul ((hEvM' τ hτ).2 Y q.1 hq.1 ψ hψ)
+  · simp only [hY, if_false]; exact differentiableOn_const _
 
 /-- The observable terms with the resummed bound (sharp hat version). -/
 theorem hat_mparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
@@ -215,85 +427,7 @@ theorem hat_mparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
         (fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
         (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
   classical
-  have hd : 3 ≤ d := hC.HBp.hd
-  have hd0 : 0 < d := by omega
-  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hK2 : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  have hr3 : 0 < r ^ 3 := by positivity
-  have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
-  have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
-  -- the observable terms
-  have hexM : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
-      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯M →
-      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
-        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
-        (polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ))
-        (fun Y x₀ w σ Θ => dirTerm (Ev Y) (fun _ => (1 : ℂ)) x₀ w σ Θ)
-        (fun x₀ w σ Θ => if h : τ ∈ 𝒯M then
-          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hBM τ h) (hFM τ h) (EM τ)))
-            (fun _ => (1 : ℂ)) x₀ w σ Θ else 0)
-        (fun Y => 1 * ((EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ)
-          (XM τ) - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
-    intro τ
-    by_cases hτ : τ ∈ 𝒯M
-    · obtain ⟨Ev, hEv⟩ := eterm_locInt_hat_dm_dir (hBM τ hτ) (hFM τ hτ) hk hG hG' cc hcψ hMX hdm hα hsmX
-        hδ₁ (hcovM τ hτ) (hX₁M τ hτ) hconn hrow (hoptM τ hτ) hκ₀ hκdec hκ h1 (hlogM τ hτ)
-        (hEbM τ hτ) (hEanM τ hτ) (hEbdM τ hτ) (ω := fun _ => (1 : ℂ)) continuous_const hR₁
-        analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr (Rσ := Rσ)
-      exact ⟨Ev, fun _ => by simpa [hτ] using hEv⟩
-    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
-  choose EvM hEvM using hexM
-  have hLM := LocIntDm.wsum 𝒯M (𝒴 := fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ))
-    (fun τ hτ => hEvM τ hτ) (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (amp := fun τ g => g (ys τ) (is τ))
-    (fun τ _ => (analyticOnNhd_coord (ys τ) (is τ)).mono (Set.subset_univ _))
-    (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
-    (fun τ hτ Y hY g _ g' _ hag => by
-      have h1' := subset_polyDom hY
-      rw [← hX₁M τ hτ] at h1'
-      exact congrFun (hag (ys τ) (h1' (Finset.mem_coe.2 (hys τ hτ)))) (is τ))
-    (B := fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-    (fun Y _ g hg => by
-      classical
-      have ht0 := treeLenCov_nonneg Gp m₀ Y
-      rw [← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
-      set w : μι → ℝ := fun τ => EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ) (XM τ)) with hw
-      have hw0 : ∀ τ ∈ 𝒯M, 0 ≤ w τ := fun τ hτ => mul_nonneg (hEbM τ hτ) (Real.exp_pos _).le
-      have hq : 0 ≤ Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r := by positivity
-      have hws := sum_weighted_le_eta 𝒯M w (fun τ => (ys τ, is τ))
-        (fun p : CTorus d L N₁ m₁ (k + 1) × Fin N => ‖g p.1 p.2‖) (fun p => norm_nonneg _)
-        (η := η) (by rw [Fintype.sum_prod_type]; exact hg.2) hρM0 hρM
-      calc ∑ τ ∈ 𝒯M, (if Y ∈ polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ) then
-            ‖g (ys τ) (is τ)‖ * (1 * ((EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ)
-              (XM τ) - 2 * κdec * treeLenCov Gp m₀ Y)) / r)) else 0)
-          ≤ ∑ τ ∈ 𝒯M, (‖g (ys τ) (is τ)‖ * w τ) *
-              (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) := by
-            refine Finset.sum_le_sum fun τ hτ => ?_
-            split_ifs
-            · refine le_of_eq ?_
-              simp only [hw, one_mul]
-              rw [sub_eq_add_neg, show -κ₀ * treeLenCovOne m₀ (jM τ) (XM τ) +
-                -(2 * κdec * treeLenCov Gp m₀ Y) = -κ₀ * treeLenCovOne m₀ (jM τ) (XM τ) +
-                (-2 * κdec * treeLenCov Gp m₀ Y) by ring, Real.exp_add]
-              ring
-            · exact mul_nonneg (mul_nonneg (norm_nonneg _) (hw0 τ hτ)) hq
-        _ = (∑ τ ∈ 𝒯M, ‖g (ys τ) (is τ)‖ * w τ) *
-              (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) := by rw [Finset.sum_mul]
-        _ ≤ (η * ρM) * (Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) / r) :=
-            mul_le_mul_of_nonneg_right hws hq
-        _ ≤ (η * ρM) * (Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y) / r) := by
-            refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hη0.le hρM0)
-            exact div_le_div_of_nonneg_right (Real.exp_le_exp.2 (by nlinarith)) hr.le
-        _ = _ := by ring)
-  have hLM' := hLM.congr_val (val' := fun x w σ p => ∑ τ ∈ 𝒯M, if h : τ ∈ 𝒯M then
-      p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
-        (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x w σ p.1 else 0)
-    (fun xw _ σ _ p _ => Finset.sum_congr rfl fun τ hτ => by simp [hτ])
-  exact ⟨_, hLM'⟩
+  exact (hat_mparts_bound_dm_dir_eta_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ (m₀ := m₀) (μι := μι) 𝒯M (ϱ₁M := ϱ₁M) (ϱ₂M := ϱ₂M) (GkM := GkM) (GjM := GjM) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀M := X₀M) (X₁M := X₁M) (jM := jM) (XM := XM) (𝒦XM := 𝒦XM) (EbM := EbM) ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM (EM := EM) hEanM hEbdM (ρM := ρM) hρM0 hρM).imp fun _ h => h.1
 
 /-- **The four parts in the variable `ψ̂` with the sharp agreement relation, without the mass
 variation** (the sharp version of `interaction_expansion_hat_bound_dm`). -/
