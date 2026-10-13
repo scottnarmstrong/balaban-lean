@@ -7,6 +7,7 @@ module
 
 public import Balaban.Localization.P6PairGraph
 public import Balaban.Fluctuation.DetCauchyGraph
+public import Balaban.Localization.P6PairCover
 public import Balaban.Polymer.RootedAnimals
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -354,11 +355,9 @@ theorem card_closedNbhd_le (hdeg : ∀ P : cubeIdx G, (paramGraph G).degree P �
   rw [SimpleGraph.card_neighborFinset_eq_degree]
   exact Nat.add_le_add_right (hdeg P) 1
 
-/-- **T3.  The degree of the patch graph of the chain** is at most `(detDeg d L + 1)^3`. -/
-theorem chainPatchGraph_degree_le (hG : CubeAligned G m₁)
-    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+/-- The degree of the patch graph from that of the parameter graph (internal). -/
+private theorem chainPatch_degree_aux (hdeg : ∀ P : cubeIdx G, (paramGraph G).degree P ≤ detDeg d L)
     (P : cubeIdx G) : (chainPatchGraph G).degree P ≤ pairChainDeg d L := by
-  have hdeg := fun P => paramGraph_degree_le (G := G) hG hϱ hM hL P
   rw [← SimpleGraph.card_neighborFinset_eq_degree]
   have hsub : (chainPatchGraph G).neighborFinset P ⊆
       (closedNbhd P).biUnion fun Q => (closedNbhd Q).biUnion closedNbhd := by
@@ -389,6 +388,80 @@ theorem chainPatchGraph_degree_le (hG : CubeAligned G m₁)
         Nat.mul_le_mul_right _ (hc P)
     _ = pairChainDeg d L := by unfold pairChainDeg; ring
 
+
+/-! #### The degree bound for the sup-separated cover (P6) -/
+
+open Classical in
+/-- Multiplicity of a cube in the footprints, for a sup-separated generating set. -/
+theorem card_mult_le_sup (hG : CubeAligned G m₁) (hSS : SupSep G m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hL : 1 ≤ L) {P : ℕ × CTorus d L N₁ m₁ (k + 1)} (hP : P ∈ cubeIdx G) :
+    ((cubeIdx G).filter fun q => P ∈ Qset G q).card ≤ 3 * (L + 9) ^ d := by
+  have hP1 := ((mem_cubeIdx G).1 hP).1.1
+  have hsub : ((cubeIdx G).filter fun q => P ∈ Qset G q) ⊆
+      (Finset.Icc (P.1 - 1) (P.1 + 1)).biUnion fun j =>
+        (cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q := by
+    intro q hq
+    obtain ⟨hqi, hQ⟩ := Finset.mem_filter.1 hq
+    have hlay := Qset_layer_sup hG hSS hM hL hqi hQ
+    exact Finset.mem_biUnion.2 ⟨q.1, Finset.mem_Icc.2 ⟨by omega, by omega⟩,
+      Finset.mem_filter.2 ⟨hqi, rfl, hQ⟩⟩
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ j ∈ Finset.Icc (P.1 - 1) (P.1 + 1),
+        ((cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q).card
+      ≤ ∑ _j ∈ Finset.Icc (P.1 - 1) (P.1 + 1), (L + 9) ^ d :=
+        Finset.sum_le_sum fun j hj => card_mult_layer_le hM hP (by
+          have := (Finset.mem_Icc.1 hj).1
+          omega)
+    _ = 3 * (L + 9) ^ d := by
+        rw [Finset.sum_const, Nat.card_Icc, smul_eq_mul]
+        congr 1
+        omega
+
+open Classical in
+/-- **Degree of the parameter graph for a sup-separated cover** (the P6 cover `F♯` has
+`ϱ = 5 L M₁`, which does not satisfy `4 d L M₁ ≤ ϱ`): at most `detDeg d L`, if `d ≤ ϱ L²`. -/
+theorem paramGraph_degree_le_sup (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hd : (d : ℝ) ≤ ϱG * (L : ℝ) ^ 2) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L) (P : cubeIdx G) :
+    (paramGraph G).degree P ≤ detDeg d L := by
+  rw [← SimpleGraph.card_neighborFinset_eq_degree]
+  set S1 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)) := (cubeIdx G).filter fun Q =>
+    Q ≠ P.1 ∧ MooreTouch (Pset m₁ P.1) (Pset m₁ Q) with hS1
+  set S2 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)) :=
+    ((cubeIdx G).filter fun q => P.1 ∈ Qset G q).biUnion (Qset G) with hS2
+  have hc1 : S1.card ≤ 3 * (L + 4) ^ d := cubeIdx_moore_degree hG hd P.2
+  have hc2 : S2.card ≤ 3 * (L + 9) ^ d * N0 d L := by
+    refine Finset.card_biUnion_le.trans ?_
+    calc ∑ q ∈ (cubeIdx G).filter (fun q => P.1 ∈ Qset G q), (Qset G q).card
+        ≤ ∑ _q ∈ (cubeIdx G).filter (fun q => P.1 ∈ Qset G q), N0 d L :=
+          Finset.sum_le_sum fun q hq => card_Qset_le_sup hG hSS hM hL (Finset.mem_filter.1 hq).1
+      _ = ((cubeIdx G).filter fun q => P.1 ∈ Qset G q).card * N0 d L := by
+          rw [Finset.sum_const, smul_eq_mul]
+      _ ≤ 3 * (L + 9) ^ d * N0 d L :=
+          Nat.mul_le_mul_right _ (card_mult_le_sup hG hSS hM hL P.2)
+  refine le_trans ?_ (Nat.add_le_add hc1 hc2)
+  refine (Finset.card_le_card_of_injOn Subtype.val ?_ (fun _ _ _ _ h => Subtype.ext h)).trans
+    (Finset.card_union_le _ _)
+  intro Q hQ
+  have hQ0 := (SimpleGraph.mem_neighborFinset _ _ _).1 (Finset.mem_coe.1 hQ)
+  obtain ⟨hne, h | h⟩ : P ≠ Q ∧ _ := hQ0
+  · obtain ⟨q, hq, h1, h2⟩ := h
+    refine Finset.mem_coe.2 (Finset.mem_union_right _ (Finset.mem_biUnion.2 ⟨q, ?_, h2⟩))
+    exact Finset.mem_filter.2 ⟨hq, h1⟩
+  · exact Finset.mem_coe.2 (Finset.mem_union_left _
+      (Finset.mem_filter.2 ⟨Q.2, fun h => hne (Subtype.ext h.symm), h⟩))
+
+/-- **T3.  The degree of the patch graph of the chain** is at most `(detDeg d L + 1)^3`
+(self-cover premises of `paramGraph_degree_le`). -/
+theorem chainPatchGraph_degree_le (hG : CubeAligned G m₁)
+    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (P : cubeIdx G) : (chainPatchGraph G).degree P ≤ pairChainDeg d L :=
+  chainPatch_degree_aux (fun P => paramGraph_degree_le (G := G) hG hϱ hM hL P) P
+
+/-- **T3, sup-separated cover (P6).**  The same bound under `SupSep` and `d ≤ ϱ L²`. -/
+theorem chainPatchGraph_degree_le_sup (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hd : (d : ℝ) ≤ ϱG * (L : ℝ) ^ 2) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (P : cubeIdx G) : (chainPatchGraph G).degree P ≤ pairChainDeg d L :=
+  chainPatch_degree_aux (fun P => paramGraph_degree_le_sup hG hSS hd hM hL P) P
 
 /-! #### Rootedness -/
 
@@ -588,11 +661,11 @@ end Rooted
 section Sum
 
 /-- The root neighbourhood of one seed site has at most `(2 d + 1) (detDeg d L + 1)` cubes. -/
-theorem card_pairRootNbhd_le (hG : CubeAligned G m₁)
-    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+theorem card_pairRootNbhd_le (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hd : (d : ℝ) ≤ ϱG * (L : ℝ) ^ 2) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
     (s : CTorus d L N₁ m₁ (k + 1)) :
     (pairRootNbhd (G := G) s).card ≤ (2 * d + 1) * (detDeg d L + 1) := by
-  have hdeg := fun P => paramGraph_degree_le (G := G) hG hϱ hM hL P
+  have hdeg := fun P => paramGraph_degree_le_sup (G := G) hG hSS hd hM hL P
   set S : Finset (CTorus d L N₁ m₁ (k + 1)) :=
     Finset.univ.filter fun y => s = y ∨ Adj s y with hS
   have hSc : S.card ≤ 2 * d + 1 := by
@@ -638,8 +711,8 @@ def pairChainD (d L : ℕ) : ℕ := max (pairChainDeg d L + 1) ((2 * d + 1) * (d
 /-- **T5.  The rooted sum for the chain patch graph.**  For a finite seed `A` of sites and
 `z = pairChainD² t < 1`: `Σ t^|C| ≤ (1 / (1 - z))^|A|` over the sets rooted at the root
 neighbourhoods of `A`. -/
-theorem chainPatch_rooted_sum_le (hG : CubeAligned G m₁)
-    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+theorem chainPatch_rooted_sum_le (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hd : (d : ℝ) ≤ ϱG * (L : ℝ) ^ 2) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
     (A : Finset (CTorus d L N₁ m₁ (k + 1))) {t : ℝ} (ht : 0 ≤ t)
     (hz : ((pairChainD d L : ℕ) : ℝ) ^ 2 * t < 1) :
     ∑ C ∈ rootedSets (G := chainPatchGraph G)
@@ -647,9 +720,9 @@ theorem chainPatch_rooted_sum_le (hG : CubeAligned G m₁)
       ≤ (1 / (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * t)) ^ A.card := by
   have key := sum_rooted_le (G := chainPatchGraph G) (b := pairChainDeg d L)
     (b_root := (2 * d + 1) * (detDeg d L + 1))
-    (fun P => chainPatchGraph_degree_le hG hϱ hM hL P)
+    (fun P => chainPatchGraph_degree_le_sup hG hSS hd hM hL P)
     (fun s : {s // s ∈ A} => pairRootNbhd (G := G) s.1)
-    (fun s => card_pairRootNbhd_le hG hϱ hM hL s.1) ht hz A.attach
+    (fun s => card_pairRootNbhd_le hG hSS hd hM hL s.1) ht hz A.attach
   have hU : ((⋃ i ∈ A.attach, ((pairRootNbhd (G := G) i.1 : Finset _) : Set _)) : Set (cubeIdx G))
       = ⋃ s ∈ A, ((pairRootNbhd (G := G) s : Finset _) : Set _) := by
     ext x; simp
@@ -658,8 +731,8 @@ theorem chainPatch_rooted_sum_le (hG : CubeAligned G m₁)
 
 /-- **T5, exponential form.**  With `t = exp (-κ₂)`, `z = pairChainD² t < 1`, `h = -log (1 - z)`:
 if `|A| ≤ c_A (1 + Δ)` then the rooted sum is at most `exp (h c_A) exp (h c_A Δ)`. -/
-theorem chainPatch_rooted_sum_le_exp (hG : CubeAligned G m₁)
-    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+theorem chainPatch_rooted_sum_le_exp (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hd : (d : ℝ) ≤ ϱG * (L : ℝ) ^ 2) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
     (A : Finset (CTorus d L N₁ m₁ (k + 1))) {κ₂ Δ c_A : ℝ}
     (hz : ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) < 1)
     (hR : (A.card : ℝ) ≤ c_A * (1 + Δ)) :
@@ -674,7 +747,7 @@ theorem chainPatch_rooted_sum_le_exp (hG : CubeAligned G m₁)
   have hh0 : 0 ≤ h := by
     have : Real.log (1 - z) ≤ 0 := Real.log_nonpos (by linarith) (by linarith)
     linarith
-  have hsum := chainPatch_rooted_sum_le hG hϱ hM hL A (Real.exp_pos (-κ₂)).le hz
+  have hsum := chainPatch_rooted_sum_le hG hSS hd hM hL A (Real.exp_pos (-κ₂)).le hz
   have hterm : ∀ C : Finset (cubeIdx G), Real.exp (-κ₂ * C.card) = Real.exp (-κ₂) ^ C.card :=
     fun C => by rw [← Real.exp_nat_mul]; ring_nf
   simp only [hterm]
