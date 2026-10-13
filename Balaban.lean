@@ -1126,6 +1126,7 @@ public import Balaban.Inhabited.I5WitnessData
 public import Balaban.Inhabited.I5WitnessDataMain
 public import Balaban.Inhabited.Misc
 public import Balaban.Inhabited.XiCDomains
+public import Balaban.Inhabited.RotateUnit
 public import Balaban.Inhabited.PsiZeroWitness
 public import Balaban.Inhabited.PsiZeroWitnessSpec
 public import Balaban.Inhabited.PsiZeroWitnessDen
