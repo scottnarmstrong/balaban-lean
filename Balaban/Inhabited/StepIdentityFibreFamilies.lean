@@ -48,6 +48,345 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 open Classical in
 /-- **The uniform step identity of the zero class on the fibre `h ≡ h₀`, with the coefficient
+families, general tower with block scale `1`.**  The statement of
+`stepIdentity_zeroClass_fibre_fromTower` for `T : StepTowerG d L N κmin` with `T.m₀ = 1` and the
+hull-rate inequality `hhull` (the hypotheses of `StepTowerG.exists_outputConsts`): the energy
+family of `e0CoeffFamily_value_fromTowerG` (block scale `1`), the observable family of
+`obsFamily_pair_fibre_fromTowerG` (block scale `T.m₀`) and the identity
+`stepIdentity_zeroClass_fibre_local_fromTowerG`; the constants of the bounds are those of these
+statements.  The energy family, the observable family and the fluctuation activity have three
+different label systems; only the threshold is shared.  The identity is an equality of complex
+exponentials, with the normalization term `E''' |T₁|` in the exponent. -/
+theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    (hm₀ : T.m₀ = 1)
+    (hhull : 2 * d * L * (1 + collarB d L) * (3 / 2 * T.κdec + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ T.κ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ} (hCR : 0 < CR)
+    (hs0 : 0 < s) (hs : s < 1 / 2) :
+    ∃ (β₀ CE CF : ℝ), 3 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : L ^ T.m₀ ∣ N₁), 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+      ∀ q : ℝ, 0 < q → q ≤ 1 →
+      ∀ D : StepScaleDataG T k hk N₁ ν β p₁,
+      ∀ {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (S : StepSetting d L N₁ T.m₁ k N ϱ)
+        (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hp : 0 < S.p₁),
+      ∃ (F₁ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) × Torus d
+          (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+          DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N →
+            (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+        (Sol : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) × Torus d
+            (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+          Dec2.DecParams (coverOf S.G') × Edat
+              (stepG d L N₁ T.m₁ k ϱ) N →
+            ((stepG d L N₁ T.m₁ k ϱ).Ω 1 × Fin N → ℂ) ×
+              ((stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ))
+        (Lb : Type) (_ : Fintype Lb)
+        (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ Lb) (εH : ℝ)
+        (A₀ : physParam N S → ℂ →
+          LabelAct (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
+            (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS))
+            (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0))
+        (e0 : RootIdx d L N₁ T.m₁ (k + 1) → physParam N S →
+          Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+            Set.univ) → ℂ)
+        (Lbo : Type) (_ : Fintype Lbo)
+        (Labo : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+          Set.univ Lbo) (εHo : ℝ) (hεHo : 0 < εHo)
+        (Ao : physParam N S → ℂ → LabelAct Labo
+            (S.blockSplit T.m₀ hp).Ωb εHo (2 * T.κdec - 1) T.κ0
+          (K0 d L T.κ0 + 1))
+        (mObs : CTorus d L N₁ T.m₁ (k + 1) → Fin N → physParam N S →
+          Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+            Set.univ) → ℂ),
+      (∀ (D' : BgData S.G' N)
+          (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+        XiCData S.G' S.a S.ν
+          (k + 1) 1 T.t D' → ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+          (S.withDatum D' hDh).WoneC
+              (zeroClass d L N₁ T.m₁ k N ϱ) s x =
+            ∑ y, (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ :
+                rawSub N S.G'), g) (s : ℂ)).H y
+              ((S.blockSplit 1 hp).restr x)) ∧
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        (∀ b, MarkedBlockExpansionDecPair N (stepG d L N₁ T.m₁ k ϱ)
+          S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+          S.a₁ S.ν T.BG T.BG₂ T.κ T.t T.t T.κdec p₁
+          (S.blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+          (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ (z, b)) (Sol (z, b))) ∧
+        Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
+          (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
+            (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) A₀
+          (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+              (e1DomG S) z} =>
+            commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)
+          (fun θ i u Φ => e1MarkGParamG S (fun b => F₁ (z, b))
+            (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ)
+          (2 * T.κdec - 1) (fun _ => corrF0G T k β p₁)
+          (physV S S.a₁
+            S.ν T.t)
+          (Metric.ball (0 : ℂ) (17 / 16 : ℝ)) (physCarrier S 1 hp)) ∧
+        ∃ c : physParam N S →
+            Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ) → ℂ,
+          (∀ θ C, c θ C = gsumCoeff (S.blockSplit 1 hp).μ
+            (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
+              (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) (A₀ θ)
+            (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+                (e1DomG S) z} =>
+              commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)
+            (fun i u Φ => e1MarkGParamG S (fun b => F₁ (z, b))
+              (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) C) ∧
+          (∀ C : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => c θ C)
+              (physV S S.a₁
+                S.ν T.t) ∧
+            (∀ θ ∈ physV S S.a₁
+                S.ν T.t,
+              ∀ θ' ∈ physV S S.a₁
+                S.ν T.t,
+              physRestrict (N := N) (thickSet S.G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl N S θ) =
+                physRestrict (thickSet S.G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl N S θ') → c θ C = c θ' C) ∧
+            (∀ θ ∈ physV S S.a₁
+                S.ν T.t,
+              ∀ θ' ∈ physV S S.a₁
+                S.ν T.t,
+              physRestrict (N := N) (sitesOf C) (physIncl N S θ) =
+                physRestrict (sitesOf C) (physIncl N S θ') →
+                c θ C = c θ' C) ∧
+            (∀ θ ∈ physV S S.a₁
+                S.ν T.t,
+              ‖c θ C‖ ≤ K0 d L T.κ0 * Real.exp (-T.κ' * dExt C)) ∧
+            (∀ θ, c θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C) ∧
+              dExt C = sizeJ 1 (k + 1) (sitesOf C))) ∧
+          (∀ (D' : BgData S.G' N)
+              (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+            XiCData S.G' S.a
+              S.ν (k + 1) 1 T.t D' →
+            (S.withDatum D' hDh).E1locC
+                (zeroClass d L N₁ T.m₁ k N ϱ) z =
+              ∑ C, c ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C) ∧
+          ∃ dz : physParam N S → Finset
+              (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ) → ℂ,
+            (∀ (D' : BgData S.G' N)
+                (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+              XiCData S.G' S.a S.ν
+                  (k + 1) 1 T.t D' →
+              ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+              -(1 / 2 : ℂ) * ∑ y ∈ (S.withDatum D' hDh).blockU z, ∑ i,
+                  (S.withDatum D' hDh).logAC (y, i) (y, i) =
+                ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C ∧
+              (S.withDatum D' hDh).E0locC
+                  (zeroClass d L N₁ T.m₁ k N ϱ) z =
+                ∑ C, dz (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C +
+                  (S.withDatum D' hDh).E1locC
+                      (zeroClass d L N₁ T.m₁ k N ϱ) z) ∧
+            (∀ C : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => dz θ C) (physV S
+                S.a₁
+                S.ν T.t) ∧
+            (∀ θ ∈ (physV S S.a₁
+                S.ν T.t),
+              ∀ θ' ∈ (physV S S.a₁
+                S.ν T.t),
+              physRestrict (N := N) (thickSet S.G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl N S θ) =
+                physRestrict (thickSet S.G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl N S θ') → dz θ C = dz θ' C) ∧
+            (∀ θ ∈ (physV S S.a₁
+                S.ν T.t),
+              ‖dz θ C‖ ≤ ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+                  (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) * Real.exp
+                      (-T.κ' * dExt C)) ∧
+            (∀ θ, dz θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C))) ∧
+              (∀ θ C, e0 z θ C = dz θ C + c θ C) ∧
+              (∀ C : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+            AnalyticOnNhd ℂ (fun θ => e0 z θ C) (physV S
+                S.a₁
+                S.ν T.t) ∧
+            (∀ θ ∈ (physV S S.a₁
+                S.ν T.t),
+              ∀ θ' ∈ (physV S S.a₁
+                S.ν T.t),
+              physRestrict (N := N) (thickSet S.G'
+                  (Yhat Set.univ (sitesOf C))) (physIncl N S θ) =
+                physRestrict (thickSet S.G' (Yhat Set.univ (sitesOf C)))
+                  (physIncl N S θ') → e0 z θ C = e0 z θ' C) ∧
+            (∀ θ ∈ (physV S S.a₁
+                S.ν T.t),
+              ‖e0 z θ C‖ ≤ (2 * ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+                  (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) + 1) * K0 d L T.κ0 *
+                      Real.exp (-T.κ' * dExt C)) ∧
+            (∀ θ, e0 z θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C ∧ IsPolyDom 1 (k + 1) (sitesOf C))) ∧
+              ∀ (D' : BgData S.G' N)
+                (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+              XiCData S.G' S.a
+                S.ν (k + 1) 1 T.t D' →
+              (S.withDatum D' hDh).E0locC
+                  (zeroClass d L N₁ T.m₁ k N ϱ) z =
+                ∑ C, e0 z ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                  (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C) ∧
+        2 * εHo ≤ CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+          q * CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
+        (∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N)
+          (hdj : ∀ Y ∈ obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+              (LocalCover.fam T.m₀ y),
+            IsDj T.m₀ (k + 1) Y),
+          ∃ hR : 0 ≤ obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))),
+            1 < obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))) ∧
+            obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))) * max (εHo + εHo) εHo ≤
+              stepTheta d L ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 + K0 d L T.κ0)
+                (2 * T.κdec - 1) T.κ0 T.κ' ∧
+            ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
+                RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                    (unitPts S.G' × Fin N → ℂ) → ℂ,
+              (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L 1) ν
+                  (k + 1) 1 T.t ×ˢ
+                {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ T.t
+                    (β * (L : ℝ) ^ (k * (d - 2)))})) ∧
+              (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+                  {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ
+                      T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+                ∀ u' ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+                  {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ
+                      T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+                AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u') ∧
+              (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+                  {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ
+                      T.t (β * (L : ℝ) ^ (k * (d - 2)))},
+                ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
+                  Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) ∧
+              (∀ θ T', mObs y i θ T' = obsCoeffParam (S.blockSplit T.m₀ hp).μ
+                (fun θ t σ => tiltActObs Ao (show L ^ T.m₀ ∣ N₁ from h3N) T.κ0_ent hεHo.le
+                  hdj (le_refl _) (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2)))) hR (ball (0 : ℂ) (3 / 2))
+                  θ t σ)
+                (fun m => obsY1 T.m₀ S (Lbo ⊕ Lbo)
+                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                      (LocalCover.fam T.m₀ y)) m)
+                (fun m => blockMarkC S T.m₀ hp m.1 m.2)
+                (fun θ m T'' => obsHker
+                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                      (LocalCover.fam T.m₀ y))
+                  (fun Y => hatCoeff (Ev Y) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
+                    (obsUnitVec S m)) T.m₀ T'')
+                (obsRemLab (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                    (LocalCover.fam T.m₀ y))
+                  (fun Y => Sum.inl (Sum.inr Y))
+                  (obsY0 T.m₀ (Lbo ⊕ Lbo)
+                    (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                        (LocalCover.fam T.m₀ y))
+                    (rootCube (m₀ := T.m₀) (blockIndex y))))
+                (fun θ => obsGrFam S T.m₀ hp Ev
+                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                      (LocalCover.fam T.m₀ y))
+                  (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) θ T') ∧
+              ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
+                  (k + 1) Set.univ),
+                AnalyticOnNhd ℂ (fun θ => mObs y i θ T')
+                    (physVq S S.a₁
+                        S.ν T.t q) ∧
+                (∀ θ ∈ physVq S S.a₁
+                    S.ν T.t q, ‖mObs y i θ T'‖ ≤
+                  ((cK2' d L N (famConst d L T.BG₂ T.κ) * T.t / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) *
+                      (CPE d L ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 +
+                          K0 d L T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ /
+                        (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))))) *
+                      (((N * L ^ (d * (T.m₀ + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) *
+                      ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 + K0 d L T.κ0) ^ 2 *
+                      Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG d L) +
+                    CPE d L ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 + K0 d L T.κ0)
+                        (2 * T.κdec - 1) T.κ0 T.κ' *
+                      (∑ r, 8 * (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
+                        (S.p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) ^ 2 * Real.exp
+                            (-T.κ0 *
+                        (obsLab (Labo.sum Labo) hdj).dl
+                          (obsRemLab
+                            (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                                (LocalCover.fam T.m₀ y))
+                            (fun Y => Sum.inl (Sum.inr Y))
+                            (obsY0 T.m₀ (Lbo ⊕ Lbo)
+                              (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
+                                  (LocalCover.fam T.m₀ y))
+                              (rootCube (m₀ := T.m₀) (blockIndex y))) r)))) *
+                  Real.exp (-(min (min (2 * T.κdec) T.κ' - T.κ0 - 1) T.κ') * dExt T')) ∧
+                (∀ θ ∈ physVq S S.a₁
+                    S.ν T.t q, mObs y i θ T' ≠ 0 →
+                  rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
+                (∀ θ ∈ physVq S S.a₁
+                    S.ν T.t q, ∀ θ' ∈ physVq S
+                        S.a₁ S.ν T.t q,
+                  agreeOn (thickSet S.G' (sitesOf T'))
+                    (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
+                    (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
+                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
+                (∀ θ ∈ physVq S S.a₁
+                    S.ν T.t q, ∀ θ' ∈ physVq S
+                        S.a₁ S.ν T.t q,
+                  physRestrict (N := N) (sitesOf T')
+                    (physIncl N S θ) =
+                    physRestrict (sitesOf T') (physIncl N S θ') →
+                  mObs y i θ T' = mObs y i θ' T')) ∧
+      ∀ (D' : BgData S.G' N)
+          (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+        XiCData S.G' S.a S.ν
+            (k + 1) 1 T.t D' →
+        ∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < q →
+          (S.withDatum D' hDh).TstepC
+              (zeroClass d L N₁ T.m₁ k N ϱ) g =
+            Complex.exp (-(S.β : ℂ) *
+                (S.withDatum D' hDh).AnewC -
+              ((S.withDatum D' hDh).Eppp
+                  (zeroClass d L N₁ T.m₁ k N ϱ) : ℂ) *
+                ((S.withDatum D' hDh).nU : ℂ) +
+              FcompAtC (zeroClass d L N₁ T.m₁ k N ϱ).m₀
+                (zeroClass d L N₁ T.m₁ k N ϱ).Tm S.a
+                    S.ν (Nat.le_succ k)
+                (S.withDatum D' hDh).psiKdC g +
+              ∑ z : RootIdx d L N₁ T.m₁ (k + 1), ∑ C,
+                e0 z ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                  (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C +
+              ∑ y : CTorus d L N₁ T.m₁ (k + 1), ∑ i : Fin N, g y i *
+                ∑ T', mObs y i ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N
+                    S.G'), g) T') := by
+  classical
+  obtain ⟨C, hk0, -, hk', -, hkH, -, -, -, -, hKc, hKall, -⟩ := T.exists_outputConsts hhull
+  obtain ⟨βe, hβe3, He⟩ := e0CoeffFamily_value_fromTowerG T hm₀ C hKc hKall hkH hk0 hk' hA p
+  obtain ⟨βo, CE, CF, -, hCE, hCF, Ho⟩ := obsFamily_pair_fibre_fromTowerG T hA p hCR hs0 hs
+  obtain ⟨βa, -, Ha⟩ := stepIdentity_zeroClass_fibre_local_fromTowerG T hA p
+  refine ⟨max (max βe βo) βa, CE, CF, hβe3.trans ((le_max_left _ _).trans (le_max_left _ _)),
+    hCE, hCF, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp₁ q hq0 hq1 D ϱ hϱ S hS hp
+  subst hϱ
+  obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
+  have hβe : βe ≤ β := ((le_max_left _ _).trans (le_max_left _ _)).trans hβ
+  have hβo : βo ≤ β := ((le_max_right _ _).trans (le_max_left _ _)).trans hβ
+  have hβa : βa ≤ β := (le_max_right _ _).trans hβ
+  have hp0 : 0 < p₁ := hp
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hroot⟩ :=
+    He k hk N₁ h3N hN ν hνpos hν β hβe p₁ hp₁ D (ϱ := rhoSepG d L T.m₁) rfl
+      (T.step k hk N₁ ν β p₁) rfl hp
+  obtain ⟨Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hamp, hsite, hpair⟩ :=
+    Ho k hk N₁ h3N hN ν hνpos hν β hβo p₁ hp0 hp₁ q hq0 hq1 D (T.step k hk N₁ ν β p₁) rfl hp
+  have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
+  choose hP hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
+  refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
+    fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
+    hamp, hsite, ?_⟩
+  intro D' hDh hX g hg
+  have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1
+  rw [hid D' hDh hX g hg1, (hpair D' hDh hX g hg).2,
+    Finset.sum_congr rfl fun z _ => hev z D' hDh hX]
+
+open Classical in
+/-- **The uniform step identity of the zero class on the fibre `h ≡ h₀`, with the coefficient
 families.**  There are one threshold `β₀ ≥ 3` (the maximum of the thresholds of the energy family,
 of the observable family and of the fibre activity) and constants `C_E, C_F`.  At every scale datum
 with `β ≥ β₀`, `0 < p₁ ≤ A₁ (log β_k)^p`, and for `0 < q ≤ 1`, there are, chosen before the datum
@@ -380,29 +719,45 @@ theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmi
               ∑ y : CTorus 3 3 N₁ T.m₁ (k + 1), ∑ i : Fin 2, g y i *
                 ∑ T', mObs y i ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2
                     (T.step k hk N₁ ν β p₁).G'), g) T') := by
-  classical
-  obtain ⟨βe, hβe3, He⟩ := e0CoeffFamily_value_fromTower T hHull hA p
-  obtain ⟨βo, CE, CF, -, hCE, hCF, Ho⟩ := obsFamily_pair_fibre_fromTower T hA p hCR hs0 hs
-  obtain ⟨βa, -, Ha⟩ := stepIdentity_zeroClass_fibre_local_fromTower T hA p
-  refine ⟨max (max βe βo) βa, CE, CF, hβe3.trans ((le_max_left _ _).trans (le_max_left _ _)),
-    hCE, hCF, ?_⟩
+  obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ :=
+    stepIdentity_zeroClass_fibre_fromTowerG T.toG rfl (T.hhull_toG_of_stepHullMin hHull) hA p
+      hCR hs0 hs
+  refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp hp₁ q hq0 hq1 D
-  have hβe : βe ≤ β := ((le_max_left _ _).trans (le_max_left _ _)).trans hβ
-  have hβo : βo ≤ β := ((le_max_right _ _).trans (le_max_left _ _)).trans hβ
-  have hβa : βa ≤ β := (le_max_right _ _).trans hβ
-  have hp0 : 0 < p₁ := hp
-  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hroot⟩ :=
-    He k hk N₁ h3N hN ν hνpos hν β hβe p₁ hp hp₁ D
-  obtain ⟨Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hamp, hsite, hpair⟩ :=
-    Ho k hk N₁ h3N hN ν hνpos hν β hβo p₁ hp0 hp₁ q hq0 hq1 D (T.step k hk N₁ ν β p₁) rfl hp
-  have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
-  choose hP hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
+  have e : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have G := H k hk N₁ (by simpa using h3N) hN ν hνpos (by simpa using hν) β hβ p₁
+    (by rw [e]; exact hp₁) q hq0 hq1 (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁)
+    (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl hp
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  have hb' : b = β * 3 ^ k := hb.symm.trans e
+  subst hb'
+  intro G
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα, hroot,
+    hamp, hsite, hid⟩ := G
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
-    fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
-    hamp, hsite, ?_⟩
-  intro D' hDh hX g hg
-  have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1
-  rw [hid D' hDh hX g hg1, (hpair D' hDh hX g hg).2,
-    Finset.sum_congr rfl fun z _ => hev z D' hDh hX]
+    fun z => ?_, hamp, hsite, hid⟩
+  obtain ⟨h1, h2, c, hc, hcl, hcv, dz, hdz, hdzl, he, hel, hev⟩ := hroot z
+  have e27 : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) =
+      27 * (covBLogMax 3 3 T.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) := by
+    push_cast; ring
+  refine ⟨h1, by simp only [corrF0_toG]; exact h2, c, hc, hcl, hcv, dz, hdz,
+    fun C => ?_, he, fun C => ?_, hev⟩
+  · obtain ⟨a1, a2, a3, a4⟩ := hdzl C
+    refine ⟨a1, a2, fun θ hθ => ?_, a4⟩
+    have := a3 θ hθ
+    simp only [StepTower.toG_κ, StepTower.toG_κ'] at this
+    rw [e27] at this
+    convert this using 3
+    all_goals rfl
+  · obtain ⟨a1, a2, a3, a4⟩ := hel C
+    refine ⟨a1, a2, fun θ hθ => ?_, a4⟩
+    have := a3 θ hθ
+    simp only [StepTower.toG_κ, StepTower.toG_κ'] at this
+    rw [e27] at this
+    convert this using 3
+    all_goals first | rfl | ring
 
 end Balaban.Inhabited
