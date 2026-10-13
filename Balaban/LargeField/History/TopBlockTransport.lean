@@ -36,12 +36,13 @@ noncomputable abbrev chiDomGen (k : ℕ) (Z : H.Comp k) :=
   (H.locRH k Z).histGen (M := M) (K' := K) le_rfl (locRH_rem k Z) H.F.ok.two_le_L
     (fun j _ _ => g.hRlow j)
 
-/-- The cube of a fine site at which a layer-`j+1` block is tested lies in `Ω_{j+1}` of the
-lineage localization when it lies in the component and in `Ω_{j+1}` of the global history, and
-then the site is in the layer `j + 1` of `B` (not in `Ω_{j+2}`): the top layer. -/
+/-- A fine site whose scale-`(j+1)` cube is within one cube of the component `C` lies in the layer
+`j + 1` of `B` (in `Ω_{j+1}` of the lineage localization but not in `Ω_{j+2}`: the top layer) as
+soon as, when the cube belongs to `C`, it belongs to `Ω_{j+1}` of the global history.  A cube
+outside `C` is in `Ω_{j+1}` of the localization automatically (`Ωᶜ(loc) = Ωᶜ ∩ Lin`). -/
 theorem mem_layer_chiDomGen {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
-    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ C.1)
-    (hΩ : cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega) :
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ nbhd 1 C.1)
+    (hΩ : cubeMap n S.L M K (j + 1) x ∈ C.1 → cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega) :
     x ∈ (chiDomGen H g (j + 1) C).layer (j + 1) := by
   rw [GeneratingSet.mem_layer]
   unfold chiDomGen
@@ -52,7 +53,9 @@ theorem mem_layer_chiDomGen {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
     have h1 := ((H.locRH_derived C (Nat.lt_succ_self j) (by omega)).2.1).symm
     have h2 : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (j + 1) C).step j).Omegaᶜ := h
     rw [h1] at h2
-    exact h2.1 hΩ
+    have h3 := h2.2
+    rw [Finset.mem_coe, lin_self] at h3
+    exact h2.1 (hΩ h3)
   · rintro ⟨hle, h⟩
     have hst : (H.locRH (j + 1) C).step (j + 1) =
         emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1)) := by
@@ -70,7 +73,7 @@ theorem mem_layer_chiDomGen {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
         (emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).Uprime := by
       refine ⟨cubeMap n S.L M K (j + 1) x, ?_, rfl⟩
       rw [hZ]
-      exact mem_nbhd.mpr ⟨_, hx, by simp [supDist_self]⟩
+      exact nbhd_mono (by omega) subset_rfl hx
     rw [cubeMap_succ H.F.hnn hle x] at h3
     exact ((emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).OmegaPrime_compl_subset_Omega_compl
       ((emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).Uprime_subset_compl h3)) h2
@@ -109,11 +112,13 @@ theorem cube_conditions_of_mem_Omega {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (
     exact mem_nbhd.mpr ⟨q, hmem, by simp [supDist_self]⟩
 
 /-- The tested block: the top-scale block `(j+1, jBlock x)` of a fine site `x` whose scale-`(j+1)`
-cube lies in `C`, in `Ω_{j+1}` and within one cube of `q` belongs to
-`genBlocksIn B (j+1) (nbhd 1 {q})`, where `B` is the generating set of `ChiDomAt`. -/
+cube is within one cube of `C` (and in `Ω_{j+1}` if it belongs to `C`) and within one cube of
+`q` belongs to `genBlocksIn B (j+1) (nbhd 1 {q})`, where `B` is the generating set of
+`ChiDomAt`. -/
 theorem topBlock_mem_genBlocksIn {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
-    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ C.1)
-    (hΩ : cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega) {q : Torus S.d (n (j + 1))}
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ nbhd 1 C.1)
+    (hΩ : cubeMap n S.L M K (j + 1) x ∈ C.1 → cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega)
+    {q : Torus S.d (n (j + 1))}
     (hxq : supDist (cubeMap n S.L M K (j + 1) x) q ≤ 1) :
     (⟨j + 1, jBlock S.d S.L (M * n K) K (j + 1) x⟩ : BlockPt S n M K) ∈
       genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q}) :=
@@ -232,7 +237,8 @@ theorem datum_site_topBlock (hC : C.1 ∉ H.rem (j + 1))
   obtain ⟨hZ, hsim⟩ := cube_conditions_of_mem_Omega (M := M) H Cx.hkK C hq hΩ
   refine ⟨hnb, hDD, hZ, hsim, ?_⟩
   rw [← jBlock_bgToFine]
-  exact topBlock_mem_genBlocksIn H Cx.geo Cx.hkK C hq hΩ (by simp [supDist_self])
+  exact topBlock_mem_genBlocksIn H Cx.geo Cx.hkK C (mem_nbhd.mpr ⟨_, hq, by simp [supDist_self]⟩)
+    (fun _ => hΩ) (by simp [supDist_self])
 
 /-- The value of the single-scale datum at a data site is the field `ψ_{j+1}` at the top-scale
 block `blkToBlock (jBlock s)`: the value tested by `PsiTildeMulti` at that block. -/
@@ -243,6 +249,117 @@ theorem liftSingle_genW_Ψ_top (Y : Set (Torus S.d (n (j + 1))))
       fun i => ((ψk (blkToBlock Cx.geo Cx.hnn Cx.hkK
         (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)) i : ℝ) : ℂ) :=
   liftSingle_Ψ (Cx.genW Y) _ _ hs
+
+omit [NeZero M] in
+/-- A site of the block `blockSet G s` of a site `s` lies in the same top-scale (`k`-)block
+as `s`: the block of layer `n ≤ k` is contained in the `k`-block. -/
+theorem jBlock_top_eq_of_mem_blockSet {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    (G : GeneratingSet d L N₀ k ϱ) {s y : Torus d (N₀ * L ^ k)} (hy : y ∈ blockSet G s) :
+    jBlock d L N₀ k k y = jBlock d L N₀ k k s := by
+  unfold blockSet at hy
+  by_cases hs : s ∈ G.Ω 1
+  · simp only [hs, ↓reduceIte] at hy
+    obtain ⟨-, hnk, -⟩ := G.layerIndex_spec hs
+    exact jBlock_eq_of_le hnk le_rfl (GeneratingSet.mem_blk.1 hy)
+  · simp only [hs, ↓reduceIte, Finset.mem_singleton] at hy
+    rw [hy]
+
+/-- **T1 for a neighbouring site.**  Let `t` be a site whose cube `q` lies in the component `C`,
+and `u` a datum site of `G_{j+1} = C.genW Y`, `Y = Z_{j+1}ᶜ`, whose cube is within one cube of `q`
+(the cube of `u` need not lie in `C`).  Then the top-scale block of `u` lies in
+`genBlocksIn B (j+1) (nbhd 1 {q})`. -/
+theorem datum_site_block_mem_of_near (hC : C.1 ∉ H.rem (j + 1))
+    {t u : BgT Cx.geo (j + 1)} (hu : u ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t) ∈ C.1)
+    (hd : supDist (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK u))
+      (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t)) ≤ 1) :
+    (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) u)⟩ :
+        BlockPt S n M K) ∈
+      genBlocksIn (chiDomGen H Cx.geo (j + 1) C) (j + 1)
+        (nbhd 1 {cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t)}) := by
+  rw [← jBlock_bgToFine]
+  refine topBlock_mem_genBlocksIn H Cx.geo Cx.hkK C (mem_nbhd.mpr ⟨_, hq, hd⟩) ?_ hd
+  intro hqu
+  exact (H.step j).OmegaDD_subset_Omega (datum_site_topBlock H Cx hC hu hqu).2.1
+
+/-- **T2.**  Let `(s, s')` be an interface pair of `G_{j+1} = C.genW Y`, `Y = Z_{j+1}ᶜ`, and let
+`t ∈ {s, s'}` be a site whose scale-`(j+1)` cube `q` lies in a retained component `C` of
+`Z^pre_{j+1}`.  The other site is arbitrary (it may lie over `Y`, or in the collar of `C`).  Then
+the two cubes are within one cube of each other, the cube `q` satisfies the two conditions of the
+first family of `ChiDomProp` (T1 (b)), both top-scale blocks lie in
+`genBlocksIn B (j+1) (nbhd 1 {q})`, have the same layer `j + 1`, and are adjacent (`BlockAdj`).
+(Pairs with neither site over a retained component are not covered: see T4.) -/
+theorem interface_pair_topBlocks (hC : C.1 ∉ H.rem (j + 1))
+    {s s' t : BgT Cx.geo (j + 1)}
+    (hp : IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s') (hts : t = s ∨ t = s')
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t) ∈ C.1) :
+    supDist (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s'))
+        (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s)) ≤ 1 ∧
+      CubeSub (S := S) (n := n) M K (j + 1)
+        (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t))
+        ((H.localHistory M K (j + 1) C).Z (j + 1)) ∧
+      cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t) ∈
+        lhOmegaSim (H.localHistory M K (j + 1) C) (j + 1) (j + 1) ∧
+      (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)⟩ :
+          BlockPt S n M K) ∈
+        genBlocksIn (chiDomGen H Cx.geo (j + 1) C) (j + 1)
+          (nbhd 1 {cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t)}) ∧
+      (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s')⟩ :
+          BlockPt S n M K) ∈
+        genBlocksIn (chiDomGen H Cx.geo (j + 1) C) (j + 1)
+          (nbhd 1 {cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t)}) ∧
+      BlockAdj
+        (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)⟩ :
+          BlockPt S n M K)
+        (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s')⟩ :
+          BlockPt S n M K) := by
+  have hp0 := hp
+  obtain ⟨hs, hs', -, y, hy, y', hy', hadj⟩ := hp
+  have hy1 := jBlock_top_eq_of_mem_blockSet _ hy
+  have hy1' := jBlock_top_eq_of_mem_blockSet _ hy'
+  have hm : Cx.geo.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = Cx.geo.c * n (j + 1) := by simp
+  have e1 := cube_eq_of_jBlock_eq (c := Cx.geo.c) (n := n (j + 1)) hm hy1
+  have e2 := cube_eq_of_jBlock_eq (c := Cx.geo.c) (n := n (j + 1)) hm hy1'
+  have hP : Cx.geo.M1 * (Cx.geo.c * n (j + 1)) * S.L ^ (j + 1) =
+      (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) * n (j + 1) := by ring
+  have hpos : 1 ≤ S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1) := by
+    have := NeZero.ne S.L; have := Cx.geo.neM1.out; have := Cx.geo.nec.out
+    exact Nat.one_le_iff_ne_zero.2 (by positivity)
+  have hd : supDist (blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) y')
+      (blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) y) ≤ 1 :=
+    supDist_blockMap_le_one hP (D := 1) hpos y' y (Adj.supDist_le_one hadj.symm)
+  have hcube : supDist (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s'))
+      (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s)) ≤ 1 := by
+    rw [cubeMap_bgToFine, cubeMap_bgToFine, ← e1, ← e2]; exact hd
+  have hcube' : supDist (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s))
+      (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s')) ≤ 1 := by
+    rw [supDist_comm]; exact hcube
+  have ht : t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ) := by
+    rcases hts with rfl | rfl <;> assumption
+  obtain ⟨-, -, hZ, hsim, -⟩ := datum_site_topBlock H Cx hC ht hq
+  have hself : supDist (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t))
+      (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK t)) ≤ 1 := by
+    simp [supDist_self]
+  refine ⟨hcube, hZ, hsim, ?_, ?_, ?_⟩
+  · rcases hts with rfl | rfl
+    · exact datum_site_block_mem_of_near H Cx hC hs hq hself
+    · exact datum_site_block_mem_of_near H Cx hC hs hq hcube'
+  · rcases hts with rfl | rfl
+    · exact datum_site_block_mem_of_near H Cx hC hs' hq hcube
+    · exact datum_site_block_mem_of_near H Cx hC hs' hq hself
+  · refine ⟨bgToFine Cx.geo Cx.hnn Cx.hkK y, bgToFine Cx.geo Cx.hnn Cx.hkK y', ?_, ?_, ?_⟩
+    · show jBlock S.d S.L (M * n K) K (j + 1) _ = _
+      rw [jBlock_bgToFine, hy1]
+    · show jBlock S.d S.L (M * n K) K (j + 1) _ = _
+      rw [jBlock_bgToFine, hy1']
+    · obtain ⟨μ, h | h⟩ := hadj
+      · exact ⟨μ, Or.inl (by unfold bgToFine; rw [h, torusCast_add_single])⟩
+      · exact ⟨μ, Or.inr (by unfold bgToFine; rw [h, torusCast_add_single])⟩
 
 end Datum
 
