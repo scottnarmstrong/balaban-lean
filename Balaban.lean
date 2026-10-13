@@ -222,6 +222,7 @@ public import Balaban.Green.CoarseOperator
 public import Balaban.Green.FinalMassGreen
 public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.FinalCutFamily
+public import Balaban.Green.FinalMacroCover
 public import Balaban.Green.FinalCutComplex
 public import Balaban.Green.FinalComplexMatrix
 public import Balaban.Green.FinalComplexHessian
