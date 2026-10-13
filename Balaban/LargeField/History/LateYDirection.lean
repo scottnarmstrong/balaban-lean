@@ -35,7 +35,23 @@ for the datum `Ψ(s) = parentPsi s`.
 * `parentPsi_direction_of_chiY_ne_zero` (L1): if `χ_Y ≠ 0`, `0 < ν_k ≤ 1` and the cube mass is
   `ν_k L^{-2k}`, then (RD) holds at every tested site (block averaging: closeness of the
   field to `h` on the block, plus block closeness of the datum).
-* The r3 clause of the real domain at the tested sites, and the geometry of the partition.
+* `parentPsi_norm_of_tested`: `|‖Ψ(s)‖ - 1| < (d + 1) δ_k` at tested sites (sphere bound of the
+  cube background plus block closeness).
+* `parentPsi_r3_of_tested`: the clause `r3` of the real domain at tested sites, for the radius
+  `η = max (3 d L δ_{k-1}) (4 (d + 1) δ_k) < 1`: `m L^{2ℓ(s)} |1 - u_s · h| < η²`, where `u_s` is
+  the normalized datum.  Constants: the bound is on the raw datum `Ψ(s)` with constant `2`
+  (block averaging); `‖u_s - h‖ ≤ 2‖Ψ(s) - h‖` and `m L^{2ℓ} ≤ ν_k` give `< 8 δ_k² ≤ η²`.
+* `mem_testedSites_iff`: a data site is tested exactly when its cube lies within one cube of
+  `Y` (the averaging block of a site never leaves its cube, so the block condition is automatic).
+  Consequently `outerSites` are the data sites whose cube is at distance more than one from `Y`
+  (`mem_outerSites_iff`, `mem_outerSites_of_far`); `tested_of_over_Y` (sites over `Y` are tested),
+  `testedSites_subset_nbhd_one`, `outerSites_cube_mem` (outer cubes lie in
+  `nbhd (2⌊R_{k-1}⌋ + 3) Y`, outside `nbhd 1 Y`), `retained_tested_iff`.
+* `exists_tested_site`, `outerSites_univ` (non-vacuity; `Balaban/Inhabited/LateYDirectionWitness`).
+
+The test sets of the cube factor are `T = S = cubeNbhd … 1 y₀` (the fine set of `□~`); the
+mass in `FieldClose` is `μ_k L^{2k}`, identified with `ν_k` by `physMass_mul_sq` from the
+hypothesis `Cx.cs.mu k = sfBgMassAt L k ν_k`.
 
 ## What is NOT proved
 
@@ -342,6 +358,36 @@ theorem retained_tested_iff {k0 : ℕ} (H : RegionHistory S n R k0 K) (C : H.Com
     s ∈ testedSites Cx Y ↔ ∃ y ∈ Y, supDist (parentSiteCube Cx s) y ≤ 1 := by
   rw [mem_testedSites_iff, mem_nbhd]
   simp [hsd]
+
+/-! ### Non-vacuity of the partition -/
+
+/-- If `Y` contains the cube `0`, the set of tested sites is non-empty (the site `0`). -/
+theorem exists_tested_site (Y : Set (Torus S.d (n (j + 1)))) (hY : (0 : Torus S.d (n (j + 1))) ∈ Y) :
+    ∃ s, s ∈ testedSites Cx Y := by
+  have hs : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1))
+      (0 : BgT Cx.geo (j + 1)) = 0 := by
+    funext i
+    simp [blockMap, blockCoord]
+  have hy' : (0 : Torus S.d (n (j + 1))) ∈ nbhd 1 ({0} : Set (Torus S.d (n (j + 1)))) :=
+    subset_nbhd 1 _ rfl
+  have hsk : (0 : BgT Cx.geo (j + 1)) ∈ (Cx.genW Y).Ω (j + 1) :=
+    (genW_mem_top_iff Cx Y).2 (nbhd_two_subset_W2 Y hY
+      (nbhd_mono (by omega : 1 ≤ 2) subset_rfl (by rw [hs]; exact hy')))
+  have hsd : (0 : BgT Cx.geo (j + 1)) ∈ dataSites (Cx.genW Y) :=
+    (mem_dataSites _).2 (Or.inl (mem_Ω_one_of_top _ (Nat.succ_pos j) hsk))
+  refine ⟨0, tested_of_over_Y Cx Y hsd ?_⟩
+  rw [show parentSiteCube Cx (0 : BgT Cx.geo (j + 1)) =
+    blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) (0 : BgT Cx.geo (j + 1)) from
+    cubeMap_bgToFine Cx 0, hs]
+  exact hY
+
+/-- When `Y` is the whole torus there are no outer sites. -/
+theorem outerSites_univ : outerSites Cx (Set.univ : Set (Torus S.d (n (j + 1)))) = ∅ := by
+  ext s
+  simp only [Set.mem_empty_iff_false, iff_false]
+  intro hs
+  obtain ⟨-, hq⟩ := (mem_outerSites_iff Cx _).1 hs
+  exact hq (subset_nbhd 1 _ (Set.mem_univ _))
 
 end Tested
 
