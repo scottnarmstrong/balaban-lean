@@ -1814,7 +1814,6 @@ public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
 public import Balaban.Inhabited.ObsFamilyPrefactor
 public import Balaban.Inhabited.StepIdentityFibre
-public import Balaban.Inhabited.StepIdentityGeneralFibre
 public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
 public import Balaban.Inhabited.RootTermZeroClass
