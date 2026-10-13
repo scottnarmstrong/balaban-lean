@@ -1711,6 +1711,7 @@ public import Balaban.Inhabited.Thm31bKernelSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.ObsCoeffAnalytic
 public import Balaban.Inhabited.ObsCoeffFamily
+public import Balaban.Inhabited.ObsCoeffFibreValue
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.E1MarkParamCommon
 public import Balaban.Inhabited.ObsSourceLocal
