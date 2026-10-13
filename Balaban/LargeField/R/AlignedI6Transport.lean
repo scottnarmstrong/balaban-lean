@@ -32,11 +32,21 @@ with no factor `L^{-jd}` (P5 (1.8), P1 (3.104)).
   on the coefficients of the scale-`j` family is stated with this very size, so the size dictionary
   has constant `1` (`sizeJ_Ypoly_le_dInf` compares it with the size `dInf` of `T∞`).
 * The per-site coefficient bound and the locality of the torus coefficient (T3):
-  `v1Loc_polyUniv`.
+  `v1Loc_polymer` (one torus, from `tensA_EauxC_eq_v1Loc` and `norm_tensA_EauxC_le`) and
+  `v1Loc_polyUniv` (at the physical axis `hC hv`).  Every polymer of `𝒟_j` through a site is the
+  fine thickening of a non-winding scale-`j` polymer (`polysAt_eq_image`), so the winding of
+  polymers needs no hypothesis in the bounds.
 * The decomposition of the whole-torus coefficient into polymer contributions (T2):
   `v1T_eq_sum_polyUniv`.
-* The assembly (T5): `groupedInputsSite_of_class`, `EresJ2_sub_remainder_le_aligned_of_class_site`,
-  and the non-vacuity statements at the zero class.
+* The assembly (T5): `groupedInputsSite_of_class` (an inhabitant of `GroupedInputsSite`, hence by
+  `GroupedInputsSite.toAligned` of `GroupedInputsAligned`) and the corollary
+  `EresJ2_sub_remainder_le_aligned_of_class_site` of `EresJ2_sub_remainder_le_aligned_of_class`.
+  `translation covariance`: `v1T_translate_hC`.
+* Non-vacuity.  No new structure is introduced.  The conclusion bundle is inhabited
+  (`groupedInputsSite_nonempty`).  At the zero class (`RadialCoefficientLimitInhab.lean`) every
+  coefficient, `v1Loc` and `v1T` is zero, so `hstab`, `hv2dec`, `hv2site` hold with `cv = 0`; a
+  full instance of the constructor would need an `SFCtx` whose `sf` is that witness, which is not
+  landed (the landed contexts use `wSF`, a different zero effective action).
 
 ## What is not proved (named hypotheses of the constructor)
 
@@ -411,6 +421,55 @@ theorem groupedInputsSite_of_class {P : Consts} {ρd : ∀ (N₁ : ℕ) [NeZero 
     have h1 : Real.exp (-P.κ * Def6.sizeJ C.m₀ j X) ≤ Real.exp (-κ * Def6.sizeJ C.m₀ j X) :=
       Real.exp_le_exp.2 (by nlinarith)
     exact mul_le_mul hE h1 (Real.exp_pos _).le (hE0.trans hE)
+
+open Classical in
+/-- **The deliverable `EresJ2_sub_remainder_le_aligned_of_class` with the derived fields removed
+from its hypotheses.**  The activity coefficients `c` of the kernel (`a_decomp`, `a_site`) and the
+bound of the activity (`E_bound`) are derived from the class; what is left are `hstab` (the periodic
+identification), the `v₂` fields (`hv2dec`, `hv2site`), the domain membership `hXi` of the composed
+field, the constants, and the data fields of `GroupedBase`.  The rate is `κ - η` and the constant
+`Γ_η E₀`, `Γ_η = rowFactor`. -/
+theorem EresJ2_sub_remainder_le_aligned_of_class_site {P : Consts}
+    {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (Localization.CTorus S.d S.L N₁ m₁ k → Fin N → ℝ) →
+      (Fin N → ℝ) → (Localization.CTorus S.d S.L N₁ m₁ k → Fin N → ℝ) → ℝ} {Ek : ℕ → ℝ}
+    {St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms S.d S.L N₁ m₁ k N}
+    (hP : P.m₀ = C.m₀) (hD : D1Corr C.m₀ C.sf St hv vc)
+    (hF : IsSFFamily P C.sf.β C.sf.ν C.sf.a C.sf.Tm ρd Ek) {j : ℕ}
+    (hn : MomNum S.d S.L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) (hhv : ‖hv‖ = 1)
+    (hN : S.L ^ C.m₀ ∣ C.N₁) (Y : Set (Torus S.d (n k)))
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    (hstab : ∀ w : Localization.CTorus S.d S.L C.N₁ m₁ k, Aligned (S.L ^ j) w →
+      v1T C.m₀ (St C.N₁) j (nuIdeal S.L k (C.sf.ν k) j) (hC hv) 0 w = vc.v1 j (unlift j w))
+    {cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E₀ κ η κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv2dec : ∀ y ∈ C.alignedIn j Y, ∀ x, Aligned (S.L ^ j) x → vc.v2 j (unlift j (x - y)) =
+      ∑ X ∈ (polyUniv C j).filter (fun X => y ∈ X ∧ x ∈ X), cv X y x)
+    (hv2site : ∀ y ∈ C.alignedIn j Y, ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+      ∀ x ∈ X, Aligned (S.L ^ j) x →
+      ‖cv X y x‖ ≤ (4 * E₀ / (εj / K_r) ^ 2) * Real.exp (-κ * Def6.sizeJ C.m₀ j X))
+    (hXi : ∀ y ∈ C.alignedIn j Y, ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+      XiDom ((C.sf.Tm C.N₁).gs j X) (aIdeal S.L k (C.sf.a k))
+        (Def6.bgMass S.L k (C.sf.β k) (C.sf.ν k)) j (P.eps S.d S.L j) (C.psiJ Y ψk hv j)
+        (constFld (hC hv)))
+    (hE : P.E₀ ≤ E₀) (hκ : κ ≤ P.κ) (hr : εj / K_r ≤ liftRadius S.d S.L N P j) (hη : 0 < η)
+    (g : GroupedBase C j (C.alignedIn j Y) (C.alignedIn j (thickY R Y)) (C.psiJ Y ψk hv j) (hC hv)
+      (nuIdeal S.L k (C.sf.ν k) j) E₀ (κ - η) κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresJ2 C vc Y ψk hv j -
+        ∑ y ∈ C.alignedIn j Y, (Efull (polyUniv C j) (polyTerm C hv j (C.psiJ Y ψk hv j)) y -
+          AtermCentre (alignedKernel C j (fun w => aCoef (avgFamilyA P C.sf.β C.sf.ν C.sf.a
+            C.sf.Tm j i₀ (nuIdeal S.L k (C.sf.ν k) j) (anisoRadius S.d S.L N P j)) i₀
+            (nuIdeal S.L k (C.sf.ν k) j) (unlift j w)))
+            (fun x => dot (C.psiJ Y ψk hv j x) (C.psiJ Y ψk hv j x)) y)‖ ≤
+      (C.alignedIn j Y).card * ((RegionalGroupedBound.farConst C (κ - η) κ₀ Rs dd α₃ C₀ K_r K_R +
+        RegionalGroupedBound.v2Const (S := S) (κ - η) κ₀ B C₀ K_r K_R +
+        RegionalGroupedBound.tailConst C (κ - η) κ₀ Rs dd α₃) *
+          (rowFactor S C.m₀ m₁ η * E₀) * scaleJ S.L k j ^ (dd + α₃)) := by
+  have hjk := hn.hjk
+  have gs := groupedInputsSite_of_class C hP hD hF hn hne hhv hN
+    (R' := C.alignedIn j Y) (Bc := C.alignedIn j (thickY R Y)) (ψ := C.psiJ Y ψk hv j)
+    (fun y hy => aligned_of_mem_alignedIn hy) hstab hv2dec hv2site hXi hE hκ hr hη g
+  exact RegionalAlignedSource.EresJ2_sub_remainder_le_aligned_of_class C vc hv hP hD hF hn hne hhv hN Y ψk
+    (gs.toAligned hN hjk)
 
 end Class
 
