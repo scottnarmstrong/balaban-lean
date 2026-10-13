@@ -975,4 +975,110 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
 
 end GstTransport
 
+/-! ### D4 (d): the interpolation coefficient of the step on two tori -/
+
+section StepCoef
+
+open MeasureTheory Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "SA" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "SB" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁') hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "𝔅A" => CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+  Set.univ
+set_option hygiene false in
+local notation "𝔅B" => CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+  Set.univ
+set_option hygiene false in
+local notation "σc" => fun b : 𝔅A => cubeOfSite (N₁ := N₁') (m₁ := m₁) (k := k) m₀ (bm b.1)
+
+omit [NeZero N₁'] in
+/-- The base point of the block `cubeOfSite m₀ x` of an aligned site `x` is `x`. -/
+theorem cubeOfSite_val_of_aligned {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : Aligned (cellSide L m₀ m₁ (k + 1)) x) : (cubeOfSite m₀ x).1 = x :=
+  cbase_eq_of_mem_box (cellSide_dvd hN le_rfl) hx (mem_box_self x (cellSide_pos m₀ m₁ (k + 1)))
+
+/-- **D4 (d): the interpolation coefficient of the step on two tori.**  `gsumCoeff_transport`
+for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the map `σ b = cubeOfSite m₀
+(bm b)` of the blocks, a set `T` of blocks inside the box of radius `R`, and the relation
+"agreement of the block variables at corresponding unit points of the box"; the integral
+hypothesis of `gsumCoeff_transport` is `integral_blockSplit_twoTorus`.  What remains as hypotheses
+are the correspondence of the labels with blocks in `T`, of their activities, and of the marks
+(for the marks of the energy coefficient see `e1MarkGParamG_twoTorus`).  Margin:
+`2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {Lb Lb' : Type*} [Fintype Lb] [Fintype Lb']
+    (Lab : CubeLabels m₀ (k + 1) Set.univ Lb) (Lab' : CubeLabels m₀ (k + 1) Set.univ Lb')
+    {εH κH κ0 Kc εH' κH' κ0' Kc' : ℝ}
+    (A : ℂ → LabelAct Lab ((SA).blockSplit m₀ hp).Ωb εH κH κ0 Kc)
+    (A' : ℂ → LabelAct Lab' ((SB).blockSplit m₀ hp').Ωb εH' κH' κ0' Kc')
+    {ι ι' : Type*} [Fintype ι] [Fintype ι'] (y0 : ι → Lb) (y0' : ι' → Lb')
+    (G : ι → ℂ → (∀ c, ((SA).blockSplit m₀ hp).Ωb c) → ℂ)
+    (G' : ι' → ℂ → (∀ c, ((SB).blockSplit m₀ hp').Ωb c) → ℂ)
+    (hGdep : ∀ i u, DepOn (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i))) (G i u))
+    (T : Finset (𝔅A))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (ψ : Lb → Lb')
+    (hψb : ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T →
+      blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y)) =
+        (blocksOf m₀ (k + 1) Set.univ (Lab.ysite y)).image (σc))
+    (hψinj : ∀ y₁ y₂, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y₁) ⊆ T →
+      blocksOf m₀ (k + 1) Set.univ (Lab.ysite y₂) ⊆ T → ψ y₁ = ψ y₂ → y₁ = y₂)
+    (hψsurj : ∀ y', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite y') ⊆ T.image (σc) →
+      ∃ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T ∧ ψ y = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T →
+      ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+        (A' (s : ℂ)).H (ψ y) Φ' = (A (s : ℂ)).H y Φ)
+    (κ : ι → ι')
+    (hκ : ∀ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T → y0' (κ i) = ψ (y0 i))
+    (hκinj : ∀ i₁ i₂, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i₁)) ⊆ T →
+      blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i₂)) ⊆ T → κ i₁ = κ i₂ → i₁ = i₂)
+    (hκsurj : ∀ i', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y0' i')) ⊆ T.image (σc) →
+      ∃ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T ∧ κ i = i')
+    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i,
+      blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T →
+      ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+        G' (κ i) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
+    gsumCoeff ((SB).blockSplit m₀ hp').μ Lab' A' y0' G' (T.image (σc)) =
+      gsumCoeff ((SA).blockSplit m₀ hp).μ Lab A y0 G T := by
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hσ : Set.InjOn (σc) (T : Set (𝔅A)) := by
+    intro b₁ hb₁ b₂ hb₂ h
+    have hb₁R := hT b₁ hb₁ b₁.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
+    have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
+    have hal : ∀ b : 𝔅A, Aligned (cellSide L m₀ m₁ (k + 1)) (bm b.1) := fun b =>
+      aligned_boxMap (cellSide_dvd hN le_rfl) (cellSide_dvd hN' le_rfl) b.2.1
+    have h1 := congrArg Subtype.val h
+    simp only at h1
+    rw [cubeOfSite_val_of_aligned hN' (hal b₁), cubeOfSite_val_of_aligned hN' (hal b₂)] at h1
+    exact Subtype.ext (boxMap_inj (hm' := hm') hb₁R hb₂R h1)
+  refine gsumCoeff_transport _ _ Lab Lab' A A' y0 y0' G G' hGdep (σc) T hσ _
+    (fun Z hZ F F' hF hFF => ?_) ψ hψb hψinj hψsurj hA κ hκ hκinj hκsurj hG
+  exact integral_blockSplit_twoTorus hN2 hk νS β p₁ δ hn hn' hGA hGB hp hp' Z
+    (fun b hb => hT b (hZ hb)) hF hFF
+
+end StepCoef
+
 end Balaban.Polymer.TwoTorusStep
