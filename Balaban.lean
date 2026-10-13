@@ -229,6 +229,7 @@ public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.KF0HoleWalk
+public import Balaban.Green.KF0WalkHalo
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
@@ -338,6 +339,11 @@ public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
 public import Balaban.Localization.DecEquivPermuteStep
 public import Balaban.Localization.DecEquivReflect
+public import Balaban.Localization.DecEquivReflectStep
+public import Balaban.Localization.DecEquivPermutePolymer
+public import Balaban.Localization.DecEquivReflectPolymer
+public import Balaban.Localization.DecEquivGroup
+public import Balaban.Localization.DetUnitIncidenceSymm
 public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.Decoupled2XBounds
 public import Balaban.Localization.Decoupled2XGreen
@@ -831,6 +837,7 @@ public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
 public import Balaban.LargeField.Base.KF0BlockSplit
+public import Balaban.LargeField.Base.KF0MeanShell
 public import Balaban.LargeField.Base.KF0BoundarySquare
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
@@ -1513,4 +1520,7 @@ public import Balaban.LargeField.D7PaperSizeRebase
 public import Balaban.Fluctuation.ObsCauchyTwoOrders
 public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.RenormInputZero
+public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.LargeField.R.D7ReserveArithmetic
+public import Balaban.LargeField.Base.KF0TaylorMajorant
+public import Balaban.LargeField.Base.KF0CollarClosure
