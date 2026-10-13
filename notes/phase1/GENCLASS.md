@@ -83,3 +83,14 @@ Notation as in W721; `𝒯M` the label set of `mem_classLabels_M_iff` (labels `�
   `hW'`: `WoneC C s x = ∑_y (A' s).H y (restr x)` (a.e., `s ∈ [0,1]`; the old energy enters here) and
   `hF'`: `DΦ₁^C(sψ')[M_z ψ'] = ∑ I₀.G + ∑ G₁` (a.e.): `E1locC C z = ∑_T gsumCoeff μ Lab A' (Sum.elim I₀.y0 y1) (Sum.elim I₀.G G₁) T`, bound `C_PE (∑ F₀ e^{-κ₀ d} + ∑ F1 e^{-κ₀ d}) e^{-κ' d_Ext T}`.
 - Changed vs the zero-class input: `hW` is the identity for `WoneC C` (activity `A'`, not `A₀`), `hF` has the extra old-mark sum. New: `A'`, `G₁` and their clauses. Not produced here: `hW'` (= `hid`, `oldEnergyHatMatch_of_label_identity` plus `physVal` activity), `hF'` (from `fderiv_Phi1C_class_eq_zero_add_oldE_labels` with `hdom`, plus the marks of the old labels written as block-local functions of `restr x`), the Part 2 locality and bounds of `G₁`, `hρE`.
+
+## NEXT (W735): leaf 7, the step identity for a class member (`Inhabited/StepIdentityGeneralFibre.lean`, landed)
+- `stepIdentity_class_withDatum_of_nonvanishingG T Dsc hβ hp₁ D' hDh hX C g hreg hregObs hnv`: for any `C : StepClass`, with `hreg : ClassRegularC C g`, `hregObs : ClassRegularObsC C g` (contains `ClassRegularLocC`), `hnv : StepNonvanishingC C g` (from `StepActivityBoundC` by `stepNonvanishingC_of_activityBoundC`):
+  `TstepC C g = exp(-β AnewC + EcompAtC C.m₀ C.Tm … psiKdC - Eppp C · nU + FcompAtC C.m₀ C.Tm … psiKdC g + ∑_z E0locC C z + βU^{-1/2} ∑_{y,i} g y i · M0C C g y i)` (the exponent of §T2), at the step with the datum `D'` of the chart with constant field `h₀`.
+- Zero-class-specific steps of `stepIdentity_zeroClass_withDatum_of_nonvanishingG` and how each generalizes:
+  1. `prop26C_zeroClass` -> `prop26C_class` with explicit `hreg` (zero class: `classRegularC_zeroClass`, by vanishing of the terms);
+  2. `sum_E0locC_zeroClass` -> `sum_E0locC` with `hregObs.toClassRegularLocC` (zero class: `classRegularLocC_zeroClass`);
+  3. `F0C_eq_pair_zeroClass` -> `F0C_eq_pair` with `hregObs` (zero class: `classRegularObsC_zeroClass`);
+  4. `EcompAtC_zero` (the term `ℰ_k` vanishes): not used, `EcompAtC C…` stays in the exponent;
+  5. the tower premises (`R = 2`, `pp = lvCpsiG`, `hδ`, `hlt`) are class-independent and are copied verbatim.
+- Not produced (explicit hypotheses): `hreg`, `hregObs` (path analyticity of the old terms, `EdensAnalyticOnPath`/`FlocAnalyticOnPath` style), `hnv` (activity bound with the old terms). The zero-class theorem stays as is: making it an application needs the zero-class regularity theorems with their full premise list (about 25 lines of the same tower arguments), and the landed file is not edited.
