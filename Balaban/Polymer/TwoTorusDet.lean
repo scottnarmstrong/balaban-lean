@@ -405,6 +405,203 @@ theorem rootTraceBg_single_twoTorus
   exact rootTrace_single_transport hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR (by omega)
     (by omega) hmult hfld H.fam H'.fam H.field H'.field H.nonneg H.small hb
 
+omit [NeZero N₁'] in
+/-- The footprint `approxDep x` of a site of the box of radius `ρ` lies in the box of radius
+`ρ + 2 L^(k+1)` (top level `levelGS (k + 1)`). -/
+theorem inBox_of_mem_approxDep_top {ρ : ℕ}
+    (hn : 2 * (ρ + 2 * L ^ (k + 1)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {x z : CTorus d L N₁ m₁ (k + 1)} (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hz : z ∈ approxDep (GA) x) : InBox d (ρ + 2 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z := by
+  unfold approxDep at hz
+  rcases Finset.mem_insert.1 hz with rfl | hz
+  · exact inBox_mono (Nat.le_add_right _ _) hx
+  · obtain ⟨q, hq, rfl⟩ := Finset.mem_image.1 hz
+    obtain ⟨hqb, hne⟩ := (mem_active _).1 hq
+    have hq1 : q.1 = k + 1 := ((mem_blockIdx_levelGS le_rfl q).1 hqb).1
+    rw [hq1] at hne
+    exact inBox_of_bump_ne_zero (N₀ := N₁ * L ^ m₁) (k := k + 1) (k + 1) x q.2 hx hn hne
+
+omit [NeZero N₁'] in
+/-- **The raw-data read set `RowsDep (S_Y)` lies in the box of radius `R + 3 L^(k+1)`** when `Y`
+lies in the box of radius `R` (top level `levelGS (k + 1)`). -/
+theorem inBox_of_rowsDep_top {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting (GA) a ν)
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 2 * (R + 3 * L ^ (k + 1)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {z : CTorus d L N₁ m₁ (k + 1)} (hz : RowsDep (GA) a ν (SY (GA) X₁ 𝒞 Y) z) :
+    InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  rcases hz with ⟨x, hx, hzx⟩ | ⟨y, hy, hzy⟩
+  · have hxR := hYR _ (SY_subset_levelGS hj1 le_rfl hx)
+    unfold resDep at hzx
+    obtain ⟨w, hw, hzw⟩ := Finset.mem_biUnion.1 hzx
+    have hwR := inBox_of_mem_resSites_levelGS hj1 le_rfl (by omega) hxR hw
+    have := inBox_of_mem_approxDep_top (ρ := R + L ^ (k + 1)) (by omega) hwR hzw
+    exact inBox_mono (by omega) this
+  · have hyR := hYR _ (rowSite_subset S hy)
+    exact inBox_mono (by omega) (inBox_of_mem_approxDep_top (by omega) hyR hzy)
+
+omit [NeZero N₁'] in
+/-- The coercion of the cube `cubeP P` is the patch `Pset m₁ P`. -/
+theorem coe_cubeP_eq_Pset (P : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    ((cubeP P : Finset (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L N₁ m₁ (k + 1))) =
+      Pset m₁ P := by
+  ext x; simp [mem_cubeP, Pset]
+
+/-- The cube `cubeP P` of a cube centre of the box goes to the cube of the image centre. -/
+theorem cubeP_image_top {ρ : ℕ}
+    (hn : 2 * ρ + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {P : ℕ × CTorus d L N₁ m₁ (k + 1)} (hP : P ∈ cubeIdx (GA))
+    (hP0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2) :
+    (cubeP P).image bm = cubeP (Prod.map id bm P) := by
+  apply Finset.coe_injective
+  rw [Finset.coe_image, coe_cubeP_eq_Pset, coe_cubeP_eq_Pset]
+  exact pset_image_q (m₀ := 0) (N₁' := N₁') le_rfl hn hP hP0
+
+/-- `Vset` of the images is the image of `Vset`, for patches in the box. -/
+theorem vset_image_top {ρ : ℕ}
+    (hn : 2 * ρ + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (h𝒞 : ∀ P ∈ 𝒞, P ∈ cubeIdx (GA) ∧ InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2) :
+    Vset (X₁.image bm) (𝒞.image (Prod.map id bm)) = (Vset X₁ 𝒞).image bm := by
+  unfold Vset
+  rw [Finset.image_union, Finset.image_biUnion, Finset.biUnion_image]
+  congr 1
+  refine Finset.biUnion_congr rfl fun P hP => ?_
+  exact (cubeP_image_top (N₁' := N₁') hn (h𝒞 P hP).1 (h𝒞 P hP).2).symm
+
+/-- **D3 (cut points): the rooted trace of one unit block with its background at a cut point, on
+two tori.**  Let `I` be a set of parameter cubes of the first torus and `I'` the corresponding set
+of the second torus (`patches I' = Prod.map id bm '' patches I`), with the cubes of `I` and the
+`(k+1)`-block of the unit point `b` in the box of radius `R`.  If the raw data agree on the box
+of radius `R + 3 L^(k+1)`, then the rooted traces of `{b}` and `{ιu b}` with their backgrounds at
+the cut points `1_I`, `1_{I'}` are equal.  The cut configuration is `X₁ =` the `(k+1)`-block of `b`,
+`𝒞 = patches I`, `Y = V(X₁, 𝒞)` (the cut parameter vanishes on every parameter cube off `I`); the
+image of the block set and the cut factors are `SY_image` and `hagree_boxMap`.  Margins:
+`4 R + 12 L^(k+1+m₁) + 7 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` and `2 R₁ + 5 L · cellSide L 0 m₁ (k+1) <
+N₁ L^m₁ L^(k+1)`, `R₁ = R + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)` (and for `N₁'`). -/
+theorem rootTraceBg_cutPt_twoTorus
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (I : Finset (cubeIdx (GA))) (I' : Finset (cubeIdx (GB)))
+    (hI' : patches I' = (patches I).image (Prod.map id bm))
+    {b : unitPts (GA)} {R : ℕ}
+    (hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hIR : ∀ P ∈ patches I, ∀ x ∈ cubeP P, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    rootTraceBg (GB) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GB)) (unitP (GB)) {ιu b}
+        D' (cutPt I') =
+      rootTraceBg (GA) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GA)) (unitP (GA)) {b}
+        D (cutPt I) := by
+  classical
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hcs : L ^ (k + 1 + m₁) ≤ L * cellSide L 0 m₁ (k + 1) := by
+    unfold cellSide
+    rw [Nat.add_zero]
+    exact Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  -- the cut configuration
+  set X₁ : Finset (CTorus d L N₁ m₁ (k + 1)) := Finset.univ.filter fun x =>
+    unitBlock1 (unitBlock x) = unitBlock1 (b : UnitTorus d L N₁ m₁ k) with hX₁
+  set 𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)) := patches I with h𝒞
+  set Y : Finset (CTorus d L N₁ m₁ (k + 1)) := (Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1 with hY
+  have hΩA : ∀ x : CTorus d L N₁ m₁ (k + 1), x ∈ (GA).Ω 1 := levelGS_mem_Ω_one hj1 le_rfl
+  have hΩB : ∀ x : CTorus d L N₁' m₁ (k + 1), x ∈ (GB).Ω 1 := levelGS_mem_Ω_one hj1 le_rfl
+  have hYV : Y = Vset X₁ 𝒞 := Finset.filter_true_of_mem fun x _ => hΩA x
+  have hXR : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := fun x hx =>
+    hbR x (Finset.mem_filter.1 hx).2
+  have h𝒞R : ∀ P ∈ 𝒞, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 := fun P hP =>
+    hIR P hP P.2 (mem_cubeP.2 (SameCell.refl _ _))
+  have h𝒞I : ∀ P ∈ 𝒞, P ∈ cubeIdx (GA) := fun P hP => (mem_patches.1 hP).1
+  have hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    rw [hYV] at hx
+    rcases Finset.mem_union.1 hx with hx | hx
+    · exact hXR x hx
+    · obtain ⟨P, hP, hxP⟩ := Finset.mem_biUnion.1 hx
+      exact hIR P hP x hxP
+  -- the image configuration
+  have hρS : 2 * R + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hVimg : Vset (X₁.image bm) (𝒞.image (Prod.map id bm)) = (Vset X₁ 𝒞).image bm :=
+    vset_image_top (N₁' := N₁') hρS X₁ fun P hP => ⟨h𝒞I P hP, h𝒞R P hP⟩
+  have hYc : IsNnComp ((Vset (X₁.image bm) (𝒞.image (Prod.map id bm))).filter
+      fun x => x ∈ (GB).Ω 1) (Y.image bm) := by
+    rw [Finset.filter_true_of_mem fun x _ => hΩB x, hVimg, ← hYV]
+    exact ⟨subset_rfl, fun _ _ y hy _ => hy⟩
+  have hYA : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y :=
+    ⟨subset_rfl, fun _ _ y hy _ => hy⟩
+  -- the cut parameters
+  have hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → extS (GA) (cutPt I) P = 0 := by
+    intro P hP hPC
+    have hPc : P ∈ cubeIdx (GA) := (Finset.mem_filter.1 hP).1
+    have hPI : (⟨P, hPc⟩ : cubeIdx (GA)) ∉ I := fun h => hPC (mem_patches.2 ⟨hPc, h⟩)
+    simp [extS, hPc, cutPt, hPI]
+  have hs0' : ∀ P ∈ parCubes (GB) (X₁.image bm), P ∉ 𝒞.image (Prod.map id bm) →
+      extS (GB) (cutPt I') P = 0 := by
+    intro P hP hPC
+    have hPc : P ∈ cubeIdx (GB) := (Finset.mem_filter.1 hP).1
+    have hPI : (⟨P, hPc⟩ : cubeIdx (GB)) ∉ I' := fun h => hPC (by
+      rw [h𝒞, ← hI']; exact mem_patches.2 ⟨hPc, h⟩)
+    simp [extS, hPc, cutPt, hPI]
+  have hsP : ∀ P ∈ cubeIdx (GA),
+      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 →
+      extS (GB) (cutPt I') (Prod.map id bm P) = extS (GA) (cutPt I) P := by
+    intro P hPc hPR
+    obtain ⟨y0, rfl, hb0⟩ := exists_of_mem_cubeIdx (ϱ := ϱ) le_rfl hPc
+    have hPc' : Prod.map id bm ((k + 1, y0) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈ cubeIdx (GB) :=
+      (mem_cubeIdx_levelGS le_rfl _).2 ⟨rfl, hj1,
+        aligned_boxMap (pow_dvd_side le_rfl N₁) (pow_dvd_side le_rfl N₁') hb0⟩
+    have hiff : (⟨_, hPc'⟩ : cubeIdx (GB)) ∈ I' ↔ (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I := by
+      rw [← (mem_patches (G := GB)).trans (exists_prop_of_true hPc')]
+      rw [← (mem_patches (G := GA)).trans (exists_prop_of_true hPc)]
+      rw [hI', Finset.mem_image]
+      constructor
+      · rintro ⟨Q, hQ, hQe⟩
+        have hQR := h𝒞R Q hQ
+        have := injOn_idxMap (N₁' := N₁')
+          (ρ := R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+          (by omega) (inBox_mono (by omega) hQR) hPR hQe
+        rw [← this]; exact hQ
+      · intro h; exact ⟨_, h, rfl⟩
+    simp only [extS, hPc, hPc', ↓reduceDIte, cutPt]
+    by_cases h : (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I
+    · rw [ite_eq_left_iff.2 (fun h' => absurd (hiff.2 h) h'), ite_eq_left_iff.2 (fun h' => absurd h h')]
+    · rw [ite_eq_right_iff.2 (fun h' => absurd h' (mt hiff.1 h)), ite_eq_right_iff.2 (fun h' => absurd h' h)]
+  have hB' := SY_image (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS' hXR h𝒞R hYR
+  have hagree := hagree_boxMap (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS'
+    (SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) hj1 le_rfl) hYR hsP
+  have hraw' : RawBoxAgree {z | RowsDep (GA) (compWeight L a₁) ν (SY (GA) X₁ 𝒞 Y) z} (rawOf D)
+      (rawOf D') := fun z hz => hraw z (inBox_of_rowsDep_top hC.Sp hYR (by omega) hz)
+  have hb : UnitOut (GA) Y b := by
+    intro y hy
+    rw [hYV]
+    exact Finset.mem_union_left _ (Finset.mem_filter.2 ⟨Finset.mem_univ _, hy⟩)
+  exact rootTraceBg_single_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn hconn'
+    (norm_cutPt_lt_exp hC.hκ I) (norm_cutPt_lt_exp hC'.hκ I') hD hD' hYA hYc hs0 hs0' rfl hB'
+    hagree hYR hn hn' hraw' hb
+
 end TraceBg
 
 end Balaban.Polymer.TwoTorusStep
