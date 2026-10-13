@@ -136,6 +136,48 @@ theorem norm_obsUnitVec_le (m : ObsMarkIdx S) (p : S.U × Fin N) : ‖obsUnitVec
   · subst h; simp
   · simp [h]
 
+/-- **Locality of the kernel in the raw datum, for any agreement relation `Ag`.**  Let `Ev Y` take
+equal values at `Ag`-related points, and let `(r, h)`, `(r', h)` be `Ag`-related for `Y ⊆ Z` and
+every hat variable `h`.  Then `r, r' ∈ A` give the same kernel entry `obsHker … T₁` for every `T₁` whose sites lie in `Z`:
+the domains `Y` with label `T₁` are the sets `sitesOf T₁`. -/
+theorem obsHker_hatCoeff_local_rel (Ag : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → Prop)
+    (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ)
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y)
+    (hd : ∀ Y, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        Ag Y u u' → Ev Y u = Ev Y u')
+    {r r' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hr : r ∈ A) (hr' : r' ∈ A)
+    {Z : Set (CTorus d L N₁ m₁ (k + 1))} (hag : ∀ Y ⊆ Z, ∀ h, Ag Y (r, h) (r', h))
+    (m : ObsMarkIdx S)
+    {T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)} (hT₁ : sitesOf T₁ ⊆ Z) :
+    obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) m₀ T₁ =
+      obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r' (obsUnitVec S m)) m₀ T₁ := by
+  classical
+  unfold obsHker
+  refine Finset.sum_congr rfl fun Y hY => ?_
+  rw [Finset.mem_filter] at hY
+  have hYT : Y ⊆ Z := by
+    have := sitesOf_obsRowLabel hN (hdj Y hY.1)
+    rw [hY.2] at this
+    exact this ▸ hT₁
+  unfold hatCoeff
+  refine Filter.EventuallyEq.deriv_eq ?_
+  filter_upwards [(isOpen_ball (x := (0 : ℂ)) (ε := cψ)).mem_nhds
+    (show (0 : ℂ) ∈ ball (0 : ℂ) cψ by simpa using hcψ)] with ζ hζ
+  have hmem : ∀ p, ‖(ζ • obsUnitVec S m) p‖ ≤ cψ := by
+    intro p
+    simp only [Pi.smul_apply, smul_eq_mul, norm_mul]
+    have h1 : ‖ζ‖ < cψ := by simpa using hζ
+    calc ‖ζ‖ * ‖obsUnitVec S m p‖ ≤ ‖ζ‖ * 1 := by
+          gcongr; exact norm_obsUnitVec_le m p
+      _ ≤ cψ := by linarith
+  exact hd Y (r, ζ • obsUnitVec S m) ⟨hr, hmem⟩ (r', ζ • obsUnitVec S m) ⟨hr', hmem⟩
+    (hag Y hYT _)
+
+
 /-- **Locality of the kernel in the raw datum.**  Let `Ev Y` be local in the raw datum on the
 thickening of `Y` (clause `hd` of `obsEv_fromTower`).  Two raw data `r, r' ∈ A` that agree on
 `thickSet Z` give the same kernel entry `obsHker … T₁` for every `T₁` whose sites lie in `Z`:
@@ -152,28 +194,31 @@ theorem obsHker_hatCoeff_local (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ)
       Set.univ)} (hT₁ : sitesOf T₁ ⊆ Z) :
     obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) m₀ T₁ =
       obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r' (obsUnitVec S m)) m₀ T₁ := by
-  classical
-  unfold obsHker
-  refine Finset.sum_congr rfl fun Y hY => ?_
-  rw [Finset.mem_filter] at hY
-  have hYT : Y ⊆ Z := by
-    have := sitesOf_obsRowLabel hN (hdj Y hY.1)
-    rw [hY.2] at this
-    exact this ▸ hT₁
-  have hag' : agreeOn (thickSet S.G' Y) r r' := agreeOn_mono (thickSet_mono hYT) hag
-  unfold hatCoeff
-  refine Filter.EventuallyEq.deriv_eq ?_
-  filter_upwards [(isOpen_ball (x := (0 : ℂ)) (ε := cψ)).mem_nhds
-    (show (0 : ℂ) ∈ ball (0 : ℂ) cψ by simpa using hcψ)] with ζ hζ
-  have hmem : ∀ p, ‖(ζ • obsUnitVec S m) p‖ ≤ cψ := by
-    intro p
-    simp only [Pi.smul_apply, smul_eq_mul, norm_mul]
-    have h1 : ‖ζ‖ < cψ := by simpa using hζ
-    calc ‖ζ‖ * ‖obsUnitVec S m p‖ ≤ ‖ζ‖ * 1 := by
-          gcongr; exact norm_obsUnitVec_le m p
-      _ ≤ cψ := by linarith
-  exact hd Y (r, ζ • obsUnitVec S m) ⟨hr, hmem⟩ (r', ζ • obsUnitVec S m) ⟨hr', hmem⟩
-    ⟨hag', fun _ _ _ => rfl⟩
+  exact obsHker_hatCoeff_local_rel (fun Y u u' => AgHatDir S.hG' Y u u') hN hcψ hdj hd hr hr' 
+    (fun Y hYZ _ => ⟨agreeOn_mono (thickSet_mono hYZ) hag, fun _ _ _ => rfl⟩) m hT₁
+
+/-- **Locality of the kernel in the raw datum, exact form.**  Let `Ev Y` be local for raw data
+agreeing on `Y` itself and hat variables agreeing at the unit points of `Y` (clause `hd` of
+`obsEv_fromTower_rawY`).  Two raw data `r, r' ∈ A` that agree on
+`Z` itself give the same kernel entry `obsHker … T₁` for every `T₁` whose sites lie in `Z`:
+the domains `Y` with label `T₁` are the sets `sitesOf T₁`. -/
+theorem obsHker_hatCoeff_local_rawY (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ)
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y)
+    (hd : ∀ Y, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u')
+    {r r' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hr : r ∈ A) (hr' : r' ∈ A)
+    {Z : Set (CTorus d L N₁ m₁ (k + 1))} (hag : agreeOn Z r r')
+    (m : ObsMarkIdx S)
+    {T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)} (hT₁ : sitesOf T₁ ⊆ Z) :
+    obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r (obsUnitVec S m)) m₀ T₁ =
+      obsHker 𝒴 (fun Y => hatCoeff (Ev Y) r' (obsUnitVec S m)) m₀ T₁ := by
+  exact obsHker_hatCoeff_local_rel (fun Y u u' => agreeOn Y u.1 u'.1 ∧
+    ∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i))
+    hN hcψ hdj (fun Y u hu u' hu' h => hd Y u hu u' hu' h.1 h.2) hr hr'
+    (fun Y hYZ _ => ⟨agreeOn_mono hYZ hag, fun _ _ _ => rfl⟩) m hT₁
 
 end Kernel
 
@@ -225,6 +270,33 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
     RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → ℂ}
   {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))}
 
+/-- **Locality of the remainder marks in the raw datum, for any agreement relation `Ag`.**  For
+parameters whose raw data lie in `A` and are `Ag`-related (for every hat variable) on every `Y ⊆ Z`, the remainder mark of every index whose domain lies in `Z` is the same
+(the dummy index has the mark `0`).  The marks do not read the source. -/
+theorem obsGrFam_local_rel
+    (Ag : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → Prop)
+        (hd : ∀ Y, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        Ag Y u u' → Ev Y u = Ev Y u')
+    (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4) {θ θ' : physParam N S}
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ A)
+    (hθ' : (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ A)
+    {Z : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hag : ∀ Y ⊆ Z, ∀ h, Ag Y ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), h)
+      ((θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), h))
+    (idx : RemIdx 𝒴) (hidx : ∀ Y, idx = some Y → Y.1 ⊆ Z) (u : ℂ) :
+    obsGrFam S m₀ hp Ev 𝒴 A θ idx u = obsGrFam S m₀ hp Ev 𝒴 A θ' idx u := by
+  rw [obsGrFam_of_mem hθ, obsGrFam_of_mem hθ']
+  cases idx with
+  | none => rfl
+  | some Y =>
+    funext Φ
+    exact obsGrRawC_local_rel Ag (fun Y _ => hd Y) hcψ hq hθ hθ' Y
+      (hag Y.1 (hidx Y rfl)) u Φ
+
+
 /-- **Locality of the remainder marks in the raw datum.**  For parameters whose raw data lie in `A`
 and agree on `thickSet Z`, the remainder mark of every index whose domain lies in `Z` is the same
 (the dummy index has the mark `0`).  The marks do not read the source. -/
@@ -239,14 +311,31 @@ theorem obsGrFam_local
     (hag : agreeOn (thickSet S.G' Z) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
       (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
     (idx : RemIdx 𝒴) (hidx : ∀ Y, idx = some Y → Y.1 ⊆ Z) (u : ℂ) :
-    obsGrFam S m₀ hp Ev 𝒴 A θ idx u = obsGrFam S m₀ hp Ev 𝒴 A θ' idx u := by
-  rw [obsGrFam_of_mem hθ, obsGrFam_of_mem hθ']
-  cases idx with
-  | none => rfl
-  | some Y =>
-    funext Φ
-    exact obsGrRawC_local (fun Y _ => hd Y) hcψ hq hθ hθ' Y
-      (agreeOn_mono (thickSet_mono (hidx Y rfl)) hag) u Φ
+    obsGrFam S m₀ hp Ev 𝒴 A θ idx u = obsGrFam S m₀ hp Ev 𝒴 A θ' idx u := 
+  obsGrFam_local_rel (fun Y u u' => AgHatDir S.hG' Y u u') hd hcψ hq hθ hθ'
+    (fun _ hYZ _ => ⟨agreeOn_mono (thickSet_mono hYZ) hag, fun _ _ _ => rfl⟩) idx hidx u
+
+/-- **Locality of the remainder marks in the raw datum, exact form** (`Ev Y` local for raw data on
+`Y` itself and hat variables at the unit points of `Y`).  For parameters whose raw data lie in `A`
+and agree on `Z` itself, the remainder mark of every index whose domain lies in `Z` is the same
+(the dummy index has the mark `0`).  The marks do not read the source. -/
+theorem obsGrFam_local_rawY
+    (hd : ∀ Y, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u')
+    (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4) {θ θ' : physParam N S}
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ A)
+    (hθ' : (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ A)
+    {Z : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hag : agreeOn Z (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
+    (idx : RemIdx 𝒴) (hidx : ∀ Y, idx = some Y → Y.1 ⊆ Z) (u : ℂ) :
+    obsGrFam S m₀ hp Ev 𝒴 A θ idx u = obsGrFam S m₀ hp Ev 𝒴 A θ' idx u :=
+  obsGrFam_local_rel (fun Y u u' => agreeOn Y u.1 u'.1 ∧
+    ∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i))
+    (fun Y u hu u' hu' h => hd Y u hu u' hu' h.1 h.2) hcψ hq hθ hθ'
+    (fun _ hYZ _ => ⟨agreeOn_mono hYZ hag, fun _ _ _ => rfl⟩) idx hidx u
 
 end Remainder
 

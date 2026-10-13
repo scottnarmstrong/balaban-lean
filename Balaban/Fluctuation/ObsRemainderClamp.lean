@@ -129,15 +129,20 @@ theorem depOn_obsGrRawC (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ) (hq : S.p₁ /
   simp only [Pi.smul_apply, smul_eq_mul, StepSetting.hatOf]
   rw [this]
 
-/-- **Parameter locality**: for `r, r' ∈ A` that agree on the thickening of `Y`, the marks of `Y`
-are equal. -/
-theorem obsGrRawC_local
+/-- **Parameter locality for any agreement relation** `Ag` on pairs (raw datum, hat variable): if
+`Ev Y` takes equal values at `Ag`-related points of the ball and `(r, h)`, `(r', h)` are
+`Ag`-related for every hat variable `h`, the marks of `Y` at `r` and `r'` are equal.
+`obsGrRawC_local` (thickening) and `obsGrRawC_local_rawY` (exact) are its instances. -/
+theorem obsGrRawC_local_rel
+    (Ag : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → Prop)
     (hd : ∀ Y ∈ 𝒴, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
       ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
-        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+        Ag Y u u' → Ev Y u = Ev Y u')
     (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
     {r r' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hr : r ∈ A) (hr' : r' ∈ A)
-    (Y : {Y // Y ∈ 𝒴}) (hag : agreeOn (thickSet S.G' Y.1) r r') (u : ℂ)
+    (Y : {Y // Y ∈ 𝒴}) (hag : ∀ h, Ag Y.1 (r, h) (r', h)) (u : ℂ)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     obsGrRawC S m₀ hp Ev 𝒴 r (some Y) u Φ = obsGrRawC S m₀ hp Ev 𝒴 r' (some Y) u Φ := by
   have h4 := four_le_of hcψ hp hq
@@ -147,7 +152,7 @@ theorem obsGrRawC_local
     fun ζ hζ =>
     hd Y.1 Y.2 (r, ζ • S.hatOf m₀ S.p₁ hp Φ)
       ⟨hr, smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ⟩ (r', ζ • S.hatOf m₀ S.p₁ hp Φ)
-      ⟨hr', smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ⟩ ⟨hag, fun _ _ _ => rfl⟩
+      ⟨hr', smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ⟩ (hag _)
   by_cases hu : ‖u‖ < 3 / 2
   · have hq' : ∀ v : ℂ, ‖v‖ < 3 / 2 →
         deriv (fun ζ : ℂ => Ev Y.1 (r, ζ • S.hatOf m₀ S.p₁ hp Φ)) v =
@@ -159,6 +164,38 @@ theorem obsGrRawC_local
       exact hloc ζ (by simpa using hζ)
     rw [remExt_eq_of_lt _ hu, remExt_eq_of_lt _ hu, hq' u hu, hq' 0 (by simp)]
   · rw [remExt_eq_zero_of_le _ (not_lt.1 hu), remExt_eq_zero_of_le _ (not_lt.1 hu)]
+
+
+/-- **Parameter locality**: for `r, r' ∈ A` that agree on the thickening of `Y`, the marks of `Y`
+are equal. -/
+theorem obsGrRawC_local
+    (hd : ∀ Y ∈ 𝒴, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+    (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
+    {r r' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hr : r ∈ A) (hr' : r' ∈ A)
+    (Y : {Y // Y ∈ 𝒴}) (hag : agreeOn (thickSet S.G' Y.1) r r') (u : ℂ)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    obsGrRawC S m₀ hp Ev 𝒴 r (some Y) u Φ = obsGrRawC S m₀ hp Ev 𝒴 r' (some Y) u Φ := by
+  exact obsGrRawC_local_rel (fun Y u u' => AgHatDir S.hG' Y u u') hd hcψ hq hr hr' Y
+    (fun h => ⟨hag, fun _ _ _ => rfl⟩) u Φ
+
+/-- **Parameter locality, exact form**: for `r, r' ∈ A` that agree on `Y` itself, the marks of `Y`
+are equal, for terms `Ev Y` local for raw data on `Y` and hat variables at the unit points of `Y`. -/
+theorem obsGrRawC_local_rawY
+    (hd : ∀ Y ∈ 𝒴, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u')
+    (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
+    {r r' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hr : r ∈ A) (hr' : r' ∈ A)
+    (Y : {Y // Y ∈ 𝒴}) (hag : agreeOn Y.1 r r') (u : ℂ)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    obsGrRawC S m₀ hp Ev 𝒴 r (some Y) u Φ = obsGrRawC S m₀ hp Ev 𝒴 r' (some Y) u Φ := by
+  exact obsGrRawC_local_rel (fun Y u u' => agreeOn Y u.1 u'.1 ∧
+    ∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i))
+    (fun Y hY u hu u' hu' h => hd Y hY u hu u' hu' h.1 h.2) hcψ hq hr hr' Y
+    (fun h => ⟨hag, fun _ _ _ => rfl⟩) u Φ
 
 /-- **The clamp is the clipped hat field almost everywhere**: for the block product measure, the
 marks with the clamp equal the marks with the clipping, for every datum, index and `u`. -/
