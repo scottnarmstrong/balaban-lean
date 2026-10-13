@@ -316,6 +316,92 @@ theorem detActivity_ne_zero_imp (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) {y 
   rw [hY] at h1 h2
   exact ⟨h1, h2⟩
 
+open Classical in
+/-- **T4. Exponential decay of the activity in the size of the polymer.**  With
+`Δ = detDeg d L + 1`, `z = Δ² · 2 / e^κ < 1` (that is, `e^κ > 2 Δ²`) and the rate
+`λ = κ - log 2 - 2 log Δ = -log z`:
+`‖detActivity y Y‖ ≤ M / (1 - z) · exp(-(λ / (2 d L)) dExt Y)`, `M = ½ N covBLog`.
+The slope is `a = 2 d L` and the constant `b₀ = 0` of `dExt_hullOf_le`. -/
+theorem norm_detActivity_le (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) (y : unitPts G)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ‖detActivity m₀ a aT ν φ α y Y‖ ≤
+      (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ /
+        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+      Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+        (2 * d * L)) * dExt Y) := by
+  set Δ : ℝ := ((detDeg d L + 1 : ℕ) : ℝ) with hΔ
+  set zz : ℝ := Δ ^ 2 * (2 / Real.exp κ) with hzz
+  have hΔ1 : (1 : ℝ) ≤ Δ := by rw [hΔ]; exact_mod_cast Nat.le_add_left 1 _
+  have hzz0 : 0 < zz := by positivity
+  have hd : (0 : ℝ) < 2 * d * L := by
+    have h1 := S.dg.hd; have h2 := S.dg.hL
+    have : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+    have : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+    positivity
+  set x : ℝ := dExt Y / (2 * d * L) with hx
+  set n : ℕ := ⌈x⌉₊ with hn
+  -- the log of z
+  have hlog : Real.log zz = -(κ - Real.log 2 - 2 * Real.log Δ) := by
+    rw [hzz, Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_div (by norm_num)
+      (by positivity), Real.log_exp]
+    push_cast; ring
+  have hlt0 : Real.log zz < 0 := Real.log_neg hzz0 hz
+  -- sum over the fibre
+  have hmax : max (detDeg d L + 1) ({y} : Finset (unitPts G)).card = detDeg d L + 1 := by
+    rw [Finset.card_singleton]; exact max_eq_left (by omega)
+  have hz' : ((max (detDeg d L + 1) ({y} : Finset (unitPts G)).card : ℕ) : ℝ) ^ 2 *
+      (2 / Real.exp κ) < 1 := by rw [hmax]; exact hz
+  have htail := tail_norm_mixDiff_le S hκ hM hδ hsm hφ hα hconn {y} n hz'
+  rw [hmax, Finset.card_singleton, Nat.cast_one, mul_one] at htail
+  have hstep1 : ‖detActivity m₀ a aT ν φ α y Y‖ ≤
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ :=
+    norm_sum_le _ _
+  have hstep2 : ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ ≤
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card),
+        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ := by
+    rw [← Finset.sum_filter_ne_zero]
+    refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun _ _ _ => norm_nonneg _)
+    intro J hJ
+    obtain ⟨hJ1, hJ2⟩ := Finset.mem_filter.1 hJ
+    have hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) ≠ 0 :=
+      norm_ne_zero_iff.1 hJ2
+    obtain ⟨-, -, hd'⟩ := hull_facts_of_mixDiff_ne_zero (m₀ := m₀) S hκ hM hδ hsm hφ hα hconn hN hne
+    rw [(Finset.mem_filter.1 hJ1).2] at hd'
+    refine Finset.mem_filter.2 ⟨Finset.mem_powerset.2 (Finset.subset_univ _), ?_⟩
+    rw [hn]
+    refine Nat.ceil_le.2 ?_
+    rw [hx, div_le_iff₀ hd]
+    linarith
+  -- z ^ n ≤ exp (x log z)
+  have hpow : zz ^ n ≤ Real.exp (x * Real.log zz) := by
+    rw [← Real.exp_log hzz0, ← Real.exp_nat_mul, Real.exp_log hzz0]
+    refine Real.exp_le_exp.2 ?_
+    have hxn : x ≤ n := Nat.le_ceil x
+    nlinarith
+  have hxl : x * Real.log zz =
+      -((κ - Real.log 2 - 2 * Real.log Δ) / (2 * d * L)) * dExt Y := by
+    rw [hlog, hx]; field_simp
+  have h1z : 0 < 1 - zz := by linarith
+  have hMc : 0 ≤ (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ := by
+    have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+    obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
+    have := hbound ∅
+    simp only [Finset.card_empty, pow_zero, mul_one, Finset.card_singleton, Nat.cast_one] at this
+    exact (norm_nonneg _).trans this
+  refine hstep1.trans (hstep2.trans (htail.trans ?_))
+  rw [← hxl]
+  calc (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ * (zz ^ n / (1 - zz))
+      ≤ (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ *
+        (Real.exp (x * Real.log zz) / (1 - zz)) :=
+        mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hpow h1z.le) hMc
+    _ = _ := by ring
+
 end Decay
 
 end Balaban.Fluctuation
