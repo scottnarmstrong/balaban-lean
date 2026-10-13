@@ -54,6 +54,7 @@ public import Balaban.Polymer.BoxTransport
 public import Balaban.Polymer.TwoTorusStepGeometry
 public import Balaban.Polymer.TwoTorusThickSets
 public import Balaban.Polymer.TwoTorusData
+public import Balaban.Polymer.TwoTorusCubeOps
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
