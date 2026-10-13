@@ -62,9 +62,10 @@ The read set of the rooted trace is exactly `Y'` (multiplier and field, `CovStan
 
 ## What is not proved here
 
-The identification of `rootTraceBg` at `s = 1` with the determinant term of the step identity (only
-`rootTraceBg_one_eq*` of `DetCauchyChart`), the resummation over many blocks, and the absorption of
-the prefactor.
+No count, no activity and no bound: these, the identification of the sum of the activities with
+`½ log det C^{(k)}` of the step and the sum over the unit blocks of a block `B(z)` are in
+`DetCauchyBgActivity`.  The absorption of the prefactor by the energy constant is not proved
+anywhere.
 -/
 
 @[expose] public section

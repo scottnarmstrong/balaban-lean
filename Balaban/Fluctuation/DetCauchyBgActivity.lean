@@ -41,8 +41,10 @@ the parameter of `FlCore`).  The assembly of `DetCauchyAssembly` gives:
   `‖detActivityBg y Y‖ ≤ ½ N covBLog / (1 - z) · exp(-(λ / (2 d L)) dExt Y)`.
 * `sum_norm_detActivityBg_le`: the summed form, for `0 ≤ κ'' < λ / (2 d L)`.
 
-## Locality in the datum
+## Analyticity and locality in the datum
 
+* `exists_analytic_detActivityBg_raw`: the activity is the value at the raw datum of a function
+  of all raw data which is analytic at every chart point.
 * `rootTraceBg_eq_of_agree_on_Yreg`: at fixed `s`, `rootTraceBg B D s` depends on `D` only through
   its restriction to the sets `resDep x`, `x ∈ Yreg s`.
 * `mixDiff_rootTraceBg_eq_of_agree`: `Δ_J F_B` depends on `D` only through `resDep x` for the
@@ -53,19 +55,25 @@ the parameter of `FlCore`).  The assembly of `DetCauchyAssembly` gives:
 ## The step
 
 * `sum_detActivityBg_eq_halfLogDetCC`, `det_covSqrtC_eq_exp_sum_detActivityBg`: for the datum of a
-  step on the chart, the activities of all blocks and polymers add up to `halfLogDetCC`, and
+  step on the chart, the activities of all unit blocks and polymers add up to `halfLogDetCC`, and
   `det C^{(k)1/2} = exp(∑_y ∑_Y detActivityBg y Y)`.
-* `card_blockU_le`, `exists_detExpansionC_of_chart`: the landed structure `DetExpansionC` of the
-  step has an element whose terms are the sums over the unit blocks `y ∈ B(z)` of the activities,
-  with decay rate `λ / (2 d L)` and constant `L^d · ½ N covBLog / (1 - z)`.
+* `card_blockU_le`, `exists_detExpansionC_of_chart`: the structure `DetExpansionC` of the step has
+  an element whose terms are the sums over the unit blocks `y ∈ B(z)` of the activities, with
+  decay rate `λ / (2 d L)` and constant `L^d · ½ N covBLog / (1 - z)`.
 
 ## What is not proved here
 
-That the constant is absorbed by the energy constant `E₀` of the class (the prefactor
-`½ N covBLog d L a_k (a₁/L²) κ / (1 - z)` is not small); that the dependency set `⋃_{x ∈ Y ∩ Ω₁} resDep x` lies in the thickening of `Y` allowed by the energy class;
-analyticity of the activity on an open set of data (only the pointwise analyticity of
-`analyticOnNhd_rootTraceBg_raw` at chart points is available); the symmetry (paving covariance) of
-the activities; and the use of these terms in the step identity.
+* That the constant is absorbed by the energy constant `E₀` of the class: the prefactor
+  `½ N covBLog d L a_k (a₁/L²) κ / (1 - z)` is not small.
+* That the dependency set `⋃_{x ∈ Y ∩ Ω₁} resDep x` lies in the thickening of `Y` allowed by the
+  energy class.
+* An open chart of data on which the activity is analytic (the analyticity is at the points of the
+  chart, as in `analyticOnNhd_rootTraceBg_raw`), and the symmetry (paving covariance) of the
+  activities.
+* That the root cube `rootCube (rootIdxOf y)` of a unit block `y ∈ B(z)` is the cube of `z` used by
+  the energy class; `DetExpansionC` has no support, locality or analyticity field, so these
+  properties of the activities are not carried by `exists_detExpansionC_of_chart`.
+* The step theorems are not run again with this element of `DetExpansionC`.
 -/
 
 @[expose] public section
@@ -300,6 +308,51 @@ theorem sum_norm_detActivityBg_le (hN : L ^ m₀ ∣ N₁) (y : unitPts Gp) {κ'
     (cutRate_mul_exp_lt_one hΔ0 hκ'')
 
 end Chart
+
+/-! ### Analyticity in the datum -/
+
+section DatumAnalytic
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ} {m₀ : ℕ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+
+open Classical in
+/-- **Analyticity of the activity in the datum.**  There is one function `A` of the raw datum
+`(Ψ, h̃)`, analytic at the raw datum of every datum of the chart `Ξ^c`, which is the activity
+`detActivityBg D y Y` there.  (A finite combination of the values at the cut points `1_I` of the
+function of `analyticOnNhd_rootTraceBg_raw`; as there, nothing is said about openness of the
+chart.) -/
+theorem exists_analytic_detActivityBg_raw
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (y : unitPts Gp)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ∃ A : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        AnalyticAt ℂ A (rawOf D)) ∧
+      ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        A (rawOf D) = detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y := by
+  obtain ⟨F, hF, hFv⟩ := analyticOnNhd_rootTraceBg_raw hC hk hδc hcap hsm hmar hα
+    (isUnitLatticeB_unit (G := Gp)).toIsUnitLattice ({y} : Finset (unitPts Gp))
+  refine ⟨fun r => ∑ J ∈ (Finset.univ : Finset (cubeIdx Gp)).powerset.filter
+      (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+      ∑ I ∈ J.powerset, (-1 : ℂ) ^ (J.card - I.card) * F (cutPt I, r), ?_, ?_⟩
+  · intro D hD
+    refine Finset.analyticAt_fun_sum _ fun J _ => Finset.analyticAt_fun_sum _ fun I _ => ?_
+    refine analyticAt_const.mul ?_
+    exact AnalyticAt.comp_of_eq (hF _ ⟨norm_cutPt_lt_exp hC.hκ I, D, hD, rfl⟩)
+      (analyticAt_const.prod analyticAt_id) rfl
+  · intro D hD
+    unfold detActivityBg mixDiff
+    refine Finset.sum_congr rfl fun J _ => Finset.sum_congr rfl fun I _ => ?_
+    rw [hFv (cutPt I) D (norm_cutPt_lt_exp hC.hκ I) hD]
+
+end DatumAnalytic
 
 /-! ### Locality in the datum -/
 
