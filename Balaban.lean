@@ -59,6 +59,7 @@ public import Balaban.Polymer.TwoTorusCubeOps
 public import Balaban.Polymer.TwoTorusGreenRows
 public import Balaban.Polymer.TwoTorusDecBg
 public import Balaban.Polymer.TwoTorusSY
+public import Balaban.Polymer.TwoTorusSYF
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1490,9 +1491,11 @@ public import Balaban.Inhabited.TowerCoreRatesRen
 public import Balaban.Inhabited.TowerCoreRatesRenSol
 public import Balaban.Inhabited.StepTowerRen
 public import Balaban.Inhabited.StepTowerRenEnd
+public import Balaban.Inhabited.StepTowerRenEndG
 public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerG
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerGBridge
 public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Inhabited.StepScaleDataG
@@ -1648,6 +1651,7 @@ public import Balaban.Inhabited.MarkedRootFamilyWitness
 public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
+public import Balaban.Inhabited.DetPackageInstance
 public import Balaban.Inhabited.StepOutputPhysical
 public import Balaban.Inhabited.StepOutputPhysicalG
 public import Balaban.Fluctuation.DetGroupedAnalytic
@@ -1776,4 +1780,6 @@ public import Balaban.Fluctuation.ClassOldTermInputM
 public import Balaban.Fluctuation.ClassOldTermSiteSums
 public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
+public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.SmallField.LocalGeneratorPoly
+public import Balaban.SmallField.LocalTraceDescent

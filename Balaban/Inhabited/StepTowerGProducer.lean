@@ -35,7 +35,7 @@ theorem exists_stepTowerG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
     (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
     ∃ T : StepTowerG d L N κmin, T.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec := by
-  obtain ⟨T, h1, h2⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
+  obtain ⟨T, h1, h2, -⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
   exact ⟨T.toStepTowerG, h1, h2⟩
 
 end Balaban.Inhabited
