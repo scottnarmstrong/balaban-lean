@@ -28,6 +28,29 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6
 
+set_option hygiene false in
+/-- Local tactic: the tower data of `tower_core_fixed` and `tower_C_items` shared by the instances
+(names `m₁ c BG κ t c₂ BG₂ κdec κ0 δc δ hC hMX hdm hα hsmX hκpos β₀t hβ₀t hitems`). -/
+local macro "fan_setup" : tactic => `(tactic| (
+  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
+    exists_witness_params (fun _ => 0)
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, κdec, κ0, δc, h4, ht0, ⟨hC⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0⟩ := tower_core_fixed 2
+  have hκdec0 : 0 ≤ κdec := by linarith
+  have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
+  have hbig : cstarX 3 3 ≤ (3 : ℝ) ^ m₁ := by
+    have h := Localization.cstarX_pos 3 3
+    have h2 : cstarX 3 3 ≤ cstarX 3 3 * Real.exp ((N0 3 3 : ℝ) * κ) :=
+      le_mul_of_one_le_right h.le (Real.one_le_exp (by positivity))
+    have h3 : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by norm_num
+    linarith
+  have hκpos : 0 < κ := by
+    have : 0 < κdec := by linarith
+    have h5 : (0 : ℝ) < 4 * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec := by positivity
+    linarith
+  obtain ⟨β₀t, hβ₀t, hitems⟩ := tower_C_items (A₁ := 1) one_pos 2 m₁ h4 hbig κ ht0 hδ hsm hδ'0
+    hδ'a hδ'b hδ'c))
+
 open Classical in
 /-- **Instance of `hatPsiF_mem_flBallLC` at the witness step.** -/
 theorem fanChain_ball :
@@ -179,5 +202,100 @@ theorem fanChain_markedBall :
         (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) 1) κ * p₁)) = W * p₁ := by
     rw [hW]; ring
   rw [e]; exact hrad
+
+
+section Geometry
+
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+/-- On a whole-lattice generating set the whole torus is a nearest-neighbour component of the
+decoupling region `V(∅) = X₁ = univ`. -/
+theorem fanChain_isNnComp_univ (hG : IsLevel Gp (k + 1)) :
+    IsNnComp (((Vset (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))) ∅).filter
+      fun x => x ∈ Gp.Ω 1)) Finset.univ := by
+  classical
+  have hfil : ((Vset (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))) ∅).filter
+      fun x => x ∈ Gp.Ω 1) = Finset.univ := by
+    ext x
+    simp [Vset, hG.Ω_one]
+  rw [hfil]
+  exact ⟨subset_rfl, fun _ _ y _ _ => Finset.mem_univ y⟩
+
+theorem fanChain_cellUnion_univ :
+    IsCellUnion (L ^ (k + 1)) ((Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))) :
+      Set (CTorus d L N₁ m₁ (k + 1))) :=
+  fun _ _ y _ => by simp
+
+/-- No parameter cube meets the complement of `X₁ = univ`: the cut is the constant `1`. -/
+theorem fanChain_parCubes_univ :
+    parCubes Gp (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))) = ∅ := by
+  classical
+  ext P
+  simp [parCubes]
+
+end Geometry
+
+open Classical in
+/-- **Instances of `hatPsiF_rows` and `markedHatPsiF_rows` at the witness step** (whole torus:
+`N₁ = 9`, `X₁ = Y = univ`, no marked cubes, the cut `s ≡ 1`).  Reflexive: on the whole torus the
+agreement hypotheses force the two configurations to coincide. -/
+theorem fanChain_rows :
+    ∃ (m₁ : ℕ) (BG κ t δ β₀ : ℝ), 2 ≤ β₀ ∧ 0 < t ∧ 0 < κ ∧
+      ∀ β : ℝ, β₀ ≤ β → ∃ F₁ : DecParams (wStep m₁ β δ).G' × RawData 3 3 (9 * 3 ^ m₁) (1 + 1) 2 →
+            ((wStep m₁ β δ).G'.Ω 1 × Fin 2 → ℂ) × ((wStep m₁ β δ).G'.Ω 1 → ℂ),
+          F1Spec (wStep m₁ β δ).G' 1 nuW BG κ F₁ ∧
+          ∀ D D' : BgData (wStep m₁ β δ).G' 2,
+            XiCData (wStep m₁ β δ).G' (compWeight 3 1) nuW (1 + 1) 1 t D →
+            XiCData (wStep m₁ β δ).G' (compWeight 3 1) nuW (1 + 1) 1 t D' →
+            (∀ z, D.Ψ z = D'.Ψ z ∧ (z ∈ (wStep m₁ β δ).G'.Ω 1 → D.h z = D'.h z)) →
+            ∀ ψh ψh' : unitPts (wStep m₁ β δ).G' × Fin 2 → ℂ,
+              (∀ b' : unitPts (wStep m₁ β δ).G', ∀ i, ψh (b', i) = ψh' (b', i)) →
+            (∀ y : CTorus 3 3 9 m₁ (1 + 1),
+              hatPsiF (wStep m₁ β δ).G' 1 nuW (wStep m₁ β δ).hG'
+                ((((wStep m₁ β δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) F₁ (fun _ => 1) (rawOf D) ψh y =
+              hatPsiF (wStep m₁ β δ).G' 1 nuW (wStep m₁ β δ).hG'
+                ((((wStep m₁ β δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) F₁ (fun _ => 1) (rawOf D') ψh' y) ∧
+            (∀ (Z : Finset (unitPts (wStep m₁ β δ).G')) (u τ : ℂ) (y : CTorus 3 3 9 m₁ (1 + 1)),
+              markedHatPsiF (wStep m₁ β δ).a₁ (wStep m₁ β δ).ν (wStep m₁ β δ).hG'
+                ((((wStep m₁ β δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) F₁ Z u τ (fun _ => 1)
+                (rawOf D) ψh y =
+              markedHatPsiF (wStep m₁ β δ).a₁ (wStep m₁ β δ).ν (wStep m₁ β δ).hG'
+                ((((wStep m₁ β δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) F₁ Z u τ (fun _ => 1)
+                (rawOf D') ψh' y) := by
+  classical
+  fan_setup
+  refine ⟨m₁, BG, κ, t, δ, β₀t, hβ₀t, ht0, hκpos, ?_⟩
+  intro β hβ
+  obtain ⟨F₁, hF₁⟩ := f1Spec_exists hC
+  refine ⟨F₁, hF₁, ?_⟩
+  intro D D' hD hD' hdata ψh ψh' hh
+  have hs : ∀ P, ‖(fun _ : ↥(cubeIdx (wStep m₁ β δ).G') => (1 : ℂ)) P‖ < Real.exp κ := fun P => by
+    simpa using Real.one_lt_exp_iff.2 hκpos
+  have hs1 : ∀ P ∈ cubeIdx (wStep m₁ β δ).G',
+      P ∉ parCubes (wStep m₁ β δ).G' (Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))) →
+      extS (wStep m₁ β δ).G' (fun _ => 1) P = 1 ∧ extS (wStep m₁ β δ).G' (fun _ => 1) P = 1 :=
+    fun P hP _ => by simp [extS, hP]
+  have hs0 : ∀ P ∈ parCubes (wStep m₁ β δ).G' (Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))),
+      P ∉ (∅ : Finset (ℕ × CTorus 3 3 9 m₁ (1 + 1))) →
+      extS (wStep m₁ β δ).G' (fun _ => 1) P = 0 ∧ extS (wStep m₁ β δ).G' (fun _ => 1) P = 0 :=
+    fun P hP _ => by rw [fanChain_parCubes_univ] at hP; exact absurd hP (by simp)
+  have hY := fanChain_isNnComp_univ (wStep m₁ β δ).hG'
+  have hag : ∀ P ∈ (∅ : Finset (ℕ × CTorus 3 3 9 m₁ (1 + 1))),
+      SubI (wStep m₁ β δ).G' (cubeP P) Finset.univ →
+      extS (wStep m₁ β δ).G' (fun _ => 1) P = extS (wStep m₁ β δ).G' (fun _ => 1) P :=
+    fun P hP => absurd hP (by simp)
+  have hdata' : ∀ z ∈ (Finset.univ : Finset (CTorus 3 3 9 m₁ (1 + 1))),
+      D.Ψ z = D'.Ψ z ∧ (z ∈ (wStep m₁ β δ).G'.Ω 1 → D.h z = D'.h z) := fun z _ => hdata z
+  have hh' : ∀ b' : unitPts (wStep m₁ β δ).G', UnitOut (wStep m₁ β δ).G' Finset.univ b' →
+      ∀ i, ψh (b', i) = ψh' (b', i) := fun b' _ => hh b'
+  have hconn : HatConn (wStep m₁ β δ).G' := hatConn
+  refine ⟨fun y => ?_, fun Z u τ y => ?_⟩
+  · exact hatPsiF_rows hC le_rfl (wStep m₁ β δ).hG' _ hconn hMX hdm hα hsmX hF₁ hs hs hD hD'
+      hY hs1 hs0 hag fanChain_cellUnion_univ (fun P hP => absurd hP (by simp)) hdata' ψh ψh' hh'
+      y (Finset.mem_univ y)
+  · exact markedHatPsiF_rows hC le_rfl (wStep m₁ β δ).hG' _ hconn hMX hdm hα hsmX hF₁ hs hs hD hD'
+      hY hs1 hs0 hag fanChain_cellUnion_univ (fun P hP => absurd hP (by simp)) hdata' ψh ψh' hh'
+      Z u τ y (Finset.mem_univ y)
 
 end Balaban.Inhabited
