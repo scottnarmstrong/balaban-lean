@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.StepComplexJoint
+public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Analysis.ParamIntegralAnalytic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -445,6 +446,47 @@ theorem analyticAt_TstepJ (hp₁ : 0 < S.p₁) (hle : S.p₁ ≤ pp) (g : Fld d 
   rw [hfun]
   exact (analyticAt_const.mul hdet).mul hint
 
+include Jr in
+/-- The raw marked interpolation value uses the composed old datum carrying any incoming
+external field. -/
+theorem M0J_dataUCH (hp₁ : 0 < S.p₁) (hle : S.p₁ ≤ pp)
+    (H : StepSettingH S) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
+    (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
+    let ψ : ℝ → S.E → S.EC := fun t x =>
+      (fun q =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+            (unitRep (G' := S.G') q.1) q.2) +
+        S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ((t : ℂ) • yhat x)
+    ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
+        S.avgJ (Jr.W1 C) (Jr.W2 C g) (Jr.McJ C g y i) (rawOf H.D') =
+      ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
+        ∫ t in (0 : ℝ)..1,
+          avgFun₂ S.nuFl
+            (fun _ x => Jr.W1 C (rawOf H.D', yhat x))
+            (fun t x => Jr.W2 C g (rawOf H.D', (t : ℂ) • yhat x))
+            (fun x => deriv (fun r => McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+              (H.dataUCH (ψ r x)) g y i) t) 1 t := by
+  dsimp only
+  rw [S.avgJ_congr
+    (a := fun x => Jr.W1 C (rawOf H.D', yhat x))
+    (b := fun t x => Jr.W2 C g (rawOf H.D', (t : ℂ) • yhat x))
+    (c := fun t x => McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+      (H.dataUCH ((fun q =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+            (unitRep (G' := S.G') q.1) q.2) +
+        S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ((t : ℂ) • yhat x))) g y i)
+    (Filter.Eventually.of_forall fun _ => rfl)
+    (fun _ _ => Filter.Eventually.of_forall fun _ => rfl)
+    (fun t ht => by
+      filter_upwards [S.ae_ball hp₁] with x hx
+      have hxn : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp₁ x).1 hx
+      filter_upwards [S.eventually_abs_mul_le hle ht hxn] with r hr
+      exact Jr.McJ_dataUCH H C hX (fun p => smul_yhat_le (S := S) (pp := pp) hr p) g y i)]
+  unfold avgFun₂ partFun₂
+  rfl
+
 section Slice
 
 variable (hp₁ : 0 < S.p₁) (hle : S.p₁ ≤ pp) (D : BgData S.G' N)
@@ -516,18 +558,27 @@ theorem M0J_withDatum (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m�
     ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
         S.avgJ (Jr.W1 C) (Jr.W2 C g) (Jr.McJ C g y i) (rawOf D) =
       (S.withDatum D hD).M0C C g y i := by
-  rw [S.avgJ_congr (a := fun x => (S.withDatum D hD).WoneC C 1 x)
-    (b := fun t x => (S.withDatum D hD).WtwoC C g t x)
-    (c := fun t x => McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
-      ((S.withDatum D hD).dataUC ((S.withDatum D hD).psiAtC t x)) g y i)
-    (Jr.ae_W1_one C hp₁ hle D hD hX)
-    (fun t ht => Jr.ae_W2_path C hp₁ hle D hD hX g ht)
-    (fun t ht => by
-      filter_upwards [S.ae_ball hp₁] with x hx
-      have hxn : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp₁ x).1 hx
-      filter_upwards [S.eventually_abs_mul_le hle ht hxn] with r hr
-      exact Jr.McJ_withDatum C D hD hX g y i hr)]
-  rfl
+  apply Eq.trans (Jr.M0J_dataUCH C hp₁ hle (S.withDatumH D) hX g y i)
+  unfold StepSetting.M0C
+  apply congrArg (fun z : ℂ => ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * z)
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  apply avgFun₂_congr_ae (Jr.ae_W1_one C hp₁ hle D hD hX)
+    (Jr.ae_W2_path C hp₁ hle D hD hX g ht)
+  refine Filter.Eventually.of_forall fun x => ?_
+  congr 1
+  funext r
+  rw [StepSettingH.dataUCH_fibre (S := S) D hD]
+  apply congrArg (fun ψ : S.EC => McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+    ((S.withDatum D hD).dataUC ψ) g y i)
+  dsimp only [StepSetting.withDatumH]
+  change (S.withDatum D hD).psi0C +
+      (S.withDatum D hD).hatField (hatCovSqrt S.G' S.a₁ S.ν D) ((r : ℂ) • yhat x) =
+    (S.withDatum D hD).psiAtC r x
+  have hcov : hatCovSqrt S.G' S.a₁ S.ν D = (S.withDatum D hD).covSqrtC :=
+    (Jr.Mx_eq D hX).symm.trans (Jr.Mx_withDatum D hD hX)
+  rw [hcov]
+  exact ((S.withDatum D hD).psiAtC_eq_psiHat r x).symm
 
 include hp₁ hle hX in
 /-- On the slice, the joint exponent `W₁` is analytic at the hat variables of the path, where the
