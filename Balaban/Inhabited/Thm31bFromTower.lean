@@ -53,6 +53,185 @@ theorem obsPrefactor_nonneg (p : ℕ) (s : ℝ) {b : ℝ} (hb : 1 ≤ b) : 0 ≤
   have hb0 : 0 < b := by linarith
   unfold obsPrefactor; positivity
 
+section TowerG
+
+open Classical in
+/-- **Theorem 3.1 (b)** for the zero-class step at ONE scale and source radius `ρ`, from the ray premise at that scale,
+general tower: `T : StepTowerG d L N κmin`, `b = β L^{k(d-2)}`, the step `S` over `ϱ = rhoSepG d L T.m₁` equal to
+`T.step …` up to `HEq`.  The fixed `thm31b_zeroClass_at_of_ray_rho` is its corollary. -/
+theorem thm31b_zeroClass_at_of_ray_rhoG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ C : ℝ, 0 ≤ C ∧ ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ b : ℝ, b = β * (L : ℝ) ^ (k * (d - 2)) → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p b →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ (ϱ : ℝ), ϱ = rhoSepG d L T.m₁ →
+  ∀ S : StepSetting d L N₁ T.m₁ k N ϱ, HEq S (T.step k hk N₁ ν β p₁) →
+  ∀ hpS : 0 < S.p₁,
+      ∀ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+          ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+            (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+        (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+        (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+          ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+          (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+            (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+      (hval : (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν T.t
+                (fun D ψ' => svec (stepG d L N₁ T.m₁ k ϱ)
+                  (flFieldOne S.G' (stepG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                    s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))) →
+      (hcont : DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+          (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁))
+          (physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) 2 𝒴 Tt) →
+      (hI : (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∃ I : DirectTerms S T.m₀ hpS (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+              (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt)) →
+      (hmem0 : (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) →
+      (hmemg : (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < ρ →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β))) →
+      (hrayTt : (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∀ ψ ∈ hatDisk S.U N p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (ball (0 : ℂ) (3 / 2)))) →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N ρ →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    ∃ E : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+        Set.univ) → ℂ,
+      S.M0C (zeroClass d L N₁ T.m₁ k N ϱ) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      (∀ T', rootCube (m₀ := T.m₀) (blockIndex y) ∉ T' → E T' = 0) ∧
+      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s b * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
+  obtain ⟨C₁, C₂, hC₁, hC₂, hfam⟩ := obsMarks_zeroClass_at_of_ray_ksupp_rhoG T hA p hCR hs0 hs
+  refine ⟨max C₁ C₂, le_max_of_le_left hC₁, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, hβ₀, hfam⟩ := hfam ρ hρ
+  refine ⟨β₀, hβ₀, ?_⟩
+  intro k hk N₁ _ h3 h5 ν hν hνk β hβ b hb p₁ hp hp₁ hsc ϱ hϱ S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
+  obtain ⟨I, -, hκ0, hκH, hκ', hκh, -, hB1, hB2, -⟩ := hfam k hk N₁ h3 h5 ν hν hνk β hβ b hb p₁ hp hp₁ hsc ϱ hϱ S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
+  have hrate : 3 / 2 * T.κdec ≤ min I.κh I.κ' - I.κ0 - 1 := by
+    have := T.outRate_eq.ge
+    rw [hκh, hκ', hκ0]
+    exact this
+  obtain ⟨E, h1, h2, h3'⟩ := thm31bC_of_input_M0 _ _ _ g y i I hrate
+  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by have := T.hL; omega : 1 ≤ L)
+  have h3k : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
+  have hb1 : 1 ≤ b := by
+    subst hb
+    nlinarith [show (2 : ℝ) ≤ β from by linarith]
+  have hl : 0 ≤ Real.log b := Real.log_nonneg hb1
+  have hW : 0 ≤ obsW p b := by unfold obsW; positivity
+  have hb0 : 0 < b := by linarith
+  have hP1 : 0 ≤ obsW p b ^ 4 * b ^ (-(1 / 2 : ℝ) - s) := by positivity
+  have hP2 : 0 ≤ obsW p b ^ 2 / b := by positivity
+  have hsum : I.B1 + I.B2 ≤ max C₁ C₂ * obsPrefactor p s b := by
+    unfold obsPrefactor
+    have a1 : C₁ * obsW p b ^ 4 * b ^ (-(1 / 2 : ℝ) - s) ≤
+        max C₁ C₂ * (obsW p b ^ 4 * b ^ (-(1 / 2 : ℝ) - s)) := by
+      rw [mul_assoc]; exact mul_le_mul_of_nonneg_right (le_max_left _ _) hP1
+    have a2 : C₂ * obsW p b ^ 2 / b ≤
+        max C₁ C₂ * (obsW p b ^ 2 / b) := by
+      rw [mul_div_assoc]; exact mul_le_mul_of_nonneg_right (le_max_right _ _) hP2
+    nlinarith [hB1, hB2]
+  exact mul_le_mul_of_nonneg_right hsum (Real.exp_nonneg _)
+
+open Classical in
+/-- **Theorem 3.1 (b)** for the zero-class step at every scale of one general tower, at the output rate
+`(3/2) κ_dec`, conditional on ray holomorphy of the direct terms (slice `ρ/β`, `max 1 ρ ≤ β`; the premise `hray` is
+that of `obsRay_hray_fromTowerG_rho`).  The fixed `thm31b_zeroClass_fromTower_of_ray_rho` is its corollary. -/
+theorem thm31b_zeroClass_fromTower_of_ray_rhoG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) (ρ : ℝ) (hρ : 0 < ρ)
+    (hray : ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+          ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, max 1 ρ ≤ β →
+          ∀ p₁ : ℝ, 0 < p₁ → StepScaleDataG T k hk N₁ ν β p₁ →
+          ∀ S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁), S = T.step k hk N₁ ν β p₁ →
+          ∀ hp : 0 < S.p₁,
+          ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+              ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+            (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+            (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+              ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+              (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+            (∀ x w σ Θ, val x w σ Θ =
+              (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+                ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+                (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+              (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+                dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+                  (onXi S.G' S.a₁ S.ν T.t
+                    (fun D ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                      (flFieldOne S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                        s.1 s.2)))
+                  (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+            DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+              (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁))
+              (physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) 2 𝒴 Tt ∧
+            (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+              ∃ I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                  (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1) Θ
+                  (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+                  (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+                  (physAgΘ S) (AgFDirPair S),
+                I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+            (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+              physSΛEta S S.a₁ S.ν T.t (ρ / S.β) ∧
+            (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < ρ →
+              (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) ∧
+            (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+              ∀ ψ ∈ hatDisk S.U N p₁,
+                DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+                  (ball (0 : ℂ) (3 / 2)))) :
+  ∃ β₀ C : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧ 0 ≤ C ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N ρ →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    ∃ E : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+        Set.univ) → ℂ,
+      (T.step k hk N₁ ν β p₁).M0C (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g y i =
+        (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      (∀ T', rootCube (m₀ := T.m₀) (blockIndex y) ∉ T' → E T' = 0) ∧
+      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) *
+        Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
+  obtain ⟨C, hC, hat⟩ := thm31b_zeroClass_at_of_ray_rhoG T hA p hCR hs0 hs
+  obtain ⟨β₀, hβ₀, hat⟩ := hat ρ hρ
+  refine ⟨max β₀ ρ, C, le_trans hβ₀ (le_max_left _ _), le_max_right _ _, hC, ?_⟩
+  intro k hk N₁ _ hLN hN ν hνpos hν β hβ p₁ hp hp₁ D g hg y i
+  have hβ0 : β₀ ≤ β := le_trans (le_max_left _ _) hβ
+  have hβρ : ρ ≤ β := le_trans (le_max_right _ _) hβ
+  obtain ⟨val, 𝒴, Tt, hval, hcont, hI, hmem0, hmemg, hrayTt⟩ :=
+    hray k hk N₁ hLN hN ν hνpos hν β (max_le (by linarith) hβρ) p₁ hp D _ rfl hp
+  exact hat k hk N₁ hLN hN ν hνpos hν β hβ0 _ rfl p₁ hp hp₁ D _ rfl _ HEq.rfl hp val 𝒴 Tt hval hcont hI
+    hmem0 hmemg hrayTt g hg y i
+
+end TowerG
+
 /-- **Theorem 3.1 (b)** for the zero-class step at ONE scale and source radius `ρ`, from the ray premise at that scale:
 the constant `C` first, then `ρ > 0` and the threshold `β₀`; then, for every scale beyond `β₀` and every witness `val, 𝒴, Tt` with the
 clauses of the direct-terms construction at that scale (as in `obsMarks_zeroClass_at_of_ray`), the
@@ -115,36 +294,17 @@ theorem thm31b_zeroClass_at_of_ray_rho {κmin : ℝ} (T : StepTower κmin)
         ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
       (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
       ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
-  obtain ⟨C₁, C₂, hC₁, hC₂, hfam⟩ := obsMarks_zeroClass_at_of_ray_ksupp_rho T hA p hCR hs0 hs
-  refine ⟨max C₁ C₂, le_max_of_le_left hC₁, fun ρ hρ => ?_⟩
-  obtain ⟨β₀, hβ₀, hfam⟩ := hfam ρ hρ
+  obtain ⟨C, hC, hat⟩ := thm31b_zeroClass_at_of_ray_rhoG T.toG hA p hCR hs0 hs
+  refine ⟨C, hC, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, hβ₀, hb⟩ := hat ρ hρ
   refine ⟨β₀, hβ₀, ?_⟩
-  intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
-  obtain ⟨I, -, hκ0, hκH, hκ', hκh, -, hB1, hB2, -⟩ := hfam k hk N₁ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc S hS hpS val 𝒴 Tt hval hcont hI hmem0 hmemg hrayTt g hg y i
-  have hrate : 3 / 2 * T.κdec ≤ min I.κh I.κ' - I.κ0 - 1 := by
-    have := stepTower_outRate_le T
-    rw [hκh, hκ', hκ0]
-    exact this
-  obtain ⟨E, h1, h2, h3'⟩ := thm31bC_of_input_M0 _ _ _ g y i I hrate
-  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
-  have hb : 1 ≤ β * 3 ^ k := by
-    have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-    nlinarith
-  have hl : 0 ≤ Real.log (β * 3 ^ k) := Real.log_nonneg hb
-  have hW : 0 ≤ obsW p (β * 3 ^ k) := by unfold obsW; positivity
-  have hb0 : 0 < β * 3 ^ k := by linarith
-  have hP1 : 0 ≤ obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) := by positivity
-  have hP2 : 0 ≤ obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by positivity
-  have hsum : I.B1 + I.B2 ≤ max C₁ C₂ * obsPrefactor p s (β * 3 ^ k) := by
-    unfold obsPrefactor
-    have a1 : C₁ * obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ≤
-        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 4 * (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s)) := by
-      rw [mul_assoc]; exact mul_le_mul_of_nonneg_right (le_max_left _ _) hP1
-    have a2 : C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ≤
-        max C₁ C₂ * (obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k)) := by
-      rw [mul_div_assoc]; exact mul_le_mul_of_nonneg_right (le_max_right _ _) hP2
-    nlinarith [hB1, hB2]
-  exact mul_le_mul_of_nonneg_right hsum (Real.exp_nonneg _)
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp hp₁ D S hS hpS val 𝒴 Tt hval hcont hI hmem0
+    hmemg hrayTt g hg y i
+  subst hS
+  exact hb k hk N₁ (by simpa using h3N) hN ν hνpos (by simpa using hν) β hβ (β * 3 ^ k)
+    (by norm_num) p₁ hp hp₁ (StepTower.scaleDataG_of_fixed T D) (rhoSep T.m₁)
+    (rhoSepG_three _).symm _ (StepTower.toG_step_heq T k hk N₁ ν β p₁).symm hpS val 𝒴 Tt hval
+    hcont hI hmem0 hmemg hrayTt g hg y i
 
 /-- **Theorem 3.1 (b)** for the zero-class step at ONE scale, from the ray premise at that scale:
 thresholds `β₀, C` first; then, for every scale beyond `β₀` and every witness `val, 𝒴, Tt` with the
