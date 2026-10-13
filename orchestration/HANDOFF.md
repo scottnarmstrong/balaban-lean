@@ -13,8 +13,8 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
-| W270 | `w270-aligned-kernel` / W270 | aligned kernel, row sums: repair of the grouped regional bound premises |
+| W277 | `w277-param-carrier-local` / W277 | compact carrier of the step's block measures; locality and bound for parameter families of marks (PARAM package 4, generic) |
+| W278 | `w278-root-det-chart` / W278 | RootDetChart: trace bound, cut expansion, bound of cut differences, endpoint identity (ROOTDET package 1) |
 | W272 | `w272-p6-top-cover` / W272 | P6 full-torus top-only auxiliary cover: CoverGeom/CoverBase for both operators, root incidence (VMOD-31 i–iii) |
 | W273 | `w273-root-active-size` / W273 | RootActiveSize: dExt T = sizeJ (sitesOf T) on active cube sets; vanishing of coefficients (ROOT package 1) |
 | W274 | `w274-root-paving-map` / W274 | RootPavingMap: root map, paving action on cube sets, fibre ≤ 1, abstract rooted sum (ROOT package 3) |
