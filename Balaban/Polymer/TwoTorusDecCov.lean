@@ -886,4 +886,196 @@ theorem unitQT_rows_transport {ρ : ℕ}
 
 end Unit
 
+/-! ### D1: the decoupled covariance on two tori -/
+
+section CovRows
+
+open MeasureTheory Set
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bU" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) ((N₁' * L ^ m₁) * L ^ (k + 1 - k))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ (k + 1)))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) (ϱ := ϱ)
+    (Nat.le_add_left 1 k) le_rfl _)
+set_option hygiene false in
+local notation "ιu" b:max => Subtype.mk (bU (b : UnitTorus d L N₁ m₁ k))
+  (mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) _)
+
+/-- **D1: the decoupled covariance `C_x(s)` on two tori, at the unit points of a component.**  Let
+`Y` be a union of components of the cut of the top level `levelGS (k + 1)` of the first torus and
+`Y' = bm '' Y` its image, with `S_Y` going to `S_{Y'}` (`hB'`), the parameters vanishing on the
+parameter cubes off `𝒞` (`hs0`, `hs0'`) and their cube products agreeing on the inner cubes of
+`S_Y` (`hagree`), `Y` in the box of radius `R`.  If the multipliers correspond on `S_Y`, the fields
+on `R(S_Y)` (`rowsCov_R`), and the inputs on the unit points whose `(k+1)`-block lies in `Y` or
+meets `S_Y`, then `C_x(α, φ, s) h` and `C_x(α', φ', s') h'` correspond at every unit point whose
+`(k+1)`-block lies in `Y`.  Margin: `4 R + 12 L^(k+1+m₁) + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for
+`N₁'`). -/
+theorem decCov_rows_transport {a : ℕ → ℝ} {aT x₀ ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (D : XData (GA) a aT ν x₀ α κ s) (D' : XData (GB) a aT ν x₀ α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨ UnitIn (GA) X₁ 𝒞 Y b') → ∀ i,
+      h' (ιu b', i) = h (b', i)) :
+    ∀ b : unitPts (GA), UnitOut (GA) Y b → ∀ i : Fin N,
+      (decCov (GB) a aT x₀ ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+        (decCov (GA) a aT x₀ ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) := by
+  classical
+  intro b hb i
+  have SA := D.st
+  have SB := D'.st
+  have hx₀ := D.x0
+  have hαA := D.pot
+  have hαB := D'.pot
+  have hU := D.isUnit_one_sub
+  have hU' := D'.isUnit_one_sub
+  have hM := decM_isUnit D hφ hδ hsm
+  have hM' := decM_isUnit D' hφ' hδ hsm
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hnu : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hnu' : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hSYY := SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) (Y := Y) hj1 le_rfl
+  have hout : ∀ b3 : unitPts (GA), UnitOut (GA) Y b3 → ∃ x0 : CTorus d L N₁ m₁ (k + 1),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x0 ∧
+        unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
+    intro b3 hb3
+    obtain ⟨y, -, hy⟩ := (mem_unitPts _).1 b3.2
+    have hyY : y ∈ Y := hb3 ⟨y, levelGS_mem_Ω_one hj1 le_rfl y⟩ (by rw [hy])
+    exact ⟨y, hYR y hyY, by rw [← hy, unitBlock1_unitBlock]⟩
+  have hbo : ∀ b3 : unitPts (GA), unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → UnitOut (GA) Y b3 :=
+    fun b3 h3 y hy => hb y (hy.trans h3)
+  rw [decCov_mulVec_eq, decCov_mulVec_eq, Pi.add_apply, Pi.add_apply, Pi.smul_apply,
+    Pi.smul_apply]
+  obtain ⟨xb, hxbR, hxb⟩ := hout b hb
+  have t0 := covA_unit_rows_transport (N := N) (a k) (aT / (L : ℝ) ^ 2) x₀ hnu hnu' hxbR hxb
+    (g := h) (g' := h') (fun b3 h3 j => hh b3 (Or.inl (hbo b3 h3)) j) i
+  have z1 : ∀ b2 : unitPts (GA), UnitIn (GA) X₁ 𝒞 Y b2 → ∀ j,
+      (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GB))) *ᵥ h') (ιu b2, j) =
+        (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GA))) *ᵥ h) (b2, j) := by
+    rintro b2 ⟨y, hy, hyb⟩ j
+    exact covA_unit_rows_transport (a k) (aT / (L : ℝ) ^ 2) x₀ hnu hnu' (hYR _ (hSYY hy))
+      (hyb.symm.trans (unitBlock1_unitBlock _))
+      (fun b3 h3 j' => hh b3 (Or.inr ⟨y, hy, hyb.trans h3.symm⟩) j') j
+  have z2 : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → ∀ j,
+      ((liftRect N (unitQ (GB)))ᵀ *ᵥ
+        (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GB))) *ᵥ h')) (ιb y, j) =
+      ((liftRect N (unitQ (GA)))ᵀ *ᵥ
+        (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GA))) *ᵥ h)) (y, j) := by
+    intro y hy j
+    exact unitQT_rows_transport (ρ := R) (by omega) y (hYR _ (hSYY hy))
+      (fun j' => z1 _ ⟨y, hy, rfl⟩ j') j
+  have z3 := decZ_rows_transport SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn'
+    hαA hαB hα hU hU' hφR hM hM' z2
+  have z4 : ∀ b3 : unitPts (GA), UnitOut (GA) Y b3 → ∀ j,
+      (liftRect N (unitQ (GB)) *ᵥ (decZ (GB) a aT x₀ ν α' s' φ' *ᵥ
+        ((liftRect N (unitQ (GB)))ᵀ *ᵥ
+          (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GB))) *ᵥ h')))) (ιu b3, j) =
+      (liftRect N (unitQ (GA)) *ᵥ (decZ (GA) a aT x₀ ν α s φ *ᵥ
+        ((liftRect N (unitQ (GA)))ᵀ *ᵥ
+          (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP (GA))) *ᵥ h)))) (b3, j) := by
+    intro b3 hb3 j
+    obtain ⟨x3, hx3R, hx3⟩ := hout b3 hb3
+    exact unitQ_rows_transport hnu hnu' hx3R hx3
+      (fun y hy j' => z3 y (hb3 y (by rw [hy])) j') j
+  have t1 := covA_unit_rows_transport (N := N) (a k) (aT / (L : ℝ) ^ 2) x₀ hnu hnu' hxbR hxb
+    (fun b3 h3 j => z4 b3 (hbo b3 h3) j) i
+  rw [t0, t1]
+
+/-- At a unit point whose `(k+1)`-block avoids the core of `s`, `C_x(s) h = A_{k,x} h`: the
+`Z`-term vanishes on the whole block (one torus). -/
+theorem decCov_apply_of_free {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ}
+    {aT x₀ ν : ℝ} {α : G.Ω 1 → ℂ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} (b : unitPts G)
+    (hb : ∀ y : G.Ω 1, unitBlock1 (unitBlock (y : CTorus d L N₁ m₁ (k + 1))) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → (y : CTorus d L N₁ m₁ (k + 1)) ∉ Core G s)
+    (h : unitPts G × Fin N → ℂ) (i : Fin N) :
+    (decCov G a aT x₀ ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP G)) *ᵥ h) (b, i) := by
+  classical
+  rw [decCov_mulVec_eq, Pi.add_apply, Pi.smul_apply]
+  have hbo : ∀ b3 : unitPts G, unitP G b b3 ≠ 0 → unitBlock1 (b : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) := fun b3 hP => unitP_ne_zero_imp hP
+  have hW : ∀ b3 : unitPts G, unitBlock1 (b : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) → ∀ j,
+      (liftRect N (unitQ G) *ᵥ (decZ G a aT x₀ ν α s φ *ᵥ ((liftRect N (unitQ G))ᵀ *ᵥ
+        (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP G)) *ᵥ h)))) (b3, j) = 0 := by
+    intro b3 hb3 j
+    have e0 : (liftRect N (unitQ G) *ᵥ (0 : G.Ω 1 × Fin N → ℂ)) (b3, j) = 0 := by simp
+    rw [← e0]
+    refine mulVec_apply_congr _ _ _ _ ?_
+    rintro ⟨y, j'⟩ hq
+    obtain ⟨hj, hQ⟩ := liftRect_ne_zero_imp _ hq
+    simp only at hj hQ
+    subst hj
+    exact decZ_apply_eq_zero _ (hb y (by rw [unitQ_ne_zero_imp hQ]; exact hb3.symm)) _
+  have e1 := covA_apply_congr (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP G))
+    (liftRect N (unitQ G) *ᵥ (decZ G a aT x₀ ν α s φ *ᵥ ((liftRect N (unitQ G))ᵀ *ᵥ
+      (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP G)) *ᵥ h)))) 0 (b, i)
+    (by rw [hW b rfl i]; rfl) (by
+      rintro ⟨b3, j⟩ hq
+      obtain ⟨hj, hP⟩ := liftOp_ne_zero_imp _ hq
+      simp only at hj hP
+      subst hj
+      rw [hW b3 (hbo b3 hP) _]; rfl)
+  rw [e1]
+  simp
+
+/-- **D1, free branch.**  At a unit point `b` whose `(k+1)`-block avoids the core of `s` on the
+first torus, and whose image avoids the core of `s'` on the second torus, `C_x(s) h` and
+`C_x(s') h'` correspond as soon as the inputs correspond on the unit points of the block (no
+agreement of the backgrounds is needed).  `x_b` is a site of the box of radius `R` in the block of
+`b`.  Margin: `2 R + 5 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for `N₁'`). -/
+theorem decCov_rows_transport_free {a : ℕ → ℝ} {aT x₀ ν : ℝ} {α : (GA).Ω 1 → ℂ}
+    {α' : (GB).Ω 1 → ℂ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ} {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ} {R : ℕ}
+    (hnu : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnu' : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {b : unitPts (GA)} {xb : CTorus d L N₁ m₁ (k + 1)}
+    (hxbR : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) xb)
+    (hxb : unitBlock1 (b : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) xb)
+    (hfree : FreeBlk (GA) s s b) (hfree' : FreeBlk (GB) s' s' (ιu b))
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b3 : unitPts (GA), unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → ∀ i, h' (ιu b3, i) = h (b3, i)) (i : Fin N) :
+    (decCov (GB) a aT x₀ ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decCov (GA) a aT x₀ ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) := by
+  rw [decCov_apply_of_free _ (fun y hy => (hfree' y hy).1),
+    decCov_apply_of_free _ (fun y hy => (hfree y hy).1)]
+  exact covA_unit_rows_transport _ _ _ hnu hnu' hxbR hxb hh i
+
+end CovRows
+
 end Balaban.Polymer.TwoTorusStep
