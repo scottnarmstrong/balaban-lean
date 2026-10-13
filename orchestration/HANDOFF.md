@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W363 | `w363-kf0-killed-walks` / W363 | one-scale branch: killed-walk inverse of the good-region operator, inward decay, determinant walk formula (H37-3) |
 | W369 | `w369-marked-two-mark-local` / W369 | two-mark locality of marked terms; discharge `hzero` of `marked_count_scaled_dec` |
-| W370 | `w370-symm-translations` / W370 | translations as `LatSymm`/`CoverSymm`/`BlockSymm` (first non-identity symmetries) |
 | W366 (Opus) | `w366-source-activity-scale` / W366 | source-dependent activity bound at every scale for every source in the ball + complex transport at the central datum (SRCACT leaves 3, 6, 7, 8) |
 | W368 | `w368-kf0-walk-ordinary` / W368 | one-scale branch: estimate core of Theorem F.1 (weighted walk sums, path majorants) |
 | W372 | `w372-obs-cauchy-mean` / W372 | observable marks: Cauchy two orders; mean zero of clipped coordinate marks (OBSMARKS 8.2, 8.4) |
