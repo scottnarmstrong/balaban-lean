@@ -433,15 +433,23 @@ cubic identity (`hc7`, `hR`, `hRs`, `hsmall`, `hnum`, `hnum'`) and of `MARK-REAL
 `(R₁ + r)(R_σ + t₁) · markedRad < δ₁` with `markedRad = √N β_k^{-1/2} C_sup p₁`, `R₁ > 1`, `r > 0`,
 `0 < t₀ < t₁`, `R_σ > 1`.  None of them depends on the datum of the step.
 
-There are one family `Ev` of block terms (summing to the block energies) and one matrix function
-`M` of the raw data, with entries analytic on the chart, such that
-`β_k^{-1/2} M(rawOf D) ψ̂` is the shift `shiftUC ψ̂` of the step with the datum `D` for every datum of
-the chart with `D.h = h₀`, and such that for **every** marked block `z` and every hat field
-`‖ψ̂‖ ≤ p₁` the clauses of `MarkedRootAssembly` hold for the marks
-`G_{z,Y'}(e, u) = -β · markedOut z Y'` built with the tangent `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂`, with
-`F₀ = |β| · 3‖E*‖/(r³ t₀) · c₁ M^d · nFibre · e^{(2κ_dec-1) cBr}` and the rate `2κ_dec - 1`.  The
-terms `Ev` and the matrix `M` do not depend on `z` or on `ψ̂`; `MARK-REAL` is not a hypothesis (it
-is supplied at every datum of the slice by `markRealAt_of_chart`). -/
+There are one family `Ev` of block terms (the terms of `vblock_expansion_scaled`, with its four
+clauses) and one matrix function `M` of the raw data, with entries analytic on the chart, such
+that `β_k^{-1/2} M(rawOf D) ψ̂` is the shift `shiftUC ψ̂` of the step with the datum `D` for every
+datum of the chart with `D.h = h₀`, and such that for **every** marked block `z` and every hat
+field `‖ψ̂‖ ≤ p₁`, with the tangent `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂`:
+
+* `|Q(Θ)(b)| ≤ markedRad` at every unit point, for every `Θ` of the chart;
+* `MARK-REAL` holds at every datum of the constant-`h₀` slice (`MarkRealAt` for `S.withDatum D hD`);
+* the clauses of `MarkedRootFamily` hold for the rooted sums `markedOut z Y'` (analyticity in
+  `(e, u)`, the count at every point of `physV × {|u| < R_σ}`, the fibre identity);
+* the clauses of `MarkedRootAssembly` hold for the marks `G_{z,Y'}(e, u) = -β · markedOut z Y'`
+  (analyticity, bound, root and domain, and the finite sum equal to the integrand of `E1MarksC` on
+  the slice), with `F₀ = |β| · 3‖E*‖/(r³ t₀) · c₁ M^d · nFibre · e^{(2κ_dec-1) cBr}` and the rate
+  `2κ_dec - 1`.
+
+The terms `Ev` and the matrix `M` do not depend on `z` or on `ψ̂`; `MARK-REAL` is not a hypothesis
+(it is supplied by `markRealAt_of_chart`). -/
 theorem markedRootAssembly_zero
     (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hcovV : ∀ b, CovSetup S.G' m₀ (jV b) (XV b) (𝒦XV b))
@@ -485,12 +493,35 @@ theorem markedRootAssembly_zero
         energyBlock S.G' (stepG d L N₁ m₁ k ϱ) S.a S.ν k (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
           (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν D ψ') ψ' b =
         ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b), Ev b Y (rawOf D, ψ')) ∧
+      (∀ b, ∀ Y,
+        ∀ w ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+        ∀ w' ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+        agreeOn (thickSet S.G' Y) w.1 w'.1 → (∀ x ∈ psiThick Y, w.2 x = w'.2 x) →
+        Ev b Y w = Ev b Y w') ∧
+      (∀ b, ∀ Y,
+        ∀ w ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+        ‖Ev b Y w‖ ≤ energyBdScaled d L N (compWeight L S.a₁) k
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
+          Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
+      (∀ b, ∀ Y, AnalyticOnNhd ℂ (Ev b Y)
+        (XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁)) ∧
       (∀ p q, AnalyticOnNhd ℂ (fun Θ => M Θ p q) (XiCRaw S.G' S.a S.ν (k + 1) 1 eps)) ∧
       (∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
         XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ x : S.E,
         (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D) *ᵥ yhat x) =
           (S.withDatum D hD).shiftUC x) ∧
       ∀ (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (x : S.E), ‖x‖ ≤ S.p₁ →
+        (∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps, ∀ b : S.U,
+          vn (fun i => ((((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x)) (b, i)) ≤
+            markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
+        (∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' S.a S.ν (k + 1) 1 eps D → (S.withDatum D hD).MarkRealAt z δ₁ R t₁ x) ∧
+        S.MarkedRootFamily z m₀ (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) Ev S.a₁ S.ν eps
+          Rσ (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
+          (3 * ‖energyBdScaled d L N (compWeight L S.a₁) k
+              (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / (r ^ 3 * t₀) *
+            (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+            ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L))) (2 * κdec - 1) ∧
         S.MarkedRootAssembly z m₀ (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) Ev eps Rσ
           (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
           (|S.β| * (3 * ‖energyBdScaled d L N (compWeight L S.a₁) k
@@ -509,7 +540,7 @@ theorem markedRootAssembly_zero
       (S.withDatum D hD).covSqrtC_eq_hatCovSqrt
     rw [hM D hDX, ← e]
     rfl
-  refine ⟨Ev, M, hsum, hMan, hfib, fun z x hx => ?_⟩
+  refine ⟨Ev, M, hsum, hloc, hbd, han, hMan, hfib, fun z x hx => ?_⟩
   have hyh : ∀ p, ‖yhat x p‖ ≤ S.p₁ := fun p => S.yhat_le_of_norm_le hx p
   have hQ : AnalyticOnNhd ℂ (fun Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N =>
       (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
@@ -520,20 +551,27 @@ theorem markedRootAssembly_zero
       vn (fun i => ((((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x)) (b, i)) ≤
         markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) :=
     fun Θ hΘ b => hMb _ hp₁ hyh Θ hΘ b
-  refine S.markedRootAssembly_zero_of_markReal z ha₁ hC hcovV hX₁V hoptV (by linarith) hZV hL hc7
-    hR hRs hsmall hnum hnum' Ev hsum hloc hbd han hQ hQb hrad hR₁ hr ht₀ ht₀₁ hRσ ?_
-  intro D hD x' hDX hx' hQx'
-  have hY : ∀ b : S.U, vn (fun i => (S.withDatum D hD).shiftUC x' (b, i)) ≤
-      markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
-    intro b
-    rw [← hQx']
-    exact hQb _ ⟨D, hDX, rfl⟩ b
-  refine (S.withDatum D hD).markRealAt_of_chart z hC hMX hdm hα hsm ha₁ hc7 (by linarith) hsmR hβ
-    (lt_of_le_of_lt hp₁ hlt) hδ₁ hlt hDX hx' fun s hs t ht => ?_
-  have hu : ‖((s : ℝ) : ℂ)‖ < Rσ := by
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]
-    linarith [hs.2]
-  exact (S.withDatum D hD).liftC_markedTangentC_mem_flBall_of_margin z S.hG hY hrad hR₁ hr hu ht
+  have hMR : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)) (x' : S.E),
+      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ‖x'‖ ≤ S.p₁ →
+      (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D) *ᵥ yhat x) =
+        (S.withDatum D hD).shiftUC x' → (S.withDatum D hD).MarkRealAt z δ₁ R t₁ x' := by
+    intro D hD x' hDX hx' hQx'
+    have hY : ∀ b : S.U, vn (fun i => (S.withDatum D hD).shiftUC x' (b, i)) ≤
+        markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
+      intro b
+      rw [← hQx']
+      exact hQb _ ⟨D, hDX, rfl⟩ b
+    refine (S.withDatum D hD).markRealAt_of_chart z hC hMX hdm hα hsm ha₁ hc7 (by linarith) hsmR
+      hβ (lt_of_le_of_lt hp₁ hlt) hδ₁ hlt hDX hx' fun s hs t ht => ?_
+    have hu : ‖((s : ℝ) : ℂ)‖ < Rσ := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]
+      linarith [hs.2]
+    exact (S.withDatum D hD).liftC_markedTangentC_mem_flBall_of_margin z S.hG hY hrad hR₁ hr hu ht
+  exact ⟨hQb, fun D hD hDX => hMR D hD x hDX hx (hfib D hD hDX x),
+    S.markedRoot_family_of_vblock z hC.HBp.hd hcovV hX₁V hoptV (by linarith) S.hG hZV hL hC.HBp Ev
+      hloc hbd han hQ hQb hrad hR₁ hr ht₀ ht₀₁,
+    S.markedRootAssembly_zero_of_markReal z ha₁ hC hcovV hX₁V hoptV (by linarith) hZV hL hc7 hR
+      hRs hsmall hnum hnum' Ev hsum hloc hbd han hQ hQb hrad hR₁ hr ht₀ ht₀₁ hRσ hMR⟩
 
 end Unconditional
 
