@@ -502,6 +502,7 @@ public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
 public import Balaban.LargeField.History.BondLiftY
 public import Balaban.LargeField.History.ParentR2Y
+public import Balaban.LargeField.History.LateYDirection
 public import Balaban.Inhabited.BondLiftYWitness
 public import Balaban.LargeField.History.ParentDomain
 public import Balaban.LargeField.History.EarlyMassRatio
@@ -1434,3 +1435,4 @@ public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
+public import Balaban.Inhabited.LateYDirectionWitness
