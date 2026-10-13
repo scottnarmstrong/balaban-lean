@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.FlCoreMono
 public import Balaban.Inhabited.StepTowerRenEnd
+public import Balaban.Inhabited.DetOutputTermsWitnessG
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -23,6 +24,16 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover Filter Topology
+
+/-- **The core of the general tower at every scale, at radii `e, e' ≤ t`.** -/
+theorem StepTowerG.flCore_scale_mono {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁)
+    {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {e e' : ℝ} (he : 0 < e)
+    (het : e ≤ T.t) (he' : 0 < e') (he't : e' ≤ T.t) :
+    FlCore N (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+      (lvLowG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) 1 ν T.c T.BG T.κ e (levelKc d L)
+      (Cchi d L) T.c₂ T.BG₂ e' :=
+  (flCore_stepG T.hd T.hL T.m₁_four (Classical.choice T.core) hk hN hν0 hν).mono he het he' he't
 
 /-- **The core of the tower at radii `e, e' ≤ t`.** -/
 theorem StepTower.core_mono {κmin : ℝ} (T : StepTower κmin) {e e' : ℝ} (he : 0 < e)

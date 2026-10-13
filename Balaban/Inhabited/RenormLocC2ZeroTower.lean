@@ -26,6 +26,25 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover
 
+/-- The two constant inequalities at the shared class constant, general tower:
+`1 ≤ renCK` and (CB) with `B = 8 t`. -/
+theorem StepTowerRenG.renCK_facts {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenG d L N κmin) :
+    1 ≤ renCK d L N R.BG R.κ ∧
+    cK2' d L N (famConst d L R.BG R.κ) *
+      ((3 / 2 + 32 / 15 * (3 + (K4 d L N R.BG R.κ + bgK1 d L N) * xiC1 d)) * R.t) ≤
+      renCK d L N R.BG R.κ * cK2 d L N * (8 * R.t) := by
+  obtain ⟨hC₀⟩ := R.core
+  have hK4 := K4_pos (L := L) (N := N) (κ := R.κ) hC₀.hS.fam.2.1 (by have := R.hd; omega : 0 < d)
+  have hX : 0 ≤ xiC1 d := by unfold xiC1; positivity
+  refine ⟨?_, ?_⟩
+  · have := renCK_ge (d := d) (L := L) (N := N) (BG := R.BG) (κ := R.κ)
+    have := mul_nonneg hK4.le hX
+    linarith
+  · have h := renCK_mul_ge (d := d) (L := L) (N := N) (BG := R.BG) (κ := R.κ)
+    have := mul_le_mul_of_nonneg_right h R.t_pos.le
+    nlinarith
+
 /-- The two constant inequalities at the shared class constant: `1 ≤ renCK` and (CB) with
 `B = 8 t`. -/
 theorem StepTowerRen.renCK_facts {κmin : ℝ} (R : StepTowerRen κmin) :
@@ -33,15 +52,6 @@ theorem StepTowerRen.renCK_facts {κmin : ℝ} (R : StepTowerRen κmin) :
     cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
       ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t) ≤
       renCK 3 3 2 R.BG R.κ * cK2 3 3 2 * (8 * R.t) := by
-  obtain ⟨hC₀⟩ := R.core
-  have hK4 := K4_pos (L := 3) (N := 2) (κ := R.κ) hC₀.hS.fam.2.1 (by norm_num : 0 < 3)
-  have hX : 0 ≤ xiC1 3 := by unfold xiC1; positivity
-  refine ⟨?_, ?_⟩
-  · have := renCK_ge (d := 3) (L := 3) (N := 2) (BG := R.BG) (κ := R.κ)
-    have := mul_nonneg hK4.le hX
-    linarith
-  · have h := renCK_mul_ge (d := 3) (L := 3) (N := 2) (BG := R.BG) (κ := R.κ)
-    have := mul_le_mul_of_nonneg_right h R.t_pos.le
-    nlinarith
+  exact R.toG.renCK_facts
 
 end Balaban.Inhabited
