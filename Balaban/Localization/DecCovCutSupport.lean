@@ -212,4 +212,137 @@ theorem liftOp_Gsx_BD (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G
 
 end Gsx
 
+
+section Cov
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT x ν : ℝ}
+  {α : G.Ω 1 → ℂ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {κ δ : ℝ}
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+  {κι : Type*} [Fintype κι] [DecidableEq κι]
+
+theorem commK_apply {ι : Type*} [Fintype ι] [DecidableEq ι] (H : Matrix ι ι ℂ)
+    (φ : ι → Fin N → ℂ) (y y' : ι) (i : Fin N) :
+    commK H φ y (y', i) = H y y' * (φ y i - φ y' i) := by
+  unfold commK
+  rw [Matrix.sub_apply, Matrix.mul_apply, Matrix.mul_apply]
+  simp only [Matrix.transpose_apply, fieldMul, liftOp, Fintype.sum_prod_type]
+  simp [mul_sub, mul_comm]
+
+theorem fieldMul_BD {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → Prop) (φ : ι → Fin N → ℂ) :
+    BD (fun p : ι × Fin N => c p.1) c (fieldMul φ) := by
+  intro p y h
+  by_cases hp : p.1 = y
+  · show c p.1 ↔ c y
+    rw [hp]
+  · simp [fieldMul, hp] at h
+
+/-- The proviso (i), for the operator `H = H_{k,x}`: between a site `y` and a site `y'` of the
+core of `s`, a non-zero matrix element of `H` does not cross the boundary of `Y'`. -/
+abbrev HRespects (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (aT x ν : ℝ)
+    (α : G.Ω 1 → ℂ) (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ)
+    (Y' : Finset (CTorus d L N₁ m₁ (k + 1))) : Prop :=
+  ∀ y y' : G.Ω 1, xDirichletOperator G a aT x ν α y y' ≠ 0 →
+    (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Core G s →
+    ((y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' ↔ (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+
+section Blocks
+
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (hα : AdmPot G α)
+  (hU : IsUnit (1 - Kcalx G a aT x ν α s))
+  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
+  (hH : HRespects G a aT x ν α s Y')
+include S hx hconn hα hU hY hH
+
+local notation "cY" => (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+
+theorem commK_Gsx_BD :
+    BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
+        liftOp N (Gsx G a aT x ν α s)) := by
+  intro y q h
+  rw [Matrix.mul_apply] at h
+  obtain ⟨p, -, hp⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  have h1 := left_ne_zero_of_mul hp
+  have h2 := right_ne_zero_of_mul hp
+  have hG : Gsx G a aT x ν α s p.1 q.1 ≠ 0 := by
+    intro h0; apply h2; simp [liftOp, h0]
+  have hHp : xDirichletOperator G a aT x ν α y p.1 ≠ 0 := by
+    intro h0; apply h1
+    rw [show p = (p.1, p.2) from rfl, commK_apply, h0, zero_mul]
+  have hcore : (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Core G s := by
+    by_contra hc; exact hG (Gsx_apply_eq_zero_of_not_core p.1 q.1 hc)
+  exact (hH y p.1 hHp hcore).trans (Gsx_BD S hx hconn hα hU hY p.1 q.1 hG)
+
+theorem decM_BD :
+    BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (decM G a aT x ν α s φ) := by
+  unfold decM constraintM
+  exact ((fieldMul_BD cY _).transpose.mul (fieldMul_BD cY _)).sub
+    ((commK_Gsx_BD S hx hconn hα hU hY hH).mul (fieldMul_BD cY _))
+
+theorem decN_BD :
+    BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (decN G a aT x ν α s φ) := by
+  unfold decN constraintN
+  exact (fieldMul_BD cY _).transpose.sub (commK_Gsx_BD S hx hconn hα hU hY hH)
+
+/-- **T4 (b).** `decPi` has no matrix elements between `Y'` and its complement, if `decM` is
+invertible (it is, under the standing hypotheses, by `decM_isUnit`). -/
+theorem decPi_BD (hM : IsUnit (decM G a aT x ν α s φ)) :
+    BD (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (decPi G a aT x ν α s φ) := by
+  unfold decPi
+  exact (((liftOp_Gsx_BD S hx hconn hα hU hY).mul (fieldMul_BD cY _)).mul
+    ((decM_BD S hx hconn hα hU hY hH).inv hM)).mul (decN_BD S hx hconn hα hU hY hH)
+
+/-- **T4.** The correction `liftOp Gsx - decPi` has no cross elements, so `decCov - covA` has none
+either, given the provisos (ii) on `Q` and `P` (labels `cκ` of the coarse index set). -/
+theorem decCov_sub_BD (hM : IsUnit (decM G a aT x ν α s φ))
+    (cκ : κι → Prop) (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
+    BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decCov G a aT x ν α s φ Q P -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
+  have hPl : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1) (liftOp N P) :=
+    BD.liftOp hP
+  have hA : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
+    unfold covA
+    exact ((BD.one _).sub hPl).smul _ |>.add (hPl.smul _)
+  have hQl : BD (fun p : κι × Fin N => cκ p.1)
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y') (liftRect N Q) :=
+    BD.liftOp hQ
+  have hT := (liftOp_Gsx_BD S hx hconn hα hU hY).sub (decPi_BD S hx hconn hα hU hY hH hM)
+  unfold decCov
+  rw [add_sub_cancel_left]
+  exact (((hA.mul hQl).mul hT).mul hQl.transpose |>.mul hA).smul _
+
+end Blocks
+
+/-- `decM` is invertible under `CovStanding` (`decM_isUnit`). -/
+theorem CovStanding.decM_isUnit' {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) :
+    IsUnit (decM G a aT x ν α s φ) := by
+  exact decM_isUnit (H.fam x hx) H.field H.nonneg H.small
+
+/-- **T4, under the standing hypotheses.** Everything but the two provisos (`HRespects` for the
+union `Y'` of components, and the splitting `cκ` of `Q`, `P`) follows from `CovStanding` and
+`HatConn`. -/
+theorem CovStanding.decCov_sub_BD {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (hconn : HatConn G)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
+    (hH : HRespects G a aT x ν α s Y') (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
+    BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) :=
+  Balaban.Localization.decCov_sub_BD (H.fam x hx).st hx hconn (H.fam x hx).pot (H.fam x hx).isUnit_one_sub hY hH
+    (H.decM_isUnit' hx) cκ Q P hQ hP
+
+end Cov
+
 end Balaban.Localization
