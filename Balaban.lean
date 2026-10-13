@@ -1188,6 +1188,8 @@ public import Balaban.Localization.GraphGmExponent
 public import Balaban.Localization.LedgerCounter
 public import Balaban.Localization.LedgerPacking
 public import Balaban.Localization.P6ActiveHalo
+public import Balaban.Localization.P6TopCover
+public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.MooreDegreeWitness
@@ -1302,6 +1304,7 @@ public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
+public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
