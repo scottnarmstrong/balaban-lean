@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.LevelCoversDef
 public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTower
+public import Balaban.Inhabited.DetOutputTermsWitnessG
 public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Fluctuation.LevelLocalCover
 import Mathlib.Tactic.Linarith
@@ -81,6 +82,30 @@ theorem scale_instance (T : StepTower κmin) :
 end StepTower
 
 open Classical in
+/-- **The localized determinant family at every scale of the general tower `T`.**  No threshold on
+`β`.  For every root `z` the record `DetExpansionLocC` (`m₀ = 1`) of the step
+`S = hatStepKG … ϱ …` over any `ϱ = rhoSepG d L T.m₁` has an element whose terms are the sums over
+`y ∈ B(z)` of the activities, with the rate `(κ - log 2 - 2 log (detDeg d L + 1)) / (2 d L)` and
+the constant `L^d · ½ N covBLogMax d L κ / (1 - (detDeg d L + 1)² · 2 / e^κ)`; and `κ'` is at most
+the rate.  The fixed `detExpansionLocC_scale_fromTower` is its corollary. -/
+theorem detExpansionLocC_scale_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
+    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) {S : StepSetting d L N₁ T.m₁ k N ϱ}
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    (∀ z, ∃ E : DetExpansionLocC S 1 z T.t
+        ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+        ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+          (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))),
+      ∀ D T', E.term D T' = ∑ y ∈ S.blockU z,
+        detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D y T') ∧
+    T.κ' ≤ (T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L) := by
+  subst hϱ hS
+  exact ⟨((detExpansionLocC_scale_of_towerG T.hd T.hL T.hN T.m₁_four T.t_pos
+    (Classical.choice T.core) T.large_block T.dom_margin T.coer_margin T.δc_small T.det_z k hk N₁
+    hLN hN hν0 hν β p₁ T.δ).2), T.det_rate⟩
+
+open Classical in
 /-- **The localized determinant family at every scale of the tower `T`.**  No threshold on `β`. -/
 theorem detExpansionLocC_scale_fromTower {κmin : ℝ} (T : StepTower κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁) {ν : ℝ}
@@ -93,9 +118,8 @@ theorem detExpansionLocC_scale_fromTower {κmin : ℝ} (T : StepTower κmin)
         detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 T.BG T.κ) D y T') ∧
     T.κ' ≤ (T.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)) / 18 := by
   refine ⟨?_, T.det_rate⟩
-  have h := (detExpansionLocC_scale_of_tower T.m₁_four T.t_pos (Classical.choice T.core)
-    T.large_block T.dom_margin T.coer_margin T.δc_small T.det_z k hk N₁ h3N hN hν0 hν β p₁
-    T.δ).2
+  have h := (detExpansionLocC_scale_fromTowerG T.toG k hk N₁ h3N hN hν0 (by simpa using hν) β p₁
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl).1
   intro z
   have hz := h z
   rw [StepTower.det_rate_den, StepTower.det_const_eq] at hz
