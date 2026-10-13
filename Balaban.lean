@@ -128,6 +128,7 @@ public import Balaban.Symmetry.InvariantReduction
 public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RGParam
 public import Balaban.Flow.RunningCoefficients
+public import Balaban.Flow.StopIndex
 public import Balaban.Flow.MatrixInfty
 public import Balaban.Flow.MatrixFree
 public import Balaban.Flow.RGInfty
