@@ -1605,3 +1605,4 @@ public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.RenormThetaDatumWitness
+public import Balaban.Fluctuation.RenormDetFibreMap
