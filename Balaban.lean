@@ -1572,6 +1572,8 @@ public import Balaban.Fluctuation.ObsRowLabels
 public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.ObsKernelParam
 public import Balaban.Fluctuation.ObsRemainderMarks
+public import Balaban.Fluctuation.ObsRemainderParam
+public import Balaban.Fluctuation.ObsRemainderClamp
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormExpInputOn
 public import Balaban.Fluctuation.RenormLocFibre
@@ -1660,5 +1662,6 @@ public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
+public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Fluctuation.MarkIntTermAnalytic
