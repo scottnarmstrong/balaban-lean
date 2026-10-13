@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.OffFibreE1Marks
-public import Balaban.Fluctuation.StepActivityOffFibreTaylor
+public import Balaban.Fluctuation.OffFibreBlockEnergyCore
 
 /-!
 # The marked first-energy comparison at a free datum
@@ -65,116 +65,6 @@ theorem markReal_disc_slice_raw {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
     (Dt.marked_radius_lt hp) hu ht hσ
 
 end Balaban.Inhabited
-
-namespace Balaban.Fluctuation.StepSettingH
-
-open Balaban Balaban.Background Balaban.Multiscale Balaban.Localization Balaban.SmallField Matrix
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-  {S : StepSetting d L N₁ m₁ k N ϱ} (H : StepSettingH S)
-  {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
-
-/-- The free old datum inherits the marked fluctuation disc supplied by the background
-response theorem. -/
-theorem dataUCH_line_domain_of_flBall
-    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N)
-    {R : ℝ} (hR : 2 ≤ R)
-    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) +
-      5 * (R * δ₁) ≤ bgC1 d L N)
-    (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
-    (v : S.EC) (hv : liftC S.hG' v ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
-    let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-    let ψ₀ : S.EC := fun q => B.Ψ (unitRep (G' := S.G') q.1) q.2
-    let Dv := H.dataUCH (ψ₀ + v)
-    ∀ t : ℂ, ‖t‖ < R →
-      InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
-        (B.lineAt (tangentData Dv B) t) := by
-  dsimp only
-  let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-    (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-  let ψ₀ : S.EC := fun q => B.Ψ (unitRep (G' := S.G') q.1) q.2
-  let Dv := H.dataUCH (ψ₀ + v)
-  obtain ⟨E, hh, hct, hline⟩ := hreal_level hC S.hG S.hG' (le_refl (k + 1))
-    ha₁ hC.HBp hc7 (by linarith : (0 : ℝ) ≤ R) hsmR H.D' hX
-    (liftC S.hG' v) hv (isLayerConstant_liftC S.hG S.hG' v)
-  have hctDv : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' Dv = liftC S.hG' v := by
-    rw [H.compTangent_dataUCH]
-    change liftC S.hG' ((ψ₀ + v) - ψ₀) = liftC S.hG' v
-    simp only [add_sub_cancel_left]
-  have hE : E = Dv := by
-    refine BgData.eq_of_raw (Prod.ext ?_ ?_)
-    · funext x i
-      have he := congrFun (congrFun (hct.trans hctDv.symm) x) i
-      dsimp only [compTangent] at he
-      exact sub_left_inj.mp he
-    · funext x i
-      exact (hh x i).trans (H.dataUCH_h (ψ₀ + v) x i).symm
-  subst E
-  exact hline
-
-/-- On the free-datum marked disc the block energies are the old interaction plus its
-quadratic correction. -/
-theorem sum_blockEnergyOne_eq_interaction_add_delta
-    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N)
-    {R : ℝ} (hR : 2 ≤ R)
-    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) +
-      5 * (R * δ₁) ≤ bgC1 d L N)
-    (hRs : R * δ₁ ≤ deltaStar d L N)
-    (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
-    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
-    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
-      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
-    (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
-    (v : S.EC) (hv : liftC S.hG' v ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
-    let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-    let ψ₀ : S.EC := fun q => B.Ψ (unitRep (G' := S.G') q.1) q.2
-    let Dv := H.dataUCH (ψ₀ + v)
-    (∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
-        (rawOf H.D', liftC S.hG' v)) =
-      interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')
-        (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' Dv)
-        (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) Dv -
-          (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
-            (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) +
-      (1 / 2) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') (liftC S.hG' v) := by
-  dsimp only
-  let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-    (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
-  let ψ₀ : S.EC := fun q => B.Ψ (unitRep (G' := S.G') q.1) q.2
-  let Dv := H.dataUCH (ψ₀ + v)
-  have hct : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' Dv = liftC S.hG' v := by
-    rw [H.compTangent_dataUCH]
-    change liftC S.hG' ((ψ₀ + v) - ψ₀) = liftC S.hG' v
-    simp only [add_sub_cancel_left]
-  have hd := H.dataUCH_line_domain_of_flBall hC ha₁ hc7 hR hsmR hX v hv
-  have he := interactionV_eq_energy hC S.hG S.hG' (le_refl (k + 1)) ha₁
-    hC.HBp H.D' hX hc7 Dv (fun x i => H.dataUCH_h (ψ₀ + v) x i) (by rw [hct]; exact hv)
-    hR hd hRs hsmall hnum hnum'
-  have hsum : (∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
-        (rawOf H.D', liftC S.hG' v)) =
-      ∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-        energyBlock S.G' (stepG d L N₁ m₁ k ϱ) S.a S.ν k
-          (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
-          (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν H.D'
-            (liftC S.hG' v)) (liftC S.hG' v) b :=
-    Finset.sum_congr rfl fun b _ => blockEnergyOne_rawOf hX k b _
-  rw [hsum, hct] at *
-  linear_combination -he
-
-end Balaban.Fluctuation.StepSettingH
 
 namespace Balaban.Fluctuation.StepSetting
 

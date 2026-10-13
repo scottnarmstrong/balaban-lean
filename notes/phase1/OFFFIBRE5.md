@@ -66,3 +66,27 @@ analyticity, measurability, locality, and bounds are stated explicitly. The theo
 does not yet derive `hact` from W684's activity family, so a fully unconditional
 off-fibre coefficient family is still open. The old fibre comparison proofs remain
 unchanged because their lower modules cannot import this shared core without a cycle.
+
+## W696 status (2026-10-13)
+
+`Fluctuation/OffFibreBlockEnergyCore.lean` now holds the common block-energy identity
+given a marked line domain. Both the raw free-datum comparison and the unchanged
+`StepSetting.sum_blockEnergyOne_eq_VkC_add_delta` declaration apply it; the latter
+was moved below the tower file. The original raw domain and energy theorems were
+also moved with their statements unchanged. This removes 174 lines from the two
+old modules (apart from two replacement import lines).
+
+`Fluctuation/OffFibreM0Ray.lean` proves the zero-class composed-observable path
+identity and its derivative for any incoming chart field, then the almost-everywhere
+observable-ray identity. `obsCoeff_sum_eq_raw_M0J_zeroClass` identifies the
+`ObsMarks` coefficient sum with `√β_U · avgJ W1 W2 McJ` at `rawOf D`.
+`Inhabited/OffFibreM0CoeffSum.lean` applies the same `Ev` and `ObsMarks` construction
+with an explicitly named free-datum activity premise `hact`, and returns both the
+coefficient formula and this raw value. The existing `JointRep.W2_eq_val_sub` is
+already a free-datum source identity, and `obsEv_fromTower_rawY` supplies the
+free-datum `ObsMarkHalf` and `ObsRayIdentity` premises.
+
+The premise `hact` remains open: `SourceExponentFamily.lean` currently proves its
+value clause only on `physFibre`, and no all-chart activity theorem for the same
+labels has landed. Consequently this branch does not assert an unconditional
+off-fibre M0 coefficient family or site record.
