@@ -1449,3 +1449,4 @@ public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetPrefactor
+public import Balaban.Fluctuation.DetStepInstance
