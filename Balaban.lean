@@ -229,6 +229,7 @@ public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.KF0HoleWalk
+public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
@@ -339,11 +340,12 @@ public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
 public import Balaban.Localization.DecEquivPermuteStep
 public import Balaban.Localization.DecEquivReflect
+public import Balaban.Localization.DetUnitIncidenceSymm
+public import Balaban.Localization.DetDecCovSymm
 public import Balaban.Localization.DecEquivReflectStep
 public import Balaban.Localization.DecEquivPermutePolymer
 public import Balaban.Localization.DecEquivReflectPolymer
 public import Balaban.Localization.DecEquivGroup
-public import Balaban.Localization.DetUnitIncidenceSymm
 public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.Decoupled2XBounds
 public import Balaban.Localization.Decoupled2XGreen
@@ -1238,6 +1240,7 @@ public import Balaban.Fluctuation.Thm31bResum
 public import Balaban.Fluctuation.Thm31bFirst
 public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
+public import Balaban.Fluctuation.ObsScalarTilt
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
@@ -1502,6 +1505,7 @@ public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
+public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
