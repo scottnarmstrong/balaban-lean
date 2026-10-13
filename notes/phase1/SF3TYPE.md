@@ -109,3 +109,23 @@ inequality after restricting `h''`. Ambient `grad`, `lap`, `mult`, `val`, `close
 the whole-level collar. The real `XiBounds` have the same background mismatch.
 No finite radius constant transfers these fields. P3 pp. 78–79 (4.44)–(4.47)
 recomputes locally; a true theorem must restrict raw fields to local sites and recompute the background and term.
+
+## NEXT (W720)
+
+**PROVED.** `LocalGeneratorRestriction.lean` clips an ambient `BgData` to the data sites of
+`localB` and proves equality on those sites and on its `Ω₁`. Every local interface pair is
+an ambient whole-level interface pair; the local layer mass weight is at most the ambient
+one. Thus `localB_smallField_restrict` carries the complex union data domain to the local
+generator, including its new collar bonds. This assumes the source mass condition `0 ≤ μ`.
+
+**PROVED with radius loss.** `localB_xiCData_restrict` recomputes the local backgrounds through
+`psiTildeC_subset_xiC` and obtains `XiCData` at radius
+`ε + (2 bgK1 d L N + 1) δ` from an ambient data-domain witness `(δ, ε)`.
+`localB_fieldDom_hsub` gives pointwise `hsub` for the *full ambient raw pair*,
+because `XiDom` may adjust its displacement off the local sites. Its sufficient class-radius
+condition is `bgC0 d L N + (2 bgK1 d L N + 1) bgC1 d L N ≤ εseq j`.
+
+**OPEN.** This coarse radius condition is not established for the physical class sequence;
+a sharper estimate from the ambient chart radius is needed. `OldXiDomOpenC` still needs an
+open set of physical shifts and a class term family whose generator is `localB` at the low
+index; its current `StepClass`, `FieldDom`, and `Terms` parameters share one separation index.
