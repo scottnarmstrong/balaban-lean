@@ -7,6 +7,7 @@ module
 
 public import Balaban.Polymer.TwoTorusCubeOps
 public import Balaban.Localization.DecoupledLocal
+public import Balaban.Localization.DecoupledFieldLocal
 import Mathlib.Tactic.LinearCombination
 
 /-!
@@ -351,6 +352,49 @@ theorem Gs_apply_eq_zero_of_not_mem (S : DGSetting G a ν) (hα : AdmPot G α)
     rw [rowSupp_chi_cubeG S hα hq _ y hyq, mul_zero]
 
 end Block
+
+/-! ### The hypotheses of the rows theorem for a component of the cut (one torus) -/
+
+section Component
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **The dichotomy for the block set `S_Y` of a component.**  For a union `Y` of
+nearest-neighbour components of `V(𝒞) ∩ Ω₁` and factors vanishing on the parameter cubes outside
+`𝒞`, every interaction cube with a non-zero factor lies inside `S_Y` or avoids it (the step
+`hdichT` of `dg5'_inner`). -/
+theorem dich_SY_of_comp (S : DGSetting G a ν) (hconn : HatConn G)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → s P = 0) :
+    ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 →
+      SubI G (intBox q) (SY G X₁ 𝒞 Y) ∨ DisjI G (intBox q) (SY G X₁ 𝒞 Y) := by
+  intro z hz hactive
+  have hP := hact_aux s hs0 z hactive
+  rcases hdich_aux S hconn hY z hz hP with h | h
+  · left
+    intro x hx
+    exact Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, hP, h⟩, hx⟩
+  · right
+    intro x hx hxT
+    exact h x (box_subset_hatBox z hx) (SY_subset hxT)
+
+/-- **The rows of a component outside its block set.**  Under the hypotheses of
+`dich_SY_of_comp`, an interaction cube with a non-zero factor meets `Y ∩ Ω₁` only inside `S_Y`. -/
+theorem row_SY_of_comp (S : DGSetting G a ν) (hconn : HatConn G)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → s P = 0) :
+    ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y →
+      (x : CTorus d L N₁ m₁ K) ∈ intBox q → (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y := by
+  intro z hz hactive x hxY hxz
+  have hP := hact_aux s hs0 z hactive
+  rcases hdich_aux S hconn hY z hz hP with h | h
+  · exact Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, hP, h⟩, hxz⟩
+  · exact absurd hxY (h x (box_subset_hatBox z hxz))
+
+end Component
 
 /-! ### The cubes inside `T` on two tori -/
 
@@ -778,6 +822,23 @@ theorem decBg_green_rows_transport {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting 
       exact hx2T
     rw [Gs_apply_eq_zero_of_not_mem SA hαA hrow f hy hyT,
       Gs_apply_eq_zero_of_not_mem SB hαB hrow' f' hy' hyT']
+
+include hj1 in
+/-- `row_SY_of_comp` for `levelGS j` (every site is in `Ω₁`), in the form of the hypothesis `hrow`
+of `decBg_green_rows_transport`. -/
+theorem row_SY_levelGS {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting GA a ν) (hconn : HatConn GA)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} (hs0 : ∀ P ∈ parCubes GA X₁, P ∉ 𝒞 → s P = 0) :
+    ∀ q ∈ cubeIdx GA, sProd GA s q ≠ 0 → ∀ x ∈ Y, x ∈ intBox q → x ∈ SY GA X₁ 𝒞 Y :=
+  fun q hq hs x hx hxq =>
+    row_SY_of_comp S hconn hY hs0 q hq hs ⟨x, levelGS_mem_Ω_one hj1 hj x⟩ hx hxq
+
+include hj1 in
+/-- For `levelGS j` the block set `S_Y` lies in `Y`. -/
+theorem SY_subset_levelGS {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ K)} : SY GA X₁ 𝒞 Y ⊆ Y :=
+  fun x hx => SY_subset (G := GA) (x := ⟨x, levelGS_mem_Ω_one hj1 hj x⟩) hx
 
 end Rows
 
