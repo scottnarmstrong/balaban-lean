@@ -27,6 +27,12 @@ hypotheses of the theorems), nor the dependence (`DepOn`) fields, nor `W`/`f`/`h
 compact carrier `Q` is a genuine extra hypothesis: it does not hold for Gaussian reference
 measures, so the actual step data are not covered.  Producing a parameter family from the physical
 step (the actual activities and marks, and the determinant term) is not done here.
+
+Finite-dimensionality of `E` is used only through `analyticAt_integral_of_continuousOn` (the
+integrals over the configuration `Φ` and over `s ∈ [0,1]`).  Joint continuity in
+(parameter, configuration) is not assumed: it follows from analyticity in the parameter, the
+uniform bound and continuity in the configuration (`continuousOn_prod_of_analytic_bdd`).  The
+analyticity is assumed jointly in `(θ, u)`; the numerical constants are explicit hypotheses.
 -/
 
 @[expose] public section
