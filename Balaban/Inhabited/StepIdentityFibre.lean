@@ -40,6 +40,12 @@ The term `ℰ_k(ψ^{(k)})` of Proposition 2.6 vanishes for the zero class (`Ecom
 normalization term `E''' |T₁|` does not (`E'''` contains the constants of the kernel and of the
 fluctuation measure), and `ℱ_k(ψ^{(k)}, g)` is the pairing of the source with the complex small
 solution (`FcompAtC_zero_eq`).
+
+Each theorem is stated first for a general tower `T : StepTowerG d L N κmin` (names ending in `G`:
+`stepActivityBoundC_fibre_fromTowerG`, `stepNonvanishingC_fibre_fromTowerG`,
+`stepIdentity_zeroClass_withDatum_of_nonvanishingG`, `stepIdentity_zeroClass_fibre_local_fromTowerG`,
+`stepIdentity_zeroClass_fibre_of_values_fromTowerG`); the statements for the fixed tower
+(`d = L = 3`, `N = 2`) are corollaries.
 -/
 
 @[expose] public section

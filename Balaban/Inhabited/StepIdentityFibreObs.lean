@@ -28,6 +28,9 @@ before the datum and the source, and adds the pairing with the source: for every
 chart with constant field `h₀` and every source `g` with `∑ |g| < q`,
 `β_U^{-1/2} ∑_{y,i} g(y,i) ℳ₀(y; g)_i = ∑_{y,i} g(y,i) ∑_{T'} mObs y i (rawOf D, g) T'`.
 The factors `β_U^{-1/2}` and `β_U^{1/2}` cancel since `β_U = β 3^k > 0`.
+
+The statements are first proved for a general tower (`obsFamily_pair_fibre_prefactor_fromTowerG`,
+`obsFamily_pair_fibre_fromTowerG`); the fixed-tower statements are corollaries.
 -/
 
 @[expose] public section

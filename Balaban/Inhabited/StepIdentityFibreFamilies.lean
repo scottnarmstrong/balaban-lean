@@ -35,6 +35,10 @@ source `g`; the conclusion is
   + ∑_{y,i} g(y,i) ∑_V mObs y i (rawOf D′, g) V]`.
 The energy family, the observable family and the fluctuation activity used for the nonvanishing
 have three different label systems; only the threshold is shared.
+
+The statement is first proved for a general tower with block scale `1`
+(`stepIdentity_zeroClass_fibre_fromTowerG`, with `T.m₀ = 1` and the hull-rate inequality of
+`StepTowerG.exists_outputConsts`); the fixed-tower statement is its corollary.
 -/
 
 @[expose] public section

@@ -17,6 +17,9 @@ import Mathlib.Tactic.Linarith
 The marked energy coefficient and the observable coefficient have exact locality on their
 `sitesOf` supports. The determinant coefficient retains collar locality. The identity is an
 identity of exponentials on the constant-field fibre.
+
+`zeroClassStep_families_fromTowerG` and `zeroClassStep_sites_fromTowerG` are the statements for a
+general tower with block scale `1` (`R.m₀ = 1`); the fixed-tower theorems are corollaries.
 -/
 
 @[expose] public section
