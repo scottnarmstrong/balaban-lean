@@ -62,7 +62,8 @@ and the source:
   site `(y, i)` an amplitude and a family `Ev`, with the coefficient `mObs y i θ V`
   (`= obsCoeffParam …`), analytic and bounded on `physVq … q`, supported on rooted polymer sets, and
   equal at two parameters of `physVq … q` whose raw data agree on `thickSet (sitesOf V)` and whose
-  sources agree on `sitesOf V`;
+  sources agree on `sitesOf V`; equality of their physical restrictions to `sitesOf V` also gives
+  equality of the coefficients;
 
 such that for every datum `D′` of the chart `Ξ^c(𝔹_{k+1}; 1, T.t)` with constant field `h₀` and
 every source `g` with `∑ |g| < q`,
@@ -81,9 +82,9 @@ Scope of the statement.
    measure.  The term `E''' |T₁|` records these conventions and is not zero for the zero class; the
    term `ℱ_k(ψ^{(k)}, g)` is the pairing of the source with the complex small solution.
 
-The coefficient families are local only on thickened sets so far (`thickSet (Ŷ(sitesOf U))` for the
-energy family, `thickSet (sitesOf V)` for the raw datum of the observable family), not on the sets
-`sitesOf U`, `sitesOf V` themselves. -/
+The marked energy coefficient `c` and observable coefficient `mObs` also have exact locality on
+their respective site sets. The determinant coefficient `dz` and combined energy coefficient `e0`
+retain the stated thick locality. -/
 theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ} (hCR : 0 < CR)
     (hs0 : 0 < s) (hs : s < 1 / 2) :
@@ -349,7 +350,14 @@ theorem stepIdentity_zeroClass_fibre_fromTower {κmin : ℝ} (T : StepTower κmi
                   agreeOn (thickSet (T.step k hk N₁ ν β p₁).G' (sitesOf T'))
                     (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
                     (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
-                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T')) ∧
+                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
+                (∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+                    (T.step k hk N₁ ν β p₁).ν T.t q, ∀ θ' ∈ physVq (T.step k hk N₁ ν β p₁)
+                        (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t q,
+                  physRestrict (N := 2) (sitesOf T')
+                    (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+                    physRestrict (sitesOf T') (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
+                  mObs y i θ T' = mObs y i θ' T')) ∧
       ∀ (D' : BgData (T.step k hk N₁ ν β p₁).G' 2)
           (hDh : ∀ y i, D'.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ)),
         XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
