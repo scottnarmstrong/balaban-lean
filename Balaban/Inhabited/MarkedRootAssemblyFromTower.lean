@@ -46,6 +46,91 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Matrix Metric
 
 open Classical in
+/-- **The root assembly of the marked terms of the zero class at a scale of the general tower.**
+Let `T : StepTowerG d L N κmin` with cover index `T.m₀ = 1`, `S = hatStepKG … T.δ` the step of a
+scale with `StepScaleDataG`, `5 < N₁`, `0 ≤ ν`, `ν L^{2(k+1)} ≤ 1`, `β > 0`, `p₁ > 0`.  There
+are one family `Ev` of block terms and one matrix function `M` of the raw data, with entries
+analytic on the chart `Ξ^c(𝔹_{k+1}; 1, T.t)`, such that `β_k^{-1/2} M(rawOf D) ψ̂` is the shift
+`shiftUC ψ̂` of the step with the datum `D` for every datum of the chart with `D.h = h₀`, and such
+that for every marked block `z` and every hat field `‖ψ̂‖ ≤ p₁`, `MARK-REAL` holds on the
+constant-`h₀` slice, and the clauses of `MarkedRootFamily` and `MarkedRootAssembly` hold with
+`F₀ = |β| · 3‖E*‖/(r³ t₀) · c₁ M^d · nFibre · e^{(2κ_dec-1) cBr}`, `r = lvRG/4`, `t₀ = 1/32`.
+The fixed `markedRootAssembly_zero_fromTower` is its corollary at `T.toG`. -/
+theorem StepTowerG.markedRootAssembly_zero_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ} {hk : 1 ≤ k}
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (hN : 5 < N₁)
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β) (hp : 0 < p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ}
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    ∃ (Ev : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ T.m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ)
+      (M : RawData d L (N₁ * L ^ T.m₁) (k + 1) N → Matrix (S.U × Fin N) (S.U × Fin N) ℂ),
+      (∀ p q, AnalyticOnNhd ℂ (fun Θ => M Θ p q)
+        (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t)) ∧
+      (∀ (D' : BgData S.G' N) (hD' : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+        XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D' → ∀ x : S.E,
+        (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D') *ᵥ yhat x) =
+          (S.withDatum D' hD').shiftUC x) ∧
+      ∀ (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) (x : S.E), ‖x‖ ≤ p₁ →
+        (∀ (D' : BgData S.G' N) (hD' : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D' →
+          (S.withDatum D' hD').MarkRealAt T.t 2 x) ∧
+        S.MarkedRootFamily z 1
+          (fun b => polyDom S.G' (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k b))) Ev 1 ν T.t (17 / 16)
+          (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
+          (3 * ‖energyBdScaled d L N (compWeight L 1) k
+              (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
+              ((lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4) ^ 3 * (1 / 32)) *
+            (c1 d L * (((L : ℕ) : ℝ) ^ (1 + T.m₁)) ^ d) *
+            ((nFibre d L : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr d L))) (2 * T.κdec - 1) ∧
+        S.MarkedRootAssembly z 1
+          (fun b => polyDom S.G' (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k b))) Ev T.t (17 / 16)
+          (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
+          (|β| * (3 * ‖energyBdScaled d L N (compWeight L 1) k
+              (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
+              ((lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4) ^ 3 * (1 / 32)) *
+            (c1 d L * (((L : ℕ) : ℝ) ^ (1 + T.m₁)) ^ d) *
+            ((nFibre d L : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr d L)))) (2 * T.κdec - 1) := by
+  classical
+  subst hϱ
+  subst hS
+  obtain ⟨hV, -⟩ := D.covers
+  rw [hm₀] at hV
+  have hr0 := D.r_pos
+  have hlt : p₁ < lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) := by
+    have h := mul_le_mul_of_nonneg_right
+      (show (1 : ℝ) ≤ 2 * 2 + lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ by linarith)
+      hp.le
+    linarith [D.ray_margin]
+  have hδ₁ : Real.sqrt (N : ℝ) * ((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) *
+      (covSupConstC d L N (compWeight L (1 : ℝ) k) T.κ *
+        lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))) < T.t := by
+    rw [← (T.step k hk N₁ ν β p₁).norm_betaU_rpow hβ.le]
+    exact D.fl_radius
+  obtain ⟨Ev, M, -, -, -, -, hMan, hfib, hall⟩ :=
+    (T.step k hk N₁ ν β p₁).markedRootAssembly_zero
+      (jV := fun _ => k) (XV := fun z => LocalCover.cube 1 k (LocalCover.blockSite k z))
+      (𝒦XV := fun z => LocalCover.fam 1 (LocalCover.blockSite k z))
+      (X₁V := fun z => LocalCover.nbhdF 1 (LocalCover.blockSite k z)) (m₀ := 1) (R := 2)
+      (pp := lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) (R₁ := 17 / 16) (Rσ := 17 / 16)
+      (r := lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4) (t₁ := 1 / 16)
+      (t₀ := 1 / 32) (δc := T.δc)
+      D.core (fun z => (hV z).1) (fun z => (hV z).2.1) (hatConn_lvTopG T.hL)
+      (rowInHat_lvG hk (dgSetting_lvG T.hd T.hL T.m₁_four hN hν0 hν))
+      (fun z => (hV z).2.2.1) (fun z => (hV z).2.2.2.1)
+      T.κ0_nonneg T.κdec_lower (by exact_mod_cast T.κ_lower) T.κ_one (by simpa [hm₀] using T.κ_log)
+      (fun z => (hV z).2.2.2.2.1) (fun z => (hV z).2.2.2.2.2.1) (by have := T.hL; omega)
+      T.large_block T.dom_margin T.coer_margin T.δc_small one_pos T.c7_cap le_rfl T.t_cap
+      T.bg0_cap T.cK2_cap T.cK2'_cap T.bg1_cap hβ hδ₁ hlt hp.le (D.marked_radius_lt hp)
+      (by norm_num) (by linarith) (by norm_num) (by norm_num) (by norm_num)
+  refine ⟨Ev, M, hMan, hfib, fun z x hx => ?_⟩
+  obtain ⟨-, hMR, hfam, hasm⟩ := hall z x hx
+  exact ⟨hMR, hfam, hasm⟩
+
+open Classical in
 /-- **The root assembly of the marked terms of the zero class at a scale of the shared tower.**
 Let `T` be a tower, `S = T.step k hk N₁ ν β p₁` the step of a scale with `StepScaleData`,
 `5 < N₁`, `0 ≤ ν`, `ν 3^{2(k+1)} ≤ 1`, `β > 0`, `p₁ > 0`.  There are one family `Ev` of block terms
@@ -101,34 +186,14 @@ theorem markedRootAssembly_zero_fromTower {κmin : ℝ} (T : StepTower κmin) {k
             (c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3) *
             ((nFibre 3 3 : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)))) (2 * T.κdec - 1) := by
   classical
-  subst hS
-  obtain ⟨hV, -⟩ := D.covers
-  have hr0 := D.r_pos
-  have hlt : p₁ < lvCpsi T.κ T.t (β * 3 ^ k) := by
-    have h := mul_le_mul_of_nonneg_right
-      (show (1 : ℝ) ≤ 2 * 2 + lvR T.κ T.t (β * 3 ^ k) p₁ by linarith) hp.le
-    linarith [D.ray_margin]
-  have hδ₁ : Real.sqrt ((2 : ℕ) : ℝ) * ((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) *
-      (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ * lvCpsi T.κ T.t (β * 3 ^ k))) < T.t := by
-    rw [← (T.step k hk N₁ ν β p₁).norm_betaU_rpow hβ.le]
-    exact D.fl_radius
-  obtain ⟨Ev, M, -, -, -, -, hMan, hfib, hall⟩ :=
-    (T.step k hk N₁ ν β p₁).markedRootAssembly_zero
-      (jV := fun _ => k) (XV := fun z => LocalCover.cube 1 k (LocalCover.blockSite k z))
-      (𝒦XV := fun z => LocalCover.fam 1 (LocalCover.blockSite k z))
-      (X₁V := fun z => LocalCover.nbhdF 1 (LocalCover.blockSite k z)) (m₀ := 1) (R := 2)
-      (pp := lvCpsi T.κ T.t (β * 3 ^ k)) (R₁ := 17 / 16) (Rσ := 17 / 16)
-      (r := lvR T.κ T.t (β * 3 ^ k) p₁ / 4) (t₁ := 1 / 16) (t₀ := 1 / 32) (δc := T.δc)
-      D.core (fun z => (hV z).1) (fun z => (hV z).2.1) hatConn_lvTop
-      (rowInHat_lv hk T.m₁_four hN hν0 hν) (fun z => (hV z).2.2.1) (fun z => (hV z).2.2.2.1)
-      T.κ0_nonneg T.κdec_lower (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log
-      (fun z => (hV z).2.2.2.2.1) (fun z => (hV z).2.2.2.2.2.1) (by norm_num)
-      T.large_block T.dom_margin T.coer_margin T.δc_small one_pos T.c7_cap le_rfl T.t_cap
-      T.bg0_cap T.cK2_cap T.cK2'_cap T.bg1_cap hβ hδ₁ hlt hp.le (D.marked_radius_lt hp)
-      (by norm_num) (by linarith) (by norm_num) (by norm_num) (by norm_num)
-  refine ⟨Ev, M, hMan, hfib, fun z x hx => ?_⟩
-  obtain ⟨-, hMR, hfam, hasm⟩ := hall z x hx
-  exact ⟨hMR, hfam, hasm⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  obtain ⟨Ev, M, h1, h2, h3⟩ := T.toG.markedRootAssembly_zero_fromTowerG rfl
+    (D := StepTower.scaleDataG_of_fixed T D) hN hν0 (by simpa using hν) hβ hp
+    (rhoSepG_three _).symm (S := S) (by subst hS; rfl)
+  refine ⟨Ev, M, h1, h2, fun z x hx => ?_⟩
+  have h3 := h3 z x hx
+  rw [hb, lvRG_three] at h3
+  exact h3
 
 /-- **Non-vacuity of `markedRootAssembly_zero_fromTower`**: for every tower, at `k = 1`, `N₁ = 6`,
 `ν = 0`, `p₁ = 1`, `β = βray` the record `StepScaleData` is inhabited (`StepTower.scale_instance`),

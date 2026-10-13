@@ -67,6 +67,7 @@ public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.TwoTorusCoef
+public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1825,6 +1826,7 @@ public import Balaban.Fluctuation.StepComplexOffFibreE1Loc
 public import Balaban.Inhabited.OffFibreCoeffFirst
 public import Balaban.Inhabited.OffFibreE1Marks
 public import Balaban.Inhabited.OffFibreE1CoeffSum
+public import Balaban.Inhabited.OffFibreM0CoeffSum
 public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepActivityOffFibreRay

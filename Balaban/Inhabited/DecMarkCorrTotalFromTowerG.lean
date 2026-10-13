@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.DecMarkCorrectedTotal
+public import Balaban.Fluctuation.OffFibreBlockEnergyCore
 public import Balaban.Inhabited.MarkRealDiscSliceG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -30,69 +30,7 @@ The steps are stated over any `ϱ = rhoSepG d L T.m₁` (`hϱ`), with the base s
 
 @[expose] public section
 
-namespace Balaban.Fluctuation
 
-open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Localization
-  Balaban.Localization.I5Inhabited Balaban.Polymer Balaban.SmallField.Def6 Matrix Metric Set
-
-namespace StepSetting
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-  (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
-
-/-- **The block-energy total is `V + ½δ` in the two complex mark variables.**  Under the
-hypotheses of `fderiv_mask_eq_neg_beta_deriv_energy_add_delta` (`MarkRealAt` supplies the domain
-and the real clause), for complex `u, t` such that the lifted marked tangent lies in the ball
-`FlBall`: `∑_b E_b(rawOf θ, lift v_{u,t}) = V^{(k)}(ψ^{(k)} + v_{u,t}) + ½ ⟨ψ', Δ^{(k)} ψ'⟩(v_{u,t})`. -/
-theorem sum_blockEnergyOne_eq_VkC_add_delta {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
-    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
-    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
-    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
-    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
-      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
-    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') (x : S.E) (hMR : S.MarkRealAt δ₁ R x)
-    {u t : ℂ}
-    (hball : liftC S.hG' (S.markedTangentC z u t x) ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
-    (∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
-        (rawOf S.D', liftC S.hG' (S.markedTangentC z u t x))) =
-      S.VkC (S.psi0C + S.markedTangentC z u t x) +
-        (1 / 2) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) (compWeight L S.a₁) S.ν
-          (bgMultC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (liftC S.hG' (S.markedTangentC z u t x)) := by
-  classical
-  obtain ⟨-, hreal, -⟩ := hMR
-  obtain ⟨D, hh, hD3, hdisc'⟩ := hreal _ hball (isLayerConstant_liftC S.hG S.hG' _)
-  have hψ : compTangent S.hG S.hG' (le_refl (k + 1)) (compWeight L S.a₁)
-      (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D') S.D' D ∈
-      FlBall (stepG d L N₁ m₁ k ϱ) δ₁ := by
-    rw [hD3]; exact hball
-  have h1 := interactionV_eq_energy hC S.hG S.hG' (le_refl (k + 1)) ha₁ hC.HBp S.D' hD hc7 D hh
-    hψ hR hdisc' hRs hsmall hnum hnum'
-  have h2 := interactionOne_eq S.hG S.hG' (le_refl (k + 1)) hD hh
-  rw [S.VkC_psi0C_add_eq_interactionOne hD, ← hD3, h2, h1]
-  have hs : (∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
-        (rawOf S.D', compTangent S.hG S.hG' (le_refl (k + 1)) (compWeight L S.a₁)
-          (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D') S.D' D)) =
-      ∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-        energyBlock S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k
-          (bgMultC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
-            (compTangent S.hG S.hG' (le_refl (k + 1)) (compWeight L S.a₁)
-              (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D') S.D' D))
-          (compTangent S.hG S.hG' (le_refl (k + 1)) (compWeight L S.a₁)
-            (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D') S.D' D) b :=
-    Finset.sum_congr rfl fun b _ => blockEnergyOne_rawOf hD k b _
-  rw [hs]
-  ring
-
-end StepSetting
-
-
-end Balaban.Fluctuation
 
 namespace Balaban.Inhabited
 

@@ -320,6 +320,42 @@ theorem obsRay_hray_fromTower {κmin : ℝ} (T : StepTower κmin) :
 
 
 open Classical in
+/-- **`obsMarks_zeroClass_family_ksupp` at source radius `ρ`, general tower.**  The sources range
+over the ball `∑ |g| < ρ`; the scale threshold satisfies `ρ ≤ β₀`, and `β₀, C₁, C₂` are chosen
+after `ρ`.  From `obsRay_hray_fromTowerG_rho`.  The fixed `obsMarks_zeroClass_family_ksupp_rho`
+is the same statement for `T : StepTower κmin`. -/
+theorem obsMarks_zeroClass_family_ksupp_rhoG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) (ρ : ℝ) (hρ : 0 < ρ) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N ρ →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    let S := T.step k hk N₁ ν β p₁;
+    let C := zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit T.m₀ hp)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := T.m₀) (blockIndex y)),
+      I.Kc = 4 * K0 d L T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * (L : ℝ) ^ (k * (d - 2))) ∧
+      I.B1 ≤ C₁ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 4 *
+        (β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 2 / (β * (L : ℝ) ^ (k * (d - 2))) ∧
+      ∀ (j : I.ι1) (T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1)
+        T.m₀ (k + 1) Set.univ)),
+        I.hker j T' ≠ 0 → dOmega T.m₀ (k + 1) Set.univ (sitesOf T') ≠ ⊤ :=
+  obsMarks_zeroClass_family_of_ray_ksupp_rhoG T hA p hCR hs0 hs ρ hρ (obsRay_hray_fromTowerG_rho T ρ hρ)
+
+open Classical in
 /-- **`obsMarks_zeroClass_family_ksupp` at source radius `ρ`.**  The sources range over the ball
 `∑ |g| < ρ`; the scale threshold satisfies `ρ ≤ β₀`, and `β₀, C₁, C₂` are chosen after `ρ`.  From
 `obsRay_hray_fromTower_rho`. -/
@@ -352,6 +388,78 @@ theorem obsMarks_zeroClass_family_ksupp_rho {κmin : ℝ} (T : StepTower κmin)
         1 (k + 1) Set.univ)),
         I.hker j T ≠ 0 → dOmega 1 (k + 1) Set.univ (sitesOf T) ≠ ⊤ :=
   obsMarks_zeroClass_family_of_ray_ksupp_rho T hA p hCR hs0 hs ρ hρ (obsRay_hray_fromTower_rho T ρ hρ)
+
+open Classical in
+/-- **`obsMarks_zeroClass_family_ksupp`, general tower** (source radius `1`; see
+`obsMarks_zeroClass_family_ksupp_rhoG`). -/
+theorem obsMarks_zeroClass_family_ksuppG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1Ball d L N₁ T.m₁ (k + 1) N →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    let S := T.step k hk N₁ ν β p₁;
+    let C := zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit T.m₀ hp)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := T.m₀) (blockIndex y)),
+      I.Kc = 4 * K0 d L T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * (L : ℝ) ^ (k * (d - 2))) ∧
+      I.B1 ≤ C₁ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 4 *
+        (β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 2 / (β * (L : ℝ) ^ (k * (d - 2))) ∧
+      ∀ (j : I.ι1) (T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1)
+        T.m₀ (k + 1) Set.univ)),
+        I.hker j T' ≠ 0 → dOmega T.m₀ (k + 1) Set.univ (sitesOf T') ≠ ⊤ := by
+  obtain ⟨β₀, C₁, C₂, h1, -, h2, h3, h⟩ := obsMarks_zeroClass_family_ksupp_rhoG T hA p hCR hs0 hs 1 one_pos
+  exact ⟨β₀, C₁, C₂, h1, h2, h3, h⟩
+
+open Classical in
+/-- **The observable marks record of the zero-class step at the general tower**, with no
+hypothesis beyond the tower: `obsMarks_zeroClass_family_ksuppG` without the kernel support.  The
+fixed `obsMarks_zeroClass_family` is the same statement for `T : StepTower κmin`. -/
+theorem obsMarks_zeroClass_familyG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+  StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+    g ∈ l1Ball d L N₁ T.m₁ (k + 1) N →
+  ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    let S := T.step k hk N₁ ν β p₁;
+    let C := zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit T.m₀ hp)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := T.m₀) (blockIndex y)),
+      I.Kc = 4 * K0 d L T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * (L : ℝ) ^ (k * (d - 2))) ∧
+      I.B1 ≤ C₁ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 4 *
+        (β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * (L : ℝ) ^ (k * (d - 2))) ^ 2 / (β * (L : ℝ) ^ (k * (d - 2))) := by
+  obtain ⟨β₀, C₁, C₂, h1, h2, h3, h⟩ := obsMarks_zeroClass_family_ksuppG T hA p hCR hs0 hs
+  refine ⟨β₀, C₁, C₂, h1, h2, h3, ?_⟩
+  intro k hk N₁ _ hLN hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g hg y i S C
+  obtain ⟨I, e1, e2, e3, e4, e5, e6, e7, e8, -⟩ := h k hk N₁ hLN hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g
+    hg y i
+  exact ⟨I, e1, e2, e3, e4, e5, e6, e7, e8⟩
 
 open Classical in
 /-- **`obsMarks_zeroClass_family` with the kernel support** (see

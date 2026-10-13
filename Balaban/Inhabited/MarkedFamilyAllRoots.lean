@@ -27,6 +27,84 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.Localization
   Balaban.Localization.I5Inhabited Balaban.Inhabited.LevelStep Balaban.SmallField Set
 
+/-- **T1, general.**  One family of marked block terms for all roots at a scale of the general
+tower `T : StepTowerG d L N κmin` (`T.m₀ = 1`, `S = hatStepKG … T.δ`): the four clauses of
+`markedFamily_fromTowerG` and, for every hat field `‖x‖ ≤ p₁` with its chart-wide tangent `Q`, every
+marked root `z`, every block `zb` and every label `Y`, the three clauses of
+`markedCubic_joint_physV` at `R₁ = R_σ = 17/16`, `t₁ = 1/16`, `r = lvRG/4`.  The fixed
+`markedFamily_fromTower_allRoots` is its corollary at `T.toG`. -/
+theorem StepTowerG.markedFamily_fromTower_allRootsG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (hS₁ : StepScaleDataG T k hk N₁ ν β p₁) (hN : 5 < N₁) (hp₁ : 0 < p₁) (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ} (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    ∃ (𝒴 : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ T.m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ),
+    (∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 T.t ×ˢ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t)) ∧
+    (∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 T.t,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      blockEnergyOne S.G' (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.BG₂ T.κ T.t k zb
+        (Θ, ψ') = ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ')) ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ∀ u' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      agreeOn (thickSet S.G' Y) u.1 u'.1 →
+        (∀ y ∈ psiThick Y, u.2 y = u'.2 y) → Ev zb Y u = Ev zb Y u') ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ‖Ev zb Y u‖ ≤ energyBdScaled d L N (compWeight L S.a₁) k
+        (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+        Real.exp (-2 * T.κdec * treeLenCov S.G' 1 Y)) ∧
+    (∀ x : S.E, ‖x‖ ≤ p₁ →
+      ∃ Q : RawData d L (N₁ * L ^ T.m₁) (k + 1) N → S.EC,
+        AnalyticOnNhd ℂ Q (XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t) ∧
+        (∀ (D : BgData S.G' N) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t D →
+          Q (rawOf D) = (S.withDatum D hDh).shiftUC x) ∧
+        (∀ Θ ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t, ∀ b : S.U,
+          vn (fun i => Q Θ (b, i)) ≤
+            markedRad d L N k S.a₁ T.κ p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
+        ∀ (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))))
+          (zb : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) (Y : Set (CTorus d L N₁ T.m₁ (k + 1))),
+        AnalyticOnNhd ℂ (fun w : (physParam N S × ℂ) × ℂ =>
+            markedBlockTerm (Ev zb Y) taylorWeight
+              (liftC S.hG' (w.1.2 • Q (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+              (liftC S.hG' (S.maskUC z (Q (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+              (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) w.2)
+          ((physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (17 / 16)) ×ˢ Metric.ball (0 : ℂ) (1 / 16)) ∧
+        AnalyticOnNhd ℂ (fun w : physParam N S × ℂ => deriv (markedBlockTerm (Ev zb Y) taylorWeight
+            (liftC S.hG' (w.2 • Q (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+            (liftC S.hG' (S.maskUC z (Q (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+            (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)) 0)
+          (physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (17 / 16)) ∧
+        ∀ {t₀ : ℝ}, 0 < t₀ → t₀ < 1 / 16 → ∀ e ∈ physV S S.a₁ S.ν T.t, ∀ u : ℂ,
+          ‖u‖ < 17 / 16 →
+          ‖deriv (markedBlockTerm (Ev zb Y) taylorWeight
+            (liftC S.hG' (u • Q (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+            (liftC S.hG' (S.maskUC z (Q (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+            (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)) 0‖ ≤
+            3 * (energyBdScaled d L N (compWeight L S.a₁) k
+              (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+              Real.exp (-2 * T.κdec * treeLenCov S.G' 1 Y)) /
+              ((lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4) ^ 3 * t₀)) := by
+  subst hϱ
+  subst hS
+  obtain ⟨𝒴, Ev, han, hsum, loc, bd⟩ := T.markedFamily_fromTowerG hm₀ hS₁ hN hν0 hν rfl rfl
+  refine ⟨𝒴, Ev, han, hsum, loc, bd, fun x hx => ?_⟩
+  obtain ⟨Q, hQan, hQfib, hQb⟩ := (T.step k hk N₁ ν β p₁).exists_analytic_shiftUC_chart
+    (δc := T.δc) hS₁.core T.large_block T.dom_margin T.coer_margin T.δc_small x
+    (cψ := p₁) hp₁.le (fun p => (T.step k hk N₁ ν β p₁).yhat_le_of_norm_le hx p)
+  refine ⟨Q, hQan, hQfib, hQb, fun z zb Y => ?_⟩
+  obtain ⟨j1, j2, j3⟩ := (T.step k hk N₁ ν β p₁).markedCubic_joint_physV z (isLevel_lvLowG hk)
+    hS₁.core.HBp (hS₁.marked_radius_lt hp₁) (by norm_num) (by have := hS₁.r_pos; positivity)
+    (by norm_num) (han zb Y) hQan hQb
+  exact ⟨j1, j2, fun ht₀ ht₀₁ => j3 (fun w hw => bd zb Y w hw) ht₀ ht₀₁⟩
+
 /-- **T1.  One family of marked block terms for all roots at the tower.**  At an admissible scale
 there are `𝒴, Ev` with the four clauses of `markedFamily_fromTower` (`han`, `hsum`, locality, the
 bound `E* e^{-2 κ_dec d(Y)}`) and, for every hat field `‖x‖ ≤ p₁` with its chart-wide tangent `Q`
@@ -91,16 +169,109 @@ theorem markedFamily_fromTower_allRoots {κmin : ℝ} (T : StepTower κmin) {k :
               (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) T.t (rho4 3 3 2 T.BG T.κ) *
               Real.exp (-2 * T.κdec * treeLenCov (T.step k hk N₁ ν β p₁).G' 1 Y)) /
               ((lvR T.κ T.t (β * 3 ^ k) p₁ / 4) ^ 3 * t₀)) := by
-  obtain ⟨𝒴, Ev, han, hsum, loc, bd⟩ := markedFamily_fromTower T hS hN hν0 hν
-  refine ⟨𝒴, Ev, han, hsum, loc, bd, fun x hx => ?_⟩
-  obtain ⟨Q, hQan, hQfib, hQb⟩ := (T.step k hk N₁ ν β p₁).exists_analytic_shiftUC_chart
-    (δc := T.δc) hS.core T.large_block T.dom_margin T.coer_margin T.δc_small x
-    (cψ := p₁) hp₁.le (fun p => (T.step k hk N₁ ν β p₁).yhat_le_of_norm_le hx p)
-  refine ⟨Q, hQan, hQfib, hQb, fun z zb Y => ?_⟩
-  obtain ⟨j1, j2, j3⟩ := (T.step k hk N₁ ν β p₁).markedCubic_joint_physV z (isLevel_lvLow hk)
-    hS.core.HBp (hS.marked_radius_lt hp₁) (by norm_num) (by have := hS.r_pos; positivity)
-    (by norm_num) (han zb Y) hQan hQb
-  exact ⟨j1, j2, fun ht₀ ht₀₁ => j3 (fun w hw => bd zb Y w hw) ht₀ ht₀₁⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := T.toG.markedFamily_fromTower_allRootsG rfl (T.scaleDataG_of_fixed hS) hN hp₁ hν0
+    (by simpa using hν) (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl
+  rw [hb, lvRG_three] at h
+  exact h
+
+/-- **T2, general.**  The slice identity for the one family of
+`markedFamily_fromTower_allRootsG`, at a scale of the general tower.  The fixed
+`markReal_slice_allRoots` is its corollary at `T.toG`. -/
+theorem StepTowerG.markReal_slice_allRootsG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (hS₁ : StepScaleDataG T k hk N₁ ν β p₁) (hN : 5 < N₁) (hp₁ : 0 < p₁) (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ} (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    ∃ (𝒴 : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ T.m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ),
+    (∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 T.t ×ˢ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t)) ∧
+    (∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 T.t,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      blockEnergyOne S.G' (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.BG₂ T.κ T.t k zb
+        (Θ, ψ') = ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ')) ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ∀ u' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      agreeOn (thickSet S.G' Y) u.1 u'.1 →
+        (∀ y ∈ psiThick Y, u.2 y = u'.2 y) → Ev zb Y u = Ev zb Y u') ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ‖Ev zb Y u‖ ≤ energyBdScaled d L N (compWeight L S.a₁) k
+        (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+        Real.exp (-2 * T.κdec * treeLenCov S.G' 1 Y)) ∧
+    (∀ x : S.E, ‖x‖ ≤ p₁ →
+      ∃ Q : RawData d L (N₁ * L ^ T.m₁) (k + 1) N → S.EC,
+        AnalyticOnNhd ℂ Q (XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t) ∧
+        (∀ (D : BgData S.G' N) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t D →
+          Q (rawOf D) = (S.withDatum D hDh).shiftUC x) ∧
+        (∀ Θ ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t, ∀ b : S.U,
+          vn (fun i => Q Θ (b, i)) ≤
+            markedRad d L N k S.a₁ T.κ p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
+        ∀ (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))))
+          (zb : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) (Y : Set (CTorus d L N₁ T.m₁ (k + 1))),
+        AnalyticOnNhd ℂ (fun w : (physParam N S × ℂ) × ℂ =>
+            markedBlockTerm (Ev zb Y) taylorWeight
+              (liftC S.hG' (w.1.2 • Q (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+              (liftC S.hG' (S.maskUC z (Q (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+              (w.1.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) w.2)
+          ((physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (17 / 16)) ×ˢ Metric.ball (0 : ℂ) (1 / 16)) ∧
+        AnalyticOnNhd ℂ (fun w : physParam N S × ℂ => deriv (markedBlockTerm (Ev zb Y) taylorWeight
+            (liftC S.hG' (w.2 • Q (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+            (liftC S.hG' (S.maskUC z (Q (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+            (w.1.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)) 0)
+          (physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (17 / 16)) ∧
+        ∀ {t₀ : ℝ}, 0 < t₀ → t₀ < 1 / 16 → ∀ e ∈ physV S S.a₁ S.ν T.t, ∀ u : ℂ,
+          ‖u‖ < 17 / 16 →
+          ‖deriv (markedBlockTerm (Ev zb Y) taylorWeight
+            (liftC S.hG' (u • Q (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)))
+            (liftC S.hG' (S.maskUC z (Q (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N))))
+            (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)) 0‖ ≤
+            3 * (energyBdScaled d L N (compWeight L S.a₁) k
+              (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+              Real.exp (-2 * T.κdec * treeLenCov S.G' 1 Y)) /
+              ((lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4) ^ 3 * t₀)) ∧
+    ∀ (D : BgData S.G' N)
+    (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ))
+    (_hD : XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D)
+    {x : (S.withDatum D hDh).E} (_hx : ‖x‖ ≤ p₁)
+    (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) {s : ℝ} (_hs : s ∈ Icc (0 : ℝ) 1),
+    HasDerivAt (fun t : ℂ => (S.withDatum D hDh).Phi1C
+        (zeroClass d L N₁ T.m₁ k N ϱ)
+        ((S.withDatum D hDh).markedTangentC z (s : ℂ) t x))
+      (-((S.withDatum D hDh).β : ℂ) * ∑ zb, ∑ Y ∈ 𝒴 zb,
+        deriv (markedBlockTerm (Ev zb Y) taylorWeight
+          (liftC (S.withDatum D hDh).hG'
+            ((s : ℂ) • (S.withDatum D hDh).shiftUC x))
+          (liftC (S.withDatum D hDh).hG'
+            ((S.withDatum D hDh).maskUC z
+              ((S.withDatum D hDh).shiftUC x)))
+          (rawOf (S.withDatum D hDh).D')) 0) 0 ∧
+    (fderiv ℂ ((S.withDatum D hDh).Phi1C
+        (zeroClass d L N₁ T.m₁ k N ϱ))
+        ((s : ℂ) • (S.withDatum D hDh).shiftUC x)
+      ((S.withDatum D hDh).maskUC z
+        ((S.withDatum D hDh).shiftUC x)) =
+      -((S.withDatum D hDh).β : ℂ) * ∑ zb, ∑ Y ∈ 𝒴 zb,
+        deriv (markedBlockTerm (Ev zb Y) taylorWeight
+          (liftC (S.withDatum D hDh).hG'
+            ((s : ℂ) • (S.withDatum D hDh).shiftUC x))
+          (liftC (S.withDatum D hDh).hG'
+            ((S.withDatum D hDh).maskUC z
+              ((S.withDatum D hDh).shiftUC x)))
+          (rawOf (S.withDatum D hDh).D')) 0) := by
+  subst hϱ
+  subst hS
+  obtain ⟨𝒴, Ev, h1, h2, h3, h4, hB⟩ := T.markedFamily_fromTower_allRootsG hm₀ hS₁ hN hp₁ hν0 hν
+    rfl rfl
+  exact ⟨𝒴, Ev, h1, h2, h3, h4, hB, fun D hDh hD x hx z s hs =>
+    T.markReal_slice_of_countG hS₁ hp₁ hν0 hν rfl rfl 𝒴 Ev h1 h2 D hDh hD hx z hs⟩
 
 /-- **T2.  The slice identity for the one family of `markedFamily_fromTower_allRoots`.**  One
 existential statement: the family `𝒴, Ev` carries T1 (i), T1 (ii) and, for every datum, hat field,
@@ -192,8 +363,10 @@ theorem markReal_slice_allRoots {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
             (((T.step k hk N₁ ν β p₁).withDatum D hDh).maskUC z
               (((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x)))
           (rawOf ((T.step k hk N₁ ν β p₁).withDatum D hDh).D')) 0) := by
-  obtain ⟨𝒴, Ev, h1, h2, h3, h4, hB⟩ := markedFamily_fromTower_allRoots T hS hN hp₁ hν0 hν
-  exact ⟨𝒴, Ev, h1, h2, h3, h4, hB, fun D hDh hD x hx z s hs =>
-    markReal_slice_of_count T hS hp₁ hν0 hν 𝒴 Ev h1 h2 D hDh hD hx z hs⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := T.toG.markReal_slice_allRootsG rfl (T.scaleDataG_of_fixed hS) hN hp₁ hν0
+    (by simpa using hν) (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl
+  rw [hb, lvRG_three] at h
+  exact h
 
 end Balaban.Inhabited
