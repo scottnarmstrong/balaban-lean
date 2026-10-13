@@ -1451,3 +1451,4 @@ public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
+public import Balaban.Inhabited.DetOutputTermsWitness
