@@ -364,6 +364,8 @@ public import Balaban.Localization.I5Xi
 public import Balaban.Localization.I5Glue
 public import Balaban.Localization.I5Close
 public import Balaban.Localization.I5Chain
+public import Balaban.Localization.XiCRawOpen
+public import Balaban.Inhabited.XiCRawOpenWitness
 public import Balaban.Localization.I5Fan
 public import Balaban.Localization.I5Inhabited
 public import Balaban.Localization.DomainLemma
@@ -1210,6 +1212,8 @@ public import Balaban.Localization.P6ActiveHalo
 public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.P6TopRootedFiber
+public import Balaban.Localization.P6FsharpRootedCount
+public import Balaban.Inhabited.P6FsharpRootedWitness
 public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
