@@ -1277,6 +1277,8 @@ public import Balaban.Localization.P6PairLocFinal
 public import Balaban.Localization.P6PairGraph
 public import Balaban.Inhabited.P6PairGraphWitness
 public import Balaban.Localization.P6PairChain
+public import Balaban.Localization.P6PairParamDegree
+public import Balaban.Inhabited.P6PairParamDegreeWitness
 public import Balaban.Inhabited.P6PairChainWitness
 public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
