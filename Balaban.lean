@@ -805,6 +805,8 @@ public import Balaban.LargeField.Base.BaseWitnessGauss
 public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
+public import Balaban.LargeField.Base.BaseChartAction
+public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
