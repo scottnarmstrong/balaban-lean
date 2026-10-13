@@ -40,7 +40,9 @@ and, when `X` has no old active cell, one corner is joined to an old vertex at c
 hypothesis on the components (`hsplit`) is what makes the nerve connected: a chain of cells of
 `X` from a newly active cell to an old active cell cannot pass through an inactive cell.
 
-Typing data: `L^{m₀} ∣ N₁` (cells tile the torus) and `j ≤ K`.
+Typing data: `L^{m₀} ∣ N₁` (cells tile the torus) and `j ≤ K`.  The inclusion `Ω₋ ⊆ Ω₊` is not
+used by the proof, so it is not a hypothesis (the cells counted are those of `X ∩ (Ω₊ ∖ Ω₋)`).
+The constant obtained is `d L + 1` per newly active cell; the stated `d L + d + 3` is weaker.
 
 **What is not proved here.**  The application to the operation `R` (the identification of `Ω₋`,
 `Ω₊` with the raw and post regions, `hsplit` from the component structure of the removed
