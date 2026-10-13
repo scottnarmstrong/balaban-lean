@@ -765,6 +765,236 @@ theorem GroupedInputsSite.toAligned {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj
           have := (Real.exp_pos (-(κ - η) * Def6.sizeJ C.m₀ j X)).le
           nlinarith [mul_nonneg hE0 this]
 
+/-! ### (T3) The landed regional energy on the aligned lattice -/
+
+section Energy
+
+variable (vc : CorrCoef S.d) (hv : EuclideanSpace ℝ (Fin N))
+
+open Classical in
+/-- **The decomposition of the landed regional energy, aligned form.**  The correction
+coefficient is the marginal kernel `a` on the pairs the correction uses (`y ∈ R'`, `x ∈ Bc`):
+`EresAt = Σ_{y∈R'} I_j(y) + (Σ_{y∈R'} A_j(y) - Corr_j) - (omitted tail)`, with
+`I_j(y) = Efull - AtermCentre a ..` for the given kernel `a`. -/
+theorem EresAt_eq_remainder_add_grouped_aligned (j : ℕ) (R' Bc : Finset (SiteT C))
+    (Bp : Set (SiteT C)) (ψ : Fld S.d S.L C.N₁ m₁ k N) (a : SiteT C → ℂ)
+    (hv1 : ∀ y ∈ R', ∀ x ∈ Bc, vc.v1 j (unlift j (x - y)) = a (x - y)) :
+    EresAt C vc hv j R' Bc Bp ψ =
+      ∑ y ∈ R', (Efull (polyUniv C j) (polyTerm C hv j ψ) y -
+          AtermCentre a (fun x => dot (ψ x) (ψ x)) y) +
+        (AtermRegion a (fun x => dot (ψ x) (ψ x)) R' -
+          corrSum (fun y x => a (x - y)) (fun y x => vc.v2 j (unlift j (x - y)))
+            (nuIdeal S.L k (C.sf.ν k) j) R' Bc ψ (hC hv)) -
+        ∑ y ∈ R', tailAt (polyUniv C j) (polyTerm C hv j ψ) Bp y := by
+  rw [EresAt_eq_energyAt, energyAt_decomposition (a := a) (s := fun x => dot (ψ x) (ψ x))]
+  have h2 : RegionShrink.pairSum (corrFn C vc hv j ψ) R' Bc =
+      corrSum (fun y x => a (x - y)) (fun y x => vc.v2 j (unlift j (x - y)))
+        (nuIdeal S.L k (C.sf.ν k) j) R' Bc ψ (hC hv) := by
+    unfold RegionShrink.pairSum corrSum corrFn
+    refine Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl fun x hx => ?_
+    rw [hv1 y hy x hx]
+  rw [h2]
+
+open Classical in
+/-- **The bound for `EresAt`, aligned form.**  Under `GroupedInputsAligned` (for `ν_j = nuIdeal`,
+`v₂ = vc.v2 ∘ unlift`, the activity `polyTerm`) and `hv1` on the pairs used by the correction:
+`‖EresAt - Σ_{y∈R'} I_j(y)‖ ≤ |R'| (C₁ + C₂ + C_T) E₀ s^(d+α₃)`, `Bp = sset(Y^≈)`. -/
+theorem EresAt_sub_remainder_le_aligned_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁)
+    (hj : j ≤ k) {Y : Set (Torus S.d (n k))} {R' Bc : Finset (SiteT C)}
+    (hR' : R' ⊆ C.alignedIn j Y) (hBal : ∀ x ∈ Bc, Aligned (S.L ^ j) x)
+    (hBcol : ∀ x, Aligned (S.L ^ j) x → x ∈ C.sset (thickY R Y) → x ∈ Bc)
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {a : SiteT C → ℂ}
+    {c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv1 : ∀ y ∈ R', ∀ x ∈ Bc, vc.v1 j (unlift j (x - y)) = a (x - y))
+    (g : GroupedInputsAligned C j Y R' Bc ψ (hC hv) (nuIdeal S.L k (C.sf.ν k) j) a
+      (fun y x => vc.v2 j (unlift j (x - y))) c cv (polyTerm C hv j ψ)
+      E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresAt C vc hv j R' Bc (C.sset (thickY R Y)) ψ -
+        ∑ y ∈ R', (Efull (polyUniv C j) (polyTerm C hv j ψ) y -
+          AtermCentre a (fun x => dot (ψ x) (ψ x)) y)‖ ≤
+      R'.card * ((RegionalGroupedBound.farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R +
+        RegionalGroupedBound.v2Const (S := S) κ κ₀ B C₀ K_r K_R +
+        RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃) * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  rw [EresAt_eq_remainder_add_grouped_aligned vc hv j R' Bc _ ψ a hv1]
+  have e : ∀ I G T : ℂ, I + G - T - I = G - T := fun I G T => by ring
+  rw [e]
+  refine (norm_sub_le _ _).trans ?_
+  have h1 := grouped_bound_power_aligned hN hj hR' hBal hBcol g
+  have h2 := omitted_tail_power_aligned hN hj hR' g
+  refine (add_le_add h1 h2).trans (le_of_eq ?_)
+  ring
+
+open Classical in
+/-- **(T3) The deliverable.  `EresJ2` at the regions of `Y`, aligned form**: `R' = alignedIn j Y`,
+`Bc = alignedIn j (thickY R Y)`, the composed field `psiJ`.  Every geometric premise holds for the
+landed objects (the collar premise of `EresJ2_sub_remainder_le_of_radialCoeff` is replaced by the
+support of the kernel on aligned differences, a field of `GroupedInputsAligned`); `hv1` is asked
+for the pairs of the correction only.  The remainder is `I_j(y) = Efull - AtermCentre a ..` with
+the aligned kernel `a`. -/
+theorem EresJ2_sub_remainder_le_aligned_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁)
+    (hj : j ≤ k) (Y : Set (Torus S.d (n k)))
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    {a : SiteT C → ℂ} {c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv1 : ∀ y ∈ C.alignedIn j Y, ∀ x ∈ C.alignedIn j (thickY R Y),
+      vc.v1 j (unlift j (x - y)) = a (x - y))
+    (g : GroupedInputsAligned C j Y (C.alignedIn j Y) (C.alignedIn j (thickY R Y))
+      (C.psiJ Y ψk hv j) (hC hv) (nuIdeal S.L k (C.sf.ν k) j) a
+      (fun y x => vc.v2 j (unlift j (x - y))) c cv (polyTerm C hv j (C.psiJ Y ψk hv j))
+      E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresJ2 C vc Y ψk hv j -
+        ∑ y ∈ C.alignedIn j Y, (Efull (polyUniv C j) (polyTerm C hv j (C.psiJ Y ψk hv j)) y -
+          AtermCentre a (fun x => dot (C.psiJ Y ψk hv j x) (C.psiJ Y ψk hv j x)) y)‖ ≤
+      (C.alignedIn j Y).card * ((RegionalGroupedBound.farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R +
+        RegionalGroupedBound.v2Const (S := S) κ κ₀ B C₀ K_r K_R +
+        RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃) * E₀ *
+          scaleJ S.L k j ^ (dd + α₃)) := by
+  rw [EresJ2_eq_EresAt]
+  exact EresAt_sub_remainder_le_aligned_of_radialCoeff vc hv hN hj subset_rfl
+    (fun x hx => aligned_of_mem_alignedIn hx)
+    (fun x hal hs => bc_collar_alignedIn Y hal hs) hv1 g
+
+open Classical in
+/-- **(T4) The same with per-site coefficient bounds** (`GroupedInputsSite`, the form of
+`PinJetTerm.tensA_le`, `tensB_le`): the rate is `κ - η` and the constant is `Γ_η E₀`,
+`Γ_η = rowFactor S m₀ m₁ η = q^d c_G (1 + 1/η)`, `q = L^(m₀+m₁)`. -/
+theorem EresJ2_sub_remainder_le_aligned_of_site {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁)
+    (hj : j ≤ k) (Y : Set (Torus S.d (n k)))
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    {a : SiteT C → ℂ} {c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E₀ κ η κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (hv1 : ∀ y ∈ C.alignedIn j Y, ∀ x ∈ C.alignedIn j (thickY R Y),
+      vc.v1 j (unlift j (x - y)) = a (x - y))
+    (g : GroupedInputsSite C j (C.alignedIn j Y) (C.alignedIn j (thickY R Y))
+      (C.psiJ Y ψk hv j) (hC hv) (nuIdeal S.L k (C.sf.ν k) j) a
+      (fun y x => vc.v2 j (unlift j (x - y))) c cv (polyTerm C hv j (C.psiJ Y ψk hv j))
+      E₀ κ η κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    ‖EresJ2 C vc Y ψk hv j -
+        ∑ y ∈ C.alignedIn j Y, (Efull (polyUniv C j) (polyTerm C hv j (C.psiJ Y ψk hv j)) y -
+          AtermCentre a (fun x => dot (C.psiJ Y ψk hv j x) (C.psiJ Y ψk hv j x)) y)‖ ≤
+      (C.alignedIn j Y).card * ((RegionalGroupedBound.farConst C (κ - η) κ₀ Rs dd α₃ C₀ K_r K_R +
+        RegionalGroupedBound.v2Const (S := S) (κ - η) κ₀ B C₀ K_r K_R +
+        RegionalGroupedBound.tailConst C (κ - η) κ₀ Rs dd α₃) *
+          (rowFactor S C.m₀ m₁ η * E₀) * scaleJ S.L k j ^ (dd + α₃)) :=
+  EresJ2_sub_remainder_le_aligned_of_radialCoeff vc hv hN hj Y ψk hv1 (g.toAligned hN hj)
+
+end Energy
+
+/-! ### Non-vacuity (rule 10) -/
+
+section Inhabited
+
+open Classical in
+/-- The shared hypotheses are inhabited for any context with `R_{k-1} > 0`, `M > 0`, any field
+`ψ`, source `h`, centres and collar, with `ν_j = 0`: `E₀ = ε_j = ε_q = K_r = 1`, `α₁ = B = 0`,
+`α₃ = 1`, `d = S.d`, `κ₀ = aEnt + 1`, any rate `κ > κ₀`, `R_* = R_{k-1}`, `α = (d - 2)/2`,
+`C₀` large enough to cover the data `ψ·ψ - 1`. -/
+theorem groupedBase_nonempty (j : ℕ) (hRpos : 0 < R (k - 1)) (hM : 0 < M) {κ : ℝ}
+    (hκ : aEnt S.d S.L + 1 < κ) (R' Bc : Finset (SiteT C))
+    (ψ : Fld S.d S.L C.N₁ m₁ k N) (h : Fin N → ℂ) :
+    ∃ E₀ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ,
+      Nonempty (GroupedBase C j R' Bc ψ h 0 E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) := by
+  have hs := scaleJ_pos S.L k j
+  set s := scaleJ S.L k j with hsdef
+  set T : ℝ := ∑ x, ‖dot (ψ x) (ψ x) - 1‖ with hT
+  have hT0 : 0 ≤ T := Finset.sum_nonneg fun x _ => norm_nonneg _
+  have hsα : 0 < s ^ ((S.d - 2 : ℝ) / 2) := Real.rpow_pos_of_pos hs _
+  have hC0 : 0 ≤ (T + 1) / s := by positivity
+  have hCs : 0 ≤ sourceConstC 0 := by unfold sourceConstC; norm_num
+  refine ⟨1, aEnt S.d S.L + 1, R (k - 1), (S.d : ℝ), 1, 0, ((S.d : ℝ) - 2) / 2,
+    (T + 1) / s, 1, (s ^ (((S.d : ℝ) - 2) / 2))⁻¹, 0, 1, 1, ⟨?_⟩⟩
+  have hd : (0 : ℝ) ≤ S.d := Nat.cast_nonneg _
+  exact
+  { E₀_nonneg := zero_le_one
+    κ₀_ge := le_rfl
+    κ₀_lt := hκ
+    Rs_pos := hRpos
+    Rs_le := le_rfl
+    M_pos := hM
+    p_pos := by linarith
+    dd_eq := rfl
+    α₁_nonneg := le_rfl
+    hrel := by ring
+    α_ge := by linarith
+    C₀_nonneg := hC0
+    K_r_pos := one_pos
+    B_nonneg := le_rfl
+    εj_pos := one_pos
+    εq_nonneg := zero_le_one
+    scale_rel := by
+      rw [inv_mul_cancel₀ hsα.ne']; norm_num
+    s_data := fun x => by
+      have e : (T + 1) / s * s = T + 1 := div_mul_cancel₀ _ hs.ne'
+      rw [e]
+      have : ‖dot (ψ x) (ψ x) - 1‖ ≤ T :=
+        Finset.single_le_sum (f := fun x => ‖dot (ψ x) (ψ x) - 1‖) (fun x _ => norm_nonneg _)
+          (Finset.mem_univ x)
+      nlinarith
+    src_data := fun y _ x _ => by
+      simp only [Complex.ofReal_zero, zero_mul, norm_zero]
+      have hD := distWeight_nonneg C j y x
+      have hcs : 0 ≤ (T + 1) / s * s := by positivity
+      exact mul_nonneg (mul_nonneg (mul_nonneg hCs (add_nonneg (sq_nonneg _) hD))
+        (pow_nonneg hcs 3)) (sq_nonneg _) }
+
+open Classical in
+/-- **`GroupedInputsAligned` is inhabited** (zero kernel, zero coefficients and activity). -/
+theorem groupedInputsAligned_nonempty (j : ℕ) (hRpos : 0 < R (k - 1)) (hM : 0 < M)
+    (Y : Set (Torus S.d (n k))) (Bc : Finset (SiteT C)) (ψ : Fld S.d S.L C.N₁ m₁ k N)
+    (h : Fin N → ℂ) :
+    ∃ E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ,
+      Nonempty (GroupedInputsAligned C j Y (C.alignedIn j Y) Bc ψ h 0 (fun _ => 0)
+        (fun _ _ => 0) (fun _ _ _ => 0) (fun _ _ _ => 0) (fun _ _ => 0)
+        E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) := by
+  obtain ⟨E₀, κ₀, Rs, dd, α₃, α₁, α, C₀, K_r, K_R, B, εj, εq, ⟨b⟩⟩ :=
+    groupedBase_nonempty (C := C) j hRpos hM (κ := aEnt S.d S.L + 2) (by linarith)
+      (C.alignedIn j Y) Bc ψ h
+  refine ⟨E₀, aEnt S.d S.L + 2, κ₀, Rs, dd, α₃, α₁, α, C₀, K_r, K_R, B, εj, εq, ⟨?_⟩⟩
+  exact
+  { toGroupedBase := b
+    a_supp := fun z _ => rfl
+    a_decomp := fun y _ x _ => by simp
+    a_coeff := fun y _ X _ _ => by
+      simp only [norm_zero, Finset.sum_const_zero]; have := b.E₀_nonneg; have := b.εj_pos
+      have := b.K_r_pos; positivity
+    v2_decomp := fun y _ x _ => by simp
+    v2_coeff := fun y _ X _ _ => by
+      simp only [norm_zero, Finset.sum_const_zero]; have := b.E₀_nonneg; have := b.εj_pos
+      have := b.K_r_pos; positivity
+    E_bound := fun y _ X _ _ => by
+      simp only [norm_zero]; have := b.E₀_nonneg; positivity }
+
+open Classical in
+/-- **`GroupedInputsSite` is inhabited** (zero kernel, margin `η = 1`). -/
+theorem groupedInputsSite_nonempty (j : ℕ) (hRpos : 0 < R (k - 1)) (hM : 0 < M)
+    (Bc : Finset (SiteT C)) (Y : Set (Torus S.d (n k))) (ψ : Fld S.d S.L C.N₁ m₁ k N)
+    (h : Fin N → ℂ) :
+    ∃ E₀ κ η κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ,
+      Nonempty (GroupedInputsSite C j (C.alignedIn j Y) Bc ψ h 0 (fun _ => 0)
+        (fun _ _ => 0) (fun _ _ _ => 0) (fun _ _ _ => 0) (fun _ _ => 0)
+        E₀ κ η κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) := by
+  obtain ⟨E₀, κ₀, Rs, dd, α₃, α₁, α, C₀, K_r, K_R, B, εj, εq, ⟨b⟩⟩ :=
+    groupedBase_nonempty (C := C) j hRpos hM (κ := aEnt S.d S.L + 3 - 1) (by linarith)
+      (C.alignedIn j Y) Bc ψ h
+  refine ⟨E₀, aEnt S.d S.L + 3, 1, κ₀, Rs, dd, α₃, α₁, α, C₀, K_r, K_R, B, εj, εq, ⟨?_⟩⟩
+  exact
+  { toGroupedBase := b
+    η_pos := one_pos
+    a_supp := fun z _ => rfl
+    a_decomp := fun y _ x _ => by simp
+    a_site := fun y _ X _ _ x _ _ => by
+      simp only [norm_zero]; have := b.E₀_nonneg; have := b.εj_pos
+      have := b.K_r_pos; positivity
+    v2_decomp := fun y _ x _ => by simp
+    v2_site := fun y _ X _ _ x _ _ => by
+      simp only [norm_zero]; have := b.E₀_nonneg; have := b.εj_pos
+      have := b.K_r_pos; positivity
+    E_bound := fun y _ X _ _ => by
+      simp only [norm_zero]; have := b.E₀_nonneg; positivity }
+
+end Inhabited
+
 end Concrete
 
 end Balaban.LargeField.RegionalAligned
