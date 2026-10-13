@@ -1554,3 +1554,5 @@ public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
 public import Balaban.Fluctuation.ExpSourceChart
+public import Balaban.Fluctuation.DetRotation
+public import Balaban.Inhabited.DetRotationWitness
