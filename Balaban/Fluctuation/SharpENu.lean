@@ -9,6 +9,7 @@ public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionHatNu
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.PhysicalFNuFanRawY
+public import Balaban.Fluctuation.PhysicalReadsE
 public import Balaban.Fluctuation.ObsRayBase
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -52,20 +53,22 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **Locality of the old-term functional, sharp form**: as `eTermFun_local`, with the fluctuation
-variable assumed equal only on the sites of `X₁`. -/
-theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+/-- **Locality of the old-term functional, exact form**: as `eTermFun_local_dir`, with the raw data
+assumed equal on `X₁` itself (not on `thickSet X₁`), and the background field assumed equal only at
+the sites it is read at, namely the composite sites `composeDep Gk Gp x` of the data sites `x`
+(these lie in `X₁`). -/
+theorem eTermFun_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
     (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
     (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
     {t t' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
-    (hφ : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) →
-      ∀ i, t.1.1 (y, i) = t'.1.1 (y, i))
+    (hφ : ∀ x ∈ dataSites Gk, ∀ y : Gp.Ω 1,
+      (y : CTorus d L N₁ m₁ (k + 1)) ∈ composeDep Gk Gp x → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i))
     (hδ : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) →
       ∀ i, t.2.1 (y, i) = t'.2.1 (y, i))
-    (hag : agreeOn (thickSet Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1)))) t.2.2.1 t'.2.2.1)
+    (hag : agreeOn (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) t.2.2.1 t'.2.2.1)
     (hψ : ∀ y ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))), t.2.2.2 y = t'.2.2.2 y) :
     eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 =
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t'.1 t'.2.1 t'.2.2 := by
@@ -73,7 +76,7 @@ theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps �
   have hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1) := fun x hx =>
     X1_subset_Omega1 hcov (hX₁ ▸ hx)
   have hXthick : ∀ y ∈ X₁f, t.2.2.1.1 y = t'.2.2.1.1 y ∧ t.2.2.1.2 y = t'.2.2.1.2 y := fun y hy =>
-    hag y (Or.inl (Finset.mem_coe.2 hy))
+    hag y (Finset.mem_coe.2 hy)
   refine congrArg E (congrArg (D2raw Gk Gj (compWeight L a₁) Fk) ?_)
   refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
   · show composeField Gk Gp (compWeight L a₁) t.1.1 t.2.2.1.1 x i +
@@ -87,7 +90,7 @@ theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps �
         have hyX := hB.dep x hx y hy
         have hyΩ : y ∈ Gp.Ω 1 := hX₁Ω (Finset.mem_coe.2 hyX)
         rw [svec_of_mem' t.1.1 hyΩ jj, svec_of_mem' t'.1.1 hyΩ jj]
-        exact hφ ⟨y, hyΩ⟩ (Finset.mem_coe.2 hyX) jj
+        exact hφ x hx ⟨y, hyΩ⟩ hy jj
       · refine composeField_congr (G := Gk) (G' := Hm) (compWeight L a₁) (fun y hy jj => ?_)
           (fun jj => congrFun (hψ x (Finset.mem_coe.2 (hF.depm x hx x
             (self_mem_composeDep x)))) jj) i
@@ -104,6 +107,188 @@ theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps �
       have hxd : x ∈ dataSites Gk := (mem_dataSites Gk).2 (Or.inl hx)
       exact congrFun (hXthick x (hB.dep x hxd x (self_mem_composeDep x))).2 i
     · simp [hx]
+
+/-- **Locality of the old-term functional, sharp form**: as `eTermFun_local`, with the fluctuation
+variable assumed equal only on the sites of `X₁`. -/
+theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {t t' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (hφ : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) →
+      ∀ i, t.1.1 (y, i) = t'.1.1 (y, i))
+    (hδ : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) →
+      ∀ i, t.2.1 (y, i) = t'.2.1 (y, i))
+    (hag : agreeOn (thickSet Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1)))) t.2.2.1 t'.2.2.1)
+    (hψ : ∀ y ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))), t.2.2.2 y = t'.2.2.2 y) :
+    eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 =
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t'.1 t'.2.1 t'.2.2 :=
+  eTermFun_local_rawY hB hF hcov hX₁ Fk E
+    (fun x hx y hy i => hφ y (Finset.mem_coe.2 (hB.dep x hx y hy)) i) hδ
+    (fun y hy => hag y (Or.inl hy)) hψ
+
+/-- **Exact locality of the old-term functional, in the fan form.**  `fan_local_rawY` at
+`Φ := eTermFun … Fk E`: for sharp agreement on a component `compY … C` of the marked family (raw data
+on the component, hat variables at the unit points of the component) the composite is the same.  The
+background field is needed only at the composite sites of the data sites; there it is the sum of the
+approximate field, which reads the raw data inside `X₁` (`approxField_composeDep_congr`), and the
+correction, which agrees on the component (`i4b_local_of_agree_on_component`). -/
+theorem eterm_fan_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) :
+    LocalityAEOn (Real.exp κ)
+      (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
+      (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => Pset m₁ i.1.1)
+      (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))))
+      (fun C u u' => agreeOn (compY
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) u.1 u'.1 ∧
+        ∀ y ∈ compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C,
+          ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
+      (fun u s => (eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E) (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+        (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+          (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
+  classical
+  have hC := flCore_of hB hF
+  have hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1) := fun x hx =>
+    X1_subset_Omega1 hcov (hX₁ ▸ hx)
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hδ1' : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1'.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  refine fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hF₁ hSol
+    (eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
+    (fun {sx sx'} hs hs' {D D'} hD hD' {Y} C hY hs1 hs0
+      hag hX₁c h𝒞 hdata ψh ψh' hh {φ φ₂} {α α₂} hI hI₂ Hh Hh' {δα δα'} hfix hsmδ hfix' hsmδ'
+      hmemY hαY hψY => ?_)
+  have hflc := fluct_correction_rows_of_agree_on_component hC hk hG' hG cc hconn hrow hMX hdm hα
+    hsm hF₁ hs hs' hD hD' hY hs1 hs0 hag hX₁c h𝒞 hdata ψh ψh' hh hI hI₂ Hh Hh'
+    hfix hsmδ hfix' hsmδ'
+  have hXY' : ∀ x ∈ X₁f, x ∈ Y := fun x hx => (hmemY x).2 (subset_compY
+    (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C (Finset.mem_coe.2 hx))
+  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
+  have hDom' := xiCData_inDomainC hC.HBp hC.small1 hD'
+  obtain ⟨-, hφd, -⟩ := i4b_local_of_agree_on_component hC.hS hC.Sp hconn hC.HBp hC.hκ.le hC.hM
+    (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1' hνε hDom hDom' hG' hY
+    hs1 hs0 hag hdata hI hI₂
+  have hΨh : ∀ y ∈ X₁f, D.Ψ y = D'.Ψ y ∧ D.h y = D'.h y := fun y hy =>
+    ⟨(hdata y (hXY' y hy)).1, (hdata y (hXY' y hy)).2 (hX₁Ω (Finset.mem_coe.2 hy))⟩
+  refine eTermFun_local_rawY hB hF hcov hX₁ Fk E
+    (t := ((φ, α), _, (rawOf D, hatPsiF Gp a₁ ν hG' cc F₁ sx (rawOf D) ψh)))
+    (t' := ((φ₂, α₂), _, (rawOf D', hatPsiF Gp a₁ ν hG' cc F₁ sx' (rawOf D') ψh')))
+    (fun x hx y hy i => ?_) (fun y hy i => hflc.2 y (hXY' _ (by simpa using hy)) i)
+    (fun y hy => hΨh y (by simpa using hy)) (fun y hy => hψY y (hXY' y (by simpa using hy)))
+  have hyX : (y : CTorus d L N₁ m₁ (k + 1)) ∈ X₁f := hB.dep x hx y hy
+  have h1 := hφd y (hXY' _ hyX) i
+  have h2 : approxField Gp (compWeight L a₁) ν D.Ψ D.h y i =
+      approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y i :=
+    congrFun (approxField_composeDep_congr hB hG' hΨh hx hy) i
+  show φ (y, i) = φ₂ (y, i)
+  rw [h2] at h1
+  exact sub_left_injective h1
+
+/-- **An old term expands over the domains `Y ⊃ X₁`, exact locality**: `eterm_expansion_hat_dir`
+with one locality clause, for raw data agreeing on `Y` itself and hat variables agreeing at the unit
+points of `Y`.  Obtained from `i5_functional_hatLC_rawY_of_fan` and `eterm_fan_local_rawY`; the thick
+statement `eterm_expansion_hat_dir` is its corollary and returns the same `Ev`. -/
+theorem eterm_expansion_hat_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X)) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF E (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  classical
+  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
+  have hC := flCore_of hB hF
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα
+    hsm hδ₁ hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
+    (eTermFun_analytic hB hF hFkan hFk hEan)
+    (fun t ht => eTermFun_bound hB hF hFk hEbd ht)
+    (fun {F₁} hF₁ {Sol} hSol => eterm_fan_local_rawY hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
+      hX₁ hconn hrow hF₁ hSol Fk E)
+  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', h3', h4'⟩
+  rw [← h1' D hD ψh hψh]
+  exact (eTermFun_value hB hF hFk E hD
+    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
 
 /-- **An old term expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂` at the unit points
 of `Y` only** (sharp form of `eterm_expansion_hat`; the landed `AgHat` clause is also returned). -/
@@ -153,21 +338,15 @@ theorem eterm_expansion_hat_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ 
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  classical
-  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
-  have hC := flCore_of hB hF
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-    hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
-    (eTermFun_analytic hB hF hFkan hFk hEan)
-    (fun t ht => eTermFun_bound hB hF hFk hEbd ht)
-    (Z := ↑X₁f) (Zα := ∅) subset_rfl (fun x hx => absurd hx (Set.notMem_empty x))
-    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local_dir hB hF hcov hX₁ Fk E hφ hδ hag hψ)
-  refine ⟨Ev, fun D hD ψh hψh => ?_, fun Y u hu u' hu' h => h2' Y u hu u' hu' (agHatDir_of_agHat hG' h), h2', h3', h4'⟩
-  rw [← h1' D hD ψh hψh]
-  exact (eTermFun_value hB hF hFk E hD
-    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
-
+  obtain ⟨Ev, hs, hd, hb, ha⟩ := eterm_expansion_hat_rawY hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
+  have hd' : ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir hG' Y u u' → Ev Y u = Ev Y u' :=
+    fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2
+  exact ⟨Ev, hs, fun Y u hu u' hu' h => hd' Y u hu u' hu' (agHatDir_of_agHat hG' h), hd', hb, ha⟩
 
 /-- **Ray-differentiable form of `eterm_locInt_hat_dm_dir`.**  The statement of `eterm_locInt_hat_dm_dir` together with the
 differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
