@@ -232,4 +232,58 @@ theorem paired_coef_eq_zero_of_not_connected_on (hκ' : 0 < κ)
 
 end ReadLocality
 
+namespace Dec2
+
+section Seed
+
+variable {C : DecCover d L N₁ m₁ K} {Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ'}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+  {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+  {U : Set (CTorus d L N₁ m₁ K)}
+
+/-- **Graph hypotheses for an arbitrary seed (T5).**  For `Y_f(J) := jointSites … (J.image cc) U`
+with any seed `U` (not required to contain `X₁`), the two incidence unions and the cell conditions of
+`paired_locality_on` hold. -/
+theorem seed_graph_hyps {ι : Type*} [DecidableEq ι] (cc : ι → ℕ × CTorus d L N₁ m₁ K) :
+    ∀ J : Finset ι, ∃ Ab Am : Finset (ℕ × CTorus d L N₁ m₁ K),
+      IsIncUnion C Hb a ν X₁ (J.image cc) (jointSites C Hb Hm a ν X₁ (J.image cc) U) Ab ∧
+      IsIncUnion C Hm a ν X₁ (J.image cc) (jointSites C Hb Hm a ν X₁ (J.image cc) U) Am ∧
+      (∀ P ∈ Ab, ∀ x ∈ cubeP P, x ∈ jointSites C Hb Hm a ν X₁ (J.image cc) U) ∧
+      (∀ P ∈ Am, ∀ x ∈ cubeP P, x ∈ jointSites C Hb Hm a ν X₁ (J.image cc) U) := fun _ =>
+  ⟨_, _, isIncUnion_joint_b, isIncUnion_joint_m, fun _ hP => (joint_cell hP).2,
+    fun _ hP => (joint_cell hP).2⟩
+
+/-- **The nearest-neighbour step.**  A reached site `x` and a nearest neighbour `y` of `x` that
+are both incidence sites of the operator `Hb`, or both of `Hm`, give a reached site `y`. -/
+theorem jointSites_nn_step {x y : CTorus d L N₁ m₁ K}
+    (hx : x ∈ jointSites C Hb Hm a ν X₁ 𝒞 U)
+    (hxy : (Adj x y ∧ x ∈ incSites C Hb a ν X₁ 𝒞 ∧ y ∈ incSites C Hb a ν X₁ 𝒞) ∨
+      (Adj x y ∧ x ∈ incSites C Hm a ν X₁ 𝒞 ∧ y ∈ incSites C Hm a ν X₁ 𝒞)) :
+    y ∈ jointSites C Hb Hm a ν X₁ 𝒞 U := by
+  by_cases hne : x = y
+  · exact hne ▸ hx
+  · have hne' : (Sum.inl x : IncV d L N₁ m₁ K) ≠ Sum.inl y := fun h => hne (Sum.inl_injective h)
+    rcases hxy with h | h
+    · exact mem_jointSites.2 (JointIn.adjB ⟨hne', Or.inl ⟨h.2.1, h.2.2, h.1⟩⟩ (mem_jointSites.1 hx))
+    · exact mem_jointSites.2 (JointIn.site (JointIn.adjM ⟨hne', Or.inl ⟨h.2.1, h.2.2, h.1⟩⟩
+        (JointIn.site (mem_jointSites.1 hx))))
+
+/-- **The closure contains the nearest-neighbour components of its seed (T5).**  Every site reached
+from a seed site `s ∈ U` by a chain of nearest-neighbour steps through incidence sites (each step
+inside the incidence sites of one of the two operators) lies in the joint closure.  For the sites
+of `X₁ ∩ Ω₁` the incidence-site condition is automatic, so the closure contains the nearest-neighbour
+components of `X₁ ∩ Ω₁(H)` that meet `U`. -/
+theorem jointSites_nn_component {s y : CTorus d L N₁ m₁ K} (hs : s ∈ U)
+    (h : Relation.ReflTransGen (fun x y : CTorus d L N₁ m₁ K =>
+      (Adj x y ∧ x ∈ incSites C Hb a ν X₁ 𝒞 ∧ y ∈ incSites C Hb a ν X₁ 𝒞) ∨
+      (Adj x y ∧ x ∈ incSites C Hm a ν X₁ 𝒞 ∧ y ∈ incSites C Hm a ν X₁ 𝒞)) s y) :
+    y ∈ jointSites C Hb Hm a ν X₁ 𝒞 U := by
+  induction h with
+  | refl => exact seed_mem_jointSites hs
+  | tail _ hstep ih => exact jointSites_nn_step ih hstep
+
+end Seed
+
+end Dec2
+
 end Balaban.Localization
