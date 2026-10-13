@@ -1482,6 +1482,7 @@ public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerG
 public import Balaban.Inhabited.StepTowerGBridge
+public import Balaban.Inhabited.StepTowerGProducer
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
