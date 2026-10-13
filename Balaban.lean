@@ -406,6 +406,7 @@ public import Balaban.Localization.DecoupledCovAnalyticFull
 public import Balaban.Localization.DecoupledCovPrincipal
 public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
+public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
