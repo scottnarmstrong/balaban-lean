@@ -7,23 +7,23 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 (including rule 9: never kill processes you did not start). Heavy mathematics goes to astra
 (codex, GPT-6-Sol xhigh, in tmux; AT MOST 3 astra sessions working at once — Scott 2026-10-12; close idle ones after committing results), Lean to Sonnet workers in worktrees.
 
-## STATE (2026-10-12 ~12:30 UTC, session on claude-1)
+## STATE (2026-10-13 early UTC, session on claude-1)
 
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W242 | `w242-regional-tails` / W242 | omitted-polymer tail and kernel tail from entropy + halo distance (Q13-GROUPED (4), (8)) |
-| W245 | `w245-avg-family` / W245 | averaged vs unaveraged term family in a_j = v₁ (links M2, M3 of W235) |
-| W246 | `w246-e-read` / W246 | E-read support lemma (SPLIT §3, E) |
-| W247 | `w247-fnu-reads` / W247 | F and ν physical reads: Core dichotomy (SPLIT §3, F and ν) |
-| W248 | `w248-p6-pair-witness` / W248 | concrete P6 pair instance for P6ActiveHalo / MooreDegree / LedgerPacking |
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W250 | `w250-v-reads` / W250 | V-summand physical reads (SPLIT §3, V) |
-| W251 | `w251-rows-compose` / W251 | composition of the row-local theorems on the component |
-| W252 | `w252-bgsetting-witness` / W252 | BgSetting/FlSetting witness with nonempty data sites; E-read instance |
+| W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
+| W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
+| W266 | `w266-sharp-assembly` / W266 | SharpAssembly: parallel assembler with sharp locality, physical_directTerms, direct activity bound, rate preservation (zero class) |
+| W265 | `w265-localgen` / W265 | P3 local generating set as an object (LOCALGEN §4: LocalGenAligned, LocalGenRange) |
+| W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
+| W269 | `w269-retained-shell` / W269 | retained-shell cover and seed margins (Q13-COVER §1) |
+| W270 | `w270-aligned-kernel` / W270 | aligned kernel, row sums: repair of the grouped regional bound premises |
+| W271 | `w271-param-datum-family` / W271 | the step as a family over the datum (PARAM package 1) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
-astra (cap 3): fluctfix SHARPLOC (tag SHARPLOC; SPLIT done: the rate closes on the global domain from (FP) + row-local theorems + PhysicalReads + PhysicalSharpLoc, no fixed-Y chart needed; output class clauses and the direct-label StepActivityBound assembler still open), q13 Q13-TRANSFER (tag Q13TRANSFER; Q13-COLLAR done: mass path settled, history transfer open for both schemes), vmod VMOD-28 MIGRATION (tag VMOD28; VMOD-27 done: the papers do not decide what a re-expanded old boundary term reads in the new hole — Roland item 14 second addendum written; VMOD-26: RECOMMENDED D7 size change to the fine chosen-cover size at the post-R region — 3 files, NOT YET APPLIED, needs an Opus worker; active rooting needs a physical statement). NEXT SONNET PACKAGES (rate route): the four PhysicalReads lemmas of notes/phase1/SPLIT.md §3 (E-read first), then the physical fan congruence, PhysicalSharpLoc, physical_directTerms. AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
+astra (cap 3): q13 Q13-COMPOSED (tag Q13COMPOSED; Q13-COVER done: retained-shell cubes within 2a+3 of Y lie in Ω_k″; worker-sized packages RetainedShellOmegaDD, ActiveSeedMargin, TopBlockTransport, FactorBondLift, ScaledR12; LOCALGEN done: P3 local generator is a separate narrow object, not a parent of the landed engine; four class-neutral object packages ready — LocalGenAligned, LocalGenMixed, LocalGenRange, LocalGenHalo; GENERATOR DECISION PENDING WITH SCOTT: no class/generator-specific Lean), fluctfix PARAM (tag PARAM; GENERAL done: six general-class packages, GeneralClassMatch and GeneralXiRescale can start), vmod VMOD-30 MIXED-DECAY (tag VMOD30). NEXT SONNET PACKAGES: rate route — SharpAssembly/PhysicalSharpLoc after W263/W264, then compose with W256 and the landed direct assembler; then LocalGen object packages; GeneralClassMatch; W261 data pair bridge (worktree exists). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
 basek (BASE-KERNEL-3: remaining Prop II.7.9), rgfree (RGFREE-6: mass-uniform domain, FREE-ACT-TUBE,
 SWITCH-JOINT), kf0 (Part G: heavy activity for gasOp_pe, (B.5), k_f=0). Idle: class, fluctfix, vacuity.
 
