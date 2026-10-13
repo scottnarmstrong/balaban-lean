@@ -61,8 +61,9 @@ output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`. -/
 theorem exists_stepTowerRenEndG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
     (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
     ∃ T : StepTowerRenEndG d L N κmin, T.m₀ = m₀ ∧
-      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec := by
-  obtain ⟨R, hm, hent, -⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
+      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
+      (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
+  obtain ⟨R, hm, hent, h0⟩ := exists_stepTowerRenG d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
   obtain ⟨hC₀⟩ := R.core
   have hd0 : 0 < d := by omega
   have hB1 := famConst_ge_one (L := L) hC₀.hS.fam.2.1 R.κ hd0
@@ -93,6 +94,19 @@ theorem exists_stepTowerRenEndG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 
       calc _ = cK2' d L N (famConst d L R.BG R.κ) *
           ((3 / 2 + 32 / 15 * (3 + (K4 d L N R.BG R.κ + bgK1 d L N) * xiC1 d)) * R.t) * r := by
             ring
-        _ ≤ c6 d L N := hr2 }, hm, hent⟩
+        _ ≤ c6 d L N := hr2 }, hm, hent, h0⟩
+
+/-- A general tower with the endpoint margin at `3, 3, 2` with `κ₀ = a_Ent + 2` and `m₀ = 1`
+gives a fixed tower with the endpoint margin. -/
+theorem StepTowerRenEndG.nonempty_fixed_of_three {κmin : ℝ} (T : StepTowerRenEndG 3 3 2 κmin)
+    (h0 : T.κ0 = aEnt 3 3 + 2) (hm : T.m₀ = 1) : Nonempty (StepTowerRenEnd κmin) :=
+  ⟨StepTowerRenEnd.mk (StepTowerRen.mk (T.toStepTowerG.ofThree h0 hm) T.ren_margin T.r₀
+    T.r₀_pos T.r₀_le T.D₀_le_one T.D₀_le_star T.D₁_le_star) T.end_margin⟩
+
+/-- **The record with the endpoint margin is inhabited** for every `κmin`. -/
+theorem exists_stepTowerRenEnd (κmin : ℝ) : Nonempty (StepTowerRenEnd κmin) := by
+  obtain ⟨T, hm, -, h0⟩ := exists_stepTowerRenEndG 3 3 2 le_rfl le_rfl le_rfl 1 le_rfl 0 0 κmin
+  have := aEnt_nonneg 3 3
+  exact StepTowerRenEndG.nonempty_fixed_of_three T (h0 (by simp; linarith)) hm
 
 end Balaban.Inhabited

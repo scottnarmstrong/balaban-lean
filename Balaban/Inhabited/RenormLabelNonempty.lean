@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Fluctuation.RenormDomainParams
 import Mathlib.Tactic.Linarith
