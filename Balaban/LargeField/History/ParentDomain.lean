@@ -219,6 +219,167 @@ theorem parentPsi_pair_of_chiDomAt {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem (j
   rw [e, rn_eq_norm]
   exact h1
 
+/-! ### T4, T5: the domain statement -/
+
+section Assembly
+
+variable (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+  (ν ηY : ℝ)
+
+/-- **`ParentDomainFromFactors`, the real domain clauses (assembly).**  The real field
+`Ψ = parentPsi Cx ψ_k` of the datum `D_k` lies in `Ψ̃(G_k; ν, η)` for the fixed real unit vector
+`h⋆ = hv` and
+`η = max (3 d L δ_j) η_Y` (`δ_j = Cx.cs.delta j`, `k = j + 1`), under the following hypotheses.
+
+Typing data: `hν : 0 ≤ ν`, `hunit : |h⋆| = 1`, `hηY : 0 < η_Y`.
+
+Named inputs that are **not proved here**:
+
+* `hAct` (`ActiveFactor`): for every retained component `C` of `Z^pre_k` over which a datum site
+  lies, `ChiDomAt` holds for `C` at some output configuration `o` with `outField o = ψ_k` and
+  some internal configuration (the form consumed by `TopBlockTransport`).
+* `hR2Y`: the sphere bound for datum sites over `Y`.
+* `hR1Y`: the pair bound for interface pairs with both sites over `Y`.
+* `hmass`: `2 ν L^{2k} < η²`.  The landed regime relations only give `ν L^{2k} ≤ 1`; this is a
+  genuine smallness condition on the mass relative to `η`.
+
+The proof is the case split of `interface_pair_cases`, `parentPsi_sphere_of_chiDomAt`,
+`parentPsi_pair_of_chiDomAt`, and the bound `|1 - u·h⋆| ≤ 2` for the clause R3. -/
+theorem inPsiTilde_genW_of_factors (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
+    (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
+    (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
+        (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
+        (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
+        ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
+    (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+    (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY) :
+    InPsiTilde (Cx.genW ((H.step (j + 1)).Z)ᶜ) ν (max (3 * S.d * S.L * Cx.cs.delta j) ηY)
+      (parentPsi Cx ψk) (fun i => hv i) := by
+  have hηC : 3 * S.d * S.L * Cx.cs.delta j ≤ max (3 * S.d * S.L * Cx.cs.delta j) ηY :=
+    le_max_left _ _
+  have hηYle : ηY ≤ max (3 * S.d * S.L * Cx.cs.delta j) ηY := le_max_right _ _
+  have hη0 : 0 < max (3 * S.d * S.L * Cx.cs.delta j) ηY := lt_of_lt_of_le hηY hηYle
+  have hsum : ∑ i, hv i ^ 2 = 1 := by rw [sum_sq_eq_norm_sq, hunit]; norm_num
+  refine ⟨parentPsi_layerConst Cx _ ψk, ?_, ?_, ?_, ?_⟩
+  · intro x x' hp
+    rcases interface_pair_cases H Cx x x' with ⟨t, hts, C, hC, hq⟩ | ⟨h1, h2⟩
+    · obtain ⟨A, o, xs, hχ, hψ⟩ := hAct C hC
+        ⟨t, by rcases hts with rfl | rfl; exacts [hp.1, hp.2.1], hq⟩
+      rw [← hψ]
+      exact (parentPsi_pair_of_chiDomAt H Cx hC hχ hp hts hq).trans_le hηC
+    · exact (hR1Y x x' hp h1 h2).trans_le hηYle
+  · intro x hx
+    rcases siteCube_dichotomy H Cx x with hY | ⟨C, hC, hq⟩
+    · exact (hR2Y x hx hY).trans_le hηYle
+    · obtain ⟨A, o, xs, hχ, hψ⟩ := hAct C hC ⟨x, hx, hq⟩
+      rw [← hψ]
+      exact (parentPsi_sphere_of_chiDomAt H Cx hC hχ hx hq).trans_le hηC
+  · intro x hx
+    have hCS : (∑ i, parentPsi Cx ψk x i * hv i) ^ 2 ≤ ∑ i, parentPsi Cx ψk x i ^ 2 := by
+      have := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ (fun i => parentPsi Cx ψk x i)
+        (fun i => hv i)
+      rwa [hsum, mul_one] at this
+    have habs : |∑ i, parentPsi Cx ψk x i * hv i| ≤ rn (parentPsi Cx ψk x) :=
+      Real.abs_le_sqrt hCS
+    have hq : |(∑ i, parentPsi Cx ψk x i * hv i) / rn (parentPsi Cx ψk x)| ≤ 1 := by
+      rcases (rn_nonneg (parentPsi Cx ψk x)).eq_or_lt with h0 | hpos
+      · rw [← h0]; simp
+      · rw [abs_div, abs_of_pos hpos, div_le_one hpos]; exact habs
+    have h2 : |1 - (∑ i, parentPsi Cx ψk x i * hv i) / rn (parentPsi Cx ψk x)| ≤ 2 := by
+      obtain ⟨hq1, hq2⟩ := abs_le.1 hq
+      exact abs_le.2 ⟨by linarith, by linarith⟩
+    have hℓ : ((S.L : ℝ) ^ (Cx.genW ((H.step (j + 1)).Z)ᶜ).layerIndex x) ^ 2 ≤
+        ((S.L : ℝ) ^ (j + 1)) ^ 2 := by
+      have hL1 : (1 : ℝ) ≤ S.L := by
+        have := NeZero.pos S.L
+        exact_mod_cast this
+      have := pow_le_pow_right₀ hL1 (layerIndex_le_k (Cx.genW ((H.step (j + 1)).Z)ᶜ) x)
+      exact pow_le_pow_left₀ (by positivity) this 2
+    have hnn : 0 ≤ ν * ((S.L : ℝ) ^ (Cx.genW ((H.step (j + 1)).Z)ᶜ).layerIndex x) ^ 2 := by
+      positivity
+    calc ν * ((S.L : ℝ) ^ (Cx.genW ((H.step (j + 1)).Z)ᶜ).layerIndex x) ^ 2 *
+          |1 - (∑ i, parentPsi Cx ψk x i * hv i) / rn (parentPsi Cx ψk x)|
+        ≤ ν * ((S.L : ℝ) ^ (Cx.genW ((H.step (j + 1)).Z)ᶜ).layerIndex x) ^ 2 * 2 :=
+          mul_le_mul_of_nonneg_left h2 hnn
+      _ ≤ ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 * 2 := by
+          have := mul_le_mul_of_nonneg_left hℓ hν
+          linarith
+      _ < _ := by linarith
+  · simp only [hsum, sub_self, abs_zero, mul_zero]
+    positivity
+
+/-- **The datum lies in the real domain** `Ψ̃(G_k; η)`: `InDomainR G_k ν η D_k` for
+`D_k = liftSingle G_k (lift_k ψ_k) h⋆`, `η = max (3 d L δ_j) η_Y`.  Same hypotheses, with the same
+status, as `inPsiTilde_genW_of_factors`; `InDomainR` asks nothing more than `InPsiTilde` and the
+identification of the datum with `(Ψ, h⋆)` on the data sites and on `Ω₁`. -/
+theorem inDomainR_genW_of_factors (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
+    (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
+    (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
+        (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
+        (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
+        ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
+    (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+    (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY) :
+    InDomainR (Cx.genW ((H.step (j + 1)).Z)ᶜ) ν (max (3 * S.d * S.L * Cx.cs.delta j) ηY)
+      (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv)) :=
+  ⟨parentPsi Cx ψk, fun i => hv i,
+    inPsiTilde_genW_of_factors H Cx ψk hv ν ηY hν hunit hηY hmass hAct hR2Y hR1Y,
+    fun x hx i => liftSingle_Ψ_eq_parentPsi Cx _ ψk hv hx i,
+    fun x hx i => by rw [liftSingle_h _ _ _ hx]; rfl⟩
+
+/-- **Consumer: Theorem 7.3 for the composed datum.**  If `η = max (3 d L δ_j) η_Y` is at most
+`thm73C1 = c₁^{BG} / (2 C₄ K₁)` and `G ≺ G_k` with admissible weights, `theorem73_real` applies to
+`D_k` (the radius of the composed datum in `𝒟_ℝ(G)` is `C₄ K₁ η`).  The additional landed
+hypotheses `Precedes` and `BgHyp` (admissible weights `compWeight L a₁`, `3 ≤ d`, `3 ≤ L`, the
+mass bound `ν L^{2k} ≤ 1`) are typing data supplied by the caller; `hη` compares `η` with the
+radius.  The conclusion is that of `theorem73_real`. -/
+theorem theorem73_parent_of_factors {ϱ' : ℝ}
+    {G : GeneratingSet S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) ϱ'} {a₁ : ℝ}
+    (ha₁ : 0 < a₁)
+    (HG : BgHyp S.d S.L (j + 1) ϱ' (compWeight S.L a₁) ν)
+    (HG' : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) (compWeight S.L a₁) ν)
+    (hprec : Precedes G (Cx.genW ((H.step (j + 1)).Z)ᶜ))
+    (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
+    (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
+    (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
+        (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
+        (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
+        ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
+    (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+    (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
+      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY)
+    (hη : max (3 * S.d * S.L * Cx.cs.delta j) ηY ≤ thm73C1 S.d S.L N) :
+    InUnionDomainR G (bgC1 S.d S.L N) ν
+        (composeData hprec (compWeight S.L a₁)
+          (bgField (Cx.genW ((H.step (j + 1)).Z)ᶜ) (compWeight S.L a₁) ν
+            (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv)))
+          (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv))) ∧
+      (composeData hprec (compWeight S.L a₁)
+          (bgField (Cx.genW ((H.step (j + 1)).Z)ᶜ) (compWeight S.L a₁) ν
+            (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv)))
+          (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv))).IsReal :=
+  let h73 := theorem73_real ha₁ HG HG' hprec
+    (D' := liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv))
+    ⟨_, lt_of_lt_of_le hηY (le_max_right _ _), hη,
+      inDomainR_genW_of_factors H Cx ψk hv ν ηY hν hunit hηY hmass hAct hR2Y hR1Y⟩
+  ⟨h73.1, h73.2.1⟩
+
+end Assembly
+
 end Parent
 
 end Balaban.LargeField
