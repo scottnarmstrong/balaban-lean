@@ -150,6 +150,61 @@ theorem sourceDirectTerms_scale_fromTower_ray_full {κmin : ℝ} (T : StepTower 
   exact sourceDirectTerms_scale_fromTower_ray_full_rho T k hk N₁ h3N hN ν hνpos hν β 1 one_pos (by rw [max_self]; exact hβ1) p₁ q hq0 hq D S hS hp
 
 
+/-- **The ray hypothesis of the observable lane holds, general tower.**  The statement of
+`obsRay_hray_fromTower_rho` at `T : StepTowerG d L N κmin`: slice `q = ρ` of
+`sourceDirectTerms_scale_fromTowerG_ray_full_rho`, for `max 1 ρ ≤ β`.  The fixed theorem is its
+corollary. -/
+theorem obsRay_hray_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) (ρ : ℝ) (hρ : 0 < ρ) :
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, max 1 ρ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → StepScaleDataG T k hk N₁ ν β p₁ →
+      ∀ S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁), S = T.step k hk N₁ ν β p₁ →
+      ∀ hp : 0 < S.p₁,
+      ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+          ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+            (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+        (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+        (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+          ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+          (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+            (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+        (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν T.t
+                (fun D ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                  (flFieldOne S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                    s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+        DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+          (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁))
+          (physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) 2 𝒴 Tt ∧
+        (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∃ I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+              (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+        (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (ρ / S.β) ∧
+        (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < ρ →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) ∧
+        (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∀ ψ ∈ hatDisk S.U N p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (ball (0 : ℂ) (3 / 2))) := by
+  classical
+  intro k hk N₁ _ hLN hN ν hνpos hν β hβ1 p₁ hp0 D S hS hp
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hm0, hmg, hr⟩ :=
+    sourceDirectTerms_scale_fromTowerG_ray_full_rho T k hk N₁ hLN hN ν hνpos hν β ρ hρ hβ1 p₁ ρ hρ
+      le_rfl D S hS hp
+  exact ⟨val, 𝒴, Tt, hval, hcont, hI, hm0, hmg, fun Y _ Θ hΘ ψ hψ => hr Y Θ hΘ ψ hψ⟩
+
 /-- **The ray hypothesis of `obsMarks_zeroClass_family_of_ray_ksupp_rho` holds.**  Slice `q = ρ` of
 `sourceDirectTerms_scale_fromTower_ray_full_rho`, for `max 1 ρ ≤ β`. -/
 theorem obsRay_hray_fromTower_rho {κmin : ℝ} (T : StepTower κmin) (ρ : ℝ) (hρ : 0 < ρ) :
@@ -198,10 +253,21 @@ theorem obsRay_hray_fromTower_rho {κmin : ℝ} (T : StepTower κmin) (ρ : ℝ)
               (ball (0 : ℂ) (3 / 2))) := by
   classical
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ1 p₁ hp0 D S hS hp
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hm0, hmg, hr⟩ :=
-    sourceDirectTerms_scale_fromTower_ray_full_rho T k hk N₁ h3N hN ν hνpos hν β ρ hρ hβ1 p₁ ρ hρ
-      le_rfl D S hS hp
-  exact ⟨val, 𝒴, Tt, hval, hcont, hI, hm0, hmg, fun Y _ Θ hΘ ψ hψ => hr Y Θ hΘ ψ hψ⟩
+  subst hS
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have hp' : 0 < (T.toG.step k hk N₁ ν β p₁).p₁ := hp
+  have G := obsRay_hray_fromTowerG_rho T.toG ρ hρ k hk N₁ (by simpa using h3N) hN ν hνpos
+    (by simpa using hν) β hβ1 p₁ hp0 (StepTower.scaleDataG_of_fixed T D)
+    (T.toG.step k hk N₁ ν β p₁) rfl hp'
+  unfold StepTowerG.step at G
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G
+  exact G
 
 /-- **The ray hypothesis of `obsMarks_zeroClass_family_of_ray` holds.**  Slice `q = 1` of
 `sourceDirectTerms_scale_fromTower_ray_full`. -/
