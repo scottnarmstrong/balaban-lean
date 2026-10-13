@@ -14,7 +14,7 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
 | W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
-| W314 | `w314-marked-root-geometry` / W314 | root bridge, fibre and fixed labels for the marked family (MARKCUBIC package 3) |
+| W320 | `w320-dec2-cov` / W320 | decoupled covariance and square root for a cover pair; reduction to the self-cover; block diagonality (P6 mixed covariance rows, part A) |
 | W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
 | W319 | `w319-p6-pair-graph` / W319 | joint incidence graph of the two P6 operators; hypotheses of paired_locality for the old boundary composite (VMOD-34 package 3) |
 | W317 | `w317-p6-active-seed` / W317 | P6 active cells of a boundary domain: torus cast, activity, count |A_X| ≤ c_A(1+Δ_X), rooted sum for the term (VMOD-33/34) |
