@@ -219,6 +219,8 @@ public import Balaban.Green.CoarseOperator
 public import Balaban.Green.FinalMassGreen
 public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.FinalComplexMatrix
+public import Balaban.Green.FinalComplexHessian
+public import Balaban.Green.KF0Reference
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
@@ -803,6 +805,8 @@ public import Balaban.LargeField.Base.BaseWitnessGauss
 public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
+public import Balaban.LargeField.Base.BaseChartAction
+public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
@@ -1445,7 +1449,11 @@ public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
+public import Balaban.LargeField.R.D7AvoidGeometry
+public import Balaban.LargeField.R.D7BoundTransport
+public import Balaban.Inhabited.D7AvoidGeometryWitness
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
+public import Balaban.Inhabited.LateScaleWitness
