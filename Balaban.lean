@@ -1096,6 +1096,7 @@ public import Balaban.Fluctuation.StepRegUnit
 public import Balaban.Fluctuation.StepRegWitness
 public import Balaban.Fluctuation.StepRegDomain
 public import Balaban.Fluctuation.GeneralClassMatch
+public import Balaban.Fluctuation.GeneralClassPathAnalytic
 public import Balaban.Fluctuation.StepNormGauss
 public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
@@ -1156,6 +1157,8 @@ public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
+public import Balaban.Fluctuation.RootActiveSize
+public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
 public import Balaban.Fluctuation.Thm31WitnessAnalytic
