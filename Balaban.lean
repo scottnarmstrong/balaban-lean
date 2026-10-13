@@ -1315,3 +1315,5 @@ public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
 public import Balaban.Fluctuation.SharpENu
 public import Balaban.Fluctuation.ParamDatumFamily
+public import Balaban.Inhabited.GeneralClassWitness
+public import Balaban.Inhabited.GeneralClassWitnessStep
