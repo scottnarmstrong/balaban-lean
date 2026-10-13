@@ -502,6 +502,7 @@ public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
 public import Balaban.LargeField.History.BondLiftY
 public import Balaban.LargeField.History.ParentR2Y
+public import Balaban.LargeField.History.LateYDirection
 public import Balaban.Inhabited.BondLiftYWitness
 public import Balaban.LargeField.History.ParentDomain
 public import Balaban.LargeField.History.EarlyMassRatio
@@ -883,6 +884,7 @@ public import Balaban.LargeField.R.ZeroDomainB
 public import Balaban.LargeField.R.ZeroDomainC
 public import Balaban.LargeField.R.RRipeCard
 public import Balaban.Inhabited.RRipeCardWitness
+public import Balaban.Inhabited.RRawHoleWitness
 public import Balaban.LargeField.R.ZeroDomainD
 public import Balaban.LargeField.R.HgeoDischarge
 public import Balaban.LargeField.R.ChainWalk
@@ -1146,6 +1148,7 @@ public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.GlobalGenRegional
 public import Balaban.LargeField.Def7FineSize
 public import Balaban.LargeField.Def7
 public import Balaban.LargeField.Def7Variants
@@ -1342,6 +1345,7 @@ public import Balaban.Fluctuation.MarkedDecBall
 public import Balaban.Fluctuation.MarkedDecAnalytic
 public import Balaban.Inhabited.MarkedHatRowsWitness
 public import Balaban.Fluctuation.MarkedFluctRows
+public import Balaban.Fluctuation.MarkedFanLocal
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1385,6 +1389,7 @@ public import Balaban.Inhabited.RRawHoleComponentWitness
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
+public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
@@ -1430,6 +1435,10 @@ public import Balaban.Fluctuation.DARateNumerics
 public import Balaban.Fluctuation.StepActivityClassChart
 public import Balaban.LargeField.Background.CubeUnitBg
 public import Balaban.Inhabited.ChiYWitness
+public import Balaban.Fluctuation.DetCauchyBgSupport
+public import Balaban.Fluctuation.DetCauchyAssembly
+public import Balaban.Fluctuation.DetCauchyBgActivity
+public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
@@ -1437,3 +1446,7 @@ public import Balaban.LargeField.R.SizeModExtendPull
 public import Balaban.LargeField.R.D7AvoidGeometry
 public import Balaban.LargeField.R.D7BoundTransport
 public import Balaban.Inhabited.D7AvoidGeometryWitness
+public import Balaban.LargeField.R.CoarseFineComponents
+public import Balaban.LargeField.R.RExtraSize
+public import Balaban.Inhabited.RExtraSizeWitness
+public import Balaban.Inhabited.LateYDirectionWitness
