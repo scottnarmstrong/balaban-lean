@@ -28,9 +28,9 @@ site set `Y_f(J)`, containing the seed, with the cells of the selected patches i
   the same pair, and the cells of the reached parameters lie in the site set.
 * `jointSites_mono_param`, `jointSites_mono_seed`, `jointSites_detach` (T3): monotonicity, and the
   detachment: if no patch of `J₂` is reached over `J = J₁ ∪ J₂` then the site set is that of `J₁`.
-* `HatRooted`, `jointParams_hatRooted` (T4): every reached parameter is joined to the seed by a
+* `PairHatRooted`, `jointParams_hatRooted` (T4): every reached parameter is joined to the seed by a
   chain of the link "two sites are in the thickened box of one cover centre" through marked
-  patches.  This is **not** Moore adjacency of the patches (see the discussion at `HatRooted`).
+  patches.  This is **not** Moore adjacency of the patches (see the discussion at `PairHatRooted`).
 * `paired_graph_hyps`, `p6_paired_graph_hyps` (T5): the graph hypotheses of `paired_locality`
   (`hXY` and the four parts of `hG`) for `Y_f(J) := jointSites`.
 
@@ -300,5 +300,161 @@ theorem jointSites_detach {𝒞₂ : Finset (ℕ × CTorus d L N₁ m₁ K)} (h�
       (JointIn.detach h𝒞 hd (mem_jointParams.1 hP))) (jointParams_mono_param Hb Hm hsub)⟩
 
 end Mono
+
+section Hat
+
+variable (C : DecCover d L N₁ m₁ K) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K))
+  (U : Set (CTorus d L N₁ m₁ K))
+
+/-- The site `x` is **hat-near** the centre `z`: it lies in the thickened box `□̂_z` or is a
+nearest neighbour of a site of it. -/
+def PairHatNear (z : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) : Prop :=
+  ∃ y ∈ hatBox z, x = y ∨ Adj x y
+
+/-- **The hat link**: `x` is hat-near a centre `z` of the cover and `y` lies in `□̂_z`. -/
+def HatLink (x y : CTorus d L N₁ m₁ K) : Prop :=
+  ∃ z ∈ C.cubeIdx, PairHatNear z x ∧ y ∈ hatBox z
+
+/-- **Hat-rootedness of a marked patch** (T4).  `P ∈ 𝒞` is hat-rooted at the seed `U` if a chain of
+marked patches `P₀, …, P = Pₙ` exists in which `P₀` has a cover centre `z₀` with `P₀ ∈ 𝒬(z₀)` and
+`z₀` hat-near a site hat-linked (by a chain of centres) to the seed, and `P_{i+1} ∈ 𝒬(z)` for a
+centre `z` hat-near a site hat-linked to the cell `cubeP P_i`.
+
+This is the adjacency that is true for the multiscale cover: two patches of `𝒬(z)` need not touch
+(each only meets `□̂_z`, of radius about `3 L² ℓ_j`), so consecutive patches are linked through a
+cover centre, not through Moore adjacency (`MooreTouch`).  See the module documentation. -/
+inductive PairHatRooted : ℕ × CTorus d L N₁ m₁ K → Prop
+  | root {P z : ℕ × CTorus d L N₁ m₁ K} {s x : CTorus d L N₁ m₁ K} :
+      P ∈ 𝒞 → P ∈ C.Qset z → s ∈ U → Relation.ReflTransGen (HatLink C) s x → PairHatNear z x →
+      PairHatRooted P
+  | step {P P' z : ℕ × CTorus d L N₁ m₁ K} {x₀ x : CTorus d L N₁ m₁ K} :
+      PairHatRooted P → P' ∈ 𝒞 → P' ∈ C.Qset z → x₀ ∈ cubeP P →
+      Relation.ReflTransGen (HatLink C) x₀ x → PairHatNear z x → PairHatRooted P'
+
+/-- The sites hat-linked to the seed or to the cell of a hat-rooted patch. -/
+def PairHatSite (x : CTorus d L N₁ m₁ K) : Prop :=
+  (∃ s ∈ U, Relation.ReflTransGen (HatLink C) s x) ∨
+    ∃ P, PairHatRooted C 𝒞 U P ∧ ∃ x₀ ∈ cubeP P, Relation.ReflTransGen (HatLink C) x₀ x
+
+variable {C 𝒞 U}
+
+theorem PairHatSite.conn {x y : CTorus d L N₁ m₁ K} (hx : PairHatSite C 𝒞 U x) (h : HatLink C x y) :
+    PairHatSite C 𝒞 U y := by
+  rcases hx with ⟨s, hs, hr⟩ | ⟨P, hP, x₀, hx₀, hr⟩
+  · exact Or.inl ⟨s, hs, hr.tail h⟩
+  · exact Or.inr ⟨P, hP, x₀, hx₀, hr.tail h⟩
+
+theorem PairHatSite.of_cell {P : ℕ × CTorus d L N₁ m₁ K} (hP : PairHatRooted C 𝒞 U P)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ cubeP P) : PairHatSite C 𝒞 U x :=
+  Or.inr ⟨P, hP, x, hx, Relation.ReflTransGen.refl⟩
+
+theorem PairHatSite.rooted {x : CTorus d L N₁ m₁ K} (hx : PairHatSite C 𝒞 U x)
+    {z P : ℕ × CTorus d L N₁ m₁ K} (hP𝒞 : P ∈ 𝒞) (hQ : P ∈ C.Qset z) (hn : PairHatNear z x) :
+    PairHatRooted C 𝒞 U P := by
+  rcases hx with ⟨s, hs, hr⟩ | ⟨P₀, hP₀, x₀, hx₀, hr⟩
+  · exact PairHatRooted.root hP𝒞 hQ hs hr hn
+  · exact PairHatRooted.step hP₀ hP𝒞 hQ hx₀ hr hn
+
+/-- The invariant of the joint closure: sites are hat-linked, centres are hat-near a hat-linked
+site, parameters are hat-rooted. -/
+def PairHatInv : IncV d L N₁ m₁ K → Prop
+  | Sum.inl x => PairHatSite C 𝒞 U x
+  | Sum.inr (Sum.inl z) => z ∈ C.cubeIdx ∧ ∃ x, PairHatSite C 𝒞 U x ∧ PairHatNear z x
+  | Sum.inr (Sum.inr P) => P ∈ 𝒞 ∧ PairHatRooted C 𝒞 U P
+
+variable {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+  {X₁ : Finset (CTorus d L N₁ m₁ K)}
+
+theorem PairHatNear.of_mem {z : ℕ × CTorus d L N₁ m₁ K} {y : CTorus d L N₁ m₁ K} (h : y ∈ hatBox z) :
+    PairHatNear z y := ⟨y, h, Or.inl rfl⟩
+
+theorem PairHatNear.of_adj {z : ℕ × CTorus d L N₁ m₁ K} {x y : CTorus d L N₁ m₁ K}
+    (h : y ∈ hatBox z) (hxy : Adj x y) : PairHatNear z x := ⟨y, h, Or.inr hxy⟩
+
+/-- **The invariant is preserved along edges of the incidence graph** (footprints lie in the
+thickened boxes). -/
+theorem hatInv_step (hfp : ∀ z ∈ C.cubeIdx, ∀ t ∈ footprint H a ν z, t ∈ hatBox z)
+    (hX : ∀ x ∈ X₁, x ∈ U) {u v : IncV d L N₁ m₁ K}
+    (hadj : (incGraph C H a ν X₁ 𝒞).Adj u v) (hu : PairHatInv (C := C) (𝒞 := 𝒞) (U := U) u) :
+    PairHatInv (C := C) (𝒞 := 𝒞) (U := U) v := by
+  have site : ∀ x y, x ∈ incSites C H a ν X₁ 𝒞 → y ∈ incSites C H a ν X₁ 𝒞 → Adj x y →
+      PairHatSite C 𝒞 U x → PairHatSite C 𝒞 U y := by
+    rintro x y - ⟨-, hy | ⟨z, hE, hL, hf⟩⟩ hxy hx
+    · exact Or.inl ⟨y, hX y hy, Relation.ReflTransGen.refl⟩
+    · exact hx.conn ⟨z, hE.1, PairHatNear.of_adj (hfp z hE.1 y hf) hxy, hfp z hE.1 y hf⟩
+  have fwd : ∀ u v : IncV d L N₁ m₁ K, incRel C H a ν X₁ 𝒞 u v →
+      PairHatInv (C := C) (𝒞 := 𝒞) (U := U) u → PairHatInv (C := C) (𝒞 := 𝒞) (U := U) v := by
+    intro u v h hu
+    rcases u with x | z | Q <;> rcases v with y | z' | P <;> simp only [incRel] at h
+    · exact site x y h.1 h.2.1 h.2.2 hu
+    · obtain ⟨hz, x', hx', hn⟩ := hu
+      exact hx'.conn ⟨z, hz, hn, hfp z hz y h.2.2⟩
+    · obtain ⟨hz, x', hx', hn⟩ := hu
+      exact ⟨h.2.2.2, hx'.rooted h.2.2.2 h.2.2.1 hn⟩
+  have bwd : ∀ u v : IncV d L N₁ m₁ K, incRel C H a ν X₁ 𝒞 v u →
+      PairHatInv (C := C) (𝒞 := 𝒞) (U := U) u → PairHatInv (C := C) (𝒞 := 𝒞) (U := U) v := by
+    intro u v h hu
+    rcases u with x | z | Q <;> rcases v with y | z' | P <;> simp only [incRel] at h
+    · exact site x y h.2.1 h.1 h.2.2.symm hu
+    · exact ⟨h.1.1, x, hu, PairHatNear.of_mem (hfp z' h.1.1 x h.2.2)⟩
+    · obtain ⟨-, hr⟩ := hu
+      obtain ⟨-, y, hy, hyb⟩ := C.mem_Qset.1 h.2.2.1
+      exact ⟨h.1.1, y, PairHatSite.of_cell hr (mem_cubeP.2 hy), PairHatNear.of_mem (mem_boxSet.2 hyb)⟩
+  obtain ⟨-, h | h⟩ := hadj
+  · exact fwd u v h hu
+  · exact bwd u v h hu
+
+variable {ϱ' : ℝ} {Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ'}
+
+/-- **T4. The joint closure is hat-linked to the seed.**  If the footprints of both operators lie
+in the thickened boxes of their centres and `X₁ ⊆ U`, every vertex reached from the seed `U` in the
+joint closure satisfies `PairHatInv`: a reached site is hat-linked to the seed or to the cell of a
+hat-rooted patch, a reached parameter is a hat-rooted patch of `𝒞`. -/
+theorem JointIn.hatInv (hfb : ∀ z ∈ C.cubeIdx, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ C.cubeIdx, ∀ t ∈ footprint H a ν z, t ∈ hatBox z)
+    (hX : ∀ x ∈ X₁, x ∈ U) {o : Bool} {v : IncV d L N₁ m₁ K}
+    (h : JointIn C Hb H a ν X₁ 𝒞 U o v) : PairHatInv (C := C) (𝒞 := 𝒞) (U := U) v := by
+  induction h with
+  | seed o hs => exact Or.inl ⟨_, hs, Relation.ReflTransGen.refl⟩
+  | adjB hadj _ ih => exact hatInv_step hfb hX hadj ih
+  | adjM hadj _ ih => exact hatInv_step hfm hX hadj ih
+  | site _ ih => exact ih
+  | param _ ih => exact ih
+  | cell _ _ hx ih => exact PairHatSite.of_cell ih.2 hx
+
+/-- **T4. Every reached marked patch is hat-rooted, and every reached site is hat-linked.** -/
+theorem jointParams_hatRooted (hfb : ∀ z ∈ C.cubeIdx, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ C.cubeIdx, ∀ t ∈ footprint H a ν z, t ∈ hatBox z)
+    (hX : ∀ x ∈ X₁, x ∈ U) :
+    (∀ P ∈ jointParams C Hb H a ν X₁ 𝒞 U, P ∈ 𝒞 ∧ PairHatRooted C 𝒞 U P) ∧
+      ∀ x ∈ jointSites C Hb H a ν X₁ 𝒞 U, PairHatSite C 𝒞 U x :=
+  ⟨fun _ hP => (JointIn.hatInv hfb hfm hX (mem_jointParams.1 hP) :), fun _ hx =>
+    JointIn.hatInv hfb hfm hX (mem_jointSites.1 hx)⟩
+
+end Hat
+
+section Paired
+
+variable {C : DecCover d L N₁ m₁ K} {Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ'}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **T5. The graph hypotheses of `paired_locality`.**  With the common seed `X₁` and
+`Y_f(J) := jointSites … (J.image cc) ↑X₁`, the hypotheses `hXY` and the graph part of `hG`
+(both `IsIncUnion` with the selected incidence patches `Ab = Am = jointParams` contained in
+`Y_f(J)`) hold, with the exact shapes consumed by `paired_locality`.  The remaining hypotheses of
+`paired_locality` (selectors `Fb`, `Sol`, data domains, `hdepb`, `hdepm`) are not treated. -/
+theorem paired_graph_hyps {ι : Type*} [DecidableEq ι] (cc : ι → ℕ × CTorus d L N₁ m₁ K)
+    (X₁ : Finset (CTorus d L N₁ m₁ K)) :
+    (∀ J : Finset ι, ∀ y ∈ X₁, y ∈ jointSites C Hb Hm a ν X₁ (J.image cc) (↑X₁ : Set _)) ∧
+    ∀ J : Finset ι, ∃ Ab Am : Finset (ℕ × CTorus d L N₁ m₁ K),
+      IsIncUnion C Hb a ν X₁ (J.image cc) (jointSites C Hb Hm a ν X₁ (J.image cc) ↑X₁) Ab ∧
+      IsIncUnion C Hm a ν X₁ (J.image cc) (jointSites C Hb Hm a ν X₁ (J.image cc) ↑X₁) Am ∧
+      (∀ P ∈ Ab, ∀ x ∈ cubeP P, x ∈ jointSites C Hb Hm a ν X₁ (J.image cc) ↑X₁) ∧
+      (∀ P ∈ Am, ∀ x ∈ cubeP P, x ∈ jointSites C Hb Hm a ν X₁ (J.image cc) ↑X₁) :=
+  ⟨fun _ _ hy => seed_mem_jointSites (Finset.mem_coe.2 hy), fun _ =>
+    ⟨_, _, isIncUnion_joint_b, isIncUnion_joint_m, fun _ hP => (joint_cell hP).2,
+      fun _ hP => (joint_cell hP).2⟩⟩
+
+end Paired
 
 end Balaban.Localization.Dec2
