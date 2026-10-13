@@ -325,6 +325,64 @@ theorem norm_tagMon_le {Pc : Type*} (V : Finset Pc) {s : Pc → ℂ} {κ : ℝ}
     _ = Real.exp (κ * V.card) := by
         rw [Finset.prod_const, mul_comm, Real.exp_nat_mul]
 
+/-- Pointwise convolution bound for the tagged defect, before summing either endpoint.
+This bound uses tag cardinalities, not symmetry of the operator or the tags. -/
+theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x y : L1Torus d N₀) :
+    ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+        (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
+      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
+        ((2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t))) * (2 * 7 ^ d)) *
+        ∑ w, dist x w * Real.exp (-pdEps d L * (dist x w + dist w y)) := by
+  have hg := finalGap_pos (d := d) (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hC := (finalDecayC_pos (L := L) hd).le
+  have hlip : 0 ≤ pdLip d := by unfold pdLip; positivity
+  let ε := pdEps d L
+  let A₀ := 2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t))
+  have hA₀0 : 0 ≤ A₀ := by positivity
+  have hE : ∀ z : MacIdx d N₀ M, ‖tagMon (macTags d N₀ M z x y) s‖ ≤
+      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
+    intro z
+    refine (norm_tagMon_le _ hs).trans ?_
+    rw [← Real.exp_add]
+    apply Real.exp_le_exp.2
+    have := macTags_card_le hM z x y
+    unfold pdH
+    nlinarith
+  unfold taggedK taggedMat
+  rw [Matrix.of_apply]
+  refine (norm_sum_le _ _).trans ?_
+  have hz : ∀ z ∈ (Finset.univ : Finset (MacIdx d N₀ M)),
+      ‖tagMon (macTags d N₀ M z x y) s *
+          boxR (finalOp d L N₀ k v a) (macBoxF d N₀ M z)
+            (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) t x y‖ ≤
+        Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) * A₀ *
+          ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y))) := by
+    intro z _
+    rw [norm_mul]
+    calc _ ≤ (Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M))) *
+          (A₀ * ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y)))) :=
+          mul_le_mul (hE z) (boxR_final_le_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM z x y)
+            (norm_nonneg _) (by positivity)
+      _ = _ := by ring
+  refine (Finset.sum_le_sum hz).trans ?_
+  rw [← Finset.mul_sum, Finset.sum_comm]
+  simp_rw [← Finset.sum_mul]
+  have hF : ∀ w : L1Torus d N₀, 0 ≤ dist x w * Real.exp (-ε * (dist x w + dist w y)) :=
+    fun w => mul_nonneg dist_nonneg (Real.exp_pos _).le
+  have hle : ∑ w, (∑ z : MacIdx d N₀ M, pdInd z x w) *
+        (dist x w * Real.exp (-ε * (dist x w + dist w y))) ≤
+      ∑ w, (2 * 7 ^ d) * (dist x w * Real.exp (-ε * (dist x w + dist w y))) :=
+    Finset.sum_le_sum fun w _ => mul_le_mul_of_nonneg_right (sum_pdInd_le hM x w) (hF w)
+  rw [← Finset.mul_sum] at hle
+  calc _ ≤ Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) * A₀ *
+        ((2 * 7 ^ d) * ∑ w, dist x w * Real.exp (-ε * (dist x w + dist w y))) :=
+        mul_le_mul_of_nonneg_left hle (by positivity)
+    _ = _ := by ring
+
 /-- **T2.** Row sums of the tagged defect.  For tag parameters `s` with `‖s p‖ ≤ e^κ`,
 `0 ≤ r ≤ ε/8` and `κ 7^d ≤ (ε/8) M`:
 `∑_y e^{r dist x y} ‖K(s,t) x y‖ ≤ B e^{H κ} / M`, with `B = pdB d L`, `H = pdH d`. -/
@@ -356,52 +414,7 @@ theorem taggedK_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     apply div_le_div_of_nonneg_left (by positivity) (by positivity)
     nlinarith
   -- pointwise bound on the entries
-  have hentry : ∀ y : L1Torus d N₀,
-      ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-          (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
-        Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
-          (A₀ * (2 * 7 ^ d)) *
-          ∑ w, dist x w * Real.exp (-ε * (dist x w + dist w y)) := by
-    intro y
-    have hE : ∀ z : MacIdx d N₀ M, ‖tagMon (macTags d N₀ M z x y) s‖ ≤
-        Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
-      intro z
-      refine (norm_tagMon_le _ hs).trans ?_
-      rw [← Real.exp_add]
-      apply Real.exp_le_exp.2
-      have := macTags_card_le hM z x y
-      unfold pdH
-      nlinarith
-    unfold taggedK taggedMat
-    rw [Matrix.of_apply]
-    refine (norm_sum_le _ _).trans ?_
-    have hz : ∀ z ∈ (Finset.univ : Finset (MacIdx d N₀ M)),
-        ‖tagMon (macTags d N₀ M z x y) s *
-            boxR (finalOp d L N₀ k v a) (macBoxF d N₀ M z)
-              (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) t x y‖ ≤
-          Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) * A₀ *
-            ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y))) := by
-      intro z _
-      rw [norm_mul]
-      calc _ ≤ (Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M))) *
-            (A₀ * ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y)))) :=
-            mul_le_mul (hE z) (boxR_final_le_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM z x y)
-              (norm_nonneg _) (by positivity)
-        _ = _ := by ring
-    refine (Finset.sum_le_sum hz).trans ?_
-    rw [← Finset.mul_sum, Finset.sum_comm]
-    simp_rw [← Finset.sum_mul]
-    have hF : ∀ w : L1Torus d N₀, 0 ≤ dist x w * Real.exp (-ε * (dist x w + dist w y)) :=
-      fun w => mul_nonneg dist_nonneg (Real.exp_pos _).le
-    have hle : ∑ w, (∑ z : MacIdx d N₀ M, pdInd z x w) *
-          (dist x w * Real.exp (-ε * (dist x w + dist w y))) ≤
-        ∑ w, (2 * 7 ^ d) * (dist x w * Real.exp (-ε * (dist x w + dist w y))) :=
-      Finset.sum_le_sum fun w _ => mul_le_mul_of_nonneg_right (sum_pdInd_le hM x w) (hF w)
-    rw [← Finset.mul_sum] at hle
-    calc _ ≤ Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) * A₀ *
-          ((2 * 7 ^ d) * ∑ w, dist x w * Real.exp (-ε * (dist x w + dist w y))) :=
-          mul_le_mul_of_nonneg_left hle (by positivity)
-      _ = _ := by ring
+  have hentry := taggedK_entry_le_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hs x
   have hexp : ∀ y : L1Torus d N₀, Real.exp (r * dist x y) *
       Real.exp (κ * 7 ^ d * (dist x y / M)) = Real.exp (σ * dist x y) := by
     intro y
