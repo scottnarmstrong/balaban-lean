@@ -1613,6 +1613,7 @@ public import Balaban.Fluctuation.WoneChartIdentity
 public import Balaban.Fluctuation.SourcePhysValBridge
 public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Inhabited.MarksNumericsFromTower
+public import Balaban.Inhabited.MarkBudgetAudit
 public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.RenormDecJoint
 public import Balaban.Fluctuation.RenormLocC2Zero
@@ -1620,6 +1621,7 @@ public import Balaban.Inhabited.RenormLocC2ZeroTower
 public import Balaban.Inhabited.RenormExpInputTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Inhabited.SourceExponentFamily
+public import Balaban.Fluctuation.ObsRayBase
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.RenormThetaDatumWitness
