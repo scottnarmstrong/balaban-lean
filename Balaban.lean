@@ -1736,3 +1736,4 @@ public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
 public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
+public import Balaban.Inhabited.RenJoinClassWitness
