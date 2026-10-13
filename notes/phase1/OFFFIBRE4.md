@@ -9,3 +9,9 @@
 8. Leaf D (≤300 lines): specialize the activity family to `(rawOf D,g)` for arbitrary `XiCData D`, transfer its numerical fields from the same tower record, and obtain the raw `StepActivityBoundC`-type activity identity on both `stepSegments`.
 9. Leaf E (≤200 lines): apply `labelAct_integral_eq_exp` to the raw activity identity to obtain both nonvanishing integrals; combine this with `isC1Family_zeroClass_freeDatum` and `prop26J_step_unbounded` to prove `prop26J_step_zeroClass`.
 10. The admissible chart `XiCData` and numerical margin premises remain explicit; the public target receives no `D.h = h₀`, regularity, nonvanishing, or activity premise.
+
+## W675 status (2026-10-13)
+
+- Leaf A is proved in `StepActivityOffFibreTaylor.lean`: the free-datum interaction is `o(s²)`, has a holomorphic representative along its domain, has zero value and first two real derivatives at the critical spin, and equals the common cubic Taylor integral. The hat-lift comparison is also proved there.
+- Leaf B is proved in `WoneChartIdentity.lean`: `W1_zeroClass_eq_hat_freeDatum` identifies the joint first exponent with the cubic hat remainder for every `XiCData D`, and `W1_eq_physVal_freeDatum_rho` identifies it with `s²` times the physical value at `(e.1,0)` for every `e ∈ physVRho`, without a field-fibre condition. The old `W1_zeroClass_eq_hat_chart` and `W1_eq_physVal_rho` statements are unchanged and apply these free-datum results.
+- Leaves C–E remain open. In particular the existing `SourceExponentFamily` activity family still ranges over `physFibreRho`; this work does not assert an off-fibre activity bound, nonvanishing, or `prop26J_step_zeroClass`.
