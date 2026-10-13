@@ -172,6 +172,7 @@ public import Balaban.Multiscale.PointwiseHolderI
 public import Balaban.Multiscale.PointwiseHolder
 public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
+public import Balaban.Multiscale.WeakenSep
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.CoercivitySharp
@@ -1218,6 +1219,7 @@ public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
 public import Balaban.Inhabited.MarkedRootGeometryWitness
 public import Balaban.Inhabited.MarkedSharpCountWitness
+public import Balaban.Inhabited.FanChainWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1278,6 +1280,8 @@ public import Balaban.Localization.P6PairLocFinal
 public import Balaban.Localization.P6PairGraph
 public import Balaban.Inhabited.P6PairGraphWitness
 public import Balaban.Localization.P6PairChain
+public import Balaban.Localization.P6PairParamDegree
+public import Balaban.Inhabited.P6PairParamDegreeWitness
 public import Balaban.Inhabited.P6PairChainWitness
 public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
@@ -1354,6 +1358,7 @@ public import Balaban.Fluctuation.MarkedFluctRows
 public import Balaban.Fluctuation.MarkedFanLocal
 public import Balaban.Fluctuation.MarkedFanAnalytic
 public import Balaban.Fluctuation.MarkedI5Functional
+public import Balaban.Fluctuation.MarkedEvParam
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1459,3 +1464,6 @@ public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Inhabited.LateScaleWitness
+public import Balaban.Correlations.KF0Cauchy
+public import Balaban.Correlations.KF0RootFPartial
+public import Balaban.Inhabited.ProperLocalGenWitness
