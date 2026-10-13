@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W387 (Opus) | `w387-marked-joint-param` / W387 | joint analyticity of the marked terms in (datum, marks); cubic analogue (MARKPARAM (J)) |
 | W408 | `w408-kf0-allgood-gas` / W408 | one-scale: the all-good sector as a polymer gas (localized logarithm of the ordinary part) |
-| W413 | `w413-det-collar-hull` / W413 | collar hull regrouping of the determinant terms (DETFIT 4–5) |
 | W415 | `w415-obs-remainder-marks` / W415 | observable marks: remainder marks (COVROW C5–C6) |
 | W416 | `w416-ren-c1-local` / W416 | renormalization `locC1`: read containment and locality (RENINPUTS 5) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
