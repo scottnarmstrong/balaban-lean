@@ -1389,6 +1389,7 @@ public import Balaban.Inhabited.RRawHoleComponentWitness
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
+public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
