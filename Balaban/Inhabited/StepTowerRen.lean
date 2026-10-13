@@ -105,39 +105,4 @@ theorem exists_stepTowerRen (κmin : ℝ) : Nonempty (StepTowerRen κmin) := by
     hmar r₀ hr0 hr1 hD0 hDs hD1⟩
 
 
-/-- **`renDec_sharp` at every scale of the tower with margins**: no margin hypothesis is left. -/
-theorem renDec_sharp_scale_of_tower {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ) (hk : 1 ≤ k)
-    (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
-    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (X₁ : Set (CTorus 3 3 N₁ R.m₁ (k + 1))) :
-    ∃ F : RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ) → (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) →
-        (((lvTop N₁ R.m₁ k (rhoSep R.m₁))).Ω 1 × Fin 2 → ℂ) × (((lvTop N₁ R.m₁ k (rhoSep R.m₁))).Ω 1 → ℂ),
-      AnalyticOnNhd ℂ (fun p : (RawData 3 3 (N₁ * 3 ^ R.m₁) (k + 1) 2 × (Fin 3 → ℂ)) ×
-          (RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) => F p.1 p.2)
-        (expDom (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t) R.r₀ ×ˢ
-          polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ)) ∧
-      ∀ D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2, XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν R.t D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ →
-        ∀ s ∈ polydisc (0 : RenLabel (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ → ℂ) (fun _ => Real.exp R.κ),
-        ∀ (s' : DecParams (lvTop N₁ R.m₁ k (rhoSep R.m₁))) (E : Edat (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2),
-          s' = extParams (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁ (s ∘ (renLabelEquiv (lvTop N₁ R.m₁ k (rhoSep R.m₁)) X₁).symm) →
-          E = renEdat ν R.t D (decBgField (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) s' D)
-            (decBgMult (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) s' D) ξ →
-          (F (rawOf D, ξ) s).1 = dphi (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (decG (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν s') E.2.1 E.1
-              (pertSource (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
-          DecFixed (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν s' false E.2.1 E.1
-              (pertSource (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
-          Small (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).2 (c6' 3 3 2 (famConst 3 3 R.BG R.κ) (gamma1 3 / 8)) ∧
-          Small (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).2 (cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
-            ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * ‖ξ‖)) ∧
-          SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (F (rawOf D, ξ) s).1 (cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
-            ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * ‖ξ‖)) ∧
-          (ξ = 0 → (F (rawOf D, ξ) s).2 = 0 ∧ (F (rawOf D, ξ) s).1 = 0) := by
-  obtain ⟨hC₀⟩ := R.core
-  have hSD := dgSetting_lv (N₁ := N₁) (k := k) R.m₁_four hN hν0 hν
-  have hHB := bgHyp_lv (k := k) R.m₁ hν0 hν
-  have hC : FlCore 2 (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (lvLow N₁ R.m₁ k (rhoSep R.m₁)) 1 ν R.c
-      R.BG R.κ R.t (levelKc 3 3) (Cchi 3 3) R.c₂ R.BG₂ R.t :=
-    flCore_level_transfer hC₀ hSD (opSetting_lv R.m₁_four hN hν0 hν) (isLevel_lvLow hk)
-      isLevel_lvTop hHB
-  exact renDec_sharp hC R.r₀_pos R.r₀_le X₁ R.D₀_le_one R.D₀_le_star R.D₁_le_star
-
 end Balaban.Inhabited

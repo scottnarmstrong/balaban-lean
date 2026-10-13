@@ -11,7 +11,7 @@ public import Balaban.Inhabited.MarksNumericsFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots
 public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Inhabited.SourceExponentFamily
-public import Balaban.Inhabited.RenormExpInputTower
+public import Balaban.Inhabited.RenormRadiusInput
 public import Balaban.Inhabited.StepOutputPhysical
 public import Balaban.Fluctuation.DetGroupedAnalytic
 
