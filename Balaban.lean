@@ -1362,6 +1362,9 @@ public import Balaban.Fluctuation.MarkedFanLocal
 public import Balaban.Fluctuation.MarkedFanAnalytic
 public import Balaban.Fluctuation.MarkedI5Functional
 public import Balaban.Fluctuation.MarkedEvParam
+public import Balaban.Fluctuation.MarkedVBlockDec
+public import Balaban.Fluctuation.MarkedScaledCountDec
+public import Balaban.Inhabited.MarkedVBlockDecWitness
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1470,3 +1473,7 @@ public import Balaban.Inhabited.LateScaleWitness
 public import Balaban.Correlations.KF0Cauchy
 public import Balaban.Correlations.KF0RootFPartial
 public import Balaban.Inhabited.ProperLocalGenWitness
+public import Balaban.LargeField.R.RFieldProjection
+public import Balaban.Inhabited.RFieldProjectionWitness
+public import Balaban.Inhabited.UniformChartRelative
+public import Balaban.Fluctuation.SourceSliceScaled
