@@ -76,6 +76,7 @@ theorem taggedMat_congr_supportedOn (S : Finset Z) (V : Z → ι → ι → Fins
   rw [Finset.mem_filter] at hz
   rw [h z hz.1 x y hz.2]
 
+omit [Fintype Pc] in
 /-- **T2 (`taggedGfin`).** For two matrices, if `χ_z G_z (x, y)` and `R_z (x, y)` agree whenever
 `V z x y ⊆ C`, then `taggedG`, `taggedK` and `taggedGfin` (the inverse as defined) agree at every
 parameter supported on `C`. -/
