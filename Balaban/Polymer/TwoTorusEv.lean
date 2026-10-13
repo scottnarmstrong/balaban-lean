@@ -372,4 +372,164 @@ theorem blockEnergyFun_levelGS_boxMap (hk : 1 ≤ k) {ρ : ℕ}
 
 end Energy
 
+/-! ### The masked tangent on two tori -/
+
+section Tangent
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bU" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) ((N₁' * L ^ m₁) * L ^ (k + 1 - k))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιu" b:max => Subtype.mk (bU (b : UnitTorus d L N₁ m₁ k))
+  (mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) _)
+
+/-- **The decoupled square root `C^{1/2}(s)` at the decoupled background, on two tori** (the
+two-torus form of `hatSqrtF_rows_of_bgAgree`).  Let `D`, `D'` be data of the charts
+`Ξ^c(𝔹_{k+1}; 1, ε)` of the top levels of the two tori (`FlCore` on each torus), `F₁`, `F₁'` maps
+with the defining property of the decoupled background pair, `s`, `s'` cut parameters in the
+polydisc of radius `e^κ`, and `(Y, S_Y)`, `(Y', S_{Y'})` corresponding components of the cut with
+corresponding cut factors, `Y` a union of complete `(k+1)`-blocks.  If the raw data agree on
+`RowsDep (S_Y)` and the hat variables at the unit points whose block lies in `Y`, the rows of
+`hatSqrtF s' (rawOf D') ψ̂'` and `hatSqrtF s (rawOf D) ψ̂` agree at these unit points.  The
+background values are `decBg_value_twoTorus`, the read sites of the `x`-variant rows
+`rowsCov_R_mem_Y_and_rowsDep`, the standing hypotheses `covStanding_of_mem` at `decDom_of_isDecBg`,
+and the rows `decCovSqrt_rows_transport_of_complete`.  Margin:
+`4 R + 12 L^(k+1+m₁) + 7 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for `N₁'`). -/
+theorem hatSqrtF_rows_twoTorus {ϱm ϱm' : ℝ}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {F₁ : DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams (GA)) (D : BgData (GA) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : DecParams (GB)) (D : BgData (GB) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁' (s, rawOf D) = (φ, α))
+    {s : DecParams (GA)} {s' : DecParams (GB)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → extS (GA) s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → extS (GB) s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) (extS (GB) s') (Prod.map id bm q) = sProd (GA) (extS (GA) s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | RowsDep (GA) (compWeight L a₁) ν (SY (GA) X₁ 𝒞 Y) z} (rawOf D)
+      (rawOf D'))
+    (hcomp : CompleteBlocks (GA) Y)
+    (ψh : unitPts (GA) × Fin N → ℂ) (ψh' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b : unitPts (GA), UnitOut (GA) Y b → ∀ i, ψh' (ιu b, i) = ψh (b, i))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
+    (hatSqrtF (GB) a₁ ν F₁' s' (rawOf D') *ᵥ ψh') (ιu b, i) =
+      (hatSqrtF (GA) a₁ ν F₁ s (rawOf D) *ᵥ ψh) (b, i) := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
+  have hDom' := xiCData_inDomainC hC'.HBp hC'.small1 hD'
+  obtain ⟨φ, α, hI, -⟩ := i4b_exists_unique hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
+    (fun P => (hs P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom
+  obtain ⟨φ', α', hI', -⟩ := i4b_exists_unique hC'.hS hC'.Sp hC'.HBp hC'.hκ.le hC'.hM
+    (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom'
+  have hU := inUnionDomainC_of_xiCData hC hD
+  have hU' := inUnionDomainC_of_xiCData hC' hD'
+  have hFeq := hF₁ s D hs hU φ α hI
+  have hFeq' := hF₁' s' D' hs' hU' φ' α' hI'
+  obtain ⟨hmult, -, hfld, -⟩ := decBg_value_twoTorus hj1 le_rfl hC.hS hC.Sp hC'.Sp hconn hconn'
+    hC.HBp hC.hκ.le hC.hM hF₁ hF₁' hs hs' hU hU' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hraw
+  rw [hFeq, hFeq'] at hmult hfld
+  have hX : XSetting (GA) (compWeight L a₁) a₁ ν := xSetting_of_flCore hC hk
+  have hX' : XSetting (GB) (compWeight L a₁) a₁ ν := xSetting_of_flCore hC' hk
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have St := covStanding_of_mem (N := N) (Q := unitQ (GA)) (P := unitP (GA)) hX hC.hκ.le hMX hδc
+    hsm (isUnitLatticeB_unit (G := GA)).toIsUnitLattice (decDom_of_isDecBg hC hs hD hI hmar hαK)
+  have St' := covStanding_of_mem (N := N) (Q := unitQ (GB)) (P := unitP (GB)) hX' hC'.hκ.le hMX
+    hδc hsm (isUnitLatticeB_unit (G := GB)).toIsUnitLattice
+    (decDom_of_isDecBg hC' hs' hD' hI' hmar hαK)
+  unfold hatSqrtF
+  rw [hFeq, hFeq']
+  refine decCovSqrt_rows_transport_of_complete hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR
+    (by omega) (by omega) (fun x hx => hmult x hx) (fun u hu => ?_) St.fam St'.fam St.field
+    St'.field St.nonneg St.small hcomp ψh ψh' hh hb i
+  obtain ⟨huY, hdep⟩ := rowsCov_R_mem_Y_and_rowsDep (a := compWeight L a₁) (ν := ν) hX hu
+  funext i
+  simp only [barField, levelGS_mem_Ω_one hj1 le_rfl, ↓reduceDIte]
+  exact hfld ⟨u, levelGS_mem_Ω_one hj1 le_rfl u⟩ huY (fun z hz => hraw z (hdep z hz)) i
+
+/-- **The masked tangent at corresponding sites.**  If the masks correspond at the unit point of a
+site `x` of the box and the rows of the square roots `hatSqrtF *ᵥ ψ̂` correspond at it, the masked
+tangents `markedHatPsiF` agree at `x` and `bm x`.  Margin: `2 ρ + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)`. -/
+theorem markedHatPsiF_boxMap {ρ : ℕ}
+    (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (a₁ ν : ℝ) (cc : ℂ)
+    {F₁ : DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    {Z : Finset (unitPts (GA))} {Z' : Finset (unitPts (GB))} (u t : ℂ)
+    {s : DecParams (GA)} {s' : DecParams (GB)} {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    {Θ' : RawData d L (N₁' * L ^ m₁) (k + 1) N}
+    {ψh : unitPts (GA) × Fin N → ℂ} {ψh' : unitPts (GB) × Fin N → ℂ}
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hZ : unitPt hGB (bm x) ∈ Z' ↔ unitPt hGA x ∈ Z)
+    (hrow : ∀ i, (hatSqrtF (GB) a₁ ν F₁' s' Θ' *ᵥ ψh') (ιu (unitPt hGA x), i) =
+      (hatSqrtF (GA) a₁ ν F₁ s Θ *ᵥ ψh) (unitPt hGA x, i)) :
+    markedHatPsiF a₁ ν hGB cc F₁' Z' u t s' Θ' ψh' (bm x) =
+      markedHatPsiF a₁ ν hGA cc F₁ Z u t s Θ ψh x := by
+  funext i
+  rw [markedHatPsiF_apply, markedHatPsiF_apply]
+  have hu := unitPt_boxMap hn hGA hGB hx
+  have hpsi : hatPsiF (GB) a₁ ν hGB cc F₁' s' Θ' ψh' (bm x) i =
+      hatPsiF (GA) a₁ ν hGA cc F₁ s Θ ψh x i := by
+    unfold hatPsiF
+    simp only [liftC_apply, Pi.smul_apply, smul_eq_mul]
+    rw [hu, hrow i]
+  rw [hpsi]
+  by_cases h : unitPt hGA x ∈ Z
+  · simp [h, hZ.2 h]
+  · simp [h, mt hZ.1 h]
+
+end Tangent
+
 end Balaban.Polymer.TwoTorusStep
