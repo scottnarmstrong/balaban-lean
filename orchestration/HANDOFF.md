@@ -12,10 +12,13 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
-| W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
-| W314 | `w314-marked-root-geometry` / W314 | root bridge, fibre and fixed labels for the marked family (MARKCUBIC package 3) |
-| W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
+| W322 | `w322-det-endpoint` / W322 | determinant endpoint: support (`DetCauchyGraph`) + hull (`DetCauchyHull`) + cut-dependent backgrounds (`DetCauchyChart`) → activity bound per hull |
+| W325 | `w325-marked-hat-rows` / W325 | MARKCUBIC package 4: masked decoupled tangent and its paired agreement on components (`MARK-ROWS`) |
+| W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
+| W324 | `w324-p6-hatlink-count` / W324 | degree bound and rooted count for `HatLink` chains (P6 pair); rooted sum over hat-rooted marked sets |
+| W327 | `w327-r-ripe-card` / W327 | R: removed ripe component is a box of ≤ (2ρ_k+10)^d cubes (VMOD-37 package 2) |
+| W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
+| W323 | `w323-r-history-labels` / W323 | R: six-outcome enumeration of histories, transport of `IsComplete`, top `D4Pin` (VMOD-37 package 5) |
 | W312 (Opus) | `w312-level-local-cover` / W312 | local cover on a general torus, radius tower at general scale, the zero-class activity bound at every scale with ν_k ≤ L^{−2} (SCALEUNIF) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
