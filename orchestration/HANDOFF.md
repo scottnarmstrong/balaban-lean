@@ -15,7 +15,6 @@ Claude workers (background subagents of this session):
 | W387 (Opus) | `w387-marked-joint-param` / W387 | joint analyticity of the marked terms in (datum, marks); cubic analogue (MARKPARAM (J)) |
 | W405 | `w405-kf0-sector-sum` / W405 | one-scale: partition function as a sum over sectors in shifted Gaussian form, determinant ratio |
 | W408 | `w408-kf0-allgood-gas` / W408 | one-scale: the all-good sector as a polymer gas (localized logarithm of the ordinary part) |
-| W410 | `w410-ren-domain-params` / W410 | renormalization `locC1`: domain inclusion, parameter identification (RENINPUTS 1–2) |
 | W411 | `w411-ren-bgclass-dec` / W411 | renormalization `locC1`: decoupled background in the class (RENINPUTS 3) |
 | W412 | `w412-step-consts-witness` / W412 | arithmetic chain of constants for the step output (CONSTS leaf 1) |
 | W413 | `w413-det-collar-hull` / W413 | collar hull regrouping of the determinant terms (DETFIT 4–5) |
