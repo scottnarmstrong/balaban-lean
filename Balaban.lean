@@ -1455,6 +1455,7 @@ public import Balaban.Fluctuation.SharpAssemblyScaled
 public import Balaban.Fluctuation.StepActivityDirectScaled
 public import Balaban.Inhabited.StepActivityDirectScaledWitness
 public import Balaban.Inhabited.StepActivityDirectPhysicalRates
+public import Balaban.Inhabited.StepOutputConsts
 public import Balaban.Fluctuation.LevelLocalCover
 public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Inhabited.ScaleActivityFinal
@@ -1539,6 +1540,7 @@ public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
 public import Balaban.Fluctuation.RenormBgClassDec
+public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.MarkedCubicJoint
