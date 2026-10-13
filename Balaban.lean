@@ -226,6 +226,7 @@ public import Balaban.Green.KF0KilledWalks
 public import Balaban.Green.KF0DetWalks
 public import Balaban.Green.KF0WalkSeries
 public import Balaban.Green.KF0WalkTruncation
+public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
@@ -1371,7 +1372,9 @@ public import Balaban.Fluctuation.MarkedI5Functional
 public import Balaban.Fluctuation.MarkedEvParam
 public import Balaban.Fluctuation.MarkedVBlockDec
 public import Balaban.Fluctuation.MarkedScaledCountDec
+public import Balaban.Fluctuation.MarkedTwoMarkLocal
 public import Balaban.Inhabited.MarkedVBlockDecWitness
+public import Balaban.Inhabited.MarkedTwoMarkWitness
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1495,5 +1498,7 @@ public import Balaban.Fluctuation.SourceSliceScaled
 public import Balaban.Fluctuation.SizeModAllDefs
 public import Balaban.Fluctuation.SizeModAllCompare
 public import Balaban.LargeField.D7PaperSizeRebase
+public import Balaban.Fluctuation.ObsCauchyTwoOrders
+public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.LargeField.R.D7ReserveArithmetic
