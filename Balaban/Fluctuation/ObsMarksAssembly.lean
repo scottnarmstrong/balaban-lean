@@ -192,6 +192,128 @@ theorem obsDomains_isDj (hd3 : 3 ≤ d) (hcov : CovSetup S.G' m₀ j X 𝒦X)
   isDj_of_polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
     S.hG' hcov hd3 (fun i => i.1.2) hopt hY
 
+/-- **The mark half and the identity of `ObsMarks`, with the three clauses of `Ev`, exact locality.**
+The statement of `obsMarkHalves_of_sharpHat_param` with the sharp locality clause; the landed
+theorem is its corollary.
+
+
+The conclusion of `obsMarkHalves_of_sharpHat`, together with, for the same `Ev`, the analyticity of
+each `Ev Y` on `XiCRaw … ×ˢ` the hat ball, the exact locality (raw data agreeing on `Y` itself and
+hat variables agreeing at the unit points of `Y`) and the decay bound
+`Q δ₁ · exp(-2 κdec · treeLenCov)` there (the shapes of `obsHker_param_of_Ev`).
+
+
+Premises: exactly those of the landed `obsRowCoeff_of_sharpHat` (the premises of
+`fsite_expansion_hat_dir` with `Gp = S.G'`, and `0 < cψ`), `0 < p₁`, `p₁ ≤ cψ / 4`, an arbitrary
+label system `Lab₀` of activity labels, and the rates `κG ≤ 2 κdec`, `a_ent + 1 ≤ κ0 ≤ 2 κdec`.
+Conclusion: there is one family `Ev` (that of the landed theorem) such that for every datum `D` of
+`Ξ`, with the expanded function `F` of the site functional `svec ... y iy`:
+
+* `ObsMarkHalf` on the common labels `obsLab Lab₀ _`, with `C0 = Q δ₁`, `Ch = Q δ₁ / cψ`,
+  `κh = 2 κdec`, root cube `bx = rootCube (blockIndex y)`;
+* `ObsRayIdentity` for `F`;
+* the sum identity `Σ_T hker i T = Σ_Y a_Y(i)` and the expansion `F = Σ_Y Ev Y` on the hat ball. -/
+theorem obsMarkHalves_of_sharpHat_param_rawY (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 < cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (iy : Fin N)
+    (hp : 0 < S.p₁) (hq : S.p₁ / cψ ≤ 1 / 4)
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ Lb₀)
+    {κG κ0 : ℝ} (hκG : κG ≤ 2 * κdec) (hκ0 : aEnt d L + 1 ≤ κ0) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
+      ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ObsMarkHalf S m₀ hp Ev D (obsDomains S X₁f m₀ j 𝒦X)
+          (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)) cψ
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) κG κ0
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) (2 * κdec)
+          (rootCube (m₀ := m₀) (blockIndex y)) ∧
+        ObsRayIdentity S m₀ hp
+          (fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
+            (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X) := by
+  classical
+  obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm hα hsm
+    hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  refine ⟨Ev, ha, hd, hb, fun D hD => ?_⟩
+  have hd3 : 3 ≤ d := hC.HBp.hd
+  have hdj := obsDomains_isDj (S := S) (X₁f := X₁f) hd3 hcov hopt
+  have hrem := obsRemainder_of_sharpHat S hC cc hcψ hcov hX₁ hopt y hy iy hp hq Ev hs
+    (fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2) hb ha
+    (obsLab Lab₀ hdj) (fun Y => Sum.inl (Sum.inr Y))
+    (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y))) (fun Y => rfl) (fun Y => rfl)
+    (obsCubeLab_mem m₀ _) hκG hκ0 D hD
+  obtain ⟨hfields, hdecomp⟩ := hrem
+  have hrowD := hrow' D hD
+  have hbf : ∀ i : ObsMarkIdx S, Measurable (blockMark S m₀ hp i.1 i.2) ∧
+      DepOn (Ω := (S.blockSplit m₀ hp).Ωb)
+        (blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ
+          ((obsLab Lab₀ hdj).ysite (obsY1 m₀ S Lb₀ _ i))) (blockMark S m₀ hp i.1 i.2) ∧
+      0 < S.p₁ ∧
+      (∀ Φ, ‖blockMark S m₀ hp i.1 i.2 Φ‖ ≤
+        S.p₁ * Real.exp (-κG * (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i))) ∧
+      ∫ Φ, blockMark S m₀ hp i.1 i.2 Φ ∂Measure.pi (S.blockSplit m₀ hp).μ = 0 := fun i =>
+    blockMark_fields S m₀ hp i.1 i.2 (obsLab Lab₀ hdj) (obsY1 m₀ S Lb₀ _ i)
+      (obsCubeLab_mem m₀ (obsMarkCube S m₀ i)) (obsCubeLab_dl m₀ _) κG
+  have hexp : ∀ i : ObsMarkIdx S, Real.exp (-κ0 * (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i)) = 1 :=
+    fun i => by
+      have : (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i) = 0 := obsCubeLab_dl m₀ _
+      rw [this]; simp
+  refine ⟨⟨fun i => (hbf i).1, fun i => (hbf i).2.1, hp, fun i => (hbf i).2.2.2.1,
+    fun i => (hbf i).2.2.2.2, fun i => by rw [hexp i, mul_one], fun i =>
+    obsCubeLab_mem m₀ (obsMarkCube S m₀ i), fun c => ?_, fun i T => (hrowD i).2.2.2.2.2.2 T,
+    fun i T hT => ?_, fun i T hT => ?_, hfields⟩, ?_⟩
+  · have := card_markIdx_cell_le_pow S c
+    exact_mod_cast this
+  · by_contra hne
+    exact hT ((hrowD i).2.2.2.2.2.1 T hne).1
+  · by_contra hne
+    exact hT ((hrowD i).2.2.2.2.2.1 T hne).2
+  · intro s hs
+    have hpre := ae_obsHat_eq_true S m₀ hp
+    rw [← (S.blockSplit m₀ hp).map_eq] at hpre
+    have hae := ae_of_ae_map (S.blockSplit m₀ hp).meas.aemeasurable hpre
+    filter_upwards [hae] with x hx
+    have hs32 : ‖(s : ℂ)‖ < 3 / 2 := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; linarith [hs.2]
+    have hpt : obsHatPt S x = obsHat S m₀ hp ((S.blockSplit m₀ hp).restr x) := hx.symm
+    unfold obsRayFun
+    rw [hpt, hdecomp _ _ hs32]
+    congr 1
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← sum_obsHker (𝒴 := obsDomains S X₁f m₀ j 𝒦X) (c := obsRowCoeff S Ev D i) (m₀ := m₀)]
+    rw [mul_comm]
+    rfl
+
+
 /-- **The mark half and the identity of `ObsMarks`, with the three clauses of `Ev`.**
 
 The conclusion of `obsMarkHalves_of_sharpHat`, together with, for the same `Ev`, the analyticity of
@@ -255,57 +377,10 @@ theorem obsMarkHalves_of_sharpHat_param (hC : FlCore N S.G' Hm a₁ ν c BG κ e
         ObsRayIdentity S m₀ hp
           (fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
             (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X) := by
-  classical
-  obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat S hC hk hG cc hcψ hMX hdm hα hsm
-    hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
-  refine ⟨Ev, ha, hd, hb, fun D hD => ?_⟩
-  have hd3 : 3 ≤ d := hC.HBp.hd
-  have hdj := obsDomains_isDj (S := S) (X₁f := X₁f) hd3 hcov hopt
-  have hrem := obsRemainder_of_sharpHat S hC cc hcψ hcov hX₁ hopt y hy iy hp hq Ev hs hd hb ha
-    (obsLab Lab₀ hdj) (fun Y => Sum.inl (Sum.inr Y))
-    (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y))) (fun Y => rfl) (fun Y => rfl)
-    (obsCubeLab_mem m₀ _) hκG hκ0 D hD
-  obtain ⟨hfields, hdecomp⟩ := hrem
-  have hrowD := hrow' D hD
-  have hbf : ∀ i : ObsMarkIdx S, Measurable (blockMark S m₀ hp i.1 i.2) ∧
-      DepOn (Ω := (S.blockSplit m₀ hp).Ωb)
-        (blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ
-          ((obsLab Lab₀ hdj).ysite (obsY1 m₀ S Lb₀ _ i))) (blockMark S m₀ hp i.1 i.2) ∧
-      0 < S.p₁ ∧
-      (∀ Φ, ‖blockMark S m₀ hp i.1 i.2 Φ‖ ≤
-        S.p₁ * Real.exp (-κG * (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i))) ∧
-      ∫ Φ, blockMark S m₀ hp i.1 i.2 Φ ∂Measure.pi (S.blockSplit m₀ hp).μ = 0 := fun i =>
-    blockMark_fields S m₀ hp i.1 i.2 (obsLab Lab₀ hdj) (obsY1 m₀ S Lb₀ _ i)
-      (obsCubeLab_mem m₀ (obsMarkCube S m₀ i)) (obsCubeLab_dl m₀ _) κG
-  have hexp : ∀ i : ObsMarkIdx S, Real.exp (-κ0 * (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i)) = 1 :=
-    fun i => by
-      have : (obsLab Lab₀ hdj).dl (obsY1 m₀ S Lb₀ _ i) = 0 := obsCubeLab_dl m₀ _
-      rw [this]; simp
-  refine ⟨⟨fun i => (hbf i).1, fun i => (hbf i).2.1, hp, fun i => (hbf i).2.2.2.1,
-    fun i => (hbf i).2.2.2.2, fun i => by rw [hexp i, mul_one], fun i =>
-    obsCubeLab_mem m₀ (obsMarkCube S m₀ i), fun c => ?_, fun i T => (hrowD i).2.2.2.2.2.2 T,
-    fun i T hT => ?_, fun i T hT => ?_, hfields⟩, ?_⟩
-  · have := card_markIdx_cell_le_pow S c
-    exact_mod_cast this
-  · by_contra hne
-    exact hT ((hrowD i).2.2.2.2.2.1 T hne).1
-  · by_contra hne
-    exact hT ((hrowD i).2.2.2.2.2.1 T hne).2
-  · intro s hs
-    have hpre := ae_obsHat_eq_true S m₀ hp
-    rw [← (S.blockSplit m₀ hp).map_eq] at hpre
-    have hae := ae_of_ae_map (S.blockSplit m₀ hp).meas.aemeasurable hpre
-    filter_upwards [hae] with x hx
-    have hs32 : ‖(s : ℂ)‖ < 3 / 2 := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; linarith [hs.2]
-    have hpt : obsHatPt S x = obsHat S m₀ hp ((S.blockSplit m₀ hp).restr x) := hx.symm
-    unfold obsRayFun
-    rw [hpt, hdecomp _ _ hs32]
-    congr 1
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [← sum_obsHker (𝒴 := obsDomains S X₁f m₀ j 𝒦X) (c := obsRowCoeff S Ev D i) (m₀ := m₀)]
-    rw [mul_comm]
-    rfl
+  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param_rawY S hC hk hG cc hcψ hMX hdm hα
+    hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκG hκ0
+  exact ⟨Ev, ha, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
+    hb, hEv⟩
 
 /-- **The mark half and the identity of `ObsMarks`, on one label system and one `Ev`.**
 
