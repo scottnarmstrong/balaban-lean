@@ -1704,3 +1704,4 @@ public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.ObsSourceLocal
 public import Balaban.Inhabited.E1RecordOfSum
+public import Balaban.Inhabited.E1RecordFromTower
