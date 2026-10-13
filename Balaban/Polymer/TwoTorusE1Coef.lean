@@ -1002,17 +1002,12 @@ set_option hygiene false in
 local notation "𝔅B" => CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
   Set.univ
 set_option hygiene false in
-local notation "σc" => fun b : 𝔅A => cubeOfSite (N₁ := N₁') (m₁ := m₁) (k := k) m₀ (bm b.1)
-
-omit [NeZero N₁'] in
-/-- The base point of the block `cubeOfSite m₀ x` of an aligned site `x` is `x`. -/
-theorem cubeOfSite_val_of_aligned {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {x : CTorus d L N₁ m₁ (k + 1)}
-    (hx : Aligned (cellSide L m₀ m₁ (k + 1)) x) : (cubeOfSite m₀ x).1 = x :=
-  cbase_eq_of_mem_box (cellSide_dvd hN le_rfl) hx (mem_box_self x (cellSide_pos m₀ m₁ (k + 1)))
+local notation "σc" => cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1)
+  hN hN' (le_refl (k + 1))
 
 /-- **D4 (d): the interpolation coefficient of the step on two tori.**  `gsumCoeff_transport`
-for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the map `σ b = cubeOfSite m₀
-(bm b)` of the blocks, a set `T` of blocks inside the box of radius `R`, and the relation
+for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the correspondence `cubeMap` of
+the blocks (base point `bm b`), a set `T` of blocks inside the box of radius `R`, and the relation
 "agreement of the block variables at corresponding unit points of the box"; the integral
 hypothesis of `gsumCoeff_transport` is `integral_blockSplit_twoTorus`.  What remains as hypotheses
 are the correspondence of the labels with blocks in `T`, of their activities, and of the marks
@@ -1068,11 +1063,8 @@ theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
     intro b₁ hb₁ b₂ hb₂ h
     have hb₁R := hT b₁ hb₁ b₁.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
     have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
-    have hal : ∀ b : 𝔅A, Aligned (cellSide L m₀ m₁ (k + 1)) (bm b.1) := fun b =>
-      aligned_boxMap (cellSide_dvd hN le_rfl) (cellSide_dvd hN' le_rfl) b.2.1
     have h1 := congrArg Subtype.val h
-    simp only at h1
-    rw [cubeOfSite_val_of_aligned hN' (hal b₁), cubeOfSite_val_of_aligned hN' (hal b₂)] at h1
+    rw [cubeMap_val, cubeMap_val] at h1
     exact Subtype.ext (boxMap_inj (hm' := hm') hb₁R hb₂R h1)
   refine gsumCoeff_transport _ _ Lab Lab' A A' y0 y0' G G' hGdep (σc) T hσ _
     (fun Z hZ F F' hF hFF => ?_) ψ hψb hψinj hψsurj hA κ hκ hκinj hκsurj hG
