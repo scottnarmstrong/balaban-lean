@@ -47,6 +47,7 @@ public import Balaban.Polymer.BlockTorus
 public import Balaban.Polymer.Holomorphic
 public import Balaban.Polymer.Transport
 public import Balaban.Polymer.Support
+public import Balaban.Polymer.BoxCard
 public import Balaban.Polymer.Bridge
 public import Balaban.Polymer.FrozenTorus
 public import Balaban.Polymer.BoxTransport
@@ -1570,6 +1571,7 @@ public import Balaban.Fluctuation.RenormDomainParams
 public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
+public import Balaban.Inhabited.RenormDetFibreTower
 public import Balaban.Inhabited.RenormLabelNonempty
 public import Balaban.Inhabited.RenormProperInstances
 public import Balaban.Fluctuation.RenormRowAgree
@@ -1622,6 +1624,7 @@ public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.RenormThetaDatumWitness
 public import Balaban.Inhabited.ObsMarksFromTower
+public import Balaban.Inhabited.Thm31bFromTower
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.SourceWitnessJoint
@@ -1630,3 +1633,5 @@ public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepPiecesRenSol
 public import Balaban.Fluctuation.RenormDetFibreMap
 public import Balaban.Inhabited.ObsUnconditional
+public import Balaban.Fluctuation.DecMarkTotal
+public import Balaban.Inhabited.DecMarkTotalFromTower

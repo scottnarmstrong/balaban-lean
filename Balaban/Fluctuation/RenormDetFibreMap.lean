@@ -11,7 +11,7 @@ public import Balaban.Fluctuation.Prop33Level
 public import Balaban.Fluctuation.DetCauchyHull
 public import Balaban.Fluctuation.SizeModG1
 public import Balaban.SmallField.Def6BridgeGeom
-public import Balaban.Inhabited.V2Energy
+public import Balaban.Polymer.BoxCard
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -275,7 +275,7 @@ theorem card_renLabelFam_mul_le (hG : IsLevel G K) (hN : L ^ m₀ ∣ N₁)
     have e1 := renCube_fst hG X₁ i
     have hP1 : (renCube G X₁ i).1 ≤ K := e1.le
     have hb := Pset_eq_box (m₀ := m₀) hN hP1
-    have h1 := Balaban.SmallField.Def6v2.ncard_box_ge (d := d) (n := (N₁ * L ^ m₁) * L ^ K)
+    have h1 := Balaban.Localization.ncard_box_ge (d := d) (n := (N₁ * L ^ m₁) * L ^ K)
       (cbase (L ^ ((renCube G X₁ i).1 + m₁)) (renCube G X₁ i).2)
       (L ^ ((renCube G X₁ i).1 + m₁))
     rw [← hb, e1, min_eq_left hn] at h1
