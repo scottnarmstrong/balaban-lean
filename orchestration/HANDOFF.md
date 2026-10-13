@@ -13,7 +13,8 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W335 | `w335-initial-beta` / W335 | `InitialBetaBridge`: the largeness condition `hlam` of the early parent-domain theorem from β ≥ β₀; uniform smallness η < 1 (Q13-LATE package 1) |
-| W334 | `w334-final-cutoff` / W334 | last integral: final cutoff by block averaging from the late-regime tests (FINAL §2) |
+| W337 | `w337-marked-dec-ball` / W337 | marked decoupled tangent: ball bound on the cut polydisc and radial discs; joint analyticity (MARKASM packages 1–2) |
+| W338 | `w338-marked-fluct-rows` / W338 | fluctuation-correction rows for the masked tangent on the original component (MARKASM package 3) |
 | W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
 | W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
 | W333 | `w333-size-mod-extend` / W333 | abstract cover extension for the modular covering size when the region grows (VMOD-38 packages 2–3) |
