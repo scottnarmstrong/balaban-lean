@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Fluctuation.ExpSourceChart
 import Mathlib.Tactic.Linarith
