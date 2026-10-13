@@ -1612,6 +1612,7 @@ public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.RenormDecJoint
 public import Balaban.Fluctuation.RenormLocC2Zero
 public import Balaban.Inhabited.RenormLocC2ZeroTower
+public import Balaban.Inhabited.RenormExpInputTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayAnalytic
