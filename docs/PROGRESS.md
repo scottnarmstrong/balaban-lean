@@ -35,7 +35,7 @@ separate line below.
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
 | Last integral | P7 §4 | 35% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
 | No renormalization step (large field ν) | P7 §4 | 40% | The sector decomposition; the polymer gas for the sector where every spin is near h. | The sector containing reversed spins (blocker 1); currently paused. |
-| Independence of the torus | P4 (H.4) | 30% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, and the cube operators. | The decoupled solutions on a component; the coefficients; the reading of the clause (blocker 7). |
+| Independence of the torus | P4 (H.4) | 35% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, and the decoupled Green operator on a cut component. | The decoupled background and fluctuation solutions on a component; the coefficients; the reading of the clause (blocker 7). |
 | General d, L, N and every unit h | — | 30% | General constant record, scale record and their producers, with an adjustable output decay rate. | Moving the step theorems from d = L = 3, N = 2 to general parameters. |
 | Assembly of Root-F | P4, P7, P9 | 20% | Step domains are polymers in the theorem's sense; every admissible torus is a step torus at every scale; conversion of the decay rate; the new observable terms of one step as a family with the theorem's support, locality, analyticity and per-term bound c₉ L^{-j((d-2)/2+δ)} e^{-κ|X|/(ML^j)^d} at their birth scale. | The terms of earlier scales; the logarithm; the large-field and final terms. |
 | Root-C from Root-F | P8, P9 | 30% | The deduction of the correlation estimates from the flow, assuming its inputs. | Infinite-volume limits, the limit ν ↓ 0, and the physical inputs. |
@@ -47,21 +47,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 2df52bd 2026-10-13.
+Computed at commit d8f4b29 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 133 | 40,876 | 2,154 |
+| Lattice, analysis, Gaussian and polymer tools | 134 | 41,721 | 2,188 |
 | Green's functions and random walks | 69 | 25,028 | 1,465 |
 | Background fields and generating sets (P2) | 110 | 39,057 | 2,078 |
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
-| Small-field class (P1, P4, P5) | 119 | 37,736 | 1,941 |
-| Fluctuation step and renormalization (P4-P6) | 414 | 133,879 | 4,783 |
-| Instantiated step at fixed parameters | 234 | 62,160 | 2,104 |
+| Small-field class (P1, P4, P5) | 120 | 37,825 | 1,944 |
+| Fluctuation step and renormalization (P4-P6) | 415 | 134,104 | 4,792 |
+| Instantiated step at fixed parameters | 235 | 62,247 | 2,107 |
 | Large-field regions (P5-P7, E9-E10) | 471 | 127,298 | 7,202 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1869** | **556,452** | **25,899** |
+| **Total** | **1873** | **557,698** | **25,948** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made

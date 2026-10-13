@@ -5,6 +5,8 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.LevelCoversDef
+public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Fluctuation.LevelLocalCover
@@ -39,72 +41,6 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
 
-/-- The covers of `levelLocalCover` for `d = L = 3`, `N = 2`: for every block `z` the cover
-setup, the neighbourhood equality, the connected structure, zero tree length, the read sites and
-the block margin; for every source site the same with `x = s.1`. -/
-def LevelCovers (N₁ m₁ k : ℕ) [NeZero N₁] (ϱ ϱm : ℝ)
-    (Gp : GeneratingSet 3 3 (N₁ * 3 ^ m₁) (k + 1) ϱ)
-    (Hm : GeneratingSet 3 3 (N₁ * 3 ^ m₁) (k + 1) ϱm) (m₀ : ℕ) : Prop :=
-  (∀ z : Torus 3 (N₁ * 3 ^ m₁ * 3 ^ (k + 1 - (k + 1))),
-      CovSetup Gp m₀ k (LocalCover.cube m₀ k (LocalCover.blockSite k z))
-        (LocalCover.fam m₀ (LocalCover.blockSite k z)) ∧
-      (↑(LocalCover.nbhdF m₀ (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ m₁ (k + 1))) =
-        X1 Gp m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k z)) ∧
-      (∃ (W₀ : Finset (CTorus 3 3 N₁ m₁ (k + 1)))
-        (E₀ : Finset (CTorus 3 3 N₁ m₁ (k + 1) × CTorus 3 3 N₁ m₁ (k + 1))),
-        ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ LocalCover.cube m₀ k (LocalCover.blockSite k z)) ∧
-          MeetsOne m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k z)) W₀ ∧
-          bondCost (scaleW 3 m₀ m₁ k) E₀ =
-            treeLenCovOne m₀ k (LocalCover.cube m₀ k (LocalCover.blockSite k z))) ∧
-      treeLenCovOne m₀ k (LocalCover.cube m₀ k (LocalCover.blockSite k z)) = 0 ∧
-      readSites Hm k z ⊆ ↑(LocalCover.nbhdF m₀ (LocalCover.blockSite k z)) ∧
-      BlockMargin Gp (LocalCover.nbhdF m₀ (LocalCover.blockSite k z))
-        (↑(blockSites 3 3 N₁ m₁ (k + 1) k z) : Set (CTorus 3 3 N₁ m₁ (k + 1))) ∧
-      (↑(blockSites 3 3 N₁ m₁ (k + 1) k z) : Set (CTorus 3 3 N₁ m₁ (k + 1))) ⊆
-        ↑(LocalCover.nbhdF m₀ (LocalCover.blockSite k z))) ∧
-    (∀ s : CTorus 3 3 N₁ m₁ (k + 1) × Fin 2,
-      CovSetup Gp m₀ k (LocalCover.cube m₀ k s.1) (LocalCover.fam m₀ s.1) ∧
-      (↑(LocalCover.nbhdF m₀ s.1) : Set (CTorus 3 3 N₁ m₁ (k + 1))) =
-        X1 Gp m₀ k (LocalCover.fam m₀ s.1) ∧
-      (∃ (W₀ : Finset (CTorus 3 3 N₁ m₁ (k + 1)))
-        (E₀ : Finset (CTorus 3 3 N₁ m₁ (k + 1) × CTorus 3 3 N₁ m₁ (k + 1))),
-        ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ LocalCover.cube m₀ k s.1) ∧
-          MeetsOne m₀ k (LocalCover.fam m₀ s.1) W₀ ∧
-          bondCost (scaleW 3 m₀ m₁ k) E₀ =
-            treeLenCovOne m₀ k (LocalCover.cube m₀ k s.1)) ∧
-      treeLenCovOne m₀ k (LocalCover.cube m₀ k s.1) = 0 ∧
-      s.1 ∈ LocalCover.nbhdF m₀ s.1)
-
-namespace StepTower
-
-variable {κmin : ℝ}
-
-/-- The step `hatStepK k T.m₁ hk ν β p₁ T.δ` of the tower `T`. -/
-noncomputable abbrev step (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
-    (ν β p₁ : ℝ) : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁) :=
-  hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ
-
-end StepTower
-
-/-- **The per-scale package of the tower `T`.**  All fields are stated on the step
-`T.step k hk N₁ ν β p₁ = hatStepK k T.m₁ hk ν β p₁ T.δ`. -/
-structure StepScaleData {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ)
-    [NeZero N₁] (ν β p₁ : ℝ) : Prop where
-  core : FlCore 2 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (lvLow N₁ T.m₁ k (rhoSep T.m₁)) 1 ν T.c T.BG
-    T.κ T.t (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t
-  xi : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t
-    (T.step k hk N₁ ν β p₁).D'
-  ray : Nonempty ((T.step k hk N₁ ν β p₁).RayData (2 * p₁))
-  cψ_pos : 0 < lvCpsi T.κ T.t (β * 3 ^ k)
-  r_pos : 0 < lvR T.κ T.t (β * 3 ^ k) p₁
-  fl_radius : Real.sqrt ((2 : ℕ) : ℝ) *
-    (‖(((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-      (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ * lvCpsi T.κ T.t (β * 3 ^ k))) < T.t
-  ray_margin : ((2 : ℝ) * 2 + lvR T.κ T.t (β * 3 ^ k) p₁) * p₁ < lvCpsi T.κ T.t (β * 3 ^ k)
-  p_lt : p₁ < 2 * p₁
-  covers : LevelCovers N₁ T.m₁ k (rhoSep T.m₁) (rhoSep T.m₁) (lvTop N₁ T.m₁ k (rhoSep T.m₁))
-    (lvLow N₁ T.m₁ k (rhoSep T.m₁)) 1
-
 namespace StepTower
 
 variable {κmin : ℝ}
@@ -116,34 +52,13 @@ theorem scale (T : StepTower κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
       ∀ ν : ℝ, 0 ≤ ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, βray ≤ β →
       ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
       Nonempty (StepScaleData T k hk N₁ ν β p₁) := by
-  classical
-  obtain ⟨β₀, hβ₀, hitems⟩ := scale_C_items hA p T.m₁ T.m₁_four T.block_base T.κ T.t_pos
-    T.δ_pos T.δ_small T.δ'_pos T.δ'_cap T.δ'_step T.δ'_coer
-  refine ⟨β₀, hβ₀, ?_⟩
+  obtain ⟨βray, h2, h⟩ := StepTowerG.scale T.toG hA p
+  refine ⟨βray, h2, ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁
-  obtain ⟨hcψ0, hr0, hδ₁, hc, hlt, hR⟩ := hitems k hk N₁ hN ν hν0 hν β hβ p₁ hp0 hp₁
-  have hSD := dgSetting_lv (N₁ := N₁) (k := k) T.m₁_four hN hν0 hν
-  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
-  have hC : FlCore 2 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (lvLow N₁ T.m₁ k (rhoSep T.m₁)) 1 ν T.c
-      T.BG T.κ T.t (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t :=
-    flCore_level_transfer (Classical.choice T.core) hSD (opSetting_lv T.m₁_four hN hν0 hν)
-      (isLevel_lvLow hk) isLevel_lvTop hHB
-  have hD : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t
-      (T.step k hk N₁ ν β p₁).D' := by
-    refine ⟨fun _ => unitVec hN2, unitVec hN2, 0, 0,
-      exists_xiC hHB (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (massLe_lv hν) T.t_pos, ?_, ?_⟩
-    · intro x hx i
-      have := unitBg_Ψ_of_mem (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2)).Ψ x i = _
-      rw [this]; simp
-    · intro x hx i
-      have := unitBg_h_of_mem (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ T.m₁ k (rhoSep T.m₁)) hN2 (unitVec hN2)).h x i = _
-      rw [this]; simp
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨hV, hF⟩ := LocalCover.levelLocalCover (N := 2) (lvLow N₁ T.m₁ k (rhoSep T.m₁)) hSD
-    (isLevel_lvTop (N₁ := N₁) (m₁ := T.m₁) (k := k) (ϱ := rhoSep T.m₁)) (m₀ := 1) le_rfl hN3
-  exact ⟨⟨hC, hD, hR, hcψ0, hr0, hδ₁, hc, hlt, ⟨hV, hF⟩⟩⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h3 : 3 ^ T.toG.m₀ ∣ N₁ := by simpa using h3N
+  obtain ⟨hS⟩ := h k hk N₁ h3 hN ν hν0 (by simpa using hν) β hβ p₁ hp0 (by simpa [hb] using hp₁)
+  exact ⟨T.scaleData_of_toG hS⟩
 
 /-- Normalization of the determinant rate denominator. -/
 theorem det_rate_den : (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ)) = 18 := by norm_num

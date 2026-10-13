@@ -143,20 +143,41 @@ theorem compTangent_psiHat (ψh : S.EC) :
 
 /-- The raw data of the datum of `psiHat ψ̂`: the critical point plus the lift of the hat field,
 and the field `h` of the block datum. -/
+theorem rawHatField_eq (D : BgData S.G' N)
+    (B : BgData (stepG d L N₁ m₁ k ϱ) N) (ψ₀ ψh : S.EC)
+    (M : Matrix (S.U × Fin N) (S.U × Fin N) ℂ)
+    (hψ₀ : ∀ z i, ψ₀ (unitPt S.hG' z, i) = B.Ψ z i) :
+    (liftC S.hG' (ψ₀ + S.hatField M ψh), D.h) =
+      ((fun z i => B.Ψ z i +
+        liftC S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (M *ᵥ ψh)) z i), D.h) := by
+  refine Prod.ext ?_ rfl
+  funext z i
+  change ψ₀ (unitPt S.hG' z, i) +
+      (S.hatField M ψh) (unitPt S.hG' z, i) =
+        B.Ψ z i +
+          (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (M *ᵥ ψh)) (unitPt S.hG' z, i)
+  rw [hψ₀ z i]
+  rfl
+
 theorem rawOf_dataUC_psiHat (ψh : S.EC) :
     ((S.dataUC (S.psiHat ψh)).Ψ, (S.dataUC (S.psiHat ψh)).h) =
       ((fun z i => S.psiKdC.Ψ z i +
         liftC S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (S.covSqrtC *ᵥ ψh)) z i), S.D'.h) := by
-  refine Prod.ext ?_ ?_
-  · funext z i
-    have h0 : S.psiKdC.Ψ z i = S.psi0C (unitPt S.hG' z, i) := by
-      rw [← S.dataUC_psi0C, S.dataUC_Ψ]
-    show (S.dataUC (S.psiHat ψh)).Ψ z i = S.psiKdC.Ψ z i + _
-    rw [S.dataUC_Ψ, h0]
-    rfl
-  · funext z i
-    show (S.dataUC (S.psiHat ψh)).h z i = S.D'.h z i
-    rw [S.dataUC_h, S.hh₀]
+  calc
+    ((S.dataUC (S.psiHat ψh)).Ψ, (S.dataUC (S.psiHat ψh)).h) =
+        (liftC S.hG' (S.psi0C + S.hatField S.covSqrtC ψh), S.D'.h) := by
+          refine Prod.ext ?_ ?_
+          · funext z i
+            change (S.dataUC (S.psiHat ψh)).Ψ z i =
+              liftC S.hG' (S.psi0C + S.hatField S.covSqrtC ψh) z i
+            rw [S.dataUC_Ψ]
+            rfl
+          · funext z i
+            change (S.dataUC (S.psiHat ψh)).h z i = S.D'.h z i
+            rw [S.dataUC_h]
+            exact (S.hh₀ z i).symm
+    _ = _ := S.rawHatField_eq S.D' S.psiKdC S.psi0C ψh S.covSqrtC
+      (fun z i => S.critical_Ψ_unitRep S.psiKdC z i)
 
 
 /-! ### The bundle of analytic representatives -/

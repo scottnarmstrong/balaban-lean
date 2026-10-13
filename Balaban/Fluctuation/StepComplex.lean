@@ -382,6 +382,19 @@ theorem psiAtC_zero (x : S.E) : S.psiAtC 0 x = S.psi0C := by
   unfold psiAtC
   rw [Complex.ofReal_zero, zero_smul, add_zero]
 
+/-- A level-`k` datum is constant on the unit block containing a site.  This form works for an
+arbitrary external field. -/
+theorem critical_Ψ_unitRep (B : BgData (stepG d L N₁ m₁ k ϱ) N)
+    (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
+    B.Ψ (unitRep (unitPt S.hG' x)) i = B.Ψ x i := by
+  have hb : unitBlock (unitRep (unitPt S.hG' x)) = unitBlock x := by
+    rw [unitBlock_unitRep]; rfl
+  have hx' : x ∈ (stepG d L N₁ m₁ k ϱ).blk k (unitRep (unitPt S.hG' x)) :=
+    GeneratingSet.mem_blk.2 hb.symm
+  have hl := S.hG.mem_layer (unitRep (unitPt S.hG' x))
+  have hk := S.hG.bounds
+  exact (congrFun (B.Ψ_layerConst k hk.1 hk.2 (unitRep (unitPt S.hG' x)) hl x hx') i).symm
+
 /-- **The datum of the background is the critical point**: `dataUC psi0C = psiKdC` (for every
 datum; the complex form of `dataU_psi0`). -/
 theorem dataUC_psi0C : S.dataUC S.psi0C = S.psiKdC := by
@@ -389,14 +402,7 @@ theorem dataUC_psi0C : S.dataUC S.psi0C = S.psiKdC := by
   · funext x i
     show (S.dataUC S.psi0C).Ψ x i = S.psiKdC.Ψ x i
     rw [S.dataUC_Ψ]
-    show S.psiKdC.Ψ (unitRep (unitPt S.hG' x)) i = S.psiKdC.Ψ x i
-    have hb : unitBlock (unitRep (unitPt S.hG' x)) = unitBlock x := by
-      rw [unitBlock_unitRep]; rfl
-    have hx' : x ∈ (stepG d L N₁ m₁ k ϱ).blk k (unitRep (unitPt S.hG' x)) :=
-      GeneratingSet.mem_blk.2 hb.symm
-    have hl := S.hG.mem_layer (unitRep (unitPt S.hG' x))
-    have hk := S.hG.bounds
-    exact (congrFun (S.psiKdC.Ψ_layerConst k hk.1 hk.2 (unitRep (unitPt S.hG' x)) hl x hx') i).symm
+    exact S.critical_Ψ_unitRep S.psiKdC x i
   · funext x i
     show (S.dataUC S.psi0C).h x i = S.psiKdC.h x i
     rw [S.dataUC_h]
