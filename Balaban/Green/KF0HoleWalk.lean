@@ -450,4 +450,221 @@ theorem kf0SqrtR_sub_kwSqrt_nonneg {ν : ℝ} (hν : 0 < ν) (x y : Good D) :
   rw [← kf0C_eq_kf0SqrtR hν, kwSqrt_apply_eq hν]
   exact kf0C_sub_kwC_nonneg (D := D) hν (x : Torus d m) (y : Torus d m)
 
+/-! ### Walks that visit `D` -/
+
+variable (D) in
+/-- The site reached from `x` after the first `k` steps of the step sequence `w`. -/
+def walkPos (x : Torus d m) {n : ℕ} (w : Fin n → Fin d × Bool) (k : ℕ) : Torus d m :=
+  x + intToTorus d m (∑ i : Fin n, if (i : ℕ) < k then stepVec d (w i) else 0)
+
+/-- The step sequence `w` started at `x` visits the set `D` (at some time `k ≤ n`, the start
+included). -/
+abbrev WalkMeets (D : Finset (Torus d m)) (x : Torus d m) {n : ℕ} (w : Fin n → Fin d × Bool) :
+    Prop :=
+  ∃ k ∈ Finset.range (n + 1), walkPos x w k ∈ D
+
+theorem stepSum_cons {n : ℕ} (s : Fin d × Bool) (w : Fin n → Fin d × Bool) :
+    stepSum (Fin.cons s w : Fin (n + 1) → Fin d × Bool) = stepVec d s + stepSum w := by
+  simp [stepSum, Fin.sum_univ_succ]
+
+omit [NeZero m] in
+theorem walkPos_cons_succ {n : ℕ} (x : Torus d m) (s : Fin d × Bool) (w : Fin n → Fin d × Bool)
+    (k : ℕ) : walkPos x (Fin.cons s w : Fin (n + 1) → Fin d × Bool) (k + 1) =
+      walkPos (x + intToTorus d m (stepVec d s)) w k := by
+  simp only [walkPos, Fin.sum_univ_succ, Fin.cons_zero, Fin.cons_succ, Fin.val_zero,
+    Fin.val_succ, Nat.succ_pos, ite_true, Nat.succ_lt_succ_iff, map_add, add_assoc]
+
+omit [NeZero m] in
+theorem walkPos_zero {n : ℕ} (x : Torus d m) (w : Fin n → Fin d × Bool) : walkPos x w 0 = x := by
+  simp [walkPos]
+
+omit [NeZero m] in
+theorem walkMeets_cons {n : ℕ} (D : Finset (Torus d m)) (x : Torus d m) (s : Fin d × Bool)
+    (w : Fin n → Fin d × Bool) :
+    WalkMeets D x (Fin.cons s w : Fin (n + 1) → Fin d × Bool) ↔
+      x ∈ D ∨ WalkMeets D (x + intToTorus d m (stepVec d s)) w := by
+  constructor
+  · rintro ⟨k, hk, hD⟩
+    cases k with
+    | zero => left; simpa [walkPos_zero] using hD
+    | succ k =>
+      right
+      refine ⟨k, ?_, ?_⟩
+      · simp only [Finset.mem_range] at hk ⊢; omega
+      · rwa [walkPos_cons_succ] at hD
+  · rintro (h | ⟨k, hk, hD⟩)
+    · exact ⟨0, by simp, by simpa [walkPos_zero] using h⟩
+    · refine ⟨k + 1, ?_, ?_⟩
+      · simp only [Finset.mem_range] at hk ⊢; omega
+      · rwa [walkPos_cons_succ]
+
+omit [NeZero m] in
+theorem walkMeets_of_mem (D : Finset (Torus d m)) {x : Torus d m} (hx : x ∈ D) {n : ℕ}
+    (w : Fin n → Fin d × Bool) : WalkMeets D x w :=
+  ⟨0, by simp, by simpa [walkPos_zero] using hx⟩
+
+/-- The `n`-th power of the killed adjacency matrix counts the step sequences from `x` to `y`
+that never visit `D` (for `x` outside `D`). -/
+theorem kwAdjG_pow_eq_count (n : ℕ) : ∀ x : Torus d m, x ∉ D → ∀ y : Torus d m,
+    (kwAdjG d m D ^ n) x y =
+      ∑ w : Fin n → Fin d × Bool,
+        if x + intToTorus d m (stepSum w) = y ∧ ¬ WalkMeets D x w then (1 : ℝ) else 0 := by
+  induction n with
+  | zero =>
+    intro x hx y
+    simp [stepSum, Matrix.one_apply, WalkMeets, walkPos, hx]
+  | succ n ih =>
+    intro x hx y
+    rw [pow_succ', Matrix.mul_apply]
+    have hL : ∀ z, kwAdjG d m D x z * (kwAdjG d m D ^ n) z y =
+        ∑ s : Fin d × Bool, if z = x + intToTorus d m (stepVec d s) then
+          (if z ∈ D then 0 else (kwAdjG d m D ^ n) z y) else 0 := by
+      intro z
+      by_cases hz : z ∈ D
+      · simp [kwAdjG, hz]
+      · have : kwAdjG d m D x z = kwAdj d m x z := by simp [kwAdjG, hx, hz]
+        rw [this, kwAdj_eq_kf0Adj, kf0Adj_apply_steps, Finset.sum_mul]
+        refine Finset.sum_congr rfl fun s _ => ?_
+        by_cases h : z = x + intToTorus d m (stepVec d s)
+        · subst h; simp [hz]
+        · simp [h]
+    simp_rw [hL]
+    rw [Finset.sum_comm]
+    simp_rw [Finset.sum_ite_eq', Finset.mem_univ, ite_true]
+    rw [← Equiv.sum_comp (Fin.consEquiv (fun _ : Fin (n + 1) => Fin d × Bool))]
+    conv_rhs => rw [Fintype.sum_prod_type]
+    refine Finset.sum_congr rfl fun s _ => ?_
+    by_cases hs : x + intToTorus d m (stepVec d s) ∈ D
+    · simp only [hs, ↓reduceIte]
+      symm
+      refine Finset.sum_eq_zero fun w _ => ?_
+      have : WalkMeets D x (Fin.cons s w : Fin (n + 1) → Fin d × Bool) :=
+        (walkMeets_cons D x s w).2 (Or.inr (walkMeets_of_mem D hs w))
+      simp [Fin.consEquiv, this]
+    · simp only [hs, ↓reduceIte]
+      rw [ih _ hs y]
+      refine Finset.sum_congr rfl fun w _ => ?_
+      have e1 : x + intToTorus d m (stepSum (Fin.consEquiv (fun _ : Fin (n + 1) => Fin d × Bool)
+          (s, w))) = x + intToTorus d m (stepVec d s) + intToTorus d m (stepSum w) := by
+        simp only [Fin.consEquiv, Equiv.coe_fn_mk, stepSum_cons, map_add, add_assoc]
+      have e2 : WalkMeets D x (Fin.consEquiv (fun _ : Fin (n + 1) => Fin d × Bool) (s, w)) ↔
+          WalkMeets D (x + intToTorus d m (stepVec d s)) w := by
+        simp only [Fin.consEquiv, Equiv.coe_fn_mk]
+        rw [walkMeets_cons]
+        simp [hx]
+      simp only [e1]
+      simp only [e2]
+
+/-- **The difference of the powers counts walks that visit `D`** (for `n ≥ 1`):
+`(A^n)(x,y) - (A_G^n)(x,y)` is the number of step sequences of length `n` from `x` to `y`
+that pass through a site of `D`. -/
+theorem kf0Adj_pow_sub_kwAdjG_pow_eq_count {n : ℕ} (hn : 0 < n) (x y : Torus d m) :
+    (kf0Adj d m ^ n) x y - (kwAdjG d m D ^ n) x y =
+      ∑ w : Fin n → Fin d × Bool,
+        if x + intToTorus d m (stepSum w) = y ∧ WalkMeets D x w then (1 : ℝ) else 0 := by
+  rw [kf0Adj_pow_eq_count]
+  by_cases hx : x ∈ D
+  · have h0 : (kwAdjG d m D ^ n) x y = 0 := by
+      obtain ⟨k, rfl⟩ : ∃ k, n = k + 1 := ⟨n - 1, by omega⟩
+      rw [pow_succ', Matrix.mul_apply]
+      exact Finset.sum_eq_zero fun z _ => by simp [kwAdjG, hx]
+    rw [h0, sub_zero]
+    refine Finset.sum_congr rfl fun w _ => ?_
+    simp [walkMeets_of_mem D hx w]
+  · rw [kwAdjG_pow_eq_count (D := D) n x hx y, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun w _ => ?_
+    by_cases hP : x + intToTorus d m (stepSum w) = y <;> by_cases hM : WalkMeets D x w <;>
+      simp [hP, hM]
+
+/-! ### T4: loop occupancy (inclusion–exclusion) -/
+
+/-- **Inclusion–exclusion.**  For commutative-ring elements `b_i` (indicators of bad blocks),
+`1 - ∏_{i ∈ s} (1 - b_i) = ∑_{∅ ≠ I ⊆ s} (-1)^{|I|+1} ∏_{i ∈ I} b_i`. -/
+theorem one_sub_prod_one_sub_eq {R : Type*} [CommRing R] {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (b : ι → R) :
+    1 - ∏ i ∈ s, (1 - b i) =
+      ∑ I ∈ s.powerset.filter Finset.Nonempty, (-1) ^ (I.card + 1) * ∏ i ∈ I, b i := by
+  have h1 : ∏ i ∈ s, (1 - b i) = ∑ I ∈ s.powerset, (-1) ^ I.card * ∏ i ∈ I, b i := by
+    simp_rw [sub_eq_add_neg]
+    rw [Finset.prod_one_add]
+    exact Finset.sum_congr rfl fun I _ => Finset.prod_neg _
+  have h2 := Finset.sum_filter_add_sum_filter_not s.powerset Finset.Nonempty
+    (fun I => (-1 : R) ^ I.card * ∏ i ∈ I, b i)
+  have h3 : s.powerset.filter (fun I => ¬ I.Nonempty) = {∅} := by
+    ext I
+    simp only [Finset.mem_filter, Finset.mem_powerset, Finset.not_nonempty_iff_eq_empty,
+      Finset.mem_singleton]
+    constructor
+    · exact fun h => h.2
+    · rintro rfl; exact ⟨Finset.empty_subset _, rfl⟩
+  rw [h3, Finset.sum_singleton] at h2
+  rw [h1, ← h2]
+  simp only [Finset.card_empty, pow_zero, Finset.prod_empty, mul_one]
+  rw [sub_add_eq_sub_sub, sub_sub_cancel_left, ← Finset.sum_neg_distrib]
+  exact Finset.sum_congr rfl fun I _ => by rw [pow_succ]; ring
+
+/-- For indicators `b_i = [P i]` the left side of the inclusion–exclusion identity is the
+indicator that some `i ∈ s` is bad: `1 - ∏ (1 - [P i]) = [∃ i ∈ s, P i]`. -/
+theorem one_sub_prod_one_sub_ite {R : Type*} [CommRing R] {ι : Type*} (s : Finset ι)
+    (P : ι → Prop) [DecidablePred P] :
+    1 - ∏ i ∈ s, (1 - (if P i then (1 : R) else 0)) = if ∃ i ∈ s, P i then 1 else 0 := by
+  have h : ∀ i, (1 - (if P i then (1 : R) else 0)) = if P i then 0 else 1 := fun i => by
+    by_cases hi : P i <;> simp [hi]
+  simp_rw [h]
+  have h2 : ∏ i ∈ s, (if P i then (0 : R) else 1) = if ∀ i ∈ s, ¬ P i then 1 else 0 := by
+    rw [← Finset.prod_boole]
+    exact Finset.prod_congr rfl fun i _ => by by_cases hi : P i <;> simp [hi]
+  rw [h2]
+  by_cases hex : ∃ i ∈ s, P i
+  · have : ¬ ∀ i ∈ s, ¬ P i := by
+      push Not; exact hex
+    simp [hex, this]
+  · have : ∀ i ∈ s, ¬ P i := by
+      push Not at hex; exact hex
+    have e : (if ∀ i ∈ s, ¬ P i then (1 : R) else 0) = 1 :=
+      ite_eq_left_of_eq_true _ _ (eq_true this)
+    rw [e]
+    simp [hex]
+
+omit [NeZero m] in
+theorem walkMeets_iff_exists_fin {n : ℕ} (D : Finset (Torus d m)) (x : Torus d m)
+    (w : Fin n → Fin d × Bool) :
+    WalkMeets D x w ↔ ∃ k ∈ (Finset.univ : Finset (Fin (n + 1))), walkPos x w k ∈ D := by
+  constructor
+  · rintro ⟨k, hk, hD⟩
+    exact ⟨⟨k, Finset.mem_range.1 hk⟩, Finset.mem_univ _, hD⟩
+  · rintro ⟨k, -, hD⟩
+    exact ⟨k, Finset.mem_range.2 k.2, hD⟩
+
+/-- The landed loop term `tr A^n - tr A_G^n` counts the closed `n`-step walks (rooted anywhere)
+that visit `D`. -/
+theorem kwTraceDiff_eq_count {n : ℕ} (hn : 0 < n) :
+    kwTraceDiff d m D n = ∑ x : Torus d m, ∑ w : Fin n → Fin d × Bool,
+      if x + intToTorus d m (stepSum w) = x ∧ WalkMeets D x w then (1 : ℝ) else 0 := by
+  unfold kwTraceDiff
+  rw [kwAdj_eq_kf0Adj]
+  simp only [Matrix.trace, Matrix.diag, ← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun x _ => kf0Adj_pow_sub_kwAdjG_pow_eq_count hn x x
+
+/-- **Loop occupancy** (L38.5) for the loop terms: the indicator that the closed walk `w` from `x`
+meets the bad set is expanded by inclusion–exclusion over the times `k ∈ {0,…,n}`,
+`[w meets D] = ∑_{∅ ≠ I ⊆ {0..n}} (-1)^{|I|+1} ∏_{k ∈ I} [walkPos x w k ∈ D]`. -/
+theorem kwTraceDiff_eq_inclExcl {n : ℕ} (hn : 0 < n) :
+    kwTraceDiff d m D n = ∑ x : Torus d m, ∑ w : Fin n → Fin d × Bool,
+      (if x + intToTorus d m (stepSum w) = x then (1 : ℝ) else 0) *
+        ∑ I ∈ (Finset.univ : Finset (Fin (n + 1))).powerset.filter Finset.Nonempty,
+          (-1) ^ (I.card + 1) * ∏ k ∈ I, (if walkPos x w k ∈ D then (1 : ℝ) else 0) := by
+  rw [kwTraceDiff_eq_count hn]
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun w _ => ?_
+  rw [← one_sub_prod_one_sub_eq, one_sub_prod_one_sub_ite]
+  have hiff := walkMeets_iff_exists_fin D x w
+  by_cases hP : x + intToTorus d m (stepSum w) = x
+  · by_cases hM : WalkMeets D x w
+    · have hM' := hiff.1 hM
+      simp only [hP, hM, hM', and_self, ↓reduceIte, mul_one]
+    · have hM' : ¬ ∃ k ∈ (Finset.univ : Finset (Fin (n + 1))), walkPos x w k ∈ D :=
+        fun h => hM (hiff.2 h)
+      simp only [hP, hM, hM', and_false, ↓reduceIte, mul_zero]
+  · simp [hP]
+
 end Balaban.Green
