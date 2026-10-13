@@ -1575,6 +1575,7 @@ public import Balaban.Fluctuation.ObsKernelParam
 public import Balaban.Fluctuation.ObsRemainderMarks
 public import Balaban.Fluctuation.ObsRemainderParam
 public import Balaban.Fluctuation.ObsRemainderClamp
+public import Balaban.Fluctuation.ObsRemainderFamily
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormExpInputOn
 public import Balaban.Fluctuation.RenormLocFibre
