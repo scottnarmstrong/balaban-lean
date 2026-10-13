@@ -268,6 +268,225 @@ theorem farCrossing_polyUniv_le_power_aligned {j : ℕ} (hN : S.L ^ C.m₀ ∣ C
   rw [← hfa]
   exact farCrossing_polyUniv_le_power C hN hj c a s Y R' Bc' hR' hcol hA₀ hκ₀ hκ hRs hRq hM hp hs ha hc
 
+
+/-! ### Truncation of coefficients to aligned sites -/
+
+open Classical in
+/-- Truncating a coefficient to sites satisfying `Pd` does not change the row sum over the sites
+of `X` satisfying `Pd`. -/
+theorem sum_filter_trunc {ι : Type*} [Fintype ι] (X : Set ι) (Pd : ι → Prop) (f : ι → ℂ) :
+    ∑ x ∈ Finset.univ.filter (fun x => x ∈ X), ‖if Pd x then f x else 0‖ =
+      ∑ x ∈ Finset.univ.filter (fun x => x ∈ X ∧ Pd x), ‖f x‖ := by
+  rw [Finset.sum_filter, Finset.sum_filter]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  by_cases h1 : x ∈ X <;> by_cases h2 : Pd x <;> simp [h1, h2]
+
+/-! ### The hypotheses of the aligned grouped bound -/
+
+section Structs
+
+variable (C)
+
+open Classical in
+/-- **The shared hypotheses** of the aligned grouped regional bound at the inherited level `j`:
+numeric relations, typing data and the two data bounds, as in `GroupedInputs` (same fields and
+names), without the geometric fields (`aligned`, `collar`), which are theorem hypotheses of the
+aligned bound and hold for the landed objects.
+* numeric: `E₀_nonneg`, `κ₀_ge` (entropy margin `κ₀ ≥ aEnt + 1`), `κ₀_lt` (rate `ρ = κ - κ₀ > 0`),
+  `Rs_pos`, `Rs_le`, `M_pos`, `p_pos`, `dd_eq`, `α₁_nonneg`, `hrel` (`3 + 2α = d + α₃ + α₁`),
+  `α_ge`, `C₀_nonneg`, `K_r_pos`, `B_nonneg`, `εj_pos`, `εq_nonneg`,
+  `scale_rel` (`ε_q/ε_j ≤ K_R s^α`, the I6 spin bound).
+* data bounds: `s_data` (`‖ψ·ψ - 1‖ ≤ σ² ε`), `src_data` (pointwise source bound on `x ∈ Bc`). -/
+structure GroupedBase (j : ℕ) (R' Bc : Finset (SiteT C)) (ψ : Fld S.d S.L C.N₁ m₁ k N)
+    (h : Fin N → ℂ) (νj : ℝ)
+    (E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ) : Prop where
+  E₀_nonneg : 0 ≤ E₀
+  κ₀_ge : aEnt S.d S.L + 1 ≤ κ₀
+  κ₀_lt : κ₀ < κ
+  Rs_pos : 0 < Rs
+  Rs_le : Rs ≤ R (k - 1)
+  M_pos : 0 < M
+  p_pos : 0 < dd + α₃
+  dd_eq : dd = (S.d : ℝ)
+  α₁_nonneg : 0 ≤ α₁
+  hrel : 3 + 2 * α = dd + α₃ + α₁
+  α_ge : 0 ≤ 2 + α
+  C₀_nonneg : 0 ≤ C₀
+  K_r_pos : 0 < K_r
+  B_nonneg : 0 ≤ B
+  εj_pos : 0 < εj
+  εq_nonneg : 0 ≤ εq
+  scale_rel : εq / εj ≤ K_R * scaleJ S.L k j ^ α
+  s_data : ∀ x, ‖dot (ψ x) (ψ x) - 1‖ ≤ (C₀ * scaleJ S.L k j) ^ 2 * εq
+  src_data : ∀ y ∈ R', ∀ x ∈ Bc,
+    ‖(νj : ℂ) * (dot h (unitDirC (ψ x)) - dot h (unitDirC (ψ y)))‖ ≤
+      sourceConstC B * (distWeight C j y x ^ 2 + distWeight C j y x) *
+        (C₀ * scaleJ S.L k j) ^ 3 * εq ^ 2
+
+open Classical in
+/-- **The hypotheses of the aligned grouped bound, row-sum coefficients.**  `GroupedBase` plus the
+class inputs: the kernel `a` vanishes off aligned differences (`a_supp`, true by construction for
+`alignedKernel`), is on aligned `x` the sum of per-polymer coefficients `c` over `polyUniv`
+(`a_decomp`), with row sum over the *aligned* sites of the polymer at most
+`(E₀ K_r / ε_j) e^{-κ d_j(X)}` (`a_coeff`); the same for `v₂` with `4 E₀ K_r² / ε_j²`
+(`v2_decomp`, `v2_coeff`); polymer decay of the activity (`E_bound`, H4). -/
+structure GroupedInputsAligned (j : ℕ) (Y : Set (Torus S.d (n k))) (R' Bc : Finset (SiteT C))
+    (ψ : Fld S.d S.L C.N₁ m₁ k N) (h : Fin N → ℂ) (νj : ℝ) (a : SiteT C → ℂ)
+    (v₂ : SiteT C → SiteT C → ℂ) (c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ)
+    (E : SiteT C → Set (SiteT C) → ℂ)
+    (E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ) : Prop
+    extends GroupedBase C j R' Bc ψ h νj E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq where
+  a_supp : ∀ z, ¬ Aligned (S.L ^ j) z → a z = 0
+  a_decomp : ∀ y ∈ R', ∀ x, Aligned (S.L ^ j) x → a (x - y) =
+    ∑ X ∈ (polyUniv C j).filter (fun X => y ∈ X ∧ x ∈ X), c X y x
+  a_coeff : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ∑ x ∈ Finset.univ.filter (fun x => x ∈ X ∧ Aligned (S.L ^ j) x), ‖c X y x‖ ≤
+      (E₀ / (εj / K_r)) * exp (-κ * Def6.sizeJ C.m₀ j X)
+  v2_decomp : ∀ y ∈ R', ∀ x, Aligned (S.L ^ j) x → v₂ y x =
+    ∑ X ∈ (polyUniv C j).filter (fun X => y ∈ X ∧ x ∈ X), cv X y x
+  v2_coeff : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ∑ x ∈ Finset.univ.filter (fun x => x ∈ X ∧ Aligned (S.L ^ j) x), ‖cv X y x‖ ≤
+      (4 * E₀ / (εj / K_r) ^ 2) * exp (-κ * Def6.sizeJ C.m₀ j X)
+  E_bound : ∀ y ∈ R', ∀ X, Def6.IsPolyDom C.m₀ j X → y ∈ X →
+    ‖E y X‖ ≤ E₀ * exp (-κ * Def6.sizeJ C.m₀ j X)
+
+end Structs
+
+theorem GroupedBase.tailConst_nonneg {j : ℕ} {R' Bc : Finset (SiteT C)}
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {h : Fin N → ℂ} {νj : ℝ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedBase C j R' Bc ψ h νj E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq) :
+    0 ≤ RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃ := by
+  have hK0 := K0_nonneg S.d S.L κ₀
+  unfold RegionalGroupedBound.tailConst
+  have hρ : 0 < κ - κ₀ := sub_pos.2 g.κ₀_lt
+  have hM : (0 : ℝ) < M := by exact_mod_cast g.M_pos
+  have hL : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
+  have hRs := g.Rs_pos
+  have hp := g.p_pos
+  have hc : (0 : ℝ) < (M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁) := by positivity
+  have hden : 0 < exp 1 * ((κ - κ₀) * ((M : ℝ) / (S.L : ℝ) ^ (C.m₀ + m₁)) * Rs) := by positivity
+  exact mul_nonneg (mul_nonneg hK0 (Real.exp_pos _).le)
+    (Real.rpow_nonneg (div_nonneg hp.le hden.le) _)
+
+open Classical in
+/-- **The grouped regional correction in power form, aligned lattice.**
+`‖Σ_{y∈R'} A_j(y) - Corr_j(R', Bc)‖ ≤ |R'| (C₁ + C₂) E₀ s^(d+α₃)` for the kernel `a` (vanishing
+off aligned differences) and `v₁(y, x) = a(x - y)`.  Geometry: `R'` aligned centres in
+`alignedIn j Y`, `Bc` aligned sites containing the aligned sites of the fine set of `Y^≈`. -/
+theorem grouped_bound_power_aligned {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    {Y : Set (Torus S.d (n k))} {R' Bc : Finset (SiteT C)}
+    (hR' : R' ⊆ C.alignedIn j Y) (hBal : ∀ x ∈ Bc, Aligned (S.L ^ j) x)
+    (hBcol : ∀ x, Aligned (S.L ^ j) x → x ∈ C.sset (thickY R Y) → x ∈ Bc)
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {h : Fin N → ℂ} {νj : ℝ} {a : SiteT C → ℂ}
+    {v₂ : SiteT C → SiteT C → ℂ} {c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E : SiteT C → Set (SiteT C) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputsAligned C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B
+      εj εq) :
+    ‖AtermRegion a (fun x => dot (ψ x) (ψ x)) R' -
+        corrSum (fun y x => a (x - y)) v₂ νj R' Bc ψ h‖ ≤
+      R'.card * ((farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R + v2Const (S := S) κ κ₀ B C₀ K_r K_R) *
+        E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  have : NeZero (S.L ^ j) := neZero_pow_L
+  have hdvd := pow_dvd_side C hj
+  have hyal : ∀ y ∈ R', Aligned (S.L ^ j) y := fun y hy => aligned_of_mem_alignedIn (hR' hy)
+  have hs0 := scaleJ_pos S.L k j
+  have hs1 := scaleJ_le_one S.L k j
+  have hK0 := K0_nonneg S.d S.L κ₀
+  have hCT : 0 ≤ RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃ := g.toGroupedBase.tailConst_nonneg
+  have hA₀ : 0 ≤ E₀ / (εj / K_r) := by
+    have := g.E₀_nonneg; have := g.εj_pos; have := g.K_r_pos; positivity
+  -- far crossing
+  set c'' : Set (SiteT C) → SiteT C → SiteT C → ℂ :=
+    fun X y x => if Aligned (S.L ^ j) x then c X y x else 0 with hc''
+  have hfar := farCrossing_polyUniv_le_power_aligned hN hj c'' a
+    (fun x => dot (ψ x) (ψ x) - 1) Y R' Bc hR' hBcol g.a_supp
+    (A₀ := E₀ / (εj / K_r)) (κ := κ) (κ₀ := κ₀)
+    (Bs := (C₀ * scaleJ S.L k j) ^ 2 * εq) (Rs := Rs) (d := dd) (α₃ := α₃) hA₀ g.κ₀_ge g.κ₀_lt
+    g.Rs_pos g.Rs_le g.M_pos g.p_pos g.s_data
+    (fun y hy x => by
+      by_cases hx : Aligned (S.L ^ j) x
+      · rw [g.a_decomp y hy x hx]
+        exact Finset.sum_congr rfl fun X _ => by simp [hc'', hx]
+      · have hz : ¬ Aligned (S.L ^ j) (x - y) := fun h' => hx (aligned_of_sub hdvd (hyal y hy) h')
+        rw [g.a_supp _ hz]
+        exact (Finset.sum_eq_zero fun X _ => by simp [hc'', hx]).symm)
+    (fun y hy X hX hyX => by
+      have := g.a_coeff y hy X hX hyX
+      rw [← sum_filter_trunc X (fun x => Aligned (S.L ^ j) x) (c X y)] at this
+      exact this)
+  rw [farCrossing_sub_const] at hfar
+  have hfar2 : ‖farCrossing a (fun x => dot (ψ x) (ψ x)) R' Bc‖ ≤
+      R'.card * (farConst C κ κ₀ Rs dd α₃ C₀ K_r K_R * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+    refine hfar.trans ?_
+    rw [mul_comm _ (R'.card : ℝ)]
+    refine mul_le_mul_of_nonneg_left ?_ (Nat.cast_nonneg _)
+    have := far_scalar (C₀ := C₀) (K_r := K_r) (K_R := K_R) (CT := RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃)
+      (E₀ := E₀) (εj := εj) (εq := εq) (s := scaleJ S.L k j) (α := α) (p := dd + α₃) hCT
+      g.E₀_nonneg g.K_r_pos g.εj_pos g.εq_nonneg hs0 hs1 g.α_ge g.scale_rel
+    unfold farConst
+    exact this
+  -- near source term
+  obtain ⟨hsz, hD⟩ := polyUniv_weights C hN hj
+  set v₂'' : SiteT C → SiteT C → ℂ := fun y x => if Aligned (S.L ^ j) x then v₂ y x else 0
+    with hv₂''
+  set cv'' : Set (SiteT C) → SiteT C → SiteT C → ℂ :=
+    fun X y x => if Aligned (S.L ^ j) x then cv X y x else 0 with hcv''
+  have hv2e : v2Part v₂'' νj R' Bc ψ h = v2Part v₂ νj R' Bc ψ h := by
+    unfold v2Part
+    refine Finset.sum_congr rfl fun y _ => Finset.sum_congr rfl fun x hx => ?_
+    simp [hv₂'', hBal x hx]
+  have hv2 := v2Part_le_power (polyUniv C j) cv'' v₂'' νj R' Bc ψ h (Def6.sizeJ C.m₀ j)
+    (distWeight C j) (E₀ := E₀) (K₀ := K0 S.d S.L κ₀) (κ := κ) (κ₀ := κ₀) (c₀ := 2 * S.L)
+    (Cs := sourceConstC B) (C₀ := C₀) (K_r := K_r) (K_R := K_R) (s := scaleJ S.L k j) (α := α)
+    (εj := εj) (εq := εq) (r := εj / K_r) (dd := dd) (α₁ := α₁) (α₃ := α₃) g.E₀_nonneg hK0
+    (by positivity) g.κ₀_lt (by unfold sourceConstC; have := g.B_nonneg; positivity) g.C₀_nonneg
+    g.K_r_pos hs0 hs1 g.εj_pos g.εq_nonneg rfl g.scale_rel g.hrel g.α₁_nonneg
+    (fun y hy x => by
+      by_cases hx : Aligned (S.L ^ j) x
+      · simp only [hv₂'', hx, ite_true]
+        rw [g.v2_decomp y hy x hx]
+        exact Finset.sum_congr rfl fun X _ => by simp [hcv'', hx]
+      · simp only [hv₂'', hx, ite_false]
+        exact (Finset.sum_eq_zero fun X _ => by simp [hcv'', hx]).symm)
+    (fun y hy X hX hyX => by
+      have := g.v2_coeff y hy X ((mem_polyUniv C).1 hX) hyX
+      rw [← sum_filter_trunc X (fun x => Aligned (S.L ^ j) x) (cv X y)] at this
+      exact this)
+    (fun y _ X hX _ => hsz X hX)
+    (fun y _ x => distWeight_nonneg C j y x)
+    (fun y _ X hX hyX x hxX => hD X hX y hyX x hxX)
+    (fun y _ => entropy_polyUniv C hN hj y g.κ₀_ge) g.src_data
+  rw [hv2e] at hv2
+  have hv2' : ‖v2Part v₂ νj R' Bc ψ h‖ ≤
+      R'.card * (v2Const (S := S) κ κ₀ B C₀ K_r K_R * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+    unfold v2Const; exact hv2
+  have := grouped_le_of_far a v₂ νj R' Bc ψ h hfar2 hv2'
+  refine this.trans (le_of_eq ?_)
+  ring
+
+open Classical in
+/-- **The omitted tail in power form** (the aligned structure; only the centres and the polymer
+decay are used). -/
+theorem omitted_tail_power_aligned {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
+    {Y : Set (Torus S.d (n k))} {R' Bc : Finset (SiteT C)} (hR' : R' ⊆ C.alignedIn j Y)
+    {ψ : Fld S.d S.L C.N₁ m₁ k N} {h : Fin N → ℂ} {νj : ℝ} {a : SiteT C → ℂ}
+    {v₂ : SiteT C → SiteT C → ℂ} {c cv : Set (SiteT C) → SiteT C → SiteT C → ℂ}
+    {E : SiteT C → Set (SiteT C) → ℂ}
+    {E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B εj εq : ℝ}
+    (g : GroupedInputsAligned C j Y R' Bc ψ h νj a v₂ c cv E E₀ κ κ₀ Rs dd α₃ α₁ α C₀ K_r K_R B
+      εj εq) :
+    ‖∑ y ∈ R', tailAt (polyUniv C j) E (C.sset (thickY R Y)) y‖ ≤
+      R'.card * (RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃ * E₀ * scaleJ S.L k j ^ (dd + α₃)) := by
+  refine (norm_sum_le _ _).trans ?_
+  calc ∑ y ∈ R', ‖tailAt (polyUniv C j) E (C.sset (thickY R Y)) y‖
+      ≤ ∑ _y ∈ R', RegionalGroupedBound.tailConst C κ κ₀ Rs dd α₃ * E₀ * scaleJ S.L k j ^ (dd + α₃) :=
+        Finset.sum_le_sum fun y hy =>
+          tailAt_polyUniv_le_power C hN hj E Y (hR' hy) g.E₀_nonneg g.κ₀_ge g.κ₀_lt g.Rs_pos
+            g.Rs_le g.M_pos g.p_pos (g.E_bound y hy)
+    _ = _ := by simp
+
 end Concrete
 
 end Balaban.LargeField.RegionalAligned
