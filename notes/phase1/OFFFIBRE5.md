@@ -90,3 +90,25 @@ The premise `hact` remains open: `SourceExponentFamily.lean` currently proves it
 value clause only on `physFibre`, and no all-chart activity theorem for the same
 labels has landed. Consequently this branch does not assert an unconditional
 off-fibre M0 coefficient family or site record.
+
+## W707 progress (2026-10-13)
+
+`OffFibreE1Activity.lean` proves `e1_common_activity_freeDatum_of_directTerms` and its
+tower-level witness theorem. The former identifies the *same common-label activity*
+obtained from the direct-term family with raw `Jr.W1` at every chart datum. Applying it to
+`e1_param_coeff_sum_eq_raw_deriv_of_activity`, `OffFibreE1CoeffValue.lean` proves
+`e1_param_coeff_sum_eq_raw_deriv_of_directTerms` with no free-datum activity premise.
+
+`OffFibreM0Activity.lean` proves `obs_physAct_raw_of_directTerms`: the direct-term sum of
+the analytic activity identifies the raw `Jr.W1 + Jr.W2` at an arbitrary chart datum.
+`obs_physAct_raw_fromTower` obtains such an analytic activity and a uniform amplitude
+bound from the tower, and `obs_tiltAct_raw_of_physAct` transfers its value to the
+observable scalar tilt. Thus a free-datum analytic activity for the M0 exponent exists.
+
+The all-datum E1 and M0 **coefficient families** and the E0 extension remain open. The
+existing `e1CoeffFamily_value_fromTower` and `obsFamily_full_fromTower` each hide their
+chosen activity in an existential conclusion that records only fibre values. The new
+free-datum activity witnesses cannot be identified with those family witnesses from
+the exported statements. A completion must construct the bounded coefficient families
+and the free-datum value together from one direct-term witness; an equality on the
+constant-field fibre does not identify the hidden witness away from that fibre.
