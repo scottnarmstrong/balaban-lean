@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.DecMarkCorrCountFromTower
+public import Balaban.Inhabited.E1LabelsBudgetG
 public import Balaban.Inhabited.ZeroSourceActivityCommon
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -41,13 +42,15 @@ noncomputable abbrev e1Dom {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ}
   polyDom S.G' (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
     (LocalCover.fam 1 (LocalCover.blockSite k b))
 
+/-- The fixed label domains are the general ones at `d = L = 3`, `N = 2`. -/
+theorem e1DomG_three {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} (S : StepSetting 3 3 N₁ m₁ k 2 ϱ)
+    (b : Torus 3 (N₁ * 3 ^ m₁ * 3 ^ (k + 1 - (k + 1)))) : e1DomG S b = e1Dom S b := rfl
+
 /-- **The label domains are domains of the level `k + 1`.** -/
 theorem e1Dom_isDj {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁]
     {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁) :
     ∀ b, ∀ Y ∈ e1Dom (T.step k hk N₁ ν β p₁) b, IsDj 1 (k + 1) Y := by
-  obtain ⟨hV, -⟩ := D.covers
-  intro b Y hY
-  exact isDj_of_polyDom (T.step k hk N₁ ν β p₁).hG' (hV b).1 (by norm_num) (hV b).2.2.1 hY
+  exact e1DomG_isDj T.toG rfl (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
 
 open Classical in
 /-- **The bridge family of every root is nonempty.**  The domain `X₁` of the cover of the block
@@ -57,47 +60,19 @@ theorem e1Dom_bridgeFamily_nonempty {κmin : ℝ} (T : StepTower κmin) {k : ℕ
     {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁)
     (z : RootIdx 3 3 N₁ T.m₁ (k + 1)) :
     (bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z).Nonempty := by
-  obtain ⟨hV, -⟩ := D.covers
-  obtain ⟨-, hX, -, -, -, -, hbs⟩ := hV z
-  set X := X1 (T.step k hk N₁ ν β p₁).G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k z))
-  have hY : X ∈ e1Dom (T.step k hk N₁ ν β p₁) z := by
-    unfold e1Dom polyDom polymerDomains
-    rw [Finset.mem_image]
-    refine ⟨∅, ?_, by simp [Ysites]; rfl⟩
-    rw [Finset.mem_filter]
-    exact ⟨Finset.mem_univ _, fun i hi => absurd hi (Finset.notMem_empty i)⟩
-  have hroot : rootSite z ∈ blockSites 3 3 N₁ T.m₁ (k + 1) k z := by
-    unfold blockSites
-    rw [Finset.mem_filter]
-    exact ⟨Finset.mem_univ _, blockIndex_rootSite z⟩
-  have hxX : rootSite z ∈ X := by
-    have h := hbs (Finset.mem_coe.2 hroot)
-    rw [hX] at h
-    exact h
-  exact ⟨bridge 1 z X, mem_bridgeFamily.2 ⟨z, X, hY, ⟨rootSite z, Set.mem_univ _, blockIndex_rootSite z⟩,
-    ⟨rootSite z, Or.inl hxX, blockIndex_rootSite z⟩, rfl⟩⟩
+  exact e1DomG_bridgeFamily_nonempty T.toG rfl (T.scaleDataG_of_fixed D)
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm z
 
 /-- The per-root constant of the corrected marks is positive. -/
 theorem corrF0_pos {κmin : ℝ} (T : StepTower κmin) {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ}
     (hβ : 0 < β) (hp : 0 < p₁) : 0 < corrF0 T k β p₁ := by
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  have hR := corrR_pos T hk hb0 hp
-  have hE : 0 < Estar T k := by
-    rw [Estar_eq T hk]
-    have := Ecst_pos T (compWeight_three_mem hk).1
-    positivity
-  have hK := Kmark_pos T
-  have hU := corrU_pos
-  unfold corrF0
-  rw [abs_of_pos hβ]
-  positivity
+  rw [corrF0_toG]
+  exact corrF0G_pos T.toG hk hβ hp
 
 /-- The coefficient of the mark budget depends on the tower only and is nonnegative. -/
 theorem cpe_marks_nonneg {κmin : ℝ} (T : StepTower κmin) :
     0 ≤ CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' := by
-  have := one_le_c1 3 3
-  unfold CPE
-  positivity
+  exact cpe_marks_nonnegG T.toG
 
 /-- **The budget of the marks, beyond a threshold in `β`.**  For every scale `k ≥ 1` and every
 `p₁ ≤ pLog A₁ p (β 3^k)`, and every scale datum, the weighted sum over the bridge family of a root,
@@ -113,32 +88,13 @@ theorem corrBudget_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ} (h
               (e1Dom (T.step k hk N₁ ν β p₁)) z},
             corrF0 T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) Y'.1)) ≤
           K0 3 3 T.κ0 := by
-  have hP := cpe_marks_nonneg T
-  have hε : 0 < 1 / (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' + 1) := by positivity
-  obtain ⟨β₀, h⟩ := exists_beta0_corrF0_le T hε hA p
-  refine ⟨max 1 β₀, le_max_left _ _, fun k hk N₁ _ h3N ν β hβ p₁ hp hp₁ D z => ?_⟩
-  have hβ0 : 0 < β := lt_of_lt_of_le one_pos ((le_max_left _ _).trans hβ)
-  have hF := h k hk β ((le_max_right _ _).trans hβ) p₁ hp hp₁
-  have hF0 := (corrF0_pos T hk hβ0 hp).le
-  have hent := bridgeFamily_entropy (m₀ := 1) (d := 3) (L := 3)
-    (show 3 ^ 1 ∣ N₁ by simpa using h3N) (by norm_num) (reads := fun _ => Set.univ)
-    (e1Dom_isDj T D) z T.marks_hκ0 hF0
-  have hK := K0_pos 3 3 T.κ0
-  refine (mul_le_mul_of_nonneg_left hent hP).trans ?_
-  have h1 : corrF0 T k β p₁ * K0 3 3 T.κ0 ≤
-      1 / (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' + 1) * K0 3 3 T.κ0 :=
-    mul_le_mul_of_nonneg_right hF hK.le
-  have h2 : CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' *
-      (1 / (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' + 1)) ≤ 1 := by
-    rw [mul_one_div, div_le_one (by positivity)]
-    linarith
-  calc _ ≤ CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' *
-        (1 / (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' + 1) * K0 3 3 T.κ0) :=
-        mul_le_mul_of_nonneg_left h1 hP
-    _ = (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' *
-        (1 / (CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' + 1))) * K0 3 3 T.κ0 := by ring
-    _ ≤ 1 * K0 3 3 T.κ0 := mul_le_mul_of_nonneg_right h2 hK.le
-    _ = K0 3 3 T.κ0 := one_mul _
+  obtain ⟨β₀, h1, h⟩ := corrBudget_fromTowerG T.toG rfl hA p
+  refine ⟨β₀, h1, fun k hk N₁ _ h3N ν β hβ p₁ hp hp₁ D z => ?_⟩
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have := h k hk N₁ (by simpa using h3N) ν β hβ p₁ hp (by rw [hb]; exact hp₁)
+    (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm z
+  simp only [corrF0_toG]
+  exact this
 
 /-- **One threshold for the marks record.**  For any threshold `βa` (that of the activity
 `zeroSourceActivity_common_fromTower`) there is `β₀ ≥ max 3 βa` such that for every `β ≥ β₀`, every
@@ -158,11 +114,17 @@ theorem exists_beta0_e1 {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ} (hA : 0
                 (e1Dom (T.step k hk N₁ ν β p₁)) z},
               corrF0 T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) Y'.1)) ≤
             K0 3 3 T.κ0 := by
-  obtain ⟨βR, hR⟩ := exists_beta0_corrR T hA p
-  obtain ⟨βF, -, hF⟩ := corrBudget_fromTower T hA p
-  refine ⟨max (max 3 βa) (max βR βF), le_max_left _ _, fun k hk β hβ p₁ hp hp₁ => ?_,
+  obtain ⟨β₀, hβ₀, hR, hF⟩ := exists_beta0_e1G T.toG rfl hA p βa
+  have hb : ∀ (k : ℕ) (β : ℝ), β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by
+    intro k β; norm_num
+  refine ⟨β₀, hβ₀, fun k hk β hβ p₁ hp hp₁ => ?_,
     fun k hk N₁ _ h3N ν β hβ p₁ hp hp₁ D z => ?_⟩
-  · exact hR k hk β ((le_max_left _ _).trans ((le_max_right _ _).trans hβ)) p₁ hp hp₁
-  · exact hF k hk N₁ h3N ν β ((le_max_right _ _).trans ((le_max_right _ _).trans hβ)) p₁ hp hp₁ D z
+  · have := hR k hk β hβ p₁ hp (by rw [hb]; exact hp₁)
+    rw [hb, ← corrR_toG] at this
+    exact this
+  · have := hF k hk N₁ (by simpa using h3N) ν β hβ p₁ hp (by rw [hb]; exact hp₁)
+      (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm z
+    simp only [corrF0_toG]
+    exact this
 
 end Balaban.Inhabited
