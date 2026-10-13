@@ -63,6 +63,7 @@ public import Balaban.Polymer.TwoTorusSYF
 public import Balaban.Polymer.TwoTorusDecSol
 public import Balaban.Polymer.TwoTorusXGreen
 public import Balaban.Polymer.TwoTorusDecCov
+public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
