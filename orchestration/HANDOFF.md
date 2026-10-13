@@ -14,13 +14,12 @@ Claude workers (background subagents of this session):
 |---|---|---|
 Deferred cleanup: the landed renormalization wrappers at R.t (`StepTowerRen*.lean`, `RenormSharedClass.lean`, `RenormLocC2ZeroTower.lean`, `RenormExpInputTower.lean`) duplicate the `_at` proofs of `RenormRadius*.lean`; make them corollaries when the lane is quiet.
 OPEN DESIGN (RATES): after regrouping onto collar hulls the observable/mark coefficient rate (3/2·κdec)/60751 − 3375·log 2 is not positive at the tower's κdec; κdec is pinned by `κdec_eq` and not boosted by κmin. Also: coefficients not known to vanish off connected cube sets (remainder R in `thm31b_zeroClass_polymer_fromTower`).
-| RATES decision | `notes/phase1/RATES.md`, ledger row | option D adopted: connected support + paper domains Ŷ(S) with additive losses; tower numerals unchanged; mark/observable collar regroupings not extended; general tower record `StepTowerG` still on hold until the HATY rate ledger |
+| RATES / HATY decision | `notes/phase1/RATES.md`, `HATY.md`, ledger rows | marks and observable are indexed by the site sets `sitesOf T` themselves (already 𝒟_{k+1} domains, `dExt = sizeJ`, no loss); no collar hull, no `renYs` fibre map for them; tower numerals unchanged; open gate: common `IsLocExp` domain family with the determinant and C_i records (HATY leaf 5); `StepTowerG` on hold until that gate is designed |
 | W546 | `w546-e1-coeff-family` / W546 | energy coefficient family at the tower (analytic, local, bounded, support) |
 | W547 (Opus) | `w547-e1-fibre-value` / W547 | all-fibre value of the energy family for ONE pair family (E1PARAM target 4) |
-| W548 | `w548-source-exponent-rho` / W548 | `sourceExponentFamily_fromTower` at radius ρ; also adds `wone_chartIdentity_fromTower_rho` and its three inputs (edits `SourceExponentFamily.lean`, `WoneChartIdentity.lean`, `SourcePhysValBridge.lean`) |
 | W550 | `w550-obs-coeff-family` / W550 | observable coefficient family without carried hypotheses; bound; support |
 | W551 | `w551-obs-fibre-value` / W551 | fibre value of the observable family (OBSASSEMBLY leaf 6) |
-| W552 | worktree W552 (branch `w552-source-witness-rho`, no edits) | STOPPED: waits for the chart-identity `_rho` lemmas from W548; relaunch on W548's branch |
+| W552 | `w552-source-witness-rho` / W552 | RESUMED on W548's branch: `sourceWitness_fromTower` at radius ρ (edits `SourceWitnessJoint.lean`) |
 | W553 | `w553-core-rates-variants-general` / W553 | general d, L, N: `scale_amp_exists`, the variants of the numerical core (`_ren`, `_renSol`, `_two`); new files only |
 | W554 | `w554-ren-radius-dedup` / W554 | renormalization wrappers at R.t as corollaries of the `_at` versions (pure dedup; edits `RenormRadius*.lean` and the files of the originals) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
