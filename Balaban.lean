@@ -1573,6 +1573,7 @@ public import Balaban.LargeField.D7PaperSizeRebase
 public import Balaban.Fluctuation.ObsCauchyTwoOrders
 public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
+public import Balaban.Fluctuation.ObsHkerSupport
 public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.ObsKernelParam
 public import Balaban.Fluctuation.ObsRemainderMarks
@@ -1698,6 +1699,7 @@ public import Balaban.Fluctuation.SourceRadius
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.Thm31bPolymer
 public import Balaban.Inhabited.Thm31bPolymerSupport
+public import Balaban.Inhabited.Thm31bKernelSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
 public import Balaban.Inhabited.ObsSourceLocal
