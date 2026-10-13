@@ -16,6 +16,7 @@ from the single-scale background carrier to the physical torus.
 namespace Balaban.LargeField
 
 open Balaban Balaban.Background Balaban.Multiscale Matrix Classical
+open Balaban.LargeField.Base
 
 variable {d N L n : ℕ} [NeZero L] [NeZero n]
 
@@ -64,6 +65,45 @@ theorem baseSector_bgMult_real_of_product_ne_zero (ϱ : ℝ) (aw : ℕ → ℝ)
   exact baseSector_bgMult_real_of_domain ϱ aw regimeB ν h H θ
     (baseSectorDatum_domain_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H
       hΛ1 θ φ hp) x
+
+/-- The P5 all-good support bounds the first-step multiplier by the threshold
+used in the landed base resolvent. -/
+theorem baseSector_bgMult_norm_le_of_product_ne_zero (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+    (x : (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ).Ω 1) :
+    ‖bgMult (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ) aw (if regimeB then ν else 0)
+      (baseSectorDatum ϱ θ h) x‖ ≤ 1 / (8 * (L : ℝ) ^ 2) := by
+  let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+  let D : BgData G N := baseSectorDatum ϱ θ h
+  obtain ⟨δ, hδ0, hδc, hDδ⟩ :=
+    baseSectorDatum_domain_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H
+      hΛ1 θ φ hp
+  have hb := ((theorem71 (G := G) H ⟨δ, hδ0, hδc, hDδ⟩).2.2.2.2)
+    δ hδ0 hδc hDδ
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hc := (bgC1_facts d L N hd0 hδc).2.2.2
+  have hsmall : bgK1 d L N * δ ≤ 1 / 32 := by
+    have := bgC0_le d L N
+    linarith
+  have hs : (L : ℝ) ^ 2 * ‖bgMult G aw (if regimeB then ν else 0) D x‖ ≤
+      1 / 32 := by
+    have hs' := hb.alpha x
+    rw [spacing_single (hk := le_rfl), pow_one] at hs'
+    exact hs'.trans hsmall
+  have hL : 0 < (L : ℝ) := by exact_mod_cast (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hsq : 0 < (L : ℝ) ^ 2 := pow_pos hL _
+  calc
+    ‖bgMult G aw (if regimeB then ν else 0) D x‖ ≤
+        (1 / 8 : ℝ) / (L : ℝ) ^ 2 :=
+      (le_div_iff₀ hsq).2 (by nlinarith [hs])
+    _ = 1 / (8 * (L : ℝ) ^ 2) := by ring
 
 /-- Real multiplier values make every entry of the first-step Dirichlet operator real. -/
 theorem baseSector_dirichlet_coeff_real (ϱ : ℝ) (aw : ℕ → ℝ) (μ : ℝ)
@@ -474,5 +514,156 @@ theorem baseSectorHessian_pair_eq_cinner_of_product_ne_zero (ϱ : ℝ)
   dsimp only at hp
   rw [heq] at hp
   exact hp
+
+/-- The physical first-step action has the exact real Hessian chord form on the
+nonzero all-good support. -/
+theorem baseSector_physical_B_hessian_of_product_ne_zero (ϱ : ℝ)
+    (aw : ℕ → ℝ) (a₀ : ℝ) (ha : aw 1 = a₀)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let D := baseSectorDatum ϱ θ h
+    let α := bgMult G aw (if regimeB then ν else 0) D
+    let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+    let ec : CfgT d N L n := fun x => ⟨e x,
+      mem_sphere_zero_iff_norm.mpr (baseSectorCenter_unit ϱ aw regimeB ν h hh H θ x)⟩
+    let B : CfgT d N L n → ℝ := fun ψ =>
+      energy d N (L * n) (if regimeB then ν else 0) h ψ +
+        (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
+          ∑ y : Torus d n, ‖θ y - baseQ d N L n ψ y‖ ^ 2
+    let u : Config (Torus d (L * n)) N := fun x => (φ x : EuclideanSpace ℝ (Fin N)) - e x
+    B φ - B ec = (1 / 2) * cinner u
+      (baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun p => (α p).re) u) := by
+  dsimp only
+  let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+  let D : BgData G N := baseSectorDatum ϱ θ h
+  let α := bgMult G aw (if regimeB then ν else 0) D
+  let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+  let ec : CfgT d N L n := fun x => ⟨e x,
+    mem_sphere_zero_iff_norm.mpr (baseSectorCenter_unit ϱ aw regimeB ν h hh H θ x)⟩
+  let B : CfgT d N L n → ℝ := fun ψ =>
+    energy d N (L * n) (if regimeB then ν else 0) h ψ +
+      (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
+        ∑ y : Torus d n, ‖θ y - baseQ d N L n ψ y‖ ^ 2
+  let u : Config (Torus d (L * n)) N := fun x => (φ x : EuclideanSpace ℝ (Fin N)) - e x
+  have hch := baseSector_physical_B_chord_of_product_ne_zero
+    ϱ aw a₀ ha regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
+  dsimp only at hch
+  have hfield :
+      (fun p : G.Ω 1 × Fin N =>
+        (((φ (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1))) :
+          EuclideanSpace ℝ (Fin N)) p.2 : ℝ) : ℂ)) -
+      (fun p : G.Ω 1 × Fin N =>
+        ((e (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1))) p.2 : ℝ) : ℂ)) =
+      (fun p : G.Ω 1 × Fin N =>
+        ((u (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1))) p.2 : ℝ) : ℂ)) := by
+    funext p
+    simp [u, Pi.sub_apply]
+  rw [hfield] at hch
+  have hpair := baseSectorHessian_pair_eq_cinner_of_product_ne_zero
+    ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp u u
+  dsimp only at hpair
+  rw [hpair] at hch
+  change (((B φ - B ec : ℝ)) : ℂ) =
+    (1 / 2 : ℂ) * ((cinner u
+      (baseSectorHessian ϱ aw (if regimeB then ν else 0)
+        (fun p => (α p).re) u) : ℝ) : ℂ) at hch
+  have hre := congrArg Complex.re hch
+  simpa using hre
+
+/-- At the uncut parameter `s ≡ 1`, the base cut/core Hamiltonian has exactly
+the physical Hessian pairing on nonzero all-good support. -/
+theorem baseSectorHessian_cut_core_one_of_product_ne_zero (ϱ : ℝ)
+    (aw : ℕ → ℝ) (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+    (u v : Config (Torus d (L * n)) N) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let D := baseSectorDatum ϱ θ h
+    let α := bgMult G aw (if regimeB then ν else 0) D
+    let U : G.Ω 1 × Fin N → ℂ := fun p =>
+      (((u (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1)))) p.2 : ℝ) : ℂ)
+    let V : G.Ω 1 × Fin N → ℂ := fun p =>
+      (((v (baseSector_side L n ▸ (p.1 : Torus d (1 * n * L ^ 1)))) p.2 : ℝ) : ℂ)
+    pair G U (liftOp N (baseHamiltonian G aw (if regimeB then ν else 0) α
+      (fun _ => 1)) *ᵥ V) =
+      ((cinner u (baseSectorHessian ϱ aw (if regimeB then ν else 0)
+        (fun p => (α p).re) v) : ℝ) : ℂ) := by
+  dsimp only
+  rw [baseHamiltonian_one]
+  exact baseSectorHessian_pair_eq_cinner_of_product_ne_zero ϱ aw regimeB
+    ν δ₀ hδ h hh H hΛ1 θ φ hp u v
+
+/-- The landed base cut/core coercivity at its uncut parameter, for the physical
+background centre and the multiplier smallness premise of the base resolvent. -/
+theorem baseSector_baseOp_coercive_of_mult_bound (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν : ℝ) (hμ : 0 ≤ (if regimeB then ν else 0))
+    (ha : IsAdmissibleWeights 1 aw)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (hα : ∀ z : (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ).Ω 1,
+      ‖bgMult (GeneratingSet.single (d := d) (L := L)
+        (N₀ := 1 * n) (k := 1) ϱ) aw (if regimeB then ν else 0)
+        (baseSectorDatum ϱ θ h) z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let D := baseSectorDatum ϱ θ h
+    let α := bgMult G aw (if regimeB then ν else 0) D
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    Green.IsCoercive (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1)))
+      (baseCoercivity L) := by
+  dsimp only
+  let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+  let D : BgData G N := baseSectorDatum ϱ θ h
+  let α := bgMult G aw (if regimeB then ν else 0) D
+  let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+    (baseSectorCenter ϱ aw regimeB ν h θ
+      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+  have he (z : G.Ω 1) : ∑ i, e z i ^ 2 = 1 := by
+    have hn := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
+      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1)))
+    have hs := EuclideanSpace.norm_sq_eq
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))))
+    simp only [Real.norm_eq_abs, sq_abs] at hs
+    change ∑ i, (baseSectorCenter ϱ aw regimeB ν h θ
+      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ) ^ 2 = 1
+    rw [← hs, hn]
+    norm_num
+  exact baseOp_isCoercive_real G hμ ha hα (fun _ => 1)
+    (fun _ _ => ⟨zero_le_one, le_rfl⟩) e he
+
+/-- The uncut component base operator is coercive on the actual P5 all-good
+support; the multiplier bound follows from the background estimates. -/
+theorem baseSector_baseOp_coercive_of_product_ne_zero (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let D := baseSectorDatum ϱ θ h
+    let α := bgMult G aw (if regimeB then ν else 0) D
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    Green.IsCoercive (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1)))
+      (baseCoercivity L) := by
+  exact baseSector_baseOp_coercive_of_mult_bound ϱ aw regimeB ν H.mass H.weights
+    h hh H θ (baseSector_bgMult_norm_le_of_product_ne_zero ϱ aw regimeB ν δ₀
+      hδ h hh H hΛ1 θ φ hp)
 
 end Balaban.LargeField
