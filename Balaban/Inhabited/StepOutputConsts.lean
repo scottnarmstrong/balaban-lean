@@ -22,7 +22,8 @@ physical layer `stepOutput_consts_physical`.
 * `StepOutputConsts d L`: real numbers `κ₀, κ_dec, κ′, κ_out, κ_H`, the decoupling rate `κ`, the
   determinant rate `κ_det = (κ - log 2 - 2 log(detDeg + 1)) / (2 d L)`, the collar-hull constant
   `B_hull = c_G c₁` and rate `λ_hull = κ_det/(1 + B_hull) - c₁ log 2`, and the label constants
-  `K_c = 2(K₀ + 1)`, `K_all = 2 K₀`, `K_tot = K_c + K_all`, together with the inequalities of the
+  `K_c = 2(K₀ + 1)`, `K_all ≥ 2 K₀` (a lower bound, not an equation: `notes/phase1/TOWERJOIN.md` §2, so that
+  `K_all` can pay the root-union entropy constant), `K_tot = K_c + K_all`, together with the inequalities of the
   ledger.  The entropy requirement is the stronger `a_Ent + 2 ≤ κ₀` that `rootUnion_entropy`
   needs (the landed rate witness only has `a_Ent + 1`).
 * `stepOutput_consts_witness`: `Nonempty (StepOutputConsts 3 3)`;
@@ -82,7 +83,7 @@ structure StepOutputConsts (d L : ℕ) where
   lhull_eq : lhull = kdet / (1 + Bhull) - c1 d L * Real.log 2
   lhull_ge : kout ≤ lhull
   Kc_eq : Kc = 2 * (K0 d L k0 + 1)
-  Kall_eq : Kall = 2 * K0 d L k0
+  Kall_ge : 2 * K0 d L k0 ≤ Kall
   Ktot_eq : Ktot = Kc + Kall
 
 namespace StepOutputConsts
@@ -154,7 +155,7 @@ theorem stepOutput_consts_exists_ge (κmin : ℝ) :
   refine ⟨StepOutputConsts.mk k0 kdec k' kout kH kapp ((kapp - Lg - 2 * Real.log D) / 18)
     ((kapp - Lg - 2 * Real.log D) / 18 / (1 + 60750) - 3375 * Lg) 60750 (2 * (K0 3 3 k0 + 1))
     (2 * K0 3 3 k0) (2 * (K0 3 3 k0 + 1) + 2 * K0 3 3 k0) e1 e2 e3 hk' hout hkH e4 e5 e6
-    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl rfl rfl, hk1, h0, hdec⟩
+    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl le_rfl rfl, hk1, h0, hdec⟩
   · have : (4 : ℝ) * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) = 4116 := by norm_num
     rw [this]; exact hk2
   · rw [← hD, hLg]; norm_num
@@ -181,8 +182,9 @@ theorem stepOutput_consts_witness : Nonempty (StepOutputConsts 3 3) :=
 theorem StepOutputConsts.theta_pos {d L : ℕ} [NeZero L] (C : StepOutputConsts d L) :
     0 < C.theta := by
   have hK : 0 < C.Ktot := by
-    rw [C.Ktot_eq, C.Kc_eq, C.Kall_eq]
+    rw [C.Ktot_eq, C.Kc_eq]
     have := K0_pos d L C.k0
+    have := C.Kall_ge
     linarith
   have hc : 0 < c1 d L := lt_of_lt_of_le one_pos (one_le_c1 d L)
   unfold StepOutputConsts.theta stepTheta
