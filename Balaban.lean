@@ -172,6 +172,7 @@ public import Balaban.Multiscale.PointwiseHolderI
 public import Balaban.Multiscale.PointwiseHolder
 public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
+public import Balaban.Multiscale.WeakenSep
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.CoercivitySharp
@@ -221,6 +222,8 @@ public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.FinalComplexMatrix
 public import Balaban.Green.FinalComplexHessian
 public import Balaban.Green.KF0Reference
+public import Balaban.Green.KF0WalkSeries
+public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
@@ -807,9 +810,12 @@ public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseChartAction
 public import Balaban.LargeField.Base.BaseChartMeasure
+public import Balaban.LargeField.Base.KF0SqrtReal
+public import Balaban.LargeField.Base.KF0Gaussian
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
+public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
