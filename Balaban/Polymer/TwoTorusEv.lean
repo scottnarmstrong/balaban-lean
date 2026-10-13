@@ -20,6 +20,13 @@ import Mathlib.Tactic.Positivity
 /-!
 # The marked energy coefficients on two tori
 
+For two step tori `CTorus d L N₁ m₁ (k + 1)` and `CTorus d L N₁' m₁ (k + 1)` identified on a centred
+box by `boxMap` (`bm`), with the top level `GA = levelGS (k + 1)` and the lower level
+`HA = levelGS k` (the pair `(Gp, Hm)` of a step), this file compares the marked cut-parameter
+functional `FFmarked` and its localized coefficients `evDec` (and the site terms `Ev`) on the two
+tori.  The coefficient `coef F C` is an iterated integral over `[0, 1]^C` of a mixed derivative at
+the cut points (`s = 0` off `C`); it reads `F` only on `supN C R`.
+
 ## D1: the coefficients under a partial relabelling of the parameters
 
 * `eq_of_sum_powerset_eq_of_subset`: a function on the subsets of a finite set `C` is determined
@@ -29,6 +36,43 @@ import Mathlib.Tactic.Positivity
   with `s' (e i) = s i` on `C`, then `coef f' (e C) = coef f C` (`f` analytic on the polydisc of
   radius `R > 1`).  This is `coef_relabel` for a map that is a bijection only between `C` and its
   image; the values of `f` and `f'` off the cut points `supN C R` are not compared.
+
+## The reads of the marked functional on two tori
+
+* `svec_levelGS_boxMap`, `blockMean_levelGS_boxMap`, `energyDensity_levelGS_boxMap`,
+  `energyBlock_levelGS_boxMap`, `blockEnergyFun_levelGS_boxMap`: the block energy of a
+  `(k+1)`-block and of its image are equal when the multipliers and tangents correspond on the
+  block and the fluctuation fields on `readSites`.
+* `hatSqrtF_rows_twoTorus`: the rows of the decoupled square root `C^{1/2}(s)` at the decoupled
+  background (`hatSqrtF`) correspond at the unit points whose block lies in a component `Y` of
+  the cut, a union of complete blocks.
+* `markedHatPsiF_boxMap`: the masked tangent at corresponding sites.
+
+## D2: the marked functional at transported cut parameters
+
+* `extS_extParams_boxMap_of_eq`: `extS_extParams_boxMap` for a set equal to the image.
+* `FFmarked_twoTorus`: for a cut parameter vector `s` vanishing off a family `C` of parameter cubes
+  of the box and its transport `s'`, `FFmarked` of the second torus at `s'` equals `FFmarked` at
+  `s`, for any block functionals `Φ`, `Φ'` with finite corresponding reads, and any pairs
+  `(F₁, Sol)`, `(F₁', Sol')` with the defining properties.  The cut configuration is
+  `Y = V(X₁, 𝒞)`; the background values come from `decBg_value_twoTorus`, the fluctuation values
+  from `decSol_value_twoTorus_of_decBg`, the tangents from `hatSqrtF_rows_twoTorus`.
+
+## Independence of the pair, analyticity
+
+* `FFmarked_eq_of_pair`: two pairs `(F₁, Sol)` with the defining properties give the same marked
+  functional on the polydisc (one torus).
+* `analyticOnNhd_FFmarked`: the marked functional of any such pair is analytic in the cut
+  parameters on the polydisc of radius `e^κ`.
+
+## D3: the coefficients `evDec` and the site terms
+
+* `coef_empty_eq`, `evTerm_boxMap_of_eq`: auxiliary.
+* `evDec_twoTorus`: `evDec … (bm '' Y) = evDec … Y` (D1 for corresponding families, D2 at their
+  cut points, `evTerm_boxMap` for the families); `evDec_blockEnergy_twoTorus` for
+  `Φ = blockEnergyFun … k z`.
+* `Ev_twoTorus`, `Ev_blockEnergy_twoTorus`: the site terms `Ev Y = evTerm … Y` of the expansion
+  along `hatPsiF` (the marks `(1, 0)`, `FFmarked_one_zero`).
 -/
 
 @[expose] public section
@@ -105,7 +149,8 @@ theorem coef_relabel_injOn {R : ℝ} (hR : 1 < R) (e : ι → ι') {C : Finset �
         funext w; simp [hpb, hi]
       rw [this]
       exact analyticAt_const
-  have hpbP : ∀ w ∈ polydisc (0 : ι' → ℂ) (fun _ => R), pb w ∈ polydisc (0 : ι → ℂ) (fun _ => R) := by
+  have hpbP : ∀ w ∈ polydisc (0 : ι' → ℂ) (fun _ => R),
+      pb w ∈ polydisc (0 : ι → ℂ) (fun _ => R) := by
     intro w hw i
     by_cases hi : i ∈ C
     · simpa [hpb, hi] using hw (e i)
@@ -499,7 +544,8 @@ theorem hatSqrtF_rows_twoTorus {ϱm ϱm' : ℝ}
 
 /-- **The masked tangent at corresponding sites.**  If the masks correspond at the unit point of a
 site `x` of the box and the rows of the square roots `hatSqrtF *ᵥ ψ̂` correspond at it, the masked
-tangents `markedHatPsiF` agree at `x` and `bm x`.  Margin: `2 ρ + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)`. -/
+tangents `markedHatPsiF` agree at `x` and `bm x`.  Margin:
+`2 ρ + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)`. -/
 theorem markedHatPsiF_boxMap {ρ : ℕ}
     (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (a₁ ν : ℝ) (cc : ℂ)
@@ -656,7 +702,8 @@ theorem FFmarked_twoTorus
             (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
     {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hcov : CovSetup (GA) m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
     (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
     (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
     {Φ : (((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)) → ((HA).Ω 1 × Fin N → ℂ) →
@@ -670,7 +717,8 @@ theorem FFmarked_twoTorus
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
-        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) → t'.1.2 y' = t.1.2 y) →
+        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
+          t'.1.2 y' = t.1.2 y) →
       (∀ (w : (HA).Ω 1) (w' : (HB).Ω 1), (w : CTorus d L N₁ m₁ (k + 1)) ∈ Rδ →
         (w' : CTorus d L N₁' m₁ (k + 1)) = bm (w : CTorus d L N₁ m₁ (k + 1)) →
         ∀ i, t'.2.1 (w', i) = t.2.1 (w, i)) →
@@ -782,8 +830,10 @@ theorem FFmarked_twoTorus
   set C'' : Finset (ParIdx (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1)))) :=
     Finset.univ.filter fun i' => ∃ i ∈ C, i'.1.1 = Prod.map id bm i.1.1 with hC''
   obtain ⟨-, -, hs0E', -⟩ := compY_geometry hcov' hX₁' C'' s' s'
-    (fun i' hi' => hs'0 i' (fun i hi he => hi' (Finset.mem_filter.2 ⟨Finset.mem_univ _, i, hi, he⟩)))
-    (fun i' hi' => hs'0 i' (fun i hi he => hi' (Finset.mem_filter.2 ⟨Finset.mem_univ _, i, hi, he⟩)))
+    (fun i' hi' => hs'0 i' (fun i hi he =>
+      hi' (Finset.mem_filter.2 ⟨Finset.mem_univ _, i, hi, he⟩)))
+    (fun i' hi' => hs'0 i' (fun i hi he =>
+      hi' (Finset.mem_filter.2 ⟨Finset.mem_univ _, i, hi, he⟩)))
     (fun _ _ _ => rfl)
     (Finset.univ.filter fun x => x ∈ compY
       (fun i : ParIdx (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) => i.1.1)
@@ -862,12 +912,14 @@ theorem FFmarked_twoTorus
     (fun x hx => hC.hPmp.mem_Ω1 hx) hrow h𝒞I hYA
   obtain ⟨A', hIU', -⟩ := incUnion_of_nnComp (Dec2.coverLocal_self hC'.Sp) hconn'
     (fun x hx => hC'.hPmp.mem_Ω1 hx) hrow' h𝒞I' hYB
-  have hBF' := SYF_image (ϱ := ϱ) (N₁' := N₁') hk (Nat.le_add_right k 1) le_rfl (compWeight L a₁) ν hnS
+  have hBF' := SYF_image (ϱ := ϱ) (N₁' := N₁') hk (Nat.le_add_right k 1) le_rfl (compWeight L a₁) ν
+    hnS
     hnS' (by omega) (by omega) hXR h𝒞R hYR
   have hSYFY : Dec2.SYF (coverOf (GA)) (HA) (compWeight L a₁) ν X₁f 𝒞 Y ⊆ Y :=
     SYF_subset_levelGS (ϱ := ϱ) (ϱp := ϱ) (a := compWeight L a₁) (ν := ν) (𝒞 := 𝒞) (X₁ := X₁f)
       (Y := Y) hk (Nat.le_add_right k 1) le_rfl
-  have hagreeF := hagree2_boxMap (ϱ := ϱ) (ϱp := ϱ) (N₁' := N₁') hk (Nat.le_add_right k 1) le_rfl hnS hnS'
+  have hagreeF := hagree2_boxMap (ϱ := ϱ) (ϱp := ϱ) (N₁' := N₁') hk (Nat.le_add_right k 1) le_rfl
+    hnS hnS'
     hSYFY hYR hσP
   have hB0 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) := by
     have hd0 : 0 < d := by have := hC.HBp.hd; omega
@@ -883,7 +935,8 @@ theorem FFmarked_twoTorus
       (flEdat (GB) (HB) (F₁' (σ', rawOf D')) D'.Ψ
         (markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh')) := by
     rw [hFeq']; exact hstrict'
-  obtain ⟨-, hδφY⟩ := decSol_value_twoTorus_of_decBg (ϱ := ϱ) (ϱp := ϱ) hk (Nat.le_add_right k 1) le_rfl
+  obtain ⟨-, hδφY⟩ := decSol_value_twoTorus_of_decBg (ϱ := ϱ) (ϱp := ϱ) hk (Nat.le_add_right k 1)
+    le_rfl
     hC.hS hC.Sp hC'.Sp hconn hconn' hC.HBp hC.hκ.le hC.hM hF₁ hF₁' hσb hσb' hU hU' hYA hYB hs0
     hs0' rfl hB' hagree hYR hn hn' hrawY hC.hS2.fam hC.SM.toCoverBase hC'.SM.toCoverBase
     hC.hκ.le hC.hM2 false hB0 hC.δ₁_pos.le hC.B_le hC.δ₁_le hSol hSol' hσb hσb' he he' hIU hIU'
@@ -893,7 +946,8 @@ theorem FFmarked_twoTorus
       (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁f 𝒞 Y := by
     intro y hy
     obtain ⟨z, hz, hyz, hQ, hhatz⟩ := hBM y hy y.2
-    exact Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, fun P hP hPpar => absurd hPpar (hQ P hP),
+    exact Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz,
+      fun P hP hPpar => absurd hPpar (hQ P hP),
       fun x hx => hXY _ (hhatz x hx)⟩, hyz⟩
   show Φ' (F₁' (σ', rawOf D'))
       (Sol' (σ', flEdat (GB) (HB) (F₁' (σ', rawOf D')) D'.Ψ
@@ -1205,7 +1259,8 @@ theorem evDec_twoTorus
             (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
     {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hcov : CovSetup (GA) m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
     (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
     (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
     {Φ : (((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)) → ((HA).Ω 1 × Fin N → ℂ) →
@@ -1219,7 +1274,8 @@ theorem evDec_twoTorus
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
-        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) → t'.1.2 y' = t.1.2 y) →
+        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
+          t'.1.2 y' = t.1.2 y) →
       (∀ (w : (HA).Ω 1) (w' : (HB).Ω 1), (w : CTorus d L N₁ m₁ (k + 1)) ∈ Rδ →
         (w' : CTorus d L N₁' m₁ (k + 1)) = bm (w : CTorus d L N₁ m₁ (k + 1)) →
         ∀ i, t'.2.1 (w', i) = t.2.1 (w, i)) →
@@ -1380,7 +1436,8 @@ theorem evDec_blockEnergy_twoTorus
             (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
     {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hcov : CovSetup (GA) m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
     (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
     (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
     {x₀ : CTorus d L N₁ m₁ (k + 1)}
@@ -1487,7 +1544,8 @@ theorem Ev_twoTorus
             (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
     {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hcov : CovSetup (GA) m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
     (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
     (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
     {Φ : (((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)) → ((HA).Ω 1 × Fin N → ℂ) →
@@ -1501,7 +1559,8 @@ theorem Ev_twoTorus
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
-        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) → t'.1.2 y' = t.1.2 y) →
+        (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
+          t'.1.2 y' = t.1.2 y) →
       (∀ (w : (HA).Ω 1) (w' : (HB).Ω 1), (w : CTorus d L N₁ m₁ (k + 1)) ∈ Rδ →
         (w' : CTorus d L N₁' m₁ (k + 1)) = bm (w : CTorus d L N₁ m₁ (k + 1)) →
         ∀ i, t'.2.1 (w', i) = t.2.1 (w, i)) →
@@ -1530,11 +1589,12 @@ theorem Ev_twoTorus
     (hrad : markedRad d L N k a₁ κ cψ cc < δ₁) :
     evTerm (fun i : ParIdx (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) => i.1.1) (GB)
         m₀ (X1 (GB) m₀ j 𝒦X')
-        (fun u s => Φ' (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s,
-          u.1))
+        (fun u s => Φ'
+          (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s, u.1))
           (Sol' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s,
-            flEdat (GB) (HB) (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1)))
-              s, u.1)) u.1.1 (hatPsiF (GB) a₁ ν hGB cc F₁'
+            flEdat (GB) (HB) (F₁' (extParams (GB)
+              (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s, u.1)) u.1.1
+              (hatPsiF (GB) a₁ ν hGB cc F₁'
                 (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s) u.1 u.2))).1
           (u.1, hatPsiF (GB) a₁ ν hGB cc F₁'
             (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s) u.1 u.2))
@@ -1612,7 +1672,8 @@ theorem Ev_blockEnergy_twoTorus
             (pertSource (HB) (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
     {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} {X' 𝒦X' : Set (CTorus d L N₁' m₁ (k + 1))}
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hcov : CovSetup (GA) m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
+    (hcov : CovSetup (GA) m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ j 𝒦X)
     (hcov' : CovSetup (GB) m₀ j X' 𝒦X')
     (hX₁' : (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ j 𝒦X')
     {x₀ : CTorus d L N₁ m₁ (k + 1)}
@@ -1642,11 +1703,12 @@ theorem Ev_blockEnergy_twoTorus
     evTerm (fun i : ParIdx (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) => i.1.1) (GB)
         m₀ (X1 (GB) m₀ j 𝒦X')
         (fun u s => (blockEnergyFun (GB) (HB) (compWeight L a₁) ν k
-          (jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x₀))) (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s,
-          u.1))
+          (jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x₀)))
+          (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s, u.1))
           (Sol' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s,
-            flEdat (GB) (HB) (F₁' (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1)))
-              s, u.1)) u.1.1 (hatPsiF (GB) a₁ ν hGB cc F₁'
+            flEdat (GB) (HB) (F₁' (extParams (GB)
+              (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s, u.1)) u.1.1
+              (hatPsiF (GB) a₁ ν hGB cc F₁'
                 (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s) u.1 u.2))).1
           (u.1, hatPsiF (GB) a₁ ν hGB cc F₁'
             (extParams (GB) (↑(X₁f.image bm) : Set (CTorus d L N₁' m₁ (k + 1))) s) u.1 u.2))
@@ -1654,7 +1716,8 @@ theorem Ev_blockEnergy_twoTorus
       evTerm (fun i : ParIdx (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) (GA) m₀
         (X1 (GA) m₀ j 𝒦X)
         (fun u s => (blockEnergyFun (GA) (HA) (compWeight L a₁) ν k
-          (jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x₀)) (F₁ (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+          (jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x₀))
+          (F₁ (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
           (Sol (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
             flEdat (GA) (HA) (F₁ (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
               u.1.1 (hatPsiF (GA) a₁ ν hGA cc F₁
