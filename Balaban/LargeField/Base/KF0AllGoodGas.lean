@@ -225,6 +225,255 @@ theorem stSize_union_le {X Y : Finset (Balaban.Torus d m')} (_hX : X.Nonempty) (
       ((steiner (blockGraph d m') X + steiner (blockGraph d m') Y : ℕ) : ℝ) := by exact_mod_cast key'
   simpa using this
 
+/-- (G3) for the Steiner size, clusters (`hG3P`), with `cP = 0`. -/
+theorem stSize_union_cluster {n : ℕ} (X : Fin (n + 1) → NePoly (Balaban.Torus d m'))
+    (hc : (clusterGraph (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
+      Finset (Balaban.Torus d m'))) X).Connected) :
+    stSize (unionOf (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')) X) ≤
+      ∑ i, stSize (X i).1 + 0 * n := by
+  have key := Balaban.Fluctuation.phi_union_le (stSize (d := d) (m' := m')) 0
+    (fun X Y hX hY h => stSize_union_le hX hY h)
+    (clusterGraph (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
+      Finset (Balaban.Torus d m'))) X) (fun i => (X i).1)
+    (fun i => (X i).2) (fun i j hij => by
+      have := ((clusterGraph_adj _ X i j).1 hij).2
+      exact (lnk_shareBlock _ _ _).1 this) n Finset.univ (by simp)
+    (by
+      rw [Finset.coe_univ]
+      exact (SimpleGraph.induceUnivIso _).connected_iff.2 hc)
+  convert key using 3
+  ext x; simp [unionOf]
+
+/-- (G3) for the Steiner size, connected families of terms (`hG3T`), with `c = 0`. -/
+theorem stSize_unionCs_le (C : Finset (NePoly (Balaban.Torus d m')))
+    (hC : ConnSet (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')) C) :
+    stSize (unionCs (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')) C) ≤
+      ∑ t ∈ C, stSize t.1 + 0 * ((C.card : ℝ) - 1) := by
+  obtain ⟨hne, hreach⟩ := hC
+  let Gc : SimpleGraph (NePoly (Balaban.Torus d m')) :=
+    SimpleGraph.fromRel (Contact (Subtype.val : NePoly (Balaban.Torus d m') →
+      Finset (Balaban.Torus d m')))
+  have hconn : (Gc.induce (C : Set (NePoly (Balaban.Torus d m')))).Connected := by
+    obtain ⟨x₀, hx₀⟩ := hne
+    have : Nonempty (C : Set (NePoly (Balaban.Torus d m'))) := ⟨⟨x₀, hx₀⟩⟩
+    refine ⟨fun a b => ?_⟩
+    obtain ⟨a, ha⟩ := a
+    obtain ⟨b, hb⟩ := b
+    have key : ∀ y, Relation.ReflTransGen
+        (fun x y => x ∈ C ∧ y ∈ C ∧ Contact (Subtype.val : NePoly (Balaban.Torus d m') →
+          Finset (Balaban.Torus d m')) x y) a y →
+        ∀ hy : y ∈ C, (Gc.induce (C : Set (NePoly (Balaban.Torus d m')))).Reachable
+          ⟨a, ha⟩ ⟨y, hy⟩ := by
+      intro y hy
+      induction hy with
+      | refl => intro _; exact SimpleGraph.Reachable.refl _
+      | @tail u v _ huv ih =>
+        intro hv
+        have hu : u ∈ C := huv.1
+        refine (ih hu).trans ?_
+        by_cases heq : u = v
+        · subst heq; exact SimpleGraph.Reachable.refl _
+        · exact SimpleGraph.Adj.reachable (show Gc.Adj u v from by
+            rw [SimpleGraph.fromRel_adj]; exact ⟨heq, Or.inl huv.2.2⟩)
+    exact key b (hreach a ha b hb) hb
+  have := Balaban.Fluctuation.phi_union_le (stSize (d := d) (m' := m')) 0
+    (fun X Y hX hY h => stSize_union_le hX hY h) Gc (fun t => t.1) (fun t => t.2)
+    (fun i j hij => by
+      rw [SimpleGraph.fromRel_adj] at hij
+      rcases hij.2 with h | h
+      · exact h
+      · exact fun hd => h hd.symm) (C.card - 1) C
+    (Nat.sub_add_cancel (Finset.card_pos.2 hne)).symm hconn
+  have hc : ((C.card - 1 : ℕ) : ℝ) = (C.card : ℝ) - 1 := by
+    rw [Nat.cast_sub (Finset.card_pos.2 hne)]; simp
+  rw [hc] at this
+  convert this using 3
+  ext x; simp [unionCs]
+
+theorem degree_le (a : Balaban.Torus d m') : (blockGraph d m').degree a ≤ 2 * d :=
+  blockGraph_degree_le d m' a
+
+/-- The number of nonempty block sets through `b` of Steiner size `n + 1`. -/
+theorem card_sets_le (b : Balaban.Torus d m') (n : ℕ) :
+    ((Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+      (fun Y => b ∈ Y.1 ∧ steiner (blockGraph d m') Y.1 = n + 1)).card ≤
+      (2 * d) ^ (2 * n) * 2 ^ (n + 1) := by
+  set 𝒴 : Finset (Finset (Balaban.Torus d m')) :=
+    (animals (blockGraph d m') b (n + 1)).biUnion (fun W => W.powerset) with h𝒴
+  have hmaps : ∀ Y ∈ (Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+      (fun Y => b ∈ Y.1 ∧ steiner (blockGraph d m') Y.1 = n + 1), Y.1 ∈ 𝒴 := by
+    intro Y hY
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hY
+    obtain ⟨W, hW, hYW, hWc⟩ := steiner_spec (exists_animal_supset Y.1)
+    rw [h𝒴, Finset.mem_biUnion]
+    refine ⟨W, ?_, Finset.mem_powerset.mpr hYW⟩
+    rw [mem_animals]
+    exact ⟨hYW hY.1, by rw [hWc, hY.2], hW.2⟩
+  have hcard : 𝒴.card ≤ (2 * d) ^ (2 * n) * 2 ^ (n + 1) := by
+    calc 𝒴.card ≤ ∑ W ∈ animals (blockGraph d m') b (n + 1), (W.powerset).card :=
+          Finset.card_biUnion_le
+      _ = ∑ W ∈ animals (blockGraph d m') b (n + 1), 2 ^ (n + 1) :=
+          Finset.sum_congr rfl (fun W hW => by
+            rw [Finset.card_powerset, ((mem_animals _).mp hW).2.1])
+      _ = (animals (blockGraph d m') b (n + 1)).card * 2 ^ (n + 1) := by
+          rw [Finset.sum_const, smul_eq_mul]
+      _ ≤ (2 * d) ^ (2 * n) * 2 ^ (n + 1) := by
+          refine Nat.mul_le_mul_right _ ?_
+          have := card_animals_le (blockGraph d m') degree_le b (n + 1)
+          simpa using this
+  exact (Finset.card_le_card_of_injOn (fun Y => Y.1) (fun Y hY => hmaps Y hY)
+    (fun Y _ Y' _ h => Subtype.ext h)).trans hcard
+
+/-- (G2): the entropy sum over nonempty block sets through a block, in the Steiner size. -/
+theorem sum_exp_stSize_le {κ0 : ℝ}
+    (hq : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2) (b : Balaban.Torus d m') :
+    ∑ Y : NePoly (Balaban.Torus d m'),
+      (if b ∈ Y.1 then Real.exp (-κ0 * stSize Y.1) else 0) ≤ 4 * Real.exp (-κ0) := by
+  set f : ℕ → ℝ := fun n => Real.exp (-κ0 * (n : ℝ)) with hf
+  have h1 : ∑ Y : NePoly (Balaban.Torus d m'),
+      (if b ∈ Y.1 then Real.exp (-κ0 * stSize Y.1) else 0) =
+      ∑ Y ∈ (Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter (fun Y => b ∈ Y.1),
+        f (steiner (blockGraph d m') Y.1) := by
+    rw [Finset.sum_filter]; rfl
+  rw [h1]
+  have hpos : ∀ Y : NePoly (Balaban.Torus d m'), b ∈ Y.1 → 1 ≤ steiner (blockGraph d m') Y.1 := by
+    intro Y hb
+    have := card_le_steiner (exists_animal_supset Y.1)
+    have h2 : 0 < Y.1.card := Finset.card_pos.mpr ⟨b, hb⟩
+    omega
+  have hmaps : ∀ Y ∈ (Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+      (fun Y => b ∈ Y.1), steiner (blockGraph d m') Y.1 - 1 ∈
+        range (Fintype.card (Balaban.Torus d m')) := by
+    intro Y hY
+    rw [Finset.mem_filter] at hY
+    have h3 : steiner (blockGraph d m') Y.1 ≤ Fintype.card (Balaban.Torus d m') :=
+      (steiner_le isAnimal_univ (Finset.subset_univ _)).trans (Finset.card_le_univ _)
+    have h4 := hpos Y hY.2
+    have h5 : 0 < Fintype.card (Balaban.Torus d m') := Fintype.card_pos_iff.mpr ⟨b⟩
+    rw [Finset.mem_range]; omega
+  rw [← Finset.sum_fiberwise_of_maps_to hmaps]
+  set q : ℝ := ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) with hqdef
+  have hq0 : 0 ≤ q := by positivity
+  have hterm : ∀ n ∈ range (Fintype.card (Balaban.Torus d m')),
+      ∑ Y ∈ ((Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+        (fun Y => b ∈ Y.1)).filter (fun Y => steiner (blockGraph d m') Y.1 - 1 = n),
+        f (steiner (blockGraph d m') Y.1) ≤ 2 * Real.exp (-κ0) * q ^ n := by
+    intro n _
+    have hval : ∀ Y ∈ ((Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+        (fun Y => b ∈ Y.1)).filter (fun Y => steiner (blockGraph d m') Y.1 - 1 = n),
+        f (steiner (blockGraph d m') Y.1) = f (n + 1) := by
+      intro Y hY
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hY
+      have h4 := hpos Y hY.1
+      congr 2; omega
+    rw [Finset.sum_congr rfl hval, Finset.sum_const, nsmul_eq_mul]
+    have hc : ((((Finset.univ : Finset (NePoly (Balaban.Torus d m'))).filter
+        (fun Y => b ∈ Y.1)).filter (fun Y => steiner (blockGraph d m') Y.1 - 1 = n)).card : ℝ) ≤
+        (((2 * d) ^ (2 * n) * 2 ^ (n + 1) : ℕ) : ℝ) := by
+      refine Nat.cast_le.mpr (le_trans (le_of_eq ?_) (card_sets_le b n))
+      congr 1
+      ext Y
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      constructor
+      · rintro ⟨hb, h⟩; exact ⟨hb, by have := hpos Y hb; omega⟩
+      · rintro ⟨hb, h⟩; exact ⟨hb, by omega⟩
+    refine (mul_le_mul_of_nonneg_right hc (by positivity)).trans (le_of_eq ?_)
+    have eexp : f (n + 1) = Real.exp (-κ0) * Real.exp (-κ0) ^ n := by
+      rw [hf]; simp only; rw [← Real.exp_nat_mul, ← Real.exp_add]; congr 1; push_cast; ring
+    rw [eexp, hqdef]
+    push_cast
+    rw [pow_mul]
+    have h8 : ((2 : ℝ) * 2 ^ 2) ^ n = 2 ^ n * 4 ^ n := by
+      rw [← mul_pow]; norm_num
+    ring_nf
+    rw [show ((8 : ℝ)) ^ n = 2 ^ n * 4 ^ n by rw [← mul_pow]; norm_num]
+    ring
+  refine (Finset.sum_le_sum hterm).trans ?_
+  rw [← Finset.mul_sum]
+  have h3 : ∑ i ∈ range (Fintype.card (Balaban.Torus d m')), q ^ i ≤ (1 - q)⁻¹ :=
+    sum_le_hasSum _ (fun i _ => by positivity) (hasSum_geometric_of_lt_one hq0 (by linarith))
+  have h4 : (1 - q)⁻¹ ≤ 2 := by
+    rw [inv_le_comm₀ (by linarith) (by norm_num)]; linarith
+  have h5 : ∑ i ∈ range (Fintype.card (Balaban.Torus d m')), q ^ i ≤ 2 := h3.trans h4
+  nlinarith [Real.exp_pos (-κ0)]
+
 end Geometry
+
+
+/-! ### The consumer on the block torus: `mayer_pe` with the Steiner size -/
+
+section Consumer
+
+variable {Ω : Balaban.Torus d m' → Type*} [∀ b, MeasurableSpace (Ω b)]
+  (μ : ∀ b, Measure (Ω b)) [∀ b, IsProbabilityMeasure (μ b)]
+
+/-- **The block gas theorem (T1, T3).**  On the torus of blocks with the Steiner size, local terms
+`H X`, one for each nonempty set `X` of blocks, measurable, depending only on the blocks of `X`
+and bounded for all configurations by `H0 e^{-(κ0 + κ1) |X|_St}`, with the numerical conditions
+below, satisfy `∫ exp (∑_X H X) d⨂μ = exp (∑_Y P(Y))` with `∑_{Y ∋ b} ‖P(Y)‖ e^{κ' |Y|_St} ≤
+64 e H0 e^{-2 κ0}`.  The hypotheses (G1)-(G3) of `mayer_pe` are supplied by the Steiner geometry
+(`card_le_stSize`, `sum_exp_stSize_le`, `stSize_unionCs_le`, `stSize_union_cluster`) with
+`c = cP = 0`, `c1 = 1`, `K0 = K0P = 4 e^{-κ0}`. -/
+theorem block_gas {κ0 κ1 κ' H0 : ℝ}
+    (hq : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
+    (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκ : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
+    (hH0 : 0 ≤ H0) (hH0log : H0 ≤ Real.log 2) (hH0K : H0 * (4 * Real.exp (-κ0)) ≤ 1 / 4)
+    (H : NePoly (Balaban.Torus d m') → (∀ b, Ω b) → ℂ)
+    (hloc : ∀ X, DepOn X.1 (H X)) (hmeas : ∀ X, Measurable (H X))
+    (hbd : ∀ X Φ, ‖H X Φ‖ ≤ H0 * Real.exp (-(κ0 + κ1) * stSize X.1)) :
+    ∫ Φ, Complex.exp (∑ X, H X Φ) ∂(Measure.pi μ) =
+      Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
+        Finset (Balaban.Torus d m'))) (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H)) ∧
+    ∀ b : Balaban.Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Balaban.Torus d m'))).filter
+        (fun Y => b ∈ Y),
+      ‖PY (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')))
+          Subtype.val (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H) Y‖ *
+        Real.exp (κ' * stSize Y) ≤ 64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
+  have hκ0nn : 0 ≤ κ0 := by
+    have : 0 ≤ Real.log 4 := Real.log_nonneg (by norm_num)
+    linarith
+  have hκ1nn : 0 ≤ κ1 := by linarith
+  have hK0 : 0 ≤ 4 * Real.exp (-κ0) := by positivity
+  have hKle : 4 * Real.exp (-κ0) ≤ Real.exp (-1) := by
+    have h4 : (4 : ℝ) = Real.exp (Real.log 4) := (Real.exp_log (by norm_num)).symm
+    rw [h4, ← Real.exp_add]
+    exact Real.exp_le_exp.2 (by linarith)
+  have hG2 : ∀ b : Balaban.Torus d m', ∑ Y : NePoly (Balaban.Torus d m'),
+      (if b ∈ Y.1 then Real.exp (-κ0 * stSize Y.1) else 0) ≤ 4 * Real.exp (-κ0) :=
+    fun b => sum_exp_stSize_le hq b
+  have hq' : 2 * H0 * (4 * Real.exp (-κ0)) * Real.exp (κ1 * 0) * 1 ≤ 1 / 2 := by
+    simp only [mul_zero, Real.exp_zero, mul_one]; nlinarith
+  have hα : 2 * (2 * H0 * (4 * Real.exp (-κ0)) * Real.exp (κ1 * 0)) * 1 * (4 * Real.exp (-κ0)) *
+      Real.exp (1 + κ' * 0) ≤ 1 := by
+    simp only [mul_zero, Real.exp_zero, mul_one, add_zero]
+    have h1 : 4 * Real.exp (-κ0) * Real.exp 1 ≤ 1 := by
+      calc 4 * Real.exp (-κ0) * Real.exp 1 ≤ Real.exp (-1) * Real.exp 1 :=
+            mul_le_mul_of_nonneg_right hKle (Real.exp_pos 1).le
+        _ = 1 := by rw [← Real.exp_add]; simp
+    have h2 : 0 ≤ Real.exp 1 := (Real.exp_pos 1).le
+    nlinarith [mul_nonneg hH0 hK0]
+  have hmain := mayer_pe (μ := μ) (sup := fun X : NePoly (Balaban.Torus d m') => X.1) (H := H)
+    (d := stSize) (H0 := H0) (κ0 := κ0) (κ1 := κ1) (c := 0) (K0 := 4 * Real.exp (-κ0))
+    (c1 := 1) (κ' := κ') (κ0P := κ0) (K0P := 4 * Real.exp (-κ0)) (cP := 0)
+    (fun X => X.2) hloc hmeas hH0 hH0log hκ0nn hκ1nn le_rfl (fun Y => stSize_nonneg Y)
+    (fun X Φ => by simpa using hbd X Φ) hK0
+    (fun b => by rw [Finset.sum_filter]; convert hG2 b)
+    (fun C hC => by simpa using stSize_unionCs_le C hC) zero_le_one hq'
+    (fun Y => card_le_stSize Y.1) hK0 hκ' le_rfl
+    (fun b => by convert hG2 b) (fun n X hX => by simpa using stSize_union_cluster X hX)
+    hκ hα
+  obtain ⟨h1, h2, -⟩ := hmain
+  refine ⟨h1, fun b => ?_⟩
+  have h4 : 2 * (2 * H0 * (4 * Real.exp (-κ0)) * Real.exp (κ1 * 0)) * 1 * (4 * Real.exp (-κ0)) *
+      Real.exp (1 + κ' * 0) * Real.exp (-(κ' * 0)) ≤
+      64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
+    simp only [mul_zero, Real.exp_zero, mul_one, neg_zero, add_zero]
+    have e : 2 * (2 * H0 * (4 * Real.exp (-κ0))) * (4 * Real.exp (-κ0)) * Real.exp 1 =
+        64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
+      rw [show -(2 * κ0) = -κ0 + -κ0 by ring, Real.exp_add]; ring
+    exact le_of_eq e
+  convert (h2 b).trans h4
+
+end Consumer
 
 end Balaban.LargeField.KF0Gas
