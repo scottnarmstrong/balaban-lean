@@ -1760,4 +1760,5 @@ public import Balaban.Inhabited.ObsPrefactorScale
 public import Balaban.Fluctuation.StepOldTermSplit
 public import Balaban.Fluctuation.StepClassPath
 public import Balaban.Fluctuation.StepPhysicalActivityBridge
+public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
