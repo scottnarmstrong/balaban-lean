@@ -138,3 +138,8 @@ summation, not the algebraic `sub_at_zero` step.
 - `flDatumOne_stepG_liftC`, `classOldEndpoint_liftC`: endpoint identity at any complex tangent `liftC v`.
 - `deriv_eq_sum_of_expansion`, `hasDerivAt_comp_marked`: generator-independent derivative identity `Etil'(0) = β ∑_Y Ev_Y'(0)`; `deriv_classLabel_marked_eq_sum` its stepG instance.
 - Not done: restated assembly (`exists_oldMarks_of_labels` over pairs (τ,Y)); the T1 instance uses Gk generic but the endpoint lemma is stepG-specific (see W751).
+## W749 status (leaves 1-3, observable terms) — `Fluctuation/ClassOldDecInputM.lean`, `ClassOldEndpointM.lean`
+
+- `classOldDecObs_chart`: `hEan`/`hEbd` for `Mτ = C.Tm.M j y X · · g i` on `𝔹_j(X)` (singleton instance of `classOldObs_analytic_bound`); `classOldDecObs_expansion`: `eterm_expansion_hat_rawY` at `Mτ`, bound `c₉ (L^j)^{-((d-2)/2+γ-α₁)} exp(-κ₀ d_j(X) - 2κ_dec d(Y))`. The source factor `g_{y,i}` is outside the functional; the source is fixed (`Def6.l1 g < 1`), so no linear-in-g expansion (`mterms_locInt_hat_dm_dir`) is needed here.
+- `classOldEndpointM_complex`/`_real`: `hatFun (flComp Mτ) (rawOf D', hatC z) = Tm.M j y X (composedPairAt…) g i`, from `localM` (same `g`) and `composeData_agree_on_X`; this is `hid` of `oldObsHatMatch_of_label_identity`.
+- Not done: the marks consequence; `CovSetup`/`hopt` from `IsPolyDom`; the chart inclusion `hchart` stays explicit.
