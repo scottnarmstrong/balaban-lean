@@ -758,8 +758,107 @@ theorem chainPatch_rooted_sum_le_exp (hG : CubeAligned G m₁) (hSS : SupSep G m
   apply Real.exp_le_exp.2
   nlinarith [mul_le_mul_of_nonneg_left hR hh0]
 
+
+/-- **The reached patches form a set rooted at the root neighbourhoods of the finite seed `A`**
+(the seed `U = ↑A` contains `X₁`): the family counted by `chainPatch_rooted_sum_le`. -/
+theorem jointParams_mem_rootedSets {Hb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ'}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {X₁ : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hG : CubeAligned G m₁)
+    (hΩb : ∀ x ∈ Hb.Ω 1, x ∈ G.Ω 1) (hΩm : ∀ x ∈ Hm.Ω 1, x ∈ G.Ω 1)
+    (hfb : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hm a ν z, t ∈ hatBox z)
+    (A : Finset (CTorus d L N₁ m₁ (k + 1))) (hX : ∀ x ∈ X₁, x ∈ A) :
+    ((jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 (↑A : Set _)).subtype (fun P => P ∈ cubeIdx G)) ∈
+      rootedSets (G := chainPatchGraph G)
+        (⋃ s ∈ A, (pairRootNbhd (G := G) s : Set (cubeIdx G))) := by
+  rw [mem_rootedSets]
+  refine Rooted.mono ?_ (jointParams_rooted (𝒞 := 𝒞) hG hΩb hΩm hfb hfm
+    (fun x hx => Finset.mem_coe.2 (hX x hx)))
+  intro P hP
+  obtain ⟨s, hs, hP⟩ := Set.mem_iUnion₂.1 hP
+  exact Set.mem_iUnion₂.2 ⟨s, Finset.mem_coe.1 hs, hP⟩
+
 end Sum
 
 end Patch
 
 end Balaban.Localization.Dec2
+
+/-! ### The P6 pair -/
+
+namespace Balaban.LargeField
+
+open Balaban Balaban.Multiscale Balaban.Localization Balaban.Localization.Dec2 Balaban.Polymer
+
+set_option linter.unusedSectionVars false
+
+section P6
+
+variable {d M1 c n1 L k n0 m₁ : ℕ} [NeZero L] [NeZero c] [NeZero M1] [NeZero n0] [NeZero n1]
+  {Rprev Rk : ℝ} {Zp : Set (Torus d n1)} (st : RegionStep d L n0 n1 Rprev Rk)
+
+/-- **Rootedness of the reached patches for the P6 pair.**  For `C = coverOf F♯`,
+`H_b = H^∂ = p6BoundaryC`, `H_m = H^- = p6OldC` and a seed `U ⊇ X₁`, every reached marked patch is
+joined, by a walk of the patch graph of the chain inside the reached patches, to the root
+neighbourhood of the seed.  Counting only; nothing is said about coefficients
+(`OPEN-P6-ACTIVE-COMPOSITE-LOC`). -/
+theorem p6_jointParams_rooted (hc : 14 ≤ c) (hn : n0 = L * n1) (hL : 2 ≤ L)
+    (hρ : 3 * L ≤ ⌊Rprev⌋₊) (hZ : st.Omegaᶜ ⊆ Zp) (hM1 : M1 = L ^ m₁) (hm₁ : 2 ≤ m₁)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) {a : ℕ → ℝ} {ν : ℝ} (hd : 3 ≤ d) (hL3 : 3 ≤ L) (hν : 0 ≤ ν)
+    (hνL : ν * ((L : ℝ) ^ (k + 1)) ^ 2 ≤ 1) (ha : IsAdmissibleWeights (k + 1) a)
+    (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
+    (X₁ : Finset (Localization.CTorus d L (c * n1) m₁ (k + 1)))
+    (𝒞 : Finset (ℕ × Localization.CTorus d L (c * n1) m₁ (k + 1)))
+    (U : Set (Localization.CTorus d L (c * n1) m₁ (k + 1))) (hX : ∀ x ∈ X₁, x ∈ U) :
+    Rooted (chainPatchGraph (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))
+      (pairRootSet (G := p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1) U)
+      ((jointParams (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))
+        (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ)
+        (p6OldC (k := k) (n1 := n1) (c := c) hM1 ⌊Rprev⌋₊ st.Z) a ν X₁ 𝒞 U).subtype
+        (fun P => P ∈ cubeIdx (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))) :=
+  jointParams_rooted
+    (GeneratingSet.castN_cubeAligned _ (p6_fsharp_cubeAligned hn hρ (by omega : 5 ≤ c) st.Z hM1 hm₁))
+    (fun x hx => (GeneratingSet.castN_precedes _ (p6_boundary_embedded st hc hn hL hρ hZ)).mem_Ω1 hx)
+    (fun x hx => (GeneratingSet.castN_precedes _
+      (p6_old_precedes hn hρ (by omega : 5 ≤ c) st.Z)).mem_Ω1 hx)
+    (footprint_hat_of_coverGeom (p6_coverGeom_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL
+      ha hsep))
+    (footprint_hat_of_coverGeom (p6_coverGeom_old hn hρ (by omega : 5 ≤ c) st.Z hM1 hm₁ hM hd hL3
+      hν hνL ha hsep)) hX
+
+open Classical in
+/-- **Degree of the patch graph of the chain for `F♯`** (`d < 5 L³ M₁`):
+at most `(detDeg d L + 1)^3`. -/
+theorem p6_chainPatchGraph_degree_le (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (hc : 5 ≤ c)
+    (Z : Set (Torus d n0)) (hM1 : M1 = L ^ m₁) (hm₁ : 2 ≤ m₁) (hd : d < 5 * L ^ 3 * M1)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (P : cubeIdx (p6FsharpC (k := k) (m₁ := m₁) hn hρ hc Z hM1)) :
+    (chainPatchGraph (p6FsharpC (k := k) (m₁ := m₁) hn hρ hc Z hM1)).degree P ≤
+      pairChainDeg d L :=
+  chainPatchGraph_degree_le_sup
+    (GeneratingSet.castN_cubeAligned _ (p6_fsharp_cubeAligned hn hρ hc Z hM1 hm₁))
+    (GeneratingSet.castN_supSep _ (p6_fsharp_supSep hn hρ hc Z hM1)) (p6_moore_premise hd) hM hL P
+
+/-- **The corrected rooted sum for `F♯`**: for a finite seed `A` of sites of the cover torus and
+`z = pairChainD² e^{-κ₂} < 1`, `h = -log (1 - z)`, if `|A| ≤ c_A (1 + Δ)` then
+`Σ_{C rooted at the root neighbourhoods of A} e^{-κ₂ |C|} ≤ e^{h c_A} e^{h c_A Δ}`. -/
+theorem p6_chainPatch_rooted_sum_le (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (hc : 5 ≤ c)
+    (Z : Set (Torus d n0)) (hM1 : M1 = L ^ m₁) (hm₁ : 2 ≤ m₁) (hd : d < 5 * L ^ 3 * M1)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (A : Finset (Localization.CTorus d L (c * n1) m₁ (k + 1))) {κ₂ Δ c_A : ℝ}
+    (hz : ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂) < 1)
+    (hR : (A.card : ℝ) ≤ c_A * (1 + Δ)) :
+    ∑ C ∈ rootedSets (G := chainPatchGraph (p6FsharpC (k := k) (m₁ := m₁) hn hρ hc Z hM1))
+        (⋃ s ∈ A, (pairRootNbhd (G := p6FsharpC (k := k) (m₁ := m₁) hn hρ hc Z hM1) s :
+          Set _)), Real.exp (-κ₂ * C.card)
+      ≤ Real.exp (-Real.log (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) * c_A) *
+        Real.exp (-Real.log (1 - ((pairChainD d L : ℕ) : ℝ) ^ 2 * Real.exp (-κ₂)) * c_A * Δ) :=
+  chainPatch_rooted_sum_le_exp
+    (GeneratingSet.castN_cubeAligned _ (p6_fsharp_cubeAligned hn hρ hc Z hM1 hm₁))
+    (GeneratingSet.castN_supSep _ (p6_fsharp_supSep hn hρ hc Z hM1)) (p6_moore_premise hd) hM hL
+    A hz hR
+
+end P6
+
+end Balaban.LargeField
