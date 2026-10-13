@@ -1113,6 +1113,7 @@ public import Balaban.Fluctuation.StepLocalInhabited
 public import Balaban.Fluctuation.StepObs
 public import Balaban.Fluctuation.StepObsInhabited
 public import Balaban.Fluctuation.StepRegFamily
+public import Balaban.Fluctuation.ScaleUniform
 public import Balaban.Fluctuation.StepRegBg
 public import Balaban.Fluctuation.StepRegCompose
 public import Balaban.Fluctuation.StepRegTerms
