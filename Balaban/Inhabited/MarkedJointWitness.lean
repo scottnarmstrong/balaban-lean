@@ -36,9 +36,10 @@ whole torus `X₁ = univ`), exactly as in `markedVBlockDecTwo_instance` and
   `(R₁ + r)(R_σ + t₁) · markedRad < t` is the inequality of `marked_radius_and_derivative_at_witness`;
   the bound of the unit field on the whole chart is `exists_analytic_shiftUC_chart`.
 
-The witness step has `X₁ = univ`, so every domain of the expansion is the whole torus.  This proves
-nothing about general classes or the physical model; the root assembly, the clamped global marks,
-the common labels and the `E1MarksC` inhabitant are NOT constructed.
+The witness step has `X₁ = univ`, so every domain of the expansion is the whole torus.  Zero class
+only: this proves nothing about general classes or the physical model; the root assembly, the
+clamped global marks, the common labels and the `E1MarksC` inhabitant are NOT constructed.  Nothing
+depends on a choice of generating sets for the class terms.
 -/
 
 @[expose] public section
