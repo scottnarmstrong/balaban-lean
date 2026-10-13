@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.StepComplexProp26
+public import Balaban.Fluctuation.StepComplexJoint
 
 /-!
 # The step setting with a free block datum (off the constant-field fibre)
@@ -20,7 +20,7 @@ it is the landed `dataUC`.
 
 namespace Balaban.Fluctuation
 
-open Balaban Balaban.Background Balaban.Multiscale Balaban.Localization
+open Balaban Balaban.Background Balaban.Multiscale Balaban.Localization Matrix
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
@@ -89,6 +89,68 @@ theorem dataUCH_fibre (D : BgData S.G' N) (hD : ∀ x i, D.h x i = (S.h₀ i : �
   refine BgData.eq_of_raw ?_
   rw [rawOf_dataUCH, rawUCH_fibre D hD ψ]
   exact (StepSetting.dataUC_raw (S.withDatum D hD) ψ).symm
+
+/-- The old datum of the critical spin is the composed datum, for any external field. -/
+theorem dataUCH_psi0C (H : StepSettingH S) :
+    H.dataUCH (fun q =>
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+          (unitRep (G' := S.G') q.1) q.2) =
+      composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' := by
+  let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+    (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
+  refine BgData.eq_of_raw (Prod.ext ?_ ?_)
+  · funext x i
+    dsimp only [rawOf]
+    rw [H.dataUCH_Ψ]
+    exact S.critical_Ψ_unitRep B x i
+  · funext x i
+    dsimp only [rawOf]
+    rw [H.dataUCH_h]
+    show H.D'.h x i = B.h x i
+    simp [B, composeData, (S.hG x).1]
+
+/-- The tangent of the old datum is its unit-block spin minus the critical spin, for any
+external field. -/
+theorem compTangent_dataUCH (H : StepSettingH S) (ψ : S.EC) :
+    compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' (H.dataUCH ψ) =
+      liftC S.hG' (ψ - fun q =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+            (unitRep (G' := S.G') q.1) q.2) := by
+  exact S.compTangent_of_unit_spin H.D' (H.dataUCH ψ) ψ _
+    (fun z i => H.dataUCH_Ψ ψ z i)
+    (fun z i => (S.critical_Ψ_unitRep
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D') z i).symm)
+
+/-- The raw old spin on the hat path has the critical spin, its covariance shift, and the
+incoming external field, without requiring the field to be constant. -/
+theorem rawOf_dataUCH_psiHat (H : StepSettingH S) (ψh : S.EC) :
+    rawOf (H.dataUCH ((fun q =>
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+          (unitRep (G' := S.G') q.1) q.2) +
+        S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)) =
+      ((fun z i =>
+        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ z i +
+        liftC S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+          (hatCovSqrt S.G' S.a₁ S.ν H.D' *ᵥ ψh)) z i), H.D'.h) := by
+  rw [H.rawOf_dataUCH]
+  exact S.rawHatField_eq H.D'
+    (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D')
+    (fun q =>
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+          (unitRep (G' := S.G') q.1) q.2)
+    ψh (hatCovSqrt S.G' S.a₁ S.ν H.D')
+    (fun z i => S.critical_Ψ_unitRep
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D') z i)
 
 end StepSettingH
 
