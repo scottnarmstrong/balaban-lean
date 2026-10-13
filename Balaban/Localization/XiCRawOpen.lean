@@ -7,6 +7,7 @@ module
 
 public import Balaban.Localization.I5Chain
 public import Balaban.Fluctuation.InteractionFPart
+import Balaban.Multiscale.Locality
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -493,5 +494,37 @@ theorem isOpen_preimage_xiCRaw {a : ℕ → ℝ} {ν : ℝ} {σ ε : ℝ} {n : �
   exact Filter.mem_map.1 this
 
 end RelOpen
+
+section Proper
+
+variable (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (N)
+
+/-- **The subspace of data is proper** as soon as some site of `Ω₁` lies in a block with at
+least two sites (`d ≥ 1`, `L ≥ 2`) and `N ≥ 1`: a field that is `1` at one site of the block and
+`0` at another is not constant on the block. -/
+theorem exists_not_mem_rawSub [NeZero N] (hd : 0 < d) (hL : 2 ≤ L) (hΩ : ∃ x, x ∈ G.Ω 1) :
+    ∃ q : RawData d L (N₁ * L ^ m₁) K N, q ∉ rawSub N G := by
+  classical
+  obtain ⟨x, hx⟩ := hΩ
+  obtain ⟨hn1, hnk, hxl⟩ := G.layerIndex_spec hx
+  have hcard : 1 < (G.blk (G.layerIndex x) x).card := by
+    rw [card_blk G _ hnk]
+    exact Nat.one_lt_pow hd.ne' (Nat.one_lt_pow (by omega) (by omega))
+  obtain ⟨x', hx'b, hx'⟩ := Finset.exists_mem_ne hcard x
+  refine ⟨(fun y _ => if y = x then 1 else 0, 0), fun hq => ?_⟩
+  have := congrFun (hq.1 _ hn1 hnk x hxl x' hx'b) (0 : Fin N)
+  simp [hx'] at this
+
+/-- **The chart is not open in `RawData`** (it is nonempty and the subspace of data is proper). -/
+theorem not_isOpen_xiCRaw (a : ℕ → ℝ) (ν σ ε : ℝ) (n : ℕ)
+    (hproper : ∃ q : RawData d L (N₁ * L ^ m₁) K N, q ∉ rawSub N G)
+    (hne : (XiCRaw (N := N) G a ν n σ ε).Nonempty) : ¬ IsOpen (XiCRaw (N := N) G a ν n σ ε) := by
+  intro ho
+  obtain ⟨p, hp⟩ := hne
+  have := interior_xiCRaw_eq_empty G a ν σ ε n hproper
+  rw [ho.interior_eq] at this
+  exact (this ▸ hp : p ∈ (∅ : Set _))
+
+end Proper
 
 end Balaban.Localization
