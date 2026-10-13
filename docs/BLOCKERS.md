@@ -20,7 +20,7 @@ The last section lists the problems that have been resolved since the project st
 |---|---|---|---|---|
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; no argument found |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open |
-| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open |
+| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open; two workarounds ruled out; question drafted (item 14) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | open |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; reference family constructed |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | open; workaround designed |
@@ -76,7 +76,8 @@ at its far end, or why such a patch has zero coefficient. Two marked patches in 
 one cover centre need not touch, so connectedness of the patches alone is not what the expansion
 produces.
 
-Details: `notes/phase1/VMOD-34.md` to `VMOD-42.md`. Item 14 (with its second and third addenda).
+Details: `notes/phase1/VMOD-34.md` to `VMOD-42.md`, `LFROOT3.md`, `LFH7PRIME.md`, `LFH7PRIME2.md`.
+Item 14 (with its second, third and fourth addenda).
 
 ## 4. The gas of removed components and retained holes
 
@@ -90,10 +91,21 @@ incidence restriction excludes such links.
 Details: `notes/phase1/VMOD-40.md` to `VMOD-42.md`. Item 16.
 
 A comparison with Dimock's large-field papers (`notes/phase1/LFDIMOCK.md`) found no direct substitute for the
-missing payment in blockers 3 and 4, but a possible route that does not depend on the author's answer:
-show that every coefficient linking across a retained hole is rooted in the new active region (as in
-Dimock's localization), and that the large-field gas factorizes conditionally on the retained spins.
-Both statements are being checked.
+missing payment in blockers 3 and 4. We then tested two ways around it without the author's answer, and
+neither works as stated:
+
+- *Rooting in the active region* (as in Dimock's localization). For the output labels this is false:
+  an inherited boundary term with a constant coefficient, of size O(1) and allowed by (H.7), must be
+  given an output domain containing the whole completed hole, of size of order n, and nothing in the
+  class pays for that length (`notes/phase1/LFROOT3.md`). Whether the *physical* O(N) coefficients
+  are rooted is still open.
+- *A stronger inductive class*: boundary terms whose domain contains a hole carry an extra factor
+  e^{−σ q}, with q the number of cells on the hole's boundary shell. This would exclude the example
+  above. But the large-field small factors of P5 (1.31) and P7 (3.10) are attached to operators and
+  removed components, not to these coefficients, so we cannot show that the construction produces the
+  factor, or that one step preserves it with the same σ (`notes/phase1/LFH7PRIME.md`, `LFH7PRIME2.md`).
+
+The precise question is now item 14, fourth addendum.
 
 ## 5. The cut family for the last integral
 

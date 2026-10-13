@@ -97,6 +97,58 @@ theorem sitesOf_regroup_eq {α : Type*} (e : α → Finset 𝔅 → ℂ) (θ θ'
 end Generic
 
 open Classical in
+/-- **Theorem 3.1 (a), energy term, on the paper's domains, general tower.**  As
+`thm31a_zeroClass_supp_fromTowerG`, with the coefficients re-indexed by the site sets
+`Y = sitesOf T'`: `E0locC` is the sum over the domains `Y` in the image of `sitesOf` of
+`eY Y = ∑_{sitesOf T' = Y} e T'`; each non-zero `eY Y` has `Y` in `𝒟_{k+1}` (`IsDj 1 (k+1) Y`) and
+contains the box of the root cube of `z`; `‖eY Y‖ ≤ (N L^d BL + 1) K0 exp(-κ' · sizeJ 1 (k+1) Y)`;
+and `eY (sitesOf T') = e T'`.  The fixed `thm31a_zeroClass_sites_fromTower` is its
+corollary. -/
+theorem thm31a_zeroClass_sites_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) (C : StepOutputConsts d L)
+    (hKc : C.Kc = 2 * (K0 d L T.κ0 + 1))
+    (hKall : C.Kall = max (2 * K0 d L T.κ0) (rootUnionK d L T.m₀ T.m₁ T.κ0))
+    (hH : C.kH = 2 * T.κdec - 1) (h0 : C.k0 = T.κ0) (h' : C.k' = T.κ') {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+      StepScaleDataG T k hk N₁ ν β p₁ →
+      ∀ {ϱ : ℝ}, ϱ = rhoSepG d L T.m₁ → ∀ (S : StepSetting d L N₁ T.m₁ k N ϱ),
+        S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ → 0 < S.p₁ →
+      ∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        ∃ (e : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+            Set.univ) → ℂ)
+          (eY : Set (CTorus d L N₁ T.m₁ (k + 1)) → ℂ),
+          S.E0locC (zeroClass d L N₁ T.m₁ k N ϱ) z = ∑ T', e T' ∧
+          S.E0locC (zeroClass d L N₁ T.m₁ k N ϱ) z =
+            ∑ Y ∈ Finset.univ.image (fun T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+              (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ) => sitesOf T'), eY Y ∧
+          (∀ Y, eY Y = ∑ T' ∈ Finset.univ.filter (fun T'' : Finset (CubeB (d := d) (L := L)
+              (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ) => sitesOf T'' = Y),
+              e T') ∧
+          (∀ T', eY (sitesOf T') = e T') ∧
+          (∀ Y, eY Y ≠ 0 → IsDj 1 (k + 1) Y ∧
+            box (rootCube (m₀ := 1) (K := k + 1) z).1 (cellSide L 1 T.m₁ (k + 1)) ⊆ Y) ∧
+          ∀ Y, ‖eY Y‖ ≤ ((N : ℝ) * (L : ℝ) ^ d * (covBLogMax d L T.κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) *
+            K0 d L T.κ0 * Real.exp (-T.κ' * sizeJ 1 (k + 1) Y) := by
+  obtain ⟨β₀, h3, h⟩ := thm31a_zeroClass_supp_fromTowerG T hm₀ C hKc hKall hH h0 h' hA p
+  refine ⟨β₀, h3, fun k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁ D ϱ hϱ S hS hp z => ?_⟩
+  obtain ⟨e, hsum, hbd, hsupp⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁ D hϱ S hS hp z
+  have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
+  have hB : 0 ≤ ((N : ℝ) * (L : ℝ) ^ d * (covBLogMax d L T.κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) *
+            K0 d L T.κ0 := by
+    have h0 := (norm_nonneg (e ∅)).trans (hbd ∅)
+    exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
+  obtain ⟨eY, h1, h2, h3', h4, h5⟩ := sitesOf_regroup (L := L) (N₁ := N₁) (m₁ := T.m₁)
+    (K := k + 1) (m₀ := 1) hN1 e _ T.κ' hB (rootCube z)
+    (fun T' _ => hbd T') (fun T' hne => ⟨(hsupp T' hne).2, (hsupp T' hne).1⟩)
+  exact ⟨e, eY, hsum, hsum.trans h3', h1, h2, h4, h5⟩
+
+open Classical in
 /-- **Theorem 3.1 (a), energy term, on the paper's domains.**  As
 `thm31a_zeroClass_supp_fromTower`, with the coefficients re-indexed by the site sets
 `Y = sitesOf T'`: `E0locC` is the sum over the domains `Y` in the image of `sitesOf` of
@@ -128,18 +180,80 @@ theorem thm31a_zeroClass_sites_fromTower {κmin : ℝ} (T : StepTower κmin)
           ∀ Y, ‖eY Y‖ ≤ (2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
               (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) *
             K0 3 3 T.κ0 * Real.exp (-T.κ' * sizeJ 1 (k + 1) Y) := by
-  obtain ⟨β₀, h3, h⟩ := thm31a_zeroClass_supp_fromTower T hHull hA p
+  obtain ⟨β₀, h3, H⟩ := thm31a_zeroClass_sites_fromTowerG T.toG rfl (stepOutputPhysical T hHull)
+    rfl rfl rfl rfl rfl hA p
   refine ⟨β₀, h3, fun k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D z => ?_⟩
-  obtain ⟨e, hsum, hbd, hsupp⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D z
-  have hB : 0 ≤ (2 * (3 : ℝ) ^ 3 * (covBLogMax 3 3 T.κ /
-              (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ))) + 1) *
-            K0 3 3 T.κ0 := by
-    have h0 := (norm_nonneg (e ∅)).trans (hbd ∅)
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  obtain ⟨e', eY, h1, h2, h3', h4, h5, h6⟩ := H k hk N₁ (by simpa using h3N) hN ν hν0
+    (by simpa using hν) β hβ p₁ (by rw [e]; exact hp₁) (StepTower.scaleDataG_of_fixed T D)
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl hp z
+  refine ⟨e', eY, h1, h2, h3', h4, h5, fun Y => ?_⟩
+  have hb := h6 Y
+  simp only [Nat.cast_ofNat] at hb
+  exact hb
+
+open Classical in
+/-- **`thm31b_zeroClass_sites_fromTower_rho` for the general tower.**  From
+`thm31b_onCommonWitness_fromTowerG_supp_rho`: the constant `Cthm` does not depend on `ρ`; for each
+`ρ > 0` the threshold `β₀` satisfies `3 ≤ β₀` and `ρ ≤ β₀`, and the sources `g` range over the `ℓ¹`
+ball of radius `ρ`.  The coefficients are indexed by the site sets `Y = sitesOf T'`, with decay in
+`sizeJ T.m₀ (k+1) Y`.  The step `S` is over `ϱ = rhoSepG d L T.m₁` and is `T.step …` up to `HEq`,
+`b = β L^{k(d-2)}`.  The fixed `thm31b_zeroClass_sites_fromTower_rho` is its corollary. -/
+theorem thm31b_zeroClass_sites_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (C : StepOutputConsts d L)
+    (hKc : C.Kc = 2 * (K0 d L T.κ0 + 1))
+    (hKall : C.Kall = max (2 * K0 d L T.κ0) (rootUnionK d L T.m₀ T.m₁ T.κ0))
+    (hH : C.kH = 2 * T.κdec - 1) (h0 : C.k0 = T.κ0) (h' : C.k' = T.κ') {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+    ∃ Cthm : ℝ, 0 ≤ Cthm ∧
+  ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ρ ≤ β₀ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_hLN : L ^ T.m₀ ∣ N₁), 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (b : ℝ), b = β * (L : ℝ) ^ (k * (d - 2)) → ∀ (p₁ : ℝ) (_hp0 : 0 < p₁),
+  p₁ ≤ pLog A₁ p b → StepScaleDataG T k hk N₁ ν β p₁ →
+  ∀ (ϱ : ℝ), ϱ = rhoSepG d L T.m₁ →
+  ∀ (S : StepSetting d L N₁ T.m₁ k N ϱ), HEq S (T.step k hk N₁ ν β p₁) →
+  ∀ (_hp : 0 < S.p₁),
+    ∀ g : Fld d L N₁ T.m₁ (k + 1) N, g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N ρ →
+    ∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+    ∃ (E : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+        Set.univ) → ℂ)
+      (eY : Set (CTorus d L N₁ T.m₁ (k + 1)) → ℂ),
+      S.M0C (zeroClass d L N₁ T.m₁ k N ϱ) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      S.M0C (zeroClass d L N₁ T.m₁ k N ϱ) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ Y ∈ Finset.univ.image
+          (fun T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
+            (k + 1) Set.univ) => sitesOf T'), eY Y ∧
+      (∀ Y, eY Y = ∑ T' ∈ Finset.univ.filter (fun T'' : Finset (CubeB (d := d) (L := L)
+          (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1) Set.univ) => sitesOf T'' = Y),
+          E T') ∧
+      (∀ T', eY (sitesOf T') = E T') ∧
+      (∀ Y, eY Y ≠ 0 → IsDj T.m₀ (k + 1) Y ∧
+        box (rootCube (m₀ := T.m₀) (K := k + 1) (blockIndex y)).1
+          (cellSide L T.m₀ T.m₁ (k + 1)) ⊆ Y) ∧
+      ∀ Y, ‖eY Y‖ ≤ Cthm * obsPrefactor p s b *
+        Real.exp (-(3 / 2 * T.κdec) * sizeJ T.m₀ (k + 1) Y) := by
+  classical
+  obtain ⟨CE, CF, Cthm, -, -, hC, h⟩ :=
+    thm31b_onCommonWitness_fromTowerG_supp_rho T C hKc hKall hH h0 h' hA p hCR hs0 hs
+  refine ⟨Cthm, hC, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, h3, hρβ, h⟩ := h ρ hρ
+  refine ⟨β₀, h3, hρβ, fun k hk N₁ _ hLN h5 ν hν hνk β hβ b hb p₁ hp0 hp₁ hsc ϱ hϱ S hS hp g hg y i => ?_⟩
+  obtain ⟨-, -, -, -, -, -, hlast⟩ := h k hk N₁ hLN h5 ν hν hνk β hβ b hb p₁ hp0 hp₁ hsc ϱ hϱ S hS hp
+  obtain ⟨E, hsum, hroot, hbd, hsupp⟩ := hlast g hg y i
+  have hB : 0 ≤ Cthm * obsPrefactor p s b := by
+    have h0 := (norm_nonneg (E ∅)).trans (hbd ∅)
     exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
-  obtain ⟨eY, h1, h2, h3', h4, h5⟩ := sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-    (K := k + 1) (m₀ := 1) (by simpa using h3N) e _ T.κ' hB (rootCube z)
-    (fun T' _ => hbd T') (fun T' hne => ⟨(hsupp T' hne).2, (hsupp T' hne).1⟩)
-  exact ⟨e, eY, hsum, hsum.trans h3', h1, h2, h4, h5⟩
+  obtain ⟨eY, h1, h2, h3', h4, h5'⟩ := sitesOf_regroup (L := L) (N₁ := N₁) (m₁ := T.m₁)
+    (K := k + 1) (m₀ := T.m₀) hLN E _ (3 / 2 * T.κdec) hB
+    (rootCube (blockIndex y))
+    (fun T' _ => hbd T')
+    (fun T' hne => ⟨hsupp T' hne, by
+      by_contra hn; exact hne (hroot T' hn)⟩)
+  exact ⟨E, eY, hsum, by rw [hsum, h3'], h1, h2, h4, h5'⟩
+
 
 open Classical in
 /-- **`thm31b_zeroClass_sites_fromTower` at source radius `ρ`.**  From
@@ -178,23 +292,17 @@ theorem thm31b_zeroClass_sites_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
         box (rootCube (m₀ := 1) (K := k + 1) (blockIndex y)).1 (cellSide 3 1 T.m₁ (k + 1)) ⊆ Y) ∧
       ∀ Y, ‖eY Y‖ ≤ C * obsPrefactor p s (β * 3 ^ k) *
         Real.exp (-(3 / 2 * T.κdec) * sizeJ 1 (k + 1) Y) := by
-  obtain ⟨CE, CF, C, -, -, hC, h⟩ :=
-    thm31b_onCommonWitness_fromTower_supp_rho T hHull hA p hCR hs0 hs
-  refine ⟨C, hC, fun ρ hρ => ?_⟩
-  obtain ⟨β₀, h3, hρβ, h⟩ := h ρ hρ
-  refine ⟨β₀, h3, hρβ, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp g hg y i => ?_⟩
-  obtain ⟨-, -, -, -, -, -, hlast⟩ := h k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp
-  obtain ⟨E, hsum, hroot, hbd, hsupp⟩ := hlast g hg y i
-  have hB : 0 ≤ C * obsPrefactor p s (β * 3 ^ k) := by
-    have h0 := (norm_nonneg (E ∅)).trans (hbd ∅)
-    exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
-  obtain ⟨eY, h1, h2, h3', h4, h5'⟩ := sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-    (K := k + 1) (m₀ := 1) (by simpa using h3N) E _ (3 / 2 * T.κdec) hB
-    (rootCube (blockIndex y))
-    (fun T' _ => hbd T')
-    (fun T' hne => ⟨hsupp T' hne, by
-      by_contra hn; exact hne (hroot T' hn)⟩)
-  exact ⟨E, eY, hsum, by rw [hsum, h3'], h1, h2, h4, h5'⟩
+  classical
+  obtain ⟨Cthm, hC, H⟩ :=
+    thm31b_zeroClass_sites_fromTowerG_rho T.toG (stepOutputPhysical T hHull) rfl rfl rfl rfl rfl
+      hA p hCR hs0 hs
+  refine ⟨Cthm, hC, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, h3, hρβ, H1⟩ := H ρ hρ
+  refine ⟨β₀, h3, hρβ, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D S hS hp
+  exact H1 k hk N₁ (by simpa using h3N) hN ν hνpos (by simpa using hν) β hβ (β * 3 ^ k)
+    (by norm_num) p₁ hp0 hp₁ (StepTower.scaleDataG_of_fixed T D) _ (rhoSepG_three _).symm S
+    (by rw [hS]; exact (StepTower.toG_step_heq T k hk N₁ ν β p₁).symm) hp
 
 
 open Classical in
