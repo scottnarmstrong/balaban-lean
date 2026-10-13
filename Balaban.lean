@@ -1226,6 +1226,7 @@ public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.P6TopRootedFiber
 public import Balaban.Localization.P6FsharpRootedCount
+public import Balaban.Localization.P6ActiveSeed
 public import Balaban.Inhabited.P6FsharpRootedWitness
 public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
