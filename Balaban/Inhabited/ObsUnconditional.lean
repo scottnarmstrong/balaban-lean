@@ -444,6 +444,35 @@ theorem obsMarks_zeroClass_instance {κmin : ℝ} (T : StepTower κmin) :
   exact ⟨I⟩
 
 /-- **The coefficient sum and bound of Theorem 3.1 (b) for the zero-class step at every scale of
+one tower and every source radius `ρ > 0`, with no hypothesis beyond the tower**, at the output rate `(3/2) κ_dec`:
+`thm31b_zeroClass_fromTower_of_ray` with `hray` supplied by `obsRay_hray_fromTower`.
+
+This is weaker than clause (b) of `notes/phase1/FLUCTUATION.md` Theorem 3.1 (audit
+`notes/phase1/AUDIT-OBS.md`, A1): the terms are indexed by finite sets of block cubes with a root
+clause, not by localization domains with a support clause; there is no termwise locality, no
+analyticity in the source `g` (the coefficients are chosen after `g`), no reality or symmetry
+clause; and the prefactor is `obsPrefactor`, not the paper's power of `β`. -/
+theorem thm31b_zeroClass_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) (ρ : ℝ) (hρ : 0 < ρ) :
+  ∃ β₀ C : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧ 0 ≤ C ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    ∃ E : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → ℂ,
+      (T.step k hk N₁ ν β p₁).M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+        (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
+      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') :=
+  thm31b_zeroClass_fromTower_of_ray_rho T hA p hCR hs0 hs ρ hρ (obsRay_hray_fromTower_rho T ρ hρ)
+
+/-- **The coefficient sum and bound of Theorem 3.1 (b) for the zero-class step at every scale of
 one tower, with no hypothesis beyond the tower**, at the output rate `(3/2) κ_dec`:
 `thm31b_zeroClass_fromTower_of_ray` with `hray` supplied by `obsRay_hray_fromTower`.
 
@@ -469,8 +498,49 @@ theorem thm31b_zeroClass_fromTower {κmin : ℝ} (T : StepTower κmin)
       (T.step k hk N₁ ν β p₁).M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
         (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
       (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
-      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') :=
-  thm31b_zeroClass_fromTower_of_ray T hA p hCR hs0 hs (obsRay_hray_fromTower T)
+      ∀ T', ‖E T'‖ ≤ C * obsPrefactor p s (β * 3 ^ k) * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
+  obtain ⟨β₀, C, hβ₀, -, hC, h⟩ := thm31b_zeroClass_fromTower_rho T hA p hCR hs0 hs 1 one_pos
+  exact ⟨β₀, C, hβ₀, hC, h⟩
+
+/-- **Smallness.**  For every `ε > 0` there is a threshold `β₁` after which the rooted terms of
+`thm31b_zeroClass_fromTower_rho` satisfy `‖E T'‖ ≤ ε · exp(-(3/2 κ_dec) dExt T')`. -/
+theorem thm31b_zeroClass_fromTower_small_rho {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) (ρ : ℝ) (hρ : 0 < ρ) {ε : ℝ} (hε : 0 < ε) :
+  ∃ β₁ : ℝ, 2 ≤ β₁ ∧ ρ ≤ β₁ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₁ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    ∃ E : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → ℂ,
+      (T.step k hk N₁ ν β p₁).M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+        (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
+      ∀ T', ‖E T'‖ ≤ ε * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
+  obtain ⟨β₀, C, hβ₀, hρβ, hC, hmain⟩ := thm31b_zeroClass_fromTower_rho T hA p hCR hs0 hs ρ hρ
+  obtain ⟨β₂, hβ₂, hsm⟩ := obsPrefactor_small_scale p hs0 (ε := ε / (C + 1)) (by positivity)
+  refine ⟨max β₀ β₂, le_max_of_le_left hβ₀, le_max_of_le_left hρβ, ?_⟩
+  intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
+  obtain ⟨E, h1, h2, h3'⟩ := hmain k hk N₁ h3 h5 ν hν hνk β (le_trans (le_max_left _ _) hβ) p₁ hp
+    hp₁ hsc g hg y i
+  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
+  have hs' := hsm k β (le_trans (le_max_right _ _) hβ)
+  have hCe : C * obsPrefactor p s (β * 3 ^ k) ≤ ε := by
+    have h0 : 0 ≤ obsPrefactor p s (β * 3 ^ k) := by
+      have hb : 1 ≤ β * 3 ^ k := by
+        have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+        have : (1 : ℝ) ≤ β := by linarith [le_max_left β₀ β₂, hβ₂, le_max_right β₀ β₂]
+        nlinarith
+      exact obsPrefactor_nonneg p s hb
+    calc C * obsPrefactor p s (β * 3 ^ k) ≤ (C + 1) * (ε / (C + 1)) := by
+          nlinarith
+      _ = ε := by field_simp
+  exact mul_le_mul_of_nonneg_right hCe (Real.exp_nonneg _)
 
 /-- **Smallness.**  For every `ε > 0` there is a threshold `β₁` after which the rooted terms of
 `thm31b_zeroClass_fromTower` satisfy `‖E T'‖ ≤ ε · exp(-(3/2 κ_dec) dExt T')`. -/
@@ -492,24 +562,7 @@ theorem thm31b_zeroClass_fromTower_small {κmin : ℝ} (T : StepTower κmin)
         (((T.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
       (∀ T', rootCube (m₀ := 1) (blockIndex y) ∉ T' → E T' = 0) ∧
       ∀ T', ‖E T'‖ ≤ ε * Real.exp (-(3 / 2 * T.κdec) * dExt T') := by
-  obtain ⟨β₀, C, hβ₀, hC, hmain⟩ := thm31b_zeroClass_fromTower T hA p hCR hs0 hs
-  obtain ⟨β₂, hβ₂, hsm⟩ := obsPrefactor_small_scale p hs0 (ε := ε / (C + 1)) (by positivity)
-  refine ⟨max β₀ β₂, le_max_of_le_left hβ₀, ?_⟩
-  intro k hk N₁ _ h3 h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
-  obtain ⟨E, h1, h2, h3'⟩ := hmain k hk N₁ h3 h5 ν hν hνk β (le_trans (le_max_left _ _) hβ) p₁ hp
-    hp₁ hsc g hg y i
-  refine ⟨E, h1, h2, fun T' => (h3' T').trans ?_⟩
-  have hs' := hsm k β (le_trans (le_max_right _ _) hβ)
-  have hCe : C * obsPrefactor p s (β * 3 ^ k) ≤ ε := by
-    have h0 : 0 ≤ obsPrefactor p s (β * 3 ^ k) := by
-      have hb : 1 ≤ β * 3 ^ k := by
-        have : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-        have : (1 : ℝ) ≤ β := by linarith [le_max_left β₀ β₂, hβ₂, le_max_right β₀ β₂]
-        nlinarith
-      exact obsPrefactor_nonneg p s hb
-    calc C * obsPrefactor p s (β * 3 ^ k) ≤ (C + 1) * (ε / (C + 1)) := by
-          nlinarith
-      _ = ε := by field_simp
-  exact mul_le_mul_of_nonneg_right hCe (Real.exp_nonneg _)
+  obtain ⟨β₁, hβ₁, -, h⟩ := thm31b_zeroClass_fromTower_small_rho T hA p hCR hs0 hs 1 one_pos hε
+  exact ⟨β₁, hβ₁, h⟩
 
 end Balaban.Inhabited
