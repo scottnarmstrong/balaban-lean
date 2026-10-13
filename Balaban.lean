@@ -128,6 +128,7 @@ public import Balaban.Symmetry.InvariantReduction
 public import Balaban.Flow.RGEquations
 public import Balaban.Flow.RGParam
 public import Balaban.Flow.RunningCoefficients
+public import Balaban.Flow.StopIndex
 public import Balaban.Flow.MatrixInfty
 public import Balaban.Flow.MatrixFree
 public import Balaban.Flow.RGInfty
@@ -1317,6 +1318,8 @@ public import Balaban.Fluctuation.StepComplexCov
 public import Balaban.Fluctuation.StepComplexProp26
 public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
+public import Balaban.Fluctuation.MarkedTangent
+public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1397,3 +1400,5 @@ public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
 public import Balaban.Fluctuation.DARateNumerics
 public import Balaban.Fluctuation.StepActivityClassChart
+public import Balaban.LargeField.Background.CubeUnitBg
+public import Balaban.Inhabited.ChiYWitness
