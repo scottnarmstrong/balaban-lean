@@ -874,6 +874,8 @@ public import Balaban.LargeField.R.GainPos
 public import Balaban.LargeField.R.RipeBox
 public import Balaban.LargeField.R.ZeroDomainB
 public import Balaban.LargeField.R.ZeroDomainC
+public import Balaban.LargeField.R.RRipeCard
+public import Balaban.Inhabited.RRipeCardWitness
 public import Balaban.LargeField.R.ZeroDomainD
 public import Balaban.LargeField.R.HgeoDischarge
 public import Balaban.LargeField.R.ChainWalk
