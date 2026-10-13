@@ -7,7 +7,6 @@ module
 
 public import Balaban.Fluctuation.DetCollarHull
 public import Balaban.Fluctuation.DetCauchyGraph
-public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.DetOutputTermsWitness
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -67,11 +66,6 @@ theorem detRateG_mono {d L : ℕ} (hd : 0 < d) (hL : 0 < L) : Monotone (detRateG
   unfold detRateG
   exact div_le_div_of_nonneg_right (by linarith) h.le
 
-/-- The general rate at `d = L = 3` is the landed `towerDetRate`. -/
-theorem detRateG_three (κ : ℝ) : detRateG 3 3 κ = towerDetRate κ := by
-  unfold detRateG towerDetRate
-  norm_num
-
 /-- **The hull rate for general `d`, `L`.** -/
 theorem hullRate_ge_general {d L : ℕ} (hd : 0 < d) (hL : 0 < L) [NeZero L] {κ kout : ℝ}
     (h : 2 * d * L * (1 + collarB d L) * (kout + c1 d L * Real.log 2) + Real.log 2 +
@@ -92,17 +86,5 @@ theorem hullRate_ge_general {d L : ℕ} (hd : 0 < d) (hL : 0 < L) [NeZero L] {κ
 theorem detDeg_three_rate_of_general {κ : ℝ} (hκ : 57 ≤ κ) :
     ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1 :=
   detDeg_rate_general 3 3 (lt_of_lt_of_le log_detDeg_three_lt hκ)
-
-/-- The landed `hullRate_ge_of_le` as the instance `d = L = 3` of `hullRate_ge_general`. -/
-theorem hullRate_ge_of_le_of_general {κ kout : ℝ}
-    (h : 18 * 60751 * (kout + 3375 * Real.log 2) + Real.log 2 +
-      2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) ≤ κ) :
-    kout ≤ hullRate 3 3 (towerDetRate κ) := by
-  rw [← detRateG_three]
-  refine hullRate_ge_general (by norm_num) (by norm_num) ?_
-  rw [collarB_three, c1_three]
-  norm_num
-  push_cast at h ⊢
-  linarith
 
 end Balaban.Fluctuation
