@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.OffFibreE1Marks
+public import Balaban.Analysis.RayJetMark
 public import Balaban.Fluctuation.OffFibreBlockEnergyCore
 
 /-!
@@ -273,28 +274,14 @@ theorem VJ_mark_taylor1_freeDatum
         (A * u' ^ 2 + C * u' * t + Dq * t ^ 2)) 0) 0 =
       deriv (fun t : ℂ => g (u, t)) 0 := by
   dsimp only
-  let g : ℂ × ℂ → ℂ := fun w => Jr.VJ (rawOf D, w.1 • a + w.2 • b)
   have hΘ : rawOf D ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps := ⟨D, hX, rfl⟩
   have hψ0 : ∀ p, ‖(0 : S.EC) p‖ ≤ pp := fun _ => by simpa using hpp.le
-  have hlin : AnalyticAt ℂ (fun w : ℂ × ℂ =>
-      (rawOf D, w.1 • a + w.2 • b)) 0 := by
-    exact analyticAt_const.prod
-      ((analyticAt_fst.smul analyticAt_const).add (analyticAt_snd.smul analyticAt_const))
-  have hg : AnalyticAt ℂ g 0 :=
-    (Jr.analyticAt_VJ hΘ hψ0).comp_of_eq hlin (by simp)
-  have hj : ∀ w : ℂ × ℂ,
-      deriv (fun r : ℝ => g ((r : ℂ) • w)) 0 = 0 ∧
-      deriv (deriv (fun r : ℝ => g ((r : ℂ) • w))) 0 = 0 := by
-    intro w
-    have he : (fun r : ℝ => g ((r : ℂ) • w)) =
-        fun r : ℝ => Jr.VJ (rawOf D, (r : ℂ) • (w.1 • a + w.2 • b)) := by
-      funext r
-      simp [g, Prod.smul_def, smul_add, smul_smul]
-    rw [he]
-    exact Jr.VJ_ray_vanish_freeDatum D hX ha₁ HB hD2 hpp _
-  obtain ⟨h1, h2⟩ := rayJet_pair_of_real g hg
-    (fun w => (hj w).1) (fun w => (hj w).2)
-  exact mark_taylor1_add g hg h1 h2 A C Dq u hu
+  have hV : AnalyticAt ℂ (fun y : S.EC => Jr.VJ (rawOf D, y)) 0 :=
+    (Jr.analyticAt_VJ hΘ hψ0).comp_of_eq (analyticAt_const.prod analyticAt_id) rfl
+  have hj := fun w : ℂ × ℂ =>
+    Jr.VJ_ray_vanish_freeDatum D hX ha₁ HB hD2 hpp (w.1 • a + w.2 • b)
+  exact mark_taylor1_add_of_real_rays (fun y : S.EC => Jr.VJ (rawOf D, y)) a b hV
+    (fun w => (hj w).1) (fun w => (hj w).2) A C Dq u hu
 
 /-- On the free-datum fluctuation ball, the block-energy total is the raw joint
 interaction plus the quadratic correction. -/
