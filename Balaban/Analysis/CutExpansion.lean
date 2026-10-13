@@ -25,7 +25,7 @@ the `J`-th mixed difference of `F` between the cut values `0` and `1`.
   `F(1) = ∑_J ∫_{[0,1]^J} ∂_J F (s_J, 0)`.
 * `norm_oneDiff_le`: for `g` differentiable on the disc of radius `R` and bounded by `M` there,
   `‖g 1 - g 0‖ ≤ 2 M / R` (Schwarz lemma).
-* `norm_mixDiff_le`: if `F` is differentiable on the open polydisc `{s | ∀ P, ‖s P‖ < R}`,
+* `norm_mixDiff_le`: if `F` is differentiable on the open cutPolydisc `{s | ∀ P, ‖s P‖ < R}`,
   `R > 1`, and bounded there by `M`, then `‖mixDiff J F‖ ≤ M (2 / R)^{|J|}`.
 
 The bound carries no support information.
@@ -47,8 +47,8 @@ noncomputable def cutPt (I : Finset ι) : ι → ℂ := fun P => if P ∈ I then
 noncomputable def mixDiff (J : Finset ι) (F : (ι → ℂ) → ℂ) : ℂ :=
   ∑ I ∈ J.powerset, (-1 : ℂ) ^ (J.card - I.card) * F (cutPt I)
 
-/-- The open polydisc of radius `R`. -/
-def polydisc (ι : Type*) [Fintype ι] (R : ℝ) : Set (ι → ℂ) := {s | ∀ P, ‖s P‖ < R}
+/-- The open cutPolydisc of radius `R`. -/
+def cutPolydisc (ι : Type*) [Fintype ι] (R : ℝ) : Set (ι → ℂ) := {s | ∀ P, ‖s P‖ < R}
 
 theorem cutPt_univ : cutPt (Finset.univ : Finset ι) = fun _ => 1 := by
   funext P; simp [cutPt]
@@ -143,7 +143,7 @@ theorem norm_oneDiff_le {g : ℂ → ℂ} {R M : ℝ} (hR : 1 < R)
   rw [dist_eq_norm] at this
   simpa using this
 
-theorem cutPt_mem_polydisc {R : ℝ} (hR : 1 < R) (I : Finset ι) : cutPt I ∈ polydisc ι R := by
+theorem cutPt_mem_cutPolydisc {R : ℝ} (hR : 1 < R) (I : Finset ι) : cutPt I ∈ cutPolydisc ι R := by
   intro P
   unfold cutPt
   split_ifs <;> simp <;> linarith
@@ -164,43 +164,43 @@ theorem differentiable_update_right (s : ι → ℂ) (p : ι) :
   · subst h; simp
   · simp [Function.update_of_ne h]
 
-theorem update_mem_polydisc {R : ℝ} {s : ι → ℂ} (hs : s ∈ polydisc ι R) (p : ι) {c : ℂ}
-    (hc : ‖c‖ < R) : Function.update s p c ∈ polydisc ι R := by
+theorem update_mem_cutPolydisc {R : ℝ} {s : ι → ℂ} (hs : s ∈ cutPolydisc ι R) (p : ι) {c : ℂ}
+    (hc : ‖c‖ < R) : Function.update s p c ∈ cutPolydisc ι R := by
   intro q
   by_cases h : q = p
   · subst h; simpa using hc
   · simpa [Function.update_of_ne h] using hs q
 
 theorem cutDiff_bound {R M : ℝ} (hR : 1 < R) {F : (ι → ℂ) → ℂ}
-    (hd : DifferentiableOn ℂ F (polydisc ι R)) (hM : ∀ s ∈ polydisc ι R, ‖F s‖ ≤ M) (p : ι) :
-    (DifferentiableOn ℂ (cutDiff p F) (polydisc ι R)) ∧
-      ∀ s ∈ polydisc ι R, ‖cutDiff p F s‖ ≤ 2 * M / R := by
+    (hd : DifferentiableOn ℂ F (cutPolydisc ι R)) (hM : ∀ s ∈ cutPolydisc ι R, ‖F s‖ ≤ M) (p : ι) :
+    (DifferentiableOn ℂ (cutDiff p F) (cutPolydisc ι R)) ∧
+      ∀ s ∈ cutPolydisc ι R, ‖cutDiff p F s‖ ≤ 2 * M / R := by
   have h1 : ‖(1 : ℂ)‖ < R := by simpa using hR
   have h0 : ‖(0 : ℂ)‖ < R := by simp; linarith
   refine ⟨?_, fun s hs => ?_⟩
   · unfold cutDiff
     refine DifferentiableOn.sub ?_ ?_
     · exact hd.comp (differentiable_update p 1).differentiableOn
-        (fun s hs => update_mem_polydisc hs p h1)
+        (fun s hs => update_mem_cutPolydisc hs p h1)
     · exact hd.comp (differentiable_update p 0).differentiableOn
-        (fun s hs => update_mem_polydisc hs p h0)
-  · have hmem : ∀ t ∈ ball (0 : ℂ) R, Function.update s p t ∈ polydisc ι R := fun t ht =>
-      update_mem_polydisc hs p (by simpa using ht)
+        (fun s hs => update_mem_cutPolydisc hs p h0)
+  · have hmem : ∀ t ∈ ball (0 : ℂ) R, Function.update s p t ∈ cutPolydisc ι R := fun t ht =>
+      update_mem_cutPolydisc hs p (by simpa using ht)
     have hg : DifferentiableOn ℂ (fun t : ℂ => F (Function.update s p t)) (ball 0 R) :=
       hd.comp (differentiable_update_right s p).differentiableOn hmem
     have := norm_oneDiff_le hR hg (fun t ht => hM _ (hmem t ht))
     simpa [cutDiff] using this
 
-/-- **Bound of the `J`-th mixed difference**: if `F` is differentiable on the open polydisc of
+/-- **Bound of the `J`-th mixed difference**: if `F` is differentiable on the open cutPolydisc of
 radius `R > 1` and bounded there by `M`, then `‖Δ_J F‖ ≤ M (2 / R)^{|J|}`. -/
 theorem norm_mixDiff_le {R : ℝ} (hR : 1 < R) (J : Finset ι) : ∀ {M : ℝ} {F : (ι → ℂ) → ℂ},
-    DifferentiableOn ℂ F (polydisc ι R) → (∀ s ∈ polydisc ι R, ‖F s‖ ≤ M) →
+    DifferentiableOn ℂ F (cutPolydisc ι R) → (∀ s ∈ cutPolydisc ι R, ‖F s‖ ≤ M) →
     ‖mixDiff J F‖ ≤ M * (2 / R) ^ J.card := by
   induction J using Finset.induction_on with
   | empty =>
     intro M F _ hM
     have h0 : cutPt (∅ : Finset ι) = 0 := by funext P; simp [cutPt]
-    simpa [mixDiff, h0] using hM 0 (h0 ▸ cutPt_mem_polydisc hR ∅)
+    simpa [mixDiff, h0] using hM 0 (h0 ▸ cutPt_mem_cutPolydisc hR ∅)
   | insert p J hp ih =>
     intro M F hd hM
     obtain ⟨hd', hM'⟩ := cutDiff_bound hR hd hM p
