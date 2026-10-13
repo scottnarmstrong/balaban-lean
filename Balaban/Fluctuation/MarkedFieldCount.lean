@@ -43,7 +43,9 @@ condition `(R₁ + r)(R_σ + t₁) Y₀ < δ₁`, uniform for the radial marks `
   `marked_count_scaled_via_field`: the statements of the landed `marked_count_scaled_of_vblock`
   and `marked_count_scaled`, word for word, deduced from the field-generic count at
   `y = shiftUC ψ̂` (a radius `R_σ > |u|` with the uniform margin exists because the landed radius
-  condition is strict).
+  condition is strict).  `marked_count_scaled_of_vblock_eq_via_field` and
+  `marked_count_scaled_eq_via_field` make the build fail if the landed statements and these
+  restatements ever differ.
 * `markedOut_field_congr`: a rooted sum `markedOut z Y'` reads the unit field only through its
   lift on `psiThick Y'` and the datum only on `thickSet Y'`.
 
@@ -640,6 +642,33 @@ theorem marked_count_scaled_via_field (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1
   intro Y₀ R₁ r t₁ t₀ hY0 x u hY hrad hR₁ hr ht₀ ht₀₁ Θ hΘ
   obtain ⟨Rσ, hu, hrad'⟩ := exists_radial_margin hY0 (by linarith) hrad
   exact hfield z hY hrad' hR₁ hr ht₀ ht₀₁ hu hΘ
+
+/-- **The statement of `marked_count_scaled_of_vblock_via_field` is the statement of the landed
+`marked_count_scaled_of_vblock`.**  The two proofs are equal as terms; the equation type-checks
+only because the two statements agree (the arguments are the same up to the position of the
+marked block `z`).  If either statement is edited, this declaration no longer compiles. -/
+theorem marked_count_scaled_of_vblock_eq_via_field :
+    @marked_count_scaled_of_vblock = fun {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+      (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+      {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} {a₁ ν BG κ eps BG₂ δ₁ : ℝ}
+      {m₀ : ℕ} {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+      {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+      {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))} =>
+      @marked_count_scaled_of_vblock_via_field d L N₁ m₁ k N _ _ ϱ ϱm S Hm a₁ ν BG κ eps BG₂ δ₁ m₀
+        jV XV 𝒦XV X₁V z := rfl
+
+/-- **The statement of `marked_count_scaled_via_field` is the statement of the landed
+`marked_count_scaled`** (as for `marked_count_scaled_of_vblock_eq_via_field`: the equation of the
+two proofs type-checks only because the statements agree). -/
+theorem marked_count_scaled_eq_via_field :
+    @marked_count_scaled = fun {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+      (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+      {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+      {m₀ : ℕ} {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+      {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+      {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))} =>
+      @marked_count_scaled_via_field d L N₁ m₁ k N _ _ ϱ ϱm S Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ m₀
+        jV XV 𝒦XV X₁V z := rfl
 
 /-! ### Locality of the rooted sums in the unit field -/
 
