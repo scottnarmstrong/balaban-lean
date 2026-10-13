@@ -127,4 +127,5 @@ proof work started, so that the target could not drift towards what was easy to 
 
 ## License
 
-The Lean sources carry an Apache 2.0 header.
+The Lean sources and documentation are released under the Apache License 2.0; see [LICENSE](LICENSE).
+The papers themselves are not included (see [docs/PAPERS.md](docs/PAPERS.md)).
