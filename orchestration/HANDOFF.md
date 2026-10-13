@@ -12,13 +12,10 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W360 | `w360-kf0-walk-series` / W360 | one-scale branch: walk series of K_ν^{-1/2}, non-negative entries, row sums, finite-range truncations with tail q^R |
-| W356 | `w356-kf0-rootf-partial` / W356 | one-scale branch: Root-F clauses with k_f = 0 on ν ≥ 7/(8L²) from the one-scale input (conditional; Cauchy construction, principal log) |
-| W357 | `w357-kf0-block-split` / W357 | one-scale branch: exact sum over bad block sets (K0.2), boundary form (K0.3), Peierls charge (K0.4) |
-| W358 | `w358-kf0-gaussian` / W358 | one-scale branch: Gaussian change of variables in the all-good sector, row sum of K_ν^{-1/2}, product cutoff implication |
-| W359 | `w359-weaken-sep` / W359 | `GeneratingSet.weakenSep`: lowering the separation index, with layer/data-site identities and transport through `castG` and `Precedes` |
+| W363 | `w363-kf0-killed-walks` / W363 | one-scale branch: killed-walk inverse of the good-region operator, inward decay, determinant walk formula (H37-3) |
+| W364 | `w364-r-field-projection` / W364 | R class map skeleton: five copied fields, assembly from seven named obligations, no-removal case (VMOD-37 package 1) |
 | W352 (Opus) | `w352-det-output-terms` / W352 | determinant as localized output terms (record + inhabitant), prefactor uniform in k, step theorem with the genuine `DetExpansionC`, symmetry, dependency radius |
-| W349 | `w349-fan-witness` / W349 | non-vacuity of the decoupled fan chain at the tower witness (ball, rows, fan locality, marked versions) |
+| W362 | `w362-d7-gas-root-entropy` / W362 | R gas, counting: rooted entropy at a removed component, touched components per label, union along an active-overlap tree (VMOD-41 packages 1, 3) |
 | W361 | `w361-marked-scaled-count-dec` / W361 | decoupled marked count: per-block marked expansion, derivative terms, old-block count, root bridge (`MARK-COUNT`; MARKASM package 6) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
