@@ -1656,3 +1656,4 @@ public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Green.FinalPathDefect
+public import Balaban.Fluctuation.MarkIntTermAnalytic
