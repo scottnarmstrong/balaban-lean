@@ -16,9 +16,9 @@ import Mathlib.Tactic.Positivity
 # The fixed towers from the general towers
 
 A general tower at `d = L = 3`, `N = 2` with `κ₀ = a_Ent + 2` and cover index `m₀ = 1` gives a
-fixed tower; the same for the towers with the renormalization margins.  The fixed producer
-`exists_stepTowerRen` is the corollary of the general producer `exists_stepTowerRenG` through
-these maps.
+fixed tower; the same for the towers with the renormalization margins.  The fixed producers
+`exists_stepTower` and `exists_stepTowerRen` are corollaries of the general producer through these
+maps, in `Balaban.Inhabited.StepTowerGProducers`.
 -/
 
 @[expose] public section
@@ -73,11 +73,5 @@ theorem StepTowerRenG.nonempty_fixed_of_three {κmin : ℝ} (T : StepTowerRenG 3
     (h0 : T.κ0 = aEnt 3 3 + 2) (hm : T.m₀ = 1) : Nonempty (StepTowerRen κmin) := by
   exact ⟨StepTowerRen.mk (T.toStepTowerG.ofThree h0 hm) T.ren_margin T.r₀ T.r₀_pos T.r₀_le T.D₀_le_one T.D₀_le_star
     T.D₁_le_star⟩
-
-/-- **The record with margins is inhabited** for every lower bound `κmin`. -/
-theorem exists_stepTowerRen (κmin : ℝ) : Nonempty (StepTowerRen κmin) := by
-  obtain ⟨T, hm, -, h0⟩ := exists_stepTowerRenG 3 3 2 le_rfl le_rfl le_rfl 1 le_rfl 0 0 κmin
-  have := aEnt_nonneg 3 3
-  exact StepTowerRenG.nonempty_fixed_of_three T (h0 (by simp; linarith)) hm
 
 end Balaban.Inhabited

@@ -18,8 +18,7 @@ import Mathlib.Tactic.Positivity
 
 `StepTowerRenEnd κmin` extends `StepTowerRen κmin` by the margin
 `K₂'(B_fam) (b_* t r₀) ≤ c₆` (the sharp bound at radius `r₀` fits in the ball `c₆`).
-`StepTowerRen.shrink` shows that all landed margins persist when `r₀` decreases, and
-`exists_stepTowerRenEnd` shows that the record is inhabited for every `κmin`.
+`StepTowerRenG.shrink` (general) shows that all landed margins persist when `r₀` decreases.
 
 At every scale of such a tower, `renDec_one_unique_sharp_scale_of_tower` gives the endpoint
 `s = 1` and `renDec_pertClass_scale_of_tower` the class bound at `c_K = renCK`, `B = 8 t`, with no
@@ -50,51 +49,10 @@ theorem StepTowerRen.coef_nonneg {κmin : ℝ} (R : StepTowerRen κmin) :
   have := R.t_pos
   positivity
 
-/-- **The margins of the record persist when `r₀` decreases.** -/
-def StepTowerRen.shrink {κmin : ℝ} (R : StepTowerRen κmin) (r : ℝ) (hr0 : 0 < r)
-    (hr : r ≤ R.r₀) : StepTowerRen κmin :=
-  { R with
-    r₀ := r
-    r₀_pos := hr0
-    r₀_le := hr.trans R.r₀_le
-    D₀_le_one := by have := R.D₀_le_one; linarith
-    D₀_le_star := by have := R.D₀_le_star; linarith
-    D₁_le_star := by
-      have h := R.D₁_le_star
-      have hb := R.coef_nonneg
-      have : (3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * r ≤
-          (3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * R.r₀ :=
-        mul_le_mul_of_nonneg_left hr hb
-      linarith }
-
-/-- The shrunk record has the same constants. -/
-@[simp] theorem StepTowerRen.shrink_r₀ {κmin : ℝ} (R : StepTowerRen κmin) (r : ℝ) (hr0 : 0 < r)
-    (hr : r ≤ R.r₀) : (R.shrink r hr0 hr).r₀ = r := rfl
-
 /-- The shared tower with the renormalization margins and the endpoint margin. -/
 structure StepTowerRenEnd (κmin : ℝ) extends StepTowerRen κmin where
   end_margin : cK2' 3 3 2 (famConst 3 3 BG κ) *
     ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 BG κ + bgK1 3 3 2) * xiC1 3)) * t * r₀) ≤ c6 3 3 2
-
-/-- **The record with the endpoint margin is inhabited** for every `κmin`. -/
-theorem exists_stepTowerRenEnd (κmin : ℝ) : Nonempty (StepTowerRenEnd κmin) := by
-  obtain ⟨R⟩ := exists_stepTowerRen κmin
-  obtain ⟨hC₀⟩ := R.core
-  have hd : 0 < 3 := by norm_num
-  have hB1 := famConst_ge_one (L := 3) hC₀.hS.fam.2.1 R.κ hd
-  have hK2 : 0 ≤ cK2' 3 3 2 (famConst 3 3 R.BG R.κ) :=
-    cK2'_nonneg (d := 3) (L := 3) (N := 2) (B := famConst 3 3 R.BG R.κ) (by linarith)
-  have hc6 : 0 < c6 3 3 2 := c6_pos (d := 3) (L := 3) (N := 2) hd
-  have hA : 0 ≤ cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
-      ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t) :=
-    mul_nonneg hK2 R.coef_nonneg
-  obtain ⟨r, hr0, hr1, -, hr2, -⟩ := exists_radius_margins hA hc6 hc6 R.r₀_pos
-    R.r₀_pos
-  refine ⟨{ R.shrink r hr0 hr1 with end_margin := ?_ }⟩
-  simp only [StepTowerRen.shrink]
-  calc _ = cK2' 3 3 2 (famConst 3 3 R.BG R.κ) *
-      ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t) * r := by ring
-    _ ≤ c6 3 3 2 := hr2
 
 /-- The `FlCore` of the tower at a scale. -/
 theorem StepTowerRen.flCore_scale {κmin : ℝ} (R : StepTowerRen κmin) (k : ℕ) (hk : 1 ≤ k)
