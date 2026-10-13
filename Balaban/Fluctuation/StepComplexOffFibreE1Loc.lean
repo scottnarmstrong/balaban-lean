@@ -80,6 +80,66 @@ theorem norm_smul_yhat_le (s : ℝ) (x : S.E) :
   apply (pi_norm_le_iff_of_nonneg (mul_nonneg (abs_nonneg _) (norm_nonneg _))).2
   exact fun p => S.norm_smul_yhat_le_mul s x p
 
+/-- At any incoming block datum, the derivative of the raw first exponent is the derivative
+of the interaction and composed-energy expression evaluated on the old spin of that datum. -/
+theorem fderiv_W1_dataUCH (C : StepClass d L N₁ m₁ k N ϱ)
+    (H : StepSettingH S) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
+    {u : S.EC} (hu : ‖u‖ < pp) (v : S.EC) :
+    let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
+    let ψ₀ : S.EC := fun q => B.Ψ (unitRep (G' := S.G') q.1) q.2
+    let Dpath := fun w : S.EC =>
+      H.dataUCH (ψ₀ + S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') w)
+    let Dcrit := Dpath 0
+    (fderiv ℂ (fun w : S.EC => Jr.W1 C (rawOf H.D', w)) u) v =
+      (fderiv ℂ (fun w : S.EC =>
+        -(S.β : ℂ) * interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+          (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')
+          (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D' (Dpath w))
+          (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) (Dpath w) -
+            (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+              (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) +
+        (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) (Dpath w) -
+          EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) Dcrit)) u) v := by
+  dsimp only
+  have hev : (fun w : S.EC => Jr.W1 C (rawOf H.D', w)) =ᶠ[nhds u]
+      (fun w : S.EC =>
+        -(S.β : ℂ) * interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+          (bgMultC S.G' S.a S.ν (bgC0 d L N) H.D')
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')
+          (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D'
+            (H.dataUCH ((fun q =>
+              (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+                (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+                  (unitRep (G' := S.G') q.1) q.2) +
+              S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') w)))
+          (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N)
+            (H.dataUCH ((fun q =>
+              (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+                (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+                  (unitRep (G' := S.G') q.1) q.2) +
+              S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') w)) -
+            (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+              (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) +
+        (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+          (H.dataUCH ((fun q =>
+            (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+              (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+                (unitRep (G' := S.G') q.1) q.2) +
+            S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') w)) -
+          EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k)
+            (H.dataUCH ((fun q =>
+              (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+                (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+                  (unitRep (G' := S.G') q.1) q.2) +
+              S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') 0)))) := by
+    filter_upwards [isOpen_lt continuous_norm continuous_const |>.mem_nhds hu] with w hw
+    exact Jr.W1_dataUCH H C hX (fun p => (norm_le_pi_norm w p).trans hw.le)
+  exact congrArg (fun f : S.EC →L[ℂ] ℂ => f v) hev.fderiv_eq
+
 /-- The raw localized first energy value agrees with the fibre coefficient when the incoming
 field is constant. The raw formula uses the inverse covariance square root to express the
 physical block mask in hat coordinates. -/
