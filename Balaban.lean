@@ -810,9 +810,12 @@ public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseChartAction
 public import Balaban.LargeField.Base.BaseChartMeasure
+public import Balaban.LargeField.Base.KF0SqrtReal
+public import Balaban.LargeField.Base.KF0Gaussian
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
+public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
