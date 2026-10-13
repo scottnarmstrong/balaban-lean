@@ -905,6 +905,74 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     exact not_disjoint_image_iff_of_injOn hσ x.2 y.2
   · exact hK l x.1 x.2
 
+/-- **D4 (c): transport of the interpolation coefficient `gsumCoeff`.**  In the setting of
+`Gst_transport` for the set `T` of blocks: let the activities `A(s)` (for `s ∈ [0,1]`) of the
+corresponding labels agree on related configurations, and let the marks `i` whose label lies in
+`T` correspond bijectively (`κ`) to the marks `i′` whose label lies in `σ '' T`, with labels
+`y₀′ (κ i) = ψ (y₀ i)` and marks agreeing on related configurations.  Then
+`gsumCoeff μ′ Lab′ A′ y₀′ G′ (σ '' T) = gsumCoeff μ Lab A y₀ G T`.  The marks outside `T` (and
+outside `σ '' T`) contribute zero (`Gst_eq_zero_of_not_subset`); the others are transported by
+`Gst_transport`. -/
+theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    {Ωb' : 𝔅' → Type*} [∀ b, MeasurableSpace (Ωb' b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (μ' : ∀ b, Measure (Ωb' b)) [∀ b, IsProbabilityMeasure (μ' b)]
+    (Lab : CubeLabels m₀ j Ω Lb) (Lab' : CubeLabels m₀ j Ω' Lb')
+    {εH κH κ0 Kc εH' κH' κ0' Kc' : ℝ}
+    (A : ℂ → LabelAct Lab Ωb εH κH κ0 Kc) (A' : ℂ → LabelAct Lab' Ωb' εH' κH' κ0' Kc')
+    {ι ι' : Type*} [Fintype ι] [Fintype ι'] (y0 : ι → Lb) (y0' : ι' → Lb')
+    (G : ι → ℂ → (∀ b, Ωb b) → ℂ) (G' : ι' → ℂ → (∀ b, Ωb' b) → ℂ)
+    (hGdep : ∀ i u, DepOn (blocksOf m₀ j Ω (Lab.ysite (y0 i))) (G i u))
+    (σ : 𝔅 → 𝔅') (T : Finset 𝔅) (hσ : Set.InjOn σ (T : Set 𝔅))
+    (Rel : (∀ b, Ωb b) → (∀ b, Ωb' b) → Prop)
+    (hint : ∀ Z ⊆ T, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
+      (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
+        ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
+    (ψ : Lb → Lb')
+    (hψb : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T →
+      blocksOf m₀ j Ω' (Lab'.ysite (ψ y)) = (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
+    (hψinj : ∀ y₁ y₂, blocksOf m₀ j Ω (Lab.ysite y₁) ⊆ T → blocksOf m₀ j Ω (Lab.ysite y₂) ⊆ T →
+      ψ y₁ = ψ y₂ → y₁ = y₂)
+    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ T.image σ →
+      ∃ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T ∧ ψ y = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T →
+      ∀ Φ Φ', Rel Φ Φ' → (A' (s : ℂ)).H (ψ y) Φ' = (A (s : ℂ)).H y Φ)
+    (κ : ι → ι')
+    (hκ : ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T → y0' (κ i) = ψ (y0 i))
+    (hκinj : ∀ i₁ i₂, blocksOf m₀ j Ω (Lab.ysite (y0 i₁)) ⊆ T →
+      blocksOf m₀ j Ω (Lab.ysite (y0 i₂)) ⊆ T → κ i₁ = κ i₂ → i₁ = i₂)
+    (hκsurj : ∀ i', blocksOf m₀ j Ω' (Lab'.ysite (y0' i')) ⊆ T.image σ →
+      ∃ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T ∧ κ i = i')
+    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T →
+      ∀ Φ Φ', Rel Φ Φ' → G' (κ i) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
+    gsumCoeff μ' Lab' A' y0' G' (T.image σ) = gsumCoeff μ Lab A y0 G T := by
+  classical
+  unfold gsumCoeff
+  refine intervalIntegral.integral_congr fun s hs => ?_
+  rw [Set.uIcc_of_le zero_le_one] at hs
+  unfold Gsum
+  rw [← Finset.sum_filter_of_ne (p := fun i' => blocksOf m₀ j Ω' (Lab'.ysite (y0' i')) ⊆ T.image σ)
+    (fun i' _ h => by_contra fun hn => h (Gst_eq_zero_of_not_subset _ _ _ _ hn)),
+    ← Finset.sum_filter_of_ne (p := fun i => blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T)
+    (fun i _ h => by_contra fun hn => h (Gst_eq_zero_of_not_subset _ _ _ _ hn))]
+  symm
+  refine Finset.sum_bij (fun i _ => κ i) (fun i hi => ?_) (fun i₁ hi₁ i₂ hi₂ h => ?_)
+    (fun i' hi' => ?_) (fun i hi => ?_)
+  · have hiT := (Finset.mem_filter.1 hi).2
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
+    rw [hκ i hiT, hψb _ hiT]
+    exact Finset.image_subset_image hiT
+  · exact hκinj i₁ i₂ (Finset.mem_filter.1 hi₁).2 (Finset.mem_filter.1 hi₂).2 h
+  · obtain ⟨i, hiT, rfl⟩ := hκsurj i' (Finset.mem_filter.1 hi').2
+    exact ⟨i, Finset.mem_filter.2 ⟨Finset.mem_univ _, hiT⟩, rfl⟩
+  · have hiT := (Finset.mem_filter.1 hi).2
+    show Gst μ Lab (A (s : ℂ)).H (blocksOf m₀ j Ω (Lab.ysite (y0 i))) (G i (s : ℂ)) T =
+      Gst μ' Lab' (A' (s : ℂ)).H (blocksOf m₀ j Ω' (Lab'.ysite (y0' (κ i)))) (G' (κ i) (s : ℂ))
+        (T.image σ)
+    rw [hκ i hiT, hψb _ hiT]
+    exact (Gst_transport μ μ' Lab Lab' (A (s : ℂ)).H (A' (s : ℂ)).H (A (s : ℂ)).dep σ T hσ Rel
+      hint ψ hψb hψinj hψsurj (hA s hs) hiT (hGdep i _) (hG s hs i hiT)).symm
+
 end GstTransport
 
 end Balaban.Polymer.TwoTorusStep
