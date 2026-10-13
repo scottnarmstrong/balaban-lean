@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.StepComplexCov
+public import Balaban.Fluctuation.StepInterpolationCore
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -496,7 +497,8 @@ theorem prop26C_step (g : Fld d L N₁ m₁ (k + 1) N) (hreg : S.StepRegularC C 
   classical
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
   obtain ⟨U, W₁', W₂', h₁, h₂⟩ := hreg.c1
-  have hprob := isProbabilityMeasure_fluctMeasure S.U N hp₁
+  have : MeasureTheory.IsProbabilityMeasure S.nuFl :=
+    isProbabilityMeasure_fluctMeasure S.U N hp₁
   have hD1 : InUnionDomainC S.G' (bgC0 d L N) (thm73C1 d L N) S.ν S.D' :=
     (isDecBg_one_of_xiCData hC hD).2.mono
       ((hc7.trans (thm73C3_le_thm73C2 d L N)).trans (thm73C2_le_thm73C1 d L N))
@@ -515,89 +517,37 @@ theorem prop26C_step (g : Fld d L N₁ m₁ (k + 1) N) (hreg : S.StepRegularC C 
     · have h0 : chiFl S.U N S.p₁ x = 0 := (chiFl_eq_zero_or_one S.p₁ x).resolve_right hx
       rw [h0]
       simp
-  have e2 := integral_fluct_weight_eq (T := S.U) (N := N) hp₁ (S.PconstC C g) (S.WoneCT C)
-    (S.WtwoCT C g)
-  have hZ00 : partFun₂ (fluctMeasure S.U N S.p₁) (S.WoneCT C) (S.WtwoCT C g) 0 0 = 1 := by
-    unfold partFun₂
-    simp [S.WoneCT_zero C _ hV0, S.WtwoCT_zero C g]
-  have hexp := partFun₂_one_one_eq (ν := fluctMeasure S.U N S.p₁) h₁ h₂
-    (fun s hs => by
-      have h := hnv.seg1 s hs
-      unfold ZstC at h
-      rw [← partFun₂_congr_ae (ν := S.nuFl) (W₁ := S.WoneCT C) (W₁' := S.WoneC C)
-        (W₂ := S.WtwoCT C g) (W₂' := S.WtwoC C g)
-        ((S.ae_ball hp₁).mono fun x hx => S.WoneCT_of_chi C s x hx)
-        ((S.ae_ball hp₁).mono fun x hx => S.WtwoCT_of_chi C g 0 x hx)] at h
-      exact h)
-    (fun t ht => by
-      have h := hnv.seg2 t ht
-      unfold ZstC at h
-      rw [← partFun₂_congr_ae (ν := S.nuFl) (W₁ := S.WoneCT C) (W₁' := S.WoneC C)
-        (W₂ := S.WtwoCT C g) (W₂' := S.WtwoC C g)
-        ((S.ae_ball hp₁).mono fun x hx => S.WoneCT_of_chi C 1 x hx)
-        ((S.ae_ball hp₁).mono fun x hx => S.WtwoCT_of_chi C g t x hx)] at h
-      exact h)
-  rw [hZ00, one_mul] at hexp
-  have hI1 : (∫ s in (0 : ℝ)..1, avgFun₂ (fluctMeasure S.U N S.p₁) (S.WoneCT C) (S.WtwoCT C g)
-      (W₁' s) s 0) = S.E1C C := by
-    unfold E1C
-    refine intervalIntegral.integral_congr (fun s hs => ?_)
-    have hsU : s ∈ U := h₁.Icc_subset (by rwa [Set.uIcc_of_le zero_le_one] at hs)
-    show avgFun₂ S.nuFl (S.WoneCT C) (S.WtwoCT C g) (W₁' s) s 0 = _
-    rw [avgFun_eq_avgFun₂ (W₂ := S.WtwoC C g) (fun x => S.WtwoC_zero C g x)]
-    refine avgFun₂_congr_ae ?_ ?_ ?_
-    · exact (S.ae_ball hp₁).mono fun x hx => S.WoneCT_of_chi C s x hx
-    · exact (S.ae_ball hp₁).mono fun x hx => S.WtwoCT_of_chi C g 0 x hx
-    · filter_upwards [S.ae_ball hp₁] with x hx
-      have hd := h₁.hasDerivAt x s hsU
-      have hfun : (fun r => S.WoneCT C r x) = fun r => S.WoneC C r x :=
-        funext fun r => S.WoneCT_of_chi C r x hx
-      rw [hfun] at hd
-      exact hd.deriv.symm
-  have hI2 : (∫ t in (0 : ℝ)..1, avgFun₂ (fluctMeasure S.U N S.p₁) (S.WoneCT C) (S.WtwoCT C g)
-      (W₂' t) 1 t) = S.F0C C g := by
-    unfold F0C
-    refine intervalIntegral.integral_congr (fun t ht => ?_)
-    have htU : t ∈ U := h₂.Icc_subset (by rwa [Set.uIcc_of_le zero_le_one] at ht)
-    show avgFun₂ S.nuFl (S.WoneCT C) (S.WtwoCT C g) (W₂' t) 1 t = _
-    refine avgFun₂_congr_ae ?_ ?_ ?_
-    · exact (S.ae_ball hp₁).mono fun x hx => S.WoneCT_of_chi C 1 x hx
-    · exact (S.ae_ball hp₁).mono fun x hx => S.WtwoCT_of_chi C g t x hx
-    · filter_upwards [S.ae_ball hp₁] with x hx
-      have hd := h₂.hasDerivAt x t htU
-      have hfun : (fun r => S.WtwoCT C g r x) = fun r => S.WtwoC C g r x :=
-        funext fun r => S.WtwoCT_of_chi C g r x hx
-      rw [hfun] at hd
-      exact hd.deriv.symm
   have hconst := S.const_identity C hL ha₁ hβ hp₁
   have hdet := S.det_covSqrtC_of_chart hC hMX hdm hα hsm hD
-  unfold TstepC
-  rw [MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall hint), e2, hexp, hI1, hI2, hdet]
-  unfold PconstC E0C
+  have hae : ∀ᵐ x ∂S.nuFl, chiFl S.U N S.p₁ x = 1 := S.ae_ball hp₁
   set K0 : ℝ := (S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) with hK0
   set bp : ℝ := S.betaU ^ (-((N * Fintype.card S.U : ℕ) : ℝ) / 2) with hbp
   set Zc : ℝ := fluctNorm N S.p₁ ^ Fintype.card S.U with hZc
   set Y : ℂ := -(S.β : ℂ) * S.AnewC +
       EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC - (C.Ek : ℂ) * (S.nU : ℂ) +
       FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC g with hY
-  have hX : -(S.β : ℂ) * S.AnewC +
-      EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC - (S.Eppp C : ℂ) * (S.nU : ℂ) +
-      FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) S.psiKdC g +
-      (S.halfLogDetCC + S.E1C C) + S.F0C C g =
-      Y + ((-((S.Eppp C - C.Ek) * S.nU) : ℝ) : ℂ) + S.halfLogDetCC + (S.E1C C + S.F0C C g) := by
-    rw [hY]; push_cast; ring
   have hexpc : Complex.exp (((-((S.Eppp C - C.Ek) * S.nU) : ℝ) : ℂ)) =
       (K0 : ℂ) * ((bp : ℂ) * (Zc : ℂ)) := by
     rw [← Complex.ofReal_exp, ← hconst]
     push_cast
     ring
-  have hE : Complex.exp (Y + ((-((S.Eppp C - C.Ek) * S.nU) : ℝ) : ℂ) + S.halfLogDetCC +
-      (S.E1C C + S.F0C C g)) =
-      Complex.exp Y * ((K0 : ℂ) * ((bp : ℂ) * (Zc : ℂ))) * Complex.exp S.halfLogDetCC *
-        Complex.exp (S.E1C C + S.F0C C g) := by
-    rw [Complex.exp_add _ (S.E1C C + S.F0C C g), Complex.exp_add _ S.halfLogDetCC,
-      Complex.exp_add Y, hexpc]
-  rw [hX, hE]
+  unfold TstepC
+  refine step_interp_identity (S.nuFl) MeasureTheory.volume (S.WoneCT C) (S.WtwoCT C g)
+    (S.WoneC C) (S.WtwoC C g) h₁ h₂ (hae.mono fun x hx r => S.WoneCT_of_chi C r x hx)
+    (hae.mono fun x hx r => S.WtwoCT_of_chi C g r x hx)
+    (fun x => S.WoneCT_zero C x hV0) (fun x => S.WtwoCT_zero C g x)
+    (fun x => S.WtwoC_zero C g x) (fun s hs => hnv.seg1 s hs) (fun t ht => hnv.seg2 t ht)
+    (fun x => ((chiFl S.U N S.p₁ x : ℝ) : ℂ) *
+      (S.tKernelC (S.psiAtC 1 x) * S.rhoExpC C g (S.psiAtC 1 x)))
+    (fun x => chiFl S.U N S.p₁ x * gaussWeight S.U N x) (S.PconstC C g) (Zc : ℂ) (K0 : ℂ)
+    (bp : ℂ) S.covSqrtC.det Y (((-((S.Eppp C - C.Ek) * S.nU) : ℝ) : ℂ)) S.halfLogDetCC
+    (S.E1C C) (S.F0C C g) _ rfl rfl hint
+    (integral_fluct_weight_eq (T := S.U) (N := N) hp₁ (S.PconstC C g) (S.WoneCT C)
+      (S.WtwoCT C g))
+    rfl hexpc hdet ?_
+  rw [hY]
+  unfold E0C
+  push_cast
   ring
 
 end Main
