@@ -1871,4 +1871,5 @@ public import Balaban.Fluctuation.GeneralRenormInput
 public import Balaban.Fluctuation.GeneralOldCoeffFamily
 public import Balaban.LargeField.Base.BaseChartCutSqrt
 public import Balaban.LargeField.Base.BaseChartComponentGauss
+public import Balaban.LargeField.Base.BaseChartCutTangent
 public import Balaban.Fluctuation.ClassOldEndpointE
