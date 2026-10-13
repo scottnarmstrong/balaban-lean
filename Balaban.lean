@@ -1464,3 +1464,5 @@ public import Balaban.Inhabited.LateScaleWitness
 public import Balaban.Correlations.KF0Cauchy
 public import Balaban.Correlations.KF0RootFPartial
 public import Balaban.Inhabited.ProperLocalGenWitness
+public import Balaban.LargeField.R.RFieldProjection
+public import Balaban.Inhabited.RFieldProjectionWitness
