@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionHatNu
 public import Balaban.Fluctuation.SharpEngine
+public import Balaban.Fluctuation.PhysicalFNuFanRawY
 public import Balaban.Fluctuation.ObsRayBase
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -548,6 +549,84 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **The mass block expands over the domains `Y ⊃ X₁`, exact locality** (`nublock_expansion_hat_dir`
+with one locality clause, for raw data agreeing on `Y` itself and hat variables agreeing at the unit
+points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `nublock_fan_local_rawY`; the term
+`Ev` is the one of `nublock_expansion_hat_dir`, which is a corollary. -/
+theorem nublock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {Bh : ℝ} (hBh0 : 0 ≤ Bh)
+    (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ x i, ‖D.h x i‖ ≤ Bh)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑X₁f) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        nuBlockFun Gp Hm k z (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D,
+            bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D)
+          (flFieldOne Gp Hm BG₂ κ a₁ ν D (hatLift Gp a₁ ν hG' cc D ψh))
+          (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+          ∑ Y ∈ polyDom Gp X₁f m₀ j 𝒦X, Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+          (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  have hB1 : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
+    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hC.hS.fam.2.1 hd0
+    have hx1 := one_le_xiC1 d
+    have hx2 := hC.eps_pos
+    have hx3 : 0 ≤ xiC1 d * eps := by positivity
+    have hx4 := mul_nonneg hK4.le hx3
+    linarith
+  have hEb : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
+    unfold nuBd; positivity
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
+    hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb (Φ := nuBlockFun Gp Hm k z)
+    ((nuBlockFun_analytic (Gp := Gp) (Hm := Hm) k z).mono (Set.subset_univ _))
+    (fun t ht => by
+      rw [hΔ]; simpa using nuBlockFun_bound hC le_rfl hG' hBh0 hBh z ht)
+    (fun {F₁} hF₁ {Sol} hSol => nublock_fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+      hconn hrow hF₁ hSol z hZ)
+  refine ⟨Ev, h1', h2', fun Y u hu => ?_, h4'⟩
+  have := h3' Y u hu
+  rw [hΔ] at this
+  simpa using this
+
+
 /-- **The mass block expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂` at the unit
 points of `Y` only** (sharp form of `nublock_expansion_hat`). -/
 theorem nublock_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
@@ -600,33 +679,15 @@ theorem nublock_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  have hB1 : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
-    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hC.hS.fam.2.1 hd0
-    have hx1 := one_le_xiC1 d
-    have hx2 := hC.eps_pos
-    have hx3 : 0 ≤ xiC1 d * eps := by positivity
-    have hx4 := mul_nonneg hK4.le hx3
-    linarith
-  have hEb : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
-      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
-    unfold nuBd; positivity
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
-    hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb (Φ := nuBlockFun Gp Hm k z)
-    ((nuBlockFun_analytic (Gp := Gp) (Hm := Hm) k z).mono (Set.subset_univ _))
-    (fun t ht => by
-      rw [hΔ]; simpa using nuBlockFun_bound hC le_rfl hG' hBh0 hBh z ht)
-    (Z := ↑(blockSites d L N₁ m₁ (k + 1) k z)) (Zα := ∅) hZ
-    (fun x hx => absurd hx (Set.notMem_empty x))
-    (fun t _ t' _ hφ _ hδ hag _ => nuBlockFun_local k z hφ hδ hag)
-  refine ⟨Ev, h1', fun Y u hu u' hu' h => h2' Y u hu u' hu' (agHatDir_of_agHat hG' h), h2', fun Y u hu => ?_, h4'⟩
-  have := h3' Y u hu
-  rw [hΔ] at this
-  simpa using this
+  obtain ⟨Ev, hs, hd, hb, ha⟩ := nublock_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hBh0 hBh
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ
+  have hd' : ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir hG' Y u u' → Ev Y u = Ev Y u' :=
+    fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2
+  exact ⟨Ev, hs, fun Y u hu u' hu' h => hd' Y u hu u' hu' (agHatDir_of_agHat hG' h), hd', hb, ha⟩
 
 end SharpNu
 
