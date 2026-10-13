@@ -32,7 +32,9 @@ set of the source, and the potential part, the old terms and the `ν`-part are t
   `physSΛ`, `physB`, `PhysExpansion`, `PhysicalSharpLoc` (with `η = 1` these are the landed
   objects, by `l1BallEta_one` and `prop33EpsEta_one`).
 * `interaction_expansion_hat_dm_dir_eta` (T1): one pair `(𝒴, T)` that carries the expansion
-  (landed paired relation, slice, `physBEta`) and the sharp locality.
+  (`PhysExpansionEta`: raw datum and source on `Y`, landed paired relation of the hat variables,
+  slice, `physBEta`) and the sharp locality (`PhysicalSharpLocEta`: raw datum and source on `Y`, hat
+  variables at the unit points of `Y`).
 * `physical_directTerms_eta` (T2): a `DirectTerms` instance on the slice (the datum component
   varies over the chart, the source over `l1BallEta η`), whose prefactor is `physBEta`, bounded by
   `ε_U` under the `η`-weighted amplitude hypothesis.
@@ -106,7 +108,7 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
             (fun _ => (1 : ℂ)) x w σ p.1)
         (fun Y => (η * (cK2' d L N (famConst d L BG₂ κ) * δ₁) / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
@@ -175,7 +177,8 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     exact (differentiableOn_const _).mul (hrayF s Y q.1 hq.1 ψ hψ)
   · simp only [hY, ite_false]; exact differentiableOn_const _
 
-/-- The source sites with the resummed bound (sharp hat version). -/
+/-- The source sites with the resummed bound (sharp hat version; raw datum and source agreeing on
+`Y` itself). -/
 theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -218,7 +221,7 @@ theorem hat_fparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
             (fun _ => (1 : ℂ)) x w σ p.1)
         (fun Y => (η * (cK2' d L N (famConst d L BG₂ κ) * δ₁) / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
   classical
   exact (hat_fparts_bound_dm_dir_eta_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ (m₀ := m₀) (jF := jF) (XF := XF) (𝒦XF := 𝒦XF) (X₁F := X₁F) hcovF hX₁F hoptF hΔF hlogF hyF).imp fun _ h => h.1
 
@@ -274,7 +277,7 @@ theorem hat_mparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
           p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
             (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x w σ p.1 else 0)
         (fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
@@ -304,7 +307,7 @@ theorem hat_mparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
             (fun _ => (1 : ℂ)) x₀ w σ Θ else 0)
         (fun Y => 1 * ((EbM τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jM τ)
           (XM τ) - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') ∧
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') ∧
       (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -374,7 +377,8 @@ theorem hat_mparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     exact (differentiableOn_const _).mul ((hEvM' τ hτ).2 Y q.1 hq.1 ψ hψ)
   · simp only [hY, ite_false]; exact differentiableOn_const _
 
-/-- The observable terms with the resummed bound (sharp hat version). -/
+/-- The observable terms with the resummed bound (sharp hat version; raw datum and source agreeing on
+`Y` itself). -/
 theorem hat_mparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -425,12 +429,13 @@ theorem hat_mparts_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
           p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
             (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x w σ p.1 else 0)
         (fun Y => (η * ρM / r) * Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x) (AgHatFDir hG') := by
   classical
   exact (hat_mparts_bound_dm_dir_eta_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ (m₀ := m₀) (μι := μι) 𝒯M (ϱ₁M := ϱ₁M) (ϱ₂M := ϱ₂M) (GkM := GkM) (GjM := GjM) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀M := X₀M) (X₁M := X₁M) (jM := jM) (XM := XM) (𝒦XM := 𝒦XM) (EbM := EbM) ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM (EM := EM) hEanM hEbdM (ρM := ρM) hρM0 hρM).imp fun _ h => h.1
 
-/-- **The four parts in the variable `ψ̂` with the sharp agreement relation, without the mass
-variation** (the sharp version of `interaction_expansion_hat_bound_dm`). -/
+/-- **The four parts in the variable `ψ̂` with the sharp agreement relations, without the mass
+variation** (the sharp version of `interaction_expansion_hat_bound_dm`): the terms are local for
+raw data and sources agreeing on `Y` itself and hat variables agreeing at the unit points of `Y`. -/
 theorem interaction_expansion_hat_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -572,7 +577,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ
               (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x.2 w.2 σ p.1 else 0))
         (fun Y => prop33EpsEta d L N m₁ k m₀ a₁ ν BG BG₂ κ δ₁ r ρE ρM η * ‖cβ‖ *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2) := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
@@ -609,7 +614,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ
   have hnM : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), 0 ≤ (η * ρM / r) *
       Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y) := fun Y => by positivity
   obtain ⟨𝒴, T, b, hb, hL0'⟩ := LocIntDm.assemble
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
     hV hE hF hM (-cβ) cβ cβ cβ hnV hnE hnF hnM
   refine ⟨𝒴, T, (hL0'.mono_XW (XW' := {xw : ((unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) ×
@@ -619,9 +624,11 @@ theorem interaction_expansion_hat_bound_dm_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ
   simp only [norm_neg, prop33EpsEta]
   ring
 
-/-- **Proposition 3.3 in the variable `ψ̂`, with the sharp agreement relation.**  The statement of
-`interaction_expansion_hat_dm` with `AgHatF` replaced by `AgHatFDir`: the terms are local in the
-hat variable for equality at the unit points of the sites of the label `Y` itself. -/
+/-- **Proposition 3.3 in the variable `ψ̂`, with the sharp agreement relations.**  The statement of
+`interaction_expansion_hat_dm` with `AgHatF` replaced by `AgHatFDir` and the raw datum compared on
+`Y` instead of `thickSet Y`: the terms are local in the hat variable for equality at the unit
+points of the sites of the label `Y` itself, and in the raw datum and the source for equality on
+`Y` itself. -/
 theorem interaction_expansion_hat_dm_core_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -765,7 +772,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta {Kc Cx c₂ BG₂ δ₁ : ℝ}
             nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
               (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
             Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y)))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2) := by
   classical
   have hreal := hreal_level hC hG hG' le_rfl ha₁ H hc7 (by linarith) hsm
@@ -850,8 +857,9 @@ theorem mk_mem_physSΛEta (S : StepSetting d L N₁ m₁ k N ϱ) (a₁ ν eps : 
   ⟨⟨D, hD, rfl⟩, by simp [l1Ball], by simpa using hη⟩
 
 /-- **Sharp locality of the terms on the `η`-slice** (`PhysicalSharpLoc` with the parameter set
-`physSΛEta`).  The terms of the `η`-expansion are local for the sharp paired agreement
-`AgFDirPair`, for admissible pairs of rays and two source data of `ℓ¹`-size `≤ η`. -/
+`physSΛEta`).  The terms of the `η`-expansion are local for `physAgΘ` (raw datum and source on `Y`
+itself) and the sharp paired agreement `AgFDirPair`, for admissible pairs of rays and two source
+data of `ℓ¹`-size `≤ η`. -/
 def PhysicalSharpLocEta (S : StepSetting d L N₁ m₁ k N ϱ) (cψ R₁ Rσ r a₁ ν eps η : ℝ)
     (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
@@ -1026,9 +1034,10 @@ noncomputable def physBEta (Y : Set (CTorus d L N₁ m₁ (k + 1))) : ℝ :=
               (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
             Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
 
-/-- **The conclusion of the `η`-assembler**: the localized expansion (`LocIntDm` for the landed
-paired relation `AgFPair`) of the physical value `physVal`, on the slice `physSΛEta` with the
-bounds `physBEta`. -/
+/-- **The conclusion of the `η`-assembler**: the localized expansion (`LocIntDm` for `physAgΘ`,
+i.e. raw datum and source on `Y` itself, and the landed paired relation `AgFPair` of the hat
+variables) of the physical value `physVal`, on the slice `physSΛEta` with the bounds `physBEta`.
+(Unlike the thick legacy record `PhysExpansion`, its relation of the data is the exact one.) -/
 def PhysExpansionEta (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
       ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
@@ -1047,8 +1056,8 @@ include hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hcψ hMX hdm hα 
 `interaction_expansion_hat_dm_dir`, for `0 < η`, there is ONE pair `(𝒴, T)` that is both a
 localized expansion for the landed paired agreement on the slice (`PhysExpansionEta`, source
 `ℓ¹`-size `≤ η`, amplitude `prop33EpsEta`) and local for the sharp paired agreement
-(`PhysicalSharpLocEta`).  The value is the landed `physVal`; only the parameter set and the bound
-change. -/
+(`PhysicalSharpLocEta`); in both, the raw datum and the source are compared on `Y` itself.  The
+value is the landed `physVal`; only the parameter set and the bound change. -/
 theorem interaction_expansion_hat_dm_dir_eta :
     ∃ (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
       (T : Set (CTorus d L N₁ m₁ (k + 1)) →
@@ -1072,7 +1081,8 @@ include hRσ hc hΘ₀ hεb hN hp
 `prop33EpsEta`, `L ^ m₀ ∣ N₁`, `0 < p₁`) the physical expansion restricted to the `η`-slice is a
 `DirectTerms` instance: the datum component of the parameter varies over the chart, the source over
 `l1BallEta η`; its terms are a `PhysExpansionEta` that is sharply local, and its bounds are
-`physBEta`. -/
+`physBEta`.  The relation `physAgΘ` of the instance is agreement of the raw datum and the source on
+`Y` itself: the term of a domain `Y` reads the parameter only at the sites of `Y`. -/
 theorem physical_directTerms_eta :
     ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛEta S a₁ ν eps η)
       (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFDirPair S),

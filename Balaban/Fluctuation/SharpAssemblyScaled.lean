@@ -246,9 +246,9 @@ theorem vblock_locInt_hat_dir_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
         (fun Y => Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := vblock_expansion_hat_dir_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := vblock_expansion_hat_rawY_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
   refine ⟨Ev, hsum, hanY, ?_⟩
   refine locInt_dir3 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
@@ -258,7 +258,7 @@ theorem vblock_locInt_hat_dir_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
   · intro Y a a' b b' p q ha hb y hy i
     simp [ha y hy i, hb y hy i]
   · intro Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2'
-    exact hloc Y (Θ, z) ⟨hΘ, hz⟩ (Θ', z') ⟨hΘ', hz'⟩ ⟨h1', h2'⟩
+    exact hloc Y (Θ, z) ⟨hΘ, hz⟩ (Θ', z') ⟨hΘ', hz'⟩ h1' h2'
   · intro Θ hΘ ψh hψh
     obtain ⟨D, hD, rfl⟩ := hΘ
     exact hsum D hD ψh hψh
@@ -331,7 +331,7 @@ theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
           Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -357,7 +357,7 @@ theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
         (fun Y => Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := fun z =>
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := fun z =>
     vblock_locInt_hat_dir_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ (hcov z) (hX₁ z) hconn hrow (hopt z)
       (hΔ z) hκ₀ hκdec hκ h1 (hlog z) z (hZ z) (hmar z) hωc hR₁ hω hMω hωb hr
   choose Ev hEvsum hEvan hEv using hex
@@ -442,7 +442,7 @@ Lemma 2.3 (b), as a function of the raw data `Θ` and the hat variable `ψ̂`
 (`ψ' = liftC (cc • C^{1/2}(1) ψ̂)`), `σ ∫₀¹ ω(t') ∂_w³ V(σ t' x₀) dt'` along the `ψ̂`-ray is a
 localized expansion over the domains `Y ⊃ X₁`: the terms are analytic in `(Θ, σ)`, bounded by
 `|σ| M_ω 6 E e^{-2 κ d̃^{cov}_{k+1}(Y)} / r³`, vanish at `σ = 0`, and depend on `Θ` through
-`thickSet Y` and on `(x₀, w)` through their values at the unit points of the sites of
+its values on `Y` itself and on `(x₀, w)` through their values at the unit points of the sites of
 `Y` itself (`AgHatFDir`, sharp form of `vpart_locInt_hat_dm`). -/
 theorem vpart_locInt_hat_dir_dm_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -504,7 +504,7 @@ theorem vpart_locInt_hat_dir_dm_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps 
           Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (vpart_locInt_hat_dir_dm_scaled_ray hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hreal (m₀ := m₀) (j := j) (X := X) (𝒦X := 𝒦X) (X₁f := X₁f) hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog hZ hmar (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 
@@ -572,7 +572,7 @@ theorem hat_vpart_bound_dm_dir_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
         (fun Y => (3 * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / r ^ 3) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -690,7 +690,7 @@ theorem hat_vpart_bound_dm_dir_scaled {Kc Cx c₂ BG₂ δ₁ : ℝ}
         (fun Y => (3 * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / r ^ 3) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (hat_vpart_bound_dm_dir_scaled_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hreal (m₀ := m₀) (jV := jV) (XV := XV) (𝒦XV := 𝒦XV) (X₁V := X₁V) hcovV hX₁V hoptV hΔV hlogV hZV hmarV).imp fun _ h => h.1
 
@@ -837,7 +837,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
               (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x.2 w.2 σ p.1 else 0))
         (fun Y => prop33EpsEtaScaled d L N m₁ k m₀ a₁ BG BG₂ κ δ₁ r ρE ρM η * ‖cβ‖ *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2)
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
@@ -880,7 +880,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
   have hnM : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), 0 ≤ (η * ρM / r) *
       Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y) := fun Y => by positivity
   obtain ⟨𝒴, T, b, hb, hL0', hrayT⟩ := LocIntDm.assemble_ray
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
     hV hE hF hM (-cβ) cβ cβ cβ hnV hnE hnF hnM
     (P' := fun u => ∃ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) ∧
@@ -1046,7 +1046,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled {Kc Cx c₂ BG₂ δ�
               (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) x.2 w.2 σ p.1 else 0))
         (fun Y => prop33EpsEtaScaled d L N m₁ k m₀ a₁ BG BG₂ κ δ₁ r ρE ρM η * ‖cβ‖ *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2) := by
   classical
   exact (interaction_expansion_hat_bound_dm_dir_eta_scaled_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC cβ hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hreal (m₀ := m₀) (jV := jV) (XV := XV) (𝒦XV := 𝒦XV) (X₁V := X₁V) hcovV hX₁V hoptV hΔV hlogV hZV hmarV (τι := τι) 𝒯E (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (GkE := GkE) (GjE := GjE) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀E := X₀E) (X₁E := X₁E) (jE := jE) (XE := XE) (𝒦XE := 𝒦XE) (EbE := EbE) hBE hFE hcovE hX₁E hoptE hlogE hEbE (EE := EE) hEanE hEbdE (jF := jF) (XF := XF) (𝒦XF := 𝒦XF) (X₁F := X₁F) hcovF hX₁F hoptF hΔF hlogF hyF (μι := μι) 𝒯M (ϱ₁M := ϱ₁M) (ϱ₂M := ϱ₂M) (GkM := GkM) (GjM := GjM) (X₀M := X₀M) (X₁M := X₁M) (jM := jM) (XM := XM) (𝒦XM := 𝒦XM) (EbM := EbM) ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM (EM := EM) hEanM hEbdM rE hrE (ρE := ρE) hρE0 hρE (ρM := ρM) hρM0 hρM).imp fun _ => Exists.imp fun _ h => h.1
@@ -1196,7 +1196,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
             nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
               (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
             Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y)))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2)
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
@@ -1404,7 +1404,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled {Kc Cx c₂ BG₂ δ₁
             nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
               (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
             Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y)))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (fun Y a a' => AgHatFDir hG' Y a.1 a'.1 ∧ AgHatFDir hG' Y a.2 a'.2) := by
   classical
   exact (interaction_expansion_hat_dm_core_dir_eta_scaled_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC cβ hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hsm (m₀ := m₀) (jV := jV) (XV := XV) (𝒦XV := 𝒦XV) (X₁V := X₁V) hcovV hX₁V hoptV hΔV hlogV hZV hmarV (τι := τι) 𝒯E (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (GkE := GkE) (GjE := GjE) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀E := X₀E) (X₁E := X₁E) (jE := jE) (XE := XE) (𝒦XE := 𝒦XE) (EbE := EbE) hBE hFE hcovE hX₁E hoptE hlogE hEbE (EE := EE) hEanE hEbdE (jF := jF) (XF := XF) (𝒦XF := 𝒦XF) (X₁F := X₁F) hcovF hX₁F hoptF hΔF hlogF hyF (μι := μι) 𝒯M (ϱ₁M := ϱ₁M) (ϱ₂M := ϱ₂M) (GkM := GkM) (GjM := GjM) (X₀M := X₀M) (X₁M := X₁M) (jM := jM) (XM := XM) (𝒦XM := 𝒦XM) (EbM := EbM) ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM (EM := EM) hEanM hEbdM rE hrE (ρE := ρE) hρE0 hρE (ρM := ρM) hρM0 hρM (Bh := Bh) hBh0 hBh cν hZν).imp fun _ => Exists.imp fun _ h => h.1
@@ -1556,8 +1556,9 @@ include hRσ hc hΘ₀ hεb hN hp
 
 /-- **`physical_directTerms_eta_scaled`.**  As `physical_directTerms_eta`, with the amplitude
 hypothesis `hεb` in terms of `prop33EpsEtaScaled` (the potential term in physical units).  The
-`DirectTerms` instance lives on the `eta`-slice; its terms are sharply local and its bound is the
-amplitude of `hεb` times the decay factor. -/
+`DirectTerms` instance lives on the `eta`-slice; its terms are sharply local (the relation `physAgΘ`
+is agreement of the raw datum and the source on `Y` itself) and its bound is the amplitude of `hεb`
+times the decay factor. -/
 theorem physical_directTerms_eta_scaled :
     ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛEta S a₁ ν eps η)
       (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFDirPair S),

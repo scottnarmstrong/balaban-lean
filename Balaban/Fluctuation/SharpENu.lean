@@ -29,8 +29,9 @@ of `Y`.  These are the sharp versions of `eterm_expansion_hat` and `nublock_expa
 
 * `eterm_locInt_hat_dm_dir`, `eterms_locInt_hat_dm_dir`, `mterms_locInt_hat_dm_dir`,
   `nupart_locInt_hat_dm_dir`, `nupart_locInt_bound_hat_dm_dir`: the localized-integral statements
-  that the assembler consumes, with the hat variable compared by `AgHatFDir` (no new relation is
-  defined here).
+  that the assembler consumes, with the hat variable compared by `AgHatFDir` and the raw datum
+  compared on `Y` itself (from `eterm_expansion_hat_rawY`, `nublock_expansion_hat_rawY`; no new
+  relation is defined here).
 
 The V and F summands, the assembly (`PhysicalSharpLoc`) and `physical_directTerms` are separate and
 not treated here.
@@ -387,14 +388,14 @@ theorem eterm_locInt_hat_dm_dir_ray (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r
         (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
         (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
           - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
           (ball (0 : ℂ) (3 / 2))) := by
   classical
-  obtain ⟨Ev, hsum, -, hloc, hbd, hanY⟩ := eterm_expansion_hat_dir hB hF hk hG hG' cc hcψ hMX hdm hα hsm
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := eterm_expansion_hat_rawY hB hF hk hG hG' cc hcψ hMX hdm hα hsm
     hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
   have hd : 3 ≤ d := (flCore_of hB hF).HBp.hd
   have hray : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
@@ -410,13 +411,13 @@ theorem eterm_locInt_hat_dm_dir_ray (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r
     (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
       (X1 Gp m₀ j 𝒦X)) (Evs := Ev)
     (b := fun Y => Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y))
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgF := AgHatFDir hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
     (isOpen_hatBall cψ) (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ)))
     (fun Y u hu => hbd Y u ⟨hu.1, hatBall_subset cψ hu.2⟩)
     (fun Y a a' c' c'' p q ha hb y hy i => by simp [ha y hy i, hb y hy i])
     (fun Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2' =>
-      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩)
+      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ h1' h2')
     (fun Θ hΘ ψh hψ => by
       obtain ⟨D, hD, rfl⟩ := hΘ
       rw [hatFun_rawOf hG' cc _ hD]
@@ -427,7 +428,8 @@ theorem eterm_locInt_hat_dm_dir_ray (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r
 
 /-- **The `δ𝓔'`-term of one old term in the variable `ψ̂`** (hat version of `eterm_locInt`).
 
-Sharp form: the hat variable is compared only at the unit points of the sites of `Y`. -/
+Sharp form: the hat variable is compared only at the unit points of the sites of `Y`, the raw
+datum only on `Y` itself. -/
 theorem eterm_locInt_hat_dm_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -465,7 +467,7 @@ theorem eterm_locInt_hat_dm_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ 
         (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
         (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
           - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (eterm_locInt_hat_dm_dir_ray hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 
@@ -528,7 +530,7 @@ theorem eterms_locInt_hat_dm_dir_ray {τι : Type*} [DecidableEq τι] (𝒯 : F
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
           Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -548,7 +550,7 @@ theorem eterms_locInt_hat_dm_dir_ray {τι : Type*} [DecidableEq τι] (𝒯 : F
           else 0)
         (fun Y => Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') ∧
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') ∧
       (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -573,7 +575,8 @@ theorem eterms_locInt_hat_dm_dir_ray {τι : Type*} [DecidableEq τι] (𝒯 : F
 /-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
 `eterms_locInt`).
 
-Sharp form: the hat variable is compared only at the unit points of the sites of `Y`. -/
+Sharp form: the hat variable is compared only at the unit points of the sites of `Y`, the raw
+datum only on `Y` itself. -/
 theorem eterms_locInt_hat_dm_dir {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
     {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
     {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
@@ -621,14 +624,15 @@ theorem eterms_locInt_hat_dm_dir {τι : Type*} [DecidableEq τι] (𝒯 : Finse
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
           Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (eterms_locInt_hat_dm_dir_ray (τι := τι) 𝒯 (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (Gk := Gk) (Gj := Gj) (r₀ := r₀) (δ₃ := δ₃) (X₀ := X₀) (X₁f := X₁f) (j := j) (m₀ := m₀) (X := X) (𝒦X := 𝒦X) (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (δfl := δfl) hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 
 /-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
 `mterms_locInt`).
 
-Sharp form: the hat variable is compared only at the unit points of the sites of `Y`. -/
+Sharp form: the hat variable is compared only at the unit points of the sites of `Y`, the raw
+datum only on `Y` itself. -/
 theorem mterms_locInt_hat_dm_dir {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
     {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
     {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
@@ -677,7 +681,7 @@ theorem mterms_locInt_hat_dm_dir {τι : Type*} [DecidableEq τι] (𝒯 : Finse
             (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ p.1 else 0)
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne
           (m₀ τ) (j τ) (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)) else 0)
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (AgHatFDir hG') := by
   classical
   have hex : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
@@ -693,7 +697,7 @@ theorem mterms_locInt_hat_dm_dir {τι : Type*} [DecidableEq τι] (𝒯 : Finse
             (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ p.1 else 0)
         (fun Y => 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)))
-        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (fun Y p p' => agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (AgHatFDir hG') := by
     intro τ
     by_cases hτ : τ ∈ 𝒯
@@ -921,7 +925,7 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
           nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
             (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
             Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -940,12 +944,8 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
-        AgHat hG' Y u u' → Ev Y u = Ev Y u') ∧
-      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
-        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
-        AgHatDir hG' Y u u' → Ev Y u = Ev Y u') ∧
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
       (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
@@ -953,9 +953,9 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
-    fun z => nublock_expansion_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hBh0 hBh (hcov z)
+    fun z => nublock_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hBh0 hBh (hcov z)
       (hX₁ z) hconn hrow (hopt z) (hΔ z) hκ₀ hκdec hκ h1 hlog z (hZ z)
-  choose Ev hsum _hlocA hloc hbd han using hex
+  choose Ev hsum hloc hbd han using hex
   refine ⟨fun Y x₀ w σ Θ => dirTerm (fun u => ∑ z, if Y ∈ polyDom Gp (X₁z z) m₀ (j z) (𝒦X z) then
     Ev z Y u else 0) ω x₀ w σ Θ, ?_, ?_⟩
   have hanO : ∀ z Y, AnalyticOnNhd ℂ (Ev z Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
@@ -980,7 +980,7 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
       nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
         (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
         Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0)
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgF := AgHatFDir hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
     (isOpen_hatBall cψ) ?_ ?_ ?_ ?_ ?_) ?_ ?_
   · intro Y u hu
@@ -1000,7 +1000,7 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
     by_cases hY : Y ∈ polyDom Gp (X₁z z'') m₀ (j z'') (𝒦X z'')
     · simp only [hY, ite_true]
       exact hloc z'' Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z')
-        ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩
+        ⟨hΘ', hatBall_subset cψ hz'⟩ h1' h2'
     · simp [hY]
   · rintro Θ ⟨D, hD, rfl⟩ ψh hψ
     rw [hatFun_rawOf hG' cc _ hD, onXi_rawOf hD, ← sum_nuBlockFun (n := k) a₁ ν BG₂ κ D _,
@@ -1025,7 +1025,8 @@ theorem nupart_locInt_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
 along a `ψ̂`-ray, with `V_{ν,1}` along the decoupled fluctuation (`nuTotal`), is a localized
 expansion over the domains `Y ⊃ X₁(z)`.
 
-Sharp form: the hat variable is compared only at the unit points of the sites of `Y`. -/
+Sharp form: the hat variable is compared only at the unit points of the sites of `Y`, the raw
+datum only on `Y` itself. -/
 theorem nupart_locInt_hat_dm_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -1064,7 +1065,7 @@ theorem nupart_locInt_hat_dm_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
           nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
             (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) *
             Real.exp (-2 * κdec * treeLenCov Gp m₀ Y) else 0) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (nupart_locInt_hat_dm_dir_ray hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ (Bh := Bh) hBh0 hBh hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog hZ (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 
@@ -1108,7 +1109,7 @@ theorem nupart_locInt_bound_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
           nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
             (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -1171,7 +1172,8 @@ theorem nupart_locInt_bound_hat_dm_dir_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
 /-- **The `ν`-part in the variable `ψ̂` with the volume-uniform bound**
 `C e^{-(2 κ_dec - 1) d^cov_{k+1}(Y)}` (the hat version of `nupart_locInt_bound`).
 
-Sharp form: the hat variable is compared only at the unit points of the sites of `Y`. -/
+Sharp form: the hat variable is compared only at the unit points of the sites of `Y`, the raw
+datum only on `Y` itself. -/
 theorem nupart_locInt_bound_hat_dm_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -1210,7 +1212,7 @@ theorem nupart_locInt_bound_hat_dm_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps 
           nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
             (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (nupart_locInt_bound_hat_dm_dir_ray hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ (Bh := Bh) hBh0 hBh hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog hZ (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 

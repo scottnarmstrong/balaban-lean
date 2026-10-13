@@ -470,7 +470,7 @@ theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
         (∀ x ∈ w.1, e₁.2 x = e₂.2 x) → ∀ Y ∈ I.𝒴, Y ⊆ w.1 →
         physAgΘ S Y (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₁)
           (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e₂) := fun e₁ e₂ h1 h2 Y _ hY =>
-      ⟨agreeOn_mono (thickSet_mono hY) h1, fun x hx => by
+      ⟨agreeOn_mono (fun x hx => thickSet_mono hY (Or.inl hx)) h1, fun x hx => by
         simp [physInclScaled_apply, h2 x (hY hx)]⟩
     exact ⟨labelActFamilyOn_local S 1 _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
         (hsub e he) (hsub e' he') w.1
