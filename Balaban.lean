@@ -1336,7 +1336,10 @@ public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Fluctuation.MarkedSharpCount
 public import Balaban.Fluctuation.MarkedHatRows
+public import Balaban.Fluctuation.MarkedDecBall
+public import Balaban.Fluctuation.MarkedDecAnalytic
 public import Balaban.Inhabited.MarkedHatRowsWitness
+public import Balaban.Fluctuation.MarkedFluctRows
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
