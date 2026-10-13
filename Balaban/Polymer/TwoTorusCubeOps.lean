@@ -30,7 +30,7 @@ open scoped Classical
 namespace Balaban.Polymer.TwoTorusStep
 
 open Balaban Balaban.Localization Balaban.Fluctuation Balaban.SmallField.Def6 Balaban.Polymer
-  Balaban.Multiscale Balaban.Background
+  Balaban.Multiscale Balaban.Background Matrix
 
 /-! ### Entries of the bond matrices and of the lattice Laplacian -/
 
@@ -673,6 +673,242 @@ theorem Kz_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) (a : ℕ → ℝ) (�
     dirichletOperator_boxMap hj1 hj a ν hn hn' (fun _ _ => rfl) x y hx hy]
   simp only [chi_boxMap hj1 hj hm hm' hx hy0, chi_boxMap hj1 hj hm hm' hy hy0]
   rfl
+
+/-! ### The cube resolvent -/
+
+omit [NeZero N₁'] in
+/-- A site of the interaction box lies in the box of radius `ρ₀ + 3 L^(j+m₁)`. -/
+theorem inBox_of_mem_intBox {j ρ₀ : ℕ} {y0 x : CTorus d L N₁ m₁ K}
+    (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hx : x ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) :
+    InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) x :=
+  ((mem_intBox_iff hy0 hn).1 hx).1
+
+theorem cubeBase_boxMap {y0 : CTorus d L N₁ m₁ K} (hj : j ≤ K) (hb : CubeBase (K := K) m₁ j y0) :
+    CubeBase (K := K) m₁ j (bm y0) :=
+  aligned_boxMap (pow_dvd_side hj N₁) (pow_dvd_side hj N₁') hb
+
+/-- The column of `cubeG` is the image of a basis vector. -/
+theorem cubeG_mulVec_single {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {α : G.Ω 1 → ℂ} (q : ℕ × CTorus d L N₁ m₁ K) (x y : G.Ω 1) :
+    (cubeG G a ν α q *ᵥ Pi.single y 1) x = cubeG G a ν α q x y := by
+  simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+
+/-- `cubeG` vanishes at the columns outside the interaction box. -/
+theorem cubeG_apply_of_not_mem {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    {α : G.Ω 1 → ℂ} (q : ℕ × CTorus d L N₁ m₁ K) (x y : G.Ω 1)
+    (hy : (y : CTorus d L N₁ m₁ K) ∉ intBox q) : cubeG G a ν α q x y = 0 := by
+  have h := congrFun (congrFun (cubeG_mul_cD (G := G) (a := a) (ν := ν) (α := α) q) x) y
+  unfold cD at h
+  rw [Matrix.mul_diagonal] at h
+  simp only [hy, ↓reduceIte, mul_zero] at h
+  exact h.symm
+
+/-- **Inverse of corresponding blocks.**  Let `H`, `H'` be invertible matrices on two finite types,
+`S`, `S'` two subsets matched by a map `ι` (injective on `S`, onto `S'`), such that `H'` and `H`
+have the same entries on `S × S`, `H` maps vectors supported in `S` to vectors supported in `S`,
+and `H'⁻¹ D'` has output supported in `S'` (`D`, `D'` the restrictions to `S`, `S'`).  Then the
+entries of `H⁻¹ D` on `S × S` are those of `H'⁻¹ D'` at the images. -/
+theorem inv_block_transport {A B : Type*} [Fintype A] [DecidableEq A] [Fintype B] [DecidableEq B]
+    (S : A → Prop) (S' : B → Prop) [DecidablePred S] [DecidablePred S'] (ι : A → B)
+    (hinj : ∀ a b, S a → S b → ι a = ι b → a = b) (hmap : ∀ a, S a → S' (ι a))
+    (hsurj : ∀ b, S' b → ∃ a, S a ∧ ι a = b)
+    (H : Matrix A A ℂ) (H' : Matrix B B ℂ) (D : Matrix A A ℂ) (D' : Matrix B B ℂ)
+    (hD : ∀ f x, (D *ᵥ f) x = if S x then f x else 0)
+    (hD' : ∀ f x, (D' *ᵥ f) x = if S' x then f x else 0)
+    (hH : ∀ x z, S x → S z → H' (ι x) (ι z) = H x z)
+    (hdec : ∀ u : A → ℂ, (∀ z, ¬ S z → u z = 0) → ∀ x, ¬ S x → (H *ᵥ u) x = 0)
+    (hU : IsUnit H) (hU' : IsUnit H')
+    (hsupp' : ∀ f z, ¬ S' z → ((H'⁻¹ * D') *ᵥ f) z = 0)
+    {x y : A} (hx : S x) (hy : S y) :
+    (H'⁻¹ * D') (ι x) (ι y) = (H⁻¹ * D) x y := by
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hU
+  have hdet' := (Matrix.isUnit_iff_isUnit_det _).1 hU'
+  set v' : B → ℂ := (H'⁻¹ * D') *ᵥ Pi.single (ι y) 1 with hv'
+  have hHv' : H' *ᵥ v' = D' *ᵥ Pi.single (ι y) 1 := by
+    rw [hv', Matrix.mulVec_mulVec, ← Matrix.mul_assoc, Matrix.mul_nonsing_inv _ hdet', Matrix.one_mul]
+  have hsum : ∀ f' : B → ℂ, ∑ z : A, (if S z then f' (ι z) else 0) =
+      ∑ z' : B, (if S' z' then f' z' else 0) := by
+    intro f'
+    rw [← Finset.sum_filter, ← Finset.sum_filter]
+    refine Finset.sum_bij (fun z _ => ι z) (fun z hz => ?_) (fun a ha b hb h => ?_)
+      (fun z' hz' => ?_) (fun _ _ => rfl)
+    · exact Finset.mem_filter.2 ⟨Finset.mem_univ _, hmap z (Finset.mem_filter.1 hz).2⟩
+    · exact hinj a b (Finset.mem_filter.1 ha).2 (Finset.mem_filter.1 hb).2 h
+    · obtain ⟨a, ha, rfl⟩ := hsurj z' (Finset.mem_filter.1 hz').2
+      exact ⟨a, Finset.mem_filter.2 ⟨Finset.mem_univ _, ha⟩, rfl⟩
+  set w : A → ℂ := fun z => if S z then v' (ι z) else 0 with hw
+  have hHw : H *ᵥ w = D *ᵥ Pi.single y 1 := by
+    funext x
+    by_cases hxc : S x
+    · rw [hD]
+      simp only [hxc, ↓reduceIte]
+      have e1 : (H *ᵥ w) x = ∑ z : A, if S z then H' (ι x) (ι z) * v' (ι z) else 0 := by
+        simp only [Matrix.mulVec, dotProduct]
+        refine Finset.sum_congr rfl fun z _ => ?_
+        by_cases hzc : S z
+        · simp only [hw, hzc, ↓reduceIte]
+          rw [hH x z hxc hzc]
+        · simp [hw, hzc]
+      rw [e1, hsum (fun z' => H' (ι x) z' * v' z')]
+      have e2 : ∀ z' : B, (if S' z' then H' (ι x) z' * v' z' else 0) = H' (ι x) z' * v' z' := by
+        intro z'
+        by_cases hz : S' z'
+        · simp [hz]
+        · have : v' z' = 0 := hsupp' _ z' hz
+          simp [this]
+      rw [Finset.sum_congr rfl fun z' _ => e2 z']
+      have e4 : (H' *ᵥ v') (ι x) = ∑ z', H' (ι x) z' * v' z' := by
+        simp [Matrix.mulVec, dotProduct]
+      rw [← e4, hHv', hD']
+      simp only [hmap x hxc, ↓reduceIte]
+      by_cases hxy : x = y
+      · subst hxy; simp
+      · have : ι x ≠ ι y := fun h => hxy (hinj x y hxc hy h)
+        simp [hxy, this]
+    · rw [hdec w (fun z hz => by simp [hw, hz]) x hxc, hD]
+      simp [hxc]
+  have hwv : w = (H⁻¹ * D) *ᵥ Pi.single y 1 := by
+    rw [← Matrix.mulVec_mulVec, ← hHw, Matrix.mulVec_mulVec, Matrix.nonsing_inv_mul _ hdet,
+      Matrix.one_mulVec]
+  have h1 := congrFun hwv x
+  simp only [hw, hx, ↓reduceIte] at h1
+  have e5 : ∀ (M : Matrix B B ℂ) (a b : B), (M *ᵥ Pi.single b 1) a = M a b := fun M a b => by
+    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+  have e6 : ∀ (M : Matrix A A ℂ) (a b : A), (M *ᵥ Pi.single b 1) a = M a b := fun M a b => by
+    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+  rw [e6] at h1
+  rw [← h1, hv', e5]
+
+/-- **T3 (`cubeG_boxMap`).**  The entries of the cube resolvent `cubeG = cubeH⁻¹ cD` of the centre
+`(j, y0)` correspond at two sites of the box of radius `R = ρ₀ + 3 L^(j+m₁)` (in particular at
+every pair of sites of the interaction box), for potentials with `α'(bm x) = α x` on the box of
+radius `R`.  Hypotheses: the landed standing hypotheses of the cube operator on each torus
+(`DGSetting`, `AdmPot`, the centre in `cubeIdx`), as in `cubeG_supp`.  Margins:
+`2 R + 3 L^K + 5 < N₁ L^m₁ L^K` and `2 (R + 2 + R) + 1 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem cubeG_boxMap {ρ₀ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν)
+    (SB : DGSetting (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν)
+    {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hq : ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ∈
+      cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj))
+    (hn : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hm : 2 * ((ρ₀ + 3 * L ^ (j + m₁)) + 2 + (ρ₀ + 3 * L ^ (j + m₁))) + 1 <
+      (N₁ * L ^ m₁) * L ^ K)
+    (hm' : 2 * ((ρ₀ + 3 * L ^ (j + m₁)) + 2 + (ρ₀ + 3 * L ^ (j + m₁))) + 1 <
+      (N₁' * L ^ m₁) * L ^ K)
+    {α : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    {α' : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    (hαA : AdmPot _ α) (hαB : AdmPot _ α')
+    (hα : ∀ x : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1,
+      InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K) →
+        α' ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ = α x)
+    (x y : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1)
+    (hx : InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hy : InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (y : CTorus d L N₁ m₁ K)) :
+    cubeG (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α'
+        (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K))
+        ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩
+        ⟨bm (y : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ =
+      cubeG (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α
+        (j, y0) x y := by
+  classical
+  rw [show Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K) = (j, bm y0) from rfl]
+  obtain ⟨hK1, hjK⟩ := pow_facts (L := L) hj
+  set R : ℕ := ρ₀ + 3 * L ^ (j + m₁) with hR
+  have hn1 : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ K := lt_of_le_of_lt (by omega) hn
+  have hn2 : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ K := lt_of_le_of_lt (by omega) hn'
+  have hy0' : InBox d ρ₀ ((N₁' * L ^ m₁) * L ^ K) (bm y0) := inBox_boxMap (by omega) hy0
+  have hq' : ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) ∈
+      cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) := by
+    obtain ⟨y1, he, hb⟩ := exists_of_mem_cubeIdx hj hq
+    have : y0 = y1 := (Prod.mk.inj he).2
+    subst this
+    exact (mem_cubeIdx_levelGS hj _).2 ⟨rfl, hj1, cubeBase_boxMap hj hb⟩
+  obtain ⟨ι, hι⟩ : ∃ ι : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1 → (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1,
+      ∀ z, ι z = ⟨bm (z : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ := ⟨_, fun _ => rfl⟩
+  rw [← hι, ← hι]
+  have hcubeA : ∀ z : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, (z : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) →
+      InBox d R ((N₁ * L ^ m₁) * L ^ K) (z : CTorus d L N₁ m₁ K) :=
+    fun z h => inBox_of_mem_intBox hy0 hn1 h
+  have hcubeB : ∀ z : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, (z : CTorus d L N₁' m₁ K) ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) →
+      InBox d R ((N₁' * L ^ m₁) * L ^ K) (z : CTorus d L N₁' m₁ K) :=
+    fun z h => inBox_of_mem_intBox hy0' hn2 h
+  have hiff : ∀ z : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, InBox d R ((N₁ * L ^ m₁) * L ^ K) (z : CTorus d L N₁ m₁ K) →
+      ((z : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ↔
+        ((ι z : _) : CTorus d L N₁' m₁ K) ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K)) := by
+    intro z hz
+    rw [hι]
+    exact mem_intBox_boxMap_iff_of_le (N₁' := N₁') hy0 le_rfl hn1 hn2 hz
+  have hinj : ∀ a b : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, InBox d R ((N₁ * L ^ m₁) * L ^ K) (a : CTorus d L N₁ m₁ K) →
+      InBox d R ((N₁ * L ^ m₁) * L ^ K) (b : CTorus d L N₁ m₁ K) → ι a = ι b → a = b := by
+    intro a b ha hb h
+    rw [hι, hι] at h
+    exact Subtype.ext (boxMap_inj (hm' := hn2) ha hb (congrArg Subtype.val h))
+  have hsurj : ∀ z' : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, (z' : CTorus d L N₁' m₁ K) ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) →
+      ∃ z : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1,
+        (z : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ∧ ι z = z' := by
+    intro z' h
+    have hb' := hcubeB z' h
+    have hback : bm (bm' (z' : CTorus d L N₁' m₁ K)) = z' := boxMap_boxMap hn1 hb'
+    obtain ⟨zz, hzz⟩ : ∃ zz : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+        (ϱ := ϱ) j hj).Ω 1, (zz : CTorus d L N₁ m₁ K) = bm' (z' : CTorus d L N₁' m₁ K) :=
+      ⟨⟨_, levelGS_mem_Ω_one hj1 hj _⟩, rfl⟩
+    have hz1 : InBox d R ((N₁ * L ^ m₁) * L ^ K) (zz : CTorus d L N₁ m₁ K) := by
+      rw [hzz]; exact inBox_boxMap hn1 hb'
+    have hιz : ι zz = z' := by
+      rw [hι]
+      refine Subtype.ext ?_
+      show bm (zz : CTorus d L N₁ m₁ K) = _
+      rw [hzz]; exact hback
+    refine ⟨zz, (hiff zz hz1).2 (by rw [hιz]; exact h), hιz⟩
+  have hcore : ∀ x y : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j
+      hj).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) →
+      (y : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) →
+      cubeG (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α'
+        (j, bm y0) (ι x) (ι y) =
+      cubeG (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α
+        (j, y0) x y := by
+    intro x y hxc hyc
+    unfold cubeG
+    refine inv_block_transport (fun z : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := K) (ϱ := ϱ) j hj).Ω 1 => (z : CTorus d L N₁ m₁ K) ∈
+        intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K))
+      (fun z : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 =>
+        (z : CTorus d L N₁' m₁ K) ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K)) ι
+      (fun a b ha hb h => hinj a b (hcubeA a ha) (hcubeA b hb) h)
+      (fun z hz => (hiff z (hcubeA z hz)).1 hz) hsurj _ _ _ _
+      (fun f z => cD_mulVec _ f z) (fun f z => cD_mulVec _ f z) ?_ ?_
+      (cubeH_isUnit SA hαA hq) (cubeH_isUnit SB hαB hq') ?_ hxc hyc
+    · intro x z hx hz
+      rw [hι, hι]
+      exact cubeH_boxMap (ρ := R) (ρ₀ := ρ₀) hj1 hj a ν hy0 hn hn' hm hm' hα x z
+        (hcubeA x hx) (hcubeA z hz)
+    · intro u hu x hx
+      exact cutOperator_mulVec_apply_of_not_mem _
+        (box_blockAligned SA.aligned SA.cover_sep (by have := SA.hL; omega) hq) α hu x hx
+    · intro f z hz
+      exact cubeG_supp SB hαB hq' f z hz
+  by_cases hyc : (y : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K)
+  · by_cases hxc : (x : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K)
+    · exact hcore x y hxc hyc
+    · have hxc' : ¬ ((ι x : _) : CTorus d L N₁' m₁ K) ∈
+          intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := fun h => hxc ((hiff x hx).2 h)
+      have e1 := cubeG_supp SA hαA hq (Pi.single y 1) x hxc
+      have e2 := cubeG_supp SB hαB hq' (Pi.single (ι y) 1) (ι x) hxc'
+      rw [cubeG_mulVec_single] at e1 e2
+      rw [e1]; exact e2
+  · have hyc' : ¬ ((ι y : _) : CTorus d L N₁' m₁ K) ∈
+        intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := fun h => hyc ((hiff y hy).2 h)
+    rw [cubeG_apply_of_not_mem _ _ _ hyc, cubeG_apply_of_not_mem _ _ _ hyc']
 
 end Level
 
