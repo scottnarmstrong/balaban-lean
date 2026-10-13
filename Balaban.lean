@@ -60,6 +60,7 @@ public import Balaban.Polymer.TwoTorusGreenRows
 public import Balaban.Polymer.TwoTorusDecBg
 public import Balaban.Polymer.TwoTorusSY
 public import Balaban.Polymer.TwoTorusSYF
+public import Balaban.Polymer.TwoTorusDecSol
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
