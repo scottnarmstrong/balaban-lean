@@ -7,8 +7,11 @@ module
 
 public import Balaban.Fluctuation.StepComplexJoint
 public import Balaban.Fluctuation.StepActivityHatSource
+public import Balaban.Inhabited.SourceActivityScale
+public import Balaban.Inhabited.UniformChartRelative
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
+import Mathlib.Tactic.FieldSimp
 
 /-!
 # The source part of the exponent of the zero-class step at complex chart data
@@ -27,6 +30,8 @@ complex datum, with any complex site-dependent `h̃`), the source exponent
   `t ∈ [0,1]`, of a complex hat variable `x` (`dirTermSrc_ray` and `analyticAt_flFieldOne_hatRay`);
 * (`W2_eq_val_sub_physical`) the same at the datum `D = S.D'` of the step, where `Jr.W2` is the
   complex exponent `S.WtwoC` (`W2_path`).
+* (`Balaban.Inhabited.expSourceChart_scale`) all premises hold together at the step `hatStepK` of
+  every scale, with the ray bound `p⁺ = 2 p₁`, for every source and every admissible hat variable.
 
 This file proves only the source side of the identity of the exponents.  The interaction side
 (`W1`), the family `sourceExponent_family` and the complex activity bound off the central datum are
@@ -331,3 +336,107 @@ end JointRep
 end StepSetting
 
 end Balaban.Fluctuation
+
+namespace Balaban.Inhabited
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
+  Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
+  Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
+
+open Classical in
+/-- **T5 (non-vacuity), every scale.**  At the physical step `hatStepK k m₁ hk ν β p₁ δ`
+(`d = L = 3`, `N = 2`; every scale `k ≥ 1`, `β ≥ β₀`, cutoff `p₁ ≤ A₁ (log β_k)^p`) all
+premises of `JointRep.W2_eq_val_sub` hold together at the central datum `S.D'` and the ray bound
+`p⁺ = 2 p₁`: there is a `JointRep` and an expanded function `val` (the formula of
+`sourceDirectTerms_slice`) such that for every source `g` and every hat variable `x` whose ray stays
+within `2 p₁`, the chart identity holds.  Here `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`. -/
+theorem expSourceChart_scale {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+    ∃ (m₁ : ℕ) (t δ β₀ BG₂ κ : ℝ), 2 ≤ β₀ ∧ 0 < t ∧ 0 < δ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      ∀ S : StepSetting 3 3 N₁ m₁ k 2 (rhoSep m₁),
+        S = hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ →
+      ∃ Jr : S.JointRep t (2 * p₁),
+      ∃ val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+            ℂ → (RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2 × (CTorus 3 3 N₁ m₁ (k + 1) → Fin 2 → ℂ)) → ℂ,
+        (∀ x w σ Θ, val x w σ Θ =
+          (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν t S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν t)) taylorWeight x.1 w.1 σ Θ.1 +
+          (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun S.G' S.a₁ S.ν t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi S.G' S.a₁ S.ν t
+                (fun D ψ' => svec (stepG 3 3 N₁ m₁ k (rhoSep m₁))
+                  (flFieldOne S.G' (stepG 3 3 N₁ m₁ k (rhoSep m₁)) BG₂ κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+        ∀ (g : Fld 3 3 N₁ m₁ (k + 1) 2) (x : S.EC),
+          (∀ r : ℝ, r ∈ Set.Icc (0 : ℝ) 1 → ∀ q, ‖((r : ℂ) • x) q‖ ≤ 2 * p₁) →
+          ∀ τ : ℝ, τ ∈ Set.Icc (0 : ℝ) 1 →
+            Jr.W2 (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) g (rawOf S.D', (τ : ℂ) • x) =
+              val (x, x) (x, x) (τ : ℂ) (rawOf S.D', fun y i => g y i / (S.β : ℂ)) -
+                val (x, x) (x, x) (τ : ℂ) (rawOf S.D', 0) := by
+  classical
+  set κ0 : ℝ := aEnt 3 3 + 1 with hκ0def
+  set κdec : ℝ := 100 * (κ0 + c1 3 3 + 10) with hκdecdef
+  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
+    exists_witness_params (fun _ => 0)
+  have hc1 := one_le_c1 3 3
+  have hent := aEnt_nonneg 3 3
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0⟩ :=
+    tower_core_rates 2 (κ0 := κ0) (κdec := κdec) (by rw [hκ0def]) (by rw [hκdecdef]; linarith)
+  have hbig : cstarX 3 3 ≤ (3 : ℝ) ^ m₁ := by
+    have hκdec0 : 0 ≤ κdec := by linarith
+    have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
+    have h := Localization.cstarX_pos 3 3
+    have h2 : cstarX 3 3 ≤ cstarX 3 3 * Real.exp ((N0 3 3 : ℝ) * κ) :=
+      le_mul_of_one_le_right h.le (Real.one_le_exp (by positivity))
+    have h3 : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by norm_num
+    linarith
+  obtain ⟨β₀t, hβ₀t, hitems⟩ := scale_C_items hA p m₁ h4 hbig κ ht0 hδ hsm hδ'0 hδ'a hδ'b hδ'c
+  refine ⟨m₁, t, δ, β₀t, BG₂, κ, hβ₀t, ht0, hδ, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ S hS
+  subst hS
+  have hν0 : 0 ≤ ν := hνpos.le
+  obtain ⟨hcψ0, hr0, hδ₁, hc, hlt, ⟨R0⟩⟩ := hitems k hk N₁ hN ν hν0 hν β hβ p₁ hp0 hp₁
+  have hSD := dgSetting_lv (N₁ := N₁) (k := k) h4 hN hν0 hν
+  have hHB := bgHyp_lv (k := k) m₁ hν0 hν
+  have hC : FlCore 2 (lvTop N₁ m₁ k (rhoSep m₁)) (lvLow N₁ m₁ k (rhoSep m₁)) 1 ν c BG κ t
+      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
+    flCore_level_transfer hC₀ hSD (opSetting_lv h4 hN hν0 hν) (isLevel_lvLow hk) isLevel_lvTop hHB
+  have hD := hatStepK_xiCData (N₁ := N₁) k m₁ hk hν0 hν β p₁ δ ht0
+  have hβ0 : 0 < β := by linarith
+  have hmem := compWeight_three_mem hk
+  have hCs : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ :=
+    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) κ
+  have hpc : 2 * p₁ < lvCpsi κ t (β * 3 ^ k) := by
+    have : 0 < lvR κ t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp0
+    nlinarith
+  have hbU : 0 ≤ (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).betaU := by
+    have := R0.betaU_pos
+    exact this.le
+  have hδp : Real.sqrt ((2 : ℕ) : ℝ) *
+      ((hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).betaU ^ (-(1 / 2 : ℝ)) *
+        (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * (2 * p₁))) < t := by
+    refine lt_of_le_of_lt ?_ hδ₁
+    rw [(hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).norm_betaU_rpow (show 0 ≤ β by linarith)]
+    have hb := Real.rpow_nonneg hbU (-(1 / 2 : ℝ))
+    have hs := Real.sqrt_nonneg ((2 : ℕ) : ℝ)
+    refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
+      (mul_le_mul_of_nonneg_left hpc.le hCs) hb) hs
+  obtain ⟨Jr⟩ := (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).nonempty_jointRep (pp := 2 * p₁)
+    hC hMX hdm hα hsmX one_pos hc7 (R := 2) (by norm_num) g5 (by
+      show 0 ≤ β
+      linarith) (by linarith) hδp
+  refine ⟨Jr, _, fun x w σ Θ => rfl, ?_⟩
+  intro g x hx τ hτ
+  refine Jr.W2_eq_val_sub hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX hdm hα hsmX
+    hcψ0.le hδ₁ hpc hD g ?_ x hx hτ _ (fun x w σ Θ => rfl)
+  have : (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).β ≠ 0 := by
+    show β ≠ 0
+    exact hβ0.ne'
+  exact_mod_cast this
+
+end Balaban.Inhabited
