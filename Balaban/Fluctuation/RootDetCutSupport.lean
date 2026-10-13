@@ -204,4 +204,51 @@ end Cuts
 
 end Trace
 
+
+section NonVacuity
+
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+theorem extS_cutPt_of_mem {J : Finset (cubeIdx G)} {R : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hR : R ∈ cubeIdx G) : extS G (cutPt J) R = if (⟨R, hR⟩ : cubeIdx G) ∈ J then 1 else 0 := by
+  classical
+  simp [extS, cutPt, hR]
+
+/-- **The active centres at the cut point `1_J`.** A centre `z` has non-zero factor `s_z` at the cut
+point that is `1` on `J` and `0` on the other parameter cubes iff every parameter cube of its
+footprint `𝒬(z)` lies in `J`. -/
+theorem mem_Zs_extS_cutPt_iff {J : Finset (cubeIdx G)} {z : ℕ × CTorus d L N₁ m₁ (k + 1)} :
+    z ∈ Zs G (extS G (cutPt J)) ↔
+      z ∈ cubeIdx G ∧ ∀ R (hR : R ∈ cubeIdx G), R ∈ Qset G z → (⟨R, hR⟩ : cubeIdx G) ∈ J := by
+  classical
+  unfold Zs
+  rw [Finset.mem_filter, sProd_ne_zero_iff]
+  refine and_congr_right fun _ => ⟨fun h R hR hRz => ?_, fun h R hRz => ?_⟩
+  · have := h R hRz
+    rw [extS_cutPt_of_mem hR] at this
+    by_contra hJ
+    exact this (by simp [hJ])
+  · have hR := Qset_subset_cubeIdx z hRz
+    rw [extS_cutPt_of_mem hR]
+    simp [h R hR hRz]
+
+/-- **A non-trivial cut point.** For every centre `z` of the cover, the cut point that switches on
+exactly the parameter cubes of the footprint of `z` has `z` active, so the thickened cube of `z`
+lies in `Yreg`. (At the zero cut point `Yreg` is empty: `Yreg_zeroCuts`.) -/
+theorem hatI_subset_Yreg_cutPt {z : ℕ × CTorus d L N₁ m₁ (k + 1)} (hz : z ∈ cubeIdx G) :
+    hatI G z ⊆ Yreg G (extS G (cutPt ((Qset G z).subtype (· ∈ cubeIdx G)))) := by
+  classical
+  have hzZ : z ∈ Zs G (extS G (cutPt ((Qset G z).subtype (· ∈ cubeIdx G)))) := by
+    rw [mem_Zs_extS_cutPt_iff]
+    exact ⟨hz, fun R hR hRz => by simp [hRz]⟩
+  intro y hy
+  unfold hatI at hy
+  rw [Finset.mem_filter] at hy
+  unfold Yreg
+  rw [Finset.mem_filter, Finset.mem_biUnion]
+  exact ⟨⟨z, hzZ, hy.1⟩, hy.2⟩
+
+end NonVacuity
+
 end Balaban.Fluctuation

@@ -12,16 +12,50 @@ public import Balaban.Localization.BoxGeometry
 import Mathlib.Tactic.Linarith
 
 /-!
-# Block diagonality of the decoupled logarithm
+# Block diagonality and locality of the decoupled logarithm
 
 Continuation of `DecCovCutSupport.lean` (DET-CUT-FACTOR of `notes/phase1/ROOTDET.md` §2).
 
-* `intMat_BD`: the entrywise integral over `x > 0` of a family of matrices that are block diagonal
-  for every `x > 0` is block diagonal (no integrability is needed: a vanishing entry integrates to
-  zero).
-* `baseline_BD`: the baseline blocks `log a_k (1 - P) + log (a_k + aT/L²) P` of `decLog`.
-* `decLog_BD_of_integrand`, `CovStanding.decLog_BD_of_respects`: `decLog` is block diagonal for the
-  labels, under the two provisos of `DecCovCutSupport.lean` (named hypotheses).
+**Block diagonality.**
+
+* `intMat_BD`: the entrywise integral over `x > 0` of matrices that are block diagonal for every
+  `x > 0` is block diagonal (a vanishing entry integrates to zero; no integrability is needed).
+* `baseline_BD`, `decLog_BD_of_integrand`: the baseline blocks `log a_k (1 - P) + log (a_k + b) P`
+  and the whole of `decLog`.
+* `CovStanding.decLog_BD_of_respects`: `decLog` is block diagonal for the labels of a union `Y'` of
+  nearest-neighbour components of `Yreg s`, under the two provisos of `DecCovCutSupport.lean`.
+
+**Proviso (i), discharged** (`hRespects_of_hatConn`). `HRespects` holds for the actual operator
+`xDirichletOperator`, from `XSetting` (cover separation `cover_sep`, `hM`, `hL`) and `HatConn`
+alone. A non-zero matrix element joins nearest neighbours (`latticeLaplacian_adj`) or two sites in
+one block of the layer of the row (`xAvg_ne_zero_cell`); the site is then an interior point of the
+cover box of any core site it is joined to (`inner_of_near`, `mem_hatI_of_near`), so it lies in the
+thickened cube `□̂_z`, which is connected inside `Ω₁` and lies in one component or misses it
+(`connIn_dichotomy`). No union-of-blocks hypothesis on `Y'` is needed for this proviso.
+
+**Proviso (ii), for the unit lattice** (`unitQ_label`, `unitP_label`). With the label
+`unitLabel G Y' b := the unit block b lies in Y'` the matrices `unitQ G`, `unitP G` respect the
+labels if `Y'` is a union of `L^(k+1)`-blocks of the top layer (`UnionOfBlocks G Y'`: a site of `Ω₁`
+in the same `(k+1)`-block as a site of `Y'` lies in `Y'`). Union of unit blocks alone does not
+suffice, because `unitP` averages over the `L` unit blocks of one `(k+1)`-block. This property is
+**not proved** to hold for a component of `Yreg s`; it is kept as the named hypothesis `hYblk`. The
+mathematical reason it holds: a top-layer site lies in the thickened cube of a cube of scale
+`q.1` only for `q.1 ≥ k` (layer bound), and then the cell index description of the box shows that
+the thickened cube is a union of `L^(q.1+1)`-blocks (the thickening `3 L² ℓ_j` is a multiple of
+the block side), hence of `L^(k+1)`-blocks; a component is a union of such thickened cubes
+(`hatI` connected). That cell computation for the thickened radius is not formalized here.
+`CovStanding.decLog_BD_unit_of_unionOfBlocks` is the resulting theorem (named hypotheses:
+`CovStanding` at all `x ≥ 0`, `HatConn`, `UnionOfBlocks`). Any union of components (not only a
+single one) works: only `IsNnComp (Yreg s) Y'` is used.
+
+**Locality.** `BAgree` and its calculus (`mul`, `inv`, `liftOp`, ...): block diagonal matrices
+with equal matrix elements on a block have products and inverses with equal matrix elements there.
+`Gsx_agree` (from `Gsx_local`), `commK_Gsx_agree`, `CovStanding.decCov_sub_agree`,
+`CovStanding.decLog_agree`: for two data `(s, α, φ)`, `(s', α', φ')` with `Y'` a union of
+components of both `Yreg s` and `Yreg s'`, `sProd` agreeing on the cubes inside `Y'` and potentials
+and fields agreeing on `Y'`, the matrices `decLog` have equal matrix elements between labelled
+coarse sites. `CovStanding.decLog_row_eq_baseline`: for a coarse site whose label (relative to
+`Y' = Yreg s`) is false the row of `decLog` is the cut-independent baseline.
 
 The decay (forest) bound and the count of cut sets per cube set are not proved here.
 -/
@@ -201,6 +235,13 @@ abbrev UnionOfBlocks (Y' : Finset (CTorus d L N₁ m₁ (k + 1))) : Prop :=
     (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y'
 
 variable {G}
+
+/-- `UnionOfBlocks` is satisfiable: the empty set and the whole torus. -/
+theorem unionOfBlocks_empty : UnionOfBlocks G (∅ : Finset (CTorus d L N₁ m₁ (k + 1))) :=
+  fun _ _ _ h => absurd h (Finset.notMem_empty _)
+
+theorem unionOfBlocks_univ : UnionOfBlocks G (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))) :=
+  fun _ _ _ _ => Finset.mem_univ _
 
 theorem unitQ_label {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : UnionOfBlocks G Y') :
     BD (unitLabel G Y') (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') (unitQ G) := by
