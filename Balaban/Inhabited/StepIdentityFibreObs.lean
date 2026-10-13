@@ -141,7 +141,11 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
                   agreeOn (thickSet S.G' (sitesOf T'))
                     (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
                     (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
-                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T')) ∧
+                  (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
+                (∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ θ' ∈ physVq S S.a₁ S.ν T.t q,
+                  physRestrict (N := 2) (sitesOf T') (physIncl 2 S θ) =
+                    physRestrict (sitesOf T') (physIncl 2 S θ') →
+                  mObs y i θ T' = mObs y i θ' T')) ∧
         ∀ (D : BgData S.G' 2) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
           XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
           ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x', ∑ i', ‖g x' i'‖ < q →
@@ -195,7 +199,7 @@ theorem obsFamily_pair_fibre_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁
   · intro y i hdj
     exact ⟨hR y i, hR1 y i, hRθ y i, Ev y i, ha y i, hd y i, hb y i, fun _ _ => rfl,
       fun T' => ⟨(hcl y i T').2.2.2.1, (hcl y i T').2.2.2.2.1, (hcl y i T').2.2.2.2.2.1,
-        (hcl y i T').2.2.2.2.2.2⟩⟩
+        (hcl y i T').2.2.2.2.2.2.1, (hcl y i T').2.2.2.2.2.2.2⟩⟩
   · intro D hDh hX g hg
     have hM := fun y i => hval y i D hDh hX g hg
     exact ⟨hM, rpow_neg_half_mul_sum_pair hbU0 g _ _ hM⟩
