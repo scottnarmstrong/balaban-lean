@@ -718,4 +718,110 @@ theorem mixDiff_rootTraceBg_twoTorus
 
 end TraceBg
 
+/-! ### The hull of a set of parameter cubes on two tori -/
+
+section Hull
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {m₀ : ℕ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- An aligned `π′_K` box (side `L a_K`) that meets a set of the box of radius `ρ` lies in the box
+of radius `ρ + 2 L a_K`. -/
+theorem inBox_of_box_meets {ρ : ℕ}
+    (hn : 2 * (ρ + 2 * (L * aK)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {S : Set (CTorus d L N₁ m₁ (k + 1))} (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {b : CTorus d L N₁ m₁ (k + 1)} (hb : (box b (L * aK) ∩ S).Nonempty) :
+    ∀ x ∈ box b (L * aK), InBox d (ρ + 2 * (L * aK)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+  obtain ⟨s, hsb, hsS⟩ := hb
+  have hbR := inBox_of_mem_box_left (by omega) (hS s hsS) hsb
+  intro x hx
+  exact inBox_mono (by omega) (inBox_of_mem_box_right (by omega) hbR hx)
+
+omit [NeZero N₁'] in
+/-- The sites of the cubes of the `π′_K`-hull of a set of the box of radius `ρ` lie in the box of
+radius `ρ + 2 L a_K`. -/
+theorem inBox_of_mem_piHull {ρ : ℕ}
+    (hn : 2 * (ρ + 2 * (L * aK)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {S : Set (CTorus d L N₁ m₁ (k + 1))} (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ}
+    (hc : c ∈ piHull m₀ S) :
+    ∀ x ∈ box c.1 aK, InBox d (ρ + 2 * (L * aK)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+  obtain ⟨b, ⟨-, hb⟩, hcb⟩ := mem_piHull.1 hc
+  exact fun x hx => inBox_of_box_meets hn hS hb x (hcb hx)
+
+/-- **The `π′_K`-hull on two tori, one inclusion.**  For a set `S` of the box of radius `ρ`, the
+image of the hull of `S` under `cubeMap` lies in the hull of `bm '' S`.  Margin:
+`2 (ρ + 2 L a_K) + L a_K < N₁ L^m₁ L^(k+1)`. -/
+theorem piHull_image_subset (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
+    (hn : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {S : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    (piHull m₀ S).image (cubeMap hN hN' le_rfl) ⊆ piHull m₀ (bm '' S) := by
+  intro c' hc'
+  obtain ⟨c, hc, rfl⟩ := Finset.mem_image.1 hc'
+  obtain ⟨b, ⟨hba, hb⟩, hcb⟩ := mem_piHull.1 hc
+  have ha0 : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
+  have hbox := inBox_of_box_meets (by omega) hS hb
+  have himg : bm '' box b (L * aK) = box (bm b) (L * aK) :=
+    image_box_boxMap (r := ρ + 2 * (L * aK)) hn ha0 hbox
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have himc : bm '' box c.1 aK = box (bm c.1) aK :=
+    image_box_boxMap (r := ρ + 2 * (L * aK)) (by omega) (cellSide_pos m₀ m₁ _)
+      fun x hx => hbox x (hcb hx)
+  obtain ⟨s, hsb, hsS⟩ := hb
+  refine mem_piHull.2 ⟨bm b, ⟨aligned_boxMap (cellSide_dvd (K := k + 1) (m₁ := m₁) hN le_rfl)
+    (cellSide_dvd (K := k + 1) (m₁ := m₁) hN' le_rfl) hba, bm s, ?_, s, hsS, rfl⟩, ?_⟩
+  · rw [← himg]; exact ⟨s, hsb, rfl⟩
+  · show box (bm c.1) aK ⊆ box (bm b) (L * aK)
+    rw [← himg, ← himc]
+    exact Set.image_mono hcb
+
+/-- **The `π′_K`-hull on two tori.**  For a set `S` of the box of radius `ρ`,
+`piHull (bm '' S) = cubeMap '' piHull S`.  Margin: `2 (ρ + 2 L a_K) + L a_K < N₁ L^m₁ L^(k+1)`
+(and for `N₁'`). -/
+theorem piHull_image (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
+    (hn : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {S : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    piHull m₀ (bm '' S) = (piHull m₀ S).image (cubeMap hN hN' le_rfl) := by
+  refine subset_antisymm (fun c' hc' => ?_) (piHull_image_subset hN hN' hn hS)
+  have ha0 : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
+  have hS' : ∀ x ∈ bm '' S, InBox d ρ ((N₁' * L ^ m₁) * L ^ (k + 1)) x := by
+    rintro _ ⟨x, hx, rfl⟩
+    exact inBox_boxMap (by omega) (hS x hx)
+  have h1 := piHull_image_subset (N₁ := N₁') (N₁' := N₁) hN' hN hn' hS'
+  rw [image_image_boxMap (by omega) hS] at h1
+  have hc'R := inBox_of_mem_piHull (by omega) hS' hc'
+  refine Finset.mem_image.2 ⟨cubeMap hN' hN le_rfl c', h1 (Finset.mem_image_of_mem _ hc'), ?_⟩
+  exact cubeMap_cubeMap (r := ρ + 2 * (L * aK)) hN' hN le_rfl hn
+    (hc'R c'.1 (mem_box_self _ (cellSide_pos m₀ m₁ _)))
+
+omit [NeZero N₁'] in
+/-- The root set of the coarse site of a fine site `x` is the cell of side `a_K` of `x`. -/
+theorem rootSet_blockIndex (x : CTorus d L N₁ m₁ (k + 1)) :
+    rootSet m₀ (blockIndex x) = box (cbase aK x) aK := by
+  show box (cbase aK (rootSite (blockIndex x))) aK = _
+  rw [rootSite_blockIndex, blockBase, cbase_cbase_of_dvd_hull (Nat.pos_of_ne_zero (NeZero.ne _))
+    (pow_dvd_cellSide (m₀ := m₀))]
+
+/-- The cell of side `a_K` of a site, on two tori: `bm '' box (cbase a_K x) a_K` is the cell of
+`bm x`, when the cell lies in the box of radius `ρ`.  Margin: `2 ρ + a_K < N₁ L^m₁ L^(k+1)`. -/
+theorem cell_image (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
+    (hn : 2 * ρ + aK < (N₁ * L ^ m₁) * L ^ (k + 1)) (x : CTorus d L N₁ m₁ (k + 1))
+    (hbox : ∀ y ∈ box (cbase aK x) aK, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    bm '' box (cbase aK x) aK = box (cbase aK (bm x)) aK := by
+  rw [image_box_boxMap hn (cellSide_pos m₀ m₁ _) hbox,
+    cbase_boxMap (cellSide_dvd (K := k + 1) (m₁ := m₁) hN le_rfl)
+      (cellSide_dvd (K := k + 1) (m₁ := m₁) hN' le_rfl) (cellSide_pos m₀ m₁ _) hn x hbox]
+
+end Hull
+
 end Balaban.Polymer.TwoTorusStep
