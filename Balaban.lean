@@ -1643,6 +1643,7 @@ public import Balaban.Inhabited.Thm31bFromTower
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.SourceWitnessJoint
+public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.TowerCoreRatesTwoRadii
 public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepTowerRadius
@@ -1654,6 +1655,9 @@ public import Balaban.Fluctuation.DecMarkTotal
 public import Balaban.Inhabited.DecMarkTotalFromTower
 public import Balaban.Green.FinalBoxResolvent
 public import Balaban.Inhabited.StepTowerCoreMono
+public import Balaban.Inhabited.RenormRadiusDec
+public import Balaban.Inhabited.RenormRadiusLoc
+public import Balaban.Inhabited.RenormRadiusInput
 public import Balaban.Fluctuation.DetRateGeneral
 public import Balaban.Fluctuation.DecMarkBlocks
 public import Balaban.Fluctuation.DecMarkCorrected
