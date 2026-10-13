@@ -38,6 +38,7 @@ section Entries
 
 variable {d ℓ : ℕ} [NeZero ℓ]
 
+omit [NeZero ℓ] in
 theorem bondVec_apply (b : Torus d ℓ × Fin d) (w : Torus d ℓ) :
     bondVec b w = (if w = b.1 + Pi.single b.2 1 then 1 else 0) - (if w = b.1 then 1 else 0) := by
   simp [bondVec, Pi.single_apply]
@@ -105,7 +106,7 @@ theorem sum_bondMatrix_apply (cut : Finset (Torus d ℓ × Fin d)) (x y : Torus 
     by_cases h : x = y + e
     · simp only [h, ↓reduceIte]
       rw [Finset.sum_eq_single y]
-      · simp [h]
+      · simp
       · intro z _ hz; simp [Ne.symm hz]
       · simp
     · simp only [h, ↓reduceIte]
@@ -400,6 +401,168 @@ theorem mem_intBox_iff {j ρ₀ : ℕ} {y0 x : CTorus d L N₁ m₁ K}
   simp only
   rw [← forall_and]
   exact forall_congr' fun μ => key μ
+
+/-- **T1 (the interaction box).**  For a centre `(j, y0)` with `y0` in the box of radius `ρ₀` and
+`R = ρ₀ + 3 L^(j+m₁)`, a site `x` of the box of radius `R` lies in the interaction box iff its image
+lies in the interaction box of the image centre.  Margin: `2 R + 1 < N₁ L^m₁ L^K`, same for `N₁'`. -/
+theorem mem_intBox_boxMap_iff {j ρ₀ : ℕ} {y0 x : CTorus d L N₁ m₁ K}
+    (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁' * L ^ m₁) * L ^ K)
+    (hx : InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) x) :
+    x ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ↔
+      bm x ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+  have hy0' : InBox d ρ₀ ((N₁' * L ^ m₁) * L ^ K) (bm y0) :=
+    inBox_boxMap (by omega) hy0
+  rw [mem_intBox_iff hy0 hn, mem_intBox_iff hy0' hn']
+  have hR : ∀ w : CTorus d L N₁ m₁ K, InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) w →
+      ∀ μ, (bm w μ).valMinAbs = (w μ).valMinAbs := fun w hw μ =>
+    valMinAbs_boxMap (by omega) hw μ
+  have hy1 := valMinAbs_boxMap (m' := (N₁' * L ^ m₁) * L ^ K) (by omega : 2 * ρ₀ + 1 < _) hy0
+  constructor
+  · rintro ⟨-, h2⟩
+    refine ⟨inBox_boxMap (by omega) hx, fun μ => ?_⟩
+    rw [hR x hx μ, hy1 μ]; exact h2 μ
+  · rintro ⟨-, h2⟩
+    refine ⟨hx, fun μ => ?_⟩
+    have := h2 μ
+    rw [hR x hx μ, hy1 μ] at this; exact this
+
+/-- **T1 (`intBox_image`).**  `bm '' intBox q = intBox (Prod.map id bm q)` for `q = (j, y0)` with
+`y0` in the box of radius `ρ₀`.  Margin: `2 (ρ₀ + 3 L^(j+m₁)) + 1 < N₁ L^m₁ L^K` and the same for
+`N₁'`. -/
+theorem intBox_image {j ρ₀ : ℕ} {y0 : CTorus d L N₁ m₁ K}
+    (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁' * L ^ m₁) * L ^ K) :
+    bm '' (↑(intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) : Set (CTorus d L N₁ m₁ K)) =
+      (↑(intBox (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K) :
+        ℕ × CTorus d L N₁' m₁ K)) : Set (CTorus d L N₁' m₁ K)) := by
+  have hy0' : InBox d ρ₀ ((N₁' * L ^ m₁) * L ^ K) (bm y0) :=
+    inBox_boxMap (by omega) hy0
+  ext w
+  constructor
+  · rintro ⟨x, hx, rfl⟩
+    have hxb := ((mem_intBox_iff hy0 hn).1 (Finset.mem_coe.1 hx)).1
+    exact (mem_intBox_boxMap_iff (N₁' := N₁') hy0 hn hn' hxb).1 hx
+  · intro hw
+    have hwb := ((mem_intBox_iff hy0' hn').1 (Finset.mem_coe.1 hw)).1
+    have hb : bm' w = bm' w := rfl
+    have hww : bm (bm' w) = w := boxMap_boxMap (by omega) hwb
+    have hxb : InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (bm' w) :=
+      inBox_boxMap (by omega) hwb
+    refine ⟨bm' w, ?_, hww⟩
+    rw [Finset.mem_coe, mem_intBox_boxMap_iff (N₁' := N₁') hy0 hn hn' hxb, hww]
+    exact Finset.mem_coe.1 hw
+
+/-! ### The partition weight -/
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+theorem castT_boxMap {n n' n₂ n₂' : ℕ} (h : n = n₂) (h' : n' = n₂') (c : Torus d n) :
+    castT h' (boxMap n n' c) = boxMap n₂ n₂' (castT h c) := by
+  subst h h'; rfl
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+theorem inBox_castT_iff {n n₂ r : ℕ} (h : n = n₂) (c : Torus d n) :
+    InBox d r n₂ (castT h c) ↔ InBox d r n c := by
+  subst h; exact Iff.rfl
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+theorem tor_boxMap (x : CTorus d L N₁ m₁ K) :
+    tor (N₁ := N₁') m₁ (bm x) =
+      boxMap (N₁ * L ^ (K + m₁)) (N₁' * L ^ (K + m₁)) (tor (N₁ := N₁) m₁ x) :=
+  castT_boxMap (cubeSide_eq N₁ L m₁ K) (cubeSide_eq N₁' L m₁ K) x
+
+/-- **The cube bump on two tori.**  For `x` in the box of radius `ρ` and the base `y0` in the box of
+radius `ρ₂`, with `ρ + ρ₂ + 3 L^(j+m₁) ≤ N₁ L^m₁ L^K` (and for `N₁'`), `2ρ + 1`, `2ρ₂ + 1` below
+the side of the second torus. -/
+theorem cubeBump_boxMap {j ρ ρ₂ : ℕ} {x y0 : CTorus d L N₁ m₁ K}
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x) (hy : InBox d ρ₂ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : ρ + ρ₂ + 3 * L ^ (j + m₁) ≤ (N₁ * L ^ m₁) * L ^ K)
+    (hn' : ρ + ρ₂ + 3 * L ^ (j + m₁) ≤ (N₁' * L ^ m₁) * L ^ K)
+    (hx' : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ K) (hy' : 2 * ρ₂ + 1 < (N₁' * L ^ m₁) * L ^ K) :
+    cubeBump m₁ j (bm y0) (bm x) = cubeBump m₁ j y0 x := by
+  unfold cubeBump
+  rw [tor_boxMap, tor_boxMap]
+  have e1 : N₁ * L ^ (K + m₁) = (N₁ * L ^ m₁) * L ^ K := (cubeSide_eq N₁ L m₁ K).symm
+  have e2 : N₁' * L ^ (K + m₁) = (N₁' * L ^ m₁) * L ^ K := (cubeSide_eq N₁' L m₁ K).symm
+  exact bump_boxMap (N₀ := N₁) (N₀' := N₁') (k := K + m₁) (j + m₁) _ _
+    ((inBox_castT_iff _ _).2 hx) ((inBox_castT_iff _ _).2 hy) (by rw [e1]; exact hn)
+    (by rw [e2]; exact hn') (by rw [e2]; exact hx') (by rw [e2]; exact hy')
+
+omit [NeZero N₁'] in
+/-- The base of a cube whose bump is nonzero at a site of the box of radius `ρ` lies in the box of
+radius `ρ + 2 L^(j+m₁)`. -/
+theorem inBox_base_of_cubeBump_ne_zero {j ρ : ℕ} {x y0 : CTorus d L N₁ m₁ K}
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 2 * (ρ + 2 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (h : cubeBump m₁ j y0 x ≠ 0) :
+    InBox d (ρ + 2 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) y0 := by
+  have e1 : N₁ * L ^ (K + m₁) = (N₁ * L ^ m₁) * L ^ K := (cubeSide_eq N₁ L m₁ K).symm
+  have h1 := inBox_of_bump_ne_zero (N₀ := N₁) (k := K + m₁) (j + m₁) (tor m₁ x) (tor m₁ y0)
+    ((inBox_castT_iff _ _).2 hx) (by rw [e1]; exact hn) h
+  exact (inBox_castT_iff (cubeSide_eq N₁ L m₁ K) y0).1 h1
+
+/-- **T1 (the partition weight, denominator).**  The denominator of the cover of `levelGS j`
+agrees at a site of the box of radius `ρ` and at its image.  Margin:
+`2 ρ + 5 L^(j+m₁) + 1 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem coverDenom_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
+    (hn : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁' * L ^ m₁) * L ^ K) {x : CTorus d L N₁ m₁ K}
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x) :
+    coverDenom (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) (bm x) =
+      coverDenom (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) x := by
+  set ρ' : ℕ := ρ + 2 * L ^ (j + m₁) with hρ'
+  have hbx : InBox d ρ ((N₁' * L ^ m₁) * L ^ K) (bm x) := inBox_boxMap (by omega) hx
+  unfold coverDenom
+  have hA : ∑ q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj),
+      cubeBump m₁ q.1 q.2 x = ∑ q ∈ (cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := K) (ϱ := ϱ) j hj)).filter (fun q => InBox d ρ' ((N₁ * L ^ m₁) * L ^ K) q.2),
+      cubeBump m₁ q.1 q.2 x := by
+    symm
+    refine Finset.sum_subset (Finset.filter_subset _ _) fun q hq hnq => ?_
+    by_contra hne
+    obtain ⟨y, rfl, -⟩ := exists_of_mem_cubeIdx hj hq
+    exact hnq (Finset.mem_filter.2 ⟨hq, inBox_base_of_cubeBump_ne_zero hx (by omega) hne⟩)
+  have hB : ∑ q ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj),
+      cubeBump m₁ q.1 q.2 (bm x) = ∑ q ∈ (cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁')
+        (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)).filter (fun q => InBox d ρ' ((N₁' * L ^ m₁) * L ^ K) q.2),
+      cubeBump m₁ q.1 q.2 (bm x) := by
+    symm
+    refine Finset.sum_subset (Finset.filter_subset _ _) fun q hq hnq => ?_
+    by_contra hne
+    obtain ⟨y, rfl, -⟩ := exists_of_mem_cubeIdx hj hq
+    exact hnq (Finset.mem_filter.2 ⟨hq, inBox_base_of_cubeBump_ne_zero hbx (by omega) hne⟩)
+  have hinj : Set.InjOn (Prod.map id bm : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁' m₁ K)
+      ↑((cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)).filter
+        (fun q => InBox d ρ' ((N₁ * L ^ m₁) * L ^ K) q.2)) := fun a ha b hb h =>
+    injOn_idxMap (N₁ := N₁) (ρ := ρ')
+      (lt_of_le_of_lt (by omega : 2 * ρ' + 1 ≤ 2 * ρ + 5 * L ^ (j + m₁) + 1) hn')
+      (Finset.mem_filter.1 ha).2 (Finset.mem_filter.1 hb).2 h
+  rw [hA, hB, cubeIdx_filter_image (ϱ := ϱ) (ρ := ρ') hj1 hj
+      (lt_of_le_of_lt (by omega : 2 * ρ' + 1 ≤ 2 * ρ + 5 * L ^ (j + m₁) + 1) hn)
+      (lt_of_le_of_lt (by omega : 2 * ρ' + 1 ≤ 2 * ρ + 5 * L ^ (j + m₁) + 1) hn'),
+    Finset.sum_image hinj]
+  refine Finset.sum_congr rfl fun q hq => ?_
+  obtain ⟨hq1, hq2⟩ := Finset.mem_filter.1 hq
+  obtain ⟨y, rfl, -⟩ := exists_of_mem_cubeIdx hj hq1
+  exact cubeBump_boxMap (j := j) hx hq2 (by omega) (by omega) (by omega) (by omega)
+
+/-- **T1 (`chi_boxMap`).**  The partition weight `chi` of the centre `(j, y0)` with `y0` in the box
+of radius `ρ + 2 L^(j+m₁)` is the same at a site of the box of radius `ρ` and at its image under
+`Prod.map id bm`.  Margin: `2 ρ + 5 L^(j+m₁) + 1 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem chi_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
+    (hn : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁' * L ^ m₁) * L ^ K) {x y0 : CTorus d L N₁ m₁ K}
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    (hy0 : InBox d (ρ + 2 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) y0) :
+    chi (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+        (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) (bm x) =
+      chi (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) (j, y0) x := by
+  unfold chi
+  rw [coverDenom_boxMap hj1 hj hn hn' hx]
+  congr 1
+  exact cubeBump_boxMap (j := j) hx hy0 (by omega) (by omega) (by omega) (by omega)
 
 end Level
 
