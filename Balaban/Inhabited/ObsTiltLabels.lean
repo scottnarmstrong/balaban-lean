@@ -275,10 +275,10 @@ section Tower
 open Set
 
 /-- **Locality of the activity family in the datum and the source, with the activity family of
-`obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with one more clause on
-the activity `A`: for `e, e'` of `physVq` whose raw data agree on `thickSet S.G' Z` and whose
-sources agree on `Z`, the activities of the labels with sites in `Z` agree, at the zero-source
-parameters and at `e, e'`, for every `u`. -/
+`obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with two locality
+clauses for the same activity `A`: raw agreement on `thickSet S.G' Z`, and raw agreement on `Z`
+itself. In both cases source agreement on `Z` gives equality of the activities of labels whose
+sites lie in `Z`, at the zero-source parameters and at `e, e'`, for every complex `u`. -/
 theorem obsTiltLabels_local_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {CR s Θ : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2)
     (hΘ : 0 < Θ) :

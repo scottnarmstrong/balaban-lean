@@ -17,7 +17,8 @@ import Mathlib.Tactic.Positivity
 activity, and for every observable site `(y, i)` one amplitude and one family `Ev`, whose
 coefficients `obsCoeffParam … θ T'` are analytic, bounded, supported on rooted polymer sets and
 local (equal at two parameters whose raw data agree on the thickening of `sitesOf T'` and whose
-sources agree on `sitesOf T'`), and whose sum at `θ = (rawOf D, g)` is `β_U^{-1/2} ℳ₀(y; g)_i` of
+sources agree on `sitesOf T'`, and also when their physical restrictions agree on `sitesOf T'`),
+and whose sum at `θ = (rawOf D, g)` is `β_U^{-1/2} ℳ₀(y; g)_i` of
 the step with the datum `D`.
 
 `obsFamily_pair_fibre_fromTower` collects the coefficients of all sites in one function
@@ -48,7 +49,8 @@ level-one blocks, chosen before the datum and the source, such that:
   `(B₁ + B₂) e^{-λ dExt T'}`, `λ = min (min (2 κ_dec) κ' - κ₀ - 1) κ'`, non-zero only if `T'`
   contains the root cube of `y` and its sites form a polymer, and local:
   `mObs y i θ T' = mObs y i θ' T'` for `θ, θ'` of `physVq … q` whose raw data agree on
-  `thickSet (sitesOf T')` and whose sources agree on `sitesOf T'`;
+  `thickSet (sitesOf T')` and whose sources agree on `sitesOf T'`; equality of their
+  `physRestrict (sitesOf T')` images also implies equality of the coefficients;
 * for every datum `D` of the chart `Ξ^c(𝔹_{k+1}; 1, T.t)` with constant field `h₀` and every source
   `g` with `∑ |g| < q`: `ℳ₀(y; g)_i = β_U^{1/2} ∑_{T'} mObs y i (rawOf D, g) T'` for every site, and
   `β_U^{-1/2} ∑_{y,i} g(y,i) ℳ₀(y; g)_i = ∑_{y,i} g(y,i) ∑_{T'} mObs y i (rawOf D, g) T'`,

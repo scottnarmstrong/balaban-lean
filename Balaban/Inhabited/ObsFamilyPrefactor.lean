@@ -146,7 +146,7 @@ theorem obs_B1_add_B2_le_prefactor {κmin : ℝ} (T : StepTower κmin) {A₁ : �
 open Classical in
 /-- **The observable coefficient family, with the bound in the form of the coefficient theorem.**
 The statement of `obsFamily_full_fromTower` (same labels, activity, `Ev`, analyticity, support,
-locality, fibre value), with the bound clause replaced by
+thick and exact-site locality, fibre value), with the bound clause replaced by
 `‖obsCoeffParam … θ T'‖ ≤ C · obsPrefactor p s (β 3^k) · e^{-(3/2) κ_dec dExt T'}`, where `C`
 depends only on the tower, `A₁`, `p`, `C_R`, `s` (it is chosen with the thresholds, before the
 scale). -/

@@ -40,8 +40,8 @@ finite set `T'` of cubes the first-order terms, the kernel sum, the remainder co
 `(B₁ + B₂) e^{-λ dExt T'}` there and vanishes unless `T'` contains the root cube of the observable
 site and its sites form a polymer domain; the coefficient is local: `θ, θ'` of `physVq` whose raw
 data agree on `thickSet S.G' (sitesOf T')` and whose sources agree on `sitesOf T'` give the same
-`obsCoeffParam … T'` (locality on the thickened set; the exact locality on `sitesOf T'` itself is a
-separate, later statement); and at every chart datum `D` of the fibre and every source `g` with
+`obsCoeffParam … T'`; equality of `physRestrict (sitesOf T') (physIncl 2 S ·)` also gives the same
+coefficient (exact locality on the sites themselves); and at every chart datum `D` of the fibre and every source `g` with
 `‖g‖₁ < q`, `M0C … g y i = √β_U ∑_{T'} obsCoeffParam … (rawOf D, g) T'`.
 For each site `(y, i)`, after the labels and the activity are fixed for all sites, one `Ev` is chosen; that site's `obsCoeffParam` has the analyticity, bound, support, locality and fibre-value clauses. No `Ev` common to all sites is asserted. -/
 theorem obsFamily_full_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
