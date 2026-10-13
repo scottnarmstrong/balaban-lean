@@ -1345,3 +1345,6 @@ public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical
+public import Balaban.Inhabited.DAPhysicalCutoff
+public import Balaban.Inhabited.DAPhysicalRadii
+public import Balaban.Inhabited.DAPhysicalTower
