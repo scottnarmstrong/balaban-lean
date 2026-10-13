@@ -1190,6 +1190,7 @@ public import Balaban.Localization.LedgerPacking
 public import Balaban.Localization.P6ActiveHalo
 public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
+public import Balaban.Localization.P6TopRootedFiber
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
 public import Balaban.Localization.MooreDegreeWitness
