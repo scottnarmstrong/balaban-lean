@@ -355,8 +355,8 @@ theorem kf0BlockCount_walkHalo_le_real (hs : 0 < s) (hm : m = s * m') (x : ι �
       rw [← Finset.mul_sum, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
         ← Finset.sum_div, nsmul_eq_mul, mul_one]
 
-/-- **(F.10)** in the form of the note: for an anchor of at most two sites, `r ≥ |U|/2`... the
-count `k_s(H) ≤ 2 + 3^d r + (8·3^d/s) n_tot` follows. -/
+/-- **(F.10)** in the form of the note: `k_s(H) ≤ 2 + 3^d r + (8·3^d/s) n_tot`, a consequence of
+the sharper `kf0BlockCount_walkHalo_le_real` (constants `3^d` and `3^d/s`, no additive `2`). -/
 theorem kf0BlockCount_walkHalo_le_F10 (hs : 0 < s) (hm : m = s * m') (x : ι → Torus d m)
     (ω : ι → KF0Walk d) :
     (kf0BlockCount s m' (walkHalo x ω) : ℝ) ≤
