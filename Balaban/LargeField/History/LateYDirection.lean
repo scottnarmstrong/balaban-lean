@@ -139,6 +139,137 @@ theorem parentPsi_direction_of_chiY_ne_zero (Y : Set (Torus S.d (n (j + 1))))
     fun i => (((parentPsi Cx ψk s i - hv i : ℝ)) : ℂ) by
       funext i; push_cast; rfl, vn_ofReal] at key
 
+/-- The cube datum at a data site of the cube and of `genW Y` is the parent datum. -/
+theorem cubeData_Ψ_eq_parentPsi (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (y₀ : Torus S.d (n (j + 1))) {s : BgT Cx.geo (j + 1)}
+    (hΩ : s ∈ (cubeGen Cx y₀).Ω 1) (hsd : s ∈ dataSites (Cx.genW Y)) (i : Fin N) :
+    (cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
+      (q := j + 1) (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+      (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)).Ψ s i = ((parentPsi Cx ψk s i : ℝ) : ℂ) := by
+  rw [cubeData_Ψ_eq_liftSingle_Ψ Cx Y ψk hv y₀ ((mem_dataSites _).2 (Or.inl hΩ)) hsd]
+  exact liftSingle_Ψ_eq_parentPsi Cx Y ψk hv hsd i
+
+/-- **R2 at the tested sites.**  `|‖Ψ(s)‖ - 1| < (d + 1) δ_k` (the sphere bound of the cube
+background and block averaging). -/
+theorem parentPsi_norm_of_tested (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ testedSites Cx Y) :
+    |rn (parentPsi Cx ψk s) - 1| < (S.d + 1) * Cx.cs.delta (j + 1) := by
+  classical
+  obtain ⟨hsd, y₀, hy₀, hΩ, hT, hb⟩ := hs
+  have hm : Cx.geo.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = Cx.geo.c * n (j + 1) := by simp
+  have hK := chiKProp_of_chiY_ne_zero Cx Y ψk hv h hy₀
+  have hD := hK.1
+  have hunit := (theorem71 HB hD).2.1
+  rw [← (theorem72_real HB hD).1] at hunit
+  have htop : s ∈ (cubeGen Cx y₀).Ω (j + 1) :=
+    (genCube_top_mem hm y₀).2 (nbhd_mono (by omega) subset_rfl (mem_cubePre.1 hT))
+  have hlay := layerIndex_top (cubeGen Cx y₀) (Nat.succ_pos j) htop
+  have hS : ∀ z, jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) z =
+      jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s →
+      z ∈ cubeNbhd Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1) Cx.geo.c (n (j + 1)) 1 y₀ ∧
+        z ∈ (cubeGen Cx y₀).Ω 1 := by
+    intro z hz
+    have hzb : z ∈ (cubeGen Cx y₀).blk ((cubeGen Cx y₀).layerIndex s) s := by
+      rw [hlay]; exact GeneratingSet.mem_blk.2 hz
+    obtain ⟨h1, h2, h3⟩ := (cubeGen Cx y₀).layerIndex_spec hΩ
+    exact ⟨hb z hzb, blk_subset_Ω _ h1 h2 h3 hzb⟩
+  have key := sphere_bound_of_close (cubeGen Cx y₀) _ _ _ _ (Cx.cs.delta (j + 1)) (Nat.succ_pos j)
+    hK.2.2.1 hunit (s := s) (mem_layer_top _ htop) hS (hK.2.1 s hT)
+  have e : vn ((cubeData (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
+      (q := j + 1) (fun i => hv i) Cx.geo.c (n (j + 1)) y₀
+      (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)).Ψ s) = rn (parentPsi Cx ψk s) := by
+    rw [← vn_ofReal]
+    congr 1
+    funext i
+    exact cubeData_Ψ_eq_parentPsi Cx Y ψk hv y₀ hΩ hsd i
+  rwa [e] at key
+
+/-- Algebra of the mass-alignment clause: for `Σ h² = 1`, `r = ‖a‖ ≥ 1/4`,
+`|1 - a·h/‖a‖| ≤ 2 ‖a - h‖²`. -/
+theorem one_sub_dot_le (a h : Fin N → ℝ) (hh : ∑ i, h i ^ 2 = 1) (hr : 1 / 4 ≤ rn a) :
+    |1 - (∑ i, a i * h i) / rn a| ≤ 2 * rn (fun i => a i - h i) ^ 2 := by
+  have hr0 : 0 < rn a := by linarith
+  have h1 : rn a ^ 2 = ∑ i, a i ^ 2 := rn_sq a
+  have h2 : rn (fun i => a i - h i) ^ 2 = ∑ i, (a i - h i) ^ 2 := rn_sq _
+  have h3 : ∑ i, (a i - h i) ^ 2 = rn a ^ 2 - 2 * ∑ i, a i * h i + 1 := by
+    have : ∀ i, (a i - h i) ^ 2 = a i ^ 2 - 2 * (a i * h i) + h i ^ 2 := fun i => by ring
+    simp_rw [this, Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum, hh, h1]
+  have hcs : (∑ i, a i * h i) ^ 2 ≤ (∑ i, a i ^ 2) * ∑ i, h i ^ 2 :=
+    Finset.sum_mul_sq_le_sq_mul_sq _ _ _
+  rw [hh, mul_one, ← h1] at hcs
+  have hsr : ∑ i, a i * h i ≤ rn a := by nlinarith [sq_nonneg (∑ i, a i * h i - rn a)]
+  have hρ := sq_nonneg (rn (fun i => a i - h i))
+  rw [h2, h3] at hρ
+  rw [h2, h3]
+  generalize ∑ i, a i * h i = t at *
+  generalize rn a = r at *
+  have hx : 0 ≤ 1 - t / r := by rw [sub_nonneg, div_le_one hr0]; exact hsr
+  rw [abs_of_nonneg hx]
+  have : 1 - t / r = (r - t) / r := by field_simp
+  rw [this, div_le_iff₀ hr0]
+  nlinarith [sq_nonneg (r - 1)]
+
+/-- **T3: the mass-alignment clause `r3` of the real domain at the tested sites.**  With
+`m = ν L^{-2k}`, `η = max (3 d L δ_{k-1}) (4 (d + 1) δ_k) < 1`, `0 < ν ≤ 1`, `‖h‖ = 1`,
+`χ_Y ≠ 0` and the cube `BgHyp`: at every tested site (whose layer index is at most `k`),
+`m L^{2ℓ(s)} |1 - u_s · h| < η²`, `u_s = Ψ(s) / ‖Ψ(s)‖`. -/
+theorem parentPsi_r3_of_tested (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
+    (hunit : ‖hv‖ = 1) {ν : ℝ} (hν : 0 < ν) (hν1 : ν ≤ 1)
+    (hμ : Cx.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hη : max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)) < 1)
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ testedSites Cx Y) :
+    sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (Cx.genW Y).layerIndex s) ^ 2 *
+        |1 - (∑ i, parentPsi Cx ψk s i * hv i) / rn (parentPsi Cx ψk s)| <
+      (max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1))) ^ 2 := by
+  have hdir := parentPsi_direction_of_chiY_ne_zero Cx Y ψk hv h hν hν1 hμ hs
+  have hnorm := parentPsi_norm_of_tested Cx Y ψk hv h HB hs
+  set δ := Cx.cs.delta (j + 1) with hδdef
+  set a := parentPsi Cx ψk s with ha
+  have hsq : 0 < Real.sqrt ν := Real.sqrt_pos.2 hν
+  have hρ0 : 0 ≤ rn (fun i => a i - hv i) := Real.sqrt_nonneg _
+  have hδ : 0 < δ := by
+    have := hρ0.trans_lt hdir
+    have h2 : 0 < 2 * δ := (div_pos_iff_of_pos_right hsq).1 this
+    linarith
+  have hd0 : (0 : ℝ) ≤ S.d := Nat.cast_nonneg _
+  have h4 : 4 * (S.d + 1) * δ < 1 := lt_of_le_of_lt (le_max_right _ _) hη
+  have hε : (S.d + 1) * δ < 1 / 4 := by linarith
+  have hr : 1 / 4 ≤ rn a := by
+    have := (abs_lt.1 hnorm).1
+    linarith
+  have hx := one_sub_dot_le a (fun i => hv i) (by
+    rw [parent_sum_sq_eq_norm_sq, hunit]; norm_num) hr
+  have hX0 : 0 ≤ |1 - (∑ i, a i * hv i) / rn a| := abs_nonneg _
+  have hm0 : 0 ≤ sfBgMassAt S.L (j + 1) ν := by
+    unfold sfBgMassAt physMass; positivity
+  have hL1 : (1 : ℝ) ≤ S.L := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  have hlk : (Cx.genW Y).layerIndex s ≤ j + 1 := layerIndex_le_k _ _
+  have hmL : sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (Cx.genW Y).layerIndex s) ^ 2 ≤ ν := by
+    calc _ ≤ sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 := by
+          gcongr
+      _ = ν := physMass_mul_sq _ _
+  have hρν : rn (fun i => a i - hv i) ^ 2 * ν < 4 * δ ^ 2 := by
+    have h1 : rn (fun i => a i - hv i) * Real.sqrt ν < 2 * δ := (lt_div_iff₀ hsq).1 hdir
+    have h2 := pow_lt_pow_left₀ h1 (by positivity) (two_ne_zero)
+    rw [mul_pow, Real.sq_sqrt hν.le] at h2
+    nlinarith
+  have hηδ : 4 * δ ≤ max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * δ) :=
+    le_trans (by nlinarith) (le_max_right _ _)
+  calc sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (Cx.genW Y).layerIndex s) ^ 2 *
+        |1 - (∑ i, a i * hv i) / rn a|
+      ≤ ν * |1 - (∑ i, a i * hv i) / rn a| := mul_le_mul_of_nonneg_right hmL hX0
+    _ ≤ ν * (2 * rn (fun i => a i - hv i) ^ 2) := mul_le_mul_of_nonneg_left hx hν.le
+    _ < 8 * δ ^ 2 := by nlinarith
+    _ ≤ _ := by nlinarith
+
 end Tested
 
 end Balaban.LargeField
