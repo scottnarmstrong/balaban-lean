@@ -1216,6 +1216,7 @@ public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
 public import Balaban.Inhabited.MarkedRootGeometryWitness
 public import Balaban.Inhabited.MarkedSharpCountWitness
+public import Balaban.Inhabited.FanChainWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
