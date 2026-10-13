@@ -232,8 +232,7 @@ theorem thm31b_zeroClass_polymer_fromTowerG {d L N : ℕ} [NeZero L] {κmin : �
         box (rootCube (m₀ := T.m₀) (K := k + 1) (blockIndex y)).1 (cellSide L T.m₀ T.m₁ (k + 1)) ⊆ X) ∧
       ∀ X, ‖E' X‖ ≤ hullConst d L (3 / 2 * T.κdec) (C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2)))) *
         Real.exp (-hullRate d L (3 / 2 * T.κdec) * sizeJ T.m₀ (k + 1) X) := by
-  obtain ⟨β₀, C, hβ₀, -, hC, hmain⟩ := thm31b_zeroClass_fromTower_of_ray_rhoG T hA p hCR hs0 hs 1
-    one_pos (obsRay_hray_fromTowerG_rho T 1 one_pos)
+  obtain ⟨β₀, C, hβ₀, -, hC, hmain⟩ := thm31b_zeroClass_fromTowerG_rho T hA p hCR hs0 hs 1 one_pos
   refine ⟨β₀, C, hβ₀, hC, ?_⟩
   intro k hk N₁ _ hLN h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
   obtain ⟨E, h1, h2, h3'⟩ := hmain k hk N₁ hLN h5 ν hν hνk β hβ p₁ hp hp₁ hsc g hg y i
