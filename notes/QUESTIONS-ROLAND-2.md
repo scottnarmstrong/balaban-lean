@@ -244,7 +244,11 @@ members, and the rooted count pays for it). What we cannot derive from the text 
 P6 p. 34 localizes the old boundary term first on X ∩ Ω_{k+1}, retaining explicit A_k-spins on
 X ∩ Ω_{k+1}^c.
 (i)  After the local extension in (4.32), are these exterior spins and every other exterior read
-     independent of the interpolation parameters s_□?
+     independent of the interpolation parameters s_□? (From P6 p. 34 with P5 (2.35), (2.39) we take
+     the exterior SPINS to be spectators. What we cannot settle is whether every s-dependent row of
+     ψ_loc,s^(k) + β_k^{-1/2} C_loc,s^(k)1/2 ψ̂ at X ∩ Ω_{k+1} — including the rows of the old-wall
+     covariance, which has sites in Ω_{k+1}^c — belongs to the incidence component of the active
+     cells; `notes/phase1/VMOD-34.md`.)
 (ii) In particular, can a marked cube of the auxiliary cover deep in a new hole contribute to a
      coefficient without a connected marked chain to X ∩ Ω_{k+1}?
 (iii) Does the same answer hold for the C_{loc,s}^{1/2} ψ term?
