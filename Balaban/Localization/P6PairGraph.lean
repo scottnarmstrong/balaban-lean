@@ -161,4 +161,144 @@ theorem joint_dichotomy_m {z : ℕ × CTorus d L N₁ m₁ K} (hE : EligC C X₁
 
 end Joint
 
+section Mono
+
+variable {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
+  {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 𝒞₁ : Finset (ℕ × CTorus d L N₁ m₁ K)}
+
+theorem eligC_mono (h : 𝒞₁ ⊆ 𝒞) {z : ℕ × CTorus d L N₁ m₁ K} (hz : EligC C X₁ 𝒞₁ z) :
+    EligC C X₁ 𝒞 z :=
+  ⟨hz.1, fun P hP hpar => h (hz.2 P hP hpar)⟩
+
+theorem incSites_mono (h : 𝒞₁ ⊆ 𝒞) :
+    incSites C H a ν X₁ 𝒞₁ ⊆ incSites C H a ν X₁ 𝒞 := by
+  rintro x ⟨hΩ, hx | ⟨z, hE, hL, hf⟩⟩
+  · exact ⟨hΩ, Or.inl hx⟩
+  · exact ⟨hΩ, Or.inr ⟨z, eligC_mono h hE, hL, hf⟩⟩
+
+theorem incGraph_adj_mono (h : 𝒞₁ ⊆ 𝒞) {u v : IncV d L N₁ m₁ K}
+    (hadj : (incGraph C H a ν X₁ 𝒞₁).Adj u v) : (incGraph C H a ν X₁ 𝒞).Adj u v := by
+  have key : ∀ u v : IncV d L N₁ m₁ K, incRel C H a ν X₁ 𝒞₁ u v → incRel C H a ν X₁ 𝒞 u v := by
+    intro u v hr
+    rcases u with x | z | Q <;> rcases v with y | z' | P <;> simp only [incRel] at hr ⊢
+    · exact ⟨incSites_mono h hr.1, incSites_mono h hr.2.1, hr.2.2⟩
+    · exact ⟨eligC_mono h hr.1, hr.2.1, hr.2.2⟩
+    · exact ⟨eligC_mono h hr.1, hr.2.1, hr.2.2.1, h hr.2.2.2⟩
+  obtain ⟨hne, h1 | h1⟩ := hadj
+  · exact ⟨hne, Or.inl (key _ _ h1)⟩
+  · exact ⟨hne, Or.inr (key _ _ h1)⟩
+
+variable (Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ') (Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+  {U U' : Set (CTorus d L N₁ m₁ K)}
+
+/-- **T3.** The joint closure is monotone in the seed. -/
+theorem JointIn.mono_seed (hU : U ⊆ U') {o : Bool} {v : IncV d L N₁ m₁ K}
+    (h : JointIn C Hb Hm a ν X₁ 𝒞 U o v) : JointIn C Hb Hm a ν X₁ 𝒞 U' o v := by
+  induction h with
+  | seed o hs => exact JointIn.seed o (hU hs)
+  | adjB hadj _ ih => exact JointIn.adjB hadj ih
+  | adjM hadj _ ih => exact JointIn.adjM hadj ih
+  | site _ ih => exact JointIn.site ih
+  | param _ ih => exact JointIn.param ih
+  | cell hP _ hx ih => exact JointIn.cell hP ih hx
+
+/-- **T3.** The joint closure is monotone in the set of marked patches. -/
+theorem JointIn.mono_param (h𝒞 : 𝒞₁ ⊆ 𝒞) {o : Bool} {v : IncV d L N₁ m₁ K}
+    (h : JointIn C Hb Hm a ν X₁ 𝒞₁ U o v) : JointIn C Hb Hm a ν X₁ 𝒞 U o v := by
+  induction h with
+  | seed o hs => exact JointIn.seed o hs
+  | adjB hadj _ ih => exact JointIn.adjB (incGraph_adj_mono h𝒞 hadj) ih
+  | adjM hadj _ ih => exact JointIn.adjM (incGraph_adj_mono h𝒞 hadj) ih
+  | site _ ih => exact JointIn.site ih
+  | param _ ih => exact JointIn.param ih
+  | cell hP _ hx ih => exact JointIn.cell (h𝒞 hP) ih hx
+
+theorem jointSites_mono_seed (hU : U ⊆ U') :
+    jointSites C Hb Hm a ν X₁ 𝒞 U ⊆ jointSites C Hb Hm a ν X₁ 𝒞 U' := fun _ hx =>
+  mem_jointSites.2 ((mem_jointSites.1 hx).mono_seed Hb Hm hU)
+
+theorem jointSites_mono_param (h𝒞 : 𝒞₁ ⊆ 𝒞) :
+    jointSites C Hb Hm a ν X₁ 𝒞₁ U ⊆ jointSites C Hb Hm a ν X₁ 𝒞 U := fun _ hx =>
+  mem_jointSites.2 ((mem_jointSites.1 hx).mono_param Hb Hm h𝒞)
+
+theorem jointParams_mono_seed (hU : U ⊆ U') :
+    jointParams C Hb Hm a ν X₁ 𝒞 U ⊆ jointParams C Hb Hm a ν X₁ 𝒞 U' := fun _ hx =>
+  mem_jointParams.2 ((mem_jointParams.1 hx).mono_seed Hb Hm hU)
+
+theorem jointParams_mono_param (h𝒞 : 𝒞₁ ⊆ 𝒞) :
+    jointParams C Hb Hm a ν X₁ 𝒞₁ U ⊆ jointParams C Hb Hm a ν X₁ 𝒞 U := fun _ hx =>
+  mem_jointParams.2 ((mem_jointParams.1 hx).mono_param Hb Hm h𝒞)
+
+/-- Lowering lemma for one operator: an edge of the incidence graph over `𝒞` from a vertex of a
+family `R` closed under these edges, in which every reached marked patch lies in `𝒞₁`, is an edge
+over `𝒞₁`. -/
+theorem incGraph_adj_down (R : IncV d L N₁ m₁ K → Prop)
+    (hR : ∀ u v, (incGraph C H a ν X₁ 𝒞).Adj u v → R u → R v)
+    (hQ : ∀ Q, R (Sum.inr (Sum.inr Q)) → Q ∈ 𝒞 → Q ∈ 𝒞₁) {u v : IncV d L N₁ m₁ K}
+    (hadj : (incGraph C H a ν X₁ 𝒞).Adj u v) (hu : R u) :
+    (incGraph C H a ν X₁ 𝒞₁).Adj u v := by
+  have hv := hR u v hadj hu
+  have key1 : ∀ z, R (Sum.inr (Sum.inl z)) → EligC C X₁ 𝒞 z → LiveI H z → EligC C X₁ 𝒞₁ z :=
+    fun z hz hE hL => ⟨hE.1, fun P hP hpar => hQ P
+      (hR (Sum.inr (Sum.inl z)) (Sum.inr (Sum.inr P)) ⟨by simp, Or.inl ⟨hE, hL, hP, hE.2 P hP hpar⟩⟩ hz) (hE.2 P hP hpar)⟩
+  have key2 : ∀ x, R (Sum.inl x) → x ∈ incSites C H a ν X₁ 𝒞 → x ∈ incSites C H a ν X₁ 𝒞₁ := by
+    rintro x hx ⟨hΩ, hx' | ⟨z, hE, hL, hf⟩⟩
+    · exact ⟨hΩ, Or.inl hx'⟩
+    · have hz := hR (Sum.inl x) (Sum.inr (Sum.inl z)) ⟨by simp, Or.inr ⟨hE, hL, hf⟩⟩ hx
+      exact ⟨hΩ, Or.inr ⟨z, key1 z hz hE hL, hL, hf⟩⟩
+  have key : ∀ u v : IncV d L N₁ m₁ K, R u → R v → incRel C H a ν X₁ 𝒞 u v →
+      incRel C H a ν X₁ 𝒞₁ u v := by
+    intro u v hu hv hr
+    rcases u with x | z | Q <;> rcases v with y | z' | P <;> simp only [incRel] at hr ⊢
+    · exact ⟨key2 x hu hr.1, key2 y hv hr.2.1, hr.2.2⟩
+    · exact ⟨key1 z hu hr.1 hr.2.1, hr.2.1, hr.2.2⟩
+    · exact ⟨key1 z hu hr.1 hr.2.1, hr.2.1, hr.2.2.1, hQ P hv hr.2.2.2⟩
+  obtain ⟨hne, h1 | h1⟩ := hadj
+  · exact ⟨hne, Or.inl (key _ _ hu hv h1)⟩
+  · exact ⟨hne, Or.inr (key _ _ hv hu h1)⟩
+
+variable {Hb Hm}
+
+/-- **T3, detachment.**  Let `𝒞 = 𝒞₁ ∪ 𝒞₂` and suppose no patch of `𝒞₂` is reached from the seed in
+the joint closure over `𝒞`.  Then everything reached over `𝒞` is reached over `𝒞₁`. -/
+theorem JointIn.detach {𝒞₂ : Finset (ℕ × CTorus d L N₁ m₁ K)} (h𝒞 : 𝒞 = 𝒞₁ ∪ 𝒞₂)
+    (hdet : ∀ P ∈ 𝒞₂, ¬ JointIn C Hb Hm a ν X₁ 𝒞 U true (Sum.inr (Sum.inr P))) {o : Bool}
+    {v : IncV d L N₁ m₁ K} (h : JointIn C Hb Hm a ν X₁ 𝒞 U o v) :
+    JointIn C Hb Hm a ν X₁ 𝒞₁ U o v := by
+  have hQ : ∀ {o' : Bool} {Q}, JointIn C Hb Hm a ν X₁ 𝒞 U o' (Sum.inr (Sum.inr Q)) → Q ∈ 𝒞 →
+      Q ∈ 𝒞₁ := by
+    intro o' Q hr hQ𝒞
+    rw [h𝒞] at hQ𝒞
+    rcases Finset.mem_union.1 hQ𝒞 with h1 | h2
+    · exact h1
+    · exact absurd (JointIn.param hr) (hdet Q h2)
+  induction h with
+  | seed o hs => exact JointIn.seed o hs
+  | adjB hadj hu ih =>
+    exact JointIn.adjB (incGraph_adj_down (H := Hb) (JointIn C Hb Hm a ν X₁ 𝒞 U true)
+      (fun _ _ h' hu' => JointIn.adjB h' hu') (fun Q hr hq => hQ hr hq) hadj hu) ih
+  | adjM hadj hu ih =>
+    exact JointIn.adjM (incGraph_adj_down (H := Hm) (JointIn C Hb Hm a ν X₁ 𝒞 U false)
+      (fun _ _ h' hu' => JointIn.adjM h' hu') (fun Q hr hq => hQ hr hq) hadj hu) ih
+  | site _ ih => exact JointIn.site ih
+  | param _ ih => exact JointIn.param ih
+  | cell hP hu hx ih => exact JointIn.cell (hQ hu hP) ih hx
+
+/-- **T3, detachment (sites and parameters).**  If `𝒞 = 𝒞₁ ∪ 𝒞₂` and no patch of `𝒞₂` is reached
+over `𝒞` (i.e. `D_𝒞 ∩ 𝒞₂ = ∅`), then `Y_𝒞 = Y_𝒞₁` and `D_𝒞 = D_𝒞₁`: the cut parameters of `𝒞₂` are
+outside the dependency set. -/
+theorem jointSites_detach {𝒞₂ : Finset (ℕ × CTorus d L N₁ m₁ K)} (h𝒞 : 𝒞 = 𝒞₁ ∪ 𝒞₂)
+    (hdet : ∀ P ∈ 𝒞₂, P ∉ jointParams C Hb Hm a ν X₁ 𝒞 U) :
+    jointSites C Hb Hm a ν X₁ 𝒞 U = jointSites C Hb Hm a ν X₁ 𝒞₁ U ∧
+      jointParams C Hb Hm a ν X₁ 𝒞 U = jointParams C Hb Hm a ν X₁ 𝒞₁ U := by
+  have hd : ∀ P ∈ 𝒞₂, ¬ JointIn C Hb Hm a ν X₁ 𝒞 U true (Sum.inr (Sum.inr P)) :=
+    fun P hP h => hdet P hP (mem_jointParams.2 h)
+  have hsub : 𝒞₁ ⊆ 𝒞 := by rw [h𝒞]; exact Finset.subset_union_left
+  exact ⟨Finset.Subset.antisymm (fun x hx => mem_jointSites.2
+      (JointIn.detach h𝒞 hd (mem_jointSites.1 hx))) (jointSites_mono_param Hb Hm hsub),
+    Finset.Subset.antisymm (fun P hP => mem_jointParams.2
+      (JointIn.detach h𝒞 hd (mem_jointParams.1 hP))) (jointParams_mono_param Hb Hm hsub)⟩
+
+end Mono
+
 end Balaban.Localization.Dec2
