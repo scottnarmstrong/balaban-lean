@@ -1469,6 +1469,8 @@ public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
+public import Balaban.Inhabited.MarkedFamilyAllRoots
+public import Balaban.Fluctuation.MarkFibreSitesOf
 public import Balaban.Inhabited.ExpSourceChartFromTower
 public import Balaban.Inhabited.SourceFamilyRelativeFromTower
 public import Balaban.Inhabited.SourceDirectTermsFromTower
