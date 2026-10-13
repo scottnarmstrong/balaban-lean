@@ -27,3 +27,23 @@ Ordered leaves (each at most 300 Lean lines):
 4. Assemble the E1 and M0 off-fibre analytic, local, bounded value families; extend E0 with
    the already datum-generic determinant term and pass the site records through the families.
 Fibre value identities alone give no free-datum value clause.
+
+## W689 status (2026-10-13)
+
+`OffFibreE1Marks.lean` proves two free-datum identities without assuming `D.h = h₀`:
+`e1_param_marks_sum_decMarkCorr_raw` identifies the parameter-mark sum at
+`(rawOf D, 0)` with the corrected decoupled block-mark sum, and
+`e1_param_marks_taylor_raw` identifies it with `−β` times the first Taylor
+remainder of the summed decoupled block-energy mark. Both use the existing
+`MarkedBlockExpansionDecPair` clauses at an arbitrary chart datum and the tower's
+mark-radius bound.
+
+The comparison of this Taylor remainder with the masked derivative of
+`Jr.W1 C (rawOf D, ·)` is still open. `OffFibreCoeffFirst.lean` supplies the
+raw derivative as a derivative of the composed old action, but the existing
+`fderiv_mask_corrected_total_fromTower` and
+`mark_eq_deriv_blockEnergy_fromTower` compare the block marks to that action
+only for `S.withDatum D hDh`. Their off-fibre replacements must use
+`StepSettingH.dataUCH`, the free-datum critical point, and the raw ray/domain
+lemmas. Consequently no raw E1 coefficient-sum value theorem or fibre
+proof-body refactor is claimed here.
