@@ -191,7 +191,12 @@ theorem obsDomains_isDj (hd3 : 3 ≤ d) (hcov : CovSetup S.G' m₀ j X 𝒦X)
   isDj_of_polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
     S.hG' hcov hd3 (fun i => i.1.2) hopt hY
 
-/-- **The mark half and the identity of `ObsMarks`, on one label system and one `Ev`.**
+/-- **The mark half and the identity of `ObsMarks`, with the three clauses of `Ev`.**
+
+The conclusion of `obsMarkHalves_of_sharpHat`, together with, for the same `Ev`, the analyticity of
+each `Ev Y` on `XiCRaw … ×ˢ` the hat ball, the `AgHatDir` locality and the decay bound
+`Q δ₁ · exp(-2 κdec · treeLenCov)` there (the shapes of `obsHker_param_of_Ev`).
+
 
 Premises: exactly those of the landed `obsRowCoeff_of_sharpHat` (the premises of
 `fsite_expansion_hat_dir` with `Gp = S.G'`, and `0 < cψ`), `0 < p₁`, `p₁ ≤ cψ / 4`, an arbitrary
@@ -203,7 +208,7 @@ Conclusion: there is one family `Ev` (that of the landed theorem) such that for 
   `κh = 2 κdec`, root cube `bx = rootCube (blockIndex y)`;
 * `ObsRayIdentity` for `F`;
 * the sum identity `Σ_T hker i T = Σ_Y a_Y(i)` and the expansion `F = Σ_Y Ev Y` on the hat ball. -/
-theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+theorem obsMarkHalves_of_sharpHat_param (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 < cψ)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
@@ -229,6 +234,17 @@ theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc 
     {κG κ0 : ℝ} (hκG : κG ≤ 2 * κdec) (hκ0 : aEnt d L + 1 ≤ κ0) :
     ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
         RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
       ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
         ObsMarkHalf S m₀ hp Ev D (obsDomains S X₁f m₀ j 𝒦X)
           (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)) cψ
@@ -241,7 +257,7 @@ theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc 
   classical
   obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat S hC hk hG cc hcψ hMX hdm hα hsm
     hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
-  refine ⟨Ev, fun D hD => ?_⟩
+  refine ⟨Ev, ha, hd, hb, fun D hD => ?_⟩
   have hd3 : 3 ≤ d := hC.HBp.hd
   have hdj := obsDomains_isDj (S := S) (X₁f := X₁f) hd3 hcov hopt
   have hrem := obsRemainder_of_sharpHat S hC cc hcψ hcov hX₁ hopt y hy iy hp hq Ev hs hd hb ha
@@ -289,6 +305,57 @@ theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc 
     rw [← sum_obsHker (𝒴 := obsDomains S X₁f m₀ j 𝒦X) (c := obsRowCoeff S Ev D i) (m₀ := m₀)]
     rw [mul_comm]
     rfl
+
+/-- **The mark half and the identity of `ObsMarks`, on one label system and one `Ev`.**
+
+Premises: exactly those of the landed `obsRowCoeff_of_sharpHat` (the premises of
+`fsite_expansion_hat_dir` with `Gp = S.G'`, and `0 < cψ`), `0 < p₁`, `p₁ ≤ cψ / 4`, an arbitrary
+label system `Lab₀` of activity labels, and the rates `κG ≤ 2 κdec`, `a_ent + 1 ≤ κ0 ≤ 2 κdec`.
+Conclusion: there is one family `Ev` (that of the landed theorem) such that for every datum `D` of
+`Ξ`, with the expanded function `F` of the site functional `svec ... y iy`:
+
+* `ObsMarkHalf` on the common labels `obsLab Lab₀ _`, with `C0 = Q δ₁`, `Ch = Q δ₁ / cψ`,
+  `κh = 2 κdec`, root cube `bx = rootCube (blockIndex y)`;
+* `ObsRayIdentity` for `F`;
+* the sum identity `Σ_T hker i T = Σ_Y a_Y(i)` and the expansion `F = Σ_Y Ev Y` on the hat ball. -/
+theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 < cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (iy : Fin N)
+    (hp : 0 < S.p₁) (hq : S.p₁ / cψ ≤ 1 / 4)
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ Lb₀)
+    {κG κ0 : ℝ} (hκG : κG ≤ 2 * κdec) (hκ0 : aEnt d L + 1 ≤ κ0) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ObsMarkHalf S m₀ hp Ev D (obsDomains S X₁f m₀ j 𝒦X)
+          (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)) cψ
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) κG κ0
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) (2 * κdec)
+          (rootCube (m₀ := m₀) (blockIndex y)) ∧
+        ObsRayIdentity S m₀ hp
+          (fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
+            (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X) := by
+  obtain ⟨Ev, -, -, -, hEv⟩ := obsMarkHalves_of_sharpHat_param S hC hk hG cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκG hκ0
+  exact ⟨Ev, hEv⟩
 
 /-- **The record `ObsMarks`, conditional on the activity half on the common labels.**
 
