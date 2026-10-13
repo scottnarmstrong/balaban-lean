@@ -1544,6 +1544,9 @@ public import Balaban.Fluctuation.RenormDomainParams
 public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.LargeField.R.D7ReserveArithmetic
+public import Balaban.Fluctuation.MarkedEvJoint
+public import Balaban.Fluctuation.MarkedCubicJoint
+public import Balaban.Inhabited.MarkedJointWitness
 public import Balaban.LargeField.Base.KF0TaylorMajorant
 public import Balaban.LargeField.Base.KF0F1Assembly
 public import Balaban.LargeField.Base.KF0AllGoodGas
