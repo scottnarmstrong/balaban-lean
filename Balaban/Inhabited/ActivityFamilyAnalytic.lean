@@ -37,16 +37,25 @@ analytic in the chart point `e` and the complex parameter `u`.
   and, on the fibre `h ≡ h₀`,
   `Jr.W1 (e.1, s ψ̂) = s² ∑_y A((e.1, 0), s)_y` and
   `Jr.W2 e.2 (e.1, t ψ̂) = ∑_y A(e, t)_y − ∑_y A((e.1, 0), t)_y`
-  for almost every `ψ̂` (one null set for all `e`, `s`, `t`), and the same with `W₁`, `W₂` of the
-  step `S.withDatum D` at every datum `D` of the chart with `D.h ≡ h₀`.
+  for almost every `ψ̂` (one null set for all `e`, `s`, `t`), the same with `W₁`, `W₂` of the
+  step `S.withDatum D` at every datum `D` of the chart with `D.h ≡ h₀`, the two-segment identity
+  for `segAct (A (e.1, 0)) (A e)`, and for the zero-source family `A⁰ = zeroSourceAct A 2`:
+  analyticity on `physV × ball 0 2`, continuity, and `(S.withDatum D).WoneC s = ∑_y A⁰(·, s)_y`.
 
 **Normalization.**  The parameter `u` of `labelActFamilyOn` is the parameter `σ` of the direct terms
 at the unscaled hat pair `(ψ̂, ψ̂)`.  Hence `W₁(s) = s² · (value at σ = s)`, while the source part
 `W₂(t)` is a difference of values at `σ = t` with no power of `t`.
 
-**Where the identities hold.**  Analyticity is on all of `physVq … q` (complex `h` allowed).  The
-`W` identities are on the fibre `h ≡ h₀` only: the step `S.withDatum D` exists only there, and
-`Jr.W1` is identified with the hat expansion only there (`wone_chartIdentity_fromTower`).
+**Where the identities hold.**  Analyticity of `A` is on all of `physVq … q` and that of `A⁰` on
+all of `physV` (complex `h` allowed).  The `W` identities are on the fibre `h ≡ h₀` only: the step
+`S.withDatum D` exists only there, and `Jr.W1` is identified with the hat expansion only there
+(`wone_chartIdentity_fromTower`).
+
+**One witness.**  The landed `sourceDirectTerms_scale_fromTower` and
+`sourceFamilyRelative_scale_fromTower` return separate existentials.  Here `val`, `𝒴`, `Tt` are
+taken from the first, the record `I` from its instance clause at `(rawOf S.D', 0)`, and the family
+`hF` is rebuilt from its continuity clause by `directTermsFamilyOn_scaled`; the second theorem is
+used only for the bound on the amplitude, an inequality between real numbers.
 
 The marks, the common label system of the roots and `E1MarksC` are NOT in this file.  Zero class;
 independent of the choice of generators.
@@ -330,6 +339,14 @@ point `(rawOf S.D', 0)` and the relative family `hF` over `physVq … q` such th
      of `segAct (A (e.1, 0)) (A e)` at `(s, t)` (labels `thickLabels.sum thickLabels`): the
      activity of `sourceExponentFamily_fromTower` as `segAct` of the one analytic family.
 
+  10. (zero-source family, `holA`) for `A⁰ = zeroSourceAct A 2`, that is
+     `A⁰(e, u) = u² A((e.1, 0), u)` for `‖u‖ < 2`: `(e, u) ↦ A⁰(e, u)_y(Φ)` is analytic on
+     `physV × ball 0 2` (all of `physV`), for every label and configuration;
+  11. (zero-source family, `contA`) `Φ ↦ A⁰(e, u)_y(Φ)` is continuous for `e ∈ physV`, `‖u‖ < 2`;
+  12. (zero-source family, `hW`) for every datum `D` of the chart with `D.h ≡ h₀`, every source
+     coordinate `g` and `s ∈ [0,1]`: `(S.withDatum D).WoneC s ψ̂ = ∑_y A⁰((rawOf D, g), s)_y` almost
+     everywhere (the shape of `InterpMarks.hW`).
+
 In 4–9 "almost everywhere" is `ν_{p₁}`-almost every `ψ̂`, with one null set for all the other
 variables.  At `D = S.D'` the step `S.withDatum D` is `S` (`withDatum_self`). -/
 theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
@@ -448,7 +465,20 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
                   ∑ y, (segAct (A ((e.1, 0) : physParam 2 S)) (A e)
                     (mul_nonneg zero_le_two hεU) (two_mul _).ge
                     (fun s => ((if s ∈ Icc (0 : ℝ) 1 then s ^ 2 else 0 : ℝ) : ℂ))
-                    norm_ite_sq_le p).H y ((S.blockSplit 1 hp).restr x)) := by
+                    norm_ite_sq_le p).H y ((S.blockSplit 1 hp).restr x)) ∧
+              (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+                AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ =>
+                  (zeroSourceAct A 2 zero_le_two r.1 r.2).H y Φ)
+                  (physV S S.a₁ S.ν T.t ×ˢ ball (0 : ℂ) 2)) ∧
+              (∀ e ∈ physV S S.a₁ S.ν T.t, ∀ u ∈ ball (0 : ℂ) 2, ∀ y : {Y // Y ∈ I.𝒴},
+                Continuous ((zeroSourceAct A 2 zero_le_two e u).H y)) ∧
+              (∀ (D' : BgData S.G' 2) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+                XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+                ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                  (S.withDatum D' hDh).WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) s x =
+                    ∑ y, (zeroSourceAct A 2 zero_le_two
+                      ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) (s : ℂ)).H y
+                      ((S.blockSplit 1 hp).restr x)) := by
   classical
   obtain ⟨β₀, CE, CF, hβ₀, hCE, hCF, hfam⟩ := sourceFamilyRelative_scale_fromTower T hA p
   refine ⟨β₀, CE, CF, hβ₀, hCE, hCF, ?_⟩
@@ -578,7 +608,7 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
   have hball : ∀ x : S.E, chiFl S.U 2 S.p₁ x = 1 → ‖x‖ < S.p₁ ∧ ‖x‖ < 2 * p₁ := fun x hχ => by
     have h1 : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp x).1 hχ
     exact ⟨h1, lt_of_lt_of_le h1 hle⟩
-  refine ⟨_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · exact fun y Φ => labelActFamilyOn_analytic S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc y Φ
   · exact fun e he u hu y =>
       labelActFamilyOn_continuous S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc he hu y
@@ -622,5 +652,18 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
         ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (t : ℂ) • S.hatC x))
       (fun s hs => hW1pt x hx (hball x hχ).2 e he s hs)
       (fun t ht => hW2pt x hx (hball x hχ).2 e he heq t ht) hW20 hp'
+  · exact fun y Φ => zeroSourceAct_analyticOnNhd zero_le_two le_rfl
+      (isOpen_physV S S.a₁ S.ν T.t hH) (fun e he => fst_zero_mem_physVq S he hq0)
+      (labelActFamilyOn_analytic S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc y Φ)
+  · exact fun e he u hu y => zeroSourceAct_continuous zero_le_two e u
+      (labelActFamilyOn_continuous S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc
+        (fst_zero_mem_physVq S he hq0) (by simpa using hu) y)
+  · intro D' hDh hX g
+    refine zeroSourceAct_hW zero_le_two one_lt_two _ ?_
+    intro s hs
+    filter_upwards [S.ae_hatOf_restr 1 hp0 hp hSp.le, S.ae_ball hp] with x hx hχ
+    rw [← Jr.W1_withDatum (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) D' hDh hX
+      (S.abs_mul_le_of_mem hle hs (hball x hχ).1.le)]
+    exact hW1pt x hx (hball x hχ).2 _ (mk_mem_physFibre S hDh hX (g := 0) (by simp)) s hs
 
 end Balaban.Inhabited

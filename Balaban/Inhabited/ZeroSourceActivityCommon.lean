@@ -52,6 +52,74 @@ Zero class; independent of the choice of generators.
 
 @[expose] public section
 
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Localization Balaban.Polymer MeasureTheory
+
+section InterpZero
+
+variable {d L N₁ m₁ K : ℕ} [NeZero L] [NeZero N₁] {X : Type*} [MeasurableSpace X]
+
+/-- **The activity half fills the record `InterpMarks`.**  An activity family `A` on labels `Lab`
+with the identity `hW` for the exponent `W`, holomorphic in `u` on an open `𝒰 ⊃ [0,1]`, with the
+numerical fields of the record, and any label `y₀`, give the record `InterpMarks ν BS W 0` for the
+zero integrand: the activity is `A`, and there is one mark, equal to zero, anchored at `y₀`.
+(Acceptance check of the activity fields only: the marks of a non-zero integrand are separate
+data.) -/
+theorem nonempty_interpMarks_zero_of_activity {ν : Measure X} {m₀ : ℕ}
+    (BS : ProdSplit ν d L N₁ m₁ K m₀) (W : ℝ → X → ℂ) {Lb : Type} [Fintype Lb]
+    {Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ Lb}
+    {εH κH κ0 κ' Kc : ℝ} (hN : L ^ m₀ ∣ N₁) {𝒰 : Set ℂ} (h𝒰 : IsOpen 𝒰)
+    (hseg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰)
+    (A : ℂ → LabelAct Lab BS.Ωb εH κH κ0 Kc) (y₀ : Lb)
+    (holA : ∀ y Φ, DifferentiableOn ℂ (fun u => (A u).H y Φ) 𝒰)
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 + 1 ≤ Kc) (hεpos : 0 < εH) (hκ' : 0 ≤ κ')
+    (hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
+    (hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
+      Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)))
+    (hW : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂ν,
+      W s x = ∑ y, (A (s : ℂ)).H y (BS.restr x)) :
+    Nonempty (InterpMarks ν BS W (fun _ _ => (0 : ℂ))) :=
+  ⟨{ Lb := Lb
+     Lab := Lab
+     ι := Unit
+     nonempty := ⟨()⟩
+     εH := εH
+     κH := κH
+     κG := κH
+     κ0 := κ0
+     κ' := κ'
+     Kc := Kc
+     F0 := fun _ => 1
+     hN := hN
+     𝒰 := 𝒰
+     isOpen := h𝒰
+     seg := hseg
+     A := A
+     y0 := fun _ => y₀
+     G := fun _ _ _ => 0
+     meas := fun _ _ => measurable_const
+     dep := fun _ _ _ _ _ => rfl
+     bound := fun _ _ _ => by
+       simp only [norm_zero, one_mul]
+       exact (Real.exp_pos _).le
+     holA := holA
+     holG := fun _ _ => differentiableOn_const _
+     hκ0 := hκ0
+     hKc := hKc
+     hεpos := hεpos
+     hF0 := fun _ => one_pos
+     hκ' := hκ'
+     hκG := le_rfl
+     hκ := hκ
+     hε := hε
+     hW := hW
+     hF := fun s _ => Filter.Eventually.of_forall fun x => by simp }⟩
+
+end InterpZero
+
+end Balaban.Fluctuation
+
 namespace Balaban.Inhabited
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
@@ -95,7 +163,11 @@ activity half of `ParamMarkFamily` and `InterpMarks`.**  After the tower `T` (wi
      everywhere;
   6. (`InterpMarks.hW` for `S.WoneC`) `S.WoneC s ψ̂ = ∑_y A⁰c((rawOf S.D', 0), s)_y` almost
      everywhere, for `s ∈ [0,1]`;
-  7. the `ParamMarkFamily` with no marks over `physV`, `ball 0 2` and `physCarrier S 1 hp`. -/
+  7. the `ParamMarkFamily` with no marks over `physV`, `ball 0 2` and `physCarrier S 1 hp`;
+  8. (acceptance check of the activity fields of `InterpMarks`) for every common label `y₀` the
+     record `InterpMarks S.nuFl (S.blockSplit 1 hp) S.WoneC 0` for the zero integrand exists (built
+     with the activity `A⁰c` at the datum of the step, `𝒰 = ball 0 2`, `κ' = T.κ'` and one zero
+     mark at `y₀`).  This is not `E1MarksC`, whose integrand is the masked derivative of `Φ₁`. -/
 theorem zeroSourceActivity_common_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ (β₀ CE CF : ℝ), 3 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
@@ -198,7 +270,10 @@ theorem zeroSourceActivity_common_fromTower {κmin : ℝ} (T : StepTower κmin)
                 (commonLabels (thickLabels I.𝒴 I.dom) (show 3 ^ 1 ∣ N₁ by simpa using h3N)
                   (by norm_num) reads dom hdomR) A0
                 (fun i : Empty => i.elim) (fun _ _ _ _ => (0 : ℂ)) 0 (fun i : Empty => i.elim)
-                (physV S S.a₁ S.ν T.t) (ball (0 : ℂ) 2) (physCarrier S 1 hp)) := by
+                (physV S S.a₁ S.ν T.t) (ball (0 : ℂ) 2) (physCarrier S 1 hp)) ∧
+              (∀ _y₀ : {Y // Y ∈ I.𝒴} ⊕ RootUnionLb 1 reads dom,
+                Nonempty (InterpMarks S.nuFl (S.blockSplit 1 hp)
+                  (S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) (fun _ _ => (0 : ℂ)))) := by
   classical
   obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := activityFamilyAnalytic_fromTower T hA p
   obtain ⟨β₂, hβ₂, hmarks⟩ := exists_beta0_marks T hHull p (CE := 2 * CE) (CF := 2 * CF)
@@ -218,7 +293,7 @@ theorem zeroSourceActivity_common_fromTower {κmin : ℝ} (T : StepTower κmin)
     exact D.xi
   obtain ⟨Jr, val, 𝒴, Tt, I, -, -, hval, -, -, -, hF, hεU, hεpos, hε4, hA'⟩ :=
     hfam k hk N₁ h3N hN ν hνpos hν β hβ1 p₁ hp0 hp₁ q hq0 hq D S hS hp
-  obtain ⟨A, hAeq, han, hcontA, -, -, hW1, hW2, hS1, -, -⟩ := hA' T.marks_K0_le
+  obtain ⟨A, hAeq, han, hcontA, -, -, hW1, hW2, hS1, -, -, -, -, -⟩ := hA' T.marks_K0_le
   -- the size of the amplitude
   have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
   have hb1 : (1 : ℝ) ≤ β * 3 ^ k := by nlinarith
@@ -280,11 +355,20 @@ theorem zeroSourceActivity_common_fromTower {κmin : ℝ} (T : StepTower κmin)
     intro s hs
     filter_upwards [hS1] with x hx
     exact hx D' hDh hX s hs
-  refine ⟨_, rfl, ?_, ?_, ?_, ?_, hWfib, ?_, ⟨?_⟩⟩
+  have hdiffc : ∀ e ∈ physV S S.a₁ S.ν T.t, ∀ y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+      DifferentiableOn ℂ (fun u => (commonAct (zeroSourceAct A 2 hR2) hN3 (by norm_num) reads dom
+        hdomR hε0.le T.κ0_two e u).H y Φ) (ball (0 : ℂ) 2) :=
+    fun e he y Φ => commonAct_holA_differentiableOn (zeroSourceAct A 2 hR2) hN3
+      (by norm_num) reads dom hdomR hε0.le T.κ0_two e (fun y Φ => hdiff0 e he y Φ) y Φ
+  have hseg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ ball (0 : ℂ) 2 := fun s hs => by
+    rw [mem_ball_zero_iff]
+    exact norm_ofReal_lt_of_mem hs one_lt_two
+  have he₀ : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
+      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈ physV S S.a₁ S.ν T.t :=
+    (mk_mem_physFibre S S.hh₀ hXi (g := 0) (by simp)).1
+  refine ⟨_, rfl, ?_, hdiffc, ?_, ?_, hWfib, fun s hs => hWfib S.D' S.hh₀ hXi 0 s hs, ⟨?_⟩, ?_⟩
   · exact fun y Φ => commonAct_holA_analytic (zeroSourceAct A 2 hR2) hN3 (by norm_num) reads dom
       hdomR hε0.le T.κ0_two (Q := Set.univ) (fun y Φ _ => han0 y Φ) y Φ (Set.mem_univ _)
-  · exact fun e he y Φ => commonAct_holA_differentiableOn (zeroSourceAct A 2 hR2) hN3
-      (by norm_num) reads dom hdomR hε0.le T.κ0_two e (fun y Φ => hdiff0 e he y Φ) y Φ
   · intro y e he u hu
     cases y with
     | inl y => exact hcont0 y e he u hu
@@ -292,17 +376,40 @@ theorem zeroSourceActivity_common_fromTower {κmin : ℝ} (T : StepTower κmin)
   · intro e u Φ
     exact (commonAct_total (zeroSourceAct A 2 hR2) hN3 (by norm_num) reads dom hdomR hε0.le
       T.κ0_two e u Φ).trans (zeroSourceAct_total A 2 hR2 e u Φ)
-  · exact fun s hs => hWfib S.D' S.hh₀ hXi 0 s hs
   · exact paramMarkFamily_common (zeroSourceAct A 2 hR2) hN3 (by norm_num) reads dom hdomR hε0.le
       T.κ0_two (S.blockSplit 1 hp).μ (fun i : Empty => i.elim) (fun _ _ _ _ => (0 : ℂ)) 0
       (fun i : Empty => i.elim) (physV S S.a₁ S.ν T.t) (ball (0 : ℂ) 2) (physCarrier S 1 hp)
-      hV isOpen_ball
-      (fun s hs => by
-        rw [mem_ball_zero_iff]
-        exact norm_ofReal_lt_of_mem hs one_lt_two)
+      hV isOpen_ball hseg
       (isCompact_physCarrier S 1 hp) (measurableSet_physCarrier S 1 hp)
       (ae_mem_physCarrier S 1 hp) (fun _ _ _ => measurable_const) (fun _ i _ _ => i.elim)
       (fun y Φ _ => han0 y Φ) (fun i _ _ => i.elim)
       (fun y e he u hu => (hcont0 y e he u hu).continuousOn) (fun i _ _ _ _ => i.elim)
+  · exact fun y₀ => nonempty_interpMarks_zero_of_activity (S.blockSplit 1 hp) _ hN3 isOpen_ball
+      hseg (commonAct (zeroSourceAct A 2 hR2) hN3 (by norm_num) reads dom hdomR hε0.le T.κ0_two
+        ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
+          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ))) y₀
+      (fun y Φ => hdiffc _ he₀ y Φ) T.marks_hκ0 T.marks_hKc hε0 T.marks_hκ' T.marks_hκ hθ'
+      (fun s hs => hWfib S.D' S.hh₀ hXi 0 s hs)
+
+/-- **Non-vacuity.**  For one tower `T : StepTower stepHullMin` (so that the hull condition holds),
+at `k = 1`, `N₁ = 6`, `ν = 1/81`, `A₁ = 1`, `p = 0`, `p₁ = 1`, `q = 1` and one `β` above the
+thresholds of `StepTower.scale` and of `zeroSourceActivity_common_fromTower`, the per-scale package
+exists and the amplitude of the common zero-source family is positive and below the threshold
+`stepTheta` at the enlarged entropy constant `T.marksKc'`. -/
+example : ∃ (T : StepTower stepHullMin) (β : ℝ),
+    Nonempty (StepScaleData T 1 le_rfl 6 (1 / 81) β 1) ∧
+    ∃ εH : ℝ, 0 < εH ∧ εH ≤ stepTheta 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' := by
+  obtain ⟨T⟩ := exists_stepTower stepHullMin
+  obtain ⟨βray, -, hscale⟩ := T.scale (A₁ := 1) one_pos 0
+  obtain ⟨β₀, CE, CF, -, -, -, h⟩ :=
+    zeroSourceActivity_common_fromTower T le_rfl (A₁ := 1) one_pos 0
+  have hν : (1 / 81 : ℝ) * 3 ^ (2 * (1 + 1)) ≤ 1 := by norm_num
+  have hp₁ : (1 : ℝ) ≤ pLog 1 0 (max βray β₀ * 3 ^ 1) := by simp [pLog]
+  obtain ⟨D⟩ := hscale 1 le_rfl 6 (by norm_num) (by norm_num) (1 / 81) (by norm_num) hν
+    (max βray β₀) (le_max_left _ _) 1 one_pos hp₁
+  obtain ⟨-, -, -, -, -, -, hpos, -, -, hθ, -⟩ := h 1 le_rfl 6 (by norm_num) (by norm_num) (1 / 81)
+    (by norm_num) hν (max βray β₀) (le_max_right _ _) 1 one_pos hp₁ 1 one_pos le_rfl D _ rfl
+    one_pos
+  exact ⟨T, max βray β₀, ⟨D⟩, _, hpos, hθ⟩
 
 end Balaban.Inhabited
