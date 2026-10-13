@@ -1768,4 +1768,137 @@ theorem nbhd_subset_of_mem_polyDom {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {ϱ : �
 
 end Labels
 
+/-! ### D3: the marks of the energy coefficient at a label of the box -/
+
+section MarkLabels
+
+open Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "bc'" => boxMap (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TA" => Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TB" => Torus d (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "HA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "HB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  k (Nat.le_succ k)
+set_option hygiene false in
+local notation "ρ₁" => R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)
+set_option hygiene false in
+local notation "SA" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "SB" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁') hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+set_option hygiene false in
+local notation "domA" => fun b : TA => polyDom (GA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b))
+  m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k b))
+set_option hygiene false in
+local notation "domB" => fun b : TB => polyDom (GB) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b))
+  m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k b))
+
+/-- **The pairs (block, domain) of a label on two tori.**  For a block `b` whose region `X₁` lies in
+the box of radius `R` and a domain `Y` of the box, `(bc b, bm '' Y)` is a marked pair of the root
+`bc z` with bridge `bm '' Y'` iff `(b, Y)` is a marked pair of `z` with bridge `Y'` (domains
+`mem_polyDom_boxMap_iff`, fine blocks and neighbours `fineBlock_image`, `psiThick_image`, bridges
+`bridge_image`). -/
+theorem markedPair_boxMap_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {R rc : ℕ}
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnH : 2 * (R + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (R + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : TA) (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ R)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y' : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY'R : ∀ y ∈ Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    (b : TA) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    (hbR : ∀ x ∈ LocalCover.nbhd m₀ (LocalCover.blockSite k b),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    ((bc b, bm '' Y) ∈ markedIdx (fun _ : TB => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1))))
+        (domB) (bc z) ∧ bridge m₀ (bc z) (bm '' Y) = bm '' Y') ↔
+      ((b, Y) ∈ markedIdx (fun _ : TA => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (domA) z ∧
+        bridge m₀ z Y = Y') := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hcs2 : (L - 1) * aK ≤ L * aK := Nat.mul_le_mul_right _ (Nat.sub_le L 1)
+  -- the block
+  have hxbR : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k b) :=
+    hbR _ (by rw [← LocalCover.coe_nbhdF]; exact LocalCover.mem_nbhdF_self m₀ _)
+  have hbc := inBox_coarse_of_blockSite b hxbR
+  have hbs : LocalCover.blockSite k (bc b) = bm (LocalCover.blockSite k b) :=
+    blockSite_boxMap le_rfl b hbc (Nat.mul_div_le R _) (by omega)
+  obtain ⟨hcov, hX₁, hcov', hX₁'⟩ := covSetup_localCover_image (ϱ := ϱ) hN hN' (j := k) le_rfl
+    (R := R) (by omega) (LocalCover.blockSite k b) hbR
+  have hF := nbhdF_image_finset hN hN' (R := R) (by omega) (LocalCover.blockSite k b) hbR
+  have hXR : ∀ x ∈ LocalCover.nbhdF m₀ (LocalCover.blockSite k b),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => hbR x (by rw [← LocalCover.coe_nbhdF]; exact hx)
+  have hdom : bm '' Y ∈ polyDom (GB) (LocalCover.nbhdF m₀ (LocalCover.blockSite k (bc b))) m₀ k
+      (LocalCover.fam m₀ (LocalCover.blockSite k (bc b))) ↔
+      Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b)) m₀ k
+        (LocalCover.fam m₀ (LocalCover.blockSite k b)) := by
+    rw [hbs, ← hF]
+    exact mem_polyDom_boxMap_iff hcov hX₁ hcov' hX₁' hXR hnF hnF' Y hYR
+  -- the fine blocks and the neighbours
+  have hfine := fineBlock_image (N₁' := N₁') (ρ := R) (by omega) z hz hrc
+  have hpsi := psiThick_image (N₁' := N₁') (by omega) (by omega) hYR
+  have hpsiR : ∀ x ∈ psiThick Y, InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => inBox_mono (by omega) (inBox_of_mem_psiThick (by omega) hYR hx)
+  have hfineR : ∀ x ∈ fineBlock (m₁ := m₁) (K := k + 1) z,
+      InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    rw [fineBlock_eq_box] at hx
+    exact inBox_of_mem_cell (by omega) (blockSite_inBox (N₁ := N₁) (by omega) z hz hrc) hx
+  have hthick : (psiThick (bm '' Y) ∩ fineBlock (m₁ := m₁) (K := k + 1) (bc z)).Nonempty ↔
+      (psiThick Y ∩ fineBlock (m₁ := m₁) (K := k + 1) z).Nonempty := by
+    rw [hpsi, ← hfine]
+    constructor
+    · rintro ⟨_, ⟨x, hx, rfl⟩, ⟨w, hw, hwx⟩⟩
+      have := boxMap_inj (hm' := (by omega : 2 * (R + L ^ (k + 1)) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)))
+        (hfineR w hw) (hpsiR x hx) hwx
+      exact ⟨x, hx, this ▸ hw⟩
+    · rintro ⟨x, hx, hx'⟩
+      exact ⟨bm x, ⟨x, hx, rfl⟩, ⟨x, hx', rfl⟩⟩
+  have hreads : ∀ {M : ℕ} [NeZero M] (w : Torus d (M * L ^ m₁ * L ^ (k + 1 - (k + 1)))),
+      ((Set.univ : Set (CTorus d L M m₁ (k + 1))) ∩ fineBlock (m₁ := m₁) (K := k + 1) w).Nonempty :=
+    fun w => ⟨rootSite w, trivial, rootSite_mem_fineBlock w⟩
+  -- the bridges
+  have hbr : bridge m₀ (bc z) (bm '' Y) = bm '' Y' ↔ bridge m₀ z Y = Y' := by
+    rw [bridge_image hN hN' hnH hnH' z hz hrc hroot hYR]
+    constructor
+    · intro h
+      exact image_boxMap_inj (ρ := R + 2 * (L * aK)) (by omega)
+        (inBox_of_mem_bridge (by omega) z hroot hYR) (fun x hx => inBox_mono (by omega) (hY'R x hx))
+        h
+    · intro h; rw [h]
+  rw [mem_markedIdx, mem_markedIdx, hdom, hthick, hbr]
+  simp only [hreads, true_and]
+
+end MarkLabels
+
 end Balaban.Polymer.TwoTorusStep
