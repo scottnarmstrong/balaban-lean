@@ -58,3 +58,29 @@ structure LocalSuccessor (ϱhi ϱloc : ℝ) where
 **PROVED (workflow); OPEN (successor claim).** Postpone replacing the established `StepClass`/`Terms` type until the general-class successor step is implemented. The present fixed-tower zero input is already used at `rhoSep` by many source and activity declarations (for example `Inhabited/ZeroSourceActivityCommon.lean` and `Inhabited/E1RecordFromTower.lean`); no current `polyGS` consumer supplies the local-domain output. For the *output of the zero input*, first prove the physical coefficient on `XiDom (localB …)` by local recomputation or by (TR) plus exact trace locality and physical equality, then package the low-index `SFTermClausesStrong` member. Do not infer this analytic clause from zero analyticity of the input terms. Tell the author explicitly that the high-index `zeroClass` remains valid as an ambient step object while the P3 local successor class is a separate open theorem.
 
 **PROVED (confidence in source/type inventory); OPEN (analytic geometry).** High confidence in the numerical type obstruction and landed `polyGS` clauses; moderate confidence in the scope estimate (it is textual); no asserted proof or counterexample for (TR) or the physical local-domain analyticity.
+
+## NEXT (W715)
+
+1. At `ϱloc = bgR0 d L`, with `hsep : bgR0 d L ≤ minSep L (L ^ m₁)`, prove
+   `localB_xiDom_of_xiCData`: `XiCData (localB j hj X hsep) A μ j (scaledC0 d) ε D`
+   and `scaledC0 d ^ 2 * ε ≤ ε'` imply
+   `XiDom (localB j hj X hsep) A μ j ε' D.Ψ D.h`.
+   Also prove `localB_xiFieldDom_of_xiCData`, the same conclusion as
+   `(xiFieldDom A μ εseq).dom j (localB j hj X hsep) D.Ψ D.h` when `ε' = εseq j`.
+   These are same-generator chart realizations; `StepActivityClassChart.xiDom_of_xiCData`
+   transports the real and complex witnesses and the `XiBounds`/`XiCBounds` radius estimates.
+2. For the domain inclusion needed by a local successor class, the target is an
+   explicit `FieldDom.Sub` or pointwise `hsub` from the actual ambient step chart
+   to `xiFieldDom` at `localB j hj X hsep`, with the physical composed pair as input.
+   `GeneralClassMatch.rayInDomain_dom_of_xiCData` shows its proof shape: construct
+   a local `XiCData` witness for that pair at the class radius and apply item 1.
+   `WeakenSep` invariance transports a fixed generator's raw data and domains;
+   it does not compare an ambient generator with `localB`, whose domains and
+   canonical solutions differ. The remaining input is the local solution estimate
+   of `Xi.lean` for the physical composed pair (P3 (4.46)–(4.47), printed pp. 78–79).
+
+**W715 status.** The conditional `XiCData → XiDom → FieldDom.dom` part of item 1 is proved
+in `SmallField/LocalGeneratorClassDomain.lean`, including a specified raw field pair.
+The physical realization part of item 1 and item 2 remain open: the present ambient
+high-index step supplies neither a local `XiCData` witness for its composed pair nor
+the comparison of its canonical background solutions with those on `localB`.
