@@ -1743,3 +1743,4 @@ public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Fluctuation.RootSupportBridge
 public import Balaban.Inhabited.RenJoinClassWitness
 public import Balaban.Inhabited.RenormPhysicalRecord
+public import Balaban.Inhabited.ObsPrefactorScale
