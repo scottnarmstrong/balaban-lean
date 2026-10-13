@@ -1389,6 +1389,8 @@ public import Balaban.Fluctuation.ParamActivitySubspace
 public import Balaban.Inhabited.ParamActivitySubspaceWitness
 public import Balaban.Fluctuation.DetCauchyHull
 public import Balaban.Inhabited.DetCauchyHullWitness
+public import Balaban.Fluctuation.DetCauchyActivity
+public import Balaban.Inhabited.DetCauchyActivityWitness
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
