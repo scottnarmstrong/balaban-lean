@@ -147,7 +147,7 @@ open and contains `[0,1]`, the bridge family is nonempty, the marks are measurab
 only on the blocks of the common label of their anchor, satisfy the bound
 `‖G‖ ≤ corrF0 · exp (−(2 κ_dec − 1) d_l)` for all `u`, `Φ` (for every label system `Lab` on
 which the common labels are built), and are differentiable in `u` on the disc. -/
-theorem e1Marks_common_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k}
+theorem e1Marks_common_fromTower_pairs {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k}
     {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁)
     (h3N : 3 ∣ N₁) (hN : 5 < N₁) (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β)
     (hp : 0 < p₁) (hRU : 2 * corrU ≤ corrR T k (β * 3 ^ k) p₁) :
@@ -160,6 +160,19 @@ theorem e1Marks_common_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {
         Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 →
           ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) ×
             ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ)),
+    (∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1), ∀ b,
+      MarkedBlockExpansionDecPair 2 (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).hG' ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.BG T.BG₂ T.κ T.t T.t T.κdec p₁ ((T.step k hk N₁ ν β p₁).blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ (z, b)) (Sol (z, b)) ∧
+      (∀ Y, AnalyticOnNhd ℂ
+          (fun p : (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (unitPts (T.step k hk N₁ ν β p₁).G' × Fin 2 → ℂ)) × (ℂ × ℂ) =>
+            evDec (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k (LocalCover.fam 1 (LocalCover.blockSite k b)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν (T.step k hk N₁ ν β p₁).hG' ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (F₁ (z, b)) (Sol (z, b)) (blockEnergyFun (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν k b) ((T.step k hk N₁ ν β p₁).blockU z) p.2.1 p.2.2 Y p.1)
+          ((XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t ×ˢ
+            {ψh : unitPts (T.step k hk N₁ ν β p₁).G' × Fin 2 → ℂ | ∀ q, ‖ψh q‖ ≤ p₁}) ×ˢ
+            {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁ ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < T.t})) ∧
+      (∀ Y, ∀ ψh : unitPts (T.step k hk N₁ ν β p₁).G' × Fin 2 → ℂ, (∀ q, ‖ψh q‖ ≤ p₁) →
+          ∀ a b' : ℝ, 0 ≤ a → 0 < b' → (a + b') * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁ ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < T.t →
+          AnalyticOnNhd ℂ (fun p : physParam 2 (T.step k hk N₁ ν β p₁) × ℂ => deriv (fun t : ℂ =>
+            evDec (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k (LocalCover.fam 1 (LocalCover.blockSite k b)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν (T.step k hk N₁ ν β p₁).hG' ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (F₁ (z, b)) (Sol (z, b)) (blockEnergyFun (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν k b) ((T.step k hk N₁ ν β p₁).blockU z) p.2 t Y ((p.1.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), ψh)) 0)
+            (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t ×ˢ Metric.ball (0 : ℂ) a))) ∧
     ∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1),
       Nonempty {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z} ∧
       (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z})
@@ -200,7 +213,9 @@ theorem e1Marks_common_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {
     norm_num
   obtain ⟨F₁, Sol, hF⟩ := markCorrFamily_fromTower T D hN hν0 hν hβ hp hRU
     (S := T.step k hk N₁ ν β p₁) rfl hp
-  refine ⟨F₁, Sol, fun z => ?_⟩
+  refine ⟨F₁, Sol, fun z b => ?_, fun z => ?_⟩
+  · obtain ⟨hP, hJ2, hJ4, -⟩ := hF z
+    exact ⟨hP b, hJ2 b, hJ4 b⟩
   obtain ⟨hP, hJ2, hJ4, hcnt, -⟩ := hF z
   have hΘ : rawOf (T.step k hk N₁ ν β p₁).D' ∈ XiCRaw (T.step k hk N₁ ν β p₁).G'
       (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t :=
@@ -280,6 +295,56 @@ theorem e1Marks_common_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {
       refine ⟨he₀, ?_⟩
       rw [mem_ball_zero_iff] at hu ⊢
       linarith
+
+/-- **The marks of the energy record on the common labels.**  One family of pairs `(F₁, Sol)`
+(indexed by root and block) such that for every root `z`, with the marks `e1MarkG` of the step
+`T.step k hk N₁ ν β p₁` at the clamp radius `p₁`: the constant `corrF0` is positive, the disc is
+open and contains `[0,1]`, the bridge family is nonempty, the marks are measurable in `Φ`, depend
+only on the blocks of the common label of their anchor, satisfy the bound
+`‖G‖ ≤ corrF0 · exp (−(2 κ_dec − 1) d_l)` for all `u`, `Φ` (for every label system `Lab` on
+which the common labels are built), and are differentiable in `u` on the disc. -/
+theorem e1Marks_common_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k}
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁)
+    (h3N : 3 ∣ N₁) (hN : 5 < N₁) (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β)
+    (hp : 0 < p₁) (hRU : 2 * corrU ≤ corrR T k (β * 3 ^ k) p₁) :
+    0 < corrF0 T k β p₁ ∧ IsOpen (Metric.ball (0 : ℂ) corrU) ∧
+    (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ Metric.ball (0 : ℂ) corrU) ∧
+    ∃ (F₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+        DecParams (T.step k hk N₁ ν β p₁).G' × RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
+          ((T.step k hk N₁ ν β p₁).G'.Ω 1 × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).G'.Ω 1 → ℂ))
+      (Sol : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+        Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 →
+          ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) ×
+            ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ)),
+    ∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1),
+      Nonempty {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z} ∧
+      (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z})
+        (u : ℂ), Measurable (e1MarkG (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+          (fun b => Sol (z, b)) p₁ hp z i u)) ∧
+      (∀ (Lb : Type) [Fintype Lb]
+        (Lab : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ Lb),
+        (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+              (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ),
+          DepOn (blocksOf 1 (k + 1) Set.univ
+            ((commonLabels Lab (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
+              (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).ysite
+              (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)))
+            (e1MarkG (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z
+              i u)) ∧
+        (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
+              (e1Dom (T.step k hk N₁ ν β p₁)) z}) (u : ℂ) Φ,
+          ‖e1MarkG (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z
+              i u Φ‖ ≤
+            corrF0 T k β p₁ * Real.exp (-(2 * T.κdec - 1) *
+              (commonLabels Lab (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
+                (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).dl
+                (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)))) ∧
+      (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z})
+        Φ, DifferentiableOn ℂ (fun u => e1MarkG (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+          (fun b => Sol (z, b)) p₁ hp z i u Φ) (Metric.ball (0 : ℂ) corrU)) := by
+  obtain ⟨h1, h2, h3, F₁, Sol, -, h⟩ := e1Marks_common_fromTower_pairs T D h3N hN hν0 hν hβ hp hRU
+  exact ⟨h1, h2, h3, F₁, Sol, h⟩
 
 end Main
 
