@@ -6,6 +6,10 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Localization.P6PairGraph
+public import Balaban.Fluctuation.DetCauchyGraph
+public import Balaban.Polymer.RootedAnimals
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
 
 /-!
 # The chain of eligible live centres in the joint closure of the P6 pair
@@ -299,5 +303,92 @@ theorem eligC_of_paramFree {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ C.cub
     rw [h] at this; simp at this⟩
 
 end Chain
+
+
+/-! ### The patch graph of the chain and rootedness -/
+
+section Patch
+
+open Balaban.Fluctuation Balaban.Polymer Classical
+
+variable {k : ℕ} {ϱG : ℝ} (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱG)
+
+theorem eq_or_adj_symm {V : Type*} {Γ : SimpleGraph V} {a b : V} (h : a = b ∨ Γ.Adj a b) :
+    b = a ∨ Γ.Adj b a := h.elim (fun h => Or.inl h.symm) (fun h => Or.inr h.symm)
+
+/-- **The patch graph of the chain.**  Two distinct parameter cubes are adjacent when they are
+joined by a path of at most three edges of the parameter graph `paramGraph G` (two cubes are
+adjacent there when they lie in a common footprint `𝒬(z)` or Moore-touch).  The intermediate cubes
+need not be marked: a chain step between two centres passes through an unmarked cube of the cover
+(a cube contained in `X₁`) at most twice. -/
+def chainPatchGraph : SimpleGraph (cubeIdx G) where
+  Adj P P' := P ≠ P' ∧ ∃ Q R, (P = Q ∨ (paramGraph G).Adj P Q) ∧ (Q = R ∨ (paramGraph G).Adj Q R) ∧
+    (R = P' ∨ (paramGraph G).Adj R P')
+  symm := ⟨fun _ _ h => by
+    obtain ⟨hne, Q, R, h1, h2, h3⟩ := h
+    exact ⟨hne.symm, R, Q, eq_or_adj_symm h3, eq_or_adj_symm h2, eq_or_adj_symm h1⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+variable {G}
+
+theorem chainPatch_of_path {P Q R P' : cubeIdx G} (h1 : P = Q ∨ (paramGraph G).Adj P Q)
+    (h2 : Q = R ∨ (paramGraph G).Adj Q R) (h3 : R = P' ∨ (paramGraph G).Adj R P') :
+    P = P' ∨ (chainPatchGraph G).Adj P P' := by
+  by_cases h : P = P'
+  · exact Or.inl h
+  · exact Or.inr ⟨h, Q, R, h1, h2, h3⟩
+
+/-- The closed neighbourhood in the parameter graph. -/
+noncomputable def closedNbhd (P : cubeIdx G) : Finset (cubeIdx G) :=
+  insert P ((paramGraph G).neighborFinset P)
+
+variable (G) in
+/-- The degree constant of the patch graph of the chain: `(detDeg d L + 1)^3`, with
+`detDeg d L = 3 (L+4)^d + 3 (L+9)^d · 3 (8L)^d` the degree bound of the parameter graph. -/
+def pairChainDeg (d L : ℕ) : ℕ := (detDeg d L + 1) ^ 3
+
+theorem card_closedNbhd_le (hdeg : ∀ P : cubeIdx G, (paramGraph G).degree P ≤ detDeg d L)
+    (P : cubeIdx G) : (closedNbhd P).card ≤ detDeg d L + 1 := by
+  unfold closedNbhd
+  refine (Finset.card_insert_le _ _).trans ?_
+  rw [SimpleGraph.card_neighborFinset_eq_degree]
+  exact Nat.add_le_add_right (hdeg P) 1
+
+/-- **T3.  The degree of the patch graph of the chain** is at most `(detDeg d L + 1)^3`. -/
+theorem chainPatchGraph_degree_le (hG : CubeAligned G m₁)
+    (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱG) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L)
+    (P : cubeIdx G) : (chainPatchGraph G).degree P ≤ pairChainDeg d L := by
+  have hdeg := fun P => paramGraph_degree_le (G := G) hG hϱ hM hL P
+  rw [← SimpleGraph.card_neighborFinset_eq_degree]
+  have hsub : (chainPatchGraph G).neighborFinset P ⊆
+      (closedNbhd P).biUnion fun Q => (closedNbhd Q).biUnion closedNbhd := by
+    intro P' hP'
+    obtain ⟨-, Q, R, h1, h2, h3⟩ := (SimpleGraph.mem_neighborFinset _ _ _).1 hP'
+    refine Finset.mem_biUnion.2 ⟨Q, ?_, Finset.mem_biUnion.2 ⟨R, ?_, ?_⟩⟩
+    · rcases h1 with rfl | h1
+      · exact Finset.mem_insert_self _ _
+      · exact Finset.mem_insert_of_mem ((SimpleGraph.mem_neighborFinset _ _ _).2 h1)
+    · rcases h2 with rfl | h2
+      · exact Finset.mem_insert_self _ _
+      · exact Finset.mem_insert_of_mem ((SimpleGraph.mem_neighborFinset _ _ _).2 h2)
+    · rcases h3 with rfl | h3
+      · exact Finset.mem_insert_self _ _
+      · exact Finset.mem_insert_of_mem ((SimpleGraph.mem_neighborFinset _ _ _).2 h3)
+  have hc := card_closedNbhd_le hdeg
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ Q ∈ closedNbhd P, ((closedNbhd Q).biUnion closedNbhd).card
+      ≤ ∑ _Q ∈ closedNbhd P, (detDeg d L + 1) * (detDeg d L + 1) := by
+        refine Finset.sum_le_sum fun Q _ => Finset.card_biUnion_le.trans ?_
+        calc ∑ R ∈ closedNbhd Q, (closedNbhd R).card
+            ≤ ∑ _R ∈ closedNbhd Q, (detDeg d L + 1) := Finset.sum_le_sum fun R _ => hc R
+          _ = (closedNbhd Q).card * (detDeg d L + 1) := by rw [Finset.sum_const, smul_eq_mul]
+          _ ≤ (detDeg d L + 1) * (detDeg d L + 1) := Nat.mul_le_mul_right _ (hc Q)
+    _ = (closedNbhd P).card * ((detDeg d L + 1) * (detDeg d L + 1)) := by
+        rw [Finset.sum_const, smul_eq_mul]
+    _ ≤ (detDeg d L + 1) * ((detDeg d L + 1) * (detDeg d L + 1)) :=
+        Nat.mul_le_mul_right _ (hc P)
+    _ = pairChainDeg d L := by unfold pairChainDeg; ring
+
+end Patch
 
 end Balaban.Localization.Dec2
