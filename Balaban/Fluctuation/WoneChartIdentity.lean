@@ -8,6 +8,8 @@ module
 public import Balaban.Fluctuation.SourcePhysValBridge
 public import Balaban.Fluctuation.StepActivityHat
 public import Balaban.Fluctuation.StepBaseDomain
+public import Balaban.Fluctuation.StepActivityOffFibreTaylor
+import Balaban.Fluctuation.StepComplexJointH
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -116,6 +118,147 @@ variable (hk : 1 ≤ k) {R : ℝ} (hR : 1 < R)
   (hδ₁ : Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
     (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ)) < δ₁)
 
+include Jr hC ha₁ H hc7 hk hR hsmR hMX hdm hα hsm hcψ hδ₁ hX in
+/-- The first interpolation exponent at any complex chart datum is the cubic physical hat
+interaction remainder. -/
+theorem W1_zeroClass_eq_hat_freeDatum (hpc : pp < cψ) (x : S.E) (hxn : ‖x‖ < pp)
+    {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) :
+    Jr.W1 (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, (s : ℂ) • S.hatC x) =
+      (s : ℂ) ^ 2 * ((-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight (S.hatC x)
+        (S.hatC x) (s : ℂ) (rawOf D)) := by
+  classical
+  let Hf : StepSettingH S := S.withDatumH D
+  let v : S.EC := S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x)
+  let ψ₀ : S.EC := fun q =>
+    (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D).Ψ (unitRep (G' := S.G') q.1) q.2
+  let f : ℝ → ℂ := fun r => interactionV
+    (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+    (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+    (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+    ((r : ℂ) • liftC S.hG' v)
+    (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N)
+      (Hf.dataUCH (ψ₀ + (r : ℂ) • v)) -
+      (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+  let Gc : ℂ → ℂ := fun l => hatFun S.G' S.a₁ S.ν eps S.hG'
+    ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+    (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)
+    (rawOf D, l • yhat x)
+  have hreal : ∀ r : ℝ, Gc (r : ℂ) = f r := fun r => Hf.interaction_hat_ray hX x r
+  have hxle : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → |r| * ‖x‖ ≤ pp := fun r hr => by
+    rw [abs_of_nonneg hr.1]
+    exact (mul_le_of_le_one_left (norm_nonneg _) hr.2).trans hxn.le
+  have hray : ∀ t ∈ Icc (0 : ℝ) 1, ∀ᶠ r : ℝ in 𝓝 t,
+      InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+        (Hf.dataUCH (ψ₀ + (r : ℂ) • v)) := by
+    intro t ht
+    have hopen : IsOpen {r : ℝ | |r| * ‖x‖ < pp} :=
+      isOpen_lt (by fun_prop) continuous_const
+    have htm : t ∈ {r : ℝ | |r| * ‖x‖ < pp} := by
+      show |t| * ‖x‖ < pp
+      rw [abs_of_nonneg ht.1]
+      exact lt_of_le_of_lt (mul_le_of_le_one_left (norm_nonneg _) ht.2) hxn
+    filter_upwards [hopen.mem_nhds htm] with r hr
+    have hb : ∀ p, ‖((r : ℂ) • yhat x) p‖ ≤ pp := fun p =>
+      (S.norm_smul_yhat_le_mul r x p).trans hr.le
+    have hd := Jr.dataUCH_hat_dom Hf hX hb
+    rw [S.hatField_smul] at hd
+    exact hd
+  have hT := Hf.interaction_ray_taylor ha₁ H (chart_dom2 D hX hC hc7) v hray hs
+  have hT' : f s = ∫ u in (0 : ℝ)..1,
+      taylorWeight (u : ℂ) * ((s : ℂ) ^ 3 * iteratedDeriv 3 f (u * s)) := hT
+  have hAn : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → AnalyticAt ℂ Gc (r : ℂ) := by
+    intro r hr
+    have hb : ∀ p, ‖(r : ℂ) * yhat x p‖ < cψ := fun p => by
+      have hh := S.norm_smul_yhat_le_mul r x p
+      have e : ((r : ℂ) • yhat x) p = (r : ℂ) * yhat x p := rfl
+      rw [e] at hh
+      exact lt_of_le_of_lt hh (lt_of_le_of_lt (hxle r hr) hpc)
+    have hh := analyticAt_interactionOne_hatRay hC hk S.hG S.hG' ha₁ H hc7 hR hsmR hMX hdm
+      hα hsm ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hδ₁ hX (yhat x)
+      (s := (r : ℂ)) hb
+    refine hh.congr (Filter.Eventually.of_forall fun l => ?_)
+    exact (hatFun_rawOf S.hG' _ _ hX _).symm
+  have hd3 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 →
+      dirS3 (hatFun S.G' S.a₁ S.ν eps S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps))
+        (S.hatC x) (rawOf D) (((s : ℂ) * (t : ℂ)) • S.hatC x) =
+        iteratedDeriv 3 f (s * t) := by
+    intro t ht
+    have hst : s * t ∈ Icc (0 : ℝ) 1 :=
+      ⟨mul_nonneg hs.1 ht.1, by nlinarith [hs.1, hs.2, ht.1, ht.2]⟩
+    unfold dirS3
+    have e : (fun τ : ℂ => hatFun S.G' S.a₁ S.ν eps S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)
+        (rawOf D, ((s : ℂ) * (t : ℂ)) • S.hatC x + τ • S.hatC x)) =
+        fun τ : ℂ => Gc (((s * t : ℝ) : ℂ) + τ) := by
+      funext τ
+      show _ = hatFun S.G' S.a₁ S.ν eps S.hG' _ _
+        (rawOf D, (((s * t : ℝ) : ℂ) + τ) • yhat x)
+      rw [add_smul]
+      push_cast
+      rfl
+    rw [e]
+    have h1 := congrFun (iteratedDeriv_comp_const_add 3 Gc (((s * t : ℝ)) : ℂ)) 0
+    rw [h1, add_zero, ← iteratedDeriv_comp_ofReal 3 Gc (s * t) (hAn _ hst)]
+    congr 1
+    funext r
+    exact hreal r
+  have hrs : raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG'
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+      (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight
+      (S.hatC x) (S.hatC x) (s : ℂ) (rawOf D) =
+      (s : ℂ) * ∫ t in (0 : ℝ)..1, taylorWeight (t : ℂ) * iteratedDeriv 3 f (s * t) := by
+    unfold raySrc3
+    congr 1
+    refine intervalIntegral.integral_congr fun t ht => ?_
+    rw [Set.uIcc_of_le zero_le_one] at ht
+    rw [hd3 t ht]
+  have hI : ∫ u in (0 : ℝ)..1, taylorWeight (u : ℂ) *
+      ((s : ℂ) ^ 3 * iteratedDeriv 3 f (u * s)) =
+      (s : ℂ) ^ 3 * ∫ t in (0 : ℝ)..1, taylorWeight (t : ℂ) *
+        iteratedDeriv 3 f (s * t) := by
+    rw [← intervalIntegral.integral_const_mul]
+    refine intervalIntegral.integral_congr fun u _ => ?_
+    rw [mul_comm u s]
+    ring
+  have hW : Jr.W1 (zeroClass d L N₁ m₁ k N ϱ)
+      (rawOf D, (s : ℂ) • yhat x) = -(S.β : ℂ) * f s := by
+    have hb : ∀ p, ‖((s : ℂ) • yhat x) p‖ ≤ pp := fun p =>
+      (S.norm_smul_yhat_le_mul s x p).trans (hxle s hs)
+    have hdat : (S.withDatumH D).D' = D := rfl
+    unfold StepSetting.JointRep.W1
+    have hv := Jr.VJ_dataUCH (S.withDatumH D) hX hb
+    rw [hdat] at hv
+    rw [hv]
+    have he : Jr.EJ (zeroClass d L N₁ m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x) = 0 := by
+      have hE := Jr.EJ_dataUCH (S.withDatumH D) (zeroClass d L N₁ m₁ k N ϱ)
+        hX (ψh := (s : ℂ) • yhat x) hb
+      rw [hdat] at hE
+      rw [hE]
+      exact EcompAtC_zero _ _ _ _ _
+    have he0 : Jr.EJ (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, 0) = 0 := by
+      have hE := Jr.EJ_dataUCH (S.withDatumH D) (zeroClass d L N₁ m₁ k N ϱ)
+        hX (ψh := (0 : S.EC)) (fun p => by simpa using Jr.hpp)
+      rw [hdat] at hE
+      rw [hE]
+      exact EcompAtC_zero _ _ _ _ _
+    rw [he, he0]
+    simp only [sub_self, add_zero]
+    rw [S.hatField_smul]
+    have ht := (S.withDatumH D).compTangent_critical_ray v (s : ℂ)
+    rw [hdat] at ht
+    rw [ht]
+  show Jr.W1 (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, (s : ℂ) • yhat x) = _
+  rw [hW, hrs, hT', hI]
+  ring
+
 include Jr hC ha₁ H hc7 hk hR hsmR hMX hdm hα hsm hcψ hδ₁ hX hD in
 /-- **T2: the interaction half of the exponent at a chart datum.**  For the zero class, a datum
 `D` of `Ξ^c(𝔹_{k+1}; 1, ε)` with `h ≡ h₀`, a real hat variable `ψ̂` with `‖ψ̂‖ < pp < c_ψ` and
@@ -129,74 +272,9 @@ theorem W1_zeroClass_eq_hat_chart (hpc : pp < cψ) (x : S.E) (hxn : ‖x‖ < pp
         ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
         (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight (S.hatC x)
         (S.hatC x) (s : ℂ) (rawOf D)) := by
-  classical
-  set cc : ℂ := ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) with hcc
-  set f := interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps with hf
-  set S' := S.withDatum D hD with hS'
-  let Gc : ℂ → ℂ := fun l => hatFun S.G' S.a₁ S.ν eps S.hG' cc f (rawOf D, l • yhat x)
-  have hxle : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → |r| * ‖x‖ ≤ pp := fun r hr => by
-    rw [abs_of_nonneg hr.1]
-    exact (mul_le_of_le_one_left (norm_nonneg _) hr.2).trans hxn.le
-  have hreal : ∀ r : ℝ, Gc (r : ℂ) = S'.VkC (S'.psiAtC r x) := fun r => by
-    show hatFun S.G' S.a₁ S.ν eps S.hG' cc f (rawOf D, (r : ℂ) • yhat x) = _
-    exact (S'.VkC_psiAtC_eq_hatFun hX r x).symm
-  have hAn : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → AnalyticAt ℂ Gc (r : ℂ) := by
-    intro r hr
-    have hb : ∀ p, ‖(r : ℂ) * yhat x p‖ < cψ := fun p => by
-      have := S.norm_smul_yhat_le_mul r x p
-      have e : ((r : ℂ) • yhat x) p = (r : ℂ) * yhat x p := rfl
-      rw [e] at this
-      exact lt_of_le_of_lt this (lt_of_le_of_lt (hxle r hr) hpc)
-    have := analyticAt_interactionOne_hatRay hC hk S.hG S.hG' ha₁ H hc7 hR hsmR hMX hdm
-      hα hsm cc hcψ hδ₁ hX (yhat x) (s := (r : ℂ)) hb
-    refine this.congr (Filter.Eventually.of_forall fun l => ?_)
-    exact (hatFun_rawOf S.hG' cc f hX _).symm
-  have hd3 : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 →
-      dirS3 (hatFun S.G' S.a₁ S.ν eps S.hG' cc f) (S.hatC x) (rawOf D)
-        (((s : ℂ) * (t : ℂ)) • S.hatC x) =
-        iteratedDeriv 3 (fun r : ℝ => S'.VkC (S'.psiAtC r x)) (s * t) := by
-    intro t ht
-    have hst : s * t ∈ Icc (0 : ℝ) 1 :=
-      ⟨mul_nonneg hs.1 ht.1, by nlinarith [hs.1, hs.2, ht.1, ht.2]⟩
-    unfold dirS3
-    have e : (fun τ : ℂ => hatFun S.G' S.a₁ S.ν eps S.hG' cc f
-        (rawOf D, ((s : ℂ) * (t : ℂ)) • S.hatC x + τ • S.hatC x)) =
-        fun τ : ℂ => Gc (((s * t : ℝ) : ℂ) + τ) := by
-      funext τ
-      show _ = hatFun S.G' S.a₁ S.ν eps S.hG' cc f (rawOf D, (((s * t : ℝ) : ℂ) + τ) • yhat x)
-      rw [add_smul]
-      push_cast
-      rfl
-    rw [e]
-    have h1 := congrFun (iteratedDeriv_comp_const_add 3 Gc (((s * t : ℝ)) : ℂ)) 0
-    rw [h1, add_zero, ← iteratedDeriv_comp_ofReal 3 Gc (s * t) (hAn _ hst)]
-    congr 1
-    funext r
-    exact hreal r
-  have hrs : raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG' cc f) taylorWeight (S.hatC x) (S.hatC x)
-      (s : ℂ) (rawOf D) = (s : ℂ) * ∫ t in (0 : ℝ)..1, taylorWeight (t : ℂ) *
-        iteratedDeriv 3 (fun r : ℝ => S'.VkC (S'.psiAtC r x)) (s * t) := by
-    unfold raySrc3
-    congr 1
-    refine intervalIntegral.integral_congr fun t ht => ?_
-    rw [Set.uIcc_of_le zero_le_one] at ht
-    rw [hd3 t ht]
-  have hT := Jr.vkC_ray_taylor_chart D hD hX hC ha₁ H hc7 x hxn hs
-  have hI : ∫ u in (0 : ℝ)..1, taylorWeight (u : ℂ) * ((s : ℂ) ^ 3 *
-      iteratedDeriv 3 (fun r : ℝ => S'.VkC (S'.psiAtC r x)) (u * s)) =
-      (s : ℂ) ^ 3 * ∫ t in (0 : ℝ)..1, taylorWeight (t : ℂ) *
-        iteratedDeriv 3 (fun r : ℝ => S'.VkC (S'.psiAtC r x)) (s * t) := by
-    rw [← intervalIntegral.integral_const_mul]
-    refine intervalIntegral.integral_congr fun u _ => ?_
-    rw [mul_comm u s]
-    ring
-  have h1 : Jr.W1 (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, (s : ℂ) • yhat x) =
-      -(S.β : ℂ) * S'.VkC (S'.psiAtC s x) := by
-    rw [Jr.W1_withDatum (zeroClass d L N₁ m₁ k N ϱ) D hD hX (hxle s hs)]
-    exact WoneC_zeroClass (S.withDatum D hD) s x
-  show Jr.W1 (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, (s : ℂ) • yhat x) = _
-  rw [h1, hrs, hT, hI]
-  ring
+  have _ := hD
+  exact Jr.W1_zeroClass_eq_hat_freeDatum D hX hC ha₁ H hc7 hk hR hsmR hMX hdm hα
+    hsm hcψ hδ₁ hpc x hxn hs
 
 end Chart
 
@@ -232,6 +310,35 @@ variable (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps 
     (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ)) < δ₁)
 
 include Jr hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ in
+/-- At any chart datum, the first interpolation exponent is the physical hat remainder. -/
+theorem W1_eq_physVal_freeDatum_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physVRho S S.a₁ S.ν eps ρ)
+    (x : S.E) (hxn : ‖x‖ < pp) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
+    (𝒯E : Finset τι) (𝒯M : Finset μι)
+    (hBE : ∀ τ ∈ 𝒯E, BgSetting N S.G' (GkE τ) (GjE τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀E τ)
+      (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ 𝒯E, FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁E τ))
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N)
+    (hBM : ∀ τ ∈ 𝒯M, BgSetting N S.G' (GkM τ) (GjM τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀M τ)
+      (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ 𝒯M, FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁M τ))
+    (cν : ℂ) (h𝒯E : 𝒯E = ∅) (h𝒯M : 𝒯M = ∅) (hcν : cν = 0) :
+    Jr.W1 (zeroClass d L N₁ m₁ k N ϱ)
+        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), (s : ℂ) • S.hatC x) =
+      (s : ℂ) ^ 2 * physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) := by
+  obtain ⟨D, hX, hq⟩ := he.1
+  have hq' : (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf D := hq
+  rw [hq', physVal_zeroClass_eq S 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν,
+    physInclScaled_zeroClass_eq, W1_zeroClass_eq_hat_freeDatum Jr D hX hC ha₁ H hc7 S.hk1
+      (lt_of_lt_of_le one_lt_two hR) hsmR hMX hdm hα hsm hcψ hδ₁ hpc x hxn hs]
+  simp only [hq', Pi.zero_apply, zero_div, zero_mul, Finset.sum_const_zero, mul_zero, add_zero]
+
+include Jr hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ in
 /-- **T3a.**  The interaction half of the exponent at a chart point `e ∈ physV` of the fibre
 `h ≡ h₀` is `s²` times the value of `physVal` at the scaled point `(e.1, 0)` (no source). -/
 theorem W1_eq_physVal_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
@@ -255,16 +362,9 @@ theorem W1_eq_physVal_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
           ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
           𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
           (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) := by
-  obtain ⟨D, hX, hq⟩ := he.1
-  have hq' : (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf D := hq
-  have hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ) := fun y i => by
-    have := hh y i
-    rw [hq'] at this
-    exact this
-  rw [hq', physVal_zeroClass_eq S 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν,
-    physInclScaled_zeroClass_eq, W1_zeroClass_eq_hat_chart Jr D hDh hX hC ha₁ H hc7 S.hk1
-      (lt_of_lt_of_le one_lt_two hR) hsmR hMX hdm hα hsm hcψ hδ₁ hpc x hxn hs]
-  simp only [hq', Pi.zero_apply, zero_div, zero_mul, Finset.sum_const_zero, mul_zero, add_zero]
+  have _ := hh
+  exact Jr.W1_eq_physVal_freeDatum_rho hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ
+    hδ₁ hpc e he x hxn hs 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν
 
 include Jr hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ in
 /-- **T3a.**  The interaction half of the exponent at a chart point `e ∈ physV` of the fibre

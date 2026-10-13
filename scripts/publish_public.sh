@@ -8,6 +8,10 @@
 # and the push is an ordinary fast-forward. The script never force-pushes; if the public branch has
 # diverged it stops with an error.
 #
+# Author and committer identities are rewritten with a mailmap kept outside the repository
+# ($WORK/mailmap), so that only GitHub noreply addresses are published; the script refuses to push if
+# any other address remains.
+#
 # Only commits already pushed to the development repository's GitHub remote are mirrored
 # (refs/remotes/origin/main of the local checkout), so an unverified local merge is never published.
 #
@@ -19,6 +23,7 @@ WORK=/home/scott/Balaban-scratch/public-mirror
 FILTER=/home/scott/Balaban-scratch/tools/fr-venv/bin/git-filter-repo
 PUBLIC=https://github.com/scottnarmstrong/balaban-lean.git
 STAMP=$WORK/last-source-commit
+MAILMAP=$WORK/mailmap
 
 mkdir -p "$WORK"
 exec 9>"$WORK/lock"
@@ -34,9 +39,14 @@ rm -rf "$WORK/repo"
 git init -q "$WORK/repo"
 git -C "$WORK/repo" fetch -q "$SRC" "refs/remotes/origin/main:refs/heads/main"
 git -C "$WORK/repo" symbolic-ref HEAD refs/heads/main
-(cd "$WORK/repo" && "$FILTER" --path sources/ --invert-paths --force --quiet)
+[ -f "$MAILMAP" ] || { echo "$(date -u +%FT%TZ) refusing to publish: no mailmap" >&2; exit 1; }
+(cd "$WORK/repo" && "$FILTER" --path sources/ --invert-paths --mailmap "$MAILMAP" --force --quiet)
 if git -C "$WORK/repo" rev-list --all --objects | grep -q '^[0-9a-f]* sources/'; then
   echo "$(date -u +%FT%TZ) refusing to publish: sources/ still present" >&2
+  exit 1
+fi
+if git -C "$WORK/repo" log --format='%ae%n%ce' main | grep -qv '@users\.noreply\.github\.com$'; then
+  echo "$(date -u +%FT%TZ) refusing to publish: an author or committer address is not a noreply address" >&2
   exit 1
 fi
 git -C "$WORK/repo" push -q "$PUBLIC" main:main
