@@ -20,8 +20,11 @@ decision "scheme A" (`orchestration/LEDGER.md`; W2-RESOLVE §4; CLASS-RULINGS-2 
   P1/P4 domain `xiFieldDom` (the `Regime` `(k₀, ν)` of the representation: complete small-field
   backgrounds, physical mass `ν_k L^{-2k}`), and the terms `ℛ^{(k)}_n` satisfy P5 H4 (`RTermsH4`,
   unchanged);
-* (D7) `D7Bdry2`: the boundary terms are analytic and bounded at the external fields `hSetB2`
-  (the pinned ball of radius `rH` around the physical field);
+* (D7) `D7Bdry2Post`: the boundary terms are analytic and bounded at the external fields `hSetB2`
+  (the pinned ball of radius `rH` around the physical field), on the boundary domains
+  `bdryDomsPost` with the fine chosen-cover modular size `d7Size` at the post-`R` region
+  (`Def7FineSize`); `D7Bdry2` is the pre-`R` record (boundary domains `bdryDomsPre` at the raw
+  region, fine size `d7SizePre`), used by `IsRepPre2`;
 * (D9): `D9Coeff` is unchanged: the coefficient clauses of `IsSFFamily2` (`CoeffBounds` for the
   regime's `ν`) are those of Def-6, so (D9) (`β_k > B L^{k(d-2)}`, `0 < ν_k ≤ ν̄`, `k ≤ k₀`) is
   stated with the same `D9Coeff`;
@@ -89,13 +92,17 @@ section Bdry
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
 
-/-- **(D7) Boundary terms, second version** (P5 H7, (1.38)-(1.39); CLASS-RULINGS-2 item 4): as
-`Def7.D7Bdry`, with the external fields of the analyticity and bound clauses the pinned ball
-`hSetB2 hv rH` around the physical field instead of the point `hSetB hv`. -/
-structure D7Bdry2 (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
+/-- **(D7) Boundary terms, second version, pre-`R` record** (P5 H7, (1.38)-(1.39);
+CLASS-RULINGS-2 item 4): as `Def7.D7Bdry` (the boundary domains `bdryDomsPre`, the fine
+chosen-cover modular size `d7SizePre` at the raw region, and the vanishing `support` off the valid
+labels), with the external fields of the analyticity and bound clauses the pinned ball
+`hSetB2 hv rH` around the physical field instead of the point `hSetB hv`.  It is the clause (D7)
+of `IsRepPre2`; the post-`R` classes use `D7Bdry2Post`. -/
+structure D7Bdry2 {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
     (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Prop where
-  loc_field : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A),
+  loc_field : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A),
     ∀ (ψ₁ ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₁ g₂ : GIdx S n M K N → ℂ),
       (∀ j, j ≤ K → ∀ y : BlockAt S n M K j,
         BlockSub (S := S) (n := n) (M := M) (K := K) j y
@@ -105,7 +112,7 @@ structure D7Bdry2 (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
         g₁ (x, i) = g₂ (x, i)) →
       rep.B A X ψ₁ ψ'₁ h g₁ = rep.B A X ψ₂ ψ'₂ h g₂
   loc_hist : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ X : Finset (Torus S.d (n k)),
-    X ∈ bdryDoms (OmegaCube A.H k) (Zof A) → X ∈ bdryDoms (OmegaCube A'.H k) (Zof A') →
+    X ∈ bdryDomsPre Fr A k (Zof A) → X ∈ bdryDomsPre Fr A' k (Zof A') →
     (∀ j, j ≤ k →
       fineSet (S := S) (n := n) M K j (OmegaCube A.H j) ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
@@ -120,43 +127,47 @@ structure D7Bdry2 (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
       A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) →
     (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) →
     ∀ ψ ψ' h g, rep.B A X ψ ψ' h g = rep.B A' X ψ ψ' h g
-  real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A),
+  real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A),
     ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
       (∀ j y i, (ψ j y i).im = 0 ∧ (ψ' j y i).im = 0) → (∀ i, (h i).im = 0) →
       (∀ p, (g p).im = 0) → (rep.B A X ψ ψ' h g).im = 0
-  analytic : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A), ∀ h ∈ hSetB2 hv rH,
+  analytic : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
     AnalyticOnNhd ℂ
       (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
         rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
       {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
-  bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A), ∀ h ∈ hSetB2 hv rH,
+  bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
     ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
       ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <
-        fac * Real.exp (-rate * (dCovMod S.L (OmegaCube A.H k) X).toReal)
-  rot : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A), ∀ (ρ : OrthN N)
+        fac * Real.exp (-rate * d7SizePre Fr A k X)
+  rot : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ (ρ : OrthN N)
     (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
       rep.B A X (rotM ρ ψ) (rotM ρ ψ') (rotC ρ h) (rotG ρ g) = rep.B A X ψ ψ' h g
   euclid : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ σ : LatTorusSym S n M K, RegionIso σ A.H A'.H →
     (∀ j (c : Finset (Torus S.d (n j))), A'.keptLab j (c.map (σ.ec j).toEmbedding) =
       A.keptLab j c) →
-    ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A), ∀ (ψ ψ' : MultiFieldC S n M K N)
+    ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ (ψ ψ' : MultiFieldC S n M K N)
       (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
       rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') h (symG σ g) =
         rep.B A X ψ ψ' h g
+  support : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (OmegaCube A.H k) (Zof A), ¬ FineValidPre Fr A k X →
+    ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A X ψ ψ' h g = 0
 
 
 /-- The second version of (D7) contains the landed one, for a positive radius (the physical field
 lies in the ball). -/
-theorem D7Bdry2.toD7Bdry {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+theorem D7Bdry2.toD7Bdry {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
     {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
     {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)} {rH : ℝ}
-    (h : D7Bdry2 hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) (hr : 0 < rH) :
-    D7Bdry hnn hkK rep Zof aw μs ε ε1 νs fac rate hv where
+    (h : D7Bdry2 Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) (hr : 0 < rH) :
+    D7Bdry Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv where
   loc_field := h.loc_field
   loc_hist := h.loc_hist
   real := h.real
@@ -164,6 +175,90 @@ theorem D7Bdry2.toD7Bdry {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k
   bound := fun A hA X hX h' hh => h.bound A hA X hX h' ((hSetB_subset_hSetB2 hr).1 hh)
   rot := h.rot
   euclid := h.euclid
+  support := h.support
+
+/-- **(D7) Boundary terms of the post-`R` class, second version** (P5 H7, (1.38)-(1.39);
+CLASS-RULINGS-2 item 4): as `Def7.D7BdryPost` (the boundary domains `bdryDomsPost`, the fine
+chosen-cover modular size `d7Size` at the post-`R` region, and the vanishing `support` off the
+valid labels), with the external fields of the analyticity and bound clauses the pinned ball
+`hSetB2 hv rH` around the physical field instead of the point `hSetB hv`. -/
+structure D7Bdry2Post {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
+    (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Prop where
+  loc_field : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A),
+    ∀ (ψ₁ ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₁ g₂ : GIdx S n M K N → ℂ),
+      (∀ j, j ≤ K → ∀ y : BlockAt S n M K j,
+        BlockSub (S := S) (n := n) (M := M) (K := K) j y
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+          ψ₁ j y = ψ₂ j y ∧ ψ'₁ j y = ψ'₂ j y) →
+      (∀ x i, x ∈ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) →
+        g₁ (x, i) = g₂ (x, i)) →
+      rep.B A X ψ₁ ψ'₁ h g₁ = rep.B A X ψ₂ ψ'₂ h g₂
+  loc_hist : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ X : Finset (Torus S.d (n k)),
+    X ∈ bdryDomsPost Fr A k (Zof A) → X ∈ bdryDomsPost Fr A' k (Zof A') →
+    (∀ j, j ≤ k →
+      fineSet (S := S) (n := n) M K j (OmegaCube A.H j) ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLH A'.H M).OmegaDD j ∩
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+      (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+    (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
+      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) →
+    (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) →
+    ∀ ψ ψ' h g, rep.B A X ψ ψ' h g = rep.B A' X ψ ψ' h g
+  real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A),
+    ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      (∀ j y i, (ψ j y i).im = 0 ∧ (ψ' j y i).im = 0) → (∀ i, (h i).im = 0) →
+      (∀ p, (g p).im = 0) → (rep.B A X ψ ψ' h g).im = 0
+  analytic : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
+    AnalyticOnNhd ℂ
+      (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
+        rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
+      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
+  bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
+    ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
+      ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <
+        fac * Real.exp (-rate * d7Size Fr A k X)
+  rot : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ (ρ : OrthN N)
+    (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A X (rotM ρ ψ) (rotM ρ ψ') (rotC ρ h) (rotG ρ g) = rep.B A X ψ ψ' h g
+  euclid : ∀ A ∈ rep.hist, ∀ A' ∈ rep.hist, ∀ σ : LatTorusSym S n M K, RegionIso σ A.H A'.H →
+    (∀ j (c : Finset (Torus S.d (n j))), A'.keptLab j (c.map (σ.ec j).toEmbedding) =
+      A.keptLab j c) →
+    ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ (ψ ψ' : MultiFieldC S n M K N)
+      (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') h (symG σ g) =
+        rep.B A X ψ ψ' h g
+  support : ∀ A ∈ rep.hist, ∀ X ∈ bdryDoms (A.H.omegaPost k) (Zof A), ¬ FineValid Fr A k X →
+    ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
+      rep.B A X ψ ψ' h g = 0
+
+/-- The second version of (D7) of the post-`R` class contains `Def7.D7BdryPost`, for a positive
+radius (the physical field lies in the ball). -/
+theorem D7Bdry2Post.toD7BdryPost {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)} {rH : ℝ}
+    (h : D7Bdry2Post Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) (hr : 0 < rH) :
+    D7BdryPost Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv where
+  loc_field := h.loc_field
+  loc_hist := h.loc_hist
+  real := h.real
+  analytic := fun A hA X hX h' hh => h.analytic A hA X hX h' ((hSetB_subset_hSetB2 hr).1 hh)
+  bound := fun A hA X hX h' hh => h.bound A hA X hX h' ((hSetB_subset_hSetB2 hr).1 hh)
+  rot := h.rot
+  euclid := h.euclid
+  support := h.support
 
 end Bdry
 
@@ -178,7 +273,8 @@ variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] 
 /-- **Definition II.6.2 (Def-7), second version: `IsRep2_k(𝖼, rep, ρ)`** (decision "scheme A").
 As `Def7.IsRep` (whose parameters it has, with the radius `rH` of the pinned field ball and the
 coefficient data `St`, `vc` of P5 (1.8) added) except: `form` is `D1Form2`, `sfData` is `D2SF2`
-(`IsSFFamily2` on the wide domain), `bdry` is `D7Bdry2` (external fields `hSetB2`), and `corr`
+(`IsSFFamily2` on the wide domain), `bdry` is `D7Bdry2Post` (external fields `hSetB2`; the
+post-`R` record with the fine size `d7Size`, as `D7BdryPost` in `IsRep`), and `corr`
 (`D1CorrLim`) defines the coefficient data.  `coeff` is `D9Coeff`: the coefficient clauses of
 `IsSFFamily2` are those of Def-6.  The SF-to-LF interface is *not* a field
 (`IsRep2WithInterface`). -/
@@ -201,7 +297,8 @@ structure IsRep2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZe
   pin : ∀ (nK : ℕ) [NeZero nK], D4Pin (k + 1) (F.lf nK)
   opBound : ∀ (nK : ℕ) [NeZero nK], D5Bound (k + 1) hkK (F.lf nK)
   budget : ∀ (nK : ℕ) [NeZero nK], D6Budget (F.lf nK)
-  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2 (sides_hnn S.L K nK) hkK (F.lf nK)
+  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2Post (fineFrame S (sides S.L K nK) K hM6)
+    (sides_hnn S.L K nK) hkK (F.lf nK)
     (fun A => (A.H.step k).Z) F.weights cs.mu (P6.eps S.d S.L) (epsOne S P6 C7) cs.nu C7.B0 P6.κ
     hv rH
   coherent : D8SF P6.m₀ F.sf
