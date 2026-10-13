@@ -1084,4 +1084,172 @@ theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
 
 end StepCoef
 
+/-! ### D4 (e): the bridge labels and their blocks on two tori -/
+
+section BridgePairs
+
+/-- Membership in the bridge family through the contributing pairs. -/
+theorem mem_bridgeFamily_iff_pair {d L N₁ m₁ K m₀ : ℕ} [NeZero N₁] [NeZero L] {β : Type*}
+    [Fintype β] {reads : β → Set (CTorus d L N₁ m₁ K)} {dom : β → Finset (Set (CTorus d L N₁ m₁ K))}
+    {z : RootIdx d L N₁ m₁ K} {Y' : Set (CTorus d L N₁ m₁ K)} :
+    Y' ∈ bridgeFamily m₀ reads dom z ↔ ∃ b Y, (b, Y) ∈ markedIdx reads dom z ∧ bridge m₀ z Y = Y' := by
+  rw [mem_bridgeFamily]
+  constructor
+  · rintro ⟨b, Y, hY, h1, h2, h3⟩
+    exact ⟨b, Y, mem_markedIdx.2 ⟨hY, h1, h2⟩, h3⟩
+  · rintro ⟨b, Y, hq, h3⟩
+    obtain ⟨hY, h1, h2⟩ := mem_markedIdx.1 hq
+    exact ⟨b, Y, hY, h1, h2, h3⟩
+
+end BridgePairs
+
+section BridgeLabels
+
+open Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "bc'" => boxMap (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TA" => Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "TB" => Torus d (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+set_option hygiene false in
+local notation "domA" => fun b : TA => polyDom (GA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b))
+  m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k b))
+set_option hygiene false in
+local notation "domB" => fun b : TB => polyDom (GB) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b))
+  m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k b))
+
+/-- **D4 (e): the bridge labels of a root on two tori.**  For a root `z` of the box and a set `Y′`
+of the box of radius `R`, `bm '' Y′` is a bridge label of the root `bc z` (label domains of the
+local covers of the second torus) iff `Y′` is a bridge label of `z`.  The contributing pairs
+correspond by `markedPair_boxMap_iff`; the pairs of a label of the box lie in the box. -/
+theorem mem_bridgeFamily_boxMap_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {R rc : ℕ}
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnH : 2 * (R + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (R + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : TA) (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ R)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y' : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY'R : ∀ y ∈ Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    bm '' Y' ∈ bridgeFamily m₀ (fun _ : TB => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1))))
+        (domB) (bc z) ↔
+      Y' ∈ bridgeFamily m₀ (fun _ : TA => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (domA) z := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hcs2 : (L - 1) * aK ≤ L * aK := Nat.mul_le_mul_right _ (Nat.sub_le L 1)
+  have hcm := coarse_margin (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (r := R) (by omega)
+  rw [mem_bridgeFamily_iff_pair, mem_bridgeFamily_iff_pair]
+  constructor
+  · rintro ⟨b', Y'', hq', hbr⟩
+    have hYd := ((mem_markedIdx (b := b') (Y := Y'')).1 hq').1
+    have hY'' : ∀ y ∈ Y'', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) y := by
+      intro y hy
+      have hy' := hbr ▸ subset_bridge m₀ (bc z) Y'' hy
+      obtain ⟨w, hw, rfl⟩ := hy'
+      exact inBox_boxMap (by omega) (hY'R w hw)
+    have hnb' : ∀ x ∈ LocalCover.nbhd m₀ (LocalCover.blockSite k b'),
+        InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x :=
+      fun x hx => hY'' x (nbhd_subset_of_mem_polyDom hN' _ hYd hx)
+    have hx' : InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k b') :=
+      hnb' _ (by rw [← LocalCover.coe_nbhdF]; exact LocalCover.mem_nbhdF_self m₀ _)
+    have hbc' := inBox_coarse_of_blockSite b' hx'
+    have hbcb : bc (bc' b') = b' := boxMap_boxMap hcm hbc'
+    have hbA : InBox d (R / L ^ (k + 1)) (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) (bc' b') :=
+      inBox_boxMap hcm hbc'
+    have hbs : LocalCover.blockSite k (bc (bc' b')) = bm (LocalCover.blockSite k (bc' b')) :=
+      blockSite_boxMap le_rfl _ hbA (Nat.mul_div_le R _) (by omega)
+    rw [hbcb] at hbs
+    have hxA : LocalCover.blockSite k (bc' b') = bm' (LocalCover.blockSite k b') := by
+      rw [hbs, boxMap_boxMap (by omega)
+        (blockSite_inBox (N₁ := N₁) (by omega) _ hbA (Nat.mul_div_le R _))]
+    have hnbA : ∀ x ∈ LocalCover.nbhd m₀ (LocalCover.blockSite k (bc' b')),
+        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+      rw [hxA, ← nbhd_image (N₁ := N₁') (N₁' := N₁) hN' hN (r := R) (by omega) (by omega) _ hnb'
+        (fun y hy => hnb' y (cell_subset_nbhd _ hy))]
+      rintro _ ⟨y, hy, rfl⟩
+      exact inBox_boxMap (by omega) (hnb' y hy)
+    have hYA : ∀ y ∈ bm' '' Y'', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+      rintro _ ⟨y, hy, rfl⟩
+      exact inBox_boxMap (by omega) (hY'' y hy)
+    have himg : bm '' (bm' '' Y'') = Y'' := image_image_boxMap (by omega) hY''
+    have hmem := (markedPair_boxMap_iff (ϱ := ϱ) hN hN' hn hn' hnF hnF' hnH hnH' z hz hrc hroot
+      hY'R (bc' b') (bm' '' Y'') hYA hnbA).1
+    rw [hbcb, himg] at hmem
+    exact ⟨bc' b', bm' '' Y'', hmem ⟨hq', hbr⟩⟩
+  · rintro ⟨b, Y, hq, hbr⟩
+    have hYd := ((mem_markedIdx (b := b) (Y := Y)).1 hq).1
+    have hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y :=
+      fun y hy => hY'R y (hbr ▸ subset_bridge m₀ z Y hy)
+    have hbR : ∀ x ∈ LocalCover.nbhd m₀ (LocalCover.blockSite k b),
+        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+      fun x hx => hYR x (nbhd_subset_of_mem_polyDom hN _ hYd hx)
+    exact ⟨bc b, bm '' Y, (markedPair_boxMap_iff (ϱ := ϱ) hN hN' hn hn' hnF hnF' hnH hnH' z hz hrc
+      hroot hY'R b Y hYR hbR).2 ⟨hq, hbr⟩⟩
+
+/-- **D4 (e): the blocks of a set of the box on two tori.**  For `Y` in the box of radius `R`, the
+blocks (aligned cubes of side `a_K`) of `bm '' Y` are the images under `cubeMap` of the blocks of
+`Y`.  Margin: `2 R + a_K < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem blocksOf_image_boxMap {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {R : ℕ}
+    (hn : 2 * R + aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    blocksOf m₀ (k + 1) Set.univ (bm '' Y) =
+      (blocksOf m₀ (k + 1) Set.univ Y).image
+        (cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1) hN hN'
+          (le_refl (k + 1))) := by
+  classical
+  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  ext b'
+  rw [Finset.mem_image, mem_blocksOf]
+  constructor
+  · intro hb'
+    have hbox' : ∀ x' ∈ box b'.1 aK, InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
+      intro x' hx'
+      obtain ⟨y, hy, rfl⟩ := hb' hx'
+      exact inBox_boxMap hm' (hY y hy)
+    have himg : bm' '' box b'.1 aK = box (bm' b'.1) aK := image_box_boxMap hn' ha hbox'
+    refine ⟨⟨bm' b'.1, aligned_boxMap (cellSide_dvd hN' le_rfl) (cellSide_dvd hN le_rfl) b'.2.1,
+      Set.subset_univ _⟩, mem_blocksOf.2 ?_, ?_⟩
+    · show box (bm' b'.1) aK ⊆ Y
+      rw [← himg]
+      rintro _ ⟨x', hx', rfl⟩
+      obtain ⟨y, hy, rfl⟩ := hb' hx'
+      rw [boxMap_boxMap hm' (hY y hy)]
+      exact hy
+    · apply Subtype.ext
+      rw [cubeMap_val]
+      exact boxMap_boxMap hm (hbox' b'.1 (mem_box_self _ ha))
+  · rintro ⟨b, hb, rfl⟩
+    rw [mem_blocksOf] at hb
+    rw [cubeMap_val, ← image_box_boxMap hn ha (fun x hx => hY x (hb hx))]
+    exact Set.image_mono hb
+
+end BridgeLabels
+
 end Balaban.Polymer.TwoTorusStep
