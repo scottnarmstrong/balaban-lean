@@ -15,10 +15,10 @@ Claude workers (background subagents of this session):
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
 | W277 | `w277-param-carrier-local` / W277 | compact carrier of the step's block measures; locality and bound for parameter families of marks (PARAM package 4, generic) |
 | W278 | `w278-root-det-chart` / W278 | RootDetChart: trace bound, cut expansion, bound of cut differences, endpoint identity (ROOTDET package 1) |
-| W272 | `w272-p6-top-cover` / W272 | P6 full-torus top-only auxiliary cover: CoverGeom/CoverBase for both operators, root incidence (VMOD-31 i–iii) |
-| W273 | `w273-root-active-size` / W273 | RootActiveSize: dExt T = sizeJ (sitesOf T) on active cube sets; vanishing of coefficients (ROOT package 1) |
+| W279 | `w279-p6-top-rooted-fiber` / W279 | fixed-support sum for the top cover (VMOD-31 package v) |
+| W280 | `w280-root-det-zero` / W280 | decLog at zero cuts; DET-CUT-FACTOR stated (ROOTDET package 2, first half) |
+| W281 | `w281-general-class-witness` / W281 | a non-zero class member matched to a step: ClassParamMatch, OldXiDomC, path analyticity instantiated |
 | W274 | `w274-root-paving-map` / W274 | RootPavingMap: root map, paving action on cube sets, fibre ≤ 1, abstract rooted sum (ROOT package 3) |
-| W275 | `w275-general-path-analytic` / W275 | GeneralClassPathAnalytic: path analyticity predicates for a general class (GENERAL package 3) |
 | W276 | `w276-top-block-transport` / W276 | TopBlockTransport: datum sites and interface pairs of the retained shell read by ChiDomProp (Q13-COVER §2) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
