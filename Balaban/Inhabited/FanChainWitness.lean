@@ -22,7 +22,72 @@ import Mathlib.Tactic.FieldSimp
 /-!
 # Instances of the fan-level theorems at the zero-class witness step
 
-PLACEHOLDER DOC (replaced below).
+These are instances of landed theorems on landed witness data at the zero-class witness step
+(`hatStep`, `d = L = 3`, `N = 2`, `k = 1`, `N₁ = 9`, `ν = 1/81`, and `hatStepK` at `k = 1` for
+`3 ∣ N₁`, `5 < N₁`).  They prove nothing about general classes, about the marked family, or about the
+physical model; no new definition is made.  Each statement is of the form "there are parameters
+(from `tower_core_fixed`, `tower_C_items`) such that for all large `β` the fan-level theorem applies,
+with all its hypotheses discharged, to the stated data".
+
+## T1.  The chain from the end theorem to the fan level
+
+`stepActivityBound_zeroClass_direct_physical_scale` (`ScaleActivityFinal`) and
+`stepActivityBound_zeroClass_direct_physical_rate` (`StepActivityDirectPhysicalRates`) call
+`stepActivityBound_zeroClass_direct_scaled_uniform` / `_scaled_beta`, which call
+`physical_directTerms_eta_scaled` (`SharpAssemblyScaled`), then
+`hat_vpart_bound_dm_dir_scaled` -> `vpart_locInt_hat_dir_dm_scaled` -> `vblock_locInt_hat_dir_scaled`
+-> `vblock_expansion_hat_dir_scaled` -> `i5_functional_hat_dir` (`SharpEngine`)
+-> `i5_functional_hat_dir_of_fan` with `fanH_local_dir` (`SharpFan`).  The proofs of `fanH_local_dir`
+(`SharpFan` 290, 316) and `fanHL_local_dir` (`SharpEngine` 279, 305) call `hatPsiF_rows` and
+`fluct_correction_rows_of_agree_on_component`, and both call `hatPsiF_mem_flBallLC`.  The
+layer-constant variant `fanHL_local_dir` is reached through `i5_functional_hatLC_dir`
+(`SharpENu`), the E- and mark-summands, whose families are empty (`𝒯E = 𝒯M = ∅`) in the zero class.
+Hence all six fan-level theorems are on the route of the end theorem (they are used inside other
+theorems), but at the zero class `fanHL_local_dir` is applied only to empty families; the instances
+here apply it to the block energy.
+
+Where the hypotheses of the fan-level theorems come from, at `hatStep m₁ β (pLog 1 2 β) δ`:
+
+* `hC : FlCore` -- `tower_core_fixed 2` (`Nonempty` component); for `hatStepK`,
+  `flCore_level_transfer` with `dgSetting_lv`, `opSetting_lv`, `bgHyp_lv`.
+* `hk`, `hG`, `hG'` -- `le_rfl`, `isLevel_Hm`, `(wStep …).hG'` (`isLevel_lvLow`, `isLevel_lvTop`).
+* `hMX`, `hdm` (= `hmar`), `hα`, `hsm` -- the corresponding items of `tower_core_fixed`.
+* `cc = β_k^{-1/2}` with `β_k = (wStep …).betaU` (`= 3β`); `hcψ : 0 ≤ c_ψ`, `hδ₁ :
+  √N |cc| C_sup c_ψ < δ₁` -- `tower_C_items`, with `c_ψ = towerCpsi κ t β` and `δ₁ = t`.
+* `F₁`, `hF₁` -- `f1Spec_exists hC` (the background map of Theorem I-4b, `F1Spec`).
+* `Sol`, `hSol` -- `solSpec_exists hC` (Theorem I-4a, mode P, `SolSpec`).
+* `hconn`, `hrow` -- `hatConn`, `rowInHat_level (dgSettingNu h4) isLevel_Hm isLevel_Gp`
+  (`hatConn_lvTop`).
+* `hcov`, `hX₁`, `hopt`, `hΔ` -- `covSetup`, `X1_eq_univ`, `hopt`, `treeLen_zero` (`N₁ = 9`: the
+  whole torus); for `hatStepK`, `LocalCover.coe_nbhdF_eq_X1`, `X1_isCellUnion_unit`.
+* `hZ`, `hBM` -- `Finset.mem_univ`, `blockMargin_univ`; `hΦan`, `hΦbd`, `hΦlocDir` --
+  `blockEnergyFun_analytic`, `blockEnergyFun_bound_scaled_levelPair`, `blockEnergyFun_local_dir`.
+* `hκ₀, hκdec, hκ, h1, hlog` -- the numerical items of `tower_core_fixed`.
+* quantified by the caller (one explicit choice or all choices in the instance): the datum
+  `D ∈ XiCData` (the step datum `(wStep …).D'` is shown to be one; the instances quantify over all),
+  the cut `s` (`s ≡ 1` on the whole torus; `1` on cubes inside `X₁` and `0` on the others for the
+  proper component), the hat variable `ψ̂` (`|ψ̂| ≤ c_ψ`, and `≤ p₁` for the marked family),
+  the component `Y`, `𝒞 = ∅`.
+* `Hh, Hh', hfix, hsmδ, hfix', hsmδ'` (fluctuation rows) -- not hypotheses of the instance: produced
+  from `point_facts_core` and `StrictDataM.hyp`.
+
+## Table
+
+| theorem | instance | agreement/component | caveat |
+|---|---|---|---|
+| `hatPsiF_mem_flBallLC` | `fanChain_ball` | all cuts in the polydisc, all `|ψ̂| ≤ c_ψ`, all `D ∈ XiCData` | `D'` shown to be in `XiCData` |
+| `markedHatPsiF_mem_flBallLC` | `fanChain_markedBall` | `|u| ≤ 2`, `|τ| ≤ t₁ = 8 p₁ / c_ψ > 0` | hat bound `p₁ = pLog 1 2 β` |
+| `hatPsiF_rows`, `markedHatPsiF_rows` | `fanChain_rows` | reflexive (whole torus, `Y = univ`) | agreement forces `D = D'` data and `ψ̂ = ψ̂'` |
+| same | `fanChain_rows_proper` | proper component `Y = nbhdF 1 x₀` (`N₁ > 15`) | pair `D ≠ D'` not constructed; unmarked only |
+| `fluct_correction_rows_of_agree_on_component` | `fanChain_fluct_rows` | reflexive (whole torus) | hypotheses `Hh`, fixed points produced inside |
+| `fluct_correction_rows_marked_of_ball` | `fanChain_fluct_rows_marked` | reflexive | as above, on the disc of `fanChain_markedBall` |
+| `fanHL_local_dir` | `fanChain_fan_locality` (1st conjunct) | locality on the whole torus, `X₁ = univ` | functional = block energy |
+| `i5_functional_hat_dir` | `fanChain_fan_locality` (2nd conjunct) | whole torus | `Eb = energyBdScaled …` |
+| `fanHL_local_marked` | `fanChain_fan_locality_marked` | whole torus, non-trivial `(um, τ)` disc | as above |
+
+`fanChain_nonvacuous` bundles the instances as a conjunction of the statements above.  Each instance
+has its own existential parameter tuple, obtained from the same existence theorems
+(`tower_core_fixed`, `tower_C_items`); the tuples are not claimed to be equal.
 -/
 
 @[expose] public section
@@ -908,5 +973,16 @@ theorem fanChain_rows_proper :
     fun P hP => absurd hP (by simp)
   exact hatPsiF_rows hC le_rfl hG' _ hatConn_lvTop hMX hdm hα hsmX hF₁ hs hs hD hD' hY hs1 hs0 hag
     hcell (fun P hP => absurd hP (by simp)) hdata ψh ψh' hh y hy
+
+/-- **Bundle.**  The conjunction of the nine instances above (the six fan-level theorems and their
+marked versions at the zero-class witness, and the proper-component rows).  Each conjunct is the
+statement of the named instance; the conjuncts have separate parameter tuples. -/
+theorem fanChain_nonvacuous :
+    (type_of% fanChain_ball) ∧ (type_of% fanChain_markedBall) ∧ (type_of% fanChain_rows) ∧
+    (type_of% fanChain_rows_proper) ∧ (type_of% fanChain_fluct_rows) ∧
+    (type_of% fanChain_fluct_rows_marked) ∧ (type_of% fanChain_fan_locality) ∧
+    (type_of% fanChain_fan_locality_marked) :=
+  ⟨fanChain_ball, fanChain_markedBall, fanChain_rows, fanChain_rows_proper, fanChain_fluct_rows,
+    fanChain_fluct_rows_marked, fanChain_fan_locality, fanChain_fan_locality_marked⟩
 
 end Balaban.Inhabited
