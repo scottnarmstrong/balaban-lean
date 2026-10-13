@@ -1645,3 +1645,4 @@ public import Balaban.Fluctuation.DecMarkTotal
 public import Balaban.Inhabited.DecMarkTotalFromTower
 public import Balaban.Green.FinalBoxResolvent
 public import Balaban.Inhabited.StepTowerCoreMono
+public import Balaban.Fluctuation.DetRateGeneral
