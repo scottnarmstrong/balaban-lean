@@ -1346,6 +1346,8 @@ public import Balaban.Fluctuation.MarkedDecAnalytic
 public import Balaban.Inhabited.MarkedHatRowsWitness
 public import Balaban.Fluctuation.MarkedFluctRows
 public import Balaban.Fluctuation.MarkedFanLocal
+public import Balaban.Fluctuation.MarkedFanAnalytic
+
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
