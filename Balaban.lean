@@ -1414,3 +1414,4 @@ public import Balaban.Inhabited.ChiYWitness
 public import Balaban.Fluctuation.DetCauchyBgSupport
 public import Balaban.Fluctuation.DetCauchyAssembly
 public import Balaban.Fluctuation.DetCauchyBgActivity
+public import Balaban.Inhabited.DetCauchyBgActivityWitness
