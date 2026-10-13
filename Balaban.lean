@@ -1246,6 +1246,7 @@ public import Balaban.Fluctuation.Thm31bFirst
 public import Balaban.Fluctuation.Thm31bRem
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Fluctuation.ObsScalarTilt
+public import Balaban.Fluctuation.ObsRayActivity
 public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
