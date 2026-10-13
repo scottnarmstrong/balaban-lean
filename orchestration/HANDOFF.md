@@ -13,11 +13,11 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W322 | `w322-det-endpoint` / W322 | determinant endpoint: support (`DetCauchyGraph`) + hull (`DetCauchyHull`) + cut-dependent backgrounds (`DetCauchyChart`) → activity bound per hull |
-| W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
-| W320 | `w320-dec2-cov` / W320 | decoupled covariance and square root for a cover pair; reduction to the self-cover; block diagonality (P6 mixed covariance rows, part A) |
-| W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
-| W319 | `w319-p6-pair-graph` / W319 | joint incidence graph of the two P6 operators; hypotheses of paired_locality for the old boundary composite (VMOD-34 package 3) |
-| W321 | `w321-stop-index` / W321 | stopping index k_f (first ν_k > (7/8)L^{-2}); mass premise for all ordinary steps; agreement with Root-F's scale clause (MASSIVE §3) |
+| W325 | `w325-marked-hat-rows` / W325 | MARKCUBIC package 4: masked decoupled tangent and its paired agreement on components (`MARK-ROWS`) |
+| W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
+| W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
+| W327 | `w327-r-ripe-card` / W327 | R: removed ripe component is a box of ≤ (2ρ_k+10)^d cubes (VMOD-37 package 2) |
+| W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
 | W323 | `w323-r-history-labels` / W323 | R: six-outcome enumeration of histories, transport of `IsComplete`, top `D4Pin` (VMOD-37 package 5) |
 | W312 (Opus) | `w312-level-local-cover` / W312 | local cover on a general torus, radius tower at general scale, the zero-class activity bound at every scale with ν_k ≤ L^{−2} (SCALEUNIF) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
