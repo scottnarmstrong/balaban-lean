@@ -288,6 +288,28 @@ X ∩ Ω_{k+1}^c.
      can miss the remote side of an inherited hole, so the bounded joining path of P3 p. 79 is
      not available there; `notes/phase1/VMOD-35.md`, `VMOD-36.md`, `VMOD-42.md`.)
 
+### Item 14, fourth addendum (2026-10-13): what pays for a long hole inside an old boundary term
+
+We tested whether the rooting asked for in the third addendum follows from the class (details:
+`notes/phase1/LFROOT3.md`, `LFH7PRIME.md`, `LFH7PRIME2.md`). It does not follow from (H.7) alone.
+Take an inherited boundary term B(X) at scale k whose modular size d_k(X) is O(1), but whose domain
+X contains a long hole H of Ω_k^c (length n·L) and only a bounded active part near one end; for
+instance a field-independent constant ε with 0 < ε < B₀ e^{−κ d_k(X)}, which satisfies (H.7). In
+P3 (4.41) only J = ∅ survives, and by P6 p. 34 its output domain Y contains X and lies in
+D_{k+1}(mod Ω_{k+1}^c), so it contains the completed hole and d_{k+1}(Y) ≥ c·n. Nothing in (H.7)
+pays for this length, and the large-field small factors of P5 (1.31) and P7 (3.10) are attached to
+operators and removed components, not to these coefficients.
+
+In the P5–P7 construction, can an actual boundary coefficient whose domain contains a large-field
+hole be bounded by an extra factor e^{−σ q}, for a fixed σ > 0, where q counts the cells on that
+hole's boundary shell? If so, which formula gives this factor to the coefficient when the hole is
+created, rather than to the operator estimate P5 (1.31) or to the removed-component operator of
+P7 (3.10)? How much of the same large-field factor must remain for the polymer gas of
+P7 (3.26)–(3.28)? When a hole grows or two holes merge, what estimate pays both the new modular
+size and the boundary-shell factor of the output at the same σ? If no such factor exists, is the
+intended argument a different localization of these boundary labels, or a cancellation in the
+physical O(N) gas?
+
 ### Item 15 (2026-10-13): the range of the operation R^{(k)} (minor; confirmation only)
 
 P7 Theorem 2 (printed p. 497) states that R^{(k)} acts for k < k_0 and is the identity for
