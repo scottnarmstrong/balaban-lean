@@ -29,25 +29,7 @@ theorem integrand_of_action_expansion (β u : ℝ) (hβ : β ≠ 0)
       K * Complex.exp (-(β : ℂ) * Anew + Enew - Ek + Fnew) *
         ((Real.exp (-u / 2) : ℝ) : ℂ) *
         Complex.exp (-(β : ℂ) * V + (Eold - Enew) + (Fold - Fnew)) := by
-  have hJ2 : (β : ℂ) * (J + Aold) =
-      (β : ℂ) * Anew + (u : ℂ) / 2 + (β : ℂ) * V := by
-    rw [hJ]
-    push_cast
-    have hβc : (β : ℂ) ≠ 0 := by exact_mod_cast hβ
-    field_simp [hβc]
-  rw [Complex.ofReal_exp]
-  calc
-    K * Complex.exp (-((β : ℂ) * J)) *
-        Complex.exp (-(β : ℂ) * Aold + Eold - Ek + Fold) =
-      K * Complex.exp (-((β : ℂ) * J) +
-        (-(β : ℂ) * Aold + Eold - Ek + Fold)) := by rw [mul_assoc, ← Complex.exp_add]
-    _ = K * Complex.exp ((-(β : ℂ) * Anew + Enew - Ek + Fnew) +
-        ((-u / 2 : ℝ) : ℂ) +
-        (-(β : ℂ) * V + (Eold - Enew) + (Fold - Fnew))) := by
-      apply congrArg (fun z : ℂ => K * Complex.exp z)
-      push_cast
-      linear_combination (-1 : ℂ) * hJ2
-    _ = _ := by rw [Complex.exp_add, Complex.exp_add]; ring
+  exact integrand_of_action_expansion_core β u hβ K J Aold Anew V Eold Enew Fold Fnew Ek hJ
 
 namespace StepSettingH
 
