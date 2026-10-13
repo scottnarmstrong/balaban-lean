@@ -1858,4 +1858,5 @@ public import Balaban.SmallField.LocalGeneratorCovariance
 public import Balaban.Fluctuation.GeneralEnergyMarks
 public import Balaban.Fluctuation.GeneralEnergyMarksBounds
 public import Balaban.Fluctuation.GeneralObsMarks
+public import Balaban.Fluctuation.GeneralEnergyValue
 public import Balaban.SmallField.LocalGeneratorRadius
