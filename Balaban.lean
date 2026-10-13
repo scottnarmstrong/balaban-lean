@@ -850,6 +850,7 @@ public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseChartAction
+public import Balaban.LargeField.Base.BaseChartActionPhysical
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
