@@ -507,6 +507,7 @@ public import Balaban.LargeField.History.EarlyMassRatio
 public import Balaban.LargeField.History.PostWeightSupport
 public import Balaban.LargeField.History.LocalOutputTransport
 public import Balaban.LargeField.History.D1ParentDomain
+public import Balaban.LargeField.History.InitialBetaBridge
 public import Balaban.Inhabited.EarlyMassRatioWitness
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
@@ -1206,6 +1207,7 @@ public import Balaban.Fluctuation.MarkedRootGeometry
 public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
 public import Balaban.Inhabited.MarkedRootGeometryWitness
+public import Balaban.Inhabited.MarkedSharpCountWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1263,6 +1265,8 @@ public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
 public import Balaban.Localization.P6PairGraph
 public import Balaban.Inhabited.P6PairGraphWitness
+public import Balaban.Localization.P6PairChain
+public import Balaban.Inhabited.P6PairChainWitness
 public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
 public import Balaban.SmallField.GsSpecAgree
@@ -1329,6 +1333,7 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
+public import Balaban.Fluctuation.MarkedSharpCount
 public import Balaban.Fluctuation.MarkedHatRows
 public import Balaban.Fluctuation.MarkedDecBall
 public import Balaban.Fluctuation.MarkedDecAnalytic
