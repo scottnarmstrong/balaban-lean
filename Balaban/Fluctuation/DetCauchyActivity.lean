@@ -231,4 +231,91 @@ theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
 
 end Bridge
 
+section Activity
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+open Classical in
+/-- **The activity of the polymer `Y` for the root block `y`** (fixed fields `φ`, `α`): the sum of
+the mixed differences `Δ_J` of the rooted trace of `{y}` over the sets `J` of parameter cubes whose
+hull (assigned to the root index of `y` and the patches of `J`) is `Y`. -/
+noncomputable def detActivity (m₀ : ℕ) (a : ℕ → ℝ) (aT ν : ℝ)
+    (φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (α : G.Ω 1 → ℂ) (y : unitPts G)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) : ℂ :=
+  ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+      (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+    mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)
+
+variable {a : ℕ → ℝ} {aT ν : ℝ}
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {α : G.Ω 1 → ℂ}
+
+open Classical in
+/-- **T2. Resummation.**  The rooted trace of `{y}` at `s = 1` is the sum over all polymers of the
+activities (the empty set `J = ∅` contributes to the hull of the root cube alone). -/
+theorem sum_detActivity_eq (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 < κ)
+    (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hφ : IsConstraintFieldStrict G δ φ)
+    (hα : ∀ w, ‖α w‖ < coerciveConst d / (2 * (G.spacing (w : CTorus d L N₁ m₁ (k + 1))) ^ 2))
+    (y : unitPts G) :
+    rootTrace G a aT ν (unitQ G) (unitP G) {y} (fun _ => 1) φ α =
+      ∑ Y, detActivity m₀ a aT ν φ α y Y := by
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  obtain ⟨hsum, -⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
+  rw [hsum]
+  unfold detActivity
+  exact (Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
+    (fun J => hullOf m₀ (rootIdxOf y) (patches J))
+    (fun J => mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α))).symm
+
+end Activity
+
+section Decay
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν : ℝ}
+variable (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 < κ)
+  (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} (hφ : IsConstraintFieldStrict G δ φ)
+  {α : G.Ω 1 → ℂ}
+  (hα : ∀ w, ‖α w‖ < coerciveConst d / (2 * (G.spacing (w : CTorus d L N₁ m₁ (k + 1))) ^ 2))
+
+include S hκ hM hδ hsm hφ hα
+
+/-- **The hull of a cut set with non-zero mixed difference.**  If `Δ_J` of the rooted trace of
+`{y}` is non-zero, the hull of the root index of `y` and the patches of `J` contains the root cube,
+is a polymer, and has size at most `2 d L |J|`. -/
+theorem hull_facts_of_mixDiff_ne_zero (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
+    {y : unitPts G} {J : Finset (cubeIdx G)}
+    (hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ hullOf m₀ (rootIdxOf y) (patches J) ∧
+      IsPolyDom m₀ (k + 1) (sitesOf (hullOf m₀ (rootIdxOf y) (patches J))) ∧
+      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card := by
+  obtain ⟨y', hy', hJ⟩ := exists_rootChain_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn {y} hne
+  rw [Finset.mem_singleton] at hy'
+  subst hy'
+  have hRC := rootConnected_of_rootChain (m₀ := m₀) S.dg hconn hJ
+  have hL : 2 ≤ L := by have := S.dg.hL; omega
+  refine ⟨rootCube_mem_hullOf _ _, isPolyDom_hullOf hN hL _ _ layer_le_of_mem_patches hRC, ?_⟩
+  have h1 := dExt_hullOf_le hN hL (rootIdxOf y') (patches J) layer_le_of_mem_patches hRC
+  have h2 : ((patches J).card : ℝ) ≤ J.card := by exact_mod_cast card_patches_le J
+  have h3 : (0 : ℝ) ≤ 2 * d * L := by positivity
+  nlinarith
+
+open Classical in
+/-- **T3. Support.**  A non-zero activity is supported on a polymer containing the root cube. -/
+theorem detActivity_ne_zero_imp (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) {y : unitPts G}
+    {Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (h : detActivity m₀ a aT ν φ α y Y ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) := by
+  unfold detActivity at h
+  obtain ⟨J, hJ, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  have hY := (Finset.mem_filter.1 hJ).2
+  obtain ⟨h1, h2, -⟩ := hull_facts_of_mixDiff_ne_zero (m₀ := m₀) S hκ hM hδ hsm hφ hα hconn hN hne
+  rw [hY] at h1 h2
+  exact ⟨h1, h2⟩
+
+end Decay
+
 end Balaban.Fluctuation
