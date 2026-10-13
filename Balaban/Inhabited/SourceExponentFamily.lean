@@ -13,36 +13,16 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# The source exponent as a label-activity sum, on the constant-`h₀` fibre of the chart
+# The source exponent as a label-activity sum
 
-For the zero class the exponent of the step is `W₁ + W₂` of a joint representation `Jr`.  Its value
-in terms of the physical direct terms is known on the chart points `e` whose raw datum has the
-constant field `h ≡ h₀` (`sourcePhysVal_jointRep_zero`), and its label-activity form is known only at
-the datum of the step itself (`stepActivityBound_zeroClass_source_of_directTerms_exposed`).  Here
-both are put together on the **fibre**
-`V₀ = physFibre S a₁ ν ε = { e ∈ physV | e.1.2 ≡ h₀ }`.
+For the zero class, the exponent of the step is `W₁ + W₂` of a joint representation `Jr`.
+The direct-term expansion and the free-datum `W₁` and `W₂` identities give a label activity
+at every point of `physVRho`. The domain family and amplitude are independent of the datum
+and source. The activity is assembled from the direct terms at
+`physInclScaled (1/β) (e.1, 0)` and `physInclScaled (1/β) e` using `segAct` on the two
+interpolation segments.
 
-**Why the fibre and not all of `physV`.**  The identification of `W₁` at a chart datum goes through
-the step `S.withDatum D hD`, which exists only for data `D` with `D.h = h₀`; for a chart datum with
-a non-constant complex field `h` there is no `StepSetting`, hence no `JointRep` identity.  The
-source `g` and the complex part of the datum `Ψ` are free on the fibre.
-
-At the shared tower `T` and a per-scale package `D` (the same data as
-`sourceActivityC_scale_fromTower`), `sourceExponentFamily_fromTower` gives: one domain family `𝒴`,
-one proof `hdom`, one label type `{Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}` with labels
-`(thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)` and block split `S.blockSplit 1 hp`, and for every
-`e ∈ V₀` a label activity `Aseg e he p` for the points `p` of `stepSegments`, which is `segAct`
-of the activities of `labelAct_of_directTerms` at the points `physInclScaled (1/β) (e.1, 0)` and
-`physInclScaled (1/β) e` (the same `𝒴` and terms at every point of the slice), such that
-
-* (value clause) `Jr.W1 (e.1, s ψ̂) + Jr.W2 e.2 (e.1, t ψ̂) = ∑_y (Aseg e he (s,t)).H y (restr x)`
-  for `ν_{p₁}`-almost every `x`, at every `(s,t)` of the two segments;
-* (slice clause) at `e = (rawOf S.D', g)`, `∑ |g| < 1`, the left side is `S.WoneC s x + S.WtwoC g t x`,
-  so `Aseg` is the `hW` of a `StepActivityBoundC` with the same labels as
-  `sourceActivityC_scale_fromTower`.
-
-All the activities have the one amplitude `4 ε_U`, `ε_U = β · prop33EpsEtaScaled … (1/β)`, which does
-not depend on `e`, the rate `2 κ_dec - 1`, `κ₀ = T.κ0` and entropy constant `2 (K₀(T.κ0) + 1)`.
+The previously established constant-`h₀` fibre theorem is a restriction of this family.
 -/
 
 @[expose] public section
@@ -106,25 +86,22 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   MeasureTheory Set
 
 open Classical in
-/-- **The source exponent as a label-activity sum on the constant-`h₀` fibre at radius `ρ`.**
-The statement of `sourceExponentFamily_fromTower` with the sources `g` of `ℓ¹`-size `< ρ`
-(`l1BallRho`), the fibre `physFibreRho` of the chart at radius `ρ`, the condition `max 1 ρ ≤ β` and
-the amplitude `ε_U = β · prop33EpsEtaScaled … (ρ/β)`; the landed theorem is its case `ρ = 1`. -/
-theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
+/-- The two-segment joint exponent has a label activity at every point of the open physical chart. -/
+theorem sourceExponentFamily_fromTower_freeDatum_rho {κmin : ℝ} (T : StepTower κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
     (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (ρ : ℝ) (hρ : 0 < ρ) (β : ℝ)
     (hβρ : max 1 ρ ≤ β)
     (p₁ : ℝ) (hp0 : 0 < p₁) (D : StepScaleData T k hk N₁ ν β p₁)
     (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
     (hp : 0 < S.p₁) :
-    ∃ (Jr : S.JointRep T.t (2 * p₁)) (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+    ∃ (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
       (hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y) (εU : ℝ),
       εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
         (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) ∧ 0 ≤ εU ∧
-      ∃ Aseg : ∀ e : physParam 2 S, e ∈ physFibreRho S S.a₁ S.ν T.t ρ → ℝ × ℝ →
+      ∀ Jr : S.JointRep T.t (2 * p₁), ∃ Aseg : ∀ e : physParam 2 S, e ∈ physVRho S S.a₁ S.ν T.t ρ → ℝ × ℝ →
           LabelAct ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) (S.blockSplit 1 hp).Ωb
             (4 * εU) (2 * T.κdec - 1) T.κ0 (2 * (K0 3 3 T.κ0 + 1)),
-        (∀ (e : physParam 2 S) (he : e ∈ physFibreRho S S.a₁ S.ν T.t ρ), ∀ p ∈ stepSegments,
+        (∀ (e : physParam 2 S) (he : e ∈ physVRho S S.a₁ S.ν T.t ρ), ∀ p ∈ stepSegments,
           ∀ᵐ x ∂S.nuFl,
             Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
                 ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.1 : ℂ) • S.hatC x) +
@@ -133,7 +110,7 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
             ∑ y, (Aseg e he p).H y ((S.blockSplit 1 hp).restr x)) ∧
         (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
           ∃ he : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
-              physFibreRho S S.a₁ S.ν T.t ρ,
+              physVRho S S.a₁ S.ν T.t ρ,
             ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
               S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) p.1 x +
                 S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g p.2 x =
@@ -146,7 +123,6 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
   have hr0 := D.r_pos
   have hβ1 : 1 ≤ β := le_trans (le_max_left _ _) hβρ
   have hβ0 : 0 < β := by linarith
-  obtain ⟨Jr, hJ1, hJ2⟩ := wone_chartIdentity_fromTower_rho T k hk N₁ ν hνpos hν β p₁ hp0 D S rfl
   obtain ⟨val, 𝒴, Tt, hval, -, -, hI, hmem0, hmemg⟩ := sourceDirectTerms_scale_fromTower_rho T k hk N₁
     h3N hN ν hνpos hν β ρ hρ hβρ p₁ ρ hρ le_rfl D S rfl hp
   obtain ⟨I₀, h𝒴₀, -⟩ := hI _ hmem0
@@ -170,7 +146,9 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
     norm_ite_sq_le
   have hβS : 1 ≤ S.β := hβ1
   have hβS0 : 0 < S.β := hβ0
-  have hex : ∀ e : physParam 2 S, e ∈ physFibreRho S S.a₁ S.ν T.t ρ →
+  refine ⟨𝒴, hdom, εU, hεU, hεU0, ?_⟩
+  intro Jr
+  have hex : ∀ e : physParam 2 S, e ∈ physVRho S S.a₁ S.ν T.t ρ →
       ∃ Ae : ℝ × ℝ → LabelAct ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom))
           (S.blockSplit 1 hp).Ωb (4 * εU) (2 * T.κdec - 1) T.κ0 (2 * (K0 3 3 T.κ0 + 1)),
         ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
@@ -180,11 +158,11 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
               ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.2 : ℂ) • S.hatC x) =
           ∑ y, (Ae p).H y ((S.blockSplit 1 hp).restr x) := by
     intro e he
-    have he1 : e ∈ physVqRho S S.a₁ S.ν T.t ρ ρ := ⟨he.1, he.1.2⟩
+    have he1 : e ∈ physVqRho S S.a₁ S.ν T.t ρ ρ := ⟨he, he.2⟩
     have hmemE := physInclScaled_image_subset_rho S S.a₁ S.ν T.t hβρ le_rfl ⟨e, he1, rfl⟩
     have hmem0E : physInclScaled 2 S ((1 / S.β : ℝ) : ℂ) (e.1, 0) ∈
         physSΛEta S S.a₁ S.ν T.t (ρ / S.β) := by
-      refine ⟨he.1.1, ?_⟩
+      refine ⟨he.1, ?_⟩
       show (fun y i => ((1 / S.β : ℝ) : ℂ) * (0 : ℂ)) ∈ _
       simp only [mul_zero]
       refine ⟨by simp [l1Ball], ?_⟩
@@ -214,16 +192,44 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
             val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
               (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ) (e.1, 0))) := by
       intro x hxn s τ hs hτ
-      have := @hJ2 0 0 0 Empty Empty _ _ (fun _ => 0) (fun _ => 0) (fun _ => 0) (fun _ => 0)
-        (fun e => e.elim) (fun e => e.elim) (fun _ => ∅) (fun _ => ∅) (fun _ => 0)
-        (fun e => e.elim) (fun e => e.elim) (fun _ => ∅) (fun _ => ∅) (fun _ => 0)
-        (fun _ => 0) (fun _ => 0) ∅ ∅ (fun τ h => absurd h (by simp))
-        (fun τ h => absurd h (by simp)) (fun e => e.elim) (fun e => e.elim)
-        (fun τ h => absurd h (by simp)) (fun τ h => absurd h (by simp)) 0 rfl rfl rfl
-        ρ e he.1 he.2 x hxn s τ hs hτ
-      simp only [physVal_zeroClass_eq] at this
-      simp only [hval]
-      exact this
+      have hHB := bgHyp_lv (k := k) T.m₁ hνpos.le hν
+      have hpc : 2 * p₁ < lvCpsi T.κ T.t (β * 3 ^ k) := by
+        have hpos : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp0
+        nlinarith [D.ray_margin]
+      have hβne : (S.β : ℂ) ≠ 0 := by
+        exact_mod_cast hβ0.ne'
+      have hxb : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 →
+          ∀ p, ‖((r : ℂ) • S.hatC x) p‖ ≤ 2 * p₁ := by
+        intro r hr p
+        exact (S.norm_smul_yhat_le_mul r x p).trans (by
+          rw [abs_of_nonneg hr.1]
+          exact (mul_le_of_le_one_left (norm_nonneg _) hr.2).trans hxn.le)
+      obtain ⟨De, hXe, hq⟩ := he.1
+      have hq' : (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) = rawOf De := hq
+      have hW1 : Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+          ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (s : ℂ) • S.hatC x) =
+          (s : ℂ) ^ 2 * val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+            (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ) (e.1, 0)) := by
+        rw [hq', hval, physInclScaled_zeroClass_eq, hq']
+        simp only [Pi.zero_apply, zero_div, zero_mul, Finset.sum_const_zero, mul_zero, add_zero]
+        exact Jr.W1_zeroClass_eq_hat_freeDatum De hXe D.core one_pos hHB T.c7_cap
+          S.hk1 (R := 2) (by norm_num) T.bg1_cap T.large_block T.dom_margin
+          T.coer_margin T.δc_small D.cψ_pos.le D.fl_radius hpc x hxn hs
+      have hW2 : Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+          ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (τ : ℂ) • S.hatC x) =
+          val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ) e) -
+            val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ) (e.1, 0)) := by
+        rw [hq', physInclScaled_zeroClass_eq, physInclScaled_zeroClass_eq]
+        have h0 : (fun y i => ((0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ) y i) /
+            (S.β : ℂ)) = 0 := by funext y i; simp
+        simpa only [h0, hq'] using
+          (Jr.W2_eq_val_sub D.core one_pos hHB T.c7_cap (R := 2) le_rfl
+            T.bg1_cap T.t_cap T.bg0_cap T.cK2_cap T.cK2'_cap T.large_block
+            T.dom_margin T.coer_margin T.δc_small D.cψ_pos.le D.fl_radius
+            hpc hXe e.2 hβne (S.hatC x) hxb hτ val hval)
+      rw [hW1, hW2]
     refine ⟨fun p => (segAct A0 Ag hε2 hE c hcfun p).mono
       (by rw [max_self]; linarith) (by rw [max_self]; linarith) le_rfl le_rfl
       (by linarith), ?_⟩
@@ -281,10 +287,10 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
       simp only [one_pow, one_mul]
       ring
   choose Aseg hAseg using hex
-  refine ⟨Jr, 𝒴, hdom, εU, hεU, hεU0, Aseg, fun e he p hp' => hAseg e he p hp', ?_⟩
+  refine ⟨Aseg, fun e he p hp' => hAseg e he p hp', ?_⟩
   intro g hg
   have hmemS : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
-      physFibreRho S S.a₁ S.ν T.t ρ := ⟨⟨⟨S.D', D.xi, rfl⟩, hg⟩, fun y i => S.hh₀ y i⟩
+      physVRho S S.a₁ S.ν T.t ρ := ⟨⟨S.D', D.xi, rfl⟩, hg⟩
   refine ⟨hmemS, fun p hp' => ?_⟩
   obtain ⟨hs1, ht1⟩ := mem_Icc_of_mem_stepSegments hp'
   have hle : S.p₁ ≤ 2 * p₁ := by
@@ -298,6 +304,86 @@ theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
   have e2 : S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g p.2 x = _ := h3.symm
   rw [e1, e2]
   exact h1
+
+open Classical in
+/-- The activity supplied by the tower applies to either interpolation segment at any
+datum in the complex chart and any source in the radius-`ρ` ball. -/
+theorem sourceExponentFamily_freeDatum_slice_rho {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
+    (ρ : ℝ) (hρ : 0 < ρ) (β : ℝ) (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (hp0 : 0 < p₁) (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) (D' : BgData S.G' 2)
+    (hX : XiCData S.G' S.a S.ν (k + 1) 1 T.t D')
+    (g : Fld 3 3 N₁ T.m₁ (k + 1) 2)
+    (hg : g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ)
+    (Jr : S.JointRep T.t (2 * p₁)) :
+    ∃ (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y) (εU : ℝ),
+      εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) ∧ 0 ≤ εU ∧
+      ∃ A : ℝ × ℝ → LabelAct
+          ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) (S.blockSplit 1 hp).Ωb
+          (4 * εU) (2 * T.κdec - 1) T.κ0 (2 * (K0 3 3 T.κ0 + 1)),
+        ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
+          Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+              (rawOf D', (p.1 : ℂ) • S.hatC x) +
+            Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g
+              (rawOf D', (p.2 : ℂ) • S.hatC x) =
+            ∑ y, (A p).H y ((S.blockSplit 1 hp).restr x) := by
+  obtain ⟨𝒴, hdom, εU, hεU, hεU0, hfamily⟩ :=
+    sourceExponentFamily_fromTower_freeDatum_rho T k hk N₁ h3N hN ν hνpos hν
+      ρ hρ β hβρ p₁ hp0 D S hS hp
+  obtain ⟨Aseg, hAseg, -⟩ := hfamily Jr
+  let e : physParam 2 S := (⟨rawOf D', rawOf_mem_rawSub _⟩, g)
+  have he : e ∈ physVRho S S.a₁ S.ν T.t ρ := ⟨⟨D', hX, rfl⟩, hg⟩
+  exact ⟨𝒴, hdom, εU, hεU, hεU0, Aseg e he, hAseg e he⟩
+
+
+open Classical in
+theorem sourceExponentFamily_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (ρ : ℝ) (hρ : 0 < ρ) (β : ℝ)
+    (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (hp0 : 0 < p₁) (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) :
+    ∃ (Jr : S.JointRep T.t (2 * p₁)) (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y) (εU : ℝ),
+      εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) ∧ 0 ≤ εU ∧
+      ∃ Aseg : ∀ e : physParam 2 S, e ∈ physFibreRho S S.a₁ S.ν T.t ρ → ℝ × ℝ →
+          LabelAct ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) (S.blockSplit 1 hp).Ωb
+            (4 * εU) (2 * T.κdec - 1) T.κ0 (2 * (K0 3 3 T.κ0 + 1)),
+        (∀ (e : physParam 2 S) (he : e ∈ physFibreRho S S.a₁ S.ν T.t ρ), ∀ p ∈ stepSegments,
+          ∀ᵐ x ∂S.nuFl,
+            Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+                ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.1 : ℂ) • S.hatC x) +
+              Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+                ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.2 : ℂ) • S.hatC x) =
+            ∑ y, (Aseg e he p).H y ((S.blockSplit 1 hp).restr x)) ∧
+        (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+          ∃ he : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
+              physFibreRho S S.a₁ S.ν T.t ρ,
+            ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
+              S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) p.1 x +
+                S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g p.2 x =
+              ∑ y, (Aseg (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) he p).H y
+                ((S.blockSplit 1 hp).restr x)) := by
+  obtain ⟨Jr, -, -⟩ := wone_chartIdentity_fromTower_rho T k hk N₁ ν hνpos hν β p₁ hp0 D S hS
+  obtain ⟨𝒴, hdom, εU, hεU, hεU0, hfamily⟩ :=
+    sourceExponentFamily_fromTower_freeDatum_rho T k hk N₁ h3N hN ν hνpos hν
+      ρ hρ β hβρ p₁ hp0 D S hS hp
+  obtain ⟨Aseg, hAseg, hslice⟩ := hfamily Jr
+  refine ⟨Jr, 𝒴, hdom, εU, hεU, hεU0,
+    (fun e he p => Aseg e he.1 p), ?_, ?_⟩
+  · intro e he p hp'
+    exact hAseg e he.1 p hp'
+  · intro g hg
+    obtain ⟨he, hval⟩ := hslice g hg
+    refine ⟨⟨he, fun y i => S.hh₀ y i⟩, ?_⟩
+    exact hval
 
 
 open Classical in
