@@ -276,14 +276,17 @@ X ∩ Ω_{k+1}^c.
      rows and the covariance square root? (Two marked patches in one footprint need not touch, so
      Moore-connectedness alone is not what the expansion produces; `notes/phase1/VMOD-39.md`.)
 (iii) Does the same answer hold for the C_{loc,s}^{1/2} ψ term?
-(iv) How does the (4.44) assignment of the auxiliary cubes produce an UNCHARGED modular (4.48) when
-     Ω_{k+1}^c includes a long inherited component of Z_k and no current P, Q, R, S cube? Does Y contain
-     the entire nearest-neighbour hole component, and if so how is its π'_{k+1} cover obtained without a
-     long active spill at an unaligned boundary? Which geometric property or alternate assignment
-     proves (4.34) before the separate operator factor (3.9)?
-     (For marked cubes inside Ω_{k+1} the P3 assignment works as written. Inserting a whole hole
-     component has no uniform cost in general, and charging the NEW seed sets does not repair it: a
-     long inherited component of Z_k carries no new seed — `notes/phase1/VMOD-35.md`, `VMOD-36.md`.)
+(iv) [wording revised 2026-10-13, after checking that P5 (1.34) charges the full tree length
+     through a component of Ω^c — "mod" only removes the obligation to visit cover cubes inside the
+     hole] P5 (1.34) counts the full tree length through Ω^c, while P3 (4.48) uses a NON-modular
+     source tree that visits all source cover cubes. In P6 (4.32)–(4.34), when a long inherited
+     component of Z_k is completed in the output domain without a new P, Q, R, S seed, what source
+     coefficient, incidence restriction or operator estimate pays the connecting length to an
+     active patch at its remote end? Does the actual assignment exclude such a patch unless a
+     marked cube pays for it?
+     (For marked cubes inside Ω_{k+1} the P3 assignment works as written. A modular source tree
+     can miss the remote side of an inherited hole, so the bounded joining path of P3 p. 79 is
+     not available there; `notes/phase1/VMOD-35.md`, `VMOD-36.md`, `VMOD-42.md`.)
 
 ### Item 15 (2026-10-13): the range of the operation R^{(k)} (minor; confirmation only)
 
@@ -293,3 +296,20 @@ R^{(j+1)} S^{(j)} T^{(j)} for j < k_0, which includes R^{(k_0)}, and P7 p. 501 s
 "k <= k_0 considered here". We read: R^{(k)} is non-trivial for 1 <= k <= k_0 and is the
 identity for k > k_0. Is that the intended range? Our formalization uses this reading; only the
 index bookkeeping depends on it. (Details: `notes/phase1/VMOD-38.md` section 3.)
+
+### Item 16 (2026-10-13): the gas of removed components and retained holes (P7 (3.26)–(3.28))
+
+In P7 pp. 527–528 a cluster of the gas consists of old boundary labels X_1, ..., X_p, each meeting
+a removed component, connected through overlaps of the labels; its polymer is the union of the
+labels and the thickened removed components, and the activity bound is called "almost completely
+standard", using the decay of the old boundary terms (rate 3κ/2) and the factor
+e^{-p_2(β_k) - H_k |Z|} of (3.10) for each REMOVED component Z. Two labels may overlap only inside a
+RETAINED large-field component (one that is not removed). By P5 (1.34) each of them can have
+modular size O(1) — a label containing a large hole with one small active attachment — while their
+union has size at least the length of the hole between the two attachments. The factor (3.10) does
+not grow with the size of a retained component. What pays this length in the bound for the polymer
+activity (the analogue of P5 (1.35))? Do two boundary terms that overlap only in a retained
+component really produce a link of the cluster, or is there an incidence restriction, or
+additional decay of the coefficients across the retained component?
+(Details: `notes/phase1/VMOD-40.md`, `VMOD-41.md`, `VMOD-42.md`. The same geometry is behind
+item 14 (iv).)
