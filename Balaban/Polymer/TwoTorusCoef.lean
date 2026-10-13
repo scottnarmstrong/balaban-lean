@@ -1517,6 +1517,139 @@ theorem fineBlock_image {ρ rc : ℕ}
     cbase_boxMap (Dvd.intro_left _ rfl) (Dvd.intro_left _ rfl) hpK (by omega) _ hcell,
     blockSite_boxMap le_rfl z hz hrc (by omega)]
 
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- A box of the box of radius `ρ` is contained in the image of a set `Y` of the box iff it is the
+image of a box contained in `Y`. -/
+theorem box_subset_image_iff {ρ a : ℕ} (hn : 2 * ρ + a < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * ρ + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)) (ha : 0 < a)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    {c : CTorus d L N₁ m₁ (k + 1)}
+    (hc : ∀ x ∈ box c a, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    box (bm c) a ⊆ bm '' Y ↔ box c a ⊆ Y := by
+  rw [← image_box_boxMap hn ha hc]
+  constructor
+  · intro h x hx
+    obtain ⟨y, hy, hyx⟩ := h ⟨x, hx, rfl⟩
+    have := boxMap_inj (hm' := hn') (hY y hy) (hc x hx) hyx
+    exact this ▸ hy
+  · exact Set.image_mono
+
+/-- **The root cube is a cube of `Y` on two tori**: `rootCube (bc z)` is a cube of `bm '' Y` iff
+`rootCube z` is a cube of `Y`, when the root cell and `Y` lie in the box of radius `r`
+(`|z| ≤ r_c`, `L^(k+1) r_c ≤ r`).  Margins: `2 r + a_K < N₁ L^m₁ L^(k+1)`,
+`2 r + 1 < N₁' L^m₁ L^(k+1)`. -/
+theorem rootCube_mem_blocksOf_image_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {r rc : ℕ} (hn : 2 * r + aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * r + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ r)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    rootCube (m₀ := m₀) (bc z) ∈ blocksOf m₀ (k + 1) Set.univ (bm '' Y) ↔
+      rootCube (m₀ := m₀) z ∈ blocksOf m₀ (k + 1) Set.univ Y := by
+  rw [← cubeMap_rootCube hN hN' z hz hrc hn hroot, mem_blocksOf, mem_blocksOf, cubeMap_val]
+  exact box_subset_image_iff hn hn' (cellSide_pos m₀ m₁ _) hY hroot
+
+/-- **The cubes joining `Y` to the root on two tori**: `joinCubes (bc z) (bm '' Y)` is the image of
+`joinCubes z Y`, when the root cell and `Y` lie in the box of radius `r`.  The cubes through the
+root cube lie in the box of radius `r + 2 L a_K`.  Margins: `2 (r + 2 L a_K) + L a_K` below
+`N₁ L^m₁ L^(k+1)` and `N₁' L^m₁ L^(k+1)`. -/
+theorem joinCubes_image {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {r rc : ℕ}
+    (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ r)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    joinCubes m₀ (bc z) (bm '' Y) = (joinCubes m₀ z Y).image bm := by
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have ha0 : 0 < aK := cellSide_pos m₀ m₁ _
+  have hLa : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha0
+  have hdA := cellSide_dvd (L := L) (m₁ := m₁) (K := k + 1) hN (le_refl (k + 1))
+  have hdB := cellSide_dvd (L := L) (m₁ := m₁) (K := k + 1) hN' (le_refl (k + 1))
+  set rb := (rootCube (m₀ := m₀) z).1 with hrb
+  have hrbR : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) rb := hroot _ (mem_box_self _ ha0)
+  have hrb' : (rootCube (m₀ := m₀) (bc z)).1 = bm rb := by
+    rw [← cubeMap_rootCube hN hN' z hz hrc (by omega) hroot, cubeMap_val]
+  -- the cubes through the root cube, on each torus
+  have hpA : ∀ p : CTorus d L N₁ m₁ (k + 1), rb ∈ box p (L * aK) →
+      ∀ x ∈ box p (L * aK), InBox d (r + L * aK + L * aK) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun p hp x hx => inBox_of_mem_box_right (by omega) (inBox_of_mem_box_left (by omega) hrbR hp) hx
+  have hpB : ∀ p' : CTorus d L N₁' m₁ (k + 1), bm rb ∈ box p' (L * aK) →
+      ∀ x ∈ box p' (L * aK), InBox d (r + L * aK + L * aK) ((N₁' * L ^ m₁) * L ^ (k + 1)) x :=
+    fun p' hp' x hx => inBox_of_mem_box_right (by omega)
+      (inBox_of_mem_box_left (by omega) (inBox_boxMap (by omega) hrbR) hp') hx
+  have hYimg : bm' '' (bm '' Y) = Y := image_image_boxMap (by omega) hY
+  ext p'
+  simp only [joinCubes, rootCubes, Finset.mem_filter, Finset.mem_univ, true_and,
+    Finset.mem_image]
+  constructor
+  · rintro ⟨⟨hal', hroot'⟩, t', htal', ht'⟩
+    rw [hrb'] at hroot'
+    have hbox' := hpB p' hroot'
+    have himg' : bm' '' box p' (L * aK) = box (bm' p') (L * aK) :=
+      image_box_boxMap (by omega) hLa hbox'
+    have hpp : bm (bm' p') = p' :=
+      boxMap_boxMap (by omega) (hbox' p' (mem_box_self _ hLa))
+    refine ⟨bm' p', ⟨⟨aligned_boxMap hdB hdA hal', ?_⟩, bm' t', aligned_boxMap hdB hdA htal', ?_⟩,
+      hpp⟩
+    · rw [← himg']
+      exact ⟨bm rb, hroot', boxMap_boxMap (by omega) hrbR⟩
+    · have htbox : ∀ x ∈ box t' aK, InBox d (r + L * aK + L * aK) ((N₁' * L ^ m₁) * L ^ (k + 1)) x :=
+        fun x hx => hbox' x (ht' hx).2
+      rw [← image_box_boxMap (by omega) ha0 htbox, ← himg', ← hYimg]
+      intro x hx
+      obtain ⟨w, hw, rfl⟩ := hx
+      exact ⟨⟨w, (ht' hw).1, rfl⟩, ⟨w, (ht' hw).2, rfl⟩⟩
+  · rintro ⟨p, ⟨⟨hal, hrp⟩, t, htal, ht⟩, rfl⟩
+    have hbox := hpA p hrp
+    have himg : bm '' box p (L * aK) = box (bm p) (L * aK) := image_box_boxMap (by omega) hLa hbox
+    refine ⟨⟨aligned_boxMap hdA hdB hal, ?_⟩, bm t, aligned_boxMap hdA hdB htal, ?_⟩
+    · rw [hrb', ← himg]
+      exact ⟨rb, hrp, rfl⟩
+    · have htbox : ∀ x ∈ box t aK, InBox d (r + L * aK + L * aK) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+        fun x hx => hbox x (ht hx).2
+      rw [← image_box_boxMap (by omega) ha0 htbox, ← himg]
+      rintro _ ⟨w, hw, rfl⟩
+      exact ⟨⟨w, (ht hw).1, rfl⟩, ⟨w, (ht hw).2, rfl⟩⟩
+
+/-- **The bridge of `Y` to the root on two tori**: `bridge (bc z) (bm '' Y) = bm '' bridge z Y`,
+when the root cell and `Y` lie in the box of radius `r` (`|z| ≤ r_c`, `L^(k+1) r_c ≤ r`).
+Margins: `2 (r + 2 L a_K) + L a_K` below `N₁ L^m₁ L^(k+1)` and `N₁' L^m₁ L^(k+1)`. -/
+theorem bridge_image {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {r rc : ℕ}
+    (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ r)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    bridge m₀ (bc z) (bm '' Y) = bm '' bridge m₀ z Y := by
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hLa : 0 < L * aK :=
+    Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
+  have hiff := rootCube_mem_blocksOf_image_iff hN hN' (by omega) (by omega) z hz hrc hroot hY
+  unfold bridge
+  by_cases h : rootCube (m₀ := m₀) z ∈ blocksOf m₀ (k + 1) Set.univ Y
+  · simp only [hiff.2 h, h, ↓reduceIte]
+  · have h' : rootCube (m₀ := m₀) (bc z) ∉ blocksOf m₀ (k + 1) Set.univ (bm '' Y) :=
+      fun h' => h (hiff.1 h')
+    simp only [h, h', ↓reduceIte]
+    rw [joinCubes_image hN hN' hnH hnH' z hz hrc hroot hY, Set.image_union, Set.image_iUnion₂,
+      Finset.set_biUnion_finset_image]
+    congr 1
+    refine Set.iUnion₂_congr fun p hp => ?_
+    have hrbR : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) (rootCube (m₀ := m₀) z).1 :=
+      hroot _ (mem_box_self _ (cellSide_pos m₀ m₁ _))
+    have hrp := (Finset.mem_filter.1 (Finset.mem_filter.1 hp).1).2.2
+    exact (image_box_boxMap (by omega) hLa fun x hx =>
+      inBox_of_mem_box_right (by omega) (inBox_of_mem_box_left (by omega) hrbR hrp) hx).symm
+
 end Labels
 
 end Balaban.Polymer.TwoTorusStep
