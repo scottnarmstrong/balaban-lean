@@ -197,6 +197,52 @@ theorem markedFamily_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
   exact T.toG.markedFamily_fromTowerG rfl (T.scaleDataG_of_fixed hS) hN hν0 (by simpa using hν)
     (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl
 
+/-- **T3, general.  MARK-REAL on the whole slice at a scale of the general tower, unconditional.**
+The family `𝒴, Ev` of `StepTowerG.markedFamily_fromTowerG` (analyticity and block-energy sum) and,
+for every slice datum `D`, every hat field `‖x‖ ≤ p₁`, every root `z` and every real `s ∈ [0,1]`,
+the one-dimensional marked identity and the ambient `fderiv` identity of
+`StepTowerG.markReal_slice_of_countG`.  The fixed `markReal_slice` is its corollary at `T.toG`. -/
+theorem StepTowerG.markReal_sliceG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (hS₁ : StepScaleDataG T k hk N₁ ν β p₁) (hN : 5 < N₁) (hp₁ : 0 < p₁) (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ} (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    ∃ (𝒴 : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ T.m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ),
+    (∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 T.t ×ˢ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t)) ∧
+    (∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 T.t,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      blockEnergyOne S.G' (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.BG₂ T.κ T.t k zb (Θ, ψ') =
+        ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ')) ∧
+    ∀ (D : BgData S.G' N) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ))
+    (_hD : XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D)
+    {x : (S.withDatum D hDh).E} (_hx : ‖x‖ ≤ p₁)
+    (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1)))) {s : ℝ} (_hs : s ∈ Icc (0 : ℝ) 1),
+    HasDerivAt (fun t : ℂ => (S.withDatum D hDh).Phi1C
+        (zeroClass d L N₁ T.m₁ k N ϱ) ((S.withDatum D hDh).markedTangentC z (s : ℂ) t x))
+      (-((S.withDatum D hDh).β : ℂ) * ∑ zb, ∑ Y ∈ 𝒴 zb,
+        deriv (markedBlockTerm (Ev zb Y) taylorWeight
+          (liftC (S.withDatum D hDh).hG' ((s : ℂ) • (S.withDatum D hDh).shiftUC x))
+          (liftC (S.withDatum D hDh).hG'
+            ((S.withDatum D hDh).maskUC z ((S.withDatum D hDh).shiftUC x)))
+          (rawOf (S.withDatum D hDh).D')) 0) 0 ∧
+    (fderiv ℂ ((S.withDatum D hDh).Phi1C (zeroClass d L N₁ T.m₁ k N ϱ))
+        ((s : ℂ) • (S.withDatum D hDh).shiftUC x)
+      ((S.withDatum D hDh).maskUC z ((S.withDatum D hDh).shiftUC x)) =
+      -((S.withDatum D hDh).β : ℂ) * ∑ zb, ∑ Y ∈ 𝒴 zb,
+        deriv (markedBlockTerm (Ev zb Y) taylorWeight
+          (liftC (S.withDatum D hDh).hG' ((s : ℂ) • (S.withDatum D hDh).shiftUC x))
+          (liftC (S.withDatum D hDh).hG'
+            ((S.withDatum D hDh).maskUC z ((S.withDatum D hDh).shiftUC x)))
+          (rawOf (S.withDatum D hDh).D')) 0) := by
+  obtain ⟨𝒴, Ev, han, hsum, -, -⟩ := T.markedFamily_fromTowerG hm₀ hS₁ hN hν0 hν hϱ hS
+  exact ⟨𝒴, Ev, han, hsum, fun D hDh hD x hx z s hs =>
+    T.markReal_slice_of_countG hS₁ hp₁ hν0 hν hϱ hS 𝒴 Ev han hsum D hDh hD hx z hs⟩
+
 /-- **T3.  MARK-REAL on the whole slice, unconditional.**  At an admissible scale of the shared
 tower there is one family `𝒴, Ev` (that of `markedFamily_fromTower`) such that for every slice
 datum `D`, every hat field `‖x‖ ≤ p₁`, every root `z` and every real `s ∈ [0,1]` the
@@ -247,9 +293,8 @@ theorem markReal_slice {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
             (((T.step k hk N₁ ν β p₁).withDatum D hDh).maskUC z
               (((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x)))
           (rawOf ((T.step k hk N₁ ν β p₁).withDatum D hDh).D')) 0 := by
-  obtain ⟨𝒴, Ev, han, hsum, -, -⟩ := markedFamily_fromTower T hS hN hν0 hν
-  exact ⟨𝒴, Ev, han, hsum, fun D hDh hD x hx z s hs =>
-    markReal_slice_of_count T hS hp₁ hν0 hν 𝒴 Ev han hsum D hDh hD hx z hs⟩
+  exact T.toG.markReal_sliceG rfl (T.scaleDataG_of_fixed hS) hN hp₁ hν0 (by simpa using hν)
+    (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl
 
 /-- **Instance of `markReal_slice`** at the scale of `StepTower.scale_instance` (`k = 1`,
 `N₁ = 6`, `ν = 0`, `p₁ = 1`): the family and the identity at `x = 0`, `s = 1/2`, for the step's own

@@ -193,6 +193,63 @@ theorem renLoc_fields_scale_of_towerG_at {d L N : ℕ} [NeZero L] {κmin : ℝ}
   · exact renLocDphi_scale_of_towerG_at R.toStepTowerRenEndG k hk N₁ hN₀ hN hν0 hν he het hκb hF
       le_rfl p
 
+/-- **The three localization fields and the solution at every scale of the general tower**, at the class radius `t`: the case `e = t` of `renLoc_fields_scale_of_towerG_at`. -/
+theorem renLoc_fields_scale_of_towerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {κa κb : ℝ} (hκa : κa ≤ 2 * R.κdec) (hκb : κb ≤ 2 * R.κdec) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t R.t R.r₀
+        (8 * R.t) F ∧
+      (∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))),
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa 1
+          (fun D _ => bgClass (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) ν
+            (renCK d L N R.BG R.κ * R.t) D)
+          (fun D φ ξ => renC1On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t
+            (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h φ ξ)
+          (fun D _ => bgFieldC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν
+            (bgC0 d L N) D)) ∧
+      (∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))),
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa 1
+          (fun _ ξ => pertClass (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+            (renCK d L N R.BG R.κ * (cK2 d L N * (8 * R.t * ‖ξ‖)))
+            (bgK1 d L N * (xiC1 d * R.t) + renCK d L N R.BG R.κ * cK2 d L N * (8 * R.t) * R.r₀
+              + 2) (renMassU ν ξ))
+          (fun _ v ξ => renC2On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ) v.2 v.1)
+          (fun D ξ => ((F ((D.Ψ, D.h), ξ)).1,
+            bgMultC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (bgC0 d L N) D +
+              (F ((D.Ψ, D.h), ξ)).2))) ∧
+      (∀ p : (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N,
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν R.t) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+                (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+              (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κb 1
+          (fun _ ξ => {v | SupBounds (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) v
+            (renCK d L N R.BG R.κ * (cK2 d L N * (8 * R.t * ‖ξ‖)))})
+          (fun _ v _ => v p) (fun D ξ => (F ((D.Ψ, D.h), ξ)).1)) :=
+  renLoc_fields_scale_of_towerG_at R k hk N₁ hN₀ hN hν0 hν R.t_pos le_rfl hκa hκb
+
 end General
 
 /-- **The `FlCore` of the record `StepTower` at a scale, at radii `e, e' ≤ t`.**  (For the record
@@ -497,6 +554,10 @@ theorem renLoc_fields_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (
           (fun _ ξ => {v | SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) v
             (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * R.t * ‖ξ‖)))})
           (fun _ v _ => v p) (fun D ξ => (F ((D.Ψ, D.h), ξ)).1)) :=
-  renLoc_fields_scale_of_tower_at R k hk N₁ h3N hN hν0 hν R.t_pos le_rfl hκa hκb
+  by
+  have h := renLoc_fields_scale_of_towerG R.toG k hk N₁ (by simpa using h3N) hN hν0
+    (by simpa using hν) hκa hκb
+  rw [rhoSepG_three] at h
+  exact h
 
 end Balaban.Inhabited
