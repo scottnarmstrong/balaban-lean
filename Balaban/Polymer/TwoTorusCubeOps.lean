@@ -642,6 +642,38 @@ theorem cubeH_boxMap {ρ ρ₀ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) (a : ℕ �
       (R' := ρ + 2 + (ρ₀ + 3 * L ^ (j + m₁))) hy0 (by omega) hm hm'
       (inBox_mono (by omega) hw)) (z := z) (inBox_mono (by omega) hz) μ
 
+/-- The entries of the commutator `Kz`: `(Kz) x y = H₀ x y (χ x - χ y)`. -/
+theorem Kz_apply {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (a : ℕ → ℝ) (ν : ℝ)
+    (q : ℕ × CTorus d L N₁ m₁ K) (x y : G.Ω 1) :
+    Kz G a ν q x y = dirichletOperator G a ν 0 x y *
+      (((chi G q x : ℝ) : ℂ) - ((chi G q y : ℝ) : ℂ)) := by
+  unfold Kz chiD
+  simp only [Matrix.sub_apply, Matrix.diagonal_mul, Matrix.mul_diagonal]
+  ring
+
+/-- **T2 (`Kz_boxMap`).**  The entries of the commutator `Kz` of the centre `(j, y0)`, `y0` in the
+box of radius `ρ + 2 L^(j+m₁)`, at two sites of the box of radius `ρ`, correspond.  Margins:
+`2 ρ + 3 L^K + 5 < N₁ L^m₁ L^K` and `2 ρ + 5 L^(j+m₁) + 1 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem Kz_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) (a : ℕ → ℝ) (ν : ℝ)
+    {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d (ρ + 2 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : 2 * ρ + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hm : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hm' : 2 * ρ + 5 * L ^ (j + m₁) + 1 < (N₁' * L ^ m₁) * L ^ K)
+    (x y : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1)
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hy : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (y : CTorus d L N₁ m₁ K)) :
+    Kz (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν
+        (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K))
+        ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩
+        ⟨bm (y : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ =
+      Kz (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν (j, y0)
+        x y := by
+  rw [Kz_apply, Kz_apply,
+    dirichletOperator_boxMap hj1 hj a ν hn hn' (fun _ _ => rfl) x y hx hy]
+  simp only [chi_boxMap hj1 hj hm hm' hx hy0, chi_boxMap hj1 hj hm hm' hy hy0]
+  rfl
+
 end Level
 
 end Balaban.Polymer.TwoTorusStep
