@@ -1728,3 +1728,4 @@ public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
 public import Balaban.Fluctuation.RawAgreeSites
+public import Balaban.Fluctuation.CoeffFamilyLocExp
