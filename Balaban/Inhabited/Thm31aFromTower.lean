@@ -25,6 +25,9 @@ clause), the determinant expansion `detExpansionLocC_scale_fromTower` and the ge
 `thm31aC_coeff_supp`.  The two numerical hypotheses of the generic theorem hold at the tower:
 `κ' ≤ rate` is the field `det_rate` of the tower and
 `cdet = 27 · BL ≤ 2 · 27 · BL · K₀` because `K₀ ≥ 1`.
+
+This is the whole-lattice zero-class value at one base datum, with decay `κ'`; it does not give
+the paper's rate `κ_a`, the boundary clauses, or a coefficient family in the datum.
 -/
 
 @[expose] public section
