@@ -12,6 +12,8 @@ public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.ParamActivityPhysical
 public import Balaban.Fluctuation.DecMarkCorrCount
 public import Balaban.Inhabited.DecMarkCorrFamilyFromTower
+public import Balaban.Fluctuation.MarkedVRawY
+public import Balaban.Fluctuation.RawAgreeSites
 
 /-!
 # Locality of the energy activity and marks in the raw datum
@@ -118,6 +120,58 @@ variable {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
 variable {Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
 
+/-- **The decoupled mark from locality of `evDec`.**  If the coefficient `evDec` of the label `Y`
+takes the same value at `(Θ, ψ̂)` and `(Θ', ψ̂)` for every pair of marks of the radius set and every
+hat field `ψ̂ = S.hatOf m₀ ρ hp Φ` of a block configuration, then the decoupled marks of `Y` at `Θ`
+and `Θ'` coincide.  The agreement relation that gives the hypothesis is not part of the statement. -/
+theorem decMarkG_congr_of_evDec {ρ : ℝ} (hp : 0 < S.p₁)
+    {En : ((S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N} {um : ℂ}
+    (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hloc : ∀ tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b,
+        evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol En Zm um tm Y (Θ, S.hatOf m₀ ρ hp Φ) =
+        evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol En Zm um tm Y (Θ', S.hatOf m₀ ρ hp Φ)) :
+    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um =
+    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ' um := by
+  funext Φ
+  unfold decMarkG
+  refine Filter.EventuallyEq.deriv_eq ?_
+  have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
+    isOpen_lt (by fun_prop) continuous_const
+  filter_upwards [hopen.mem_nhds hum] with t ht
+  exact hloc t ht Φ
+
+/-- **The corrected decoupled mark from locality of `evDec`.**  If `evDec` of the label `Y` is
+unchanged under `Θ ↦ Θ'` for all marks `(um', tm)` of the radius set with `um'` and `um`, `0` as
+first mark, then the corrected decoupled marks of `Y` at `Θ` and `Θ'` coincide. -/
+theorem decMarkCorr_congr_of_evDec {ρ : ℝ} (hp : 0 < S.p₁) (hδ : 0 < δ₁)
+    {En : ((S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N} {um : ℂ}
+    (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hloc : ∀ um' tm : ℂ, (‖um'‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b,
+        evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol En Zm um' tm Y (Θ, S.hatOf m₀ ρ hp Φ) =
+        evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol En Zm um' tm Y (Θ', S.hatOf m₀ ρ hp Φ)) :
+    decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um =
+    decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ' um := by
+  funext Φ
+  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
+  have hopen : IsOpen {t : ℂ | (‖t‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
+    isOpen_lt (by fun_prop) continuous_const
+  have e3 : deriv (fun v : ℂ => decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ) 0 =
+      deriv (fun v : ℂ => decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ' v Φ) 0 := by
+    refine Filter.EventuallyEq.deriv_eq ?_
+    filter_upwards [hopen.mem_nhds h0] with v hv
+    rw [decMarkG_congr_of_evDec S hp hv fun tm ht => hloc v tm ht]
+  unfold decMarkCorr
+  rw [decMarkG_congr_of_evDec S hp hum fun tm ht => hloc um tm ht,
+    decMarkG_congr_of_evDec S hp h0 fun tm ht => hloc 0 tm ht, e3]
+
 /-- **Raw locality of the decoupled mark.**  Two admissible raw data that agree on `thickSet Y`
 give the same decoupled mark of the label `Y` (clause 2 of the pair, `AgHatDir`, with equal hat
 fields). -/
@@ -134,10 +188,10 @@ theorem decMarkG_raw_congr
       Y ρ hp Θ um =
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm
       Y ρ hp Θ' um := by
-  funext Φ
-  exact deriv_evDec_congr hP hum Y
+  refine decMarkG_congr_of_evDec S hp hum fun tm ht Φ => ?_
+  exact hP.2.1 um tm ht Y _
     ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
-    ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ ⟨hag, fun _ _ _ => rfl⟩
+    _ ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ ⟨hag, fun _ _ _ => rfl⟩
 
 /-- **Raw locality of the corrected decoupled mark.**  The first-order Taylor remainder in the
 first mark preserves the agreement of `decMarkG_raw_congr`. -/
@@ -154,20 +208,10 @@ theorem decMarkCorr_raw_congr
         Zm Y ρ hp Θ um =
     decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
         Zm Y ρ hp Θ' um := by
-  funext Φ
-  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
-  have hopen : IsOpen {t : ℂ | (‖t‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
-    isOpen_lt (by fun_prop) continuous_const
-  have e3 : deriv (fun v : ℂ => decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol
-      (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm Y ρ hp Θ v Φ) 0 =
-      deriv (fun v : ℂ => decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol
-      (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm Y ρ hp Θ' v Φ) 0 := by
-    refine Filter.EventuallyEq.deriv_eq ?_
-    filter_upwards [hopen.mem_nhds h0] with v hv
-    rw [decMarkG_raw_congr S hP hρ hρc hp hΘ hΘ' hv hag]
-  unfold decMarkCorr
-  rw [decMarkG_raw_congr S hP hρ hρc hp hΘ hΘ' hum hag,
-    decMarkG_raw_congr S hP hρ hρc hp hΘ hΘ' h0 hag, e3]
+  refine decMarkCorr_congr_of_evDec S hp hδ hum fun um' tm ht Φ => ?_
+  exact hP.2.1 um' tm ht Y _
+    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    _ ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ ⟨hag, fun _ _ _ => rfl⟩
 
 end Marks
 
@@ -179,6 +223,43 @@ variable {a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ} {m₀ : ℕ} {cc : ℂ}
 variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
   {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
   {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+
+open Classical in
+/-- **The rooted corrected output from locality of `evDec`.**  The rooted output at the bridge label
+`Y'` is a finite sum of corrected marks of labels `Y ⊆ Y'` (`subset_bridge`).  If `evDec` of every
+label `Y ⊆ Y'` of every block `b` is unchanged under `Θ ↦ Θ'` (all marks of the radius set, all
+hat fields of block configurations), the rooted outputs at `Θ` and `Θ'` coincide. -/
+theorem markedOutDec_decMarkCorrTerm_congr_of_evDec
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    {ρ : ℝ} (hp : 0 < S.p₁) (hδ : 0 < δ₁) (β : ℂ)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    (zr : RootIdx d L N₁ m₁ (k + 1)) (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b)
+    {Y' : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hloc : ∀ b, ∀ Y ⊆ Y', ∀ um' tm : ℂ,
+      (‖um'‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b,
+        evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν S.hG' cc (F₁ b) (Sol b)
+          (blockEnergyFun S.G' Hm (compWeight L a₁) ν k b) Zm um' tm Y (Θ, S.hatOf m₀ ρ hp Φ) =
+        evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν S.hG' cc (F₁ b) (Sol b)
+          (blockEnergyFun S.G' Hm (compWeight L a₁) ν k b) Zm um' tm Y
+          (Θ', S.hatOf m₀ ρ hp Φ)) :
+    markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y' =
+    markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ' um Φ) Y' := by
+  rw [markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ um Φ zr Y',
+    markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ' um Φ zr Y']
+  refine Finset.sum_congr rfl fun q hq => ?_
+  obtain ⟨-, hq2⟩ := Finset.mem_filter.1 hq
+  have hsub : q.2 ⊆ Y' := hq2 ▸ subset_bridge zr q.2
+  have h := congrFun (decMarkCorr_congr_of_evDec S hp hδ hum
+    fun um' tm ht Φ => hloc q.1 q.2 hsub um' tm ht Φ) Φ
+  rw [h]
 
 open Classical in
 /-- **Raw locality of the rooted corrected output.**  For admissible raw data `Θ, Θ'` that agree on
@@ -204,14 +285,12 @@ theorem markedOutDec_decMarkCorrTerm_raw_congr
         (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y' =
     markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
         (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ' um Φ) Y' := by
-  rw [markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ um Φ zr Y',
-    markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ' um Φ zr Y']
-  refine Finset.sum_congr rfl fun q hq => ?_
-  obtain ⟨-, hq2⟩ := Finset.mem_filter.1 hq
-  have hsub : q.2 ⊆ Y' := hq2 ▸ subset_bridge zr q.2
-  have h := congrFun (decMarkCorr_raw_congr S (hP q.1) hρ hρc hp hδ hΘ hΘ' hum
-    (agreeOn_mono (thickSet_mono hsub) hag)) Φ
-  rw [h]
+  refine markedOutDec_decMarkCorrTerm_congr_of_evDec S F₁ Sol hp hδ β hum zr Φ ?_
+  intro b Y hY um' tm ht Φ
+  exact hP b |>.2.1 um' tm ht Y _
+    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    _ ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    ⟨agreeOn_mono (thickSet_mono hY) hag, fun _ _ _ => rfl⟩
 
 end Rooted
 
@@ -344,5 +423,211 @@ theorem markedOutDec_decMarkCorrTerm_hG {Lb : Type*}
   · rfl
 
 end MarkPremise
+
+
+section MarksSharp
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG BG₂ κ eps Kc Cx c₂ δ₁ cψ δc : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+variable {m₀ j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+variable {cc : ℂ} {Zm : Finset (unitPts S.G')}
+  {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))}
+variable {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
+variable {Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+variable
+  (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+  (hk : 1 ≤ k) (hG : IsLevel Hm k) (hcψ : 0 ≤ cψ)
+  (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+  (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+  (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+  (hcov : CovSetup S.G' m₀ j X 𝒦X)
+  (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+  (hF₁ : ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+  (hSol : ∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+  (hZ : readSites Hm k z ⊆ ↑X₁f)
+  (hBM : BlockMargin S.G' X₁f
+    (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))))
+
+include hC hk hG hcψ hMX hdm hα hsm hconn hrow hcov hX₁ hF₁ hSol hZ hBM
+
+/-- **Exact raw locality of the decoupled mark.**  Two admissible raw data that agree on `Y` itself
+(`agreeOn Y`) give the same decoupled mark of the label `Y`.  The pair `(F₁, Sol)` enters through its
+defining properties `hF₁`, `hSol` (`evDec_local_rawY`), not through clause 2 of
+`MarkedBlockExpansionDecPair`; the hat fields are equal. -/
+theorem decMarkG_rawY_congr {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ' : Θ' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hag : agreeOn Y Θ Θ') :
+    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm
+      Y ρ hp Θ um =
+    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm
+      Y ρ hp Θ' um := by
+  refine decMarkG_congr_of_evDec S hp hum fun tm ht Φ => ?_
+  exact evDec_local_rawY hC hk hG S.hG' cc hcψ Zm um tm hMX hdm hα hsm ht hcov hX₁ hconn hrow
+    hF₁ hSol z hZ hBM Y
+    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ hag (fun _ _ _ => rfl)
+
+/-- **Exact raw locality of the corrected decoupled mark.**  The first-order Taylor remainder in the
+first mark preserves the agreement of `decMarkG_rawY_congr`. -/
+theorem decMarkCorr_rawY_congr {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ' : Θ' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hag : agreeOn Y Θ Θ') :
+    decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
+        Zm Y ρ hp Θ um =
+    decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
+        Zm Y ρ hp Θ' um := by
+  refine decMarkCorr_congr_of_evDec S hp hδ hum fun um' tm ht Φ => ?_
+  exact evDec_local_rawY hC hk hG S.hG' cc hcψ Zm um' tm hMX hdm hα hsm ht hcov hX₁ hconn hrow
+    hF₁ hSol z hZ hBM Y
+    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ hag (fun _ _ _ => rfl)
+
+end MarksSharp
+
+section RootedSharp
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG BG₂ κ eps Kc Cx c₂ δ₁ cψ δc : ℝ} {m₀ : ℕ} {cc : ℂ}
+  {Zm : Finset (unitPts S.G')}
+variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+  {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+  {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+variable
+  (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+  (hk : 1 ≤ k) (hG : IsLevel Hm k) (hcψ : 0 ≤ cψ)
+  (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+  (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+  (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+  (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+  (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+  (hcov : ∀ b, CovSetup S.G' m₀ (jV b) (XV b) (𝒦XV b))
+  (hX₁ : ∀ b, (↑(X₁V b) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ (jV b) (𝒦XV b))
+  (hF₁ : ∀ b, ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ b (s, rawOf D) = (φ, α))
+  (hSol : ∀ b, ∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol b p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol b p).2 ∧
+        Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol b p).2 ∧
+        Small Hm (Sol b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol b p).2))
+  (hZ : ∀ b, readSites Hm k b ⊆ ↑(X₁V b))
+  (hBM : ∀ b, BlockMargin S.G' (X₁V b)
+    (↑(blockSites d L N₁ m₁ (k + 1) k b) : Set (CTorus d L N₁ m₁ (k + 1))))
+
+include hC hk hG hcψ hMX hdm hα hsm hconn hrow hcov hX₁ hF₁ hSol hZ hBM
+
+open Classical in
+/-- **Exact raw locality of the rooted corrected output.**  For admissible raw data `Θ, Θ'` that
+agree on the bridge label `Y'` itself (`agreeOn Y'`), the rooted output of the corrected marks at
+`Y'` is the same: it is a finite sum of corrected marks of labels `Y ⊆ Y'`, and `evDec_local_rawY`
+applies to each, since `agreeOn Y'` restricts to `agreeOn Y`. -/
+theorem markedOutDec_decMarkCorrTerm_rawY_congr {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ)
+    (hp : 0 < S.p₁) (hδ : 0 < δ₁) (β : ℂ)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ' : Θ' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    (zr : RootIdx d L N₁ m₁ (k + 1)) (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b)
+    {Y' : Set (CTorus d L N₁ m₁ (k + 1))} (hag : agreeOn Y' Θ Θ') :
+    markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y' =
+    markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ' um Φ) Y' := by
+  refine markedOutDec_decMarkCorrTerm_congr_of_evDec S F₁ Sol hp hδ β hum zr Φ ?_
+  intro b Y hY um' tm ht Φ
+  exact evDec_local_rawY hC hk hG S.hG' cc hcψ Zm um' tm hMX hdm hα hsm ht (hcov b) (hX₁ b)
+    hconn hrow (hF₁ b) (hSol b) b (hZ b) (hBM b) Y
+    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+    ⟨hΘ', fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩ (agreeOn_mono hY hag)
+    (fun _ _ _ => rfl)
+
+open Classical in
+/-- **The premise `hG` of `paramMarked_analytic_local_bound`, exact form.**  The marks are the
+rooted outputs of `markedOutDec_decMarkCorrTerm_hG`, for the restriction map
+`π θ = physRestrict (sitesOf T) (physIncl N S θ)`.  Equal `π` gives agreement of the raw data on
+`sitesOf T` (`physRestrict_physIncl_eq_iff`), hence on every anchor whose site set lies in
+`Ŷ(sitesOf T) = sitesOf T` (`Yhat_univ`). -/
+theorem markedOutDec_decMarkCorrTerm_hG_rawY {Lb : Type*}
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb) (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
+    (hdomR : ∀ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))), ∀ Y ∈ polyDom S.G' (X₁V b) m₀
+      (jV b) (𝒦XV b), IsDj m₀ (k + 1) Y)
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁) (β : ℂ) (U : ℝ)
+    (hum : ∀ u : ℂ, ‖u‖ < U → (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    (zr : RootIdx d L N₁ m₁ (k + 1))
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+      physRestrict (N := N) (sitesOf T) (physIncl N S θ) =
+        physRestrict (sitesOf T) (physIncl N S θ') →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
+      ∀ i : {Y' // Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr},
+        (commonLabels Lab hN hL (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) hdomR).ysite
+          (commonAnchor Lb (fun _ => Set.univ)
+            (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr i) ⊆
+          Yhat Set.univ (sitesOf T) →
+        (fun Φ => if θ ∈ physV S a₁ ν eps ∧ ‖(s : ℂ)‖ < U then
+          markedOutDec m₀ (fun _ => Set.univ)
+            (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+            (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
+              (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (s : ℂ) Φ) i.1 else 0) =
+        (fun Φ => if θ' ∈ physV S a₁ ν eps ∧ ‖(s : ℂ)‖ < U then
+          markedOutDec m₀ (fun _ => Set.univ)
+            (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+            (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
+              (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (s : ℂ) Φ) i.1 else 0) := by
+  intro θ hθ θ' hθ' hπθ s _ i hi
+  funext Φ
+  have hagT := ((physRestrict_physIncl_eq_iff S (sitesOf T) θ θ').1 hπθ).1
+  rw [Yhat_univ] at hi
+  split_ifs with h1 h2 h2
+  · exact markedOutDec_decMarkCorrTerm_rawY_congr S hC hk hG hcψ hMX hdm hα hsm hconn hrow F₁ Sol
+      hcov hX₁ hF₁ hSol hZ hBM hρ hρc hp hδ β hθ.1 hθ'.1 (hum _ h1.2) zr Φ (agreeOn_mono hi hagT)
+  · exact absurd ⟨hθ', h1.2⟩ h2
+  · exact absurd ⟨hθ, h2.2⟩ h1
+  · rfl
+
+end RootedSharp
 
 end Balaban.Inhabited
