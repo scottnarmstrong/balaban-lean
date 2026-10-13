@@ -15,7 +15,7 @@ import Mathlib.Tactic.Positivity
 # The shared numerical tower for the witness step (`d = L = 3`, `N = 2`)
 
 `StepTower κmin` bundles, once and for all, the output of `tower_core_rates_at_least` at the
-physical rates `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`, the radii
+physical rates `κ₀ = a_Ent + 2`, `κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`, the radii
 `δ, δ'` of `exists_witness_params`, and the quantities derived from them that the per-scale
 theorems use.  `exists_stepTower` shows that the record is inhabited for every `κmin`.
 
@@ -33,7 +33,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 /-- The shared numerical tower at `N = 2`, with decoupling rate `κ ≥ κmin`. -/
 structure StepTower (κmin : ℝ) where
   (κ0 κdec κ' : ℝ)
-  κ0_eq : κ0 = aEnt 3 3 + 1
+  κ0_eq : κ0 = aEnt 3 3 + 2
   κdec_eq : κdec = 100 * (κ0 + c1 3 3 + 10)
   κ'_eq : κ' = 3 / 2 * κdec + κ0 + 1
   m₁ : ℕ
@@ -85,12 +85,12 @@ theorem exists_stepTower (κmin : ℝ) : Nonempty (StepTower κmin) := by
     exists_witness_params (fun _ => 0)
   have hc1 := one_le_c1 3 3
   have hent := aEnt_nonneg 3 3
-  set κ0 : ℝ := aEnt 3 3 + 1 with hκ0def
+  set κ0 : ℝ := aEnt 3 3 + 2 with hκ0def
   set κdec : ℝ := 100 * (κ0 + c1 3 3 + 10) with hκdecdef
   set κ' : ℝ := 3 / 2 * κdec + κ0 + 1 with hκ'def
   obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, hCn, hκ0n, hκdec, hκ, h1, hlog, hc7,
     hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0, hmin⟩ :=
-    tower_core_rates_at_least 2 κmin (κ0 := κ0) (κdec := κdec) le_rfl (by linarith)
+    tower_core_rates_at_least 2 κmin (κ0 := κ0) (κdec := κdec) (by linarith) (by linarith)
   obtain ⟨hC⟩ := hCn
   have hκdec0 : 0 ≤ κdec := by linarith
   have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
@@ -142,6 +142,9 @@ variable {κmin : ℝ} (T : StepTower κmin)
 
 /-- The input `κ₀ ≥ a_Ent + 1` of the landed scale theorems. -/
 theorem hκ0 : aEnt 3 3 + 1 ≤ T.κ0 := T.κ0_ent
+
+/-- The input `a_Ent + 2 ≤ κ₀` of `rootUnion_entropy` (`notes/phase1/TOWERJOIN.md` §1). -/
+theorem κ0_two : aEnt 3 3 + 2 ≤ T.κ0 := le_of_eq T.κ0_eq.symm
 
 /-- The input `κ_dec ≥ 3 κ₀ + c₁ + 5` of the landed scale theorems. -/
 theorem hκdec : 3 * T.κ0 + c1 3 3 + 5 ≤ T.κdec := by
