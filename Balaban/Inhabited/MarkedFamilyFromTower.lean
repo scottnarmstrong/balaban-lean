@@ -70,6 +70,92 @@ theorem rowInHat_step (hN : 5 < N₁) (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k 
 
 end StepTower
 
+/-- **T2, general.  The common marked family at a scale of the general tower.**  Let
+`T : StepTowerG d L N κmin` with `T.m₀ = 1`, `S = hatStepKG … T.δ` the step of a scale with
+`StepScaleDataG`, `5 < N₁`, `0 ≤ ν`, `ν L^{2(k+1)} ≤ 1`.  There are the finite domains `𝒴 zb`
+and terms `Ev zb Y` such that, for the base step of the scale, `han` (analyticity on
+`Ξ^c × FlBall`) and `hsum` (block-energy sum, in terms of `blockEnergyOne`) hold in the forms of
+`markReal_slice_of_countG`, together with the locality and the bound `E* e^{-2 κ_dec d(Y)}` of the
+same `Ev`.  The fixed `markedFamily_fromTower` is its corollary at `T.toG`. -/
+theorem StepTowerG.markedFamily_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (hS₁ : StepScaleDataG T k hk N₁ ν β p₁) (hN : 5 < N₁) (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁)
+    {S : StepSetting d L N₁ T.m₁ k N ϱ} (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) :
+    ∃ (𝒴 : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ T.m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ),
+    (∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 T.t ×ˢ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t)) ∧
+    (∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 T.t,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      blockEnergyOne S.G' (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.BG₂ T.κ T.t k zb (Θ, ψ') =
+        ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ')) ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ∀ u' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      agreeOn (thickSet S.G' Y) u.1 u'.1 →
+        (∀ y ∈ psiThick Y, u.2 y = u'.2 y) → Ev zb Y u = Ev zb Y u') ∧
+    (∀ zb Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 T.t ×ˢ
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t,
+      ‖Ev zb Y u‖ ≤ energyBdScaled d L N (compWeight L S.a₁) k
+        (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+        Real.exp (-2 * T.κdec * treeLenCov S.G' 1 Y)) := by
+  classical
+  subst hϱ
+  subst hS
+  have key : ∀ zb : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))),
+      ∃ Ev : Set (CTorus d L N₁ T.m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ) → ℂ,
+      (∀ D : BgData (T.step k hk N₁ ν β p₁).G' N,
+        XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+        ∀ ψ' ∈ FlBall (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.t,
+        energyBlock (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+          (compWeight L 1) ν k
+          (bgMultC (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (bgC0 d L N) D)
+          (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+            T.BG₂ T.κ 1 ν D ψ') ψ' zb =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx (T.step k hk N₁ ν β p₁).G'
+          (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k zb)) : Set (CTorus d L N₁ T.m₁ (k + 1))) =>
+          i.1.1) (T.step k hk N₁ ν β p₁).G' 1
+          (X1 (T.step k hk N₁ ν β p₁).G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k zb))),
+          Ev Y (rawOf D, ψ')) ∧
+      (∀ Y, ∀ u ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          FlBall (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.t,
+        ∀ u' ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          FlBall (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.t,
+        agreeOn (thickSet (T.step k hk N₁ ν β p₁).G' Y) u.1 u'.1 →
+          (∀ y ∈ psiThick Y, u.2 y = u'.2 y) → Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          FlBall (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.t,
+        ‖Ev Y u‖ ≤ energyBdScaled d L N (compWeight L 1) k
+          (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) T.t (rho4 d L N T.BG T.κ) *
+          Real.exp (-2 * T.κdec * treeLenCov (T.step k hk N₁ ν β p₁).G' 1 Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y)
+        (XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t ×ˢ
+          FlBall (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) T.t)) := by
+    intro zb
+    obtain ⟨hV, -⟩ := hS₁.covers
+    rw [hm₀] at hV
+    obtain ⟨hz1, hz2, hz3, hz4, hz5, hz6, -⟩ := hV zb
+    obtain ⟨Ev, h1, h2, h3, h4, -⟩ := (T.step k hk N₁ ν β p₁).markedCubic_joint_param zb
+      (Hm := stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hS₁.core hz1 hz2 (hatConn_lvTopG T.hL)
+      (rowInHat_lvG hk (dgSetting_lvG T.hd T.hL T.m₁_four hN hν0 hν)) hz3 hz4
+      (κdec := T.κdec) (κ₀ := T.κ0) T.κ0_nonneg T.κdec_lower (by exact_mod_cast T.κ_lower)
+      T.κ_one (by simpa [hm₀] using T.κ_log) (isLevel_lvLowG hk) zb hz5 hz6
+    exact ⟨Ev, h1, h2, h3, h4⟩
+  choose Ev hEv using key
+  refine ⟨fun zb => polymerDomains (fun i : ParIdx (T.step k hk N₁ ν β p₁).G'
+    (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k zb)) : Set (CTorus d L N₁ T.m₁ (k + 1))) =>
+    i.1.1) (T.step k hk N₁ ν β p₁).G' 1
+    (X1 (T.step k hk N₁ ν β p₁).G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k zb))), Ev,
+    fun zb Y => (hEv zb).2.2.2 Y, fun zb => ?_, fun zb Y => (hEv zb).2.1 Y,
+    fun zb Y => (hEv zb).2.2.1 Y⟩
+  exact blockEnergyOne_eq_sum_of_energyBlock_sum zb _ (Ev zb) (hEv zb).1
+
 /-- **T2.  The common marked family at the shared tower.**  At an admissible scale
 (`5 < N₁`, `0 ≤ ν`, `ν 3^{2(k+1)} ≤ 1`) with the per-scale package `hS`, there are the finite
 domains `𝒴 zb` and terms `Ev zb Y` such that, for the base step of the scale, `han`
@@ -108,51 +194,8 @@ theorem markedFamily_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
       ‖Ev zb Y u‖ ≤ energyBdScaled 3 3 2 (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) k
         (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) T.t (rho4 3 3 2 T.BG T.κ) *
         Real.exp (-2 * T.κdec * treeLenCov (T.step k hk N₁ ν β p₁).G' 1 Y)) := by
-  classical
-  have key : ∀ zb : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))), ∃ Ev : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) →
-      RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ) → ℂ,
-      (∀ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
-        XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
-        ∀ ψ' ∈ FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t,
-        energyBlock (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
-          (compWeight 3 1) ν k
-          (bgMultC (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (bgC0 3 3 2) D)
-          (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
-            T.BG₂ T.κ 1 ν D ψ') ψ' zb =
-        ∑ Y ∈ polymerDomains (fun i : ParIdx (T.step k hk N₁ ν β p₁).G'
-          (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k zb)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) =>
-          i.1.1) (T.step k hk N₁ ν β p₁).G' 1
-          (X1 (T.step k hk N₁ ν β p₁).G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k zb))),
-          Ev Y (rawOf D, ψ')) ∧
-      (∀ Y, ∀ u ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
-          FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t,
-        ∀ u' ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
-          FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t,
-        agreeOn (thickSet (T.step k hk N₁ ν β p₁).G' Y) u.1 u'.1 →
-          (∀ y ∈ psiThick Y, u.2 y = u'.2 y) → Ev Y u = Ev Y u') ∧
-      (∀ Y, ∀ u ∈ XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
-          FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t,
-        ‖Ev Y u‖ ≤ energyBdScaled 3 3 2 (compWeight 3 1) k
-          (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) T.t (rho4 3 3 2 T.BG T.κ) *
-          Real.exp (-2 * T.κdec * treeLenCov (T.step k hk N₁ ν β p₁).G' 1 Y)) ∧
-      (∀ Y, AnalyticOnNhd ℂ (Ev Y)
-        (XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
-          FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t)) := by
-    intro zb
-    obtain ⟨hz1, hz2, hz3, hz4, hz5, hz6, -⟩ := hS.covers.1 zb
-    obtain ⟨Ev, h1, h2, h3, h4, -⟩ := (T.step k hk N₁ ν β p₁).markedCubic_joint_param zb
-      (Hm := stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) hS.core hz1 hz2 (T.hatConn_step hk)
-      (T.rowInHat_step hk hN hν0 hν) hz3 hz4 (κdec := T.κdec) (κ₀ := T.κ0) T.κ0_nonneg
-      T.κdec_lower T.κ_lower T.κ_one T.κ_log (isLevel_lvLow hk) zb hz5 hz6
-    exact ⟨Ev, h1, h2, h3, h4⟩
-  choose Ev hEv using key
-  refine ⟨fun zb => polymerDomains (fun i : ParIdx (T.step k hk N₁ ν β p₁).G'
-    (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k zb)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) =>
-    i.1.1) (T.step k hk N₁ ν β p₁).G' 1
-    (X1 (T.step k hk N₁ ν β p₁).G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k zb))), Ev,
-    fun zb Y => (hEv zb).2.2.2 Y, fun zb => ?_, fun zb Y => (hEv zb).2.1 Y,
-    fun zb Y => (hEv zb).2.2.1 Y⟩
-  exact blockEnergyOne_eq_sum_of_energyBlock_sum zb _ (Ev zb) (hEv zb).1
+  exact T.toG.markedFamily_fromTowerG rfl (T.scaleDataG_of_fixed hS) hN hν0 (by simpa using hν)
+    (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl
 
 /-- **T3.  MARK-REAL on the whole slice, unconditional.**  At an admissible scale of the shared
 tower there is one family `𝒴, Ev` (that of `markedFamily_fromTower`) such that for every slice
