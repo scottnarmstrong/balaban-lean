@@ -1326,3 +1326,4 @@ public import Balaban.Fluctuation.SharpVF
 public import Balaban.Fluctuation.SharpENu
 public import Balaban.Fluctuation.ParamDatumFamily
 public import Balaban.Fluctuation.ParamCarrierLocal
+public import Balaban.Fluctuation.ParamActivityPhysical
