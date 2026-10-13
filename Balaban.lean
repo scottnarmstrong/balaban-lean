@@ -1686,3 +1686,4 @@ public import Balaban.Inhabited.DecMarkCorrTotalFromTower
 public import Balaban.Inhabited.ObsTiltFamily
 public import Balaban.Fluctuation.SourceRadius
 public import Balaban.Inhabited.SourceAmpRadius
+public import Balaban.Inhabited.DecMarkCorrSumFromTower
