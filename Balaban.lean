@@ -406,6 +406,7 @@ public import Balaban.Localization.DecoupledCovAnalyticFull
 public import Balaban.Localization.DecoupledCovPrincipal
 public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
+public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -1289,6 +1290,7 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
+public import Balaban.Fluctuation.RootDetCutSupport
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
