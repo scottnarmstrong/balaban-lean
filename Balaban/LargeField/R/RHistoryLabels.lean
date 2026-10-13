@@ -172,6 +172,13 @@ noncomputable def fibreEquiv (k : ℕ) (A : LabHist S n R k0 K) :
       rintro ⟨f, B, hB, rfl⟩
       exact ⟨⟦⟨B, hB⟩⟧, rfl⟩⟩
 
+/-- Realized assignments depend only on the `(k,k)`-class. -/
+theorem realized_congr {k : ℕ} {A A' : LabHist S n R k0 K} (h : A.Agree k k A') :
+    Realized k A = Realized k A' := by
+  ext f
+  exact ⟨fun ⟨B, hB, hf⟩ => ⟨B, LabHist.agree_trans hB h, hf⟩,
+    fun ⟨B, hB, hf⟩ => ⟨B, LabHist.agree_trans hB (LabHist.agree_symm h), hf⟩⟩
+
 /-- **Transport of completeness (enumeration)**: if `𝔄` is complete at `(k,k)` and `𝔄'` contains
 exactly one history for every pair (element `A ∈ 𝔄`, realized assignment `f`), then `𝔄'` is
 complete at `(k,k+1)`. -/
@@ -245,6 +252,137 @@ theorem exists_enum {k : ℕ} {𝔄 : Finset (LabHist S n R k0 K)} (h𝔄 : IsCo
       obtain ⟨h1, h2⟩ := (agree_succ_iff_outcome k C B).mp hCB
       exact ⟨B, ⟨hB, projTo_eq h𝔄 hA (LabHist.agree_trans (LabHist.agree_symm h1) hCA)⟩,
         h2.symm⟩
+
+/-! ### T4: realizability and the cardinality bound -/
+
+/-- Relabel an outcome with the kept label `g`: kept outcomes get the new label, `rem` stays. -/
+def Outcome.relabel (g : Fin 5) : Outcome → Outcome
+  | Outcome.kept _ => Outcome.kept g
+  | Outcome.rem => Outcome.rem
+
+/-- The history with the labels of scale `k` replaced by `g` (same region history). -/
+def LabHist.relabel (A : LabHist S n R k0 K) (k : ℕ) (g : Finset (Torus S.d (n k)) → Fin 5) :
+    LabHist S n R k0 K where
+  H := A.H
+  adm := A.adm
+  lab := fun j c => if h : j = k then g (h ▸ c) else A.lab j c
+
+theorem LabHist.keptLab_relabel_ne (A : LabHist S n R k0 K) (k : ℕ)
+    (g : Finset (Torus S.d (n k)) → Fin 5) {j : ℕ} (hj : j ≠ k)
+    (c : Finset (Torus S.d (n j))) : (A.relabel k g).keptLab j c = A.keptLab j c := by
+  classical
+  unfold LabHist.keptLab
+  change (if h : c ∈ comps (S.omega j) (A.H.Zp j) then
+      if IsKept A.H j ⟨c, h⟩ ∧ c ∉ A.H.rem j then some ((A.relabel k g).lab j c) else none
+    else none) = _
+  split_ifs <;> simp_all [LabHist.relabel]
+
+theorem LabHist.keptLab_relabel (A : LabHist S n R k0 K) (k : ℕ)
+    (g : Finset (Torus S.d (n k)) → Fin 5) (c : Finset (Torus S.d (n k))) :
+    (A.relabel k g).keptLab k c = (A.keptLab k c).map (fun _ => g c) := by
+  classical
+  unfold LabHist.keptLab
+  change (if h : c ∈ comps (S.omega k) (A.H.Zp k) then
+      if IsKept A.H k ⟨c, h⟩ ∧ c ∉ A.H.rem k then some ((A.relabel k g).lab k c) else none
+    else none) = _
+  split_ifs <;> simp_all [LabHist.relabel]
+
+theorem LabHist.relabel_agree (A : LabHist S n R k0 K) (k : ℕ)
+    (g : Finset (Torus S.d (n k)) → Fin 5) : (A.relabel k g).Agree k k A :=
+  ⟨fun j _ => ⟨rfl, rfl, rfl, rfl⟩, fun j hj =>
+    ⟨rfl, funext fun c => A.keptLab_relabel_ne k g (by omega) c⟩⟩
+
+theorem LabHist.relabel_outcomeAt (A : LabHist S n R k0 K) (k : ℕ)
+    (g : Finset (Torus S.d (n k)) → Fin 5) (c : Finset (Torus S.d (n k))) :
+    (A.relabel k g).outcomeAt k c = (A.outcomeAt k c).map (Outcome.relabel (g c)) := by
+  classical
+  by_cases hr : c ∈ A.H.rem k
+  · simp [LabHist.outcomeAt, LabHist.relabel, hr, Outcome.relabel]
+  · simp only [LabHist.outcomeAt, hr, ite_false]
+    show (if c ∈ A.H.rem k then _ else _) = _
+    rw [A.keptLab_relabel k g c]
+    simp only [hr, ite_false]
+    cases A.keptLab k c <;> simp [Outcome.relabel]
+
+/-- **Realizability of every relabelling**: for every choice `g` of labels, the assignment of `A`
+with the kept labels replaced by `g` is realized by a history with the `(k,k)`-record of `A`.
+(With `g` constant this is "all kept components get the same label".  Changing the *removed* set
+is not covered, see the module report: it changes `Z_k` and the later steps.) -/
+theorem realized_of_relabel (A : LabHist S n R k0 K) (k : ℕ)
+    (g : Finset (Torus S.d (n k)) → Fin 5) :
+    (fun c => (A.outcomeAt k c).map (Outcome.relabel (g c))) ∈ Realized k A :=
+  ⟨A.relabel k g, A.relabel_agree k g, funext (A.relabel_outcomeAt k g)⟩
+
+theorem Outcome.card : Fintype.card Outcome = 6 :=
+  (Fintype.ofEquiv_card _).trans (by simp)
+
+/-- **Cardinality bound on a fibre, fixed set of outcome-carrying components**: the realized
+assignments whose set of components carrying an outcome is exactly the finite set `s` number at
+most `6 ^ s.card` (one of the six outcomes per component). -/
+theorem ncard_realized_support_le (k : ℕ) (A : LabHist S n R k0 K)
+    (s : Finset (Finset (Torus S.d (n k)))) :
+    {f ∈ Realized k A | ∀ c, (f c).isSome ↔ c ∈ s}.ncard ≤ 6 ^ s.card := by
+  classical
+  have hfin : (Set.univ : Set (s → Outcome)).Finite := Set.toFinite _
+  have hcard : (Set.univ : Set (s → Outcome)).ncard = 6 ^ s.card := by
+    rw [Set.ncard_univ, Nat.card_eq_fintype_card, Fintype.card_fun, Outcome.card,
+      Fintype.card_coe]
+  rw [← hcard]
+  refine Set.ncard_le_ncard_of_injOn (fun f c => (f c.1).getD Outcome.rem) (fun _ _ => trivial)
+    ?_ hfin
+  rintro f ⟨-, hf⟩ g ⟨-, hg⟩ h
+  funext c
+  by_cases hc : c ∈ s
+  · have h1 := congrFun h ⟨c, hc⟩
+    have hf' := (hf c).2 hc
+    have hg' := (hg c).2 hc
+    simp only at h1
+    cases hfc : f c <;> cases hgc : g c <;> simp_all
+  · have hf' : f c = none := by simpa [hc] using hf c
+    have hg' : g c = none := by simpa [hc] using hg c
+    rw [hf', hg']
+
+/-- The regions `Z^pre_j`, `j ≤ k`, are functions of the `(k,k)`-record. -/
+theorem zpre_eq_of_agree {k : ℕ} {A B : LabHist S n R k0 K} (h : A.Agree k k B) :
+    ∀ j, j ≤ k → A.H.F.Zpre j = B.H.F.Zpre j := by
+  intro j
+  induction j with
+  | zero => intro _; simp [FlowSteps.Zpre]
+  | succ j ih =>
+    intro hj
+    have hj' : j < k := hj
+    have hZ : (A.H.step j).Z = (B.H.step j).Z := by
+      rw [A.H.Z_eq, B.H.Z_eq, ih hj'.le, (h.2 j hj').1]
+    obtain ⟨hP, hQ, hR, hS⟩ := h.1 j hj'
+    unfold FlowSteps.Zpre
+    have key : ∀ (st st' : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j)),
+        st.Z = st'.Z → st.P = st'.P → st.Q = st'.Q → st.R = st'.R → st.S = st'.S →
+        ∀ (ω : ℕ) (c : Option ℕ), st.Zpre ω c = st'.Zpre ω c := by
+      intro st st'
+      obtain ⟨Z, P, Q, R', S', -, -, -, -⟩ := st
+      obtain ⟨Z', P', Q', R'', S'', -, -, -, -⟩ := st'
+      intro h1 h2 h3 h4 h5 ω c
+      simp only at h1 h2 h3 h4 h5
+      subst h1 h2 h3 h4 h5
+      rfl
+    exact key _ _ hZ hP hQ hR hS _ _
+
+/-- The components of `Z^pre_k` are the same for the histories of one `(k,k)`-class. -/
+theorem comps_zp_eq_of_agree {k : ℕ} {A B : LabHist S n R k0 K} (h : A.Agree k k B) :
+    comps (S.omega k) (A.H.Zp k) = comps (S.omega k) (B.H.Zp k) := by
+  have := zpre_eq_of_agree h k le_rfl
+  show comps (S.omega k) (finOf (A.H.F.Zpre k)) = comps (S.omega k) (finOf (B.H.F.Zpre k))
+  rw [this]
+
+/-- A realized assignment is supported on the components of `Z^pre_k`, which depend only on
+the `(k,k)`-record. -/
+theorem realized_support_subset {k : ℕ} {A : LabHist S n R k0 K} {f}
+    (hf : f ∈ Realized k A) (c) (hc : (f c).isSome) : c ∈ comps (S.omega k) (A.H.Zp k) := by
+  obtain ⟨B, hB, rfl⟩ := hf
+  have := ((outcomeAt_adm B k) c).1 hc
+  obtain ⟨h, -⟩ := this
+  have e := comps_zp_eq_of_agree hB
+  exact Eq.mp (congrArg (c ∈ ·) e) h
 
 /-! ### T5: the top pin -/
 

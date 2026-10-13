@@ -1082,6 +1082,7 @@ public import Balaban.Inhabited.LocalizationSettings
 public import Balaban.Inhabited.BgDataStructures
 public import Balaban.Inhabited.StepData
 public import Balaban.Inhabited.RipeHistory
+public import Balaban.Inhabited.RHistoryLabelsWitness
 public import Balaban.Inhabited.RadiiHist
 public import Balaban.Inhabited.RadiiSetting
 public import Balaban.Inhabited.RadiiRipe
