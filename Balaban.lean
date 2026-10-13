@@ -832,6 +832,7 @@ public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
 public import Balaban.LargeField.Base.KF0GoodGaussian
+public import Balaban.LargeField.Base.KF0GoodChart
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
