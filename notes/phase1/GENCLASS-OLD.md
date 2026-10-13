@@ -125,3 +125,9 @@ summation, not the algebraic `sub_at_zero` step.
 - `classOldDec_bgSetting`: `BgSetting` for `Gj = C.Tm.gs j X` from `BgSetting` for any other `Gj0` (e.g. `levelGS j`); `HBj` does not depend on the generator. `FlSetting` does not mention `Gj`.
 - Explicit: the chart inclusion `hchart` (chart in `Dom`), `hB0`/`hF` numerics and `X₁f`, `hcov`, `hX₁`, `hopt` (`IsPolyDom` gives only `CovSetup.chosen`), `hconn`, `hrow`, `κ`-constants. `Gk = 𝔹_k(X)` is taken as any `Gk` with `𝔹_j(X) ≺ Gk` (the whole level `stepG` in the landed results).
 - `classOldDec_expansion` (leaf 2, first statement): `flComp hB hF Eτ = ∑_{Y ∈ polymerDomains(X₁)} Ev Y`, raw-`Y` locality, analyticity, bound `β⁻¹E₀ exp(-κ₀ d_j(X) - 2κ_dec d(Y))`. Not done: the endpoint bridge (leaf 3), `CovSetup`/`hopt` from `IsPolyDom`, the M analogue.
+
+## W747 status (leaf 3, energy endpoint) — `Fluctuation/ClassOldEndpointE.lean`
+
+- `composeData_agree_on_X`: for `GsSpecStrong j _ X Gj`, `composeData` of `Gj` over `stepG` and of `levelGS j` over `stepG` (any `φ`, `D`) have the same field and source at every site of `X`.
+- `classOldEndpoint_complex`, `classOldEndpoint_real`: for a label `(j, y, X)` with `GsSpecStrong` of `Gj` (`BgSetting` with generator `Gj`, `Gk = stepG`), `hatFun (flComp hB hF Eτ) (rawOf D', hatC z) = β⁻¹ Tm.E j y X (composedPairAt… (dataU (psiAt 1 z)))` for `‖z‖ < pp` (complex: `composedPairAtC`, `dataUC`, `psiAtC`). Proof: the landed whole-level steps (`flDatumOne_stepG`, `psiAtC_eq`, `composedPairAtC_eq_of_bg`) plus `localE` and the agreement on `X`. This is `hid` of `oldEnergyHatMatch_of_label_identity` for each label; only `SFTermClauses` (`localE`) and `GsSpecStrong` of the term generator are used.
+- Not done: the marks consequence (replace `Mk τ` of `GeneralEnergyMarksAssembly` by the `Y`-marked derivatives of the expansion; needs the complex-line derivative of the finite sum `∑_Y Ev Y` and a statement of `hlocxs/hfac` on `Y`'s blocks); the M analogue.
