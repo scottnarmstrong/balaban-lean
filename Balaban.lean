@@ -872,6 +872,8 @@ public import Balaban.LargeField.Base.BaseComponentCovariance
 public import Balaban.LargeField.Base.BaseComponentIdentity
 public import Balaban.LargeField.Base.BaseComponentDeterminant
 public import Balaban.LargeField.Base.BaseChartGaussianNormalization
+public import Balaban.LargeField.Base.BaseChartComponent
+public import Balaban.LargeField.Base.BaseChartComponentNormalization
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
@@ -1861,3 +1863,4 @@ public import Balaban.Fluctuation.GeneralEnergyMarksAssembly
 public import Balaban.Fluctuation.GeneralObsMarks
 public import Balaban.Fluctuation.GeneralEnergyValue
 public import Balaban.SmallField.LocalGeneratorRadius
+public import Balaban.Fluctuation.GeneralRenormInput
