@@ -1334,3 +1334,4 @@ public import Balaban.Fluctuation.ParamCarrierLocal
 public import Balaban.Fluctuation.StepActivityHatGeneral
 public import Balaban.Fluctuation.StepActivityDirectGeneral
 public import Balaban.Inhabited.StepActivityDirectGeneralWitness
+public import Balaban.Fluctuation.StepActivityHatLevel

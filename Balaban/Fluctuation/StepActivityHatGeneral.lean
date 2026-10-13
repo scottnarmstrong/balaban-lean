@@ -37,18 +37,24 @@ and the expanded function has, for each old term `τ`, the part
   `β ∑_τ (g_τ/β) (F_τ(ψ̂) - F_τ(0)) = δℱ_k(ψ', g) - ⟨g, φ_k(ψ^{(k)} + ψ') - φ_k(ψ^{(k)})⟩`.
   The left sides are evaluated at the datum `flDatumOne` of the generating sets `GkE τ`, `GjE τ`
   of the functional, with the complex solver of `GkE τ`; the right sides at the composed data
-  `composedPairAt` of the whole-lattice sets, with the solver of `𝔹_k`.  Nothing in the tree
-  compares the two for general generating sets.  Both hypotheses hold for the zero class with no
-  old terms (`oldEnergyHatMatch_zeroClass`, `oldObsHatMatch_zeroClass`), and for any class whose
-  old energy is constant along the fluctuation (`oldEnergyHatMatch_empty_of_dE_eq_zero`).
+  `composedPairAt` of the whole-lattice sets, with the solver of `𝔹_k`.  Both hypotheses hold for
+  the zero class with no old terms (`oldEnergyHatMatch_zeroClass`, `oldObsHatMatch_zeroClass`),
+  for any class whose terms do not depend on the spin (`oldEnergyHatMatch_empty_of_spinIndependent`,
+  `oldObsHatMatch_empty_of_spinIndependent`), and, for an arbitrary class, for the functionals on
+  the whole-lattice generating sets (`StepActivityHatLevel`).  For functionals on localized
+  generating sets nothing in the tree compares the two sides.
 * `Wone_eq_hat_of_oldEnergyHatMatch` (first segment) and `Wtwo_eq_hat_of_oldObsHatMatch` (second
   segment): the general forms of the two zero-class identities, in the same normalization
   (`s²` on the potential part only, source factor `g/β`, outer factor `β`).
+* `Wone_eq_hat_of_spinIndependent`, `Wtwo_eq_hat_of_spinIndependent`: the two segments for a class
+  whose terms do not depend on the spin.
 
 What is proved: under the two named hypotheses, the step exponent of a general class is the value
 of the hat functionals of the physical expansion.  What is not proved: the two named hypotheses
-for old-term functionals on localized generating sets.  The class terms enter only through
-`S.dE C` and `S.dF C g`; no generating set of the class appears.
+for old-term functionals on localized generating sets.  No class membership or domain hypothesis
+is used: the identities need the analyticity of the old-term functionals on the chart of the
+expansion (a hypothesis of the expansion itself) and the two named hypotheses.  The class terms
+enter only through `S.dE C` and `S.dF C g`; no generating set of the class appears.
 -/
 
 @[expose] public section
@@ -220,6 +226,36 @@ theorem dE_eq_zero_of_spinIndependent (C : StepClass d L N₁ m₁ k N ϱ)
   unfold Eloc
   exact finsum_mem_congr rfl fun X _ => hE j y X _ _ _
 
+/-- **The observable composite of a class is that of the zero class plus the old observable
+terms**: `ℱ_k(ψ, g) = ⟨g, φ_k(ψ)⟩₁ + ∑_j ℱ^{(j)}(ψ_k^{(j)}, h, g)`. -/
+theorem FcompAt_eq_zeroClass_add (C : StepClass d L N₁ m₁ k N ϱ) (g : Fld d L N₁ m₁ (k + 1) N)
+    (D : BgData (stepG d L N₁ m₁ k ϱ) N) :
+    FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D g =
+      FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+          (Nat.le_succ k) D g +
+        ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+          (composedPairAt S.a S.ν (Nat.le_succ k) j D).1
+          (composedPairAt S.a S.ν (Nat.le_succ k) j D).2 g := by
+  have hz : FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+      (Nat.le_succ k) D g = _ := FcompAt_zero_eq 0 S.a S.ν (Nat.le_succ k) D g
+  rw [hz]
+  rfl
+
+/-- **The old observable increment**: the increment `δℱ_k` of a class minus that of the zero
+class is the increment of the old observable terms `∑_j ℱ^{(j)}`. -/
+theorem dF_sub_dF_zeroClass (C : StepClass d L N₁ m₁ k N ϱ) (g : Fld d L N₁ m₁ (k + 1) N)
+    (ψ : S.E) :
+    S.dF C g ψ - S.dF (zeroClass d L N₁ m₁ k N ϱ) g ψ =
+      ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+          (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU ψ)).1
+          (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU ψ)).2 g -
+        ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+          (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU S.psi0)).1
+          (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU S.psi0)).2 g := by
+  unfold dF
+  rw [S.FcompAt_eq_zeroClass_add C g (S.dataU ψ), S.FcompAt_eq_zeroClass_add C g (S.dataU S.psi0)]
+  ring
+
 /-- **The observable increment is the direct source part when the observable terms do not depend
 on the spin**: if `ℳ^{(j)}(x, X; Ψ, h, g)` is independent of `Ψ`, then `δℱ_k(ψ', g)` is that of
 the zero class, `⟨g, φ_k(ψ^{(k)} + ψ') - φ_k(ψ^{(k)})⟩`. -/
@@ -246,21 +282,9 @@ theorem dF_eq_zeroClass_of_spinIndependent (C : StepClass d L N₁ m₁ k N ϱ)
     refine Finset.sum_congr rfl fun j hj => ?_
     rw [S.composedPairAt_h ψ hj, S.composedPairAt_h S.psi0 hj]
     exact hFl j _ _ _
-  have key : ∀ D : BgData (stepG d L N₁ m₁ k ϱ) N,
-      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D g =
-        FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
-            (Nat.le_succ k) D g +
-          ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
-            (composedPairAt S.a S.ν (Nat.le_succ k) j D).1
-            (composedPairAt S.a S.ν (Nat.le_succ k) j D).2 g := by
-    intro D
-    have hz : FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
-        (Nat.le_succ k) D g = _ := FcompAt_zero_eq 0 S.a S.ν (Nat.le_succ k) D g
-    rw [hz]
-    rfl
-  unfold dF
-  rw [key, key, hsum]
-  ring
+  have h := S.dF_sub_dF_zeroClass C g ψ
+  rw [hsum, sub_self] at h
+  exact sub_eq_zero.1 h
 
 end StepSetting
 
