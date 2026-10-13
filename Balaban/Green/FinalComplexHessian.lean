@@ -134,13 +134,13 @@ theorem one_sub_projHC_mul {h : Fin N → ℂ} (hs : ∑ k, h k ^ 2 ≠ 0) :
 /-- Entries of `A ⊗ 1 · (1 - P_h)`: `A x y (δᵢⱼ - hᵢ hⱼ/(h·h))`. -/
 theorem liftOp_mul_one_sub_projHC_apply (h : Fin N → ℂ) (A : Matrix ι ι ℂ) (x y : ι) (i j : Fin N) :
     (Multiscale.liftOp N A * (1 - projHC h) : Matrix (ι × Fin N) (ι × Fin N) ℂ) (x, i) (y, j) =
-      A x y * ((if i = j then 1 else 0) - h i * h j / ∑ k, h k ^ 2) := by
+      A x y * ((if i = j then 1 else 0) - spinProj h i j) := by
   rw [mul_sub, mul_one, Matrix.sub_apply]
   have e : (Multiscale.liftOp N A * projHC h : Matrix (ι × Fin N) (ι × Fin N) ℂ) (x, i) (y, j) =
       A x y * spinProj h i j :=
     congrFun (congrFun (liftOp_mul_idKron A (spinProj h)) (x, i)) (y, j)
   rw [e]
-  simp only [Multiscale.liftOp, spinProj]
+  simp only [Multiscale.liftOp]
   by_cases hij : i = j
   · subst hij; simp [mul_sub]
   · simp [hij]
@@ -545,8 +545,305 @@ theorem finalHessianC_inv_eq (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 �
   have ha0 : 0 < a := by linarith
   have hU := (finalMass_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass (le_refl (0 : ℝ))).1
   simp only [Complex.ofReal_zero, zero_smul, add_zero] at hU
-  exact (hessC_inv (by exact_mod_cast ha0.ne') hU hs).2
+  exact (hessC_inv (Complex.ofReal_ne_zero.2 ha0.ne') hU hs).2
 
 end FinalDecay
+
+section Sqrt
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+/-- The Stieltjes integral, entrywise. -/
+theorem sqrtMat_apply_eq {κ : Type*} [Fintype κ] [DecidableEq κ] (B : Matrix κ κ ℂ) (p q : κ) :
+    Localization.sqrtMat B p q =
+      ((1 / Real.pi : ℝ) : ℂ) * ∫ y in Ioi (0 : ℝ),
+        ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * ((y : ℂ) • (1 : Matrix κ κ ℂ) + B)⁻¹ p q := rfl
+
+/-- **The principal inverse square root of the complex Hessian (T4).**  For `a > 0`, `U` with
+resolvent entries (`ResOK`) and `h·h ≠ 0`, `D(h)` has resolvent entries and
+`sqrtMat D(h) = a^{-1/2} P_h + (sqrtMat U ⊗ 1)(1 - P_h)`. -/
+theorem sqrtMat_hessC [Nonempty ι] [NeZero N] {a : ℝ} (ha : 0 < a) {U : Matrix ι ι ℂ}
+    (hU : Localization.ResOK U) {h : Fin N → ℂ} (hs : ∑ k, h k ^ 2 ≠ 0) :
+    Localization.ResOK (hessC N (a : ℂ) U h) ∧
+      Localization.sqrtMat (hessC N (a : ℂ) U h) =
+        ((1 / Real.sqrt a : ℝ) : ℂ) • projHC h +
+          Multiscale.liftOp N (Localization.sqrtMat U) * (1 - projHC h) := by
+  have : Nonempty (Fin N) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne N)⟩⟩
+  have hat : ∀ y : ℝ, 0 ≤ y → (a : ℂ) + (y : ℂ) ≠ 0 := fun y hy => by
+    rw [← Complex.ofReal_add]; exact_mod_cast (by linarith : a + y ≠ 0)
+  have hUy : ∀ y : ℝ, 0 ≤ y → IsUnit (U + (y : ℂ) • (1 : Matrix ι ι ℂ)) := fun y hy => by
+    rw [add_comm]; exact hU y hy
+  have hA : Localization.ResOK (hessC N (a : ℂ) U h) := fun y hy => by
+    rw [add_comm]; exact (hessC_resolvent (hat y hy) (hUy y hy) hs).1
+  refine ⟨hA, ?_⟩
+  ext ⟨x, i⟩ ⟨z, j⟩
+  have hsq : (Real.sqrt a : ℂ) ≠ 0 := by
+    exact_mod_cast (Real.sqrt_pos.2 ha).ne'
+  have hpi : (Real.pi : ℂ) ≠ 0 := by exact_mod_cast Real.pi_pos.ne'
+  have hres : ∀ y ∈ Ioi (0 : ℝ),
+      ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + hessC N (a : ℂ) U h)⁻¹ (x, i) (z, j) =
+        (if x = z then spinProj h i j else 0) *
+            (((y ^ (-(1 / 2 : ℝ)) * (a + y)⁻¹ : ℝ)) : ℂ) +
+          (((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * ((y : ℂ) • (1 : Matrix ι ι ℂ) + U)⁻¹ x z) *
+            ((if i = j then 1 else 0) - spinProj h i j) := by
+    intro y hy
+    have hy0 : 0 ≤ y := (mem_Ioi.mp hy).le
+    rw [add_comm, hessC_resolvent_apply (hat y hy0) (hUy y hy0) hs, add_comm (U) _]
+    push_cast
+    ring
+  have hf1 : Integrable (fun y : ℝ => (((y ^ (-(1 / 2 : ℝ)) * (a + y)⁻¹ : ℝ)) : ℂ))
+      (volume.restrict (Ioi (0 : ℝ))) :=
+    (Localization.integrableOn_rpow_inv_add ha).ofReal
+  have hf2 := Localization.integrable_sqrt_entry hU x z
+  have hI1 : ∫ y in Ioi (0 : ℝ), (((y ^ (-(1 / 2 : ℝ)) * (a + y)⁻¹ : ℝ)) : ℂ) =
+      ((Real.pi / Real.sqrt a : ℝ) : ℂ) := by
+    rw [integral_complex_ofReal, Localization.integral_rpow_inv_add ha]
+  have hlhs : Localization.sqrtMat (hessC N (a : ℂ) U h) (x, i) (z, j) =
+      ((1 / Real.pi : ℝ) : ℂ) * ((if x = z then spinProj h i j else 0) *
+          ((Real.pi / Real.sqrt a : ℝ) : ℂ) +
+        (∫ y in Ioi (0 : ℝ), ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+            ((y : ℂ) • (1 : Matrix ι ι ℂ) + U)⁻¹ x z) *
+          ((if i = j then 1 else 0) - spinProj h i j)) := by
+    rw [sqrtMat_apply_eq, setIntegral_congr_fun measurableSet_Ioi hres,
+      integral_add (hf1.const_mul _) (hf2.mul_const _), integral_const_mul, integral_mul_const, hI1]
+  have hP : (projHC h : Matrix (ι × Fin N) (ι × Fin N) ℂ) (x, i) (z, j) =
+      if x = z then spinProj h i j else 0 := rfl
+  rw [hlhs, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul, hP,
+    liftOp_mul_one_sub_projHC_apply, sqrtMat_apply_eq (B := U) x z]
+  push_cast
+  generalize spinProj h i j = Q
+  generalize (∫ y in Ioi (0 : ℝ), ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+    ((y : ℂ) • (1 : Matrix ι ι ℂ) + U)⁻¹ x z) = I
+  by_cases hxz : x = z <;> simp only [hxz, ite_true, ite_false] <;> field_simp
+
+end Sqrt
+
+section FinalSqrt
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L]
+
+/-- **Square root of the final complex Hessian (T4).**  `D(h)` has resolvent entries (`ResOK`),
+`sqrtMat D(h) = a^{-1/2} P_h + (sqrtMat U ⊗ 1)(1 - P_h)` with `U = finalOp`, and
+`sqrtMat D(h)² = D(h)⁻¹`. -/
+theorem finalHessianC_sqrt_eq (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) [NeZero N]
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) :
+    Localization.ResOK (finalHessianC d L N₀ k v a h) ∧
+      Localization.sqrtMat (finalHessianC d L N₀ k v a h) =
+        ((1 / Real.sqrt a : ℝ) : ℂ) • projHC h +
+          Multiscale.liftOp N (Localization.sqrtMat (finalOp d L N₀ k v a)) * (1 - projHC h) ∧
+      Localization.sqrtMat (finalHessianC d L N₀ k v a h) *
+          Localization.sqrtMat (finalHessianC d L N₀ k v a h) =
+        (finalHessianC d L N₀ k v a h)⁻¹ := by
+  have ha0 : 0 < a := by linarith
+  obtain ⟨hA, he⟩ := sqrtMat_hessC ha0
+    (finalMass_resOK (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass) hs
+  exact ⟨hA, he, Localization.sqrtMat_mul_self hA⟩
+
+/-- **Entry decay of the square root of the complex final Hessian (T4).**
+`‖sqrtMat D(h) (x,i) (y,j)‖ ≤ p a^{-1/2} [x=y] + (1+p) (2/√g_*) e^{-r_* dist x y}`. -/
+theorem finalHessianC_sqrt_decay (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) [NeZero N]
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
+    (x y : L1Torus d N₀) (i j : Fin N) :
+    ‖Localization.sqrtMat (finalHessianC d L N₀ k v a h) (x, i) (y, j)‖ ≤
+      p * (1 / Real.sqrt a) * (if x = y then 1 else 0) +
+        (1 + p) * (2 / Real.sqrt (finalGap d L)) * Real.exp (-finalRate d L * dist x y) := by
+  have ha0 : 0 < a := by linarith
+  rw [(finalHessianC_sqrt_eq (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hs).2.1, Matrix.add_apply,
+    Matrix.smul_apply, smul_eq_mul, liftOp_mul_one_sub_projHC_apply]
+  have hP : (projHC h : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ) (x, i) (y, j) =
+      if x = y then spinProj h i j else 0 := rfl
+  rw [hP]
+  have hP' : ‖(if x = y then spinProj h i j else 0)‖ ≤ p * (if x = y then 1 else 0) := by
+    split_ifs
+    · simpa using hp i j
+    · simp
+  have hD : ‖((if i = j then 1 else 0) - spinProj h i j : ℂ)‖ ≤ 1 + p :=
+    (norm_sub_le _ _).trans (add_le_add (by split_ifs <;> simp) (hp i j))
+  have hc : ‖((1 / Real.sqrt a : ℝ) : ℂ)‖ = 1 / Real.sqrt a := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+  have hW := finalMass_sqrt_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass x y
+  have hWn : 0 ≤ 2 / Real.sqrt (finalGap d L) * Real.exp (-finalRate d L * dist x y) :=
+    le_trans (norm_nonneg _) hW
+  calc _ ≤ ‖((1 / Real.sqrt a : ℝ) : ℂ) * (if x = y then spinProj h i j else 0)‖ +
+        ‖Localization.sqrtMat (finalOp d L N₀ k v a) x y *
+          ((if i = j then 1 else 0) - spinProj h i j)‖ := norm_add_le _ _
+    _ ≤ 1 / Real.sqrt a * (p * (if x = y then 1 else 0)) +
+        (2 / Real.sqrt (finalGap d L) * Real.exp (-finalRate d L * dist x y)) * (1 + p) := by
+        rw [norm_mul, norm_mul, hc]
+        exact add_le_add (mul_le_mul_of_nonneg_left hP' (by positivity))
+          (mul_le_mul hW hD (norm_nonneg _) hWn)
+    _ = _ := by ring
+
+end FinalSqrt
+
+section Analytic
+
+variable {N : ℕ}
+
+theorem eventually_sum_sq_ne_zero {h₀ : Fin N → ℂ} (hs : ∑ k, h₀ k ^ 2 ≠ 0) :
+    ∀ᶠ h in nhds h₀, ∑ k, h k ^ 2 ≠ 0 := by
+  have hc : Continuous fun h : Fin N → ℂ => ∑ k, h k ^ 2 :=
+    continuous_finsetSum _ fun k _ => (continuous_apply k).pow 2
+  exact hc.continuousAt.eventually_ne hs
+
+theorem isOpen_sum_sq_ne_zero : IsOpen {h : Fin N → ℂ | ∑ k, h k ^ 2 ≠ 0} := by
+  have hc : Continuous fun h : Fin N → ℂ => ∑ k, h k ^ 2 :=
+    continuous_finsetSum _ fun k _ => (continuous_apply k).pow 2
+  exact isOpen_ne_fun hc continuous_const
+
+/-- **Holomorphy of the spin projection (T5).**  `h ↦ hᵢhⱼ/(h·h)` is analytic wherever
+`h·h ≠ 0`. -/
+theorem spinProj_analyticAt {h₀ : Fin N → ℂ} (hs : ∑ k, h₀ k ^ 2 ≠ 0) (i j : Fin N) :
+    AnalyticAt ℂ (fun h : Fin N → ℂ => spinProj h i j) h₀ := by
+  have hproj : ∀ k, AnalyticAt ℂ (fun h : Fin N → ℂ => h k) h₀ := fun k =>
+    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) k).analyticAt h₀
+  unfold spinProj
+  exact ((hproj i).mul (hproj j)).div
+    (Finset.analyticAt_fun_sum _ fun k _ => (hproj k).pow 2) hs
+
+end Analytic
+
+section AnalyticFinal
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L]
+
+/-- Entries of the inverse: `D⁻¹ (x,i) (y,j) = a⁻¹ [x=y] Qᵢⱼ + U⁻¹ x y (δᵢⱼ - Qᵢⱼ)`. -/
+theorem hessC_inv_apply {ι : Type*} [Fintype ι] [DecidableEq ι] {a : ℂ} (ha : a ≠ 0)
+    {U : Matrix ι ι ℂ} (hU : IsUnit U) {h : Fin N → ℂ} (hs : ∑ k, h k ^ 2 ≠ 0)
+    (x y : ι) (i j : Fin N) :
+    (hessC N a U h)⁻¹ (x, i) (y, j) =
+      a⁻¹ * (if x = y then spinProj h i j else 0) +
+        U⁻¹ x y * ((if i = j then 1 else 0) - spinProj h i j) := by
+  rw [(hessC_inv ha hU hs).2, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul,
+    liftOp_mul_one_sub_projHC_apply]
+  rfl
+
+/-- Analyticity of `h ↦ c₁ [x=y] Qᵢⱼ(h) + c₂ (δᵢⱼ - Qᵢⱼ(h))` on `{h·h ≠ 0}`. -/
+theorem analyticAt_affine_spinProj {ι : Type*} [DecidableEq ι] {h₀ : Fin N → ℂ}
+    (hs : ∑ k, h₀ k ^ 2 ≠ 0) (c₁ c₂ : ℂ) (x y : ι) (i j : Fin N) :
+    AnalyticAt ℂ (fun h : Fin N → ℂ => c₁ * (if x = y then spinProj h i j else 0) +
+      c₂ * ((if i = j then 1 else 0) - spinProj h i j)) h₀ := by
+  have hq := spinProj_analyticAt hs i j
+  refine (analyticAt_const.mul ?_).add (analyticAt_const.mul (analyticAt_const.sub hq))
+  by_cases hxy : x = y
+  · simpa [hxy] using hq
+  · simpa [hxy] using (analyticAt_const : AnalyticAt ℂ (fun _ : Fin N → ℂ => (0 : ℂ)) h₀)
+
+/-- **Holomorphy in `h` of the inverse (T5).**  On the open set `{h·h ≠ 0}`, every entry of
+`D(h)⁻¹` is analytic in `h`. -/
+theorem finalHessianC_inv_analytic (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (x y : L1Torus d N₀) (i j : Fin N) :
+    AnalyticOnNhd ℂ (fun h : Fin N → ℂ => (finalHessianC d L N₀ k v a h)⁻¹ (x, i) (y, j))
+      {h | ∑ k, h k ^ 2 ≠ 0} := by
+  have ha0 : 0 < a := by linarith
+  have hU := (finalMass_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass (le_refl (0 : ℝ))).1
+  simp only [Complex.ofReal_zero, zero_smul, add_zero] at hU
+  have hg : AnalyticOnNhd ℂ (fun h : Fin N → ℂ => (a : ℂ)⁻¹ * (if x = y then spinProj h i j else 0) +
+      (finalOp d L N₀ k v a)⁻¹ x y * ((if i = j then 1 else 0) - spinProj h i j))
+      {h | ∑ k, h k ^ 2 ≠ 0} := fun h₀ hh₀ =>
+    analyticAt_affine_spinProj hh₀ _ _ x y i j
+  refine hg.congr isOpen_sum_sq_ne_zero fun h hh => ?_
+  exact (hessC_inv_apply (Complex.ofReal_ne_zero.2 ha0.ne') hU hh x y i j).symm
+
+/-- **Holomorphy in `h` of the square root (T5).** -/
+theorem finalHessianC_sqrt_analytic (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) [NeZero N]
+    (x y : L1Torus d N₀) (i j : Fin N) :
+    AnalyticOnNhd ℂ (fun h : Fin N → ℂ =>
+        Localization.sqrtMat (finalHessianC d L N₀ k v a h) (x, i) (y, j))
+      {h | ∑ k, h k ^ 2 ≠ 0} := by
+  have hg : AnalyticOnNhd ℂ (fun h : Fin N → ℂ => ((1 / Real.sqrt a : ℝ) : ℂ) *
+      (if x = y then spinProj h i j else 0) +
+      Localization.sqrtMat (finalOp d L N₀ k v a) x y * ((if i = j then 1 else 0) - spinProj h i j))
+      {h | ∑ k, h k ^ 2 ≠ 0} := fun h₀ hh₀ =>
+    analyticAt_affine_spinProj hh₀ _ _ x y i j
+  refine hg.congr isOpen_sum_sq_ne_zero fun h hh => ?_
+  rw [(finalHessianC_sqrt_eq (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hh).2.1, Matrix.add_apply,
+    Matrix.smul_apply, smul_eq_mul, liftOp_mul_one_sub_projHC_apply]
+  rfl
+
+/-- **Joint holomorphy of the inverse in `(z, h)` (T5).**  For `E z` with `WSmall r η (E z)`,
+`η < g_*`, `E` analytic on the open set `Ω`, and `h·h ≠ 0`: every entry of
+`(a P_h + ((U + E z) ⊗ 1)(1 - P_h))⁻¹` is analytic in `(z, h)` on `Ω × {h·h ≠ 0}`. -/
+theorem finalPert_hessC_inv_analytic (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {r η : ℝ} (hr : 0 < r) (hη0 : 0 ≤ η) (hηg : η < finalGap d L)
+    {Ω : Set ℂ} (hΩ : IsOpen Ω) {E : ℂ → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hana : ∀ z ∈ Ω, ∀ i j, AnalyticAt ℂ (fun w => E w i j) z)
+    (hE : ∀ z ∈ Ω, WSmall r η (E z)) (x y : L1Torus d N₀) (i j : Fin N) :
+    AnalyticOnNhd ℂ (fun w : ℂ × (Fin N → ℂ) =>
+        (hessC N (a : ℂ) (finalOp d L N₀ k v a + E w.1) w.2)⁻¹ (x, i) (y, j))
+      (Ω ×ˢ {h | ∑ k, h k ^ 2 ≠ 0}) := by
+  have ha0 : 0 < a := by linarith
+  have hg : AnalyticOnNhd ℂ (fun w : ℂ × (Fin N → ℂ) => (a : ℂ)⁻¹ *
+      (if x = y then spinProj w.2 i j else 0) +
+      (finalOp d L N₀ k v a + E w.1)⁻¹ x y * ((if i = j then 1 else 0) - spinProj w.2 i j))
+      (Ω ×ˢ {h | ∑ k, h k ^ 2 ≠ 0}) := by
+    rintro ⟨z, h₀⟩ ⟨hz, hh₀⟩
+    have hq : AnalyticAt ℂ (fun w : ℂ × (Fin N → ℂ) => spinProj w.2 i j) (z, h₀) :=
+      (spinProj_analyticAt hh₀ i j).comp analyticAt_snd
+    have hW : AnalyticAt ℂ (fun w : ℂ × (Fin N → ℂ) => (finalOp d L N₀ k v a + E w.1)⁻¹ x y)
+        (z, h₀) :=
+      (finalPert_analytic_inverse (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hr hη0 hηg hana hE x y z hz).comp
+        (analyticAt_fst (p := (z, h₀)))
+    refine (analyticAt_const.mul ?_).add (hW.mul (analyticAt_const.sub hq))
+    by_cases hxy : x = y
+    · simpa [hxy] using hq
+    · simpa [hxy] using
+        (analyticAt_const : AnalyticAt ℂ (fun _ : ℂ × (Fin N → ℂ) => (0 : ℂ)) (z, h₀))
+  refine hg.congr (hΩ.prod isOpen_sum_sq_ne_zero) ?_
+  rintro ⟨z, h⟩ ⟨hz, hh⟩
+  have hU := (finalPert_resolvent_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hr hη0 hηg (hE z hz)
+    (le_refl (0 : ℝ))).1
+  simp only [Complex.ofReal_zero, zero_smul, add_zero] at hU
+  exact (hessC_inv_apply (Complex.ofReal_ne_zero.2 ha0.ne') hU hh x y i j).symm
+
+/-- **Joint holomorphy of the square root in `(z, h)` (T5).**  With the same hypotheses
+(for `z ∈ ℂ` and `Ω` open), every entry of `sqrtMat (a P_h + ((U + E z) ⊗ 1)(1 - P_h))` is
+analytic in `(z, h)` on `Ω × {h·h ≠ 0}`; this uses the landed one-variable
+`finalPert_analytic_sqrt` (analytic in `z`) and the exact formula (T4), which is affine in `P_h`. -/
+theorem finalPert_hessC_sqrt_analytic (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) [NeZero N]
+    {r η : ℝ} (hr : 0 < r) (hη0 : 0 ≤ η) (hηg : η < finalGap d L)
+    {Ω : Set ℂ} (hΩ : IsOpen Ω) {E : ℂ → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hana : ∀ z ∈ Ω, ∀ i j, AnalyticAt ℂ (fun w => E w i j) z)
+    (hE : ∀ z ∈ Ω, WSmall r η (E z)) (x y : L1Torus d N₀) (i j : Fin N) :
+    AnalyticOnNhd ℂ (fun w : ℂ × (Fin N → ℂ) =>
+        Localization.sqrtMat (hessC N (a : ℂ) (finalOp d L N₀ k v a + E w.1) w.2) (x, i) (y, j))
+      (Ω ×ˢ {h | ∑ k, h k ^ 2 ≠ 0}) := by
+  have ha0 : 0 < a := by linarith
+  have hg : AnalyticOnNhd ℂ (fun w : ℂ × (Fin N → ℂ) => ((1 / Real.sqrt a : ℝ) : ℂ) *
+      (if x = y then spinProj w.2 i j else 0) +
+      Localization.sqrtMat (finalOp d L N₀ k v a + E w.1) x y *
+        ((if i = j then 1 else 0) - spinProj w.2 i j))
+      (Ω ×ˢ {h | ∑ k, h k ^ 2 ≠ 0}) := by
+    rintro ⟨z, h₀⟩ ⟨hz, hh₀⟩
+    have hq : AnalyticAt ℂ (fun w : ℂ × (Fin N → ℂ) => spinProj w.2 i j) (z, h₀) :=
+      (spinProj_analyticAt hh₀ i j).comp analyticAt_snd
+    have hW0 : AnalyticAt ℂ
+        (fun z' : ℂ => Localization.sqrtMat (finalOp d L N₀ k v a + E z') x y) z :=
+      finalPert_analytic_sqrt (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hr hη0 hηg
+        hΩ hana hE x y z hz
+    have hW : AnalyticAt ℂ (fun w : ℂ × (Fin N → ℂ) =>
+        Localization.sqrtMat (finalOp d L N₀ k v a + E w.1) x y) (z, h₀) := by
+      have h2 := hW0.comp (analyticAt_fst (𝕜 := ℂ) (p := (z, h₀)))
+      exact h2
+    refine (analyticAt_const.mul ?_).add (hW.mul (analyticAt_const.sub hq))
+    by_cases hxy : x = y
+    · simpa [hxy] using hq
+    · simpa [hxy] using
+        (analyticAt_const : AnalyticAt ℂ (fun _ : ℂ × (Fin N → ℂ) => (0 : ℂ)) (z, h₀))
+  refine hg.congr (hΩ.prod isOpen_sum_sq_ne_zero) ?_
+  rintro ⟨z, h⟩ ⟨hz, hh⟩
+  dsimp only at hz hh ⊢
+  rw [(sqrtMat_hessC ha0 (finalPert_resOK (L := L) (N₀ := N₀) (k := k) hd hk hv0 hv1 ha1 ha2 hmass hr hη0 hηg (hE z hz))
+    hh).2, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul, liftOp_mul_one_sub_projHC_apply]
+  rfl
+
+end AnalyticFinal
 
 end Balaban.Green
