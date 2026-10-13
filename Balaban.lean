@@ -1801,6 +1801,7 @@ public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
 public import Balaban.Fluctuation.StepComplexProp26J
+public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
