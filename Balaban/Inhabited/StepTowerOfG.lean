@@ -67,6 +67,16 @@ theorem StepTowerG.nonempty_fixed_of_three {κmin : ℝ} (T : StepTowerG 3 3 2 �
     (h0 : T.κ0 = aEnt 3 3 + 2) (hm : T.m₀ = 1) : Nonempty (StepTower κmin) :=
   ⟨T.ofThree h0 hm⟩
 
+/-- **The tower record is inhabited** for every lower bound `κmin`. -/
+theorem exists_stepTower (κmin : ℝ) : Nonempty (StepTower κmin) := by
+  obtain ⟨T, hm, -, h0⟩ := exists_stepTowerRenG 3 3 2 le_rfl le_rfl le_rfl 1 le_rfl 0 0 κmin
+  have := aEnt_nonneg 3 3
+  exact StepTowerG.nonempty_fixed_of_three T.toStepTowerG (h0 (by simp; linarith)) hm
+
+/-- **The general tower record is inhabited** at `d = L = 3`, `N = 2` for every `κmin`. -/
+theorem exists_stepTowerG_three (κmin : ℝ) : Nonempty (StepTowerG 3 3 2 κmin) :=
+  (exists_stepTower κmin).map StepTower.toG
+
 /-- A general tower with margins at `3, 3, 2` with `κ₀ = a_Ent + 2` and `m₀ = 1` gives a fixed
 tower with margins. -/
 theorem StepTowerRenG.nonempty_fixed_of_three {κmin : ℝ} (T : StepTowerRenG 3 3 2 κmin)

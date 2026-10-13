@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerOfG
 public import Balaban.Inhabited.UniformChartMargins
 public import Balaban.Inhabited.SourceActivityFromTower
 public import Balaban.Inhabited.DetPackageFromTower
