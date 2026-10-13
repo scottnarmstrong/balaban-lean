@@ -510,13 +510,8 @@ theorem obsRayActivity_fromTower {κmin : ℝ} (T : StepTower κmin)
   have hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
   have hεpos : 0 < β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
       (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β) := by
-    rw [sourceEta_scaled_identity_one 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) β hβ0.ne']
-    have hc1 := one_le_c1 3 3
-    have hc1' : (0 : ℝ) ≤ c1 3 3 := by linarith
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    have hQ : 0 < cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) := cK2'_pos' T.fam_nonneg
-    exact add_pos_of_nonneg_of_pos (by positivity) (div_pos (mul_pos hQ T.t_pos) hr0)
+    exact sourceEta_scaled_pos 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t _ 1 β hβ0 one_pos hr0
+      T.t_pos (cK2'_pos' T.fam_nonneg) (by linarith [one_le_c1 3 3])
   refine ⟨val, 𝒴, Tt, hdom, hval, hεpos, ?_⟩
   have hxwz : ∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ ψ ∈ hatDisk (T.step k hk N₁ ν β p₁).U 2 p₁,
       ((z • ψ, z • ψ), (z • ψ, z • ψ)) ∈

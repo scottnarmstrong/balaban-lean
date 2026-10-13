@@ -74,27 +74,109 @@ theorem renormDetOnlyZero_expInput_core {d L N₀ k N : ℕ} [NeZero N₀] [NeZe
   exact ⟨renormExpInputOn_zero_of_fields sub locC1 locC2 hE' locDφ
     (fun _ => ⟨_, isLocExp_zero_cover _ _⟩), hE'⟩
 
-/-- **The step's own datum lies in the fibre domain, at every radius `e > 0`, general tower.** -/
-theorem StepTowerG.exists_xiCOneReal_fibre_step {d L N : ℕ} [NeZero L] {κmin : ℝ}
-    (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
-    (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
-    {e : ℝ} (he : 0 < e) :
-    XiCOneReal (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν e
-        (T.step k hk N₁ ν β p₁).D' ∧
-      ∀ x i, (T.step k hk N₁ ν β p₁).D'.h x i = (((T.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ) := by
-  refine ⟨?_, (T.step k hk N₁ ν β p₁).hh₀⟩
-  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos T.hN
-  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
-  refine ⟨fun _ => unitVec hN0, unitVec hN0, 0,
-    exists_xiC hHB (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (massLe_lvG hν) he, ?_, ?_⟩
-  · intro x hx i
-    have := unitBg_Ψ_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
-    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).Ψ x i = _
-    rw [this]; simp
-  · intro x hx i
-    have := unitBg_h_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
-    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).h x i = _
-    rw [this]; simp
+/-- Core of `renormDetOnlyZeroM_onFibre_half` over a free separation parameter `ϱ = rhoSepG d L m₁`. -/
+private theorem StepTowerThetaG.renormDetOnlyZeroM_onFibre_half_core {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L R.m₁)
+    (hhull : 2 * d * L * (1 + collarB d L) *
+        (renDetA d L 1 * (3 / 2 * R.κdec + c1 d L * Real.log 2) + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ R.κ) (hm₀ : R.m₀ = 1) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
+    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
+    (Xcut : Set (CTorus d L N₁ R.m₁ (k + 1))) :
+    ∃ E : ∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))),
+        DetExpansionLocC ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) 1 z (2 * R.t)
+          ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))),
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 → ℂ),
+    ∃ Fcut : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        (RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
+        R.r₀ (8 * (R.t / 2)) F ∧
+      AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ)) ×
+          (RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ) => Fcut p.1 p.2)
+        (expDom (lvTopG d L N₁ R.m₁ k (ϱ))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ)
+            (fun _ => Real.exp R.κ)) ∧
+      (∀ D : BgData (lvTopG d L N₁ R.m₁ k (ϱ)) N,
+        XiCOneReal (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) D →
+        ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ)) ∧
+      RenormExpInputOn (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)
+        R.r₀ (renCK d L N R.BG R.κ) (8 * (R.t / 2)) F
+        (fun z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) =>
+          blockSites d L N₁ R.m₁ (k + 1) k z)
+        (fun z => renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+            (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+          (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+        (fun p => renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+            (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k
+              (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+          (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k
+            (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+        (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (3 / 2 * R.κdec) (3 / 2 * R.κdec) 1
+        (hullConst d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))) *
+            Real.exp (c1 d L * Real.log 2) * Real.exp (hullRate d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))))
+        0 0 0 (renE0θ_det (R.t / 2) E) (fun _ _ _ => 0) (fun _ _ _ => 0) (fun _ _ _ => 0)
+        (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) ∧
+      (∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))), ∃ term,
+        IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+              ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+              (R.t / 2) D ∧
+            ∀ x i, D.h x i = ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+              (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+            (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (3 / 2 * R.κdec)
+          (hullConst d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))) *
+            Real.exp (c1 d L * Real.log 2) * Real.exp (hullRate d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))))
+          (renE0θ_det (R.t / 2) E z) term) ∧
+      (∀ z, renE0θ_det (R.t / 2) E z ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).D' 0 =
+        -(1 / 2 : ℂ) * ∑ y ∈ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).blockU z, ∑ i : Fin N,
+          ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).logAC (y, i) (y, i)) ∧
+      (XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+          ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+          (R.t / 2) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).D' ∧
+        ∀ x i, ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).D'.h x i =
+          ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) ∧
+      (∀ D : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N,
+        (XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) →
+        ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ →
+          XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (k + 1) 1 R.t (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ)) := by
+  subst hϱ
+  have ht := R.t_pos
+  have he : 0 < R.t / 2 := by positivity
+  have het : R.t / 2 ≤ R.t := by linarith
+  have hκ : 0 ≤ R.κdec := by have := R.κdec_lower; have := R.κ0_nonneg; linarith
+  have hκa : 3 / 2 * R.κdec ≤ 2 * R.κdec := by linarith
+  have hN₀ : L ^ R.m₀ ∣ N₁ := by rw [hm₀]; simpa using hLN
+  obtain ⟨F, hF, h1, h2, h3⟩ :=
+    renLoc_fields_scale_of_towerG_at R.toStepTowerRenSolG k hk N₁ hN₀ hN hν0 hν he het hκa hκa
+  rw [hm₀] at h1 h2 h3
+  obtain ⟨Fcut, hFa, hFe⟩ := renDec_one_unique_sharp_scale_of_towerG_at R.toStepTowerRenEndG k hk
+    N₁ hN hν0 hν he het Xcut hF le_rfl
+  obtain ⟨E, hE0, hE⟩ := R.expE0_det_scale_of_tower_at hhull he het k hk N₁ hLN hN hν0 hν β p₁
+  have hI := renormDetOnlyZero_expInput_core
+    (Dom := fun D => XiCOneReal (R.step k hk N₁ ν β p₁).G'
+          (R.step k hk N₁ ν β p₁).a (R.step k hk N₁ ν β p₁).ν
+          (R.t / 2) D ∧
+        ∀ x i, D.h x i = (((R.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ))
+    (fun D hD => hD.1) h1 h2 (fun z => (hE z).imp fun _ h => h) h3
+  exact ⟨E, F, Fcut, hF, hFa, hFe, hI.1, hI.2, hE0,
+    R.toStepTowerG.exists_xiCOneReal_fibre_step k hk N₁ ν β p₁ hν0 hν he,
+    fun D hD ξ hξ => R.renDatum_half_mem_xiCData k hk N₁ hν0 hν β p₁ D hD.1 ξ hξ⟩
 
 /-- **Determinant-only record with zero observable and zero old terms, at class radius `t / 2`, on
 the fibre.**  This is NOT the physical record of Theorem 3.1 (g), (h): the energy function of the
@@ -184,27 +266,76 @@ theorem StepTowerThetaG.renormDetOnlyZeroM_onFibre_half {d L N : ℕ} [NeZero L]
           XiCData (R.step k hk N₁ ν β p₁).G'
             (R.step k hk N₁ ν β p₁).a (R.step k hk N₁ ν β p₁).ν
             (k + 1) 1 R.t (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ)) := by
+  exact R.renormDetOnlyZeroM_onFibre_half_core rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ Xcut
+/-- Core of `renormDetOnlyZeroM_onFibre_half_C12` over a free separation parameter `ϱ = rhoSepG d L m₁`. -/
+private theorem StepTowerThetaG.renormDetOnlyZeroM_onFibre_half_C12_core {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L R.m₁)
+    (hhull : 2 * d * L * (1 + collarB d L) *
+        (renDetA d L 1 * (3 / 2 * R.κdec + c1 d L * Real.log 2) + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ R.κ) (hm₀ : R.m₀ = 1) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
+    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
+    (Xcut : Set (CTorus d L N₁ R.m₁ (k + 1))) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 → ℂ),
+    ∃ Fcut : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        (RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (ϱ)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
+        R.r₀ (8 * (R.t / 2)) F ∧
+      (∀ D : BgData (lvTopG d L N₁ R.m₁ k (ϱ)) N,
+        XiCOneReal (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) D →
+        ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ)) ∧
+      ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (εR : ℝ), 0 ≤ εR → εR ≤ R.r₀ →
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+              ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+              (R.t / 2) D ∧
+            ∀ x i, D.h x i = ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+              (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+            (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (3 / 2 * R.κdec)
+          (1 * ((d + 6) * (renCK d L N R.BG R.κ * (R.t / 2)) ^ 2 *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 1)
+          (fun D ξ => renC1On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h
+            (bgFieldC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D) ξ)
+          term) ∧
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+              ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+              (R.t / 2) D ∧
+            ∀ x i, D.h x i = ((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+              (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+            (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (3 / 2 * R.κdec)
+          (1 * (17 / 32 * ((N : ℕ) * ((3 + (bgK1 d L N * (xiC1 d * (R.t / 2)) +
+            renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2)) * R.r₀ + 2)) *
+            (renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2))) ^ 2)) *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 2)
+          (fun D ξ => renC2On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
+            (bgMultC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D +
+              (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term) := by
+  subst hϱ
+  obtain ⟨E, F, Fcut, hF, hFa, hFe, I, -⟩ :=
+    R.renormDetOnlyZeroM_onFibre_half hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ Xcut
   have ht := R.t_pos
   have he : 0 < R.t / 2 := by positivity
   have het : R.t / 2 ≤ R.t := by linarith
-  have hκ : 0 ≤ R.κdec := by have := R.κdec_lower; have := R.κ0_nonneg; linarith
-  have hκa : 3 / 2 * R.κdec ≤ 2 * R.κdec := by linarith
-  have hN₀ : L ^ R.m₀ ∣ N₁ := by rw [hm₀]; simpa using hLN
-  obtain ⟨F, hF, h1, h2, h3⟩ :=
-    renLoc_fields_scale_of_towerG_at R.toStepTowerRenSolG k hk N₁ hN₀ hN hν0 hν he het hκa hκa
-  rw [hm₀] at h1 h2 h3
-  obtain ⟨Fcut, hFa, hFe⟩ := renDec_one_unique_sharp_scale_of_towerG_at R.toStepTowerRenEndG k hk
-    N₁ hN hν0 hν he het Xcut hF le_rfl
-  obtain ⟨E, hE0, hE⟩ := R.expE0_det_scale_of_tower_at hhull he het k hk N₁ hLN hN hν0 hν β p₁
-  have hI := renormDetOnlyZero_expInput_core
-    (Dom := fun D => XiCOneReal (R.step k hk N₁ ν β p₁).G'
-          (R.step k hk N₁ ν β p₁).a (R.step k hk N₁ ν β p₁).ν
-          (R.t / 2) D ∧
-        ∀ x i, D.h x i = (((R.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ))
-    (fun D hD => hD.1) h1 h2 (fun z => (hE z).imp fun _ h => h) h3
-  exact ⟨E, F, Fcut, hF, hFa, hFe, hI.1, hI.2, hE0,
-    R.toStepTowerG.exists_xiCOneReal_fibre_step k hk N₁ ν β p₁ hν0 hν he,
-    fun D hD ξ hξ => R.renDatum_half_mem_xiCData k hk N₁ hν0 hν β p₁ D hD.1 ξ hξ⟩
+  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
+  have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
+  refine ⟨F, Fcut, hF, hFe, fun z εR hεR0 hεR => ⟨?_, ?_⟩⟩
+  · exact thm31g_C1_on hHB he hC.small1 (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) R.r₀_le I
+      zero_le_one R.toStepTowerRenG.renCK_facts.1 hεR z
+  · exact thm31g_C2_on hHB he R.r₀_le I zero_le_one (by positivity)
+      R.toStepTowerRenG.renCK_facts.1 hεR0 hεR z
 
 /-- **`C₁` and `C₂` of Theorem 3.1 (g) on the fibre, for the solution map of the determinant-only
 record at class radius `t / 2`.**  As for `renormDetOnlyZeroM_onFibre_half`, the record used is
@@ -267,19 +398,7 @@ theorem StepTowerThetaG.renormDetOnlyZeroM_onFibre_half_C12 {d L N : ℕ} [NeZer
             (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
             (bgMultC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (bgC0 d L N) D +
               (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term) := by
-  obtain ⟨E, F, Fcut, hF, hFa, hFe, I, -⟩ :=
-    R.renormDetOnlyZeroM_onFibre_half hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ Xcut
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
-  have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
-  refine ⟨F, Fcut, hF, hFe, fun z εR hεR0 hεR => ⟨?_, ?_⟩⟩
-  · exact thm31g_C1_on hHB he hC.small1 (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) R.r₀_le I
-      zero_le_one R.toStepTowerRenG.renCK_facts.1 hεR z
-  · exact thm31g_C2_on hHB he R.r₀_le I zero_le_one (by positivity)
-      R.toStepTowerRenG.renCK_facts.1 hεR0 hεR z
-
+  exact R.renormDetOnlyZeroM_onFibre_half_C12_core rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ Xcut
 /-- **Determinant-only record with zero observable and zero old terms, at class radius `t / 2`, on
 the fibre.**  This is NOT the physical record of Theorem 3.1 (g), (h): the energy function of the
 record is only the determinant summand `renE0θ_det`, the observable function and both old-term
@@ -366,25 +485,14 @@ theorem renormDetOnlyZeroM_onFibre_half {κmin : ℝ} (R : StepTowerTheta κmin)
           XiCData (R.toStepTower.step k hk N₁ ν β p₁).G'
             (R.toStepTower.step k hk N₁ ν β p₁).a (R.toStepTower.step k hk N₁ ν β p₁).ν
             (k + 1) 1 R.t (renThetaDatum (R.toStepTower.step k hk N₁ ν β p₁) (R.t / 2) D ξ)) := by
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hκ : 0 ≤ R.κdec := by have := R.κdec_lower; have := R.κ0_nonneg; linarith
-  have hκa : 3 / 2 * R.κdec ≤ 2 * R.κdec := by linarith
-  obtain ⟨F, hF, h1, h2, h3⟩ :=
-    renLoc_fields_scale_of_tower_at R.toStepTowerRenSol k hk N₁ h3N hN hν0 hν he het hκa hκa
-  obtain ⟨Fcut, hFa, hFe⟩ := renDec_one_unique_sharp_scale_of_tower_at R.toStepTowerRenEnd k hk
-    N₁ hN hν0 hν he het Xcut hF le_rfl
-  obtain ⟨E, hE0, hE⟩ := expE0_det_scale_of_tower_at R hR he het k hk N₁ h3N hN hν0 hν β p₁
-  have hI := renormDetOnlyZero_expInput_core
-    (Dom := fun D => XiCOneReal (R.toStepTower.step k hk N₁ ν β p₁).G'
-          (R.toStepTower.step k hk N₁ ν β p₁).a (R.toStepTower.step k hk N₁ ν β p₁).ν
-          (R.t / 2) D ∧
-        ∀ x i, D.h x i = (((R.toStepTower.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ))
-    (fun D hD => hD.1) h1 h2 (fun z => (hE z).imp fun _ h => h) h3
-  exact ⟨E, F, Fcut, hF, hFa, hFe, hI.1, hI.2, hE0,
-    exists_xiCOneReal_fibre_step R.toStepTower k hk N₁ ν β p₁ hν0 hν he,
-    fun D hD ξ hξ => R.renDatum_half_mem_xiCData k hk N₁ hν0 hν β p₁ D hD.1 ξ hξ⟩
+  have h := R.toG.renormDetOnlyZeroM_onFibre_half_core (ϱ := rhoSep R.m₁)
+    (rhoSepG_three _).symm (R.toStepTower.hhull_renDetFibre_toG hR) rfl k hk N₁ h3N hN hν0
+    (by exact_mod_cast hν) β p₁ Xcut
+  have e2 : towerDetConst R.κ = ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) *
+      covBLogMax 3 3 R.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) := by
+    unfold towerDetConst; push_cast; ring
+  rw [e2, ← detRateG_three]
+  exact h
 
 /-- **`C₁` and `C₂` of Theorem 3.1 (g) on the fibre, for the solution map of the determinant-only
 record at class radius `t / 2`.**  As for `renormDetOnlyZeroM_onFibre_half`, the record used is
@@ -445,17 +553,9 @@ theorem renormDetOnlyZeroM_onFibre_half_C12 {κmin : ℝ} (R : StepTowerTheta κ
             (blockSites 3 3 N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
             (bgMultC (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν (bgC0 3 3 2) D +
               (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term) := by
-  obtain ⟨E, F, Fcut, hF, hFa, hFe, I, -⟩ :=
-    renormDetOnlyZeroM_onFibre_half R hR k hk N₁ h3N hN hν0 hν β p₁ Xcut
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hC := R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
-  have hHB := bgHyp_lv (k := k) R.m₁ hν0 hν
-  refine ⟨F, Fcut, hF, hFe, fun z εR hεR0 hεR => ⟨?_, ?_⟩⟩
-  · exact thm31g_C1_on hHB he hC.small1 (hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)) R.r₀_le I
-      zero_le_one R.toStepTowerRen.renCK_facts.1 hεR z
-  · exact thm31g_C2_on hHB he R.r₀_le I zero_le_one (by positivity)
-      R.toStepTowerRen.renCK_facts.1 hεR0 hεR z
+  have h := R.toG.renormDetOnlyZeroM_onFibre_half_C12_core (ϱ := rhoSep R.m₁)
+    (rhoSepG_three _).symm (R.toStepTower.hhull_renDetFibre_toG hR) rfl k hk N₁ h3N hN hν0
+    (by exact_mod_cast hν) β p₁ Xcut
+  exact h
 
 end Balaban.Inhabited

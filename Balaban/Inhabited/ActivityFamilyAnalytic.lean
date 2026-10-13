@@ -481,12 +481,9 @@ theorem activityFamilyAnalytic_of_witnessG_rho {d L N : ℕ} [NeZero L] {κmin :
   -- the sign of the amplitude
   have hεpos : 0 < S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
       (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β) := by
-    rw [hSβ, hSa, sourceEta_scaled_identity d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
-      (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) q β hβ0.ne']
-    refine add_pos_of_nonneg_of_pos (mul_nonneg hβ0.le (div_nonneg ?_ (by positivity))) ?_
-    · exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (by linarith))
-        (pow_nonneg (by positivity) _)) (norm_nonneg _)
-    · exact div_pos (mul_pos hq0 (mul_pos hQ ht0)) hr0
+    rw [hSβ, hSa]
+    exact sourceEta_scaled_pos d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t _ q β hβ0 hq0 hr0 ht0 hQ
+      (by linarith)
   -- the joint representation and the direct terms, chosen once
   obtain ⟨Jr, hJ1, hJ2⟩ := wone_chartIdentity_fromTowerG_rho T k hk N₁ ν hνpos hν β p₁ hp0 D rfl S hS
   obtain ⟨I, h𝒴, hT⟩ := hI _ hmem0

@@ -111,7 +111,7 @@ theorem renormPhysicalZero_consequences_core {d L N₀ k N : ℕ} [NeZero N₀] 
 open Classical in
 /-- Choose the renormalized solution and cut map once, then form the physical record for any
 source whose observable value identity is supplied. -/
-private theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_core_of_source_value {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin)
+private theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_core_of_source_value {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L R.m₁)
     (hhull : 2 * d * L * (1 + collarB d L) *
         (renDetA d L 1 * (3 / 2 * R.κdec + c1 d L * Real.log 2) + c1 d L * Real.log 2) +
       Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ R.κ) (hm₀ : R.m₀ = 1) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
@@ -120,93 +120,94 @@ private theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_core_of_source_v
     (q : ℝ) (hq : q ≤ 1)
     {κ B κM BM : ℝ} (hB : 0 ≤ B) (hBM : 0 ≤ BM)
     (cE : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) →
-      physParam N (R.step k hk N₁ ν β p₁) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
     (cM : CTorus d L N₁ R.m₁ (k + 1) → Fin N →
-      physParam N (R.step k hk N₁ ν β p₁) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
-    (hanE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, AnalyticOnNhd ℂ (fun θ => cE z θ T) (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t))
-    (hlocE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
-      ∀ θ' ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
-      physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ) =
-        physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ') →
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+    (hanE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, AnalyticOnNhd ℂ (fun θ => cE z θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
         cE z θ T = cE z θ' T)
-    (hbdE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
+    (hbdE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
       ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cE z θ T‖ ≤ B * Real.exp (-κ * dExt T))
-    (hsuppE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
+    (hsuppE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
       ∀ T, cE z θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
-    (hvalE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ (D' : BgData (R.step k hk N₁ ν β p₁).G' N)
-        (hDh : ∀ y i, D'.h y i = ((R.step k hk N₁ ν β p₁).h₀ i : ℂ)),
-      XiCData (R.step k hk N₁ ν β p₁).G' (R.step k hk N₁ ν β p₁).a
-        (R.step k hk N₁ ν β p₁).ν (k + 1) 1 R.t D' →
-      ((R.step k hk N₁ ν β p₁).withDatum D' hDh).E1locC
-          (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) z =
+    (hvalE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).E1locC
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) z =
         ∑ C, cE z (⟨rawOf D', rawOf_mem_rawSub _⟩, (0 : CTorus d L N₁ R.m₁ (k + 1) → Fin N → ℂ)) C)
-    (hanM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, AnalyticOnNhd ℂ (fun θ => cM y i θ T) (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t))
-    (hlocM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
-      ∀ θ' ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
-      physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ) =
-        physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ') →
+    (hanM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, AnalyticOnNhd ℂ (fun θ => cM y i θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
         cM y i θ T = cM y i θ' T)
-    (hbdM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
+    (hbdM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
       ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cM y i θ T‖ ≤ BM * Real.exp (-κM * dExt T))
-    (hsuppM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV (R.step k hk N₁ ν β p₁) (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t),
+    (hsuppM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
       ∀ T, cM y i θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
     : ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
-        (((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))).Ω 1 × Fin N → ℂ) ×
-          (((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))).Ω 1 → ℂ),
+        (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N → ℂ) ×
+          (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 → ℂ),
     ∃ Fcut : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
-        (RenLabel (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) Xcut → ℂ) →
-        (((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))).Ω 1 × Fin N → ℂ) ×
-          (((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))).Ω 1 → ℂ),
-      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
+        (RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ) →
+        (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N → ℂ) ×
+          (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
         R.r₀ (8 * (R.t / 2)) F ∧
       AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ)) ×
-          (RenLabel (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) Xcut → ℂ) => Fcut p.1 p.2)
-        (expDom (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
-          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (R.t / 2)) R.r₀ ×ˢ
-          polydisc (0 : RenLabel (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) Xcut → ℂ)
+          (RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ) => Fcut p.1 p.2)
+        (expDom (lvTopG d L N₁ R.m₁ k (ϱ))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)) R.r₀ ×ˢ
+          polydisc (0 : RenLabel (lvTopG d L N₁ R.m₁ k (ϱ)) Xcut → ℂ)
             (fun _ => Real.exp R.κ)) ∧
-      (∀ D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N,
-        XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (R.t / 2) D →
+      (∀ D : BgData (lvTopG d L N₁ R.m₁ k (ϱ)) N,
+        XiCOneReal (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) D →
         ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ → Fcut (rawOf D, ξ) 1 = F ((D.Ψ, D.h), ξ)) ∧
       ∀ (g : Fld d L N₁ R.m₁ (k + 1) N), (∑ x, ∑ j, ‖g x j‖) < q →
-        (∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ (D' : BgData (R.step k hk N₁ ν β p₁).G' N)
-        (hDh : ∀ y i, D'.h y i = ((R.step k hk N₁ ν β p₁).h₀ i : ℂ)),
-      XiCData (R.step k hk N₁ ν β p₁).G' (R.step k hk N₁ ν β p₁).a
-        (R.step k hk N₁ ν β p₁).ν (k + 1) 1 R.t D' →
-      ((R.step k hk N₁ ν β p₁).withDatum D' hDh).M0C
-          (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) g y i =
-        ((((R.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)) *
+        (∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).M0C
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) g y i =
+        (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)) *
           ∑ C, cM y i (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C) →
-      RenormExpInputOn (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (R.t / 2)
+      RenormExpInputOn (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)
         R.r₀ (renCK d L N R.BG R.κ) (8 * (R.t / 2)) F
         (fun z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) =>
           blockSites d L N₁ R.m₁ (k + 1) k z)
-        (fun z => renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
-          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1
-          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (fun z => renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
         (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
-        (fun p => renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
-          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1))))) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1
-          (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (fun p => renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1))))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
         (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
-        (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) 1) (min (3 / 2 * R.κdec) (min κ κM)) (min (3 / 2 * R.κdec) (min κ κM)) 1
+        (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM)) (min (3 / 2 * R.κdec) (min κ κM)) 1
         (hullConst d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))) *
             Real.exp (c1 d L * Real.log 2) * Real.exp (hullRate d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))) + B)
-        0 BM 0 (fun (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N) (ξ : Fin 3 → ℂ) =>
-          if hD : ∀ x i, D.h x i = ((((R.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)
-          then ((R.step k hk N₁ ν β p₁).withDatum
-            (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).E0locC
-              (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) z else 0) (fun _ _ _ => 0) (fun (p : ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))).Ω 1 × Fin N) (D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N) (ξ : Fin 3 → ℂ) =>
-          if hD : ∀ x i, D.h x i = ((((R.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)
-          then (((((R.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)))⁻¹ *
-            ((R.step k hk N₁ ν β p₁).withDatum
-              (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).M0C
-                (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
+        0 BM 0 (fun (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (D : BgData (lvTopG d L N₁ R.m₁ k (ϱ)) N) (ξ : Fin 3 → ℂ) =>
+          if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+            (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).E0locC
+              (zeroClass d L N₁ R.m₁ k N (ϱ)) z else 0) (fun _ _ _ => 0) (fun (p : ((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N) (D : BgData (lvTopG d L N₁ R.m₁ k (ϱ)) N) (ξ : Fin 3 → ℂ) =>
+          if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then ((((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)))⁻¹ *
+            (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+              (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).M0C
+                (zeroClass d L N₁ R.m₁ k N (ϱ)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
           else 0) (fun _ _ _ => 0)
-        (fun D => XiCOneReal (R.step k hk N₁ ν β p₁).G'
-            (R.step k hk N₁ ν β p₁).a (R.step k hk N₁ ν β p₁).ν
+        (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
             (R.t / 2) D ∧
-          ∀ x i, D.h x i = ((((R.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)) := by
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) := by
+  subst hϱ
   have ht := R.t_pos
   have he : 0 < R.t / 2 := by positivity
   have het : R.t / 2 ≤ R.t := by linarith
@@ -339,7 +340,7 @@ theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_uniform {d L N : ℕ} [N
             (R.t / 2) D ∧
           ∀ x i, D.h x i = ((((R.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)) := by
   obtain ⟨F, Fcut, hF, hFa, hFe, hI⟩ :=
-    R.renormPhysicalZero_onFibre_half_core_of_source_value hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM
+    R.renormPhysicalZero_onFibre_half_core_of_source_value rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM
   exact ⟨F, Fcut, hF, hFa, hFe, fun g hg => hI g hg (hvalM g hg)⟩
 open Classical in
 /-- **The physical renormalization record of the zero class on the fibre, at class radius
@@ -449,8 +450,147 @@ theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_of_families {d L N : ℕ
             (R.t / 2) D ∧
           ∀ x i, D.h x i = ((((R.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)) := by
   obtain ⟨F, Fcut, hF, hFa, hFe, hI⟩ :=
-    R.renormPhysicalZero_onFibre_half_core_of_source_value hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM
+    R.renormPhysicalZero_onFibre_half_core_of_source_value rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM
   exact ⟨F, Fcut, hF, hFa, hFe, hI g hg hvalM⟩
+open Classical in
+/-- Core of `renormPhysicalZero_onFibre_half_consequences_uniform` over a free separation parameter `ϱ = rhoSepG d L m₁`. -/
+private theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences_uniform_core {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L R.m₁)
+    (hhull : 2 * d * L * (1 + collarB d L) *
+        (renDetA d L 1 * (3 / 2 * R.κdec + c1 d L * Real.log 2) + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ R.κ) (hm₀ : R.m₀ = 1) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
+    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
+    (hβ : 0 < β) (Xcut : Set (CTorus d L N₁ R.m₁ (k + 1)))
+    (q : ℝ) (hq : q ≤ 1)
+    {κ B κM BM : ℝ} (hB : 0 ≤ B) (hBM : 0 ≤ BM)
+    (cE : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) →
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+    (cM : CTorus d L N₁ R.m₁ (k + 1) → Fin N →
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+    (hanE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, AnalyticOnNhd ℂ (fun θ => cE z θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
+        cE z θ T = cE z θ' T)
+    (hbdE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cE z θ T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsuppE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, cE z θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
+    (hvalE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).E1locC
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) z =
+        ∑ C, cE z (⟨rawOf D', rawOf_mem_rawSub _⟩, (0 : CTorus d L N₁ R.m₁ (k + 1) → Fin N → ℂ)) C)
+    (hanM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, AnalyticOnNhd ℂ (fun θ => cM y i θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
+        cM y i θ T = cM y i θ' T)
+    (hbdM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cM y i θ T‖ ≤ BM * Real.exp (-κM * dExt T))
+    (hsuppM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, cM y i θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
+    (hvalM : ∀ (g : Fld d L N₁ R.m₁ (k + 1) N), (∑ x, ∑ j, ‖g x j‖) < q →
+      ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).M0C
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) g y i =
+        (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)) *
+          ∑ C, cM y i (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N → ℂ) ×
+          (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
+        R.r₀ (8 * (R.t / 2)) F ∧
+      ∀ (g : Fld d L N₁ R.m₁ (k + 1) N), (∑ x, ∑ j, ‖g x j‖) < q →
+      (∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (εR : ℝ), 0 ≤ εR → εR ≤ R.r₀ →
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (1 * ((d + 6) * (renCK d L N R.BG R.κ * (R.t / 2)) ^ 2 *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 1)
+          (fun D ξ => renC1On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h
+            (bgFieldC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D) ξ) term) ∧
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (1 * (17 / 32 * ((N : ℕ) * ((3 + (bgK1 d L N * (xiC1 d * (R.t / 2)) +
+            renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2)) * R.r₀ + 2)) *
+            (renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2))) ^ 2)) *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 2)
+          (fun D ξ => renC2On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
+            (bgMultC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D +
+              (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term) ∧
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          ((hullConst d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))) *
+            Real.exp (c1 d L * Real.log 2) * Real.exp (hullRate d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))) + B))
+          (fun D ξ => if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+            (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).E0locC
+              (zeroClass d L N₁ R.m₁ k N (ϱ)) z else 0) term)) ∧
+      ∀ (p : ((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N) (εR : ℝ), εR ≤ R.r₀ →
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1))))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (BM + 1 * (renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2))) * εR ^ 1)
+          (fun D ξ => (if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then ((((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)))⁻¹ *
+            (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+              (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).M0C
+                (zeroClass d L N₁ R.m₁ k N (ϱ)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
+          else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
+  subst hϱ
+  obtain ⟨F, Fcut, hF, -, -, hI⟩ := R.renormPhysicalZero_onFibre_half_uniform hhull hm₀ k hk N₁ hLN hN
+    hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
+    hsuppM hvalM
+  have ht := R.t_pos
+  have he : 0 < R.t / 2 := by positivity
+  have het : R.t / 2 ≤ R.t := by linarith
+  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
+  have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
+  have hcK := R.toStepTowerRenG.renCK_facts.1
+  have hr : 0 < R.r₀ := R.r₀_pos
+  exact ⟨F, hF, fun g hg => renormPhysicalZero_consequences_core hHB he hC.small1
+    (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) hr R.r₀_le hcK (by positivity) (hI g hg)⟩
 open Classical in
 /-- The four physical zero-class estimates use one solution map for every admissible source. -/
 theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences_uniform {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin)
@@ -577,8 +717,134 @@ theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences_uniform {d 
               (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).M0C
                 (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
           else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
-  obtain ⟨F, Fcut, hF, -, -, hI⟩ := R.renormPhysicalZero_onFibre_half_uniform hhull hm₀ k hk N₁ hLN hN
-    hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
+  exact R.renormPhysicalZero_onFibre_half_consequences_uniform_core rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM hvalM
+open Classical in
+/-- Core of `renormPhysicalZero_onFibre_half_consequences` over a free separation parameter `ϱ = rhoSepG d L m₁`. -/
+private theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences_core {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerThetaG d L N κmin) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L R.m₁)
+    (hhull : 2 * d * L * (1 + collarB d L) *
+        (renDetA d L 1 * (3 / 2 * R.κdec + c1 d L * Real.log 2) + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ R.κ) (hm₀ : R.m₀ = 1) (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ∣ N₁)
+    (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ)
+    (hβ : 0 < β) (Xcut : Set (CTorus d L N₁ R.m₁ (k + 1)))
+    (g : Fld d L N₁ R.m₁ (k + 1) N) (q : ℝ) (hq : q ≤ 1) (hg : ∑ x, ∑ j, ‖g x j‖ < q)
+    {κ B κM BM : ℝ} (hB : 0 ≤ B) (hBM : 0 ≤ BM)
+    (cE : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))) →
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+    (cM : CTorus d L N₁ R.m₁ (k + 1) → Fin N →
+      physParam N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ)
+    (hanE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, AnalyticOnNhd ℂ (fun θ => cE z θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
+        cE z θ T = cE z θ' T)
+    (hbdE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cE z θ T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsuppE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, cE z θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
+    (hvalE : ∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).E1locC
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) z =
+        ∑ C, cE z (⟨rawOf D', rawOf_mem_rawSub _⟩, (0 : CTorus d L N₁ R.m₁ (k + 1) → Fin N → ℂ)) C)
+    (hanM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, AnalyticOnNhd ℂ (fun θ => cM y i θ T) (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t))
+    (hlocM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ T, ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ θ' ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ) =
+        physRestrict (sitesOf T) (physIncl N ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) θ') →
+        cM y i θ T = cM y i θ' T)
+    (hbdM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, IsPolyDom 1 (k + 1) (sitesOf T) → ‖cM y i θ T‖ ≤ BM * Real.exp (-κM * dExt T))
+    (hsuppM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ θ ∈ (physV ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a₁ ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν R.t),
+      ∀ T, cM y i θ T ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T))
+    (hvalM : ∀ (y : CTorus d L N₁ R.m₁ (k + 1)) (i : Fin N), ∀ (D' : BgData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' N)
+        (hDh : ∀ y i, D'.h y i = (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℂ)),
+      XiCData ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G' ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a
+        ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν (k + 1) 1 R.t D' →
+      (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum D' hDh).M0C
+          (zeroClass d L N₁ R.m₁ k N (ϱ)) g y i =
+        (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)) *
+          ∑ C, cM y i (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N → ℂ) ×
+          (((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2) (R.t / 2)
+        R.r₀ (8 * (R.t / 2)) F ∧
+      (∀ (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (εR : ℝ), 0 ≤ εR → εR ≤ R.r₀ →
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (1 * ((d + 6) * (renCK d L N R.BG R.κ * (R.t / 2)) ^ 2 *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 1)
+          (fun D ξ => renC1On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (R.t / 2)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h
+            (bgFieldC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D) ξ) term) ∧
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (1 * (17 / 32 * ((N : ℕ) * ((3 + (bgK1 d L N * (xiC1 d * (R.t / 2)) +
+            renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2)) * R.r₀ + 2)) *
+            (renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2))) ^ 2)) *
+            blockWeight (lvTopG d L N₁ R.m₁ k (ϱ))
+              (blockSites d L N₁ R.m₁ (k + 1) k z)) * εR ^ 2)
+          (fun D ξ => renC2On (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ)
+            (bgMultC (lvTopG d L N₁ R.m₁ k (ϱ)) (compWeight L 1) ν (bgC0 d L N) D +
+              (F ((D.Ψ, D.h), ξ)).2) (F ((D.Ψ, D.h), ξ)).1) term) ∧
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z)))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (blockSite k z))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          ((hullConst d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L R.κ / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ)))) *
+            Real.exp (c1 d L * Real.log 2) * Real.exp (hullRate d L ((R.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))) + B))
+          (fun D ξ => if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+            (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).E0locC
+              (zeroClass d L N₁ R.m₁ k N (ϱ)) z else 0) term)) ∧
+      ∀ (p : ((lvTopG d L N₁ R.m₁ k (ϱ))).Ω 1 × Fin N) (εR : ℝ), εR ≤ R.r₀ →
+        (∃ term, IsLocExp (N := N) (lvTopG d L N₁ R.m₁ k (ϱ))
+          (fun D => XiCOneReal ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).G'
+            ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).a ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).ν
+            (R.t / 2) D ∧
+          ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)) εR
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (ϱ))
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1))))) (lvTopG d L N₁ R.m₁ k (ϱ)) 1
+          (X1 (lvTopG d L N₁ R.m₁ k (ϱ)) 1 k (fam 1 (p.1 : CTorus d L N₁ R.m₁ (k + 1)))) ∪ (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) 1 (k + 1) Set.univ) =>
+        (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) => x ∈ sitesOf T)))
+          (renDY (lvTopG d L N₁ R.m₁ k (ϱ)) 1) (min (3 / 2 * R.κdec) (min κ κM))
+          (BM + 1 * (renCK d L N R.BG R.κ * cK2 d L N * (8 * (R.t / 2))) * εR ^ 1)
+          (fun D ξ => (if hD : ∀ x i, D.h x i = (((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).h₀ i : ℝ)) : ℂ)
+          then ((((((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ)))⁻¹ *
+            (((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)).withDatum
+              (renThetaDatum ((hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) R.hN k R.m₁ ϱ hk ν β p₁ R.δ)) (R.t / 2) D ξ) hD).M0C
+                (zeroClass d L N₁ R.m₁ k N (ϱ)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
+          else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
+  subst hϱ
+  obtain ⟨F, Fcut, hF, -, -, I⟩ := R.renormPhysicalZero_onFibre_half_of_families hhull hm₀ k hk N₁ hLN hN
+    hν0 hν β p₁ hβ Xcut g q hq hg hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
     hsuppM hvalM
   have ht := R.t_pos
   have he : 0 < R.t / 2 := by positivity
@@ -587,8 +853,8 @@ theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences_uniform {d 
   have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
   have hcK := R.toStepTowerRenG.renCK_facts.1
   have hr : 0 < R.r₀ := R.r₀_pos
-  exact ⟨F, hF, fun g hg => renormPhysicalZero_consequences_core hHB he hC.small1
-    (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) hr R.r₀_le hcK (by positivity) (hI g hg)⟩
+  exact ⟨F, hF, renormPhysicalZero_consequences_core hHB he hC.small1
+    (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) hr R.r₀_le hcK (by positivity) I⟩
 open Classical in
 
 /-- **The four consequences of the physical record (Theorem 3.1 (g), (h) at the zero class, on
@@ -721,18 +987,7 @@ theorem StepTowerThetaG.renormPhysicalZero_onFibre_half_consequences {d L N : �
               (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).M0C
                 (zeroClass d L N₁ R.m₁ k N (rhoSepG d L R.m₁)) g (p.1 : CTorus d L N₁ R.m₁ (k + 1)) p.2
           else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
-  obtain ⟨F, Fcut, hF, -, -, I⟩ := R.renormPhysicalZero_onFibre_half_of_families hhull hm₀ k hk N₁ hLN hN
-    hν0 hν β p₁ hβ Xcut g q hq hg hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
-    hsuppM hvalM
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
-  have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
-  have hcK := R.toStepTowerRenG.renCK_facts.1
-  have hr : 0 < R.r₀ := R.r₀_pos
-  exact ⟨F, hF, renormPhysicalZero_consequences_core hHB he hC.small1
-    (hC.c7le.trans (c7_le_bgC1 d L N R.BG R.κ)) hr R.r₀_le hcK (by positivity) I⟩
+  exact R.renormPhysicalZero_onFibre_half_consequences_core rfl hhull hm₀ k hk N₁ hLN hN hν0 hν β p₁ hβ Xcut g q hq hg hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM hsuppM hvalM
 open Classical in
 /-- Choose the renormalized solution and cut map once, then form the physical record for any
 source whose observable value identity is supplied. -/
@@ -830,35 +1085,15 @@ private theorem renormPhysicalZero_onFibre_half_core_of_source_value {κmin : �
             (R.toStepTower.step k hk N₁ ν β p₁).a (R.toStepTower.step k hk N₁ ν β p₁).ν
             (R.t / 2) D ∧
           ∀ x i, D.h x i = ((((R.toStepTower.step k hk N₁ ν β p₁).h₀ i : ℝ)) : ℂ)) := by
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hκ : 0 ≤ R.κdec := by have := R.κdec_lower; have := R.κ0_nonneg; linarith
-  have hκa : min (3 / 2 * R.κdec) (min κ κM) ≤ 2 * R.κdec :=
-    (min_le_left _ _).trans (by linarith)
-  obtain ⟨F, hF, h1, h2, h3⟩ := renLoc_fields_union_scale_of_tower_at R.toStepTowerRenSol k hk N₁
-    h3N hN hν0 hν he het hκa hκa
-    (Finset.univ.image fun T : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := R.m₁)
-      (K := k + 1) 1 (k + 1) Set.univ) =>
-        (Finset.univ.filter fun x : CTorus 3 3 N₁ R.m₁ (k + 1) => x ∈ sitesOf T))
-  obtain ⟨Fcut, hFa, hFe⟩ := renDec_one_unique_sharp_scale_of_tower_at R.toStepTowerRenEnd k hk
-    N₁ hN hν0 hν he het Xcut hF le_rfl
-  have hH0 : 0 ≤ hullConst 3 3 (towerDetRate R.κ) (towerDetConst R.κ) *
-      Real.exp (c1 3 3 * Real.log 2) * Real.exp (hullRate 3 3 (towerDetRate R.κ)) := by
-    have hconst := towerDetConst_nonneg R.toStepTower
-    have : 0 ≤ hullConst 3 3 (towerDetRate R.κ) (towerDetConst R.κ) := by
-      unfold hullConst; exact mul_nonneg hconst (Real.exp_pos _).le
-    positivity
-  refine ⟨F, Fcut, hF, hFa, hFe, ?_⟩
-  intro g hg hvalM
-  refine renormPhysicalZero_expInput_core (fun D hD => hD.1) h1 h2 h3 (fun Y => renDY_nonneg Y)
-    (fun z => ?_) (min_le_min le_rfl (min_le_left _ _)) (by positivity) (fun p => ?_)
-    ((min_le_right _ _).trans (min_le_right _ _)) hBM
-  · exact renE0_siteRecord_of_family R hR k hk N₁ h3N hN hν0 hν β p₁ hB z (cE z)
-      (hanE z) (hlocE z) (hbdE z) (hsuppE z) (hvalE z)
-  · exact renM0_siteRecord_union_of_family R k hk N₁ h3N hν0 hν β p₁ hβ hBM
-      (p.1 : CTorus 3 3 N₁ R.m₁ (k + 1)) p.2 g q hq hg (cM _ p.2) (hanM _ p.2) (hlocM _ p.2)
-      (hbdM _ p.2) (hsuppM _ p.2) (hvalM _ p.2)
+  have h := R.toG.renormPhysicalZero_onFibre_half_core_of_source_value (ϱ := rhoSep R.m₁)
+    (rhoSepG_three _).symm (R.toStepTower.hhull_renDetFibre_toG hR) rfl k hk N₁ h3N hN hν0
+    (by exact_mod_cast hν) β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM
+    hlocM hbdM hsuppM
+  have e2 : towerDetConst R.κ = ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) *
+      covBLogMax 3 3 R.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) := by
+    unfold towerDetConst; push_cast; ring
+  rw [e2, ← detRateG_three]
+  exact h
 open Classical in
 /-- One solution and cut map give the physical zero-class record for every admissible source. -/
 theorem renormPhysicalZero_onFibre_half_uniform {κmin : ℝ} (R : StepTowerTheta κmin)
@@ -1191,18 +1426,15 @@ theorem renormPhysicalZero_onFibre_half_consequences_uniform {κmin : ℝ} (R : 
               (renThetaDatum (R.toStepTower.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).M0C
                 (zeroClass 3 3 N₁ R.m₁ k 2 (rhoSep R.m₁)) g (p.1 : CTorus 3 3 N₁ R.m₁ (k + 1)) p.2
           else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
-  obtain ⟨F, Fcut, hF, -, -, hI⟩ := renormPhysicalZero_onFibre_half_uniform R hR k hk N₁ h3N hN
-    hν0 hν β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
-    hsuppM hvalM
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hC := R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
-  have hHB := bgHyp_lv (k := k) R.m₁ hν0 hν
-  have hcK := R.toStepTowerRen.renCK_facts.1
-  have hr : 0 < R.r₀ := R.r₀_pos
-  exact ⟨F, hF, fun g hg => renormPhysicalZero_consequences_core hHB he hC.small1
-    (hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)) hr R.r₀_le hcK (by positivity) (hI g hg)⟩
+  have h := R.toG.renormPhysicalZero_onFibre_half_consequences_uniform_core (ϱ := rhoSep R.m₁)
+    (rhoSepG_three _).symm (R.toStepTower.hhull_renDetFibre_toG hR) rfl k hk N₁ h3N hN hν0
+    (by exact_mod_cast hν) β p₁ hβ Xcut q hq hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM
+    hlocM hbdM hsuppM hvalM
+  have e2 : towerDetConst R.κ = ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) *
+      covBLogMax 3 3 R.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) := by
+    unfold towerDetConst; push_cast; ring
+  rw [e2, ← detRateG_three]
+  exact h
 open Classical in
 
 /-- **The four consequences of the physical record (Theorem 3.1 (g), (h) at the zero class, on
@@ -1333,16 +1565,12 @@ theorem renormPhysicalZero_onFibre_half_consequences {κmin : ℝ} (R : StepTowe
               (renThetaDatum (R.toStepTower.step k hk N₁ ν β p₁) (R.t / 2) D ξ) hD).M0C
                 (zeroClass 3 3 N₁ R.m₁ k 2 (rhoSep R.m₁)) g (p.1 : CTorus 3 3 N₁ R.m₁ (k + 1)) p.2
           else 0) + (F ((D.Ψ, D.h), ξ)).1 p) term) := by
-  obtain ⟨F, Fcut, hF, -, -, I⟩ := renormPhysicalZero_onFibre_half_of_families R hR k hk N₁ h3N hN
-    hν0 hν β p₁ hβ Xcut g q hq hg hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM hlocM hbdM
-    hsuppM hvalM
-  have ht := R.t_pos
-  have he : 0 < R.t / 2 := by positivity
-  have het : R.t / 2 ≤ R.t := by linarith
-  have hC := R.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
-  have hHB := bgHyp_lv (k := k) R.m₁ hν0 hν
-  have hcK := R.toStepTowerRen.renCK_facts.1
-  have hr : 0 < R.r₀ := R.r₀_pos
-  exact ⟨F, hF, renormPhysicalZero_consequences_core hHB he hC.small1
-    (hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)) hr R.r₀_le hcK (by positivity) I⟩
-end Balaban.Inhabited
+  have h := R.toG.renormPhysicalZero_onFibre_half_consequences_core (ϱ := rhoSep R.m₁)
+    (rhoSepG_three _).symm (R.toStepTower.hhull_renDetFibre_toG hR) rfl k hk N₁ h3N hN hν0
+    (by exact_mod_cast hν) β p₁ hβ Xcut g q hq hg hB hBM cE cM hanE hlocE hbdE hsuppE hvalE hanM
+    hlocM hbdM hsuppM hvalM
+  have e2 : towerDetConst R.κ = ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) *
+      covBLogMax 3 3 R.κ / (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) := by
+    unfold towerDetConst; push_cast; ring
+  rw [e2, ← detRateG_three]
+  exact h
