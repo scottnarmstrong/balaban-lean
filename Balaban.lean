@@ -1669,4 +1669,5 @@ public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
+public import Balaban.Green.FinalTaggedSqrt
 public import Balaban.Fluctuation.MarkIntTermAnalytic
