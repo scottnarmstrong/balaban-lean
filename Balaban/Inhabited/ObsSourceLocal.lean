@@ -14,12 +14,14 @@ public import Balaban.Fluctuation.SourceFamilyRelative
 
 The source `g` enters the observable only through the activity family, whose direct terms are
 evaluated at the parameter `(raw datum, g / β)`.  This file proves that the activity of a label
-with domain `Y` reads the raw datum only on the thickening `thickSet Y` and the source only on `Y`.
+with domain `Y` reads the raw datum and the source only on `Y` itself; the statements with the raw
+datum on the thickening `thickSet Y` are corollaries (thick agreement implies agreement on `Y`).
 
-* `physInclScaled_physAgΘ`: two parameters whose raw data agree on `thickSet Y` and whose sources
-  agree on `Y` have scaled inclusions in the relation `physAgΘ S Y`.
-* `labelActFamilyOn_local_scaled`: the activity of a label with domain `y.1` of the family
-  `labelActFamilyOn S m₀ (physInclScaled N S c) …` is the same at two such parameters.
+* `physInclScaled_physAgΘ_rawY`: two parameters whose raw data and sources agree on `Y` have scaled
+  inclusions in the relation `physAgΘ S Y`; `physInclScaled_physAgΘ` is the thick corollary.
+* `labelActFamilyOn_local_scaled_rawY`: the activity of a label with domain `y.1` of the family
+  `labelActFamilyOn S m₀ (physInclScaled N S c) …` is the same at two parameters whose raw data
+  and sources agree on `y.1`; `labelActFamilyOn_local_scaled` is the thick corollary.
 * `physAct_H_local`, `physAct_H_local_of_family`: the same for each coefficient of `physAct`
   (the zero-source summands read only the raw datum on `thickSet Y`).
 * `physActObs_H_local`, `tiltActObs_H_local`: the extension by zero to the observable labels and
@@ -38,16 +40,27 @@ section Scaled
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ)
 
-/-- **Scaled agreement.**  If the raw data of two parameters agree on `thickSet Y` and their
-sources agree on `Y`, the scaled inclusions `(r, g) ↦ (r, c g)` satisfy `physAgΘ S Y`. -/
-theorem physInclScaled_physAgΘ (c : ℂ) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+/-- **Scaled agreement, exact form.**  If the raw data and the sources of two parameters agree on
+`Y` itself, the scaled inclusions `(r, g) ↦ (r, c g)` satisfy `physAgΘ S Y`. -/
+theorem physInclScaled_physAgΘ_rawY (c : ℂ) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
     {e e' : physParam N S}
-    (hr : agreeOn (thickSet S.G' Y) (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+    (hr : agreeOn Y (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
       (e'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
     (hg : ∀ x ∈ Y, e.2 x = e'.2 x) :
     physAgΘ S Y (physInclScaled N S c e) (physInclScaled N S c e') := by
   refine ⟨hr, fun x hx => ?_⟩
   simp [physInclScaled_apply, hg x hx]
+
+/-- **Scaled agreement.**  If the raw data of two parameters agree on `thickSet Y` and their
+sources agree on `Y`, the scaled inclusions `(r, g) ↦ (r, c g)` satisfy `physAgΘ S Y`
+(a fortiori, since `Y ⊆ thickSet Y`). -/
+theorem physInclScaled_physAgΘ (c : ℂ) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    {e e' : physParam N S}
+    (hr : agreeOn (thickSet S.G' Y) (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      (e'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
+    (hg : ∀ x ∈ Y, e.2 x = e'.2 x) :
+    physAgΘ S Y (physInclScaled N S c e) (physInclScaled N S c e') :=
+  physInclScaled_physAgΘ_rawY S c (agreeOn_mono (fun _ hx => Or.inl hx) hr) hg
 
 end Scaled
 
@@ -68,12 +81,12 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (hN : L ^ m₀ ∣ N₁) (hρ : 0 < ρ) (hRσ : 0 ≤ Rσ) (hεU : 0 ≤ εU)
   {κ0 Kc : ℝ} (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 ≤ Kc)
 
-/-- **Locality of the activity family in the pair (raw datum, source).**  For a label with domain
-`y.1`, two parameters of `V` whose raw data agree on `thickSet y.1` and whose sources agree on
-`y.1` have the same label activity, for every `u`. -/
-theorem labelActFamilyOn_local_scaled {e e' : physParam N S} (he : e ∈ V) (he' : e' ∈ V)
+/-- **Locality of the activity family in the pair (raw datum, source), exact form.**  For a label
+with domain `y.1`, two parameters of `V` whose raw data and sources agree on `y.1` itself have the
+same label activity, for every `u`. -/
+theorem labelActFamilyOn_local_scaled_rawY {e e' : physParam N S} (he : e ∈ V) (he' : e' ∈ V)
     (y : {Y // Y ∈ I.𝒴})
-    (hr : agreeOn (thickSet S.G' y.1) (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+    (hr : agreeOn y.1 (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
       (e'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
     (hg : ∀ x ∈ y.1, e.2 x = e'.2 x) (u : ℂ) :
     (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc e u).H y =
@@ -81,8 +94,21 @@ theorem labelActFamilyOn_local_scaled {e e' : physParam N S} (he : e ∈ V) (he'
   refine labelActFamilyOn_local S m₀ (physInclScaled N S c) hF hN hρ hRσ hεU hκ0 hKc he he'
     y.1 ?_ u y subset_rfl
   intro Y _ hYy
-  exact physInclScaled_physAgΘ S c
-    (agreeOn_mono (thickSet_mono hYy) hr) (fun x hx => hg x (hYy hx))
+  exact physInclScaled_physAgΘ_rawY S c (agreeOn_mono hYy hr) (fun x hx => hg x (hYy hx))
+
+/-- **Locality of the activity family in the pair (raw datum, source).**  For a label with domain
+`y.1`, two parameters of `V` whose raw data agree on `thickSet y.1` and whose sources agree on
+`y.1` have the same label activity, for every `u`.  (A corollary of the exact form
+`labelActFamilyOn_local_scaled_rawY`.) -/
+theorem labelActFamilyOn_local_scaled {e e' : physParam N S} (he : e ∈ V) (he' : e' ∈ V)
+    (y : {Y // Y ∈ I.𝒴})
+    (hr : agreeOn (thickSet S.G' y.1) (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      (e'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
+    (hg : ∀ x ∈ y.1, e.2 x = e'.2 x) (u : ℂ) :
+    (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc e u).H y =
+      (labelActFamilyOn S m₀ (physInclScaled N S c) I hF hN hρ hRσ hεU hκ0 hKc e' u).H y :=
+  labelActFamilyOn_local_scaled_rawY S m₀ c hF hN hρ hRσ hεU hκ0 hKc he he' y
+    (agreeOn_mono (fun _ hx => Or.inl hx) hr) hg u
 
 end Activity
 
