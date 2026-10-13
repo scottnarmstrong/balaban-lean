@@ -13,12 +13,13 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W266 | `w266-sharp-assembly` / W266 | SharpAssembly: parallel assembler with sharp locality, physical_directTerms, direct activity bound, rate preservation (zero class) |
-| W265 | `w265-localgen` / W265 | P3 local generating set as an object (LOCALGEN §4: LocalGenAligned, LocalGenRange) |
-| W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
-| W269 | `w269-retained-shell` / W269 | retained-shell cover and seed margins (Q13-COVER §1) |
-| W270 | `w270-aligned-kernel` / W270 | aligned kernel, row sums: repair of the grouped regional bound premises |
-| W271 | `w271-param-datum-family` / W271 | the step as a family over the datum (PARAM package 1) |
+| W277 | `w277-param-carrier-local` / W277 | compact carrier of the step's block measures; locality and bound for parameter families of marks (PARAM package 4, generic) |
+| W278 | `w278-root-det-chart` / W278 | RootDetChart: trace bound, cut expansion, bound of cut differences, endpoint identity (ROOTDET package 1) |
+| W272 | `w272-p6-top-cover` / W272 | P6 full-torus top-only auxiliary cover: CoverGeom/CoverBase for both operators, root incidence (VMOD-31 i–iii) |
+| W273 | `w273-root-active-size` / W273 | RootActiveSize: dExt T = sizeJ (sitesOf T) on active cube sets; vanishing of coefficients (ROOT package 1) |
+| W274 | `w274-root-paving-map` / W274 | RootPavingMap: root map, paving action on cube sets, fibre ≤ 1, abstract rooted sum (ROOT package 3) |
+| W275 | `w275-general-path-analytic` / W275 | GeneralClassPathAnalytic: path analyticity predicates for a general class (GENERAL package 3) |
+| W276 | `w276-top-block-transport` / W276 | TopBlockTransport: datum sites and interface pairs of the retained shell read by ChiDomProp (Q13-COVER §2) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
 astra (cap 3): q13 Q13-COMPOSED (tag Q13COMPOSED; Q13-COVER done: retained-shell cubes within 2a+3 of Y lie in Ω_k″; worker-sized packages RetainedShellOmegaDD, ActiveSeedMargin, TopBlockTransport, FactorBondLift, ScaledR12; LOCALGEN done: P3 local generator is a separate narrow object, not a parent of the landed engine; four class-neutral object packages ready — LocalGenAligned, LocalGenMixed, LocalGenRange, LocalGenHalo; GENERATOR DECISION PENDING WITH SCOTT: no class/generator-specific Lean), fluctfix PARAM (tag PARAM; GENERAL done: six general-class packages, GeneralClassMatch and GeneralXiRescale can start), vmod VMOD-30 MIXED-DECAY (tag VMOD30). NEXT SONNET PACKAGES: rate route — SharpAssembly/PhysicalSharpLoc after W263/W264, then compose with W256 and the landed direct assembler; then LocalGen object packages; GeneralClassMatch; W261 data pair bridge (worktree exists). AUTHOR RULING on Q13 (Scott, 2026-10-12, AGENTS.md): fully massive A0 ruled out; scheme A recorded; hybrid A0′ replaces A only if `hybrid_sf_factorization` is proved.
