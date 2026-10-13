@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.ZeroSourceActivityCommon
+public import Balaban.Inhabited.SourceWitnessJoint
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -664,62 +665,23 @@ theorem commonWitness_joint_fromTower {κmin : ℝ} (T : StepTower κmin)
                 Nonempty (InterpMarks S.nuFl (S.blockSplit 1 hp)
                   (S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) (fun _ _ => (0 : ℂ)))))) := by
   classical
-  obtain ⟨βN, CEN, CFN, hβN, hCEN, hCFN, hamp⟩ := commonWitness_amplitude_fromTower T hA p
-  have hm := exists_beta0_marks T hHull p (CE := 2 * CEN) (CF := 2 * CFN)
-    (mul_nonneg zero_le_two hCEN.le) (mul_nonneg zero_le_two hCFN.le)
-  have hc1 := one_le_c1 3 3
-  have hκ0 := T.κ0_nonneg
-  have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
-  have hκ'0 : 0 ≤ T.κ' := by rw [T.κ'_eq]; linarith
-  have hκa' : T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := by
-    rw [T.κ'_eq, T.κdec_eq]; linarith
-  refine ⟨max βN hm.choose, CEN, CFN, le_trans hm.choose_spec.1 (le_max_right _ _), hCEN, hCFN, ?_⟩
+  obtain ⟨CE, CF, hCE, hCF, H⟩ := commonWitness_joint_fromTower_rho T hA p
+  obtain ⟨β₁, h2, -, H1⟩ := H 1 one_pos
+  have hm := exists_beta0_marks T hHull p (CE := 2 * CE) (CF := 2 * CF)
+    (mul_nonneg zero_le_two hCE.le) (mul_nonneg zero_le_two hCF.le)
+  refine ⟨max β₁ hm.choose, CE, CF, le_trans hm.choose_spec.1 (le_max_right _ _), hCE, hCF, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D S hS hp
   have hβm : hm.choose ≤ β := le_trans (le_max_right _ _) hβ
-  have hβN' : βN ≤ β := le_trans (le_max_left _ _) hβ
+  have hβ1' : β₁ ≤ β := le_trans (le_max_left _ _) hβ
   have hβ1 : 1 ≤ β := by linarith
-  obtain ⟨hεpos, hbound, hDA0⟩ := hamp k hk N₁ ν hνpos hν β hβN' p₁ hp0 hp₁ D
-  obtain ⟨R0⟩ := D.ray
-  have hr0 := D.r_pos
-  have hcψ0 := D.cψ_pos
-  have hC := D.core
-  have hD := D.xi
-  set εU : ℝ := β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β) with hεU
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  obtain ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbd, h4, h5, h6, hray, hb⟩ :=
+    H1 k hk N₁ h3N hN ν hνpos hν β hβ1' p₁ hp0 hp₁ D S hS hp
+  rw [one_mul] at hbd
+  obtain ⟨hcont, hI, hmem0, hmemg, hrayd⟩ := hb
   subst hS
-  set S := T.step k hk N₁ ν β p₁ with hSdef
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, hmemg, hray⟩ :=
-    sourceDirectTerms_scale_fromTower_ray_full T k hk N₁
-    h3N hN ν hνpos hν β hβ1 p₁ 1 one_pos le_rfl D (T.step k hk N₁ ν β p₁) rfl hp
-  obtain ⟨I₀, h𝒴₀, hT₀⟩ := hI _ hmem0
-  have hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
-  obtain ⟨hact, hzero⟩ := commonWitness_extra_of_witness T hHull p hCEN hCFN k hk N₁ h3N ν hνpos
-    hν β hβ1 hβm p₁ hp0 D _ rfl hp val 𝒴 Tt hval hcont hI hmem0 hbound
-  refine ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbound, ?_, ?_, ?_, hact, hray,
-    ⟨hcont, hI, hmem0, hmemg, fun Y hY Θ hΘ ψ hψ => hray Y Θ hΘ ψ hψ⟩, hzero⟩
-  · intro g hg
-    obtain ⟨Ig, h𝒴g, hTg⟩ := hI _ (hmemg g hg)
-    obtain ⟨BR, hm, hLb, hLab, hBS, hk0, hk', hκH, hεH, hKc⟩ :=
-      stepActivityBound_zeroClass_source_of_directTerms_shared (T.step k hk N₁ ν β p₁)
-        (ρ := p₁) (κ0 := T.κ0) (κ' := T.κ') (Kc' := K0 3 3 T.κ0 + 1) (a := 2 * T.κdec - 1)
-        hC (by norm_num) hr0 hcψ0.le T.large_block T.dom_margin T.coer_margin T.δc_small
-        D.fl_radius T.c7_cap (R := 2) le_rfl T.t_cap T.bg0_cap T.cK2_cap T.cK2'_cap T.bg1_cap
-        (by norm_num) D.ray_margin hD hN3 hp0 le_rfl (by rw [hεU] at hεpos; exact hεpos) T.κ0_ent le_rfl hκ'0 hκa'
-        (by rw [hεU] at hDA0; exact hDA0) R0
-        D.p_lt (by norm_num) g I₀ Ig
-        (fun x u => by rw [hval]; simp)
-        (fun x u => hval _ _ _ _) hdom h𝒴₀ h𝒴g
-    obtain ⟨BC, hCm, hCLb, hCLab, hCBS, hCk0, hCk', hCκH, hCεH, hCKc⟩ :=
-      stepActivityBoundC_of_activityBound_exposed R0 hp0 D.p_lt BR
-    have hBε : BR.εH = 4 * εU := by
-      rw [hεH, (fun E : ℝ => by ring : ∀ E : ℝ, 2 * (2 * E) = 4 * E)]
-      exact congrArg _ hεU.symm
-    exact ⟨BR, BC, hm, hCm.trans hm, hLb, hCLb, hLab, hCLab, hBS, hCBS, hk0, hCk0.trans hk0, hk',
-      hCk'.trans hk', hκH, hCκH, hKc, hCKc, hCεH.symm, hBε⟩
-  · exact sourceWitness_exponent_of_witness T k hk N₁ h3N ν hνpos hν β hβ1 p₁ hp0 D _ rfl hp
-      val 𝒴 Tt hdom hval hI εU hεU hεpos
-  · exact sourceWitness_ray_of_witness T k hk N₁ h3N ν β hβ1 p₁ D _ rfl hp
-      val 𝒴 Tt hdom hval hcont hI hmem0 hmemg εU hεU hεpos
+  obtain ⟨hact, hzero⟩ := commonWitness_extra_of_witness T hHull p hCE hCF k hk N₁ h3N ν hνpos
+    hν β hβ1 hβm p₁ hp0 D _ rfl hp val 𝒴 Tt hval hcont hI hmem0 (by rw [hεU] at hbd; exact hbd)
+  exact ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbd, h4, h5, h6, hact, hray,
+    ⟨hcont, hI, hmem0, hmemg, hrayd⟩, hzero⟩
 
 end Balaban.Inhabited
