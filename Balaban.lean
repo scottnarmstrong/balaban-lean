@@ -585,6 +585,7 @@ public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
 public import Balaban.SmallField.FinalCutoff
+public import Balaban.SmallField.FinalCutoffPack
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
 public import Balaban.SmallField.XiD1
