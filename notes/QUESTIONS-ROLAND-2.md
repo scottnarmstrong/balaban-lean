@@ -252,5 +252,12 @@ X ∩ Ω_{k+1}^c.
 (ii) In particular, can a marked cube of the auxiliary cover deep in a new hole contribute to a
      coefficient without a connected marked chain to X ∩ Ω_{k+1}?
 (iii) Does the same answer hold for the C_{loc,s}^{1/2} ψ term?
-(iv) Which step of the P3 (4.44) assignment sends the auxiliary cubes lying outside the physical new
-     layers into a domain Y ∈ D_{k+1}(mod Ω_{k+1}^c)?
+(iv) When (4.44) is applied with the auxiliary cover, how is a marked cube outside Ω_{k+1} assigned to
+     physical new-layer π'_j cubes? Is its whole component of Ω_{k+1}^c inserted, and which property
+     of the admissible regions bounds the resulting active spill and the length of the connected
+     structure after insertion? Does the estimate (4.48)–(4.50) then hold for the chosen-cover size
+     with a uniform constant, and how is the mixed-layer B_{k+1}(Y) chosen on the old-field reads?
+     (For marked cubes inside Ω_{k+1} the P3 assignment works as written; for arbitrary regions the
+     insertion of a hole component has no uniform cost — a thin corridor — so the bound must use the
+     structure of the new hole, presumably through the new seed sets of (3.9);
+     `notes/phase1/VMOD-35.md`.)
