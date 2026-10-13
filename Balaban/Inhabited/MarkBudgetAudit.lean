@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.MarkedRootAssemblyFromTower
 public import Balaban.Fluctuation.Thm31cde
 public import Balaban.Inhabited.DAPhysicalCutoff
+public import Balaban.Inhabited.MarkBudgetAuditG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NormNum
@@ -61,14 +62,28 @@ noncomputable def decF (k : ℕ) (t₀ : ℝ) : ℝ :=
   (Estar T k / t₀) * (c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3) *
     ((nFibre 3 3 : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3))
 
-theorem Vstar_nonneg : 0 ≤ Vstar T := by
-  have h := cK2'_nonneg (d := 3) (L := 3) (N := 2) (B := famConst 3 3 T.BG₂ T.κ) T.fam_nonneg
-  exact mul_nonneg h T.t_pos.le
+/-- The fixed `Vstar` is the general one at the tower `T.toG`. -/
+theorem Vstar_toG : Vstar T = VstarG T.toG := rfl
 
-theorem Kmark_pos : 0 < Kmark T := by
-  have := one_le_c1 3 3
-  have : (0 : ℝ) < nFibre 3 3 := by unfold nFibre; positivity
-  unfold Kmark; positivity
+/-- The fixed `Estar` is the general one at the tower `T.toG`. -/
+theorem Estar_toG (k : ℕ) : Estar T k = EstarG T.toG k := rfl
+
+/-- The fixed `Kmark` is the general one at the tower `T.toG`. -/
+theorem Kmark_toG : Kmark T = KmarkG T.toG := rfl
+
+/-- The fixed `Ecst` is the general one at the tower `T.toG`. -/
+theorem Ecst_toG (a : ℝ) : Ecst T a = EcstG T.toG a := by
+  unfold Ecst EcstG
+  rw [← Vstar_toG]
+  simp only [StepTower.toG_t, StepTower.toG_BG, StepTower.toG_κ]
+  norm_num
+
+/-- The fixed `cubicF0` is the general one at the tower `T.toG` (`3^k = (3:ℕ)^{k(3-2)}`). -/
+theorem scale_three_cast (k : ℕ) : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = (3 : ℝ) ^ k := by norm_num
+
+theorem Vstar_nonneg : 0 ≤ Vstar T := VstarG_nonneg T.toG
+
+theorem Kmark_pos : 0 < Kmark T := KmarkG_pos T.toG
 
 theorem Kmark_eq : Kmark T = (c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3) *
     ((nFibre 3 3 : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) := rfl
@@ -84,33 +99,31 @@ theorem energyBdScaled_eq (k : ℕ) (a V δ ρ : ℝ) (ha : compWeight 3 1 k = a
 
 theorem Ecst_lo {a : ℝ} (ha : 1 / 2 ≤ a) :
     27 * (1 / 2 * T.t ^ 2) ≤ Ecst T a := by
-  have h1 := Vstar_nonneg T
-  have h2 := T.rho_nonneg
-  have h3 := T.t_pos
-  unfold Ecst
-  have : (1 / 2 : ℝ) * T.t ^ 2 ≤ a * (T.t + Vstar T) ^ 2 := by
-    have : T.t ^ 2 ≤ (T.t + Vstar T) ^ 2 := by nlinarith
-    nlinarith [sq_nonneg (T.t + Vstar T)]
-  nlinarith [sq_nonneg (Vstar T)]
+  have h := EcstG_lo T.toG ha
+  rw [← Ecst_toG] at h
+  simp only [StepTower.toG_t] at h
+  norm_num at h ⊢
+  linarith
 
 theorem Ecst_hi {a : ℝ} (ha : a ≤ 2) :
     Ecst T a ≤ 27 * (2 * (T.t + Vstar T) ^ 2 + 3 * Vstar T ^ 2 +
       (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9) := by
-  unfold Ecst
-  nlinarith [sq_nonneg (T.t + Vstar T)]
+  have h := EcstG_hi T.toG ha
+  rw [← Ecst_toG] at h
+  simp only [StepTower.toG_t, StepTower.toG_BG, StepTower.toG_κ] at h
+  rw [← Vstar_toG] at h
+  norm_num at h ⊢
+  linarith
 
 theorem Ecst_pos {a : ℝ} (ha : 1 / 2 ≤ a) : 0 < Ecst T a := by
-  have := Ecst_lo T ha
-  have := T.t_pos
-  nlinarith
+  rw [Ecst_toG]
+  exact EcstG_pos T.toG ha
 
 theorem Estar_eq {k : ℕ} (hk : 1 ≤ k) :
     Estar T k = 3 ^ k * Ecst T (compWeight 3 1 k) := by
-  have ha := compWeight_three_mem hk
-  have hpos := Ecst_pos T ha.1
-  unfold Estar
-  rw [energyBdScaled_eq k _ _ _ _ rfl]
-  rw [Real.norm_of_nonneg (by positivity)]
+  have h := EstarG_eq T.toG (compWeightG_mem T.toG hk)
+  rw [← Estar_toG, ← Ecst_toG, scale_three_cast] at h
+  exact h
 
 end Const
 
@@ -127,123 +140,63 @@ noncomputable def cHigh : ℝ :=
   96 * 4096 * (27 * (2 * (T.t + Vstar T) ^ 2 + 3 * Vstar T ^ 2 +
     (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9)) * Kmark T / lvKappa T.κ T.t ^ 3
 
+theorem cLow_toG : cLow T = cLowG T.toG := by
+  unfold cLow cLowG
+  rw [← Kmark_toG]
+  simp only [StepTower.toG_t, lvKappaG_three, StepTower.toG_κ]
+  norm_num
+
+theorem cHigh_toG : cHigh T = cHighG T.toG := by
+  unfold cHigh cHighG
+  rw [← Kmark_toG, ← Vstar_toG]
+  simp only [StepTower.toG_t, lvKappaG_three, StepTower.toG_κ, StepTower.toG_BG]
+  norm_num
+
+theorem cubicF0_toG (k : ℕ) (β p₁ : ℝ) : cubicF0 T k β p₁ = cubicF0G T.toG k β p₁ := by
+  unfold cubicF0 cubicF0G
+  rw [scale_three_cast]
+  rfl
+
 theorem cLow_pos : 0 < cLow T := by
-  have := Kmark_pos T
-  have := T.t_pos
-  have := lvKappa_pos T.κ T.t_pos
-  unfold cLow; positivity
+  rw [cLow_toG]; exact cLowG_pos T.toG
 
 /-- **The landed constant `F₀` in terms of `b = β 3^k`**:
 `F₀ = 96 b Ecst Kmark / r³`, `r = lvR/4`. -/
 theorem cubicF0_eq_b {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ} (hβ : 0 < β) :
     cubicF0 T k β p₁ = 96 * (β * 3 ^ k) * Ecst T (compWeight 3 1 k) * Kmark T /
       (lvR T.κ T.t (β * 3 ^ k) p₁ / 4) ^ 3 := by
-  unfold cubicF0
-  rw [Estar_eq T hk, abs_of_pos hβ]
-  unfold Kmark
-  ring
-
-private theorem alg_lo (s κ p E K : ℝ) (hs : s ≠ 0) (hκ : κ ≠ 0) (hp : p ≠ 0) :
-    96 * 512 * E * K / κ ^ 3 * p ^ 3 / s = 96 * s ^ 2 * E * K / (κ * s / (8 * p)) ^ 3 := by
-  field_simp
-  ring
-
-private theorem alg_hi (s κ p E K : ℝ) (hs : s ≠ 0) (hκ : κ ≠ 0) (hp : p ≠ 0) :
-    96 * 4096 * E * K / κ ^ 3 * p ^ 3 / s = 96 * s ^ 2 * E * K / (κ * s / (16 * p)) ^ 3 := by
-  field_simp
-  ring
+  have h := cubicF0G_eq_b T.toG hk hβ (p₁ := p₁)
+  rw [← cubicF0_toG, scale_three_cast, ← Ecst_toG, ← Kmark_toG] at h
+  exact h
 
 theorem lvR_div_four_le {b p₁ : ℝ} (hp : 0 < p₁) :
-    lvR T.κ T.t b p₁ / 4 ≤ lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) := by
-  unfold lvR
-  rw [lvCpsi_eq]
-  have : 0 < lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) ∨ lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) ≤ 0 :=
-    lt_or_ge 0 _ |>.imp id id
-  have e : (lvKappa T.κ T.t * Real.sqrt b / (2 * p₁) - 4) / 4 =
-      lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) - 1 := by field_simp; ring
-  rw [e]; linarith
+    lvR T.κ T.t b p₁ / 4 ≤ lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) :=
+  lvRG_div_four_le T.toG hp
 
 theorem le_lvR_div_four {b p₁ : ℝ} (hp : 0 < p₁)
     (h16 : 16 * p₁ ≤ lvCpsi T.κ T.t b) :
-    lvKappa T.κ T.t * Real.sqrt b / (16 * p₁) ≤ lvR T.κ T.t b p₁ / 4 := by
-  unfold lvR
-  rw [← lvCpsi_eq]
-  rw [le_div_iff₀ (by norm_num : (0:ℝ) < 4)]
-  rw [lvCpsi_eq] at h16 ⊢
-  have e : lvKappa T.κ T.t * Real.sqrt b / (16 * p₁) * 4 =
-      lvKappa T.κ T.t * Real.sqrt b / (4 * p₁) := by field_simp; ring
-  rw [e]
-  have h : 4 ≤ lvKappa T.κ T.t * Real.sqrt b / (4 * p₁) := by
-    rw [le_div_iff₀ (by positivity)]; linarith
-  have e2 : lvKappa T.κ T.t * Real.sqrt b / (2 * p₁) =
-      2 * (lvKappa T.κ T.t * Real.sqrt b / (4 * p₁)) := by field_simp; ring
-  rw [e2]; linarith
+    lvKappa T.κ T.t * Real.sqrt b / (16 * p₁) ≤ lvR T.κ T.t b p₁ / 4 :=
+  le_lvRG_div_four T.toG hp h16
 
 /-- **Lower bound (the true exponent is `-1/2`)**: for `r > 0`,
 `F₀ ≥ cLow · p₁³ / √b`. -/
 theorem markedRoot_F0_ge {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ} (hβ : 0 < β) (hp : 0 < p₁)
     (hr : 0 < lvR T.κ T.t (β * 3 ^ k) p₁) :
     cLow T * p₁ ^ 3 / Real.sqrt (β * 3 ^ k) ≤ cubicF0 T k β p₁ := by
-  rw [cubicF0_eq_b T hk hβ]
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hk1 := lvKappa_pos T.κ T.t_pos
-  have hEc := Ecst_lo T (compWeight_three_mem hk).1
-  have hK := Kmark_pos T
-  set r := lvR T.κ T.t b p₁ / 4 with hrdef
-  have hr4 : 0 < r := by rw [hrdef]; positivity
-  have hrA := lvR_div_four_le T (b := b) hp
-  have hA : 0 < lvKappa T.κ T.t * Real.sqrt b / (8 * p₁) := by positivity
-  have h3 : r ^ 3 ≤ (lvKappa T.κ T.t * Real.sqrt b / (8 * p₁)) ^ 3 :=
-    pow_le_pow_left₀ hr4.le hrA 3
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have step : 96 * b * (27 * (1 / 2 * T.t ^ 2)) * Kmark T /
-      (lvKappa T.κ T.t * Real.sqrt b / (8 * p₁)) ^ 3 ≤
-      96 * b * Ecst T (compWeight 3 1 k) * Kmark T / r ^ 3 := by
-    have hE0 := Ecst_pos T (compWeight_three_mem hk).1
-    apply div_le_div₀ (by positivity) _ (by positivity) h3
-    nlinarith [mul_pos hb0 hK]
-  refine le_trans (le_of_eq ?_) step
-  unfold cLow
-  have := alg_lo (Real.sqrt b) (lvKappa T.κ T.t) p₁ (27 * (1 / 2 * T.t ^ 2)) (Kmark T) hs.ne'
-    hk1.ne' hp.ne'
-  rw [hsq] at this
-  exact this
+  rw [← scale_three_cast] at hr
+  have h := markedRoot_F0_geG T.toG hk hβ hp hr
+  rw [scale_three_cast] at h
+  rw [cLow_toG, cubicF0_toG]
+  exact h
 
 /-- **Upper bound**: for `16 p₁ ≤ c_ψ`, `F₀ ≤ cHigh · p₁³ / √b`. -/
 theorem markedRoot_F0_le {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ} (hβ : 0 < β) (hp : 0 < p₁)
     (h16 : 16 * p₁ ≤ lvCpsi T.κ T.t (β * 3 ^ k)) :
     cubicF0 T k β p₁ ≤ cHigh T * p₁ ^ 3 / Real.sqrt (β * 3 ^ k) := by
-  rw [cubicF0_eq_b T hk hβ]
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hk1 := lvKappa_pos T.κ T.t_pos
-  have hEc := Ecst_hi T (compWeight_three_mem hk).2
-  have hK := Kmark_pos T
-  have hE0 := Ecst_pos T (compWeight_three_mem hk).1
-  have hrA := le_lvR_div_four T hp h16
-  have hA : 0 < lvKappa T.κ T.t * Real.sqrt b / (16 * p₁) := by positivity
-  set r := lvR T.κ T.t b p₁ / 4 with hrdef
-  have h3 : (lvKappa T.κ T.t * Real.sqrt b / (16 * p₁)) ^ 3 ≤ r ^ 3 :=
-    pow_le_pow_left₀ hA.le hrA 3
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have step : 96 * b * Ecst T (compWeight 3 1 k) * Kmark T / r ^ 3 ≤
-      96 * b * (27 * (2 * (T.t + Vstar T) ^ 2 + 3 * Vstar T ^ 2 +
-        (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9)) * Kmark T /
-      (lvKappa T.κ T.t * Real.sqrt b / (16 * p₁)) ^ 3 := by
-    apply div_le_div₀ _ _ (by positivity) h3
-    · have := mul_pos hb0 hK
-      nlinarith
-    · nlinarith [mul_pos hb0 hK]
-  refine le_trans step (le_of_eq ?_)
-  unfold cHigh
-  have := alg_hi (Real.sqrt b) (lvKappa T.κ T.t) p₁ (27 * (2 * (T.t + Vstar T) ^ 2 +
-    3 * Vstar T ^ 2 + (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9)) (Kmark T) hs.ne'
-    hk1.ne' hp.ne'
-  rw [hsq] at this
-  exact this.symm
+  rw [← scale_three_cast] at h16 ⊢
+  have h := markedRoot_F0_leG T.toG hk hβ hp h16
+  rw [cHigh_toG, cubicF0_toG]
+  exact h
 
 end Cubic
 
@@ -258,26 +211,12 @@ theorem markedRoot_F0_le_polylog {A₁ : ℝ} (hA : 0 ≤ A₁) (p : ℕ) :
       p₁ ≤ pLog A₁ p (β * 3 ^ k) →
       cubicF0 T k β p₁ ≤
         cHigh T * (A₁ ^ 3 * Real.log (β * 3 ^ k) ^ (3 * p)) / Real.sqrt (β * 3 ^ k) := by
-  have hk1 := lvKappa_pos T.κ T.t_pos
-  refine ⟨max 1 (pLogThreshold A₁ p (lvKappa T.κ T.t / 16)), le_max_left _ _,
-    fun k hk β p₁ hβ hp hb hp₁ => ?_⟩
-  have hb1 : 1 ≤ β * 3 ^ k := (le_max_left _ _).trans hb
-  have hbt : pLogThreshold A₁ p (lvKappa T.κ T.t / 16) ≤ β * 3 ^ k := (le_max_right _ _).trans hb
-  have hpl := pLog_le_mul_sqrt hA p (by positivity : 0 < lvKappa T.κ T.t / 16) hb1 hbt
-  have h16 : 16 * p₁ ≤ lvCpsi T.κ T.t (β * 3 ^ k) := by
-    rw [lvCpsi_eq]; linarith
-  refine (markedRoot_F0_le T hk hβ hp h16).trans ?_
-  have hc : 0 ≤ cHigh T := by
-    have := Kmark_pos T
-    have := T.rho_nonneg
-    have := Vstar_nonneg T
-    unfold cHigh; positivity
-  have h3 : p₁ ^ 3 ≤ A₁ ^ 3 * Real.log (β * 3 ^ k) ^ (3 * p) := by
-    have hpl0 : p₁ ^ 3 ≤ pLog A₁ p (β * 3 ^ k) ^ 3 := pow_le_pow_left₀ hp.le hp₁ 3
-    refine hpl0.trans (le_of_eq ?_)
-    unfold pLog
-    rw [mul_pow, ← pow_mul, mul_comm p 3]
-  gcongr
+  obtain ⟨b₀, hb₀, h⟩ := markedRoot_F0_le_polylogG T.toG hA p
+  refine ⟨b₀, hb₀, fun k hk β p₁ hβ hp hb hp₁ => ?_⟩
+  rw [← scale_three_cast] at hb hp₁ ⊢
+  have := h k hk β p₁ hβ hp hb hp₁
+  rw [cHigh_toG, cubicF0_toG]
+  exact this
 
 end Polylog
 
@@ -288,66 +227,47 @@ variable {κmin : ℝ} (T : StepTower κmin)
 /-- The lower bound of `covSupConstC` on weights in `[1/2, 2]`. -/
 noncomputable def covMin : ℝ := ((2 : ℕ) : ℝ) * Green.ballConst 3 (xAgmonRate 3 3 / 3) * (2 / Real.sqrt 2)
 
+theorem covMin_toG : covMin = covMinG 3 3 2 := by
+  unfold covMin covMinG
+  norm_num
+
 theorem covMin_pos : 0 < covMin := by
-  have := ballConst_pos (d := 3) (L := 3) (by norm_num) le_rfl
-  unfold covMin; positivity
+  rw [covMin_toG]; exact covMinG_pos (by norm_num) le_rfl (by norm_num)
 
 theorem covMin_le {a : ℝ} (ha : a ∈ Set.Icc (1 / 2 : ℝ) 2) (κ : ℝ) :
     covMin ≤ covSupConstC 3 3 2 a κ := by
-  obtain ⟨h1, h2⟩ := ha
-  have ha0 : 0 < a := by linarith
-  have hB := ballConst_pos (d := 3) (L := 3) (by norm_num) le_rfl
-  have hε : 0 ≤ xAgmonRate 3 3 := (xAgmonRate_pos (L := 3) (by norm_num) le_rfl).le
-  have hT := covTConst_nonneg 3 3 a (xAgmonRate 3 3) κ
-  have e1 : (1 : ℝ) ≤ Real.exp (xAgmonRate 3 3 * (2 * 3)) := Real.one_le_exp (by positivity)
-  have e2 : (1 : ℝ) ≤ Real.exp (xAgmonRate 3 3 * 3 / 3) := Real.one_le_exp (by positivity)
-  have hs : Real.sqrt a ≤ Real.sqrt 2 := Real.sqrt_le_sqrt h2
-  have hs0 : 0 < Real.sqrt a := Real.sqrt_pos.2 ha0
-  unfold covSupConstC covSqrtEntryConstC covC1Const covMin
-  simp only [Nat.cast_ofNat] at hB ⊢
-  have hC : 2 ≤ 2 * Real.exp (xAgmonRate 3 3 * (2 * 3)) + covTConst 3 3 a (xAgmonRate 3 3) κ / a := by
-    have h0 : 0 ≤ covTConst 3 3 a (xAgmonRate 3 3) κ / a := by positivity
-    exact le_add_of_le_of_nonneg (by simpa using mul_le_mul_of_nonneg_left e1 (by norm_num : (0:ℝ) ≤ 2)) h0
-  have h4 : 2 / Real.sqrt 2 ≤ (2 * Real.exp (xAgmonRate 3 3 * (2 * 3)) +
-      covTConst 3 3 a (xAgmonRate 3 3) κ / a) * Real.exp (xAgmonRate 3 3 * 3 / 3) /
-        Real.sqrt a := by
-    rw [le_div_iff₀ hs0]
-    have hs2 : 0 < Real.sqrt 2 := Real.sqrt_pos.2 (by norm_num)
-    calc 2 / Real.sqrt 2 * Real.sqrt a ≤ 2 / Real.sqrt 2 * Real.sqrt 2 :=
-          mul_le_mul_of_nonneg_left hs (by positivity)
-      _ = 2 := by field_simp
-      _ ≤ _ := by nlinarith
-  exact mul_le_mul_of_nonneg_left h4 (by positivity)
+  rw [covMin_toG]; exact covMinG_le (by norm_num) le_rfl (by norm_num) ha κ
 
 /-- The radius `markedRad` at `cc = b^{-1/2}`, `c_ψ = p₁`, as an explicit function. -/
 noncomputable def decMR (k : ℕ) (b p₁ : ℝ) : ℝ :=
   Real.sqrt 2 * ((Real.sqrt b)⁻¹ * (covSupConstC 3 3 2 (compWeight 3 1 k) T.κ * p₁))
 
+theorem decMR_toG (k : ℕ) (b p₁ : ℝ) : decMR T k b p₁ = decMRG T.toG k b p₁ := by
+  unfold decMR decMRG
+  norm_num
+
 theorem markedRad_eq (k : ℕ) {b : ℝ} (hb : 0 ≤ b) (p₁ : ℝ) :
     markedRad 3 3 2 k 1 T.κ p₁ (((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) = decMR T k b p₁ := by
-  unfold markedRad decMR
-  rw [Complex.norm_real, Real.norm_of_nonneg (Real.rpow_nonneg hb _), Real.sqrt_eq_rpow b,
-    Real.rpow_neg hb]
-  norm_num
+  rw [decMR_toG]
+  exact markedRadG_eq T.toG k hb p₁
 
 theorem decMR_ge {k : ℕ} (hk : 1 ≤ k) {b p₁ : ℝ} (hb : 0 < b) (hp : 0 ≤ p₁) :
     Real.sqrt 2 * ((Real.sqrt b)⁻¹ * (covMin * p₁)) ≤ decMR T k b p₁ := by
-  have := covMin_le (compWeight_three_mem hk) T.κ
-  unfold decMR
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
-  gcongr
+  have h := decMRG_ge T.toG hk hb hp
+  rw [← covMin_toG, ← decMR_toG] at h
+  norm_num at h ⊢
+  exact h
 
 theorem decMR_le {k : ℕ} (hk : 1 ≤ k) {b p₁ : ℝ} (hb : 0 < b) (hp : 0 ≤ p₁) :
     decMR T k b p₁ ≤ Real.sqrt 2 * ((Real.sqrt b)⁻¹ * (covSupMaxC 3 3 2 T.κ * p₁)) := by
-  have := covSupConstC_le_covSupMaxC (N := 2) (d := 3) (L := 3) (by norm_num) le_rfl T.κ
-    (compWeight_three_mem hk)
-  unfold decMR
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
-  gcongr
+  have h := decMRG_le T.toG hk hb hp
+  rw [← decMR_toG] at h
+  norm_num at h ⊢
+  exact h
 
 theorem decMR_pos {k : ℕ} (hk : 1 ≤ k) {b p₁ : ℝ} (hb : 0 < b) (hp : 0 < p₁) :
-    0 < decMR T k b p₁ :=
-  lt_of_lt_of_le (by have := covMin_pos; positivity) (decMR_ge T hk hb hp.le)
+    0 < decMR T k b p₁ := by
+  rw [decMR_toG]; exact decMRG_pos T.toG hk hb hp
 
 /-- **Any admissible `t₀` of the decoupled count obeys `t₀ · markedRad < δ₁`.**  (The count asks
 `0 < t₀ ≤ b₀` and `(‖u‖ + b₀) markedRad < δ₁`.) -/
@@ -356,19 +276,15 @@ theorem t0_mul_lt {t₀ b₀ u mr δ₁ : ℝ} (hmr : 0 ≤ mr) (hu : 0 ≤ u) (
   have : t₀ * mr ≤ (u + b₀) * mr := mul_le_mul_of_nonneg_right (by linarith) hmr
   linarith
 
-theorem decF_eq (k : ℕ) (t₀ : ℝ) : decF T k t₀ = Estar T k / t₀ * Kmark T := by
-  unfold decF Kmark; ring
+theorem decF_toG (k : ℕ) (t₀ : ℝ) : decF T k t₀ = decFG T.toG k t₀ := rfl
+
+theorem decF_eq (k : ℕ) (t₀ : ℝ) : decF T k t₀ = Estar T k / t₀ * Kmark T :=
+  decFG_eq T.toG k t₀
 
 /-- **Lower bound for the constant of the decoupled count at every admissible `t₀`.** -/
 theorem decF_ge {k : ℕ} {t₀ mr : ℝ} (ht0 : 0 < t₀) (hadm : t₀ * mr < T.t) :
-    Estar T k * mr / T.t * Kmark T ≤ decF T k t₀ := by
-  have hE : 0 ≤ Estar T k := norm_nonneg _
-  have hK := Kmark_pos T
-  have ht := T.t_pos
-  rw [decF_eq]
-  refine mul_le_mul_of_nonneg_right ?_ hK.le
-  rw [div_le_div_iff₀ ht ht0]
-  nlinarith [mul_le_mul_of_nonneg_left hadm.le hE]
+    Estar T k * mr / T.t * Kmark T ≤ decF T k t₀ :=
+  decFG_ge T.toG ht0 hadm
 
 /-- The lower constant of the decoupled marks `G = -β markedOutDec`. -/
 noncomputable def cDecLow : ℝ :=
@@ -380,43 +296,30 @@ noncomputable def cDecHigh : ℝ :=
     (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9)) * (Real.sqrt 2 * covSupMaxC 3 3 2 T.κ) *
       Kmark T / T.t
 
+theorem cDecLow_toG : cDecLow T = cDecLowG T.toG := by
+  unfold cDecLow cDecLowG
+  rw [← Kmark_toG, covMin_toG]
+  simp only [StepTower.toG_t]
+  norm_num
+
+theorem cDecHigh_toG : cDecHigh T = cDecHighG T.toG := by
+  unfold cDecHigh cDecHighG
+  rw [← Kmark_toG, ← Vstar_toG]
+  simp only [StepTower.toG_t, StepTower.toG_κ, StepTower.toG_BG]
+  norm_num
+
 theorem cDecLow_pos : 0 < cDecLow T := by
-  have := Kmark_pos T
-  have := T.t_pos
-  have := covMin_pos
-  unfold cDecLow; positivity
+  rw [cDecLow_toG]; exact cDecLowG_pos T.toG
 
 /-- **The decoupled constant grows like `√b`.**  For every admissible `t₀`, the constant
 `β F_dec(t₀)` of the mark `G = -β markedOutDec` is at least `cDecLow · p₁ · √b`. -/
 theorem dec_G_ge {k : ℕ} (hk : 1 ≤ k) {β p₁ t₀ : ℝ} (hβ : 0 < β) (hp : 0 < p₁) (ht0 : 0 < t₀)
     (hadm : t₀ * decMR T k (β * 3 ^ k) p₁ < T.t) :
     cDecLow T * p₁ * Real.sqrt (β * 3 ^ k) ≤ |β| * decF T k t₀ := by
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have h1 := decF_ge T (k := k) ht0 hadm
-  have h2 := decMR_ge T hk hb0 hp.le
-  have hEc := Ecst_lo T (compWeight_three_mem hk).1
-  have hK := Kmark_pos T
-  have ht := T.t_pos
-  rw [abs_of_pos hβ]
-  refine le_trans ?_ (mul_le_mul_of_nonneg_left h1 hβ.le)
-  rw [Estar_eq T hk]
-  have hmr0 := covMin_pos
-  have key : cDecLow T * p₁ * Real.sqrt b =
-      β * (3 ^ k * (27 * (1 / 2 * T.t ^ 2)) * (Real.sqrt 2 * ((Real.sqrt b)⁻¹ * (covMin * p₁))) /
-        T.t * Kmark T) := by
-    unfold cDecLow
-    generalize Kmark T = K
-    generalize covMin = cm
-    field_simp
-    rw [hsq, hb]
-    ring
-  rw [key]
-  refine mul_le_mul_of_nonneg_left ?_ hβ.le
-  have e0 := Ecst_pos T (compWeight_three_mem hk).1
-  gcongr
+  rw [← scale_three_cast] at hadm ⊢
+  have h := dec_G_geG T.toG hk hβ hp ht0 (by rw [← decMR_toG]; exact hadm)
+  rw [cDecLow_toG]
+  exact h
 
 /-- **Attained: the best admissible `t₀` gives `β F_dec ≤ cDecHigh · p₁ · √b`.**  With
 `t₀ = δ₁/(2 markedRad)` the landed hypothesis `(‖u‖ + t₀) markedRad < δ₁` holds for `‖u‖ ≤ 1`
@@ -427,45 +330,10 @@ theorem dec_G_le_best {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ} (hβ : 0 < β) (h
       (u + T.t / (2 * decMR T k (β * 3 ^ k) p₁)) * decMR T k (β * 3 ^ k) p₁ < T.t) ∧
     |β| * decF T k (T.t / (2 * decMR T k (β * 3 ^ k) p₁)) ≤
       cDecHigh T * p₁ * Real.sqrt (β * 3 ^ k) := by
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have hmr := decMR_pos T hk hb0 hp
-  set mr := decMR T k b p₁ with hmrdef
-  have ht := T.t_pos
-  have hK := Kmark_pos T
-  refine ⟨fun u hu => ?_, ?_⟩
-  · have : (u + T.t / (2 * mr)) * mr = u * mr + T.t / 2 := by field_simp
-    rw [this]
-    have : u * mr ≤ mr := by
-      calc u * mr ≤ |u| * mr := mul_le_mul_of_nonneg_right (le_abs_self u) hmr.le
-        _ ≤ 1 * mr := mul_le_mul_of_nonneg_right hu hmr.le
-        _ = mr := one_mul _
-    linarith
-  · have hE0 := Ecst_pos T (compWeight_three_mem hk).1
-    have hEh := Ecst_hi T (compWeight_three_mem hk).2
-    have hmrle := decMR_le T hk hb0 hp.le
-    have e : decF T k (T.t / (2 * mr)) = 2 * (3 ^ k * Ecst T (compWeight 3 1 k)) * mr / T.t *
-        Kmark T := by
-      rw [decF_eq, Estar_eq T hk]
-      generalize Kmark T = K
-      field_simp
-    rw [abs_of_pos hβ, e]
-    have step : β * (2 * (3 ^ k * Ecst T (compWeight 3 1 k)) * mr / T.t * Kmark T) ≤
-        β * (2 * (3 ^ k * (27 * (2 * (T.t + Vstar T) ^ 2 + 3 * Vstar T ^ 2 +
-          (1 + rho4 3 3 2 T.BG T.κ) * Vstar T ^ 2 / 9))) *
-          (Real.sqrt 2 * ((Real.sqrt b)⁻¹ * (covSupMaxC 3 3 2 T.κ * p₁))) / T.t * Kmark T) := by
-      apply mul_le_mul_of_nonneg_left _ hβ.le
-      have := T.rho_nonneg
-      have := Vstar_nonneg T
-      gcongr
-    refine step.trans (le_of_eq ?_)
-    unfold cDecHigh
-    generalize Kmark T = K
-    field_simp
-    rw [hsq, hb]
-    ring
+  rw [← scale_three_cast] at hsmall ⊢
+  have h := dec_G_le_bestG T.toG hk hβ hp (by rw [← decMR_toG]; exact hsmall)
+  rw [cDecHigh_toG]
+  exact ⟨fun u hu => by rw [decMR_toG]; exact h.1 u hu, h.2⟩
 
 end Decoupled
 
@@ -573,36 +441,11 @@ theorem cubic_exceeds_budget {k : ℕ} (hk : 1 ≤ k) {β p₁ C : ℝ} (hβ : 0
     (hr : 0 < lvR T.κ T.t (β * 3 ^ k) p₁) (hC : 0 < C)
     (hbig : 1 / (C * cLow T) ^ 2 < β * 3 ^ k) :
     budgetC (β * 3 ^ k) < C * cubicF0 T k β p₁ := by
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have hcl := cLow_pos T
-  have hCc : 0 < C * cLow T := by positivity
-  have hF := markedRoot_F0_ge T hk hβ (by linarith) hr
-  have hp3 : 1 ≤ p₁ ^ 3 := one_le_pow₀ hp1
-  have h1 : 1 / (C * cLow T) < Real.sqrt b := by
-    rw [Real.lt_sqrt (by positivity)]
-    rw [div_pow, one_pow]
-    exact hbig
-  have h2 : C * cLow T / Real.sqrt b ≤ C * cubicF0 T k β p₁ := by
-    have : cLow T / Real.sqrt b ≤ cLow T * p₁ ^ 3 / Real.sqrt b :=
-      div_le_div_of_nonneg_right (le_mul_of_one_le_right hcl.le hp3) hs.le
-    calc C * cLow T / Real.sqrt b = C * (cLow T / Real.sqrt b) := by ring
-      _ ≤ C * (cLow T * p₁ ^ 3 / Real.sqrt b) := mul_le_mul_of_nonneg_left this hC.le
-      _ ≤ _ := mul_le_mul_of_nonneg_left (by simpa [hb] using hF) hC.le
-  refine lt_of_lt_of_le ?_ h2
+  rw [← scale_three_cast] at hr hbig ⊢
+  have h := cubic_exceeds_budgetG T.toG hk hβ hp1 hr hC (by rw [← cLow_toG]; exact hbig)
   unfold budgetC
-  rw [lt_div_iff₀ hs]
-  have h3 : 1 < C * cLow T * Real.sqrt b := by
-    rw [div_lt_iff₀ hCc] at h1; linarith
-  have : b⁻¹ * Real.sqrt b = (Real.sqrt b)⁻¹ := by
-    rw [inv_mul_eq_iff_eq_mul₀ hb0.ne']
-    field_simp
-    nlinarith [hsq]
-  rw [this]
-  rw [inv_lt_iff_one_lt_mul₀ hs]
-  linarith
+  rw [cubicF0_toG]
+  exact h
 
 /-- **Necessary condition for the cubic budget:** if `C · F₀ ≤ β_k⁻¹` then
 `C cLow p₁³ ≤ b^{-1/2}`, i.e. `p₁ ≲ b^{-1/6}`. -/
@@ -610,50 +453,23 @@ theorem cubic_budget_needs_small_p1 {k : ℕ} (hk : 1 ≤ k) {β p₁ C : ℝ} (
     (hp : 0 < p₁) (hr : 0 < lvR T.κ T.t (β * 3 ^ k) p₁) (hC : 0 < C)
     (h : C * cubicF0 T k β p₁ ≤ budgetC (β * 3 ^ k)) :
     C * cLow T * p₁ ^ 3 ≤ (Real.sqrt (β * 3 ^ k))⁻¹ := by
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hsq : Real.sqrt b ^ 2 = b := Real.sq_sqrt hb0.le
-  have hF := markedRoot_F0_ge T hk hβ hp hr
-  have h1 : C * (cLow T * p₁ ^ 3 / Real.sqrt b) ≤ b⁻¹ :=
-    (mul_le_mul_of_nonneg_left (by simpa [hb] using hF) hC.le).trans h
-  have h2 : C * cLow T * p₁ ^ 3 / Real.sqrt b ≤ b⁻¹ := by
-    calc _ = C * (cLow T * p₁ ^ 3 / Real.sqrt b) := by ring
-      _ ≤ _ := h1
-  rw [div_le_iff₀ hs] at h2
-  have : b⁻¹ * Real.sqrt b = (Real.sqrt b)⁻¹ := by
-    rw [inv_mul_eq_iff_eq_mul₀ hb0.ne']
-    field_simp
-    nlinarith [hsq]
-  rwa [this] at h2
+  unfold budgetC at h
+  rw [← scale_three_cast] at hr h ⊢
+  have := cubic_budget_needs_small_p1G T.toG hk hβ hp hr hC (by rw [cubicF0_toG] at h; exact h)
+  rw [cLow_toG]
+  exact this
 
 /-- **The decoupled constant exceeds the budget of (c)**, at every admissible `t₀`. -/
 theorem dec_exceeds_budget {k : ℕ} (hk : 1 ≤ k) {β p₁ t₀ C : ℝ} (hβ : 0 < β) (hp1 : 1 ≤ p₁)
     (ht0 : 0 < t₀) (hadm : t₀ * decMR T k (β * 3 ^ k) p₁ < T.t) (hC : 0 < C)
     (hb1 : 1 ≤ β * 3 ^ k) (hbig : 1 / (C * cDecLow T) ^ 2 < β * 3 ^ k) :
     budgetC (β * 3 ^ k) < C * (|β| * decF T k t₀) := by
-  set b := β * 3 ^ k with hb
-  have hb0 : 0 < b := by positivity
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb0
-  have hcl := cDecLow_pos T
-  have hCc : 0 < C * cDecLow T := by positivity
-  have hF := dec_G_ge T hk hβ (by linarith) ht0 hadm
-  have h1 : 1 / (C * cDecLow T) < Real.sqrt b := by
-    rw [Real.lt_sqrt (by positivity)]
-    rw [div_pow, one_pow]
-    exact hbig
-  have h3 : 1 < C * cDecLow T * Real.sqrt b := by
-    rw [div_lt_iff₀ hCc] at h1; linarith
-  have h4 : C * cDecLow T * Real.sqrt b ≤ C * (|β| * decF T k t₀) := by
-    have : cDecLow T * Real.sqrt b ≤ cDecLow T * p₁ * Real.sqrt b := by
-      have := mul_le_mul_of_nonneg_right (le_mul_of_one_le_right hcl.le hp1) hs.le
-      simpa using this
-    calc C * cDecLow T * Real.sqrt b = C * (cDecLow T * Real.sqrt b) := by ring
-      _ ≤ C * (cDecLow T * p₁ * Real.sqrt b) := mul_le_mul_of_nonneg_left this hC.le
-      _ ≤ _ := mul_le_mul_of_nonneg_left (by simpa [hb] using hF) hC.le
-  have h5 : b⁻¹ ≤ 1 := inv_le_one_of_one_le₀ hb1
+  rw [← scale_three_cast] at hadm hb1 hbig ⊢
+  have h := dec_exceeds_budgetG T.toG hk hβ hp1 ht0 (by rw [← decMR_toG]; exact hadm) hC hb1
+    (by rw [← cDecLow_toG]; exact hbig)
   unfold budgetC
-  linarith
+  rw [decF_toG]
+  exact h
 
 /-- **Verdict for the consumer** (Theorem 3.1 (c), (d), (e)): a mark record whose constants
 `F0 i` are at least a constant `F`, and with one anchor of distance at most `Dd`, has anchored
