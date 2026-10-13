@@ -1111,6 +1111,7 @@ public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Def7FineSize
 public import Balaban.LargeField.Def7
 public import Balaban.LargeField.Def7Variants
 public import Balaban.LargeField.Def7Basic
@@ -1324,6 +1325,7 @@ public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Inhabited.SFCtxMulti
+public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
