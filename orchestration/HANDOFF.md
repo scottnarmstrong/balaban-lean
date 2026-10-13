@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
 | W259 | `w259-i5-witness-data` / W259 | i5_background instance with data sites and proper X₁ |
-| W260 | `w260-v1-limit` / W260 | thermodynamic limit of v1T and summability; unconditional a_j = v₁ |
 | W266 | `w266-sharp-assembly` / W266 | SharpAssembly: parallel assembler with sharp locality, physical_directTerms, direct activity bound, rate preservation (zero class) |
 | W265 | `w265-localgen` / W265 | P3 local generating set as an object (LOCALGEN §4: LocalGenAligned, LocalGenRange) |
 | W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
