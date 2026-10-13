@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.SharpEngine
+public import Balaban.Fluctuation.PhysicalVRawY
 public import Balaban.Fluctuation.ObsRayBase
 public import Balaban.Fluctuation.InteractionHatF
 
@@ -80,6 +81,81 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **The block energy expands over the domains `Y ⊃ X₁`, exact locality** (`vblock_expansion_hat_dir`
+with the locality clause for raw data agreeing on `Y` itself and hat variables agreeing at the unit
+points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `vblock_fan_local_rawY`; the term
+`Ev` is the one of `vblock_expansion_hat_dir`, which is a corollary. -/
+theorem vblock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hmar : BlockMargin Gp X₁f (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        hatFun Gp a₁ ν eps hG' cc (blockEnergyOne Gp Hm a₁ ν BG₂ κ eps k z) (rawOf D, ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ energyBd d L N (compWeight L a₁) ν k
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  have hρ : 0 ≤ rho4 d L N BG κ := by
+    have hBG := hC.hS.fam.2.1
+    have hB1 : 0 ≤ famConst d L BG κ := by
+      have := famConst_ge_one (L := L) hBG κ hd0; linarith
+    unfold rho4
+    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
+  have ha : 0 ≤ compWeight L a₁ k :=
+    (hC.HBp.weights k hk (by omega)).1.trans' (by norm_num)
+  have hEb := energyBd_nonneg (d := d) (L := L) (N := N) ha hC.HBp.mass hV hC.δ₁_pos.le hρ
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+    hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Φ := blockEnergyFun Gp Hm (compWeight L a₁) ν k z)
+    ((blockEnergyFun_analytic _ ν k z).mono (Set.subset_univ _))
+    (fun t ht => by
+      rw [hΔ]; simpa using blockEnergyFun_bound hC hk le_rfl z ht)
+    (fun {F₁} hF₁ {Sol} hSol => vblock_fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+      hconn hrow hF₁ hSol z hZ hmar)
+  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', fun Y u hu => ?_, h4'⟩
+  · rw [hatFun_rawOf hG' cc _ hD, blockEnergyOne_rawOf hD k z]
+    exact h1' D hD ψh hψh
+  · have := h3' Y u hu
+    rw [hΔ] at this
+    simpa using this
+
 /-- **The block energy expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂`, sharp form**
 (`vblock_expansion_hat` with the locality clause for `AgHatDir`: the hat variable is read only at
 the unit points of the sites of `Y`). -/
@@ -124,34 +200,9 @@ theorem vblock_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  have hρ : 0 ≤ rho4 d L N BG κ := by
-    have hBG := hC.hS.fam.2.1
-    have hB1 : 0 ≤ famConst d L BG κ := by
-      have := famConst_ge_one (L := L) hBG κ hd0; linarith
-    unfold rho4
-    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
-  have ha : 0 ≤ compWeight L a₁ k :=
-    (hC.HBp.weights k hk (by omega)).1.trans' (by norm_num)
-  have hEb := energyBd_nonneg (d := d) (L := L) (N := N) ha hC.HBp.mass hV hC.δ₁_pos.le hρ
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
-    hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Φ := blockEnergyFun Gp Hm (compWeight L a₁) ν k z)
-    ((blockEnergyFun_analytic _ ν k z).mono (Set.subset_univ _))
-    (fun t ht => by
-      rw [hΔ]; simpa using blockEnergyFun_bound hC hk le_rfl z ht)
-    (Z := readSites Hm k z) (Zα := ↑(blockSites d L N₁ m₁ (k + 1) k z)) hZ hmar
-    (fun t _ t' _ _ hα hδ _ hψ => blockEnergyFun_local_dir _ ν k z hα hδ hψ)
-  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', fun Y u hu => ?_, h4'⟩
-  · rw [hatFun_rawOf hG' cc _ hD, blockEnergyOne_rawOf hD k z]
-    exact h1' D hD ψh hψh
-  · have := h3' Y u hu
-    rw [hΔ] at this
-    simpa using this
+  obtain ⟨Ev, hs, hd, hb, ha⟩ := vblock_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
+  exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2, hb, ha⟩
 
 
 /-- **The block energy expansion with both locality clauses**: one family `Ev` with the sum
