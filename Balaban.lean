@@ -1668,6 +1668,7 @@ public import Balaban.Fluctuation.DecMarkCorrected
 public import Balaban.Fluctuation.DecMarkOfPair
 public import Balaban.Fluctuation.DecMarkCorrCount
 public import Balaban.Inhabited.DecMarkCorrCountFromTower
+public import Balaban.Inhabited.DecMarkCorrFamilyFromTower
 public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
@@ -1675,6 +1676,8 @@ public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
+public import Balaban.Green.FinalTaggedSqrt
+public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Inhabited.TowerCoreRatesGeneral
 public import Balaban.Inhabited.DecMarkCorrTotalFromTower
