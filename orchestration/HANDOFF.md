@@ -12,7 +12,6 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W360 | `w360-kf0-walk-series` / W360 | one-scale branch: walk series of K_ν^{-1/2}, non-negative entries, row sums, finite-range truncations with tail q^R |
 | W363 | `w363-kf0-killed-walks` / W363 | one-scale branch: killed-walk inverse of the good-region operator, inward decay, determinant walk formula (H37-3) |
 | W357 | `w357-kf0-block-split` / W357 | one-scale branch: exact sum over bad block sets (K0.2), boundary form (K0.3), Peierls charge (K0.4) |
 | W358 | `w358-kf0-gaussian` / W358 | one-scale branch: Gaussian change of variables in the all-good sector, row sum of K_ν^{-1/2}, product cutoff implication |
