@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.Fluctuation.SizeModG1
+public import Balaban.Inhabited.SFCtxMulti
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -62,6 +63,10 @@ by `Γ_η = q^d c_G (1 + 1/η)`.
   `‖Σ A_j - Corr_j‖` and the omitted tail, for the aligned kernel.
 * `EresJ2_sub_remainder_le_aligned_of_radialCoeff`: the deliverable of T3.
 * `EresJ2_sub_remainder_le_aligned_of_site`: the same with per-site coefficient bounds (T4).
+* `multi_aligned_instance` (T5): on the landed multi-cube context `ctxMulti` a nonzero kernel
+  supported on aligned differences, the failure of the landed collar premise, and the aligned
+  far-crossing identity; the polymer decomposition and the value of the far crossing sum of this
+  kernel are not given.
 
 ## Findings (T6)
 
@@ -74,9 +79,12 @@ the term `AtermRegion a s R' - corrSum ..` then contains
 `x` only) does not contain.  Minimal example: `R' = {y}`, `y` aligned, `x` a non-aligned fine site
 in the block of `y`, `ψ` with `s x ≠ s y`, `v₂ = 0`.  The extra term is `½ a(x - y)(s x - s y)` with
 `a(x - y) = a(0)` (same block), of order `(E₀ K_r/ε_j) σ² ε_q`, not of order `s^(d+α₃)` unless
-`a(0) = 0`.  So `EresJ2_sub_remainder_le_of_radialCoeff` is either vacuous (its `collar` is
-false for `Bc = alignedIn j (thickY R Y)`) or its conclusion fails; it is replaced here by the
-aligned form.  The aligned form has an honest open input: the I6 decomposition has to be proved
+`a(0) = 0`.  The landed corollary `EresJ2_sub_remainder_le_of_radialCoeff` is therefore vacuous at
+the landed `Bc = alignedIn j (thickY R Y)`: its `collar` field is false there (a non-aligned site
+of the fine set of `Y^≈` is not in `Bc`; shown on the multi-cube context in
+`multi_aligned_instance`), and enlarging `Bc` by the non-aligned sites would change `corrSum` (the
+`v₂` terms at non-aligned `x` are not in P5 (1.8)).  It is replaced here by the aligned form.
+The aligned form has an honest open input: the I6 decomposition has to be proved
 for the aligned kernel, i.e. `I_j(y) = Efull - AtermCentre (alignedKernel ..)` is the remainder of
 the source decomposition (the landed `RenormTorus` A-term, `Aterm_torus_sum`, sums over the
 sites of `ℤ^d` seen through `unlift`, i.e. the block lattice; the identification with an aligned
@@ -369,6 +377,10 @@ theorem alignedKernel_of_not {j : ℕ} (a : Localization.CTorus S.d S.L C.N₁ m
     alignedKernel C j a z = 0 := by
   classical
   simp [alignedKernel, hz]
+
+theorem mem_sset_iff (A : Set (Torus S.d (n k))) (x : Localization.CTorus S.d S.L C.N₁ m₁ k) :
+    x ∈ C.sset A ↔
+      cubeMap n S.L M K k (bgToFine C.geo C.hnn C.hkK (sfToBg C.geo C.hT x)) ∈ A := Iff.rfl
 
 variable {C}
 
@@ -994,6 +1006,100 @@ theorem groupedInputsSite_nonempty (j : ℕ) (hRpos : 0 < R (k - 1)) (hM : 0 < M
       simp only [norm_zero]; have := b.E₀_nonneg; positivity }
 
 end Inhabited
+
+/-! ### A nonzero kernel on the multi-cube context -/
+
+section Multi
+
+open Balaban.LargeField.Def7 Balaban.LargeField.Def7.Wit Balaban.Multiscale
+
+open Classical in
+/-- **A nonzero inhabitant of the aligned far-crossing identity** on the landed multi-cube context
+`ctxMulti` (`d = L = 3`, `k = j = 1`, cubes of `𝕋_1` of side `81` sites, aligned sites the
+multiples of `3`).  The kernel is `a z = 1` for `z = ± z₀`, `z₀ = siteOf c₂` the corner of a cube
+`c₂` at index distance `⌊R_0⌋ + 2` from the origin (a kernel of long range: the pair `(y, y + z₀)`
+crosses the halo of `Y = {0}`), `0` otherwise.  It is nonzero, vanishes off aligned differences
+(`siteOf` is aligned), and for it:
+* the landed collar premise of `GroupedInputs` fails for the landed `Bc = alignedIn 1 (thickY wR Y)`:
+  a non-aligned site of the fine set of `Y^≈` is not in `Bc`;
+* the aligned identity `farCrossing_aligned` holds for every `s`:
+  `farCrossing a s (alignedIn 1 Y) (alignedIn 1 (thickY wR Y)) =
+   farCrossing a s (alignedIn 1 Y) (sset (thickY wR Y)).toFinset`.
+(That the far crossing sum itself is nonzero, and the polymer decomposition of this kernel, are
+not shown here.) -/
+theorem multi_aligned_instance :
+    ∃ (Y : Set (Torus wS.d (sides wS.L 1 nMulti 1)))
+      (a : Localization.CTorus wS.d wS.L ctxMulti.N₁ wC7.m₁ 1 → ℂ),
+      (∃ z, a z ≠ 0) ∧ (∀ z, ¬ Aligned (wS.L ^ 1) z → a z = 0) ∧
+      (∃ x, x ∈ ctxMulti.sset (thickY wR Y) ∧ x ∉ ctxMulti.alignedIn 1 (thickY wR Y)) ∧
+      ∀ s : Localization.CTorus wS.d wS.L ctxMulti.N₁ wC7.m₁ 1 → ℂ,
+        farCrossing a s (ctxMulti.alignedIn 1 Y) (ctxMulti.alignedIn 1 (thickY wR Y)) =
+          farCrossing a s (ctxMulti.alignedIn 1 Y) (ctxMulti.sset (thickY wR Y)).toFinset := by
+  set C := ctxMulti with hC
+  let i₀ : Fin wS.d := ⟨0, by norm_num [wS, setting, typing, typing0]⟩
+  let c₂ : Torus wS.d (sides wS.L 1 nMulti 1) :=
+    Function.update 0 i₀ ((⌊wR (1 - 1)⌋₊ + 2 : ℕ) : ZMod _)
+  let z₀ := siteOf C c₂
+  have hz₀ : Aligned (wS.L ^ 1) z₀ := aligned_siteOf C le_rfl c₂
+  have hdvd := pow_dvd_side C (le_refl 1)
+  have hne : NeZero (wS.L ^ 1) := neZero_pow_L
+  have hzero : Aligned (wS.L ^ 1) (0 : Localization.CTorus wS.d wS.L C.N₁ wC7.m₁ 1) :=
+    fun μ => by simp
+  have hneg : Aligned (wS.L ^ 1) (-z₀) := by
+    have := aligned_sub hdvd hzero hz₀
+    rwa [zero_sub] at this
+  let a : Localization.CTorus wS.d wS.L C.N₁ wC7.m₁ 1 → ℂ :=
+    fun z => if z = z₀ ∨ z = -z₀ then 1 else 0
+  have hsupp : ∀ z, ¬ Aligned (wS.L ^ 1) z → a z = 0 := by
+    intro z hz
+    have : ¬ (z = z₀ ∨ z = -z₀) := by
+      rintro (h | h)
+      · exact hz (h ▸ hz₀)
+      · exact hz (h ▸ hneg)
+    simp [a, this]
+  -- a non-aligned site over the origin cube
+  let x₁ : Localization.CTorus wS.d wS.L C.N₁ wC7.m₁ 1 := Function.update 0 i₀ ((1 : ℕ) : ZMod _)
+  have hx₁val : (x₁ i₀).val = 1 := by
+    simp only [x₁, Function.update_self]
+    exact ZMod.val_natCast_of_lt (by
+      have := two_le_nMulti
+      have h2 := side_eq_sigma C
+      have hσ : 0 < wS.L ^ 1 * 27 := by norm_num [wS, setting, typing, typing0]
+      have : 1 < C.N₁ * wS.L ^ wC7.m₁ * wS.L ^ 1 := by
+        rw [h2]
+        have h3 : 2 ≤ sides wS.L 1 nMulti 1 := this
+        nlinarith
+      exact this)
+  have hx₁na : ¬ Aligned (wS.L ^ 1) x₁ := by
+    intro h
+    have := h i₀
+    rw [hx₁val] at this
+    norm_num [wS, setting, typing, typing0] at this
+  have hx₁mem : x₁ ∈ C.sset (thickY wR ({0} : Set (Torus wS.d (sides wS.L 1 nMulti 1)))) := by
+    have h0 : x₁ ∈ C.sset ({0} : Set (Torus wS.d (sides wS.L 1 nMulti 1))) := by
+      refine (mem_sset_iff C _ x₁).2 ?_
+      rw [Set.mem_singleton_iff]
+      funext i
+      rw [cubeMap_sfToBg]
+      unfold blockCoord
+      have : (x₁ i).val / (wS.L ^ 1 * 27) = 0 := by
+        by_cases hi : i = i₀
+        · subst hi; rw [hx₁val]
+          exact Nat.div_eq_of_lt (by norm_num [wS, setting, typing, typing0])
+        · have : x₁ i = 0 := by simp [x₁, hi]
+          simp [this]
+      rw [this]
+      simp
+    exact subset_nbhd _ _ h0
+  refine ⟨{0}, a, ⟨z₀, by simp [a]⟩, hsupp, ⟨x₁, hx₁mem, fun h => hx₁na (aligned_of_mem_alignedIn h)⟩,
+    fun s => ?_⟩
+  refine farCrossing_aligned (fun z => Aligned (wS.L ^ 1) z)
+    (fun x y hy hxy => aligned_of_sub hdvd hy hxy) a s _ _ _ hsupp
+    (fun y hy => aligned_of_mem_alignedIn hy) ?_
+  intro x hx
+  simp only [SFCtx.alignedIn, Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_toFinset, hx]
+
+end Multi
 
 end Concrete
 
