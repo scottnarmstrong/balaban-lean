@@ -410,6 +410,96 @@ section Joint
 
 open Classical in
 /-- **The chart ball, the fixed margins, the determinant record and the zero-class activity bound
+with the same tower constants, general `d`, `L`, `N`.**  With `κ₀ = a_Ent + 1`,
+`κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`: there are `m₁, t, δ, β₀, C, BG, κ`
+(chosen before the scale) with `(detDeg d L + 1)² · 2 e^{-κ} < 1` such that for every scale,
+torus `L ∣ N₁`, `5 < N₁`, mass `0 < ν`, `ν L^{2(k+1)} ≤ 1`, `β ≥ β₀` and
+`0 < p₁ ≤ A₁ (log b)^p`, `b = β L^{k(d-2)}`, at `hatStepKG k m₁ ϱ hk ν β p₁ δ`: the chart ball of
+`hatStepKG_chartBall`, the margins of `scale_markedDisc_marginG` for `b = S.betaU`, and the
+conclusions of `stepActivityBound_detExpansionLocC_scale_general`, word for word. -/
+theorem scale_chart_det_joint_general {d L N : ℕ} [NeZero L]
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+    {κ0 κdec κ' : ℝ} (hκ0def : κ0 = aEnt d L + 1) (hκdecdef : κdec = 100 * (κ0 + c1 d L + 10))
+    (hκ'def : κ' = 3 / 2 * κdec + κ0 + 1) :
+    ∃ (m₁ : ℕ) (t δ β₀ C BG κ : ℝ), 2 ≤ β₀ ∧ 0 < C ∧ 0 < t ∧ 0 < δ ∧
+      ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1 ∧
+      κ' ≤ (κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L) ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+        (∃ r : ℝ, 0 < r ∧
+          (∀ q : ↥(rawSub N (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk
+              ν β p₁ δ).G'),
+            ‖(q : RawData d L (N₁ * L ^ m₁) (k + 1) N) -
+                rawOf (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk
+                  ν β p₁ δ).D'‖ < r →
+              (q : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+                XiCRaw (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk
+                  ν β p₁ δ).G' (compWeight L 1) ν (k + 1) 1 t) ∧
+          (∀ g₀ ∈ l1Ball d L N₁ m₁ (k + 1) N,
+            ∀ (q : ↥(rawSub N (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk
+                ν β p₁ δ).G'))
+              (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+            ‖(q : RawData d L (N₁ * L ^ m₁) (k + 1) N) -
+                rawOf (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk
+                  ν β p₁ δ).D'‖ < r →
+            ∑ x, ∑ i, ‖g x i - g₀ x i‖ < 1 - ∑ x, ∑ i, ‖g₀ x i‖ →
+              (q, g) ∈ physV (N := N) (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁
+                (rhoSepG d L m₁) hk ν β p₁ δ) 1 ν t)) ∧
+        (Real.sqrt (N : ℝ) *
+            (‖(((hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁
+                δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+              (covSupConstC d L N (compWeight L (1 : ℝ) k) κ *
+                lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2))))) ≤
+            t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) ∧
+          t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) < t / 2 ∧
+          ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) *
+            (Real.sqrt (N : ℝ) *
+              (‖(((hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁
+                  δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+                (covSupConstC d L N (compWeight L (1 : ℝ) k) κ *
+                  lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2)))))) ≤ 81 * t / 128 ∧
+          81 * t / 128 < t) ∧
+        (∃ B : StepActivityBound
+            (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ)
+            (zeroClass d L N₁ m₁ k N (rhoSepG d L m₁)) 0,
+          B.κH = 2 * κdec - 1 ∧
+          B.εH ≤ C * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+            Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
+          κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1 ∧
+          ∃ κout : ℝ, κout = 3 / 2 * κdec ∧ κdec ≤ κout ∧ κout ≤ min κ' κ' - κ0 - 1) ∧
+        XiCData (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).G'
+            (compWeight L 1) ν (k + 1) 1 t
+            (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).D' ∧
+          ∀ z, ∃ E : DetExpansionLocC
+              (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ) 1 z t
+              ((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+              ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L κ /
+                (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)))),
+            ∀ D T, E.term D T =
+              ∑ y ∈ (hatStepKG (d := d) (L := L) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β
+                p₁ δ).blockU z,
+              detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N BG κ) D y T := by
+  obtain ⟨m₁, t, δ, β₀, C, BG, κ, h2, hC, ht, hδ, hz, hκ', H⟩ :=
+    stepActivityBound_detExpansionLocC_scale_general hd hL hN hA p hκ0def hκdecdef hκ'def
+  refine ⟨m₁, t, δ, β₀, C, BG, κ, h2, hC, ht, hδ, hz, hκ', ?_⟩
+  intro k hk N₁ _ hLN hN₁ ν hν0 hν β hβ p₁ hp0 hp₁
+  obtain ⟨hact, hXi, hdet⟩ := H k hk N₁ hLN hN₁ ν hν0 hν β hβ p₁ hp0 hp₁
+  have hβpos : 0 < β := by linarith
+  have hb : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by
+    have : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+    positivity
+  have hN0 : 0 < N := by omega
+  obtain ⟨r, hr, hr'⟩ := hatStepKG_chartBall (d := d) (L := L) (N := N) (N₁ := N₁) hd hL hN k m₁
+    hk hν0.le hν ht
+  obtain ⟨hm1, hm2, hm3, hm4, hm5⟩ :=
+    scale_markedDisc_marginG (d := d) (N := N) (by omega) hL hN0 κ ht hk hb
+  refine ⟨⟨r, hr, (hr' β p₁ δ).1, (hr' β p₁ δ).2⟩, ⟨?_, hm3, ?_, hm5⟩, hact, hXi, hdet⟩
+  · rw [hatStepKG_betaU (d := d) (L := L) (N₁ := N₁) hN (by omega), hm1]; exact hm2
+  · rw [hatStepKG_betaU (d := d) (L := L) (N₁ := N₁) hN (by omega)]; exact hm4
+
+open Classical in
+/-- **The chart ball, the fixed margins, the determinant record and the zero-class activity bound
 with the same tower constants.**  With `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`,
 `κ' = (3/2) κ_dec + κ₀ + 1`: there are `m₁, t, δ, β₀, C, BG, κ` (chosen before the scale) with
 `(detDeg 3 3 + 1)² · 2 e^{-κ} < 1` such that for every scale, torus `3 ∣ N₁`, `5 < N₁`, mass
@@ -473,18 +563,15 @@ theorem scale_chart_det_joint {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
             ∀ D T, E.term D T = ∑ y ∈ (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).blockU z,
               detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 BG κ) D y T := by
   obtain ⟨m₁, t, δ, β₀, C, BG, κ, h2, hC, ht, hδ, hz, hκ', H⟩ :=
-    stepActivityBound_detExpansionLocC_scale hA p hκ0def hκdecdef hκ'def
+    scale_chart_det_joint_general (d := 3) (L := 3) (N := 2) (by norm_num) (by norm_num) le_rfl
+      hA p hκ0def hκdecdef hκ'def
   refine ⟨m₁, t, δ, β₀, C, BG, κ, h2, hC, ht, hδ, hz, hκ', ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁
-  obtain ⟨hact, hXi, hdet⟩ := H k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁
-  have hβpos : 0 < β := by linarith
-  have hb : 0 < β * 3 ^ k := by positivity
-  obtain ⟨r, hr, hr'⟩ := hatStepK_chartBall (N₁ := N₁) k m₁ hk hν0.le hν ht
-  obtain ⟨-, hm2, hm3, hm4, hm5⟩ := scale_markedDisc_margin κ ht hk hb
-  have hm1 := (scale_markedDisc_margin κ ht hk hb).1
-  refine ⟨⟨r, hr, (hr' β p₁ δ).1, (hr' β p₁ δ).2⟩, ⟨?_, hm3, ?_, hm5⟩, hact, hXi, hdet⟩
-  · rw [hatStepK_betaU, hm1]; exact hm2
-  · rw [hatStepK_betaU]; exact hm4
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have h := H k hk N₁ h3N hN ν hν0 (by simpa using hν) β hβ p₁ hp0 (by rw [e]; exact hp₁)
+  rw [rhoSepG_three] at h
+  rw [e] at h
+  exact h
 
 end Joint
 

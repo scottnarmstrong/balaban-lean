@@ -29,8 +29,9 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ eps pp : ℝ}
   {S : StepSetting d L N₁ m₁ k N ϱ} (Jr : S.JointRep eps pp)
   {c BG κ Kc Cx c₂ BG₂ δ₁ δc : ℝ}
 
-/-- Proposition 2.6 for the joint representation at any datum of the complex chart. -/
-theorem prop26J_step (C : StepClass d L N₁ m₁ k N ϱ)
+/-- Proposition 2.6 for the joint representation with no comparison between the support radius
+and the representative radius. -/
+theorem prop26J_step_unbounded (C : StepClass d L N₁ m₁ k N ϱ)
     (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
@@ -38,7 +39,7 @@ theorem prop26J_step (C : StepClass d L N₁ m₁ k N ϱ)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
     (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 1 < R)
     (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
-    (hβ : 0 < S.β) (hp₁ : 0 < S.p₁) (hpp : S.p₁ ≤ pp)
+    (hβ : 0 < S.β) (hp₁ : 0 < S.p₁)
     (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
       (covSupConstC d L N (compWeight L S.a₁ k) κ * S.p₁)) < δ₁)
     (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
@@ -131,7 +132,7 @@ theorem prop26J_step (C : StepClass d L N₁ m₁ k N ϱ)
         Complex.exp (Wt₁ 1 x + Wt₂ 1 x) := by
     intro x
     by_cases hx : chiFl S.U N S.p₁ x = 1
-    · have hi := Jr.integrandJ_eq H C hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁ hpp
+    · have hi := Jr.integrandJ_eq_unbounded H C hC hMX hdm hα hsm ha₁ hc7 hR hsmR hβ hp₁
         hδ₁ hX g x hx
       dsimp only [H] at hi
       dsimp only [StepSetting.withDatumH] at hi
@@ -172,5 +173,47 @@ theorem prop26J_step (C : StepClass d L N₁ m₁ k N ϱ)
   · dsimp [Y]
     push_cast
     ring
+
+/-- Proposition 2.6 for the joint representation at any datum of the complex chart. -/
+theorem prop26J_step (C : StepClass d L N₁ m₁ k N ϱ)
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 1 < R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hβ : 0 < S.β) (hp₁ : 0 < S.p₁) (hpp : S.p₁ ≤ pp)
+    (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+      (covSupConstC d L N (compWeight L S.a₁ k) κ * S.p₁)) < δ₁)
+    (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    (g : Fld d L N₁ m₁ (k + 1) N)
+    (hreg : ∃ (U : Set ℝ) (W₁' W₂' : ℝ → S.E → ℂ),
+      IsC1Family U
+        (fun s x => if chiFl S.U N S.p₁ x = 1 then
+          Jr.W1 C (rawOf D, (s : ℂ) • yhat x) else 0) W₁' ∧
+      IsC1Family U
+        (fun t x => if chiFl S.U N S.p₁ x = 1 then
+          Jr.W2 C g (rawOf D, (t : ℂ) • yhat x) else 0) W₂')
+    (hnv1 : ∀ s ∈ Set.Icc (0 : ℝ) 1,
+      (∫ x : S.E, Complex.exp
+        (Jr.W1 C (rawOf D, (s : ℂ) • yhat x)) ∂S.nuFl) ≠ 0)
+    (hnv2 : ∀ t ∈ Set.Icc (0 : ℝ) 1,
+      (∫ x : S.E, Complex.exp
+        (Jr.W1 C (rawOf D, yhat x) +
+          Jr.W2 C g (rawOf D, (t : ℂ) • yhat x)) ∂S.nuFl) ≠ 0) :
+    Jr.TstepJ C g (rawOf D) = Complex.exp (
+      -(S.β : ℂ) * actionRawC S.G' S.a S.ν D.Ψ D.h (Jr.F₀ (rawOf D)).1 +
+      Jr.EJ C (rawOf D, 0) - (S.Eppp C : ℂ) * (S.nU : ℂ) +
+      Jr.FcJ C g (rawOf D, 0) -
+      (1 / 2 : ℂ) * ∑ y : S.U, ∑ i : Fin N,
+        (decLog S.G' S.a S.a₁ S.ν (Jr.F₀ (rawOf D)).2 (fun _ => 1)
+          (svec S.G' (Jr.F₀ (rawOf D)).1) (unitQ S.G') (unitP S.G'))
+            (y, i) (y, i) +
+      S.avgJ (fun _ => 0) (Jr.W1 C) (Jr.W1 C) (rawOf D) +
+      S.avgJ (Jr.W1 C) (Jr.W2 C g) (Jr.W2 C g) (rawOf D)) := by
+  have _hbound : S.p₁ ≤ pp := hpp
+  exact Jr.prop26J_step_unbounded C hC hMX hdm hα hsm ha₁ hc7 hR hsmR
+    hβ hp₁ hδ₁ D hX g hreg hnv1 hnv2
 
 end Balaban.Fluctuation.StepSetting.JointRep
