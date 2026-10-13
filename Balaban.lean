@@ -72,6 +72,7 @@ public import Balaban.Polymer.TwoTorusDirectTerms
 public import Balaban.Polymer.TwoTorusDirectTermsTower
 public import Balaban.Polymer.TwoTorusE0Coef
 public import Balaban.Polymer.TwoTorusObsCoef
+public import Balaban.Polymer.TwoTorusObsExplicit
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized

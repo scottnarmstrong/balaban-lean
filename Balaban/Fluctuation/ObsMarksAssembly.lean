@@ -72,16 +72,15 @@ noncomputable def obsCubeLab
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
     {Z // Z ∈ cubeFamily (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (m₀ := m₀)
       (k + 1)} :=
-  Classical.choose (block_mem_cubeLabel (m₀ := m₀) (m₁ := m₁) (K := k + 1) (d := d) (L := L)
-    (N₁ := N₁) c)
+  ⟨box c.1 (L * cellSide L m₀ m₁ (k + 1)), mem_cubeFamily.2 ⟨c.1, c.2.1, rfl⟩⟩
 
 theorem obsCubeLab_mem
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
     c ∈ blocksOf m₀ (k + 1) Set.univ
       ((cubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (m₀ := m₀) (k + 1)).ysite
-        (obsCubeLab m₀ c)) :=
-  Classical.choose_spec (block_mem_cubeLabel (m₀ := m₀) (m₁ := m₁) (K := k + 1) (d := d) (L := L)
-    (N₁ := N₁) c)
+        (obsCubeLab m₀ c)) := by
+  rw [mem_blocksOf]
+  exact box_mono c.1 (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L)))
 
 theorem obsCubeLab_dl
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
