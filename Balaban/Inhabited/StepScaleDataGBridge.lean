@@ -7,7 +7,7 @@ module
 
 public import Balaban.Inhabited.StepScaleDataG
 public import Balaban.Inhabited.StepTowerGBridge
-public import Balaban.Inhabited.StepTowerScale
+public import Balaban.Inhabited.LevelCoversDef
 
 /-!
 # The general scale record at the fixed tower is the fixed scale record

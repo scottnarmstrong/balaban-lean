@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Inhabited.StepTowerScale
+public import Balaban.Inhabited.LevelCoversDef
 
 /-!
 # The cover proposition of the step for general `d`, `L` and cover index `m₀`
