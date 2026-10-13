@@ -189,6 +189,79 @@ theorem Wone_eq_zeroClass_add_dE (C : StepClass d L N₁ m₁ k N ϱ) (s : ℝ) 
   rw [S.Wone_zeroClass_eq]
   rfl
 
+/-- **The composed field `h` of the old spin is the field of the step**: at every scale
+`1 ≤ j ≤ k` and every real old spin `ψ`, the second component of the pair `(ψ_k^{(j)}, h)` of
+(H.2) is the constant `h₀`. -/
+theorem composedPairAt_h (ψ : S.E) {j : ℕ} (hj : j ∈ Finset.Icc 1 k) :
+    (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU ψ)).2 = fun _ i => (S.h₀ i : ℂ) := by
+  have hj' := Finset.mem_Icc.1 hj
+  unfold composedPairAt
+  simp only [hj'.2, ↓reduceDIte]
+  funext z i
+  show (if z ∈ (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) j
+      (hj'.2.trans (Nat.le_succ k))).Ω 1 then (S.dataU ψ).h z i else 0) = _
+  have hz : z ∈ (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) j
+      (hj'.2.trans (Nat.le_succ k))).Ω 1 := by
+    simp [levelGS, hj'.1]
+  simp only [hz, ↓reduceIte, S.dataU_h]
+
+/-- **The old energy increment vanishes when the energy terms do not depend on the spin**: if
+`ℰ^{(j)}(y, X; Ψ, h)` is independent of `Ψ`, then `δℰ_k = 0` (along the fluctuation the field `h`
+is fixed). -/
+theorem dE_eq_zero_of_spinIndependent (C : StepClass d L N₁ m₁ k N ϱ)
+    (hE : ∀ j y X (Ψ Ψ' h : Fld d L N₁ m₁ (k + 1) N), C.Tm.E j y X Ψ h = C.Tm.E j y X Ψ' h)
+    (ψ : S.E) : S.dE C ψ = 0 := by
+  unfold dE EcompAt
+  rw [sub_eq_zero]
+  refine Finset.sum_congr rfl fun j hj => ?_
+  rw [S.composedPairAt_h ψ hj, S.composedPairAt_h S.psi0 hj]
+  unfold Edens
+  refine Finset.sum_congr rfl fun y _ => ?_
+  unfold Eloc
+  exact finsum_mem_congr rfl fun X _ => hE j y X _ _ _
+
+/-- **The observable increment is the direct source part when the observable terms do not depend
+on the spin**: if `ℳ^{(j)}(x, X; Ψ, h, g)` is independent of `Ψ`, then `δℱ_k(ψ', g)` is that of
+the zero class, `⟨g, φ_k(ψ^{(k)} + ψ') - φ_k(ψ^{(k)})⟩`. -/
+theorem dF_eq_zeroClass_of_spinIndependent (C : StepClass d L N₁ m₁ k N ϱ)
+    (hM : ∀ j x X (Ψ Ψ' h g' : Fld d L N₁ m₁ (k + 1) N),
+      C.Tm.M j x X Ψ h g' = C.Tm.M j x X Ψ' h g')
+    (g : Fld d L N₁ m₁ (k + 1) N) (ψ : S.E) :
+    S.dF C g ψ = S.dF (zeroClass d L N₁ m₁ k N ϱ) g ψ := by
+  have hMl : ∀ (j : ℕ) (x : CTorus d L N₁ m₁ (k + 1)) (Ψ Ψ' h' : Fld d L N₁ m₁ (k + 1) N),
+      Mloc C.m₀ C.Tm j x Ψ h' g = Mloc C.m₀ C.Tm j x Ψ' h' g := fun j x Ψ Ψ' h' => by
+    unfold Mloc
+    exact finsum_mem_congr rfl fun X _ => hM j x X _ _ _ _
+  have hFl : ∀ (j : ℕ) (Ψ Ψ' h' : Fld d L N₁ m₁ (k + 1) N),
+      Floc C.m₀ C.Tm j Ψ h' g = Floc C.m₀ C.Tm j Ψ' h' g := fun j Ψ Ψ' h' => by
+    unfold Floc
+    refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+    rw [hMl j x Ψ Ψ' h']
+  have hsum : ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+        (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU ψ)).1
+        (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU ψ)).2 g =
+      ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+        (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU S.psi0)).1
+        (composedPairAt S.a S.ν (Nat.le_succ k) j (S.dataU S.psi0)).2 g := by
+    refine Finset.sum_congr rfl fun j hj => ?_
+    rw [S.composedPairAt_h ψ hj, S.composedPairAt_h S.psi0 hj]
+    exact hFl j _ _ _
+  have key : ∀ D : BgData (stepG d L N₁ m₁ k ϱ) N,
+      FcompAt C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D g =
+        FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+            (Nat.le_succ k) D g +
+          ∑ j ∈ Finset.Icc 1 k, Floc C.m₀ C.Tm j
+            (composedPairAt S.a S.ν (Nat.le_succ k) j D).1
+            (composedPairAt S.a S.ν (Nat.le_succ k) j D).2 g := by
+    intro D
+    have hz : FcompAt (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+        (Nat.le_succ k) D g = _ := FcompAt_zero_eq 0 S.a S.ν (Nat.le_succ k) D g
+    rw [hz]
+    rfl
+  unfold dF
+  rw [key, key, hsum]
+  ring
+
 end StepSetting
 
 section Match
@@ -324,6 +397,45 @@ theorem oldObsHatMatch_zeroClass (S : StepSetting d L N₁ m₁ k N ϱ)
     (EM : μι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) :
     OldObsHatMatch S (zeroClass d L N₁ m₁ k N ϱ) g ∅ ys is hBM hFM EM :=
   oldObsHatMatch_empty_of_dF_eq S _ g ys is hBM hFM EM fun _ _ => rfl
+
+/-- **`OldEnergyHatMatch` for a class whose energy terms do not depend on the spin**, with no
+old-term functionals. -/
+theorem oldEnergyHatMatch_empty_of_spinIndependent (S : StepSetting d L N₁ m₁ k N ϱ)
+    (C : StepClass d L N₁ m₁ k N ϱ)
+    (hE : ∀ j y X (Ψ Ψ' h : Fld d L N₁ m₁ (k + 1) N), C.Tm.E j y X Ψ h = C.Tm.E j y X Ψ' h)
+    {τι : Type*} [DecidableEq τι] {ϱ₁ ϱ₂ : τι → ℝ}
+    {GkE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {GjE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)} {r₀ δ₃ δfl : ℝ}
+    {X₀E X₁E : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {jE : τι → ℕ}
+    (hBE : ∀ τ ∈ (∅ : Finset τι), BgSetting N S.G' (GkE τ) (GjE τ) S.a₁ S.ν c BG κ r₀ eps δ₃
+      (X₀E τ) (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ (∅ : Finset τι), FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps
+      δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁E τ))
+    (EE : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) :
+    OldEnergyHatMatch S C ∅ hBE hFE EE :=
+  oldEnergyHatMatch_empty_of_dE_eq_zero S C hBE hFE EE fun _ _ =>
+    S.dE_eq_zero_of_spinIndependent C hE _
+
+/-- **`OldObsHatMatch` for a class whose observable terms do not depend on the spin**, with no
+old-term functionals, for every source. -/
+theorem oldObsHatMatch_empty_of_spinIndependent (S : StepSetting d L N₁ m₁ k N ϱ)
+    (C : StepClass d L N₁ m₁ k N ϱ)
+    (hM : ∀ j x X (Ψ Ψ' h g' : Fld d L N₁ m₁ (k + 1) N),
+      C.Tm.M j x X Ψ h g' = C.Tm.M j x X Ψ' h g')
+    (g : Fld d L N₁ m₁ (k + 1) N)
+    {μι : Type*} [DecidableEq μι] {ϱ₁M ϱ₂M : μι → ℝ}
+    {GkM : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁M τ)}
+    {GjM : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂M τ)} {r₀ δ₃ δfl : ℝ}
+    {X₀M X₁M : μι → Finset (CTorus d L N₁ m₁ (k + 1))} {jM : μι → ℕ}
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N)
+    (hBM : ∀ τ ∈ (∅ : Finset μι), BgSetting N S.G' (GkM τ) (GjM τ) S.a₁ S.ν c BG κ r₀ eps δ₃
+      (X₀M τ) (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ (∅ : Finset μι), FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps
+      δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁M τ))
+    (EM : μι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) :
+    OldObsHatMatch S C g ∅ ys is hBM hFM EM :=
+  oldObsHatMatch_empty_of_dF_eq S C g ys is hBM hFM EM fun _ _ =>
+    S.dF_eq_zeroClass_of_spinIndependent C hM g _
 
 end Match
 
@@ -502,6 +614,58 @@ theorem Wtwo_eq_hat_of_oldObsHatMatch {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x 
     (S.dF C g (S.psiAt t x) - S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x)) =
       S.dF C g (S.psiAt t x)
   ring
+
+include hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ in
+/-- **The first segment for a class whose energy terms do not depend on the spin**: the old
+energy increment vanishes, and the first exponent is the potential part of the hat expansion,
+`s² · ((-β) · raySrc3 (hatFun … (interactionOne …)) (1-t)²/2 ψ̂ ψ̂ s Θ) = W₁(s, ψ̂)`
+(`Wone_eq_hat_of_oldEnergyHatMatch` with no old-term functionals). -/
+theorem Wone_eq_hat_of_spinIndependent
+    (hE : ∀ j y X (Ψ Ψ' h : Fld d L N₁ m₁ (k + 1) N), C.Tm.E j y X Ψ h = C.Tm.E j y X Ψ' h)
+    {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) {x : S.E} (hx : chiFl S.U N S.p₁ x = 1) :
+    (s : ℂ) ^ 2 * ((-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight (S.hatC x)
+        (S.hatC x) (s : ℂ) (rawOf S.D')) = S.Wone C s x := by
+  have h := S.Wone_eq_hat_of_oldEnergyHatMatch (C := C) (hC := hC) (R0 := R0) (hlt := hlt)
+    (hD := hD) (hc7 := hc7) (hR := hR) (hsmR := hsmR) (hRs := hRs) (hsmall := hsmall)
+    (hnum := hnum) (hnum' := hnum') (hMX := hMX) (hdm := hdm) (hα := hα) (hsm := hsm)
+    (hp₁ := hp₁) (hcψ := hcψ) (hpc := hpc) (hδ₁ := hδ₁) (τι := PEmpty.{1})
+    (𝒯E := (∅ : Finset PEmpty.{1})) (ϱ₁ := fun _ => 0) (ϱ₂ := fun _ => 0)
+    (GkE := fun τ => PEmpty.elim τ) (GjE := fun τ => PEmpty.elim τ) (r₀ := 0) (δ₃ := 0)
+    (δfl := 0) (X₀E := fun _ => ∅) (X₁E := fun _ => ∅) (jE := fun _ => 0)
+    (hBE := fun τ hτ => absurd hτ (by simp)) (hFE := fun τ hτ => absurd hτ (by simp))
+    (EE := fun _ _ => 0) (hEanE := fun τ hτ => absurd hτ (by simp))
+    (hmatchE := oldEnergyHatMatch_empty_of_spinIndependent S C hE _ _ _) hs hx
+  simpa only [Finset.sum_empty, mul_zero, add_zero] using h
+
+include hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ in
+/-- **The second segment for a class whose observable terms do not depend on the spin**: the old
+observable increment vanishes, and the second exponent is the direct source part of the hat
+expansion (`Wtwo_eq_hat_of_oldObsHatMatch` with no old-term functionals). -/
+theorem Wtwo_eq_hat_of_spinIndependent
+    (hM : ∀ j x X (Ψ Ψ' h g' : Fld d L N₁ m₁ (k + 1) N),
+      C.Tm.M j x X Ψ h g' = C.Tm.M j x X Ψ' h g')
+    (g : Fld d L N₁ m₁ (k + 1) N) {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x : S.E}
+    (hx : chiFl S.U N S.p₁ x = 1) :
+    (S.β : ℂ) * (∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, (g s.1 s.2 / (S.β : ℂ)) *
+        dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (onXi S.G' S.a₁ S.ν eps
+            (fun D ψ' => svec (stepG d L N₁ m₁ k ϱ)
+              (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν D ψ') s.1 s.2)))
+          (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ) (rawOf S.D')) = S.Wtwo C g t x := by
+  have h := S.Wtwo_eq_hat_of_oldObsHatMatch (C := C) (hC := hC) (R0 := R0) (hlt := hlt)
+    (hD := hD) (hc7 := hc7) (hR := hR) (hsmR := hsmR) (hRs := hRs) (hsmall := hsmall)
+    (hnum := hnum) (hnum' := hnum') (hMX := hMX) (hdm := hdm) (hα := hα) (hsm := hsm)
+    (hp₁ := hp₁) (hcψ := hcψ) (hpc := hpc) (hδ₁ := hδ₁) (μι := PEmpty.{1})
+    (𝒯M := (∅ : Finset PEmpty.{1})) (ϱ₁M := fun _ => 0) (ϱ₂M := fun _ => 0)
+    (GkM := fun τ => PEmpty.elim τ) (GjM := fun τ => PEmpty.elim τ) (r₀ := 0) (δ₃ := 0)
+    (δfl := 0) (X₀M := fun _ => ∅) (X₁M := fun _ => ∅) (jM := fun _ => 0)
+    (ys := fun τ => PEmpty.elim τ) (is := fun τ => PEmpty.elim τ)
+    (hBM := fun τ hτ => absurd hτ (by simp)) (hFM := fun τ hτ => absurd hτ (by simp))
+    (EM := fun _ _ => 0) (hEanM := fun τ hτ => absurd hτ (by simp)) (g := g)
+    (hmatchM := oldObsHatMatch_empty_of_spinIndependent S C hM g _ _ _ _ _) ht hx
+  simpa only [Finset.sum_empty, mul_zero, add_zero] using h
 
 end StepSetting
 
