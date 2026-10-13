@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusGreenRows
+public import Balaban.Polymer.TwoTorusSY
 public import Balaban.Polymer.TwoTorusData
 public import Balaban.Localization.RowsBg
 import Mathlib.Tactic.Linarith
@@ -38,6 +39,9 @@ for raw data that agree under the box map on the read set `RowsDep B`.
   contraction `smap_fixed_iterates` on each torus; no whole-torus gluing is used.
 * `decBg_value_twoTorus` (D3): the same for the values `F₁ (s, rawOf D)` of maps with the defining
   property of the pair.
+* `decBg_value_twoTorus_of_box`: D3 for the image sets `X₁' = bm '' X₁`, `𝒞' = bm '' 𝒞`,
+  `Y' = bm '' Y`, with the image of the block set and the agreement of the cut weights supplied by
+  `SY_image` and `hagree_boxMap` (from cut parameters that correspond on the box).
 -/
 
 @[expose] public section
@@ -861,6 +865,64 @@ theorem decBg_value_twoTorus {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → 
   exact decBg_component_unique hj1 hj hS SA SB hconn hconn' HB hκ hM (fun P => (hs P).le)
     (fun P => (hs' P).le) hδ0 hδε hε hδ hνε hδ0' hδε' hε' hδ' hνε' hDC hDC' hY hYc hs0 hs0' hY'
     hB' hagree hYR hn hn' hD hsol hsol'
+
+include hj1 in
+/-- **D3 with the geometric inputs discharged.**  `decBg_value_twoTorus` for the image sets
+`X₁' = bm '' X₁`, `𝒞' = Prod.map id bm '' 𝒞`, `Y' = bm '' Y` of sets in the box of radius `R`: the
+image of the block set is `SY_image`, and the agreement of the cut weights on the inner cubes of
+`S_Y` is `hagree_boxMap`, from cut parameters that correspond at the cubes of the box of radius
+`R₁ = R + (3 L^(j+m₁) + 3 L^(j+2)) + L^(j+m₁)` (`hsP`).  Margins: `4 R + 12 L^(j+m₁) + 7 L^K + 5 <
+N₁ L^m₁ L^K` and `2 R₁ + 5 L · cellSide L 0 m₁ j < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem decBg_value_twoTorus_of_box {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting GA a ν) (SB : DGSetting GB a ν) (hconn : HatConn GA)
+    (hconn' : HatConn GB) (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : DecParams GA × RawData d L (N₁ * L ^ m₁) K N → ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₁' : DecParams GB × RawData d L (N₁' * L ^ m₁) K N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams GA) (D : BgData GA N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC GA (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg GA a ν (rho4 d L N BG κ) s D φ α → F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : DecParams GB) (D : BgData GB N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC GB (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg GB a ν (rho4 d L N BG κ) s D φ α → F₁' (s, rawOf D) = (φ, α))
+    {s : DecParams GA} {s' : DecParams GB} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData GA N} {D' : BgData GB N}
+    (hDd : InUnionDomainC GA (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDd' : InUnionDomainC GB (bgC0 d L N) (c7 d L N BG κ) ν D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset (X₁.image bm) (𝒞.image (Prod.map id bm))).filter
+      fun x => x ∈ (GB).Ω 1) (Y.image bm))
+    (hs0 : ∀ P ∈ parCubes GA X₁, P ∉ 𝒞 → extS GA s P = 0)
+    (hs0' : ∀ P ∈ parCubes GB (X₁.image bm), P ∉ 𝒞.image (Prod.map id bm) → extS GB s' P = 0)
+    {R : ℕ} (hXR : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hCR : ∀ P ∈ 𝒞, InBox d R ((N₁ * L ^ m₁) * L ^ K) P.2)
+    (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hsP : ∀ P ∈ cubeIdx GA,
+      InBox d (R + (3 * L ^ (j + m₁) + 3 * L ^ (j + 2)) + L ^ (j + m₁))
+        ((N₁ * L ^ m₁) * L ^ K) P.2 → extS GB s' (Prod.map id bm P) = extS GA s P)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hnS : 2 * (R + (3 * L ^ (j + m₁) + 3 * L ^ (j + 2)) + L ^ (j + m₁)) +
+      5 * (L * cellSide L 0 m₁ j) < (N₁ * L ^ m₁) * L ^ K)
+    (hnS' : 2 * (R + (3 * L ^ (j + m₁) + 3 * L ^ (j + 2)) + L ^ (j + m₁)) +
+      5 * (L * cellSide L 0 m₁ j) < (N₁' * L ^ m₁) * L ^ K)
+    (hD : RawBoxAgree {z | RowsDep GA a ν (SY GA X₁ 𝒞 Y) z} (rawOf D) (rawOf D')) :
+    (∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY GA X₁ 𝒞 Y →
+      (F₁' (s', rawOf D')).2 (ιb x) = (F₁ (s, rawOf D)).2 x) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      (F₁' (s', rawOf D')).1 (ιb y, i) - approxField GB a ν D'.Ψ D'.h (bm (y : CTorus d L N₁ m₁ K)) i =
+        (F₁ (s, rawOf D)).1 (y, i) - approxField GA a ν D.Ψ D.h (y : CTorus d L N₁ m₁ K) i) ∧
+    (∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep GA (y : CTorus d L N₁ m₁ K), D.Ψ z = D'.Ψ (bm z) ∧ D.h z = D'.h (bm z)) →
+      ∀ i : Fin N, (F₁' (s', rawOf D')).1 (ιb y, i) = (F₁ (s, rawOf D)).1 (y, i)) ∧
+    (∀ y : (GA).Ω 1, RowSite GA a ν (0 : (GA).Ω 1 → ℂ) (SY GA X₁ 𝒞 Y) y → ∀ i : Fin N,
+      (F₁' (s', rawOf D')).1 (ιb y, i) = (F₁ (s, rawOf D)).1 (y, i)) :=
+  decBg_value_twoTorus hj1 hj hS SA SB hconn hconn' HB hκ hM hF₁ hF₁' hs hs' hDd hDd' hY hYc hs0
+    hs0' rfl (SY_image hj1 hj hnS hnS' hXR hCR hYR)
+    (hagree_boxMap hj1 hj hnS hnS' (SY_subset_levelGS hj1 hj) hYR hsP) hYR hn hn' hD
 
 end Value
 
