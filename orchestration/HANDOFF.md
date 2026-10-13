@@ -19,7 +19,6 @@ Claude workers (background subagents of this session):
 | W473 | `w473-mark-budget-audit` / W473 | marks: numerical audit of the Theorem 3.1(c) budget (MARKDEP 4) |
 Housekeeping: `Fluctuation/RenormDetFibreMap.lean` imports `Inhabited/V2Energy` for `ncard_box_ge` — move the lemma to a production module.
 | W474 | `w474-ren-det-fibre-tower` / W474 | determinant fibre regrouping at the tower; moves `ncard_box_ge` to production (edits two landed files) |
-| W475 | `w475-rotate-unit-h` / W475 | rotation to a general unit h; survey of rotation covariance by lane (SCOPE) |
 | W476 | `w476-thm31b-tower` / W476 | Theorem 3.1 (b) at the tower, conditional on ray holomorphy |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
