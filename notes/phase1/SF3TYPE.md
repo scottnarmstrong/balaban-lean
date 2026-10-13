@@ -1,5 +1,7 @@
 # SF3TYPE: the separation index and a local successor class
 
+**DECISION (2026-10-13; the author deferred to the orchestrator).** Option (a) of T1/T4: the ambient `StepClass` stays at `rhoSep m₁`; the local successor terms use the existing class structures at a separate index `ϱloc` with `bgR0 d L ≤ ϱloc ≤ 5L·L^{m₁}`; ambient and local coefficients are related by an explicit equality on common physical data. No core structure is changed now; the `LocalSuccessor` wrapper of T4 waits until a physical local term exists.
+
 **PROVED (source inventory).** Read-only main commit `74cea1e805af188cd508c54c936428fa469a787a`; read-only worker branch `w597-local-generator` at `c8f6b1c41cd2c1d7a3d4d162a41f3a86b8314193`. No build was run. `LocalGeneratorSource.lean` exists on that branch, not on main.
 
 ## T1. What the type parameter permits
