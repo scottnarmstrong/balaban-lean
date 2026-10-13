@@ -74,28 +74,6 @@ theorem renormDetOnlyZero_expInput_core {d L N₀ k N : ℕ} [NeZero N₀] [NeZe
   exact ⟨renormExpInputOn_zero_of_fields sub locC1 locC2 hE' locDφ
     (fun _ => ⟨_, isLocExp_zero_cover _ _⟩), hE'⟩
 
-/-- **The step's own datum lies in the fibre domain, at every radius `e > 0`, general tower.** -/
-theorem StepTowerG.exists_xiCOneReal_fibre_step {d L N : ℕ} [NeZero L] {κmin : ℝ}
-    (T : StepTowerG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
-    (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
-    {e : ℝ} (he : 0 < e) :
-    XiCOneReal (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν e
-        (T.step k hk N₁ ν β p₁).D' ∧
-      ∀ x i, (T.step k hk N₁ ν β p₁).D'.h x i = (((T.step k hk N₁ ν β p₁).h₀ i : ℝ) : ℂ) := by
-  refine ⟨?_, (T.step k hk N₁ ν β p₁).hh₀⟩
-  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos T.hN
-  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
-  refine ⟨fun _ => unitVec hN0, unitVec hN0, 0,
-    exists_xiC hHB (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (massLe_lvG hν) he, ?_, ?_⟩
-  · intro x hx i
-    have := unitBg_Ψ_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
-    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).Ψ x i = _
-    rw [this]; simp
-  · intro x hx i
-    have := unitBg_h_of_mem (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0) hx i
-    show (unitBg (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) hN0 (unitVec hN0)).h x i = _
-    rw [this]; simp
-
 /-- **Determinant-only record with zero observable and zero old terms, at class radius `t / 2`, on
 the fibre.**  This is NOT the physical record of Theorem 3.1 (g), (h): the energy function of the
 record is only the determinant summand `renE0θ_det`, the observable function and both old-term
