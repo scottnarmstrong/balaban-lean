@@ -1309,6 +1309,7 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
+public import Balaban.Fluctuation.DetCauchyChart
 public import Balaban.Fluctuation.RootDetCutSupport
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
@@ -1361,6 +1362,7 @@ public import Balaban.Inhabited.StepActivityDirectPhysicalRates
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
+public import Balaban.Inhabited.DetCauchyChartWitness
 public import Balaban.Inhabited.StepActivityDirectEtaWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
