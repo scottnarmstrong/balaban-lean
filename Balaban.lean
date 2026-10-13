@@ -894,6 +894,7 @@ public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
 public import Balaban.Localization.FootprintHat
 public import Balaban.LargeField.R.Outcome
+public import Balaban.LargeField.R.RHistoryLabels
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
 public import Balaban.LargeField.R.SmallFactorGe
@@ -1083,6 +1084,7 @@ public import Balaban.Inhabited.LocalizationSettings
 public import Balaban.Inhabited.BgDataStructures
 public import Balaban.Inhabited.StepData
 public import Balaban.Inhabited.RipeHistory
+public import Balaban.Inhabited.RHistoryLabelsWitness
 public import Balaban.Inhabited.RadiiHist
 public import Balaban.Inhabited.RadiiSetting
 public import Balaban.Inhabited.RadiiRipe
