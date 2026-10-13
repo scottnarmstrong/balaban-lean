@@ -13,7 +13,6 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W363 | `w363-kf0-killed-walks` / W363 | one-scale branch: killed-walk inverse of the good-region operator, inward decay, determinant walk formula (H37-3) |
-| W367 | `w367-kf0-walk-torus` / W367 | one-scale branch: torus agreement of walk coefficients; `kf0C = kf0SqrtR` |
 | W369 | `w369-marked-two-mark-local` / W369 | two-mark locality of marked terms; discharge `hzero` of `marked_count_scaled_dec` |
 | W370 | `w370-symm-translations` / W370 | translations as `LatSymm`/`CoverSymm`/`BlockSymm` (first non-identity symmetries) |
 | W366 (Opus) | `w366-source-activity-scale` / W366 | source-dependent activity bound at every scale for every source in the ball + complex transport at the central datum (SRCACT leaves 3, 6, 7, 8) |
