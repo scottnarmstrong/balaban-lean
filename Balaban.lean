@@ -1514,6 +1514,7 @@ public import Balaban.Inhabited.D7GasRootEntropyWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetCollarHull
+public import Balaban.Fluctuation.DetCollarHullSymm
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
@@ -1521,6 +1522,7 @@ public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Fluctuation.DetSymmGroup
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetCollarHullWitness
+public import Balaban.Inhabited.DetCollarHullSymmWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
 public import Balaban.Correlations.KF0Cauchy
@@ -1548,6 +1550,8 @@ public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
 public import Balaban.Fluctuation.RenormC1Local
+public import Balaban.Fluctuation.RenormLocC1Zero
+public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.LargeField.R.D7ReserveArithmetic
@@ -1561,4 +1565,6 @@ public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
 public import Balaban.LargeField.Base.KF0CollarBudget
 public import Balaban.Fluctuation.ExpSourceChart
+public import Balaban.Fluctuation.DetRotation
+public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Correlations.C1StarLimits
