@@ -229,3 +229,28 @@ the marked parameters with ONE propagation factor for each connected component o
 touching an active cell (on the polydisc of (H7)), and do all the parameter-dependent reads of the
 output lie in layer k of the old operator? A bound on a single Green-function entry, or (3.9), does
 not give either.
+
+### Item 14, third addendum (2026-10-13): the two points that remain
+
+Since the second addendum we checked two alternatives (details: `notes/phase1/VMOD-31.md`–`VMOD-33.md`).
+A full-torus top-only auxiliary cover satisfies all the pair Green estimates and removes the growing
+row of lowest-layer cubes on the hole side, but its output domains are unions of top cells and are
+not in D_{k+1}(mod Ω_{k+1}^c), so P3 (4.44) cannot be applied to them; completing them, or mixing the
+two covers, fails for the reasons given there. We therefore keep the multiscale cover of the proof.
+With it, the count is uniform as soon as every connected family of marked cubes with a non-zero
+coefficient reaches X ∩ Ω_{k+1} (a family reaching a cube of layer j then has at least k+1−j+1
+members, and the rooted count pays for it). What we cannot derive from the text is that rooting.
+
+P6 p. 34 localizes the old boundary term first on X ∩ Ω_{k+1}, retaining explicit A_k-spins on
+X ∩ Ω_{k+1}^c.
+(i)  After the local extension in (4.32), are these exterior spins and every other exterior read
+     independent of the interpolation parameters s_□? (From P6 p. 34 with P5 (2.35), (2.39) we take
+     the exterior SPINS to be spectators. What we cannot settle is whether every s-dependent row of
+     ψ_loc,s^(k) + β_k^{-1/2} C_loc,s^(k)1/2 ψ̂ at X ∩ Ω_{k+1} — including the rows of the old-wall
+     covariance, which has sites in Ω_{k+1}^c — belongs to the incidence component of the active
+     cells; `notes/phase1/VMOD-34.md`.)
+(ii) In particular, can a marked cube of the auxiliary cover deep in a new hole contribute to a
+     coefficient without a connected marked chain to X ∩ Ω_{k+1}?
+(iii) Does the same answer hold for the C_{loc,s}^{1/2} ψ term?
+(iv) Which step of the P3 (4.44) assignment sends the auxiliary cubes lying outside the physical new
+     layers into a domain Y ∈ D_{k+1}(mod Ω_{k+1}^c)?

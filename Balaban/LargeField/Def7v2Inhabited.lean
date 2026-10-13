@@ -216,10 +216,15 @@ theorem wFormPre2 (nK : ℕ) [NeZero nK] :
   refine gConv_of_K_zero _ _ _ (fun c o x hv => ?_) _ _ _ _
   exact preOpTop_K_zero (wGeoF nK) (wCs ν k0) (wSD_zero ν k0 r nK) A 1 le_rfl c o x hv
 
-theorem wBdry2 (nK : ℕ) [NeZero nK] (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 →
+/-- (D7) of the pre-`R` class, second version, for the zero boundary terms of the witness, for
+every frame of the fine size. -/
+theorem wBdry2 (nK : ℕ) [NeZero nK] {m₀ m₁ : ℕ}
+    (Fr : FineSizeFrame wS (sides wS.L 1 nK) 27 1 m₀ m₁)
+    (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 →
     Set (Torus wS.d (sides wS.L 1 nK 1))) (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ)
     (hfac : 0 < fac) (rH : ℝ) :
-    D7Bdry2 (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv rH where
+    D7Bdry2 Fr (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv
+      rH where
   loc_field := by intros; rfl
   loc_hist := by intros; rfl
   real := by intros; simp [wRep]
@@ -230,6 +235,27 @@ theorem wBdry2 (nK : ℕ) [NeZero nK] (Zof : LabHist wS (sides wS.L 1 nK) wR k0 
     positivity
   rot := by intros; rfl
   euclid := by intros; rfl
+  support := by intros; rfl
+
+/-- (D7) of the post-`R` class, second version, for the zero boundary terms of the witness, for
+every frame of the fine size. -/
+theorem wBdry2Post (nK : ℕ) [NeZero nK] {m₀ m₁ : ℕ}
+    (Fr : FineSizeFrame wS (sides wS.L 1 nK) 27 1 m₀ m₁)
+    (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 → Set (Torus wS.d (sides wS.L 1 nK 1)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hfac : 0 < fac) (rH : ℝ) :
+    D7Bdry2Post Fr (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv
+      rH where
+  loc_field := by intros; rfl
+  loc_hist := by intros; rfl
+  real := by intros; simp [wRep]
+  analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
+  bound := by
+    intros
+    simp only [wRep, norm_zero]
+    positivity
+  rot := by intros; rfl
+  euclid := by intros; rfl
+  support := by intros; rfl
 
 end Clauses
 
@@ -253,7 +279,7 @@ theorem wIsRep2 (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) (rH : ℝ
   budget := fun nK _ => (wRep ν _ (1 + 1) nK).budget_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl (by norm_num)
-  bdry := fun nK _ => wBdry2 ν _ _ nK _ _ _ _ _ _ _ _ one_pos rH
+  bdry := fun nK _ => wBdry2Post ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos rH
   coherent := wSF2_D8 ν 3
   coeff := wSF2_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
@@ -295,7 +321,7 @@ theorem wIsRepPre2 (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) (rH : 
   budget := fun nK _ => (wRep ν _ 1 nK).budgetPre_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl
-  bdry := fun nK _ => wBdry2 ν _ _ nK _ _ _ _ _ _ _ _ one_pos rH
+  bdry := fun nK _ => wBdry2 ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos rH
   coherent := wSF2_D8 ν 3
   coeff := wSF2_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
