@@ -1461,6 +1461,7 @@ public import Balaban.Inhabited.P6TopWitness
 public import Balaban.Inhabited.P6ActiveSeedWitness
 public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Fluctuation.PhysicalFNuRawY
+public import Balaban.Fluctuation.PhysicalFNuFanRawY
 public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
@@ -1723,8 +1724,10 @@ public import Balaban.Inhabited.E1RecordOfSum
 public import Balaban.Inhabited.E1RecordFromTower
 public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Inhabited.E1CoeffFamily
+public import Balaban.Inhabited.ObsCoeffLocal
 public import Balaban.Inhabited.E1ParamFibreValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
 public import Balaban.Fluctuation.RawAgreeSites
+public import Balaban.Fluctuation.CoeffFamilyLocExp

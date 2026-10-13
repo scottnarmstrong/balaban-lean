@@ -142,6 +142,62 @@ theorem thm31a_zeroClass_sites_fromTower {κmin : ℝ} (T : StepTower κmin)
   exact ⟨e, eY, hsum, hsum.trans h3', h1, h2, h4, h5⟩
 
 open Classical in
+/-- **`thm31b_zeroClass_sites_fromTower` at source radius `ρ`.**  From
+`thm31b_onCommonWitness_fromTower_supp_rho`: the constant `C` does not depend on `ρ`; for each
+`ρ > 0` the threshold `β₀` satisfies `3 ≤ β₀` and `ρ ≤ β₀`, and the sources `g` range over the `ℓ¹`
+ball of radius `ρ`.  The coefficients are indexed by the site sets `Y = sitesOf T'` as in
+`thm31b_zeroClass_sites_fromTower`. -/
+theorem thm31b_zeroClass_sites_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
+    (hHull : stepHullMin ≤ κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+    ∃ C : ℝ, 0 ≤ C ∧
+  ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ρ ≤ β₀ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_h3N : 3 ∣ N₁), 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (_hp0 : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+  ∀ (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)), S = T.step k hk N₁ ν β p₁ →
+  ∀ (_hp : 0 < S.p₁),
+    ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+    ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    ∃ (E : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → ℂ)
+      (eY : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ℂ),
+      S.M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ T', E T' ∧
+      S.M0C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g y i =
+        ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) * ∑ Y ∈ Finset.univ.image
+          (fun T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
+            (k + 1) Set.univ) => sitesOf T'), eY Y ∧
+      (∀ Y, eY Y = ∑ T' ∈ Finset.univ.filter (fun T'' : Finset (CubeB (d := 3) (L := 3)
+          (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ) => sitesOf T'' = Y),
+          E T') ∧
+      (∀ T', eY (sitesOf T') = E T') ∧
+      (∀ Y, eY Y ≠ 0 → IsDj 1 (k + 1) Y ∧
+        box (rootCube (m₀ := 1) (K := k + 1) (blockIndex y)).1 (cellSide 3 1 T.m₁ (k + 1)) ⊆ Y) ∧
+      ∀ Y, ‖eY Y‖ ≤ C * obsPrefactor p s (β * 3 ^ k) *
+        Real.exp (-(3 / 2 * T.κdec) * sizeJ 1 (k + 1) Y) := by
+  obtain ⟨CE, CF, C, -, -, hC, h⟩ :=
+    thm31b_onCommonWitness_fromTower_supp_rho T hHull hA p hCR hs0 hs
+  refine ⟨C, hC, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, h3, hρβ, h⟩ := h ρ hρ
+  refine ⟨β₀, h3, hρβ, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp g hg y i => ?_⟩
+  obtain ⟨-, -, -, -, -, -, hlast⟩ := h k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp
+  obtain ⟨E, hsum, hroot, hbd, hsupp⟩ := hlast g hg y i
+  have hB : 0 ≤ C * obsPrefactor p s (β * 3 ^ k) := by
+    have h0 := (norm_nonneg (E ∅)).trans (hbd ∅)
+    exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
+  obtain ⟨eY, h1, h2, h3', h4, h5'⟩ := sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+    (K := k + 1) (m₀ := 1) (by simpa using h3N) E _ (3 / 2 * T.κdec) hB
+    (rootCube (blockIndex y))
+    (fun T' _ => hbd T')
+    (fun T' hne => ⟨hsupp T' hne, by
+      by_contra hn; exact hne (hroot T' hn)⟩)
+  exact ⟨E, eY, hsum, by rw [hsum, h3'], h1, h2, h4, h5'⟩
+
+
+open Classical in
 /-- **Theorem 3.1 (b), observable term, on the paper's domains (coefficient part only).**  From
 `thm31b_onCommonWitness_fromTower_supp`: the witness clauses (`val`, `𝒴`, `Tt`, the label
 activities) are not restated; only the coefficient clause is, for the base datum, with the
@@ -179,20 +235,9 @@ theorem thm31b_zeroClass_sites_fromTower {κmin : ℝ} (T : StepTower κmin)
         box (rootCube (m₀ := 1) (K := k + 1) (blockIndex y)).1 (cellSide 3 1 T.m₁ (k + 1)) ⊆ Y) ∧
       ∀ Y, ‖eY Y‖ ≤ C * obsPrefactor p s (β * 3 ^ k) *
         Real.exp (-(3 / 2 * T.κdec) * sizeJ 1 (k + 1) Y) := by
-  obtain ⟨β₀, CE, CF, C, h3, -, -, hC, h⟩ :=
-    thm31b_onCommonWitness_fromTower_supp T hHull hA p hCR hs0 hs
-  refine ⟨β₀, C, h3, hC, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp g hg y i => ?_⟩
-  obtain ⟨-, -, -, -, -, -, hlast⟩ := h k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp0 hp₁ hsc S hS hp
-  obtain ⟨E, hsum, hroot, hbd, hsupp⟩ := hlast g hg y i
-  have hB : 0 ≤ C * obsPrefactor p s (β * 3 ^ k) := by
-    have h0 := (norm_nonneg (E ∅)).trans (hbd ∅)
-    exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
-  obtain ⟨eY, h1, h2, h3', h4, h5'⟩ := sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-    (K := k + 1) (m₀ := 1) (by simpa using h3N) E _ (3 / 2 * T.κdec) hB
-    (rootCube (blockIndex y))
-    (fun T' _ => hbd T')
-    (fun T' hne => ⟨hsupp T' hne, by
-      by_contra hn; exact hne (hroot T' hn)⟩)
-  exact ⟨E, eY, hsum, by rw [hsum, h3'], h1, h2, h4, h5'⟩
+  obtain ⟨C, hC, H⟩ := thm31b_zeroClass_sites_fromTower_rho T hHull hA p hCR hs0 hs
+  obtain ⟨β₀, h3, -, H1⟩ := H 1 one_pos
+  exact ⟨β₀, C, h3, hC, H1⟩
+
 
 end Balaban.Inhabited
