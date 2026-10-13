@@ -219,6 +219,38 @@ theorem beta_mul_energyBdScaled {k N₁ m₁ : ℕ} [NeZero N₁] {ϱ : ℝ} [Ne
   field_simp
   ring
 
+omit [NeZero L] in
+/-- **The scaled bound is never worse than the landed one** (`d ≥ 1`, `L ≥ 1`): every term of
+`energyBdScaled` is at most the corresponding term of `energyBd`, the mass term `L^{-2(n+1)}` being
+absorbed by the slack `3 d N V²` of the gradient term. -/
+theorem energyBdScaled_le_energyBd (hd : 1 ≤ d) (hL : 1 ≤ L) {a : ℕ → ℝ} {ν : ℝ} {n : ℕ}
+    (hν : 0 ≤ ν) {V δ ρ : ℝ} (hV : 0 ≤ V) (hρ : 0 ≤ ρ) :
+    energyBdScaled d L N a n V δ ρ ≤ energyBd d L N a ν n V δ ρ := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have hd1 : (1 : ℝ) ≤ d := by exact_mod_cast hd
+  have hLn : (1 : ℝ) ≤ (L : ℝ) ^ n := one_le_pow₀ hL1
+  have hLn1 : (1 : ℝ) ≤ ((L : ℝ) ^ (n + 1)) ^ 2 := one_le_pow₀ (one_le_pow₀ hL1)
+  unfold energyBdScaled energyBd
+  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+  have hA : 0 ≤ (N : ℝ) * V * V := by positivity
+  have h1 : V / (L : ℝ) ^ n ≤ V := div_le_self hV hLn
+  have h1' : 0 ≤ V / (L : ℝ) ^ n := by positivity
+  have hB : (N : ℝ) * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n) ≤ N * V * V := by
+    have := mul_le_mul h1 h1 h1' hV
+    nlinarith [(Nat.cast_nonneg N : (0 : ℝ) ≤ N)]
+  have hC : (1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1 + ρ := div_le_self (by linarith) hLn1
+  have hC' : (1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2 * (N * V * V) ≤ (1 + ρ) * (N * V * V) :=
+    mul_le_mul_of_nonneg_right hC hA
+  have hE : (N : ℝ) * (2 * V) * (2 * V) = 4 * (N * V * V) := by ring
+  have hdB : (d : ℝ) * (N * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n)) ≤ d * (N * V * V) :=
+    mul_le_mul_of_nonneg_left hB (by linarith)
+  have hνA : 0 ≤ ν * (N * V * V) := by positivity
+  have hρA : 0 ≤ ρ * (N * V * V) := by positivity
+  have hdA : (N : ℝ) * V * V ≤ d * (N * V * V) := by nlinarith
+  rw [hE]
+  refine add_le_add le_rfl (mul_le_mul_of_nonneg_left ?_ (by norm_num))
+  nlinarith
+
 end Scaled
 
 end Balaban.Localization

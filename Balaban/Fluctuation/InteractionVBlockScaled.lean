@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.InteractionVBlock
 public import Balaban.Fluctuation.InteractionEnergyScaled
+public import Balaban.Fluctuation.InteractionLevelPair
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -248,6 +249,42 @@ theorem vblocks_locInt_scaled {n : ℕ} (hC : FlCore N Gp Hm a₁ ν c BG κ eps
       i.1.1) Gp (m₀ z) (X1 Gp (m₀ z) (j z) (𝒦X z)),
     fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ,
     LocInt.finsum Finset.univ (fun z _ => hEv z)⟩
+
+/-- **The scaled bound at the level pair of the landed step witnesses** (`hatStep`:
+`LevelPair.Gp` of level `2` and `LevelPair.Hm` of level `1` on the torus with `K = 2`, `d = L = 3`):
+the hypotheses of `blockEnergyFun_bound_scaled` hold (`LevelPair.isLevel_Hm`, `isLevel_Gp`;
+`n = 1`, `n + 1 = K`), the scaled bound holds, and it is at most the landed `energyBd`.  The
+`FlCore` is the one produced by the witnesses (`hatWitness_core_amp`). -/
+theorem blockEnergyFun_bound_scaled_levelPair {m₁ : ℕ} {ϱ : ℝ} {N : ℕ}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus 3 3 9 m₁ 2)}
+    (hC : FlCore N (LevelPair.Gp m₁ ϱ) (LevelPair.Hm m₁ ϱ) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (z : Torus 3 (9 * 3 ^ m₁ * 3 ^ (2 - (1 + 1))))
+    {t : (((LevelPair.Gp m₁ ϱ).Ω 1 × Fin N → ℂ) × ((LevelPair.Gp m₁ ϱ).Ω 1 → ℂ)) ×
+      ((LevelPair.Hm m₁ ϱ).Ω 1 × Fin N → ℂ) ×
+      (RawData 3 3 (9 * 3 ^ m₁) 2 N × (CTorus 3 3 9 m₁ 2 → Fin N → ℂ))}
+    (ht : t ∈ FlReal (LevelPair.Gp m₁ ϱ) (LevelPair.Hm m₁ ϱ) a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖blockEnergyFun (LevelPair.Gp m₁ ϱ) (LevelPair.Hm m₁ ϱ) (compWeight 3 a₁) ν 1 z t.1 t.2.1
+        t.2.2‖ ≤
+      energyBdScaled 3 3 N (compWeight 3 a₁) 1 (cK2' 3 3 N (famConst 3 3 BG₂ κ) * δ₁) δ₁
+        (rho4 3 3 N BG κ) ∧
+    energyBdScaled 3 3 N (compWeight 3 a₁) 1 (cK2' 3 3 N (famConst 3 3 BG₂ κ) * δ₁) δ₁
+        (rho4 3 3 N BG κ) ≤
+      energyBd 3 3 N (compWeight 3 a₁) ν 1 (cK2' 3 3 N (famConst 3 3 BG₂ κ) * δ₁) δ₁
+        (rho4 3 3 N BG κ) := by
+  refine ⟨blockEnergyFun_bound_scaled hC LevelPair.isLevel_Hm LevelPair.isLevel_Gp le_rfl
+    (by norm_num) z ht, ?_⟩
+  have hd0 : 0 < 3 := by norm_num
+  have hB0 : 0 ≤ famConst 3 3 BG₂ κ := by
+    have := famConst_ge_one (L := 3) hC.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' 3 3 N (famConst 3 3 BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  have hρ : 0 ≤ rho4 3 3 N BG κ := by
+    have hBG := hC.hS.fam.2.1
+    have hB1 : 0 ≤ famConst 3 3 BG κ := by
+      have := famConst_ge_one (L := 3) hBG κ hd0; linarith
+    unfold rho4
+    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
+  exact energyBdScaled_le_energyBd (by norm_num) (by norm_num) hC.HBp.mass hV hρ
 
 end VBlockScaled
 
