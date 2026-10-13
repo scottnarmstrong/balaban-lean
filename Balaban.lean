@@ -1627,6 +1627,7 @@ public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Inhabited.RenormDetFibreTower
+public import Balaban.Inhabited.RenormE0FibreDetG
 public import Balaban.Inhabited.RenormE0FibreDet
 public import Balaban.Inhabited.RenormE0FibreDetRadius
 public import Balaban.Inhabited.RenormLabelNonempty
@@ -1794,6 +1795,7 @@ public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
+public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
