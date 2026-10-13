@@ -118,3 +118,10 @@ leaves 1–3 and P6-style entropy estimates; highest risk is the budget/volume
 summation, not the algebraic `sub_at_zero` step.
 
 **Closeout.** Design verdict only. `localE` and `GsSpecAgree` do not remove global dependence.
+
+## W745 status (leaf 1 energy, leaf 2 first statement) — `Fluctuation/ClassOldDecInputE.lean`
+
+- Supplied by the class: `hEan`/`hEbd` for `Eτ = β⁻¹ C.Tm.E j y X` (`classOldDecEnergy_chart`, from `analyticE`, `boundE`); `hq : 𝔹_j(X) ≺ 𝔹_k` (`classOldDec_precedes`, from `gs_spec`) and `colj` (`classOldDec_collar`).
+- `classOldDec_bgSetting`: `BgSetting` for `Gj = C.Tm.gs j X` from `BgSetting` for any other `Gj0` (e.g. `levelGS j`); `HBj` does not depend on the generator. `FlSetting` does not mention `Gj`.
+- Explicit: the chart inclusion `hchart` (chart in `Dom`), `hB0`/`hF` numerics and `X₁f`, `hcov`, `hX₁`, `hopt` (`IsPolyDom` gives only `CovSetup.chosen`), `hconn`, `hrow`, `κ`-constants. `Gk = 𝔹_k(X)` is taken as any `Gk` with `𝔹_j(X) ≺ Gk` (the whole level `stepG` in the landed results).
+- `classOldDec_expansion` (leaf 2, first statement): `flComp hB hF Eτ = ∑_{Y ∈ polymerDomains(X₁)} Ev Y`, raw-`Y` locality, analyticity, bound `β⁻¹E₀ exp(-κ₀ d_j(X) - 2κ_dec d(Y))`. Not done: the endpoint bridge (leaf 3), `CovSetup`/`hopt` from `IsPolyDom`, the M analogue.
