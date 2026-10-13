@@ -847,6 +847,7 @@ public import Balaban.LargeField.Base.Prop279
 public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.LargeField.Base.KF0MeanShell
 public import Balaban.LargeField.Base.KF0BoundarySquare
+public import Balaban.LargeField.Base.KF0SectorSum
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
