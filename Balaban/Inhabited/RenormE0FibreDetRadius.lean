@@ -67,22 +67,19 @@ theorem StepTowerTheta.detGrouped_ambient_at {κmin : ℝ} (R : StepTowerTheta �
               ‖F ((D.Ψ, D.h), ξ)‖ ≤ hullConst 3 3 (towerDetRate R.κ) (towerDetConst R.κ) *
                 Real.exp (-hullRate 3 3 (towerDetRate R.κ) * sizeJ 1 (k + 1) X)) ∧
             F ((D.Ψ, D.h), 0) = (E z).detGrouped D X := by
-  obtain ⟨hD0, hfam⟩ := R.detExpansion_scale k hk N₁ h3N hN hν0 hν β p₁
-  choose E hE using hfam
-  have hH := bgHyp_lv (k := k) R.m₁ hν0 hν
-  obtain ⟨hM, hle0⟩ := R.thetaChartMargin_of_le he het
-  have hN1 : (3 : ℕ) ^ 1 ∣ N₁ := by simpa using h3N
-  have hrate := towerDetRate_nonneg R.toStepTower
-  have hconst := towerDetConst_nonneg R.toStepTower
-  have hle : e + xiK2 3 3 2 * (3 / 2 * e * R.r₀) ≤ 2 * R.t := by linarith
-  refine ⟨E, hE, fun z => renE0θ_det_zero e E z hD0, fun z X => ?_⟩
-  obtain ⟨F, hFan, hFeq⟩ := exists_renDetGrouped_ambient_of_le (E z) hH e R.r₀ hM hle rfl X
-  refine ⟨F, hFan, fun D hD => ⟨fun ξ hξ => ⟨hFeq D ξ hD hξ, ?_⟩, ?_⟩⟩
-  · rw [hFeq D ξ hD hξ]
-    exact (E z).detGrouped_bound (by norm_num) hN1 hconst hrate
-      (renE0_theta_domain_of_le _ hH e _ (2 * R.t) R.r₀ hM hle D hD ξ hξ) X
-  · have := hFeq D 0 hD (by simpa using R.r₀_pos)
-    rwa [renThetaDatum_zero] at this
+  have h := R.toG.detGrouped_ambient_at he het k hk N₁ h3N hN hν0 (by simpa using hν) β p₁
+  unfold StepTowerG.step at h
+  rw [rhoSepG_three] at h
+  dsimp only [StepTowerTheta.toG_m₁, StepTowerTheta.toG_κ, StepTowerTheta.toG_t,
+    StepTowerTheta.toG_BG, StepTowerTheta.toG_r₀] at h
+  have e1 : (R.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)) /
+      (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ)) = towerDetRate R.κ := by
+    unfold towerDetRate; norm_num
+  have e2 : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 R.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) = towerDetConst R.κ :=
+    StepTower.det_const_eq _ _
+  rw [e1, e2] at h
+  exact h
 
 end TowerFamily
 

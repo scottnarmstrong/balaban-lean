@@ -77,27 +77,7 @@ theorem StepTowerTheta.thetaChartMargin_of_le {κmin : ℝ} (R : StepTowerTheta 
     (he : 0 < e) (het : e ≤ R.t) :
     ThetaChartMargin 3 3 2 e (e + xiK2 3 3 2 * (3 / 2 * e * R.r₀)) R.r₀ ∧
       e + xiK2 3 3 2 * (3 / 2 * e * R.r₀) ≤ 2 * e := by
-  have hM := thetaChartMargin_of_stepTowerRenSol R.toStepTowerRenSol
-  have hr := R.r₀_pos
-  have hX : 0 ≤ xiC1 3 := by unfold xiC1; positivity
-  have hK1 := bgK1_pos 3 3 2
-  have hK2 := cK2_pos 3 3 2
-  have hxK := xiK2_pos'
-  have hδ : (3 / 2 : ℝ) * e * R.r₀ ≤ (3 / 2 : ℝ) * R.t * R.r₀ :=
-    mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left het (by norm_num)) hr.le
-  refine ⟨⟨he, hr, by positivity, hδ.trans hM.δ_one, ?_, ?_, hδ.trans hM.star, ?_, ?_, rfl⟩, ?_⟩
-  · have := mul_le_mul_of_nonneg_left het (by norm_num : (0 : ℝ) ≤ (4 * 3 + 6) * (2 * 3 + 1))
-    have h2 := hM.small
-    nlinarith
-  · have := mul_le_mul_of_nonneg_left het hX
-    linarith [hM.data]
-  · have := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left het hX) hK1.le
-    linarith [hM.K₁]
-  · have h1 := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left het hX) hK1.le
-    have h2 := mul_le_mul_of_nonneg_left hδ hK2.le
-    linarith [hM.c₀]
-  · have h := mul_le_mul_of_nonneg_left R.r₀_xi he.le
-    nlinarith
+  exact R.toG.thetaChartMargin_of_le he het
 
 section Half
 

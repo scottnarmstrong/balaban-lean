@@ -1692,11 +1692,13 @@ public import Balaban.Inhabited.ObsKernelFromTower
 public import Balaban.Inhabited.Thm31bFromTower
 public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
+public import Balaban.Inhabited.RenormThetaChartTowerG
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.SourceWitnessJoint
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.CommonWitnessJoint
 public import Balaban.Inhabited.TowerCoreRatesTwoRadii
+public import Balaban.Inhabited.StepTowerThetaDetG
 public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepTowerRadius
 public import Balaban.Inhabited.StepPiecesRenSol
