@@ -13,11 +13,12 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# The chart identity of the exponentiated source at every scale of a fixed tower
+# The chart identity of the exponentiated source at every scale of a tower
 
-`expSourceChart_scale_fromTower` restates `expSourceChart_scale` for one tower
-`T : StepTower κmin` and its per-scale package `D : StepScaleData T …`: the landed proof is re-run
-with its tower prologue replaced by the fields of `T` and `D`.  `expSourceChart_scale_of_fromTower`
+`expSourceChart_scale_fromTowerG` is the statement of `expSourceChart_scale` for the general tower
+`T : StepTowerG d L N κmin` and its per-scale package `D : StepScaleDataG T …`; it carries the
+proof.  `expSourceChart_scale_fromTower` (one fixed tower `T : StepTower κmin` and
+`D : StepScaleData T …`) is its corollary at `T.toG`, and `expSourceChart_scale_of_fromTower`
 re-derives the landed statement from it.
 
 Source activity with common labels and the chart/determinant joint endpoint are not in this file.
@@ -30,6 +31,112 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
+
+open Classical in
+/-- **The chart identity of the exponentiated source at every scale of the general tower `T`.**  The
+conclusion of `expSourceChart_scale`, for general `d`, `L`, `N`, at the step
+`T.step k hk N₁ ν β p₁`, the radius `T.t`, and the constants `T.BG₂`, `T.κ`.  The fixed
+`expSourceChart_scale_fromTower` is its corollary at `T.toG`. -/
+theorem expSourceChart_scale_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) (hp0 : 0 < p₁)
+    (D : StepScaleDataG T k hk N₁ ν β p₁) :
+    ∃ Jr : (T.step k hk N₁ ν β p₁).JointRep T.t (2 * p₁),
+    ∃ val : ((((T.step k hk N₁ ν β p₁).U × Fin N → ℂ) ×
+          ((T.step k hk N₁ ν β p₁).U × Fin N → ℂ))) →
+        (((T.step k hk N₁ ν β p₁).U × Fin N → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin N → ℂ)) →
+          ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+            (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ,
+      (∀ x w σ Θ, val x w σ Θ =
+        (-((T.step k hk N₁ ν β p₁).β : ℂ)) * raySrc3
+          (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+            (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+            (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (interactionOne (T.step k hk N₁ ν β p₁).hG (T.step k hk N₁ ν β p₁).hG'
+              (le_refl (k + 1)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t))
+          taylorWeight x.1 w.1 σ Θ.1 +
+        ((T.step k hk N₁ ν β p₁).β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N,
+          Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+            (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+            (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+              (T.step k hk N₁ ν β p₁).ν T.t
+              (fun D' ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                  T.BG₂ T.κ (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν D' ψ')
+                s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      ∀ (g : Fld d L N₁ T.m₁ (k + 1) N) (x : (T.step k hk N₁ ν β p₁).EC),
+        (∀ r : ℝ, r ∈ Set.Icc (0 : ℝ) 1 → ∀ q, ‖((r : ℂ) • x) q‖ ≤ 2 * p₁) →
+        ∀ τ : ℝ, τ ∈ Set.Icc (0 : ℝ) 1 →
+          Jr.W2 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g
+              (rawOf (T.step k hk N₁ ν β p₁).D', (τ : ℂ) • x) =
+            val (x, x) (x, x) (τ : ℂ)
+                (rawOf (T.step k hk N₁ ν β p₁).D',
+                  fun y i => g y i / ((T.step k hk N₁ ν β p₁).β : ℂ)) -
+              val (x, x) (x, x) (τ : ℂ) (rawOf (T.step k hk N₁ ν β p₁).D', 0) := by
+  classical
+  have hd := T.hd
+  have hL := T.hL
+  have hd0 : 0 < d := by omega
+  have ht0 := T.t_pos
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hMX := T.large_block
+  have hdm := T.dom_margin
+  have hα := T.coer_margin
+  have hsmX := T.δc_small
+  have hc7 := T.c7_cap
+  have g1 := T.t_cap
+  have g2 := T.bg0_cap
+  have g3 := T.cK2_cap
+  have g4 := T.cK2'_cap
+  have g5 := T.bg1_cap
+  have hcψ0 := D.cψ_pos
+  have hr0 := D.r_pos
+  have hδ₁ := D.fl_radius
+  obtain ⟨R0⟩ := D.ray
+  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
+  have hC := D.core
+  have hD := D.xi
+  have hβ0 : 0 < β := by
+    by_contra hb
+    replace hb := not_lt.mp hb
+    have hb' : β * (L : ℝ) ^ (k * (d - 2)) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg hb (by positivity)
+    have : lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) = 0 := by
+      unfold lvCpsiG
+      rw [Real.sqrt_eq_zero_of_nonpos hb']; simp
+    linarith
+  have hmem := compWeight_one_mem hL hk
+  have hCs : 0 ≤ covSupConstC d L N (compWeight L (1 : ℝ) k) T.κ :=
+    covSupConstC_nonneg hd0 hL (by linarith [hmem.1]) T.κ
+  have hpc : 2 * p₁ < lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) := by
+    have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos hr0 hp0
+    nlinarith [D.ray_margin]
+  have hbU : 0 ≤ (T.step k hk N₁ ν β p₁).betaU := R0.betaU_pos.le
+  have hδp : Real.sqrt (N : ℝ) *
+      ((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) *
+        (covSupConstC d L N (compWeight L (1 : ℝ) k) T.κ * (2 * p₁))) < T.t := by
+    refine lt_of_le_of_lt ?_ hδ₁
+    rw [(T.step k hk N₁ ν β p₁).norm_betaU_rpow (show 0 ≤ β by linarith)]
+    have hb := Real.rpow_nonneg hbU (-(1 / 2 : ℝ))
+    have hs := Real.sqrt_nonneg (N : ℝ)
+    refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
+      (mul_le_mul_of_nonneg_left hpc.le hCs) hb) hs
+  obtain ⟨Jr⟩ := (T.step k hk N₁ ν β p₁).nonempty_jointRep (pp := 2 * p₁)
+    hC hMX hdm hα hsmX one_pos hc7 (R := 2) (by norm_num) g5 (by
+      show 0 ≤ β
+      linarith) (by linarith) hδp
+  refine ⟨Jr, _, fun x w σ Θ => rfl, ?_⟩
+  intro g x hx τ hτ
+  refine Jr.W2_eq_val_sub hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX hdm hα hsmX
+    hcψ0.le hδ₁ hpc hD g ?_ x hx hτ _ (fun x w σ Θ => rfl)
+  have : (T.step k hk N₁ ν β p₁).β ≠ 0 := by
+    show β ≠ 0
+    exact hβ0.ne'
+  exact_mod_cast this
 
 open Classical in
 /-- **The chart identity of the exponentiated source at every scale of the tower `T`.**  The
@@ -74,64 +181,16 @@ theorem expSourceChart_scale_fromTower {κmin : ℝ} (T : StepTower κmin)
                 (rawOf (T.step k hk N₁ ν β p₁).D',
                   fun y i => g y i / ((T.step k hk N₁ ν β p₁).β : ℂ)) -
               val (x, x) (x, x) (τ : ℂ) (rawOf (T.step k hk N₁ ν β p₁).D', 0) := by
-  classical
-  have h4 := T.m₁_four
-  have ht0 := T.t_pos
-  have hν0 : 0 ≤ ν := hνpos.le
-
-  have hMX := T.large_block
-  have hdm := T.dom_margin
-  have hα := T.coer_margin
-  have hsmX := T.δc_small
-  have hc7 := T.c7_cap
-  have g1 := T.t_cap
-  have g2 := T.bg0_cap
-  have g3 := T.cK2_cap
-  have g4 := T.cK2'_cap
-  have g5 := T.bg1_cap
-  have hcψ0 := D.cψ_pos
-  have hr0 := D.r_pos
-  have hδ₁ := D.fl_radius
-  obtain ⟨R0⟩ := D.ray
-  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
-  have hC := D.core
-  have hD := D.xi
-  have hβ0 : 0 < β := by
-    by_contra hb
-    replace hb := not_lt.mp hb
-    have hb' : β * 3 ^ k ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hb (by positivity)
-    have : lvCpsi T.κ T.t (β * 3 ^ k) = 0 := by
-      unfold lvCpsi
-      rw [Real.sqrt_eq_zero_of_nonpos hb']; simp
-    linarith
-  have hmem := compWeight_three_mem hk
-  have hCs : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ :=
-    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) T.κ
-  have hpc : 2 * p₁ < lvCpsi T.κ T.t (β * 3 ^ k) := by
-    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp0
-    nlinarith [D.ray_margin]
-  have hbU : 0 ≤ (T.step k hk N₁ ν β p₁).betaU := R0.betaU_pos.le
-  have hδp : Real.sqrt ((2 : ℕ) : ℝ) *
-      ((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) *
-        (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ * (2 * p₁))) < T.t := by
-    refine lt_of_le_of_lt ?_ hδ₁
-    rw [(T.step k hk N₁ ν β p₁).norm_betaU_rpow (show 0 ≤ β by linarith)]
-    have hb := Real.rpow_nonneg hbU (-(1 / 2 : ℝ))
-    have hs := Real.sqrt_nonneg ((2 : ℕ) : ℝ)
-    refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
-      (mul_le_mul_of_nonneg_left hpc.le hCs) hb) hs
-  obtain ⟨Jr⟩ := (T.step k hk N₁ ν β p₁).nonempty_jointRep (pp := 2 * p₁)
-    hC hMX hdm hα hsmX one_pos hc7 (R := 2) (by norm_num) g5 (by
-      show 0 ≤ β
-      linarith) (by linarith) hδp
-  refine ⟨Jr, _, fun x w σ Θ => rfl, ?_⟩
-  intro g x hx τ hτ
-  refine Jr.W2_eq_val_sub hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX hdm hα hsmX
-    hcψ0.le hδ₁ hpc hD g ?_ x hx hτ _ (fun x w σ Θ => rfl)
-  have : (T.step k hk N₁ ν β p₁).β ≠ 0 := by
-    show β ≠ 0
-    exact hβ0.ne'
-  exact_mod_cast this
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have G := expSourceChart_scale_fromTowerG T.toG k hk N₁ ν hνpos (by simpa using hν) β p₁ hp0
+    (StepTower.scaleDataG_of_fixed T D)
+  unfold StepTowerG.step at G
+  revert G
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  subst hϱ'
+  intro G
+  exact G
 
 open Classical in
 /-- **Check.**  The landed `expSourceChart_scale`, re-derived from

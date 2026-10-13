@@ -702,7 +702,8 @@ theorem sourceWitness_analytic_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
   have hP0 : 0 ≤ P := by
     rw [hPdef]; positivity
   have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
-  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
+  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale_general (d := 3) (L := 3) (N := 2)
+    (by norm_num) le_rfl (by norm_num) (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
   obtain ⟨Kc'', hKc''⟩ : ∃ x : ℝ, x = K0 3 3 T.κ0 + 1 := ⟨_, rfl⟩
   have hKc''pos : 0 < Kc'' := by have := K0_pos 3 3 T.κ0; rw [hKc'']; linarith
   have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
@@ -730,7 +731,13 @@ theorem sourceWitness_analytic_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
   have hb0 : 0 < β * 3 ^ k := by positivity
   have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
   have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
-  have hamp := (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) ρ hP0 hK0.le hρ.le
+  have hamp : β * 3 ^ k * (P / lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) +
+      ρ * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ ≤
+      P * (4 * A₁ / lvKappa T.κ T.t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
+        Real.sqrt (β * 3 ^ k) +
+      ρ * (4 * A₁ * (Q * T.t) / lvKappa T.κ T.t) * (Real.log (β * 3 ^ k)) ^ p /
+        Real.sqrt (β * 3 ^ k) :=
+    (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) ρ hP0 hK0.le hρ.le
   obtain ⟨R0⟩ := D.ray
   have hr0 := D.r_pos
   have hcψ0 := D.cψ_pos
@@ -766,11 +773,16 @@ theorem sourceWitness_analytic_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
     rw [hid]
     have : 0 < ρ * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ := div_pos (mul_pos hρ hK0) hr0
     linarith
-  have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t)
-    (q := ρ) p hb0 (by linarith) hεle
-  have hDA0 := sourceAmp_doubled_hDA_rho 3 3 (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P)
-    (K := Q * T.t) (q := ρ) (ρ := ρ) (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le
-    hρ.le le_rfl
+  have hε4 : 4 * εU ≤ srcCE A₁ T.κ T.t P * (Real.log (β * 3 ^ k)) ^ (3 * p) /
+        Real.sqrt (β * 3 ^ k) +
+      ρ * srcCF A₁ T.κ T.t (Q * T.t) * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) :=
+    sourceAmp_scale_four_general (A₁ := A₁) (κ₁ := lvKappaG 3 3 2 T.κ T.t) (P := P)
+      (K := Q * T.t) (q := ρ) (CE := srcCE A₁ T.κ T.t P) (CF := srcCF A₁ T.κ T.t (Q * T.t))
+      p hb0 (by linarith) rfl rfl hεle
+  have hDA0 := sourceAmp_doubled_hDA_rho_general 3 3 (A₁ := A₁)
+    (κ₁ := lvKappaG 3 3 2 T.κ T.t) (P := P) (K := Q * T.t) (q := ρ) (ρ := ρ) (b := β * 3 ^ k)
+    (ε := εU) (Kc' := Kc'') (CE := srcCE A₁ T.κ T.t P) (CF := srcCF A₁ T.κ T.t (Q * T.t)) p hA
+    (lvKappaG_pos (by norm_num) le_rfl (by norm_num) T.κ ht0) hP0 hK0.le hρ.le le_rfl rfl rfl
     hℓ hb0 hKc''pos T.κdec T.κ0 T.κ' (hβd.trans hbβ) hεle
   have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
   subst hS

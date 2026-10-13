@@ -15,7 +15,11 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# The source direct terms over the relative chart at every scale of a fixed tower
+# The source direct terms over the relative chart at every scale of a tower
+
+`sourceFamilyRelative_scale_fromTowerG_rho` is the statement for the general tower
+`T : StepTowerG d L N κmin` on the carrier `physVqRho … ρ q`; it carries the proof, and the fixed
+`sourceFamilyRelative_scale_fromTower_rho` is its corollary at `T.toG`.
 
 `sourceFamilyRelative_scale_fromTower` restates `sourceFamilyRelative_scale_nonneg` for one tower
 `T : StepTower κmin` and its per-scale package `D : StepScaleData T …`: the landed proof is re-run
@@ -36,6 +40,180 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology Metric
+
+open Classical in
+/-- **The source direct terms as a family over the relative chart of radius `ρ`, at every scale of
+the general tower `T`.**  The conclusion of `sourceFamilyRelative_scale_fromTower` with the carrier
+`physVqRho … ρ q`, for `0 < q ≤ ρ` and `max 1 ρ ≤ β`; the threshold `β₀` and the amplitude constants
+`C_E`, `C_F` do not depend on `ρ`, and the amplitude bound is the one with `q C_F`. -/
+theorem sourceFamilyRelative_scale_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ (β₀ CE CF : ℝ), 2 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁), 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β → ∀ ρ : ℝ, max 1 ρ ≤ β →
+      ∀ p₁ : ℝ, ∀ hp0 : 0 < p₁, p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) → ∀ q : ℝ, 0 < q → q ≤ ρ →
+      StepScaleDataG T k hk N₁ ν β p₁ →
+      ∀ S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁),
+        S = T.step k hk N₁ ν β p₁ → ∀ hp : 0 < S.p₁,
+      ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+            ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+          (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+          (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+            ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+            (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+          (I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1)
+                (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+                (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+                (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val (physAgΘ S)
+                (AgFDirPair S)),
+          I.𝒴 = 𝒴 ∧ I.T = Tt ∧
+          ∃ hF : DirectTermsFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
+              (physVqRho S 1 ν T.t ρ q),
+            (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < q →
+              ∃ hg : (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) ∈ physVqRho S 1 ν T.t ρ q,
+                physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) =
+                  (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∧
+                (I.atThetaOn S T.m₀ _ hF hg).𝒴 = 𝒴 ∧ (I.atThetaOn S T.m₀ _ hF hg).T = Tt) ∧
+            ∃ hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β),
+              4 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β)) ≤
+                CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+                  q * CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
+              ∀ {Kc : ℝ} (hKc : K0 d L T.κ0 ≤ Kc),
+              (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+                  (labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                    hLN hp0 (by norm_num) hεU
+                    T.κ0_ent hKc r.1 r.2).H y Φ)
+                  (physVqRho S 1 ν T.t ρ q ×ˢ ball (0 : ℂ) 2)) ∧
+              (∀ e (he : e ∈ physVqRho S 1 ν T.t ρ q) (u : ℂ),
+                labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                    hLN hp0 (by norm_num) hεU
+                    T.κ0_ent hKc e u =
+                  dtAct S T.m₀ (I.atThetaOn S T.m₀ _ hF he)
+                    hLN hp0 (by norm_num) hεU
+                    T.κ0_ent hKc u) ∧
+              (∀ e ∈ physVqRho S 1 ν T.t ρ q, ∀ u : ℂ, ‖u‖ < 2 →
+                ∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                (labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                    hLN hp0 (by norm_num) hεU
+                    T.κ0_ent hKc e u).H y Φ =
+                  I.T y.1 (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ)
+                    (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ) u
+                    (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e)) := by
+  classical
+  have hd := T.hd
+  have hL := T.hL
+  have hN2 := T.hN
+  have hd0 : 0 < d := by omega
+  have ht0 := T.t_pos
+  have hρ4 := T.rho_nonneg
+  have hB0 := T.fam_nonneg
+  have hc1 := one_le_c1 d L
+  have hent := aEnt_nonneg d L
+  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' d L N (famConst d L T.BG₂ T.κ) := ⟨_, rfl⟩
+  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos_general hB0
+  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
+    ((L : ℝ) ^ d * (((N : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
+      ((d : ℝ) + 1 + rho4 d L N T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
+  have hP0 : 0 ≤ P := by
+    rw [hPdef]; positivity
+  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
+  have hκ1 := lvKappaG_pos hd0 hL (by omega : 1 ≤ N) T.κ ht0
+  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale_general (d := d) (L := L) (N := N) hd0 hL
+    (by omega) (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
+  refine ⟨max 2 β₁, 4 * (P * (4 * A₁ / lvKappaG d L N T.κ T.t) ^ 3 + 1),
+    16 * A₁ * (Q * T.t) / lvKappaG d L N T.κ T.t, le_max_left _ _, by positivity,
+    by positivity, ?_⟩
+  intro k hk N₁ _ hLN hN ν hνpos hν β hβ ρ hβρ p₁ hp0 hp₁ q hq0 hq D S hS hp
+  subst hS
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) hβ
+  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) hβ
+  have hβ0 : 0 < β := by linarith
+  have hβ1 : 1 ≤ β := by linarith
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have h3k : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
+  have hbβ : β ≤ β * (L : ℝ) ^ (k * (d - 2)) := le_mul_of_one_le_right hβ0.le h3k
+  have hb0 : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by positivity
+  have hr0 := D.r_pos
+  have hexp : Real.exp 1 ≤ β * (L : ℝ) ^ (k * (d - 2)) := le_trans hexpβ₁ (hβ₁.trans hbβ)
+  have hℓ : 1 ≤ Real.log (β * (L : ℝ) ^ (k * (d - 2))) :=
+    (Real.le_log_iff_exp_le hb0).2 hexp
+  have hamp := (hA' (β * (L : ℝ) ^ (k * (d - 2))) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) q hP0
+    hK0.le hq0.le
+  have hη0 : 0 < q / β := div_pos hq0 hβ0
+  have hid := sourceEta_scaled_identity d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) q β hβ0.ne'
+  rw [← hQdef] at hid
+  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * (L : ℝ) ^ (k * (d - 2)) :=
+    hatStepKG_betaU (d := d) (L := L) (N₁ := N₁) hN2 (by omega) k T.m₁ (rhoSepG d L T.m₁) hk ν β
+      p₁ T.δ
+  have hpot : β * (3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
+      ‖energyBdScaled d L N (compWeight L 1) k (Q * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
+        lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) ≤
+      β * (L : ℝ) ^ (k * (d - 2)) *
+        (P / lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) := by
+    have h := beta_mul_potentialAmp_le (N := N) (T.step k hk N₁ ν β p₁)
+      (by omega) hL (compWeight_one_mem hL hk).2
+      (le_trans (by norm_num) (compWeight_one_mem hL hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0
+      (T.m₀ + T.m₁)
+    rw [hbU, ← hPdef] at h
+    exact h
+  have hterm0 : 0 ≤ β * (3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
+      ‖energyBdScaled d L N (compWeight L 1) k (Q * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
+        lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) := by
+    have h3 : (0 : ℝ) ≤ 3 * c1 d L := by linarith
+    positivity
+  have hsrc0 : 0 ≤ q * (Q * T.t) / lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ := by
+    positivity
+  have hεnn : 0 ≤ β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+      (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / β) := by
+    rw [hid]; linarith
+  have hεle : β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / β) ≤
+      P * (4 * A₁ / lvKappaG d L N T.κ T.t) ^ 3 *
+        (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+      q * (4 * A₁ * (Q * T.t) / lvKappaG d L N T.κ T.t) *
+        (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
+        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := by
+    rw [hid]
+    linarith
+  have hε4 := sourceAmp_scale_four_general (A₁ := A₁) (κ₁ := lvKappaG d L N T.κ T.t) (P := P)
+    (K := Q * T.t) (q := q) p hb0 (by linarith) rfl rfl hεle
+  -- the direct terms and the family
+  have hρ : 0 < ρ := lt_of_lt_of_le hq0 hq
+  obtain ⟨val, 𝒴, Tt, -, -, hcont, hI, hmem0, -, -⟩ :=
+    sourceDirectTerms_scale_fromTowerG_ray_rho T k hk N₁ hLN hN ν hνpos hν β ρ hρ hβρ p₁ q hq0 hq
+      D (T.step k hk N₁ ν β p₁) rfl hp
+  obtain ⟨I, h𝒴, hT'⟩ := hI _ hmem0
+  have hHB := bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν
+  have hF' := directTermsFamilyOn_scaled_rho (T.step k hk N₁ ν β p₁) T.m₀ (I := I)
+    (a₁ := 1) (ν := ν) (eps := T.t) (β := β) (q := q) (ρ := ρ)
+    (by rw [h𝒴, hT']; exact hcont) hHB hβρ hq
+  refine ⟨val, 𝒴, Tt, I, h𝒴, hT', hF', ?_, hεnn, hε4, ?_⟩
+  · intro g hg
+    have hmem : ((⟨rawOf (T.step k hk N₁ ν β p₁).D', rawOf_mem_rawSub _⟩, g) :
+        physParam N (T.step k hk N₁ ν β p₁)) ∈
+        physVqRho (T.step k hk N₁ ν β p₁) 1 ν T.t ρ q :=
+      ⟨⟨⟨_, D.xi, rfl⟩, hg.trans_le hq⟩, hg⟩
+    refine ⟨hmem, ?_, h𝒴, hT'⟩
+    rw [physInclScaled_apply]
+    refine Prod.ext rfl ?_
+    funext y i
+    push_cast
+    ring
+  · intro Kc hKc
+    have hR : (0 : ℝ) ≤ 2 := by norm_num
+    refine ⟨fun y Φ => labelActFamilyOn_analytic _ T.m₀ _ hF' hLN hp0 hR hεnn T.κ0_ent hKc y Φ,
+      fun e he u => labelActFamilyOn_eq_dtAct _ T.m₀ _ hF' hLN hp0 hR hεnn T.κ0_ent hKc he u, ?_⟩
+    intro e he u hu y Φ
+    exact labelActFamilyOn_H _ T.m₀ _ hF' hLN hp0 hR hεnn T.κ0_ent hKc he hu y Φ
 
 open Classical in
 /-- **The source direct terms as a family over the relative chart of radius `ρ`, at every scale of
@@ -100,96 +278,24 @@ theorem sourceFamilyRelative_scale_fromTower_rho {κmin : ℝ} (T : StepTower κ
                   I.T y.1 (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ)
                     (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ) u
                     (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e)) := by
-  classical
-  have ht0 := T.t_pos
-  have hρ4 := T.rho_nonneg
-  have hB0 := T.fam_nonneg
-  have hc1 := one_le_c1 3 3
-  have hent := aEnt_nonneg 3 3
-  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) := ⟨_, rfl⟩
-  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos' hB0
-  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-    (((3 : ℕ) : ℝ) ^ 3 * ((((2 : ℕ) : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
-      (((3 : ℕ) : ℝ) + 1 + rho4 3 3 2 T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
-  have hP0 : 0 ≤ P := by
-    rw [hPdef]; positivity
-  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
-  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
-  refine ⟨max 2 β₁, srcCE A₁ T.κ T.t P, srcCF A₁ T.κ T.t (Q * T.t), le_max_left _ _,
-    srcCE_pos hA ht0 hP0, srcCF_pos hA ht0 hK0, ?_⟩
+  obtain ⟨β₀, CE, CF, hβ₀, hCE, hCF, H⟩ := sourceFamilyRelative_scale_fromTowerG_rho T.toG hA p
+  refine ⟨β₀, CE, CF, hβ₀, hCE, hCF, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ ρ hβρ p₁ hp0 hp₁ q hq0 hq D S hS hp
   subst hS
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) hβ
-  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) hβ
-  have hβ0 : 0 < β := by linarith
-  have hβ1 : 1 ≤ β := by linarith
-  have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-  have hbβ : β ≤ β * 3 ^ k := le_mul_of_one_le_right hβ0.le h3k
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  have hr0 := D.r_pos
-  have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
-  have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
-  have hamp := (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) q hP0 hK0.le hq0.le
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  have hη0 : 0 < q / β := div_pos hq0 hβ0
-  -- the sign and the size of the amplitude
-  have hid := sourceEta_scaled_identity 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t (lvR T.κ T.t (β * 3 ^ k) p₁) q β
-    hβ0.ne'
-  rw [← hQdef] at hid
-  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := 2) (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ)
-      (by norm_num) le_rfl (compWeight_three_mem hk).2
-      (le_trans (by norm_num) (compWeight_three_mem hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0 (1 + T.m₁)
-    rw [hatStepK_betaU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    positivity
-  have hsrc0 : 0 ≤ q * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ := by positivity
-  have hεnn : 0 ≤ β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / β) := by
-    rw [hid]; linarith
-  have hεle : β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / β) ≤
-      P * (4 * A₁ / lvKappa T.κ T.t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
-        Real.sqrt (β * 3 ^ k) +
-      q * (4 * A₁ * (Q * T.t) / lvKappa T.κ T.t) * (Real.log (β * 3 ^ k)) ^ p /
-        Real.sqrt (β * 3 ^ k) := by
-    rw [hid]
-    linarith
-  have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t) (q := q) p
-    hb0 (by linarith) hεle
-  -- the direct terms and the family
-  have hρ : 0 < ρ := lt_of_lt_of_le hq0 hq
-  obtain ⟨val, 𝒴, Tt, -, -, hcont, hI, hmem0, -⟩ :=
-    sourceDirectTerms_scale_fromTower_rho T k hk N₁ h3N hN ν hνpos hν β ρ hρ hβρ p₁ q hq0 hq D _ rfl hp
-  obtain ⟨I, h𝒴, hT'⟩ := hI _ hmem0
-  have hF' := directTermsFamilyOn_scaled_rho (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ) 1 (I := I)
-    (a₁ := 1) (ν := ν) (eps := T.t) (β := β) (q := q) (ρ := ρ)
-    (by rw [h𝒴, hT']; exact hcont) (bgHyp_lv (k := k) T.m₁ hν0 hν) hβρ hq
-  refine ⟨val, 𝒴, Tt, I, h𝒴, hT', hF', ?_, hεnn, hε4, ?_⟩
-  · intro g hg
-    have hmem : ((⟨rawOf (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ).D', rawOf_mem_rawSub _⟩, g) :
-        physParam 2 (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ)) ∈
-        physVqRho (hatStepK (N₁ := N₁) k T.m₁ hk ν β p₁ T.δ) 1 ν T.t ρ q :=
-      ⟨(hatStepK_physVRho k T.m₁ hk hν0 hν β p₁ T.δ ht0 ρ).2.1 g (hg.trans_le hq), hg⟩
-    refine ⟨hmem, ?_, h𝒴, hT'⟩
-    rw [physInclScaled_apply]
-    refine Prod.ext rfl ?_
-    funext y i
-    push_cast
-    ring
-  · intro Kc hKc
-    have hR : (0 : ℝ) ≤ 2 := by norm_num
-    refine ⟨fun y Φ => labelActFamilyOn_analytic _ 1 _ hF' hN3 hp0 hR hεnn T.κ0_ent hKc y Φ,
-      fun e he u => labelActFamilyOn_eq_dtAct _ 1 _ hF' hN3 hp0 hR hεnn T.κ0_ent hKc he u, ?_⟩
-    intro e he u hu y Φ
-    exact labelActFamilyOn_H _ 1 _ hF' hN3 hp0 hR hεnn T.κ0_ent hKc he hu y Φ
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have hp' : 0 < (T.toG.step k hk N₁ ν β p₁).p₁ := hp
+  have G := H k hk N₁ (by simpa using h3N) hN ν hνpos (by simpa using hν) β hβ ρ hβρ p₁ hp0
+    (by rw [e]; exact hp₁) q hq0 hq (StepTower.scaleDataG_of_fixed T D)
+    (T.toG.step k hk N₁ ν β p₁) rfl hp'
+  unfold StepTowerG.step at G
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G
+  exact G
 
 open Classical in
 /-- **The source direct terms as a family over the relative chart, at every scale of the tower
