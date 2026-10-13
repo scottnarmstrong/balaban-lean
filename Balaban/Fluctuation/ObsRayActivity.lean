@@ -415,15 +415,8 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 `StepScaleData.ray_margin` `(4 + r) p₁ < c_ψ` gives `(4 + r) (3/2) p₁ = 3 c_ψ / 4 < c_ψ`. -/
 theorem StepScaleData.ray_margin_scaled {κmin : ℝ} {T : StepTower κmin} {k : ℕ} {hk : 1 ≤ k}
     {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁) (hp : 0 < p₁) :
-    ((2 : ℝ) * 2 + lvR T.κ T.t (β * 3 ^ k) p₁) * (3 / 2 * p₁) < lvCpsi T.κ T.t (β * 3 ^ k) := by
-  have hc := D.cψ_pos
-  have e : ((2 : ℝ) * 2 + lvR T.κ T.t (β * 3 ^ k) p₁) * (3 / 2 * p₁) =
-      3 / 4 * lvCpsi T.κ T.t (β * 3 ^ k) := by
-    unfold lvR
-    field_simp
-    ring
-  rw [e]
-  linarith
+    ((2 : ℝ) * 2 + lvR T.κ T.t (β * 3 ^ k) p₁) * (3 / 2 * p₁) < lvCpsi T.κ T.t (β * 3 ^ k) :=
+  lvRG_ray_margin_scaled 3 3 2 _ _ _ _ D.cψ_pos hp
 
 /-- The pair-scaling `z ψ ↦` preserves the sharp paired agreement relation. -/
 theorem agFDirPair_smul {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
