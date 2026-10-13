@@ -839,6 +839,8 @@ public import Balaban.LargeField.Base.BaseHistory
 public import Balaban.LargeField.Base.BaseSupport
 public import Balaban.LargeField.Base.BaseWitness
 public import Balaban.LargeField.Base.BaseGauss
+public import Balaban.LargeField.Base.BasePhysicalDensity
+public import Balaban.LargeField.Base.BaseChartIdentity
 public import Balaban.LargeField.Base.BaseWitnessGauss
 public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
