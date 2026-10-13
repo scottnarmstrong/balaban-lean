@@ -554,4 +554,357 @@ theorem integral_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁
 
 end BlockMeasure
 
+/-! ### D4: finite sets under a map injective on a set -/
+
+section ImageInj
+
+variable {α β : Type*} [DecidableEq β] {σ : α → β} {S : Finset α}
+
+/-- Images of subsets of `S` under a map injective on `S` are equal only for equal subsets. -/
+theorem eq_of_image_eq_of_injOn (hσ : Set.InjOn σ (S : Set α)) {U V : Finset α} (hU : U ⊆ S)
+    (hV : V ⊆ S) (h : U.image σ = V.image σ) : U = V := by
+  ext x
+  constructor
+  · intro hx
+    obtain ⟨y, hy, hyx⟩ := Finset.mem_image.1 (h ▸ Finset.mem_image_of_mem σ hx)
+    rw [hσ (hV hy) (hU hx) hyx] at hy
+    exact hy
+  · intro hx
+    obtain ⟨y, hy, hyx⟩ := Finset.mem_image.1 (h.symm ▸ Finset.mem_image_of_mem σ hx)
+    rw [hσ (hU hy) (hV hx) hyx] at hy
+    exact hy
+
+/-- Images of subsets of `S` under a map injective on `S` meet iff the subsets meet. -/
+theorem not_disjoint_image_iff_of_injOn (hσ : Set.InjOn σ (S : Set α)) {U V : Finset α}
+    (hU : U ⊆ S) (hV : V ⊆ S) : ¬ Disjoint (U.image σ) (V.image σ) ↔ ¬ Disjoint U V := by
+  rw [not_iff_not, Finset.disjoint_left, Finset.disjoint_left]
+  constructor
+  · intro h x hxU hxV
+    exact h (Finset.mem_image_of_mem σ hxU) (Finset.mem_image_of_mem σ hxV)
+  · intro h x' hxU hxV
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hxU
+    obtain ⟨y, hy, hxy⟩ := Finset.mem_image.1 hxV
+    have := hσ (hV hy) (hU hx) hxy
+    subst this
+    exact h hx hy
+
+/-- A nonempty subset of the image of `U` is the image of a nonempty subset of `U`. -/
+theorem exists_nePoly_image {U : Finset α} (t' : NePoly β) (ht' : t'.1 ⊆ U.image σ) :
+    ∃ t : NePoly α, t.1 ⊆ U ∧ t.1.image σ = t'.1 := by
+  classical
+  have hne : (U.filter fun b => σ b ∈ t'.1).Nonempty := by
+    obtain ⟨b', hb'⟩ := t'.2
+    obtain ⟨b, hb, rfl⟩ := Finset.mem_image.1 (ht' hb')
+    exact ⟨b, Finset.mem_filter.2 ⟨hb, hb'⟩⟩
+  refine ⟨⟨_, hne⟩, Finset.filter_subset _ _, ?_⟩
+  ext b'
+  constructor
+  · intro hb'
+    obtain ⟨b, hb, rfl⟩ := Finset.mem_image.1 hb'
+    exact (Finset.mem_filter.1 hb).2
+  · intro hb'
+    obtain ⟨b, hb, rfl⟩ := Finset.mem_image.1 (ht' hb')
+    exact Finset.mem_image_of_mem σ (Finset.mem_filter.2 ⟨hb, hb'⟩)
+
+end ImageInj
+
+/-! ### D4 (a): transport of the activities of the polymer gas -/
+
+section PolyActTransport
+
+variable {E E' B B' : Type*} [Fintype E] [Fintype E'] [DecidableEq B'] {cs : E → Finset B}
+  {cs' : E' → Finset B'}
+
+/-- **Transport of the activity of a polymer.**  Let `σ : B → B'` be injective on the polymer
+`Y` with `Y′ = σ '' Y`, and let `φ : E → E′` map the objects supported in `Y` bijectively onto the
+objects supported in `Y′`, with supports `cs′ (φ t) = σ '' cs t` and weights `w′ (φ t) = w t`.
+Then the activities `∑_{C} ∏_{t ∈ C} w t` (connected families with union `Y`) agree:
+`polyAct cs′ w′ Y′ = polyAct cs w Y`. -/
+theorem polyAct_transport (σ : B → B') (φ : E → E') (Y : NePoly B) (Y' : NePoly B')
+    (hY' : Y'.1 = Y.1.image σ) (hσ : Set.InjOn σ (Y.1 : Set B))
+    (hφcs : ∀ t, cs t ⊆ Y.1 → cs' (φ t) = (cs t).image σ)
+    (hφinj : ∀ t₁ t₂, cs t₁ ⊆ Y.1 → cs t₂ ⊆ Y.1 → φ t₁ = φ t₂ → t₁ = t₂)
+    (hφsurj : ∀ t', cs' t' ⊆ Y'.1 → ∃ t, cs t ⊆ Y.1 ∧ φ t = t')
+    (w : E → ℂ) (w' : E' → ℂ) (hw : ∀ t, cs t ⊆ Y.1 → w' (φ t) = w t) :
+    polyAct cs' (fun _ => True) w' Y' = polyAct cs (fun _ => True) w Y := by
+  classical
+  unfold polyAct
+  -- contacts inside `Y` are preserved and reflected
+  have hcontact : ∀ a b, cs a ⊆ Y.1 → cs b ⊆ Y.1 →
+      (Contact cs' (φ a) (φ b) ↔ Contact cs a b) := by
+    intro a b ha hb
+    unfold Contact
+    rw [hφcs a ha, hφcs b hb, not_iff_not, Finset.disjoint_left, Finset.disjoint_left]
+    constructor
+    · intro h x hxa hxb
+      exact h (Finset.mem_image_of_mem σ hxa) (Finset.mem_image_of_mem σ hxb)
+    · intro h x' hxa hxb
+      obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hxa
+      obtain ⟨y, hy, hxy⟩ := Finset.mem_image.1 hxb
+      have := hσ (hb hy) (ha hx) hxy
+      subst this
+      exact h hx hy
+  have hunion : ∀ C : Finset E, (∀ t ∈ C, cs t ⊆ Y.1) →
+      unionCs cs' (C.image φ) = (unionCs cs C).image σ := by
+    intro C hC
+    ext b'
+    rw [mem_unionCs, Finset.mem_image]
+    constructor
+    · rintro ⟨t', ht', hb'⟩
+      obtain ⟨t, ht, rfl⟩ := Finset.mem_image.1 ht'
+      rw [hφcs t (hC t ht)] at hb'
+      obtain ⟨b, hb, rfl⟩ := Finset.mem_image.1 hb'
+      exact ⟨b, mem_unionCs.2 ⟨t, ht, hb⟩, rfl⟩
+    · rintro ⟨b, hb, rfl⟩
+      obtain ⟨t, ht, hbt⟩ := mem_unionCs.1 hb
+      refine ⟨φ t, Finset.mem_image_of_mem φ ht, ?_⟩
+      rw [hφcs t (hC t ht)]
+      exact Finset.mem_image_of_mem σ hbt
+  have himg_inj : ∀ U ⊆ Y.1, ∀ V ⊆ Y.1, U.image σ = V.image σ → U = V := by
+    intro U hU V hV h
+    ext x
+    constructor
+    · intro hx
+      obtain ⟨y, hy, hyx⟩ := Finset.mem_image.1 (h ▸ Finset.mem_image_of_mem σ hx)
+      rw [hσ (hV hy) (hU hx) hyx] at hy
+      exact hy
+    · intro hx
+      obtain ⟨y, hy, hyx⟩ := Finset.mem_image.1 (h.symm ▸ Finset.mem_image_of_mem σ hx)
+      rw [hσ (hU hy) (hV hx) hyx] at hy
+      exact hy
+  symm
+  refine Finset.sum_bij (fun C _ => C.image φ) (fun C hC => ?_) (fun C₁ hC₁ C₂ hC₂ h => ?_)
+    (fun C' hC' => ?_) (fun C hC => ?_)
+  · -- the image family is admissible
+    have hsub : ∀ t ∈ C, cs t ⊆ Y.1 := fun t ht => sub_of_mem_Cfam hC ht
+    obtain ⟨⟨hne, hreach⟩, -, hU⟩ := mem_Cfam.1 hC
+    refine mem_Cfam.2 ⟨⟨hne.image φ, fun s hs s' hs' => ?_⟩, trivial, ?_⟩
+    · obtain ⟨a, ha, rfl⟩ := Finset.mem_image.1 hs
+      obtain ⟨b, hb, rfl⟩ := Finset.mem_image.1 hs'
+      refine Relation.ReflTransGen.lift φ (fun x y hxy => ?_) _ _ (hreach a ha b hb)
+      exact ⟨Finset.mem_image_of_mem φ hxy.1, Finset.mem_image_of_mem φ hxy.2.1,
+        (hcontact x y (hsub x hxy.1) (hsub y hxy.2.1)).2 hxy.2.2⟩
+    · rw [hunion C hsub, hU, hY']
+  · -- injectivity
+    have hs1 : ∀ t ∈ C₁, cs t ⊆ Y.1 := fun t ht => sub_of_mem_Cfam hC₁ ht
+    have hs2 : ∀ t ∈ C₂, cs t ⊆ Y.1 := fun t ht => sub_of_mem_Cfam hC₂ ht
+    ext t
+    constructor
+    · intro ht
+      obtain ⟨t₂, ht₂, he⟩ := Finset.mem_image.1 (h ▸ Finset.mem_image_of_mem φ ht)
+      rw [hφinj t₂ t (hs2 t₂ ht₂) (hs1 t ht) he] at ht₂
+      exact ht₂
+    · intro ht
+      obtain ⟨t₁, ht₁, he⟩ := Finset.mem_image.1 (h.symm ▸ Finset.mem_image_of_mem φ ht)
+      rw [hφinj t₁ t (hs1 t₁ ht₁) (hs2 t ht) he] at ht₁
+      exact ht₁
+  · -- surjectivity
+    have hsub' : ∀ t' ∈ C', cs' t' ⊆ Y'.1 := fun t' ht' => sub_of_mem_Cfam hC' ht'
+    obtain ⟨⟨hne', hreach'⟩, -, hU'⟩ := mem_Cfam.1 hC'
+    let C : Finset E := Finset.univ.filter fun t => cs t ⊆ Y.1 ∧ φ t ∈ C'
+    have hCsub : ∀ t ∈ C, cs t ⊆ Y.1 := fun t ht => (Finset.mem_filter.1 ht).2.1
+    have himg : C.image φ = C' := by
+      ext t'
+      constructor
+      · intro ht'
+        obtain ⟨t, ht, rfl⟩ := Finset.mem_image.1 ht'
+        exact (Finset.mem_filter.1 ht).2.2
+      · intro ht'
+        obtain ⟨t, ht, rfl⟩ := hφsurj t' (hsub' t' ht')
+        exact Finset.mem_image_of_mem φ (Finset.mem_filter.2 ⟨Finset.mem_univ _, ht, ht'⟩)
+    have hreachC : ∀ s₁ ∈ C, ∀ x', Reach cs' C' (φ s₁) x' →
+        ∃ s ∈ C, φ s = x' ∧ Reach cs C s₁ s := by
+      intro s₁ hs₁ x' h
+      induction h with
+      | refl => exact ⟨s₁, hs₁, rfl, Reach.refl cs _ _⟩
+      | tail _ hyz ih =>
+        obtain ⟨s, hs, rfl, hr⟩ := ih
+        obtain ⟨-, hz', hcon⟩ := hyz
+        obtain ⟨u, hu, rfl⟩ := hφsurj _ (hsub' _ hz')
+        have huC : u ∈ C := Finset.mem_filter.2 ⟨Finset.mem_univ _, hu, hz'⟩
+        exact ⟨u, huC, rfl, hr.trans cs (Reach.single cs hs huC
+          ((hcontact s u (hCsub s hs) hu).1 hcon))⟩
+    refine ⟨C, mem_Cfam.2 ⟨⟨?_, fun s hs s' hs' => ?_⟩, trivial, ?_⟩, himg⟩
+    · obtain ⟨t', ht'⟩ := hne'
+      obtain ⟨t, ht, rfl⟩ := hφsurj t' (hsub' t' ht')
+      exact ⟨t, Finset.mem_filter.2 ⟨Finset.mem_univ _, ht, ht'⟩⟩
+    · obtain ⟨u, hu, he, hr⟩ := hreachC s hs (φ s') (hreach' _ (Finset.mem_filter.1 hs).2.2 _
+        (Finset.mem_filter.1 hs').2.2)
+      rw [hφinj u s' (hCsub u hu) (hCsub s' hs') he] at hr
+      exact hr
+    · refine himg_inj _ (fun x hx => ?_) _ le_rfl ?_
+      · obtain ⟨t, ht, hxt⟩ := mem_unionCs.1 hx
+        exact hCsub t ht hxt
+      · rw [← hunion C hCsub, himg, hU', hY']
+  · -- the weights
+    have hsub : ∀ t ∈ C, cs t ⊆ Y.1 := fun t ht => sub_of_mem_Cfam hC ht
+    rw [Finset.prod_image (fun t₁ h₁ t₂ h₂ h => hφinj t₁ t₂ (hsub t₁ h₁) (hsub t₂ h₂) h)]
+    exact Finset.prod_congr rfl (fun t ht => (hw t (hsub t ht)).symm)
+
+end PolyActTransport
+
+/-! ### D4 (b): transport of the local terms of the marked cluster expansion -/
+
+section GstTransport
+
+open MeasureTheory
+
+variable {d L N₁ N₁' m₁ K : ℕ} [NeZero L] [NeZero N₁] [NeZero N₁'] {m₀ j : ℕ}
+  {Ω : Set (CTorus d L N₁ m₁ K)} {Ω' : Set (CTorus d L N₁' m₁ K)}
+  {Lb Lb' : Type*} [Fintype Lb] [Fintype Lb']
+
+local notation "𝔅" => CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ j Ω
+local notation "𝔅'" => CubeB (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) m₀ j Ω'
+
+/-- The pre-summed term of a polymer depends only on its blocks when each activity depends only
+on the blocks of its label. -/
+theorem presum_depOn {Ωb : 𝔅 → Type*} (Lab : CubeLabels m₀ j Ω Lb)
+    {H : Lb → (∀ b, Ωb b) → ℂ} (hHdep : ∀ y, DepOn (blocksOf m₀ j Ω (Lab.ysite y)) (H y))
+    (t : NePoly 𝔅) : DepOn t.1 (presum Lab H t) := by
+  intro Φ Φ' h
+  unfold presum
+  refine Finset.sum_congr rfl fun y hy => ?_
+  have hyS : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
+  exact hHdep y Φ Φ' (fun b hb => h b (hyS ▸ hb))
+
+/-- **The local term of a mark outside `S` vanishes**: if the blocks `S₀` of the mark are not
+contained in `S`, then `G*(S₀, S) = 0` (the local term does not depend on the mark). -/
+theorem Gst_eq_zero_of_not_subset {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)] (Lab : CubeLabels m₀ j Ω Lb)
+    (H : Lb → (∀ b, Ωb b) → ℂ) {S₀ S : Finset 𝔅} (G : (∀ b, Ωb b) → ℂ) (h : ¬ S₀ ⊆ S) :
+    Gst μ Lab H S₀ G S = 0 := by
+  classical
+  unfold Gst
+  have hconst : Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
+      (marksK μ Subtype.val (presum Lab H) (gMark S₀ G)) S =
+      fun _ => Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
+        (marksK μ Subtype.val (presum Lab H) (gMark S₀ G)) S 0 := by
+    funext l
+    unfold Ff
+    refine PY_congr (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val S
+      (fun x hx => ?_)
+    unfold marksK mayerK mayerAct polyAct
+    refine integral_congr_ae (Filter.Eventually.of_forall fun Φ => ?_)
+    refine Finset.sum_congr rfl (fun C hC => Finset.prod_congr rfl (fun t ht => ?_))
+    have htS : t.1 ⊆ S := (sub_of_mem_Cfam hC ht).trans hx
+    have hne : t.1 ≠ S₀ := fun he => h (he ▸ htS)
+    simp [Hlam, gMark, hne]
+  rw [hconst]
+  simp [D1]
+
+/-- **D4 (b): transport of the local term `G*(S₀, S)` of the marked cluster expansion.**  Let
+`σ` map the blocks of the first system to those of the second, injectively on `S`, and let a
+relation `Rel` between configurations of the two systems carry integrals of functions of the
+blocks of `Z ⊆ S` to integrals of the corresponding functions (`hint`).  Let the labels `y` with
+blocks in `S` correspond bijectively (`ψ`) to the labels `y′` with blocks in `σ '' S`, with
+`blocks (ψ y) = σ '' blocks y`, and let the activities and the mark agree on related
+configurations.  Then `G*(σ '' S₀, σ '' S)` of the second system equals `G*(S₀, S)` of the
+first, for `S₀ ⊆ S`.  The polymers of the two cluster expansions inside `S` and `σ '' S`
+correspond (`PY_transport`), and so do their connected families (`polyAct_transport`), the
+labels of a polymer (`presum`) and the marks (`gMark`). -/
+theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
+    {Ωb' : 𝔅' → Type*} [∀ b, MeasurableSpace (Ωb' b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (μ' : ∀ b, Measure (Ωb' b)) [∀ b, IsProbabilityMeasure (μ' b)]
+    (Lab : CubeLabels m₀ j Ω Lb) (Lab' : CubeLabels m₀ j Ω' Lb')
+    (H : Lb → (∀ b, Ωb b) → ℂ) (H' : Lb' → (∀ b, Ωb' b) → ℂ)
+    (hHdep : ∀ y, DepOn (blocksOf m₀ j Ω (Lab.ysite y)) (H y))
+    (σ : 𝔅 → 𝔅') (S : Finset 𝔅) (hσ : Set.InjOn σ (S : Set 𝔅))
+    (Rel : (∀ b, Ωb b) → (∀ b, Ωb' b) → Prop)
+    (hint : ∀ Z ⊆ S, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
+      (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
+        ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
+    (ψ : Lb → Lb')
+    (hψb : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S →
+      blocksOf m₀ j Ω' (Lab'.ysite (ψ y)) = (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
+    (hψinj : ∀ y₁ y₂, blocksOf m₀ j Ω (Lab.ysite y₁) ⊆ S → blocksOf m₀ j Ω (Lab.ysite y₂) ⊆ S →
+      ψ y₁ = ψ y₂ → y₁ = y₂)
+    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ S.image σ →
+      ∃ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S ∧ ψ y = y')
+    (hH : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → ∀ Φ Φ', Rel Φ Φ' → H' (ψ y) Φ' = H y Φ)
+    {S₀ : Finset 𝔅} (hS₀ : S₀ ⊆ S) {G : (∀ b, Ωb b) → ℂ} {G' : (∀ b, Ωb' b) → ℂ}
+    (hGdep : DepOn S₀ G) (hG : ∀ Φ Φ', Rel Φ Φ' → G' Φ' = G Φ) :
+    Gst μ' Lab' H' (S₀.image σ) G' (S.image σ) = Gst μ Lab H S₀ G S := by
+  classical
+  -- the image of a polymer
+  let img : NePoly 𝔅 → NePoly 𝔅' := fun t => ⟨t.1.image σ, t.2.image σ⟩
+  have himg_inj : ∀ t₁ t₂ : NePoly 𝔅, t₁.1 ⊆ S → t₂.1 ⊆ S → img t₁ = img t₂ → t₁ = t₂ :=
+    fun t₁ t₂ h₁ h₂ h => Subtype.ext (eq_of_image_eq_of_injOn hσ h₁ h₂ (congrArg Subtype.val h))
+  -- the terms of the polymers agree on related configurations
+  have hHlam : ∀ (l : Unit → ℂ) (t : NePoly 𝔅), t.1 ⊆ S → ∀ Φ Φ', Rel Φ Φ' →
+      Hlam (presum Lab' H') (gMark (S₀.image σ) G') l (img t) Φ' =
+        Hlam (presum Lab H) (gMark S₀ G) l t Φ := by
+    intro l t htS Φ Φ' hR
+    have hpre : presum Lab' H' (img t) Φ' = presum Lab H t Φ := by
+      unfold presum
+      symm
+      refine Finset.sum_bij (fun y _ => ψ y) (fun y hy => ?_) (fun y₁ hy₁ y₂ hy₂ h => ?_)
+        (fun y' hy' => ?_) (fun y hy => ?_)
+      · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
+        refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
+        rw [hψb y (hyt ▸ htS), hyt]
+      · have h1 : blocksOf m₀ j Ω (Lab.ysite y₁) = t.1 := (Finset.mem_filter.1 hy₁).2
+        have h2 : blocksOf m₀ j Ω (Lab.ysite y₂) = t.1 := (Finset.mem_filter.1 hy₂).2
+        exact hψinj y₁ y₂ (h1 ▸ htS) (h2 ▸ htS) h
+      · have h' : blocksOf m₀ j Ω' (Lab'.ysite y') = t.1.image σ := (Finset.mem_filter.1 hy').2
+        obtain ⟨y, hyS, rfl⟩ := hψsurj y' (h' ▸ Finset.image_subset_image htS)
+        refine ⟨y, Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩, rfl⟩
+        exact eq_of_image_eq_of_injOn hσ hyS htS ((hψb y hyS).symm.trans h')
+      · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
+        exact (hH y (hyt ▸ htS) Φ Φ' hR).symm
+    have hmark : gMark (S₀.image σ) G' () (img t) Φ' = gMark S₀ G () t Φ := by
+      by_cases ht0 : t.1 = S₀
+      · have h1 : (img t).1 = S₀.image σ := by
+          show t.1.image σ = S₀.image σ
+          rw [ht0]
+        simp only [gMark, h1, ht0, ite_true]
+        exact hG Φ Φ' hR
+      · have h1 : (img t).1 ≠ S₀.image σ := fun he => ht0 (eq_of_image_eq_of_injOn hσ htS hS₀ he)
+        simp only [gMark, h1, ht0, ite_false]
+    simp only [Hlam, Finset.univ_unique, Finset.sum_singleton, hpre, hmark]
+  -- the activities of the polymers inside `S` agree
+  have hK : ∀ (l : Unit → ℂ) (x : NePoly 𝔅), x.1 ⊆ S →
+      marksK μ' Subtype.val (presum Lab' H') (gMark (S₀.image σ) G') (img x) l =
+        marksK μ Subtype.val (presum Lab H) (gMark S₀ G) x l := by
+    intro l x hx
+    unfold marksK mayerK
+    refine hint x.1 hx _ _ (depOn_mayerAct (fun t => ?_) x) (fun Φ Φ' hR => ?_)
+    · intro Φ₁ Φ₂ h12
+      unfold Hlam
+      rw [presum_depOn Lab hHdep t Φ₁ Φ₂ h12]
+      congr 1
+      exact Finset.sum_congr rfl (fun _ _ => by rw [gMark_dep S₀ hGdep t Φ₁ Φ₂ h12])
+    · unfold mayerAct
+      refine polyAct_transport σ img x (img x) rfl (hσ.mono (by exact_mod_cast hx))
+        (fun t _ => by rfl) (fun t₁ t₂ h₁ h₂ h => himg_inj t₁ t₂ (h₁.trans hx) (h₂.trans hx) h)
+        (fun t' ht' => ?_) _ _ (fun t ht => ?_)
+      · obtain ⟨t, htx, hte⟩ := exists_nePoly_image t' ht'
+        exact ⟨t, htx, Subtype.ext hte⟩
+      · show Complex.exp (Hlam (presum Lab' H') (gMark (S₀.image σ) G') l (img t) Φ') - 1 =
+          Complex.exp (Hlam (presum Lab H) (gMark S₀ G) l t Φ) - 1
+        rw [hHlam l t (ht.trans hx) Φ Φ' hR]
+  -- the polymers inside `S` and `σ '' S`
+  have hbij : Function.Bijective (fun x : {x : NePoly 𝔅 // x.1 ⊆ S} =>
+      (⟨img x.1, Finset.image_subset_image x.2⟩ : {x' : NePoly 𝔅' // x'.1 ⊆ S.image σ})) := by
+    refine ⟨fun x₁ x₂ h => Subtype.ext (himg_inj _ _ x₁.2 x₂.2 (congrArg Subtype.val h)),
+      fun x' => ?_⟩
+    obtain ⟨t, htS, hte⟩ := exists_nePoly_image x'.1 x'.2
+    exact ⟨⟨t, htS⟩, Subtype.ext (Subtype.ext hte)⟩
+  let Ψ := Equiv.ofBijective _ hbij
+  unfold Gst
+  congr 1
+  funext l
+  unfold Ff
+  refine PY_transport (inc := shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅))
+    (inc' := shareBlock (Subtype.val : NePoly 𝔅' → Finset 𝔅'))
+    (supp := Subtype.val) (supp' := Subtype.val) S (S.image σ) σ hσ
+    (fun b' => by simp [Finset.mem_image]) Ψ (fun x b' => ?_) (fun x y => ?_) (fun x => ?_)
+  · show b' ∈ x.1.1.image σ ↔ _
+    exact Finset.mem_image
+  · rw [lnk_shareBlock, lnk_shareBlock]
+    exact not_disjoint_image_iff_of_injOn hσ x.2 y.2
+  · exact hK l x.1 x.2
+
+end GstTransport
+
 end Balaban.Polymer.TwoTorusStep
