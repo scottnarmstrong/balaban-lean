@@ -304,6 +304,33 @@ theorem obsFamily_prefactor_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
         (fun Y => Sum.inl (Sum.inr Y))
         (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
           (rootCube (m₀ := 1) (blockIndex y))))
+      (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ' T') ∧
+      (∀ θ ∈ (physVq S S.a₁ S.ν T.t q), ∀ θ' ∈ (physVq S S.a₁ S.ν T.t q),
+        physRestrict (N := 2) (sitesOf T') (physIncl 2 S θ) =
+          physRestrict (sitesOf T') (physIncl 2 S θ') →
+        obsCoeffParam (S.blockSplit 1 hp).μ
+      (fun θ t σ => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj (le_refl _)
+        (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+      (fun m => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m) (fun m => blockMarkC S 1 hp m.1 m.2)
+      (fun θ m T'' => obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => hatCoeff (Ev Y) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec S m)) 1 T'')
+      (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (rootCube (m₀ := 1) (blockIndex y))))
+      (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ T' =
+        obsCoeffParam (S.blockSplit 1 hp).μ
+      (fun θ t σ => tiltActObs A (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj (le_refl _)
+        (obsRg CR s (p : ℝ) (β * 3 ^ k)) hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+      (fun m => obsY1 1 S (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m) (fun m => blockMarkC S 1 hp m.1 m.2)
+      (fun θ m T'' => obsHker (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => hatCoeff (Ev Y) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec S m)) 1 T'')
+      (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+        (fun Y => Sum.inl (Sum.inr Y))
+        (obsY0 1 (Lb ⊕ Lb) (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (rootCube (m₀ := 1) (blockIndex y))))
       (fun θ => obsGrFam S 1 hp Ev (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) θ' T'))) ∧
       ∀ (D : BgData S.G' 2) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
         XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
@@ -333,8 +360,8 @@ theorem obsFamily_prefactor_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
   refine ⟨Lb, instLb, Lab, εH, hεH, A, hεb, fun y i hdj => ?_⟩
   obtain ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam, hT', hv⟩ := hrest y i hdj
   refine ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam, ⟨fun T' => ?_, hv⟩⟩
-  obtain ⟨a1, a2, a3, a4, hbd, hsp, hlc⟩ := hT' T'
-  refine ⟨a1, a2, a3, a4, fun θ hθ => ?_, hsp, hlc⟩
+  obtain ⟨a1, a2, a3, a4, hbd, hsp, hlc, hlcExact⟩ := hT' T'
+  refine ⟨a1, a2, a3, a4, fun θ hθ => ?_, hsp, hlc, hlcExact⟩
   have hb0 := hbd θ hθ
   have hβ3 : 3 ≤ β := le_trans h3 hβ
   have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
