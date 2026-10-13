@@ -408,6 +408,60 @@ theorem obsHker_twoTorus {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀
     rw [Finset.mem_filter] at hY
     exact hc Y hY.1 (inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2))
 
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+
+/-- **Preimages of the sets with blocks in `cubeMap '' T`.**  For a set `T` of cubes of the box of
+radius `R` and a set `Y′` of the second torus (a union of cubes) whose blocks lie in `cubeMap '' T`,
+the set `bm' '' Y′` of the first torus lies in the box, its image is `Y′`, and its blocks lie in
+`T`.  Margins: `2 R + L a_K < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem preimage_of_blocksOf_subset_image {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y' : Set (CTorus d L N₁' m₁ (k + 1))} (hY' : IsDj m₀ (k + 1) Y')
+    (hY'T : blocksOf m₀ (k + 1) Set.univ Y' ⊆ T.image (σc)) :
+    (∀ x' ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x') ∧
+      (∀ x ∈ bm' '' Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧ bm '' (bm' '' Y') = Y' ∧
+      blocksOf m₀ (k + 1) Set.univ (bm' '' Y') ⊆ T := by
+  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hcs₀ : aK ≤ L * aK := cellSide_le_mul
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => inBox_of_mem_sitesOf hT hx
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hnc : 2 * R + aK < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hnc' : 2 * R + aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) hnL T hT'
+  have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hY'.2.1
+  have hy'R : ∀ x' ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
+    intro x' hx'
+    have h1 : x' ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by rw [hs']; exact ⟨hx', trivial⟩
+    obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
+    have h2 : x' ∈ sitesOf (T.image (σc)) := mem_sitesOf.2 ⟨b', hY'T hb', hxb'⟩
+    rw [hsT] at h2
+    obtain ⟨w, hw, rfl⟩ := h2
+    exact inBox_boxMap hm' (hT' w hw)
+  have hYR : ∀ x ∈ bm' '' Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    rintro _ ⟨x', hx', rfl⟩
+    exact inBox_boxMap hm (hy'R x' hx')
+  have hYimg : bm '' (bm' '' Y') = Y' := image_image_boxMap hm hy'R
+  refine ⟨hy'R, hYR, hYimg, fun b hb => ?_⟩
+  have hbimg : σc b ∈ blocksOf m₀ (k + 1) Set.univ (bm '' (bm' '' Y')) := by
+    rw [blocksOf_image_boxMap hN hN' hnc hnc' hYR]
+    exact Finset.mem_image_of_mem _ hb
+  rw [hYimg] at hbimg
+  obtain ⟨b₂, hb₂, he⟩ := Finset.mem_image.1 (hY'T hbimg)
+  have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ ha)
+  have hbR := hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ ha))
+  have h1 := congrArg Subtype.val he
+  rw [cubeMap_val, cubeMap_val] at h1
+  have h2 : b₂ = b := Subtype.ext (boxMap_inj (hm' := hm') hb₂R hbR h1)
+  exact h2 ▸ hb₂
+
 end Domains
 
 /-! ### The coefficients and the marks of two steps -/
@@ -543,6 +597,99 @@ theorem obsGrRawC_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     (smul_mem_ball_p hp' (norm_hatOf_p₁_le Φ') hζ) fun x hx i => ?_
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [hhat x hx i]
+
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+set_option hygiene false in
+local notation "σc" => cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1)
+  hN hN' (le_refl (k + 1))
+
+/-- **The first-order label of a mark with blocks in `T`.**  If the blocks of the first-order
+label of the mark `(u, a)` lie in a set `T` of cubes of the box, its label box `box c (L a_K)`
+(`c` the mark cube of `u`) lies in the box, and `u` is the unit point of a site of the box. -/
+theorem obsY1_label_inBox (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hN : L ^ m₀ ∣ N₁)
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ Lb₀)
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y)
+    (i : ObsMarkIdx (SA))
+    (hi : blocksOf m₀ (k + 1) Set.univ ((obsLab Lab₀ hdj).ysite (obsY1 m₀ (SA) Lb₀ 𝒴 i)) ⊆ T) :
+    (∀ x ∈ box ((SA).cellOf m₀ i.1).1 (L * aK), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧
+      ∃ x₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x₀ ∧ unitPt (SA).hG' x₀ = i.1 := by
+  have h1 := inBox_of_blocksOf_subset hN hT ((obsLab Lab₀ hdj).isDj _) hi
+  refine ⟨h1, ?_⟩
+  obtain ⟨x, hxu, hxb⟩ := exists_site_of_unitPt (SA) m₀ i.1
+  exact ⟨x, h1 x (box_mono _ cellSide_le_mul hxb), Subtype.ext hxu⟩
+
+/-- **The marks of the second step with first-order labels in `cubeMap '' T`.**  If the blocks of
+the first-order label of the mark `i′ = (u′, a)` of the second step lie in `cubeMap '' T` (`T` a set
+of cubes of the box), then `u′ = ιu (unitPt x₀)` for a site `x₀` of the box, and the blocks of the
+first-order label of `(unitPt x₀, a)` lie in `T`.  Margins:
+`2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` and `2 R + L a_K < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem obsY1_unitImage_surj (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Lb₀ Lb₀' : Type}
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb₀)
+    (Lab₀' : CubeLabels (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb₀')
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
+    (i' : ObsMarkIdx (SB))
+    (hi' : blocksOf m₀ (k + 1) Set.univ ((obsLab Lab₀' hdj').ysite (obsY1 m₀ (SB) Lb₀' 𝒴' i')) ⊆
+      T.image (σc)) :
+    ∃ x₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x₀ ∧ ιu (unitPt (SA).hG' x₀) = i'.1 ∧
+      blocksOf m₀ (k + 1) Set.univ
+        ((obsLab Lab₀ hdj).ysite (obsY1 m₀ (SA) Lb₀ 𝒴 (unitPt (SA).hG' x₀, i'.2))) ⊆ T := by
+  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hLa : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hY'box : (obsLab Lab₀' hdj').ysite (obsY1 m₀ (SB) Lb₀' 𝒴' i') =
+      box ((SB).cellOf m₀ i'.1).1 (L * aK) := rfl
+  obtain ⟨hy'R, hZR, hZimg, hZT⟩ := preimage_of_blocksOf_subset_image hN hN' hnL hnL'
+    hT ((obsLab Lab₀' hdj').isDj _) hi'
+  obtain ⟨x', hxu, hxb⟩ := exists_site_of_unitPt (SB) m₀ i'.1
+  have hx'img : x' ∈ bm '' (bm' '' (obsLab Lab₀' hdj').ysite (obsY1 m₀ (SB) Lb₀' 𝒴' i')) := by
+    rw [hZimg, hY'box]; exact box_mono _ hcs hxb
+  obtain ⟨x₀, hx₀Z, hx₀x⟩ := hx'img
+  have hx₀R := hZR x₀ hx₀Z
+  have hu' : unitPt (SB).hG' x' = i'.1 := Subtype.ext hxu
+  refine ⟨x₀, hx₀R, ?_, ?_⟩
+  · have h1 : ιu (unitPt (SA).hG' x₀) = unitPt (SB).hG' (bm x₀) :=
+      unitImage_unitPt hn (SA).hG' (SB).hG' hx₀R
+    rw [h1, hx₀x, hu']
+  · have hcell' : ((SB).cellOf m₀ i'.1).1 = cbase aK x' := by
+      rw [← hu', (SB).cellOf_unitPt m₀ x']; rfl
+    have hcellA : ((SA).cellOf m₀ (unitPt (SA).hG' x₀)).1 = cbase aK x₀ := by
+      rw [(SA).cellOf_unitPt m₀ x₀]; rfl
+    have hbox' : ∀ z ∈ box (cbase aK x') (L * aK),
+        InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) z := fun z hz =>
+      hy'R z (by rw [hY'box, hcell']; exact hz)
+    have himg : bm' '' box (cbase aK x') (L * aK) = box (bm' (cbase aK x')) (L * aK) :=
+      image_box_boxMap hnL' hLa hbox'
+    have hcb : bm' (cbase aK x') = cbase aK (bm' x') :=
+      cbase_boxMap (cellSide_dvd (K := k + 1) (m₁ := m₁) hN' le_rfl)
+        (cellSide_dvd (K := k + 1) (m₁ := m₁) hN le_rfl) ha (by omega) x'
+        (fun z hz => hbox' z (box_mono _ hcs hz))
+    have hx₀' : bm' x' = x₀ := by rw [← hx₀x]; exact boxMap_boxMap hm' hx₀R
+    have hZeq : bm' '' (obsLab Lab₀' hdj').ysite (obsY1 m₀ (SB) Lb₀' 𝒴' i') =
+        (obsLab Lab₀ hdj).ysite (obsY1 m₀ (SA) Lb₀ 𝒴 (unitPt (SA).hG' x₀, i'.2)) := by
+      show _ = box ((SA).cellOf m₀ (unitPt (SA).hG' x₀)).1 (L * aK)
+      rw [hY'box, hcell', himg, hcb, hx₀', hcellA]
+    rw [← hZeq]
+    exact hZT
 
 end StepMarks
 
