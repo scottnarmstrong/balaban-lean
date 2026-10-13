@@ -1537,6 +1537,7 @@ public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
+public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.LargeField.Base.KF0TaylorMajorant
 public import Balaban.LargeField.Base.KF0F1Assembly
