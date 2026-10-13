@@ -12,10 +12,8 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W249 (Opus, FINISHED, HELD) | `w249-d7-fine-size` / W249 | D7 boundary size → fine chosen-cover size, pre and post records; branch b5ea946 checked by the worker; land with scripts/land.sh after Scott has seen the report (no objection = land) |
-| W287 | `w287-aligned-source-facing` / W287 | aligned source-facing A-term statements; coefficient bridge for the mass family (Q13-ALIGN §3) |
+| W294 | `w294-da-physical-radii` / W294 | physical radius tower: cutoff/radius hypotheses of the direct activity bound for all large β (DAPHYS package 3) |
 | W288 | `w288-da-zero-source` / W288 | DAZeroSource: direct activity bound at source 0 from the η-weighted expansion (DAPHYS package 1) |
-| W289 | `w289-footprint-hat` / W289 | footprint ⊂ hatBox for Dirichlet-operator rows (general; discharges a premise of Vmod7Local) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
 | W290 | `w290-declog-cut-factor` / W290 | decLog block diagonal at partial cuts; rooted trace local; vanishing of mixed differences (DET-CUT-FACTOR) |
 | W291 | `w291-bond-lift-y` / W291 | R1 for interface pairs over Y from chiY (FactorBondLift, Y case) |

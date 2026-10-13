@@ -71,6 +71,11 @@ theorem whv_norm : ‖whv‖ = 1 := by simp [whv]
 /-- The geometric typing on every torus. -/
 noncomputable def wGeoF : ∀ (nK : ℕ) [NeZero nK], Geo wS (sides wS.L 1 nK) wR 27 := fun _ _ => wGeo _
 
+/-- The frame of the fine size on the torus `n_K = nK` of the witness: `m₀ = 0`, `m₁ = 3`,
+`N₁ = L^{m₀} n_K`. -/
+noncomputable def wFrame (nK : ℕ) [NeZero nK] : FineSizeFrame wS (sides wS.L 1 nK) 27 1 wP6.m₀ wC7.m₁ :=
+  fineFrame wS (sides wS.L 1 nK) 1 wM6
+
 /-- A complete set of histories up to scale `1` (with `R`-records below `r`). -/
 noncomputable def wHist (k0 r nK : ℕ) [NeZero nK] : Finset (LabHist wS (sides wS.L 1 nK) wR k0 1) :=
   Classical.choose (exists_isComplete (S := wS) (n := sides wS.L 1 nK) (R := wR) (k0 := k0)
@@ -177,10 +182,14 @@ theorem wOpBound (top : ℕ) (nK : ℕ) [NeZero nK] : D5Bound top le_rfl (wRep �
   · exact kerBound_of_K_zero _ _ _
       (preOpTop_K_zero (wGeoF nK) (wCs ν k0) (wSD_zero ν k0 r nK) A j (hj.trans le_rfl) c) _
 
-theorem wBdry (nK : ℕ) [NeZero nK] (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 →
+/-- (D7) of the pre-`R` class for the zero boundary terms of the witness, for every frame of the
+fine size: the bound is `0 < fac · e^{-rate · d7SizePre}` and the support clause is `0 = 0`. -/
+theorem wBdry (nK : ℕ) [NeZero nK] {m₀ m₁ : ℕ}
+    (Fr : FineSizeFrame wS (sides wS.L 1 nK) 27 1 m₀ m₁)
+    (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 →
     Set (Torus wS.d (sides wS.L 1 nK 1))) (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ)
     (hfac : 0 < fac) :
-    D7Bdry (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv where
+    D7Bdry Fr (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate whv where
   loc_field := by intros; rfl
   loc_hist := by intros; rfl
   real := by intros; simp [wRep]
@@ -191,6 +200,27 @@ theorem wBdry (nK : ℕ) [NeZero nK] (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1
     positivity
   rot := by intros; rfl
   euclid := by intros; rfl
+  support := by intros; rfl
+
+/-- (D7) of the post-`R` class for the zero boundary terms of the witness, for every frame of the
+fine size: the bound is `0 < fac · e^{-rate · d7Size}` and the support clause is `0 = 0`. -/
+theorem wBdryPost (nK : ℕ) [NeZero nK] {m₀ m₁ : ℕ}
+    (Fr : FineSizeFrame wS (sides wS.L 1 nK) 27 1 m₀ m₁)
+    (Zof : LabHist wS (sides wS.L 1 nK) wR k0 1 → Set (Torus wS.d (sides wS.L 1 nK 1)))
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hfac : 0 < fac) :
+    D7BdryPost Fr (sides_hnn wS.L 1 nK) le_rfl (wRep ν k0 r nK) Zof aw μs ε ε1 νs fac rate
+      whv where
+  loc_field := by intros; rfl
+  loc_hist := by intros; rfl
+  real := by intros; simp [wRep]
+  analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
+  bound := by
+    intros
+    simp only [wRep, norm_zero]
+    positivity
+  rot := by intros; rfl
+  euclid := by intros; rfl
+  support := by intros; rfl
 
 end Clauses
 
@@ -215,7 +245,7 @@ theorem wIsRep (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) :
   budget := fun nK _ => (wRep ν _ (1 + 1) nK).budget_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl (by norm_num)
-  bdry := fun nK _ => wBdry ν _ _ nK _ _ _ _ _ _ _ _ one_pos
+  bdry := fun nK _ => wBdryPost ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos
   coherent := wSF_D8 ν 3
   coeff := wSF_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
@@ -235,7 +265,7 @@ theorem wIsRepPre (ν : ℝ) (hν0 : 0 < ν) (hν : wβ * ν * 27 ≤ 1) :
   budget := fun nK _ => (wRep ν _ 1 nK).budgetPre_of_LF2 wS_good
     (budgetSetup wβ ν wβ_gt hν0 wβ_spec.2.2) (wPin ν _ _ (1 + 1) le_rfl nK) (by norm_num)
     le_rfl (one_le_kZero hν0 hν) le_rfl
-  bdry := fun nK _ => wBdry ν _ _ nK _ _ _ _ _ _ _ _ one_pos
+  bdry := fun nK _ => wBdry ν _ _ nK _ _ _ _ _ _ _ _ _ one_pos
   coherent := wSF_D8 ν 3
   coeff := wSF_D9 ν hν0 (nine_le_of_mul hν0 hν) 3 _ (one_le_kZero hν0 hν)
 
@@ -264,7 +294,7 @@ theorem wIsRepFlat :
       have : ((wS.d : ℕ) : ℝ) = 3 := by norm_num [wS, setting, typing, typing0]
       rw [this]
       linarith
-  bdry := fun nK _ => wBdry wν₀ _ _ nK _ _ _ _ _ _ _ _ one_pos
+  bdry := fun nK _ => wBdryPost wν₀ _ _ nK _ _ _ _ _ _ _ _ _ one_pos
   coherent := wSF_D8 wν₀ 3
   coeff := (wSF_D9 wν₀ wν₀_pos wν₀_nine 3 _ (one_le_kZero wν₀_pos wν₀_mul.le)).toFlat
     (witnessConsts_admissible one_pos)
@@ -406,12 +436,23 @@ theorem nonempty_rTermsH4 : Nonempty (RTermsH4 (ϱ := bgR0 3 3) wP6 wβs (wνs w
 theorem nonempty_d2SF : Nonempty (D2SF wP6 (wSF wν₀ 3) (fun _ => 1)) :=
   ⟨wSF_D2 wν₀ wν₀_pos wν₀_nine 3 (fun _ => 1) (fun _ => zero_le_one)⟩
 
-theorem nonempty_d7Bdry : Nonempty (D7Bdry (sides_hnn wS.L 1 1) le_rfl
+theorem nonempty_d7Bdry : Nonempty (D7Bdry (wFrame 1) (sides_hnn wS.L 1 1) le_rfl
     (wRep wν₀ (kZero wS.d wS.L wβ wν₀) 2 1) (fun A => (A.H.step 1).Z)
     (wFam wν₀ (kZero wS.d wS.L wβ wν₀) 2).weights (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).mu
     (wP6.eps wS.d wS.L) (epsOne wS wP6 wC7) (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).nu wC7.B0 wP6.κ
     whv) :=
-  ⟨wBdry wν₀ _ _ 1 _ _ _ _ _ _ _ _ one_pos⟩
+  ⟨wBdry wν₀ _ _ 1 _ _ _ _ _ _ _ _ _ one_pos⟩
+
+theorem nonempty_fineSizeFrame :
+    Nonempty (FineSizeFrame wS (sides wS.L 1 1) 27 1 wP6.m₀ wC7.m₁) :=
+  ⟨wFrame 1⟩
+
+theorem nonempty_d7BdryPost : Nonempty (D7BdryPost (wFrame 1) (sides_hnn wS.L 1 1) le_rfl
+    (wRep wν₀ (kZero wS.d wS.L wβ wν₀) 2 1) (fun A => (A.H.step 1).Z)
+    (wFam wν₀ (kZero wS.d wS.L wβ wν₀) 2).weights (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).mu
+    (wP6.eps wS.d wS.L) (epsOne wS wP6 wC7) (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).nu wC7.B0 wP6.κ
+    whv) :=
+  ⟨wBdryPost wν₀ _ _ 1 _ _ _ _ _ _ _ _ _ one_pos⟩
 
 theorem nonempty_d8SF : Nonempty (D8SF wP6.m₀ (wSF wν₀ 3)) := ⟨wSF_D8 wν₀ 3⟩
 
