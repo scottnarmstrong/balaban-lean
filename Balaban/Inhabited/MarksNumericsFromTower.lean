@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepOutputPhysical
+public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Fluctuation.MarkedCommonLabels
 public import Balaban.Inhabited.SourceActivityFromTower
 import Mathlib.Tactic.Linarith
@@ -41,55 +42,45 @@ section Rates
 variable {κmin : ℝ} (T : StepTower κmin)
 
 /-- `aEnt + 1 ≤ κ₀` (`hκ0` of `InterpMarks`, `StepActivityBound(C)`, `ParamMarkFamily` users). -/
-theorem StepTower.marks_hκ0 : aEnt 3 3 + 1 ≤ T.κ0 := T.hκ0
+theorem StepTower.marks_hκ0 : aEnt 3 3 + 1 ≤ T.κ0 := T.toG.marks_hκ0
 
 /-- `aEnt + 2 ≤ κ₀` (`hκ0` of `commonAct`, `extendRootUnion`, `rootUnion_entropy`). -/
-theorem StepTower.marks_hκ0_two : aEnt 3 3 + 2 ≤ T.κ0 := T.κ0_two
+theorem StepTower.marks_hκ0_two : aEnt 3 3 + 2 ≤ T.κ0 := T.toG.marks_hκ0_two
 
-theorem StepTower.marks_κdec_nonneg : 0 ≤ T.κdec := by
-  have := T.κdec_lower; have := T.κ0_nonneg; linarith
+theorem StepTower.marks_κdec_nonneg : 0 ≤ T.κdec := T.toG.marks_κdec_nonneg
 
 /-- `0 ≤ κ′` (`hκ'`). -/
-theorem StepTower.marks_hκ' : 0 ≤ T.κ' := by
-  have := T.marks_κdec_nonneg; have := T.κ0_nonneg; rw [T.κ'_eq]; linarith
+theorem StepTower.marks_hκ' : 0 ≤ T.κ' := T.toG.marks_hκ'
 
 /-- `κ₀ ≤ κ′`. -/
-theorem StepTower.marks_κ0_le_κ' : T.κ0 ≤ T.κ' := by
-  have := T.marks_κdec_nonneg; have := T.κ0_nonneg; rw [T.κ'_eq]; linarith
+theorem StepTower.marks_κ0_le_κ' : T.κ0 ≤ T.κ' := T.toG.marks_κ0_le_κ'
 
 /-- `κ′ + 3κ₀ + c₁ + 3/2 ≤ κ_H = 2κ_dec - 1` (`hκ`). -/
 theorem StepTower.marks_hκ :
-    T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := by
-  have := T.κdec_eq; have := T.κ0_nonneg; have := one_le_c1 3 3; have := T.κdec_lower
-  rw [T.κ'_eq]; linarith
+    T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := T.toG.marks_hκ
 
 /-- `κ_H ≤ κ_G` for `κ_G := κ_H = 2κ_dec - 1` (`hκG`). -/
-theorem StepTower.marks_hκG : 2 * T.κdec - 1 ≤ 2 * T.κdec - 1 := le_rfl
+theorem StepTower.marks_hκG : 2 * T.κdec - 1 ≤ 2 * T.κdec - 1 := T.toG.marks_hκG
 
 /-- `κ₀ ≤ κ_H` (`hκHge` of `marked_cubes_core`). -/
-theorem StepTower.marks_κ0_le_κH : T.κ0 ≤ 2 * T.κdec - 1 := by
-  have := T.marks_hκ; have := T.marks_hκ'; have := T.κ0_nonneg; have := one_le_c1 3 3
-  linarith
+theorem StepTower.marks_κ0_le_κH : T.κ0 ≤ 2 * T.κdec - 1 := T.toG.marks_κ0_le_κH
 
 /-- `κ′ ≤ κ_H`. -/
-theorem StepTower.marks_κ'_le_κH : T.κ' ≤ 2 * T.κdec - 1 := by
-  have := T.marks_hκ; have := T.κ0_nonneg; have := one_le_c1 3 3; linarith
+theorem StepTower.marks_κ'_le_κH : T.κ' ≤ 2 * T.κdec - 1 := T.toG.marks_κ'_le_κH
 
 /-- `κ_G = κ_H ≤ 2κ_dec`. -/
-theorem StepTower.marks_κG_le : 2 * T.κdec - 1 ≤ 2 * T.κdec := by linarith
+theorem StepTower.marks_κG_le : 2 * T.κdec - 1 ≤ 2 * T.κdec := T.toG.marks_κG_le
 
 /-- `0 ≤ κ_G`. -/
-theorem StepTower.marks_κG_nonneg : 0 ≤ 2 * T.κdec - 1 := by
-  have := T.marks_κ0_le_κH; have := T.κ0_nonneg; linarith
+theorem StepTower.marks_κG_nonneg : 0 ≤ 2 * T.κdec - 1 := T.toG.marks_κG_nonneg
 
 /-- The entropy condition of `MarkedSharpCount` item 4 at `a'' = κ₀`:
 `aEnt + 1 ≤ 2κ_dec - 1 - κ₀`. -/
-theorem StepTower.marks_decay_entropy : aEnt 3 3 + 1 ≤ 2 * T.κdec - 1 - T.κ0 := by
-  have := T.marks_hκ; have := T.κ0_two; have := T.marks_hκ'; have := one_le_c1 3 3
-  have := T.κ0_nonneg; linarith
+theorem StepTower.marks_decay_entropy : aEnt 3 3 + 1 ≤ 2 * T.κdec - 1 - T.κ0 :=
+  T.toG.marks_decay_entropy
 
 /-- `hκh` of `ObsMarks` for the kernel rate `κ_h := κ′`: `κ₀ ≤ κ_h`. -/
-theorem StepTower.marks_hκh : T.κ0 ≤ T.κ' := T.marks_κ0_le_κ'
+theorem StepTower.marks_hκh : T.κ0 ≤ T.κ' := T.toG.marks_hκh
 
 /-- `ObsMarks.hRσ`: `1 < R_σ` is not a tower field; the discs `R_σ = 17/16` of `MarkRealDiscSlice`
 satisfy it. -/
@@ -101,26 +92,23 @@ section Entropy
 
 variable {κmin : ℝ} (T : StepTower κmin)
 
-theorem StepTower.marks_K0_pos : 0 < K0 3 3 T.κ0 := K0_pos 3 3 T.κ0
+theorem StepTower.marks_K0_pos : 0 < K0 3 3 T.κ0 := T.toG.marks_K0_pos
 
 /-- `hKc` at `K_c = 2 (K₀ + 1)`: `K₀ + 1 ≤ K_c`. -/
-theorem StepTower.marks_hKc_base : K0 3 3 T.κ0 + 1 ≤ 2 * (K0 3 3 T.κ0 + 1) := by
-  have := T.marks_K0_pos; linarith
+theorem StepTower.marks_hKc_base : K0 3 3 T.κ0 + 1 ≤ 2 * (K0 3 3 T.κ0 + 1) :=
+  T.toG.marks_hKc_base
 
-theorem StepTower.marks_Kc_pos : 0 < 2 * (K0 3 3 T.κ0 + 1) := by
-  have := T.marks_K0_pos; linarith
+theorem StepTower.marks_Kc_pos : 0 < 2 * (K0 3 3 T.κ0 + 1) := T.toG.marks_Kc_pos
 
 /-- `hKc` at `K_c′ = K_c + rootUnionK`: `K₀ + 1 ≤ K_c′`. -/
-theorem StepTower.marks_hKc : K0 3 3 T.κ0 + 1 ≤ T.marksKc' :=
-  T.marks_hKc_base.trans (commonK_ge (d := 3) (L := 3) (m₁ := T.m₁) 1 T.κ0 _)
+theorem StepTower.marks_hKc : K0 3 3 T.κ0 + 1 ≤ T.marksKc' := T.toG.marks_hKc
 
-theorem StepTower.marks_Kc'_pos : 0 < T.marksKc' :=
-  lt_of_lt_of_le (by have := T.marks_K0_pos; linarith) T.marks_hKc
+theorem StepTower.marks_Kc'_pos : 0 < T.marksKc' := T.toG.marks_Kc'_pos
 
 /-- The fields `hκ0` and `hKc` at the common system, in the form of `commonKc_ge`. -/
 theorem StepTower.marks_commonKc_ge :
     aEnt 3 3 + 1 ≤ T.κ0 ∧ K0 3 3 T.κ0 + 1 ≤ 2 * (K0 3 3 T.κ0 + 1) + rootUnionK 3 3 1 T.m₁ T.κ0 :=
-  commonKc_ge (d := 3) (L := 3) (m₁ := T.m₁) 1 T.κ0_two T.marks_hKc_base
+  T.toG.marks_commonKc_ge
 
 /-- `K_c′ ≤ K_tot` of the physical constants record. -/
 theorem StepTower.marks_Kc'_le_Ktot (h : stepHullMin ≤ κmin) :
