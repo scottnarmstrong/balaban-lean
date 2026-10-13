@@ -1676,10 +1676,12 @@ public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
+public import Balaban.Fluctuation.RenDom
 public import Balaban.Inhabited.RenormHalfDetOnly
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Green.FinalTaggedSqrt
+public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Inhabited.TowerCoreRatesGeneral
@@ -1687,5 +1689,7 @@ public import Balaban.Inhabited.DecMarkCorrTotalFromTower
 public import Balaban.Inhabited.ObsTiltFamily
 public import Balaban.Inhabited.ObsTiltLabels
 public import Balaban.Fluctuation.SourceRadius
+public import Balaban.Fluctuation.SourceFamilyRelativeRadius
+public import Balaban.Inhabited.SourceFamilyRelativeRadiusFromTower
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.E1LabelsBudget
