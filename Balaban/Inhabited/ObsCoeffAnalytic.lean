@@ -188,6 +188,45 @@ theorem nonempty_paramMarkFamily_obsGrFam (H : BgHyp d L (k + 1) ϱ (compWeight 
 
 end Families
 
+section Dep
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ} {hp : 0 < S.p₁}
+  {Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+    RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → ℂ}
+  {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {cψ : ℝ}
+  {A : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N)}
+
+/-- **Block locality of the remainder marks for every parameter**: the mark of the index `idx`
+depends on the configuration only through the blocks of its label; for a parameter whose raw datum
+is not in `A`, and for the dummy index, the mark is zero. -/
+theorem depOn_obsGrFam_all {Lb : Type*}
+    (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y)
+    (hd : ∀ Y ∈ 𝒴, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb) (lab : {Y // Y ∈ 𝒴} → Lb) (y₀ : Lb)
+    (hysite : ∀ Y, Lab.ysite (lab Y) = Y.1) (θ : physParam N S) (idx : RemIdx 𝒴) (u : ℂ) :
+    DepOn (Ω := (S.blockSplit m₀ hp).Ωb) (blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (K := k + 1) m₀ (k + 1) Set.univ (Lab.ysite (obsRemLab 𝒴 lab y₀ idx)))
+      (obsGrFam S m₀ hp Ev 𝒴 A θ idx u) := by
+  by_cases hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ A
+  · rw [obsGrFam_of_mem hθ]
+    rcases idx with _ | Y
+    · intro Φ Φ' _
+      rfl
+    · have := depOn_obsGrRawC (hp := hp) (m₀ := m₀) hN hcψ hq hdj hd hθ Y u
+      rw [obsRemLab]
+      simp only [hysite]
+      exact this
+  · rw [obsGrFam_of_not_mem hθ]
+    intro Φ Φ' _
+    rfl
+
+end Dep
+
 section Raw
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
@@ -597,6 +636,256 @@ theorem obsCoeffParam_fromTower (hN : 5 < N₁) (hνpos : 0 < ν) (hν : ν * 3 
     hdj hK Rg hR hνpos hν hhol hcont Ev ha hb, fun T' => obsCoeffParam_analytic_of_Ev T k hk N₁
     ν β p₁ Dsc _ rfl hp y h3N Lab hεH Aact hdj hK Rg hR hνpos hν hRg hKc hhol hcont hε Ev ha hd hb
     T'⟩
+
+include Dsc hS in
+/-- **The uniform bounds of the three parts and of their sum on `physVq`**, with the constants of
+the fixed-parameter bounds (`norm_markIntTerm_le`, `norm_gsumCoeff_le`, `norm_kernelMarkSum_le`),
+for the sharp-hat family `Ev` (the clauses and `hD` as given by `obsEv_fromTower`).  With
+`C₀ = Q t`, `c_ψ = lvCpsi`, `F_r = 8 C₀ (p₁/c_ψ)²`, `κ' = T.κ'`, `n_* = 2 · 3^{3(1+m₁+1)}`:
+
+* the first-order term: `≤ CPE · p₁ · e^{-κ' dExt S'} / R_g`;
+* the remainder coefficient: `≤ CPE · (∑_r F_r e^{-κ₀ 𝗱(y_r)}) · e^{-κ' dExt T'}`;
+* the kernel sum, with `C_h = C₀ / c_ψ`, `κ_h = 2 κ_dec`, `C_g = CPE p₁ / R_g`,
+  `κ = min κ_h κ'`: `≤ C_h C_g (n_* c₁) K_obs² e^{(κ-κ₀) c_G} e^{-(κ-κ₀-1) dExt W}`;
+* `obsCoeffParam` is bounded by the sum of the last two.
+
+Carried: the same numerical hypotheses as `obsCoeffParam_fromTower`; the activity fields `hσ`
+(holomorphy in `σ` on the disc of radius `R_g`) and `hzero` (vanishing at `σ = 0`) of
+`obsTiltLabels_fromTower`. -/
+theorem obsCoeffParam_norm_le_of_Ev {q : ℝ} (hRg : 1 < Rg) (hKc : K0 3 3 T.κ0 + 1 ≤ Kc)
+    (hσ : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ t ∈ ball (0 : ℂ) (3 / 2), ∀ y' Φ, DifferentiableOn ℂ
+      (fun σ => (tiltActObs Aact (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg
+        hR (ball (0 : ℂ) (3 / 2)) e t σ).H y' Φ) (ball (0 : ℂ) Rg))
+    (hzero : ∀ e ∈ physVq S S.a₁ S.ν T.t q, ∀ t y' Φ,
+      (tiltActObs Aact (show 3 ^ 1 ∣ N₁ by simpa using h3N) T.κ0_ent hεH.le hdj hK Rg hR
+        (ball (0 : ℂ) (3 / 2)) e t 0).H y' Φ = 0)
+    (hε : Rg * max (εH + εH) εH ≤ stepTheta 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ')
+    (Ev : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) →
+        RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (unitPts S.G' × Fin 2 → ℂ) → ℂ)
+    (ha : ∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)}))
+    (hd : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        ∀ u' ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+    (hb : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        ‖Ev Y u‖ ≤ (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
+          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y))
+    (hD : ∀ D : BgData S.G' 2, XiCData S.G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+        ObsMarkHalf S 1 hp Ev D (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (obsLab (Lab.sum Lab) hdj) (lvCpsi T.κ T.t (β * 3 ^ k))
+          (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
+          (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / (lvCpsi T.κ T.t (β * 3 ^ k)))
+          (2 * T.κdec) (rootCube (m₀ := 1) (blockIndex y)))
+    (W : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+      Set.univ)) :
+    (∀ θ ∈ physVq S S.a₁ S.ν T.t q, ∀ (m : ObsMarkIdx S) (S' : Finset (CubeB (d := 3) (L := 3)
+        (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ)),
+      ‖markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ) (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m)
+        (blockMarkC S 1 hp m.1 m.2) S'‖ ≤
+        CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ * Real.exp (-T.κ' * dExt S') / Rg) ∧
+    (∀ θ ∈ physVq S S.a₁ S.ν T.t q,
+      ‖gsumCoeff (S.blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj) (fun t => Actₒ θ t 1)
+        (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))))
+        (obsGrFam S 1 hp Ev 𝒴ₒ (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) W‖ ≤
+        CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' *
+          (∑ r, 8 * (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
+            (S.p₁ / lvCpsi T.κ T.t (β * 3 ^ k)) ^ 2 * Real.exp (-T.κ0 *
+            (obsLab (Lab.sum Lab) hdj).dl (obsRemLab 𝒴ₒ (fun Y => Sum.inl (Sum.inr Y))
+              (obsY0 1 (Lb ⊕ Lb) 𝒴ₒ (rootCube (m₀ := 1) (blockIndex y))) r))) *
+          Real.exp (-T.κ' * dExt W)) ∧
+    (∀ θ ∈ physVq S S.a₁ S.ν T.t q,
+      ‖kernelMarkSum
+        (fun m T'' => obsHker 𝒴ₒ (fun Y => hatCoeff (Ev Y)
+          (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) (obsUnitVec S m)) 1 T'')
+        (fun m S' => markIntTerm (S.blockSplit 1 hp).μ (Actₒ θ) (obsY1 1 S (Lb ⊕ Lb) 𝒴ₒ m)
+          (blockMarkC S 1 hp m.1 m.2) S') W‖ ≤
+        (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / lvCpsi T.κ T.t (β * 3 ^ k)) *
+          (CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ / Rg) *
+          (((2 * 3 ^ (3 * (1 + T.m₁ + 1)) : ℕ) : ℝ) * c1 3 3) * Kobs ^ 2 *
+          Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG 3 3) *
+          Real.exp (-(min (2 * T.κdec) T.κ' - T.κ0 - 1) * dExt W)) := by
+  subst hS
+  have hcψ := Dsc.cψ_pos
+  have hC0 := cK2'_famConst_mul_t_pos T k hk N₁ ν β p₁ Dsc
+  have hq : p₁ / lvCpsi T.κ T.t (β * 3 ^ k) ≤ 1 / 4 := by
+    rw [div_le_iff₀ hcψ]
+    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos Dsc.r_pos hp
+    nlinarith [Dsc.ray_margin]
+  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  have hK0 := T.marks_K0_pos
+  have hKobs : K0 3 3 T.κ0 + 1 ≤ Kobs := by linarith
+  have hεpos : 0 < Rg * max (εH + εH) εH :=
+    mul_pos (by linarith) (lt_of_lt_of_le (by linarith) (le_max_left _ _))
+  have hε' : Rg * max (εH + εH) εH ≤ 1 / (8 * Kobs ^ 3 * c1 3 3 *
+      Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3)) := by
+    unfold stepTheta at hε; exact hε
+  have hdl0 : ∀ m : ObsMarkIdx (T.step k hk N₁ ν β p₁),
+      (obsLab (Lab.sum Lab) hdj).dl (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb)
+        (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+        = 0 := fun m => obsCubeLab_dl 1 _
+  have hcell : ∀ m : ObsMarkIdx (T.step k hk N₁ ν β p₁),
+      obsMarkCube (T.step k hk N₁ ν β p₁) 1 m ∈ blocksOf (d := 3) (L := 3) (N₁ := N₁)
+        (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ ((obsLab (Lab.sum Lab) hdj).ysite
+          (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)) :=
+    fun m => obsCubeLab_mem 1 (obsMarkCube (T.step k hk N₁ ν β p₁) 1 m)
+  have hfirst : ∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+      (T.step k hk N₁ ν β p₁).ν T.t q, ∀ (m : ObsMarkIdx (T.step k hk N₁ ν β p₁))
+      (S' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ)),
+      ‖markIntTerm ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
+        (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
+          (ball (0 : ℂ) (3 / 2)) θ t σ)
+        (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+        (blockMarkC (T.step k hk N₁ ν β p₁) 1 hp m.1 m.2) S'‖ ≤
+        CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (T.step k hk N₁ ν β p₁).p₁ * Real.exp (-T.κ' * dExt S') / Rg := by
+    intro θ hθ m S'
+    have h := norm_markIntTerm_le (E := physParam 2 (T.step k hk N₁ ν β p₁))
+      ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+      (Lab := obsLab (Lab.sum Lab) hdj) (κG := 2 * T.κdec - 1) (κ' := T.κ') (F0 := (T.step k hk N₁ ν β p₁).p₁) (R := Rg)
+      (fun θ t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t σ)
+      (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+      (fun _ => blockMarkC (T.step k hk N₁ ν β p₁) 1 hp m.1 m.2)
+      (physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t q)
+      (fun _ => measurable_blockMarkC m.1 m.2)
+      (fun _ => depOn_blockMarkC m.1 m.2 (hcell m))
+      (fun _ Φ => by rw [hdl0 m]; simpa using norm_blockMarkC_le m.1 m.2 Φ)
+      T.marks_hκ0 (by linarith) hεpos hp T.marks_hκ' T.marks_hκG T.marks_hκ hε' hRg
+      (fun e he s hs y' Φ => hσ e he (s : ℂ) (seg_mem_ball_three_halves s hs) y' Φ)
+      (fun e he s _ y' Φ => hzero e he (s : ℂ) y' Φ)
+      (fun _ _ => integral_blockMarkC m.1 m.2) S' θ hθ
+    rw [hdl0 m] at h
+    simpa using h
+  have hrem : ∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+      (T.step k hk N₁ ν β p₁).ν T.t q,
+      ‖gsumCoeff ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ (obsLab (Lab.sum Lab) hdj)
+        (fun t => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
+        (obsRemLab (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+            (LocalCover.fam 1 y)) (fun Y => Sum.inl (Sum.inr Y))
+          (obsY0 1 (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+            (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))))
+        (obsGrFam (T.step k hk N₁ ν β p₁) 1 hp Ev (obsDomains (T.step k hk N₁ ν β p₁)
+          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t) θ) W‖ ≤
+        CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' *
+          (∑ r, 8 * (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
+            (p₁ / lvCpsi T.κ T.t (β * 3 ^ k)) ^ 2 * Real.exp (-T.κ0 *
+            (obsLab (Lab.sum Lab) hdj).dl (obsRemLab (obsDomains (T.step k hk N₁ ν β p₁)
+              (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) (fun Y => Sum.inl (Sum.inr Y))
+              (obsY0 1 (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+                (LocalCover.fam 1 y)) (rootCube (m₀ := 1) (blockIndex y))) r))) *
+          Real.exp (-T.κ' * dExt W) := by
+    intro θ hθ
+    exact norm_gsumCoeff_le (E := physParam 2 (T.step k hk N₁ ν β p₁))
+      ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+      (Lab := obsLab (Lab.sum Lab) hdj) (κG := 2 * T.κdec - 1) (κ' := T.κ')
+      (F0 := fun _ => 8 * (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
+        (p₁ / lvCpsi T.κ T.t (β * 3 ^ k)) ^ 2)
+      (fun θ t => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR (ball (0 : ℂ) (3 / 2)) θ t 1)
+      _ (fun θ => obsGrFam (T.step k hk N₁ ν β p₁) 1 hp Ev (obsDomains (T.step k hk N₁ ν β p₁)
+          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (XiCRaw (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t) θ)
+      (physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t q)
+      (fun θ i u => measurable_obsGrFam hcψ hq (fun Y _ => ha Y) θ i u)
+      (fun θ i u => depOn_obsGrFam_all (hp := hp) hN3 hcψ hq hdj (fun Y _ => hd Y) _
+        (fun Y => Sum.inl (Sum.inr Y)) _ (fun Y => rfl) θ i u)
+      (fun θ i u Φ => norm_obsGrFam_le hcψ hq (fun Y _ => ha Y) hC0 (fun Y _ => hb Y) _
+        (fun Y => Sum.inl (Sum.inr Y)) _ (fun Y => rfl) T.marks_κG_le θ i u Φ)
+      T.marks_hκ0 (by linarith) hεpos ⟨none⟩ (fun _ => by positivity) T.marks_hκ' T.marks_hκG
+      T.marks_hκ hε' W θ hθ
+  have hkey : ∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+      (T.step k hk N₁ ν β p₁).ν T.t q, ∃ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
+      XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D ∧
+      ∀ (m : ObsMarkIdx (T.step k hk N₁ ν β p₁))
+        (T'' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ)),
+        obsHker (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+            (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+            (obsUnitVec (T.step k hk N₁ ν β p₁) m)) 1 T'' =
+        obsHker (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+          (LocalCover.fam 1 y)) (obsRowCoeff (T.step k hk N₁ ν β p₁) Ev D m) 1 T'' := by
+    intro θ hθ
+    obtain ⟨D, hDx, hDr⟩ := hθ.1.1
+    have hDr' : (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) = rawOf D := hDr
+    exact ⟨D, hDx, fun m T'' => by rw [hDr']; rfl⟩
+  have hkern : ∀ θ ∈ physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+      (T.step k hk N₁ ν β p₁).ν T.t q,
+      ‖kernelMarkSum
+        (fun m T'' => obsHker (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+          (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec (T.step k hk N₁ ν β p₁) m)) 1 T'')
+        (fun m S' => markIntTerm ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
+          (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
+            (ball (0 : ℂ) (3 / 2)) θ t σ)
+          (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+          (blockMarkC (T.step k hk N₁ ν β p₁) 1 hp m.1 m.2) S') W‖ ≤
+        (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / lvCpsi T.κ T.t (β * 3 ^ k)) *
+          (CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (T.step k hk N₁ ν β p₁).p₁ / Rg) *
+          (((2 * 3 ^ (3 * (1 + T.m₁ + 1)) : ℕ) : ℝ) * c1 3 3) * Kobs ^ 2 *
+          Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG 3 3) *
+          Real.exp (-(min (2 * T.κdec) T.κ' - T.κ0 - 1) * dExt W) := by
+    have hCPE := CPE_nonneg' (d := 3) (L := 3) Kobs (2 * T.κdec - 1) T.κ0 T.κ'
+    have hCg : 0 ≤ CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (T.step k hk N₁ ν β p₁).p₁ / Rg :=
+      div_nonneg (mul_nonneg hCPE hp.le) (by linarith)
+    have hmain := norm_kernelMarkSum_le (E := physParam 2 (T.step k hk N₁ ν β p₁))
+      (ι := ObsMarkIdx (T.step k hk N₁ ν β p₁)) hN3 (le_refl (k + 1))
+      (V := physVq (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+        (T.step k hk N₁ ν β p₁).ν T.t q)
+      (fun m => obsMarkCube (T.step k hk N₁ ν β p₁) 1 m)
+      (nmax := (((2 * 3 ^ (3 * (1 + T.m₁ + 1)) : ℕ)) : ℝ)) (Nat.cast_nonneg _)
+      (fun c => by
+        have := card_markIdx_cell_le_pow (T.step k hk N₁ ν β p₁) c
+        exact_mod_cast this)
+      (fun θ m T'' => obsHker (obsDomains (T.step k hk N₁ ν β p₁) (LocalCover.nbhdF 1 y) 1 k
+          (LocalCover.fam 1 y)) (fun Y => hatCoeff (Ev Y)
+          (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2)
+          (obsUnitVec (T.step k hk N₁ ν β p₁) m)) 1 T'')
+      (fun θ m S' => markIntTerm ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
+          (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
+            (ball (0 : ℂ) (3 / 2)) θ t σ)
+          (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+            (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+          (blockMarkC (T.step k hk N₁ ν β p₁) 1 hp m.1 m.2) S')
+      (Ch := cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / lvCpsi T.κ T.t (β * 3 ^ k))
+      (Cg := CPE 3 3 Kobs (2 * T.κdec - 1) T.κ0 T.κ' * (T.step k hk N₁ ν β p₁).p₁ / Rg)
+      (κh := 2 * T.κdec) (κg := T.κ')
+      (div_nonneg hC0.le hcψ.le) hCg
+      (fun θ hθ m T'' => by
+        obtain ⟨D, hDx, hDe⟩ := hkey θ hθ
+        rw [hDe m T'']
+        obtain ⟨_, _, _, _, _, _, _, _, hbd, _⟩ := hD D hDx
+        exact hbd m T'')
+      (fun θ hθ m T'' hT => by
+        obtain ⟨D, hDx, hDe⟩ := hkey θ hθ
+        rw [hDe m T'']
+        obtain ⟨_, _, _, _, _, _, _, _, _, hsp, _⟩ := hD D hDx
+        exact hsp m T'' hT)
+      (fun θ hθ m S' => by
+        calc _ ≤ _ := hfirst θ hθ m S'
+          _ = _ := by ring)
+      (fun θ hθ m S' hS' => markIntTerm_support
+        ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ hN3 (le_refl (k + 1)) isPiUnion_univ_K
+        (fun t σ => tiltActObs Aact hN3 T.κ0_ent hεH.le hdj hK Rg hR
+          (ball (0 : ℂ) (3 / 2)) θ t σ)
+        (obsY1 1 (T.step k hk N₁ ν β p₁) (Lb ⊕ Lb) (obsDomains (T.step k hk N₁ ν β p₁)
+          (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y)) m)
+        (blockMarkC (T.step k hk N₁ ν β p₁) 1 hp m.1 m.2)
+        (measurable_blockMarkC m.1 m.2) (depOn_blockMarkC m.1 m.2 (hcell m))
+        (fun Φ => by rw [hdl0 m]; simpa using norm_blockMarkC_le m.1 m.2 Φ)
+        T.marks_hκ0 (by linarith) hεpos hp T.marks_hκ' T.marks_hκG T.marks_hκ hε' S'
+        (fun hsub => hS' (hsub (hcell m))))
+      T.marks_hκ0 hKobs (by linarith [T.marks_κ0_le_κH]) T.marks_κ0_le_κ' W
+    exact fun θ hθ => hmain θ hθ
+  exact ⟨hfirst, hrem, hkern⟩
 
 end Tower
 
