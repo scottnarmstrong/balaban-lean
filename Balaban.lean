@@ -676,6 +676,8 @@ public import Balaban.Fluctuation.SizeModEntropy
 public import Balaban.Fluctuation.SizeMod
 public import Balaban.Fluctuation.ClusterUnion
 public import Balaban.Fluctuation.CubeSystem
+public import Balaban.Fluctuation.RootPavingMap
+public import Balaban.Inhabited.RootPavingWitness
 public import Balaban.Fluctuation.MeasureProduct
 public import Balaban.Fluctuation.MeasureAbsorb
 public import Balaban.Fluctuation.MeasureInterp
