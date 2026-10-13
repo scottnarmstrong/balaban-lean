@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayActivity
 public import Balaban.Inhabited.ObsUnconditional
@@ -201,32 +202,10 @@ theorem commonWitness_joint_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A
   -- the physical amplitude on the slice `η = 1/β`
   set εU : ℝ := β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
       (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) with hεU
-  have hid := sourceEta_scaled_identity 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-    (lvR T.κ T.t (β * 3 ^ k) p₁) ρ β hβ0.ne'
-  rw [← hεU, ← hQdef] at hid
-  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := 2) (T.step k hk N₁ ν β p₁)
-      (by norm_num) le_rfl (compWeight_three_mem hk).2
-      (le_trans (by norm_num) (compWeight_three_mem hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0 (1 + T.m₁)
-    rw [hatStepK_betaU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    positivity
-  have hεle : εU ≤ P * (4 * A₁ / lvKappa T.κ T.t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
-        Real.sqrt (β * 3 ^ k) +
-      ρ * (4 * A₁ * (Q * T.t) / lvKappa T.κ T.t) * (Real.log (β * 3 ^ k)) ^ p /
-        Real.sqrt (β * 3 ^ k) := by
-    rw [hid]
-    linarith
-  have hεpos : 0 < εU := by
-    rw [hid]
-    have : 0 < ρ * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ := div_pos (mul_pos hρ hK0) hr0
-    linarith
+  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * 3 ^ k := hatStepK_betaU k T.m₁ hk ν β p₁ _
+  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (T.step k hk N₁ ν β p₁)
+    (by norm_num) le_rfl 1 (compWeight_three_mem hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 hρ hQdef hPdef hεU
+  have hεle := hεle' _ hamp
   have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t)
     (q := ρ) p hb0 (by linarith) hεle
   have hDA0 := sourceAmp_doubled_hDA_rho 3 3 (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P)

@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.SourceDirectTermsFromTower
 public import Balaban.Inhabited.SourceActivityScale
+public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.Fluctuation.StepActivityDirectBound
 public import Balaban.Fluctuation.SourceSliceScaled
 public import Balaban.Fluctuation.SourceRadiusCarriers
@@ -384,41 +385,12 @@ theorem sourceActivityC_scale_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : �
   -- the physical amplitude on the slice `η = ρ/β`
   obtain ⟨εU, hεU⟩ : ∃ εU : ℝ, εU = β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ
       T.t (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (ρ / β) := ⟨_, rfl⟩
-  have hid := sourceEta_scaled_identity d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
-    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) ρ β hβ0.ne'
-  rw [← hεU, ← hQdef] at hid
   have hbU : (T.step k hk N₁ ν β p₁).betaU = β * (L : ℝ) ^ (k * (d - 2)) :=
     hatStepKG_betaU (d := d) (L := L) (N₁ := N₁) hN (by omega) k T.m₁ (rhoSepG d L T.m₁) hk ν β
       p₁ T.δ
-  have hpot : β * (3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
-      ‖energyBdScaled d L N (compWeight L 1) k (Q * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
-        lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) ≤
-      β * (L : ℝ) ^ (k * (d - 2)) *
-        (P / lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := N) (T.step k hk N₁ ν β p₁)
-      (by omega) hL (compWeight_one_mem hL hk).2
-      (le_trans (by norm_num) (compWeight_one_mem hL hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0
-      (T.m₀ + T.m₁)
-    rw [hbU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 d L * (((L : ℕ) : ℝ) ^ (T.m₀ + T.m₁)) ^ d *
-      ‖energyBdScaled d L N (compWeight L 1) k (Q * T.t) T.t (rho4 d L N T.BG T.κ)‖ /
-        lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 d L := by linarith
-    positivity
-  have hεle : εU ≤ P * (4 * A₁ / lvKappaG d L N T.κ T.t) ^ 3 *
-        (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
-        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
-      ρ * (4 * A₁ * (Q * T.t) / lvKappaG d L N T.κ T.t) *
-        (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
-        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := by
-    rw [hid]
-    linarith
-  have hεpos : 0 < εU := by
-    rw [hid]
-    have : 0 < ρ * (Q * T.t) / lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ :=
-      div_pos (mul_pos hρ hK0) hr0
-    linarith
+  obtain ⟨hid, hpot, hterm0, hεle', hεpos⟩ := physAmp_facts (T.step k hk N₁ ν β p₁)
+    (by omega) hL T.m₀ (compWeight_one_mem hL hk) rfl hβ0 rfl hbU hQ0 ht0 hρ4 hr0 hρ hQdef hPdef hεU
+  have hεle := hεle' _ hamp
   have hε4 := sourceAmp_scale_four_general (A₁ := A₁) (κ₁ := lvKappaG d L N T.κ T.t) (P := P)
     (K := Q * T.t) (q := ρ) (CE := CE) (CF := CF) p hb0 (by linarith) hCE hCF hεle
   have hDA0 := sourceAmp_doubled_hDA_rho_general d L (A₁ := A₁) (κ₁ := lvKappaG d L N T.κ T.t)

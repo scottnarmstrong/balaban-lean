@@ -65,6 +65,7 @@ public import Balaban.Polymer.TwoTorusXGreen
 public import Balaban.Polymer.TwoTorusDecCov
 public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
+public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1735,6 +1736,8 @@ public import Balaban.Inhabited.RenormHalfDetOnly
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Green.FinalTaggedSqrt
+public import Balaban.Green.FinalTagColumn
+public import Balaban.Green.FinalTagColumnSqrt
 public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalTagSupport
@@ -1800,6 +1803,7 @@ public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
+public import Balaban.Fluctuation.StepComplexOffFibreCoeff
 public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepActivityOffFibreRay
@@ -1807,3 +1811,4 @@ public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
 public import Balaban.SmallField.LocalTraceDescent
+public import Balaban.Inhabited.PhysAmpFacts

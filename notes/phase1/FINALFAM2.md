@@ -1,5 +1,11 @@
 # FINALFAM2: from the tagged defect to the last covariance
 
+**Column-estimate update (13 October 2026):** the same-rate estimate left open in T1 and
+T5 is proved directly from the pointwise convolution majorant in
+[`FINAL-COLUMNS.md`](FINAL-COLUMNS.md). A separate right parametrix is unnecessary for
+this estimate. The historical task list below is retained; the physical and nonwinding
+obligations remain open.
+
 13 October 2026. **PROVED** denotes a landed Lean theorem or the elementary argument displayed here; **OPEN** is a missing mathematical/Lean bridge; **REFUTED** marks an invalid inference. Landed declarations were checked read-only at main `a2d7346`. Source statements below were checked on the PDF images of P7, printed pp. 529–533; the proposed tagged family is not attributed to P7. Let $U={\tt finalOp}\ d\ L\ N_0\ k\ v\ a$, $g={\tt finalGap}\ d\ L$, $\epsilon={\tt pdEps}\ d\ L$, $H={\tt pdH}\ d$, $B={\tt pdB}\ d\ L$, $B_0={\tt ballConst}\ d\ (\epsilon/2)$, and $q=B e^{H\kappa}/M$. Assume the mass-window binders of `Green/FinalPathDefect.lean:taggedGfin_final`: $d>0$, $k\ge1$, $0\le v\le1$, $1/2\le a\le2$, $7/(8L^2)<v$, $t\ge0$, $M>0$, $\kappa\ge0$, $4Be^{H\kappa}\le M$, and $8\kappa7^d\le\epsilon M$. Thus $q\le1/4$. Write $G_*(s,t)={\tt taggedG}$, $K(s,t)={\tt taggedK}$, and $G_{\rm fin}(s,t)={\tt taggedGfin}$ with `Finset.univ`, `macBoxF`, `macChi`, `macTags`, and $U$ as in the landed theorem.
 
 ## T1. Rows, columns, and the right parametrix
