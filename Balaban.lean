@@ -859,6 +859,8 @@ public import Balaban.LargeField.Base.BaseChartAction
 public import Balaban.LargeField.Base.BaseChartActionPhysical
 public import Balaban.LargeField.Base.BaseChartQuadraticPhysical
 public import Balaban.LargeField.Base.BaseChartActionBridge
+public import Balaban.LargeField.Base.BaseChartHessian
+public import Balaban.LargeField.Base.BaseChartGaussian
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
@@ -1796,6 +1798,7 @@ public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
+public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
