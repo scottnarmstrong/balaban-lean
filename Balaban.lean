@@ -735,6 +735,7 @@ public import Balaban.Polymer.MarkedTermwise
 public import Balaban.Polymer.MarkedDeriv
 public import Balaban.Polymer.MarkedCubes
 public import Balaban.Polymer.LabelSum
+public import Balaban.Polymer.LabelExtend
 public import Balaban.Fluctuation.CriticalPointGauss
 public import Balaban.Fluctuation.CriticalPoint
 public import Balaban.Fluctuation.ExpansionGauss
@@ -828,10 +829,12 @@ public import Balaban.LargeField.Base.BaseChartAction
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
+public import Balaban.LargeField.Base.KF0GoodGaussian
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
 public import Balaban.LargeField.Base.KF0BlockSplit
+public import Balaban.LargeField.Base.KF0BoundarySquare
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
@@ -1501,8 +1504,12 @@ public import Balaban.Correlations.KF0RootFPartial
 public import Balaban.Inhabited.ProperLocalGenWitness
 public import Balaban.LargeField.R.RFieldProjection
 public import Balaban.Inhabited.RFieldProjectionWitness
+public import Balaban.Inhabited.UniformChartMargins
 public import Balaban.Inhabited.UniformChartRelative
 public import Balaban.Fluctuation.SourceSliceScaled
+public import Balaban.Inhabited.SourceAmpScale
+public import Balaban.Fluctuation.SourceDirectTermsScale
+public import Balaban.Inhabited.SourceActivityScale
 public import Balaban.Fluctuation.SizeModAllDefs
 public import Balaban.Fluctuation.SizeModAllCompare
 public import Balaban.LargeField.D7PaperSizeRebase
