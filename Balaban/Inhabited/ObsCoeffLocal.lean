@@ -117,7 +117,7 @@ theorem agree_of_physRestrict_thickSet (Z : Set (CTorus d L N₁ m₁ (k + 1)))
       physRestrict (thickSet S.G' Z) (physIncl N S θ')) :
     agreeOn (thickSet S.G' Z) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
       (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∧ ∀ x ∈ Z, θ.2 x = θ'.2 x :=
-  physAgΘ_of_restrict S (Y := Z) subset_rfl h
+  physAgΘThick_of_restrict S (Y := Z) subset_rfl h
 
 end Restrict
 

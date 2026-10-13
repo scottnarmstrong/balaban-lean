@@ -308,7 +308,7 @@ theorem physRestrict_thickSet_agree (Z : Set (CTorus d L N₁ m₁ (k + 1))) {θ
     {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : Y ⊆ Z) :
     agreeOn (thickSet S.G' Y) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
       (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) :=
-  (physAgΘ_of_restrict S (thickSet_mono hY) h).1
+  (physAgΘThick_of_restrict S (thickSet_mono hY) h).1
 
 variable (m₀ : ℕ) {F' : Type} {hp : 0 < S.p₁}
   {emb : (S.U × Fin N → ℂ) → F'} {ρ Rσ εU a a₁ ν eps q : ℝ}

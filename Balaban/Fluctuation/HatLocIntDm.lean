@@ -98,6 +98,15 @@ theorem LocIntDm.congr_val (h : LocIntDm P e S XW Rσ 𝒴 T val b AgΘ AgF) {va
     LocIntDm P e S XW Rσ 𝒴 T val' b AgΘ AgF :=
   ⟨h.loc.congr_val hv, h.dom, h.cont⟩
 
+/-- Strengthening the agreement relations (`LocInt.mono_Ag` with labels and diagonal continuity):
+the record with the same labels, terms and bounds is local for every pair of relations that imply
+the given ones. -/
+theorem LocIntDm.mono_Ag (h : LocIntDm P e S XW Rσ 𝒴 T val b AgΘ AgF) {AgΘ' : ι → Λ → Λ → Prop}
+    {AgF' : ι → F → F → Prop} (h1 : ∀ Y Θ Θ', AgΘ' Y Θ Θ' → AgΘ Y Θ Θ')
+    (h2 : ∀ Y a a', AgF' Y a a' → AgF Y a a') :
+    LocIntDm P e S XW Rσ 𝒴 T val b AgΘ' AgF' :=
+  ⟨h.loc.mono_Ag h1 h2, h.dom, h.cont⟩
+
 /-- Multiplication by a constant. -/
 theorem LocIntDm.smul (h : LocIntDm P e S XW Rσ 𝒴 T val b AgΘ AgF) (c : ℂ) :
     LocIntDm P e S XW Rσ 𝒴 (fun Y x w σ Θ => c * T Y x w σ Θ) (fun x w σ Θ => c * val x w σ Θ)
