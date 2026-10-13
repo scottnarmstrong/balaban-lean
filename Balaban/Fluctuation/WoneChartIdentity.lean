@@ -234,8 +234,8 @@ variable (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps 
 include Jr hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ in
 /-- **T3a.**  The interaction half of the exponent at a chart point `e ∈ physV` of the fibre
 `h ≡ h₀` is `s²` times the value of `physVal` at the scaled point `(e.1, 0)` (no source). -/
-theorem W1_eq_physVal (hpc : pp < cψ) (e : physParam N S)
-    (he : e ∈ physV S S.a₁ S.ν eps)
+theorem W1_eq_physVal_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physVRho S S.a₁ S.ν eps ρ)
     (hh : ∀ y i, (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 y i = (S.h₀ i : ℂ))
     (x : S.E) (hxn : ‖x‖ < pp) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
     (𝒯E : Finset τι) (𝒯M : Finset μι)
@@ -265,6 +265,78 @@ theorem W1_eq_physVal (hpc : pp < cψ) (e : physParam N S)
     physInclScaled_zeroClass_eq, W1_zeroClass_eq_hat_chart Jr D hDh hX hC ha₁ H hc7 S.hk1
       (lt_of_lt_of_le one_lt_two hR) hsmR hMX hdm hα hsm hcψ hδ₁ hpc x hxn hs]
   simp only [hq', Pi.zero_apply, zero_div, zero_mul, Finset.sum_const_zero, mul_zero, add_zero]
+
+include Jr hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ in
+/-- **T3a.**  The interaction half of the exponent at a chart point `e ∈ physV` of the fibre
+`h ≡ h₀` is `s²` times the value of `physVal` at the scaled point `(e.1, 0)` (no source). -/
+theorem W1_eq_physVal (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physV S S.a₁ S.ν eps)
+    (hh : ∀ y i, (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 y i = (S.h₀ i : ℂ))
+    (x : S.E) (hxn : ‖x‖ < pp) {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
+    (𝒯E : Finset τι) (𝒯M : Finset μι)
+    (hBE : ∀ τ ∈ 𝒯E, BgSetting N S.G' (GkE τ) (GjE τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀E τ)
+      (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ 𝒯E, FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁E τ))
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N)
+    (hBM : ∀ τ ∈ 𝒯M, BgSetting N S.G' (GkM τ) (GjM τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀M τ)
+      (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ 𝒯M, FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁M τ))
+    (cν : ℂ) (h𝒯E : 𝒯E = ∅) (h𝒯M : 𝒯M = ∅) (hcν : cν = 0) :
+    Jr.W1 (zeroClass d L N₁ m₁ k N ϱ)
+        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), (s : ℂ) • S.hatC x) =
+      (s : ℂ) ^ 2 * physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) := by
+  exact Jr.W1_eq_physVal_rho (ρ := 1) hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ hpc e he hh x hxn hs 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν
+
+include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
+/-- **T3: the two-segment sum.**  For the zero class, a chart point `e ∈ physV` of the fibre
+`h ≡ h₀`, a real hat variable `ψ̂` with `‖ψ̂‖ < pp < c_ψ` and `s, τ ∈ [0,1]`, the sum of the
+interaction exponent `Jr.W1` on the ray at `s` and the source exponent `Jr.W2` on the ray at `τ`
+is `s²` times the value of `physVal` at `(e.1, 0)` and the parameter `s`, plus the difference of the
+values of `physVal` at `e` and at `(e.1, 0)` at the parameter `τ` (all at the scaled sources
+`physInclScaled (1/β)`).  A single value of `physVal` does not equal the sum. -/
+theorem sourcePhysVal_jointRep_zero_rho {ρ : ℝ} (hpc : pp < cψ) (e : physParam N S)
+    (he : e ∈ physVRho S S.a₁ S.ν eps ρ)
+    (hh : ∀ y i, (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 y i = (S.h₀ i : ℂ))
+    (hβ : (S.β : ℂ) ≠ 0) (x : S.E) (hxn : ‖x‖ < pp) {s τ : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
+    (hτ : τ ∈ Icc (0 : ℝ) 1)
+    (𝒯E : Finset τι) (𝒯M : Finset μι)
+    (hBE : ∀ τ ∈ 𝒯E, BgSetting N S.G' (GkE τ) (GjE τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀E τ)
+      (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ 𝒯E, FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁E τ))
+    (ys : μι → CTorus d L N₁ m₁ (k + 1)) (is : μι → Fin N)
+    (hBM : ∀ τ ∈ 𝒯M, BgSetting N S.G' (GkM τ) (GjM τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀M τ)
+      (X₁M τ) (jM τ))
+    (hFM : ∀ τ ∈ 𝒯M, FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
+      BG₂ δ₁ δfl (X₁M τ))
+    (cν : ℂ) (h𝒯E : 𝒯E = ∅) (h𝒯M : 𝒯M = ∅) (hcν : cν = 0) :
+    Jr.W1 (zeroClass d L N₁ m₁ k N ϱ)
+        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), (s : ℂ) • S.hatC x) +
+      Jr.W2 (zeroClass d L N₁ m₁ k N ϱ) e.2
+        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), (τ : ℂ) • S.hatC x) =
+      (s : ℂ) ^ 2 * physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) +
+        (physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e) -
+        physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+          (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0))) := by
+  have hxb : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ p, ‖((r : ℂ) • S.hatC x) p‖ ≤ pp := fun r hr p =>
+    (S.norm_smul_yhat_le_mul r x p).trans (by
+      rw [abs_of_nonneg hr.1]
+      exact (mul_le_of_le_one_left (norm_nonneg _) hr.2).trans hxn.le)
+  rw [Jr.W1_eq_physVal_rho hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ hpc e he hh x hxn hs
+    𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν,
+    Jr.W2_eq_physVal_sub_rho hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁
+      hpc e he hβ (S.hatC x) hxb hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν]
 
 include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
 /-- **T3: the two-segment sum.**  For the zero class, a chart point `e ∈ physV` of the fibre
@@ -303,14 +375,7 @@ theorem sourcePhysVal_jointRep_zero (hpc : pp < cψ) (e : physParam N S)
         physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
           𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
           (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (e.1, 0))) := by
-  have hxb : ∀ r : ℝ, r ∈ Icc (0 : ℝ) 1 → ∀ p, ‖((r : ℂ) • S.hatC x) p‖ ≤ pp := fun r hr p =>
-    (S.norm_smul_yhat_le_mul r x p).trans (by
-      rw [abs_of_nonneg hr.1]
-      exact (mul_le_of_le_one_left (norm_nonneg _) hr.2).trans hxn.le)
-  rw [Jr.W1_eq_physVal hC ha₁ H hc7 hR hsmR hMX hdm hα hsm hcψ hδ₁ hpc e he hh x hxn hs
-    𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν,
-    Jr.W2_eq_physVal_sub hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁
-      hpc e he hβ (S.hatC x) hxb hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν]
+  exact Jr.sourcePhysVal_jointRep_zero_rho (ρ := 1) hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ hpc e he hh hβ x hxn hs hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν
 
 end Phys
 
@@ -333,7 +398,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   `s² · ((−β) · raySrc3 (hatFun … interactionOne) taylorWeight ψ̂ ψ̂ s (rawOf D'))`;
 * for every chart point `e ∈ physV` of the fibre `h ≡ h₀`, `s, τ ∈ [0,1]`, the two segment sum of
   `Jr.W1` at `s` and `Jr.W2` at `τ` is given by `physVal` as in `sourcePhysVal_jointRep_zero`. -/
-theorem wone_chartIdentity_fromTower {κmin : ℝ} (T : StepTower κmin)
+theorem wone_chartIdentity_fromTower_rho {κmin : ℝ} (T : StepTower κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
     (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) (hp0 : 0 < p₁)
     (D : StepScaleData T k hk N₁ ν β p₁)
@@ -367,8 +432,8 @@ theorem wone_chartIdentity_fromTower {κmin : ℝ} (T : StepTower κmin)
           (X₁M τ) (jM τ))
         (hFM : ∀ τ ∈ 𝒯M, FlSetting 2 S.G' (GkM τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν
           T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl (X₁M τ))
-        (cν : ℂ), 𝒯E = ∅ → 𝒯M = ∅ → cν = 0 → ∀ (e : physParam 2 S),
-        e ∈ physV S S.a₁ S.ν T.t →
+        (cν : ℂ), 𝒯E = ∅ → 𝒯M = ∅ → cν = 0 → ∀ (ρ : ℝ) (e : physParam 2 S),
+        e ∈ physVRho S S.a₁ S.ν T.t ρ →
         (∀ y i, (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2).2 y i = (S.h₀ i : ℂ)) →
         ∀ (x : S.E), ‖x‖ < 2 * p₁ → ∀ s τ : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → τ ∈ Set.Icc (0 : ℝ) 1 →
           Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
@@ -444,9 +509,75 @@ theorem wone_chartIdentity_fromTower {κmin : ℝ} (T : StepTower κmin)
     exact Jr.W1_zeroClass_eq_hat_chart D' hDh hX hC one_pos hHB hc7 hk (R := 2) (by norm_num) g5
       hMX hdm hα hsmX hcψ0.le hδ₁ hpc x hxn hs
   · intro r₀ δ₃ δfl τι μι _ _ ϱ₁ ϱ₂ ϱ₁M ϱ₂M GkE GjE X₀E X₁E jE GkM GjM X₀M X₁M
-      jM EE EM 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν e he hh x hxn s τ hs hτ
-    exact Jr.sourcePhysVal_jointRep_zero hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX
+      jM EE EM 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν ρ e he hh x hxn s τ hs hτ
+    exact Jr.sourcePhysVal_jointRep_zero_rho hC one_pos hHB hc7 (R := 2) le_rfl g5 g1 g2 g3 g4 hMX
       hdm hα hsmX hcψ0.le hδ₁ hpc e he hh hβne x hxn hs hτ 𝒯E 𝒯M hBE hFE ys is hBM hFM cν
       h𝒯E h𝒯M hcν
+
+/-- **The interaction half of the value bridge at the shared tower.**  For the step
+`S = T.step k hk N₁ ν β p₁` of the tower `T` with a per-scale package `D`, there is a `JointRep`
+`Jr` (the one of `sourcePhysVal_W2_fromTower`) such that:
+
+* for every datum `D'` of `Ξ^c(𝔹_{k+1}; 1, T.t)` with `h ≡ h₀`, every real hat variable `ψ̂` with
+  `‖ψ̂‖ < 2 p₁` and `s ∈ [0,1]`, `Jr.W1` of the zero class at `(rawOf D', s ψ̂)` is
+  `s² · ((−β) · raySrc3 (hatFun … interactionOne) taylorWeight ψ̂ ψ̂ s (rawOf D'))`;
+* for every chart point `e ∈ physV` of the fibre `h ≡ h₀`, `s, τ ∈ [0,1]`, the two segment sum of
+  `Jr.W1` at `s` and `Jr.W2` at `τ` is given by `physVal` as in `sourcePhysVal_jointRep_zero`. -/
+theorem wone_chartIdentity_fromTower {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁]
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) (hp0 : 0 < p₁)
+    (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁) :
+    ∃ Jr : S.JointRep T.t (2 * p₁),
+      (∀ (D' : BgData S.G' 2), (∀ y i, D'.h y i = (S.h₀ i : ℂ)) →
+        XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ x : S.E, ‖x‖ < 2 * p₁ →
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
+          Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D', (s : ℂ) • S.hatC x) =
+            (s : ℂ) ^ 2 * ((-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight
+              (S.hatC x) (S.hatC x) (s : ℂ) (rawOf D'))) ∧
+      ∀ {r₀ δ₃ δfl : ℝ} {τι μι : Type} [DecidableEq τι] [DecidableEq μι]
+        {ϱ₁ ϱ₂ : τι → ℝ} {ϱ₁M ϱ₂M : μι → ℝ}
+        {GkE : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₁ τ)}
+        {GjE : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₂ τ)}
+        {X₀E X₁E : τι → Finset (CTorus 3 3 N₁ T.m₁ (k + 1))} {jE : τι → ℕ}
+        {GkM : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₁M τ)}
+        {GjM : ∀ τ, GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1) (ϱ₂M τ)}
+        {X₀M X₁M : μι → Finset (CTorus 3 3 N₁ T.m₁ (k + 1))} {jM : μι → ℕ}
+        {EE : τι → RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 → ℂ}
+        {EM : μι → RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 → ℂ}
+        (𝒯E : Finset τι) (𝒯M : Finset μι)
+        (hBE : ∀ τ ∈ 𝒯E, BgSetting 2 S.G' (GkE τ) (GjE τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀E τ)
+          (X₁E τ) (jE τ))
+        (hFE : ∀ τ ∈ 𝒯E, FlSetting 2 S.G' (GkE τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν
+          T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl (X₁E τ))
+        (ys : μι → CTorus 3 3 N₁ T.m₁ (k + 1)) (is : μι → Fin 2)
+        (hBM : ∀ τ ∈ 𝒯M, BgSetting 2 S.G' (GkM τ) (GjM τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀M τ)
+          (X₁M τ) (jM τ))
+        (hFM : ∀ τ ∈ 𝒯M, FlSetting 2 S.G' (GkM τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν
+          T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl (X₁M τ))
+        (cν : ℂ), 𝒯E = ∅ → 𝒯M = ∅ → cν = 0 → ∀ (e : physParam 2 S),
+        e ∈ physV S S.a₁ S.ν T.t →
+        (∀ y i, (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2).2 y i = (S.h₀ i : ℂ)) →
+        ∀ (x : S.E), ‖x‖ < 2 * p₁ → ∀ s τ : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → τ ∈ Set.Icc (0 : ℝ) 1 →
+          Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+              ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (s : ℂ) • S.hatC x) +
+            Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+              ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (τ : ℂ) • S.hatC x) =
+          (s : ℂ) ^ 2 * physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) (e.1, 0)) +
+            (physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e) -
+            physVal (EE := EE) (EM := EM) S (S.β : ℂ) S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              𝒯E hBE hFE 𝒯M ys is hBM hFM cν (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (τ : ℂ)
+              (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) (e.1, 0))) := by
+  refine (wone_chartIdentity_fromTower_rho T k hk N₁ ν hνpos hν β p₁ hp0 D S hS).imp fun Jr h => ⟨h.1, ?_⟩
+  intro r₀ δ₃ δfl τι μι _ _ ϱ₁ ϱ₂ ϱ₁M ϱ₂M GkE GjE X₀E X₁E jE GkM GjM X₀M X₁M
+    jM EE EM 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν e he hh x hxn s τ hs hτ
+  exact h.2 𝒯E 𝒯M hBE hFE ys is hBM hFM cν h𝒯E h𝒯M hcν 1 e he hh x hxn s τ hs hτ
 
 end Balaban.Inhabited

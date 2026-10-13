@@ -1703,6 +1703,7 @@ public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.DecMarkCorrSumFromTower
 public import Balaban.Inhabited.Thm31bPolymer
 public import Balaban.Inhabited.Thm31aPolymer
+public import Balaban.Inhabited.Thm31aFromTower
 public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.Thm31bKernelSupport
 public import Balaban.Inhabited.E1LabelsBudget
