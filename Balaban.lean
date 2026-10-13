@@ -1629,6 +1629,7 @@ public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Inhabited.RenormDetFibreTower
+public import Balaban.Inhabited.RenormE0FibreDetG
 public import Balaban.Inhabited.RenormE0FibreDet
 public import Balaban.Inhabited.RenormE0FibreDetRadius
 public import Balaban.Inhabited.RenormLabelNonempty
@@ -1694,11 +1695,13 @@ public import Balaban.Inhabited.ObsKernelFromTower
 public import Balaban.Inhabited.Thm31bFromTower
 public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
+public import Balaban.Inhabited.RenormThetaChartTowerG
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.SourceWitnessJoint
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.CommonWitnessJoint
 public import Balaban.Inhabited.TowerCoreRatesTwoRadii
+public import Balaban.Inhabited.StepTowerThetaDetG
 public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepTowerRadius
 public import Balaban.Inhabited.StepPiecesRenSol
@@ -1794,6 +1797,7 @@ public import Balaban.Fluctuation.RootTorusParameters
 public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
+public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
