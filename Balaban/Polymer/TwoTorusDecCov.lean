@@ -1222,6 +1222,98 @@ theorem decCovSqrt_rows_transport3 {a : ℕ → ℝ} {aT ν δ κ : ℝ}
     simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
     rw [e1, e2, e3]
 
+/-! ### D1 and D2 with the geometric inputs discharged -/
+
+/-- **D1 with the geometric inputs discharged.**  `decCov_rows_transport` for the image sets
+`X₁' = bm '' X₁`, `𝒞' = Prod.map id bm '' 𝒞`, `Y' = bm '' Y` of sets in the box of radius `R`: the
+image of the block set is `SY_image` and the agreement of the cube products on the inner cubes of
+`S_Y` is `hagree_boxMap` (both at the level `k + 1`), from parameters corresponding at the cubes of
+the box of radius `R₁ = R + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)` (`hsP`).  Margins:
+`4 R + 12 L^(k+1+m₁) + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` and
+`2 R₁ + 5 L · cellSide L 0 m₁ (k+1) < N₁ L^m₁ L^(k+1)` (and for `N₁'`). -/
+theorem decCov_rows_transport_of_box {a : ℕ → ℝ} {aT x₀ ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset (X₁.image bm) (𝒞.image (Prod.map id bm))).filter
+      fun x => x ∈ (GB).Ω 1) (Y.image bm))
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) (X₁.image bm), P ∉ 𝒞.image (Prod.map id bm) → s' P = 0)
+    {R : ℕ} (hXR : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hCR : ∀ P ∈ 𝒞, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2)
+    (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hsP : ∀ P ∈ cubeIdx (GA),
+      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 → s' (Prod.map id bm P) = s P)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (D : XData (GA) a aT ν x₀ α κ s) (D' : XData (GB) a aT ν x₀ α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨ UnitIn (GA) X₁ 𝒞 Y b') → ∀ i,
+      h' (ιu b', i) = h (b', i)) :
+    ∀ b : unitPts (GA), UnitOut (GA) Y b → ∀ i : Fin N,
+      (decCov (GB) a aT x₀ ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+        (decCov (GA) a aT x₀ ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) :=
+  decCov_rows_transport hconn hconn' hY hYc hs0 hs0' rfl
+    (SY_image (Nat.le_add_left 1 k) le_rfl hnS hnS' hXR hCR hYR)
+    (hagree_boxMap (Nat.le_add_left 1 k) le_rfl hnS hnS'
+      (SY_subset_levelGS (Nat.le_add_left 1 k) le_rfl) hYR hsP) hYR hn hn' hα hφR D D' hφ hφ' hδ
+    hsm h h' hh
+
+/-- **D2 with the geometric inputs discharged** (`decCovSqrt_rows_transport` for the image sets,
+as in `decCov_rows_transport_of_box`). -/
+theorem decCovSqrt_rows_transport_of_box {a : ℕ → ℝ} {aT ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset (X₁.image bm) (𝒞.image (Prod.map id bm))).filter
+      fun x => x ∈ (GB).Ω 1) (Y.image bm))
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) (X₁.image bm), P ∉ 𝒞.image (Prod.map id bm) → s' P = 0)
+    {R : ℕ} (hXR : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hCR : ∀ P ∈ 𝒞, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2)
+    (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hsP : ∀ P ∈ cubeIdx (GA),
+      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 → s' (Prod.map id bm P) = s P)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hfam : ∀ x, 0 ≤ x → XData (GA) a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData (GB) a aT ν x α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨ UnitIn (GA) X₁ 𝒞 Y b') → ∀ i,
+      h' (ιu b', i) = h (b', i))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
+    (decCovSqrt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decCovSqrt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) :=
+  decCovSqrt_rows_transport hconn hconn' hY hYc hs0 hs0' rfl
+    (SY_image (Nat.le_add_left 1 k) le_rfl hnS hnS' hXR hCR hYR)
+    (hagree_boxMap (Nat.le_add_left 1 k) le_rfl hnS hnS'
+      (SY_subset_levelGS (Nat.le_add_left 1 k) le_rfl) hYR hsP) hYR hn hn' hα hφR hfam hfam' hφ hφ'
+    hδ hsm h h' hh hb i
+
 end CovRows
 
 end Balaban.Polymer.TwoTorusStep
