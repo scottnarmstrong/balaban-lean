@@ -867,6 +867,7 @@ public import Balaban.LargeField.Base.BaseChartHessian
 public import Balaban.LargeField.Base.BaseChartGaussian
 public import Balaban.LargeField.Base.BaseComponentCovariance
 public import Balaban.LargeField.Base.BaseComponentIdentity
+public import Balaban.LargeField.Base.BaseComponentDeterminant
 public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.KF0SqrtReal
 public import Balaban.LargeField.Base.KF0Gaussian
