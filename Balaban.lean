@@ -1369,6 +1369,8 @@ public import Balaban.SmallField.GsSpecPolyClass
 public import Balaban.SmallField.LocalGeneratorSource
 public import Balaban.SmallField.LocalGeneratorTyping
 public import Balaban.SmallField.LocalGeneratorClassDomain
+public import Balaban.SmallField.LocalGeneratorAmbientGeometry
+public import Balaban.SmallField.LocalGeneratorPhysicalObstruction
 public import Balaban.Inhabited.LocalWindowTower
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster

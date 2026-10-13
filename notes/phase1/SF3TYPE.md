@@ -84,3 +84,28 @@ in `SmallField/LocalGeneratorClassDomain.lean`, including a specified raw field 
 The physical realization part of item 1 and item 2 remain open: the present ambient
 high-index step supplies neither a local `XiCData` witness for its composed pair nor
 the comparison of its canonical background solutions with those on `localB`.
+
+## NEXT (W717)
+
+**REFUTED (physical full-raw-field witness on a proper local generator).** For an
+ambient chart datum `Damb = composedDataAtC A μ … Dtop` at `levelGS j`, the requested
+statement is `∃ Dloc : BgData (localB j hj X hsep) N, Dloc.Ψ = Damb.Ψ ∧
+Dloc.h = Damb.h ∧ XiCData (localB j hj X hsep) A μ j (scaledC0 d) εloc Dloc`.
+For any `x ∉ dataSites (localB j hj X hsep)`, `Dloc.Ψ x = 0` by `BgData.Ψ_zero`.
+If `Damb` lies in the ambient `XiCData` chart, its complex union-domain condition gives
+`|∑ᵢ Damb.Ψ(x,i)^2| > 7/8`: P2 (R2) and (C2) give a difference from `1` less than
+`2δ ≤ 2 bgC1 ≤ 2 bgC0 ≤ 1/8`. Thus the full raw-field equality is impossible;
+the squared-spin discrepancy exceeds `7/8`, independently of `εloc` or any radius loss.
+`no_localB_xiCData_of_ambient_xiCData` proves the obstruction in Lean whenever
+the local data sites are a proper subset of the torus.
+
+**PROVED geometry.** `localB_precedes_levelGS_of_le` puts every local `Ω_i` inside an
+ambient whole-level `Ω_i`; `localB_dataSites_subset_levelGS_omega_one` puts the local
+union domain in its `Ω₁`.
+**Bound inventory.** Ambient `XiCBounds.hAbs` has a potentially usable layer-index
+inequality after restricting `h''`. Ambient `grad`, `lap`, `mult`, `val`, `close`, and
+`hDot` concern the ambient canonical background, while their local versions concern
+`bgFieldC/bgMultC` on `localB`; `collarBond` tests new local collar bonds absent from
+the whole-level collar. The real `XiBounds` have the same background mismatch.
+No finite radius constant transfers these fields. P3 pp. 78–79 (4.44)–(4.47)
+recomputes locally; a true theorem must restrict raw fields to local sites and recompute the background and term.
