@@ -396,3 +396,46 @@ ball of (ii); the source enters the fluctuation expansion as g/β, so a fixed la
 raises the low-temperature threshold. Is that consistent with what you intend?
 
 (Details: `notes/phase1/SRCBALL.md`; Lean: `Balaban/Model/SymmetryPartition.lean`.)
+
+### Item 21 (2026-10-13): exact locality of the new terms on their domain Y (P3 (4.44)–(4.47); Theorem 3.1)
+
+Theorem 3.1 of the fluctuation step asserts that each new term E″(z, Y), M″(x, Y; g) depends on
+the fields only through their restriction to Y ∈ 𝒟_{k+1}, and the next step uses exactly this
+(H.4: "depends only on ψ_j restricted to X").
+
+In our construction the background field at a site x reads the data at x, on the block of x and
+at the nearest neighbours of x (through the residual and the approximate field), so a term whose
+label is a union Y of the large cubes of side L M ℓ_{k+1} reads, a priori, a collar of width
+about 3 ℓ_{k+1} outside Y. We can prove that the sites actually read by the decoupled objects of
+a marked term with component Y₁ ⊂ Y lie inside Y₁, because they are read only from the interior
+("eligible") cubes whose enlarged boxes lie in Y₁, and the decoupling parameters vanish outside.
+
+Two questions.
+
+(a) Is this the mechanism you intend for exact locality on Y of the summands coming from the
+    potential, the energy, the source term and the mass term (and of the determinant terms):
+    reads restricted to the interior cubes of the component, with the margin provided by the
+    difference between the interaction cubes and the large cubes of 𝒟_j? Or does exact locality
+    come only after the replacement of the generating set by 𝔹_{k+1}(Y) in P3 (4.44)–(4.45)?
+
+(b) In P3 (4.44)–(4.47) the generating set is replaced by 𝔹_{k+1}(Y) inside each term before the
+    terms with the same Y are summed. Is the replacement an identity for each physical summand
+    (the term computed with the global generating set equals the term computed with 𝔹_{k+1}(Y)),
+    or does it change the individual terms while preserving their sum?
+
+(Details: `notes/phase1/HATY2.md`, `TRUE-LOCAL.md`, `FOOTPRINT.md`; Lean:
+`Balaban/Localization/FootprintMargin.lean`, `Balaban/Inhabited/E1CoeffFamily.lean`.)
+
+### Item 22 (2026-10-13): the index family in Theorem 3.1 (g), (h) (confirmation only)
+
+For the whole-lattice step we index the new energy and observable terms of Theorem 3.1 (a), (b)
+directly by the connected unions Y of large cubes on which they are supported (with
+d^{cov}_{k+1}(Y) as size and no change of rate), and the determinant and renormalization terms
+by the domains produced by their own localization covers. For (g), (h) we then take the union of
+the two finite families, each term being zero on the domains it does not use, each local and
+analytic for its own 𝔹_{k+1}(Y), all with the common rate 3κ/2 of the next step.
+
+Is that an acceptable reading of (g), (h), or must every term of (g), (h) be indexed by the
+domains of one particular cover?
+
+(Details: `notes/phase1/HATY.md`, `HATY2.md` §T5.)
