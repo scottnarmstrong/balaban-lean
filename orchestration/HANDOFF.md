@@ -14,9 +14,8 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W322 | `w322-det-endpoint` / W322 | determinant endpoint: support (`DetCauchyGraph`) + hull (`DetCauchyHull`) + cut-dependent backgrounds (`DetCauchyChart`) → activity bound per hull |
 | W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
-| W320 | `w320-dec2-cov` / W320 | decoupled covariance and square root for a cover pair; reduction to the self-cover; block diagonality (P6 mixed covariance rows, part A) |
 | W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
-| W319 | `w319-p6-pair-graph` / W319 | joint incidence graph of the two P6 operators; hypotheses of paired_locality for the old boundary composite (VMOD-34 package 3) |
+| W324 | `w324-p6-hatlink-count` / W324 | degree bound and rooted count for `HatLink` chains (P6 pair); rooted sum over hat-rooted marked sets |
 | W321 | `w321-stop-index` / W321 | stopping index k_f (first ν_k > (7/8)L^{-2}); mass premise for all ordinary steps; agreement with Root-F's scale clause (MASSIVE §3) |
 | W323 | `w323-r-history-labels` / W323 | R: six-outcome enumeration of histories, transport of `IsComplete`, top `D4Pin` (VMOD-37 package 5) |
 | W312 (Opus) | `w312-level-local-cover` / W312 | local cover on a general torus, radius tower at general scale, the zero-class activity bound at every scale with ν_k ≤ L^{−2} (SCALEUNIF) |
