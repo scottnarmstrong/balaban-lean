@@ -602,6 +602,120 @@ theorem rootTraceBg_cutPt_twoTorus
     (norm_cutPt_lt_exp hC.hκ I) (norm_cutPt_lt_exp hC'.hκ I') hD hD' hYA hYc hs0 hs0' rfl hB'
     hagree hYR hn hn' hraw' hb
 
+omit [NeZero N₁'] in
+/-- The number of patches of a set of parameter cubes is its cardinality. -/
+theorem card_patches_eq {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (J : Finset (cubeIdx G)) :
+    (patches J).card = J.card := by
+  unfold patches
+  exact Finset.card_image_of_injective _ Subtype.val_injective
+
+/-- **D3 (mixed differences): the mixed differences of the rooted trace with its background, on two
+tori.**  For a set `J` of parameter cubes of the first torus with patches in the box of radius `R`
+and the corresponding set `J'` of the second torus (`patches J' = Prod.map id bm '' patches J`),
+`Δ_{J'} F' = Δ_J F` for `F = rootTraceBg {b} D`, `F' = rootTraceBg {ιu b} D'`, under the
+hypotheses of `rootTraceBg_cutPt_twoTorus`.  The subsets `I ⊆ J` correspond to the subsets
+`I' ⊆ J'` with `patches I' = Prod.map id bm '' patches I` (`Prod.map id bm` is injective on the
+box), with the same cardinalities. -/
+theorem mixDiff_rootTraceBg_twoTorus
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (J : Finset (cubeIdx (GA))) (J' : Finset (cubeIdx (GB)))
+    (hJ' : patches J' = (patches J).image (Prod.map id bm))
+    {b : unitPts (GA)} {R : ℕ}
+    (hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    mixDiff J' (rootTraceBg (GB) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GB))
+        (unitP (GB)) {ιu b} D') =
+      mixDiff J (rootTraceBg (GA) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GA))
+        (unitP (GA)) {b} D) := by
+  classical
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  set f : ℕ × CTorus d L N₁ m₁ (k + 1) → ℕ × CTorus d L N₁' m₁ (k + 1) := Prod.map id bm with hf
+  have hJbox : ∀ P ∈ patches J, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 := fun P hP =>
+    hJR P hP P.2 (mem_cubeP.2 (SameCell.refl _ _))
+  have hinj : Set.InjOn f ↑(patches J) := fun P hP Q hQ h =>
+    injOn_idxMap (N₁' := N₁') (ρ := R) (by omega) (hJbox P hP) (hJbox Q hQ) h
+  -- the correspondence of subsets
+  let i : Finset (cubeIdx (GA)) → Finset (cubeIdx (GB)) := fun I =>
+    J'.filter fun P' => ∃ P ∈ I, f P.1 = P'.1
+  let j : Finset (cubeIdx (GB)) → Finset (cubeIdx (GA)) := fun I' =>
+    J.filter fun P => ∃ P' ∈ I', f P.1 = P'.1
+  have hpatch : ∀ I ⊆ J, patches (i I) = (patches I).image f := by
+    intro I hI
+    ext Q'
+    simp only [mem_patches, Finset.mem_image, Finset.mem_filter, i]
+    constructor
+    · rintro ⟨hQ', -, P, hP, hPQ⟩
+      exact ⟨P.1, ⟨P.2, hP⟩, hPQ⟩
+    · rintro ⟨Q, ⟨hQ, hQI⟩, rfl⟩
+      have hm : f Q ∈ patches J' := by
+        rw [hJ']; exact Finset.mem_image_of_mem _ (mem_patches.2 ⟨hQ, hI hQI⟩)
+      obtain ⟨hQ', hQJ'⟩ := mem_patches.1 hm
+      exact ⟨hQ', hQJ', ⟨Q, hQ⟩, hQI, rfl⟩
+  have hcard : ∀ I ⊆ J, (i I).card = I.card := by
+    intro I hI
+    rw [← card_patches_eq, hpatch I hI, Finset.card_image_of_injOn
+      (hinj.mono (Finset.coe_subset.2 (show patches I ⊆ patches J from
+        Finset.image_subset_image hI))), card_patches_eq]
+  have hJJ : J'.card = J.card := by
+    rw [← card_patches_eq, hJ', Finset.card_image_of_injOn hinj, card_patches_eq]
+  unfold mixDiff
+  symm
+  refine Finset.sum_nbij' i j (fun I hI => ?_) (fun I' hI' => ?_) (fun I hI => ?_)
+    (fun I' hI' => ?_) (fun I hI => ?_)
+  · exact Finset.mem_powerset.2 (Finset.filter_subset _ _)
+  · exact Finset.mem_powerset.2 (Finset.filter_subset _ _)
+  · have hIJ := Finset.mem_powerset.1 hI
+    ext P
+    simp only [Finset.mem_filter, i, j]
+    constructor
+    · rintro ⟨hPJ, P', ⟨-, Q, hQ, hQP'⟩, hPP'⟩
+      have : P.1 = Q.1 := hinj (mem_patches.2 ⟨P.2, hPJ⟩) (mem_patches.2 ⟨Q.2, hIJ hQ⟩)
+        (hPP'.trans hQP'.symm)
+      rw [Subtype.ext this]; exact hQ
+    · intro hP
+      have hm : f P.1 ∈ patches J' := by
+        rw [hJ']; exact Finset.mem_image_of_mem _ (mem_patches.2 ⟨P.2, hIJ hP⟩)
+      obtain ⟨hP', hPJ'⟩ := mem_patches.1 hm
+      exact ⟨hIJ hP, ⟨f P.1, hP'⟩, ⟨hPJ', P, hP, rfl⟩, rfl⟩
+  · have hIJ := Finset.mem_powerset.1 hI'
+    ext P'
+    simp only [Finset.mem_filter, i, j]
+    constructor
+    · rintro ⟨-, P, ⟨-, Q', hQ', hPQ'⟩, hPP'⟩
+      rw [Subtype.ext (hPP'.symm.trans hPQ')]; exact hQ'
+    · intro hP'
+      have hm : P'.1 ∈ patches J' := mem_patches.2 ⟨P'.2, hIJ hP'⟩
+      rw [hJ'] at hm
+      obtain ⟨Q, hQ, hQe⟩ := Finset.mem_image.1 hm
+      obtain ⟨hQc, hQJ⟩ := mem_patches.1 hQ
+      exact ⟨hIJ hP', ⟨Q, hQc⟩, ⟨hQJ, P', hP', hQe⟩, hQe⟩
+  · have hIJ := Finset.mem_powerset.1 hI
+    rw [hJJ, hcard I hIJ, rootTraceBg_cutPt_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn
+      hconn' hD hD' I (i I) (hpatch I hIJ) hbR
+      (fun P hP => hJR P (Finset.image_subset_image hIJ hP)) hn hn' hnS hnS' hraw]
+
 end TraceBg
 
 end Balaban.Polymer.TwoTorusStep
