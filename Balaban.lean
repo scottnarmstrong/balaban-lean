@@ -874,6 +874,7 @@ public import Balaban.Localization.Decoupled2FpCount
 public import Balaban.Localization.Vmod7Anchored
 public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
+public import Balaban.Localization.FootprintHat
 public import Balaban.LargeField.R.Outcome
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
@@ -940,6 +941,7 @@ public import Balaban.LargeField.R.RegionalTails
 public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalAligned
+public import Balaban.LargeField.R.RegionalAlignedSource
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
