@@ -16,6 +16,9 @@ Claude workers (background subagents of this session):
 | W313 | `w313-marked-tangent` / W313 | marked tangent, exact derivative = f_z, cubic Taylor form (MARKCUBIC packages 1–2) |
 | W314 | `w314-marked-root-geometry` / W314 | root bridge, fibre and fixed labels for the marked family (MARKCUBIC package 3) |
 | W315 | `w315-chiy-witness` / W315 | chiY ≠ 0 at constant fields on cube sets; a positive-tolerance context; first instance of the Q13 domain chain |
+| W319 | `w319-p6-pair-graph` / W319 | joint incidence graph of the two P6 operators; hypotheses of paired_locality for the old boundary composite (VMOD-34 package 3) |
+| W317 | `w317-p6-active-seed` / W317 | P6 active cells of a boundary domain: torus cast, activity, count |A_X| ≤ c_A(1+Δ_X), rooted sum for the term (VMOD-33/34) |
+| W318 | `w318-aligned-i6` / W318 | AlignedI6Transport: kernel decomposition and row bounds of GroupedInputsAligned from the class (Q13-ALIGN §3) |
 | W312 (Opus) | `w312-level-local-cover` / W312 | local cover on a general torus, radius tower at general scale, the zero-class activity bound at every scale with ν_k ≤ L^{−2} (SCALEUNIF) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
 Next Sonnet packages: (1) Lemma I.3.9 locality in Lean → discharge QuietStepInput.quiet_local/Rq_eq; (2) joint witness at L ≥ 3 with a quiet component at k ≥ 1 (InhabitedJoint uses L = 2, BgHyp needs L ≥ 3); (3) psiZero (P3) once the effective action on Z₀ exists; (4) Lean for astra round-8 results.
