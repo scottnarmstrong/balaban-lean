@@ -25,6 +25,12 @@ raw Peierls inequality for bad blocks.
 This is the exact decomposition and the raw Peierls inequality only: no normalized activity
 bound, no expansion, no chart, and nothing about Root-F is proved here.
 
+Contents: `goodBlock`, `chi`, `badSet`, `siteUnion`, `sectorWeight` (T1); `lintegral_eq_sum_sector`,
+`integral_eq_sum_sector`, `partitionFunction_eq_sum_kf0Sector` (T2); `energy_split`,
+`goodEnergy_expand` (T3); `energy_ge_peierls`, `exp_neg_energy_le_peierls`, `peierls_factor_eq`,
+`exp_neg_bond_le_one` (T4); `lintegral_split`, `kf0Sector_iterated` (T5, real source, lintegral
+form); `measure_badSet_eq_pos`, `kf0_nonvacuity_instance` (T6).
+
 Bond convention (that of the frozen `energy`): the bonds are the pairs `(x, μ)`, `x` a site and
 `μ : Fin d`, joining `x` and `x + e_μ`, each counted once in the double sum.  For `ℓ ≥ 3` these
 are the nearest-neighbour bonds, each once.  For `ℓ = 2` the bonds `(x, μ)` and
@@ -676,5 +682,142 @@ theorem kf0Sector_iterated (β ν : ℝ) (g : Torus d ℓ → Fin N → ℝ) (B 
   exact lintegral_const_mul' _ _ ENNReal.ofReal_ne_top
 
 end Fubini
+
+/-! ### T6: non-vacuity -/
+
+section NonVacuity
+
+variable (s m : ℕ) [NeZero m] (r : ℝ) (h : EuclideanSpace ℝ (Fin N))
+
+theorem measurableSet_badSet_eq (B : Finset (Torus d m)) :
+    MeasurableSet {φ : Cfg d N ℓ | badSet s m r h φ = B} := by
+  have : {φ : Cfg d N ℓ | badSet s m r h φ = B} = sectorWeight s m r h B ⁻¹' {1} := by
+    ext φ
+    simp only [Set.mem_ofPred_eq, Set.mem_preimage, Set.mem_singleton_iff, sectorWeight_eq_ite]
+    split_ifs with hB <;> simp [hB]
+  rw [this]
+  exact measurable_sectorWeight s m r h B (measurableSet_singleton 1)
+
+/-- T2 at `F ≡ 1`: the total mass is the sum over the sets of bad blocks of the measure of the
+event "bad set `= B`". -/
+theorem apriori_univ_eq_sum_badSet :
+    aprioriMeasure d N ℓ Set.univ =
+      ∑ B : Finset (Torus d m), aprioriMeasure d N ℓ {φ | badSet s m r h φ = B} := by
+  have := lintegral_eq_sum_sector (d := d) (N := N) (ℓ := ℓ) s m r h (fun _ => 1) measurable_const
+  simp only [one_mul, lintegral_const, one_mul] at this
+  rw [this]
+  refine Finset.sum_congr rfl fun B _ => ?_
+  have h1 : ∀ φ : Cfg d N ℓ, ENNReal.ofReal (sectorWeight s m r h B φ) =
+      Set.indicator {φ | badSet s m r h φ = B} (fun _ => (1 : ENNReal)) φ := by
+    intro φ
+    rw [sectorWeight_eq_ite]
+    by_cases hB : badSet s m r h φ = B <;> simp [hB, Set.indicator]
+  simp_rw [h1]
+  rw [lintegral_indicator (measurableSet_badSet_eq s m r h B)]
+  simp
+
+instance : (aprioriMeasure d N ℓ).IsOpenPosMeasure := by
+  unfold aprioriMeasure
+  infer_instance
+
+theorem exists_site (hℓ : ℓ = s * m) (Q : Torus d m) : ∃ x : Torus d ℓ, blockMap s m x = Q := by
+  have hs : 0 < s := by
+    rcases Nat.eq_zero_or_pos s with h0 | h0
+    · exact absurd (by simpa [h0] using hℓ) (NeZero.ne ℓ)
+    · exact h0
+  have hc := card_blockFibre (d := d) (ℓ := ℓ) hℓ Q
+  have : (blockFibre s m Q : Finset (Torus d ℓ)).Nonempty := by
+    rw [← Finset.card_pos, hc]; positivity
+  obtain ⟨x, hx⟩ := this
+  exact ⟨x, mem_blockFibre.1 hx⟩
+
+/-- Every sector is non-null: for `0 < r ≤ 1`, `‖h‖ = 1`, `s ∣ ℓ`, the event "bad set `= B`"
+contains an open non-empty set (spins within `r` of `-h` on the sites of `B`, within `r` of `h`
+elsewhere). -/
+theorem measure_badSet_eq_pos (hℓ : ℓ = s * m) (hr0 : 0 < r) (hr1 : r ≤ 1) (hh : ‖h‖ = 1)
+    (B : Finset (Torus d m)) :
+    0 < aprioriMeasure d N ℓ {φ : Cfg d N ℓ | badSet s m r h φ = B} := by
+  set D := siteUnion (ℓ := ℓ) s m B
+  let c : Torus d ℓ → EuclideanSpace ℝ (Fin N) := fun x => if x ∈ D then -h else h
+  have hc : ∀ x, ‖c x‖ = 1 := by
+    intro x; simp only [c]; split_ifs <;> simp [hh]
+  let U : Set (Cfg d N ℓ) := {φ | ∀ x, ‖(φ x : EuclideanSpace ℝ (Fin N)) - c x‖ < r}
+  have hU : IsOpen U := by
+    have : U = ⋂ x, {φ : Cfg d N ℓ | ‖(φ x : EuclideanSpace ℝ (Fin N)) - c x‖ < r} := by
+      ext φ; simp [U]
+    rw [this]
+    refine isOpen_iInter_of_finite fun x => isOpen_lt ?_ continuous_const
+    exact ((continuous_subtype_val.comp (continuous_apply x)).sub continuous_const).norm
+  have hne : U.Nonempty := by
+    refine ⟨fun x => ⟨c x, by simp [hc x]⟩, fun x => ?_⟩
+    simpa using hr0
+  have hsub : U ⊆ {φ : Cfg d N ℓ | badSet s m r h φ = B} := by
+    intro φ hφ
+    ext Q
+    rw [mem_badSet]
+    constructor
+    · intro hQ
+      by_contra hQB
+      apply hQ
+      intro x hx
+      have hxD : x ∉ D := fun hh' => hQB (hx ▸ (mem_siteUnion s m B x).1 hh')
+      have := hφ x
+      simpa [c, hxD] using this
+    · intro hQB hgood
+      obtain ⟨x, hx⟩ := exists_site (d := d) (ℓ := ℓ) s m hℓ Q
+      have hxD : x ∈ D := (mem_siteUnion s m B x).2 (hx ▸ hQB)
+      have h1 := hφ x
+      have h2 := hgood x hx
+      simp only [c, hxD, ite_true] at h1
+      have h3 : ‖(-h) - h‖ ≤ ‖(-h) - (φ x : EuclideanSpace ℝ (Fin N))‖ +
+          ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+      have h4 : ‖(-h) - h‖ = 2 := by
+        have : (-h) - h = (-2 : ℝ) • h := by module
+        rw [this, norm_smul, hh]; norm_num
+      have h5 : ‖(-h) - (φ x : EuclideanSpace ℝ (Fin N))‖ = ‖(φ x : EuclideanSpace ℝ (Fin N)) - -h‖ :=
+        norm_sub_rev _ _
+      have : (φ x : EuclideanSpace ℝ (Fin N)) - -h = (φ x : EuclideanSpace ℝ (Fin N)) + h := by abel
+      linarith
+  exact lt_of_lt_of_le (hU.measure_pos _ hne) (measure_mono hsub)
+
+/-- Each sector integral (real source, lintegral form) is positive. -/
+theorem lintegral_sector_pos (hℓ : ℓ = s * m) (hr0 : 0 < r) (hr1 : r ≤ 1) (hh : ‖h‖ = 1)
+    (β ν : ℝ) (g : Torus d ℓ → Fin N → ℝ) (B : Finset (Torus d m)) :
+    0 < ∫⁻ φ, ENNReal.ofReal (Real.exp (-(β * energy d N ℓ ν h φ) + realSource g φ) *
+        sectorWeight s m r h B φ) ∂aprioriMeasure d N ℓ := by
+  have hE : Measurable fun φ : Cfg d N ℓ => energy d N ℓ ν h φ :=
+    (continuous_energy (d := d) (N := N) (ℓ := ℓ) ν h).measurable
+  have hmeas : Measurable fun φ : Cfg d N ℓ => ENNReal.ofReal (Real.exp (-(β * energy d N ℓ ν h φ)
+      + realSource g φ) * sectorWeight s m r h B φ) :=
+    ENNReal.measurable_ofReal.comp
+      ((Real.measurable_exp.comp (((measurable_const.mul hE).neg).add
+        (measurable_realSource g))).mul (measurable_sectorWeight s m r h B))
+  rw [lintegral_pos_iff_support hmeas]
+  refine lt_of_lt_of_le (measure_badSet_eq_pos s m r h hℓ hr0 hr1 hh B) (measure_mono ?_)
+  intro φ hφ
+  simp only [Set.mem_ofPred_eq] at hφ
+  simp only [Function.mem_support, ne_eq, ENNReal.ofReal_eq_zero, not_le]
+  rw [sectorWeight_eq_ite]
+  simp only [hφ, ↓reduceIte, mul_one]
+  exact Real.exp_pos _
+
+end NonVacuity
+
+/-- The explicit instance: `d = 3`, `N = 3` (Heisenberg), torus side `ℓ = 4`, blocks of side
+`s = 2` (so `m = 2`, eight blocks), `r = 1/4`, `h = e₀`.  Every sector has positive measure
+and every sector integral (`β = ν = 1`, zero source) is positive; in particular the sector
+`B = ∅` (all blocks good) and the sector of any non-empty set of bad blocks are not null. -/
+theorem kf0_nonvacuity_instance :
+    (∀ B : Finset (Torus 3 2),
+      0 < aprioriMeasure 3 3 4 {φ : Cfg 3 3 4 | badSet 2 2 (1 / 4 : ℝ)
+        (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)) φ = B}) ∧
+    (∀ B : Finset (Torus 3 2),
+      0 < ∫⁻ φ, ENNReal.ofReal (Real.exp (-(1 * energy 3 3 4 1
+          (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)) φ) + realSource (0 : Torus 3 4 → Fin 3 → ℝ) φ) *
+        sectorWeight 2 2 (1 / 4 : ℝ) (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)) B φ)
+          ∂aprioriMeasure 3 3 4) := by
+  have hh : ‖(EuclideanSpace.single (0 : Fin 3) (1 : ℝ))‖ = 1 := by simp
+  exact ⟨fun B => measure_badSet_eq_pos (ℓ := 4) 2 2 _ _ rfl (by norm_num) (by norm_num) hh B,
+    fun B => lintegral_sector_pos (ℓ := 4) 2 2 _ _ rfl (by norm_num) (by norm_num) hh _ _ _ B⟩
 
 end Balaban.LargeField
