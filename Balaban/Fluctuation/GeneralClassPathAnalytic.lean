@@ -155,4 +155,14 @@ theorem flocAnalyticOnPath_of_oldXiDomC (hm : ClassParamMatch S C P Rg a Tm)
 
 end Theorems
 
+/-- **`OldXiDomC` is inhabited** (rule 10), for the zero class at the zero-class witness step
+`witnessSetting` of `StepRegWitness` (the step of `StepComplexOutWitness`): on the field domain
+whose complex domain is everything.  This is trivial and says no more than that the hypothesis
+is satisfiable: the zero class has no old terms, so no inclusion in a chart domain is tested.
+(Inclusion in `completeXiDom` would need the class-radius inequalities and is not claimed.) -/
+theorem nonempty_oldXiDomC_zeroClass (m₁ : ℕ) (β δ : ℝ) :
+    ∃ Dom : FieldDom 3 3 6 m₁ (1 + 1) 2 (Balaban.Localization.I5Inhabited.rhoSep m₁),
+      (witnessSetting m₁ β δ).OldXiDomC (zeroClass 3 3 6 m₁ 1 2 (Balaban.Localization.I5Inhabited.rhoSep m₁)) Dom :=
+  ⟨⟨∅, fun _ _ _ _ => True⟩, fun _ _ _ _ _ _ _ _ => trivial⟩
+
 end Balaban.Fluctuation
