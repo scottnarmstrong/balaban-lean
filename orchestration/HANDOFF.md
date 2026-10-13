@@ -13,10 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W249 (Opus) | `w249-d7-fine-size` / W249 | D7/H7 boundary size → fine chosen-cover size at the post-R region (VMOD-26 §3); changes landed definitions in Def7Hist/Def7/Def7v2Class |
-| W266 | `w266-sharp-assembly` / W266 | SharpAssembly: parallel assembler with sharp locality, physical_directTerms, direct activity bound, rate preservation (zero class) |
-| W265 | `w265-localgen` / W265 | P3 local generating set as an object (LOCALGEN §4: LocalGenAligned, LocalGenRange) |
 | W268 | `w268-param-holomorphy` / W268 | marked expansion analytic in several parameters (PARAM package 2) |
-| W269 | `w269-retained-shell` / W269 | retained-shell cover and seed margins (Q13-COVER §1) |
 | W270 | `w270-aligned-kernel` / W270 | aligned kernel, row sums: repair of the grouped regional bound premises |
 | W271 | `w271-param-datum-family` / W271 | the step as a family over the datum (PARAM package 1) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
