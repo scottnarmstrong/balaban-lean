@@ -252,12 +252,11 @@ X ∩ Ω_{k+1}^c.
 (ii) In particular, can a marked cube of the auxiliary cover deep in a new hole contribute to a
      coefficient without a connected marked chain to X ∩ Ω_{k+1}?
 (iii) Does the same answer hold for the C_{loc,s}^{1/2} ψ term?
-(iv) When (4.44) is applied with the auxiliary cover, how is a marked cube outside Ω_{k+1} assigned to
-     physical new-layer π'_j cubes? Is its whole component of Ω_{k+1}^c inserted, and which property
-     of the admissible regions bounds the resulting active spill and the length of the connected
-     structure after insertion? Does the estimate (4.48)–(4.50) then hold for the chosen-cover size
-     with a uniform constant, and how is the mixed-layer B_{k+1}(Y) chosen on the old-field reads?
-     (For marked cubes inside Ω_{k+1} the P3 assignment works as written; for arbitrary regions the
-     insertion of a hole component has no uniform cost — a thin corridor — so the bound must use the
-     structure of the new hole, presumably through the new seed sets of (3.9);
-     `notes/phase1/VMOD-35.md`.)
+(iv) How does the (4.44) assignment of the auxiliary cubes produce an UNCHARGED modular (4.48) when
+     Ω_{k+1}^c includes a long inherited component of Z_k and no current P, Q, R, S cube? Does Y contain
+     the entire nearest-neighbour hole component, and if so how is its π'_{k+1} cover obtained without a
+     long active spill at an unaligned boundary? Which geometric property or alternate assignment
+     proves (4.34) before the separate operator factor (3.9)?
+     (For marked cubes inside Ω_{k+1} the P3 assignment works as written. Inserting a whole hole
+     component has no uniform cost in general, and charging the NEW seed sets does not repair it: a
+     long inherited component of Z_k carries no new seed — `notes/phase1/VMOD-35.md`, `VMOD-36.md`.)

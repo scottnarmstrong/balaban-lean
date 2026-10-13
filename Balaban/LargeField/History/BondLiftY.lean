@@ -6,7 +6,6 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.History.TopBlockTransport
-public import Balaban.Inhabited.SFCtxMulti
 import Balaban.Multiscale.Coercivity
 import Balaban.Multiscale.ConstraintComm
 import Balaban.Multiscale.Locality
@@ -1250,22 +1249,5 @@ theorem exists_pair_over_Y (hd : 0 < S.d) :
   exact ⟨Y, 0, 0, 0 + Pi.single μ 1, hy, hs, hne, hp, hli, hli', hnc, hnc'⟩
 
 end Instance
-
-section MultiInstance
-
-open Balaban.LargeField.Def7 Balaban.LargeField.Def7.Wit
-
-/-- The classification pair on the landed multi-cube context `ctxMulti` (`d = L = 3`, `N = 2`, `k = 1`).  The hypothesis `chiY ≠ 0` is not part of this statement. -/
-theorem multi_pair_over_Y_instance :
-    ∃ (Y : Set (Torus wS.d (sides wS.L 1 nMulti 1))) (y₁ : Torus wS.d (sides wS.L 1 nMulti 1))
-      (s s' : BgT ctxMulti.geo 1),
-      y₁ ∈ Y ∧
-      blockMap (wS.L ^ 1 * (ctxMulti.geo.c * ctxMulti.geo.M1)) (sides wS.L 1 nMulti 1) s = y₁ ∧
-      s ≠ s' ∧ IsInterfacePair (ctxMulti.genW Y) s s' ∧
-      (ctxMulti.genW Y).layerIndex s = 1 ∧ (ctxMulti.genW Y).layerIndex s' = 1 ∧
-      s ∉ collar (ctxMulti.genW Y) ∧ s' ∉ collar (ctxMulti.genW Y) :=
-  exists_pair_over_Y (j := 0) ctxMulti (by norm_num [wS, setting, typing, typing0])
-
-end MultiInstance
 
 end Balaban.LargeField
