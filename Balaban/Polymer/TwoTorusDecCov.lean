@@ -611,4 +611,279 @@ theorem decZ_rows_transport
 
 end ZRows
 
+/-! ### The unit lattice of the top level on two tori -/
+
+section Unit
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+omit [NeZero N₁'] in
+/-- Every point of the unit lattice is a unit point of the top level `levelGS (k + 1)`. -/
+theorem mem_unitPts_levelTop (b : UnitTorus d L N₁ m₁ k) :
+    b ∈ unitPts (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+      (k + 1) le_rfl) := by
+  obtain ⟨z, hz⟩ := exists_blockMap_eq (d := d) (unitBlock_side (N₁ := N₁) (L := L) (m₁ := m₁)
+    (k := k)) (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) k) b
+  refine (mem_unitPts _).2 ⟨z, ?_, hz⟩
+  rw [layer_levelGS le_rfl]
+  simp
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bU" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) ((N₁' * L ^ m₁) * L ^ (k + 1 - k))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ (k + 1)))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) (ϱ := ϱ)
+    (Nat.le_add_left 1 k) le_rfl _)
+set_option hygiene false in
+local notation "ιu" b:max => Subtype.mk (bU (b : UnitTorus d L N₁ m₁ k))
+  (mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) _)
+
+/-- **The unit block of a site of the box, on two tori**: `unitBlock (bm x) = bU (unitBlock x)`,
+`bU` the box map of the unit lattices.  Margin: `2 ρ + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)`. -/
+theorem unitBlock_boxMap {ρ : ℕ}
+    (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    unitBlock (bm x) = bU (unitBlock x) := by
+  have hp : 0 < L ^ k := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) k
+  have hrc : ρ < L ^ k * (ρ / L ^ k + 1) := Nat.lt_mul_div_succ ρ hp
+  have hc : 2 * (ρ / L ^ k + 1) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1 - k) := by
+    have hk : k + 1 - k = 1 := by omega
+    rw [hk, pow_one]
+    have h1 : ρ / L ^ k * L ^ k ≤ ρ := Nat.div_mul_le_self ρ (L ^ k)
+    have h2 : L ^ k ≤ L ^ (k + 1) :=
+      Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_succ k)
+    have h3 : (N₁ * L ^ m₁) * L ^ (k + 1) = (N₁ * L ^ m₁ * L) * L ^ k := by ring
+    have h4 : (2 * (ρ / L ^ k + 1) + 1) * L ^ k < (N₁ * L ^ m₁ * L) * L ^ k := by
+      have e : (2 * (ρ / L ^ k + 1) + 1) * L ^ k = 2 * (ρ / L ^ k * L ^ k) + 3 * L ^ k := by ring
+      rw [e, ← h3]; omega
+    exact Nat.lt_of_mul_lt_mul_right h4
+  exact jBlock_boxMap (N₀ := N₁ * L ^ m₁) (N₀' := N₁' * L ^ m₁) (k := k + 1) (j := k)
+    (Nat.le_succ k) hrc hc x hx
+
+omit [NeZero N₁'] in
+/-- A site in the `m`-block of a site of the box of radius `ρ` lies in the box of radius
+`ρ + L^m`. -/
+theorem inBox_of_jBlock_eq {m ρ : ℕ} (hm : m ≤ k + 1)
+    (hn : 2 * (ρ + L ^ m) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1)) {x y : CTorus d L N₁ m₁ (k + 1)}
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (h : jBlock d L (N₁ * L ^ m₁) (k + 1) m y = jBlock d L (N₁ * L ^ m₁) (k + 1) m x) :
+    InBox d (ρ + L ^ m) ((N₁ * L ^ m₁) * L ^ (k + 1)) y :=
+  inBox_of_mem_cell hn hx ((jBlock_eq_iff_mem_box hm y x).1 h)
+
+omit [NeZero N₁'] in
+/-- A unit point whose `(k+1)`-block is that of a site `x₀` of the box of radius `ρ` has a fine
+site in that block, in the box of radius `ρ + L^(k+1)`. -/
+theorem unit_anchor {ρ : ℕ} (hn : 2 * (ρ + L ^ (k + 1)) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {x0 : CTorus d L N₁ m₁ (k + 1)} (hx0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x0)
+    (b : unitPts (GA))
+    (hb : unitBlock1 (b : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0) :
+    ∃ y : CTorus d L N₁ m₁ (k + 1), unitBlock y = (b : UnitTorus d L N₁ m₁ k) ∧
+      jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 ∧
+      InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+  obtain ⟨y, -, hy⟩ := (mem_unitPts _).1 b.2
+  have h1 : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y =
+      jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
+    rw [← unitBlock1_unitBlock, hy, hb]
+  exact ⟨y, hy, h1, inBox_of_jBlock_eq le_rfl hn hx0 h1⟩
+
+/-- The image of a unit point with a fine site `y` of the box: `ιu b = unitBlock (bm y)`. -/
+theorem coe_ιu {ρ : ℕ} (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (b : unitPts (GA)) {y : CTorus d L N₁ m₁ (k + 1)}
+    (hy : unitBlock y = (b : UnitTorus d L N₁ m₁ k))
+    (hyR : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    (((ιu b) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) = unitBlock (bm y) := by
+  show bU (b : UnitTorus d L N₁ m₁ k) = _
+  rw [← hy, unitBlock_boxMap hn hyR]
+
+/-- **The rows of `A_{k,x} g` on two tori** (`A = covA … (liftOp N P)`, `P` the projection onto
+the constants of the `L`-blocks of the unit lattice): at a unit point `b₀` whose `(k+1)`-block is
+that of a site `x₀` of the box, the rows correspond if the inputs correspond on the unit points of
+that block.  Margin: `2 ρ + 5 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for `N₁'`). -/
+theorem covA_unit_rows_transport (c bb x₀ : ℝ) {ρ : ℕ}
+    (hn : 2 * ρ + 5 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * ρ + 5 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {x0 : CTorus d L N₁ m₁ (k + 1)} (hx0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x0)
+    {b0 : unitPts (GA)}
+    (hb0 : unitBlock1 (b0 : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0)
+    {g : unitPts (GA) × Fin N → ℂ} {g' : unitPts (GB) × Fin N → ℂ}
+    (hg : ∀ b3 : unitPts (GA), unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b0 : UnitTorus d L N₁ m₁ k) → ∀ j, g' (ιu b3, j) = g (b3, j)) (i : Fin N) :
+    (covA c bb x₀ (liftOp N (unitP (GB))) *ᵥ g') (ιu b0, i) =
+      (covA c bb x₀ (liftOp N (unitP (GA))) *ᵥ g) (b0, i) := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hR1 : 2 * (ρ + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hR1' : 2 * (ρ + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1) := by
+    omega
+  have hx0' : InBox d ρ ((N₁' * L ^ m₁) * L ^ (k + 1)) (bm x0) := inBox_boxMap (by omega) hx0
+  have hx0R := inBox_mono (Nat.le_add_right ρ (L ^ (k + 1))) hx0
+  -- the fine sites of the unit points of the block
+  have hrep := fun (b3 : unitPts (GA)) (h3 : unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b0 : UnitTorus d L N₁ m₁ k)) =>
+    unit_anchor (ϱ := ϱ) (by omega) hx0 b3 (h3.trans hb0)
+  obtain ⟨y0, hy0, hy0x, hy0R⟩ := hrep b0 rfl
+  have hιu0 := coe_ιu (N₁' := N₁') hR1 b0 hy0 hy0R
+  have hblk0 : unitBlock1 (((ιu b0) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) =
+      jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x0) := by
+    rw [hιu0, unitBlock1_unitBlock]
+    exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy0R hx0R).1 hy0x
+  rw [covA_mulVec_eq, covA_mulVec_eq]
+  simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+  rw [hg b0 rfl i, liftOp_mulVec, liftOp_mulVec]
+  congr 1
+  congr 1
+  refine mulVec_apply_transport
+    (fun b3 : unitPts (GA) => unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b0 : UnitTorus d L N₁ m₁ k))
+    (fun b3 : unitPts (GB) => unitBlock1 (b3 : UnitTorus d L N₁' m₁ k) =
+      unitBlock1 (((ιu b0) : unitPts (GB)) : UnitTorus d L N₁' m₁ k))
+    (fun b3 => ιu b3) (fun b3 b4 h3 h4 h => ?_) (fun b3 h3 => ?_) (fun b3' h3' => ?_) _ _ _ _
+    (fun b3 h3 => ?_) (fun b3' h3' => ?_) (fun b3 h3 => ?_)
+  · obtain ⟨y3, hy3, -, hy3R⟩ := hrep b3 h3
+    obtain ⟨y4, hy4, -, hy4R⟩ := hrep b4 h4
+    have e := congrArg Subtype.val h
+    rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, coe_ιu (N₁' := N₁') hR1 b4 hy4 hy4R] at e
+    have e2 := (jBlock_boxMap_iff (m₁ := m₁) (j := k) (Nat.le_succ k) hR1 hR1' hy3R hy4R).2 e
+    exact Subtype.ext (hy3.symm.trans (e2.trans hy4))
+  · obtain ⟨y3, hy3, hy3x, hy3R⟩ := hrep b3 h3
+    show unitBlock1 (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) = _
+    rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
+    exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).1 hy3x
+  · obtain ⟨y3', hy3', hy3x', hy3R'⟩ := unit_anchor (ϱ := ϱ) (by omega) hx0' b3' (h3'.trans hblk0)
+    have hback : bm (bm' y3') = y3' := boxMap_boxMap (by omega) hy3R'
+    have hy3R : InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) (bm' y3') :=
+      inBox_boxMap (by omega) hy3R'
+    have hx3 : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) (bm' y3') =
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
+      refine (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).2 ?_
+      rw [hback]; exact hy3x'
+    refine ⟨⟨unitBlock (bm' y3'), mem_unitPts_levelTop _⟩, ?_, ?_⟩
+    · show unitBlock1 (unitBlock (bm' y3')) = _
+      rw [unitBlock1_unitBlock, hx3, ← hb0]
+    · refine Subtype.ext ?_
+      rw [coe_ιu (N₁' := N₁') hR1 ⟨unitBlock (bm' y3'), mem_unitPts_levelTop _⟩ rfl hy3R, hback]
+      exact hy3'
+  · simp only [unitP]
+    rw [ite_eq_right (fun h => h3 h.symm), zero_mul]
+  · simp only [unitP]
+    rw [ite_eq_right (fun h => h3' h.symm), zero_mul]
+  · have hm : unitBlock1 (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) =
+        unitBlock1 (((ιu b0) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) := by
+      obtain ⟨y3, hy3, hy3x, hy3R⟩ := hrep b3 h3
+      rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
+      exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).1 hy3x
+    simp only [unitP]
+    rw [ite_eq_left hm.symm, ite_eq_left h3.symm, hg b3 h3 i]
+
+/-- **The rows of `Q g` on two tori** (`Q` the block average onto the unit lattice): at a unit
+point `b₃` whose `(k+1)`-block is that of a site `x₀` of the box, the rows correspond if the inputs
+correspond on the fine sites of `b₃`.  Margin: `2 ρ + 5 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for
+`N₁'`). -/
+theorem unitQ_rows_transport {ρ : ℕ}
+    (hn : 2 * ρ + 5 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * ρ + 5 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {x0 : CTorus d L N₁ m₁ (k + 1)} (hx0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x0)
+    {b3 : unitPts (GA)}
+    (hb3 : unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0)
+    {u : (GA).Ω 1 × Fin N → ℂ} {u' : (GB).Ω 1 × Fin N → ℂ}
+    (hu : ∀ y : (GA).Ω 1, unitBlock (y : CTorus d L N₁ m₁ (k + 1)) = (b3 : UnitTorus d L N₁ m₁ k) →
+      ∀ j, u' (ιb y, j) = u (y, j)) (j : Fin N) :
+    (liftRect N (unitQ (GB)) *ᵥ u') (ιu b3, j) = (liftRect N (unitQ (GA)) *ᵥ u) (b3, j) := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hR1 : 2 * (ρ + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hR1' : 2 * (ρ + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1) := by
+    omega
+  have hx0' : InBox d ρ ((N₁' * L ^ m₁) * L ^ (k + 1)) (bm x0) := inBox_boxMap (by omega) hx0
+  have hx0R := inBox_mono (Nat.le_add_right ρ (L ^ (k + 1))) hx0
+  obtain ⟨y3, hy3, hy3x, hy3R⟩ := unit_anchor (ϱ := ϱ) (by omega) hx0 b3 hb3
+  have hιu3 := coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R
+  -- the fine sites of `b₃` lie in the box of radius `ρ + L^(k+1)`
+  have hfib : ∀ y : CTorus d L N₁ m₁ (k + 1), unitBlock y = (b3 : UnitTorus d L N₁ m₁ k) →
+      InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+    intro y hy
+    refine inBox_of_jBlock_eq le_rfl (by omega) hx0 ?_
+    rw [← unitBlock1_unitBlock, hy, hb3]
+  rw [liftRect_mulVec, liftRect_mulVec]
+  simp only [Matrix.mulVec, dotProduct]
+  refine sum_transport
+    (fun y : (GA).Ω 1 => unitBlock (y : CTorus d L N₁ m₁ (k + 1)) = (b3 : UnitTorus d L N₁ m₁ k))
+    (fun y : (GB).Ω 1 => unitBlock (y : CTorus d L N₁' m₁ (k + 1)) =
+      (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k))
+    (fun y => ιb y) (fun y1 y2 h1 h2 h => ?_) (fun y hy => ?_) (fun y' hy' => ?_) _ _
+    (fun y hy => ?_) (fun y' hy' => ?_) (fun y hy => ?_)
+  · exact Subtype.ext (boxMap_inj (hm' := (by omega : 2 * (ρ + L ^ (k + 1)) + 1 <
+      (N₁' * L ^ m₁) * L ^ (k + 1))) (hfib _ h1) (hfib _ h2) (congrArg Subtype.val h))
+  · show unitBlock (bm (y : CTorus d L N₁ m₁ (k + 1))) = _
+    rw [hιu3]
+    exact (jBlock_boxMap_iff (m₁ := m₁) (j := k) (Nat.le_succ k) hR1 hR1' (hfib _ hy) hy3R).1
+      (hy.trans hy3.symm)
+  · have hy'' : unitBlock (y' : CTorus d L N₁' m₁ (k + 1)) = unitBlock (bm y3) := hy'.trans hιu3
+    have hblk : jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (y' : CTorus d L N₁' m₁ (k + 1)) =
+        jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x0) := by
+      rw [← unitBlock1_unitBlock, hy'', unitBlock1_unitBlock]
+      exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).1 hy3x
+    have hyR' := inBox_of_jBlock_eq (N₁ := N₁') le_rfl (by omega) hx0' hblk
+    have hback : bm (bm' (y' : CTorus d L N₁' m₁ (k + 1))) = y' := boxMap_boxMap (by omega) hyR'
+    have hyR : InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+        (bm' (y' : CTorus d L N₁' m₁ (k + 1))) := inBox_boxMap (by omega) hyR'
+    refine ⟨⟨bm' (y' : CTorus d L N₁' m₁ (k + 1)), levelGS_mem_Ω_one (Nat.le_add_left 1 k)
+      le_rfl _⟩, ?_, Subtype.ext hback⟩
+    show unitBlock (bm' (y' : CTorus d L N₁' m₁ (k + 1))) = _
+    have e : unitBlock (bm (bm' (y' : CTorus d L N₁' m₁ (k + 1)))) = unitBlock (bm y3) := by
+      rw [hback]; exact hy''
+    exact ((jBlock_boxMap_iff (m₁ := m₁) (j := k) (Nat.le_succ k) hR1 hR1' hyR hy3R).2 e).trans hy3
+  · simp only [unitQ]
+    rw [ite_eq_right hy, zero_mul]
+  · simp only [unitQ]
+    rw [ite_eq_right hy', zero_mul]
+  · have hm : unitBlock (bm (y : CTorus d L N₁ m₁ (k + 1))) =
+        (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) := by
+      rw [hιu3]
+      exact (jBlock_boxMap_iff (m₁ := m₁) (j := k) (Nat.le_succ k) hR1 hR1' (hfib _ hy) hy3R).1
+        (hy.trans hy3.symm)
+    simp only [unitQ]
+    rw [ite_eq_left hm, ite_eq_left hy, hu y hy j]
+
+omit [NeZero N₁'] in
+/-- `Q* v` at a site of the top level reads `v` at the unit point of the site only. -/
+theorem unitQT_apply (v : unitPts (GA) × Fin N → ℂ) (y : (GA).Ω 1) (j : Fin N) :
+    ((liftRect N (unitQ (GA)))ᵀ *ᵥ v) (y, j) =
+      ((Real.sqrt ((((L ^ k : ℕ) : ℝ) ^ d)⁻¹) : ℝ) : ℂ) *
+        v (⟨unitBlock (y : CTorus d L N₁ m₁ (k + 1)), mem_unitPts_levelTop _⟩, j) := by
+  rw [liftRect_transpose, liftRect_mulVec]
+  simp only [Matrix.mulVec, dotProduct, Matrix.transpose_apply]
+  rw [Finset.sum_eq_single (⟨unitBlock (y : CTorus d L N₁ m₁ (k + 1)), mem_unitPts_levelTop _⟩ :
+    unitPts (GA))]
+  · simp [unitQ]
+  · intro b _ hb
+    have : unitBlock (y : CTorus d L N₁ m₁ (k + 1)) ≠ (b : UnitTorus d L N₁ m₁ k) :=
+      fun h => hb (Subtype.ext h.symm)
+    simp [unitQ, this]
+  · intro h; exact absurd (Finset.mem_univ _) h
+
+/-- **The rows of `Q* v` on two tori**: at a site `y` of the box, `Q* v` reads `v` at the unit
+point of `y`. -/
+theorem unitQT_rows_transport {ρ : ℕ}
+    (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    {v : unitPts (GA) × Fin N → ℂ} {v' : unitPts (GB) × Fin N → ℂ} (y : (GA).Ω 1)
+    (hyR : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) (y : CTorus d L N₁ m₁ (k + 1)))
+    (hv : ∀ j, v' (ιu (⟨unitBlock (y : CTorus d L N₁ m₁ (k + 1)), mem_unitPts_levelTop _⟩ :
+      unitPts (GA)), j) = v (⟨unitBlock (y : CTorus d L N₁ m₁ (k + 1)), mem_unitPts_levelTop _⟩, j))
+    (j : Fin N) :
+    ((liftRect N (unitQ (GB)))ᵀ *ᵥ v') (ιb y, j) = ((liftRect N (unitQ (GA)))ᵀ *ᵥ v) (y, j) := by
+  rw [unitQT_apply, unitQT_apply, ← hv j]
+  congr 3
+  exact Subtype.ext (unitBlock_boxMap hn hyR)
+
+end Unit
+
 end Balaban.Polymer.TwoTorusStep
