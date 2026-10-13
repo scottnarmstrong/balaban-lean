@@ -22,10 +22,14 @@ public import Balaban.Fluctuation.SharpAE
   thick-label route.  `labelAct_of_physical_hatTerms` is `labelAct_of_hatTerms` applied to it.
 * `AgFDirPair` is the sharp agreement of both coordinates of a pair of rays: equality of the hat
   variables at the unit points of the sites of `Y` itself.
+* `physAgΘ` is the agreement relation of the data of the direct terms: the raw datum and the source
+  agree on `Y` itself.  `physAgΘThick` (raw datum on the thickening `thickSet Y`) is the relation of
+  the thick legacy route (`PhysExpansion`, `physicalHatTerms`, `physical_hatTerms`);
+  `physAgΘ_of_thick` says that thick agreement implies agreement on `Y`.
 * `PhysicalSharpLoc 𝒴 T` is the sharp locality of the terms `T`: the `LocInt.loc` field for
-  `AgFDirPair`.  **It is an open theorem.  Nothing in this file proves sharp locality of the
-  physical terms**; it is an explicit hypothesis, and the declarations that use it carry
-  `of_sharpLoc` in their names.
+  `physAgΘ` and `AgFDirPair`.  Nothing in this file proves sharp locality of the physical terms; it
+  is an explicit hypothesis here, and the declarations that use it carry `of_sharpLoc` in their
+  names.  It is proved in `SharpAssembly` (`interaction_expansion_hat_dm_dir`).
 * `physicalDirectTerms_of_sharpLoc`: given `PhysicalSharpLoc 𝒴 T` for a physical witness, a
   `DirectTerms` instance.  The field `ag` is proved here (the cell-union property of a label is
   derived from `IsDj`), and `labelAct_of_physical_directTerms_of_sharpLoc` feeds it to
@@ -59,10 +63,26 @@ def physXW (S : StepSetting d L N₁ m₁ k N ϱ) (cψ R₁ Rσ r : ℝ) :
       ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ))) :=
   {xw | (xw.1.1, xw.2.1) ∈ HatRaysO S.G' cψ R₁ Rσ r ∧ (xw.1.2, xw.2.2) ∈ HatRaysO S.G' cψ R₁ Rσ r}
 
-/-- The agreement relation of the source data in the physical expansion. -/
-def physAgΘ (S : StepSetting d L N₁ m₁ k N ϱ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+/-- The agreement relation of the source data in the physical expansion: the raw datum and the
+source agree on `Y` itself.  (The terms of the direct expansion with domain `Y` read the raw datum
+and the source only at the sites of `Y`; the weaker statement with the raw datum on the thickening
+`thickSet Y` is `physAgΘThick`.) -/
+def physAgΘ (_S : StepSetting d L N₁ m₁ k N ϱ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (p p' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) : Prop :=
+  agreeOn Y p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x
+
+/-- The thick agreement relation of the source data: raw data agreeing on the thickening
+`thickSet Y` of `Y`, sources agreeing on `Y`.  It is the relation of the landed thick-label route
+(`PhysExpansion`, `physicalHatTerms`); the relation of the direct terms is `physAgΘ`. -/
+def physAgΘThick (S : StepSetting d L N₁ m₁ k N ϱ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
     (p p' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) : Prop :=
   agreeOn (thickSet S.G' Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x
+
+/-- Thick agreement implies agreement on `Y` itself (`Y ⊆ thickSet Y`). -/
+theorem physAgΘ_of_thick (S : StepSetting d L N₁ m₁ k N ϱ) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    {p p' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
+    (h : physAgΘThick S Y p p') : physAgΘ S Y p p' :=
+  ⟨agreeOn_mono (fun _ hx => Or.inl hx) h.1, h.2⟩
 
 /-- The landed paired agreement relation of the terms: `AgHatF` (thickened agreement) in both
 coordinates of the pair. -/
@@ -89,8 +109,10 @@ theorem agFDirPair_of_agFPair (S : StepSetting d L N₁ m₁ k N ϱ)
   ⟨fun y hy i => ha.1 y (psiThick_subset_blockThick Y (Or.inl hy)) i,
    fun y hy i => ha.2 y (psiThick_subset_blockThick Y (Or.inl hy)) i⟩
 
-/-- The terms of the physical expansion are local for the sharp relation.  **OPEN**: this is the
-`LocInt.loc` field for `AgFDirPair`, for arbitrary admissible pairs of rays and two source data. -/
+/-- The terms of the physical expansion are local for the sharp relations: the `LocInt.loc` field
+for `physAgΘ` (raw datum and source on `Y` itself) and `AgFDirPair` (hat variables at the unit points
+of `Y`), for arbitrary admissible pairs of rays and two source data.  It is proved for the assembled
+terms in `interaction_expansion_hat_dm_dir`. -/
 def PhysicalSharpLoc (S : StepSetting d L N₁ m₁ k N ϱ) (cψ R₁ Rσ r a₁ ν eps : ℝ)
     (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
@@ -294,7 +316,9 @@ noncomputable def physB (Y : Set (CTorus d L N₁ m₁ (k + 1))) : ℝ :=
 
 /-- **The conclusion of `interaction_expansion_hat_dm`** for the witnesses `𝒴`, `T`: a localized
 expansion (`LocInt` for the landed paired relation `AgFPair`) with labels in `𝒟_{k+1}` and
-continuous diagonal terms. -/
+continuous diagonal terms.  This is the thick legacy record: its locality is stated for the thick
+relations (raw datum on `thickSet Y`, `physAgΘThick`; hat variables on the block thickening,
+`AgFPair`).  The exact locality of the same terms is `PhysicalSharpLoc`. -/
 def PhysExpansion (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
       ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
@@ -303,7 +327,7 @@ def PhysExpansion (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     Prop :=
   LocIntDm (IsDj m₀ (k + 1)) (fun ψ : unitPts S.G' × Fin N → ℂ => (ψ, ψ))
     (physSΛ S a₁ ν eps) (physXW S cψ R₁ Rσ r) Rσ 𝒴 T
-    (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν) (physAgΘ S) (AgFPair S)
+    (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν) (physAgΘThick S) (AgFPair S)
 
 section Bound
 
@@ -329,9 +353,9 @@ section HatPackaging
 include hR₁ hr hRσ hc hΘ₀ hεb
 
 /-- **The physical expansion as `HatTerms`** (the landed thick-label route): the witnesses
-`𝒴`, `T` of a physical expansion, the bound `b = physB`, the diagonal embedding `ψ̂ ↦ (ψ̂, ψ̂)`, and
-the paired relation `AgFPair`.  This is the first half of the proof of
-`labelAct_of_interaction_expansion_hat`. -/
+`𝒴`, `T` of a physical expansion, the bound `b = physB`, the diagonal embedding `ψ̂ ↦ (ψ̂, ψ̂)`, the
+thick relation `physAgΘThick` of the data and the paired relation `AgFPair`.  This is the first half
+of the proof of `labelAct_of_interaction_expansion_hat`. -/
 noncomputable def physicalHatTerms (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
       ((unitPts S.G' × Fin N → ℂ) × (unitPts S.G' × Fin N → ℂ)) →
@@ -339,9 +363,9 @@ noncomputable def physicalHatTerms (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k 
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
     (hD : PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν 𝒴 T) :
     HatTerms S m₀ (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛ S a₁ ν eps)
-      (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFPair S) :=
+      (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘThick S) (AgFPair S) :=
   hatTerms_of_expansion S m₀ hRσ.le (by linarith) hr.le hc (SΛ := physSΛ S a₁ ν eps)
-    (val := physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (AgΘ := physAgΘ S) 𝒴 T (physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν) hD.loc hD.dom
+    (val := physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (AgΘ := physAgΘThick S) 𝒴 T (physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν) hD.loc hD.dom
     (fun Y _ => physB_le cβ cν hεb Y) hΘ₀ (fun Y => ⟨fun x _ => ⟨rfl, rfl⟩, fun x _ => rfl⟩)
     (fun Y _ σ hσ => by
       have hcont := hD.cont Y ‹_› σ hσ Θ₀ hΘ₀
@@ -379,7 +403,7 @@ include hRσ hc hΘ₀ hεb
 those of `interaction_expansion_hat_dm` and whose bounds are `physB`. -/
 theorem physical_hatTerms :
     ∃ I : HatTerms S m₀ (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ₀ (physSΛ S a₁ ν eps)
-      (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘ S) (AgFPair S),
+      (physXW S cψ R₁ Rσ r) (physVal (EE := EE) (EM := EM) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν) (physAgΘThick S) (AgFPair S),
       PhysExpansion (EE := EE) (EM := EM) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) (cψ := cψ) (R₁ := R₁) (Rσ := Rσ) S cβ hG cc 𝒯E hBE hFE 𝒯M ys is hBM hFM cν I.𝒴 I.T ∧
         I.b = physB (N := N) (a₁ := a₁) (ν := ν) (BG := BG) (κ := κ) (eps := eps) (BG₂ := BG₂) (δ₁ := δ₁) (κdec := κdec) (r := r) (m₀ := m₀) (ρE := ρE) (ρM := ρM) (Bh := Bh) cβ cν := by
   obtain ⟨𝒴, T, hD⟩ := physExpansion_exists (S := S) (hC := hC) (cβ := cβ) (hconn := hconn) (hrow := hrow) (hκ₀ := hκ₀) (hκdec := hκdec) (hκ := hκ) (h1 := h1) (hR₁ := hR₁) (hr := hr) (hk := hk) (hG := hG) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hdm := hdm) (hα := hα) (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := ha₁) (H := H) (hc7 := hc7) (hR := hR) (hRs := hRs) (hsmall := hsmall) (hnum := hnum) (hnum' := hnum') (hsm := hsm) (hcovV := hcovV) (hX₁V := hX₁V) (hoptV := hoptV) (hΔV := hΔV) (hlogV := hlogV) (hZV := hZV) (hmarV := hmarV) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (hcovE := hcovE) (hX₁E := hX₁E) (hoptE := hoptE) (hlogE := hlogE) (hEbE := hEbE) (hEanE := hEanE) (hEbdE := hEbdE) (hcovF := hcovF) (hX₁F := hX₁F) (hoptF := hoptF) (hΔF := hΔF) (hlogF := hlogF) (hyF := hyF) (𝒯M := 𝒯M) (ys := ys) (is := is) (hys := hys) (hBM := hBM) (hFM := hFM) (hcovM := hcovM) (hX₁M := hX₁M) (hoptM := hoptM) (hlogM := hlogM) (hEbM := hEbM) (hEanM := hEanM) (hEbdM := hEbdM) (rE := rE) (hrE := hrE) (hρE0 := hρE0) (hρE := hρE) (hρM0 := hρM0) (hρM := hρM) (hBh0 := hBh0) (hBh := hBh) (cν := cν) (hZν := hZν)
@@ -419,11 +443,11 @@ theorem labelAct_of_physical_hatTerms (hL2 : 2 ≤ L)
 
 
 /-- **`DirectTerms` for the physical expansion, conditional on `PhysicalSharpLoc`.**  The domains,
-terms, bounds, source set, ray set, expanded function and source agreement are those of
-`physicalHatTerms`; the four fields `sum`, `analytic`, `bound`, `zero` of `LocInt` are unchanged;
-the field `loc` for the sharp relation `AgFDirPair` is the hypothesis `hsharp` (**open**); the field
-`ag` is proved from the cell-union property of the labels (a consequence of `IsDj` and
-`L ^ m₀ ∣ N₁`). -/
+terms, bounds, source set, ray set and expanded function are those of `physicalHatTerms`; the four
+fields `sum`, `analytic`, `bound`, `zero` of `LocInt` are unchanged; the field `loc` for the sharp
+relations (`physAgΘ`: raw datum and source on `Y`; `AgFDirPair`: hat variables at the unit points of
+`Y`) is the hypothesis `hsharp`; the field `ag` is proved from the cell-union property of the labels
+(a consequence of `IsDj` and `L ^ m₀ ∣ N₁`). -/
 noncomputable def physicalDirectTerms_of_sharpLoc
     (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (T : Set (CTorus d L N₁ m₁ (k + 1)) →
@@ -441,7 +465,7 @@ noncomputable def physicalDirectTerms_of_sharpLoc
     dom := I0.dom
     bd := I0.bd
     mem := I0.mem
-    agΘ := I0.agΘ
+    agΘ := fun Y => physAgΘ_of_thick S (I0.agΘ Y)
     xw := I0.xw
     ag := fun Y hY Φ Φ' h => by
       have h' := S.agHatFDir_hatOf m₀ (cell_subset_of_isDj hN (I0.dom Y hY)) ρ hp Φ Φ' h

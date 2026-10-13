@@ -36,7 +36,8 @@ with `i5_functional_hat_dir`.
   gives the premise of the sharp engine.
 * `vblock_locInt_hat_dir`, `vpart_locInt_hat_dir_dm`, `fsite_base_locInt_hat_dir_dm`: the sharp
   versions of the statements consumed by `interaction_expansion_hat_dm`, with the hat relation
-  `AgHatFDir` (from `SharpAE`) on the directional terms.
+  `AgHatFDir` (from `SharpAE`) on the directional terms and raw data agreeing on `Y` itself
+  (from the `…_rawY` expansions).
 * `*_both`: one family `Ev` with both locality clauses (the landed one follows from the sharp one).
 
 The `E` and `ν`/`ℳ` summands, the assembly (`PhysicalSharpLoc`) and `physical_directTerms` are
@@ -444,7 +445,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
 /-- **The potential part of the localized interaction, one block, in the variable `ψ̂`, sharp form**: as `vblock_locInt_hat`, with the directional
 terms depending on `(x₀, w)` only through their values at the unit points of the sites of `Y`
-itself (`AgHatFDir`). -/
+itself (`AgHatFDir`) and on the raw datum only through its values on `Y` itself. -/
 theorem vblock_locInt_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -488,9 +489,9 @@ theorem vblock_locInt_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c�
         (fun Y => Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := vblock_expansion_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := vblock_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
   refine ⟨Ev, hsum, hanY, ?_⟩
   refine locInt_dir3 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
@@ -500,7 +501,7 @@ theorem vblock_locInt_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c�
   · intro Y a a' b b' p q ha hb y hy i
     simp [ha y hy i, hb y hy i]
   · intro Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2'
-    exact hloc Y (Θ, z) ⟨hΘ, hz⟩ (Θ', z') ⟨hΘ', hz'⟩ ⟨h1', h2'⟩
+    exact hloc Y (Θ, z) ⟨hΘ, hz⟩ (Θ', z') ⟨hΘ', hz'⟩ h1' h2'
   · intro Θ hΘ ψh hψh
     obtain ⟨D, hD, rfl⟩ := hΘ
     exact hsum D hD ψh hψh
@@ -520,7 +521,7 @@ Lemma 2.3 (b), as a function of the raw data `Θ` and the hat variable `ψ̂`
 (`ψ' = liftC (cc • C^{1/2}(1) ψ̂)`), `σ ∫₀¹ ω(t') ∂_w³ V(σ t' x₀) dt'` along the `ψ̂`-ray is a
 localized expansion over the domains `Y ⊃ X₁`: the terms are analytic in `(Θ, σ)`, bounded by
 `|σ| M_ω 6 E e^{-2 κ d̃^{cov}_{k+1}(Y)} / r³`, vanish at `σ = 0`, and depend on `Θ` through
-`thickSet Y` and on `(x₀, w)` through their values at the unit points of the sites of
+its values on `Y` itself and on `(x₀, w)` through their values at the unit points of the sites of
 `Y` itself (`AgHatFDir`, sharp form of `vpart_locInt_hat_dm`). -/
 theorem vpart_locInt_hat_dir_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -582,7 +583,7 @@ theorem vpart_locInt_hat_dir_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c
           Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   have hex : ∀ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))), ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ),
@@ -602,7 +603,7 @@ theorem vpart_locInt_hat_dir_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c
         (fun Y => Mω * (6 * ‖energyBd d L N (compWeight L a₁) ν k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := fun z =>
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := fun z =>
     vblock_locInt_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ (hcov z) (hX₁ z) hconn hrow (hopt z)
       (hΔ z) hκ₀ hκdec hκ h1 (hlog z) z (hZ z) (hmar z) hωc hR₁ hω hMω hωb hr
   choose Ev hEvsum hEvan hEv using hex
@@ -715,14 +716,14 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
           (fun D ψ' => svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ') y i))) ω x₀ w σ Θ)
         (fun Y => Mω * (((cK2' d L N (famConst d L BG₂ κ) * δ₁) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG')
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
           (ball (0 : ℂ) (3 / 2))) := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := fsite_expansion_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
   have hd : 3 ≤ d := hC.HBp.hd
   have hray : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
@@ -740,13 +741,13 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
       (X1 Gp m₀ j 𝒦X)) (Evs := Ev)
     (b := fun Y => (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y))
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgF := AgHatFDir hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
     (isOpen_hatBall cψ) (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ)))
     (fun Y u hu => hbd Y u ⟨hu.1, hatBall_subset cψ hu.2⟩)
     (fun Y a a' c' c'' p q ha hb y hy i => by simp [ha y hy i, hb y hy i])
     (fun Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2' =>
-      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩)
+      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ h1' h2')
     (fun Θ hΘ ψh hψ => by
       obtain ⟨D, hD, rfl⟩ := hΘ
       rw [hatFun_rawOf hG' cc _ hD, onXi_rawOf hD]
@@ -757,7 +758,7 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
 
 /-- **The amplitude-free expansion of one site of `⟨g, δφ⟩`, in the variable `ψ̂`** (the base
 of `fsite_locInt_hat`; sharp form of `fsite_base_locInt_hat_dm`: the directional terms depend on the hat variable
-only at the unit points of the sites of `Y`). -/
+only at the unit points of the sites of `Y`, and on the raw datum only on `Y`). -/
 theorem fsite_base_locInt_hat_dir_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -792,7 +793,7 @@ theorem fsite_base_locInt_hat_dir_dm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
           (fun D ψ' => svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D ψ') y i))) ω x₀ w σ Θ)
         (fun Y => Mω * (((cK2' d L N (famConst d L BG₂ κ) * δ₁) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
   classical
   exact (fsite_base_locInt_hat_dir_dm_ray hC hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 hlog y hy i (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr).imp fun _ h => h.1
 
