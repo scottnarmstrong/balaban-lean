@@ -1300,6 +1300,7 @@ public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.RootDetCutSupport
+public import Balaban.Fluctuation.DetCauchyGraph
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
