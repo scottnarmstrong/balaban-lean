@@ -307,7 +307,7 @@ theorem e0CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hβ'⟩ :=
     H k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁ D hϱ S hS hp
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hβ' z
+  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hβ'.1 z
   subst hϱ
   obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
   have hLN : L ∣ N₁ := by rw [hm₀] at h3N; simpa using h3N

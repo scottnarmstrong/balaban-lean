@@ -10,6 +10,7 @@ public import Balaban.Inhabited.E1ParamRawLocal
 public import Balaban.Fluctuation.GsumActiveParam
 public import Balaban.Inhabited.E1ParamFibreValueG
 public import Balaban.Inhabited.ZeroSourceActivityCommon
+public import Balaban.Inhabited.OffFibreE1ActivityG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NormNum
@@ -378,7 +379,7 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
             ∑ y, (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ :
                 rawSub N S.G'), g) (s : ℂ)).H y
               ((S.blockSplit 1 hp).restr x)) ∧
-      ∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
         (∀ b, MarkedBlockExpansionDecPair N (stepG d L N₁ T.m₁ k ϱ)
           S.hG' (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
           S.a₁ S.ν T.BG T.BG₂ T.κ T.t T.t T.κdec p₁
@@ -439,7 +440,55 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
             (S.withDatum D' hDh).E1locC
                 (zeroClass d L N₁ T.m₁ k N ϱ) z =
               ∑ C, c ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
-                (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C := by
+                (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) C) ∧
+      0 < εH ∧
+      εH ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0)
+        (2 * T.κdec - 1) T.κ0 T.κ' ∧
+      (∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ y Φ,
+        DifferentiableOn ℂ (fun u => (A₀ θ u).H y Φ) (Metric.ball (0 : ℂ) 2)) ∧
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) Φ,
+          AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+            e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t
+              r.1 i r.2 Φ)
+            (physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (17 / 16 : ℝ))) ∧
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        ∀ (θ : physParam N S)
+          (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ),
+        DepOn (blocksOf 1 (k + 1) Set.univ
+          ((commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁)
+            (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S)
+            (e1DomG_isDj_of_eq T hm₀ D hϱ hS)).ysite
+            (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)))
+          (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b))
+            p₁ hp z T.t θ i u)) ∧
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        ∀ (θ : physParam N S)
+          (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ),
+          Measurable (e1MarkGParamG S (fun b => F₁ (z, b))
+            (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
+      (∀ z : RootIdx d L N₁ T.m₁ (k + 1),
+        ∀ (θ : physParam N S)
+          (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ) Φ,
+          ‖e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b))
+            p₁ hp z T.t θ i u Φ‖ ≤
+            corrF0G T k β p₁ * Real.exp (-(2 * T.κdec - 1) *
+              (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁)
+                (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S)
+                (e1DomG_isDj_of_eq T hm₀ D hϱ hS)).dl
+                (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i))) ∧
+      ∃ Jr : S.JointRep T.t (2 * p₁),
+        ∀ (D' : BgData S.G' N),
+          XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+          ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+            Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+              (rawOf D', (s : ℂ) • Balaban.Fluctuation.yhat x) =
+              ∑ y, (A₀ ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
+                ((S.blockSplit 1 hp).restr x) := by
   classical
   obtain ⟨βa, CE, CF, hβa3, -, -, hact⟩ := zeroSourceActivity_common_fromTowerG T C hKc hKall hH h0 h' hA p
   rw [hm₀] at hact
@@ -462,7 +511,28 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
   have hU2 : (17 / 16 : ℝ) ≤ 2 := by norm_num
   have hF0 := corrF0G_pos T hk hβpos (show 0 < p₁ from hp)
   have hθ' := hstep
-  refine ⟨F₁, Sol, {Y // Y ∈ I0.𝒴}, inferInstance, thickLabels I0.𝒴 I0.dom, _, A0, hdat, ?_⟩
+  refine ⟨F₁, Sol, {Y // Y ∈ I0.𝒴}, inferInstance, thickLabels I0.𝒴 I0.dom, _, A0,
+    hdat, ?_, hεpos, hstep, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  swap
+  · exact hdiffA
+  swap
+  · intro z i Φ
+    exact (hF z).2.2.2.2.1 i Φ
+  swap
+  · intro z θ i u
+    exact ((hF z).2.2.2.1 {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)).1 θ i u
+  swap
+  · intro z θ i u
+    exact (hF z).2.2.1 θ i u
+  swap
+  · intro z θ i u Φ
+    exact ((hF z).2.2.2.1 {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)).2 θ i u Φ
+  swap
+  · refine ⟨Jr, fun D' hX => ?_⟩
+    have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
+    exact e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β
+      p₁ (show 0 < p₁ from hp) D _ rfl hp Jr val hval I0 hFd hεU A hAeq
+      A0 hsum D' hX
   intro z
   obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, hspec⟩ := hF z
   obtain ⟨hdep, hbnd⟩ := hdb {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)
@@ -702,7 +772,7 @@ theorem e1CoeffFamily_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : Ste
   refine ⟨β₀, h3, fun k hk N₁ _ h3N h5 ν hν hνk β hβ p₁ hp₁ D ϱ hϱ S hS hp => ?_⟩
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hz⟩ := H k hk N₁ h3N h5 ν hν hνk β hβ p₁ hp₁ D hϱ S hS hp
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨h1, h2, c, hc, hcl, -⟩ := hz z
+  obtain ⟨h1, h2, c, hc, hcl, -⟩ := hz.1 z
   exact ⟨h1, h2, c, hc, fun C =>
     ⟨(hcl C).1, (hcl C).2.1, (hcl C).2.2.2.1, (hcl C).2.2.2.2⟩⟩
 

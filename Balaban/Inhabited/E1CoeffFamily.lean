@@ -327,7 +327,8 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
     (by rw [e]; exact hp₁) (T.scaleDataG_of_fixed D) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
     (T.step k hk N₁ ν β p₁) rfl hp
   simp only [corrF0_toG]
-  exact G
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hdat, hz, -⟩ := G
+  exact ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hdat, hz⟩
 
 open Classical in
 /-- **One energy coefficient family at the tower.**  Beyond a threshold `β₀`, at every scale datum
