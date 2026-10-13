@@ -651,4 +651,89 @@ theorem kf0FullC_sqrt_entry {ν g : ℝ} (hg0 : 0 < g) (hgν : g ≤ ν) (hν1 :
 
 end FullOp
 
+/-! ### The stopping index `k_f = 0` and the physical mass -/
+
+/-- The gap for the PHYSICAL mass at `k_f = 0`: `e^{-ε} · 7/(8L²)`. -/
+noncomputable def kf0GapPhys (L : ℕ) (ε : ℝ) : ℝ := Real.exp (-ε) * kf0Gap L
+
+/-- **At the stopping index `k_f = 0`** (T6).  If `kStop = 0` for a running sequence (so the
+running mass satisfies `7/8 L⁻² < n 0`, and `n 0 ≤ ν e^ε`), then the physical mass satisfies
+`ν ≥ e^{-ε}·7/(8L²) ≥ (19/20)·7/(8L²)`.  Hence, for `ν ≤ 1`, the gap `g = e^{-ε}ν_*` of
+`K_ν` holds, and for all `t ≥ 0` the resolvent bound with `2/(g+t)` and rate `kf0RateAt d g`, and
+the inverse-square-root bound with `2/√g`, hold on every torus.  (The threshold of the note is on
+the running mass `n 0`, which may differ from `ν` by the factor `e^{±ε}`.) -/
+theorem kf0_at_stop {L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ}
+    (h : LargeField.RunningHyp d L β ν a ε b n) (hk : LargeField.StopIndex.kStop h = 0)
+    (hν1 : ν ≤ 1) :
+    19 / 20 * kf0Gap L ≤ kf0GapPhys L ε ∧ kf0GapPhys L ε ≤ ν ∧
+      (∀ {t : ℝ}, 0 ≤ t →
+        IsUnit (kf0Op d m ν + (t : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ)) ∧
+          ∀ x y : L1Torus d m,
+            ‖(kf0Op d m ν + (t : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ))⁻¹ x y‖ ≤
+              2 / (kf0GapPhys L ε + t) * Real.exp (-kf0RateAt d (kf0GapPhys L ε) * dist x y)) ∧
+      (∀ x y : L1Torus d m,
+        ‖Localization.sqrtMat (kf0Op d m ν) x y‖ ≤
+          2 / Real.sqrt (kf0GapPhys L ε) *
+            Real.exp (-kf0RateAt d (kf0GapPhys L ε) * dist x y)) := by
+  have hL : 0 < L := lt_of_lt_of_le (by norm_num) h.hL
+  have hLr : (0 : ℝ) < L := by exact_mod_cast hL
+  have hgap := kf0Gap_pos hL
+  have hm : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < n 0 := by
+    have := (LargeField.StopIndex.kStop_eq_iff h (k := 0)).1 hk
+    exact this.1
+  have hn := LargeField.StopIndex.n_zero_le h
+  have hexp : 19 / 20 ≤ Real.exp (-ε) := LargeField.StopIndex.exp_neg_eps_ge h.hε
+  have hepos := Real.exp_pos ε
+  have hmul : Real.exp (-ε) * Real.exp ε = 1 := by
+    rw [mul_comm]; exact LargeField.StopIndex.exp_mul_exp_neg ε
+  have hg1 : 19 / 20 * kf0Gap L ≤ kf0GapPhys L ε := by
+    unfold kf0GapPhys; exact mul_le_mul_of_nonneg_right hexp hgap.le
+  have hg0 : 0 < kf0GapPhys L ε := by unfold kf0GapPhys; positivity
+  have hν : kf0GapPhys L ε ≤ ν := by
+    have e : kf0Gap L = 7 / 8 * ((L : ℝ) ^ 2)⁻¹ := by unfold kf0Gap; field_simp
+    have h2 : kf0Gap L < ν * Real.exp ε := by rw [e]; linarith
+    have h3 := mul_lt_mul_of_pos_left h2 (Real.exp_pos (-ε))
+    unfold kf0GapPhys
+    calc Real.exp (-ε) * kf0Gap L ≤ Real.exp (-ε) * (ν * Real.exp ε) := h3.le
+      _ = ν := by rw [mul_left_comm, hmul, mul_one]
+  exact ⟨hg1, hν, fun ht => kf0_resolvent_decay hg0 hν hν1 ht,
+    fun x y => kf0_sqrt_decay hg0 hν hν1 x y⟩
+
+/-! ### Non-vacuity -/
+
+/-- **Instance** (T7): `d = 3`, `L = 3`, torus `(ℤ/3)^3`, `ν = 1/8 ∈ (7/72, 1]`, `h = e₀`,
+`N = 2`: all hypotheses of the above hold, and the conclusions on the gap, resolvent, full
+operator and inverse square root are nonvacuous. -/
+theorem kf0_instance :
+    7 / 8 * (((3 : ℕ) : ℝ) ^ 2)⁻¹ < (1 / 8 : ℝ) ∧ (1 / 8 : ℝ) ≤ 1 ∧ 0 < kf0Rate 3 3 ∧
+      IsCoercive (kf0Op 3 3 (1 / 8 : ℝ)) (kf0Gap 3) ∧
+      (∀ {t : ℝ}, 0 ≤ t →
+        IsUnit (kf0Op 3 3 (1 / 8 : ℝ) +
+          (t : ℂ) • (1 : Matrix (L1Torus 3 3) (L1Torus 3 3) ℂ)) ∧
+          ∀ x y : L1Torus 3 3,
+            ‖(kf0Op 3 3 (1 / 8 : ℝ) +
+                (t : ℂ) • (1 : Matrix (L1Torus 3 3) (L1Torus 3 3) ℂ))⁻¹ x y‖ ≤
+              2 / (kf0Gap 3 + t) * Real.exp (-kf0Rate 3 3 * dist x y)) ∧
+      (∀ u : Torus 3 3 × Fin 2 → ℝ, (1 / 8 : ℝ) * (u ⬝ᵥ u) ≤
+        u ⬝ᵥ kf0Full 3 3 2 (1 / 8 : ℝ) (Pi.single 0 1 : Fin 2 → ℝ) *ᵥ u) ∧
+      IsUnit (kf0Full 3 3 2 (1 / 8 : ℝ) (Pi.single 0 1 : Fin 2 → ℝ)).det ∧
+      (kf0Full 3 3 2 (1 / 8 : ℝ) (Pi.single 0 1 : Fin 2 → ℝ))⁻¹ =
+        spinLift 2 (latticeLaplacian 3 3 (1 / 8 : ℝ))⁻¹ *
+            (1 - projH (ι := Torus 3 3) (Pi.single 0 1 : Fin 2 → ℝ)) +
+          projH (Pi.single 0 1 : Fin 2 → ℝ) ∧
+      (∀ (x y : L1Torus 3 3) (i j : Fin 2),
+        ‖kf0Dress (Localization.sqrtMat (kf0Op 3 3 (1 / 8 : ℝ)))
+            (fun i => (((Pi.single 0 1 : Fin 2 → ℝ) i : ℝ) : ℂ)) (x, i) (y, j)‖ ≤
+          (if x = y then 1 else 0) +
+            2 / Real.sqrt (kf0Gap 3) * Real.exp (-kf0RateAt 3 (kf0Gap 3) * dist x y)) := by
+  have hm : 7 / 8 * (((3 : ℕ) : ℝ) ^ 2)⁻¹ < (1 / 8 : ℝ) := by norm_num
+  have hh : ∑ i, (Pi.single 0 1 : Fin 2 → ℝ) i ^ 2 = 1 := by simp [Fin.sum_univ_two]
+  have hgap : kf0Gap 3 ≤ (1 / 8 : ℝ) := by unfold kf0Gap; norm_num
+  have hg0 : 0 < kf0Gap 3 := kf0Gap_pos (by norm_num)
+  refine ⟨hm, by norm_num, kf0Rate_pos 3 (by norm_num), kf0Op_isCoercive_gap hm,
+    fun ht => kf0_resolvent_decay_gap hm (by norm_num) ht,
+    fun u => kf0Full_form_ge (by norm_num) hh u,
+    kf0Full_isUnit_det (by norm_num) hh, kf0Full_inv (by norm_num) hh,
+    fun x y i j => kf0FullC_sqrt_entry hg0 hgap (by norm_num) hh x y i j⟩
+
 end Balaban.Green
