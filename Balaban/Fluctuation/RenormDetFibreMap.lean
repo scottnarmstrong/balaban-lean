@@ -78,7 +78,7 @@ theorem coe_renFibreMap (X : Set (CTorus d L N₁ m₁ K)) :
   coe_finOf _
 
 /-- Cells of a union of cubes lie in it. -/
-theorem cell_subset_of_isDj (hN : L ^ m₀ ∣ N₁) {j : ℕ} (hj : j ≤ K)
+theorem cell_subset_of_isDj_fibre (hN : L ^ m₀ ∣ N₁) {j : ℕ} (hj : j ≤ K)
     {X : Set (CTorus d L N₁ m₁ K)} (hX : IsDj m₀ j X) {y : CTorus d L N₁ m₁ K} (hy : y ∈ X) :
     box (cbase (cellSide L m₀ m₁ j) y) (cellSide L m₀ m₁ j) ⊆ X := by
   obtain ⟨b, hb1, hb2, hb3⟩ := hX.2.1 y hy
@@ -257,7 +257,7 @@ theorem pset_subset_of_meets (hN : L ^ m₀ ∣ N₁) {X : Set (CTorus d L N₁ 
     intro μ; have a := hz μ; have b := hy μ; rw [e1] at a b; exact a.trans b.symm
   have h2 : SameCell (L ^ (K + m₁)) z y := h1
   have h3 := SameCell.mono (pset_cell_dvd (K := K) (m₁ := m₁) m₀) h2
-  exact cell_subset_of_isDj hN le_rfl hX hyX (mem_box_cbase_of_sameCell (cellSide_pos m₀ m₁ K) h3)
+  exact cell_subset_of_isDj_fibre hN le_rfl hX hyX (mem_box_cbase_of_sameCell (cellSide_pos m₀ m₁ K) h3)
 
 /-- Counting the labels met by a union of cubes by sites: `|𝒞| s^d ≤ |X|`. -/
 theorem card_renLabelFam_mul_le (hG : IsLevel G K) (hN : L ^ m₀ ∣ N₁)
@@ -425,7 +425,7 @@ theorem card_renFibre_le (hS : CovSetup G m₀ j Xr 𝒦X) (hG : IsLevel G K) (h
     have hXd' := isDj_of_isPolyDom (Finset.mem_filter.1 hX').2.1.1
     have key : ∀ (Z Z' : Set (CTorus d L N₁ m₁ K)), IsDj m₀ K Z → cells Z = cells Z' → Z ⊆ Z' := by
       intro Z Z' hZ hZZ' x hx
-      have hc := cell_subset_of_isDj (j := K) (m₀ := m₀) hS.hN le_rfl hZ hx
+      have hc := cell_subset_of_isDj_fibre (j := K) (m₀ := m₀) hS.hN le_rfl hZ hx
       have hb : cbase a x ∈ cells Z := by
         simp only [hcells, Finset.mem_filter, Finset.mem_univ, true_and]
         exact ⟨aligned_cbase x, hc⟩
