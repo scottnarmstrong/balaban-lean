@@ -612,8 +612,9 @@ lemma macArc_mem_end (a b : ZMod m) : b ∈ macArc a b := by
   · rw [mem_Icc]; exact ⟨min_le_right _ _, le_max_right _ _⟩
   · rw [cast_cycRep]; ring
 
+omit [NeZero m] in
 lemma macPath_start (hd : 0 < d) (x y : L1Torus d m) : x ∈ macPath d m x y :=
-  ⟨⟨0, hd⟩, fun i hi => absurd hi (Nat.not_lt_zero _), fun _ _ => rfl, macArc_mem_start _ _⟩
+  ⟨⟨0, hd⟩, fun _ hi => absurd hi (Nat.not_lt_zero _), fun _ _ => rfl, macArc_mem_start _ _⟩
 
 lemma macPath_end (hd : 0 < d) (x y : L1Torus d m) : y ∈ macPath d m x y := by
   refine ⟨⟨d - 1, by omega⟩, fun _ _ => rfl, fun i hi => ?_, macArc_mem_end _ _⟩
@@ -751,6 +752,37 @@ theorem macTags_card_le (hM : 0 < M) (z : MacIdx d m M) (x y : L1Torus d m) :
     (card_le_card h1).trans (card_union_le _ _)
   have : ((macTags d m M z x y).card : ℝ) ≤ A.card + B.card := by exact_mod_cast hc
   linarith
+
+/-- The path is a shortest path: every point `p` of it satisfies
+`dist x p + dist p y = dist x y`. -/
+theorem macPath_geodesic {x y p : L1Torus d m} (hp : p ∈ macPath d m x y) :
+    dist x p + dist p y = dist x y := by
+  obtain ⟨k, h1, h2, h3⟩ := hp
+  have hcoord : ∀ i, (cycRep (x i - p i)).natAbs + (cycRep (p i - y i)).natAbs ≤
+      (cycRep (x i - y i)).natAbs := by
+    intro i
+    rcases lt_trichotomy i k with c | c | c
+    · rw [h1 i c]; simp [natAbs_cycRep_zero]
+    · subst c
+      obtain ⟨e, he, hpe⟩ := mem_image.1 h3
+      rw [mem_Icc] at he
+      have a1 : (cycRep (x i - p i)).natAbs ≤ e.natAbs := by
+        have := natAbs_cycRep_le_of_cast (x i - p i) (-e) (by rw [← hpe]; push_cast; ring)
+        simpa using this
+      have a2 : (cycRep (p i - y i)).natAbs ≤ (e - cycRep (y i - x i)).natAbs := by
+        apply natAbs_cycRep_le_of_cast
+        push_cast; rw [cast_cycRep, ← hpe]; ring
+      have a3 := natAbs_cycRep_neg (y i - x i)
+      rw [neg_sub] at a3
+      omega
+    · rw [h2 i c]; simp [natAbs_cycRep_zero]
+  have hle : dist x p + dist p y ≤ dist x y := by
+    rw [dist_L1Torus, dist_L1Torus, dist_L1Torus]
+    unfold torusDist
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun i _ => ?_
+    exact_mod_cast hcoord i
+  exact le_antisymm hle (dist_triangle x p y)
 
 end Tags
 
