@@ -1676,6 +1676,8 @@ public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Inhabited.RenormHalfDetOnly
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
+public import Balaban.Green.FinalTaggedSqrt
+public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Inhabited.TowerCoreRatesGeneral
 public import Balaban.Inhabited.DecMarkCorrTotalFromTower
