@@ -1599,3 +1599,4 @@ public import Balaban.Fluctuation.SourcePhysValBridge
 public import Balaban.Inhabited.MarksNumericsFromTower
 public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
+public import Balaban.Fluctuation.ObsRayAnalytic
