@@ -431,9 +431,11 @@ theorem cornerX_dCovMod : dCovMod 2 (Set.univ : Set (Torus 2 4)) cornerX = 0 := 
         have h3 : (((x i).val - 2 : ℕ) : ZMod 4) = ((x i).val : ZMod 4) - 2 := by
           rw [Nat.cast_sub h1]; rfl
         rw [h3]; simp
-  · refine ⟨fun _ => 2, mem_cornerX.2 (Or.inr fun i => by simp [h2]), fun i => ⟨0, by simp, by simp⟩⟩
+  · exact ⟨fun _ => 2, mem_cornerX.2 (Or.inr fun i => by simp [h2]),
+      fun i => ⟨0, by simp, by simp⟩⟩
   · rintro c (rfl | rfl)
-    · refine ⟨fun _ => 1, ⟨fun _ => 1, fun _ => by norm_num, by funext i; simp⟩, fun i => ⟨1, by simp, ?_⟩⟩
+    · refine ⟨fun _ => 1, ⟨fun _ => 1, fun _ => by norm_num, by funext i; simp⟩,
+        fun i => ⟨1, by simp, ?_⟩⟩
       have e2 : zc (2 : ZMod 4) = (((2 : ℕ) : ℝ) : AddCircle ((4 : ℕ) : ℝ)) := zc_natCast 2
       have e1 : zc (1 : ZMod 4) = (((1 : ℕ) : ℝ) : AddCircle ((4 : ℕ) : ℝ)) := by
         simpa using zc_natCast (n := 4) 1

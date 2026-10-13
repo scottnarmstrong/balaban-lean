@@ -62,7 +62,9 @@ region `OmegaCube` and their bound uses the cube-level size `dCovMod` (`Def7Hist
 The landed size differs from P5 (1.34) in three ways: a nearest-neighbour structure of sites
 replaces a continuous tree; a chosen subfamily of cover cubes replaces all cover cubes meeting
 `X ∩ Ω`; half-open cells replace open cubes, and the components of `Ω^c` are nearest-neighbour
-components of sites.  **None of the following is proved in this development.**
+components of sites.  **The following items are open: none of them is proved in this
+development** (the labels are those of `notes/phase1/VMOD-27.md` §3 and `VMOD-28.md` §3; facts
+that are proved are cited by their declaration names).
 
 * **Comparison with the papers' size** (`OPEN-PAPER-FINE-REALIZATION`,
   `notes/phase1/VMOD-27.md` §3).  For every admissible post-`R` history `𝔸`, scale `k` and
@@ -73,13 +75,19 @@ components of sites.  **None of the following is proved in this development.**
   P5 (1.34) on the open domain.  A sufficient statement: every continuous tree in the open domain
   meeting every eligible open cover cube gives a nearest-neighbour tree of sites in `X_f` meeting
   every corresponding box, of length at most `A |Γ| / M + B` (`notes/phase1/VMOD-27.md` §3).
-* **Identification of the two notions of component** of `Ω^c` (continuum components of the closed
-  complement in the papers, nearest-neighbour components of cubes in `DmodOmega`, of sites in
-  `Fluctuation.DjMod`).
-* **Support of the boundary terms on the valid labels** for the representation produced by the
+* **Constants** (`OPEN-D7-CONSTANT-REBASE`).  Such a comparison turns the papers' bound
+  `B₀ e^{-κ d_k}` into `B₀ e^{κ b} e^{-κ a · d7Size}`, not into a bound with the same `B₀`, `κ`;
+  the clause `bound` of `D7BdryPost` is stated with the constants `fac`, `rate` of the class.
+* **Identification of the two notions of component** of `Ω^c` (`OPEN-MOD-COMPONENT-COMPAT`:
+  continuum components of the closed complement in the papers, nearest-neighbour components of
+  cubes in `DmodOmega`, of sites in `Fluctuation.DjMod`), and of the open domains of the papers
+  with the fine sets (`OPEN-ALIGNED-LIFT-IDENTIFICATION`).
+* **Support of the boundary terms on the valid labels** (`OPEN-D7-BOUNDARY-LABEL-SUPPORT`) for
+  the representation produced by the
   renormalization step: the field `support` of `D7BdryPost` requires `ℬ^{(k)}(X, 𝔸) = 0` at the
   cube-level boundary domains that are not `FineValid`; no producer of this clause is landed.
-* **Reindexing of (D1).**  The form clause (D1) (`Rep.bdrySum`) still sums over the boundary
+* **Reindexing of (D1)** (`OPEN-D7-POST-REINDEX`).  The form clause (D1) (`Rep.bdrySum`) still
+  sums over the boundary
   domains `bdryDoms` at the raw region `OmegaCube`.  Every such domain is a boundary domain at
   `Ω_k^post` (`bdryDoms_OmegaCube_subset_omegaPost`), and under `support` the terms that are not
   `FineValid` vanish (`D7BdryPost.mem_or_eq_zero`, `D7BdryPost.bdrySum_eq` in `Def7`), so every
@@ -89,9 +97,9 @@ components of sites.  **None of the following is proved in this development.**
 * **The pre-`R` class.**  `IsRepPre`, `IsRepPre2` keep the records `D7Bdry`, `D7Bdry2` with the
   cube-level size `dCovMod` at the raw region.  A fine size at the raw region for these classes,
   and the passage from the pre-`R` bound to the post-`R` bound through `R`, are not formalized.
-* **The H7 domain.**  The analyticity domain of the boundary terms (`H7Domain` at `globalLH`) and
-  the regions inside `loc_hist` are those of the pre-`R` record (raw regions `OmegaCube`); their
-  form after `R` has not been examined.
+* **The H7 domain** (`OPEN-D7-H7-POST-TRANSPORT`).  The analyticity domain of the boundary terms
+  (`H7Domain` at `globalLH`) and the regions inside `loc_hist` are those of the pre-`R` record
+  (raw regions `OmegaCube`); their form after `R` has not been examined.
 
 For two blocks of cubes meeting at a corner the cube-level size `dCovMod` is `0` and the fine
 size is `⊤` (`corner_dCovMod_zero_fine_top` in `Inhabited/D7FineSizeWitness`;
