@@ -870,6 +870,7 @@ public import Balaban.Localization.Decoupled2FpCount
 public import Balaban.Localization.Vmod7Anchored
 public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
+public import Balaban.Localization.FootprintHat
 public import Balaban.LargeField.R.Outcome
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
