@@ -1711,6 +1711,7 @@ public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTowerG
 public import Balaban.Inhabited.RenormThetaChartTower
+public import Balaban.Inhabited.SourceWitnessOfWitnessG
 public import Balaban.Inhabited.SourceWitnessJoint
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.CommonWitnessJoint
