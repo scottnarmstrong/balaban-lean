@@ -127,9 +127,9 @@ noncomputable abbrev towerDetConst (κ : ℝ) : ℝ :=
 
 /-- The threshold on `κmin` for the hull rate: `18 (1 + B)(3 κ_dec / 2 + c₁ log 2) + log 2 +
 2 log(detDeg 3 3 + 1)` with `B = c_G c₁ = 60750`, `c₁ = 3375` and
-`κ_dec = 100 (a_Ent + 1 + 3375 + 10)` (the value of the tower, with `κ₀ = a_Ent + 1`). -/
+`κ_dec = 100 (a_Ent + 1 + 3375 + 10)` (the value of the tower, with `κ₀ = a_Ent + 2`, retuned from `a_Ent + 1` per `notes/phase1/TOWERJOIN.md` §1). -/
 noncomputable def detHullThreshold : ℝ :=
-  18 * 60751 * (3 / 2 * (100 * (aEnt 3 3 + 1 + 3375 + 10)) + 3375 * Real.log 2) +
+  18 * 60751 * (3 / 2 * (100 * (aEnt 3 3 + 2 + 3375 + 10)) + 3375 * Real.log 2) +
     Real.log 2 + 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)
 
 theorem collarB_three : collarB 3 3 = 60750 := by
@@ -157,7 +157,7 @@ theorem towerDetHullRate_ge {κmin : ℝ} (T : StepTower κmin) (h : detHullThre
   have := hullRate_ge_of_le (κ := T.κ) (kout := 3 * T.κdec / 2) (by
     unfold detHullThreshold at h
     have := T.κmin_le
-    have e : 3 * T.κdec / 2 = 3 / 2 * (100 * (aEnt 3 3 + 1 + 3375 + 10)) := by
+    have e : 3 * T.κdec / 2 = 3 / 2 * (100 * (aEnt 3 3 + 2 + 3375 + 10)) := by
       rw [T.κdec_eq, T.κ0_eq, c1_three]; ring
     rw [e]; linarith)
   exact this
