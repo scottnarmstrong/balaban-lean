@@ -410,7 +410,10 @@ public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.YregBlocks
+public import Balaban.Localization.DecSqrtCutFactor
+public import Balaban.Inhabited.DecSqrtCutFactorWitness
 public import Balaban.Inhabited.YregBlocksWitness
+public import Balaban.Inhabited.DetCauchyGraphWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -955,6 +958,7 @@ public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.LargeField.R.RegionalAlignedSource
+public import Balaban.LargeField.R.AlignedI6Transport
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1113,6 +1117,7 @@ public import Balaban.Fluctuation.StepLocalInhabited
 public import Balaban.Fluctuation.StepObs
 public import Balaban.Fluctuation.StepObsInhabited
 public import Balaban.Fluctuation.StepRegFamily
+public import Balaban.Fluctuation.ScaleUniform
 public import Balaban.Fluctuation.StepRegBg
 public import Balaban.Fluctuation.StepRegCompose
 public import Balaban.Fluctuation.StepRegTerms
@@ -1186,8 +1191,10 @@ public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
 public import Balaban.Fluctuation.RootMarkedBound
+public import Balaban.Fluctuation.MarkedRootGeometry
 public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
+public import Balaban.Inhabited.MarkedRootGeometryWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1225,6 +1232,7 @@ public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.P6TopRootedFiber
 public import Balaban.Localization.P6FsharpRootedCount
+public import Balaban.Localization.P6ActiveSeed
 public import Balaban.Inhabited.P6FsharpRootedWitness
 public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
@@ -1310,7 +1318,9 @@ public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
+public import Balaban.Fluctuation.DetCauchyChart
 public import Balaban.Fluctuation.RootDetCutSupport
+public import Balaban.Fluctuation.DetCauchyGraph
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
@@ -1339,6 +1349,7 @@ public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.Inhabited.StepActivityHatWitnessRay
+public import Balaban.Inhabited.LevelStepSetting
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
@@ -1361,6 +1372,7 @@ public import Balaban.Inhabited.StepActivityDirectPhysicalRates
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
+public import Balaban.Inhabited.DetCauchyChartWitness
 public import Balaban.Inhabited.StepActivityDirectEtaWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
