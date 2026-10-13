@@ -12,7 +12,6 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W381 | `w381-kf0-f12-majorants` / W381 | one-scale branch: Taylor majorants (F.12), smallness (F.13) |
 | W388 | `w388-kf0-good-chart` / W388 | one-scale branch: chart on the good sites, inner integral as Gaussian (H37-4, second half) |
 | W387 (Opus) | `w387-marked-joint-param` / W387 | joint analyticity of the marked terms in (datum, marks); cubic analogue (MARKPARAM (J)) |
 | W389 | `w389-kf0-hole-walk` / W389 | one-scale branch: K_G^{-1/2} walk series, hole-walk identity, loop occupancy (relaunched) |
