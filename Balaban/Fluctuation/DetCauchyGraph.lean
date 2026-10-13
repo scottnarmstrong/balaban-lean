@@ -851,4 +851,212 @@ theorem paramGraph_degree_le (hG : CubeAligned G m₁) (hϱ : (4 * d * L * (L : 
 
 end Degree
 
+section Tail
+
+open Classical in
+/-- **Tail of the rooted sum.** For sets rooted at a finite set `N` of at most `b_root` vertices of
+a graph of degree at most `b`, with `z = Δ² t < 1`, `Δ = max (b + 1) b_root`:
+`∑_{|C| ≥ n} t^{|C|} ≤ z^n / (1 - z)`. -/
+theorem rooted_tail_sum_le {V : Type*} [Fintype V] [DecidableEq V] {Gr : SimpleGraph V}
+    [Gr.LocallyFinite] {b b_root : ℕ} (hb : ∀ v, Gr.degree v ≤ b) (N : Finset V)
+    (hN : N.card ≤ b_root) {t : ℝ} (ht : 0 ≤ t)
+    (hz : ((max (b + 1) b_root : ℕ) : ℝ) ^ 2 * t < 1) (n : ℕ) :
+    ∑ C ∈ (Polymer.rootedSets (G := Gr) (N : Set V)).filter (fun C => n ≤ C.card), t ^ C.card
+      ≤ (((max (b + 1) b_root : ℕ) : ℝ) ^ 2 * t) ^ n / (1 - ((max (b + 1) b_root : ℕ) : ℝ) ^ 2 * t) := by
+  set Δ : ℕ := max (b + 1) b_root with hΔ
+  set z : ℝ := (Δ : ℝ) ^ 2 * t with hzdef
+  have hz0 : 0 ≤ z := by positivity
+  have hmaps : ∀ C ∈ (Polymer.rootedSets (G := Gr) (N : Set V)).filter (fun C => n ≤ C.card),
+      C.card ∈ Finset.range (Fintype.card V + 1) := by
+    intro C _; rw [Finset.mem_range]; exact Nat.lt_succ_of_le (Finset.card_le_univ _)
+  rw [← Finset.sum_fiberwise_of_maps_to hmaps]
+  set g : ℕ → ℝ := fun m => if n ≤ m then z ^ m else 0 with hg
+  have hfib : ∀ m ∈ Finset.range (Fintype.card V + 1),
+      ∑ C ∈ ((Polymer.rootedSets (G := Gr) (N : Set V)).filter (fun C => n ≤ C.card)).filter
+        (fun C => C.card = m), t ^ C.card ≤ g m := by
+    intro m _
+    by_cases hm : n ≤ m
+    · have hgm : g m = z ^ m := by simp [hg, hm]
+      rw [hgm]
+      rw [Finset.sum_congr rfl (g := fun _ => t ^ m) (fun C hC => by
+        rw [(Finset.mem_filter.1 hC).2]), Finset.sum_const, nsmul_eq_mul]
+      have hcard := Polymer.card_rooted_le hb N hN m
+      rw [← hΔ] at hcard
+      have hsub : (((Polymer.rootedSets (G := Gr) (N : Set V)).filter (fun C => n ≤ C.card)).filter
+          (fun C => C.card = m)).card ≤ Δ ^ (2 * m) :=
+        (Finset.card_le_card (fun C hC => by
+          obtain ⟨h1, h2⟩ := Finset.mem_filter.1 hC
+          exact Finset.mem_filter.2 ⟨(Finset.mem_filter.1 h1).1, h2⟩)).trans hcard
+      calc _ ≤ ((Δ ^ (2 * m) : ℕ) : ℝ) * t ^ m := by
+            apply mul_le_mul_of_nonneg_right _ (by positivity)
+            exact_mod_cast hsub
+        _ = z ^ m := by rw [hzdef, mul_pow, ← pow_mul]; push_cast; ring
+    · have : ((Polymer.rootedSets (G := Gr) (N : Set V)).filter (fun C => n ≤ C.card)).filter
+          (fun C => C.card = m) = ∅ := by
+        refine Finset.filter_eq_empty_iff.2 fun C hC => ?_
+        have := (Finset.mem_filter.1 hC).2
+        omega
+      rw [this]; simp [hg, hm]
+  refine (Finset.sum_le_sum hfib).trans ?_
+  have hHas : HasSum g (z ^ n / (1 - z)) := by
+    refine (hasSum_nat_add_iff' n).1 ?_
+    have h0 : ∑ i ∈ Finset.range n, g i = 0 := by
+      refine Finset.sum_eq_zero fun i hi => ?_
+      have := not_le.2 (Finset.mem_range.1 hi)
+      simp [hg, this]
+    rw [h0, sub_zero]
+    have := (hasSum_geometric_of_lt_one hz0 hz).mul_left (z ^ n)
+    convert this using 1
+    · funext i; simp only [hg, le_add_iff_nonneg_left, zero_le, ite_true]; ring
+    · rw [div_eq_mul_inv]
+  exact sum_le_hasSum _ (fun i _ => by simp only [hg]; split_ifs <;> positivity) hHas
+
+end Tail
+
+section Combine
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν : ℝ}
+variable (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 < κ)
+  (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} (hφ : IsConstraintFieldStrict G δ φ)
+  {α : G.Ω 1 → ℂ}
+  (hα : ∀ w, ‖α w‖ < coerciveConst d / (2 * (G.spacing (w : CTorus d L N₁ m₁ (k + 1))) ^ 2))
+
+include S hκ hM hδ hsm hφ hα
+
+/-- **A cut set with non-zero mixed difference is rooted in the parameter graph.** If
+`mixDiff J` of the rooted trace of `B` is non-zero, every parameter cube of `J` is joined, inside
+`J`, by a walk of `paramGraph G` to the parameter cube containing a block of `B`. -/
+theorem rooted_of_mixDiff_ne_zero (hconn : HatConn G) (B : Finset (unitPts G))
+    {J : Finset (cubeIdx G)}
+    (hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α) ≠ 0) :
+    Polymer.Rooted (paramGraph G)
+      ((B.biUnion (rootParam G) : Finset (cubeIdx G)) : Set (cubeIdx G)) J := by
+  obtain ⟨y, hy, hJ⟩ := exists_rootChain_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn B hne
+  refine Polymer.Rooted.mono ?_ (rooted_of_rootChain S.dg.aligned hJ)
+  intro P hP
+  exact Finset.mem_coe.2 (Finset.mem_biUnion.2 ⟨y, hy, hP⟩)
+
+open Classical in
+/-- **The count of cut sets (T3).** At most `Δ^(2n)` cut sets `J` with `|J| = n` have non-zero
+`mixDiff J` of the rooted trace of `B`, `Δ = max (detDeg d L + 1) |B|`. -/
+theorem card_support_le (hconn : HatConn G) (B : Finset (unitPts G)) (n : ℕ) :
+    (((Finset.univ : Finset (cubeIdx G)).powerset.filter fun J =>
+        J.card = n ∧ mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α) ≠ 0)).card
+      ≤ (max (detDeg d L + 1) B.card) ^ (2 * n) := by
+  have hdeg := fun P => paramGraph_degree_le (G := G) S.dg.aligned S.dg.cover_sep S.dg.hM
+    (by have := S.dg.hL; omega) P
+  have hN : (B.biUnion (rootParam G)).card ≤ B.card :=
+    Finset.card_biUnion_le_card_mul B (rootParam G) 1 (fun y _ => card_rootParam_le S.dg.aligned y)
+      |>.trans (by simp)
+  refine le_trans ?_ (Polymer.card_rooted_le hdeg (B.biUnion (rootParam G)) hN n)
+  refine Finset.card_le_card fun J hJ => ?_
+  obtain ⟨-, hcard, hne⟩ := Finset.mem_filter.1 hJ
+  exact Finset.mem_filter.2 ⟨Polymer.mem_rootedSets.2
+    (rooted_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn B hne), hcard⟩
+
+open Classical in
+/-- **T4. Volume-independent bound for the whole rooted trace expansion at fixed fields.** With
+`M = (1/2) N |B| covBLog` and `Δ = detDeg d L + 1`, if `Δ² · 2 / e^κ < 1` then
+`∑_J ‖mixDiff J‖ ≤ M (1 - Δ² · 2 / e^κ)^(-|B|)`; for one root block, `M / (1 - Δ² · 2 / e^κ)`. -/
+theorem sum_norm_mixDiff_le (hconn : HatConn G) (B : Finset (unitPts G))
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1) :
+    ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset,
+        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α)‖ ≤
+      (1 / 2 : ℝ) * N * B.card * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ *
+        (1 / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ))) ^ B.card := by
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU B hφ hα
+  set Mc : ℝ := (1 / 2 : ℝ) * N * B.card * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ with hMc
+  have hM0 : 0 ≤ Mc := by
+    have := hbound ∅
+    simp only [Finset.card_empty, pow_zero, mul_one] at this
+    exact (norm_nonneg _).trans this
+  have ht : 0 ≤ 2 / Real.exp κ := by positivity
+  have hdeg := fun P => paramGraph_degree_le (G := G) S.dg.aligned S.dg.cover_sep S.dg.hM
+    (by have := S.dg.hL; omega) P
+  have hmax : max (detDeg d L + 1) 1 = detDeg d L + 1 := max_eq_left (by omega)
+  have hfam := Polymer.sum_rooted_le (G := paramGraph G) (b := detDeg d L) (b_root := 1) hdeg
+    (rootParam G) (fun y => card_rootParam_le S.dg.aligned y) ht (by rw [hmax]; exact hz) B
+  rw [hmax] at hfam
+  set R := Polymer.rootedSets (G := paramGraph G) (⋃ y ∈ B, ((rootParam G y : Finset (cubeIdx G)) :
+    Set (cubeIdx G))) with hR
+  have hRsub : R ⊆ (Finset.univ : Finset (cubeIdx G)).powerset :=
+    fun J _ => Finset.mem_powerset.2 (Finset.subset_univ _)
+  have hzero : ∀ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset, J ∉ R →
+      ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α)‖ = 0 := by
+    intro J _ hJR
+    by_contra hne
+    apply hJR
+    have hne' := norm_ne_zero_iff.1 hne
+    refine Polymer.mem_rootedSets.2 (Polymer.Rooted.mono ?_
+      (rooted_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn B hne'))
+    intro P hP
+    simp only [Finset.coe_biUnion, Set.mem_iUnion] at hP ⊢
+    exact hP
+  rw [← Finset.sum_subset hRsub hzero]
+  calc _ ≤ ∑ J ∈ R, Mc * (2 / Real.exp κ) ^ J.card := Finset.sum_le_sum fun J _ => hbound J
+    _ = Mc * ∑ J ∈ R, (2 / Real.exp κ) ^ J.card := by rw [Finset.mul_sum]
+    _ ≤ Mc * (1 / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ))) ^ B.card :=
+        mul_le_mul_of_nonneg_left hfam hM0
+
+open Classical in
+/-- **T4. The value of the rooted trace at `s = 1`** (the sum of all mixed differences) obeys the
+same bound. -/
+theorem norm_rootTrace_one_le (hconn : HatConn G) (B : Finset (unitPts G))
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1) :
+    ‖rootTrace G a aT ν (unitQ G) (unitP G) B (fun _ => 1) φ α‖ ≤
+      (1 / 2 : ℝ) * N * B.card * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ *
+        (1 / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ))) ^ B.card := by
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  obtain ⟨hsum, -⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU B hφ hα
+  rw [hsum]
+  exact (norm_sum_le _ _).trans (sum_norm_mixDiff_le S hκ hM hδ hsm hφ hα hconn B hz)
+
+open Classical in
+/-- **T4. The tail of the expansion.** With `Δ = max (detDeg d L + 1) |B|` and
+`z = Δ² · 2 / e^κ < 1`: `∑_{|J| ≥ n} ‖mixDiff J‖ ≤ M z^n / (1 - z)`. -/
+theorem tail_norm_mixDiff_le (hconn : HatConn G) (B : Finset (unitPts G)) (n : ℕ)
+    (hz : ((max (detDeg d L + 1) B.card : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1) :
+    ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card),
+        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α)‖ ≤
+      (1 / 2 : ℝ) * N * B.card * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ *
+        ((((max (detDeg d L + 1) B.card : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) ^ n /
+          (1 - ((max (detDeg d L + 1) B.card : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ))) := by
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU B hφ hα
+  set Mc : ℝ := (1 / 2 : ℝ) * N * B.card * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ with hMc
+  have hM0 : 0 ≤ Mc := by
+    have := hbound ∅
+    simp only [Finset.card_empty, pow_zero, mul_one] at this
+    exact (norm_nonneg _).trans this
+  have ht : 0 ≤ 2 / Real.exp κ := by positivity
+  have hdeg := fun P => paramGraph_degree_le (G := G) S.dg.aligned S.dg.cover_sep S.dg.hM
+    (by have := S.dg.hL; omega) P
+  have hN : (B.biUnion (rootParam G)).card ≤ B.card :=
+    Finset.card_biUnion_le_card_mul B (rootParam G) 1 (fun y _ => card_rootParam_le S.dg.aligned y)
+      |>.trans (by simp)
+  have htail := rooted_tail_sum_le hdeg (B.biUnion (rootParam G)) hN ht hz n
+  set R := (Polymer.rootedSets (G := paramGraph G)
+    ((B.biUnion (rootParam G) : Finset (cubeIdx G)) : Set (cubeIdx G))).filter
+      (fun J => n ≤ J.card) with hR
+  have hRsub : R ⊆ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card) :=
+    fun J hJ => Finset.mem_filter.2 ⟨Finset.mem_powerset.2 (Finset.subset_univ _),
+      (Finset.mem_filter.1 hJ).2⟩
+  have hzero : ∀ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card),
+      J ∉ R → ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) B s φ α)‖ = 0 := by
+    intro J hJ hJR
+    by_contra hne
+    apply hJR
+    exact Finset.mem_filter.2 ⟨Polymer.mem_rootedSets.2
+      (rooted_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn B (norm_ne_zero_iff.1 hne)),
+      (Finset.mem_filter.1 hJ).2⟩
+  rw [← Finset.sum_subset hRsub hzero]
+  calc _ ≤ ∑ J ∈ R, Mc * (2 / Real.exp κ) ^ J.card := Finset.sum_le_sum fun J _ => hbound J
+    _ = Mc * ∑ J ∈ R, (2 / Real.exp κ) ^ J.card := by rw [Finset.mul_sum]
+    _ ≤ _ := mul_le_mul_of_nonneg_left htail hM0
+
+end Combine
+
 end Balaban.Fluctuation
