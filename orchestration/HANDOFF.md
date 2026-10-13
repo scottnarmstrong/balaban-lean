@@ -17,7 +17,7 @@ Claude workers (background subagents of this session):
 | W346 | `w346-kf0-reference` / W346 | k_f = 0 branch: reference operator K_ν = −Δ+ν and A₀ = K_ν(1−P_h)+P_h; gap, resolvent/inverse/square-root decay |
 | W351 | `w351-late-witness` / W351 | a context with positive cube mass on which the late-scale direction theorems have an instance; outer sites if within reach |
 | W350 | `w350-base-chart` / W350 | base / k_f = 0: the frozen energy in the hemisphere chart at the constant saddle (exact quadratic form + remainder), source, integrand |
-| W331 (Opus) | `w331-det-bg-support` / W331 | determinant with cut-dependent backgrounds: support (root chain) for `rootTraceBg`, composed activity per hull |
+| W352 (Opus) | `w352-det-output-terms` / W352 | determinant as localized output terms (record + inhabitant), prefactor uniform in k, step theorem with the genuine `DetExpansionC`, symmetry, dependency radius |
 | W349 | `w349-fan-witness` / W349 | non-vacuity of the decoupled fan chain at the tower witness (ball, rows, fan locality, marked versions) |
 | W342 | `w342-final-complex-hessian` / W342 | last integral: D = aP_h + U(1−P_h) for complex h; decay and analyticity of inverse and square root |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
