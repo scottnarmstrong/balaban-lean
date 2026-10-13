@@ -33,11 +33,14 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Filter Topology
 
-theorem cK2'_pos' {B : ℝ} (hB : 0 ≤ B) : 0 < cK2' 3 3 2 B := by
-  have h1 := cA_ge 3 3 2
-  have h2 := cF_pos 3 3
+/-- The constant `cK2'` is positive for every `d`, `L`, `N` and every family constant `B ≥ 0`. -/
+theorem cK2'_pos_general {d L N : ℕ} [NeZero L] {B : ℝ} (hB : 0 ≤ B) : 0 < cK2' d L N B := by
+  have h1 := cA_ge d L N
+  have h2 := cF_pos d L
   unfold cK2' cN'
   positivity
+
+theorem cK2'_pos' {B : ℝ} (hB : 0 ≤ B) : 0 < cK2' 3 3 2 B := cK2'_pos_general hB
 
 /-- **The landed amplitude is large at the tower** (T4, DAPHYS (B)).  If `0 < r` and
 `r ≤ c_ψ/(2 p₁)` (as for `towerR`), the source allowance of `prop33Eps` gives

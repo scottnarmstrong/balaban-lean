@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.ScaleActivityFinalG
 public import Balaban.Fluctuation.LevelLocalCover
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -58,6 +59,10 @@ datum field in the data domains (`InPsiTilde`, `XiBounds`, `XiCBounds`) carries 
 is why the mass premise here is `0 < ν` and not `0 ≤ ν`; the cutoff, radius and `RayData`
 hypotheses (`scale_C_items`) and the cover hypotheses hold for `0 ≤ ν`.
 
+The theorem `stepActivityBound_zeroClass_direct_physical_scale_cutoff` is the case `d = L = 3`,
+`N = 2` of `stepActivityBound_zeroClass_direct_physical_scale_cutoff_general`
+(`ScaleActivityFinalG`), which carries the proof; the other theorems of this file follow from it.
+
 What is proved: zero class, at the step `hatStepK` (`d = L = 3`, `N = 2`, constant unit block
 datum, as in the landed witness), every scale with `0 < ν`, `ν · 3^{2(k+1)} ≤ 1`, every torus with
 `3 ∣ N₁`, `5 < N₁`, constants independent of the scale, the torus and the mass.  What is not
@@ -97,168 +102,28 @@ theorem stepActivityBound_zeroClass_direct_physical_scale_cutoff {A₁ : ℝ} (h
           B.εH ≤ C * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) ∧
           κ' + 3 * κ0 + c1 3 3 + 3 / 2 ≤ 2 * κdec - 1 ∧
           ∃ κout : ℝ, κout = 3 / 2 * κdec ∧ κdec ≤ κout ∧ κout ≤ min κ' κ' - κ0 - 1 := by
-  classical
-  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
-    exists_witness_params (fun _ => 0)
-  have hc1 := one_le_c1 3 3
-  have hent := aEnt_nonneg 3 3
-  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
-    hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0⟩ :=
-    tower_core_rates 2 (κ0 := κ0) (κdec := κdec) (by rw [hκ0def]) (by rw [hκdecdef]; linarith)
-  have hκdec0 : 0 ≤ κdec := by linarith
-  have hbig : cstarX 3 3 ≤ (3 : ℝ) ^ m₁ := by
-    have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
-    have h := Localization.cstarX_pos 3 3
-    have h2 : cstarX 3 3 ≤ cstarX 3 3 * Real.exp ((N0 3 3 : ℝ) * κ) :=
-      le_mul_of_one_le_right h.le (Real.one_le_exp (by positivity))
-    have h3 : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by norm_num
-    linarith
-  obtain ⟨β₀t, hβ₀t, hitems⟩ := scale_C_items hA p m₁ h4 hbig κ ht0 hδ hsm hδ'0 hδ'a hδ'b hδ'c
-  have hρ4 : 0 ≤ rho4 3 3 2 BG κ := by
-    have hd0 : 0 < 3 := by norm_num
-    have hBG := hC₀.hS.fam.2.1
-    have hB1 : 0 ≤ famConst 3 3 BG κ := by
-      have := famConst_ge_one (L := 3) hBG κ hd0; linarith
-    unfold rho4
-    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
-  set Q : ℝ := cK2' 3 3 2 (famConst 3 3 BG₂ κ) with hQdef
-  have hQ0 : 0 ≤ Q := (cK2'_pos' hB0).le
-  set P : ℝ := 3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + m₁)) ^ 3 *
-    (((3 : ℕ) : ℝ) ^ 3 * ((((2 : ℕ) : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
-      (((3 : ℕ) : ℝ) + 1 + rho4 3 3 2 BG κ) * Q ^ 2) * t ^ 2)) with hPdef
-  have hP0 : 0 ≤ P := by
-    rw [hPdef]; positivity
-  set K : ℝ := Q * t with hKdef
-  have hK0' : 0 ≤ K := mul_nonneg hQ0 ht0.le
-  obtain ⟨β₁, C0, hexpβ₁, hC0, hA'⟩ := scale_amp_exists (A₁ := A₁) (κ := κ) (t := t) hA p ht0
-    hP0 hK0'
-  set Kc'' : ℝ := K0 3 3 κ0 + 1 with hKc''
-  have hKc''pos : 0 < Kc'' := by have := K0_pos 3 3 κ0; rw [hKc'']; linarith
-  have hκ'0 : 0 ≤ κ' := by rw [hκ'def]; linarith
-  have hκa' : κ' + 3 * κ0 + c1 3 3 + 3 / 2 ≤ 2 * κdec - 1 := by
-    rw [hκ'def, hκdecdef]; linarith
-  have hxi1 : xiC1 3 * t ≤ 1 := by
-    have h1 := hC₀.c7le
-    have h2 := c7_le_bgC1 3 3 2 BG κ
-    have h3 := bgC1_le_small 3 3 2 (by norm_num)
-    linarith
-  refine ⟨m₁, t, δ,
-    max (max β₀t β₁) (daThreshold C0 (daT 3 3 2 Kc'' κdec κ0 κ') (3 * p)), 2 * C0,
-    le_trans hβ₀t ((le_max_left _ _).trans (le_max_left _ _)), by positivity, ht0, hδ, ?_⟩
+  obtain ⟨m₁, t, δ, β₀, C, hβ₀, hC, ht, hδ, h⟩ :=
+    stepActivityBound_zeroClass_direct_physical_scale_cutoff_general (d := 3) (L := 3) (N := 2)
+      (by norm_num) (by norm_num) le_rfl hA p hκ0def hκdecdef hκ'def
+  refine ⟨m₁, t, δ, β₀, C, hβ₀, hC, ht, hδ, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hβt : β₀t ≤ β := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hβ)
-  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hβ)
-  have hβd : daThreshold C0 (daT 3 3 2 Kc'' κdec κ0 κ') (3 * p) ≤ β :=
-    le_trans (le_max_right _ _) hβ
-  have hβ2 : 2 ≤ β := le_trans hβ₀t hβt
-  have hβ0 : 0 < β := by linarith
-  have hβ1 : 1 ≤ β := by linarith
-  have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-  have hbβ : β ≤ β * 3 ^ k := le_mul_of_one_le_right hβ0.le h3k
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  obtain ⟨hcψ0, hr0, hδ₁, hc, hlt, ⟨R0⟩⟩ := hitems k hk N₁ hN ν hν0 hν β hβt p₁ hp0 hp₁
-  have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
-  have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
-  have hamp2 := hA' (β * 3 ^ k) (hβ₁.trans hbβ) β hβ1 p₁ hp0 hp₁
-  set εU : ℝ := C0 * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) with hεU
-  have hεpos : 0 < εU := by
-    have : 0 < (Real.log (β * 3 ^ k)) ^ (3 * p) := by positivity
-    have : 0 < Real.sqrt (β * 3 ^ k) := Real.sqrt_pos.2 hb0
-    rw [hεU]; positivity
-  set S := hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ with hS
-  have hSD := dgSetting_lv (N₁ := N₁) (k := k) h4 hN hν0 hν
-  have hHB := bgHyp_lv (k := k) m₁ hν0 hν
-  have hC : FlCore 2 (lvTop N₁ m₁ k (rhoSep m₁)) (lvLow N₁ m₁ k (rhoSep m₁)) 1 ν c BG κ t
-      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
-    flCore_level_transfer hC₀ hSD (opSetting_lv h4 hN hν0 hν) (isLevel_lvLow hk) isLevel_lvTop hHB
-  have hBh := hBh_of_xi (N := 2) (Gp := lvTop N₁ m₁ k (rhoSep m₁)) hHB hνpos hC.small1
-    hC.eps_pos hxi1
-  have hD : XiCData S.G' (compWeight 3 1) ν (k + 1) 1 t S.D' := by
-    refine ⟨fun _ => unitVec hN2, unitVec hN2, 0, 0,
-      exists_xiC hHB (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (massLe_lv hν) ht0, ?_, ?_⟩
-    · intro x hx i
-      have := unitBg_Ψ_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).Ψ x i = _
-      rw [this]; simp
-    · intro x hx i
-      have := unitBg_h_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).h x i = _
-      rw [this]; simp
-  have hDA0 : 2 * εU ≤ 1 / (8 * (K0 3 3 κ0 + 1) ^ 3 * c1 3 3 *
-          Real.exp ((2 * κdec - 1 - 2 * κ0) * cG 3 3 + c1 3 3 + κ' * cG 3 3)) :=
-    (hDA_iff 3 3 (by norm_num) hKc''pos κdec κ0 κ' εU).2
-      (amplitude_le hC0 (daT_pos 3 3 (by norm_num) hKc''pos κdec κ0 κ') (3 * p) (hβd.trans hbβ))
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨hV, hF⟩ := LocalCover.levelLocalCover (N := 2) (lvLow N₁ m₁ k (rhoSep m₁)) hSD
-    (isLevel_lvTop (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := rhoSep m₁)) (m₀ := 1) le_rfl hN3
-  have hBh0 : (0 : ℝ) ≤ 1 + 2 / ν := by positivity
-  obtain ⟨B, hB1, hB2⟩ : ∃ B : StepActivityBound S (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) 0,
-      B.κH = 2 * κdec - 1 ∧ B.εH = 2 * εU := by
-    refine stepActivityBound_zeroClass_direct_scaled_uniform S
-      (ρ := p₁) (εU := εU) (κ0 := κ0) (κ' := κ') (Kc' := Kc'')
-      (Rσ := 2) (R₁ := 2) (r := lvR κ t (β * 3 ^ k) p₁) (R := 2) (m₀ := 1) (κdec := κdec)
-      (κ₀ := κ0) (ρE := 0) (ρM := 0) (Bh := 1 + 2 / ν) (δc := δc) (cψ := lvCpsi κ t (β * 3 ^ k))
-      (jV := fun _ => k) (XV := fun z => LocalCover.cube 1 k (LocalCover.blockSite k z))
-      (𝒦XV := fun z => LocalCover.fam 1 (LocalCover.blockSite k z))
-      (X₁V := fun z => LocalCover.nbhdF 1 (LocalCover.blockSite k z))
-      (jF := fun _ => k) (XF := fun s => LocalCover.cube 1 k s.1)
-      (𝒦XF := fun s => LocalCover.fam 1 s.1) (X₁F := fun s => LocalCover.nbhdF 1 s.1)
-      (τι := PEmpty.{1}) (μι := PEmpty.{1}) (ϱ₁ := fun _ => 0) (ϱ₂ := fun _ => 0)
-      (GkE := fun τ => PEmpty.elim τ) (GjE := fun τ => PEmpty.elim τ) (r₀ := 0) (δ₃ := 0)
-      (δfl := 0) (X₀E := fun _ => ∅) (X₁E := fun _ => ∅) (jE := fun _ => 0) (XE := fun _ => ∅)
-      (𝒦XE := fun _ => ∅) (EbE := fun _ => 0) (EE := fun _ _ => 0)
-      (ϱ₁M := fun _ => 0) (ϱ₂M := fun _ => 0)
-      (GkM := fun τ => PEmpty.elim τ) (GjM := fun τ => PEmpty.elim τ)
-      (X₀M := fun _ => ∅) (X₁M := fun _ => ∅) (jM := fun _ => 0) (XM := fun _ => ∅)
-      (𝒦XM := fun _ => ∅) (EbM := fun _ => 0) (EM := fun _ _ => 0)
-      (hC := hC) (hconn := hatConn_lvTop) (hrow := rowInHat_lv hk h4 hN hν0 hν)
-      (hκ₀ := hκ0) (hκdec := hκdec) (hκ := by exact_mod_cast hκ) (h1 := h1)
-      (hR₁ := by norm_num) (hr := hr0) (hβ := hβ1) (hL3 := le_rfl)
-      (hak := (compWeight_three_mem hk).2) (hk := hk) (hG := isLevel_lvLow hk)
-      (hcψ := hcψ0.le) (hMX := hMX) (hdm := hdm) (hα := hα) (hsmX := hsmX) (hδ₁ := hδ₁)
-      (ha₁ := one_pos) (H := hHB) (hc7 := hc7) (hR := le_rfl) (hRs := g1) (hsmall := g2)
-      (hnum := g3) (hnum' := g4) (hsm := g5)
-      (hcovV := fun z => (hV z).1) (hX₁V := fun z => (hV z).2.1)
-      (hoptV := fun z => (hV z).2.2.1) (hΔV := fun z => (hV z).2.2.2.1)
-      (hlogV := fun _ => hlog) (hZV := fun z => (hV z).2.2.2.2.1)
-      (hmarV := fun z => (hV z).2.2.2.2.2.1)
-      (𝒯E := (∅ : Finset PEmpty.{1}))
-      (hBE := fun τ hτ => absurd hτ (by simp)) (hFE := fun τ hτ => absurd hτ (by simp))
-      (hcovE := fun τ hτ => absurd hτ (by simp)) (hX₁E := fun τ hτ => absurd hτ (by simp))
-      (hoptE := fun τ hτ => absurd hτ (by simp)) (hlogE := fun τ hτ => absurd hτ (by simp))
-      (hEbE := fun τ hτ => absurd hτ (by simp)) (hEanE := fun τ hτ => absurd hτ (by simp))
-      (hEbdE := fun τ hτ => absurd hτ (by simp))
-      (hcovF := fun s => (hF s).1) (hX₁F := fun s => (hF s).2.1)
-      (hoptF := fun s => (hF s).2.2.1) (hΔF := fun s => (hF s).2.2.2.1)
-      (hlogF := fun _ => hlog) (hyF := fun s => (hF s).2.2.2.2)
-      (𝒯M := (∅ : Finset PEmpty.{1})) (ys := fun τ => PEmpty.elim τ)
-      (is := fun τ => PEmpty.elim τ)
-      (hys := fun τ hτ => absurd hτ (by simp))
-      (hBM := fun τ hτ => absurd hτ (by simp)) (hFM := fun τ hτ => absurd hτ (by simp))
-      (hcovM := fun τ hτ => absurd hτ (by simp)) (hX₁M := fun τ hτ => absurd hτ (by simp))
-      (hoptM := fun τ hτ => absurd hτ (by simp)) (hlogM := fun τ hτ => absurd hτ (by simp))
-      (hEbM := fun τ hτ => absurd hτ (by simp)) (hEanM := fun τ hτ => absurd hτ (by simp))
-      (hEbdM := fun τ hτ => absurd hτ (by simp))
-      (rE := fun τ => PEmpty.elim τ) (hrE := fun τ hτ => absurd hτ (by simp))
-      (hρE0 := le_rfl) (hρE := fun x => by simp) (hρM0 := le_rfl) (hρM := fun p => by simp)
-      (hBh0 := hBh0) (hBh := hBh) (hZν := fun z => (hV z).2.2.2.2.2.2)
-      (hRσ := by norm_num) (hc := hc) (hD := hD) (hN := hN3) (hp := hp0) (hpρ := le_rfl)
-      (hεpos := hεpos) (hεb := ?hεb) (hκE := hκE) (hKc := le_rfl) (hκ' := hκ'0) (hκa := hκa')
-      (hDA := hDA0) (R0 := R0) (hlt := hlt)
-      (hbase := StepSetting.baseDomain_of_rayData R0) (hRσ1 := by norm_num)
-      (h𝒯E := rfl) (h𝒯M := rfl)
-    case hεb =>
-      have e1 : S.betaU = β * 3 ^ k := hatStepK_betaU k m₁ hk ν β p₁ δ
-      rw [e1]
-      simp only [hPdef, hKdef, hQdef] at hamp2
-      simp only [norm_zero, zero_mul, add_zero, zero_div, mul_zero]
-      exact hamp2
-  refine ⟨B, hB1, ?_, hκa', 3 / 2 * κdec, rfl, by linarith, by rw [hκ'def, min_self]; linarith⟩
-  rw [hB2, hεU]
-  have : 2 * (C0 * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k)) =
-      2 * C0 * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) := by ring
-  rw [this]
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have key : ∀ ϱ : ℝ, ϱ = rhoSep m₁ →
+      ∀ B : StepActivityBound (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k m₁ ϱ hk
+          ν β p₁ δ) (zeroClass 3 3 N₁ m₁ k 2 ϱ) 0,
+        ∃ B' : StepActivityBound (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+            (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) 0, B'.κH = B.κH ∧ B'.εH = B.εH := by
+    intro ϱ hϱ
+    subst hϱ
+    exact fun B => ⟨B, rfl, rfl⟩
+  obtain ⟨B, hB1, hB2, hB3, hB4⟩ := h k hk N₁ h3N hN ν hνpos (by simpa using hν) β hβ p₁ hp0
+    (by rw [e]; exact hp₁)
+  obtain ⟨B', h1', h2'⟩ := key _ (rhoSepG_three m₁) B
+  refine ⟨B', h1'.trans hB1, ?_, hB3, hB4⟩
+  rw [h2']
+  have := hB2
+  rw [e] at this
+  exact this
 
 /-- **The zero-class activity bound at every scale and on every torus, with the cutoff of the
 papers.**  With `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`: there
