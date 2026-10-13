@@ -263,6 +263,39 @@ theorem obsRay_hray_fromTower {κmin : ℝ} (T : StepTower κmin) :
 
 
 open Classical in
+/-- **`obsMarks_zeroClass_family` with the kernel support** (see
+`obsMarks_zeroClass_at_of_ray_ksupp`). -/
+theorem obsMarks_zeroClass_family_ksupp {κmin : ℝ} (T : StepTower κmin)
+    {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ}
+    (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
+  ∃ β₀ C₁ C₂ : ℝ, 2 ≤ β₀ ∧ 0 ≤ C₁ ∧ 0 ≤ C₂ ∧
+  ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+  ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+  ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+  p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+  StepScaleData T k hk N₁ ν β p₁ →
+  ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2,
+    g ∈ l1Ball 3 3 N₁ T.m₁ (k + 1) 2 →
+  ∀ (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2),
+    let S := T.step k hk N₁ ν β p₁;
+    let C := zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁);
+    ∃ I : ObsMarks S.nuFl (S.blockSplit 1 hp)
+      (fun r x => S.WoneC C 1 x + S.WtwoC C g r x)
+      (fun r x => deriv (fun z => McompAtC C.m₀ C.Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC z x)) g y i) r)
+      (rootCube (m₀ := 1) (blockIndex y)),
+      I.Kc = 4 * K0 3 3 T.κ0 + 2 ∧ I.κ0 = T.κ0 ∧
+      I.κH = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+      I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * 3 ^ k) ∧
+      I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
+        (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
+      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) ∧
+      ∀ (j : I.ι1) (T : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1)
+        1 (k + 1) Set.univ)),
+        I.hker j T ≠ 0 → dOmega 1 (k + 1) Set.univ (sitesOf T) ≠ ⊤ :=
+  obsMarks_zeroClass_family_of_ray_ksupp T hA p hCR hs0 hs (obsRay_hray_fromTower T)
+
+open Classical in
 /-- **The observable marks record of the zero-class step at the shared tower** (OBSPHYS §4), with
 no hypothesis beyond the tower: `obsMarks_zeroClass_family_of_ray` with `hray` supplied by
 `obsRay_hray_fromTower`. -/
@@ -290,8 +323,13 @@ theorem obsMarks_zeroClass_family {κmin : ℝ} (T : StepTower κmin)
       I.κh = 2 * T.κdec ∧ I.Rσ = obsRg CR s p (β * 3 ^ k) ∧
       I.B1 ≤ C₁ * obsW p (β * 3 ^ k) ^ 4 *
         (β * 3 ^ k) ^ (-(1 / 2 : ℝ) - s) ∧
-      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) :=
-  obsMarks_zeroClass_family_of_ray T hA p hCR hs0 hs (obsRay_hray_fromTower T)
+      I.B2 ≤ C₂ * obsW p (β * 3 ^ k) ^ 2 / (β * 3 ^ k) := by
+  obtain ⟨β₀, C₁, C₂, h1, h2, h3, h⟩ := obsMarks_zeroClass_family_ksupp T hA p hCR hs0 hs
+  refine ⟨β₀, C₁, C₂, h1, h2, h3, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g hg y i S C
+  obtain ⟨I, e1, e2, e3, e4, e5, e6, e7, e8, -⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁p hp₁ D g
+    hg y i
+  exact ⟨I, e1, e2, e3, e4, e5, e6, e7, e8⟩
 
 open Classical in
 /-- **Non-vacuity of `obsMarks_zeroClass_family`.**  At `k = 1`, `N₁ = 18`, `ν = 1/81`, `p₁ = 1`
