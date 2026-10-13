@@ -1440,3 +1440,4 @@ public import Balaban.Fluctuation.SizeModExtend
 public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
 public import Balaban.Inhabited.LateYDirectionWitness
+public import Balaban.Inhabited.LateScaleWitness
