@@ -151,7 +151,7 @@ theorem vblock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx
   have ha : 0 ≤ compWeight L a₁ k :=
     (hC.HBp.weights k hk (by omega)).1.trans' (by norm_num)
   have hEb := energyBd_nonneg (d := d) (L := L) (N := N) ha hC.HBp.mass hV hC.δ₁_pos.le hρ
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+  obtain ⟨Ev, h1', h2', h3', h4', -⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
     hopt hκ₀ hκdec hκ h1 hlog hEb
     (Φ := blockEnergyFun Gp Hm (compWeight L a₁) ν k z)
     ((blockEnergyFun_analytic _ ν k z).mono (Set.subset_univ _))
@@ -326,7 +326,7 @@ theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
     have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
   have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
     mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, h1', h2', h3', h4', -⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hV (Φ := siteFun Gp Hm y i)
     ((siteFun_analytic (Gp := Gp) (Hm := Hm) y i).mono (Set.subset_univ _))
     (fun t ht => by

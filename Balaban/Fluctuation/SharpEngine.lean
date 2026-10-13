@@ -486,7 +486,8 @@ theorem hΦlocDir_psiCoord {T : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 →
 /-- **The expansion engine for the sharp agreement relation.**  As `i5_functional_hat_dir_of_fan`,
 with the fan locality hypothesis and the locality clause of the conclusion for raw data agreeing on
 the domain `Y` itself (not on `thickSet Y`) and hat variables agreeing at the unit points of `Y`.
-Instance of `i5_functional_rel_of_fan`. -/
+Instance of `i5_functional_rel_of_fan`.
+The last conjunct exhibits the terms, as in `i5_functional_rel_of_fan`. -/
 theorem i5_functional_hat_rawY_of_fan (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
@@ -575,14 +576,42 @@ theorem i5_functional_hat_rawY_of_fan (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : 
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_rel_of_fan hC
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
+  obtain ⟨Ev, h1', h2', h3', h4', h5'⟩ := i5_functional_rel_of_fan hC
     (fun Y u u' => agreeOn Y u.1 u'.1 ∧
       ∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
     (fun h u u' hu => ⟨agreeOn_mono h hu.1, fun y hy i => hu.2 y (h hy) i⟩)
     (fun _ u => ⟨agreeOn_refl _ u.1, fun _ _ _ => rfl⟩) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
     hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hΦbd hfan
-  exact ⟨Ev, h1', fun Y u hu u' hu' ha hb => h2' Y u hu u' hu' ⟨ha, hb⟩, h3', h4'⟩
+  exact ⟨Ev, h1', fun Y u hu u' hu' ha hb => h2' Y u hu u' hu' ⟨ha, hb⟩, h3', h4', h5'⟩
 
 /-- **The expansion engine for the sharp agreement relation, layer-constant fluctuation.**  As
 `i5_functional_hat_rawY_of_fan` for the functional on `FlRealLC`; instance of

@@ -797,7 +797,7 @@ theorem nublock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc C
   have hEb : 0 ≤ nuBd d L N k (cK2' d L N (famConst d L BG₂ κ) * δ₁)
       (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
     unfold nuBd; positivity
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
+  obtain ⟨Ev, h1', h2', h3', h4', -⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
     hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb (Φ := nuBlockFun Gp Hm k z)
     ((nuBlockFun_analytic (Gp := Gp) (Hm := Hm) k z).mono (Set.subset_univ _))
     (fun t ht => by

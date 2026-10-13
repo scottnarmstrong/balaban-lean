@@ -79,7 +79,8 @@ theorem agHatFDir_mono (hG' : IsLevel Gp (k + 1)) {Y Y' : Set (CTorus d L N₁ m
     AgHatFDir hG' Y z z' := fun y hy i => hz y (h hy) i
 
 /-- **Lemma AE and the resummation for an arbitrary agreement relation** monotone in the set and
-reflexive. -/
+reflexive.
+The last conjunct identifies the terms: `Ev = evTerm (fun i => i.1.1) Gp m₀ (X1 Gp m₀ j 𝒦X) FF`. -/
 theorem expansion_of_AE_rel
     (Ag : Set (CTorus d L N₁ m₁ (k + 1)) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) →
@@ -130,7 +131,9 @@ theorem expansion_of_AE_rel
         Ag Y u u' → Ev Y u = Ev Y u') ∧
       (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B',
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
-      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B')) := by
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B')) ∧
+      Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+        (X1 Gp m₀ j 𝒦X) FF := by
   classical
   set c : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℕ × CTorus d L N₁ m₁ (k + 1) :=
     fun i => i.1.1 with hcdef
@@ -158,7 +161,7 @@ theorem expansion_of_AE_rel
     (fun C u _ => href _ u)
     (fun C u u' h => hmono (hsub C) h) hana hbd hloc'
   exact ⟨evTerm c Gp m₀ (X1 Gp m₀ j 𝒦X) FF, hsum,
-    fun Y u hu u' hu' h => hlocY Y u hu u' hu' h, hbound, hanY⟩
+    fun Y u hu u' hu' h => hlocY Y u hu u' hu' h, hbound, hanY, rfl⟩
 
 /-- Sharp form of `expansion_of_AE_hat`: `AgHatDir` in the locality premise and in the
 conclusion. -/
@@ -204,8 +207,9 @@ theorem expansion_of_AE_hat_dir (hd : 3 ≤ d) (hL : 3 ≤ L) (hG' : IsLevel Gp 
       (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B',
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B')) := by
-  exact expansion_of_AE_rel (AgHatDir hG') (fun h => agHatDir_mono hG' h)
-    (agHatDir_refl hG') hd hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
+  exact (expansion_of_AE_rel (AgHatDir hG') (fun h => agHatDir_mono hG' h)
+    (agHatDir_refl hG') hd hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc).imp
+    fun _ h => ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1⟩
 
 /-- Check: the landed statement of `expansion_of_AE_hat`, re-derived from the generic lemma. -/
 theorem expansion_of_AE_hat_via_rel (hd : 3 ≤ d) (hL : 3 ≤ L) (hG' : IsLevel Gp (k + 1))
@@ -250,8 +254,9 @@ theorem expansion_of_AE_hat_via_rel (hd : 3 ≤ d) (hL : 3 ≤ L) (hG' : IsLevel
       (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B',
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B')) := by
-  exact expansion_of_AE_rel (AgHat hG') (fun h => agHat_mono hG' h)
-    (agHat_refl hG') hd hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
+  exact (expansion_of_AE_rel (AgHat hG') (fun h => agHat_mono hG' h)
+    (agHat_refl hG') hd hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc).imp
+    fun _ h => ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1⟩
 
 /-- **Non-vacuity of the sharp premise.**  A functional that, for fixed parameters, depends on the
 data only through the hat coordinate at the unit point of a site `y₀ ∈ X₁` (and not on `s`) is
@@ -313,7 +318,10 @@ on `Y` itself) is another.  For `AgHatDir`:
 for every decoupled background map `F₁` and solution map `Sol` with the properties of
 `fanH_local`, the functional built from `Φ` is local for `AgHatDir` on the domains
 `compY c X₁ C`.  Everything else is the landed theorem; only the fan-only hypotheses
-(`hconn`, `hrow`, `Z`, `Zα`, `hZ`, `hBM`, `hΦloc`) are no longer used. -/
+(`hconn`, `hrow`, `Z`, `Zα`, `hZ`, `hBM`, `hΦloc`) are no longer used.
+The last conjunct exhibits the terms: `Ev = evTerm … FF`, where `FF` is the functional of `hfan`
+at a decoupled background map `F₁` and a fluctuation map `Sol` with the defining properties of
+the binders of `hfan`. -/
 theorem i5_functional_rel_of_fan
     (Ag : Set (CTorus d L N₁ m₁ (k + 1)) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) →
@@ -407,7 +415,35 @@ theorem i5_functional_rel_of_fan
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   classical
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hc1 := one_le_xiC1 d
@@ -462,9 +498,9 @@ theorem i5_functional_rel_of_fan
     rw [hFeq, hSeq]
     exact hΦbd _ hmem
   have hloc := hfan hF₁ hSolprop
-  obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE_rel Ag hmono href hC.HBp.hd hC.HBp.hL
-    hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
-  refine ⟨Ev, fun D hD ψh hψh => ?_, hlocY, hbound, hanY⟩
+  obtain ⟨Ev, hsum, hlocY, hbound, hanY, hEv⟩ := expansion_of_AE_rel Ag hmono href hC.HBp.hd
+    hC.HBp.hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
+  refine ⟨Ev, fun D hD ψh hψh => ?_, hlocY, hbound, hanY, F₁, Sol, hF₁, hSolprop, hEv⟩
   have hsum' := hsum (rawOf D, ψh) ⟨⟨D, hD, rfl⟩, hψh⟩
   rw [← hsum']
   have hsx : ∀ P : ↥(cubeIdx Gp), ‖(fun _ : ↥(cubeIdx Gp) => (1 : ℂ)) P‖ < Real.exp κ :=
@@ -610,7 +646,8 @@ theorem i5_functional_hat_dir_of_fan (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : I
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
-  i5_functional_rel_of_fan hC (AgHatDir hG') (fun h => agHatDir_mono hG' h) (agHatDir_refl hG') hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hΦbd hfan
+  (i5_functional_rel_of_fan hC (AgHatDir hG') (fun h => agHatDir_mono hG' h) (agHatDir_refl hG') hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hΦbd hfan).imp
+    fun _ h => ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1⟩
 
 /-- **The expansion engine for an arbitrary agreement relation `Ag` (monotone in the set,
 reflexive), on the realizable set `FlRealLC`**, with the fan locality for `Ag` as a hypothesis
@@ -765,8 +802,8 @@ theorem i5_functional_relLC_of_fan
     rw [hFeq, hSeq]
     exact hΦbd _ ⟨hmem, isLayerConstant_liftC hG hG' _⟩
   have hloc := hfan hF₁ hSolprop
-  obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE_rel Ag hmono href hC.HBp.hd hC.HBp.hL
-    hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
+  obtain ⟨Ev, hsum, hlocY, hbound, hanY, -⟩ := expansion_of_AE_rel Ag hmono href hC.HBp.hd
+    hC.HBp.hL hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
   refine ⟨Ev, fun D hD ψh hψh => ?_, hlocY, hbound, hanY⟩
   have hsum' := hsum (rawOf D, ψh) ⟨⟨D, hD, rfl⟩, hψh⟩
   rw [← hsum']

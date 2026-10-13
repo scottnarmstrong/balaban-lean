@@ -94,7 +94,8 @@ theorem sourceDirectTerms_scale_fromTower_ray_full_rho {κmin : ℝ} (T : StepTo
   have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
   subst hϱ' hb'
   intro G
-  exact G
+  exact G.imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
+    ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1, h.2.2.2.2.2.2.1⟩
 
 open Classical in
 /-- **The direct terms of the zero class at the shared tower, with the ray clause on the full
@@ -200,7 +201,7 @@ theorem obsRay_hray_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : S
               (ball (0 : ℂ) (3 / 2))) := by
   classical
   intro k hk N₁ _ hLN hN ν hνpos hν β hβ1 p₁ hp0 D S hS hp
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hm0, hmg, hr⟩ :=
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hm0, hmg, hr, -⟩ :=
     sourceDirectTerms_scale_fromTowerG_ray_full_rho T k hk N₁ hLN hN ν hνpos hν β ρ hρ hβ1 p₁ ρ hρ
       le_rfl D S hS hp
   exact ⟨val, 𝒴, Tt, hval, hcont, hI, hm0, hmg, fun Y _ Θ hΘ ψ hψ => hr Y Θ hΘ ψ hψ⟩
