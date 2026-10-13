@@ -51,7 +51,9 @@ expansion at a step whose chart is open in the subspace of data, there is a func
 parameter `θ = (raw datum, source)` which equals `E.term D` at `θ = (rawOf D, g)` for every datum `D`
 of the chart, and which is analytic on `physV`, local (equal at two parameters of `physV` whose raw
 data and sources agree on the thickening of `Ŷ(sitesOf T)`), bounded by `cdet e^{-κ'' d_Ext T}` on
-`physV`, and non-zero only at rooted polymer sets. -/
+`physV`, and non-zero only at rooted polymer sets.  No locality on `sitesOf T` itself is asserted
+for an individual `dz`: the determinant's locality on its own domain is supplied by the
+collar-grouped record on the `renYs` domains (`renE0_fibre_det_at`). -/
 theorem detParamFamily {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
     {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
     (E : DetExpansionLocC S m₀ z eps κ'' cdet)
