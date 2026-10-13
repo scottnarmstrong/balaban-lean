@@ -10,6 +10,7 @@ public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Localization.XiCRawOpen
 public import Balaban.Localization.FootprintMargin
 public import Balaban.Localization.I5Local
+public import Balaban.Fluctuation.SizeModDefs
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -55,8 +56,12 @@ step, their sum and their bound.  This file records the remaining proved propert
   `x` (distance of lifts, `CoordNear`); hence the dependency set of a term lies in the
   neighbourhood of radius `3 L^n - 1` of its polymer.
 * `detDepRadius_lt_cellSide`: this radius is less than one cell of `π_K` when `3 ≤ L^{m₀ + m₁}`.
-* `DetExpansionLocC.term_eq_of_agree_near`: two data of the chart which agree at all sites within
-  this distance of the polymer `T` have the same term.
+* `cellNear_of_coordNear`, `thickSet_cellNear`: in units of cells the radius is one: every site of
+  the dependency set lies in a cell of `π_K` which is equal or `*`-adjacent (`CellNear`) to the
+  cell of a site of the set.
+* `DetExpansionLocC.term_eq_of_agree_near`, `DetExpansionLocC.term_eq_of_agree_cellNear`: two data
+  of the chart which agree at all sites within this distance of the polymer `T` (respectively in
+  the cells of `T` and the cells `*`-adjacent to them) have the same term.
 
 ## What is not proved
 
@@ -438,6 +443,84 @@ theorem thickSet_coordNear {n : ℕ} (hG : IsLevel G n) (Y : Set (CTorus d L N�
   · exact ⟨v, hv, fun μ => CoordNear.refl (detDepRadius_nonneg n) _⟩
   · exact ⟨x, hx, fun μ => resDep_coordNear hG hvx μ⟩
 
+/-- Two sites of `ZMod S` at distance (of lifts) less than `c`, where `c ∣ S`: the bases of their
+cells of side `c` differ by `c q` with `|q| ≤ 1`. -/
+theorem cellBase_near_of_coordNear {S c : ℕ} [NeZero S] (hc0 : 0 < c) (hcS : c ∣ S) {r : ℝ}
+    (hr : r < c) {a b : ZMod S} (h : CoordNear S r a b) :
+    ∃ q : ℤ, |q| ≤ 1 ∧ ((c * (a.val / c) : ℕ) : ZMod S) =
+      ((c * (b.val / c) : ℕ) : ZMod S) + (((c : ℤ) * q : ℤ) : ZMod S) := by
+  obtain ⟨p, hp⟩ := h
+  obtain ⟨m, hm⟩ := hcS
+  have hcz : (0 : ℤ) < (c : ℤ) := by exact_mod_cast hc0
+  have hδ : |(a.val : ℤ) + p * (S : ℤ) - (b.val : ℤ)| < (c : ℤ) := by
+    have h1 : ((|(a.val : ℤ) + p * (S : ℤ) - (b.val : ℤ)| : ℤ) : ℝ) < ((c : ℤ) : ℝ) := by
+      push_cast
+      exact lt_of_le_of_lt hp hr
+    exact_mod_cast h1
+  have hA := Int.emod_add_mul_ediv (a.val : ℤ) (c : ℤ)
+  have hB := Int.emod_add_mul_ediv (b.val : ℤ) (c : ℤ)
+  have hA1 := Int.emod_nonneg (a.val : ℤ) hcz.ne'
+  have hA2 := Int.emod_lt_of_pos (a.val : ℤ) hcz
+  have hB1 := Int.emod_nonneg (b.val : ℤ) hcz.ne'
+  have hB2 := Int.emod_lt_of_pos (b.val : ℤ) hcz
+  have hSm : (S : ℤ) = (c : ℤ) * (m : ℤ) := by exact_mod_cast hm
+  set α : ℤ := (a.val : ℤ) / (c : ℤ) with hα
+  set β : ℤ := (b.val : ℤ) / (c : ℤ) with hβ
+  rw [abs_lt] at hδ
+  have e : (c : ℤ) * (α + p * (m : ℤ) - β) =
+      ((a.val : ℤ) + p * (S : ℤ) - (b.val : ℤ)) - (a.val : ℤ) % (c : ℤ) +
+        (b.val : ℤ) % (c : ℤ) := by
+    rw [hSm]; linarith
+  have hE1 : -(2 * (c : ℤ)) < (c : ℤ) * (α + p * (m : ℤ) - β) := by rw [e]; linarith
+  have hE2 : (c : ℤ) * (α + p * (m : ℤ) - β) < 2 * (c : ℤ) := by rw [e]; linarith
+  have hX1 : -2 < α + p * (m : ℤ) - β := by
+    by_contra hn
+    have hn' := not_lt.1 hn
+    nlinarith
+  have hX2 : α + p * (m : ℤ) - β < 2 := by
+    by_contra hn
+    have hn' := not_lt.1 hn
+    nlinarith
+  refine ⟨α + p * (m : ℤ) - β, ?_, ?_⟩
+  · rw [abs_le]
+    constructor <;> omega
+  · have e1 : ((c * (a.val / c) : ℕ) : ℤ) = (c : ℤ) * α := by
+      rw [hα]; push_cast; rfl
+    have e2 : ((c * (b.val / c) : ℕ) : ℤ) = (c : ℤ) * β := by
+      rw [hβ]; push_cast; rfl
+    have e3 : ((c * (a.val / c) : ℕ) : ℤ) =
+        ((c * (b.val / c) : ℕ) : ℤ) + (c : ℤ) * (α + p * (m : ℤ) - β) - p * (S : ℤ) := by
+      rw [e1, e2, hSm]; ring
+    have e5 : (((c * (a.val / c) : ℕ) : ℤ) : ZMod S) =
+        ((((c * (b.val / c) : ℕ) : ℤ) + (c : ℤ) * (α + p * (m : ℤ) - β) : ℤ) : ZMod S) := by
+      rw [ZMod.intCast_eq_intCast_iff_dvd_sub]
+      exact ⟨p, by rw [e3]; ring⟩
+    rw [Int.cast_add, Int.cast_natCast, Int.cast_natCast] at e5
+    exact e5
+
+/-- **From sites to cells.**  If `v` is, in each coordinate, at distance less than one cell of
+`π_K` from `x`, then the cell of `v` is equal or `*`-adjacent to the cell of `x`. -/
+theorem cellNear_of_coordNear {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) {r : ℝ}
+    (hr : r < (cellSide L m₀ m₁ K : ℝ)) {v x : CTorus d L N₁ m₁ K}
+    (h : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) r (v μ) (x μ)) : CellNear m₀ K x v := by
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K)
+  have hc0 := cellSide_pos (L := L) m₀ m₁ K
+  choose q hq1 hq2 using fun μ => cellBase_near_of_coordNear hc0 hdvd hr (h μ)
+  refine ⟨q, fun μ => by exact_mod_cast hq1 μ, ?_⟩
+  funext μ
+  simp only [cbase, Pi.add_apply]
+  exact hq2 μ
+
+/-- **The dependency set in units of cells**, for a generating set of level `n` with
+`3 L^n - 1 < L^{K + m₀ + m₁}` (for instance `n = K` and `3 ≤ L^{m₀ + m₁}`): every site of the
+thickening `thickSet G Y` lies in a cell of `π_K` which is equal or `*`-adjacent to the cell of
+a site of `Y`. -/
+theorem thickSet_cellNear {n : ℕ} (hG : IsLevel G n) {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
+    (hr : detDepRadius L n < (cellSide L m₀ m₁ K : ℝ)) (Y : Set (CTorus d L N₁ m₁ K))
+    {v : CTorus d L N₁ m₁ K} (hv : v ∈ thickSet G Y) : ∃ x ∈ Y, CellNear m₀ K x v := by
+  obtain ⟨x, hx, hxv⟩ := thickSet_coordNear hG Y hv
+  exact ⟨x, hx, cellNear_of_coordNear hN hr hxv⟩
+
 end Dependency
 
 section DependencyStep
@@ -459,6 +542,22 @@ theorem DetExpansionLocC.term_eq_of_agree_near (E : DetExpansionLocC S m₀ z ep
       D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) :
     E.term D T = E.term D₂ T :=
   E.term_eq_of_agreeOn hD hD₂ T fun v hv => h v (thickSet_coordNear S.hG' _ hv)
+
+/-- **Locality of a term in the cells of its polymer and their neighbours.**  If
+`3 ≤ L^{m₀ + m₁}`, two data of the chart whose raw data agree at every site whose cell of
+`π_{k+1}` is equal or `*`-adjacent to the cell of a site of `T` have the same term at `T`: in
+units of cells the radius of the dependency set is one. -/
+theorem DetExpansionLocC.term_eq_of_agree_cellNear (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    (hN : L ^ m₀ ∣ N₁) (h3 : 3 ≤ L ^ (m₀ + m₁))
+    {D D₂ : BgData S.G' N} (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    (hD₂ : XiCData S.G' S.a S.ν (k + 1) 1 eps D₂)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (h : ∀ v : CTorus d L N₁ m₁ (k + 1), (∃ x ∈ sitesOf T, CellNear m₀ (k + 1) x v) →
+      D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) :
+    E.term D T = E.term D₂ T :=
+  E.term_eq_of_agreeOn hD hD₂ T fun v hv =>
+    h v (thickSet_cellNear S.hG' hN (detDepRadius_lt_cellSide h3 (k + 1)) _ hv)
 
 end DependencyStep
 

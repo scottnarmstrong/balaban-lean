@@ -29,6 +29,7 @@ import Mathlib.Tactic.Positivity
   - Theorem 3.1 (a) holds with the determinant terms and this constant for all marks `E1MarksC`
     with rate at most the rate of the determinant terms.  (No element of `E1MarksC` is constructed
     here or elsewhere; this conjunct is the statement for all such marks.)
+* `detExpansionLocC_nonempty`: the record `DetExpansionLocC` is inhabited (rule 10).
 * `detExpansionLocC_scale_of_tower`: from the output of the numerical tower (the hypotheses are
   conclusions of `tower_core_rates`), at the step `hatStepK k m₁ hk ν β p₁ δ` of every scale
   `k ≥ 1`, every torus `3 ∣ N₁`, `5 < N₁`, and every mass `0 ≤ ν`, `ν · 3^{2(k+1)} ≤ 1`: the datum
@@ -168,6 +169,16 @@ theorem detOutputTerms_nonempty :
   · exact det_covSqrtC_eq_exp_sum_term E hC hMX hdm hα hsmX hD
   · obtain ⟨h2, h3, -⟩ := thm31aC_of_chart (m₀ := 0) S hC hδc hMX hdm hα hsmX hconn hD hN hz z I hI
     exact ⟨h2, h3⟩
+
+/-- **`DetExpansionLocC` is inhabited**: at the step `hatStep m₁ 1 1 1`, whose datum is a datum
+of the chart `Ξ^c(𝔹_2; 1, t)`, for every root `z`, with a positive rate. -/
+theorem detExpansionLocC_nonempty :
+    ∃ (m₁ : ℕ) (t κ'' cdet : ℝ), 0 < t ∧ 0 < κ'' ∧
+      XiCData (hatStep m₁ 1 1 1).G' (hatStep m₁ 1 1 1).a (hatStep m₁ 1 1 1).ν (1 + 1) 1 t
+        (hatStep m₁ 1 1 1).D' ∧
+      ∀ z, Nonempty (DetExpansionLocC (hatStep m₁ 1 1 1) 0 z t κ'' cdet) := by
+  obtain ⟨m₁, BG, κ, t, S, rfl, ht, -, hκ, hD, hE, -⟩ := detOutputTerms_nonempty
+  exact ⟨m₁, t, _, _, ht, hκ, hD, fun z => ⟨(hE z).choose⟩⟩
 
 /-- **The localized determinant family at every scale and on every torus, from the output of the
 numerical tower.**  Let `(m₁, c, BG, κ, t, c₂, BG₂, δc)` satisfy the conclusions of

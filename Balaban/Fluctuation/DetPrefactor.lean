@@ -60,6 +60,14 @@ energy.  Neither is done here; what is proved is the smallness of the field depe
 
 The radius `r₀` depends on the datum `D`: the landed openness of the chart gives no radius which
 is uniform over the chart, and no comparison of `r₀` with the radius `ε` of the chart.
+
+## What is not proved
+
+* A radius `r₀` which is uniform over the chart, or explicit.
+* That the determinant terms satisfy the energy bound of a class; the renormalization (the
+  absorption of their part which does not depend on the field in the vacuum energy); the
+  agreement of the terms on different tori; the identification of the full output density of the
+  step.  Nothing is said about general classes.
 -/
 
 @[expose] public section
