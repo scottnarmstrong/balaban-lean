@@ -133,26 +133,30 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
   Balaban.Localization.I5Inhabited Balaban.Inhabited.LevelStep Balaban.SmallField Set
 
 /-- **Ambient differentiability of `Φ₁` for every datum of the constant-`h₀` slice at a scale of
-the shared tower** (`d = L = 3`, `N = 2`).  The numerical premises of `classRegularLocC_zeroClass`
-are supplied by `StepTower` (`large_block`, `dom_margin`, `coer_margin`, `δc_small`, `c7_cap`,
-`bg1_cap`) and `StepScaleData` (`core`, `fl_radius`, `ray_margin`, `r_pos`, `cψ_pos`), with
-`R = 2`, `pp = lvCpsi`, `δ₁ = ε = T.t`.  Not tower facts, hence explicit: `0 < β` and `0 < p₁`
-(`StepScaleData` has neither), and `XiCData` of the datum `D` itself (a slice premise). -/
-theorem markReal_differentiableAt_Phi1C_scale {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
+the general tower** (`d`, `L`, `N` general).  The numerical premises of
+`classRegularLocC_zeroClass` are supplied by `StepTowerG` (`large_block`, `dom_margin`,
+`coer_margin`, `δc_small`, `c7_cap`, `bg1_cap`) and `StepScaleDataG` (`core`, `fl_radius`,
+`ray_margin`, `r_pos`, `cψ_pos`), with `R = 2`, `pp = lvCpsiG`, `δ₁ = ε = T.t`.  Explicit: `0 < β`,
+`0 < p₁`, and `XiCData` of the datum `D` itself. -/
+theorem markReal_differentiableAt_Phi1C_scaleG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) {k : ℕ}
     {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
-    (hS : StepScaleData T k hk N₁ ν β p₁) (hβ : 0 < β) (hp₁ : 0 < p₁)
-    (D : BgData (T.step k hk N₁ ν β p₁).G' 2)
+    (hS : StepScaleDataG T k hk N₁ ν β p₁) (hβ : 0 < β) (hp₁ : 0 < p₁)
+    (D : BgData (T.step k hk N₁ ν β p₁).G' N)
     (hDh : ∀ y i, D.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ))
-    (hD : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D)
+    (hD : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D)
     {x : ((T.step k hk N₁ ν β p₁).withDatum D hDh).E} (hx : ‖x‖ ≤ p₁) {s : ℝ}
     (hs : s ∈ Icc (0 : ℝ) 1) :
     DifferentiableAt ℂ (((T.step k hk N₁ ν β p₁).withDatum D hDh).Phi1C
-        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)))
+        (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)))
       ((s : ℂ) • ((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x) := by
-  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * 3 ^ k := hatStepK_betaU k T.m₁ hk ν β p₁ T.δ
-  have hbU0 : 0 < β * 3 ^ k := by positivity
+  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * (L : ℝ) ^ (k * (d - 2)) :=
+    hatStepKG_betaU T.hN (by have := T.hd; omega) k T.m₁ (rhoSepG d L T.m₁) hk ν β p₁ T.δ
+  have hL : (0 : ℝ) < (L : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hbU0 : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by positivity
   refine StepSetting.markReal_differentiableAt_Phi1C
-    ((T.step k hk N₁ ν β p₁).withDatum D hDh) (δc := T.δc) (R := 2) (pp := lvCpsi T.κ T.t (β * 3 ^ k))
+    ((T.step k hk N₁ ν β p₁).withDatum D hDh) (δc := T.δc) (R := 2)
+    (pp := lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
     hS.core T.large_block T.dom_margin T.coer_margin T.δc_small one_pos T.c7_cap (by norm_num)
     T.bg1_cap hβ hS.cψ_pos ?_ hD ?_ hx hs
   · have h := hS.fl_radius
@@ -166,6 +170,47 @@ theorem markReal_differentiableAt_Phi1C_scale {κmin : ℝ} (T : StepTower κmin
     have hl := hS.r_pos
     show p₁ < _
     nlinarith
+
+/-- **Ambient differentiability of `Φ₁` for every datum of the constant-`h₀` slice at a scale of
+the shared tower** (`d = L = 3`, `N = 2`): the case of `markReal_differentiableAt_Phi1C_scaleG` at
+`T.toG`.  Explicit: `0 < β`, `0 < p₁`, and `XiCData` of the datum `D` itself. -/
+theorem markReal_differentiableAt_Phi1C_scale {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (hS : StepScaleData T k hk N₁ ν β p₁) (hβ : 0 < β) (hp₁ : 0 < p₁)
+    (D : BgData (T.step k hk N₁ ν β p₁).G' 2)
+    (hDh : ∀ y i, D.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ))
+    (hD : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D)
+    {x : ((T.step k hk N₁ ν β p₁).withDatum D hDh).E} (hx : ‖x‖ ≤ p₁) {s : ℝ}
+    (hs : s ∈ Icc (0 : ℝ) 1) :
+    DifferentiableAt ℂ (((T.step k hk N₁ ν β p₁).withDatum D hDh).Phi1C
+        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)))
+      ((s : ℂ) • ((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x) := by
+  have key : ∀ ϱ : ℝ, ϱ = rhoSep T.m₁ →
+      (∀ (D : BgData (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β
+          p₁ T.δ).G' 2)
+        (hDh : ∀ y i, D.h y i = ((hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁
+          ϱ hk ν β p₁ T.δ).h₀ i : ℂ))
+        (hD : XiCData (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β
+          p₁ T.δ).G' (compWeight 3 1) ν (k + 1) 1 T.t D)
+        {x : ((hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁
+          T.δ).withDatum D hDh).E} (_ : ‖x‖ ≤ p₁) {s : ℝ} (_ : s ∈ Icc (0 : ℝ) 1),
+        DifferentiableAt ℂ (((hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk
+            ν β p₁ T.δ).withDatum D hDh).Phi1C (zeroClass 3 3 N₁ T.m₁ k 2 ϱ))
+          ((s : ℂ) • ((hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β
+            p₁ T.δ).withDatum D hDh).shiftUC x)) →
+      ∀ (D : BgData (T.step k hk N₁ ν β p₁).G' 2)
+        (hDh : ∀ y i, D.h y i = ((T.step k hk N₁ ν β p₁).h₀ i : ℂ))
+        (hD : XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D)
+        {x : ((T.step k hk N₁ ν β p₁).withDatum D hDh).E} (_ : ‖x‖ ≤ p₁) {s : ℝ}
+        (_ : s ∈ Icc (0 : ℝ) 1),
+        DifferentiableAt ℂ (((T.step k hk N₁ ν β p₁).withDatum D hDh).Phi1C
+            (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)))
+          ((s : ℂ) • ((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x) := by
+    intro ϱ hϱ; subst hϱ; exact id
+  have hG := T.scaleDataG_of_fixed hS
+  exact key _ (rhoSepG_three _)
+    (fun D hDh hD x hx s hs =>
+      markReal_differentiableAt_Phi1C_scaleG T.toG hG hβ hp₁ D hDh hD hx hs) D hDh hD hx hs
 
 /-- **Non-vacuity of `markReal_differentiableAt_Phi1C_scale`**: for every tower there are a scale
 and a parameter point (`k = 1`, `N₁ = 6`, `ν = 0`, `p₁ = 1`, `β = βray`) at which the step's own
