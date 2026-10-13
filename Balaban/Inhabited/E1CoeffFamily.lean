@@ -29,8 +29,10 @@ parameter space, from the landed pieces:
 `e1MarkParam_pairs_fromTower` is the field theorem of `e1MarkParam_fields_fromTower` with the
 defining clauses of the pairs and the block dependence for every parameter exposed.
 `e1CoeffFamily_fromTower` states, for every root `z` and every finite set `C` of level-one blocks,
-analyticity of `θ ↦ c z θ C` on `physV`, locality in the raw datum, the bound
-`K₀ e^{-κ' d_Ext(C)}`, and the support on rooted polymer sets.
+analyticity of `θ ↦ c z θ C` on `physV`, locality (equal values at parameters whose raw datum
+and source agree on the thickening of `Ŷ(sitesOf C)`), the bound `K₀ e^{-κ' d_Ext(C)}`, and the
+support on rooted polymer sets.  The identity of the coefficient sum with the local energy term
+`ℰ₁(z)` is a separate theorem.
 -/
 
 @[expose] public section
