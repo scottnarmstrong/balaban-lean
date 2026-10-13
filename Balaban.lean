@@ -1752,6 +1752,7 @@ public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Inhabited.MarkCorrBudgetG
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
+public import Balaban.Analysis.RayJetMark
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Fluctuation.RenDom
