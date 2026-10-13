@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.KF0Reference
+public import Balaban.Green.KF0WalkSeries
 public import Mathlib.Analysis.Matrix.Spectrum
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 public import Mathlib.Analysis.SpecificLimits.Basic
@@ -186,7 +187,8 @@ variable {d m : ℕ} [NeZero m]
 
 /-- The nearest-neighbour adjacency matrix of the torus (with adjacency multiplicity):
 `A = ∑_μ (S_μ + S_μᵀ)`, so that `-Δ + ν = (2d + ν) 1 - A` (`latticeLaplacian_eq_kwAdj`).
-(Also defined, under another name, by the parallel file `KF0WalkSeries`; duplication noted.) -/
+The same matrix as `kf0Adj` of `KF0WalkSeries` (`kwAdj_eq_kf0Adj`); kept as a separate
+definition so that the lemmas below use the entrywise formula `kwAdj_apply`. -/
 def kwAdj (d m : ℕ) [NeZero m] : Matrix (Torus d m) (Torus d m) ℝ :=
   ∑ μ : Fin d, (shiftMatrix μ + (shiftMatrix μ)ᵀ)
 
@@ -208,6 +210,8 @@ def kwOpSub (d m : ℕ) [NeZero m] (ν : ℝ) (D : Finset (Torus d m)) :
 /-- The crossing degree `D_∂(x) = ∑_{y ∈ D} A(x, y)` (number of bonds from `x` to `D`). -/
 def kwBdry (d m : ℕ) [NeZero m] (D : Finset (Torus d m)) (x : Torus d m) : ℝ :=
   ∑ y ∈ D, kwAdj d m x y
+
+theorem kwAdj_eq_kf0Adj : kwAdj d m = kf0Adj d m := rfl
 
 theorem latticeLaplacian_eq_kwAdj (ν : ℝ) :
     latticeLaplacian d m ν = ((2 * d + ν) • (1 : Matrix (Torus d m) (Torus d m) ℝ)) - kwAdj d m :=
