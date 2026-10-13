@@ -526,6 +526,155 @@ theorem blockEnergy_glue (q : ↥D → SpinSphere N) (p : {x : Torus d ℓ // x 
     refine Finset.sum_congr rfl fun x _ => ?_
     rw [glue_of_mem D q p x.1 x.2]
 
+
+variable (s m : ℕ) [NeZero m] (r : ℝ)
+
+/-- The test `χ_Q` read on the bad spins `q` (used for blocks `Q ∈ B`). -/
+noncomputable def chiIn (Q : Torus d m) (q : ↥D → SpinSphere N) : ℝ :=
+  if ∀ x : ↥D, blockMap s m x.1 = Q → ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ < r then 1 else 0
+
+/-- The test `χ_Q` read on the good spins `p` (used for blocks `Q ∉ B`). -/
+noncomputable def chiOut (Q : Torus d m) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) : ℝ :=
+  if ∀ x : {x : Torus d ℓ // x ∉ D}, blockMap s m x.1 = Q →
+    ‖(p x : EuclideanSpace ℝ (Fin N)) - h‖ < r then 1 else 0
+
+/-- `∏_{Q∈B}(1 - χ_Q(q))`. -/
+noncomputable def badWeight (B : Finset (Torus d m)) (q : ↥D → SpinSphere N) : ℝ :=
+  ∏ Q ∈ B, (1 - chiIn D h s m r Q q)
+
+/-- `∏_{Q∉B} χ_Q(p)`. -/
+noncomputable def goodWeight (B : Finset (Torus d m)) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    ℝ :=
+  ∏ Q ∈ Finset.univ \ B, chiOut D h s m r Q p
+
+theorem mem_siteUnion (B : Finset (Torus d m)) (x : Torus d ℓ) :
+    x ∈ siteUnion (ℓ := ℓ) s m B ↔ blockMap s m x ∈ B := by
+  simp [siteUnion]
+
+theorem chi_glue_of_mem (B : Finset (Torus d m)) (q : ↥(siteUnion (ℓ := ℓ) s m B) → SpinSphere N)
+    (p : {x : Torus d ℓ // x ∉ siteUnion (ℓ := ℓ) s m B} → SpinSphere N) (Q : Torus d m)
+    (hQ : Q ∈ B) :
+    chi s m r h Q (glue _ q p) = chiIn _ h s m r Q q := by
+  have hiff : goodBlock s m r h Q (glue _ q p) ↔
+      ∀ x : ↥(siteUnion (ℓ := ℓ) s m B), blockMap s m x.1 = Q →
+        ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ < r := by
+    constructor
+    · intro H x hx
+      have := H x.1 hx
+      rwa [glue_of_mem _ q p x.1 x.2] at this
+    · intro H x hx
+      have hxD : x ∈ siteUnion (ℓ := ℓ) s m B := (mem_siteUnion s m B x).2 (hx ▸ hQ)
+      rw [glue_of_mem _ q p x hxD]
+      exact H ⟨x, hxD⟩ hx
+  unfold chi chiIn
+  split_ifs with h1 h2 h2 <;> first | rfl | (exfalso; tauto)
+
+theorem chi_glue_of_not_mem (B : Finset (Torus d m))
+    (q : ↥(siteUnion (ℓ := ℓ) s m B) → SpinSphere N)
+    (p : {x : Torus d ℓ // x ∉ siteUnion (ℓ := ℓ) s m B} → SpinSphere N) (Q : Torus d m)
+    (hQ : Q ∉ B) :
+    chi s m r h Q (glue _ q p) = chiOut _ h s m r Q p := by
+  have hiff : goodBlock s m r h Q (glue _ q p) ↔
+      ∀ x : {x : Torus d ℓ // x ∉ siteUnion (ℓ := ℓ) s m B}, blockMap s m x.1 = Q →
+        ‖(p x : EuclideanSpace ℝ (Fin N)) - h‖ < r := by
+    constructor
+    · intro H x hx
+      have := H x.1 hx
+      rwa [glue_of_not_mem _ q p x.1 x.2] at this
+    · intro H x hx
+      have hxD : x ∉ siteUnion (ℓ := ℓ) s m B := fun hh => hQ (hx ▸ (mem_siteUnion s m B x).1 hh)
+      rw [glue_of_not_mem _ q p x hxD]
+      exact H ⟨x, hxD⟩ hx
+  unfold chi chiOut
+  split_ifs with h1 h2 h2 <;> first | rfl | (exfalso; tauto)
+
+/-- The sector weight factorizes into a bad part (a function of `q`) and a good part (of `p`). -/
+theorem sectorWeight_glue (B : Finset (Torus d m))
+    (q : ↥(siteUnion (ℓ := ℓ) s m B) → SpinSphere N)
+    (p : {x : Torus d ℓ // x ∉ siteUnion (ℓ := ℓ) s m B} → SpinSphere N) :
+    sectorWeight s m r h B (glue _ q p) = badWeight _ h s m r B q * goodWeight _ h s m r B p := by
+  unfold sectorWeight badWeight goodWeight
+  congr 1
+  · exact Finset.prod_congr rfl fun Q hQ => by rw [chi_glue_of_mem h s m r B q p Q hQ]
+  · exact Finset.prod_congr rfl fun Q hQ => by
+      rw [chi_glue_of_not_mem h s m r B q p Q (Finset.mem_sdiff.1 hQ).2]
+
+
+theorem chiIn_nonneg_le (Q : Torus d m) (q : ↥D → SpinSphere N) :
+    0 ≤ chiIn D h s m r Q q ∧ chiIn D h s m r Q q ≤ 1 := by
+  unfold chiIn; split_ifs <;> norm_num
+
+theorem chiOut_nonneg_le (Q : Torus d m) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    0 ≤ chiOut D h s m r Q p ∧ chiOut D h s m r Q p ≤ 1 := by
+  unfold chiOut; split_ifs <;> norm_num
+
+theorem badWeight_nonneg (B : Finset (Torus d m)) (q : ↥D → SpinSphere N) :
+    0 ≤ badWeight D h s m r B q :=
+  Finset.prod_nonneg fun Q _ => by linarith [(chiIn_nonneg_le D h s m r Q q).2]
+
+theorem goodWeight_nonneg (B : Finset (Torus d m)) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    0 ≤ goodWeight D h s m r B p :=
+  Finset.prod_nonneg fun Q _ => (chiOut_nonneg_le D h s m r Q p).1
+
+theorem measurable_realSource (g : Torus d ℓ → Fin N → ℝ) :
+    Measurable (realSource (d := d) (N := N) (ℓ := ℓ) g) := by
+  refine Continuous.measurable ?_
+  unfold realSource
+  exact continuous_finsetSum _ fun x _ => continuous_finsetSum _ fun i _ =>
+    continuous_const.mul (continuous_spin_coord x i)
+
+/-- (K0.2), iterated form (lintegral, real source): the sector integral equals
+`∫ e^{-βH_B(q) + ⟨g_D,q⟩} ∏_{Q∈B}(1 - χ_Q(q)) · I_G(q, g) dσ^D(q)`, with
+`I_G(q,g) = ∫ e^{-βH_G(φ_G | q) + ⟨g_G,φ_G⟩} ∏_{Q∉B} χ_Q(φ_G) dσ^G`, where `H_G(φ_G | q)` is the
+good energy of the glued configuration (the mass and internal bonds on `G` and every crossing
+bond). -/
+theorem kf0Sector_iterated (β ν : ℝ) (g : Torus d ℓ → Fin N → ℝ) (B : Finset (Torus d m)) :
+    ∫⁻ φ, ENNReal.ofReal (Real.exp (-(β * energy d N ℓ ν h φ) + realSource g φ) *
+        sectorWeight s m r h B φ) ∂aprioriMeasure d N ℓ =
+      ∫⁻ q, ENNReal.ofReal (Real.exp (-(β * blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q)
+            + sourceIn (siteUnion (ℓ := ℓ) s m B) g q) *
+          badWeight (siteUnion (ℓ := ℓ) s m B) h s m r B q) *
+        ∫⁻ p, ENNReal.ofReal (Real.exp (-(β * goodEnergy ν h (siteUnion (ℓ := ℓ) s m B)
+              (glue (siteUnion (ℓ := ℓ) s m B) q p))
+            + sourceOut (siteUnion (ℓ := ℓ) s m B) g p) *
+          goodWeight (siteUnion (ℓ := ℓ) s m B) h s m r B p) ∂sigmaOut (siteUnion (ℓ := ℓ) s m B)
+        ∂sigmaIn (siteUnion (ℓ := ℓ) s m B) := by
+  have hE : Measurable fun φ : Cfg d N ℓ => energy d N ℓ ν h φ :=
+    (continuous_energy (d := d) (N := N) (ℓ := ℓ) ν h).measurable
+  have hmeas : Measurable fun φ : Cfg d N ℓ => ENNReal.ofReal (Real.exp (-(β * energy d N ℓ ν h φ)
+      + realSource g φ) * sectorWeight s m r h B φ) :=
+    ENNReal.measurable_ofReal.comp
+      ((Real.measurable_exp.comp (((measurable_const.mul hE).neg).add
+        (measurable_realSource g))).mul (measurable_sectorWeight s m r h B))
+  rw [lintegral_split _ _ hmeas]
+  refine lintegral_congr fun q => ?_
+  have key : ∀ p, ENNReal.ofReal (Real.exp (-(β * energy d N ℓ ν h (glue (siteUnion s m B) q p))
+        + realSource g (glue (siteUnion s m B) q p)) *
+        sectorWeight s m r h B (glue (siteUnion s m B) q p)) =
+      ENNReal.ofReal (Real.exp (-(β * blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q)
+            + sourceIn (siteUnion (ℓ := ℓ) s m B) g q) *
+          badWeight (siteUnion (ℓ := ℓ) s m B) h s m r B q) *
+        ENNReal.ofReal (Real.exp (-(β * goodEnergy ν h (siteUnion (ℓ := ℓ) s m B)
+              (glue (siteUnion (ℓ := ℓ) s m B) q p))
+            + sourceOut (siteUnion (ℓ := ℓ) s m B) g p) *
+          goodWeight (siteUnion (ℓ := ℓ) s m B) h s m r B p) := by
+    intro p
+    rw [← ENNReal.ofReal_mul (mul_nonneg (Real.exp_pos _).le
+      (badWeight_nonneg _ h s m r B q))]
+    congr 1
+    rw [energy_split ν h (siteUnion s m B), blockEnergy_glue, realSource_glue,
+      sectorWeight_glue h s m r B q p]
+    have : -(β * (blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q +
+          goodEnergy ν h (siteUnion s m B) (glue (siteUnion s m B) q p))) +
+        (sourceIn (siteUnion s m B) g q + sourceOut (siteUnion s m B) g p) =
+        (-(β * blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q) + sourceIn (siteUnion s m B) g q) +
+        (-(β * goodEnergy ν h (siteUnion s m B) (glue (siteUnion s m B) q p)) +
+          sourceOut (siteUnion s m B) g p) := by ring
+    rw [this, Real.exp_add]
+    ring
+  simp_rw [key]
+  exact lintegral_const_mul' _ _ ENNReal.ofReal_ne_top
+
 end Fubini
 
 end Balaban.LargeField
