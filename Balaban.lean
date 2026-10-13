@@ -1436,3 +1436,4 @@ public import Balaban.Inhabited.SizeModExtendWitness
 public import Balaban.LargeField.R.SizeModExtendPull
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RExtraSize
+public import Balaban.Inhabited.RExtraSizeWitness
