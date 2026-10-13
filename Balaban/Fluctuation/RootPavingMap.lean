@@ -594,4 +594,119 @@ theorem blockUnion_of_isPolyDom (hN : L ^ m₀ ∣ N₁) {X : Set (CTorus d L N�
 
 end Root
 
+section Rooted
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ : ℕ}
+
+local notation "𝔅" => CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ
+
+/-- **T4 (fibre, (R4)).** Over a fixed pair `(y, X)` there is at most one pair `(z, T)` with
+`rootSite z = y` and `sitesOf T = X`. -/
+theorem fibre_subsingleton (hN : L ^ m₀ ∣ N₁) (y : CTorus d L N₁ m₁ K)
+    (X : Set (CTorus d L N₁ m₁ K)) :
+    {p : RootIdx d L N₁ m₁ K × Finset 𝔅 | rootSite p.1 = y ∧ sitesOf p.2 = X}.Subsingleton := by
+  rintro ⟨z, T⟩ ⟨h1, h2⟩ ⟨z', T'⟩ ⟨h1', h2'⟩
+  have hz : z = z' := rootSite_injective (h1.trans h1'.symm)
+  have hT : T = T' := sitesOf_injective hN (le_refl K) (h2.trans h2'.symm)
+  rw [hz, hT]
+
+open Classical in
+/-- **The rooted sum** `Σ_{z : rootSite z = y} Σ_{T : sitesOf T = X} e z T` of a coefficient
+family `e` indexed by a root `z` and a finite set `T` of level-`K` cubes. -/
+noncomputable def rootedSum (e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ)
+    (y : CTorus d L N₁ m₁ K) (X : Set (CTorus d L N₁ m₁ K)) : ℂ :=
+  ∑ z ∈ Finset.univ.filter (fun z => rootSite z = y),
+    ∑ T ∈ Finset.univ.filter (fun T : Finset 𝔅 => sitesOf T = X), e z T
+
+/-- At most one summand of the rooted sum is non-zero. -/
+theorem rootedSum_nonzero_subsingleton (hN : L ^ m₀ ∣ N₁)
+    (e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ) (y : CTorus d L N₁ m₁ K)
+    (X : Set (CTorus d L N₁ m₁ K)) :
+    {p : RootIdx d L N₁ m₁ K × Finset 𝔅 |
+      rootSite p.1 = y ∧ sitesOf p.2 = X ∧ e p.1 p.2 ≠ 0}.Subsingleton := by
+  intro p hp q hq
+  exact fibre_subsingleton hN y X ⟨hp.1, hp.2.1⟩ ⟨hq.1, hq.2.1⟩
+
+/-- If `(z, T)` lies over `(y, X)`, the rooted sum is `e z T`. -/
+theorem rootedSum_eq_of_pair (hN : L ^ m₀ ∣ N₁)
+    (e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ) {y : CTorus d L N₁ m₁ K}
+    {X : Set (CTorus d L N₁ m₁ K)} {z : RootIdx d L N₁ m₁ K} {T : Finset 𝔅}
+    (hz : rootSite z = y) (hT : sitesOf T = X) : rootedSum e y X = e z T := by
+  classical
+  unfold rootedSum
+  have h1 : Finset.univ.filter (fun z' : RootIdx d L N₁ m₁ K => rootSite z' = y) = {z} := by
+    ext z'
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
+    exact ⟨fun h => rootSite_injective (h.trans hz.symm), fun h => h ▸ hz⟩
+  have h2 : Finset.univ.filter (fun T' : Finset 𝔅 => sitesOf T' = X) = {T} := by
+    ext T'
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
+    exact ⟨fun h => sitesOf_injective hN (le_refl K) (h.trans hT.symm), fun h => h ▸ hT⟩
+  rw [h1, h2]
+  simp
+
+/-- `rootedSum e (rootSite z) (sitesOf T) = e z T`. -/
+theorem rootedSum_rootSite_sitesOf (hN : L ^ m₀ ∣ N₁)
+    (e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ) (z : RootIdx d L N₁ m₁ K) (T : Finset 𝔅) :
+    rootedSum e (rootSite z) (sitesOf T) = e z T :=
+  rootedSum_eq_of_pair hN e rfl rfl
+
+/-- The rooted sum vanishes when no pair lies over `(y, X)`. -/
+theorem rootedSum_eq_zero (e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ)
+    {y : CTorus d L N₁ m₁ K} {X : Set (CTorus d L N₁ m₁ K)}
+    (h : ¬ ∃ (z : RootIdx d L N₁ m₁ K) (T : Finset 𝔅), rootSite z = y ∧ sitesOf T = X) :
+    rootedSum e y X = 0 := by
+  classical
+  unfold rootedSum
+  refine Finset.sum_eq_zero fun z hz => Finset.sum_eq_zero fun T hT => ?_
+  exact absurd ⟨z, T, (Finset.mem_filter.1 hz).2, (Finset.mem_filter.1 hT).2⟩ h
+
+/-- **T5 (covariance).** If `e' (r z) (r • T) = e z T`, then the rooted sum at the root
+`blockBase L K (r y)` of the transformed block and the polymer `r '' X` equals the rooted sum at
+`(y, X)`, for an `L^K`-aligned site `y`. -/
+theorem rootedSum_covariant (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    {e e' : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ}
+    (hcov : ∀ z T, e' (rootAct r z) (cubeAct r T) = e z T)
+    {y : CTorus d L N₁ m₁ K}
+    (hy : blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y = y)
+    (X : Set (CTorus d L N₁ m₁ K)) :
+    rootedSum e' (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K (r y)) (r '' X) =
+      rootedSum e y X := by
+  by_cases hex : ∃ (z : RootIdx d L N₁ m₁ K) (T : Finset 𝔅), rootSite z = y ∧ sitesOf T = X
+  · obtain ⟨z, T, hz, hT⟩ := hex
+    rw [rootedSum_eq_of_pair hN e hz hT,
+      rootedSum_eq_of_pair hN e' (z := rootAct r z) (T := cubeAct r T) ?_ ?_, hcov]
+    · rw [rootSite_rootAct, hz]
+    · rw [sitesOf_cubeAct hN hr, hT]
+  · rw [rootedSum_eq_zero e hex]
+    refine rootedSum_eq_zero e' ?_
+    rintro ⟨z', T', hz', hT'⟩
+    refine hex ⟨rootAct r⁻¹ z', cubeAct r⁻¹ T', ?_, ?_⟩
+    · rw [rootSite_rootAct, hz', blockBase_inv_blockBase hr, hy]
+    · rw [sitesOf_cubeAct hN (inv_mem hr), hT']
+      ext x; simp [Equiv.Perm.inv_def]
+
+/-- **T5 (bound).** If `‖e z T‖ ≤ B exp(-κ dExt T)` for all `z, T`, and a non-zero `e z T` has
+`dExt T = sizeJ (sitesOf T)` (the active-size identity of `RootActiveSize`), then
+`‖rootedSum e y X‖ ≤ B exp(-κ sizeJ X)`. -/
+theorem rootedSum_norm_le_of_activeSize (hN : L ^ m₀ ∣ N₁)
+    {e : RootIdx d L N₁ m₁ K → Finset 𝔅 → ℂ} {B κ : ℝ} (hB : 0 ≤ B)
+    (hbound : ∀ z T, ‖e z T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsize : ∀ z T, e z T ≠ 0 →
+      dExt T = sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (sitesOf T))
+    (y : CTorus d L N₁ m₁ K) (X : Set (CTorus d L N₁ m₁ K)) :
+    ‖rootedSum e y X‖ ≤
+      B * Real.exp (-κ * sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K X) := by
+  by_cases hex : ∃ (z : RootIdx d L N₁ m₁ K) (T : Finset 𝔅), rootSite z = y ∧ sitesOf T = X
+  · obtain ⟨z, T, hz, hT⟩ := hex
+    rw [rootedSum_eq_of_pair hN e hz hT]
+    by_cases h0 : e z T = 0
+    · rw [h0, norm_zero]; positivity
+    · have := hbound z T
+      rwa [hsize z T h0, hT] at this
+  · rw [rootedSum_eq_zero e hex, norm_zero]; positivity
+
+end Rooted
+
 end Balaban.Fluctuation
