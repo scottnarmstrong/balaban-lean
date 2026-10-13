@@ -37,12 +37,13 @@ every label `Y`, the term is analytic in `(Θ, ψ̂, um, tm)` as one parameter, 
 * `vblock_expansion_hat_marked_joint_pair`, `markedEv_joint_param`: for the block functional, the
   eight landed clauses and (J) for the same pair, under the hypotheses of
   `vblock_expansion_hat_marked_scaled`.
-* `analyticOnNhd_physV_of_chart`, `markedEv_joint_physV`: composition with the inclusion `physIncl`
-  of the parameter space `physParam = rawSub × sources`: for a step `S` (`Gp = S.G'`) the terms are
-  analytic on `(physV × B̂) × W` (the source coordinate does not enter), and the derivative marks
-  `∂_t evDec|_{t=0}` are analytic on `physV × {‖u‖ < a}` for every `a`, `b > 0` with
-  `(a + b) · markedRad < δ₁` (the shape of the field `holG` of `ParamMarkFamily`, per label), and
-  jointly with the hat variable.
+* `analyticOnNhd_physV_of_chart`, `MarkedEvJointPhysV`, `markedEv_joint_physV`: composition with
+  the inclusion `physIncl` of the parameter space `physParam = rawSub × sources`: for a step `S`
+  (`Gp = S.G'`) the terms are analytic on `(physV × B̂) × W` (the source coordinate does not enter),
+  and the derivative marks `∂_t evDec|_{t=0}` are analytic on `physV × {‖u‖ < a}` for every `a`,
+  `b > 0` with `(a + b) · markedRad < δ₁` (the shape of the field `holG` of `ParamMarkFamily`, per
+  label), and jointly with the hat variable.  `MarkedEvJointPhysV` is the conclusion (one pair for
+  all clauses).
 
 Zero class only.  The root assembly, the clamped global marks, the common label system and the
 `E1MarksC` inhabitant are NOT constructed here; no mark family is constructed.  Nothing depends on a
@@ -657,44 +658,24 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **Joint analyticity of the localized marked terms on the parameter set `physV`, and of the
-derivative marks.**  For a step `S` (`Gp = S.G'`), under the hypotheses of
-`vblock_expansion_hat_marked_scaled` there is one pair `(F₁, Sol)` such that:
+/-- **The conclusion of `markedEv_joint_physV`.**  For a step `S` (`Gp = S.G'`) there is one pair
+`(F₁, Sol)` (not depending on the marks) such that:
 
 1. the eight clauses of the landed `MarkedBlockExpansionDecTwo` hold (`MarkedBlockExpansionDecPair`);
 2. (J): `evDec … um tm Y (Θ, ψ̂)` is analytic in `((Θ, ψ̂), (um, tm))` at every point of
-   `(Ξ^c × B̂) × W`;
+   `(Ξ^c × B̂) × W`, `B̂ = {‖ψ̂‖ ≤ c_ψ}`, `W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`;
 3. on the parameter space `physParam = rawSub × sources`: `((e, ψ̂), (um, tm)) ↦ evDec … Y (e.1, ψ̂)`
-   is analytic at every point of `(physV × B̂) × W`;
+   is analytic at every point of `(physV × B̂) × W` (the source coordinate of `e` does not enter);
 4. the derivative marks: for every hat field `‖ψ̂‖ ≤ c_ψ` and radii `a ≥ 0`, `b > 0` with
    `(a + b) · markedRad < δ₁`, `(e, u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}` is analytic on
-   `physV × {‖u‖ < a}` (by the Cauchy integral over the `t`-disc of radius `b`,
-   `analyticOnNhd_deriv_zero`): the shape of the field `holG` of `ParamMarkFamily`, per label;
+   `physV × {‖u‖ < a}`: the shape of the field `holG` of `ParamMarkFamily`, per label;
 5. the derivative marks jointly with the hat field: `((e, ψ̂), u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}`
    is analytic at every point of `(physV × B̂) × {u | (u, 0) ∈ W}`. -/
-theorem markedEv_joint_physV
-    (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hG : IsLevel Hm k) (cc : ℂ)
-    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts S.G'))
-    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
-    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hcov : CovSetup S.G' m₀ j X 𝒦X)
-    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
-    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
-    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
-      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
-        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
-    (hΔ : treeLenCovOne m₀ j X = 0)
-    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
-    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
-    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
-    (hZ : readSites Hm k z ⊆ ↑X₁f)
-    (hmar : BlockMargin S.G' X₁f
-      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+def MarkedEvJointPhysV (S : StepSetting d L N₁ m₁ k N ϱ)
+    (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm) (cc : ℂ)
+    (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ) (Zm : Finset (unitPts S.G'))
+    (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ) (𝒦X : Set (CTorus d L N₁ m₁ (k + 1)))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) : Prop :=
     ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
         (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
       (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
@@ -732,7 +713,40 @@ theorem markedEv_joint_physV
             (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
             ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
         ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
+          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁}))
+
+/-- **Joint analyticity of the localized marked terms on the parameter set `physV`, and of the
+derivative marks.**  For a step `S` (`Gp = S.G'`), under the hypotheses of
+`vblock_expansion_hat_marked_scaled`, the proposition `MarkedEvJointPhysV` holds: one pair
+`(F₁, Sol)` with the eight landed clauses, (J) on the chart and on `physV`, and the analytic
+derivative marks.  Clause 4 is obtained from clause 3 by the Cauchy integral over the `t`-disc of
+radius `b` (the landed `analyticOnNhd_deriv_zero`, with the bound of clause 3 of the landed
+proposition); clause 5 by a directional derivative of clause 3. -/
+theorem markedEv_joint_physV
+    (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts S.G'))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hmar : BlockMargin S.G' X₁f
+      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    MarkedEvJointPhysV S Hm cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z := by
+  unfold MarkedEvJointPhysV
   obtain ⟨F₁, Sol, hP, hJ⟩ := markedEv_joint_param hC S.hk1 hG S.hG' cc hcψ Zm hMX hdm hα hsm
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
   have hT2 : ∀ Y, AnalyticOnNhd ℂ
