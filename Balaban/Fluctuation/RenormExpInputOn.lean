@@ -129,9 +129,12 @@ theorem RenormExpInput.toOn
   expOldM p := (I.expOldM p).imp fun _ h =>
     ⟨h.1.mono_dom hDom, fun Y hY D hD => h.2 Y hY D (hDom D hD)⟩
 
-/-- **`RenormExpInputOn` is inhabited on the fibre** (hard rule 10): for admissible parameters
-and every real constant field `h₀`, there is an input on the fibre domain
-`Ξ^c_{k+1}(1, ε) ∩ {h = h₀}`. -/
+/-- **`RenormExpInputOn` has an instance on the fibre**: for admissible parameters and every real
+constant field `h₀`, there is an input on the fibre domain `Ξ^c_{k+1}(1, ε) ∩ {h = h₀}`.
+
+This does NOT show that the fibre domain contains a datum (audit `notes/phase1/AUDIT-OBS.md`,
+A3): the record is obtained by restriction and exists also over an empty domain. The datum in the
+fibre is supplied separately at the tower. -/
 theorem nonempty_renormExpInputOn_fibre {ν : ℝ} (H : BgHyp d L k ϱ a ν) {ι : Type*}
     (blk : ι → Finset (Torus d (N₀ * L ^ k))) (κa κb : ℝ) (h₀ : Fin N → ℝ) :
     ∃ ε r₀ : ℝ, 0 < ε ∧ 0 < r₀ ∧ ∃ F, IsRenSol (N := N) G a ν ε ε r₀ (8 * ε) F ∧
