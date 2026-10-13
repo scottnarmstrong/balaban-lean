@@ -15,7 +15,7 @@ Claude workers (background subagents of this session):
 | W322 | `w322-det-endpoint` / W322 | determinant endpoint: support (`DetCauchyGraph`) + hull (`DetCauchyHull`) + cut-dependent backgrounds (`DetCauchyChart`) → activity bound per hull |
 | W325 | `w325-marked-hat-rows` / W325 | MARKCUBIC package 4: masked decoupled tangent and its paired agreement on components (`MARK-ROWS`) |
 | W326 | `w326-marked-sharp-count` / W326 | MARKCUBIC package 5 (count part): `MARK-SCALED-COUNT` for the joint marked family from the scaled assembly |
-| W324 | `w324-p6-hatlink-count` / W324 | degree bound and rooted count for `HatLink` chains (P6 pair); rooted sum over hat-rooted marked sets |
+| W324 | `w324-p6-hatlink-count` / W324 | REDIRECTED: `P6PairChain` — exact chain of eligible live centres for the P6 pair, parameter-free centres, conditional rootedness and degree (the hat-rooted statement of W319 carries no locality) |
 | W327 | `w327-r-ripe-card` / W327 | R: removed ripe component is a box of ≤ (2ρ_k+10)^d cubes (VMOD-37 package 2) |
 | W328 | `w328-p6-side-witness` / W328 | slab witness with c = L^{m₀} (L = 3, m₀ = 2, c = 9): instance of the P6 active-seed theorems |
 | W323 | `w323-r-history-labels` / W323 | R: six-outcome enumeration of histories, transport of `IsComplete`, top `D4Pin` (VMOD-37 package 5) |
