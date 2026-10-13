@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayActivity
+public import Balaban.Inhabited.ObsUnconditional
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -32,19 +33,16 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   MeasureTheory Set
 
 open Classical in
-/-- **One witness for the source lane at the shared tower `T`, sources of `ℓ¹`-size `< ρ`.**
-After `T` choose `C_E, C_F`; for every `ρ > 0` a threshold `β₀ ≥ max 2 ρ`; the statement is that of
-`sourceWitness_fromTower` on the carriers of radius `ρ`, with `ε_U` taken on the slice `η = ρ/β` and
-the bound `4 ε_U ≤ C_E (log b)^(3p)/√b + ρ C_F (log b)^p/√b`.  Original description:  After `T` choose one threshold
-`β₀` and one pair `C_E, C_F`.  For every scale and `D : StepScaleData T …` with `β ≥ β₀`,
-`0 < p₁ ≤ A₁ (log β_k)^p`, there is ONE `val, 𝒴, Tt` (from a single call of
-`sourceDirectTerms_scale_fromTower`), with its value formula, and `ε_U > 0` the physical amplitude
-with `4 ε_U ≤ C_E (log b)^(3p)/√b + C_F (log b)^p/√b`, such that (a) every source `g` of the `l¹`
-ball has the records `BR`, `BC` of `sourceActivityC_scale_fromTower` on the labels of `𝒴` with
-`BR.ε_H = 4 ε_U`; (b) the exponent family of `sourceExponentFamily_fromTower` on the labels of `𝒴`
-with amplitude `4 ε_U`; (c) the observable ray activities of `obsRayActivity_fromTower` on the
-thick labels of `𝒴` and the terms `Tt`, with amplitude `ε_U`. -/
-theorem sourceWitness_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+/-- **One witness for the source lane and the ray premise of the observable lane, sources of
+`ℓ¹`-size `< ρ`.**  After `T` choose `C_E, C_F`; for every `ρ > 0` a threshold `β₀` with
+`2 ≤ β₀` and `ρ ≤ β₀`.  At every admissible scale there are `val, 𝒴, Tt` carrying every clause of
+`sourceWitness_fromTower_rho` (slice `η = ρ/β`, `ε_U` on that slice, `4 ε_U ≤ C_E … + ρ C_F …`,
+sources in `l1BallRho … ρ`, `Aseg` over `physFibreRho … ρ`) and the premise of
+`obsMarks_zeroClass_family_of_ray_ksupp_rho` (`hray`: diagonal continuity, an instance at every
+point of the slice `ρ/β`, the two source points in the slice, and the ray clause), for these
+`val, 𝒴, Tt`.  The analytic family and the zero-source family of
+`commonWitness_joint_fromTower` are not part of this statement. -/
+theorem commonWitness_joint_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) :
     ∃ CE CF : ℝ, 0 < CE ∧ 0 < CF ∧
     ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
@@ -124,7 +122,32 @@ theorem sourceWitness_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : 
             ∑ y, (((A₀ 1).sub (A₀ (t : ℂ))).sum (Ag (t : ℂ))).H y
                 (((S.blockSplit 1 hp).restr x)) =
               S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
-              S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x) := by
+              S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x) ∧
+      (∀ (Y : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))
+        (Θ : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β) → ∀ ψ : S.U × Fin 2 → ℂ,
+        (∀ p, ‖ψ p‖ ≤ p₁) →
+        DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (Metric.ball (0 : ℂ) (3 / 2))) ∧
+      (DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+          (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+          (physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) 2 𝒴 Tt ∧
+        (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∃ I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+              (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1) Θ
+              (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+              (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+              (physAgΘ S) (AgFDirPair S),
+            I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+        (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+          physSΛEta S S.a₁ S.ν T.t (ρ / S.β) ∧
+        (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < ρ →
+          (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) ∧
+        (∀ Y ∈ 𝒴, ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+          ∀ ψ ∈ hatDisk S.U 2 p₁,
+            DifferentiableOn ℂ (fun z : ℂ => Tt Y (z • ψ, z • ψ) (z • ψ, z • ψ) 1 Θ)
+              (Metric.ball (0 : ℂ) (3 / 2)))) := by
   classical
   have hent := aEnt_nonneg 3 3
   have hc1 := one_le_c1 3 3
@@ -214,14 +237,17 @@ theorem sourceWitness_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : 
   subst hS
   set S := T.step k hk N₁ ν β p₁ with hSdef
   -- the direct terms, selected once for the slice `η = 1/β`
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, hmemg⟩ := sourceDirectTerms_scale_fromTower_rho T k hk N₁
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, hmemg, hray⟩ :=
+    sourceDirectTerms_scale_fromTower_ray_full_rho T k hk N₁
     h3N hN ν hνpos hν β ρ hρ (max_le hβ1 hβρ) p₁ ρ hρ le_rfl D (T.step k hk N₁ ν β p₁) rfl hp
   obtain ⟨I₀, h𝒴₀, hT₀⟩ := hI _ hmem0
   have hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
   have hbound : 4 * εU ≤ srcCE A₁ T.κ T.t P * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
       ρ * srcCF A₁ T.κ T.t (Q * T.t) * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) :=
     hε4
-  refine ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbound, ?_, ?_, ?_⟩
+  refine ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbound, ?_, ?_, ?_,
+    fun Y Θ hΘ ψ hψ => hray Y Θ hΘ ψ hψ,
+    ⟨hcont, hI, hmem0, hmemg, fun Y hY Θ hΘ ψ hψ => hray Y Θ hΘ ψ hψ⟩⟩
   · intro g hg
     obtain ⟨Ig, h𝒴g, hTg⟩ := hI _ (hmemg g hg)
     obtain ⟨BR, hm, hLb, hLab, hBS, hk0, hk', hκH, hεH, hKc⟩ :=
@@ -423,6 +449,108 @@ theorem sourceWitness_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : 
           T.coer_margin T.δc_small hp hcψ0.le hpc D.fl_radius g le_rfl I₀ Ig hval hdom h𝒴₀ h𝒴g
           hxwz hAgF hcont₀ hcontg hN3 hp hRσ1 hεpos.le T.κ0_ent hKc ht
 
+open Classical in
+/-- **One witness for the source lane at the shared tower `T`, sources of `ℓ¹`-size `< ρ`.**
+After `T` choose `C_E, C_F`; for every `ρ > 0` a threshold `β₀ ≥ max 2 ρ`; the statement is that of
+`sourceWitness_fromTower` on the carriers of radius `ρ`, with `ε_U` taken on the slice `η = ρ/β` and
+the bound `4 ε_U ≤ C_E (log b)^(3p)/√b + ρ C_F (log b)^p/√b`.  Original description:  After `T` choose one threshold
+`β₀` and one pair `C_E, C_F`.  For every scale and `D : StepScaleData T …` with `β ≥ β₀`,
+`0 < p₁ ≤ A₁ (log β_k)^p`, there is ONE `val, 𝒴, Tt` (from a single call of
+`sourceDirectTerms_scale_fromTower`), with its value formula, and `ε_U > 0` the physical amplitude
+with `4 ε_U ≤ C_E (log b)^(3p)/√b + C_F (log b)^p/√b`, such that (a) every source `g` of the `l¹`
+ball has the records `BR`, `BC` of `sourceActivityC_scale_fromTower` on the labels of `𝒴` with
+`BR.ε_H = 4 ε_U`; (b) the exponent family of `sourceExponentFamily_fromTower` on the labels of `𝒴`
+with amplitude `4 ε_U`; (c) the observable ray activities of `obsRayActivity_fromTower` on the
+thick labels of `𝒴` and the terms `Tt`, with amplitude `ε_U`. -/
+theorem sourceWitness_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ CE CF : ℝ, 0 < CE ∧ 0 < CF ∧
+    ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ), 0 < p₁ →
+    p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+    ∀ (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)), S = T.step k hk N₁ ν β p₁ →
+    ∀ (hp : 0 < S.p₁),
+    ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+        (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+        (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν T.t
+              (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      ∃ εU : ℝ,
+      εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) ∧ 0 < εU ∧
+      4 * εU ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+        ρ * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ∧
+      (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+        ∃ BR : StepActivityBound S (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+        ∃ BC : StepActivityBoundC S (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+          BR.m₀ = 1 ∧ BC.m₀ = 1 ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧ BC.Lb = BR.Lb ∧
+          HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
+          HEq BR.BS (S.blockSplit 1 hp) ∧ HEq BC.BS BR.BS ∧
+          BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
+          BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
+          BR.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧ BR.εH = 4 * εU) ∧
+      (∃ Jr : S.JointRep T.t (2 * p₁),
+        ∃ Aseg : ∀ e : physParam 2 S, e ∈ physFibreRho S S.a₁ S.ν T.t ρ → ℝ × ℝ →
+          LabelAct ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) (S.blockSplit 1 hp).Ωb
+            (4 * εU) (2 * T.κdec - 1) T.κ0 (2 * (K0 3 3 T.κ0 + 1)),
+        (∀ (e : physParam 2 S) (he : e ∈ physFibreRho S S.a₁ S.ν T.t ρ), ∀ p ∈ stepSegments,
+          ∀ᵐ x ∂S.nuFl,
+            Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+                ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.1 : ℂ) • S.hatC x) +
+              Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+                ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.2 : ℂ) • S.hatC x) =
+            ∑ y, (Aseg e he p).H y ((S.blockSplit 1 hp).restr x)) ∧
+        (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < ρ →
+          ∃ he : ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), g) ∈
+              physFibreRho S S.a₁ S.ν T.t ρ,
+            ∀ p ∈ stepSegments, ∀ᵐ x ∂S.nuFl,
+              S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) p.1 x +
+                S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g p.2 x =
+              ∑ y, (Aseg (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) he p).H y
+                ((S.blockSplit 1 hp).restr x))) ∧
+      (0 < εU ∧ ∃ A₀ : ℂ → LabelAct (thickLabels 𝒴 hdom) (S.blockSplit 1 hp).Ωb
+          εU (2 * T.κdec - 1) T.κ0 (K0 3 3 T.κ0 + 1),
+        (∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ y Φ, (A₀ z).H y Φ =
+          Tt y.1 (z • S.hatOf 1 p₁ hp Φ, z • S.hatOf 1 p₁ hp Φ)
+            (z • S.hatOf 1 p₁ hp Φ, z • S.hatOf 1 p₁ hp Φ) 1
+            (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ))) ∧
+        (∀ z : ℂ, 3 / 2 ≤ ‖z‖ → ∀ y Φ, (A₀ z).H y Φ = 0) ∧
+        ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+        ∃ Ag : ℂ → LabelAct (thickLabels 𝒴 hdom) (S.blockSplit 1 hp).Ωb
+            εU (2 * T.κdec - 1) T.κ0 (K0 3 3 T.κ0 + 1),
+          (∀ z : ℂ, ‖z‖ < 3 / 2 → ∀ y Φ, (Ag z).H y Φ =
+            Tt y.1 (z • S.hatOf 1 p₁ hp Φ, z • S.hatOf 1 p₁ hp Φ)
+              (z • S.hatOf 1 p₁ hp Φ, z • S.hatOf 1 p₁ hp Φ) 1
+              (rawOf S.D', fun y i => g y i / (S.β : ℂ))) ∧
+          (∀ z : ℂ, 3 / 2 ≤ ‖z‖ → ∀ y Φ, (Ag z).H y Φ = 0) ∧
+          ∀ t : ℝ, t ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+            ∑ y, (((A₀ 1).sub (A₀ (t : ℂ))).sum (Ag (t : ℂ))).H y
+                (((S.blockSplit 1 hp).restr x)) =
+              S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) 1 x +
+              S.WtwoC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g t x) := by
+  obtain ⟨CE, CF, hCE, hCF, H⟩ := commonWitness_joint_fromTower_rho T hA p
+  refine ⟨CE, CF, hCE, hCF, fun ρ hρ => ?_⟩
+  obtain ⟨β₀, h2, hρβ, H1⟩ := H ρ hρ
+  refine ⟨β₀, h2, hρβ, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D S hS hp
+  obtain ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbd, h4, h5, h6, -, -⟩ :=
+    H1 k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D S hS hp
+  exact ⟨val, 𝒴, Tt, hdom, hval, εU, hεU, hεpos, hbd, h4, h5, h6⟩
 
 open Classical in
 /-- **One witness for the source lane at the shared tower `T`** (the radius `ρ = 1` case of
