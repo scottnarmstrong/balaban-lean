@@ -1696,3 +1696,4 @@ public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.Thm31bPolymer
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
+public import Balaban.Inhabited.ObsSourceLocal
