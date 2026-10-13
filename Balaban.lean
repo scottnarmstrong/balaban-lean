@@ -1701,6 +1701,7 @@ public import Balaban.Fluctuation.RenormLocC2Zero
 public import Balaban.Inhabited.RenormLocC2ZeroTower
 public import Balaban.Fluctuation.ObsIntegrandBridge
 public import Balaban.Inhabited.SourceExponentFamily
+public import Balaban.Inhabited.SourceExponentProp26JZero
 public import Balaban.Fluctuation.ObsRayBase
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
