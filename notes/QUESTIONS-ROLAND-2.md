@@ -313,3 +313,33 @@ component really produce a link of the cluster, or is there an incidence restric
 additional decay of the coefficients across the retained component?
 (Details: `notes/phase1/VMOD-40.md`, `VMOD-41.md`, `VMOD-42.md`. The same geometry is behind
 item 14 (iv).)
+
+### Item 17 (2026-10-13): the base case k = 0 of the large-field induction, and the last integral when k_f = 0
+
+P5 (H.1), (1.1) writes the density rho_k as a sum over large-field regions Z_k of terms carrying
+the characteristic function chi_k(Z_k^c), and (1.18)–(1.19) define chi_k by small-field tests (for
+k > k_0 including |phi_k - h| < delta_k / sqrt(nu_k)). For the bare density rho_0 (unit lattice,
+spins on the sphere, lambda = infinity) the single term Z_0 = empty cannot be the whole density:
+chi_0 is not identically 1 on sphere configurations (a spin far from h, or a large gradient,
+fails the tests).
+
+(a) What is the intended representation of rho_0 in the form (1.1)? Which first large-field
+operators T_0(Z_0) of (H.5), (1.21)–(1.31), and which boundary terms of (H.7), carry the
+configurations that violate chi_0, and where is the bound (1.31) verified for them? Or does the
+induction start with different conventions at k = 0 (for instance no tests at k = 0, large-field
+regions being created only by the step 0 -> 1 through the decompositions of P5 section 2)?
+
+(b) P7 section 4 (printed p. 529) starts the last integral at the first k_f with
+nu_k > 7 L^{-2} / 8 from a density satisfying (H.1)–(H.5), (H.7), and its (4.10) bounds the freshly
+created components T'_{k+1} by citing P5 (1.31). Does section 4 cover k_f = 0, i.e.
+nu_0 > 7 L^{-2} / 8, where no renormalization step is performed at all? If yes, question (a)
+applies to it; if not, what is the intended treatment of that range of the mass?
+
+(c) In our direct treatment of the one-scale case, a fresh bad region defined by
+|phi_x - h| >= A log(beta a) / sqrt(beta nu) has a Peierls weight of order exp(-c log^2 beta) per
+violated site. P7 uses a reserve exp(-2 p_2(beta_k) - H_k |Z|) with p_2 = A_2 (log beta)^{p_2},
+p_2 >= 2d + 2. At the first step, is the stronger reserve obtained from stronger initial
+thresholds (a higher power of log beta in delta_0), or from another source?
+
+(Details: `notes/phase1/KF0-P7.md`, `KF0-LAST.md`. Our frozen root statement covers all masses,
+so the range k_f = 0 is needed.)
