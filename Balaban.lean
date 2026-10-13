@@ -1570,6 +1570,7 @@ public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
 public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.ObsRemainderMarks
+public import Balaban.Fluctuation.ObsRemainderParam
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormExpInputOn
 public import Balaban.Fluctuation.RenormLocFibre
