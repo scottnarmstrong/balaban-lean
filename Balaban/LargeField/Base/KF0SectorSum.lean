@@ -362,4 +362,230 @@ theorem partitionFunction_eq_sum_kwNormRatio (s m : ℕ) [NeZero m] (r : ℝ) {�
 
 end T3
 
+section T4
+
+variable {d N ℓ : ℕ} [NeZero ℓ] {h : EuclideanSpace ℝ (Fin N)}
+
+theorem siteUnion_empty (s m : ℕ) [NeZero m] :
+    siteUnion (ℓ := ℓ) s m (∅ : Finset (Torus d m)) = ∅ := by
+  ext x; simp [siteUnion]
+
+theorem card_good_empty : Fintype.card (Good (∅ : Finset (Torus d ℓ))) = Fintype.card (Torus d ℓ) := by
+  simp
+
+/-- The sector normalizer of the empty bad set is the full-torus normalizer. -/
+theorem kwSectorNorm_empty (N : ℕ) (β ν : ℝ) :
+    kwSectorNorm d ℓ N β ν (∅ : Finset (Torus d ℓ)) = fullNorm d ℓ N β ν := by
+  unfold kwSectorNorm fullNorm
+  rw [kwGaussNorm_empty, card_good_empty]
+
+theorem kwSectorNorm_congr_empty (s m : ℕ) [NeZero m] (β ν : ℝ) :
+    ENNReal.ofReal (kwSectorNorm d ℓ N β ν (siteUnion (ℓ := ℓ) s m (∅ : Finset (Torus d m)))) =
+      ENNReal.ofReal (fullNorm d ℓ N β ν) := by
+  rw [siteUnion_empty, kwSectorNorm_empty]
+
+/-- **T4.**  `R_det(∅) = 1`. -/
+theorem kwNormRatio_empty (N : ℕ) {β ν : ℝ} (hβ : 0 < β) (hν : 0 < ν) :
+    kwNormRatio d ℓ N β ν (∅ : Finset (Torus d ℓ)) = 1 := by
+  unfold kwNormRatio
+  rw [kwSectorNorm_empty]
+  exact div_self (fullNorm_pos N hβ hν).ne'
+
+theorem goodJ_empty (hh : ‖h‖ = 1) (q : ↥(∅ : Finset (Torus d ℓ)) → SpinSphere N) :
+    goodJ (∅ : Finset (Torus d ℓ)) hh q = 0 := by
+  funext x
+  simp [goodJ]
+
+/-- **T4.**  The shifted mean of the empty sector is `0`. -/
+theorem goodMean_empty (hh : ‖h‖ = 1) (β ν : ℝ) (q : ↥(∅ : Finset (Torus d ℓ)) → SpinSphere N) :
+    goodMean (∅ : Finset (Torus d ℓ)) β ν (goodJ (∅ : Finset (Torus d ℓ)) hh q) = 0 := by
+  rw [goodJ_empty]
+  funext x
+  simp [goodMean, matAct]
+
+/-- **T4.**  The reduced constant of the empty sector is `0`. -/
+theorem goodReducedConst_empty (hh : ‖h‖ = 1) (β ν : ℝ)
+    (q : ↥(∅ : Finset (Torus d ℓ)) → SpinSphere N) :
+    goodReducedConst (∅ : Finset (Torus d ℓ)) hh β ν q = 0 := by
+  unfold goodReducedConst goodBdryConst
+  rw [goodJ_empty]
+  simp [IsCrossing, goodPair, matAct]
+
+/-- **T4.**  The reduced constant of an empty bad set `D = ∅` is `0`. -/
+theorem goodReducedConst_of_eq_empty (D : Finset (Torus d ℓ)) (hD : D = ∅) (hh : ‖h‖ = 1)
+    (β ν : ℝ) (q : ↥D → SpinSphere N) : goodReducedConst D hh β ν q = 0 := by
+  subst hD
+  exact goodReducedConst_empty hh β ν q
+
+/-- **T4.**  An empty bad set `D = ∅` has bad factor `1`. -/
+theorem kf0BadFactor_of_eq_empty (D : Finset (Torus d ℓ)) (hD : D = ∅) (s m : ℕ) [NeZero m]
+    (r β ν : ℝ) (g : Torus d ℓ → Fin N → ℝ) (q : ↥D → SpinSphere N) :
+    kf0BadFactor D s m r β ν h g (∅ : Finset (Torus d m)) q = 1 := by
+  subst hD
+  simp [kf0BadFactor, blockEnergyIn, sourceIn, badWeight]
+
+/-- **T4.**  The empty sector: the prefactor is `fullNorm` (the prefactor of
+`lintegral_restrictedIntegrand_gaussian`), `R_det = 1`, the mean is `0`, the reduced constant is
+`0`, the bad factor is `1`; the sector integral is the full-torus normalizer times the integral,
+over the (empty) bad configuration, of the good Gaussian integral. -/
+theorem kf0SectorLint_empty (s m : ℕ) [NeZero m] (r : ℝ) {β ν : ℝ}
+    (hβ : 0 < β) (hν : 0 < ν) (hh : ‖h‖ = 1) (hr : r ≤ 1) (g : Torus d ℓ → Fin N → ℝ) :
+    kf0SectorLint s m r β ν h g (∅ : Finset (Torus d m)) =
+      ENNReal.ofReal (fullNorm d ℓ N β ν) *
+        ∫⁻ q, kf0GoodInner (siteUnion (ℓ := ℓ) s m (∅ : Finset (Torus d m))) hh s m r β ν g ∅ q
+          ∂sigmaIn (siteUnion (ℓ := ℓ) s m (∅ : Finset (Torus d m))) := by
+  rw [kf0SectorLint_eq s m r ∅ hβ hν hh hr g, kwSectorNorm_congr_empty s m β ν]
+  congr 1
+  unfold kf0SectorReduced
+  refine lintegral_congr fun q => ?_
+  rw [kf0BadFactor_of_eq_empty _ (siteUnion_empty s m) s m r β ν g q,
+    goodReducedConst_of_eq_empty _ (siteUnion_empty s m) hh β ν q]
+  simp
+
+end T4
+
+section T5
+
+variable {d N ℓ : ℕ} [NeZero ℓ] {h : EuclideanSpace ℝ (Fin N)}
+
+/-- The good Gaussian integral with the cutoff indicators dropped (named quantity of the crude
+bound): `∫ dγ_G(ψ) J_β(v) · exp(shifted exponent)(v)` at `v = m(q) + C_G ψ`. -/
+noncomputable def kf0GoodInnerDropped (D : Finset (Torus d ℓ)) (hh : ‖h‖ = 1) (β ν : ℝ)
+    (g : Torus d ℓ → Fin N → ℝ) (q : ↥D → SpinSphere N) : ENNReal :=
+  ∫⁻ ψ, ENNReal.ofReal (chartJac β (fun x =>
+        (((goodMean D β ν (goodJ D hh q) + matAct (kwSqrt ν D) ψ) x : perp h) :
+          EuclideanSpace ℝ (Fin N)))) *
+      ENNReal.ofReal (Real.exp (goodShiftedExponent D β ν g h q
+        (goodMean D β ν (goodJ D hh q) + matAct (kwSqrt ν D) ψ))) ∂(goodGaussian D h)
+
+theorem goodWeight_le_one (D : Finset (Torus d ℓ)) (s m : ℕ) [NeZero m] (r : ℝ)
+    (B : Finset (Torus d m)) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    goodWeight D h s m r B p ≤ 1 :=
+  Finset.prod_le_one₀ (fun Q _ => (chiOut_nonneg_le D h s m r Q p).1) fun Q _ =>
+    (chiOut_nonneg_le D h s m r Q p).2
+
+theorem badWeight_le_one (D : Finset (Torus d ℓ)) (s m : ℕ) [NeZero m] (r : ℝ)
+    (B : Finset (Torus d m)) (q : ↥D → SpinSphere N) :
+    badWeight D h s m r B q ≤ 1 :=
+  Finset.prod_le_one₀ (fun Q _ => by linarith [(chiIn_nonneg_le D h s m r Q q).2])
+    fun Q _ => by linarith [(chiIn_nonneg_le D h s m r Q q).1]
+
+theorem kf0GoodInner_le (D : Finset (Torus d ℓ)) (hh : ‖h‖ = 1) (s m : ℕ) [NeZero m] (r β ν : ℝ)
+    (g : Torus d ℓ → Fin N → ℝ) (B : Finset (Torus d m)) (q : ↥D → SpinSphere N) :
+    kf0GoodInner D hh s m r β ν g B q ≤ kf0GoodInnerDropped D hh β ν g q := by
+  refine lintegral_mono fun ψ => ?_
+  unfold kf0GoodIntegrand
+  have : ENNReal.ofReal (goodWeight D h s m r B
+      (chartCfgOn h hh ((Real.sqrt β)⁻¹ • (goodMean D β ν (goodJ D hh q) + matAct (kwSqrt ν D) ψ)))) ≤ 1 := by
+    rw [← ENNReal.ofReal_one]
+    exact ENNReal.ofReal_le_ofReal (goodWeight_le_one D s m r B _)
+  calc _ ≤ ENNReal.ofReal (chartJac β (fun x =>
+        (((goodMean D β ν (goodJ D hh q) + matAct (kwSqrt ν D) ψ) x : perp h) :
+          EuclideanSpace ℝ (Fin N)))) * 1 *
+      ENNReal.ofReal (Real.exp (goodShiftedExponent D β ν g h q
+        (goodMean D β ν (goodJ D hh q) + matAct (kwSqrt ν D) ψ))) := by gcongr
+    _ = _ := by rw [mul_one]
+    
+/-- **Peierls energy bound on the bad spins.**  If every block of `B` is bad for `q`
+(`badWeight ≠ 0`), the bad energy is at least `ν r² #B / 2`. -/
+theorem blockEnergyIn_ge (s m : ℕ) [NeZero m] (r : ℝ) (hr : 0 ≤ r) {ν : ℝ} (hν : 0 ≤ ν)
+    (B : Finset (Torus d m)) (q : ↥(siteUnion (ℓ := ℓ) s m B) → SpinSphere N)
+    (hq : badWeight (siteUnion (ℓ := ℓ) s m B) h s m r B q ≠ 0) :
+    ν * r ^ 2 * B.card / 2 ≤ blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q := by
+  have hx : ∀ Q : ↥B, ∃ x : ↥(siteUnion (ℓ := ℓ) s m B), blockMap s m x.1 = Q.1 ∧
+      r ≤ ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ := by
+    intro Q
+    have h1 : (1 - chiIn (siteUnion (ℓ := ℓ) s m B) h s m r Q.1 q) ≠ 0 := fun h0 =>
+      hq (Finset.prod_eq_zero Q.2 h0)
+    have h2 : chiIn (siteUnion (ℓ := ℓ) s m B) h s m r Q.1 q ≠ 1 := fun h0 => h1 (by rw [h0]; ring)
+    unfold chiIn at h2
+    by_contra hcon
+    push Not at hcon
+    exact h2 (by split_ifs <;> rfl)
+  choose xs hxs using hx
+  have hinj : Function.Injective xs := by
+    intro Q Q' he
+    apply Subtype.ext
+    rw [← (hxs Q).1, ← (hxs Q').1, he]
+  have hsum : (B.card : ℝ) * r ^ 2 ≤
+      ∑ x : ↥(siteUnion (ℓ := ℓ) s m B), ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 := by
+    calc (B.card : ℝ) * r ^ 2 = ∑ Q : ↥B, r ^ 2 := by simp
+      _ ≤ ∑ Q : ↥B, ‖(q (xs Q) : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 :=
+          Finset.sum_le_sum fun Q _ => pow_le_pow_left₀ hr (hxs Q).2 2
+      _ = ∑ x ∈ Finset.univ.image xs, ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 :=
+          (Finset.sum_image (f := fun x : ↥(siteUnion (ℓ := ℓ) s m B) =>
+            ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2) fun a _ b _ he => hinj he).symm
+      _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+          (fun _ _ _ => sq_nonneg _)
+  unfold blockEnergyIn
+  have hb : 0 ≤ (1 / 2 : ℝ) * ∑ x : ↥(siteUnion (ℓ := ℓ) s m B), ∑ μ : Fin d,
+      (if hy : x.1 + Pi.single μ 1 ∈ siteUnion (ℓ := ℓ) s m B then
+        ‖(q ⟨x.1 + Pi.single μ 1, hy⟩ : EuclideanSpace ℝ (Fin N)) - q x‖ ^ 2 else 0) :=
+    mul_nonneg (by norm_num) (Finset.sum_nonneg fun x _ => Finset.sum_nonneg fun μ _ => by
+      split_ifs <;> positivity)
+  nlinarith [mul_le_mul_of_nonneg_left hsum hν]
+
+/-- The bad factor carries the Peierls charge `exp(-β ν r² #B / 2)`. -/
+theorem kf0BadFactor_le (s m : ℕ) [NeZero m] (r : ℝ) (hr : 0 ≤ r) {β ν : ℝ} (hβ : 0 ≤ β)
+    (hν : 0 ≤ ν) (g : Torus d ℓ → Fin N → ℝ) (B : Finset (Torus d m))
+    (q : ↥(siteUnion (ℓ := ℓ) s m B) → SpinSphere N) :
+    kf0BadFactor (siteUnion (ℓ := ℓ) s m B) s m r β ν h g B q ≤
+      Real.exp (-(β * ν * r ^ 2 * B.card / 2)) *
+        Real.exp (sourceIn (siteUnion (ℓ := ℓ) s m B) g q) := by
+  unfold kf0BadFactor
+  by_cases hq : badWeight (siteUnion (ℓ := ℓ) s m B) h s m r B q = 0
+  · rw [hq, mul_zero]; positivity
+  · have h1 := mul_le_mul_of_nonneg_left (blockEnergyIn_ge s m r hr hν B q hq) hβ
+    rw [← Real.exp_add]
+    calc _ ≤ Real.exp (-(β * blockEnergyIn (siteUnion (ℓ := ℓ) s m B) ν h q) +
+            sourceIn (siteUnion (ℓ := ℓ) s m B) g q) * 1 :=
+          mul_le_mul_of_nonneg_left (badWeight_le_one _ s m r B q) (Real.exp_pos _).le
+      _ ≤ _ := by
+          rw [mul_one]
+          refine Real.exp_le_exp.2 ?_
+          nlinarith
+
+/-- **T5.**  Crude bound for a fixed sector: no control of the good Gaussian integral is needed.
+`Z_B ≤ N_Λ · R_det(B) · exp(-β ν r² #B / 2) · ∫ dq_D e^{⟨g_D,q⟩} ∫ dγ_G J_β e^{shifted exponent}`;
+the reduced constant is dropped (`goodReducedConst_nonneg`), the indicators are dropped
+(`|goodWeight| ≤ 1`), and the bad energy is bounded below by the Peierls charge. -/
+theorem kf0SectorLint_le_peierls (s m : ℕ) [NeZero m] (r : ℝ) (hr0 : 0 ≤ r) (hr : r ≤ 1)
+    {β ν : ℝ} (hβ : 0 < β) (hν : 0 < ν) (hh : ‖h‖ = 1) (g : Torus d ℓ → Fin N → ℝ)
+    (B : Finset (Torus d m)) :
+    kf0SectorLint s m r β ν h g B ≤
+      ENNReal.ofReal (fullNorm d ℓ N β ν) *
+        ENNReal.ofReal (kwNormRatio d ℓ N β ν (siteUnion (ℓ := ℓ) s m B)) *
+        ENNReal.ofReal (Real.exp (-(β * ν * r ^ 2 * B.card / 2))) *
+        ∫⁻ q, ENNReal.ofReal (Real.exp (sourceIn (siteUnion (ℓ := ℓ) s m B) g q)) *
+          kf0GoodInnerDropped (siteUnion (ℓ := ℓ) s m B) hh β ν g q
+          ∂sigmaIn (siteUnion (ℓ := ℓ) s m B) := by
+  rw [kf0SectorLint_eq s m r B hβ hν hh hr g, ← fullNorm_mul_ratio N hβ hν,
+    ENNReal.ofReal_mul (fullNorm_pos N hβ hν).le]
+  refine le_trans (mul_le_mul' le_rfl (?_ : kf0SectorReduced hh s m r β ν g B ≤
+    ENNReal.ofReal (Real.exp (-(β * ν * r ^ 2 * B.card / 2))) *
+        ∫⁻ q, ENNReal.ofReal (Real.exp (sourceIn (siteUnion (ℓ := ℓ) s m B) g q)) *
+          kf0GoodInnerDropped (siteUnion (ℓ := ℓ) s m B) hh β ν g q
+          ∂sigmaIn (siteUnion (ℓ := ℓ) s m B))) (le_of_eq (by ring))
+  unfold kf0SectorReduced
+  rw [← lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
+  refine lintegral_mono fun q => ?_
+  have hrc := goodReducedConst_nonneg (siteUnion (ℓ := ℓ) s m B) hh hν hβ.le q
+  have hred : Real.exp (-goodReducedConst (siteUnion (ℓ := ℓ) s m B) hh β ν q) ≤ 1 :=
+    Real.exp_le_one_iff.2 (by linarith)
+  have hbad : kf0BadFactor (siteUnion (ℓ := ℓ) s m B) s m r β ν h g B q *
+      Real.exp (-goodReducedConst (siteUnion (ℓ := ℓ) s m B) hh β ν q) ≤
+      Real.exp (-(β * ν * r ^ 2 * B.card / 2)) *
+        Real.exp (sourceIn (siteUnion (ℓ := ℓ) s m B) g q) := by
+    calc _ ≤ kf0BadFactor (siteUnion (ℓ := ℓ) s m B) s m r β ν h g B q * 1 :=
+          mul_le_mul_of_nonneg_left hred (mul_nonneg (Real.exp_pos _).le
+            (badWeight_nonneg _ h s m r B q))
+      _ ≤ _ := by rw [mul_one]; exact kf0BadFactor_le s m r hr0 hβ.le hν.le g B q
+  calc _ ≤ ENNReal.ofReal (Real.exp (-(β * ν * r ^ 2 * B.card / 2)) *
+        Real.exp (sourceIn (siteUnion (ℓ := ℓ) s m B) g q)) *
+        kf0GoodInnerDropped (siteUnion (ℓ := ℓ) s m B) hh β ν g q :=
+        mul_le_mul' (ENNReal.ofReal_le_ofReal hbad) (kf0GoodInner_le _ hh s m r β ν g B q)
+    _ = _ := by rw [ENNReal.ofReal_mul (Real.exp_pos _).le]; ring
+
+end T5
+
 end Balaban.LargeField
