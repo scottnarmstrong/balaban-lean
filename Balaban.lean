@@ -410,6 +410,8 @@ public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.YregBlocks
+public import Balaban.Localization.DecSqrtCutFactor
+public import Balaban.Inhabited.DecSqrtCutFactorWitness
 public import Balaban.Inhabited.YregBlocksWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
@@ -1113,6 +1115,7 @@ public import Balaban.Fluctuation.StepLocalInhabited
 public import Balaban.Fluctuation.StepObs
 public import Balaban.Fluctuation.StepObsInhabited
 public import Balaban.Fluctuation.StepRegFamily
+public import Balaban.Fluctuation.ScaleUniform
 public import Balaban.Fluctuation.StepRegBg
 public import Balaban.Fluctuation.StepRegCompose
 public import Balaban.Fluctuation.StepRegTerms
@@ -1310,6 +1313,7 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
+public import Balaban.Fluctuation.DetCauchyChart
 public import Balaban.Fluctuation.RootDetCutSupport
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
@@ -1339,6 +1343,7 @@ public import Balaban.Fluctuation.StepActivityHatSource
 public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.Inhabited.StepActivityHatWitnessRay
+public import Balaban.Inhabited.LevelStepSetting
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
@@ -1361,6 +1366,7 @@ public import Balaban.Inhabited.StepActivityDirectPhysicalRates
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
+public import Balaban.Inhabited.DetCauchyChartWitness
 public import Balaban.Inhabited.StepActivityDirectEtaWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
