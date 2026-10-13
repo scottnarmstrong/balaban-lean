@@ -866,6 +866,7 @@ public import Balaban.LargeField.R.ConfigAdm
 public import Balaban.LargeField.R.ConfigWitness
 public import Balaban.LargeField.R.RemCluster
 public import Balaban.LargeField.R.GasIdentity
+public import Balaban.LargeField.R.RRawHoleComponent
 public import Balaban.LargeField.R.ChainGraph
 public import Balaban.LargeField.R.ChainExtract
 public import Balaban.LargeField.R.FineBox
@@ -1367,6 +1368,7 @@ public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
 public import Balaban.Inhabited.RLaneWitness
 public import Balaban.Inhabited.RLaneWitnessDen
+public import Balaban.Inhabited.RRawHoleComponentWitness
 public import Balaban.Inhabited.FootprintMarginWitness
 public import Balaban.Inhabited.P6PairWitness
 public import Balaban.Inhabited.P6TopWitness
