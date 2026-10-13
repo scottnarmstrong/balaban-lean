@@ -1582,3 +1582,4 @@ public import Balaban.Correlations.C1StarLimits
 public import Balaban.Fluctuation.ObsMarksAssembly
 public import Balaban.Fluctuation.MarkRealDomain
 public import Balaban.Fluctuation.MarkRealRegular
+public import Balaban.Fluctuation.RenormSharedClass
