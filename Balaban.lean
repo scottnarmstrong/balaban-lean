@@ -1752,3 +1752,6 @@ public import Balaban.Inhabited.LevelCoversG
 public import Balaban.Inhabited.RenJoinClassWitness
 public import Balaban.Inhabited.RenormPhysicalRecord
 public import Balaban.Inhabited.ObsPrefactorScale
+public import Balaban.Fluctuation.StepOldTermSplit
+public import Balaban.Fluctuation.StepClassPath
+public import Balaban.Fluctuation.StepPhysicalActivityBridge
