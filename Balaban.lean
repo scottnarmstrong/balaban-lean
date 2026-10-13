@@ -1726,6 +1726,8 @@ public import Balaban.Inhabited.StepTowerThetaDetG
 public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepTowerRadius
 public import Balaban.Inhabited.StepPiecesRenSol
+public import Balaban.Inhabited.StepPiecesRenSolG
+public import Balaban.Inhabited.StepPiecesJointG
 public import Balaban.Inhabited.StepPiecesJoint
 public import Balaban.Fluctuation.RenormDetFibreMap
 public import Balaban.Inhabited.ObsUnconditional
