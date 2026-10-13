@@ -411,6 +411,7 @@ public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.YregBlocks
 public import Balaban.Inhabited.YregBlocksWitness
+public import Balaban.Inhabited.DetCauchyGraphWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
