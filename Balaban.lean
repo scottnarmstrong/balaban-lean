@@ -1520,6 +1520,11 @@ public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
+public import Balaban.Inhabited.MarkRealDiscSliceG
+public import Balaban.Inhabited.DecMarkCorrTotalFromTowerG
+public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
+public import Balaban.Inhabited.E1ParamFibreValueG
+public import Balaban.Inhabited.E1CoeffFamilyG
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots
@@ -1818,6 +1823,7 @@ public import Balaban.Fluctuation.StepComplexOffFibreCoeff
 public import Balaban.Fluctuation.StepComplexOffFibreE1Loc
 public import Balaban.Inhabited.OffFibreCoeffFirst
 public import Balaban.Inhabited.OffFibreE1Marks
+public import Balaban.Inhabited.OffFibreE1CoeffSum
 public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepActivityOffFibreRay

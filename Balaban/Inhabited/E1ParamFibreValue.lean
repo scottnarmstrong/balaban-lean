@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.DecMarkCorrSumFromTower
+public import Balaban.Inhabited.E1ParamFibreValueG
 public import Balaban.Inhabited.E1MarkParamCommon
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -90,56 +91,8 @@ theorem e1_hF_param_of_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : 
             ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
               (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i (s : ℂ)
             ((S.blockSplit 1 hp).restr x) := by
-  intro s hs
-  have hsU : ‖(s : ℂ)‖ < corrU := by
-    rw [Complex.norm_real, Real.norm_of_nonneg hs.1]; unfold corrU; linarith [hs.2]
-  have hΘ : rawOf D' ∈ XiCRaw S.G' (compWeight 3 S.a₁) S.ν (k + 1) 1 T.t := ⟨D', hD, rfl⟩
-  -- the tower identity, for pairs typed over the step with the datum `D'`
-  have key : ∀ (G₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
-        DecParams (S.withDatum D' hDh).G' × RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
-          ((S.withDatum D' hDh).G'.Ω 1 × Fin 2 → ℂ) × ((S.withDatum D' hDh).G'.Ω 1 → ℂ))
-      (Sl : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
-        Dec2.DecParams (coverOf (S.withDatum D' hDh).G') ×
-            Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 →
-          ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) ×
-            ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ))
-      (hq : 0 < (S.withDatum D' hDh).p₁),
-      (∀ b, MarkedBlockExpansionDecPair 2 (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
-        (S.withDatum D' hDh).hG' (((S.withDatum D' hDh).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
-        (S.withDatum D' hDh).a₁ (S.withDatum D' hDh).ν BG T.BG₂ T.κ T.t T.t κdec p₁
-        ((S.withDatum D' hDh).blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
-        (LocalCover.fam 1 (LocalCover.blockSite k b)) b (G₁ b) (Sl b)) →
-      ∀ᵐ x ∂(S.withDatum D' hDh).nuFl,
-        (fderiv ℂ ((S.withDatum D' hDh).Phi1C (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)))
-            ((s : ℂ) • (S.withDatum D' hDh).shiftUC x))
-            ((S.withDatum D' hDh).maskUC z ((S.withDatum D' hDh).shiftUC x)) =
-          ∑ Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-              (fun b => polyDom (S.withDatum D' hDh).G'
-                (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
-                (LocalCover.fam 1 (LocalCover.blockSite k b))) z,
-            markedOutDec 1 (fun _ => Set.univ)
-              (fun b => polyDom (S.withDatum D' hDh).G'
-                (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
-                (LocalCover.fam 1 (LocalCover.blockSite k b))) z
-              (decMarkCorrTerm (S.withDatum D' hDh)
-                (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b)) (fun _ => k)
-                (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1
-                (S.withDatum D' hDh).a₁ (S.withDatum D' hDh).ν
-                (((S.withDatum D' hDh).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) G₁ Sl
-                ((S.withDatum D' hDh).blockU z) p₁ hq ((S.withDatum D' hDh).β : ℂ)
-                (rawOf (S.withDatum D' hDh).D') (s : ℂ)
-                (((S.withDatum D' hDh).blockSplit 1 hq).restr x)) Y' := by
-    subst hS
-    intro G₁ Sl hq hQ
-    exact ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr_fromTower T D hβ hq D' hDh hD
-      (S := (T.step k hk N₁ ν β p₁).withDatum D' hDh) rfl hq z G₁ Sl hQ hs
-  refine (key F₁ Sol hp hP).mono fun x hx => hx.trans ?_
-  refine Eq.trans (Finset.sum_subtype _ (fun _ => Iff.rfl) _)
-    (Finset.sum_congr rfl fun i _ => ?_)
-  exact (e1MarkGParam_of_mem S F₁ Sol p₁ hp z T.t
-    ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i (s : ℂ)
-    ((S.blockSplit 1 hp).restr x) hΘ hsU).symm
+  exact e1_hF_param_of_pairs_fromTowerG T.toG (T.scaleDataG_of_fixed D) hβ
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm hS hp F₁ Sol z hP D' hDh hD
 
 section Record
 
@@ -229,61 +182,11 @@ theorem e1MarksC_withDatum_of_fields_fromTower :
         CPE 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' *
           ∑ Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z},
             corrF0 T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) Y'.1) := by
-  classical
-  have hp0 : 0 < p₁ := by subst hS; exact hp
-  have hne : Nonempty {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z} := by
-    subst hS
-    obtain ⟨Y, hY⟩ := e1Dom_bridgeFamily_nonempty T D z
-    exact ⟨⟨Y, hY⟩⟩
-  have hθ' : ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈ physV S S.a₁ S.ν T.t :=
-    (mk_mem_physFibre S hDh hD (g := 0) (by simp)).1
-  have hU2 : corrU ≤ 2 := by unfold corrU; norm_num
-  refine ⟨{
-      Lb := Lb ⊕ RootUnionLb 1 (fun _ => Set.univ) (e1Dom S)
-      εH := εH
-      κH := 2 * T.κdec - 1
-      κ0 := T.κ0
-      Kc := T.marksKc'
-      Lab := commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1Dom S) hdj
-      ι := {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z}
-      nonempty := hne
-      κG := 2 * T.κdec - 1
-      κ' := T.κ'
-      F0 := fun _ => corrF0 T k β p₁
-      hN := hN3
-      𝒰 := Metric.ball (0 : ℂ) corrU
-      isOpen := Metric.isOpen_ball
-      seg := fun s hs => by
-        rw [mem_ball_zero_iff]
-        refine norm_ofReal_lt_of_mem hs ?_
-        unfold corrU
-        norm_num
-      A := fun u => A₀ (⟨rawOf D', rawOf_mem_rawSub _⟩,
-        (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) u
-      y0 := fun i => commonAnchor Lb (fun _ => Set.univ) (e1Dom S) z i
-      G := fun i u Φ => e1MarkGParam S F₁ Sol p₁ hp z T.t
-        (⟨rawOf D', rawOf_mem_rawSub _⟩, (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i u Φ
-      meas := fun i u => hmeas _ i u
-      dep := fun i u => hdep _ hθ' i u
-      bound := fun i u Φ => hbnd _ i u Φ
-      holA := fun y Φ => (hdiffA _ hθ' y Φ).mono (ball_subset_ball hU2)
-      holG := fun i Φ => ((hholG i Φ).differentiableOn).comp
-        (f := fun u : ℂ => ((((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) : physParam 2 S), u))
-        (s := Metric.ball (0 : ℂ) corrU)
-        ((differentiableOn_const _).prodMk differentiableOn_id) (fun u hu => ⟨hθ', hu⟩)
-      hκ0 := T.marks_hκ0
-      hKc := T.marks_hKc
-      hεpos := hεpos
-      hF0 := fun _ => corrF0_pos T hk hβ hp0
-      hκ' := T.marks_hκ'
-      hκG := T.marks_hκG
-      hκ := T.marks_hκ
-      hε := by unfold stepTheta at hε; exact hε
-      hW := fun s hs => hdat D' hDh hD 0 s hs
-      hF := e1_hF_param_of_pairs_fromTower T D hβ hS hp F₁ Sol z hP D' hDh hD },
-    rfl, rfl, rfl, rfl, fun _ => rfl, rfl⟩
+  simp only [corrF0_toG]
+  exact e1MarksC_withDatum_of_fields_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D) hN3 hL hβ
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm hS hp hdj F₁ Sol z hP Lab₀ A₀ hεpos hε hdiffA hdat
+    hmeas hdep (fun θ i u Φ => by have h := hbnd θ i u Φ; rw [corrF0_toG] at h; exact h) hholG
+    D' hDh hD
 
 include D hβ hS hP hεpos hε hdiffA hdat hmeas hdep hbnd hholG hD in
 open Classical in
@@ -303,9 +206,10 @@ theorem e1Param_fibre_value_of_fields_fromTower :
         (fun i u Φ => e1MarkGParam S F₁ Sol p₁ hp z T.t
           ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
             (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i u Φ) C := by
-  obtain ⟨I, -, -, -, -, hc, -⟩ := e1MarksC_withDatum_of_fields_fromTower T D hN3 hL hβ hS hp hdj
-    F₁ Sol z hP Lab₀ A₀ hεpos hε hdiffA hdat hmeas hdep hbnd hholG D' hDh hD
-  exact ((interpCoeff_spec I).1).trans (Finset.sum_congr rfl fun C _ => hc C)
+  exact e1Param_fibre_value_of_fields_fromTowerG T.toG rfl (T.scaleDataG_of_fixed D) hN3 hL hβ
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm hS hp hdj F₁ Sol z hP Lab₀ A₀ hεpos hε hdiffA hdat
+    hmeas hdep (fun θ i u Φ => by have h := hbnd θ i u Φ; rw [corrF0_toG] at h; exact h) hholG
+    D' hDh hD
 
 end Record
 

@@ -6,6 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerScaleLemmas
+public import Balaban.Inhabited.MarkRealDiscSliceG
+public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Fluctuation.MarkedCubicJoint
 public import Balaban.Fluctuation.MarkedTangent
 import Mathlib.Tactic.Linarith
@@ -32,10 +34,6 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.Localization
   Balaban.Localization.I5Inhabited Balaban.Inhabited.LevelStep Balaban.SmallField Set
 
-/-- The radius arithmetic: for `R > 0`, `(17/16 + R/4)(17/16 + 1/16) ≤ 4 + R`. -/
-theorem marked_radius_arith {R : ℝ} (hR : 0 < R) :
-    (17 / 16 + R / 4) * (17 / 16 + 1 / 16) ≤ 4 + R := by nlinarith
-
 /-- `markedRad` is monotone in the hat radius `c_ψ`. -/
 theorem markedRad_mono (d L N k : ℕ) (a₁ κ : ℝ) (cc : ℂ) (h : 0 ≤ covSupConstC d L N
     (compWeight L a₁ k) κ) {c c' : ℝ} (hc : c ≤ c') :
@@ -55,35 +53,11 @@ theorem marked_radius_lt (D : StepScaleData T k hk N₁ ν β p₁) (hp : 0 < p�
     (17 / 16 + lvR T.κ T.t (β * 3 ^ k) p₁ / 4) * (17 / 16 + 1 / 16) *
       markedRad 3 3 2 k 1 T.κ p₁
         ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < T.t := by
-  have hmem := compWeight_three_mem hk
-  have hCs : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ :=
-    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) T.κ
-  have hr := D.r_pos
-  have ha := marked_radius_arith hr
-  have hm := D.ray_margin
-  have hW : 0 ≤ Real.sqrt ((2 : ℕ) : ℝ) *
-      (‖(((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ) :=
-    mul_nonneg (Real.sqrt_nonneg _) (mul_nonneg (norm_nonneg _) hCs)
-  have hfl := D.fl_radius
-  have e : ∀ c : ℝ, markedRad 3 3 2 k 1 T.κ c
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) =
-      (Real.sqrt ((2 : ℕ) : ℝ) *
-      (‖(((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ)) * c := fun c => by
-    simp only [markedRad]; ring
-  rw [e]
-  have hfl' : (Real.sqrt ((2 : ℕ) : ℝ) *
-      (‖(((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) T.κ)) *
-      lvCpsi T.κ T.t (β * 3 ^ k) < T.t := by
-    have e2 : ∀ a b c d : ℝ, a * (b * (c * d)) = a * (b * c) * d := fun a b c d => by ring
-    rwa [e2] at hfl
-  have h1 : (17 / 16 + lvR T.κ T.t (β * 3 ^ k) p₁ / 4) * (17 / 16 + 1 / 16) * p₁ <
-      lvCpsi T.κ T.t (β * 3 ^ k) := by nlinarith
-  calc _ = _ * p₁ * _ := by ring
-    _ ≤ lvCpsi T.κ T.t (β * 3 ^ k) * _ := mul_le_mul_of_nonneg_right h1.le hW
-    _ < _ := by rw [mul_comm]; exact hfl'
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := (T.scaleDataG_of_fixed D).marked_radius_lt hp
+  rw [StepTower.toG_step_betaU] at h
+  rw [hb, lvRG_three] at h
+  exact h
 
 end StepScaleData
 
@@ -108,13 +82,11 @@ theorem markReal_disc_slice {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
             (((T.step k hk N₁ ν β p₁).withDatum D hDh).shiftUC x))) ∈
         FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t := by
   intro t ht σ hσ
-  obtain ⟨Q, -, hQ, hQb⟩ := (T.step k hk N₁ ν β p₁).exists_analytic_shiftUC_chart
-    (δc := T.δc) hS.core T.large_block T.dom_margin T.coer_margin T.δc_small x
-    (cψ := p₁) hp₁.le (fun p => (T.step k hk N₁ ν β p₁).yhat_le_of_norm_le hx p)
-  have hY := hQb (rawOf D) ⟨D, hD, rfl⟩
-  rw [hQ D hDh hD] at hY
-  exact ((T.step k hk N₁ ν β p₁).withDatum D hDh).markedDisc_field_mem_flBall z
-    (isLevel_lvLow hk) hY (hS.marked_radius_lt hp₁) hu ht hσ
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := markReal_disc_sliceG T.toG (T.scaleDataG_of_fixed hS) hp₁ (ϱ := rhoSep T.m₁)
+    (rhoSepG_three _).symm (S₀ := T.step k hk N₁ ν β p₁) rfl D hDh hD hx z hu t ht σ
+    (by rw [hb, lvRG_three]; exact hσ)
+  exact h
 
 /-- **Non-vacuity of `markReal_disc_slice`**: at `k = 1`, `N₁ = 6`, `ν = 0`, `p₁ = 1`, `β = βray`
 the package is inhabited and the step's own datum satisfies the conclusion at `x = 0`, `u = 0`. -/
