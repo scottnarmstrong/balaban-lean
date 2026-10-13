@@ -183,4 +183,81 @@ theorem exists_beta0 (D L' : ℕ) (a A0 ε : ℝ) (p0 : ℕ) (ha : 0 < a) (hA0 :
   rw [this]
   nlinarith
 
+section Wrapper
+
+/-- **T4.**  The early parent-domain theorem with `hl0`, `hlam`, `hδ`, `hδ1` replaced by
+`β₀ ≤ β` and the two thresholds on `x₀ = log (a β₀) - 1`.  The remaining hypotheses are those of
+`inPsiTilde_of_postTerm2_ne_zero`, unchanged.  Scales `k = j + 1 ≤ k₀` only. -/
+theorem inPsiTilde_of_postTerm2_ne_zero_of_beta0
+    {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+    [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) (rep : Rep S n R k0 K M N geo cs P (j + 1))
+    (A : LabHist S n R k0 K)
+    {d : ℕ} {β ν0 a ε : ℝ} {b nr : ℕ → ℝ} {A0 : ℝ} {p0 : ℕ}
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) (vc : Def7v2.CorrCoef S.d)
+    (hgeo : Cx.geo = geo) (hcs : Cx.cs = cs)
+    (hreg : RunningHyp d S.L β ν0 a ε b nr) (hg' : KZeroGenuine β ν0)
+    (hk : j + 1 ≤ kZero d S.L β ν0) (hA0 : 0 ≤ A0)
+    {β0 : ℝ} (hβ0 : 0 < β0) (hβ : β0 ≤ β)
+    (hthr1 : 2 ≤ Real.log (a * β0) + 1)
+    (hthr2 : 2 * a * Real.exp (2 * ε) < A0 ^ 2 * (Real.log (a * β0) - 1) ^ (2 * p0))
+    (hthr3 : ((4 * ((S.d : ℝ) + 1) + 3 * S.d * S.L) * (A0 * expTailConst p0)) <
+      Real.log (a * β0) - 1)
+    (hδrun : Cx.cs.delta = deltaRun A0 p0 a b) (hunit : ‖hv‖ = 1)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
+    (hT : Def7v2.postTerm2 Cx vc rep A ψk hv g ≠ 0) :
+    InPsiTilde (Cx.genW ((A.H.step (j + 1)).Z)ᶜ) (sfBgMassAt S.L (j + 1) (nr (j + 1)))
+      (max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)))
+      (parentPsi Cx ψk) (fun i => hv i) := by
+  obtain ⟨hl0, hlam⟩ := premises_of_threshold (A0 := A0) (p0 := p0) hreg hβ0 hβ hthr1 hthr2 (j + 1)
+  have hApos : 0 < A0 := by
+    rcases hA0.lt_or_eq with h | h
+    · exact h
+    · exfalso
+      rw [← h] at hthr2
+      have : 0 < 2 * a * Real.exp (2 * ε) := by
+        have := hreg.ha1; positivity
+      simp at hthr2; linarith
+  obtain ⟨hδ, hδ1, -⟩ := deltaRun_premises hreg S.d S.L hApos hβ0 hβ hthr3 j
+  exact inPsiTilde_of_postTerm2_ne_zero Cx rep A ψk hv g vc hgeo hcs hreg hg' hk hA0 hl0 hlam
+    hδrun hunit (by rw [hδrun]; exact hδ) (by rw [hδrun]; exact hδ1) HB hT
+
+/-- **T4, existential form.**  For `1 ≤ p₀`, `a, A₀ > 0` there is a threshold `β₀ > 0` (depending only
+on `S.d`, `S.L`, `a`, `A₀`, `ε`, `p₀`) such that for every `β ≥ β₀` the early parent-domain
+conclusion holds without the premises `hl0`, `hlam`, `hδ`, `hδ1`. -/
+theorem exists_beta0_inPsiTilde
+    {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+    [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) (rep : Rep S n R k0 K M N geo cs P (j + 1))
+    (A : LabHist S n R k0 K) (a ε A0 : ℝ) (p0 : ℕ) (ha : 0 < a) (hA0 : 0 < A0) (hp : 1 ≤ p0) :
+    ∃ β0 : ℝ, 0 < β0 ∧ ∀ {d : ℕ} {β ν0 : ℝ} {b nr : ℕ → ℝ},
+      β0 ≤ β →
+      ∀ (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N))
+        (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) (vc : Def7v2.CorrCoef S.d),
+      Cx.geo = geo → Cx.cs = cs →
+      RunningHyp d S.L β ν0 a ε b nr → KZeroGenuine β ν0 →
+      j + 1 ≤ kZero d S.L β ν0 →
+      Cx.cs.delta = deltaRun A0 p0 a b → ‖hv‖ = 1 →
+      BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)) →
+      Def7v2.postTerm2 Cx vc rep A ψk hv g ≠ 0 →
+      InPsiTilde (Cx.genW ((A.H.step (j + 1)).Z)ᶜ) (sfBgMassAt S.L (j + 1) (nr (j + 1)))
+        (max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)))
+        (parentPsi Cx ψk) (fun i => hv i) := by
+  obtain ⟨β0, hβ0, h1, h2, h3⟩ := exists_beta0 S.d S.L a A0 ε p0 ha hA0 hp
+  exact ⟨β0, hβ0, fun hβ ψk hv g vc hgeo hcs hreg hg' hk hδrun hunit HB hT =>
+    inPsiTilde_of_postTerm2_ne_zero_of_beta0 Cx rep A ψk hv g vc hgeo hcs hreg hg' hk hA0.le hβ0
+      hβ h1 h2 h3 hδrun hunit HB hT⟩
+
+end Wrapper
+
+/-- **T5.**  Explicit constants (`a = 5/4`, `A₀ = 1`, `p₀ = 1`, `ε = 1/20`, `d = 3`, `L = 2`)
+for which a common threshold `β₀` exists. -/
+theorem exists_beta0_example :
+    ∃ β0 : ℝ, 0 < β0 ∧ 2 ≤ Real.log (5 / 4 * β0) + 1 ∧
+      2 * (5 / 4) * Real.exp (2 * (1 / 20)) < 1 ^ 2 * (Real.log (5 / 4 * β0) - 1) ^ (2 * 1) ∧
+      ((4 * (((3 : ℕ) : ℝ) + 1) + 3 * ((3 : ℕ) : ℝ) * ((2 : ℕ) : ℝ)) * (1 * expTailConst 1)) <
+        Real.log (5 / 4 * β0) - 1 :=
+  exists_beta0 3 2 (5 / 4) 1 (1 / 20) 1 (by norm_num) one_pos le_rfl
+
 end Balaban.LargeField
