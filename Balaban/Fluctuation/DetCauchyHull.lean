@@ -671,7 +671,7 @@ theorem piHull_image (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m
       exact Set.image_mono hcb
 
 omit [NeZero N₁] [NeZero L] in
-theorem cbase_cbase_of_dvd [NeZero (N₁ * L ^ m₁ * L ^ K)] {s a : ℕ} (hs : 0 < s) (hsa : s ∣ a)
+theorem cbase_cbase_of_dvd_hull [NeZero (N₁ * L ^ m₁ * L ^ K)] {s a : ℕ} (hs : 0 < s) (hsa : s ∣ a)
     (w : CTorus d L N₁ m₁ K) : cbase a (cbase s w) = cbase a w := by
   funext μ
   obtain ⟨q, rfl⟩ := hsa
@@ -692,7 +692,7 @@ theorem rootCube_rootAct (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N�
     exact ⟨rootSite z, rootSite_mem_box_rootCube z, rfl⟩
   have h1 := cbase_eq_of_mem_box hdvd (cubeMap r (rootCube (m₀ := m₀) z)).2.1 hmem
   show cbase (cellSide L m₀ m₁ K) (rootSite (rootAct r z)) = _
-  rw [rootSite_rootAct, blockBase, cbase_cbase_of_dvd (Nat.pos_of_ne_zero (NeZero.ne _))
+  rw [rootSite_rootAct, blockBase, cbase_cbase_of_dvd_hull (Nat.pos_of_ne_zero (NeZero.ne _))
     (pow_dvd_cellSide (m₀ := m₀)), h1]
 
 theorem rootSet_rootAct (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
