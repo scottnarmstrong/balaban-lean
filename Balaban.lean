@@ -1657,6 +1657,7 @@ public import Balaban.Fluctuation.MarkedRootAssembly
 public import Balaban.Inhabited.MarkedRootFamilyWitness
 public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
+public import Balaban.Inhabited.DetPackageFromTowerG
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.DetPackageInstance
 public import Balaban.Inhabited.StepOutputPhysical
