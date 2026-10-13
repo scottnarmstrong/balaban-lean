@@ -34,11 +34,7 @@ theorem gJ_dataUCH (ψh : S.EC) :
           (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
             (unitRep (G' := S.G') q.1) q.2) +
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)) := by
-  rw [H.rawOf_dataUCH_psiHat]
-  unfold gJ
-  dsimp only
-  rw [Jr.Pc_eq H.D' hX, Jr.Mx_eq H.D' hX]
-  rfl
+  rw [Jr.gJ_datum H.D' hX ψh, H.rawOf_dataUCH_psiHat]
 
 include Jr hX in
 /-- A bounded old spin represented by `gJ` lies in the old-level domain. -/
@@ -50,17 +46,7 @@ theorem dataUCH_hat_dom {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
             (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
               (unitRep (G' := S.G') q.1) q.2) +
           S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)) := by
-  obtain ⟨D₀, hdom, hraw⟩ := Jr.dom H.D' hX ψh hψh
-  have heq : rawOf D₀ = rawOf (H.dataUCH
-      ((fun q =>
-        (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
-          (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
-            (unitRep (G' := S.G') q.1) q.2) +
-        S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)) := by
-    rw [← Jr.gJ_dataUCH H hX ψh]
-    exact hraw
-  rw [← BgData.eq_of_raw heq]
-  exact hdom
+  exact Jr.datum_hat_dom H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh
 
 include hX in
 /-- The old small solution represented by `FJ` is evaluated at the free-field old datum. -/
@@ -80,9 +66,7 @@ theorem FJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
               (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
                 (unitRep (G' := S.G') q.1) q.2) +
             S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh))) := by
-  unfold FJ
-  rw [Jr.gJ_dataUCH H hX ψh]
-  exact Jr.Fb_eq _ (Jr.dataUCH_hat_dom H hX hψh)
+  exact Jr.FJ_datum H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh
 
 include hX in
 /-- The composed pair represented by `PJ` is that of the free-field old datum. -/
@@ -95,13 +79,7 @@ theorem PJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) (j : ℕ) :
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)
     Jr.PJ j (rawOf H.D', ψh) =
       composedPairAtC S.a S.ν (Nat.le_succ k) j D₀ := by
-  dsimp only
-  unfold PJ composedPairAtC
-  by_cases hj : j ≤ k
-  · simp only [hj, ↓reduceDIte]
-    rw [Jr.FJ_dataUCH H hX hψh, Jr.gJ_dataUCH H hX ψh]
-    rfl
-  · simp only [hj, ↓reduceDIte]
+  exact Jr.PJ_datum H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh j
 
 include hX in
 /-- The composed energy represented by `EJ` is evaluated at the free-field old datum. -/
@@ -114,9 +92,7 @@ theorem EJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)
     Jr.EJ C (rawOf H.D', ψh) =
       EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ := by
-  dsimp only
-  unfold EJ EcompAtC
-  simp only [Jr.PJ_dataUCH H hX hψh]
+  exact Jr.EJ_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh
 
 include hX in
 /-- The composed source term represented by `FcJ` is evaluated at the free-field datum. -/
@@ -130,9 +106,7 @@ theorem FcJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp)
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)
     Jr.FcJ C g (rawOf H.D', ψh) =
       FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g := by
-  dsimp only
-  unfold FcJ FcompAtC
-  simp only [Jr.PJ_dataUCH H hX hψh, Jr.FJ_dataUCH H hX hψh]
+  exact Jr.FcJ_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh g
 
 include hX in
 /-- The composed observable represented by `McJ` is evaluated at the free-field datum. -/
@@ -146,9 +120,7 @@ theorem McJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp)
         S.hatField (hatCovSqrt S.G' S.a₁ S.ν H.D') ψh)
     Jr.McJ C g y i (rawOf H.D', ψh) =
       McompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g y i := by
-  dsimp only
-  unfold McJ McompAtC
-  simp only [Jr.PJ_dataUCH H hX hψh, Jr.FJ_dataUCH H hX hψh]
+  exact Jr.McJ_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh g y i
 
 include hX in
 /-- The joint interaction is the old-level interaction at the free-field datum. -/
@@ -168,13 +140,7 @@ theorem VJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
         (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) D₀ -
           (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
             (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) := by
-  dsimp only
-  unfold VJ
-  dsimp only
-  rw [Jr.FJ_dataUCH H hX hψh, Jr.F₀_eq H.D' hX, Jr.Mx_eq H.D' hX]
-  rw [H.compTangent_dataUCH]
-  simp only [add_sub_cancel_left]
-  rfl
+  exact Jr.VJ_datum H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh
 
 include hX in
 /-- The joint kernel uses the incoming spin and the free-field old spin. -/
@@ -188,10 +154,7 @@ theorem tKJ_dataUCH (ψh : S.EC) :
     Jr.tKJ (rawOf H.D', ψh) =
       (((S.cKernel / (2 * Real.pi)) ^ ((N : ℝ) * S.nBlocks / 2) : ℝ) : ℂ) *
         Complex.exp (-((S.β : ℂ) * couplingC S.G' S.a₁ (k + 1) H.D'.Ψ D₀.Ψ)) := by
-  dsimp only
-  unfold tKJ
-  rw [Jr.gJ_dataUCH H hX ψh]
-  rfl
+  exact Jr.tKJ_datum H.D' _ (Jr.gJ_dataUCH H hX ψh)
 
 include hX in
 /-- The joint density is the action and composites of the free-field old datum. -/
@@ -209,11 +172,7 @@ theorem rhoJ_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp)
         EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ -
         (C.Ek : ℂ) * (S.nU : ℂ) +
         FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g) := by
-  dsimp only
-  unfold rhoJ
-  rw [Jr.EJ_dataUCH H C hX hψh, Jr.FcJ_dataUCH H C hX hψh g,
-    Jr.FJ_dataUCH H hX hψh, Jr.gJ_dataUCH H hX ψh]
-  rfl
+  exact Jr.rhoJ_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh g
 
 include hX in
 /-- The second interpolation exponent is the change of the free-field source term. -/
@@ -234,10 +193,8 @@ theorem W2_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp)
     Jr.W2 C g (rawOf H.D', ψh) =
       FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ g -
       FcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) Dcrit g := by
-  dsimp only
-  unfold W2
-  rw [Jr.FcJ_dataUCH H C hX hψh g,
-    Jr.FcJ_dataUCH H C hX Jr.zero_le_pp g]
+  exact Jr.W2_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh g _
+    (Jr.gJ_dataUCH H hX 0)
 
 include hX in
 /-- The first interpolation exponent is the interaction and change of composed energy. -/
@@ -265,9 +222,7 @@ theorem W1_dataUCH {ψh : S.EC} (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
             (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D')) +
       (EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) D₀ -
         EcompAtC C.m₀ C.Tm S.a S.ν (Nat.le_succ k) Dcrit) := by
-  dsimp only
-  unfold W1
-  rw [Jr.VJ_dataUCH H hX hψh, Jr.EJ_dataUCH H C hX hψh,
-    Jr.EJ_dataUCH H C hX Jr.zero_le_pp]
+  exact Jr.W1_datum C H.D' hX _ (Jr.gJ_dataUCH H hX ψh) hψh _
+    (Jr.gJ_dataUCH H hX 0)
 
 end Balaban.Fluctuation.StepSetting.JointRep
