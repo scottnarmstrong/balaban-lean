@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.ChartDetJointFromTower
 public import Balaban.Inhabited.MarksNumericsFromTower
