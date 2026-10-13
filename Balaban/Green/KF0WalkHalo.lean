@@ -663,4 +663,195 @@ theorem kf0WalkTerm_blockweight_summable {ν g : ℝ} (hg : 0 < g) (hgν : g ≤
 
 end Terms
 
+/-! ### Power series -/
+
+section Series
+
+variable [NeZero m] {W : Type*} [NormedAddCommGroup W] [NormedSpace ℝ W] {𝕜 : Type} [RCLike 𝕜]
+  {D : ℕ}
+
+/-- The index set of the expanded series with walks: an exponent `α` and a tuple of walks, one
+for each factor slot of the monomial `z^α`. -/
+abbrev KF0WalkSeriesIndex (d : ℕ) (D : ℕ) : Type :=
+  Σ α : Fin D → ℕ, (KF0Slot α → KF0Walk d)
+
+/-- The term `c_α · ∏_{slots} β^{-1/2} w ℓ(ψ)` of the expanded series. -/
+noncomputable def kf0WalkSeriesTerm (d m : ℕ) [NeZero m] (ν β : ℝ) (x : Fin D → Torus d m)
+    (ℓ : Fin D → W →L[ℝ] 𝕜) (c : (Fin D → ℕ) → 𝕜) (ψ : Torus d m → W) :
+    KF0WalkSeriesIndex d D → 𝕜 := fun a =>
+  c a.1 * kf0WalkTerm d m ν β (fun s : KF0Slot a.1 => x s.1) (fun s => ℓ s.1) a.2 ψ
+
+/-- The halo of an index of the expanded series. -/
+def kf0WalkSeriesHalo (x : Fin D → Torus d m) (a : KF0WalkSeriesIndex d D) :
+    Finset (Torus d m) :=
+  walkHalo (fun s : KF0Slot a.1 => x s.1) a.2
+
+/-- The majorant `‖c_α‖ θ^{|α|} ∏ ...` of the weighted terms. -/
+noncomputable def kf0WalkSeriesBound (d : ℕ) (ν β γ p θ : ℝ) (c : (Fin D → ℕ) → 𝕜) :
+    KF0WalkSeriesIndex d D → ℝ := fun a =>
+  ‖c a.1‖ * θ ^ (∑ j, a.1 j) * kf0WalkBound d ν β γ p a.2
+
+theorem kf0WalkSeriesBound_nonneg {ν : ℝ} (hν : 0 < ν) (β γ : ℝ) {p θ : ℝ} (hp0 : 0 ≤ p)
+    (hθ : 0 ≤ θ) (c : (Fin D → ℕ) → 𝕜) (a : KF0WalkSeriesIndex d D) :
+    0 ≤ kf0WalkSeriesBound d ν β γ p θ c a :=
+  mul_nonneg (mul_nonneg (norm_nonneg _) (pow_nonneg hθ _)) (kf0WalkBound_nonneg hν β γ hp0 _)
+
+theorem kf0WalkSeriesBound_fiber {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ}
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) (β : ℝ) {p : ℝ} (hp0 : 0 ≤ p) {θ : ℝ}
+    (hθ : 0 ≤ θ) (c : (Fin D → ℕ) → 𝕜) (α : Fin D → ℕ) :
+    Summable (fun τ : KF0Slot α → KF0Walk d => kf0WalkSeriesBound d ν β γ p θ c ⟨α, τ⟩) ∧
+      ∑' τ : KF0Slot α → KF0Walk d, kf0WalkSeriesBound d ν β γ p θ c ⟨α, τ⟩ ≤
+        ‖c α‖ * (θ * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j) := by
+  set r0 : ℝ := p * kf0WalkA d g γ / Real.sqrt β with hr0
+  obtain ⟨h1, h2⟩ := kf0WalkBound_summable (ι := KF0Slot α) (d := d) hg hgν hq β hp0
+  rw [card_kf0Slot] at h2
+  have h1' := h1.mul_left (‖c α‖ * θ ^ (∑ j, α j))
+  refine ⟨h1'.congr fun τ => rfl, ?_⟩
+  have : ∑' τ : KF0Slot α → KF0Walk d, kf0WalkSeriesBound d ν β γ p θ c ⟨α, τ⟩ =
+      (‖c α‖ * θ ^ (∑ j, α j)) * ∑' τ, kf0WalkBound (ι := KF0Slot α) d ν β γ p τ := by
+    rw [← tsum_mul_left]; rfl
+  rw [this, mul_pow]
+  calc _ ≤ (‖c α‖ * θ ^ (∑ j, α j)) * r0 ^ (∑ j, α j) :=
+        mul_le_mul_of_nonneg_left h2 (by positivity)
+    _ = _ := by ring
+
+theorem kf0WalkSeriesBound_summable {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ}
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) (β : ℝ) {p : ℝ} (hp0 : 0 ≤ p) {θ : ℝ}
+    (hθ : 0 ≤ θ) (c : (Fin D → ℕ) → 𝕜)
+    (hM : Summable fun α : Fin D → ℕ =>
+      ‖c α‖ * (θ * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j)) :
+    Summable (kf0WalkSeriesBound d ν β γ p θ c) ∧
+      ∑' a, kf0WalkSeriesBound d ν β γ p θ c a ≤
+        ∑' α : Fin D → ℕ, ‖c α‖ * (θ * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j) := by
+  have hν : 0 < ν := lt_of_lt_of_le hg hgν
+  have hfib := fun α => kf0WalkSeriesBound_fiber (d := d) (ν := ν) hg hgν hq β hp0 hθ c α
+  have hnn := kf0WalkSeriesBound_nonneg (d := d) hν β γ hp0 hθ c
+  have hfnn : ∀ α, 0 ≤ ∑' τ : KF0Slot α → KF0Walk d,
+      kf0WalkSeriesBound d ν β γ p θ c ⟨α, τ⟩ := fun α => tsum_nonneg fun τ => hnn _
+  have hS : Summable (kf0WalkSeriesBound d ν β γ p θ c) :=
+    (summable_sigma_of_nonneg hnn).2 ⟨fun α => (hfib α).1,
+      Summable.of_nonneg_of_le hfnn (fun α => (hfib α).2) hM⟩
+  refine ⟨hS, ?_⟩
+  rw [hS.tsum_sigma']
+  · exact (Summable.of_nonneg_of_le hfnn (fun α => (hfib α).2) hM).tsum_le_tsum
+      (fun α => (hfib α).2) hM
+  · exact fun α => (hfib α).1
+
+/-- **(F.8), power-series form.**  If `κ ≥ 0`, `γ ≥ κ 3^d/s`, `q e^γ < 1`, `θ ≥ 0` and the
+majorant series `∑_α ‖c_α‖ (θ e^{κ 3^d} p A_γ/√β)^{|α|}` converges, then
+`∑_a e^{κ k_s(H_a)} θ^{|α|} ‖c_α t_a‖` converges and is at most that series. -/
+theorem kf0WalkSeriesTerm_blockweight_summable {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ}
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) {s m' : ℕ} [NeZero m'] (hs : 0 < s)
+    (hm : m = s * m') {κ : ℝ} (hκ : 0 ≤ κ) (hγ : κ * 3 ^ d / s ≤ γ) (β : ℝ) {p : ℝ}
+    (hp0 : 0 ≤ p) {θ : ℝ} (hθ : 0 ≤ θ) (x : Fin D → Torus d m) (ℓ : Fin D → W →L[ℝ] 𝕜)
+    (hℓ : ∀ j, ‖ℓ j‖ ≤ 1) (c : (Fin D → ℕ) → 𝕜)
+    (hM : Summable fun α : Fin D → ℕ =>
+      ‖c α‖ * (θ * Real.exp (κ * 3 ^ d) * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j))
+    (ψ : Torus d m → W) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    Summable (fun a : KF0WalkSeriesIndex d D =>
+      Real.exp (κ * kf0BlockCount s m' (kf0WalkSeriesHalo x a)) *
+        (θ ^ (∑ j, a.1 j) * ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖)) ∧
+    ∑' a : KF0WalkSeriesIndex d D,
+        Real.exp (κ * kf0BlockCount s m' (kf0WalkSeriesHalo x a)) *
+          (θ ^ (∑ j, a.1 j) * ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖) ≤
+      ∑' α : Fin D → ℕ,
+        ‖c α‖ * (θ * Real.exp (κ * 3 ^ d) * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j) := by
+  have hν : 0 < ν := lt_of_lt_of_le hg hgν
+  have hθ' : 0 ≤ θ * Real.exp (κ * 3 ^ d) := mul_nonneg hθ (Real.exp_pos _).le
+  obtain ⟨hB, hB2⟩ := kf0WalkSeriesBound_summable (d := d) (ν := ν) hg hgν hq β hp0 hθ' c hM
+  have hle : ∀ a : KF0WalkSeriesIndex d D,
+      Real.exp (κ * kf0BlockCount s m' (kf0WalkSeriesHalo x a)) *
+        (θ ^ (∑ j, a.1 j) * ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖) ≤
+      kf0WalkSeriesBound d ν β γ p (θ * Real.exp (κ * 3 ^ d)) c a := by
+    intro a
+    have h := kf0WalkTerm_blockweight_le (m := m) hν hs hm hκ hγ β p
+      (fun t : KF0Slot a.1 => x t.1) (fun t => ℓ t.1) (fun t => hℓ t.1) a.2 ψ hp
+    rw [card_kf0Slot] at h
+    have e : Real.exp (κ * 3 ^ d * ((∑ j, a.1 j : ℕ) : ℝ)) =
+        Real.exp (κ * 3 ^ d) ^ (∑ j, a.1 j) := by rw [mul_comm, Real.exp_nat_mul]
+    rw [e] at h
+    simp only [kf0WalkSeriesTerm, kf0WalkSeriesBound, kf0WalkSeriesHalo, norm_mul]
+    calc _ = (‖c a.1‖ * θ ^ (∑ j, a.1 j)) *
+          (Real.exp (κ * kf0BlockCount s m' (walkHalo (fun t : KF0Slot a.1 => x t.1) a.2)) *
+            ‖kf0WalkTerm d m ν β (fun t : KF0Slot a.1 => x t.1) (fun t => ℓ t.1) a.2 ψ‖) := by
+          ring
+      _ ≤ (‖c a.1‖ * θ ^ (∑ j, a.1 j)) * (Real.exp (κ * 3 ^ d) ^ (∑ j, a.1 j) *
+          kf0WalkBound d ν β γ p a.2) :=
+          mul_le_mul_of_nonneg_left h (by positivity)
+      _ = _ := by rw [mul_pow]; ring
+  have hnn : ∀ a : KF0WalkSeriesIndex d D,
+      0 ≤ Real.exp (κ * kf0BlockCount s m' (kf0WalkSeriesHalo x a)) *
+        (θ ^ (∑ j, a.1 j) * ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖) := fun a =>
+    mul_nonneg (Real.exp_pos _).le (mul_nonneg (pow_nonneg hθ _) (norm_nonneg _))
+  have hsum := Summable.of_nonneg_of_le hnn hle hB
+  exact ⟨hsum, (hsum.tsum_le_tsum hle hB).trans hB2⟩
+
+/-- **The walk-indexed series sums to the analytic function.**  On the event `sup ‖ψ‖ ≤ p`
+the family `c_α · t_a(ψ)` is absolutely summable and its sum is the series
+`∑_α c_α ∏_j (ℓ_j u_{x_j})^{α_j}` at `u = β^{-1/2} C ψ`. -/
+theorem kf0WalkSeriesTerm_hasSum {ν g : ℝ} (hg : 0 < g) (hgν : g ≤ ν) {γ : ℝ} (hγ : 0 ≤ γ)
+    (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) (β : ℝ) {p : ℝ} (hp0 : 0 ≤ p) {θ : ℝ}
+    (hθ : 1 ≤ θ) (x : Fin D → Torus d m) (ℓ : Fin D → W →L[ℝ] 𝕜) (hℓ : ∀ j, ‖ℓ j‖ ≤ 1)
+    (c : (Fin D → ℕ) → 𝕜)
+    (hM : Summable fun α : Fin D → ℕ =>
+      ‖c α‖ * (θ * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j))
+    (ψ : Torus d m → W) (hp : ∀ y, ‖ψ y‖ ≤ p) :
+    Summable (fun a => ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖) ∧
+      HasSum (kf0WalkSeriesTerm d m ν β x ℓ c ψ)
+        (∑' α : Fin D → ℕ, c α * ∏ j, (ℓ j ((Real.sqrt β)⁻¹ •
+          matAct (kf0C d m ν) ψ (x j))) ^ (α j)) := by
+  have hν : 0 < ν := lt_of_lt_of_le hg hgν
+  have hθ0 : 0 ≤ θ := by linarith
+  obtain ⟨hB, -⟩ := kf0WalkSeriesBound_summable (d := d) (ν := ν) hg hgν hq β hp0 hθ0 c hM
+  have hle : ∀ a, ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖ ≤
+      kf0WalkSeriesBound d ν β γ p θ c a := by
+    intro a
+    have h := kf0WalkTerm_weighted_le_basic (m := m) hν β γ p (fun t : KF0Slot a.1 => x t.1)
+      (fun t => ℓ t.1) (fun t => hℓ t.1) a.2 ψ hp
+    have h1 : 1 ≤ Real.exp (γ * ∑ i, (((a.2 i).1 : ℕ) : ℝ)) :=
+      Real.one_le_exp (mul_nonneg hγ (Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _))
+    have h2 : 1 ≤ θ ^ (∑ j, a.1 j) := one_le_pow₀ hθ
+    have h3 := norm_nonneg (kf0WalkTerm d m ν β (fun t : KF0Slot a.1 => x t.1)
+      (fun t => ℓ t.1) a.2 ψ)
+    have h4 : ‖kf0WalkTerm d m ν β (fun t : KF0Slot a.1 => x t.1) (fun t => ℓ t.1) a.2 ψ‖ ≤
+        kf0WalkBound d ν β γ p a.2 := by nlinarith
+    simp only [kf0WalkSeriesTerm, kf0WalkSeriesBound, norm_mul]
+    calc _ ≤ ‖c a.1‖ * kf0WalkBound d ν β γ p a.2 :=
+          mul_le_mul_of_nonneg_left h4 (norm_nonneg _)
+      _ = (‖c a.1‖ * 1) * kf0WalkBound d ν β γ p a.2 := by rw [mul_one]
+      _ ≤ (‖c a.1‖ * θ ^ (∑ j, a.1 j)) * kf0WalkBound d ν β γ p a.2 :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left h2 (norm_nonneg _))
+            (kf0WalkBound_nonneg hν β γ hp0 _)
+  have hsn : Summable (fun a => ‖kf0WalkSeriesTerm d m ν β x ℓ c ψ a‖) :=
+    Summable.of_nonneg_of_le (fun _ => norm_nonneg _) hle hB
+  refine ⟨hsn, ?_⟩
+  have hfibv : ∀ α : Fin D → ℕ,
+      HasSum (fun τ : KF0Slot α → KF0Walk d => kf0WalkSeriesTerm d m ν β x ℓ c ψ ⟨α, τ⟩)
+        (c α * ∏ j, (ℓ j ((Real.sqrt β)⁻¹ • matAct (kf0C d m ν) ψ (x j))) ^ (α j)) := by
+    intro α
+    obtain ⟨-, h⟩ := kf0WalkTerm_hasSum (d := d) (m := m) (ν := ν) hg hgν hγ hq β hp0
+      (fun s : KF0Slot α => x s.1) (fun s => ℓ s.1) (fun s => hℓ s.1) ψ hp
+    have h' := h.mul_left (c α)
+    have e : (∏ s : KF0Slot α, ℓ s.1 ((Real.sqrt β)⁻¹ • matAct (kf0C d m ν) ψ (x s.1))) =
+        ∏ j, (ℓ j ((Real.sqrt β)⁻¹ • matAct (kf0C d m ν) ψ (x j))) ^ (α j) := by
+      rw [Fintype.prod_sigma]
+      refine Finset.prod_congr rfl fun j _ => ?_
+      simp
+    rw [e] at h'
+    exact h'
+  have hnorm : ∀ α : Fin D → ℕ, ‖c α * ∏ j, (ℓ j ((Real.sqrt β)⁻¹ •
+      matAct (kf0C d m ν) ψ (x j))) ^ (α j)‖ ≤
+      ‖c α‖ * (θ * (p * kf0WalkA d g γ / Real.sqrt β)) ^ (∑ j, α j) := by
+    intro α
+    obtain ⟨hs, hb⟩ := kf0WalkSeriesBound_fiber (d := d) (ν := ν) hg hgν hq β hp0 hθ0 c α
+    have := tsum_of_norm_bounded hs.hasSum (fun τ => hle ⟨α, τ⟩)
+    rw [(hfibv α).tsum_eq] at this
+    exact this.trans hb
+  have hgs : Summable (fun α : Fin D → ℕ => c α * ∏ j, (ℓ j ((Real.sqrt β)⁻¹ •
+      matAct (kf0C d m ν) ψ (x j))) ^ (α j)) :=
+    Summable.of_norm_bounded hM hnorm
+  exact hgs.hasSum.sigma_of_hasSum hfibv hsn.of_norm
+
+end Series
+
 end Balaban.Green
