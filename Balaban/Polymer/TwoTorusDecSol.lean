@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusDecBg
+public import Balaban.Polymer.TwoTorusSYF
 public import Balaban.Localization.RowsFl
 public import Balaban.Localization.Decoupled2Solve
 import Mathlib.Tactic.Linarith
@@ -37,6 +38,21 @@ block set `B_F = S_Y^F` (`Dec2.SYF`).
   `G_s = G*_s (1 - 𝒦_s)⁻¹` on the component correspond under `boxMap`;
   `decSol_green_rows_SYF` is the form on the block set `S_Y^F` of a union of components of the
   incidence graph.
+* `decSol_rows_transport` (D2): for candidate multipliers corresponding on `B_F = S_Y^F` and data
+  `(φ₀, α₀, δΨ, f₁)` corresponding on `B_F` (the base field on the row set `R(B_F)`), the rows of
+  the fluctuation map `𝒩(δφ(δα))` correspond on `B_F` and the corrections `δφ(δα)` on `Y`
+  (the collar of `levelGS j` is empty, so `pertSource` reads only `B_F`);
+  `decSol_picard_rows_transport`: the rescaled maps `Smap` are conjugate on `B_F`.
+* `decSol_component_unique` (D3): two fixed points of `Dec2.DecFixed` in the ball `c₆'` on the two
+  tori agree on `B_F`, and their corrections on `Y`; the proof compares the Picard iterations from
+  `0` (`fixed_agree_of_step_transport`, `smap_fixed_iterates`), with no whole-torus gluing.
+* `decSol_value_twoTorus` (D4): the same for the values `Sol (s, e)` of maps with the defining
+  property of the analytic solution of Theorem I-4a; `decSol_value_twoTorus_of_box` discharges the
+  image of the block set (`SYF_image`) and the agreement of the cut weights (`hagree2_boxMap`).
+* `decSol_data_of_decBg` (D5): the data agreement asked by D2 follows from the landed background
+  comparison `decBg_component_unique` at level `j + 1` on the same component `Y`:
+  `S_Y^F ⊆ S_Y` (`SYF_subset_SY_levelGS`) and `R(S_Y^F)` reads only `RowsDep (S_Y)`
+  (`RowF_SYF_rowsDep`).
 -/
 
 @[expose] public section
@@ -1324,5 +1340,275 @@ theorem decSol_value_twoTorus {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc C
   exact hcorr y hy i
 
 end FlRows
+
+/-! ### The geometric inputs and the data of the fluctuation -/
+
+section Corollaries
+
+variable {d L N₁ N₁' m₁ K N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ ϱp : ℝ} {j : ℕ}
+variable (hj1 : 1 ≤ j) (hj : j ≤ K) (hjp : j + 1 ≤ K)
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "HA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "HB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj
+local notation "PA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱp)
+  (j + 1) hjp
+local notation "PB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱp)
+  (j + 1) hjp
+local notation "CA" => coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+  (ϱ := ϱp) (j + 1) hjp)
+local notation "CB" => coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+  (ϱ := ϱp) (j + 1) hjp)
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+include hj1 in
+/-- **The cut weights of the cover of level `j + 1` on the inner cubes** (`hagree` of
+`decSol_green_rows_transport`).  For a set `T` inside `Y` (in the box of radius `ρ`), the cut
+weights `s_z = ∏_{P ∈ 𝒬(z)} s_P` of the cover `coverOf (levelGS (j + 1))` agree at the image of
+every centre whose interaction cube lies in `T`, if the parameters agree at the cubes of the box
+of radius `ρ₁ = ρ + (3 L^(j+1+m₁) + 3 L^(j+3)) + L^(j+1+m₁)` (the landed `sProd_boxMap` at level
+`j + 1`).  Margin: `2 ρ₁ + 5 L · cellSide L 0 m₁ (j+1) < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem hagree2_boxMap {ρ : ℕ}
+    (hn : 2 * (ρ + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (j + 1)) < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (j + 1)) < (N₁' * L ^ m₁) * L ^ K)
+    {T Y : Finset (CTorus d L N₁ m₁ K)} (hTY : T ⊆ Y)
+    (hY : ∀ x ∈ Y, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {s' : ℕ × CTorus d L N₁' m₁ K → ℂ}
+    (hs : ∀ P ∈ cubeIdx PA,
+      InBox d (ρ + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ K) P.2 → s' (Prod.map id bm P) = s P) :
+    ∀ q ∈ Dec2.innerCentres CA HA T, (CB).sProd s' (Prod.map id bm q) = (CA).sProd s q := by
+  intro q hq
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) 0 m₁ (j + 1)
+  obtain ⟨y0, rfl, -, hy0T, -⟩ := inner2_base_mem hj1 hj hjp hq
+  have hqc : ((j + 1, y0) : ℕ × CTorus d L N₁ m₁ K) ∈ cubeIdx PA := (Finset.mem_filter.1 hq).1
+  have hy0 := hY _ (hTY hy0T)
+  exact sProd_boxMap (by omega) hjp hn hn' hqc hy0 fun P hP => hs P
+    (Qset_subset_cubeIdx _ hP) (by
+      obtain ⟨y1, rfl, -, hy1⟩ := qset_base_inBox (ϱ := ϱp) hjp (by omega) hy0 hP
+      exact hy1)
+
+include hj1 in
+/-- **D4 with the geometric inputs discharged.**  `decSol_value_twoTorus` for the image sets
+`X₁' = bm '' X₁`, `𝒞' = Prod.map id bm '' 𝒞`, `Y' = bm '' Y` of sets in the box of radius `R`
+(same separation parameter `ϱ` for the cover and the operator, as in W633): the image of the
+block set is `SYF_image`, and the agreement of the cut weights on the inner cubes of `S_Y^F` is
+`hagree2_boxMap`, from parameters that correspond at the cubes of the box of radius
+`R₁ = R + (3 L^(j+1+m₁) + 3 L^(j+3)) + L^(j+1+m₁)` (`hsP`).  Margins:
+`4 R + 12 L^(j+1+m₁) + 7 L^K + 5 < N₁ L^m₁ L^K`, `2 R₁ + 5 L · cellSide L 0 m₁ (j+1) < N₁ L^m₁ L^K`
+and `2 (R + 3 L^(j+1+m₁) + L^j) + 3 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem decSol_value_twoTorus_of_box {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
+    {a : ℕ → ℝ} {ν : ℝ}
+    (SA : Dec2.CoverBase (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) HA a ν Kc Cx)
+    (SB : Dec2.CoverBase (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) HB a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (ιU : Bool) {δ₀ δ₁ : ℝ}
+    (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) × Edat HA N → ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) × Edat HB N → ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := K) (ϱ := ϱ) (j + 1) hjp)) × Edat HA N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM HA N ιU δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi HA (Dec2.decG (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+          (k := K) (ϱ := ϱ) (j + 1) hjp)) HA a ν p.1) p.2.2.1 p.2.1
+          (pertSource HA a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+          (ϱ := ϱ) (j + 1) hjp)) HA a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource HA a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small HA (Sol p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small HA (Sol p).2 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        SupBounds HA (Sol p).1 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small HA δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+            (ϱ := ϱ) (j + 1) hjp)) HA a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource HA a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁)
+        (k := K) (ϱ := ϱ) (j + 1) hjp)) × Edat HB N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM HB N ιU δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi HB (Dec2.decG (coverOf (levelGS (d := d) (L := L) (N₁ := N₁')
+          (m₁ := m₁) (k := K) (ϱ := ϱ) (j + 1) hjp)) HB a ν p.1) p.2.2.1 p.2.1
+          (pertSource HB a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+          (ϱ := ϱ) (j + 1) hjp)) HB a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource HB a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small HB (Sol' p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small HB (Sol' p).2 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        SupBounds HB (Sol' p).1 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small HB δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+            (ϱ := ϱ) (j + 1) hjp)) HB a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource HB a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    {s : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp))}
+    {s' : Dec2.DecParams (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp))}
+    (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {e : Edat HA N} {e' : Edat HB N}
+    (he : StrictDataM HA N ιU δ₀ δ₁ e) (he' : StrictDataM HB N ιU δ₀ δ₁ e')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {A : Finset (ℕ × CTorus d L N₁ m₁ K)} {A' : Finset (ℕ × CTorus d L N₁' m₁ K)}
+    (hY : Dec2.IsIncUnion (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y A)
+    (hYc : Dec2.IsIncUnion (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K)
+      (ϱ := ϱ) (j + 1) hjp)) HB a ν (X₁.image bm) (𝒞.image (Prod.map id bm)) (Y.image bm) A')
+    (hs0 : ∀ P ∈ (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ)
+      (j + 1) hjp)).parCubes X₁, P ∉ 𝒞 → Dec2.extS _ s P = 0)
+    (hs0' : ∀ P ∈ (coverOf (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ)
+      (j + 1) hjp)).parCubes (X₁.image bm), P ∉ 𝒞.image (Prod.map id bm) → Dec2.extS _ s' P = 0)
+    {R : ℕ} (hXR : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hCR : ∀ P ∈ 𝒞, InBox d R ((N₁ * L ^ m₁) * L ^ K) P.2)
+    (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hsP : ∀ P ∈ cubeIdx (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ)
+        (j + 1) hjp),
+      InBox d (R + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ K) P.2 → Dec2.extS _ s' (Prod.map id bm P) = Dec2.extS _ s P)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hnS : 2 * (R + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (j + 1)) < (N₁ * L ^ m₁) * L ^ K)
+    (hnS' : 2 * (R + (3 * L ^ (j + 1 + m₁) + 3 * L ^ (j + 1 + 2)) + L ^ (j + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (j + 1)) < (N₁' * L ^ m₁) * L ^ K)
+    (hf : 2 * (R + 3 * L ^ (j + 1 + m₁) + L ^ j) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hf' : 2 * (R + 3 * L ^ (j + 1 + m₁) + L ^ j) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hαB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF (coverOf (levelGS (d := d)
+        (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y →
+      e.2.1 x = e'.2.1 (ιb x))
+    (hφR : ∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF (coverOf (levelGS (d := d) (L := L)
+        (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y),
+      e.1 y = e'.1 (bm y))
+    (hΨB : ∀ x ∈ Dec2.SYF (coverOf (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K)
+        (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y, e.2.2.1 x = e'.2.2.1 (bm x))
+    (hfB : ∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF (coverOf (levelGS (d := d)
+        (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y →
+      ∀ i : Fin N, e.2.2.2 (x, i) = e'.2.2.2 (ιb x, i)) :
+    (∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF (coverOf (levelGS (d := d) (L := L)
+        (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) (j + 1) hjp)) HA a ν X₁ 𝒞 Y →
+      (Sol' (s', e')).2 (ιb x) = (Sol (s, e)).2 x) ∧
+    (∀ y : (HA).Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      (Sol' (s', e')).1 (ιb y, i) = (Sol (s, e)).1 (y, i)) :=
+  decSol_value_twoTorus hj1 hj hjp hF SA SB hκ hM ιU h0 h1 hδ₀ hδ₁ hSol hSol' hs hs' he he' hY
+    hYc hs0 hs0' rfl (SYF_image hj1 hj hjp a ν hnS hnS' hf hf' hXR hCR hYR)
+    (hagree2_boxMap hj1 hj hjp hnS hnS' (SYF_subset_levelGS hj1 hj hjp) hYR hsP) hYR hn hn' hαB
+    hφR hΨB hfB
+
+/-! #### D5: the data of the fluctuation from the background comparison -/
+
+include hj1 in
+/-- The residual sites of `levelGS j` at a site lie among those of `levelGS (j + 1)`: the site,
+its nearest neighbours, and its `j`-block, which lies in its `(j + 1)`-block. -/
+theorem resSites_levelGS_subset_succ (x : CTorus d L N₁ m₁ K) :
+    resSites HA x ⊆ resSites PA x := by
+  intro y hy
+  unfold resSites at hy ⊢
+  rw [layerIndex_levelGS hj1 hj] at hy
+  rw [layerIndex_levelGS (by omega) hjp]
+  simp only [Finset.mem_insert, Finset.mem_union, GeneratingSet.mem_blk] at hy ⊢
+  rcases hy with h | (h | h) | h
+  · exact Or.inl h
+  · exact Or.inr (Or.inl (Or.inl (Balaban.Background.jBlock_mono (by omega) hjp h)))
+  · exact Or.inr (Or.inl (Or.inr h))
+  · exact Or.inr (Or.inr h)
+
+include hj1 in
+/-- **`S_Y^F ⊆ S_Y` for the step pair** (general `K`; the landed `SYF_subset_SY_level` has
+`K = k + 1`).  For a union `Y` of nearest-neighbour components of `V(𝒞) ∩ Ω₁` of the background
+generating set `levelGS (j + 1)`, the block set `S_Y^F` of the fluctuation pair
+`(coverOf (levelGS (j + 1)), levelGS j)` lies in the block set `S_Y` of the background. -/
+theorem SYF_subset_SY_levelGS {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting PA a ν) (hconn : HatConn PA)
+    {X₁ Y : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (PA).Ω 1) Y)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y) : x ∈ SY PA X₁ 𝒞 Y :=
+  SYF_subset_SY (Dec2.coverLocal_self S) hconn
+    (fun b _ => levelGS_mem_Ω_one (by omega) hjp b) hY hx
+
+include hj1 in
+/-- **The row sites of `S_Y^F` read only background data in `RowsDep (S_Y)`.**  Under the
+hypotheses of `SYF_subset_SY_levelGS`, a site `y` of `R(S_Y^F)` (the rows of the operator of level
+`j` at the sites of `S_Y^F`) lies in `Y`, and the approximate field of the background at `y` reads
+the raw data only on `RowsDep (S_Y)`: `y` is a residual site of `levelGS (j + 1)` at a site of
+`S_Y^F ⊆ S_Y`. -/
+theorem RowF_SYF_rowsDep {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting PA a ν) (hconn : HatConn PA)
+    {X₁ Y : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (PA).Ω 1) Y)
+    {y : CTorus d L N₁ m₁ K} (hy : y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y)) :
+    y ∈ Y ∧ ∀ z ∈ approxDep PA y, RowsDep PA a ν (SY PA X₁ 𝒞 Y) z := by
+  classical
+  refine ⟨Dec2.RowsFl.RowF_SYF_subset_Y hy, fun z hz => ?_⟩
+  unfold Dec2.RowsFl.RowF at hy
+  obtain ⟨-, x, hx, hyx⟩ := Finset.mem_filter.1 hy
+  have hres : y ∈ resSites HA (x : CTorus d L N₁ m₁ K) := by
+    rcases hyx with rfl | ⟨w, hw, rfl⟩
+    · exact mem_resSites_self _
+    · exact mem_resSites_of_entry_ne_zero hw
+  have hxS := SYF_subset_SY_levelGS hj1 hj hjp S hconn hY hx
+  exact Or.inl ⟨⟨x, levelGS_mem_Ω_one (by omega) hjp _⟩, hxS,
+    approxDep_subset_resDep (resSites_levelGS_subset_succ hj1 hj hjp _ hres) hz⟩
+
+include hj1 in
+/-- **D5: the data of the fluctuation problem from the background comparison.**  Let `(φ, α)`,
+`(φ', α')` be the decoupled background fields (`IsDecBg` in the ball `ρ₄`) of the background
+generating set `levelGS (j + 1)` on the two tori, under the hypotheses of the landed
+`decBg_component_unique` (at level `j + 1`; `Y` a union of nearest-neighbour components of
+`V(𝒞) ∩ Ω₁`, data agreeing on `RowsDep (S_Y)`).  Then the data of the fluctuation problem of the
+pair `(coverOf (levelGS (j + 1)), levelGS j)` built from them (`flEdat`: base potential
+`flAlpha α`, base field `barField Ψ φ`) correspond as `decSol_rows_transport` asks: the base
+potential on `S_Y^F` (because `S_Y^F ⊆ S_Y`, `SYF_subset_SY_levelGS`) and the base field on
+`R(S_Y^F)` (because `R(S_Y^F) ⊆ Y` and the background field at these sites reads only the data on
+`RowsDep (S_Y)`, `RowF_SYF_rowsDep`).  No data beyond `RowsDep (S_Y)` is needed. -/
+theorem decSol_data_of_decBg {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting PA a ν) (SB : DGSetting PB a ν) (hconn : HatConn PA)
+    (hconn' : HatConn PB) (HBg : BgHyp d L K ϱp a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : DecParams PA} {s' : DecParams PB} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε δ' ε' : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hδ0' : 0 < δ') (hδε' : δ' ≤ ε')
+    (hε' : ε' ≤ bgC0 d L N) (hδ' : δ' ≤ c7 d L N BG κ)
+    (hνε' : ν * ((L : ℝ) ^ K) ^ 2 * ε' ^ 2 ≤ δ' ^ 2)
+    {D : BgData PA N} {D' : BgData PB N} (hDd : InDomainC PA ν δ ε D)
+    (hDd' : InDomainC PB ν δ' ε' D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ K)} {X₁' Y' : Finset (CTorus d L N₁' m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (PA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (PB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes PA X₁, P ∉ 𝒞 → extS PA s P = 0)
+    (hs0' : ∀ P ∈ parCubes PB X₁', P ∉ 𝒞' → extS PB s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY PA X₁ 𝒞 Y).image bm = SY PB X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres PA (SY PA X₁ 𝒞 Y),
+      sProd PB (extS PB s') (Prod.map id bm q) = sProd PA (extS PA s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + 1 + m₁) + 7 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hD : RawBoxAgree {z | RowsDep PA a ν (SY PA X₁ 𝒞 Y) z} (rawOf D) (rawOf D'))
+    {φ : (PA).Ω 1 × Fin N → ℂ} {α : (PA).Ω 1 → ℂ} {φ' : (PB).Ω 1 × Fin N → ℂ}
+    {α' : (PB).Ω 1 → ℂ} (h : IsDecBg PA a ν (rho4 d L N BG κ) s D φ α)
+    (h' : IsDecBg PB a ν (rho4 d L N BG κ) s' D' φ' α') :
+    (∀ x : (HA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Dec2.SYF CA HA a ν X₁ 𝒞 Y →
+      flAlpha PA HA α x = flAlpha PB HB α' (ιb x)) ∧
+    (∀ y ∈ Dec2.RowsFl.RowF HA a ν (Dec2.SYF CA HA a ν X₁ 𝒞 Y),
+      barField PA D.Ψ φ y = barField PB D'.Ψ φ' (bm y)) := by
+  obtain ⟨h1, -, h3, -⟩ := decBg_component_unique (by omega) hjp hS SA SB hconn hconn' HBg hκ hM
+    hs hs' hδ0 hδε hε hδ hνε hδ0' hδε' hε' hδ' hνε' hDd hDd' hY hYc hs0 hs0' hY' hB' hagree hYR
+    hn hn' hD h h'
+  refine ⟨fun x hx => ?_, fun y hy => ?_⟩
+  · have hxS := SYF_subset_SY_levelGS hj1 hj hjp SA hconn hY hx
+    have e1 := h1 ⟨x, levelGS_mem_Ω_one (by omega) hjp _⟩ hxS
+    simp only [flAlpha, levelGS_mem_Ω_one (by omega) hjp, dite_true]
+    exact e1.symm
+  · obtain ⟨hyY, hdep⟩ := RowF_SYF_rowsDep hj1 hj hjp SA hconn hY hy
+    funext i
+    have e3 := h3 ⟨y, levelGS_mem_Ω_one (by omega) hjp _⟩ hyY (fun z hz => hD z (hdep z hz)) i
+    simp only [barField, levelGS_mem_Ω_one (by omega) hjp, dite_true]
+    exact e3.symm
+
+end Corollaries
 
 end Balaban.Polymer.TwoTorusStep
