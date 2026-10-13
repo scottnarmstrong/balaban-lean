@@ -25,20 +25,22 @@ the datum and both marks.
   is analytic on `V` (the third directional derivative is the third `σ`-derivative of the jointly
   analytic `(σ, q) ↦ Ev(Θ(q), σ w(q))`; then differentiation under the compact `s`-integral,
   `analyticOnNhd_unitIntegral`).
-* `hatCovSqrt_coord_le`, `exists_analytic_hatField_chart`, `exists_analytic_shiftUC_chart`: the unit
-  field `cc • C^{1/2}(Θ) ψ̂` as one function of the raw data, analytic on the chart, equal to
-  `hatCovSqrt` (to `shiftUC` of the step with the datum, on the fibre `h = h₀`) at every datum of the
-  chart, and bounded there: Euclidean norm at most `markedRad = √N · |cc| · C_sup · c_ψ` at every
-  unit point (the coordinate bound of the landed `hatSqrtF_coord_le` at the cut point `s ≡ 1`).
-* `markedDisc_field_mem_flBall`: the discs of formula (2) of `MARKCUBIC` for an arbitrary unit field
-  `y` in place of `shiftUC ψ̂`.
-* `markedBlockTerm_joint_family`, `deriv_markedBlockTerm_analytic_family`,
-  `norm_deriv_markedBlockTerm_family_le`: for an open set `V₀` of a parameter space, analytic
-  families `p ↦ Θ(p)` (in the analytic region of `Ev`) and `p ↦ y(p)` (unit fields of Euclidean norm
-  at most `Y₀`) and the radial margin `(R₁ + r)(R_σ + t₁) Y₀ < δ₁`: the marked term along
-  `v_t(p, u) = u · y(p) + t · M_z y(p)` is analytic in `((p, u), t)` on
-  `(V₀ × {|u| < R_σ}) × {|t| < t₁}`, its `t`-derivative at `0` is analytic in `(p, u)`, and it is at
-  most `3 b / (r³ t₀)`.
+* `hatCovSqrt_coord_le`, `exists_analytic_hatCovSqrt_bdd`, `analyticOnNhd_smul_mulVec`,
+  `exists_analytic_hatField_chart`, `exists_analytic_shiftUC_chart`: the unit field
+  `cc • C^{1/2}(Θ) ψ̂` as a function of the raw data (one matrix function `M` for all hat fields),
+  analytic on the chart (jointly with the hat field), equal to `hatCovSqrt` (to `shiftUC` of the
+  step with the datum, on the fibre `h = h₀`) at every datum of the chart, and bounded there:
+  Euclidean norm at most `markedRad = √N · |cc| · C_sup · c_ψ` at every unit point (the coordinate
+  bound of the landed `hatSqrtF_coord_le` at the cut point `s ≡ 1`).
+* `markedDisc_field_mem_flBall`, `norm_deriv_markedBlockTerm_field_le`,
+  `markedBlockTerm_family_withDatum`: the discs of formula (2) of `MARKCUBIC` and the Cauchy
+  estimate for an arbitrary unit field `y` in place of `shiftUC ψ̂`; on the fibre `h = h₀` the term
+  of the family is the landed marked term of the step with the datum.
+* `markedBlockTerm_joint_family`, `deriv_markedBlockTerm_analytic_family`: for an open set `V₀` of
+  a parameter space, analytic families `p ↦ Θ(p)` (in the analytic region of `Ev`) and `p ↦ y(p)`
+  (unit fields of Euclidean norm at most `Y₀`) and the radial margin `(R₁ + r)(R_σ + t₁) Y₀ < δ₁`:
+  the marked term along `v_t(p, u) = u · y(p) + t · M_z y(p)` is analytic in `((p, u), t)` on
+  `(V₀ × {|u| < R_σ}) × {|t| < t₁}`, and its `t`-derivative at `0` is analytic in `(p, u)`.
 * `markedCubic_joint_physV`: the case `V₀ = physV`, `Θ(e) = e.1`, `y(e) = Q(e.1)`.
 * `markedCubic_joint_param`: for the terms `E_{b,Y}` of `vblock_expansion_scaled` (one family `Ev`,
   with its four landed clauses): joint analyticity on `(physV × {|u| < R_σ}) × {|t| < t₁}`,
@@ -223,6 +225,63 @@ theorem hatCovSqrt_coord_le (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ 
   have h := hatSqrtF_coord_le hC hk cc hcψ hMX hdm hα hsm hF₁ hs hD hψh q
   rwa [hatSqrtF_one_apply hC hF₁ hD] at h
 
+/-- **The square root `C^{1/2}` as an analytic function of the raw data, with the bound of the unit
+fields on the whole chart.**  There is one matrix-valued function `M` of the raw data, with entries
+analytic at every point of `Ξ^c(𝔹_{k+1}; 1, ε)`, equal to `hatCovSqrt D` at every datum `D` of the
+chart (complex `h` included; the function of `exists_analytic_hatCovSqrt`), such that for every
+factor `cc`, every hat field `|ψ̂| ≤ c_ψ` and every point `Θ` of the chart the unit field
+`cc • M(Θ) ψ̂` has Euclidean norm at most `markedRad = √N · |cc| · C_sup · c_ψ` at every unit
+point.  One `M` serves all hat fields. -/
+theorem exists_analytic_hatCovSqrt_bdd (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) :
+    ∃ M : RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        Matrix (unitPts Gp × Fin N) (unitPts Gp × Fin N) ℂ,
+      (∀ p q, AnalyticOnNhd ℂ (fun Θ => M Θ p q)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)) ∧
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        M (rawOf D) = hatCovSqrt Gp a₁ ν D) ∧
+      ∀ (cc : ℂ) {cψ : ℝ}, 0 ≤ cψ → ∀ {ψh : unitPts Gp × Fin N → ℂ}, (∀ p, ‖ψh p‖ ≤ cψ) →
+        ∀ Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps, ∀ b : unitPts Gp,
+          vn (fun i => (cc • (M Θ *ᵥ ψh)) (b, i)) ≤ markedRad d L N k a₁ κ cψ cc := by
+  obtain ⟨M, hMan, hM⟩ := exists_analytic_hatCovSqrt hC hk hMX hdm hα hsm
+  refine ⟨M, hMan, hM, ?_⟩
+  rintro cc cψ hcψ ψh hψh Θ ⟨D, hD, rfl⟩ b
+  rw [hM D hD]
+  have hcoord := hatCovSqrt_coord_le hC hk cc hcψ hMX hdm hα hsm hD hψh
+  rcases Nat.eq_zero_or_pos N with hN | hN
+  · subst hN
+    have h0 : vn (fun i : Fin 0 => (cc • (hatCovSqrt Gp a₁ ν D *ᵥ ψh)) (b, i)) = 0 := by
+      rw [vn_eq_sqrt]; simp
+    rw [h0]
+    simp [markedRad]
+  · have hV : 0 ≤ ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ) :=
+      (norm_nonneg _).trans (hcoord ⟨b, ⟨0, hN⟩⟩)
+    exact vn_le_sqrt_mul hV (fun i => hcoord (b, i))
+
+/-- **The unit field `cc • M(Θ) ψ̂` is analytic jointly in the raw data and the hat field**: if the
+entries of the matrix function `M` are analytic at the points of a set `A` of raw data, then
+`(Θ, ψ̂) ↦ cc • M(Θ) ψ̂` is analytic at every point of `A × univ`. -/
+theorem analyticOnNhd_smul_mulVec {A : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N)}
+    {M : RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      Matrix (unitPts Gp × Fin N) (unitPts Gp × Fin N) ℂ}
+    (hM : ∀ p q, AnalyticOnNhd ℂ (fun Θ => M Θ p q) A) (cc : ℂ) :
+    AnalyticOnNhd ℂ (fun x : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+        (unitPts Gp × Fin N → ℂ) => cc • (M x.1 *ᵥ x.2)) (A ×ˢ (Set.univ)) := by
+  rintro ⟨Θ, ψh⟩ ⟨hΘ, -⟩
+  refine analyticAt_pi_iff.2 fun q => ?_
+  simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
+  refine analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun r _ => ?_)
+  have h1 : AnalyticAt ℂ (fun x : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ) => M x.1 q r) (Θ, ψh) :=
+    (hM q r Θ hΘ).comp_of_eq analyticAt_fst rfl
+  have h2 : AnalyticAt ℂ (fun x : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ) => x.2 r) (Θ, ψh) :=
+    analyticAt_pi_iff.1 analyticAt_snd r
+  exact h1.mul h2
+
 /-- **The unit field `cc • C^{1/2}(Θ) ψ̂` as an analytic function of the raw data, with its bound on
 the whole chart.**  For a hat field `|ψ̂| ≤ c_ψ` there is one function `Q` of the raw data, analytic
 at every point of `Ξ^c(𝔹_{k+1}; 1, ε)`, equal to `cc • hatCovSqrt D ψ̂` at every datum `D` of the
@@ -240,27 +299,13 @@ theorem exists_analytic_hatField_chart (hC : FlCore N Gp Hm a₁ ν c BG κ eps 
         Q (rawOf D) = cc • (hatCovSqrt Gp a₁ ν D *ᵥ ψh)) ∧
       ∀ Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps, ∀ b : unitPts Gp,
         vn (fun i => Q Θ (b, i)) ≤ markedRad d L N k a₁ κ cψ cc := by
-  obtain ⟨M, hMan, hM⟩ := exists_analytic_hatCovSqrt hC hk hMX hdm hα hsm
-  refine ⟨fun Θ => cc • (M Θ *ᵥ ψh), fun Θ hΘ => ?_, fun D hD => ?_, ?_⟩
-  · refine analyticAt_pi_iff.2 fun q => ?_
-    simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
-    exact analyticAt_const.mul
-      (Finset.analyticAt_fun_sum _ fun r _ => (hMan q r Θ hΘ).mul analyticAt_const)
+  obtain ⟨M, hMan, hM, hMb⟩ := exists_analytic_hatCovSqrt_bdd hC hk hMX hdm hα hsm
+  refine ⟨fun Θ => cc • (M Θ *ᵥ ψh), fun Θ hΘ => ?_, fun D hD => ?_,
+    fun Θ hΘ b => hMb cc hcψ hψh Θ hΘ b⟩
+  · exact (analyticOnNhd_smul_mulVec hMan cc (Θ, ψh) ⟨hΘ, Set.mem_univ _⟩).comp_of_eq
+      (analyticAt_id.prod analyticAt_const) rfl
   · show cc • (M (rawOf D) *ᵥ ψh) = _
     rw [hM D hD]
-  · rintro Θ ⟨D, hD, rfl⟩ b
-    show vn (fun i => (cc • (M (rawOf D) *ᵥ ψh)) (b, i)) ≤ _
-    rw [hM D hD]
-    have hcoord := hatCovSqrt_coord_le hC hk cc hcψ hMX hdm hα hsm hD hψh
-    rcases Nat.eq_zero_or_pos N with hN | hN
-    · subst hN
-      have h0 : vn (fun i : Fin 0 => (cc • (hatCovSqrt Gp a₁ ν D *ᵥ ψh)) (b, i)) = 0 := by
-        rw [vn_eq_sqrt]; simp
-      rw [h0]
-      simp [markedRad]
-    · have hV : 0 ≤ ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ) :=
-        (norm_nonneg _).trans (hcoord ⟨b, ⟨0, hN⟩⟩)
-      exact vn_le_sqrt_mul hV (fun i => hcoord (b, i))
 
 end HatField
 
@@ -345,6 +390,23 @@ theorem norm_deriv_markedBlockTerm_field_le (hG : IsLevel Hm k)
       (liftC S.hG' (S.maskUC z y)) Θ) 0‖ ≤ 3 * b / (r ^ 3 * t₀) :=
   norm_deriv_markedBlockTerm_taylorWeight_le hR₁ hr hEv hΘ
     (fun _ ht _ hσ => S.markedDisc_field_mem_flBall z hG hY hrad hu ht hσ) hb ht₀ ht₀₁
+
+/-- **On the fibre `h = h₀` the family is the marked term of the step with the datum.**  If `Q` returns
+`shiftUC ψ̂` of the step with the datum `D` (`D.h = h₀`) at `rawOf D` (as the function of
+`exists_analytic_shiftUC_chart` does on the chart), the marked term of the family at `Θ = rawOf D`
+is the landed marked term along the lifted marked tangent `markedTangentC` of that step
+(`markedBlockTerm_marked_eq`). -/
+theorem markedBlockTerm_family_withDatum
+    {Q : RawData d L (N₁ * L ^ m₁) (k + 1) N → S.EC} {x : S.E} (D : BgData S.G' N)
+    (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)) (hQ : Q (rawOf D) = (S.withDatum D hD).shiftUC x)
+    (Ev : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (ω : ℂ → ℂ) (u t : ℂ) :
+    markedBlockTerm Ev ω (liftC S.hG' (u • Q (rawOf D)))
+        (liftC S.hG' (S.maskUC z (Q (rawOf D)))) (rawOf D) t =
+      rayTerm (dl3 Ev (liftC S.hG' ((S.withDatum D hD).markedTangentC z u t x))) ω
+        (liftC S.hG' ((S.withDatum D hD).markedTangentC z u t x)) 1 (rawOf D) := by
+  rw [hQ]
+  exact (S.withDatum D hD).markedBlockTerm_marked_eq z Ev ω (rawOf D) u t x
 
 section Family
 
