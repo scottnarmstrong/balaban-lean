@@ -232,6 +232,7 @@ public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.KF0HoleWalk
 public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
+public import Balaban.Green.KernelSeriesGeneral
 public import Balaban.Green.MassLipschitz
 public import Balaban.Green.InfiniteVolume
 public import Balaban.Green.CauchyInverse
@@ -584,6 +585,7 @@ public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
 public import Balaban.SmallField.FinalCutoff
+public import Balaban.SmallField.FinalCutoffPack
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
 public import Balaban.SmallField.XiD1
@@ -1531,6 +1533,7 @@ public import Balaban.LargeField.D7PaperSizeRebase
 public import Balaban.Fluctuation.ObsCauchyTwoOrders
 public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
+public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
