@@ -1525,6 +1525,7 @@ public import Balaban.Inhabited.DecMarkCorrTotalFromTowerG
 public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
 public import Balaban.Inhabited.E1ParamFibreValueG
 public import Balaban.Inhabited.E1CoeffFamilyG
+public import Balaban.Inhabited.E0CoeffFamilyG
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots
@@ -1710,6 +1711,7 @@ public import Balaban.Inhabited.ObsOnCommonWitness
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTowerG
 public import Balaban.Inhabited.RenormThetaChartTower
+public import Balaban.Inhabited.SourceWitnessOfWitnessG
 public import Balaban.Inhabited.SourceWitnessJoint
 public import Balaban.Inhabited.ActivityOfWitness
 public import Balaban.Inhabited.CommonWitnessJoint
