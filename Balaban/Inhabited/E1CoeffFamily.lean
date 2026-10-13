@@ -112,7 +112,25 @@ theorem e1MarkParam_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ
             (T.step k hk N₁ ν β p₁).ν T.t,
         ∀ u ∈ Metric.ball (0 : ℂ) corrU,
           ContinuousOn (e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-            (fun b => Sol (z, b)) p₁ hp z T.t θ i u) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp)) := by
+            (fun b => Sol (z, b)) p₁ hp z T.t θ i u) (physCarrier (T.step k hk N₁ ν β p₁) 1 hp)) ∧
+      -- the defining properties of the pair of every block
+      (∀ b, (∀ (s : DecParams (T.step k hk N₁ ν β p₁).G') (D : BgData (T.step k hk N₁ ν β p₁).G' 2), (∀ P, ‖s P‖ < Real.exp T.κ) →
+        InUnionDomainC (T.step k hk N₁ ν β p₁).G' (bgC0 3 3 2) (c7 3 3 2 T.BG T.κ) (T.step k hk N₁ ν β p₁).ν D →
+        ∀ (φ : (T.step k hk N₁ ν β p₁).G'.Ω 1 × Fin 2 → ℂ) (α : (T.step k hk N₁ ν β p₁).G'.Ω 1 → ℂ),
+          IsDecBg (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν (rho4 3 3 2 T.BG T.κ) s D φ α →
+          (F₁ (z, b)) (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2, (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+        StrictDataM (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 false (2 * (K4 3 3 2 T.BG T.κ * (xiC1 3 * T.t))) T.t p.2 →
+          ((Sol (z, b)) p).1 = dphi (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Dec2.decG (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1) p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+          Dec2.DecFixed (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1 false p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).2 (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).2 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          SupBounds (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).1 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          (∀ δα' : (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ, Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) δα' (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) →
+            Dec2.DecFixed (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) := by
   classical
   have hp' : 0 < (T.step k hk N₁ ν β p₁).p₁ := hp
   have hp0 : 0 < p₁ := hp
@@ -182,7 +200,8 @@ theorem e1MarkParam_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ
   have hopen : IsOpen (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
       (T.step k hk N₁ ν β p₁).ν T.t) :=
     isOpen_physV _ _ _ _ (bgHyp_lv (k := k) T.m₁ hν0 hν)
-  refine ⟨hP, ?_, hmeasG, fun Lb _ Lab => ⟨fun θ i u => ?_, fun θ i u Φ => ?_⟩, ?_, ?_⟩
+  refine ⟨hP, ?_, hmeasG, fun Lb _ Lab => ⟨fun θ i u => ?_, fun θ i u Φ => ?_⟩, ?_, ?_,
+    fun b => (hblk b).2.2.2.2.2⟩
   · obtain ⟨Y, hY⟩ := e1Dom_bridgeFamily_nonempty T D z
     exact ⟨⟨Y, hY⟩⟩
   · exact (commonAnchor_marks_fields (Lab := Lab)
@@ -210,6 +229,78 @@ theorem e1MarkParam_pairs_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ
     refine (continuous_markedOutDec_decMarkCorrTerm (T.step k hk N₁ ν β p₁) _ _ p₁ hp _ _ _ z
       i.1 fun b Y => ?_).continuousOn
     exact ((hblk b).2.1 Y _ hθ.1 u (e1_rad_lt T hk hβ hp0 hRU hu'.le)).1
+
+open Classical in
+/-- **The sharp premise `hG` of `paramMarked_analytic_local_bound` at the tower.**  For pairs
+`(F₁ (z, b), Sol (z, b))` with the defining properties `hspec` (the last clause of
+`e1MarkParam_pairs_fromTower`), the marks `e1MarkGParam` of the root `z` at two parameters of
+`physV` with equal restrictions of `(raw datum, source)` to `sitesOf C` coincide (for every real
+`s ∈ [0, 1]`), at every bridge label whose anchor's site set lies in `Ŷ(sitesOf C)`.  This is
+the conclusion of `markedOutDec_decMarkCorrTerm_hG_rawY` for `π θ = physRestrict (sitesOf C)
+(physIncl 2 S θ)`, with the cover, margin and rate hypotheses discharged from the data `D` of the
+tower. -/
+theorem e1Mark_hG_rawY_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ} {hk : 1 ≤ k}
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleData T k hk N₁ ν β p₁)
+    (hN : 5 < N₁) (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β)
+    (hp : 0 < (T.step k hk N₁ ν β p₁).p₁) (hRU : 2 * corrU ≤ corrR T k (β * 3 ^ k) p₁)
+    (F₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+        DecParams (T.step k hk N₁ ν β p₁).G' × RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
+          ((T.step k hk N₁ ν β p₁).G'.Ω 1 × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).G'.Ω 1 → ℂ))
+    (Sol : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) × Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+        Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 →
+          ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) ×
+            ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ))
+    (z : RootIdx 3 3 N₁ T.m₁ (k + 1))
+    (hspec : ∀ b, (∀ (s : DecParams (T.step k hk N₁ ν β p₁).G') (D : BgData (T.step k hk N₁ ν β p₁).G' 2), (∀ P, ‖s P‖ < Real.exp T.κ) →
+        InUnionDomainC (T.step k hk N₁ ν β p₁).G' (bgC0 3 3 2) (c7 3 3 2 T.BG T.κ) (T.step k hk N₁ ν β p₁).ν D →
+        ∀ (φ : (T.step k hk N₁ ν β p₁).G'.Ω 1 × Fin 2 → ℂ) (α : (T.step k hk N₁ ν β p₁).G'.Ω 1 → ℂ),
+          IsDecBg (T.step k hk N₁ ν β p₁).G' (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν (rho4 3 3 2 T.BG T.κ) s D φ α →
+          (F₁ (z, b)) (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf (T.step k hk N₁ ν β p₁).G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2, (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+        StrictDataM (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 false (2 * (K4 3 3 2 T.BG T.κ * (xiC1 3 * T.t))) T.t p.2 →
+          ((Sol (z, b)) p).1 = dphi (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Dec2.decG (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1) p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+          Dec2.DecFixed (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1 false p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).2 (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).2 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          SupBounds (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (z, b)) p).1 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          (∀ δα' : (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ, Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) δα' (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) →
+            Dec2.DecFixed (coverOf (T.step k hk N₁ ν β p₁).G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) (T.step k hk N₁ ν β p₁).ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2)))
+    {Lb : Type} (Lab : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+      Set.univ Lb) (hN1 : 3 ^ 1 ∣ N₁)
+    (C : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ)) :
+    ∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t,
+    ∀ θ' ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t,
+      physRestrict (N := 2) (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
+        physRestrict (sitesOf C) (physIncl 2 (T.step k hk N₁ ν β p₁) θ') →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
+      ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z},
+        (commonLabels Lab hN1 (by norm_num) (fun _ => Set.univ)
+          (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T D)).ysite
+          (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i) ⊆
+          Yhat Set.univ (sitesOf C) →
+        (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+            (fun b => Sol (z, b)) p₁ hp z T.t θ i (s : ℂ) Φ) =
+        (fun Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
+            (fun b => Sol (z, b)) p₁ hp z T.t θ' i (s : ℂ) Φ) := by
+  classical
+  have hp0 : 0 < p₁ := hp
+  obtain ⟨hV, -⟩ := D.covers
+  intro θ hθ θ' hθ' h s hs i hi
+  have hu : ‖(s : ℂ)‖ < corrU := norm_ofReal_lt_of_mem hs (by unfold corrU; norm_num)
+  have hagT := ((physRestrict_physIncl_eq_iff (T.step k hk N₁ ν β p₁) (sitesOf C) θ θ').1 h).1
+  rw [Yhat_univ] at hi
+  funext Φ
+  rw [e1MarkGParam_of_mem _ _ _ _ hp z T.t θ i (s : ℂ) Φ hθ.1 hu,
+    e1MarkGParam_of_mem _ _ _ _ hp z T.t θ' i (s : ℂ) Φ hθ'.1 hu]
+  exact markedOutDec_decMarkCorrTerm_rawY_congr (T.step k hk N₁ ν β p₁) D.core
+    hk (T.step k hk N₁ ν β p₁).hG hp0.le T.large_block T.dom_margin T.coer_margin T.δc_small
+    hatConn_lvTop (rowInHat_lv hk T.m₁_four hN hν0 hν) (fun b => F₁ (z, b)) (fun b => Sol (z, b))
+    (fun b => (hV b).1) (fun b => (hV b).2.1) (fun b => (hspec b).1) (fun b => (hspec b).2)
+    (fun b => (hV b).2.2.2.2.1) (fun b => (hV b).2.2.2.2.2.1) hp0 le_rfl hp T.t_pos ((T.step k hk N₁ ν β p₁).β : ℂ) hθ.1 hθ'.1
+    (e1_rad_lt T hk hβ hp0 hRU hu.le) z Φ (agreeOn_mono hi hagT)
 
 end Fields
 
@@ -338,7 +429,7 @@ theorem e1CoeffFamily_value_fromTower {κmin : ℝ} (T : StepTower κmin)
   have hθ' := hstep
   refine ⟨F₁, Sol, {Y // Y ∈ I0.𝒴}, inferInstance, thickLabels I0.𝒴 I0.dom, _, A0, hdat, ?_⟩
   intro z
-  obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG⟩ := hF z
+  obtain ⟨hP, hne, hmeas, hdb, hholG, hcontG, -⟩ := hF z
   obtain ⟨hdep, hbnd⟩ := hdb {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)
   have hfam : ParamMarkFamily ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
           (commonLabels (thickLabels I0.𝒴 I0.dom) (by simpa using h3N : 3 ^ 1 ∣ N₁) (by norm_num)
