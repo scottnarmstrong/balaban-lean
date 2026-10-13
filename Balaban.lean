@@ -1540,6 +1540,7 @@ public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetCollarHull
 public import Balaban.Fluctuation.DetCollarHullSymm
 public import Balaban.Fluctuation.DetCollarCentered
+public import Balaban.Fluctuation.DetCollarCenteredFibre
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
