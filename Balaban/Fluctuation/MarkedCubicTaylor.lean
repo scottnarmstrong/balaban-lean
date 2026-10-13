@@ -894,6 +894,91 @@ theorem marked_vblock_term_cauchy
 
 end VBlock
 
+section BlockSum
+
+open Balaban.Multiscale
+
+variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+
+/-- **`MARK-TAYLOR`, equality (4) of the note at the level of labels.**  Let, for every block `zb`,
+`E_{zb,Y}` (`Ev zb Y`, `Y ∈ 𝒴 zb`) be analytic terms of the block energy on
+`XiCRaw × FlBall`, summing to `blockEnergyOne` there (the output of `vblock_expansion_scaled`).
+Let `v` be a complex field of the unit lattice whose segment lies in the domain of the small
+solution (`MARK-REAL`) and whose lift `v` has all discs `s·lift v + τ·lift v`, `s ∈ [0,1]`,
+`|τ| ≤ r`, in `FlBall` (formula (2)), and let the hypotheses of `dirS3_interactionOne` hold.
+Then the potential at the tangent is the sum, over blocks and labels, of the cubic terms:
+`V^{(k)}(ψ^{(k)} + v) = ∑_{zb} ∑_{Y ∈ 𝒴 zb} ∫₀¹ ω(s) D³E_{zb,Y}(Θ, s·lift v)[lift v]³ ds`.
+Applied to `v_t` and `v_0` this gives `Δ_z = ∑ R_{z;b,Y}`,
+`R_{z;b,Y} = -β (P_{b,Y}(v_t) - P_{b,Y}(v_0))`, via `Phi1C_zeroClass`. -/
+theorem VkC_marked_eq_block_terms (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+    (hD2 : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D')
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R) (hRs : R * δ₁ ≤ deltaStar d L N)
+    (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
+    (hreal : ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁, IsLayerConstant (stepG d L N₁ m₁ k ϱ) ψ' →
+      ∃ D : BgData (stepG d L N₁ m₁ k ϱ) N, (∀ x i, D.h x i = S.D'.h x i) ∧
+      compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' D = ψ' ∧
+      ∀ t : ℂ, ‖t‖ < R → InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+        ((composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D').lineAt
+          (tangentData D (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D')) t))
+    (𝒴 : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (Ev : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (han : ∀ zb Y, AnalyticOnNhd ℂ (Ev zb Y)
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 eps ×ˢ FlBall (stepG d L N₁ m₁ k ϱ) δ₁))
+    (hsum : ∀ zb, ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps,
+      ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+      blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k zb (Θ, ψ') =
+        ∑ Y ∈ 𝒴 zb, Ev zb Y (Θ, ψ'))
+    (v : S.EC)
+    (hdom : ∀ s ∈ Icc (0 : ℝ) 1, ∀ᶠ ζ : ℂ in 𝓝 (s : ℂ),
+      InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+        (S.dataUC (S.psiAtV ζ v)))
+    {r : ℝ} (hr : 0 < r)
+    (hline : ∀ t ∈ Icc (0 : ℝ) 1, ∀ τ : ℂ, ‖τ‖ ≤ r →
+      ((1 : ℂ) * (t : ℂ)) • liftC S.hG' v + τ • liftC S.hG' v ∈
+        FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
+    S.VkC (S.psi0C + v) = ∑ zb, ∑ Y ∈ 𝒴 zb, rayTerm (dl3 (Ev zb Y) (liftC S.hG' v)) taylorWeight
+      (liftC S.hG' v) 1 (rawOf S.D') := by
+  classical
+  have hLC : IsLayerConstant (stepG d L N₁ m₁ k ϱ) (liftC S.hG' v) :=
+    isLayerConstant_liftC S.hG S.hG' v
+  have hΘ : rawOf S.D' ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps := ⟨S.D', hD, rfl⟩
+  have hblk : ∀ zb, raySrc3 (blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k zb)
+      taylorWeight (liftC S.hG' v) (liftC S.hG' v) 1 (rawOf S.D') =
+      ∑ Y ∈ 𝒴 zb, rayTerm (dl3 (Ev zb Y) (liftC S.hG' v)) taylorWeight (liftC S.hG' v) 1
+        (rawOf S.D') := fun zb =>
+    raySrc3_sum (𝒴 zb) (han zb) (hsum zb) continuous_taylorWeight hΘ hr hline
+  have hint : ∀ zb, IntervalIntegrable (fun t : ℝ => taylorWeight (t : ℂ) *
+      dirS3 (blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k zb) (liftC S.hG' v)
+        (rawOf S.D') (((1 : ℂ) * (t : ℂ)) • liftC S.hG' v)) MeasureTheory.volume 0 1 :=
+    fun zb => raySrc3_intervalIntegrable (𝒴 zb) (han zb) (hsum zb) continuous_taylorWeight hΘ hr
+      hline
+  rw [S.VkC_taylor_line ha₁ H hD2 hD v hdom]
+  simp_rw [← hblk]
+  unfold raySrc3
+  rw [← Finset.mul_sum, ← intervalIntegral.integral_finsetSum (fun zb _ => hint zb)]
+  congr 1
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  rw [← Finset.mul_sum]
+  congr 1
+  refine dirS3_interactionOne hC S.hG S.hG' (le_refl (k + 1)) ha₁ H hc7 hR hRs hsmall hnum hnum' hD
+    hreal (isLayerConstant_smul hLC _) hLC hr (fun τ hτ => hline t ht τ hτ.le) ?_
+  intro zb
+  exact contDiffAt_line_of_sum (S := XiCRaw S.G' S.a S.ν (k + 1) 1 eps)
+    (B := FlBall (stepG d L N₁ m₁ k ϱ) δ₁) (𝒴 zb) (han zb) (hsum zb) hΘ hr
+    (fun τ hτ => hline t ht τ hτ)
+
+end BlockSum
+
 end StepSetting
 
 end Balaban.Fluctuation
