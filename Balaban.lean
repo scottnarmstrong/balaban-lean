@@ -887,6 +887,7 @@ public import Balaban.SmallField.RenormClassFamily
 public import Balaban.SmallField.RenormClassTheorem
 public import Balaban.Localization.CoverPartition
 public import Balaban.Localization.Decoupled2FpCount
+public import Balaban.Localization.Dec2Covariance
 public import Balaban.Localization.Vmod7Anchored
 public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
