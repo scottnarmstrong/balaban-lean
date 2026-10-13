@@ -420,4 +420,112 @@ theorem exp_neg_bond_le_one (β : ℝ) (hβ : 0 ≤ β) (u v : EuclideanSpace �
 
 end Peierls
 
+/-! ### T5: the iterated (Fubini) form -/
+
+section Fubini
+
+variable (D : Finset (Torus d ℓ))
+
+/-- The configuration with bad spins `q` on `D` and good spins `p` on the complement. -/
+def glue (q : ↥D → SpinSphere N) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) : Cfg d N ℓ :=
+  (MeasurableEquiv.piEquivPiSubtypeProd (fun _ : Torus d ℓ => SpinSphere N) (· ∈ D)).symm (q, p)
+
+theorem glue_of_mem (q : ↥D → SpinSphere N) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N)
+    (x : Torus d ℓ) (hx : x ∈ D) : glue D q p x = q ⟨x, hx⟩ := by
+  simp [glue, MeasurableEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd, hx]
+
+theorem glue_of_not_mem (q : ↥D → SpinSphere N) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N)
+    (x : Torus d ℓ) (hx : x ∉ D) : glue D q p x = p ⟨x, hx⟩ := by
+  simp [glue, MeasurableEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd, hx]
+
+/-- The product of sphere measures over the sites of `D`. -/
+noncomputable abbrev sigmaIn : Measure (↥D → SpinSphere N) :=
+  Measure.pi fun _ => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere
+
+/-- The product of sphere measures over the sites outside `D`. -/
+noncomputable abbrev sigmaOut : Measure ({x : Torus d ℓ // x ∉ D} → SpinSphere N) :=
+  Measure.pi fun _ => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere
+
+/-- Fubini for the product sphere measure over `D ⊔ Dᶜ`. -/
+theorem lintegral_split (f : Cfg d N ℓ → ENNReal) (hf : Measurable f) :
+    ∫⁻ φ, f φ ∂aprioriMeasure d N ℓ =
+      ∫⁻ q, ∫⁻ p, f (glue D q p) ∂sigmaOut D ∂sigmaIn D := by
+  have hmp := measurePreserving_piEquivPiSubtypeProd
+    (α := fun _ : Torus d ℓ => SpinSphere N)
+    (fun _ : Torus d ℓ => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere) (· ∈ D)
+  set e := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : Torus d ℓ => SpinSphere N) (· ∈ D)
+  have hg : Measurable fun z => f (e.symm z) := hf.comp e.symm.measurable
+  have h1 : ∫⁻ a, f (e.symm (e a)) ∂aprioriMeasure d N ℓ =
+      ∫⁻ z, f (e.symm z) ∂((sigmaIn D).prod (sigmaOut D)) := by
+    convert hmp.lintegral_comp hg
+    unfold aprioriMeasure
+    congr
+  have h0 : ∫⁻ φ, f φ ∂aprioriMeasure d N ℓ = ∫⁻ a, f (e.symm (e a)) ∂aprioriMeasure d N ℓ := by
+    simp
+  rw [h0, h1, lintegral_prod _ hg.aemeasurable]
+  rfl
+
+
+/-- The real source term `⟨g, φ⟩ = ∑_x ∑_i g_i(x) φ_i(x)`. -/
+noncomputable def realSource (g : Torus d ℓ → Fin N → ℝ) (φ : Cfg d N ℓ) : ℝ :=
+  ∑ x : Torus d ℓ, ∑ i : Fin N, g x i * ((φ x : EuclideanSpace ℝ (Fin N)) i)
+
+/-- The source term of the bad spins `q`. -/
+noncomputable def sourceIn (g : Torus d ℓ → Fin N → ℝ) (q : ↥D → SpinSphere N) : ℝ :=
+  ∑ x : ↥D, ∑ i : Fin N, g x i * ((q x : EuclideanSpace ℝ (Fin N)) i)
+
+/-- The source term of the good spins `p`. -/
+noncomputable def sourceOut (g : Torus d ℓ → Fin N → ℝ) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    ℝ :=
+  ∑ x : {x : Torus d ℓ // x ∉ D}, ∑ i : Fin N, g x i * ((p x : EuclideanSpace ℝ (Fin N)) i)
+
+theorem realSource_glue (g : Torus d ℓ → Fin N → ℝ) (q : ↥D → SpinSphere N)
+    (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    realSource g (glue D q p) = sourceIn D g q + sourceOut D g p := by
+  unfold realSource sourceIn sourceOut
+  refine (Fintype.sum_subtype_add_sum_subtype (fun x : Torus d ℓ => x ∈ D)
+    (fun x => ∑ i : Fin N, g x i * ((glue D q p x : EuclideanSpace ℝ (Fin N)) i))).symm.trans ?_
+  congr 1
+  · refine Finset.sum_congr (by congr!) fun x _ => Finset.sum_congr rfl fun i _ => ?_
+    rw [glue_of_mem D q p x.1 x.2]
+  · refine Finset.sum_congr (by congr!) fun x _ => Finset.sum_congr rfl fun i _ => ?_
+    rw [glue_of_not_mem D q p x.1 x.2]
+
+theorem sum_ite_mem_eq (F : Torus d ℓ → ℝ) :
+    ∑ x : Torus d ℓ, (if x ∈ D then F x else 0) = ∑ x : ↥D, F x := by
+  rw [Finset.sum_coe_sort D F, Finset.sum_ite_mem, Finset.univ_inter]
+
+variable (ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+
+/-- `H_B(q)`, as a function of the bad spins only: the mass on `D` and the bonds with both
+endpoints in `D`. -/
+noncomputable def blockEnergyIn (q : ↥D → SpinSphere N) : ℝ :=
+  (1 / 2) * ∑ x : ↥D, ∑ μ : Fin d,
+      (if hy : x.1 + Pi.single μ 1 ∈ D then
+        ‖(q ⟨x.1 + Pi.single μ 1, hy⟩ : EuclideanSpace ℝ (Fin N)) - q x‖ ^ 2 else 0)
+    + (ν / 2) * ∑ x : ↥D, ‖(q x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
+
+theorem blockEnergy_glue (q : ↥D → SpinSphere N) (p : {x : Torus d ℓ // x ∉ D} → SpinSphere N) :
+    blockEnergy ν h D (glue D q p) = blockEnergyIn D ν h q := by
+  unfold blockEnergy blockEnergyIn
+  congr 2
+  · have : ∀ x : Torus d ℓ, ∑ μ : Fin d,
+        (if x ∈ D ∧ x + Pi.single μ 1 ∈ D then bondSq (glue D q p) x μ else 0) =
+        if x ∈ D then ∑ μ : Fin d, (if x + Pi.single μ 1 ∈ D then bondSq (glue D q p) x μ else 0)
+        else 0 := by
+      intro x
+      by_cases hx : x ∈ D <;> simp [hx]
+    simp_rw [this]
+    refine (sum_ite_mem_eq D (fun x => ∑ μ : Fin d,
+      (if x + Pi.single μ 1 ∈ D then bondSq (glue D q p) x μ else 0))).trans ?_
+    refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun μ _ => ?_
+    by_cases hy : x.1 + Pi.single μ 1 ∈ D
+    · simp [hy, bondSq, glue_of_mem D q p _ hy, glue_of_mem D q p x.1 x.2]
+    · simp [hy]
+  · refine (sum_ite_mem_eq D (fun x => ‖(glue D q p x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2)).trans ?_
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [glue_of_mem D q p x.1 x.2]
+
+end Fubini
+
 end Balaban.LargeField
