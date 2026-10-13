@@ -30,13 +30,14 @@ remainder marks.  This file carries it along a map `σ` of blocks injective on `
 * `obsCoeffParam_transport`: the coefficient of the observable along `σ`, given the correspondences
   of the active labels and their activities, of the first-order labels, marks and kernel, and of the
   non-zero remainder marks.
-* `obsCoeffParam_blockSplit_twoTorus`: the same for the block measures of the two steps, the blocks of
-  the box (`cubeMap`) and agreement of the block variables at corresponding unit points of the box.
+* `obsCoeffParam_blockSplit_twoTorus`: the same for the block measures of the two steps, the
+  blocks of the box (`cubeMap`) and agreement of the block variables at corresponding unit points
+  of the box.
 
 The correspondence of the first-order labels is a hypothesis.  For the labels of the landed
-coefficient (`obsY1 = Sum.inr (obsCubeLab m₀ (obsMarkCube S m₀ i))`) it is not provable: `obsCubeLab`
-is a `Classical.choose` among the one-cube labels containing the cube, and the choices on two tori
-are unrelated (see the report of the worker).
+coefficient (`obsY1 = Sum.inr (obsCubeLab m₀ (obsMarkCube S m₀ i))`) it is not provable:
+`obsCubeLab` is a `Classical.choose` among the one-cube labels containing the cube, and the choices
+on two tori are unrelated.
 -/
 
 @[expose] public section
@@ -248,10 +249,10 @@ theorem kernelMarkSum_transport {ι ι' : Type*} [Fintype ι] [Fintype ι']
     exact ⟨i, Finset.mem_filter.2 ⟨Finset.mem_univ _, hi⟩, rfl⟩
 
 /-- **Transport of a first-order term** `E(S) = ∫₀¹ G*(Y₀, S)(s) ds` (`markIntTerm`).  In the
-setting of `Gst_transport` for the activities `A(s, 1)`, `s ∈ [0, 1]`, on the set `T` of blocks (with
-`σ` injective on `T`): for a label `y₀` with blocks in `T` and a label `y₀′` with the image blocks,
-and marks agreeing on related configurations, the first-order terms at `σ '' S` and at `S ⊆ T`
-agree.  If the blocks of `y₀` do not lie in `S`, both terms vanish. -/
+setting of `Gst_transport` for the activities `A(s, 1)`, `s ∈ [0, 1]`, on the set `T` of blocks
+(with `σ` injective on `T`): for a label `y₀` with blocks in `T` and a label `y₀′` with the image
+blocks, and marks agreeing on related configurations, the first-order terms at `σ '' S` and at
+`S ⊆ T` agree.  If the blocks of `y₀` do not lie in `S`, both terms vanish. -/
 theorem markIntTerm_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     {Ωb' : 𝔅' → Type*} [∀ b, MeasurableSpace (Ωb' b)]
     (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
@@ -403,5 +404,137 @@ theorem obsCoeffParam_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (
     exact ⟨⟨i, hQ⟩, hi, Subtype.ext he⟩
 
 end Transport
+
+/-! ### The coefficient of the observable for the block measures of two steps -/
+
+section StepObs
+
+open Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "SA" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "SB" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁') hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "𝔅A" => CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+  Set.univ
+set_option hygiene false in
+local notation "𝔅B" => CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+  Set.univ
+set_option hygiene false in
+local notation "σc" => cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1)
+  hN hN' (le_refl (k + 1))
+set_option hygiene false in
+local notation "RelB" => fun (Φ : ∀ c, ((SA).blockSplit m₀ hp).Ωb c)
+  (Φ' : ∀ c, ((SB).blockSplit m₀ hp').Ωb c) =>
+    ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+        Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩
+
+/-- **D2: the coefficient of the observable for the block measures of two steps.**
+`obsCoeffParam_transport` for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the
+correspondence `cubeMap` of the blocks, a set `T` of blocks inside the box of radius `R`, and the
+relation "agreement of the block variables at corresponding unit points of the box"
+(`RelB` in the proof); its integral hypothesis is `integral_blockSplit_twoTorus`.  What remains
+as hypotheses are the correspondences of the active labels and their activities, of the
+first-order labels, marks and kernel, and of the non-vanishing remainder marks.  Margin:
+`2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem obsCoeffParam_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {Lb Lb' : Type*} [Fintype Lb] [Fintype Lb']
+    {Lab : CubeLabels m₀ (k + 1) Set.univ Lb} {Lab' : CubeLabels m₀ (k + 1) Set.univ Lb'}
+    {εH κH κ0 Kc εH' κH' κ0' Kc' : ℝ} {E E' : Type*}
+    (Aact : E → ℂ → ℂ → LabelAct Lab ((SA).blockSplit m₀ hp).Ωb εH κH κ0 Kc)
+    (Aact' : E' → ℂ → ℂ → LabelAct Lab' ((SB).blockSplit m₀ hp').Ωb εH' κH' κ0' Kc')
+    {ι ι' ιr ιr' : Type*} [Fintype ι] [Fintype ι'] [Fintype ιr] [Fintype ιr']
+    (y1 : ι → Lb) (y1' : ι' → Lb')
+    (G1 : ι → (∀ c, ((SA).blockSplit m₀ hp).Ωb c) → ℂ)
+    (G1' : ι' → (∀ c, ((SB).blockSplit m₀ hp').Ωb c) → ℂ)
+    (hker : E → ι → Finset (𝔅A) → ℂ) (hker' : E' → ι' → Finset (𝔅B) → ℂ)
+    (yr : ιr → Lb) (yr' : ιr' → Lb')
+    (Gr : E → ιr → ℂ → (∀ c, ((SA).blockSplit m₀ hp).Ωb c) → ℂ)
+    (Gr' : E' → ιr' → ℂ → (∀ c, ((SB).blockSplit m₀ hp').Ωb c) → ℂ)
+    (θ : E) (θ' : E')
+    (T : Finset (𝔅A))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    -- the activities
+    (P : Lb → Prop) (P' : Lb' → Prop)
+    (hA0 : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, ¬ P y → ∀ Φ, (Aact θ (s : ℂ) 1).H y Φ = 0)
+    (hA0' : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y', ¬ P' y' → ∀ Φ',
+      (Aact' θ' (s : ℂ) 1).H y' Φ' = 0)
+    (ψ : ∀ y, P y → blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T → Lb')
+    (hψP : ∀ y hP hy, P' (ψ y hP hy))
+    (hψb : ∀ y hP hy, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y hP hy)) =
+      (blocksOf m₀ (k + 1) Set.univ (Lab.ysite y)).image (σc))
+    (hψinj : ∀ y₁ hP₁ hy₁ y₂ hP₂ hy₂, ψ y₁ hP₁ hy₁ = ψ y₂ hP₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', P' y' → blocksOf m₀ (k + 1) Set.univ (Lab'.ysite y') ⊆ T.image (σc) →
+      ∃ y hP hy, ψ y hP hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hP hy, ∀ Φ Φ',
+      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+      (Aact' θ' (s : ℂ) 1).H (ψ y hP hy) Φ' = (Aact θ (s : ℂ) 1).H y Φ)
+    -- the first-order marks and the kernel
+    (hG1dep : ∀ i, DepOn (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y1 i))) (G1 i))
+    (κ1 : ∀ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y1 i)) ⊆ T → ι')
+    (hκ1b : ∀ i hi, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y1' (κ1 i hi))) =
+      (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y1 i))).image (σc))
+    (hκ1inj : ∀ i₁ hi₁ i₂ hi₂, κ1 i₁ hi₁ = κ1 i₂ hi₂ → i₁ = i₂)
+    (hκ1surj : ∀ i', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y1' i')) ⊆ T.image (σc) →
+      ∃ i hi, κ1 i hi = i')
+    (hG1 : ∀ i hi, ∀ Φ Φ',
+      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) → G1' (κ1 i hi) Φ' = G1 i Φ)
+    (hkerT : ∀ i hi, ∀ T₁ ⊆ T, hker' θ' (κ1 i hi) (T₁.image (σc)) = hker θ i T₁)
+    -- the remainder marks
+    (Qr : ιr → Prop) (Qr' : ιr' → Prop)
+    (hGr0 : ∀ i, ¬ Qr i → ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → Gr θ i (s : ℂ) = fun _ => 0)
+    (hGr0' : ∀ i', ¬ Qr' i' → ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → Gr' θ' i' (s : ℂ) = fun _ => 0)
+    (hGrdep : ∀ i u, DepOn (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (yr i))) (Gr θ i u))
+    (κr : ∀ i, Qr i → blocksOf m₀ (k + 1) Set.univ (Lab.ysite (yr i)) ⊆ T → ιr')
+    (hκrQ : ∀ i hQ hi, Qr' (κr i hQ hi))
+    (hκrb : ∀ i hQ hi, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (yr' (κr i hQ hi))) =
+      (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (yr i))).image (σc))
+    (hκrinj : ∀ i₁ hQ₁ hi₁ i₂ hQ₂ hi₂, κr i₁ hQ₁ hi₁ = κr i₂ hQ₂ hi₂ → i₁ = i₂)
+    (hκrsurj : ∀ i', Qr' i' → blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (yr' i')) ⊆ T.image (σc) →
+      ∃ i hQ hi, κr i hQ hi = i')
+    (hGr : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i hQ hi, ∀ Φ Φ',
+      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+      Gr' θ' (κr i hQ hi) (s : ℂ) Φ' = Gr θ i (s : ℂ) Φ) :
+    obsCoeffParam ((SB).blockSplit m₀ hp').μ Aact' y1' G1' hker' yr' Gr' θ' (T.image (σc)) =
+      obsCoeffParam ((SA).blockSplit m₀ hp).μ Aact y1 G1 hker yr Gr θ T := by
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hσ : Set.InjOn (σc) (T : Set (𝔅A)) := by
+    intro b₁ hb₁ b₂ hb₂ h
+    have hb₁R := hT b₁ hb₁ b₁.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
+    have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos m₀ m₁ (k + 1)))
+    have h1 := congrArg Subtype.val h
+    rw [cubeMap_val, cubeMap_val] at h1
+    exact Subtype.ext (boxMap_inj (hm' := hm') hb₁R hb₂R h1)
+  exact obsCoeffParam_transport _ _ Aact Aact' y1 y1' G1 G1' hker hker' yr yr' Gr Gr' θ θ' (σc) T
+    hσ (RelB) (fun Z hZ F F' hF hFF => integral_blockSplit_twoTorus hN2 hk νS β p₁ δ hn hn' hGA
+      hGB hp hp' Z (fun b hb => hT b (hZ hb)) hF hFF) P P' hA0 hA0' ψ hψP hψb hψinj hψsurj hA
+    hG1dep κ1 hκ1b hκ1inj hκ1surj hG1 hkerT Qr Qr' hGr0 hGr0' hGrdep κr hκrQ hκrb hκrinj hκrsurj
+    hGr
+
+end StepObs
 
 end Balaban.Polymer.TwoTorusStep

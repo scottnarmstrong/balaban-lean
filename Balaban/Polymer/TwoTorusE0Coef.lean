@@ -30,9 +30,9 @@ two comparisons.
 
 ## Main statements
 
-* `detTerm_twoTorus_fromTowerG`: for the general tower `T`, the determinant term of the root block
-  `B(bc z)` at `cubeMap '' T` on the second torus equals that of `B(z)` at `T` on the first, for data
-  of the two charts whose raw data agree on the box and sets `T` of cubes of the box.
+* `detTerm_twoTorus_fromTowerG`: for the general tower `T`, the determinant term of the root
+  block `B(bc z)` at `cubeMap '' T` on the second torus equals that of `B(z)` at `T` on the first,
+  for data of the two charts whose raw data agree on the box and sets `T` of cubes of the box.
 * `detExpansionLocC_term_twoTorus_fromTowerG`: the same for any two records `DetExpansionLocC` whose
   terms are the explicit sums of `detExpansionLocC_scale_of_towerG`.
 * `e0Coeff_twoTorus_fromTowerG`: at `T.m₀ = 1`, the energy coefficient `E0` (determinant term plus
@@ -124,9 +124,9 @@ theorem detTerm_twoTorus_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
 
 
 /-- **The term of the localized determinant record on two tori, from the tower.**  For any two
-records `E`, `E'` of the localized determinant expansion (`DetExpansionLocC`) of the two steps at the
-roots `z` and `bc z` whose terms are the sums of the rooted activities over the unit points of the
-root block (the form exported by `detExpansionLocC_scale_of_towerG`), the term of `E'` at
+records `E`, `E'` of the localized determinant expansion (`DetExpansionLocC`) of the two steps at
+the roots `z` and `bc z` whose terms are the sums of the rooted activities over the unit points of
+the root block (the form exported by `detExpansionLocC_scale_of_towerG`), the term of `E'` at
 `(D₀', cubeMap '' T)` equals the term of `E` at `(D₀, T)`, under the hypotheses of
 `detTerm_twoTorus_fromTowerG`. -/
 theorem detExpansionLocC_term_twoTorus_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
