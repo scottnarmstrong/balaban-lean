@@ -1491,6 +1491,7 @@ public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerG
 public import Balaban.Inhabited.StepTowerGBridge
+public import Balaban.Inhabited.StepTowerGScalars
 public import Balaban.Inhabited.StepScaleDataG
 public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTowerGProducer
@@ -1756,6 +1757,7 @@ public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Fluctuation.RootSupportBridge
 public import Balaban.Fluctuation.RootTermFamily
+public import Balaban.Inhabited.LevelCoversDef
 public import Balaban.Inhabited.LevelCoversG
 public import Balaban.Inhabited.RenJoinClassWitness
 public import Balaban.Inhabited.RenormPhysicalRecord
