@@ -258,6 +258,52 @@ open Balaban.Inhabited
 variable {κmin : ℝ}
 
 open Classical in
+/-- **The renormalized datum at the general tower.**  For the step `S` of a tower with renormalization data
+`R`: class radius `R.t / 2`, chart radius `R.t`, polydisc radius `R.r₀`.  The chart hypothesis of
+`isLocExp_of_coeffFamily_renTheta` is `StepTowerTheta.renDatum_half_mem_xiCData`. -/
+theorem _root_.Balaban.Inhabited.StepTowerThetaG.isLocExp_of_coeffFamily_renTheta_tower (R : StepTowerThetaG d L N κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] {ν : ℝ}
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ : ℝ) {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
+    {κ B : ℝ} (hB : 0 ≤ B)
+    (c : physParam N (R.step k hk N₁ ν β p₁) →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) m₀ (k + 1)
+        Set.univ) → ℂ)
+    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physV (R.step k hk N₁ ν β p₁)
+      (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t))
+    (hloc : ∀ T, ∀ θ ∈ physV (R.step k hk N₁ ν β p₁)
+        (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t,
+      ∀ θ' ∈ physV (R.step k hk N₁ ν β p₁)
+        (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t,
+      physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ) =
+        physRestrict (sitesOf T) (physIncl N (R.step k hk N₁ ν β p₁) θ') →
+        c θ T = c θ' T)
+    (hbd : ∀ θ ∈ physV (R.step k hk N₁ ν β p₁)
+        (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t,
+      ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) → ‖c θ T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsupp : ∀ θ ∈ physV (R.step k hk N₁ ν β p₁)
+        (R.step k hk N₁ ν β p₁).a₁ (R.step k hk N₁ ν β p₁).ν R.t,
+      ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
+    (g₀ : CTorus d L N₁ R.m₁ (k + 1) → Fin N → ℂ) (hg₀ : g₀ ∈ l1Ball d L N₁ R.m₁ (k + 1) N)
+    (P : RawData d L (N₁ * L ^ R.m₁) (k + 1) N →L[ℂ]
+      ↥(rawSub N (R.step k hk N₁ ν β p₁).G'))
+    (hP : ∀ p : ↥(rawSub N (R.step k hk N₁ ν β p₁).G'), P p = p) :
+    IsLocExp (R.step k hk N₁ ν β p₁).G'
+      (XiCOneReal (R.step k hk N₁ ν β p₁).G'
+        (R.step k hk N₁ ν β p₁).a (R.step k hk N₁ ν β p₁).ν (R.t / 2))
+      R.r₀
+      (Finset.univ.image fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) m₀ (k + 1) Set.univ) => (Finset.univ.filter fun x : CTorus d L N₁ R.m₁ (k + 1) =>
+        x ∈ sitesOf T))
+      (renDY (R.step k hk N₁ ν β p₁).G' m₀) κ B
+      (fun D ξ => ∑ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) m₀ (k + 1) Set.univ), c (⟨rawOf (renThetaDatum (R.step k hk N₁ ν β p₁) (R.t / 2) D ξ),
+        rawOf_mem_rawSub _⟩, g₀) T)
+      (fun Y q => ∑ T ∈ Finset.univ.filter (fun T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1) m₀ (k + 1) Set.univ) => sitesOf T' =
+        (↑Y : Set (CTorus d L N₁ R.m₁ (k + 1)))),
+          c (P ((fun x i => (1 + renZeta (R.t / 2) q.2) * q.1.1 x i), q.1.2), g₀) T) :=
+  isLocExp_of_coeffFamily_renTheta (R.step k hk N₁ ν β p₁) hN (R.t / 2) _ hB c han hloc
+    hbd hsupp g₀ hg₀
+    (fun D hD ξ hξ => R.renDatum_half_mem_xiCData k hk N₁ hν0 hν β p₁ D hD ξ hξ) P hP
+
+open Classical in
 /-- **The renormalized datum at the tower.**  For the step `S` of a tower with renormalization data
 `R`: class radius `R.t / 2`, chart radius `R.t`, polydisc radius `R.r₀`.  The chart hypothesis of
 `isLocExp_of_coeffFamily_renTheta` is `StepTowerTheta.renDatum_half_mem_xiCData`. -/
