@@ -152,8 +152,8 @@ variable {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) (hm
     Set.univ Lb) {εH : ℝ}
   (A₀ : physParam N S → ℂ →
     LabelAct (commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1DomG S) hdj)
-      (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0))
-  (hεpos : 0 < εH) (hε : εH ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ')
+      (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0))
+  (hεpos : 0 < εH) (hε : εH ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ')
   (hdiffA : ∀ e ∈ physV S S.a₁ S.ν T.t, ∀ y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
     DifferentiableOn ℂ (fun u => (A₀ e u).H y Φ) (Metric.ball (0 : ℂ) 2))
   (hdat : ∀ (D' : BgData S.G' N) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
@@ -214,7 +214,7 @@ theorem e1MarksC_withDatum_of_fields_fromTowerG :
           ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
             (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) i u Φ) C) ∧
       CPE d L I.Kc I.κH I.κ0 I.κ' * (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) =
-        CPE d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
+        CPE d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           ∑ Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z},
             corrF0G T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) Y'.1) := by
   classical
@@ -232,7 +232,7 @@ theorem e1MarksC_withDatum_of_fields_fromTowerG :
       εH := εH
       κH := 2 * T.κdec - 1
       κ0 := T.κ0
-      Kc := (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0)
+      Kc := (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0)
       Lab := commonLabels Lab₀ hN3 hL (fun _ => Set.univ) (e1DomG S) hdj
       ι := {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}
       nonempty := hne
@@ -261,7 +261,7 @@ theorem e1MarksC_withDatum_of_fields_fromTowerG :
         (s := Metric.ball (0 : ℂ) (17 / 16 : ℝ))
         ((differentiableOn_const _).prodMk differentiableOn_id) (fun u hu => ⟨hθ', hu⟩)
       hκ0 := T.marks_hκ0
-      hKc := T.marks_hKc
+      hKc := by have := T.marks_hKc; rwa [hm₀] at this
       hεpos := hεpos
       hF0 := fun _ => corrF0G_pos T hk hβ hp0
       hκ' := T.marks_hκ'

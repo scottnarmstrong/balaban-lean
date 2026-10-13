@@ -87,3 +87,21 @@ theorem markReal_disc_slice {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
     (rhoSepG_three _).symm (S₀ := T.step k hk N₁ ν β p₁) rfl D hDh hD hx z hu t ht σ
     (by rw [hb, lvRG_three]; exact hσ)
   exact h
+
+/-- **Non-vacuity of `markReal_disc_slice`**: at `k = 1`, `N₁ = 6`, `ν = 0`, `p₁ = 1`, `β = βray`
+the package is inhabited and the step's own datum satisfies the conclusion at `x = 0`, `u = 0`. -/
+theorem markReal_disc_slice_nonempty {κmin : ℝ} (T : StepTower κmin) :
+    ∃ βray : ℝ, 2 ≤ βray ∧ Nonempty (StepScaleData T 1 le_rfl 6 0 βray 1) ∧
+      ∀ z : Torus 3 (6 * 3 ^ T.m₁ * 3 ^ (1 + 1 - (1 + 1))), ∀ t : ℂ, ‖t‖ < 1 / 16 →
+        ∀ σ : ℂ, ‖σ‖ < 17 / 16 + lvR T.κ T.t (βray * 3 ^ 1) 1 / 4 →
+        σ • (liftC (T.step 1 le_rfl 6 0 βray 1).hG'
+            ((0 : ℂ) • (T.step 1 le_rfl 6 0 βray 1).shiftUC 0) +
+          t • liftC (T.step 1 le_rfl 6 0 βray 1).hG'
+            ((T.step 1 le_rfl 6 0 βray 1).maskUC z ((T.step 1 le_rfl 6 0 βray 1).shiftUC 0))) ∈
+          FlBall (stepG 3 3 6 T.m₁ 1 (rhoSep T.m₁)) T.t := by
+  obtain ⟨βray, h2, ⟨hS⟩⟩ := T.scale_instance
+  exact ⟨βray, h2, ⟨hS⟩, fun z t ht σ hσ =>
+    markReal_disc_slice T hS one_pos (T.step 1 le_rfl 6 0 βray 1).D'
+      (T.step 1 le_rfl 6 0 βray 1).hh₀ hS.xi (x := 0) (by simp) z (u := 0) (by norm_num) t ht σ hσ⟩
+
+end Balaban.Inhabited
