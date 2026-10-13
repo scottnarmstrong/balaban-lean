@@ -1671,5 +1671,6 @@ public import Balaban.Analysis.RayJetReal
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
 public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Green.FinalPathDefect
+public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Inhabited.TowerCoreRatesGeneral
