@@ -546,6 +546,58 @@ theorem lintegral_goodInner_gaussian {m : ℕ} [NeZero m] (s : ℕ) (r : ℝ) (B
       chartJac_eq_zero (x₀ := x₀) (not_lt.2 hle)
     simp [h0]
 
+/-! ### T4: an instance -/
+
+/-- The bad set of the instance: the sites of the block `0` for `d = 3`, torus side `ℓ = 4`,
+blocks of side `2` (the smallest setting of `kf0_nonvacuity_instance`). -/
+noncomputable def goodChartInstD : Finset (Torus 3 4) :=
+  siteUnion (ℓ := 4) 2 2 ({0} : Finset (Torus 3 2))
+
+/-- The product of the open upper hemispheres around `e₀` on the good sites of the instance. -/
+def goodChartInstU : Set (Good goodChartInstD → SpinSphere 3) :=
+  {φ | ∀ x, 0 < inner ℝ (EuclideanSpace.single (0 : Fin 3) (1 : ℝ))
+    (φ x : EuclideanSpace ℝ (Fin 3))}
+
+theorem isOpen_goodChartInstU : IsOpen goodChartInstU := by
+  have : goodChartInstU = ⋂ x : Good goodChartInstD, {φ : Good goodChartInstD → SpinSphere 3 |
+      0 < inner ℝ (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)) (φ x : EuclideanSpace ℝ (Fin 3))} := by
+    ext φ; simp [goodChartInstU]
+  rw [this]
+  refine isOpen_iInter_of_finite fun x => isOpen_lt continuous_const ?_
+  exact continuous_const.inner (continuous_subtype_val.comp (continuous_apply x))
+
+/-- **Non-vacuity** (T4): `d = 3`, `N = 3`, `ℓ = 4`, blocks of side `2`, bad set the sites of the
+block `0`, `β = 1`, `h = e₀`.  The chart measure formula (T1) holds for the indicator of the product
+of the upper hemispheres on the good sites, and the left side is positive. -/
+theorem goodChart_instance :
+    (∫⁻ φ, goodChartInstU.indicator 1 φ
+        ∂(Measure.pi fun _ : Good goodChartInstD =>
+          (volume : Measure (EuclideanSpace ℝ (Fin 3))).toSphere) =
+      ENNReal.ofReal (((Real.sqrt 1)⁻¹) ^ (Fintype.card (Good goodChartInstD) * (3 - 1))) *
+        ∫⁻ v : Good goodChartInstD → perp (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)),
+          ENNReal.ofReal (chartJac 1 (fun x => (v x : EuclideanSpace ℝ (Fin 3)))) *
+            goodChartInstU.indicator 1
+              (chartCfgOn (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)) (by simp)
+                ((Real.sqrt 1)⁻¹ • v))
+          ∂(Measure.pi fun _ => (volume : Measure (perp
+            (EuclideanSpace.single (0 : Fin 3) (1 : ℝ)))))) ∧
+    0 < ∫⁻ φ, goodChartInstU.indicator 1 φ
+        ∂(Measure.pi fun _ : Good goodChartInstD =>
+          (volume : Measure (EuclideanSpace ℝ (Fin 3))).toSphere) := by
+  have hh : ‖(EuclideanSpace.single (0 : Fin 3) (1 : ℝ))‖ = 1 := by simp
+  have hm : MeasurableSet goodChartInstU := isOpen_goodChartInstU.measurableSet
+  refine ⟨?_, ?_⟩
+  · refine lintegral_sphere_pi_chart one_pos hh _ (measurable_one.indicator hm) ?_
+    intro φ ⟨x, hx⟩
+    exact Set.indicator_of_notMem (fun (hφ : φ ∈ goodChartInstU) => hx (hφ x)) _
+  · rw [lintegral_indicator_one hm]
+    have : (Measure.pi fun _ : Good goodChartInstD =>
+        (volume : Measure (EuclideanSpace ℝ (Fin 3))).toSphere).IsOpenPosMeasure :=
+      Measure.pi.isOpenPosMeasure _
+    refine isOpen_goodChartInstU.measure_pos _ ⟨fun _ => ⟨EuclideanSpace.single 0 1, by simp⟩, ?_⟩
+    intro x
+    simp
+
 end Terms
 
 end Balaban.LargeField
