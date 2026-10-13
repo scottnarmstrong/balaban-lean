@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Fluctuation.ObsHkerSupport
 public import Balaban.Fluctuation.ObsRemainderMarks
 public import Balaban.Fluctuation.Thm31b
 public import Balaban.Polymer.LabelExtend
@@ -357,6 +358,127 @@ theorem obsMarkHalves_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc 
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκG hκ0
   exact ⟨Ev, hEv⟩
 
+/-- **`obsMarks_of_tilt` with the support of the kernel.**  As `obsMarks_of_tilt`, and moreover
+the kernel `I.hker i T` vanishes unless `dOmega (sitesOf T) ≠ ⊤` (it is `obsHker` of the domains of
+the expansion, supported on their labels). -/
+theorem obsMarks_of_tilt_ksupp (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 < cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (iy : Fin N)
+    (hp : 0 < S.p₁) (hq : S.p₁ / cψ ≤ 1 / 4)
+    {Lb₀ : Type} [Fintype Lb₀] (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ Lb₀)
+    {κ0 : ℝ} (hκ0 : aEnt d L + 1 ≤ κ0) (hκ0h : κ0 ≤ 2 * κdec)
+    (D : BgData S.G' N) (hD : XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D)
+    (W : ℝ → S.E → ℂ) {εH κH κ' Kc' Rσ : ℝ} (hκH : κH ≤ 2 * κdec)
+    (𝒰 : Set ℂ) (hRσ : 1 < Rσ) (hOpen : IsOpen 𝒰) (hseg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰)
+    (h𝒰 : 𝒰 ⊆ ball (0 : ℂ) (3 / 2))
+    (A : ℂ → ℂ → LabelAct (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt))
+      (S.blockSplit m₀ hp).Ωb εH κH κ0 Kc')
+    (holt : ∀ y Φ, DifferentiableOn ℂ (fun t => (A t 1).H y Φ) 𝒰)
+    (holσ : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y Φ,
+      DifferentiableOn ℂ (fun σ => (A (s : ℂ) σ).H y Φ) (ball (0 : ℂ) Rσ))
+    (zero : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y Φ, (A (s : ℂ) 0).H y Φ = 0)
+    (hW : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+      W s x = ∑ y, (A (s : ℂ) 1).H y ((S.blockSplit m₀ hp).restr x))
+    (hKc : K0 d L κ0 + 1 ≤ Kc') (hεpos : 0 < εH) (hκ'0 : 0 ≤ κ') (hκ0' : κ0 ≤ κ')
+    (hκH' : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
+    (hε : εH ≤ 1 / (8 * Kc' ^ 3 * c1 d L *
+      Real.exp ((κH - 2 * κ0) * cG d L + c1 d L + κ' * cG d L))) :
+    ∃ I : ObsMarks S.nuFl (S.blockSplit m₀ hp) W (fun t x => obsRayFun S (fun ψh =>
+          svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) x t)
+        (rootCube (m₀ := m₀) (blockIndex y)),
+        I.Kc = Kc' ∧ I.κH = κH ∧ I.κG = κH ∧ I.κ0 = κ0 ∧ I.κ' = κ' ∧ I.εH = εH ∧ I.Rσ = Rσ ∧
+        I.κh = 2 * κdec ∧ I.Ch = cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ ∧ I.Fm = S.p₁ ∧
+        I.nmax = ((N * L ^ (d * (m₀ + m₁ + 1)) : ℕ) : ℝ) ∧
+        I.B2 ≤ CPE d L Kc' κH κ0 κ' *
+          (8 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (S.p₁ / cψ) ^ 2 * (K0 d L κ0 + 1)) ∧
+        I.B1 = cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ *
+          (CPE d L Kc' κH κ0 κ' * S.p₁ / Rσ) *
+          (((N * L ^ (d * (m₀ + m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kc' ^ 2 *
+          Real.exp ((min (2 * κdec) κ' - κ0) * cG d L) ∧
+        ∀ (i : I.ι1) (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1)
+          m₀ (k + 1) Set.univ)),
+          I.hker i T ≠ 0 → dOmega m₀ (k + 1) Set.univ (sitesOf T) ≠ ⊤ := by
+  classical
+  obtain ⟨Ev, hEv⟩ := obsMarkHalves_of_sharpHat S hC hk hG cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+    hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ (κG := κH) hκH hκ0
+  obtain ⟨hhalf, hid⟩ := hEv D hD
+  obtain ⟨hmeas1, hdep1, -, hbound1, hmean1, hFm, hbm, hcount, hbh, hsh, hxh, hrf⟩ := hhalf
+  obtain ⟨hc0, hboundr, hmeasr, hdepr, hholr, hxr, hsum, -⟩ := hrf
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hCh : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ :=
+    div_nonneg (mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le) hcψ.le
+  have hCPE : 0 ≤ CPE d L Kc' κH κ0 κ' := by
+    unfold CPE; have := one_le_c1 d L
+    have hK0 : 0 < K0 d L κ0 := by
+      unfold K0
+      have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
+      exact div_pos (Real.exp_pos _) (by linarith)
+    have : 0 ≤ Kc' := by linarith
+    positivity
+  refine ⟨{
+                Lb := ObsLb Lb₀ m₀ (obsDomains S X₁f m₀ j 𝒦X)
+                fin := inferInstance
+                Lab := obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)
+                εH := εH, κH := κH, κG := κH, κ0 := κ0, κ' := κ', Kc := Kc'
+                hN := hcov.hN, Rσ := Rσ, hRσ := hRσ, 𝒰 := 𝒰, isOpen := hOpen, seg := hseg
+                A := A, holt := holt, holσ := holσ, zero := zero, hW := hW
+                ι1 := ObsMarkIdx S
+                fin1 := inferInstance
+                y1 := obsY1 m₀ S Lb₀ _
+                G1 := fun i => blockMark S m₀ hp i.1 i.2
+                meas1 := hmeas1, dep1 := hdep1
+                F1 := fun _ => S.p₁, hF1 := fun _ => hp
+                bound1 := hbound1, mean1 := hmean1
+                Fm := S.p₁, hFm := hFm
+                bm := obsMarkCube S m₀, hbm := hbm
+                nmax := ((N * L ^ (d * (m₀ + m₁ + 1)) : ℕ) : ℝ), hnmax := Nat.cast_nonneg _
+                hcount := hcount
+                hker := fun i T => obsHker (obsDomains S X₁f m₀ j 𝒦X) (obsRowCoeff S Ev D i) m₀ T
+                Ch := cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ, κh := 2 * κdec, hCh := hCh
+                bound_h := hbh, supp_h := hsh, x_h := hxh, hκh := hκ0h, hFm0 := hp.le
+                ιr := RemIdx (obsDomains S X₁f m₀ j 𝒦X)
+                finr := inferInstance
+                nonemptyr := ⟨none⟩
+                yr := obsRemLab _ (fun Y => Sum.inl (Sum.inr Y))
+                  (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y)))
+                Gr := obsGr S m₀ hp Ev D _, measr := hmeasr, depr := hdepr
+                Fr := fun _ => 8 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (S.p₁ / cψ) ^ 2
+                hFr := fun _ => hc0, boundr := hboundr
+                holGr := fun r Φ => (hholr r Φ).mono h𝒰
+                x_r := hxr
+                hκ0 := hκ0, hKc := hKc, hεpos := hεpos, hκ' := hκ'0, hκ0' := hκ0'
+                hκG := le_rfl, hκ := hκH', hε := hε
+                hF := hid }, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, ?_, rfl, ?_⟩
+  show CPE d L Kc' κH κ0 κ' * ∑ r : RemIdx (obsDomains S X₁f m₀ j 𝒦X),
+      (8 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (S.p₁ / cψ) ^ 2) *
+        Real.exp (-κ0 * (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)).dl
+          (obsRemLab _ (fun Y => Sum.inl (Sum.inr Y))
+            (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y))) r)) ≤ _
+  exact mul_le_mul_of_nonneg_left hsum hCPE
+  · intro i T h
+    exact dOmega_ne_top_of_obsHker_ne_zero (c := obsRowCoeff S Ev D i) hcov.hN
+      (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt) h
+
 /-- **The record `ObsMarks`, conditional on the activity half on the common labels.**
 
 Premises: those of `obsMarkHalves_of_sharpHat`, a datum `D` of `Ξ`, the exponent `W`, and the
@@ -420,65 +542,8 @@ theorem obsMarks_of_tilt (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ B
           (CPE d L Kc' κH κ0 κ' * S.p₁ / Rσ) *
           (((N * L ^ (d * (m₀ + m₁ + 1)) : ℕ) : ℝ) * c1 d L) * Kc' ^ 2 *
           Real.exp ((min (2 * κdec) κ' - κ0) * cG d L) := by
-  classical
-  obtain ⟨Ev, hEv⟩ := obsMarkHalves_of_sharpHat S hC hk hG cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
-    hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ (κG := κH) hκH hκ0
-  obtain ⟨hhalf, hid⟩ := hEv D hD
-  obtain ⟨hmeas1, hdep1, -, hbound1, hmean1, hFm, hbm, hcount, hbh, hsh, hxh, hrf⟩ := hhalf
-  obtain ⟨hc0, hboundr, hmeasr, hdepr, hholr, hxr, hsum, -⟩ := hrf
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hCh : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ :=
-    div_nonneg (mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le) hcψ.le
-  have hCPE : 0 ≤ CPE d L Kc' κH κ0 κ' := by
-    unfold CPE; have := one_le_c1 d L
-    have hK0 : 0 < K0 d L κ0 := by
-      unfold K0
-      have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
-      exact div_pos (Real.exp_pos _) (by linarith)
-    have : 0 ≤ Kc' := by linarith
-    positivity
-  refine ⟨{
-                Lb := ObsLb Lb₀ m₀ (obsDomains S X₁f m₀ j 𝒦X)
-                fin := inferInstance
-                Lab := obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)
-                εH := εH, κH := κH, κG := κH, κ0 := κ0, κ' := κ', Kc := Kc'
-                hN := hcov.hN, Rσ := Rσ, hRσ := hRσ, 𝒰 := 𝒰, isOpen := hOpen, seg := hseg
-                A := A, holt := holt, holσ := holσ, zero := zero, hW := hW
-                ι1 := ObsMarkIdx S
-                fin1 := inferInstance
-                y1 := obsY1 m₀ S Lb₀ _
-                G1 := fun i => blockMark S m₀ hp i.1 i.2
-                meas1 := hmeas1, dep1 := hdep1
-                F1 := fun _ => S.p₁, hF1 := fun _ => hp
-                bound1 := hbound1, mean1 := hmean1
-                Fm := S.p₁, hFm := hFm
-                bm := obsMarkCube S m₀, hbm := hbm
-                nmax := ((N * L ^ (d * (m₀ + m₁ + 1)) : ℕ) : ℝ), hnmax := Nat.cast_nonneg _
-                hcount := hcount
-                hker := fun i T => obsHker (obsDomains S X₁f m₀ j 𝒦X) (obsRowCoeff S Ev D i) m₀ T
-                Ch := cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ, κh := 2 * κdec, hCh := hCh
-                bound_h := hbh, supp_h := hsh, x_h := hxh, hκh := hκ0h, hFm0 := hp.le
-                ιr := RemIdx (obsDomains S X₁f m₀ j 𝒦X)
-                finr := inferInstance
-                nonemptyr := ⟨none⟩
-                yr := obsRemLab _ (fun Y => Sum.inl (Sum.inr Y))
-                  (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y)))
-                Gr := obsGr S m₀ hp Ev D _, measr := hmeasr, depr := hdepr
-                Fr := fun _ => 8 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (S.p₁ / cψ) ^ 2
-                hFr := fun _ => hc0, boundr := hboundr
-                holGr := fun r Φ => (hholr r Φ).mono h𝒰
-                x_r := hxr
-                hκ0 := hκ0, hKc := hKc, hεpos := hεpos, hκ' := hκ'0, hκ0' := hκ0'
-                hκG := le_rfl, hκ := hκH', hε := hε
-                hF := hid }, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, ?_, rfl⟩
-  show CPE d L Kc' κH κ0 κ' * ∑ r : RemIdx (obsDomains S X₁f m₀ j 𝒦X),
-      (8 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (S.p₁ / cψ) ^ 2) *
-        Real.exp (-κ0 * (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)).dl
-          (obsRemLab _ (fun Y => Sum.inl (Sum.inr Y))
-            (obsY0 m₀ Lb₀ _ (rootCube (m₀ := m₀) (blockIndex y))) r)) ≤ _
-  exact mul_le_mul_of_nonneg_left hsum hCPE
+  obtain ⟨I, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, -⟩ := obsMarks_of_tilt_ksupp S hC hk hG cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκ0 hκ0h D hD W hκH 𝒰 hRσ hOpen hseg h𝒰 A holt holσ zero hW hKc hεpos hκ'0 hκ0' hκH' hε
+  exact ⟨I, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13⟩
 
 end SharpHat
 
