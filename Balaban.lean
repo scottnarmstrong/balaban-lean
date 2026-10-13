@@ -1509,6 +1509,7 @@ public import Balaban.Inhabited.D7GasRootEntropyWitness
 public import Balaban.Inhabited.LateYDirectionWitness
 public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.DetCollarHull
+public import Balaban.Fluctuation.DetCollarHullSymm
 public import Balaban.Fluctuation.DetPrefactor
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
