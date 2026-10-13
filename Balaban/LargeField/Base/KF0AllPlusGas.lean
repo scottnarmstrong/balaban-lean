@@ -721,6 +721,81 @@ theorem allPlus_gas_of_weighted {β ν g γ κ p ε κ0 κ1 κ' : ℝ} (hβ : 0 
   congr 2
   rw [hC, hgas.1]
 
+/-- The standard Gaussian charges every closed ball of positive radius. -/
+theorem oneSiteGaussian_smallSet_ne_zero {E : Type*} [NormedAddCommGroup E]
+    [InnerProductSpace ℝ E] [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E]
+    {p : ℝ} (hp : 0 < p) : oneSiteGaussian E (smallSet p : Set E) ≠ 0 := by
+  intro h0
+  unfold oneSiteGaussian at h0
+  rw [withDensity_apply _ (measurableSet_smallSet (W := E) p)] at h0
+  set c : ℝ := (2 * Real.pi) ^ (-(Module.finrank ℝ E : ℝ) / 2) with hc
+  have hc0 : 0 < c := by positivity
+  have hδ : 0 < c * Real.exp (-(1 / 2) * p ^ 2) := by positivity
+  have hle : ∫⁻ x in (smallSet p : Set E), ENNReal.ofReal (c * Real.exp (-(1 / 2) * p ^ 2)) ≤
+      ∫⁻ x in (smallSet p : Set E), ENNReal.ofReal (c * Real.exp (-(1 / 2) * ‖x‖ ^ 2)) := by
+    refine setLIntegral_mono' (measurableSet_smallSet (W := E) p) fun x hx => ?_
+    refine ENNReal.ofReal_le_ofReal (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0.le)
+    have : ‖x‖ ^ 2 ≤ p ^ 2 := pow_le_pow_left₀ (norm_nonneg _) hx 2
+    linarith
+  rw [h0, nonpos_iff_eq_zero, setLIntegral_const, mul_eq_zero] at hle
+  rcases hle with h1 | h1
+  · exact absurd h1 (ENNReal.ofReal_pos.2 hδ).ne'
+  · have hb : Metric.closedBall (0 : E) p ⊆ (smallSet p : Set E) := fun x hx => by
+      simpa [smallSet] using hx
+    exact (Metric.measure_closedBall_pos (volume : Measure E) (0 : E) hp).ne'
+      (measure_mono_null hb h1)
+
+/-- **(T4)** The all-plus, all-`ψ`-small sector of the one-scale model as a block gas, for the
+standard Gaussian reference measure on the tangent space.  For all sufficiently large `β`, with the
+cutoff `p = b log (β a)`, the conclusion of `allPlus_gas_of_weighted` holds; the weighted smallness
+is supplied by `f1_weighted_small`.  The hypotheses are those of `f1_weighted_small`, the
+numerical hypotheses of `block_gas` with `H0 = (1 + 2d) s^d ε`, and `κ ≥ 1 + κ0 + κ1`.  Only the
+all-plus, all-`ψ`-small sector is treated here. -/
+theorem allPlus_gas {ν g γ κ a b G ε κ0 κ1 κ' : ℝ} (hg : 0 < g) (hgν : g ≤ ν) (hν1 : ν ≤ 1)
+    (hγ : 0 ≤ γ) (hq : 2 * d / (2 * d + g) * Real.exp γ < 1) (hκ : 0 ≤ κ)
+    (hγκ : κ * 3 ^ d / s ≤ γ) (ha : 0 < a) (hb : 0 < b) (hn : 1 ≤ n)
+    (e : OrthonormalBasis (Fin n) ℝ (perp h)) (src : Torus d (s * m') → Fin N → ℝ)
+    (hG : ∀ x, (∑ j, |f1Lin e src x j|) + |f1Nrm src h x| ≤ G) (hε : 0 < ε)
+    (hq0 : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
+    (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκg : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
+    (hH0log : (1 + 2 * d) * s ^ d * ε ≤ Real.log 2)
+    (hH0K : (1 + 2 * d) * s ^ d * ε * (4 * Real.exp (-κ0)) ≤ 1 / 4)
+    (hκ01 : 1 + κ0 + κ1 ≤ κ) :
+    ∃ β₁ : ℝ, ∀ β ≥ β₁, 0 < β ∧ 0 < b * Real.log (β * a) ∧
+      ((∫ ψ, Set.indicator (Set.pi Set.univ fun _ : Torus d (s * m') =>
+            smallSet (b * Real.log (β * a)))
+          (fun ψ : Torus d (s * m') → perp h =>
+            chartJac β (fun x => ((tfield d (s * m') ν ψ x : perp h) :
+                EuclideanSpace ℝ (Fin N))) *
+              Real.exp (chartInteractionExponent β ν h src (tfield d (s * m') ν ψ))) ψ
+          ∂(Measure.pi fun _ : Torus d (s * m' ) => oneSiteGaussian (perp h)) : ℝ) : ℂ) =
+        (((1 - (oneSiteGaussian (perp h)).real (largeSet (b * Real.log (β * a)))) ^
+            Fintype.card (Torus d (s * m')) * Real.exp (sourceConst src h) : ℝ) : ℂ) *
+          Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Torus d m') →
+            Finset (Torus d m'))) (mayerK (blockRef (d := d) (s := s) (m' := m')
+              (ProbabilityTheory.cond (oneSiteGaussian (perp h))
+                (smallSet (b * Real.log (β * a)))))
+            (fun X : NePoly (Torus d m') => X.1)
+            (gasTerm e β ν (b * Real.log (β * a)) src))) ∧
+      ∀ c : Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d m'))).filter
+          (fun Y => c ∈ Y),
+        ‖PY (shareBlock (Subtype.val : NePoly (Torus d m') → Finset (Torus d m')))
+            Subtype.val (mayerK (blockRef (d := d) (s := s) (m' := m')
+              (ProbabilityTheory.cond (oneSiteGaussian (perp h))
+                (smallSet (b * Real.log (β * a)))))
+            (fun X : NePoly (Torus d m') => X.1)
+            (gasTerm e β ν (b * Real.log (β * a)) src)) Y‖ * Real.exp (κ' * stSize Y) ≤
+          64 * Real.exp 1 * ((1 + 2 * d) * s ^ d * ε) * Real.exp (-(2 * κ0)) := by
+  have hs : 0 < s := Nat.pos_of_ne_zero (NeZero.ne s)
+  obtain ⟨β₁, hβ₁⟩ := f1_weighted_small (d := d) (N := N) (ℓ := s * m') (n := n) (h := h)
+    hg hgν hν1 hγ hq hs rfl hκ hγκ ha hb hn e src hG hε
+  refine ⟨β₁, fun β hβ => ?_⟩
+  obtain ⟨hβ0, hp, hρ1, hρ, hsite, hbond⟩ := hβ₁ β hβ
+  have hH0 : 0 ≤ (1 + 2 * (d : ℝ)) * (s : ℝ) ^ d * ε := by positivity
+  exact ⟨hβ0, hp, allPlus_gas_of_weighted hβ0 hg hgν hν1 hγ hq hκ hγκ hp hn hρ1 hρ e src hsite
+    hbond hq0 hκ0 hκ' hκg hH0 hH0log hH0K hκ01 (oneSiteGaussian (perp h))
+    (oneSiteGaussian_smallSet_ne_zero hp)⟩
+
 end Sector
 
 end Balaban.LargeField.KF0AllPlus
