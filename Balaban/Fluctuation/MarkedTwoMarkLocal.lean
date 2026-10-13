@@ -8,9 +8,45 @@ module
 public import Balaban.Fluctuation.MarkedScaledCountDec
 
 /-!
-# Two-mark locality of the marked decoupled terms (`MarkedTwoMarkLocal`)
+# Two-mark locality of the localized terms of the decoupled marked expansion
 
-PLACEHOLDER
+The landed locality of the terms `evDec` (clause 2 of `MarkedBlockExpansionDec`, `AgHatDir`)
+compares two DATA at fixed marks.  The vanishing of `∂_t evDec|_{t=0}` for a term whose domain
+misses the marked block compares two MARKS `(um, t)`, `(um, 0)` at fixed data.  This file proves
+that comparison.
+
+* `markedHatPsiF_rows_two`, `fluct_correction_rows_marked_two_of_ball` (two-mark rows): the rows of
+  the masked tangent and of the fluctuation correction for two marks `(u, t)`, `(u', t')` of the same
+  block `Z`, when the mark factors `u + 1[unitPt y ∈ Z] t` and `u' + 1[unitPt y ∈ Z] t'` agree at the
+  sites `y` of the component.  (The masked tangent at the site `y` is that factor times `hatPsiF`,
+  `markedHatPsiF_apply`.)
+* `fanHL_local_marked_two`: the proof of `fanHL_local_marked` rerun with two marks: if the data
+  agree in the sense of `AgHatDir` on the component `Yc` of the connected family `C`, the cut
+  parameters agree on the patches inside `Yc`, and the mark factors agree on `Yc`, the cut-parameter
+  functionals `FFmarked … Zm um tm` and `FFmarked … Zm um' tm'` take the same value.
+* `i5_functional_hat_marked_exposed_pair`: the proof of `i5_functional_hat_marked_exposed_of_fan`
+  for a given pair `(F₁, Sol)` of the decoupled background and fluctuation maps (the landed theorem
+  hides the pair inside an existential, so a clause about the same pair cannot be added after
+  the fact), with the extra clause: if no site of `Y` has its unit point in the mask, then
+  `evTerm … (FFmarked … um tm) Y u = evTerm … (FFmarked … um tm') Y u`.  The proof compares, for
+  each connected family `C` with `Y[𝒞] = Y`, the Taylor coefficients of the two functionals; they
+  agree because the two functionals agree on the polydisc (`fanHL_local_marked_two`, with the
+  component `compY C ⊆ Y[𝒞] = Y`).
+* `vblock_expansion_hat_marked_scaled_two`: `vblock_expansion_hat_marked_scaled` with clauses 7
+  (mark-locality of `evDec`) and 8 (vanishing of the `t`-derivative at `0`), for the same pair.
+  `MarkedBlockExpansionDecTwo` is its conclusion.
+* `marked_count_scaled_dec_resummed`: `marked_count_scaled_dec` for a mask supported in the fine
+  block of the root, with item 1 unconditional.  `blockU_supported`: the physical mask
+  `S.blockU z` is supported in `fineBlock z`.
+
+The read set that mark-locality uses is the domain `Y` itself (the mask only changes the tangent at
+sites whose unit point lies in `Zm`, and the tangent is read, through the rows, only on the
+component, which lies in `Y`); it is contained in the set `psiThick Y` used by `markedIdx`.  So the
+landed index filter is sufficient and no change of `markedIdx` is needed.
+
+Joint analyticity in (data, marks), the cubic step and the `E1MarksC` inhabitant are NOT proved
+here.  Zero class only; nothing depends on a choice of generating sets beyond the landed level
+sets.
 -/
 
 @[expose] public section
@@ -150,7 +186,12 @@ include hC
 
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **Two-mark sharp locality of the fan.**  `fanHL_local_marked` with two marks. -/
+/-- **Two-mark sharp locality of the fan.**  The conclusion of `fanHL_local_marked` with two marks
+`(um, tm)`, `(um', tm')` of the same block `Zm` (each in the radius set `hδ₁`, `hδ₁'`), the hypotheses
+of the landed theorem otherwise unchanged: two configurations `u, u'` whose data agree in the sense
+of `AgHatDir` on the component `Yc` of the connected family `C`, whose cut parameters agree on the
+patches inside `Yc`, and whose mark factors `um + 1[unitPt y ∈ Zm] tm` and `um' + 1[unitPt y ∈ Zm] tm'`
+agree at the sites `y` of `Yc`, give the same value of the fan functional. -/
 theorem fanHL_local_marked_two (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
@@ -457,7 +498,12 @@ variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTo
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
 include hC
 
-/-- **The exposed expansion for a given pair `(F₁, Sol)`, with the two-mark clause.**  PLACEHOLDER -/
+/-- **The exposed expansion for a given pair `(F₁, Sol)`, with the two-mark clause.**  The clauses
+are those of `i5_functional_hat_marked_exposed` (the pair `(F₁, Sol)` being given together with its
+defining properties `hF₁`, `hSolprop`, and their analyticity), followed by the mark-locality of the
+localized term: for marks `(um, tm)`, `(um, tm')` of the radius set and a set `Y` of sites none of
+whose unit points lies in the mask `Zm`, `evTerm … (FFmarked … um tm) Y u` and
+`evTerm … (FFmarked … um tm') Y u` agree. -/
 theorem i5_functional_hat_marked_exposed_pair (hk : 1 ≤ k) (hG : IsLevel Hm k)
     (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
@@ -859,35 +905,15 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **The block expansion along the masked tangent, with mark-locality**
-(`vblock_expansion_hat_marked_scaled` with two further clauses).  The hypotheses are those of the
-landed theorem.  The clauses 1 to 6 are those of `MarkedBlockExpansionDec`, for the same pair
-`(F₁, Sol)`; clause 7: if no site of `Y` has its unit point in the mask `Zm`, the localized term
-`evDec … Y u` is the same for any two marks `(um, tm)`, `(um, tm')` of the radius set; clause 8: for
-such `Y` the `t`-derivative at `0` vanishes.  The read set needed is `Y` itself (the component
-`compY` of a connected family lies in `Y`), which is contained in the landed `psiThick Y`. -/
-theorem vblock_expansion_hat_marked_scaled_two
-    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
-    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
-    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
-    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hcov : CovSetup Gp m₀ j X 𝒦X)
-    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
-    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
-    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
-      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
-        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
-    (hΔ : treeLenCovOne m₀ j X = 0)
-    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
-    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
-    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
-    (hZ : readSites Hm k z ⊆ ↑X₁f)
-    (hmar : BlockMargin Gp X₁f (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+/-- **The conclusion of `vblock_expansion_hat_marked_scaled_two`.**  Clauses 1 to 6 are those of
+`MarkedBlockExpansionDec` for one pair `(F₁, Sol)`; clause 7 says that two marks `(um, tm)`,
+`(um, tm')` of the radius set give the same term `evDec … Y u` when no site of `Y` has its unit
+point in the mask `Zm`; clause 8 says that then the `t`-derivative at `0` vanishes. -/
+def MarkedBlockExpansionDecTwo (N : ℕ) (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm)
+    (hG' : IsLevel Gp (k + 1)) (cc : ℂ) (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ)
+    (Zm : Finset (unitPts Gp)) (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
+    Prop :=
     ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
         (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
       (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
@@ -966,7 +992,39 @@ theorem vblock_expansion_hat_marked_scaled_two
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         deriv (fun t : ℂ =>
           evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) Zm
-            um t Y u) 0 = 0) := by
+            um t Y u) 0 = 0)
+
+/-- **The block expansion along the masked tangent, with mark-locality**
+(`vblock_expansion_hat_marked_scaled` with two further clauses).  The hypotheses are those of the
+landed theorem.  The clauses 1 to 6 are those of `MarkedBlockExpansionDec`, for the same pair
+`(F₁, Sol)`; clause 7: if no site of `Y` has its unit point in the mask `Zm`, the localized term
+`evDec … Y u` is the same for any two marks `(um, tm)`, `(um, tm')` of the radius set; clause 8: for
+such `Y` the `t`-derivative at `0` vanishes.  The read set needed is `Y` itself (the component
+`compY` of a connected family lies in `Y`), which is contained in the landed `psiThick Y`. -/
+theorem vblock_expansion_hat_marked_scaled_two
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hmar : BlockMargin Gp X₁f (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    MarkedBlockExpansionDecTwo N Hm hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z := by
+  unfold MarkedBlockExpansionDecTwo
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
     have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
@@ -1024,3 +1082,255 @@ theorem vblock_expansion_hat_marked_scaled_two
 end TwoMark
 
 end Balaban.Localization
+
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Localization Balaban.Polymer Balaban.Multiscale MeasureTheory Filter
+  Balaban.SmallField.Def6 Balaban.Background Balaban.SmallField Set
+
+section Main
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {m₀ : ℕ}
+  {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+  {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+  {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **`MARK-COUNT`, decoupled level, with the vanishing discharged.**  As `marked_count_scaled_dec`
+(same hypotheses, same conclusions 2 to 4), for a mask `Zm` supported in the fine block of the root
+(`hZm`: every site whose unit point lies in `Zm` lies in `fineBlock zr`); item 1 is now
+unconditional: the `t`-derivative at `0` of the sum of the block functionals along the masked
+tangent is the double sum of the derivatives of the terms and is `∑_{Y' ∈ 𝒴_zr} markedOutDec zr Y'`.
+The vanishing of the derivative of a term left out of `markedIdx` is clause 8 of
+`vblock_expansion_hat_marked_scaled_two` (the read set used is `Y`, contained in `psiThick Y`). -/
+theorem marked_count_scaled_dec_resummed
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcovV : ∀ b, CovSetup Gp m₀ (jV b) (XV b) (𝒦XV b))
+    (hX₁V : ∀ b, (↑(X₁V b) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (jV b) (𝒦XV b))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hoptV : ∀ b, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XV b) ∧ MeetsOne m₀ (jV b) (𝒦XV b) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (jV b)) E₀ = treeLenCovOne m₀ (jV b) (XV b))
+    (hΔV : ∀ b, treeLenCovOne m₀ (jV b) (XV b) = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hZV : ∀ b, readSites Hm k b ⊆ ↑(X₁V b))
+    (hmarV : ∀ b, BlockMargin Gp (X₁V b)
+      (↑(blockSites d L N₁ m₁ (k + 1) k b) : Set (CTorus d L N₁ m₁ (k + 1))))
+    (hL : 2 ≤ L) (zr : RootIdx d L N₁ m₁ (k + 1))
+    (hZm : ∀ p ∈ Zm, ∀ y, unitPt hG' y = p → y ∈ fineBlock zr) :
+    ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+        DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+      (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+        Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+      (∀ b, ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D ψh =
+        ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+          evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν hG' cc (F₁ b) (Sol b)
+            (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) Zm um tm Y (rawOf D, ψh)) ∧
+      (∀ b, ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir hG' Y u u' →
+          evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν hG' cc (F₁ b) (Sol b)
+            (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) Zm um tm Y u =
+          evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν hG' cc (F₁ b) (Sol b)
+            (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) Zm um tm Y u') ∧
+      ∀ (um : ℂ) (b₀ t₀ : ℝ), 0 < t₀ → t₀ ≤ b₀ →
+        (‖um‖ + b₀) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        (deriv (fun tm : ℂ => ∑ b,
+            markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm
+              (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D ψh) 0 =
+          ∑ b, ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+            deriv (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y) 0 ∧
+          ∑ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+                (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr,
+              markedOutDec m₀ (fun _ => Set.univ)
+                (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+                (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y' =
+              ∑ b, ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+                deriv (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y) 0 ∧
+          deriv (fun tm : ℂ => ∑ b,
+            markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm
+              (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D ψh) 0 =
+            ∑ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+                (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr,
+              markedOutDec m₀ (fun _ => Set.univ)
+                (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+                (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y') ∧
+        (∀ Y', ‖markedOutDec m₀ (fun _ => Set.univ)
+              (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+              (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y'‖ ≤
+            (‖energyBdScaled d L N (compWeight L a₁) k
+                (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / t₀) *
+              (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+              ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) *
+              Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y')) ∧
+        (∀ Y', markedOutDec m₀ (fun _ => Set.univ)
+              (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+              (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y' ≠ 0 →
+            IsDj m₀ (k + 1) Y' ∧ rootCube (m₀ := m₀) zr ∈ blocksOf m₀ (k + 1) Set.univ Y') ∧
+        (∀ {a'' : ℝ}, aEnt d L + 1 ≤ 2 * κdec - 1 - a'' →
+          ∑ Y' : {Y' // Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+              (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr},
+            ‖markedOutDec m₀ (fun _ => Set.univ)
+                (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+                (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y'.1‖ *
+              Real.exp (a'' * treeLenCovOne m₀ (k + 1) Y'.1) ≤
+            (‖energyBdScaled d L N (compWeight L a₁) k
+                (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / t₀) *
+              (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+              ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) *
+              K0 d L (2 * κdec - 1 - a'')) := by
+  classical
+  have hd : 3 ≤ d := hC.HBp.hd
+  have hex := fun b => vblock_expansion_hat_marked_scaled_two hC hk hG hG' cc hcψ Zm hMX hdm hα hsm
+    (hcovV b) (hX₁V b) hconn hrow (hoptV b) (hΔV b) hκ₀ hκdec hκ h1 hlog b (hZV b) (hmarV b)
+  choose F₁ Sol hA hB hC' hD hE hF hMk hZr using hex
+  refine ⟨F₁, Sol, hA, hB, ?_⟩
+  intro um b₀ t₀ ht₀ htb hrad D hDd ψh hψh
+  have hb₀ : 0 ≤ b₀ := ht₀.le.trans htb
+  have hN : L ^ m₀ ∣ N₁ := (hcovV zr).hN
+  have hu : (rawOf D, ψh) ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} := ⟨⟨D, hDd, rfl⟩, hψh⟩
+  have hdom : ∀ b, ∀ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b), IsDj m₀ (k + 1) Y :=
+    fun b Y hY => isDj_of_polymerDomains (fun i : ParIdx Gp (↑(X₁V b) :
+      Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hG' (hcovV b) hd (fun i => i.1.2) (hoptV b) hY
+  -- the radius facts
+  have hrad0 : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ :=
+    mem_markedRadiusSet_of_pos hC.δ₁_pos hrad (le_refl ‖um‖) (show ‖(0 : ℂ)‖ ≤ b₀ by
+      simpa using hb₀)
+  have hmem0 : (um, (0 : ℂ)) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
+    hrad0
+  -- differentiability of the block functionals at `t = 0`
+  have hdiffT : ∀ b, ∀ Y, DifferentiableAt ℂ (fun t : ℂ =>
+      evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y t) 0 :=
+    fun b Y => differentiableAt_mark_slice (um := um)
+      (g := fun w : ℂ × ℂ => evDec (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν hG' cc (F₁ b) (Sol b)
+        (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) Zm w.1 w.2 Y (rawOf D, ψh))
+      ((hD b Y _ hu) (um, 0) hmem0)
+  have hnhds : {t : ℂ | (um, t) ∈ {w : ℂ × ℂ |
+      (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}} ∈ nhds (0 : ℂ) :=
+    ((isOpen_markedRadiusSet (markedRad d L N k a₁ κ cψ cc) δ₁).preimage
+      (continuous_const.prodMk continuous_id)).mem_nhds hmem0
+  have hdiffF : ∀ b, DifferentiableAt ℂ (fun tm : ℂ =>
+      markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D ψh)
+      0 := by
+    intro b
+    have hev : (fun tm : ℂ =>
+        markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D
+          ψh) =ᶠ[nhds (0 : ℂ)] fun t => ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+          evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y t := by
+      filter_upwards [hnhds] with t ht using hA b um t ht D hDd ψh hψh
+    exact (hev.differentiableAt_iff).2 (DifferentiableAt.fun_sum fun Y _ => hdiffT b Y)
+  have hderiv : deriv (fun tm : ℂ => ∑ b,
+      markedFunDec hG' cc a₁ ν BG₂ κ Zm um tm (blockEnergyFun Gp Hm (compWeight L a₁) ν k b) D ψh)
+      0 = ∑ b, ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+        deriv (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y) 0 := by
+    rw [deriv_fun_sum fun b _ => hdiffF b]
+    exact Finset.sum_congr rfl fun b _ => hF b um hrad0 D hDd ψh hψh
+  -- the counting data
+  have hterm : ∀ b, ∀ Y, ‖deriv (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um
+      (rawOf D, ψh) b Y) 0‖ ≤ (‖energyBdScaled d L N (compWeight L a₁) k
+        (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / t₀) *
+        Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
+    intro b Y
+    have h5 := hE b ‖um‖ b₀ t₀ (norm_nonneg _) hb₀ ht₀ htb hrad um le_rfl Y _ hu
+    refine h5.trans ?_
+    rw [treeLenCov_eq_treeLenCovOne hG' m₀ Y]
+    have hex : Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y) =
+        Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by congr 1; ring
+    rw [hex, div_mul_eq_mul_div]
+    exact div_le_div_of_nonneg_right
+      (mul_le_mul_of_nonneg_right (Real.le_norm_self _) (Real.exp_pos _).le) ht₀.le
+  have hcount := card_markedIdx_fibre_le_dec hG' hd zr hcovV hX₁V hoptV hZV (Hm := Hm)
+  have hM : 0 ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d := by
+    have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+    positivity
+  have hκ1 : 1 ≤ 2 * κdec := by
+    have : (0 : ℝ) ≤ κ₀ := hκ₀
+    linarith
+  have hbound := fun Y' => norm_markedOutDec_le_of_term_bounds hN (fun _ => Set.univ)
+    (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) hdom zr
+    (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh))
+    (by positivity) hM hκ1 (fun q _ => hterm q.1 q.2) hcount Y'
+  have hB : ∀ Y', ‖markedOutDec m₀ (fun _ => Set.univ)
+              (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+              (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y'‖ ≤
+            (‖energyBdScaled d L N (compWeight L a₁) k
+                (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / t₀) *
+              (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+              ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) *
+              Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y') := by
+    intro Y'
+    refine (hbound Y').trans (le_of_eq ?_)
+    ring
+  have hres : ∑ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+      (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr,
+      markedOutDec m₀ (fun _ => Set.univ)
+        (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh)) Y' =
+      ∑ b, ∑ Y ∈ polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b),
+        deriv (evDecFam X₁V jV 𝒦XV m₀ a₁ ν hG' cc F₁ Sol Zm um (rawOf D, ψh) b Y) 0 := by
+    refine sum_markedOutDec_eq_sum_of_vanishing _ _ zr _ fun b Y hY hnot => ?_
+    have hmiss : psiThick Y ∩ fineBlock zr = ∅ := by
+      by_contra hne
+      obtain ⟨y, hy⟩ := Set.nonempty_iff_ne_empty.2 hne
+      exact hnot (mem_markedIdx.2 ⟨hY, ⟨rootSite zr, trivial, rootSite_mem_fineBlock zr⟩, ⟨y, hy⟩⟩)
+    have hY' : ∀ y ∈ Y, unitPt hG' y ∉ Zm := fun y hy hmem => by
+      have hfb := hZm _ hmem y rfl
+      have h2 : y ∈ psiThick Y ∩ fineBlock zr := ⟨Or.inl hy, hfb⟩
+      rw [hmiss] at h2
+      exact h2
+    exact hZr b um hrad0 Y hY' _ hu
+  refine ⟨⟨hderiv, hres, hderiv.trans hres.symm⟩, hB,
+    fun Y' h => rootCube_mem_of_markedOutDec_ne_zero hN hL hdom zr _ h,
+    fun {a''} ha => sum_norm_markedOutDec_le_of_bound hN hL (fun _ => Set.univ)
+      (fun b => polyDom Gp (X₁V b) m₀ (jV b) (𝒦XV b)) hdom zr _ (by positivity) hB ha⟩
+
+
+end Main
+
+section Supported
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+
+/-- **The physical mask is supported in one fine block.**  Every site whose unit point lies in
+`S.blockU z` lies in `fineBlock z`; so `Zm = S.blockU z` satisfies the hypothesis `hZm` of
+`marked_count_scaled_dec_resummed` with `zr = z`. -/
+theorem StepSetting.blockU_supported {p : unitPts S.G'} (hp : p ∈ S.blockU z)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : unitPt S.hG' y = p) : y ∈ fineBlock z := by
+  subst hy
+  refine (mem_fineBlock_iff_unitBlock1 (k := k)).2 ?_
+  unfold StepSetting.blockU at hp
+  exact (Finset.mem_filter.1 hp).2
+
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+/-- For the empty mask no site has its unit point in the mask, so the hypothesis of clauses 7 and 8
+of `MarkedBlockExpansionDecTwo` holds for every set `Y`. -/
+theorem noUnitPt_empty (hG' : IsLevel Gp (k + 1)) (Y : Set (CTorus d L N₁ m₁ (k + 1))) :
+    ∀ y ∈ Y, unitPt hG' y ∉ (∅ : Finset (unitPts Gp)) :=
+  fun _ _ => Finset.notMem_empty _
+
+end Supported
+
+end Balaban.Fluctuation
