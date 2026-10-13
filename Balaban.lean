@@ -410,6 +410,8 @@ public import Balaban.Localization.DecLogZero
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Localization.DecLogCutFactor
 public import Balaban.Localization.YregBlocks
+public import Balaban.Localization.DecSqrtCutFactor
+public import Balaban.Inhabited.DecSqrtCutFactorWitness
 public import Balaban.Inhabited.YregBlocksWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
@@ -1188,8 +1190,10 @@ public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
 public import Balaban.Fluctuation.RootMarkedBound
+public import Balaban.Fluctuation.MarkedRootGeometry
 public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootMarkGeomWitness
+public import Balaban.Inhabited.MarkedRootGeometryWitness
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
@@ -1227,6 +1231,7 @@ public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.P6TopRootedFiber
 public import Balaban.Localization.P6FsharpRootedCount
+public import Balaban.Localization.P6ActiveSeed
 public import Balaban.Inhabited.P6FsharpRootedWitness
 public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
