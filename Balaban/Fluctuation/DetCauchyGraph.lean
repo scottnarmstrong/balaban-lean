@@ -453,4 +453,203 @@ end Cuts
 
 end Trace
 
+section Graph
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+theorem mem_Pset_iff {P : ℕ × CTorus d L N₁ m₁ (k + 1)} {x : CTorus d L N₁ m₁ (k + 1)} :
+    x ∈ Pset m₁ P ↔ x ∈ cubeP P := by
+  rw [mem_cubeP]; rfl
+
+/-- **The cubes of the cover cover `Ω₁`.** -/
+theorem exists_cube_of_mem_Omega (hG : CubeAligned G m₁) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : x ∈ G.Ω 1) : ∃ P ∈ cubeIdx G, x ∈ cubeP P := by
+  obtain ⟨hn1, hnK, hxl⟩ := G.layerIndex_spec hx
+  set n := G.layerIndex x with hn
+  set A : ℕ := L ^ (n + m₁) with hA
+  have hApos : 0 < A := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have hdvd : A ∣ (N₁ * L ^ m₁) * L ^ (k + 1) := by
+    have : A ∣ L ^ m₁ * L ^ (k + 1) := by
+      rw [hA, ← pow_add]; exact pow_dvd_pow L (by omega)
+    exact this.trans ⟨N₁, by ring⟩
+  set y0 : CTorus d L N₁ m₁ (k + 1) := cbase A x with hy0
+  have hval : ∀ μ, (y0 μ).val = A * ((x μ).val / A) := by
+    intro μ
+    simp only [hy0, cbase]
+    rw [ZMod.val_natCast_of_lt]
+    exact lt_of_le_of_lt (Nat.mul_div_le _ _) (ZMod.val_lt (x μ))
+  have hsame : SameCell A x y0 := by
+    intro μ
+    rw [hval μ, Nat.mul_div_cancel_left _ hApos]
+  have hbase : CubeBase m₁ n y0 := fun μ => by
+    rw [hval μ]; exact Nat.mul_mod_right _ _
+  refine ⟨(n, y0), (mem_cubeIdx G).2 ⟨⟨hn1, hnK⟩, ?_, hbase⟩, mem_cubeP.2 hsame⟩
+  exact (hG.mem_layer_iff hn1 hnK hsame).1 hxl
+
+theorem mem_Qset_of_mem_hat_cube {q P : ℕ × CTorus d L N₁ m₁ (k + 1)} (hP : P ∈ cubeIdx G)
+    {x : CTorus d L N₁ m₁ (k + 1)} (hxq : x ∈ hatBox q) (hxP : x ∈ cubeP P) :
+    P ∈ Qset G q :=
+  mem_Qset.2 ⟨hP, x, mem_cubeP.1 hxP, mem_boxSet.1 hxq⟩
+
+omit [NeZero N₁] [NeZero L] in
+theorem near_of_eq_or_adj {x x' : CTorus d L N₁ m₁ (k + 1)} (h : x = x' ∨ Adj x x') :
+    Near 1 1 x x' := by
+  rcases h with rfl | ⟨μ, h | h⟩
+  · exact ⟨0, fun _ => by simp, by funext μ; simp⟩
+  · refine ⟨Pi.single μ 1, fun ν => ?_, ?_⟩
+    · by_cases h' : ν = μ <;> simp [h']
+    · rw [h]; congr 1; funext ν
+      by_cases h' : ν = μ <;> simp [h']
+  · refine ⟨-Pi.single μ 1, fun ν => ?_, ?_⟩
+    · by_cases h' : ν = μ <;> simp [h']
+    · rw [h]; funext ν
+      by_cases h' : ν = μ <;> simp [h']
+
+variable (G)
+
+/-- **The parameter graph.** Vertices: the parameter cubes `cubeIdx G`.  Two distinct parameter
+cubes are adjacent when they lie in a common footprint `𝒬(q)` of a centre `q`, or when their cubes
+Moore-touch (are within sup-distance `1`). -/
+def paramGraph : SimpleGraph (cubeIdx G) where
+  Adj P P' := P ≠ P' ∧ ((∃ q ∈ cubeIdx G, P.1 ∈ Qset G q ∧ P'.1 ∈ Qset G q) ∨
+    MooreTouch (Pset m₁ P.1) (Pset m₁ P'.1))
+  symm := ⟨fun _ _ h => ⟨h.1.symm, h.2.elim (fun ⟨q, hq, h1, h2⟩ => Or.inl ⟨q, hq, h2, h1⟩)
+    (fun h => Or.inr h.symm)⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+open Classical in
+/-- The parameter cubes that contain a site of the unit block `y` (at most one, `card_rootParam_le`);
+the root of the animal count. -/
+noncomputable def rootParam (y : unitPts G) : Finset (cubeIdx G) :=
+  Finset.univ.filter fun P => ∃ x : G.Ω 1,
+    unitBlock (x : CTorus d L N₁ m₁ (k + 1)) = (y : UnitTorus d L N₁ m₁ k) ∧
+      (x : CTorus d L N₁ m₁ (k + 1)) ∈ cubeP P.1
+
+variable {G}
+
+theorem mem_rootParam {y : unitPts G} {P : cubeIdx G} :
+    P ∈ rootParam G y ↔ ∃ x : G.Ω 1,
+      unitBlock (x : CTorus d L N₁ m₁ (k + 1)) = (y : UnitTorus d L N₁ m₁ k) ∧
+        (x : CTorus d L N₁ m₁ (k + 1)) ∈ cubeP P.1 := by
+  classical
+  simp [rootParam]
+
+theorem walkIn_of_adj {Γ : SimpleGraph (cubeIdx G)} {C : Finset (cubeIdx G)} {v w : cubeIdx G}
+    (hv : v ∈ C) (hw : w ∈ C) (h : Γ.Adj v w) : Polymer.WalkIn Γ C v w :=
+  ⟨SimpleGraph.Walk.cons h SimpleGraph.Walk.nil, by
+    intro x hx
+    simp only [SimpleGraph.Walk.support_cons, SimpleGraph.Walk.support_nil, List.mem_cons,
+      List.not_mem_nil, or_false] at hx
+    rcases hx with rfl | rfl <;> assumption⟩
+
+theorem walkIn_of_eq_or_adj {Γ : SimpleGraph (cubeIdx G)} {C : Finset (cubeIdx G)}
+    {v w : cubeIdx G} (hv : v ∈ C) (hw : w ∈ C) (h : v = w ∨ Γ.Adj v w) :
+    Polymer.WalkIn Γ C v w := by
+  rcases h with rfl | h
+  · exact Polymer.WalkIn.refl hv
+  · exact walkIn_of_adj hv hw h
+
+/-- **At most one parameter cube contains the sites of a unit block.** -/
+theorem card_rootParam_le (hG : CubeAligned G m₁) (y : unitPts G) : (rootParam G y).card ≤ 1 := by
+  rw [Finset.card_le_one]
+  rintro ⟨⟨n, y0⟩, hP⟩ hPm ⟨⟨n', y0'⟩, hP'⟩ hPm'
+  obtain ⟨x, hxb, hxP⟩ := mem_rootParam.1 hPm
+  obtain ⟨x', hxb', hxP'⟩ := mem_rootParam.1 hPm'
+  have hxl : (x : CTorus d L N₁ m₁ (k + 1)) ∈ G.layer (k + 1) :=
+    (unitBlock_mem_iff G _).1 (by rw [hxb]; exact y.2)
+  have hxl' : (x' : CTorus d L N₁ m₁ (k + 1)) ∈ G.layer (k + 1) :=
+    (unitBlock_mem_iff G _).1 (by rw [hxb']; exact y.2)
+  obtain ⟨⟨hn1, hnK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hP
+  obtain ⟨⟨hn1', hnK'⟩, hl', hb'⟩ := (mem_cubeIdx G).1 hP'
+  have hsc := mem_cubeP.1 hxP
+  have hsc' := mem_cubeP.1 hxP'
+  have hnn : n = k + 1 := by
+    by_contra hne
+    exact G.layer_disjoint hn1 hnK (by omega) le_rfl hne
+      ((hG.mem_layer_iff hn1 hnK hsc).2 hl) hxl
+  have hnn' : n' = k + 1 := by
+    by_contra hne
+    exact G.layer_disjoint hn1' hnK' (by omega) le_rfl hne
+      ((hG.mem_layer_iff hn1' hnK' hsc').2 hl') hxl'
+  subst hnn hnn'
+  have hxx : SameCell (L ^ (k + 1 + m₁)) (x : CTorus d L N₁ m₁ (k + 1)) x' := by
+    intro μ
+    have h1 := (unitBlock_eq_iff _ _).1 (hxb.trans hxb'.symm) μ
+    have key : ∀ z : ℕ, z / L ^ (k + 1 + m₁) = z / L ^ k / L ^ (1 + m₁) := fun z => by
+      rw [Nat.div_div_eq_div_mul, ← pow_add]; congr 2; omega
+    rw [key, key, h1]
+  have hcell : SameCell (L ^ (k + 1 + m₁)) y0 y0' := (hsc.symm.trans hxx).trans hsc'
+  have hApos : 0 < L ^ (k + 1 + m₁) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have : y0 = y0' := by
+    funext μ
+    apply ZMod.val_injective
+    have e1 := Nat.div_add_mod (y0 μ).val (L ^ (k + 1 + m₁))
+    have e2 := Nat.div_add_mod (y0' μ).val (L ^ (k + 1 + m₁))
+    rw [hb μ] at e1
+    rw [hb' μ] at e2
+    rw [hcell μ] at e1
+    omega
+  subst this
+  rfl
+
+end Graph
+
+section Rooted
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+/-- **A set `J` all of whose parameter cubes are joined to a block by chains lies in the rooted
+sets of the parameter graph.**  Every parameter cube of `J` is joined inside `J`, by a walk of
+`paramGraph G`, to the parameter cube containing the block. -/
+theorem rooted_of_rootChain (hG : CubeAligned G m₁) {J : Finset (cubeIdx G)} {y : unitPts G}
+    (hJ : ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q) :
+    Polymer.Rooted (paramGraph G) ((rootParam G y : Finset (cubeIdx G)) : Set (cubeIdx G)) J := by
+  classical
+  -- the walk from a parameter of the footprint of `q` to the root
+  have main : ∀ q q0, Relation.ReflTransGen (CentreLink G J) q q0 → HatAttached G y q0 →
+      ActIn G J q0 → ∀ P ∈ QsetP G q, ∃ w ∈ rootParam G y, Polymer.WalkIn (paramGraph G) J P w := by
+    intro q q0 hr hat hq0
+    induction hr using Relation.ReflTransGen.head_induction_on with
+    | refl =>
+      intro P hP
+      obtain ⟨x, hxb, hxh⟩ := hat
+      obtain ⟨Px, hPx, hxP⟩ := exists_cube_of_mem_Omega hG x.2
+      have hPxQ : Px ∈ Qset G q0 := mem_Qset_of_mem_hat_cube hPx hxh hxP
+      have hwQ : (⟨Px, hPx⟩ : cubeIdx G) ∈ QsetP G q0 := mem_QsetP.2 hPxQ
+      refine ⟨⟨Px, hPx⟩, mem_rootParam.2 ⟨x, hxb, hxP⟩, walkIn_of_eq_or_adj (hq0.2 hP) (hq0.2 hwQ) ?_⟩
+      by_cases h : P = ⟨Px, hPx⟩
+      · exact Or.inl h
+      · exact Or.inr ⟨h, Or.inl ⟨_, hq0.1, mem_QsetP.1 hP, hPxQ⟩⟩
+    | head hstep hrest ih =>
+      rename_i q1 q2
+      intro P hP
+      obtain ⟨hq1, hq2, x, hx, x', hx', hxx'⟩ := hstep
+      obtain ⟨hxh, hxΩ⟩ := mem_hatI_iff.1 hx
+      obtain ⟨hxh', hxΩ'⟩ := mem_hatI_iff.1 hx'
+      obtain ⟨Px, hPx, hxP⟩ := exists_cube_of_mem_Omega hG hxΩ
+      obtain ⟨Px', hPx', hxP'⟩ := exists_cube_of_mem_Omega hG hxΩ'
+      have h1 : (⟨Px, hPx⟩ : cubeIdx G) ∈ QsetP G q1 :=
+        mem_QsetP.2 (mem_Qset_of_mem_hat_cube hPx hxh hxP)
+      have h2 : (⟨Px', hPx'⟩ : cubeIdx G) ∈ QsetP G q2 :=
+        mem_QsetP.2 (mem_Qset_of_mem_hat_cube hPx' hxh' hxP')
+      obtain ⟨w, hw, hwalk⟩ := ih _ h2
+      refine ⟨w, hw, ?_⟩
+      have hw1 : Polymer.WalkIn (paramGraph G) J P ⟨Px, hPx⟩ := by
+        refine walkIn_of_eq_or_adj (hq1.2 hP) (hq1.2 h1) ?_
+        by_cases h : P = ⟨Px, hPx⟩
+        · exact Or.inl h
+        · exact Or.inr ⟨h, Or.inl ⟨_, hq1.1, mem_QsetP.1 hP, mem_QsetP.1 h1⟩⟩
+      have hw2 : Polymer.WalkIn (paramGraph G) J ⟨Px, hPx⟩ ⟨Px', hPx'⟩ := by
+        refine walkIn_of_eq_or_adj (hq1.2 h1) (hq2.2 h2) ?_
+        by_cases h : (⟨Px, hPx⟩ : cubeIdx G) = ⟨Px', hPx'⟩
+        · exact Or.inl h
+        · exact Or.inr ⟨h, Or.inr ⟨x, mem_Pset_iff.2 hxP, x', mem_Pset_iff.2 hxP',
+            near_of_eq_or_adj hxx'⟩⟩
+      exact (hw1.trans hw2).trans hwalk
+  intro p hp
+  obtain ⟨q, ⟨hqa, q0, hat, h0, hr⟩, hpq⟩ := hJ p hp
+  exact main q q0 hr hat h0 p hpq
+
+end Rooted
+
 end Balaban.Fluctuation
