@@ -133,7 +133,7 @@ theorem decMarkPair_exists
             (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
             Zm Y ρ hp (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ)
           (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a))) := by
-  obtain ⟨F₁, Sol, hP, hJ2, hJ3, hJ4, hJ5⟩ := hM
+  obtain ⟨F₁, Sol, hP, hJ2, hJ3, hJ4, hJ5, -⟩ := hM
   exact ⟨F₁, Sol, hP, hJ2, hJ3, hJ4, hJ5,
     decMarkG_fields_of_pair S F₁ Sol hP hJ2 hJ4 hρ hρc hp,
     decMarkCorr_fields_of_pair S F₁ Sol hP hJ2 hJ4 hρ hρc hp hδ⟩
@@ -152,7 +152,8 @@ variable {Zm : ι → Finset (unitPts S.G')}
 
 /-- **One pair per block.**  For a family of blocks indexed by `ι`, each with its own cover data
 and hypothesis `MarkedEvJointPhysV`, there are families `F₁ r`, `Sol r` such that every `r` has the
-eight clauses and the four joint analyticity statements for its own pair. -/
+eight clauses, the four joint analyticity statements and the defining properties of the pair
+(`hF₁`, `hSol` of `evDec_local_rawY`) for its own pair. -/
 theorem decMarkPair_family
     (hM : ∀ r, MarkedEvJointPhysV S Hm cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ (Zm r) (X₁f r) (m₀ r)
       (j r) (𝒦X r) (z r)) :
@@ -188,7 +189,25 @@ theorem decMarkPair_family
             (blockEnergyFun S.G' Hm (compWeight L a₁) ν k (z r)) (Zm r) p.2 t Y
             ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
         ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
+          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- the defining properties of the pair
+      ((∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D →
+        ∀ (φ : S.G'.Ω 1 × Fin N → ℂ) (α : S.G'.Ω 1 → ℂ),
+          IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          (F₁ r) (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+          ((Sol r) p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) ((Sol r) p).2 ∧
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) ((Sol r) p).2 ∧
+          Small Hm ((Sol r) p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+          Small Hm ((Sol r) p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          SupBounds Hm ((Sol r) p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol r) p).2))) := by
   choose F₁ Sol h using hM
   exact ⟨F₁, Sol, h⟩
 

@@ -53,6 +53,7 @@ public import Balaban.Polymer.FrozenTorus
 public import Balaban.Polymer.BoxTransport
 public import Balaban.Polymer.TwoTorusStepGeometry
 public import Balaban.Polymer.TwoTorusData
+public import Balaban.Polymer.TwoTorusThickSets
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1339,6 +1340,7 @@ public import Balaban.SmallField.GsSpecClass
 public import Balaban.SmallField.GsSpecPoly
 public import Balaban.SmallField.GsSpecPolyEqv
 public import Balaban.SmallField.GsSpecPolyClass
+public import Balaban.SmallField.LocalGeneratorSource
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
@@ -1736,6 +1738,7 @@ public import Balaban.Inhabited.E1ParamFibreValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
 public import Balaban.Inhabited.ObsFamilyJoint
+public import Balaban.Inhabited.ObsFamilyPrefactor
 public import Balaban.Inhabited.StepIdentityFibre
 public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
@@ -1743,6 +1746,7 @@ public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Fluctuation.RootSupportBridge
 public import Balaban.Fluctuation.RootTermFamily
+public import Balaban.Inhabited.LevelCoversG
 public import Balaban.Inhabited.RenJoinClassWitness
 public import Balaban.Inhabited.RenormPhysicalRecord
 public import Balaban.Inhabited.ObsPrefactorScale
