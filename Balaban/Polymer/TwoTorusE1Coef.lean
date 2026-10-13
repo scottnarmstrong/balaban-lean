@@ -375,4 +375,183 @@ theorem e1MarkGParam_twoTorus
 
 end MarkParamThree
 
+/-! ### D3: integrals of local functions against product measures -/
+
+section PiIntegral
+
+open MeasureTheory
+
+/-- **The integral of a function of the coordinates in `S`**: against a product of probability
+measures it is the integral, against the product over `S`, of the function of the configuration
+extended off `S` by any reference configuration `Φ₀`. -/
+theorem integral_pi_eq_of_depOn {B : Type*} [Fintype B] {Ω : B → Type*}
+    [∀ b, MeasurableSpace (Ω b)] (μ : ∀ b, Measure (Ω b)) [∀ b, IsProbabilityMeasure (μ b)]
+    (S : Finset B) (Φ₀ : ∀ b, Ω b) {F : (∀ b, Ω b) → ℂ} (hF : DepOn S F) :
+    ∫ Φ, F Φ ∂(Measure.pi μ) =
+      ∫ x, F (extendCfg S Φ₀ x) ∂(Measure.pi fun i : S => μ i) := by
+  classical
+  let p : B → Prop := fun b => b ∈ S
+  let e := MeasurableEquiv.piEquivPiSubtypeProd Ω p
+  let g : (∀ i : {i // p i}, Ω i) → ℂ := fun x => F (extendCfg S Φ₀ x)
+  have hkey : ∀ w, F (e.symm w) = g w.1 := by
+    intro w
+    refine hF _ _ (fun b hb => ?_)
+    show (Equiv.piEquivPiSubtypeProd p Ω).symm w b = extendCfg S Φ₀ w.1 b
+    have hb' : p b := hb
+    rw [Equiv.piEquivPiSubtypeProd_symm_apply]
+    simp [hb', extendCfg, hb]
+  have hmp := measurePreserving_piEquivPiSubtypeProd μ p
+  have h2 : ∫ Φ, F Φ ∂(Measure.pi μ) = ∫ x, F (e.symm (e x)) ∂(Measure.pi μ) := by simp
+  rw [h2, hmp.integral_comp' (g := fun w => F (e.symm w))]
+  simp_rw [hkey]
+  rw [integral_fun_fst]
+  simp only [probReal_univ, one_smul]
+  convert rfl
+
+/-- **Transport of an integral along an injective relabelling of the coordinates.**  Let `f`
+depend only on the coordinates in `W` and let `ι : U → U'` be injective on `W`.  Then the integral
+of `x' ↦ f (x' ∘ ι)` against the product of copies of a probability measure `ν₁` over `U'` equals
+the integral of `f` against the product over `U`. -/
+theorem integral_pi_comp_of_injOn {U U' E : Type*} [Fintype U] [Fintype U'] [MeasurableSpace E]
+    (ν₁ : Measure E) [IsProbabilityMeasure ν₁] (ι : U → U') (W : Finset U)
+    (hι : Set.InjOn ι W) {f : (U → E) → ℂ} (hf : DepOn (Ω := fun _ : U => E) W f) :
+    ∫ x', f (fun u => x' (ι u)) ∂(Measure.pi fun _ : U' => ν₁) =
+      ∫ x, f x ∂(Measure.pi fun _ : U => ν₁) := by
+  classical
+  have : Nonempty E := nonempty_of_isProbabilityMeasure ν₁
+  let x₀ : U → E := fun _ => Classical.arbitrary E
+  let x₀' : U' → E := fun _ => Classical.arbitrary E
+  have hbij : Function.Bijective
+      (fun a : W => (⟨ι a.1, Finset.mem_image_of_mem ι a.2⟩ : W.image ι)) := by
+    refine ⟨fun a b h => Subtype.ext (hι a.2 b.2 (congrArg Subtype.val h)), fun b => ?_⟩
+    obtain ⟨u, hu, hub⟩ := Finset.mem_image.1 b.2
+    exact ⟨⟨u, hu⟩, Subtype.ext hub⟩
+  let τ : W ≃ W.image ι := Equiv.ofBijective _ hbij
+  have hf' : DepOn (Ω := fun _ : U' => E) (W.image ι) (fun x' : U' → E => f (fun u => x' (ι u))) :=
+    fun x' y' h => hf _ _ (fun u hu => h _ (Finset.mem_image_of_mem ι hu))
+  rw [integral_pi_eq_of_depOn (fun _ => ν₁) (W.image ι) x₀' hf',
+    integral_pi_eq_of_depOn (fun _ => ν₁) W x₀ hf]
+  have hmp := measurePreserving_piCongrLeft (α := fun _ : W.image ι => E)
+    (fun _ : W.image ι => ν₁) τ
+  rw [← hmp.integral_comp']
+  refine integral_congr_ae (Filter.Eventually.of_forall fun w => ?_)
+  refine hf _ _ (fun u hu => ?_)
+  have hu' : ι u ∈ W.image ι := Finset.mem_image_of_mem ι hu
+  have hτ : (⟨ι u, hu'⟩ : W.image ι) = τ ⟨u, hu⟩ := rfl
+  simp only [extendCfg, hu, hu', dite_true]
+  rw [hτ, MeasurableEquiv.coe_piCongrLeft, Equiv.piCongrLeft_apply_apply]
+
+end PiIntegral
+
+/-! ### D3: the block measures on two tori -/
+
+section BlockMeasure
+
+open MeasureTheory Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bU" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) ((N₁' * L ^ m₁) * L ^ (k + 1 - k))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "SA" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN2 k m₁ ϱ hk νS β p₁ δ
+set_option hygiene false in
+local notation "SB" => hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁') hN2 k m₁ ϱ hk νS β p₁ δ
+
+omit [NeZero N₁'] in
+/-- The integral against the block measures of a step is the integral against the product
+measure `ν_{p₁}` over the unit points, of the function of the block restrictions. -/
+theorem integral_blockSplit_eq (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) (hp : 0 < S.p₁)
+    (G : (∀ c, (S.blockSplit m₀ hp).Ωb c) → ℂ) :
+    ∫ Φ, G Φ ∂(Measure.pi (S.blockSplit m₀ hp).μ) =
+      ∫ x, G (fun _ u => x u.1) ∂(Measure.pi fun _ : S.U => fluctMeasure1 N S.p₁) := by
+  rw [← (S.blockSplit m₀ hp).map_eq]
+  exact integral_map_equiv (piSplitEquiv (E := Rn N) (S.cellOf m₀)).symm G
+
+omit [NeZero N₁'] in
+/-- A unit point lies in the block `cellOf m₀ u` of the site chosen for it. -/
+theorem exists_site_of_unitPt (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) (u : S.U) :
+    ∃ x : CTorus d L N₁ m₁ (k + 1), unitBlock x = (u : UnitTorus d L N₁ m₁ k) ∧
+      x ∈ box (S.cellOf m₀ u).1 (cellSide L m₀ m₁ (k + 1)) := by
+  have h := Classical.choose_spec ((mem_unitPts S.G').1 u.2)
+  exact ⟨_, h.2, mem_box_cbase (cellSide_pos m₀ m₁ (k + 1)) _⟩
+
+/-- **D3: the block measures on two tori.**  Let `Z` be a set of blocks (`π_{k+1}`-cubes of side
+`a = L^(k+1+m₀+m₁)`) of the first torus inside the box of radius `R`, `F` a function of the block
+variables depending only on the blocks of `Z`, and `F′` a function of the block variables of the
+second torus with `F′ Φ′ = F Φ` whenever `Φ` and `Φ′` agree at corresponding unit points of the
+box.  Then the integrals of `F′` and `F` against the products of the block measures
+`(S.blockSplit m₀ hp).μ` of the two steps are equal.  The block measures are the products of the
+one-site measure `ν₁` over the unit points of the block (a formula, the same on both tori); the
+unit points of the blocks of `Z` correspond injectively under the box map of the unit lattices
+(`unitBlock_boxMap`), and the integral is transported by `integral_pi_comp_of_injOn`.  Margin:
+`2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
+theorem integral_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    (Z : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ))
+    (hZ : ∀ b ∈ Z, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {F : (∀ c, ((SA).blockSplit m₀ hp).Ωb c) → ℂ} (hF : DepOn Z F)
+    {F' : (∀ c, ((SB).blockSplit m₀ hp').Ωb c) → ℂ}
+    (hFF : ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+        Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+          Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) → F' Φ' = F Φ) :
+    ∫ Φ', F' Φ' ∂(Measure.pi ((SB).blockSplit m₀ hp').μ) =
+      ∫ Φ, F Φ ∂(Measure.pi ((SA).blockSplit m₀ hp).μ) := by
+  classical
+  have : IsProbabilityMeasure (fluctMeasure1 N p₁) := isProbabilityMeasure_fluctMeasure1 N hp
+  rw [integral_blockSplit_eq (SB) m₀ hp' F', integral_blockSplit_eq (SA) m₀ hp F]
+  let ι : (SA).U → (SB).U := fun u =>
+    ⟨bU (u : UnitTorus d L N₁ m₁ k), mem_unitPts_levelTop (N₁ := N₁') (ϱ := ϱ) _⟩
+  have hι : ∀ x : CTorus d L N₁ m₁ (k + 1), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      unitPt hGB (bm x) = ι (unitPt hGA x) :=
+    fun x hx => Subtype.ext (unitBlock_boxMap hn hx)
+  have key : ∀ x' : (SB).U → Rn N,
+      F' (fun _ u => x' u.1) = F (fun _ u => x' (ι u.1)) := by
+    intro x'
+    refine hFF _ _ (fun x hx => ?_)
+    exact congrArg x' (hι x hx)
+  simp_rw [key]
+  let W : Finset (SA).U := Finset.univ.filter fun u => (SA).cellOf m₀ u ∈ Z
+  have hsite : ∀ u ∈ W, ∃ x : CTorus d L N₁ m₁ (k + 1), unitBlock x = (u : UnitTorus d L N₁ m₁ k) ∧
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro u hu
+    obtain ⟨x, hxu, hxb⟩ := exists_site_of_unitPt (SA) m₀ u
+    exact ⟨x, hxu, hZ _ (Finset.mem_filter.1 hu).2 x hxb⟩
+  have hinj : Set.InjOn ι W := by
+    intro u₁ hu₁ u₂ hu₂ h
+    obtain ⟨x₁, hx₁u, hx₁⟩ := hsite u₁ hu₁
+    obtain ⟨x₂, hx₂u, hx₂⟩ := hsite u₂ hu₂
+    have h1 : bU (unitBlock x₁) = bU (unitBlock x₂) := by
+      rw [hx₁u, hx₂u]; exact congrArg Subtype.val h
+    rw [← unitBlock_boxMap hn hx₁, ← unitBlock_boxMap hn hx₂] at h1
+    have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+    have e1 := unitBlock_boxMap (N₁ := N₁') (N₁' := N₁) hn' (inBox_boxMap hm' hx₁)
+    have e2 := unitBlock_boxMap (N₁ := N₁') (N₁' := N₁) hn' (inBox_boxMap hm' hx₂)
+    rw [boxMap_boxMap hm' hx₁] at e1
+    rw [boxMap_boxMap hm' hx₂] at e2
+    apply Subtype.ext
+    rw [← hx₁u, ← hx₂u, e1, e2, h1]
+  have hdep : DepOn (Ω := fun _ : (SA).U => Rn N) W
+      (fun x : (SA).U → Rn N => F (fun _ u => x u.1)) := by
+    intro x y hxy
+    refine hF _ _ (fun b hb => ?_)
+    funext u
+    refine hxy u.1 (Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩)
+    rw [u.2]; exact hb
+  exact integral_pi_comp_of_injOn (fluctMeasure1 N p₁) ι W hinj hdep
+
+end BlockMeasure
+
 end Balaban.Polymer.TwoTorusStep
