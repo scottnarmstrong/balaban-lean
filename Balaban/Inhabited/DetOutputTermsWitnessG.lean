@@ -54,6 +54,33 @@ theorem flCore_three_transport {m₁ : ℕ} {c BG κ t c₂ BG₂ : ℝ}
     intro ϱ hϱ; subst hϱ; exact h
   exact key _ e
 
+/-- **The core of the reference pair, transferred to the level pair of the scale `k` and the
+mass `ν`.**  This is the transfer step used by every determinant theorem at the general tower. -/
+theorem flCore_stepG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) {m₁ : ℕ}
+    {c BG κ t c₂ BG₂ : ℝ} (h4 : 4 ≤ m₁)
+    (hC₀ : FlCore N (GpG d L 9 m₁ 1) (HmG d L 9 m₁ 1) 1 (νref L) c BG κ t (levelKc d L)
+      (Cchi d L) c₂ BG₂ t)
+    {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ} [NeZero N₁] (hN₁ : 5 < N₁) {ν : ℝ}
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) :
+    FlCore N (GpG d L N₁ m₁ k) (HmG d L N₁ m₁ k) 1 ν c BG κ t
+      (levelKc d L) (Cchi d L) c₂ BG₂ t :=
+  flCore_level_transfer hC₀ (dgSetting_lvG (k := k) (N₁ := N₁) hd hL h4 hN₁ hν0 hν)
+    (opSetting_lvG (k := k) (N₁ := N₁) hd hL h4 hN₁ hν0 hν)
+    (isLevel_lvLowG hk) isLevel_lvTopG (bgHyp_lvG (k := k) hd hL (bgR0_le_rhoSepG m₁ hd hL) hν0 hν)
+
+/-- The margin `δc` of the covariance chart is nonnegative. -/
+theorem δc_nonneg_of_flCore {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) {m₁ k N₁ : ℕ} [NeZero N₁]
+    {c BG κ t c₂ BG₂ δc ν : ℝ} (ht0 : 0 < t)
+    (hC : FlCore N (GpG d L N₁ m₁ k) (HmG d L N₁ m₁ k) 1 ν c BG κ t
+      (levelKc d L) (Cchi d L) c₂ BG₂ t)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * t) < δc) : 0 ≤ δc := by
+  have hd0 : 0 < d := by omega
+  have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * t) := by
+    have : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
+    have := one_le_xiC1 d
+    unfold decDomMargin; positivity
+  linarith
+
 open Classical in
 /-- **The localized determinant family at every scale and on every torus, general `d`, `L`, `N`,
 from the output of the numerical tower.**  Let `(m₁, c, BG, κ, t, c₂, BG₂, δc)` satisfy the
@@ -91,12 +118,8 @@ theorem detExpansionLocC_scale_of_towerG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d)
           detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N BG κ) D y T := by
   set S := hatStepKG (N₁ := N₁) (d := d) (L := L) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ with hS
   have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos hN
-  have hSD := dgSetting_lvG (k := k) (N₁ := N₁) hd hL h4 hN₁ hν0 hν
   have hHB := bgHyp_lvG (k := k) hd hL (bgR0_le_rhoSepG m₁ hd hL) hν0 hν
-  have hC : FlCore N (GpG d L N₁ m₁ k) (HmG d L N₁ m₁ k) 1 ν c BG κ t
-      (levelKc d L) (Cchi d L) c₂ BG₂ t :=
-    flCore_level_transfer hC₀ hSD (opSetting_lvG (k := k) (N₁ := N₁) hd hL h4 hN₁ hν0 hν)
-      (isLevel_lvLowG hk) isLevel_lvTopG hHB
+  have hC := flCore_stepG (N := N) hd hL h4 hC₀ hk hN₁ hν0 hν
   have hD : XiCData S.G' (compWeight L 1) ν (k + 1) 1 t S.D' := by
     refine ⟨fun _ => unitVec hN0, unitVec hN0, 0, 0,
       exists_xiC hHB (GpG d L N₁ m₁ k) hN0 (massLe_lvG hν) ht0, ?_, ?_⟩
@@ -108,13 +131,7 @@ theorem detExpansionLocC_scale_of_towerG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d)
       have := unitBg_h_of_mem (GpG d L N₁ m₁ k) hN0 (unitVec hN0) hx i
       show (unitBg (GpG d L N₁ m₁ k) hN0 (unitVec hN0)).h x i = _
       rw [this]; simp
-  have hd0 : 0 < d := by omega
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * t) := by
-      have : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
-      have := one_le_xiC1 d
-      unfold decDomMargin; positivity
-    linarith
+  have hδc := δc_nonneg_of_flCore hd ht0 hC hdm
   have hN3 : L ^ 1 ∣ N₁ := by simpa using hLN
   exact ⟨hD, fun z => exists_detExpansionLocC_of_chart_uniform (m₀ := 1) S hC hδc hMX hdm hα
     hsmX (hatConn_lvTopG hL) hN3 hz z⟩

@@ -13,6 +13,7 @@ public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.RenormThetaChartTower
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.DetPackageFromTower
+public import Balaban.Inhabited.StepTowerThetaDetG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FieldSimp
@@ -22,8 +23,13 @@ import Mathlib.Tactic.FieldSimp
 
 ## Main results
 
-* `xiCBounds_mono`, `xiC_mono_radius`, `xiCData_mono_radius`: the chart `Ξ^c(𝔹; σ, ε)` grows with
-  the radius `ε`.
+* `StepTowerTheta`, `StepTowerTheta.toG`: the fixed `3, 3, 2` record with the determinant data at
+  the doubled radius and its bridge to `StepTowerThetaG`;
+* `StepTowerTheta.detExpansion_scale`, `StepTowerTheta.detGrouped_ambient`: the two-radii
+  determinant lemmas, corollaries of the general ones in `StepTowerThetaDetG`.
+
+The chart monotonicity in the radius (`xiCData_mono_radius`) and the ambient extension lemmas
+(`renE0_theta_domain_of_le`, `exists_renDetGrouped_ambient_of_le`) are in `StepTowerThetaDetG`.
 -/
 
 @[expose] public section
@@ -33,58 +39,7 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization
 
-section Mono
 
-variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
-  {ν σ ε ε₂ : ℝ}
-
-theorem xiCBounds_mono {Dr Dc : BgData G N} {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ}
-    {φr φc : G.Ω 1 × Fin N → ℂ} {αr αc : G.Ω 1 → ℂ} (hσ : 0 ≤ σ) (hε0 : 0 < ε) (hε : ε ≤ ε₂)
-    (hb : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) :
-    XiCBounds G ν σ ε₂ Dr Dc Ψ'' h'' φr φc αr αc := by
-  have h1 : σ * ε ≤ σ * ε₂ := mul_le_mul_of_nonneg_left hε hσ
-  have h2 : σ ^ 2 * ε ≤ σ ^ 2 * ε₂ := mul_le_mul_of_nonneg_left hε (by positivity)
-  have hε2 : 0 < ε₂ := hε0.trans_le hε
-  have hp : ∀ x : Torus d (N₀ * L ^ k), 0 < G.spacing x := fun x => by
-    have := G.spacing_ge_one x; linarith
-  have e : ∀ e : ℝ, 0 < e → (σ * e) ^ 2 / e = σ ^ 2 * e := fun e he => by field_simp
-  refine ⟨fun x hx μ => ?_, fun x hx => ?_, fun x => ?_, fun x => ?_, fun x hx => ?_,
-    fun z hz z' hz' hadj => ?_, fun x hx => ?_, fun x => ?_⟩
-  · obtain ⟨g1, g2⟩ := hb.grad x hx μ
-    exact ⟨g1.trans_le (div_le_div_of_nonneg_right h1 (hp x).le),
-      g2.trans_le (div_le_div_of_nonneg_right h1 (hp x).le)⟩
-  · exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right h2 (by have := hp x; positivity))
-  · exact (hb.mult x).trans_le h2
-  · exact (hb.val x).trans_le hε
-  · exact (hb.close x hx).trans_le h2
-  · exact (hb.collarBond z hz z' hz' hadj).trans_le h1
-  · have := hb.hAbs x hx
-    rw [e ε hε0] at this
-    rw [e ε₂ hε2]
-    exact this.trans_le h2
-  · exact (hb.hDot x).trans_le (pow_le_pow_left₀ (mul_nonneg hσ hε0.le) h1 2)
-
-theorem xiC_mono_radius {n : ℕ} {a : ℕ → ℝ} {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ}
-    {h₀ : Fin N → ℝ} {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hσ : 0 ≤ σ) (hε : ε ≤ ε₂)
-    (h : XiC G a ν n σ ε Ψ₀ h₀ Ψ'' h'') : XiC G a ν n σ ε₂ Ψ₀ h₀ Ψ'' h'' := by
-  obtain ⟨hs, hε0, Dr, Dc, hXr, hC, hU, hb⟩ := h
-  exact ⟨hs, hε0.trans_le hε, Dr, Dc, ⟨hXr.1, hXr.2.1, xiBounds_mono hσ hε0.le hε hXr.2.2⟩, hC, hU,
-    xiCBounds_mono hσ hε0 hε hb⟩
-
-end Mono
-
-section MonoData
-
-variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-  {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν σ ε ε₂ : ℝ} {n : ℕ}
-
-/-- **Radius monotonicity of the chart**: `Ξ^c_n(𝔹; σ, ε) ⊆ Ξ^c_n(𝔹; σ, ε₂)` for `ε ≤ ε₂`. -/
-theorem xiCData_mono_radius {D : BgData G N} (hσ : 0 ≤ σ) (hε : ε ≤ ε₂)
-    (h : XiCData G a ν n σ ε D) : XiCData G a ν n σ ε₂ D := by
-  obtain ⟨Ψ₀, h₀, Ψ'', h'', hX, hR⟩ := h
-  exact ⟨Ψ₀, h₀, Ψ'', h'', xiC_mono_radius hσ hε hX, hR⟩
-
-end MonoData
 
 open Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited Balaban.Polymer
   Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover Filter Topology
@@ -174,55 +129,7 @@ theorem exists_stepTowerRen_two (κmin : ℝ) :
   obtain ⟨T⟩ := exists_stepTowerTheta κmin
   exact ⟨T.toStepTowerRen, T.sol_margin, T.core2, T.dom_margin2, T.coer_margin2⟩
 
-section Ambient
 
-open Balaban.Fluctuation
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-variable {S : StepSetting d L N₁ m₁ k N ϱ}
-
-/-- **The renormalized datum lies in the step chart at every radius `ε₂ ≥ εs`.**  This is
-`renE0_theta_domain` followed by `xiCData_mono_radius`. -/
-theorem renE0_theta_domain_of_le (S : StepSetting d L N₁ m₁ k N ϱ)
-    (H : BgHyp d L (k + 1) ϱ S.a S.ν) (εren εstep ε₂ r₀ : ℝ)
-    (hM : ThetaChartMargin d L N εren εstep r₀) (hle : εstep ≤ ε₂)
-    (D : BgData S.G' N) (hD : XiCOneReal S.G' S.a S.ν εren D)
-    (ξ : Fin 3 → ℂ) (hξ : ‖ξ‖ < r₀) :
-    XiCData S.G' S.a S.ν (k + 1) 1 ε₂ (renThetaDatum S εren D ξ) :=
-  xiCData_mono_radius zero_le_one hle (renE0_theta_domain S H εren εstep r₀ hM D hD ξ hξ)
-
-/-- **The ambient analytic extension, for a record at a chart radius `ε₂ ≥ εs`.**  As
-`exists_renDetGrouped_ambient`, with the record `E` at any radius `ε₂ ≥ εstep`. -/
-theorem exists_renDetGrouped_ambient_of_le {m₀ : ℕ}
-    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {εstep ε₂ κ'' cdet : ℝ}
-    (E : DetExpansionLocC S m₀ z ε₂ κ'' cdet)
-    (H : BgHyp d L (k + 1) ϱ S.a S.ν) (εren r₀ : ℝ)
-    (hM : ThetaChartMargin d L N εren εstep r₀) (hle : εstep ≤ ε₂) (hm : m₀ = 1)
-    (X : Set (CTorus d L N₁ m₁ (k + 1))) :
-    ∃ F : RawData d L (N₁ * L ^ m₁) (k + 1) N × (Fin 3 → ℂ) → ℂ,
-      AnalyticOnNhd ℂ F (expDom S.G' (XiCOneReal S.G' S.a S.ν εren) r₀) ∧
-      ∀ (D : BgData S.G' N) (ξ : Fin 3 → ℂ), XiCOneReal S.G' S.a S.ν εren D → ‖ξ‖ < r₀ →
-        F ((D.Ψ, D.h), ξ) = E.detGrouped (renThetaDatum S εren D ξ) X := by
-  subst hm
-  choose A hAan hAeq using E.analyticAt_raw
-  refine ⟨fun q => ∑ T ∈ detCollarFibre 1 X,
-    A T ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), ?_, ?_⟩
-  · rintro ⟨p, ξ'⟩ ⟨D, hD, hp, hξ⟩
-    simp only at hp hξ
-    subst hp
-    have hθ := renE0_theta_domain_of_le S H εren εstep ε₂ r₀ hM hle D hD ξ' hξ
-    refine Finset.analyticAt_fun_sum _ fun T _ => ?_
-    have hTh := analyticOnNhd_renThetaRaw εren Set.univ ((D.Ψ, D.h), ξ') trivial
-    have hA : AnalyticAt ℂ (A T) ((fun x i => (1 + renZeta εren ξ') * D.Ψ x i), D.h) :=
-      hAan T _ hθ
-    exact AnalyticAt.comp_of_eq hA hTh rfl
-  · intro D ξ hD hξ
-    have hθ := renE0_theta_domain_of_le S H εren εstep ε₂ r₀ hM hle D hD ξ hξ
-    unfold DetExpansionLocC.detGrouped detCollarGrouped
-    refine Finset.sum_congr rfl fun T _ => ?_
-    exact hAeq T _ hθ
-
-end Ambient
 
 section TowerFamily
 
@@ -239,13 +146,19 @@ theorem StepTowerTheta.detExpansion_scale {κmin : ℝ} (R : StepTowerTheta κmi
           (towerDetRate R.κ) (towerDetConst R.κ),
         ∀ D T', E.term D T' = ∑ y ∈ (R.toStepTower.step k hk N₁ ν β p₁).blockU z,
           detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 R.BG R.κ) D y T' := by
-  have h := detExpansionLocC_scale_of_tower R.m₁_four (by have := R.t_pos; positivity)
-    (Classical.choice R.core2) R.large_block R.dom_margin2 R.coer_margin2 R.δc_small R.det_z
-    k hk N₁ h3N hN hν0 hν β p₁ R.δ
-  refine ⟨h.1, fun z => ?_⟩
-  have hz := h.2 z
-  rw [StepTower.det_rate_den, StepTower.det_const_eq] at hz
-  exact hz
+  have h := R.toG.detExpansion_scale k hk N₁ h3N hN hν0 (by simpa using hν) β p₁
+  unfold StepTowerG.step at h
+  rw [rhoSepG_three] at h
+  dsimp only [StepTowerTheta.toG_m₁, StepTowerTheta.toG_κ, StepTowerTheta.toG_t,
+    StepTowerTheta.toG_BG] at h
+  have e1 : (R.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)) /
+      (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ)) = towerDetRate R.κ := by
+    unfold towerDetRate; norm_num
+  have e2 : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 R.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) = towerDetConst R.κ :=
+    StepTower.det_const_eq _ _
+  rw [e1, e2] at h
+  exact h
 
 
 /-- **The determinant part of `E0θ` on the renormalization domain, at the tower.**  At every scale
@@ -284,22 +197,19 @@ theorem StepTowerTheta.detGrouped_ambient {κmin : ℝ} (R : StepTowerTheta κmi
               ‖F ((D.Ψ, D.h), ξ)‖ ≤ hullConst 3 3 (towerDetRate R.κ) (towerDetConst R.κ) *
                 Real.exp (-hullRate 3 3 (towerDetRate R.κ) * sizeJ 1 (k + 1) X)) ∧
             F ((D.Ψ, D.h), 0) = (E z).detGrouped D X := by
-  obtain ⟨hD0, hfam⟩ := R.detExpansion_scale k hk N₁ h3N hN hν0 hν β p₁
-  choose E hE using hfam
-  have hH := bgHyp_lv (k := k) R.m₁ hν0 hν
-  have hM := thetaChartMargin_of_stepTowerRenSol R.toStepTowerRenSol
-  have hN1 : (3 : ℕ) ^ 1 ∣ N₁ := by simpa using h3N
-  have hrate := towerDetRate_nonneg R.toStepTower
-  have hconst := towerDetConst_nonneg R.toStepTower
-  have hle := R.εs_le
-  refine ⟨E, hE, fun z => renE0θ_det_zero R.t E z hD0, fun z X => ?_⟩
-  obtain ⟨F, hFan, hFeq⟩ := exists_renDetGrouped_ambient_of_le (E z) hH R.t R.r₀ hM hle rfl X
-  refine ⟨F, hFan, fun D hD => ⟨fun ξ hξ => ⟨hFeq D ξ hD hξ, ?_⟩, ?_⟩⟩
-  · rw [hFeq D ξ hD hξ]
-    exact (E z).detGrouped_bound (by norm_num) hN1 hconst hrate
-      (renE0_theta_domain_of_le _ hH R.t _ (2 * R.t) R.r₀ hM hle D hD ξ hξ) X
-  · have := hFeq D 0 hD (by simpa using R.r₀_pos)
-    rwa [renThetaDatum_zero] at this
+  have h := R.toG.detGrouped_ambient k hk N₁ h3N hN hν0 (by simpa using hν) β p₁
+  unfold StepTowerG.step at h
+  rw [rhoSepG_three] at h
+  dsimp only [StepTowerTheta.toG_m₁, StepTowerTheta.toG_κ, StepTowerTheta.toG_t,
+    StepTowerTheta.toG_BG, StepTowerTheta.toG_r₀] at h
+  have e1 : (R.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ)) /
+      (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ)) = towerDetRate R.κ := by
+    unfold towerDetRate; norm_num
+  have e2 : ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * (2 : ℕ) * covBLogMax 3 3 R.κ /
+      (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp R.κ))) = towerDetConst R.κ :=
+    StepTower.det_const_eq _ _
+  rw [e1, e2] at h
+  exact h
 
 end TowerFamily
 
