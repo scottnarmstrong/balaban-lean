@@ -896,6 +896,7 @@ public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
 public import Balaban.Localization.FootprintHat
 public import Balaban.LargeField.R.Outcome
+public import Balaban.LargeField.R.RHistoryLabels
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.SmallFactorConsts
 public import Balaban.LargeField.R.SmallFactorGe
@@ -1085,6 +1086,7 @@ public import Balaban.Inhabited.LocalizationSettings
 public import Balaban.Inhabited.BgDataStructures
 public import Balaban.Inhabited.StepData
 public import Balaban.Inhabited.RipeHistory
+public import Balaban.Inhabited.RHistoryLabelsWitness
 public import Balaban.Inhabited.RadiiHist
 public import Balaban.Inhabited.RadiiSetting
 public import Balaban.Inhabited.RadiiRipe
@@ -1322,6 +1324,8 @@ public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Fluctuation.StepComplexThm31
 public import Balaban.Fluctuation.MarkedTangent
 public import Balaban.Fluctuation.MarkedCubicTaylor
+public import Balaban.Fluctuation.MarkedHatRows
+public import Balaban.Inhabited.MarkedHatRowsWitness
 public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
@@ -1375,6 +1379,9 @@ public import Balaban.Fluctuation.SharpAssemblyScaled
 public import Balaban.Fluctuation.StepActivityDirectScaled
 public import Balaban.Inhabited.StepActivityDirectScaledWitness
 public import Balaban.Inhabited.StepActivityDirectPhysicalRates
+public import Balaban.Fluctuation.LevelLocalCover
+public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
@@ -1397,6 +1404,8 @@ public import Balaban.Fluctuation.ParamActivitySubspace
 public import Balaban.Inhabited.ParamActivitySubspaceWitness
 public import Balaban.Fluctuation.DetCauchyHull
 public import Balaban.Inhabited.DetCauchyHullWitness
+public import Balaban.Fluctuation.DetCauchyActivity
+public import Balaban.Inhabited.DetCauchyActivityWitness
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
