@@ -1658,5 +1658,6 @@ public import Balaban.Inhabited.MarkCorrBudget
 public import Balaban.Analysis.RayJetTwo
 public import Balaban.Analysis.RayJetReal
 public import Balaban.Fluctuation.DecMarkCorrectedTotal
+public import Balaban.Inhabited.RenFibreDatum
 public import Balaban.Green.FinalPathDefect
 public import Balaban.Fluctuation.MarkIntTermAnalytic
