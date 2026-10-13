@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W415 | `w415-obs-remainder-marks` / W415 | observable marks: remainder marks (COVROW C5–C6) |
 | W416 | `w416-ren-c1-local` / W416 | renormalization `locC1`: read containment and locality (RENINPUTS 5) |
-| W417 | `w417-step-tower` / W417 | shared tower: `tower_core_rates_at_least`, `StepTower`, `exists_stepTower` (TOWERSPEC 1–2) |
 | W418 | `w418-c1star-tannery` / W418 | Root-C: Tannery criterion for the remainder limits; real P9 (4.18) |
 | W419 | `w419-collar-hull-symm` / W419 | symmetry of the collar hull and of the regrouped determinant terms |
 | W420 | `w420-det-rotation` / W420 | spin-rotation invariance of the determinant activity (stop rule) |
