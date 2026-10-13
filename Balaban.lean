@@ -172,6 +172,7 @@ public import Balaban.Multiscale.PointwiseHolderI
 public import Balaban.Multiscale.PointwiseHolder
 public import Balaban.Multiscale.PointwiseHolderMain
 public import Balaban.Multiscale.GeneratingSet
+public import Balaban.Multiscale.WeakenSep
 public import Balaban.Multiscale.Operator
 public import Balaban.Multiscale.Coercivity
 public import Balaban.Multiscale.CoercivitySharp
