@@ -12,12 +12,8 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W422 (Opus) | `w422-marked-field-count` / W422 | field-generic marked count; analytic rooted sums; root assembly conditional on MARK-REAL |
 | W453 | `w453-obs-ray-activity` / W453 | observable ray activities: bound, measurability, locality, W identity (OBSRAY 3–4) |
-| W457 | `w457-source-exponent-family` / W457 | source exponent as an activity sum on the h₀ fibre (ENERGYFAM 1) |
 | W458 | `w458-direct-terms-formula` / W458 | ray clause through the direct-terms construction — edits landed files by strengthening only |
-| W460 | `w460-ren-proper-instances` / W460 | non-degenerate instances of the renormalization localization (AUDIT-1014 repair 4) |
-| W461 | `w461-marked-allroots` / W461 | one marked family for all roots at the tower; mark fibre on `sitesOf` |
 | W462 | `w462-ren-record-assembly` / W462 | renormalization: the input record at the tower from its three fields (RENFIELDS 6, conditional) |
 | W463 | `w463-ren-det-fibre-map` / W463 | renormalization: fibre map from collar hulls to the cover `renYs` (E0THETA 6) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
