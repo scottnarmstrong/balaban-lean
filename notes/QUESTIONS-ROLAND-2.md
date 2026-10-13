@@ -379,3 +379,20 @@ or is an additional factor β_k^{-1/2} available in the proof?
 
 (Details: `notes/phase1/BUDGET31C.md` §1. We formalize the bound (1/2) β_{k+1}^{-n}, which the
 P6 half power pays for; nothing depends on the stronger printed exponent.)
+
+### Item 20 (2026-10-13): the norm of the source in (H.7) (confirmation only)
+
+P4 (H.7) (printed p. 679) and P9 (1.1) (printed p. 493) state analyticity of the generating
+functional for complex sources with ‖g‖_{ℓ¹} < 1. For a source with values in C^N, is the norm
+
+  (i)  Σ_y Σ_i |g_i(y)|            (sum of the moduli of all components), or
+  (ii) Σ_y ( Σ_i |g_i(y)|² )^{1/2}  (sum over sites of the Euclidean norms)?
+
+Only (ii) is invariant under rotations of the spin space. Our frozen statement uses (i) for
+every unit external field h; reducing a general h to a coordinate vector by a rotation then
+costs a factor √N in the radius (the loss is attained for N = 2). We plan to prove the
+coordinate-vector statement on the ball of radius √N in the norm (i), which contains the unit
+ball of (ii); the source enters the fluctuation expansion as g/β, so a fixed larger radius only
+raises the low-temperature threshold. Is that consistent with what you intend?
+
+(Details: `notes/phase1/SRCBALL.md`; Lean: `Balaban/Model/SymmetryPartition.lean`.)
