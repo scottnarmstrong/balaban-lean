@@ -171,6 +171,18 @@ theorem chiFl_smul_eq_one (hp₁ : 0 < S.p₁) {s : ℝ} (hs : s ∈ Icc (0 : �
 theorem hatC_smul (s : ℝ) (x : S.E) : S.hatC (s • x) = (s : ℂ) • S.hatC x :=
   S.yhat_smul s x
 
+/-- The first exponent at parameter `1` of the scaled fluctuation variable. -/
+theorem Wone_one_smul (C : StepClass d L N₁ m₁ k N ϱ) (s : ℝ) (x : S.E) :
+    S.Wone C 1 (s • x) = S.Wone C s x := by
+  unfold Wone
+  rw [S.psiAt_one_smul]
+
+/-- The second exponent at parameter `1` of the scaled fluctuation variable. -/
+theorem Wtwo_one_smul (C : StepClass d L N₁ m₁ k N ϱ) (g : Fld d L N₁ m₁ (k + 1) N) (t : ℝ)
+    (x : S.E) : S.Wtwo C g 1 (t • x) = S.Wtwo C g t x := by
+  unfold Wtwo
+  rw [S.psiAt_one_smul]
+
 /-- `W₁` of a class is `W₁` of the zero class plus the old energy increment. -/
 theorem Wone_eq_zeroClass_add_dE (C : StepClass d L N₁ m₁ k N ϱ) (s : ℝ) (x : S.E) :
     S.Wone C s x = S.Wone (zeroClass d L N₁ m₁ k N ϱ) s x + S.dE C (S.psiAt s x) := by
