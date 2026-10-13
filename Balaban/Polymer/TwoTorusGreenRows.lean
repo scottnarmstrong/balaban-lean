@@ -454,6 +454,198 @@ theorem sum_innerCentres_boxMap {T : Finset (CTorus d L N₁ m₁ K)}
     rw [← boxMap_inj (hm' := hn') hx2b hxb hx2]
     exact hx2T
 
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ K))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) (ϱ := ϱ) hj1 hj _)
+
+include hj1 in
+/-- **The cube Green function of a cube inside `T`, with potentials corresponding on `T` only.**
+For a centre whose interaction cube lies in `T` (`T` in the box of radius `R`, `T' = bm '' T`), the
+entries of `cubeG` at two sites of the box of radius `R + 3 L^(j+m₁)` correspond, for admissible
+potentials with `α'(bm x) = α x` on `T` (`cubeG_boxMap` asks this on the whole box; the potential of
+the second torus is replaced on the box by the transported one, which does not change `cubeG` by
+`cubeG_congr`).  Margin: `4 R + 12 L^(j+m₁) + 3 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem cubeG_boxMap_inner {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting GA a ν) (SB : DGSetting GB a ν)
+    {T : Finset (CTorus d L N₁ m₁ K)} {T' : Finset (CTorus d L N₁' m₁ K)} (hT' : T.image bm = T')
+    {R : ℕ} (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} (hαA : AdmPot GA α) (hαB : AdmPot GB α')
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ T → α' (ιb x) = α x)
+    {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ innerCentres GA T) (x z : (GA).Ω 1)
+    (hx : InBox d (R + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hz : InBox d (R + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) (z : CTorus d L N₁ m₁ K)) :
+    cubeG GB a ν α' (Prod.map id bm q) (ιb x) (ιb z) = cubeG GA a ν α q x z := by
+  have hq' := innerCentres_mapsTo hj1 hj hT' hTR (by omega) (by omega) hq
+  obtain ⟨y0, rfl, -, hy0T, -⟩ := inner_base_mem hj1 hj hq
+  have hy0 := hTR y0 hy0T
+  have hqc : ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ∈ cubeIdx GA := (Finset.mem_filter.1 hq).1
+  have hspA : ∀ w : CTorus d L N₁ m₁ K, (GA).spacing w = (L : ℝ) ^ j := fun w => by
+    unfold GeneratingSet.spacing; rw [layerIndex_levelGS hj1 hj]
+  have hspB : ∀ w : CTorus d L N₁' m₁ K, (GB).spacing w = (L : ℝ) ^ j := fun w => by
+    unfold GeneratingSet.spacing; rw [layerIndex_levelGS hj1 hj]
+  -- the potential of the second torus, replaced on the box by the transported one
+  obtain ⟨α'', hα''⟩ : ∃ α'' : (GB).Ω 1 → ℂ, α'' = fun w : (GB).Ω 1 =>
+      if InBox d (R + 3 * L ^ (j + m₁)) ((N₁' * L ^ m₁) * L ^ K) (w : CTorus d L N₁' m₁ K) then
+        α ⟨bm' (w : CTorus d L N₁' m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ else α' w := ⟨_, rfl⟩
+  have hα''B : AdmPot GB α'' := by
+    intro w
+    rw [hα'']
+    dsimp only
+    split_ifs with hw
+    · have h1 := hαA ⟨bm' (w : CTorus d L N₁' m₁ K), levelGS_mem_Ω_one hj1 hj _⟩
+      rw [hspA] at h1
+      rw [hspB]
+      exact h1
+    · exact hαB w
+  have hα''x : ∀ x : (GA).Ω 1, InBox d (R + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K)
+      (x : CTorus d L N₁ m₁ K) → α'' (ιb x) = α x := by
+    intro x hx
+    have h1 : InBox d (R + 3 * L ^ (j + m₁)) ((N₁' * L ^ m₁) * L ^ K)
+        (bm (x : CTorus d L N₁ m₁ K)) := inBox_boxMap (by omega) hx
+    rw [hα'']
+    dsimp only
+    split_ifs
+    congr 1
+    exact Subtype.ext (boxMap_boxMap (by omega) hx)
+  have hagree'' : ∀ w : (GB).Ω 1, (w : CTorus d L N₁' m₁ K) ∈
+      intBox (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) → α' w = α'' w := by
+    intro w hw
+    have hwT : (w : CTorus d L N₁' m₁ K) ∈ T' := (Finset.mem_filter.1 hq').2 w hw
+    rw [← hT', Finset.mem_image] at hwT
+    obtain ⟨x, hxT, hxw⟩ := hwT
+    have hw' : w = ιb (⟨x, levelGS_mem_Ω_one hj1 hj x⟩ : (GA).Ω 1) := Subtype.ext hxw.symm
+    rw [hw', hα ⟨x, levelGS_mem_Ω_one hj1 hj x⟩ hxT,
+      hα''x ⟨x, levelGS_mem_Ω_one hj1 hj x⟩ (inBox_mono (by omega) (hTR x hxT))]
+  rw [cubeG_congr SB hαB hα''B (Finset.mem_filter.1 hq').1 hagree'']
+  exact cubeG_boxMap (ρ₀ := R) hj1 hj SA SB hy0 hqc (by omega) (by omega) (by omega) (by omega)
+    hαA hα''B hα''x x z hx hz
+
+include hj1 in
+/-- The entries of `χ_z G^{(z)} c_z` of a cube inside `T` at two sites of `T` correspond. -/
+theorem chiD_cubeG_boxMap_inner {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting GA a ν)
+    (SB : DGSetting GB a ν) {T : Finset (CTorus d L N₁ m₁ K)} {T' : Finset (CTorus d L N₁' m₁ K)}
+    (hT' : T.image bm = T') {R : ℕ} (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} (hαA : AdmPot GA α) (hαB : AdmPot GB α')
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ T → α' (ιb x) = α x)
+    {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ innerCentres GA T) (x z : (GA).Ω 1)
+    (hx : (x : CTorus d L N₁ m₁ K) ∈ T) (hz : (z : CTorus d L N₁ m₁ K) ∈ T) :
+    (chiD GB (Prod.map id bm q) * cubeG GB a ν α' (Prod.map id bm q)) (ιb x) (ιb z) =
+      (chiD GA q * cubeG GA a ν α q) x z := by
+  have hxR := hTR _ hx
+  have hzR := hTR _ hz
+  unfold chiD
+  rw [Matrix.diagonal_mul, Matrix.diagonal_mul, cubeG_boxMap_inner hj1 hj SA SB hT' hTR hn hn'
+    hαA hαB hα hq x z (inBox_mono (by omega) hxR) (inBox_mono (by omega) hzR)]
+  obtain ⟨y0, rfl, -, hy0T, -⟩ := inner_base_mem hj1 hj hq
+  have hy0 := hTR y0 hy0T
+  have hc := chi_boxMap (ϱ := ϱ) (N₁' := N₁') (ρ := R) hj1 hj (by omega) (by omega) hxR
+    (inBox_mono (by omega) hy0)
+  simp only [hc]
+
+include hj1 in
+/-- The entries of `K_z G^{(z)} c_z` of a cube inside `T` at two sites of `T` correspond. -/
+theorem Kz_cubeG_boxMap_inner {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting GA a ν)
+    (SB : DGSetting GB a ν) {T : Finset (CTorus d L N₁ m₁ K)} {T' : Finset (CTorus d L N₁' m₁ K)}
+    (hT' : T.image bm = T') {R : ℕ} (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} (hαA : AdmPot GA α) (hαB : AdmPot GB α')
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ T → α' (ιb x) = α x)
+    {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ innerCentres GA T) (x z : (GA).Ω 1)
+    (hx : (x : CTorus d L N₁ m₁ K) ∈ T) (hz : (z : CTorus d L N₁ m₁ K) ∈ T) :
+    (Kz GB a ν (Prod.map id bm q) * cubeG GB a ν α' (Prod.map id bm q)) (ιb x) (ιb z) =
+      (Kz GA a ν q * cubeG GA a ν α q) x z := by
+  have hq' := innerCentres_mapsTo hj1 hj hT' hTR (by omega) (by omega) hq
+  have hqc' := (Finset.mem_filter.1 hq').1
+  have hqc := (Finset.mem_filter.1 hq).1
+  have hxR := hTR _ hx
+  have hzR := hTR _ hz
+  have hn1 : 2 * (R + 3 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K := by omega
+  have hn2 : 2 * (R + 3 * L ^ (j + m₁)) + 1 < (N₁' * L ^ m₁) * L ^ K := by omega
+  obtain ⟨y0, rfl, -, hy0T, -⟩ := inner_base_mem hj1 hj hq
+  have hy0 := hTR y0 hy0T
+  refine mul_apply_transport
+    (fun w : (GA).Ω 1 => (w : CTorus d L N₁ m₁ K) ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K))
+    (fun w : (GB).Ω 1 => (w : CTorus d L N₁' m₁ K) ∈
+      intBox (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K)))
+    (fun w => ιb w) (fun w1 w2 h1 h2 h => ?_) (fun w hw => ?_) (fun w' hw' => ?_) _ _ _ _
+    (fun w hw => ?_) (fun w' hw' => ?_) (fun w hw => ?_)
+  · exact Subtype.ext (boxMap_inj (hm' := hn2) (inBox_of_mem_intBox hy0 hn1 h1)
+      (inBox_of_mem_intBox hy0 hn1 h2) (congrArg Subtype.val h))
+  · exact (mem_intBox_boxMap_iff hy0 hn1 hn2 (inBox_of_mem_intBox hy0 hn1 hw)).1 hw
+  · have hw'' : (w' : CTorus d L N₁' m₁ K) ∈
+        intBox (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) := hw'
+    have hwT : (w' : CTorus d L N₁' m₁ K) ∈ T' := (Finset.mem_filter.1 hq').2 w' hw''
+    rw [← hT', Finset.mem_image] at hwT
+    obtain ⟨x2, hx2T, hx2⟩ := hwT
+    refine ⟨⟨x2, levelGS_mem_Ω_one hj1 hj x2⟩, ?_, Subtype.ext hx2⟩
+    show x2 ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K)
+    rw [mem_intBox_boxMap_iff hy0 hn1 hn2 (inBox_mono (by omega) (hTR x2 hx2T)), hx2]
+    exact hw''
+  · have h1 := cubeG_supp SA hαA hqc (Pi.single z 1) w hw
+    rw [cubeG_mulVec_single] at h1
+    rw [h1, mul_zero]
+  · have h1 := cubeG_supp SB hαB hqc' (Pi.single (ιb z) 1) w' hw'
+    rw [cubeG_mulVec_single] at h1
+    rw [h1, mul_zero]
+  · have hwR := inBox_of_mem_intBox hy0 hn1 hw
+    rw [Kz_boxMap (ρ := R + 3 * L ^ (j + m₁)) hj1 hj a ν (inBox_mono (by omega) hy0) (by omega)
+      (by omega) (by omega) (by omega) x w (inBox_mono (by omega) hxR) hwR,
+      cubeG_boxMap_inner hj1 hj SA SB hT' hTR hn hn' hαA hαB hα hq w z hwR
+        (inBox_mono (by omega) hzR)]
+
+include hj1 in
+/-- **D1 (`G*_s`).**  Let every active interaction cube lie inside `T` or avoid it, on both tori
+(`T` in the box of radius `R`, `T' = bm '' T`), the factors `s_z` agree on the cubes inside `T`
+and the potentials on `T`.  Then the entries of `G*_s` at two sites of `T` correspond.  The block
+identity used is `P G*_s = ∑_{z inner} s_z χ_z G^{(z)} c_z` (`Gstar_block`) on each torus, and the
+inner centres correspond under `Prod.map id bm` (`sum_innerCentres_boxMap`).  Margin:
+`4 R + 12 L^(j+m₁) + 3 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem Gstar_boxMap_apply {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting GA a ν) (SB : DGSetting GB a ν)
+    {T : Finset (CTorus d L N₁ m₁ K)} {T' : Finset (CTorus d L N₁' m₁ K)} (hT' : T.image bm = T')
+    {R : ℕ} (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} (hαA : AdmPot GA α) (hαB : AdmPot GB α')
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ T → α' (ιb x) = α x)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {s' : ℕ × CTorus d L N₁' m₁ K → ℂ}
+    (hdich : ∀ q ∈ cubeIdx GA, sProd GA s q ≠ 0 → SubI GA (intBox q) T ∨ DisjI GA (intBox q) T)
+    (hdich' : ∀ q ∈ cubeIdx GB, sProd GB s' q ≠ 0 →
+      SubI GB (intBox q) T' ∨ DisjI GB (intBox q) T')
+    (hagree : ∀ q ∈ innerCentres GA T, sProd GB s' (Prod.map id bm q) = sProd GA s q)
+    (x z : (GA).Ω 1) (hx : (x : CTorus d L N₁ m₁ K) ∈ T) (hz : (z : CTorus d L N₁ m₁ K) ∈ T) :
+    Gstar GB a ν α' s' (ιb x) (ιb z) = Gstar GA a ν α s x z := by
+  have hx' : ((ιb x : (GB).Ω 1) : CTorus d L N₁' m₁ K) ∈ T' := by
+    rw [← hT']; exact Finset.mem_image_of_mem _ hx
+  rw [Gstar_apply_of_mem SA hαA hdich hx, Gstar_apply_of_mem SB hαB hdich' hx']
+  refine sum_innerCentres_boxMap hj1 hj hT' hTR (by omega) (by omega) _ _ fun q hq => ?_
+  rw [hagree q hq, chiD_cubeG_boxMap_inner hj1 hj SA SB hT' hTR hn hn' hαA hαB hα hq x z hx hz]
+
+include hj1 in
+/-- **D1 (`𝒦_s`).**  Under the hypotheses of `Gstar_boxMap_apply`, the entries of `𝒦_s` at two
+sites of `T` correspond (block identity `P 𝒦_s = ∑_{z inner} s_z K_z G^{(z)} c_z`, `Kcal_block`). -/
+theorem Kcal_boxMap_apply {a : ℕ → ℝ} {ν : ℝ} (SA : DGSetting GA a ν) (SB : DGSetting GB a ν)
+    {T : Finset (CTorus d L N₁ m₁ K)} {T' : Finset (CTorus d L N₁' m₁ K)} (hT' : T.image bm = T')
+    {R : ℕ} (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ K) x)
+    (hn : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 4 * R + 12 * L ^ (j + m₁) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} (hαA : AdmPot GA α) (hαB : AdmPot GB α')
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ K) ∈ T → α' (ιb x) = α x)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {s' : ℕ × CTorus d L N₁' m₁ K → ℂ}
+    (hdich : ∀ q ∈ cubeIdx GA, sProd GA s q ≠ 0 → SubI GA (intBox q) T ∨ DisjI GA (intBox q) T)
+    (hdich' : ∀ q ∈ cubeIdx GB, sProd GB s' q ≠ 0 →
+      SubI GB (intBox q) T' ∨ DisjI GB (intBox q) T')
+    (hagree : ∀ q ∈ innerCentres GA T, sProd GB s' (Prod.map id bm q) = sProd GA s q)
+    (x z : (GA).Ω 1) (hx : (x : CTorus d L N₁ m₁ K) ∈ T) (hz : (z : CTorus d L N₁ m₁ K) ∈ T) :
+    Kcal GB a ν α' s' (ιb x) (ιb z) = Kcal GA a ν α s x z := by
+  have hx' : ((ιb x : (GB).Ω 1) : CTorus d L N₁' m₁ K) ∈ T' := by
+    rw [← hT']; exact Finset.mem_image_of_mem _ hx
+  rw [Kcal_apply_of_mem SA hdich hx, Kcal_apply_of_mem SB hdich' hx']
+  refine sum_innerCentres_boxMap hj1 hj hT' hTR (by omega) (by omega) _ _ fun q hq => ?_
+  rw [hagree q hq, Kz_cubeG_boxMap_inner hj1 hj SA SB hT' hTR hn hn' hαA hαB hα hq x z hx hz]
+
 end Rows
 
 end Balaban.Polymer.TwoTorusStep
