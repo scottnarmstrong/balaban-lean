@@ -105,7 +105,7 @@ source factor). Use leaf 1 and `eterm_expansion_hat_rawY`; no statement asserts
 3. **ClassOldEndpointAndMarks.** On the real ray, prove
 `hatFun(flComp Eτ)(rawOf D',hatC x) = Eτ(composedPairAt τ.j (dataU(psiAt 1 x)))`,
 and the M counterpart, by local-to-whole restriction plus the landed whole-level
-`hatFun_flComp_level_real`; combine with leaf 2 to obtain `hid` as a *sum* identity.
+`hatFun_flComp_level_real`; this is per-label `hid`, while leaf 2 gives the sum identity.
 Replace `Mk τ` in `GeneralEnergyMarksAssembly` by the `Y`-marked derivatives:
 if a mask avoids `Y`, its derivative vanishes; `hlocxs/hfac` are then proved on
 `Y`'s blocks and `hbg` is unnecessary. Risk: analytic differentiation of the
