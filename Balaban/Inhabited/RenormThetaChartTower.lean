@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.StepTowerRenSol
+public import Balaban.Inhabited.RenormThetaChartTowerG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -31,29 +32,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 `εs = R.t + xiK2 3 3 2 * ((3/2) * R.t * R.r₀)`, follows from the fields of the tower. -/
 theorem thetaChartMargin_of_stepTowerRenSol {κmin : ℝ} (R : StepTowerRenSol κmin) :
     ThetaChartMargin 3 3 2 R.t (R.t + xiK2 3 3 2 * ((3 / 2 : ℝ) * R.t * R.r₀)) R.r₀ := by
-  obtain ⟨hC⟩ := R.core
-  have ht := R.t_pos
-  have hr := R.r₀_pos
-  have hrle := R.r₀_le
-  have hd : 0 < 3 := by norm_num
-  have hds1 : deltaStar 3 3 2 ≤ 1 := deltaStar_le_one
-  have hδ : (3 / 2 : ℝ) * R.t * R.r₀ ≤ 2 * R.t := by nlinarith
-  have hxt : 0 ≤ xiC1 3 * R.t := by have := one_le_xiC1 3; positivity
-  have hxc : xiC1 3 * R.t ≤ bgC1 3 3 2 := hC.c7le.trans (c7_le_bgC1 3 3 2 R.BG R.κ)
-  refine ⟨ht, hr, by positivity, ?_, hC.small1, ?_, ?_, R.sol_margin.le, ?_, rfl⟩
-  · linarith [R.t_cap]
-  · have h1 := R.bg1_cap
-    have h2 := compC4_ge 3
-    have h3 := bgK1_ge_one (d := 3) (L := 3) (N := 2)
-    have h4 : xiC1 3 * R.t ≤ 2 * (compC4 3 * (bgK1 3 3 2 * (xiC1 3 * R.t))) := by
-      have : bgK1 3 3 2 * (xiC1 3 * R.t) ≥ xiC1 3 * R.t := by nlinarith
-      nlinarith
-    nlinarith
-  · linarith [R.t_cap]
-  · have h1 := (bgC1_facts (d := 3) (L := 3) (N := 2) hd hxc).2.2.2
-    have h2 := R.bg0_cap
-    have h3 := cK2_pos 3 3 2
-    nlinarith
+  exact thetaChartMargin_of_stepTowerRenSolG R.toG
 
 /-- `ThetaChartMargin` is inhabited, at the radii of the shared tower. -/
 theorem exists_thetaChartMargin (κmin : ℝ) :
