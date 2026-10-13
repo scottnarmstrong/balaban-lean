@@ -364,6 +364,8 @@ public import Balaban.Localization.I5Xi
 public import Balaban.Localization.I5Glue
 public import Balaban.Localization.I5Close
 public import Balaban.Localization.I5Chain
+public import Balaban.Localization.XiCRawOpen
+public import Balaban.Inhabited.XiCRawOpenWitness
 public import Balaban.Localization.I5Fan
 public import Balaban.Localization.I5Inhabited
 public import Balaban.Localization.DomainLemma
@@ -490,6 +492,7 @@ public import Balaban.LargeField.History.Branch
 public import Balaban.LargeField.History.Core
 public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
+public import Balaban.LargeField.History.BondLiftY
 public import Balaban.LargeField.History.ParentDomain
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
@@ -1212,6 +1215,8 @@ public import Balaban.Localization.P6ActiveHalo
 public import Balaban.Localization.P6TopCover
 public import Balaban.Localization.P6TopPair
 public import Balaban.Localization.P6TopRootedFiber
+public import Balaban.Localization.P6FsharpRootedCount
+public import Balaban.Inhabited.P6FsharpRootedWitness
 public import Balaban.Inhabited.P6TopRootedWitness
 public import Balaban.Localization.MooreDegreeGrid
 public import Balaban.Localization.MooreDegree
@@ -1354,3 +1359,4 @@ public import Balaban.Fluctuation.ParamActivityPhysical
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.Inhabited.DAPhysicalRadii
 public import Balaban.Inhabited.DAPhysicalTower
+public import Balaban.Fluctuation.DARateNumerics
