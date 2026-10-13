@@ -118,4 +118,150 @@ theorem amplitude_le {Cstar T : ℝ} (hC : 0 < Cstar) (hT : 0 < T) (q : ℕ) {β
     _ ≤ (T * u) * u⁻¹ := mul_le_mul_of_nonneg_right hCx (inv_pos.2 hu0).le
     _ = T := by field_simp
 
+
+/-- The largest amplitude allowed by `hDA` for the prefactor `R_σ`. -/
+noncomputable def daT (d L : ℕ) (Rσ Kc' κdec κ0 κ' : ℝ) : ℝ :=
+  (8 * Rσ * Kc' ^ 3 * c1 d L *
+    Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L))⁻¹
+
+theorem daT_pos (d L : ℕ) [NeZero L] {Rσ Kc' : ℝ} (hR : 0 < Rσ) (hK : 0 < Kc')
+    (κdec κ0 κ' : ℝ) : 0 < daT d L Rσ Kc' κdec κ0 κ' := by
+  unfold daT
+  have := one_le_c1 d L
+  have : 0 < c1 d L := by linarith
+  positivity
+
+/-- `hDA` is equivalent to `ε_U ≤ daT`. -/
+theorem hDA_iff (d L : ℕ) [NeZero L] {Rσ Kc' : ℝ} (hR : 0 < Rσ) (hK : 0 < Kc')
+    (κdec κ0 κ' εU : ℝ) :
+    Rσ * εU ≤ 1 / (8 * Kc' ^ 3 * c1 d L *
+      Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)) ↔
+    εU ≤ daT d L Rσ Kc' κdec κ0 κ' := by
+  have h1 := one_le_c1 d L
+  have hc : 0 < c1 d L := by linarith
+  have hD : 0 < 8 * Kc' ^ 3 * c1 d L *
+      Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L) := by positivity
+  have hD' : 0 < 8 * Rσ * Kc' ^ 3 * c1 d L *
+      Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L) := by positivity
+  unfold daT
+  rw [le_div_iff₀ hD, ← one_div, le_div_iff₀ hD']
+  constructor <;> intro h <;> nlinarith [h]
+
+/-- **`hDA` from the threshold.**  For `β_k ≥ daThreshold C (daT …) q` and
+`ε_U = C (log β_k)^q / √β_k`, the smallness `hDA` holds. -/
+theorem hDA_of_threshold (d L : ℕ) [NeZero L] {Rσ Kc' Cstar : ℝ} (hR : 0 < Rσ) (hK : 0 < Kc')
+    (hC : 0 < Cstar) (q : ℕ) (κdec κ0 κ' : ℝ) {βk : ℝ}
+    (hβ : daThreshold Cstar (daT d L Rσ Kc' κdec κ0 κ') q ≤ βk) :
+    Rσ * (Cstar * (Real.log βk) ^ q / Real.sqrt βk) ≤ 1 / (8 * Kc' ^ 3 * c1 d L *
+      Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)) :=
+  (hDA_iff d L hR hK κdec κ0 κ' _).2
+    (amplitude_le hC (daT_pos d L hR hK κdec κ0 κ') q hβ)
+
+theorem K0_pos (d L : ℕ) (κ : ℝ) : 0 < K0 d L κ := by
+  unfold K0
+  have : Real.exp (-1) < 1 := Real.exp_lt_one_iff.2 (by norm_num)
+  have : 0 < 1 - Real.exp (-1) := by linarith
+  positivity
+
+/-- **The arithmetic of `(DA)` at `d = L = 3`.**  With the rates `κ₀ = a_Ent + 1`,
+`κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1` and `K_c' = K₀ + 1` (all depending only
+on `d = L = 3`), the rate relation `hκa` holds, the output rate `(3/2) κ_dec` is at least
+`κ_dec`, and for every `β_k ≥ β₀ = daThreshold C (daT …) q` the smallness `hDA` holds with
+`ε_U = C (log β_k)^q / √β_k`.  Here `C_*` is a free positive parameter. -/
+theorem da_numerics_witness {Cstar Rσ : ℝ} (hC : 0 < Cstar) (hR : 0 < Rσ) (q : ℕ) :
+    ∃ κ0 κdec κ' Kc' : ℝ, κ0 = aEnt 3 3 + 1 ∧ κdec = 100 * (κ0 + c1 3 3 + 10) ∧
+      κ' = 3 / 2 * κdec + κ0 + 1 ∧ Kc' = K0 3 3 κ0 + 1 ∧ 0 < Kc' ∧ 0 ≤ κ0 ∧
+      κ' + 3 * κ0 + c1 3 3 + 3 / 2 ≤ 2 * κdec - 1 ∧ κdec ≤ 3 / 2 * κdec ∧
+      ∀ βk : ℝ, daThreshold Cstar (daT 3 3 Rσ Kc' κdec κ0 κ') q ≤ βk →
+        Rσ * (Cstar * (Real.log βk) ^ q / Real.sqrt βk) ≤ 1 / (8 * Kc' ^ 3 * c1 3 3 *
+          Real.exp ((2 * κdec - 1 - 2 * κ0) * cG 3 3 + c1 3 3 + κ' * cG 3 3)) := by
+  have hc1 := one_le_c1 3 3
+  have hent := aEnt_nonneg 3 3
+  have hK := K0_pos 3 3 (aEnt 3 3 + 1)
+  refine ⟨aEnt 3 3 + 1, 100 * ((aEnt 3 3 + 1) + c1 3 3 + 10),
+    3 / 2 * (100 * ((aEnt 3 3 + 1) + c1 3 3 + 10)) + (aEnt 3 3 + 1) + 1,
+    K0 3 3 (aEnt 3 3 + 1) + 1, rfl, rfl, rfl, rfl, by linarith, by linarith, by linarith,
+    by linarith, fun βk hβ => ?_⟩
+  exact hDA_of_threshold 3 3 hR (by linarith) hC q _ _ _ hβ
+
+/-- Uniformity in the scale: for `d ≥ 2` and `β > 0`, `β_k ≥ β`. -/
+theorem le_betaU {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+    (S : StepSetting d L N₁ m₁ k N ϱ) (hd : 2 ≤ d) (hβ : 0 < S.β) : S.β ≤ S.betaU := by
+  have hL : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hx : (1 : ℝ) ≤ (L : ℝ) ^ k := one_le_pow₀ (by exact_mod_cast hL)
+  have hx0 : (0 : ℝ) < (L : ℝ) ^ k := by linarith
+  unfold StepSetting.betaU
+  obtain ⟨e, rfl⟩ := Nat.exists_eq_add_of_le hd
+  have h1 : 1 ≤ (((L : ℝ) ^ k) ^ e) := one_le_pow₀ hx
+  have hx2 : 0 < ((L : ℝ) ^ k) ^ 2 := by positivity
+  have : S.β * ((L : ℝ) ^ k) ^ (2 + e) / ((L : ℝ) ^ k) ^ 2 = S.β * ((L : ℝ) ^ k) ^ e := by
+    rw [pow_add]; field_simp
+  rw [this]
+  nlinarith
+
+/-- **Uniform in the scale.**  If `β ≥ daThreshold C (daT …) q` then `hDA` holds at every scale `k`
+with `ε_U = C (log β_k)^q / √β_k`, `β_k = S.betaU`. -/
+theorem hDA_of_betaU {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+    (S : StepSetting d L N₁ m₁ k N ϱ) (hd : 2 ≤ d) (hβ : 0 < S.β)
+    {Rσ Kc' Cstar : ℝ} (hR : 0 < Rσ) (hK : 0 < Kc') (hC : 0 < Cstar) (q : ℕ)
+    (κdec κ0 κ' : ℝ)
+    (hβ0 : daThreshold Cstar (daT d L Rσ Kc' κdec κ0 κ') q ≤ S.β) :
+    Rσ * (Cstar * (Real.log S.betaU) ^ q / Real.sqrt S.betaU) ≤ 1 / (8 * Kc' ^ 3 * c1 d L *
+      Real.exp ((2 * κdec - 1 - 2 * κ0) * cG d L + c1 d L + κ' * cG d L)) :=
+  hDA_of_threshold d L hR hK hC q κdec κ0 κ' (le_trans hβ0 (le_betaU S hd hβ))
+
+/-- `c₁(3,3) = 3375`. -/
+theorem c1_three : c1 3 3 = 3375 := by unfold c1; norm_num
+
+/-- `c_G(3,3) = 18`. -/
+theorem cG_three : cG 3 3 = 18 := by unfold cG; norm_num
+
+/-- The logarithm of the threshold: `log β₀ = max 1 (4 (log C + log H_q - log T))`. -/
+theorem log_daThreshold {Cstar T : ℝ} (hC : 0 < Cstar) (hT : 0 < T) (q : ℕ) :
+    Real.log (daThreshold Cstar T q) =
+      max 1 (4 * (Real.log Cstar + Real.log (H q) - Real.log T)) := by
+  have hH := H_pos q
+  have hx : 0 < (Cstar * H q / T) ^ 4 := by positivity
+  have hl : Real.log ((Cstar * H q / T) ^ 4) =
+      4 * (Real.log Cstar + Real.log (H q) - Real.log T) := by
+    rw [Real.log_pow, Real.log_div (by positivity) hT.ne', Real.log_mul hC.ne' hH.ne']
+    push_cast; ring
+  unfold daThreshold
+  rcases le_total (Real.exp 1) ((Cstar * H q / T) ^ 4) with h | h
+  · rw [max_eq_right h, hl]
+    have := Real.log_le_log (Real.exp_pos 1) h
+    rw [Real.log_exp, hl] at this
+    rw [max_eq_right this]
+  · rw [max_eq_left h, Real.log_exp]
+    have := Real.log_le_log hx h
+    rw [Real.log_exp, hl] at this
+    rw [max_eq_left this]
+
+
+/-- Crude size of the entropy exponent: `a_Ent(3,3) ≤ 300000`. -/
+theorem aEnt_three_le : aEnt 3 3 ≤ 300000 := by
+  have h2 : Real.log 2 ≤ 1 := by have := Real.log_two_lt_d9; linarith
+  have hl : ∀ x : ℝ, 0 < x → Real.log x ≤ x := fun x hx =>
+    le_trans (Real.log_le_sub_one_of_pos hx) (by linarith)
+  have e : entQ 3 3 = 125 * (1458 * 2 ^ 3500) ^ 54 := by
+    unfold entQ; norm_num
+  unfold aEnt
+  rw [e, Real.log_mul (by norm_num) (by positivity), Real.log_pow,
+    Real.log_mul (by norm_num) (by positivity), Real.log_pow]
+  have a := hl 125 (by norm_num)
+  have b := hl 1458 (by norm_num)
+  push_cast
+  nlinarith
+
+/-- Size of the exponent `E_D = (2κ_dec - 1 - 2κ₀) c_G + c₁ + κ' c_G` for the witness rates at
+`d = L = 3`: `E_D ≤ 3 · 10^9`. -/
+theorem E_D_three_le :
+    (2 * (100 * ((aEnt 3 3 + 1) + c1 3 3 + 10)) - 1 - 2 * (aEnt 3 3 + 1)) * cG 3 3 + c1 3 3 +
+      (3 / 2 * (100 * ((aEnt 3 3 + 1) + c1 3 3 + 10)) + (aEnt 3 3 + 1) + 1) * cG 3 3
+      ≤ 3000000000 := by
+  have := aEnt_three_le
+  have := aEnt_nonneg 3 3
+  rw [c1_three, cG_three]
+  nlinarith
+
 end Balaban.Fluctuation
