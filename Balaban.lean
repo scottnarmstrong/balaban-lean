@@ -1331,3 +1331,4 @@ public import Balaban.Fluctuation.ParamDatumFamily
 public import Balaban.Inhabited.GeneralClassWitness
 public import Balaban.Inhabited.GeneralClassWitnessStep
 public import Balaban.Fluctuation.ParamCarrierLocal
+public import Balaban.Fluctuation.StepActivityHatGeneral
