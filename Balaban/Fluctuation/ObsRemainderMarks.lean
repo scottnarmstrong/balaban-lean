@@ -363,4 +363,284 @@ theorem obsRemG_ray_decomp (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4) (hr : 
 
 end Block
 
+/-! ### The index type, the labels and the constants -/
+
+section Index
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) (hp : 0 < S.p₁)
+  (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+    RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → ℂ) (D : BgData S.G' N)
+  (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+
+/-- **The remainder index type**: the polymer domains `Y ∈ 𝒴`, plus one dummy index `none` (so
+that the type is nonempty even when `𝒴` is empty). -/
+abbrev RemIdx : Type _ := Option {Y // Y ∈ 𝒴}
+
+/-- **The remainder marks**: `G_Y(u, Φ) = R_Y(u, ψ̂(Φ))` for the domain `Y`, and `0` for the dummy
+index. -/
+noncomputable def obsGr : RemIdx 𝒴 → ℂ → (∀ b, (S.blockSplit m₀ hp).Ωb b) → ℂ
+  | none, _, _ => 0
+  | some Y, u, Φ => obsRemG S m₀ hp Ev D Y.1 u Φ
+
+variable {Lb : Type*}
+
+/-- **The labels of the remainder marks**: the label `lab Y` of the domain `Y`, and the label
+`y₀` for the dummy index. -/
+def obsRemLab (lab : {Y // Y ∈ 𝒴} → Lb) (y₀ : Lb) : RemIdx 𝒴 → Lb
+  | none => y₀
+  | some Y => lab Y
+
+variable {S m₀ hp Ev D 𝒴}
+
+theorem sum_obsGr (t : ℂ) (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    ∑ r, obsGr S m₀ hp Ev D 𝒴 r t Φ = ∑ Y ∈ 𝒴, obsRemG S m₀ hp Ev D Y t Φ := by
+  rw [Fintype.sum_option]
+  simp only [obsGr, zero_add]
+  exact Finset.sum_coe_sort 𝒴 (fun Y => obsRemG S m₀ hp Ev D Y t Φ)
+
+variable {A : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N)} {cψ : ℝ}
+
+/-- **The fields of the remainder marks** (conclusion of `obsRemainder_of_clauses`): with
+`q = p₁ / cψ` and `c₀ = 8 C0 q²`,
+`0 < c₀`; `boundr` with `F_r = c₀`; `measr`; `depr`; analyticity on `|u| < 3/2`; the root clause;
+the weighted sum `Σ_r F_r e^{-κ0 𝗱(y_r)} ≤ c₀ (K0 + 1)`; almost-everywhere agreement of the clipped
+and the unclipped remainder. -/
+def ObsRemFields (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ) (hp : 0 < S.p₁)
+    (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → ℂ) (D : BgData S.G' N)
+    (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))) (cψ C0 κG κ0 : ℝ)
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb)
+    (lab : {Y // Y ∈ 𝒴} → Lb) (y₀ : Lb)
+    (bx : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
+    Prop :=
+    0 < 8 * C0 * (S.p₁ / cψ) ^ 2 ∧
+    (∀ r u Φ, ‖obsGr S m₀ hp Ev D 𝒴 r u Φ‖ ≤
+      8 * C0 * (S.p₁ / cψ) ^ 2 * Real.exp (-κG * Lab.dl (obsRemLab 𝒴 lab y₀ r))) ∧
+    (∀ r u, Measurable (obsGr S m₀ hp Ev D 𝒴 r u)) ∧
+    (∀ r u, DepOn (Ω := (S.blockSplit m₀ hp).Ωb)
+      (blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ
+        (Lab.ysite (obsRemLab 𝒴 lab y₀ r))) (obsGr S m₀ hp Ev D 𝒴 r u)) ∧
+    (∀ r Φ, DifferentiableOn ℂ (fun u => obsGr S m₀ hp Ev D 𝒴 r u Φ) (ball 0 (3 / 2))) ∧
+    (∀ r, bx ∈ blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ (Lab.ysite (obsRemLab 𝒴 lab y₀ r))) ∧
+    (∑ r, 8 * C0 * (S.p₁ / cψ) ^ 2 * Real.exp (-κ0 * Lab.dl (obsRemLab 𝒴 lab y₀ r)) ≤
+      8 * C0 * (S.p₁ / cψ) ^ 2 * (K0 d L κ0 + 1)) ∧
+    (∀ Y ∈ 𝒴, ∀ u, ∀ᵐ Φ ∂(Measure.pi (S.blockSplit m₀ hp).μ),
+      obsRemG S m₀ hp Ev D Y u Φ =
+        remExt (fun ζ : ℂ => Ev Y (rawOf D, ζ • obsHatTrue S m₀ hp Φ)) u)
+
+/-- **The remainder marks of the sharp hat terms, from the clauses of the expansion.**
+
+Premises: the clauses of the landed sharp hat expansion for the family `Ev` (analyticity `ha`,
+locality `hd`, the decay bound `hb` with `C0 = Q δ₁`, `κd = 2 κdec`), `p₁ ≤ cψ / 4`, the labels
+`lab Y` of the domains in a label system `Lab` (`ysite (lab Y) = Y`, `dl (lab Y) = d(Y)`), a label
+`y₀` containing the root cube `bx` (for the dummy index), and `bx` in the cube label of every domain.
+Conclusions, with `q = p₁ / cψ` and `c₀ = 8 C0 q²` (the constant `F_r` of every index):
+
+1. `0 < c₀`;
+2. `boundr`: `‖G_r(u, Φ)‖ ≤ c₀ e^{-κG 𝗱(y_r)}` for all `u` and `Φ` (`κG ≤ κd`);
+3. `measr`, 4. `depr` (blocks of the label), 5. analyticity on `|u| < 3/2`, 6. the root clause;
+7. the weighted sum `Σ_r F_r e^{-κ0 𝗱(y_r)} ≤ c₀ (K0 + 1)`;
+8. almost everywhere, the clipped and the unclipped remainder agree. -/
+theorem obsRemainder_of_clauses (hN : L ^ m₀ ∣ N₁) (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
+    (hr : rawOf D ∈ A)
+    (ha : ∀ Y ∈ 𝒴, AnalyticOnNhd ℂ (Ev Y) (A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ}))
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y)
+    (hd : ∀ Y ∈ 𝒴, ∀ u ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ∀ u' ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+    {C0 κd : ℝ} (hC0 : 0 < C0)
+    (hb : ∀ Y ∈ 𝒴, ∀ x ∈ A ×ˢ {ψ : S.U × Fin N → ℂ | ∀ p, ‖ψ p‖ ≤ cψ},
+      ‖Ev Y x‖ ≤ C0 * Real.exp (-κd * treeLenCovOne m₀ (k + 1) Y))
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb)
+    (lab : {Y // Y ∈ 𝒴} → Lb) (y₀ : Lb)
+    (hysite : ∀ Y, Lab.ysite (lab Y) = Y.1)
+    (hdl : ∀ Y, Lab.dl (lab Y) = treeLenCovOne m₀ (k + 1) Y.1)
+    (bx : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ)
+    (hbx : ∀ Y ∈ 𝒴, bx ∈ obsRowLabel m₀ (k + 1) Y)
+    (hy₀ : bx ∈ blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ (Lab.ysite y₀))
+    {κG κ0 : ℝ} (hκG : κG ≤ κd) (hκ0 : aEnt d L + 1 ≤ κ0) :
+    ObsRemFields S m₀ hp Ev D 𝒴 cψ C0 κG κ0 Lab lab y₀ bx := by
+  unfold ObsRemFields
+  have hpc : 0 < S.p₁ / cψ := div_pos hp hcψ
+  have hc0 : 0 < 8 * C0 * (S.p₁ / cψ) ^ 2 := by positivity
+  have htl : ∀ Y : {Y // Y ∈ 𝒴}, 0 ≤ treeLenCovOne m₀ (k + 1) Y.1 := fun Y => by
+    rw [← hdl Y]; exact Lab.dl_nonneg _
+  refine ⟨hc0, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro r u Φ
+    cases r with
+    | none =>
+      simp only [obsGr, norm_zero]; positivity
+    | some Y =>
+      simp only [obsGr, obsRemLab]
+      refine (norm_obsRemG_le hcψ hq hr (ha Y.1 Y.2) (hb Y.1 Y.2) u Φ).trans ?_
+      rw [hdl Y, show 8 * (C0 * Real.exp (-κd * treeLenCovOne m₀ (k + 1) Y.1)) * (S.p₁ / cψ) ^ 2 =
+        8 * C0 * (S.p₁ / cψ) ^ 2 * Real.exp (-κd * treeLenCovOne m₀ (k + 1) Y.1) by ring]
+      refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0.le
+      nlinarith [htl Y]
+  · intro r u
+    cases r with
+    | none => exact measurable_const
+    | some Y => exact measurable_obsRemG hcψ hq hr (ha Y.1 Y.2) u
+  · intro r u
+    cases r with
+    | none => exact fun Φ Φ' _ => rfl
+    | some Y =>
+      simp only [obsRemLab, hysite Y]
+      exact depOn_obsRemG hN hcψ hq hr (hdj Y.1 Y.2) (hd Y.1 Y.2) u
+  · intro r Φ
+    cases r with
+    | none => exact differentiableOn_const _
+    | some Y => exact differentiableOn_obsRemG hcψ hq hr (ha Y.1 Y.2) Φ
+  · intro r
+    cases r with
+    | none => exact hy₀
+    | some Y => simp only [obsRemLab, hysite Y]; exact hbx Y.1 Y.2
+  · rw [Fintype.sum_option]
+    simp only [obsRemLab, hdl]
+    have hK := entropy_thick hN le_rfl 𝒴 hdj hκ0 bx
+    have hκ00 : 0 ≤ κ0 := by linarith [aEnt_nonneg d L]
+    have h1 : Real.exp (-κ0 * Lab.dl y₀) ≤ 1 := by
+      rw [Real.exp_le_one_iff]; nlinarith [Lab.dl_nonneg y₀]
+    have h2 : ∑ Y : {Y // Y ∈ 𝒴}, Real.exp (-κ0 * treeLenCovOne m₀ (k + 1) Y.1) ≤ K0 d L κ0 := by
+      refine le_trans (le_of_eq ?_) hK
+      refine Finset.sum_congr rfl fun Y _ => ?_
+      simp [mem_blocksOf.1 (hbx Y.1 Y.2)]
+    rw [← Finset.mul_sum]
+    nlinarith [mul_le_mul_of_nonneg_left h1 hc0.le, mul_le_mul_of_nonneg_left h2 hc0.le]
+  · intro Y hY u
+    filter_upwards [ae_obsHat_eq_true S m₀ hp] with Φ hΦ
+    simp only [obsRemG, hΦ]
+
+end Index
+
+/-! ### The remainder marks under the premises of the sharp hat expansion -/
+
+section SharpHat
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ)
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
+variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+omit [NeZero L] in
+theorem cK2'_pos_of {B : ℝ} (hB : 0 ≤ B) : 0 < cK2' d L N B := by
+  have h1 := cA_ge d L N
+  have h2 := cF_pos d L
+  unfold cK2' cN'
+  positivity
+
+/-- **The remainder marks of the sharp hat terms** (`_of_sharpHat`).  Premises: exactly those of
+`obsRowCoeff_of_sharpHat` that are used here (`FlCore`, the covering setup, the optimal tree; the
+numerical premises of the landed `fsite_expansion_hat_dir` enter only through the clauses of `Ev`),
+`0 < p₁`,
+`p₁ ≤ cψ / 4`, the family `Ev` with the four clauses the landed theorem gives it (expansion,
+locality, decay, analyticity), and a label system `Lab` containing the domains of the expansion
+(`lab Y` with site set `Y` and size `d^cov(Y)`; `y₀` a label containing the root cube, for the dummy
+index).  For every datum `D` of `Ξ`:
+
+* `ObsRemFields` with `C0 = Q δ₁`, `bx` the root cube of `y`, `κG ≤ 2 κdec`: the global bound
+  `8 Q δ₁ q²` (`q = p₁/cψ`), measurability, block dependence, analyticity on `|u| < 3/2`, the root
+  clause, the weighted sum, almost-everywhere agreement with the unclipped remainder;
+* **kernel plus remainder**: for `|t| < 3/2` and every block configuration `Φ`, the derivative at
+  `t` of the expanded function along the ray `ζ ↦ ζ • ψ̂(Φ)` equals
+  `Σ_q ψ̂_q Σ_Y a_Y(q) + Σ_r G_r(t, Φ)` with `a_Y = obsRowCoeff`. -/
+theorem obsRemainder_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (cc : ℂ) {cψ : ℝ} (hcψ : 0 < cψ)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec : ℝ}
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (iy : Fin N)
+    (hp : 0 < S.p₁) (hq : S.p₁ / cψ ≤ 1 / 4)
+    (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ)
+    (hs : ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' m₀ (X1 S.G' m₀ j 𝒦X), Ev Y (rawOf D, ψh))
+    (hd : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir S.hG' Y u u' → Ev Y u = Ev Y u')
+    (hb : ∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y))
+    (ha : ∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ}))
+    {Lb : Type*}
+    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb)
+    (lab : {Y // Y ∈ polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.G' m₀ (X1 S.G' m₀ j 𝒦X)} → Lb) (y₀ : Lb)
+    (hysite : ∀ Y, Lab.ysite (lab Y) = Y.1)
+    (hdl : ∀ Y, Lab.dl (lab Y) = treeLenCovOne m₀ (k + 1) Y.1)
+    (hy₀ : rootCube (m₀ := m₀) (blockIndex y) ∈ blocksOf (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (K := k + 1) m₀ (k + 1) Set.univ (Lab.ysite y₀))
+    {κG κ0 : ℝ} (hκG : κG ≤ 2 * κdec) (hκ0 : aEnt d L + 1 ≤ κ0) :
+    ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+      ObsRemFields S m₀ hp Ev D (polymerDomains
+        (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        S.G' m₀ (X1 S.G' m₀ j 𝒦X)) cψ (cK2' d L N (famConst d L BG₂ κ) * δ₁) κG κ0 Lab lab y₀
+        (rootCube (m₀ := m₀) (blockIndex y)) ∧
+      ∀ (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) (t : ℂ), ‖t‖ < 3 / 2 →
+        deriv (fun ζ : ℂ => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
+            (hatLift S.G' a₁ ν S.hG' cc D (ζ • obsHat S m₀ hp Φ))) y iy) t =
+          ∑ q, obsHat S m₀ hp Φ q * ∑ Y ∈ polymerDomains
+            (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+            S.G' m₀ (X1 S.G' m₀ j 𝒦X), obsRowCoeff S Ev D q Y +
+          ∑ r, obsGr S m₀ hp Ev D (polymerDomains
+            (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+            S.G' m₀ (X1 S.G' m₀ j 𝒦X)) r t Φ := by
+  classical
+  intro D hD
+  have hd3 : 3 ≤ d := hC.HBp.hd
+  have hN : L ^ m₀ ∣ N₁ := hcov.hN
+  have hdj : ∀ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+      i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), IsDj m₀ (k + 1) Y := fun Y hY =>
+    isDj_of_polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.hG' hcov hd3 (fun i => i.1.2) hopt hY
+  have hxX : y ∈ X1 S.G' m₀ j 𝒦X := by rw [← hX₁]; exact hy
+  have hr : rawOf D ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps := ⟨D, hD, rfl⟩
+  have hd0 : 0 < d := by omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hC0 : 0 < cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_pos (cK2'_pos_of hB0) hC.δ₁_pos
+  have hbx : ∀ Y ∈ polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.G' m₀ (X1 S.G' m₀ j 𝒦X), rootCube (m₀ := m₀) (blockIndex y) ∈ obsRowLabel m₀ (k + 1) Y :=
+    fun Y hY => rootCube_mem_obsRowLabel_of_polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hN S.hG' hcov hd3
+      (fun i => i.1.2) hopt rfl hY hxX
+  have hb' : ∀ Y ∈ polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.G' m₀ (X1 S.G' m₀ j 𝒦X), ∀ x ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y x‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
+    intro Y _ x hx
+    have := hb Y x hx
+    rwa [treeLenCov_eq_treeLenCovOne S.hG' m₀ Y, show -2 * κdec = -(2 * κdec) by ring] at this
+  refine ⟨obsRemainder_of_clauses hN hcψ hq hr (fun Y _ => ha Y) hdj (fun Y _ => hd Y) hC0 hb'
+    Lab lab y₀ hysite hdl _ hbx hy₀ hκG hκ0, fun Φ t ht => ?_⟩
+  rw [sum_obsGr]
+  exact obsRemG_ray_decomp hcψ hq hr (fun Y _ => ha Y)
+    (F := fun ψ => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψ)) y iy)
+    (fun ψ hψ => hs D hD ψ hψ) Φ ht
+
+end SharpHat
+
 end Balaban.Fluctuation

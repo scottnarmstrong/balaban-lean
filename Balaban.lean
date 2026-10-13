@@ -1534,6 +1534,7 @@ public import Balaban.Fluctuation.ObsCauchyTwoOrders
 public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
 public import Balaban.Fluctuation.ObsRowCoeff
+public import Balaban.Fluctuation.ObsRemainderMarks
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
 public import Balaban.Fluctuation.RenormDomainParams
