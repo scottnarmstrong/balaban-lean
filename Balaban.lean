@@ -585,6 +585,7 @@ public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
 public import Balaban.SmallField.FinalCutoff
+public import Balaban.SmallField.FinalCutoffPack
 public import Balaban.SmallField.XiGeom
 public import Balaban.SmallField.XiReal
 public import Balaban.SmallField.XiD1
@@ -846,6 +847,7 @@ public import Balaban.LargeField.Base.Prop279
 public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.LargeField.Base.KF0MeanShell
 public import Balaban.LargeField.Base.KF0BoundarySquare
+public import Balaban.LargeField.Base.KF0SectorSum
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
@@ -1534,8 +1536,11 @@ public import Balaban.LargeField.D7PaperSizeRebase
 public import Balaban.Fluctuation.ObsCauchyTwoOrders
 public import Balaban.Fluctuation.ObsMeanBlock
 public import Balaban.Fluctuation.ObsRowLabels
+public import Balaban.Fluctuation.ObsRowCoeff
 public import Balaban.Fluctuation.RenormInputZero
 public import Balaban.Fluctuation.RenormLocFibre
+public import Balaban.Fluctuation.RenormDomainParams
+public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.LargeField.Base.KF0TaylorMajorant
 public import Balaban.LargeField.Base.KF0F1Assembly
