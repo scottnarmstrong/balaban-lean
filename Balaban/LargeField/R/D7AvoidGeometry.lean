@@ -116,6 +116,7 @@ section Sizes
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] [NeZero S.L] {R : ℕ → ℝ}
   {k0 K M m₀ m₁ : ℕ} {k : ℕ}
 
+omit [NeZero S.L] in
 /-- **T2, in `[0, ∞]`.**  For a label disjoint from the removed components the size after `R`
 equals the size before `R`. -/
 theorem d7SizeE_eq_d7SizePreE_of_disjoint (F : FineSizeFrame S n M K m₀ m₁)
@@ -124,6 +125,7 @@ theorem d7SizeE_eq_d7SizePreE_of_disjoint (F : FineSizeFrame S n M K m₀ m₁)
     d7SizeE F A k X = d7SizePreE F A k X :=
   dcovModE_congr_inter (d7Pull_inter_omegaPost_of_disjoint F A.H k h)
 
+omit [NeZero S.L] in
 /-- **T2.**  For a label disjoint from the removed components the real sizes `d7Size` and
 `d7SizePre` are equal. -/
 theorem d7Size_eq_d7SizePre_of_disjoint (F : FineSizeFrame S n M K m₀ m₁)
