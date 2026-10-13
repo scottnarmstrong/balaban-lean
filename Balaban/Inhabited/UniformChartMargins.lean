@@ -8,6 +8,10 @@ module
 public import Balaban.Inhabited.UniformChartRelative
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Fluctuation.MarkedDecBall
+public import Balaban.Inhabited.LevelRayTowerGeneral
+public import Balaban.Inhabited.LevelPairGeneral
+public import Balaban.Inhabited.LevelStepSettingGeneral
+public import Balaban.Inhabited.StepTowerG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FieldSimp
@@ -43,13 +47,90 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 section Ball
 
-variable {N₁ : ℕ} [NeZero N₁]
+variable {d L N N₁ : ℕ} [NeZero L] [NeZero N₁]
 
-/-- **The chart ball at the general-scale step.**  There is `r_D > 0`, independent of
+/-- **The step datum is in the chart, general `d`, `L`, `N`.** -/
+theorem hatStepKG_xiCData (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N) (k m₁ : ℕ) (hk : 1 ≤ k)
+    {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β p₁ δ : ℝ) {t : ℝ}
+    (ht0 : 0 < t) :
+    XiCData (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).G' (compWeight L 1) ν
+      (k + 1) 1 t (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).D' := by
+  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos hN
+  have hHB := bgHyp_lvG (k := k) hd hL (bgR0_le_rhoSepG m₁ hd hL) hν0 hν
+  refine ⟨fun _ => unitVec hN0, unitVec hN0, 0, 0,
+    exists_xiC hHB (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (massLe_lvG hν) ht0, ?_, ?_⟩
+  · intro x hx i
+    have := unitBg_Ψ_of_mem (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0) hx i
+    show (unitBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0)).Ψ x i = _
+    rw [this]; simp
+  · intro x hx i
+    have := unitBg_h_of_mem (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0) hx i
+    show (unitBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0)).h x i = _
+    rw [this]; simp
+
+/-- **The chart ball at the general-scale step, general `d`, `L`, `N`.**  There is `r_D > 0`,
+independent of `β, p₁, δ`, such that (a) every point `q` of `rawSub` with
+`‖q - rawOf S.D'‖ < r_D` lies in `XiCRaw`, and (b) for every source `g₀` of the strict `ℓ¹` ball,
+every `(q, g)` with `‖q - rawOf S.D'‖ < r_D` and `∑ ‖g - g₀‖₁ < 1 - ‖g₀‖₁` lies in `physV`.  No
+lower bound uniform in `k`, `N₁` is claimed. -/
+theorem hatStepKG_chartBall (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N) (k m₁ : ℕ) (hk : 1 ≤ k)
+    {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {t : ℝ} (ht0 : 0 < t) :
+    ∃ r : ℝ, 0 < r ∧ ∀ β p₁ δ : ℝ,
+      (∀ q : ↥(rawSub N (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).G'),
+        ‖(q : RawData d L (N₁ * L ^ m₁) (k + 1) N) -
+            rawOf (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).D'‖ < r →
+          (q : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+            XiCRaw (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).G'
+              (compWeight L 1) ν (k + 1) 1 t) ∧
+      (∀ g₀ ∈ l1Ball d L N₁ m₁ (k + 1) N,
+        ∀ (q : ↥(rawSub N (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).G'))
+          (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+        ‖(q : RawData d L (N₁ * L ^ m₁) (k + 1) N) -
+            rawOf (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ).D'‖ < r →
+        ∑ x, ∑ i, ‖g x i - g₀ x i‖ < 1 - ∑ x, ∑ i, ‖g₀ x i‖ →
+          (q, g) ∈ physV (N := N) (hatStepKG (d := d) (L := L) (N := N) (N₁ := N₁) hN k m₁ (rhoSepG d L m₁) hk ν β p₁ δ)
+            1 ν t) := by
+  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos hN
+  have hHB := bgHyp_lvG (k := k) hd hL (bgR0_le_rhoSepG m₁ hd hL) hν0 hν
+  have hopen := isOpen_preimage_xiCRaw (G := lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (N := N)
+    (n := k + 1) (σ := 1) (ε := t) hHB
+  have hmem : (⟨rawOf (unitBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0)),
+      rawOf_mem_rawSub _⟩ : ↥(rawSub N (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)))) ∈
+      (((↑) : ↥(rawSub N (lvTopG d L N₁ m₁ k (rhoSepG d L m₁))) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N) ⁻¹'
+        XiCRaw (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (compWeight L 1) ν (k + 1) 1 t) :=
+    ⟨_, hatStepKG_xiCData hd hL hN k m₁ hk hν0 hν 0 0 0 ht0, rfl⟩
+  obtain ⟨r, hr, hball⟩ := Metric.isOpen_iff.1 hopen _ hmem
+  have key : ∀ q : ↥(rawSub N (lvTopG d L N₁ m₁ k (rhoSepG d L m₁))),
+        ‖(q : RawData d L (N₁ * L ^ m₁) (k + 1) N) -
+            rawOf (unitBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0))‖ < r →
+          (q : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+            XiCRaw (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (compWeight L 1) ν (k + 1) 1 t := by
+    intro q hq
+    have : q ∈ Metric.ball
+        (⟨rawOf (unitBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) hN0 (unitVec hN0)),
+          rawOf_mem_rawSub _⟩ :
+          ↥(rawSub N (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)))) r := by
+      rw [Metric.mem_ball, dist_eq_norm]
+      exact hq
+    exact hball this
+  refine ⟨r, hr, fun β p₁ δ => ⟨fun q hq => key q hq, ?_⟩⟩
+  intro g₀ hg₀ q g hq hg
+  refine ⟨key q hq, ?_⟩
+  show ∑ x, ∑ i, ‖g x i‖ < 1
+  have h1 : ∀ x i, ‖g x i‖ ≤ ‖g x i - g₀ x i‖ + ‖g₀ x i‖ := fun x i => by
+    simpa using norm_add_le (g x i - g₀ x i) (g₀ x i)
+  calc ∑ x, ∑ i, ‖g x i‖ ≤ ∑ x, ∑ i, (‖g x i - g₀ x i‖ + ‖g₀ x i‖) :=
+        Finset.sum_le_sum fun x _ => Finset.sum_le_sum fun i _ => h1 x i
+    _ = ∑ x, ∑ i, ‖g x i - g₀ x i‖ + ∑ x, ∑ i, ‖g₀ x i‖ := by
+        simp [Finset.sum_add_distrib]
+    _ < 1 := by linarith
+
+/-- **The chart ball at the general-scale step** (`d = L = 3`, `N = 2`): the case of
+`hatStepKG_chartBall` along `rhoSepG 3 3 m₁ = rhoSep m₁`.  There is `r_D > 0`, independent of
 `β, p₁, δ`, such that (a) every point `q` of `rawSub` with `‖q - rawOf S.D'‖ < r_D` lies in
 `XiCRaw`, and (b) for every source `g₀` of the strict `ℓ¹` ball, every `(q, g)` with
-`‖q - rawOf S.D'‖ < r_D` and `∑ ‖g - g₀‖₁ < 1 - ‖g₀‖₁` lies in `physV`.  No lower bound uniform in
-`k`, `N₁` is claimed. -/
+`‖q - rawOf S.D'‖ < r_D` and `∑ ‖g - g₀‖₁ < 1 - ‖g₀‖₁` lies in `physV`. -/
 theorem hatStepK_chartBall (k m₁ : ℕ) (hk : 1 ≤ k) {ν : ℝ} (hν0 : 0 ≤ ν)
     (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) {t : ℝ} (ht0 : 0 < t) :
     ∃ r : ℝ, 0 < r ∧ ∀ β p₁ δ : ℝ,
@@ -65,38 +146,12 @@ theorem hatStepK_chartBall (k m₁ : ℕ) (hk : 1 ≤ k) {ν : ℝ} (hν0 : 0 �
             rawOf (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).D'‖ < r →
         ∑ x, ∑ i, ‖g x i - g₀ x i‖ < 1 - ∑ x, ∑ i, ‖g₀ x i‖ →
           (q, g) ∈ physV (N := 2) (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t) := by
-  have hopen := isOpen_preimage_xiCRaw (G := lvTop N₁ m₁ k (rhoSep m₁)) (N := 2)
-    (n := k + 1) (σ := 1) (ε := t) (bgHyp_lv (k := k) (ν := ν) m₁ hν0 hν)
-  have hmem : (⟨rawOf (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)),
-      rawOf_mem_rawSub _⟩ : ↥(rawSub 2 (lvTop N₁ m₁ k (rhoSep m₁)))) ∈
-      (((↑) : ↥(rawSub 2 (lvTop N₁ m₁ k (rhoSep m₁))) →
-        RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2) ⁻¹'
-        XiCRaw (lvTop N₁ m₁ k (rhoSep m₁)) (compWeight 3 1) ν (k + 1) 1 t) :=
-    hatStepK_rawOf_mem_xiCRaw k m₁ hk hν0 hν 0 0 0 ht0
-  obtain ⟨r, hr, hball⟩ := Metric.isOpen_iff.1 hopen _ hmem
-  have key : ∀ q : ↥(rawSub 2 (lvTop N₁ m₁ k (rhoSep m₁))),
-        ‖(q : RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2) -
-            rawOf (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2))‖ < r →
-          (q : RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2) ∈
-            XiCRaw (lvTop N₁ m₁ k (rhoSep m₁)) (compWeight 3 1) ν (k + 1) 1 t := by
-    intro q hq
-    have : q ∈ Metric.ball
-        (⟨rawOf (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)), rawOf_mem_rawSub _⟩ :
-          ↥(rawSub 2 (lvTop N₁ m₁ k (rhoSep m₁)))) r := by
-      rw [Metric.mem_ball, dist_eq_norm]
-      exact hq
-    exact hball this
-  refine ⟨r, hr, fun β p₁ δ => ⟨fun q hq => key q hq, ?_⟩⟩
-  intro g₀ hg₀ q g hq hg
-  refine ⟨key q hq, ?_⟩
-  show ∑ x, ∑ i, ‖g x i‖ < 1
-  have h1 : ∀ x i, ‖g x i‖ ≤ ‖g x i - g₀ x i‖ + ‖g₀ x i‖ := fun x i => by
-    simpa using norm_add_le (g x i - g₀ x i) (g₀ x i)
-  calc ∑ x, ∑ i, ‖g x i‖ ≤ ∑ x, ∑ i, (‖g x i - g₀ x i‖ + ‖g₀ x i‖) :=
-        Finset.sum_le_sum fun x _ => Finset.sum_le_sum fun i _ => h1 x i
-    _ = ∑ x, ∑ i, ‖g x i - g₀ x i‖ + ∑ x, ∑ i, ‖g₀ x i‖ := by
-        simp [Finset.sum_add_distrib]
-    _ < 1 := by linarith
+  obtain ⟨r, hr, H⟩ := hatStepKG_chartBall (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl le_rfl
+    le_rfl k m₁ hk hν0 (by simpa using hν) ht0
+  refine ⟨r, hr, fun β p₁ δ => ?_⟩
+  have := H β p₁ δ
+  rw [rhoSepG_three] at this
+  exact this
 
 end Ball
 
@@ -149,11 +204,65 @@ end Source
 
 section Margins
 
+/-- **The margins of the fluctuation disc and of the marked disc, general `d`, `L`, `N`.**  With
+`b = β_k > 0`, `c_ψ = lvCpsiG d L N κ t b` and `B = √N · (|b^{-1/2}| · (C_k · c_ψ))`:
+`B = C_k t / (2 (C_max + 1)) ≤ t C_max / (2 (C_max + 1)) < t / 2`, and with the radii
+`R₁ = R_σ = 17/16`, `r = t₁ = 1/16`: `(R₁ + r)(R_σ + t₁) B = (9/8)² B ≤ 81 t / 128 < t`. -/
+theorem scale_markedDisc_marginG {d L N : ℕ} (hd : 0 < d) (hL : 3 ≤ L) (hN : 0 < N) (κ : ℝ)
+    {t : ℝ} (ht : 0 < t) {k : ℕ} (hk : 1 ≤ k) {b : ℝ} (hb : 0 < b) :
+    Real.sqrt (N : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L (1 : ℝ) k) κ * lvCpsiG d L N κ t b)) =
+        covSupConstC d L N (compWeight L (1 : ℝ) k) κ * t / (2 * (covSupMaxC d L N κ + 1)) ∧
+    covSupConstC d L N (compWeight L (1 : ℝ) k) κ * t / (2 * (covSupMaxC d L N κ + 1)) ≤
+      t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) ∧
+    t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) < t / 2 ∧
+    ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) *
+      (Real.sqrt (N : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L (1 : ℝ) k) κ * lvCpsiG d L N κ t b))) ≤ 81 * t / 128 ∧
+    81 * t / 128 < t := by
+  have hCm := covSupMaxC_nonneg_general (N := N) hd hL κ
+  have hmem : compWeight L (1 : ℝ) k ∈ Set.Icc (1 / 2 : ℝ) 2 :=
+    compWeight_mem_Icc hL (by norm_num) (by norm_num) hk
+  have hC0 : 0 ≤ covSupConstC d L N (compWeight L (1 : ℝ) k) κ :=
+    covSupConstC_nonneg hd hL (by linarith [hmem.1]) κ
+  have hCle : covSupConstC d L N (compWeight L (1 : ℝ) k) κ ≤ covSupMaxC d L N κ :=
+    covSupConstC_le_covSupMaxC hd hL κ hmem
+  have hT0 : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
+  have e : b ^ (-(1 / 2 : ℝ)) = (Real.sqrt b)⁻¹ := by
+    rw [Real.rpow_neg hb.le, ← Real.sqrt_eq_rpow]
+  have hn : ‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ = (Real.sqrt b)⁻¹ := by
+    rw [Complex.norm_real, Real.norm_of_nonneg (by positivity), e]
+  have h1 : Real.sqrt (N : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L (1 : ℝ) k) κ * lvCpsiG d L N κ t b)) =
+        covSupConstC d L N (compWeight L (1 : ℝ) k) κ * t / (2 * (covSupMaxC d L N κ + 1)) := by
+    rw [hn]
+    unfold lvCpsiG
+    have : Real.sqrt (N : ℝ) ≠ 0 := (Real.sqrt_pos.2 (by exact_mod_cast hN)).ne'
+    field_simp
+  have hD : 0 < 2 * (covSupMaxC d L N κ + 1) := by positivity
+  have h2 : covSupConstC d L N (compWeight L (1 : ℝ) k) κ * t /
+        (2 * (covSupMaxC d L N κ + 1)) ≤
+      t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) := by
+    apply div_le_div_of_nonneg_right _ hD.le
+    nlinarith
+  have h3 : t * covSupMaxC d L N κ / (2 * (covSupMaxC d L N κ + 1)) < t / 2 := by
+    rw [div_lt_div_iff₀ hD (by norm_num)]
+    nlinarith
+  have h4 : 81 * t / 128 < t := by linarith
+  refine ⟨h1, h2, h3, ?_, h4⟩
+  rw [h1]
+  have : ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) = 81 / 64 := by norm_num
+  rw [this]
+  have hq : covSupConstC d L N (compWeight L (1 : ℝ) k) κ * t /
+        (2 * (covSupMaxC d L N κ + 1)) ≤ t / 2 := (h2.trans h3.le)
+  linarith
+
 /-- **The fixed margins of the fluctuation disc and of the marked disc, at every scale.**  With
 `b = β_k > 0`, `c_ψ = lvCpsi κ t b` and `B = √2 · (|b^{-1/2}| · (C_k · c_ψ))` the quantity of
 `scale_C_items` (and of `markedDisc_hatPsiF_mem_flBallLC` with `cc = b^{-1/2}`, `N = 2`):
 `B = C_k t / (2 (C_max + 1)) ≤ t C_max / (2 (C_max + 1)) < t / 2`, and with the radii
-`R₁ = R_σ = 17/16`, `r = t₁ = 1/16`: `(R₁ + r)(R_σ + t₁) B = (9/8)² B ≤ 81 t / 128 < t`. -/
+`R₁ = R_σ = 17/16`, `r = t₁ = 1/16`: `(R₁ + r)(R_σ + t₁) B = (9/8)² B ≤ 81 t / 128 < t`.  The case
+`d = L = 3`, `N = 2` of `scale_markedDisc_marginG`. -/
 theorem scale_markedDisc_margin (κ : ℝ) {t : ℝ} (ht : 0 < t) {k : ℕ} (hk : 1 ≤ k) {b : ℝ}
     (hb : 0 < b) :
     Real.sqrt ((2 : ℕ) : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
@@ -165,54 +274,104 @@ theorem scale_markedDisc_margin (κ : ℝ) {t : ℝ} (ht : 0 < t) {k : ℕ} (hk 
     ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) *
       (Real.sqrt ((2 : ℕ) : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
         (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * lvCpsi κ t b))) ≤ 81 * t / 128 ∧
-    81 * t / 128 < t := by
-  have hCm := covSupMaxC_nonneg κ
-  have hmem := compWeight_three_mem hk
-  have hC0 : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ :=
-    covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) κ
-  have hCle : covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ ≤ covSupMaxC 3 3 2 κ :=
-    covSupConstC_le_covSupMaxC (by norm_num) (by norm_num) κ hmem
-  have hT0 : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
-  have e : b ^ (-(1 / 2 : ℝ)) = (Real.sqrt b)⁻¹ := by
-    rw [Real.rpow_neg hb.le, ← Real.sqrt_eq_rpow]
-  have hn : ‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ = (Real.sqrt b)⁻¹ := by
-    rw [Complex.norm_real, Real.norm_of_nonneg (by positivity), e]
-  have h1 : Real.sqrt ((2 : ℕ) : ℝ) * (‖((b ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * lvCpsi κ t b)) =
-        covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * t / (2 * (covSupMaxC 3 3 2 κ + 1)) := by
-    rw [hn]
-    unfold lvCpsi
-    have : Real.sqrt ((2 : ℕ) : ℝ) ≠ 0 := by positivity
-    field_simp
-  have hD : 0 < 2 * (covSupMaxC 3 3 2 κ + 1) := by positivity
-  have h2 : covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * t / (2 * (covSupMaxC 3 3 2 κ + 1)) ≤
-      t * covSupMaxC 3 3 2 κ / (2 * (covSupMaxC 3 3 2 κ + 1)) := by
-    apply div_le_div_of_nonneg_right _ hD.le
-    nlinarith
-  have h3 : t * covSupMaxC 3 3 2 κ / (2 * (covSupMaxC 3 3 2 κ + 1)) < t / 2 := by
-    rw [div_lt_div_iff₀ hD (by norm_num)]
-    nlinarith
-  have h4 : 81 * t / 128 < t := by linarith
-  refine ⟨h1, h2, h3, ?_, h4⟩
-  rw [h1]
-  have : ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) = 81 / 64 := by norm_num
-  rw [this]
-  have hq : covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * t / (2 * (covSupMaxC 3 3 2 κ + 1)) ≤
-      t / 2 := (h2.trans h3.le)
-  linarith
+    81 * t / 128 < t :=
+  scale_markedDisc_marginG (d := 3) (L := 3) (N := 2) (by norm_num) le_rfl (by norm_num) κ ht hk hb
 
 end Margins
 
 section Marked
 
-/-- **`markedDisc_hatPsiF_mem_flBallLC` at every scale with the fixed radii.**  With the tower
-constants `m₁, BG, κ, t` of `tower_core_rates` (`N = 2`), for every scale, torus, mass and `β > 0`
-the masked tangent `(ρ + τ) • markedHatPsiF …` lies in `FlBallLC (lvLow …) t` for `|u| < 17/16`,
-`|w| < 1/16`, `|ρ| < 17/16`, `|τ| ≤ 1/16`, `cc = β_k^{-1/2}`, every chart datum `D` of `Ξ^c(·;1,t)`,
-every `ψ̂` with `|ψ̂| ≤ c_ψ`, and every `F₁` identifying the decoupled background.  The hypotheses
-that stay explicit are the datum premises: the identification `hF₁` of `F₁` (the definition of the
-decoupled-background map), the bound on `s`, `XiCData`, and `|ψ̂| ≤ c_ψ`; `FlCore`, the radius
-premise and the numerical premises are discharged. -/
+/-- **`markedDisc_hatPsiF_mem_flBallLC` at every scale with the fixed radii, general `d`, `L`,
+`N`.**  There are constants `m₁, BG, κ, t` (`tower_core_rates_general`) such that for every scale,
+torus, mass and `β > 0` the masked tangent `(ρ + τ) • markedHatPsiF …` lies in
+`FlBallLC (lvLowG …) t` for `|u| < 17/16`, `|w| < 1/16`, `|ρ| < 17/16`, `|τ| ≤ 1/16`,
+`cc = (β L^{k(d-2)})^{-1/2}`, every chart datum `D` of `Ξ^c(·;1,t)`, every `ψ̂` with
+`|ψ̂| ≤ c_ψ`, and every `F₁` identifying the decoupled background.  The hypotheses that stay
+explicit are the datum premises: the identification `hF₁` of `F₁`, the bound on `s`, `XiCData`, and
+`|ψ̂| ≤ c_ψ`; `FlCore`, the radius premise and the numerical premises are discharged. -/
+theorem scale_markedDisc_mem_flBallLCG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (hN : 2 ≤ N) :
+    ∃ (m₁ : ℕ) (BG κ t : ℝ), 4 ≤ m₁ ∧ 0 < t ∧
+      ∀ (k : ℕ), 1 ≤ k → ∀ (N₁ : ℕ) [NeZero N₁], 5 < N₁ →
+      ∀ ν : ℝ, 0 ≤ ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, 0 < β →
+      ∀ F₁ : DecParams (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) ×
+          RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          ((lvTopG d L N₁ m₁ k (rhoSepG d L m₁)).Ω 1 × Fin N → ℂ) ×
+            ((lvTopG d L N₁ m₁ k (rhoSepG d L m₁)).Ω 1 → ℂ),
+      (∀ (s : DecParams (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)))
+          (D : BgData (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) N),
+        (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (bgC0 d L N) (c7 d L N BG κ) ν D →
+        ∀ (φ : (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)).Ω 1 × Fin N → ℂ)
+          (α : (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)).Ω 1 → ℂ),
+        IsDecBg (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (compWeight L 1) ν (rho4 d L N BG κ) s D
+          φ α → F₁ (s, rawOf D) = (φ, α)) →
+      ∀ (s : DecParams (lvTopG d L N₁ m₁ k (rhoSepG d L m₁))), (∀ P, ‖s P‖ < Real.exp κ) →
+      ∀ D : BgData (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) N,
+        XiCData (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) (compWeight L 1) ν (k + 1) 1 t D →
+      ∀ ψh : unitPts (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)) × Fin N → ℂ,
+        (∀ p, ‖ψh p‖ ≤ lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2)))) →
+      ∀ (Z : Finset (unitPts (lvTopG d L N₁ m₁ k (rhoSepG d L m₁)))) (u w ρ τ : ℂ),
+        ‖u‖ < 17 / 16 → ‖w‖ < 1 / 16 → ‖ρ‖ < 17 / 16 → ‖τ‖ ≤ 1 / 16 →
+        (ρ + τ) • markedHatPsiF 1 ν
+          (isLevel_lvTopG (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)
+            (ϱ := rhoSepG d L m₁))
+          (((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Z u w s (rawOf D) ψh ∈
+          FlBallLC (lvLowG d L N₁ m₁ k (rhoSepG d L m₁)) t := by
+  classical
+  have hc1 := one_le_c1 d L
+  have hent := aEnt_nonneg d L
+  have hL0 : (0 : ℝ) < (L : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hνref : νref L * (L : ℝ) ^ (2 * (1 + 1)) ≤ 1 := by
+    unfold νref
+    rw [div_mul_eq_mul_div, one_mul, div_le_one (by positivity)]
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, -⟩ :=
+    tower_core_rates_general N hd hL (ν := νref L) (by unfold νref; positivity) hνref 0
+      (κ0 := aEnt d L + 1) (κdec := 3 * (aEnt d L + 1) + c1 d L + 5) le_rfl le_rfl
+  refine ⟨m₁, BG, κ, t, h4, ht0, ?_⟩
+  intro k hk N₁ _ hN₁ ν hν0 hν β hβ F₁ hF₁ s hs D hD ψh hψh Z u w ρ τ hu hw hρ hτ
+  have hHB := bgHyp_lvG (k := k) hd hL (bgR0_le_rhoSepG m₁ hd hL) hν0 hν
+  have hC : FlCore N (lvTopG d L N₁ m₁ k (rhoSepG d L m₁))
+      (lvLowG d L N₁ m₁ k (rhoSepG d L m₁)) 1 ν c BG κ t
+      (levelKc d L) (Cchi d L) c₂ BG₂ t :=
+    flCore_level_transfer hC₀ (dgSetting_lvG hd hL h4 hN₁ hν0 hν)
+      (opSetting_lvG hd hL h4 hN₁ hν0 hν)
+      (isLevel_lvLowG hk) isLevel_lvTopG hHB
+  have hb : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by positivity
+  have hN0 : 0 < N := Nat.lt_of_lt_of_le two_pos hN
+  obtain ⟨h1', -, -, h4', -⟩ :=
+    scale_markedDisc_marginG (d := d) (N := N) (by omega) hL hN0 κ ht0 hk hb
+  have hcψ : 0 ≤ lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2))) := by
+    unfold lvCpsiG
+    have := covSupMaxC_nonneg_general (N := N) (by omega : 0 < d) hL κ
+    positivity
+  have hB : 0 ≤ Real.sqrt (N : ℝ) *
+      (‖(((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+      (covSupConstC d L N (compWeight L (1 : ℝ) k) κ *
+        lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2))))) := by
+    have hmem : compWeight L (1 : ℝ) k ∈ Set.Icc (1 / 2 : ℝ) 2 :=
+      compWeight_mem_Icc hL (by norm_num) (by norm_num) hk
+    have hC0 : 0 ≤ covSupConstC d L N (compWeight L (1 : ℝ) k) κ :=
+      covSupConstC_nonneg (by omega) hL (by linarith [hmem.1]) κ
+    positivity
+  have hrad : ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) *
+      (Real.sqrt (N : ℝ) * (‖(((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L (1 : ℝ) k) κ *
+          lvCpsiG d L N κ t (β * (L : ℝ) ^ (k * (d - 2)))))) < t :=
+    lt_of_le_of_lt h4' (scale_markedDisc_marginG (d := d) (N := N) (by omega) hL hN0 κ ht0 hk hb).2.2.2.2
+  exact markedDisc_hatPsiF_mem_flBallLC hC hk (isLevel_lvLowG hk) isLevel_lvTopG _ hcψ hMX hdm
+    hα hsmX hF₁ hs hD hψh Z hB hrad hu hw hρ hτ
+
+/-- **`markedDisc_hatPsiF_mem_flBallLC` at every scale with the fixed radii.**  The case
+`d = L = 3`, `N = 2` of `scale_markedDisc_mem_flBallLCG`.  With the tower constants
+`m₁, BG, κ, t` of `tower_core_rates` (`N = 2`), for every scale, torus, mass and `β > 0` the
+masked tangent `(ρ + τ) • markedHatPsiF …` lies in `FlBallLC (lvLow …) t` for `|u| < 17/16`,
+`|w| < 1/16`, `|ρ| < 17/16`, `|τ| ≤ 1/16`, `cc = β_k^{-1/2}`, every chart datum `D` of
+`Ξ^c(·;1,t)`, every `ψ̂` with `|ψ̂| ≤ c_ψ`, and every `F₁` identifying the decoupled background.
+The hypotheses that stay explicit are the datum premises: the identification `hF₁` of `F₁` (the
+definition of the decoupled-background map), the bound on `s`, `XiCData`, and `|ψ̂| ≤ c_ψ`;
+`FlCore`, the radius premise and the numerical premises are discharged. -/
 theorem scale_markedDisc_mem_flBallLC :
     ∃ (m₁ : ℕ) (BG κ t : ℝ), 4 ≤ m₁ ∧ 0 < t ∧
       ∀ (k : ℕ), 1 ≤ k → ∀ (N₁ : ℕ) [NeZero N₁], 5 < N₁ →
@@ -236,38 +395,14 @@ theorem scale_markedDisc_mem_flBallLC :
         (ρ + τ) • markedHatPsiF 1 ν (isLevel_lvTop (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := rhoSep m₁))
           (((β * 3 ^ k) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Z u w s (rawOf D) ψh ∈
           FlBallLC (lvLow N₁ m₁ k (rhoSep m₁)) t := by
-  classical
-  have hc1 := one_le_c1 3 3
-  have hent := aEnt_nonneg 3 3
-  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
-    hMX, hdm, hα, hsmX, -⟩ :=
-    tower_core_rates 2 (κ0 := aEnt 3 3 + 1) (κdec := 3 * (aEnt 3 3 + 1) + c1 3 3 + 5) le_rfl
-      le_rfl
-  refine ⟨m₁, BG, κ, t, h4, ht0, ?_⟩
-  intro k hk N₁ _ hN ν hν0 hν β hβ F₁ hF₁ s hs D hD ψh hψh Z u w ρ τ hu hw hρ hτ
-  have hHB := bgHyp_lv (k := k) (ν := ν) m₁ hν0 hν
-  have hC : FlCore 2 (lvTop N₁ m₁ k (rhoSep m₁)) (lvLow N₁ m₁ k (rhoSep m₁)) 1 ν c BG κ t
-      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
-    flCore_level_transfer hC₀ (dgSetting_lv h4 hN hν0 hν) (opSetting_lv h4 hN hν0 hν)
-      (isLevel_lvLow hk) isLevel_lvTop hHB
-  have hb : 0 < β * 3 ^ k := by positivity
-  obtain ⟨h1', -, -, h4', -⟩ := scale_markedDisc_margin κ ht0 hk hb
-  have hcψ : 0 ≤ lvCpsi κ t (β * 3 ^ k) := by
-    unfold lvCpsi
-    have := covSupMaxC_nonneg κ
-    positivity
-  have hB : 0 ≤ Real.sqrt ((2 : ℕ) : ℝ) * (‖(((β * 3 ^ k) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-      (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * lvCpsi κ t (β * 3 ^ k))) := by
-    have hmem := compWeight_three_mem hk
-    have hC0 : 0 ≤ covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ :=
-      covSupConstC_nonneg (by norm_num) (by norm_num) (by linarith [hmem.1]) κ
-    positivity
-  have hrad : ((17 / 16 : ℝ) + 1 / 16) * ((17 / 16 : ℝ) + 1 / 16) *
-      (Real.sqrt ((2 : ℕ) : ℝ) * (‖(((β * 3 ^ k) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        (covSupConstC 3 3 2 (compWeight 3 (1 : ℝ) k) κ * lvCpsi κ t (β * 3 ^ k)))) < t :=
-    lt_of_le_of_lt h4' (scale_markedDisc_margin κ ht0 hk hb).2.2.2.2
-  exact markedDisc_hatPsiF_mem_flBallLC hC hk (isLevel_lvLow hk) isLevel_lvTop _ hcψ hMX hdm hα
-    hsmX hF₁ hs hD hψh Z hB hrad hu hw hρ hτ
+  obtain ⟨m₁, BG, κ, t, h4, ht, H⟩ :=
+    scale_markedDisc_mem_flBallLCG (d := 3) (L := 3) (N := 2) le_rfl le_rfl le_rfl
+  refine ⟨m₁, BG, κ, t, h4, ht, ?_⟩
+  intro k hk N₁ _ hN ν hν0 hν β hβ
+  have := H k hk N₁ hN ν hν0 (by simpa using hν) β hβ
+  rw [rhoSepG_three] at this
+  simp only [Nat.cast_ofNat, Nat.reduceSub, mul_one] at this
+  exact this
 
 end Marked
 
