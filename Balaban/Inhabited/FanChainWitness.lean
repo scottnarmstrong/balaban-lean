@@ -13,6 +13,8 @@ public import Balaban.Fluctuation.HatEngineFan
 public import Balaban.Fluctuation.ScaleUniform
 public import Balaban.Fluctuation.Prop33SymmV
 public import Balaban.Inhabited.MarkedSharpCountWitness
+public import Balaban.Inhabited.ScaleActivityFinal
+public import Balaban.Fluctuation.LevelLocalCover
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FieldSimp
@@ -29,7 +31,7 @@ namespace Balaban.Inhabited
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
-  Balaban.Polymer Balaban.SmallField.Def6 Matrix
+  Balaban.Polymer Balaban.SmallField.Def6 Matrix Balaban.Inhabited.LevelStep
 
 set_option hygiene false in
 /-- Local tactic: the tower data of `tower_core_fixed` and `tower_C_items` shared by the instances
@@ -793,5 +795,118 @@ theorem fanChain_fan_locality_marked :
     (fun _ _ => Finset.mem_coe.2 (Finset.mem_univ _))
     (blockMargin_univ fun x _ _ => mem_some_intBox h4 x)
     (fun t _ t' _ _ hα hδ _ hψ => blockEnergyFun_local_dir _ nuW 1 z hα hδ hψ)
+
+
+set_option quotPrecheck false in
+/-- The top level generating set of the step at scale `k = 1` on the torus `N₁`. -/
+local notation "Gl[" n "," m "]" => lvTop n m 1 (rhoSep m)
+
+open Classical in
+/-- **A proper-component instance of `hatPsiF_rows`, `markedHatPsiF_rows`** at the step
+`hatStepK` of scale `k = 1` (mass `ν = 1/81`) on every torus `N₁` with `3 ∣ N₁`, `5 < N₁`.  The
+region is the local cover `X₁ = nbhdF 1 x₀` (the `5 × 5 × 5` cells of side `3^{3+m₁}` around the
+cell of `x₀`), `𝒞 = ∅`, the component is `Y = X₁`, and the cut is `s = 1` on the cubes inside `X₁`
+and `0` on the others (the only cut allowed by the hypotheses `hs1, hs0`).  The data `D, D'` agree on
+`X₁` only, the hat variables on the unit blocks inside `X₁` only.  For `N₁ > 15` the component is a
+proper subset of the torus (`nbhdF_ne_univ`); for `N₁ = 9` it is the whole torus.  The pair
+`D ≠ D'` is not constructed: the instance quantifies over all admissible pairs, and the pair
+`D = D'` is among them. -/
+theorem fanChain_rows_proper :
+    ∃ (m₁ : ℕ) (BG κ t δ β₀ : ℝ), 2 ≤ β₀ ∧ 0 < t ∧ 0 < κ ∧
+      ∀ (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ → ∀ β : ℝ, β₀ ≤ β →
+        ∃ F₁ : DecParams Gl[N₁, m₁] × RawData 3 3 (N₁ * 3 ^ m₁) (1 + 1) 2 →
+            (Gl[N₁, m₁].Ω 1 × Fin 2 → ℂ) × (Gl[N₁, m₁].Ω 1 → ℂ),
+          F1Spec Gl[N₁, m₁] 1 nuW BG κ F₁ ∧
+          ∀ x₀ : CTorus 3 3 N₁ m₁ (1 + 1),
+            (15 < N₁ → LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀ ≠ Finset.univ) ∧
+            ∀ D D' : BgData Gl[N₁, m₁] 2,
+              XiCData Gl[N₁, m₁] (compWeight 3 1) nuW (1 + 1) 1 t D →
+              XiCData Gl[N₁, m₁] (compWeight 3 1) nuW (1 + 1) 1 t D' →
+              (∀ z ∈ LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀,
+                D.Ψ z = D'.Ψ z ∧ (z ∈ Gl[N₁, m₁].Ω 1 → D.h z = D'.h z)) →
+              ∀ ψh ψh' : unitPts Gl[N₁, m₁] × Fin 2 → ℂ,
+                (∀ b' : unitPts Gl[N₁, m₁],
+                  UnitOut Gl[N₁, m₁] (LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀) b' →
+                  ∀ i, ψh (b', i) = ψh' (b', i)) →
+              ∀ y ∈ LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀,
+                hatPsiF Gl[N₁, m₁] 1 nuW (isLevel_lvTop (N₁ := N₁) (m₁ := m₁) (k := 1))
+                  ((((hatStepK (N₁ := N₁) 1 m₁ le_rfl nuW β 1 δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+                  F₁ (fun P => if cubeP P.1 ⊆ LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀ then 1 else 0) (rawOf D) ψh y =
+                hatPsiF Gl[N₁, m₁] 1 nuW (isLevel_lvTop (N₁ := N₁) (m₁ := m₁) (k := 1))
+                  ((((hatStepK (N₁ := N₁) 1 m₁ le_rfl nuW β 1 δ).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+                  F₁ (fun P => if cubeP P.1 ⊆ LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀ then 1 else 0) (rawOf D') ψh' y := by
+  classical
+  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
+    exists_witness_params (fun _ => 0)
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, κdec, κ0, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0⟩ := tower_core_fixed 2
+  have hκdec0 : 0 ≤ κdec := by linarith
+  have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
+  have hκpos : 0 < κ := by
+    have : 0 < κdec := by linarith
+    have h5 : (0 : ℝ) < 4 * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec := by positivity
+    linarith
+  refine ⟨m₁, BG, κ, t, δ, 2, le_rfl, ht0, hκpos, ?_⟩
+  intro N₁ _ h3N hN β hβ
+  have hν0 : 0 ≤ nuW := by unfold nuW; norm_num
+  have hν : nuW * 3 ^ (2 * (1 + 1)) ≤ 1 := by unfold nuW; norm_num
+  have hSD := dgSetting_lv (N₁ := N₁) (k := 1) h4 hN hν0 hν
+  have hHB := bgHyp_lv (k := 1) m₁ hν0 hν
+  have hC : FlCore 2 (lvTop N₁ m₁ 1 (rhoSep m₁)) (lvLow N₁ m₁ 1 (rhoSep m₁)) 1 nuW c BG κ t
+      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
+    flCore_level_transfer hC₀ hSD (opSetting_lv h4 hN hν0 hν) (isLevel_lvLow le_rfl) isLevel_lvTop hHB
+  obtain ⟨F₁, hF₁⟩ := f1Spec_exists hC
+  refine ⟨F₁, hF₁, fun x₀ => ⟨fun h15 => ?_, ?_⟩⟩
+  · exact LocalCover.nbhdF_ne_univ (m₀ := 1) (by norm_num) (by omega) x₀
+  intro D D' hD hD' hdata ψh ψh' hh y hy
+  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  have hG' : IsLevel (lvTop N₁ m₁ 1 (rhoSep m₁)) (1 + 1) := isLevel_lvTop
+  set X₁ := LocalCover.nbhdF (N₁ := N₁) (m₁ := m₁) 1 x₀ with hX₁def
+  have hX₁eq : (↑X₁ : Set (CTorus 3 3 N₁ m₁ (1 + 1))) =
+      X1 (lvTop N₁ m₁ 1 (rhoSep m₁)) 1 1 (LocalCover.fam 1 x₀) :=
+    LocalCover.coe_nbhdF_eq_X1 hG' hN3 le_rfl x₀
+  have hcell : IsCellUnion (3 ^ (1 + 1)) (↑X₁ : Set (CTorus 3 3 N₁ m₁ (1 + 1))) := by
+    rw [hX₁eq]; exact X1_isCellUnion_unit hN3
+  have hfil : ((Vset X₁ ∅).filter fun x => x ∈ (lvTop N₁ m₁ 1 (rhoSep m₁)).Ω 1) = X₁ := by
+    ext x
+    simp [Vset, hG'.Ω_one]
+  have hY : IsNnComp ((Vset X₁ ∅).filter fun x => x ∈ (lvTop N₁ m₁ 1 (rhoSep m₁)).Ω 1) X₁ := by
+    rw [hfil]; exact ⟨subset_rfl, fun _ _ y hy _ => hy⟩
+  have hs : ∀ P, ‖(fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+      if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P‖ <
+      Real.exp κ := fun P => by
+    have := Real.one_lt_exp_iff.2 hκpos
+    beta_reduce
+    split_ifs <;> simp <;> linarith
+  have hs1 : ∀ P ∈ cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁)),
+      P ∉ parCubes (lvTop N₁ m₁ 1 (rhoSep m₁)) X₁ →
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P = 1 ∧
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P = 1 := by
+    intro P hP hPn
+    have hsub : cubeP P ⊆ X₁ := by
+      by_contra hn
+      exact hPn (by simp [parCubes, hP, hn])
+    simp [extS, hP, hsub]
+  have hs0 : ∀ P ∈ parCubes (lvTop N₁ m₁ 1 (rhoSep m₁)) X₁,
+      P ∉ (∅ : Finset (ℕ × CTorus 3 3 N₁ m₁ (1 + 1))) →
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P = 0 ∧
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P = 0 := by
+    intro P hP _
+    have hPc : P ∈ cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁)) := (Finset.mem_filter.1 hP).1
+    have hn : ¬ cubeP P ⊆ X₁ := (Finset.mem_filter.1 hP).2
+    simp [extS, hPc, hn]
+  have hag : ∀ P ∈ (∅ : Finset (ℕ × CTorus 3 3 N₁ m₁ (1 + 1))),
+      SubI (lvTop N₁ m₁ 1 (rhoSep m₁)) (cubeP P) X₁ →
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P =
+      extS (lvTop N₁ m₁ 1 (rhoSep m₁)) (fun P : ↥(cubeIdx (lvTop N₁ m₁ 1 (rhoSep m₁))) =>
+        if cubeP P.1 ⊆ X₁ then (1 : ℂ) else 0) P :=
+    fun P hP => absurd hP (by simp)
+  exact hatPsiF_rows hC le_rfl hG' _ hatConn_lvTop hMX hdm hα hsmX hF₁ hs hs hD hD' hY hs1 hs0 hag
+    hcell (fun P hP => absurd hP (by simp)) hdata ψh ψh' hh y hy
 
 end Balaban.Inhabited
