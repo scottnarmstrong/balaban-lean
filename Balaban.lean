@@ -1525,6 +1525,7 @@ public import Balaban.Inhabited.DecMarkCorrTotalFromTowerG
 public import Balaban.Inhabited.DecMarkCorrSumFromTowerG
 public import Balaban.Inhabited.E1ParamFibreValueG
 public import Balaban.Inhabited.E1CoeffFamilyG
+public import Balaban.Inhabited.E0CoeffFamilyG
 public import Balaban.Inhabited.MarkRealSlice
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkedFamilyAllRoots
