@@ -1457,12 +1457,16 @@ public import Balaban.Fluctuation.StepActivityDirectScaled
 public import Balaban.Inhabited.StepActivityDirectScaledWitness
 public import Balaban.Inhabited.StepActivityDirectPhysicalRates
 public import Balaban.Inhabited.TowerCoreRatesAtLeast
+public import Balaban.Inhabited.TowerCoreRatesRen
+public import Balaban.Inhabited.StepTowerRen
 public import Balaban.Inhabited.StepTower
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
 public import Balaban.Inhabited.ExpSourceChartFromTower
 public import Balaban.Inhabited.SourceFamilyRelativeFromTower
+public import Balaban.Inhabited.SourceDirectTermsFromTower
+public import Balaban.Inhabited.SourceActivityFromTower
 public import Balaban.Inhabited.StepOutputConsts
 public import Balaban.Fluctuation.LevelLocalCover
 public import Balaban.Inhabited.LevelRayTower
@@ -1583,3 +1587,4 @@ public import Balaban.Fluctuation.ObsMarksAssembly
 public import Balaban.Fluctuation.MarkRealDomain
 public import Balaban.Fluctuation.MarkRealRegular
 public import Balaban.Fluctuation.RenormSharedClass
+public import Balaban.Fluctuation.SourcePhysValBridge
