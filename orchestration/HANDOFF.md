@@ -13,9 +13,7 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W458 | `w458-direct-terms-formula` / W458 | ray clause through the direct-terms construction — edits landed files by strengthening only |
-| W463 | `w463-ren-det-fibre-map` / W463 | renormalization: fibre map from collar hulls to the cover `renYs` (E0THETA 6) |
 | W465 (Opus) | `w465-activity-family-analytic` / W465 | analytic activity family with W identity; zero-source family on common root labels |
-| W464 | `w464-step-pieces-rensol` / W464 | one β₀ and all landed from-tower conclusions at `StepTowerRenSol` (STEPSTATEMENT 1) |
 | W468 | `w468-obs-marks-family` / W468 | observable marks record at the tower, conditional on ray holomorphy (STEPSTATEMENT 5) |
 | W469 | `w469-tower-two-radii` / W469 | tower with two chart radii; determinant part of E0θ on the renormalization domain |
 | W470 | `w470-source-witness-joint` / W470 | one witness for the source lane at the tower (consolidation) |
