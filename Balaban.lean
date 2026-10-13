@@ -1469,6 +1469,12 @@ public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RExtraSize
 public import Balaban.Inhabited.RExtraSizeWitness
 public import Balaban.Inhabited.LateYDirectionWitness
+public import Balaban.Fluctuation.DetOutputTerms
+public import Balaban.Fluctuation.DetPrefactor
+public import Balaban.Fluctuation.DetStepInstance
+public import Balaban.Fluctuation.DetActivitySymm
+public import Balaban.Inhabited.DetOutputTermsWitness
+public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
 public import Balaban.Correlations.KF0Cauchy
 public import Balaban.Correlations.KF0RootFPartial
