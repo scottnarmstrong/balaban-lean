@@ -16,7 +16,7 @@ Claude workers (background subagents of this session):
 | W356 | `w356-kf0-rootf-partial` / W356 | one-scale branch: Root-F clauses with k_f = 0 on ν ≥ 7/(8L²) from the one-scale input (conditional; Cauchy construction, principal log) |
 | W357 | `w357-kf0-block-split` / W357 | one-scale branch: exact sum over bad block sets (K0.2), boundary form (K0.3), Peierls charge (K0.4) |
 | W358 | `w358-kf0-gaussian` / W358 | one-scale branch: Gaussian change of variables in the all-good sector, row sum of K_ν^{-1/2}, product cutoff implication |
-| W354 | `w354-proper-local-gen-witness` / W354 | a context on a wide torus where the local generating set is proper: instance of `regional_psiJ_not_globalXiDom` |
+| W359 | `w359-weaken-sep` / W359 | `GeneratingSet.weakenSep`: lowering the separation index, with layer/data-site identities and transport through `castG` and `Precedes` |
 | W352 (Opus) | `w352-det-output-terms` / W352 | determinant as localized output terms (record + inhabitant), prefactor uniform in k, step theorem with the genuine `DetExpansionC`, symmetry, dependency radius |
 | W349 | `w349-fan-witness` / W349 | non-vacuity of the decoupled fan chain at the tower witness (ball, rows, fan locality, marked versions) |
 | W353 | `w353-marked-ev-param` / W353 | marked localized terms: exposed `evTerm` form, analyticity in the marks, uniform bound on bidiscs, Cauchy estimate for ∂_t |
