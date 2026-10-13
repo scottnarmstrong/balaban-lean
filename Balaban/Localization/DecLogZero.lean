@@ -9,6 +9,7 @@ public import Balaban.Localization.DecoupledSqrt
 public import Balaban.Localization.Decoupled2Geometry
 public import Balaban.Localization.PairedLocalAgree
 public import Balaban.Localization.DecoupledCovPrincipal
+public import Balaban.Inhabited.LocalizationSettings
 
 /-!
 # The decoupled logarithm at zero cuts (the `J = ∅` term)
@@ -27,6 +28,25 @@ Proved, with no hypotheses beyond typing data:
 * `decCov … s₀ … = covA …` for every `x` (the integrand of `decLog` vanishes identically, not only
   after integration), hence `decLog … s₀ … = log a_k • (1 - P) + log (a_k + aT/L²) • P`
   (lifted to `N` components). This does not involve `φ`, `α`, `Q`, and no standing hypothesis.
+
+Partial cuts (landed pieces only): `Zs_zeroCuts`, `Yreg_zeroCuts`, `Core_zeroCuts` (all empty at `s₀`),
+`Qset_subset_of_mem_Zs` (if `s` vanishes on parameter cubes outside `J`, an active centre has its
+footprint `Qset z` inside `J`). The landed locality theorems are used as they stand and are not
+restated: `Dec2.dg5_support` (`G_s f` vanishes outside `Core s`, hypothesis `CoverLocalGeom`),
+`Dec2.dg5_local` (`G_s f` agrees with `G_s α' f'` on a nearest-neighbour component `Y'` of
+`Yreg s` when `α, α'` and `f, f'` agree on `Y'`; hypotheses `CoverBase`, `HatConn`, `AdmPot`, and
+invertibility of `1 - Kcal`), `i4b_local` (background agreement) and `extS_relParams_zero`.
+
+**DET-CUT-FACTOR (not proved).** For a cut configuration `s` (zero off a set `J`) and every `s'`
+in a neighbourhood of `s`: with `Y_1, Y_2, …` the nearest-neighbour components of `Yreg s`, the
+matrix `decLog G a aT ν α s' φ Q P` (resolvent integral `∫ (decCov - covA) dx`, the constrained
+correction `liftOp (Gsx) - decPi` with its inverse `decM⁻¹`, and the baseline blocks of `P` and of
+`liftRect Q`) has no matrix element between sites attached to two different components, and the
+rooted diagonal trace depends only on the component of the root. Missing for it: the identification
+of the `Gsx` of `DecoupledX` with `Dec2.Gs` on a self-cover (partly `Decoupled2Self`), locality of
+`decM⁻¹`, `decN`, of the resolvent integral in `x`, and that the blocks of `P` fit inside single
+components. The cheaper step `decCov` has no matrix elements between components is also not
+proved; only the Green part is landed.
 
 Not proved: this is only the `J = ∅` term of the cut expansion. The statement DET-CUT-FACTOR
 (see the end of this file), the forest bound and the hull count are not proved. Nothing here
@@ -182,5 +202,66 @@ theorem rootedTrace_decLog_zeroCuts (B : Finset κι) :
   rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
 
 end Zero
+
+/-! ### T4: partial cuts, the landed footprint statements -/
+
+section Partial
+
+
+
+/-- At zero cuts no centre is active: `Zs = ∅` for the self-cover (`Zs` is the set of centres
+with `s_z ≠ 0`). Hence `Yreg` and `Core` are empty, consistent with `Gsx = 0`. -/
+theorem Zs_zeroCuts : Dec2.Zs (coverOf G) (zeroCuts G) = ∅ := by
+  classical
+  refine Finset.eq_empty_of_forall_notMem fun z hz => ?_
+  obtain ⟨hzc, hne⟩ := Finset.mem_filter.1 hz
+  exact hne (sProd_zeroCuts_of_mem hzc)
+
+theorem Yreg_zeroCuts (H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) :
+    Dec2.Yreg (coverOf G) H (zeroCuts G) = ∅ := by
+  classical
+  simp [Dec2.Yreg, Zs_zeroCuts]
+
+theorem Core_zeroCuts : Dec2.Core (coverOf G) (zeroCuts G) = ∅ := by
+  classical
+  simp [Dec2.Core, Zs_zeroCuts]
+
+/-- **Partial cuts.** If `s` vanishes on every parameter cube outside `J`, an active centre
+(`s_z ≠ 0`) has its whole footprint `Qset z` inside `J`. So the Green operator `G_s` is supported
+in `Core` of the active centres (`dg5_support`), and is local on a nearest-neighbour component of
+`Yreg s` (`dg5_local`; both need `CoverLocalGeom`/`CoverBase`, `HatConn`, admissible potentials and
+invertibility, see the module doc). -/
+theorem Qset_subset_of_mem_Zs {J : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} (hs : ∀ P ∈ cubeIdx G, P ∉ J → s P = 0)
+    {z : ℕ × CTorus d L N₁ m₁ (k + 1)} (hz : z ∈ Dec2.Zs (coverOf G) s) : Qset G z ⊆ J := by
+  classical
+  obtain ⟨-, hne⟩ := Finset.mem_filter.1 hz
+  intro P hP
+  by_contra hPJ
+  apply hne
+  exact Finset.prod_eq_zero hP (hs P (Qset_subset_cubeIdx z hP) hPJ)
+
+end Partial
+
+/-! ### T5: non-vacuity -/
+
+/-- The zero-cut parameters lie in the polydisc of `DecDom` for every `κ`: `‖s₀ P‖ = 0 < e^κ`
+on the parameter cubes. -/
+theorem norm_zeroCuts_lt (κ : ℝ) (P : cubeIdx G) : ‖zeroCuts G P‖ < Real.exp κ := by
+  rw [zeroCuts_of_mem P.2, norm_zero]; exact Real.exp_pos κ
+
+/-- **T5, an instance.** For the landed positive-scale setting (`d = L = 3`, `k = 1`, `a_k = 1`
+since `compWeight 3 1 1 = 1`, `a_T = 1`, `ν = 0`), at zero cuts the diagonal entry of `decLog`
+for `P = 0` on one site is `log 1 = 0`, for every potential and field. -/
+theorem decLog_zeroCuts_instance :
+    ∃ (m₁ : ℕ) (ϱ : ℝ) (G : GeneratingSet 3 3 (6 * 3 ^ m₁) (1 + 1) ϱ),
+      XSetting G (compWeight 3 1) 1 0 ∧ ∀ (α : G.Ω 1 → ℂ)
+        (φ : CTorus 3 3 6 m₁ (1 + 1) → Fin 3 → ℂ) (Q : Matrix Unit (G.Ω 1) ℂ),
+        decLog G (compWeight 3 1) 1 0 α (zeroCuts G) φ Q (0 : Matrix Unit Unit ℂ)
+          ((), 0) ((), 0) = ((Real.log (compWeight 3 1 1) : ℝ) : ℂ) := by
+  obtain ⟨m₁, ϱ, G, hX⟩ := Balaban.Inhabited.xSetting_nonempty
+  refine ⟨m₁, ϱ, G, hX, fun α φ Q => ?_⟩
+  rw [decLog_zeroCuts]
+  simp [liftOp]
 
 end Balaban.Localization
