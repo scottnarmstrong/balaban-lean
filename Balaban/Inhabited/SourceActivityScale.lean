@@ -47,9 +47,10 @@ The constants.  With the tower data `κ`, `t`, `BG`, `BG₂`, `m₁` of `tower_c
 `q`.
 
 How it is proved.  The source `g/β` lies on the slice `η = q/β` of the assembler
-(`sourceSlice_mem_restricted`); `sourceDirectTerms_scale` gives the two `DirectTerms` instances at
-the sources `0` and `g/β` with one family of labels and terms, and
-`stepActivityBound_zeroClass_source_scaled` the activity bound with
+(`sourceSlice_mem_restricted`); `sourceDirectTerms_slice` (at the step of a scale:
+`sourceDirectTerms_scale`) gives the two `DirectTerms` instances at the sources `0` and `g/β` with
+one family of labels and terms, and `stepActivityBound_zeroClass_source_scaled` the activity bound
+with
 `ε_H = 4 (β E_sc/r³ + q K/r)`.  The amplitude is bounded by `sourceAmp_scale` and the doubled
 smallness holds by `sourceAmp_doubled_hDA`.  The other hypotheses are met as in
 `ScaleActivityFinal` (covers by `LocalCover.levelLocalCover`, `FlCore` by `flCore_level_transfer`,

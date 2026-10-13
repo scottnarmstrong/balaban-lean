@@ -18,7 +18,7 @@ expansion: one at the source parameter `0` and one at `g/β`, with their value i
 (`stepActivityBound_zeroClass_source_scale_of_directTerms` states exactly this).  This file
 constructs them and removes the condition.
 
-* `sourceDirectTerms_scale`: for the zero class (no old energy terms, no observable terms, no
+* `sourceDirectTerms_slice`: for the zero class (no old energy terms, no observable terms, no
   `ν`-part) and a slice `η > 0` of sources (`physSΛEta`: data in the chart `Ξ^c`, sources of
   `ℓ¹`-size `≤ η` in the strict unit ball), ONE family of labels `𝒴` and terms `T`, sharply local
   on the slice, and an expanded function `val` with the exact formula
@@ -40,15 +40,24 @@ constructs them and removes the condition.
   The value identities are the formula of `val` (at the source `0` the source sum vanishes).
 * `beta_mul_potentialAmp_le`: `β E_sc / r³ ≤ β_k · 3 c₁ M^d L^d C / r³` with the scale-free
   constant `C = (N/2)(2(1+Q)² + (d+1+ρ₄)Q²) δ₁²` (`a_k ≤ 2`, `L ≥ 3`, `d ≥ 2`).
+* `Balaban.Inhabited.sourceDirectTerms_scale`: the statement of `sourceDirectTerms_slice` at the
+  step `hatStepK k m₁ hk ν β p₁ δ` of every scale (`d = L = 3`, `N = 2`), on the slice `η = q/β`
+  with the physical amplitude `β · prop33EpsEtaScaled(η = q/β)`, with the constants `m₁, t, δ, β₀`
+  and `BG, BG₂, κ` chosen before the scale, the torus, the mass, `β`, the cutoff, `q` and the
+  source; the slice contains `(rawOf S.D', 0)` and `(rawOf S.D', g/β)` for `∑ |g| < q ≤ 1`.  These
+  are the two witnesses of the conditional theorem, with one family of domains and terms.
 
-What is proved: the activity bound of the zero class at every source of the strict `ℓ¹` ball, at
-the central real datum `rawOf S.D'`, under the hypotheses of the landed zero-source theorem
+What is proved: zero class; the activity bound at every source of the strict `ℓ¹` ball, at the
+central real datum `rawOf S.D'` only, under the hypotheses of the landed zero-source theorem
 `stepActivityBound_zeroClass_direct_scaled` (covers, `FlCore`, `HatConn`, `RowInHat`, radii,
-`RayData`) and the doubled smallness.  What is NOT proved here: the family over the relative
-complex chart of data (the instances here are at the real datum; the exact identity of the complex
-exponents `WoneC + WtwoC` off real data is open), general classes, and the output terms of the
-step.  The class enters only through `S.Wone`, `S.Wtwo` of the zero class; no generating set of
-class terms appears, so the statements are independent of such a choice.
+`RayData`) and the doubled smallness.  What is NOT proved here: the family of activities over the
+relative complex chart of data (leaves 5, 9, 10 of `notes/phase1/SRCACT.md`) and the uniform chart
+(STEPOUT package 1).  The `DirectTerms` instances exist at every datum of the chart, but the
+identification of `val` with the step exponents is used, and landed, at the real datum only; the
+identity for the complex exponents `WoneC + WtwoC` off real data is open.  Also not proved:
+general classes and the output terms of the step.  The class enters only through `S.Wone`,
+`S.Wtwo` of the zero class; no generating set of class terms appears, so the statements are
+independent of the choice of generating sets for class terms.
 -/
 
 @[expose] public section
@@ -181,7 +190,7 @@ there are an expanded function `val`, a finite family `𝒴` of domains and term
   `val` with domains `𝒴`, terms `T`, rate `2κ_dec - 1` and amplitude `ε_U`.
 
 The family `(𝒴, T)` is chosen before the point `Θ`: it does not depend on the source. -/
-theorem sourceDirectTerms_scale {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
+theorem sourceDirectTerms_slice {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
     (hc : (Rσ * R₁ + r) * ρ < cψ)
     (hεb : prop33EpsEtaScaled d L N m₁ k m₀ S.a₁ BG BG₂ κ δ₁ r 0 0 η * ‖(S.β : ℂ)‖ ≤ εU) :
     ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
@@ -321,7 +330,7 @@ theorem stepActivityBound_zeroClass_source_scaled (g : Fld d L N₁ m₁ (k + 1)
     (Finset.sum_nonneg fun x _ => Finset.sum_nonneg fun i _ => norm_nonneg _) hg
   have hη0 : 0 < q / S.β := div_pos hq0 hβ0
   have hnβ : ‖(S.β : ℂ)‖ = S.β := by rw [Complex.norm_real, Real.norm_of_nonneg hβ0.le]
-  obtain ⟨val, 𝒴, T, hval, -, -, hI⟩ := sourceDirectTerms_scale S (ρ := ρ) (εU := εU) hC hconn hrow
+  obtain ⟨val, 𝒴, T, hval, -, -, hI⟩ := sourceDirectTerms_slice S (ρ := ρ) (εU := εU) hC hconn hrow
     hκ₀ hκdec hκ h1 hR₁ hr hcψ hMX hdm hα hsmX hδ₁ ha₁ H hc7 hR hRs hsmall hnum hnum' hsm hcovV
     hX₁V hoptV hΔV hlogV hZV hmarV hcovF hX₁F hoptF hΔF hlogF hyF hBh0 hBh hZν hN hp hη0
     (by norm_num : (0 : ℝ) < 2) hc (by rw [hnβ, hεU, mul_comm])
@@ -337,3 +346,162 @@ theorem stepActivityBound_zeroClass_source_scaled (g : Fld d L N₁ m₁ (k + 1)
 end Witness
 
 end Balaban.Fluctuation
+
+namespace Balaban.Inhabited
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
+  Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
+  Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
+
+open Classical in
+/-- **The direct terms of the zero class at every scale, on the source slice `η = q/β`: the two
+witnesses of the source assembler.**  With `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`: there
+are `m₁, t, δ, β₀` and the tower constants `BG, BG₂, κ` such that for every scale `k ≥ 1`, torus
+parameter `3 ∣ N₁ > 5`, mass `0 < ν`, `ν · 3^{2(k+1)} ≤ 1`, `β ≥ β₀`, cutoff
+`0 < p₁ ≤ A₁ (log β_k)^p` and `0 < q ≤ 1`, at the step `S = hatStepK k m₁ hk ν β p₁ δ`, with
+`c_ψ = lvCpsi κ t β_k`, `r = lvR κ t β_k p₁`, `R_σ = R₁ = 2`, cover scale `m₀ = 1` and the physical
+amplitude `ε_U = β · prop33EpsEtaScaled(ρ_E = ρ_M = 0, η = q/β)`:
+
+there are an expanded function `val`, domains `𝒴` and terms `T` such that
+
+* `val x w σ (D, f) = -β raySrc3(V̂)(x₁, w₁; σ; D) + β ∑_s f_s dirTermSrc(φ̂_s)(x₂, w₂; σ; D)`;
+* the terms are sharply local and diagonally continuous on the slice;
+* at every point `Θ` of the slice there is a `DirectTerms` instance for `val` with domains `𝒴`,
+  terms `T`, rate `2κ_dec - 1` and amplitude `ε_U`;
+* the slice contains `(rawOf S.D', 0)` and, for every complex source `g` with `∑ |g| < q`,
+  `(rawOf S.D', g/β)`.
+
+Hence the two witnesses `I₀` (source parameter `0`) and `I_g` (source parameter `g/β`) of
+`stepActivityBound_zeroClass_source_scale_of_directTerms` exist, with the same domains and terms,
+and their value identities `hval₀`, `hvalg` are the formula of `val` at the diagonal hat variable
+(at the source `0` the source sum vanishes).  The constants do not depend on `k`, `N₁`, `ν`, `β`,
+`p₁`, `q`, `g`. -/
+theorem sourceDirectTerms_scale {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+    {κ0 κdec : ℝ} (hκ0def : κ0 = aEnt 3 3 + 1) (hκdecdef : κdec = 100 * (κ0 + c1 3 3 + 10)) :
+    ∃ (m₁ : ℕ) (t δ β₀ BG BG₂ κ : ℝ), 2 ≤ β₀ ∧ 0 < t ∧ 0 < δ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) → ∀ q : ℝ, 0 < q → q ≤ 1 →
+      ∀ S : StepSetting 3 3 N₁ m₁ k 2 (rhoSep m₁),
+        S = hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ → ∀ hp : 0 < S.p₁,
+        ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+            ℂ → (RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2 × (CTorus 3 3 N₁ m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+          (𝒴 : Finset (Set (CTorus 3 3 N₁ m₁ (k + 1))))
+          (T : Set (CTorus 3 3 N₁ m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+            ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+            (RawData 3 3 (N₁ * 3 ^ m₁) (k + 1) 2 × (CTorus 3 3 N₁ m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+          (∀ x w σ Θ, val x w σ Θ =
+            (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν t S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν t)) taylorWeight x.1 w.1 σ Θ.1 +
+            (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+              dirTermSrc (hatFun S.G' S.a₁ S.ν t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+                (onXi S.G' S.a₁ S.ν t
+                  (fun D ψ' => svec (stepG 3 3 N₁ m₁ k (rhoSep m₁))
+                    (flFieldOne S.G' (stepG 3 3 N₁ m₁ k (rhoSep m₁)) BG₂ κ S.a₁ S.ν D ψ') s.1 s.2)))
+                (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+          PhysicalSharpLocEta S (lvCpsi κ t (β * 3 ^ k)) 2 2 (lvR κ t (β * 3 ^ k) p₁) S.a₁ S.ν t
+            (q / S.β) 𝒴 T ∧
+          DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+            (physXW S (lvCpsi κ t (β * 3 ^ k)) 2 2 (lvR κ t (β * 3 ^ k) p₁))
+            (physSΛEta S S.a₁ S.ν t (q / S.β)) 2 𝒴 T ∧
+          (∀ Θ ∈ physSΛEta S S.a₁ S.ν t (q / S.β),
+            ∃ I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled 3 3 2 m₁ k 1 S.a₁ BG BG₂ κ t
+                  (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / S.β)) (2 * κdec - 1) Θ
+                (physSΛEta S S.a₁ S.ν t (q / S.β))
+                (physXW S (lvCpsi κ t (β * 3 ^ k)) 2 2 (lvR κ t (β * 3 ^ k) p₁)) val (physAgΘ S)
+                (AgFDirPair S),
+              I.𝒴 = 𝒴 ∧ I.T = T) ∧
+          (rawOf S.D', (0 : CTorus 3 3 N₁ m₁ (k + 1) → Fin 2 → ℂ)) ∈
+            physSΛEta S S.a₁ S.ν t (q / S.β) ∧
+          ∀ g : Fld 3 3 N₁ m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+            (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν t (q / S.β) := by
+  classical
+  obtain ⟨-, δ, δ', T, -, -, hδ, hsm, hδ'0, hδ'a, hδ'b, hδ'c, hT, -, hT1, hT2⟩ :=
+    exists_witness_params (fun _ => 0)
+  have hc1 := one_le_c1 3 3
+  have hent := aEnt_nonneg 3 3
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, ⟨hC₀⟩, hκ0, hκdec, hκ, h1, hlog, hc7,
+    hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0⟩ :=
+    tower_core_rates 2 (κ0 := κ0) (κdec := κdec) (by rw [hκ0def]) (by rw [hκdecdef]; linarith)
+  have hbig : cstarX 3 3 ≤ (3 : ℝ) ^ m₁ := by
+    have hκdec0 : 0 ≤ κdec := by linarith
+    have hκ_nn : 0 ≤ κ := le_trans (by positivity) hκ
+    have h := Localization.cstarX_pos 3 3
+    have h2 : cstarX 3 3 ≤ cstarX 3 3 * Real.exp ((N0 3 3 : ℝ) * κ) :=
+      le_mul_of_one_le_right h.le (Real.one_le_exp (by positivity))
+    have h3 : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by norm_num
+    linarith
+  obtain ⟨β₀t, hβ₀t, hitems⟩ := scale_C_items hA p m₁ h4 hbig κ ht0 hδ hsm hδ'0 hδ'a hδ'b hδ'c
+  have hxi1 : xiC1 3 * t ≤ 1 := by
+    have h1 := hC₀.c7le
+    have h2 := c7_le_bgC1 3 3 2 BG κ
+    have h3 := bgC1_le_small 3 3 2 (by norm_num)
+    linarith
+  refine ⟨m₁, t, δ, β₀t, BG, BG₂, κ, hβ₀t, ht0, hδ, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβt p₁ hp0 hp₁ q hq0 hq S hS hp
+  subst hS
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hβ1 : 1 ≤ β := by linarith
+  have hβ0 : 0 < β := by linarith
+  obtain ⟨hcψ0, hr0, hδ₁, hc, hlt, ⟨R0⟩⟩ := hitems k hk N₁ hN ν hν0 hν β hβt p₁ hp0 hp₁
+  have hSD := dgSetting_lv (N₁ := N₁) (k := k) h4 hN hν0 hν
+  have hHB := bgHyp_lv (k := k) m₁ hν0 hν
+  have hC : FlCore 2 (lvTop N₁ m₁ k (rhoSep m₁)) (lvLow N₁ m₁ k (rhoSep m₁)) 1 ν c BG κ t
+      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
+    flCore_level_transfer hC₀ hSD (opSetting_lv h4 hN hν0 hν) (isLevel_lvLow hk) isLevel_lvTop hHB
+  have hBh := hBh_of_xi (N := 2) (Gp := lvTop N₁ m₁ k (rhoSep m₁)) hHB hνpos hC.small1
+    hC.eps_pos hxi1
+  have hD : XiCData (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).G' (compWeight 3 1) ν (k + 1) 1 t
+      (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).D' := by
+    refine ⟨fun _ => unitVec hN2, unitVec hN2, 0, 0,
+      exists_xiC hHB (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (massLe_lv hν) ht0, ?_, ?_⟩
+    · intro x hx i
+      have := unitBg_Ψ_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
+      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).Ψ x i = _
+      rw [this]; simp
+    · intro x hx i
+      have := unitBg_h_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
+      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).h x i = _
+      rw [this]; simp
+  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  obtain ⟨hV, hF⟩ := LocalCover.levelLocalCover (N := 2) (lvLow N₁ m₁ k (rhoSep m₁)) hSD
+    (isLevel_lvTop (N₁ := N₁) (m₁ := m₁) (k := k) (ϱ := rhoSep m₁)) (m₀ := 1) le_rfl hN3
+  have hBh0 : (0 : ℝ) ≤ 1 + 2 / ν := by positivity
+  have hη0 : 0 < q / β := div_pos hq0 hβ0
+  obtain ⟨val, 𝒴, T, hval, hloc, hcont, hI⟩ := sourceDirectTerms_slice
+    (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+    (ρ := p₁) (εU := β * prop33EpsEtaScaled 3 3 2 m₁ k 1 1 BG BG₂ κ t
+      (lvR κ t (β * 3 ^ k) p₁) 0 0 (q / β))
+    (Rσ := 2) (R₁ := 2) (r := lvR κ t (β * 3 ^ k) p₁) (R := 2) (m₀ := 1) (κdec := κdec)
+    (κ₀ := κ0) (Bh := 1 + 2 / ν) (δc := δc) (cψ := lvCpsi κ t (β * 3 ^ k))
+    (jV := fun _ => k) (XV := fun z => LocalCover.cube 1 k (LocalCover.blockSite k z))
+    (𝒦XV := fun z => LocalCover.fam 1 (LocalCover.blockSite k z))
+    (X₁V := fun z => LocalCover.nbhdF 1 (LocalCover.blockSite k z))
+    (jF := fun _ => k) (XF := fun s => LocalCover.cube 1 k s.1)
+    (𝒦XF := fun s => LocalCover.fam 1 s.1) (X₁F := fun s => LocalCover.nbhdF 1 s.1)
+    (hC := hC) (hconn := hatConn_lvTop) (hrow := rowInHat_lv hk h4 hN hν0 hν)
+    (hκ₀ := hκ0) (hκdec := hκdec) (hκ := by exact_mod_cast hκ) (h1 := h1)
+    (hR₁ := by norm_num) (hr := hr0) (hcψ := hcψ0.le) (hMX := hMX) (hdm := hdm) (hα := hα)
+    (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := one_pos) (H := hHB) (hc7 := hc7) (hR := le_rfl)
+    (hRs := g1) (hsmall := g2) (hnum := g3) (hnum' := g4) (hsm := g5)
+    (hcovV := fun z => (hV z).1) (hX₁V := fun z => (hV z).2.1)
+    (hoptV := fun z => (hV z).2.2.1) (hΔV := fun z => (hV z).2.2.2.1)
+    (hlogV := fun _ => hlog) (hZV := fun z => (hV z).2.2.2.2.1)
+    (hmarV := fun z => (hV z).2.2.2.2.2.1)
+    (hcovF := fun s => (hF s).1) (hX₁F := fun s => (hF s).2.1)
+    (hoptF := fun s => (hF s).2.2.1) (hΔF := fun s => (hF s).2.2.2.1)
+    (hlogF := fun _ => hlog) (hyF := fun s => (hF s).2.2.2.2)
+    (hBh0 := hBh0) (hBh := hBh) (hZν := fun z => (hV z).2.2.2.2.2.2)
+    (hN := hN3) (hp := hp) (η := q / β) (hη0 := hη0) (hRσ := by norm_num) (hc := hc)
+    (hεb := by
+      have hnβ : ‖(((hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).β : ℝ) : ℂ)‖ = β := by
+        rw [Complex.norm_real]; exact Real.norm_of_nonneg hβ0.le
+      rw [hnβ, mul_comm]
+      exact le_of_eq rfl)
+  exact ⟨val, 𝒴, T, hval, hloc, hcont, hI,
+    mk_mem_physSΛEta (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ) 1 ν t hη0.le hD,
+    fun g hg => ⟨⟨_, hD, rfl⟩, sourceSlice_mem_restricted hβ1 hg hq⟩⟩
+
+end Balaban.Inhabited

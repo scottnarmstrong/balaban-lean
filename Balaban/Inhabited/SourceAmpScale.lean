@@ -37,6 +37,12 @@ scale.  Write `b = β_k = β · 3^k`, `w = (log b)^p`, `κ₁ = lvKappa κ t`, `
   `2 (2 ε_U) ≤ 1 / (8 (2K_c')³ c₁ exp((2κ_dec - 1 - 2κ₀) c_G + c₁ + κ' c_G))`.
 
 No constant depends on the scale `k`, the torus, the mass, `β`, the source or `q ≤ 1`.
+
+Scope.  These are the numerical inputs of the activity bound of the zero class at a source, at the
+central real datum only (`SourceActivityScale`).  The family over the relative complex chart of
+data (leaves 5, 9, 10 of `notes/phase1/SRCACT.md`) and the uniform chart (STEPOUT package 1) are
+NOT proved here.  The statements are inequalities between real numbers; nothing depends on a
+choice of generating sets for class terms.
 -/
 
 @[expose] public section
