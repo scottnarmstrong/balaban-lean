@@ -41,12 +41,7 @@ noncomputable def obsPrefactor (p : ℕ) (s b : ℝ) : ℝ :=
 /-- The rate arithmetic: with `κ' = (3/2) κ_dec + κ₀ + 1` and `κ_dec ≥ 3 κ₀ + 3`,
 `min (2 κ_dec) κ' - κ₀ - 1 = (3/2) κ_dec`. -/
 theorem stepTower_outRate_eq {κmin : ℝ} (T : StepTower κmin) :
-    min (2 * T.κdec) T.κ' - T.κ0 - 1 = 3 / 2 * T.κdec := by
-  have h1 := T.κ'_eq
-  have h2 := T.κdec_lower
-  have h3 := T.κ0_nonneg
-  have : T.κ' ≤ 2 * T.κdec := by linarith
-  rw [min_eq_right this]; linarith
+    min (2 * T.κdec) T.κ' - T.κ0 - 1 = 3 / 2 * T.κdec := T.toG.outRate_eq
 
 theorem stepTower_outRate_le {κmin : ℝ} (T : StepTower κmin) :
     3 / 2 * T.κdec ≤ min (2 * T.κdec) T.κ' - T.κ0 - 1 :=
