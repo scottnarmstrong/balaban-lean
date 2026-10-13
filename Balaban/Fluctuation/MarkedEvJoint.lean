@@ -605,13 +605,30 @@ theorem markedEv_joint_param
       (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
       MarkedBlockExpansionDecPair N Hm hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z
         F₁ Sol ∧
-      ∀ Y, AnalyticOnNhd ℂ
+      (∀ Y, AnalyticOnNhd ℂ
         (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ) =>
           evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) Zm
             p.2.1 p.2.2 Y p.1)
         ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}) := by
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- the defining properties of the pair
+      ((∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+          (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+          (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+          Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))) := by
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB2 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) :=
     mul_nonneg (by norm_num) (mul_nonneg (K4_pos hC.hS.fam.2.1 hd0).le
@@ -619,8 +636,9 @@ theorem markedEv_joint_param
   obtain ⟨F₁, hF₁an, hF₁⟩ := i4b_analytic hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
   obtain ⟨Sol, hSolan, hSolprop⟩ := Dec2.i4a_analytic (N := N) hC.hS2.fam hC.hS2.an
     hC.SM.toCoverBase hC.hκ.le hC.hM2 false hB2 hC.δ₁_pos.le hC.B_le hC.δ₁_le
-  exact ⟨F₁, Sol, vblock_expansion_hat_marked_joint_pair hC hk hG hG' cc hcψ Zm hMX hdm hα hsm
-    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar hF₁an hF₁ hSolan hSolprop⟩
+  have hX := vblock_expansion_hat_marked_joint_pair hC hk hG hG' cc hcψ Zm hMX hdm hα hsm
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar hF₁an hF₁ hSolan hSolprop
+  exact ⟨F₁, Sol, hX.1, hX.2, hF₁, hSolprop⟩
 
 end Block
 
@@ -670,7 +688,10 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
    `(a + b) · markedRad < δ₁`, `(e, u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}` is analytic on
    `physV × {‖u‖ < a}`: the shape of the field `holG` of `ParamMarkFamily`, per label;
 5. the derivative marks jointly with the hat field: `((e, ψ̂), u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}`
-   is analytic at every point of `(physV × B̂) × {u | (u, 0) ∈ W}`. -/
+   is analytic at every point of `(physV × B̂) × {u | (u, 0) ∈ W}`;
+6. the defining properties of the pair: `F₁` returns the decoupled background on every admissible
+   `(s, D)` (`hF₁`), and `Sol` is the unique small solution of the decoupled correction equation
+   with the stated bounds (`hSol`), exactly as in `evDec_local_rawY`. -/
 def MarkedEvJointPhysV (S : StepSetting d L N₁ m₁ k N ϱ)
     (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm) (cc : ℂ)
     (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ) (Zm : Finset (unitPts S.G'))
@@ -713,7 +734,24 @@ def MarkedEvJointPhysV (S : StepSetting d L N₁ m₁ k N ϱ)
             (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
             ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
         ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁}))
+          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- 6. the defining properties of the pair
+      ((∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+          (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+          (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+          Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)))
 
 /-- **Joint analyticity of the localized marked terms on the parameter set `physV`, and of the
 derivative marks.**  For a step `S` (`Gp = S.G'`), under the hypotheses of
@@ -747,7 +785,7 @@ theorem markedEv_joint_physV
       (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
     MarkedEvJointPhysV S Hm cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z := by
   unfold MarkedEvJointPhysV
-  obtain ⟨F₁, Sol, hP, hJ⟩ := markedEv_joint_param hC S.hk1 hG S.hG' cc hcψ Zm hMX hdm hα hsm
+  obtain ⟨F₁, Sol, hP, hJ, hspec⟩ := markedEv_joint_param hC S.hk1 hG S.hG' cc hcψ Zm hMX hdm hα hsm
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
   have hT2 : ∀ Y, AnalyticOnNhd ℂ
       (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
@@ -759,7 +797,7 @@ theorem markedEv_joint_physV
     have key := analyticOnNhd_physV_of_chart S a₁ ν eps (hJ Y)
     exact key
   have hbd := hP.2.2.1
-  refine ⟨F₁, Sol, hP, hJ, hT2, ?_, fun Y => ?_⟩
+  refine ⟨F₁, Sol, hP, hJ, hT2, ?_, fun Y => ?_, hspec⟩
   · intro Y ψh hψh a b ha hb hab
     have hf := analyticOnNhd_slice_mid (hT2 Y) (y₀ := ψh) hψh
     have hW : ∀ u t : ℂ, ‖u‖ < a → ‖t‖ < b → (u, t) ∈

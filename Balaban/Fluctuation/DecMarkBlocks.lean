@@ -277,7 +277,7 @@ theorem decMarkG_fields
           decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
             Zm Y ρ hp (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ)
           (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
-  obtain ⟨F₁, Sol, hP, hJ2, -, hJ4, -⟩ := hM
+  obtain ⟨F₁, Sol, hP, hJ2, -, hJ4, -, -⟩ := hM
   exact ⟨F₁, Sol, decMarkG_fields_of_pair S F₁ Sol hP hJ2 hJ4 hρ hρc hp⟩
 
 end Blocks

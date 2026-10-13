@@ -119,7 +119,25 @@ theorem markCorrFamily_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
       (∀ Y, ∀ Φ : (∀ b, (S.blockSplit 1 hSp).Ωb b),
         AnalyticOnNhd ℂ (fun p : physParam 2 S × ℂ =>
           decMarkCorr S (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k (LocalCover.fam 1 (LocalCover.blockSite k b)) S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ (zr, b)) (Sol (zr, b)) (blockEnergyFun S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν k b) (S.blockU zr) Y p₁ hSp (p.1.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) p.2 Φ)
-          (physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (corrR T k (β * 3 ^ k) p₁))) := by
+          (physV S S.a₁ S.ν T.t ×ˢ Metric.ball (0 : ℂ) (corrR T k (β * 3 ^ k) p₁))) ∧
+      -- the defining properties of the pair
+      ((∀ (s : DecParams S.G') (D : BgData S.G' 2), (∀ P, ‖s P‖ < Real.exp T.κ) →
+        InUnionDomainC S.G' (bgC0 3 3 2) (c7 3 3 2 T.BG T.κ) S.ν D →
+        ∀ (φ : S.G'.Ω 1 × Fin 2 → ℂ) (α : S.G'.Ω 1 → ℂ),
+          IsDecBg S.G' (compWeight 3 S.a₁) S.ν (rho4 3 3 2 T.BG T.κ) s D φ α →
+          (F₁ (zr, b)) (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf S.G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2, (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+        StrictDataM (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 false (2 * (K4 3 3 2 T.BG T.κ * (xiC1 3 * T.t))) T.t p.2 →
+          ((Sol (zr, b)) p).1 = dphi (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Dec2.decG (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1) p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (zr, b)) p).2 ∧
+          Dec2.DecFixed (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+            (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (zr, b)) p).2 ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (zr, b)) p).2 (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) ∧
+          Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (zr, b)) p).2 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          SupBounds (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) ((Sol (zr, b)) p).1 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+          (∀ δα' : (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ, Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) δα' (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) →
+            Dec2.DecFixed (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (zr, b)) p).2))) := by
   classical
   subst hS
   obtain ⟨hV, -⟩ := D.covers
@@ -199,7 +217,7 @@ theorem markCorrFamily_fromTower {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
       (F₁ (zr, b)) (Sol (zr, b)) (hF (zr, b)).1 (hF (zr, b)).2.1 (hF (zr, b)).2.2.2.1
       (ρ := p₁) hp le_rfl hSp T.t_pos
     exact ⟨f1, f2, fun Y Θ hΘ um hum Φ => f3 Y Θ hΘ _ _ hR hRR hRU um hum Φ, f4,
-      fun Y Φ => f4 Y Φ _ _ hR hR hRR⟩
+      fun Y Φ => f4 Y Φ _ _ hR hR hRR, (hF (zr, b)).2.2.2.2.2⟩
 
 section Rooted
 
