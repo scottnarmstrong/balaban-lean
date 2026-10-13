@@ -339,6 +339,32 @@ theorem rootMask_boxMap {ρ : ℕ} (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * 
   rw [unitBlock1_unitBlock, unitBlock1_unitBlock]
   exact (jBlock_boxMap_iff le_rfl hn hn' hx hx₀).symm
 
+omit [NeZero N₁'] in
+/-- The corner site `blockSite k z` of the block `B_{k+1}(z)` of a coarse site `|z| ≤ r_c` lies in
+the box of radius `ρ ≥ L^(k+1) r_c`. -/
+theorem blockSite_inBox {ρ rc : ℕ} (hs : 2 * ρ + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ ρ) :
+    InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k z) := by
+  intro μ
+  have h1 : |(z μ).valMinAbs| ≤ rc := hz μ
+  have e : (LocalCover.blockSite k z μ) =
+      ((((L ^ (k + 1) : ℕ) : ℤ) * (z μ).valMinAbs : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) := by
+    have hzμ : z μ = (((z μ).valMinAbs : ℤ) : ZMod (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :=
+      (ZMod.coe_valMinAbs _).symm
+    show ((L ^ (k + 1) * (z μ).val : ℕ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) = _
+    conv_lhs => rw [hzμ]
+    exact rootCoord_intCast (side_eq (N₀ := N₁ * L ^ m₁) (L := L) (le_refl (k + 1))) _
+  have h2 : |((L ^ (k + 1) : ℕ) : ℤ) * (z μ).valMinAbs| ≤ ρ := by
+    rw [abs_mul, Nat.abs_cast]
+    have h3 : ((L ^ (k + 1) : ℕ) : ℤ) * |(z μ).valMinAbs| ≤ ((L ^ (k + 1) : ℕ) : ℤ) * rc :=
+      mul_le_mul_of_nonneg_left h1 (by positivity)
+    have h4 : ((L ^ (k + 1) * rc : ℕ) : ℤ) ≤ ρ := by exact_mod_cast hrc
+    push_cast at h3 h4 ⊢
+    linarith
+  rw [e, valMinAbs_intCast_of_abs_le hs h2]
+  exact h2
+
 /-- **D2 (c): the root mask of a coarse root on two tori.**  `rootMask_boxMap` for the root `z`
 of the first torus (`|z| ≤ r_c`, `L^(k+1) r_c ≤ ρ`) and its image `bc z`: the masks are
 `blockU z` and `blockU (bc z)` (written as the filters that define `StepSetting.blockU`). -/
@@ -356,25 +382,7 @@ theorem rootMask_bc {ρ rc : ℕ}
   have hs : 2 * ρ + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
   have hbs : LocalCover.blockSite k (bc z) = bm (LocalCover.blockSite k z) :=
     blockSite_boxMap le_rfl z hz hrc hs
-  have hx₀ : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) (LocalCover.blockSite k z) := by
-    intro μ
-    have h1 : |(z μ).valMinAbs| ≤ rc := hz μ
-    have e : (LocalCover.blockSite k z μ) =
-        ((((L ^ (k + 1) : ℕ) : ℤ) * (z μ).valMinAbs : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) := by
-      have hzμ : z μ = (((z μ).valMinAbs : ℤ) : ZMod (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :=
-        (ZMod.coe_valMinAbs _).symm
-      show ((L ^ (k + 1) * (z μ).val : ℕ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) = _
-      conv_lhs => rw [hzμ]
-      exact rootCoord_intCast (side_eq (N₀ := N₁ * L ^ m₁) (L := L) (le_refl (k + 1))) _
-    have h2 : |((L ^ (k + 1) : ℕ) : ℤ) * (z μ).valMinAbs| ≤ ρ := by
-      rw [abs_mul, Nat.abs_cast]
-      have h3 : ((L ^ (k + 1) : ℕ) : ℤ) * |(z μ).valMinAbs| ≤ ((L ^ (k + 1) : ℕ) : ℤ) * rc :=
-        mul_le_mul_of_nonneg_left h1 (by positivity)
-      have h4 : ((L ^ (k + 1) * rc : ℕ) : ℤ) ≤ ρ := by exact_mod_cast hrc
-      push_cast at h3 h4 ⊢
-      linarith
-    rw [e, valMinAbs_intCast_of_abs_le hs h2]
-    exact h2
+  have hx₀ := blockSite_inBox (N₁ := N₁) hs z hz hrc
   have h := rootMask_boxMap hn hn' hGA hGB hx₀ hx
   rw [← hbs, LocalCover.jBlock_blockSite le_rfl, LocalCover.jBlock_blockSite le_rfl] at h
   exact h
@@ -1135,6 +1143,9 @@ local notation "ιu" b:max => Subtype.mk (bU (b : UnitTorus d L N₁ m₁ k))
   (mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) _)
 set_option hygiene false in
 local notation "aK" => cellSide L m₀ m₁ (k + 1)
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
 
 omit [NeZero N₁'] in
 /-- The root cube of the coarse site of a fine site `x` is the cell of side `a_K` of `x`. -/
@@ -1166,6 +1177,69 @@ theorem cubeMap_rootCube_unitPt (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N�
     fun z hz => hroot z ?_
   rw [hr0, rootSet_blockIndex]
   exact hz
+
+/-- **D3: the determinant activity of a unit point on two tori, with or without the root cube.**
+For a unit point `y` whose root cell lies in the box of radius `r` and a set `Y` of level-`(k+1)`
+cubes with sites in the box, `detActivityBg D' (ιu y) (cubeMap '' Y) = detActivityBg D y Y`: if
+`Y` contains the root cube this is `detActivityBg_twoTorus`; otherwise both activities vanish
+(`detActivityBg_ne_zero_imp`; the root cube of `ιu y` is `cubeMap` of that of `y`,
+`cubeMap_rootCube_unitPt`, and `cubeMap` is injective on the cubes of the box). -/
+theorem detActivityBg_image_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (y : unitPts (GA))
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) {r : ℕ}
+    (hroot : ∀ x ∈ rootSet m₀ (rootIdxOf y), InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (r + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' (ιu y)
+        (Y.image (cubeMap hN hN' le_rfl)) =
+      detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y := by
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hr' : 2 * r + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hrc : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) (rootCube (m₀ := m₀) (rootIdxOf y)).1 :=
+    hroot _ (mem_box_self _ (cellSide_pos m₀ m₁ _))
+  by_cases hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y
+  · exact detActivityBg_twoTorus hN hN' hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' y Y
+      hyY hYr hn hn' hnS hnS' hnH hnH' hraw
+  · have h1 : detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y = 0 := by
+      by_contra h
+      exact hyY (detActivityBg_ne_zero_imp hC hk hδc hcap hsm hmar hαK hconn hD hN h).1
+    have h2 : detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' (ιu y)
+        (Y.image (cubeMap hN hN' le_rfl)) = 0 := by
+      by_contra h
+      have hm := (detActivityBg_ne_zero_imp hC' hk hδc hcap hsm hmar hαK hconn' hD' hN' h).1
+      rw [← cubeMap_rootCube_unitPt hN hN' (by omega) (by omega) y hroot] at hm
+      obtain ⟨c, hc, hce⟩ := Finset.mem_image.1 hm
+      apply hyY
+      have e := congrArg (cubeMap hN' hN le_rfl) hce
+      rw [cubeMap_cubeMap hN hN' le_rfl hr' (sitesOf_subset_box_of_mem hYr hc),
+        cubeMap_cubeMap hN hN' le_rfl hr' hrc] at e
+      rw [← e]
+      exact hc
+    rw [h1, h2]
 
 /-- **D3 (e): the determinant activities summed over the polymers of the box.**  For a unit point
 `y` whose root cell lies in the box of radius `r`, the sum of the activities `detActivityBg y Y`
@@ -1213,8 +1287,6 @@ theorem sum_detActivityBg_box_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ 
   have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
   have hr : 2 * r + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
   have hr' : 2 * r + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  have hrc : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) (rootCube (m₀ := m₀) (rootIdxOf y)).1 :=
-    hroot _ (mem_box_self _ (cellSide_pos m₀ m₁ _))
   symm
   refine Finset.sum_nbij' (fun Y => Y.image (cubeMap hN hN' le_rfl))
     (fun Y' => Y'.image (cubeMap hN' hN le_rfl)) (fun Y hY => ?_) (fun Y' hY' => ?_)
@@ -1231,26 +1303,131 @@ theorem sum_detActivityBg_box_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ 
     exact inBox_boxMap (by omega) (hY1 x hx)
   · exact image_image_cubeMap hN hN' le_rfl hr' Y (Finset.mem_filter.1 hY).2
   · exact image_image_cubeMap hN' hN le_rfl hr Y' (Finset.mem_filter.1 hY').2
-  · have hY1 := (Finset.mem_filter.1 hY).2
-    by_cases hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y
-    · exact (detActivityBg_twoTorus hN hN' hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' y Y
-        hyY hY1 hn hn' hnS hnS' hnH hnH' hraw).symm
-    · have h1 : detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y = 0 := by
-        by_contra h
-        exact hyY (detActivityBg_ne_zero_imp hC hk hδc hcap hsm hmar hαK hconn hD hN h).1
-      have h2 : detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' (ιu y)
-          (Y.image (cubeMap hN hN' le_rfl)) = 0 := by
-        by_contra h
-        have hm := (detActivityBg_ne_zero_imp hC' hk hδc hcap hsm hmar hαK hconn' hD' hN' h).1
-        rw [← cubeMap_rootCube_unitPt hN hN' (by omega) (by omega) y hroot] at hm
-        obtain ⟨c, hc, hce⟩ := Finset.mem_image.1 hm
-        apply hyY
-        have e := congrArg (cubeMap hN' hN le_rfl) hce
-        rw [cubeMap_cubeMap hN hN' le_rfl hr' (sitesOf_subset_box_of_mem hY1 hc),
-          cubeMap_cubeMap hN hN' le_rfl hr' hrc] at e
-        rw [← e]
-        exact hc
-      rw [h1, h2]
+  · exact (detActivityBg_image_twoTorus hN hN' hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD
+      hD' y Y hroot (Finset.mem_filter.1 hY).2 hn hn' hnS hnS' hnH hnH' hraw).symm
+
+/-- **D3: the determinant term of the root block on two tori** (the term
+`E.term D T = ∑_{y ∈ B(z)} detActivityBg D y T` of the determinant record,
+`exists_detExpansionLocC_rot`).  For a coarse root `z` (`|z| ≤ r_c`, `L^(k+1) (r_c + 1) ≤ r`)
+whose root cell lies in the box of radius `r`, and a set `T` of level-`(k+1)` cubes with sites in
+the box, the sum over the unit points of the block `B_{k+1}(bc z)` of the second torus of the
+activities of `cubeMap '' T` equals the sum over the unit points of `B_{k+1}(z)` of the activities
+of `T`.  The unit points correspond by `ιu` (`unitImage_val`, `unitImage_inj`; every unit point of
+the image block is the image of a unit point of the block). -/
+theorem sum_blockU_detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) {rc r : ℕ}
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z)
+    (hrc : L ^ (k + 1) * rc + L ^ (k + 1) ≤ r)
+    (hroot : ∀ x ∈ rootSet m₀ z, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (r + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    ∑ y' ∈ (Finset.univ.filter fun u : unitPts (GB) =>
+        unitBlock1 (u : UnitTorus d L N₁' m₁ k) = bc z),
+        detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' y'
+          (Y.image (cubeMap hN hN' le_rfl)) =
+      ∑ y ∈ (Finset.univ.filter fun u : unitPts (GA) =>
+        unitBlock1 (u : UnitTorus d L N₁ m₁ k) = z),
+        detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hn1 : 2 * r + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hn1' : 2 * r + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hpK : 0 < L ^ (k + 1) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have hdA : L ^ (k + 1) ∣ (N₁ * L ^ m₁) * L ^ (k + 1) := Dvd.intro_left _ rfl
+  have hdB : L ^ (k + 1) ∣ (N₁' * L ^ m₁) * L ^ (k + 1) := Dvd.intro_left _ rfl
+  -- the corner site of the block and the sites of the block
+  set x₀ := LocalCover.blockSite k z with hx₀def
+  have hx₀ : InBox d (L ^ (k + 1) * rc) ((N₁ * L ^ m₁) * L ^ (k + 1)) x₀ :=
+    blockSite_inBox (N₁ := N₁) (by omega) z hz le_rfl
+  have hbs : LocalCover.blockSite k (bc z) = bm x₀ :=
+    blockSite_boxMap le_rfl z hz le_rfl (by omega)
+  have hcell : ∀ x ∈ box (cbase (L ^ (k + 1)) x₀) (L ^ (k + 1)),
+      InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := fun x hx =>
+    inBox_mono hrc (inBox_of_mem_cell (by omega) hx₀ hx)
+  have hblk : ∀ x : CTorus d L N₁ m₁ (k + 1),
+      jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x = z → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => hcell x ((jBlock_eq_iff_mem_box le_rfl x x₀).1
+      (hx.trans (LocalCover.jBlock_blockSite le_rfl z).symm))
+  have hjB : jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x₀) = bc z := by
+    rw [← hbs]; exact LocalCover.jBlock_blockSite le_rfl (bc z)
+  -- the unit points of the block
+  have hmemA : ∀ y : unitPts (GA), unitBlock1 (y : UnitTorus d L N₁ m₁ k) = z →
+      ∃ x : CTorus d L N₁ m₁ (k + 1), unitBlock x = (y : UnitTorus d L N₁ m₁ k) ∧
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x = z ∧
+        InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro y hy
+    obtain ⟨x, -, hx⟩ := (mem_unitPts _).1 y.2
+    have hjx : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x = z := by
+      rw [← unitBlock1_unitBlock, hx, hy]
+    exact ⟨x, hx, hjx, hblk x hjx⟩
+  symm
+  refine Finset.sum_nbij (fun y => ιu y) (fun y hy => ?_) (fun y1 hy1 y2 hy2 h => ?_)
+    (fun y' hy' => ?_) (fun y hy => ?_)
+  · have hy1 := (Finset.mem_filter.1 hy).2
+    obtain ⟨x, hx, hjx, hxR⟩ := hmemA y hy1
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
+    show unitBlock1 ((ιu y : unitPts (GB)) : UnitTorus d L N₁' m₁ k) = bc z
+    rw [unitImage_val (N₁' := N₁') hn1 y hx hxR, unitBlock1_unitBlock, ← hjB]
+    have hx₀r : InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x₀ :=
+      inBox_mono (by omega) hx₀
+    exact (jBlock_boxMap_iff le_rfl hn1 hn1' hxR hx₀r).1
+      (hjx.trans (LocalCover.jBlock_blockSite le_rfl z).symm)
+  · obtain ⟨x1, hx1, -, hx1R⟩ := hmemA y1 (Finset.mem_filter.1 (Finset.mem_coe.1 hy1)).2
+    obtain ⟨x2, hx2, -, hx2R⟩ := hmemA y2 (Finset.mem_filter.1 (Finset.mem_coe.1 hy2)).2
+    exact unitImage_inj hn1 hn1' hx1 hx2 hx1R hx2R h
+  · have hy1 := (Finset.mem_filter.1 (Finset.mem_coe.1 hy')).2
+    obtain ⟨x', -, hx'⟩ := (mem_unitPts _).1 y'.2
+    have hjx' : jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) x' =
+        jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x₀) := by
+      rw [hjB, ← unitBlock1_unitBlock, hx']
+      exact hy1
+    have hx'mem : x' ∈ box (cbase (L ^ (k + 1)) (bm x₀)) (L ^ (k + 1)) :=
+      (jBlock_eq_iff_mem_box le_rfl x' (bm x₀)).1 hjx'
+    have hcellr : ∀ x ∈ box (cbase (L ^ (k + 1)) x₀) (L ^ (k + 1)),
+        InBox d (L ^ (k + 1) * rc + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+      fun x hx => inBox_of_mem_cell (by omega) hx₀ hx
+    rw [← cbase_boxMap hdA hdB hpK (by omega) x₀ hcellr,
+      ← image_box_boxMap (by omega) hpK hcellr] at hx'mem
+    obtain ⟨x, hx, rfl⟩ := hx'mem
+    have hjx : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x = z :=
+      ((jBlock_eq_iff_mem_box le_rfl x x₀).2 hx).trans (LocalCover.jBlock_blockSite le_rfl z)
+    have hxR := hcell x hx
+    refine ⟨⟨unitBlock x, mem_unitPts_levelTop (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)
+      (ϱ := ϱ) _⟩, Finset.mem_coe.2 (Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩), ?_⟩
+    · show unitBlock1 (unitBlock x) = z
+      rw [unitBlock1_unitBlock, hjx]
+    · apply Subtype.ext
+      rw [← hx']
+      exact unitImage_val (N₁' := N₁') hn1 _ rfl hxR
+  · have hy1 := (Finset.mem_filter.1 hy).2
+    have hr : rootIdxOf y = z := (rootIdxOf_eq_unitBlock1 y).trans hy1
+    refine (detActivityBg_image_twoTorus hN hN' hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD'
+      y Y (fun x hx => hroot x (hr ▸ hx)) hYr hn hn' hnS hnS' hnH hnH' hraw).symm
 
 end Det
 
