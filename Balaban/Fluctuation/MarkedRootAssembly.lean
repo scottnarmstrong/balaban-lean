@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.MarkedRootFamily
 public import Balaban.Fluctuation.Prop33CloseReal
+public import Balaban.Fluctuation.StepComplexOutAnalytic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -126,6 +127,23 @@ theorem inUnionDomainC_psiAtV_of_hreal {δ₁ R : ℝ}
       rfl
   rw [S.dataUC_psiAtV_eq_lineAt, S.dataUC_psi0C, ← e]
   exact hDdisc ζ hζ
+
+/-- **The lift of the marked tangent lies in the ball under the radial margin.**  If the shift
+`ψ' = shiftUC ψ̂` has Euclidean norm at most `Y₀` at the unit points and
+`(R₁ + r)(R_σ + t₁) Y₀ < δ₁` with `R₁ > 1`, `r > 0`, then for `|u| < R_σ`, `|t| < t₁` the lift of
+`v_t = u ψ' + t M_z ψ'` lies in `FlBall Hm δ₁` (the point `σ = 1` of the discs of
+`markedDisc_field_mem_flBall`). -/
+theorem liftC_markedTangentC_mem_flBall_of_margin {ϱm : ℝ}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} (hG : IsLevel Hm k)
+    {δ₁ Y₀ R₁ r Rσ t₁ : ℝ} {x : S.E} (hY : ∀ b : S.U, vn (fun i => S.shiftUC x (b, i)) ≤ Y₀)
+    (hrad : (R₁ + r) * (Rσ + t₁) * Y₀ < δ₁) (hR₁ : 1 < R₁) (hr : 0 < r) {u t : ℂ}
+    (hu : ‖u‖ < Rσ) (ht : ‖t‖ < t₁) :
+    liftC S.hG' (S.markedTangentC z u t x) ∈ FlBall Hm δ₁ := by
+  have h := S.markedDisc_field_mem_flBall z hG hY hrad hu ht (σ := 1)
+    (by rw [norm_one]; linarith)
+  rw [one_smul, map_smul] at h
+  rw [S.liftC_markedTangentC]
+  exact h
 
 section Producer
 
@@ -255,16 +273,19 @@ variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {m₀ : ℕ}
 is the parameter set of the chart `Ξ^c(𝔹_{k+1}; 1, ε)` of the step, `R_σ` the radius of the radial
 mark, `F₀` the prefactor and `a₀` the rate:
 
-4. for every `Y'`, `(e, u) ↦ G_{z,Y'}(e, u)` is analytic on `V × {|u| < R_σ}`;
-2. at every point of `V × {|u| < R_σ}`: `|G_{z,Y'}| ≤ F₀ e^{-a₀ d(Y')}`, and for `aEnt + 1 ≤ a₀ - a''`
-   `∑_{Y' ∈ 𝒴_z} |G_{z,Y'}| e^{a'' d(Y')} ≤ F₀ K₀(d, L, a₀ - a'')`;
-3. at every point of `V × {|u| < R_σ}`: `G_{z,Y'} ≠ 0` implies `Y' ∈ 𝒟_{k+1}` and the root cube of
-   `z` is a cube of `Y'`;
-1. on the constant-`h₀` slice: for every datum `D` of the chart with `D.h = h₀` and every hat field
-   `‖ψ̂‖ ≤ p₁` such that `Q (rawOf D)` is the shift `ψ' = shiftUC ψ̂` of the step with the datum `D`,
-   and every real `s ∈ [0,1]`,
-   `∑_{Y' ∈ 𝒴_z} G_{z,Y'}(rawOf D, s) = DΦ₁(s ψ')[1_{B(z)} ψ']`,
-   the integrand of `E1MarksC (S.withDatum D hD) (zeroClass …) BS z` at `(s, ψ̂)`. -/
+* (analyticity) for every `Y'`, `(e, u) ↦ G_{z,Y'}(e, u)` is analytic on `V × {|u| < R_σ}`;
+* (bound) at every point of `V × {|u| < R_σ}`: `|G_{z,Y'}| ≤ F₀ e^{-a₀ d(Y')}`, and for
+  `aEnt + 1 ≤ a₀ - a''`, `∑_{Y' ∈ 𝒴_z} |G_{z,Y'}| e^{a'' d(Y')} ≤ F₀ K₀(d, L, a₀ - a'')`;
+* (root and domain) at every point of `V × {|u| < R_σ}`: `G_{z,Y'} ≠ 0` implies `Y' ∈ 𝒟_{k+1}` and
+  the root cube of `z` is a cube of `Y'`;
+* (finite sum) on the constant-`h₀` slice: for every datum `D` of the chart with `D.h = h₀`, every
+  hat field `‖ψ̂‖ ≤ p₁` such that `Q (rawOf D)` is the shift `ψ' = shiftUC ψ̂` of the step with the
+  datum `D`, and every real `s ∈ [0,1]`,
+  `∑_{Y' ∈ 𝒴_z} G_{z,Y'}(rawOf D, s) = DΦ₁(s ψ')[1_{B(z)} ψ']`,
+  the integrand of `E1MarksC (S.withDatum D hD) (zeroClass …) BS z` at `(s, ψ̂)`.
+
+The conjunction lists analyticity first, then the three pointwise clauses (bound, root and domain,
+anchored sum), then the finite sum. -/
 def MarkedRootAssembly (m₀ : ℕ)
     (dom : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
       Finset (Set (CTorus d L N₁ m₁ (k + 1))))
@@ -394,6 +415,127 @@ theorem markedRootAssembly_zero_of_markReal (ha₁ : 0 < S.a₁)
       (hMR D hD x hDX hx hQx) hcl.1.1
 
 end Assembly
+
+/-! ### The assembly with `MARK-REAL` supplied on the slice -/
+
+section Unconditional
+
+variable {c BG κ eps Kc Cx c₂ BG₂ δ₁ δc : ℝ} {m₀ : ℕ}
+  {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+  {XV 𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+  {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **`markedRootAssembly_zero`: the root assembly of the marked terms of the zero class on the
+physical chart.**  The hypotheses are those of `marked_count_scaled` for `Hm = 𝔹_k` (the cover data
+and `FlCore`), of the covariance chart (`hMX`, `hdm`, `hα`, `hsm`), the numerical hypotheses of the
+cubic identity (`hc7`, `hR`, `hRs`, `hsmall`, `hnum`, `hnum'`) and of `MARK-REAL` (`hsmR`, `β > 0`,
+`p₁ < p⁺` with `√N β_k^{-1/2} C_sup p⁺ < δ₁`), and the strict radial margin
+`(R₁ + r)(R_σ + t₁) · markedRad < δ₁` with `markedRad = √N β_k^{-1/2} C_sup p₁`, `R₁ > 1`, `r > 0`,
+`0 < t₀ < t₁`, `R_σ > 1`.  None of them depends on the datum of the step.
+
+There are one family `Ev` of block terms (summing to the block energies) and one matrix function
+`M` of the raw data, with entries analytic on the chart, such that
+`β_k^{-1/2} M(rawOf D) ψ̂` is the shift `shiftUC ψ̂` of the step with the datum `D` for every datum of
+the chart with `D.h = h₀`, and such that for **every** marked block `z` and every hat field
+`‖ψ̂‖ ≤ p₁` the clauses of `MarkedRootAssembly` hold for the marks
+`G_{z,Y'}(e, u) = -β · markedOut z Y'` built with the tangent `Q(Θ) = β_k^{-1/2} M(Θ) ψ̂`, with
+`F₀ = |β| · 3‖E*‖/(r³ t₀) · c₁ M^d · nFibre · e^{(2κ_dec-1) cBr}` and the rate `2κ_dec - 1`.  The
+terms `Ev` and the matrix `M` do not depend on `z` or on `ψ̂`; `MARK-REAL` is not a hypothesis (it
+is supplied at every datum of the slice by `markRealAt_of_chart`). -/
+theorem markedRootAssembly_zero
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hcovV : ∀ b, CovSetup S.G' m₀ (jV b) (XV b) (𝒦XV b))
+    (hX₁V : ∀ b, (↑(X₁V b) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ (jV b) (𝒦XV b))
+    (hconn : HatConn S.G')
+    (hrow : RowInHat (coverOf S.G') (stepG d L N₁ m₁ k ϱ) S.a S.ν)
+    (hoptV : ∀ b, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XV b) ∧ MeetsOne m₀ (jV b) (𝒦XV b) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (jV b)) E₀ = treeLenCovOne m₀ (jV b) (XV b))
+    (hΔV : ∀ b, treeLenCovOne m₀ (jV b) (XV b) = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hZV : ∀ b, readSites (stepG d L N₁ m₁ k ϱ) k b ⊆ ↑(X₁V b))
+    (hmarV : ∀ b, BlockMargin S.G' (X₁V b)
+      (↑(blockSites d L N₁ m₁ (k + 1) k b) : Set (CTorus d L N₁ m₁ (k + 1))))
+    (hL : 2 ≤ L)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (ha₁ : 0 < S.a₁) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hβ : 0 < S.β) {pp : ℝ}
+    (hδ₁ : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+      (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁)
+    (hlt : S.p₁ < pp) (hp₁ : 0 ≤ S.p₁) {R₁ r Rσ t₁ t₀ : ℝ}
+    (hrad : (R₁ + r) * (Rσ + t₁) *
+      markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < δ₁)
+    (hR₁ : 1 < R₁) (hr : 0 < r) (ht₀ : 0 < t₀) (ht₀₁ : t₀ < t₁) (hRσ : 1 < Rσ) :
+    ∃ (Ev : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+      (M : RawData d L (N₁ * L ^ m₁) (k + 1) N → Matrix (S.U × Fin N) (S.U × Fin N) ℂ),
+      (∀ b, ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+        ∀ ψ' ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁,
+        energyBlock S.G' (stepG d L N₁ m₁ k ϱ) S.a S.ν k (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+          (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν D ψ') ψ' b =
+        ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b), Ev b Y (rawOf D, ψ')) ∧
+      (∀ p q, AnalyticOnNhd ℂ (fun Θ => M Θ p q) (XiCRaw S.G' S.a S.ν (k + 1) 1 eps)) ∧
+      (∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+        XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ x : S.E,
+        (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D) *ᵥ yhat x) =
+          (S.withDatum D hD).shiftUC x) ∧
+      ∀ (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (x : S.E), ‖x‖ ≤ S.p₁ →
+        S.MarkedRootAssembly z m₀ (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) Ev eps Rσ
+          (fun Θ => (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
+          (|S.β| * (3 * ‖energyBdScaled d L N (compWeight L S.a₁) k
+              (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / (r ^ 3 * t₀) *
+            (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+            ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)))) (2 * κdec - 1) := by
+  obtain ⟨Ev, hsum, hloc, hbd, han, -⟩ := S.marked_count_field hC hcovV hX₁V hconn hrow hoptV hΔV
+    hκ₀ hκdec hκ h1 hlog S.hG hZV hmarV hL
+  obtain ⟨M, hMan, hM, hMb⟩ := exists_analytic_hatCovSqrt_bdd hC S.hk1 hMX hdm hα hsm
+  have hfib : ∀ (D : BgData S.G' N) (hD : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+      XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ x : S.E,
+      (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M (rawOf D) *ᵥ yhat x) =
+        (S.withDatum D hD).shiftUC x := by
+    intro D hD hDX x
+    have e : (S.withDatum D hD).covSqrtC = hatCovSqrt S.G' S.a₁ S.ν D :=
+      (S.withDatum D hD).covSqrtC_eq_hatCovSqrt
+    rw [hM D hDX, ← e]
+    rfl
+  refine ⟨Ev, M, hsum, hMan, hfib, fun z x hx => ?_⟩
+  have hyh : ∀ p, ‖yhat x p‖ ≤ S.p₁ := fun p => S.yhat_le_of_norm_le hx p
+  have hQ : AnalyticOnNhd ℂ (fun Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+      (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x))
+      (XiCRaw S.G' S.a S.ν (k + 1) 1 eps) := fun Θ hΘ =>
+    (analyticOnNhd_smul_mulVec hMan _ (Θ, yhat x) ⟨hΘ, Set.mem_univ _⟩).comp_of_eq
+      (analyticAt_id.prod analyticAt_const) rfl
+  have hQb : ∀ Θ ∈ XiCRaw S.G' S.a S.ν (k + 1) 1 eps, ∀ b : S.U,
+      vn (fun i => ((((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) • (M Θ *ᵥ yhat x)) (b, i)) ≤
+        markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) :=
+    fun Θ hΘ b => hMb _ hp₁ hyh Θ hΘ b
+  refine S.markedRootAssembly_zero_of_markReal z ha₁ hC hcovV hX₁V hoptV (by linarith) hZV hL hc7
+    hR hRs hsmall hnum hnum' Ev hsum hloc hbd han hQ hQb hrad hR₁ hr ht₀ ht₀₁ hRσ ?_
+  intro D hD x' hDX hx' hQx'
+  have hY : ∀ b : S.U, vn (fun i => (S.withDatum D hD).shiftUC x' (b, i)) ≤
+      markedRad d L N k S.a₁ κ S.p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
+    intro b
+    rw [← hQx']
+    exact hQb _ ⟨D, hDX, rfl⟩ b
+  refine (S.withDatum D hD).markRealAt_of_chart z hC hMX hdm hα hsm ha₁ hc7 (by linarith) hsmR hβ
+    (lt_of_le_of_lt hp₁ hlt) hδ₁ hlt hDX hx' fun s hs t ht => ?_
+  have hu : ‖((s : ℝ) : ℂ)‖ < Rσ := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]
+    linarith [hs.2]
+  exact (S.withDatum D hD).liftC_markedTangentC_mem_flBall_of_margin z S.hG hY hrad hR₁ hr hu ht
+
+end Unconditional
 
 end StepSetting
 
