@@ -96,10 +96,10 @@ private lemma integral_gaussT {c : ℝ} (hc : 0 < c) (w : EuclideanSpace ℝ (Fi
 
 
 /-- The spin configurations. -/
-private abbrev CfgT (d N L n : ℕ) : Type :=
+abbrev CfgT (d N L n : ℕ) : Type :=
   Torus d (L * n) → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1
 
-private lemma baseKernel_pos {β a : ℝ} (hβ : 0 < β) (ha : 0 < a) :
+lemma baseKernel_pos {β a : ℝ} (hβ : 0 < β) (ha : 0 < a) :
     0 < β * a * (L : ℝ) ^ d / (L : ℝ) ^ 2 := by
   have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   positivity
@@ -112,7 +112,7 @@ private lemma measurable_baseQ (y : Torus d n) :
     Finset.measurable_sum _ fun x _ => measurable_subtype_coe.comp (measurable_pi_apply x)
   exact Measurable.const_smul hs ((L : ℝ) ^ d)⁻¹
 
-private lemma measurable_baseKernel (β a z : ℝ) :
+lemma measurable_baseKernel (β a z : ℝ) :
     Measurable fun p : (Torus d n → EuclideanSpace ℝ (Fin N)) × CfgT d N L n =>
       baseKernel d N L n β a (z • p.1) p.2 := by
   have hy : ∀ y : Torus d n, Measurable fun p : (Torus d n → EuclideanSpace ℝ (Fin N)) × CfgT d N L n =>
@@ -130,7 +130,7 @@ private lemma measurable_baseKernel (β a z : ℝ) :
   unfold baseKernel
   exact Finset.measurable_prod _ fun y _ => hy y
 
-private lemma baseKernel_nonneg {β a : ℝ} (hβ : 0 < β) (ha : 0 < a)
+lemma baseKernel_nonneg {β a : ℝ} (hβ : 0 < β) (ha : 0 < a)
     (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n) :
     0 ≤ baseKernel d N L n β a θ φ :=
   Finset.prod_nonneg fun _ _ => gaussT_nonneg N _ (baseKernel_pos hβ ha).le _ _
@@ -211,7 +211,7 @@ section Main
 
 variable {d N L n : ℕ} [NeZero L] [NeZero n] [NeZero N]
 
-private lemma spin_integrand_bound (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+lemma spin_integrand_bound (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
     (g : Torus d (L * n) → Fin N → ℂ) :
     Measurable (fun φ : CfgT d N L n => Complex.exp (-((β * energy d N (L * n) ν h φ : ℝ) : ℂ)
         + ∑ x : Torus d (L * n), ∑ i : Fin N,
