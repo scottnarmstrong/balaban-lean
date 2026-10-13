@@ -1443,6 +1443,7 @@ public import Balaban.Fluctuation.StepActivityHatSourceBound
 public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.LevelStepSetting
+public import Balaban.Inhabited.LevelStepSettingGeneral
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
