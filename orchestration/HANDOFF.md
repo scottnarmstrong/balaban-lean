@@ -12,7 +12,6 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W419 | `w419-collar-hull-symm` / W419 | symmetry of the collar hull and of the regrouped determinant terms |
 | W420 | `w420-det-rotation` / W420 | spin-rotation invariance of the determinant activity (stop rule) |
 | W421 | `w421-kf0-allplus-gas` / W421 | one-scale: all-plus sector as a block gas (T4 of W408) |
 | W422 (Opus) | `w422-marked-field-count` / W422 | field-generic marked count; analytic rooted sums; root assembly conditional on MARK-REAL |
