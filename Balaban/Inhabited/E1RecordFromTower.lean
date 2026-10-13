@@ -144,7 +144,9 @@ open Classical in
 scale datum and every root `z`, the local energy term `ℰ₁^{(k+1)}(z)` of the zero class is a sum
 over finite sets `T` of level-one blocks of terms bounded by `K₀ e^{-κ' d_Ext(T)}`
 (`e1loc_expansion_zeroClass_of_sum` with its hypothesis `hF` given by
-`e1_hF_of_pairs_fromTower`). -/
+`e1_hF_of_pairs_fromTower`).  This expands the zero-class local `ℰ₁(z)` of P4 (2.57) at the base
+datum; the local `ℰ₀(z)` of Theorem 3.1 (a) also contains the determinant trace
+(`thm31a_zeroClass_supp_fromTower`). -/
 theorem e1loc_expansion_zeroClass_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧

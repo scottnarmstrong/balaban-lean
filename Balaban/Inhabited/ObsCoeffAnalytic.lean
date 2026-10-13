@@ -545,7 +545,9 @@ every finite set of cubes, the first-order terms, the kernel sum, the remainder 
 `obsCoeffParam` are analytic on `physVq … q`.  The numerical hypotheses carried are `hKc`
 (`K₀ + 1 ≤ K_c`, any `K_c ≥ K₀ + 1`), `hε` (the amplitude of the tilted extension is at most
 `stepTheta 3 3 Kobs (2 κdec - 1) κ0 κ'`) and `1 < Rg`; the activity fields `hhol`, `hcont` are
-those of `obsTiltLabels_fromTower`. -/
+those of `obsTiltLabels_fromTower`.  This statement is conditional on them; they are discharged
+at the tower, by a compatible instantiation of `obsTiltLabels_fromTower`, in
+`obsCoeffFamily_fromTower`. -/
 theorem obsCoeffParam_fromTower (hN : 5 < N₁) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
     {q : ℝ} (hRg : 1 < Rg) (hKc : K0 3 3 T.κ0 + 1 ≤ Kc)
     (hhol : ∀ y', ∀ Φ ∈ physCarrier S 1 hp, AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ =>
