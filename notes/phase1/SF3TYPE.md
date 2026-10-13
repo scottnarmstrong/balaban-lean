@@ -129,3 +129,19 @@ condition is `bgC0 d L N + (2 bgK1 d L N + 1) bgC1 d L N ≤ εseq j`.
 a sharper estimate from the ambient chart radius is needed. `OldXiDomOpenC` still needs an
 open set of physical shifts and a class term family whose generator is `localB` at the low
 index; its current `StepClass`, `FieldDom`, and `Terms` parameters share one separation index.
+
+## NEXT (W723)
+
+The physical class uses `εseq j = P.eps d L j` (`Def6.Consts.eps`, P4 (H.1)); its
+`xiFieldDom` chart is `XiDom … j (P.eps d L j)` with `σ=1`. P3 (4.46)–(4.47),
+printed pp. 78–79, recomputes a local term on `𝔹(Y)` and applies Lemma 4.2 on
+that local chart; the formula is a local `Ξ^c` radius, not a fixed `bgC0` radius.
+For zero background mass, P3 (Ξ1) gives data radius
+`δ=ε=xiC1 d * εamb`; (D2) then gives local chart radius
+`K * εamb`, `K=(2*bgK1 d L N+2)*xiC1 d`. The smallness requirements are
+`(4d+6)(2d+1) εamb ≤ 1` and `xiC1 d * εamb ≤ min(bgC0,bgC1)`.
+Thus a local chart at the *same* physical radius requires a separate margin
+`K*εamb ≤ P.eps d L j`, impossible when `εamb=P.eps d L j` and `K>1`.
+For positive mass and `j<k`, landed (D1-j) controls only the level-`j` mass
+norm; landed (D2) consumes the full scale-`k` data norm. A level-`j` (D2)
+is needed to obtain this linear estimate without a zero-mass assumption.

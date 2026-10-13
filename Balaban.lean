@@ -1849,3 +1849,4 @@ public import Balaban.SmallField.LocalTraceDescent
 public import Balaban.Inhabited.PhysAmpFacts
 public import Balaban.SmallField.LocalGeneratorCovariance
 public import Balaban.Fluctuation.GeneralEnergyMarks
+public import Balaban.SmallField.LocalGeneratorRadius
