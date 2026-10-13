@@ -1582,6 +1582,7 @@ public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Fluctuation.DetActivitySymm
 public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Fluctuation.DetSymmGroup
+public import Balaban.Inhabited.DetOutputTermsWitnessG
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetCollarHullWitness
 public import Balaban.Inhabited.DetCollarHullSymmWitness

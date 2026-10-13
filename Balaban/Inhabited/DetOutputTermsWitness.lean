@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.DetStepInstance
 public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.DetOutputTermsWitnessG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -211,34 +212,11 @@ theorem detExpansionLocC_scale_of_tower {m₁ : ℕ} {c BG κ t c₂ BG₂ δc :
             (1 - ((detDeg 3 3 + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)))),
         ∀ D T, E.term D T = ∑ y ∈ (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ).blockU z,
           detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 BG κ) D y T := by
-  classical
-  set S := hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ with hS
-  have hSD := dgSetting_lv (N₁ := N₁) (k := k) h4 hN hν0 hν
-  have hHB := bgHyp_lv (k := k) m₁ hν0 hν
-  have hC : FlCore 2 (lvTop N₁ m₁ k (rhoSep m₁)) (lvLow N₁ m₁ k (rhoSep m₁)) 1 ν c BG κ t
-      (levelKc 3 3) (Cchi 3 3) c₂ BG₂ t :=
-    flCore_level_transfer hC₀ hSD (opSetting_lv h4 hN hν0 hν) (isLevel_lvLow hk) isLevel_lvTop hHB
-  have hD : XiCData S.G' (compWeight 3 1) ν (k + 1) 1 t S.D' := by
-    refine ⟨fun _ => unitVec hN2, unitVec hN2, 0, 0,
-      exists_xiC hHB (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (massLe_lv hν) ht0, ?_, ?_⟩
-    · intro x hx i
-      have := unitBg_Ψ_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).Ψ x i = _
-      rw [this]; simp
-    · intro x hx i
-      have := unitBg_h_of_mem (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2) hx i
-      show (unitBg (lvTop N₁ m₁ k (rhoSep m₁)) hN2 (unitVec hN2)).h x i = _
-      rw [this]; simp
-  have hd0 : 0 < (3 : ℕ) := by norm_num
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin 3 3 2 BG κ (xiC1 3 * t) := by
-      have : 0 < K4 3 3 2 BG κ := K4_pos hC.hS.fam.2.1 hd0
-      have := one_le_xiC1 3
-      unfold decDomMargin; positivity
-    linarith
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  exact ⟨hD, fun z => exists_detExpansionLocC_of_chart_uniform (m₀ := 1) S hC hδc hMX hdm hα
-    hsmX hatConn_lvTop hN3 hz z⟩
+  have hC := Classical.choice (flCore_three_transport ⟨hC₀⟩)
+  have h := detExpansionLocC_scale_of_towerG (d := 3) (L := 3) (N := 2) le_rfl le_rfl le_rfl h4
+    ht0 hC hMX hdm hα hsmX hz k hk N₁ h3N hN hν0 (by simpa using hν) β p₁ δ
+  rw [rhoSepG_three] at h
+  exact h
 
 /-- **The localized determinant family at every scale and on every torus.**  With the rates
 `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1` of the general-scale
