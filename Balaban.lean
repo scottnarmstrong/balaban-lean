@@ -414,6 +414,7 @@ public import Balaban.Localization.YregBlocks
 public import Balaban.Localization.DecSqrtCutFactor
 public import Balaban.Inhabited.DecSqrtCutFactorWitness
 public import Balaban.Inhabited.YregBlocksWitness
+public import Balaban.Inhabited.DetCauchyGraphWitness
 public import Balaban.Localization.DecoupledCovUnit
 public import Balaban.Localization.DecoupledCovClose
 public import Balaban.Localization.DecoupledCovWeighted
@@ -887,6 +888,7 @@ public import Balaban.SmallField.RenormClassFamily
 public import Balaban.SmallField.RenormClassTheorem
 public import Balaban.Localization.CoverPartition
 public import Balaban.Localization.Decoupled2FpCount
+public import Balaban.Localization.Dec2Covariance
 public import Balaban.Localization.Vmod7Anchored
 public import Balaban.Localization.Vmod7Glue
 public import Balaban.Localization.Vmod7Local
@@ -958,6 +960,7 @@ public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.LargeField.R.RegionalAlignedSource
+public import Balaban.LargeField.R.AlignedI6Transport
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1249,6 +1252,8 @@ public import Balaban.Localization.P6PairCastReal
 public import Balaban.Localization.P6PairLocBase
 public import Balaban.Localization.P6PairLocComposed
 public import Balaban.Localization.P6PairLocFinal
+public import Balaban.Localization.P6PairGraph
+public import Balaban.Inhabited.P6PairGraphWitness
 public import Balaban.SmallField.GsSpecCounter
 public import Balaban.SmallField.GsSpecStrong
 public import Balaban.SmallField.GsSpecAgree
@@ -1317,6 +1322,7 @@ public import Balaban.Analysis.CutExpansion
 public import Balaban.Fluctuation.RootDetChart
 public import Balaban.Fluctuation.DetCauchyChart
 public import Balaban.Fluctuation.RootDetCutSupport
+public import Balaban.Fluctuation.DetCauchyGraph
 public import Balaban.Fluctuation.StepComplexSmall
 public import Balaban.Fluctuation.StepComplexWitness
 public import Balaban.Fluctuation.StepComplexLocal
