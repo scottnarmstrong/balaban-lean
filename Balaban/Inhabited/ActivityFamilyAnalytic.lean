@@ -325,7 +325,12 @@ point `(rawOf S.D', 0)` and the relative family `hF` over `physVq … q` such th
   8. (slice, `W₂`) almost everywhere, for every such `D`, every source `∑ |g| < q` and `t ∈ [0,1]`,
      `(S.withDatum D).WtwoC g t ψ̂ = ∑_y A((rawOf D, g), t)_y − ∑_y A((rawOf D, 0), t)_y`.
 
-In 4–8 "almost everywhere" is `ν_{p₁}`-almost every `ψ̂`, with one null set for all the other
+  9. (both segments) almost everywhere, for every `e` of the fibre with `∑ |e.2| < q` and every
+     point `(s, t)` of `stepSegments`, `Jr.W1 (e.1, s ψ̂) + Jr.W2 e.2 (e.1, t ψ̂)` is the label sum
+     of `segAct (A (e.1, 0)) (A e)` at `(s, t)` (labels `thickLabels.sum thickLabels`): the
+     activity of `sourceExponentFamily_fromTower` as `segAct` of the one analytic family.
+
+In 4–9 "almost everywhere" is `ν_{p₁}`-almost every `ψ̂`, with one null set for all the other
 variables.  At `D = S.D'` the step `S.withDatum D` is `S` (`withDatum_self`). -/
 theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) :
@@ -433,7 +438,17 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
                       ((S.blockSplit 1 hp).restr x) -
                     ∑ y, (A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
                       (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) (t : ℂ)).H y
-                      ((S.blockSplit 1 hp).restr x)) := by
+                      ((S.blockSplit 1 hp).restr x)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibre S S.a₁ S.ν T.t, ∑ x', ∑ i, ‖e.2 x' i‖ < q →
+                ∀ p ∈ stepSegments,
+                Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+                    ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.1 : ℂ) • S.hatC x) +
+                  Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+                    ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (p.2 : ℂ) • S.hatC x) =
+                  ∑ y, (segAct (A ((e.1, 0) : physParam 2 S)) (A e)
+                    (mul_nonneg zero_le_two hεU) (two_mul _).ge
+                    (fun s => ((if s ∈ Icc (0 : ℝ) 1 then s ^ 2 else 0 : ℝ) : ℂ))
+                    norm_ite_sq_le p).H y ((S.blockSplit 1 hp).restr x)) := by
   classical
   obtain ⟨β₀, CE, CF, hβ₀, hCE, hCF, hfam⟩ := sourceFamilyRelative_scale_fromTower T hA p
   refine ⟨β₀, CE, CF, hβ₀, hCE, hCF, ?_⟩
@@ -563,7 +578,7 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
   have hball : ∀ x : S.E, chiFl S.U 2 S.p₁ x = 1 → ‖x‖ < S.p₁ ∧ ‖x‖ < 2 * p₁ := fun x hχ => by
     have h1 : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp x).1 hχ
     exact ⟨h1, lt_of_lt_of_le h1 hle⟩
-  refine ⟨_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · exact fun y Φ => labelActFamilyOn_analytic S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc y Φ
   · exact fun e he u hu y =>
       labelActFamilyOn_continuous S 1 _ hF hN3 hp0 hR2 hεpos.le T.κ0_ent hKc he hu y
@@ -586,5 +601,26 @@ theorem activityFamilyAnalytic_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
       (S.abs_mul_le_of_mem hle ht (hball x hχ).1.le)]
     exact hW2pt x hx (hball x hχ).2 _
       (mk_mem_physFibre S hDh hX (lt_of_lt_of_le hg hq)) hg t ht
+  · filter_upwards [S.ae_hatOf_restr 1 hp0 hp hSp.le, S.ae_ball hp] with x hx hχ
+    intro e he heq p hp'
+    have hW20 : Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+        ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), ((0 : ℝ) : ℂ) • S.hatC x) = 0 := by
+      obtain ⟨D', hX, hq'⟩ := he.1.1
+      have hq'' : (e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) = rawOf D' := hq'
+      have hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ) := fun y i => by
+        have := he.2 y i
+        rw [hq''] at this
+        exact this
+      have h := Jr.W2_withDatum (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) D' hDh hX e.2
+        (t := 0) (x := x) (by rw [abs_zero, zero_mul]; linarith)
+      rw [hq'']
+      exact h.trans ((S.withDatum D' hDh).WtwoC_zero _ e.2 x)
+    exact segAct_hW_of_parts _ _ _ _
+      (W1 := fun s : ℝ => Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+        ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (s : ℂ) • S.hatC x))
+      (W2 := fun t : ℝ => Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) e.2
+        ((e.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2), (t : ℂ) • S.hatC x))
+      (fun s hs => hW1pt x hx (hball x hχ).2 e he s hs)
+      (fun t ht => hW2pt x hx (hball x hχ).2 e he heq t ht) hW20 hp'
 
 end Balaban.Inhabited
