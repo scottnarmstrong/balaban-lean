@@ -230,4 +230,104 @@ theorem rootTrace_single_transport {a : ℕ → ℝ} {aT ν δ κ : ℝ}
 
 end LogRows
 
+/-! ### D2: the background inputs on two tori -/
+
+section BgInputs
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ (k + 1)))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) (ϱ := ϱ)
+    (Nat.le_add_left 1 k) le_rfl _)
+
+omit [NeZero N₁'] in
+/-- **The field sites `R(S_Y)` lie in `Y`, and their approximate-field footprints in the raw-data
+read set `RowsDep (S_Y)`** (one torus, the top level `levelGS (k + 1)`).  The sites of `R(S_Y)`
+read by the `x`-variant rows at a site `z ∈ S_Y` lie in `resSites z` (`rowsCov_R_subset_resSites`),
+so their footprints `approxDep` lie in `resDep z`; that the sites themselves lie in `Y` is
+`row_in_Y`.  (The `x`-variant rows need not be rows of `H_D`, so the inclusion is into the
+`resDep` part of `RowsDep`.) -/
+theorem rowsCov_R_mem_Y_and_rowsDep {a b : ℕ → ℝ} {aT ν ν' : ℝ} (S : XSetting (GA) b aT ν')
+    {α : (GA).Ω 1 → ℂ} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {u : CTorus d L N₁ m₁ (k + 1)} (hu : u ∈ rowsCov_R (GA) b aT ν' α X₁ 𝒞 Y) :
+    u ∈ Y ∧ ∀ z ∈ approxDep (GA) u, RowsDep (GA) a ν (SY (GA) X₁ 𝒞 Y) z := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  refine ⟨?_, fun z hz => ?_⟩
+  · rcases hu with hu | ⟨z, y, hz, rfl, x₀, -, hne⟩
+    · exact SY_subset_levelGS hj1 le_rfl hu
+    · exact row_in_Y S hz hne
+  · obtain ⟨w, hw, huw⟩ := rowsCov_R_subset_resSites hu
+    exact Or.inl ⟨⟨w, levelGS_mem_Ω_one hj1 le_rfl w⟩, hw, approxDep_subset_resDep huw hz⟩
+
+/-- **D2: the background inputs of the decoupled covariance on two tori, from the raw data.**  Let
+`D`, `D'` be data in the union domains of Theorem I-4b on the two tori, `s`, `s'` parameters in the
+polydisc, and `(Y, S_Y)`, `(Y', S_{Y'})` corresponding components of the cut with corresponding cut
+factors, as in `decBg_value_twoTorus` at the level `j = K = k + 1`.  If the raw data agree on
+`RowsDep (S_Y)`, then the decoupled multipliers `α_s = decBgMult` correspond on `S_Y`, and the
+extended decoupled fields `φ̄_s = barField D.Ψ (decBgField)` correspond on the sites `R(S_Y)` read
+by the `x`-variant rows (for any `x`-variant constants `b, a_T, ν'` with an `XSetting`): these are
+the hypotheses `hα`, `hφR` of `decCov_rows_transport` and `decLog_diag_transport`.  The proof is
+`decBg_component_unique` (multipliers on `S_Y`, fields at the sites of `Y` whose footprint lies in
+`RowsDep (S_Y)`) and `rowsCov_R_mem_Y_and_rowsDep`.  Margin:
+`4 R + 12 L^(k+1+m₁) + 7 L^(k+1) + 5 < N₁ L^m₁ L^(k+1)` (and for `N₁'`). -/
+theorem decBg_inputs_twoTorus {c BG : ℝ} (hS : DecSpecs d L c BG) {a : ℕ → ℝ} {ν : ℝ}
+    (SA : DGSetting (GA) a ν) (SB : DGSetting (GB) a ν) (hconn : HatConn (GA))
+    (hconn' : HatConn (GB)) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s : DecParams (GA)} {s' : DecParams (GB)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hDd : InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDd' : InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) ν D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))} {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → extS (GA) s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → extS (GB) s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) (extS (GB) s') (Prod.map id bm q) = sProd (GA) (extS (GA) s) q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hD : RawBoxAgree {z | RowsDep (GA) a ν (SY (GA) X₁ 𝒞 Y) z} (rawOf D) (rawOf D'))
+    {b : ℕ → ℝ} {aT ν' : ℝ} (SX : XSetting (GA) b aT ν') :
+    (∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y →
+      decBgMult (GB) a ν (rho4 d L N BG κ) s' D' (ιb x) =
+        decBgMult (GA) a ν (rho4 d L N BG κ) s D x) ∧
+    (∀ u ∈ rowsCov_R (GA) b aT ν' (decBgMult (GA) a ν (rho4 d L N BG κ) s D) X₁ 𝒞 Y,
+      barField (GB) D'.Ψ (decBgField (GB) a ν (rho4 d L N BG κ) s' D') (bm u) =
+        barField (GA) D.Ψ (decBgField (GA) a ν (rho4 d L N BG κ) s D) u) := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hDC⟩ := id hDd
+  obtain ⟨δ', ε', hδ0', hδε', hε', hδ', hνε', hDC'⟩ := id hDd'
+  obtain ⟨φ, α, hsol, huniq, -⟩ := i4b_exists_unique hS SA HB hκ hM (fun P => (hs P).le) hδ0 hδε
+    hε hδ hνε hDC
+  obtain ⟨φ', α', hsol', huniq', -⟩ := i4b_exists_unique hS SB HB hκ hM (fun P => (hs' P).le) hδ0'
+    hδε' hε' hδ' hνε' hDC'
+  obtain ⟨e1, e2⟩ := decBg_eq hsol huniq
+  obtain ⟨e1', e2'⟩ := decBg_eq hsol' huniq'
+  rw [e1, e2, e1', e2']
+  obtain ⟨hmult, -, hfield, -⟩ := decBg_component_unique hj1 le_rfl hS SA SB hconn hconn' HB hκ hM
+    (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 hδε hε hδ hνε hδ0' hδε' hε' hδ' hνε' hDC hDC'
+    hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hD hsol hsol'
+  refine ⟨hmult, fun u hu => ?_⟩
+  obtain ⟨huY, hdep⟩ := rowsCov_R_mem_Y_and_rowsDep (a := a) (ν := ν) SX hu
+  funext i
+  simp only [barField, levelGS_mem_Ω_one hj1 le_rfl, ↓reduceDIte]
+  exact hfield ⟨u, levelGS_mem_Ω_one hj1 le_rfl u⟩ huY (fun z hz => hD z (hdep z hz)) i
+
+end BgInputs
+
 end Balaban.Polymer.TwoTorusStep
