@@ -14,10 +14,10 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W298 | `w298-det-cauchy-hull` / W298 | canonical hull of a rooted cut set: polymer, size bound, symmetry (DETCAUCHY package 5) |
 | W303 | `w303-param-subspace` / W303 | physical activity family over the open subset of the layer-constant data subspace (repair after W292) |
-| W304 | `w304-early-mass-ratio` / W304 | EarlyMassRatio: 2ν_k < δ_k² for k ≤ k₀; discharge hmass of the parent-domain theorem |
-| W299 | `w299-parent-r2y` / W299 | R2 for sites over Y from the cube factor (Q13-YDOMAIN §1): cube geometry, unit block average, wrapper |
-| W300 | `w300-scaled-propagation` / W300 | PHYSCUBIC package 3: propagate the scaled energy bound through the hat V-part, the sharp assembly at source zero, and the activity bound; combine with the tower and the threshold |
-| W302 | `w302-yreg-blocks` / W302 | components of Yreg are unions of top-layer blocks (the remaining proviso of decLog block diagonality) |
+| W306 | `w306-root-mark-geom` / W306 | root geometry for the marked expansion (MARKS package 1) |
+| W307 | `w307-det-cauchy-chart` / W307 | composed cut family for the determinant: DecDom membership, Schwarz bound, endpoint (DETCAUCHY package 1) |
+| W308 | `w308-det-cauchy-graph` / W308 | geometric support of mixed differences; rooted connected cut sets; Moore bridge (DETCAUCHY package 4) |
+| W309 | `w309-physical-rates` / W309 | large-β activity bound at the rates that preserve the decay rate (tower with prescribed rates) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
 | W305 | `w305-post-weight-support` / W305 | active-factor interface: W_A ≠ 0 ⇒ ChiDomAt with local output equality; repaired parent-domain hypothesis (Q13-ACTIVE) |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
