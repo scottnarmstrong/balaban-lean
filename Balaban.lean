@@ -1181,6 +1181,7 @@ public import Balaban.Fluctuation.Thm31bStep
 public import Balaban.Fluctuation.Thm31CoeffA
 public import Balaban.Fluctuation.RootActiveSize
 public import Balaban.Fluctuation.RootMarkedBound
+public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Inhabited.RootActiveSizeWitness
 public import Balaban.Fluctuation.Thm31CoeffB
 public import Balaban.Fluctuation.Thm31bInhab
