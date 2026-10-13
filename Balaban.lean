@@ -1738,3 +1738,6 @@ public import Balaban.Inhabited.StepIdentityFibreObs
 public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Inhabited.RenJoinClassWitness
+public import Balaban.Fluctuation.StepOldTermSplit
+public import Balaban.Fluctuation.StepClassPath
+public import Balaban.Fluctuation.StepPhysicalActivityBridge
