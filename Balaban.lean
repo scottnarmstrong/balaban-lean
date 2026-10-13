@@ -57,6 +57,7 @@ public import Balaban.Polymer.TwoTorusDomainFamilies
 public import Balaban.Polymer.TwoTorusData
 public import Balaban.Polymer.TwoTorusCubeOps
 public import Balaban.Polymer.TwoTorusGreenRows
+public import Balaban.Polymer.TwoTorusDecBg
 public import Balaban.Polymer.TwoTorusSY
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
@@ -1645,6 +1646,7 @@ public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.DetRotationWitness
 public import Balaban.Inhabited.DetPackageFromTower
 public import Balaban.Inhabited.StepOutputPhysical
+public import Balaban.Inhabited.StepOutputPhysicalG
 public import Balaban.Fluctuation.DetGroupedAnalytic
 public import Balaban.Correlations.C1StarLimits
 public import Balaban.Fluctuation.ObsMarksAssembly

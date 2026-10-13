@@ -144,11 +144,13 @@ These have no known mathematical gap, but they are substantial and not yet done.
 - **The step for a general class member.** The step theorems are proved for an input with no
   inherited terms. The general step and the small-field induction are partly built. See
   `notes/phase1/GENCLASS.md`.
-- **Independence of the torus.** The geometry and the data transport are proved, and the cube
-  operators correspond. Still to do: the comparison of the decoupled solutions on a component and
-  of every coefficient. See `notes/phase1/TORUSCOH2.md`, `TORUSCOH3.md`.
+- **Independence of the torus.** The geometry and the data transport are proved, the cube
+  operators correspond, and the decoupled background on a cut component is the same on two tori.
+  Still to do: the same for the decoupled fluctuation solution, and the comparison of every
+  coefficient. See `notes/phase1/TORUSCOH2.md`, `TORUSCOH3.md`.
 - **General d, L, N.** Most of the step is proved at d = L = 3, N = 2. The general constant record
-  and its producer are proved. See `notes/phase1/STOWERG.md`, `STOWERG2.md`.
+  and its producer are proved, and the fixed-parameter results are being turned into corollaries of
+  general ones. See `notes/phase1/STOWERG.md`, `STOWERG2.md`.
 - **The logarithm and the assembly of the terms T_j.** See `notes/phase1/ROOTASM.md`,
   `OBSBUDGET.md`.
 
