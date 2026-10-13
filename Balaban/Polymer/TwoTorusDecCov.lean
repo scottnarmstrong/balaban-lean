@@ -6,6 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusDecSol
+public import Balaban.Polymer.TwoTorusXGreen
+public import Balaban.Localization.RowsCov
 
 /-!
 # The decoupled covariance on two tori, and the fluctuation from the raw data
@@ -163,5 +165,450 @@ theorem decSol_value_twoTorus_of_decBg {c BG : ℝ} (hS : DecSpecs d L c BG) {a 
     he' hYF hYFc hσ0 hσ0' hY' hBF' hagreeF hYR hn hn' hαB hφR hΨB (fun _ _ _ => rfl)
 
 end FromRaw
+
+/-! ### Abstract transport lemmas -/
+
+section AbstractInv
+
+variable {A B : Type*} [Fintype A] [Fintype B]
+
+/-- **A sum, transported.**  If `F` vanishes off `S`, `F'` off `S'`, and `F' ∘ ι = F` on `S`
+(`ι` a bijection of `S` onto `S'`), the sums agree. -/
+theorem sum_transport (S : A → Prop) (S' : B → Prop) [DecidablePred S] [DecidablePred S']
+    (ι : A → B) (hinj : ∀ a b, S a → S b → ι a = ι b → a = b) (hmap : ∀ a, S a → S' (ι a))
+    (hsurj : ∀ b, S' b → ∃ a, S a ∧ ι a = b) (F : A → ℂ) (F' : B → ℂ)
+    (h0 : ∀ a, ¬ S a → F a = 0) (h0' : ∀ b, ¬ S' b → F' b = 0)
+    (he : ∀ a, S a → F' (ι a) = F a) : ∑ b, F' b = ∑ a, F a := by
+  have h1 : ∑ a, F a = ∑ a, if S a then F' (ι a) else 0 := by
+    refine Finset.sum_congr rfl fun a _ => ?_
+    by_cases ha : S a
+    · rw [ite_eq_left ha, he a ha]
+    · rw [ite_eq_right ha, h0 a ha]
+  have h2 : ∑ b, F' b = ∑ b, if S' b then F' b else 0 := by
+    refine Finset.sum_congr rfl fun b _ => ?_
+    by_cases hb : S' b
+    · rw [ite_eq_left hb]
+    · rw [ite_eq_right hb, h0' b hb]
+  rw [h1, h2, sum_ite_transport S S' ι hinj hmap hsurj F']
+
+/-- A square matrix that does not couple the rows of `S` to the columns off `S` and is invertible
+has an invertible `S`-block: a vector supported in `S` whose image vanishes on `S` is `0`. -/
+theorem eq_zero_of_triangular [DecidableEq B] (S' : B → Prop) [DecidablePred S'] (M' : Matrix B B ℂ)
+    (hM0' : ∀ x z, S' x → ¬ S' z → M' x z = 0) (hU' : IsUnit M') {v : B → ℂ}
+    (hv0 : ∀ b, ¬ S' b → v b = 0) (hMv : ∀ b, S' b → (M' *ᵥ v) b = 0) : v = 0 := by
+  have hdet' := (Matrix.isUnit_iff_isUnit_det _).1 hU'
+  set Ms : Matrix {b // S' b} {b // S' b} ℂ := M'.submatrix Subtype.val Subtype.val with hMs
+  set Ws : Matrix {b // S' b} {b // S' b} ℂ := (M'⁻¹).submatrix Subtype.val Subtype.val with hWs
+  have hsub : ∀ (b : {b // S' b}) (F : B → ℂ), (∀ d, ¬ S' d → F d = 0) →
+      ∑ d : {b // S' b}, F d = ∑ d, F d := by
+    intro b F hF
+    rw [← Fintype.sum_subtype_add_sum_subtype S' F]
+    have : ∑ d : {x // ¬ S' x}, F d = 0 := Finset.sum_eq_zero fun d _ => hF d d.2
+    rw [this, add_zero]
+  have hMW : Ms * Ws = 1 := by
+    ext b c
+    rw [Matrix.mul_apply]
+    simp only [hMs, hWs, Matrix.submatrix_apply]
+    rw [hsub b (fun d => M' b d * M'⁻¹ d c) (fun d hd => by rw [hM0' b d b.2 hd, zero_mul])]
+    have := congrFun (congrFun (Matrix.mul_nonsing_inv M' hdet') b) c
+    rw [Matrix.mul_apply] at this
+    rw [this]
+    by_cases h : b = c
+    · subst h; simp
+    · rw [Matrix.one_apply_ne h, Matrix.one_apply_ne (fun h' => h (Subtype.ext h'))]
+  have hWM : Ws * Ms = 1 := mul_eq_one_comm.1 hMW
+  have hMs0 : Ms *ᵥ (fun b => v b) = 0 := by
+    funext b
+    simp only [Matrix.mulVec, dotProduct, hMs, Matrix.submatrix_apply, Pi.zero_apply]
+    rw [hsub b (fun d => M' b d * v d) (fun d hd => by rw [hv0 d hd, mul_zero])]
+    exact hMv b b.2
+  have hvs : (fun b : {b // S' b} => v b) = 0 := by
+    rw [← Matrix.one_mulVec (fun b : {b // S' b} => v b), ← hWM, ← Matrix.mulVec_mulVec, hMs0,
+      Matrix.mulVec_zero]
+  funext b
+  by_cases hb : S' b
+  · exact congrFun hvs ⟨b, hb⟩
+  · exact hv0 b hb
+
+/-- **Rows of `M⁻¹ f` on a block, transported.**  Let `ι` be a bijection of `S ⊆ A` onto `S' ⊆ B`.
+If `M`, `M'` are invertible, their rows in `S`, `S'` read only columns in `S`, `S'`, their entries
+on `S × S` correspond, and the sources correspond on `S`, then the rows on `S` of `M⁻¹ f` and
+`M'⁻¹ f'` correspond.  (The rows off `S` may read `S`: only the `S`-blocks are compared.) -/
+theorem inv_mulVec_transport_of_triangular [DecidableEq A] [DecidableEq B] (S : A → Prop)
+    (S' : B → Prop) [DecidablePred S] [DecidablePred S'] (ι : A → B)
+    (hinj : ∀ a b, S a → S b → ι a = ι b → a = b) (hmap : ∀ a, S a → S' (ι a))
+    (hsurj : ∀ b, S' b → ∃ a, S a ∧ ι a = b) (M : Matrix A A ℂ) (M' : Matrix B B ℂ)
+    (hM0 : ∀ x z, S x → ¬ S z → M x z = 0) (hM0' : ∀ x z, S' x → ¬ S' z → M' x z = 0)
+    (hM : ∀ x z, S x → S z → M' (ι x) (ι z) = M x z) (hU : IsUnit M) (hU' : IsUnit M')
+    {f : A → ℂ} {f' : B → ℂ} (hf : ∀ z, S z → f' (ι z) = f z) {y : A} (hy : S y) :
+    (M'⁻¹ *ᵥ f') (ι y) = (M⁻¹ *ᵥ f) y := by
+  obtain ⟨g, hg⟩ : ∃ g : A → ℂ, g = M⁻¹ *ᵥ f := ⟨_, rfl⟩
+  obtain ⟨g', hg'⟩ : ∃ g' : B → ℂ, g' = M'⁻¹ *ᵥ f' := ⟨_, rfl⟩
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hU
+  have hdet' := (Matrix.isUnit_iff_isUnit_det _).1 hU'
+  have hMg : M *ᵥ g = f := by
+    rw [hg, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet, Matrix.one_mulVec]
+  have hMg' : M' *ᵥ g' = f' := by
+    rw [hg', Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet', Matrix.one_mulVec]
+  obtain ⟨κ, hκ⟩ : ∃ κ : B → A, ∀ a, S a → κ (ι a) = a := by
+    refine ⟨fun b => if h : ∃ a, S a ∧ ι a = b then h.choose else y, fun a ha => ?_⟩
+    have h : ∃ a', S a' ∧ ι a' = ι a := ⟨a, ha, rfl⟩
+    dsimp only
+    rw [dite_eq_left h]
+    exact hinj _ _ h.choose_spec.1 ha h.choose_spec.2
+  obtain ⟨v, hv⟩ : ∃ v : B → ℂ, v = fun b => if S' b then g (κ b) - g' b else 0 := ⟨_, rfl⟩
+  have hvι : ∀ a, S a → v (ι a) = g a - g' (ι a) := fun a ha => by
+    rw [hv]; dsimp only; rw [ite_eq_left (hmap a ha), hκ a ha]
+  have hv0 : ∀ b, ¬ S' b → v b = 0 := fun b hb => by
+    rw [hv]; dsimp only; rw [ite_eq_right hb]
+  have hMv : ∀ b, S' b → (M' *ᵥ v) b = 0 := by
+    intro b hb
+    obtain ⟨x, hx, rfl⟩ := hsurj b hb
+    have e1 : (M' *ᵥ v) (ι x) = (M *ᵥ (g - fun a => g' (ι a))) x := by
+      refine mulVec_apply_transport S S' ι hinj hmap hsurj M M' _ _ (fun a ha => ?_)
+        (fun b hb => ?_) (fun a ha => ?_)
+      · rw [hM0 x a hx ha, zero_mul]
+      · rw [hv0 b hb, mul_zero]
+      · rw [hM x a hx ha, hvι a ha]; rfl
+    have e2 : (M' *ᵥ g') (ι x) = (M *ᵥ fun a => g' (ι a)) x := by
+      refine mulVec_apply_transport S S' ι hinj hmap hsurj M M' _ _ (fun a ha => ?_)
+        (fun b hb => ?_) (fun a ha => ?_)
+      · rw [hM0 x a hx ha, zero_mul]
+      · rw [hM0' (ι x) b (hmap x hx) hb, zero_mul]
+      · rw [hM x a hx ha]
+    rw [e1, Matrix.mulVec_sub, Pi.sub_apply, ← e2, hMg, hMg', hf x hx, sub_self]
+  have hvz := eq_zero_of_triangular S' M' hM0' hU' hv0 hMv
+  have hgg : g' (ι y) = g y := by
+    have := hvι y hy
+    rw [hvz, Pi.zero_apply] at this
+    exact (sub_eq_zero.1 this.symm).symm
+  rw [← hg, ← hg', hgg]
+
+end AbstractInv
+
+/-! ### The constraint operators on one torus: the block structure of `M_{x,s}` -/
+
+section MBlock
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+
+/-- **`M_{x,s}` does not couple `S_Y` to its complement.**  For the top level, a union `Y` of
+components of the cut and factors vanishing off `𝒞` on the parameter cubes, the entries of
+`M_{x,s} = φ₀² - K_x(φ₀) Ĝ_{k,x,s} φ₀` from a row in `S_Y` to a column outside `S_Y` vanish: the
+rows of `K_x(φ₀)` at `S_Y` read only `Y` (`row_in_Y`), `Ĝ_{k,x,s}` vanishes on `Y \ S_Y`, and its
+rows on `S_Y` read only `S_Y`. -/
+theorem decM_apply_eq_zero_of_mem_SY {a : ℕ → ℝ} {aT x₀ ν : ℝ} (S : XSetting (GA) a aT ν)
+    (hx₀ : 0 ≤ x₀) (hconn : HatConn (GA)) {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    {α : (GA).Ω 1 → ℂ} (hα : AdmPot (GA) α) (hU : IsUnit (1 - Kcalx (GA) a aT x₀ ν α s))
+    (φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) {z w : (GA).Ω 1}
+    (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y)
+    (hw : (w : CTorus d L N₁ m₁ (k + 1)) ∉ SY (GA) X₁ 𝒞 Y) :
+    decM (GA) a aT x₀ ν α s φ z w = 0 := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hdich := dich_SY_of_comp S.dg hconn hY hs0
+  have hrow := row_SY_levelGS hj1 le_rfl S.dg hconn hY hs0
+  have e : decM (GA) a aT x₀ ν α s φ z w =
+      (decM (GA) a aT x₀ ν α s φ *ᵥ Pi.single w 1) z := by
+    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+  have hzw : z ≠ w := fun h => hw (by rw [← h]; exact hz)
+  have hv : ∀ b : (GA).Ω 1, (b : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y →
+      (Pi.single w 1 : (GA).Ω 1 → ℂ) b = 0 := fun b hb =>
+    Pi.single_eq_of_ne (fun h : b = w => hw (by rw [← h]; exact hb)) _
+  rw [e, decM_mulVec_eq, Pi.sub_apply, fieldMul_transpose_mulVec, commK_mulVec]
+  have t1 : ∑ i, restrictField (GA) φ z i *
+      (fieldMul (restrictField (GA) φ) *ᵥ (Pi.single w 1 : (GA).Ω 1 → ℂ)) (z, i) = 0 := by
+    refine Finset.sum_eq_zero fun i _ => ?_
+    rw [fieldMul_mulVec, Pi.single_eq_of_ne hzw, mul_zero, mul_zero]
+  have t2 : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      (liftOp N (Gsx (GA) a aT x₀ ν α s) *ᵥ (fieldMul (restrictField (GA) φ) *ᵥ
+        (Pi.single w 1 : (GA).Ω 1 → ℂ))) (y, i) = 0 := by
+    intro y hyY i
+    rw [liftOp_mulVec]
+    by_cases hyT : (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y
+    · have key : ∀ f : (GA).Ω 1 → ℂ, (∀ b : (GA).Ω 1,
+          (b : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → f b = 0) →
+          (Gsx (GA) a aT x₀ ν α s *ᵥ f) y = 0 := by
+        intro f hf
+        simp only [Matrix.mulVec, dotProduct]
+        refine Finset.sum_eq_zero fun b _ => ?_
+        by_cases hb : (b : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y
+        · rw [hf b hb, mul_zero]
+        · rw [Gsx_apply_eq_zero_of_mem S hx₀ hα hU hdich hyT hb, zero_mul]
+      exact key _ fun b hb => by rw [fieldMul_mulVec, hv b hb, mul_zero]
+    · exact Gsx_apply_eq_zero_of_not_mem S hx₀ hα hrow _ hyY hyT
+  have t3 : ∑ y, ∑ i, xDirichletOperator (GA) a aT x₀ ν α z y *
+      (restrictField (GA) φ z i - restrictField (GA) φ y i) *
+      (liftOp N (Gsx (GA) a aT x₀ ν α s) *ᵥ (fieldMul (restrictField (GA) φ) *ᵥ
+        (Pi.single w 1 : (GA).Ω 1 → ℂ))) (y, i) = 0 := by
+    refine Finset.sum_eq_zero fun y _ => Finset.sum_eq_zero fun i _ => ?_
+    by_cases h0 : xDirichletOperator (GA) a aT x₀ ν α z y = 0
+    · rw [h0, zero_mul, zero_mul]
+    · rw [t2 y (row_in_Y S hz h0) i, mul_zero]
+  rw [t1, t3, sub_zero]
+
+end MBlock
+
+/-! ### The constraint operators and `Z_{x,s}` on two tori -/
+
+section ZRows
+
+variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "ιb" x:max => Subtype.mk (bm (x : CTorus d L N₁ m₁ (k + 1)))
+  (levelGS_mem_Ω_one (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) (ϱ := ϱ)
+    (Nat.le_add_left 1 k) le_rfl _)
+
+/-- `boxMap` is a bijection of a set `T` of sites of the box of radius `R` onto its image, as a map
+of the sites `Ω₁` of the top levels. -/
+theorem boxMap_bij_top {T : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {T' : Finset (CTorus d L N₁' m₁ (k + 1))} (hT' : T.image bm = T') {R : ℕ}
+    (hTR : ∀ x ∈ T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)) :
+    (∀ a b : (GA).Ω 1, (a : CTorus d L N₁ m₁ (k + 1)) ∈ T → (b : CTorus d L N₁ m₁ (k + 1)) ∈ T →
+      (ιb a : (GB).Ω 1) = ιb b → a = b) ∧
+    (∀ a : (GA).Ω 1, (a : CTorus d L N₁ m₁ (k + 1)) ∈ T →
+      ((ιb a : (GB).Ω 1) : CTorus d L N₁' m₁ (k + 1)) ∈ T') ∧
+    (∀ b : (GB).Ω 1, (b : CTorus d L N₁' m₁ (k + 1)) ∈ T' →
+      ∃ a : (GA).Ω 1, (a : CTorus d L N₁ m₁ (k + 1)) ∈ T ∧ (ιb a : (GB).Ω 1) = b) := by
+  refine ⟨fun a b ha hb h => Subtype.ext (boxMap_inj (hm' := hm') (hTR _ ha) (hTR _ hb)
+    (congrArg Subtype.val h)), fun a ha => ?_, fun b hb => ?_⟩
+  · show bm (a : CTorus d L N₁ m₁ (k + 1)) ∈ T'
+    rw [← hT']; exact Finset.mem_image_of_mem _ ha
+  · rw [← hT', Finset.mem_image] at hb
+    obtain ⟨x2, hx2T, hx2⟩ := hb
+    exact ⟨⟨x2, levelGS_mem_Ω_one (Nat.le_add_left 1 k) le_rfl x2⟩, hx2T, Subtype.ext hx2⟩
+
+variable {a : ℕ → ℝ} {aT x₀ ν : ℝ}
+  {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+  {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+  {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+  {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ} {R : ℕ}
+  {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+
+variable (SA : XSetting (GA) a aT ν) (SB : XSetting (GB) a aT ν) (hx₀ : 0 ≤ x₀)
+  (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+  (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+  (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+  (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+  (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+  (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+  (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+    sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+  (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+  (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+  (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+  (hαA : AdmPot (GA) α) (hαB : AdmPot (GB) α')
+  (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+  (hU : IsUnit (1 - Kcalx (GA) a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx (GB) a aT x₀ ν α' s'))
+include SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hαA hαB hα hU hU'
+
+/-- **The rows of `Ĝ_{k,x,s} w` on a component, on two tori**: for `w` corresponding on `S_Y`, the
+outputs correspond on `Y` (`xGreen_rows_transport` with `T = S_Y`, the dichotomy and the rows
+outside `S_Y` from the cut, `dich_SY_of_comp`, `row_SY_levelGS`). -/
+theorem Gsx_lift_rows_SY {w : (GA).Ω 1 × Fin N → ℂ} {w' : (GB).Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → ∀ i,
+      w' (ιb y, i) = w (y, i))
+    (y : (GA).Ω 1) (hy : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y) (i : Fin N) :
+    (liftOp N (Gsx (GB) a aT x₀ ν α' s') *ᵥ w') (ιb y, i) =
+      (liftOp N (Gsx (GA) a aT x₀ ν α s) *ᵥ w) (y, i) := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  rw [liftOp_mulVec, liftOp_mulVec]
+  exact xGreen_rows_transport SA SB hx₀ hY' hB' (SY_subset_levelGS hj1 le_rfl) hYR hn hn' hαA hαB
+    hα hU hU' (dich_SY_of_comp SA.dg hconn hY hs0) (dich_SY_of_comp SB.dg hconn' hYc hs0')
+    (row_SY_levelGS hj1 le_rfl SA.dg hconn hY hs0) (row_SY_levelGS hj1 le_rfl SB.dg hconn' hYc hs0')
+    hagree (f := fun b => w (b, i)) (f' := fun b => w' (b, i)) (fun x hx => hw x hx i) y hy
+
+omit hconn hconn' hY hYc hs0 hs0' hagree hαA hαB hU hU' in
+/-- **The rows of `K_x(φ₀) u` at `S_Y`, on two tori.**  The row of the commutator at a site of
+`S_Y` reads `u` and `φ₀` at the sites `y` with `H_{k,x}(A) z y ≠ 0`, which lie in `Y`
+(`row_in_Y`) and in `R(S_Y)` (`rowsCov_R`). -/
+theorem commKx_rows_transport
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    {u : (GA).Ω 1 × Fin N → ℂ} {u' : (GB).Ω 1 × Fin N → ℂ}
+    (hu : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i, u' (ιb y, i) = u (y, i))
+    {z : (GA).Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y) :
+    (commK (xDirichletOperator (GB) a aT x₀ ν α') (restrictField (GB) φ') *ᵥ u') (ιb z) =
+      (commK (xDirichletOperator (GA) a aT x₀ ν α) (restrictField (GA) φ) *ᵥ u) z := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hSYY := SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) (Y := Y) hj1 le_rfl
+  obtain ⟨hinj, hmap, hsurj⟩ := boxMap_bij_top (ϱ := ϱ) hY' hYR
+    (by omega : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+  have hz' : ((ιb z : (GB).Ω 1) : CTorus d L N₁' m₁ (k + 1)) ∈ SY (GB) X₁' 𝒞' Y' := by
+    rw [← hB']; exact Finset.mem_image_of_mem _ hz
+  rw [commK_mulVec, commK_mulVec]
+  refine sum_transport (fun y : (GA).Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y)
+    (fun y : (GB).Ω 1 => (y : CTorus d L N₁' m₁ (k + 1)) ∈ Y') (fun y => ιb y) hinj hmap hsurj
+    _ _ (fun y hy => ?_) (fun y hy => ?_) (fun y hy => ?_)
+  · refine Finset.sum_eq_zero fun i _ => ?_
+    have h0 : xDirichletOperator (GA) a aT x₀ ν α z y = 0 := by
+      by_contra h0
+      exact hy (row_in_Y SA hz h0)
+    rw [h0, zero_mul, zero_mul]
+  · refine Finset.sum_eq_zero fun i _ => ?_
+    have h0 : xDirichletOperator (GB) a aT x₀ ν α' (ιb z) y = 0 := by
+      by_contra h0
+      exact hy (row_in_Y SB hz' h0)
+    rw [h0, zero_mul, zero_mul]
+  · have hzR := hYR _ (hSYY hz)
+    have hyR := hYR _ hy
+    rw [xDirichletOperator_boxMap_row (ρ := R) a aT x₀ ν (by omega) (by omega) z y (hα z hz) hzR
+      hyR]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    by_cases h0 : xDirichletOperator (GA) a aT x₀ ν α z y = 0
+    · rw [h0, zero_mul, zero_mul, zero_mul, zero_mul]
+    · have e1 : φ' (bm (z : CTorus d L N₁ m₁ (k + 1))) = φ z := hφR _ (Or.inl hz)
+      have e2 : φ' (bm (y : CTorus d L N₁ m₁ (k + 1))) = φ y :=
+        hφR _ (Or.inr ⟨z, y, hz, rfl, x₀, hx₀, h0⟩)
+      simp only [restrictField]
+      rw [e1, e2, hu y hy i]
+
+/-- **The rows of `N_{x,s} w` at `S_Y`, on two tori**, for `w` corresponding on `S_Y` and the
+field corresponding on `R(S_Y)`. -/
+theorem decN_rows_transport
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    {w : (GA).Ω 1 × Fin N → ℂ} {w' : (GB).Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → ∀ i,
+      w' (ιb y, i) = w (y, i))
+    {z : (GA).Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y) :
+    (decN (GB) a aT x₀ ν α' s' φ' *ᵥ w') (ιb z) = (decN (GA) a aT x₀ ν α s φ *ᵥ w) z := by
+  rw [decN_mulVec_eq, decN_mulVec_eq, Pi.sub_apply, Pi.sub_apply, fieldMul_transpose_mulVec,
+    fieldMul_transpose_mulVec]
+  congr 1
+  · refine Finset.sum_congr rfl fun i _ => ?_
+    have e1 : φ' (bm (z : CTorus d L N₁ m₁ (k + 1))) = φ z := hφR _ (Or.inl hz)
+    simp only [restrictField]
+    rw [e1, hw z hz i]
+  · exact commKx_rows_transport SA SB hx₀ hY' hB' hYR hn hn' hα hφR
+      (fun y hy i => Gsx_lift_rows_SY SA SB hx₀ hconn hconn' hY hYc hs0 hs0'
+        hY' hB' hagree hYR hn hn' hαA hαB hα hU hU' hw y hy i) hz
+
+/-- **The rows of `M_{x,s} v` at `S_Y`, on two tori**, for `v` corresponding on `S_Y`:
+`M_{x,s} v = N_{x,s} (φ₀ v)`. -/
+theorem decM_rows_transport
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    {v : (GA).Ω 1 → ℂ} {v' : (GB).Ω 1 → ℂ}
+    (hv : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → v' (ιb y) = v y)
+    {z : (GA).Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y) :
+    (decM (GB) a aT x₀ ν α' s' φ' *ᵥ v') (ιb z) = (decM (GA) a aT x₀ ν α s φ *ᵥ v) z := by
+  have e : ∀ {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (β : G.Ω 1 → ℂ)
+      (ψ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (σ : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ)
+      (u : G.Ω 1 → ℂ), decM G a aT x₀ ν β σ ψ *ᵥ u =
+        decN G a aT x₀ ν β σ ψ *ᵥ (fieldMul (restrictField G ψ) *ᵥ u) := by
+    intro G β ψ σ u
+    rw [decM_mulVec_eq, decN_mulVec_eq]
+  have e' : ∀ {G : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱ} (β : G.Ω 1 → ℂ)
+      (ψ : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ) (σ : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ)
+      (u : G.Ω 1 → ℂ), decM G a aT x₀ ν β σ ψ *ᵥ u =
+        decN G a aT x₀ ν β σ ψ *ᵥ (fieldMul (restrictField G ψ) *ᵥ u) := by
+    intro G β ψ σ u
+    rw [decM_mulVec_eq, decN_mulVec_eq]
+  rw [e, e']
+  refine decN_rows_transport SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn'
+    hαA hαB hα hU hU' hφR (fun y hy i => ?_) hz
+  rw [fieldMul_mulVec, fieldMul_mulVec, hv y hy]
+  have e1 : φ' (bm (y : CTorus d L N₁ m₁ (k + 1))) = φ y := hφR _ (Or.inl hy)
+  simp only [restrictField]
+  rw [e1]
+
+/-- **The rows of `M_{x,s}⁻¹ f` on `S_Y`, on two tori.**  `M_{x,s}` does not couple `S_Y` to its
+complement (`decM_apply_eq_zero_of_mem_SY`), its entries on `S_Y × S_Y` correspond
+(`decM_rows_transport`), so the `S_Y`-blocks of the inverses correspond
+(`inv_mulVec_transport_of_triangular`). -/
+theorem decM_inv_rows_transport
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hM : IsUnit (decM (GA) a aT x₀ ν α s φ)) (hM' : IsUnit (decM (GB) a aT x₀ ν α' s' φ'))
+    {f : (GA).Ω 1 → ℂ} {f' : (GB).Ω 1 → ℂ}
+    (hf : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → f' (ιb y) = f y)
+    {z : (GA).Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y) :
+    ((decM (GB) a aT x₀ ν α' s' φ')⁻¹ *ᵥ f') (ιb z) =
+      ((decM (GA) a aT x₀ ν α s φ)⁻¹ *ᵥ f) z := by
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hSYY := SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) (Y := Y) hj1 le_rfl
+  obtain ⟨hinj, hmap, hsurj⟩ := boxMap_bij_top (ϱ := ϱ) hB' (fun x hx => hYR x (hSYY hx))
+    (by omega : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+  refine inv_mulVec_transport_of_triangular
+    (fun y : (GA).Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y)
+    (fun y : (GB).Ω 1 => (y : CTorus d L N₁' m₁ (k + 1)) ∈ SY (GB) X₁' 𝒞' Y') (fun y => ιb y)
+    hinj hmap hsurj _ _
+    (fun x z hx hz => decM_apply_eq_zero_of_mem_SY SA hx₀ hconn hY hs0 hαA hU φ hx hz)
+    (fun x z hx hz => decM_apply_eq_zero_of_mem_SY SB hx₀ hconn' hYc hs0' hαB hU' φ' hx hz)
+    (fun x w hx hw => ?_) hM hM' hf hz
+  have h1 : decM (GB) a aT x₀ ν α' s' φ' (ιb x) (ιb w) =
+      (decM (GB) a aT x₀ ν α' s' φ' *ᵥ Pi.single (ιb w) 1) (ιb x) := by
+    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+  have h2 : decM (GA) a aT x₀ ν α s φ x w = (decM (GA) a aT x₀ ν α s φ *ᵥ Pi.single w 1) x := by
+    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+  refine h1.trans (Eq.trans ?_ h2.symm)
+  refine decM_rows_transport SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn'
+    hαA hαB hα hU hU' hφR (fun y hy => ?_) hx
+  by_cases hyw : y = w
+  · subst hyw; simp
+  · rw [Pi.single_eq_of_ne hyw, Pi.single_eq_of_ne (fun h => hyw (hinj y w hy hw h))]
+
+/-- **The rows of `Z_{x,s} w = Ĝ_{k,x,s} w - Π_{x,s} w` on a component, on two tori.**  For `w`
+corresponding on `S_Y`, the multipliers on `S_Y` and the fields on `R(S_Y)`, the outputs correspond
+at every site of `Y`. -/
+theorem decZ_rows_transport
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hM : IsUnit (decM (GA) a aT x₀ ν α s φ)) (hM' : IsUnit (decM (GB) a aT x₀ ν α' s' φ'))
+    {w : (GA).Ω 1 × Fin N → ℂ} {w' : (GB).Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : (GA).Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → ∀ i,
+      w' (ιb y, i) = w (y, i))
+    (y : (GA).Ω 1) (hy : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y) (i : Fin N) :
+    (decZ (GB) a aT x₀ ν α' s' φ' *ᵥ w') (ιb y, i) = (decZ (GA) a aT x₀ ν α s φ *ᵥ w) (y, i) := by
+  have hZ : ∀ {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (aa : G.Ω 1 → ℂ)
+      (ss : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) (pp : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+      (ww : G.Ω 1 × Fin N → ℂ),
+      decZ G a aT x₀ ν aa ss pp *ᵥ ww = liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ ww -
+        liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ (fieldMul (restrictField G pp) *ᵥ
+          ((decM G a aT x₀ ν aa ss pp)⁻¹ *ᵥ (decN G a aT x₀ ν aa ss pp *ᵥ ww))) := by
+    intro G aa ss pp ww
+    unfold decZ decPi
+    rw [Matrix.sub_mulVec]
+    simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
+  have hZ' : ∀ {G : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱ} (aa : G.Ω 1 → ℂ)
+      (ss : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ) (pp : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ)
+      (ww : G.Ω 1 × Fin N → ℂ),
+      decZ G a aT x₀ ν aa ss pp *ᵥ ww = liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ ww -
+        liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ (fieldMul (restrictField G pp) *ᵥ
+          ((decM G a aT x₀ ν aa ss pp)⁻¹ *ᵥ (decN G a aT x₀ ν aa ss pp *ᵥ ww))) := by
+    intro G aa ss pp ww
+    unfold decZ decPi
+    rw [Matrix.sub_mulVec]
+    simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
+  have hv : ∀ z : (GA).Ω 1, (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y →
+      ((decM (GB) a aT x₀ ν α' s' φ')⁻¹ *ᵥ (decN (GB) a aT x₀ ν α' s' φ' *ᵥ w')) (ιb z) =
+        ((decM (GA) a aT x₀ ν α s φ)⁻¹ *ᵥ (decN (GA) a aT x₀ ν α s φ *ᵥ w)) z :=
+    fun z hz => decM_inv_rows_transport SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR
+      hn hn' hαA hαB hα hU hU' hφR hM hM' (fun x hx => decN_rows_transport SA SB hx₀ hconn hconn'
+        hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hαA hαB hα hU hU' hφR hw hx) hz
+  rw [hZ, hZ', Pi.sub_apply, Pi.sub_apply,
+    Gsx_lift_rows_SY SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hαA hαB hα
+      hU hU' hw y hy i,
+    Gsx_lift_rows_SY SA SB hx₀ hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hαA hαB hα
+      hU hU' (fun z hz j => ?_) y hy i]
+  rw [fieldMul_mulVec, fieldMul_mulVec, hv z hz]
+  have e1 : φ' (bm (z : CTorus d L N₁ m₁ (k + 1))) = φ z := hφR _ (Or.inl hz)
+  simp only [restrictField]
+  rw [e1]
+
+end ZRows
 
 end Balaban.Polymer.TwoTorusStep
