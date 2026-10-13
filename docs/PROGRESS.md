@@ -35,8 +35,8 @@ separate line below.
 | Large-field regions | P5–P7, E8–E10 | 45% | Large-field records, region geometry, Peierls bounds, the R operation and its normalization, parts of the polymer gas. | Physical estimates for the regions; the gas of removed components (blockers 2–4). |
 | Last integral | P7 §4 | 35% | The stopping scale; resolvent bounds for the final operator; a proposed cut family. | The physical final Hessian; the cut family (blocker 5). |
 | No renormalization step (large field ν) | P7 §4 | 40% | The sector decomposition; the polymer gas for the sector where every spin is near h. | The sector containing reversed spins (blocker 1); currently paused. |
-| Independence of the torus | P4 (H.4) | 60% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, the decoupled background and fluctuation solutions, and the decoupled covariance and its square root on a cut component. | The determinant and energy terms; the coefficients; the reading of the clause (blocker 7). |
-| General d, L, N and every unit h | — | 47% | All tower records for general parameters with one producer; every fixed-parameter producer, the scale producer, the output constants and the scalar lemmas are corollaries of the general ones; the determinant expansion and the determinant package of one step for general parameters and odd L. | Moving the remaining step theorems from d = L = 3, N = 2 to general parameters. |
+| Independence of the torus | P4 (H.4) | 67% | Two-torus correspondence of sites, cubes, blocks, size functions, dependency sets, decoupling indices, connected families, data and sources, the cube operators, the decoupled Green operators, the decoupled background and fluctuation solutions, the decoupled covariance and its square root on a cut component, and the determinant activities. | The marked energy terms; the coefficient sums; the reading of the clause (blocker 7). |
+| General d, L, N and every unit h | — | 50% | All tower records for general parameters with one producer; every fixed-parameter producer, the scale producer, the output constants and the scalar lemmas are corollaries of the general ones; the determinant expansion and the determinant package of one step for general parameters and odd L. | Moving the remaining step theorems from d = L = 3, N = 2 to general parameters. |
 | Assembly of Root-F | P4, P7, P9 | 20% | Step domains are polymers in the theorem's sense; every admissible torus is a step torus at every scale; conversion of the decay rate; the new observable terms of one step as a family with the theorem's support, locality, analyticity and per-term bound c₉ L^{-j((d-2)/2+δ)} e^{-κ|X|/(ML^j)^d} at their birth scale. | The terms of earlier scales; the logarithm; the large-field and final terms. |
 | Root-C from Root-F | P8, P9 | 30% | The deduction of the correlation estimates from the flow, assuming its inputs. | Infinite-volume limits, the limit ν ↓ 0, and the physical inputs. |
 
@@ -47,21 +47,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 881e4de3 2026-10-13.
+Computed at commit 0a0dc435 2026-10-13.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 141 | 47,938 | 2,355 |
+| Lattice, analysis, Gaussian and polymer tools | 142 | 49,150 | 2,385 |
 | Green's functions and random walks | 69 | 25,028 | 1,465 |
 | Background fields and generating sets (P2) | 110 | 39,057 | 2,078 |
 | Localization expansions (P3, P6) | 231 | 71,712 | 3,370 |
 | Small-field class (P1, P4, P5) | 121 | 37,950 | 1,945 |
-| Fluctuation step and renormalization (P4-P6) | 422 | 135,639 | 4,843 |
-| Instantiated step at fixed parameters | 250 | 65,016 | 2,240 |
+| Fluctuation step and renormalization (P4-P6) | 422 | 135,721 | 4,851 |
+| Instantiated step at fixed parameters | 250 | 65,297 | 2,247 |
 | Large-field regions (P5-P7, E9-E10) | 477 | 129,925 | 7,305 |
 | Observables and correlations (P8, P9) | 69 | 16,695 | 660 |
-| **Total** | **1909** | **570,971** | **26,403** |
+| **Total** | **1910** | **572,546** | **26,448** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
