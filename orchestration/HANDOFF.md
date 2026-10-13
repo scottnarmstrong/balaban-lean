@@ -16,7 +16,6 @@ Claude workers (background subagents of this session):
 Deferred cleanup: the landed renormalization wrappers at R.t (`StepTowerRen*.lean`, `RenormSharedClass.lean`, `RenormLocC2ZeroTower.lean`, `RenormExpInputTower.lean`) duplicate the `_at` proofs of `RenormRadius*.lean`; make them corollaries when the lane is quiet.
 | W530 | `w530-obs-coeff-analytic` / W530 | observable family: parameter families and analyticity of the coefficient parts (OBSASSEMBLY 5) |
 OPEN DESIGN (RATES): after regrouping onto collar hulls the observable/mark coefficient rate (3/2·κdec)/60751 − 3375·log 2 is not positive at the tower's κdec; κdec is pinned by `κdec_eq` and not boosted by κmin. Also: coefficients not known to vanish off connected cube sets (remainder R in `thm31b_zeroClass_polymer_fromTower`).
-| landing queue | branch `w531-source-radius-dedup` (+w537, w538 to merge) | FINISHED; W531 restructures the source-radius files (statements unchanged); land from its worktree (seeded) |
 | W539 | `w539-e1-mark-param` / W539 | energy marks as a parameter family in the datum (E1PARAM 1) |
 | W540 | `w540-gsum-active-param` / W540 | support and root anchor of parameterized coefficients (E1PARAM 2) |
 | W541 | `w541-source-activity-radius` / W541 | source radius: activity layer at ρ (SRCRHO 5; based on w531) |
