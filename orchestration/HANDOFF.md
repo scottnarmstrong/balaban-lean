@@ -15,7 +15,6 @@ Claude workers (background subagents of this session):
 | W422 (Opus) | `w422-marked-field-count` / W422 | field-generic marked count; analytic rooted sums; root assembly conditional on MARK-REAL |
 | W442 | `w442-markreal-slice` / W442 | MARK-REAL on the whole slice at the shared tower (MARKREAL 4) |
 | W446 | `w446-w1-chart-identity` / W446 | exponent value bridge: the W1 identity at every chart datum (EXPBRIDGE 2–3) |
-| W447 | `w447-chart-det-joint-tower` / W447 | last from-tower endpoint and the joint statement of all from-tower pieces |
 | W448 | `w448-obs-f-bridge` / W448 | observable: integrand bridge and transport of `ObsMarks` |
 | W450 | `w450-ren-endpoint-tower` / W450 | renormalization: endpoint without the ball comparison; endpoint and class at the tower |
 | W451 | `w451-final-cut-resolvent` / W451 | last integral: cut families of the final operator (FINALMAP S2, first part) |
