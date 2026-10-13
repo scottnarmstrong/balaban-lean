@@ -1514,6 +1514,7 @@ public import Balaban.Fluctuation.SourceSliceScaled
 public import Balaban.Inhabited.SourceAmpScale
 public import Balaban.Fluctuation.SourceDirectTermsScale
 public import Balaban.Inhabited.SourceActivityScale
+public import Balaban.Fluctuation.SourceFamilyRelative
 public import Balaban.Fluctuation.SizeModAllDefs
 public import Balaban.Fluctuation.SizeModAllCompare
 public import Balaban.LargeField.D7PaperSizeRebase
