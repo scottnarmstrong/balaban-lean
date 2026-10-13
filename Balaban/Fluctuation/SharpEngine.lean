@@ -584,6 +584,106 @@ theorem i5_functional_hat_rawY_of_fan (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : 
     hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hΦbd hfan
   exact ⟨Ev, h1', fun Y u hu u' hu' ha hb => h2' Y u hu u' hu' ⟨ha, hb⟩, h3', h4'⟩
 
+/-- **The expansion engine for the sharp agreement relation, layer-constant fluctuation.**  As
+`i5_functional_hat_rawY_of_fan` for the functional on `FlRealLC`; instance of
+`i5_functional_relLC_of_fan`. -/
+theorem i5_functional_hatLC_rawY_of_fan (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+        (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb)
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦan : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
+    (hΦbd : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
+      ‖Φ t.1 t.2.1 t.2.2‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
+    (hfan : ∀ {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+      (_ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+          (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+      {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+      (_ : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+          (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+          Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)),
+      LocalityAEOn (Real.exp κ)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => Pset m₁ i.1.1)
+        (compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))))
+        (fun C u u' => agreeOn (compY
+          (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) u.1 u'.1 ∧
+          ∀ y ∈ compY (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+            (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C,
+            ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
+        (fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+          (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+            flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+              u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+          (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+            (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        Φ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D,
+            bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D)
+          (flFieldOne Gp Hm BG₂ κ a₁ ν D
+            (liftC hG' (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν
+              (bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D) (fun _ => 1)
+              (barField Gp D.Ψ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D))
+              (unitQ Gp) (unitP Gp) *ᵥ ψh))))
+          (rawOf D, liftC hG' (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν
+              (bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D) (fun _ => 1)
+              (barField Gp D.Ψ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D))
+              (unitQ Gp) (unitP Gp) *ᵥ ψh))) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_relLC_of_fan hC
+    (fun Y u u' => agreeOn Y u.1 u'.1 ∧
+      ∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i))
+    (fun h u u' hu => ⟨agreeOn_mono h hu.1, fun y hy i => hu.2 y (h hy) i⟩)
+    (fun _ u => ⟨agreeOn_refl _ u.1, fun _ _ _ => rfl⟩) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
+    hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hΦbd hfan
+  exact ⟨Ev, h1', fun Y u hu u' hu' ha hb => h2' Y u hu u' hu' ⟨ha, hb⟩, h3', h4'⟩
+
 end Fan
 
 end Balaban.Localization
