@@ -98,84 +98,106 @@ end StepOutputConsts
 
 private theorem log_two_pos' : 0 < Real.log 2 := Real.log_pos (by norm_num)
 
-private theorem detDeg_three_succ' : (detDeg 3 3 : ℝ) + 1 = 214991878 := by
-  have : detDeg 3 3 + 1 = 214991878 := by norm_num [detDeg, Localization.N0]
-  exact_mod_cast this
+/-- For every prescribed `κ_min` there is a record for every `d ≥ 1` (here `d ≥ 3`) and `L` with
+`κ_min ≤ κ`, with `κ₀ = a_Ent + 2` and `κ_dec = 100 (κ₀ + c₁ + 10)`.  The proof takes
+`κ = max κ_min (max (4 d (2L+1)^d κ_dec) (κ_hull + 1))` with
+`κ_hull = 2 d L (1 + c_G c₁) (κ_out + c₁ log 2) + log 2 + 2 log (detDeg d L + 1)`. -/
+theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (κmin : ℝ) :
+    ∃ C : StepOutputConsts d L, κmin ≤ C.kapp ∧ C.k0 = aEnt d L + 2 ∧
+      C.kdec = 100 * (C.k0 + c1 d L + 10) := by
+  have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hc1 : 1 ≤ c1 d L := one_le_c1 d L
+  have hcG : cG d L = 2 * d * L := rfl
+  have hent : 0 ≤ aEnt d L := aEnt_nonneg d L
+  have hl2 := log_two_pos'
+  obtain ⟨k0, h0⟩ : ∃ x : ℝ, x = aEnt d L + 2 := ⟨_, rfl⟩
+  obtain ⟨kdec, hdec⟩ : ∃ x : ℝ, x = 100 * (k0 + c1 d L + 10) := ⟨_, rfl⟩
+  obtain ⟨k', hk'⟩ : ∃ x : ℝ, x = 3 / 2 * kdec + k0 + 1 := ⟨_, rfl⟩
+  obtain ⟨kout, hout⟩ : ∃ x : ℝ, x = 3 / 2 * kdec := ⟨_, rfl⟩
+  obtain ⟨kH, hkH⟩ : ∃ x : ℝ, x = 2 * kdec - 1 := ⟨_, rfl⟩
+  obtain ⟨D, hD⟩ : ∃ x : ℝ, x = (detDeg d L : ℝ) + 1 := ⟨_, rfl⟩
+  have hD1 : 1 ≤ D := by rw [hD]; have : (0 : ℝ) ≤ detDeg d L := Nat.cast_nonneg _; linarith
+  have hlogD : 0 ≤ Real.log D := Real.log_nonneg hD1
+  obtain ⟨g, hg⟩ : ∃ x : ℝ, x = 2 * d * L := ⟨_, rfl⟩
+  have hgpos : 0 < g := by rw [hg]; positivity
+  obtain ⟨Bh, hBh⟩ : ∃ x : ℝ, x = g * c1 d L := ⟨_, rfl⟩
+  have hg1 : 1 ≤ g := by
+    have h3 : (3 : ℝ) ≤ d := by exact_mod_cast hd
+    have h3' : (3 : ℝ) ≤ L := by exact_mod_cast hL
+    rw [hg]; nlinarith
+  have hBh1 : 1 ≤ Bh := by rw [hBh]; nlinarith
+  obtain ⟨khull, hhull⟩ : ∃ x : ℝ, x = g * (1 + Bh) * (kout + c1 d L * Real.log 2)
+      + Real.log 2 + 2 * Real.log D := ⟨_, rfl⟩
+  obtain ⟨M, hM⟩ : ∃ x : ℝ, x = 4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) := ⟨_, rfl⟩
+  obtain ⟨kapp, hkapp⟩ : ∃ x : ℝ, x = max κmin (max (M * kdec) (khull + 1)) := ⟨_, rfl⟩
+  have hk0 : 2 ≤ k0 := by linarith
+  have hdec1 : 3 * k0 + c1 d L + 5 ≤ kdec := by rw [hdec]; linarith
+  have hkdec0 : 0 ≤ kdec := by linarith
+  have hkout0 : 0 ≤ kout := by linarith
+  have hk1 : κmin ≤ kapp := by rw [hkapp]; exact le_max_left _ _
+  have hk2 : M * kdec ≤ kapp := by
+    rw [hkapp]; exact le_trans (le_max_left _ _) (le_max_right _ _)
+  have hk3 : khull + 1 ≤ kapp := by
+    rw [hkapp]; exact le_trans (le_max_right _ _) (le_max_right _ _)
+  set Lg := Real.log 2 with hLg
+  have hq : 0 ≤ kout + c1 d L * Lg := by positivity
+  have hkh : g * (1 + Bh) * (kout + c1 d L * Lg) ≤ kapp - Lg - 2 * Real.log D := by
+    rw [hhull] at hk3; linarith
+  have hdet : (1 + Bh) * (kout + c1 d L * Lg) ≤ (kapp - Lg - 2 * Real.log D) / g := by
+    rw [le_div_iff₀ hgpos]; linarith
+  have hz : 2 * D ^ 2 * Real.exp (-kapp) < 1 := by
+    have hlog : Real.log (2 * D ^ 2) < kapp := by
+      rw [Real.log_mul (by norm_num) (by positivity), Real.log_pow]
+      push_cast
+      have : 0 ≤ g * (1 + Bh) * (kout + c1 d L * Lg) := by positivity
+      rw [hhull] at hk3
+      linarith
+    have h2 : 2 * D ^ 2 < Real.exp kapp :=
+      (Real.log_lt_iff_lt_exp (by positivity)).1 hlog
+    rw [Real.exp_neg, ← div_eq_mul_inv, div_lt_one (Real.exp_pos _)]
+    exact h2
+  have hKpos : 0 ≤ K0 d L k0 := (K0_pos d L k0).le
+  have e1 : aEnt d L + 2 ≤ k0 := by linarith
+  have e2 : 3 * k0 + 3 ≤ kdec := by linarith
+  have e3 : 3 * k0 + c1 d L + 5 ≤ kdec := hdec1
+  have e4 : kdec ≤ kout := by linarith
+  have e5 : kout ≤ k' - k0 - 1 := by linarith
+  have e6 : k' + 3 * k0 + c1 d L + 3 / 2 ≤ kH := by linarith
+  refine ⟨StepOutputConsts.mk k0 kdec k' kout kH kapp ((kapp - Lg - 2 * Real.log D) / g)
+    ((kapp - Lg - 2 * Real.log D) / g / (1 + Bh) - c1 d L * Lg) Bh (2 * (K0 d L k0 + 1))
+    (2 * K0 d L k0) (2 * (K0 d L k0 + 1) + 2 * K0 d L k0) e1 e2 e3 hk' hout hkH e4 e5 e6
+    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl le_rfl rfl, hk1, h0, hdec⟩
+  · rw [← hM]; exact hk2
+  · rw [← hD, hLg, hg]
+  · have h1 : kout + c1 d L * Lg ≤ (1 + Bh) * (kout + c1 d L * Lg) - kout := by nlinarith
+    have : k' ≤ kout + kout := by rw [hk', hout]; linarith
+    nlinarith
+  · rw [← hD]; exact hz
+  · rw [hBh, hcG]; exact congrArg (· * c1 d L) hg
+  · rfl
+  · have hBp : 0 < 1 + Bh := by linarith
+    have : kout + c1 d L * Lg ≤ (kapp - Lg - 2 * Real.log D) / g / (1 + Bh) := by
+      rw [le_div_iff₀ hBp]; linarith
+    linarith
 
 /-- For every prescribed `κ_min` there is a record at `d = L = 3` with `κ_min ≤ κ`, with
 `κ₀ = a_Ent + 2` and `κ_dec = 100 (κ₀ + c₁ + 10)`. -/
 theorem stepOutput_consts_exists_ge (κmin : ℝ) :
     ∃ C : StepOutputConsts 3 3, κmin ≤ C.kapp ∧ C.k0 = aEnt 3 3 + 2 ∧
-      C.kdec = 100 * (C.k0 + c1 3 3 + 10) := by
-  have hc1 : c1 3 3 = 3375 := c1_three
-  have hcG : cG 3 3 = 18 := cG_three
-  have hent : 0 ≤ aEnt 3 3 := aEnt_nonneg 3 3
-  have hl2 := log_two_pos'
-  obtain ⟨k0, h0⟩ : ∃ x : ℝ, x = aEnt 3 3 + 2 := ⟨_, rfl⟩
-  obtain ⟨kdec, hdec⟩ : ∃ x : ℝ, x = 100 * (k0 + c1 3 3 + 10) := ⟨_, rfl⟩
-  obtain ⟨k', hk'⟩ : ∃ x : ℝ, x = 3 / 2 * kdec + k0 + 1 := ⟨_, rfl⟩
-  obtain ⟨kout, hout⟩ : ∃ x : ℝ, x = 3 / 2 * kdec := ⟨_, rfl⟩
-  obtain ⟨kH, hkH⟩ : ∃ x : ℝ, x = 2 * kdec - 1 := ⟨_, rfl⟩
-  obtain ⟨D, hD⟩ : ∃ x : ℝ, x = (detDeg 3 3 : ℝ) + 1 := ⟨_, rfl⟩
-  have hD' : D = 214991878 := by rw [hD]; exact detDeg_three_succ'
-  have hlogD : 0 ≤ Real.log D := Real.log_nonneg (by rw [hD']; norm_num)
-  obtain ⟨khull, hhull⟩ : ∃ x : ℝ, x = 18 * 60751 * (kout + 3375 * Real.log 2)
-      + Real.log 2 + 2 * Real.log D := ⟨_, rfl⟩
-  obtain ⟨kapp, hkapp⟩ : ∃ x : ℝ, x = max κmin (max (4116 * kdec) (khull + 1)) := ⟨_, rfl⟩
-  have hk0 : 2 ≤ k0 := by linarith
-  have hdec1 : 3 * k0 + c1 3 3 + 5 ≤ kdec := by rw [hdec]; linarith
-  have hkdec0 : 0 ≤ kdec := by linarith
-  have hkout0 : 0 ≤ kout := by linarith
-  have hk1 : κmin ≤ kapp := by rw [hkapp]; exact le_max_left _ _
-  have hk2 : 4116 * kdec ≤ kapp := by
-    rw [hkapp]; exact le_trans (le_max_left _ _) (le_max_right _ _)
-  have hk3 : khull + 1 ≤ kapp := by
-    rw [hkapp]; exact le_trans (le_max_right _ _) (le_max_right _ _)
-  set Lg := Real.log 2 with hLg
-  have hkh : 18 * 60751 * (kout + 3375 * Lg) ≤ khull - Lg - 2 * Real.log D := by
-    rw [hhull]; linarith
-  have hdet : 60751 * (kout + 3375 * Lg) + 1 / 18 ≤ (kapp - Lg - 2 * Real.log D) / 18 := by
-    rw [le_div_iff₀ (by norm_num)]; linarith
-  have hz : 2 * D ^ 2 * Real.exp (-kapp) < 1 := by
-    have hlog : Real.log (2 * D ^ 2) < kapp := by
-      rw [Real.log_mul (by norm_num) (by rw [hD']; positivity), Real.log_pow]
-      push_cast
-      linarith
-    have h2 : 2 * D ^ 2 < Real.exp kapp :=
-      (Real.log_lt_iff_lt_exp (by rw [hD']; positivity)).1 hlog
-    rw [Real.exp_neg, ← div_eq_mul_inv, div_lt_one (Real.exp_pos _)]
-    exact h2
-  have hKpos : 0 ≤ K0 3 3 k0 := (K0_pos 3 3 k0).le
-  have e1 : aEnt 3 3 + 2 ≤ k0 := by linarith
-  have e2 : 3 * k0 + 3 ≤ kdec := by linarith
-  have e3 : 3 * k0 + c1 3 3 + 5 ≤ kdec := hdec1
-  have e4 : kdec ≤ kout := by linarith
-  have e5 : kout ≤ k' - k0 - 1 := by linarith
-  have e6 : k' + 3 * k0 + c1 3 3 + 3 / 2 ≤ kH := by linarith
-  refine ⟨StepOutputConsts.mk k0 kdec k' kout kH kapp ((kapp - Lg - 2 * Real.log D) / 18)
-    ((kapp - Lg - 2 * Real.log D) / 18 / (1 + 60750) - 3375 * Lg) 60750 (2 * (K0 3 3 k0 + 1))
-    (2 * K0 3 3 k0) (2 * (K0 3 3 k0 + 1) + 2 * K0 3 3 k0) e1 e2 e3 hk' hout hkH e4 e5 e6
-    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl le_rfl rfl, hk1, h0, hdec⟩
-  · have : (4 : ℝ) * ((3 : ℕ) : ℝ) * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) = 4116 := by norm_num
-    rw [this]; exact hk2
-  · rw [← hD, hLg]; norm_num
-  · rw [hk']; linarith
-  · rw [← hD]; exact hz
-  · rw [hc1, hcG]; norm_num
-  · rw [hc1]
-  · have h : 60751 * (kout + 3375 * Lg) ≤ (kapp - Lg - 2 * Real.log D) / 18 := by linarith
-    have : kout ≤ (kapp - Lg - 2 * Real.log D) / 18 / (1 + 60750) - 3375 * Lg := by
-      rw [sub_eq_add_neg, ← sub_nonneg]
-      have : 0 ≤ (kapp - Lg - 2 * Real.log D) / 18 / (1 + 60750) - 3375 * Lg - kout := by
-        have h' : (kapp - Lg - 2 * Real.log D) / 18 / (1 + 60750) ≥ kout + 3375 * Lg := by
-          rw [ge_iff_le, le_div_iff₀ (by norm_num)]; linarith
-        linarith
-      linarith
-    exact this
+      C.kdec = 100 * (C.k0 + c1 3 3 + 10) :=
+  stepOutput_consts_exists_ge_general 3 3 le_rfl le_rfl κmin
 
 /-- **T2.**  The record at `d = L = 3` is inhabited. -/
 theorem stepOutput_consts_witness : Nonempty (StepOutputConsts 3 3) :=
   let ⟨C, _⟩ := stepOutput_consts_exists_ge 0
+  ⟨C⟩
+
+/-- The record is inhabited for general `d ≥ 3`, `L ≥ 3`. -/
+theorem stepOutput_consts_witness_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    Nonempty (StepOutputConsts d L) :=
+  let ⟨C, _⟩ := stepOutput_consts_exists_ge_general d L hd hL 0
   ⟨C⟩
 
 /-- The threshold `Θ(K_tot)` of a record is positive. -/
