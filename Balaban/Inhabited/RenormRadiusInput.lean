@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.RenormRadiusLoc
 public import Balaban.Fluctuation.RenormInputZero
 

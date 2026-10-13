@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.StepTowerG
 public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.TowerCoreRatesGeneral
