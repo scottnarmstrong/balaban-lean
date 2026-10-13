@@ -32,6 +32,146 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover
 
+section General
+
+/-- **The class of `locC1` is nonempty** (general `d, L, N`) at every datum of `XiCOneReal` at the
+class radius `e ≤ t`: it contains the background field. -/
+theorem renLocC1_class_nonemptyG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {e : ℝ} (he : 0 < e) (het : e ≤ R.t)
+    (D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N)
+    (hD : XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e D) :
+    (bgClass (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) ν (renCK d L N R.BG R.κ * e) D).Nonempty := by
+  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
+  have hc1 : xiC1 d * e ≤ bgC1 d L N := hC.c7le.trans (c7_le_bgC1 d L N _ _)
+  have hd : 0 < d := by have := R.hd; omega
+  have hK4 := (K4_pos (L := L) (N := N) (κ := R.κ) hC.hS.fam.2.1 hd).le
+  have hC1pos : 0 < xiC1 d := by unfold xiC1; positivity
+  have hck : 2 ≤ renCK d L N R.BG R.κ := by
+    have := renCK_ge (d := d) (L := L) (N := N) (BG := R.BG) (κ := R.κ)
+    nlinarith [mul_nonneg hK4 hC1pos.le]
+  exact ⟨_, bgClass_mono (by positivity) (mul_le_mul_of_nonneg_right hck he.le) D
+    (XiCOneReal.mem_bgClass hC.HBp he hC.small1 hc1 hD)⟩
+
+/-- **The class of `locC2` is nonempty** (general `d, L, N`) at every datum of `XiCOneReal` and
+every `ξ` with `‖ξ‖ < r₀`: it contains `(δφ, bgMultC + δα)` of the solution map `F`. -/
+theorem renLocC2_class_nonemptyG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {e : ℝ} (he : 0 < e) (het : e ≤ R.t)
+    {F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+      ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ)}
+    (hF : IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e e R.r₀
+      (8 * e) F)
+    (D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N)
+    (hD : XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e D)
+    (ξ : Fin 3 → ℂ) (hξ : ‖ξ‖ < R.r₀) :
+    ((fun (_ : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N) (ξ : Fin 3 → ℂ) =>
+      pertClass (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+        (renCK d L N R.BG R.κ * (cK2 d L N * (8 * e * ‖ξ‖)))
+        (bgK1 d L N * (xiC1 d * e) + renCK d L N R.BG R.κ * cK2 d L N * (8 * e) * R.r₀ + 2)
+        (renMassU ν ξ)) D ξ).Nonempty := by
+  have hC := R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν he het he het
+  have hc1 : xiC1 d * e ≤ bgC1 d L N := hC.c7le.trans (c7_le_bgC1 d L N _ _)
+  obtain ⟨hcK, -⟩ := R.toStepTowerRenG.renCK_facts_at he.le
+  have h := renSol_mem_pertClass hC.HBp he hC.small1 hc1 hF (by positivity) hcK le_rfl
+    R.r₀_le hD.xiCOne hξ
+  exact ⟨_, h⟩
+
+/-- **The class of `locDφ` is nonempty** (general `d, L, N`): it contains `δφ` of the solution map
+`F`. -/
+theorem renLocDphi_class_nonemptyG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ)
+    (N₁ : ℕ) [NeZero N₁] {ν : ℝ} {e : ℝ} (he : 0 < e)
+    {F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+      ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ)}
+    (hF : IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e e R.r₀
+      (8 * e) F)
+    (D : BgData (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) N)
+    (hD : XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e D)
+    (ξ : Fin 3 → ℂ) (hξ : ‖ξ‖ < R.r₀) :
+    {v : (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ |
+      SupBounds (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) v
+        (renCK d L N R.BG R.κ * (cK2 d L N * (8 * e * ‖ξ‖)))}.Nonempty := by
+  obtain ⟨hcK, -⟩ := R.toStepTowerRenG.renCK_facts_at he.le
+  have hK2 := cK2_pos d L N
+  have h0 : 0 ≤ cK2 d L N * (8 * e * ‖ξ‖) := by positivity
+  exact ⟨_, (hF.sup D hD.xiCOne ξ hξ).mono (by nlinarith)⟩
+
+/-- **The three localization principles on a larger family of index sets** (general `d, L, N`).  The
+conclusion of `renLoc_fields_scale_of_towerG_at` with `renYs …` replaced by `renYs … ∪ S`, for any
+finite family `S` of finsets of sites, with the same solution map `F`, domain, radius, size, rates
+and `K_loc = 1`. -/
+theorem renLoc_fields_union_scale_of_towerG_at {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (R : StepTowerRenSolG d L N κmin) (k : ℕ)
+    (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) {e : ℝ} (he : 0 < e) (het : e ≤ R.t)
+    {κa κb : ℝ} (hκa : κa ≤ 2 * R.κdec) (hκb : κb ≤ 2 * R.κdec)
+    (S : Finset (Finset (Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1))))) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) →
+        ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N → ℂ) ×
+          ((lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 → ℂ),
+      IsRenSol (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e e R.r₀
+        (8 * e) F ∧
+      (∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))),
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))) ∪ S)
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa 1
+          (fun D _ => bgClass (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) ν
+            (renCK d L N R.BG R.κ * e) D)
+          (fun D φ ξ => renC1On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e
+            (blockSites d L N₁ R.m₁ (k + 1) k z) D.Ψ D.h φ ξ)
+          (fun D _ => bgFieldC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν
+            (bgC0 d L N) D)) ∧
+      (∀ z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))),
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z))) ∪ S)
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κa 1
+          (fun _ ξ => pertClass (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+            (renCK d L N R.BG R.κ * (cK2 d L N * (8 * e * ‖ξ‖)))
+            (bgK1 d L N * (xiC1 d * e) + renCK d L N R.BG R.κ * cK2 d L N * (8 * e) * R.r₀
+              + 2) (renMassU ν ξ))
+          (fun _ v ξ => renC2On (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1)
+            (blockSites d L N₁ R.m₁ (k + 1) k z) ξ (renMassU ν ξ) v.2 v.1)
+          (fun D ξ => ((F ((D.Ψ, D.h), ξ)).1,
+            bgMultC (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν (bgC0 d L N) D +
+              (F ((D.Ψ, D.h), ξ)).2))) ∧
+      (∀ p : (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)).Ω 1 × Fin N,
+        HasLocPrinciple (N := N) (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+          (XiCOneReal (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) (compWeight L 1) ν e) R.r₀
+          (renYs (renCube (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+              (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+                (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))))
+            (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀
+            (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+              (fam R.m₀ (p.1 : CTorus d L N₁ R.m₁ (k + 1)))) ∪ S)
+          (renDY (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀) κb 1
+          (fun _ ξ => {v | SupBounds (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) v
+            (renCK d L N R.BG R.κ * (cK2 d L N * (8 * e * ‖ξ‖)))})
+          (fun _ v _ => v p) (fun D ξ => (F ((D.Ψ, D.h), ξ)).1)) := by
+  obtain ⟨F, hF, h1, h2, h3⟩ :=
+    renLoc_fields_scale_of_towerG_at R k hk N₁ hN₀ hN hν0 hν he het hκa hκb
+  refine ⟨F, hF, fun z => ?_, fun z => ?_, fun p => ?_⟩
+  · exact (h1 z).extend Finset.subset_union_left zero_le_one fun D hD _ _ =>
+      renLocC1_class_nonemptyG R k hk N₁ hN hν0 hν he het D hD
+  · exact (h2 z).extend Finset.subset_union_left zero_le_one fun D hD ξ hξ =>
+      renLocC2_class_nonemptyG R k hk N₁ hN hν0 hν he het hF D hD ξ hξ
+  · exact (h3 p).extend Finset.subset_union_left zero_le_one fun D hD ξ hξ =>
+      renLocDphi_class_nonemptyG R k N₁ he hF D hD ξ hξ
+
+end General
+
 /-- **The class of `locC1` is nonempty** at every datum of `XiCOneReal` at the class radius
 `e ≤ t`: it contains the background field. -/
 theorem renLocC1_class_nonempty {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ) (hk : 1 ≤ k)
@@ -40,15 +180,9 @@ theorem renLocC1_class_nonempty {κmin : ℝ} (R : StepTowerRenSol κmin) (k : �
     (D : BgData (lvTop N₁ R.m₁ k (rhoSep R.m₁)) 2)
     (hD : XiCOneReal (lvTop N₁ R.m₁ k (rhoSep R.m₁)) (compWeight 3 1) ν e D) :
     (bgClass (lvTop N₁ R.m₁ k (rhoSep R.m₁)) ν (renCK 3 3 2 R.BG R.κ * e) D).Nonempty := by
-  have hC := R.toStepTower.flCore_scale_of_le k hk N₁ hN hν0 hν he het he het
-  have hc1 : xiC1 3 * e ≤ bgC1 3 3 2 := hC.c7le.trans (c7_le_bgC1 3 3 2 _ _)
-  have hK4 := (K4_pos (d := 3) (L := 3) (N := 2) (κ := R.κ) hC.hS.fam.2.1 (by norm_num)).le
-  have hC1pos : 0 < xiC1 3 := by unfold xiC1; positivity
-  have hck : 2 ≤ renCK 3 3 2 R.BG R.κ := by
-    have := renCK_ge (d := 3) (L := 3) (N := 2) (BG := R.BG) (κ := R.κ)
-    nlinarith [mul_nonneg hK4 hC1pos.le]
-  exact ⟨_, bgClass_mono (by positivity) (mul_le_mul_of_nonneg_right hck he.le) D
-    (XiCOneReal.mem_bgClass hC.HBp he hC.small1 hc1 hD)⟩
+  generalize hρ : rhoSep R.m₁ = ϱ at *
+  obtain rfl : ϱ = rhoSepG 3 3 R.m₁ := hρ.symm.trans (rhoSepG_three _).symm
+  exact renLocC1_class_nonemptyG R.toG k hk N₁ hN hν0 (by simpa using hν) he het D hD
 
 /-- **The class of `locC2` is nonempty** at every datum of `XiCOneReal` and every `ξ` with
 `‖ξ‖ < r₀`: it contains `(δφ, bgMultC + δα)` of the solution map `F`. -/
@@ -68,12 +202,9 @@ theorem renLocC2_class_nonempty {κmin : ℝ} (R : StepTowerRenSol κmin) (k : �
         (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * e * ‖ξ‖)))
         (bgK1 3 3 2 * (xiC1 3 * e) + renCK 3 3 2 R.BG R.κ * cK2 3 3 2 * (8 * e) * R.r₀ + 2)
         (renMassU ν ξ)) D ξ).Nonempty := by
-  have hC := R.toStepTower.flCore_scale_of_le k hk N₁ hN hν0 hν he het he het
-  have hc1 : xiC1 3 * e ≤ bgC1 3 3 2 := hC.c7le.trans (c7_le_bgC1 3 3 2 _ _)
-  obtain ⟨hcK, -⟩ := R.toStepTowerRen.renCK_facts_at he.le
-  have h := renSol_mem_pertClass hC.HBp he hC.small1 hc1 hF (by positivity) hcK le_rfl
-    R.r₀_le hD.xiCOne hξ
-  exact ⟨_, h⟩
+  generalize hρ : rhoSep R.m₁ = ϱ at *
+  obtain rfl : ϱ = rhoSepG 3 3 R.m₁ := hρ.symm.trans (rhoSepG_three _).symm
+  exact renLocC2_class_nonemptyG R.toG k hk N₁ hN hν0 (by simpa using hν) he het hF D hD ξ hξ
 
 /-- **The class of `locDφ` is nonempty**: it contains `δφ` of the solution map `F`. -/
 theorem renLocDphi_class_nonempty {κmin : ℝ} (R : StepTowerRenSol κmin) (k : ℕ)
@@ -89,10 +220,9 @@ theorem renLocDphi_class_nonempty {κmin : ℝ} (R : StepTowerRenSol κmin) (k :
     {v : (lvTop N₁ R.m₁ k (rhoSep R.m₁)).Ω 1 × Fin 2 → ℂ |
       SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) v
         (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * e * ‖ξ‖)))}.Nonempty := by
-  obtain ⟨hcK, -⟩ := R.toStepTowerRen.renCK_facts_at he.le
-  have hK2 := cK2_pos 3 3 2
-  have h0 : 0 ≤ cK2 3 3 2 * (8 * e * ‖ξ‖) := by positivity
-  exact ⟨_, (hF.sup D hD.xiCOne ξ hξ).mono (by nlinarith)⟩
+  generalize hρ : rhoSep R.m₁ = ϱ at *
+  obtain rfl : ϱ = rhoSepG 3 3 R.m₁ := hρ.symm.trans (rhoSepG_three _).symm
+  exact renLocDphi_class_nonemptyG R.toG k N₁ he hF D hD ξ hξ
 
 /-- **The three localization principles on a larger family of index sets.**  The conclusion of
 `renLoc_fields_scale_of_tower_at` with `renYs …` replaced by `renYs … ∪ S`, for any finite family
@@ -152,14 +282,9 @@ theorem renLoc_fields_union_scale_of_tower_at {κmin : ℝ} (R : StepTowerRenSol
           (fun _ ξ => {v | SupBounds (lvTop N₁ R.m₁ k (rhoSep R.m₁)) v
             (renCK 3 3 2 R.BG R.κ * (cK2 3 3 2 * (8 * e * ‖ξ‖)))})
           (fun _ v _ => v p) (fun D ξ => (F ((D.Ψ, D.h), ξ)).1)) := by
-  obtain ⟨F, hF, h1, h2, h3⟩ :=
-    renLoc_fields_scale_of_tower_at R k hk N₁ h3N hN hν0 hν he het hκa hκb
-  refine ⟨F, hF, fun z => ?_, fun z => ?_, fun p => ?_⟩
-  · exact (h1 z).extend Finset.subset_union_left zero_le_one fun D hD _ _ =>
-      renLocC1_class_nonempty R k hk N₁ hN hν0 hν he het D hD
-  · exact (h2 z).extend Finset.subset_union_left zero_le_one fun D hD ξ hξ =>
-      renLocC2_class_nonempty R k hk N₁ hN hν0 hν he het hF D hD ξ hξ
-  · exact (h3 p).extend Finset.subset_union_left zero_le_one fun D hD ξ hξ =>
-      renLocDphi_class_nonempty R k N₁ he hF D hD ξ hξ
+  have h := renLoc_fields_union_scale_of_towerG_at R.toG k hk N₁ (by simpa using h3N) hN hν0
+    (by simpa using hν) he het hκa hκb S
+  rw [rhoSepG_three] at h
+  exact h
 
 end Balaban.Inhabited

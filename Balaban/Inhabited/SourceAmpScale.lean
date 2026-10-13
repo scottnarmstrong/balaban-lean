@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.LevelRayTowerGeneral
 public import Balaban.Fluctuation.DARateNumerics
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -78,19 +79,17 @@ theorem sourceAmp_le {x w r P K A κ₁ q : ℝ} (hx : 1 ≤ x) (hw : 1 ≤ w) (
   rw [← e1, ← e2]
   exact add_le_add h1 h2
 
-/-- **The amplitude at a physical source, at every scale.**  For `A₁ > 0` there is `β₁ ≥ e`
-(depending on `A₁, p, κ, t` only) such that for `b = β_k ≥ β₁`, every cutoff
-`0 < p₁ ≤ A₁ (log b)^p` and every `q ≥ 0` the radius `r = lvR κ t b p₁` is positive and
-`b (P / r³) + q K / r ≤ P (4A₁/κ₁)³ (log b)^{3p}/√b + q (4 A₁ K/κ₁) (log b)^p/√b`,
-`κ₁ = lvKappa κ t`. -/
-theorem sourceAmp_scale {A₁ κ t : ℝ} (hA : 0 < A₁) (p : ℕ) (ht : 0 < t) :
+/-- **The amplitude at a physical source, at every scale, general `d`, `L`, `N`.**  As
+`sourceAmp_scale` with `κ₁ = lvKappaG d L N κ t` and `r = lvRG d L N κ t b p₁`. -/
+theorem sourceAmp_scale_general {d L N : ℕ} (hd : 0 < d) (hL : 3 ≤ L) (hN : 1 ≤ N)
+    {A₁ κ t : ℝ} (hA : 0 < A₁) (p : ℕ) (ht : 0 < t) :
     ∃ β₁ : ℝ, Real.exp 1 ≤ β₁ ∧ ∀ b : ℝ, β₁ ≤ b → ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p b →
-      0 < lvR κ t b p₁ ∧ ∀ P K q : ℝ, 0 ≤ P → 0 ≤ K → 0 ≤ q →
-        b * (P / (lvR κ t b p₁) ^ 3) + q * K / lvR κ t b p₁ ≤
-          P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
-          q * (4 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b := by
-  set κ₁ : ℝ := lvKappa κ t with hκ₁def
-  have hκ₁ : 0 < κ₁ := lvKappa_pos κ ht
+      0 < lvRG d L N κ t b p₁ ∧ ∀ P K q : ℝ, 0 ≤ P → 0 ≤ K → 0 ≤ q →
+        b * (P / (lvRG d L N κ t b p₁) ^ 3) + q * K / lvRG d L N κ t b p₁ ≤
+          P * (4 * A₁ / lvKappaG d L N κ t) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
+          q * (4 * A₁ * K / lvKappaG d L N κ t) * (Real.log b) ^ p / Real.sqrt b := by
+  set κ₁ : ℝ := lvKappaG d L N κ t with hκ₁def
+  have hκ₁ : 0 < κ₁ := lvKappaG_pos hd hL hN κ ht
   have hthr : 0 < κ₁ / 16 := by positivity
   refine ⟨max (Real.exp 1) (pLogThreshold A₁ p (κ₁ / 16)), le_max_left _ _, ?_⟩
   intro b hb p₁ hp0 hp₁
@@ -104,28 +103,41 @@ theorem sourceAmp_scale {A₁ κ t : ℝ} (hA : 0 < A₁) (p : ℕ) (ht : 0 < t)
   have hw1 : 1 ≤ (Real.log b) ^ p := one_le_pow₀ hℓ
   have hpL : pLog A₁ p b = A₁ * (Real.log b) ^ p := rfl
   have hp16 : pLog A₁ p b ≤ κ₁ / 16 * Real.sqrt b := pLog_le_mul_sqrt hA.le p hthr hb1 hbp
-  have hcψeq : lvCpsi κ t b = κ₁ * Real.sqrt b := lvCpsi_eq κ t b
-  have hc16 : 16 * p₁ ≤ lvCpsi κ t b := by rw [hcψeq]; linarith
-  have e : 4 * p₁ * lvR κ t b p₁ = 2 * lvCpsi κ t b - 16 * p₁ := by
-    unfold lvR; field_simp; ring
-  have hcψ0 : 0 < lvCpsi κ t b := by rw [hcψeq]; positivity
-  have hr0 : 0 < lvR κ t b p₁ := by
+  have hcψeq : lvCpsiG d L N κ t b = κ₁ * Real.sqrt b := lvCpsiG_eq d L N κ t b
+  have hc16 : 16 * p₁ ≤ lvCpsiG d L N κ t b := by rw [hcψeq]; linarith
+  have e : 4 * p₁ * lvRG d L N κ t b p₁ = 2 * lvCpsiG d L N κ t b - 16 * p₁ := by
+    unfold lvRG; field_simp; ring
+  have hcψ0 : 0 < lvCpsiG d L N κ t b := by rw [hcψeq]; positivity
+  have hr0 : 0 < lvRG d L N κ t b p₁ := by
     by_contra h
     have h := not_lt.1 h
-    have : 4 * p₁ * lvR κ t b p₁ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (by positivity) h
+    have : 4 * p₁ * lvRG d L N κ t b p₁ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (by positivity) h
     linarith
-  have hrbound : κ₁ * Real.sqrt b ≤ 4 * A₁ * (Real.log b) ^ p * lvR κ t b p₁ := by
-    calc κ₁ * Real.sqrt b = lvCpsi κ t b := hcψeq.symm
-      _ ≤ 2 * lvCpsi κ t b - 16 * p₁ := by linarith
-      _ = 4 * p₁ * lvR κ t b p₁ := e.symm
-      _ ≤ 4 * pLog A₁ p b * lvR κ t b p₁ :=
+  have hrbound : κ₁ * Real.sqrt b ≤ 4 * A₁ * (Real.log b) ^ p * lvRG d L N κ t b p₁ := by
+    calc κ₁ * Real.sqrt b = lvCpsiG d L N κ t b := hcψeq.symm
+      _ ≤ 2 * lvCpsiG d L N κ t b - 16 * p₁ := by linarith
+      _ = 4 * p₁ * lvRG d L N κ t b p₁ := e.symm
+      _ ≤ 4 * pLog A₁ p b * lvRG d L N κ t b p₁ :=
         mul_le_mul_of_nonneg_right (by linarith) hr0.le
       _ = _ := by rw [hpL]; ring
   refine ⟨hr0, fun P K q hP hK hq => ?_⟩
   have hamp := sourceAmp_le (x := Real.sqrt b) (w := (Real.log b) ^ p)
-    (r := lvR κ t b p₁) (P := P) (K := K) (A := A₁) (κ₁ := κ₁) (q := q) hx1 hw1 hA hκ₁
+    (r := lvRG d L N κ t b p₁) (P := P) (K := K) (A := A₁) (κ₁ := κ₁) (q := q) hx1 hw1 hA hκ₁
     hP hK hq hrbound
   rwa [Real.sq_sqrt hb0.le, ← pow_mul, show p * 3 = 3 * p by ring] at hamp
+
+/-- **The amplitude at a physical source, at every scale.**  For `A₁ > 0` there is `β₁ ≥ e`
+(depending on `A₁, p, κ, t` only) such that for `b = β_k ≥ β₁`, every cutoff
+`0 < p₁ ≤ A₁ (log b)^p` and every `q ≥ 0` the radius `r = lvR κ t b p₁` is positive and
+`b (P / r³) + q K / r ≤ P (4A₁/κ₁)³ (log b)^{3p}/√b + q (4 A₁ K/κ₁) (log b)^p/√b`,
+`κ₁ = lvKappa κ t`. -/
+theorem sourceAmp_scale {A₁ κ t : ℝ} (hA : 0 < A₁) (p : ℕ) (ht : 0 < t) :
+    ∃ β₁ : ℝ, Real.exp 1 ≤ β₁ ∧ ∀ b : ℝ, β₁ ≤ b → ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p b →
+      0 < lvR κ t b p₁ ∧ ∀ P K q : ℝ, 0 ≤ P → 0 ≤ K → 0 ≤ q →
+        b * (P / (lvR κ t b p₁) ^ 3) + q * K / lvR κ t b p₁ ≤
+          P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
+          q * (4 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b :=
+  sourceAmp_scale_general (d := 3) (L := 3) (N := 2) (by norm_num) le_rfl (by norm_num) hA p ht
 
 /-- The constant `C_E = 4 (P (4A₁/κ₁)³ + 1)` of the potential part of the prefactor
 (`κ₁ = lvKappa κ t`). -/
@@ -151,6 +163,27 @@ theorem srcCF_pos {A₁ κ t K : ℝ} (hA : 0 < A₁) (ht : 0 < t) (hK : 0 < K) 
   unfold srcCF
   positivity
 
+/-- **The prefactor `4 ε_U` of the source assembler, for a general constant `κ₁`.**  If
+`ε_U ≤ P (4A₁/κ₁)³ w³/√b + q (4 A₁ K/κ₁) w/√b` and `C_E = 4 (P (4A₁/κ₁)³ + 1)`,
+`C_F = 16 A₁ K/κ₁`, then `4 ε_U ≤ C_E w³/√b + q C_F w/√b`. -/
+theorem sourceAmp_scale_four_general {A₁ κ₁ P K q b ε CE CF : ℝ} (p : ℕ) (hb : 0 < b)
+    (hℓ : 0 ≤ Real.log b) (hCE : CE = 4 * (P * (4 * A₁ / κ₁) ^ 3 + 1))
+    (hCF : CF = 16 * A₁ * K / κ₁)
+    (hε : ε ≤ P * (4 * A₁ / κ₁) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
+      q * (4 * A₁ * K / κ₁) * (Real.log b) ^ p / Real.sqrt b) :
+    4 * ε ≤ CE * (Real.log b) ^ (3 * p) / Real.sqrt b +
+      q * CF * (Real.log b) ^ p / Real.sqrt b := by
+  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
+  have h0 : 0 ≤ (Real.log b) ^ (3 * p) / Real.sqrt b := by positivity
+  subst hCE hCF
+  calc 4 * ε ≤ 4 * (P * (4 * A₁ / κ₁) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
+        q * (4 * A₁ * K / κ₁) * (Real.log b) ^ p / Real.sqrt b) := by linarith
+    _ = 4 * (P * (4 * A₁ / κ₁) ^ 3) * ((Real.log b) ^ (3 * p) / Real.sqrt b) +
+        q * (16 * A₁ * K / κ₁) * (Real.log b) ^ p / Real.sqrt b := by ring
+    _ ≤ 4 * (P * (4 * A₁ / κ₁) ^ 3 + 1) * ((Real.log b) ^ (3 * p) / Real.sqrt b) +
+        q * (16 * A₁ * K / κ₁) * (Real.log b) ^ p / Real.sqrt b := by nlinarith
+    _ = _ := by ring
+
 /-- **The prefactor `4 ε_U` of the source assembler.**  If
 `ε_U ≤ P (4A₁/κ₁)³ w³/√b + q (4 A₁ K/κ₁) w/√b` (`w³ = (log b)^{3p}`, `w = (log b)^p`,
 `log b ≥ 0`, `b > 0`), then `4 ε_U ≤ C_E w³/√b + q C_F w/√b` with `C_E = srcCE`, `C_F = srcCF`. -/
@@ -159,17 +192,8 @@ theorem sourceAmp_scale_four {A₁ κ t P K q b ε : ℝ} (p : ℕ) (hb : 0 < b)
     (hε : ε ≤ P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
       q * (4 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b) :
     4 * ε ≤ srcCE A₁ κ t P * (Real.log b) ^ (3 * p) / Real.sqrt b +
-      q * srcCF A₁ κ t K * (Real.log b) ^ p / Real.sqrt b := by
-  have hs : 0 < Real.sqrt b := Real.sqrt_pos.2 hb
-  have h0 : 0 ≤ (Real.log b) ^ (3 * p) / Real.sqrt b := by positivity
-  unfold srcCE srcCF
-  calc 4 * ε ≤ 4 * (P * (4 * A₁ / lvKappa κ t) ^ 3 * (Real.log b) ^ (3 * p) / Real.sqrt b +
-        q * (4 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b) := by linarith
-    _ = 4 * (P * (4 * A₁ / lvKappa κ t) ^ 3) * ((Real.log b) ^ (3 * p) / Real.sqrt b) +
-        q * (16 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b := by ring
-    _ ≤ 4 * (P * (4 * A₁ / lvKappa κ t) ^ 3 + 1) * ((Real.log b) ^ (3 * p) / Real.sqrt b) +
-        q * (16 * A₁ * K / lvKappa κ t) * (Real.log b) ^ p / Real.sqrt b := by nlinarith
-    _ = _ := by ring
+      q * srcCF A₁ κ t K * (Real.log b) ^ p / Real.sqrt b :=
+  sourceAmp_scale_four_general p hb hℓ rfl rfl hε
 
 /-- **The smallness hypothesis of the source assembler at the physical amplitude.**  Let
 `q ≤ 1`, `log b ≥ 1`, and

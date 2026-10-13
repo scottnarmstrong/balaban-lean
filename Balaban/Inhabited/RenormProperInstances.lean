@@ -41,6 +41,148 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep LocalCover
 
+section SettingG
+
+variable {d L N : ℕ} [NeZero L] {κmin : ℝ} (R : StepTowerRenG d L N κmin) {k N₁ : ℕ} [NeZero N₁]
+
+local notation "GtG" => lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)
+local notation "GlG" => lvLowG d L N₁ R.m₁ k (rhoSepG d L R.m₁)
+
+/-- The root neighbourhood `X₁` of the block root `z` (general `d, L, N`, cover index `R.m₀`). -/
+local notation "XrG" z => X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k
+  (fam R.m₀ (blockSite k z))
+
+/-- The `FlCore` of the general tower at the scale `k` (radii `t`). -/
+theorem renProper_flCoreG (hk : 1 ≤ k) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) :
+    FlCore N GtG GlG 1 ν R.c R.BG R.κ R.t (levelKc d L) (Cchi d L) R.c₂ R.BG₂ R.t :=
+  R.toStepTowerG.flCore_scale_mono k hk N₁ hN hν0 hν R.t_pos le_rfl R.t_pos le_rfl
+
+/-- **T1 (i).  The cut functional on a proper `X₁`.**  At `k = 1`, `N₁ = 18`, for every block root
+`z`: the label type of `X₁` is nonempty with at least `27` elements, and `renC1Cut_analytic`
+holds for the polydisc of the `≥ 27` coordinates. -/
+theorem renC1Cut_analytic_properG {ν : ℝ} (hk : 1 ≤ k) (hN : 5 < N₁)
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1))))
+    (B : Finset (Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1)))) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) → (RenLabel GtG (XrG z) → ℂ) → ℂ,
+      AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ)) ×
+          (RenLabel GtG (XrG z) → ℂ) => F p.1 p.2)
+        (expDom GtG (XiCOneReal GtG (compWeight L 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel GtG (XrG z) → ℂ) (fun _ => Real.exp R.κ)) ∧
+      (∀ D : BgData GtG N, XiCOneReal GtG (compWeight L 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
+        ∀ s ∈ polydisc (0 : RenLabel GtG (XrG z) → ℂ) (fun _ => Real.exp R.κ),
+          F (rawOf D, ξ) s = renC1Cut GtG (compWeight L 1) ν R.t (rho4 d L N R.BG R.κ) (XrG z) B D ξ s) ∧
+      (∀ D : BgData GtG N, XiCOneReal GtG (compWeight L 1) ν R.t D → ∀ ξ : Fin 3 → ℂ,
+        renC1Cut GtG (compWeight L 1) ν R.t (rho4 d L N R.BG R.κ) (XrG z) B D ξ 1 =
+          renC1On GtG (compWeight L 1) ν R.t B D.Ψ D.h
+            (bgFieldC GtG (compWeight L 1) ν (bgC0 d L N) D) ξ) := by
+  have hC := renProper_flCoreG R hk hN hν0 hν
+  obtain ⟨F, hF1, hF2⟩ := renC1Cut_analytic hC R.r₀ (XrG z) B
+  exact ⟨F, hF1, hF2, fun D hD ξ => renC1Cut_one 1 ν R.t hC hD (XrG z) B ξ⟩
+
+/-- The decoupling parameters of the cut vector `s` (general `d, L, N`). -/
+local notation "ExG[" z "," s "]" =>
+  extParams (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+    (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z)))
+    (s ∘ Equiv.symm (renLabelEquiv (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁))
+      (X1 (lvTopG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) R.m₀ k (fam R.m₀ (blockSite k z)))))
+
+/-- **T1 (ii).  The locality of the cut functional on the root neighbourhood.** -/
+theorem renC1_local_cut_properG {ν : ℝ} (hk : 1 ≤ k) (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁)
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (εζ : ℝ) :
+    LocalityAEOn (Real.exp R.κ)
+      {u : BgData GtG N × (Fin 3 → ℂ) | XiCOneReal GtG (compWeight L 1) ν R.t u.1}
+      (fun i : RenLabel GtG (XrG z) => Pset R.m₁ (renCube GtG (XrG z) i))
+      (compY (renCube GtG (XrG z)) (XrG z))
+      (RenC1Ag (renCube GtG (XrG z)) (XrG z))
+      (fun u s => renC1On GtG (compWeight L 1) ν εζ (blockSites d L N₁ R.m₁ (k + 1) k z)
+        u.1.Ψ u.1.h
+        (decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s]) u.1) u.2) :=
+  renC1_local_cut (renProper_flCoreG R hk hN hν0 hν) (hatConn_lvTopG R.hL) isLevel_lvTopG
+    R.m₀_pos hN₀ z εζ (fun _ hu => hu)
+
+/-- **T1 (iii).  The row-data agreement with a cut family of two distinct labels on a proper
+`X₁`.**  If the label type has at least two elements, there is a family `C` of labels with `2 ≤ |C|`, data of `XiCOneReal` exist, and for every
+pair of data of `XiCOneReal` agreeing as in `RenC1Ag`, and every pair of cut vectors supported in
+`C`, of norm `< e^κ` and equal on the cubes whose patch lies in `compY`, the tuples of mode P
+satisfy `DataAgreeRows` on `S_Y`. -/
+theorem renDec_row_agree_properG {ν : ℝ} (hk : 1 ≤ k) (hN₀ : L ^ R.m₀ ∣ N₁) (hN : 5 < N₁)
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) (εζ : ℝ)
+    (hcard : 2 ≤ Fintype.card (RenLabel GtG (XrG z))) :
+    (∃ D : BgData GtG N, XiCOneReal GtG (compWeight L 1) ν R.t D) ∧
+    ∃ C : Finset (RenLabel GtG (XrG z)), 2 ≤ C.card ∧
+      ∀ u u' : BgData GtG N × (Fin 3 → ℂ),
+        XiCOneReal GtG (compWeight L 1) ν R.t u.1 → XiCOneReal GtG (compWeight L 1) ν R.t u'.1 →
+        ∀ s s' : RenLabel GtG (XrG z) → ℂ,
+        s ∈ supN C (Real.exp R.κ) → s' ∈ supN C (Real.exp R.κ) →
+        (∀ i ∈ C, Pset R.m₁ (renCube GtG (XrG z) i) ⊆ compY (renCube GtG (XrG z)) (XrG z) C →
+          s i = s' i) →
+        RenC1Ag (renCube GtG (XrG z)) (XrG z) C u u' →
+        DataAgreeRows GtG (compWeight L 1) ν N
+          (SY GtG (nbhdF R.m₀ (blockSite k z)) (C.image (renCube GtG (XrG z)))
+            (finOf (compY (renCube GtG (XrG z)) (XrG z) C)))
+          (fun x => decBgMult GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s]) u.1 x +
+            (renMassU ν u.2 - (ν : ℂ)))
+          (fun x => decBgMult GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s']) u'.1 x +
+            (renMassU ν u'.2 - (ν : ℂ)))
+          (barField GtG u.1.Ψ (decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s]) u.1))
+          (barField GtG u'.1.Ψ
+            (decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s']) u'.1))
+          (fun x => renZeta εζ u.2 • u.1.Ψ x) (fun x => renZeta εζ u'.2 • u'.1.Ψ x)
+          (fun p => (renMassU ν u.2 - (ν : ℂ)) * (u.1.h p.1 p.2 -
+            decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s]) u.1 p))
+          (fun p => (renMassU ν u'.2 - (ν : ℂ)) * (u'.1.h p.1 p.2 -
+            decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) (ExG[z, s']) u'.1 p)) := by
+  have hC := renProper_flCoreG R hk hN hν0 hν
+  have hHB := bgHyp_lvG (k := k) R.hd R.hL (bgR0_le_rhoSepG R.m₁ R.hd R.hL) hν0 hν
+  have hSD := dgSetting_lvG (N₁ := N₁) (k := k) R.hd R.hL R.m₁_four hN hν0 hν
+  obtain ⟨hV, -⟩ := renLoc_fin_domains (N := N) (lvLowG d L N₁ R.m₁ k (rhoSepG d L R.m₁)) hSD
+    isLevel_lvTopG R.m₀_pos hN₀
+  obtain ⟨hcov, hX₁, -⟩ := hV z
+  have hPS : PolySetup GtG R.m₀ (XrG z) := hcov.polySetup
+  obtain ⟨C, -, hC2⟩ := Finset.exists_subset_card_eq
+    (s := (Finset.univ : Finset (RenLabel GtG (XrG z)))) (n := 2)
+    (by rw [Finset.card_univ]; exact hcard)
+  refine ⟨?_, C, hC2.ge, fun u u' hu hu' s s' hs hs' hag hAg => ?_⟩
+  · exact exists_xiCOneReal hHB GtG (by have := R.hN; omega) hHB.massLe R.t_pos
+  · exact renDec_row_agree hC (hatConn_lvTopG R.hL) isLevel_lvTopG hX₁ hPS εζ
+      (S := {u : BgData GtG N × (Fin 3 → ℂ) | XiCOneReal GtG (compWeight L 1) ν R.t u.1})
+      (fun u hu => hu) C hu hu' hs hs' hag hAg
+
+/-- **T1 (iv).  The sharp bound at the general tower on the root neighbourhood**
+(`renDec_sharp_scale_of_towerG` for the block root `z`). -/
+theorem renDec_sharp_properG {ν : ℝ} (hk : 1 ≤ k) (hN : 5 < N₁)
+    (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    (z : Torus d (N₁ * L ^ R.m₁ * L ^ (k + 1 - (k + 1)))) :
+    ∃ F : RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ) → (RenLabel GtG (XrG z) → ℂ) →
+        ((GtG).Ω 1 × Fin N → ℂ) × ((GtG).Ω 1 → ℂ),
+      AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ R.m₁) (k + 1) N × (Fin 3 → ℂ)) ×
+          (RenLabel GtG (XrG z) → ℂ) => F p.1 p.2)
+        (expDom GtG (XiCOneReal GtG (compWeight L 1) ν R.t) R.r₀ ×ˢ
+          polydisc (0 : RenLabel GtG (XrG z) → ℂ) (fun _ => Real.exp R.κ)) ∧
+      ∀ D : BgData GtG N, XiCOneReal GtG (compWeight L 1) ν R.t D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < R.r₀ →
+        ∀ s ∈ polydisc (0 : RenLabel GtG (XrG z) → ℂ) (fun _ => Real.exp R.κ),
+        ∀ (s' : DecParams GtG) (E : Edat GtG N), s' = ExG[z, s] →
+          E = renEdat ν R.t D (decBgField GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) s' D)
+            (decBgMult GtG (compWeight L 1) ν (rho4 d L N R.BG R.κ) s' D) ξ →
+          (F (rawOf D, ξ) s).1 = dphi GtG (decG GtG (compWeight L 1) ν s') E.2.1 E.1
+              (pertSource GtG (compWeight L 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          DecFixed GtG (compWeight L 1) ν s' false E.2.1 E.1
+              (pertSource GtG (compWeight L 1) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          Small GtG (F (rawOf D, ξ) s).2 (c6' d L N (famConst d L R.BG R.κ) (gamma1 d / 8)) ∧
+          Small GtG (F (rawOf D, ξ) s).2 (cK2' d L N (famConst d L R.BG R.κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 d L N R.BG R.κ + bgK1 d L N) * xiC1 d)) * R.t * ‖ξ‖)) ∧
+          SupBounds GtG (F (rawOf D, ξ) s).1 (cK2' d L N (famConst d L R.BG R.κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 d L N R.BG R.κ + bgK1 d L N) * xiC1 d)) * R.t * ‖ξ‖)) ∧
+          (ξ = 0 → (F (rawOf D, ξ) s).2 = 0 ∧ (F (rawOf D, ξ) s).1 = 0) := by
+  obtain ⟨F, hF1, hF2⟩ := renDec_sharp_scale_of_towerG R k hk N₁ hN hν0 hν (XrG z)
+  exact ⟨F, hF1, hF2⟩
+
+end SettingG
+
 section Setting
 
 variable {κmin : ℝ} (R : StepTowerRen κmin)
@@ -54,7 +196,11 @@ local notation "Xr" z => X1 (lvTop 18 R.m₁ 1 (rhoSep R.m₁)) 1 1 (fam 1 (bloc
 /-- The `FlCore` of the tower at the scale `k = 1`, `N₁ = 18`. -/
 theorem renProper_flCore {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (1 + 1)) ≤ 1) :
     FlCore 2 Gt Gl 1 ν R.c R.BG R.κ R.t (levelKc 3 3) (Cchi 3 3) R.c₂ R.BG₂ R.t :=
-  R.flCore_scale 1 le_rfl 18 (by norm_num) hν0 hν
+  by
+  have h := renProper_flCoreG R.toG (k := 1) (N₁ := 18) le_rfl (by norm_num) hν0
+    (by simpa using hν)
+  rw [rhoSepG_three] at h
+  exact h
 
 /-- **T1 (i).  The cut functional on a proper `X₁`.**  At `k = 1`, `N₁ = 18`, for every block root
 `z`: the label type of `X₁` is nonempty with at least `27` elements, and `renC1Cut_analytic`
@@ -75,10 +221,11 @@ theorem renC1Cut_analytic_proper {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2
         renC1Cut Gt (compWeight 3 1) ν R.t (rho4 3 3 2 R.BG R.κ) (Xr z) B D ξ 1 =
           renC1On Gt (compWeight 3 1) ν R.t B D.Ψ D.h
             (bgFieldC Gt (compWeight 3 1) ν (bgC0 3 3 2) D) ξ) := by
-  have hC := renProper_flCore R hν0 hν
   refine ⟨renLabel_card_ge z (by norm_num) (by norm_num), ?_⟩
-  obtain ⟨F, hF1, hF2⟩ := renC1Cut_analytic hC R.r₀ (Xr z) B
-  exact ⟨F, hF1, hF2, fun D hD ξ => renC1Cut_one 1 ν R.t hC hD (Xr z) B ξ⟩
+  have h := renC1Cut_analytic_properG R.toG (k := 1) (N₁ := 18) le_rfl (by norm_num) hν0
+    (by simpa using hν) z B
+  rw [rhoSepG_three] at h
+  exact h
 
 /-- The decoupling parameters of the cut vector `s`. -/
 local notation "Ex[" z "," s "]" =>
@@ -98,9 +245,11 @@ theorem renC1_local_cut_proper {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 *
       (fun u s => renC1On Gt (compWeight 3 1) ν εζ (blockSites 3 3 18 R.m₁ (1 + 1) 1 z)
         u.1.Ψ u.1.h
         (decBgField Gt (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) (Ex[z, s]) u.1) u.2) :=
-  ⟨renLabel_card_ge z (by norm_num) (by norm_num),
-    renC1_local_cut (renProper_flCore R hν0 hν) hatConn_lvTop isLevel_lvTop (m₀ := 1) le_rfl
-      (by norm_num) z εζ (fun u hu => hu)⟩
+  ⟨renLabel_card_ge z (by norm_num) (by norm_num), by
+    have h := renC1_local_cut_properG R.toG (k := 1) (N₁ := 18) le_rfl (by norm_num)
+      (by norm_num) hν0 (by simpa using hν) z εζ
+    rw [rhoSepG_three] at h
+    exact h⟩
 
 /-- **T1 (iii).  The row-data agreement with a cut family of two distinct labels on a proper
 `X₁`.**  There is a family `C` of labels with `2 ≤ |C|`, data of `XiCOneReal` exist, and for every
@@ -133,24 +282,12 @@ theorem renDec_row_agree_proper {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 
             decBgField Gt (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) (Ex[z, s]) u.1 p))
           (fun p => (renMassU ν u'.2 - (ν : ℂ)) * (u'.1.h p.1 p.2 -
             decBgField Gt (compWeight 3 1) ν (rho4 3 3 2 R.BG R.κ) (Ex[z, s']) u'.1 p)) := by
-  have hC := renProper_flCore R hν0 hν
-  have hHB := bgHyp_lv (k := 1) R.m₁ hν0 hν
-  have hSD := dgSetting_lv (N₁ := 18) (k := 1) R.m₁_four (by norm_num) hν0 hν
-  obtain ⟨hV, -⟩ := renLoc_fin_domains (N := 2) (lvLow 18 R.m₁ 1 (rhoSep R.m₁)) hSD
-    isLevel_lvTop (m₀ := 1) le_rfl (by norm_num)
-  obtain ⟨hcov, hX₁, -⟩ := hV z
-  have hPS : PolySetup Gt 1 (Xr z) := hcov.polySetup
   have hcard := renLabel_card_ge (ϱ := rhoSep R.m₁) (m₁ := R.m₁) (k := 1) z (by norm_num)
     (by norm_num)
-  obtain ⟨C, -, hC2⟩ := Finset.exists_subset_card_eq (s := (Finset.univ : Finset (RenLabel Gt (Xr z))))
-    (n := 2) (by rw [Finset.card_univ]; omega)
-  refine ⟨?_, C, hC2.ge, fun u u' hu hu' s s' hs hs' hag hAg => ?_⟩
-  · refine exists_xiCOneReal hHB Gt (by norm_num) ?_ R.t_pos
-    norm_num at hν ⊢
-    linarith
-  · exact renDec_row_agree hC hatConn_lvTop isLevel_lvTop hX₁ hPS εζ
-      (S := {u : BgData Gt 2 × (Fin 3 → ℂ) | XiCOneReal Gt (compWeight 3 1) ν R.t u.1})
-      (fun u hu => hu) C hu hu' hs hs' hag hAg
+  have h := renDec_row_agree_properG R.toG (k := 1) (N₁ := 18) le_rfl (by norm_num)
+    (by norm_num) hν0 (by simpa using hν) z εζ (le_trans (by norm_num) hcard)
+  rw [rhoSepG_three] at h
+  exact h
 
 /-- **T1 (iv).  The sharp bound at the tower with a proper `X₁`.**  `renDec_sharp_scale_of_tower`
 at `k = 1`, `N₁ = 18` for the root neighbourhood `X₁` of the block root `z`, together with the
@@ -180,8 +317,10 @@ theorem renDec_sharp_proper {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * 3 ^ (2 * (1
             ((3 / 2 + 32 / 15 * (3 + (K4 3 3 2 R.BG R.κ + bgK1 3 3 2) * xiC1 3)) * R.t * ‖ξ‖)) ∧
           (ξ = 0 → (F (rawOf D, ξ) s).2 = 0 ∧ (F (rawOf D, ξ) s).1 = 0) := by
   refine ⟨renLabel_card_ge z (by norm_num) (by norm_num), ?_⟩
-  obtain ⟨F, hF1, hF2⟩ := renDec_sharp_scale_of_tower R 1 le_rfl 18 (by norm_num) hν0 hν (Xr z)
-  exact ⟨F, hF1, hF2⟩
+  have h := renDec_sharp_properG R.toG (k := 1) (N₁ := 18) le_rfl (by norm_num) hν0
+    (by simpa using hν) z
+  rw [rhoSepG_three] at h
+  exact h
 
 end Setting
 

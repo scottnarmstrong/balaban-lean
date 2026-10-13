@@ -1531,6 +1531,8 @@ public import Balaban.Inhabited.LevelRayTower
 public import Balaban.Inhabited.LevelRayTowerGeneral
 public import Balaban.Inhabited.LevelAmpGeneral
 public import Balaban.Inhabited.LevelRayDataGeneral
+public import Balaban.Inhabited.ScaleActivityFinalG
+public import Balaban.Inhabited.DetStepScaleG
 public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
@@ -1800,6 +1802,7 @@ public import Balaban.Fluctuation.StepSettingH
 public import Balaban.Fluctuation.StepComplexOffFibreIntegrand
 public import Balaban.Fluctuation.StepComplexOffFibreJoint
 public import Balaban.Fluctuation.StepComplexProp26J
+public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepComplexJointH
 public import Balaban.Fluctuation.StepInterpolationCore
 public import Balaban.SmallField.LocalGeneratorPoly
