@@ -545,6 +545,89 @@ theorem CovStanding.decLog_agree
   filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
   exact H.decCov_sub_agree H' (Set.mem_Ioi.1 hx).le hconn hY hY' hs hA hφ cκ hQ hP p q hp hq
 
+/-- Rows of a product vanish if the rows of the left factor do. -/
+theorem mul_apply_eq_zero_of_row {ι ι' ι'' : Type*} [Fintype ι'] {M : Matrix ι ι' ℂ}
+    {N : Matrix ι' ι'' ℂ} {i : ι} (h : ∀ j, M i j = 0) (j : ι'') : (M * N) i j = 0 := by
+  simp [Matrix.mul_apply, h]
+
+/-- **Outside the footprint the correction vanishes.** Take `Y' = Yreg s`, the union of all
+components. For a coarse site whose label is false (its block does not lie in `Yreg s`), the
+correction `decCov - covA` has no matrix elements in its row: `G_s` and `Π_s` have rows supported in
+the core. -/
+theorem CovStanding.decCov_sub_row_eq_zero {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (hconn : HatConn G)
+    (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
+    (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
+    (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 := by
+  classical
+  have hY : IsNnComp (Yreg G s) (Yreg G s) := ⟨subset_rfl, fun _ _ _ hy _ => hy⟩
+  have hS := (H.fam x hx).st
+  have hH := hRespects_of_hatConn (x := x) (α := α) hS hconn hY
+  have hα := (H.fam x hx).pot
+  have hU := (H.fam x hx).isUnit_one_sub
+  have hM := H.decM_isUnit' hx
+  have hPl : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1) (liftOp N P) :=
+    BD.liftOp hP
+  have hAB : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
+    unfold covA
+    exact ((BD.one _).sub hPl).smul _ |>.add (hPl.smul _)
+  have hQl : BD (fun p : κι × Fin N => cκ p.1)
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) (liftRect N Q) :=
+    BD.liftOp hQ
+  -- rows of the correction `liftOp Gsx - decPi` outside the core vanish
+  have hT : ∀ (w : G.Ω 1 × Fin N), (w.1 : CTorus d L N₁ m₁ (k + 1)) ∉ Yreg G s → ∀ r,
+      (liftOp N (Gsx G a aT x ν α s) - decPi G a aT x ν α s φ) w r = 0 := by
+    intro w hw r
+    have hcore : (w.1 : CTorus d L N₁ m₁ (k + 1)) ∉ Core G s := fun h => hw (mem_Yreg_of_mem_core _ h)
+    have hL : ∀ r, liftOp N (Gsx G a aT x ν α s) w r = 0 := by
+      intro r; simp only [liftOp]; split_ifs
+      · exact Gsx_apply_eq_zero_of_not_core _ _ hcore
+      · rfl
+    rw [Matrix.sub_apply, hL r]
+    unfold decPi
+    rw [sub_eq_zero]
+    refine (mul_apply_eq_zero_of_row (i := w) (fun r' => ?_) r).symm
+    refine mul_apply_eq_zero_of_row (i := w) (fun r' => ?_) r'
+    refine mul_apply_eq_zero_of_row (i := w) (fun r' => ?_) r'
+    exact hL r'
+  unfold decCov
+  rw [add_sub_cancel_left, Matrix.smul_apply]
+  refine smul_eq_zero_of_right _ ?_
+  have hrow : ∀ y, ((covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q) *
+      (liftOp N (Gsx G a aT x ν α s) - decPi G a aT x ν α s φ)) p y = 0 := by
+    intro y
+    rw [Matrix.mul_apply]
+    refine Finset.sum_eq_zero fun w _ => ?_
+    by_cases h : (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q) p w = 0
+    · rw [h, zero_mul]
+    · have hw : (w.1 : CTorus d L N₁ m₁ (k + 1)) ∉ Yreg G s := fun hw =>
+        hp (((hAB.mul hQl) p w h).2 hw)
+      rw [hT w hw y, mul_zero]
+  exact mul_apply_eq_zero_of_row (fun r => mul_apply_eq_zero_of_row hrow r) q
+
+/-- **`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
+`Yreg s`) is false, the row of `decLog` equals that of the cut-independent baseline blocks. -/
+theorem CovStanding.decLog_row_eq_baseline {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
+    (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
+    decLog G a aT ν α s φ Q P p q =
+      (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
+        ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) p q := by
+  unfold decLog
+  rw [Matrix.sub_apply]
+  have : intMat (volume.restrict (Ioi (0 : ℝ)))
+      (fun x => decCov G a aT x ν α s φ Q P -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 := by
+    show ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ))) = 0
+    refine integral_eq_zero_of_ae ?_
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
+    exact H.decCov_sub_row_eq_zero (Set.mem_Ioi.1 hx).le hconn cκ hQ hP hp q
+  rw [this, sub_zero]
+
+
 end Main
 
 end DataAgree
