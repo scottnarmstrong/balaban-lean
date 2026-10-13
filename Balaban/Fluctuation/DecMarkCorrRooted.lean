@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.DecMarkCorrSum
-public import Balaban.Fluctuation.MarkedScaledCountDec
+public import Balaban.Fluctuation.DecMarkCorrCount
 public import Balaban.Fluctuation.HatLabelsTerms
 
 /-!
@@ -14,23 +14,21 @@ public import Balaban.Fluctuation.HatLabelsTerms
 
 The rooted outputs `markedOutDec` of `MarkedScaledCountDec.lean` are sums of the derivatives at
 `0` of a family of terms `T b Y : ℂ → ℂ`.  For the corrected marks the term of the block `b` and
-the label `Y` is `t ↦ t · (−β · decMarkCorr_b … Y … u Φ)`, whose derivative at `0` is
-`−β · decMarkCorr_b … Y … u Φ`.  This file sums the rooted outputs over the bridge family of a
-root `z` (mask `blockU z`) for a family of pairs, one pair for every block.
+the label `Y` is `decMarkCorrTerm … b Y`, the function `t ↦ t · (−β · decMarkCorr_b … Y … u Φ)`,
+whose derivative at `0` is `−β · decMarkCorr_b … Y … u Φ` (`DecMarkCorrCount.lean`).  This file
+sums the rooted outputs over the bridge family of a root `z` (mask `blockU z`) for a family of
+pairs, one pair for every block.
 
-* `decMarkG_vanish_of_mask_miss`, `decMarkCorr_vanish_of_mask_miss`: if no site of the label has
-  its unit point in the mask, the decoupled mark and the corrected mark of the label vanish
-  (clause 8 of `MarkedBlockExpansionDecPair`).
 * `StepSetting.noUnitPt_blockU_of_not_mem_markedIdx`: a label of a pair left out of `markedIdx`
   (trivial read sets) has no site whose unit point lies in the mask `blockU z` of the root.
 * `StepSetting.sum_markedOutDec_eq_sum_decMarkCorr`: for every family of terms with
   `∂_t T_{b,Y}|_{t=0} = c · decMarkCorr_b … Y …`, the sum of the rooted outputs over the bridge
-  family is the sum of `c · decMarkCorr` over the blocks and the labels.
-* `StepSetting.sum_markedOutDec_physical_of_term`,
-  `StepSetting.sum_markedOutDec_decMarkCorr_physical_of_total`: under the hypotheses of
-  `sum_decMarkCorr_physical_of_total`, the sum of the rooted outputs is the masked derivative
-  `DΦ₁(s ψ')[M_z ψ']` of the zero class, for real `s ∈ [0,1]` and a hat field of the physical
-  ball; the second statement is for the terms `t ↦ t · (−β · decMarkCorr …)`.
+  family is the sum of `c · decMarkCorr` over the blocks and the labels (the eight clauses of the
+  pairs are the only hypothesis on the pairs).
+* `StepSetting.sum_markedOutDec_decMarkCorr_physical_of_total`: under the hypotheses of
+  `sum_decMarkCorr_physical_of_total`, the sum of the rooted outputs of the terms
+  `decMarkCorrTerm` is the masked derivative `DΦ₁(s ψ')[M_z ψ']` of the zero class, for real
+  `s ∈ [0,1]` and a hat field of the physical ball.
 * `StepSetting.ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr`: the same identity for almost
   every hat field of the fluctuation measure.
 
@@ -44,66 +42,6 @@ namespace Balaban.Fluctuation
 open MeasureTheory Balaban Balaban.Localization Balaban.Multiscale Balaban.Background
   Balaban.SmallField Balaban.SmallField.Def6 Balaban.Analysis Balaban.Polymer Set Metric Matrix
   Filter Topology
-
-section Vanishing
-
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
-  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
-variable {a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
-variable {m₀ j : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
-variable {cc : ℂ} {Zm : Finset (unitPts S.G')}
-  {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))}
-variable {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
-      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
-variable {Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
-
-/-- **The decoupled mark of a label that misses the mask is zero.**  By clause 8 of
-`MarkedBlockExpansionDecPair`: if no site of `Y` has its unit point in the mask `Zm`, then
-`decMarkG … Y … um Φ = 0` for a datum of the chart, every first mark `um` with
-`(‖um‖ + 0) · markedRad < δ₁`, and every block configuration `Φ`. -/
-theorem decMarkG_vanish_of_mask_miss
-    (hP : MarkedBlockExpansionDecPair N Hm S.hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z
-      F₁ Sol)
-    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
-    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
-    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
-    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, unitPt S.hG' y ∉ Zm)
-    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
-    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm
-      Y ρ hp Θ um Φ = 0 :=
-  hP.2.2.2.2.2.2.2 um hum Y hY (Θ, S.hatOf m₀ ρ hp Φ)
-    ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
-
-/-- **The corrected mark of a label that misses the mask is zero.**  If no site of `Y` has its
-unit point in the mask, the decoupled mark of `Y` vanishes for every first mark near `0` and at
-`um`; so do its value at `0`, its derivative at `0`, and the first-order Taylor remainder
-`decMarkCorr … Y … um Φ`. -/
-theorem decMarkCorr_vanish_of_mask_miss
-    (hP : MarkedBlockExpansionDecPair N Hm S.hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z
-      F₁ Sol)
-    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
-    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
-    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
-    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hY : ∀ y ∈ Y, unitPt S.hG' y ∉ Zm)
-    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
-    decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
-      Zm Y ρ hp Θ um Φ = 0 := by
-  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
-  have hopen : IsOpen {v : ℂ | (‖v‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
-    isOpen_lt (by fun_prop) continuous_const
-  have hev : (fun v : ℂ => decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol
-      (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm Y ρ hp Θ v Φ) =ᶠ[𝓝 (0 : ℂ)]
-      fun _ => (0 : ℂ) := by
-    filter_upwards [hopen.mem_nhds h0] with v hv
-    exact decMarkG_vanish_of_mask_miss S hP hρ hρc hp hΘ hv hY Φ
-  unfold decMarkCorr
-  rw [decMarkG_vanish_of_mask_miss S hP hρ hρc hp hΘ hum hY Φ,
-    decMarkG_vanish_of_mask_miss S hP hρ hρc hp hΘ h0 hY Φ, hev.deriv_eq, deriv_const]
-  ring
-
-end Vanishing
 
 namespace StepSetting
 
@@ -140,7 +78,7 @@ with the eight clauses for every block `b` at the step `S` (`cc = β_k^{-1/2}`, 
 `(‖um‖ + 0) · markedRad < δ₁`.  For every family of terms `T b Y : ℂ → ℂ` with
 `∂_t T_{b,Y}|_{t=0} = c · decMarkCorr_b … Y … um Φ`, the sum over the bridge family of the root
 `z` of the rooted outputs `markedOutDec … T Y′` is `∑_b ∑_{Y ∈ 𝒟_b} c · decMarkCorr_b … Y … um Φ`
-(the pairs left out of `markedIdx` contribute zero by `decMarkCorr_vanish_of_mask_miss`). -/
+(the pairs left out of `markedIdx` contribute zero by `decMarkCorr_eq_zero_of_mask_miss`). -/
 theorem sum_markedOutDec_eq_sum_decMarkCorr
     (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
       DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
@@ -177,72 +115,17 @@ theorem sum_markedOutDec_eq_sum_decMarkCorr
     intro b Y hY hnot
     have hmiss := S.noUnitPt_blockU_of_not_mem_markedIdx z
       (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) (b := b) hY hnot
-    rw [hT b Y, decMarkCorr_vanish_of_mask_miss S (hP b) hρ hρc hp hδ hΘ hum hmiss Φ, mul_zero]
+    rw [hT b Y, decMarkCorr_eq_zero_of_mask_miss S (hP b) hρ hρc hp hδ hΘ hum hmiss Φ, mul_zero]
   rw [sum_markedOutDec_eq_sum_of_vanishing _ _ z T hz]
   exact Finset.sum_congr rfl fun b _ => Finset.sum_congr rfl fun Y _ => hT b Y
 
-/-- **The rooted physical identity for the corrected marks, for a family of terms** (zero class,
-real `s ∈ [0,1]`).  Under the hypotheses of `sum_decMarkCorr_physical_of_total` (one pair with its
-clauses for every block; `‖x‖ ≤ p₁ ≤ ρ ≤ cψ`; the hypotheses of
-`fderiv_mask_eq_neg_beta_taylor1_corrected_total`; the identity `hE` of the marks of
-`V^{(k)} + ½⟨ψ', Δ^{(k)} ψ'⟩` and of the block-energy total on the disc `‖u‖ < U`, `U > 1`),
-for every family of terms `T b Y : ℂ → ℂ` with
-`∂_t T_{b,Y}|_{t=0} = −β · decMarkCorr_b … Y … s (restr x)`:
-`∑_{Y′ ∈ 𝒴_z} markedOutDec … T Y′ = DΦ₁(s ψ')[M_z ψ']`. -/
-theorem sum_markedOutDec_physical_of_term
-    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
-        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
-    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-      Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
-        ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ))
-    (hP : ∀ b, MarkedBlockExpansionDecPair N (stepG d L N₁ m₁ k ϱ) S.hG'
-      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν BG BG₂ κ eps δ₁ κdec cψ (S.blockU z) (X₁V b)
-      m₀ (jV b) (𝒦XV b) b (F₁ b) (Sol b))
-    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hpρ : S.p₁ ≤ ρ) (hδ : 0 < δ₁)
-    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') (x : S.E) (hx : ‖x‖ ≤ S.p₁)
-    (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
-    (hD2 : InUnionDomainC S.G' (bgC0 d L N) (thm73C2 d L N) S.ν S.D')
-    (hbase : InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC2 d L N) S.ν
-      (S.dataUC S.psi0C))
-    (hAn : AnalyticAt ℂ (fun y : S.EC => S.VkC (S.psi0C + y)) 0)
-    (hray0 : ∀ u t : ℂ, ∀ᶠ r : ℝ in 𝓝 0, InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N)
-      (bgC1 d L N) S.ν
-      (S.dataUC (S.psiAtV ((r : ℝ) : ℂ) (u • S.shiftUC x + t • S.maskUC z (S.shiftUC x)))))
-    (hβ : 0 < S.β) {U : ℝ} (hU : 1 < U)
-    (hE : ∀ u : ℂ, ‖u‖ < U →
-      deriv (fun t : ℂ => S.VkC (S.psi0C + S.markedTangentC z u t x) +
-        (1 / 2) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) (compWeight L S.a₁) S.ν
-          (bgMultC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (liftC S.hG' (S.markedTangentC z u t x))) 0 =
-      deriv (fun t : ℂ => ∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
-        blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
-          (rawOf S.D', liftC S.hG' (S.markedTangentC z u t x))) 0)
-    {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1)
-    (hrad : (‖(s : ℂ)‖ + ‖(0 : ℂ)‖) *
-      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
-    (hd : DifferentiableAt ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x))
-    (T : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1)) → ℂ → ℂ)
-    (hT : ∀ b Y, deriv (T b Y) 0 = -(S.β : ℂ) * decMarkCorr S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν
-      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ b) (Sol b)
-      (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
-      Y ρ hp (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hp).restr x)) :
-    ∑ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
-        (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z,
-      markedOutDec m₀ (fun _ => Set.univ)
-        (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z T Y' =
-      (fderiv ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x))
-        (S.maskUC z (S.shiftUC x)) := by
-  rw [S.sum_markedOutDec_eq_sum_decMarkCorr z F₁ Sol hP hρ hρc hp hδ ⟨S.D', hD, rfl⟩ hrad
-    ((S.blockSplit m₀ hp).restr x) (-(S.β : ℂ)) T hT]
-  exact S.sum_decMarkCorr_physical_of_total z F₁ Sol hP hρ hρc hp hpρ hδ hD x hx ha₁ H hD2 hbase
-    hAn hray0 hβ hU hE hs hrad hd
-
 /-- **The rooted physical identity for the corrected marks** (zero class, real `s ∈ [0,1]`, a hat
-field of the physical ball).  With the terms `T_{b,Y}(t) = t · (−β · decMarkCorr_b … Y … s
-(restr x))` of the pairs `(F₁ b, Sol b)`, under the hypotheses of
-`sum_decMarkCorr_physical_of_total`:
+field of the physical ball).  With the terms `decMarkCorrTerm`, `T_{b,Y}(t) = t · (−β ·
+decMarkCorr_b … Y … s (restr x))`, of the pairs `(F₁ b, Sol b)`, under the hypotheses of
+`sum_decMarkCorr_physical_of_total` (one pair with its clauses for every block;
+`‖x‖ ≤ p₁ ≤ ρ ≤ cψ`; the hypotheses of `fderiv_mask_eq_neg_beta_taylor1_corrected_total`; the
+identity `hE` of the marks of `V^{(k)} + ½⟨ψ', Δ^{(k)} ψ'⟩` and of the block-energy total on the
+disc `‖u‖ < U`, `U > 1`):
 `∑_{Y′ ∈ 𝒴_z} markedOutDec … T Y′ = DΦ₁(s ψ')[M_z ψ']`. -/
 theorem sum_markedOutDec_decMarkCorr_physical_of_total
     (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
@@ -282,20 +165,21 @@ theorem sum_markedOutDec_decMarkCorr_physical_of_total
         (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z,
       markedOutDec m₀ (fun _ => Set.univ)
         (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z
-        (fun b Y t => t * (-(S.β : ℂ) * decMarkCorr S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν
-          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ b) (Sol b)
-          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
-          Y ρ hp (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hp).restr x))) Y' =
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+          (S.blockU z) ρ hp (S.β : ℂ) (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hp).restr x)) Y' =
       (fderiv ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x))
-        (S.maskUC z (S.shiftUC x)) :=
-  S.sum_markedOutDec_physical_of_term z F₁ Sol hP hρ hρc hp hpρ hδ hD x hx ha₁ H hD2 hbase hAn
-    hray0 hβ hU hE hs hrad hd _ fun _ _ => (hasDerivAt_mul_const _).deriv
+        (S.maskUC z (S.shiftUC x)) := by
+  rw [S.sum_markedOutDec_eq_sum_decMarkCorr z F₁ Sol hP hρ hρc hp hδ ⟨S.D', hD, rfl⟩ hrad
+    ((S.blockSplit m₀ hp).restr x) (-(S.β : ℂ)) _
+    (fun b Y => deriv_decMarkCorrTerm S F₁ Sol ρ hp (S.β : ℂ) (rawOf S.D') (s : ℂ) _ b Y)]
+  exact S.sum_decMarkCorr_physical_of_total z F₁ Sol hP hρ hρc hp hpρ hδ hD x hx ha₁ H hD2 hbase
+    hAn hray0 hβ hU hE hs hrad hd
 
 /-- **The rooted physical identity for the corrected marks, almost everywhere** (zero class, real
 `s ∈ [0,1]`).  Let the hypotheses of `sum_markedOutDec_decMarkCorr_physical_of_total` that depend
 on the hat field (`hray0`, `hE`, `hd`) hold for every `x` with `‖x‖ ≤ p₁`.  Then for almost every
 `x` of the fluctuation measure `ν_{p₁}` (which is carried by `‖x u‖ < p₁`, `ae_norm_nuFl`),
-`DΦ₁(s ψ')[M_z ψ'] = ∑_{Y′ ∈ 𝒴_z} markedOutDec … T Y′`, with the terms
+`DΦ₁(s ψ')[M_z ψ'] = ∑_{Y′ ∈ 𝒴_z} markedOutDec … T Y′`, with the terms `decMarkCorrTerm`,
 `T_{b,Y}(t) = t · (−β · decMarkCorr_b … Y … s (restr x))`. -/
 theorem ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr
     (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
@@ -339,10 +223,9 @@ theorem ae_fderiv_mask_eq_sum_markedOutDec_decMarkCorr
             (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z,
           markedOutDec m₀ (fun _ => Set.univ)
             (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) z
-            (fun b Y t => t * (-(S.β : ℂ) * decMarkCorr S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν
-              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ b) (Sol b)
-              (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b)
-              (S.blockU z) Y ρ hp (rawOf S.D') (s : ℂ) ((S.blockSplit m₀ hp).restr x))) Y' := by
+            (decMarkCorrTerm S X₁V jV 𝒦XV m₀ S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁
+              Sol (S.blockU z) ρ hp (S.β : ℂ) (rawOf S.D') (s : ℂ)
+              ((S.blockSplit m₀ hp).restr x)) Y' := by
   filter_upwards [S.ae_norm_nuFl hp] with x hx
   have hxn : ‖x‖ ≤ S.p₁ := (pi_norm_le_iff_of_nonneg hp.le).2 fun u => (hx u).le
   exact (S.sum_markedOutDec_decMarkCorr_physical_of_total z F₁ Sol hP hρ hρc hp hpρ hδ hD x hxn

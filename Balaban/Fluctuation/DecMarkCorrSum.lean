@@ -30,6 +30,9 @@ This file sums these marks over the blocks and the labels of the chosen family.
 * `StepSetting.sum_decMarkG_eq_deriv_blockEnergyOne`: at the datum of the step and a hat field
   `x` whose clamp is `x` itself, the sum over the blocks and the labels of the decoupled marks is
   the derivative at `0` of the block-energy total along the marked tangent.
+* `StepSetting.sum_decMarkCorr_eq_taylor1_of_mark`: the sum over the blocks and the labels of the
+  corrected marks is the first-order Taylor remainder of every function that agrees, on a disc
+  around `0`, with the mark of the block-energy total.
 * `StepSetting.sum_decMarkCorr_physical_of_total`: if the mark of `V^{(k)} + ½⟨ψ', Δ^{(k)} ψ'⟩` is
   the mark of the block-energy total for every first mark of a disc of radius `U > 1`, then for
   real `s ∈ [0,1]` the sum over the blocks and the labels of `−β · decMarkCorr` at the first mark
@@ -285,6 +288,66 @@ theorem sum_decMarkG_eq_deriv_blockEnergyOne
   refine Finset.sum_congr rfl fun b _ => ?_
   rw [sum_decMarkG_eq_deriv_markedFunDec S (hP b) hρ hρc hp hD hum, hhat]
 
+/-- **The sum of the corrected marks is the first-order Taylor remainder of the mark of the
+block-energy total.**  Let `(F₁ b, Sol b)` be a pair with the eight clauses for every block `b`
+at the step `S` (`cc = β_k^{-1/2}`, mask `blockU z`), and `x` a hat field with `‖x u‖ ≤ ρ ≤ cψ`
+for every unit point `u`.  Let `f : ℂ → ℂ` agree on a disc `‖u‖ < U`, `U > 0`, with the mark of
+the block-energy total: `f u = ∂_t [∑_b E_b(rawOf θ, lift v_{u,t})]_{t=0}`,
+`v_{u,t} = u ψ' + t M_z ψ'`.  Then for every first mark `um` with `‖um‖ < U` in the slice
+`(‖um‖ + 0) · markedRad < δ₁`,
+`∑_b ∑_{Y ∈ 𝒟_b} decMarkCorr_b … Y … um (restr x) = f um − f 0 − um · f′(0)`. -/
+theorem sum_decMarkCorr_eq_taylor1_of_mark
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
+        ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ))
+    (hP : ∀ b, MarkedBlockExpansionDecPair N (stepG d L N₁ m₁ k ϱ) S.hG'
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν BG BG₂ κ eps δ₁ κdec cψ (S.blockU z) (X₁V b)
+      m₀ (jV b) (𝒦XV b) b (F₁ b) (Sol b))
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') (x : S.E) (hx : ∀ u, ‖x u‖ ≤ ρ)
+    {U : ℝ} (hU : 0 < U) (f : ℂ → ℂ)
+    (hE : ∀ u : ℂ, ‖u‖ < U →
+      f u = deriv (fun t : ℂ => ∑ b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
+        blockEnergyOne S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν BG₂ κ eps k b
+          (rawOf S.D', liftC S.hG' (S.markedTangentC z u t x))) 0)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) *
+      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
+    (humU : ‖um‖ < U) :
+    ∑ b, ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b),
+        decMarkCorr S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ b) (Sol b)
+          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
+          Y ρ hp (rawOf S.D') um ((S.blockSplit m₀ hp).restr x) =
+      f um - f 0 - um * deriv f 0 := by
+  have hΘ : rawOf S.D' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps := ⟨S.D', hD, rfl⟩
+  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) *
+      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ := by simpa using hδ
+  have hopen : IsOpen {v : ℂ | (‖v‖ + ‖(0 : ℂ)‖) *
+      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁} :=
+    isOpen_lt (by fun_prop) continuous_const
+  -- the sum of the decoupled marks is `f` on the slice inside the disc
+  have hFf : ∀ v : ℂ, (‖v‖ + ‖(0 : ℂ)‖) *
+      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ → ‖v‖ < U →
+      (∑ b, ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b),
+        decMarkG S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (F₁ b) (Sol b)
+          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
+          Y ρ hp (rawOf S.D') v ((S.blockSplit m₀ hp).restr x)) = f v := fun v hv hvU => by
+    rw [S.sum_decMarkG_eq_deriv_blockEnergyOne z F₁ Sol hP hρ hρc hp hD x hx hv]
+    exact (hE v hvU).symm
+  have hev : (fun v : ℂ => ∑ b, ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b),
+        decMarkG S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (F₁ b) (Sol b)
+          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
+          Y ρ hp (rawOf S.D') v ((S.blockSplit m₀ hp).restr x)) =ᶠ[𝓝 (0 : ℂ)] f := by
+    filter_upwards [hopen.mem_nhds h0, Metric.ball_mem_nhds (0 : ℂ) hU] with v hv hvU
+    exact hFf v hv (by simpa using hvU)
+  rw [sum_decMarkCorr_eq_taylor1 S F₁ Sol hP hρ hρc hp hδ hΘ um ((S.blockSplit m₀ hp).restr x)]
+  exact taylor1_remainder_congr hev (hFf um hum humU)
+
 /-- **The physical sum identity for the corrected marks of a family of pairs** (zero class,
 real `s ∈ [0,1]`).  Let `(F₁ b, Sol b)` be a pair with the eight clauses for every block `b` at
 the step `S` (`cc = β_k^{-1/2}`, mask `blockU z`), and let `x` be a hat field of the physical
@@ -339,48 +402,13 @@ theorem sum_decMarkCorr_physical_of_total
       (fderiv ℂ (S.Phi1C (zeroClass d L N₁ m₁ k N ϱ)) ((s : ℂ) • S.shiftUC x))
         (S.maskUC z (S.shiftUC x)) := by
   have hxρ : ∀ u, ‖x u‖ ≤ ρ := fun u => (norm_le_pi_norm x u).trans (hx.trans hpρ)
-  have hΘ : rawOf S.D' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps := ⟨S.D', hD, rfl⟩
-  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) *
-      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ := by simpa using hδ
-  have hopen : IsOpen {v : ℂ | (‖v‖ + ‖(0 : ℂ)‖) *
-      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁} :=
-    isOpen_lt (by fun_prop) continuous_const
-  -- the mark of `V + ½δ` and the sum of the decoupled marks agree on the slice inside the disc
-  have hFf : ∀ v : ℂ, (‖v‖ + ‖(0 : ℂ)‖) *
-      markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ → ‖v‖ < U →
-      deriv (fun t : ℂ => S.VkC (S.psi0C + S.markedTangentC z v t x) +
-        (1 / 2) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) (compWeight L S.a₁) S.ν
-          (bgMultC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (liftC S.hG' (S.markedTangentC z v t x))) 0 =
-      ∑ b, ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b),
-        decMarkG S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
-          (F₁ b) (Sol b)
-          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
-          Y ρ hp (rawOf S.D') v ((S.blockSplit m₀ hp).restr x) := fun v hv hvU => by
-    rw [S.sum_decMarkG_eq_deriv_blockEnergyOne z F₁ Sol hP hρ hρc hp hD x hxρ hv]
-    exact hE v hvU
-  have hev : (fun v : ℂ => deriv (fun t : ℂ => S.VkC (S.psi0C + S.markedTangentC z v t x) +
-        (1 / 2) * deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) (compWeight L S.a₁) S.ν
-          (bgMultC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (bgFieldC S.G' (compWeight L S.a₁) S.ν (bgC0 d L N) S.D')
-          (liftC S.hG' (S.markedTangentC z v t x))) 0) =ᶠ[𝓝 (0 : ℂ)]
-      fun v : ℂ => ∑ b, ∑ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b),
-        decMarkG S (X₁V b) m₀ (jV b) (𝒦XV b) S.a₁ S.ν ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
-          (F₁ b) (Sol b)
-          (blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k b) (S.blockU z)
-          Y ρ hp (rawOf S.D') v ((S.blockSplit m₀ hp).restr x) := by
-    filter_upwards [hopen.mem_nhds h0, Metric.ball_mem_nhds (0 : ℂ) (zero_lt_one.trans hU)]
-      with v hv hvU
-    exact hFf v hv (by simpa using hvU)
   have hsU : ‖(s : ℂ)‖ < U := by
     rw [Complex.norm_real, Real.norm_of_nonneg hs.1]; linarith [hs.2]
-  have hT := taylor1_remainder_congr hev (hFf (s : ℂ) hrad hsU)
-  have hT1 := sum_decMarkCorr_eq_taylor1 S F₁ Sol hP hρ hρc hp hδ hΘ (s : ℂ)
-    ((S.blockSplit m₀ hp).restr x)
+  have hT := S.sum_decMarkCorr_eq_taylor1_of_mark z F₁ Sol hP hρ hρc hp hδ hD x hxρ
+    (zero_lt_one.trans hU) _ hE hrad hsU
   rw [S.fderiv_mask_eq_neg_beta_taylor1_corrected_total z ha₁ H hD2 hbase x hAn hray0 _
     (fun _ => rfl) hβ s hd]
-  refine Eq.trans ?_ (congrArg (fun w : ℂ => -(S.β : ℂ) * w) (hT1.trans hT.symm))
+  refine Eq.trans ?_ (congrArg (fun w : ℂ => -(S.β : ℂ) * w) hT)
   simp only [Finset.mul_sum]
 
 end StepSetting
