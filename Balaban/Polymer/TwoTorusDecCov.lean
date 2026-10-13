@@ -12,13 +12,32 @@ public import Balaban.Localization.RowsCov
 /-!
 # The decoupled covariance on two tori, and the fluctuation from the raw data
 
+For the top level `levelGS (k + 1)` of two fine tori `CTorus d L N₁ m₁ (k + 1)` and
+`CTorus d L N₁' m₁ (k + 1)`, identified on a centred box by `boxMap` (`bm` on the fine tori, `bU`
+on the unit lattices), this file compares the decoupled covariance `C_x(s)` (`decCov`) and its
+square root `C^{1/2}(s)` (`decCovSqrt`) at the unit points of a component `Y` of the cut, with
+block set `S_Y`; the same-torus templates are `RowsCov.decCov_rows` and `I4c_local_sqrt*_rows`.
+
 * `decSol_value_twoTorus_of_decBg` (D0): the values of the decoupled fluctuation solution on two
   tori correspond on a component when its data are `flEdat` of the values of the decoupled
   background pair (the maps `F₁`, `F₁'` with the defining property of Theorem I-4b at level
   `j + 1`): the only hypotheses on the data are the agreement of the raw data on `RowsDep (S_Y)`
   and of the fluctuations `ψ, ψ'` on `S_Y^F` (the source `f₁` of `flEdat` is `0`).  The chain is
-  `decBg_value_twoTorus`'s proof (`i4b_exists_unique`, `hF₁`) → `decSol_data_of_decBg` →
-  `decSol_value_twoTorus`.
+  `i4b_exists_unique` and `hF₁` → `decSol_data_of_decBg` → `decSol_value_twoTorus`.
+* `inv_mulVec_transport_of_triangular`: an abstract block statement for `M⁻¹`, when `M` does not
+  couple the rows of a block to the columns off the block (the rows off the block may read it).
+* `decM_apply_eq_zero_of_mem_SY`: `M_{x,s}` does not couple `S_Y` to its complement (one torus).
+* `Gsx_lift_rows_SY`, `commKx_rows_transport`, `decN_rows_transport`, `decM_rows_transport`,
+  `decM_inv_rows_transport`, `decZ_rows_transport`: the rows of `Ĝ_{k,x,s}`, `K_x(φ₀)`, `N_{x,s}`,
+  `M_{x,s}`, `M_{x,s}⁻¹` and `Z_{x,s} = Ĝ_{k,x,s} - Π_{x,s}` correspond (on `S_Y`, resp. `Y`).
+* `unitBlock_boxMap`, `covA_unit_rows_transport`, `unitQ_rows_transport`, `unitQT_rows_transport`:
+  the unit lattice (`unitPts`, `Q = unitQ`, `P = unitP`) on two tori.
+* `decCov_rows_transport` (D1): the rows of `C_x(s) h` correspond at the unit points whose
+  `(k+1)`-block lies in `Y`; `decCov_rows_transport_free`: at a block avoiding the cores.
+* `decCovSqrt_rows_transport`, `_of_complete`, `decCovSqrt_rows_transport3` (D2): the same for
+  `C^{1/2}(s)`, through the landed improper-integral formula; `decCov_rows_transport_of_box` and
+  `decCovSqrt_rows_transport_of_box` discharge the image of `S_Y` and the agreement of the cube
+  products from parameters corresponding on the box.
 -/
 
 @[expose] public section
@@ -697,7 +716,7 @@ theorem unit_anchor {ρ : ℕ} (hn : 2 * (ρ + L ^ (k + 1)) + 1 < (N₁ * L ^ m�
   exact ⟨y, hy, h1, inBox_of_jBlock_eq le_rfl hn hx0 h1⟩
 
 /-- The image of a unit point with a fine site `y` of the box: `ιu b = unitBlock (bm y)`. -/
-theorem coe_ιu {ρ : ℕ} (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+theorem unitImage_val {ρ : ℕ} (hn : 2 * ρ + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
     (b : unitPts (GA)) {y : CTorus d L N₁ m₁ (k + 1)}
     (hy : unitBlock y = (b : UnitTorus d L N₁ m₁ k))
     (hyR : InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
@@ -731,7 +750,7 @@ theorem covA_unit_rows_transport (c bb x₀ : ℝ) {ρ : ℕ}
       unitBlock1 (b0 : UnitTorus d L N₁ m₁ k)) =>
     unit_anchor (ϱ := ϱ) (by omega) hx0 b3 (h3.trans hb0)
   obtain ⟨y0, hy0, hy0x, hy0R⟩ := hrep b0 rfl
-  have hιu0 := coe_ιu (N₁' := N₁') hR1 b0 hy0 hy0R
+  have hιu0 := unitImage_val (N₁' := N₁') hR1 b0 hy0 hy0R
   have hblk0 : unitBlock1 (((ιu b0) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) =
       jBlock d L (N₁' * L ^ m₁) (k + 1) (k + 1) (bm x0) := by
     rw [hιu0, unitBlock1_unitBlock]
@@ -751,12 +770,12 @@ theorem covA_unit_rows_transport (c bb x₀ : ℝ) {ρ : ℕ}
   · obtain ⟨y3, hy3, -, hy3R⟩ := hrep b3 h3
     obtain ⟨y4, hy4, -, hy4R⟩ := hrep b4 h4
     have e := congrArg Subtype.val h
-    rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, coe_ιu (N₁' := N₁') hR1 b4 hy4 hy4R] at e
+    rw [unitImage_val (N₁' := N₁') hR1 b3 hy3 hy3R, unitImage_val (N₁' := N₁') hR1 b4 hy4 hy4R] at e
     have e2 := (jBlock_boxMap_iff (m₁ := m₁) (j := k) (Nat.le_succ k) hR1 hR1' hy3R hy4R).2 e
     exact Subtype.ext (hy3.symm.trans (e2.trans hy4))
   · obtain ⟨y3, hy3, hy3x, hy3R⟩ := hrep b3 h3
     show unitBlock1 (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) = _
-    rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
+    rw [unitImage_val (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
     exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).1 hy3x
   · obtain ⟨y3', hy3', hy3x', hy3R'⟩ := unit_anchor (ϱ := ϱ) (by omega) hx0' b3' (h3'.trans hblk0)
     have hback : bm (bm' y3') = y3' := boxMap_boxMap (by omega) hy3R'
@@ -770,7 +789,7 @@ theorem covA_unit_rows_transport (c bb x₀ : ℝ) {ρ : ℕ}
     · show unitBlock1 (unitBlock (bm' y3')) = _
       rw [unitBlock1_unitBlock, hx3, ← hb0]
     · refine Subtype.ext ?_
-      rw [coe_ιu (N₁' := N₁') hR1 ⟨unitBlock (bm' y3'), mem_unitPts_levelTop _⟩ rfl hy3R, hback]
+      rw [unitImage_val (N₁' := N₁') hR1 ⟨unitBlock (bm' y3'), mem_unitPts_levelTop _⟩ rfl hy3R, hback]
       exact hy3'
   · simp only [unitP]
     rw [ite_eq_right (fun h => h3 h.symm), zero_mul]
@@ -779,7 +798,7 @@ theorem covA_unit_rows_transport (c bb x₀ : ℝ) {ρ : ℕ}
   · have hm : unitBlock1 (((ιu b3) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) =
         unitBlock1 (((ιu b0) : unitPts (GB)) : UnitTorus d L N₁' m₁ k) := by
       obtain ⟨y3, hy3, hy3x, hy3R⟩ := hrep b3 h3
-      rw [coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
+      rw [unitImage_val (N₁' := N₁') hR1 b3 hy3 hy3R, unitBlock1_unitBlock, hblk0]
       exact (jBlock_boxMap_iff (m₁ := m₁) (j := k + 1) le_rfl hR1 hR1' hy3R hx0R).1 hy3x
     simp only [unitP]
     rw [ite_eq_left hm.symm, ite_eq_left h3.symm, hg b3 h3 i]
@@ -805,7 +824,7 @@ theorem unitQ_rows_transport {ρ : ℕ}
   have hx0' : InBox d ρ ((N₁' * L ^ m₁) * L ^ (k + 1)) (bm x0) := inBox_boxMap (by omega) hx0
   have hx0R := inBox_mono (Nat.le_add_right ρ (L ^ (k + 1))) hx0
   obtain ⟨y3, hy3, hy3x, hy3R⟩ := unit_anchor (ϱ := ϱ) (by omega) hx0 b3 hb3
-  have hιu3 := coe_ιu (N₁' := N₁') hR1 b3 hy3 hy3R
+  have hιu3 := unitImage_val (N₁' := N₁') hR1 b3 hy3 hy3R
   -- the fine sites of `b₃` lie in the box of radius `ρ + L^(k+1)`
   have hfib : ∀ y : CTorus d L N₁ m₁ (k + 1), unitBlock y = (b3 : UnitTorus d L N₁ m₁ k) →
       InBox d (ρ + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
