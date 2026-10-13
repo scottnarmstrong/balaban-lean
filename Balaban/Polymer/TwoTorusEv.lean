@@ -14,6 +14,8 @@ public import Balaban.Fluctuation.MarkedVRawY
 public import Balaban.Fluctuation.MarkedFanAnalytic
 public import Balaban.Fluctuation.MarkedVBlockDec
 public import Balaban.Fluctuation.MarkedFluctRows
+public import Balaban.Fluctuation.InteractionLevelPair
+public import Balaban.Inhabited.LevelLemmasGeneral
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -459,7 +461,6 @@ theorem hatSqrtF_rows_twoTorus {ϱm ϱm' : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
     {F₁ : DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
     {F₁' : DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
@@ -497,6 +498,8 @@ theorem hatSqrtF_rows_twoTorus {ϱm ϱm' : ℝ}
     {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
     (hatSqrtF (GB) a₁ ν F₁' s' (rawOf D') *ᵥ ψh') (ιu b, i) =
       (hatSqrtF (GA) a₁ ν F₁ s (rawOf D) *ᵥ ψh) (b, i) := by
+  have hconn : HatConn (GA) := Balaban.Inhabited.LevelStep.hatConn_lvTopG hC.Sp.hL
+  have hconn' : HatConn (GB) := Balaban.Inhabited.LevelStep.hatConn_lvTopG hC'.Sp.hL
   have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hc1 := one_le_xiC1 d
@@ -654,9 +657,6 @@ theorem FFmarked_twoTorus
     (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    (hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν)
-    (hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -766,6 +766,10 @@ theorem FFmarked_twoTorus
     exact Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L))
   have hHA : IsLevel (HA) k := isLevel_levelGS hk (Nat.le_succ k)
   have hHB : IsLevel (HB) k := isLevel_levelGS hk (Nat.le_succ k)
+  have hconn : HatConn (GA) := Balaban.Inhabited.LevelStep.hatConn_lvTopG hC.Sp.hL
+  have hconn' : HatConn (GB) := Balaban.Inhabited.LevelStep.hatConn_lvTopG hC'.Sp.hL
+  have hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν := rowInHat_level hC.Sp hHA hGA
+  have hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν := rowInHat_level hC'.Sp hHB hGB
   -- the cut parameters
   have hs'b : ∀ i', ‖s' i'‖ < Real.exp κ := by
     intro i'
@@ -897,7 +901,7 @@ theorem FFmarked_twoTorus
     intro x hx
     have hxR := hYR x hx
     refine markedHatPsiF_boxMap (by omega) hGA hGB a₁ ν cc um tm hxR (hZm x hxR) fun i => ?_
-    refine hatSqrtF_rows_twoTorus hC hC' hk hMX hmar hαK hsm hconn hconn' hF₁ hF₁' hσb hσb' hD hD'
+    refine hatSqrtF_rows_twoTorus hC hC' hk hMX hmar hαK hsm hF₁ hF₁' hσb hσb' hD hD'
       hYA hYB hs0 hs0' rfl hB' hagree hYR hn hn' hrawY hcomp ψh ψh' hhatU (fun y' hy' => ?_) i
     exact hcomp ⟨x, hΩA x⟩ y' hx hy'
   -- the background values
@@ -1211,9 +1215,6 @@ theorem evDec_twoTorus
     (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    (hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν)
-    (hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -1333,7 +1334,7 @@ theorem evDec_twoTorus
       simp at hi
     subst hC'e
     rw [coef_empty_eq, coef_empty_eq]
-    exact FFmarked_twoTorus hC hC' hk hGA hGB cc hcψ hconn hconn' hrow hrow' hMX hmar hαK hsm hF₁
+    exact FFmarked_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₁
       hF₁' hSol hSol' hcov hX₁ hcov' hX₁' hBM hRδ hRψ hΦ hX₁R ∅ (fun i hi => by simp at hi) hn hn'
       hnS hnS' ⟨fun i _ => rfl, fun i => by simpa using Real.exp_pos κ⟩ (fun _ _ => rfl)
       (fun i hi => by simp at hi) hD hD' hraw hψh hψh' hhat hZm hum
@@ -1367,7 +1368,7 @@ theorem evDec_twoTorus
     rw [← hCimg]
     refine coef_relabel_injOn hE1 e hinj (analyticOnNhd_FFmarked hC hk hHA hGA cc hcψ hMX hmar hαK
       hsm hF₁ hSol hΦan Zm hum hD hψh) (fun s hs s' hs' hss => ?_)
-    refine FFmarked_twoTorus hC hC' hk hGA hGB cc hcψ hconn hconn' hrow hrow' hMX hmar hαK hsm hF₁
+    refine FFmarked_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₁
       hF₁' hSol hSol' hcov hX₁ hcov' hX₁' hBM hRδ hRψ hΦ hX₁R C hCR hn hn' hnS hnS' hs
       (fun i' hi' => hs' i' ?_) (fun i hi i' hc => ?_) hD hD' hraw hψh hψh' hhat hZm hum
     · intro hmem
@@ -1388,9 +1389,6 @@ theorem evDec_blockEnergy_twoTorus
     (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    (hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν)
-    (hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -1479,7 +1477,7 @@ theorem evDec_blockEnergy_twoTorus
       y ∈ X₁f := fun y hy => Finset.mem_coe.1 (hZ (readSites_of_blockSites hy))
   have hx₀ : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x₀ :=
     hX₁R x₀ (hB x₀ (Finset.mem_filter.2 ⟨Finset.mem_univ _, rfl⟩))
-  exact evDec_twoTorus hC hC' hk hGA hGB cc hcψ hconn hconn' hrow hrow' hMX hmar hαK hsm hF₁ hF₁'
+  exact evDec_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₁ hF₁'
     hSol hSol' hcov hX₁ hcov' hX₁' hBM hZ (fun y hy => hZ (readSites_of_blockSites hy))
     (fun t t' hα hδ hψ => blockEnergyFun_levelGS_boxMap hk (by omega) (by omega) (compWeight L a₁) ν
       hx₀ hα hδ hψ) hX₁R hYR hn hn' hnS hnS' hnF hnF'
@@ -1496,9 +1494,6 @@ theorem Ev_twoTorus
     (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    (hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν)
-    (hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -1609,7 +1604,7 @@ theorem Ev_twoTorus
           (u.1, hatPsiF (GA) a₁ ν hGA cc F₁
             (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))
         Y (rawOf D, ψh) := by
-  have h := evDec_twoTorus hC hC' hk hGA hGB cc hcψ hconn hconn' hrow hrow' hMX hmar hαK hsm hF₁
+  have h := evDec_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₁
     hF₁' hSol hSol' hcov hX₁ hcov' hX₁' hBM hRδ hRψ hΦ hX₁R hYR hn hn' hnS hnS' hnF hnF' hΦan hD
     hD' hraw hψh hψh' hhat (Zm := ∅) (Zm' := ∅) (fun x _ => by simp) (um := 1) (tm := 0)
     (by rw [norm_one, norm_zero, add_zero, one_mul]; exact hrad)
@@ -1624,9 +1619,6 @@ theorem Ev_blockEnergy_twoTorus
     (hC : FlCore N (GA) (HA) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hC' : FlCore N (GB) (HB) a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1)) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    (hrow : RowInHat (coverOf (GA)) (HA) (compWeight L a₁) ν)
-    (hrow' : RowInHat (coverOf (GB)) (HB) (compWeight L a₁) ν)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -1725,7 +1717,7 @@ theorem Ev_blockEnergy_twoTorus
           (u.1, hatPsiF (GA) a₁ ν hGA cc F₁
             (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))
         Y (rawOf D, ψh) := by
-  have h := evDec_blockEnergy_twoTorus hC hC' hk hGA hGB cc hcψ hconn hconn' hrow hrow' hMX hmar hαK
+  have h := evDec_blockEnergy_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK
     hsm hF₁ hF₁' hSol hSol' hcov hX₁ hcov' hX₁' hZ hBM hX₁R hYR hn hn' hnS hnS' hnF hnF' hD hD' hraw
     hψh hψh' hhat (Zm := ∅) (Zm' := ∅) (fun x _ => by simp) (um := 1) (tm := 0)
     (by rw [norm_one, norm_zero, add_zero, one_mul]; exact hrad)
