@@ -1634,3 +1634,4 @@ public import Balaban.Inhabited.StepPiecesRenSol
 public import Balaban.Fluctuation.RenormDetFibreMap
 public import Balaban.Fluctuation.DecMarkTotal
 public import Balaban.Inhabited.DecMarkTotalFromTower
+public import Balaban.Fluctuation.DetRateGeneral
