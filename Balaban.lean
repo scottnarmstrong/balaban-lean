@@ -76,6 +76,7 @@ public import Balaban.Polymer.TwoTorusObsExplicit
 public import Balaban.Polymer.TwoTorusObsKernel
 public import Balaban.Polymer.TwoTorusObsAssembly
 public import Balaban.Polymer.TwoTorusObsActivity
+public import Balaban.Polymer.TwoTorusObsTower
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
