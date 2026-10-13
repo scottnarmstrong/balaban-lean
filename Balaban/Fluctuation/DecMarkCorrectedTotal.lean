@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Analysis.RayJetReal
+public import Balaban.Analysis.RayJetMark
 public import Balaban.Fluctuation.DecMarkTotal
 public import Balaban.Fluctuation.MarkedCubicTaylor
 public import Balaban.Fluctuation.InteractionPoly
@@ -125,19 +126,8 @@ theorem mark_taylor1_corrected_total
       deriv (fun t : ℂ => S.VkC (S.psi0C + S.markedTangentC z u t x)) 0 := by
   set gp : ℂ × ℂ → ℂ := fun w =>
     S.VkC (S.psi0C + (w.1 • S.shiftUC x + w.2 • S.maskUC z (S.shiftUC x))) with hgp
-  have hl : AnalyticAt ℂ (fun w : ℂ × ℂ =>
-      w.1 • S.shiftUC x + w.2 • S.maskUC z (S.shiftUC x)) 0 :=
-    (analyticAt_fst.smul analyticAt_const).add (analyticAt_snd.smul analyticAt_const)
-  have hg : AnalyticAt ℂ gp 0 := hAn.comp_of_eq hl (by simp)
-  have hray : ∀ w : ℂ × ℂ, (fun s : ℝ => gp ((s : ℂ) • w)) =
-      fun s : ℝ => S.VkC (S.psiAtV ((s : ℝ) : ℂ)
-        (w.1 • S.shiftUC x + w.2 • S.maskUC z (S.shiftUC x))) := by
-    intro w; funext s
-    simp [hgp, psiAtV, Prod.smul_def, smul_add, smul_smul]
   have hv := fun w : ℂ × ℂ => S.VkC_rayV_vanish_of_baseDomain ha₁ H hD2 hbase
     (w.1 • S.shiftUC x + w.2 • S.maskUC z (S.shiftUC x)) (hray0 w.1 w.2)
-  obtain ⟨h1, h2⟩ := rayJet_pair_of_real gp hg
-    (fun w => by rw [hray]; exact (hv w).2.1) (fun w => by rw [hray]; exact (hv w).2.2)
   set P := liftC S.hG' (S.shiftUC x) with hP
   set Q := liftC S.hG' (S.maskUC z (S.shiftUC x)) with hQ
   have hδ : ∀ u t : ℂ, deltaForm (S.hG.precedes S.hG' (le_refl (k + 1))) (compWeight L S.a₁) S.ν
@@ -191,7 +181,9 @@ theorem mark_taylor1_corrected_total
     rw [hδ u' t]
     show S.VkC (S.psi0C + S.markedTangentC z u' t x) + _ = S.VkC (S.psi0C + S.markedTangentC z u' t x) + _
     ring
-  have hT := mark_taylor1_add gp hg h1 h2 (A / 2) (C / 2) (D / 2) u hu
+  have hT := mark_taylor1_add_of_real_rays (fun y : S.EC => S.VkC (S.psi0C + y))
+    (S.shiftUC x) (S.maskUC z (S.shiftUC x)) hAn (fun w => (hv w).2.1) (fun w => (hv w).2.2)
+    (A / 2) (C / 2) (D / 2) u hu
   rw [hfe]
   exact hT
 
