@@ -48,8 +48,27 @@ would be joined to the root, which the absence of a chain excludes.
 
 ## Counting (T3, T4)
 
-The parameter graph `paramGraph`: two parameter cubes are adjacent if they lie in a common
-footprint, or their cubes Moore-touch.
+* `paramGraph G`: the graph on the parameter cubes `cubeIdx G` in which two distinct cubes are
+  adjacent when they lie in a common footprint `𝒬(q)`, or their cubes Moore-touch.  Its degree is
+  at most `detDeg d L = 3 (L + 4)^d + 3 (L + 9)^d · 3 (8 L)^d` (`paramGraph_degree_le`): the Moore
+  part by `cubeIdx_moore_degree`, the common-footprint part by `card_Qset_le` (footprints have at
+  most `N₀` cubes) and `card_mult_le` (a cube lies in at most `3 (L + 9)^d` footprints).  So the
+  graph is not a subgraph of the Moore graph; it is contained in a bounded power of it.
+* `rootParam G y`: the parameter cube containing the sites of the unit block `y` (at most one,
+  `card_rootParam_le`).
+* `rooted_of_rootChain`: if every parameter of `J` has a chain, then `J` is rooted at
+  `rootParam G y` in `paramGraph G`; `rooted_of_mixDiff_ne_zero` combines this with the support
+  theorem.
+* `card_support_le`: at most `Δ^(2n)` cut sets of size `n` have non-zero mixed difference,
+  `Δ = max (detDeg d L + 1) |B|`.
+* `sum_norm_mixDiff_le`, `norm_rootTrace_one_le`: with the fixed-field bound
+  `‖mixDiff J‖ ≤ M (2 / e^κ)^|J|` of `rootTrace_cut_expansion`, if `(detDeg d L + 1)² · 2 / e^κ < 1`
+  then `∑_J ‖mixDiff J‖ ≤ M (1 - (detDeg d L + 1)² · 2 / e^κ)^(-|B|)`, independent of the volume.
+* `tail_norm_mixDiff_le`: the tail over `|J| ≥ n` is at most `M z^n / (1 - z)`,
+  `z = Δ² · 2 / e^κ`.
+
+Not proved here: that the hull assigned to a cut set has a bounded size, the composition of the
+expansion with cut-dependent backgrounds, and the prefactor.
 -/
 
 @[expose] public section
