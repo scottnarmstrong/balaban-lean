@@ -36,8 +36,11 @@ fi
 
 wt=$(git worktree list --porcelain | awk -v b="refs/heads/$branch" '/^worktree /{w=$2} $0=="branch "b{print w}')
 if [ -n "$wt" ] && [ -d "$wt/.lake/build" ]; then
-  cp -a "$wt/.lake/build/lib/lean/Balaban/." .lake/build/lib/lean/Balaban/ 2>/dev/null || true
-  cp -a "$wt/.lake/build/ir/Balaban/." .lake/build/ir/Balaban/ 2>/dev/null || true
+  # -u: an artifact of main that is newer than the worktree's copy is kept (a worktree built before
+  # a later landing would otherwise overwrite fresh artifacts with stale ones and force a rebuild
+  # of the whole downstream cone: seen on 2026-10-13 with W579 after W574 changed SharpAE.lean).
+  cp -a -u "$wt/.lake/build/lib/lean/Balaban/." .lake/build/lib/lean/Balaban/ 2>/dev/null || true
+  cp -a -u "$wt/.lake/build/ir/Balaban/." .lake/build/ir/Balaban/ 2>/dev/null || true
 fi
 
 python3 - <<'EOF' || true

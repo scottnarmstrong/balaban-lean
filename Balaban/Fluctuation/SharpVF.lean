@@ -21,6 +21,14 @@ locality clause of the terms `Ev Y` is stated with the sharp agreement `AgHatDir
 `AgHat` (hat variable on the thickening of `Y`).  They are obtained by running the landed proofs
 with `i5_functional_hat_dir`.
 
+* `vblock_expansion_hat_rawY`, `fsite_expansion_hat_rawY`: the block energy and the site functional
+  with exact locality: the terms `Ev Y` depend on the raw data agreeing on `Y` itself and on the hat
+  variable at the unit points of `Y`.  They come from `i5_functional_hat_rawY_of_fan` and the sharp
+  fan lemmas `vblock_fan_local_rawY` (`PhysicalVRawY`) and `fsite_fan_local_rawY`
+  (`PhysicalFNuFanRawY`, which also holds `nublock_fan_local_rawY` for the mass term).  The site
+  functional is the one with source amplitude 1; the source-weighted term needs, in addition,
+  agreement of the source amplitude on the domain.  The `AgHatDir` theorems below are corollaries.
+  The downstream assembly is separate.
 * `blockEnergyFun_local_dir`: the block energy reads the fluctuation `ψ'` only at the sites of the
   block that are read, not on the thickening of those sites (the landed proof, with a weaker
   hypothesis).
@@ -85,7 +93,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The block energy expands over the domains `Y ⊃ X₁`, exact locality** (`vblock_expansion_hat_dir`
 with the locality clause for raw data agreeing on `Y` itself and hat variables agreeing at the unit
 points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `vblock_fan_local_rawY`; the term
-`Ev` is the one of `vblock_expansion_hat_dir`, which is a corollary. -/
+The thick corollary uses the same `Ev` selected here. -/
 theorem vblock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -269,10 +277,10 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, exact locality** (`fsite_expansion_hat_dir`
-with the locality clause for raw data agreeing on `Y` itself and hat variables agreeing at the unit
-points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `fsite_fan_local_rawY`; the term
-`Ev` is the one of `fsite_expansion_hat_dir`, which is a corollary. -/
+/-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, exact locality**
+(`fsite_expansion_hat_dir` with the locality clause for raw data agreeing on `Y` itself and hat
+variables agreeing at the unit points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and
+`fsite_fan_local_rawY`; the thick corollary uses the same `Ev` selected here. -/
 theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -329,6 +337,7 @@ theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
   have := h3' Y u hu
   rw [hΔ] at this
   simpa using this
+
 
 /-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂`,
 sharp form** (`fsite_expansion_hat` with the locality clause for `AgHatDir`). -/
