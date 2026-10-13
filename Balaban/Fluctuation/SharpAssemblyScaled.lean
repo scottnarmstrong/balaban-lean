@@ -71,7 +71,9 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The block energy expands over the domains `Y ⊃ X₁`, scale-uniform majorant, exact locality**
 (`vblock_expansion_hat_dir_scaled` with the locality clause for raw data agreeing on `Y` itself and
 hat variables agreeing at the unit points of `Y`).  The thick corollary
-`vblock_expansion_hat_dir_scaled` uses the same `Ev` selected here. -/
+`vblock_expansion_hat_dir_scaled` uses the same `Ev` selected here.
+The last conjunct exhibits the terms: `Ev = evTerm … FF` with `FF` the block energy functional at a
+pair `(F₁, Sol)` with their defining properties. -/
 theorem vblock_expansion_hat_rawY_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -113,7 +115,35 @@ theorem vblock_expansion_hat_rawY_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ ep
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
     have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
@@ -128,7 +158,7 @@ theorem vblock_expansion_hat_rawY_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ ep
   have ha : 0 ≤ compWeight L a₁ k :=
     (hC.HBp.weights k hk (by omega)).1.trans' (by norm_num)
   have hEb := energyBdScaled_nonneg (d := d) (L := L) (N := N) ha hV hC.δ₁_pos.le hρ
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+  obtain ⟨Ev, h1', h2', h3', h4', h5'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
     hopt hκ₀ hκdec hκ h1 hlog hEb
     (Φ := blockEnergyFun Gp Hm (compWeight L a₁) ν k z)
     ((blockEnergyFun_analytic _ ν k z).mono (Set.subset_univ _))
@@ -136,7 +166,7 @@ theorem vblock_expansion_hat_rawY_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ ep
       rw [hΔ]; simpa using blockEnergyFun_bound_scaled hC hG hG' hk le_rfl z ht)
     (fun {F₁} hF₁ {Sol} hSol => vblock_fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
       hconn hrow hF₁ hSol z hZ hmar)
-  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', fun Y u hu => ?_, h4'⟩
+  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', fun Y u hu => ?_, h4', h5'⟩
   · rw [hatFun_rawOf hG' cc _ hD, blockEnergyOne_rawOf hD k z]
     exact h1' D hD ψh hψh
   · have := h3' Y u hu
@@ -188,7 +218,7 @@ theorem vblock_expansion_hat_dir_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  obtain ⟨Ev, hs, hd, hb, ha⟩ := vblock_expansion_hat_rawY_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hs, hd, hb, ha, -⟩ := vblock_expansion_hat_rawY_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
   exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2, hb, ha⟩
 
@@ -202,7 +232,8 @@ variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTo
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The potential part of the localized interaction, one block, in the variable `ψ̂`, sharp form**: as `vblock_locInt_hat`, with the directional
 terms depending on `(x₀, w)` only through their values at the unit points of the sites of `Y`
-itself (`AgHatFDir`). -/
+itself (`AgHatFDir`).
+The last conjunct exhibits the terms, as in `vblock_expansion_hat_rawY_scaled`. -/
 theorem vblock_locInt_hat_dir_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -246,11 +277,39 @@ theorem vblock_locInt_hat_dir_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc
         (fun Y => Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := vblock_expansion_hat_rawY_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
-  refine ⟨Ev, hsum, hanY, ?_⟩
+  obtain ⟨Ev, hsum, hloc, hbd, hanY, hEv⟩ := vblock_expansion_hat_rawY_scaled hC hk hG hG' cc hcψ hMX
+    hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog z hZ hmar
+  refine ⟨Ev, hsum, hanY, ?_, hEv⟩
   refine locInt_dir3 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
     (B := {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})
     (f := hatFun Gp a₁ ν eps hG' cc (blockEnergyOne Gp Hm a₁ ν BG₂ κ eps k z)) _ hR₁ hω hωc hMω
@@ -270,7 +329,10 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
 /-- **Ray-differentiable form of `vpart_locInt_hat_dir_dm_scaled`.**  The statement of `vpart_locInt_hat_dir_dm_scaled` together with the
-differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`.
+The last conjunct gives the terms explicitly: `T z Y x₀ w σ Θ = rayTerm (dl3 (Ev_z Y) w) ω x₀ σ Θ`
+with `Ev_z = evTerm … FF_z`, `FF_z` the block energy functional of the block `z` at a pair
+`(F₁ z, Sol z)` with their defining properties. -/
 theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -337,7 +399,38 @@ theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun ζ : ℂ =>
           ∑ z, if Y ∈ polyDom Gp (X₁f z) (m₀ z) (j z) (𝒦X z) then
-            T z Y (ζ • ψ) (ζ • ψ) 1 Θ else 0) (ball (0 : ℂ) (3 / 2))) := by
+            T z Y (ζ • ψ) (ζ • ψ) 1 Θ else 0) (ball (0 : ℂ) (3 / 2))) ∧
+      ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ z (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ z (p : Dec2.DecParams (coverOf Gp) × Edat Hm N), (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol z p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small Hm (Sol z p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol z p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol z p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        T = fun z Y x₀ w σ Θ => rayTerm (dl3 (evTerm
+          (fun i : ParIdx Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp (m₀ z)
+          (X1 Gp (m₀ z) (j z) (𝒦X z))
+          (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z
+            (F₁ z (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol z (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ z (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                  (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
+              (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w) ω x₀ σ Θ := by
   classical
   have hex : ∀ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))), ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ),
@@ -357,10 +450,40 @@ theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
         (fun Y => Mω * (6 * ‖energyBdScaled d L N (compWeight L a₁) k
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
           Real.exp (-2 * κdec * treeLenCov Gp (m₀ z) Y)‖ / r ^ 3))
-        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') := fun z =>
+        (fun Y Θ Θ' => agreeOn Y Θ Θ') (AgHatFDir hG') ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp
+          (m₀ z) (X1 Gp (m₀ z) (j z) (𝒦X z))
+          (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z
+            (F₁ (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑(X₁f z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := fun z =>
     vblock_locInt_hat_dir_scaled hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ (hcov z) (hX₁ z) hconn hrow (hopt z)
       (hΔ z) hκ₀ hκdec hκ h1 (hlog z) z (hZ z) (hmar z) hωc hR₁ hω hMω hωb hr
-  choose Ev hEvsum hEvan hEv using hex
+  choose Ev hEvsum hEvan hEv hEvF using hex
+  choose F₁ Sol hF₁ hSol hEvEq using hEvF
   have hrayV : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
       Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
       (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
@@ -374,7 +497,8 @@ theorem vpart_locInt_hat_dir_dm_scaled_ray (hC : FlCore N Gp Hm a₁ ν c BG κ 
     · simp only [hY, ite_true]
       exact differentiableOn_rayTerm_dl3_ray_ball hR₁ hr hω (hEvan z Y) hΘ ψ hψ
     · simp only [hY, ite_false]; exact differentiableOn_const _
-  refine ⟨fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ, ?_, hrayV⟩
+  refine ⟨fun z Y x₀ w σ Θ => rayTerm (dl3 (Ev z Y) w) ω x₀ σ Θ, ?_, hrayV, F₁, Sol, hF₁, hSol,
+    funext fun z => by rw [hEvEq z]⟩
   have hd : 3 ≤ d := hC.HBp.hd
   refine (LocIntDm.finsum Finset.univ (fun z _ => LocIntDm.mk
     (P := fun Y => ∃ z', IsDj (m₀ z') (k + 1) Y) (e := (id : (unitPts Gp × Fin N → ℂ) → _))
@@ -516,7 +640,9 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps : ℝ}
 /-- **Ray-differentiable form of `hat_vpart_bound_dm_dir_scaled`.**  The statement of `hat_vpart_bound_dm_dir_scaled` together with the
-differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`.
+The last conjunct gives the terms explicitly: `T Y = ∑_z [Y ∈ polyDom_z] rayTerm (dl3 (Ev_z Y) w) …`
+with `Ev_z` as in `vpart_locInt_hat_dir_dm_scaled_ray`. -/
 theorem hat_vpart_bound_dm_dir_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -576,7 +702,41 @@ theorem hat_vpart_bound_dm_dir_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
       ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
-        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 Θ) (ball (0 : ℂ) (3 / 2))) := by
+        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 Θ) (ball (0 : ℂ) (3 / 2))) ∧
+      ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ z (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ z (p : Dec2.DecParams (coverOf Gp) × Edat Hm N), (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol z p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small Hm (Sol z p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol z p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol z p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        T = fun Y x₀ w σ Θ =>
+          ∑ z, if Y ∈ polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z) then
+            rayTerm (dl3 (evTerm
+              (fun i : ParIdx Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+              (X1 Gp m₀ (jV z) (𝒦XV z))
+              (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z
+                (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                (Sol z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+                  flEdat Gp Hm (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                    u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                      (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+                (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                  (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w) taylorWeight x₀ σ Θ
+          else 0 := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -590,7 +750,7 @@ theorem hat_vpart_bound_dm_dir_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
   have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
   have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
   -- the potential part, with its labels
-  obtain ⟨TV, hLV0, hrayV⟩ := vpart_locInt_hat_dir_dm_scaled_ray (m₀ := fun _ => m₀) (j := jV) (X := XV) (𝒦X := 𝒦XV)
+  obtain ⟨TV, hLV0, hrayV, F₁, Sol, hF₁, hSol, hTV⟩ := vpart_locInt_hat_dir_dm_scaled_ray (m₀ := fun _ => m₀) (j := jV) (X := XV) (𝒦X := 𝒦XV)
     (X₁f := X₁V) hC hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ ha₁ H hc7 hR hRs hsmall hnum hnum'
     hreal hcovV hX₁V hconn hrow hoptV hΔV hκ₀ hκdec hκ h1 hlogV hZV hmarV continuous_taylorWeight
     hR₁ (analyticOnNhd_taylorWeight _) (Mω := 1 / 2) (by norm_num)
@@ -632,7 +792,8 @@ theorem hat_vpart_bound_dm_dir_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
           ((1 + treeLenCov Gp m₀ Y) * Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) := by ring
       _ ≤ _ := mul_le_mul_of_nonneg_left key hCV
   have hLV' := hLV.mono_on hbV
-  exact ⟨_, hLV', hrayV⟩
+  subst hTV
+  exact ⟨_, hLV', hrayV, F₁, Sol, hF₁, hSol, rfl⟩
 
 /-- The potential part with the resummed bound, for the sharp agreement `AgHatFDir`. -/
 theorem hat_vpart_bound_dm_dir_scaled {Kc Cx c₂ BG₂ δ₁ : ℝ}
@@ -695,7 +856,11 @@ theorem hat_vpart_bound_dm_dir_scaled {Kc Cx c₂ BG₂ δ₁ : ℝ}
   exact (hat_vpart_bound_dm_dir_scaled_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hreal (m₀ := m₀) (jV := jV) (XV := XV) (𝒦XV := 𝒦XV) (X₁V := X₁V) hcovV hX₁V hoptV hΔV hlogV hZV hmarV).imp fun _ h => h.1
 
 /-- **Ray-differentiable form of `interaction_expansion_hat_bound_dm_dir_eta_scaled`.**  The statement of `interaction_expansion_hat_bound_dm_dir_eta_scaled` together with the
-differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`.
+The last two conjuncts: the labels are the union of the label sets of the four parts, and at zero
+source, on labels outside the old-term and observable label sets, the term is the potential part
+`-cβ ∑_z [Y ∈ polyDom_z] rayTerm (dl3 (Ev_z Y) w₁) taylorWeight x₁ σ Θ`, `Ev_z = evTerm … FF_z` at a
+pair `(F₁ z, Sol z)` with their defining properties. -/
 theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -844,7 +1009,52 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
         ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun ζ : ℂ => T Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 q)
-          (ball (0 : ℂ) (3 / 2))) := by
+          (ball (0 : ℂ) (3 / 2))) ∧
+      𝒴 = (Finset.univ.biUnion fun z => polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z)) ∪
+          (𝒯E.biUnion fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) ∪
+          (Finset.univ.biUnion fun s => polymerDomains
+            (fun i : ParIdx Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ (jF s) (𝒦XF s))) ∪
+          (𝒯M.biUnion fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) ∧
+      ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ z (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ z (p : Dec2.DecParams (coverOf Gp) × Edat Hm N), (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol z p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small Hm (Sol z p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol z p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol z p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+          Y ∉ 𝒯E.biUnion (fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) →
+          Y ∉ 𝒯M.biUnion (fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) →
+          T Y x w σ (Θ, 0) = -cβ *
+            ∑ z, if Y ∈ polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z) then
+              rayTerm (dl3 (evTerm
+                (fun i : ParIdx Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+                (X1 Gp m₀ (jV z) (𝒦XV z))
+                (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z
+                  (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                  (Sol z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+                    flEdat Gp Hm (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                      u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                        (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+                  (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                    (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
+            else 0 := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -857,13 +1067,13 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
   have hr3 : 0 < r ^ 3 := by positivity
   have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
   have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
-  obtain ⟨TV, hV, hrayV⟩ := hat_vpart_bound_dm_dir_scaled_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hk hG hG' cc hcψ hMX hdm
+  obtain ⟨TV, hV, hrayV, F₁, Sol, hF₁, hSol, hTV⟩ := hat_vpart_bound_dm_dir_scaled_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hk hG hG' cc hcψ hMX hdm
     hα hsmX hδ₁ ha₁ H hc7 hR hRs hsmall hnum hnum' hreal hcovV hX₁V hoptV hΔV hlogV hZV hmarV
     (Rσ := Rσ)
   obtain ⟨TE, hE, hrayE⟩ := hat_eparts_bound_dm_dir_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ 𝒯E hBE hFE hcovE hX₁E hoptE hlogE hEbE hEanE hEbdE rE hrE hρE0 hρE
     (Rσ := Rσ)
-  obtain ⟨TF, hF, hrayF⟩ := hat_fparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
+  obtain ⟨TF, hF, hrayF, hTF0⟩ := hat_fparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ hcovF hX₁F hoptF hΔF hlogF hyF (Rσ := Rσ)
   obtain ⟨TM, hM, hrayM⟩ := hat_mparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ 𝒯M ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM hEanM hEbdM hρM0 hρM
@@ -879,7 +1089,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
       Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y) := fun Y => by positivity
   have hnM : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), 0 ≤ (η * ρM / r) *
       Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y) := fun Y => by positivity
-  obtain ⟨𝒴, T, b, hb, hL0', hrayT⟩ := LocIntDm.assemble_ray
+  obtain ⟨𝒴, T, b, hb, hL0', hrayT, h𝒴, hT⟩ := LocIntDm.assemble_ray
     (AgΘ := fun Y Θ Θ' => agreeOn Y Θ Θ')
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
     hV hE hF hM (-cβ) cβ cβ cβ hnV hnE hnF hnM
@@ -899,9 +1109,19 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
   refine ⟨𝒴, T, (hL0'.mono_XW (XW' := {xw : ((unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) ×
             ((unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) |
           (xw.1.1, xw.2.1) ∈ HatRaysO Gp cψ R₁ Rσ r ∧ (xw.1.2, xw.2.2) ∈ HatRaysO Gp cψ R₁ Rσ r})
-    (fun xw h => ⟨h.1, h.1, h.2, h.2⟩)).mono fun Y => (hb Y).trans (le_of_eq ?_), hrayT'⟩
-  simp only [norm_neg, prop33EpsEtaScaled]
-  ring
+    (fun xw h => ⟨h.1, h.1, h.2, h.2⟩)).mono fun Y => (hb Y).trans (le_of_eq ?_), hrayT', h𝒴,
+    F₁, Sol, hF₁, hSol, ?_⟩
+  · simp only [norm_neg, prop33EpsEtaScaled]
+    ring
+  · intro Y x w σ Θ hYE hYM
+    subst hT hTV
+    dsimp only
+    rw [ite_eq_right hYE, ite_eq_right hYM, hTF0, mul_zero, ite_self, add_zero, add_zero, add_zero]
+    by_cases hYV : Y ∈ Finset.univ.biUnion fun z => polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z)
+    · rw [ite_eq_left hYV]
+    · rw [ite_eq_right hYV, Finset.sum_eq_zero, mul_zero]
+      intro z _
+      exact ite_eq_right fun h => hYV (Finset.mem_biUnion.2 ⟨z, Finset.mem_univ _, h⟩)
 
 /-- **The four parts in the variable `ψ̂` with the sharp agreement relation, without the mass
 variation** (the sharp version of `interaction_expansion_hat_bound_dm`). -/
@@ -1052,7 +1272,10 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled {Kc Cx c₂ BG₂ δ�
   exact (interaction_expansion_hat_bound_dm_dir_eta_scaled_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC cβ hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr (η := η) hη0 hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ ha₁ H hc7 (R := R) hR hRs hsmall hnum hnum' hreal (m₀ := m₀) (jV := jV) (XV := XV) (𝒦XV := 𝒦XV) (X₁V := X₁V) hcovV hX₁V hoptV hΔV hlogV hZV hmarV (τι := τι) 𝒯E (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (GkE := GkE) (GjE := GjE) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀E := X₀E) (X₁E := X₁E) (jE := jE) (XE := XE) (𝒦XE := 𝒦XE) (EbE := EbE) hBE hFE hcovE hX₁E hoptE hlogE hEbE (EE := EE) hEanE hEbdE (jF := jF) (XF := XF) (𝒦XF := 𝒦XF) (X₁F := X₁F) hcovF hX₁F hoptF hΔF hlogF hyF (μι := μι) 𝒯M (ϱ₁M := ϱ₁M) (ϱ₂M := ϱ₂M) (GkM := GkM) (GjM := GjM) (X₀M := X₀M) (X₁M := X₁M) (jM := jM) (XM := XM) (𝒦XM := 𝒦XM) (EbM := EbM) ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM (EM := EM) hEanM hEbdM rE hrE (ρE := ρE) hρE0 hρE (ρM := ρM) hρM0 hρM).imp fun _ => Exists.imp fun _ h => h.1
 
 /-- **Ray-differentiable form of `interaction_expansion_hat_dm_core_dir_eta_scaled`.**  The statement of `interaction_expansion_hat_dm_core_dir_eta_scaled` together with the
-differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`.
+The last two conjuncts: the labels are those of the four parts and of the `ν`-part, and at zero
+source, for `cν = 0`, on labels outside the old-term and observable label sets, the term is the
+potential part, as in `interaction_expansion_hat_bound_dm_dir_eta_scaled_ray`. -/
 theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cβ : ℂ)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -1203,10 +1426,58 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
         ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun ζ : ℂ => T Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 q)
-          (ball (0 : ℂ) (3 / 2))) := by
+          (ball (0 : ℂ) (3 / 2))) ∧
+      𝒴 = (Finset.univ.biUnion fun z => polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z)) ∪
+          (𝒯E.biUnion fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) ∪
+          (Finset.univ.biUnion fun s => polymerDomains
+            (fun i : ParIdx Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ (jF s) (𝒦XF s))) ∪
+          (𝒯M.biUnion fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) ∪
+          (Finset.univ.biUnion fun z => polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z)) ∧
+      ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ z (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ z (p : Dec2.DecParams (coverOf Gp) × Edat Hm N), (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol z p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small Hm (Sol z p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol z p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol z p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+          cν = 0 →
+          Y ∉ 𝒯E.biUnion (fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) →
+          Y ∉ 𝒯M.biUnion (fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) →
+          T Y x w σ (Θ, 0) = -cβ *
+            ∑ z, if Y ∈ polyDom Gp (X₁V z) m₀ (jV z) (𝒦XV z) then
+              rayTerm (dl3 (evTerm
+                (fun i : ParIdx Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+                (X1 Gp m₀ (jV z) (𝒦XV z))
+                (fun u s => blockEnergyFun Gp Hm (compWeight L a₁) ν k z
+                  (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                  (Sol z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+                    flEdat Gp Hm (F₁ z (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                      u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                        (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+                  (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
+                    (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
+            else 0 := by
   classical
   have hreal := hreal_level hC hG hG' le_rfl ha₁ H hc7 (by linarith) hsm
-  obtain ⟨𝒴, T, hL, hrayL⟩ := interaction_expansion_hat_bound_dm_dir_eta_scaled_ray (Rσ := Rσ) hC cβ hconn hrow hκ₀ hκdec hκ h1
+  obtain ⟨𝒴, T, hL, hrayL, h𝒴, F₁, Sol, hF₁, hSol, hT0⟩ :=
+    interaction_expansion_hat_bound_dm_dir_eta_scaled_ray (Rσ := Rσ) hC cβ hconn hrow hκ₀ hκdec hκ h1
     hR₁ hr hη0 hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ ha₁ H hc7 hR hRs hsmall hnum hnum' hreal hcovV
     hX₁V hoptV hΔV hlogV hZV hmarV 𝒯E hBE hFE hcovE hX₁E hoptE hlogE hEbE hEanE hEbdE hcovF hX₁F
     hoptF hΔF hlogF hyF 𝒯M ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM hEanM hEbdM rE hrE hρE0
@@ -1224,7 +1495,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
     (X₁z := X₁V) hC hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ hBh0 hBh hcovV hX₁V hconn hrow hoptV hΔV
     hκ₀ hκdec hκ h1 (hlogV 0) hZν (ω := fun _ => (1 : ℂ)) continuous_const hR₁
     analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr (Rσ := Rσ)
-  obtain ⟨T', hT', hrayT'⟩ := LocIntDm.addLift_ray (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (π := Prod.fst)
+  obtain ⟨T', hT', hrayT', hT'eq⟩ := LocIntDm.addLift_ray (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (π := Prod.fst)
     (Rσ := Rσ) (F := unitPts Gp × Fin N → ℂ)
     (F' := (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ))
     (AgG := fun Y (g g' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) => ∀ x ∈ Y, g x = g' x)
@@ -1247,7 +1518,8 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
     have : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by linarith
     positivity
   refine ⟨_, _, (hT'.congr_val ?_).mono fun Y => ?_,
-    fun Y q hq ψ hψ => hrayT' Y (fun ζ => (ζ • ψ, ζ • ψ)) ⟨ψ, hψ, rfl⟩ q hq⟩
+    fun Y q hq ψ hψ => hrayT' Y (fun ζ => (ζ • ψ, ζ • ψ)) ⟨ψ, hψ, rfl⟩ q hq, by rw [h𝒴],
+    F₁, Sol, hF₁, hSol, ?_⟩
   · intro xw hxw σ hσ p hp'
     rfl
   · have hb1 : 0 ≤ prop33EpsEtaScaled d L N m₁ k m₀ a₁ BG BG₂ κ δ₁ r ρE ρM η * ‖cβ‖ *
@@ -1257,6 +1529,19 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
               (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) / r) *
             Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y)) := by positivity
     split_ifs <;> simp only [one_mul] at * <;> linarith
+  · intro Y x w σ Θ hν hYE hYM
+    subst hT'eq hν
+    dsimp only
+    rw [zero_mul, ite_self, add_zero]
+    by_cases hY : Y ∈ 𝒴
+    · rw [ite_eq_left hY]
+      exact hT0 Y x w σ Θ hYE hYM
+    · rw [ite_eq_right hY, Finset.sum_eq_zero, mul_zero]
+      intro z _
+      refine ite_eq_right fun h => hY ?_
+      rw [h𝒴]
+      exact Finset.mem_union_left _ (Finset.mem_union_left _ (Finset.mem_union_left _
+        (Finset.mem_biUnion.2 ⟨z, Finset.mem_univ _, h⟩)))
 
 /-- **Proposition 3.3 in the variable `ψ̂`, with the sharp agreement relation.**  The statement of
 `interaction_expansion_hat_dm` with `AgHatF` replaced by `AgHatFDir`: the terms are local in the

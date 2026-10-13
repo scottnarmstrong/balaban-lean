@@ -216,7 +216,9 @@ variable [DecidableEq ι]
 
 /-- **The assembly of the four parts with a differentiability clause.**  As `LocIntDm.assemble`, together
 with the differentiability of the assembled term along the paths `u` (`P' u`) at a fixed datum, when the
-four parts have it (the parts `V`, `E` at `u`, the parts `F`, `M` at `u`). -/
+four parts have it (the parts `V`, `E` at `u`, the parts `F`, `M` at `u`).
+The last two conjuncts give the labels `𝒴V ∪ 𝒴E ∪ 𝒴F ∪ 𝒴M` and the terms (the four parts with
+their coefficients). -/
 theorem LocIntDm.assemble_ray {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
     {𝒴V 𝒴E 𝒴F 𝒴M : Finset ι} {TV TE : ι → F → F → ℂ → Λ → ℂ}
     {TF TM : ι → F → F → ℂ → Λ × G → ℂ} {valV valE : F → F → ℂ → Λ → ℂ}
@@ -246,8 +248,13 @@ theorem LocIntDm.assemble_ray {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
           cF * valF x.2 w.2 σ p + cM * valM x.2 w.2 σ p) b
         (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2)
         (fun Y a a' => AgF Y a.1 a'.1 ∧ AgF Y a.2 a'.2) ∧
-      ∀ Y (u : ℂ → F), P' u → ∀ p ∈ S ×ˢ SG,
-        DifferentiableOn ℂ (fun z => T Y (u z, u z) (u z, u z) 1 p) s := by
+      (∀ Y (u : ℂ → F), P' u → ∀ p ∈ S ×ˢ SG,
+        DifferentiableOn ℂ (fun z => T Y (u z, u z) (u z, u z) 1 p) s) ∧
+      𝒴 = 𝒴V ∪ 𝒴E ∪ 𝒴F ∪ 𝒴M ∧
+      T = fun Y x w σ p => (if Y ∈ 𝒴V then cV * TV Y x.1 w.1 σ p.1 else 0) +
+        (if Y ∈ 𝒴E then cE * TE Y x.1 w.1 σ p.1 else 0) +
+        (if Y ∈ 𝒴F then cF * TF Y x.2 w.2 σ p else 0) +
+        (if Y ∈ 𝒴M then cM * TM Y x.2 w.2 σ p else 0) := by
   classical
   have hV1 := hV.mulAmp (SG := SG) (amp := fun _ => (1 : ℂ)) (Ma := 1)
     (analyticOnNhd_const) (fun _ _ => by simp) (AgG := AgG) (fun _ _ _ _ _ _ _ => rfl)
@@ -276,7 +283,7 @@ theorem LocIntDm.assemble_ray {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
   have h12 := hV2.add₂ hE2
   have h123 := h12.add₂ hF2
   have h1234 := h123.add₂ hM2
-  refine ⟨_, _, _, fun Y => ?_, h1234.congr_val ?_, ?_⟩
+  refine ⟨_, _, _, fun Y => ?_, h1234.congr_val ?_, ?_, rfl, ?_⟩
   · simp only [one_mul]
     have n1 := mul_nonneg (norm_nonneg cV) (hbV Y)
     have n2 := mul_nonneg (norm_nonneg cE) (hbE Y)
@@ -308,6 +315,9 @@ theorem LocIntDm.assemble_ray {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
         · apply key; intro _; exact hE3
       · apply key; intro _; exact hF3
     · apply key; intro _; exact hM3
+  · funext Y x w σ p
+    by_cases hV : Y ∈ 𝒴V <;> by_cases hE : Y ∈ 𝒴E <;> by_cases hF : Y ∈ 𝒴F <;>
+      by_cases hM : Y ∈ 𝒴M <;> simp [hV, hE, hF, hM]
 
 /-- **The assembly of the four parts** (`locInt_assemble`) with labels and diagonal continuity. -/
 theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
@@ -339,7 +349,8 @@ theorem LocIntDm.assemble {SG : Set G} {XWV XWE XWF XWM : Set (F × F)}
 
 /-- **Adding a `Θ`-only part to a localized expansion in `(Θ, g)`** (`LocIntDm.addLift`), together
 with the differentiability of the sum along the paths `u` (`P u`) at a fixed datum, when both parts
-have it. -/
+have it.
+The last conjunct gives the terms: the sum of the two parts. -/
 theorem LocIntDm.addLift_ray {SG : Set G} {F' : Type*} {XW : Set (F' × F')} {XWν : Set (F × F)}
     {𝒴 𝒴ν : Finset ι} {T : ι → F' → F' → ℂ → Λ × G → ℂ} {Tν : ι → F → F → ℂ → Λ → ℂ}
     {val : F' → F' → ℂ → Λ × G → ℂ} {valν : F → F → ℂ → Λ → ℂ} {b bν : ι → ℝ}
@@ -360,12 +371,16 @@ theorem LocIntDm.addLift_ray {SG : Set G} {F' : Type*} {XW : Set (F' × F')} {XW
         (fun x w σ p => val x w σ p + c * valν (π x) (π w) σ p.1)
         (fun Y => (if Y ∈ 𝒴 then b Y else 0) + (if Y ∈ 𝒴ν then ‖c‖ * (1 * bν Y) else 0))
         (fun Y p p' => AgΘ Y p.1 p'.1 ∧ AgG Y p.2 p'.2) AgF' ∧
-      ∀ Y (u : ℂ → F'), P' u → ∀ p ∈ S ×ˢ SG,
-        DifferentiableOn ℂ (fun z => T' Y (u z) (u z) 1 p) s := by
+      (∀ Y (u : ℂ → F'), P' u → ∀ p ∈ S ×ˢ SG,
+        DifferentiableOn ℂ (fun z => T' Y (u z) (u z) 1 p) s) ∧
+      T' = fun Y x w σ p => (if Y ∈ 𝒴 then T Y x w σ p else 0) +
+        (if Y ∈ 𝒴ν then c * Tν Y (π x) (π w) σ p.1 else 0) := by
   have h1 := hν.mulAmp (SG := SG) (amp := fun _ => (1 : ℂ)) (Ma := 1)
     (analyticOnNhd_const) (fun _ _ => by simp) (AgG := AgG) (fun _ _ _ _ _ _ _ => rfl)
   have h2 := (h1.smul c).comap (F' := F') π (XW' := XW) hXW (AgF' := AgF') hAg he
-  refine ⟨_, (hL.add₂ h2).congr_val (fun xw hxw σ hσ p hp => by simp only [one_mul]), ?_⟩
+  refine ⟨_, (hL.add₂ h2).congr_val (fun xw hxw σ hσ p hp => by simp only [one_mul]), ?_,
+    funext fun Y => funext fun x => funext fun w => funext fun σ => funext fun p => by
+      simp only [one_mul]⟩
   intro Y u hu p hp
   have key : ∀ (c : Prop) [Decidable c] (f : ℂ → ℂ), (c → DifferentiableOn ℂ f s) →
       DifferentiableOn ℂ (fun z => if c then f z else 0) s := fun c _ f h => by

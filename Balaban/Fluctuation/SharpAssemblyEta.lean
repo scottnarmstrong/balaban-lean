@@ -65,7 +65,8 @@ variable {a₁ ν c BG κ eps : ℝ}
 
 
 /-- **Ray-differentiable form of `hat_fparts_bound_dm_dir_eta`.**  The statement of `hat_fparts_bound_dm_dir_eta` together with the
-differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`.
+The last conjunct: the terms vanish at zero source. -/
 theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
@@ -113,7 +114,9 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
           (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
         ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
-        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 q) (ball (0 : ℂ) (3 / 2))) := by
+        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 q) (ball (0 : ℂ) (3 / 2))) ∧
+      ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (x w : unitPts Gp × Fin N → ℂ) (σ : ℂ)
+        (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N), T Y x w σ (Θ, 0) = 0 := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -168,7 +171,7 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
             Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y)) :=
             mul_le_mul_of_nonneg_left hβle hη0.le
         _ = _ := by ring)
-  refine ⟨_, hLF, ?_⟩
+  refine ⟨_, hLF, ?_, fun Y x w σ Θ => by simp⟩
   intro Y q hq ψ hψ
   apply DifferentiableOn.fun_sum
   intro s _

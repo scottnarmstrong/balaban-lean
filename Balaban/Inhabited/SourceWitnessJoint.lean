@@ -228,7 +228,7 @@ theorem commonWitness_joint_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
   subst hS
   set S := T.step k hk N₁ ν β p₁ with hSdef
   -- the direct terms, selected once for the slice `η = 1/β`
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, hmemg, hray⟩ :=
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, hmemg, hray, -⟩ :=
     sourceDirectTerms_scale_fromTowerG_ray_full_rho T k hk N₁ hLN hN₁ ν hνpos hν β ρ hρ (max_le hβ1 hβρ) p₁ ρ hρ le_rfl D (T.step k hk N₁ ν β p₁) rfl hp
   obtain ⟨I₀, h𝒴₀, hT₀⟩ := hI _ hmem0
   have hdom : ∀ Y ∈ 𝒴, IsDj T.m₀ (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)

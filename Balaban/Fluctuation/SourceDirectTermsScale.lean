@@ -219,7 +219,11 @@ The family `(𝒴, T)` is chosen before the point `Θ`: it does not depend on th
 
 The last conjunct is the differentiability of the terms along the complex hat ray `ζ ↦ ζ ψ̂` on
 `‖ζ‖ < 3/2`, at every datum of the slice and every hat field `ψ̂` with
-`(R₁ + r) (3/2) ‖ψ̂‖ ≤ cψ`. -/
+`(R₁ + r) (3/2) ‖ψ̂‖ ≤ cψ`.
+The last two conjuncts make the terms of the zero class explicit: the labels are the block and
+site domains, and at zero source the term of `Y` is the potential part
+`-β ∑_z [Y ∈ polyDom_z] rayTerm (dl3 (Ev_z Y) w₁) taylorWeight x₁ σ Θ`, `Ev_z = evTerm … FF_z` at a
+pair `(F₁ z, Sol z)` with their defining properties. -/
 
 theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
     (hc : (Rσ * R₁ + r) * ρ < cψ)
@@ -246,14 +250,54 @@ theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
         ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ
             (physSΛEta S S.a₁ S.ν eps η) (physXW S cψ R₁ Rσ r) val (physAgΘ S) (AgFDirPair S),
           I.𝒴 = 𝒴 ∧ I.T = T) ∧
-      ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+      (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
         (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
         Θ ∈ physSΛEta S S.a₁ S.ν eps η → ∀ ψ : S.U × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun ζ : ℂ => T Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
-          (ball (0 : ℂ) (3 / 2)) := by
+          (ball (0 : ℂ) (3 / 2))) ∧
+      𝒴 = (Finset.univ.biUnion fun z => polyDom S.G' (X₁V z) m₀ (jV z) (𝒦XV z)) ∪
+        (Finset.univ.biUnion fun s => polyDom S.G' (X₁F s) m₀ (jF s) (𝒦XF s)) ∧
+      ∃ (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N → (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+          (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N → ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ)),
+        (∀ z (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N BG κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ z (p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N), (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol z p).1 = dphi (stepG d L N₁ m₁ k ϱ) (Dec2.decG (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1) p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small (stepG d L N₁ m₁ k ϱ) (Sol z p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small (stepG d L N₁ m₁ k ϱ) (Sol z p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds (stepG d L N₁ m₁ k ϱ) (Sol z p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : (stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ m₁ k ϱ) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+                (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+          T Y x w σ (Θ, 0) = -(S.β : ℂ) *
+            ∑ z, if Y ∈ polyDom S.G' (X₁V z) m₀ (jV z) (𝒦XV z) then
+              rayTerm (dl3 (evTerm
+                (fun i : ParIdx S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
+                (X1 S.G' m₀ (jV z) (𝒦XV z))
+                (fun u s => blockEnergyFun S.G' (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν k z
+                  (F₁ z (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                  (Sol z (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s,
+                    flEdat S.G' (stepG d L N₁ m₁ k ϱ) (F₁ z (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                      u.1.1 (hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                        (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+                  (u.1, hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                    (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
+            else 0 := by
   classical
-  obtain ⟨𝒴, T, hD0, hrayD⟩ := interaction_expansion_hat_dm_core_dir_eta_scaled_ray
+  obtain ⟨𝒴, T, hD0, hrayD, h𝒴, F₁, Sol, hF₁, hSol, hT0⟩ :=
+    interaction_expansion_hat_dm_core_dir_eta_scaled_ray
     (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (hC := hC) (cβ := (S.β : ℂ))
     (hconn := hconn) (hrow := hrow) (κdec := κdec) (κ₀ := κ₀) (hκ₀ := hκ₀) (hκdec := hκdec)
     (hκ := hκ) (h1 := h1) (R₁ := R₁) (hR₁ := hR₁) (r := r) (Rσ := Rσ) (hr := hr) (η := η)
@@ -331,7 +375,12 @@ theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
         intro ψ hψ
         exact ⟨hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc,
           hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc⟩ }, rfl, rfl⟩,
-    fun Y Θ hΘ ψ hψ => hrayD Y Θ hΘ ψ hψ⟩
+    fun Y Θ hΘ ψ hψ => hrayD Y Θ hΘ ψ hψ, ?_, F₁, Sol, hF₁, hSol,
+    fun Y x w σ Θ => hT0 Y x w σ Θ rfl (by simp) (by simp)⟩
+  rw [h𝒴]
+  ext Y
+  simp only [Finset.mem_union, Finset.biUnion_empty, Finset.notMem_empty, or_false]
+  tauto
 
 /-- **The direct terms of the zero class on a source slice: one family of labels and terms for
 every datum and source of the slice.**  Under the hypotheses of the landed zero-source theorem
