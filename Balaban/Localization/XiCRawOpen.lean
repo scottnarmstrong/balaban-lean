@@ -525,6 +525,12 @@ theorem not_isOpen_xiCRaw (a : ℕ → ℝ) (ν σ ε : ℝ) (n : ℕ)
   rw [ho.interior_eq] at this
   exact (this ▸ hp : p ∈ (∅ : Set _))
 
+/-- The data subspace is proper under the standing hypothesis `BgHyp` (which gives `d ≥ 3`,
+`L ≥ 3`), for `N ≥ 1` and a nonempty `Ω₁`. -/
+theorem exists_not_mem_rawSub_of_bgHyp [NeZero N] {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L K ϱ a ν)
+    (hΩ : ∃ x, x ∈ G.Ω 1) : ∃ q : RawData d L (N₁ * L ^ m₁) K N, q ∉ rawSub N G :=
+  exists_not_mem_rawSub N G (by have := H.hd; omega) (by have := H.hL; omega) hΩ
+
 end Proper
 
 end Balaban.Localization
