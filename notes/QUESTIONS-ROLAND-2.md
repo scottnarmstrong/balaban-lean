@@ -260,3 +260,12 @@ X ∩ Ω_{k+1}^c.
      (For marked cubes inside Ω_{k+1} the P3 assignment works as written. Inserting a whole hole
      component has no uniform cost in general, and charging the NEW seed sets does not repair it: a
      long inherited component of Z_k carries no new seed — `notes/phase1/VMOD-35.md`, `VMOD-36.md`.)
+
+### Item 15 (2026-10-13): the range of the operation R^{(k)} (minor; confirmation only)
+
+P7 Theorem 2 (printed p. 497) states that R^{(k)} acts for k < k_0 and is the identity for
+k >= k_0. P5 Theorem 2 (printed p. 499) and P7 Theorem 5 (p. 497) compose
+R^{(j+1)} S^{(j)} T^{(j)} for j < k_0, which includes R^{(k_0)}, and P7 p. 501 speaks of
+"k <= k_0 considered here". We read: R^{(k)} is non-trivial for 1 <= k <= k_0 and is the
+identity for k > k_0. Is that the intended range? Our formalization uses this reading; only the
+index bookkeeping depends on it. (Details: `notes/phase1/VMOD-38.md` section 3.)
