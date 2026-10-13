@@ -95,7 +95,7 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **The block energy expands along the masked tangent over the domains `Y ⊃ X₁`**
+/-- **The block expansion along the masked tangent** (the conclusion of `vblock_expansion_hat_marked_scaled`)
 (`vblock_expansion_hat_dir_scaled` with the masked decoupled tangent `markedHatPsiF … Zm um tm`).
 The hypotheses are those of the landed theorem, with the radius inequality
 `(‖um‖ + ‖tm‖) · markedRad < δ₁` (a condition on the marks, in the conclusion) in place of its
@@ -109,28 +109,11 @@ such that for the localized terms `evDec … Y`:
 4. analyticity in the marks at fixed data, on the radius set;
 5. Cauchy estimate `‖∂_t evDec|₀‖ ≤ E* e^{-2κ_dec d(Y)}/t₀`;
 6. sum identity for the `t`-derivatives at `0`. -/
-theorem vblock_expansion_hat_marked_scaled
-    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
-    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
-    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
-    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hcov : CovSetup Gp m₀ j X 𝒦X)
-    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
-    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
-    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
-      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
-      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
-        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
-    (hΔ : treeLenCovOne m₀ j X = 0)
-    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
-    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
-    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
-    (hZ : readSites Hm k z ⊆ ↑X₁f)
-    (hmar : BlockMargin Gp X₁f (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+def MarkedBlockExpansionDec (N : ℕ) (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm)
+    (hG' : IsLevel Gp (k + 1)) (cc : ℂ) (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ)
+    (Zm : Finset (unitPts Gp)) (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) :
+    Prop :=
     ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
         (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
       (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
@@ -191,7 +174,37 @@ theorem vblock_expansion_hat_marked_scaled
             D ψh) 0 =
         ∑ Y ∈ polyDom Gp X₁f m₀ j 𝒦X, deriv (fun t : ℂ =>
           evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol (blockEnergyFun Gp Hm (compWeight L a₁) ν k z) Zm
-            um t Y (rawOf D, ψh)) 0) := by
+            um t Y (rawOf D, ψh)) 0)
+
+/-- **The block energy expands along the masked tangent over the domains `Y ⊃ X₁`**
+(`vblock_expansion_hat_dir_scaled` with the masked decoupled tangent), the clauses being those of
+`MarkedBlockExpansionDec`.  The hypotheses are those of the landed theorem, with the radius
+inequality on the marks (in the conclusion) in place of its `hδ₁`, and an arbitrary mask set
+`Zm`. -/
+theorem vblock_expansion_hat_marked_scaled
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hmar : BlockMargin Gp X₁f (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1)))) :
+    MarkedBlockExpansionDec N Hm hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z := by
+  unfold MarkedBlockExpansionDec
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
     have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
