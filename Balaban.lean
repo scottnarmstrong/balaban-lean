@@ -1639,3 +1639,4 @@ public import Balaban.Inhabited.DecMarkTotalFromTower
 public import Balaban.Inhabited.StepTowerCoreMono
 public import Balaban.Inhabited.RenormRadiusDec
 public import Balaban.Inhabited.RenormRadiusLoc
+public import Balaban.Inhabited.RenormRadiusInput
