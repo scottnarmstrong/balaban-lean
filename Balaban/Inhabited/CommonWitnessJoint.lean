@@ -36,6 +36,251 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Filter Topology
   MeasureTheory Set Metric
 
+open Classical in
+/-- **The analytic family and the zero-source family on the common labels for a given source
+witness, at source radius `ρ`, general tower.**  The statement of
+`commonWitness_extra_of_witness_rho` at `T : StepTowerG d L N κmin`, the step `T.step` (given up to
+the identification `ϱ = rhoSepG d L T.m₁` of the separation), the scale `b = β L^{k (d-2)}` and any
+constants record `C` with the rates and label constants of `T`; the threshold on `β` is `3 ≤ β`
+and that every `ε` below the amplitude bound lies below `C.theta` and below `stepTheta` at the
+enlarged entropy constant (`StepTowerG.exists_beta0_marks`).  The fixed theorem is its corollary. -/
+theorem commonWitness_extra_of_witnessG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (C : StepOutputConsts d L) (p : ℕ) {CE CF : ℝ} (hCF : 0 < CF)
+    (ρ : ℝ) (hρ : 0 < ρ)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (hβ3 : 3 ≤ β)
+    (hβρ : max 1 ρ ≤ β) (b : ℝ) (hb : b = β * (L : ℝ) ^ (k * (d - 2)))
+    (hβ : ∀ ε : ℝ, ε ≤ 2 * CE * (Real.log b) ^ (3 * p) / Real.sqrt b +
+        2 * (ρ * CF) * (Real.log b) ^ p / Real.sqrt b →
+      ε ≤ C.theta ∧
+      ε ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0)
+        (2 * T.κdec - 1) T.κ0 T.κ')
+    (p₁ : ℝ) (hp0 : 0 < p₁) (D : StepScaleDataG T k hk N₁ ν β p₁) {ϱ : ℝ}
+    (hϱ : ϱ = rhoSepG d L T.m₁)
+    (S : StepSetting d L N₁ T.m₁ k N ϱ) (hS : HEq S (T.step k hk N₁ ν β p₁))
+    (hp : 0 < S.p₁)
+    (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+            ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+    (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+    (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+            ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+            (RawData d L (N₁ * L ^ T.m₁) (k + 1) N × (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+    (hval : ∀ x w σ Θ, val x w σ Θ =
+            (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ
+                Θ.1 +
+            (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+              dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+                (onXi S.G' S.a₁ S.ν T.t
+                  (fun D ψ' => svec (stepG d L N₁ T.m₁ k ϱ)
+                    (flFieldOne S.G' (stepG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                      s.1 s.2)))
+                (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))
+    (hcont : DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ))
+            (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁))
+            (physSΛEta S S.a₁ S.ν T.t (ρ / S.β)) 2 𝒴 Tt)
+    (hI : ∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (ρ / S.β),
+            ∃ I' : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1) Θ
+                (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+                (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁)) val
+                (physAgΘ S) (AgFDirPair S),
+              I'.𝒴 = 𝒴 ∧ I'.T = Tt)
+    (hmem0 : (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) ∈
+      physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+    (hbound : 4 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+            (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)) ≤
+        CE * (Real.log b) ^ (3 * p) / Real.sqrt b +
+          ρ * CF * (Real.log b) ^ p / Real.sqrt b) :
+
+  (      (∃ (Jr : S.JointRep T.t (2 * p₁))
+          (I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1)
+                (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+                (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+                (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁)) val
+                (physAgΘ S) (AgFDirPair S)),
+          I.𝒴 = 𝒴 ∧ I.T = Tt ∧
+          ∃ (hF : DirectTermsFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
+              (physVqRho S S.a₁ S.ν T.t ρ ρ))
+            (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)),
+            0 < S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β) ∧
+            ∀ {Kc : ℝ} (hKc : K0 d L T.κ0 ≤ Kc),
+            ∃ A : physParam N S → ℂ → LabelAct (thickLabels I.𝒴 I.dom) (S.blockSplit T.m₀ hp).Ωb
+                (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) (2 * T.κdec - 1) T.κ0 Kc,
+              A = labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                    (show L ^ T.m₀ ∣ N₁ by simpa using hLN) hp0 (by norm_num) hεU T.κ0_ent hKc ∧
+              (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                AnalyticOnNhd ℂ (fun r : physParam N S × ℂ => (A r.1 r.2).H y Φ)
+                  (physVqRho S S.a₁ S.ν T.t ρ ρ ×ˢ Metric.ball (0 : ℂ) 2)) ∧
+              (∀ e ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ u : ℂ, ‖u‖ < 2 → ∀ y : {Y // Y ∈ I.𝒴},
+                Continuous ((A e u).H y)) ∧
+              (∀ e ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ u : ℂ, ‖u‖ < 2 →
+                ∀ Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b,
+                ∑ y, (A e u).H y Φ =
+                  val (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ)
+                    (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ) u
+                    (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ e ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ u : ℂ, ‖u‖ < 2 →
+                ∑ y, (A e u).H y ((S.blockSplit T.m₀ hp).restr x) =
+                  val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) u
+                    (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibreRho S S.a₁ S.ν T.t ρ, ∀ s ∈ Icc (0 : ℝ) 1,
+                Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+                    ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (s : ℂ) • S.hatC x) =
+                  (s : ℂ) ^ 2 * ∑ y, (A ((e.1, 0) : physParam N S) (s : ℂ)).H y
+                    ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibreRho S S.a₁ S.ν T.t ρ, ∑ x', ∑ i, ‖e.2 x' i‖ < ρ →
+                ∀ t ∈ Icc (0 : ℝ) 1,
+                Jr.W2 (zeroClass d L N₁ T.m₁ k N ϱ) e.2
+                    ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (t : ℂ) • S.hatC x) =
+                  ∑ y, (A e (t : ℂ)).H y ((S.blockSplit T.m₀ hp).restr x) -
+                    ∑ y, (A ((e.1, 0) : physParam N S) (t : ℂ)).H y
+                      ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ (D' : BgData S.G' N) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+                XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ s ∈ Icc (0 : ℝ) 1,
+                (S.withDatum D' hDh).WoneC (zeroClass d L N₁ T.m₁ k N ϱ) s x =
+                  (s : ℂ) ^ 2 * ∑ y, (A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                    (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
+                    ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ (D' : BgData S.G' N) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+                XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+                ∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x', ∑ i, ‖g x' i‖ < ρ → ∀ t ∈ Icc (0 : ℝ) 1,
+                (S.withDatum D' hDh).WtwoC (zeroClass d L N₁ T.m₁ k N ϱ) g t x =
+                  ∑ y, (A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (t : ℂ)).H y
+                      ((S.blockSplit T.m₀ hp).restr x) -
+                    ∑ y, (A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                      (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (t : ℂ)).H y
+                      ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibreRho S S.a₁ S.ν T.t ρ, ∑ x', ∑ i, ‖e.2 x' i‖ < ρ →
+                ∀ p ∈ stepSegments,
+                Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+                    ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (p.1 : ℂ) • S.hatC x) +
+                  Jr.W2 (zeroClass d L N₁ T.m₁ k N ϱ) e.2
+                    ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (p.2 : ℂ) • S.hatC x) =
+                  ∑ y, (segAct (A ((e.1, 0) : physParam N S)) (A e)
+                    (mul_nonneg zero_le_two hεU) (two_mul _).ge
+                    (fun s => ((if s ∈ Icc (0 : ℝ) 1 then s ^ 2 else 0 : ℝ) : ℂ))
+                    norm_ite_sq_le p).H y ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+                  (zeroSourceAct A 2 zero_le_two r.1 r.2).H y Φ)
+                  (physVRho S S.a₁ S.ν T.t ρ ×ˢ Metric.ball (0 : ℂ) 2)) ∧
+              (∀ e ∈ physVRho S S.a₁ S.ν T.t ρ, ∀ u ∈ Metric.ball (0 : ℂ) 2, ∀ y : {Y // Y ∈ I.𝒴},
+                Continuous ((zeroSourceAct A 2 zero_le_two e u).H y)) ∧
+              (∀ (D' : BgData S.G' N) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+                XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+                ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                  (S.withDatum D' hDh).WoneC (zeroClass d L N₁ T.m₁ k N ϱ) s x =
+                    ∑ y, (zeroSourceAct A 2 zero_le_two
+                      ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (s : ℂ)).H y
+                      ((S.blockSplit T.m₀ hp).restr x)))) ∧
+  ((∃ (Jr : S.JointRep T.t (2 * p₁))
+          (I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)) (2 * T.κdec - 1)
+                (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+                (physSΛEta S S.a₁ S.ν T.t (ρ / S.β))
+                (physXW S (lvCpsiG d L N T.κ T.t b) 2 2 (lvRG d L N T.κ T.t b p₁)) val
+                (physAgΘ S) (AgFDirPair S)),
+          I.𝒴 = 𝒴 ∧ I.T = Tt ∧
+          ∃ (hF : DirectTermsFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
+              (physVqRho S S.a₁ S.ν T.t ρ ρ))
+            (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)),
+            0 < S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β) ∧
+            (
+          0 < 2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) ∧
+          2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) ≤
+              2 * CE * (Real.log b) ^ (3 * p) / Real.sqrt b +
+                2 * (ρ * CF) * (Real.log b) ^ p / Real.sqrt b ∧
+          2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) ≤
+              C.theta ∧
+          2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) ≤
+              stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' ∧
+          ∃ A : physParam N S → ℂ → LabelAct (thickLabels I.𝒴 I.dom) (S.blockSplit T.m₀ hp).Ωb
+              (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β))) (2 * T.κdec - 1) T.κ0
+              (2 * (K0 d L T.κ0 + 1)),
+            A = labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                  (show L ^ T.m₀ ∣ N₁ by simpa using hLN) hp0 (by norm_num) hεU T.κ0_ent
+                  T.marks_K0_le ∧
+            (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibreRho S S.a₁ S.ν T.t ρ, ∀ s ∈ Icc (0 : ℝ) 1,
+              Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+                  ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (s : ℂ) • S.hatC x) =
+                (s : ℂ) ^ 2 * ∑ y, (A ((e.1, 0) : physParam N S) (s : ℂ)).H y
+                  ((S.blockSplit T.m₀ hp).restr x)) ∧
+            (∀ᵐ x ∂S.nuFl, ∀ e ∈ physFibreRho S S.a₁ S.ν T.t ρ, ∑ x', ∑ i, ‖e.2 x' i‖ < ρ →
+              ∀ t ∈ Icc (0 : ℝ) 1,
+              Jr.W2 (zeroClass d L N₁ T.m₁ k N ϱ) e.2
+                  ((e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), (t : ℂ) • S.hatC x) =
+                ∑ y, (A e (t : ℂ)).H y ((S.blockSplit T.m₀ hp).restr x) -
+                  ∑ y, (A ((e.1, 0) : physParam N S) (t : ℂ)).H y
+                    ((S.blockSplit T.m₀ hp).restr x)) ∧
+            ∀ {ι : Type} [Fintype ι] (reads : ι → Set (CTorus d L N₁ T.m₁ (k + 1)))
+              (dom : ι → Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+              (hdomR : ∀ b, ∀ Y ∈ dom b, IsDj T.m₀ (k + 1) Y),
+            ∃ A0 : physParam N S → ℂ → LabelAct
+                (commonLabels (thickLabels I.𝒴 I.dom) (show L ^ T.m₀ ∣ N₁ by simpa using hLN)
+                  (by have := T.hL; omega) reads dom hdomR) (S.blockSplit T.m₀ hp).Ωb
+                (2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                  (lvRG d L N T.κ T.t b p₁) 0 0 (ρ / S.β)))) (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L T.m₀ T.m₁ T.κ0),
+              A0 = commonAct (zeroSourceAct A 2 (by norm_num))
+                  (show L ^ T.m₀ ∣ N₁ by simpa using hLN) (by have := T.hL; omega) reads dom hdomR
+                  (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)) T.κ0_two ∧
+              (∀ y (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                AnalyticOnNhd ℂ (fun r : physParam N S × ℂ => (A0 r.1 r.2).H y Φ)
+                  (physVRho S S.a₁ S.ν T.t ρ ×ˢ ball (0 : ℂ) 2)) ∧
+              (∀ e ∈ physVRho S S.a₁ S.ν T.t ρ, ∀ y (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                DifferentiableOn ℂ (fun u => (A0 e u).H y Φ) (ball (0 : ℂ) 2)) ∧
+              (∀ y, ∀ e ∈ physVRho S S.a₁ S.ν T.t ρ, ∀ u ∈ ball (0 : ℂ) 2,
+                Continuous ((A0 e u).H y)) ∧
+              (∀ (e : physParam N S) (u : ℂ) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                ∑ y, (A0 e u).H y Φ =
+                  sqFactor 2 u * ∑ y, (A ((e.1, 0) : physParam N S) u).H y Φ) ∧
+              (∀ (D' : BgData S.G' N) (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
+                XiCData S.G' S.a S.ν (k + 1) 1 T.t D' → ∀ g : Fld d L N₁ T.m₁ (k + 1) N,
+                ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                  (S.withDatum D' hDh).WoneC (zeroClass d L N₁ T.m₁ k N ϱ) s x =
+                    ∑ y, (A0 ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (s : ℂ)).H y
+                      ((S.blockSplit T.m₀ hp).restr x)) ∧
+              (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                S.WoneC (zeroClass d L N₁ T.m₁ k N ϱ) s x =
+                  ∑ y, (A0 ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                    (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
+                    ((S.blockSplit T.m₀ hp).restr x)) ∧
+              Nonempty (ParamMarkFamily (S.blockSplit T.m₀ hp).μ
+                (commonLabels (thickLabels I.𝒴 I.dom) (show L ^ T.m₀ ∣ N₁ by simpa using hLN)
+                  (by have := T.hL; omega) reads dom hdomR) A0
+                (fun i : Empty => i.elim) (fun _ _ _ _ => (0 : ℂ)) 0 (fun i : Empty => i.elim)
+                (physVRho S S.a₁ S.ν T.t ρ) (ball (0 : ℂ) 2) (physCarrier S T.m₀ hp)) ∧
+              (∀ _y₀ : {Y // Y ∈ I.𝒴} ⊕ RootUnionLb T.m₀ reads dom,
+                Nonempty (InterpMarks S.nuFl (S.blockSplit T.m₀ hp)
+                  (S.WoneC (zeroClass d L N₁ T.m₁ k N ϱ)) (fun _ _ => (0 : ℂ)))))))
+  := by
+  classical
+  have hfam := activityFamilyAnalytic_of_witnessG_rho T k hk N₁ hLN ν hνpos hν β ρ hβρ p₁ hp0 ρ
+    hρ le_rfl b hb D hϱ S hS hp val 𝒴 Tt hval hcont hI hmem0
+  refine ⟨hfam, ?_⟩
+  obtain ⟨Jr, I, h𝒴I, hTI, hF, hεU', hεpos', hA'⟩ := hfam
+  obtain ⟨A, hAeq, han, hcA, -, -, hW1, hW2, hS1, -, -, -, -, -⟩ := hA' T.marks_K0_le
+  refine ⟨Jr, I, h𝒴I, hTI, hF, hεU', hεpos', ?_⟩
+  exact T.zeroSourceActivity_common_of_witness_rho C p hCF ρ hρ k hk N₁ hLN ν hνpos hν β hβ3 b hb
+    hβ p₁ hp0 ρ hρ le_rfl D hϱ S hS hp val I hF hεU' hεpos' hbound Jr
+    ⟨A, hAeq, han, hcA, hW1, hW2, hS1⟩
+
+
 /-- **The analytic family and the zero-source family on the common labels for a given source
 witness, at source radius `ρ`** (slice `η = ρ/β`, `q = ρ`, `max 1 ρ ≤ β`): the conclusion of
 `activityFamilyAnalytic_of_witness_rho` at `q = ρ`, and the conclusion of
@@ -262,15 +507,15 @@ theorem commonWitness_extra_of_witness_rho {κmin : ℝ} (T : StepTower κmin)
               (∀ _y₀ : {Y // Y ∈ I.𝒴} ⊕ RootUnionLb 1 reads dom,
                 Nonempty (InterpMarks S.nuFl (S.blockSplit 1 hp)
                   (S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) (fun _ _ => (0 : ℂ))))))) := by
-  have hfam := activityFamilyAnalytic_of_witness_rho T k hk N₁ h3N ν hνpos hν β ρ hβρ p₁ hp0 ρ hρ
-    le_rfl D S hS hp val 𝒴 Tt hval hcont hI hmem0
-  refine ⟨hfam, ?_⟩
-  obtain ⟨Jr, I, h𝒴I, hTI, hF, hεU', hεpos', hA'⟩ := hfam
-  obtain ⟨A, hAeq, han, hcA, -, -, hW1, hW2, hS1, -, -, -, -, -⟩ := hA' T.marks_K0_le
-  refine ⟨Jr, I, h𝒴I, hTI, hF, hεU', hεpos', ?_⟩
-  exact zeroSourceActivity_common_of_witness_rho T hHull p hCE hCF ρ hρ k hk N₁ h3N ν hνpos hν β
-    hβm p₁ hp0 ρ hρ le_rfl D S hS hp val I hF hεU' hεpos' hbound Jr
-    ⟨A, hAeq, han, hcA, hW1, hW2, hS1⟩
+  obtain ⟨hm3, hm⟩ := (exists_beta0_marks T hHull p (CE := 2 * CE) (CF := 2 * (ρ * CF))
+    (mul_nonneg zero_le_two hCE.le)
+    (mul_nonneg zero_le_two (mul_nonneg hρ.le hCF.le))).choose_spec
+  exact commonWitness_extra_of_witnessG_rho T.toG (stepOutputPhysical T hHull) p hCF ρ hρ k hk N₁
+    (by simpa using h3N) ν hνpos (by simpa using hν) β (hm3.trans hβm) hβρ (β * 3 ^ k)
+    (by norm_num) (fun ε hε => hm β k hβm ε hε) p₁ hp0 (StepTower.scaleDataG_of_fixed T D)
+    (rhoSepG_three _).symm S
+    (by rw [hS]; exact (StepTower.toG_step_heq T k hk N₁ ν β p₁).symm) hp val 𝒴 Tt hval hcont hI
+    hmem0 hbound
 
 
 /-- **Helper for `commonWitness_joint_fromTower`: the analytic family and the zero-source family on
