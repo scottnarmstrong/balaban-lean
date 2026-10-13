@@ -110,19 +110,20 @@ theorem symU_mem (S : LatSymm Gp Gp σ) (Sm : LatSymm Hm Hm σ)
 section ParEquiv
 
 theorem disjoint_pset_iff (CS : DecEquiv.CoverSymm (coverOf Gp) σ) (P : PolymerSymm Gp m₀ σ CS.τ)
-    (q : ℕ × CTorus d L N₁ m₁ K) (X : Set (CTorus d L N₁ m₁ K)) :
+    {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ (coverOf Gp).cubeIdx) (X : Set (CTorus d L N₁ m₁ K)) :
     Disjoint (Pset m₁ (CS.τ q)) (σ '' X) ↔ Disjoint (Pset m₁ q) X := by
-  rw [← P.image_pset q, Set.disjoint_image_iff σ.injective]
+  rw [← P.image_pset hq, Set.disjoint_image_iff σ.injective]
 
 /-- **The relabelling of the decoupling parameters** of a polymer system by a symmetry. -/
 def parEquiv (CS : DecEquiv.CoverSymm (coverOf Gp) σ) (P : PolymerSymm Gp m₀ σ CS.τ)
     {X₁ X₁' : Set (CTorus d L N₁ m₁ K)} (hX : X₁' = σ '' X₁) :
     ParIdx Gp X₁ ≃ ParIdx Gp X₁' where
   toFun i := ⟨⟨CS.τ i.1.1, (CS.idx i.1.1).2 i.1.2⟩, by
-    subst hX; exact (disjoint_pset_iff CS P _ _).2 i.2⟩
+    subst hX; exact (disjoint_pset_iff CS P i.1.2 _).2 i.2⟩
   invFun j := ⟨⟨CS.τ.symm j.1.1, (CS.idx _).1 (by rw [Equiv.apply_symm_apply]; exact j.1.2)⟩, by
     subst hX
-    exact (disjoint_pset_iff CS P (CS.τ.symm j.1.1) X₁).1 (by simpa using j.2)⟩
+    exact (disjoint_pset_iff CS P ((CS.idx _).1 (by rw [Equiv.apply_symm_apply]; exact j.1.2)) X₁).1
+      (by simpa using j.2)⟩
   left_inv i := by apply Subtype.ext; apply Subtype.ext; simp
   right_inv j := by apply Subtype.ext; apply Subtype.ext; simp
 
@@ -134,17 +135,19 @@ theorem extParams_sym (CS : DecEquiv.CoverSymm (coverOf Gp) σ)
   subst hX
   funext P'
   have hQ : CS.τ (CS.τ.symm P'.1) = P'.1 := by simp
+  have hmem : CS.τ.symm P'.1 ∈ (coverOf Gp).cubeIdx :=
+    (CS.idx _).1 (by rw [hQ]; exact P'.2)
   unfold DecEquiv.CoverSymm.par extParams
   by_cases h : Disjoint (Pset m₁ P'.1) (σ '' X₁)
   · have h2 : Disjoint (Pset m₁ (CS.τ.symm P'.1)) X₁ :=
-      (disjoint_pset_iff CS P (CS.τ.symm P'.1) X₁).1 (by rw [hQ]; exact h)
+      (disjoint_pset_iff CS P hmem X₁).1 (by rw [hQ]; exact h)
     simp only [h, h2, ↓reduceDIte]
     simp only [Function.comp, parEquiv, Equiv.coe_fn_mk]
     congr 1
     apply Subtype.ext; apply Subtype.ext
     exact hQ.symm
   · have h2 : ¬ Disjoint (Pset m₁ (CS.τ.symm P'.1)) X₁ := fun h2 =>
-      h (by rw [← hQ]; exact (disjoint_pset_iff CS P (CS.τ.symm P'.1) X₁).2 h2)
+      h (by rw [← hQ]; exact (disjoint_pset_iff CS P hmem X₁).2 h2)
     simp only [h, h2, ↓reduceDIte]
 
 end ParEquiv
@@ -244,7 +247,7 @@ theorem evTerm_sym
         (fnOfDec Gp Hm X₁f F₁ Sol (fun bg _ u => Φb bg u)) Y u :=
   evTerm_relabel (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) => i.1.1)
     (fun i : ParIdx Gp (↑X₁f' : Set (CTorus d L N₁ m₁ K)) => i.1.1) (parEquiv CS P hX)
-    (Real.one_lt_exp_iff.2 hC.hκ) P S (fun _ => rfl) X₁ Y
+    (Real.one_lt_exp_iff.2 hC.hκ) P S (fun _ => rfl) (fun i => i.1.2) X₁ Y
     (analytic_slice hana hu) (analytic_slice hana' (symU_mem S Sm hu))
     (fun _ hs' => fnOfDec_sym hC hF₁ S CS B P hX hΦ hu hs')
 
