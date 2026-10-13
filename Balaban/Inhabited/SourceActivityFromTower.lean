@@ -9,6 +9,7 @@ public import Balaban.Inhabited.SourceDirectTermsFromTower
 public import Balaban.Inhabited.SourceActivityScale
 public import Balaban.Fluctuation.StepActivityDirectBound
 public import Balaban.Fluctuation.SourceSliceScaled
+public import Balaban.Fluctuation.SourceRadiusCarriers
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -294,6 +295,150 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 open Classical in
 /-- **The complex zero-class source activity at the shared tower `T`, with one label system for
+every source of the ball of radius `ρ`.**  As `sourceActivityC_scale_fromTower`, for sources `g` with
+`∑ |g| < ρ` (`l1BallRho`).  After `T` choose `C_E, C_F`; then `ρ`; then the threshold
+`β₀ ≥ max 2 ρ`, which depends on `ρ` through the amplitude threshold of
+`sourceAmp_doubled_hDA_rho`, `daThreshold ((C_E + ρ C_F)/4) …`.  The prefactor bound has the factor
+`ρ` on the source part: `C_E (log β_k)^{3p}/√β_k + ρ C_F (log β_k)^p/√β_k`. -/
+theorem sourceActivityC_scale_fromTower_rho {κmin : ℝ} (T : StepTower κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    ∃ CE CF : ℝ, 0 < CE ∧ 0 < CF ∧
+    ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
+    p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+    ∃ 𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))),
+    ∃ hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y,
+    ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+    ∃ BR : StepActivityBound (T.step k hk N₁ ν β p₁)
+        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+    ∃ BC : StepActivityBoundC (T.step k hk N₁ ν β p₁)
+        (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+      BR.m₀ = 1 ∧ BC.m₀ = 1 ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧ BC.Lb = BR.Lb ∧
+      HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
+      HEq BR.BS ((T.step k hk N₁ ν β p₁).blockSplit 1 hp) ∧ HEq BC.BS BR.BS ∧
+      BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
+      BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
+      BR.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
+      BR.εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+        ρ * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
+  classical
+  have hent := aEnt_nonneg 3 3
+  have hc1 := one_le_c1 3 3
+  have ht0 := T.t_pos
+  have hρ4 := T.rho_nonneg
+  have hB0 := T.fam_nonneg
+  have hκ0 := T.κ0_nonneg
+  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) := ⟨_, rfl⟩
+  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos' hB0
+  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
+    (((3 : ℕ) : ℝ) ^ 3 * ((((2 : ℕ) : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
+      (((3 : ℕ) : ℝ) + 1 + rho4 3 3 2 T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
+  have hP0 : 0 ≤ P := by
+    rw [hPdef]; positivity
+  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
+  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
+  obtain ⟨Kc'', hKc''⟩ : ∃ x : ℝ, x = K0 3 3 T.κ0 + 1 := ⟨_, rfl⟩
+  have hKc''pos : 0 < Kc'' := by have := K0_pos 3 3 T.κ0; rw [hKc'']; linarith
+  have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
+  have hκ'0 : 0 ≤ T.κ' := by rw [T.κ'_eq]; linarith
+  have hκa' : T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := by
+    rw [T.κ'_eq, T.κdec_eq]; linarith
+  refine ⟨srcCE A₁ T.κ T.t P, srcCF A₁ T.κ T.t (Q * T.t), srcCE_pos hA ht0 hP0,
+    srcCF_pos hA ht0 hK0, ?_⟩
+  intro ρ hρ
+  refine ⟨max (max (max 2 β₁) (daThreshold
+      ((srcCE A₁ T.κ T.t P + ρ * srcCF A₁ T.κ T.t (Q * T.t)) / 4)
+      (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p))) ρ,
+    le_trans (le_max_left _ _) ((le_max_left _ _).trans (le_max_left _ _)),
+    le_max_right _ _, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D
+  have hν0 : 0 ≤ ν := hνpos.le
+  obtain ⟨⟨⟨hβ2, hβ₁⟩, hβd⟩, hβρ⟩ : ((2 ≤ β ∧ β₁ ≤ β) ∧ daThreshold
+      ((srcCE A₁ T.κ T.t P + ρ * srcCF A₁ T.κ T.t (Q * T.t)) / 4)
+        (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p) ≤ β) ∧ ρ ≤ β := by
+    simpa only [max_le_iff] using hβ
+  have hβ0 : 0 < β := by linarith
+  have hβ1 : 1 ≤ β := by linarith
+  have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
+  have hbβ : β ≤ β * 3 ^ k := le_mul_of_one_le_right hβ0.le h3k
+  have hb0 : 0 < β * 3 ^ k := by positivity
+  have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
+  have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
+  have hamp := (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) ρ hP0 hK0.le hρ.le
+  obtain ⟨R0⟩ := D.ray
+  have hr0 := D.r_pos
+  have hcψ0 := D.cψ_pos
+  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
+  have hC := D.core
+  have hD := D.xi
+  -- the physical amplitude on the slice `η = 1/β`
+  obtain ⟨εU, hεU⟩ : ∃ εU : ℝ, εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (ρ / β) := ⟨_, rfl⟩
+  have hid := sourceEta_scaled_identity 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+    (lvR T.κ T.t (β * 3 ^ k) p₁) ρ β hβ0.ne'
+  rw [← hεU, ← hQdef] at hid
+  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
+      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
+        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
+    have h := beta_mul_potentialAmp_le (N := 2) (T.step k hk N₁ ν β p₁)
+      (by norm_num) le_rfl (compWeight_three_mem hk).2
+      (le_trans (by norm_num) (compWeight_three_mem hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0 (1 + T.m₁)
+    rw [hatStepK_betaU, ← hPdef] at h
+    exact h
+  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
+      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
+        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
+    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
+    positivity
+  have hεle : εU ≤ P * (4 * A₁ / lvKappa T.κ T.t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
+        Real.sqrt (β * 3 ^ k) +
+      ρ * (4 * A₁ * (Q * T.t) / lvKappa T.κ T.t) * (Real.log (β * 3 ^ k)) ^ p /
+        Real.sqrt (β * 3 ^ k) := by
+    rw [hid]
+    linarith
+  have hεpos : 0 < εU := by
+    rw [hid]
+    have : 0 < ρ * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ := div_pos (mul_pos hρ hK0) hr0
+    linarith
+  have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t)
+    (q := ρ) p hb0 (by linarith) hεle
+  have hDA0 := sourceAmp_doubled_hDA_rho 3 3 (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P)
+    (K := Q * T.t) (q := ρ) (ρ := ρ) (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le
+    hρ.le le_rfl
+    hℓ hb0 hKc''pos T.κdec T.κ0 T.κ' (hβd.trans hbβ) hεle
+  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  -- the direct terms, selected once for the slice `η = 1/β`
+  obtain ⟨val, 𝒴, Tt, hval, -, -, hI, hmem0, hmemg⟩ := sourceDirectTerms_scale_fromTower_rho T k hk N₁
+    h3N hN ν hνpos hν β ρ hρ (max_le hβ1 hβρ) p₁ ρ hρ le_rfl D (T.step k hk N₁ ν β p₁) rfl hp0
+  obtain ⟨I₀, h𝒴₀, -⟩ := hI _ hmem0
+  have hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
+  refine ⟨𝒴, hdom, ?_⟩
+  intro g hg
+  obtain ⟨Ig, h𝒴g, -⟩ := hI _ (hmemg g hg)
+  obtain ⟨BR, hm, hLb, hLab, hBS, hk0, hk', hκH, hεH, hKc⟩ :=
+    stepActivityBound_zeroClass_source_of_directTerms_shared (T.step k hk N₁ ν β p₁)
+      (ρ := p₁) (κ0 := T.κ0) (κ' := T.κ') (Kc' := Kc'') (a := 2 * T.κdec - 1)
+      hC (by norm_num) hr0 hcψ0.le T.large_block T.dom_margin T.coer_margin T.δc_small
+      D.fl_radius T.c7_cap (R := 2) le_rfl T.t_cap T.bg0_cap T.cK2_cap T.cK2'_cap T.bg1_cap
+      (by norm_num) D.ray_margin hD hN3 hp0 le_rfl (by rw [hεU] at hεpos; exact hεpos) T.κ0_ent hKc''.ge hκ'0 hκa'
+      (by rw [hεU] at hDA0; exact hDA0) R0
+      D.p_lt (by norm_num) g I₀ Ig
+      (fun x u => by rw [hval]; simp)
+      (fun x u => hval _ _ _ _) hdom h𝒴₀ h𝒴g
+  obtain ⟨BC, hCm, hCLb, hCLab, hCBS, hCk0, hCk', hCκH, hCεH, hCKc⟩ :=
+    stepActivityBoundC_of_activityBound_exposed R0 hp0 D.p_lt BR
+  have hBε : BR.εH = 4 * εU := by
+    rw [hεH, (fun E : ℝ => by ring : ∀ E : ℝ, 2 * (2 * E) = 4 * E)]
+    exact congrArg _ hεU.symm
+  refine ⟨BR, BC, hm, hCm.trans hm, hLb, hCLb, hLab, hCLab, hBS, hCBS, hk0, hCk0.trans hk0, hk',
+    hCk'.trans hk', hκH, hCκH, by rw [hKc, hKc''], hCKc, hCεH.symm, ?_⟩
+  rw [hBε]
+  exact hε4
+
+open Classical in
+/-- **The complex zero-class source activity at the shared tower `T`, with one label system for
 every source of the strict `l^1` ball.**  After `T` choose `β₀, C_E, C_F`.  For every scale, torus,
 mass, `β ≥ β₀`, cutoff `0 < p₁ ≤ A₁ (log β_k)^p` and `D : StepScaleData T …`, there are a domain
 family `𝒴` and its proof `hdom` chosen before the source, such that every source `g` with
@@ -324,116 +469,11 @@ theorem sourceActivityC_scale_fromTower {κmin : ℝ} (T : StepTower κmin) {A�
       BR.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
       BR.εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
         CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
-  classical
-  have hent := aEnt_nonneg 3 3
-  have hc1 := one_le_c1 3 3
-  have ht0 := T.t_pos
-  have hρ4 := T.rho_nonneg
-  have hB0 := T.fam_nonneg
-  have hκ0 := T.κ0_nonneg
-  obtain ⟨Q, hQdef⟩ : ∃ Q : ℝ, Q = cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) := ⟨_, rfl⟩
-  have hQ0 : 0 < Q := by rw [hQdef]; exact cK2'_pos' hB0
-  obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = 3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-    (((3 : ℕ) : ℝ) ^ 3 * ((((2 : ℕ) : ℝ) / 2) * (2 * (1 + Q) ^ 2 +
-      (((3 : ℕ) : ℝ) + 1 + rho4 3 3 2 T.BG T.κ) * Q ^ 2) * T.t ^ 2)) := ⟨_, rfl⟩
-  have hP0 : 0 ≤ P := by
-    rw [hPdef]; positivity
-  have hK0 : 0 < Q * T.t := mul_pos hQ0 ht0
-  obtain ⟨β₁, hexpβ₁, hA'⟩ := sourceAmp_scale (A₁ := A₁) (κ := T.κ) (t := T.t) hA p ht0
-  obtain ⟨Kc'', hKc''⟩ : ∃ x : ℝ, x = K0 3 3 T.κ0 + 1 := ⟨_, rfl⟩
-  have hKc''pos : 0 < Kc'' := by have := K0_pos 3 3 T.κ0; rw [hKc'']; linarith
-  have hκdec0 : 0 ≤ T.κdec := by have := T.κdec_lower; linarith
-  have hκ'0 : 0 ≤ T.κ' := by rw [T.κ'_eq]; linarith
-  have hκa' : T.κ' + 3 * T.κ0 + c1 3 3 + 3 / 2 ≤ 2 * T.κdec - 1 := by
-    rw [T.κ'_eq, T.κdec_eq]; linarith
-  refine ⟨max (max 2 β₁) (daThreshold ((srcCE A₁ T.κ T.t P + srcCF A₁ T.κ T.t (Q * T.t)) / 4)
-      (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p)),
-    srcCE A₁ T.κ T.t P, srcCF A₁ T.κ T.t (Q * T.t),
-    le_trans (le_max_left _ _) (le_max_left _ _), srcCE_pos hA ht0 hP0,
-    srcCF_pos hA ht0 hK0, ?_⟩
-  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ D
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hβ)
-  have hβd : daThreshold ((srcCE A₁ T.κ T.t P + srcCF A₁ T.κ T.t (Q * T.t)) / 4)
-      (daT 3 3 4 (2 * Kc'') T.κdec T.κ0 T.κ') (3 * p) ≤ β := le_trans (le_max_right _ _) hβ
-  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hβ)
-  have hβ0 : 0 < β := by linarith
-  have hβ1 : 1 ≤ β := by linarith
-  have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-  have hbβ : β ≤ β * 3 ^ k := le_mul_of_one_le_right hβ0.le h3k
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  have hexp : Real.exp 1 ≤ β * 3 ^ k := le_trans hexpβ₁ (hβ₁.trans hbβ)
-  have hℓ : 1 ≤ Real.log (β * 3 ^ k) := (Real.le_log_iff_exp_le hb0).2 hexp
-  have hamp := (hA' (β * 3 ^ k) (hβ₁.trans hbβ) p₁ hp0 hp₁).2 P (Q * T.t) 1 hP0 hK0.le one_pos.le
-  obtain ⟨R0⟩ := D.ray
-  have hr0 := D.r_pos
-  have hcψ0 := D.cψ_pos
-  have hHB := bgHyp_lv (k := k) T.m₁ hν0 hν
-  have hC := D.core
-  have hD := D.xi
-  -- the physical amplitude on the slice `η = 1/β`
-  obtain ⟨εU, hεU⟩ : ∃ εU : ℝ, εU = β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β) := ⟨_, rfl⟩
-  have hid := sourceEta_scaled_identity 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
-    (lvR T.κ T.t (β * 3 ^ k) p₁) 1 β hβ0.ne'
-  rw [← hεU, ← hQdef] at hid
-  have hpot : β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) ≤ β * 3 ^ k * (P / lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h := beta_mul_potentialAmp_le (N := 2) (T.step k hk N₁ ν β p₁)
-      (by norm_num) le_rfl (compWeight_three_mem hk).2
-      (le_trans (by norm_num) (compWeight_three_mem hk).1) hβ0.le hQ0.le ht0.le hρ4 hr0 (1 + T.m₁)
-    rw [hatStepK_betaU, ← hPdef] at h
-    exact h
-  have hterm0 : 0 ≤ β * (3 * c1 3 3 * (((3 : ℕ) : ℝ) ^ (1 + T.m₁)) ^ 3 *
-      ‖energyBdScaled 3 3 2 (compWeight 3 1) k (Q * T.t) T.t (rho4 3 3 2 T.BG T.κ)‖ /
-        lvR T.κ T.t (β * 3 ^ k) p₁ ^ 3) := by
-    have h3 : (0 : ℝ) ≤ 3 * c1 3 3 := by linarith
-    positivity
-  have hεle : εU ≤ P * (4 * A₁ / lvKappa T.κ T.t) ^ 3 * (Real.log (β * 3 ^ k)) ^ (3 * p) /
-        Real.sqrt (β * 3 ^ k) +
-      1 * (4 * A₁ * (Q * T.t) / lvKappa T.κ T.t) * (Real.log (β * 3 ^ k)) ^ p /
-        Real.sqrt (β * 3 ^ k) := by
-    rw [hid]
-    linarith
-  have hεpos : 0 < εU := by
-    rw [hid]
-    have : 0 < 1 * (Q * T.t) / lvR T.κ T.t (β * 3 ^ k) p₁ := div_pos (by linarith) hr0
-    linarith
-  have hε4 := sourceAmp_scale_four (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P) (K := Q * T.t)
-    (q := 1) p hb0 (by linarith) hεle
-  have hDA0 := sourceAmp_doubled_hDA 3 3 (A₁ := A₁) (κ := T.κ) (t := T.t) (P := P)
-    (K := Q * T.t) (q := 1) (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le le_rfl
-    hℓ hb0 hKc''pos T.κdec T.κ0 T.κ' (hβd.trans hbβ) hεle
-  have hN3 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  -- the direct terms, selected once for the slice `η = 1/β`
-  obtain ⟨val, 𝒴, Tt, hval, -, -, hI, hmem0, hmemg⟩ := sourceDirectTerms_scale_fromTower T k hk N₁
-    h3N hN ν hνpos hν β hβ1 p₁ 1 one_pos le_rfl D (T.step k hk N₁ ν β p₁) rfl hp0
-  obtain ⟨I₀, h𝒴₀, -⟩ := hI _ hmem0
-  have hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y := fun Y hY => I₀.dom Y (h𝒴₀ ▸ hY)
-  refine ⟨𝒴, hdom, ?_⟩
-  intro g hg
-  obtain ⟨Ig, h𝒴g, -⟩ := hI _ (hmemg g hg)
-  obtain ⟨BR, hm, hLb, hLab, hBS, hk0, hk', hκH, hεH, hKc⟩ :=
-    stepActivityBound_zeroClass_source_of_directTerms_shared (T.step k hk N₁ ν β p₁)
-      (ρ := p₁) (κ0 := T.κ0) (κ' := T.κ') (Kc' := Kc'') (a := 2 * T.κdec - 1)
-      hC (by norm_num) hr0 hcψ0.le T.large_block T.dom_margin T.coer_margin T.δc_small
-      D.fl_radius T.c7_cap (R := 2) le_rfl T.t_cap T.bg0_cap T.cK2_cap T.cK2'_cap T.bg1_cap
-      (by norm_num) D.ray_margin hD hN3 hp0 le_rfl (by rw [hεU] at hεpos; exact hεpos) T.κ0_ent hKc''.ge hκ'0 hκa'
-      (by rw [hεU] at hDA0; exact hDA0) R0
-      D.p_lt (by norm_num) g I₀ Ig
-      (fun x u => by rw [hval]; simp)
-      (fun x u => hval _ _ _ _) hdom h𝒴₀ h𝒴g
-  obtain ⟨BC, hCm, hCLb, hCLab, hCBS, hCk0, hCk', hCκH, hCεH, hCKc⟩ :=
-    stepActivityBoundC_of_activityBound_exposed R0 hp0 D.p_lt BR
-  have hBε : BR.εH = 4 * εU := by
-    rw [hεH, (fun E : ℝ => by ring : ∀ E : ℝ, 2 * (2 * E) = 4 * E)]
-    exact congrArg _ hεU.symm
-  refine ⟨BR, BC, hm, hCm.trans hm, hLb, hCLb, hLab, hCLab, hBS, hCBS, hk0, hCk0.trans hk0, hk',
-    hCk'.trans hk', hκH, hCκH, by rw [hKc, hKc''], hCKc, hCεH.symm, ?_⟩
-  rw [hBε]
-  have := hε4
-  rw [one_mul] at this
-  exact this
+  obtain ⟨CE, CF, hCE, hCF, H⟩ := sourceActivityC_scale_fromTower_rho T hA p
+  obtain ⟨β₀, hβ₀, -, h⟩ := H 1 one_pos
+  refine ⟨β₀, CE, CF, hβ₀, hCE, hCF, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν hν' β hβ p₁ hp hp₁ D
+  obtain ⟨𝒴, hdom, h2⟩ := h k hk N₁ h3N hN ν hν hν' β hβ p₁ hp hp₁ D
+  exact ⟨𝒴, hdom, fun g hg => by simpa only [one_mul] using h2 g hg⟩
 
 end Balaban.Inhabited
