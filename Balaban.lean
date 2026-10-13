@@ -495,6 +495,7 @@ public import Balaban.LargeField.History.ParentR2Y
 public import Balaban.Inhabited.BondLiftYWitness
 public import Balaban.LargeField.History.ParentDomain
 public import Balaban.LargeField.History.EarlyMassRatio
+public import Balaban.LargeField.History.PostWeightSupport
 public import Balaban.Inhabited.EarlyMassRatioWitness
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
