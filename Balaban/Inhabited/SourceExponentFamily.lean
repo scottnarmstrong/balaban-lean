@@ -304,7 +304,7 @@ open Classical in
 /-- **The source exponent as a label-activity sum on the constant-`h₀` fibre, at the shared tower.**
 For the step `S = T.step k hk N₁ ν β p₁` of the tower `T` with a per-scale package `D` (and
 `1 ≤ β`), there are a joint representation `Jr`, a domain family `𝒴` with its proof `hdom`, and for
-every `e` of the fibre `physFibreRho S S.a₁ S.ν T.t ρ` an activity `Aseg e he p` for `p` in `stepSegments`
+every `e` of the fibre `physFibre S S.a₁ S.ν T.t` an activity `Aseg e he p` for `p` in `stepSegments`
 on the labels `(thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)` (amplitude `4 ε_U`, rate
 `2 κ_dec - 1`, `κ₀ = T.κ0`, entropy constant `2 (K₀(T.κ0) + 1)`) with:
 
