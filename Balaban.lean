@@ -955,6 +955,7 @@ public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
 public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.LargeField.R.RegionalAlignedSource
+public import Balaban.LargeField.R.AlignedI6Transport
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
