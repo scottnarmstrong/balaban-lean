@@ -366,23 +366,72 @@ def physRegion (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (Z : Set (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L N₁ m₁ (k + 1)) :=
   {x | ∃ Y ∈ 𝒴, Y ⊆ Z ∧ x ∈ thickSet S.G' Y}
 
+omit [NeZero L] [NeZero N₁] in
+/-- Equal restrictions to a set `R` give equality of the three components of the datum at every
+site of `R`. -/
+theorem physRestrict_eq_apply {R : Set (CTorus d L N₁ m₁ (k + 1))}
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
+    (h : physRestrict (N := N) R Θ = physRestrict R Θ') :
+    ∀ x ∈ R, Θ.1.1 x = Θ'.1.1 x ∧ Θ.1.2 x = Θ'.1.2 x ∧ Θ.2 x = Θ'.2 x := by
+  intro x hx
+  have := congrFun h ⟨x, hx⟩
+  simpa [physRestrict, Prod.ext_iff] using this
+
+/-- Equal restrictions to a set containing `Y` give the source agreement `physAgΘ` (the raw datum
+and the source agree on `Y` itself). -/
+theorem physAgΘ_of_restrict_rawY {Y R : Set (CTorus d L N₁ m₁ (k + 1))} (hR : Y ⊆ R)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
+    (h : physRestrict (N := N) R Θ = physRestrict R Θ') : physAgΘ S Y Θ Θ' :=
+  ⟨fun x hx => ⟨(physRestrict_eq_apply h x (hR hx)).1, (physRestrict_eq_apply h x (hR hx)).2.1⟩,
+    fun x hx => (physRestrict_eq_apply h x (hR hx)).2.2⟩
+
+/-- Equal restrictions to a set containing the thickening of `Y` give the thick agreement
+`physAgΘThick` (raw datum on `thickSet Y`, source on `Y`). -/
+theorem physAgΘThick_of_restrict {Y R : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hR : thickSet S.G' Y ⊆ R)
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
+    (h : physRestrict (N := N) R Θ = physRestrict R Θ') : physAgΘThick S Y Θ Θ' :=
+  ⟨(physAgΘ_of_restrict_rawY S hR h).1,
+    fun x hx => (physAgΘ_of_restrict_rawY S hR h).2 x (Or.inl hx)⟩
+
 /-- Equal restrictions to a set containing the thickening of `Y` give the source agreement
-`physAgΘ`. -/
+`physAgΘ` (a fortiori: `Y ⊆ thickSet Y`). -/
 theorem physAgΘ_of_restrict {Y R : Set (CTorus d L N₁ m₁ (k + 1))}
     (hR : thickSet S.G' Y ⊆ R)
     {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
-    (h : physRestrict (N := N) R Θ = physRestrict R Θ') : physAgΘ S Y Θ Θ' := by
-  have key : ∀ x ∈ thickSet S.G' Y, Θ.1.1 x = Θ'.1.1 x ∧ Θ.1.2 x = Θ'.1.2 x ∧ Θ.2 x = Θ'.2 x := by
-    intro x hx
-    have := congrFun h ⟨x, hR hx⟩
-    simpa [physRestrict, Prod.ext_iff] using this
-  exact ⟨fun x hx => ⟨(key x hx).1, (key x hx).2.1⟩,
-    fun x hx => (key x (Or.inl hx)).2.2⟩
+    (h : physRestrict (N := N) R Θ = physRestrict R Θ') : physAgΘ S Y Θ Θ' :=
+  physAgΘ_of_restrict_rawY S (fun _ hx => hR (Or.inl hx)) h
+
+/-- **Locality of the physical activities in the datum, exact form.**  Let `Z = Ŷ(sitesOf T)` and
+let `R` be a set of sites containing every domain of the family that lies in `Z` (for instance
+`R = Z`).  If `Θ, Θ' ∈ V` have the same restriction to `R`, then the activities at the labels inside
+`Z` coincide, for every `u`: the activity of a label reads the datum only on its own domain. -/
+theorem physical_labelActFamily_local_rawY
+    {I : DirectTerms S m₀ hp emb ρ Rσ εU a Θ₀ (physSΛ S a₁ ν eps) XW val (physAgΘ S) AgF}
+    {V : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (hF : DirectTermsFamily S m₀ I V)
+    (hN : L ^ m₀ ∣ N₁) (hρ : 0 < ρ) (hRσ : 0 ≤ Rσ) (hεU : 0 ≤ εU)
+    {κ0 Kc : ℝ} (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 ≤ Kc)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) {R : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hR : ∀ Y ∈ I.𝒴, Y ⊆ Yhat Set.univ (sitesOf T) → Y ⊆ R) :
+    ∀ Θ ∈ V, ∀ Θ' ∈ V, physRestrict (N := N) R Θ = physRestrict R Θ' →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
+        (thickLabels I.𝒴 I.dom).ysite y ⊆ Yhat Set.univ (sitesOf T) →
+        (labelActFamily S m₀ I hF hN hρ hRσ hεU hκ0 hKc Θ (s : ℂ)).H y =
+          (labelActFamily S m₀ I hF hN hρ hRσ hεU hκ0 hKc Θ' (s : ℂ)).H y := by
+  intro Θ hΘ Θ' hΘ' h _ _ y hy
+  refine labelActFamily_local S m₀ hF hN hρ hRσ hεU hκ0 hKc hΘ hΘ' _ ?_ _ y hy
+  intro Y hY hYZ
+  exact physAgΘ_of_restrict_rawY S (hR Y hY hYZ) h
 
 /-- **Locality of the physical activities in the datum** (the premise `hA` of
 `gsumCoeff_param_congr_of_local` for the physical activities).  If `Θ, Θ' ∈ V` have the same
 restriction to the region `physRegion` of `Z = Ŷ(sitesOf T)` (the thickenings of the domains inside
-`Z`), then the activities at the labels inside `Z` coincide, for every `u`. -/
+`Z`), then the activities at the labels inside `Z` coincide, for every `u`.  (The thick region
+contains the domains themselves: this is `physical_labelActFamily_local_rawY` at
+`R = physRegion`.) -/
 theorem physical_labelActFamily_local
     {I : DirectTerms S m₀ hp emb ρ Rσ εU a Θ₀ (physSΛ S a₁ ν eps) XW val (physAgΘ S) AgF}
     {V : Set (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
@@ -398,12 +447,9 @@ theorem physical_labelActFamily_local
       ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
         (thickLabels I.𝒴 I.dom).ysite y ⊆ Yhat Set.univ (sitesOf T) →
         (labelActFamily S m₀ I hF hN hρ hRσ hεU hκ0 hKc Θ (s : ℂ)).H y =
-          (labelActFamily S m₀ I hF hN hρ hRσ hεU hκ0 hKc Θ' (s : ℂ)).H y := by
-  intro Θ hΘ Θ' hΘ' h _ _ y hy
-  refine labelActFamily_local S m₀ hF hN hρ hRσ hεU hκ0 hKc hΘ hΘ' _ ?_ _ y hy
-  intro Y hY hYZ
-  exact physAgΘ_of_restrict S (Y := Y) (R := physRegion S I.𝒴 (Yhat Set.univ (sitesOf T)))
-    (fun x hx => ⟨Y, hY, hYZ, hx⟩) h
+          (labelActFamily S m₀ I hF hN hρ hRσ hεU hκ0 hKc Θ' (s : ℂ)).H y :=
+  physical_labelActFamily_local_rawY S m₀ hF hN hρ hRσ hεU hκ0 hKc T
+    (fun Y hY hYZ _ hx => ⟨Y, hY, hYZ, Or.inl hx⟩)
 
 /-- The source agreement `physAgΘ` is reflexive. -/
 theorem physAgΘ_refl (Y : Set (CTorus d L N₁ m₁ (k + 1)))

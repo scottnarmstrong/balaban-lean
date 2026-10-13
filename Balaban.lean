@@ -1484,6 +1484,10 @@ public import Balaban.Inhabited.StepTowerRen
 public import Balaban.Inhabited.StepTowerRenEnd
 public import Balaban.Inhabited.StepTowerRenSol
 public import Balaban.Inhabited.StepTower
+public import Balaban.Inhabited.StepTowerG
+public import Balaban.Inhabited.StepTowerGBridge
+public import Balaban.Inhabited.StepScaleDataG
+public import Balaban.Inhabited.StepTowerGProducer
 public import Balaban.Inhabited.StepTowerScale
 public import Balaban.Inhabited.StepTowerScaleLemmas
 public import Balaban.Inhabited.MarkRealDiscSlice
@@ -1732,6 +1736,7 @@ public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.RenormE1SiteRecord
 public import Balaban.Inhabited.RenormM0SiteRecord
 public import Balaban.Inhabited.ObsCoeffLocal
+public import Balaban.Inhabited.ObsCoeffExactSites
 public import Balaban.Inhabited.E1ParamFibreValue
 public import Balaban.Inhabited.E0CoeffFamily
 public import Balaban.Fluctuation.LocExpUnion
@@ -1742,5 +1747,9 @@ public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
 public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
+public import Balaban.Fluctuation.RootSupportBridge
+public import Balaban.Fluctuation.RootTermFamily
 public import Balaban.Inhabited.LevelCoversG
 public import Balaban.Inhabited.RenJoinClassWitness
+public import Balaban.Inhabited.RenormPhysicalRecord
+public import Balaban.Inhabited.ObsPrefactorScale
