@@ -238,6 +238,52 @@ omit [NeZero n] in
 theorem inBox_mono {ρ ρ' : ℕ} (h : ρ ≤ ρ') {x : Torus d n} (hx : InBox d ρ n x) : InBox d ρ' n x :=
   fun μ => (hx μ).trans (by exact_mod_cast h)
 
+omit [NeZero n] in
+/-- A box `b + [0, s)^d` through a point of the box of radius `ρ` lies in the box of radius
+`ρ + s` (base point `b`). -/
+theorem inBox_of_mem_box_right {ρ s : ℕ} (hn : 2 * (ρ + s) + 1 < n) {b z : Torus d n}
+    (hb : InBox d ρ n b) (hz : z ∈ box b s) : InBox d (ρ + s) n z := by
+  obtain ⟨w, hw, rfl⟩ := hz
+  intro μ
+  have h2 : (((b μ).valMinAbs : ℤ) : ZMod n) = b μ := ZMod.coe_valMinAbs _
+  have h1 := abs_le.1 (hb μ)
+  have h3 := hw μ
+  refine inBox_of_int hn _ ((b μ).valMinAbs + (w μ : ℤ)) ?_ ?_
+  · simp only [Pi.add_apply, natT_apply]
+    rw [Int.cast_add, h2, Int.cast_natCast]
+  · rw [abs_le]; push_cast; constructor <;> omega
+
+omit [NeZero n] in
+/-- The base point of a box `b + [0, s)^d` containing a point of the box of radius `ρ` lies in the
+box of radius `ρ + s`. -/
+theorem inBox_of_mem_box_left {ρ s : ℕ} (hn : 2 * (ρ + s) + 1 < n) {b z : Torus d n}
+    (hz : InBox d ρ n z) (hmem : z ∈ box b s) : InBox d (ρ + s) n b := by
+  obtain ⟨w, hw, rfl⟩ := hmem
+  intro μ
+  have h2 : (((b + natT w : Torus d n) μ).valMinAbs : ZMod n) = (b + natT w : Torus d n) μ :=
+    ZMod.coe_valMinAbs _
+  have h1 := abs_le.1 (hz μ)
+  have h3 := hw μ
+  refine inBox_of_int hn _ (((b + natT w : Torus d n) μ).valMinAbs - (w μ : ℤ)) ?_ ?_
+  · rw [Int.cast_sub, Int.cast_natCast, h2]; simp
+  · rw [abs_le]; push_cast; constructor <;> omega
+
+/-- Two points in the same cell of side `a` lie in the box over the cell base. -/
+theorem sameCell_iff_mem_box {a : ℕ} (ha : a ∣ n) (ha0 : 0 < a) {x y : Torus d n} :
+    (∀ μ, (x μ).val / a = (y μ).val / a) ↔ x ∈ box (cbase a y) a := by
+  constructor
+  · intro h
+    exact mem_box_cbase_of_sameCell ha0 (fun μ => h μ)
+  · intro hx μ
+    have hc := cbase_eq_of_mem_box ha (aligned_cbase y) hx
+    have h1 := congrFun hc μ
+    simp only [cbase] at h1
+    have hlt : ∀ z : Torus d n, a * ((z μ).val / a) < n := fun z => lt_of_le_of_lt
+      (Nat.mul_div_le _ _) (ZMod.val_lt _)
+    have h2 := congrArg ZMod.val h1
+    rw [ZMod.val_natCast_of_lt (hlt x), ZMod.val_natCast_of_lt (hlt y)] at h2
+    exact Nat.eq_of_mul_eq_mul_left ha0 h2
+
 end BoxGrowth
 
 /-! ### The level generating sets and their blocks -/
@@ -487,5 +533,197 @@ theorem thickSet_levelGS_image {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
       simpa using this
 
 end Dep
+
+/-! ### Components of a set inside the box -/
+
+section Component
+
+variable {d n n' r : ℕ}
+
+/-- The component of `X` in `V` goes into the component of the image, inside the box. -/
+theorem componentOf_image_subset (hm : 2 * r + 1 < n) (hm' : 2 * r + 1 < n')
+    {X V : Set (Torus d n)} (hV : ∀ x ∈ V, InBox d r n x) :
+    boxMap n n' '' componentOf (latGraph d n) X V ⊆
+      componentOf (latGraph d n') (boxMap n n' '' X) (boxMap n n' '' V) := by
+  rintro _ ⟨z, ⟨y, hy, hpath⟩, rfl⟩
+  refine ⟨boxMap n n' y, Set.mem_image_of_mem _ hy, ?_⟩
+  induction hpath with
+  | refl => exact Relation.ReflTransGen.refl
+  | tail _ hbc ih =>
+    rename_i b c _
+    refine ih.tail ⟨⟨fun h => hbc.1.1 (boxMap_inj (hm' := hm') (hV b hbc.2.1) (hV c hbc.2.2) h),
+      (nbr_boxMap_iff hm hm' (hV b hbc.2.1) (hV c hbc.2.2)).1 hbc.1.2⟩,
+      Set.mem_image_of_mem _ hbc.2.1, Set.mem_image_of_mem _ hbc.2.2⟩
+
+/-- **Components correspond.**  For `X ⊆ V` inside the box, the component of `X` in `V` goes onto
+the component of the image of `X` in the image of `V`. -/
+theorem componentOf_image (hm : 2 * r + 1 < n) (hm' : 2 * r + 1 < n')
+    {X V : Set (Torus d n)} (hXV : X ⊆ V) (hV : ∀ x ∈ V, InBox d r n x) :
+    boxMap n n' '' componentOf (latGraph d n) X V =
+      componentOf (latGraph d n') (boxMap n n' '' X) (boxMap n n' '' V) := by
+  refine Set.Subset.antisymm (componentOf_image_subset hm hm' hV) fun z' hz' => ?_
+  have hV' : ∀ x ∈ boxMap n n' '' V, InBox d r n' x := by
+    rintro _ ⟨x, hx, rfl⟩; exact inBox_boxMap hm' (hV x hx)
+  have hsub := componentOf_image_subset (r := r) (X := boxMap n n' '' X) hm' hm hV'
+    (Set.mem_image_of_mem (boxMap n' n) hz')
+  have hz'V : z' ∈ boxMap n n' '' V :=
+    componentOf_subset _ (Set.image_mono hXV) hz'
+  obtain ⟨w, hw, rfl⟩ := hz'V
+  refine ⟨w, ?_, rfl⟩
+  rw [boxMap_boxMap hm' (hV w hw), image_image_boxMap hm' (fun x hx => hV x (hXV hx)),
+    image_image_boxMap hm' hV] at hsub
+  exact hsub
+
+end Component
+
+/-! ### The decoupling index type -/
+
+section Index
+
+variable {d L N₁ N₁' m₁ K : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ} {j m₀ : ℕ}
+
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ K) ((N₁' * L ^ m₁) * L ^ K)
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ K) ((N₁ * L ^ m₁) * L ^ K)
+
+omit [NeZero N₁] [NeZero N₁'] in
+theorem side_facts (m₀ m₁ : ℕ) (j : ℕ) :
+    0 < cellSide L m₀ m₁ j ∧ cellSide L m₀ m₁ j ≤ L * cellSide L m₀ m₁ j ∧
+      L ^ (j + m₁) ≤ cellSide L m₀ m₁ j ∧ 1 ≤ L * cellSide L m₀ m₁ j := by
+  have hL := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hc := cellSide_pos (L := L) m₀ m₁ j
+  refine ⟨hc, Nat.le_mul_of_pos_left _ hL, ?_, Nat.mul_pos hL hc⟩
+  exact Nat.pow_le_pow_right hL (by omega)
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+theorem pow_dvd_side (hj : j ≤ K) (N : ℕ) : L ^ (j + m₁) ∣ (N * L ^ m₁) * L ^ K := by
+  have : (N * L ^ m₁) * L ^ K = N * L ^ (m₁ + K) := by rw [pow_add]; ring
+  rw [this]
+  exact Dvd.dvd.mul_left (pow_dvd_pow L (by omega)) N
+
+/-- The parameter cube `Pset` of a cube centre is the aligned box over its base point. -/
+theorem pset_eq_box (hj : j ≤ K) {y0 : CTorus d L N₁ m₁ K} (hb : CubeBase (K := K) m₁ j y0) :
+    Pset m₁ ((j, y0) : ℕ × CTorus d L N₁ m₁ K) = box y0 (L ^ (j + m₁)) := by
+  have ha0 : 0 < L ^ (j + m₁) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have hdv := pow_dvd_side (L := L) (m₁ := m₁) hj N₁
+  have hc : cbase (L ^ (j + m₁)) y0 = y0 :=
+    cbase_eq_of_mem_box hdv (a := L ^ (j + m₁)) (c := y0) hb (mem_box_self y0 ha0)
+  ext x
+  show (∀ μ, (x μ).val / L ^ (j + m₁) = (y0 μ).val / L ^ (j + m₁)) ↔ _
+  rw [sameCell_iff_mem_box hdv ha0, hc]
+
+section WithMargins
+
+variable {ρ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') (hj : j ≤ K)
+  (hn : 2 * ρ + 5 * (L * cellSide L m₀ m₁ j) < (N₁ * L ^ m₁) * L ^ K)
+  (hn' : 2 * ρ + 5 * (L * cellSide L m₀ m₁ j) < (N₁' * L ^ m₁) * L ^ K)
+
+include hN hN' hj hn hn'
+
+omit hN hN' hn' in
+/-- **The patch `Pset` of a cube centre.**  The patch of the centre `(j, y0)` of the first torus,
+with `y0` in the box of radius `ρ`, goes to the patch of the centre `(j, boxMap y0)`. -/
+theorem pset_image {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hb : CubeBase (K := K) m₁ j y0) :
+    bm '' Pset m₁ ((j, y0) : ℕ × CTorus d L N₁ m₁ K) =
+      Pset m₁ ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) m₀ m₁ j
+  have hb' : CubeBase (K := K) m₁ j (bm y0) :=
+    aligned_boxMap (pow_dvd_side hj N₁) (pow_dvd_side hj N₁') hb
+  rw [pset_eq_box hj hb, pset_eq_box hj hb']
+  exact image_box_boxMap (r := ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) (by omega)
+    (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
+    (fun x hx => inBox_mono (by omega) (inBox_of_mem_box_right (by omega) hy0 hx))
+
+omit hN hN' hn hn' in
+theorem mem_dcubes_levelGS (y0 : CTorus d L N₁ m₁ K) (b : CTorus d L N₁ m₁ K) :
+    b ∈ Dcubes (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ↔
+      Aligned (cellSide L m₀ m₁ j) b ∧
+        cellOf L m₀ m₁ ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ⊆ box b (L * cellSide L m₀ m₁ j) := by
+  unfold Dcubes
+  have h := layer_levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) hj j
+  simp only [ite_true] at h
+  simp only [Set.mem_ofPred_eq, h, Finset.coe_univ, Set.subset_univ, and_true]
+
+omit hn' in
+/-- Cubes `□'` of `D(P)` for `P = (j, y0)` with `y0` in the box of radius `ρ`: their points lie in
+the box of radius `ρ + 2 S`, `S = L a_j`, and the corresponding cube is a cube of the second torus. -/
+theorem dcubes_fwd {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) y0)
+    {b : CTorus d L N₁ m₁ K}
+    (hb : b ∈ Dcubes (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+      ((j, y0) : ℕ × CTorus d L N₁ m₁ K)) :
+    (∀ z ∈ box b (L * cellSide L m₀ m₁ j),
+      InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) ((N₁ * L ^ m₁) * L ^ K) z) ∧
+    bm b ∈ Dcubes (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+      ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) m₀ m₁ j
+  rw [mem_dcubes_levelGS hj] at hb
+  obtain ⟨hal, hsub⟩ := hb
+  have hcellOf : ∀ (N : ℕ) [NeZero N] (y : CTorus d L N m₁ K),
+      cellOf L m₀ m₁ ((j, y) : ℕ × CTorus d L N m₁ K) =
+        box (cbase (cellSide L m₀ m₁ j) y) (cellSide L m₀ m₁ j) := fun _ _ _ => rfl
+  have hy0cell : y0 ∈ cellOf L m₀ m₁ ((j, y0) : ℕ × CTorus d L N₁ m₁ K) := by
+    rw [hcellOf]; exact mem_box_cbase hc0 y0
+  have hbIn : InBox d (ρ + L * cellSide L m₀ m₁ j) ((N₁ * L ^ m₁) * L ^ K) b :=
+    inBox_of_mem_box_left (by omega) hy0 (hsub hy0cell)
+  have hzIn : ∀ z ∈ box b (L * cellSide L m₀ m₁ j),
+      InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) ((N₁ * L ^ m₁) * L ^ K) z :=
+    fun z hz => inBox_of_mem_box_right (by omega) hbIn hz
+  refine ⟨hzIn, ?_⟩
+  rw [mem_dcubes_levelGS hj]
+  refine ⟨aligned_boxMap (cellSide_dvd (K := K) (m₁ := m₁) hN hj)
+    (cellSide_dvd (K := K) (m₁ := m₁) hN' hj) hal, ?_⟩
+  have hcellIn : ∀ x ∈ box (cbase (cellSide L m₀ m₁ j) y0) (cellSide L m₀ m₁ j),
+      InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j)
+        ((N₁ * L ^ m₁) * L ^ K) x :=
+    fun x hx => inBox_mono (by omega) (inBox_of_mem_cell (by omega) hy0 hx)
+  have himg : bm '' cellOf L m₀ m₁ ((j, y0) : ℕ × CTorus d L N₁ m₁ K) =
+      cellOf L m₀ m₁ ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+    rw [hcellOf, hcellOf, image_box_boxMap (r := ρ + L * cellSide L m₀ m₁ j +
+      L * cellSide L m₀ m₁ j) (by omega) hc0 hcellIn]
+    rw [cbase_boxMap (r := ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j)
+      (cellSide_dvd (K := K) (m₁ := m₁) hN hj) (cellSide_dvd (K := K) (m₁ := m₁) hN' hj) hc0
+      (by omega) y0 hcellIn]
+  rw [← himg, ← image_box_boxMap (r := ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j)
+    (by omega) (by omega) hzIn]
+  exact Set.image_mono hsub
+
+/-- **The sites `D(P)` of a cube centre.**  For the centre `(j, y0)` of the first torus with `y0`
+in the box of radius `ρ`, `D(P)` goes to `D(P')` for `P' = (j, boxMap y0)`. -/
+theorem dsites_image {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) y0) :
+    bm '' Dsites (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        ((j, y0) : ℕ × CTorus d L N₁ m₁ K) =
+      Dsites (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) m₀
+        ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+  obtain ⟨hc0, hcS, ha, hS⟩ := side_facts (L := L) m₀ m₁ j
+  have hy0' : InBox d ρ ((N₁' * L ^ m₁) * L ^ K) (bm y0) := inBox_boxMap (by omega) hy0
+  have hyy : bm' (bm y0) = y0 := boxMap_boxMap (by omega) hy0
+  ext z
+  constructor
+  · rintro ⟨z0, hz0, rfl⟩
+    simp only [Dsites, Set.mem_iUnion] at hz0 ⊢
+    obtain ⟨b, hb, hz0⟩ := hz0
+    obtain ⟨hzIn, hb'⟩ := dcubes_fwd hN hN' hj hn hy0 hb
+    refine ⟨bm b, hb', ?_⟩
+    rw [← image_box_boxMap (r := ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) (by omega)
+      (by omega) hzIn]
+    exact ⟨z0, hz0, rfl⟩
+  · intro hz
+    simp only [Dsites, Set.mem_iUnion] at hz
+    obtain ⟨b', hb', hz⟩ := hz
+    obtain ⟨hzIn', hb⟩ := dcubes_fwd (N₁ := N₁') (N₁' := N₁) hN' hN hj hn' hy0' hb'
+    rw [hyy] at hb
+    have hzin : InBox d (ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j)
+        ((N₁' * L ^ m₁) * L ^ K) z := hzIn' z hz
+    refine ⟨bm' z, ?_, boxMap_boxMap (by omega) hzin⟩
+    simp only [Dsites, Set.mem_iUnion]
+    refine ⟨bm' b', hb, ?_⟩
+    rw [← image_box_boxMap (r := ρ + L * cellSide L m₀ m₁ j + L * cellSide L m₀ m₁ j) (by omega)
+      (by omega) hzIn']
+    exact ⟨z, hz, rfl⟩
+
+end WithMargins
+
+end Index
 
 end Balaban.Polymer.TwoTorusStep
