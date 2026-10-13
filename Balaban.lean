@@ -21,6 +21,7 @@ public import Balaban.Green.CoercivitySharp
 public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
 public import Balaban.Green.FinalHessian
+public import Balaban.Green.GaussianChangeGeneral
 public import Balaban.Lattice.Blocks
 public import Balaban.Lattice.BlockAverage
 public import Balaban.Gaussian.Integral
