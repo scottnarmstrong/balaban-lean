@@ -33,8 +33,8 @@ open Classical in
 observable family, chosen before the datum and source. The scope is `d=L=3`, `N=2`, the
 zero class and the fibre `h=h₀`. The coefficients are indexed by cube sets and regrouped
 through `sitesOf`; sources lie in the unit `ℓ¹` ball and the observable rate is
-`(3/2)κdec`. This does not assert a local chart, the paper's rotation radius or rates,
-reality, symmetry, or nonzero old and boundary channels. -/
+`(3/2)κdec`. This does not assert the paper's local chart, rotation radius, rates or
+prefactors, reality, symmetry, or the degenerate clauses (a′), (c)–(f). -/
 theorem zeroClassStep_families_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {CR s : ℝ} (hCR : 0 < CR)
     (hs0 : 0 < s) (hs : s < 1 / 2) :
@@ -392,7 +392,10 @@ solution are chosen before every constant-field chart datum and source in the un
 The record has the site cover `renYs ∪ sitesOf` and `renDY` distance; its four local
 expansion consequences follow with the budgets of `renormPhysicalZero_onFibre_half_consequences_uniform`.
 The statement concerns `d=L=3`, `N=2`, the zero class and `h=h₀`; it does not include the
-paper's local chart, rotation radius, rates, reality, symmetries, or old and boundary terms. -/
+paper's local chart, rotation radius, rates or prefactors, reality, symmetries, or the
+degenerate clauses (a′), (c)–(f). The site coefficients of the displayed step use the
+`E0CoeffFamily` energy constant, while the renormalized `E0` record uses the determinant
+hull budget plus `K0`; these bounds concern different arguments. -/
 theorem zeroClassStep_sites_fromTower {κmin : ℝ} (R : StepTowerTheta κmin)
     (hR : renDetFibreMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
     {CR s : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) :
@@ -584,6 +587,11 @@ theorem zeroClassStep_sites_fromTower {κmin : ℝ} (R : StepTowerTheta κmin)
         (R.toStepTower.step k hk N₁ ν β p₁).a
         (R.toStepTower.step k hk N₁ ν β p₁).ν (k + 1) 1 R.t D' →
       (∀ z, ∃ eY : Set (CTorus 3 3 N₁ R.m₁ (k + 1)) → ℂ,
+        (∀ Y, eY Y = ∑ C₀ ∈ Finset.univ.filter
+          (fun C' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := R.m₁)
+            (K := k + 1) 1 (k + 1) Set.univ) => sitesOf C' = Y),
+          e0 z (⟨rawOf D', rawOf_mem_rawSub _⟩,
+            (0 : CTorus 3 3 N₁ R.m₁ (k + 1) → Fin 2 → ℂ)) C₀) ∧
         ((R.toStepTower.step k hk N₁ ν β p₁).withDatum D' hDh).E0locC
           (zeroClass 3 3 N₁ R.m₁ k 2 (rhoSep R.m₁)) z =
           ∑ Y ∈ Finset.univ.image (fun C₀ : Finset (CubeB (d := 3) (L := 3)
@@ -597,6 +605,10 @@ theorem zeroClassStep_sites_fromTower {κmin : ℝ} (R : StepTowerTheta κmin)
             K0 3 3 R.κ0) * Real.exp (-R.toStepTower.κ' * sizeJ 1 (k + 1) Y)) ∧
       ∀ (g : Fld 3 3 N₁ R.m₁ (k + 1) 2), (∑ x, ∑ j, ‖g x j‖) < 1 →
         ∀ y i, ∃ mY : Set (CTorus 3 3 N₁ R.m₁ (k + 1)) → ℂ,
+          (∀ Y, mY Y = ∑ C₀ ∈ Finset.univ.filter
+            (fun C' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := R.m₁)
+              (K := k + 1) 1 (k + 1) Set.univ) => sitesOf C' = Y),
+            cM y i (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C₀) ∧
           ((R.toStepTower.step k hk N₁ ν β p₁).withDatum D' hDh).M0C
             (zeroClass 3 3 N₁ R.m₁ k 2 (rhoSep R.m₁)) g y i =
             (((R.toStepTower.step k hk N₁ ν β p₁).betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
@@ -729,20 +741,20 @@ theorem zeroClassStep_sites_fromTower {κmin : ℝ} (R : StepTowerTheta κmin)
       have hBE : 0 ≤ BE := by
         have h0 := (norm_nonneg (e0 z θ ∅)).trans ((he2 z ∅).2.2.1 θ hθ)
         exact (mul_nonneg_iff_of_pos_right (Real.exp_pos _)).1 h0
-      obtain ⟨eY, _, _, hsum, hsupp, hbound⟩ :=
+      obtain ⟨eY, hdef, _, hsum, hsupp, hbound⟩ :=
         sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1)
           (m₀ := 1) (by simpa using h3N) (fun C₀ => e0 z θ C₀)
           BE T.κ' hBE (rootCube z)
           (fun C₀ _ => (he2 z C₀).2.2.1 θ hθ)
           (fun C₀ hne =>
             ⟨((he2 z C₀).2.2.2 θ hne).2, ((he2 z C₀).2.2.2 θ hne).1⟩)
-      exact ⟨eY, (hev z D' hDh hX).trans hsum, hsupp, hbound⟩
+      exact ⟨eY, hdef, (hev z D' hDh hX).trans hsum, hsupp, hbound⟩
     · let θ : physParam 2 (T.step k hk N₁ ν β p₁) :=
         (⟨rawOf D', rawOf_mem_rawSub _⟩, g)
       have hθ : θ ∈ physV (T.step k hk N₁ ν β p₁)
           (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν R.t :=
         ⟨⟨D', hX, rfl⟩, hg⟩
-      obtain ⟨mY, _, _, hsum, hsupp, hbound⟩ :=
+      obtain ⟨mY, hdef, _, hsum, hsupp, hbound⟩ :=
         sitesOf_regroup (L := 3) (N₁ := N₁) (m₁ := R.m₁) (K := k + 1)
           (m₀ := 1) (by simpa using h3N) (fun C₀ => mObs y i θ C₀)
           (C * obsPrefactor p s (β * 3 ^ k)) (3 / 2 * T.κdec) hBM
@@ -753,7 +765,7 @@ theorem zeroClassStep_sites_fromTower {κmin : ℝ} (R : StepTowerTheta κmin)
             have h := (hcl y i C₀).2.2.1 θ
               (by simpa only [physVq_one] using hθ) hne
             ⟨h.2, h.1⟩)
-      refine ⟨mY, ?_, hsupp, hbound⟩
+      refine ⟨mY, hdef, ?_, hsupp, hbound⟩
       rw [hvalM D' hDh hX g hg y i, hsum]
 
 end Balaban.Inhabited
