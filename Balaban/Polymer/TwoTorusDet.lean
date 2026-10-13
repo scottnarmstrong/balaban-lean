@@ -14,15 +14,41 @@ public import Balaban.Fluctuation.RowsCompose
 
 For the top level `levelGS (k + 1)` of two fine tori `CTorus d L N₁ m₁ (k + 1)` and
 `CTorus d L N₁' m₁ (k + 1)`, identified on a centred box by `boxMap` (`bm` on the fine tori, `bU`
-on the unit lattices), this file compares the terms of the rooted determinant expansion.
+on the unit lattices, `cubeMap` on the level-`(k+1)` cubes), this file compares the terms of the
+rooted determinant expansion `detActivityBg` (`Fluctuation/DetCauchyBgActivity`).
+
+## D1: the decoupled logarithm
 
 * `unitImage_inj`: the map `ιu` of unit points is injective on unit points with a fine site in the
   box.
-* `decLog_diag_transport` (D1): the diagonal entries of the decoupled logarithm
+* `decLog_diag_transport`: the diagonal entries of
   `𝕃(s) = log a_k (1 - P) + log (a_k + b) P - ∫₀^∞ (C_x(s) - A_{k,x}) dx` (`decLog`) agree at
   corresponding unit points whose `(k+1)`-block lies in a component `Y` of the cut, under the
-  hypotheses of `decCov_rows_transport` for every `x ≥ 0`; `rootTrace_single_transport` is the
-  rooted trace of one unit block.
+  hypotheses of `decCov_rows_transport` for every `x ≥ 0`; `decLog_rows_transport`: the same for
+  the rows of `𝕃(s) h`; `rootTrace_single_transport`: the rooted trace of one unit block.
+
+## D2: the background inputs
+
+* `rowsCov_R_mem_Y_and_rowsDep`: the sites `R(S_Y)` read by the `x`-variant rows lie in `Y`, and
+  their approximate-field footprints lie in `RowsDep (S_Y)`.
+* `decBg_inputs_twoTorus`: from raw data agreeing on `RowsDep (S_Y)`, the decoupled multipliers
+  correspond on `S_Y` and the extended decoupled fields `barField D.Ψ (decBgField)` on `R(S_Y)`
+  (the hypotheses `hα`, `hφR` of D1), via `decBg_component_unique` at `j = K = k + 1`.
+
+## D3: the rooted trace, its mixed differences and the activity
+
+* `rootTraceBg_single_twoTorus`: `rootTraceBg {b} D s` on two tori, for one cut configuration.
+* `rootTraceBg_cutPt_twoTorus`: the same at the cut points `1_I`, `1_{I'}` of corresponding sets of
+  parameter cubes in the box, with raw data agreeing on a box (`inBox_of_rowsDep_top`).
+* `mixDiff_rootTraceBg_twoTorus`: the mixed differences `Δ_J`, `Δ_{J'}` agree.
+* `piHull_boxMap`, `hullSet_image_top`, `hullOf_image_top`: the hull of `(ιu y, J')` is the
+  `cubeMap`-image of the hull of `(y, J)`.
+* `detActivityBg_twoTorus`: the activity of a polymer `Y` (in the box, containing the root cube of
+  `y`) equals the activity of `cubeMap '' Y` on the second torus.
+
+The statements hold at cut parameter vectors only (the parameters vanish on the parameter cubes off
+the selected family); the determinant activity only evaluates the decoupled logarithm at cut
+points, so no value at `s ≡ 1` is compared.
 -/
 
 @[expose] public section
@@ -192,6 +218,84 @@ theorem decLog_diag_transport {a : ℕ → ℝ} {aT ν δ κ : ℝ}
     smul_eq_mul, intMat]
   simp only [liftOp_unitP_diag]
   rw [hint]
+
+/-- **D1, rows of `𝕃(s) h`.**  Under the hypotheses of `decLog_diag_transport`, if the inputs
+correspond on the unit points read by the rows of `C_x(s)` (`UnitOut` or `UnitIn`), the rows of
+`𝕃(s) h` and `𝕃(s') h'` correspond at every unit point whose `(k+1)`-block lies in `Y`.  The
+projection term `P h` is read off from `A_{k,x} h` at `c = 1`, `b = 1`, `x = 0`
+(`A h = h - P h / 2`); the integral term is `intMat_mulVec_apply` with the landed integrability
+`integrable_decSub` and the rows of `C_x(s) - A_{k,x}` for every `x > 0`.  Margin as in
+`decLog_diag_transport`. -/
+theorem decLog_rows_transport {a : ℕ → ℝ} {aT ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hfam : ∀ x, 0 ≤ x → XData (GA) a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData (GB) a aT ν x α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨ UnitIn (GA) X₁ 𝒞 Y b') → ∀ i,
+      h' (ιu b', i) = h (b', i))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
+    (decLog (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decLog (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) := by
+  classical
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hnu : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hnu' : 2 * R + 5 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have Hs := (standing_pair hfam hφ hδ hsm).1
+  have Hs' := (standing_pair hfam' hφ' hδ hsm).1
+  -- a fine site of the block of `b`
+  obtain ⟨y0, -, hy0⟩ := (mem_unitPts _).1 b.2
+  have hy0Y : y0 ∈ Y := hb ⟨y0, levelGS_mem_Ω_one hj1 le_rfl y0⟩ (by rw [hy0])
+  have hb0 : unitBlock1 (b : UnitTorus d L N₁ m₁ k) =
+      jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y0 := by
+    rw [← hy0, unitBlock1_unitBlock]
+  have hbo : ∀ b3 : unitPts (GA), unitBlock1 (b3 : UnitTorus d L N₁ m₁ k) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → ∀ j, h' (ιu b3, j) = h (b3, j) :=
+    fun b3 h3 j => hh b3 (Or.inl fun y hy => hb y (hy.trans h3)) j
+  -- the projection term
+  have hP : (liftOp N (unitP (GB)) *ᵥ h') (ιu b, i) = (liftOp N (unitP (GA)) *ᵥ h) (b, i) := by
+    have e := covA_unit_rows_transport (N := N) 1 1 0 hnu hnu' (hYR _ hy0Y) hb0 hbo i
+    rw [covA_mulVec_eq, covA_mulVec_eq] at e
+    simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, hh b (Or.inl hb) i] at e
+    norm_num at e
+    linear_combination e
+  -- the integral term
+  have hint : ∫ x in Ioi (0 : ℝ), ((decCov (GB) a aT x ν α' s' φ' (unitQ (GB)) (unitP (GB)) -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N (unitP (GB)))) *ᵥ h') (ιu b, i) =
+      ∫ x in Ioi (0 : ℝ), ((decCov (GA) a aT x ν α s φ (unitQ (GA)) (unitP (GA)) -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N (unitP (GA)))) *ᵥ h) (b, i) := by
+    refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+    have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
+    simp only [Matrix.sub_mulVec, Pi.sub_apply]
+    rw [decCov_rows_transport hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hα hφR
+        (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' hh b hb i,
+      covA_unit_rows_transport _ _ _ hnu hnu' (hYR _ hy0Y) hb0 hbo i]
+  have e1 := intMat_mulVec_apply (integrable_decSub Hs) h (b, i)
+  have e2 := intMat_mulVec_apply (integrable_decSub Hs') h' (ιu b, i)
+  unfold decLog
+  simp only [Matrix.sub_mulVec, Matrix.add_mulVec, Matrix.smul_mulVec, Pi.sub_apply,
+    Pi.add_apply, Pi.smul_apply, smul_eq_mul, Matrix.one_mulVec]
+  rw [e1, e2, hint, hP, hh b (Or.inl hb) i]
 
 /-- **D1 for the rooted trace of one unit block.**  The rooted trace
 `-(1/2) ∑_i 𝕃(s)_{(b,i),(b,i)}` (`rootTrace` of `{b}`) at corresponding unit points, under the
@@ -759,7 +863,7 @@ theorem inBox_of_mem_piHull {ρ : ℕ}
 /-- **The `π′_K`-hull on two tori, one inclusion.**  For a set `S` of the box of radius `ρ`, the
 image of the hull of `S` under `cubeMap` lies in the hull of `bm '' S`.  Margin:
 `2 (ρ + 2 L a_K) + L a_K < N₁ L^m₁ L^(k+1)`. -/
-theorem piHull_image_subset (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
+theorem piHull_boxMap_subset (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
     (hn : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
     {S : Set (CTorus d L N₁ m₁ (k + 1))}
     (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
@@ -786,18 +890,18 @@ theorem piHull_image_subset (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') 
 /-- **The `π′_K`-hull on two tori.**  For a set `S` of the box of radius `ρ`,
 `piHull (bm '' S) = cubeMap '' piHull S`.  Margin: `2 (ρ + 2 L a_K) + L a_K < N₁ L^m₁ L^(k+1)`
 (and for `N₁'`). -/
-theorem piHull_image (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
+theorem piHull_boxMap (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {ρ : ℕ}
     (hn : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hn' : 2 * (ρ + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
     {S : Set (CTorus d L N₁ m₁ (k + 1))}
     (hS : ∀ x ∈ S, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
     piHull m₀ (bm '' S) = (piHull m₀ S).image (cubeMap hN hN' le_rfl) := by
-  refine subset_antisymm (fun c' hc' => ?_) (piHull_image_subset hN hN' hn hS)
+  refine subset_antisymm (fun c' hc' => ?_) (piHull_boxMap_subset hN hN' hn hS)
   have ha0 : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
   have hS' : ∀ x ∈ bm '' S, InBox d ρ ((N₁' * L ^ m₁) * L ^ (k + 1)) x := by
     rintro _ ⟨x, hx, rfl⟩
     exact inBox_boxMap (by omega) (hS x hx)
-  have h1 := piHull_image_subset (N₁ := N₁') (N₁' := N₁) hN' hN hn' hS'
+  have h1 := piHull_boxMap_subset (N₁ := N₁') (N₁' := N₁) hN' hN hn' hS'
   rw [image_image_boxMap (by omega) hS] at h1
   have hc'R := inBox_of_mem_piHull (by omega) hS' hc'
   refine Finset.mem_image.2 ⟨cubeMap hN' hN le_rfl c', h1 (Finset.mem_image_of_mem _ hc'), ?_⟩
@@ -923,7 +1027,7 @@ theorem hullOf_image_top (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {r 
   have hcs : aK ≤ L * aK := cellSide_le_mul
   unfold hullOf
   rw [hullSet_image_top hN hN' hn1 (by omega) hn3 y J J' hJ' hbox]
-  exact piHull_image hN hN' hnH hnH' hbox
+  exact piHull_boxMap hN hN' hnH hnH' hbox
 
 /-- **D3: the determinant activity of a polymer on two tori.**  Let `Y` be a set of level-`(k+1)`
 cubes of the first torus with sites in the box of radius `r`, containing the root cube of the unit
