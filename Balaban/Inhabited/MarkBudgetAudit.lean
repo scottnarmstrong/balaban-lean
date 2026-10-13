@@ -78,7 +78,7 @@ theorem Ecst_toG (a : ℝ) : Ecst T a = EcstG T.toG a := by
   simp only [StepTower.toG_t, StepTower.toG_BG, StepTower.toG_κ]
   norm_num
 
-/-- The fixed `cubicF0` is the general one at the tower `T.toG` (`3^k = (3:ℕ)^{k(3-2)}`). -/
+/-- The scale `3^k` is the general scale `L^{k(d-2)}` at `d = L = 3`. -/
 theorem scale_three_cast (k : ℕ) : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = (3 : ℝ) ^ k := by norm_num
 
 theorem Vstar_nonneg : 0 ≤ Vstar T := VstarG_nonneg T.toG
