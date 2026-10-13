@@ -1609,6 +1609,7 @@ public import Balaban.Fluctuation.RenormEndpointSharp
 public import Balaban.Fluctuation.RenormC2Local
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.Fluctuation.MarkedEvJoint
+public import Balaban.Fluctuation.MarkedVRawY
 public import Balaban.Fluctuation.MarkedCubicJoint
 public import Balaban.Inhabited.MarkedJointWitness
 public import Balaban.LargeField.Base.KF0TaylorMajorant
