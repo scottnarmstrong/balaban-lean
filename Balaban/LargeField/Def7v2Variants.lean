@@ -38,7 +38,7 @@ variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] 
 /-- **`IsRep^pre_k`, second version** (§II.6.3, first item): as `IsRep2` with `Z^pre_k` in place of
 `Z_k` (no `R`-record at scale `k`, the operators `𝕋^pre_k`, `D1PreForm2`), (H6′)^pre in place of
 (D6), (D7) with `κ_+ = 3κ/2` and `B_st` (on the pinned ball; the pre-`R` record `D7Bdry2`: raw
-region `OmegaCube`, cube-level size `dCovMod`), and (D2) with `½ β_k^{-m-1}` for `ℛ^{(k)}_m`. -/
+region `OmegaCube`, fine size `d7SizePre`), and (D2) with `½ β_k^{-m-1}` for `ℛ^{(k)}_m`. -/
 structure IsRepPre2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N : ℕ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ)
@@ -58,7 +58,8 @@ structure IsRepPre2 (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [N
   pin : ∀ (nK : ℕ) [NeZero nK], D4Pin k (F.lf nK)
   opBound : ∀ (nK : ℕ) [NeZero nK], D5Bound k hkK (F.lf nK)
   budget : ∀ (nK : ℕ) [NeZero nK], D6Pre (F.lf nK)
-  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2 (sides_hnn S.L K nK) hkK (F.lf nK)
+  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry2 (fineFrame S (sides S.L K nK) K hM6)
+    (sides_hnn S.L K nK) hkK (F.lf nK)
     (fun A => A.H.F.Zpre k) F.weights cs.mu (P6.eps S.d S.L) (epsOne S P6 C7) cs.nu C7.Bst
     (3 / 2 * P6.κ) hv rH
   coherent : D8SF P6.m₀ F.sf

@@ -14,11 +14,12 @@ public import Balaban.SmallField.Def6v2Inhabited
 /-!
 # The fine size of the boundary terms: a boundary domain with finite size and a nonzero term
 
-The landed inhabitants of the records `D7BdryPost`, `D7Bdry2Post` (`wBdryPost`, `wBdry2Post`) have
-boundary terms identically zero, and the histories of `nonempty_labHist` have no large-field
-cube, so they have no boundary domain.  This file gives, in the setting of the Def-7 witness
-(`d = L = 3`, `M = 27 = 3^{0+3}`, radii `R_j = 32 λ_j²`, horizon `K = 1`, scale `k = 1`, regime
-index `k₀ = 0`), on the torus with `n_1 = 2 r + 4` cubes per side, `r = ⌊2 R_0⌋ + 2 L + 6`:
+The landed inhabitants of the records of (D7) (`wBdry`, `wBdry2` before `R`, `wBdryPost`,
+`wBdry2Post` after `R`) have boundary terms identically zero, and the histories of
+`nonempty_labHist` have no large-field cube, so they have no boundary domain.  This file gives,
+in the setting of the Def-7 witness (`d = L = 3`, `M = 27 = 3^{0+3}`, radii `R_j = 32 λ_j²`,
+horizon `K = 1`, scale `k = 1`, regime index `k₀ = 0`), on the torus with `n_1 = 2 r + 4` cubes
+per side, `r = ⌊2 R_0⌋ + 2 L + 6`:
 
 * `labBdry`: the history with one large-field cube created at the step `0 → 1` (`QuietHist`).  Its
   region `Z_1` contains the cube `0` (`labBdry_zero_mem_Z`) and lies in the neighbourhood of
@@ -31,6 +32,9 @@ index `k₀ = 0`), on the torus with `n_1 = 2 r + 4` cubes per side, `r = ⌊2 R
   `labBdry` whose boundary term at that domain is the nonzero constant
   `(fac / 2) e^{-rate · d7Size}` and `0` at the other domains; it satisfies `D7Bdry2Post` and
   `D7BdryPost`, the bound being `(fac / 2) e^{-rate · d7Size} < fac · e^{-rate · d7Size}`.
+* `labBdry_univ_mem_bdryDomsPre`, `d7SizePreE_ne_top_at_boundary_domain`,
+  `exists_d7Bdry_nonzero`: the same for the pre-`R` record `D7Bdry` (region `Z^pre_1 = Z_1`,
+  raw region; no component of `labBdry` is removed, so the two records coincide).
 
 * `corner_dCovMod_zero_fine_top`: for two blocks of cubes meeting at a corner, the cube-level
   size `dCovMod` is `0` and the fine size `Fluctuation.dcovModE` is `⊤`
@@ -102,15 +106,27 @@ theorem quiet_regions_one_subset :
   refine nbhd_mono ?_ subset_rfl h2
   omega
 
-/-- The whole torus of cubes is a valid label for every frame and history. -/
-theorem fineValid_univ {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (A : LabHist S n R k0 K) (k : ℕ) :
-    FineValid F A k (Finset.univ : Finset (Torus S.d (n k))) := by
-  refine fineValid_of_djMod F A ⟨?_, fun z _ => Or.inl ?_⟩
+/-- The whole torus of cubes is a valid label for every frame and region. -/
+theorem fineValidAt_univ {K M m₀ m₁ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ)
+    (Om : Set (Torus S.d (n k))) :
+    FineValidAt F k Om (Finset.univ : Finset (Torus S.d (n k))) := by
+  refine fineValidAt_of_djMod ⟨?_, fun z _ => Or.inl ?_⟩
   · rw [Finset.coe_univ, d7Pull_univ]
     exact Fluctuation.isDj_univ _ _ _ _ _ _ _
   · rw [Finset.coe_univ, d7Pull_univ]
     exact Set.subset_univ _
+
+/-- The whole torus of cubes is a valid label after `R`, for every frame and history. -/
+theorem fineValid_univ {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (A : LabHist S n R k0 K) (k : ℕ) :
+    FineValid F A k (Finset.univ : Finset (Torus S.d (n k))) :=
+  fineValidAt_univ F k _
+
+/-- The whole torus of cubes is a valid label before `R`, for every frame and history. -/
+theorem fineValidPre_univ {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (A : LabHist S n R k0 K) (k : ℕ) :
+    FineValidPre F A k (Finset.univ : Finset (Torus S.d (n k))) :=
+  fineValidAt_univ F k _
 
 /-- The whole torus of cubes is a domain of `𝒟_k(mod Ω^c)` for every `Ω`. -/
 theorem dmodOmega_univ {d N : ℕ} [NeZero N] (Om : Set (Torus d N)) :
@@ -200,6 +216,29 @@ theorem d7SizeE_ne_top_at_boundary_domain :
   ⟨by rw [sides_nBdry]; omega,
     Finset.univ, labBdry_univ_mem_bdryDomsPost, Finset.univ_nonempty, d7SizeE_univ_ne_top⟩
 
+/-- `Z^pre_1 = Z_1` for this history (no component is removed). -/
+theorem labBdry_Zpre : labBdry.H.F.Zpre 1 = (labBdry.H.step 1).Z := by
+  rw [labBdry_Z]
+  exact QuietHist.flowSteps_Zpre (k0 := 0) wS_ok le_rfl le_rfl wRH (sides_hnn wS.L 1 nBdry) 1
+
+/-- **The set of all cubes is a boundary domain of the pre-`R` class** at the history `labBdry`
+(region `Z^pre_1`, raw region `Ω_1^pre`). -/
+theorem labBdry_univ_mem_bdryDomsPre :
+    (Finset.univ : Finset (Torus wS.d (sides wS.L 1 nBdry 1))) ∈
+      bdryDomsPre (wFrame nBdry) labBdry 1 (labBdry.H.F.Zpre 1) := by
+  rw [labBdry_Zpre]
+  exact mem_bdryDomsPre.2 ⟨labBdry_univ_mem_bdryDoms, fineValidPre_univ _ _ _⟩
+
+/-- **The fine size before `R` is finite at a boundary domain of a history with a large-field
+region**, on a torus with more than one cube per side. -/
+theorem d7SizePreE_ne_top_at_boundary_domain :
+    2 ≤ sides wS.L 1 nBdry 1 ∧
+      ∃ X ∈ bdryDomsPre (wFrame nBdry) labBdry 1 (labBdry.H.F.Zpre 1),
+        X.Nonempty ∧ d7SizePreE (wFrame nBdry) labBdry 1 X ≠ ⊤ :=
+  ⟨by rw [sides_nBdry]; omega,
+    Finset.univ, labBdry_univ_mem_bdryDomsPre, Finset.univ_nonempty,
+    d7SizePreE_ne_top_of_mem labBdry_univ_mem_bdryDomsPre⟩
+
 /-! ### A nonzero boundary term satisfying the bound -/
 
 /-- The constant `(fac / 2) e^{-rate · d7Size}` at the boundary domain of all cubes. -/
@@ -237,10 +276,11 @@ theorem repBdry_B (ν fac rate : ℝ) (A : LabHist wS (sides wS.L 1 nBdry) wR 0 
 the boundary terms are constants, the bound at the domain of all cubes is
 `(fac / 2) e^{-rate · d7Size} < fac · e^{-rate · d7Size}`, and the terms vanish off the valid
 labels because the domain of all cubes is valid. -/
-theorem repBdry_d7 (ν : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) {fac : ℝ} (rate : ℝ) (hfac : 0 < fac)
-    (rH : ℝ) :
+theorem repBdry_d7 (ν : ℝ)
+    (Zof : LabHist wS (sides wS.L 1 nBdry) wR 0 1 → Set (Torus wS.d (sides wS.L 1 nBdry 1)))
+    (aw μs ε ε1 νs : ℕ → ℝ) {fac : ℝ} (rate : ℝ) (hfac : 0 < fac) (rH : ℝ) :
     D7Bdry2Post (wFrame nBdry) (sides_hnn wS.L 1 nBdry) le_rfl (repBdry ν fac rate)
-      (fun A => (A.H.step 1).Z) aw μs ε ε1 νs fac rate whv rH where
+      Zof aw μs ε ε1 νs fac rate whv rH where
   loc_field := by intros; rfl
   loc_hist := by intros; rfl
   real := by
@@ -293,10 +333,34 @@ theorem exists_d7BdryPost_nonzero (ν : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) {
         d7SizeE (wFrame nBdry) A 1 X ≠ ⊤ ∧
           ∀ (ψ ψ' : MultiFieldC wS (sides wS.L 1 nBdry) 27 1 2) (h : Fin 2 → ℂ)
             (g : GIdx wS (sides wS.L 1 nBdry) 27 1 2 → ℂ), rep.B A X ψ ψ' h g ≠ 0 := by
-  refine ⟨repBdry ν fac rate, fun rH => repBdry_d7 ν aw μs ε ε1 νs rate hfac rH,
-    (repBdry_d7 ν aw μs ε ε1 νs rate hfac 1).toD7BdryPost one_pos,
+  refine ⟨repBdry ν fac rate, fun rH => repBdry_d7 ν _ aw μs ε ε1 νs rate hfac rH,
+    (repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost one_pos,
     labBdry, Finset.mem_singleton_self _, Finset.univ, labBdry_univ_mem_bdryDomsPost,
     d7SizeE_univ_ne_top, fun ψ ψ' h g => ?_⟩
+  simp only [repBdry_B, ↓reduceIte]
+  exact_mod_cast (cBdry_pos rate hfac).ne'
+
+/-- **(D7) of the pre-`R` class has an inhabitant with a boundary term that is not identically
+zero**: the representation `repBdry` (no component of its history is removed, so its two records
+coincide, `d7Bdry_iff_d7BdryPost_of_rem_empty`) satisfies `D7Bdry` for the region `Z^pre_1`, and
+its boundary term at the boundary domain of all cubes is nonzero. -/
+theorem exists_d7Bdry_nonzero (ν : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) {fac : ℝ} (rate : ℝ)
+    (hfac : 0 < fac) :
+    ∃ rep : Rep wS (sides wS.L 1 nBdry) wR 0 1 27 2 (wGeoF nBdry) (wCs ν 0) (budgetConsts wβ) 1,
+      D7Bdry (wFrame nBdry) (sides_hnn wS.L 1 nBdry) le_rfl rep
+        (fun A => A.H.F.Zpre 1) aw μs ε ε1 νs fac rate whv ∧
+      ∃ A ∈ rep.hist, ∃ X ∈ bdryDomsPre (wFrame nBdry) A 1 (A.H.F.Zpre 1),
+        d7SizePreE (wFrame nBdry) A 1 X ≠ ⊤ ∧
+          ∀ (ψ ψ' : MultiFieldC wS (sides wS.L 1 nBdry) 27 1 2) (h : Fin 2 → ℂ)
+            (g : GIdx wS (sides wS.L 1 nBdry) 27 1 2 → ℂ), rep.B A X ψ ψ' h g ≠ 0 := by
+  have hrem : ∀ A ∈ (repBdry ν fac rate).hist, A.H.rem 1 = ∅ := by
+    intro A hA
+    obtain rfl : A = labBdry := Finset.mem_singleton.1 hA
+    rfl
+  refine ⟨repBdry ν fac rate, (d7Bdry_iff_d7BdryPost_of_rem_empty hrem).2
+      ((repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost one_pos),
+    labBdry, Finset.mem_singleton_self _, Finset.univ, labBdry_univ_mem_bdryDomsPre,
+    d7SizePreE_ne_top_of_mem labBdry_univ_mem_bdryDomsPre, fun ψ ψ' h g => ?_⟩
   simp only [repBdry_B, ↓reduceIte]
   exact_mod_cast (cBdry_pos rate hfac).ne'
 
@@ -470,9 +534,9 @@ theorem cornerX_fine :
 
 /-- **The corner configuration** (`notes/phase1/VMOD-25.md` §2, without the detour): for the two
 `2 × 2` blocks of `(ℤ/4)²` meeting at a corner, with `Ω` the whole torus and `L = 2`, the
-cube-level size `dCovMod` of the pre-`R` records is `0` and the fine chosen-cover size
-`Fluctuation.dcovModE` is `⊤`.  So the fine size is not bounded by an affine function of the
-cube-level size. -/
+cube-level size `dCovMod` (the size of (D7) before the fine size replaced it) is `0` and the fine
+chosen-cover size `Fluctuation.dcovModE` is `⊤`.  So the fine size is not bounded by an affine
+function of the cube-level size. -/
 theorem corner_dCovMod_zero_fine_top :
     dCovMod 2 (Set.univ : Set (Torus 2 4)) cornerX = 0 ∧
       Fluctuation.dcovModE (d := 2) (L := 2) (N₁ := 4) (m₁ := 0) (K := 0) 0 0

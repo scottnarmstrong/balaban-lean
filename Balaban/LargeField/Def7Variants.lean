@@ -11,7 +11,7 @@ replacing Definition II.6.4) and §II.6.5 (the external field `g` and the limit 
 * `IsRepPre` (§II.6.3, first item; ARCH §3.6; Part III D-III.4): as `IsRep_k` with `Z^pre_k` in
   place of `Z_k` — no `R`-record at scale `k` (`IsComplete k k`, `D4Pin k`, `D5Bound k`), the
   operators `𝕋^pre_k` (`D1PreForm`), (H6′)^pre (`D6Pre`), (D7) with `κ_+ = 3κ/2` and `B_st` (the
-  pre-`R` record `D7Bdry`: raw region `OmegaCube`, cube-level size `dCovMod`), and (D2) with the
+  pre-`R` record `D7Bdry`: raw region `OmegaCube`, fine size `d7SizePre`), and (D2) with the
   bound `½ β_k^{-m-1}` for `ℛ^{(k)}_m`.
 * `IsRepFlat` (§II.6.3, second item; `k₀ ≤ k ≤ k_f`): no `R`-records beyond `k₀` (built into the
   landed `RegionHistory.rem_empty`), complete backgrounds above `k₀` (`FieldClauses.mu_eq`),
@@ -146,8 +146,9 @@ noncomputable def preFac (m : ℕ) : ℕ → ℝ := fun nn => if nn = m then 1 /
 /-- **`IsRep^pre_k`** (§II.6.3, first item): as `IsRep_k` with `Z^pre_k` in place of `Z_k` (no
 `R`-record at scale `k`, the operators `𝕋^pre_k`), (H6′)^pre in place of (D6), (D7) with
 `κ_+ = 3κ/2` and `B_st` in place of `κ`, `B₀`, and (D2) with `½ β_k^{-m-1}` for `ℛ^{(k)}_m`.
-(D7) is the pre-`R` record `D7Bdry` (boundary domains at the raw region `OmegaCube`, bound in the
-cube-level size `dCovMod`), not the post-`R` record `D7BdryPost` of `IsRep`. -/
+(D7) is the pre-`R` record `D7Bdry` on the frame `fineFrame` (boundary domains `bdryDomsPre` at
+the raw region `OmegaCube`, bound in the fine chosen-cover modular size `d7SizePre`, the size in
+which the fluctuation step bounds its output), not the post-`R` record `D7BdryPost` of `IsRep`. -/
 structure IsRepPre (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N : ℕ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M) (cs : OpConsts)
     (P : BudgetConsts) (P6 : Def6.Consts) (C7 : Consts7) (β ν : ℝ)
@@ -163,7 +164,8 @@ structure IsRepPre (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [Ne
   pin : ∀ (nK : ℕ) [NeZero nK], D4Pin k (F.lf nK)
   opBound : ∀ (nK : ℕ) [NeZero nK], D5Bound k hkK (F.lf nK)
   budget : ∀ (nK : ℕ) [NeZero nK], D6Pre (F.lf nK)
-  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry (sides_hnn S.L K nK) hkK (F.lf nK)
+  bdry : ∀ (nK : ℕ) [NeZero nK], D7Bdry (fineFrame S (sides S.L K nK) K hM6)
+    (sides_hnn S.L K nK) hkK (F.lf nK)
     (fun A => A.H.F.Zpre k) F.weights cs.mu (P6.eps S.d S.L) (epsOne S P6 C7) cs.nu C7.Bst
     (3 / 2 * P6.κ) hv
   coherent : D8SF P6.m₀ F.sf

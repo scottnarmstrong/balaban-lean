@@ -31,8 +31,8 @@ LF-RECONSTRUCTION v1.3, §II.6.1 (the history set `𝔄` of a representation) an
 * `OmegaCube`, `IsBdryDom`, `bdryDoms`: the localization domains `X ∈ 𝒟_k(mod Ω^c_k(𝔸))` with
   `X ∩ Z ≠ ∅ ≠ X ∩ Zᶜ` of the boundary terms (P5 (1.38)).
 * `dCovMod`: a cube-level modular covering size (continuous segments through closed cubes, chosen
-  cover).  It is the size in the bound of the pre-`R` records `D7Bdry`, `D7Bdry2` only; the
-  post-`R` records use the fine size `d7Size` of `Def7FineSize`.
+  cover).  No class clause uses it any more: the bounds of (D7) are in the fine size of
+  `Def7FineSize`.
 * `globalLH`: the records of a global history as fine sets (the history argument of
   `H7Domain`).
 -/
@@ -303,7 +303,8 @@ theorem mem_bdryDoms [NeZero n] {Om Z : Set (Torus d n)} {X : Finset (Torus d n)
 corners at the multiples of `L`, contained in `X`, whose union covers `X ∩ Ω`, and a connected
 finite union of straight segments of the continuous torus inside the union `⋃_{x ∈ X} □_x` of the
 *closed* cubes of `X`, meeting every chosen block.  (Two blocks of `X` whose closed cubes share
-only a corner are met by the single corner point, a segment of length `0`.) -/
+only a corner are met by the single corner point, a segment of length `0`.)  No class clause uses
+this predicate or `dCovMod` any more. -/
 def IsCovCurve [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n))
     (𝒦 : Set (Torus d n)) (Γ : Finset (Seg d n)) : Prop :=
   (∀ c ∈ 𝒦, (∀ i, L ∣ (c i).val) ∧ lblock L c ⊆ (X : Set (Torus d n))) ∧
@@ -318,17 +319,18 @@ of straight segments, inside the union of the closed cubes of `X`, meeting each 
 (`IsCovCurve`).  `⊤` if there is no admissible choice; its real value is then `0`, so the bound
 of `D7Bdry` at such a domain is `fac`.
 
-**Status.**  This is the size in the bound of the pre-`R` records `D7Bdry`, `D7Bdry2` (used by
-`IsRepPre`, `IsRepPre2`).  It is no longer the size of (D7) for the post-`R` classes `IsRep`,
-`IsRepFlat`, `IsRep2`, `IsRepFlat2`: their records `D7BdryPost`, `D7Bdry2Post` use the fine
-chosen-cover modular size `d7Size` (`Def7FineSize`), the size of the fluctuation step
-(`Fluctuation.dcovModE`).  The fine size is not bounded by an affine function of this one: for
+**Status.**  No class clause uses this size any more.  It was the size in the bound of (D7); the
+records `D7Bdry`, `D7Bdry2` (before `R`) and `D7BdryPost`, `D7Bdry2Post` (after `R`) now use the
+fine chosen-cover modular size of the fluctuation step (`Fluctuation.dcovModE`; `d7SizePre`,
+`d7Size` in `Def7FineSize`).  The fine size is not bounded by an affine function of this one: for
 two blocks meeting at a corner this size is `0` (the corner point) while the fine size is `⊤`,
 because there is no nearest-neighbour bond across a corner (`corner_dCovMod_zero_fine_top` in
 `Inhabited/D7FineSizeWitness`; `notes/phase1/VMOD-25.md` §2 joins the two blocks inside `X` by a
 long chain of blocks to make the fine size finite and arbitrarily large, which is not
-formalized).  No inequality between this size and `treeLengthMod`, the papers' `d_k(X mod Ω^c)`
-(P5 (1.34), open cubes and all cover cubes) or the fine size is proved. -/
+formalized).  So the bound in the fine size that the fluctuation step gives does not follow from
+a bound in this size.  No inequality between this size and `treeLengthMod`, the papers'
+`d_k(X mod Ω^c)` (P5 (1.34), open cubes and all cover cubes) or the fine size is proved.  The
+definition is kept for reference; its only remaining use is that example. -/
 noncomputable def dCovMod [NeZero n] (L : ℕ) (Ω : Set (Torus d n)) (X : Finset (Torus d n)) :
     ENNReal :=
   ⨅ (𝒦 : Set (Torus d n)) (Γ : Finset (Seg d n)) (_ : IsCovCurve L Ω X 𝒦 Γ),

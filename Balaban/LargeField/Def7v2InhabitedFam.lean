@@ -117,12 +117,12 @@ theorem nonempty_d2SF2 : Nonempty (D2SF2 wP6 (kZero wS.d wS.L wβ wν₀) (wSF2 
 theorem nonempty_sfFlat2 : Nonempty (SFFlat2 wP6 (kZero wS.d wS.L wβ wν₀) (wSF2 wν₀ 3)) :=
   ⟨(wSF2_D2 wν₀ wν₀_pos wν₀_nine _ 3 (fun _ => 1) (fun _ => zero_le_one)).toFlat2⟩
 
-theorem nonempty_d7Bdry2 (rH : ℝ) : Nonempty (D7Bdry2 (sides_hnn wS.L 1 1) le_rfl
+theorem nonempty_d7Bdry2 (rH : ℝ) : Nonempty (D7Bdry2 (wFrame 1) (sides_hnn wS.L 1 1) le_rfl
     (wRep wν₀ (kZero wS.d wS.L wβ wν₀) 2 1) (fun A => (A.H.step 1).Z)
     (wFam2 wν₀ (kZero wS.d wS.L wβ wν₀) 2).weights (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).mu
     (wP6.eps wS.d wS.L) (epsOne wS wP6 wC7) (wCs wν₀ (kZero wS.d wS.L wβ wν₀)).nu wC7.B0 wP6.κ
     whv rH) :=
-  ⟨wBdry2 wν₀ _ _ 1 _ _ _ _ _ _ _ _ one_pos rH⟩
+  ⟨wBdry2 wν₀ _ _ 1 _ _ _ _ _ _ _ _ _ one_pos rH⟩
 
 theorem nonempty_d7Bdry2Post (rH : ℝ) : Nonempty (D7Bdry2Post (wFrame 1) (sides_hnn wS.L 1 1)
     le_rfl (wRep wν₀ (kZero wS.d wS.L wβ wν₀) 2 1) (fun A => (A.H.step 1).Z)
