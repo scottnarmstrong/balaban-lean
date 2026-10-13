@@ -29,8 +29,9 @@ import Mathlib.Tactic.Positivity
   `stepActivityBound_zeroClass_direct_physical_scale`) concern the exponent `W₁ + W₂` of the
   interaction only.  Their statements do not mention the determinant.
 * **Proposition 2.6** (`prop26C_step`, `prop26C_class`, `prop26C_class_of_activity`): the
-  determinant enters the step identity through the Jacobian `det C^{(k)1/2} = exp(½ log det C^{(k)})`
-  of the substitution (2.7), that is through the summand `halfLogDetCC` of `ℰ₀ = E0C`.
+  determinant enters the step identity through the Jacobian
+  `det C^{(k)1/2} = exp(½ log det C^{(k)})` of the substitution (2.7), that is through the summand
+  `halfLogDetCC` of `ℰ₀ = E0C`.
 
 ## Contents
 
