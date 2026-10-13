@@ -1445,6 +1445,8 @@ public import Balaban.Fluctuation.StepActivityHatSourceCor
 public import Balaban.Inhabited.StepActivityHatWitnessRay
 public import Balaban.Inhabited.LevelStepSetting
 public import Balaban.Inhabited.LevelStepSettingGeneral
+public import Balaban.Inhabited.LevelPairGeneral
+public import Balaban.Inhabited.LevelLemmasGeneral
 public import Balaban.Inhabited.StepActivityHatWitnessNum
 public import Balaban.Inhabited.StepActivityHatWitnessNe
 public import Balaban.Inhabited.StepActivityHatWitness
@@ -1487,6 +1489,7 @@ public import Balaban.Inhabited.SourceActivityFromTower
 public import Balaban.Inhabited.StepOutputConsts
 public import Balaban.Fluctuation.LevelLocalCover
 public import Balaban.Inhabited.LevelRayTower
+public import Balaban.Inhabited.LevelRayTowerGeneral
 public import Balaban.Inhabited.ScaleActivityFinal
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Fluctuation.StepActivityDirectEta
@@ -1683,6 +1686,7 @@ public import Balaban.Green.FinalPathDefect
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Green.FinalTaggedSqrt
 public import Balaban.Green.FinalTaggedLocal
+public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Inhabited.TowerCoreRatesGeneral
@@ -1692,5 +1696,9 @@ public import Balaban.Fluctuation.SourceRadiusCarriers
 public import Balaban.Inhabited.ObsTiltLabels
 public import Balaban.Fluctuation.SourceRadius
 public import Balaban.Inhabited.SourceAmpRadius
+public import Balaban.Inhabited.Thm31bPolymer
+public import Balaban.Inhabited.Thm31bPolymerSupport
 public import Balaban.Inhabited.E1LabelsBudget
 public import Balaban.Inhabited.E1MarksCommon
+public import Balaban.Inhabited.ObsSourceLocal
+public import Balaban.Inhabited.E1RecordOfSum
