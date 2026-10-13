@@ -71,9 +71,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The block energy expands over the domains `Y ⊃ X₁`, scale-uniform majorant, exact locality**
 (`vblock_expansion_hat_dir_scaled` with the locality clause for raw data agreeing on `Y` itself and
 hat variables agreeing at the unit points of `Y`).  The thick corollary
-`vblock_expansion_hat_dir_scaled` uses the same `Ev` selected here.
-The last conjunct exhibits the terms: `Ev = evTerm … FF` with `FF` the block energy functional at a
-pair `(F₁, Sol)` with their defining properties. -/
+`vblock_expansion_hat_dir_scaled` uses the same `Ev` selected here. -/
 theorem vblock_expansion_hat_rawY_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
