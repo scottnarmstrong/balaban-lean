@@ -1,0 +1,249 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
+module
+
+public import Balaban.LargeField.History.RetainedShell
+public import Balaban.LargeField.Operators.StepData
+public import Balaban.LargeField.Characteristic.Stencil
+public import Balaban.LargeField.Characteristic.Reg
+public import Balaban.LargeField.Def7SmallField
+
+/-!
+# Top-scale blocks of the retained shell (Q13-COVER, `TopBlockTransport`)
+
+Geometric half of the package `TopBlockTransport` of `notes/phase1/Q13-COVER.md` §2.
+-/
+
+@[expose] public section
+
+set_option linter.unusedSectionVars false
+
+namespace Balaban.LargeField
+
+open Balaban Balaban.Multiscale Balaban.Background RegionHistory Balaban.LargeField.Def7
+
+section Core
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ} {M : ℕ} [NeZero M]
+  [NeZero S.L] (H : RegionHistory S n R k0 K) (g : Geo S n R M)
+
+/-- The generating set `B = 𝔹_K` of the lineage localization of a component `Z` of `Z^pre_k`, as
+it occurs in `ChiDomAt`. -/
+noncomputable abbrev chiDomGen (k : ℕ) (Z : H.Comp k) :=
+  (H.locRH k Z).histGen (M := M) (K' := K) le_rfl (locRH_rem k Z) H.F.ok.two_le_L
+    (fun j _ _ => g.hRlow j)
+
+/-- The cube of a fine site at which a layer-`j+1` block is tested lies in `Ω_{j+1}` of the
+lineage localization when it lies in the component and in `Ω_{j+1}` of the global history, and
+then the site is in the layer `j + 1` of `B` (not in `Ω_{j+2}`): the top layer. -/
+theorem mem_layer_chiDomGen {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ C.1)
+    (hΩ : cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega) :
+    x ∈ (chiDomGen H g (j + 1) C).layer (j + 1) := by
+  rw [GeneratingSet.mem_layer]
+  unfold chiDomGen
+  rw [mem_histGen, mem_histGen]
+  refine ⟨⟨hjK, ?_⟩, ?_⟩
+  · show _ ∈ ((H.locRH (j + 1) C).step j).Omega
+    by_contra h
+    have h1 := ((H.locRH_derived C (Nat.lt_succ_self j) (by omega)).2.1).symm
+    have h2 : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (j + 1) C).step j).Omegaᶜ := h
+    rw [h1] at h2
+    exact h2.1 hΩ
+  · rintro ⟨hle, h⟩
+    have hst : (H.locRH (j + 1) C).step (j + 1) =
+        emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1)) := by
+      show H.locStep (j + 1) C (j + 1) = _
+      unfold locStep
+      exact ite_eq_right_of_eq_false _ _ (eq_false fun hh => absurd hh.1 (lt_irrefl _))
+    have hZ : H.tailZ (j + 1) C (j + 1) = C.1 := by
+      rw [tailZ_eq_lin C le_rfl hjK, lin_self]
+    have h2 : cubeMap n S.L M K (j + 1 + 1) x ∈
+        (emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).Omega := by
+      have := h
+      simp only [RegionSeq.OmegaAt_succ] at this
+      rw [← hst]; exact this
+    have h3 : blockMap S.L (n (j + 1 + 1)) (cubeMap n S.L M K (j + 1) x) ∈
+        (emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).Uprime := by
+      refine ⟨cubeMap n S.L M K (j + 1) x, ?_, rfl⟩
+      rw [hZ]
+      exact mem_nbhd.mpr ⟨_, hx, by simp [supDist_self]⟩
+    rw [cubeMap_succ H.F.hnn hle x] at h3
+    exact ((emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).OmegaPrime_compl_subset_Omega_compl
+      ((emptyStep S n R (j + 1) (H.tailZ (j + 1) C (j + 1))).Uprime_subset_compl h3)) h2
+
+/-- **`TopBlockTransport` at the level of a cube (the two conditions of the first family of
+`ChiDomProp`).**  Let `C` be a component of `Z^pre_{j+1}` and `q` a cube of `C` lying in
+`Ω_{j+1}` of the global history (for instance in `Ω''_{j+1}`).  Then `q` is a cube of the
+region `Z_{j+1}` of the localized history of `C`, and `q` belongs to `Ω^∼_{j+1}` of the localized
+history (it is even a cube of `Ω_{j+1}` of the localized history).  No admissibility and no
+retained-ness is used here. -/
+theorem cube_conditions_of_mem_Omega {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
+    {q : Torus S.d (n (j + 1))} (hq : q ∈ C.1) (hΩ : q ∈ (H.step j).Omega) :
+    CubeSub (S := S) (n := n) M K (j + 1) q ((H.localHistory M K (j + 1) C).Z (j + 1)) ∧
+      q ∈ lhOmegaSim (H.localHistory M K (j + 1) C) (j + 1) (j + 1) := by
+  refine ⟨fun x hx => ⟨?_, ?_⟩, ?_⟩
+  · show cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (j + 1) C).step (j + 1)).Z
+    rw [locRH_Z C le_rfl hjK, hx]
+    simp [lin_self, hq]
+  · show cubeMap n S.L M K (j + 1) x ∈ C.1
+    rw [hx]; exact hq
+  · have hmem : CubeSub (S := S) (n := n) M K (j + 1) q
+        (lhOmega (H.localHistory M K (j + 1) C) (j + 1) (j + 1)) := by
+      intro x hx
+      left
+      refine ⟨?_, ?_⟩
+      · show cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (j + 1) C).step j).Omega
+        by_contra h
+        have h1 := ((H.locRH_derived C (Nat.lt_succ_self j) (by omega)).2.1).symm
+        have h2 : cubeMap n S.L M K (j + 1) x ∈ ((H.locRH (j + 1) C).step j).Omegaᶜ := h
+        rw [h1, hx] at h2
+        exact h2.1 hΩ
+      · show cubeMap n S.L M K (j + 1) x ∈ C.1
+        rw [hx]; exact hq
+    unfold lhOmegaSim lhOmegaNb
+    rw [ite_eq_right_of_eq_false _ _ (eq_false (by omega))]
+    exact mem_nbhd.mpr ⟨q, hmem, by simp [supDist_self]⟩
+
+/-- The tested block: the top-scale block `(j+1, jBlock x)` of a fine site `x` whose scale-`(j+1)`
+cube lies in `C`, in `Ω_{j+1}` and within one cube of `q` belongs to
+`genBlocksIn B (j+1) (nbhd 1 {q})`, where `B` is the generating set of `ChiDomAt`. -/
+theorem topBlock_mem_genBlocksIn {j : ℕ} (hjK : j + 1 ≤ K) (C : H.Comp (j + 1))
+    {x : Torus S.d (M * n K * S.L ^ K)} (hx : cubeMap n S.L M K (j + 1) x ∈ C.1)
+    (hΩ : cubeMap n S.L M K (j + 1) x ∈ (H.step j).Omega) {q : Torus S.d (n (j + 1))}
+    (hxq : supDist (cubeMap n S.L M K (j + 1) x) q ≤ 1) :
+    (⟨j + 1, jBlock S.d S.L (M * n K) K (j + 1) x⟩ : BlockPt S n M K) ∈
+      genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q}) :=
+  ⟨Nat.succ_pos j, hjK, x, mem_layer_chiDomGen H g hjK C hx hΩ, rfl,
+    mem_nbhd.mpr ⟨q, rfl, hxq⟩⟩
+
+end Core
+
+section Casts
+
+theorem blockMap_torusCast {d a b : ℕ} (h : a = b) (N m : ℕ) (x : Torus d a) :
+    blockMap N m (torusCast h x) = blockMap N m x := by
+  subst h; rfl
+
+theorem torusCast_add_single {d a b : ℕ} (h : a = b) (x : Torus d a) (μ : Fin d) :
+    torusCast h (x + Pi.single μ 1) = torusCast h x + Pi.single μ 1 := by
+  subst h; rfl
+
+end Casts
+
+section Datum
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ} {M : ℕ} [NeZero M]
+  [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (H : RegionHistory S n R k0 K)
+  (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) {C : H.Comp (j + 1)}
+
+/-- The scale-`(j+1)` cube of a site of the level-`(j+1)` torus of the backgrounds, read on the
+fine torus of the history (`bgToFine`). -/
+theorem cubeMap_bgToFine (s : BgT Cx.geo (j + 1)) :
+    cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) =
+      blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s := by
+  have e : S.L ^ (j + 1) * M = S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1) :=
+    congrArg (fun m => S.L ^ (j + 1) * m) Cx.geo.hM
+  unfold cubeMap bgToFine
+  rw [e, blockMap_torusCast]
+
+/-- The `(j+1)`-block of a site of the fine torus corresponding to `s` is the block
+`blkToBlock` of the `(j+1)`-block of `s` on the level-`(j+1)` torus. -/
+theorem jBlock_bgToFine (s : BgT Cx.geo (j + 1)) :
+    jBlock S.d S.L (M * n K) K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) =
+      blkToBlock Cx.geo Cx.hnn Cx.hkK
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s) := by
+  funext i
+  apply ZMod.val_injective
+  have hjK : j + 1 ≤ K := Cx.hkK
+  have h1 : (jBlock S.d S.L (M * n K) K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) i).val =
+      ((bgToFine Cx.geo Cx.hnn Cx.hkK s) i).val / S.L ^ (j + 1) := by
+    unfold jBlock
+    exact blockCoord_val (side_eq hjK) _
+  have h2 : (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s i).val =
+      (s i).val / S.L ^ (j + 1) := by
+    unfold jBlock
+    exact blockCoord_val (side_eq le_rfl) _
+  have h3 : ∀ {a b : ℕ} (h : a = b) (y : Torus S.d a) (i : Fin S.d), ((torusCast h y) i).val =
+      (y i).val := by
+    intro a b h y i; subst h; rfl
+  rw [h1]
+  unfold blkToBlock bgToFine
+  rw [h3, h3, h2]
+
+/-- **T1 (a), geometry.**  A datum site `s` of `G_{j+1} = 𝔹_{j+1}(W₂(Y))` lies over a cube of
+`𝕋_{j+1}` that is within one cube of a cube of `W₂(Y)`.  The numeric premise is the landed one:
+`12 M₁ ≤ c M₁`, from `Geo.hc : 14 ≤ c`, through `dataSites_cube_near`. -/
+theorem dataSite_cube_near_W2 (hL : 2 ≤ S.L) (Y : Set (Torus S.d (n (j + 1))))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW Y)) :
+    ∃ w ∈ W2 R Y, supDist (blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s) w ≤ 1 := by
+  have hM1 : NeZero Cx.geo.M1 := Cx.geo.neM1
+  have hc : 12 * Cx.geo.M1 ≤ Cx.geo.c * Cx.geo.M1 :=
+    Nat.mul_le_mul_right _ (by have := Cx.geo.hc; omega)
+  have hP : Cx.geo.M1 * (Cx.geo.c * n (j + 1)) * S.L ^ (j + 1) =
+      (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) * n (j + 1) := by ring
+  obtain ⟨y, hy, hd⟩ := dataSites_cube_near (j := j + 1) (q := j + 1) hL (le_refl _)
+    (cubePre Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1)
+      (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) (W2 R Y))
+    (G' := Cx.genW Y) (fun z hz => hz) (M := Cx.geo.c * Cx.geo.M1) hc hP hs
+  exact ⟨_, mem_cubePre.1 hy, hd⟩
+
+/-- The scale-`(j+1)` cube of a datum site of `G_{j+1}` lies within `2⌊R_j⌋ + 3` of `Y`. -/
+theorem dataSite_cube_mem_nbhd (hL : 2 ≤ S.L) (Y : Set (Torus S.d (n (j + 1))))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW Y)) :
+    cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈ nbhd (2 * ⌊R j⌋₊ + 3) Y := by
+  obtain ⟨w, hw, hd⟩ := dataSite_cube_near_W2 Cx hL Y hs
+  obtain ⟨y, hy, hwy⟩ := mem_nbhd.mp (W2_subset_nbhd j Y hw)
+  rw [cubeMap_bgToFine]
+  exact mem_nbhd.mpr ⟨y, hy, (supDist_triangle _ w y).trans (by omega)⟩
+
+/-- **T1.**  Let `s` be a datum site of `G_{j+1} = C.genW Y`, `Y = Z_{j+1}ᶜ`, whose scale-`(j+1)`
+cube `q` lies in a retained component `C` of `Z^pre_{j+1}`.  Then
+
+* (a) `q` is within `2⌊R_j⌋ + 3` of `Y` and lies in `Ω''_{j+1}`;
+* (b) `q` is a cube of `Z_{j+1}` of the localized history of `C` and lies in its `Ω^∼_{j+1}`
+  (`lhOmegaSim`): the two conditions of the first family of `ChiDomProp` for `y := q`;
+* (c) the top-scale block `(j+1, blkToBlock (jBlock s))` of the datum belongs to
+  `genBlocksIn B (j+1) (nbhd 1 {q})`, `B` the generating set of `ChiDomAt`
+  (`chiDomGen`).  The block is the one at which the datum reads the field
+  (`liftSingle_genW_Ψ_top`). -/
+theorem datum_site_topBlock (hC : C.1 ∉ H.rem (j + 1))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
+    (hq : cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈ C.1) :
+    cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈
+        nbhd (2 * ⌊R j⌋₊ + 3) ((H.step (j + 1)).Z)ᶜ ∧
+      cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈ (H.step j).OmegaDD ∧
+      CubeSub (S := S) (n := n) M K (j + 1)
+        (cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s))
+        ((H.localHistory M K (j + 1) C).Z (j + 1)) ∧
+      cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) ∈
+        lhOmegaSim (H.localHistory M K (j + 1) C) (j + 1) (j + 1) ∧
+      (⟨j + 1, blkToBlock Cx.geo Cx.hnn Cx.hkK
+          (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)⟩ :
+          BlockPt S n M K) ∈
+        genBlocksIn (chiDomGen H Cx.geo (j + 1) C) (j + 1)
+          (nbhd 1 {cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s)}) := by
+  have hnb := dataSite_cube_mem_nbhd Cx H.F.ok.two_le_L _ hs
+  have hDD := H.retained_shell_subset_OmegaDD j hC hq hnb
+  have hΩ := (H.step j).OmegaDD_subset_Omega hDD
+  obtain ⟨hZ, hsim⟩ := cube_conditions_of_mem_Omega (M := M) H Cx.hkK C hq hΩ
+  refine ⟨hnb, hDD, hZ, hsim, ?_⟩
+  rw [← jBlock_bgToFine]
+  exact topBlock_mem_genBlocksIn H Cx.geo Cx.hkK C hq hΩ (by simp [supDist_self])
+
+/-- The value of the single-scale datum at a data site is the field `ψ_{j+1}` at the top-scale
+block `blkToBlock (jBlock s)`: the value tested by `PsiTildeMulti` at that block. -/
+theorem liftSingle_genW_Ψ_top (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW Y)) :
+    (liftSingle (Cx.genW Y) (Cx.liftData ψk) (hC hv)).Ψ s =
+      fun i => ((ψk (blkToBlock Cx.geo Cx.hnn Cx.hkK
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)) i : ℝ) : ℂ) :=
+  liftSingle_Ψ (Cx.genW Y) _ _ hs
+
+end Datum
+
+end Balaban.LargeField
