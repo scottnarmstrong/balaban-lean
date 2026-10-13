@@ -564,6 +564,84 @@ theorem chi_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
   congr 1
   exact cubeBump_boxMap (j := j) hx hy0 (by omega) (by omega) (by omega) (by omega)
 
+/-- The interaction box correspondence for sites of any box of radius `R' ≥ ρ₀ + 3 L^(j+m₁)`.
+Margin: `2 R' + 1 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem mem_intBox_boxMap_iff_of_le {j ρ₀ R' : ℕ} {y0 x : CTorus d L N₁ m₁ K}
+    (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0) (hRR : ρ₀ + 3 * L ^ (j + m₁) ≤ R')
+    (hn : 2 * R' + 1 < (N₁ * L ^ m₁) * L ^ K) (hn' : 2 * R' + 1 < (N₁' * L ^ m₁) * L ^ K)
+    (hx : InBox d R' ((N₁ * L ^ m₁) * L ^ K) x) :
+    x ∈ intBox ((j, y0) : ℕ × CTorus d L N₁ m₁ K) ↔
+      bm x ∈ intBox ((j, bm y0) : ℕ × CTorus d L N₁' m₁ K) := by
+  have hy0' : InBox d ρ₀ ((N₁' * L ^ m₁) * L ^ K) (bm y0) :=
+    inBox_boxMap (by omega) hy0
+  have hn1 : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁ * L ^ m₁) * L ^ K :=
+    lt_of_le_of_lt (by omega) hn
+  have hn2 : 2 * (ρ₀ + 3 * L ^ (j + m₁)) + 1 < (N₁' * L ^ m₁) * L ^ K :=
+    lt_of_le_of_lt (by omega) hn'
+  constructor
+  · intro h
+    have hxb := ((mem_intBox_iff hy0 hn1).1 h).1
+    exact (mem_intBox_boxMap_iff (N₁' := N₁') hy0 hn1 hn2 hxb).1 h
+  · intro h
+    have hwb := ((mem_intBox_iff hy0' hn2).1 h).1
+    have hv : ∀ μ, (bm x μ).valMinAbs = (x μ).valMinAbs := valMinAbs_boxMap (by omega) hx
+    have hxb : InBox d (ρ₀ + 3 * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ K) x := fun μ => by
+      rw [← hv μ]; exact hwb μ
+    exact (mem_intBox_boxMap_iff (N₁' := N₁') hy0 hn1 hn2 hxb).2 h
+
+/-- **T2 (Dirichlet operator).**  The entries at two sites of the box of radius `ρ` of
+`dirichletOperator` correspond, for potentials with `α'(bm x) = α x` on the box.  Margin:
+`2 ρ + 3 L^K + 5 < N₁ L^m₁ L^K` (and for `N₁'`). -/
+theorem dirichletOperator_boxMap {ρ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) (a : ℕ → ℝ) (ν : ℝ)
+    (hn : 2 * ρ + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    {α' : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    (hα : ∀ x : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1,
+      InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K) →
+        α' ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ = α x)
+    (x y : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1)
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hy : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (y : CTorus d L N₁ m₁ K)) :
+    dirichletOperator (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+        a ν α' ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩
+        ⟨bm (y : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ =
+      dirichletOperator (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+        a ν α x y := by
+  rw [← cutOperator_empty, ← cutOperator_empty]
+  exact cutOperator_boxMap hj1 hj a ν hn hn' (fun z _ μ => by simp) hα x y hx hy
+
+/-- **T2 (`cubeH_boxMap`).**  The entries of the cube operator `cubeH` of the centre `(j, y0)`,
+`y0` in the box of radius `ρ₀`, at two sites of the box of radius `ρ`, correspond.  Margins, with
+`R' = ρ + 2 + ρ₀ + 3 L^(j+m₁)`: `2 ρ + 3 L^K + 5 < N₁ L^m₁ L^K` and `2 R' + 1 < N₁ L^m₁ L^K` (and
+for `N₁'`). -/
+theorem cubeH_boxMap {ρ ρ₀ : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K) (a : ℕ → ℝ) (ν : ℝ)
+    {y0 : CTorus d L N₁ m₁ K} (hy0 : InBox d ρ₀ ((N₁ * L ^ m₁) * L ^ K) y0)
+    (hn : 2 * ρ + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * ρ + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hm : 2 * (ρ + 2 + (ρ₀ + 3 * L ^ (j + m₁))) + 1 < (N₁ * L ^ m₁) * L ^ K)
+    (hm' : 2 * (ρ + 2 + (ρ₀ + 3 * L ^ (j + m₁))) + 1 < (N₁' * L ^ m₁) * L ^ K)
+    {α : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    {α' : (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1 → ℂ}
+    (hα : ∀ x : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1,
+      InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K) →
+        α' ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ = α x)
+    (x y : (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj).Ω 1)
+    (hx : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K))
+    (hy : InBox d ρ ((N₁ * L ^ m₁) * L ^ K) (y : CTorus d L N₁ m₁ K)) :
+    cubeH (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α'
+        (Prod.map id bm ((j, y0) : ℕ × CTorus d L N₁ m₁ K))
+        ⟨bm (x : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩
+        ⟨bm (y : CTorus d L N₁ m₁ K), levelGS_mem_Ω_one hj1 hj _⟩ =
+      cubeH (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) a ν α
+        (j, y0) x y := by
+  unfold cubeH
+  refine cutOperator_boxMap hj1 hj a ν hn hn' (fun z hz μ => ?_) hα x y hx hy
+  exact cubeCut_boxMap_iff (ρ := ρ) hj1 hj hn hn' (Λ' := intBox ((j, bm y0) :
+    ℕ × CTorus d L N₁' m₁ K)) (fun w hw => mem_intBox_boxMap_iff_of_le (N₁' := N₁')
+      (R' := ρ + 2 + (ρ₀ + 3 * L ^ (j + m₁))) hy0 (by omega) hm hm'
+      (inBox_mono (by omega) hw)) (z := z) (inBox_mono (by omega) hz) μ
+
 end Level
 
 end Balaban.Polymer.TwoTorusStep
