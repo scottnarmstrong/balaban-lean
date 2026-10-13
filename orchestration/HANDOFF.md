@@ -13,11 +13,11 @@ Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
 | W298 | `w298-det-cauchy-hull` / W298 | canonical hull of a rooted cut set: polymer, size bound, symmetry (DETCAUCHY package 5) |
-| W295 | `w295-energy-scaled` / W295 | scale-uniform energy bound (E*), V-block expansion with it (PHYSCUBIC packages 1–2) |
 | W296 | `w296-p6-fsharp-count` / W296 | rooted count and layer tail for the multiscale P6 cover (VMOD-33 packages 4–5) |
-| W297 | `w297-da-rate-numerics` / W297 | threshold arithmetic: (DA) for β ≥ β₀ with amplitude C_*(log β)^q/√β |
+| W299 | `w299-parent-r2y` / W299 | R2 for sites over Y from the cube factor (Q13-YDOMAIN §1): cube geometry, unit block average, wrapper |
+| W300 | `w300-scaled-propagation` / W300 | PHYSCUBIC package 3: propagate the scaled energy bound through the hat V-part, the sharp assembly at source zero, and the activity bound; combine with the tower and the threshold |
+| W302 | `w302-yreg-blocks` / W302 | components of Yreg are unions of top-layer blocks (the remaining proviso of decLog block diagonality) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
-| W290 | `w290-declog-cut-factor` / W290 | decLog block diagonal at partial cuts; rooted trace local; vanishing of mixed differences (DET-CUT-FACTOR) |
 | W291 | `w291-bond-lift-y` / W291 | R1 for interface pairs over Y from chiY (FactorBondLift, Y case) |
 | W292 | `w292-xicraw-open` / W292 | openness of XiCRaw / physSΛ; non-empty open V for the activity family |
 No temporary rule-10 exemptions are open. Sonnet workers stall on large analytic briefs — give ONE bounded target per brief, with a written derivation where the mathematics is not in the landed files.
