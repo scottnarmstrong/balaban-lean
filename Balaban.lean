@@ -491,6 +491,7 @@ public import Balaban.LargeField.History.Core
 public import Balaban.LargeField.History.RetainedShell
 public import Balaban.LargeField.History.TopBlockTransport
 public import Balaban.LargeField.History.ParentDomain
+public import Balaban.LargeField.History.EarlyMassRatio
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
 public import Balaban.LargeField.History.PointChain
