@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.SourceAmpScale
+public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Fluctuation.SourceDirectTermsScale
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -74,24 +75,21 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 open Classical in
 /-- **The zero-class activity bound at every scale, every cutoff up to the cutoff of the papers
-and every source of a ball `∑ |g| < q ≤ 1`: real and complex activity.**  With `κ₀ = a_Ent + 1`,
-`κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`: there are `m₁, t, δ, β₀, C_E, C_F`
-(`β₀ ≥ 2`, `C_E, C_F > 0`) such that for every scale `k ≥ 1`, every torus parameter `N₁` with
-`3 ∣ N₁`, `5 < N₁`, every mass `0 < ν` with `ν · 3^{2(k+1)} ≤ 1`, every `β ≥ β₀`, every cutoff
-`0 < p₁ ≤ A₁ (log β_k)^p` (`β_k = β · 3^k`), every `q ≤ 1` and every complex source `g` with
-`∑_{y,i} |g(y,i)| < q`, the zero class at `hatStepK k m₁ hk ν β p₁ δ` has a step activity bound at
-the source `g` with `κ_H = 2 κ_dec - 1`, `K_c = 2 (K₀(κ₀) + 1)` and prefactor
-`ε_H ≤ C_E (log β_k)^{3p}/√β_k + q C_F (log β_k)^p/√β_k`, and a complex step activity bound at the
-central real datum with the same rate, prefactor and entropy constant.  The constants do not
-depend on `k`, `N₁`, `ν`, `β`, `p₁`, `q`, `g`. -/
-theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+and every source of a ball `∑ |g| < q ≤ ρ`: real and complex activity.**  As
+`stepActivityBound_zeroClass_source_scale_cutoff`, for a source radius `ρ > 0`.  The constants
+`m₁, t, δ, C_E, C_F` are fixed first and do not depend on `ρ`; then `ρ`; then the threshold
+`β₀ ≥ max 2 ρ`, which depends on `ρ` through the amplitude threshold
+`daThreshold ((C_E + ρ C_F)/4) …` of `sourceAmp_doubled_hDA_rho`.  The factor `q` stands in the
+source part of the prefactor, as in the landed statement (the case `ρ = 1`). -/
+theorem stepActivityBound_zeroClass_source_scale_cutoff_rho {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
     {κ0 κdec κ' : ℝ} (hκ0def : κ0 = aEnt 3 3 + 1) (hκdecdef : κdec = 100 * (κ0 + c1 3 3 + 10))
     (hκ'def : κ' = 3 / 2 * κdec + κ0 + 1) :
-    ∃ (m₁ : ℕ) (t δ β₀ CE CF : ℝ), 2 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧ 0 < t ∧ 0 < δ ∧
+    ∃ (m₁ : ℕ) (t δ CE CF : ℝ), 0 < CE ∧ 0 < CF ∧ 0 < t ∧ 0 < δ ∧
+      ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
       ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
       ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
       ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
-      ∀ q : ℝ, q ≤ 1 → ∀ g : Fld 3 3 N₁ m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+      ∀ q : ℝ, q ≤ ρ → ∀ g : Fld 3 3 N₁ m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
         ∃ B : StepActivityBound (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
             (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) g,
           B.κH = 2 * κdec - 1 ∧ B.Kc = 2 * (K0 3 3 κ0 + 1) ∧
@@ -143,17 +141,18 @@ theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A
     have h2 := c7_le_bgC1 3 3 2 BG κ
     have h3 := bgC1_le_small 3 3 2 (by norm_num)
     linarith
-  refine ⟨m₁, t, δ,
-    max (max β₀t β₁) (daThreshold ((srcCE A₁ κ t P + srcCF A₁ κ t (Q * t)) / 4)
-      (daT 3 3 4 (2 * Kc'') κdec κ0 κ') (3 * p)), srcCE A₁ κ t P, srcCF A₁ κ t (Q * t),
-    le_trans hβ₀t ((le_max_left _ _).trans (le_max_left _ _)), srcCE_pos hA ht0 hP0,
+  refine ⟨m₁, t, δ, srcCE A₁ κ t P, srcCF A₁ κ t (Q * t), srcCE_pos hA ht0 hP0,
     srcCF_pos hA ht0 hK0, ht0, hδ, ?_⟩
+  intro ρ hρ
+  refine ⟨max (max (max β₀t β₁) (daThreshold ((srcCE A₁ κ t P + ρ * srcCF A₁ κ t (Q * t)) / 4)
+      (daT 3 3 4 (2 * Kc'') κdec κ0 κ') (3 * p))) ρ,
+    le_trans hβ₀t (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _)),
+    le_max_right _ _, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq g hg
+  obtain ⟨⟨⟨hβt, hβ₁⟩, hβd⟩, hβρ⟩ : ((β₀t ≤ β ∧ β₁ ≤ β) ∧ daThreshold
+      ((srcCE A₁ κ t P + ρ * srcCF A₁ κ t (Q * t)) / 4) (daT 3 3 4 (2 * Kc'') κdec κ0 κ')
+        (3 * p) ≤ β) ∧ ρ ≤ β := by simpa only [max_le_iff] using hβ
   have hν0 : 0 ≤ ν := hνpos.le
-  have hβt : β₀t ≤ β := le_trans (le_max_left _ _) (le_trans (le_max_left _ _) hβ)
-  have hβ₁ : β₁ ≤ β := le_trans (le_max_right _ _) (le_trans (le_max_left _ _) hβ)
-  have hβd : daThreshold ((srcCE A₁ κ t P + srcCF A₁ κ t (Q * t)) / 4)
-      (daT 3 3 4 (2 * Kc'') κdec κ0 κ') (3 * p) ≤ β := le_trans (le_max_right _ _) hβ
   have hβ2 : 2 ≤ β := le_trans hβ₀t hβt
   have hβ0 : 0 < β := by linarith
   have hβ1 : 1 ≤ β := by linarith
@@ -219,11 +218,11 @@ theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A
     rw [hid]
     have : 0 < q * (Q * t) / lvR κ t (β * 3 ^ k) p₁ := div_pos (mul_pos hq0 hK0) hr0
     linarith
-  have hDA0 := sourceAmp_doubled_hDA 3 3 (A₁ := A₁) (κ := κ) (t := t) (P := P) (K := Q * t)
-    (q := q)
-    (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le hq hℓ hb0 hKc''pos κdec κ0 κ'
+  have hDA0 := sourceAmp_doubled_hDA_rho 3 3 (A₁ := A₁) (κ := κ) (t := t) (P := P) (K := Q * t)
+    (q := q) (ρ := ρ)
+    (b := β * 3 ^ k) (ε := εU) (Kc' := Kc'') p hA ht0 hP0 hK0.le hρ.le hq hℓ hb0 hKc''pos κdec κ0 κ'
     (hβd.trans hbβ) hεle
-  obtain ⟨B, hB1, hB2, hB3⟩ := stepActivityBound_zeroClass_source_scaled
+  obtain ⟨B, hB1, hB2, hB3⟩ := stepActivityBound_zeroClass_source_scaled_rho
     (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
     (ρ := p₁) (εU := εU) (κ0 := κ0) (κ' := κ') (Kc' := Kc'')
     (R₁ := 2) (r := lvR κ t (β * 3 ^ k) p₁) (R := 2) (m₀ := 1) (κdec := κdec)
@@ -248,7 +247,7 @@ theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A
     (hBh0 := hBh0) (hBh := hBh) (hZν := fun z => (hV z).2.2.2.2.2.2)
     (hN := hN3) (hp := hp0) (hD := hD) (hpρ := le_rfl) (hεpos := hεpos) (hκE := hκE)
     (hKc := hKc''.ge) (hκ' := hκ'0) (hκa := hκa') (hDA := hDA0) (R0 := R0) (hlt := hlt)
-    (g := g) (q := q) (hg := hg) (hq := hq) (hβ := hβ1) (hc := hc) (hεU := hεU)
+    (g := g) (q := q) (hg := hg) (ρs := ρ) (hq := hq) (hβ := max_le hβ1 hβρ) (hc := hc) (hεU := hεU)
   have hBε : B.εH = 4 * εU := by
     rw [hB3, hid, hQdef]
     rfl
@@ -256,6 +255,39 @@ theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A
   refine ⟨B, hB1, by rw [hB2, hKc''], ?_, BC, hBCκ, hBCε, hBCK⟩
   rw [hBε]
   exact sourceAmp_scale_four p hb0 (by linarith) hεle
+
+open Classical in
+/-- **The zero-class activity bound at every scale, every cutoff up to the cutoff of the papers
+and every source of a ball `∑ |g| < q ≤ 1`: real and complex activity.**  With `κ₀ = a_Ent + 1`,
+`κ_dec = 100 (κ₀ + c₁ + 10)`, `κ' = (3/2) κ_dec + κ₀ + 1`: there are `m₁, t, δ, β₀, C_E, C_F`
+(`β₀ ≥ 2`, `C_E, C_F > 0`) such that for every scale `k ≥ 1`, every torus parameter `N₁` with
+`3 ∣ N₁`, `5 < N₁`, every mass `0 < ν` with `ν · 3^{2(k+1)} ≤ 1`, every `β ≥ β₀`, every cutoff
+`0 < p₁ ≤ A₁ (log β_k)^p` (`β_k = β · 3^k`), every `q ≤ 1` and every complex source `g` with
+`∑_{y,i} |g(y,i)| < q`, the zero class at `hatStepK k m₁ hk ν β p₁ δ` has a step activity bound at
+the source `g` with `κ_H = 2 κ_dec - 1`, `K_c = 2 (K₀(κ₀) + 1)` and prefactor
+`ε_H ≤ C_E (log β_k)^{3p}/√β_k + q C_F (log β_k)^p/√β_k`, and a complex step activity bound at the
+central real datum with the same rate, prefactor and entropy constant.  The constants do not
+depend on `k`, `N₁`, `ν`, `β`, `p₁`, `q`, `g`. -/
+theorem stepActivityBound_zeroClass_source_scale_cutoff {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+    {κ0 κdec κ' : ℝ} (hκ0def : κ0 = aEnt 3 3 + 1) (hκdecdef : κdec = 100 * (κ0 + c1 3 3 + 10))
+    (hκ'def : κ' = 3 / 2 * κdec + κ0 + 1) :
+    ∃ (m₁ : ℕ) (t δ β₀ CE CF : ℝ), 2 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧ 0 < t ∧ 0 < δ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      ∀ q : ℝ, q ≤ 1 → ∀ g : Fld 3 3 N₁ m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+        ∃ B : StepActivityBound (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+            (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) g,
+          B.κH = 2 * κdec - 1 ∧ B.Kc = 2 * (K0 3 3 κ0 + 1) ∧
+          B.εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+            q * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ∧
+          ∃ BC : StepActivityBoundC (hatStepK (N₁ := N₁) k m₁ hk ν β p₁ δ)
+              (zeroClass 3 3 N₁ m₁ k 2 (rhoSep m₁)) g,
+            BC.κH = B.κH ∧ BC.εH = B.εH ∧ BC.Kc = B.Kc := by
+  obtain ⟨m₁, t, δ, CE, CF, hCE, hCF, ht, hδ, H⟩ :=
+    stepActivityBound_zeroClass_source_scale_cutoff_rho hA p hκ0def hκdecdef hκ'def
+  obtain ⟨β₀, hβ₀, -, h⟩ := H 1 one_pos
+  exact ⟨m₁, t, δ, β₀, CE, CF, hβ₀, hCE, hCF, ht, hδ, h⟩
 
 /-- **(R) The zero-class activity bound at every scale and every source of the strict `ℓ¹` ball,
 with the cutoff of the papers.**  With `κ₀ = a_Ent + 1`, `κ_dec = 100 (κ₀ + c₁ + 10)`,
