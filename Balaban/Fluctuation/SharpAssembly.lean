@@ -170,8 +170,9 @@ theorem hat_vpart_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
   have hLV' := hLV.mono_on hbV
   exact ⟨_, hLV'⟩
 
-/-- The old terms with the resummed bound (sharp hat version). -/
-theorem hat_eparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
+/-- **Ray-differentiable form of `hat_eparts_bound_dm_dir`.**  The statement of `hat_eparts_bound_dm_dir` together with the
+differentiability of the terms along the complex hat ray `z ↦ z • ψ̂` on `‖z‖ < 3/2`. -/
+theorem hat_eparts_bound_dm_dir_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
     {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
@@ -220,7 +221,11 @@ theorem hat_eparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
             (fun _ => (1 : ℂ)) x₀ w σ Θ else 0)
         (fun Y => (ρE * c1 d L * ((L : ℝ) ^ (k + 1)) ^ d * ((L : ℝ) ^ (m₀ + m₁)) ^ d / r) *
           Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG')
+      ∧ (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+        Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
+        (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
+        DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 Θ) (ball (0 : ℂ) (3 / 2))) := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -234,7 +239,7 @@ theorem hat_eparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
   have hM0 : 0 ≤ ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
   have hP0 : 0 ≤ ((L : ℝ) ^ (k + 1)) ^ d := by positivity
   -- the old terms
-  obtain ⟨TE, hLE0⟩ := eterms_locInt_hat_dm_dir (m₀ := fun _ => m₀) (j := jE) (X := XE) (𝒦X := 𝒦XE)
+  obtain ⟨TE, hLE0, hrayE⟩ := eterms_locInt_hat_dm_dir_ray (m₀ := fun _ => m₀) (j := jE) (X := XE) (𝒦X := 𝒦XE)
     (X₁f := X₁E) 𝒯E hBE hFE hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ hcovE hX₁E hconn hrow hoptE hκ₀
     hκdec hκ h1 hlogE hEbE hEanE hEbdE (ω := fun _ => (1 : ℂ)) continuous_const hR₁
     analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr (Rσ := Rσ)
@@ -289,7 +294,61 @@ theorem hat_eparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
           exact mul_le_mul_of_nonneg_left (one_add_mul_exp_le _ κdec) (by positivity)
   have hLE' := (hLE0.mono_P (P' := IsDj m₀ (k + 1)) fun Y hY => by
     obtain ⟨_, _, h⟩ := hY; exact h).mono_on hbE
-  exact ⟨_, hLE'⟩
+  exact ⟨_, hLE', hrayE⟩
+
+/-- The old terms with the resummed bound (sharp hat version). -/
+theorem hat_eparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    {R₁ : ℝ} (hR₁ : 1 < R₁) {r Rσ : ℝ} (hr : 0 < r)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsmX : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {m₀ : ℕ}
+    {τι : Type*} [DecidableEq τι] (𝒯E : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
+    {GkE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {GjE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)} {r₀ δ₃ δfl : ℝ}
+    {X₀E X₁E : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {jE : τι → ℕ}
+    {XE 𝒦XE : τι → Set (CTorus d L N₁ m₁ (k + 1))} {EbE : τι → ℝ}
+    (hBE : ∀ τ ∈ 𝒯E, BgSetting N Gp (GkE τ) (GjE τ) a₁ ν c BG κ r₀ eps δ₃ (X₀E τ) (X₁E τ) (jE τ))
+    (hFE : ∀ τ ∈ 𝒯E, FlSetting N Gp (GkE τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁E τ))
+    (hcovE : ∀ τ ∈ 𝒯E, CovSetup Gp (m₀) (jE τ) (XE τ) (𝒦XE τ))
+    (hX₁E : ∀ τ ∈ 𝒯E, (↑(X₁E τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀) (jE τ) (𝒦XE τ))
+    (hoptE : ∀ τ ∈ 𝒯E, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XE τ) ∧ MeetsOne (m₀) (jE τ) (𝒦XE τ) W₀ ∧
+        bondCost (scaleW L (m₀) m₁ (jE τ)) E₀ = treeLenCovOne (m₀) (jE τ) (XE τ))
+    (hlogE : ∀ τ ∈ 𝒯E, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) *
+      (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEbE : ∀ τ ∈ 𝒯E, 0 ≤ EbE τ) {EE : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEanE : ∀ τ ∈ 𝒯E, AnalyticOnNhd ℂ (EE τ) (XiCRaw (GjE τ) (compWeight L a₁) ν (jE τ)
+      (scaledC0 d) (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbdE : ∀ τ ∈ 𝒯E, ∀ r ∈ XiCRaw (GjE τ) (compWeight L a₁) ν (jE τ) (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖EE τ r‖ ≤ EbE τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀) (jE τ) (XE τ)))
+    (rE : τι → CTorus d L N₁ m₁ (k + 1)) (hrE : ∀ τ ∈ 𝒯E, rE τ ∈ X₁E τ) {ρE : ℝ}
+    (hρE0 : 0 ≤ ρE)
+    (hρE : ∀ x : CTorus d L N₁ m₁ (k + 1), ∑ τ ∈ 𝒯E.filter (fun τ => rE τ = x),
+      EbE τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jE τ) (XE τ)) ≤ ρE) :
+    ∃ T : Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) → (unitPts Gp × Fin N → ℂ) →
+        ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (𝒯E.biUnion fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) T
+        (fun x₀ w σ Θ => ∑ τ ∈ 𝒯E, if h : τ ∈ 𝒯E then
+          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hBE τ h) (hFE τ h) (EE τ)))
+            (fun _ => (1 : ℂ)) x₀ w σ Θ else 0)
+        (fun Y => (ρE * c1 d L * ((L : ℝ) ^ (k + 1)) ^ d * ((L : ℝ) ^ (m₀ + m₁)) ^ d / r) *
+          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatFDir hG') := by
+  classical
+  exact (hat_eparts_bound_dm_dir_ray (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) hC hconn hrow (κdec := κdec) (κ₀ := κ₀) hκ₀ hκdec hκ h1 (R₁ := R₁) hR₁ (r := r) (Rσ := Rσ) hr hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsmX hδ₁ (m₀ := m₀) (τι := τι) 𝒯E (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (GkE := GkE) (GjE := GjE) (r₀ := r₀) (δ₃ := δ₃) (δfl := δfl) (X₀E := X₀E) (X₁E := X₁E) (jE := jE) (XE := XE) (𝒦XE := 𝒦XE) (EbE := EbE) hBE hFE hcovE hX₁E hoptE hlogE hEbE (EE := EE) hEanE hEbdE rE hrE (ρE := ρE) hρE0 hρE).imp fun _ h => h.1
 
 /-- The source sites with the resummed bound (sharp hat version). -/
 theorem hat_fparts_bound_dm_dir {Kc Cx c₂ BG₂ δ₁ : ℝ}

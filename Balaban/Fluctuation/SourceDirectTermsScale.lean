@@ -189,8 +189,13 @@ there are an expanded function `val`, a finite family `𝒴` of domains and term
 * at every point `Θ` of the slice `physSΛEta S a₁ ν ε η` there is a `DirectTerms` instance for
   `val` with domains `𝒴`, terms `T`, rate `2κ_dec - 1` and amplitude `ε_U`.
 
-The family `(𝒴, T)` is chosen before the point `Θ`: it does not depend on the source. -/
-theorem sourceDirectTerms_slice {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
+The family `(𝒴, T)` is chosen before the point `Θ`: it does not depend on the source.
+
+The last conjunct is the differentiability of the terms along the complex hat ray `ζ ↦ ζ ψ̂` on
+`‖ζ‖ < 3/2`, at every datum of the slice and every hat field `ψ̂` with
+`(R₁ + r) (3/2) ‖ψ̂‖ ≤ cψ`. -/
+
+theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
     (hc : (Rσ * R₁ + r) * ρ < cψ)
     (hεb : prop33EpsEtaScaled d L N m₁ k m₀ S.a₁ BG BG₂ κ δ₁ r 0 0 η * ‖(S.β : ℂ)‖ ≤ εU) :
     ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
@@ -211,12 +216,18 @@ theorem sourceDirectTerms_slice {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
       PhysicalSharpLocEta S cψ R₁ Rσ r S.a₁ S.ν eps η 𝒴 T ∧
       DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ)) (physXW S cψ R₁ Rσ r)
         (physSΛEta S S.a₁ S.ν eps η) Rσ 𝒴 T ∧
-      ∀ Θ ∈ physSΛEta S S.a₁ S.ν eps η,
+      (∀ Θ ∈ physSΛEta S S.a₁ S.ν eps η,
         ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ
             (physSΛEta S S.a₁ S.ν eps η) (physXW S cψ R₁ Rσ r) val (physAgΘ S) (AgFDirPair S),
-          I.𝒴 = 𝒴 ∧ I.T = T := by
+          I.𝒴 = 𝒴 ∧ I.T = T) ∧
+      ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+        (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν eps η → ∀ ψ : S.U × Fin N → ℂ,
+        (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
+        DifferentiableOn ℂ (fun ζ : ℂ => T Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (ball (0 : ℂ) (3 / 2)) := by
   classical
-  obtain ⟨𝒴, T, hD0⟩ := interaction_expansion_hat_dm_core_dir_eta_scaled
+  obtain ⟨𝒴, T, hD0, hrayD⟩ := interaction_expansion_hat_dm_core_dir_eta_scaled_ray
     (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (hC := hC) (cβ := (S.β : ℂ))
     (hconn := hconn) (hrow := hrow) (κdec := κdec) (κ₀ := κ₀) (hκ₀ := hκ₀) (hκdec := hκdec)
     (hκ := hκ) (h1 := h1) (R₁ := R₁) (hR₁ := hR₁) (r := r) (Rσ := Rσ) (hr := hr) (η := η)
@@ -293,7 +304,53 @@ theorem sourceDirectTerms_slice {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
         refine (continuousOn_iff_continuous_domRestrict.1 (hcont.mono ?_)).measurable
         intro ψ hψ
         exact ⟨hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc,
-          hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc⟩ }, rfl, rfl⟩⟩
+          hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc⟩ }, rfl, rfl⟩,
+    fun Y Θ hΘ ψ hψ => hrayD Y Θ hΘ ψ hψ⟩
+
+/-- **The direct terms of the zero class on a source slice: one family of labels and terms for
+every datum and source of the slice.**  Under the hypotheses of the landed zero-source theorem
+that concern the expansion (`FlCore`, `HatConn`, `RowInHat`, the rooted covers of the blocks and
+of the source sites, the radii), for a slice `η > 0` and an amplitude
+`ε_U ≥ prop33EpsEtaScaled(ρ_E = ρ_M = 0, η) · |β|`:
+
+there are an expanded function `val`, a finite family `𝒴` of domains and terms `T` such that
+
+* `val x w σ (D, f) = -β raySrc3(V̂)(x₁, w₁; σ; D) + β ∑_s f_s dirTermSrc(φ̂_s)(x₂, w₂; σ; D)`
+  (the potential part and the source part; affine in the source `f`);
+* the terms are sharply local on the slice (`PhysicalSharpLocEta`), and their diagonal values
+  `ψ ↦ T_Y((ψ,ψ), (ψ,ψ); σ; Θ)` are continuous at every point `Θ` of the slice (`DiagCont`);
+* at every point `Θ` of the slice `physSΛEta S a₁ ν ε η` there is a `DirectTerms` instance for
+  `val` with domains `𝒴`, terms `T`, rate `2κ_dec - 1` and amplitude `ε_U`.
+
+The family `(𝒴, T)` is chosen before the point `Θ`: it does not depend on the source. -/
+theorem sourceDirectTerms_slice {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
+    (hc : (Rσ * R₁ + r) * ρ < cψ)
+    (hεb : prop33EpsEtaScaled d L N m₁ k m₀ S.a₁ BG BG₂ κ δ₁ r 0 0 η * ‖(S.β : ℂ)‖ ≤ εU) :
+    ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ℂ → (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+      (T : Set (CTorus d L N₁ m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+        ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) → ℂ),
+      (∀ x w σ p, val x w σ p =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight x.1 w.1 σ p.1 +
+        (S.β : ℂ) * (∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, p.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν eps
+              (fun D ψ' => svec (stepG d L N₁ m₁ k ϱ)
+                (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν D ψ') s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ p.1)) ∧
+      PhysicalSharpLocEta S cψ R₁ Rσ r S.a₁ S.ν eps η 𝒴 T ∧
+      DiagCont (fun ψ : S.U × Fin N → ℂ => (ψ, ψ)) (physXW S cψ R₁ Rσ r)
+        (physSΛEta S S.a₁ S.ν eps η) Rσ 𝒴 T ∧
+      ∀ Θ ∈ physSΛEta S S.a₁ S.ν eps η,
+        ∃ I : DirectTerms S m₀ hp (fun ψ => (ψ, ψ)) ρ Rσ εU (2 * κdec - 1) Θ
+            (physSΛEta S S.a₁ S.ν eps η) (physXW S cψ R₁ Rσ r) val (physAgΘ S) (AgFDirPair S),
+          I.𝒴 = 𝒴 ∧ I.T = T := by
+  classical
+  exact (sourceDirectTerms_slice_ray S (hC := hC) (hconn := hconn) (hrow := hrow) (hκ₀ := hκ₀) (hκdec := hκdec) (hκ := hκ) (h1 := h1) (hR₁ := hR₁) (hr := hr) (hcψ := hcψ) (hMX := hMX) (hdm := hdm) (hα := hα) (hsmX := hsmX) (hδ₁ := hδ₁) (ha₁ := ha₁) (H := H) (hc7 := hc7) (hR := hR) (hRs := hRs) (hsmall := hsmall) (hnum := hnum) (hnum' := hnum') (hsm := hsm) (hcovV := hcovV) (hX₁V := hX₁V) (hoptV := hoptV) (hΔV := hΔV) (hlogV := hlogV) (hZV := hZV) (hmarV := hmarV) (hcovF := hcovF) (hX₁F := hX₁F) (hoptF := hoptF) (hΔF := hΔF) (hlogF := hlogF) (hyF := hyF) (hBh0 := hBh0) (hBh := hBh) (hZν := hZν) (hN := hN) (hp := hp) hη0 hRσ hc hεb).imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
+    ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1⟩
 
 variable (hD : XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps S.D')
     (hpρ : S.p₁ ≤ ρ) (hεpos : 0 < εU)
