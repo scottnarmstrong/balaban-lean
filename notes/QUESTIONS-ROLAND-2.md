@@ -343,3 +343,27 @@ thresholds (a higher power of log beta in delta_0), or from another source?
 
 (Details: `notes/phase1/KF0-P7.md`, `KF0-LAST.md`. Our frozen root statement covers all masses,
 so the range k_f = 0 is needed.)
+
+### Item 18 (2026-10-13): the cut family for the last integral (P7 section 4)
+
+In P7 section 4 the final fluctuation integral (covariance of P4 (6.4)-(6.6)) is localized.
+We tried the simplest family: multiply the entries of the final operator between different
+localization cells by s(cell of x) s(cell of y), with complex s in a polydisc. For this family
+the gap of the operator can only be kept if the weighted sum of the entries crossing a cell
+boundary is small compared with the gap 7 / (8 L^2 (8d + 3)); since adjacent cells are at
+distance one, that sum is of order one whatever the cell size M, so this family does not work
+(the estimate we can prove gives a perturbation of size at least 4 against a gap of about
+0.0036 at d = L = 3).
+
+(a) Is the intended complex interpolation the generalized random-walk parametrix of P3 (2.8)
+applied to the massive final operator, with the parameters s attached to the localization
+cubes visited by a walk (as in the small-field steps), rather than a multiplicative cut of the
+operator?
+
+(b) If so: the final operator is a long-range coarse Schur complement (it contains the inverse
+of the unit-lattice operator), not a nearest-neighbour operator. What local operator or path
+rule handles it, and where are the defect of order 1/M per step and the radius of analyticity
+required by the P6 localization established? We find no formula for this family in P7
+pp. 529-531 or P4 pp. 719-720.
+
+(Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`; Lean: `Balaban/Green/FinalCutComplex.lean`.)

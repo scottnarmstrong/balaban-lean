@@ -1622,7 +1622,11 @@ public import Balaban.Inhabited.SourceExponentFamily
 public import Balaban.Fluctuation.ObsRayAnalytic
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.RenormThetaDatumWitness
+public import Balaban.Inhabited.ObsMarksFromTower
 public import Balaban.Fluctuation.RenormThetaChart
 public import Balaban.Inhabited.RenormThetaChartTower
+public import Balaban.Inhabited.SourceWitnessJoint
+public import Balaban.Inhabited.TowerCoreRatesTwoRadii
+public import Balaban.Inhabited.StepTowerTheta
 public import Balaban.Inhabited.StepPiecesRenSol
 public import Balaban.Fluctuation.RenormDetFibreMap
