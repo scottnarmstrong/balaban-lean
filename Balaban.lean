@@ -1627,6 +1627,7 @@ public import Balaban.Fluctuation.RenormC1Local
 public import Balaban.Fluctuation.RenormLocC1Zero
 public import Balaban.Inhabited.RenormLocC1ZeroWitness
 public import Balaban.Inhabited.RenormDetFibreTower
+public import Balaban.Inhabited.RenormE0FibreDetG
 public import Balaban.Inhabited.RenormE0FibreDet
 public import Balaban.Inhabited.RenormE0FibreDetRadius
 public import Balaban.Inhabited.RenormLabelNonempty
