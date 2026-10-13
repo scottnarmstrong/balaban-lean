@@ -810,6 +810,7 @@ public import Balaban.LargeField.Base.BaseChartMeasure
 public import Balaban.LargeField.Base.BaseS5
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.LargeField.Base.Prop279
+public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
