@@ -814,14 +814,12 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     (hint : ∀ Z ⊆ S, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
       (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
         ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
-    (ψ : Lb → Lb')
-    (hψb : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S →
-      blocksOf m₀ j Ω' (Lab'.ysite (ψ y)) = (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
-    (hψinj : ∀ y₁ y₂, blocksOf m₀ j Ω (Lab.ysite y₁) ⊆ S → blocksOf m₀ j Ω (Lab.ysite y₂) ⊆ S →
-      ψ y₁ = ψ y₂ → y₁ = y₂)
-    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ S.image σ →
-      ∃ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S ∧ ψ y = y')
-    (hH : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → ∀ Φ Φ', Rel Φ Φ' → H' (ψ y) Φ' = H y Φ)
+    (ψ : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → Lb')
+    (hψb : ∀ y hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hy)) =
+      (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
+    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ S.image σ → ∃ y hy, ψ y hy = y')
+    (hH : ∀ y hy, ∀ Φ Φ', Rel Φ Φ' → H' (ψ y hy) Φ' = H y Φ)
     {S₀ : Finset 𝔅} (hS₀ : S₀ ⊆ S) {G : (∀ b, Ωb b) → ℂ} {G' : (∀ b, Ωb' b) → ℂ}
     (hGdep : DepOn S₀ G) (hG : ∀ Φ Φ', Rel Φ Φ' → G' Φ' = G Φ) :
     Gst μ' Lab' H' (S₀.image σ) G' (S.image σ) = Gst μ Lab H S₀ G S := by
@@ -838,20 +836,19 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     have hpre : presum Lab' H' (img t) Φ' = presum Lab H t Φ := by
       unfold presum
       symm
-      refine Finset.sum_bij (fun y _ => ψ y) (fun y hy => ?_) (fun y₁ hy₁ y₂ hy₂ h => ?_)
-        (fun y' hy' => ?_) (fun y hy => ?_)
+      have hyS : ∀ y ∈ Finset.univ.filter (fun y => blocksOf m₀ j Ω (Lab.ysite y) = t.1),
+          blocksOf m₀ j Ω (Lab.ysite y) ⊆ S := fun y hy => (Finset.mem_filter.1 hy).2 ▸ htS
+      refine Finset.sum_bij (fun y hy => ψ y (hyS y hy)) (fun y hy => ?_)
+        (fun y₁ hy₁ y₂ hy₂ h => hψinj y₁ _ y₂ _ h) (fun y' hy' => ?_)
+        (fun y hy => (hH y _ Φ Φ' hR).symm)
       · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
         refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
-        rw [hψb y (hyt ▸ htS), hyt]
-      · have h1 : blocksOf m₀ j Ω (Lab.ysite y₁) = t.1 := (Finset.mem_filter.1 hy₁).2
-        have h2 : blocksOf m₀ j Ω (Lab.ysite y₂) = t.1 := (Finset.mem_filter.1 hy₂).2
-        exact hψinj y₁ y₂ (h1 ▸ htS) (h2 ▸ htS) h
+        rw [hψb y _, hyt]
       · have h' : blocksOf m₀ j Ω' (Lab'.ysite y') = t.1.image σ := (Finset.mem_filter.1 hy').2
-        obtain ⟨y, hyS, rfl⟩ := hψsurj y' (h' ▸ Finset.image_subset_image htS)
-        refine ⟨y, Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩, rfl⟩
-        exact eq_of_image_eq_of_injOn hσ hyS htS ((hψb y hyS).symm.trans h')
-      · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
-        exact (hH y (hyt ▸ htS) Φ Φ' hR).symm
+        obtain ⟨y, hyS', rfl⟩ := hψsurj y' (h' ▸ Finset.image_subset_image htS)
+        have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 :=
+          eq_of_image_eq_of_injOn hσ hyS' htS ((hψb y hyS').symm.trans h')
+        exact ⟨y, Finset.mem_filter.2 ⟨Finset.mem_univ _, hyt⟩, rfl⟩
     have hmark : gMark (S₀.image σ) G' () (img t) Φ' = gMark S₀ G () t Φ := by
       by_cases ht0 : t.1 = S₀
       · have h1 : (img t).1 = S₀.image σ := by
@@ -928,23 +925,19 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
     (hint : ∀ Z ⊆ T, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
       (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
         ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
-    (ψ : Lb → Lb')
-    (hψb : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T →
-      blocksOf m₀ j Ω' (Lab'.ysite (ψ y)) = (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
-    (hψinj : ∀ y₁ y₂, blocksOf m₀ j Ω (Lab.ysite y₁) ⊆ T → blocksOf m₀ j Ω (Lab.ysite y₂) ⊆ T →
-      ψ y₁ = ψ y₂ → y₁ = y₂)
-    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ T.image σ →
-      ∃ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T ∧ ψ y = y')
-    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T →
-      ∀ Φ Φ', Rel Φ Φ' → (A' (s : ℂ)).H (ψ y) Φ' = (A (s : ℂ)).H y Φ)
-    (κ : ι → ι')
-    (hκ : ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T → y0' (κ i) = ψ (y0 i))
-    (hκinj : ∀ i₁ i₂, blocksOf m₀ j Ω (Lab.ysite (y0 i₁)) ⊆ T →
-      blocksOf m₀ j Ω (Lab.ysite (y0 i₂)) ⊆ T → κ i₁ = κ i₂ → i₁ = i₂)
-    (hκsurj : ∀ i', blocksOf m₀ j Ω' (Lab'.ysite (y0' i')) ⊆ T.image σ →
-      ∃ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T ∧ κ i = i')
-    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T →
-      ∀ Φ Φ', Rel Φ Φ' → G' (κ i) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
+    (ψ : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T → Lb')
+    (hψb : ∀ y hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hy)) =
+      (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
+    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ T.image σ → ∃ y hy, ψ y hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
+      ∀ Φ Φ', Rel Φ Φ' → (A' (s : ℂ)).H (ψ y hy) Φ' = (A (s : ℂ)).H y Φ)
+    (κ : ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T → ι')
+    (hκ : ∀ i hi, y0' (κ i hi) = ψ (y0 i) hi)
+    (hκinj : ∀ i₁ hi₁ i₂ hi₂, κ i₁ hi₁ = κ i₂ hi₂ → i₁ = i₂)
+    (hκsurj : ∀ i', blocksOf m₀ j Ω' (Lab'.ysite (y0' i')) ⊆ T.image σ → ∃ i hi, κ i hi = i')
+    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i hi,
+      ∀ Φ Φ', Rel Φ Φ' → G' (κ i hi) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
     gsumCoeff μ' Lab' A' y0' G' (T.image σ) = gsumCoeff μ Lab A y0 G T := by
   classical
   unfold gsumCoeff
@@ -956,19 +949,18 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
     ← Finset.sum_filter_of_ne (p := fun i => blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T)
     (fun i _ h => by_contra fun hn => h (Gst_eq_zero_of_not_subset _ _ _ _ hn))]
   symm
-  refine Finset.sum_bij (fun i _ => κ i) (fun i hi => ?_) (fun i₁ hi₁ i₂ hi₂ h => ?_)
-    (fun i' hi' => ?_) (fun i hi => ?_)
+  refine Finset.sum_bij (fun i hi => κ i (Finset.mem_filter.1 hi).2) (fun i hi => ?_)
+    (fun i₁ hi₁ i₂ hi₂ h => hκinj i₁ _ i₂ _ h) (fun i' hi' => ?_) (fun i hi => ?_)
   · have hiT := (Finset.mem_filter.1 hi).2
     refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
     rw [hκ i hiT, hψb _ hiT]
     exact Finset.image_subset_image hiT
-  · exact hκinj i₁ i₂ (Finset.mem_filter.1 hi₁).2 (Finset.mem_filter.1 hi₂).2 h
   · obtain ⟨i, hiT, rfl⟩ := hκsurj i' (Finset.mem_filter.1 hi').2
     exact ⟨i, Finset.mem_filter.2 ⟨Finset.mem_univ _, hiT⟩, rfl⟩
   · have hiT := (Finset.mem_filter.1 hi).2
     show Gst μ Lab (A (s : ℂ)).H (blocksOf m₀ j Ω (Lab.ysite (y0 i))) (G i (s : ℂ)) T =
-      Gst μ' Lab' (A' (s : ℂ)).H (blocksOf m₀ j Ω' (Lab'.ysite (y0' (κ i)))) (G' (κ i) (s : ℂ))
-        (T.image σ)
+      Gst μ' Lab' (A' (s : ℂ)).H (blocksOf m₀ j Ω' (Lab'.ysite (y0' (κ i hiT))))
+        (G' (κ i hiT) (s : ℂ)) (T.image σ)
     rw [hκ i hiT, hψb _ hiT]
     exact (Gst_transport μ μ' Lab Lab' (A (s : ℂ)).H (A' (s : ℂ)).H (A (s : ℂ)).dep σ T hσ Rel
       hint ψ hψb hψinj hψsurj (hA s hs) hiT (hGdep i _) (hG s hs i hiT)).symm
@@ -1031,31 +1023,27 @@ theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
     (T : Finset (𝔅A))
     (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
       InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (ψ : Lb → Lb')
-    (hψb : ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T →
-      blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y)) =
-        (blocksOf m₀ (k + 1) Set.univ (Lab.ysite y)).image (σc))
-    (hψinj : ∀ y₁ y₂, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y₁) ⊆ T →
-      blocksOf m₀ (k + 1) Set.univ (Lab.ysite y₂) ⊆ T → ψ y₁ = ψ y₂ → y₁ = y₂)
+    (ψ : ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T → Lb')
+    (hψb : ∀ y hy, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y hy)) =
+      (blocksOf m₀ (k + 1) Set.univ (Lab.ysite y)).image (σc))
+    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
     (hψsurj : ∀ y', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite y') ⊆ T.image (σc) →
-      ∃ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T ∧ ψ y = y')
-    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T →
+      ∃ y hy, ψ y hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
       ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
           Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
-        (A' (s : ℂ)).H (ψ y) Φ' = (A (s : ℂ)).H y Φ)
-    (κ : ι → ι')
-    (hκ : ∀ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T → y0' (κ i) = ψ (y0 i))
-    (hκinj : ∀ i₁ i₂, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i₁)) ⊆ T →
-      blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i₂)) ⊆ T → κ i₁ = κ i₂ → i₁ = i₂)
+        (A' (s : ℂ)).H (ψ y hy) Φ' = (A (s : ℂ)).H y Φ)
+    (κ : ∀ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T → ι')
+    (hκ : ∀ i hi, y0' (κ i hi) = ψ (y0 i) hi)
+    (hκinj : ∀ i₁ hi₁ i₂ hi₂, κ i₁ hi₁ = κ i₂ hi₂ → i₁ = i₂)
     (hκsurj : ∀ i', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y0' i')) ⊆ T.image (σc) →
-      ∃ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T ∧ κ i = i')
-    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i,
-      blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T →
+      ∃ i hi, κ i hi = i')
+    (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i hi,
       ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
           Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
-        G' (κ i) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
+        G' (κ i hi) (s : ℂ) Φ' = G i (s : ℂ) Φ) :
     gsumCoeff ((SB).blockSplit m₀ hp').μ Lab' A' y0' G' (T.image (σc)) =
       gsumCoeff ((SA).blockSplit m₀ hp).μ Lab A y0 G T := by
   have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
