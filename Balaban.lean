@@ -1561,6 +1561,7 @@ public import Balaban.Fluctuation.RenormBgClassDec
 public import Balaban.Fluctuation.RenormStrictData
 public import Balaban.Fluctuation.RenormC1Analytic
 public import Balaban.Fluctuation.RenormDecAnalytic
+public import Balaban.Fluctuation.RenormEndpoint
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.MarkedCubicJoint
