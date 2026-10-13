@@ -257,6 +257,84 @@ namespace StepSetting
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ)
 
+/-- The pointwise covariance hypotheses of the complex chart, for any incoming datum. -/
+theorem covData_of_chart_core {ϱm : ℝ}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ δc : ℝ}
+    (D : BgData S.G' N)
+    (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D) :
+    (∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) 0 (fun _ => 1)) ∧
+    IsConstraintField S.G' δc
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)) ∧
+    0 ≤ δc ∧ δc ^ 2 * smallConstX d L 0 ≤ 1 / 4 := by
+  obtain ⟨h1, h2, h3, h4⟩ := xData_zero_of_xiCData hC S.hk1 hMX hdm hα hsm hD
+  have hb : barField S.G' D.Ψ (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) =
+      svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) := by
+    funext x i
+    exact barField_eq_svec S.hG' _ _ x i
+  rw [hb] at h2
+  exact ⟨h1, h2, h3, h4⟩
+
+/-- The raw covariance square root conjugates its symmetric operator to the identity. -/
+theorem covSqrt_T_mul_core (D : BgData S.G' N) {δc : ℝ}
+    (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) 0 (fun _ => 1))
+    (hφ : IsConstraintField S.G' δc
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)))
+    (hδ : 0 ≤ δc) (hsm : δc ^ 2 * smallConstX d L 0 ≤ 1 / 4) :
+    let M := decCovSqrt S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')
+    let A := covOp S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')
+    Mᵀ * A * M = 1 := by
+  dsimp only
+  have hM : decCovSqrt S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G') = sqrtMat
+      (covOp S.G' S.a S.a₁ S.ν
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+        (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+        (unitQ S.G') (unitP S.G')) := by
+    exact decCovSqrt_one_eq_sqrtMat hfam hφ hδ hsm (isUnitLatticeB_unit (G := S.G'))
+  rw [hM]
+  exact sqrtMat_transpose_mul
+    (resOK_covOp hfam hφ hδ hsm (isUnitLatticeB_unit (G := S.G')))
+    (covOp_transpose (xH0_transpose_of_level S.hG S.hG' S.a S.ν _) unitP_transpose)
+
+/-- The determinant of the raw covariance square root uses the principal trace branch. -/
+theorem det_hatCovSqrt_core (D : BgData S.G' N) {δc : ℝ}
+    (hfam : ∀ x, 0 ≤ x → XData S.G' S.a S.a₁ S.ν x
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) 0 (fun _ => 1))
+    (hφ : IsConstraintField S.G' δc
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)))
+    (hδ : 0 ≤ δc) (hsm : δc ^ 2 * smallConstX d L 0 ≤ 1 / 4) :
+    (decCovSqrt S.G' S.a S.a₁ S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+      (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+      (unitQ S.G') (unitP S.G')).det = Complex.exp
+      (-(1 / 2 : ℂ) * ∑ y : S.U, ∑ i : Fin N,
+        (decLog S.G' S.a S.a₁ S.ν
+          (bgMultC S.G' S.a S.ν (bgC0 d L N) D) (fun _ => 1)
+          (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+          (unitQ S.G') (unitP S.G')) (y, i) (y, i)) := by
+  rw [decCovSqrt_one_eq_sqrtMat hfam hφ hδ hsm (isUnitLatticeB_unit (G := S.G')),
+    det_sqrtMat (resOK_covOp hfam hφ hδ hsm (isUnitLatticeB_unit (G := S.G'))),
+    ← decLog_one_eq_logMat hfam hφ hδ hsm (isUnitLatticeB_unit (G := S.G'))]
+  rw [Matrix.trace]
+  simp only [Matrix.diag_apply]
+  rw [Fintype.sum_prod_type]
+
 /-- **`𝒜` of the complex step is complex symmetric**, at every datum. -/
 theorem covAC_transpose : S.covACᵀ = S.covAC :=
   covOp_transpose (xH0_transpose_of_level S.hG S.hG' S.a S.ν _) unitP_transpose
@@ -293,20 +371,14 @@ include hfamC hφC hδc hsm0 in
 /-- **`C^{1/2 ᵀ} 𝒜 C^{1/2} = 1` at a complex datum** (Lemma 2.4 (c); the complex form of
 `covSqrt_T_mul`): the Gaussian part of (2.6) after the substitution (2.7). -/
 theorem covSqrtC_T_mul : S.covSqrtCᵀ * S.covAC * S.covSqrtC = 1 := by
-  rw [S.covSqrtC_eq_sqrtMat hfamC hφC hδc hsm0]
-  exact sqrtMat_transpose_mul (S.resOK_covAC hfamC hφC hδc hsm0) S.covAC_transpose
+  exact S.covSqrt_T_mul_core S.D' hfamC hφC hδc hsm0
 
 include hfamC hφC hδc hsm0 in
 /-- **`det C^{(k)1/2} = exp (½ log det C^{(k)})` at a complex datum** (Lemma 2.4 (c), (2.7); the
 complex form of `abs_det_K`), with the analytic `½ log det C^{(k)} = -½ ∑_y tr 𝕃(y,y)`
 (`halfLogDetCC`): the Jacobian of the substitution (2.7). -/
 theorem det_covSqrtC : S.covSqrtC.det = Complex.exp S.halfLogDetCC := by
-  rw [S.covSqrtC_eq_sqrtMat hfamC hφC hδc hsm0, det_sqrtMat (S.resOK_covAC hfamC hφC hδc hsm0),
-    ← S.logAC_eq_logMat hfamC hφC hδc hsm0]
-  unfold halfLogDetCC
-  rw [Matrix.trace]
-  simp only [Matrix.diag_apply]
-  rw [Fintype.sum_prod_type]
+  exact S.det_hatCovSqrt_core S.D' hfamC hφC hδc hsm0
 
 include hfamC hφC hδc hsm0 in
 /-- `exp (2 · ½ log det C^{(k)}) = det C^{(k)}` at a complex datum: `halfLogDetCC` is one half of a
@@ -341,26 +413,20 @@ theorem covData_of_chart :
         (bgMultC S.G' S.a S.ν (bgC0 d L N) S.D') 0 (fun _ => 1)) ∧
       IsConstraintField S.G' δc (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')) ∧
       0 ≤ δc ∧ δc ^ 2 * smallConstX d L 0 ≤ 1 / 4 := by
-  obtain ⟨h1, h2, h3, h4⟩ := xData_zero_of_xiCData hC S.hk1 hMX hdm hα hsm hD
-  have hb : barField S.G' S.D'.Ψ (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') =
-      svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') := by
-    funext x i
-    exact barField_eq_svec S.hG' _ _ x i
-  rw [hb] at h2
-  exact ⟨h1, h2, h3, h4⟩
+  exact S.covData_of_chart_core S.D' hC hMX hdm hα hsm hD
 
 include hC hMX hdm hα hsm hD in
 /-- **`C^{1/2 ᵀ} 𝒜 C^{1/2} = 1` on the complex chart.** -/
 theorem covSqrtC_T_mul_of_chart : S.covSqrtCᵀ * S.covAC * S.covSqrtC = 1 := by
   obtain ⟨h1, h2, h3, h4⟩ := S.covData_of_chart hC hMX hdm hα hsm hD
-  exact S.covSqrtC_T_mul h1 h2 h3 h4
+  exact S.covSqrt_T_mul_core S.D' h1 h2 h3 h4
 
 include hC hMX hdm hα hsm hD in
 /-- **`det C^{(k)1/2} = exp (½ log det C^{(k)})` on the complex chart**, with the analytic
 `halfLogDetCC`. -/
 theorem det_covSqrtC_of_chart : S.covSqrtC.det = Complex.exp S.halfLogDetCC := by
   obtain ⟨h1, h2, h3, h4⟩ := S.covData_of_chart hC hMX hdm hα hsm hD
-  exact S.det_covSqrtC h1 h2 h3 h4
+  exact S.det_hatCovSqrt_core S.D' h1 h2 h3 h4
 
 end FromChart
 

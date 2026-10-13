@@ -213,6 +213,33 @@ end Exponents
 
 /-! ### Complex data: the exponents vanish at `s = 0` -/
 
+/-- The interaction vanishes at the composed critical datum for any incoming field. -/
+theorem interactionV_critical_core (D : BgData S.G' N)
+    (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
+    (hD : InUnionDomainC S.G' (bgC0 d L N) (thm73C1 d L N) S.ν D) :
+    let B := composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D
+    interactionV (S.hG.precedes S.hG' (le_refl (k + 1))) S.a S.ν
+      (bgMultC S.G' S.a S.ν (bgC0 d L N) D)
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)
+      (compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D B)
+      (bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) B -
+        (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) D)) = 0 := by
+  dsimp only
+  obtain ⟨-, -, hfield, -⟩ :=
+    criticalPoint_complex ha₁ S.hG S.hG' (le_refl (k + 1)) H H D hD
+  have htan : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
+      (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D
+      (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+        (bgFieldC S.G' S.a S.ν (bgC0 d L N) D) D) = 0 := by
+    funext z i
+    unfold compTangent
+    exact sub_self _
+  rw [htan, hfield, sub_self]
+  exact interactionV_zero' _ _ _ _ _
+
 section Zero
 
 variable (ha₁ : 0 < S.a₁) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
@@ -223,20 +250,9 @@ include ha₁ H hD' in
 (FLUCTUATION Lemma 2.2 (c); `criticalPoint_complex`), the small solution of the critical point is
 the restriction of `φ_{k+1}(θ)`.  The complex form of `Vk_psi0`, with no realness hypothesis. -/
 theorem VkC_psi0C : S.VkC S.psi0C = 0 := by
-  obtain ⟨-, -, hfield, -⟩ :=
-    criticalPoint_complex ha₁ S.hG S.hG' (le_refl (k + 1)) H H S.D' hD'
-  have hfield' : bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) S.psiKdC =
-      (S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
-        (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') := hfield
   unfold VkC
   rw [S.dataUC_psi0C]
-  have h1 : compTangent S.hG S.hG' (le_refl (k + 1)) S.a
-      (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D') S.D' S.psiKdC = 0 := by
-    funext z i
-    unfold compTangent psiKdC
-    exact sub_self _
-  rw [h1, hfield', sub_self]
-  exact interactionV_zero' _ _ _ _ _
+  exact S.interactionV_critical_core S.D' ha₁ H hD'
 
 include ha₁ H hD' in
 /-- **`W₁(0, ψ̂) = 0` at a complex datum** of `𝒟(𝔹'_k)`. -/
