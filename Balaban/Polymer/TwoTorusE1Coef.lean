@@ -795,13 +795,14 @@ theorem Gst_eq_zero_of_not_subset {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace
 /-- **D4 (b): transport of the local term `G*(S₀, S)` of the marked cluster expansion.**  Let
 `σ` map the blocks of the first system to those of the second, injectively on `S`, and let a
 relation `Rel` between configurations of the two systems carry integrals of functions of the
-blocks of `Z ⊆ S` to integrals of the corresponding functions (`hint`).  Let the labels `y` with
-blocks in `S` correspond bijectively (`ψ`) to the labels `y′` with blocks in `σ '' S`, with
+blocks of `Z ⊆ S` to integrals of the corresponding functions (`hint`).  Let the labels be split
+into active ones (`P`, `P′`) and labels of zero activity, let the active labels `y` with blocks in
+`S` correspond bijectively (`ψ`) to the active labels `y′` with blocks in `σ '' S`, with
 `blocks (ψ y) = σ '' blocks y`, and let the activities and the mark agree on related
 configurations.  Then `G*(σ '' S₀, σ '' S)` of the second system equals `G*(S₀, S)` of the
 first, for `S₀ ⊆ S`.  The polymers of the two cluster expansions inside `S` and `σ '' S`
 correspond (`PY_transport`), and so do their connected families (`polyAct_transport`), the
-labels of a polymer (`presum`) and the marks (`gMark`). -/
+active labels of a polymer (`presum`) and the marks (`gMark`). -/
 theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     {Ωb' : 𝔅' → Type*} [∀ b, MeasurableSpace (Ωb' b)]
     (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
@@ -814,12 +815,16 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     (hint : ∀ Z ⊆ S, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
       (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
         ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
-    (ψ : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → Lb')
-    (hψb : ∀ y hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hy)) =
+    (P : Lb → Prop) (P' : Lb' → Prop) (hH0 : ∀ y, ¬ P y → ∀ Φ, H y Φ = 0)
+    (hH0' : ∀ y', ¬ P' y' → ∀ Φ', H' y' Φ' = 0)
+    (ψ : ∀ y, P y → blocksOf m₀ j Ω (Lab.ysite y) ⊆ S → Lb')
+    (hψP : ∀ y hP hy, P' (ψ y hP hy))
+    (hψb : ∀ y hP hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hP hy)) =
       (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
-    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
-    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ S.image σ → ∃ y hy, ψ y hy = y')
-    (hH : ∀ y hy, ∀ Φ Φ', Rel Φ Φ' → H' (ψ y hy) Φ' = H y Φ)
+    (hψinj : ∀ y₁ hP₁ hy₁ y₂ hP₂ hy₂, ψ y₁ hP₁ hy₁ = ψ y₂ hP₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', P' y' → blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ S.image σ →
+      ∃ y hP hy, ψ y hP hy = y')
+    (hH : ∀ y hP hy, ∀ Φ Φ', Rel Φ Φ' → H' (ψ y hP hy) Φ' = H y Φ)
     {S₀ : Finset 𝔅} (hS₀ : S₀ ⊆ S) {G : (∀ b, Ωb b) → ℂ} {G' : (∀ b, Ωb' b) → ℂ}
     (hGdep : DepOn S₀ G) (hG : ∀ Φ Φ', Rel Φ Φ' → G' Φ' = G Φ) :
     Gst μ' Lab' H' (S₀.image σ) G' (S.image σ) = Gst μ Lab H S₀ G S := by
@@ -835,20 +840,26 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     intro l t htS Φ Φ' hR
     have hpre : presum Lab' H' (img t) Φ' = presum Lab H t Φ := by
       unfold presum
+      rw [← Finset.sum_filter_of_ne (p := P') (fun y' _ h => by_contra fun hn => h (hH0' y' hn Φ')),
+        ← Finset.sum_filter_of_ne (p := P) (fun y _ h => by_contra fun hn => h (hH0 y hn Φ))]
       symm
-      have hyS : ∀ y ∈ Finset.univ.filter (fun y => blocksOf m₀ j Ω (Lab.ysite y) = t.1),
-          blocksOf m₀ j Ω (Lab.ysite y) ⊆ S := fun y hy => (Finset.mem_filter.1 hy).2 ▸ htS
-      refine Finset.sum_bij (fun y hy => ψ y (hyS y hy)) (fun y hy => ?_)
-        (fun y₁ hy₁ y₂ hy₂ h => hψinj y₁ _ y₂ _ h) (fun y' hy' => ?_)
-        (fun y hy => (hH y _ Φ Φ' hR).symm)
-      · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 := (Finset.mem_filter.1 hy).2
-        refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
-        rw [hψb y _, hyt]
-      · have h' : blocksOf m₀ j Ω' (Lab'.ysite y') = t.1.image σ := (Finset.mem_filter.1 hy').2
-        obtain ⟨y, hyS', rfl⟩ := hψsurj y' (h' ▸ Finset.image_subset_image htS)
+      have hyS : ∀ y ∈ (Finset.univ.filter (fun y => blocksOf m₀ j Ω (Lab.ysite y) = t.1)).filter P,
+          P y ∧ blocksOf m₀ j Ω (Lab.ysite y) ⊆ S := fun y hy =>
+        ⟨(Finset.mem_filter.1 hy).2, (Finset.mem_filter.1 (Finset.mem_filter.1 hy).1).2 ▸ htS⟩
+      refine Finset.sum_bij (fun y hy => ψ y (hyS y hy).1 (hyS y hy).2) (fun y hy => ?_)
+        (fun y₁ hy₁ y₂ hy₂ h => hψinj y₁ _ _ y₂ _ _ h) (fun y' hy' => ?_)
+        (fun y hy => (hH y _ _ Φ Φ' hR).symm)
+      · have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 :=
+          (Finset.mem_filter.1 (Finset.mem_filter.1 hy).1).2
+        refine Finset.mem_filter.2 ⟨Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩, hψP _ _ _⟩
+        rw [hψb y _ _, hyt]
+      · have h' : blocksOf m₀ j Ω' (Lab'.ysite y') = t.1.image σ :=
+          (Finset.mem_filter.1 (Finset.mem_filter.1 hy').1).2
+        obtain ⟨y, hP, hyS', rfl⟩ := hψsurj y' (Finset.mem_filter.1 hy').2
+          (h' ▸ Finset.image_subset_image htS)
         have hyt : blocksOf m₀ j Ω (Lab.ysite y) = t.1 :=
-          eq_of_image_eq_of_injOn hσ hyS' htS ((hψb y hyS').symm.trans h')
-        exact ⟨y, Finset.mem_filter.2 ⟨Finset.mem_univ _, hyt⟩, rfl⟩
+          eq_of_image_eq_of_injOn hσ hyS' htS ((hψb y hP hyS').symm.trans h')
+        exact ⟨y, Finset.mem_filter.2 ⟨Finset.mem_filter.2 ⟨Finset.mem_univ _, hyt⟩, hP⟩, rfl⟩
     have hmark : gMark (S₀.image σ) G' () (img t) Φ' = gMark S₀ G () t Φ := by
       by_cases ht0 : t.1 = S₀
       · have h1 : (img t).1 = S₀.image σ := by
@@ -903,13 +914,13 @@ theorem Gst_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
   · exact hK l x.1 x.2
 
 /-- **D4 (c): transport of the interpolation coefficient `gsumCoeff`.**  In the setting of
-`Gst_transport` for the set `T` of blocks: let the activities `A(s)` (for `s ∈ [0,1]`) of the
-corresponding labels agree on related configurations, and let the marks `i` whose label lies in
-`T` correspond bijectively (`κ`) to the marks `i′` whose label lies in `σ '' T`, with labels
-`y₀′ (κ i) = ψ (y₀ i)` and marks agreeing on related configurations.  Then
-`gsumCoeff μ′ Lab′ A′ y₀′ G′ (σ '' T) = gsumCoeff μ Lab A y₀ G T`.  The marks outside `T` (and
-outside `σ '' T`) contribute zero (`Gst_eq_zero_of_not_subset`); the others are transported by
-`Gst_transport`. -/
+`Gst_transport` for the set `T` of blocks: let the activities `A(s)` (for `s ∈ [0,1]`) vanish on
+the inactive labels and agree on the corresponding active labels for related configurations, and
+let the marks `i` whose label lies in `T` correspond bijectively (`κ`) to the marks `i′` whose label
+lies in `σ '' T`, with `blocks (y₀′ (κ i)) = σ '' blocks (y₀ i)` and marks agreeing on related
+configurations.  Then `gsumCoeff μ′ Lab′ A′ y₀′ G′ (σ '' T) = gsumCoeff μ Lab A y₀ G T`.  The marks
+outside `T` (and outside `σ '' T`) contribute zero (`Gst_eq_zero_of_not_subset`); the others are
+transported by `Gst_transport`. -/
 theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
     {Ωb' : 𝔅' → Type*} [∀ b, MeasurableSpace (Ωb' b)]
     (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)]
@@ -925,15 +936,21 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
     (hint : ∀ Z ⊆ T, ∀ (F : (∀ b, Ωb b) → ℂ) (F' : (∀ b, Ωb' b) → ℂ), DepOn Z F →
       (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
         ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
-    (ψ : ∀ y, blocksOf m₀ j Ω (Lab.ysite y) ⊆ T → Lb')
-    (hψb : ∀ y hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hy)) =
+    (P : Lb → Prop) (P' : Lb' → Prop)
+    (hA0 : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, ¬ P y → ∀ Φ, (A (s : ℂ)).H y Φ = 0)
+    (hA0' : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y', ¬ P' y' → ∀ Φ', (A' (s : ℂ)).H y' Φ' = 0)
+    (ψ : ∀ y, P y → blocksOf m₀ j Ω (Lab.ysite y) ⊆ T → Lb')
+    (hψP : ∀ y hP hy, P' (ψ y hP hy))
+    (hψb : ∀ y hP hy, blocksOf m₀ j Ω' (Lab'.ysite (ψ y hP hy)) =
       (blocksOf m₀ j Ω (Lab.ysite y)).image σ)
-    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
-    (hψsurj : ∀ y', blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ T.image σ → ∃ y hy, ψ y hy = y')
-    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
-      ∀ Φ Φ', Rel Φ Φ' → (A' (s : ℂ)).H (ψ y hy) Φ' = (A (s : ℂ)).H y Φ)
+    (hψinj : ∀ y₁ hP₁ hy₁ y₂ hP₂ hy₂, ψ y₁ hP₁ hy₁ = ψ y₂ hP₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', P' y' → blocksOf m₀ j Ω' (Lab'.ysite y') ⊆ T.image σ →
+      ∃ y hP hy, ψ y hP hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hP hy,
+      ∀ Φ Φ', Rel Φ Φ' → (A' (s : ℂ)).H (ψ y hP hy) Φ' = (A (s : ℂ)).H y Φ)
     (κ : ∀ i, blocksOf m₀ j Ω (Lab.ysite (y0 i)) ⊆ T → ι')
-    (hκ : ∀ i hi, y0' (κ i hi) = ψ (y0 i) hi)
+    (hκb : ∀ i hi, blocksOf m₀ j Ω' (Lab'.ysite (y0' (κ i hi))) =
+      (blocksOf m₀ j Ω (Lab.ysite (y0 i))).image σ)
     (hκinj : ∀ i₁ hi₁ i₂ hi₂, κ i₁ hi₁ = κ i₂ hi₂ → i₁ = i₂)
     (hκsurj : ∀ i', blocksOf m₀ j Ω' (Lab'.ysite (y0' i')) ⊆ T.image σ → ∃ i hi, κ i hi = i')
     (hG : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ i hi,
@@ -953,7 +970,7 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
     (fun i₁ hi₁ i₂ hi₂ h => hκinj i₁ _ i₂ _ h) (fun i' hi' => ?_) (fun i hi => ?_)
   · have hiT := (Finset.mem_filter.1 hi).2
     refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
-    rw [hκ i hiT, hψb _ hiT]
+    rw [hκb i hiT]
     exact Finset.image_subset_image hiT
   · obtain ⟨i, hiT, rfl⟩ := hκsurj i' (Finset.mem_filter.1 hi').2
     exact ⟨i, Finset.mem_filter.2 ⟨Finset.mem_univ _, hiT⟩, rfl⟩
@@ -961,9 +978,10 @@ theorem gsumCoeff_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb 
     show Gst μ Lab (A (s : ℂ)).H (blocksOf m₀ j Ω (Lab.ysite (y0 i))) (G i (s : ℂ)) T =
       Gst μ' Lab' (A' (s : ℂ)).H (blocksOf m₀ j Ω' (Lab'.ysite (y0' (κ i hiT))))
         (G' (κ i hiT) (s : ℂ)) (T.image σ)
-    rw [hκ i hiT, hψb _ hiT]
+    rw [hκb i hiT]
     exact (Gst_transport μ μ' Lab Lab' (A (s : ℂ)).H (A' (s : ℂ)).H (A (s : ℂ)).dep σ T hσ Rel
-      hint ψ hψb hψinj hψsurj (hA s hs) hiT (hGdep i _) (hG s hs i hiT)).symm
+      hint P P' (hA0 s hs) (hA0' s hs) ψ hψP hψb hψinj hψsurj (hA s hs) hiT (hGdep i _)
+      (hG s hs i hiT)).symm
 
 end GstTransport
 
@@ -1002,7 +1020,7 @@ for the block measures `(S.blockSplit m₀ hp).μ` of the two steps, the corresp
 the blocks (base point `bm b`), a set `T` of blocks inside the box of radius `R`, and the relation
 "agreement of the block variables at corresponding unit points of the box"; the integral
 hypothesis of `gsumCoeff_transport` is `integral_blockSplit_twoTorus`.  What remains as hypotheses
-are the correspondence of the labels with blocks in `T`, of their activities, and of the marks
+are the correspondence of the active labels with blocks in `T`, of their activities, and of the marks
 (for the marks of the energy coefficient see `e1MarkGParamG_twoTorus`).  Margin:
 `2 R + 3 L^(k+1) + 5 < N₁ L^m₁ L^(k+1), N₁′ L^m₁ L^(k+1)`. -/
 theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
@@ -1023,19 +1041,24 @@ theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
     (T : Finset (𝔅A))
     (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
       InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (ψ : ∀ y, blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T → Lb')
-    (hψb : ∀ y hy, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y hy)) =
+    (P : Lb → Prop) (P' : Lb' → Prop)
+    (hA0 : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, ¬ P y → ∀ Φ, (A (s : ℂ)).H y Φ = 0)
+    (hA0' : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y', ¬ P' y' → ∀ Φ', (A' (s : ℂ)).H y' Φ' = 0)
+    (ψ : ∀ y, P y → blocksOf m₀ (k + 1) Set.univ (Lab.ysite y) ⊆ T → Lb')
+    (hψP : ∀ y hP hy, P' (ψ y hP hy))
+    (hψb : ∀ y hP hy, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (ψ y hP hy)) =
       (blocksOf m₀ (k + 1) Set.univ (Lab.ysite y)).image (σc))
-    (hψinj : ∀ y₁ hy₁ y₂ hy₂, ψ y₁ hy₁ = ψ y₂ hy₂ → y₁ = y₂)
-    (hψsurj : ∀ y', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite y') ⊆ T.image (σc) →
-      ∃ y hy, ψ y hy = y')
-    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
+    (hψinj : ∀ y₁ hP₁ hy₁ y₂ hP₂ hy₂, ψ y₁ hP₁ hy₁ = ψ y₂ hP₂ hy₂ → y₁ = y₂)
+    (hψsurj : ∀ y', P' y' → blocksOf m₀ (k + 1) Set.univ (Lab'.ysite y') ⊆ T.image (σc) →
+      ∃ y hP hy, ψ y hP hy = y')
+    (hA : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hP hy,
       ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf m₀ (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
           Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
-        (A' (s : ℂ)).H (ψ y hy) Φ' = (A (s : ℂ)).H y Φ)
+        (A' (s : ℂ)).H (ψ y hP hy) Φ' = (A (s : ℂ)).H y Φ)
     (κ : ∀ i, blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i)) ⊆ T → ι')
-    (hκ : ∀ i hi, y0' (κ i hi) = ψ (y0 i) hi)
+    (hκb : ∀ i hi, blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y0' (κ i hi))) =
+      (blocksOf m₀ (k + 1) Set.univ (Lab.ysite (y0 i))).image (σc))
     (hκinj : ∀ i₁ hi₁ i₂ hi₂, κ i₁ hi₁ = κ i₂ hi₂ → i₁ = i₂)
     (hκsurj : ∀ i', blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (y0' i')) ⊆ T.image (σc) →
       ∃ i hi, κ i hi = i')
@@ -1055,7 +1078,7 @@ theorem gsumCoeff_blockSplit_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
     rw [cubeMap_val, cubeMap_val] at h1
     exact Subtype.ext (boxMap_inj (hm' := hm') hb₁R hb₂R h1)
   refine gsumCoeff_transport _ _ Lab Lab' A A' y0 y0' G G' hGdep (σc) T hσ _
-    (fun Z hZ F F' hF hFF => ?_) ψ hψb hψinj hψsurj hA κ hκ hκinj hκsurj hG
+    (fun Z hZ F F' hF hFF => ?_) P P' hA0 hA0' ψ hψP hψb hψinj hψsurj hA κ hκb hκinj hκsurj hG
   exact integral_blockSplit_twoTorus hN2 hk νS β p₁ δ hn hn' hGA hGB hp hp' Z
     (fun b hb => hT b (hZ hb)) hF hFF
 
