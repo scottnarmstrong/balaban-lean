@@ -667,4 +667,73 @@ theorem kwTraceDiff_eq_inclExcl {n : ℕ} (hn : 0 < n) :
       simp only [hP, hM, hM', and_false, ↓reduceIte, mul_zero]
   · simp [hP]
 
+/-! ### T5: positivity of the hole-walk difference, and the instance -/
+
+/-- A site `x` adjacent to a site `z ∈ D` has a strictly positive hole-walk difference
+`C_Λ(x,x) - C_G(x,x)` (the two-step walks `x → z → x`). -/
+theorem kf0C_sub_kwC_pos_of_adj {ν : ℝ} (hν : 0 < ν) {x z : Torus d m} (hz : z ∈ D)
+    (hxz : 0 < kf0Adj d m x z) : 0 < kf0C d m ν x x - kwC d m ν D x x := by
+  have hsum := kf0C_sub_kwC_hasSum (D := D) hν x x
+  have h2 : walkWeight d ν 2 * ((kf0Adj d m ^ 2) x x - (kwAdjG d m D ^ 2) x x) ≤
+      kf0C d m ν x x - kwC d m ν D x x :=
+    le_hasSum hsum 2 (fun n _ => walkWeight_mul_pow_sub_nonneg hν n x x)
+  have hterm : ∀ u, 0 ≤ kf0Adj d m x u * kf0Adj d m u x - kwAdjG d m D x u * kwAdjG d m D u x :=
+    fun u => sub_nonneg.2 (mul_le_mul (kwAdjG_le D x u) (kwAdjG_le D u x) (kwAdjG_nonneg D u x)
+      (kf0Adj_nonneg x u))
+  have key : kf0Adj d m x z * kf0Adj d m z x ≤
+      (kf0Adj d m ^ 2) x x - (kwAdjG d m D ^ 2) x x := by
+    have e : (kf0Adj d m ^ 2) x x - (kwAdjG d m D ^ 2) x x =
+        ∑ u, (kf0Adj d m x u * kf0Adj d m u x - kwAdjG d m D x u * kwAdjG d m D u x) := by
+      rw [pow_two, pow_two, Matrix.mul_apply, Matrix.mul_apply, ← Finset.sum_sub_distrib]
+    rw [e]
+    have h1 := Finset.single_le_sum (f := fun u => kf0Adj d m x u * kf0Adj d m u x -
+      kwAdjG d m D x u * kwAdjG d m D u x) (fun u _ => hterm u) (Finset.mem_univ z)
+    have h0 : kwAdjG d m D x z = 0 := by simp [kwAdjG, hz]
+    simp only [h0, zero_mul, sub_zero] at h1
+    exact h1
+  have hpos : 0 < kf0Adj d m x z * kf0Adj d m z x := by
+    rw [kf0Adj_symm z x]; exact mul_pos hxz hxz
+  have := walkWeight_pos (d := d) hν 2
+  nlinarith
+
+theorem kf0Adj_single_zero_pos (μ : Fin d) : 0 < kf0Adj d m (Pi.single μ 1) 0 := by
+  rw [kf0Adj_apply]
+  have hnn : ∀ ν : Fin d, 0 ≤ ((if (0 : Torus d m) = Pi.single μ 1 + Pi.single ν 1 then (1 : ℝ) else 0) +
+      (if (Pi.single μ 1 : Torus d m) = 0 + Pi.single ν 1 then 1 else 0)) := fun ν => by
+    split_ifs <;> norm_num
+  calc (0 : ℝ) < 1 := one_pos
+    _ ≤ ((if (0 : Torus d m) = Pi.single μ 1 + Pi.single μ 1 then (1 : ℝ) else 0) +
+      (if (Pi.single μ 1 : Torus d m) = 0 + Pi.single μ 1 then 1 else 0)) := by
+        simp only [zero_add, ite_true]
+        have : (0 : ℝ) ≤ (if (0 : Torus d m) = Pi.single μ 1 + Pi.single μ 1 then (1 : ℝ) else 0) := by
+          split_ifs <;> norm_num
+        linarith
+    _ ≤ _ := Finset.single_le_sum (f := fun ν : Fin d => ((if (0 : Torus d m) =
+        Pi.single μ 1 + Pi.single ν 1 then (1 : ℝ) else 0) +
+        (if (Pi.single μ 1 : Torus d m) = 0 + Pi.single ν 1 then 1 else 0)))
+        (fun ν _ => hnn ν) (Finset.mem_univ μ)
+
+/-- **Non-vacuity** (`d = m = 3`, `ν = 1/8`, `D = {0}`): the landed `kwSqrt` is the restriction of
+the killed-walk series, has nonnegative entries, squares to `K_G⁻¹`, is positive definite, and the
+full-torus square root exceeds it strictly at a site adjacent to the hole. -/
+theorem kwHole_instance :
+    kwSqrt (d := 3) (m := 3) (1 / 8 : ℝ) kwInstD = kwCSub 3 3 (1 / 8 : ℝ) kwInstD ∧
+    (∀ x y, 0 ≤ kwSqrt (d := 3) (m := 3) (1 / 8 : ℝ) kwInstD x y) ∧
+    kwCSub 3 3 (1 / 8 : ℝ) kwInstD * kwCSub 3 3 (1 / 8 : ℝ) kwInstD =
+      (kwOpSub 3 3 (1 / 8 : ℝ) kwInstD)⁻¹ ∧
+    (kwCSub 3 3 (1 / 8 : ℝ) kwInstD).PosDef ∧
+    ∃ x y : Good kwInstD, 0 < kf0SqrtR 3 3 (1 / 8 : ℝ) x y -
+      kwSqrt (d := 3) (m := 3) (1 / 8 : ℝ) kwInstD x y := by
+  have hν : (0 : ℝ) < 1 / 8 := by norm_num
+  refine ⟨kwSqrt_eq_kwCSub hν, kwSqrt_nonneg_entry hν, kwCSub_mul_self hν, kwCSub_posDef hν, ?_⟩
+  have hx : (Pi.single 0 1 : Torus 3 3) ∉ kwInstD := by
+    simp only [kwInstD, Finset.mem_singleton]
+    intro h
+    have := congrFun h 0
+    revert this
+    decide
+  refine ⟨⟨Pi.single 0 1, hx⟩, ⟨Pi.single 0 1, hx⟩, ?_⟩
+  rw [← kf0C_eq_kf0SqrtR hν, kwSqrt_apply_eq hν]
+  exact kf0C_sub_kwC_pos_of_adj hν (Finset.mem_singleton_self 0) (kf0Adj_single_zero_pos 0)
+
 end Balaban.Green
