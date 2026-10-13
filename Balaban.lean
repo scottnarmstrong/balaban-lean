@@ -1321,6 +1321,7 @@ public import Balaban.Inhabited.SFCtxMulti
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
+public import Balaban.Fluctuation.SharpAssemblyEta
 public import Balaban.Fluctuation.StepActivityDirectPhysical
 public import Balaban.Inhabited.StepActivityDirectWitness
 public import Balaban.Fluctuation.SharpFan
