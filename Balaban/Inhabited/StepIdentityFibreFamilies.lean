@@ -91,13 +91,13 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
           Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ) → ℂ)
         (Lbo : Type) (_ : Fintype Lbo)
-        (Labo : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+        (Labo : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
           Set.univ Lbo) (εHo : ℝ) (hεHo : 0 < εHo)
         (Ao : physParam N S → ℂ → LabelAct Labo
-            (S.blockSplit T.m₀ hp).Ωb εHo (2 * T.κdec - 1) T.κ0
+            (S.blockSplit 1 hp).Ωb εHo (2 * T.κdec - 1) T.κ0
           (K0 d L T.κ0 + 1))
         (mObs : CTorus d L N₁ T.m₁ (k + 1) → Fin N → physParam N S →
-          Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+          Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ) → ℂ),
       (∀ (D' : BgData S.G' N)
           (hDh : ∀ y i, D'.h y i = (S.h₀ i : ℂ)),
@@ -237,9 +237,9 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
         2 * εHo ≤ CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
           q * CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p / Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
         (∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N)
-          (hdj : ∀ Y ∈ obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-              (LocalCover.fam T.m₀ y),
-            IsDj T.m₀ (k + 1) Y),
+          (hdj : ∀ Y ∈ obsDomains S (LocalCover.nbhdF 1 y) 1 k
+              (LocalCover.fam 1 y),
+            IsDj 1 (k + 1) Y),
           ∃ hR : 0 ≤ obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))),
             1 < obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))) ∧
             obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))) * max (εHo + εHo) εHo ≤
@@ -263,32 +263,32 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
                   {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsiG d L N T.κ
                       T.t (β * (L : ℝ) ^ (k * (d - 2)))},
                 ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) *
-                  Real.exp (-(2 * T.κdec) * treeLenCovOne T.m₀ (k + 1) Y)) ∧
-              (∀ θ T', mObs y i θ T' = obsCoeffParam (S.blockSplit T.m₀ hp).μ
-                (fun θ t σ => tiltActObs Ao (show L ^ T.m₀ ∣ N₁ from h3N) T.κ0_ent hεHo.le
+                  Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) ∧
+              (∀ θ T', mObs y i θ T' = obsCoeffParam (S.blockSplit 1 hp).μ
+                (fun θ t σ => tiltActObs Ao (show L ^ 1 ∣ N₁ from (by rwa [hm₀] at h3N)) T.κ0_ent hεHo.le
                   hdj (le_refl _) (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2)))) hR (ball (0 : ℂ) (3 / 2))
                   θ t σ)
-                (fun m => obsY1 T.m₀ S (Lbo ⊕ Lbo)
-                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                      (LocalCover.fam T.m₀ y)) m)
-                (fun m => blockMarkC S T.m₀ hp m.1 m.2)
+                (fun m => obsY1 1 S (Lbo ⊕ Lbo)
+                  (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                      (LocalCover.fam 1 y)) m)
+                (fun m => blockMarkC S 1 hp m.1 m.2)
                 (fun θ m T'' => obsHker
-                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                      (LocalCover.fam T.m₀ y))
+                  (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                      (LocalCover.fam 1 y))
                   (fun Y => hatCoeff (Ev Y) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-                    (obsUnitVec S m)) T.m₀ T'')
-                (obsRemLab (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                    (LocalCover.fam T.m₀ y))
+                    (obsUnitVec S m)) 1 T'')
+                (obsRemLab (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                    (LocalCover.fam 1 y))
                   (fun Y => Sum.inl (Sum.inr Y))
-                  (obsY0 T.m₀ (Lbo ⊕ Lbo)
-                    (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                        (LocalCover.fam T.m₀ y))
-                    (rootCube (m₀ := T.m₀) (blockIndex y))))
-                (fun θ => obsGrFam S T.m₀ hp Ev
-                  (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                      (LocalCover.fam T.m₀ y))
+                  (obsY0 1 (Lbo ⊕ Lbo)
+                    (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                        (LocalCover.fam 1 y))
+                    (rootCube (m₀ := 1) (blockIndex y))))
+                (fun θ => obsGrFam S 1 hp Ev
+                  (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                      (LocalCover.fam 1 y))
                   (XiCRaw S.G' (compWeight L 1) ν (k + 1) 1 T.t) θ) θ T') ∧
-              ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀
+              ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
                   (k + 1) Set.univ),
                 AnalyticOnNhd ℂ (fun θ => mObs y i θ T')
                     (physVq S S.a₁
@@ -299,7 +299,7 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
                       (CPE d L ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 +
                           K0 d L T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' * S.p₁ /
                         (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2))))) *
-                      (((N * L ^ (d * (T.m₀ + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) *
+                      (((N * L ^ (d * (1 + T.m₁ + 1)) : ℕ) : ℝ) * c1 d L) *
                       ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 + K0 d L T.κ0) ^ 2 *
                       Real.exp ((min (2 * T.κdec) T.κ' - T.κ0) * cG d L) +
                     CPE d L ((K0 d L T.κ0 + 1) + (K0 d L T.κ0 + 1) + K0 d L T.κ0 + K0 d L T.κ0)
@@ -309,17 +309,17 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
                             (-T.κ0 *
                         (obsLab (Labo.sum Labo) hdj).dl
                           (obsRemLab
-                            (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                                (LocalCover.fam T.m₀ y))
+                            (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                                (LocalCover.fam 1 y))
                             (fun Y => Sum.inl (Sum.inr Y))
-                            (obsY0 T.m₀ (Lbo ⊕ Lbo)
-                              (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k
-                                  (LocalCover.fam T.m₀ y))
-                              (rootCube (m₀ := T.m₀) (blockIndex y))) r)))) *
+                            (obsY0 1 (Lbo ⊕ Lbo)
+                              (obsDomains S (LocalCover.nbhdF 1 y) 1 k
+                                  (LocalCover.fam 1 y))
+                              (rootCube (m₀ := 1) (blockIndex y))) r)))) *
                   Real.exp (-(min (min (2 * T.κdec) T.κ' - T.κ0 - 1) T.κ') * dExt T')) ∧
                 (∀ θ ∈ physVq S S.a₁
                     S.ν T.t q, mObs y i θ T' ≠ 0 →
-                  rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
+                  rootCube (m₀ := 1) (blockIndex y) ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
                 (∀ θ ∈ physVq S S.a₁
                     S.ν T.t q, ∀ θ' ∈ physVq S
                         S.a₁ S.ν T.t q,
@@ -359,7 +359,9 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
   classical
   obtain ⟨C, hk0, -, hk', -, hkH, -, -, -, -, hKc, hKall, -⟩ := T.exists_outputConsts hhull
   obtain ⟨βe, hβe3, He⟩ := e0CoeffFamily_value_fromTowerG T hm₀ C hKc hKall hkH hk0 hk' hA p
-  obtain ⟨βo, CE, CF, -, hCE, hCF, Ho⟩ := obsFamily_pair_fibre_fromTowerG T hA p hCR hs0 hs
+  let T' : StepTowerG d L N κmin :=
+    { T with m₀ := 1, m₀_pos := le_rfl, κ_log := by simpa only [hm₀] using T.κ_log }
+  obtain ⟨βo, CE, CF, -, hCE, hCF, Ho⟩ := obsFamily_pair_fibre_fromTowerG T' hA p hCR hs0 hs
   obtain ⟨βa, -, Ha⟩ := stepIdentity_zeroClass_fibre_local_fromTowerG T hA p
   refine ⟨max (max βe βo) βa, CE, CF, hβe3.trans ((le_max_left _ _).trans (le_max_left _ _)),
     hCE, hCF, ?_⟩
@@ -374,7 +376,9 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG {d L N : ℕ} [NeZero L] {κmin 
     He k hk N₁ h3N hN ν hνpos hν β hβe p₁ hp₁ D (ϱ := rhoSepG d L T.m₁) rfl
       (T.step k hk N₁ ν β p₁) rfl hp
   obtain ⟨Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hamp, hsite, hpair⟩ :=
-    Ho k hk N₁ h3N hN ν hνpos hν β hβo p₁ hp0 hp₁ q hq0 hq1 D (T.step k hk N₁ ν β p₁) rfl hp
+    Ho k hk N₁ (by rwa [hm₀] at h3N) hN ν hνpos hν β hβo p₁ hp0 hp₁ q hq0 hq1
+      { D with covers := by have h := D.covers; rw [hm₀] at h; exact h }
+      (T.step k hk N₁ ν β p₁) rfl hp
   have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
   choose hP hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
