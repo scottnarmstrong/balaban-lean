@@ -209,4 +209,263 @@ theorem cellComp_struct {Z : Set (CTorus d L N₁ m₁ K)} {b : CTorus d L N₁ 
 
 end Comps
 
+section Extend
+
+variable {m₀ j : ℕ}
+
+/-- The nerve of the extension: the node `none` is the old structure, the node `some q` is the
+corner of the newly active cell with base `q`.  The old structure is joined to `q` when
+`P q` (some old vertex is linked to `q`, at the cost allowed for one link); two newly active
+cells are joined when they are adjacent. -/
+def nerveH (a : ℕ) (P : CTorus d L N₁ m₁ K → Prop) :
+    Option (CTorus d L N₁ m₁ K) → Option (CTorus d L N₁ m₁ K) → Prop
+  | none, some q => P q
+  | some q, some q' => CAdj a q q'
+  | _, _ => False
+
+/-- **T3: the extension of an admissible triple to a larger region.**  Let `Ωm ⊆ Ωp` be unions
+of cells, `X ∈ 𝒟_j`, and suppose every cell-component of `X ∩ Ωmᶜ` is contained in `Ωp` or
+disjoint from `Ωp` (so that a newly active component is never enclosed, inside `X`, by cells
+that stay inactive).  Then every admissible triple `(𝒦, W, E)` for `(Ωm, X)` extends to an
+admissible triple for `(Ωp, X)` whose cost exceeds that of `E` by at most
+`(d L + d + 3) · #cells(X ∩ (Ωp ∖ Ωm))`; the proof gives `(d L + 1) · #cells`. -/
+theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
+    {X Ωm Ωp 𝒦 : Set (CTorus d L N₁ m₁ K)} {W : Finset (CTorus d L N₁ m₁ K)}
+    {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
+    (hX : IsDj m₀ j X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
+    (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp)
+    (h : ModAdmissible m₀ j Ωm X 𝒦 W E) :
+    ∃ (𝒦' : Set (CTorus d L N₁ m₁ K)) (W' : Finset (CTorus d L N₁ m₁ K))
+      (E' : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ModAdmissible m₀ j Ωp X 𝒦' W' E' ∧
+        bondCost (scaleW L m₀ m₁ j) E' ≤ bondCost (scaleW L m₀ m₁ j) E +
+          ((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ) := by
+  classical
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN hj
+  have ha0 := cellSide_pos (L := L) m₀ m₁ j
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  obtain ⟨hXne, hXp, hXc⟩ := hX
+  have hXu : IsPiUnion m₀ j X := hXp.isPiUnion hN hj
+  have hcΩm : IsPiUnion m₀ j Ωmᶜ := hΩm.compl hN hj
+  obtain ⟨hK1, hcov, hconn, hWX, hmeet⟩ := h
+  set a := cellSide L m₀ m₁ j with ha
+  set ρ : ℝ := (d : ℝ) * L + 1 with hρ
+  have hdL : (0 : ℝ) ≤ (d : ℝ) * L := by positivity
+  set A := cellsIn m₀ j (X ∩ (Ωp \ Ωm)) with hA
+  have memA : ∀ t, t ∈ A ↔ t ∈ cellsIn m₀ j X ∧ box t a ⊆ Ωp ∧ box t a ⊆ Ωmᶜ := by
+    intro t
+    simp only [hA, mem_cellsIn, Set.subset_inter_iff, Set.sdiff_eq]
+    tauto
+  have memC : ∀ t, t ∈ cellsIn m₀ j X → box t a ⊆ Ωmᶜ → t ∈ cellsIn m₀ j (X ∩ Ωmᶜ) := by
+    intro t ht htc
+    exact mem_cellsIn.2 ⟨(mem_cellsIn.1 ht).1, Set.subset_inter (mem_cellsIn.1 ht).2 htc⟩
+  have hs : ∀ c c', c ∈ cellsIn m₀ j (X ∩ Ωmᶜ) → c' ∈ cellsIn m₀ j (X ∩ Ωmᶜ) →
+      CAdj a c c' → box c a ⊆ Ωp → box c' a ⊆ Ωp := by
+    intro c c' hc hc' hadj hcΩ
+    rcases hsplit (cellComp m₀ j (X ∩ Ωmᶜ) c) ⟨c, hc, rfl⟩ with h1 | h1
+    · refine (box_subset_cellComp (b := c) (t := c') ?_).trans h1
+      exact mem_cellCompBases.2 ⟨hc',
+        (Relation.ReflTransGen.single ⟨hadj, hc, hc'⟩ : CellReach m₀ j (X ∩ Ωmᶜ) c c')⟩
+    · exfalso
+      have hcm : c ∈ cellComp m₀ j (X ∩ Ωmᶜ) c := mem_box_cellComp hc (mem_box_self c ha0)
+      exact Set.disjoint_left.1 h1 hcm (hcΩ (mem_box_self c ha0))
+  have dich : ∀ t ∈ cellsIn m₀ j X, box t a ⊆ Ωm ∨ box t a ⊆ Ωmᶜ := fun t ht =>
+    cell_dichotomy hN hj hΩm (mem_cellsIn.1 ht).1
+  have hbx : ∀ q, ∃ b, q ∈ X → (Aligned a b ∧ q ∈ box b (L * a) ∧ box b (L * a) ⊆ X) := by
+    intro q
+    by_cases hq : q ∈ X
+    · obtain ⟨b, hb⟩ := hXp q hq
+      exact ⟨b, fun _ => hb⟩
+    · exact ⟨q, fun h => absurd h hq⟩
+  choose bx hbx using hbx
+  obtain ⟨P, hP⟩ : ∃ P : CTorus d L N₁ m₁ K → Prop,
+      ∀ q, P q ↔ ∃ w ∈ W, Linked X (scaleW L m₀ m₁ j) ρ w q := ⟨_, fun _ => Iff.rfl⟩
+  have oldLink : ∀ p ∈ cellsIn m₀ j (X ∩ Ωm), ∀ q ∈ cellsIn m₀ j X, CAdj a p q → P q := by
+    intro p hp q hq hadj
+    have hpm := mem_cellsIn.1 hp
+    have hpX : p ∈ X ∩ Ωm := hpm.2 (mem_box_self p ha0)
+    obtain ⟨b₀, hb₀, hpb⟩ := Set.mem_iUnion₂.1 (hcov hpX)
+    obtain ⟨w, hwW, hwb⟩ := hmeet b₀ hb₀
+    have h1 := linked_box_site_corner (R := X) b₀ (hK1 b₀ hb₀).2 hwb hpb
+    have h2 : Linked X (scaleW L m₀ m₁ j) 1 p q :=
+      linked_cell_adj (hpm.2.trans Set.inter_subset_left) (mem_cellsIn.1 hq).2 hadj
+    refine (hP q).2 ⟨w, hwW, ?_⟩
+    exact Covers.mono_c (Linked.trans (scaleW_nonneg (m₀ := m₀) (j := j)) h1 h2) (le_of_eq rfl)
+  obtain ⟨S, hS⟩ : ∃ S : Finset (Option (CTorus d L N₁ m₁ K)), S = insert none (A.image some) :=
+    ⟨_, rfl⟩
+  have hSnone : (none : Option (CTorus d L N₁ m₁ K)) ∈ S := by rw [hS]; simp
+  have hSsome : ∀ q, some q ∈ S ↔ q ∈ A := by intro q; rw [hS]; simp
+  have hcard : S.card = A.card + 1 := by
+    rw [hS, Finset.card_insert_of_notMem (by simp),
+      Finset.card_image_of_injective _ (Option.some_injective _)]
+  have hsum : (∑ v ∈ S, (Option.elim v (bondCost (scaleW L m₀ m₁ j) E) (fun _ => (0 : ℝ)))) =
+      bondCost (scaleW L m₀ m₁ j) E := by
+    rw [hS, Finset.sum_insert (by simp), Finset.sum_image (fun x _ y _ h => Option.some.inj h)]
+    simp
+  have reach : ∀ q ∈ A, Relation.ReflTransGen (fun u v => nerveH a P u v ∧ u ∈ S ∧ v ∈ S)
+      none (some q) := by
+    intro q hq
+    have hqm := (memA q).1 hq
+    by_cases hold : ∃ z ∈ X, z ∈ Ωm
+    · obtain ⟨z, hzX, hzΩ⟩ := hold
+      have ht₀ : cbase a z ∈ cellsIn m₀ j X := cbase_mem_cellsIn hN hj hXu hzX
+      have ht₀Ω : box (cbase a z) a ⊆ Ωm := hΩm.cell hN hj hzΩ
+      have hpath : CellReach m₀ j X q (cbase a z) :=
+        cellReach_of_siteConnected hN hj hXu hXc hqm.1 ht₀
+      have F : ∀ c, CellReach m₀ j X c (cbase a z) → box c a ⊆ Ωp →
+          box c a ⊆ Ωm ∨ Relation.ReflTransGen (fun u v => nerveH a P u v ∧ u ∈ S ∧ v ∈ S)
+            none (some c) := by
+        intro c hc
+        induction hc using Relation.ReflTransGen.head_induction_on with
+        | refl => intro _; exact Or.inl ht₀Ω
+        | @head c c' hcc' hrest ih =>
+          intro hcΩ
+          rcases dich c hcc'.2.1 with hco | hcc
+          · exact Or.inl hco
+          · right
+            have hcA : c ∈ A := (memA c).2 ⟨hcc'.2.1, hcΩ, hcc⟩
+            have hSc : some c ∈ S := (hSsome c).2 hcA
+            rcases dich c' hcc'.2.2 with hc'o | hc'c
+            · have hc'old : c' ∈ cellsIn m₀ j (X ∩ Ωm) :=
+                mem_cellsIn.2 ⟨(mem_cellsIn.1 hcc'.2.2).1,
+                  Set.subset_inter (mem_cellsIn.1 hcc'.2.2).2 hc'o⟩
+              exact Relation.ReflTransGen.single
+                ⟨oldLink c' hc'old c hcc'.2.1 (CAdj.symm hcc'.1), hSnone, hSc⟩
+            · have hc'Ω := hs c c' (memC c hcc'.2.1 hcc) (memC c' hcc'.2.2 hc'c) hcc'.1 hcΩ
+              rcases ih hc'Ω with h1 | h1
+              · exact absurd (h1 (mem_box_self c' ha0)) (hc'c (mem_box_self c' ha0))
+              · have hc'A : c' ∈ A := (memA c').2 ⟨hcc'.2.2, hc'Ω, hc'c⟩
+                exact h1.tail ⟨(CAdj.symm hcc'.1), (hSsome c').2 hc'A, hSc⟩
+      rcases F q hpath hqm.2.1 with h1 | h1
+      · exact absurd (h1 (mem_box_self q ha0)) (hqm.2.2 (mem_box_self q ha0))
+      · exact h1
+    · push Not at hold
+      have hnotΩ : ∀ c ∈ cellsIn m₀ j X, box c a ⊆ Ωmᶜ := fun c hc x hx hxΩ =>
+        hold x ((mem_cellsIn.1 hc).2 hx) hxΩ
+      have hall : ∀ c ∈ cellsIn m₀ j X, c ∈ A := by
+        intro c hc
+        have hrq : CellReach m₀ j X q c := cellReach_of_siteConnected hN hj hXu hXc hqm.1 hc
+        have key : ∀ c', CellReach m₀ j X q c' → box c' a ⊆ Ωp := by
+          intro c' hc'
+          induction hc' with
+          | refl => exact hqm.2.1
+          | @tail u v _ huv ih =>
+            exact hs u v (memC u huv.2.1 (hnotΩ u huv.2.1)) (memC v huv.2.2 (hnotΩ v huv.2.2))
+              huv.1 ih
+        exact (memA c).2 ⟨hc, key c hrq, hnotΩ c hc⟩
+      obtain ⟨w₀, hw₀⟩ := hconn.1
+      have hw₀X : w₀ ∈ X := hWX (Finset.mem_coe.2 hw₀)
+      have ht₀ : cbase a w₀ ∈ cellsIn m₀ j X := cbase_mem_cellsIn hN hj hXu hw₀X
+      have hdρ : (d : ℝ) ≤ ρ := by
+        rw [hρ]
+        nlinarith [(Nat.cast_nonneg d : (0 : ℝ) ≤ d)]
+      have hlink : P (cbase a w₀) :=
+        (hP _).2 ⟨w₀, hw₀, Covers.mono_c (Linked.symm (linked_cell_corner (hXu.cell hN hj hw₀X)
+          (mem_box_cbase ha0 w₀))) hdρ⟩
+      have hr : CellReach m₀ j X (cbase a w₀) q :=
+        cellReach_of_siteConnected hN hj hXu hXc ht₀ hqm.1
+      have hsome : Relation.ReflTransGen (fun u v => nerveH a P u v ∧ u ∈ S ∧ v ∈ S)
+          (some (cbase a w₀)) (some q) := by
+        have gen : ∀ y, CellReach m₀ j X (cbase a w₀) y →
+            Relation.ReflTransGen (fun u v => nerveH a P u v ∧ u ∈ S ∧ v ∈ S)
+              (some (cbase a w₀)) (some y) := by
+          intro y hy
+          induction hy with
+          | refl => exact Relation.ReflTransGen.refl
+          | @tail u v _ huv ih =>
+            exact ih.tail ⟨huv.1, (hSsome u).2 (hall u huv.2.1), (hSsome v).2 (hall v huv.2.2)⟩
+        exact gen q hr
+      exact (Relation.ReflTransGen.single
+        ⟨hlink, hSnone, (hSsome _).2 (hall _ ht₀)⟩).trans hsome
+  have key := assemble (R := X) (ω := scaleW L m₀ m₁ j)
+    (scaleW_nonneg (m₀ := m₀) (j := j)) S (nerveH a P) none hSnone
+    (fun v hv => by
+      rcases v with _ | q
+      · exact Relation.ReflTransGen.refl
+      · exact reach q ((hSsome q).1 hv))
+    (fun v => Option.elim v W (fun q => ({q} : Finset (CTorus d L N₁ m₁ K))))
+    (fun v => Option.elim v (bondCost (scaleW L m₀ m₁ j) E) (fun _ => (0 : ℝ)))
+    (fun v hv => by
+      rcases v with _ | q
+      · exact ⟨W, E, hconn, hWX, subset_rfl, le_rfl⟩
+      · have hqX : q ∈ X := mem_of_mem_cellsIn ((memA q).1 ((hSsome q).1 hv)).1
+        exact ⟨{q}, ∅, connStruct_singleton q, by simpa using hqX, subset_rfl, by simp [bondCost]⟩)
+    ρ
+    (fun u hu v hv huv => by
+      rcases u with _ | p <;> rcases v with _ | q
+      · exact huv.elim
+      · obtain ⟨w, hw, hl⟩ := (hP q).1 huv
+        exact ⟨w, hw, q, Finset.mem_singleton_self q, hl⟩
+      · exact huv.elim
+      · have hp := (memA p).1 ((hSsome p).1 hu)
+        have hq := (memA q).1 ((hSsome q).1 hv)
+        exact ⟨p, Finset.mem_singleton_self p, q, Finset.mem_singleton_self q,
+          Covers.mono_c (linked_cell_adj (mem_cellsIn.1 hp.1).2 (mem_cellsIn.1 hq.1).2 huv)
+            (by rw [hρ]; linarith)⟩)
+  obtain ⟨W', E', hc', hW'X, hsubW, hcost⟩ := key
+  rw [hsum, hcard] at hcost
+  refine ⟨𝒦 ∪ bx '' (A : Set (CTorus d L N₁ m₁ K)), W', E', ⟨?_, ?_, hc', hW'X, ?_⟩, ?_⟩
+  · rintro b (hb | ⟨q, hq, rfl⟩)
+    · exact hK1 b hb
+    · have hqX : q ∈ X := mem_of_mem_cellsIn ((memA q).1 (Finset.mem_coe.1 hq)).1
+      exact ⟨(hbx q hqX).1, (hbx q hqX).2.2⟩
+  · rintro z ⟨hzX, hzΩ⟩
+    by_cases hz : z ∈ Ωm
+    · obtain ⟨b, hb, hzb⟩ := Set.mem_iUnion₂.1 (hcov ⟨hzX, hz⟩)
+      exact Set.mem_iUnion₂.2 ⟨b, Or.inl hb, hzb⟩
+    · have htA : cbase a z ∈ A := (memA _).2 ⟨cbase_mem_cellsIn hN hj hXu hzX,
+        hΩp.cell hN hj hzΩ, hcΩm.cell hN hj hz⟩
+      have htX : cbase a z ∈ X := mem_of_mem_cellsIn ((memA _).1 htA).1
+      obtain ⟨hbal, htb, -⟩ := hbx _ htX
+      have e : cbase a (cbase a z) = cbase a z :=
+        cbase_eq_of_mem_box hdvd (aligned_cbase z) (mem_box_self _ ha0)
+      have := cell_subset_cube hdvd ha0 hbal htb
+      rw [e] at this
+      exact Set.mem_iUnion₂.2 ⟨bx (cbase a z), Or.inr ⟨_, Finset.mem_coe.2 htA, rfl⟩,
+        this (mem_box_cbase ha0 z)⟩
+  · rintro b (hb | ⟨q, hq, rfl⟩)
+    · obtain ⟨x, hx, hxb⟩ := hmeet b hb
+      exact ⟨x, hsubW (Finset.mem_biUnion.2 ⟨none, hSnone, hx⟩), hxb⟩
+    · have hqX : q ∈ X := mem_of_mem_cellsIn ((memA q).1 (Finset.mem_coe.1 hq)).1
+      exact ⟨q, hsubW (Finset.mem_biUnion.2 ⟨some q, (hSsome q).2 (Finset.mem_coe.1 hq),
+        Finset.mem_singleton_self q⟩), (hbx q hqX).2.1⟩
+  · have hn : (0 : ℝ) ≤ (A.card : ℝ) := Nat.cast_nonneg _
+    push_cast at hcost
+    rw [hρ] at hcost
+    nlinarith [mul_nonneg (Nat.cast_nonneg d : (0 : ℝ) ≤ d) hn]
+
+/-- **T4: the modular size grows by at most a constant times the number of newly active cells.**
+For `X ∈ 𝒟_j`, unions of cells `Ω₋`, `Ω₊`, and the component hypothesis `hsplit` of
+`modAdmissible_extend`:
+`dcovMod(Ω₊, X) ≤ dcovMod(Ω₋, X) + (d L + d + 3) · #cells(X ∩ (Ω₊ ∖ Ω₋))`.  (Monotonicity
+`Ω₋ ⊆ Ω₊` is not used; for `Ω₋ ⊆ Ω₊` it gives the two-sided control of the growth.) -/
+theorem dcovMod_le_add_of_region_grow (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
+    {X Ωm Ωp : Set (CTorus d L N₁ m₁ K)}
+    (hX : IsDj m₀ j X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
+    (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp) :
+    dcovMod m₀ j Ωp X ≤ dcovMod m₀ j Ωm X +
+      ((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ) := by
+  obtain ⟨𝒦, W, E, hadm, hE⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_IsDj
+    (m₀ := m₀) (j := j) (Ω := Ωm) hX)
+  obtain ⟨𝒦', W', E', hadm', hcost⟩ := modAdmissible_extend hN hj hX hΩm hΩp hsplit hadm
+  rw [← hE]
+  exact (dcovMod_le_of_admissible hadm').trans hcost
+
+/-- The `ENNReal` form of `dcovMod_le_add_of_region_grow`, for `dcovModE`. -/
+theorem dcovModE_le_add_of_region_grow (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
+    {X Ωm Ωp : Set (CTorus d L N₁ m₁ K)}
+    (hX : IsDj m₀ j X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
+    (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp) :
+    dcovModE m₀ j Ωp X ≤ dcovModE m₀ j Ωm X +
+      ENNReal.ofReal (((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ)) := by
+  obtain ⟨𝒦, W, E, hadm, hE⟩ := exists_admissible_eq_dcovModE (exists_admissible_of_IsDj
+    (m₀ := m₀) (j := j) (Ω := Ωm) hX)
+  obtain ⟨𝒦', W', E', hadm', hcost⟩ := modAdmissible_extend hN hj hX hΩm hΩp hsplit hadm
+  rw [← hE]
+  refine (dcovModE_le_of_admissible hadm').trans ?_
+  rw [← ENNReal.ofReal_add (bondCost_scaleW_nonneg E) (by positivity)]
+  exact ENNReal.ofReal_le_ofReal hcost
+
+end Extend
+
 end Balaban.Fluctuation
