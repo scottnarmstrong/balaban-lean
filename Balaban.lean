@@ -1693,3 +1693,4 @@ public import Balaban.Fluctuation.SourceFamilyRelativeRadius
 public import Balaban.Inhabited.SourceFamilyRelativeRadiusFromTower
 public import Balaban.Inhabited.SourceAmpRadius
 public import Balaban.Inhabited.E1LabelsBudget
+public import Balaban.Inhabited.ObsSourceLocal
