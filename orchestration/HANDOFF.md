@@ -14,7 +14,6 @@ Claude workers (background subagents of this session):
 |---|---|---|
 | W387 (Opus) | `w387-marked-joint-param` / W387 | joint analyticity of the marked terms in (datum, marks); cubic analogue (MARKPARAM (J)) |
 | W405 | `w405-kf0-sector-sum` / W405 | one-scale: partition function as a sum over sectors in shifted Gaussian form, determinant ratio |
-| W406 | `w406-kernel-series-general` / W406 | localization engine for a general range-graded kernel (FINALMAP G1–G2) |
 | W407 | `w407-obs-row-coeff` / W407 | observable kernel: coefficients and support clauses (COVROW C1, C3) |
 | W408 | `w408-kf0-allgood-gas` / W408 | one-scale: the all-good sector as a polymer gas (localized logarithm of the ordinary part) |
 | W409 | `w409-final-cutoff-pack` / W409 | last integral: cutoff lemma packaged at the stop index (FINALMAP S3) |
