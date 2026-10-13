@@ -148,6 +148,151 @@ theorem mem_decDom_rootTraceBg
   rw [h1, h2]
   exact decDom_of_isDecBg hC hs hD hI hmar hα
 
+/-- The open polydisc of radius `R` in the cut parameters. -/
+theorem isOpen_cutPolydisc (R : ℝ) : IsOpen (cutPolydisc (cubeIdx Gp) R) := by
+  have : cutPolydisc (cubeIdx Gp) R = ⋂ P, {p : DecParams Gp | ‖p P‖ < R} := by
+    ext p; simp [cutPolydisc]
+  rw [this]
+  exact isOpen_iInter_of_finite fun P =>
+    isOpen_lt (continuous_norm.comp (continuous_apply P)) continuous_const
+
+/-- The extension `φ̄` by the datum is analytic in the pair (raw datum, field). -/
+theorem analyticAt_barField_coord {X : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X]
+    {Ψ : X → Torus d (N₁ * L ^ m₁ * L ^ (k + 1)) → Fin N → ℂ} {φ : X → Gp.Ω 1 × Fin N → ℂ}
+    {x₀ : X} (hΨ : AnalyticAt ℂ Ψ x₀) (hφ : AnalyticAt ℂ φ x₀) :
+    AnalyticAt ℂ (fun x => barField Gp (Ψ x) (φ x)) x₀ := by
+  refine analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => ?_
+  by_cases h : x ∈ Gp.Ω 1
+  · have h1 : AnalyticAt ℂ (fun y => φ y (⟨x, h⟩, i)) x₀ := analyticAt_pi_iff.1 hφ _
+    exact h1.congr (Filter.Eventually.of_forall fun y => by simp [barField, h])
+  · have h1 : AnalyticAt ℂ (fun y => Ψ y x i) x₀ :=
+      analyticAt_pi_iff.1 (analyticAt_pi_iff.1 hΨ x) i
+    exact h1.congr (Filter.Eventually.of_forall fun y => by simp [barField, h])
+
+variable {Q : Matrix κι (Gp.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+
+/-- **T5 (a), joint analyticity in the cuts and the datum**: there is one function `F` of
+`(s, raw datum)` on all raw data, analytic at every chart point `(s, rawOf D)` with
+`|s_P| < e^κ` and `D` in the chart `Ξ^c`, and equal to `rootTraceBg` there.  (The chart has empty
+interior in the space of raw data: nothing is said about openness of the chart.) -/
+theorem analyticOnNhd_rootTraceBg_raw
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hU : IsUnitLattice Gp Q P) (B : Finset κι) :
+    ∃ F : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      AnalyticOnNhd ℂ F {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+        XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D ∧ q.2 = rawOf D} ∧
+      ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+        XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        F (s, rawOf D) = rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D s := by
+  obtain ⟨F0, hanal, hval⟩ := i4b_analytic (N := N) hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
+  refine ⟨fun q => rootTrace Gp (compWeight L a₁) a₁ ν Q P B q.1
+    (barField Gp q.2.1 (F0 q).1) (F0 q).2, ?_, ?_⟩
+  · rintro ⟨s, p⟩ ⟨hs, D, hD, rfl⟩
+    have hq : AnalyticAt ℂ F0 (s, rawOf D) := hanal _ ⟨hs, D, inUnionDomainC_of_xiCData hC hD, rfl⟩
+    have h1 : AnalyticAt ℂ (fun q : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+        (F0 q).1) (s, rawOf D) := analyticAt_fst.comp hq
+    have h2 : AnalyticAt ℂ (fun q : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+        (F0 q).2) (s, rawOf D) := analyticAt_snd.comp hq
+    have h3 : AnalyticAt ℂ (fun q : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+        q.2.1) (s, rawOf D) := analyticAt_fst.comp analyticAt_snd
+    have hg : AnalyticAt ℂ (fun q : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+        ((q.1, (barField Gp q.2.1 (F0 q).1, (F0 q).2)) : DecData Gp N)) (s, rawOf D) :=
+      analyticAt_fst.prod ((analyticAt_barField_coord h3 h1).prod h2)
+    obtain ⟨φ, α, hI, h1', h2'⟩ := exists_isDecBg_of_flCore hC hs hD
+    have hv : F0 (s, rawOf D) = (φ, α) :=
+      hval s D hs (inUnionDomainC_of_xiCData hC hD) φ α hI
+    have hmem : ((s, (barField Gp (rawOf D).1 (F0 (s, rawOf D)).1, (F0 (s, rawOf D)).2)) :
+        DecData Gp N) ∈ DecDom Gp N κ δc := by
+      have e : ((s, (barField Gp (rawOf D).1 (F0 (s, rawOf D)).1, (F0 (s, rawOf D)).2)) :
+          DecData Gp N) = (s, (barField Gp D.Ψ φ, α)) := by rw [hv]; rfl
+      rw [e]; exact decDom_of_isDecBg hC hs hD hI hmar hα
+    have hS := xSetting_of_flCore hC hk
+    have hrt := analyticOnNhd_rootTrace (a := compWeight L a₁) (aT := a₁) (N := N) hS hC.hκ.le
+      hcap hδc hsm hU B
+      ((s, (barField Gp (rawOf D).1 (F0 (s, rawOf D)).1, (F0 (s, rawOf D)).2)) : DecData Gp N)
+      hmem
+    have key := AnalyticAt.comp_of_eq (g := fun e : DecData Gp N =>
+      rootTrace Gp (compWeight L a₁) a₁ ν Q P B e.1 e.2.1 e.2.2)
+      (f := fun q : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N =>
+        ((q.1, (barField Gp q.2.1 (F0 q).1, (F0 q).2)) : DecData Gp N)) hrt hg rfl
+    exact key
+  · intro s D hs hD
+    obtain ⟨φ, α, hI, h1, h2⟩ := exists_isDecBg_of_flCore hC hs hD
+    have hv : F0 (s, rawOf D) = (φ, α) :=
+      hval s D hs (inUnionDomainC_of_xiCData hC hD) φ α hI
+    show rootTrace Gp (compWeight L a₁) a₁ ν Q P B s (barField Gp (rawOf D).1 (F0 (s, rawOf D)).1)
+      (F0 (s, rawOf D)).2 = _
+    rw [hv]
+    unfold rootTraceBg
+    rw [h1, h2]
+    rfl
+
+/-- **T2 (b)**: `s ↦ rootTraceBg B D s` is analytic on the open polydisc of radius `e^κ`. -/
+theorem analyticOnNhd_rootTraceBg
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hU : IsUnitLattice Gp Q P) (B : Finset κι) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) :
+    AnalyticOnNhd ℂ (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D)
+      (cutPolydisc (cubeIdx Gp) (Real.exp κ)) := by
+  obtain ⟨F, hF, hFv⟩ := analyticOnNhd_rootTraceBg_raw hC hk hδc hcap hsm hmar hα hU B
+  intro s hs
+  have hs' : ∀ P, ‖s P‖ < Real.exp κ := hs
+  have h1 : AnalyticAt ℂ (fun s : DecParams Gp => F (s, rawOf D)) s :=
+    AnalyticAt.comp_of_eq (hF _ ⟨hs', D, hD, rfl⟩) (analyticAt_id.prod analyticAt_const) rfl
+  refine h1.congr ?_
+  filter_upwards [(isOpen_cutPolydisc (Gp := Gp) (Real.exp κ)).mem_nhds hs] with t ht
+  exact hFv t D ht hD
+
+/-- **T2 (c)**: the bound `‖rootTraceBg‖ ≤ (1/2) N |B| covBLog` on the polydisc. -/
+theorem norm_rootTraceBg_le
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hU : IsUnitLattice Gp Q P) (B : Finset κι) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {s : DecParams Gp}
+    (hs : ∀ P, ‖s P‖ < Real.exp κ) :
+    ‖rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D s‖ ≤
+      (1 / 2 : ℝ) * N * B.card * covBLog d L (compWeight L a₁ k) (a₁ / (L : ℝ) ^ 2) κ :=
+  norm_rootTrace_le (a := compWeight L a₁) (aT := a₁) (N := N) (xSetting_of_flCore hC hk) hC.hκ.le
+    hcap hδc hsm hU B (e := ((s, (barField Gp D.Ψ (decBgField Gp (compWeight L a₁) ν
+      (rho4 d L N BG κ) s D), decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D)) :
+      DecData Gp N)) (mem_decDom_rootTraceBg hC hs hD hmar hα)
+
+/-- **T3 (mixed differences)**: with `R = e^κ > 1` and `M = (1/2) N |B| covBLog d L a_k (a₁/L²) κ`,
+`rootTraceBg … 1 = ∑_J Δ_J` and `‖Δ_J‖ ≤ M (2/R)^{|J|}`.  The constant `M` depends on `d, L, N`,
+the weight `a_k`, `a₁`, `κ` and the block size `|B|` only: neither on the torus (`N₁`, `m₁`) nor
+on `J`.  The factor `2/R < 1` exactly when `e^κ > 2`. -/
+theorem rootTraceBg_cut_expansion
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hU : IsUnitLattice Gp Q P) (B : Finset κι) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) :
+    rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D (fun _ => 1) =
+        ∑ J ∈ (Finset.univ : Finset (cubeIdx Gp)).powerset,
+          mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D) ∧
+      ∀ J : Finset (cubeIdx Gp),
+        ‖mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) Q P B D)‖ ≤
+          (1 / 2 : ℝ) * N * B.card *
+            covBLog d L (compWeight L a₁ k) (a₁ / (L : ℝ) ^ 2) κ * (2 / Real.exp κ) ^ J.card := by
+  have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
+  refine ⟨sum_mixDiff _, fun J => norm_mixDiff_le hR J ?_ ?_⟩
+  · exact (analyticOnNhd_rootTraceBg hC hk hδc hcap hsm hmar hα hU B hD).differentiableOn
+  · intro s hs
+    exact norm_rootTraceBg_le hC hk hδc hcap hsm hmar hα hU B hD hs
+
 end Chart
 
 end Balaban.Fluctuation
