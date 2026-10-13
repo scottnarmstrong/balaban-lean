@@ -21,6 +21,15 @@ The marginal term of the renormalization step on the region `R` minus the restri
 P5 (1.8) is `B_j = Σ_{y∈R} A_j(y) - Corr_j(R, B)` (`AtermRegion a s R - corrSum ...`).  This file
 puts the pieces that landed separately into one chain.
 
+**Convention note (Q13-ALIGN, 13 October 2026).**  `AtermRegion`/`AtermCentre` are finite algebra
+over every site `x` of the index torus.  With the block-constant kernel `w ↦ a (unlift j w)` of
+the landed correction they sum over every fine site, which is *not* the renormalization A-term of
+P5 (1.8) and P1 (3.104): there the sum runs over the sites of the scale-`j` lattice (the
+`L^j`-aligned fine sites), each counted once, with no factor `L^{-jd}`.  The source-facing
+statements are the aligned ones of `RegionalAligned.lean` (kernel `alignedKernel`) and
+`RegionalAlignedSource.lean` (`EresJ2_eq_aterm_aCoef_far_aligned`,
+`EresJ2_sub_remainder_le_aligned_of_class`).
+
 * **(T1) Abstract assembly.**  `grouped_le_of_far`, `grouped_le`, `grouped_le_centred`,
   `grouped_mismatch_corr_le`: from the kernel tail, the near source bound and the triangle
   inequality (`AtermRegion_sub_corrSum`, `far_crossing_le`, `grouped_mismatch_le`).
@@ -579,7 +588,11 @@ theorem EresAt_sub_remainder_le_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ 
 
 open Classical in
 /-- **(T3) for `EresJ2`** at the regions of `Y`: `R' = alignedIn j Y`, `Bc = alignedIn j (thickY R Y)`,
-the composed field `psiJ`. -/
+the composed field `psiJ`.  **Superseded:** the `collar` field of `GroupedInputs` is false at the
+landed `Bc` (a non-aligned site of the fine set of `Y^≈` is not in `Bc`), and `hv1` for all `x, y`
+makes the all-fine-site A-term, not the source A-term.  Use
+`RegionalAligned.EresJ2_sub_remainder_le_aligned_of_radialCoeff` (or
+`RegionalAlignedSource.EresJ2_sub_remainder_le_aligned_of_class`). -/
 theorem EresJ2_sub_remainder_le_of_radialCoeff {j : ℕ} (hN : S.L ^ C.m₀ ∣ C.N₁) (hj : j ≤ k)
     (Y : Set (Torus S.d (n k))) (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
     {a : Localization.CTorus S.d S.L C.N₁ m₁ k → ℂ}

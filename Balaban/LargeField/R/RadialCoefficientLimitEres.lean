@@ -24,6 +24,15 @@ required by `AtermRegion_sub_corrSum`.
   marginal kernel `aCoef (avgFamilyA …)` of the renormalization step (`aCoef_avgFamilyA_eq_v1`), so
   the regional A-term is that of the renormalization kernel.
 
+**Convention note (Q13-ALIGN).**  The regional A-term `AtermRegion` below is the generic finite sum
+over *every* fine site `x` of the torus.  With the block-constant kernel `w ↦ a_j (unlift j w)` it
+is therefore not the renormalization A-term of P5 (1.8) / P1 (3.104), which sums over the sites of
+the scale-`j` lattice, i.e. the `L^j`-aligned fine sites, each once, with no `L^{-jd}`.  The
+statements here are true finite algebra; the source-facing versions, with the aligned kernel
+`alignedKernel C j (fun w => a_j (unlift j w))` (`RegionalAligned.lean`), are
+`EresAt_eq_aterm_aCoef_far_aligned` and `EresJ2_eq_aterm_aCoef_far_aligned` in
+`RegionalAlignedSource.lean`.
+
 Evenness of the kernel `a_j` (needed to read the far crossing sum as a sum of crossing pairs,
 `grouped_eq_far_crossing_even`) is not used here.
 -/
@@ -68,8 +77,8 @@ open Classical Balaban.SmallField.Def6v2 in
 For a `D1Corr` datum `(St, hv, vc)` of a class family `hF` (`‖hv‖ = 1`), at a scale `j` with the
 numeric premises `MomNum`, the kernel `a_j(w) = vc.v1 j (unlift j w)` of the landed correction is the
 marginal kernel `w ↦ aCoef (avgFamilyA …) (unlift j w)` of the renormalization step
-(`aCoef_avgFamilyA_eq_v1`), so the identity `EresAt_eq_aterm_far` reads with the regional A-term of
-the renormalization kernel: the localized terms minus `ℰ` is the regional A-term of the
+(`aCoef_avgFamilyA_eq_v1`), so the identity `EresAt_eq_aterm_far` reads with the all-fine-site regional
+sum (not the source A-term) of the renormalization kernel: the localized terms minus `ℰ` is the regional A-term of the
 renormalization kernel minus the far crossing sum, plus the `v₂` part. -/
 theorem EresAt_eq_aterm_aCoef_far {P : Consts} {ρd : ∀ (N₁ : ℕ) [NeZero N₁],
       (Localization.CTorus S.d S.L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
