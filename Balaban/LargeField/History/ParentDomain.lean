@@ -68,7 +68,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ)
 
 /-- The scale-`(j+1)` cube over which a site of the level-`(j+1)` torus of the backgrounds lies. -/
-abbrev siteCube (s : BgT Cx.geo (j + 1)) : Torus S.d (n (j + 1)) :=
+abbrev parentSiteCube (s : BgT Cx.geo (j + 1)) : Torus S.d (n (j + 1)) :=
   cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s)
 
 /-- The real field `Ψ = lift_k ψ_k` of the datum `D_k`: at a site `s` the value of `ψ_k` at the
@@ -92,30 +92,30 @@ theorem parentPsi_layerConst (Y : Set (Torus S.d (n (j + 1))))
     IsLayerConstant (Cx.genW Y) (parentPsi Cx ψk) :=
   liftSingle_layerConst (Cx.genW Y) (fun z i => ψk (blkToBlock Cx.geo Cx.hnn Cx.hkK z) i)
 
-theorem sum_sq_eq_norm_sq (v : EuclideanSpace ℝ (Fin N)) : ∑ i, v i ^ 2 = ‖v‖ ^ 2 := by
+theorem parent_sum_sq_eq_norm_sq (v : EuclideanSpace ℝ (Fin N)) : ∑ i, v i ^ 2 = ‖v‖ ^ 2 := by
   rw [EuclideanSpace.norm_sq_eq]
   simp [sq_abs]
 
-theorem rn_eq_norm (v : EuclideanSpace ℝ (Fin N)) : rn (fun i => v i) = ‖v‖ := by
+theorem rn_fun_eq_norm (v : EuclideanSpace ℝ (Fin N)) : rn (fun i => v i) = ‖v‖ := by
   unfold rn
-  rw [sum_sq_eq_norm_sq, Real.sqrt_sq (norm_nonneg _)]
+  rw [parent_sum_sq_eq_norm_sq, Real.sqrt_sq (norm_nonneg _)]
 
 /-! ### T1: the exhaustive case split -/
 
 /-- **T1 (sites).**  The scale-`(j+1)` cube of a site lies in `Y = Z_{j+1}ᶜ` or in a retained
 component of `Z_{j+1}`. -/
 theorem siteCube_dichotomy (s : BgT Cx.geo (j + 1)) :
-    siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ ∨
-      ∃ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) ∧ siteCube Cx s ∈ C.1 := by
-  by_cases h : siteCube Cx s ∈ (H.step (j + 1)).Z
+    parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ ∨
+      ∃ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) ∧ parentSiteCube Cx s ∈ C.1 := by
+  by_cases h : parentSiteCube Cx s ∈ (H.step (j + 1)).Z
   · exact Or.inr (H.exists_retained_of_mem_Z h)
   · exact Or.inl h
 
 /-- **T1 (pairs).**  An interface pair has a site over a retained component (kind (a)) or both
 sites over `Y` (kind (b)). -/
 theorem interface_pair_cases (s s' : BgT Cx.geo (j + 1)) :
-    (∃ t, (t = s ∨ t = s') ∧ ∃ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) ∧ siteCube Cx t ∈ C.1) ∨
-      (siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ ∧ siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ) := by
+    (∃ t, (t = s ∨ t = s') ∧ ∃ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) ∧ parentSiteCube Cx t ∈ C.1) ∨
+      (parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ ∧ parentSiteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ) := by
   rcases siteCube_dichotomy H Cx s with h | ⟨C, hC, hq⟩
   · rcases siteCube_dichotomy H Cx s' with h' | ⟨C, hC, hq⟩
     · exact Or.inr ⟨h, h'⟩
@@ -132,13 +132,13 @@ theorem parentPsi_eq_tested {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem (j + 1))
     (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
     (xs : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A)
     {t u : BgT Cx.geo (j + 1)} (hu : u ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
-    (hq : siteCube Cx t ∈ C.1) (hd : supDist (siteCube Cx u) (siteCube Cx t) ≤ 1) :
+    (hq : parentSiteCube Cx t ∈ C.1) (hd : supDist (parentSiteCube Cx u) (parentSiteCube Cx t) ≤ 1) :
     parentPsi Cx (outField N o) u =
       fun i => subMultiscaleField N (H.localHistory M K (j + 1) C) (j + 1)
           (Vblk R (H.localHistory M K (j + 1) C) (j + 1)) xs o (j + 1)
           (blkToBlock Cx.geo Cx.hnn Cx.hkK
             (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) u)) i := by
-  have hΩ : siteCube Cx u ∈ C.1 → siteCube Cx u ∈ (H.step j).Omega := fun hqu =>
+  have hΩ : parentSiteCube Cx u ∈ C.1 → parentSiteCube Cx u ∈ (H.step j).Omega := fun hqu =>
     (H.step j).OmegaDD_subset_Omega (datum_site_topBlock H Cx hret hu hqu).2.1
   obtain ⟨hV, hfield⟩ := subMultiscaleField_top_eq_out (R := R) H Cx.hkK C
     (x := bgToFine Cx.geo Cx.hnn Cx.hkK u) (mem_nbhd.mpr ⟨_, hq, hd⟩) hΩ o xs
@@ -169,13 +169,13 @@ theorem parentPsi_sphere_of_chiDomAt {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem 
     {x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A}
     (hχ : ChiDomAt Cx.geo Cx.cs H (j + 1) C o x)
     {s : BgT Cx.geo (j + 1)} (hs : s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ))
-    (hq : siteCube Cx s ∈ C.1) :
+    (hq : parentSiteCube Cx s ∈ C.1) :
     |∑ i, parentPsi Cx (outField N o) s i ^ 2 - 1| < 3 * S.d * S.L * Cx.cs.delta j := by
   have h1 := chiDomAt_site_sphere Cx Cx.cs hχ hret hs hq
   have e := parentPsi_eq_tested H Cx hret o x hs hq (by simp [supDist_self])
   have e' : ∀ i, parentPsi Cx (outField N o) s i = _ := fun i => congrFun e i
   simp_rw [e']
-  rw [sum_sq_eq_norm_sq]
+  rw [parent_sum_sq_eq_norm_sq]
   exact h1
 
 /-- **R1 over a retained component.**  Under `ChiDomAt` for a retained component `C`, for an
@@ -188,16 +188,16 @@ theorem parentPsi_pair_of_chiDomAt {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem (j
     (hχ : ChiDomAt Cx.geo Cx.cs H (j + 1) C o x)
     {s s' t : BgT Cx.geo (j + 1)}
     (hp : IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s') (hts : t = s ∨ t = s')
-    (hq : siteCube Cx t ∈ C.1) :
+    (hq : parentSiteCube Cx t ∈ C.1) :
     rn (fun i => parentPsi Cx (outField N o) s i - parentPsi Cx (outField N o) s' i) <
       3 * S.d * S.L * Cx.cs.delta j := by
   have hcube := (interface_pair_topBlocks H Cx hret hp hts hq).1
-  have hself : supDist (siteCube Cx t) (siteCube Cx t) ≤ 1 := by simp [supDist_self]
-  have hds : supDist (siteCube Cx s) (siteCube Cx t) ≤ 1 := by
+  have hself : supDist (parentSiteCube Cx t) (parentSiteCube Cx t) ≤ 1 := by simp [supDist_self]
+  have hds : supDist (parentSiteCube Cx s) (parentSiteCube Cx t) ≤ 1 := by
     rcases hts with rfl | rfl
     · exact hself
     · rw [supDist_comm]; exact hcube
-  have hds' : supDist (siteCube Cx s') (siteCube Cx t) ≤ 1 := by
+  have hds' : supDist (parentSiteCube Cx s') (parentSiteCube Cx t) ≤ 1 := by
     rcases hts with rfl | rfl
     · exact hcube
     · exact hself
@@ -216,7 +216,7 @@ theorem parentPsi_pair_of_chiDomAt {C : H.Comp (j + 1)} (hret : C.1 ∉ H.rem (j
     funext i
     rw [congrFun es i, congrFun es' i]
     rfl
-  rw [e, rn_eq_norm]
+  rw [e, rn_fun_eq_norm]
   exact h1
 
 /-! ### T4, T5: the domain statement -/
@@ -248,15 +248,15 @@ The proof is the case split of `interface_pair_cases`, `parentPsi_sphere_of_chiD
 theorem inPsiTilde_genW_of_factors (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
     (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
     (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
-      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), parentSiteCube Cx t ∈ C.1) →
       ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
         (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
         (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
         ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
     (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
     (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → parentSiteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
       rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY) :
     InPsiTilde (Cx.genW ((H.step (j + 1)).Z)ᶜ) ν (max (3 * S.d * S.L * Cx.cs.delta j) ηY)
       (parentPsi Cx ψk) (fun i => hv i) := by
@@ -264,7 +264,7 @@ theorem inPsiTilde_genW_of_factors (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY
     le_max_left _ _
   have hηYle : ηY ≤ max (3 * S.d * S.L * Cx.cs.delta j) ηY := le_max_right _ _
   have hη0 : 0 < max (3 * S.d * S.L * Cx.cs.delta j) ηY := lt_of_lt_of_le hηY hηYle
-  have hsum : ∑ i, hv i ^ 2 = 1 := by rw [sum_sq_eq_norm_sq, hunit]; norm_num
+  have hsum : ∑ i, hv i ^ 2 = 1 := by rw [parent_sum_sq_eq_norm_sq, hunit]; norm_num
   refine ⟨parentPsi_layerConst Cx _ ψk, ?_, ?_, ?_, ?_⟩
   · intro x x' hp
     rcases interface_pair_cases H Cx x x' with ⟨t, hts, C, hC, hq⟩ | ⟨h1, h2⟩
@@ -320,15 +320,15 @@ identification of the datum with `(Ψ, h⋆)` on the data sites and on `Ω₁`. 
 theorem inDomainR_genW_of_factors (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
     (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
     (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
-      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), parentSiteCube Cx t ∈ C.1) →
       ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
         (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
         (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
         ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
     (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
     (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → parentSiteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
       rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY) :
     InDomainR (Cx.genW ((H.step (j + 1)).Z)ᶜ) ν (max (3 * S.d * S.L * Cx.cs.delta j) ηY)
       (liftSingle (Cx.genW ((H.step (j + 1)).Z)ᶜ) (Cx.liftData ψk) (hC hv)) :=
@@ -352,15 +352,15 @@ theorem theorem73_parent_of_factors {ϱ' : ℝ}
     (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
     (hmass : 2 * ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 < (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
     (hAct : ∀ C : H.Comp (j + 1), C.1 ∉ H.rem (j + 1) →
-      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), siteCube Cx t ∈ C.1) →
+      (∃ t ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ), parentSiteCube Cx t ∈ C.1) →
       ∃ (A : Set (InternalVars (H.localHistory M K (j + 1) C) (j + 1)))
         (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
         (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
         ChiDomAt Cx.geo Cx.cs H (j + 1) C o x ∧ outField N o = ψk)
     (hR2Y : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → |∑ i, parentPsi Cx ψk s i ^ 2 - 1| < ηY)
     (hR1Y : ∀ s s', IsInterfacePair (Cx.genW ((H.step (j + 1)).Z)ᶜ) s s' →
-      siteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → siteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
+      parentSiteCube Cx s ∈ ((H.step (j + 1)).Z)ᶜ → parentSiteCube Cx s' ∈ ((H.step (j + 1)).Z)ᶜ →
       rn (fun i => parentPsi Cx ψk s i - parentPsi Cx ψk s' i) < ηY)
     (hη : max (3 * S.d * S.L * Cx.cs.delta j) ηY ≤ thm73C1 S.d S.L N) :
     InUnionDomainR G (bgC1 S.d S.L N) ν
