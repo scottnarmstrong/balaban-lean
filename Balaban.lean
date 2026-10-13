@@ -222,6 +222,8 @@ public import Balaban.Green.FinalMassSqrt
 public import Balaban.Green.FinalComplexMatrix
 public import Balaban.Green.FinalComplexHessian
 public import Balaban.Green.KF0Reference
+public import Balaban.Green.KF0KilledWalks
+public import Balaban.Green.KF0DetWalks
 public import Balaban.Green.KF0WalkSeries
 public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkTorus
