@@ -255,6 +255,66 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep MeasureTheory Metric
 
+/-- **The one sharp-hat expansion at the tower, exact locality.**  The statement of
+`obsEv_fromTower` with the locality clause for raw data agreeing on `Y` itself and hat variables
+agreeing at the unit points of `Y`; `obsEv_fromTower` is its corollary.  The family `Ev` of
+`obsMarkHalves_of_sharpHat_param_rawY` at the shared tower (the call of `obsHker_param_fromTower`),
+with its three clauses (analyticity, locality, decay with `treeLenCovOne`) and, for every datum of
+`Ξ`, `ObsMarkHalf` and `ObsRayIdentity`.  The same `Ev` serves the kernel and the remainder. -/
+theorem obsEv_fromTower_rawY {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hN : 5 < N₁)
+    (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1)
+    (Dsc : StepScaleData T k hk N₁ ν β p₁)
+    (hp : 0 < (T.step k hk N₁ ν β p₁).p₁) (y : CTorus 3 3 N₁ T.m₁ (k + 1)) (i : Fin 2)
+    {Lb₀ : Type} (Lab₀ : CubeLabels (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1
+      (k + 1) Set.univ Lb₀) :
+    let S := T.step k hk N₁ ν β p₁;
+    ∃ Ev : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) →
+        RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (unitPts S.G' × Fin 2 → ℂ) → ℂ,
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)})) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        ∀ u' ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight 3 1) ν (k + 1) 1 T.t ×ˢ
+          {ψh : unitPts S.G' × Fin 2 → ℂ | ∀ p, ‖ψh p‖ ≤ lvCpsi T.κ T.t (β * 3 ^ k)},
+        ‖Ev Y u‖ ≤ (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) *
+          Real.exp (-(2 * T.κdec) * treeLenCovOne 1 (k + 1) Y)) ∧
+      (∀ D : BgData S.G' 2, XiCData S.G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+        ObsMarkHalf S 1 hp Ev D (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))
+          (obsLab Lab₀ (obsDomains_isDj (X₁f := LocalCover.nbhdF 1 y) S le_rfl
+            (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1))
+          (lvCpsi T.κ T.t (β * 3 ^ k))
+          (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) (2 * T.κdec - 1) T.κ0
+          (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t / (lvCpsi T.κ T.t (β * 3 ^ k)))
+          (2 * T.κdec) (rootCube (m₀ := 1) (blockIndex y)) ∧
+        ObsRayIdentity S 1 hp
+          (fun ψh => svec (lvLow N₁ T.m₁ k (rhoSep T.m₁))
+            (flFieldOne S.G' (lvLow N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ 1 ν D
+              (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
+          (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))) := by
+  intro S
+  have hν0 : 0 ≤ ν := hνpos.le
+  have hr0 := Dsc.r_pos
+  have hcψ0 := Dsc.cψ_pos
+  have hq : p₁ / lvCpsi T.κ T.t (β * 3 ^ k) ≤ 1 / 4 := by
+    rw [div_le_iff₀ hcψ0]
+    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp
+    nlinarith [Dsc.ray_margin]
+  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
+  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param_rawY S Dsc.core hk
+    (isLevel_lvLow hk) ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin
+    T.coer_margin T.δc_small Dsc.fl_radius hcov hX₁ hatConn_lvTop
+    (rowInHat_lv hk T.m₁_four hN hν0 hν) hopt hΔ T.κ0_nonneg T.κdec_lower
+    (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀ T.marks_κG_le T.κ0_ent
+  refine ⟨Ev, ha, hd, fun Y u hu => ?_, hEv⟩
+  have := hb Y u hu
+  rwa [treeLenCov_eq_treeLenCovOne S.hG' 1 Y, show -2 * T.κdec = -(2 * T.κdec) by ring] at this
+
+
 /-- **The one sharp-hat expansion at the tower.**  The family `Ev` of
 `obsMarkHalves_of_sharpHat_param` at the shared tower (the call of `obsHker_param_fromTower`),
 with its three clauses (analyticity, locality, decay with `treeLenCovOne`) and, for every datum of
@@ -293,23 +353,9 @@ theorem obsEv_fromTower {κmin : ℝ} (T : StepTower κmin)
             (flFieldOne S.G' (lvLow N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ 1 ν D
               (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
           (obsDomains S (LocalCover.nbhdF 1 y) 1 k (LocalCover.fam 1 y))) := by
-  intro S
-  have hν0 : 0 ≤ ν := hνpos.le
-  have hr0 := Dsc.r_pos
-  have hcψ0 := Dsc.cψ_pos
-  have hq : p₁ / lvCpsi T.κ T.t (β * 3 ^ k) ≤ 1 / 4 := by
-    rw [div_le_iff₀ hcψ0]
-    have : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ := mul_pos hr0 hp
-    nlinarith [Dsc.ray_margin]
-  obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
-  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param S Dsc.core hk
-    (isLevel_lvLow hk) ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin
-    T.coer_margin T.δc_small Dsc.fl_radius hcov hX₁ hatConn_lvTop
-    (rowInHat_lv hk T.m₁_four hN hν0 hν) hopt hΔ T.κ0_nonneg T.κdec_lower
-    (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀ T.marks_κG_le T.κ0_ent
-  refine ⟨Ev, ha, hd, fun Y u hu => ?_, hEv⟩
-  have := hb Y u hu
-  rwa [treeLenCov_eq_treeLenCovOne S.hG' 1 Y, show -2 * T.κdec = -(2 * T.κdec) by ring] at this
+  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsEv_fromTower_rawY T k hk N₁ ν β p₁ hN hνpos hν Dsc hp y i Lab₀
+  exact ⟨Ev, ha, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
+    hb, hEv⟩
 
 /-- The constant `Q · t` of the decay of the sharp-hat terms is positive. -/
 theorem cK2'_famConst_mul_t_pos {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k)

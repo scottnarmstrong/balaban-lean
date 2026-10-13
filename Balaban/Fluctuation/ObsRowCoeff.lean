@@ -209,6 +209,141 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **Coefficients and kernel of the sharp hat expansion of one site functional along the marks, exact
+locality.**  The statement of `obsRowCoeff_of_sharpHat` with the locality clause of `Ev` for raw data
+agreeing on `Y` itself and hat variables agreeing at the unit points of `Y` (from
+`fsite_expansion_hat_rawY`); `obsRowCoeff_of_sharpHat` is its corollary.
+Premises: exactly those of `fsite_expansion_hat_dir` (with `Gp = S.G'`), plus `0 < cψ`.  The
+family `Ev` is that of the landed theorem; with `a_Y = obsRowCoeff`, `Ch = Q δ₁ / cψ`
+(`Q = cK2' d L N (famConst d L BG₂ κ)`) and `κh = 2 κdec`, for every datum `D` of `Ξ` and every
+mark `m`:
+
+* `Σ_Y a_Y = d/dζ|₀ F(ζ • e_m)`, `F` the expanded function;
+* `‖a_Y‖ ≤ Ch * exp (-2 κdec * treeLenCovOne m₀ (k+1) Y)`;
+* `a_Y = 0` unless `Y` has a site of the unit point of `m`;
+* `obsHker (obsRowLabel Y) = a_Y` for `Y` in the family; `Σ_T obsHker T = Σ_Y a_Y`;
+* `obsHker T ≠ 0` puts the mark cube `obsMarkCube S m₀ m` and the root cube of the site `y` in
+  `T`;
+* `‖obsHker T‖ ≤ Ch * exp (-κh * dExt T)`. -/
+theorem obsRowCoeff_of_sharpHat_rawY (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 < cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup S.G' m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (iy : Fin N) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ,
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' m₀ (X1 S.G' m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt S.hG' y, i) = u'.2 (unitPt S.hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ m : ObsMarkIdx S,
+        (deriv (fun ζ : ℂ => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
+            (hatLift S.G' a₁ ν S.hG' cc D (ζ • obsUnitVec S m))) y iy) 0 =
+          ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), obsRowCoeff S Ev D m Y) ∧
+        (∀ Y, ‖obsRowCoeff S Ev D m Y‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) *
+          Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y)) ∧
+        (∀ Y, (∀ y' ∈ Y, unitPt S.hG' y' ≠ m.1) → obsRowCoeff S Ev D m Y = 0) ∧
+        (∀ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X),
+          obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ (obsRowLabel m₀ (k + 1) Y) =
+          obsRowCoeff S Ev D m Y) ∧
+        (∑ T, obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T =
+          ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), obsRowCoeff S Ev D m Y) ∧
+        (∀ T, obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T ≠ 0 →
+          obsMarkCube S m₀ m ∈ T ∧ rootCube (m₀ := m₀) (blockIndex y) ∈ T) ∧
+        (∀ T, ‖obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+            i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T‖ ≤
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) * Real.exp (-(2 * κdec) * dExt T)) := by
+  classical
+  obtain ⟨Ev, hs, hd, hb, ha⟩ := fsite_expansion_hat_rawY hC hk hG S.hG' cc hcψ.le hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  refine ⟨Ev, hs, hd, hb, ha, fun D hD m => ?_⟩
+  have hd3 : 3 ≤ d := hC.HBp.hd
+  have hN : L ^ m₀ ∣ N₁ := hcov.hN
+  have hdj : ∀ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
+      i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), IsDj m₀ (k + 1) Y := fun Y hY =>
+    isDj_of_polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.hG' hcov hd3 (fun i => i.1.2) hopt hY
+  have hr : rawOf D ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps := ⟨D, hD, rfl⟩
+  have he := norm_obsUnitVec_le S m
+  have hd0 : 0 < d := by omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hCh : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ :=
+    div_nonneg (mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le) hcψ.le
+  have hxX : y ∈ X1 S.G' m₀ j 𝒦X := by rw [← hX₁]; exact hy
+  have hcoef : ∀ Y, ‖obsRowCoeff S Ev D m Y‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) *
+      Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y) := by
+    intro Y
+    have := norm_hatCoeff_le hcψ hr (ha Y) (hb Y) he
+    rw [← treeLenCov_eq_treeLenCovOne S.hG' m₀ Y]
+    unfold obsRowCoeff
+    rwa [mul_div_right_comm] at this
+  have hvan : ∀ Y, (∀ y' ∈ Y, unitPt S.hG' y' ≠ m.1) → obsRowCoeff S Ev D m Y = 0 := by
+    intro Y hY
+    refine hatCoeff_eq_zero_of_const hcψ fun ζ hζ => hd Y (rawOf D, ζ • obsUnitVec S m) ⟨hr, smul_mem_ball he hζ⟩
+      (rawOf D, 0) ⟨hr, fun p => by simpa using hcψ.le⟩ (agreeOn_refl _ _) (fun y' hy' i' => ?_)
+    have : (unitPt S.hG' y', i') ≠ m := fun h => hY y' hy' (by rw [← h])
+    simp [obsUnitVec, this]
+  have hκ2 : 0 ≤ 2 * κdec := by linarith
+  refine ⟨?_, hcoef, hvan, fun Y hY => obsHker_label hN hdj hY, sum_obsHker, ?_, ?_⟩
+  · have := deriv_slice_sum (𝒴 := polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
+      (X1 S.G' m₀ j 𝒦X)) hcψ hr ha he
+      (F := fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy)
+      (fun ψ hψ => hs D hD ψ hψ)
+    exact this
+  · intro T hT
+    obtain ⟨Y, hY, rfl, hne⟩ := exists_of_obsHker_ne_zero hT
+    refine ⟨?_, rootCube_mem_obsRowLabel_of_polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hN S.hG' hcov hd3
+      (fun i => i.1.2) hopt rfl hY hxX⟩
+    by_contra hno
+    have hno' : ∀ y' ∈ Y, unitPt S.hG' y' ≠ m.1 := by
+      intro y' hy' hu
+      exact hno (cellOf_mem_obsRowLabel S hN (hdj Y hY) hy' hu)
+    exact hne (hvan Y hno')
+  · intro T
+    refine norm_obsHker_le hN hdj hCh hκ2 (fun Y _ => ?_) T
+    have := hcoef Y
+    rwa [show -(2 * κdec) * treeLenCovOne m₀ (k + 1) Y = -2 * κdec * treeLenCovOne m₀ (k + 1) Y
+      by ring]
+
+
 /-- **Coefficients and kernel of the sharp hat expansion of one site functional along the marks.**
 Premises: exactly those of `fsite_expansion_hat_dir` (with `Gp = S.G'`), plus `0 < cψ`.  The
 family `Ev` is that of the landed theorem; with `a_Y = obsRowCoeff`, `Ch = Q δ₁ / cψ`
@@ -284,60 +419,10 @@ theorem obsRowCoeff_of_sharpHat (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx
         (∀ T, ‖obsHker (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
             i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X)) (obsRowCoeff S Ev D m) m₀ T‖ ≤
           (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) * Real.exp (-(2 * κdec) * dExt T)) := by
-  classical
-  obtain ⟨Ev, hs, hd, hb, ha⟩ := fsite_expansion_hat_dir hC hk hG S.hG' cc hcψ.le hMX hdm hα hsm hδ₁
-    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
-  refine ⟨Ev, hs, hd, hb, ha, fun D hD m => ?_⟩
-  have hd3 : 3 ≤ d := hC.HBp.hd
-  have hN : L ^ m₀ ∣ N₁ := hcov.hN
-  have hdj : ∀ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) =>
-      i.1.1) S.G' m₀ (X1 S.G' m₀ j 𝒦X), IsDj m₀ (k + 1) Y := fun Y hY =>
-    isDj_of_polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-      S.hG' hcov hd3 (fun i => i.1.2) hopt hY
-  have hr : rawOf D ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps := ⟨D, hD, rfl⟩
-  have he := norm_obsUnitVec_le S m
-  have hd0 : 0 < d := by omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hCh : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ :=
-    div_nonneg (mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le) hcψ.le
-  have hxX : y ∈ X1 S.G' m₀ j 𝒦X := by rw [← hX₁]; exact hy
-  have hcoef : ∀ Y, ‖obsRowCoeff S Ev D m Y‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁ / cψ) *
-      Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y) := by
-    intro Y
-    have := norm_hatCoeff_le hcψ hr (ha Y) (hb Y) he
-    rw [← treeLenCov_eq_treeLenCovOne S.hG' m₀ Y]
-    unfold obsRowCoeff
-    rwa [mul_div_right_comm] at this
-  have hvan : ∀ Y, (∀ y' ∈ Y, unitPt S.hG' y' ≠ m.1) → obsRowCoeff S Ev D m Y = 0 := by
-    intro Y hY
-    refine hatCoeff_eq_zero_of_const hcψ fun ζ hζ => hd Y (rawOf D, ζ • obsUnitVec S m) ⟨hr, smul_mem_ball he hζ⟩
-      (rawOf D, 0) ⟨hr, fun p => by simpa using hcψ.le⟩ ⟨agreeOn_refl _ _, fun y' hy' i' => ?_⟩
-    have : (unitPt S.hG' y', i') ≠ m := fun h => hY y' hy' (by rw [← h])
-    simp [obsUnitVec, this]
-  have hκ2 : 0 ≤ 2 * κdec := by linarith
-  refine ⟨?_, hcoef, hvan, fun Y hY => obsHker_label hN hdj hY, sum_obsHker, ?_, ?_⟩
-  · have := deriv_slice_sum (𝒴 := polymerDomains
-      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
-      (X1 S.G' m₀ j 𝒦X)) hcψ hr ha he
-      (F := fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy)
-      (fun ψ hψ => hs D hD ψ hψ)
-    exact this
-  · intro T hT
-    obtain ⟨Y, hY, rfl, hne⟩ := exists_of_obsHker_ne_zero hT
-    refine ⟨?_, rootCube_mem_obsRowLabel_of_polymerDomains
-      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hN S.hG' hcov hd3
-      (fun i => i.1.2) hopt rfl hY hxX⟩
-    by_contra hno
-    have hno' : ∀ y' ∈ Y, unitPt S.hG' y' ≠ m.1 := by
-      intro y' hy' hu
-      exact hno (cellOf_mem_obsRowLabel S hN (hdj Y hY) hy' hu)
-    exact hne (hvan Y hno')
-  · intro T
-    refine norm_obsHker_le hN hdj hCh hκ2 (fun Y _ => ?_) T
-    have := hcoef Y
-    rwa [show -(2 * κdec) * treeLenCovOne m₀ (k + 1) Y = -2 * κdec * treeLenCovOne m₀ (k + 1) Y
-      by ring]
+  obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm hα hsm
+    hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
+    hb, ha, hrow'⟩
 
 end Marks
 
