@@ -117,6 +117,97 @@ theorem McompAtC_zero_path (hpc : pp ≤ cψ) (hX : XiCData S.G' S.a S.ν (k + 1
   rw [h3]
   ring
 
+include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
+/-- **The consumer's integrand is one `obsRayFun`.**  At the zero class and the step's own datum, for
+`‖x‖ < p⁺ < c_ψ` and `r ∈ [0,1]`, the derivative in `r` of `McompAtC … (dataUC (psiAtC r x)) g y i`
+is `obsRayFun S F x r`, with `F ψ̂ = svec (flFieldOne D' (hatLift cc D' ψ̂)) y i`,
+`cc = β_k^{-1/2}`, `D' = S.D'`.  The constant `φ_{k+1}|(y,i)` and the source `g` drop out. -/
+theorem deriv_McompAtC_zero (hpc : pp < cψ) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
+    (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) (x : S.E)
+    (hx : ‖x‖ < pp) {r : ℝ} (hr : r ∈ Set.Icc (0 : ℝ) 1) :
+    deriv (fun t : ℝ => McompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀
+        (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν (Nat.le_succ k) (S.dataUC (S.psiAtC t x)) g y i) r =
+      obsRayFun S (fun ψh => svec (stepG d L N₁ m₁ k ϱ)
+        (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
+          (hatLift S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.D' ψh)) y i) x r := by
+  classical
+  set cc : ℂ := ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) with hcc
+  set F : (S.U × Fin N → ℂ) → ℂ := fun ψh => svec (stepG d L N₁ m₁ k ϱ)
+    (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
+      (hatLift S.G' S.a₁ S.ν S.hG' cc S.D' ψh)) y i with hF
+  set c0 : ℂ := svec (stepG d L N₁ m₁ k ϱ)
+        ((S.hG.precedes S.hG' (le_refl (k + 1))).restrictφ
+          (bgFieldC S.G' S.a S.ν (bgC0 d L N) S.D')) y i with hc0
+  have hrx : |r| * ‖x‖ < pp := by
+    rw [abs_of_nonneg hr.1]
+    exact lt_of_le_of_lt (mul_le_of_le_one_left (norm_nonneg _) hr.2) hx
+  have hev : ∀ᶠ t : ℝ in 𝓝 r, c0 + F ((t : ℂ) • yhat x) =
+      McompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀ (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν
+        (Nat.le_succ k) (S.dataUC (S.psiAtC t x)) g y i := by
+    have hcont : ContinuousAt (fun t : ℝ => |t| * ‖x‖) r := by fun_prop
+    filter_upwards [hcont.eventually_lt continuousAt_const hrx] with t ht
+    exact (Jr.McompAtC_zero_path hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ
+      hδ₁ hpc.le hX g y i x ht.le).symm
+  have hb : ∀ p, ‖((r : ℂ) * yhat x p)‖ < cψ := fun p => by
+    have := smul_yhat_le (S := S) (pp := pp) (s := r) (x := x) hrx.le p
+    simpa using lt_of_le_of_lt this hpc
+  have hAn : AnalyticAt ℂ (fun l : ℂ => F (l • yhat x)) (r : ℂ) := by
+    by_cases hm : y ∈ (stepG d L N₁ m₁ k ϱ).Ω 1
+    · have e : (fun l : ℂ => F (l • yhat x)) = fun l : ℂ =>
+          flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
+            (hatLift S.G' S.a₁ S.ν S.hG' cc S.D' (l • yhat x)) (⟨y, hm⟩, i) := by
+        funext l; exact svec_of_mem (stepG d L N₁ m₁ k ϱ) _ ⟨y, hm⟩ i
+      rw [e]
+      exact analyticAt_flFieldOne_hatRay hC S.hk1 S.hG S.hG' ha₁ H hc7 hR hsmR hRs hsmall
+        hnum hnum' hMX hdm hα hsm cc hcψ hδ₁ hX (yhat x) hb (⟨y, hm⟩, i)
+    · have e : (fun l : ℂ => F (l • yhat x)) = fun _ => 0 := by
+        funext l; exact svec_of_not_mem (stepG d L N₁ m₁ k ϱ) _ hm i
+      rw [e]
+      exact analyticAt_const
+  have hd : HasDerivAt (fun t : ℝ => c0 + F ((t : ℂ) • yhat x))
+      (deriv (fun l : ℂ => F (l • yhat x)) (r : ℂ)) r :=
+    (hAn.differentiableAt.hasDerivAt.const_add c0).comp_ofReal
+  rw [← Filter.EventuallyEq.deriv_eq hev]
+  exact hd.deriv
+
+include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
+/-- **The two integrands agree `ν_{p₁}`-almost everywhere**, for every `r ∈ [0,1]`: on the support
+`‖x‖ < p₁ < p⁺ < c_ψ` of the fluctuation measure. -/
+theorem ae_deriv_McompAtC_zero_eq_obsRayFun (hp₁ : 0 < S.p₁) (hlt : S.p₁ < pp) (hpc : pp < cψ)
+    (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
+    (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) {r : ℝ}
+    (hr : r ∈ Set.Icc (0 : ℝ) 1) :
+    ∀ᵐ x ∂S.nuFl,
+      obsRayFun S (fun ψh => svec (stepG d L N₁ m₁ k ϱ)
+        (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
+          (hatLift S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.D' ψh)) y i) x r =
+      deriv (fun t : ℝ => McompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀
+        (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν (Nat.le_succ k) (S.dataUC (S.psiAtC t x)) g y i) r := by
+  filter_upwards [S.ae_norm_nuFl hp₁] with x hx
+  have hxn : ‖x‖ < pp := lt_of_le_of_lt
+    ((pi_norm_le_iff_of_nonneg hp₁.le).2 fun u => (hx u).le) hlt
+  exact (Jr.deriv_McompAtC_zero hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ
+    hδ₁ hpc hX g y i x hxn hr).symm
+
+include Jr hC ha₁ H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hcψ hδ₁ in
+/-- **The record with the consumer's integrand.**  From a record whose integrand is the single
+`obsRayFun` (as produced by `obsMarks_of_tilt` at `D = S.D'`, `cc = β_k^{-1/2}`, the site `(y,i)`),
+the record for the integrand of `thm31bC_of_input_M0`, with every other field unchanged. -/
+noncomputable def _root_.Balaban.Fluctuation.ObsMarks.toConsumer (hp₁ : 0 < S.p₁) (hlt : S.p₁ < pp)
+    (hpc : pp < cψ) (hX : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D')
+    (g : Fld d L N₁ m₁ (k + 1) N) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N)
+    {m₀ : ℕ} (BS : BlockSplit S m₀) {W : ℝ → S.E → ℂ}
+    {bx : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ}
+    (I : ObsMarks S.nuFl BS W (fun t x => obsRayFun S (fun ψh => svec (stepG d L N₁ m₁ k ϱ)
+        (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν S.D'
+          (hatLift S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.D' ψh)) y i) x t)
+        bx) :
+    ObsMarks S.nuFl BS W (fun t x => deriv (fun r => McompAtC (zeroClass d L N₁ m₁ k N ϱ).m₀
+        (zeroClass d L N₁ m₁ k N ϱ).Tm S.a S.ν (Nat.le_succ k) (S.dataUC (S.psiAtC r x)) g y i) t)
+      bx :=
+  I.congr_f fun _ hs => Jr.ae_deriv_McompAtC_zero_eq_obsRayFun hC ha₁ H hc7 hR hsmR hRs hsmall
+    hnum hnum' hMX hdm hα hsm hcψ hδ₁ hp₁ hlt hpc hX g y i hs
+
 end StepSetting.JointRep
 
 end ZeroClassRay
