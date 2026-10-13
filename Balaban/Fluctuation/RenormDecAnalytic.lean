@@ -278,6 +278,81 @@ theorem renDec_analytic
     simp only [heq D hD ξ s hs]
     exact ⟨h1, h2, h3, h4, h5, h6⟩
 
+/-- **T3 (the two-radius argument).**  The family `F` of `renDec_analytic` satisfies the sharp
+bounds `cK2' · b_* ε ‖ξ‖` on `Small`/`SupBounds` for each admitted `(D, ξ, s)`, `‖ξ‖ < r₀`:
+`i4a_exists_unique` at the radii `(D₀, b_* ε ‖ξ‖)` produces a solution with the sharp bound, and
+the uniqueness clause in the `c6'` ball identifies it with `F`.  For `ξ = 0` both `δα` and `δφ`
+vanish.  The extra margin is `D₀ ≤ 1` (supplied by `renMargins_exists_r₀_of_flCore`). -/
+theorem renDec_sharp
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) {r₀ : ℝ} (hr₀0 : 0 < r₀)
+    (hr₀ : r₀ ≤ 1 / 16) (X₁ : Set (CTorus d L N₁ m₁ K))
+    (hD₀ : 2 * (K4 d L N BG κ * (xiC1 d * eps)) + 3 * r₀ ≤ 1)
+    (hδ₀ : 2 * (K4 d L N BG κ * (xiC1 d * eps)) + 3 * r₀ ≤
+      deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : (3 / 2 + 32 / 15 * (3 + (K4 d L N BG κ + bgK1 d L N) * xiC1 d)) * eps * r₀ ≤
+      deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8)) :
+    ∃ F : RawData d L (N₁ * L ^ m₁) K N × (Fin 3 → ℂ) → (RenLabel Gp X₁ → ℂ) →
+        (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ),
+      AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N × (Fin 3 → ℂ)) ×
+          (RenLabel Gp X₁ → ℂ) => F p.1 p.2)
+        (expDom Gp (XiCOneReal Gp (compWeight L a₁) ν eps) r₀ ×ˢ
+          polydisc (0 : RenLabel Gp X₁ → ℂ) (fun _ => Real.exp κ)) ∧
+      ∀ D : BgData Gp N, XiCOneReal Gp (compWeight L a₁) ν eps D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r₀ →
+        ∀ s ∈ polydisc (0 : RenLabel Gp X₁ → ℂ) (fun _ => Real.exp κ),
+        ∀ (s' : DecParams Gp) (E : Edat Gp N),
+          s' = extParams Gp X₁ (s ∘ (renLabelEquiv Gp X₁).symm) →
+          E = renEdat ν eps D (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D)
+            (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D) ξ →
+          (F (rawOf D, ξ) s).1 = dphi Gp (decG Gp (compWeight L a₁) ν s') E.2.1 E.1
+              (pertSource Gp (compWeight L a₁) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          DecFixed Gp (compWeight L a₁) ν s' false E.2.1 E.1
+              (pertSource Gp (compWeight L a₁) E.2.2.1 E.2.2.2) (F (rawOf D, ξ) s).2 ∧
+          Small Gp (F (rawOf D, ξ) s).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+          Small Gp (F (rawOf D, ξ) s).2 (cK2' d L N (famConst d L BG κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 d L N BG κ + bgK1 d L N) * xiC1 d)) * eps * ‖ξ‖)) ∧
+          SupBounds Gp (F (rawOf D, ξ) s).1 (cK2' d L N (famConst d L BG κ) *
+            ((3 / 2 + 32 / 15 * (3 + (K4 d L N BG κ + bgK1 d L N) * xiC1 d)) * eps * ‖ξ‖)) ∧
+          (ξ = 0 → (F (rawOf D, ξ) s).2 = 0 ∧ (F (rawOf D, ξ) s).1 = 0) := by
+  classical
+  obtain ⟨F, han, hpt⟩ := renDec_analytic hC hr₀0 hr₀ X₁ hδ₀ hδ₁
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
+  have hm0 := renMassStar_nonneg hC
+  have hε := hC.eps_pos
+  refine ⟨F, han, ?_⟩
+  intro D hD ξ hξ s hs s' E hs' hE
+  obtain ⟨h1, h2, h3, -, -, h6⟩ := hpt D hD ξ hξ s hs s' E hs' hE
+  have hs'' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
+  have hsx : ∀ P, ‖s' P‖ ≤ Real.exp κ := by
+    subst hs'
+    exact fun P => (norm_extParams_lt hE1 (fun i => hs'' _) P).le
+  have hH := renEdat_decHyp_of_flCore hC hD hsx hr₀ hξ hD₀
+  have hδr : (3 / 2 + 32 / 15 * (3 + (K4 d L N BG κ + bgK1 d L N) * xiC1 d)) * eps * ‖ξ‖ ≤
+      deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8) := by
+    refine le_trans ?_ hδ₁
+    have : 0 ≤ (3 / 2 + 32 / 15 * (3 + (K4 d L N BG κ + bgK1 d L N) * xiC1 d)) * eps := by
+      positivity
+    exact mul_le_mul_of_nonneg_left hξ.le this
+  obtain ⟨δα, hfix, hs6, hsK, hdp, huniq, hzero⟩ := i4a_exists_unique hC.hS.fam Gp hC.Sp
+    hC.hκ.le hC.hM hsx hH hδ₀ hδr
+  subst hE
+  have hFeq : (F (rawOf D, ξ) s).2 = δα := (h6 δα hs6 hfix).symm
+  have hFeq1 := h1
+  rw [hFeq] at hFeq1
+  refine ⟨h1, h2, h3, ?_, ?_, ?_⟩
+  · rw [hFeq]; exact hsK
+  · rw [hFeq1]; exact hdp
+  · intro hξ0
+    have hz0 : (renEdat ν eps D (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D)
+        (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D) ξ).2.2.1 = 0 ∧
+        (renEdat ν eps D (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D)
+        (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D) ξ).2.2.2 = 0 := by
+      subst hξ0
+      refine ⟨?_, ?_⟩
+      · funext x i; simp [renEdat, renZeta]
+      · funext p; simp [renEdat, renF1, renMassU]
+    obtain ⟨hδα0, hdp0⟩ := hzero rfl hz0.1 hz0.2
+    exact ⟨hFeq.trans hδα0, hFeq1.trans hdp0⟩
+
 end Facts
 
 end Balaban.Localization
