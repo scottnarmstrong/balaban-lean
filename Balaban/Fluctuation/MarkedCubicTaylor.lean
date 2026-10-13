@@ -46,8 +46,8 @@ this file proves:
   difference `Δ_z = Φ₁(v_t) - Φ₁(v_0)` is `-β` times the difference of these cubic terms, and,
   given the block expansions of `vblock_expansion_scaled`, the cubic term is the sum over blocks and
   labels of `rayTerm (dl3 E_{b,Y}) ...` (equalities only).
-* **T5** (`markedTerm`, `analyticOnNhd_markedTerm`, `norm_markedTerm_le`,
-  `norm_deriv_markedTerm_le`, `marked_term_cauchy`, `marked_vblock_term_cauchy`): each marked
+* **T5** (`markedBlockTerm`, `analyticOnNhd_markedBlockTerm`, `norm_markedBlockTerm_le`,
+  `norm_deriv_markedBlockTerm_le`, `marked_term_cauchy`, `marked_vblock_term_cauchy`): each marked
   block term `t ↦ ∫₀¹ ω(s) D³E_{b,Y}(Θ, s v_t)[v_t]³ ds` is analytic on `|t| < t₁` and its
   `t`-derivative at `0` is at most `3 E* e^{-2 κ_dec d(Y)}/(r³ t₀)`; `vblock_expansion_scaled` is
   stated for every tangent of `FlBall Hm δ₁`, so it accepts the marked tangent as is.
@@ -668,7 +668,7 @@ variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
 /-- **The marked term** of a block functional `Ev` along the family `w_t = a + t c`: the cubic
 Taylor term `P(Θ, w_t) = ∫₀¹ ω(s) D³Ev(Θ, s w_t)[w_t, w_t, w_t] ds` (`rayTerm` of the third
 directional derivative at `σ = 1` in the direction `w_t`). -/
-noncomputable def markedTerm (Ev : Λ × F → ℂ) (ω : ℂ → ℂ) (a c : F) (Θ : Λ) (t : ℂ) : ℂ :=
+noncomputable def markedBlockTerm (Ev : Λ × F → ℂ) (ω : ℂ → ℂ) (a c : F) (Θ : Λ) (t : ℂ) : ℂ :=
   rayTerm (dl3 Ev (a + t • c)) ω (a + t • c) 1 Θ
 
 variable {S : Set Λ} {B : Set F} {Ev : Λ × F → ℂ} {ω : ℂ → ℂ} {a c : F} {Θ : Λ}
@@ -719,10 +719,10 @@ theorem dirL3_marked_eq (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (h�
 /-- **The marked term is analytic in `t`** on `‖t‖ < t₁`, when the discs `σ · w_t`, `‖σ‖ < R₁ + r`,
 `‖t‖ < t₁`, lie in the analytic region of `Ev` (formula (2) of the note) and the weight `ω` is
 analytic on `‖σ‖ < R₁`, `R₁ > 1`. -/
-theorem analyticOnNhd_markedTerm (hR₁ : 1 < R₁) (hr : 0 < r)
+theorem analyticOnNhd_markedBlockTerm (hR₁ : 1 < R₁) (hr : 0 < r)
     (hω : AnalyticOnNhd ℂ ω (Metric.ball (0 : ℂ) R₁)) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
     (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B) :
-    AnalyticOnNhd ℂ (markedTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₁) := by
+    AnalyticOnNhd ℂ (markedBlockTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₁) := by
   set H : ℂ × ℂ → ℂ := fun q => Ev (Θ, q.1 • (a + q.2 • c)) with hHdef
   have hK : ∀ q : ℂ × ℂ, ‖q.1‖ < R₁ + r → ‖q.2‖ < t₁ →
       AnalyticAt ℂ ((lineD ((1 : ℂ), (0 : ℂ)))^[3] H) q := by
@@ -742,7 +742,7 @@ theorem analyticOnNhd_markedTerm (hR₁ : 1 < R₁) (hr : 0 < r)
       ((hK (s, t) (by simp only; linarith) ht').comp_of_eq hm rfl)
   refine hint.congr Metric.isOpen_ball fun t ht => ?_
   have ht' : ‖t‖ < t₁ := mem_ball_zero_iff.1 ht
-  unfold markedTerm rayTerm
+  unfold markedBlockTerm rayTerm
   rw [one_mul]
   refine intervalIntegral.integral_congr fun s hs => ?_
   rw [Set.uIcc_of_le zero_le_one] at hs
@@ -753,12 +753,12 @@ theorem analyticOnNhd_markedTerm (hR₁ : 1 < R₁) (hr : 0 < r)
 /-- **Bound for the marked term** by the Cauchy estimate for the third derivative
 (`norm_dirL3_le`): if `|Ev| ≤ b` on `S × B`, `|ω| ≤ Mω` on `[0,1]`, then
 `|P(Θ, w_t)| ≤ Mω · 6 b / r³` for `‖t‖ < t₁`. -/
-theorem norm_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
+theorem norm_markedBlockTerm_le (hR₁ : 1 < R₁) (hr : 0 < r) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
     (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
     {b Mω : ℝ} (hMω : 0 ≤ Mω) (hωb : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ‖ω (s : ℂ)‖ ≤ Mω)
     (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) {t : ℂ} (ht : ‖t‖ < t₁) :
-    ‖markedTerm Ev ω a c Θ t‖ ≤ Mω * (6 * b / r ^ 3) := by
-  unfold markedTerm
+    ‖markedBlockTerm Ev ω a c Θ t‖ ≤ Mω * (6 * b / r ^ 3) := by
+  unfold markedBlockTerm
   have hmem : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ τ : ℂ, ‖τ‖ ≤ r →
       ((1 : ℂ) * (s : ℂ)) • (a + t • c) + τ • (a + t • c) ∈ B := by
     intro s hs τ hτ
@@ -779,14 +779,14 @@ theorem norm_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r) (hEv : AnalyticOnNhd 
 `|∂_t P(Θ, w_t)|_{t=0}| ≤ Mω · 6 b / (r³ t₀)` for `0 < t₀ < t₁`.  The constant term `P(Θ, w_0)`
 has zero `t`-derivative, so the difference `P(w_t) - P(w_0)` of the note has the same derivative
 and no factor `2` is needed. -/
-theorem norm_deriv_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r)
+theorem norm_deriv_markedBlockTerm_le (hR₁ : 1 < R₁) (hr : 0 < r)
     (hω : AnalyticOnNhd ℂ ω (Metric.ball (0 : ℂ) R₁)) (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B))
     (hΘ : Θ ∈ S) (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
     {b Mω t₀ : ℝ} (hMω : 0 ≤ Mω) (hωb : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ‖ω (s : ℂ)‖ ≤ Mω)
     (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) (ht₀ : 0 < t₀) (ht₀₁ : t₀ < t₁) :
-    ‖deriv (markedTerm Ev ω a c Θ) 0‖ ≤ Mω * (6 * b / r ^ 3) / t₀ := by
-  have han := analyticOnNhd_markedTerm hR₁ hr hω hEv hΘ hdom
-  have hcl : DiffContOnCl ℂ (markedTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₀) := by
+    ‖deriv (markedBlockTerm Ev ω a c Θ) 0‖ ≤ Mω * (6 * b / r ^ 3) / t₀ := by
+  have han := analyticOnNhd_markedBlockTerm hR₁ hr hω hEv hΘ hdom
+  have hcl : DiffContOnCl ℂ (markedBlockTerm Ev ω a c Θ) (Metric.ball (0 : ℂ) t₀) := by
     refine DifferentiableOn.diffContOnCl ?_
     rw [closure_ball _ ht₀.ne']
     intro t ht
@@ -795,17 +795,17 @@ theorem norm_deriv_markedTerm_le (hR₁ : 1 < R₁) (hr : 0 < r)
       exact lt_of_le_of_lt (mem_closedBall_zero_iff.1 ht) ht₀₁
     exact (han t this).differentiableAt.differentiableWithinAt
   refine Complex.norm_deriv_le_of_forall_mem_sphere_norm_le ht₀ hcl (fun t ht => ?_)
-  refine norm_markedTerm_le hR₁ hr hEv hΘ hdom hMω hωb hb ?_
+  refine norm_markedBlockTerm_le hR₁ hr hEv hΘ hdom hMω hωb hb ?_
   rw [mem_sphere_zero_iff_norm.1 ht]; exact ht₀₁
 
 /-- **The marked term of the Taylor weight**: `ω(s) = (1-s)²/2` (`taylorWeight`), `Mω = 1/2`,
 so the bound is `3 b / r³` and the Cauchy bound `3 b / (r³ t₀)`. -/
-theorem norm_deriv_markedTerm_taylorWeight_le {R₁ r t₁ : ℝ} (hR₁ : 1 < R₁) (hr : 0 < r)
+theorem norm_deriv_markedBlockTerm_taylorWeight_le {R₁ r t₁ : ℝ} (hR₁ : 1 < R₁) (hr : 0 < r)
     (hEv : AnalyticOnNhd ℂ Ev (S ×ˢ B)) (hΘ : Θ ∈ S)
     (hdom : ∀ t : ℂ, ‖t‖ < t₁ → ∀ σ : ℂ, ‖σ‖ < R₁ + r → σ • (a + t • c) ∈ B)
     {b t₀ : ℝ} (hb : ∀ u ∈ S ×ˢ B, ‖Ev u‖ ≤ b) (ht₀ : 0 < t₀) (ht₀₁ : t₀ < t₁) :
-    ‖deriv (markedTerm Ev taylorWeight a c Θ) 0‖ ≤ 3 * b / (r ^ 3 * t₀) := by
-  have := norm_deriv_markedTerm_le hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom
+    ‖deriv (markedBlockTerm Ev taylorWeight a c Θ) 0‖ ≤ 3 * b / (r ^ 3 * t₀) := by
+  have := norm_deriv_markedBlockTerm_le hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom
     (Mω := 1 / 2) (by norm_num) (fun s hs => norm_taylorWeight_le s hs) hb ht₀ ht₀₁
   refine this.trans (le_of_eq ?_)
   field_simp
@@ -820,15 +820,15 @@ namespace StepSetting
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
 
-/-- The marked term along the lifted marked tangent: the family `a + t c` of `markedTerm` is the
+/-- The marked term along the lifted marked tangent: the family `a + t c` of `markedBlockTerm` is the
 fine-lattice lift of the marked tangent `v_t = u ψ' + t M_z ψ'`. -/
-theorem markedTerm_marked_eq (Ev : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+theorem markedBlockTerm_marked_eq (Ev : RawData d L (N₁ * L ^ m₁) (k + 1) N ×
       (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ) (ω : ℂ → ℂ)
     (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (u t : ℂ) (x : S.E) :
-    markedTerm Ev ω (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x))) Θ t =
+    markedBlockTerm Ev ω (liftC S.hG' (u • S.shiftUC x)) (liftC S.hG' (S.maskUC z (S.shiftUC x))) Θ t =
       rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x))) ω
         (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ := by
-  unfold markedTerm
+  unfold markedBlockTerm
   rw [S.liftC_markedTangentC, map_smul]
 
 /-- **T5 for one block term of a given expansion**: let `Ev` be analytic on
@@ -855,12 +855,12 @@ theorem marked_term_cauchy {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm
         FlBall Hm δ₁ := fun t ht σ hσ => S.markedDisc_hdom hG hY0 hY hrad ht hσ
   have e : (fun t : ℂ => rayTerm (dl3 Ev (liftC S.hG' (S.markedTangentC z u t x)))
         taylorWeight (liftC S.hG' (S.markedTangentC z u t x)) 1 Θ) =
-      markedTerm Ev taylorWeight (liftC S.hG' (u • S.shiftUC x))
+      markedBlockTerm Ev taylorWeight (liftC S.hG' (u • S.shiftUC x))
         (liftC S.hG' (S.maskUC z (S.shiftUC x))) Θ := by
-    funext t; exact (S.markedTerm_marked_eq z Ev taylorWeight Θ u t x).symm
+    funext t; exact (S.markedBlockTerm_marked_eq z Ev taylorWeight Θ u t x).symm
   rw [e]
-  exact ⟨analyticOnNhd_markedTerm hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom,
-    norm_deriv_markedTerm_taylorWeight_le hR₁ hr hEv hΘ hdom hb ht₀ ht₀₁⟩
+  exact ⟨analyticOnNhd_markedBlockTerm hR₁ hr (analyticOnNhd_taylorWeight _) hEv hΘ hdom,
+    norm_deriv_markedBlockTerm_taylorWeight_le hR₁ hr hEv hΘ hdom hb ht₀ ht₀₁⟩
 
 section VBlock
 
