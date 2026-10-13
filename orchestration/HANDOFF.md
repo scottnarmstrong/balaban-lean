@@ -12,7 +12,6 @@ sub-subagents ("Do not launch subagents" in every brief), hard rules of AGENTS.m
 Claude workers (background subagents of this session):
 | Worker | Branch / worktree | Task |
 |---|---|---|
-| W249 (Opus, FINISHED, HELD) | `w249-d7-fine-size` / W249 | D7 boundary size → fine chosen-cover size, pre and post records; branch b5ea946 checked by the worker; land with scripts/land.sh after Scott has seen the report (no objection = land) |
 | W294 | `w294-da-physical-radii` / W294 | physical radius tower: cutoff/radius hypotheses of the direct activity bound for all large β (DAPHYS package 3) |
 | W288 | `w288-da-zero-source` / W288 | DAZeroSource: direct activity bound at source 0 from the η-weighted expansion (DAPHYS package 1) |
 | W282 (Opus) | `w282-general-activity` / W282 | general-class direct activity bound: general forms of Wone/Wtwo = hat functionals, StepActivityBound with preserved rate (GENERAL §3, packages 4–5) |
