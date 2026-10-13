@@ -652,4 +652,203 @@ theorem rooted_of_rootChain (hG : CubeAligned G m₁) {J : Finset (cubeIdx G)} {
 
 end Rooted
 
+section Degree
+
+/-- **One coordinate of the multiplicity count.** If a site `y` of the cell `[P2, P2 + p₀)` lies in
+the periodic interval of half-width `5/2 B + 3 A` around `y0 + (B - 1)/2`, and `B ∣ y0`, then `y0`
+is a grid base of side `B` that is Moore-near the interval `[P2 - (3B + 3A), P2 + p₀ + 2B + 3A)`. -/
+theorem nearGridBase_of_hat {n B A p₀ u : ℕ} [NeZero n] (hB : 0 < B) (y0 y P2 : ZMod n)
+    (hdvd : B ∣ y0.val) (hu : u < p₀) (hy : y = P2 + (u : ZMod n)) (p : ℤ)
+    (h : |(y.val : ℝ) + p * n - ((y0.val : ℝ) + ((B : ℝ) - 1) / 2)| < 5 / 2 * (B : ℝ) + 3 * A) :
+    NearGridBase (p₀ + 5 * B + 6 * A) B (P2 - ((3 * B + 3 * A : ℕ) : ZMod n)) y0 := by
+  set δ : ℤ := (y.val : ℤ) + p * n - y0.val with hδdef
+  have hδ : (δ : ℝ) = (y.val : ℝ) + p * n - y0.val := by rw [hδdef]; push_cast; ring
+  rw [abs_lt] at h
+  obtain ⟨h1, h2⟩ := h
+  have hl : -((2 * B + 3 * A : ℕ) : ℤ) ≤ δ := by
+    by_contra hc
+    push Not at hc
+    have : (δ : ℝ) ≤ -((2 * B + 3 * A : ℕ) : ℝ) - 1 := by
+      have : δ ≤ -((2 * B + 3 * A : ℕ) : ℤ) - 1 := by omega
+      exact_mod_cast this
+    push_cast at this
+    linarith
+  have hu' : δ ≤ ((3 * B + 3 * A : ℕ) : ℤ) - 1 := by
+    by_contra hc
+    push Not at hc
+    have : ((3 * B + 3 * A : ℕ) : ℝ) ≤ (δ : ℝ) := by
+      have : ((3 * B + 3 * A : ℕ) : ℤ) ≤ δ := by omega
+      exact_mod_cast this
+    push_cast at this
+    linarith
+  set i' : ℤ := (u : ℤ) - δ + ((3 * B + 3 * A : ℕ) : ℤ) with hi'
+  have hi0 : 0 ≤ i' := by rw [hi']; omega
+  have hip : i'.toNat < p₀ + 5 * B + 6 * A := by
+    have : i' < ((p₀ + 5 * B + 6 * A : ℕ) : ℤ) := by rw [hi']; push_cast at hl ⊢; omega
+    omega
+  have hcast : ((i'.toNat : ℕ) : ZMod n) = ((i' : ℤ) : ZMod n) := by
+    rw [← Int.cast_natCast, Int.toNat_of_nonneg hi0]
+  have hδz : ((δ : ℤ) : ZMod n) = y - y0 := by
+    rw [hδdef]; push_cast
+    rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val, ZMod.natCast_self]; ring
+  refine ⟨hdvd, 0, i'.toNat, hB, hip, 0, by simp, ?_⟩
+  rw [hcast, hi']
+  push_cast
+  rw [hδz, hy]
+  ring
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+open Classical in
+/-- **Multiplicity of a parameter cube in the footprints, one layer.** At most `(L + 9) ^ d` centres
+`q` of layer `j` have a given parameter cube `P` in their footprint, if `P.1 ≤ j + 1` and
+`4 L² ≤ L ^ m₁`. -/
+theorem card_mult_layer_le (hM : 4 * L ^ 2 ≤ L ^ m₁) {P : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hP : P ∈ cubeIdx G) {j : ℕ} (hj : P.1 ≤ j + 1) :
+    ((cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q).card ≤ (L + 9) ^ d := by
+  by_cases hjK : j ≤ k + 1
+  swap
+  · have : ((cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q) = ∅ := by
+      refine Finset.filter_eq_empty_iff.2 fun q hq => ?_
+      have := ((mem_cubeIdx G).1 hq).1.2
+      omega
+    rw [this]; simp
+  have hLpos : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hBpos : 0 < L ^ (j + m₁) := pow_pos hLpos _
+  have hqn : L ^ (j + m₁) ∣ (N₁ * L ^ m₁) * L ^ (k + 1) := by
+    have : L ^ (j + m₁) ∣ L ^ m₁ * L ^ (k + 1) := by
+      rw [← pow_add]; exact pow_dvd_pow L (by omega)
+    exact Dvd.dvd.trans this (by rw [mul_assoc]; exact Dvd.intro_left _ rfl)
+  have h4A : 4 * L ^ (j + 2) ≤ L ^ (j + m₁) := by
+    have := Nat.mul_le_mul_left (L ^ j) hM
+    calc 4 * L ^ (j + 2) = L ^ j * (4 * L ^ 2) := by ring
+      _ ≤ L ^ j * L ^ m₁ := this
+      _ = L ^ (j + m₁) := (pow_add _ _ _).symm
+  have hp0 : L ^ (P.1 + m₁) ≤ L * L ^ (j + m₁) := by
+    calc L ^ (P.1 + m₁) ≤ L ^ (j + m₁ + 1) := Nat.pow_le_pow_right hLpos (by omega)
+      _ = L * L ^ (j + m₁) := by rw [pow_succ]; ring
+  obtain ⟨-, -, hbP⟩ := (mem_cubeIdx G).1 hP
+  set Bμ : Fin d → Finset (ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) := fun μ =>
+    (Finset.univ).filter (NearGridBase (L ^ (P.1 + m₁) + 5 * L ^ (j + m₁) + 6 * L ^ (j + 2))
+      (L ^ (j + m₁)) (P.2 μ - ((3 * L ^ (j + m₁) + 3 * L ^ (j + 2) : ℕ) :
+        ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))))) with hBμ
+  have hBc : ∀ μ, (Bμ μ).card ≤ L + 9 := by
+    intro μ
+    refine (card_gridBases_le _ _ hBpos hqn _).trans ?_
+    have : (L ^ (P.1 + m₁) + 5 * L ^ (j + m₁) + 6 * L ^ (j + 2)) / L ^ (j + m₁) ≤ L + 7 := by
+      refine Nat.div_le_of_le_mul ?_
+      nlinarith
+    omega
+  calc _ ≤ (Fintype.piFinset Bμ).card := by
+        refine Finset.card_le_card_of_injOn Prod.snd ?_ ?_
+        · intro q hq
+          obtain ⟨hqi, hj', hQ⟩ := Finset.mem_filter.1 (Finset.mem_coe.1 hq)
+          refine Finset.mem_coe.2 (Fintype.mem_piFinset.2 fun μ => ?_)
+          obtain ⟨-, y, hy, hbox⟩ := mem_Qset.1 hQ
+          obtain ⟨-, -, hbq⟩ := (mem_cubeIdx G).1 hqi
+          obtain ⟨pz, hpz⟩ := hbox μ
+          obtain ⟨u, hu, hyu⟩ := exists_add_of_div_eq (Nat.pos_of_ne_zero
+            (pow_ne_zero _ (NeZero.ne (n := L)))) (hy μ) (hbP μ)
+          rw [hj'] at hbq hpz
+          have hR : hatRad L m₁ j = 5 / 2 * ((L ^ (j + m₁) : ℕ) : ℝ) +
+              3 * ((L ^ (j + 2) : ℕ) : ℝ) := by
+            unfold hatRad; push_cast; ring
+          rw [hR] at hpz
+          have hBr : (((L ^ (j + m₁) : ℕ) : ℝ)) = (L : ℝ) ^ (j + m₁) := by push_cast; rfl
+          rw [← hBr] at hpz
+          exact Finset.mem_filter.2 ⟨Finset.mem_univ _,
+            nearGridBase_of_hat hBpos (q.2 μ) (y μ) (P.2 μ) (Nat.dvd_of_mod_eq_zero (hbq μ)) hu
+              hyu pz hpz⟩
+        · intro q hq q' hq' hsnd
+          have h1 := (Finset.mem_filter.1 (Finset.mem_coe.1 hq)).2.1
+          have h2 := (Finset.mem_filter.1 (Finset.mem_coe.1 hq')).2.1
+          exact Prod.ext (h1.trans h2.symm) hsnd
+    _ = ∏ μ, (Bμ μ).card := Fintype.card_piFinset Bμ
+    _ ≤ ∏ _μ : Fin d, (L + 9) := Finset.prod_le_prod (fun μ _ => hBc μ)
+    _ = (L + 9) ^ d := by simp
+
+open Classical in
+/-- **Multiplicity of a parameter cube in the footprints.** At most `3 (L + 9) ^ d` centres `q` of
+the cover have a given parameter cube `P` in their footprint `𝒬(q)`. -/
+theorem card_mult_le (hG : CubeAligned G m₁) (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L) {P : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hP : P ∈ cubeIdx G) :
+    ((cubeIdx G).filter fun q => P ∈ Qset G q).card ≤ 3 * (L + 9) ^ d := by
+  have hP1 := ((mem_cubeIdx G).1 hP).1.1
+  have hsub : ((cubeIdx G).filter fun q => P ∈ Qset G q) ⊆
+      (Finset.Icc (P.1 - 1) (P.1 + 1)).biUnion fun j =>
+        (cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q := by
+    intro q hq
+    obtain ⟨hqi, hQ⟩ := Finset.mem_filter.1 hq
+    have hlay := Qset_layer hG hϱ hM hL hqi hQ
+    exact Finset.mem_biUnion.2 ⟨q.1, Finset.mem_Icc.2 ⟨by omega, by omega⟩,
+      Finset.mem_filter.2 ⟨hqi, rfl, hQ⟩⟩
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ j ∈ Finset.Icc (P.1 - 1) (P.1 + 1),
+        ((cubeIdx G).filter fun q => q.1 = j ∧ P ∈ Qset G q).card
+      ≤ ∑ _j ∈ Finset.Icc (P.1 - 1) (P.1 + 1), (L + 9) ^ d :=
+        Finset.sum_le_sum fun j hj => card_mult_layer_le hM hP (by
+          have := (Finset.mem_Icc.1 hj).1
+          omega)
+    _ = 3 * (L + 9) ^ d := by
+        rw [Finset.sum_const, Nat.card_Icc, smul_eq_mul]
+        congr 1
+        omega
+
+/-- The degree bound `D = 3 (L + 4)^d + 3 (L + 9)^d · N₀`, `N₀ = 3 (8 L)^d`, of the parameter
+graph. -/
+def detDeg (d L : ℕ) : ℕ := 3 * (L + 4) ^ d + 3 * (L + 9) ^ d * N0 d L
+
+omit [NeZero L] in
+theorem d_le_of_cover_sep (hL : 1 ≤ L) (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ) :
+    (d : ℝ) ≤ ϱ * (L : ℝ) ^ 2 := by
+  have h1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have h2 : (1 : ℝ) ≤ (L : ℝ) ^ m₁ := one_le_pow₀ h1
+  have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+  have h3 : (d : ℝ) ≤ 4 * d * L * (L : ℝ) ^ m₁ := by
+    have : (1 : ℝ) ≤ L * (L : ℝ) ^ m₁ := by nlinarith
+    nlinarith
+  have h4 : (0 : ℝ) ≤ ϱ := by linarith
+  have h5 : (d : ℝ) ≤ ϱ := h3.trans hϱ
+  have hL2 : (1 : ℝ) ≤ (L : ℝ) ^ 2 := one_le_pow₀ h1
+  nlinarith [mul_le_mul_of_nonneg_left hL2 h4]
+
+open Classical in
+/-- **T3. The degree of the parameter graph.** Every parameter cube is adjacent to at most
+`detDeg d L = 3 (L + 4)^d + 3 (L + 9)^d · 3 (8 L)^d` others.  The Moore part of the adjacency
+contributes at most `3 (L + 4)^d` (`cubeIdx_moore_degree`); the common-footprint part at most
+`(number of footprints containing P) · N₀`. -/
+theorem paramGraph_degree_le (hG : CubeAligned G m₁) (hϱ : (4 * d * L * (L : ℝ) ^ m₁ : ℝ) ≤ ϱ)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁) (hL : 1 ≤ L) (P : cubeIdx G) :
+    (paramGraph G).degree P ≤ detDeg d L := by
+  rw [← SimpleGraph.card_neighborFinset_eq_degree]
+  set S1 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)) := (cubeIdx G).filter fun Q =>
+    Q ≠ P.1 ∧ MooreTouch (Pset m₁ P.1) (Pset m₁ Q) with hS1
+  set S2 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)) :=
+    ((cubeIdx G).filter fun q => P.1 ∈ Qset G q).biUnion (Qset G) with hS2
+  have hc1 : S1.card ≤ 3 * (L + 4) ^ d :=
+    cubeIdx_moore_degree hG (d_le_of_cover_sep hL hϱ) P.2
+  have hc2 : S2.card ≤ 3 * (L + 9) ^ d * N0 d L := by
+    refine Finset.card_biUnion_le.trans ?_
+    calc ∑ q ∈ (cubeIdx G).filter (fun q => P.1 ∈ Qset G q), (Qset G q).card
+        ≤ ∑ _q ∈ (cubeIdx G).filter (fun q => P.1 ∈ Qset G q), N0 d L :=
+          Finset.sum_le_sum fun q hq => card_Qset_le hG hϱ hM hL (Finset.mem_filter.1 hq).1
+      _ = ((cubeIdx G).filter fun q => P.1 ∈ Qset G q).card * N0 d L := by
+          rw [Finset.sum_const, smul_eq_mul]
+      _ ≤ 3 * (L + 9) ^ d * N0 d L :=
+          Nat.mul_le_mul_right _ (card_mult_le hG hϱ hM hL P.2)
+  refine le_trans ?_ (Nat.add_le_add hc1 hc2)
+  refine (Finset.card_le_card_of_injOn Subtype.val ?_ (fun _ _ _ _ h => Subtype.ext h)).trans
+    (Finset.card_union_le _ _)
+  intro Q hQ
+  have hQ0 := (SimpleGraph.mem_neighborFinset _ _ _).1 (Finset.mem_coe.1 hQ)
+  obtain ⟨hne, h | h⟩ : P ≠ Q ∧ _ := hQ0
+  · obtain ⟨q, hq, h1, h2⟩ := h
+    refine Finset.mem_coe.2 (Finset.mem_union_right _ (Finset.mem_biUnion.2 ⟨q, ?_, h2⟩))
+    exact Finset.mem_filter.2 ⟨hq, h1⟩
+  · exact Finset.mem_coe.2 (Finset.mem_union_left _
+      (Finset.mem_filter.2 ⟨Q.2, fun h => hne (Subtype.ext h.symm), h⟩))
+
+end Degree
+
 end Balaban.Fluctuation
