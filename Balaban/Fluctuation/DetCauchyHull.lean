@@ -626,6 +626,155 @@ theorem card_hullOf_le (hN : L ^ m₀ ∣ N₁) (z : RootIdx d L N₁ m₁ K)
         refine Nat.mul_le_mul_left _ ?_
         exact Finset.card_image_le.trans (Finset.card_image_le.trans hFcard)
 
+/-! ### Symmetry -/
+
+section Symmetry
+
+/-- A paving symmetry maps the aligned `π′_K` boxes onto aligned `π′_K` boxes, and so does its
+inverse. -/
+theorem box_image_exists (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K) :
+    (∀ b, Aligned (cellSide L m₀ m₁ K) b → ∃ b', Aligned (cellSide L m₀ m₁ K) b' ∧
+      r '' box b (L * cellSide L m₀ m₁ K) = box b' (L * cellSide L m₀ m₁ K)) ∧
+    (∀ b, Aligned (cellSide L m₀ m₁ K) b → ∃ b', Aligned (cellSide L m₀ m₁ K) b' ∧
+      (⇑(r⁻¹ : Equiv.Perm (CTorus d L N₁ m₁ K))) '' box b (L * cellSide L m₀ m₁ K) =
+        box b' (L * cellSide L m₀ m₁ K)) := by
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K)
+  have h := goodMap_of_mem_pavingSymGroup (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) (m₀ := m₀)
+    (cellSide L m₀ m₁ K) (L * cellSide L m₀ m₁ K) dvd_rfl hdvd (Dvd.intro_left _ rfl) hr
+  exact ⟨h.1.boxes, h.2.boxes⟩
+
+/-- **T5 (site-set form).**  The `π′_K`-hull commutes with the paving symmetries:
+`piHull (r '' S) = r • piHull S`. -/
+theorem piHull_image (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (S : Set (CTorus d L N₁ m₁ K)) : piHull m₀ (r '' S) = cubeAct r (piHull m₀ S) := by
+  obtain ⟨hf, hg⟩ := box_image_exists hN hr
+  ext c
+  rw [mem_cubeAct]
+  constructor
+  · intro hc
+    obtain ⟨b', ⟨hb'a, x, hxb, s, hsS, rfl⟩, hcb⟩ := mem_piHull.1 hc
+    obtain ⟨b₂, hb₂a, hb₂⟩ := hg b' hb'a
+    refine ⟨cubeMap r⁻¹ c, mem_piHull.2 ⟨b₂, ⟨hb₂a, s, ?_, hsS⟩, ?_⟩, ?_⟩
+    · rw [← hb₂]; exact ⟨r s, hxb, by simp⟩
+    · rw [box_cubeMap hN (inv_mem hr), ← hb₂]
+      exact Set.image_mono hcb
+    · have := cubeMap_inv hN (inv_mem hr) c
+      rwa [inv_inv] at this
+  · rintro ⟨c₀, hc₀, rfl⟩
+    obtain ⟨b, ⟨hba, s, hsb, hsS⟩, hcb⟩ := mem_piHull.1 hc₀
+    obtain ⟨b₁, hb₁a, hb₁⟩ := hf b hba
+    refine mem_piHull.2 ⟨b₁, ⟨hb₁a, r s, ?_, ⟨s, hsS, rfl⟩⟩, ?_⟩
+    · rw [← hb₁]; exact ⟨s, hsb, rfl⟩
+    · rw [box_cubeMap hN hr, ← hb₁]
+      exact Set.image_mono hcb
+
+omit [NeZero N₁] [NeZero L] in
+theorem cbase_cbase_of_dvd [NeZero (N₁ * L ^ m₁ * L ^ K)] {s a : ℕ} (hs : 0 < s) (hsa : s ∣ a)
+    (w : CTorus d L N₁ m₁ K) : cbase a (cbase s w) = cbase a w := by
+  funext μ
+  obtain ⟨q, rfl⟩ := hsa
+  have h1 : ((cbase s w) μ).val = s * ((w μ).val / s) := cbase_val w μ
+  show (((s * q) * (((cbase s w) μ).val / (s * q)) : ℕ) : ZMod (N₁ * L ^ m₁ * L ^ K)) =
+    (((s * q) * ((w μ).val / (s * q)) : ℕ) : ZMod (N₁ * L ^ m₁ * L ^ K))
+  rw [h1, Nat.mul_div_mul_left _ _ hs, Nat.div_div_eq_div_mul]
+
+/-- The root cube of the transformed root is the transformed root cube. -/
+theorem rootCube_rootAct (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (z : RootIdx d L N₁ m₁ K) :
+    rootCube (m₀ := m₀) (rootAct r z) = cubeMap r (rootCube (m₀ := m₀) z) := by
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K)
+  apply Subtype.ext
+  have hmem : r (rootSite z) ∈ box (cubeMap r (rootCube (m₀ := m₀) z)).1 (cellSide L m₀ m₁ K) := by
+    rw [box_cubeMap hN hr]
+    exact ⟨rootSite z, rootSite_mem_box_rootCube z, rfl⟩
+  have h1 := cbase_eq_of_mem_box hdvd (cubeMap r (rootCube (m₀ := m₀) z)).2.1 hmem
+  show cbase (cellSide L m₀ m₁ K) (rootSite (rootAct r z)) = _
+  rw [rootSite_rootAct, blockBase, cbase_cbase_of_dvd (Nat.pos_of_ne_zero (NeZero.ne _))
+    (pow_dvd_cellSide (m₀ := m₀)), h1]
+
+theorem rootSet_rootAct (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (z : RootIdx d L N₁ m₁ K) : rootSet m₀ (rootAct r z) = r '' rootSet m₀ z := by
+  unfold rootSet
+  rw [rootCube_rootAct hN hr, box_cubeMap hN hr]
+
+theorem Pset_eq_box (hN : L ^ m₀ ∣ N₁) {P : ℕ × CTorus d L N₁ m₁ K} (hP : P.1 ≤ K) :
+    Pset m₁ P = box (cbase (L ^ (P.1 + m₁)) P.2) (L ^ (P.1 + m₁)) := by
+  have hs : L ^ (P.1 + m₁) ∣ cellSide L m₀ m₁ K := by unfold cellSide; exact pow_dvd_pow L (by omega)
+  have hsn := hs.trans (cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K))
+  have hs0 : 0 < L ^ (P.1 + m₁) := Nat.pos_of_ne_zero (NeZero.ne _)
+  ext x
+  constructor
+  · intro hx
+    have hb : cbase (L ^ (P.1 + m₁)) x = cbase (L ^ (P.1 + m₁)) P.2 := by
+      funext μ; simp only [cbase]; rw [hx μ]
+    rw [← hb]; exact mem_box_cbase hs0 x
+  · intro hx μ
+    have hb := cbase_eq_of_mem_box hsn (aligned_cbase P.2) hx
+    have := congrArg (fun y : CTorus d L N₁ m₁ K => (y μ).val) hb
+    simp only [cbase_val] at this
+    exact Nat.eq_of_mul_eq_mul_left hs0 this
+
+theorem Pset_image (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    {P : ℕ × CTorus d L N₁ m₁ K} (hP : P.1 ≤ K) :
+    Pset m₁ (P.1, r P.2) = r '' Pset m₁ P := by
+  have hs : L ^ (P.1 + m₁) ∣ cellSide L m₀ m₁ K := by unfold cellSide; exact pow_dvd_pow L (by omega)
+  have hsn := hs.trans (cellSide_dvd (K := K) (m₁ := m₁) hN (le_refl K))
+  have h := (goodMap_of_mem_pavingSymGroup (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) (m₀ := m₀)
+    (L ^ (P.1 + m₁)) (L ^ (P.1 + m₁)) hs hsn dvd_rfl hr).1
+  obtain ⟨b', hb'a, hb'⟩ := h.boxes _ (aligned_cbase P.2)
+  rw [Pset_eq_box hN hP, hb']
+  have hP' : (P.1, r P.2).1 ≤ K := hP
+  have hmem : r P.2 ∈ box b' (L ^ (P.1 + m₁)) := by
+    rw [← hb']
+    exact ⟨P.2, mem_box_cbase (Nat.pos_of_ne_zero (NeZero.ne _)) P.2, rfl⟩
+  have := cbase_eq_of_mem_box hsn hb'a hmem
+  rw [Pset_eq_box hN hP']
+  show box (cbase (L ^ (P.1 + m₁)) (r P.2)) _ = _
+  rw [this]
+
+/-- The image of a set of patches under a symmetry `r`: each centre is moved to its image and the
+layer is kept. -/
+def patchAct (r : Equiv.Perm (CTorus d L N₁ m₁ K)) (J : Finset (ℕ × CTorus d L N₁ m₁ K)) :
+    Finset (ℕ × CTorus d L N₁ m₁ K) := by
+  classical exact J.image fun P => (P.1, r P.2)
+
+omit [NeZero N₁] [NeZero L] in
+theorem mem_patchAct {r : Equiv.Perm (CTorus d L N₁ m₁ K)} {J : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {Q : ℕ × CTorus d L N₁ m₁ K} : Q ∈ patchAct r J ↔ ∃ P ∈ J, (P.1, r P.2) = Q := by
+  classical
+  simp [patchAct]
+
+/-- **T5.**  The hull is equivariant under the paving symmetries of level `K`:
+`hullOf (r z) (r J) = r • hullOf z J`, where `r J` moves each patch centre and keeps its layer
+(`patchAct`).  The patches of `J` must have layer `≤ K`; the image of an index of the cover
+`cubeIdx G` is again an index when `G` is invariant under `r`, which is not needed here. -/
+theorem hullOf_covariant (hN : L ^ m₀ ∣ N₁) {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (z : RootIdx d L N₁ m₁ K) (J : Finset (ℕ × CTorus d L N₁ m₁ K))
+    (hJK : ∀ P ∈ J, P.1 ≤ K) :
+    hullOf m₀ (rootAct r z) (patchAct r J) = cubeAct r (hullOf m₀ z J) := by
+  unfold hullOf
+  rw [← piHull_image hN hr]
+  congr 1
+  unfold hullSet
+  rw [rootSet_rootAct hN hr, Set.image_union, Set.image_iUnion₂]
+  congr 1
+  ext x
+  simp only [Set.mem_iUnion]
+  constructor
+  · rintro ⟨Q, hQ, hx⟩
+    obtain ⟨P, hP, rfl⟩ := mem_patchAct.1 hQ
+    exact ⟨P, hP, by rwa [← Pset_image hN hr (hJK P hP)]⟩
+  · rintro ⟨P, hP, hx⟩
+    exact ⟨(P.1, r P.2), mem_patchAct.2 ⟨P, hP, rfl⟩, by rwa [Pset_image hN hr (hJK P hP)]⟩
+
+end Symmetry
+
 end Hull
 
 end Balaban.Fluctuation
