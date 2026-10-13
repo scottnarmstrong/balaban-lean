@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.PhysicalVRawY
+public import Balaban.Fluctuation.PhysicalFNuFanRawY
 public import Balaban.Fluctuation.ObsRayBase
 public import Balaban.Fluctuation.InteractionHatF
 
@@ -20,6 +21,14 @@ locality clause of the terms `Ev Y` is stated with the sharp agreement `AgHatDir
 `AgHat` (hat variable on the thickening of `Y`).  They are obtained by running the landed proofs
 with `i5_functional_hat_dir`.
 
+* `vblock_expansion_hat_rawY`, `fsite_expansion_hat_rawY`: the block energy and the site functional
+  with exact locality: the terms `Ev Y` depend on the raw data agreeing on `Y` itself and on the hat
+  variable at the unit points of `Y`.  They come from `i5_functional_hat_rawY_of_fan` and the sharp
+  fan lemmas `vblock_fan_local_rawY` (`PhysicalVRawY`) and `fsite_fan_local_rawY`
+  (`PhysicalFNuFanRawY`, which also holds `nublock_fan_local_rawY` for the mass term).  The site
+  functional is the one with source amplitude 1; the source-weighted term needs, in addition,
+  agreement of the source amplitude on the domain.  The `AgHatDir` theorems below are corollaries.
+  The downstream assembly is separate.
 * `blockEnergyFun_local_dir`: the block energy reads the fluctuation `ψ'` only at the sites of the
   block that are read, not on the thickening of those sites (the landed proof, with a weaker
   hypothesis).
@@ -84,7 +93,7 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The block energy expands over the domains `Y ⊃ X₁`, exact locality** (`vblock_expansion_hat_dir`
 with the locality clause for raw data agreeing on `Y` itself and hat variables agreeing at the unit
 points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and `vblock_fan_local_rawY`; the term
-`Ev` is the one of `vblock_expansion_hat_dir`, which is a corollary. -/
+The thick corollary uses the same `Ev` selected here. -/
 theorem vblock_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -268,6 +277,68 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, exact locality**
+(`fsite_expansion_hat_dir` with the locality clause for raw data agreeing on `Y` itself and hat
+variables agreeing at the unit points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and
+`fsite_fan_local_rawY`; the thick corollary uses the same `Ev` selected here. -/
+theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    (hΔ : treeLenCovOne m₀ j X = 0)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ X₁f) (i : Fin N) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        svec Hm (flFieldOne Gp Hm BG₂ κ a₁ ν D (hatLift Gp a₁ ν hG' cc D ψh)) y i =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
+          Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hV (Φ := siteFun Gp Hm y i)
+    ((siteFun_analytic (Gp := Gp) (Hm := Hm) y i).mono (Set.subset_univ _))
+    (fun t ht => by
+      obtain ⟨-, hsup, -⟩ := flReal_facts ht
+      rw [hΔ]; simpa [siteFun] using hsup.val y i)
+    (fun {F₁} hF₁ {Sol} hSol => fsite_fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
+      hconn hrow hF₁ hSol y hy i)
+  refine ⟨Ev, h1', h2', fun Y u hu => ?_, h4'⟩
+  have := h3' Y u hu
+  rw [hΔ] at this
+  simpa using this
+
+
 /-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂`,
 sharp form** (`fsite_expansion_hat` with the locality clause for `AgHatDir`). -/
 theorem fsite_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
@@ -308,28 +379,9 @@ theorem fsite_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hat_dir hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
-    hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hV (Φ := siteFun Gp Hm y i)
-    ((siteFun_analytic (Gp := Gp) (Hm := Hm) y i).mono (Set.subset_univ _))
-    (fun t ht => by
-      obtain ⟨-, hsup, -⟩ := flReal_facts ht
-      rw [hΔ]; simpa [siteFun] using hsup.val y i)
-    (Z := {y}) (Zα := ∅) (by simpa using hy) (fun x hx => absurd hx (Set.notMem_empty x))
-    (fun t _ t' _ _ _ hδ _ _ => by
-      unfold siteFun
-      by_cases hyΩ : y ∈ Hm.Ω 1
-      · rw [svec_of_mem' _ hyΩ, svec_of_mem' _ hyΩ]
-        exact hδ ⟨y, hyΩ⟩ rfl i
-      · rw [svec_of_not_mem Hm _ hyΩ, svec_of_not_mem Hm _ hyΩ])
-  refine ⟨Ev, h1', h2', fun Y u hu => ?_, h4'⟩
-  have := h3' Y u hu
-  rw [hΔ] at this
-  simpa using this
+  obtain ⟨Ev, hs, hd, hb, ha⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
+  exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2, hb, ha⟩
 
 
 /-- **The site expansion with both locality clauses.** -/
