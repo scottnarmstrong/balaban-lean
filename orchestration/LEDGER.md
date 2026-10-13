@@ -1382,3 +1382,5 @@
 | 2026-10-13 | W743 | landed `64c9cc6f` | `LargeField/Base/BaseChartComponentGauss.lean`: real matrix at a real selected cut, positive definiteness of the operator and blocks, `pdSqrtInv_det_eq_exp_trace_logMat`, `baseSector_selected_cut_gaussian_factorization`. |
 | 2026-10-13 | QUOTA | — | Codex account codex-1 (all astra sessions) at 0% until 2026-10-20 04:58; astra paused. codex-2/3/4 have quota but serve other campaigns; asked Scott. |
 | 2026-10-13 | W745, W746 | launched | W745 GENCLASS-OLD leaf 1 (energy); W746 first-step tangent integral at the selected cut. |
+| 2026-10-13 | W745 | landed `4c4258f6` | `Fluctuation/ClassOldDecInputE.lean`: `classOldDec_precedes`, `classOldDec_collar`, `classOldDec_bgSetting`, `classOldDecEnergy_chart`, **`classOldDec_expansion`** (GENCLASS-OLD leaf 1 and leaf 2's first statement: per-label decoupled expansion of an inherited energy term via `eterm_expansion_hat_rawY`, with Gk = stepG; explicit: hchart, a BgSetting for some term generator, FlSetting, cover data nest/hopt). |
+| 2026-10-13 | W747 | launched | GENCLASS-OLD leaf 3 (energy): per-label endpoint identity (`hid`) and the marks consequence. |
