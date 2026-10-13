@@ -7,6 +7,7 @@ module
 
 public import Balaban.Localization.DecEquivReflect
 public import Balaban.Localization.DecEquivPermuteStep
+public import Balaban.Localization.DecEquivReflectPolymer
 
 /-!
 # A reflection at the top level set of the level step
@@ -24,7 +25,7 @@ multiplier at the reflection.  Covariance of the output terms of the step is not
 namespace Balaban.Localization.DecEquiv
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Fluctuation Balaban.Inhabited
-  Balaban.Inhabited.LevelStep Finset
+  Balaban.Inhabited.LevelStep Balaban.Analysis Finset
 
 section Step
 
@@ -97,6 +98,38 @@ theorem decBg_reflect_lvTop {N : ℕ} {a : ℕ → ℝ} {ν : ℝ} (ρ : ℝ) (�
       decBgMult H a ν ρ (CS.par s) (S.sym D) = S.mul (decBgMult H a ν ρ s D) :=
   decBg_sym _ _ (BlockSymm.ofReflect isLevel_lvTop μ₀ c ((pow_dvd_pow 3 (by omega)).trans hc))
     ρ s D
+
+/-- **`PolymerSymm` is inhabited at the reflections of the top level set of the step**
+(`m₀ = 0`, `3 ^ (k + 1 + m₁) ∣ c.val`). -/
+theorem polymerSymm_reflect_lvTop (μ₀ : Fin 3) (c : ZMod ((3 * 3 ^ m₁) * 3 ^ (k + 1)))
+    (hc : 3 ^ (k + 1 + m₁) ∣ c.val) :
+    Nonempty (PolymerSymm (lvTop 3 m₁ k ϱ) 0 (reflPerm μ₀ c) (reflectCover μ₀ c)) :=
+  ⟨PolymerSymm.ofReflect isLevel_lvTop (by simp) μ₀ c (by simpa only [Nat.add_zero] using hc)⟩
+
+/-- **Covariance of the expansion terms `𝓔(X, Y)` at a reflection of the step**
+(`3 ^ (k + 1 + m₁) ∣ c.val`; `c = 0` and `c = 3 ^ (k + 1 + m₁)` are admissible): the term of the
+transported function at the reflected sets equals the original term. -/
+theorem evTerm_reflect_lvTop (μ₀ : Fin 3) (c : ZMod ((3 * 3 ^ m₁) * 3 ^ (k + 1)))
+    (hc : 3 ^ (k + 1 + m₁) ∣ c.val)
+    (S : LatSymm (lvTop 3 m₁ k ϱ) (lvTop 3 m₁ k ϱ) (reflPerm μ₀ c)) {R : ℝ} (hR : 1 < R)
+    (X₁ Y : Set (CTorus 3 3 3 m₁ (k + 1)))
+    {U U' : Type*} {F : U → ((coverOf (lvTop 3 m₁ k ϱ)).cubeIdx → ℂ) → ℂ}
+    {F' : U' → ((coverOf (lvTop 3 m₁ k ϱ)).cubeIdx → ℂ) → ℂ} {u : U} {u' : U'} :
+    let G := lvTop 3 m₁ k ϱ
+    let CS := CoverSymm.ofReflect (G := G) isLevel_lvTop μ₀ c hc
+    let κ : (coverOf G).cubeIdx ≃ (coverOf G).cubeIdx :=
+      Equiv.subtypeEquiv CS.τ fun q => (CS.idx q).symm
+    AnalyticOnNhd ℂ (F u) (polydisc (0 : (coverOf G).cubeIdx → ℂ) (fun _ => R)) →
+    AnalyticOnNhd ℂ (F' u') (polydisc (0 : (coverOf G).cubeIdx → ℂ) (fun _ => R)) →
+    (∀ s ∈ unitCube (coverOf G).cubeIdx, F' u' s = F u (s ∘ κ)) →
+    evTerm (fun i : (coverOf G).cubeIdx => i.1) G 0 ((reflPerm μ₀ c) '' X₁)
+        F' ((reflPerm μ₀ c) '' Y) u' =
+      evTerm (fun i : (coverOf G).cubeIdx => i.1) G 0 X₁ F Y u := by
+  intro G CS κ hF hF' hff
+  classical
+  exact evTerm_relabel (fun i : (coverOf G).cubeIdx => i.1) (fun i : (coverOf G).cubeIdx => i.1)
+    κ hR (PolymerSymm.ofReflect isLevel_lvTop (by simp) μ₀ c (by simpa only [Nat.add_zero] using hc))
+    S (fun _ => rfl) (fun i => i.2) X₁ Y hF hF' hff
 
 end Step
 

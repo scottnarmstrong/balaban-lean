@@ -117,15 +117,19 @@ theorem dvd_val_iff_castHom {s : ℕ} (hs : s ∣ M) (x : ZMod M) :
   have : NeZero s := ⟨by rintro rfl; exact NeZero.ne M (zero_dvd_iff.1 hs)⟩
   rw [ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff]
 
-theorem dvd_val_refl_iff {s : ℕ} (hs : s ∣ M) (c y : ZMod M) (hc : s ∣ c.val) :
-    s ∣ (c - (s : ZMod M) - y).val ↔ s ∣ y.val := by
+theorem dvd_val_refl_iff' {a t : ℕ} (hs : a ∣ M) (hat : a ∣ t) (c y : ZMod M)
+    (hc : a ∣ c.val) : a ∣ (c - (t : ZMod M) - y).val ↔ a ∣ y.val := by
   rw [dvd_val_iff_castHom hs, dvd_val_iff_castHom hs]
   have hc' := (dvd_val_iff_castHom hs c).1 hc
-  rw [map_sub, map_sub, hc', map_natCast, ZMod.natCast_self]
+  rw [map_sub, map_sub, hc', map_natCast, (ZMod.natCast_eq_zero_iff _ _).2 hat]
   simp
 
-theorem val_add_pred_div {s : ℕ} (hs : s ∣ M) (hs0 : 0 < s) (q : ZMod M) (hq : s ∣ q.val) :
-    (q + ((s - 1 : ℕ) : ZMod M)).val / s = q.val / s := by
+theorem dvd_val_refl_iff {s : ℕ} (hs : s ∣ M) (c y : ZMod M) (hc : s ∣ c.val) :
+    s ∣ (c - (s : ZMod M) - y).val ↔ s ∣ y.val :=
+  dvd_val_refl_iff' hs dvd_rfl c y hc
+
+theorem val_add_pred {s : ℕ} (hs : s ∣ M) (hs0 : 0 < s) (q : ZMod M) (hq : s ∣ q.val) :
+    (q + ((s - 1 : ℕ) : ZMod M)).val = q.val + (s - 1) := by
   obtain ⟨m', hm'⟩ := hs
   obtain ⟨u, hu⟩ := hq
   have hlt : q.val < M := ZMod.val_lt q
@@ -143,9 +147,20 @@ theorem val_add_pred_div {s : ℕ} (hs : s ∣ M) (hs0 : 0 < s) (q : ZMod M) (hq
     rw [mul_add, mul_one] at this
     omega
   have hv : ((s - 1 : ℕ) : ZMod M).val = s - 1 := ZMod.val_natCast_of_lt hsM
-  rw [ZMod.val_add_of_lt (by rw [hv]; exact hlt2), hv, hu, Nat.mul_add_div hs0,
-    Nat.div_eq_of_lt (by omega : s - 1 < s), Nat.mul_div_cancel_left _ hs0]
+  rw [ZMod.val_add_of_lt (by rw [hv]; exact hlt2), hv]
+
+theorem val_add_pred_div' {s a : ℕ} (hs : s ∣ M) (hsa : s ∣ a) (hs0 : 0 < s) (q : ZMod M)
+    (hq : s ∣ q.val) : (q + ((s - 1 : ℕ) : ZMod M)).val / a = q.val / a := by
+  obtain ⟨b, hb⟩ := hsa
+  obtain ⟨u, hu⟩ := hq
+  rw [val_add_pred hs hs0 q ⟨u, hu⟩, hb, ← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul]
+  congr 1
+  rw [hu, Nat.mul_add_div hs0, Nat.div_eq_of_lt (by omega : s - 1 < s), Nat.mul_div_cancel_left _ hs0]
   simp
+
+theorem val_add_pred_div {s : ℕ} (hs : s ∣ M) (hs0 : 0 < s) (q : ZMod M) (hq : s ∣ q.val) :
+    (q + ((s - 1 : ℕ) : ZMod M)).val / s = q.val / s :=
+  val_add_pred_div' hs dvd_rfl hs0 q hq
 
 theorem div_val_eq_iff {s m' : ℕ} (hℓ : M = s * m') (y w : ZMod M) :
     y.val / s = w.val / s ↔ blockCoord s m' y = blockCoord s m' w := by
