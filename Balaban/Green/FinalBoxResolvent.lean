@@ -425,11 +425,13 @@ theorem taggedMat_analytic (S : Finset Z) (V : Z → ι → ι → Finset Pc) (a
   exact Finset.analyticAt_fun_prod _ fun q _ =>
     (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Pc => ℂ) q).analyticAt s0
 
+omit [Fintype Pc] in
 theorem taggedG_one (S : Finset Z) (B : Z → Finset ι) (c : Z → ι → ℂ)
     (V : Z → ι → ι → Finset Pc) (U : Matrix ι ι ℂ) (t : ℝ) :
     taggedG S B c V U t (fun _ => 1) = ∑ z ∈ S, Matrix.diagonal (c z) * boxG U (B z) t :=
   taggedMat_one _ _ _
 
+omit [Fintype Pc] in
 theorem taggedK_one (S : Finset Z) (B : Z → Finset ι) (c : Z → ι → ℂ)
     (V : Z → ι → ι → Finset Pc) (U : Matrix ι ι ℂ) (t : ℝ) :
     taggedK S B c V U t (fun _ => 1) = ∑ z ∈ S, boxR U (B z) (c z) t :=
