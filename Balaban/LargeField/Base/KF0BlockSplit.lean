@@ -343,4 +343,81 @@ theorem goodEnergy_expand (D : Finset (Torus d ℓ)) (φ : Cfg d N ℓ) :
 
 end Energy
 
+/-! ### T4: the raw Peierls charge -/
+
+section Peierls
+
+variable (s m : ℕ) [NeZero m]
+
+theorem mass_sum_ge_card (r : ℝ) (hr : 0 ≤ r) (h : EuclideanSpace ℝ (Fin N))
+    (φ : Cfg d N ℓ) (B : Finset (Torus d m)) (hB : B ⊆ badSet s m r h φ) :
+    (B.card : ℝ) * r ^ 2 ≤ ∑ x : Torus d ℓ, ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 := by
+  have hx : ∀ Q ∈ B, ∃ x : Torus d ℓ, blockMap s m x = Q ∧
+      r ≤ ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ := by
+    intro Q hQ
+    have := (mem_badSet s m r h Q φ).1 (hB hQ)
+    simp only [goodBlock, not_forall, not_lt] at this
+    obtain ⟨x, hx1, hx2⟩ := this
+    exact ⟨x, hx1, hx2⟩
+  choose! xs hxs using hx
+  have hinj : Set.InjOn xs (B : Set (Torus d m)) := by
+    intro Q hQ Q' hQ' he
+    rw [← (hxs Q hQ).1, ← (hxs Q' hQ').1, he]
+  calc (B.card : ℝ) * r ^ 2 = ∑ Q ∈ B, r ^ 2 := by simp
+    _ ≤ ∑ Q ∈ B, ‖(φ (xs Q) : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 :=
+        Finset.sum_le_sum fun Q hQ => pow_le_pow_left₀ hr (hxs Q hQ).2 2
+    _ = ∑ x ∈ B.image xs, ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2 :=
+        (Finset.sum_image (f := fun x : Torus d ℓ => ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2) hinj).symm
+    _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+        (fun _ _ _ => sq_nonneg _)
+
+/-- (K0.4), energy form: on the event that every block of `B` is bad,
+`H₀(φ) ≥ (ν r² / 2) · #B`. -/
+theorem energy_ge_peierls (r : ℝ) (hr : 0 ≤ r) (ν : ℝ) (hν : 0 ≤ ν)
+    (h : EuclideanSpace ℝ (Fin N)) (φ : Cfg d N ℓ) (B : Finset (Torus d m))
+    (hB : B ⊆ badSet s m r h φ) :
+    ν * r ^ 2 / 2 * B.card ≤ energy d N ℓ ν h φ := by
+  have h1 := mass_sum_ge_card s m r hr h φ B hB
+  have h2 : 0 ≤ (1 / 2 : ℝ) * ∑ x : Torus d ℓ, ∑ μ : Fin d,
+      ‖(φ (x + Pi.single μ 1) : EuclideanSpace ℝ (Fin N)) - φ x‖ ^ 2 :=
+    mul_nonneg (by norm_num) (Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _)
+  unfold energy
+  nlinarith [mul_le_mul_of_nonneg_left h1 (by linarith : 0 ≤ ν / 2)]
+
+/-- (K0.4): `e^{-β H₀} ≤ e^{-β H₀ / 2} · exp(-β ν r² #B / 4)` on the event that every block of `B`
+is bad (`β ≥ 0`). -/
+theorem exp_neg_energy_le_peierls (r : ℝ) (hr : 0 ≤ r) (β ν : ℝ) (hβ : 0 ≤ β) (hν : 0 ≤ ν)
+    (h : EuclideanSpace ℝ (Fin N)) (φ : Cfg d N ℓ) (B : Finset (Torus d m))
+    (hB : B ⊆ badSet s m r h φ) :
+    Real.exp (-(β * energy d N ℓ ν h φ)) ≤
+      Real.exp (-(β * energy d N ℓ ν h φ / 2)) * Real.exp (-(β * ν * r ^ 2 * B.card / 4)) := by
+  rw [← Real.exp_add]
+  refine Real.exp_le_exp.2 ?_
+  have := mul_le_mul_of_nonneg_left (energy_ge_peierls s m r hr ν hν h φ B hB) hβ
+  nlinarith
+
+/-- The specialization `r = r_β / √ν`, `r_β = A log(β a) / √β`: the factor is
+`exp(-A² log²(β a) #B / 4)`. -/
+theorem peierls_factor_eq (A a β ν : ℝ) (hβ : 0 < β) (hν : 0 < ν) (n : ℕ) :
+    Real.exp (-(β * ν * (A * Real.log (β * a) / Real.sqrt β / Real.sqrt ν) ^ 2 * n / 4)) =
+      Real.exp (-(A ^ 2 * Real.log (β * a) ^ 2 * n / 4)) := by
+  congr 2
+  have h1 : Real.sqrt β ^ 2 = β := Real.sq_sqrt hβ.le
+  have h2 : Real.sqrt ν ^ 2 = ν := Real.sq_sqrt hν.le
+  have h3 : Real.sqrt β ≠ 0 := (Real.sqrt_pos.2 hβ).ne'
+  have h4 : Real.sqrt ν ≠ 0 := (Real.sqrt_pos.2 hν).ne'
+  field_simp
+  rw [h1, h2]
+  ring
+
+/-- Each crossing bond factor of the exact decomposition is at most `1`
+(`β ≥ 0`, real spins); nothing is discarded in (K0.2). -/
+theorem exp_neg_bond_le_one (β : ℝ) (hβ : 0 ≤ β) (u v : EuclideanSpace ℝ (Fin N)) :
+    Real.exp (-(β * ‖u - v‖ ^ 2 / 2)) ≤ 1 := by
+  rw [Real.exp_le_one_iff]
+  have : 0 ≤ β * ‖u - v‖ ^ 2 / 2 := by positivity
+  linarith
+
+end Peierls
+
 end Balaban.LargeField
