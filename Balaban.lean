@@ -1338,6 +1338,7 @@ public import Balaban.SmallField.GsSpecClass
 public import Balaban.SmallField.GsSpecPoly
 public import Balaban.SmallField.GsSpecPolyEqv
 public import Balaban.SmallField.GsSpecPolyClass
+public import Balaban.SmallField.LocalGeneratorSource
 public import Balaban.Fluctuation.StepNonvanishId
 public import Balaban.Fluctuation.StepNonvanishCluster
 public import Balaban.Fluctuation.StepNonvanishBound
