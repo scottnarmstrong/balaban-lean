@@ -699,6 +699,8 @@ public import Balaban.Fluctuation.ExpansionAnalytic
 public import Balaban.Polymer.MarkedCubesLocal
 public import Balaban.Polymer.MarkedCubesVanish
 public import Balaban.Polymer.MarkedHolo
+public import Balaban.Polymer.MarkedHoloParam
+public import Balaban.Fluctuation.Thm31CoeffAnalytic
 public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.LargeField.Base.BaseMarked
@@ -930,6 +932,7 @@ public import Balaban.LargeField.R.RegionalBoundArith
 public import Balaban.LargeField.R.RegionalTails
 public import Balaban.LargeField.R.RegionalSourceTerm
 public import Balaban.LargeField.R.RegionalGroupedBound
+public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
@@ -1312,3 +1315,4 @@ public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
 public import Balaban.Fluctuation.SharpENu
+public import Balaban.Fluctuation.ParamDatumFamily
