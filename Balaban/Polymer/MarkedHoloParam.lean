@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.MarkedHolo
+public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Analysis.ParamIntegralAnalytic
 public import Balaban.Analysis.Cauchy
 
@@ -179,6 +180,39 @@ theorem analyticOnNhd_deriv_zero {V : Set E} (hV : IsOpen V) {f : E → ℂ → 
   exact Filter.eventuallyEq_of_mem (hV.mem_nhds hu) (fun u hu => (hcirc u hu).symm)
 
 end Deriv
+
+section Mayer
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+  {B : Type*} [Fintype B] {Ω : B → Type*} [∀ b, MeasurableSpace (Ω b)]
+  [∀ b, TopologicalSpace (Ω b)] [∀ b, OpensMeasurableSpace (Ω b)]
+  [∀ b, SecondCountableTopology (Ω b)]
+  (μ : ∀ b, Measure (Ω b)) [∀ b, IsProbabilityMeasure (μ b)]
+  {T : Type*} [Fintype T] (sup : T → Finset B)
+
+/-- **Analyticity of the Mayer activities in a finite-dimensional parameter** (several-parameter
+form of `differentiableOn_mayerK`): if the potentials `H e t Φ` are analytic in `e ∈ V` for every
+configuration `Φ` of a compact set `Kc` carrying the measure, and jointly continuous on
+`V × Kc`, then `e ↦ mayerK μ sup (H e) Y` is analytic on `V`. -/
+theorem analyticOnNhd_mayerK_param {V : Set E} (hV : IsOpen V) {Kc : Set (∀ b, Ω b)}
+    (hK : IsCompact Kc) (hKm : MeasurableSet Kc) (hμ : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Kc)
+    {H : E → T → (∀ b, Ω b) → ℂ}
+    (hanal : ∀ t, ∀ Φ ∈ Kc, AnalyticOnNhd ℂ (fun e => H e t Φ) V)
+    (hcont : ∀ t, ContinuousOn (fun p : E × (∀ b, Ω b) => H p.1 t p.2) (V ×ˢ Kc))
+    (Y : NePoly B) : AnalyticOnNhd ℂ (fun e => mayerK μ sup (H e) Y) V := by
+  intro e0 he0
+  unfold mayerK
+  refine analyticAt_integral_of_continuousOn hK hKm hμ (hV.mem_nhds he0)
+    (G := fun e Φ => mayerAct sup (H e) Y Φ) (fun Φ hΦ => ?_) ?_
+  · unfold mayerAct polyAct
+    refine Finset.analyticOnNhd_fun_sum _ (fun C _ => Finset.analyticOnNhd_fun_prod _
+      (fun t _ => ?_))
+    exact (AnalyticOnNhd.cexp (hanal t Φ hΦ)).sub analyticOnNhd_const
+  · unfold mayerAct polyAct
+    refine continuousOn_finsetSum _ (fun C _ => continuousOn_finsetProd _ (fun t _ => ?_))
+    exact (Complex.continuous_exp.comp_continuousOn (hcont t)).sub continuousOn_const
+
+end Mayer
 
 section Parameter
 

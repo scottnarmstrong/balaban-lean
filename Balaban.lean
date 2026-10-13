@@ -696,6 +696,7 @@ public import Balaban.Polymer.MarkedCubesLocal
 public import Balaban.Polymer.MarkedCubesVanish
 public import Balaban.Polymer.MarkedHolo
 public import Balaban.Polymer.MarkedHoloParam
+public import Balaban.Fluctuation.Thm31CoeffAnalytic
 public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.LargeField.Base.BaseMarked
