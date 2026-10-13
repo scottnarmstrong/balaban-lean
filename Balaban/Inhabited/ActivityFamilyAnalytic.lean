@@ -285,6 +285,11 @@ theorem fst_zero_mem_physVq {e : physParam N S} (he : e ∈ physV S a₁ ν eps)
     simp [l1Ball]
   · simpa using hq
 
+/-- The constant-`h₀` fibre lies in `physVq … 1` (which is `physV`, `physVq_one`); a point `e` of
+the fibre lies in `physVq … q` exactly when `∑ |e.2| < q`. -/
+theorem physFibre_subset_physVq_one :
+    physFibre S a₁ ν eps ⊆ physVq (N := N) S a₁ ν eps 1 := fun _ he => ⟨he.1, he.1.2⟩
+
 /-- A datum `D` of the chart with `D.h ≡ h₀`, together with a source of the open `ℓ¹` ball, is a
 point of the constant-`h₀` fibre. -/
 theorem mk_mem_physFibre {D : BgData S.G' N} (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ))

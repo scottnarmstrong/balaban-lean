@@ -37,8 +37,10 @@ to the common label system `commonLabels (thickLabels I.𝒴 I.dom) … reads do
   `𝒰 = ball 0 2`, for every configuration; `holA` of `InterpMarks` at every `e ∈ physV`; `contA`;
   the label sum; `hW` at every datum `D` of the chart with `D.h ≡ h₀` for the exponent
   `(S.withDatum D).WoneC`, in particular `InterpMarks.hW` for `S.WoneC` at the datum of the step;
-  and the `ParamMarkFamily` with no marks over `physV`, `ball 0 2` and the compact carrier
-  `physCarrier S 1 hp`.
+  the `ParamMarkFamily` with no marks over `physV`, `ball 0 2` and the compact carrier
+  `physCarrier S 1 hp`; and, as an acceptance check of the activity fields, the record
+  `InterpMarks` for the exponent `S.WoneC` and the zero integrand
+  (`nonempty_interpMarks_zero_of_activity`).
 
 **Parameter sets.**  `holA` and `contA` hold on the open set `physV × ball 0 2`: the zero-source
 family reads only the datum coordinate of `e`, and `(e.1, 0)` lies in `physVq … q` for every
