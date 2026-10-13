@@ -523,4 +523,132 @@ theorem kf0_sqrt_decay {ν g : ℝ} (hg0 : 0 < g) (hgν : g ≤ ν) (hν1 : ν �
   sqrtMat_entry_le_of_resolvent _ hg0
     (fun _ ht x y => (kf0_resolvent_decay hg0 hgν hν1 ht).2 x y) x y
 
+/-! ### The full operator `A₀`: inverse, inverse square root, entry bounds -/
+
+theorem kf0_isUnit_det (ν : ℝ) (hν : 0 < ν) : IsUnit (latticeLaplacian d m ν).det := by
+  rw [isUnit_iff_ne_zero]
+  exact (latticeLaplacian_posDef hν).det_pos.ne'
+
+theorem kf0Op_inv {ν : ℝ} (hν : 0 < ν) :
+    (kf0Op d m ν)⁻¹ = ((latticeLaplacian d m ν)⁻¹).map (algebraMap ℝ ℂ) := by
+  refine Matrix.inv_eq_right_inv ?_
+  show (latticeLaplacian d m ν).map (algebraMap ℝ ℂ) *
+    ((latticeLaplacian d m ν)⁻¹).map (algebraMap ℝ ℂ) = 1
+  rw [← Matrix.map_mul, Matrix.mul_nonsing_inv _ (kf0_isUnit_det ν hν)]
+  ext i j
+  by_cases hij : i = j <;> simp [Matrix.one_apply, hij]
+
+section FullOp
+
+variable {N : ℕ}
+
+private theorem dot_self_real {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) : h ⬝ᵥ h = 1 := by
+  simpa [dotProduct, sq] using hh
+
+private theorem dot_self_complex {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) :
+    (fun i => (h i : ℂ)) ⬝ᵥ (fun i => (h i : ℂ)) = 1 := by
+  have : ((∑ i, h i ^ 2 : ℝ) : ℂ) = 1 := by rw [hh]; simp
+  push_cast at this
+  simpa [dotProduct, sq] using this
+
+private theorem spin_entry_bounds {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (i j : Fin N) :
+    |h i * h j| ≤ 1 ∧ |(if i = j then (1 : ℝ) else 0) - h i * h j| ≤ 1 := by
+  have hle : ∀ k, h k ^ 2 ≤ 1 := fun k => by
+    rw [← hh]
+    exact Finset.single_le_sum (f := fun k => h k ^ 2) (fun _ _ => sq_nonneg _) (Finset.mem_univ k)
+  have h1 := hle i
+  have h2 := hle j
+  have hp : |h i * h j| ≤ 1 := by
+    rw [abs_le]; constructor <;> nlinarith [sq_nonneg (h i + h j), sq_nonneg (h i - h j)]
+  refine ⟨hp, ?_⟩
+  by_cases hij : i = j
+  · subst hij
+    simp only [ite_true]
+    rw [abs_le]; constructor <;> nlinarith [sq_nonneg (h i)]
+  · simpa [hij] using hp
+
+/-- The reference operator `A₀` with complex entries over `L1Torus`: `K_ν` dressed with the real
+unit vector `h` (cast to `ℂ`). -/
+noncomputable def kf0FullC (d m N : ℕ) [NeZero m] (ν : ℝ) (h : Fin N → ℝ) :
+    Matrix (L1Torus d m × Fin N) (L1Torus d m × Fin N) ℂ :=
+  kf0Dress (kf0Op d m ν) (fun i => (h i : ℂ))
+
+/-- **The inverse of `A₀`** (T4): `A₀⁻¹ = spinLift K_ν⁻¹ * (1 - P_h) + P_h` for `ν > 0`, `|h| = 1`. -/
+theorem kf0Full_inv {ν : ℝ} (hν : 0 < ν) {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) :
+    (kf0Full d m N ν h)⁻¹ =
+      spinLift N (latticeLaplacian d m ν)⁻¹ * (1 - projH (ι := Torus d m) h) + projH h := by
+  rw [spinLift_dress]
+  refine Matrix.inv_eq_right_inv ?_
+  rw [kf0Full_eq_dress, kf0Dress_mul (dot_self_real hh),
+    Matrix.mul_nonsing_inv _ (kf0_isUnit_det ν hν), kf0Dress_one]
+
+theorem kf0Full_isUnit_det {ν : ℝ} (hν : 0 < ν) {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) :
+    IsUnit (kf0Full d m N ν h).det := by
+  refine Matrix.isUnit_det_of_right_inverse (B := kf0Dress (latticeLaplacian d m ν)⁻¹ h) ?_
+  rw [kf0Full_eq_dress, kf0Dress_mul (dot_self_real hh),
+    Matrix.mul_nonsing_inv _ (kf0_isUnit_det ν hν), kf0Dress_one]
+
+/-- **Entry bound for `A₀⁻¹`** (T4): for `0 < g ≤ ν ≤ 1`, `|h| = 1`:
+`|A₀⁻¹ (x,i) (y,j)| ≤ [x = y] + (2/g) exp(-r d(x,y))`, `r = kf0RateAt d g`, `d` the `ℓ¹` torus
+distance. -/
+theorem kf0Full_inv_entry {ν g : ℝ} (hg0 : 0 < g) (hgν : g ≤ ν) (hν1 : ν ≤ 1) {h : Fin N → ℝ}
+    (hh : ∑ i, h i ^ 2 = 1) (x y : Torus d m) (i j : Fin N) :
+    ‖(kf0Full d m N ν h)⁻¹ (x, i) (y, j)‖ ≤
+      (if x = y then 1 else 0) + 2 / g * Real.exp (-kf0RateAt d g * torusDist d m x y) := by
+  have hν : 0 < ν := lt_of_lt_of_le hg0 hgν
+  have e : (kf0Full d m N ν h)⁻¹ = kf0Dress (latticeLaplacian d m ν)⁻¹ h := by
+    rw [kf0Full_inv hν hh, spinLift_dress]
+  rw [e]
+  have h1 := kf0Dress_entry_le (latticeLaplacian d m ν)⁻¹ h
+    (fun i j => by simpa [Real.norm_eq_abs] using (spin_entry_bounds hh i j).1)
+    (fun i j => by simpa [Real.norm_eq_abs] using (spin_entry_bounds hh i j).2) x y i j
+  have h2 := kf0_inverse_decay (d := d) (m := m) hg0 hgν hν1 x y
+  rw [kf0Op_inv hν] at h2
+  have h3 : ‖((latticeLaplacian d m ν)⁻¹) x y‖ ≤
+      2 / g * Real.exp (-kf0RateAt d g * torusDist d m x y) := by
+    have : (((latticeLaplacian d m ν)⁻¹).map (algebraMap ℝ ℂ)) x y =
+        (((latticeLaplacian d m ν)⁻¹ x y : ℝ) : ℂ) := rfl
+    rw [this, Complex.norm_real] at h2
+    exact h2
+  linarith
+
+/-- `S = kf0Dress (sqrtMat K_ν)` squares to `A₀⁻¹` (T4): `S` is the explicit matrix
+`spinLift K_ν^{-1/2} * (1 - P_h) + P_h`; it is not identified here with `sqrtMat A₀`. -/
+theorem kf0FullC_sqrt_mul_self {ν g : ℝ} (hg0 : 0 < g) (hgν : g ≤ ν) (hν1 : ν ≤ 1)
+    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) :
+    kf0Dress (Localization.sqrtMat (kf0Op d m ν)) (fun i => (h i : ℂ)) *
+        kf0Dress (Localization.sqrtMat (kf0Op d m ν)) (fun i => (h i : ℂ)) =
+      (kf0FullC d m N ν h)⁻¹ := by
+  have hu : IsUnit (kf0Op d m ν).det :=
+    (Matrix.isUnit_iff_isUnit_det _).1 (by
+      have := (kf0_resolvent_decay (d := d) (m := m) hg0 hgν hν1 (le_refl (0 : ℝ))).1
+      simpa using this)
+  rw [kf0Dress_mul (dot_self_complex hh), kf0_sqrt_mul_self hg0 hgν hν1]
+  refine (Matrix.inv_eq_right_inv ?_).symm
+  unfold kf0FullC
+  rw [kf0Dress_mul (dot_self_complex hh), Matrix.mul_nonsing_inv _ hu, kf0Dress_one]
+
+/-- **Entry bound for the inverse square root of `A₀`** (T4): with
+`S = kf0Dress (sqrtMat K_ν) h`, `|S (x,i) (y,j)| ≤ [x = y] + (2/√g) exp(-r dist x y)`. -/
+theorem kf0FullC_sqrt_entry {ν g : ℝ} (hg0 : 0 < g) (hgν : g ≤ ν) (hν1 : ν ≤ 1)
+    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (x y : L1Torus d m) (i j : Fin N) :
+    ‖kf0Dress (Localization.sqrtMat (kf0Op d m ν)) (fun i => (h i : ℂ)) (x, i) (y, j)‖ ≤
+      (if x = y then 1 else 0) +
+        2 / Real.sqrt g * Real.exp (-kf0RateAt d g * dist x y) := by
+  have cast : ∀ r : ℝ, ‖(r : ℂ)‖ = |r| := fun r => by rw [Complex.norm_real, Real.norm_eq_abs]
+  have h1 := kf0Dress_entry_le (Localization.sqrtMat (kf0Op d m ν)) (fun i => (h i : ℂ))
+    (fun i j => by
+      have := (spin_entry_bounds hh i j).1
+      rw [← Complex.ofReal_mul, cast]; exact this)
+    (fun i j => by
+      have := (spin_entry_bounds hh i j).2
+      have e : (if i = j then (1 : ℂ) else 0) - (h i : ℂ) * (h j : ℂ) =
+          (((if i = j then (1 : ℝ) else 0) - h i * h j : ℝ) : ℂ) := by
+        push_cast; split_ifs <;> simp
+      rw [e, cast]; exact this) x y i j
+  have h2 := kf0_sqrt_decay (d := d) (m := m) hg0 hgν hν1 x y
+  linarith
+
+end FullOp
+
 end Balaban.Green
