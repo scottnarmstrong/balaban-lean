@@ -93,7 +93,33 @@ open Classical in
 datum and every root `z`, there is a record `E1MarksC` of the interpolation integral
 `ℰ₁^{(k+1)}(z)` (zero class) with disc `ball 0 corrU`, `κ_G = 2 κ_dec − 1`, `κ' = T.κ'`,
 `F₀ = corrF0`, and the budget `C_PE ∑ F₀ e^{-κ₀ d} ≤ K₀`: the record of
-`e1MarksC_zeroClass_of_sum`, whose hypothesis `hF` is `e1_hF_of_pairs_fromTower`. -/
+`e1MarksC_zeroClass_of_sum`, whose hypothesis `hF` is `e1_hF_of_pairs_fromTower`.  The version `_anchor` also returns the root clause: the root cube of
+`z` lies in the blocks of the site set of every label of the marks. -/
+theorem e1MarksC_zeroClass_fromTower_anchor {κmin : ℝ} (T : StepTower κmin)
+    (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, ∀ hp : 0 < p₁, p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      StepScaleData T k hk N₁ ν β p₁ →
+      ∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1),
+        ∃ I : E1MarksC (T.step k hk N₁ ν β p₁) (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+            ((T.step k hk N₁ ν β p₁).blockSplit 1 hp) z,
+          I.𝒰 = Metric.ball (0 : ℂ) corrU ∧ I.κG = 2 * T.κdec - 1 ∧ I.κ' = T.κ' ∧
+          I.F0 = (fun _ => corrF0 T k β p₁) ∧
+          CPE 3 3 I.Kc I.κH I.κ0 I.κ' *
+            (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) ≤ K0 3 3 T.κ0 ∧
+            ∀ i, rootCube (m₀ := 1) (K := k + 1) z ∈
+              blocksOf 1 (k + 1) Set.univ (I.Lab.ysite (I.y0 i)) := by
+  obtain ⟨β₀, h3, h⟩ := e1MarksC_zeroClass_of_sum_anchor T hHull hA p
+  refine ⟨β₀, h3, fun k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D z => ?_⟩
+  obtain ⟨F₁, Sol, hpairs, h'⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
+  exact h' z (e1_hF_of_pairs_fromTower T D (by linarith) hp F₁ Sol
+    (fun z b => (hpairs z b).1) z)
+
+open Classical in
+/-- **The marks record of the energy term at the tower.**  The record of
+`e1MarksC_zeroClass_fromTower_anchor` without its root clause. -/
 theorem e1MarksC_zeroClass_fromTower {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧
@@ -108,11 +134,10 @@ theorem e1MarksC_zeroClass_fromTower {κmin : ℝ} (T : StepTower κmin)
           I.F0 = (fun _ => corrF0 T k β p₁) ∧
           CPE 3 3 I.Kc I.κH I.κ0 I.κ' *
             (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) ≤ K0 3 3 T.κ0 := by
-  obtain ⟨β₀, h3, h⟩ := e1MarksC_zeroClass_of_sum T hHull hA p
+  obtain ⟨β₀, h3, h⟩ := e1MarksC_zeroClass_fromTower_anchor T hHull hA p
   refine ⟨β₀, h3, fun k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D z => ?_⟩
-  obtain ⟨F₁, Sol, hpairs, h'⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D
-  exact h' z (e1_hF_of_pairs_fromTower T D (by linarith) hp F₁ Sol
-    (fun z b => (hpairs z b).1) z)
+  obtain ⟨I, h1, h2, h3', h4, h5, -⟩ := h k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp hp₁ D z
+  exact ⟨I, h1, h2, h3', h4, h5⟩
 
 open Classical in
 /-- **The expansion of the local energy term at the tower.**  Beyond a threshold `β₀`, at every
