@@ -337,6 +337,7 @@ public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
 public import Balaban.Localization.DecEquivPermuteStep
 public import Balaban.Localization.DecEquivReflect
+public import Balaban.Localization.DecEquivReflectStep
 public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.Decoupled2XBounds
 public import Balaban.Localization.Decoupled2XGreen
