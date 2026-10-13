@@ -140,6 +140,21 @@ transport lemmas proved so far need that neighbourhood to lie in a common non-wi
 question is whether the papers' construction removes every read outside A, so that the clause
 holds for every such A, or whether the clause should carry a margin.
 
+What is now proved (for the step with no inherited terms): every ingredient of a coefficient —
+background and fluctuation solutions on a cut component, covariance and square root, determinant
+activities, marked energy terms and the observable term — is the same on two tori whenever its
+whole read region lies in one common non-winding box. The read region is the polymer itself plus
+the root cell and a fixed number of cubes of size of order L·M·L^j around it; the condition proved
+is 4R + C·L·M·L^j < min(ℓ, ℓ') for a read region of radius R. This is the quarter-box condition of
+the theorem up to that additive slack (and a non-sharp factor in R). It covers all scales at which
+M·L^j is small compared with the torus side; it does not cover the last few scales, where the
+slack is comparable to ℓ. Whether the construction reads outside the polymer at those scales is
+exactly the question above.
+
+A second requirement appeared: agreement of the final terms needs them to be given by the same
+formula on every torus (not by separate choices on each torus); the assembly of Root-F has to
+respect this.
+
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
 ## Large pieces of work that are not blockers
