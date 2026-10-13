@@ -389,6 +389,191 @@ theorem chainPatchGraph_degree_le (hG : CubeAligned G m₁)
         Nat.mul_le_mul_right _ (hc P)
     _ = pairChainDeg d L := by unfold pairChainDeg; ring
 
+
+/-! #### Rootedness -/
+
+/-- The seed set in the patch graph: the cubes `P` such that some cube `Q` containing a site `y`
+equal or adjacent to a seed site `s` is equal or adjacent to `P` in the parameter graph. -/
+noncomputable def pairRootNbhd (s : CTorus d L N₁ m₁ (k + 1)) : Finset (cubeIdx G) :=
+  Finset.univ.filter fun P => ∃ Q : cubeIdx G, ∃ y : CTorus d L N₁ m₁ (k + 1),
+    (s = y ∨ Adj s y) ∧ y ∈ cubeP Q.1 ∧ (P = Q ∨ (paramGraph G).Adj P Q)
+
+theorem mem_pairRootNbhd {s : CTorus d L N₁ m₁ (k + 1)} {P : cubeIdx G} :
+    P ∈ pairRootNbhd (G := G) s ↔ ∃ Q : cubeIdx G, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      (s = y ∨ Adj s y) ∧ y ∈ cubeP Q.1 ∧ (P = Q ∨ (paramGraph G).Adj P Q) := by
+  simp [pairRootNbhd]
+
+/-- The root neighbourhood of a seed set `U`. -/
+def pairRootSet (U : Set (CTorus d L N₁ m₁ (k + 1))) : Set (cubeIdx G) :=
+  ⋃ s ∈ U, ((pairRootNbhd (G := G) s : Finset (cubeIdx G)) : Set (cubeIdx G))
+
+/-- **The geometric condition `NoFree`**: every centre of the cover that is live for one of the two
+operators has a parameter cube in its footprint (no live centre is parameter-free). -/
+def PairNoFree (C : DecCover d L N₁ m₁ K) (X₁ : Finset (CTorus d L N₁ m₁ K))
+    (Hb : GeneratingSet d L (N₁ * L ^ m₁) K ϱ') (Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
+    Prop :=
+  ∀ z ∈ C.cubeIdx, (LiveI Hb z ∨ LiveI Hm z) → (C.Qset z ∩ C.parCubes X₁).Nonempty
+
+theorem mem_Omega_of_mem_footprint {ϱ₀ : ℝ} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₀}
+    {a : ℕ → ℝ} {ν : ℝ} {z : ℕ × CTorus d L N₁ m₁ K} {x : CTorus d L N₁ m₁ K}
+    (hx : x ∈ footprint H a ν z) : x ∈ H.Ω 1 := by
+  obtain ⟨b, -, rfl | ⟨y, -, rfl⟩⟩ := hx
+  · exact b.2
+  · exact y.2
+
+theorem cube_unique (hG : CubeAligned G m₁) {Q Q' : cubeIdx G} {y : CTorus d L N₁ m₁ (k + 1)}
+    (h : y ∈ cubeP Q.1) (h' : y ∈ cubeP Q'.1) : Q = Q' := by
+  obtain ⟨⟨n, y0⟩, hQ⟩ := Q
+  obtain ⟨⟨n', y0'⟩, hQ'⟩ := Q'
+  obtain ⟨⟨hn1, hnK⟩, hl, hb⟩ := (mem_cubeIdx G).1 hQ
+  obtain ⟨⟨hn1', hnK'⟩, hl', hb'⟩ := (mem_cubeIdx G).1 hQ'
+  have hsc := mem_cubeP.1 h
+  have hsc' := mem_cubeP.1 h'
+  have hnn : n = n' := by
+    by_contra hne
+    exact G.layer_disjoint hn1 hnK hn1' hnK' hne ((hG.mem_layer_iff hn1 hnK hsc).2 hl)
+      ((hG.mem_layer_iff hn1' hnK' hsc').2 hl')
+  subst hnn
+  have hcell : SameCell (L ^ (n + m₁)) y0 y0' := hsc.symm.trans hsc'
+  have hApos : 0 < L ^ (n + m₁) := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _
+  have : y0 = y0' := by
+    funext μ
+    apply ZMod.val_injective
+    have e1 := Nat.div_add_mod (y0 μ).val (L ^ (n + m₁))
+    have e2 := Nat.div_add_mod (y0' μ).val (L ^ (n + m₁))
+    rw [hb μ] at e1
+    rw [hb' μ] at e2
+    rw [hcell μ] at e1
+    omega
+  subst this
+  rfl
+
+theorem pg_common {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) {P P' : cubeIdx G}
+    (hP : P.1 ∈ Qset G q) (hP' : P'.1 ∈ Qset G q) : P = P' ∨ (paramGraph G).Adj P P' := by
+  by_cases h : P = P'
+  · exact Or.inl h
+  · exact Or.inr ⟨h, Or.inl ⟨q, hq, hP, hP'⟩⟩
+
+theorem pg_moore {P P' : cubeIdx G} {x y : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ cubeP P.1)
+    (hy : y ∈ cubeP P'.1) (h : x = y ∨ Adj x y) : P = P' ∨ (paramGraph G).Adj P P' := by
+  by_cases hne : P = P'
+  · exact Or.inl hne
+  · exact Or.inr ⟨hne, Or.inr ⟨x, mem_Pset_iff.2 hx, y, mem_Pset_iff.2 hy, near_of_eq_or_adj h⟩⟩
+
+section Rooted
+
+variable {Hb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ'} {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {a : ℕ → ℝ} {ν : ℝ} {X₁ : Finset (CTorus d L N₁ m₁ (k + 1))}
+  {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {U : Set (CTorus d L N₁ m₁ (k + 1))}
+
+/-- A site of the footprint of a centre lies in a cube of the footprint `𝒬(z)`. -/
+theorem pFoot_cube (hG : CubeAligned G m₁) (hΩb : ∀ x ∈ Hb.Ω 1, x ∈ G.Ω 1)
+    (hΩm : ∀ x ∈ Hm.Ω 1, x ∈ G.Ω 1)
+    (hfb : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hm a ν z, t ∈ hatBox z) {o : Bool}
+    {z : ℕ × CTorus d L N₁ m₁ (k + 1)} (hz : z ∈ cubeIdx G)
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ pFoot Hb Hm a ν o z) :
+    ∃ Q : cubeIdx G, x ∈ cubeP Q.1 ∧ Q.1 ∈ Qset G z := by
+  have h : x ∈ G.Ω 1 ∧ x ∈ hatBox z := by
+    cases o
+    · exact ⟨hΩm _ (mem_Omega_of_mem_footprint hx), hfm z hz x hx⟩
+    · exact ⟨hΩb _ (mem_Omega_of_mem_footprint hx), hfb z hz x hx⟩
+  obtain ⟨Q, hQ, hxQ⟩ := exists_cube_of_mem_Omega hG h.1
+  exact ⟨⟨Q, hQ⟩, hxQ, mem_Qset_of_mem_hat_cube hQ h.2 hxQ⟩
+
+theorem att_near {o : Bool} {x y : CTorus d L N₁ m₁ (k + 1)}
+    (h : PairAtt (coverOf G) Hb Hm a ν X₁ 𝒞 o x y) : x = y ∨ Adj x y :=
+  h.elim Or.inl fun h => Or.inr h.1
+
+/-- Reached marked patches of the footprint of a centre of a root chain are reached parameters. -/
+theorem mem_jointParams_of_chain {u : Bool × (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hu : PairRootChain (coverOf G) Hb Hm a ν X₁ 𝒞 U u) {P : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hP : P ∈ (coverOf G).Qset u.2) (hP𝒞 : P ∈ 𝒞) :
+    P ∈ jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U :=
+  mem_jointParams.2 (JointIn.param (JointIn.pstep (pGraph_centre_param hu.act hP hP𝒞) hu.jointIn))
+
+theorem live_or {w : Bool × (ℕ × CTorus d L N₁ m₁ (k + 1))} (h : PairLive Hb Hm w.1 w.2) :
+    LiveI Hb w.2 ∨ LiveI Hm w.2 := by
+  obtain ⟨o, z⟩ := w
+  cases o
+  · exact Or.inr h
+  · exact Or.inl h
+
+/-- **T2, conditional rootedness (pair analogue of `rooted_of_rootChain`).**  Under `PairNoFree`,
+every reached marked patch is joined, by a walk of the patch graph of the chain inside the set of
+reached patches, to the root neighbourhood of the seed. -/
+theorem jointParams_rooted_of_noFree (hG : CubeAligned G m₁)
+    (hΩb : ∀ x ∈ Hb.Ω 1, x ∈ G.Ω 1) (hΩm : ∀ x ∈ Hm.Ω 1, x ∈ G.Ω 1)
+    (hfb : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hb a ν z, t ∈ hatBox z)
+    (hfm : ∀ z ∈ cubeIdx G, ∀ t ∈ footprint Hm a ν z, t ∈ hatBox z)
+    (hX : ∀ x ∈ X₁, x ∈ U) (hnf : PairNoFree (coverOf G) X₁ Hb Hm) :
+    Rooted (chainPatchGraph G) (pairRootSet (G := G) U)
+      ((jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U).subtype (fun P => P ∈ cubeIdx G)) := by
+  set J := (jointParams (coverOf G) Hb Hm a ν X₁ 𝒞 U).subtype (fun P => P ∈ cubeIdx G) with hJ
+  have memJ : ∀ {u : Bool × (ℕ × CTorus d L N₁ m₁ (k + 1))},
+      PairRootChain (coverOf G) Hb Hm a ν X₁ 𝒞 U u → ∀ P : cubeIdx G, P.1 ∈ Qset G u.2 →
+        P.1 ∈ 𝒞 → P ∈ J := fun hu P hP hP𝒞 =>
+    Finset.mem_subtype.2 (mem_jointParams_of_chain hu hP hP𝒞)
+  have walkJ : ∀ {P P' : cubeIdx G}, P ∈ J → P' ∈ J → (P = P' ∨ (chainPatchGraph G).Adj P P') →
+      WalkIn (chainPatchGraph G) J P P' := fun hP hP' h => walkIn_of_eq_or_adj hP hP' h
+  have claim : ∀ u v, Relation.ReflTransGen (PairCentreLink (coverOf G) Hb Hm a ν X₁ 𝒞) u v →
+      PairAnchor (coverOf G) Hb Hm a ν X₁ 𝒞 U v →
+      ∀ P : cubeIdx G, P.1 ∈ Qset G u.2 → P.1 ∈ 𝒞 →
+        ∃ w ∈ pairRootSet (G := G) U, WalkIn (chainPatchGraph G) J P w := by
+    intro u v hr hv
+    induction hr using Relation.ReflTransGen.head_induction_on with
+    | refl =>
+      intro P hP hP𝒞
+      have hvc : PairRootChain (coverOf G) Hb Hm a ν X₁ 𝒞 U v :=
+        PairRootChain.of_anchor hv
+      obtain ⟨hact, s, hs, y, hy, hatt⟩ := hv
+      obtain ⟨Qy, hyQ, hQyz⟩ := pFoot_cube hG hΩb hΩm hfb hfm hact.1.1 hy
+      refine ⟨P, Set.mem_iUnion₂.2 ⟨s, hs, Finset.mem_coe.2 (mem_pairRootNbhd.2
+        ⟨Qy, y, att_near hatt, hyQ, pg_common hact.1.1 hP hQyz⟩)⟩, ?_⟩
+      exact Polymer.WalkIn.refl (memJ hvc P hP hP𝒞)
+    | @head u' w hstep hrest ih =>
+      intro P hP hP𝒞
+      obtain ⟨hu', hw, hcase⟩ := hstep
+      have hwc : PairRootChain (coverOf G) Hb Hm a ν X₁ 𝒞 U w := ⟨v, hv, hrest⟩
+      have huc : PairRootChain (coverOf G) Hb Hm a ν X₁ 𝒞 U u' := PairRootChain.head
+        ⟨hu', hw, hcase⟩ hwc
+      have hPJ := memJ huc P hP hP𝒞
+      rcases hcase with ⟨x, hx, y, hy, hatt⟩ | ⟨P₀, hP₀𝒞, hP₀u, hP₀w⟩
+      · obtain ⟨Qy, hyQ, hQyu⟩ := pFoot_cube hG hΩb hΩm hfb hfm hu'.1.1 hy
+        have hnear := att_near hatt
+        have hnear' : y = x ∨ Adj y x := hnear.elim (fun h => Or.inl h.symm) (fun h => Or.inr h.symm)
+        rcases hx with hx | ⟨P', hP'𝒞, hP'w, hxP'⟩
+        · obtain ⟨Qx, hxQ, hQxw⟩ := pFoot_cube hG hΩb hΩm hfb hfm hw.1.1 hx
+          obtain ⟨Pv, hPv⟩ := hnf w.2 hw.1.1 (live_or hw.2)
+          have hPv𝒞 : Pv ∈ 𝒞 := hw.1.2 Pv (Finset.mem_inter.1 hPv).1 (Finset.mem_inter.1 hPv).2
+          have hPvc : Pv ∈ cubeIdx G := Qset_subset_cubeIdx _ (Finset.mem_inter.1 hPv).1
+          obtain ⟨r, hr, wk⟩ := ih ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
+          refine ⟨r, hr, ?_⟩
+          have hPvJ := memJ hwc ⟨Pv, hPvc⟩ (Finset.mem_inter.1 hPv).1 hPv𝒞
+          have e1 := pg_common (P := P) (P' := Qy) hu'.1.1 hP hQyu
+          have e2 := pg_moore (P := Qy) (P' := Qx) hyQ hxQ hnear'
+          have e3 := pg_common (P := Qx) (P' := ⟨Pv, hPvc⟩) hw.1.1 hQxw (Finset.mem_inter.1 hPv).1
+          exact (walkJ hPJ hPvJ (chainPatch_of_path e1 e2 e3)).trans wk
+        · have hP'c : P' ∈ cubeIdx G := Qset_subset_cubeIdx _ hP'w
+          obtain ⟨r, hr, wk⟩ := ih ⟨P', hP'c⟩ hP'w hP'𝒞
+          refine ⟨r, hr, ?_⟩
+          have hP'J := memJ hwc ⟨P', hP'c⟩ hP'w hP'𝒞
+          have e1 := pg_common (P := P) (P' := Qy) hu'.1.1 hP hQyu
+          have e2 := pg_moore (P := Qy) (P' := ⟨P', hP'c⟩) hyQ hxP' hnear'
+          exact (walkJ hPJ hP'J (chainPatch_of_path e1 e2 (Or.inl rfl))).trans wk
+      · have hP₀c : P₀ ∈ cubeIdx G := Qset_subset_cubeIdx _ hP₀w
+        obtain ⟨r, hr, wk⟩ := ih ⟨P₀, hP₀c⟩ hP₀w hP₀𝒞
+        refine ⟨r, hr, ?_⟩
+        have hP₀J := memJ hwc ⟨P₀, hP₀c⟩ hP₀w hP₀𝒞
+        have e1 := pg_common (P := P) (P' := ⟨P₀, hP₀c⟩) hu'.1.1 hP hP₀u
+        exact (walkJ hPJ hP₀J (chainPatch_of_path e1 (Or.inl rfl) (Or.inl rfl))).trans wk
+  intro P hP
+  obtain ⟨hP𝒞, u, hu, hPu⟩ := jointParams_support hX (Finset.mem_subtype.1 hP)
+  obtain ⟨v, hv, hr⟩ := hu
+  exact claim u v hr hv P hPu hP𝒞
+
+end Rooted
+
 end Patch
 
 end Balaban.Localization.Dec2
