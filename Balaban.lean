@@ -1517,6 +1517,7 @@ public import Balaban.Fluctuation.DetRootTraceSymm
 public import Balaban.Fluctuation.DetSymmGroup
 public import Balaban.Inhabited.DetOutputTermsWitness
 public import Balaban.Inhabited.DetCollarHullWitness
+public import Balaban.Inhabited.DetCollarHullSymmWitness
 public import Balaban.Inhabited.DetStepScale
 public import Balaban.Inhabited.LateScaleWitness
 public import Balaban.Correlations.KF0Cauchy

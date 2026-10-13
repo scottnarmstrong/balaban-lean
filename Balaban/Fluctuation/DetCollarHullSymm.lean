@@ -14,7 +14,30 @@ import Mathlib.Tactic.Positivity
 /-!
 # Symmetry of the collar hull and of the regrouped determinant terms
 
-Placeholder module doc.
+For a set `T` of cubes of the cover, `detCollarHull T` is the union of `sitesOf T` and of the
+aligned boxes of side `L a` based at `b - a (1, …, 1)`, `b` a cube of `T`, `a` the cell side.
+Here the hull is shown to commute with the lattice symmetries of `GenSymm`.
+
+* `detCollarHull_cubeAct_translate`, `detCollarHull_cubeAct_coordPerm`: for translations by
+  multiples of the cell side and for coordinate permutations, `H(σ • T) = σ '' H(T)`, for every `L`.
+* `detCollarHull_cubeAct_reflect`: the same for an admissible reflection `x_μ ↦ c - 1 - x_μ`, but
+  only for `L = 3` (hypothesis `hL : L = 3`).  The reflection of the box `[b - a, b - a + L a)` in
+  the coordinate `μ` is the box based at `c - b + a - L a`, whereas the collar box of the reflected
+  cube (base `c - b - a`) is based at `c - b - 2a`; these agree exactly when `L = 3`, when the box
+  is the cube with one cell on each side.
+* `detCollarHull_cubeAct_genSymm`: for `L = 3` and every `σ` of the generated group (induction on
+  the generators, using `collar_image_genSymm`, the statement for the collar box of one cube).
+* `cubeAct_mem_detCollarFibre_iff`, `image_cubeAct_detCollarFibre`: `σ •` maps the fibre of `X`
+  bijectively onto the fibre of `σ '' X`; `detCollarGrouped_comp`: if `e' (σ • T) = e T` for all `T`
+  then `detCollarGrouped e' (σ '' X) = detCollarGrouped e X`.
+* `exists_detExpansionLocC_grouped_sym`: with the hypotheses of `exists_detExpansionLocC_sym` and
+  `L = 3`, the regrouped terms satisfy `E'.detGrouped (Sy.sym D) (σ '' X) = E.detGrouped D X`.
+
+## What is not proved
+
+All statements concern the chart data `D`, the zero class and the terms of the record; nothing
+depends on the generator.  The inclusion of the class domain in the chart, the rate requirement
+`λ_hull ≥ κ_out` and covariance under the spin rotations are not proved here.
 -/
 
 @[expose] public section
