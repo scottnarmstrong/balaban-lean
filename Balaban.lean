@@ -1329,8 +1329,11 @@ public import Balaban.Inhabited.D7FineSizeWitness
 public import Balaban.Fluctuation.SharpAE
 public import Balaban.Fluctuation.PhysicalTerms
 public import Balaban.Fluctuation.SharpAssembly
+public import Balaban.Fluctuation.SharpAssemblyEta
 public import Balaban.Fluctuation.StepActivityDirectPhysical
+public import Balaban.Fluctuation.StepActivityDirectEta
 public import Balaban.Inhabited.StepActivityDirectWitness
+public import Balaban.Inhabited.StepActivityDirectEtaWitness
 public import Balaban.Fluctuation.SharpFan
 public import Balaban.Fluctuation.SharpEngine
 public import Balaban.Fluctuation.SharpVF
