@@ -1076,6 +1076,152 @@ theorem decCov_rows_transport_free {a : ℕ → ℝ} {aT x₀ ν : ℝ} {α : (G
     decCov_apply_of_free _ (fun y hy => (hfree y hy).1)]
   exact covA_unit_rows_transport _ _ _ hnu hnu' hxbR hxb hh i
 
+/-! ### D2: the square root `C^{1/2}(s)` on two tori -/
+
+/-- **D2: the decoupled square root on two tori** (two-torus form of `I4c_local_sqrt2_rows`).
+Under the hypotheses of `decCov_rows_transport` for every `x ≥ 0` (the data `XData` at every
+`x`), the rows of `C^{1/2}(s) h = π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) h dx` correspond at every unit point
+whose `(k+1)`-block lies in `Y`: the integrands correspond for every `x > 0`
+(`decCov_rows_transport`), and the landed improper-integral formula (`intMat_mulVec_apply`, with
+the landed integrability `integrable_decSqrtInt`) is the same on the two tori. -/
+theorem decCovSqrt_rows_transport {a : ℕ → ℝ} {aT ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hfam : ∀ x, 0 ≤ x → XData (GA) a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData (GB) a aT ν x α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨ UnitIn (GA) X₁ 𝒞 Y b') → ∀ i,
+      h' (ιu b', i) = h (b', i))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
+    (decCovSqrt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decCovSqrt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) := by
+  classical
+  have Hs := (standing_pair hfam hφ hδ hsm).1
+  have Hs' := (standing_pair hfam' hφ' hδ hsm).1
+  have e1 := intMat_mulVec_apply (integrable_decSqrtInt Hs) h (b, i)
+  have e2 := intMat_mulVec_apply (integrable_decSqrtInt Hs') h' (ιu b, i)
+  have e3 : ∫ x in Ioi (0 : ℝ),
+      (decSqrtInt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) x *ᵥ h') (ιu b, i) =
+      ∫ x in Ioi (0 : ℝ), (decSqrtInt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) x *ᵥ h) (b, i) := by
+    refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+    have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
+    simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+    rw [decCov_rows_transport hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hα hφR
+      (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' hh b hb i]
+  simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+  rw [e1, e2, e3]
+
+/-- **D2 under `CompleteBlocks`** (two-torus form of `I4c_local_sqrt_rows`): when every site of `Y`
+has its whole `(k+1)`-block in `Y`, the inputs need only correspond on the unit points whose
+`(k+1)`-block lies in `Y` (`unitOut_of_unitIn_or`). -/
+theorem decCovSqrt_rows_transport_of_complete {a : ℕ → ℝ} {aT ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hfam : ∀ x, 0 ≤ x → XData (GA) a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData (GB) a aT ν x α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hcomp : CompleteBlocks (GA) Y)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ)
+    (hh : ∀ b' : unitPts (GA), UnitOut (GA) Y b' → ∀ i, h' (ιu b', i) = h (b', i))
+    {b : unitPts (GA)} (hb : UnitOut (GA) Y b) (i : Fin N) :
+    (decCovSqrt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decCovSqrt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) :=
+  decCovSqrt_rows_transport hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR hn hn' hα hφR hfam
+    hfam' hφ hφ' hδ hsm h h' (fun b' hb' i' => hh b' (unitOut_of_unitIn_or hcomp hb') i') hb i
+
+/-- **D2 with the free branch** (two-torus form of `I4c_local_sqrt3_rows`).  The output unit point
+`b` either has its `(k+1)`-block in `Y` (then `decCovSqrt_rows_transport_of_complete` applies), or
+its block avoids the core of `s` and the block of its image avoids the core of `s'` (`FreeBlk` on
+each torus), with a site `x_b` of the block in the box of radius `R`; then only the inputs on the
+unit points of the block are compared, and no agreement of the backgrounds is used. -/
+theorem decCovSqrt_rows_transport3 {a : ℕ → ℝ} {aT ν δ κ : ℝ}
+    {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    {X₁' Y' : Finset (CTorus d L N₁' m₁ (k + 1))} {𝒞' : Finset (ℕ × CTorus d L N₁' m₁ (k + 1))}
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ (GA).Ω 1) Y)
+    (hYc : IsNnComp ((Vset X₁' 𝒞').filter fun x => x ∈ (GB).Ω 1) Y')
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {s' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℂ}
+    (hs0 : ∀ P ∈ parCubes (GA) X₁, P ∉ 𝒞 → s P = 0)
+    (hs0' : ∀ P ∈ parCubes (GB) X₁', P ∉ 𝒞' → s' P = 0)
+    (hY' : Y.image bm = Y') (hB' : (SY (GA) X₁ 𝒞 Y).image bm = SY (GB) X₁' 𝒞' Y')
+    (hagree : ∀ q ∈ innerCentres (GA) (SY (GA) X₁ 𝒞 Y),
+      sProd (GB) s' (Prod.map id bm q) = sProd (GA) s q)
+    {R : ℕ} (hYR : ∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {α : (GA).Ω 1 → ℂ} {α' : (GB).Ω 1 → ℂ}
+    (hα : ∀ x : (GA).Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY (GA) X₁ 𝒞 Y → α' (ιb x) = α x)
+    {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {φ' : CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ}
+    (hφR : ∀ u ∈ rowsCov_R (GA) a aT ν α X₁ 𝒞 Y, φ' (bm u) = φ u)
+    (hfam : ∀ x, 0 ≤ x → XData (GA) a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData (GB) a aT ν x α' κ s')
+    (hφ : IsConstraintField (GA) δ φ) (hφ' : IsConstraintField (GB) δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hcomp : CompleteBlocks (GA) Y)
+    (h : unitPts (GA) × Fin N → ℂ) (h' : unitPts (GB) × Fin N → ℂ) {b : unitPts (GA)}
+    (hb : UnitOut (GA) Y b ∨ (FreeBlk (GA) s s b ∧ FreeBlk (GB) s' s' (ιu b) ∧
+      ∃ xb : CTorus d L N₁ m₁ (k + 1), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) xb ∧
+        unitBlock1 (b : UnitTorus d L N₁ m₁ k) = jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) xb))
+    (hh : ∀ b' : unitPts (GA), (UnitOut (GA) Y b' ∨
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) = unitBlock1 (b' : UnitTorus d L N₁ m₁ k)) → ∀ i,
+      h' (ιu b', i) = h (b', i))
+    (i : Fin N) :
+    (decCovSqrt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) *ᵥ h') (ιu b, i) =
+      (decCovSqrt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) *ᵥ h) (b, i) := by
+  rcases hb with hb | ⟨hfree, hfree', xb, hxbR, hxb⟩
+  · exact decCovSqrt_rows_transport_of_complete hconn hconn' hY hYc hs0 hs0' hY' hB' hagree hYR
+      hn hn' hα hφR hfam hfam' hφ hφ' hδ hsm hcomp h h' (fun b' hb' => hh b' (Or.inl hb')) hb i
+  · classical
+    have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+      Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+    have Hs := (standing_pair hfam hφ hδ hsm).1
+    have Hs' := (standing_pair hfam' hφ' hδ hsm).1
+    have e1 := intMat_mulVec_apply (integrable_decSqrtInt Hs) h (b, i)
+    have e2 := intMat_mulVec_apply (integrable_decSqrtInt Hs') h' (ιu b, i)
+    have e3 : ∫ x in Ioi (0 : ℝ),
+        (decSqrtInt (GB) a aT ν α' s' φ' (unitQ (GB)) (unitP (GB)) x *ᵥ h') (ιu b, i) =
+        ∫ x in Ioi (0 : ℝ),
+          (decSqrtInt (GA) a aT ν α s φ (unitQ (GA)) (unitP (GA)) x *ᵥ h) (b, i) := by
+      refine setIntegral_congr_fun measurableSet_Ioi fun x _ => ?_
+      simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+      rw [decCov_rows_transport_free (R := R) (by omega) (by omega) hxbR hxb hfree hfree' h h'
+        (fun b3 h3 j => hh b3 (Or.inr h3.symm) j) i]
+    simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
+    rw [e1, e2, e3]
+
 end CovRows
 
 end Balaban.Polymer.TwoTorusStep
