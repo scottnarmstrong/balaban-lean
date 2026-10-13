@@ -65,16 +65,17 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
 
 /-- **Compatibility of a symmetry with the polymers**: the symmetry `σ` maps the parameter cube of
-the centre `q` to the parameter cube of `τ q`, and the set `D(P)` to the set `D(τ P)`. -/
+the centre `q` to the parameter cube of `τ q`, and the set `D(P)` to the set `D(τ P)`, for the
+centres `q` of the cover (a translation cannot satisfy this at the centres of other layers). -/
 structure PolymerSymm (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ : ℕ)
     (σ : Equiv.Perm (CTorus d L N₁ m₁ K)) (τ : Equiv.Perm (ℕ × CTorus d L N₁ m₁ K)) : Prop where
-  pset : ∀ q x, σ x ∈ Pset m₁ (τ q) ↔ x ∈ Pset m₁ q
-  dsites : ∀ q, Dsites G m₀ (τ q) = σ '' Dsites G m₀ q
+  pset : ∀ q ∈ (coverOf G).cubeIdx, ∀ x, σ x ∈ Pset m₁ (τ q) ↔ x ∈ Pset m₁ q
+  dsites : ∀ q ∈ (coverOf G).cubeIdx, Dsites G m₀ (τ q) = σ '' Dsites G m₀ q
 
 theorem polymerSymm_refl (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ : ℕ) :
     PolymerSymm G m₀ (1 : Equiv.Perm (CTorus d L N₁ m₁ K))
       (1 : Equiv.Perm (ℕ × CTorus d L N₁ m₁ K)) :=
-  ⟨fun _ _ => Iff.rfl, fun q => by simp⟩
+  ⟨fun _ _ _ => Iff.rfl, fun q _ => by simp⟩
 
 theorem polymerSymm_nonempty (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m₀ : ℕ) :
     ∃ (σ : Equiv.Perm (CTorus d L N₁ m₁ K)) (τ : Equiv.Perm (ℕ × CTorus d L N₁ m₁ K)),
@@ -82,19 +83,20 @@ theorem polymerSymm_nonempty (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (m�
 
 variable {σ : Equiv.Perm (CTorus d L N₁ m₁ K)} {τ : Equiv.Perm (ℕ × CTorus d L N₁ m₁ K)}
 
-theorem PolymerSymm.image_pset (P : PolymerSymm G m₀ σ τ) (q : ℕ × CTorus d L N₁ m₁ K) :
+theorem PolymerSymm.image_pset (P : PolymerSymm G m₀ σ τ) {q : ℕ × CTorus d L N₁ m₁ K}
+    (hq : q ∈ (coverOf G).cubeIdx) :
     σ '' Pset m₁ q = Pset m₁ (τ q) := by
   ext z
   obtain ⟨x, rfl⟩ := σ.surjective z
   rw [Set.image_congr (g := σ) fun _ _ => rfl, Set.mem_image_equiv]
   simp only [Equiv.symm_apply_apply]
-  exact (P.pset q x).symm
+  exact (P.pset q hq x).symm
 
 variable {ι ι' : Type*} [DecidableEq ι] [DecidableEq ι']
   (c : ι → ℕ × CTorus d L N₁ m₁ K) (c' : ι' → ℕ × CTorus d L N₁ m₁ K) (κ : ι ≃ ι')
-  (hc : ∀ i, c' (κ i) = τ (c i))
+  (hc : ∀ i, c' (κ i) = τ (c i)) (hI : ∀ i, c i ∈ (coverOf G).cubeIdx)
 
-include hc
+include hc hI
 
 omit [DecidableEq ι] [DecidableEq ι'] in
 theorem patchUnion_relabel (P : PolymerSymm G m₀ σ τ) (X₁ : Set (CTorus d L N₁ m₁ K)) (C : Finset ι) :
@@ -107,11 +109,11 @@ theorem patchUnion_relabel (P : PolymerSymm G m₀ σ τ) (X₁ : Set (CTorus d 
   simp only [Set.mem_iUnion, Finset.mem_map, Equiv.coe_toEmbedding, exists_prop, Set.mem_image]
   constructor
   · rintro ⟨i', ⟨i, hi, rfl⟩, hx⟩
-    rw [hc, ← P.image_pset] at hx
+    rw [hc, ← P.image_pset (hI _)] at hx
     obtain ⟨y, hy, rfl⟩ := hx
     exact ⟨y, ⟨i, hi, hy⟩, rfl⟩
   · rintro ⟨y, ⟨i, hi, hy⟩, rfl⟩
-    exact ⟨κ i, ⟨i, hi, rfl⟩, by rw [hc, ← P.image_pset]; exact ⟨y, hy, rfl⟩⟩
+    exact ⟨κ i, ⟨i, hi, rfl⟩, by rw [hc, ← P.image_pset (hI _)]; exact ⟨y, hy, rfl⟩⟩
 
 omit [DecidableEq ι] [DecidableEq ι'] in
 theorem Ysites_relabel (P : PolymerSymm G m₀ σ τ) (X₁ : Set (CTorus d L N₁ m₁ K)) (C : Finset ι) :
@@ -123,11 +125,11 @@ theorem Ysites_relabel (P : PolymerSymm G m₀ σ τ) (X₁ : Set (CTorus d L N�
   simp only [Set.mem_iUnion, Finset.mem_map, Equiv.coe_toEmbedding, exists_prop, Set.mem_image]
   constructor
   · rintro ⟨i', ⟨i, hi, rfl⟩, hx⟩
-    rw [hc, P.dsites] at hx
+    rw [hc, P.dsites _ (hI _)] at hx
     obtain ⟨y, hy, rfl⟩ := hx
     exact ⟨y, ⟨i, hi, hy⟩, rfl⟩
   · rintro ⟨y, ⟨i, hi, hy⟩, rfl⟩
-    exact ⟨κ i, ⟨i, hi, rfl⟩, by rw [hc, P.dsites]; exact ⟨y, hy, rfl⟩⟩
+    exact ⟨κ i, ⟨i, hi, rfl⟩, by rw [hc, P.dsites _ (hI _)]; exact ⟨y, hy, rfl⟩⟩
 
 
 omit [DecidableEq ι] [DecidableEq ι'] in
@@ -135,7 +137,7 @@ theorem compY_relabel (P : PolymerSymm G m₀ σ τ)
     (S : LatSymm G G σ) (X₁ : Set (CTorus d L N₁ m₁ K)) (C : Finset ι) :
     compY c' (σ '' X₁) (C.map κ.toEmbedding) = σ '' compY c X₁ C := by
   unfold compY
-  rw [patchUnion_relabel c c' κ hc P]
+  rw [patchUnion_relabel c c' κ hc hI P]
   refine componentOf_image (latGraph d ((N₁ * L ^ m₁) * L ^ K)) σ (fun a b => ?_) _ _
   show (σ a ≠ σ b ∧ Nbr (σ a) (σ b)) ↔ (a ≠ b ∧ Nbr a b)
   rw [σ.injective.ne_iff]
@@ -147,15 +149,15 @@ theorem isConnectedFamily_relabel (P : PolymerSymm G m₀ σ τ)
     IsConnectedFamily (fun i' => Pset m₁ (c' i')) (compY c' (σ '' X₁)) (C.map κ.toEmbedding) ↔
       IsConnectedFamily (fun i => Pset m₁ (c i)) (compY c X₁) C := by
   unfold IsConnectedFamily
-  rw [compY_relabel c c' κ hc P S]
+  rw [compY_relabel c c' κ hc hI P S]
   constructor
   · intro h i hi
     have := h (κ i) (Finset.mem_map_of_mem _ hi)
-    simp only [hc, ← P.image_pset] at this
+    simp only [hc, ← P.image_pset (hI _)] at this
     exact (Set.image_subset_image_iff σ.injective).1 this
   · intro h i' hi'
     obtain ⟨i, hi, rfl⟩ := Finset.mem_map.1 hi'
-    simp only [Equiv.coe_toEmbedding, hc, ← P.image_pset]
+    simp only [Equiv.coe_toEmbedding, hc, ← P.image_pset (hI _)]
     exact Set.image_mono (h i hi)
 
 end Polymers
@@ -167,9 +169,9 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
 variable {σ : Equiv.Perm (CTorus d L N₁ m₁ K)} {τ : Equiv.Perm (ℕ × CTorus d L N₁ m₁ K)}
 variable {ι ι' : Type*} [DecidableEq ι] [Fintype ι] [DecidableEq ι'] [Fintype ι']
   (c : ι → ℕ × CTorus d L N₁ m₁ K) (c' : ι' → ℕ × CTorus d L N₁ m₁ K) (κ : ι ≃ ι')
-  (hc : ∀ i, c' (κ i) = τ (c i))
+  (hc : ∀ i, c' (κ i) = τ (c i)) (hI : ∀ i, c i ∈ (coverOf G).cubeIdx)
 
-include hc
+include hc hI
 
 omit [DecidableEq ι] [DecidableEq ι'] in
 /-- **The connected families are transported by the relabelling.** -/
@@ -185,30 +187,31 @@ theorem connFams_relabel (P : PolymerSymm G m₀ σ τ) (S : LatSymm G G σ)
     · rw [mem_connFams]
       have e : C' = (C'.map κ.symm.toEmbedding).map κ.toEmbedding := by ext j; simp
       rw [e] at h1 h2
-      refine ⟨(isConnectedFamily_relabel c c' κ hc P S X₁ _).1 h1, ?_⟩
-      rw [Ysites_relabel c c' κ hc P] at h2
+      refine ⟨(isConnectedFamily_relabel c c' κ hc hI P S X₁ _).1 h1, ?_⟩
+      rw [Ysites_relabel c c' κ hc hI P] at h2
       exact σ.injective.image_injective h2
     · ext j; simp
   · rintro ⟨C, hC, rfl⟩
     rw [mem_connFams] at hC
     refine ⟨?_, ?_⟩
-    · exact (isConnectedFamily_relabel c c' κ hc P S X₁ C).2 hC.1
+    · exact (isConnectedFamily_relabel c c' κ hc hI P S X₁ C).2 hC.1
     · simp only [Function.Embedding.coeFn_mk]
-      rw [Ysites_relabel c c' κ hc P, hC.2]
+      rw [Ysites_relabel c c' κ hc hI P, hC.2]
 
-omit hc in
+omit hc hI in
 /-- **Lattice-symmetry covariance of the terms `𝓔(X, Y)`**: if the function expanded is transported by
 a relabelling `κ` of the parameters (at the points of the unit polydisc) and the centres by `τ`, then
 `𝓔(σ X, σ Y)(u') = 𝓔(X, Y)(u)`. -/
 theorem evTerm_relabel {R : ℝ} (hR : 1 < R) (P : PolymerSymm G m₀ σ τ) (S : LatSymm G G σ)
-    (hc : ∀ i, c' (κ i) = τ (c i)) (X₁ Y : Set (CTorus d L N₁ m₁ K))
+    (hc : ∀ i, c' (κ i) = τ (c i)) (hI : ∀ i, c i ∈ (coverOf G).cubeIdx)
+    (X₁ Y : Set (CTorus d L N₁ m₁ K))
     {U U' : Type*} {F : U → (ι → ℂ) → ℂ} {F' : U' → (ι' → ℂ) → ℂ} {u : U} {u' : U'}
     (hF : AnalyticOnNhd ℂ (F u) (polydisc (0 : ι → ℂ) (fun _ => R)))
     (hF' : AnalyticOnNhd ℂ (F' u') (polydisc (0 : ι' → ℂ) (fun _ => R)))
     (hff : ∀ s ∈ unitCube ι', F' u' s = F u (s ∘ κ)) :
     evTerm c' G m₀ (σ '' X₁) F' (σ '' Y) u' = evTerm c G m₀ X₁ F Y u := by
   unfold evTerm
-  rw [connFams_relabel c c' κ hc P S X₁ Y, Finset.sum_map]
+  rw [connFams_relabel c c' κ hc hI P S X₁ Y, Finset.sum_map]
   exact Finset.sum_congr rfl fun C _ => coef_relabel hR κ hF hF' hff C
 
 end Terms
