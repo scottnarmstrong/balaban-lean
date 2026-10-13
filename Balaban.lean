@@ -506,6 +506,7 @@ public import Balaban.LargeField.History.EarlyMassRatio
 public import Balaban.LargeField.History.PostWeightSupport
 public import Balaban.LargeField.History.LocalOutputTransport
 public import Balaban.LargeField.History.D1ParentDomain
+public import Balaban.LargeField.History.InitialBetaBridge
 public import Balaban.Inhabited.EarlyMassRatioWitness
 public import Balaban.Inhabited.ParentDomainWitness
 public import Balaban.LargeField.History.Entry
