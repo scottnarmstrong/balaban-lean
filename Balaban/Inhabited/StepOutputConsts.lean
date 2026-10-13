@@ -98,13 +98,14 @@ end StepOutputConsts
 
 private theorem log_two_pos' : 0 < Real.log 2 := Real.log_pos (by norm_num)
 
-/-- For every prescribed `κ_min` there is a record for every `d ≥ 1` (here `d ≥ 3`) and `L` with
-`κ_min ≤ κ`, with `κ₀ = a_Ent + 2` and `κ_dec = 100 (κ₀ + c₁ + 10)`.  The proof takes
+/-- For every entropy rate `κ₀ ≥ a_Ent + 2` and every prescribed `κ_min` there is a record for
+`d ≥ 3` and `L ≥ 3` with `κ_min ≤ κ`, the given `κ₀` and `κ_dec = 100 (κ₀ + c₁ + 10)`.  The proof
+takes
 `κ = max κ_min (max (4 d (2L+1)^d κ_dec) (κ_hull + 1))` with
 `κ_hull = 2 d L (1 + c_G c₁) (κ_out + c₁ log 2) + log 2 + 2 log (detDeg d L + 1)`. -/
-theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
-    (κmin : ℝ) :
-    ∃ C : StepOutputConsts d L, κmin ≤ C.kapp ∧ C.k0 = aEnt d L + 2 ∧
+theorem stepOutput_consts_exists_ge_general_atK0 (d L : ℕ) [NeZero L] (hd : 3 ≤ d)
+    (hL : 3 ≤ L) (k0 : ℝ) (hk0 : aEnt d L + 2 ≤ k0) (κmin : ℝ) :
+    ∃ C : StepOutputConsts d L, κmin ≤ C.kapp ∧ C.k0 = k0 ∧
       C.kdec = 100 * (C.k0 + c1 d L + 10) := by
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
   have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
@@ -112,7 +113,6 @@ theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d
   have hcG : cG d L = 2 * d * L := rfl
   have hent : 0 ≤ aEnt d L := aEnt_nonneg d L
   have hl2 := log_two_pos'
-  obtain ⟨k0, h0⟩ : ∃ x : ℝ, x = aEnt d L + 2 := ⟨_, rfl⟩
   obtain ⟨kdec, hdec⟩ : ∃ x : ℝ, x = 100 * (k0 + c1 d L + 10) := ⟨_, rfl⟩
   obtain ⟨k', hk'⟩ : ∃ x : ℝ, x = 3 / 2 * kdec + k0 + 1 := ⟨_, rfl⟩
   obtain ⟨kout, hout⟩ : ∃ x : ℝ, x = 3 / 2 * kdec := ⟨_, rfl⟩
@@ -132,7 +132,7 @@ theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d
       + Real.log 2 + 2 * Real.log D := ⟨_, rfl⟩
   obtain ⟨M, hM⟩ : ∃ x : ℝ, x = 4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) := ⟨_, rfl⟩
   obtain ⟨kapp, hkapp⟩ : ∃ x : ℝ, x = max κmin (max (M * kdec) (khull + 1)) := ⟨_, rfl⟩
-  have hk0 : 2 ≤ k0 := by linarith
+  have hk02 : 2 ≤ k0 := by linarith
   have hdec1 : 3 * k0 + c1 d L + 5 ≤ kdec := by rw [hdec]; linarith
   have hkdec0 : 0 ≤ kdec := by linarith
   have hkout0 : 0 ≤ kout := by linarith
@@ -159,7 +159,7 @@ theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d
     rw [Real.exp_neg, ← div_eq_mul_inv, div_lt_one (Real.exp_pos _)]
     exact h2
   have hKpos : 0 ≤ K0 d L k0 := (K0_pos d L k0).le
-  have e1 : aEnt d L + 2 ≤ k0 := by linarith
+  have e1 : aEnt d L + 2 ≤ k0 := hk0
   have e2 : 3 * k0 + 3 ≤ kdec := by linarith
   have e3 : 3 * k0 + c1 d L + 5 ≤ kdec := hdec1
   have e4 : kdec ≤ kout := by linarith
@@ -168,7 +168,7 @@ theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d
   refine ⟨StepOutputConsts.mk k0 kdec k' kout kH kapp ((kapp - Lg - 2 * Real.log D) / g)
     ((kapp - Lg - 2 * Real.log D) / g / (1 + Bh) - c1 d L * Lg) Bh (2 * (K0 d L k0 + 1))
     (2 * K0 d L k0) (2 * (K0 d L k0 + 1) + 2 * K0 d L k0) e1 e2 e3 hk' hout hkH e4 e5 e6
-    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl le_rfl rfl, hk1, h0, hdec⟩
+    ?_ ?_ ?_ ?_ ?_ ?_ ?_ rfl le_rfl rfl, hk1, rfl, hdec⟩
   · rw [← hM]; exact hk2
   · rw [← hD, hLg, hg]
   · have h1 : kout + c1 d L * Lg ≤ (1 + Bh) * (kout + c1 d L * Lg) - kout := by nlinarith
@@ -181,6 +181,32 @@ theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d
     have : kout + c1 d L * Lg ≤ (kapp - Lg - 2 * Real.log D) / g / (1 + Bh) := by
       rw [le_div_iff₀ hBp]; linarith
     linarith
+
+/-- For every prescribed `κ_min` there is a record for every `d ≥ 1` (here `d ≥ 3`) and `L` with
+`κ_min ≤ κ`, with `κ₀ = a_Ent + 2` and `κ_dec = 100 (κ₀ + c₁ + 10)`. -/
+theorem stepOutput_consts_exists_ge_general (d L : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (κmin : ℝ) :
+    ∃ C : StepOutputConsts d L, κmin ≤ C.kapp ∧ C.k0 = aEnt d L + 2 ∧
+      C.kdec = 100 * (C.k0 + c1 d L + 10) :=
+  stepOutput_consts_exists_ge_general_atK0 d L hd hL _ le_rfl κmin
+
+/-- **Output-rate floor.**  For every `κ_root`, `entropyLoss` and `κ_min` there is a record with
+`κ_min ≤ κ` and `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`, which is the output rate `κ_out`. -/
+theorem stepOutput_consts_exists_floor (d L : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (κroot entropyLoss κmin : ℝ) :
+    ∃ C : StepOutputConsts d L, κmin ≤ C.kapp ∧
+      C.kdec = 100 * (C.k0 + c1 d L + 10) ∧
+      entropyLoss + c1 d L * κroot ≤ 3 / 2 * C.kdec := by
+  obtain ⟨C, h1, h2, h3⟩ := stepOutput_consts_exists_ge_general_atK0 d L hd hL
+    (max (aEnt d L + 2) ((entropyLoss + c1 d L * κroot) / 150)) (le_max_left _ _) κmin
+  refine ⟨C, h1, h3, ?_⟩
+  have hm : (entropyLoss + c1 d L * κroot) / 150 ≤ C.k0 := by
+    rw [h2]; exact le_max_right _ _
+  have hc := one_le_c1 d L
+  have hent := aEnt_nonneg d L
+  have hk := C.k0_ent
+  rw [h3]
+  linarith
 
 /-- For every prescribed `κ_min` there is a record at `d = L = 3` with `κ_min ≤ κ`, with
 `κ₀ = a_Ent + 2` and `κ_dec = 100 (κ₀ + c₁ + 10)`. -/
