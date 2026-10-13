@@ -131,3 +131,10 @@ summation, not the algebraic `sub_at_zero` step.
 - `composeData_agree_on_X`: for `GsSpecStrong j _ X Gj`, `composeData` of `Gj` over `stepG` and of `levelGS j` over `stepG` (any `φ`, `D`) have the same field and source at every site of `X`.
 - `classOldEndpoint_complex`, `classOldEndpoint_real`: for a label `(j, y, X)` with `GsSpecStrong` of `Gj` (`BgSetting` with generator `Gj`, `Gk = stepG`), `hatFun (flComp hB hF Eτ) (rawOf D', hatC z) = β⁻¹ Tm.E j y X (composedPairAt… (dataU (psiAt 1 z)))` for `‖z‖ < pp` (complex: `composedPairAtC`, `dataUC`, `psiAtC`). Proof: the landed whole-level steps (`flDatumOne_stepG`, `psiAtC_eq`, `composedPairAtC_eq_of_bg`) plus `localE` and the agreement on `X`. This is `hid` of `oldEnergyHatMatch_of_label_identity` for each label; only `SFTermClauses` (`localE`) and `GsSpecStrong` of the term generator are used.
 - Not done: the marks consequence (replace `Mk τ` of `GeneralEnergyMarksAssembly` by the `Y`-marked derivatives of the expansion; needs the complex-line derivative of the finite sum `∑_Y Ev Y` and a statement of `hlocxs/hfac` on `Y`'s blocks); the M analogue.
+
+## W748 status (leaf 3, energy marks) — `Fluctuation/ClassOldMarksY.lean`
+
+- `classOldMarksY_expansion`: masked-tangent expansion of one label (`flComp Eτ` at `markedTangDec … Zm um tm` = `∑_Y Ev Y um tm`), with locality (`AgHatDir`), bound, analyticity in marks, Cauchy bound, vanishing of `∂_t` for `Y` missing the mask, and exact locality of the mark in `ψ̂` at the unit points of `Y`. Uses LC copies of the marked engine (`fanH_analytic_marked_LC`, `i5_functional_hat_marked_exposed_pair_LC`: `Φ` assumed on `FlRealLC`, since `eTermFun` is analytic only there) and `markedTangDec_mem_flBallLC`.
+- `flDatumOne_stepG_liftC`, `classOldEndpoint_liftC`: endpoint identity at any complex tangent `liftC v`.
+- `deriv_eq_sum_of_expansion`, `hasDerivAt_comp_marked`: generator-independent derivative identity `Etil'(0) = β ∑_Y Ev_Y'(0)`; `deriv_classLabel_marked_eq_sum` its stepG instance.
+- Not done: restated assembly (`exists_oldMarks_of_labels` over pairs (τ,Y)); the T1 instance uses Gk generic but the endpoint lemma is stepG-specific (see W751).
