@@ -1749,6 +1749,7 @@ public import Balaban.Inhabited.ObsFamilyPrefactor
 public import Balaban.Inhabited.StepIdentityFibre
 public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Inhabited.StepIdentityFibreObs
+public import Balaban.Inhabited.RootTermZeroClass
 public import Balaban.Inhabited.StepIdentityFibreFamilies
 public import Balaban.Fluctuation.CoeffFamilyLocExp
 public import Balaban.Fluctuation.RootSupportBridge
@@ -1760,3 +1761,7 @@ public import Balaban.Inhabited.ObsPrefactorScale
 public import Balaban.Fluctuation.StepOldTermSplit
 public import Balaban.Fluctuation.StepClassPath
 public import Balaban.Fluctuation.StepPhysicalActivityBridge
+public import Balaban.Fluctuation.ClassOldTermInputE
+public import Balaban.Fluctuation.ClassOldTermInputM
+public import Balaban.Fluctuation.RootTorusParameters
+public import Balaban.Fluctuation.StepSettingH
