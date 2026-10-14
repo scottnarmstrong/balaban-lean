@@ -829,6 +829,376 @@ theorem baseResolvent_sub_decay (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
         mul_le_mul_of_nonneg_left h3 (norm_nonneg _)
     _ = _ := by ring
 
+section Matrices
+
+open MeasureTheory Set Balaban.Localization
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+theorem sqNorm_smul_aux {n : Type*} [Fintype n] (c : ℂ) (v : n → ℂ) :
+    sqNorm (c • v) = ‖c‖ ^ 2 * sqNorm v := by
+  unfold sqNorm
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp only [Pi.smul_apply, smul_eq_mul, norm_mul]
+  ring
+
+/-- Entry integrals: the `(z, w)` block of the difference of two Stieltjes square roots is the
+block integral of the difference of the resolvents. -/
+theorem norm_blockOf_sqrtMat_sub_le [Nonempty (ι × Fin N)]
+    {A A' : Matrix (ι × Fin N) (ι × Fin N) ℂ} (hA : ResOK A) (hA' : ResOK A') {κ S : ℝ}
+    (hκ : 0 < κ) (hS : 0 ≤ S) (z w : ι)
+    (hb : ∀ y : ℝ, 0 < y →
+      ‖blockOf (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+        ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹) z w‖ ≤
+          ((κ + y)⁻¹) ^ 2 * S) :
+    ‖blockOf (sqrtMat A - sqrtMat A') z w‖ ≤ S * (κ⁻¹ / Real.sqrt κ) := by
+  set μ : Measure ℝ := volume.restrict (Ioi (0 : ℝ)) with hμ
+  set F : ℝ → Matrix (Fin N) (Fin N) ℂ := fun y => ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+    blockOf (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+      ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹) z w with hF
+  have hint : ∀ i j, Integrable (fun y => F y i j) μ := by
+    intro i j
+    have := (integrable_sqrt_entry hA (z, i) (w, j)).sub (integrable_sqrt_entry hA' (z, i) (w, j))
+    refine this.congr (Filter.Eventually.of_forall fun y => ?_)
+    simp only [Pi.sub_apply, hF, blockOf, Matrix.smul_apply, Matrix.of_apply, Matrix.sub_apply,
+      smul_eq_mul]
+    ring
+  set g : ℝ → ℝ := fun y => y ^ (-(1 / 2 : ℝ)) * ((κ + y)⁻¹) ^ 2 * S with hg
+  have hgint : Integrable g μ := (integrableOn_rpow_inv_add_sq hκ).mul_const S
+  have hg0 : ∀ᵐ y ∂μ, 0 ≤ g y := by
+    refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun y hy => ?_)
+    have h3 : 0 < y ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos (mem_Ioi.mp hy) _
+    simp only [hg]
+    positivity
+  have hbd : ∀ᵐ y ∂μ, ∀ f : Fin N → ℂ, sqNorm (F y *ᵥ f) ≤ (g y) ^ 2 * sqNorm f := by
+    refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun y hy f => ?_)
+    have hy0 : 0 < y := mem_Ioi.mp hy
+    have h3 : 0 < y ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hy0 _
+    set X := blockOf (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+      ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹) z w with hX
+    have hXn : ‖X‖ ≤ ((κ + y)⁻¹) ^ 2 * S := hb y hy0
+    have h1 : F y *ᵥ f = ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (X *ᵥ f) := by
+      simp only [hF, hX, Matrix.smul_mulVec]
+    rw [h1, sqNorm_smul_aux, Complex.norm_real, Real.norm_of_nonneg h3.le]
+    have h2 := sqNorm_mulVec_le_opNorm X f
+    have h4 : ‖X‖ ^ 2 ≤ (((κ + y)⁻¹) ^ 2 * S) ^ 2 :=
+      pow_le_pow_left₀ (norm_nonneg _) hXn 2
+    calc (y ^ (-(1 / 2 : ℝ))) ^ 2 * sqNorm (X *ᵥ f)
+        ≤ (y ^ (-(1 / 2 : ℝ))) ^ 2 * (‖X‖ ^ 2 * sqNorm f) :=
+          mul_le_mul_of_nonneg_left h2 (sq_nonneg _)
+      _ ≤ (y ^ (-(1 / 2 : ℝ))) ^ 2 * ((((κ + y)⁻¹) ^ 2 * S) ^ 2 * sqNorm f) := by
+          gcongr
+          · exact sqNorm_nonneg f
+      _ = (g y) ^ 2 * sqNorm f := by simp only [hg]; ring
+  have hM : blockOf (sqrtMat A - sqrtMat A') z w = ((1 / Real.pi : ℝ) : ℂ) • intMat μ F := by
+    ext i j
+    have e1 := (integrable_sqrt_entry hA (z, i) (w, j))
+    have e2 := (integrable_sqrt_entry hA' (z, i) (w, j))
+    simp only [blockOf, Matrix.of_apply, Matrix.sub_apply, sqrtMat, intMat, Matrix.smul_apply,
+      smul_eq_mul, hF, Matrix.sub_apply]
+    rw [← mul_sub, ← integral_sub e1 e2]
+    congr 1
+    refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+    ring
+  have hG : ∫ y, g y ∂μ ≤ S * (κ⁻¹ * (Real.pi / Real.sqrt κ)) := by
+    have : ∫ y, g y ∂μ = (∫ y in Ioi (0 : ℝ), y ^ (-(1 / 2 : ℝ)) * ((κ + y)⁻¹) ^ 2) * S := by
+      simp only [hg, hμ]
+      exact integral_mul_const S _
+    rw [this, mul_comm]
+    exact mul_le_mul_of_nonneg_left (integral_rpow_inv_add_sq_le hκ) hS
+  have hG0 : 0 ≤ ∫ y, g y ∂μ := integral_nonneg_of_ae hg0
+  have hpi : 0 < Real.pi := Real.pi_pos
+  have hsq : 0 < Real.sqrt κ := Real.sqrt_pos.2 hκ
+  have hK : (1 / Real.pi) * ∫ y, g y ∂μ ≤ S * (κ⁻¹ / Real.sqrt κ) := by
+    calc (1 / Real.pi) * ∫ y, g y ∂μ ≤ (1 / Real.pi) * (S * (κ⁻¹ * (Real.pi / Real.sqrt κ))) :=
+          mul_le_mul_of_nonneg_left hG (by positivity)
+      _ = S * (κ⁻¹ / Real.sqrt κ) := by field_simp
+  refine l2_opNorm_le_of_sqNorm _ (by positivity) fun f => ?_
+  rw [hM, Matrix.smul_mulVec, sqNorm_smul_aux, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+  have h1 := sqNorm_intMat_le μ F hint g hgint hg0 hbd f
+  calc (1 / Real.pi) ^ 2 * sqNorm (intMat μ F *ᵥ f)
+      ≤ (1 / Real.pi) ^ 2 * ((∫ y, g y ∂μ) ^ 2 * sqNorm f) :=
+        mul_le_mul_of_nonneg_left h1 (sq_nonneg _)
+    _ = ((1 / Real.pi) * ∫ y, g y ∂μ) ^ 2 * sqNorm f := by ring
+    _ ≤ (S * (κ⁻¹ / Real.sqrt κ)) ^ 2 * sqNorm f := by
+        gcongr
+        exact sqNorm_nonneg f
+
+/-- The same for the principal logarithm. -/
+theorem norm_blockOf_logMat_sub_le [Nonempty (ι × Fin N)]
+    {A A' : Matrix (ι × Fin N) (ι × Fin N) ℂ} (hA : ResOK A) (hA' : ResOK A') {κ S : ℝ}
+    (hκ : 0 < κ) (hS : 0 ≤ S) (z w : ι)
+    (hb : ∀ y : ℝ, 0 < y →
+      ‖blockOf (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+        ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹) z w‖ ≤
+          ((κ + y)⁻¹) ^ 2 * S) :
+    ‖blockOf (logMat A - logMat A') z w‖ ≤ S * κ⁻¹ := by
+  set μ : Measure ℝ := volume.restrict (Ioi (0 : ℝ)) with hμ
+  set F : ℝ → Matrix (Fin N) (Fin N) ℂ := fun y =>
+    blockOf (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+      ((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹) z w with hF
+  have hint : ∀ i j, Integrable (fun y => F y i j) μ := by
+    intro i j
+    have := (integrable_log_entry hA (z, i) (w, j)).sub (integrable_log_entry hA' (z, i) (w, j))
+    refine this.congr (Filter.Eventually.of_forall fun y => ?_)
+    simp only [Pi.sub_apply, hF, blockOf, Matrix.of_apply, Matrix.sub_apply]
+    ring
+  set g : ℝ → ℝ := fun y => ((κ + y)⁻¹) ^ 2 * S with hg
+  have hgint : Integrable g μ := (integrableOn_inv_add_sq hκ).mul_const S
+  have hg0 : ∀ᵐ y ∂μ, 0 ≤ g y := by
+    refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun y hy => ?_)
+    have : 0 < y := mem_Ioi.mp hy
+    simp only [hg]
+    positivity
+  have hbd : ∀ᵐ y ∂μ, ∀ f : Fin N → ℂ, sqNorm (F y *ᵥ f) ≤ (g y) ^ 2 * sqNorm f := by
+    refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun y hy f => ?_)
+    have hy0 : 0 < y := mem_Ioi.mp hy
+    have h2 := sqNorm_mulVec_le_opNorm (F y) f
+    have h4 : ‖F y‖ ^ 2 ≤ (g y) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) (hb y hy0) 2
+    calc sqNorm (F y *ᵥ f) ≤ ‖F y‖ ^ 2 * sqNorm f := h2
+      _ ≤ (g y) ^ 2 * sqNorm f := mul_le_mul_of_nonneg_right h4 (sqNorm_nonneg f)
+  have hM : blockOf (logMat A - logMat A') z w = ((-1 : ℂ)) • intMat μ F := by
+    ext i j
+    have e1 := (integrable_log_entry hA (z, i) (w, j))
+    have e2 := (integrable_log_entry hA' (z, i) (w, j))
+    have key := integral_sub e1 e2
+    have hFi : ∫ y, F y i j ∂μ = (∫ y, (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+        (((1 + y)⁻¹ : ℝ) : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) (z, i) (w, j) ∂μ) -
+        ∫ y, (((y : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹ -
+        (((1 + y)⁻¹ : ℝ) : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) (z, i) (w, j) ∂μ := by
+      rw [← key]
+      refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+      simp only [hF, blockOf, Matrix.of_apply, Matrix.sub_apply]
+      ring
+    have hlA : logMat A (z, i) (w, j) = -∫ y, (((y : ℂ) •
+        (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A)⁻¹ -
+        (((1 + y)⁻¹ : ℝ) : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) (z, i) (w, j) ∂μ := rfl
+    have hlA' : logMat A' (z, i) (w, j) = -∫ y, (((y : ℂ) •
+        (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) + A')⁻¹ -
+        (((1 + y)⁻¹ : ℝ) : ℂ) • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) (z, i) (w, j) ∂μ := rfl
+    have hI : intMat μ F i j = ∫ y, F y i j ∂μ := rfl
+    simp only [blockOf, Matrix.of_apply, Matrix.sub_apply, Matrix.smul_apply, smul_eq_mul]
+    rw [hlA, hlA', hI, hFi]
+    ring
+  have hG : ∫ y, g y ∂μ = S * κ⁻¹ := by
+    simp only [hg, hμ]
+    rw [integral_mul_const, integral_inv_add_sq hκ, mul_comm]
+  refine l2_opNorm_le_of_sqNorm _ (by positivity) fun f => ?_
+  rw [hM, Matrix.smul_mulVec, sqNorm_smul_aux, norm_neg, norm_one]
+  have h1 := sqNorm_intMat_le μ F hint g hgint hg0 hbd f
+  rw [hG] at h1
+  simpa using h1
+
+end Matrices
+
+section Principal
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+
+/-- The resolvent comparison at the points of the integrals defining `sqrtMat` and `logMat`. -/
+theorem baseResolvent_sub_decay' (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η)
+    (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) (z w : G.Ω 1) {y : ℝ} (hy : 0 < y) :
+    ‖blockOf (((y : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) +
+          baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s))⁻¹ -
+        ((y : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) +
+          baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s'))⁻¹) z w‖ ≤
+      ((baseCoercivity L / 4 + y)⁻¹) ^ 2 * ∑ b ∈ baseCutBonds G, ‖s' b - s b‖ *
+        ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+          (∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w))) := by
+  have := baseResolvent_sub_decay G hν ha hα hη0 hη hs hs' e he hy.le z w
+  have hc : ∀ H : Matrix (G.Ω 1) (G.Ω 1) ℂ, baseResolvent N (fun z i => (e z i : ℂ)) H y =
+      ((y : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) +
+        baseOp N (fun z i => (e z i : ℂ)) H)⁻¹ := fun H => by
+    unfold baseResolvent; rw [add_comm]
+  rwa [hc, hc] at this
+
+/-- **Weighted comparison of the principal inverse square root.** -/
+theorem baseSqrt_sub_decay (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η)
+    (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) (z w : G.Ω 1) :
+    ‖blockOf (sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) -
+        sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s'))) z w‖ ≤
+      (∑ b ∈ baseCutBonds G, ‖s' b - s b‖ *
+        ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+          (∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w)))) *
+        ((baseCoercivity L / 4)⁻¹ / Real.sqrt (baseCoercivity L / 4)) := by
+  have hκ : 0 < baseCoercivity L / 4 := by
+    have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity
+  exact norm_blockOf_sqrtMat_sub_le (resOK_baseOp G hν ha hα hη0 hη hs e he)
+    (resOK_baseOp G hν ha hα hη0 hη hs' e he) hκ
+    (Finset.sum_nonneg fun b _ => mul_nonneg (norm_nonneg _) (mul_nonneg
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le)
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))) z w
+    (fun y hy => baseResolvent_sub_decay' G hν ha hα hη0 hη hs hs' e he z w hy)
+
+/-- **Weighted comparison of the principal logarithm.** -/
+theorem baseLog_sub_decay (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η)
+    (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) (z w : G.Ω 1) :
+    ‖blockOf (logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) -
+        logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s'))) z w‖ ≤
+      (∑ b ∈ baseCutBonds G, ‖s' b - s b‖ *
+        ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+          (∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w)))) *
+        (baseCoercivity L / 4)⁻¹ := by
+  have hκ : 0 < baseCoercivity L / 4 := by
+    have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity
+  exact norm_blockOf_logMat_sub_le (resOK_baseOp G hν ha hα hη0 hη hs e he)
+    (resOK_baseOp G hν ha hα hη0 hη hs' e he) hκ
+    (Finset.sum_nonneg fun b _ => mul_nonneg (norm_nonneg _) (mul_nonneg
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le)
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))) z w
+    (fun y hy => baseResolvent_sub_decay' G hν ha hα hη0 hη hs hs' e he z w hy)
+
+end Principal
+
+section CubeComparison
+
+variable {t t' : Torus d (N₀ * L ^ (1 - 1)) → ℂ} {W : Set (Torus d (N₀ * L ^ (1 - 1)))}
+
+/-- The bond parameters of two cube families agree on every bond that does not touch a cube of
+`W`, when the families agree off `W`. -/
+theorem baseCube_param_eq_of_not_mem
+    (htt : ∀ x ∈ G.Ω 1, jBlock d L N₀ 1 1 x ∉ W → t (jBlock d L N₀ 1 1 x) = t' (jBlock d L N₀ 1 1 x))
+    {b : FineBond d L N₀} (hb : b ∈ baseCutBonds G)
+    (hnot : ¬ (jBlock d L N₀ 1 1 b.1 ∈ W ∨ jBlock d L N₀ 1 1 (bondTip b) ∈ W)) :
+    t' (jBlock d L N₀ 1 1 b.1) * t' (jBlock d L N₀ 1 1 (bondTip b)) -
+      t (jBlock d L N₀ 1 1 b.1) * t (jBlock d L N₀ 1 1 (bondTip b)) = 0 := by
+  obtain ⟨h1, h2⟩ := baseCutBonds_endpoints_mem G hb
+  push Not at hnot
+  rw [← htt _ h1 hnot.1, ← htt _ h2 hnot.2, sub_self]
+
+/-- Restricting a sum over `𝓔` to the bonds touching `W`, when the parameter difference has norm
+at most `B`. -/
+theorem baseCube_sum_le (htt : ∀ x ∈ G.Ω 1, jBlock d L N₀ 1 1 x ∉ W →
+      t (jBlock d L N₀ 1 1 x) = t' (jBlock d L N₀ 1 1 x))
+    {B : ℝ} (hΔ : ∀ b ∈ baseCutBonds G, ‖t' (jBlock d L N₀ 1 1 b.1) *
+      t' (jBlock d L N₀ 1 1 (bondTip b)) - t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))‖ ≤ B) (f : FineBond d L N₀ → ℝ)
+    (hf : ∀ b, 0 ≤ f b) :
+    ∑ b ∈ baseCutBonds G, ‖t' (jBlock d L N₀ 1 1 b.1) * t' (jBlock d L N₀ 1 1 (bondTip b)) -
+        t (jBlock d L N₀ 1 1 b.1) * t (jBlock d L N₀ 1 1 (bondTip b))‖ * f b ≤
+      B * ∑ b ∈ (baseCutBonds G).filter (fun b => jBlock d L N₀ 1 1 b.1 ∈ W ∨
+        jBlock d L N₀ 1 1 (bondTip b) ∈ W), f b := by
+  classical
+  rw [← Finset.sum_filter_of_ne (p := fun b => jBlock d L N₀ 1 1 b.1 ∈ W ∨
+      jBlock d L N₀ 1 1 (bondTip b) ∈ W), Finset.mul_sum]
+  · refine Finset.sum_le_sum fun b hb => ?_
+    exact mul_le_mul_of_nonneg_right (hΔ b (Finset.mem_filter.1 hb).1) (hf b)
+  · intro b hb hne
+    by_contra hnot
+    exact hne (by rw [baseCube_param_eq_of_not_mem G htt hb hnot, norm_zero, zero_mul])
+
+variable [Nonempty (G.Ω 1)] [NeZero N] {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ}
+variable (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+  (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+  (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+  {ρ : ℝ} (hρη : ρ ^ 2 ≤ η)
+  (ht : ∀ x ∈ G.Ω 1, ‖t (jBlock d L N₀ 1 1 x)‖ ≤ ρ)
+  (ht' : ∀ x ∈ G.Ω 1, ‖t' (jBlock d L N₀ 1 1 x)‖ ≤ ρ)
+  (htt : ∀ x ∈ G.Ω 1, jBlock d L N₀ 1 1 x ∉ W →
+    t (jBlock d L N₀ 1 1 x) = t' (jBlock d L N₀ 1 1 x)) (z w : G.Ω 1)
+
+include hν ha hα hη0 hη he hρη ht ht' htt
+
+theorem baseCube_param_sub_le {b : FineBond d L N₀} (hb : b ∈ baseCutBonds G) :
+    ‖t' (jBlock d L N₀ 1 1 b.1) * t' (jBlock d L N₀ 1 1 (bondTip b)) -
+      t (jBlock d L N₀ 1 1 b.1) * t (jBlock d L N₀ 1 1 (bondTip b))‖ ≤ 2 * ρ ^ 2 := by
+  obtain ⟨h1, h2⟩ := baseCutBonds_endpoints_mem G hb
+  have e1 := ht _ h1
+  have e2 := ht _ h2
+  have e1' := ht' _ h1
+  have e2' := ht' _ h2
+  refine (norm_sub_le _ _).trans ?_
+  rw [norm_mul, norm_mul]
+  nlinarith [mul_le_mul e1' e2' (norm_nonneg _) ((norm_nonneg _).trans e1'),
+    mul_le_mul e1 e2 (norm_nonneg _) ((norm_nonneg _).trans e1)]
+
+/-- **Weighted comparison of the resolvent for two cube families which differ only on the cubes of
+`W`.**  Only bonds touching a cube of `W` contribute. -/
+theorem baseCube_resolvent_sub_decay {x : ℝ} (hx : 0 ≤ x) :
+    ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))) x -
+      baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+          t' (jBlock d L N₀ 1 1 (bondTip b)))) x) z w‖ ≤
+      ((baseCoercivity L / 4 + x)⁻¹) ^ 2 * (2 * ρ ^ 2 *
+        ∑ b ∈ (baseCutBonds G).filter (fun b => jBlock d L N₀ 1 1 b.1 ∈ W ∨
+            jBlock d L N₀ 1 1 (bondTip b) ∈ W),
+          ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+            (∑ y' : G.Ω 1, |bondVec b y'| *
+              Real.exp (-baseDecayRate d L ν * siteDist G y' w)))) := by
+  have hs := baseCube_param_mem_of_norm_le G hρη ht
+  have hs' := baseCube_param_mem_of_norm_le G hρη ht'
+  refine (baseResolvent_sub_decay G hν ha hα hη0 hη hs hs' e he hx z w).trans ?_
+  refine mul_le_mul_of_nonneg_left ?_ (sq_nonneg _)
+  exact baseCube_sum_le G htt (fun b hb => baseCube_param_sub_le G hν ha hα hη0 hη e he hρη ht ht' htt hb) _
+    (fun b => mul_nonneg (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le)
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))
+
+/-- **Weighted comparison of the principal inverse square root** for two cube families which
+differ only on the cubes of `W`. -/
+theorem baseCube_sqrt_sub_decay :
+    ‖blockOf (sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b))))) -
+      sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+          t' (jBlock d L N₀ 1 1 (bondTip b)))))) z w‖ ≤
+      (2 * ρ ^ 2 *
+        ∑ b ∈ (baseCutBonds G).filter (fun b => jBlock d L N₀ 1 1 b.1 ∈ W ∨
+            jBlock d L N₀ 1 1 (bondTip b) ∈ W),
+          ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+            (∑ y' : G.Ω 1, |bondVec b y'| *
+              Real.exp (-baseDecayRate d L ν * siteDist G y' w)))) *
+        ((baseCoercivity L / 4)⁻¹ / Real.sqrt (baseCoercivity L / 4)) := by
+  have hs := baseCube_param_mem_of_norm_le G hρη ht
+  have hs' := baseCube_param_mem_of_norm_le G hρη ht'
+  have hκ : 0 < baseCoercivity L / 4 := by
+    have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity
+  refine (baseSqrt_sub_decay G hν ha hα hη0 hη hs hs' e he z w).trans ?_
+  refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+  exact baseCube_sum_le G htt (fun b hb => baseCube_param_sub_le G hν ha hα hη0 hη e he hρη ht ht' htt hb) _
+    (fun b => mul_nonneg (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le)
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))
+
+/-- **Weighted comparison of the principal logarithm** for two cube families which differ only on
+the cubes of `W`. -/
+theorem baseCube_log_sub_decay :
+    ‖blockOf (logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b))))) -
+      logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+          t' (jBlock d L N₀ 1 1 (bondTip b)))))) z w‖ ≤
+      (2 * ρ ^ 2 *
+        ∑ b ∈ (baseCutBonds G).filter (fun b => jBlock d L N₀ 1 1 b.1 ∈ W ∨
+            jBlock d L N₀ 1 1 (bondTip b) ∈ W),
+          ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+            (∑ y' : G.Ω 1, |bondVec b y'| *
+              Real.exp (-baseDecayRate d L ν * siteDist G y' w)))) *
+        (baseCoercivity L / 4)⁻¹ := by
+  have hs := baseCube_param_mem_of_norm_le G hρη ht
+  have hs' := baseCube_param_mem_of_norm_le G hρη ht'
+  have hκ : 0 < baseCoercivity L / 4 := by
+    have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity
+  refine (baseLog_sub_decay G hν ha hα hη0 hη hs hs' e he z w).trans ?_
+  refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+  exact baseCube_sum_le G htt (fun b hb => baseCube_param_sub_le G hν ha hα hη0 hη e he hρη ht ht' htt hb) _
+    (fun b => mul_nonneg (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le)
+      (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))
+
+end CubeComparison
+
 end Comparison
 
 end Balaban.LargeField.Base
