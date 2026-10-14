@@ -1111,20 +1111,25 @@ theorem castL1_val_f {f : L1Torus d N → L1Torus d N'}
   funext μ
   simp [castL1, castTorus, hf]
 
-/-- **The entries of the final operators of two tori on the window `Y(C)`** differ by at most
-`C₀ exp(-c₀ (min N N' / 2 - (J + 3) M))` (`C₀`, `c₀` depend on `d`, `L`, `k` only). -/
-theorem final_region_entry_close (hd : 0 < d) :
-    ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
-      ∀ {M J N N' : ℕ} [NeZero N] [NeZero N'], 0 < M → 2 * (J + 6) * M ≤ N →
+/-- **The entries of the final operators of two tori on the window `Y(C)`, from the closeness of
+the entries on a cube**: if the entries of `finalOp` at the sites of a cube of the two tori differ
+by at most `C exp(-c (Rm - Rc))` (`hmain`), then on the window they differ by at most
+`C exp(3c/2) exp(-c (min N N' / 2 - (J + 3) M))`. -/
+theorem final_region_entry_close_of_entries {C c : ℝ} (hC : 0 < C) (hc : 0 < c) {v a : ℝ}
+    (hmain : ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {Rm Rc : ℕ}, 2 * Rm + 1 < m → 2 * Rm + 1 < m' →
+      Rc + 1 ≤ Rm → ∀ {y y' : Fin d → ℤ}, y ∈ sqBox d Rc → y' ∈ sqBox d Rc →
+      ‖finalOp d L m k v a (castL1 m y) (castL1 m y') -
+          finalOp d L m' k v a (castL1 m' y) (castL1 m' y')‖ ≤
+        C * Real.exp (-c * ((Rm : ℝ) - Rc))) :
+    ∀ {M J N N' : ℕ} [NeZero N] [NeZero N'], 0 < M → 2 * (J + 6) * M ≤ N →
       2 * (J + 6) * M ≤ N' → ∀ {f : L1Torus d N → L1Torus d N'},
       (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
-      ∀ {C : Finset (MacIdx d N M)}, (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
-      ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ∀ {C' : Finset (MacIdx d N M)}, (∀ z ∈ C', ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ x ∈ macRegion d N M C', ∀ y ∈ macRegion d N M C',
       ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤
-        C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) := by
-  obtain ⟨C, c, hC, hc, hmain⟩ := finalOp_entry_close (d := d) (L := L) (k := k) hd
-  refine ⟨C * Real.exp (3 / 2 * c), c, by positivity, hc, ?_⟩
-  intro v a hv0 hv1 ha1 ha2 M J N N' _ _ hM hN hN' f hf C' hC' x hx y hy
+        (C * Real.exp (3 / 2 * c)) *
+          Real.exp (-c * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) := by
+  intro M J N N' _ _ hM hN hN' f hf C' hC' x hx y hy
   set S := min N N' with hS
   have hSN : S ≤ N := min_le_left _ _
   have hSN' : S ≤ N' := min_le_right _ _
@@ -1144,7 +1149,7 @@ theorem final_region_entry_close (hd : 0 < d) :
     have := (hym μ).2
     rw [abs_of_nonneg (by positivity)]
     exact_mod_cast this.le
-  have h := hmain hv0 hv1 ha1 ha2 (m := N) (m' := N') (Rm := (S - 2) / 2) (Rc := W)
+  have h := hmain (m := N) (m' := N') (Rm := (S - 2) / 2) (Rc := W)
     (by omega) (by omega) (by omega) hxbox hybox
   rw [castL1_val_eq, castL1_val_eq, castL1_val_f hf, castL1_val_f hf] at h
   refine h.trans ?_
@@ -1161,6 +1166,24 @@ theorem final_region_entry_close (hd : 0 < d) :
       ≤ C * (Real.exp (3 / 2 * c) * Real.exp (-c * ((S : ℝ) / 2 - (W : ℝ)))) :=
         mul_le_mul_of_nonneg_left this hC.le
     _ = _ := by ring
+
+
+/-- **The entries of the final operators of two tori on the window `Y(C)`** differ by at most
+`C₀ exp(-c₀ (min N N' / 2 - (J + 3) M))` (`C₀`, `c₀` depend on `d`, `L`, `k` only). -/
+theorem final_region_entry_close (hd : 0 < d) :
+    ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+      ∀ {M J N N' : ℕ} [NeZero N] [NeZero N'], 0 < M → 2 * (J + 6) * M ≤ N →
+      2 * (J + 6) * M ≤ N' → ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {C : Finset (MacIdx d N M)}, (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤
+        C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) := by
+  obtain ⟨C, c, hC, hc, hmain⟩ := finalOp_entry_close (d := d) (L := L) (k := k) hd
+  refine ⟨C * Real.exp (3 / 2 * c), c, by positivity, hc, ?_⟩
+  intro v a hv0 hv1 ha1 ha2 M J N N' _ _ hM hN hN' f hf C' hC' x hx y hy
+  exact final_region_entry_close_of_entries (L := L) (k := k) hC hc (hmain hv0 hv1 ha1 ha2) hM hN hN'
+    hf hC' x hx y hy
 
 /-- **Box resolvents of the final operators on two tori (explicit error).**  For a cell `z ∈ C` and
 `x, y ∈ Y(C)`, the entries of `χ_z G_z` differ by at most
@@ -1769,20 +1792,30 @@ theorem integral_cutoff_close (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M �
       Measure.restrict_apply_univ]
   rw [hmu]
 
-/-- **The coefficients of the cutoff interaction of the final operators on two tori.**  The
-localized coefficients `coef J C` and `coef J' (e C)` of
-`J(s) = ∫_{box ρ} F (C_fin(s) ψ) dγ(ψ)` on the two tori differ by at most
-`Lip · |Y(C)| δ ρ γ(box ρ) / (e^κ - 1)^{|C|}`, where `δ = P C₀ exp(-c₀ (min N N'/2 - (J+3) M)) / √g`
-bounds the entries of the Stieltjes families (`final_taggedCfinU_close_twoTorus`).  The functionals
-`F`, `F'` are analytic and bounded on a polydisc of radius `R_F > B_C ρ` (`B_C` the row bound of
-`taggedCfin`), measurable, and correspond up to the Lipschitz bound `hFclose` (the exact
-correspondence `hF` of `coef_cutoffInteraction_final_eq_twoTorus` is the case `η = 0`); the reference
-measures correspond exactly (`hγ`). -/
-theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
+/-- **The coefficients of the cutoff interaction of the final operators on two tori, from the
+closeness of the entries of the Stieltjes families** (`hmain` is the conclusion of
+`final_taggedCfinU_close_twoTorus` at the scale `k`, for given `P`, `C₀`, `c₀`). -/
+theorem final_coef_cutoffInteraction_close_twoTorus_of_cfin (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
     (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
-    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
-    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
-      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ)
+    {k : ℕ} (hk : 1 ≤ k) {P C₀ c₀ : ℝ} (hP0 : 0 ≤ P) (hC₀ : 0 < C₀)
+    (hmain : ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {s : MacIdx d N M → ℂ}, s ∈ supportedOn C →
+      ∀ {s' : MacIdx d N' M → ℂ}, s' ∈ supportedOn (C.image e) →
+      (∀ i ∈ C, s' (e i) = s i) → (∀ p, ‖s p‖ ≤ Real.exp κ) →
+      ∀ {x y : L1Torus d N}, x ∈ macRegion d N M C → y ∈ macRegion d N M C →
+      ‖taggedCfinU d N M (finalOp d L N k v a) s x y -
+          taggedCfinU d N' M (finalOp d L N' k v a) s' (f x) (f y)‖ ≤
+        P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+          Real.sqrt (finalGap d L)) :
+    ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
       ∀ {f : L1Torus d N → L1Torus d N'},
       (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
       ∀ {e : MacIdx d N M → MacIdx d N' M},
@@ -1825,11 +1858,6 @@ theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {�
           (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
   classical
   have hκ0 : 0 ≤ κ := by linarith
-  obtain ⟨P, hP0, hP⟩ := final_taggedCfinU_close_twoTorus (L := L) hd hM hκ0 hMB hMκ nC
-  refine ⟨P, hP0, ?_⟩
-  intro k hk
-  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := hP hk
-  refine ⟨C₀, c₀, hC₀, hc₀, ?_⟩
   intro J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B' Lip hρ hγfin
     hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
@@ -1905,6 +1933,69 @@ theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {�
     hFBw hFBw' hFclose hγ
   simpa only [taggedCfinU_finalOp] using this
 
+
+/-- **The coefficients of the cutoff interaction of the final operators on two tori.**  The
+localized coefficients `coef J C` and `coef J' (e C)` of
+`J(s) = ∫_{box ρ} F (C_fin(s) ψ) dγ(ψ)` on the two tori differ by at most
+`Lip · |Y(C)| δ ρ γ(box ρ) / (e^κ - 1)^{|C|}`, where `δ = P C₀ exp(-c₀ (min N N'/2 - (J+3) M)) / √g`
+bounds the entries of the Stieltjes families (`final_taggedCfinU_close_twoTorus`).  The functionals
+`F`, `F'` are analytic and bounded on a polydisc of radius `R_F > B_C ρ` (`B_C` the row bound of
+`taggedCfin`), measurable, and correspond up to the Lipschitz bound `hFclose` (the exact
+correspondence `hF` of `coef_cutoffInteraction_final_eq_twoTorus` is the case `η = 0`); the reference
+measures correspond exactly (`hγ`). -/
+theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+            Real.sqrt (finalGap d L)) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
+  have hκ0 : 0 ≤ κ := by linarith
+  obtain ⟨P, hP0, hP⟩ := final_taggedCfinU_close_twoTorus (L := L) hd hM hκ0 hMB hMκ nC
+  refine ⟨P, hP0, ?_⟩
+  intro k hk
+  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := hP hk
+  exact ⟨C₀, c₀, hC₀, hc₀, final_coef_cutoffInteraction_close_twoTorus_of_cfin hd hM hκ hMB hMκ nC
+    hk hP0 hC₀ hmain⟩
+
 end Interaction
 
 
@@ -1912,19 +2003,24 @@ section LogDet
 
 variable {d M J N N' L : ℕ} [NeZero N] [NeZero N'] [NeZero L]
 
-/-- **The localized coefficients of the logarithm of the perturbed defect on two tori.**
-Let `E`, `E'` be `(rE, η)`-small perturbations of the final operators of the tori `N`, `N'` that
-are close up to `εE` on `Y(C)²`, and `ell`, `ell'` analytic logarithms (vanishing at `0`) of
-`det (1 - K_E(s, t))` on a polydisc of radius `> e^κ`.  Then
-`‖coef ell C - coef ell' (e C)‖ ≤ P (ε + εE) / (e^κ - 1)^{|C|}`, where
-`ε = C₀ exp(-c₀ (min N N' / 2 - (J+3) M))` is the error of the final operators
-(`final_region_entry_close`) and `P` depends on `d, L, M, κ, η` and a bound `nC` of `|C|` only. -/
-theorem final_coef_logdet_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
+/-- **The localized coefficients of the logarithm of the perturbed defect on two tori, from the
+closeness of the entries of the final operators on the window** (`hmain`: the conclusion of
+`final_region_entry_close` at the scale `k`, including the mass window; the constant `P` does not
+depend on `k`, `C₀`, `c₀`). -/
+theorem final_coef_logdet_close_twoTorus_of_entries (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
     {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
     (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
       ballConst d (3 * pdEps d L / 4))) ≤ 1) (nC : ℕ) :
-    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∀ {C₀ c₀ : ℝ}, 0 < C₀ → 0 < c₀ →
+      (∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+        ∀ {M J N N' : ℕ} [NeZero N] [NeZero N'], 0 < M → 2 * (J + 6) * M ≤ N →
+        2 * (J + 6) * M ≤ N' → ∀ {f : L1Torus d N → L1Torus d N'},
+        (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+        ∀ {C : Finset (MacIdx d N M)}, (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+        ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤
+          C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) →
       ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
       ∀ {f : L1Torus d N → L1Torus d N'},
       (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
@@ -1976,16 +2072,13 @@ theorem final_coef_logdet_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (h
   have hc10 : 0 ≤ c1 := by positivity
   have hc20 : 0 ≤ c2 := by positivity
   refine ⟨2 * nY ^ 2 * cc * (c1 + c2), by positivity, ?_⟩
-  intro k hk
-  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := final_region_entry_close (d := d) (L := L) (k := k) hd
-  refine ⟨C₀, c₀, hC₀, hc₀, ?_⟩
-  intro J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE' εE hεE0 hEc
-    ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  intro k hk C₀ c₀ hC₀ hc₀ hmain J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E'
+    hE hE' εE hεE0 hEc ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
   set ε₀ : ℝ := C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) with hε₀
   have hε00 : 0 ≤ ε₀ := by positivity
   have hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
       ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε₀ :=
-    fun x hx y hy => hmain hv0 hv1 ha1 ha2 hM hN hN' hf hC x hx y hy
+    fun x hx y hy => hmain hv0 hv1 ha1 ha2 hmass hM hN hN' hf hC x hx y hy
   have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
     have := (hC z hz i).2; omega
   have hinjE : Set.InjOn e (C : Set (MacIdx d N M)) := by
@@ -2145,6 +2238,60 @@ theorem final_coef_logdet_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (h
       have h' : (Yset.card : ℝ) ≤ nY := by rw [← Fintype.card_coe]; exact hYcard
       exact pow_le_pow_left₀ this h' 2
     exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hcard2 hδ00) (by norm_num)
+
+
+/-- **The localized coefficients of the logarithm of the perturbed defect on two tori.**
+Let `E`, `E'` be `(rE, η)`-small perturbations of the final operators of the tori `N`, `N'` that
+are close up to `εE` on `Y(C)²`, and `ell`, `ell'` analytic logarithms (vanishing at `0`) of
+`det (1 - K_E(s, t))` on a polydisc of radius `> e^κ`.  Then
+`‖coef ell C - coef ell' (e C)‖ ≤ P (ε + εE) / (e^κ - 1)^{|C|}`, where
+`ε = C₀ exp(-c₀ (min N N' / 2 - (J+3) M))` is the error of the final operators
+(`final_region_entry_close`) and `P` depends on `d, L, M, κ, η` and a bound `nC` of `|C|` only. -/
+theorem final_coef_logdet_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1) (nC : ℕ) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) + εE) /
+          (Real.exp κ - 1) ^ C.card := by
+  obtain ⟨P, hP0, hcore⟩ := final_coef_logdet_close_twoTorus_of_entries (L := L) hd hM hκ hMB hMκ
+    hrE hη0 hη nC
+  refine ⟨P, hP0, ?_⟩
+  intro k hk
+  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := final_region_entry_close (d := d) (L := L) (k := k) hd
+  exact ⟨C₀, c₀, hC₀, hc₀, hcore hk hC₀ hc₀ (fun hv0 hv1 ha1 ha2 _ => hmain hv0 hv1 ha1 ha2)⟩
 
 end LogDet
 
