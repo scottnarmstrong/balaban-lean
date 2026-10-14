@@ -1790,6 +1790,8 @@ public import Balaban.Green.FinalTagSupport
 public import Balaban.Green.FinalGenericMatrix
 public import Balaban.Green.FinalOpLogDet
 public import Balaban.Green.FinalLogDetLocal
+public import Balaban.Green.FinalDetRatio
+public import Balaban.Green.FinalGaussianReduction
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Fluctuation.DecMarkCorrSum
 public import Balaban.Fluctuation.DecMarkCorrRooted
