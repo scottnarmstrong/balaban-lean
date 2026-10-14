@@ -1943,3 +1943,4 @@ public import Balaban.Inhabited.RootParams
 public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
 public import Balaban.Fluctuation.LocalPairCollar
+public import Balaban.Fluctuation.LocalPairHatLift
