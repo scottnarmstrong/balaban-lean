@@ -361,7 +361,7 @@ theorem obsFamily_prefactor_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
     hp0 hp₁ q hq0 hq1 Dsc S hS hp
   refine ⟨Lb, instLb, Lab, εH, hεH, A, hεb, fun y i hdj => ?_⟩
   obtain ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam, hT', hv⟩ := hrest y i hdj
-  refine ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam, ⟨fun T' => ?_, hv⟩⟩
+  refine ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam, ⟨fun T' => ?_, hv.1⟩⟩
   obtain ⟨a1, a2, a3, a4, hbd, hsp, hlc, hlcExact⟩ := hT' T'
   refine ⟨a1, a2, a3, a4, fun θ hθ => ?_, hsp, hlc, hlcExact⟩
   have hb0 := hbd θ hθ
