@@ -8,8 +8,9 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 75% of the Lean by volume, and about 45% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 590,723 lines are written. The finished formalization should need roughly
-  0.8–1.0 million lines.
+- **By volume.** About 660,000 lines are written (the [size table](#size-of-the-lean-by-area)
+  below has the exact count by area). The finished formalization should need roughly 0.8–1.0
+  million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
   estimates, and several depend on questions about the papers that are not yet answered; see
   [BLOCKERS.md](BLOCKERS.md).
@@ -47,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 538a7c43 2026-10-14.
+Computed at commit fbd2253b 2026-10-14.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 159 | 61,741 | 2,549 |
-| Green's functions and random walks | 82 | 29,818 | 1,620 |
+| Lattice, analysis, Gaussian and polymer tools | 160 | 63,450 | 2,606 |
+| Green's functions and random walks | 90 | 35,672 | 1,734 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
-| Localization expansions (P3, P6) | 235 | 73,536 | 3,459 |
+| Localization expansions (P3, P6) | 238 | 75,515 | 3,512 |
 | Small-field class (P1, P4, P5) | 130 | 39,645 | 2,021 |
-| Fluctuation step and renormalization (P4-P6) | 451 | 147,319 | 5,092 |
-| Instantiated step at fixed parameters | 287 | 95,032 | 2,654 |
-| Large-field regions (P5-P7, E9-E10) | 498 | 136,948 | 7,483 |
-| Observables and correlations (P8, P9) | 69 | 16,703 | 661 |
-| **Total** | **2041** | **642,035** | **27,777** |
+| Fluctuation step and renormalization (P4-P6) | 466 | 154,297 | 5,245 |
+| Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
+| Large-field regions (P5-P7, E9-E10) | 499 | 136,992 | 7,484 |
+| Observables and correlations (P8, P9) | 70 | 16,758 | 663 |
+| **Total** | **2072** | **659,130** | **28,169** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made

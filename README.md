@@ -7,10 +7,12 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-About 550,000 lines of Lean have been written towards them. The project contains no axioms and no
-`sorry` other than the two registered placeholders for the main theorems themselves. See
-[docs/PROGRESS.md](docs/PROGRESS.md) for an estimate of how far each part has come, and
-[docs/BLOCKERS.md](docs/BLOCKERS.md) for the mathematical questions that currently block it.
+As of October 2026, more than 650,000 lines of Lean (about 520,000 without comments and blank
+lines) have been written towards them. The project contains no axioms and no `sorry` other than the
+two registered placeholders for the main theorems themselves. See
+[docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
+has come, and [docs/BLOCKERS.md](docs/BLOCKERS.md) for the mathematical questions that currently
+block it.
 
 ## The mathematics
 
@@ -76,6 +78,12 @@ what a polymer is.
   plain mathematics with references to the papers. It also holds refute-first audits that check
   landed statements against the papers. `review/` holds the per-paper reviews written before the
   formalization started, and the overall plan (`review/FORMALIZATION_ROADMAP.md`).
+  `notes/phase0/` holds the drafts of the frozen statements as submitted for approval, with their
+  audit. Questions about the papers, and the answers received, are in `notes/QUESTIONS-*.md` and
+  `review/ROLAND_ANSWERS.md`.
+- **Work log.** `orchestration/` holds the ledger of tasks and results (`LEDGER.md`), the brief
+  given for each task (`briefs/`), and the handoff notes between orchestrating sessions
+  (`HANDOFF.md`).
 - **Paper errata.** Places where the papers are inaccurate, and how the formalization handles them,
   are recorded in `notes/ERRATA.md`.
 
@@ -84,16 +92,23 @@ what a polymer is.
 | Path | Contents |
 |---|---|
 | `Balaban/Frozen/` | the frozen model definitions and the two main theorems |
+| `Balaban/Model/` | properties of the frozen model: analyticity of the partition function, derivatives of its logarithm, symmetries, block structure of the correlation functions, the sphere measure |
+| `Balaban/Provider/` | placeholder modules that will hold the proofs of the two main theorems; only the frozen theorem may import them |
+| `Balaban.lean`, `Balaban/Basic.lean` | the import list of the whole library, and a placeholder root module |
 | `Balaban/Lattice`, `Analysis`, `Gaussian`, `Polymer`, `Symmetry`, `External` | lattice geometry, analysis, Gaussian integrals, cluster and polymer expansions |
 | `Balaban/Green/` | lattice Green's functions, random-walk expansions, decay estimates |
 | `Balaban/Background/`, `Balaban/Multiscale/` | the background-field variational problem (P2) and the multiscale generating sets |
 | `Balaban/Localization/` | localization expansions of background-dependent quantities (P3, P6) |
 | `Balaban/SmallField/` | the inductive class of small-field effective actions (P1, P4, P5) |
 | `Balaban/Fluctuation/` | one renormalization step: the fluctuation integral, its expansion and renormalization (P4–P6) |
+| `Balaban/Flow/` | the renormalization-group equations for the running coefficients β_k, ν_k and their limits γ_∞, δ_∞ (P4 §5, P5) |
 | `Balaban/Inhabited/` | the step at concrete parameter values, with all constants chosen |
 | `Balaban/LargeField/` | large-field regions and the large-field renormalization operation (P5–P7) |
 | `Balaban/Observables/`, `Balaban/Correlations/` | the observable terms and the passage to correlation functions (P8, P9) |
 | `notes/`, `review/` | design notes, audits, paper reviews, errata, open questions |
+| `frozen/` | the manifest of frozen declarations and the record of the author's approvals |
+| `orchestration/` | the task ledger, task briefs and handoff notes |
+| `scripts/` | the hygiene checks, the landing script, the progress table and the public mirror |
 | `docs/` | public status pages |
 
 ## Building
@@ -102,7 +117,7 @@ The toolchain is `leanprover/lean4:v4.35.0-rc2` with the matching Mathlib releas
 `lean-toolchain` and `lakefile.lean`). With [elan](https://github.com/leanprover/elan) installed:
 
     lake exe cache get   # Mathlib build cache
-    lake build           # about 10,800 build jobs
+    lake build           # more than 2,000 project modules on top of Mathlib
 
 A full build from scratch takes several hours on a typical workstation. The only warnings expected
 are the two `declaration uses 'sorry'` warnings for the main theorems. Checks:
