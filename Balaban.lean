@@ -1927,3 +1927,4 @@ public import Balaban.Localization.LocalFlSetting
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
 public import Balaban.Fluctuation.LocalPairCubeOps
+public import Balaban.Fluctuation.LocalPairGs
