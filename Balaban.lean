@@ -1942,3 +1942,4 @@ public import Balaban.Fluctuation.LocalPairReplacementLocalB
 public import Balaban.Inhabited.RootParams
 public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
+public import Balaban.Green.FinalAmplitude
