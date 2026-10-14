@@ -53,3 +53,8 @@ Names are proposals; "uses" lists landed lemmas. Stage S (sector structure), T (
 ## 6. Size and risk
 
 **OPEN (estimate).** Stages S+T: about 1.3k lines, low risk. G: about 2.5k, medium (G1, G4 open). R: about 2k, high (blockers 2, 6). L: about 1.2k, high (blocker 1). Total about 7k lines beyond landed, consistent with BASESTEP T3 (5.2–8.5k). The critical path is T1 → G3 → G5 → R3 → L4, with L1–L3 gated by blocker 1.
+
+## W766 status
+- S1 `Balaban.LargeField.baseRetained_disintegrate` (`Base/BaseRetainedDisintegrate.lean`): proved for any decidable set `ret` of sites and complex integrable `f`; union-of-blocks is not needed.
+- S2 `Balaban.LargeField.baseRecord_good_region` (`Base/BaseRecordGoodRegion.lean`): proved; assembles landed `BaseRecord.nbhd_P_subset_compl_Omega`, `baseFootprint_disjoint_of_mem_P`, `chiPrimeZero_congr_footprint` (BaseMarkedFootprint already held most of S2). Retained sites = fine sites with cube outside `Ω₁`.
+- Not done: S3 (needs both).
