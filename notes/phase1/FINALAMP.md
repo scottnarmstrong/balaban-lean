@@ -25,3 +25,8 @@ Missing leaves, dependency order (each <= 300 lines, no new definitions):
  3. [strong, ~300] amplitude of the g-dependent interaction: from the class bound (H.7) c_9 L^{-j(...)} on the analytic domain and |psi'| <= beta_k^{-1/2} p_1, bound sup |delta F_k| <= C beta_k^{-1/2} (resp. the Taylor remainder terms beta_k^{-n}) after Cauchy in psi' of radius delta_k. This is P4 Prop 2.2 and is the leaf that is not in the landed material; the sum over j <= k of scale-j terms needs the localization (P3/P6, not read): OPEN, may need an author-side question.
  4. [strong, ~300] polymer-activity assembly: coefficient families (J of (b), optionally (a)) with decay A e^{-(kappa-1)|C|} -> activity of a polymer X, bounded by K A e^{-kappa_1 n} for g in the unit ball, with K the number of macro families (the hypothesis `hFB` of `finalTerm_bound`); needs the Mayer/exponentiation step for log(Z(g)/Z(0)) as a difference.
  5. [OPEN, not a leaf] identification of F, phi_0, B' with the physical density (FINALPHYS3 W790 note; FINAL-HESSIAN/CUTOFF/COMPLEX bridges); the nonempty large-field gas (4.12)-(4.14), amplitude beta_k^{-m-1}, torus transport.
+
+## W808 status (14 October 2026)
+- Leaf 1 done: `betaK_inv_rpow_le` (RootBoundsArith), `finalTerm_bound_rpow` and `finalTerm_bound_inv` (p = 1) in `Green/FinalTermBound.lean`; the landed `betaK_inv_sq_le`, `finalTerm_bound` are the p = 2 applications (statements unchanged).
+- Leaf 2 done (`Green/FinalTermRpow.lean`): `kf0Deriv_sub_const`, `finalTerm_bound_of_sub` (amplitude on F g - F 0), `norm_sub_zero_le_of_ball` and `finalTerm_bound_of_sub_ball` (sup B on {l1 < T}, amplitude B/T, Schwarz directly in the scalar t).
+- `rootBound_of_perTerm`, `exists_rootParams`: not changed (see handoff).
