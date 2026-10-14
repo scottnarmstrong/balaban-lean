@@ -148,6 +148,76 @@ variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
 /-- **The facts at a realizable triple with layer-constant fluctuation**: the composed datum of
+`𝔹_k(X)` is the datum `flDatum`, in `Ξ^c`, its background composition lies in `Ξ^c(𝔹_j(X))`,
+with a composition constant `1 ≤ b ≤ C₀` (at `b = 1` the radius is `ε + K₂ δ₃ + K₂ δ_fl`; the landed
+`eTerm_chain` is the instance `b = C₀`). -/
+theorem eTerm_chain_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ∃ (D : BgData Gp N) (ψ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+      (hlc : IsLayerConstant Hm ψ'), t.2.2 = (rawOf D, ψ') ∧
+      XiCData Gk (compWeight L a₁) ν (k + 1) 1
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+        (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc) ∧
+      d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2 =
+        rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc) ∧
+      D2raw Gk Gj (compWeight L a₁) Fk
+          (rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) =
+        rawOf (composeData hB.hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) ∧
+      XiCData Gj (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+        (composeData hB.hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) := by
+  classical
+  obtain ⟨⟨s, D, ψ', δα, hs, hs1, hD, hψ, hI, ht22, hδ, hfix, hsm1, hsm2, hsup⟩, hlc⟩ := ht
+  have hlc' : IsLayerConstant Hm ψ' := by rw [ht22] at hlc; exact hlc
+  have hd0 : 0 < d := by have := hB.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hB.num.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hB0 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) :=
+    mul_nonneg (by norm_num) (mul_nonneg (K4_pos hB.hS.fam.2.1 hd0).le hδ0.le)
+  obtain ⟨F₁, -, hF₁⟩ := i4b_analytic hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM
+  obtain ⟨Sol, -, hSolprop⟩ := Dec2.i4a_analytic (N := N) hF.hS2.fam hF.hS2.an
+    hF.SM.toCoverBase hB.hκ.le hF.hM2 false hB0 hF.num.δ₁_pos.le hF.num.B_le hF.num.δ₁_le
+  obtain ⟨φ, α, δφ, hI', hFeq, hstrict, hδφ, hX3, hrawD, hD2, hX2⟩ :=
+    point_facts_fl_of_one_le hb₁ hbC hB hF hF₁ hFk hSolprop hs hs1 hD hψ hlc'
+  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hB.num.c7le.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC hB.HBp hδ0 hδ0' hB.num.c7le hDom
+  have h1 : (φ, α) = t.1 := hFeq.symm.trans (hF₁ s D hs hU t.1.1 t.1.2 hI)
+  have hφt : t.1.1 = φ := (congrArg Prod.fst h1).symm
+  have hαt : t.1.2 = α := (congrArg Prod.snd h1).symm
+  have hδt : t.2.1 = δφ := by
+    have ht1 : t.1 = (φ, α) := h1.symm
+    obtain ⟨hfld, -, -, -, -, huniq⟩ := hSolprop (s, flEdat Gp Hm (φ, α) D.Ψ ψ') hs hstrict
+    rw [ht1] at hδ hfix
+    have hδα : δα = (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2 := huniq δα hsm1 hfix
+    rw [hδ, hδα, ← hfld]
+    exact hδφ
+  refine ⟨D, ψ', hlc', ht22, ?_⟩
+  rw [hφt, hδt]
+  refine ⟨hX3, ?_, hD2, hX2⟩
+  rw [ht22, ← hrawD]
+  change _ = d1Triple Gp Gk Hm (compWeight L a₁) (F₁ (s, rawOf D)).1
+    (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ')
+  rw [hFeq, hδφ]
+
+/-- **The facts at a realizable triple with layer-constant fluctuation**: the composed datum of
 `𝔹_k(X)` is the datum `flDatum`, in `Ξ^c`, its background composition lies in `Ξ^c(𝔹_j(X))`. -/
 theorem eTerm_chain (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
@@ -176,43 +246,8 @@ theorem eTerm_chain (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X�
         (composeData hB.hq (compWeight L a₁)
           (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
             (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
-          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) := by
-  classical
-  obtain ⟨⟨s, D, ψ', δα, hs, hs1, hD, hψ, hI, ht22, hδ, hfix, hsm1, hsm2, hsup⟩, hlc⟩ := ht
-  have hlc' : IsLayerConstant Hm ψ' := by rw [ht22] at hlc; exact hlc
-  have hd0 : 0 < d := by have := hB.HBp.hd; omega
-  have hc1 := one_le_xiC1 d
-  have hε := hB.num.eps_pos
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hB0 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) :=
-    mul_nonneg (by norm_num) (mul_nonneg (K4_pos hB.hS.fam.2.1 hd0).le hδ0.le)
-  obtain ⟨F₁, -, hF₁⟩ := i4b_analytic hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM
-  obtain ⟨Sol, -, hSolprop⟩ := Dec2.i4a_analytic (N := N) hF.hS2.fam hF.hS2.an
-    hF.SM.toCoverBase hB.hκ.le hF.hM2 false hB0 hF.num.δ₁_pos.le hF.num.B_le hF.num.δ₁_le
-  obtain ⟨φ, α, δφ, hI', hFeq, hstrict, hδφ, hX3, hrawD, hD2, hX2⟩ :=
-    point_facts_fl hB hF hF₁ hFk hSolprop hs hs1 hD hψ hlc'
-  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hB.num.c7le.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC hB.HBp hδ0 hδ0' hB.num.c7le hDom
-  have h1 : (φ, α) = t.1 := hFeq.symm.trans (hF₁ s D hs hU t.1.1 t.1.2 hI)
-  have hφt : t.1.1 = φ := (congrArg Prod.fst h1).symm
-  have hαt : t.1.2 = α := (congrArg Prod.snd h1).symm
-  have hδt : t.2.1 = δφ := by
-    have ht1 : t.1 = (φ, α) := h1.symm
-    obtain ⟨hfld, -, -, -, -, huniq⟩ := hSolprop (s, flEdat Gp Hm (φ, α) D.Ψ ψ') hs hstrict
-    rw [ht1] at hδ hfix
-    have hδα : δα = (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2 := huniq δα hsm1 hfix
-    rw [hδ, hδα, ← hfld]
-    exact hδφ
-  refine ⟨D, ψ', hlc', ht22, ?_⟩
-  rw [hφt, hδt]
-  refine ⟨hX3, ?_, hD2, hX2⟩
-  rw [ht22, ← hrawD]
-  change _ = d1Triple Gp Gk Hm (compWeight L a₁) (F₁ (s, rawOf D)).1
-    (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ')
-  rw [hFeq, hδφ]
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) :=
+  eTerm_chain_of_one_le (one_le_scaledC0 d) le_rfl hB hF hFk ht
 
 end ChainE
 
@@ -227,7 +262,8 @@ variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
 /-- **Analyticity of the old-term functional on the realizable triples.** -/
-theorem eTermFun_analytic (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+theorem eTermFun_analytic_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
     (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
@@ -236,15 +272,15 @@ theorem eTermFun_analytic (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ
       Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
         bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
     {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
-    (hE : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
-      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl))) :
+    (hE : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl))) :
     AnalyticOnNhd ℂ (fun t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
       (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) := by
   classical
   intro t ht
-  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain hB hF hFk ht
+  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain_of_one_le hb₁ hbC hB hF hFk ht
   set g : (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N :=
@@ -294,6 +330,45 @@ theorem eTermFun_analytic (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ
   rw [hD1, hD2]
   exact ⟨_, hX2, rfl⟩
 
+/-- **Analyticity of the old-term functional on the realizable triples.** -/
+theorem eTermFun_analytic (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
+      InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hE : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl))) :
+    AnalyticOnNhd ℂ (fun t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
+      (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :=
+  eTermFun_analytic_of_one_le (one_le_scaledC0 d) le_rfl hB hF hFkan hFk hE
+
+/-- **The bound of the old-term functional on the realizable triples.** -/
+theorem eTermFun_bound_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
+  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain_of_one_le hb₁ hbC hB hF hFk ht
+  show ‖E (D2raw Gk Gj (compWeight L a₁) Fk
+    (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2))‖ ≤ B
+  rw [hD1, hD2]
+  exact hEb _ ⟨_, hX2, rfl⟩
+
 /-- **The bound of the old-term functional on the realizable triples.** -/
 theorem eTermFun_bound (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
@@ -307,12 +382,8 @@ theorem eTermFun_bound (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
     {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
     (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
-    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
-  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain hB hF hFk ht
-  show ‖E (D2raw Gk Gj (compWeight L a₁) Fk
-    (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2))‖ ≤ B
-  rw [hD1, hD2]
-  exact hEb _ ⟨_, hX2, rfl⟩
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  eTermFun_bound_of_one_le (one_le_scaledC0 d) le_rfl hB hF hFk hEb ht
 
 /-- **Locality of the old-term functional**: it reads `φ`, `δφ`, `Ψ`, `h` and `ψ'` only at the
 dependency sets of the data sites of `𝔹_k(X)`, which lie in `X₁`. -/
