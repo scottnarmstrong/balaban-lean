@@ -311,6 +311,7 @@ public import Balaban.Correlations.RealSequences
 public import Balaban.Correlations.MainTerm
 public import Balaban.Correlations.LemmaThree
 public import Balaban.Correlations.ZeroLimit
+public import Balaban.Correlations.RootFLog
 public import Balaban.Correlations.BoundsNu
 public import Balaban.Correlations.GoldstoneUniform
 public import Balaban.Correlations.GoldstoneStep
@@ -1930,6 +1931,7 @@ public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
+public import Balaban.Green.FinalTermRpow
 public import Balaban.Fluctuation.LocalPairCubeOps
 public import Balaban.Fluctuation.LocalPairGs
 public import Balaban.Fluctuation.LocalPairDecFixed
@@ -1942,7 +1944,12 @@ public import Balaban.Fluctuation.LocalPairReplacementLocalB
 public import Balaban.Inhabited.RootParams
 public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
+public import Balaban.Fluctuation.LocalPairCollar
+public import Balaban.Fluctuation.LocalPairHatLift
+public import Balaban.Fluctuation.LocalPairReplacementHat
 public import Balaban.Green.FinalTaggedTorusClose
 public import Balaban.Green.FinalTorusCloseUnif
 public import Balaban.Green.FinalAmplitude
 public import Balaban.Green.FinalDetRatioSmall
+public import Balaban.Green.FinalSourceAmplitude
+public import Balaban.Green.FinalSecondOrder

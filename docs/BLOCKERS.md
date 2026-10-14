@@ -142,6 +142,11 @@ radius the cut family needs), the large-field part, and the joins to the physica
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
 
+The papers' last step was re-read for the size of the final term: they integrate at the constant
+saddle, so the Hessian does not depend on the source g, and the identity is normalized at g = 0. The
+smallness comes from the g-derivative of the inherited term (P4 Prop. 2.2), of size β^{-1} rather than
+β^{-2}; that bound is not yet formalized.
+
 ## 6. Local generating sets and analyticity on their domains
 
 After the localization expansion, each new term is indexed by a domain Y. P3 p. 78 replaces the
@@ -175,9 +180,11 @@ hypotheses on the component of the polymer (cube operators, the decoupled fields
 compositions agree on it). The local covariance, its square root and the local fluctuation variable
 are proved analytic and bounded on the local domain. The identity is also proved at the local
 generating set itself, provided the polymer's read region stays two cubes away from the edge of the
-local set, and the local and ambient fluctuation variables agree there. Remaining: building the local
-set on a collar around the expansion domain (to be matched with the papers' choice of set), the
-fluctuation integral of a local term, and the clauses of the local class for nonzero terms.
+local set, and the local and ambient fluctuation variables agree there. The papers build the local set
+on the expansion domain itself; the formal operators read two cubes further, so the local set is
+built on a collar of that domain, which changes neither the index of a term nor its bound. The
+identity is proved in this form, with the local fluctuation variable. Remaining: the clauses of the
+local class for nonzero terms (bounds, covariance, the fluctuation integral of a local term).
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
