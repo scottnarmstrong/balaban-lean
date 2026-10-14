@@ -31,6 +31,10 @@ sites of `𝔹` (resp. outside `Ω₁(𝔹)` for `h`).
 * `localB_collar_gsSpecStrong_of_subset`, `localB_collar_gs_spec`: the clauses `gsStrong` and
   `gs_spec` for the generating set `𝔹_{k+1}(Y⁺)` of the polymer `Y` (from
   `localB_collar_gsSpecStrong` and `Y ⊆ Y⁺`).
+* `supDist_of_mem_symGroupBy`, `collar_image_of_mem_pavingSymGroup`, `localB_collar_pavingGS`:
+  the elements of the paving group are isometries of the sup-distance of sites, so the collar
+  commutes with them, `(r Y)⁺ = r Y⁺`, and the clause `pavingGS` holds for `Y ↦ 𝔹_{k+1}(Y⁺)`
+  (from `pavingGS_localB`).
 -/
 
 @[expose] public section
@@ -180,5 +184,141 @@ theorem localB_collar_gs_spec (hk : k + 1 ≤ k + 1)
   exact ⟨h.subset, h.noAbove⟩
 
 end Spec
+
+section Paving
+
+variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱl : ℝ}
+
+omit [NeZero L] [NeZero N₁] in
+/-- The translations of `symGroupBy` preserve the sup-distance of fine sites. -/
+theorem supDist_transBy (s : ℕ) (μ : Fin d) (x y : CTorus d L N₁ m₁ k) :
+    supDist (transBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ x)
+      (transBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ y) = supDist x y := by
+  have h : ∀ i, cycNorm (N₁ * L ^ m₁ * L ^ k)
+      ((transBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ x) i -
+        (transBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ y) i) =
+      cycNorm (N₁ * L ^ m₁ * L ^ k) (x i - y i) := fun i => by
+    simp [transBy]
+  simp only [supDist, h]
+
+/-- The reflections of `symGroupBy` preserve the sup-distance of fine sites. -/
+theorem supDist_flipBy (s : ℕ) (μ : Fin d) (x y : CTorus d L N₁ m₁ k) :
+    supDist (flipBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ x)
+      (flipBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ y) = supDist x y := by
+  have h : ∀ i, cycNorm (N₁ * L ^ m₁ * L ^ k)
+      ((flipBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ x) i -
+        (flipBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s μ y) i) =
+      cycNorm (N₁ * L ^ m₁ * L ^ k) (x i - y i) := fun i => by
+    by_cases hi : i = μ
+    · subst hi
+      simp only [flipBy, Equiv.coe_fn_mk, Function.update_self]
+      rw [show (s : ZMod (N₁ * L ^ m₁ * L ^ k)) - 1 - x i - ((s : ZMod _) - 1 - y i) =
+        y i - x i by ring]
+      exact cycNorm_sub_comm _ _
+    · simp only [flipBy, Equiv.coe_fn_mk, Function.update_of_ne hi]
+  simp only [supDist, h]
+
+omit [NeZero L] [NeZero N₁] in
+/-- The coordinate exchanges of `symGroupBy` preserve the sup-distance of fine sites. -/
+theorem supDist_swapJ (μ ν : Fin d) (x y : CTorus d L N₁ m₁ k) :
+    supDist (swapJ (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) μ ν x)
+      (swapJ (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) μ ν y) = supDist x y := by
+  refine le_antisymm (supDist_le_iff.2 fun i => ?_) (supDist_le_iff.2 fun i => ?_)
+  · exact cycNorm_le_supDist x y (Equiv.swap μ ν i)
+  · have := cycNorm_le_supDist (swapJ (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) μ ν x)
+      (swapJ (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) μ ν y) (Equiv.swap μ ν i)
+    simpa [swapJ] using this
+
+/-- **The elements of `symGroupBy s` are isometries of the sup-distance of fine sites.** -/
+theorem supDist_of_mem_symGroupBy {s : ℕ} {g : Equiv.Perm (CTorus d L N₁ m₁ k)}
+    (hg : g ∈ symGroupBy (N₁ := N₁) (m₁ := m₁) (k := k) (L := L) s) (x y : CTorus d L N₁ m₁ k) :
+    supDist (g x) (g y) = supDist x y := by
+  unfold symGroupBy at hg
+  induction hg using Subgroup.closure_induction generalizing x y with
+  | mem g hg =>
+    rcases hg with (⟨μ, rfl⟩ | ⟨μ, rfl⟩) | ⟨μ, ν, rfl⟩
+    · exact supDist_transBy s μ x y
+    · exact supDist_flipBy s μ x y
+    · exact supDist_swapJ μ ν x y
+  | one => rfl
+  | mul a b _ _ h1 h2 => rw [Equiv.Perm.mul_apply, Equiv.Perm.mul_apply, h1, h2]
+  | inv a _ h =>
+    have := h (a⁻¹ x) (a⁻¹ y)
+    simpa using this.symm
+
+/-- **The collar commutes with the paving symmetries**: for `r` in the paving group of level
+`k + 1`, the collar `(r Y)⁺` (the `𝒞_{k+1}`-cubes meeting the closed `2 M₁ L^{k+1}`-neighbourhood of
+`r Y`) is `r Y⁺`.  `r` preserves the sup-distance of sites (`supDist_of_mem_symGroupBy`) and the
+`𝒞_{k+1}`-cubes (`localCube_of_mem_symGroupBy`). -/
+theorem collar_image_of_mem_pavingSymGroup {m₀ : ℕ} {r : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L m₀ (k + 1))
+    {Y Yp Yp' : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYp : ∀ z, z ∈ Yp ↔ ∃ x ∈ Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁))
+    (hYp' : ∀ z, z ∈ Yp' ↔ ∃ x ∈ r '' Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁)) :
+    Yp' = r '' Yp := by
+  have hcube : ∀ x y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast (r x) : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast (r y) : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ↔
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast x : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) := fun x y => by
+    rw [← supDist_eq_zero, localCube_of_mem_symGroupBy (s := cellSide L m₀ m₁ (k + 1))
+      (fun n hn => pow_dvd_pow L (by omega)) le_rfl hr le_rfl x y, supDist_eq_zero]
+  have hdist : ∀ x y : CTorus d L N₁ m₁ (k + 1), supDist (r x) (r y) = supDist x y :=
+    supDist_of_mem_symGroupBy hr
+  ext z
+  rw [hYp', Set.mem_image_equiv]
+  constructor
+  · rintro ⟨x, ⟨x0, hx0, rfl⟩, y, hcy, hd⟩
+    refine (hYp _).2 ⟨x0, hx0, r.symm y, ?_, ?_⟩
+    · rw [← hcube, Equiv.apply_symm_apply, Equiv.apply_symm_apply]; exact hcy
+    · rw [← hdist, Equiv.apply_symm_apply]; exact hd
+  · intro hz
+    obtain ⟨x0, hx0, y0, hcy, hd⟩ := (hYp _).1 hz
+    refine ⟨r x0, ⟨x0, hx0, rfl⟩, r y0, ?_, ?_⟩
+    · have := (hcube y0 (r.symm z)).2 hcy
+      rwa [Equiv.apply_symm_apply] at this
+    · rw [hdist]; exact hd
+
+/-- **The clause `pavingGS` for the generating sets `Y ↦ 𝔹_{k+1}(Y⁺)`**: for `r` in the paving
+group of level `k + 1`, `Ω_n(𝔹_{k+1}((r Y)⁺)) = r Ω_n(𝔹_{k+1}(Y⁺))` (`collar_image_of_mem_pavingSymGroup`
+and `pavingGS_localB`). -/
+theorem localB_collar_pavingGS (hk : k + 1 ≤ k + 1) (hsep : ϱl ≤ minSep L (L ^ m₁)) {m₀ : ℕ}
+    {r : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L m₀ (k + 1))
+    {Y Yp Yp' : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYp : ∀ z, z ∈ Yp ↔ ∃ x ∈ Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁))
+    (hYp' : ∀ z, z ∈ Yp' ↔ ∃ x ∈ r '' Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁)) (n : ℕ) :
+    (((localB (k + 1) hk Yp' hsep).Ω n : Finset (CTorus d L N₁ m₁ (k + 1))) :
+        Set (CTorus d L N₁ m₁ (k + 1))) =
+      r '' (((localB (k + 1) hk Yp hsep).Ω n : Finset (CTorus d L N₁ m₁ (k + 1))) :
+        Set (CTorus d L N₁ m₁ (k + 1))) := by
+  rw [collar_image_of_mem_pavingSymGroup hr hYp hYp']
+  exact pavingGS_localB hr n
+
+end Paving
 
 end Balaban.Localization
