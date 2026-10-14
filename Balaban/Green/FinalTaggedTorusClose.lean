@@ -37,7 +37,7 @@ the operators enters linearly (for the final operator on two tori it is
 
 @[expose] public section
 
-open Finset Matrix MeasureTheory Set Balaban.Localization
+open Finset Matrix MeasureTheory Set Balaban.Localization Balaban.Analysis
 
 namespace Balaban.Green
 
@@ -1047,5 +1047,342 @@ theorem final_taggedCfinU_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (h
     (fun p hp q hq => hmain hv0 hv1 ha1 ha2 hM hN hN' hf hC p hp q hq) hs hs' hss hsκ hx hy
 
 end FinalBoxes
+
+section Coef
+
+variable {ι ι' : Type*} [Fintype ι] [DecidableEq ι] [Fintype ι'] [DecidableEq ι']
+
+/-- Linearity of the coefficient on functions analytic on a polydisc of radius `R > 1`. -/
+theorem coef_sub_open {R : ℝ} (hR : 1 < R) {f g : (ι → ℂ) → ℂ}
+    (hf : AnalyticOnNhd ℂ f (polydisc (0 : ι → ℂ) (fun _ => R)))
+    (hg : AnalyticOnNhd ℂ g (polydisc (0 : ι → ℂ) (fun _ => R))) (C : Finset ι) :
+    coef (fun s => f s - g s) C = coef f C - coef g C := by
+  have hfg : AnalyticOnNhd ℂ (fun s => f s - g s) (polydisc (0 : ι → ℂ) (fun _ => R)) :=
+    hf.sub hg
+  refine Balaban.Polymer.TwoTorusStep.eq_of_sum_powerset_eq_of_subset
+    (g := coef (fun s => f s - g s)) (h := fun B => coef f B - coef g B) (C := C) ?_ C
+    Finset.Subset.rfl
+  intro A _
+  rw [← sum_coef_unit hR hfg A, Finset.sum_sub_distrib, ← sum_coef_unit hR hf A,
+    ← sum_coef_unit hR hg A]
+
+/-- **Cauchy estimate for the difference of two coefficients under a relabelling.**  Let
+`f`, `f'` be analytic on the polydisc of radius `R > 1`, `e` injective on `C`.  If
+`‖f s - f' s'‖ ≤ B` whenever `s` is supported on `C` with `|s_i| < R` and `s'` is supported on
+`e C` with `s' (e i) = s i`, then `‖coef f C - coef f' (e C)‖ ≤ B / (R - 1)^{|C|}`. -/
+theorem norm_coef_sub_relabel_le {R : ℝ} (hR : 1 < R) (e : ι → ι') {C : Finset ι}
+    (he : Set.InjOn e (C : Set ι)) {f : (ι → ℂ) → ℂ} {f' : (ι' → ℂ) → ℂ}
+    (hf : AnalyticOnNhd ℂ f (polydisc (0 : ι → ℂ) (fun _ => R)))
+    (hf' : AnalyticOnNhd ℂ f' (polydisc (0 : ι' → ℂ) (fun _ => R))) {B : ℝ}
+    (hB : ∀ s ∈ supN C R, ∀ s' ∈ supportedOn (C.image e), (∀ i ∈ C, s' (e i) = s i) →
+      ‖f s - f' s'‖ ≤ B) :
+    ‖coef f C - coef f' (C.image e)‖ ≤ B / (R - 1) ^ C.card := by
+  classical
+  have hR0 : 0 < R := by linarith
+  set pb : (ι' → ℂ) → (ι → ℂ) := fun w i => if i ∈ C then w (e i) else 0 with hpb
+  set g : (ι' → ℂ) → ℂ := fun w => f (pb w) with hg
+  have hpbA : ∀ w, AnalyticAt ℂ pb w := by
+    intro w
+    rw [analyticAt_pi_iff]
+    intro i
+    by_cases hi : i ∈ C
+    · have : (fun w : ι' → ℂ => pb w i) = fun w => w (e i) := by
+        funext w; simp [hpb, hi]
+      rw [this]
+      exact (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι' => ℂ) (e i)).analyticAt w
+    · have : (fun w : ι' → ℂ => pb w i) = fun _ => 0 := by
+        funext w; simp [hpb, hi]
+      rw [this]
+      exact analyticAt_const
+  have hpbP : ∀ w ∈ polydisc (0 : ι' → ℂ) (fun _ => R),
+      pb w ∈ polydisc (0 : ι → ℂ) (fun _ => R) := by
+    intro w hw i
+    by_cases hi : i ∈ C
+    · simpa [hpb, hi] using hw (e i)
+    · simpa [hpb, hi] using hR0
+  have hgA : AnalyticOnNhd ℂ g (polydisc (0 : ι' → ℂ) (fun _ => R)) := fun w hw =>
+    (hf (pb w) (hpbP w hw)).comp (hpbA w)
+  have h1 : coef g (C.image e) = coef f C := by
+    refine Balaban.Polymer.TwoTorusStep.coef_relabel_injOn hR e he hf ?_
+    intro s hs s' hs' hss
+    have : pb s' = s := by
+      funext i
+      by_cases hi : i ∈ C
+      · simp [hpb, hi, hss i hi]
+      · simp [hpb, hi, hs.1 i hi]
+    simp only [hg, this]
+  have hdiff : AnalyticOnNhd ℂ (fun s' => g s' - f' s')
+      (polydisc (0 : ι' → ℂ) (fun _ => R)) := hgA.sub hf'
+  have h2 : coef f C - coef f' (C.image e) = coef (fun s' => g s' - f' s') (C.image e) := by
+    rw [coef_sub_open hR hgA hf', h1]
+  rw [h2]
+  have hproj := analyticOnNhd_comp_proj hdiff (C.image e) hR0
+  have h3 : coef (fun s' => g s' - f' s') (C.image e) =
+      coef (fun s' : ι' → ℂ => (fun s'' => g s'' - f' s'') (fun i => if i ∈ C.image e then s' i
+        else 0)) (C.image e) :=
+    coef_congr fun w hw => by
+      have hw' : (fun i => if i ∈ C.image e then w i else 0) = w := by
+        funext i
+        by_cases hi : i ∈ C.image e
+        · rw [if_pos hi]
+        · rw [if_neg hi, hw i hi]
+      rw [hw']
+  rw [h3]
+  have hcard : (C.image e).card = C.card := Finset.card_image_of_injOn he
+  rw [← hcard]
+  refine norm_coef_le hR hproj (B := B) (fun s' hs' => ?_) (C.image e)
+  set u : ι' → ℂ := fun i => if i ∈ C.image e then s' i else 0 with hu
+  have hus : u ∈ supportedOn (C.image e) := fun i hi => by
+    show (if i ∈ C.image e then s' i else 0) = 0
+    rw [if_neg hi]
+  have hsN : pb u ∈ supN C R := by
+    refine ⟨fun i hi => by simp [hpb, hi], fun i => ?_⟩
+    by_cases hi : i ∈ C
+    · have hmem : e i ∈ C.image e := Finset.mem_image_of_mem e hi
+      have : pb u i = s' (e i) := by
+        show (if i ∈ C then u (e i) else 0) = s' (e i)
+        rw [if_pos hi]
+        show (if e i ∈ C.image e then s' (e i) else 0) = s' (e i)
+        rw [if_pos hmem]
+      rw [this]
+      simpa using hs' (e i)
+    · simpa [hpb, hi] using hR0
+  have := hB (pb u) hsN u hus (fun i hi => by simp [hpb, hi])
+  simpa [hg] using this
+
+end Coef
+
+section Interaction
+
+variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
+
+/-- **Approximate `integral_cutoff_twoTorus`.**  The cutoff integrals on the two tori differ by at
+most `Lip · |Y(C)| δ ρ · γ(box ρ)` when the entries of the Stieltjes families correspond up to `δ`
+on `Y(C)²` (and both have row sums at most `Bc`), the functionals `F`, `F'` correspond up to the
+Lipschitz bound `hFclose` on fields vanishing off `Y(C)`, `Y(e C)` and bounded by `Bc ρ`, and the
+reference measures correspond exactly (`hγ`, as in `integral_cutoff_twoTorus`). -/
+theorem integral_cutoff_close (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    {δ Bc ρ BF Lip nY : ℝ} (hρ : 0 ≤ ρ) (hδ : 0 ≤ δ) (hLip : 0 ≤ Lip) (hBc : 0 ≤ Bc)
+    (hnY : (Nat.card ↥(macRegion d N M C) : ℝ) ≤ nY)
+    (hCC : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖taggedCfinU d N M U s x y - taggedCfinU d N' M U' s' (f x) (f y)‖ ≤ δ)
+    (hrow : ∀ x, ∑ y, ‖taggedCfinU d N M U s x y‖ ≤ Bc)
+    (hrow' : ∀ x', ∑ y, ‖taggedCfinU d N' M U' s' x' y‖ ≤ Bc)
+    {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)}
+    (hγfin : γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤)
+    {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ}
+    (hFm : Measurable F) (hFm' : Measurable F')
+    (hFB : ∀ w : L1Torus d N → ℂ, (∀ x, ‖w x‖ ≤ Bc * ρ) → ‖F w‖ ≤ BF)
+    (hFB' : ∀ w : L1Torus d N' → ℂ, (∀ x, ‖w x‖ ≤ Bc * ρ) → ‖F' w‖ ≤ BF)
+    (hFclose : ∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+      (∀ x, x ∉ macRegion d N M C → w x = 0) →
+      (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+      (∀ x, ‖w x‖ ≤ Bc * ρ) → (∀ x', ‖w' x'‖ ≤ Bc * ρ) → ∀ η : ℝ, 0 ≤ η →
+      (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η)
+    (hγ : Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+        (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+      Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+        (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ})) :
+    ‖(∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfinU d N M U s x y * ((ψ y : ℝ) : ℂ)) ∂γ) -
+    ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, taggedCfinU d N' M U' s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ'‖ ≤
+      Lip * (nY * δ * ρ) * (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal := by
+  classical
+  obtain ⟨g, hg⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
+    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
+  have hbij := macRegion_bijOn hM hN hN' hf hg he hC
+  set Yreg : Set (L1Torus d N) := macRegion d N M C with hYreg
+  set Y'reg : Set (L1Torus d N') := macRegion d N' M (C.image e) with hY'reg
+  set Cs := taggedCfinU d N M U s with hCs
+  set Cs' := taggedCfinU d N' M U' s' with hCs'
+  have hCs0 : ∀ x y, ¬ (x ∈ Yreg ∧ y ∈ Yreg) → Cs x y = 0 := fun x y h =>
+    taggedCfinU_eq_zero_of_not_mem hM hd U hs h
+  have hCs0' : ∀ x y, ¬ (x ∈ Y'reg ∧ y ∈ Y'reg) → Cs' x y = 0 := fun x y h =>
+    taggedCfinU_eq_zero_of_not_mem hM hd U' hs' h
+  set Gs : (↥Yreg → ℝ) → ℂ := fun φ => F (fun x => ∑ q : ↥Yreg, Cs x q * ((φ q : ℝ) : ℂ)) with hGs
+  set Gs' : (↥Yreg → ℝ) → ℂ :=
+    fun φ => F' (fun x' => ∑ q : ↥Yreg, Cs' x' (f q) * ((φ q : ℝ) : ℂ)) with hGs'
+  have hsum : ∀ (ψ : L1Torus d N → ℝ) (x : L1Torus d N),
+      ∑ y, Cs x y * ((ψ y : ℝ) : ℂ) = ∑ q : ↥Yreg, Cs x q * ((ψ q : ℝ) : ℂ) := by
+    intro ψ x
+    rw [← Finset.sum_subset (Finset.subset_univ (Finset.univ.filter fun y => y ∈ Yreg))
+      (fun y _ hy => by
+        have : y ∉ Yreg := by simpa using hy
+        rw [hCs0 x y (fun h => this h.2), zero_mul])]
+    exact Finset.sum_subtype _ (fun y => by simp) (fun y => Cs x y * ((ψ y : ℝ) : ℂ))
+  have hsum' : ∀ (ψ' : L1Torus d N' → ℝ) (x' : L1Torus d N'),
+      ∑ y, Cs' x' y * ((ψ' y : ℝ) : ℂ) = ∑ q : ↥Yreg, Cs' x' (f q) * ((ψ' (f q) : ℝ) : ℂ) := by
+    intro ψ' x'
+    have himg : Finset.univ.filter (fun y => y ∈ Y'reg) =
+        (Finset.univ.filter fun y => y ∈ Yreg).image f := by
+      ext y
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
+      constructor
+      · intro hy
+        obtain ⟨a, ha, hay⟩ := hbij.surjOn hy
+        exact ⟨a, ha, hay⟩
+      · rintro ⟨a, ha, rfl⟩
+        exact hbij.mapsTo ha
+    rw [← Finset.sum_subset (Finset.subset_univ (Finset.univ.filter fun y => y ∈ Y'reg))
+      (fun y _ hy => by
+        have : y ∉ Y'reg := by simpa using hy
+        rw [hCs0' x' y (fun h => this h.2), zero_mul]), himg,
+      Finset.sum_image (fun a ha b hb hab => hbij.injOn (by simpa using ha) (by simpa using hb) hab)]
+    exact Finset.sum_subtype _ (fun y => by simp) (fun y => Cs' x' (f y) * ((ψ' (f y) : ℝ) : ℂ))
+  have hr : Measurable (fun (ψ : L1Torus d N → ℝ) (q : ↥Yreg) => ψ q) :=
+    Measurable.of_eval fun q => measurable_pi_apply _
+  have hr' : Measurable (fun (ψ' : L1Torus d N' → ℝ) (q : ↥Yreg) => ψ' (f q)) :=
+    Measurable.of_eval fun q => measurable_pi_apply _
+  have hGsm : Measurable Gs := by
+    refine hFm.comp (Measurable.of_eval fun x => ?_)
+    exact Finset.measurable_sum _ fun q _ =>
+      measurable_const.mul (Complex.measurable_ofReal.comp (measurable_pi_apply q))
+  have hGsm' : Measurable Gs' := by
+    refine hFm'.comp (Measurable.of_eval fun x => ?_)
+    exact Finset.measurable_sum _ fun q _ =>
+      measurable_const.mul (Complex.measurable_ofReal.comp (measurable_pi_apply q))
+  have e1 : (∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, Cs x y * ((ψ y : ℝ) : ℂ)) ∂γ) =
+      ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}, Gs (fun q => ψ q) ∂γ := by
+    refine integral_congr_ae (Filter.Eventually.of_forall fun ψ => ?_)
+    simp only [hGs, hsum]
+  have e2 : (∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, Cs' x y * ((ψ' y : ℝ) : ℂ)) ∂γ') =
+      ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}, Gs' (fun q => ψ' (f q)) ∂γ' := by
+    refine integral_congr_ae (Filter.Eventually.of_forall fun ψ' => ?_)
+    simp only [hGs', hsum']
+  set box : Set (L1Torus d N → ℝ) := {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} with hbox
+  obtain ⟨μ, hμ⟩ : ∃ μ : Measure (↥Yreg → ℝ), μ = Measure.map
+      (fun (ψ : L1Torus d N → ℝ) (q : ↥Yreg) => ψ q) (γ.restrict box) := ⟨_, rfl⟩
+  have hboxm : MeasurableSet box := by
+    have : box = Set.pi Set.univ (fun _ : L1Torus d N => Icc (-ρ) ρ) := by
+      ext ψ; simp only [hbox, Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies,
+        Set.mem_Icc, abs_le]
+    rw [this]
+    exact MeasurableSet.univ_pi fun _ => measurableSet_Icc
+  have hfin : IsFiniteMeasure (γ.restrict box) := ⟨by rw [Measure.restrict_apply_univ]; exact hγfin⟩
+  have hμfin : IsFiniteMeasure μ := by
+    rw [hμ]; infer_instance
+  have i1 : (∫ ψ in box, Gs (fun q => ψ q) ∂γ) = ∫ φ, Gs φ ∂μ := by
+    rw [hμ]
+    exact (integral_map hr.aemeasurable hGsm.aestronglyMeasurable).symm
+  have i2 : (∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}, Gs' (fun q => ψ' (f q)) ∂γ') =
+      ∫ φ, Gs' φ ∂μ := by
+    rw [hμ, hγ]
+    exact (integral_map hr'.aemeasurable hGsm'.aestronglyMeasurable).symm
+  -- a.e. the field lies in the box
+  have hae : ∀ᵐ φ ∂μ, ∀ q, |φ q| ≤ ρ := by
+    have hmeas : MeasurableSet {φ : ↥Yreg → ℝ | ∀ q, |φ q| ≤ ρ} := by
+      have : {φ : ↥Yreg → ℝ | ∀ q, |φ q| ≤ ρ} =
+          Set.pi Set.univ (fun _ : ↥Yreg => Icc (-ρ) ρ) := by
+        ext φ; simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies,
+          Set.mem_Icc, abs_le]
+      rw [this]
+      exact MeasurableSet.univ_pi fun _ => measurableSet_Icc
+    rw [hμ, ae_map_iff hr.aemeasurable hmeas]
+    exact (ae_restrict_iff' hboxm).2 (Filter.Eventually.of_forall fun ψ hψ q => hψ q)
+  -- the fields
+  set wf : (↥Yreg → ℝ) → L1Torus d N → ℂ := fun φ x => ∑ q : ↥Yreg, Cs x q * ((φ q : ℝ) : ℂ)
+    with hwf
+  set wf' : (↥Yreg → ℝ) → L1Torus d N' → ℂ := fun φ x' =>
+    ∑ q : ↥Yreg, Cs' x' (f q) * ((φ q : ℝ) : ℂ) with hwf'
+  have hYsub : ∀ (x : L1Torus d N) (h : L1Torus d N → ℝ), (∀ y, 0 ≤ h y) →
+      ∑ q : ↥Yreg, h q ≤ ∑ y, h y := by
+    intro x h h0
+    rw [← Finset.sum_subtype (Finset.univ.filter fun y => y ∈ Yreg) (fun y => by simp) h]
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) (fun y _ _ => h0 y)
+  have hbd : ∀ φ : ↥Yreg → ℝ, (∀ q, |φ q| ≤ ρ) → ∀ x, ‖wf φ x‖ ≤ Bc * ρ := by
+    intro φ hφ x
+    calc ‖wf φ x‖ ≤ ∑ q : ↥Yreg, ‖Cs x q * ((φ q : ℝ) : ℂ)‖ := norm_sum_le _ _
+      _ ≤ ∑ q : ↥Yreg, ‖Cs x q‖ * ρ := by
+          refine Finset.sum_le_sum fun q _ => ?_
+          rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+          exact mul_le_mul_of_nonneg_left (hφ q) (norm_nonneg _)
+      _ = (∑ q : ↥Yreg, ‖Cs x q‖) * ρ := by rw [Finset.sum_mul]
+      _ ≤ (∑ y, ‖Cs x y‖) * ρ :=
+          mul_le_mul_of_nonneg_right (hYsub x (fun y => ‖Cs x y‖) fun y => norm_nonneg _) hρ
+      _ ≤ Bc * ρ := mul_le_mul_of_nonneg_right (hrow x) hρ
+  have hbd' : ∀ φ : ↥Yreg → ℝ, (∀ q, |φ q| ≤ ρ) → ∀ x', ‖wf' φ x'‖ ≤ Bc * ρ := by
+    intro φ hφ x'
+    calc ‖wf' φ x'‖ ≤ ∑ q : ↥Yreg, ‖Cs' x' (f q) * ((φ q : ℝ) : ℂ)‖ := norm_sum_le _ _
+      _ ≤ ∑ q : ↥Yreg, ‖Cs' x' (f q)‖ * ρ := by
+          refine Finset.sum_le_sum fun q _ => ?_
+          rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+          exact mul_le_mul_of_nonneg_left (hφ q) (norm_nonneg _)
+      _ = (∑ q : ↥Yreg, ‖Cs' x' (f q)‖) * ρ := by rw [Finset.sum_mul]
+      _ ≤ (∑ y, ‖Cs' x' y‖) * ρ := by
+          refine mul_le_mul_of_nonneg_right ?_ hρ
+          have himg : ∑ q : ↥Yreg, ‖Cs' x' (f q)‖ =
+              ∑ y ∈ (Finset.univ.filter fun y => y ∈ Yreg).image f, ‖Cs' x' y‖ := by
+            rw [Finset.sum_image (fun a ha b hb hab =>
+              hbij.injOn (by simpa using ha) (by simpa using hb) hab)]
+            exact (Finset.sum_subtype (Finset.univ.filter fun y => y ∈ Yreg)
+              (p := fun y => y ∈ Yreg) (fun y => by simp) (fun y => ‖Cs' x' (f y)‖)).symm
+          rw [himg]
+          exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
+            (fun y _ _ => norm_nonneg _)
+      _ ≤ Bc * ρ := mul_le_mul_of_nonneg_right (hrow' x') hρ
+  have hint1 : Integrable Gs μ := by
+    refine Integrable.of_bound hGsm.aestronglyMeasurable BF ?_
+    filter_upwards [hae] with φ hφ using hFB _ (hbd φ hφ)
+  have hint2 : Integrable Gs' μ := by
+    refine Integrable.of_bound hGsm'.aestronglyMeasurable BF ?_
+    filter_upwards [hae] with φ hφ using hFB' _ (hbd' φ hφ)
+  have hcard : (Fintype.card ↥Yreg : ℝ) ≤ nY := by
+    rw [← Nat.card_eq_fintype_card]; exact hnY
+  have hpt : ∀ᵐ φ ∂μ, ‖Gs φ - Gs' φ‖ ≤ Lip * (nY * δ * ρ) := by
+    filter_upwards [hae] with φ hφ
+    rw [norm_sub_rev]
+    have hw0 : ∀ x, x ∉ Yreg → wf φ x = 0 := fun x hx => by
+      refine Finset.sum_eq_zero fun q _ => ?_
+      rw [hCs0 x q (fun h => hx h.1), zero_mul]
+    have hw0' : ∀ x', x' ∉ Y'reg → wf' φ x' = 0 := fun x' hx' => by
+      refine Finset.sum_eq_zero fun q _ => ?_
+      rw [hCs0' x' (f q) (fun h => hx' h.1), zero_mul]
+    have hη : ∀ x ∈ Yreg, ‖wf' φ (f x) - wf φ x‖ ≤ nY * δ * ρ := by
+      intro x hx
+      have : wf' φ (f x) - wf φ x = ∑ q : ↥Yreg,
+          (Cs' (f x) (f q) - Cs x q) * ((φ q : ℝ) : ℂ) := by
+        simp only [hwf, hwf', ← Finset.sum_sub_distrib]
+        refine Finset.sum_congr rfl fun q _ => by ring
+      rw [this]
+      calc ‖∑ q : ↥Yreg, (Cs' (f x) (f q) - Cs x q) * ((φ q : ℝ) : ℂ)‖
+          ≤ ∑ q : ↥Yreg, ‖(Cs' (f x) (f q) - Cs x q) * ((φ q : ℝ) : ℂ)‖ := norm_sum_le _ _
+        _ ≤ ∑ _q : ↥Yreg, δ * ρ := by
+            refine Finset.sum_le_sum fun q _ => ?_
+            rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, norm_sub_rev]
+            exact mul_le_mul (hCC x hx q q.2) (hφ q) (abs_nonneg _) hδ
+        _ = (Fintype.card ↥Yreg : ℝ) * (δ * ρ) := by
+            rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+        _ ≤ nY * (δ * ρ) := mul_le_mul_of_nonneg_right hcard (by positivity)
+        _ = nY * δ * ρ := by ring
+    have := hFclose (wf φ) (wf' φ) hw0 hw0' (hbd φ hφ) (hbd' φ hφ) (nY * δ * ρ)
+      (by
+        have : (0 : ℝ) ≤ Fintype.card ↥Yreg := by positivity
+        have h0 : 0 ≤ nY := this.trans hcard
+        positivity) hη
+    exact this
+  have hdiff : ‖(∫ ψ in box, F (fun x => ∑ y, Cs x y * ((ψ y : ℝ) : ℂ)) ∂γ) -
+      ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+        F' (fun x => ∑ y, Cs' x y * ((ψ' y : ℝ) : ℂ)) ∂γ'‖ ≤
+      Lip * (nY * δ * ρ) * μ.real Set.univ := by
+    rw [e1, e2, i1, i2, ← integral_sub hint1 hint2]
+    exact norm_integral_le_of_norm_le_const hpt
+  refine hdiff.trans ?_
+  have hmu : μ.real Set.univ = (γ box).toReal := by
+    rw [hμ, Measure.real, Measure.map_apply hr MeasurableSet.univ, Set.preimage_univ,
+      Measure.restrict_apply_univ]
+  rw [hmu]
+
+end Interaction
 
 end Balaban.Green
