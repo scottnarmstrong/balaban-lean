@@ -410,6 +410,17 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
   {j : ℕ} {hj : j ≤ k} {X : Set (CTorus d L N₁ m₁ k)}
   {hsep : bgR0 d L ≤ minSep L (L ^ m₁)}
 
+/-- **The chart `Ξ^c_j(𝔹_j(X); b, ε)`, `b ≥ 1`, of the expansion lies in the local class domain**
+when `b² ε ≤ ε_j`; at `b = 1` the radius is not enlarged (P3 (4.37)).  The landed
+`xiCRaw_localB_sub_xiFieldDom` is the instance `b = C₀`. -/
+theorem xiCRaw_localB_sub_xiFieldDom_of_one_le {A : ℕ → ℝ} {μ ε b : ℝ} {εseq : ℕ → ℝ}
+    (hb : 1 ≤ b) (hε : b ^ 2 * ε ≤ εseq j) :
+    ∀ r ∈ XiCRaw (localB j hj X hsep) A μ j b ε,
+      (xiFieldDom A μ εseq : FieldDom d L N₁ m₁ k N (bgR0 d L)).dom j
+        (localB j hj X hsep) r.1 r.2 := by
+  rintro r ⟨D, hD, rfl⟩
+  exact xiDom_of_xiCData_of_one_le hb hε hD
+
 /-- **The chart `Ξ^c_j(𝔹_j(X); C₀, ε)` of the expansion lies in the local class domain at the
 radius test of a whole-level generator** (`C₀² ε ≤ ε_j`, `C₀ = scaledC0 d`; W715's
 `localB_xiFieldDom_of_xiCData` read on raw data).  This is the hypothesis `hchart` of
@@ -418,9 +429,8 @@ theorem xiCRaw_localB_sub_xiFieldDom {A : ℕ → ℝ} {μ ε : ℝ} {εseq : �
     (hε : scaledC0 d ^ 2 * ε ≤ εseq j) :
     ∀ r ∈ XiCRaw (localB j hj X hsep) A μ j (scaledC0 d) ε,
       (xiFieldDom A μ εseq : FieldDom d L N₁ m₁ k N (bgR0 d L)).dom j
-        (localB j hj X hsep) r.1 r.2 := by
-  rintro r ⟨D, hD, rfl⟩
-  exact localB_xiFieldDom_of_xiCData hε hD
+        (localB j hj X hsep) r.1 r.2 :=
+  xiCRaw_localB_sub_xiFieldDom_of_one_le (one_le_scaledC0 d) hε
 
 end Chart
 
