@@ -180,9 +180,11 @@ hypotheses on the component of the polymer (cube operators, the decoupled fields
 compositions agree on it). The local covariance, its square root and the local fluctuation variable
 are proved analytic and bounded on the local domain. The identity is also proved at the local
 generating set itself, provided the polymer's read region stays two cubes away from the edge of the
-local set, and the local and ambient fluctuation variables agree there. Remaining: building the local
-set on a collar around the expansion domain (to be matched with the papers' choice of set), the
-fluctuation integral of a local term, and the clauses of the local class for nonzero terms.
+local set, and the local and ambient fluctuation variables agree there. The papers build the local set
+on the expansion domain itself; the formal operators read two cubes further, so the local set is
+built on a collar of that domain, which changes neither the index of a term nor its bound. The
+identity is proved in this form, with the local fluctuation variable. Remaining: the clauses of the
+local class for nonzero terms (bounds, covariance, the fluctuation integral of a local term).
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
