@@ -1262,7 +1262,7 @@ theorem decLog_one_eq_logMat_aux [Nonempty (κι × Fin N)]
     decLog G a aT ν α (fun _ => 1) φ Q P = logMat (covOp G a aT ν α φ Q P) := by
   have D0 := hfam 0 le_rfl
   have hak : 0 < a k := by
-    have := D0.st.ha k D0.st.hk le_rfl
+    have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D0.st.haT1

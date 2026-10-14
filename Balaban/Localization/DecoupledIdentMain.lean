@@ -199,7 +199,7 @@ theorem decCov_one_prod (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _
   classical
   have D := hfam x hx
   have hak : 0 < a k := by
-    have := D.st.ha k D.st.hk le_rfl
+    have := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D.st.haT1
@@ -276,7 +276,7 @@ theorem decCov_one_mul (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ 
   have hprod := decCov_one_prod hfam hφ hδ hsm hU hx
   have D := hfam x hx
   have hak : 0 < a k := by
-    have := D.st.ha k D.st.hk le_rfl
+    have := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D.st.haT1

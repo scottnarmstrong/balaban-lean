@@ -266,10 +266,10 @@ theorem localHatLift_eq_hatPsiF_localB (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k
       unfold decDomMargin; positivity
     linarith
   have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν (Cchi d L) :=
-    ⟨Sb.toCoverGeom, hk1, ha₁, ha₂⟩
+    ⟨Sb.toCoverGeom, (Sb.weights k hk1 (by omega)).1, (Sb.weights k hk1 (by omega)).2, ha₁, ha₂⟩
   have SX' : Dec2.XCover (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
       (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) a₁ ν (Cchi d L) :=
-    ⟨Sb'.toCoverGeom, hk1, ha₁, ha₂⟩
+    ⟨Sb'.toCoverGeom, (Sb'.weights k hk1 (by omega)).1, (Sb'.weights k hk1 (by omega)).2, ha₁, ha₂⟩
   -- the sets `T` (block union) and `Y_b`
   obtain ⟨T, hT⟩ : ∃ T : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ y, y ∈ T ↔ ∃ x ∈ R,
       ∃ z, jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) z =

@@ -79,11 +79,12 @@ noncomputable def Gsx (a : ℕ → ℝ) (aT x ν : ℝ) (α : G.Ω 1 → ℂ)
 end Defs
 
 /-- The standing hypotheses of DG7: the hypotheses of `DGSetting` for the generating set of level
-`k + 1`, `k ≥ 1` and the coefficient `a_{k+1} = aT ∈ [1/2, 2]` of the top layer. -/
+`k + 1`, `a_k ∈ [1/2, 2]` and the coefficient `a_{k+1} = aT ∈ [1/2, 2]` of the top layer. -/
 structure XSetting (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (aT ν : ℝ) :
     Prop where
   dg : DGSetting G a ν
-  hk : 1 ≤ k
+  hak1 : 1 / 2 ≤ a k
+  hak2 : a k ≤ 2
   haT1 : 1 / 2 ≤ aT
   haT2 : aT ≤ 2
 
@@ -284,8 +285,8 @@ theorem xDirichlet_row_eq_cutX_row
 theorem cubeHx_isUnit (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x)
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
     IsUnit (cubeHx G a aT x ν α q) :=
-  cutXOperator_isUnit G (cubeCut_aligned G (box_blockAligned S.dg.aligned S.dg.cover_sep
-    (by have := S.dg.hL; omega) hq)) S.dg.hL S.hk S.dg.mass S.ha S.haT1 S.haT2 hx α
+  cutXOperator_isUnit_of_ak G (cubeCut_aligned G (box_blockAligned S.dg.aligned S.dg.cover_sep
+    (by have := S.dg.hL; omega) hq)) S.dg.hL S.dg.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1 S.haT2 hx α
     (AdmPot.le_eighth S.dg hα)
 
 theorem cubeGx_mulVec (q : ℕ × CTorus d L N₁ m₁ (k + 1)) (f : G.Ω 1 → ℂ) :

@@ -86,7 +86,7 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} 
 
 theorem xDirichlet_isUnit (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x) :
     IsUnit (xDirichletOperator G a aT x ν α) :=
-  xDirichletOperator_isUnit_sharp G S.dg.hL S.hk S.dg.mass S.ha S.haT1 S.haT2 hx α
+  xDirichletOperator_isUnit_sharp_of_ak G S.dg.hL S.dg.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1 S.haT2 hx α
     (AdmPot.le_eighth S.dg hα)
 
 /-- **The algebraic identity behind (DG6)**:
@@ -205,8 +205,8 @@ theorem Gd_cwsq_le (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x)
   have hu : cutXOperator G a aT x ν ∅ α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) = h := by
     rw [cutXOperator_empty, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet,
       Matrix.one_mulVec]
-  have hen := x_agmon_energy_cut G (cutAligned_empty G) (by have := S.dg.hd; omega) S.dg.hL S.hk
-    S.dg.mass S.ha S.haT1 S.haT2 hx α (AdmPot.le_eighth S.dg hα) hr hε0 hε1 hu
+  have hen := x_agmon_energy_cut_of_ak G (cutAligned_empty G) (by have := S.dg.hd; omega) S.dg.hL
+    S.dg.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1 S.haT2 hx α (AdmPot.le_eighth S.dg hα) hr hε0 hε1 hu
   have hE := cutEnergy_nonneg (∅ : Finset (CTorus d L N₁ m₁ (k + 1) × Fin d))
     (agmonField G ε r ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h))
   linarith

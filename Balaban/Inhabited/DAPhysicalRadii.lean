@@ -104,7 +104,8 @@ theorem rayData_hatStep_pp (m₁ : ℕ) (p₁ pp : ℝ) (hm : 4 ≤ m₁) (hbig 
             hpp := hpp, B₅ := witB5, K₂ := witK2, hB5 := le_rfl, hK2 := le_rfl,
             hp40 := ?_, hrad := ?_ }⟩
   · intro x hx
-    refine ⟨⟨(dgSettingNu hm), le_rfl, by show (1 / 2 : ℝ) ≤ 1; norm_num,
+    refine ⟨⟨(dgSettingNu hm), by show (1 / 2 : ℝ) ≤ compWeight 3 1 1; rw [compWeight_one (by norm_num)]; norm_num,
+      by show compWeight 3 1 1 ≤ (2 : ℝ); rw [compWeight_one (by norm_num)]; norm_num, by show (1 / 2 : ℝ) ≤ 1; norm_num,
       by show (1 : ℝ) ≤ 2; norm_num⟩, ?_, hx, le_rfl, ?_, ?_⟩
     · intro y
       have hs2 : 0 < S.G'.spacing (y : Torus 3 (9 * 3 ^ m₁ * 3 ^ 2)) ^ 2 := by

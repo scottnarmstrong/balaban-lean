@@ -248,7 +248,7 @@ theorem analyticOnNhd_decCovSqrt_entry_cover {Cx : ℝ} {κι : Type*} [Fintype 
     AnalyticOnNhd ℂ (fun e : DecData G N =>
       decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 Q P p q) (DecDom G N κ δ) := by
   have hak : 0 < a k := by
-    have := S.ha k S.hk le_rfl
+    have := (⟨S.hak1, S.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hB := covB4_nonneg d L (a k) κ
   have hint : AnalyticOnNhd ℂ (fun e : DecData G N => ∫ y in Ioi (0 : ℝ),
@@ -312,7 +312,7 @@ theorem covStanding_of_mem (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 ≤ κ)
   exact ⟨fun x hx => ⟨S, hα, hx, hκ, hM, hs⟩, he.2.1.toIsConstraintField, hδ, hsm, hU⟩
 
 theorem XSetting.hak_pos (S : XSetting G a aT ν) : 0 < a k := by
-  have := S.ha k S.hk le_rfl
+  have := (⟨S.hak1, S.hak2⟩ : _ ∧ _)
   linarith [this.1]
 
 variable (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 ≤ κ)

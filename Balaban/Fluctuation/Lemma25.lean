@@ -475,7 +475,12 @@ theorem lemma25
   have hL3 : 3 ≤ L := H.hL
   have hν0 : 0 ≤ ν := H.mass
   have hν1 : ν * ((L : ℝ) ^ (k + 1)) ^ 2 ≤ 1 := H.massLe
-  have hk1 : 1 ≤ k := (hfam 0 le_rfl).st.hk
+  have hk1 : 1 ≤ k := by
+    rcases Nat.eq_zero_or_pos k with h | h
+    · have h12 := (hfam 0 le_rfl).st.hak1
+      subst h
+      norm_num [compWeight] at h12
+    · exact h
   rcases chiFl_eq_zero_or_one p₁ ψh with h0 | h1
   · rw [h0, mul_zero]
   rw [h1, mul_one]

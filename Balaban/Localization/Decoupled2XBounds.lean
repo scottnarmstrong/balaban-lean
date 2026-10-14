@@ -115,8 +115,7 @@ theorem cube_energy (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ 
         (agmonField H ε r (cubeGx H a aT x ν α q *ᵥ g)) +
       (1 / 32) * cwsq H (agmonField H ε r (cubeGx H a aT x ν α q *ᵥ g)) ≤
       8 * agmonSource H ε r (cD H q *ᵥ g) :=
-  x_agmon_energy_cut H (cubeCut_aligned H (S.blockAligned q hq)) (by have := S.hd; omega) S.hL
-    S.hk S.mass S.ha S.haT1 S.haT2 hx α (AdmPot.le_eighth' S.hd hα) hr hε0 hε1
+  x_agmon_energy_cut_of_ak H (cubeCut_aligned H (S.blockAligned q hq)) (by have := S.hd; omega) S.hL S.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1 S.haT2 hx α (AdmPot.le_eighth' S.hd hα) hr hε0 hε1
     (cubeHx_cubeGx S hα hx hq g)
 
 theorem cube_cwsq_le (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
@@ -170,7 +169,7 @@ theorem Kzx_agmonSource_le (S : XCover C H a aT ν Cx) (hCx : 0 ≤ Cx) (hα : A
     rw [← hKe]
     by_contra hne
     exact hy (by simp [hΛ, inner_of_Kzx_ne_zero S hq u y hne])
-  have hcomm := agmonSource_commKx_le H hd S.hk S.ha S.haT1 hx (ν := ν) 0 hsmooth hδ hr hε0 hε2
+  have hcomm := agmonSource_commKx_le_of_ak H hd S.ha ⟨S.hak1, S.hak2⟩ S.haT1 hx (ν := ν) 0 hsmooth hδ hr hε0 hε2
     (fun p : H.Ω 1 × Fin 1 => u p.1) Λ hΛ0
   rw [vecGradOn_scalar, vecM_scalar] at hcomm
   rw [hKe]

@@ -109,7 +109,7 @@ theorem localHatLift_mem_flBallLC_of_spec {Hl : GeneratingSet d L (N₁ * L ^ m�
       have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
       unfold decDomMargin; positivity
     linarith
-  have SX : Dec2.XCover (coverOf G) G (compWeight L a₁) a₁ ν Cx := ⟨S.toCoverGeom, hk1, ha₁, ha₂⟩
+  have SX : Dec2.XCover (coverOf G) G (compWeight L a₁) a₁ ν Cx := ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
   rw [hFe]
   exact localHatLift_mem_flBallLC_cover SX hCx hκ hMX hδc hsm hdom cc hcψ hδ₁0 hδ₁ hψh hHl
 

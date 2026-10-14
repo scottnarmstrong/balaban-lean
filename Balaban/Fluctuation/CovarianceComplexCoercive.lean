@@ -200,7 +200,7 @@ theorem decCov_path_diff_le
     analyticAt_decCov_path hfam0 hφ0 hδ0 hδ hφ0r hmarg hαc hε.le hφs hφp (hball t ht) hx v
   set M : ℝ := covB4 d L (a k) 0 * ((a k + x)⁻¹) ^ 2 * Green.sqNorm v with hM
   have hak : 0 < a k + x := by
-    have := D0.st.ha k D0.st.hk le_rfl
+    have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
     have := this.1
     linarith
   have hbd : ∀ t ∈ Metric.ball (0 : ℂ) (2 * R), ‖g t‖ ≤ M := by
@@ -284,7 +284,7 @@ theorem lemma24_a_complex
   have D0 := hfam0 0 le_rfl
   have hd : 0 < d := by have := D0.st.dg.hd; omega
   have hm := covMargin_pos L hd
-  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D0.st.ha k D0.st.hk le_rfl
+  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
   have hak0 : 0 < a k := by linarith [hak.1]
   have hsm : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4 := by
     refine le_trans (mul_le_mul_of_nonneg_right ?_ (smallConstX_pos d L 0).le) (covDelta_sq_mul_le d L)

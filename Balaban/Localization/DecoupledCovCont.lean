@@ -160,7 +160,7 @@ include hfam
 
 theorem aux_hak_cover : 0 < a k := by
   have D := hfam 0 le_rfl
-  have := D.st.ha k D.st.hk le_rfl
+  have := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
   linarith [this.1]
 
 theorem aux_hb_cover : 0 ≤ aT / (L : ℝ) ^ 2 := by

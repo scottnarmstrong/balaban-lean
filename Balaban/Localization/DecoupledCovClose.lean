@@ -209,8 +209,8 @@ theorem Gd_grad_le (S : XCover C G a aT ν Cx) (hα : AdmPot G α) (hx : 0 ≤ x
   have hu : cutXOperator G a aT x ν ∅ α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) = h := by
     rw [cutXOperator_empty, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet,
       Matrix.one_mulVec]
-  have hen := x_agmon_energy_cut G (cutAligned_empty G) hd S.hL S.hk
-    S.mass S.ha S.haT1 S.haT2 hx α (AdmPot.le_eighth' S.hd hα) hr hε0 hε1 hu
+  have hen := x_agmon_energy_cut_of_ak G (cutAligned_empty G) hd S.hL
+    S.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1 S.haT2 hx α (AdmPot.le_eighth' S.hd hα) hr hε0 hε1 hu
   have hε12 : ε ≤ 1 / 2 := by
     have := xAgmonRate_le_agmonRate (d := d) (L := L) hd (by have := S.hL; omega)
     linarith [agmonRate_le hd]
@@ -698,7 +698,7 @@ theorem vecM_decZ_sub_le_cover (f : G.Ω 1 × Fin N → ℂ) :
   have hhd : 0 < d := by have := D.st.hd; omega
   have hε2 : ε ≤ agmonRate d :=
     hε1.trans (xAgmonRate_le_agmonRate hhd (by have := D.st.hL; omega))
-  have hK := agmonSource_commKx_le (ν := ν) G hhd D.st.hk D.st.ha D.st.haT1 D.x0 α hφ.toIsSmoothField hδ
+  have hK := agmonSource_commKx_le_of_ak (ν := ν) G hhd D.st.ha ⟨D.st.hak1, D.st.hak2⟩ D.st.haT1 D.x0 α hφ.toIsSmoothField hδ
     hr hε0 hε2 u2 Finset.univ (fun y hy => absurd (Finset.mem_univ _) hy)
   have hδ8 := delta_sq_le_eighth d L hsm
   have hk2 : agmonSource G ε r (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ u2) ≤
