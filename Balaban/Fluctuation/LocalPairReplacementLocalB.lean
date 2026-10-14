@@ -26,7 +26,12 @@ and the same fluctuation `ψ'(w)` (the hat variable stays ambient).
   top layer) and the four cover bases by `localB_replacement_coverBases`.  The remaining hypotheses
   are the constants, the specifications of the solution maps `F₁, F₁', Sol, Sol'`, the data domains
   of `D`, `D'`, the agreement of `D'` with `D` on the top layer, and the strict data inequalities of
-  the two fluctuation problems.
+  the two fluctuation problems;
+* `localB_inUnionDomainC_restrict_const`, `localBRestrict_eq_of_mem_top`, `strictDataM_mono_left`,
+  `strictDataM_flEdat_cover`: the data of the local side (the restricted datum, the strict data
+  inequalities of both fluctuation problems);
+* `coef_eTermFun_replacement_localB_restrict`: the case `𝔹_{k+1} = levelGS (k + 1)`,
+  `D' = localBRestrict D`, with the data hypotheses discharged from the chart of `D`.
 -/
 
 @[expose] public section
@@ -402,6 +407,262 @@ theorem coef_eTermFun_replacement_localB (hG' : IsLevel Gp (k + 1)) (hG : IsLeve
     (fun x hx => by
       have ht := hmar x (hRk x hx) x (by rw [supDist_self]; exact Nat.zero_le _)
       exact ⟨(hD' x ht).1.symm, fun _ => (hD' x ht).2.symm⟩)
+
+/-- **The replacement identity at the local generating set, with the restricted datum.**  The case
+`𝔹_{k+1} = levelGS (k + 1)` (the whole-level set of the class) and `D' = localBRestrict D` (the clip of
+the datum to the data sites of `𝔹_{k+1}(Y)`, P3 (4.44)) of `coef_eTermFun_replacement_localB`: the
+data hypotheses are discharged from the chart `Ξ^c_{k+1}(𝔹_{k+1}; 1, ε')` of `D`
+(`localB_inUnionDomainC_restrict_const`, `localBRestrict_eq_of_mem_top`, `localB_xiCData_restrict`
+at the radius `ε'' ≥ C₁ε' + (2K₁ + 1) C₁ε'`, and `strictDataM_flEdat_cover` on both sides for a
+fluctuation `ψ'(w)` in the ball `|ψ'| < δ₁` of the ambient level set `𝔹_k`).  The hypotheses left are
+the constants (numerical conditions at `ε'` and `ε''`, `δ₀ ≥ 2 K₄ C₁ ε''`), the specifications of
+the solution maps, and the margin of the read region in `Y`. -/
+theorem coef_eTermFun_replacement_localB_restrict (hG : IsLevel Hm k) (hk1 : 1 ≤ k)
+    (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ m₁) - 1))
+    {c BG a₁ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (HB' : BgHyp d L (k + 1) (minSep L (L ^ m₁))
+      (compWeight L a₁) ν)
+    {κ : ℝ} (hκ : 0 < κ) (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk)) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk).Ω 1 ×
+        Fin N → ℂ) × ((Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := k + 1) (ϱ := ϱ) (k + 1) hk).Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 × Fin N → ℂ) ×
+        ((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk))) (D : BgData
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk) N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := k + 1) (ϱ := ϱ) (k + 1) hk) (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ :
+        (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk).Ω 1
+        × Fin N → ℂ)
+        (α : (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+          (k := k + 1) (ϱ := ϱ) (k + 1) hk).Ω 1 → ℂ), Dec2.IsDecBg (coverOf
+          (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk))
+          (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk)
+          (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))))
+      (D : BgData (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 × Fin N → ℂ)
+        (α : (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
+          (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν (rho4 d L N BG κ)
+            s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 < δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk)) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))) ×
+        Edat (localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) N →
+      ((localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω 1 × Fin N → ℂ) ×
+        ((localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk)) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf
+          (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk))
+          Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+          (k := k + 1) (ϱ := ϱ) (k + 1) hk)) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+            (k := k + 1) (ϱ := ϱ) (k + 1) hk)) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))) ×
+        Edat (localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) N false δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
+          (Dec2.decG (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
+            (localB k (Nat.le_succ k)
+              (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+                Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν
+                  p.1)
+          p.2.2.1 p.2.1
+          (pertSource (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
+          (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν p.1
+                false
+          p.2.2.1 p.2.1
+          (pertSource (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Small (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (Sol' p).2
+          (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (Sol' p).2
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (Sol' p).1
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ,
+          Small (localB k (Nat.le_succ k)
+            (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+              Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) δα'
+            (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
+            (localB k (Nat.le_succ k)
+              (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+                Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν
+                  p.1 false
+            p.2.2.1 p.2.1
+            (pertSource (localB k (Nat.le_succ k)
+              (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+                Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁)
+                  p.2.2.2.1
+              p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (C : Finset (ParIdx
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁))
+      {R' : ℝ} (hR' : 1 < R')
+    (hRκ : R' ≤ Real.exp κ)
+    {eps eps' : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hεb : xiC1 d * eps + (2 * bgK1 d L N + 1) * (xiC1 d * eps) ≤ eps')
+    (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
+    (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀)
+    {D : BgData (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk) N} (hD : XiCData
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk)
+      (compWeight L a₁) ν (k + 1) 1 eps D)
+    (ψ' : (ParIdx (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ → ℂ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+    (hψ : ∀ w ∈ supN C R', ψ' w ∈ FlBall Hm δ₁)
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk), ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hRk : ∀ x ∈ dataSites Gk, x ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)) :
+    coef (fun w => eTermFun (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k + 1) (ϱ := ϱ) (k + 1) hk) Gk Gj Hm ac Fk E (F₁ (extParams
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w,
+      rawOf D))
+        (Sol (extParams (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+          (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w,
+          flEdat (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+            (k := k + 1) (ϱ := ϱ) (k + 1) hk) Hm (F₁ (extParams
+            (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk)
+            X₁ w, rawOf D)) D.Ψ (ψ' w))).1 (rawOf D, ψ' w)) C =
+      coef (fun w => eTermFun (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) Gk Gj
+        (localB k (Nat.le_succ k)
+          (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+            Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
+        ac Fk E
+        (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
+            then Dec2.extS (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+              (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
+              (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+              (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0), rawOf
+              (localBRestrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+              (Nat.le_add_left 1 k) D)))
+        (Sol' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
+            then Dec2.extS (coverOf (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+              (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
+              (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+              (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0),
+          flEdat (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))
+            (localB k (Nat.le_succ k)
+              (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+                Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
+            (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω
+                (k + 1) then Dec2.extS (coverOf
+                  (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+                  (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
+                  (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+                  (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0), rawOf
+                  (localBRestrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+                  (Nat.le_add_left 1 k) D)))
+            (localBRestrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+              (Nat.le_add_left 1 k) D).Ψ (ψ' w))).1 (rawOf
+              (localBRestrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+              (Nat.le_add_left 1 k) D), ψ' w)) C := by
+  classical
+  have hG' : IsLevel (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+      (k + 1) hk) (k + 1) := isLevel_levelGS (Nat.le_add_left 1 k) hk
+  obtain ⟨Sb, Sb', -, -⟩ := localB_replacement_coverBases hG' Hm hk Y hN hm₁ hM HB hag hagm hagl
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have heps' : 0 < eps' := by nlinarith
+  have hle : eps ≤ eps' := by nlinarith
+  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
+  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
+    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
+      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
+    linarith
+  have hDom := xiCData_inDomainC HB hsmall hD
+  have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
+  have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
+  have hDd := inUnionDomainC_of_inDomainC HB hδ0 hc0 hc7 hDom
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := HB.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  have hD'x := localB_xiCData_restrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+    (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D hDom
+  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
+    (norm_extParams_lt hR' hw.2 P).trans_le hRκ
+  exact coef_eTermFun_replacement_localB hG' hG hk1 hk Y hN hm₁ hM hag hagm hagl hS HB HB' hκ.le
+    hMc hF₁ hF₁' hF₂ hM₂ h0 h1.le hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd
+    (localB_inUnionDomainC_restrict_const (Nat.le_add_left 1 k) HB.mass D hDd)
+    (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) ψ'
+    (fun w hw => strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
+      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψ w hw))
+    (fun w hw => strictDataM_flEdat_cover hS Sb' HB' hκ hMc heps' hsmall' hc7' hphi' h1 hδ₀e
+      (localB_drop_precedes hk (Nat.le_succ k) Y le_rfl le_rfl) hF₁' hSol'
+      (localB_tau_norm_lt hk Y _ (hsσ w hw) (hR'.trans_le hRκ)) hD'x
+      (fun x _ => hψ w hw x ((mem_dataSites Hm).2 (Or.inl (hG x).1))))
+    hRC hRX hRk hmar
 
 end Assembly
 
