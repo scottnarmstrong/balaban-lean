@@ -71,3 +71,8 @@ cut family) are REFUTED/closed by W757, W779, W782, W784; old L6 landed (W753); 
 **Confidence.** High on (a) (algebra of W784 plus cancellation of `B`; the row sum for `K_E` is the only estimate to check, by
 perturbation of landed bounds). High that the square root is not needed. Medium-low on E4: the analytic domain of the
 interaction under complex cut parameters is unverified and may force R2.
+
+## W787 status (14 October 2026)
+E1, E2, E3 PROVED in `Green/FinalDetRatio.lean` and `Green/FinalGaussianReduction.lean`. Correction to section 1a: the landed `taggedK` of `finalOp+E` uses the boxes of `finalOp+E`, so its block factor differs; the ratio needs the MIXED defect `K_E = tagged(R_z - E chi_z G_z)` with the boxes of `finalOp` (`1 - K_E(1) = 1 - (U+E+t) sum chi_z G_z`). Row sums `<= B e^{H kappa}/M + e^{H kappa}(2/g)eta ballConst(3 eps/4)` (`taggedKE_row_sum`); `taggedKE_isUnit_inv_weighted` (inverse weighted bound 2).
+`exists_det_ratio_localized`: `det(finalOp+E+t) = det(finalOp+t) prod_C exp(coef ellE C - coef ell0 C)`, locality (E = 0 on Y(C)^2), separated vanishing, bound `2|C|(8M+1)^d/(e^kappa-1)^|C|`. Extra hypotheses: `WSmall rE eta E` with `pdEps/4 <= rE`, and `4 e^{H kappa}(2/g)eta ballConst(3 eps/4) <= 1`.
+E3: `lintegral_pd_gaussian_ratio`: `Z[F]/Z[1] = int F(pdSqrtInv K psi) dgamma` (ENNReal, any F; the matrix is `K^{-1/2}`, not `sqrtMat K`). Not done: E4-E7 (gate D unchanged).
