@@ -21,9 +21,11 @@ the partition functions differ.)
   `qset_coverOf_congr`: two generating sets with the same layers at the relevant bases have the same
   cover cubes, partition functions and footprints there;
 * `mem_layer_iff_of_mem_top`: a site of `Ω_K` lies in no layer other than `K`;
-* `level_localB_layer_iff`, `level_localB_mem_cubeIdx_iff`, `level_localB_chi_eq`,
-  `level_localB_qset_eq`: the instance ambient level set (`IsLevel 𝔹_{k+1} (k + 1)`) versus
-  `localB (k + 1) … Y`.
+* `level_localB_layer_iff`, `level_localB_mem_cubeIdx_iff`: the instance ambient level set
+  (`IsLevel 𝔹_{k+1} (k + 1)`) versus `localB (k + 1) … Y`.  The partition functions and the
+  footprints of the two covers are compared in `LocalPairLevelInner.lean`
+  (`level_localB_chi_eq_of_cover`, `level_localB_qset_eq_of_cover`), with the depth condition on
+  the cubes of the two covers only.
 -/
 
 @[expose] public section
@@ -131,38 +133,6 @@ theorem level_localB_mem_cubeIdx_iff (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ 
           (torusCast q.2 : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) → y ∈ Y) :
     q ∈ cubeIdx Gp ↔ q ∈ cubeIdx (GsSpec.localB (k + 1) hk Y hsep) :=
   mem_cubeIdx_congr_of_layer fun _ hn hnK => level_localB_layer_iff hG' hk Y hsep hq hn hnK
-
-/-- **IndexMatch, partition of unity**: at a site `x` all of whose active cubes (non-vanishing
-bump) have their base in a `𝒞_{k+1}`-cube of `Y`, the partition functions `χ_z(x)` of the covers of
-the ambient level set and of `𝔹_{k+1}(Y)` coincide. -/
-theorem level_localB_chi_eq (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
-    (Y : Set (CTorus d L N₁ m₁ (k + 1))) {ϱl : ℝ} (hsep : ϱl ≤ minSep L (L ^ m₁))
-    {x : CTorus d L N₁ m₁ (k + 1)}
-    (hx : ∀ q : ℕ × CTorus d L N₁ m₁ (k + 1), cubeBump m₁ q.1 q.2 x ≠ 0 →
-      ∀ y : CTorus d L N₁ m₁ (k + 1),
-        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
-            (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
-          fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
-            (torusCast q.2 : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) → y ∈ Y)
-    (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
-    chi Gp q x = chi (GsSpec.localB (k + 1) hk Y hsep) q x :=
-  chi_congr_of_active (fun q' hq' => level_localB_mem_cubeIdx_iff hG' hk Y hsep (hx q' hq')) q
-
-/-- **IndexMatch, footprints**: if every cube meeting the hat box of `z` has its base in a
-`𝒞_{k+1}`-cube of `Y`, the footprint `𝒬(z)` is the same for the covers of the ambient level set
-and of `𝔹_{k+1}(Y)`. -/
-theorem level_localB_qset_eq (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
-    (Y : Set (CTorus d L N₁ m₁ (k + 1))) {ϱl : ℝ} (hsep : ϱl ≤ minSep L (L ^ m₁))
-    {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
-    (hq : ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
-        InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
-      ∀ y : CTorus d L N₁ m₁ (k + 1),
-        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
-            (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
-          fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
-            (torusCast q'.2 : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) → y ∈ Y) :
-    (coverOf Gp).Qset q = (coverOf (GsSpec.localB (k + 1) hk Y hsep)).Qset q :=
-  qset_coverOf_congr fun q' hq' => level_localB_mem_cubeIdx_iff hG' hk Y hsep (hq q' hq')
 
 end LevelLocal
 

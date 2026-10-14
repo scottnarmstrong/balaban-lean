@@ -100,8 +100,8 @@ theorem level_localB_iff_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k +
   · exact iff_of_false (fun h' => hc (Or.inl h')) (fun h' => hc (Or.inr h'))
 
 /-- **The partition functions of the two covers agree at `x`** if the cubes of either cover whose
-bump does not vanish at `x` have their bases in the top layer (`level_localB_chi_eq` with the
-condition only on the cubes of the covers). -/
+bump does not vanish at `x` have their bases in the top layer (`chi_congr_of_active`, with
+`level_localB_iff_of_cover` for the cubes of the two covers). -/
 theorem level_localB_chi_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
     {x : CTorus d L N₁ m₁ (k + 1)}
@@ -114,8 +114,8 @@ theorem level_localB_chi_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ 
     fun hc => hx q' hc hq') q
 
 /-- **The footprints of the two covers agree at `q`** if the cubes of either cover meeting the
-thickened cube `□̂_z` have their bases in the top layer (`level_localB_qset_eq` with the condition
-only on the cubes of the covers). -/
+thickened cube `□̂_z` have their bases in the top layer (`qset_coverOf_congr`, with
+`level_localB_iff_of_cover` for the cubes of the two covers). -/
 theorem level_localB_qset_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
