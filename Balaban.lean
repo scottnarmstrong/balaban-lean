@@ -1860,6 +1860,8 @@ public import Balaban.Inhabited.OffFibreE1Activity
 public import Balaban.Inhabited.OffFibreE1CoeffValue
 public import Balaban.Inhabited.OffFibreM0CoeffSum
 public import Balaban.Inhabited.OffFibreM0Activity
+public import Balaban.Inhabited.OffFibreM0ActivityG
+public import Balaban.Inhabited.OffFibreM0Family
 public import Balaban.Fluctuation.StepComplexProp26J
 public import Balaban.Fluctuation.StepComplexProp26JZero
 public import Balaban.Fluctuation.StepActivityOffFibreRay
@@ -1888,3 +1890,7 @@ public import Balaban.Fluctuation.ClassOldEndpointM
 public import Balaban.Inhabited.ClassOldExpansionFromTower
 public import Balaban.Fluctuation.ClassOldLocalGk
 public import Balaban.Fluctuation.ClassOldEndpointLocal
+public import Balaban.SmallField.LocalSuccessorRadius
+public import Balaban.Fluctuation.LocalSuccessorEngine
+public import Balaban.SmallField.LocalZeroClass
+public import Balaban.Inhabited.RootRotation
