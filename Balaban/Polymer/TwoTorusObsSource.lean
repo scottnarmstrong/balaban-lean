@@ -337,172 +337,6 @@ theorem labelActSource_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
     (fun p => (SB).hatOf_mem m₀ hp1 hp' Φ' p) (fun p => (SB).hatOf_mem m₀ hp1 hp' Φ' p) hρ hhat hhat
     hrad (hEv₃ s) (hEv₃' (bm s.1, s.2)) (hanEv₃ s _) (hanEv₃' (bm s.1, s.2) _) hσ
 
-/-- **D2 (source part): the activities of the observable on two tori at parameters of arbitrary
-source.**  As `tiltActObs_twoTorus`, without the condition that the sources of `θ`, `θ'` vanish: the
-activities of corresponding labels agree at the zero-source parameters `(θ.1, 0)`, `(θ'.1, 0)`
-(`hAeq`) and at the parameters `θ`, `θ'` themselves (`hAeqθ`).  Then the activities
-`tiltActObs A …` and `tiltActObs A' …` on the observable labels satisfy the hypotheses of
-`obsCoeffParam_twoTorus_of_activities`: the first-order component of the label `(a)` reads the
-activity at `(θ.1, 0)`, the second reads the activity at `θ`. -/
-theorem tiltActObs_twoTorus_source (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
-    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
-    (hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
-    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ)}
-    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    {Lb Lb' : Type} [Fintype Lb] [Fintype Lb']
-    (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ Lb)
-    (Lab' : CubeLabels (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ Lb')
-    {𝒴v : Finset (Set (CTorus d L N₁ m₁ (k + 1)))}
-    {𝒴v' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
-    (ys : Lb ≃ {Y // Y ∈ 𝒴v}) (ys' : Lb' ≃ {Y // Y ∈ 𝒴v'})
-    (hys : ∀ l, Lab.ysite l = (ys l).1) (hys' : ∀ l', Lab'.ysite l' = (ys' l').1)
-    (hmem : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
-      (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ 𝒴v' ↔ Y ∈ 𝒴v))
-    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
-    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
-    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
-    {εH κH κ0 Kco εH' κH' κ0' Kco' : ℝ}
-    (A : physParam N (SA) → ℂ → LabelAct Lab ((SA).blockSplit m₀ hp).Ωb εH κH κ0 Kco)
-    (A' : physParam N (SB) → ℂ → LabelAct Lab' ((SB).blockSplit m₀ hp').Ωb εH' κH' κ0' Kco')
-    (hκ0 : aEnt d L + 1 ≤ κ0) (hκ0' : aEnt d L + 1 ≤ κ0') (hεH : 0 ≤ εH) (hεH' : 0 ≤ εH')
-    {Kobs Kobs' : ℝ} (hK : Kco + Kco + K0 d L κ0 + K0 d L κ0 ≤ Kobs)
-    (hK' : Kco' + Kco' + K0 d L κ0' + K0 d L κ0' ≤ Kobs')
-    (Rg : ℝ) (hR : 0 ≤ Rg) (𝒰 : Set ℂ)
-    (θ : physParam N (SA)) (θ' : physParam N (SB))
-    (hAeq : ∀ σ : ℂ, ‖σ‖ ≤ 1 → ∀ (l : Lb) (l' : Lb'),
-      (∀ x ∈ Lab.ysite l, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      Lab'.ysite l' = bm '' Lab.ysite l →
-      ∀ (Φ : ∀ b, ((SA).blockSplit m₀ hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit m₀ hp').Ωb b),
-      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
-        Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
-          Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) →
-      (A' ((θ'.1, 0) : physParam N (SB)) σ).H l' Φ' = (A ((θ.1, 0) : physParam N (SA)) σ).H l Φ)
-    (hAeqθ : ∀ σ : ℂ, ‖σ‖ ≤ 1 → ∀ (l : Lb) (l' : Lb'),
-      (∀ x ∈ Lab.ysite l, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      Lab'.ysite l' = bm '' Lab.ysite l →
-      ∀ (Φ : ∀ b, ((SA).blockSplit m₀ hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit m₀ hp').Ωb b),
-      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
-        Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
-          Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) →
-      (A' θ' σ).H l' Φ' = (A θ σ).H l Φ) :
-    ∃ (P : ObsLb (Lb ⊕ Lb) m₀ 𝒴 → Prop) (P' : ObsLb (Lb' ⊕ Lb') m₀ 𝒴' → Prop)
-      (ψ : ∀ l, P l → blocksOf m₀ (k + 1) Set.univ ((obsLab (Lab.sum Lab) hdj).ysite l) ⊆ T →
-        ObsLb (Lb' ⊕ Lb') m₀ 𝒴'),
-      (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ l, ¬ P l → ∀ Φ,
-        (tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ (s : ℂ) 1).H l Φ = 0) ∧
-      (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ l', ¬ P' l' → ∀ Φ',
-        (tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ' (s : ℂ) 1).H l' Φ' = 0) ∧
-      (∀ l hP hl, P' (ψ l hP hl)) ∧
-      (∀ l hP hl, blocksOf m₀ (k + 1) Set.univ ((obsLab (Lab'.sum Lab') hdj').ysite (ψ l hP hl)) =
-        (blocksOf m₀ (k + 1) Set.univ ((obsLab (Lab.sum Lab) hdj).ysite l)).image (σc)) ∧
-      (∀ l₁ hP₁ hl₁ l₂ hP₂ hl₂, ψ l₁ hP₁ hl₁ = ψ l₂ hP₂ hl₂ → l₁ = l₂) ∧
-      (∀ l', P' l' → blocksOf m₀ (k + 1) Set.univ ((obsLab (Lab'.sum Lab') hdj').ysite l') ⊆
-        T.image (σc) → ∃ l hP hl, ψ l hP hl = l') ∧
-      (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ l hP hl, ∀ Φ Φ',
-        (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
-          Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
-            Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) →
-        (tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ' (s : ℂ) 1).H (ψ l hP hl) Φ' =
-          (tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ (s : ℂ) 1).H l Φ) := by
-  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
-  have hcs : aK ≤ L * aK := cellSide_le_mul
-  have hnc : 2 * R + aK < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hnc' : 2 * R + aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  obtain ⟨lm, hlmR, hlmy, hlminj, hlmsurj⟩ := labelMap_twoTorus hN hN' hnL hnL' hT Lab Lab' ys ys'
-    hys hys' hmem
-  have hP0 : ∀ (Y : {Y // Y ∈ 𝒴}), ¬ ∃ w : Lb ⊕ Lb,
-      (Sum.inl (Sum.inr Y) : ObsLb (Lb ⊕ Lb) m₀ 𝒴) = Sum.inl (Sum.inl w) := by
-    intro Y ⟨w, h⟩
-    simp at h
-  have hP1 : ∀ (Z : {Z // Z ∈ cubeFamily (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1)
-      (m₀ := m₀) (k + 1)}), ¬ ∃ w : Lb ⊕ Lb,
-      (Sum.inr Z : ObsLb (Lb ⊕ Lb) m₀ 𝒴) = Sum.inl (Sum.inl w) := by
-    intro Z ⟨w, h⟩
-    simp at h
-  refine ⟨fun l => ∃ w, l = Sum.inl (Sum.inl w), fun l => ∃ w, l = Sum.inl (Sum.inl w),
-    fun l => match l with
-      | Sum.inl (Sum.inl (Sum.inl a)) => fun _ hl => Sum.inl (Sum.inl (Sum.inl (lm a hl)))
-      | Sum.inl (Sum.inl (Sum.inr a)) => fun _ hl => Sum.inl (Sum.inl (Sum.inr (lm a hl)))
-      | Sum.inl (Sum.inr Y) => fun hP _ => absurd hP (hP0 Y)
-      | Sum.inr Z => fun hP _ => absurd hP (hP1 Z), ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
-  · intro s _ l hl Φ
-    rw [tiltActObs_H, physActObs_H_new A hN hκ0 hεH hdj hK _ _ l (fun z hz => hl ⟨z, hz⟩),
-      mul_zero]
-  · intro s _ l hl Φ
-    rw [tiltActObs_H, physActObs_H_new A' hN' hκ0' hεH' hdj' hK' _ _ l (fun z hz => hl ⟨z, hz⟩),
-      mul_zero]
-  · intro l hP hl
-    rcases l with ((a | a) | Y) | Z
-    · exact ⟨_, rfl⟩
-    · exact ⟨_, rfl⟩
-    · exact absurd hP (hP0 Y)
-    · exact absurd hP (hP1 Z)
-  · intro l hP hl
-    rcases l with ((a | a) | Y) | Z
-    · have hl' : blocksOf m₀ (k + 1) Set.univ (Lab.ysite a) ⊆ T := hl
-      show blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (lm a hl')) =
-        (blocksOf m₀ (k + 1) Set.univ (Lab.ysite a)).image (σc)
-      rw [hlmy a hl']
-      exact blocksOf_image_boxMap hN hN' hnc hnc' (hlmR a hl')
-    · have hl' : blocksOf m₀ (k + 1) Set.univ (Lab.ysite a) ⊆ T := hl
-      show blocksOf m₀ (k + 1) Set.univ (Lab'.ysite (lm a hl')) =
-        (blocksOf m₀ (k + 1) Set.univ (Lab.ysite a)).image (σc)
-      rw [hlmy a hl']
-      exact blocksOf_image_boxMap hN hN' hnc hnc' (hlmR a hl')
-    · exact absurd hP (hP0 Y)
-    · exact absurd hP (hP1 Z)
-  · intro l₁ hP₁ hl₁ l₂ hP₂ hl₂ h
-    rcases l₁ with ((a₁ | a₁) | Y₁) | Z₁
-    · rcases l₂ with ((a₂ | a₂) | Y₂) | Z₂
-      · have h' : lm a₁ hl₁ = lm a₂ hl₂ := by
-          injection h with h; injection h with h; injection h
-        rw [hlminj a₁ hl₁ a₂ hl₂ h']
-      · injection h with h; injection h with h; injection h
-      · exact absurd hP₂ (hP0 Y₂)
-      · exact absurd hP₂ (hP1 Z₂)
-    · rcases l₂ with ((a₂ | a₂) | Y₂) | Z₂
-      · injection h with h; injection h with h; injection h
-      · have h' : lm a₁ hl₁ = lm a₂ hl₂ := by
-          injection h with h; injection h with h; injection h
-        rw [hlminj a₁ hl₁ a₂ hl₂ h']
-      · exact absurd hP₂ (hP0 Y₂)
-      · exact absurd hP₂ (hP1 Z₂)
-    · exact absurd hP₁ (hP0 Y₁)
-    · exact absurd hP₁ (hP1 Z₁)
-  · intro l' hP' hl'
-    obtain ⟨w', rfl⟩ := hP'
-    rcases w' with a' | a'
-    · obtain ⟨a, ha, rfl⟩ := hlmsurj a' hl'
-      exact ⟨Sum.inl (Sum.inl (Sum.inl a)), ⟨_, rfl⟩, ha, rfl⟩
-    · obtain ⟨a, ha, rfl⟩ := hlmsurj a' hl'
-      exact ⟨Sum.inl (Sum.inl (Sum.inr a)), ⟨_, rfl⟩, ha, rfl⟩
-  · intro s hs l hP hl Φ Φ' hΦ
-    have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
-    have h1 : ‖(1 : ℂ)‖ ≤ 1 := by simp
-    rcases l with ((a | a) | Y) | Z
-    · have hl' : blocksOf m₀ (k + 1) Set.univ (Lab.ysite a) ⊆ T := hl
-      show (tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ' (s : ℂ) 1).H
-          (Sum.inl (Sum.inl (Sum.inl (lm a hl')))) Φ' =
-        (tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ (s : ℂ) 1).H
-          (Sum.inl (Sum.inl (Sum.inl a))) Φ
-      rw [tiltActObs_H, tiltActObs_H, physActObs_H_inl, physActObs_H_inl, physAct_H_inl,
-        physAct_H_inl, hAeq 1 h1 a (lm a hl') (hlmR a hl') (hlmy a hl') Φ Φ' hΦ,
-        hAeq (s : ℂ) hs1 a (lm a hl') (hlmR a hl') (hlmy a hl') Φ Φ' hΦ]
-    · have hl' : blocksOf m₀ (k + 1) Set.univ (Lab.ysite a) ⊆ T := hl
-      show (tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ' (s : ℂ) 1).H
-          (Sum.inl (Sum.inl (Sum.inr (lm a hl')))) Φ' =
-        (tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ (s : ℂ) 1).H
-          (Sum.inl (Sum.inl (Sum.inr a))) Φ
-      rw [tiltActObs_H, tiltActObs_H, physActObs_H_inl, physActObs_H_inl, physAct_H_inr,
-        physAct_H_inr, hAeqθ (s : ℂ) hs1 a (lm a hl') (hlmR a hl') (hlmy a hl') Φ Φ' hΦ]
-    · exact absurd hP (hP0 Y)
-    · exact absurd hP (hP1 Z)
-
 /-- **D2 (source part): the coefficient of the observable on two tori at nonzero source.**  The
 statement of `obsCoeffParam_twoTorus_zeroSource` for parameters `θ`, `θ'` of arbitrary source, which
 agree on the box of radius `R` (`hsrc`), with the activity families `A`, `A'` of the zero-source
@@ -822,25 +656,16 @@ theorem obsCoeffParam_twoTorus_source (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p�
           (obsY0 m₀ (Lb ⊕ Lb) (𝒴A) (rootCube (m₀ := m₀) (blockIndex y))))
         (fun θ => obsGrFam (SA) m₀ hp Ev (𝒴A)
           (XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps) θ) θ T := by
-  have hcs : aK ≤ L * aK := cellSide_le_mul
-  have hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  obtain ⟨P, P', ψ, hA0, hA0', hψP, hψb, hψinj, hψsurj, hA⟩ := tiltActObs_twoTorus_source hN2 hk νS β p₁ δ
-    hN hN' hnL hnL' hT Lab Lab' ys ys' hys hys' hmemV hdj hdj' hp hp' A A' hκ0 hκ0' hεH hεH' hK hK'
-    Rg hR 𝒰 θ θ'
-    (fun σ hσ l l' hlR hl' Φ Φ' hΦ => labelActZero_twoTorus hN2 hk νS β p₁ δ hC hC' hMX hmar hαK
-      hsm hm₀ hN hN' hn hn' hnS hnS' hnF hnF' cc hcψ.le hρ hrad hF₂ hF₂' hSol₂ hSol₂' hp hp' Lab
-      Lab' A A' hAx hAx' θ θ' hθV hθV' hθ hθ' hraw hσ l l' hlR hl' Φ Φ' hΦ)
+  have h0 := fun σ (hσ : ‖σ‖ ≤ 1) l l' hlR hl' Φ Φ' hΦ => labelActZero_twoTorus hN2 hk νS β p₁ δ hC hC'
+      hMX hmar hαK hsm hm₀ hN hN' hn hn' hnS hnS' hnF hnF' cc hcψ.le hρ hrad hF₂ hF₂' hSol₂ hSol₂'
+      hp hp' Lab Lab' A A' hAx hAx' θ θ' hθV hθV' hθ hθ' hraw hσ l l' hlR hl' Φ Φ' hΦ
+  exact obsCoeffParam_twoTorus_of_labelActs hN2 hk νS β p₁ δ hC hC' hMX hmar hαK hsm hN hN' hn hn'
+    hnS hnS' hnF hnF' y iy hX₁R cc hcψ hq hrad hF₁ hF₁' hSol hSol' hEv hEv' hdEv hdj hdj' θ θ' hθ
+    hθ' hraw hp hp' T hT Lab Lab' ys ys' hys hys' hmemV A A' hκ0 hκ0' hεH hεH' hK hK' Rg hR 𝒰 h0
     (fun σ hσ l l' hlR hl' Φ Φ' hΦ => labelActSource_twoTorus hN2 hk νS β p₁ δ hC hC' hMX hmar hαK
       hsm hm₀ hN hN' hn hn' hnS hnS' hnF hnF' cc hcψ.le hρ hrad hF₂ hF₂' hSol₂ hSol₂' hp hp' Lab
       Lab' A A' hAx hAx' hF₃ hSol₃ hEv₃ hanEv₃ hF₃' hSol₃' hEv₃' hanEv₃' hAs hAs' θ θ' hθV hθV' hθ
       hθ' hraw hsrc hσ l l' hlR hl' Φ Φ' hΦ)
-  exact obsCoeffParam_twoTorus_of_activities hN2 hk νS β p₁ δ hC hC' hMX hmar hαK hsm hN hN' hn hn'
-    hnS hnS' hnF hnF' y iy hX₁R cc hcψ hq hrad hF₁ hF₁' hSol hSol' hEv hEv' hdEv hdj hdj' θ θ' hθ
-    hθ' hraw hp hp' T hT (Lab.sum Lab) (Lab'.sum Lab')
-    (fun θ t σ => tiltActObs A hN hκ0 hεH hdj hK Rg hR 𝒰 θ t σ)
-    (fun θ t σ => tiltActObs A' hN' hκ0' hεH' hdj' hK' Rg hR 𝒰 θ t σ) P P' hA0 hA0' ψ hψP hψb
-    hψinj hψsurj hA
 
 end Activity
 
