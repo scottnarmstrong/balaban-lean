@@ -210,6 +210,51 @@ theorem tm_coef_eq_zero_of_separated (hM : 0 < M) (hd : 0 < d)
     refine tsum_congr fun n => ?_
     rw [add_pow_succ_of_mul_eq_zero h1 h2, Matrix.trace_add, add_div]
 
+/-- **Sup bound for the logarithm on parameters supported on `C`.** -/
+theorem tm_norm_le_of_supported (hM : 0 < M) (hd : 0 < d)
+    (a : MacIdx d N₀ M → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {κ q : ℝ}
+    (hq0 : 0 ≤ q) (hq1 : q < 1)
+    (hKU : ∀ s : MacIdx d N₀ M → ℂ, (∀ p, ‖s p‖ ≤ Real.exp κ) → ∀ x, ∑ y, ‖𝐓[a, s] x y‖ ≤ q)
+    {ρ' : ℝ} (hρ' : Real.exp κ < ρ') {ell : (MacIdx d N₀ M → ℂ) → ℂ}
+    (hell : AnalyticOnNhd ℂ ell (Metric.ball 0 ρ')) (h0 : ell 0 = 0)
+    (hdet : ∀ s ∈ Metric.ball (0 : MacIdx d N₀ M → ℂ) ρ', (1 - 𝐓[a, s]).det = Complex.exp (ell s))
+    (C : Finset (MacIdx d N₀ M)) {s : MacIdx d N₀ M → ℂ} (hs : s ∈ supportedOn C)
+    (hsn : ‖s‖ ≤ Real.exp κ) :
+    ‖ell s‖ ≤ C.card * ((8 * M + 1) ^ d * (q / (1 - q))) := by
+  classical
+  have hcb : Metric.closedBall (0 : MacIdx d N₀ M → ℂ) (Real.exp κ) ⊆ Metric.ball 0 ρ' :=
+    Metric.closedBall_subset_ball hρ'
+  have hser := tm_eq_neg_tsum hM hd a hq0 hq1 hKU (hell.continuousOn.mono hcb) h0
+    (fun s hs => hdet s (hcb hs))
+  set Y : Finset (L1Torus d N₀) := C.biUnion (macBoxF d N₀ M) with hY
+  have hYc : (Y.card : ℝ) ≤ C.card * (8 * M + 1) ^ d := by
+    exact_mod_cast card_biUnion_macBoxF_le hM C
+  have hq' : 0 ≤ q / (1 - q) := div_nonneg hq0 (by linarith)
+  rw [hser s (mem_closedBall_zero_iff.2 hsn), norm_neg]
+  have hterm : ∀ n : ℕ, ‖((𝐓[a, s]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
+      Y.card * q * q ^ n := by
+    intro n
+    rw [norm_div]
+    have hn : (1 : ℝ) ≤ ‖((n : ℂ) + 1)‖ := by
+      have : ((n : ℂ) + 1) = ((n + 1 : ℕ) : ℂ) := by push_cast; ring
+      rw [this, Complex.norm_natCast]; exact_mod_cast Nat.succ_pos n
+    calc ‖((𝐓[a, s]) ^ (n + 1)).trace‖ / ‖((n : ℂ) + 1)‖ ≤
+          ‖((𝐓[a, s]) ^ (n + 1)).trace‖ := div_le_self (norm_nonneg _) hn
+      _ ≤ Y.card * q ^ (n + 1) := norm_trace_pow_le_of_rows_zero _
+          (hKU s (fun p => (norm_le_pi_norm s p).trans hsn))
+          Y (fun x hx y => tm_row_eq_zero hM hd a hs
+            (fun h => hx (mem_biUnion_macBoxF.2 h)) y) (Nat.succ_pos n)
+      _ = Y.card * q * q ^ n := by ring
+  have hq1' : 0 ≤ q := hq0
+  have hgeo := (hasSum_geometric_of_lt_one hq1' hq1).mul_left (Y.card * q)
+  calc ‖∑' n : ℕ, ((𝐓[a, s]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
+        Y.card * q * (1 - q)⁻¹ := tsum_of_norm_bounded hgeo hterm
+    _ = Y.card * (q / (1 - q)) := by rw [div_eq_mul_inv]; ring
+    _ ≤ C.card * ((8 * M + 1) ^ d * (q / (1 - q))) := by
+        calc (Y.card : ℝ) * (q / (1 - q)) ≤ (C.card * (8 * M + 1) ^ d) * (q / (1 - q)) :=
+              mul_le_mul_of_nonneg_right hYc hq'
+          _ = _ := by ring
+
 /-- Volume-uniform bound of the coefficients, for a tagged family. -/
 theorem tm_norm_coef_le (hM : 0 < M) (hd : 0 < d)
     (a : MacIdx d N₀ M → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {κ q : ℝ} (hκ : 0 < κ)
@@ -238,12 +283,9 @@ theorem tm_norm_coef_le (hM : 0 < M) (hd : 0 < d)
       · simp [hi]
       · simp [hi, hw i hi]
   rw [hproj]
-  set Y : Finset (L1Torus d N₀) := C.biUnion (macBoxF d N₀ M) with hY
-  have hYc : (Y.card : ℝ) ≤ C.card * (8 * M + 1) ^ d := by
-    exact_mod_cast card_biUnion_macBoxF_le hM C
-  set B : ℝ := C.card * ((8 * M + 1) ^ d * (q / (1 - q))) with hB
   have hq' : 0 ≤ q / (1 - q) := div_nonneg hq0 (by linarith)
-  refine norm_coef_le hR (analyticOnNhd_comp_proj (hell.mono hpoly) C hR0) (B := B) ?_ C
+  refine norm_coef_le hR (analyticOnNhd_comp_proj (hell.mono hpoly) C hR0)
+    (B := C.card * ((8 * M + 1) ^ d * (q / (1 - q)))) ?_ C
   intro s hs
   rw [polydisc_eq_ball hR0] at hs
   have hs1 : ‖s‖ ≤ Real.exp κ := (mem_ball_zero_iff.1 hs).le
@@ -252,32 +294,8 @@ theorem tm_norm_coef_le (hM : 0 < M) (hd : 0 < d)
     by_cases hp : p ∈ C
     · simpa [hp] using (norm_le_pi_norm s p).trans hs1
     · simpa [hp] using hR0.le
-  set sC : MacIdx d N₀ M → ℂ := fun i => if i ∈ C then s i else 0 with hsCdef
-  have hsupp : sC ∈ supportedOn C := fun i hi => by simp [hsCdef, hi]
-  rw [hser sC (mem_closedBall_zero_iff.2 hsC), norm_neg]
-  have hterm : ∀ n : ℕ, ‖((𝐓[a, sC]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
-      Y.card * q * q ^ n := by
-    intro n
-    rw [norm_div]
-    have hn : (1 : ℝ) ≤ ‖((n : ℂ) + 1)‖ := by
-      have : ((n : ℂ) + 1) = ((n + 1 : ℕ) : ℂ) := by push_cast; ring
-      rw [this, Complex.norm_natCast]; exact_mod_cast Nat.succ_pos n
-    calc ‖((𝐓[a, sC]) ^ (n + 1)).trace‖ / ‖((n : ℂ) + 1)‖ ≤
-          ‖((𝐓[a, sC]) ^ (n + 1)).trace‖ := div_le_self (norm_nonneg _) hn
-      _ ≤ Y.card * q ^ (n + 1) := norm_trace_pow_le_of_rows_zero _
-          (hKU sC (fun p => (norm_le_pi_norm sC p).trans hsC))
-          Y (fun x hx y => tm_row_eq_zero hM hd a hsupp
-            (fun h => hx (mem_biUnion_macBoxF.2 h)) y) (Nat.succ_pos n)
-      _ = Y.card * q * q ^ n := by ring
-  have hgeo := (hasSum_geometric_of_lt_one hq0 hq1).mul_left (Y.card * q)
-  calc ‖∑' n : ℕ, ((𝐓[a, sC]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
-        Y.card * q * (1 - q)⁻¹ := tsum_of_norm_bounded hgeo hterm
-    _ = Y.card * (q / (1 - q)) := by rw [div_eq_mul_inv]; ring
-    _ ≤ B := by
-        rw [hB]
-        calc (Y.card : ℝ) * (q / (1 - q)) ≤ (C.card * (8 * M + 1) ^ d) * (q / (1 - q)) :=
-              mul_le_mul_of_nonneg_right hYc hq'
-          _ = _ := by ring
+  exact tm_norm_le_of_supported hM hd a hq0 hq1 hKU hρ' hell h0 hdet C
+    (fun i hi => by simp [hi]) hsC
 
 end GenericFamily
 

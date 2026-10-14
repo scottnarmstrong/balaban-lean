@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.FinalDetRatio
+public import Balaban.Green.FinalAmplitude
 public import Balaban.Localization.ParameterAnalytic
 
 import Mathlib.Analysis.Complex.Schwarz
@@ -39,51 +40,6 @@ open Balaban.Localization Balaban.Analysis
 variable {d N₀ M : ℕ} [NeZero N₀]
 
 local notation "𝐓[" a ", " s "]" => taggedMat Finset.univ (macTags d N₀ M) a s
-
-/-- **Sup bound for the logarithm on parameters supported on `C`.** -/
-theorem tm_norm_le_of_supported (hM : 0 < M) (hd : 0 < d)
-    (a : MacIdx d N₀ M → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {κ q : ℝ}
-    (hq0 : 0 ≤ q) (hq1 : q < 1)
-    (hKU : ∀ s : MacIdx d N₀ M → ℂ, (∀ p, ‖s p‖ ≤ Real.exp κ) → ∀ x, ∑ y, ‖𝐓[a, s] x y‖ ≤ q)
-    {ρ' : ℝ} (hρ' : Real.exp κ < ρ') {ell : (MacIdx d N₀ M → ℂ) → ℂ}
-    (hell : AnalyticOnNhd ℂ ell (Metric.ball 0 ρ')) (h0 : ell 0 = 0)
-    (hdet : ∀ s ∈ Metric.ball (0 : MacIdx d N₀ M → ℂ) ρ', (1 - 𝐓[a, s]).det = Complex.exp (ell s))
-    (C : Finset (MacIdx d N₀ M)) {s : MacIdx d N₀ M → ℂ} (hs : s ∈ supportedOn C)
-    (hsn : ‖s‖ ≤ Real.exp κ) :
-    ‖ell s‖ ≤ C.card * ((8 * M + 1) ^ d * (q / (1 - q))) := by
-  classical
-  have hcb : Metric.closedBall (0 : MacIdx d N₀ M → ℂ) (Real.exp κ) ⊆ Metric.ball 0 ρ' :=
-    Metric.closedBall_subset_ball hρ'
-  have hser := tm_eq_neg_tsum hM hd a hq0 hq1 hKU (hell.continuousOn.mono hcb) h0
-    (fun s hs => hdet s (hcb hs))
-  set Y : Finset (L1Torus d N₀) := C.biUnion (macBoxF d N₀ M) with hY
-  have hYc : (Y.card : ℝ) ≤ C.card * (8 * M + 1) ^ d := by
-    exact_mod_cast card_biUnion_macBoxF_le hM C
-  have hq' : 0 ≤ q / (1 - q) := div_nonneg hq0 (by linarith)
-  rw [hser s (mem_closedBall_zero_iff.2 hsn), norm_neg]
-  have hterm : ∀ n : ℕ, ‖((𝐓[a, s]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
-      Y.card * q * q ^ n := by
-    intro n
-    rw [norm_div]
-    have hn : (1 : ℝ) ≤ ‖((n : ℂ) + 1)‖ := by
-      have : ((n : ℂ) + 1) = ((n + 1 : ℕ) : ℂ) := by push_cast; ring
-      rw [this, Complex.norm_natCast]; exact_mod_cast Nat.succ_pos n
-    calc ‖((𝐓[a, s]) ^ (n + 1)).trace‖ / ‖((n : ℂ) + 1)‖ ≤
-          ‖((𝐓[a, s]) ^ (n + 1)).trace‖ := div_le_self (norm_nonneg _) hn
-      _ ≤ Y.card * q ^ (n + 1) := norm_trace_pow_le_of_rows_zero _
-          (hKU s (fun p => (norm_le_pi_norm s p).trans hsn))
-          Y (fun x hx y => tm_row_eq_zero hM hd a hs
-            (fun h => hx (mem_biUnion_macBoxF.2 h)) y) (Nat.succ_pos n)
-      _ = Y.card * q * q ^ n := by ring
-  have hq1' : 0 ≤ q := hq0
-  have hgeo := (hasSum_geometric_of_lt_one hq1' hq1).mul_left (Y.card * q)
-  calc ‖∑' n : ℕ, ((𝐓[a, s]) ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
-        Y.card * q * (1 - q)⁻¹ := tsum_of_norm_bounded hgeo hterm
-    _ = Y.card * (q / (1 - q)) := by rw [div_eq_mul_inv]; ring
-    _ ≤ C.card * ((8 * M + 1) ^ d * (q / (1 - q))) := by
-        calc (Y.card : ℝ) * (q / (1 - q)) ≤ (C.card * (8 * M + 1) ^ d) * (q / (1 - q)) :=
-              mul_le_mul_of_nonneg_right hYc hq'
-          _ = _ := by ring
 
 /-- Composition of an analytic `ell` on the polydisc of the enlarged parameter space with the
 embedding `(σ, s) ↦ (σ, s restricted to C)`. -/
@@ -265,20 +221,18 @@ theorem tm_coef_sub_le_of_family (hM : 0 < M) (hd : 0 < d) {κ : ℝ} (hκ : 0 <
     calc ‖ψ σ1 - ψ 0‖ ≤ ‖ψ σ1‖ + ‖ψ 0‖ := norm_sub_le _ _
       _ ≤ _ := by linarith
   rcases hσ1.lt_or_eq with hlt | heq
-  · have hd' : DifferentiableOn ℂ (fun σ => ψ σ - ψ 0) (Metric.ball (0 : ℂ) (Real.exp κ)) :=
-      (hψan.differentiableOn).sub (differentiableOn_const _)
-    have hm : Set.MapsTo (fun σ => ψ σ - ψ 0) (Metric.ball (0 : ℂ) (Real.exp κ))
-        (Metric.closedBall ((fun σ => ψ σ - ψ 0) 0) (2 * (B / (Real.exp κ - 1) ^ C.card))) := by
-      intro σ hσ
-      rw [Metric.mem_closedBall, dist_eq_norm]
-      have h1 := hψb σ (mem_ball_zero_iff.1 hσ).le
-      simp only [sub_self, sub_zero]
-      calc ‖ψ σ - ψ 0‖ ≤ ‖ψ σ‖ + ‖ψ 0‖ := norm_sub_le _ _
-        _ ≤ _ := by linarith
-    have := Complex.dist_le_div_mul_dist_of_mapsTo_ball hd' hm
-      (show σ1 ∈ Metric.ball (0 : ℂ) (Real.exp κ) by simpa using hlt)
-    simp only [dist_eq_norm, sub_zero, sub_self] at this
-    calc ‖ψ σ1 - ψ 0‖ ≤ _ := this
+  · have hG := norm_le_of_vanishing_zero (ι := Unit) (R := 1) (T := Real.exp κ)
+      (B := 2 * (B / (Real.exp κ - 1) ^ C.card))
+      (fun t (_ : Unit → ℂ) => ψ t - ψ 0)
+      (fun p hp => ((hψan p.1 hp.1).sub analyticAt_const).comp (f := fun q : ℂ × (Unit → ℂ) => q.1)
+        analyticAt_fst)
+      (fun _ => by simp)
+      (fun t ht _ _ => by
+        have h1 := hψb t (mem_ball_zero_iff.1 ht).le
+        calc ‖ψ t - ψ 0‖ ≤ ‖ψ t‖ + ‖ψ 0‖ := norm_sub_le _ _
+          _ ≤ _ := by linarith)
+      hlt (s := fun _ => 0) (fun i => by simp)
+    calc ‖ψ σ1 - ψ 0‖ ≤ _ := hG
       _ = _ := by ring
   · have : ‖σ1‖ / Real.exp κ = 1 := by rw [heq]; exact div_self hR0.ne'
     rw [this, mul_one]; exact hsum
