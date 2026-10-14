@@ -61,3 +61,11 @@ Counts (14 rows, A4 split into A4a, A4b; each row by its first state): LANDED 1 
 * `hBase`: A3 for all tori and both regimes (blockers 1, 2): `∃ ρ₁ ∈ ℛ₁` with `∫ρ₁=Z(g)` and OUT-1 (a)–(d). Also `hBase0`: A7 for `ν>7/(8L²)` (blocker 1).
 * `hLF`: A4b: the large-field class is preserved by one step for `1≤k<kf`, with `R` on covered windows and the switch at `k₀` (blockers 2, 3, 4), including the nonempty boundary and crossing terms of Theorem 3.1.
 * Still to be proved after 1–4, not hypotheses: A4a (blocker 6, workaround in progress), A6 (blocker 5, item 18), A11 (blocker 7). So even the conditional theorem has `hLast` for A6 and, until blocker 6 closes, `hLocalGen` for A4a. The conditional theorem would then be: `hBase ∧ hStep(a,b) ∧ hLast ∧ hTwoTorus → ∃ T, Cl(T,ℓ,1) ∧ agreement` with `kf=kStop`, exactly the shape of `RootFClauses` in `Correlations/Clauses.lean`. Each hypothesis needs a `Nonempty` witness (rule 10), which the present conditional files (`KF0OneScaleInput`) do not yet carry.
+
+**Orchestrator correction (2026-10-14).** Some "do now" items above are already landed: `rootTorusParameters`
+(A2; `Fluctuation/RootTorusParameters.lean`, e28ef20b), GENCLASS leaves 1–3 (`StepOldTermSplit`, `StepClassPath`,
+`StepPhysicalActivityBridge`, W608), last-integral L1 (W759, `*_of_coercive`, `*_finalPert`), the regrouping
+(`rootTermFamily_of_cubeFamily`, `pairing_of_regroup`), and the general-L towers (W709–W732). Since this note was
+written: blocker 6's composition is lossless (W763, W772, W775) and its background engine runs on `localB` (W771);
+the first step has the parametrix on the full discs (W773, W774). Open "do now" items: the principal logarithm
+on the source ball (A8), the large-field bound arithmetic (A9), L3 with the cut family centred at s = 1 (A6).
