@@ -1915,6 +1915,8 @@ public import Balaban.LargeField.Base.BaseCutoffTransfer
 public import Balaban.LargeField.Base.BaseRemainderLocal
 public import Balaban.Localization.I5Cover
 public import Balaban.Localization.DecoupledCovX0Sup
+public import Balaban.Localization.LocalHatCov
+public import Balaban.Localization.LocalHatIntegral
 public import Balaban.Fluctuation.SharpChartTestSup
 public import Balaban.LargeField.Base.BaseCubeDiscs
 public import Balaban.LargeField.Base.BaseParametrix
@@ -1928,5 +1930,12 @@ public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
+public import Balaban.Fluctuation.LocalPairCubeOps
+public import Balaban.Fluctuation.LocalPairGs
+public import Balaban.Fluctuation.LocalPairDecFixed
+public import Balaban.Fluctuation.LocalPairDecBg
+public import Balaban.Fluctuation.LocalPairCompose
+public import Balaban.Fluctuation.LocalPairReplacement
+public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Inhabited.RootParams
 public import Balaban.Green.FinalTorusClose

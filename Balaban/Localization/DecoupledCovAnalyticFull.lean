@@ -160,15 +160,12 @@ theorem rectAt_fieldMul (e : DecData G N) :
   · simp only [fieldMul, h, ↓reduceIte]
     exact analyticAt_const
 
-section Cov
-
-variable {x : ℝ} {κι : Type*} [Fintype κι] [DecidableEq κι] {Q : Matrix κι (G.Ω 1) ℂ}
-  {P : Matrix κι κι ℂ}
-
-theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (hκ : 0 ≤ κ)
-    (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
-    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) {e : DecData G N} (he : e ∈ DecDom G N κ δ) :
-    RectAt (fun p : DecData G N => decCov G a aT x ν p.2.2 (extS G p.1) p.2.1 Q P) e := by
+/-- The data `Dec2.XData` of the pair `(coverOf G, G)` at a point of the polydisc `DecDom`. -/
+theorem xData_cover_of_mem {Cx : ℝ} (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx) {x : ℝ}
+    (hx : 0 ≤ x) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} {e : DecData G N}
+    (he : e ∈ DecDom G N κ δ) :
+    Dec2.XData (coverOf G) G a aT ν x e.2.2 κ (extS G e.1) Cx := by
   have hα : AdmPot G e.2.2 := fun w => (he.2.2 w).le
   have hs : ∀ P, ‖extS G e.1 P‖ ≤ Real.exp κ := by
     intro P
@@ -176,7 +173,18 @@ theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (h
     split_ifs with h
     · exact (he.1 ⟨P, h⟩).le
     · simpa using Real.one_le_exp hκ
-  have D : XData G a aT ν x e.2.2 κ (extS G e.1) := ⟨S, hα, hx, hκ, hM, hs⟩
+  exact ⟨S, hCx, hα, hx, hκ, hM, hs⟩
+
+/-- **I-4c (iii), the integrand, cover form**: for every `x ≥ 0` the entries of `C_x(s)` are
+analytic in `(s, φ₀, α₀)` on `DecDom`. -/
+theorem rectAt_decCov_full_cover {Cx : ℝ} {x : ℝ} {κι : Type*} [Fintype κι] [DecidableEq κι]
+    {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx) (hx : 0 ≤ x) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) {e : DecData G N} (he : e ∈ DecDom G N κ δ) :
+    RectAt (fun p : DecData G N => decCov G a aT x ν p.2.2 (extS G p.1) p.2.1 Q P) e := by
+  have hα : AdmPot G e.2.2 := fun w => (he.2.2 w).le
+  have D := xData_cover_of_mem (N := N) S hCx hx hκ hM he
   have hφ : IsConstraintField G δ e.2.1 := he.2.1.toIsConstraintField
   have hpr : AnalyticAt ℂ (fun p : DecData G N => ((p.1, p.2.2) : DecParams G × (G.Ω 1 → ℂ))) e :=
     AnalyticAt.prod analyticAt_fst (analyticAt_snd.comp analyticAt_snd)
@@ -185,7 +193,7 @@ theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (h
       (rectAt_xDirichlet (G := G) a aT x ν ((e.1, e.2.2) : DecParams G × (G.Ω 1 → ℂ))) hpr
   have hGs : RectAt (fun p : DecData G N => Gsx G a aT x ν p.2.2 (extS G p.1)) e :=
     RectAt.comp' (f := fun p : DecData G N => ((p.1, p.2.2) : DecParams G × (G.Ω 1 → ℂ)))
-      (matAt_Gsx S hx hα D.isUnit_one_sub) hpr
+      (Dec2.matAt_Gsx S hx hα D.isUnit_one_sub) hpr
   have hGl := hGs.liftOp (N := N)
   have hHl := hHx.liftOp (N := N)
   have hF := rectAt_fieldMul (G := G) (N := N) e
@@ -202,7 +210,7 @@ theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (h
     unfold decN constraintN
     exact hF.transpose'.sub (hK.mul hGl)
   have hdet : (decM G a aT x ν e.2.2 (extS G e.1) e.2.1).det ≠ 0 :=
-    ((Matrix.isUnit_iff_isUnit_det _).1 (decM_isUnit D hφ hδ hsm)).ne_zero
+    ((Matrix.isUnit_iff_isUnit_det _).1 (decM_isUnit_cover D hφ hδ hsm)).ne_zero
   have hMi := hMa.inv hdet
   have hPi : RectAt (fun p : DecData G N =>
       decPi G a aT x ν p.2.2 (extS G p.1) p.2.1) e := by
@@ -214,9 +222,74 @@ theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (h
   refine hA.add (RectAt.smul_const _ ?_)
   exact (((hA.mul (RectAt.const _ e)).mul (hGl.sub hPi)).mul (RectAt.const _ e)).mul hA
 
+
+section Cov
+
+variable {x : ℝ} {κι : Type*} [Fintype κι] [DecidableEq κι] {Q : Matrix κι (G.Ω 1) ℂ}
+  {P : Matrix κι κι ℂ}
+
+theorem rectAt_decCov_full (S : XSetting G a aT ν) (hx : 0 ≤ x) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) {e : DecData G N} (he : e ∈ DecDom G N κ δ) :
+    RectAt (fun p : DecData G N => decCov G a aT x ν p.2.2 (extS G p.1) p.2.1 Q P) e :=
+  rectAt_decCov_full_cover (Dec2.xCover_self S) (Cchi_nonneg d L) hx hκ hM hδ hsm he
+
 end Cov
 
 /-! ### Analyticity of `C^{1/2}(s)` and `𝕃(s)` in `(s, φ₀, α₀)` -/
+
+/-- **I-4c (iii), the square root, cover form**: every entry of `C^{1/2}(s)` is analytic in
+`(s, φ₀, α₀)` on the open domain `DecDom`, for the data `Dec2.XCover (coverOf G) G …`. -/
+theorem analyticOnNhd_decCovSqrt_entry_cover {Cx : ℝ} {κι : Type*} [Fintype κι]
+    [DecidableEq κι] {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ} (S : Dec2.XCover (coverOf G) G a aT ν Cx)
+    (hCx : 0 ≤ Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hU : IsUnitLattice G Q P) (p q : κι × Fin N) :
+    AnalyticOnNhd ℂ (fun e : DecData G N =>
+      decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 Q P p q) (DecDom G N κ δ) := by
+  have hak : 0 < a k := by
+    have := S.ha k S.hk le_rfl
+    linarith [this.1]
+  have hB := covB4_nonneg d L (a k) κ
+  have hint : AnalyticOnNhd ℂ (fun e : DecData G N => ∫ y in Ioi (0 : ℝ),
+      ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * decCov G a aT y ν e.2.2 (extS G e.1) e.2.1 Q P p q)
+      (DecDom G N κ δ) := by
+    refine analyticOnNhd_integral_Ioi (g := sqrtDom d L (a k) κ) (isOpen_decDom κ δ) ?_ ?_ ?_ ?_ ?_
+    · intro y hy e he
+      exact analyticAt_const.mul (rectAt_decCov_full_cover S hCx hy.le hκ hM hδ hsm he p q)
+    · intro e he
+      have hfam := fun (x : ℝ) (hx : 0 ≤ x) => xData_cover_of_mem (N := N) S hCx hx hκ hM he
+      refine ContinuousOn.mul ?_
+        ((continuousOn_decCov_entry_cover hfam he.2.1.toIsConstraintField hδ hsm p q).mono
+          Ioi_subset_Ici_self)
+      refine Complex.continuous_ofReal.comp_continuousOn ?_
+      exact fun y hy =>
+        (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+    · unfold sqrtDom
+      refine ContinuousOn.add ?_ (ContinuousOn.mul continuousOn_const ?_)
+      · refine ContinuousOn.mul ?_ ?_
+        · exact fun y hy =>
+            (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+        · exact continuousOn_inv_add_Ioi hak
+      · refine ContinuousOn.mul ?_ ?_
+        · exact fun y hy =>
+            (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+        · exact (continuousOn_inv_add_Ioi hak).pow 2
+    · exact integrable_sqrtDom hak d L κ
+    · intro y hy e he
+      have hfam := fun (x : ℝ) (hx : 0 ≤ x) => xData_cover_of_mem (N := N) S hCx hx hκ hM he
+      have h3 : 0 < y ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hy _
+      simp only [norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+      have := entry_decCov_le_cover hfam he.2.1.toIsConstraintField hδ hsm hU hy.le p q
+      calc y ^ (-(1 / 2 : ℝ)) * ‖decCov G a aT y ν e.2.2 (extS G e.1) e.2.1 Q P p q‖
+          ≤ y ^ (-(1 / 2 : ℝ)) * ((a k + y)⁻¹ + covB4 d L (a k) κ * ((a k + y)⁻¹) ^ 2) :=
+            mul_le_mul_of_nonneg_left this h3.le
+        _ = sqrtDom d L (a k) κ y := by unfold sqrtDom; ring
+  intro e he
+  have := (analyticAt_const (v := ((1 / Real.pi : ℝ) : ℂ))).mul (hint e he)
+  refine this.congr (Filter.Eventually.of_forall fun e' => ?_)
+  simp only [decCovSqrt, intMat, decSqrtInt, Matrix.smul_apply, smul_eq_mul, Matrix.smul_apply]
+  rfl
 
 section Integrals
 
@@ -251,43 +324,8 @@ include S hκ hM hδ hsm hU
 the open domain `DecDom`. -/
 theorem analyticOnNhd_decCovSqrt_entry (p q : κι × Fin N) :
     AnalyticOnNhd ℂ (fun e : DecData G N =>
-      decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 Q P p q) (DecDom G N κ δ) := by
-  have hak := S.hak_pos
-  have hB := covB4_nonneg d L (a k) κ
-  have hint : AnalyticOnNhd ℂ (fun e : DecData G N => ∫ y in Ioi (0 : ℝ),
-      ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * decCov G a aT y ν e.2.2 (extS G e.1) e.2.1 Q P p q)
-      (DecDom G N κ δ) := by
-    refine analyticOnNhd_integral_Ioi (g := sqrtDom d L (a k) κ) (isOpen_decDom κ δ) ?_ ?_ ?_ ?_ ?_
-    · intro y hy e he
-      exact analyticAt_const.mul (rectAt_decCov_full S hy.le hκ hM hδ hsm he p q)
-    · intro e he
-      have H := covStanding_of_mem S hκ hM hδ hsm hU he
-      refine ContinuousOn.mul ?_ ((continuousOn_decCov_entry H p q).mono Ioi_subset_Ici_self)
-      refine Complex.continuous_ofReal.comp_continuousOn ?_
-      exact fun y hy => (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
-    · unfold sqrtDom
-      refine ContinuousOn.add ?_ (ContinuousOn.mul continuousOn_const ?_)
-      · refine ContinuousOn.mul ?_ ?_
-        · exact fun y hy => (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
-        · exact continuousOn_inv_add_Ioi hak
-      · refine ContinuousOn.mul ?_ ?_
-        · exact fun y hy => (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
-        · exact (continuousOn_inv_add_Ioi hak).pow 2
-    · exact integrable_sqrtDom hak d L κ
-    · intro y hy e he
-      have H := covStanding_of_mem S hκ hM hδ hsm hU he
-      have h3 : 0 < y ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hy _
-      simp only [norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
-      have := entry_decCov_le H hy.le p q
-      calc y ^ (-(1 / 2 : ℝ)) * ‖decCov G a aT y ν e.2.2 (extS G e.1) e.2.1 Q P p q‖
-          ≤ y ^ (-(1 / 2 : ℝ)) * ((a k + y)⁻¹ + covB4 d L (a k) κ * ((a k + y)⁻¹) ^ 2) :=
-            mul_le_mul_of_nonneg_left this h3.le
-        _ = sqrtDom d L (a k) κ y := by unfold sqrtDom; ring
-  intro e he
-  have := (analyticAt_const (v := ((1 / Real.pi : ℝ) : ℂ))).mul (hint e he)
-  refine this.congr (Filter.Eventually.of_forall fun e' => ?_)
-  simp only [decCovSqrt, intMat, decSqrtInt, Matrix.smul_apply, smul_eq_mul, Matrix.smul_apply]
-  rfl
+      decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 Q P p q) (DecDom G N κ δ) :=
+  analyticOnNhd_decCovSqrt_entry_cover (Dec2.xCover_self S) (Cchi_nonneg d L) hκ hM hδ hsm hU p q
 
 /-- **I-4c (iii), the logarithm**: every entry of `𝕃(s)` is analytic in `(s, φ₀, α₀)` on the open
 domain `DecDom`. -/
