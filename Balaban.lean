@@ -1938,3 +1938,4 @@ public import Balaban.Fluctuation.LocalPairCompose
 public import Balaban.Fluctuation.LocalPairReplacement
 public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Inhabited.RootParams
+public import Balaban.Localization.DecCovCross
