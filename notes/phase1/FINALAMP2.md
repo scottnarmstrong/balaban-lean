@@ -31,3 +31,6 @@ Missing leaves, dependency order (each <= 300 lines, no new definitions):
  5. [strong, ~300] per-polymer version (activity of X in D_{kf+1} from polymers X_j, j <= kf, with `boundM`, `localM`) — only needed if leaves 1-4 fail; this is P4 Prop 2.2 (P3/P6, OPEN).
  6. [OPEN, not a leaf] identification of F with the class terms (item 5 of FINALAMP), large-field gas (4.12)-(4.14) with amplitude `beta_k^{-m-1}`, torus transport.
 Conclusion: (O) closes on landed material plus the identification; (N) closes only through leaves 1-4, and the naive Schwarz bound fails by the explicit factor above. No landed lemma yields the 5/8 exponent.
+
+W812 status (14 Oct 2026): `Balaban/Green/FinalSecondOrder.lean`. Leaf 1: `norm_sub_fderiv_le_of_polydisc` (constant 2B(R/T)^2, not B(R/T)^2/(1-R/T)). Leaf 2: `cutoffInteraction_final_phys_sub2` (hypothesis `Measure.map Neg.neg γ = γ`; J of `F - F φ₀` equals J of the remainder; bound 2B(R₁/Rphys)^2 γ(box) e^{-(κ-1)|C|}).
+Leaf 4: `betaK_inv_mul_sq_cut_le` (ρ = A (log β)^q, p < 1, e ≤ p(d-2)). Leaf 3 (cross term with the odd part of G0) NOT done: it is the remaining open input.
