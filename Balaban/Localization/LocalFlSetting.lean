@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Fluctuation.FlCoreCover
 public import Balaban.Fluctuation.LocalFluctGen
 public import Balaban.Fluctuation.SharpChartTestFlSup
 public import Balaban.Localization.I5FluctNonempty
@@ -59,13 +60,9 @@ theorem localPair_flSetting_nonempty {k : ℕ} (hk : k + 1 ≤ K) (Y : Set (CTor
         (↑((GsSpec.localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
           Set (CTorus d L N₁ m₁ K)) (le_refl (minSep L (L ^ m₁))))
       a₁ ν κ BG eps δ₃ (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂ δ₁ δfl X₁f) := by
-  obtain ⟨hPd, -, hFoot, -⟩ := localB_drop_pair (N₁ := N₁) (m₁ := m₁) (K := K) (a := compWeight L a₁)
-    (ν := ν) hk Y hN hm₁ hM hd hL hν hνL ha hag
   obtain ⟨t, ht, ⟨hnum⟩⟩ := flNum_nonempty (d := d) (L := L) (N := N) (by omega) BG
     (BG₂ := BG₂) hS2.fam.2.1 κ
-  exact ⟨t, t, t, _, ⟨{
-    hS2 := hS2, SM := hFoot, hM2 := hM2,
-    hPm := GsSpec.precedes_localB_drop hk (by omega) Y le_rfl le_rfl hP htop,
-    hPmp := hPd, depm := depm, num := hnum }⟩⟩
+  exact ⟨t, t, t, _, ⟨localB_pair_flSetting_core hk Y hN hm₁ hM hd hL hν hνL ha hag hP htop hS2
+    hM2 depm hnum⟩⟩
 
 end Balaban.Localization

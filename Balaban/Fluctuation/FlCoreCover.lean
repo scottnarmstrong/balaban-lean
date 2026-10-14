@@ -849,7 +849,34 @@ end LocalPairE
 
 section LocalPairSetting
 
-variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ₁ : ℝ}
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ₁ : ℝ} {a₁' ν' : ℝ}
+
+/-- **The core of `localB_pair_flSetting`**: the same conclusion from the typing and numerical data
+(`3 ≤ d`, `3 ≤ L`, `2 ≤ m₁`, `0 ≤ ν`, `ν (L^K)² ≤ 1`, admissible weights) that the proof uses of
+`BgHyp`; the radius condition `bgR0 ≤ minSep` of `BgHyp` is not needed. -/
+theorem localB_pair_flSetting_core {k : ℕ} (hk : k + 1 ≤ K) (Y : Set (CTorus d L N₁ m₁ K))
+    (hN₁ : 5 < N₁) (hm₁ : 2 ≤ m₁) (hMM : 4 * L ^ 2 ≤ L ^ m₁) (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (hν : 0 ≤ ν') (hνL : ν' * ((L : ℝ) ^ K) ^ 2 ≤ 1)
+    (ha : IsAdmissibleWeights K (compWeight L a₁'))
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ m₁) - 1))
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁}
+    (hP : Precedes Gk (GsSpec.localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
+    (htop : Gk.Ω (k + 1) = ∅) {κ BG eps δ₃ c₂ BG₂ δ₁ δfl : ℝ}
+    {X₁f : Finset (CTorus d L N₁ m₁ K)}
+    (hS2 : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM2 : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (depm : ∀ x ∈ dataSites Gk, ∀ y ∈ composeDep Gk (GsSpec.localB k (by omega)
+        (↑((GsSpec.localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+          Set (CTorus d L N₁ m₁ K)) (le_refl (minSep L (L ^ m₁)))) x, y ∈ X₁f)
+    (num : FlNum d L N BG BG₂ κ eps δ₃ δ₁ δfl) :
+    FlSetting N (GsSpec.localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) Gk
+      (GsSpec.localB k (by omega)
+        (↑((GsSpec.localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+          Set (CTorus d L N₁ m₁ K)) (le_refl (minSep L (L ^ m₁))))
+      a₁' ν' κ BG eps δ₃ (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂ δ₁ δfl X₁f := by
+  obtain ⟨hPmp, -, SM, -⟩ := localB_drop_pair hk Y hN₁ hm₁ hMM hd hL hν hνL ha hag
+  exact ⟨hS2, SM, hM2, GsSpec.precedes_localB_drop hk (by omega) Y le_rfl le_rfl hP htop, hPmp,
+    depm, num⟩
 
 /-- **The fluctuation setting at the local pair** `(𝔹_{k+1}(Y), 𝔹_k(Y))`,
 `𝔹_{k+1}(Y) = localB (k + 1) … Y`, `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))` (the top layer dropped):
@@ -882,10 +909,13 @@ theorem localB_pair_flSetting {k : ℕ} (hk : k + 1 ≤ K) (Y : Set (CTorus d L 
     push Not at h
     have hL2 : L ^ m₁ ≤ L ^ 1 := Nat.pow_le_pow_right (by omega) (by omega)
     nlinarith
-  obtain ⟨hPmp, -, SM, -⟩ := localB_drop_pair hk Y hN₁ hm₁ hMM HBp.hd hL HBp.mass HBp.massLe
-    HBp.weights hag
-  exact ⟨hS2, SM, hM2, GsSpec.precedes_localB_drop hk (by omega) Y le_rfl le_rfl hP htop, hPmp,
-    depm, num⟩
+  have hm₁ : 2 ≤ m₁ := by
+    by_contra h
+    push Not at h
+    have hL2 : L ^ m₁ ≤ L ^ 1 := Nat.pow_le_pow_right (by omega) (by omega)
+    nlinarith
+  exact localB_pair_flSetting_core hk Y hN₁ hm₁ hMM HBp.hd hL HBp.mass HBp.massLe HBp.weights hag
+    hP htop hS2 hM2 depm num
 
 end LocalPairSetting
 
