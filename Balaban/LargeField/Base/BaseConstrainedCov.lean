@@ -322,4 +322,154 @@ theorem baseConstrainedCov_analytic (hd : 3 ≤ d) (hL : 3 ≤ L) (N : ℕ) :
 
 end Analytic
 
+
+/-! ### The constrained covariance inverts `A_e` -/
+
+section Inverse
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+theorem fieldMul_transpose_mul_self {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) :
+    (fieldMul e)ᵀ * fieldMul e = 1 := by
+  ext z z'
+  simp only [Matrix.mul_apply, transpose_apply, fieldMul, Fintype.sum_prod_type, one_apply]
+  by_cases h : z = z'
+  · subst h
+    simp [he z]
+  · simp [h, Ne.symm h]
+
+theorem ring_aux {R : Type*} [Ring R] (P Hl Gl T : R) (hHG : Hl * Gl = 1) (hPP : P * P = P)
+    (hPGT : P * Gl * T = P) (hPT : P * T = T) :
+    ((1 - P) * Hl * (1 - P) + P) * (P + Gl - Gl * T * Gl) = 1 := by
+  have hQT : (1 - P) * T = 0 := by rw [sub_mul, one_mul, hPT, sub_self]
+  have hPG : P * (Gl * T * Gl) = P * Gl := by
+    rw [← mul_assoc, ← mul_assoc, mul_assoc P Gl T, ← mul_assoc, hPGT]
+  have hHG' : Hl * (Gl * T * Gl) = T * Gl := by
+    rw [← mul_assoc, ← mul_assoc, hHG, one_mul]
+  have h1 : (1 - P) * (P + Gl - Gl * T * Gl) = Gl - Gl * T * Gl := by
+    have : (1 - P) * (P + Gl - Gl * T * Gl) =
+        P + Gl - Gl * T * Gl - (P * P + P * Gl - P * (Gl * T * Gl)) := by noncomm_ring
+    rw [this, hPP, hPG]; abel
+  have h2 : Hl * (Gl - Gl * T * Gl) = 1 - T * Gl := by rw [mul_sub, hHG, hHG']
+  have h3 : (1 - P) * (1 - T * Gl) = 1 - P := by
+    rw [mul_sub, mul_one, ← mul_assoc, hQT, zero_mul, sub_zero]
+  have h4 : P * (P + Gl - Gl * T * Gl) = P := by
+    rw [mul_sub, mul_add, hPP, hPG]; abel
+  have h5 : ((1 - P) * Hl * (1 - P) + P) * (P + Gl - Gl * T * Gl) =
+      (1 - P) * (Hl * ((1 - P) * (P + Gl - Gl * T * Gl))) + P * (P + Gl - Gl * T * Gl) := by
+    noncomm_ring
+  rw [h5, h1, h2, h3, h4]
+  abel
+
+/-- **The constrained covariance is the inverse of `A_e`.**  For an exact constraint field
+(`∑ᵢ e_z,i² = 1`), `H G = G H = 1` and `M = e² - K(e) Ĝ e` invertible, the matrix
+`P_e + Ĝ - Ĝ e M⁻¹ N` is the two-sided inverse of `A_e = Q_e Ĥ Q_e + P_e`. -/
+theorem baseOp_mul_constrainedCov {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
+    {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) (hM : IsUnit (constraintM H G e)) :
+    baseOp N e H * (basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) = 1 ∧
+      (basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) * baseOp N e H = 1 := by
+  have hE := fieldMul_transpose_mul_self he
+  have hW : IsUnit (constraintForm G e) := by
+    rw [constraintForm_eq_mul hHG hGH e]
+    exact IsUnit.mul (show IsUnit G from ⟨⟨G, H, hGH, hHG⟩, rfl⟩) hM
+  have hWi : constraintForm G e * (constraintForm G e)⁻¹ = 1 :=
+    Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hW)
+  have hCov : liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e =
+      liftOp N G * (fieldMul e * (constraintForm G e)⁻¹ * (fieldMul e)ᵀ) * liftOp N G := by
+    rw [← constrainedOp_eq hHG hGH e]
+    unfold constrainedOp
+    simp only [Matrix.mul_assoc]
+  have hHl : liftOp N H * liftOp N G = 1 := by rw [← liftOp_mul, hHG, liftOp_one]
+  have key : baseOp N e H * (basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) = 1 := by
+    rw [hCov]
+    unfold baseOp basePart
+    refine ring_aux _ _ _ _ hHl ?_ ?_ ?_
+    · calc fieldMul e * (fieldMul e)ᵀ * (fieldMul e * (fieldMul e)ᵀ)
+          = fieldMul e * ((fieldMul e)ᵀ * fieldMul e) * (fieldMul e)ᵀ := by
+            simp only [Matrix.mul_assoc]
+        _ = _ := by rw [hE, Matrix.mul_one]
+    · calc fieldMul e * (fieldMul e)ᵀ * liftOp N G *
+            (fieldMul e * (constraintForm G e)⁻¹ * (fieldMul e)ᵀ)
+          = fieldMul e * (constraintForm G e * (constraintForm G e)⁻¹) * (fieldMul e)ᵀ := by
+            unfold constraintForm
+            simp only [Matrix.mul_assoc]
+        _ = _ := by rw [hWi, Matrix.mul_one]
+    · calc fieldMul e * (fieldMul e)ᵀ * (fieldMul e * (constraintForm G e)⁻¹ * (fieldMul e)ᵀ)
+          = fieldMul e * ((fieldMul e)ᵀ * fieldMul e) * (constraintForm G e)⁻¹ * (fieldMul e)ᵀ := by
+            simp only [Matrix.mul_assoc]
+        _ = _ := by rw [hE, Matrix.mul_one]
+  exact ⟨key, mul_eq_one_comm.1 key⟩
+
+end Inverse
+
+
+/-! ### The physical point `s ≡ 1` -/
+
+section Physical
+
+variable {d L : ℕ} [NeZero L]
+
+/-- The constant family `s ≡ 1` extended by `1` is `fun _ => 1`. -/
+theorem extS_const_one {N₁ m₁ : ℕ} [NeZero N₁] {ϱ : ℝ} (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) :
+    Dec2.extS (coverOf G) (fun _ => (1 : ℂ)) = fun _ => 1 := by
+  funext q
+  unfold Dec2.extS
+  split_ifs <;> rfl
+
+/-- **At the physical point the constrained covariance is `A_e⁻¹`.**  For an exact constraint
+field `e = φ₀|_{Ω₁}` (`∑ᵢ e_z,i² = 1`, `δ`-smooth with `δ ≤ δ_*`), an admissible potential and
+`c_* ≤ L^{m₁}`, the parametrix covariance `P_e + Ĝ_1 - Ĝ_1 e M⁻¹ N` at `s ≡ 1` is the two-sided
+inverse of the first-step operator `A_e = Q_e (H(1) ⊗ I) Q_e + P_e` of `baseOp`, with
+`H(1) = baseHamiltonian G a ν α 1`. -/
+theorem baseConstrainedCov_one (hd : 3 ≤ d) (hL : 3 ≤ L) (N : ℕ) :
+    ∃ cstar δs : ℝ, 0 ≤ cstar ∧ 0 < δs ∧ ∀ {N₁ m₁ : ℕ} [NeZero N₁] {ϱ : ℝ}
+      (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) {a : ℕ → ℝ} {ν : ℝ}, DGSetting G a ν →
+      ∀ {α : G.Ω 1 → ℂ}, AdmPot G α → cstar ≤ (L : ℝ) ^ m₁ →
+      ∀ {δ : ℝ}, 0 ≤ δ → δ ≤ δs →
+      ∀ {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}, IsConstraintField G δ φ →
+      (∀ x : G.Ω 1, ∑ i, φ x i * φ x i = 1) →
+      baseOp N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1)) *
+        (basePart (restrictField G φ) +
+          liftOp N (Dec2.Gs (coverOf G) G a ν α (fun _ => 1)) -
+          liftOp N (Dec2.Gs (coverOf G) G a ν α (fun _ => 1)) * fieldMul (restrictField G φ) *
+          (constraintM (dirichletOperator G a ν α) (Dec2.Gs (coverOf G) G a ν α (fun _ => 1))
+            (restrictField G φ))⁻¹ *
+          constraintN (dirichletOperator G a ν α) (Dec2.Gs (coverOf G) G a ν α (fun _ => 1))
+            (restrictField G φ)) = 1 ∧
+      (basePart (restrictField G φ) +
+          liftOp N (Dec2.Gs (coverOf G) G a ν α (fun _ => 1)) -
+          liftOp N (Dec2.Gs (coverOf G) G a ν α (fun _ => 1)) * fieldMul (restrictField G φ) *
+          (constraintM (dirichletOperator G a ν α) (Dec2.Gs (coverOf G) G a ν α (fun _ => 1))
+            (restrictField G φ))⁻¹ *
+          constraintN (dirichletOperator G a ν α) (Dec2.Gs (coverOf G) G a ν α (fun _ => 1))
+            (restrictField G φ)) *
+        baseOp N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1)) = 1 := by
+  obtain ⟨c1, hc1, H1⟩ := baseParametrix_one (d := d) (L := L) hd hL
+  obtain ⟨c2, hc2, H2⟩ := baseConstraint_isUnit (d := d) (L := L) hd hL N
+  obtain ⟨δs, hδs, H3⟩ := H2 (κ := 0) le_rfl
+  refine ⟨max c1 c2, δs, le_max_of_le_left hc1, hδs, ?_⟩
+  intro N₁ m₁ _ ϱ G a ν S α hα hM δ hδ hδδs φ hφ hsq
+  have hd0 : 0 < d := by omega
+  have hM1 : c1 ≤ (L : ℝ) ^ m₁ := le_trans (le_max_left _ _) hM
+  have hM2 : c2 * Real.exp (N0 d L * 0) ≤ (L : ℝ) ^ m₁ := by
+    simpa using le_trans (le_max_right _ _) hM
+  obtain ⟨-, hG1⟩ := H1 G S hα hM1
+  rw [baseHamiltonian_one] at hG1
+  have hHu : IsUnit (dirichletOperator G a ν α) :=
+    dirichletOperator_isUnit G hd0 S.mass S.weights α hα
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hHu
+  have hHG : dirichletOperator G a ν α * (dirichletOperator G a ν α)⁻¹ = 1 :=
+    Matrix.mul_nonsing_inv _ hdet
+  have hGH : (dirichletOperator G a ν α)⁻¹ * dirichletOperator G a ν α = 1 :=
+    Matrix.nonsing_inv_mul _ hdet
+  have hMu := H3 G S hα hM2 (s := fun _ => 1) (fun P => by simp) hδ hδδs hφ
+  rw [hG1] at hMu ⊢
+  rw [baseHamiltonian_one]
+  exact baseOp_mul_constrainedCov hHG hGH (fun z => hsq z) hMu
+
+end Physical
+
 end Balaban.LargeField.Base
