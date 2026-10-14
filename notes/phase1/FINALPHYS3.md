@@ -83,3 +83,9 @@ Check first whether a parameter-integral analyticity lemma on a finite measure a
   T1 with absolute Gaussian-tail bound (P7 (4.12)), E4 then = J_rho expansion + large-field polymers.
 - Question for the author-side agent (text-ready): "In the last step, is the localization expansion of the covariance applied to
   the large-field blocks Z_k, or only to Z_k^c, where chi_k bounds |psi - h| < (5L+3) delta_k? (P7 (4.1), (4.12))"
+
+## W789 status (14 October 2026)
+- `Balaban/Green/FinalInteractionCutoff.lean`: L-A `norm_taggedCfin_mulVec_le` (row bound at r = 0, B as in `abstract_expansion_taggedCfin_final`) PROVED.
+- L-B `analyticOnNhd_integral_box` PROVED via the landed `analyticAt_integral_of_continuousOn` (Analysis/ParamIntegralAnalytic.lean); needs joint continuity of Phi on polydisc x box.
+- `cutoffInteraction_final`: J(s) = int_{box rho} F(C_fin(s) psi) dgamma analytic, bounded by B' gamma(box), Lemma AE conclusions (sum, coefficient bounds), value at s = 1 via sqrtMat; needs B rho < R, F analytic and bounded on radius R.
+- `localityAE_cutoffInteraction`, `coef_cutoffInteraction_congr_of_agree`: datum-dependent locality (taggedCfinU), any F, gamma. Still open: L-C (constants), L-D (tail).
