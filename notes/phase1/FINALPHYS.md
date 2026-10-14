@@ -98,3 +98,10 @@ different cover", keep `boxH/boxG`, tagged algebra, weighted Neumann, Stieltjes 
 redo the cover geometry (FINALFAM2). L8 additionally waits for the LF lane and author item 17 (`k_f = 0`).
 **Confidence.** High on section 1 matrix claims and the landed-family summary; medium on L2 invertibility and L3
 (the integrated square root need not stay close to `U^{-1/2}` away from `s = 1`).
+
+**W753 status (L6 done).** `Balaban/Green/FinalConnectedSupport.lean`: `coef_taggedGfin_final_eq_zero_of_separated`
+(and `_of_not_connected`), `coef_taggedCfin_final_eq_zero_of_separated`: the coefficient at `C` vanishes when
+`C = A ⊔ (C \ A)`, both nonempty, `macRegion A` disjoint from `macRegion (C \ A)` (adjacency = boxes meet).
+Key facts: a nonzero entry of `χ_z G_z` or `R_z` has `y ∈ B_z` (so tags are connected via the end cell,
+`macTags_subset_or`; x need not lie in `B_z`), then `G_fin(s) = G_fin(s|_A) + G_fin(s|_B)` (`taggedGfin_split_of_separated`)
+and `coef_eq_zero_of_split`. Not done: the converse (nonvanishing) and a graph-connectedness phrasing of `C`.
