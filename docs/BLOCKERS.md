@@ -173,9 +173,11 @@ Recomputing a term with the local generating set gives the same coefficients as 
 step: this replacement identity is now proved for any two generating sets on one torus, under
 hypotheses on the component of the polymer (cube operators, the decoupled fields and the
 compositions agree on it). The local covariance, its square root and the local fluctuation variable
-are proved analytic and bounded on the local domain. Remaining: the instance of the identity at the
-local generating set (depth of the components, the local data domains) and the fluctuation integral
-of a local term.
+are proved analytic and bounded on the local domain. The identity is also proved at the local
+generating set itself, provided the polymer's read region stays two cubes away from the edge of the
+local set, and the local and ambient fluctuation variables agree there. Remaining: building the local
+set on a collar around the expansion domain (to be matched with the papers' choice of set), the
+fluctuation integral of a local term, and the clauses of the local class for nonzero terms.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
