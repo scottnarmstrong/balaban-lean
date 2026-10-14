@@ -1939,3 +1939,4 @@ public import Balaban.Fluctuation.LocalPairReplacement
 public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Inhabited.RootParams
 public import Balaban.Green.FinalTorusClose
+public import Balaban.Green.FinalTaggedTorusClose
