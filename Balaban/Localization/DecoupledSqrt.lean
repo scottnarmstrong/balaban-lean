@@ -394,20 +394,26 @@ theorem sqrtDom_nonneg (d L : ℕ) (ak κ : ℝ) {x : ℝ} (hx : 0 < x) (hak : 0
   have : 0 < ak + x := by linarith
   positivity
 
-theorem decCovSqrt_bound (f : κι × Fin N → ℂ) :
+omit H in
+/-- **I-4c (ii), the square root, cover form**: `‖C^{1/2}(s) f‖ ≤ B₅ ‖f‖` for the data
+`Dec2.XData (coverOf G) G …` (no `DGSetting`). -/
+theorem decCovSqrt_bound_cover {Cx : ℝ}
+    (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+    (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hU : IsUnitLattice G Q P) (f : κι × Fin N → ℂ) :
     Green.sqNorm (decCovSqrt G a aT ν α s φ Q P *ᵥ f) ≤
       (covB5 d L (a k) κ) ^ 2 * Green.sqNorm f := by
-  have hak := H.hak
+  have hak := aux_hak_cover hfam
   have hB := covB4_nonneg d L (a k) κ
   have hmain := sqNorm_intMat_le (volume.restrict (Ioi (0 : ℝ)))
-    (decSqrtInt G a aT ν α s φ Q P) (integrable_decSqrtInt H) (sqrtDom d L (a k) κ)
-    (integrable_sqrtDom hak d L κ)
+    (decSqrtInt G a aT ν α s φ Q P) (fun p q => integrable_decSqrtInt_cover hfam hφ hδ hsm hU p q)
+    (sqrtDom d L (a k) κ) (integrable_sqrtDom hak d L κ)
     ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx =>
       sqrtDom_nonneg d L (a k) κ (mem_Ioi.mp hx) hak))
     ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx f => by
       have hx0 : 0 < x := mem_Ioi.mp hx
-      have h1 := H.decCov_le hx0.le f
-      have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := rpow_pos_of_pos hx0 _
+      have h1 := standing_decCov_le_cover hfam hφ hδ hsm hU hx0.le f
+      have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hx0 _
       unfold decSqrtInt
       rw [Matrix.smul_mulVec, sqNorm_smul, Complex.norm_real, Real.norm_of_nonneg h3.le]
       have e : sqrtDom d L (a k) κ x = x ^ (-(1 / 2 : ℝ)) *
@@ -450,6 +456,11 @@ theorem decCovSqrt_bound (f : κι × Fin N → ℂ) :
         mul_le_mul_of_nonneg_left hmain (by positivity)
     _ = ((1 / π) * Gi) ^ 2 * Green.sqNorm f := by ring
     _ ≤ _ := mul_le_mul_of_nonneg_right h2 hs0
+
+theorem decCovSqrt_bound (f : κι × Fin N → ℂ) :
+    Green.sqNorm (decCovSqrt G a aT ν α s φ Q P *ᵥ f) ≤
+      (covB5 d L (a k) κ) ^ 2 * Green.sqNorm f :=
+  decCovSqrt_bound_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small H.unit f
 
 /-- The constant of the logarithm: `max |log a_k| |log (a_k + b)| + B₄ / a_k`. -/
 noncomputable def covBLog (d L : ℕ) (ak b κ : ℝ) : ℝ :=
