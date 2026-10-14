@@ -1931,3 +1931,4 @@ public import Balaban.Fluctuation.LocalPairGs
 public import Balaban.Fluctuation.LocalPairDecFixed
 public import Balaban.Fluctuation.LocalPairDecBg
 public import Balaban.Fluctuation.LocalPairCompose
+public import Balaban.Fluctuation.LocalPairReplacement
