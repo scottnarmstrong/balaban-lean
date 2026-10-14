@@ -142,6 +142,11 @@ radius the cut family needs), the large-field part, and the joins to the physica
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
 
+The papers' last step was re-read for the size of the final term: they integrate at the constant
+saddle, so the Hessian does not depend on the source g, and the identity is normalized at g = 0. The
+smallness comes from the g-derivative of the inherited term (P4 Prop. 2.2), of size β^{-1} rather than
+β^{-2}; that bound is not yet formalized.
+
 ## 6. Local generating sets and analyticity on their domains
 
 After the localization expansion, each new term is indexed by a domain Y. P3 p. 78 replaces the
