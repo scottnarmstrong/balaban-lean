@@ -34,11 +34,89 @@ sequence.
   the whole-level composed pair, which agrees on `X` with the local composed pair of `𝔹_j(X)`
   (`GsSpec.localPairAt_agree`), needs no inclusion of charts
   (`SFTermClausesStrong.analyticAt_E_composedPairAt`).
+* `xiC_mono_sigma`: `Ξ^c_n(𝔹; σ, ε) ⊆ Ξ^c_n(𝔹; σ', ε)` for `σ ≤ σ'`, the first piece of a
+  composition chain without radius loss (P3 (4.29)).
 * **The chart of the expansion maps into the local class domain at the same radius test as for a
   whole-level generator** (`xiCRaw_localB_sub_xiFieldDom`): `C₀² ε ≤ ε_j`, `C₀ = scaledC0 d`.
 -/
 
 @[expose] public section
+
+namespace Balaban.SmallField
+
+open Balaban.Multiscale Balaban.Background
+
+/-! ### Monotonicity of the charts in the scale parameter `σ`
+
+The first piece of the composition without radius loss of P3 (4.29): every bound of
+`XiBounds`/`XiCBounds` increases with `σ` (`σ ε`, `σ² ε`, `(σ ε)²`, `(σ ε)² / ε`; `val` does not
+involve `σ`), so `Ξ^c_n(𝔹; σ, ε) ⊆ Ξ^c_n(𝔹; σ', ε)` for `0 < σ ≤ σ'`.  With a composition at the
+scale `σ_j = c L^{j-K} ≤ 1` this gives `Ξ^c_j(𝔹_j; 1, ε)` at the same radius. -/
+
+section SigmaMono
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
+
+theorem xiBounds_mono_sigma {ν σ σ' ε : ℝ} {n : ℕ} {D : BgData G N} {h₀ : Fin N → ℝ}
+    {φ : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ} (hσ : 0 ≤ σ) (hσσ : σ ≤ σ') (hε0 : 0 ≤ ε)
+    (hb : XiBounds G ν n σ ε D h₀ φ α) : XiBounds G ν n σ' ε D h₀ φ α := by
+  have h1 : σ * ε ≤ σ' * ε := mul_le_mul_of_nonneg_right hσσ hε0
+  have h2 : σ ^ 2 * ε ≤ σ' ^ 2 * ε :=
+    mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hσ hσσ 2) hε0
+  have hp : ∀ x : Torus d (N₀ * L ^ k), 0 < G.spacing x := fun x => by
+    have := G.spacing_ge_one x; linarith
+  refine ⟨fun x hx μ => ?_, fun x hx => ?_, fun x => ?_, fun x hx => ?_,
+    fun z hz z' hz' hadj => ?_, fun z => ?_, ?_⟩
+  · obtain ⟨g1, g2⟩ := hb.grad x hx μ
+    exact ⟨g1.trans_le (div_le_div_of_nonneg_right h1 (hp x).le),
+      g2.trans_le (div_le_div_of_nonneg_right h1 (hp x).le)⟩
+  · exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right h2 (by have := hp x; positivity))
+  · exact (hb.mult x).trans_le h2
+  · exact (hb.close x hx).trans_le h2
+  · exact (hb.collarBond z hz z' hz' hadj).trans_le h1
+  · exact (hb.mass z).trans_le h1
+  · exact hb.hnorm.trans_le (pow_le_pow_left₀ (mul_nonneg hσ hε0) h1 2)
+
+theorem xiCBounds_mono_sigma {ν σ σ' ε : ℝ} {Dr Dc : BgData G N}
+    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G.Ω 1 × Fin N → ℂ}
+    {αr αc : G.Ω 1 → ℂ} (hσ : 0 ≤ σ) (hσσ : σ ≤ σ') (hε0 : 0 < ε)
+    (hb : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) :
+    XiCBounds G ν σ' ε Dr Dc Ψ'' h'' φr φc αr αc := by
+  have h1 : σ * ε ≤ σ' * ε := mul_le_mul_of_nonneg_right hσσ hε0.le
+  have h2 : σ ^ 2 * ε ≤ σ' ^ 2 * ε :=
+    mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hσ hσσ 2) hε0.le
+  have hp : ∀ x : Torus d (N₀ * L ^ k), 0 < G.spacing x := fun x => by
+    have := G.spacing_ge_one x; linarith
+  have e : ∀ t : ℝ, (t * ε) ^ 2 / ε = t ^ 2 * ε := fun t => by field_simp
+  refine ⟨fun x hx μ => ?_, fun x hx => ?_, fun x => ?_, fun x => ?_, fun x hx => ?_,
+    fun z hz z' hz' hadj => ?_, fun x hx => ?_, fun x => ?_⟩
+  · obtain ⟨g1, g2⟩ := hb.grad x hx μ
+    exact ⟨g1.trans_le (div_le_div_of_nonneg_right h1 (hp x).le),
+      g2.trans_le (div_le_div_of_nonneg_right h1 (hp x).le)⟩
+  · exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right h2 (by have := hp x; positivity))
+  · exact (hb.mult x).trans_le h2
+  · exact hb.val x
+  · exact (hb.close x hx).trans_le h2
+  · exact (hb.collarBond z hz z' hz' hadj).trans_le h1
+  · have := hb.hAbs x hx
+    rw [e σ] at this
+    rw [e σ']
+    exact this.trans_le h2
+  · exact (hb.hDot x).trans_le (pow_le_pow_left₀ (mul_nonneg hσ hε0.le) h1 2)
+
+/-- **`Ξ^c_n(𝔹; σ, ε) ⊆ Ξ^c_n(𝔹; σ', ε)` for `σ ≤ σ'`.** -/
+theorem xiC_mono_sigma {a : ℕ → ℝ} {ν σ σ' ε : ℝ} {n : ℕ}
+    {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hσσ : σ ≤ σ')
+    (h : XiC G a ν n σ ε Ψ₀ h₀ Ψ'' h'') : XiC G a ν n σ' ε Ψ₀ h₀ Ψ'' h'' := by
+  obtain ⟨hσ, hε0, Dr, Dc, hXr, hC, hU, hb⟩ := h
+  exact ⟨hσ.trans_le hσσ, hε0, Dr, Dc,
+    ⟨hXr.1, hXr.2.1, xiBounds_mono_sigma hσ.le hσσ hε0.le hXr.2.2⟩, hC, hU,
+    xiCBounds_mono_sigma hσ.le hσσ hε0 hb⟩
+
+end SigmaMono
+
+end Balaban.SmallField
 
 namespace Balaban.SmallField.GsSpec
 
