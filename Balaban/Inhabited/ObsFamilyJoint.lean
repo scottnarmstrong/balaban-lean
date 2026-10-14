@@ -319,7 +319,7 @@ theorem obsFamily_full_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ} (T 
   have hcont := (A4 _ hR h1).2
   have hσ := fun e he => (A3 _ hR h1 e he).2.1
   have hzero := fun e he => (A3 _ hR h1 e he).2.2
-  obtain ⟨JrR, hRawAct⟩ := hRaw
+  obtain ⟨⟨JrR, hRawAct⟩, -⟩ := hRaw
   subst hS
   let S := T.step k hk N₁ ν β p₁
   obtain ⟨Ev, ha, hdRaw, hb, hD, -⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν

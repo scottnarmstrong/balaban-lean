@@ -278,7 +278,7 @@ theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
             (∀ δα' : (stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ m₁ k ϱ) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
-        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+        (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (x w : (S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) (σ : ℂ)
           (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
           T Y x w σ (Θ, 0) = -(S.β : ℂ) *
@@ -294,9 +294,61 @@ theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
                         (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
                   (u.1, hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
                     (extParams S.G' (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
-            else 0 := by
+            else 0) ∧
+      ∃ (F₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+              (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+          (Sol₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
+              ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ))
+          (Ev₂ : CTorus d L N₁ m₁ (k + 1) × Fin N → Set (CTorus d L N₁ m₁ (k + 1)) →
+            RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ) → ℂ),
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (s : DecParams S.G') (D : BgData S.G' N),
+          (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N BG κ) s D φ α →
+            F₂ a (s, rawOf D) = (φ, α)) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N)
+          (p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N),
+          (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol₂ a p).1 = dphi (stepG d L N₁ m₁ k ϱ) (Dec2.decG (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1) p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Small (stepG d L N₁ m₁ k ϱ) (Sol₂ a p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small (stepG d L N₁ m₁ k ϱ) (Sol₂ a p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds (stepG d L N₁ m₁ k ϱ) (Sol₂ a p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : (stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ m₁ k ϱ) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+                (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂ a p).2)) ∧
+        (∀ a : CTorus d L N₁ m₁ (k + 1) × Fin N, Ev₂ a =
+          evTerm
+                  (fun i : ParIdx S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
+                  (X1 S.G' m₀ (jF a) (𝒦XF a))
+                  (fun u t => siteFun S.G' (stepG d L N₁ m₁ k ϱ) a.1 a.2
+                    (F₂ a (extParams S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                    (Sol₂ a (extParams S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t,
+                      flEdat S.G' (stepG d L N₁ m₁ k ϱ)
+                        (F₂ a (extParams S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                        u.1.1 (hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₂ a)
+                          (extParams S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))).1
+                    (u.1, hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₂ a)
+                      (extParams S.G' (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (Y : Set (CTorus d L N₁ m₁ (k + 1))),
+          AnalyticOnNhd ℂ (Ev₂ a Y) (XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+          (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+          T Y x w σ (Θ, g) = T Y x w σ (Θ, 0) + (S.β : ℂ) *
+            ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+              if Y ∈ polyDom S.G' (X₁F s) m₀ (jF s) (𝒦XF s) then
+                g s.1 s.2 * dirTerm (Ev₂ s Y) (fun _ => (1 : ℂ)) x.2 w.2 σ Θ
+              else 0 := by
   classical
-  obtain ⟨𝒴, T, hD0, hrayD, h𝒴, F₁, Sol, hF₁, hSol, hT0⟩ :=
+  obtain ⟨𝒴, T, hD0, hrayD, h𝒴, F₁, Sol, hF₁, hSol, hT0, F₂, Sol₂, Ev₂, hF₂, hSol₂, hEvEq₂, hanEv₂, hTg⟩ :=
     interaction_expansion_hat_dm_core_dir_eta_scaled_ray
     (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (hC := hC) (cβ := (S.β : ℂ))
     (hconn := hconn) (hrow := hrow) (κdec := κdec) (κ₀ := κ₀) (hκ₀ := hκ₀) (hκdec := hκdec)
@@ -376,7 +428,8 @@ theorem sourceDirectTerms_slice_ray {η : ℝ} (hη0 : 0 < η) (hRσ : 0 < Rσ)
         exact ⟨hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc,
           hatRaysO_pair S hψ hRσ.le (by linarith) hr.le hc⟩ }, rfl, rfl⟩,
     fun Y Θ hΘ ψ hψ => hrayD Y Θ hΘ ψ hψ, ?_, F₁, Sol, hF₁, hSol,
-    fun Y x w σ Θ => hT0 Y x w σ Θ rfl (by simp) (by simp)⟩
+    fun Y x w σ Θ => hT0 Y x w σ Θ rfl (by simp) (by simp), F₂, Sol₂, Ev₂, hF₂, hSol₂,
+    hEvEq₂, hanEv₂, fun Y x w σ Θ g => hTg Y x w σ Θ g (by simp)⟩
   rw [h𝒴]
   ext Y
   simp only [Finset.mem_union, Finset.biUnion_empty, Finset.notMem_empty, or_false]
