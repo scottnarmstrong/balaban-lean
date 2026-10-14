@@ -27,6 +27,11 @@ argument stays in a space `Ξ^c_j(𝔹_j(X); C₀, ε₂)`, for every `s` in the
 Constants (differing from LOCALIZATION.md §4.3 where `σ = 1`): the landed (Ξ3) maps
 `Ξ^c(𝔹'; 1, ε)` into `Ξ^c(𝔹; C₀ θ, ε)` with `C₀ = 8d + 12`; the factor `C₀` is absorbed by
 `ε₁ = C₀² ε'` before (Ξ2) and `ε₂ = ε₁ + K₂' δ₃` is the final radius.
+
+These are the instances `b = C₀` of `xiCData_compose_of_one_le`, `i5_stage1_of_one_le` and
+`i5_stage2_of_one_le`, which hold for every composition constant `1 ≤ b ≤ C₀` (under the same
+numerical conditions `ChainNum`).  At `b = 1` (P3 Lemma 4.1 (4.29), no loss) the radii are
+`ε₂ = ε' + K₂' δ₃` and the stage-2 space is `Ξ^c_j(𝔹_j(X); 1, ε₂)`, as in P3 (4.35)-(4.37).
 -/
 
 @[expose] public section
@@ -87,6 +92,25 @@ variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱ₁ ϱ₂ : �
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {G' : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁}
 variable {a₁ ν : ℝ}
 
+/-- (Ξ3) for realizations with a composition constant `b ≥ 1` (`θ = 1`, level = depth):
+`Ξ^c_K(𝔹'; 1, ε) ⟶ Ξ^c_K(𝔹; b, ε)`; at `b = 1` the composition keeps the radius (P3 (4.29)). -/
+theorem xiCData_compose_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (ha₁ : 0 < a₁)
+    (H : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (H' : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (h : Precedes G G') {ε : ℝ}
+    (hcol : ∀ z ∈ collar G, z ∈ G'.Ω 1)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hth : xiC1 d * ε ≤ thm73C1 d L N)
+    {D : BgData G' N} (hX : XiCData G' (compWeight L a₁) ν K 1 ε D) :
+    XiCData G (compWeight L a₁) ν K (b * 1) ε
+      (composeData h (compWeight L a₁) (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D) D) := by
+  obtain ⟨Ψ₀, h₀, Ψ'', h'', ⟨-, hε, Dr, Dc, hXr, hC, hDcU, hb⟩, hRD⟩ := hX
+  have hDc : Dc = D := BgData.eq_of_realizesC hC hRD
+  subst hDc
+  obtain ⟨h1, h2, h3, h4, -⟩ := xiC_compose_at_of_one_le hb₁ (G := G) (G' := G') (j := K)
+    (ha₁ := ha₁) H H' h hε one_pos (by simp) (scaleGap_one h) (fun z hz => ⟨hcol z hz, by
+      have := G'.spacing_ge_one z; linarith⟩) hsmall hth hXr hC hDcU hb
+  have hc1 : (0 : ℝ) < b := by linarith
+  exact ⟨_, h₀, _, _, ⟨by positivity, hε, _, _, h1, h2, h3, h4⟩, h2⟩
+
 /-- (Ξ3) for realizations (with `θ = 1`, level = depth): `Ξ^c_K(𝔹'; 1, ε) ⟶ Ξ^c_K(𝔹; C₀, ε)`. -/
 theorem xiCData_compose (ha₁ : 0 < a₁) (H : BgHyp d L K ϱ (compWeight L a₁) ν)
     (H' : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (h : Precedes G G') {ε : ℝ}
@@ -94,15 +118,8 @@ theorem xiCData_compose (ha₁ : 0 < a₁) (H : BgHyp d L K ϱ (compWeight L a�
     (hsmall : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hth : xiC1 d * ε ≤ thm73C1 d L N)
     {D : BgData G' N} (hX : XiCData G' (compWeight L a₁) ν K 1 ε D) :
     XiCData G (compWeight L a₁) ν K (scaledC0 d * 1) ε
-      (composeData h (compWeight L a₁) (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D) D) := by
-  obtain ⟨Ψ₀, h₀, Ψ'', h'', ⟨-, hε, Dr, Dc, hXr, hC, hDcU, hb⟩, hRD⟩ := hX
-  have hDc : Dc = D := BgData.eq_of_realizesC hC hRD
-  subst hDc
-  obtain ⟨h1, h2, h3, h4, -⟩ := xiC_compose_at (G := G) (G' := G') (j := K) (ha₁ := ha₁) H H' h hε
-    one_pos (by simp) (scaleGap_one h) (fun z hz => ⟨hcol z hz, by
-      have := G'.spacing_ge_one z; linarith⟩) hsmall hth hXr hC hDcU hb
-  have hc1 := one_le_scaledC0 d
-  exact ⟨_, h₀, _, _, ⟨by positivity, hε, _, _, h1, h2, h3, h4⟩, h2⟩
+      (composeData h (compWeight L a₁) (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D) D) :=
+  xiCData_compose_of_one_le (one_le_scaledC0 d) ha₁ H H' h hcol hsmall hth hX
 
 end Chain
 
@@ -151,9 +168,12 @@ theorem isLayerConstant_zero (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
     IsLayerConstant G (0 : Torus d ((N₁ * L ^ m₁) * L ^ K) → Fin N → ℂ) :=
   fun _ _ _ _ _ _ _ => rfl
 
-/-- **Stage 1 of Lemma DL**: the composed datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled
-background field lies in `Ξ^c_{K}(𝔹_k(X); 1, ε₂)`. -/
-theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+/-- **Stage 1 of Lemma DL with a composition constant `1 ≤ b ≤ C₀`**: the composed datum
+`ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled background field lies in
+`Ξ^c_{K}(𝔹_k(X); 1, b² ε' + K₂' δ₃)`.  At `b = 1` this is P3 (4.35)-(4.37): the radius
+`ε' + K₂' δ₃`.  The numerical conditions at `b² ε'` follow from those of `ChainNum` at `C₀² ε'`. -/
+theorem i5_stage1_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
+    (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
     (ha₁ : 0 < a₁) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
     (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (hP : Precedes Gk Gp)
     (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ} (hκ : 0 ≤ κ)
@@ -161,14 +181,15 @@ theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compW
     {X₀ X₁ : Finset (CTorus d L N₁ m₁ K)} (hX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
     (hN : ∀ x ∈ X₀, x ∈ Gp.Ω 1 → ∀ y : CTorus d L N₁ m₁ K,
       Green.torusDist d ((N₁ * L ^ m₁) * L ^ K) x y < r₀ * (L : ℝ) ^ m₁ * Gp.spacing x → y ∈ X₁)
-    (hr : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1) (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {s : DecParams Gp} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hr : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1) (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {s : DecParams Gp}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
     (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁ →
       s ⟨P, hP⟩ = 1)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
     {φ φ1 : Gp.Ω 1 × Fin N → ℂ} {α α1 : Gp.Ω 1 → ℂ}
     (h : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
     (h1 : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1) :
-    XiCData Gk (compWeight L a₁) ν K 1 (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃)
+    XiCData Gk (compWeight L a₁) ν K 1 (b ^ 2 * eps + xiK2 d L N * δ₃)
       (composeData hP (compWeight L a₁) φ D) := by
   have hd0 : 0 < d := by have := HBp.hd; omega
   have hε := hnum.eps_pos
@@ -183,13 +204,27 @@ theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compW
   -- `s = 1` is the background field
   obtain ⟨-, hφ1, -⟩ := i4b_one hS S HBp hκ hM hδ0 le_rfl hδ0' hδ1 hνε hDom h1
   -- (Ξ3), rescaling
-  have hDk1 := xiCData_compose ha₁ HBk HBp hP hcol hnum.small1 hnum.th1 hD
+  have hDk1 := xiCData_compose_of_one_le hb₁ ha₁ HBk HBp hP hcol hnum.small1 hnum.th1 hD
   rw [hφ1] at hDk1
   obtain ⟨Ψ₀, h₀, Ψ'', h'', hX, hR⟩ := hDk1
-  have hσ : (1 : ℝ) ≤ scaledC0 d * 1 := by rw [mul_one]; exact one_le_scaledC0 d
+  have hσ : (1 : ℝ) ≤ b * 1 := by rw [mul_one]; exact hb₁
   have hX1 := xiC_scale hσ hX
-  have e1 : (scaledC0 d * 1) ^ 2 * eps = scaledC0 d ^ 2 * eps := by rw [mul_one]
+  have e1 : (b * 1) ^ 2 * eps = b ^ 2 * eps := by rw [mul_one]
   rw [e1] at hX1
+  -- the numerical conditions at `b² ε'`, from those at `C₀² ε'`
+  have hbb : b ^ 2 * eps ≤ scaledC0 d ^ 2 * eps :=
+    mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by linarith) hbC 2) hε.le
+  have hbb' : xiC1 d * (b ^ 2 * eps) ≤ xiC1 d * (scaledC0 d ^ 2 * eps) :=
+    mul_le_mul_of_nonneg_left hbb (by linarith)
+  have hK1 := (bgK1_pos (d := d) (L := L) (N := N)).le
+  have hsmall₁ : (4 * d + 6) * ((2 * d + 1) * (b ^ 2 * eps)) ≤ 1 :=
+    le_trans (by gcongr) hnum.small₁
+  have hc1' : xiC1 d * (b ^ 2 * eps) + 5 * δ₃ ≤ bgC1 d L N := by linarith [hnum.c1]
+  have hK1s : bgK1 d L N * (xiC1 d * (b ^ 2 * eps)) ≤ deltaStar d L N :=
+    le_trans (mul_le_mul_of_nonneg_left hbb' hK1) hnum.K1s
+  have hsm : bgK1 d L N * (xiC1 d * (b ^ 2 * eps)) + cK2 d L N * δ₃ < bgC0 d L N := by
+    have := mul_le_mul_of_nonneg_left hbb' hK1
+    linarith [hnum.sm]
   -- the difference of the composed data
   set δΨ : Torus d ((N₁ * L ^ m₁) * L ^ K) → Fin N → ℂ := fun x i =>
     composeField Gk Gp (compWeight L a₁) φ D.Ψ x i - composeField Gk Gp (compWeight L a₁) φ1 D.Ψ x i
@@ -211,8 +246,8 @@ theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compW
     refine (vn_le_card_mul hB fun i => ?_).trans hnum.close
     exact composed_close_X0 hS S HBp hP hκ hM hs hs1 hN hr hr₀ hδ0 le_rfl hδ0' hδ1 hνε
       hDom h h1 (hX₀ x hx) hxΩ i
-  have hX2 := xiC_perturb HBk hnum.δ₃_nn hnum.δ₃_le_one hnum.small₁ hnum.c1 hnum.star hnum.K1s
-    hnum.sm hδΨc hδΨb hX1
+  have hX2 := xiC_perturb HBk hnum.δ₃_nn hnum.δ₃_le_one hsmall₁ hc1' hnum.star hK1s
+    hsm hδΨc hδΨb hX1
   refine ⟨Ψ₀, h₀, fun x i => Ψ'' x i + δΨ x i, h'', hX2, ⟨fun x hx i => ?_, fun x hx i => ?_⟩⟩
   · have := hR.1 x hx i
     show composeField Gk Gp (compWeight L a₁) φ D.Ψ x i = _
@@ -223,6 +258,28 @@ theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compW
     rw [e3]; ring
   · have := hR.2 x hx i
     simpa [composeData, hx] using this
+
+/-- **Stage 1 of Lemma DL**: the composed datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled
+background field lies in `Ξ^c_{K}(𝔹_k(X); 1, ε₂)`. -/
+theorem i5_stage1 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+    (ha₁ : 0 < a₁) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (hP : Precedes Gk Gp)
+    (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃)
+    {X₀ X₁ : Finset (CTorus d L N₁ m₁ K)} (hX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
+    (hN : ∀ x ∈ X₀, x ∈ Gp.Ω 1 → ∀ y : CTorus d L N₁ m₁ K,
+      Green.torusDist d ((N₁ * L ^ m₁) * L ^ K) x y < r₀ * (L : ℝ) ^ m₁ * Gp.spacing x → y ∈ X₁)
+    (hr : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1) (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {s : DecParams Gp} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁ →
+      s ⟨P, hP⟩ = 1)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
+    {φ φ1 : Gp.Ω 1 × Fin N → ℂ} {α α1 : Gp.Ω 1 → ℂ}
+    (h : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
+    (h1 : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1) :
+    XiCData Gk (compWeight L a₁) ν K 1 (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃)
+      (composeData hP (compWeight L a₁) φ D) :=
+  i5_stage1_of_one_le (one_le_scaledC0 d) le_rfl hS S ha₁ HBp HBk hP hcol hκ hM hnum hX₀ hN hr hr₀
+    hs hs1 hD h h1
 
 theorem xiCData_unionC {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {n : ℕ} {σ ε : ℝ}
     {D : BgData G N} (hX : XiCData G a ν n σ ε D) :
@@ -238,6 +295,21 @@ theorem xiCData_level_mono {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : �
   exact ⟨Ψ₀, h₀, Ψ'', h'', xiC_level_mono hn hν (by
     have := NeZero.ne L; omega) hX, hR⟩
 
+/-- **Stage 2 of Lemma DL with a composition constant `b ≥ 1`**: the composition of a member of
+`Ξ^c_K(𝔹_k(X); 1, ε₂)` with `𝔹_j(X) ≺ 𝔹_k(X)` lies in `Ξ^c_{j'}(𝔹_j(X); b, ε₂)`, `j' ≤ K`; at
+`b = 1` in `Ξ^c_{j'}(𝔹_j(X); 1, ε₂)` (P3 (4.29), (4.37)). -/
+theorem i5_stage2_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (ha₁ : 0 < a₁)
+    (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν)
+    (HBj : BgHyp d L K ϱ₂ (compWeight L a₁) ν) (hq : Precedes Gj Gk)
+    (hcol : ∀ z ∈ collar Gj, z ∈ Gk.Ω 1) {ε₂ : ℝ}
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * ε₂) ≤ 1) (hth : xiC1 d * ε₂ ≤ thm73C1 d L N)
+    {j' : ℕ} (hj' : j' ≤ K) {Dk : BgData Gk N} (hD : XiCData Gk (compWeight L a₁) ν K 1 ε₂ Dk) :
+    XiCData Gj (compWeight L a₁) ν j' b ε₂
+      (composeData hq (compWeight L a₁) (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) Dk) Dk) := by
+  have h := xiCData_compose_of_one_le hb₁ ha₁ HBj HBk hq hcol hsmall hth hD
+  rw [mul_one] at h
+  exact xiCData_level_mono hj' HBj.mass h
+
 /-- **Stage 2 of Lemma DL**: the composition of a member of `Ξ^c_K(𝔹_k(X); 1, ε₂)` with
 `𝔹_j(X) ≺ 𝔹_k(X)` lies in `Ξ^c_{j'}(𝔹_j(X); C₀, ε₂)`, `j' ≤ K`. -/
 theorem i5_stage2 (ha₁ : 0 < a₁) (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν)
@@ -246,10 +318,8 @@ theorem i5_stage2 (ha₁ : 0 < a₁) (HBk : BgHyp d L K ϱ₁ (compWeight L a₁
     (hsmall : (4 * d + 6) * ((2 * d + 1) * ε₂) ≤ 1) (hth : xiC1 d * ε₂ ≤ thm73C1 d L N)
     {j' : ℕ} (hj' : j' ≤ K) {Dk : BgData Gk N} (hD : XiCData Gk (compWeight L a₁) ν K 1 ε₂ Dk) :
     XiCData Gj (compWeight L a₁) ν j' (scaledC0 d)  ε₂
-      (composeData hq (compWeight L a₁) (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) Dk) Dk) := by
-  have h := xiCData_compose ha₁ HBj HBk hq hcol hsmall hth hD
-  rw [mul_one] at h
-  exact xiCData_level_mono hj' HBj.mass h
+      (composeData hq (compWeight L a₁) (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) Dk) Dk) :=
+  i5_stage2_of_one_le (one_le_scaledC0 d) ha₁ HBk HBj hq hcol hsmall hth hj' hD
 
 end Stages
 
