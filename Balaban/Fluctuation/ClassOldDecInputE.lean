@@ -81,6 +81,42 @@ open Classical in
 `Eτ(r) = β⁻¹ ℰ^{(j)}(y, X; r.1, r.2)` is analytic on the chart `Ξ^c(𝔹_j(X); C₀, ε₂)` of the
 expansion and bounded there by `β⁻¹ E₀ exp(-(κ_dec - 1) d_j(X))`, provided the chart lies in the
 field domain `Dom` of the class (hypothesis `hchart`, kept explicit). -/
+theorem classOldDecEnergy_chart_radius {b : ℝ} {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P Dom C.Tm) {β : ℝ} (hβ : 0 < β) {κdec : ℝ} (hκ : κdec - 1 ≤ P.κ)
+    (hE₀ : 0 ≤ P.E₀) (a₁ ν δ₃ eps δfl : ℝ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {y : CTorus d L N₁ m₁ (k + 1)}
+    {X : Set (CTorus d L N₁ m₁ (k + 1))} (hX : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hchart : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      Dom.dom j (C.Tm.gs j X) r.1 r.2) :
+    AnalyticOnNhd ℂ
+      (fun r : RawData d L (N₁ * L ^ m₁) (k + 1) N => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+      (XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) ∧
+    (∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖(β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2‖ ≤
+        (β⁻¹ * P.E₀) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X)) := by
+  have h := classOldEnergy_analytic_bound C hm hcl hβ hκ hE₀ (compWeight L a₁) ν b
+    (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) {(j, y, X)}
+    (by
+      intro τ hτ
+      rw [Finset.mem_singleton] at hτ
+      subst hτ
+      exact ⟨⟨hj1, hjk⟩, hX, hy⟩)
+    (by
+      intro τ hτ r hr
+      rw [Finset.mem_singleton] at hτ
+      subst hτ
+      exact hchart r hr)
+  exact ⟨h.1 (j, y, X) (Finset.mem_singleton_self _), fun r hr =>
+    (h.2 (j, y, X) (Finset.mem_singleton_self _) r hr)⟩
+
+/-- **The chart hypotheses of `eterm_expansion_hat_rawY` for one inherited label.**  For a label
+`(j, y, X)` of `C` (`1 ≤ j ≤ k`, `X ∈ 𝒟_j`, `y ∈ X`), the functional
+`Eτ(r) = β⁻¹ ℰ^{(j)}(y, X; r.1, r.2)` is analytic on the chart `Ξ^c(𝔹_j(X); C₀, ε₂)` of the
+expansion and bounded there by `β⁻¹ E₀ exp(-(κ_dec - 1) d_j(X))`, provided the chart lies in the
+field domain `Dom` of the class (hypothesis `hchart`, kept explicit). -/
 theorem classOldDecEnergy_chart {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
     (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀)
     (hcl : SFTermClauses P Dom C.Tm) {β : ℝ} (hβ : 0 < β) {κdec : ℝ} (hκ : κdec - 1 ≤ P.κ)
@@ -96,21 +132,9 @@ theorem classOldDecEnergy_chart {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 
     (∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j (scaledC0 d)
         (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
       ‖(β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2‖ ≤
-        (β⁻¹ * P.E₀) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X)) := by
-  have h := classOldEnergy_analytic_bound C hm hcl hβ hκ hE₀ (compWeight L a₁) ν (scaledC0 d)
-    (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) {(j, y, X)}
-    (by
-      intro τ hτ
-      rw [Finset.mem_singleton] at hτ
-      subst hτ
-      exact ⟨⟨hj1, hjk⟩, hX, hy⟩)
-    (by
-      intro τ hτ r hr
-      rw [Finset.mem_singleton] at hτ
-      subst hτ
-      exact hchart r hr)
-  exact ⟨h.1 (j, y, X) (Finset.mem_singleton_self _), fun r hr =>
-    (h.2 (j, y, X) (Finset.mem_singleton_self _) r hr)⟩
+        (β⁻¹ * P.E₀) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X)) :=
+  classOldDecEnergy_chart_radius C hm hcl hβ hκ hE₀ a₁ ν δ₃ eps δfl hj1 hjk hX hy hchart
+
 
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
   {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
