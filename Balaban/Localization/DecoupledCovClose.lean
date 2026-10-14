@@ -159,17 +159,36 @@ theorem gradOn_supp_le (W : Finset (CTorus d L N₁ m₁ (k + 1))) (T : ℝ) {ε
 /-- The gradient bound for `G*_{x,s}`, in terms of the source `g` itself. -/
 noncomputable def gradStarConstX (d : ℕ) : ℝ := 2 * (3 * 5 ^ d) * ((136 + 1024 * d) * (3 * 5 ^ d))
 
-theorem XData.gradOn_Gstarx_bound (D : XData G a aT ν x α κ s) {ε : ℝ}
+/-- The closeness constant of the gradient. -/
+noncomputable def gradCloseConstX (d : ℕ) : ℝ :=
+  (24 * gradStarConstX d + 32 + 512 * d) * (16 / 9)
+
+theorem gradStarConstX_nonneg (d : ℕ) : 0 ≤ gradStarConstX d := by
+  unfold gradStarConstX; positivity
+
+/-! ### The gradient closeness for the data `Dec2.XData` of a pair `(C, G)`
+
+The statements `XData.gradOn_Gstarx_bound`, `Gd_grad_le`, `XData.dg6_grad` below are their instances
+at `C = coverOf G` (`XData.toCover`, `Dec2.xCover_self`). -/
+
+namespace Dec2
+
+section GradCover
+
+variable {C : DecCover d L N₁ m₁ (k + 1)} {Cx : ℝ}
+
+/-- The gradient bound for `G*_{x,s}` of a pair `(C, G)`, in terms of the source `g` itself. -/
+theorem XData.gradOn_Gstarx_bound (D : XData C G a aT ν x α κ s Cx) {ε : ℝ}
     {r : CTorus d L N₁ m₁ (k + 1) → ℝ} (W : XWeight G ε r) (g : G.Ω 1 → ℂ) :
-    gradOn G ε r Finset.univ (Gstarx G a aT x ν α s *ᵥ g) ≤
+    gradOn G ε r Finset.univ (Gstarx C G a aT x ν α s *ᵥ g) ≤
       gradStarConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G ε r g := by
   have h1 := gradOn_Gstarx_le (ε := ε) (r := r) D g
   have h3 := sum_agmonSource_cD_le D.st ε r g
-  have h4 : ∑ q ∈ cubeIdx G, gradP G q ε r (cubeGx G a aT x ν α q *ᵥ g) ≤
+  have h4 : ∑ q ∈ C.cubeIdx, gradP C G q ε r (cubeGx G a aT x ν α q *ᵥ g) ≤
       (136 + 1024 * d) * ((3 * 5 ^ d : ℝ) * agmonSource G ε r g) := by
-    calc _ ≤ ∑ q ∈ cubeIdx G, (136 + 1024 * d) * agmonSource G ε r (cD G q *ᵥ g) :=
+    calc _ ≤ ∑ q ∈ C.cubeIdx, (136 + 1024 * d) * agmonSource G ε r (cD G q *ᵥ g) :=
           Finset.sum_le_sum fun q hq => D.gradP_cube_le W hq g
-      _ = (136 + 1024 * d) * ∑ q ∈ cubeIdx G, agmonSource G ε r (cD G q *ᵥ g) := by
+      _ = (136 + 1024 * d) * ∑ q ∈ C.cubeIdx, agmonSource G ε r (cD G q *ᵥ g) := by
           rw [Finset.mul_sum]
       _ ≤ _ := mul_le_mul_of_nonneg_left h3 (by positivity)
   have hE0 : 0 ≤ Real.exp (N0 d L * κ) ^ 2 := sq_nonneg _
@@ -179,20 +198,21 @@ theorem XData.gradOn_Gstarx_bound (D : XData G a aT ν x α κ s) {ε : ℝ}
         mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left h4 hE0) (by positivity)
     _ = _ := by unfold gradStarConstX; ring
 
-theorem Gd_grad_le (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x)
+/-- The weighted gradient of `H_{k,x}⁻¹ h` for the standing data `XCover` of a pair `(C, G)`. -/
+theorem Gd_grad_le (S : XCover C G a aT ν Cx) (hα : AdmPot G α) (hx : 0 ≤ x)
     {r : CTorus d L N₁ m₁ (k + 1) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) (h : G.Ω 1 → ℂ) :
     gradOn G ε r Finset.univ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) ≤
       (64 + 1024 * d) * agmonSource G ε r h := by
-  have hd : 0 < d := by have := S.dg.hd; omega
+  have hd : 0 < d := by have := S.hd; omega
   have hdet := (Matrix.isUnit_iff_isUnit_det _).1 (xDirichlet_isUnit S hα hx)
   have hu : cutXOperator G a aT x ν ∅ α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) = h := by
     rw [cutXOperator_empty, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet,
       Matrix.one_mulVec]
-  have hen := x_agmon_energy_cut G (cutAligned_empty G) hd S.dg.hL S.hk
-    S.dg.mass S.ha S.haT1 S.haT2 hx α (AdmPot.le_eighth S.dg hα) hr hε0 hε1 hu
+  have hen := x_agmon_energy_cut G (cutAligned_empty G) hd S.hL S.hk
+    S.mass S.ha S.haT1 S.haT2 hx α (AdmPot.le_eighth' S.hd hα) hr hε0 hε1 hu
   have hε12 : ε ≤ 1 / 2 := by
-    have := xAgmonRate_le_agmonRate (d := d) (L := L) hd (by have := S.dg.hL; omega)
+    have := xAgmonRate_le_agmonRate (d := d) (L := L) hd (by have := S.hL; omega)
     linarith [agmonRate_le hd]
   have hgr := gradOn_le G (cut := ∅) (Λ := Finset.univ) (fun y _ μ => by simp) hr hε0 hε12
     ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)
@@ -217,35 +237,29 @@ theorem Gd_grad_le (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x)
       _ = 1024 * d * agmonSource G ε r h := by ring
   nlinarith
 
-/-- The closeness constant of the gradient. -/
-noncomputable def gradCloseConstX (d : ℕ) : ℝ :=
-  (24 * gradStarConstX d + 32 + 512 * d) * (16 / 9)
-
-theorem gradStarConstX_nonneg (d : ℕ) : 0 ≤ gradStarConstX d := by
-  unfold gradStarConstX; positivity
-
-/-- **(DG6), closeness of the gradient.** The weighted gradient of `G_{k,x,s} f - H_{k,x}⁻¹ f`,
-with the weight `e^{ε r}`, `r` the truncated path distance to `W`, is bounded by the unweighted
-source: the companion of `XData.dg6` needed for the commutator `K_x(φ₀)`. -/
-theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+/-- **(DG6), closeness of the gradient, for a pair `(C, G)`.** The weighted gradient of
+`G_{k,x,s} f - H_{k,x}⁻¹ f`, with the weight `e^{ε r}`, `r` the truncated path distance to `W`,
+is bounded by the unweighted source: the companion of `XData.dg6` needed for the commutator
+`K_x(φ₀)`. -/
+theorem XData.dg6_grad (D : XData C G a aT ν x α κ s Cx) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hW : ∀ z ∈ C.cubeIdx, C.sProd s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) (f : G.Ω 1 → ℂ) :
     gradOn G ε (truncSetDistR G W T) Finset.univ
-        (Gsx G a aT x ν α s *ᵥ f - (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) ≤
+        (Gsx C G a aT x ν α s *ᵥ f - (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) ≤
       gradCloseConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G 0 (fun _ => 0) f := by
-  have hd : 0 < d := by have := D.st.dg.hd; omega
+  have hd : 0 < d := by have := D.st.hd; omega
   have hr := isAgmonWeight_truncSetDistR G W T
   have H0 : XWeight G 0 (fun _ => 0) :=
-    ⟨isAgmonWeight_zero G, le_rfl, (xAgmonRate_pos hd D.st.dg.hL).le⟩
+    ⟨isAgmonWeight_zero G, le_rfl, (xAgmonRate_pos hd D.st.hL).le⟩
   have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
-  have D1 : XData G a aT ν x α 0 (fun _ => 1) :=
-    ⟨D.st, D.pot, D.x0, le_rfl, by
+  have D1 : XData C G a aT ν x α 0 (fun _ => 1) Cx :=
+    ⟨D.st, D.Cx_nn, D.pot, D.x0, le_rfl, by
       simp only [mul_zero, Real.exp_zero, mul_one]
-      have := cstarX_pos d L
+      have := cstarX_pos d L D.Cx_nn
       nlinarith [D.big], fun P => by simp⟩
-  set g := (1 - Kcalx G a aT x ν α s)⁻¹ *ᵥ f with hg
-  set A := (Gstarx G a aT x ν α s - Gstarx G a aT x ν α (fun _ => 1)) *ᵥ g with hA
-  set h := (Kcalx G a aT x ν α s - Kcalx G a aT x ν α (fun _ => 1)) *ᵥ g with hh
+  set g := (1 - Kcalx C G a aT x ν α s)⁻¹ *ᵥ f with hg
+  set A := (Gstarx C G a aT x ν α s - Gstarx C G a aT x ν α (fun _ => 1)) *ᵥ g with hA
+  set h := (Kcalx C G a aT x ν α s - Kcalx C G a aT x ν α (fun _ => 1)) *ᵥ g with hh
   rw [Gsx_sub_Gd D.st D.pot D.x0 D.isUnit_one_sub f]
   have hsplit := gradOn_add_le (G := G) ε (truncSetDistR G W T) Finset.univ A
     ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h)
@@ -263,7 +277,7 @@ theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N
     rw [hA]
     simpa [Matrix.sub_mulVec, zeroExt_mem' _ z.2] using this
   have hε12 : ε ≤ 1 / 2 := by
-    have := xAgmonRate_le_agmonRate (d := d) (L := L) hd (by have := D.st.dg.hL; omega)
+    have := xAgmonRate_le_agmonRate (d := d) (L := L) hd (by have := D.st.hL; omega)
     linarith [agmonRate_le hd]
   have hexp : Real.exp (2 * ε) ≤ 3 := by
     calc Real.exp (2 * ε) ≤ Real.exp 1 := Real.exp_le_exp.2 (by linarith)
@@ -273,8 +287,8 @@ theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N
         2 * (gradStarConstX d * Real.exp (N0 d L * 0) ^ 2 * agmonSource G 0 (fun _ => 0) g)) := by
     have h1 := gradOn_supp_le W T hε0 A hAsupp
     have h2 : gradOn G 0 (fun _ => 0) Finset.univ A ≤
-        2 * gradOn G 0 (fun _ => 0) Finset.univ (Gstarx G a aT x ν α s *ᵥ g) +
-        2 * gradOn G 0 (fun _ => 0) Finset.univ (Gstarx G a aT x ν α (fun _ => 1) *ᵥ g) := by
+        2 * gradOn G 0 (fun _ => 0) Finset.univ (Gstarx C G a aT x ν α s *ᵥ g) +
+        2 * gradOn G 0 (fun _ => 0) Finset.univ (Gstarx C G a aT x ν α (fun _ => 1) *ᵥ g) := by
       rw [hA, Matrix.sub_mulVec]; exact gradOn_sub_le _ _ _ _ _
     have h3 := D.gradOn_Gstarx_bound H0 g
     have h4 := D1.gradOn_Gstarx_bound H0 g
@@ -296,8 +310,8 @@ theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N
     · rw [truncSetDistR_of_mem G T (hh_supp z hz) z.2]; simp
   have hhK : agmonSource G 0 (fun _ => 0) h ≤ (1 / 4) * agmonSource G 0 (fun _ => 0) g := by
     rw [hh, Matrix.sub_mulVec]
-    have := agmonSource_sub_le G 0 (fun _ => 0) (Kcalx G a aT x ν α s *ᵥ g)
-      (Kcalx G a aT x ν α (fun _ => 1) *ᵥ g)
+    have := agmonSource_sub_le G 0 (fun _ => 0) (Kcalx C G a aT x ν α s *ᵥ g)
+      (Kcalx C G a aT x ν α (fun _ => 1) *ᵥ g)
     have h1 := D.dg1 H0 g
     have h2 := D1.dg1 H0 g
     linarith
@@ -332,6 +346,34 @@ theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N
         positivity
     _ = _ := by unfold gradCloseConstX; ring
 
+end GradCover
+
+end Dec2
+
+theorem XData.gradOn_Gstarx_bound (D : XData G a aT ν x α κ s) {ε : ℝ}
+    {r : CTorus d L N₁ m₁ (k + 1) → ℝ} (W : XWeight G ε r) (g : G.Ω 1 → ℂ) :
+    gradOn G ε r Finset.univ (Gstarx G a aT x ν α s *ᵥ g) ≤
+      gradStarConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G ε r g :=
+  D.toCover.gradOn_Gstarx_bound W g
+
+theorem Gd_grad_le (S : XSetting G a aT ν) (hα : AdmPot G α) (hx : 0 ≤ x)
+    {r : CTorus d L N₁ m₁ (k + 1) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (h : G.Ω 1 → ℂ) :
+    gradOn G ε r Finset.univ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ h) ≤
+      (64 + 1024 * d) * agmonSource G ε r h :=
+  Dec2.Gd_grad_le (Dec2.xCover_self S) hα hx hr hε0 hε1 h
+
+/-- **(DG6), closeness of the gradient.** The weighted gradient of `G_{k,x,s} f - H_{k,x}⁻¹ f`,
+with the weight `e^{ε r}`, `r` the truncated path distance to `W`, is bounded by the unweighted
+source: the companion of `XData.dg6` needed for the commutator `K_x(φ₀)`. -/
+theorem XData.dg6_grad (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (f : G.Ω 1 → ℂ) :
+    gradOn G ε (truncSetDistR G W T) Finset.univ
+        (Gsx G a aT x ν α s *ᵥ f - (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) ≤
+      gradCloseConstX d * Real.exp (N0 d L * κ) ^ 2 * agmonSource G 0 (fun _ => 0) f :=
+  D.toCover.dg6_grad hW T hε0 hε1 f
+
 end GradClose
 
 section DeltaVec
@@ -356,7 +398,9 @@ theorem comp_deltaOp (g : G.Ω 1 × Fin N → ℂ) (i : Fin N) :
         comp G (liftOp N (xDirichletOperator G a aT x ν α)⁻¹ *ᵥ g) i := rfl
   rw [this, comp_liftOp', comp_liftOp']
 
-theorem vecM_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+/-- `vecM_deltaOp` for the data `Dec2.XData` of the pair `(coverOf G, G)`. -/
+theorem vecM_deltaOp_cover {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+    {W : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) (g : G.Ω 1 × Fin N → ℂ) :
     vecM G ε (truncSetDistR G W T) (deltaOp G a aT x ν α s *ᵥ g) ≤
@@ -366,7 +410,9 @@ theorem vecM_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N�
   rw [comp_deltaOp]
   exact D.dg6 hW T hε0 hε1 _
 
-theorem vecGrad_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+/-- `vecGrad_deltaOp` for the data `Dec2.XData` of the pair `(coverOf G, G)`. -/
+theorem vecGrad_deltaOp_cover {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+    {W : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) (g : G.Ω 1 × Fin N → ℂ) :
     vecGradOn G ε (truncSetDistR G W T) Finset.univ (deltaOp G a aT x ν α s *ᵥ g) ≤
@@ -375,6 +421,20 @@ theorem vecGrad_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L 
   refine Finset.sum_le_sum fun i _ => ?_
   rw [comp_deltaOp]
   exact D.dg6_grad hW T hε0 hε1 _
+
+theorem vecM_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (g : G.Ω 1 × Fin N → ℂ) :
+    vecM G ε (truncSetDistR G W T) (deltaOp G a aT x ν α s *ᵥ g) ≤
+      closeConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G 0 (fun _ => 0) g :=
+  vecM_deltaOp_cover D.toCover hW T hε0 hε1 g
+
+theorem vecGrad_deltaOp (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (g : G.Ω 1 × Fin N → ℂ) :
+    vecGradOn G ε (truncSetDistR G W T) Finset.univ (deltaOp G a aT x ν α s *ᵥ g) ≤
+      gradCloseConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G 0 (fun _ => 0) g :=
+  vecGrad_deltaOp_cover D.toCover hW T hε0 hε1 g
 
 end DeltaVec
 
@@ -474,25 +534,26 @@ theorem vecM_add_le (ε : ℝ) (r : CTorus d L N₁ m₁ (k + 1) → ℝ) (u v :
   rw [h2] at this
   exact this
 
-section PsiBounds
+section PsiBoundsCover
 
-variable (D : XData G a aT ν x α κ s) {ε : ℝ} {r : CTorus d L N₁ m₁ (k + 1) → ℝ}
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx) {ε : ℝ}
+  {r : CTorus d L N₁ m₁ (k + 1) → ℝ}
   (W : XWeight G ε r) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
   (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
 include D W hφ hδ hsm
 
-theorem vecSrc_Psi_le (f : G.Ω 1 × Fin N → ℂ) :
+theorem vecSrc_Psi_le_cover (f : G.Ω 1 × Fin N → ℂ) :
     vecSrc G ε r ((fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ *
       decN G a aT x ν α s φ) *ᵥ f) ≤ 45 * vecSrc G ε r f := by
   rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec]
   have h1 := vecSrc_fieldMul_le (ε := ε) (r := r) hφ
     ((decM G a aT x ν α s φ)⁻¹ *ᵥ (decN G a aT x ν α s φ *ᵥ f))
-  have h2 := decM_inv_le D W hφ hδ hsm (decN G a aT x ν α s φ *ᵥ f)
-  have h3 := decN_src_le D W hφ hδ hsm f
+  have h2 := decM_inv_le_cover D W hφ hδ hsm (decN G a aT x ν α s φ *ᵥ f)
+  have h3 := decN_src_le_cover D W hφ hδ hsm f
   have h4 := vecSrc_nonneg G ε r f
   linarith
 
-theorem vecSrc_one_sub_Psi_le (f : G.Ω 1 × Fin N → ℂ) :
+theorem vecSrc_one_sub_Psi_le_cover (f : G.Ω 1 × Fin N → ℂ) :
     vecSrc G ε r ((1 - fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ *
       decN G a aT x ν α s φ) *ᵥ f) ≤ 92 * vecSrc G ε r f := by
   have e : (1 - fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ *
@@ -502,8 +563,27 @@ theorem vecSrc_one_sub_Psi_le (f : G.Ω 1 × Fin N → ℂ) :
   rw [e]
   have h1 := vecSrc_sub_le ε r f ((fieldMul (restrictField G φ) *
     (decM G a aT x ν α s φ)⁻¹ * decN G a aT x ν α s φ) *ᵥ f)
-  have h2 := vecSrc_Psi_le D W hφ hδ hsm f
+  have h2 := vecSrc_Psi_le_cover D W hφ hδ hsm f
   linarith
+
+end PsiBoundsCover
+
+section PsiBounds
+
+variable (D : XData G a aT ν x α κ s) {ε : ℝ} {r : CTorus d L N₁ m₁ (k + 1) → ℝ}
+  (W : XWeight G ε r) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+include D W hφ hδ hsm
+
+theorem vecSrc_Psi_le (f : G.Ω 1 × Fin N → ℂ) :
+    vecSrc G ε r ((fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ *
+      decN G a aT x ν α s φ) *ᵥ f) ≤ 45 * vecSrc G ε r f :=
+  vecSrc_Psi_le_cover D.toCover W hφ hδ hsm f
+
+theorem vecSrc_one_sub_Psi_le (f : G.Ω 1 × Fin N → ℂ) :
+    vecSrc G ε r ((1 - fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ *
+      decN G a aT x ν α s φ) *ᵥ f) ≤ 92 * vecSrc G ε r f :=
+  vecSrc_one_sub_Psi_le_cover D.toCover W hφ hδ hsm f
 
 end PsiBounds
 
@@ -536,18 +616,20 @@ theorem delta_sq_le_eighth (d L : ℕ) {κ δ : ℝ} (hsm : δ ^ 2 * smallConstX
     linarith
   nlinarith [sq_nonneg δ]
 
-section ZMain
+section ZMainCover
 
-variable (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  {W : Finset (CTorus d L N₁ m₁ (k + 1))}
   (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
   (hε1 : ε ≤ xAgmonRate d L) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
   (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
 include D hW hε0 hε1 hφ hδ hsm
 
-/-- **Closeness of `Z_{x,s} = Ĝ_{k,x,s} - Π_{x,s}` to `Z_{x,1}`** in the weighted block norm:
+/-- **Closeness of `Z_{x,s} = Ĝ_{k,x,s} - Π_{x,s}` to `Z_{x,1}`** for the data `Dec2.XData` of the
+pair `(coverOf G, G)` in the weighted block norm:
 `‖ℓ⁻¹ e^{ε r} (Z_s - Z_1) f‖² ≤ B e^{2 N₀ κ} ‖ℓ f‖²` with the unweighted source, `r` the truncated
 path distance to the set `W` containing the cubes with `s_z ≠ 1`. -/
-theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
+theorem vecM_decZ_sub_le_cover (f : G.Ω 1 × Fin N → ℂ) :
     vecM G ε (truncSetDistR G W T)
         ((decZ G a aT x ν α s φ - decZ G a aT x ν α (fun _ => 1) φ) *ᵥ f) ≤
       zCloseConst d L * Real.exp (N0 d L * κ) ^ 2 * vecSrc G 0 (fun _ => 0) f := by
@@ -558,17 +640,18 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
   have H0 : XWeight G 0 (fun _ => 0) := D.weight_zero
   have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
   have hE2 : 1 ≤ Real.exp (N0 d L * κ) ^ 2 := one_le_pow₀ hE1
-  have D1 : XData G a aT ν x α 0 (fun _ => 1) :=
-    ⟨D.st, D.pot, D.x0, le_rfl, by
+  have D1 : Dec2.XData (coverOf G) G a aT ν x α 0 (fun _ => 1) Cx :=
+    ⟨D.st, D.Cx_nn, D.pot, D.x0, le_rfl, by
       simp only [mul_zero, Real.exp_zero, mul_one]
-      have := cstarX_pos d L
+      have := Dec2.cstarX_pos d L D.Cx_nn
       nlinarith [D.big], fun P => by simp⟩
   have hsm1 : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4 :=
     le_trans (mul_le_mul_of_nonneg_left (smallConstX_mono d L D.κ0) (sq_nonneg δ)) hsm
-  have hMs := decM_isUnit D hφ hδ hsm
-  have hM1 := decM_isUnit D1 hφ hδ hsm1
-  have hGsone : Gsx G a aT x ν α (fun _ => 1) = (xDirichletOperator G a aT x ν α)⁻¹ :=
-    Gsx_one D.st D.pot D.x0 D1.isUnit_one_sub
+  have hMs := decM_isUnit_cover D hφ hδ hsm
+  have hM1 := decM_isUnit_cover D1 hφ hδ hsm1
+  have hGsone : Gsx G a aT x ν α (fun _ => 1) = (xDirichletOperator G a aT x ν α)⁻¹ := by
+    have h := Dec2.Gsx_one D.st D.pot D.x0 D1.isUnit_one_sub
+    exact h
   have hΔ : liftOp N (Gsx G a aT x ν α s) - liftOp N (Gsx G a aT x ν α (fun _ => 1)) =
       deltaOp G a aT x ν α s := by
     unfold deltaOp; rw [hGsone]
@@ -579,9 +662,9 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
   have hS0 : 0 ≤ S := vecSrc_nonneg G 0 _ f
   set E := Real.exp (N0 d L * κ) ^ 2 with hEdef
   -- the first term
-  have hP1 := vecSrc_one_sub_Psi_le D H0 hφ hδ hsm f
-  have hP1' := vecSrc_one_sub_Psi_le D1 H0 hφ hδ hsm1 f
-  have hA := vecM_deltaOp D hW T hε0 hε1
+  have hP1 := vecSrc_one_sub_Psi_le_cover D H0 hφ hδ hsm f
+  have hP1' := vecSrc_one_sub_Psi_le_cover D1 H0 hφ hδ hsm1 f
+  have hA := vecM_deltaOp_cover D hW T hε0 hε1
     ((1 - fieldMul (restrictField G φ) * (decM G a aT x ν α s φ)⁻¹ * decN G a aT x ν α s φ) *ᵥ f)
   have hcc := closeConstX_nonneg d
   have hgc := gradCloseConstX_nonneg d
@@ -599,8 +682,8 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
   set w2 := (1 - fieldMul (restrictField G φ) * (decM G a aT x ν α (fun _ => 1) φ)⁻¹ *
     decN G a aT x ν α (fun _ => 1) φ) *ᵥ f with hw2
   set u2 := deltaOp G a aT x ν α s *ᵥ w2 with hu2
-  have hM2 := vecM_deltaOp D hW T hε0 hε1 w2
-  have hG2 := vecGrad_deltaOp D hW T hε0 hε1 w2
+  have hM2 := vecM_deltaOp_cover D hW T hε0 hε1 w2
+  have hG2 := vecGrad_deltaOp_cover D hW T hε0 hε1 w2
   have hw2S : vecSrc G 0 (fun _ => 0) w2 ≤ 92 * S := hP1'
   have hM2' : vecM G ε r u2 ≤ (closeConstX d * 92) * E * S := by
     refine hM2.trans ?_
@@ -612,9 +695,9 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
     calc gradCloseConstX d * E * vecSrc G 0 (fun _ => 0) w2 ≤ gradCloseConstX d * E * (92 * S) := by
           gcongr
       _ = _ := by ring
-  have hhd : 0 < d := by have := D.st.dg.hd; omega
+  have hhd : 0 < d := by have := D.st.hd; omega
   have hε2 : ε ≤ agmonRate d :=
-    hε1.trans (xAgmonRate_le_agmonRate hhd (by have := D.st.dg.hL; omega))
+    hε1.trans (xAgmonRate_le_agmonRate hhd (by have := D.st.hL; omega))
   have hK := agmonSource_commKx_le (ν := ν) G hhd D.st.hk D.st.ha D.st.haT1 D.x0 α hφ.toIsSmoothField hδ
     hr hε0 hε2 u2 Finset.univ (fun y hy => absurd (Finset.mem_univ _) hy)
   have hδ8 := delta_sq_le_eighth d L hsm
@@ -634,9 +717,10 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
           gcongr
       _ ≤ _ := by gcongr
   set Ku := commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ u2 with hKu
-  have hv := decM_inv_le D WW hφ hδ hsm Ku
+  have hv := decM_inv_le_cover D WW hφ hδ hsm Ku
   have hFv := vecSrc_fieldMul_le (ε := ε) (r := r) hφ ((decM G a aT x ν α s φ)⁻¹ *ᵥ Ku)
-  have hG1b := Gsx_vec_bounds D1 WW (fieldMul (restrictField G φ) *ᵥ ((decM G a aT x ν α s φ)⁻¹ *ᵥ Ku))
+  have hG1b := Gsx_vec_bounds_cover D1 WW
+    (fieldMul (restrictField G φ) *ᵥ ((decM G a aT x ν α s φ)⁻¹ *ᵥ Ku))
   have hB : vecM G ε r (liftOp N (Gsx G a aT x ν α (fun _ => 1)) *ᵥ
       (fieldMul (restrictField G φ) *ᵥ ((decM G a aT x ν α s φ)⁻¹ *ᵥ Ku))) ≤
       valConstX d * (9 * (commXConst d L * (1 / 8) *
@@ -669,6 +753,25 @@ theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
     unfold zCloseConst; ring
   rw [hz]
   linarith
+
+end ZMainCover
+
+section ZMain
+
+variable (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+  (hε1 : ε ≤ xAgmonRate d L) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+include D hW hε0 hε1 hφ hδ hsm
+
+/-- **Closeness of `Z_{x,s} = Ĝ_{k,x,s} - Π_{x,s}` to `Z_{x,1}`** in the weighted block norm:
+`‖ℓ⁻¹ e^{ε r} (Z_s - Z_1) f‖² ≤ B e^{2 N₀ κ} ‖ℓ f‖²` with the unweighted source, `r` the truncated
+path distance to the set `W` containing the cubes with `s_z ≠ 1`. -/
+theorem vecM_decZ_sub_le (f : G.Ω 1 × Fin N → ℂ) :
+    vecM G ε (truncSetDistR G W T)
+        ((decZ G a aT x ν α s φ - decZ G a aT x ν α (fun _ => 1) φ) *ᵥ f) ≤
+      zCloseConst d L * Real.exp (N0 d L * κ) ^ 2 * vecSrc G 0 (fun _ => 0) f :=
+  vecM_decZ_sub_le_cover D.toCover hW T hε0 hε1 hφ hδ hsm f
 
 end ZMain
 

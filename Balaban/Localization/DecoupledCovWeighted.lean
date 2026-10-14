@@ -290,9 +290,10 @@ theorem decCov_sub_decCov_eq :
 
 end DecCovW
 
-section DecCovW2
+section DecCovW2Cover
 
-variable (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  {W : Finset (CTorus d L N₁ m₁ (k + 1))}
   (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
   (hε1 : ε ≤ xAgmonRate d L) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
   (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hU : IsUnitLattice G Q P)
@@ -302,9 +303,10 @@ variable (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 
   (hρP : ∀ b b', P b b' ≠ 0 → ρ b ≤ ρ b' + c₀)
 include D hW hε0 hε1 hφ hδ hsm hU hQn hPn hc₀ hρQ hρP
 
-/-- **Weighted closeness of the covariance**:
+/-- **Weighted closeness of the covariance** for the data `Dec2.XData` of the pair
+`(coverOf G, G)`:
 `∑ e^{2ε ρ} |(C_x(s) - C_x(1)) h|² ≤ B (a_k + x)⁻⁴ ‖h‖²`. -/
-theorem sum_w_decCov_sub_le (h : κι × Fin N → ℂ) :
+theorem sum_w_decCov_sub_le_cover (h : κι × Fin N → ℂ) :
     ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
         ‖((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
       covCloseSq d L (a k) κ ε c₀ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h := by
@@ -347,7 +349,7 @@ theorem sum_w_decCov_sub_le (h : κι × Fin N → ℂ) :
     rw [hw, liftRect_transpose]; exact sqNorm_liftRect_le hU.contrT z
   have s3 : vecSrc G 0 (fun _ => 0) w ≤ Λ ^ 2 * Green.sqNorm w := vecSrc0_le_of_supp w hw_supp
   set u := Zd *ᵥ w with hu
-  have s4 := vecM_decZ_sub_le D hW T hε0 hε1 hφ hδ hsm w
+  have s4 := vecM_decZ_sub_le_cover D hW T hε0 hε1 hφ hδ hsm w
   set v := liftRect N Q *ᵥ u with hv
   have s5 : ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 * ‖v p‖ ^ 2 ≤
       Λ ^ 2 * vecM G ε r u := sum_wQ_vec_le hU hQn hρQ hε0 u
@@ -400,6 +402,28 @@ theorem sum_w_decCov_sub_le (h : κι × Fin N → ℂ) :
         rw [← hcs2]
         ring
 
+end DecCovW2Cover
+
+section DecCovW2
+
+variable (D : XData G a aT ν x α κ s) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+  (hε1 : ε ≤ xAgmonRate d L) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hU : IsUnitLattice G Q P)
+  (hQn : ∀ b y, Q b y = ((‖Q b y‖ : ℝ) : ℂ)) (hPn : ∀ b b', P b b' = ((‖P b b'‖ : ℝ) : ℂ))
+  {ρ : κι → ℝ} {c₀ : ℝ} (hc₀ : 0 ≤ c₀)
+  (hρQ : ∀ b (y : G.Ω 1), Q b y ≠ 0 → ρ b ≤ truncSetDistR G W T y)
+  (hρP : ∀ b b', P b b' ≠ 0 → ρ b ≤ ρ b' + c₀)
+include D hW hε0 hε1 hφ hδ hsm hU hQn hPn hc₀ hρQ hρP
+
+/-- **Weighted closeness of the covariance**:
+`∑ e^{2ε ρ} |(C_x(s) - C_x(1)) h|² ≤ B (a_k + x)⁻⁴ ‖h‖²`. -/
+theorem sum_w_decCov_sub_le (h : κι × Fin N → ℂ) :
+    ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
+        ‖((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
+      covCloseSq d L (a k) κ ε c₀ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h :=
+  sum_w_decCov_sub_le_cover D.toCover hW T hε0 hε1 hφ hδ hsm hU hQn hPn hc₀ hρQ hρP h
+
 end DecCovW2
 
 section IntW
@@ -449,8 +473,14 @@ noncomputable def covWSqrt (d L : ℕ) (ak κ ε c₀ : ℝ) : ℝ :=
 noncomputable def covWLog (d L : ℕ) (ak κ ε c₀ : ℝ) : ℝ :=
   Real.sqrt (covCloseSq d L ak κ ε c₀) / ak
 
-variable (H : CovStanding G a aT ν α κ s δ φ Q P)
-  (H1 : CovStanding G a aT ν α 0 (fun _ => 1) δ φ Q P)
+/-! ### The `x`-integral for the data `Dec2.XData` of the pair `(coverOf G, G)` -/
+
+section SqrtCover
+
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hfam1 : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α 0 (fun _ => 1) Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hsm1 : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4) (hU : IsUnitLattice G Q P)
   {W : Finset (CTorus d L N₁ m₁ (k + 1))}
   (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
   (hε1 : ε ≤ xAgmonRate d L)
@@ -458,21 +488,15 @@ variable (H : CovStanding G a aT ν α κ s δ φ Q P)
   {ρ : κι → ℝ} {c₀ : ℝ} (hc₀ : 0 ≤ c₀)
   (hρQ : ∀ b (y : G.Ω 1), Q b y ≠ 0 → ρ b ≤ truncSetDistR G W T y)
   (hρP : ∀ b b', P b b' ≠ 0 → ρ b ≤ ρ b' + c₀)
-include H H1 hW hε0 hε1 hQn hPn hc₀ hρQ hρP
+include hfam hfam1 hφ hδ hsm hsm1 hU hW hε0 hε1 hQn hPn hc₀ hρQ hρP
 
-omit H1 in
-theorem sum_w_decCov_sub_le' {x : ℝ} (hx : 0 ≤ x) (h : κι × Fin N → ℂ) :
-    ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
-        ‖((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
-      covCloseSq d L (a k) κ ε c₀ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h :=
-  sum_w_decCov_sub_le (H.fam x hx) hW T hε0 hε1 H.field H.nonneg H.small H.unit hQn hPn hc₀ hρQ hρP h
-
-theorem sum_w_sqrt_sub_le (h : κι × Fin N → ℂ) :
+/-- **Weighted closeness of `C^{1/2}`** for the data `Dec2.XData` of the pair `(coverOf G, G)`. -/
+theorem sum_w_sqrt_sub_le_cover (h : κι × Fin N → ℂ) :
     ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
         ‖((decCovSqrt G a aT ν α s φ Q P - decCovSqrt G a aT ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
       (covWSqrt d L (a k) κ ε c₀) ^ 2 * Green.sqNorm h := by
   classical
-  have hak := H.hak
+  have hak := aux_hak_cover hfam
   have hcc := covCloseSq_nonneg d L (a k) κ ε c₀
   set μ := volume.restrict (Ioi (0 : ℝ)) with hμ
   set w : κι × Fin N → ℝ := fun p => Real.exp (ε * ρ p.1) with hw
@@ -485,11 +509,13 @@ theorem sum_w_sqrt_sub_le (h : κι × Fin N → ℂ) :
   have hint : ∀ p q, Integrable (fun x => F x p q) μ := by
     intro p q
     rw [hFeq]
-    exact (integrable_decSqrtInt H p q).sub (integrable_decSqrtInt H1 p q)
+    exact (integrable_decSqrtInt_cover hfam hφ hδ hsm hU p q).sub
+      (integrable_decSqrtInt_cover hfam1 hφ hδ hsm1 hU p q)
   have hdiff : decCovSqrt G a aT ν α s φ Q P - decCovSqrt G a aT ν α (fun _ => 1) φ Q P =
       ((1 / Real.pi : ℝ) : ℂ) • intMat μ F := by
     unfold decCovSqrt
-    rw [← smul_sub, hFeq, intMat_sub' (integrable_decSqrtInt H) (integrable_decSqrtInt H1)]
+    rw [← smul_sub, hFeq, intMat_sub' (integrable_decSqrtInt_cover hfam hφ hδ hsm hU)
+      (integrable_decSqrtInt_cover hfam1 hφ hδ hsm1 hU)]
   set g : ℝ → ℝ := fun x => Real.sqrt (covCloseSq d L (a k) κ ε c₀) *
     (x ^ (-(1 / 2 : ℝ)) * ((a k + x)⁻¹) ^ 2) with hg
   have hgi : Integrable g μ := (integrableOn_rpow_inv_add_sq hak).const_mul _
@@ -502,7 +528,8 @@ theorem sum_w_sqrt_sub_le (h : κι × Fin N → ℂ) :
     refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx f => ?_)
     have hx0 : 0 < x := mem_Ioi.mp hx
     have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hx0 _
-    have hpt := sum_w_decCov_sub_le' H hW T hε0 hε1 hQn hPn hc₀ hρQ hρP hx0.le f
+    have hpt := sum_w_decCov_sub_le_cover (hfam x hx0.le) hW T hε0 hε1 hφ hδ hsm hU hQn hPn hc₀
+      hρQ hρP f
     have e : Matrix.diagonal (fun p => (w p : ℂ)) *ᵥ (F x *ᵥ f) =
         ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) • (Matrix.diagonal (fun p => (w p : ℂ)) *ᵥ
           ((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ f)) := by
@@ -566,6 +593,33 @@ theorem sum_w_sqrt_sub_le (h : κι × Fin N → ℂ) :
               unfold covWSqrt
               have : Real.sqrt (a k) ≠ 0 := (Real.sqrt_pos.2 hak).ne'
               field_simp
+
+end SqrtCover
+
+variable (H : CovStanding G a aT ν α κ s δ φ Q P)
+  (H1 : CovStanding G a aT ν α 0 (fun _ => 1) δ φ Q P)
+  {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) (T : ℝ) {ε : ℝ} (hε0 : 0 ≤ ε)
+  (hε1 : ε ≤ xAgmonRate d L)
+  (hQn : ∀ b y, Q b y = ((‖Q b y‖ : ℝ) : ℂ)) (hPn : ∀ b b', P b b' = ((‖P b b'‖ : ℝ) : ℂ))
+  {ρ : κι → ℝ} {c₀ : ℝ} (hc₀ : 0 ≤ c₀)
+  (hρQ : ∀ b (y : G.Ω 1), Q b y ≠ 0 → ρ b ≤ truncSetDistR G W T y)
+  (hρP : ∀ b b', P b b' ≠ 0 → ρ b ≤ ρ b' + c₀)
+include H H1 hW hε0 hε1 hQn hPn hc₀ hρQ hρP
+
+omit H1 in
+theorem sum_w_decCov_sub_le' {x : ℝ} (hx : 0 ≤ x) (h : κι × Fin N → ℂ) :
+    ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
+        ‖((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
+      covCloseSq d L (a k) κ ε c₀ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h :=
+  sum_w_decCov_sub_le (H.fam x hx) hW T hε0 hε1 H.field H.nonneg H.small H.unit hQn hPn hc₀ hρQ hρP h
+
+theorem sum_w_sqrt_sub_le (h : κι × Fin N → ℂ) :
+    ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
+        ‖((decCovSqrt G a aT ν α s φ Q P - decCovSqrt G a aT ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
+      (covWSqrt d L (a k) κ ε c₀) ^ 2 * Green.sqNorm h :=
+  sum_w_sqrt_sub_le_cover (fun x hx => (H.fam x hx).toCover) (fun x hx => (H1.fam x hx).toCover)
+    H.field H.nonneg H.small H1.small H.unit hW T hε0 hε1 hQn hPn hc₀ hρQ hρP h
 
 theorem sum_w_log_sub_le (h : κι × Fin N → ℂ) :
     ∑ p : κι × Fin N, Real.exp (ε * ρ p.1) ^ 2 *
@@ -688,6 +742,16 @@ theorem XData.toOne {a : ℕ → ℝ} {aT ν x : ℝ} {α : G.Ω 1 → ℂ} {κ 
     have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
     nlinarith [D.big], fun P => by simp⟩
 
+/-- The data of (DG7) of a pair `(C, G)` at `s` give those at `s ≡ 1`, `κ = 0`. -/
+theorem Dec2.XData.toOne {C : DecCover d L N₁ m₁ (k + 1)} {Cx : ℝ} {a : ℕ → ℝ} {aT ν x : ℝ}
+    {α : G.Ω 1 → ℂ} {κ : ℝ} {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    (D : Dec2.XData C G a aT ν x α κ s Cx) : Dec2.XData C G a aT ν x α 0 (fun _ => 1) Cx :=
+  ⟨D.st, D.Cx_nn, D.pot, D.x0, le_rfl, by
+    simp only [mul_zero, Real.exp_zero, mul_one]
+    have := Dec2.cstarX_pos d L D.Cx_nn
+    have hE1 : 1 ≤ Real.exp (N0 d L * κ) := Real.one_le_exp (by have := D.κ0; positivity)
+    nlinarith [D.big], fun P => by simp⟩
+
 theorem unitRho_ge {W : Finset (CTorus d L N₁ m₁ (k + 1))} {D : ℝ} (hD : 0 ≤ D)
     {b : UnitTorus d L N₁ m₁ k}
     (hb : ∀ y, unitBlock y = b → ENNReal.ofReal D ≤ siteSetDist G W y) :
@@ -739,6 +803,57 @@ theorem entry_le_of_sum_w {ι : Type*} [Fintype ι] [DecidableEq ι] (M : Matrix
   have h5 : (w p * ‖M p q‖) ^ 2 ≤ B ^ 2 := by rw [mul_pow]; exact h4.trans h1
   exact (abs_le_of_sq_le_sq' h5 hB).2
 
+section FinalCover
+
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) {W : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W) {D : ℝ} (hD : 0 ≤ D)
+  {b b' : unitPts G}
+  (hb : ∀ y, unitBlock y = b.1 → ENNReal.ofReal D ≤ siteSetDist G W y) (i i' : Fin N)
+include hfam hφ hδ hsm hW hD hb
+
+/-- **Theorem I-4c (vi), closeness of `C^{1/2}`, for the data `Dec2.XData` of the pair
+`(coverOf G, G)`** (no `DGSetting`): if every cube with `s_z ≠ 1` has its interaction cube inside
+`W` and the block of the unit point `b` is at distance `≥ D` from `W` in the scaled path metric,
+then every matrix element of `C^{1/2}(s) - C^{1/2}(1)` at `b` is at most `B e^{-γ_w D}`,
+`γ_w = xAgmonRate d L`, `B = covWSqrt …`. -/
+theorem I4c_close_sqrt_entry_cover :
+    ‖(decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
+        decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ ≤
+      covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) * Real.exp (-(xAgmonRate d L * D)) := by
+  have hU := (isUnitLatticeB_unit G).toIsUnitLattice
+  have D0 := hfam 0 le_rfl
+  have hsm1 : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4 :=
+    le_trans (mul_le_mul_of_nonneg_left (smallConstX_mono d L D0.κ0) (sq_nonneg δ)) hsm
+  have hε0 : 0 ≤ xAgmonRate d L := (xAgmonRate_pos (by have := D0.st.hd; omega) D0.st.hL).le
+  have hε1 : xAgmonRate d L ≤ xAgmonRate d L := le_rfl
+  have hc₀ : (0 : ℝ) ≤ 2 * d := by positivity
+  have hsum := sum_w_sqrt_sub_le_cover hfam (fun x hx => (hfam x hx).toOne) hφ hδ hsm hsm1 hU hW D
+    hε0 hε1 (fun b y => unitQ_nonneg_real b y) (fun b b' => unitP_nonneg_real b b') hc₀
+    (ρ := fun b : unitPts G => unitRho (truncSetDistR G W D) b.1)
+    (fun b y h => unitRho_Q_compat W D b y h) (fun b b' h => unitRho_P_compat W D b b' h)
+  have hB : 0 ≤ covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) := by
+    unfold covWSqrt; have := covCloseSq_nonneg d L (a k) κ (xAgmonRate d L) (2 * d)
+    have := aux_hak_cover hfam; positivity
+  have hent := entry_le_of_sum_w (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
+      decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G))
+    (fun p : unitPts G × Fin N => Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) p.1.1))
+    hB hsum (b, i) (b', i')
+  have hρ := unitRho_ge hD hb
+  have hexp : Real.exp (xAgmonRate d L * D) ≤
+      Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) b.1) :=
+    Real.exp_le_exp.2 (mul_le_mul_of_nonneg_left hρ hε0)
+  have hpos : 0 < Real.exp (xAgmonRate d L * D) := Real.exp_pos _
+  rw [Real.exp_neg, ← div_eq_mul_inv, le_div_iff₀ hpos]
+  calc _ ≤ ‖(decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
+        decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ *
+        Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) b.1) :=
+        mul_le_mul_of_nonneg_left hexp (norm_nonneg _)
+    _ ≤ _ := by rw [mul_comm]; exact hent
+
+end FinalCover
+
 section FinalThms
 
 theorem standing_pair (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s) (hφ : IsConstraintField G δ φ)
@@ -770,33 +885,8 @@ metric, then every matrix element of `C^{1/2}(s) - C^{1/2}(1)` at `b` is at most
 theorem I4c_close_sqrt_entry :
     ‖(decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
         decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ ≤
-      covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) * Real.exp (-(xAgmonRate d L * D)) := by
-  obtain ⟨H, H1⟩ := standing_pair hfam hφ hδ hsm
-  have hε0 := xAgmonRate_nonneg_of_fam hfam
-  have hε1 : xAgmonRate d L ≤ xAgmonRate d L := le_rfl
-  have hc₀ : (0 : ℝ) ≤ 2 * d := by positivity
-  have hsum := sum_w_sqrt_sub_le H H1 hW D hε0 hε1 (fun b y => unitQ_nonneg_real b y)
-    (fun b b' => unitP_nonneg_real b b') hc₀
-    (ρ := fun b : unitPts G => unitRho (truncSetDistR G W D) b.1)
-    (fun b y h => unitRho_Q_compat W D b y h) (fun b b' h => unitRho_P_compat W D b b' h)
-  have hB : 0 ≤ covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) := by
-    unfold covWSqrt; have := covCloseSq_nonneg d L (a k) κ (xAgmonRate d L) (2 * d)
-    have := H.hak; positivity
-  have hent := entry_le_of_sum_w (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
-      decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G))
-    (fun p : unitPts G × Fin N => Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) p.1.1))
-    hB hsum (b, i) (b', i')
-  have hρ := unitRho_ge hD hb
-  have hexp : Real.exp (xAgmonRate d L * D) ≤
-      Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) b.1) :=
-    Real.exp_le_exp.2 (mul_le_mul_of_nonneg_left hρ hε0)
-  have hpos : 0 < Real.exp (xAgmonRate d L * D) := Real.exp_pos _
-  rw [Real.exp_neg, ← div_eq_mul_inv, le_div_iff₀ hpos]
-  calc _ ≤ ‖(decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) -
-        decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ *
-        Real.exp (xAgmonRate d L * unitRho (truncSetDistR G W D) b.1) :=
-        mul_le_mul_of_nonneg_left hexp (norm_nonneg _)
-    _ ≤ _ := by rw [mul_comm]; exact hent
+      covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) * Real.exp (-(xAgmonRate d L * D)) :=
+  I4c_close_sqrt_entry_cover (fun x hx => (hfam x hx).toCover) hφ hδ hsm hW hD hb i i'
 
 /-- **Theorem I-4c (vi), closeness of `𝕃`.** -/
 theorem I4c_close_log_entry :
@@ -832,6 +922,42 @@ theorem I4c_close_log_entry :
 
 end FinalThms
 
+section X0Cover
+
+variable {Cx : ℝ} {s' : DecParams G}
+  (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ (extS G s') Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  {X₀ X₁ : Finset (CTorus d L N₁ m₁ (k + 1))} {r₀ : ℝ}
+  (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ cubeIdx G), P ∉ parCubes G X₁ →
+    s' ⟨P, hP⟩ = 1)
+  (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀)
+  (hdist : ∀ y ∈ X₀, y ∈ G.Ω 1 →
+    ENNReal.ofReal ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L) ≤ siteSetDist G (Wpar G X₁) y)
+  {b b' : unitPts G} (hX : ∀ y, unitBlock y = b.1 → y ∈ X₀) (i i' : Fin N)
+include hfam hφ hδ hsm hs1 hr₀ hdist hX
+
+/-- **Theorem I-4c (vi) on `X₀` from the distance of `X₀` to `𝒲`**, for the data `Dec2.XData` of the
+pair `(coverOf G, G)`: for the parameters equal to `1` off the parameter cubes, if every site of
+`X₀ ∩ Ω₁` is at scaled distance `≥ T = ((r₀ - 4 d L³)/L) M₁` from `𝒲 = Wpar G X₁`, the matrix
+elements of `C^{1/2}(s) - C^{1/2}(1)` at the unit points of `X₀` are at most `B e^{-γ_w T}`.  The
+common step of `I4c_close_sqrt_X0` (`DGSetting`) and `I4c_close_sqrt_X0_sup` (a sup-separated
+cover). -/
+theorem I4c_close_sqrt_X0_of_dist :
+    ‖(decCovSqrt G a aT ν α (extS G s') φ (unitQ G) (unitP G) -
+        decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ ≤
+      covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) *
+        Real.exp (-(xAgmonRate d L * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) := by
+  have hL1 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hD : 0 ≤ (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L := by
+    have : 0 ≤ r₀ - 4 * d * (L : ℝ) ^ 3 := by linarith
+    positivity
+  refine I4c_close_sqrt_entry_cover hfam hφ hδ hsm (hW_of_par hs1) hD (b := b) (b' := b') ?_ i i'
+  intro y hy
+  have hyl : y ∈ G.layer (k + 1) := (unitBlock_mem_iff G y).1 (hy ▸ b.2)
+  exact hdist y (hX y hy) (G.layer_subset (by omega) le_rfl hyl)
+
+end X0Cover
+
 section X0
 
 variable {s' : DecParams G} (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ (extS G s') ) (hφ : IsConstraintField G δ φ)
@@ -852,16 +978,9 @@ theorem I4c_close_sqrt_X0 :
     ‖(decCovSqrt G a aT ν α (extS G s') φ (unitQ G) (unitP G) -
         decCovSqrt G a aT ν α (fun _ => 1) φ (unitQ G) (unitP G)) (b, i) (b', i')‖ ≤
       covWSqrt d L (a k) κ (xAgmonRate d L) (2 * d) *
-        Real.exp (-(xAgmonRate d L * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) := by
-  have D0 := hfam 0 le_rfl
-  have hL1 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  have hD : 0 ≤ (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L := by
-    have : 0 ≤ r₀ - 4 * d * (L : ℝ) ^ 3 := by linarith
-    positivity
-  refine I4c_close_sqrt_entry hfam hφ hδ hsm (hW_of_par hs1) hD (b := b) (b' := b') ?_ i i'
-  intro y hy
-  have hyl : y ∈ G.layer (k + 1) := (unitBlock_mem_iff G y).1 (hy ▸ b.2)
-  exact siteSetDist_X0 D0.st.dg hN hr (hX y hy) (G.layer_subset (by omega) le_rfl hyl)
+        Real.exp (-(xAgmonRate d L * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) :=
+  I4c_close_sqrt_X0_of_dist (fun x hx => (hfam x hx).toCover) hφ hδ hsm hs1 hr₀
+    (fun _ hy hyΩ => siteSetDist_X0 (hfam 0 le_rfl).st.dg hN hr hy hyΩ) hX i i'
 
 end X0
 

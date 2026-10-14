@@ -85,6 +85,48 @@ structure BgSetting (N : ℕ) (Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
 
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ K)} {j : ℕ}
 
+/-- **The point facts of Lemma DL from stage 1**: if the analytic function `F₁` returns the
+decoupled background field `(φ, α)` at `(s, Θ)` and the composed datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)`
+lies in `Ξ^c_K(𝔹_k(X); 1, b² ε' + K₂' δ₃)`, then the raw composites `D1raw`, `D2raw` are computed
+through `F₁`, `F_k`, and the argument of the term lies in `Ξ^c_j(𝔹_j(X); b, b² ε' + K₂' δ₃)`.  The
+common step of `point_facts_of_one_le` (one generating set) and `point_facts_sup_of_one_le` (a
+sup-separated cover). -/
+theorem point_facts_of_stage1 {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) (ha₁ : 0 < a₁)
+    (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (HBj : BgHyp d L K ϱ₂ (compWeight L a₁) ν)
+    (hP : Precedes Gk Gp) (hq : Precedes Gj Gk) (colj : ∀ z ∈ collar Gj, z ∈ Gk.Ω 1)
+    (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃) (hj : j ≤ K)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {Fk : RawData d L (N₁ * L ^ m₁) K N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {s : DecParams Gp} {D : BgData Gp N} {φ : Gp.Ω 1 × Fin N → ℂ} {α : Gp.Ω 1 → ℂ}
+    (hFeq : F₁ (s, rawOf D) = (φ, α))
+    (hst : XiCData Gk (compWeight L a₁) ν K 1 (b ^ 2 * eps + xiK2 d L N * δ₃)
+      (composeData hP (compWeight L a₁) φ D)) :
+    D1raw Gp Gk (compWeight L a₁) F₁ (s, rawOf D) =
+        rawOf (composeData hP (compWeight L a₁) φ D) ∧
+      D2raw Gk Gj (compWeight L a₁) Fk (rawOf (composeData hP (compWeight L a₁) φ D)) =
+        rawOf (composeData hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) (composeData hP (compWeight L a₁) φ D))
+          (composeData hP (compWeight L a₁) φ D)) ∧
+      XiCData Gj (compWeight L a₁) ν j b (b ^ 2 * eps + xiK2 d L N * δ₃)
+        (composeData hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) (composeData hP (compWeight L a₁) φ D))
+          (composeData hP (compWeight L a₁) φ D)) := by
+  have hε := hnum.eps_pos
+  have hc1 := one_le_xiC1 d
+  refine ⟨by rw [D1raw_rawOf, hFeq], by rw [D2raw_rawOf, hFk _ (xiCData_unionC hst)], ?_⟩
+  -- the numerical conditions at `b² ε' + K₂' δ₃`, from those at `C₀² ε' + K₂' δ₃`
+  have hbb : b ^ 2 * eps + xiK2 d L N * δ₃ ≤ scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ := by
+    have := mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by linarith) hbC 2) hε.le
+    linarith
+  have hsmall₂ : (4 * d + 6) * ((2 * d + 1) * (b ^ 2 * eps + xiK2 d L N * δ₃)) ≤ 1 :=
+    le_trans (by gcongr) hnum.small₂
+  have hth2 : xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃) ≤ thm73C1 d L N :=
+    le_trans (mul_le_mul_of_nonneg_left hbb (by linarith)) hnum.th2
+  exact i5_stage2_of_one_le hb₁ ha₁ HBk HBj hq colj hsmall₂ hth2 hj hst
+
 /-- **The point facts of Lemma DL with a composition constant `1 ≤ b ≤ C₀`.**  For realizable
 data `Θ = D ∈ Ξ^c_K(𝔹_{k+1}; 1, ε')` and `s` in the polydisc the composite is computed through
 the analytic functions `F₁`, `F_k`, and its argument lies in `Ξ^c_j(𝔹_j(X); b, ε₂)` with
@@ -118,23 +160,10 @@ theorem point_facts_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 
         (composeData hB.hq (compWeight L a₁)
           (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) (composeData hB.hP (compWeight L a₁) φ D))
           (composeData hB.hP (compWeight L a₁) φ D)) := by
-  have hd0 : 0 < d := by have := hB.HBp.hd; omega
-  have hκ0 := hB.hκ.le
-  have hE1 : 1 ≤ Real.exp κ := Real.one_le_exp hκ0
-  have hc1 := one_le_xiC1 d
-  have hε := hB.num.eps_pos
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hB.num.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := hB.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC hB.HBp hδ0 hδ0' hδ1 hDom
+  obtain ⟨hδ0, hδ0', hδ1, hνε, hDom, hU⟩ := hB.num.domain hB.HBp hD
   have hsle : ∀ P, ‖s P‖ ≤ Real.exp κ := fun P => (hs P).le
   have hone : ∀ P : ↥(cubeIdx Gp), ‖(fun _ : ↥(cubeIdx Gp) => (1 : ℂ)) P‖ ≤ Real.exp κ :=
-    fun P => by simpa using hE1
+    fun P => by simpa using Real.one_le_exp hB.hκ.le
   obtain ⟨φ, α, hI, -⟩ := i4b_exists_unique hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM hsle hδ0 le_rfl
     hδ0' hδ1 hνε hDom
   obtain ⟨φ1, α1, hI1, -⟩ := i4b_exists_unique hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM hone hδ0 le_rfl
@@ -142,22 +171,8 @@ theorem point_facts_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 
   have hst := i5_stage1_of_one_le hb₁ hbC hB.hS hB.Sp hB.ha₁ hB.HBp hB.HBk hB.hP hB.colk hB.hκ.le
     hB.hM hB.num hB.dsX₀ hB.hN hB.hr hB.hr₀ hsle hs1 hD hI hI1
   have hFeq : F₁ (s, rawOf D) = (φ, α) := hF₁ s D hs hU φ α hI
-  have hD1 : D1raw Gp Gk (compWeight L a₁) F₁ (s, rawOf D) =
-      rawOf (composeData hB.hP (compWeight L a₁) φ D) := by
-    rw [D1raw_rawOf, hFeq]
-  have hUk := xiCData_unionC hst
-  have hFk' := hFk _ hUk
-  refine ⟨φ, α, hI, hFeq, hst, hD1, ?_, ?_⟩
-  · rw [D2raw_rawOf, hFk']
-  · -- the numerical conditions at `b² ε' + K₂' δ₃`, from those at `C₀² ε' + K₂' δ₃`
-    have hbb : b ^ 2 * eps + xiK2 d L N * δ₃ ≤ scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ := by
-      have := mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by linarith) hbC 2) hε.le
-      linarith
-    have hsmall₂ : (4 * d + 6) * ((2 * d + 1) * (b ^ 2 * eps + xiK2 d L N * δ₃)) ≤ 1 :=
-      le_trans (by gcongr) hB.num.small₂
-    have hth2 : xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃) ≤ thm73C1 d L N :=
-      le_trans (mul_le_mul_of_nonneg_left hbb (by linarith)) hB.num.th2
-    exact i5_stage2_of_one_le hb₁ hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hsmall₂ hth2 hB.hj hst
+  exact ⟨φ, α, hI, hFeq, hst, point_facts_of_stage1 hb₁ hbC hB.ha₁ hB.HBk hB.HBj hB.hP hB.hq
+    hB.colj hB.num hB.hj hFk hFeq hst⟩
 
 /-- **The point facts of Lemma DL.**  For realizable data `Θ = D ∈ Ξ^c_K(𝔹_{k+1}; 1, ε')` and
 `s` in the polydisc (`‖s_P‖ < e^κ`, `s = 1` off the parameter cubes) the composite is computed

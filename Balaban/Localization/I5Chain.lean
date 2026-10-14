@@ -168,41 +168,59 @@ theorem isLayerConstant_zero (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
     IsLayerConstant G (0 : Torus d ((N₁ * L ^ m₁) * L ^ K) → Fin N → ℂ) :=
   fun _ _ _ _ _ _ _ => rfl
 
-/-- **Stage 1 of Lemma DL with a composition constant `1 ≤ b ≤ C₀`**: the composed datum
-`ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled background field lies in
-`Ξ^c_{K}(𝔹_k(X); 1, b² ε' + K₂' δ₃)`.  At `b = 1` this is P3 (4.35)-(4.37): the radius
-`ε' + K₂' δ₃`.  The numerical conditions at `b² ε'` follow from those of `ChainNum` at `C₀² ε'`. -/
-theorem i5_stage1_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
-    (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+/-- **The data domain of the chain** at the radius `δ = C₁ ε'`: for `D ∈ Ξ^c_K(𝔹_{k+1}; 1, ε')`
+under `ChainNum`, `0 < δ ≤ bgC0`, `δ ≤ c₇`, `ν L^{2K} δ² ≤ δ²`, `D ∈ Ψ̃^c(δ, δ)` and `D` lies in the
+union domain of Theorem I-4b. -/
+theorem ChainNum.domain {BG κ r₀ eps δ₃ : ℝ} (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃)
+    (HBp : BgHyp d L K ϱ (compWeight L a₁) ν) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D) :
+    0 < xiC1 d * eps ∧ xiC1 d * eps ≤ bgC0 d L N ∧ xiC1 d * eps ≤ c7 d L N BG κ ∧
+      ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 ∧
+      InDomainC Gp ν (xiC1 d * eps) (xiC1 d * eps) D ∧
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hε := hnum.eps_pos
+  have hc1 := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hnum.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hDom := xiCData_inDomainC HBp hnum.small1 hD
+  refine ⟨hδ0, hδ0', hδ1, ?_, hDom, inUnionDomainC_of_inDomainC HBp hδ0 hδ0' hδ1 hDom⟩
+  have := HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+
+/-- A data site of `𝔹_k(X) ≺ 𝔹_{k+1}` with its collar inside `Ω₁(𝔹_{k+1})` lies in
+`Ω₁(𝔹_{k+1})`. -/
+theorem mem_Ω1_of_mem_dataSites (hP : Precedes Gk Gp) (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1)
+    {x : Torus d ((N₁ * L ^ m₁) * L ^ K)} (hx : x ∈ dataSites Gk) : x ∈ Gp.Ω 1 := by
+  rcases (mem_dataSites Gk).1 hx with h' | h'
+  · exact hP.mem_Ω1 h'
+  · exact hcol x h'
+
+/-- **Stage 1 of Lemma DL from the closeness of the composed data**: if the background field at
+`s ≡ 1` is the background field `bgFieldC` of Theorem 5.2 and the composed fields at `s` and at
+`s ≡ 1` differ on the data sites of `𝔹_k(X)` by at most `composedCloseBound`, then the composed
+datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` lies in `Ξ^c_K(𝔹_k(X); 1, b² ε' + K₂' δ₃)` (`1 ≤ b ≤ C₀`).  The
+common step of `i5_stage1_of_one_le` (one generating set) and `i5_stage1_sup_of_one_le` (a
+sup-separated cover). -/
+theorem i5_stage1_of_close {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {BG : ℝ} (hBG : 0 ≤ BG)
     (ha₁ : 0 < a₁) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
     (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (hP : Precedes Gk Gp)
-    (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ} (hκ : 0 ≤ κ)
-    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃)
-    {X₀ X₁ : Finset (CTorus d L N₁ m₁ K)} (hX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
-    (hN : ∀ x ∈ X₀, x ∈ Gp.Ω 1 → ∀ y : CTorus d L N₁ m₁ K,
-      Green.torusDist d ((N₁ * L ^ m₁) * L ^ K) x y < r₀ * (L : ℝ) ^ m₁ * Gp.spacing x → y ∈ X₁)
-    (hr : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1) (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {s : DecParams Gp}
-    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
-    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁ →
-      s ⟨P, hP⟩ = 1)
+    (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ}
+    (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
-    {φ φ1 : Gp.Ω 1 × Fin N → ℂ} {α α1 : Gp.Ω 1 → ℂ}
-    (h : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
-    (h1 : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1) :
+    {φ φ1 : Gp.Ω 1 × Fin N → ℂ}
+    (hφ1 : bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D = φ1)
+    (hclose : ∀ x ∈ dataSites Gk, ∀ i : Fin N,
+      ‖composeField Gk Gp (compWeight L a₁) φ D.Ψ x i -
+        composeField Gk Gp (compWeight L a₁) φ1 D.Ψ x i‖ ≤
+        composedCloseBound d L N m₁ BG κ (xiC1 d * eps) r₀) :
     XiCData Gk (compWeight L a₁) ν K 1 (b ^ 2 * eps + xiK2 d L N * δ₃)
       (composeData hP (compWeight L a₁) φ D) := by
   have hd0 : 0 < d := by have := HBp.hd; omega
   have hε := hnum.eps_pos
   have hc1 := one_le_xiC1 d
   have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hDom := xiCData_inDomainC HBp hnum.small1 hD
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hnum.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  -- `s = 1` is the background field
-  obtain ⟨-, hφ1, -⟩ := i4b_one hS S HBp hκ hM hδ0 le_rfl hδ0' hδ1 hνε hDom h1
   -- (Ξ3), rescaling
   have hDk1 := xiCData_compose_of_one_le hb₁ ha₁ HBk HBp hP hcol hnum.small1 hnum.th1 hD
   rw [hφ1] at hDk1
@@ -237,15 +255,9 @@ theorem i5_stage1_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
     exact composeField_layerConst hP _ _ (isLayerConstant_zero Gp)
   have hδΨb : ∀ x ∈ dataSites Gk, vn (δΨ x) ≤ δ₃ := by
     intro x hx
-    have hxΩ : x ∈ Gp.Ω 1 := by
-      rcases (mem_dataSites Gk).1 hx with h' | h'
-      · exact hP.mem_Ω1 h'
-      · exact hcol x h'
     have hB := composedCloseBound_nonneg (d := d) (L := L) (N := N) (m₁ := m₁)
-      (κ := κ) (r₀ := r₀) hS.fam.2.1 hδ0.le hd0
-    refine (vn_le_card_mul hB fun i => ?_).trans hnum.close
-    exact composed_close_X0 hS S HBp hP hκ hM hs hs1 hN hr hr₀ hδ0 le_rfl hδ0' hδ1 hνε
-      hDom h h1 (hX₀ x hx) hxΩ i
+      (κ := κ) (r₀ := r₀) hBG hδ0.le hd0
+    exact (vn_le_card_mul hB fun i => hclose x hx i).trans hnum.close
   have hX2 := xiC_perturb HBk hnum.δ₃_nn hnum.δ₃_le_one hsmall₁ hc1' hnum.star hK1s
     hsm hδΨc hδΨb hX1
   refine ⟨Ψ₀, h₀, fun x i => Ψ'' x i + δΨ x i, h'', hX2, ⟨fun x hx i => ?_, fun x hx i => ?_⟩⟩
@@ -258,6 +270,35 @@ theorem i5_stage1_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
     rw [e3]; ring
   · have := hR.2 x hx i
     simpa [composeData, hx] using this
+
+/-- **Stage 1 of Lemma DL with a composition constant `1 ≤ b ≤ C₀`**: the composed datum
+`ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled background field lies in
+`Ξ^c_{K}(𝔹_k(X); 1, b² ε' + K₂' δ₃)`.  At `b = 1` this is P3 (4.35)-(4.37): the radius
+`ε' + K₂' δ₃`.  The numerical conditions at `b² ε'` follow from those of `ChainNum` at `C₀² ε'`. -/
+theorem i5_stage1_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
+    (hS : DecSpecs d L c BG) (S : DGSetting Gp (compWeight L a₁) ν)
+    (ha₁ : 0 < a₁) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (HBk : BgHyp d L K ϱ₁ (compWeight L a₁) ν) (hP : Precedes Gk Gp)
+    (hcol : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) {κ r₀ eps δ₃ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃)
+    {X₀ X₁ : Finset (CTorus d L N₁ m₁ K)} (hX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
+    (hN : ∀ x ∈ X₀, x ∈ Gp.Ω 1 → ∀ y : CTorus d L N₁ m₁ K,
+      Green.torusDist d ((N₁ * L ^ m₁) * L ^ K) x y < r₀ * (L : ℝ) ^ m₁ * Gp.spacing x → y ∈ X₁)
+    (hr : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1) (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {s : DecParams Gp}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁ →
+      s ⟨P, hP⟩ = 1)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
+    {φ φ1 : Gp.Ω 1 × Fin N → ℂ} {α α1 : Gp.Ω 1 → ℂ}
+    (h : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
+    (h1 : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1) :
+    XiCData Gk (compWeight L a₁) ν K 1 (b ^ 2 * eps + xiK2 d L N * δ₃)
+      (composeData hP (compWeight L a₁) φ D) := by
+  obtain ⟨hδ0, hδ0', hδ1, hνε, hDom, -⟩ := hnum.domain HBp hD
+  exact i5_stage1_of_close hb₁ hbC hS.fam.2.1 ha₁ HBp HBk hP hcol hnum hD
+    (i4b_one hS S HBp hκ hM hδ0 le_rfl hδ0' hδ1 hνε hDom h1).2.1 fun x hx i =>
+      composed_close_X0 hS S HBp hP hκ hM hs hs1 hN hr hr₀ hδ0 le_rfl hδ0' hδ1 hνε hDom h h1
+        (hX₀ x hx) (mem_Ω1_of_mem_dataSites hP hcol hx) i
 
 /-- **Stage 1 of Lemma DL**: the composed datum `ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)` of the decoupled
 background field lies in `Ξ^c_{K}(𝔹_k(X); 1, ε₂)`. -/
