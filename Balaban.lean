@@ -1947,6 +1947,7 @@ public import Balaban.Fluctuation.LocalPairCollar
 public import Balaban.Fluctuation.LocalPairHatLift
 public import Balaban.Fluctuation.LocalPairReplacementHat
 public import Balaban.Fluctuation.LocalClassChart
+public import Balaban.Fluctuation.LocalHatTerm
 public import Balaban.Green.FinalTaggedTorusClose
 public import Balaban.Green.FinalAmplitude
 public import Balaban.Green.FinalDetRatioSmall
