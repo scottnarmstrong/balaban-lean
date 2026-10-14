@@ -1944,3 +1944,4 @@ public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
 public import Balaban.Fluctuation.LocalPairCollar
 public import Balaban.Fluctuation.LocalPairHatLift
+public import Balaban.Fluctuation.LocalPairReplacementHat
