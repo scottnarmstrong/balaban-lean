@@ -6,6 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.LocalPairDepth
+public import Balaban.Fluctuation.FlCoreCover
+public import Balaban.SmallField.LocalGeneratorRestriction
 
 /-!
 # The replacement identity at the local generating set
@@ -33,6 +35,109 @@ namespace Balaban.Localization
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Finset
   Balaban.LargeField Balaban.SmallField.GsSpec Balaban.Fluctuation
+
+section Data
+
+/-! ### The data of the local side (deliverable (3)) -/
+
+section Restrict
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
+  {j : ℕ} {hj : j ≤ K} {X : Set (CTorus d L N₁ m₁ K)} {hsep : ϱ ≤ minSep L (L ^ m₁)}
+
+/-- **The restricted datum lies in the local union domain** (any constants `c₀, c₁`): the clip
+`localBRestrict` of a datum of the union domain of the whole-level set `𝔹_j` lies in the union domain
+of `𝔹_j(X) = localB j … X` with the same constants (`localB_inDomainC_restrict`).  The landed
+`localB_inUnionDomainC_restrict` is the case `(bgC0, bgC1)`; the replacement uses `c₁ = c₇`. -/
+theorem localB_inUnionDomainC_restrict_const (hj1 : 1 ≤ j) {c₀ c₁ μ : ℝ} (hμ : 0 ≤ μ)
+    (D : BgData
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ') j hj) N)
+    (hD : InUnionDomainC _ c₀ c₁ μ D) :
+    InUnionDomainC (localB j hj X hsep) c₀ c₁ μ (localBRestrict (X := X) (hsep := hsep) hj1 D) := by
+  obtain ⟨δ, ε, hδ, hδε, hε, hδc, hμε, hDC⟩ := hD
+  exact ⟨δ, ε, hδ, hδε, hε, hδc, hμε, localB_inDomainC_restrict hj1 hμ D hDC⟩
+
+/-- **The restricted datum agrees with the datum on the top layer** `Ω_j(𝔹_j(X))` (both fields). -/
+theorem localBRestrict_eq_of_mem_top (hj1 : 1 ≤ j)
+    (D : BgData
+      (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ') j hj) N)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ (localB j hj X hsep).Ω j) :
+    (localBRestrict (X := X) (hsep := hsep) hj1 D).Ψ x = D.Ψ x ∧
+      (localBRestrict (X := X) (hsep := hsep) hj1 D).h x = D.h x := by
+  have hx1 : x ∈ (localB j hj X hsep).Ω 1 :=
+    (localB j hj X hsep).Ω_antitone le_rfl hj1 (by omega) hx
+  exact ⟨localBRestrict_Ψ hj1 D ((mem_dataSites _).2 (Or.inl hx1)), localBRestrict_h hj1 D hx1⟩
+
+end Restrict
+
+section Strict
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
+variable {a₁ ν Kc Cx : ℝ}
+
+/-- The strict data inequalities (mode P) are monotone in `δ₀`. -/
+theorem strictDataM_mono_left {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {δ₀ δ₀' δ₁ : ℝ}
+    (h : δ₀ ≤ δ₀') {p : Edat G N} (hp : StrictDataM G N false δ₀ δ₁ p) :
+    StrictDataM G N false δ₀' δ₁ p := by
+  obtain ⟨⟨h1, h2, h3, h4, h5, h6⟩, -⟩ := hp
+  refine ⟨⟨fun x μ => ?_, fun x => ?_, h3, fun x => (h4 x).trans_le h, h5, h6⟩,
+    fun h => absurd h (by simp)⟩
+  · have hs := spacing_pos' G (x : CTorus d L N₁ m₁ K)
+    exact ⟨(h1 x μ).1.trans_le (div_le_div_of_nonneg_right h hs.le),
+      (h1 x μ).2.trans_le (div_le_div_of_nonneg_right h hs.le)⟩
+  · have hs := spacing_pos' G (x : CTorus d L N₁ m₁ K)
+    exact (h2 x).trans_le (div_le_div_of_nonneg_right h (by positivity))
+
+/-- **The strict data inequalities of the fluctuation problem, for a cover pair** (from
+`point_facts_core_cover`): for the cover base of `(coverOf 𝔹, 𝔹)`, a datum of the chart
+`Ξ^c_K(𝔹; 1, ε')`, parameters `|s_P| < e^κ` and a fluctuation `ψ'` of the ball `|ψ'| < δ₁` on the
+data sites of `H⁻ ≺ 𝔹`, the fluctuation data `flEdat 𝔹 H⁻ (F₁(s, Θ)) Ψ ψ'` satisfy `StrictDataM` at
+every `δ₀ ≥ 2 K₄ C₁ ε'`.  Applied to the ambient pair and to the local pair
+`(𝔹_{k+1}(Y), 𝔹_k(Y))` this gives the hypotheses `he`, `he'` of the replacement. -/
+theorem strictDataM_flEdat_cover {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L K ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (heps : 0 < eps)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1) (hc7 : xiC1 d * eps ≤ c7 d L N BG κ)
+    (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2) {δ₀ δ₁ BG₂ : ℝ} (hδ₁ : 0 < δ₁)
+    (hδ₀ : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀) (hPmp : Precedes Hm Gp)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) K N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {s : Dec2.DecParams (coverOf Gp)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
+    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ψ' ∈ FlBall Hm δ₁) :
+    StrictDataM Hm N false δ₀ δ₁ (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ') := by
+  classical
+  obtain ⟨φ, α, δφ, δα, -, hF, hstr, -, -⟩ := point_facts_core_cover hS S HBp hκ hM heps hsmall
+    hc7 hphi (BG₂ := BG₂) hδ₁ hPmp hF₁ (Sol := Sol)
+    (fun p hp hp2 => hSol p hp (strictDataM_mono_left hδ₀ hp2))
+    (X₁f := ∅) hs (fun P hP hnot => absurd (Finset.mem_filter.2 ⟨hP, fun h =>
+      Finset.notMem_empty _ (h (mem_cubeP.2 (SameCell.refl _ _)))⟩) hnot) hD hψ
+  rw [hF]
+  exact strictDataM_mono_left hδ₀ hstr
+
+end Strict
+
+end Data
 
 section Assembly
 
