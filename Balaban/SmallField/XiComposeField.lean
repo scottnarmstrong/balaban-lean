@@ -335,8 +335,10 @@ theorem xiBounds_compose (hL : 2 ≤ L) (ha₁ : 0 < a₁) (h : Precedes G G')
     {D : BgData G' N} {φ : G'.Ω 1 × Fin N → ℂ} {α : G'.Ω 1 → ℂ}
     (hb : XiBounds G' ν k 1 ε₀ D h₀ φ α) :
     XiBounds G ν j (scaledC0 d * θ) ε₀ (composeData h (compWeight L a₁) φ D) h₀
-      (h.restrictφ φ) (h.restrictα α) :=
-  xiBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hε₀ hθ0 hjθ hgap hcol hb
+      (h.restrictφ φ) (h.restrictα α) where
+  grad x hx μ :=
+    (xiBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hε₀ hθ0 hjθ hgap hcol hb).grad x hx μ
+  __ := xiBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hε₀ hθ0 hjθ hgap hcol hb
 
 /-- The displacement of the composed field: `ψ_j(φ^c, Ψ^c) - ψ_j(φ^r, Ψ^r)` (6.2). -/
 noncomputable def composeDisp (G : GeneratingSet d L N₀ k ϱ) (G' : GeneratingSet d L N₀ k ϱ')
@@ -513,8 +515,11 @@ theorem xiCBounds_compose (hL : 2 ≤ L) (ha₁ : 0 < a₁) (h : Precedes G G') 
     XiCBounds G ν (scaledC0 d * θ) ε₀ (composeData h (compWeight L a₁) φr Dr)
       (composeData h (compWeight L a₁) φc Dc)
       (composeDisp G G' (compWeight L a₁) φc φr Dc.Ψ Dr.Ψ) (hRes G h'')
-      (h.restrictφ φr) (h.restrictφ φc) (h.restrictα αr) (h.restrictα αc) :=
-  xiCBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hν hε₀ hθ0 hgap hcol hR hC hb
+      (h.restrictφ φr) (h.restrictφ φc) (h.restrictα αr) (h.restrictα αc) where
+  grad x hx μ :=
+    (xiCBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hν hε₀ hθ0 hgap hcol hR hC
+      hb).grad x hx μ
+  __ := xiCBounds_compose_of_one_le (one_le_scaledC0 d) hL ha₁ h hν hε₀ hθ0 hgap hcol hR hC hb
 
 end Bounds
 
