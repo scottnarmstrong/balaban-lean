@@ -72,3 +72,8 @@ Counts (14 rows, A4 split into A4a, A4b; each row by its first state): LANDED 3 
 `Balaban/Inhabited/RootParams.lean`: `exists_rootParams` (Root-F order: δ, κ, c₉, L M, tower T, β₀, ν h, kf), `exists_tower_blockSize`, `exists_kf_scale`. PROVED, no hypotheses beyond 3 ≤ d, 2 ≤ N.
 Constraints: δ=(d-2)/8 (δ ≤ (d-2)/2 for `betaK_inv_sq_le`; δ < s(d-2), s=1/4, for the birth-scale bound); L=7 (odd, ≥ 6, 5 < L^{m₀}, m₀=1); decay c₁κ ≤ (3/2)κ_dec; M=L^{m₁+1} with hMB, hMκ of W787 at max κ 1, obtained from `large_block` by raising κ_min; β₀ for `rootBound_of_perTerm`, `cutConst_mul_lt_of_large`, `betaK_inv_sq_le` (L^e ≤ c₉β₀²); kf from ν.
 UNVERIFIED: the amplitude and cut constants C, C', B, p, R are quantified (positive), not read off the landed tower bounds; the window `StepTowerG.bgR0_le_minSep` holds for any T; γ ≤ 1/4 (chart test) is independent of δ (α = (d-2)/2 - γ), not linked; kf here is any valid index, not `kStop`.
+
+## W815 status (A1 links, 2026-10-14)
+`Inhabited/RootParamsLinks.lean`: `exists_rootParams_consts` (d = 3): δ of `exists_rootParams` equals γ − α₁ with γ ≤ 1/4, 0 < α₁ < 1 − 2γ; admissible `Consts` P with P.κ = κ, P.c₉ = c₉, P.m₀ = T.m₀; and `kStop` of any `RunningHyp` (ν ≤ 1) satisfies the k_f clauses. PROVED.
+Obstruction for d ≥ 4: γ ≤ 1/4 forces δ < 1/4, while the landed proof takes δ = (d−2)/8 ≥ 1/4 (the statement of `exists_rootParams` only gives δ < (d−2)/4). The chart test is d = 3 only.
+Item 3 (C, C′ from the birth-scale theorem; cut constant) NOT delivered: `rootTermFamily_obs_birthScale_fromTowerG_rho` hides C, C′ inside its threshold β₀ and CE, CF (chosen from T, A₁, p, CR, s, ρ, c₉, δ′, never from β); the cut constant B(κ) = 4/3·2e^{pdH κ}ballConst/√finalGap depends on d, L, κ only.
