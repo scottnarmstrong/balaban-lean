@@ -58,3 +58,8 @@ Names are proposals; "uses" lists landed lemmas. Stage S (sector structure), T (
 - S1 `Balaban.LargeField.baseRetained_disintegrate` (`Base/BaseRetainedDisintegrate.lean`): proved for any decidable set `ret` of sites and complex integrable `f`; union-of-blocks is not needed.
 - S2 `Balaban.LargeField.baseRecord_good_region` (`Base/BaseRecordGoodRegion.lean`): proved; assembles landed `BaseRecord.nbhd_P_subset_compl_Omega`, `baseFootprint_disjoint_of_mem_P`, `chiPrimeZero_congr_footprint` (BaseMarkedFootprint already held most of S2). Retained sites = fine sites with cube outside `Ω₁`.
 - Not done: S3 (needs both).
+
+## W768 status
+- S3 done (`Base/BaseChartRetained.lean`): `baseChartIntegral_retained` (Gaussian integral over the sites of a first-block union with the exterior tangent coordinates fixed, real block `K_U`, `CrossZero` only; `U` may be proper or everything), `baseRetainedChartIntegral_eq` (sphere integral over the sites of `U`, exterior spins fixed in the open hemispheres, equals the rescaled `exp(-q_s) F` integral; needs `hΛ2`, `0 < a₀`), `baseRetainedChartIntegral_gaussian` (composition).
+- Not done: Fubini over the exterior chart coordinates (integrability of the full chart integrand) and the use of `baseRetained_disintegrate` to sum over `φ_ret`; the background `e` is the sector centre of θ (not recomputed from `φ_ret`).
+- T2 done (`Base/BaseCutoffTransfer.lean`): `baseCutoffTransfer` bundles the landed `chiPrimeZero_eq_one_of_margins`, `baseOldFactor_eq_deleted`, `baseDeleted_indep`; the (2.4) margins stay the `BaseCutoffMargins` premise (T1 open).
