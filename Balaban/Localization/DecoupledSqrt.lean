@@ -208,7 +208,7 @@ end StandingCover
 
 theorem CovStanding.hak (H : CovStanding G a aT ν α κ s δ φ Q P) : 0 < a k := by
   have D := H.fam 0 le_rfl
-  have := D.st.ha k D.st.hk le_rfl
+  have := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
   linarith [this.1]
 
 theorem CovStanding.hakx (H : CovStanding G a aT ν α κ s δ φ Q P) {x : ℝ} (hx : 0 ≤ x) :

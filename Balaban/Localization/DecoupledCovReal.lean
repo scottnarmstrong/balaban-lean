@@ -81,7 +81,7 @@ theorem xH0_isHermitian (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _
     (hα : ∀ w, star (α w) = α w) : (xH0 G a ν α).IsHermitian := by
   have D0 := hfam 0 le_rfl
   have hak : 0 < a k := by
-    have := D0.st.ha k D0.st.hk le_rfl
+    have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D0.st.haT1
