@@ -8,6 +8,8 @@ module
 public import Balaban.Localization.P6PairSep
 public import Balaban.Localization.PairedLocalX0
 public import Balaban.SmallField.LocalGeneratorSource
+public import Balaban.Localization.P6PairOp
+public import Balaban.Localization.CubeBlockHolderMixed
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -34,6 +36,10 @@ loss `4 d L³` into `M / M₁`, and the decay radius is `r₁ M₁` with `r₁ =
   `𝔹_j(X) = localB j hj X hsep` is sup-separated (the `5 L M₁ ℓ_n` sup-distance of the `nearStep`
   recursion, `P6PairSep.supDist_gt_of_not_mem_nearStep`);
 * `cubeAligned_castG`, `localB_cubeAligned`: it is cube aligned (`LocalGen.localGen_cubeAligned`);
+* `localB_coverGeom`, `localB_coverBase`: hence its own cover satisfies the hypotheses
+  `Dec2.CoverGeom`/`Dec2.CoverBase` of the cover form of Theorems I-4a/I-4b
+  (`Dec2.i4b_exists_unique`, `Dec2.i4b_analytic`, `Dec2.i4a_close`), with no `ℓ¹` cover separation
+  (`P6PairOp.p6_coverGeom_of_pair`, `CubeBlockHolderMixed.coverBase_mixed`);
 * `layer_ge_of_mem_box_sup`, `torusDist_box_cube_le_sup`: the two geometric inputs of
   `scaled_dist_X0` under `SupSep` instead of `DGSetting`;
 * `scaled_dist_X0_sup`, `siteSetDist_X0_sup`: **the `X₀` distance with the target bound
@@ -104,6 +110,30 @@ theorem localB_cubeAligned {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m�
         hm₁).dvd
     · exact (localGen_cubeAligned (M1 := L ^ m₁) (N₁ := N₁) (L := L) (q := k) _ hj rfl
         hm₁).union)
+
+/-- **The cover geometry of the literal local generator**: `Dec2.CoverGeom` of the pair
+`(coverOf 𝔹, 𝔹)`, `𝔹 = localB j hj X hsep`, from its sup-separation and cube alignment (the
+`ℓ¹`-separation `4 d L M₁ ≤ ϱ` of `DGSetting` is not needed). -/
+theorem localB_coverGeom {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁ k))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁) {a : ℕ → ℝ} {ν : ℝ}
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν) (hνL : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1)
+    (ha : IsAdmissibleWeights k a) (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)) :
+    Dec2.CoverGeom (coverOf (SmallField.GsSpec.localB j hj X hsep))
+      (SmallField.GsSpec.localB j hj X hsep) a ν (Cchi d L) :=
+  p6_coverGeom_of_pair (localB_cubeAligned hj X hsep hm₁) (localB_supSep hj X hsep)
+    (SmallField.precedes_refl _) hM hd hL hν hνL ha hag
+
+/-- **The cover base of the literal local generator**: `Dec2.CoverBase` of `(coverOf 𝔹, 𝔹)` with
+the cut-operator constant `mixedKc d L` (`N₁ > 5`). -/
+theorem localB_coverBase {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁ k))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {a : ℕ → ℝ} {ν : ℝ} (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν)
+    (hνL : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1) (ha : IsAdmissibleWeights k a)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)) :
+    Dec2.CoverBase (coverOf (SmallField.GsSpec.localB j hj X hsep))
+      (SmallField.GsSpec.localB j hj X hsep) a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  Dec2.coverBase_mixed hN _ (localB_coverGeom hj X hsep hm₁ hM hd hL hν hνL ha hag)
+    (fun _ hq => hq)
 
 end LocalB
 
