@@ -89,3 +89,8 @@ Check first whether a parameter-integral analyticity lemma on a finite measure a
 - L-B `analyticOnNhd_integral_box` PROVED via the landed `analyticAt_integral_of_continuousOn` (Analysis/ParamIntegralAnalytic.lean); needs joint continuity of Phi on polydisc x box.
 - `cutoffInteraction_final`: J(s) = int_{box rho} F(C_fin(s) psi) dgamma analytic, bounded by B' gamma(box), Lemma AE conclusions (sum, coefficient bounds), value at s = 1 via sqrtMat; needs B rho < R, F analytic and bounded on radius R.
 - `localityAE_cutoffInteraction`, `coef_cutoffInteraction_congr_of_agree`: datum-dependent locality (taggedCfinU), any F, gamma. Still open: L-C (constants), L-D (tail).
+
+## W790 status (14 October 2026)
+- `Balaban/Green/FinalConstants.lean`: L-C. In the variable psi the physical field is phi_0 + beta^{-1/2} C(s) psi, so an interaction analytic on the radius-Rphys polydisc around phi_0 has radius beta^{1/2} Rphys in psi; the condition B rho < R becomes B(kappa) beta^{-1/2} p_1 < Rphys (`cutoffInteraction_final_phys`, `cutoffInteraction_final_fluctRadius` with Rphys = landed `fluctRadius`).
+- Which side wins: the landed hypothesis of Lemma 2.5 is B_5 beta^{-1/2} p_1 <= fluctRadius; here B_5 is replaced by B(kappa) >= 8/3 e^{pdH kappa}/sqrt(finalGap), pdH 3 = 13357 (`pdH_three`). For fixed p_1 it holds for beta >= (B p_1/Rphys)^2 + 1 (`cutConst_mul_lt_of_large`); if p_1 is taken proportional to beta^{1/2} delta it is a smallness condition on that proportionality constant.
+- NOT done: the identification of the actual F_{k_f} (an F on the polydisc of radius fluctRadius around the background, bounded) with a landed declaration; F, phi_0, B' stay hypotheses. L-D (tail) open.

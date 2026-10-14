@@ -80,11 +80,20 @@ theorem nuBlockFun_analytic (n : ℕ) (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (
         (analyticAt_snd.comp (analyticAt_fst.comp (analyticAt_snd.comp analyticAt_snd))))
   exact (h1.mul (h2.sub h3)).add (analyticAt_const.mul (h1.mul h1))
 
-/-- **The decoupled background is within `B` of the external field.**  On the realizable triples
-`‖φ_{k+1}(s)(x)_i - h̃(x)_i‖ ≤ K₄ δ + (1 + 3 δ) + B_h`, `δ = xiC1 ε`, where `‖h̃‖ ≤ B_h` on the
-data domain (the closeness of `φ` to the data `Ψ`, `|Ψ| ≤ 1 + 3δ` on the domain). -/
-theorem flReal_phiSub_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    {lev : ℕ} (hG' : IsLevel Gp lev) {Bh : ℝ}
+/-- **The decoupled background is within `B` of the external field, without the level property**
+(the core of `flReal_phiSub_bound`).  The decoupled background of each datum of the chart is
+supplied by `hbg` (Theorem I-4b, `flCore_bgBounds` or the cover form `coverBg_exists`); a site
+`x ∉ Ω_1` has `svec = 0` and the bound is the bound `B_h` of the external field. -/
+theorem flReal_phiSub_bound_of_bg (hBG : 0 ≤ BG) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hbg : ∀ (s : DecParams Gp), (∀ P, ‖s P‖ < Real.exp κ) → ∀ (D : BgData Gp N),
+      XiCData Gp (compWeight L a₁) ν K 1 eps D →
+      ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+        IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧
+        (∀ φ' α', IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ' α' →
+          φ' = φ ∧ α' = α) ∧
+        BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)))
+    {Bh : ℝ}
     (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
       ∀ x i, ‖D.h x i‖ ≤ Bh)
     {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
@@ -94,23 +103,21 @@ theorem flReal_phiSub_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ 
       K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
   classical
   obtain ⟨s, D, ψ', δα, hs, -, hD, hψ, hI, ht22, -⟩ := ht
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hε := hC.eps_pos
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hε := heps
   have hc1 := one_le_xiC1 d
   have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hsle : ∀ P, ‖s P‖ ≤ Real.exp κ := fun P => (hs P).le
-  obtain ⟨φ', α', hI', hu', -, -, hbb⟩ := i4b_exists_unique hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
-    hsle hδ0 le_rfl hδ0' hδ1 hνε hDom
+  have hDom := xiCData_inDomainC HBp hsmall hD
+  obtain ⟨φ', α', hI', hu', hbb⟩ := hbg s hs D hD
   have e := (hu' _ _ hI).1
-  have hxΩ : x ∈ Gp.Ω 1 := (hG' x).1
-  have hxd : x ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl hxΩ)
   have hh : t.2.2.1.2 x i = D.h x i := by rw [ht22]; rfl
+  by_cases hxΩ : x ∈ Gp.Ω 1
+  swap
+  · rw [svec_of_not_mem Gp _ hxΩ, hh, zero_sub, norm_neg]
+    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hBG hd0
+    have := mul_nonneg hK4.le hδ0.le
+    linarith [hBh D hD x i]
+  have hxd : x ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl hxΩ)
   rw [svec_of_mem' _ hxΩ, hh, e]
   have h1 : ‖φ' (⟨x, hxΩ⟩, i) - D.Ψ x i‖ ≤ K4 d L N BG κ * (xiC1 d * eps) :=
     (norm_le_vn (fun i => φ' (⟨x, hxΩ⟩, i) - D.Ψ x i) i).trans (hbb.val ⟨x, hxΩ⟩)
@@ -142,13 +149,42 @@ theorem flReal_phiSub_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ 
     _ ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh :=
         add_le_add (add_le_add h1 h2) (hBh D hD x i)
 
+
+/-- **The decoupled background is within `B` of the external field.**  On the realizable triples
+`‖φ_{k+1}(s)(x)_i - h̃(x)_i‖ ≤ K₄ δ + (1 + 3 δ) + B_h`, `δ = xiC1 ε`, where `‖h̃‖ ≤ B_h` on the
+data domain (the closeness of `φ` to the data `Ψ`, `|Ψ| ≤ 1 + 3δ` on the domain). -/
+theorem flReal_phiSub_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {lev : ℕ} (hG' : IsLevel Gp lev) {Bh : ℝ}
+    (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
+      ∀ x i, ‖D.h x i‖ ≤ Bh)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    (ht : t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) (x : CTorus d L N₁ m₁ K) (i : Fin N) :
+    ‖svec Gp t.1.1 x i - t.2.2.1.2 x i‖ ≤
+      K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
+  have _ := hG'
+  exact flReal_phiSub_bound_of_bg hC.hS.fam.2.1 hC.HBp hC.eps_pos hC.small1
+    (fun _ hs _ hD => flCore_bgBounds hC hs hD) hBh ht x i
+
 variable (d L N) in
 /-- The bound of a block functional of `V_{ν,1}`: `(L^{n+1})^d N (V B + ½ V²)`. -/
 noncomputable def nuBd (n : ℕ) (V B : ℝ) : ℝ := ((L : ℝ) ^ (n + 1)) ^ d * (N * (V * B + (1 / 2) * (V * V)))
 
-/-- **The block functional is bounded on the realizable triples.** -/
-theorem nuBlockFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    {n : ℕ} (hp : n + 1 ≤ K) (hG' : IsLevel Gp (n + 1)) {Bh : ℝ} (hBh0 : 0 ≤ Bh)
+/-- **The block functional is bounded on the realizable triples, from the numerical facts and the
+decoupled background** (the core of `nuBlockFun_bound`): neither `FlCore` nor `IsLevel Gp (n + 1)`
+is used; `hbg` is Theorem I-4b for the data of the chart (`flCore_bgBounds`, or `coverBg_exists`
+for a cover). -/
+theorem nuBlockFun_bound_of_num (hd0 : 0 < d) (hBG : 0 ≤ BG) (hBG₂ : 0 ≤ BG₂) (hδ₁ : 0 < δ₁)
+    (HBp : BgHyp d L K ϱ (compWeight L a₁) ν) (heps : 0 < eps)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hbg : ∀ (s : DecParams Gp), (∀ P, ‖s P‖ < Real.exp κ) → ∀ (D : BgData Gp N),
+      XiCData Gp (compWeight L a₁) ν K 1 eps D →
+      ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+        IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧
+        (∀ φ' α', IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ' α' →
+          φ' = φ ∧ α' = α) ∧
+        BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)))
+    {n : ℕ} (hp : n + 1 ≤ K) {Bh : ℝ} (hBh0 : 0 ≤ Bh)
     (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
       ∀ x i, ‖D.h x i‖ ≤ Bh)
     (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
@@ -159,15 +195,14 @@ theorem nuBlockFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
       (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
   classical
   obtain ⟨-, hsup, -⟩ := flReal_facts ht
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+    have := famConst_ge_one (L := L) hBG₂ κ hd0; linarith
   have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+    mul_nonneg (cK2'_nonneg hB0) hδ₁.le
   have hB1 : 0 ≤ K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh := by
-    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hC.hS.fam.2.1 hd0
+    have hK4 : 0 < K4 d L N BG κ := K4_pos (L := L) (N := N) (κ := κ) hBG hd0
     have hx1 := one_le_xiC1 d
-    have hx2 := hC.eps_pos
+    have hx2 := heps
     have hx3 : 0 ≤ xiC1 d * eps := by positivity
     have hx4 := mul_nonneg hK4.le hx3
     linarith
@@ -179,7 +214,7 @@ theorem nuBlockFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
     intro x _ i
     refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
     · rw [norm_mul]
-      exact mul_le_mul (hsup.val x i) (flReal_phiSub_bound hC hG' hBh ht x i) (norm_nonneg _) hV
+      exact mul_le_mul (hsup.val x i) (flReal_phiSub_bound_of_bg hBG HBp heps hsmall hbg hBh ht x i) (norm_nonneg _) hV
     · rw [norm_mul, norm_mul]
       have h12 : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
       rw [h12]
@@ -201,6 +236,23 @@ theorem nuBlockFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
               rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
     _ = ((L : ℝ) ^ (n + 1)) ^ d * ((N : ℝ) * (V * B + (1 / 2) * (V * V))) := by
         rw [Finset.sum_const, nsmul_eq_mul, hcard]
+
+
+/-- **The block functional is bounded on the realizable triples.** -/
+theorem nuBlockFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {n : ℕ} (hp : n + 1 ≤ K) (hG' : IsLevel Gp (n + 1)) {Bh : ℝ} (hBh0 : 0 ≤ Bh)
+    (hBh : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν K 1 eps D →
+      ∀ x i, ‖D.h x i‖ ≤ Bh)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    (ht : t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖nuBlockFun Gp Hm n z t.1 t.2.1 t.2.2‖ ≤ nuBd d L N n (cK2' d L N (famConst d L BG₂ κ) * δ₁)
+      (K4 d L N BG κ * (xiC1 d * eps) + (1 + 3 * (xiC1 d * eps)) + Bh) := by
+  have _ := hG'
+  exact nuBlockFun_bound_of_num (by have := hC.HBp.hd; omega) hC.hS.fam.2.1 hC.hS2.fam.2.1
+    hC.δ₁_pos hC.HBp hC.eps_pos hC.small1 (fun _ hs _ hD => flCore_bgBounds hC hs hD) hp hBh0
+    hBh z ht
 
 /-- **Locality of the block functional**: it reads the background, the fluctuation and the
 external field on the block only. -/

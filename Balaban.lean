@@ -1785,6 +1785,7 @@ public import Balaban.Green.FinalTagColumnSqrt
 public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalInteractionCutoff
+public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
@@ -1919,7 +1920,11 @@ public import Balaban.LargeField.Base.BaseCubeDiscs
 public import Balaban.LargeField.Base.BaseParametrix
 public import Balaban.Fluctuation.SharpChartTestFlSup
 public import Balaban.Fluctuation.LocalFluctGen
+public import Balaban.Fluctuation.FlCoreCover
+public import Balaban.Fluctuation.LocalPairIndexMatch
 public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
+public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
+public import Balaban.Green.FinalTermBound
