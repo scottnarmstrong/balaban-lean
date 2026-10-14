@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.FinalTermBound
-import Mathlib.Analysis.Complex.Schwarz
+public import Balaban.Green.FinalAmplitude
 
 /-!
 # The normalization at `g = 0` of the last-step term (W808)
@@ -73,33 +73,28 @@ theorem norm_sub_zero_le_of_ball {T B : ℝ} {F : (α → β → ℂ) → ℂ}
       simpa using this
     subst this
     simp [← h0]
-  · set R : ℝ := T / l1 g with hR
-    have hRpos : 0 < R := div_pos hT hℓ
-    have hmem : ∀ t : ℂ, t ∈ Metric.ball (0 : ℂ) R → l1 (t • g) < T := by
-      intro t ht
-      rw [l1_smul]
-      have : ‖t‖ < R := by simpa using ht
-      rw [hR, lt_div_iff₀ hℓ] at this
-      exact this
-    have hd : DifferentiableOn ℂ (fun t : ℂ => F (t • g) - F 0) (Metric.ball (0 : ℂ) R) := by
-      intro t ht
-      have hFt : AnalyticAt ℂ F (t • g) := hF _ (hmem t ht)
-      have hc : AnalyticAt ℂ (fun s : ℂ => s • g) t :=
-        (analyticAt_id (𝕜 := ℂ)).smul analyticAt_const
-      exact ((AnalyticAt.comp (g := F) (f := fun s : ℂ => s • g) hFt hc).sub analyticAt_const).differentiableAt.differentiableWithinAt
-    have hm : Set.MapsTo (fun t : ℂ => F (t • g) - F 0) (Metric.ball (0 : ℂ) R)
-        (Metric.closedBall 0 B) := by
-      intro t ht
-      rw [Metric.mem_closedBall, dist_zero_right]
-      exact hB _ (hmem t ht)
-    have h1 : (1 : ℂ) ∈ Metric.ball (0 : ℂ) R := by
-      simp only [Metric.mem_ball, dist_zero_right, norm_one]
-      rw [hR, lt_div_iff₀ hℓ]; simpa using hg
-    have := Complex.dist_le_div_mul_dist_of_mapsTo_ball hd (by simpa using hm) h1
-    simp only [one_smul, zero_smul, sub_self, dist_zero_right, norm_one, mul_one] at this
-    rw [hR] at this
-    calc ‖F g - F 0‖ ≤ B / (T / l1 g) := this
-      _ = B * (l1 g / T) := by field_simp
+  · set g' : α → β → ℂ := ((l1 g : ℂ))⁻¹ • g with hg'
+    have hl1 : l1 g' = 1 := by
+      rw [hg', l1_smul, norm_inv, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hℓ]
+      exact inv_mul_cancel₀ hℓ.ne'
+    have hmem : ∀ t : ℂ, ‖t‖ < T → l1 (t • g') < T := by
+      intro t ht; rw [l1_smul, hl1, mul_one]; exact ht
+    have hG := Balaban.Localization.norm_le_of_vanishing_zero (ι := Unit) (R := 1) (T := T) (B := B)
+      (fun t (_ : Unit → ℂ) => F (t • g') - F 0)
+      (fun p hp => by
+        have hFt : AnalyticAt ℂ F (p.1 • g') :=
+          hF _ (hmem _ (by simpa using hp.1))
+        have hc : AnalyticAt ℂ (fun q : ℂ × (Unit → ℂ) => q.1 • g') p :=
+          analyticAt_fst.smul analyticAt_const
+        exact (AnalyticAt.comp (g := F) (f := fun q : ℂ × (Unit → ℂ) => q.1 • g') hFt hc).sub
+          analyticAt_const)
+      (fun _ => by simp)
+      (fun t ht _ _ => hB _ (hmem t (by simpa using ht)))
+      (t := (l1 g : ℂ)) (by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hℓ]; exact hg)
+      (s := fun _ => 0) (fun i => by simp)
+    have he : (l1 g : ℂ) • g' = g := by
+      rw [hg', smul_smul, mul_inv_cancel₀ (by exact_mod_cast hℓ.ne'), one_smul]
+    simpa only [he, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hℓ] using hG
 
 /-- **Root-F's bound with the amplitude from the larger ball.**  Let `F` be analytic on
 `{l1 g < T}`, `T ≥ 1`, with `‖F g - F 0‖ ≤ B` there and `B / T ≤ K A e^{-κ₁ n}`.  Then the
