@@ -25,16 +25,39 @@ entries of `U` and `U'` differ by at most `ε` on `Y(C)²` (along the identifica
 residues), then, for `s` supported on `C` and `s'` supported on `e C` with `s' (e i) = s i`,
 `‖s p‖ ≤ e^κ`:
 
-* `rowmul_close`: the perturbed defect and the box resolvent factors;
-* `boxG_entry_close_twoTorus`: `‖boxG U (B_z) t x y - boxG U' (B_{e z}) t (f x) (f y)‖`
-  is at most `|B|² ε / (g + t)²`;
-* `taggedG_close_twoTorus`, `taggedK_close_twoTorus`: entries of the tagged `G_*` and `K`;
-* `taggedGfin_close_twoTorus`: entries of `G_fin(s, t)`, at most `P ε / (g + t)`;
-* `taggedCfinU_close_twoTorus`: entries of the Stieltjes family `taggedCfinU`, at most `P ε / √g`.
+* `rowmul_close`, `taggedMat_close_twoTorus`: approximate `rowmul_transport` and
+  `taggedMat_entry_twoTorus`;
+* `final_boxFamily_close` (and `final_boxG_close_twoTorus` with the explicit error): the entries
+  of `χ_z G_z` differ by at most `|B|² ε / (g + t)²`, those of the defect `R_z` by
+  `|B| ε (g + t)⁻¹ (2 + (A / g + 1) |B|²)`;
+* `final_taggedGK_close`, `final_taggedKE_close`: the entries of `G_*`, `K`, and of the perturbed
+  defect `K_E`;
+* `ysupp_close`, `mul_inv_close`: perturbation of `G (1 - K)⁻¹` on a block;
+* `final_taggedGfin_close`, `final_taggedGfin_close_twoTorus`: entries of `G_fin(s, t)`, at most
+  `P ε / (g + t)`;
+* `final_taggedCfinU_close`, `final_taggedCfinU_close_twoTorus`: entries of the Stieltjes family
+  `taggedCfinU`, at most `P ε / √g`;
+* `final_region_entry_close`: `ε = C₀ exp(-c₀ (min N N' / 2 - (J+3) M))` for the final operators
+  (from `finalOp_entry_close`).
 
-All constants depend on `d`, `L`, `M`, `κ`, the number of cells of `C` only; the error `ε` of
-the operators enters linearly (for the final operator on two tori it is
-`finalOp_entry_close`, which depends on `k`).
+The constant `P` depends on `d`, `L`, `M`, `κ` and a bound on the number of cells of `C` only,
+not on `k`, the window `(v, a)`, the sides `N`, `N'` or `t`; `C₀`, `c₀` depend on `k` (through
+`finalOp_entry_close`).
+
+**Coefficients.**
+* `coef_sub_open`, `norm_coef_sub_relabel_le`: the Cauchy estimate
+  `‖coef f C - coef f' (e C)‖ ≤ B / (R - 1)^{|C|}` for two analytic functions that differ by at
+  most `B` on corresponding cut parameters supported on `C`, `e C`.
+* `integral_cutoff_close`, `final_coef_cutoffInteraction_close_twoTorus`: the localized
+  coefficients of the cutoff interaction `∫_{box ρ} F (C_fin(s) ψ) dγ(ψ)` on the two tori differ by
+  at most `Lip |Y(C)| δ ρ γ(box ρ) / (e^κ - 1)^{|C|}`, `δ` the entry error of
+  `final_taggedCfinU_close_twoTorus`; `F`, `F'` correspond up to a Lipschitz bound `hFclose`
+  (the exact correspondence `hF` of `TwoTorusFinal` is the case `η = 0`).
+* `trace_series_close`, `logdet_close_abstract`, `logdet_close_blocks`,
+  `final_coef_logdet_close_twoTorus`: for `(rE, η)`-small perturbations `E`, `E'` close up to `εE`
+  on `Y(C)²`, the localized coefficients of the logarithms of `det (1 - K_E(s, t))` on the two
+  tori differ by at most `P (ε + εE) / (e^κ - 1)^{|C|}` (trace series of the block
+  `K_E` restricted to `Y(C)`).
 -/
 
 @[expose] public section
@@ -379,6 +402,196 @@ theorem ysupp_close {X X' : Type*} [Fintype X] [DecidableEq X] [Fintype X'] [Dec
     (fun p q => by rw [hinv2]; exact ha' _ _) ⟨x, hx⟩ ⟨y, hy⟩
   rw [Fintype.card_coe] at key
   simpa using key
+
+theorem sum_finset_subtype_le {α : Type*} [Fintype α] (Y : Finset α) (h : α → ℝ)
+    (h0 : ∀ a, 0 ≤ h a) : ∑ j : ↥Y, h j ≤ ∑ a, h a := by
+  classical
+  rw [Finset.sum_coe_sort Y h]
+  exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) (fun a _ _ => h0 a)
+
+omit [DecidableEq Y] in
+/-- Row sums of a product of matrices (the weight `1` case of `weightedRow_mul_le`). -/
+theorem rowsum_mul_le [DecidableEq Y] (A B : Matrix Y Y ℂ) {a b : ℝ} (hb : 0 ≤ b)
+    (hA : ∀ x, ∑ y, ‖A x y‖ ≤ a) (hB : ∀ x, ∑ y, ‖B x y‖ ≤ b) (x : Y) :
+    ∑ y, ‖(A * B) x y‖ ≤ a * b := by
+  have := weightedRow_mul_le (fun _ _ : Y => (1 : ℝ)) (fun _ _ => zero_le_one)
+    (fun _ _ _ => by norm_num) A B hb (a := a) (b := b) (by simpa using hA) (by simpa using hB) x
+  simpa using this
+
+/-- **The trace series of two close matrices.**  If `K₁`, `K₂` have row sums at most `q < 1` and
+entries differing by at most `δ`, then
+`‖∑ tr(K₁^{n+1})/(n+1) - ∑ tr(K₂^{n+1})/(n+1)‖ ≤ |Y|² δ / (1 - q)`. -/
+theorem trace_series_close (K₁ K₂ : Matrix Y Y ℂ) {q δ : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1)
+    (hδ : 0 ≤ δ) (h1 : ∀ x, ∑ y, ‖K₁ x y‖ ≤ q) (h2 : ∀ x, ∑ y, ‖K₂ x y‖ ≤ q)
+    (hd : ∀ x y, ‖K₁ x y - K₂ x y‖ ≤ δ) :
+    ‖(∑' n : ℕ, (K₁ ^ (n + 1)).trace / ((n : ℂ) + 1)) -
+        ∑' n : ℕ, (K₂ ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤
+      (Fintype.card Y : ℝ) ^ 2 * δ / (1 - q) := by
+  set c : ℝ := (Fintype.card Y : ℝ) with hc
+  have hc0 : 0 ≤ c := by positivity
+  have hDrow : ∀ x, ∑ y, ‖(K₁ - K₂) x y‖ ≤ c * δ := by
+    intro x
+    calc ∑ y, ‖(K₁ - K₂) x y‖ ≤ ∑ _y : Y, δ := Finset.sum_le_sum fun y _ => hd x y
+      _ = c * δ := by rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  have hP2 : ∀ m : ℕ, ∀ x, ∑ y, ‖(K₂ ^ m) x y‖ ≤ q ^ m := fun m x => matrix_rowsum_pow_le K₂ h2 m x
+  -- bound on the rows of `K₁^m - K₂^m`
+  have hE : ∀ m : ℕ, ∀ x, ∑ y, ‖(K₁ ^ (m + 1) - K₂ ^ (m + 1)) x y‖ ≤ (m + 1) * q ^ m * (c * δ) := by
+    intro m
+    induction m with
+    | zero =>
+      intro x
+      simpa using hDrow x
+    | succ m ih =>
+      intro x
+      have hsplit : K₁ ^ (m + 1 + 1) - K₂ ^ (m + 1 + 1) =
+          K₁ * (K₁ ^ (m + 1) - K₂ ^ (m + 1)) + (K₁ - K₂) * K₂ ^ (m + 1) := by
+        rw [pow_succ' K₁ (m + 1), pow_succ' K₂ (m + 1), Matrix.mul_sub, Matrix.sub_mul]
+        abel
+      rw [hsplit]
+      have hb1 : 0 ≤ (m + 1 : ℝ) * q ^ m * (c * δ) := by positivity
+      have a1 := rowsum_mul_le K₁ (K₁ ^ (m + 1) - K₂ ^ (m + 1)) hb1 h1 ih x
+      have a2 := rowsum_mul_le (K₁ - K₂) (K₂ ^ (m + 1)) (pow_nonneg hq0 _) hDrow (hP2 (m + 1)) x
+      calc ∑ y, ‖(K₁ * (K₁ ^ (m + 1) - K₂ ^ (m + 1)) + (K₁ - K₂) * K₂ ^ (m + 1)) x y‖
+          ≤ ∑ y, (‖(K₁ * (K₁ ^ (m + 1) - K₂ ^ (m + 1))) x y‖ + ‖((K₁ - K₂) * K₂ ^ (m + 1)) x y‖) :=
+            Finset.sum_le_sum fun y _ => by simpa using norm_add_le _ _
+        _ = _ := Finset.sum_add_distrib
+        _ ≤ q * ((m + 1) * q ^ m * (c * δ)) + c * δ * q ^ (m + 1) := add_le_add a1 a2
+        _ = ((m + 1 : ℕ) + 1 : ℝ) * q ^ (m + 1) * (c * δ) := by push_cast; ring
+  have hterm : ∀ n : ℕ, ‖(K₁ ^ (n + 1)).trace / ((n : ℂ) + 1) -
+      (K₂ ^ (n + 1)).trace / ((n : ℂ) + 1)‖ ≤ c ^ 2 * δ * q ^ n := by
+    intro n
+    have hn : (n + 1 : ℝ) = ‖((n : ℂ) + 1)‖ := by
+      have : ((n : ℂ) + 1) = ((n + 1 : ℕ) : ℂ) := by push_cast; ring
+      rw [this, Complex.norm_natCast]; push_cast; ring
+    rw [← sub_div, norm_div, ← hn]
+    have htr : ‖(K₁ ^ (n + 1)).trace - (K₂ ^ (n + 1)).trace‖ ≤ c * ((n + 1) * q ^ n * (c * δ)) := by
+      rw [← Matrix.trace_sub]
+      unfold Matrix.trace
+      refine (norm_sum_le _ _).trans ?_
+      calc ∑ p, ‖(K₁ ^ (n + 1) - K₂ ^ (n + 1)).diag p‖
+          ≤ ∑ _p : Y, ((n + 1 : ℝ) * q ^ n * (c * δ)) := by
+            refine Finset.sum_le_sum fun p _ => ?_
+            refine le_trans ?_ (hE n p)
+            exact Finset.single_le_sum (f := fun y => ‖(K₁ ^ (n + 1) - K₂ ^ (n + 1)) p y‖)
+              (fun _ _ => norm_nonneg _) (Finset.mem_univ p)
+        _ = _ := by rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+    have hpos : (0 : ℝ) < n + 1 := by positivity
+    rw [div_le_iff₀ hpos]
+    calc ‖(K₁ ^ (n + 1)).trace - (K₂ ^ (n + 1)).trace‖ ≤ c * ((n + 1) * q ^ n * (c * δ)) := htr
+      _ = c ^ 2 * δ * q ^ n * (n + 1) := by ring
+  have hs1 := (det_one_sub_eq_exp_tsum_trace K₁ hq1 h1).1
+  have hs2 := (det_one_sub_eq_exp_tsum_trace K₂ hq1 h2).1
+  rw [← hs1.tsum_sub hs2]
+  have hgeo : HasSum (fun n : ℕ => c ^ 2 * δ * q ^ n) (c ^ 2 * δ * (1 - q)⁻¹) :=
+    (hasSum_geometric_of_lt_one hq0 hq1).mul_left _
+  refine (tsum_of_norm_bounded hgeo fun n => ?_).trans (le_of_eq ?_)
+  · exact hterm n
+  · rw [div_eq_mul_inv]
+
+/-- **Two logarithms of close determinants are close** (trace series, no smallness of the
+logarithms needed beyond the row sums of `K₁`, `K₂`). -/
+theorem logdet_close_abstract {X : Type*} [TopologicalSpace X] {S : Set X} (hS : IsPreconnected S)
+    {x₀ : X} (hx₀ : x₀ ∈ S) {K₁ K₂ : X → Matrix Y Y ℂ} (hc₁ : Continuous K₁)
+    (hc₂ : Continuous K₂) (h₁ : K₁ x₀ = 0) (h₂ : K₂ x₀ = 0) {q δ : ℝ} (hq0 : 0 ≤ q)
+    (hq1 : q < 1) (hδ : 0 ≤ δ) (hr₁ : ∀ x ∈ S, ∀ i, ∑ j, ‖K₁ x i j‖ ≤ q)
+    (hr₂ : ∀ x ∈ S, ∀ i, ∑ j, ‖K₂ x i j‖ ≤ q)
+    (hd : ∀ x ∈ S, ∀ i j, ‖K₁ x i j - K₂ x i j‖ ≤ δ) {ell₁ ell₂ : X → ℂ}
+    (hl₁ : ContinuousOn ell₁ S) (hl₂ : ContinuousOn ell₂ S) (e₁ : ell₁ x₀ = 0) (e₂ : ell₂ x₀ = 0)
+    (hdet₁ : ∀ x ∈ S, (1 - K₁ x).det = Complex.exp (ell₁ x))
+    (hdet₂ : ∀ x ∈ S, (1 - K₂ x).det = Complex.exp (ell₂ x)) :
+    ∀ x ∈ S, ‖ell₁ x - ell₂ x‖ ≤ (Fintype.card Y : ℝ) ^ 2 * δ / (1 - q) := by
+  intro x hx
+  rw [eq_neg_tsum_trace_of_exp_eq hS hx₀ K₁ hc₁ h₁ hq0 hq1 hr₁ hl₁ e₁ hdet₁ x hx,
+    eq_neg_tsum_trace_of_exp_eq hS hx₀ K₂ hc₂ h₂ hq0 hq1 hr₂ hl₂ e₂ hdet₂ x hx]
+  have := trace_series_close (K₁ x) (K₂ x) hq0 hq1 hδ (hr₁ x hx) (hr₂ x hx) (hd x hx)
+  rw [show ∀ A B : ℂ, -A - -B = -(A - B) from fun A B => by ring, norm_neg]
+  exact this
+
+/-- **Logarithms of the determinants of two block-supported matrix families that correspond
+up to `δ`.**  The matrices `KA z`, `KB z` (`z ∈ S`, `S` preconnected, `z₀ ∈ S`, both `0` at `z₀`)
+have rows vanishing outside `Y`, `Y'`, row sums at most `1/2`, and correspond up to `δ` on
+`Y × Y` along a bijection `f : Y → Y'`.  If `ell₁`, `ell₂` are continuous logarithms of
+`det (1 - KA z)`, `det (1 - KB z)` vanishing at `z₀`, then `‖ell₁ z - ell₂ z‖ ≤ 2 |Y|² δ`. -/
+theorem logdet_close_blocks {X X' : Type*} [Fintype X] [DecidableEq X] [Fintype X']
+    [DecidableEq X'] {Z : Type*} [TopologicalSpace Z] {S : Set Z} (hS : IsPreconnected S)
+    {z₀ : Z} (hz₀ : z₀ ∈ S) (f : X → X') {Y : Finset X} {Y' : Finset X'}
+    (hf : Set.BijOn f (Y : Set X) (Y' : Set X')) {KA : Z → Matrix X X ℂ}
+    {KB : Z → Matrix X' X' ℂ} (hcA : Continuous KA) (hcB : Continuous KB) (h0A : KA z₀ = 0)
+    (h0B : KB z₀ = 0) (hrA : ∀ z ∈ S, ∀ x, x ∉ Y → ∀ y, KA z x y = 0)
+    (hrB : ∀ z ∈ S, ∀ x, x ∉ Y' → ∀ y, KB z x y = 0)
+    (hsA : ∀ z ∈ S, ∀ x, ∑ y, ‖KA z x y‖ ≤ 1 / 2)
+    (hsB : ∀ z ∈ S, ∀ x, ∑ y, ‖KB z x y‖ ≤ 1 / 2) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hdd : ∀ z ∈ S, ∀ x ∈ Y, ∀ y ∈ Y, ‖KA z x y - KB z (f x) (f y)‖ ≤ δ)
+    {ell₁ ell₂ : Z → ℂ} (hl₁ : ContinuousOn ell₁ S) (hl₂ : ContinuousOn ell₂ S)
+    (e₁ : ell₁ z₀ = 0) (e₂ : ell₂ z₀ = 0)
+    (hdet₁ : ∀ z ∈ S, (1 - KA z).det = Complex.exp (ell₁ z))
+    (hdet₂ : ∀ z ∈ S, (1 - KB z).det = Complex.exp (ell₂ z)) :
+    ∀ z ∈ S, ‖ell₁ z - ell₂ z‖ ≤ 2 * ((Y.card : ℝ) ^ 2 * δ) := by
+  classical
+  have hbij : Function.Bijective (fun q : Y => (⟨f q, hf.mapsTo q.2⟩ : Y')) := by
+    constructor
+    · intro a b hab
+      have := congrArg Subtype.val hab
+      exact Subtype.ext (hf.injOn a.2 b.2 this)
+    · intro b
+      obtain ⟨a, ha, hab⟩ := hf.surjOn b.2
+      exact ⟨⟨a, ha⟩, Subtype.ext hab⟩
+  set εq : Y ≃ Y' := Equiv.ofBijective _ hbij with hεq
+  set K₁ : Z → Matrix Y Y ℂ := fun z =>
+    (KA z).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)) with hK₁
+  set K₂ : Z → Matrix Y Y ℂ := fun z =>
+    ((KB z).submatrix (fun q : Y' => (q : X')) (fun q : Y' => (q : X'))).submatrix εq εq
+    with hK₂
+  have hc₁ : Continuous K₁ := hcA.matrix_submatrix _ _
+  have hc₂ : Continuous K₂ := (hcB.matrix_submatrix _ _).matrix_submatrix _ _
+  have h₁ : K₁ z₀ = 0 := by rw [hK₁]; simp only [h0A]; ext p q; rfl
+  have h₂ : K₂ z₀ = 0 := by rw [hK₂]; simp only [h0B]; ext p q; rfl
+  have hr₁ : ∀ z ∈ S, ∀ i, ∑ j, ‖K₁ z i j‖ ≤ 1 / 2 := fun z hz i =>
+    le_trans (sum_finset_subtype_le Y (fun y => ‖KA z i y‖) fun y => norm_nonneg _) (hsA z hz i)
+  have hr₂ : ∀ z ∈ S, ∀ i, ∑ j, ‖K₂ z i j‖ ≤ 1 / 2 := by
+    intro z hz i
+    refine le_trans ?_ (hsB z hz (εq i))
+    refine le_trans (le_of_eq ?_) (sum_finset_subtype_le Y' (fun y => ‖KB z (εq i) y‖)
+      fun y => norm_nonneg _)
+    exact Equiv.sum_comp εq (fun j' => ‖KB z (εq i) j'‖)
+  have hd12 : ∀ z ∈ S, ∀ i j, ‖K₁ z i j - K₂ z i j‖ ≤ δ := fun z hz i j => hdd z hz i i.2 j j.2
+  have hdetA : ∀ z ∈ S, (1 - K₁ z).det = Complex.exp (ell₁ z) := by
+    intro z hz
+    have e1 : (1 - K₁ z) = (1 - KA z).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)) := by
+      ext p q
+      simp only [hK₁, Matrix.sub_apply, Matrix.submatrix_apply, Matrix.one_apply]
+      by_cases h : (p : X) = q
+      · have h' : p = q := Subtype.ext h
+        simp only [h', ↓reduceIte]
+      · have h' : ¬ p = q := fun hh => h (by rw [hh])
+        simp only [h, h', ↓reduceIte]
+    rw [e1, ← det_eq_det_submatrix_of_rows _ Y (fun x hx y => by
+      rw [Matrix.sub_apply, hrA z hz x hx y, sub_zero])]
+    exact hdet₁ z hz
+  have hdetB : ∀ z ∈ S, (1 - K₂ z).det = Complex.exp (ell₂ z) := by
+    intro z hz
+    have hinj : ∀ p q : Y, ((εq p : Y') : X') = (εq q : Y') ↔ p = q :=
+      fun p q => by rw [← Subtype.ext_iff]; exact εq.injective.eq_iff
+    have e1 : (1 - K₂ z) = ((1 - KB z).submatrix (fun q : Y' => (q : X'))
+        (fun q : Y' => (q : X'))).submatrix εq εq := by
+      ext p q
+      simp only [hK₂, Matrix.sub_apply, Matrix.submatrix_apply, Matrix.one_apply]
+      by_cases h : p = q
+      · have h' : ((εq p : Y') : X') = (εq q : Y') := by rw [h]
+        simp only [h, ↓reduceIte]
+      · have h' : ¬ ((εq p : Y') : X') = (εq q : Y') := fun hh => h ((hinj p q).1 hh)
+        simp only [h, h', ↓reduceIte]
+    rw [e1, Matrix.det_submatrix_equiv_self, ← det_eq_det_submatrix_of_rows _ Y' (fun x hx y => by
+      rw [Matrix.sub_apply, hrB z hz x hx y, sub_zero])]
+    exact hdet₂ z hz
+  intro z hz
+  have := logdet_close_abstract hS hz₀ hc₁ hc₂ h₁ h₂ (q := 1 / 2) (δ := δ) (by norm_num)
+    (by norm_num) hδ hr₁ hr₂ hd12 hl₁ hl₂ e₁ e₂ hdetA hdetB z hz
+  rw [Fintype.card_coe] at this
+  have h2 : (Y.card : ℝ) ^ 2 * δ / (1 - 1 / 2) = 2 * ((Y.card : ℝ) ^ 2 * δ) := by
+    field_simp; ring
+  rw [h2] at this
+  exact this
 
 end Abstract
 
@@ -1048,6 +1261,141 @@ theorem final_taggedCfinU_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (h
   exact hP hk hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass
     (fun p hp q hq => hmain hv0 hv1 ha1 ha2 hM hN hN' hf hC p hp q hq) hs hs' hss hsκ hx hy
 
+/-- The `E`-part of the perturbed defect: closeness of `E χ_z G_z` for the final operators on two
+tori, `E`, `E'` close up to `εE` on `Y(C)²` and `‖E'‖ ≤ η` entrywise. -/
+theorem final_boxE_close (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) {ε εE η : ℝ} (hη : 0 ≤ η)
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε)
+    {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hEc : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE)
+    (hEb : ∀ x y, ‖E' x y‖ ≤ η)
+    {t : ℝ} (ht : 0 ≤ t) {z : MacIdx d N M} (hzC : z ∈ C) {x y : L1Torus d N}
+    (hx : x ∈ macRegion d N M C) (hy : y ∈ macRegion d N M C) :
+    ‖(E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+          boxG (finalOp d L N k v a) (macBoxF d N M z) t)) x y -
+        (E' * (Matrix.diagonal (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) *
+          boxG (finalOp d L N' k v a) (macBoxF d N' M (e z)) t)) (f x) (f y)‖ ≤
+      (((8 * M + 1) ^ d : ℕ) : ℝ) * (εE * (2 * (finalGap d L + t)⁻¹) +
+        η * ((((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2)) := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hgt : 0 < finalGap d L + t := by linarith
+  have hT0 : 0 < (finalGap d L + t)⁻¹ := inv_pos.2 hgt
+  have hε0 : 0 ≤ ε := (norm_nonneg _).trans (hU x hx y hy)
+  have hεE0 : 0 ≤ εE := (norm_nonneg _).trans (hEc x hx y hy)
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  obtain ⟨hBY, hinjY, hc, hc', hcY⟩ := boxFamily_twoTorus hM hN hN' hf he hC hYmem hzC
+  have hBimg := macBoxF_image hM hN hN' hf (fun y μ => rfl) he (hC z hzC)
+    (g := fun y μ => (((y μ).val : ℕ) : ZMod N))
+  set B := macBoxF d N M z with hBdef
+  have hBcard : (B.card : ℝ) ≤ (((8 * M + 1) ^ d : ℕ) : ℝ) := by
+    exact_mod_cast card_macBoxF_le hM z
+  set nB : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) with hnBdef
+  have hnB : 0 ≤ nB := by positivity
+  have hBinj : Set.InjOn f (B : Set (L1Torus d N)) := hinjY.mono (by exact_mod_cast hBY)
+  have hGc : ∀ u ∈ B, ∀ w ∈ B, ‖boxG (finalOp d L N k v a) B t u w -
+      boxG (finalOp d L N' k v a) (B.image f) t (f u) (f w)‖ ≤
+      nB ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2 := by
+    intro u hu w hw
+    have h := final_boxG_close (L := L) (k := k) (m := N) (m' := N') hd hv0 hv1 ha1 hmass ht B f
+      hBinj (ε := ε) (fun p hp q hq => hU p ((hYmem p).1 (hBY hp)) q ((hYmem q).1 (hBY hq)))
+      hu hw
+    refine h.trans ?_
+    have : (B.card : ℝ) ^ 2 ≤ nB ^ 2 := by gcongr
+    have h2 : 0 ≤ ε * (finalGap d L + t)⁻¹ ^ 2 := by positivity
+    calc (B.card : ℝ) ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2
+        = (B.card : ℝ) ^ 2 * (ε * (finalGap d L + t)⁻¹ ^ 2) := by ring
+      _ ≤ nB ^ 2 * (ε * (finalGap d L + t)⁻¹ ^ 2) := mul_le_mul_of_nonneg_right this h2
+      _ = _ := by ring
+  have hbG := final_boxG_entry_le (L := L) (k := k) hd hk hv0 hv1 ha1 ha2 hmass ht B
+  have hc1 : ∀ u, ‖((macChi d N M z u : ℝ) : ℂ)‖ ≤ 1 := fun u => by
+    rw [Complex.norm_real, Real.norm_of_nonneg (macChi_nonneg z u)]; exact macChi_le_one z u
+  rw [hBimg]
+  have hrow := rowmul_close f hBY hinjY (U := finalOp d L N k v a) (U' := finalOp d L N' k v a)
+    t hc hc' hcY hc1 (A := E) (A' := E') (εA := εE) (aA := η)
+    (bG := 2 * (finalGap d L + t)⁻¹) (δG := nB ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2)
+    hεE0 hη (by positivity) (by positivity)
+    (fun p hp q hq => hEc p ((hYmem p).1 hp) q ((hYmem q).1 hq)) (fun p _ q _ => hEb _ _)
+    (fun u _ w => hbG u w) hGc ((hYmem x).2 hx) ((hYmem y).2 hy)
+  refine hrow.trans ?_
+  exact mul_le_mul_of_nonneg_right hBcard (by positivity) |>.trans (le_of_eq rfl)
+
+/-- **Closeness of the tagged perturbed defect `K_E` of the final operators on two tori.** -/
+theorem final_taggedKE_close (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) {ε εE η κ : ℝ} (hκ : 0 ≤ κ) (hη : 0 ≤ η)
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε)
+    {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hEc : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE)
+    (hEb : ∀ x y, ‖E' x y‖ ≤ η)
+    {t : ℝ} (ht : 0 ≤ t)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} (hx : x ∈ macRegion d N M C) (hy : y ∈ macRegion d N M C) :
+    ‖taggedMat Finset.univ (macTags d N M)
+        (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+            (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+          E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s x y -
+      taggedMat Finset.univ (macTags d N' M)
+        (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+            (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+          E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s' (f x) (f y)‖ ≤
+      (C.card : ℝ) * Real.exp (κ * C.card) *
+        ((((8 * M + 1) ^ d : ℕ) : ℝ) * ε * (finalGap d L + t)⁻¹ *
+            (2 + (finalDecayC d L / finalGap d L + 1) * (((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2) +
+          (((8 * M + 1) ^ d : ℕ) : ℝ) * (εE * (2 * (finalGap d L + t)⁻¹) +
+            η * ((((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2))) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hA0 := finalDecayC_pos (L := L) hd
+  have hgt : 0 < finalGap d L + t := by linarith
+  have hε0 : 0 ≤ ε := (norm_nonneg _).trans (hU x hx y hy)
+  have hεE0 : 0 ≤ εE := (norm_nonneg _).trans (hEc x hx y hy)
+  have hpos : 0 ≤ (((8 * M + 1) ^ d : ℕ) : ℝ) * ε * (finalGap d L + t)⁻¹ *
+            (2 + (finalDecayC d L / finalGap d L + 1) * (((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2) +
+          (((8 * M + 1) ^ d : ℕ) : ℝ) * (εE * (2 * (finalGap d L + t)⁻¹) +
+            η * ((((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2)) := by
+    positivity
+  refine taggedMat_close_twoTorus hM hN hN' hf he hC hκ hpos
+    (fun z hzC u hu w hw => ?_) hs hs' hss hsκ hx hy
+  have h1 := (final_boxFamily_close hM hN hN' hf he hC hd hk hv0 hv1 ha1 ha2 hmass hU ht hzC hu hw).2
+  have h2 := final_boxE_close hM hN hN' hf he hC hd hk hv0 hv1 ha1 ha2 hmass hη hU hEc hEb ht hzC hu hw
+  have : (boxR (finalOp d L N k v a) (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+        E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+          boxG (finalOp d L N k v a) (macBoxF d N M z) t)) u w -
+      (boxR (finalOp d L N' k v a) (macBoxF d N' M (e z))
+          (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) t -
+        E' * (Matrix.diagonal (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) *
+          boxG (finalOp d L N' k v a) (macBoxF d N' M (e z)) t)) (f u) (f w) =
+      (boxR (finalOp d L N k v a) (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t u w -
+        boxR (finalOp d L N' k v a) (macBoxF d N' M (e z))
+          (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) t (f u) (f w)) -
+      ((E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+          boxG (finalOp d L N k v a) (macBoxF d N M z) t)) u w -
+        (E' * (Matrix.diagonal (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) *
+          boxG (finalOp d L N' k v a) (macBoxF d N' M (e z)) t)) (f u) (f w)) := by
+    simp only [Matrix.sub_apply]; ring
+  rw [this]
+  exact (norm_sub_le _ _).trans (add_le_add h1 h2)
+
 end FinalBoxes
 
 section Coef
@@ -1151,6 +1499,42 @@ theorem norm_coef_sub_relabel_le {R : ℝ} (hR : 1 < R) (e : ι → ι') {C : Fi
     · simpa [hpb, hi] using hR0
   have := hB (pb u) hsN u hus (fun i hi => by simp [hpb, hi])
   simpa [hg] using this
+
+omit [Fintype ι] [DecidableEq ι] [Fintype ι'] in
+/-- The transport of cut parameters along a map injective on `C`. -/
+theorem exists_relabel_map (e : ι → ι') {C : Finset ι} (he : Set.InjOn e (C : Set ι)) :
+    ∃ τ : (ι → ℂ) → (ι' → ℂ), Continuous τ ∧ τ 0 = 0 ∧ (∀ u, ∀ i ∈ C, τ u (e i) = u i) ∧
+      (∀ u, τ u ∈ supportedOn (C.image e)) ∧
+      (∀ u : ι → ℂ, ∀ R : ℝ, 0 ≤ R → (∀ i, ‖u i‖ ≤ R) → ∀ j, ‖τ u j‖ ≤ R) := by
+  classical
+  set τ : (ι → ℂ) → (ι' → ℂ) := fun u j => ∑ i ∈ C.filter (fun i => e i = j), u i with hτ
+  have hτe : ∀ u, ∀ i ∈ C, τ u (e i) = u i := by
+    intro u i hi
+    have : C.filter (fun i' => e i' = e i) = {i} := by
+      ext i'
+      simp only [Finset.mem_filter, Finset.mem_singleton]
+      constructor
+      · rintro ⟨hi', h⟩
+        exact he hi' hi h
+      · rintro rfl
+        exact ⟨hi, rfl⟩
+    simp [hτ, this]
+  have hτsupp : ∀ u, τ u ∈ supportedOn (C.image e) := by
+    intro u j hj
+    have : C.filter (fun i => e i = j) = ∅ := by
+      ext i
+      simp only [Finset.mem_filter, Finset.notMem_empty, iff_false, not_and]
+      intro hi h
+      exact hj (Finset.mem_image.2 ⟨i, hi, h⟩)
+    simp [hτ, this]
+  refine ⟨τ, continuous_pi fun j => continuous_finsetSum _ fun i _ => continuous_apply i, ?_,
+    hτe, hτsupp, ?_⟩
+  · funext j; simp [hτ]
+  · intro u R hR hu j
+    by_cases hj : j ∈ C.image e
+    · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hj
+      rw [hτe u i hi]; exact hu i
+    · rw [hτsupp u j hj, norm_zero]; exact hR
 
 end Coef
 
@@ -1522,5 +1906,246 @@ theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {�
   simpa only [taggedCfinU_finalOp] using this
 
 end Interaction
+
+
+section LogDet
+
+variable {d M J N N' L : ℕ} [NeZero N] [NeZero N'] [NeZero L]
+
+/-- **The localized coefficients of the logarithm of the perturbed defect on two tori.**
+Let `E`, `E'` be `(rE, η)`-small perturbations of the final operators of the tori `N`, `N'` that
+are close up to `εE` on `Y(C)²`, and `ell`, `ell'` analytic logarithms (vanishing at `0`) of
+`det (1 - K_E(s, t))` on a polydisc of radius `> e^κ`.  Then
+`‖coef ell C - coef ell' (e C)‖ ≤ P (ε + εE) / (e^κ - 1)^{|C|}`, where
+`ε = C₀ exp(-c₀ (min N N' / 2 - (J+3) M))` is the error of the final operators
+(`final_region_entry_close`) and `P` depends on `d, L, M, κ, η` and a bound `nC` of `|C|` only. -/
+theorem final_coef_logdet_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1) (nC : ℕ) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) + εE) /
+          (Real.exp κ - 1) ^ C.card := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hA0 := finalDecayC_pos (L := L) hd
+  have hκ0 : 0 ≤ κ := hκ.le
+  have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hR0 : 0 < Real.exp κ := by linarith
+  set nB : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) with hnBdef
+  have hnB : 0 ≤ nB := by positivity
+  set cc : ℝ := (nC : ℝ) * Real.exp (κ * nC) with hcc
+  set nY : ℝ := (nC : ℝ) * nB with hnY
+  set P0 : ℝ := finalDecayC d L / finalGap d L + 1 with hP0
+  set c1 : ℝ := nB * (2 + P0 * nB ^ 2) / finalGap d L + η * nB ^ 3 / finalGap d L ^ 2 with hc1
+  set c2 : ℝ := 2 * nB / finalGap d L with hc2
+  have hP00 : 0 ≤ P0 := by positivity
+  have hc10 : 0 ≤ c1 := by positivity
+  have hc20 : 0 ≤ c2 := by positivity
+  refine ⟨2 * nY ^ 2 * cc * (c1 + c2), by positivity, ?_⟩
+  intro k hk
+  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := final_region_entry_close (d := d) (L := L) (k := k) hd
+  refine ⟨C₀, c₀, hC₀, hc₀, ?_⟩
+  intro J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE' εE hεE0 hEc
+    ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  set ε₀ : ℝ := C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) with hε₀
+  have hε00 : 0 ≤ ε₀ := by positivity
+  have hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε₀ :=
+    fun x hx y hy => hmain hv0 hv1 ha1 ha2 hM hN hN' hf hC x hx y hy
+  have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
+    have := (hC z hz i).2; omega
+  have hinjE : Set.InjOn e (C : Set (MacIdx d N M)) := by
+    intro z1 hz1 z2 hz2 h
+    funext i
+    apply Fin.ext
+    have h1 := he z1 i (hgoodC z1 hz1 i)
+    have h2 := he z2 i (hgoodC z2 hz2 i)
+    have : ((e z1 i : Fin (macK N' M)) : ℕ) = ((e z2 i : Fin (macK N' M)) : ℕ) := by rw [h]
+    omega
+  obtain ⟨τ, hτc, hτ0, hτe, hτs, hτn⟩ := exists_relabel_map e hinjE
+  have hEb : ∀ x y, ‖E' x y‖ ≤ η := by
+    intro x y
+    refine (hE'.entry x y).trans ?_
+    have hr : 0 ≤ rE := le_trans (by have := pdEps_pos (d := d) (L := L) hd; positivity) hrE
+    have : Real.exp (-rE * dist x y) ≤ 1 :=
+      Real.exp_le_one_iff.2 (by nlinarith [dist_nonneg (x := x) (y := y)])
+    nlinarith
+  -- the sets and the bijection
+  obtain ⟨g, hg'⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
+    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  set Y'set : Finset (L1Torus d N') :=
+    Finset.univ.filter (fun u => u ∈ macRegion d N' M (C.image e)) with hY'set
+  have hY'mem : ∀ u, u ∈ Y'set ↔ u ∈ macRegion d N' M (C.image e) := fun u => by simp [hY'set]
+  have hbij : Set.BijOn f (Yset : Set (L1Torus d N)) (Y'set : Set (L1Torus d N')) := by
+    have := macRegion_bijOn hM hN hN' hf hg' he hC
+    simpa [hYset, hY'set] using this
+  have hbij' : Function.Bijective (fun q : Yset => (⟨f q, hbij.mapsTo q.2⟩ : Y'set)) := by
+    constructor
+    · intro a b hab
+      have := congrArg Subtype.val hab
+      exact Subtype.ext (hbij.injOn a.2 b.2 this)
+    · intro b
+      obtain ⟨a, ha, hab⟩ := hbij.surjOn b.2
+      exact ⟨⟨a, ha⟩, Subtype.ext hab⟩
+  set εq : Yset ≃ Y'set := Equiv.ofBijective _ hbij' with hεq
+  have hYcard : (Fintype.card Yset : ℝ) ≤ nY := by
+    rw [Fintype.card_coe]
+    have h1 : Yset = C.biUnion (macBoxF d N M) := by
+      ext u; rw [hYmem, mem_biUnion_macBoxF]
+    rw [h1]
+    calc ((C.biUnion (macBoxF d N M)).card : ℝ) ≤ (C.card : ℝ) * nB := by
+          have := card_biUnion_macBoxF_le hM C
+          rw [hnBdef]; exact_mod_cast this
+      _ ≤ nY := by
+          rw [hnY]; exact mul_le_mul_of_nonneg_right (by exact_mod_cast hCc) hnB
+  set aF : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ := fun z =>
+    boxR (finalOp d L N k v a) (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+      E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+        boxG (finalOp d L N k v a) (macBoxF d N M z) t) with haF
+  set aF' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ := fun z =>
+    boxR (finalOp d L N' k v a) (macBoxF d N' M z) (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+      E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+        boxG (finalOp d L N' k v a) (macBoxF d N' M z) t) with haF'
+  have hrowfull : ∀ s : MacIdx d N M → ℂ, (∀ p, ‖s p‖ ≤ Real.exp κ) → ∀ x,
+      ∑ y, ‖taggedMat Finset.univ (macTags d N M) aF s x y‖ ≤ 1 / 2 := fun s hs x =>
+    taggedKE_rowsum_le_half hd hk hv0 hv1 ha1 ha2 hmass hE hrE ht hM hκ0 hMB hMκ hη hs x
+  have hrowfull' : ∀ s : MacIdx d N' M → ℂ, (∀ p, ‖s p‖ ≤ Real.exp κ) → ∀ x,
+      ∑ y, ‖taggedMat Finset.univ (macTags d N' M) aF' s x y‖ ≤ 1 / 2 := fun s hs x =>
+    taggedKE_rowsum_le_half hd hk hv0 hv1 ha1 ha2 hmass hE' hrE ht hM hκ0 hMB hMκ hη hs x
+  set S : Set (MacIdx d N M → ℂ) := Metric.closedBall 0 (Real.exp κ) ∩ supportedOn C with hS
+  have hSconv : IsPreconnected S :=
+    ((convex_closedBall _ _).inter (convex_supportedOn C)).isPreconnected
+  have h0S : (0 : MacIdx d N M → ℂ) ∈ S := ⟨Metric.mem_closedBall_self hR0.le, fun i _ => rfl⟩
+  have hsκ : ∀ s ∈ S, ∀ p, ‖s p‖ ≤ Real.exp κ := fun s hs p =>
+    (norm_le_pi_norm s p).trans (mem_closedBall_zero_iff.1 hs.1)
+  have hτκ : ∀ s ∈ S, ∀ p, ‖τ s p‖ ≤ Real.exp κ := fun s hs p =>
+    hτn s _ hR0.le (hsκ s hs) p
+  set δ0 : ℝ := cc * (c1 * ε₀ + c2 * εE) with hδ0
+  have hδ00 : 0 ≤ δ0 := by positivity
+  have hnum : ∀ gT : ℝ, 0 ≤ gT → gT ≤ (finalGap d L)⁻¹ →
+      nB * ε₀ * gT * (2 + P0 * nB ^ 2) +
+        nB * (εE * (2 * gT) + η * (nB ^ 2 * ε₀ * gT ^ 2)) ≤ c1 * ε₀ + c2 * εE := by
+    intro gT hgT0 hgT
+    have e1 : nB * ε₀ * gT * (2 + P0 * nB ^ 2) +
+        nB * (εE * (2 * gT) + η * (nB ^ 2 * ε₀ * gT ^ 2)) =
+        (nB * (2 + P0 * nB ^ 2) * ε₀) * gT + (η * nB ^ 3 * ε₀) * gT ^ 2 + (2 * nB * εE) * gT := by
+      ring
+    have e2 : c1 * ε₀ + c2 * εE = (nB * (2 + P0 * nB ^ 2) * ε₀) * (finalGap d L)⁻¹ +
+        (η * nB ^ 3 * ε₀) * ((finalGap d L)⁻¹) ^ 2 + (2 * nB * εE) * (finalGap d L)⁻¹ := by
+      simp only [hc1, hc2, div_eq_mul_inv, inv_pow]; ring
+    rw [e1, e2]
+    gcongr
+  have hdd : ∀ s ∈ S, ∀ x ∈ Yset, ∀ y ∈ Yset,
+      ‖taggedMat Finset.univ (macTags d N M) aF s x y -
+        taggedMat Finset.univ (macTags d N' M) aF' (τ s) (f x) (f y)‖ ≤ δ0 := by
+    intro s hs x hx y hy
+    have hgt : 0 < finalGap d L + t := by linarith
+    have h := final_taggedKE_close hM hN hN' hf he hC hd hk hv0 hv1 ha1 ha2 hmass hκ0 hη0 hU hEc
+      hEb ht (s := s) hs.2 (s' := τ s) (hτs s) (fun i hi => hτe s i hi) (hsκ s hs)
+      ((hYmem x).1 hx) ((hYmem y).1 hy)
+    refine h.trans ?_
+    have hCc' : (C.card : ℝ) * Real.exp (κ * C.card) ≤ cc := by
+      rw [hcc]
+      apply mul_le_mul (by exact_mod_cast hCc) _ (Real.exp_pos _).le (by positivity)
+      exact Real.exp_le_exp.2 (mul_le_mul_of_nonneg_left (by exact_mod_cast hCc) hκ0)
+    have hgT : (finalGap d L + t)⁻¹ ≤ (finalGap d L)⁻¹ := inv_anti₀ hg (by linarith)
+    have hb := hnum _ (inv_pos.2 hgt).le hgT
+    have hbig : 0 ≤ nB * ε₀ * (finalGap d L + t)⁻¹ * (2 + P0 * nB ^ 2) +
+        nB * (εE * (2 * (finalGap d L + t)⁻¹) + η * (nB ^ 2 * ε₀ * (finalGap d L + t)⁻¹ ^ 2)) := by
+      have := inv_pos.2 hgt
+      positivity
+    calc _ ≤ cc * ((nB * ε₀ * (finalGap d L + t)⁻¹ * (2 + P0 * nB ^ 2) +
+            nB * (εE * (2 * (finalGap d L + t)⁻¹) + η * (nB ^ 2 * ε₀ * (finalGap d L + t)⁻¹ ^ 2)))) :=
+          mul_le_mul_of_nonneg_right hCc' hbig
+      _ ≤ cc * (c1 * ε₀ + c2 * εE) := mul_le_mul_of_nonneg_left hb (by positivity)
+  have hSball : ∀ s ∈ S, s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ := fun s hs => by
+    rw [mem_ball_zero_iff]; exact lt_of_le_of_lt (mem_closedBall_zero_iff.1 hs.1) hρ
+  have hSball' : ∀ s ∈ S, τ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ' := fun s hs => by
+    rw [mem_ball_zero_iff]
+    exact lt_of_le_of_lt ((pi_norm_le_iff_of_nonneg hR0.le).2 (hτκ s hs)) hρ'
+  have key := logdet_close_blocks hSconv h0S f hbij
+    (KA := fun s => taggedMat Finset.univ (macTags d N M) aF s)
+    (KB := fun s => taggedMat Finset.univ (macTags d N' M) aF' (τ s))
+    (tm_continuous aF) ((tm_continuous aF').comp hτc) (tm_zero hM hd aF)
+    (by simp only [hτ0]; exact tm_zero hM hd aF')
+    (fun s hs x hx y => tm_row_eq_zero hM hd aF hs.2 (fun h => hx ((hYmem x).2 h)) y)
+    (fun s hs x hx y => tm_row_eq_zero hM hd aF' (hτs s) (fun h => hx ((hY'mem x).2 h)) y)
+    (fun s hs x => hrowfull s (hsκ s hs) x) (fun s hs x => hrowfull' (τ s) (hτκ s hs) x) hδ00 hdd
+    (ell₁ := ell) (ell₂ := fun s => ell' (τ s))
+    (hell.continuousOn.mono fun s hs => hSball s hs)
+    (hell'.continuousOn.comp hτc.continuousOn fun s hs => hSball' s hs) h0
+    (by simp only [hτ0]; exact h0')
+    (fun s hs => hdet s (hSball s hs)) (fun s hs => hdet' _ (hSball' s hs))
+  have hA := norm_coef_sub_relabel_le hR e hinjE (f := ell) (f' := ell')
+    (by rw [polydisc_eq_ball hR0]; exact hell.mono (Metric.ball_subset_ball hρ.le))
+    (by rw [polydisc_eq_ball hR0]; exact hell'.mono (Metric.ball_subset_ball hρ'.le))
+    (B := 2 * (nY ^ 2 * δ0)) (fun s hs s' hs' hss => ?_)
+  · refine hA.trans ?_
+    have hpow : 0 < (Real.exp κ - 1) ^ C.card := pow_pos (by linarith) _
+    rw [div_eq_mul_inv, div_eq_mul_inv]
+    refine mul_le_mul_of_nonneg_right ?_ (inv_nonneg.2 hpow.le)
+    have : c1 * ε₀ + c2 * εE ≤ (c1 + c2) * (ε₀ + εE) := by
+      have h1 : 0 ≤ c1 * εE := mul_nonneg hc10 hεE0
+      have h2 : 0 ≤ c2 * ε₀ := mul_nonneg hc20 hε00
+      calc c1 * ε₀ + c2 * εE ≤ (c1 * ε₀ + c2 * εE) + (c1 * εE + c2 * ε₀) :=
+            le_add_of_nonneg_right (add_nonneg h1 h2)
+        _ = (c1 + c2) * (ε₀ + εE) := by ring
+    calc 2 * (nY ^ 2 * δ0) = 2 * nY ^ 2 * cc * (c1 * ε₀ + c2 * εE) := by rw [hδ0]; ring
+      _ ≤ 2 * nY ^ 2 * cc * ((c1 + c2) * (ε₀ + εE)) :=
+          mul_le_mul_of_nonneg_left this (by positivity)
+      _ = _ := by ring
+  · have hsS : s ∈ S := ⟨mem_closedBall_zero_iff.2 ((pi_norm_le_iff_of_nonneg hR0.le).2
+      fun p => (hs.2 p).le), hs.1⟩
+    have hs'eq : s' = τ s := by
+      funext j
+      by_cases hj : j ∈ C.image e
+      · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hj
+        rw [hss i hi, hτe s i hi]
+      · rw [hs' j hj, hτs s j hj]
+    rw [hs'eq]
+    refine (key s hsS).trans ?_
+    have hcard2 : (Yset.card : ℝ) ^ 2 ≤ nY ^ 2 := by
+      have : (0 : ℝ) ≤ Yset.card := by positivity
+      have h' : (Yset.card : ℝ) ≤ nY := by rw [← Fintype.card_coe]; exact hYcard
+      exact pow_le_pow_left₀ this h' 2
+    exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hcard2 hδ00) (by norm_num)
+
+end LogDet
 
 end Balaban.Green
