@@ -143,65 +143,168 @@ theorem continuousOn_covA {c b : ℝ} (hc : 0 < c) (hb : 0 ≤ b) {κι : Type*}
 
 end LiftCont
 
-section Family
-
-variable (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
-include hfam
-
-theorem aux_hak : 0 < a k := by
-  have D := hfam 0 le_rfl
-  have := D.st.ha k D.st.hk le_rfl
-  linarith [this.1]
-
-theorem aux_hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
-  have D := hfam 0 le_rfl
-  have := D.st.haT1
-  positivity
-
-omit hfam in
 theorem continuousOn_xDirichlet (hak : 0 < a k) (hb : 0 ≤ aT / (L : ℝ) ^ 2)
     (α : G.Ω 1 → ℂ) :
     ContinuousOn (fun x => xDirichletOperator G a aT x ν α) (Ici 0) := by
   have := continuousOn_cutXOperator (G := G) (a := a) (aT := aT) (ν := ν) hak hb ∅ α
   simpa using this
 
-theorem continuousOn_cubeHx (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+/-! ### Continuity in `x` for the data `Dec2.XData` of the pair `(coverOf G, G)`
+
+The sections `Family`, `DecCont`, `DecCovCont` below are their instances through `XData.toCover`. -/
+
+section FamilyCover
+
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+include hfam
+
+theorem aux_hak_cover : 0 < a k := by
+  have D := hfam 0 le_rfl
+  have := D.st.ha k D.st.hk le_rfl
+  linarith [this.1]
+
+theorem aux_hb_cover : 0 ≤ aT / (L : ℝ) ^ 2 := by
+  have D := hfam 0 le_rfl
+  have := D.st.haT1
+  positivity
+
+theorem continuousOn_cubeHx_cover (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
     ContinuousOn (fun x => cubeHx G a aT x ν α q) (Ici 0) := by
   unfold cubeHx
-  exact continuousOn_cutXOperator (aux_hak hfam) (aux_hb hfam) _ α
+  exact continuousOn_cutXOperator (aux_hak_cover hfam) (aux_hb_cover hfam) _ α
 
-theorem continuousOn_cubeGx {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
+theorem continuousOn_cubeGx_cover {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
     ContinuousOn (fun x => cubeGx G a aT x ν α q) (Ici 0) := by
   unfold cubeGx
-  refine ContinuousOn.mul (contOn_matrix_inv (continuousOn_cubeHx hfam q) fun x hx => ?_)
+  refine ContinuousOn.mul (contOn_matrix_inv (continuousOn_cubeHx_cover hfam q) fun x hx => ?_)
     continuousOn_const
   have D := hfam x hx
-  exact cubeHx_isUnit D.st D.pot hx hq
+  exact Dec2.cubeHx_isUnit D.st D.pot hx hq
 
-theorem continuousOn_Kzx (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+theorem continuousOn_Kzx_cover (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
     ContinuousOn (fun x => Kzx G a aT x ν q) (Ici 0) := by
-  have h := continuousOn_xDirichlet (G := G) (a := a) (aT := aT) (ν := ν) (aux_hak hfam) (aux_hb hfam) (0 : G.Ω 1 → ℂ)
+  have h := continuousOn_xDirichlet (G := G) (a := a) (aT := aT) (ν := ν) (aux_hak_cover hfam) (aux_hb_cover hfam) (0 : G.Ω 1 → ℂ)
   unfold Kzx
   exact (continuousOn_const.mul h).sub (h.mul continuousOn_const)
 
-theorem continuousOn_Gstarx :
+theorem continuousOn_Gstarx_cover :
     ContinuousOn (fun x => Gstarx G a aT x ν α s) (Ici 0) := by
   unfold Gstarx
   refine continuousOn_finsetSum _ fun q hq => ?_
-  exact (continuousOn_const (c := sProd G s q)).smul (continuousOn_const.mul (continuousOn_cubeGx hfam hq))
+  exact (continuousOn_const (c := sProd G s q)).smul (continuousOn_const.mul (continuousOn_cubeGx_cover hfam hq))
 
-theorem continuousOn_Kcalx :
+theorem continuousOn_Kcalx_cover :
     ContinuousOn (fun x => Kcalx G a aT x ν α s) (Ici 0) := by
   unfold Kcalx
   refine continuousOn_finsetSum _ fun q hq => ?_
-  exact (continuousOn_const (c := sProd G s q)).smul ((continuousOn_Kzx hfam q).mul (continuousOn_cubeGx hfam hq))
+  exact (continuousOn_const (c := sProd G s q)).smul ((continuousOn_Kzx_cover hfam q).mul (continuousOn_cubeGx_cover hfam hq))
 
-theorem continuousOn_Gsx :
+theorem continuousOn_Gsx_cover :
     ContinuousOn (fun x => Gsx G a aT x ν α s) (Ici 0) := by
   unfold Gsx
-  refine (continuousOn_Gstarx hfam).mul (contOn_matrix_inv (continuousOn_const.sub
-    (continuousOn_Kcalx hfam)) fun x hx => ?_)
+  refine (continuousOn_Gstarx_cover hfam).mul (contOn_matrix_inv (continuousOn_const.sub
+    (continuousOn_Kcalx_cover hfam)) fun x hx => ?_)
   exact (hfam x hx).isUnit_one_sub
+
+end FamilyCover
+
+section DecContCover
+
+variable {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {δ : ℝ}
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+
+include hfam
+
+theorem continuousOn_commK_cover :
+    ContinuousOn (fun x => commK (xDirichletOperator G a aT x ν α) (restrictField G φ))
+      (Ici 0) := by
+  have h := continuousOn_xDirichlet (G := G) (a := a) (aT := aT) (ν := ν) (aux_hak_cover hfam)
+    (aux_hb_cover hfam) α
+  unfold commK
+  exact (contOn_matrix_mul continuousOn_const (continuousOn_liftOp h)).sub
+    (contOn_matrix_mul h continuousOn_const)
+
+theorem continuousOn_decM_cover :
+    ContinuousOn (fun x => decM G a aT x ν α s φ) (Ici 0) := by
+  unfold decM constraintM
+  exact continuousOn_const.sub
+    (contOn_matrix_mul (contOn_matrix_mul (continuousOn_commK_cover hfam)
+      (continuousOn_liftOp (continuousOn_Gsx_cover hfam))) continuousOn_const)
+
+theorem continuousOn_decN_cover :
+    ContinuousOn (fun x => decN G a aT x ν α s φ) (Ici 0) := by
+  unfold decN constraintN
+  exact continuousOn_const.sub (contOn_matrix_mul (continuousOn_commK_cover hfam)
+    (continuousOn_liftOp (continuousOn_Gsx_cover hfam)))
+
+include hφ hδ hsm in
+theorem continuousOn_decPi_cover :
+    ContinuousOn (fun x => decPi G a aT x ν α s φ) (Ici 0) := by
+  unfold decPi
+  have hM : ContinuousOn (fun x => (decM G a aT x ν α s φ)⁻¹) (Ici 0) :=
+    contOn_matrix_inv (continuousOn_decM_cover hfam) fun x hx => decM_isUnit_cover (hfam x hx) hφ hδ hsm
+  exact contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul
+    (continuousOn_liftOp (continuousOn_Gsx_cover hfam)) continuousOn_const) hM) (continuousOn_decN_cover hfam)
+
+end DecContCover
+
+section DecCovContCover
+
+variable {κι : Type*} [Fintype κι] [DecidableEq κι] {Q : Matrix κι (G.Ω 1) ℂ}
+  {P : Matrix κι κι ℂ} {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {δ : ℝ}
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+
+include hfam hφ hδ hsm in
+theorem continuousOn_decCov_cover :
+    ContinuousOn (fun x => decCov G a aT x ν α s φ Q P) (Ici 0) := by
+  have hA : ContinuousOn (fun x => covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) (Ici 0) :=
+    continuousOn_covA (aux_hak_cover hfam) (aux_hb_cover hfam) _
+  have hT : ContinuousOn (fun x => liftOp N (Gsx G a aT x ν α s) - decPi G a aT x ν α s φ)
+      (Ici 0) :=
+    (continuousOn_liftOp (continuousOn_Gsx_cover hfam)).sub (continuousOn_decPi_cover hfam hφ hδ hsm)
+  unfold decCov
+  refine hA.add ((continuousOn_const (c := (((a k) ^ 2 / (L : ℝ) ^ (2 * k) : ℝ) : ℂ))).smul ?_)
+  exact contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul hA
+    continuousOn_const) hT) continuousOn_const) hA
+
+end DecCovContCover
+
+section Family
+
+variable (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+include hfam
+
+theorem aux_hak : 0 < a k :=
+  aux_hak_cover (fun x hx => (hfam x hx).toCover)
+
+theorem aux_hb : 0 ≤ aT / (L : ℝ) ^ 2 :=
+  aux_hb_cover (fun x hx => (hfam x hx).toCover)
+
+theorem continuousOn_cubeHx (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    ContinuousOn (fun x => cubeHx G a aT x ν α q) (Ici 0) :=
+  continuousOn_cubeHx_cover (fun x hx => (hfam x hx).toCover) q
+
+theorem continuousOn_cubeGx {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G) :
+    ContinuousOn (fun x => cubeGx G a aT x ν α q) (Ici 0) :=
+  continuousOn_cubeGx_cover (fun x hx => (hfam x hx).toCover) hq
+
+theorem continuousOn_Kzx (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    ContinuousOn (fun x => Kzx G a aT x ν q) (Ici 0) :=
+  continuousOn_Kzx_cover (fun x hx => (hfam x hx).toCover) q
+
+theorem continuousOn_Gstarx :
+    ContinuousOn (fun x => Gstarx G a aT x ν α s) (Ici 0) :=
+  continuousOn_Gstarx_cover (fun x hx => (hfam x hx).toCover)
+
+theorem continuousOn_Kcalx :
+    ContinuousOn (fun x => Kcalx G a aT x ν α s) (Ici 0) :=
+  continuousOn_Kcalx_cover (fun x hx => (hfam x hx).toCover)
+
+theorem continuousOn_Gsx :
+    ContinuousOn (fun x => Gsx G a aT x ν α s) (Ici 0) :=
+  continuousOn_Gsx_cover (fun x hx => (hfam x hx).toCover)
 
 end Family
 
@@ -215,34 +318,21 @@ include hfam
 
 theorem continuousOn_commK :
     ContinuousOn (fun x => commK (xDirichletOperator G a aT x ν α) (restrictField G φ))
-      (Ici 0) := by
-  have h := continuousOn_xDirichlet (G := G) (a := a) (aT := aT) (ν := ν) (aux_hak hfam)
-    (aux_hb hfam) α
-  unfold commK
-  exact (contOn_matrix_mul continuousOn_const (continuousOn_liftOp h)).sub
-    (contOn_matrix_mul h continuousOn_const)
+      (Ici 0) :=
+  continuousOn_commK_cover (fun x hx => (hfam x hx).toCover)
 
 theorem continuousOn_decM :
-    ContinuousOn (fun x => decM G a aT x ν α s φ) (Ici 0) := by
-  unfold decM constraintM
-  exact continuousOn_const.sub
-    (contOn_matrix_mul (contOn_matrix_mul (continuousOn_commK hfam)
-      (continuousOn_liftOp (continuousOn_Gsx hfam))) continuousOn_const)
+    ContinuousOn (fun x => decM G a aT x ν α s φ) (Ici 0) :=
+  continuousOn_decM_cover (fun x hx => (hfam x hx).toCover)
 
 theorem continuousOn_decN :
-    ContinuousOn (fun x => decN G a aT x ν α s φ) (Ici 0) := by
-  unfold decN constraintN
-  exact continuousOn_const.sub (contOn_matrix_mul (continuousOn_commK hfam)
-    (continuousOn_liftOp (continuousOn_Gsx hfam)))
+    ContinuousOn (fun x => decN G a aT x ν α s φ) (Ici 0) :=
+  continuousOn_decN_cover (fun x hx => (hfam x hx).toCover)
 
 include hφ hδ hsm in
 theorem continuousOn_decPi :
-    ContinuousOn (fun x => decPi G a aT x ν α s φ) (Ici 0) := by
-  unfold decPi
-  have hM : ContinuousOn (fun x => (decM G a aT x ν α s φ)⁻¹) (Ici 0) :=
-    contOn_matrix_inv (continuousOn_decM hfam) fun x hx => decM_isUnit (hfam x hx) hφ hδ hsm
-  exact contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul
-    (continuousOn_liftOp (continuousOn_Gsx hfam)) continuousOn_const) hM) (continuousOn_decN hfam)
+    ContinuousOn (fun x => decPi G a aT x ν α s φ) (Ici 0) :=
+  continuousOn_decPi_cover (fun x hx => (hfam x hx).toCover) hφ hδ hsm
 
 end DecCont
 
@@ -255,16 +345,8 @@ variable (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
 
 include hfam hφ hδ hsm in
 theorem continuousOn_decCov :
-    ContinuousOn (fun x => decCov G a aT x ν α s φ Q P) (Ici 0) := by
-  have hA : ContinuousOn (fun x => covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) (Ici 0) :=
-    continuousOn_covA (aux_hak hfam) (aux_hb hfam) _
-  have hT : ContinuousOn (fun x => liftOp N (Gsx G a aT x ν α s) - decPi G a aT x ν α s φ)
-      (Ici 0) :=
-    (continuousOn_liftOp (continuousOn_Gsx hfam)).sub (continuousOn_decPi hfam hφ hδ hsm)
-  unfold decCov
-  refine hA.add ((continuousOn_const (c := (((a k) ^ 2 / (L : ℝ) ^ (2 * k) : ℝ) : ℂ))).smul ?_)
-  exact contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul hA
-    continuousOn_const) hT) continuousOn_const) hA
+    ContinuousOn (fun x => decCov G a aT x ν α s φ Q P) (Ici 0) :=
+  continuousOn_decCov_cover (fun x hx => (hfam x hx).toCover) hφ hδ hsm
 
 end DecCovCont
 

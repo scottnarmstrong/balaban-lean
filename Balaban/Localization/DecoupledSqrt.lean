@@ -150,6 +150,62 @@ theorem covB4_nonneg (d L : ℕ) (ak κ : ℝ) : 0 ≤ covB4 d L ak κ := Real.s
 theorem covB4_sq (d L : ℕ) (ak κ : ℝ) : covB4 d L ak κ ^ 2 = covBsq d L ak κ :=
   Real.sq_sqrt (covBsq_nonneg d L ak κ)
 
+/-! ### The standing bounds for the data `Dec2.XData` of the pair `(coverOf G, G)`
+
+Cover form of `CovStanding.sub_le`, `CovStanding.covA_le`, `CovStanding.decCov_le`: the fields of
+`CovStanding` as explicit hypotheses, with `Dec2.XData (coverOf G) G …` in place of `XData G …`
+(no `DGSetting`).  The `CovStanding` statements are their instances through `XData.toCover`. -/
+
+section StandingCover
+
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hU : IsUnitLattice G Q P)
+include hfam
+
+include hφ hδ hsm hU in
+/-- **I-4c (ii)**, operator form, for the data of the pair `(coverOf G, G)`:
+`‖C_x(s) - A_{k,x}‖ ≤ B₄ (a_k + x)⁻²`. -/
+theorem standing_sub_le_cover {x : ℝ} (hx : 0 ≤ x) (f : κι × Fin N → ℂ) :
+    Green.sqNorm ((decCov G a aT x ν α s φ Q P -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ f) ≤
+      (covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f := by
+  have h := decCov_sub_le_cover (hfam x hx) hφ hδ hsm hU f
+  calc _ ≤ covBsq d L (a k) κ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm f := h
+    _ = _ := by rw [mul_pow, covB4_sq]; ring
+
+include hU in
+/-- `‖A_{k,x}‖ ≤ (a_k + x)⁻¹` for the data of the pair `(coverOf G, G)`. -/
+theorem standing_covA_le_cover {x : ℝ} (hx : 0 ≤ x) (f : κι × Fin N → ℂ) :
+    Green.sqNorm (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) *ᵥ f) ≤
+      ((a k + x)⁻¹) ^ 2 * Green.sqNorm f := by
+  obtain ⟨hPh, hPi⟩ := liftOp_herm_idem (N := N) hU
+  have hak := aux_hak_cover hfam
+  exact sqNorm_covA_le (by linarith) (aux_hb_cover hfam) hPh hPi f
+
+include hφ hδ hsm hU in
+/-- `‖C_x(s)‖ ≤ (a_k + x)⁻¹ + B₄ (a_k + x)⁻²` for the data of the pair `(coverOf G, G)`. -/
+theorem standing_decCov_le_cover {x : ℝ} (hx : 0 ≤ x) (f : κι × Fin N → ℂ) :
+    Green.sqNorm (decCov G a aT x ν α s φ Q P *ᵥ f) ≤
+      (((a k + x)⁻¹) + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f := by
+  have h1 := standing_covA_le_cover hfam hU hx f
+  have h2 := standing_sub_le_cover hfam hφ hδ hsm hU hx f
+  have hα : 0 ≤ (a k + x)⁻¹ := inv_nonneg.2 (by have := aux_hak_cover hfam; linarith)
+  have hB := covB4_nonneg d L (a k) κ
+  have hc : 0 ≤ (a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2 := by positivity
+  rw [sqNorm_le_iff hc]
+  rw [sqNorm_le_iff hα] at h1
+  rw [sqNorm_le_iff (by positivity)] at h2
+  have e : decCov G a aT x ν α s φ Q P *ᵥ f =
+      covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) *ᵥ f +
+        (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ f := by
+    rw [Matrix.sub_mulVec]; abel
+  rw [e]
+  refine (n2_add_le _ _).trans ?_
+  nlinarith
+
+end StandingCover
+
 theorem CovStanding.hak (H : CovStanding G a aT ν α κ s δ φ Q P) : 0 < a k := by
   have D := H.fam 0 le_rfl
   have := D.st.ha k D.st.hk le_rfl
@@ -170,37 +226,20 @@ theorem CovStanding.sub_le (H : CovStanding G a aT ν α κ s δ φ Q P) {x : �
     (f : κι × Fin N → ℂ) :
     Green.sqNorm ((decCov G a aT x ν α s φ Q P -
         covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ f) ≤
-      (covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f := by
-  have h := decCov_sub_le (H.fam x hx) H.field H.nonneg H.small H.unit f
-  calc _ ≤ covBsq d L (a k) κ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm f := h
-    _ = _ := by rw [mul_pow, covB4_sq]; ring
+      (covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f :=
+  standing_sub_le_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small H.unit hx f
 
 theorem CovStanding.covA_le (H : CovStanding G a aT ν α κ s δ φ Q P) {x : ℝ} (hx : 0 ≤ x)
     (f : κι × Fin N → ℂ) :
     Green.sqNorm (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) *ᵥ f) ≤
-      ((a k + x)⁻¹) ^ 2 * Green.sqNorm f := by
-  obtain ⟨hPh, hPi⟩ := liftOp_herm_idem (N := N) H.unit
-  exact sqNorm_covA_le (H.hakx hx) H.hb hPh hPi f
+      ((a k + x)⁻¹) ^ 2 * Green.sqNorm f :=
+  standing_covA_le_cover (fun x hx => (H.fam x hx).toCover) H.unit hx f
 
 theorem CovStanding.decCov_le (H : CovStanding G a aT ν α κ s δ φ Q P) {x : ℝ} (hx : 0 ≤ x)
     (f : κι × Fin N → ℂ) :
     Green.sqNorm (decCov G a aT x ν α s φ Q P *ᵥ f) ≤
-      (((a k + x)⁻¹) + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f := by
-  have h1 := H.covA_le hx f
-  have h2 := H.sub_le hx f
-  have hα : 0 ≤ (a k + x)⁻¹ := inv_nonneg.2 (H.hakx hx).le
-  have hB := covB4_nonneg d L (a k) κ
-  have hc : 0 ≤ (a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2 := by positivity
-  rw [sqNorm_le_iff hc]
-  rw [sqNorm_le_iff hα] at h1
-  rw [sqNorm_le_iff (by positivity)] at h2
-  have e : decCov G a aT x ν α s φ Q P *ᵥ f =
-      covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) *ᵥ f +
-        (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ f := by
-    rw [Matrix.sub_mulVec]; abel
-  rw [e]
-  refine (n2_add_le _ _).trans ?_
-  nlinarith
+      (((a k + x)⁻¹) + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) ^ 2 * Green.sqNorm f :=
+  standing_decCov_le_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small H.unit hx f
 
 /-! ### The integrands and the integrals -/
 
@@ -231,6 +270,58 @@ noncomputable def decLog (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a
     intMat (volume.restrict (Ioi (0 : ℝ)))
       (fun x => decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P))
 
+/-! ### Integrability for the data `Dec2.XData` of the pair `(coverOf G, G)` -/
+
+section IntegrabilityCover
+
+variable {Cx : ℝ} (hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hU : IsUnitLattice G Q P)
+include hfam hφ hδ hsm
+
+include hU in
+theorem entry_decCov_le_cover {x : ℝ} (hx : 0 ≤ x) (p q : κι × Fin N) :
+    ‖decCov G a aT x ν α s φ Q P p q‖ ≤
+      (a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2 := by
+  have hα : 0 ≤ (a k + x)⁻¹ := inv_nonneg.2 (by have := aux_hak_cover hfam; linarith)
+  have hB := covB4_nonneg d L (a k) κ
+  exact norm_entry_le _ (by positivity)
+    (fun f => standing_decCov_le_cover hfam hφ hδ hsm hU hx f) p q
+
+theorem continuousOn_decCov_entry_cover (p q : κι × Fin N) :
+    ContinuousOn (fun x => decCov G a aT x ν α s φ Q P p q) (Ici 0) :=
+  continuousOn_pi.1 (continuousOn_pi.1 (continuousOn_decCov_cover hfam hφ hδ hsm) p) q
+
+include hU in
+theorem integrable_decSqrtInt_cover (p q : κι × Fin N) :
+    Integrable (fun x => decSqrtInt G a aT ν α s φ Q P x p q) (volume.restrict (Ioi (0 : ℝ))) := by
+  have hak := aux_hak_cover hfam
+  have hB := covB4_nonneg d L (a k) κ
+  have hg : Integrable (fun x : ℝ => x ^ (-(1 / 2 : ℝ)) * (a k + x)⁻¹ +
+      covB4 d L (a k) κ * (x ^ (-(1 / 2 : ℝ)) * ((a k + x)⁻¹) ^ 2)) (volume.restrict (Ioi 0)) :=
+    (integrableOn_rpow_inv_add hak).add ((integrableOn_rpow_inv_add_sq hak).const_mul _)
+  refine Integrable.mono' hg ?_ ?_
+  · refine ContinuousOn.aestronglyMeasurable ?_ measurableSet_Ioi
+    unfold decSqrtInt
+    simp only [Matrix.smul_apply, smul_eq_mul]
+    refine ContinuousOn.mul ?_
+      ((continuousOn_decCov_entry_cover hfam hφ hδ hsm p q).mono Ioi_subset_Ici_self)
+    refine Complex.continuous_ofReal.comp_continuousOn ?_
+    exact fun x hx => (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hx).ne')).continuousWithinAt
+  · refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx => ?_)
+    have hx0 : 0 < x := mem_Ioi.mp hx
+    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := rpow_pos_of_pos hx0 _
+    unfold decSqrtInt
+    simp only [Matrix.smul_apply, smul_eq_mul, norm_mul, Complex.norm_real,
+      Real.norm_of_nonneg h3.le]
+    have := entry_decCov_le_cover hfam hφ hδ hsm hU hx0.le p q
+    calc x ^ (-(1 / 2 : ℝ)) * ‖decCov G a aT x ν α s φ Q P p q‖
+        ≤ x ^ (-(1 / 2 : ℝ)) * ((a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) :=
+          mul_le_mul_of_nonneg_left this h3.le
+      _ = _ := by ring
+
+end IntegrabilityCover
+
 section Integrability
 
 variable (H : CovStanding G a aT ν α κ s δ φ Q P)
@@ -238,10 +329,8 @@ include H
 
 theorem entry_decCov_le {x : ℝ} (hx : 0 ≤ x) (p q : κι × Fin N) :
     ‖decCov G a aT x ν α s φ Q P p q‖ ≤
-      (a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2 := by
-  have hα : 0 ≤ (a k + x)⁻¹ := inv_nonneg.2 (H.hakx hx).le
-  have hB := covB4_nonneg d L (a k) κ
-  exact norm_entry_le _ (by positivity) (fun f => H.decCov_le hx f) p q
+      (a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2 :=
+  entry_decCov_le_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small H.unit hx p q
 
 theorem entry_decCov_sub_le {x : ℝ} (hx : 0 ≤ x) (p q : κι × Fin N) :
     ‖(decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q‖ ≤
@@ -251,33 +340,11 @@ theorem entry_decCov_sub_le {x : ℝ} (hx : 0 ≤ x) (p q : κι × Fin N) :
 
 theorem continuousOn_decCov_entry (p q : κι × Fin N) :
     ContinuousOn (fun x => decCov G a aT x ν α s φ Q P p q) (Ici 0) :=
-  continuousOn_pi.1 (continuousOn_pi.1 (continuousOn_decCov H.fam H.field H.nonneg H.small) p) q
+  continuousOn_decCov_entry_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small p q
 
 theorem integrable_decSqrtInt (p q : κι × Fin N) :
-    Integrable (fun x => decSqrtInt G a aT ν α s φ Q P x p q) (volume.restrict (Ioi (0 : ℝ))) := by
-  have hak := H.hak
-  have hB := covB4_nonneg d L (a k) κ
-  have hg : Integrable (fun x : ℝ => x ^ (-(1 / 2 : ℝ)) * (a k + x)⁻¹ +
-      covB4 d L (a k) κ * (x ^ (-(1 / 2 : ℝ)) * ((a k + x)⁻¹) ^ 2)) (volume.restrict (Ioi 0)) :=
-    (integrableOn_rpow_inv_add hak).add ((integrableOn_rpow_inv_add_sq hak).const_mul _)
-  refine Integrable.mono' hg ?_ ?_
-  · refine ContinuousOn.aestronglyMeasurable ?_ measurableSet_Ioi
-    unfold decSqrtInt
-    simp only [Matrix.smul_apply, smul_eq_mul]
-    refine ContinuousOn.mul ?_ ((continuousOn_decCov_entry H p q).mono Ioi_subset_Ici_self)
-    refine Complex.continuous_ofReal.comp_continuousOn ?_
-    exact fun x hx => (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hx).ne')).continuousWithinAt
-  · refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx => ?_)
-    have hx0 : 0 < x := mem_Ioi.mp hx
-    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := rpow_pos_of_pos hx0 _
-    unfold decSqrtInt
-    simp only [Matrix.smul_apply, smul_eq_mul, norm_mul, Complex.norm_real,
-      Real.norm_of_nonneg h3.le]
-    have := entry_decCov_le H hx0.le p q
-    calc x ^ (-(1 / 2 : ℝ)) * ‖decCov G a aT x ν α s φ Q P p q‖
-        ≤ x ^ (-(1 / 2 : ℝ)) * ((a k + x)⁻¹ + covB4 d L (a k) κ * ((a k + x)⁻¹) ^ 2) :=
-          mul_le_mul_of_nonneg_left this h3.le
-      _ = _ := by ring
+    Integrable (fun x => decSqrtInt G a aT ν α s φ Q P x p q) (volume.restrict (Ioi (0 : ℝ))) :=
+  integrable_decSqrtInt_cover (fun x hx => (H.fam x hx).toCover) H.field H.nonneg H.small H.unit p q
 
 theorem integrable_decSub (p q : κι × Fin N) :
     Integrable (fun x => (decCov G a aT x ν α s φ Q P -

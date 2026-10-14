@@ -238,10 +238,15 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} 
   {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
 variable {κι : Type*} [Fintype κι] [DecidableEq κι]
 
-theorem XData.weight_zero (D : XData G a aT ν x α κ s) : XWeight G 0 (fun _ => 0) := by
+/-- The zero weight is admissible for the data `Dec2.XData` of a pair `(C, G)`. -/
+theorem Dec2.XData.weight_zero {C : DecCover d L N₁ m₁ (k + 1)} {Cx : ℝ}
+    (D : Dec2.XData C G a aT ν x α κ s Cx) : XWeight G 0 (fun _ => 0) := by
   refine ⟨isAgmonWeight_zero G, le_rfl, ?_⟩
-  have hd : 0 < d := by have := D.st.dg.hd; omega
-  exact (xAgmonRate_pos hd D.st.dg.hL).le
+  have hd : 0 < d := by have := D.st.hd; omega
+  exact (xAgmonRate_pos hd D.st.hL).le
+
+theorem XData.weight_zero (D : XData G a aT ν x α κ s) : XWeight G 0 (fun _ => 0) :=
+  D.toCover.weight_zero
 
 theorem vecM0_sub_le (u v : G.Ω 1 × Fin N → ℂ) :
     vecM G 0 (fun _ => 0) (u - v) ≤
@@ -355,15 +360,16 @@ theorem decCov_sub_covA (Av : Matrix (κι × Fin N) (κι × Fin N) ℂ) (cs : 
     ((Av + cs • (Av * X)) - Av) *ᵥ h = cs • (Av *ᵥ (X *ᵥ h)) := by
   rw [add_sub_cancel_left, Matrix.smul_mulVec, Matrix.mulVec_mulVec]
 
-section Main
+section MainCover
 
-variable (D : XData G a aT ν x α κ s)
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
   (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
   (hU : IsUnitLattice G Q P)
 include D hφ hδ hsm hU
 
-/-- **I-4c (ii).** `‖C_x(s) - A_{k,x}‖² ≤ B₄² (a_k + x)⁻⁴`, uniformly in `x ≥ 0`. -/
-theorem decCov_sub_le (h : κι × Fin N → ℂ) :
+/-- **I-4c (ii)** for the data `Dec2.XData` of the pair `(coverOf G, G)`:
+`‖C_x(s) - A_{k,x}‖² ≤ B₄² (a_k + x)⁻⁴`, uniformly in `x ≥ 0`. -/
+theorem decCov_sub_le_cover (h : κι × Fin N → ℂ) :
     Green.sqNorm ((decCov G a aT x ν α s φ Q P -
         covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ h) ≤
       covBsq d L (a k) κ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h := by
@@ -406,8 +412,8 @@ theorem decCov_sub_le (h : κι × Fin N → ℂ) :
   have s3 : vecSrc G 0 (fun _ => 0) w ≤ Λ ^ 2 * Green.sqNorm w := vecSrc0_le_of_supp w hw_supp
   set u := T *ᵥ w with hu
   have hW0 := D.weight_zero
-  obtain ⟨hM1, -⟩ := Gsx_vec_bounds D hW0 w
-  obtain ⟨hM2, -⟩ := decPi_weighted_bounds D hW0 hφ hδ hsm w
+  obtain ⟨hM1, -⟩ := Gsx_vec_bounds_cover D hW0 w
+  obtain ⟨hM2, -⟩ := decPi_weighted_bounds_cover D hW0 hφ hδ hsm w
   have hV : 0 ≤ valConstX d * Real.exp (N0 d L * κ) ^ 2 := by unfold valConstX; positivity
   have s4 : vecM G 0 (fun _ => 0) u ≤
       92 * (valConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G 0 (fun _ => 0) w := by
@@ -448,6 +454,22 @@ theorem decCov_sub_le (h : κι × Fin N → ℂ) :
         unfold covBsq
         rw [← hcs2]
         ring
+
+end MainCover
+
+section Main
+
+variable (D : XData G a aT ν x α κ s)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hU : IsUnitLattice G Q P)
+include D hφ hδ hsm hU
+
+/-- **I-4c (ii).** `‖C_x(s) - A_{k,x}‖² ≤ B₄² (a_k + x)⁻⁴`, uniformly in `x ≥ 0`. -/
+theorem decCov_sub_le (h : κι × Fin N → ℂ) :
+    Green.sqNorm ((decCov G a aT x ν α s φ Q P -
+        covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) *ᵥ h) ≤
+      covBsq d L (a k) κ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h :=
+  decCov_sub_le_cover D.toCover hφ hδ hsm hU h
 
 end Main
 

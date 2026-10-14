@@ -10,6 +10,7 @@ public import Balaban.Localization.DecoupledXClose
 public import Balaban.Localization.DecoupledXLocal
 public import Balaban.Multiscale.ConstraintSandwich
 public import Balaban.Multiscale.XVariantIdentities
+public import Balaban.Localization.Decoupled2Self
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -128,11 +129,14 @@ theorem vecGradOn_eq (ε : ℝ) (r : CTorus d L N₁ m₁ (k + 1) → ℝ)
     rfl
   · simp [hy]
 
-variable (D : XData G a aT ν x α κ s) (W : XWeight G ε r)
+section Cover
+
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx) (W : XWeight G ε r)
 include D W
 
-/-- The block-`L²` bounds of `Ĝ_{k,x,s}` on vector fields. -/
-theorem Gsx_vec_bounds (g : G.Ω 1 × Fin N → ℂ) :
+/-- The block-`L²` bounds of `Ĝ_{k,x,s}` on vector fields, for the data `Dec2.XData` of the pair
+`(coverOf G, G)`. -/
+theorem Gsx_vec_bounds_cover (g : G.Ω 1 × Fin N → ℂ) :
     vecM G ε r (liftOp N (Gsx G a aT x ν α s) *ᵥ g) ≤
         valConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G ε r g ∧
       vecGradOn G ε r Finset.univ (liftOp N (Gsx G a aT x ν α s) *ᵥ g) ≤
@@ -147,16 +151,16 @@ theorem Gsx_vec_bounds (g : G.Ω 1 × Fin N → ℂ) :
     rw [comp_liftOp']
     exact D.dg2_grad W _
 
-/-- `‖ℓ w K_x(φ₀) Ĝ_{k,x,s} g‖² ≤ δ² K ‖ℓ w g‖²`. -/
-theorem commKx_Gsx_le (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (g : G.Ω 1 × Fin N → ℂ) :
+/-- `‖ℓ w K_x(φ₀) Ĝ_{k,x,s} g‖² ≤ δ² K ‖ℓ w g‖²`, for the data of the pair `(coverOf G, G)`. -/
+theorem commKx_Gsx_le_cover (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (g : G.Ω 1 × Fin N → ℂ) :
     agmonSource G ε r (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ
       (liftOp N (Gsx G a aT x ν α s) *ᵥ g)) ≤ δ ^ 2 * kConstX d L κ * vecSrc G ε r g := by
-  have hd : 0 < d := by have := D.st.dg.hd; omega
-  have hL1 : 1 ≤ L := by have := D.st.dg.hL; omega
+  have hd : 0 < d := by have := D.st.hd; omega
+  have hL1 : 1 ≤ L := by have := D.st.hL; omega
   have hε2 : ε ≤ agmonRate d := W.ε1.trans (xAgmonRate_le_agmonRate hd hL1)
   have hK := agmonSource_commKx_le (ν := ν) G hd D.st.hk D.st.ha D.st.haT1 D.x0 α hφ hδ W.agm W.ε0 hε2
     (liftOp N (Gsx G a aT x ν α s) *ᵥ g) Finset.univ (fun y hy => absurd (Finset.mem_univ _) hy)
-  obtain ⟨hM, hGr⟩ := Gsx_vec_bounds D W g
+  obtain ⟨hM, hGr⟩ := Gsx_vec_bounds_cover D W g
   have hV0 := vecSrc_nonneg G ε r g
   have hc := commXConst_nonneg d L
   have hδ2 : 0 ≤ δ ^ 2 := sq_nonneg δ
@@ -167,6 +171,31 @@ theorem commKx_Gsx_le (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (g : G.Ω 1
   have := mul_le_mul_of_nonneg_left hsum (mul_nonneg hc hδ2)
   unfold kConstX
   nlinarith
+
+end Cover
+
+/-- The standing data of (DG7) for `G` give those of the pair `(coverOf G, G)`
+(`Dec2.XData` with `Cx = Cchi d L`; the generalized objects at `coverOf G` are the landed ones). -/
+theorem XData.toCover (D : XData G a aT ν x α κ s) :
+    Dec2.XData (coverOf G) G a aT ν x α κ s (Cchi d L) :=
+  ⟨Dec2.xCover_self D.st, Cchi_nonneg d L, D.pot, D.x0, D.κ0, D.big, D.sb⟩
+
+variable (D : XData G a aT ν x α κ s) (W : XWeight G ε r)
+include D W
+
+/-- The block-`L²` bounds of `Ĝ_{k,x,s}` on vector fields. -/
+theorem Gsx_vec_bounds (g : G.Ω 1 × Fin N → ℂ) :
+    vecM G ε r (liftOp N (Gsx G a aT x ν α s) *ᵥ g) ≤
+        valConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G ε r g ∧
+      vecGradOn G ε r Finset.univ (liftOp N (Gsx G a aT x ν α s) *ᵥ g) ≤
+        gradConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G ε r g :=
+  Gsx_vec_bounds_cover D.toCover W g
+
+/-- `‖ℓ w K_x(φ₀) Ĝ_{k,x,s} g‖² ≤ δ² K ‖ℓ w g‖²`. -/
+theorem commKx_Gsx_le (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (g : G.Ω 1 × Fin N → ℂ) :
+    agmonSource G ε r (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ
+      (liftOp N (Gsx G a aT x ν α s) *ᵥ g)) ≤ δ ^ 2 * kConstX d L κ * vecSrc G ε r g :=
+  commKx_Gsx_le_cover D.toCover W hφ hδ g
 
 end Bounds
 
@@ -195,15 +224,18 @@ theorem constraintM_mulVec_gen (Hm Gm : Matrix (G.Ω 1) (G.Ω 1) ℂ) (f : G.Ω 
   rw [h1]
   ring
 
-section Neumann
+/-! The Neumann estimate for the data `Dec2.XData` of the pair `(coverOf G, G)` (no `DGSetting`);
+the statements of the section `Neumann` are their instances through `XData.toCover`. -/
 
-variable (D : XData G a aT ν x α κ s) (W : XWeight G ε r)
+section NeumannCover
+
+variable {Cx : ℝ} (D : Dec2.XData (coverOf G) G a aT ν x α κ s Cx) (W : XWeight G ε r)
   (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
 include D W hφ hδ hsm
 
 omit hsm in
 /-- **The Neumann estimate.** `‖ℓ w (s - M s)‖² ≤ δ² C ‖ℓ w s‖²`. -/
-theorem decM_error_le (f : G.Ω 1 → ℂ) :
+theorem decM_error_le_cover (f : G.Ω 1 → ℂ) :
     agmonSource G ε r (f - decM G a aT x ν α s φ *ᵥ f) ≤
       δ ^ 2 * smallConstX d L κ * agmonSource G ε r f := by
   unfold decM
@@ -214,7 +246,7 @@ theorem decM_error_le (f : G.Ω 1 → ℂ) :
     refine agmonSource_mul_le G ε r _ f (c := δ) fun y => ?_
     rw [norm_sub_rev]
     exact hφ.sq y y.2
-  have hK := commKx_Gsx_le D W hφ.toIsSmoothField hδ (fieldMul (restrictField G φ) *ᵥ f)
+  have hK := commKx_Gsx_le_cover D W hφ.toIsSmoothField hδ (fieldMul (restrictField G φ) *ᵥ f)
   have hΦ := vecSrc_fieldMul_le (ε := ε) (r := r) hφ f
   have hk0 := kConstX_nonneg d L κ
   have hδ2 : 0 ≤ δ ^ 2 := sq_nonneg δ
@@ -224,10 +256,10 @@ theorem decM_error_le (f : G.Ω 1 → ℂ) :
   nlinarith [mul_nonneg hδ2 (mul_nonneg hk0 hS0)]
 
 /-- `‖ℓ w s‖² ≤ 4 ‖ℓ w M s‖²`: the weighted lower bound for `M_{x,s}`. -/
-theorem decM_lower (f : G.Ω 1 → ℂ) :
+theorem decM_lower_cover (f : G.Ω 1 → ℂ) :
     agmonSource G ε r f ≤ 4 * agmonSource G ε r (decM G a aT x ν α s φ *ᵥ f) := by
   set Ms := decM G a aT x ν α s φ *ᵥ f with hMs
-  have h1 := decM_error_le D W hφ hδ f
+  have h1 := decM_error_le_cover D W hφ hδ f
   have h2 : f = Ms + (f - Ms) := by abel
   have h3 := agmonSource_add_le G ε r Ms (f - Ms)
   rw [← h2] at h3
@@ -238,16 +270,16 @@ theorem decM_lower (f : G.Ω 1 → ℂ) :
 
 omit W in
 /-- **`M_{x,s}` is invertible.** -/
-theorem decM_isUnit : IsUnit (decM G a aT x ν α s φ) := by
+theorem decM_isUnit_cover : IsUnit (decM G a aT x ν α s φ) := by
   rw [← Matrix.mulVec_injective_iff_isUnit]
   intro f f' hff
   have hlin : decM G a aT x ν α s φ *ᵥ (f - f') = 0 := by
     rw [Matrix.mulVec_sub, hff, sub_self]
   have hW0 : XWeight G 0 (fun _ => 0) := by
     refine ⟨isAgmonWeight_zero G, le_rfl, ?_⟩
-    have hd : 0 < d := by have := D.st.dg.hd; omega
-    exact (xAgmonRate_pos hd D.st.dg.hL).le
-  have h := decM_lower D hW0 hφ hδ hsm (f - f')
+    have hd : 0 < d := by have := D.st.hd; omega
+    exact (xAgmonRate_pos hd D.st.hL).le
+  have h := decM_lower_cover D hW0 hφ hδ hsm (f - f')
   rw [hlin] at h
   have h0 : agmonSource G 0 (fun _ => 0) (0 : G.Ω 1 → ℂ) = 0 := by
     rw [agmonSource_zero_eq]; simp
@@ -255,20 +287,20 @@ theorem decM_isUnit : IsUnit (decM G a aT x ν α s φ) := by
   exact sub_eq_zero.1 (eq_zero_of_agmonSource_zero h)
 
 /-- `‖ℓ w M⁻¹ f‖² ≤ 4 ‖ℓ w f‖²`: `‖M⁻¹‖ ≤ 2` on the weighted `L²`. -/
-theorem decM_inv_le (f : G.Ω 1 → ℂ) :
+theorem decM_inv_le_cover (f : G.Ω 1 → ℂ) :
     agmonSource G ε r ((decM G a aT x ν α s φ)⁻¹ *ᵥ f) ≤ 4 * agmonSource G ε r f := by
-  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 (decM_isUnit D hφ hδ hsm)
-  have := decM_lower D W hφ hδ hsm ((decM G a aT x ν α s φ)⁻¹ *ᵥ f)
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 (decM_isUnit_cover D hφ hδ hsm)
+  have := decM_lower_cover D W hφ hδ hsm ((decM G a aT x ν α s φ)⁻¹ *ᵥ f)
   rwa [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet, Matrix.one_mulVec] at this
 
 /-- `‖ℓ w N_{x,s} f‖² ≤ 5 ‖ℓ w f‖²` for a vector field `f`. -/
-theorem decN_src_le (f : G.Ω 1 × Fin N → ℂ) :
+theorem decN_src_le_cover (f : G.Ω 1 × Fin N → ℂ) :
     agmonSource G ε r (decN G a aT x ν α s φ *ᵥ f) ≤ 5 * vecSrc G ε r f := by
   unfold decN constraintN
   rw [sub_mulVec, ← mulVec_mulVec]
   refine (agmonSource_sub_le G ε r _ _).trans ?_
   have h1 := agmonSource_fieldMul_transpose_le (ε := ε) (r := r) hφ f
-  have hK := commKx_Gsx_le D W hφ.toIsSmoothField hδ f
+  have hK := commKx_Gsx_le_cover D W hφ.toIsSmoothField hδ f
   have hV0 := vecSrc_nonneg G ε r f
   have hk0 := kConstX_nonneg d L κ
   have hδ2 : 0 ≤ δ ^ 2 := sq_nonneg δ
@@ -280,22 +312,22 @@ theorem decN_src_le (f : G.Ω 1 × Fin N → ℂ) :
 
 /-- **G-2(v), weighted `L²` form for `Π_{x,s}`**: the block-`L²` bounds
 `‖ℓ⁻¹ w Π f‖² ≤ 45 V e^{2N₀κ} ‖ℓ w f‖²` and `‖w ∂ Π f‖² ≤ 45 g e^{2N₀κ} ‖ℓ w f‖²`. -/
-theorem decPi_weighted_bounds (f : G.Ω 1 × Fin N → ℂ) :
+theorem decPi_weighted_bounds_cover (f : G.Ω 1 × Fin N → ℂ) :
     vecM G ε r (decPi G a aT x ν α s φ *ᵥ f) ≤
         45 * (valConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G ε r f ∧
       vecGradOn G ε r Finset.univ (decPi G a aT x ν α s φ *ᵥ f) ≤
         45 * (gradConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G ε r f := by
   set h : G.Ω 1 → ℂ := (decM G a aT x ν α s φ)⁻¹ *ᵥ (decN G a aT x ν α s φ *ᵥ f) with hh
   have hsrc : agmonSource G ε r h ≤ 20 * vecSrc G ε r f := by
-    have h4 := decM_inv_le D W hφ hδ hsm (decN G a aT x ν α s φ *ᵥ f)
-    have h5 := decN_src_le D W hφ hδ hsm f
+    have h4 := decM_inv_le_cover D W hφ hδ hsm (decN G a aT x ν α s φ *ᵥ f)
+    have h5 := decN_src_le_cover D W hφ hδ hsm f
     linarith
   have hPi : decPi G a aT x ν α s φ *ᵥ f =
       liftOp N (Gsx G a aT x ν α s) *ᵥ (fieldMul (restrictField G φ) *ᵥ h) := by
     unfold decPi
     rw [hh, ← mulVec_mulVec, ← mulVec_mulVec, ← mulVec_mulVec]
   rw [hPi]
-  obtain ⟨hM, hGr⟩ := Gsx_vec_bounds D W (fieldMul (restrictField G φ) *ᵥ h)
+  obtain ⟨hM, hGr⟩ := Gsx_vec_bounds_cover D W (fieldMul (restrictField G φ) *ᵥ h)
   have hΦ := vecSrc_fieldMul_le (ε := ε) (r := r) hφ h
   have hV0 := vecSrc_nonneg G ε r f
   have hv : 0 ≤ valConstX d * Real.exp (N0 d L * κ) ^ 2 := by unfold valConstX; positivity
@@ -315,6 +347,50 @@ theorem decPi_weighted_bounds (f : G.Ω 1 × Fin N → ℂ) :
       _ ≤ gradConstX d * Real.exp (N0 d L * κ) ^ 2 * (9 / 4 * (20 * vecSrc G ε r f)) := by
           gcongr
       _ = _ := by ring
+
+end NeumannCover
+
+section Neumann
+
+variable (D : XData G a aT ν x α κ s) (W : XWeight G ε r)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+include D W hφ hδ hsm
+
+omit hsm in
+/-- **The Neumann estimate.** `‖ℓ w (s - M s)‖² ≤ δ² C ‖ℓ w s‖²`. -/
+theorem decM_error_le (f : G.Ω 1 → ℂ) :
+    agmonSource G ε r (f - decM G a aT x ν α s φ *ᵥ f) ≤
+      δ ^ 2 * smallConstX d L κ * agmonSource G ε r f :=
+  decM_error_le_cover D.toCover W hφ hδ f
+
+/-- `‖ℓ w s‖² ≤ 4 ‖ℓ w M s‖²`: the weighted lower bound for `M_{x,s}`. -/
+theorem decM_lower (f : G.Ω 1 → ℂ) :
+    agmonSource G ε r f ≤ 4 * agmonSource G ε r (decM G a aT x ν α s φ *ᵥ f) :=
+  decM_lower_cover D.toCover W hφ hδ hsm f
+
+omit W in
+/-- **`M_{x,s}` is invertible.** -/
+theorem decM_isUnit : IsUnit (decM G a aT x ν α s φ) :=
+  decM_isUnit_cover D.toCover hφ hδ hsm
+
+/-- `‖ℓ w M⁻¹ f‖² ≤ 4 ‖ℓ w f‖²`: `‖M⁻¹‖ ≤ 2` on the weighted `L²`. -/
+theorem decM_inv_le (f : G.Ω 1 → ℂ) :
+    agmonSource G ε r ((decM G a aT x ν α s φ)⁻¹ *ᵥ f) ≤ 4 * agmonSource G ε r f :=
+  decM_inv_le_cover D.toCover W hφ hδ hsm f
+
+/-- `‖ℓ w N_{x,s} f‖² ≤ 5 ‖ℓ w f‖²` for a vector field `f`. -/
+theorem decN_src_le (f : G.Ω 1 × Fin N → ℂ) :
+    agmonSource G ε r (decN G a aT x ν α s φ *ᵥ f) ≤ 5 * vecSrc G ε r f :=
+  decN_src_le_cover D.toCover W hφ hδ hsm f
+
+/-- **G-2(v), weighted `L²` form for `Π_{x,s}`**: the block-`L²` bounds
+`‖ℓ⁻¹ w Π f‖² ≤ 45 V e^{2N₀κ} ‖ℓ w f‖²` and `‖w ∂ Π f‖² ≤ 45 g e^{2N₀κ} ‖ℓ w f‖²`. -/
+theorem decPi_weighted_bounds (f : G.Ω 1 × Fin N → ℂ) :
+    vecM G ε r (decPi G a aT x ν α s φ *ᵥ f) ≤
+        45 * (valConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G ε r f ∧
+      vecGradOn G ε r Finset.univ (decPi G a aT x ν α s φ *ᵥ f) ≤
+        45 * (gradConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G ε r f :=
+  decPi_weighted_bounds_cover D.toCover W hφ hδ hsm f
 
 end Neumann
 
