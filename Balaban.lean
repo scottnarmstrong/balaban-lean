@@ -1937,5 +1937,7 @@ public import Balaban.Fluctuation.LocalPairDecBg
 public import Balaban.Fluctuation.LocalPairCompose
 public import Balaban.Fluctuation.LocalPairReplacement
 public import Balaban.Fluctuation.LocalPairLevelInner
+public import Balaban.Fluctuation.LocalPairDepth
+public import Balaban.Fluctuation.LocalPairReplacementLocalB
 public import Balaban.Inhabited.RootParams
 public import Balaban.Green.FinalTorusClose
