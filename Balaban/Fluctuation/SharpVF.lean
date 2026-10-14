@@ -753,6 +753,8 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
           (ball (0 : ℂ) (3 / 2))) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
       ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
           (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
         (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
@@ -792,7 +794,7 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
       DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
         (ball (0 : ℂ) (3 / 2)) :=
     fun Y Θ hΘ ψ hψ => differentiableOn_dirTerm_ray_ball hR₁ hr hω (hanY Y) hΘ ψ hψ
-  refine ⟨Ev, ?_, hray, hFS⟩
+  refine ⟨Ev, ?_, hray, hanY, hFS⟩
   have hbase := locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
     (B := hatBall (N := N) Gp cψ)
     (f := hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps
