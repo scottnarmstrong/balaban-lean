@@ -664,4 +664,32 @@ theorem localHat_integral_rot_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha
 
 end HatIntegralRot
 
+section EvTermRot
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+
+/-- The cut-off `clipRaw` commutes with the rotation of the pair of fields. -/
+theorem clipRaw_rot (R : Matrix (Fin N) (Fin N) ℂ)
+    (p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N) :
+    clipRaw G (rotField R p.1, rotField R p.2) = rotRaw R (clipRaw G p) := by
+  classical
+  refine Prod.ext (funext fun x => ?_) (funext fun x => ?_)
+  · show (fun i => if x ∈ dataSites G then (R *ᵥ p.1 x) i else 0) =
+      R *ᵥ fun i => if x ∈ dataSites G then p.1 x i else 0
+    by_cases hx : x ∈ dataSites G
+    · simp [hx]
+    · simp only [hx, ↓reduceIte]
+      funext i
+      simp [Matrix.mulVec, dotProduct]
+  · show (fun i => if x ∈ G.Ω 1 then (R *ᵥ p.2 x) i else 0) =
+      R *ᵥ fun i => if x ∈ G.Ω 1 then p.2 x i else 0
+    by_cases hx : x ∈ G.Ω 1
+    · simp [hx]
+    · simp only [hx, ↓reduceIte]
+      funext i
+      simp [Matrix.mulVec, dotProduct]
+
+end EvTermRot
+
 end Balaban.Localization
