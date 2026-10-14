@@ -81,6 +81,7 @@ public import Balaban.Polymer.TwoTorusObsTower
 public import Balaban.Polymer.TwoTorusObsSourceSite
 public import Balaban.Polymer.TwoTorusObsSource
 public import Balaban.Polymer.TwoTorusObsSourceTower
+public import Balaban.Polymer.TwoTorusFinal
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
