@@ -1909,4 +1909,6 @@ public import Balaban.Localization.DecoupledCovX0Sup
 public import Balaban.Fluctuation.SharpChartTestSup
 public import Balaban.LargeField.Base.BaseCubeDiscs
 public import Balaban.LargeField.Base.BaseParametrix
+public import Balaban.Fluctuation.SharpChartTestFlSup
+public import Balaban.Fluctuation.LocalFluctGen
 public import Balaban.LargeField.Base.BaseConstrainedCov
