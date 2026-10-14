@@ -1940,4 +1940,5 @@ public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Fluctuation.LocalPairDepth
 public import Balaban.Fluctuation.LocalPairReplacementLocalB
 public import Balaban.Inhabited.RootParams
+public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
