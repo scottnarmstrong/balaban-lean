@@ -25,6 +25,9 @@ sequence.
   terms.  With `ε' = K ε_{k+1}` and the input at `ε_k` this fails for the class sequence of P4 (H.1):
   `ε_k ≤ 2 L^α ε_{k+1}` (`epsSeq_le_two_rpow_mul_succ`) and `2 L^α < K` when `α ≤ 2`
   (`two_rpow_lt_localLoss`), so `K ε_{k+1} + δ > ε_k` (`not_localLoss_eps_succ_le`).
+* **The chart test of the landed expansion has the same defect for every class**
+  (`not_chartTest_eps_succ`): `C₀² (C₀² ε + δ) ≤ ε_k` with `ε ≥ ε_{k+1}` needs `C₀⁴ ≤ 2 L^α`,
+  false at `d = L = 3` (`C₀ = 36`).
 * **A local term is analytic at every pair that agrees on `X` with a point of its domain**
   (`SFTermClauses.analyticAt_E_of_agreeOn`, `SFTermClauses.analyticAt_M_of_agreeOn`): the clause
   `localE` makes the term invariant under the translation by the difference of the two pairs.  So
@@ -131,13 +134,12 @@ theorem two_rpow_lt_localLoss {d L N : ℕ} [NeZero L] (hd : 1 ≤ d) (hL : 1 �
   have h1 : 2 * bgK1 d L N + 2 ≤ (2 * bgK1 d L N + 2) * xiC1 d := by nlinarith
   linarith
 
-/-- **The successor cannot carry the loss of the restriction route over an input at the class
-radius**: for the class sequence (`α₀ > 0`, `α ≤ 2`, e.g. `d ≤ 6`), every level `k` and every
-`δ ≥ 0`, `K ε_{k+1} + δ ≤ ε_k` is false, `K = (2 K₁ + 2) C₁`.  This is condition (4.37) of P3
-(printed p. 77; `ε' + (K₂ + 1) δ₃ ≤ ε_k`) with `ε' = K ε_{k+1}`. -/
-theorem not_localLoss_eps_succ_le {d L N : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀)
-    (hα : P.alpha d ≤ 2) (hd : 1 ≤ d) (hL : 1 ≤ L) (k : ℕ) {δ : ℝ} (hδ : 0 ≤ δ) :
-    ¬ ((2 * bgK1 d L N + 2) * xiC1 d * P.eps d L (k + 1) + δ ≤ P.eps d L k) := by
+/-- **No constant above `2 L^α` fits between two consecutive class radii**: for the class
+sequence (`α₀ > 0`), every level `k`, every `δ ≥ 0` and every `K' > 2 L^α`,
+`K' ε_{k+1} + δ ≤ ε_k` is false. -/
+theorem not_mul_eps_succ_add_le {d L : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀) {K' : ℝ}
+    (hK : 2 * (L : ℝ) ^ P.alpha d < K') (k : ℕ) {δ : ℝ} (hδ : 0 ≤ δ) :
+    ¬ (K' * P.eps d L (k + 1) + δ ≤ P.eps d L k) := by
   intro h
   have hLpos : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hpos : 0 < P.eps d L (k + 1) := by
@@ -146,12 +148,52 @@ theorem not_localLoss_eps_succ_le {d L N : ℕ} [NeZero L] (P : Consts) (hα₀ 
     have : 0 < (L : ℝ) ^ (-P.alpha d) := Real.rpow_pos_of_pos hLpos _
     positivity
   have h1 := epsSeq_le_two_rpow_mul_succ L (P.alpha d) P.α₀ hα₀.le k
-  have h2 := two_rpow_lt_localLoss (N := N) hd hL hα
-  have h3 : 2 * (L : ℝ) ^ P.alpha d * P.eps d L (k + 1) <
-      (2 * bgK1 d L N + 2) * xiC1 d * P.eps d L (k + 1) :=
-    mul_lt_mul_of_pos_right h2 hpos
+  have h3 : 2 * (L : ℝ) ^ P.alpha d * P.eps d L (k + 1) < K' * P.eps d L (k + 1) :=
+    mul_lt_mul_of_pos_right hK hpos
   unfold Consts.eps at h h3 hpos
   linarith
+
+/-- **The successor cannot carry the loss of the restriction route over an input at the class
+radius**: for the class sequence (`α₀ > 0`, `α ≤ 2`, e.g. `d ≤ 6`), every level `k` and every
+`δ ≥ 0`, `K ε_{k+1} + δ ≤ ε_k` is false, `K = (2 K₁ + 2) C₁`.  This is condition (4.37) of P3
+(printed p. 77; `ε' + (K₂ + 1) δ₃ ≤ ε_k`) with `ε' = K ε_{k+1}`. -/
+theorem not_localLoss_eps_succ_le {d L N : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀)
+    (hα : P.alpha d ≤ 2) (hd : 1 ≤ d) (hL : 1 ≤ L) (k : ℕ) {δ : ℝ} (hδ : 0 ≤ δ) :
+    ¬ ((2 * bgK1 d L N + 2) * xiC1 d * P.eps d L (k + 1) + δ ≤ P.eps d L k) :=
+  not_mul_eps_succ_add_le P hα₀ (two_rpow_lt_localLoss (N := N) hd hL hα) k hδ
+
+/-- `2 L^α < C₀⁴` (`C₀ = scaledC0 d = 8 d + 12`) when `α ≤ 2`, `1 ≤ L` and `2 L² < C₀⁴`. -/
+theorem two_rpow_lt_scaledC0_four {d L : ℕ} {α : ℝ} (hα : α ≤ 2) (hL : 1 ≤ L)
+    (hL2 : 2 * (L : ℝ) ^ 2 < scaledC0 d ^ 4) : 2 * (L : ℝ) ^ α < scaledC0 d ^ 4 := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have hpow : (L : ℝ) ^ α ≤ (L : ℝ) ^ 2 := by
+    have := Real.rpow_le_rpow_of_exponent_le hL1 hα
+    simpa [Real.rpow_two] using this
+  linarith
+
+/-- At `d = L = 3`: `2 · 3² < C₀⁴ = 36⁴`. -/
+theorem two_mul_three_sq_lt_scaledC0_four : 2 * ((3 : ℕ) : ℝ) ^ 2 < scaledC0 3 ^ 4 := by
+  unfold scaledC0
+  norm_num
+
+/-- **The chart test of the landed expansion fails between consecutive class radii.**  The old
+terms enter the decoupled expansion through the chart `Ξ^c_j(𝔹_j(X); C₀, C₀² ε + δ)`
+(`I5Fan.point_facts`, `InteractionHatE.eTerm_chain`), which lies in the class domain at level `j`
+when `C₀² (C₀² ε + δ) ≤ ε_j` (`xiDom_of_xiCData`, `xiCRaw_localB_sub_xiFieldDom`).  For a chart
+radius `ε ≥ ε_{k+1}` (the class domain of the new terms must lie in their chart) this is false at
+`j = k` as soon as `2 L^α < C₀⁴`, e.g. at `d = L = 3` (`two_mul_three_sq_lt_scaledC0_four`),
+for every generator of the class, whole-level or local. -/
+theorem not_chartTest_eps_succ {d L : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀)
+    (hK : 2 * (L : ℝ) ^ P.alpha d < scaledC0 d ^ 4) (k : ℕ) {ε δ : ℝ}
+    (hε : P.eps d L (k + 1) ≤ ε) (hδ : 0 ≤ δ) :
+    ¬ (scaledC0 d ^ 2 * (scaledC0 d ^ 2 * ε + δ) ≤ P.eps d L k) := by
+  intro h
+  have hC : 0 ≤ scaledC0 d ^ 2 := sq_nonneg _
+  have h4 : scaledC0 d ^ 4 * P.eps d L (k + 1) + scaledC0 d ^ 2 * δ ≤ P.eps d L k := by
+    have : scaledC0 d ^ 4 * P.eps d L (k + 1) ≤ scaledC0 d ^ 4 * ε :=
+      mul_le_mul_of_nonneg_left hε (by positivity)
+    nlinarith
+  exact not_mul_eps_succ_add_le P hα₀ hK k (mul_nonneg hC hδ) h4
 
 /-- `α = (d - 2)/2 - γ ≤ 2` for `d ≤ 6` and `γ ≥ 0` (the case `d = 3` of the fixed tower). -/
 theorem Consts.alpha_le_two {d : ℕ} (P : Consts) (hd : d ≤ 6) (hγ : 0 ≤ P.γ) :
