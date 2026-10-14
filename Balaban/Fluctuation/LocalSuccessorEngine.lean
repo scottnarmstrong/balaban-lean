@@ -31,11 +31,17 @@ The ratios `4 d / 5` and `4 d L² / 5` do not depend on `m₁` and grow with `L`
 The input side does work with a local class: the class of the step and the step itself may have
 different separation indices.
 
+* `bgSetting_localB_termGen`: a setting of the step with `𝔹_k = stepG` holds with the term
+  generator `𝔹_j(X) = localB j _ X hsep` at the index `R₀(d, L)`;
+
 * `classOldDecLocal_expansion_index`, `classOldDecObsLocal_expansion_index`: W754's expansions of
   one inherited label with the class `C` at its own index `ϱc` (the step at `ϱ`);
 * `classOldDecLocal_expansion_localB`: for a class at the low index `R₀(d, L)` whose term
   generator at `(j, X)` is `𝔹_j(X) = localB j _ X hsep` and whose domain is `Ξ^c_j(𝔹_j(X); 1, ε_j)`, the chart hypothesis is the radius test `C₀² ε₂ ≤ ε_j` of a
-  whole-level generator; no factor of the restriction route enters.
+  whole-level generator; no factor of the restriction route enters;
+* `not_chartTest_newest`: that test (the same for a whole-level generator) is false at `j = k` for
+  a chart radius `ε ≥ ε_{k+1}` when `2 L^α < C₀⁴` (`d = L = 3`): the composition chain of the landed
+  expansion loses `C₀⁴` in radius, where P3 (4.29) loses nothing.
 -/
 
 @[expose] public section
@@ -122,6 +128,35 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱm ϱc : 
   {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
   {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
   {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **A local term generator in the setting of the step.**  From a `BgSetting` of the step with
+the ambient set `𝔹_k = stepG` and any term generator, the setting holds with the term generator
+`𝔹_j(X) = localB j hj X hsep` at the low index `R₀(d, L)`: `BgHyp` at that index, `𝔹_j(X) ≺ 𝔹_k`
+(`localB_precedes_levelGS_of_le`) and the collar of `𝔹_j(X)` in `Ω₁(𝔹_k) = 𝕋`. -/
+theorem bgSetting_localB_termGen {ϱ₂ : ℝ} {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
+    {j : ℕ} (hB0 : BgSetting N Gp (stepG d L N₁ m₁ k ϱ₁) Gj0 a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hk1 : 1 ≤ k) (hjk : j ≤ k) {hj : j ≤ k + 1} {hsep : bgR0 d L ≤ minSep L (L ^ m₁)} :
+    BgSetting N Gp (stepG d L N₁ m₁ k ϱ₁) (localB j hj X hsep) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j
+    where
+  hS := hB0.hS
+  Sp := hB0.Sp
+  ha₁ := hB0.ha₁
+  HBp := hB0.HBp
+  HBk := hB0.HBk
+  HBj := { hB0.HBp with hϱ := le_rfl }
+  hP := hB0.hP
+  hq := localB_precedes_levelGS_of_le hjk (Nat.le_succ k)
+  colk := hB0.colk
+  colj := fun z _ => by simp [stepG, levelGS, hk1]
+  hκ := hB0.hκ
+  hM := hB0.hM
+  num := hB0.num
+  dsX₀ := hB0.dsX₀
+  hN := hB0.hN
+  hr := hB0.hr
+  hr₀ := hB0.hr₀
+  dep := hB0.dep
+  hj := hB0.hj
 
 open Classical in
 /-- **One inherited energy label of a class at its own separation index expands over the
@@ -300,6 +335,22 @@ theorem classOldDecLocal_expansion_localB {P : Consts} {εseq : ℕ → ℝ}
   classOldDecLocal_expansion_index C hm hcl hβ hE₀ hj1 hjk hXp hy hB hF hk hG hG' cc hcψ hMX hdm
     hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP
     (by rw [hgs]; exact xiCRaw_localB_sub_xiFieldDom hε)
+
+/-- **The radius test of the chart hypothesis fails for the newest old terms.**  The test
+`C₀² (C₀² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` of `classOldDecLocal_expansion_localB` (and of the
+whole-level route through `xiDom_of_xiCData`) is false at `j = k` for the class sequence when the
+chart radius is at least `ε_{k+1}` and `2 L^α < C₀⁴` (`not_chartTest_eps_succ`; e.g. `d = L = 3`). -/
+theorem not_chartTest_newest {P : Consts} (hα₀ : 0 < P.α₀)
+    (hK : 2 * (L : ℝ) ^ P.alpha d < scaledC0 d ^ 4) {eps δ₃ δfl : ℝ}
+    (heps : P.eps d L (k + 1) ≤ eps) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl) :
+    ¬ (scaledC0 d ^ 2 * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ≤
+      P.eps d L k) := by
+  have hK2 : 0 ≤ xiK2 d L N := by
+    unfold xiK2
+    have := cK2_pos d L N
+    positivity
+  rw [add_assoc]
+  exact not_chartTest_eps_succ P hα₀ hK k heps (by positivity)
 
 end Expansion
 
