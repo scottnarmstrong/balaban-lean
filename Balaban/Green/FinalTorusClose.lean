@@ -268,49 +268,6 @@ section FineClose
 
 variable {d : ℕ}
 
-/-- The block projection at sites of a cube whose block indices stay in `[-Rm-1, Rm]`. -/
-theorem blockProjMatrix_castTorus_fine {ℓ N m R Rm : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
-    (hN : 0 < N) (hm : 2 * Rm + 1 < m) (hR : R < N * (Rm + 1)) {u u' : Fin d → ℤ}
-    (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
-    blockProjMatrix d ℓ N m (castTorus ℓ u) (castTorus ℓ u') = projZ d N u u' := by
-  unfold blockProjMatrix projZ
-  rw [blockMap_castTorus_div hℓ hN, blockMap_castTorus_div hℓ hN]
-  have hN' : (0 : ℤ) < N := by exact_mod_cast hN
-  have hRz : (R : ℤ) < N * (Rm + 1) := by exact_mod_cast hR
-  have hb : ∀ w : Fin d → ℤ, w ∈ sqBox d R → ∀ μ, -((Rm : ℤ) + 1) ≤ w μ / (N : ℤ) ∧
-      w μ / (N : ℤ) ≤ Rm := by
-    intro w hw μ
-    have h1 := abs_le.1 (mem_sqBox.1 hw μ)
-    constructor
-    · rw [Int.le_ediv_iff_mul_le hN']
-      nlinarith [h1.1]
-    · have : w μ / (N : ℤ) < (Rm : ℤ) + 1 := by
-        rw [Int.ediv_lt_iff_lt_mul hN']
-        nlinarith [h1.2]
-      omega
-  have hiff : castTorus m (fun i => u i / (N : ℤ)) = castTorus m (fun i => u' i / (N : ℤ)) ↔
-      ∀ μ, u μ / (N : ℤ) = u' μ / (N : ℤ) := by
-    rw [castTorus_eq_iff, funext_iff]
-    intro μ
-    have h1 := hb u hu μ
-    have h2 := hb u' hu' μ
-    have h5 : ((2 * Rm + 1 : ℕ) : ℤ) < m := by exact_mod_cast hm
-    push_cast at h5
-    rw [abs_lt]
-    constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
-  simp only [hiff]
-
-theorem fineHamiltonian_castTorus_fine {ℓ N m R Rm : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
-    (hN : 0 < N) (hm : 2 * Rm + 1 < m) (hR : R < N * (Rm + 1)) (ν a : ℝ) {u u' : Fin d → ℤ}
-    (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
-    fineHamiltonian d ℓ N m ν a (castTorus ℓ u) (castTorus ℓ u') =
-      (N : ℝ) ^ 2 * latZ d (ν / (N : ℝ) ^ 2) u u' + a * projZ d N u u' := by
-  have hs : 2 * R + 1 < ℓ := by
-    rw [hℓ]; nlinarith
-  unfold fineHamiltonian
-  rw [Matrix.add_apply, Matrix.smul_apply, Matrix.smul_apply, smul_eq_mul, smul_eq_mul,
-    latticeLaplacian_castTorus hs _ hu hu', blockProjMatrix_castTorus_fine hℓ hN hm hR hu hu']
-
 /-- One torus: the entry of the inverse of the fine operator against the box Green function. -/
 theorem fineGreen_sub_boxGreen {L k : ℕ} [NeZero L] (hd : 0 < d) {ν a : ℝ} (hν0 : 0 ≤ ν)
     (hν1 : ν ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) {m : ℕ} [NeZero m] {Rm R₀ : ℕ}
