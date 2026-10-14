@@ -115,8 +115,50 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
         q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1BallEta d L N₁ m₁ (k + 1) N η →
         ∀ ψ : unitPts Gp × Fin N → ℂ, (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun z : ℂ => T Y (z • ψ) (z • ψ) 1 q) (ball (0 : ℂ) (3 / 2))) ∧
-      ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (x w : unitPts Gp × Fin N → ℂ) (σ : ℂ)
-        (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N), T Y x w σ (Θ, 0) = 0 := by
+      (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (x w : unitPts Gp × Fin N → ℂ) (σ : ℂ)
+        (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N), T Y x w σ (Θ, 0) = 0) ∧
+      ∃ (F₁ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+              (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (s : DecParams Gp) (D : BgData Gp N),
+          (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ a (s, rawOf D) = (φ, α)) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (p : Dec2.DecParams (coverOf Gp) × Edat Hm N),
+          (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol a p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol a p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol a p).2 ∧
+            Small Hm (Sol a p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol a p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol a p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol a p).2)) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (x w : unitPts Gp × Fin N → ℂ) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+          (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+          T Y x w σ (Θ, g) = ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+            if Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s) then
+              g s.1 s.2 * dirTerm (evTerm
+                (fun i : ParIdx Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+                (X1 Gp m₀ (jF s) (𝒦XF s))
+                (fun u t => siteFun Gp Hm s.1 s.2
+                  (F₁ s (extParams Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                  (Sol s (extParams Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) t,
+                    flEdat Gp Hm
+                      (F₁ s (extParams Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                      u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₁ s)
+                        (extParams Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))).1
+                  (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ s)
+                    (extParams Gp (↑(X₁F s) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2)) Y)
+                (fun _ => (1 : ℂ)) x w σ Θ
+            else 0 := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -135,7 +177,8 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
       (hoptF s) (hΔF s) hκ₀ hκdec hκ h1 (hlogF s) s.1 (hyF s) s.2 (ω := fun _ => (1 : ℂ))
       continuous_const hR₁ analyticOnNhd_const (Mω := 1) zero_le_one (fun t ht => by simp) hr
       (Rσ := Rσ)
-  choose EvF hEvF hrayF using hexF
+  choose EvF hEvF hrayF hFS using hexF
+  choose F₁ Sol hF₁ hSol hEvEq using hFS
   have hLF := LocIntDm.wsum (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) × Fin N))
     (𝒴 := fun s => polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)) (fun s _ => hEvF s)
     (SG := l1BallEta d L N₁ m₁ (k + 1) N η) (amp := fun s g => g s.1 s.2)
@@ -171,14 +214,16 @@ theorem hat_fparts_bound_dm_dir_eta_ray {Kc Cx c₂ BG₂ δ₁ : ℝ}
             Real.exp (-(2 * κdec - 1) * treeLenCov Gp m₀ Y)) :=
             mul_le_mul_of_nonneg_left hβle hη0.le
         _ = _ := by ring)
-  refine ⟨_, hLF, ?_, fun Y x w σ Θ => by simp⟩
-  intro Y q hq ψ hψ
-  apply DifferentiableOn.fun_sum
-  intro s _
-  by_cases hY : Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)
-  · simp only [hY, ite_true]
-    exact (differentiableOn_const _).mul (hrayF s Y q.1 hq.1 ψ hψ)
-  · simp only [hY, ite_false]; exact differentiableOn_const _
+  refine ⟨_, hLF, ?_, fun Y x w σ Θ => by simp, F₁, Sol, hF₁, hSol, ?_⟩
+  · intro Y q hq ψ hψ
+    apply DifferentiableOn.fun_sum
+    intro s _
+    by_cases hY : Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)
+    · simp only [hY, ite_true]
+      exact (differentiableOn_const _).mul (hrayF s Y q.1 hq.1 ψ hψ)
+    · simp only [hY, ite_false]; exact differentiableOn_const _
+  · intro Y x w σ Θ g
+    simp only [hEvEq]
 
 /-- The source sites with the resummed bound (sharp hat version; raw datum and source agreeing on
 `Y` itself). -/
