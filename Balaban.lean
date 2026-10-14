@@ -1929,3 +1929,4 @@ public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
 public import Balaban.Inhabited.RootParams
+public import Balaban.Green.FinalTorusClose
