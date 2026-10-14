@@ -71,13 +71,13 @@ theorem covC_wA {ε : ℝ} (hr : XWeight G ε r) {c b x : ℝ} (hcx : 0 < c + x)
     (fun b b' => unitP_nonneg_real b b') hcx hb g
   exact (sqNorm_le_iff hA1p).1 (by simpa only [covWVec_sqNorm] using h1)
 
-section Main
+section CoverSup
 
-variable (H : ∀ x, 0 ≤ x → XData G a aT ν x α κ s) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
-  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+variable {Cx : ℝ} (Hc : ∀ x, 0 ≤ x → Dec2.XData (coverOf G) G a aT ν x α κ s Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
 
-include H hφ hδ hsm in
-theorem covC_wT {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
+include Hc hφ hδ hsm in
+theorem covC_wT_cover {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
     (h : unitPts G × Fin N → ℂ) :
     n2 (covWVec ε (fun b : unitPts G => unitRho r b.1)
         ((decCov G a aT x ν α s φ (unitQ G) (unitP G) -
@@ -85,7 +85,7 @@ theorem covC_wT {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
       covTConst d L (a k) ε κ * ((a k + x)⁻¹) ^ 2 *
         n2 (covWVec ε (fun b : unitPts G => unitRho r b.1) h) := by
   classical
-  have D := H x hx
+  have D := Hc x hx
   have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
   have hk := D.st.hk
   have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k hk le_rfl
@@ -119,8 +119,8 @@ theorem covC_wT {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
   have hz1 : n2 (covWVec ε ρ z) ≤ A1 * n2 (covWVec ε ρ h) := hAv' h
   have hsrc := cov_vecSrc_QT_le (N := N) hr.agm hr.ε0 z
   have hZ : vecM G ε r u ≤ 92 * (valConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G ε r w := by
-    have hG := Gsx_vec_bounds D hr w
-    have hP := decPi_weighted_bounds D hr hφ hδ hsm w
+    have hG := Gsx_vec_bounds_cover D hr w
+    have hP := decPi_weighted_bounds_cover D hr hφ hδ hsm w
     have hsub : u = liftOp N (Gsx G a aT x ν α s) *ᵥ w - decPi G a aT x ν α s φ *ᵥ w := by
       rw [hu]; unfold decZ; rw [Matrix.sub_mulVec]
     have h1 := vecM_sub_le (G := G) ε r (liftOp N (Gsx G a aT x ν α s) *ᵥ w)
@@ -172,14 +172,14 @@ theorem covC_wT {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
         rw [← hE, ← hS]
         ring
 
-include H hφ hδ hsm in
-theorem covC_wC {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
+include Hc hφ hδ hsm in
+theorem covC_wC_cover {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
     (h : unitPts G × Fin N → ℂ) :
     n2 (covWVec ε (fun b : unitPts G => unitRho r b.1)
         (decCov G a aT x ν α s φ (unitQ G) (unitP G) *ᵥ h)) ≤
       covC1Const d L (a k) ε κ * (a k + x)⁻¹ *
         n2 (covWVec ε (fun b : unitPts G => unitRho r b.1) h) := by
-  have D := H x hx
+  have D := Hc x hx
   have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k D.st.hk le_rfl
   have hak0 : 0 < a k := by linarith [hak.1]
   have hcx : 0 < a k + x := by linarith
@@ -188,7 +188,7 @@ theorem covC_wC {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
     positivity
   have hα : (a k + x)⁻¹ ≤ (a k)⁻¹ := inv_anti₀ hak0 (by linarith)
   have hα0 : 0 < (a k + x)⁻¹ := inv_pos.2 hcx
-  have hT := covC_wT H hφ hδ hsm hx hr h
+  have hT := covC_wT_cover Hc hφ hδ hsm hx hr h
   have hA := covC_wA (N := N) hr hcx hb h
   have hsplit : decCov G a aT x ν α s φ (unitQ G) (unitP G) *ᵥ h =
       covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N (unitP G)) *ᵥ h +
@@ -213,6 +213,32 @@ theorem covC_wC {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
     _ ≤ _ := by
         unfold covC1Const
         nlinarith [mul_le_mul_of_nonneg_right h2 hn0]
+
+end CoverSup
+
+section Main
+
+variable (H : ∀ x, 0 ≤ x → XData G a aT ν x α κ s) (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+
+include H hφ hδ hsm in
+theorem covC_wT {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
+    (h : unitPts G × Fin N → ℂ) :
+    n2 (covWVec ε (fun b : unitPts G => unitRho r b.1)
+        ((decCov G a aT x ν α s φ (unitQ G) (unitP G) -
+          covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N (unitP G))) *ᵥ h)) ≤
+      covTConst d L (a k) ε κ * ((a k + x)⁻¹) ^ 2 *
+        n2 (covWVec ε (fun b : unitPts G => unitRho r b.1) h) :=
+  covC_wT_cover (fun x hx => (H x hx).toCover) hφ hδ hsm hx hr h
+
+include H hφ hδ hsm in
+theorem covC_wC {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
+    (h : unitPts G × Fin N → ℂ) :
+    n2 (covWVec ε (fun b : unitPts G => unitRho r b.1)
+        (decCov G a aT x ν α s φ (unitQ G) (unitP G) *ᵥ h)) ≤
+      covC1Const d L (a k) ε κ * (a k + x)⁻¹ *
+        n2 (covWVec ε (fun b : unitPts G => unitRho r b.1) h) :=
+  covC_wC_cover (fun x hx => (H x hx).toCover) hφ hδ hsm hx hr h
 
 end Main
 
