@@ -128,3 +128,10 @@ Planned appended-conjunct chain: `e1CoeffFamily_value_fromTowerG`,
 and `obsFamily_full_fromTowerG`; extend a direct chooser only if its witness is lost earlier.
 The E1/E0 conjuncts must expose `Lab₀`, `A₀`, and the explicit determinant term `dz` where applicable.
 Existing statement clauses remain textually unchanged; physical specializations consume the exports.
+
+## W761 status (2026-10-14)
+
+- WIP of W730 re-applied on current main: `Inhabited/OffFibreM0ActivityG.lean` (`obs_physAct_raw_of_directTermsG_rho` and its `ρ = 1` case, for `StepTowerG`).
+- `obsTiltLabels_local_fromTowerG` and `_rho`: appended conjunct `∃ Jr`, `W₁ + W₂ =` label sum of the same `A` at every chart datum (the `∃ 𝒴 …` conjunct is now parenthesised).
+- `obsFamily_full_fromTowerG` and `_rho`: appended conjunct (per site) `∃ Jr`, the same activity identity and `√β_U · avgJ(W₁, W₂, ℳ₀(y)_i)(rawOf D) = √β_U · ∑_{T'} obsCoeffParam … (rawOf D, g) T'` at every datum of `XiCData` and every `g` in the radius-`q` ball; proof by `obsRecord_raw_M0_of_activity`.
+- `Inhabited/OffFibreM0Family.lean`: `obsM0Family_full_fromTower_rho` (shared tower, value, analyticity, locality, bound, activity identity, avgJ identity). Downstream proof bodies repaired (`hv.1`).

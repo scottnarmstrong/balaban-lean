@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.ObsTiltFamily
 public import Balaban.Inhabited.ObsMarksFromTower
+public import Balaban.Inhabited.OffFibreM0ActivityG
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -395,7 +396,7 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
                 hεH.le hdj hK (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2)))) hR (ball (0 : ℂ) (3 / 2))
                 ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (r : ℂ) 1).H y
                 ((S.blockSplit T.m₀ hp).restr x)))) ∧
-        ∃ (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))) (ys : Lb ≃ {Y // Y ∈ 𝒴}),
+        (∃ (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))) (ys : Lb ≃ {Y // Y ∈ 𝒴}),
           (∀ l, Lab.ysite l = (ys l).1) ∧
           𝒴 = (Finset.univ.biUnion fun z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) =>
               polyDom S.G' (LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) T.m₀ k
@@ -441,7 +442,17 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
                     (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2)) (Lab.ysite l))
                 (S.hatOf T.m₀ p₁ hp Φ)) taylorWeight (S.hatOf T.m₀ p₁ hp Φ) σ
                 (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-            else 0 := by
+            else 0) ∧
+        ∃ Jr : S.JointRep T.t (2 * p₁),
+          ∀ (D' : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+            ∀ g : Fld d L N₁ T.m₁ (k + 1) N, g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N q →
+              ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                Jr.W1 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
+                    (rawOf D', Balaban.Fluctuation.yhat x) +
+                  Jr.W2 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g
+                    (rawOf D', (t : ℂ) • Balaban.Fluctuation.yhat x) =
+                  ∑ y, (physAct A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g)
+                    (t : ℂ)).H y ((S.blockSplit T.m₀ hp).restr x) := by
   classical
   obtain ⟨β₁, CE, CF, hβ₁, hCE, hCF, hfam⟩ := sourceFamilyRelative_scale_fromTowerG_rho T hA p
   have hρ1 : (0 : ℝ) ≤ max 1 ρ := le_trans zero_le_one (le_max_left _ _)
@@ -474,7 +485,7 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
   obtain ⟨Jr, I, h𝒴, hT, hF, hεU, hεpos, H⟩ := activityFamilyAnalytic_of_witnessG_rho T k hk N₁
     hN3 ν hνpos hν β ρ hβρ p₁ hp0 q hq0 hq _ rfl D rfl S (heq_of_eq hS) hp val 𝒴 Tt hval hcont₀ hI
     hmem0
-  obtain ⟨A, hAeq, hhol, hcont, -, -, -, -, h7, h8, -, -, -, -⟩ := H hKc
+  obtain ⟨A, hAeq, hhol, hcont, -, hsumX, -, -, h7, h8, -, -, -, -⟩ := H hKc
   have hsub : ∀ e ∈ physVqRho S S.a₁ S.ν T.t ρ q, ((e.1, 0) : physParam N S) ∈
       physVqRho S S.a₁ S.ν T.t ρ q := fun e he =>
     fst_zero_mem_physVqRho S hρ0 (physVqRho_subset S _ _ _ _ _ he) hq0
@@ -587,7 +598,7 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
       labelActFamilyOn_local S T.m₀ _ hF hN3 hp0 (by norm_num) hεU T.κ0_ent hKc
         he he' w.1 (hag _ _ (agreeOn_mono hw hr) (fun x hx => hg x (hw hx)))
         u w subset_rfl⟩
-  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hlocExact, hamp, ?_, ?_, ?_⟩
+  refine ⟨_, inferInstance, _, _, hεH, A, hloc, hlocExact, hamp, ?_, ?_, ?_, ?_⟩
   · filter_upwards [hae] with x hx
     intro D' hDh hX g hg t ht 𝒴obs hdj Kobs hK
     have hphys := hx D' hDh hX g hg t ht
@@ -633,6 +644,10 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
       simp
     rw [hJ, hTx]
     rfl
+  · refine ⟨Jr, ?_⟩
+    intro D' hX g hg
+    exact obs_physAct_raw_of_directTermsG_rho T k hk N₁ ν hνpos hν β p₁ hp0 D S hS hp
+      Jr val hval ρ hq0 hq A hsumX D' hX g hg
 
 /-- General tower `T : StepTowerG d L N κmin` (block scale `T.m₀`, `b = β L^{k (d-2)}`); the fixed theorem `obsTiltLabels_local_fromTower` is its corollary.  **Locality of the activity family in the datum and the source, with the activity family of
 `obsTiltLabels_fromTower`.**  The statement of `obsTiltLabels_fromTower` with two locality
@@ -751,7 +766,7 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
                 hεH.le hdj hK (obsRg CR s (p : ℝ) (β * (L : ℝ) ^ (k * (d - 2)))) hR (ball (0 : ℂ) (3 / 2))
                 ((⟨rawOf S.D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) (r : ℂ) 1).H y
                 ((S.blockSplit T.m₀ hp).restr x)))) ∧
-        ∃ (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))) (ys : Lb ≃ {Y // Y ∈ 𝒴}),
+        (∃ (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1)))) (ys : Lb ≃ {Y // Y ∈ 𝒴}),
           (∀ l, Lab.ysite l = (ys l).1) ∧
           𝒴 = (Finset.univ.biUnion fun z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) =>
               polyDom S.G' (LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) T.m₀ k
@@ -797,7 +812,17 @@ theorem obsTiltLabels_local_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
                     (extParams S.G' (↑(LocalCover.nbhdF T.m₀ (LocalCover.blockSite k z)) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2)) (Lab.ysite l))
                 (S.hatOf T.m₀ p₁ hp Φ)) taylorWeight (S.hatOf T.m₀ p₁ hp Φ) σ
                 (e.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-            else 0 := by
+            else 0) ∧
+        ∃ Jr : S.JointRep T.t (2 * p₁),
+          ∀ (D' : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 T.t D' →
+            ∀ g : Fld d L N₁ T.m₁ (k + 1) N, g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N q →
+              ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+                Jr.W1 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
+                    (rawOf D', Balaban.Fluctuation.yhat x) +
+                  Jr.W2 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g
+                    (rawOf D', (t : ℂ) • Balaban.Fluctuation.yhat x) =
+                  ∑ y, (physAct A ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N S.G'), g)
+                    (t : ℂ)).H y ((S.blockSplit T.m₀ hp).restr x) := by
   exact obsTiltLabels_local_fromTowerG_rho T hA p hCR hs0 hs hΘ 1
 
 

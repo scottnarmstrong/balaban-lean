@@ -224,7 +224,7 @@ theorem obsFamily_pair_fibre_prefactor_fromTowerG_rho {d L N : ℕ} [NeZero L] {
     rw [T.obsFamilyRate_eq] at hb0
     exact hb0.trans (mul_le_mul_of_nonneg_right hB (Real.exp_nonneg _))
   · intro D hDh hX g hg
-    have hM := fun y i => hval y i D hDh hX g hg
+    have hM := fun y i => (hval y i).1 D hDh hX g hg
     exact ⟨hM, rpow_neg_half_mul_sum_pair hbU0 g _ _ hM⟩
 
 
