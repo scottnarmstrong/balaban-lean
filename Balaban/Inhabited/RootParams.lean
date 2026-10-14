@@ -114,6 +114,58 @@ theorem exists_tower_blockSize (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (κ : �
     rw [div_le_iff₀ hpe] at this
     linarith
 
+/-- **The constants of Root-F at a given `δ`.**  The clauses of `exists_rootParams` hold for every
+real `δ` (no sign or upper bound is used by these clauses). -/
+theorem exists_rootParams_of_delta (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) :
+    ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
+    ∃ L M : ℕ, 2 ≤ L ∧ 6 ≤ L ∧ Odd L ∧ 1 ≤ M ∧
+    ∃ (_ : NeZero L) (κmin : ℝ) (T : StepTowerThetaG d L N κmin),
+      T.m₀ = 1 ∧ M = L ^ (T.m₁ + 1) ∧
+      (∀ q J K : ℕ, 1 ≤ q → 5 < q * L ^ T.m₀ * L ^ (J - K)) ∧
+      c1 d L * κ ≤ 3 / 2 * T.κdec ∧
+      4 * (pdB d L * Real.exp (pdH d * max κ 1)) ≤ (M : ℝ) ∧
+      8 * max κ 1 * 7 ^ d ≤ pdEps d L * (M : ℝ) ∧
+    ∀ C C' B p R : ℝ, 0 < C → 0 < C' → 0 < R →
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+      (L : ℝ) ^ (((d : ℝ) - 2) / 2 + δ) ≤ c₉ * β₀ ^ 2 ∧
+    ∀ β : ℝ, β₀ ≤ β →
+      (C * C' * Real.exp (3 / 2 * T.κdec) * (L : ℝ) ^ (((d : ℝ) - 2) / 2 + δ) / c₉) ^
+          (1 / ((((d : ℝ) - 2) / 2 + δ) / ((d : ℝ) - 2))) ≤ β ∧
+      (B * p / R) ^ 2 + 1 ≤ β ∧
+    ∀ ν : ℝ, 0 < ν → ν ≤ 1 → ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 →
+    ∃ kf : ℕ, (L : ℝ) ^ kf * Real.sqrt ν ≤ L ∧ 1 / 2 ≤ (L : ℝ) ^ (kf + 1) * Real.sqrt ν := by
+  have hd2 : (0 : ℝ) < (d : ℝ) - 2 := by
+    have : (3 : ℝ) ≤ d := by exact_mod_cast hd
+    linarith
+  intro κ hκ c₉ hc₉
+  obtain ⟨κmin, T, hm, hrate, hMB, hMκ⟩ := exists_tower_blockSize d N hd hN κ
+  refine ⟨7, 7 ^ (T.m₁ + 1), by norm_num, by norm_num, by decide, Nat.one_le_pow _ _ (by norm_num),
+    inferInstance, κmin, T, hm, rfl, ?_, hrate, hMB, hMκ, ?_⟩
+  · intro q J K hq
+    exact Fluctuation.five_lt_rootN₁_of_five_lt_pow 7 T.m₀ q J K hq (by rw [hm]; norm_num)
+  · intro C C' B p R hC hC' hR
+    set e : ℝ := ((d : ℝ) - 2) / 2 + δ with he
+    set q : ℝ := e / ((d : ℝ) - 2) with hq
+    set A : ℝ := (C * C' * Real.exp (3 / 2 * T.κdec) * (7 : ℝ) ^ e / c₉) ^ (1 / q) with hA
+    have hLe : (0 : ℝ) < (7 : ℝ) ^ e := Real.rpow_pos_of_pos (by norm_num) _
+    refine ⟨max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1))), le_max_left _ _,
+      ?_, ?_⟩
+    · have h1 : (7 : ℝ) ^ e / c₉ + 1 ≤ max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1))) :=
+        (le_max_left _ _).trans (le_max_right _ _)
+      set b := max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1)))
+      have hdiv : (7 : ℝ) ^ e / c₉ > 0 := by positivity
+      have hb1 : (1 : ℝ) ≤ b := by linarith
+      have : (7 : ℝ) ^ e / c₉ ≤ b ^ 2 := by nlinarith
+      rw [div_le_iff₀ hc₉] at this
+      push_cast
+      linarith
+    · intro β hβ
+      refine ⟨?_, ?_, ?_⟩
+      · exact (((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hβ
+      · exact (((le_max_right _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hβ
+      · intro ν hν hν1 h _
+        exact exists_kf_scale (by norm_num) hν hν1
+
 /-- **The constants of Root-F in its quantifier order.**  `δ` from `d`; for `κ, c₉`: `L = 7`
 and `M = L^{m₁+1}` of a tower of one step; then, for the amplitude and cut constants
 `C, C', B, p, R` (fixed by the tower, `L`, `M`), a threshold `β₀`; then for `ν, h` the index
@@ -140,32 +192,5 @@ theorem exists_rootParams (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) :
   have hd2 : (0 : ℝ) < (d : ℝ) - 2 := by
     have : (3 : ℝ) ≤ d := by exact_mod_cast hd
     linarith
-  refine ⟨((d : ℝ) - 2) / 8, by positivity, by linarith, ?_⟩
-  intro κ hκ c₉ hc₉
-  obtain ⟨κmin, T, hm, hrate, hMB, hMκ⟩ := exists_tower_blockSize d N hd hN κ
-  refine ⟨7, 7 ^ (T.m₁ + 1), by norm_num, by norm_num, by decide, Nat.one_le_pow _ _ (by norm_num),
-    inferInstance, κmin, T, hm, rfl, ?_, hrate, hMB, hMκ, ?_⟩
-  · intro q J K hq
-    exact Fluctuation.five_lt_rootN₁_of_five_lt_pow 7 T.m₀ q J K hq (by rw [hm]; norm_num)
-  · intro C C' B p R hC hC' hR
-    set e : ℝ := ((d : ℝ) - 2) / 2 + ((d : ℝ) - 2) / 8 with he
-    set q : ℝ := e / ((d : ℝ) - 2) with hq
-    set A : ℝ := (C * C' * Real.exp (3 / 2 * T.κdec) * (7 : ℝ) ^ e / c₉) ^ (1 / q) with hA
-    have hLe : (0 : ℝ) < (7 : ℝ) ^ e := Real.rpow_pos_of_pos (by norm_num) _
-    refine ⟨max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1))), le_max_left _ _,
-      ?_, ?_⟩
-    · have h1 : (7 : ℝ) ^ e / c₉ + 1 ≤ max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1))) :=
-        (le_max_left _ _).trans (le_max_right _ _)
-      set b := max 3 (max ((7 : ℝ) ^ e / c₉ + 1) (max A ((B * p / R) ^ 2 + 1)))
-      have hdiv : (7 : ℝ) ^ e / c₉ > 0 := by positivity
-      have hb1 : (1 : ℝ) ≤ b := by linarith
-      have : (7 : ℝ) ^ e / c₉ ≤ b ^ 2 := by nlinarith
-      rw [div_le_iff₀ hc₉] at this
-      push_cast
-      linarith
-    · intro β hβ
-      refine ⟨?_, ?_, ?_⟩
-      · exact (((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hβ
-      · exact (((le_max_right _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hβ
-      · intro ν hν hν1 h _
-        exact exists_kf_scale (by norm_num) hν hν1
+  exact ⟨((d : ℝ) - 2) / 8, by positivity, by linarith,
+    exists_rootParams_of_delta d N hd hN _⟩

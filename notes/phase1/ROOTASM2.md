@@ -77,3 +77,8 @@ UNVERIFIED: the amplitude and cut constants C, C', B, p, R are quantified (posit
 `Inhabited/RootParamsLinks.lean`: `exists_rootParams_consts` (d = 3): δ of `exists_rootParams` equals γ − α₁ with γ ≤ 1/4, 0 < α₁ < 1 − 2γ; admissible `Consts` P with P.κ = κ, P.c₉ = c₉, P.m₀ = T.m₀; and `kStop` of any `RunningHyp` (ν ≤ 1) satisfies the k_f clauses. PROVED.
 Obstruction for d ≥ 4: γ ≤ 1/4 forces δ < 1/4, while the landed proof takes δ = (d−2)/8 ≥ 1/4 (the statement of `exists_rootParams` only gives δ < (d−2)/4). The chart test is d = 3 only.
 Item 3 (C, C′ from the birth-scale theorem; cut constant) NOT delivered: `rootTermFamily_obs_birthScale_fromTowerG_rho` hides C, C′ inside its threshold β₀ and CE, CF (chosen from T, A₁, p, CR, s, ρ, c₉, δ′, never from β); the cut constant B(κ) = 4/3·2e^{pdH κ}ballConst/√finalGap depends on d, L, κ only.
+
+W816 status: item 0 done (`exists_rootParams_of_delta`, `exists_rootParams_consts_all` for every d ≥ 3 with δ = min((d-2)/8, 1/8); `Consts.Admissible d L` holds for all d).
+W816 A10 chart inclusion at q = 1: `rawOf_source_mem_physVqRho` (Inhabited/RootTermZeroClass.lean): (rawOf D, g) ∈ physVqRho S S.a₁ S.ν t ρ ρ for D in the chart and ∑‖g‖ < ρ (ρ = 1: physVq … 1 = physV); the discharge was already inside `rootTermFamily_obs_core_rho`.
+`obsCubeFamily_sourceBall_fromTowerG_rho`: one family mObs for all (y,i) (general tower, all d) with analyticity, support, locality, bound, M0C value on the source ball.
+Still open in A10: cross-step transport of site sets, analyticity of final-scale and large-field terms, same package for E0/E1 energy families.
