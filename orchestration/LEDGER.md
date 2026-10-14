@@ -1502,3 +1502,5 @@
 | 2026-10-14 | W813 | launched | Audit of ROOTASM2 status table and the doable-now list against current main. |
 | 2026-10-14 | W813 | landed `f652b78f` | ROOTASM2 audit: A1, A2 LANDED; A6 PARTLY LANDED; A10 restriction locality LANDED (`rootTermFamily_of_cubeFamily`); new §4 doable-now list (A8 log, FINALAMP2 leaf 3, activity assembly, A1 links, A10 chart inclusion, A11 uniformity, A3 G1, A4a after W811). Non-existent names fixed (`rootTorusParameters`, `KF0OneScaleInput`, `BasePhysicalDensity`). |
 | 2026-10-14 | W814 | launched | A8: model-free principal log (landed kf0 version an application), Root-F multiscale instance. |
+| 2026-10-14 | W814 | landed `1a27a56e` | `Correlations/RootFLog.lean`: `log_eq_of_exp_eq_of_slitPlane` (model-free core; landed `log_partition_eq_of_exp` now an application, proof body only), **`log_partition_eq_multiscale_of_exp`** (Root-F's exponent: log(Z(g)/Z(0)) = ⟨g,h⟩ + Σ_j Σ_x Σ_X ⟨g(x), T_j⟩ from the exponential identity). A8 generic part done. |
+| 2026-10-14 | W815 | launched | A1 links: δ = γ − α₁ with γ ≤ 1/4, k_f = kStop, amplitude/cut constants read off the landed bounds. |
