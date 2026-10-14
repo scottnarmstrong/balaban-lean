@@ -1914,6 +1914,7 @@ public import Balaban.LargeField.Base.BaseCutoffTransfer
 public import Balaban.LargeField.Base.BaseRemainderLocal
 public import Balaban.Localization.I5Cover
 public import Balaban.Localization.DecoupledCovX0Sup
+public import Balaban.Localization.LocalHatCov
 public import Balaban.Fluctuation.SharpChartTestSup
 public import Balaban.LargeField.Base.BaseCubeDiscs
 public import Balaban.LargeField.Base.BaseParametrix
