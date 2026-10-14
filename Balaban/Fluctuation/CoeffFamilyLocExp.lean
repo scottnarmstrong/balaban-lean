@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.RawAgreeSites
 public import Balaban.Fluctuation.RenormThetaDatum
 public import Balaban.Inhabited.StepTowerRadius
+public import Balaban.Fluctuation.SourceRadiusCarriers
 import Mathlib.Tactic.Positivity
 
 /-!
@@ -45,19 +46,19 @@ open Classical in
 `c θ T` is analytic in `θ` on `physV`, local on `sitesOf T`, bounded by `B exp(-κ dExt T)` on polymer
 cube sets and zero off them; `Φ` is analytic on `expDom`, maps it into `physV` and respects
 restriction to every set of sites.  The domains are the site sets of all cube sets. -/
-theorem isLocExp_of_coeffFamily (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : ℝ}
+theorem isLocExp_of_coeffFamily_rho (hN : L ^ m₀ ∣ N₁) {a₁ ν eps ρ r κ B : ℝ}
     (Dom : BgData S.G' N → Prop) (hB : 0 ≤ B)
     (c : physParam N S → Finset 𝔅 → ℂ)
-    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physV S a₁ ν eps))
-    (hloc : ∀ T, ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physVRho S a₁ ν eps ρ))
+    (hloc : ∀ T, ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ θ' ∈ physVRho S a₁ ν eps ρ,
       physRestrict (sitesOf T) (physIncl N S θ) = physRestrict (sitesOf T) (physIncl N S θ') →
         c θ T = c θ' T)
-    (hbd : ∀ θ ∈ physV S a₁ ν eps, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
+    (hbd : ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
       ‖c θ T‖ ≤ B * Real.exp (-κ * dExt T))
-    (hsupp : ∀ θ ∈ physV S a₁ ν eps, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
+    (hsupp : ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
     (Φ : RawData d L (N₁ * L ^ m₁) (k + 1) N × (Fin 3 → ℂ) → physParam N S)
     (hΦan : AnalyticOnNhd ℂ Φ (expDom S.G' Dom r))
-    (hΦdom : ∀ q ∈ expDom S.G' Dom r, Φ q ∈ physV S a₁ ν eps)
+    (hΦdom : ∀ q ∈ expDom S.G' Dom r, Φ q ∈ physVRho S a₁ ν eps ρ)
     (hΦloc : ∀ Y : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ q ∈ expDom S.G' Dom r,
       ∀ q' ∈ expDom S.G' Dom r, q.2 = q'.2 → RawAgree Y q.1 q'.1 →
         physRestrict (↑Y : Set (CTorus d L N₁ m₁ (k + 1))) (physIncl N S (Φ q)) =
@@ -74,7 +75,7 @@ theorem isLocExp_of_coeffFamily (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : �
     intro T; ext x; simp
   have hinj := (markFibre_sitesOf.{0} (d := d) (m₁ := m₁) (K := k + 1) (m₀ := m₀) hN).2.1
   -- the regrouping data at a parameter in `physV`
-  have key : ∀ θ ∈ physV S a₁ ν eps,
+  have key : ∀ θ ∈ physVRho S a₁ ν eps ρ,
       (∀ Y ∈ (Finset.univ.image fun T : Finset 𝔅 =>
         (Finset.univ.filter fun x : CTorus d L N₁ m₁ (k + 1) => x ∈ sitesOf T)),
         ‖∑ T ∈ Finset.univ.filter
@@ -114,6 +115,34 @@ theorem isLocExp_of_coeffFamily (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : �
     exact hΦloc Y q hq q' hq' h2 hag
   · intro Y _ q hq
     exact (key _ (hΦdom q hq)).1 Y ‹_›
+
+open Classical in
+/-- The landed statement: the case `ρ = 1`. -/
+theorem isLocExp_of_coeffFamily (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : ℝ}
+    (Dom : BgData S.G' N → Prop) (hB : 0 ≤ B)
+    (c : physParam N S → Finset 𝔅 → ℂ)
+    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physV S a₁ ν eps))
+    (hloc : ∀ T, ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+      physRestrict (sitesOf T) (physIncl N S θ) = physRestrict (sitesOf T) (physIncl N S θ') →
+        c θ T = c θ' T)
+    (hbd : ∀ θ ∈ physV S a₁ ν eps, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
+      ‖c θ T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsupp : ∀ θ ∈ physV S a₁ ν eps, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
+    (Φ : RawData d L (N₁ * L ^ m₁) (k + 1) N × (Fin 3 → ℂ) → physParam N S)
+    (hΦan : AnalyticOnNhd ℂ Φ (expDom S.G' Dom r))
+    (hΦdom : ∀ q ∈ expDom S.G' Dom r, Φ q ∈ physV S a₁ ν eps)
+    (hΦloc : ∀ Y : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ q ∈ expDom S.G' Dom r,
+      ∀ q' ∈ expDom S.G' Dom r, q.2 = q'.2 → RawAgree Y q.1 q'.1 →
+        physRestrict (↑Y : Set (CTorus d L N₁ m₁ (k + 1))) (physIncl N S (Φ q)) =
+          physRestrict (↑Y : Set (CTorus d L N₁ m₁ (k + 1))) (physIncl N S (Φ q'))) :
+    IsLocExp S.G' Dom r
+      (Finset.univ.image fun T : Finset 𝔅 =>
+        (Finset.univ.filter fun x : CTorus d L N₁ m₁ (k + 1) => x ∈ sitesOf T))
+      (renDY S.G' m₀) κ B
+      (fun D ξ => ∑ T : Finset 𝔅, c (Φ ((D.Ψ, D.h), ξ)) T)
+      (fun Y q => ∑ T ∈ Finset.univ.filter
+        (fun T' : Finset 𝔅 => sitesOf T' = (↑Y : Set (CTorus d L N₁ m₁ (k + 1)))), c (Φ q) T) :=
+  isLocExp_of_coeffFamily_rho S hN (ρ := 1) Dom hB c han hloc hbd hsupp Φ hΦan hΦdom hΦloc
 
 /-- **A continuous linear retraction onto the relative subspace.**  The raw data form a
 finite-dimensional space, so the closed subspace `rawSub` has a closed complement. -/
@@ -185,17 +214,17 @@ open Classical in
 /-- **The renormalized datum** (T3).  Evaluate the family at `(P ((1 + ζ(ξ)) Ψ, h), g₀)`.  The chart
 hypothesis `hchart` says that the renormalized datum lies in the chart `XiCData` at radius `eps`
 for `Dom D` and `‖ξ‖ < r` (for the tower this is `StepTowerTheta.renDatum_half_mem_xiCData`). -/
-theorem isLocExp_of_coeffFamily_renTheta (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : ℝ}
+theorem isLocExp_of_coeffFamily_renTheta_rho (hN : L ^ m₀ ∣ N₁) {a₁ ν eps ρ r κ B : ℝ}
     (εren : ℝ) (Dom : BgData S.G' N → Prop) (hB : 0 ≤ B)
     (c : physParam N S → Finset 𝔅 → ℂ)
-    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physV S a₁ ν eps))
-    (hloc : ∀ T, ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physVRho S a₁ ν eps ρ))
+    (hloc : ∀ T, ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ θ' ∈ physVRho S a₁ ν eps ρ,
       physRestrict (sitesOf T) (physIncl N S θ) = physRestrict (sitesOf T) (physIncl N S θ') →
         c θ T = c θ' T)
-    (hbd : ∀ θ ∈ physV S a₁ ν eps, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
+    (hbd : ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
       ‖c θ T‖ ≤ B * Real.exp (-κ * dExt T))
-    (hsupp : ∀ θ ∈ physV S a₁ ν eps, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
-    (g₀ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (hg₀ : g₀ ∈ l1Ball d L N₁ m₁ (k + 1) N)
+    (hsupp : ∀ θ ∈ physVRho S a₁ ν eps ρ, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
+    (g₀ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (hg₀ : g₀ ∈ l1BallRho d L N₁ m₁ (k + 1) N ρ)
     (hchart : ∀ D, Dom D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
       XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps (renThetaDatum S εren D ξ))
     (P : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] ↥(rawSub N S.G'))
@@ -213,7 +242,7 @@ theorem isLocExp_of_coeffFamily_renTheta (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r
       P ((fun x i => (1 + renZeta εren ξ) * D.Ψ x i), D.h) =
         ⟨rawOf (renThetaDatum S εren D ξ), rawOf_mem_rawSub _⟩ :=
     fun D ξ => hP ⟨rawOf (renThetaDatum S εren D ξ), rawOf_mem_rawSub _⟩
-  have h := isLocExp_of_coeffFamily S hN (r := r) (κ := κ) Dom hB c han hloc hbd hsupp
+  have h := isLocExp_of_coeffFamily_rho S hN (ρ := ρ) (r := r) (κ := κ) Dom hB c han hloc hbd hsupp
     (fun q => (P ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), g₀))
     (fun q _ => AnalyticAt.prod
       (show AnalyticAt ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (Fin 3 → ℂ) =>
@@ -223,7 +252,7 @@ theorem isLocExp_of_coeffFamily_renTheta (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r
     (by
       rintro q ⟨D, hD, h1, h2⟩
       have e : q.1 = (D.Ψ, D.h) := h1
-      show (P ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), g₀) ∈ physV S a₁ ν eps
+      show (P ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), g₀) ∈ physVRho S a₁ ν eps ρ
       rw [e]
       simp only
       rw [hPD]
@@ -248,6 +277,34 @@ theorem isLocExp_of_coeffFamily_renTheta (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r
   refine Finset.sum_congr rfl fun T _ => ?_
   show c (_, g₀) T = c (P ((fun x i => (1 + renZeta εren ξ) * D.Ψ x i), D.h), g₀) T
   rw [hPD]
+
+open Classical in
+/-- The landed statement: the case `ρ = 1`. -/
+theorem isLocExp_of_coeffFamily_renTheta (hN : L ^ m₀ ∣ N₁) {a₁ ν eps r κ B : ℝ}
+    (εren : ℝ) (Dom : BgData S.G' N → Prop) (hB : 0 ≤ B)
+    (c : physParam N S → Finset 𝔅 → ℂ)
+    (han : ∀ T, AnalyticOnNhd ℂ (fun θ => c θ T) (physV S a₁ ν eps))
+    (hloc : ∀ T, ∀ θ ∈ physV S a₁ ν eps, ∀ θ' ∈ physV S a₁ ν eps,
+      physRestrict (sitesOf T) (physIncl N S θ) = physRestrict (sitesOf T) (physIncl N S θ') →
+        c θ T = c θ' T)
+    (hbd : ∀ θ ∈ physV S a₁ ν eps, ∀ T, IsPolyDom m₀ (k + 1) (sitesOf T) →
+      ‖c θ T‖ ≤ B * Real.exp (-κ * dExt T))
+    (hsupp : ∀ θ ∈ physV S a₁ ν eps, ∀ T, c θ T ≠ 0 → IsPolyDom m₀ (k + 1) (sitesOf T))
+    (g₀ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (hg₀ : g₀ ∈ l1Ball d L N₁ m₁ (k + 1) N)
+    (hchart : ∀ D, Dom D → ∀ ξ : Fin 3 → ℂ, ‖ξ‖ < r →
+      XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps (renThetaDatum S εren D ξ))
+    (P : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] ↥(rawSub N S.G'))
+    (hP : ∀ p : ↥(rawSub N S.G'), P p = p) :
+    IsLocExp S.G' Dom r
+      (Finset.univ.image fun T : Finset 𝔅 =>
+        (Finset.univ.filter fun x : CTorus d L N₁ m₁ (k + 1) => x ∈ sitesOf T))
+      (renDY S.G' m₀) κ B
+      (fun D ξ => ∑ T : Finset 𝔅,
+        c (⟨rawOf (renThetaDatum S εren D ξ), rawOf_mem_rawSub _⟩, g₀) T)
+      (fun Y q => ∑ T ∈ Finset.univ.filter
+        (fun T' : Finset 𝔅 => sitesOf T' = (↑Y : Set (CTorus d L N₁ m₁ (k + 1)))),
+          c (P ((fun x i => (1 + renZeta εren q.2) * q.1.1 x i), q.1.2), g₀) T) :=
+  isLocExp_of_coeffFamily_renTheta_rho S hN (ρ := 1) εren Dom hB c han hloc hbd hsupp g₀ hg₀ hchart P hP
 
 end Generic
 
