@@ -659,4 +659,176 @@ theorem baseCube_component_entries :
 
 end Component
 
+section Comparison
+
+open Classical
+
+theorem sum_comparison_aux {ι κ : Type*} [Fintype ι] (S : Finset κ) (f g : ι → ℝ) (Δ : κ → ℝ)
+    (u : κ → ι → ℝ) :
+    ∑ y', ∑ y, f y * (∑ b ∈ S, Δ b * (u b y * u b y')) * g y' =
+      ∑ b ∈ S, Δ b * ((∑ y, u b y * f y) * (∑ y', u b y' * g y')) := by
+  calc ∑ y', ∑ y, f y * (∑ b ∈ S, Δ b * (u b y * u b y')) * g y'
+      = ∑ y', ∑ y, ∑ b ∈ S, Δ b * ((u b y * f y) * (u b y' * g y')) := by
+        refine Finset.sum_congr rfl fun y' _ => Finset.sum_congr rfl fun y _ => ?_
+        rw [Finset.mul_sum, Finset.sum_mul]
+        exact Finset.sum_congr rfl fun b _ => by ring
+    _ = ∑ y', ∑ b ∈ S, ∑ y, Δ b * ((u b y * f y) * (u b y' * g y')) :=
+        Finset.sum_congr rfl fun y' _ => Finset.sum_comm
+    _ = ∑ b ∈ S, ∑ y', ∑ y, Δ b * ((u b y * f y) * (u b y' * g y')) := Finset.sum_comm
+    _ = ∑ b ∈ S, Δ b * ((∑ y, u b y * f y) * (∑ y', u b y' * g y')) := by
+        refine Finset.sum_congr rfl fun b _ => ?_
+        rw [Finset.sum_mul_sum, Finset.mul_sum, Finset.sum_comm]
+        refine Finset.sum_congr rfl fun y' _ => ?_
+        rw [Finset.mul_sum]
+
+variable (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ)
+
+/-- The difference of the operators at two edge-parameter vectors, blockwise. -/
+theorem blockOf_baseOp_sub (e : G.Ω 1 → Fin N → ℝ) (s s' : FineBond d L N₀ → ℂ)
+    (y y' : G.Ω 1) :
+    blockOf (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') -
+        baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) y y' =
+      (∑ b ∈ baseCutBonds G, (s' b - s b) * ((bondVec b y * bondVec b y' : ℝ) : ℂ)) •
+        ((1 - siteProj e y) * (1 - siteProj e y')) := by
+  rw [blockOf_sub, blockOf_baseOp, blockOf_baseOp, add_sub_add_right_eq_sub, ← sub_smul]
+  congr 1
+  simp only [baseHamiltonian, Matrix.add_apply, Matrix.sum_apply, Matrix.smul_apply,
+    baseBond_apply, smul_eq_mul]
+  rw [add_sub_add_left_eq_sub, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  push_cast
+  ring
+
+theorem norm_blockOf_baseOp_sub_le (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+    (s s' : FineBond d L N₀ → ℂ) (y y' : G.Ω 1) :
+    ‖blockOf (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') -
+        baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) y y'‖ ≤
+      ∑ b ∈ baseCutBonds G, ‖s' b - s b‖ * (|bondVec b y| * |bondVec b y'|) := by
+  rw [blockOf_baseOp_sub, norm_smul]
+  have hQ : ‖((1 - siteProj e y) * (1 - siteProj e y') : Matrix (Fin N) (Fin N) ℂ)‖ ≤ 1 := by
+    calc _ ≤ ‖(1 - siteProj e y : Matrix (Fin N) (Fin N) ℂ)‖ *
+          ‖(1 - siteProj e y' : Matrix (Fin N) (Fin N) ℂ)‖ := norm_mul_le _ _
+      _ ≤ 1 * 1 := mul_le_mul (norm_siteProj_le e he y).2 (norm_siteProj_le e he y').2
+          (norm_nonneg _) zero_le_one
+      _ = 1 := one_mul 1
+  refine (mul_le_of_le_one_right (norm_nonneg _) hQ).trans ?_
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun b _ => ?_)
+  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_mul]
+
+variable {a ν α}
+
+/-- **Resolvent comparison, blockwise** (`C - C' = C (A' - A) C'`): the `(z, w)` block of the
+difference of the resolvents at two parameter vectors is bounded by a sum over the bonds `b`
+whose parameters differ, each weighted by the resolvent rows at the two endpoints of `b`. -/
+theorem baseResolvent_sub_block_le (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η)
+    (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) {x : ℝ} (hx : 0 ≤ x) (z w : G.Ω 1) :
+    ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x -
+        baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') x) z w‖ ≤
+      ∑ b ∈ baseCutBonds G, ‖s' b - s b‖ *
+        ((∑ y : G.Ω 1, |bondVec b y| * ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ))
+            (baseHamiltonian G a ν α s) x) z y‖) *
+          (∑ y' : G.Ω 1, |bondVec b y'| * ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ))
+            (baseHamiltonian G a ν α s') x) y' w‖)) := by
+  set U := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) +
+    (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) with hUdef
+  set V := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') +
+    (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) with hVdef
+  have hU := (baseResolvent_norm_le G hν ha hα hη0 hη hs e he hx).1
+  have hV := (baseResolvent_norm_le G hν ha hα hη0 hη hs' e he hx).1
+  have hUd : IsUnit U.det := (Matrix.isUnit_iff_isUnit_det _).1 hU
+  have hVd : IsUnit V.det := (Matrix.isUnit_iff_isUnit_det _).1 hV
+  have hVU : baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') -
+      baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) = V - U := by
+    rw [hUdef, hVdef, add_sub_add_right_eq_sub]
+  have key : baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x -
+      baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') x =
+      U⁻¹ * (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') -
+        baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) * V⁻¹ := by
+    rw [hVU, Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_assoc, Matrix.mul_nonsing_inv V hVd,
+      Matrix.mul_one, Matrix.nonsing_inv_mul U hUd, Matrix.one_mul]
+    rfl
+  rw [key]
+  set D := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') -
+    baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) with hD
+  have hC : baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x = U⁻¹ := rfl
+  have hC' : baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') x = V⁻¹ := rfl
+  rw [hC, hC', blockOf_mul]
+  have hexp : ∀ y', blockOf (U⁻¹ * D) z y' = ∑ y, blockOf U⁻¹ z y * blockOf D y y' :=
+    fun y' => blockOf_mul _ _ z y'
+  simp only [hexp]
+  calc ‖∑ y', (∑ y, blockOf U⁻¹ z y * blockOf D y y') * blockOf V⁻¹ y' w‖
+      ≤ ∑ y', ‖(∑ y, blockOf U⁻¹ z y * blockOf D y y') * blockOf V⁻¹ y' w‖ := norm_sum_le _ _
+    _ ≤ ∑ y' : G.Ω 1, ∑ y : G.Ω 1, ‖blockOf U⁻¹ z y‖ *
+          (∑ b ∈ baseCutBonds G, ‖s' b - s b‖ * (|bondVec b y| * |bondVec b y'|)) *
+          ‖blockOf V⁻¹ y' w‖ := by
+        refine Finset.sum_le_sum fun y' _ => ?_
+        refine (norm_mul_le _ _).trans ?_
+        have h1 : ‖∑ y, blockOf U⁻¹ z y * blockOf D y y'‖ ≤
+            ∑ y : G.Ω 1, ‖blockOf U⁻¹ z y‖ *
+              (∑ b ∈ baseCutBonds G, ‖s' b - s b‖ * (|bondVec b y| * |bondVec b y'|)) :=
+          (norm_sum_le _ _).trans (Finset.sum_le_sum fun y _ =>
+            (norm_mul_le _ _).trans (mul_le_mul_of_nonneg_left
+              (norm_blockOf_baseOp_sub_le G a ν α e he s s' y y') (norm_nonneg _)))
+        rw [← Finset.sum_mul]
+        exact mul_le_mul_of_nonneg_right h1 (norm_nonneg _)
+    _ = _ := sum_comparison_aux (baseCutBonds G) (fun y => ‖blockOf U⁻¹ z y‖)
+          (fun y' => ‖blockOf V⁻¹ y' w‖) (fun b => ‖s' b - s b‖)
+          (fun b (y : G.Ω 1) => |bondVec b y|)
+
+/-- **Weighted comparison of the resolvent** (BASE-KERNEL-3 (1.7) applied to the resolvent identity):
+`‖(𝒞_{e,x}(s) - 𝒞_{e,x}(s'))(z,w)‖ ≤ (c/4 + x)⁻² ∑_{b ∈ 𝓔} |s'_b - s_b| W_b(z) W_b(w)`,
+`W_b(z) = ∑_y |D_b(y)| e^{-g d(z,y)}`, where `D_b` is the difference of the two endpoints of `b`.
+Only bonds whose parameters differ contribute. -/
+theorem baseResolvent_sub_decay (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s s' : FineBond d L N₀ → ℂ}
+    (hs : s ∈ baseParamNbhd G η) (hs' : s' ∈ baseParamNbhd G η)
+    (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1) {x : ℝ} (hx : 0 ≤ x) (z w : G.Ω 1) :
+    ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x -
+        baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s') x) z w‖ ≤
+      ((baseCoercivity L / 4 + x)⁻¹) ^ 2 * ∑ b ∈ baseCutBonds G, ‖s' b - s b‖ *
+        ((∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+          (∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w))) := by
+  refine (baseResolvent_sub_block_le G hν ha hα hη0 hη hs hs' e he hx z w).trans ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_le_sum fun b _ => ?_
+  have hκ : 0 ≤ (baseCoercivity L / 4 + x)⁻¹ := by
+    have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L))
+    positivity
+  have h1 : ∑ y : G.Ω 1, |bondVec b y| * ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α s) x) z y‖ ≤
+      (baseCoercivity L / 4 + x)⁻¹ *
+        ∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y) := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun y _ => ?_
+    have := baseResolvent_decay G hν ha hα hη0 hη hs e he hx z y
+    calc _ ≤ |bondVec b y| * ((baseCoercivity L / 4 + x)⁻¹ *
+          Real.exp (-baseDecayRate d L ν * siteDist G z y)) :=
+          mul_le_mul_of_nonneg_left this (abs_nonneg _)
+      _ = _ := by ring
+  have h2 : ∑ y' : G.Ω 1, |bondVec b y'| * ‖blockOf (baseResolvent N (fun z i => (e z i : ℂ))
+        (baseHamiltonian G a ν α s') x) y' w‖ ≤
+      (baseCoercivity L / 4 + x)⁻¹ *
+        ∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w) := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun y _ => ?_
+    have := baseResolvent_decay G hν ha hα hη0 hη hs' e he hx y w
+    calc _ ≤ |bondVec b y| * ((baseCoercivity L / 4 + x)⁻¹ *
+          Real.exp (-baseDecayRate d L ν * siteDist G y w)) :=
+          mul_le_mul_of_nonneg_left this (abs_nonneg _)
+      _ = _ := by ring
+  have h3 := mul_le_mul h1 h2 (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (norm_nonneg _))
+    (mul_nonneg hκ (Finset.sum_nonneg fun y _ => mul_nonneg (abs_nonneg _) (Real.exp_pos _).le))
+  calc _ ≤ ‖s' b - s b‖ * ((baseCoercivity L / 4 + x)⁻¹ *
+          (∑ y : G.Ω 1, |bondVec b y| * Real.exp (-baseDecayRate d L ν * siteDist G z y)) *
+        ((baseCoercivity L / 4 + x)⁻¹ *
+          ∑ y' : G.Ω 1, |bondVec b y'| * Real.exp (-baseDecayRate d L ν * siteDist G y' w))) :=
+        mul_le_mul_of_nonneg_left h3 (norm_nonneg _)
+    _ = _ := by ring
+
+end Comparison
+
 end Balaban.LargeField.Base
