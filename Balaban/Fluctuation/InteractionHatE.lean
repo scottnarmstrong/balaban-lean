@@ -492,6 +492,64 @@ variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus
 
 /-- **An old term along the fluctuation expands over the domains `Y ⊃ X₁`, with terms local in
 `ψ̂`** (the hat version of `i5_fluct`). -/
+theorem eterm_expansion_hat_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X)) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF E (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHat hG' Y u u' → Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  classical
+  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
+  have hC := flCore_of hB hF
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+    hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
+    (eTermFun_analytic_of_one_le hb₁ hbC hB hF hFkan hFk hEan)
+    (fun t ht => eTermFun_bound_of_one_le hb₁ hbC hB hF hFk hEbd ht)
+    (Z := ↑X₁f) (Zα := ∅) subset_rfl (fun x hx => absurd hx (Set.notMem_empty x))
+    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local hB hF hcov hX₁ Fk E hφ hδ hag hψ)
+  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', h3', h4'⟩
+  rw [← h1' D hD ψh hψh]
+  exact (eTermFun_value hB hF hFk E hD
+    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
+
+/-- **An old term along the fluctuation expands over the domains `Y ⊃ X₁`, with terms local in
+`ψ̂`** (the hat version of `i5_fluct`). -/
 theorem eterm_expansion_hat (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -532,21 +590,8 @@ theorem eterm_expansion_hat (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps 
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  classical
-  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
-  have hC := flCore_of hB hF
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-    hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
-    (eTermFun_analytic hB hF hFkan hFk hEan)
-    (fun t ht => eTermFun_bound hB hF hFk hEbd ht)
-    (Z := ↑X₁f) (Zα := ∅) subset_rfl (fun x hx => absurd hx (Set.notMem_empty x))
-    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local hB hF hcov hX₁ Fk E hφ hδ hag hψ)
-  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', h3', h4'⟩
-  rw [← h1' D hD ψh hψh]
-  exact (eTermFun_value hB hF hFk E hD
-    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
+  eterm_expansion_hat_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
 
 end EngineE
 
@@ -559,6 +604,71 @@ variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **The `δ𝓔'`-term of one old term in the variable `ψ̂`** (hat version of `eterm_locInt`). -/
+theorem eterm_locInt_hat_dm_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      LocIntDm (IsDj m₀ (k + 1)) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X))
+        (fun Y x₀ w σ Θ => dirTerm (Ev Y) ω x₀ w σ Θ)
+        (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
+        (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
+          - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+  classical
+  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := eterm_expansion_hat_of_one_le hb₁ hbC hB hF hk hG hG' cc hcψ hMX hdm hα hsm
+    hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
+  have hd : 3 ≤ d := (flCore_of hB hF).HBp.hd
+  refine ⟨Ev, ?_⟩
+  have hbase := locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
+    (B := hatBall (N := N) Gp cψ)
+    (f := hatFun Gp a₁ ν eps hG' cc (flComp hB hF E))
+    (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+      (X1 Gp m₀ j 𝒦X)) (Evs := Ev)
+    (b := fun Y => Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y))
+    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
+    (AgF := AgHatF Gp hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
+    (isOpen_hatBall cψ) (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ)))
+    (fun Y u hu => hbd Y u ⟨hu.1, hatBall_subset cψ hu.2⟩)
+    (fun Y a a' c' c'' p q ha hb y hy i => by simp [ha y hy i, hb y hy i])
+    (fun Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2' =>
+      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩)
+    (fun Θ hΘ ψh hψ => by
+      obtain ⟨D, hD, rfl⟩ := hΘ
+      rw [hatFun_rawOf hG' cc _ hD]
+      exact hsum D hD ψh (hatBall_subset cψ hψ))
+  exact LocIntDm.mk hbase (fun Y hY => isDj_of_polyDom hG' hcov hd hopt hY)
+    (diagCont_dirTerm _ hR₁ hωc hr
+      (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ))))
 
 /-- **The `δ𝓔'`-term of one old term in the variable `ψ̂`** (hat version of `eterm_locInt`). -/
 theorem eterm_locInt_hat_dm (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
@@ -598,32 +708,49 @@ theorem eterm_locInt_hat_dm (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps 
         (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
         (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
           - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') :=
+  eterm_locInt_hat_dm_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
+
+/-- **The `δ𝓔'`-term of one old term in the variable `ψ̂`** (hat version of `eterm_locInt`). -/
+theorem eterm_locInt_hat_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X))
+        (fun Y x₀ w σ Θ => dirTerm (Ev Y) ω x₀ w σ Θ)
+        (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
+        (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
+          - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
         (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-  classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := eterm_expansion_hat hB hF hk hG hG' cc hcψ hMX hdm hα hsm
-    hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
-  have hd : 3 ≤ d := (flCore_of hB hF).HBp.hd
-  refine ⟨Ev, ?_⟩
-  have hbase := locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
-    (B := hatBall (N := N) Gp cψ)
-    (f := hatFun Gp a₁ ν eps hG' cc (flComp hB hF E))
-    (polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
-      (X1 Gp m₀ j 𝒦X)) (Evs := Ev)
-    (b := fun Y => Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y))
-    (AgΘ := fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ')
-    (AgF := AgHatF Gp hG') (Rσ := Rσ) hR₁ hω hωc hMω hωb hr
-    (isOpen_hatBall cψ) (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ)))
-    (fun Y u hu => hbd Y u ⟨hu.1, hatBall_subset cψ hu.2⟩)
-    (fun Y a a' c' c'' p q ha hb y hy i => by simp [ha y hy i, hb y hy i])
-    (fun Y Θ hΘ Θ' hΘ' z hz z' hz' h1' h2' =>
-      hloc Y (Θ, z) ⟨hΘ, hatBall_subset cψ hz⟩ (Θ', z') ⟨hΘ', hatBall_subset cψ hz'⟩ ⟨h1', h2'⟩)
-    (fun Θ hΘ ψh hψ => by
-      obtain ⟨D, hD, rfl⟩ := hΘ
-      rw [hatFun_rawOf hG' cc _ hD]
-      exact hsum D hD ψh (hatBall_subset cψ hψ))
-  exact LocIntDm.mk hbase (fun Y hY => isDj_of_polyDom hG' hcov hd hopt hY)
-    (diagCont_dirTerm _ hR₁ hωc hr
-      (fun Y => (hanY Y).mono (Set.prod_mono le_rfl (hatBall_subset cψ))))
+  obtain ⟨T, h⟩ := eterm_locInt_hat_dm_of_one_le hb₁ hbC hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
+  exact ⟨T, h.loc⟩
 
 /-- **The `δ𝓔'`-term of one old term in the variable `ψ̂`** (hat version of `eterm_locInt`). -/
 theorem eterm_locInt_hat (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
@@ -662,9 +789,8 @@ theorem eterm_locInt_hat (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ�
         (fun x₀ w σ Θ => dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp hB hF E)) ω x₀ w σ Θ)
         (fun Y => Mω * ((Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X
           - 2 * κdec * treeLenCov Gp m₀ Y)) / r))
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-  obtain ⟨T, h⟩ := eterm_locInt_hat_dm hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
-  exact ⟨T, h.loc⟩
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') :=
+  eterm_locInt_hat_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
 
 end ELoc
 
@@ -674,6 +800,81 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps : ℝ}
+
+/-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
+`eterms_locInt`). -/
+theorem eterms_locInt_hat_dm_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
+    {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
+    {r₀ δ₃ : ℝ} {X₀ X₁f : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {j m₀ : τι → ℕ}
+    {X 𝒦X : τι → Set (CTorus d L N₁ m₁ (k + 1))} {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    (hB : ∀ τ ∈ 𝒯, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (j τ))
+    (hF : ∀ τ ∈ 𝒯, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ))
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : ∀ τ ∈ 𝒯, CovSetup Gp (m₀ τ) (j τ) (X τ) (𝒦X τ))
+    (hX₁ : ∀ τ ∈ 𝒯, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀ τ) (j τ) (𝒦X τ))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ τ ∈ 𝒯, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X τ) ∧ MeetsOne (m₀ τ) (j τ) (𝒦X τ) W₀ ∧
+        bondCost (scaleW L (m₀ τ) m₁ (j τ)) E₀ = treeLenCovOne (m₀ τ) (j τ) (X τ))
+    {κdec κ₀ : ℝ} {Eb : τι → ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : ∀ τ ∈ 𝒯, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀ τ) ^ d : ℕ) : ℝ)) ≤
+      (κ / 2 - 1) / 2)
+    (hEb : ∀ τ ∈ 𝒯, 0 ≤ Eb τ) {E : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : ∀ τ ∈ 𝒯, AnalyticOnNhd ℂ (E τ) (XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ τ ∈ 𝒯, ∀ r ∈ XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E τ r‖ ≤ Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀ τ) (j τ) (X τ)))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
+      LocIntDm (fun Y => ∃ τ ∈ 𝒯, IsDj (m₀ τ) (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (𝒯.biUnion fun τ => polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ))
+        (fun Y x₀ w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          T τ Y x₀ w σ Θ else 0)
+        (fun x₀ w σ Θ => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
+          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ Θ
+          else 0)
+        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
+          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+  classical
+  have hex : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯 →
+      LocIntDm (fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)))
+        (fun Y x₀ w σ Θ => dirTerm (Ev Y) ω x₀ w σ Θ)
+        (fun x₀ w σ Θ => if h : τ ∈ 𝒯 then
+          dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ Θ
+          else 0)
+        (fun Y => Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
+          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r))
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
+    intro τ
+    by_cases hτ : τ ∈ 𝒯
+    · obtain ⟨Ev, hEv⟩ := eterm_locInt_hat_dm_of_one_le hb₁ hbC (hB τ hτ) (hF τ hτ) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+        (hcov τ hτ) (hX₁ τ hτ) hconn hrow (hopt τ hτ) hκ₀ hκdec hκ h1 (hlog τ hτ) (hEb τ hτ)
+        (hEan τ hτ) (hEbd τ hτ) hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
+      exact ⟨Ev, fun _ => by simpa [hτ] using hEv.mono_P fun Y hY => ⟨τ, hτ, hY⟩⟩
+    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
+  choose Ev hEv using hex
+  exact ⟨fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ,
+    LocIntDm.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
 
 /-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
 `eterms_locInt`). -/
@@ -724,31 +925,60 @@ theorem eterms_locInt_hat_dm {τι : Type*} [DecidableEq τι] (𝒯 : Finset τ
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
           Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-  classical
-  have hex : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
-      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯 →
-      LocIntDm (fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
-        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
-        (polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-          Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)))
-        (fun Y x₀ w σ Θ => dirTerm (Ev Y) ω x₀ w σ Θ)
-        (fun x₀ w σ Θ => if h : τ ∈ 𝒯 then
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') :=
+  eterms_locInt_hat_dm_of_one_le (one_le_scaledC0 d) le_rfl 𝒯 hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
+
+/-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
+`eterms_locInt`). -/
+theorem eterms_locInt_hat_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
+    {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
+    {r₀ δ₃ : ℝ} {X₀ X₁f : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {j m₀ : τι → ℕ}
+    {X 𝒦X : τι → Set (CTorus d L N₁ m₁ (k + 1))} {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    (hB : ∀ τ ∈ 𝒯, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (j τ))
+    (hF : ∀ τ ∈ 𝒯, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ))
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : ∀ τ ∈ 𝒯, CovSetup Gp (m₀ τ) (j τ) (X τ) (𝒦X τ))
+    (hX₁ : ∀ τ ∈ 𝒯, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀ τ) (j τ) (𝒦X τ))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ τ ∈ 𝒯, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X τ) ∧ MeetsOne (m₀ τ) (j τ) (𝒦X τ) W₀ ∧
+        bondCost (scaleW L (m₀ τ) m₁ (j τ)) E₀ = treeLenCovOne (m₀ τ) (j τ) (X τ))
+    {κdec κ₀ : ℝ} {Eb : τι → ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : ∀ τ ∈ 𝒯, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀ τ) ^ d : ℕ) : ℝ)) ≤
+      (κ / 2 - 1) / 2)
+    (hEb : ∀ τ ∈ 𝒯, 0 ≤ Eb τ) {E : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : ∀ τ ∈ 𝒯, AnalyticOnNhd ℂ (E τ) (XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ τ ∈ 𝒯, ∀ r ∈ XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E τ r‖ ≤ Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀ τ) (j τ) (X τ)))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
+      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (𝒯.biUnion fun τ => polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ))
+        (fun Y x₀ w σ Θ => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          T τ Y x₀ w σ Θ else 0)
+        (fun x₀ w σ Θ => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
           dirTermSrc (hatFun Gp a₁ ν eps hG' cc (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ Θ
           else 0)
-        (fun Y => Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
-          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r))
+        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
+          Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
+          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
         (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-    intro τ
-    by_cases hτ : τ ∈ 𝒯
-    · obtain ⟨Ev, hEv⟩ := eterm_locInt_hat_dm (hB τ hτ) (hF τ hτ) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-        (hcov τ hτ) (hX₁ τ hτ) hconn hrow (hopt τ hτ) hκ₀ hκdec hκ h1 (hlog τ hτ) (hEb τ hτ)
-        (hEan τ hτ) (hEbd τ hτ) hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
-      exact ⟨Ev, fun _ => by simpa [hτ] using hEv.mono_P fun Y hY => ⟨τ, hτ, hY⟩⟩
-    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
-  choose Ev hEv using hex
-  exact ⟨fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ,
-    LocIntDm.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
+  obtain ⟨T, h⟩ := eterms_locInt_hat_dm_of_one_le hb₁ hbC (τι := τι) 𝒯 (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (Gk := Gk) (Gj := Gj) (r₀ := r₀) (δ₃ := δ₃) (X₀ := X₀) (X₁f := X₁f) (j := j) (m₀ := m₀) (X := X) (𝒦X := 𝒦X) (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (δfl := δfl) hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
+  exact ⟨T, h.loc⟩
 
 /-- **The `δ𝓔'`-part for a finite family of old terms, in the variable `ψ̂`** (hat version of
 `eterms_locInt`). -/
@@ -798,9 +1028,99 @@ theorem eterms_locInt_hat {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι)
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ polyDom Gp (X₁f τ) (m₀ τ) (j τ) (𝒦X τ) then
           Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
           (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r) else 0)
-        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') := by
-  obtain ⟨T, h⟩ := eterms_locInt_hat_dm (τι := τι) 𝒯 (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (Gk := Gk) (Gj := Gj) (r₀ := r₀) (δ₃ := δ₃) (X₀ := X₀) (X₁f := X₁f) (j := j) (m₀ := m₀) (X := X) (𝒦X := 𝒦X) (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (δfl := δfl) hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
-  exact ⟨T, h.loc⟩
+        (fun Y Θ Θ' => agreeOn (thickSet Gp Y) Θ Θ') (AgHatF Gp hG') :=
+  eterms_locInt_hat_of_one_le (one_le_scaledC0 d) le_rfl 𝒯 hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
+
+/-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
+`mterms_locInt`). -/
+theorem mterms_locInt_hat_dm_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
+    {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
+    {r₀ δ₃ : ℝ} {X₀ X₁f : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {j m₀ : τι → ℕ}
+    {X 𝒦X : τι → Set (CTorus d L N₁ m₁ (k + 1))} {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    (ys : τι → CTorus d L N₁ m₁ (k + 1)) (is : τι → Fin N) (hys : ∀ τ ∈ 𝒯, ys τ ∈ X₁f τ)
+    (hB : ∀ τ ∈ 𝒯, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (j τ))
+    (hF : ∀ τ ∈ 𝒯, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ))
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : ∀ τ ∈ 𝒯, CovSetup Gp (m₀ τ) (j τ) (X τ) (𝒦X τ))
+    (hX₁ : ∀ τ ∈ 𝒯, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀ τ) (j τ) (𝒦X τ))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ τ ∈ 𝒯, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X τ) ∧ MeetsOne (m₀ τ) (j τ) (𝒦X τ) W₀ ∧
+        bondCost (scaleW L (m₀ τ) m₁ (j τ)) E₀ = treeLenCovOne (m₀ τ) (j τ) (X τ))
+    {κdec κ₀ : ℝ} {Eb : τι → ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : ∀ τ ∈ 𝒯, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀ τ) ^ d : ℕ) : ℝ)) ≤
+      (κ / 2 - 1) / 2)
+    (hEb : ∀ τ ∈ 𝒯, 0 ≤ Eb τ) {E : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : ∀ τ ∈ 𝒯, AnalyticOnNhd ℂ (E τ) (XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ τ ∈ 𝒯, ∀ r ∈ XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E τ r‖ ≤ Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀ τ) (j τ) (X τ)))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ (𝒴 : τι → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+      (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
+      LocIntDm (fun Y => ∃ τ ∈ 𝒯, IsDj (m₀ τ) (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1Ball d L N₁ m₁ (k + 1) N)
+        (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (𝒯.biUnion 𝒴)
+        (fun Y x₀ w σ p => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then p.2 (ys τ) (is τ) * T τ Y x₀ w σ p.1 else 0)
+        (fun x₀ w σ p => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
+          p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
+            (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ p.1 else 0)
+        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne
+          (m₀ τ) (j τ) (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)) else 0)
+        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (AgHatF Gp hG') := by
+  classical
+  have hex : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯 →
+      LocIntDm (fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
+        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1Ball d L N₁ m₁ (k + 1) N)
+        (HatRaysO Gp cψ R₁ Rσ r) Rσ
+        (polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)))
+        (fun Y x₀ w σ p => p.2 (ys τ) (is τ) * dirTerm (Ev Y) ω x₀ w σ p.1)
+        (fun x₀ w σ p => if h : τ ∈ 𝒯 then
+          p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
+            (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ p.1 else 0)
+        (fun Y => 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
+          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)))
+        (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
+        (AgHatF Gp hG') := by
+    intro τ
+    by_cases hτ : τ ∈ 𝒯
+    · obtain ⟨Ev, hEv⟩ := eterm_locInt_hat_dm_of_one_le hb₁ hbC (hB τ hτ) (hF τ hτ) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+        (hcov τ hτ) (hX₁ τ hτ) hconn hrow (hopt τ hτ) hκ₀ hκdec hκ h1 (hlog τ hτ) (hEb τ hτ)
+        (hEan τ hτ) (hEbd τ hτ) hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
+      refine ⟨Ev, fun _ => ?_⟩
+      have := (hEv.mono_P (P' := fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y)
+        fun Y hY => ⟨τ, hτ, hY⟩).mulAmp (SG := l1Ball d L N₁ m₁ (k + 1) N) (amp := fun g => g (ys τ) (is τ))
+        (Ma := 1)
+        ((analyticOnNhd_coord (ys τ) (is τ)).mono (Set.subset_univ _))
+        (fun g hg => norm_le_of_mem_l1Ball hg (ys τ) (is τ))
+        (AgG := fun Y g g' => ∀ x ∈ Y, g x = g' x) (by
+          intro Y hY g _ g' _ hag
+          have hyY : ys τ ∈ Y := subset_of_mem_polymerDomains hY (by
+            rw [← hX₁ τ hτ]; exact hys τ hτ)
+          exact congrFun (hag _ hyY) _)
+      simpa [hτ] using this
+    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
+  choose Ev hEv using hex
+  exact ⟨fun τ => polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) =>
+      i.1.1) Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)),
+    fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ, LocIntDm.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
 
 /-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
 `mterms_locInt`). -/
@@ -853,45 +1173,62 @@ theorem mterms_locInt_hat_dm {τι : Type*} [DecidableEq τι] (𝒯 : Finset τ
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne
           (m₀ τ) (j τ) (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)) else 0)
         (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
-        (AgHatF Gp hG') := by
-  classical
-  have hex : ∀ τ, ∃ (Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
-      RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ), τ ∈ 𝒯 →
-      LocIntDm (fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y) (id : (unitPts Gp × Fin N → ℂ) → _)
-        (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1Ball d L N₁ m₁ (k + 1) N)
+        (AgHatF Gp hG') :=
+  mterms_locInt_hat_dm_of_one_le (one_le_scaledC0 d) le_rfl 𝒯 ys is hys hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
+
+/-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
+`mterms_locInt`). -/
+theorem mterms_locInt_hat_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
+    {Gk : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
+    {Gj : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)}
+    {r₀ δ₃ : ℝ} {X₀ X₁f : τι → Finset (CTorus d L N₁ m₁ (k + 1))} {j m₀ : τι → ℕ}
+    {X 𝒦X : τι → Set (CTorus d L N₁ m₁ (k + 1))} {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    (ys : τι → CTorus d L N₁ m₁ (k + 1)) (is : τι → Fin N) (hys : ∀ τ ∈ 𝒯, ys τ ∈ X₁f τ)
+    (hB : ∀ τ ∈ 𝒯, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (j τ))
+    (hF : ∀ τ ∈ 𝒯, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ))
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : ∀ τ ∈ 𝒯, CovSetup Gp (m₀ τ) (j τ) (X τ) (𝒦X τ))
+    (hX₁ : ∀ τ ∈ 𝒯, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp (m₀ τ) (j τ) (𝒦X τ))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∀ τ ∈ 𝒯, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X τ) ∧ MeetsOne (m₀ τ) (j τ) (𝒦X τ) W₀ ∧
+        bondCost (scaleW L (m₀ τ) m₁ (j τ)) E₀ = treeLenCovOne (m₀ τ) (j τ) (X τ))
+    {κdec κ₀ : ℝ} {Eb : τι → ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : ∀ τ ∈ 𝒯, Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀ τ) ^ d : ℕ) : ℝ)) ≤
+      (κ / 2 - 1) / 2)
+    (hEb : ∀ τ ∈ 𝒯, 0 ≤ Eb τ) {E : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : ∀ τ ∈ 𝒯, AnalyticOnNhd ℂ (E τ) (XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ τ ∈ 𝒯, ∀ r ∈ XiCRaw (Gj τ) (compWeight L a₁) ν (j τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E τ r‖ ≤ Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne (m₀ τ) (j τ) (X τ)))
+    {ω : ℂ → ℂ} (hωc : Continuous ω) {R₁ : ℝ} (hR₁ : 1 < R₁)
+    (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁)) {Mω : ℝ} (hMω : 0 ≤ Mω)
+    (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω) {r Rσ : ℝ} (hr : 0 < r) :
+    ∃ (𝒴 : τι → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+      (T : τι → Set (CTorus d L N₁ m₁ (k + 1)) → (unitPts Gp × Fin N → ℂ) →
+        (unitPts Gp × Fin N → ℂ) → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ),
+      LocInt (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1Ball d L N₁ m₁ (k + 1) N)
         (HatRaysO Gp cψ R₁ Rσ r) Rσ
-        (polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-          Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)))
-        (fun Y x₀ w σ p => p.2 (ys τ) (is τ) * dirTerm (Ev Y) ω x₀ w σ p.1)
-        (fun x₀ w σ p => if h : τ ∈ 𝒯 then
+        (𝒯.biUnion 𝒴)
+        (fun Y x₀ w σ p => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then p.2 (ys τ) (is τ) * T τ Y x₀ w σ p.1 else 0)
+        (fun x₀ w σ p => ∑ τ ∈ 𝒯, if h : τ ∈ 𝒯 then
           p.2 (ys τ) (is τ) * dirTermSrc (hatFun Gp a₁ ν eps hG' cc
             (flComp (hB τ h) (hF τ h) (E τ))) ω x₀ w σ p.1 else 0)
-        (fun Y => 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne (m₀ τ) (j τ)
-          (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)))
+        (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne
+          (m₀ τ) (j τ) (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)) else 0)
         (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
         (AgHatF Gp hG') := by
-    intro τ
-    by_cases hτ : τ ∈ 𝒯
-    · obtain ⟨Ev, hEv⟩ := eterm_locInt_hat_dm (hB τ hτ) (hF τ hτ) hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-        (hcov τ hτ) (hX₁ τ hτ) hconn hrow (hopt τ hτ) hκ₀ hκdec hκ h1 (hlog τ hτ) (hEb τ hτ)
-        (hEan τ hτ) (hEbd τ hτ) hωc hR₁ hω hMω hωb hr (Rσ := Rσ)
-      refine ⟨Ev, fun _ => ?_⟩
-      have := (hEv.mono_P (P' := fun Y => ∃ τ' ∈ 𝒯, IsDj (m₀ τ') (k + 1) Y)
-        fun Y hY => ⟨τ, hτ, hY⟩).mulAmp (SG := l1Ball d L N₁ m₁ (k + 1) N) (amp := fun g => g (ys τ) (is τ))
-        (Ma := 1)
-        ((analyticOnNhd_coord (ys τ) (is τ)).mono (Set.subset_univ _))
-        (fun g hg => norm_le_of_mem_l1Ball hg (ys τ) (is τ))
-        (AgG := fun Y g g' => ∀ x ∈ Y, g x = g' x) (by
-          intro Y hY g _ g' _ hag
-          have hyY : ys τ ∈ Y := subset_of_mem_polymerDomains hY (by
-            rw [← hX₁ τ hτ]; exact hys τ hτ)
-          exact congrFun (hag _ hyY) _)
-      simpa [hτ] using this
-    · exact ⟨fun _ _ => 0, fun h => absurd h hτ⟩
-  choose Ev hEv using hex
-  exact ⟨fun τ => polymerDomains (fun i : ParIdx Gp (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) =>
-      i.1.1) Gp (m₀ τ) (X1 Gp (m₀ τ) (j τ) (𝒦X τ)),
-    fun τ Y x₀ w σ Θ => dirTerm (Ev τ Y) ω x₀ w σ Θ, LocIntDm.finsum 𝒯 (fun τ hτ => hEv τ hτ)⟩
+  obtain ⟨a, T, h⟩ := mterms_locInt_hat_dm_of_one_le hb₁ hbC (τι := τι) 𝒯 (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (Gk := Gk) (Gj := Gj) (r₀ := r₀) (δ₃ := δ₃) (X₀ := X₀) (X₁f := X₁f) (j := j) (m₀ := m₀) (X := X) (𝒦X := 𝒦X) (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (δfl := δfl) ys is hys hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
+  exact ⟨a, T, h.loc⟩
 
 /-- **The `𝓜`-terms of the source along the fluctuation, in the variable `ψ̂`** (hat version of
 `mterms_locInt`). -/
@@ -943,9 +1280,8 @@ theorem mterms_locInt_hat {τι : Type*} [DecidableEq τι] (𝒯 : Finset τι)
         (fun Y => ∑ τ ∈ 𝒯, if Y ∈ 𝒴 τ then 1 * (Mω * ((Eb τ * Real.exp (-κ₀ * treeLenCovOne
           (m₀ τ) (j τ) (X τ) - 2 * κdec * treeLenCov Gp (m₀ τ) Y)) / r)) else 0)
         (fun Y p p' => agreeOn (thickSet Gp Y) p.1 p'.1 ∧ ∀ x ∈ Y, p.2 x = p'.2 x)
-        (AgHatF Gp hG') := by
-  obtain ⟨a, T, h⟩ := mterms_locInt_hat_dm (τι := τι) 𝒯 (ϱ₁ := ϱ₁) (ϱ₂ := ϱ₂) (Gk := Gk) (Gj := Gj) (r₀ := r₀) (δ₃ := δ₃) (X₀ := X₀) (X₁f := X₁f) (j := j) (m₀ := m₀) (X := X) (𝒦X := 𝒦X) (Kc := Kc) (Cx := Cx) (c₂ := c₂) (BG₂ := BG₂) (δ₁ := δ₁) (δfl := δfl) ys is hys hB hF hk hG hG' cc (cψ := cψ) hcψ hMX (δc := δc) hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt (κdec := κdec) (κ₀ := κ₀) (Eb := Eb) hκ₀ hκdec hκ h1 hlog hEb (E := E) hEan hEbd (ω := ω) hωc (R₁ := R₁) hR₁ hω (Mω := Mω) hMω hωb (r := r) (Rσ := Rσ) hr
-  exact ⟨a, T, h.loc⟩
+        (AgHatF Gp hG') :=
+  mterms_locInt_hat_of_one_le (one_le_scaledC0 d) le_rfl 𝒯 ys is hys hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd hωc hR₁ hω hMω hωb hr
 
 end EFamily
 
