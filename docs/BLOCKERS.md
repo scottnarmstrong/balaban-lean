@@ -22,7 +22,7 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open; two workarounds ruled out; question drafted (item 14) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | open |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; reference family constructed |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized, constants and large fields remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | open; workaround in progress |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question |
 
@@ -129,12 +129,15 @@ and action must still be connected to the family with the required analytic doma
 locality, determinant expansion, and nonwinding torus comparison. The current abstract
 coefficient expansion does not by itself prove geometric connectedness of polymer supports.
 
-Two further results on this family. Its coefficients vanish unless their support is connected, which is
-the support property the polymer gas needs. But the square-root family vanishes at the origin of its
-parameters (every path tag contains the starting cell), so it is invertible only near the physical point
-s = 1 and not on a polydisc around 0. A localized determinant therefore cannot be taken as the logarithm
-of its determinant on the full parameter polydisc; it needs a different parametrization
-(`notes/phase1/FINALPHYS.md`).
+Since then the localization of the last integral has been rebuilt on a different footing
+(`notes/phase1/FINALPHYS2.md`, `FINALPHYS3.md`). The square-root family turned out not to be invertible on
+the parameter cube, but it is not needed: the Gaussian change of variables is made once at the physical
+point, and only the ratio det(U + E)/det(U) has to be localized. That ratio is now proved to be a product
+of local factors, each zero on disconnected supports and bounded uniformly in the volume, using the
+defect operator 1 − K(s), which is invertible on the whole parameter polydisc. The interaction, with its
+cutoff kept on the real field, is analytic on the same polydisc with local, bounded coefficients. What
+remains: a comparison of constants (the analyticity domain of the last-scale interaction against the
+radius the cut family needs), the large-field part, and the joins to the physical flow.
 
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
