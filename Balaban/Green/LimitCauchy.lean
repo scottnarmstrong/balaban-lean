@@ -138,8 +138,12 @@ theorem blockMap_castTorus_div {ℓ N m : ℕ} [NeZero ℓ] [NeZero m] (hℓ : �
     (u : Fin d → ℤ) : blockMap N m (castTorus ℓ u) = castTorus m (fun i => u i / (N : ℤ)) :=
   blockMap_castTorus_of_mem hℓ hN (mem_intFibre_div hN u)
 
-theorem blockProjMatrix_castTorus {ℓ N m R : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
-    (hN : 0 < N) (hm : 2 * R < m) {u u' : Fin d → ℤ} (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
+/-- Core: if the block indices `w μ / N` of the sites of a set lie in `[lo, hi]` with
+`hi - lo < m`, the block projection at these sites is `projZ`. -/
+theorem blockProjMatrix_castTorus_of_ediv_bounds {ℓ N m : ℕ} [NeZero ℓ] [NeZero m]
+    (hℓ : ℓ = N * m) (hN : 0 < N) {lo hi : ℤ} (hlh : hi - lo < m) {S : Set (Fin d → ℤ)}
+    (hb : ∀ w ∈ S, ∀ μ, lo ≤ w μ / (N : ℤ) ∧ w μ / (N : ℤ) ≤ hi) {u u' : Fin d → ℤ}
+    (hu : u ∈ S) (hu' : u' ∈ S) :
     blockProjMatrix d ℓ N m (castTorus ℓ u) (castTorus ℓ u') = projZ d N u u' := by
   unfold blockProjMatrix projZ
   rw [blockMap_castTorus_div hℓ hN, blockMap_castTorus_div hℓ hN]
@@ -147,28 +151,59 @@ theorem blockProjMatrix_castTorus {ℓ N m R : ℕ} [NeZero ℓ] [NeZero m] (h�
       ∀ μ, u μ / (N : ℤ) = u' μ / (N : ℤ) := by
     rw [castTorus_eq_iff, funext_iff]
     intro μ
-    have h1 := abs_ediv_le (a := u μ) hN
-    have h2 := abs_ediv_le (a := u' μ) hN
-    have h3 := mem_sqBox.1 hu μ
-    have h4 := mem_sqBox.1 hu' μ
-    have h5 : ((2 * R : ℕ) : ℤ) < m := by exact_mod_cast hm
-    push_cast at h5
+    have h1 := hb u hu μ
+    have h2 := hb u' hu' μ
     rw [abs_lt]
-    have := abs_le.1 (h1.trans h3)
-    have := abs_le.1 (h2.trans h4)
-    constructor <;> linarith
+    constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
   simp only [hiff]
+
+theorem blockProjMatrix_castTorus {ℓ N m R : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : 2 * R < m) {u u' : Fin d → ℤ} (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
+    blockProjMatrix d ℓ N m (castTorus ℓ u) (castTorus ℓ u') = projZ d N u u' := by
+  refine blockProjMatrix_castTorus_of_ediv_bounds (lo := -(R : ℤ)) (hi := R) hℓ hN
+    (by have : ((2 * R : ℕ) : ℤ) < m := by exact_mod_cast hm
+        push_cast at this; linarith) (S := (sqBox d R : Set (Fin d → ℤ))) ?_ hu hu'
+  intro w hw μ
+  have h1 := abs_ediv_le (a := w μ) hN
+  have h3 := mem_sqBox.1 (Finset.mem_coe.1 hw) μ
+  exact abs_le.1 (h1.trans h3)
+
+theorem blockProjMatrix_castTorus_fine {ℓ N m R Rm : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : 2 * Rm + 1 < m) (hR : R < N * (Rm + 1)) {u u' : Fin d → ℤ}
+    (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
+    blockProjMatrix d ℓ N m (castTorus ℓ u) (castTorus ℓ u') = projZ d N u u' := by
+  have hN' : (0 : ℤ) < N := by exact_mod_cast hN
+  have hRz : (R : ℤ) < N * (Rm + 1) := by exact_mod_cast hR
+  refine blockProjMatrix_castTorus_of_ediv_bounds (lo := -((Rm : ℤ) + 1)) (hi := Rm) hℓ hN
+    (by have : ((2 * Rm + 1 : ℕ) : ℤ) < m := by exact_mod_cast hm
+        push_cast at this; linarith) (S := (sqBox d R : Set (Fin d → ℤ))) ?_ hu hu'
+  intro w hw μ
+  have h1 := abs_le.1 (mem_sqBox.1 (Finset.mem_coe.1 hw) μ)
+  constructor
+  · rw [Int.le_ediv_iff_mul_le hN']
+    nlinarith [h1.1]
+  · have : w μ / (N : ℤ) < (Rm : ℤ) + 1 := by
+      rw [Int.ediv_lt_iff_lt_mul hN']
+      nlinarith [h1.2]
+    omega
+
+theorem fineHamiltonian_castTorus_fine {ℓ N m R Rm : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
+    (hN : 0 < N) (hm : 2 * Rm + 1 < m) (hR : R < N * (Rm + 1)) (ν a : ℝ) {u u' : Fin d → ℤ}
+    (hu : u ∈ sqBox d R) (hu' : u' ∈ sqBox d R) :
+    fineHamiltonian d ℓ N m ν a (castTorus ℓ u) (castTorus ℓ u') =
+      (N : ℝ) ^ 2 * latZ d (ν / (N : ℝ) ^ 2) u u' + a * projZ d N u u' := by
+  have hs : 2 * R + 1 < ℓ := by
+    rw [hℓ]; nlinarith
+  unfold fineHamiltonian
+  rw [Matrix.add_apply, Matrix.smul_apply, Matrix.smul_apply, smul_eq_mul, smul_eq_mul,
+    latticeLaplacian_castTorus hs _ hu hu', blockProjMatrix_castTorus_fine hℓ hN hm hR hu hu']
 
 theorem fineHamiltonian_castTorus {ℓ N m R : ℕ} [NeZero ℓ] [NeZero m] (hℓ : ℓ = N * m)
     (hN : 0 < N) (hm : 2 * R + 1 < m) (ν a : ℝ) {u u' : Fin d → ℤ} (hu : u ∈ sqBox d R)
     (hu' : u' ∈ sqBox d R) :
     fineHamiltonian d ℓ N m ν a (castTorus ℓ u) (castTorus ℓ u') =
-      (N : ℝ) ^ 2 * latZ d (ν / (N : ℝ) ^ 2) u u' + a * projZ d N u u' := by
-  have hℓm : m ≤ ℓ := by rw [hℓ]; exact Nat.le_mul_of_pos_left m hN
-  unfold fineHamiltonian
-  rw [Matrix.add_apply, Matrix.smul_apply, Matrix.smul_apply, smul_eq_mul, smul_eq_mul,
-    latticeLaplacian_castTorus (by omega) _ hu hu',
-    blockProjMatrix_castTorus hℓ hN (by omega) hu hu']
+      (N : ℝ) ^ 2 * latZ d (ν / (N : ℝ) ^ 2) u u' + a * projZ d N u u' :=
+  fineHamiltonian_castTorus_fine hℓ hN hm (by nlinarith) ν a hu hu'
 
 end Entries
 
