@@ -81,6 +81,7 @@ public import Balaban.Polymer.TwoTorusObsTower
 public import Balaban.Polymer.TwoTorusObsSourceSite
 public import Balaban.Polymer.TwoTorusObsSource
 public import Balaban.Polymer.TwoTorusObsSourceTower
+public import Balaban.Polymer.TwoTorusFinal
 public import Balaban.Polymer.CauchySum
 public import Balaban.Polymer.Marked
 public import Balaban.Polymer.Sized
@@ -1924,6 +1925,7 @@ public import Balaban.Fluctuation.LocalPairIndexMatch
 public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
+public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
 public import Balaban.Fluctuation.LocalPairCubeOps
