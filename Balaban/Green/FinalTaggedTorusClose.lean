@@ -9,6 +9,8 @@ public import Balaban.Green.FinalTorusClose
 public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Green.FinalLogDetLocal
+public import Balaban.Green.FinalInteractionCutoff
+public import Balaban.Green.FinalDetRatio
 
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -1124,8 +1126,8 @@ theorem norm_coef_sub_relabel_le {R : ℝ} (hR : 1 < R) (e : ι → ι') {C : Fi
       have hw' : (fun i => if i ∈ C.image e then w i else 0) = w := by
         funext i
         by_cases hi : i ∈ C.image e
-        · rw [if_pos hi]
-        · rw [if_neg hi, hw i hi]
+        · simp only [hi, ↓reduceIte]
+        · simp only [hi, ↓reduceIte, hw i hi]
       rw [hw']
   rw [h3]
   have hcard : (C.image e).card = C.card := Finset.card_image_of_injOn he
@@ -1134,16 +1136,16 @@ theorem norm_coef_sub_relabel_le {R : ℝ} (hR : 1 < R) (e : ι → ι') {C : Fi
   set u : ι' → ℂ := fun i => if i ∈ C.image e then s' i else 0 with hu
   have hus : u ∈ supportedOn (C.image e) := fun i hi => by
     show (if i ∈ C.image e then s' i else 0) = 0
-    rw [if_neg hi]
+    simp only [hi, ↓reduceIte]
   have hsN : pb u ∈ supN C R := by
     refine ⟨fun i hi => by simp [hpb, hi], fun i => ?_⟩
     by_cases hi : i ∈ C
     · have hmem : e i ∈ C.image e := Finset.mem_image_of_mem e hi
       have : pb u i = s' (e i) := by
         show (if i ∈ C then u (e i) else 0) = s' (e i)
-        rw [if_pos hi]
+        simp only [hi, ↓reduceIte]
         show (if e i ∈ C.image e then s' (e i) else 0) = s' (e i)
-        rw [if_pos hmem]
+        simp only [hmem, ↓reduceIte]
       rw [this]
       simpa using hs' (e i)
     · simpa [hpb, hi] using hR0
@@ -1154,7 +1156,7 @@ end Coef
 
 section Interaction
 
-variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
+variable {d M J N N' L : ℕ} [NeZero N] [NeZero N'] [NeZero L]
 
 /-- **Approximate `integral_cutoff_twoTorus`.**  The cutoff integrals on the two tori differ by at
 most `Lip · |Y(C)| δ ρ · γ(box ρ)` when the entries of the Stieltjes families correspond up to `δ`
@@ -1170,7 +1172,7 @@ theorem integral_cutoff_close (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M �
     {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
     {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
     {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
-    {δ Bc ρ BF Lip nY : ℝ} (hρ : 0 ≤ ρ) (hδ : 0 ≤ δ) (hLip : 0 ≤ Lip) (hBc : 0 ≤ Bc)
+    {δ Bc ρ BF Lip nY : ℝ} (hρ : 0 ≤ ρ) (hδ : 0 ≤ δ)
     (hnY : (Nat.card ↥(macRegion d N M C) : ℝ) ≤ nY)
     (hCC : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
       ‖taggedCfinU d N M U s x y - taggedCfinU d N' M U' s' (f x) (f y)‖ ≤ δ)
@@ -1382,6 +1384,142 @@ theorem integral_cutoff_close (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M �
     rw [hμ, Measure.real, Measure.map_apply hr MeasurableSet.univ, Set.preimage_univ,
       Measure.restrict_apply_univ]
   rw [hmu]
+
+/-- **The coefficients of the cutoff interaction of the final operators on two tori.**  The
+localized coefficients `coef J C` and `coef J' (e C)` of
+`J(s) = ∫_{box ρ} F (C_fin(s) ψ) dγ(ψ)` on the two tori differ by at most
+`Lip · |Y(C)| δ ρ γ(box ρ) / (e^κ - 1)^{|C|}`, where `δ = P C₀ exp(-c₀ (min N N'/2 - (J+3) M)) / √g`
+bounds the entries of the Stieltjes families (`final_taggedCfinU_close_twoTorus`).  The functionals
+`F`, `F'` are analytic and bounded on a polydisc of radius `R_F > B_C ρ` (`B_C` the row bound of
+`taggedCfin`), measurable, and correspond up to the Lipschitz bound `hFclose` (the exact
+correspondence `hF` of `coef_cutoffInteraction_final_eq_twoTorus` is the case `η = 0`); the reference
+measures correspond exactly (`hγ`). -/
+theorem final_coef_cutoffInteraction_close_twoTorus (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ {k : ℕ}, 1 ≤ k → ∃ C₀ c₀ : ℝ, 0 < C₀ ∧ 0 < c₀ ∧
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+            Real.sqrt (finalGap d L)) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
+  classical
+  have hκ0 : 0 ≤ κ := by linarith
+  obtain ⟨P, hP0, hP⟩ := final_taggedCfinU_close_twoTorus (L := L) hd hM hκ0 hMB hMκ nC
+  refine ⟨P, hP0, ?_⟩
+  intro k hk
+  obtain ⟨C₀, c₀, hC₀, hc₀, hmain⟩ := hP hk
+  refine ⟨C₀, c₀, hC₀, hc₀, ?_⟩
+  intro J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B' Lip hρ hγfin
+    hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+  set Bc : ℝ := 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+    Real.sqrt (finalGap d L) with hBc
+  have hBc0 : 0 ≤ Bc := by
+    have : 0 ≤ ballConst d (pdEps d L / 2) :=
+      ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
+    positivity
+  have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
+    have := (hC z hz i).2; omega
+  have hinjE : Set.InjOn e (C : Set (MacIdx d N M)) := by
+    intro z1 hz1 z2 hz2 h
+    funext i
+    apply Fin.ext
+    have h1 := he z1 i (hgoodC z1 hz1 i)
+    have h2 := he z2 i (hgoodC z2 hz2 i)
+    have : ((e z1 i : Fin (macK N' M)) : ℕ) = ((e z2 i : Fin (macK N' M)) : ℕ) := by rw [h]
+    omega
+  obtain ⟨hJan, -⟩ := cutoffInteraction_final (N₀ := N) (k := k) (L := L) (v := v) (a := a) hd hk
+    hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hρ hγfin hBR hFan hFB
+  obtain ⟨hJan', -⟩ := cutoffInteraction_final (N₀ := N') (k := k) (L := L) (v := v) (a := a) hd hk
+    hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hρ hγfin' hBR hFan' hFB'
+  have hnY : (Nat.card ↥(macRegion d N M C) : ℝ) ≤ ((nC * (8 * M + 1) ^ d : ℕ) : ℝ) := by
+    classical
+    rw [Nat.card_eq_fintype_card, Fintype.card_subtype]
+    have h1 : (Finset.univ.filter fun u => u ∈ macRegion d N M C) = C.biUnion (macBoxF d N M) := by
+      ext u; simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      rw [mem_biUnion_macBoxF]
+    rw [h1]
+    have := card_biUnion_macBoxF_le hM C
+    have h2 : C.card * (8 * M + 1) ^ d ≤ nC * (8 * M + 1) ^ d :=
+      Nat.mul_le_mul_right _ hCc
+    exact_mod_cast this.trans h2
+  have hFBw : ∀ w : L1Torus d N → ℂ, (∀ x, ‖w x‖ ≤ Bc * ρ) → ‖F w‖ ≤ B' := fun w hw =>
+    hFB w (fun x => by
+      simpa using lt_of_le_of_lt (hw x) hBR)
+  have hFBw' : ∀ w : L1Torus d N' → ℂ, (∀ x, ‖w x‖ ≤ Bc * ρ) → ‖F' w‖ ≤ B' := fun w hw =>
+    hFB' w (fun x => by
+      simpa using lt_of_le_of_lt (hw x) hBR)
+  refine norm_coef_sub_relabel_le hR e hinjE hJan hJan' (fun s hs s' hs' hss => ?_)
+  have hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ := fun p => (hs.2 p).le
+  have hCC : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖taggedCfinU d N M (finalOp d L N k v a) s x y -
+        taggedCfinU d N' M (finalOp d L N' k v a) s' (f x) (f y)‖ ≤
+      P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+        Real.sqrt (finalGap d L) := fun x hx y hy =>
+    hmain hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass hs.1 hs' hss hsκ hx hy
+  have hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ := by
+    intro p
+    by_cases hp : p ∈ C.image e
+    · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hp
+      rw [hss i hi]; exact hsκ i
+    · rw [hs' p hp, norm_zero]; exact (Real.exp_pos _).le
+  have hrow : ∀ x, ∑ y, ‖taggedCfinU d N M (finalOp d L N k v a) s x y‖ ≤ Bc := by
+    intro x
+    simp only [taggedCfinU_finalOp]
+    simpa using taggedCfin_row_bound (N₀ := N) (k := k) (L := L) (v := v) (a := a) (M := M) hd hk
+      hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hsκ (r := 0) le_rfl
+      (by have := pdEps_pos (d := d) (L := L) hd; positivity) x
+  have hrow' : ∀ x', ∑ y, ‖taggedCfinU d N' M (finalOp d L N' k v a) s' x' y‖ ≤ Bc := by
+    intro x'
+    simp only [taggedCfinU_finalOp]
+    simpa using taggedCfin_row_bound (N₀ := N') (k := k) (L := L) (v := v) (a := a) (M := M) hd hk
+      hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hsκ' (r := 0) le_rfl
+      (by have := pdEps_pos (d := d) (L := L) hd; positivity) x'
+  have hδ0 : 0 ≤ P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+      Real.sqrt (finalGap d L) := by positivity
+  have := integral_cutoff_close hM hd hN hN' hf he hC (U := finalOp d L N k v a)
+    (U' := finalOp d L N' k v a) hs.1 hs' hρ hδ0 hnY hCC hrow hrow' hγfin hFm hFm'
+    hFBw hFBw' hFclose hγ
+  simpa only [taggedCfinU_finalOp] using this
 
 end Interaction
 
