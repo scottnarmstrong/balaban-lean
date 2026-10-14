@@ -14,17 +14,28 @@ public import Balaban.LargeField.Base.BaseComponentCovariance
 The bond from `x` to `x + e_μ` joining two different first blocks carries the product
 `t(Q(x)) · t(Q(x + e_μ))` of the parameters of the two first-level cubes it touches
 (`Q = jBlock d L N₀ 1 1`).  Thus `t Q = 0` cuts every bond leaving the cube `Q`, and `t ≡ 1` is the
-physical operator.
+physical operator.  The statements contain no new definition: the bond parameters are written out.
 
-The coercivity margin of BASE-KERNEL-3 (1.6) is a perturbation statement about the edge parameters:
-it needs every `s_b` within `η ≤ c/(8d)`, `c = 1/(4L²)`, of a real point of `[0,1]`.  For the cube
-family this gives the following polydiscs, and no larger one is obtained from the margin:
+Coercivity of `A_e(s) = Q_e (H(s) ⊗ I) Q_e + P_e` only sees `Re s_b`, because `T_b` is a real
+rank-one form.  Three domains of cube parameters result.
 
-* `|t_Q| ≤ ρ` with `ρ² ≤ c/(8d) = 1/(32 d L²)`, centred at the cut point `t = 0`;
-* `|t_Q - r_Q| ≤ ε` with `r_Q ∈ [0,1]` and `3 ε ≤ c/(8d)`, which contains the physical point `t = 1`.
+* Polydiscs about the cut point: `|t_Q| ≤ ρ` with `ρ² ≤ η ≤ c/(8d)`, `c = 1/(4L²)`; margin `c/2`;
+  resolvent, square root, logarithm, holomorphy and the exponential decay of BASE-KERNEL-3 (1.7).
+* Polydiscs about a real point of `[0,1]^cubes` (which contain the physical point `t ≡ 1`):
+  `|t_Q - r_Q| ≤ ε`, `3 ε ≤ η ≤ c/(8d)`; the same statements.
+* The polysector `|Im t_Q| ≤ Re t_Q` of arbitrary radius (so every real `t_Q ≥ 0`): margin `c/2`,
+  resolvent, principal identities and holomorphy (no decay estimate: the row sums grow with the
+  radius).
 
-The disc `|t_Q| < e^{κ₁}` with `κ₁ ≥ 0` contains `t_Q = 1` and the pairs `t_Q = -t_{Q'}`; the bond
-parameter `t_Q t_{Q'}` then reaches `-1`, where `Re ⟨u, H(s) u⟩ ≥ (c/2) ‖u‖²` is not available.
+The full disc `|t_Q| < e^{κ₁}` with `κ₁ ≥ 0` is not covered.  It contains `t_Q = -t_{Q'} = ρ`, for
+which `Re s_b = -ρ²` on the bonds between `Q` and `Q'`, and the margin argument needs
+`Re s_b ≥ -c/(8d)`, that is `e^{2 κ₁} ≤ 1/(32 d L²)`.
+
+Also here: exact component locality (`baseCube_resolvent_local`, `baseCube_sqrt_local`,
+`baseCube_log_local`), the cut component operator (`baseCube_component_covariance`,
+`baseCube_component_entries`), and the weighted comparison of resolvent, square root and logarithm
+for two cube families which differ on a set `W` of cubes (`baseCube_resolvent_sub_decay`,
+`baseCube_sqrt_sub_decay`, `baseCube_log_sub_decay`).
 -/
 
 @[expose] public section
@@ -1201,7 +1212,345 @@ end CubeComparison
 
 end Comparison
 
+section Sector
+
+theorem reQuad_sum_aux {ι' J : Type*} [Fintype ι'] (S : Finset J) (f : J → Matrix ι' ι' ℂ)
+    (u : ι' → ℂ) : reQuad (∑ j ∈ S, f j) u = ∑ j ∈ S, reQuad (f j) u := by
+  classical
+  induction S using Finset.induction_on with
+  | empty => simp [reQuad_zero]
+  | insert a S ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, reQuad_add, ih]
+
+variable {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ}
+
+/-- A complex multiple of `T_b` has quadratic form `Re c · ‖D_b u‖²`: the imaginary part of the
+bond parameter does not enter `Re ⟨u, H(s) u⟩`. -/
+theorem reQuad_smul_baseBond (c : ℂ) (b : FineBond d L N₀) (u : G.Ω 1 → ℂ) :
+    reQuad (c • baseBond G b) u = c.re * reQuad (baseBond G b) u := by
+  set vC : G.Ω 1 → ℂ := fun x => ((bondVec b x : ℝ) : ℂ) with hvC
+  set w : ℂ := vC ⬝ᵥ u with hw
+  have hs : star u ⬝ᵥ vC = star w := by
+    rw [hw]
+    simp only [dotProduct, star_sum, star_mul']
+    refine Finset.sum_congr rfl fun x _ => ?_
+    simp [hvC]
+    ring
+  have h1 : star u ⬝ᵥ (baseBond G b *ᵥ u) = ((Complex.normSq w : ℝ) : ℂ) := by
+    rw [baseBond_eq_vecMulVec, Matrix.vecMulVec_mulVec]
+    simp only [dotProduct_smul, MulOpposite.smul_eq_mul_unop, MulOpposite.unop_op]
+    rw [hs, Complex.star_def, ← Complex.normSq_eq_conj_mul_self]
+  rw [reQuad_eq_dot, Matrix.smul_mulVec, dotProduct_smul, smul_eq_mul, h1,
+    Complex.re_mul_ofReal, reQuad_eq_dot, h1, Complex.ofReal_re]
+
+/-- **Coercivity on the half-planes `Re s_b ≥ -η`.**  The imaginary parts and the size of the bond
+parameters do not matter: `Re ⟨u, H(s) u⟩ ≥ (c/2) ‖u‖²` as soon as `Re s_b ≥ -η`, `η ≤ c/(8d)`. -/
+theorem baseHamiltonian_isCoercive_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : ∀ b ∈ baseCutBonds G, -η ≤ (s b).re) :
+    IsCoercive (baseHamiltonian G a ν α s) (baseCoercivity L / 2) := by
+  classical
+  have hc0 := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L))
+  have h4 : 4 * (d : ℝ) * η ≤ baseCoercivity L / 2 := by
+    rcases Nat.eq_zero_or_pos d with h | h
+    · subst h; simp; positivity
+    · have hd : (0 : ℝ) < d := by exact_mod_cast h
+      calc 4 * (d : ℝ) * η ≤ 4 * d * (baseCoercivity L / (8 * d)) := by gcongr
+        _ = baseCoercivity L / 2 := by field_simp; ring
+  have hcut : IsCoercive (cutOperator G a ν (baseCutBonds G) α) (baseCoercivity L) := by
+    have := baseHamiltonian_isCoercive_real G hν ha hα (fun _ => 0) (fun _ _ => le_rfl)
+    simpa [baseHamiltonian_zero] using this
+  -- the Schur bound for the sum of the bond forms
+  set X : Matrix (G.Ω 1) (G.Ω 1) ℂ := ∑ b ∈ baseCutBonds G, baseBond G b with hX
+  set E : G.Ω 1 → G.Ω 1 → ℝ := fun x y => ∑ b ∈ baseCutBonds G, ‖baseBond G b x y‖ with hE
+  have hDE : ∀ x y, ‖(-X) x y‖ ≤ E x y := by
+    intro x y
+    rw [Matrix.neg_apply, norm_neg, hX, Matrix.sum_apply]
+    exact norm_sum_le _ _
+  have hrow : ∀ x, ∑ y, E x y ≤ 4 * d := fun x => by
+    calc ∑ y, E x y = ∑ b ∈ baseCutBonds G, ∑ y, ‖baseBond G b x y‖ := Finset.sum_comm
+      _ ≤ 4 * d := sum_bonds_norm_row_le G x
+  have hcol : ∀ y, ∑ x, E x y ≤ 4 * d := fun y => by
+    calc ∑ x, E x y = ∑ b ∈ baseCutBonds G, ∑ x, ‖baseBond G b x y‖ := Finset.sum_comm
+      _ ≤ 4 * d := sum_bonds_norm_col_le G y
+  intro u
+  have h1 := hcut u
+  have h2 := reQuad_ge_of_entry_bound (-X) E hDE hrow hcol u
+  have hneg : reQuad (-X) u = -reQuad X u := by
+    simp only [reQuad_eq_dot, Matrix.neg_mulVec, dotProduct_neg, Complex.neg_re]
+  have hXq : reQuad X u = ∑ b ∈ baseCutBonds G, reQuad (baseBond G b) u := reQuad_sum_aux _ _ _
+  have hform : reQuad (baseHamiltonian G a ν α s) u =
+      reQuad (cutOperator G a ν (baseCutBonds G) α) u +
+        ∑ b ∈ baseCutBonds G, (s b).re * reQuad (baseBond G b) u := by
+    unfold baseHamiltonian
+    rw [reQuad_add, reQuad_sum_aux]
+    congr 1
+    exact Finset.sum_congr rfl fun b _ => reQuad_smul_baseBond G (s b) b u
+  have hlow : -(η * reQuad X u) ≤ ∑ b ∈ baseCutBonds G, (s b).re * reQuad (baseBond G b) u := by
+    rw [hXq, Finset.mul_sum, ← Finset.sum_neg_distrib]
+    exact Finset.sum_le_sum fun b hb => by
+      have := mul_le_mul_of_nonneg_right (hs b hb) (reQuad_baseBond_nonneg G b u)
+      linarith
+  have hXle : reQuad X u ≤ 4 * d * sqNorm u := by linarith
+  have hN := sqNorm_nonneg u
+  rw [hform]
+  nlinarith [mul_le_mul_of_nonneg_left hXle hη0]
+
+variable {ρ : ℝ}
+
+/-- Coercivity of `A_e(s)` on the half-planes `Re s_b ≥ -η`. -/
+theorem baseOp_isCoercive_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : ∀ b ∈ baseCutBonds G, -η ≤ (s b).re) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    IsCoercive (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s))
+      (baseCoercivity L / 2) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hH := baseHamiltonian_isCoercive_of_re G hν ha hα hη0 hη hs
+  have hP := unitProj_conjTranspose e
+  have hPP := unitProj_mul_self e he
+  have hc := baseCoercivity_le_one hL
+  unfold baseOp
+  rw [basePart_real]
+  exact isCoercive_proj_split hP hPP (by linarith) (isCoercive_liftOp hH)
+
+theorem resOK_baseOp_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : ∀ b ∈ baseCutBonds G, -η ≤ (s b).re) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    ResOK (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) := fun x hx => by
+  have hc := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L))
+  have h := (baseOp_isCoercive_of_re G hν ha hα hη0 hη hs e he).add_smul_one x
+  have := opNorm_inv_le_of_isCoercive (by linarith : 0 < baseCoercivity L / 2 + x) h
+  rw [add_comm]
+  exact this.1
+
+/-- The resolvent of `A_e(s)` on the half-planes `Re s_b ≥ -η`: invertibility and the bound
+`‖𝒞_{e,x}(s)‖ ≤ (c/2 + x)⁻¹`. -/
+theorem baseResolvent_norm_le_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : ∀ b ∈ baseCutBonds G, -η ≤ (s b).re) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) {x : ℝ} (hx : 0 ≤ x) :
+    IsUnit (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) +
+        (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) ∧
+      ‖baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) x‖ ≤
+        (baseCoercivity L / 2 + x)⁻¹ := by
+  have hc := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L))
+  have h := (baseOp_isCoercive_of_re G hν ha hα hη0 hη hs e he).add_smul_one x
+  exact opNorm_inv_le_of_isCoercive (by linarith) h
+
+/-- Holomorphy of the resolvent along a family with `Re ≥ -η` on an open set. -/
+theorem baseFamily_resolvent_analyticOn_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) {P : ℂ → FineBond d L N₀ → ℂ}
+    (hP : ∀ b z0, AnalyticAt ℂ (fun z => P z b) z0) {D : Set ℂ}
+    (hPD : ∀ z ∈ D, ∀ b ∈ baseCutBonds G, -η ≤ (P z b).re) {x : ℝ} (hx : 0 ≤ x)
+    (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => baseResolvent N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (P z)) x p q) D := by
+  intro z0 hz0
+  have hU := (baseResolvent_norm_le_of_re G hν ha hα hη0 hη (hPD z0 hz0) e he hx).1
+  have hdet := ((Matrix.isUnit_iff_isUnit_det _).1 hU).ne_zero
+  have hR : RectAt (fun z : ℂ => (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (P z)) +
+      (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ))⁻¹) z0 :=
+    RectAt.inv ((rectAt_baseOp_family G a ν α _ hP z0).add (RectAt.const _ _)) hdet
+  exact hR p q
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+
+/-- Holomorphy of the principal inverse square root along a family with `Re ≥ -η` on an open set. -/
+theorem baseFamily_sqrt_analyticOn_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) {P : ℂ → FineBond d L N₀ → ℂ}
+    (hP : ∀ b z0, AnalyticAt ℂ (fun z => P z b) z0) {D : Set ℂ} (hD : IsOpen D)
+    (hPD : ∀ z ∈ D, ∀ b ∈ baseCutBonds G, -η ≤ (P z b).re) (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (P z))) p q) D :=
+  Balaban.Localization.analyticOnNhd_sqrtMat_fam hD
+    (fun z hz => resOK_baseOp_of_re G hν ha hα hη0 hη (hPD z hz) e he)
+    (fun z _ => rectAt_baseOp_family G a ν α _ hP z) p q
+
+/-- Holomorphy of the principal logarithm along a family with `Re ≥ -η` on an open set. -/
+theorem baseFamily_log_analyticOn_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) {P : ℂ → FineBond d L N₀ → ℂ}
+    (hP : ∀ b z0, AnalyticAt ℂ (fun z => P z b) z0) {D : Set ℂ} (hD : IsOpen D)
+    (hPD : ∀ z ∈ D, ∀ b ∈ baseCutBonds G, -η ≤ (P z b).re) (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => logMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (P z))) p q) D :=
+  Balaban.Localization.analyticOnNhd_logMat_fam hD
+    (fun z hz => resOK_baseOp_of_re G hν ha hα hη0 hη (hPD z hz) e he)
+    (fun z _ => rectAt_baseOp_family G a ν α _ hP z) p q
+
+/-- Principal identities on the half-planes `Re s_b ≥ -η`. -/
+theorem baseSqrt_log_principal_of_re (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+    (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+    (hη : η ≤ baseCoercivity L / (8 * d)) {s : FineBond d L N₀ → ℂ}
+    (hs : ∀ b ∈ baseCutBonds G, -η ≤ (s b).re) (e : G.Ω 1 → Fin N → ℝ)
+    (he : ∀ z, ∑ i, e z i ^ 2 = 1) :
+    sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) *
+        sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s)) =
+      (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s))⁻¹ ∧
+    NormedSpace.exp (logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s))) =
+      baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α s) :=
+  ⟨Balaban.Localization.sqrtMat_mul_self (resOK_baseOp_of_re G hν ha hα hη0 hη hs e he),
+   Balaban.Localization.exp_logMat (resOK_baseOp_of_re G hν ha hα hη0 hη hs e he)⟩
+
+end Sector
+
+section CubeSector
+
+/-- On the closed sector `|Im t| ≤ Re t` (that is, `|arg t| ≤ π/4`) the product of two cube
+parameters has nonnegative real part. -/
+theorem re_mul_nonneg_of_sector {u v : ℂ} (hu : |u.im| ≤ u.re) (hv : |v.im| ≤ v.re) :
+    0 ≤ (u * v).re := by
+  have h1 : |u.im * v.im| ≤ u.re * v.re := by
+    rw [abs_mul]
+    exact mul_le_mul hu hv (abs_nonneg _) ((abs_nonneg _).trans hu)
+  have := (abs_le.1 h1).2
+  rw [Complex.mul_re]
+  linarith
+
+theorem baseCube_re_nonneg_of_sector {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (ht : ∀ x ∈ G.Ω 1, |(t (jBlock d L N₀ 1 1 x)).im| ≤ (t (jBlock d L N₀ 1 1 x)).re) :
+    ∀ b ∈ baseCutBonds G, -(0 : ℝ) ≤ (t (jBlock d L N₀ 1 1 b.1) *
+      t (jBlock d L N₀ 1 1 (bondTip b))).re := by
+  intro b hb
+  obtain ⟨h1, h2⟩ := baseCutBonds_endpoints_mem G hb
+  rw [neg_zero]
+  exact re_mul_nonneg_of_sector (ht _ h1) (ht _ h2)
+
+theorem isOpen_cubeLine_sector (t₀ v : Torus d (N₀ * L ^ (1 - 1)) → ℂ) :
+    IsOpen {z : ℂ | ∀ x ∈ G.Ω 1,
+      |(t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).im| <
+        (t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).re} := by
+  have : {z : ℂ | ∀ x ∈ G.Ω 1,
+      |(t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).im| <
+        (t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).re} =
+      ⋂ x ∈ G.Ω 1, {z : ℂ | |(t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).im| <
+        (t₀ (jBlock d L N₀ 1 1 x) + z * v (jBlock d L N₀ 1 1 x)).re} := by
+    ext z; simp
+  rw [this]
+  exact isOpen_biInter_finset fun x _ =>
+    isOpen_lt (by fun_prop) (by fun_prop)
+
+variable {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+  (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2))
+  (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+
+include hν ha hα he
+
+/-- **Coercivity margin on the cube polysector `|arg t_Q| ≤ π/4`, of arbitrary radius.**  The
+cube family has `Re s_b ≥ 0` there, so the margin `c/2` does not depend on the size of the cube
+parameters; it contains every real cube parameter in `[0, ∞)`. -/
+theorem baseCube_isCoercive_sector {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (ht : ∀ x ∈ G.Ω 1, |(t (jBlock d L N₀ 1 1 x)).im| ≤ (t (jBlock d L N₀ 1 1 x)).re) :
+    IsCoercive (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))))) (baseCoercivity L / 2) :=
+  baseOp_isCoercive_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity)
+    (baseCube_re_nonneg_of_sector G ht) e he
+
+/-- Resolvent on the cube polysector: `‖𝒞_{e,x}(s)‖ ≤ (c/2 + x)⁻¹`. -/
+theorem baseCube_resolvent_sector {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (ht : ∀ x ∈ G.Ω 1, |(t (jBlock d L N₀ 1 1 x)).im| ≤ (t (jBlock d L N₀ 1 1 x)).re)
+    {x : ℝ} (hx : 0 ≤ x) :
+    IsUnit (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))) +
+        (x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) ∧
+      ‖baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))) x‖ ≤ (baseCoercivity L / 2 + x)⁻¹ :=
+  baseResolvent_norm_le_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity)
+    (baseCube_re_nonneg_of_sector G ht) e he hx
+
+/-- Holomorphy of the resolvent on the open cube polysector `|Im t_Q| < Re t_Q`, along every line
+`z ↦ t₀ + z v`; the radius of the cube parameters is arbitrary. -/
+theorem baseCube_resolvent_analyticOn_sector (t₀ v : Torus d (N₀ * L ^ (1 - 1)) → ℂ) {x : ℝ}
+    (hx : 0 ≤ x) (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => baseResolvent N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b : FineBond d L N₀ =>
+        (t₀ (jBlock d L N₀ 1 1 b.1) + z * v (jBlock d L N₀ 1 1 b.1)) *
+          (t₀ (jBlock d L N₀ 1 1 (bondTip b)) + z * v (jBlock d L N₀ 1 1 (bondTip b))))) x p q)
+      {z : ℂ | ∀ y ∈ G.Ω 1,
+        |(t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).im| <
+          (t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).re} :=
+  baseFamily_resolvent_analyticOn_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity) e he
+    (fun b z0 => analyticAt_cubeLine_param t₀ v b z0)
+    (fun z hz => baseCube_re_nonneg_of_sector G
+      (t := fun Q => t₀ Q + z * v Q) (fun y hy => (hz y hy).le)) hx p q
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+
+/-- Principal identities on the cube polysector. -/
+theorem baseCube_sqrt_log_principal_sector {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (ht : ∀ x ∈ G.Ω 1, |(t (jBlock d L N₀ 1 1 x)).im| ≤ (t (jBlock d L N₀ 1 1 x)).re) :
+    sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b))))) *
+      sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b))))) =
+      (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))))⁻¹ ∧
+    NormedSpace.exp (logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))))) =
+      baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b)))) :=
+  baseSqrt_log_principal_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity)
+    (baseCube_re_nonneg_of_sector G ht) e he
+
+/-- Holomorphy of the principal inverse square root on the open cube polysector. -/
+theorem baseCube_sqrt_analyticOn_sector (t₀ v : Torus d (N₀ * L ^ (1 - 1)) → ℂ)
+    (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => sqrtMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b : FineBond d L N₀ =>
+        (t₀ (jBlock d L N₀ 1 1 b.1) + z * v (jBlock d L N₀ 1 1 b.1)) *
+          (t₀ (jBlock d L N₀ 1 1 (bondTip b)) + z * v (jBlock d L N₀ 1 1 (bondTip b)))))) p q)
+      {z : ℂ | ∀ y ∈ G.Ω 1,
+        |(t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).im| <
+          (t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).re} :=
+  baseFamily_sqrt_analyticOn_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity) e he
+    (fun b z0 => analyticAt_cubeLine_param t₀ v b z0) (isOpen_cubeLine_sector G t₀ v)
+    (fun z hz => baseCube_re_nonneg_of_sector G
+      (t := fun Q => t₀ Q + z * v Q) (fun y hy => (hz y hy).le)) p q
+
+/-- Holomorphy of the principal logarithm on the open cube polysector. -/
+theorem baseCube_log_analyticOn_sector (t₀ v : Torus d (N₀ * L ^ (1 - 1)) → ℂ)
+    (p q : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ (fun z : ℂ => logMat (baseOp N (fun z i => (e z i : ℂ))
+      (baseHamiltonian G a ν α (fun b : FineBond d L N₀ =>
+        (t₀ (jBlock d L N₀ 1 1 b.1) + z * v (jBlock d L N₀ 1 1 b.1)) *
+          (t₀ (jBlock d L N₀ 1 1 (bondTip b)) + z * v (jBlock d L N₀ 1 1 (bondTip b)))))) p q)
+      {z : ℂ | ∀ y ∈ G.Ω 1,
+        |(t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).im| <
+          (t₀ (jBlock d L N₀ 1 1 y) + z * v (jBlock d L N₀ 1 1 y)).re} :=
+  baseFamily_log_analyticOn_of_re G hν ha hα le_rfl
+    (by have := baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)); positivity) e he
+    (fun b z0 => analyticAt_cubeLine_param t₀ v b z0) (isOpen_cubeLine_sector G t₀ v)
+    (fun z hz => baseCube_re_nonneg_of_sector G
+      (t := fun Q => t₀ Q + z * v Q) (fun y hy => (hz y hy).le)) p q
+
+end CubeSector
+
 end Balaban.LargeField.Base
+
 
 namespace Balaban.LargeField
 
