@@ -1508,3 +1508,6 @@
 | 2026-10-14 | W815 | landed `9b504b46` | `Inhabited/RootParamsLinks.lean`: `exists_rootParams_consts` (d = 3: `Consts` with γ ≤ 1/4, γ − α₁ = δ, admissible; k_f = kStop clauses under RunningHyp). d ≥ 4 blocked by δ = (d−2)/8 in `exists_rootParams` (W816 (0)). Amplitude/cut constants: analysis only — none depends on β₀ (birth-scale β₀ upward closed; cut constant B(κ) depends on d, L, κ). |
 | 2026-10-14 | W816 | launched | δ-parametric root constants (all d), A10 chart inclusion at q = 1. |
 | 2026-10-14 | W817 | launched | First step G1: x-dependent resolvent of the constrained covariance at k = 0 on the discs, square root (cover forms, `_of_ak` cores). |
+| 2026-10-14 | W817 | note landed `660b83d2` | First step G1 at k = 0 blocked by the field `hk : 1 ≤ k` of `Dec2.XCover` (and `XSetting`): every use is only a_k ∈ [1/2, 2] with `_of_ak` cores existing; list of uses and constructors in BASEPLAN. |
+| 2026-10-14 | ORCHESTRATOR DECISION | — | Replace the field `hk : 1 ≤ k` of `XSetting` and `Dec2.XCover` by `hak1 : 1/2 ≤ a k`, `hak2 : a k ≤ 2` (pending since W783/W774; now blocking BASEPLAN G1). Weakens the hypotheses; no statement loses content. Executed by W818. |
+| 2026-10-14 | W818 | launched | XSetting/XCover field change, uses and constructors, k = 0 inhabitation. |
