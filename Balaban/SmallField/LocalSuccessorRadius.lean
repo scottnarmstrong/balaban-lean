@@ -274,7 +274,7 @@ theorem not_chartTest_eps_succ {d L : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 <
   exact not_mul_eps_succ_add_le P hα₀ hK k (mul_nonneg hC hδ) h4
 
 /-- `α = (d - 2)/2 - γ ≤ 2` for `d ≤ 6` and `γ ≥ 0` (the case `d = 3` of the fixed tower). -/
-theorem Consts.alpha_le_two {d : ℕ} (P : Consts) (hd : d ≤ 6) (hγ : 0 ≤ P.γ) :
+theorem _root_.Balaban.SmallField.Def6.Consts.alpha_le_two {d : ℕ} (P : Consts) (hd : d ≤ 6) (hγ : 0 ≤ P.γ) :
     P.alpha d ≤ 2 := by
   unfold Consts.alpha
   have : (d : ℝ) ≤ 6 := by exact_mod_cast hd
