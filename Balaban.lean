@@ -1887,3 +1887,5 @@ public import Balaban.Fluctuation.ClassOldEndpointM
 public import Balaban.Inhabited.ClassOldExpansionFromTower
 public import Balaban.Fluctuation.ClassOldLocalGk
 public import Balaban.Fluctuation.ClassOldEndpointLocal
+public import Balaban.SmallField.LocalSuccessorRadius
+public import Balaban.Fluctuation.LocalSuccessorEngine
