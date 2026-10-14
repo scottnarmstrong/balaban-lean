@@ -21,8 +21,10 @@ activity at `(e.1, 0)` and the source part
 (the activity of a label at `e` is the term of its domain in the direct terms at `(e.1, e.2/β)`;
 `β · (e.2/β) = e.2`).  The sources of the two parameters agree on the box of radius `R`.
 
-Not covered: `hAs` is not yet exported by `obsTiltLabels_local_fromTowerG`; it is a hypothesis in the
-form of the conjunct to be appended there (see the report).
+The hypotheses `hF₃ … hanEv₃`, `hAs` are exactly the conjunct appended to
+`obsTiltLabels_local_fromTowerG(_rho)` (with `c_ψ = lvCpsiG d L N T.κ T.t (β L^(k(d-2)))`), so for the
+activity family `A` of that export they are discharged by it; the sources of the two parameters agree
+on the box (`hsrc`).
 -/
 
 @[expose] public section
