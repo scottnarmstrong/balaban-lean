@@ -195,6 +195,13 @@ A second requirement appeared: agreement of the final terms needs them to be giv
 formula on every torus (not by separate choices on each torus); the assembly of Root-F has to
 respect this.
 
+At the last integral a further point appears. The localized pieces of the last integral (the
+determinant ratio and the interaction) are equal on two tori when the final operators and reference
+Gaussians agree on the read region (proved). The final operator's inverse, however, has entries that
+decay but never vanish, so on two tori of different size these quantities differ by exponentially
+small winding terms; exact equality of the last-scale terms is not available from this construction
+alone.
+
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
 ## Large pieces of work that are not blockers
