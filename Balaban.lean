@@ -1943,5 +1943,6 @@ public import Balaban.Inhabited.RootParams
 public import Balaban.Localization.DecCovCross
 public import Balaban.Green.FinalTorusClose
 public import Balaban.Green.FinalTaggedTorusClose
+public import Balaban.Green.FinalTorusCloseUnif
 public import Balaban.Green.FinalAmplitude
 public import Balaban.Green.FinalDetRatioSmall
