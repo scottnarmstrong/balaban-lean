@@ -1891,3 +1891,4 @@ public import Balaban.Fluctuation.ClassOldEndpointLocal
 public import Balaban.SmallField.LocalSuccessorRadius
 public import Balaban.Fluctuation.LocalSuccessorEngine
 public import Balaban.SmallField.LocalZeroClass
+public import Balaban.Fluctuation.SharpChartTest
