@@ -164,7 +164,7 @@ theorem xH0_isUnit (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1
   have D0 := hfam 0 le_rfl
   have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hak : 0 < a k := by
-    have := D0.st.ha k D0.st.hk le_rfl
+    have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D0.st.haT1
@@ -173,7 +173,7 @@ theorem xH0_isUnit (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1
       ((1 / 4 - 1 / 8) * (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹) := by
     intro x hx
     have D := hfam x hx
-    exact xDirichletOperator_isCoercive_sharp G D.st.dg.hL D.st.hk D.st.dg.mass D.st.ha
+    exact xDirichletOperator_isCoercive_sharp_of_ak G D.st.dg.hL D.st.dg.mass D.st.ha ⟨D.st.hak1, D.st.hak2⟩
       D.st.haT1 D.st.haT2 hx (θ := 1 / 8) (by norm_num) (by norm_num) α
       (AdmPot.le_eighth D.st.dg D.pot) (γ := (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹) fun y => by
         have hp : 0 < G.spacing y := spacing_pos G
@@ -200,7 +200,7 @@ theorem xM0_isUnit (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _ => 1
     IsUnit (constraintM (xH0 G a ν α) (xH0 G a ν α)⁻¹ (restrictField G φ)) := by
   have D0 := hfam 0 le_rfl
   have hak : 0 < a k := by
-    have := D0.st.ha k D0.st.hk le_rfl
+    have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)
     linarith [this.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D0.st.haT1

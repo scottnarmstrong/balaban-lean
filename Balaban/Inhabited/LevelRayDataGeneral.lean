@@ -96,7 +96,8 @@ theorem rayData_hatStepKG_pp (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N) (k m�
             hB5 := B5_le_B5Max (by omega) hL (compWeight_one_mem hL hk),
             hK2 := K2_le_K2Max, hp40 := ?_, hrad := ?_ }⟩
   · intro x hx
-    refine ⟨⟨dgSetting_lvG hd hL hm hN₁ hν0 hν, hk, by show (1 / 2 : ℝ) ≤ 1; norm_num,
+    refine ⟨⟨dgSetting_lvG hd hL hm hN₁ hν0 hν, ((dgSetting_lvG hd hL hm hN₁ hν0 hν).weights k hk (by omega)).1,
+      ((dgSetting_lvG hd hL hm hN₁ hν0 hν).weights k hk (by omega)).2, by show (1 / 2 : ℝ) ≤ 1; norm_num,
       by show (1 : ℝ) ≤ 2; norm_num⟩, ?_, hx, le_rfl, ?_, ?_⟩
     · intro y
       have hs2 : 0 < S.G'.spacing (y : CTorus d L N₁ m₁ (k + 1)) ^ 2 := by

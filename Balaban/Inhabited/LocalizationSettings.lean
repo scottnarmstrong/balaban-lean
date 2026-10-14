@@ -60,7 +60,8 @@ theorem exists_m₁_cstar : ∃ m₁ : ℕ, 4 ≤ m₁ ∧ cstarX 3 3 ≤ (3 : �
 
 theorem xSetting_pos {m₁ : ℕ} (h4 : 4 ≤ m₁) :
     XSetting (k := 1) (GP m₁ (rhoSep m₁)) (compWeight 3 1) 1 0 :=
-  ⟨dgSetting_rho h4, le_rfl, by norm_num, by norm_num⟩
+  ⟨dgSetting_rho h4, by rw [compWeight_one (by norm_num)]; norm_num,
+    by rw [compWeight_one (by norm_num)]; norm_num, by norm_num, by norm_num⟩
 
 /-- **`OpSetting` is inhabited** at positive scale. -/
 theorem opSetting_nonempty :

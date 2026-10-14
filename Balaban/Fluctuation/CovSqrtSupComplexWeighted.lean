@@ -87,8 +87,7 @@ theorem covC_wT_cover {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
   classical
   have D := Hc x hx
   have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
-  have hk := D.st.hk
-  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k hk le_rfl
+  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := ⟨D.st.hak1, D.st.hak2⟩
   have hcx : 0 < a k + x := by have := D.x0; linarith [hak.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D.st.haT1
@@ -180,7 +179,7 @@ theorem covC_wC_cover {x : ℝ} (hx : 0 ≤ x) {ε : ℝ} (hr : XWeight G ε r)
       covC1Const d L (a k) ε κ * (a k + x)⁻¹ *
         n2 (covWVec ε (fun b : unitPts G => unitRho r b.1) h) := by
   have D := Hc x hx
-  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k D.st.hk le_rfl
+  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
   have hak0 : 0 < a k := by linarith [hak.1]
   have hcx : 0 < a k + x := by linarith
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by

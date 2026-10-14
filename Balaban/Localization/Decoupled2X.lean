@@ -60,9 +60,10 @@ variable (C : DecCover d L N₁ m₁ (k + 1)) (H : GeneratingSet d L (N₁ * L ^
   (a : ℕ → ℝ) (aT ν Cx : ℝ)
 
 /-- **The standing hypotheses of DG7 for the pair `(C, H)`**: `CoverGeom` for the generating set
-of level `k + 1`, `k ≥ 1` and the coefficient `a_{k+1} = aT ∈ [1/2, 2]` of the top layer. -/
+of level `k + 1`, `a_k ∈ [1/2, 2]` and the coefficient `a_{k+1} = aT ∈ [1/2, 2]` of the top layer. -/
 structure XCover : Prop extends CoverGeom C H a ν Cx where
-  hk : 1 ≤ k
+  hak1 : 1 / 2 ≤ a k
+  hak2 : a k ≤ 2
   haT1 : 1 / 2 ≤ aT
   haT2 : aT ≤ 2
 
@@ -88,7 +89,7 @@ theorem AdmPot.le_eighth' (hd : 3 ≤ d) (hα : AdmPot H α) (y : H.Ω 1) :
 theorem cubeHx_isUnit (S : XCover C H a aT ν Cx) (hα : AdmPot H α) (hx : 0 ≤ x)
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ C.cubeIdx) :
     IsUnit (cubeHx H a aT x ν α q) :=
-  cutXOperator_isUnit H (cubeCut_aligned H (S.blockAligned q hq)) S.hL S.hk S.mass S.ha S.haT1
+  cutXOperator_isUnit_of_ak H (cubeCut_aligned H (S.blockAligned q hq)) S.hL S.mass S.ha ⟨S.hak1, S.hak2⟩ S.haT1
     S.haT2 hx α (AdmPot.le_eighth' S.hd hα)
 
 

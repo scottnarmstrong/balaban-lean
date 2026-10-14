@@ -173,7 +173,8 @@ theorem xSetting_of_flCore {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   have hL : 2 ≤ L := by have := hC.Sp.hL; omega
   have h := hC.Sp.weights 1 le_rfl (by omega)
   rw [compWeight_one hL] at h
-  exact ⟨hC.Sp, hk, h.1, h.2⟩
+  have hw := hC.Sp.weights k hk (by omega)
+  exact ⟨hC.Sp, hw.1, hw.2, h.1, h.2⟩
 
 end Dom
 

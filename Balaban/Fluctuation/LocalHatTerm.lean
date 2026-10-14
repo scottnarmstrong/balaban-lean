@@ -324,7 +324,7 @@ theorem fanLocalHat_analytic_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
       unfold decDomMargin; positivity
     linarith
   have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
-    ⟨S.toCoverGeom, hk1, ha₁, ha₂⟩
+    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
   set pt : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) :=
     ((rawOf D, ψh), w) with hpt
   have hσp : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×

@@ -89,7 +89,7 @@ theorem covC_entry_decay_cover {x : ℝ} (hx : 0 ≤ x) (p q : unitPts G) (i i' 
         Real.exp (-(xAgmonRate d L / L) *
           Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1 q.1) := by
   have D := Hc x hx
-  have hak0 : 0 < a k := (by have := D.st.ha k D.st.hk le_rfl; linarith [this.1])
+  have hak0 : 0 < a k := (by have := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _); linarith [this.1])
   have hcx : 0 < a k + x := by linarith
   have hK : 0 ≤ covC1Const d L (a k) (xAgmonRate d L) κ * (a k + x)⁻¹ :=
     mul_nonneg (covC1Const_nonneg d L hak0 _ _) (inv_pos.2 hcx).le
@@ -103,7 +103,7 @@ theorem covC_sqrt_entry_decay_cover (p q : unitPts G) (i i' : Fin N) :
         Real.exp (-(xAgmonRate d L / L) *
           Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1 q.1) := by
   have D0 := Hc 0 le_rfl
-  have hak : 0 < a k := (by have := D0.st.ha k D0.st.hk le_rfl; linarith [this.1])
+  have hak : 0 < a k := (by have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _); linarith [this.1])
   set B0 : ℝ := covC1Const d L (a k) (xAgmonRate d L) κ * Real.exp (xAgmonRate d L * d / L) *
     Real.exp (-(xAgmonRate d L / L) *
       Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1 q.1) with hB0
@@ -165,7 +165,7 @@ theorem covC_sqrt_supNorm_cover (v : unitPts G × Fin N → ℂ) {c : ℝ} (hc :
     exact (Finset.sum_le_univ_sum_of_nonneg fun _ => (Real.exp_pos _).le).trans
       (Green.ballSum_torus d _ hr p.1.1)
   have hE0 : 0 ≤ E := by
-    have hak : 0 < a k := (by have := D0.st.ha k D0.st.hk le_rfl; linarith [this.1])
+    have hak : 0 < a k := (by have := (⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _); linarith [this.1])
     have := covC1Const_nonneg d L hak (xAgmonRate d L) κ
     rw [hE]; unfold covSqrtEntryConstC; positivity
   calc ‖(decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ v) p‖
