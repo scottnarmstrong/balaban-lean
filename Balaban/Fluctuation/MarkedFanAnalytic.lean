@@ -44,11 +44,11 @@ variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTo
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
 include hC
 
-/-- **(`MARK-AN`) Joint analyticity of the fan with the masked tangent.**  The statement of
-`fanH_analytic` with `markedHatPsiF … Z u t` in place of `hatPsiF`, on the product of the landed
-domain with a set `W` of marks `(u, t)`; the function is analytic in `(Θ, ψ̂, s, u, t)`.  The
-hypothesis `hSup` is the landed one for the marks in `W`. -/
-theorem fanH_analytic_marked (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+/-- Core of `fanH_analytic_marked`: analyticity of `Φ` is asked on a set `R` containing the points of
+`FlReal` at which the fan evaluates `Φ` (`hR`). -/
+theorem fanH_analytic_marked_of (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {R : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
     (Bhat : Set (unitPts Gp × Fin N → ℂ)) (Z : Finset (unitPts Gp)) (W : Set (ℂ × ℂ))
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
@@ -79,8 +79,12 @@ theorem fanH_analytic_marked (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
     {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
-    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
-      (FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
+    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2) R)
+    (hR : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ∀ (a b : ℂ)
+      (s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) (D : BgData Gp N)
+      (ψh : unitPts Gp × Fin N → ℂ),
+      t.2.2.2 = markedHatPsiF a₁ ν hG' cc F₁ Z a b
+        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh → t ∈ R)
     (hSup : ∀ σ ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
         (fun _ => Real.exp κ), ∀ D : BgData Gp N,
       XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D → ∀ ψh ∈ Bhat, ∀ w ∈ W,
@@ -181,9 +185,67 @@ theorem fanH_analytic_marked (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ
     show (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
       ed pt)).1, _) = _
     rw [hFpt, hedpt, hSeq]
-  have hΦpt := hΦ _ hmem
+  have hΦpt := hΦ _ (hR _ hmem a b s D ψh rfl)
   rw [← hval] at hΦpt
   exact hΦpt.comp_of_eq hg rfl
+
+
+/-- **(`MARK-AN`) Joint analyticity of the fan with the masked tangent.**  The statement of
+`fanH_analytic` with `markedHatPsiF … Z u t` in place of `hatPsiF`, on the product of the landed
+domain with a set `W` of marks `(u, t)`; the function is analytic in `(Θ, ψ̂, s, u, t)`.  The
+hypothesis `hSup` is the landed one for the marks in `W`. -/
+theorem fanH_analytic_marked (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (Bhat : Set (unitPts Gp × Fin N → ℂ)) (Z : Finset (unitPts Gp)) (W : Set (ℂ × ℂ))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
+    (hSup : ∀ σ ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+        (fun _ => Real.exp κ), ∀ D : BgData Gp N,
+      XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D → ∀ ψh ∈ Bhat, ∀ w ∈ W,
+      markedHatPsiF a₁ ν hG' cc F₁ Z w.1 w.2
+        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) σ)
+        (rawOf D) ψh ∈ FlBall Hm δ₁) :
+    AnalyticOnNhd ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) ×
+        (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)) × (ℂ × ℂ) =>
+      Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) p.1.2, p.1.1.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) p.1.2,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) p.1.2, p.1.1.1))
+            p.1.1.1.1 (markedHatPsiF a₁ ν hG' cc F₁ Z p.2.1 p.2.2
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) p.1.2) p.1.1.1 p.1.1.2))).1
+        (p.1.1.1, markedHatPsiF a₁ ν hG' cc F₁ Z p.2.1 p.2.2
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) p.1.2) p.1.1.1 p.1.1.2))
+      (((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ Bhat) ×ˢ
+        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+          (fun _ => Real.exp κ)) ×ˢ W) := fanH_analytic_marked_of hC hk hG' cc Bhat Z W hMX hmar hα hsm hF₁an hF₁ hSolan hSol hΦ
+    (fun _ ht _ _ _ _ _ _ => ht) hSup
 
 end Fan
 

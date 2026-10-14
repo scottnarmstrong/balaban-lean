@@ -72,16 +72,15 @@ noncomputable def obsCubeLab
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
     {Z // Z ∈ cubeFamily (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (m₀ := m₀)
       (k + 1)} :=
-  Classical.choose (block_mem_cubeLabel (m₀ := m₀) (m₁ := m₁) (K := k + 1) (d := d) (L := L)
-    (N₁ := N₁) c)
+  ⟨box c.1 (L * cellSide L m₀ m₁ (k + 1)), mem_cubeFamily.2 ⟨c.1, c.2.1, rfl⟩⟩
 
 theorem obsCubeLab_mem
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
     c ∈ blocksOf m₀ (k + 1) Set.univ
       ((cubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (m₀ := m₀) (k + 1)).ysite
-        (obsCubeLab m₀ c)) :=
-  Classical.choose_spec (block_mem_cubeLabel (m₀ := m₀) (m₁ := m₁) (K := k + 1) (d := d) (L := L)
-    (N₁ := N₁) c)
+        (obsCubeLab m₀ c)) := by
+  rw [mem_blocksOf]
+  exact box_mono c.1 (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L)))
 
 theorem obsCubeLab_dl
     (c : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ) :
@@ -212,7 +211,11 @@ Conclusion: there is one family `Ev` (that of the landed theorem) such that for 
 * `ObsMarkHalf` on the common labels `obsLab Lab₀ _`, with `C0 = Q δ₁`, `Ch = Q δ₁ / cψ`,
   `κh = 2 κdec`, root cube `bx = rootCube (blockIndex y)`;
 * `ObsRayIdentity` for `F`;
-* the sum identity `Σ_T hker i T = Σ_Y a_Y(i)` and the expansion `F = Σ_Y Ev Y` on the hat ball. -/
+* the sum identity `Σ_T hker i T = Σ_Y a_Y(i)` and the expansion `F = Σ_Y Ev Y` on the hat ball.
+
+The last conjunct exhibits the terms: `Ev = evTerm … (siteFun …)` for a pair `(F₁, Sol)` of
+decoupled background and fluctuation maps with their defining properties
+(`obsRowCoeff_of_sharpHat_rawY`). -/
 theorem obsMarkHalves_of_sharpHat_param_rawY (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 < cψ)
@@ -251,7 +254,7 @@ theorem obsMarkHalves_of_sharpHat_param_rawY (hC : FlCore N S.G' Hm a₁ ν c BG
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
           Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) ∧
-      ∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
+      (∀ D : BgData S.G' N, XiCData S.G' (compWeight L a₁) ν (k + 1) 1 eps D →
         ObsMarkHalf S m₀ hp Ev D (obsDomains S X₁f m₀ j 𝒦X)
           (obsLab Lab₀ (obsDomains_isDj (X₁f := X₁f) S hC.HBp.hd hcov hopt)) cψ
           (cK2' d L N (famConst d L BG₂ κ) * δ₁) κG κ0
@@ -259,11 +262,40 @@ theorem obsMarkHalves_of_sharpHat_param_rawY (hC : FlCore N S.G' Hm a₁ ν c BG
           (rootCube (m₀ := m₀) (blockIndex y)) ∧
         ObsRayIdentity S m₀ hp
           (fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
-            (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X) := by
+            (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X)) ∧
+      ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' m₀
+          (X1 S.G' m₀ j 𝒦X)
+          (fun u s => siteFun S.G' Hm y iy
+            (F₁ (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat S.G' Hm (F₁ (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF S.G' a₁ ν S.hG' cc F₁
+                  (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF S.G' a₁ ν S.hG' cc F₁
+              (extParams S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   classical
-  obtain ⟨Ev, hs, hd, hb, ha, hrow'⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm hα hsm
-    hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
-  refine ⟨Ev, ha, hd, hb, fun D hD => ?_⟩
+  obtain ⟨Ev, hs, hd, hb, ha, hrow', hex⟩ := obsRowCoeff_of_sharpHat_rawY S hC hk hG cc hcψ hMX hdm
+    hα hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy
+  refine ⟨Ev, ha, hd, hb, fun D hD => ?_, hex⟩
   have hd3 : 3 ≤ d := hC.HBp.hd
   have hdj := obsDomains_isDj (S := S) (X₁f := X₁f) hd3 hcov hopt
   have hrem := obsRemainder_of_sharpHat S hC cc hcψ hcov hX₁ hopt y hy iy hp hq Ev hs
@@ -377,8 +409,8 @@ theorem obsMarkHalves_of_sharpHat_param (hC : FlCore N S.G' Hm a₁ ν c BG κ e
         ObsRayIdentity S m₀ hp
           (fun ψh => svec Hm (flFieldOne S.G' Hm BG₂ κ a₁ ν D
             (hatLift S.G' a₁ ν S.hG' cc D ψh)) y iy) Ev D (obsDomains S X₁f m₀ j 𝒦X) := by
-  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param_rawY S hC hk hG cc hcψ hMX hdm hα
-    hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκG hκ0
+  obtain ⟨Ev, ha, hd, hb, hEv, -⟩ := obsMarkHalves_of_sharpHat_param_rawY S hC hk hG cc hcψ hMX hdm
+    hα hsm hδ₁ hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy iy hp hq Lab₀ hκG hκ0
   exact ⟨Ev, ha, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
     hb, hEv⟩
 

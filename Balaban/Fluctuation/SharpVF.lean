@@ -281,7 +281,9 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **The site functional `δφ(y, i)` expands over the domains `Y ⊃ X₁`, exact locality**
 (`fsite_expansion_hat_dir` with the locality clause for raw data agreeing on `Y` itself and hat
 variables agreeing at the unit points of `Y`).  Obtained from `i5_functional_hat_rawY_of_fan` and
-`fsite_fan_local_rawY`; the thick corollary uses the same `Ev` selected here. -/
+`fsite_fan_local_rawY`; the thick corollary uses the same `Ev` selected here.  The last conjunct
+exhibits the terms: `Ev = evTerm … (siteFun …)` for a pair `(F₁, Sol)` of decoupled background and
+fluctuation maps with their defining properties. -/
 theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -320,13 +322,42 @@ theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
         ‖Ev Y u‖ ≤ (cK2' d L N (famConst d L BG₂ κ) * δ₁) *
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => siteFun Gp Hm y i
+            (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
     have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
   have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
     mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  obtain ⟨Ev, h1', h2', h3', h4', -⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, h1', h2', h3', h4', h5'⟩ := i5_functional_hat_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hV (Φ := siteFun Gp Hm y i)
     ((siteFun_analytic (Gp := Gp) (Hm := Hm) y i).mono (Set.subset_univ _))
     (fun t ht => by
@@ -334,7 +365,7 @@ theorem fsite_expansion_hat_rawY (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
       rw [hΔ]; simpa [siteFun] using hsup.val y i)
     (fun {F₁} hF₁ {Sol} hSol => fsite_fan_local_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁
       hconn hrow hF₁ hSol y hy i)
-  refine ⟨Ev, h1', h2', fun Y u hu => ?_, h4'⟩
+  refine ⟨Ev, h1', h2', fun Y u hu => ?_, h4', h5'⟩
   have := h3' Y u hu
   rw [hΔ] at this
   simpa using this
@@ -380,7 +411,7 @@ theorem fsite_expansion_hat_dir (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c
           Real.exp (-2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  obtain ⟨Ev, hs, hd, hb, ha⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hs, hd, hb, ha, -⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
   exact ⟨Ev, hs, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2, hb, ha⟩
 
@@ -723,7 +754,7 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
         DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
           (ball (0 : ℂ) (3 / 2))) := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hsum, hloc, hbd, hanY, -⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
   have hd : 3 ≤ d := hC.HBp.hd
   have hray : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),

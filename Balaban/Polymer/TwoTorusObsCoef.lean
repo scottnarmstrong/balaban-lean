@@ -34,10 +34,10 @@ remainder marks.  This file carries it along a map `σ` of blocks injective on `
   blocks of the box (`cubeMap`) and agreement of the block variables at corresponding unit points
   of the box.
 
-The correspondence of the first-order labels is a hypothesis.  For the labels of the landed
-coefficient (`obsY1 = Sum.inr (obsCubeLab m₀ (obsMarkCube S m₀ i))`) it is not provable:
-`obsCubeLab` is a `Classical.choose` among the one-cube labels containing the cube, and the choices
-on two tori are unrelated.
+The correspondence of the first-order labels is a hypothesis here.  For the labels of the landed
+coefficient (`obsY1 = Sum.inr (obsCubeLab m₀ (obsMarkCube S m₀ i))`) it is proved in
+`TwoTorusObsExplicit.lean` (`blocksOf_obsY1_unitImage`), now that `obsCubeLab` is the explicit
+box of the cube.
 -/
 
 @[expose] public section

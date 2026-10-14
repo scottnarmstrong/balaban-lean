@@ -263,7 +263,9 @@ section EvG
 agreeing at the unit points of `Y`; `obsEv_fromTower` is its corollary.  The family `Ev` of
 `obsMarkHalves_of_sharpHat_param_rawY` at the shared tower (the call of `obsHker_param_fromTower`),
 with its three clauses (analyticity, locality, decay with `treeLenCovOne`) and, for every datum of
-`Ξ`, `ObsMarkHalf` and `ObsRayIdentity`.  The same `Ev` serves the kernel and the remainder. -/
+`Ξ`, `ObsMarkHalf` and `ObsRayIdentity`.  The same `Ev` serves the kernel and the remainder.
+The last conjunct exhibits the terms: `Ev = evTerm … (siteFun …)` for a pair `(F₁, Sol)` of
+decoupled background and fluctuation maps with their defining properties. -/
 theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (ν β p₁ : ℝ) (hN : 5 < N₁)
     (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
@@ -298,7 +300,36 @@ theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTo
           (fun ψh => svec (lvLowG d L N₁ T.m₁ k ϱ)
             (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
               (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
-          (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) := by
+          (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) ∧
+      ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N →
+          (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf S.G') × Edat (lvLowG d L N₁ T.m₁ k ϱ) N → ((lvLowG d L N₁ T.m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((lvLowG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ)),
+        (∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp T.κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N T.BG T.κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L 1) ν (rho4 d L N T.BG T.κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf S.G') × Edat (lvLowG d L N₁ T.m₁ k ϱ) N, (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+          StrictDataM (lvLowG d L N₁ T.m₁ k ϱ) N false (2 * (K4 d L N T.BG T.κ * (xiC1 d * T.t))) T.t p.2 →
+            (Sol p).1 = dphi (lvLowG d L N₁ T.m₁ k ϱ) (Dec2.decG (coverOf S.G') (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) ν p.1) p.2.2.1 p.2.1
+              (pertSource (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) ν p.1 false p.2.2.1 p.2.1
+              (pertSource (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small (lvLowG d L N₁ T.m₁ k ϱ) (Sol p).2 (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) ∧
+            Small (lvLowG d L N₁ T.m₁ k ϱ) (Sol p).2 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            SupBounds (lvLowG d L N₁ T.m₁ k ϱ) (Sol p).1 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            (∀ δα' : (lvLowG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ, Small (lvLowG d L N₁ T.m₁ k ϱ) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) ν p.1 false p.2.2.1 p.2.1
+                (pertSource (lvLowG d L N₁ T.m₁ k ϱ) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) => i.1.1) S.G' T.m₀
+          (X1 S.G' T.m₀ k (LocalCover.fam T.m₀ y))
+          (fun u s => siteFun S.G' (lvLowG d L N₁ T.m₁ k ϱ) y i
+            (F₁ (extParams S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) s, u.1))
+            (Sol (extParams S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) s,
+              flEdat S.G' (lvLowG d L N₁ T.m₁ k ϱ) (F₁ (extParams S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁
+                  (extParams S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁
+              (extParams S.G' (↑(LocalCover.nbhdF T.m₀ y) : Set (CTorus d L N₁ T.m₁ (k + 1))) s) u.1 u.2)) := by
   subst hϱ
   have hS' : S = T.step k hk N₁ ν β p₁ := hS
   subst hS'
@@ -310,12 +341,12 @@ theorem obsEv_fromTower_rawYG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTo
     have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ := mul_pos hr0 hp
     nlinarith [Dsc.ray_margin]
   obtain ⟨hcov, hX₁, hopt, hΔ, hy⟩ := Dsc.covers.2 (y, i)
-  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsMarkHalves_of_sharpHat_param_rawY (T.step k hk N₁ ν β p₁) Dsc.core hk
+  obtain ⟨Ev, ha, hd, hb, hEv, hex⟩ := obsMarkHalves_of_sharpHat_param_rawY (T.step k hk N₁ ν β p₁) Dsc.core hk
     (isLevel_lvLowG hk) ((_ ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ0 T.large_block T.dom_margin
     T.coer_margin T.δc_small Dsc.fl_radius hcov hX₁ (hatConn_lvTopG T.hL)
     (rowInHat_lvG hk (dgSetting_lvG T.hd T.hL T.m₁_four hN hν0 hν)) hopt hΔ T.κ0_nonneg T.κdec_lower
     (by exact_mod_cast T.κ_lower) T.κ_one T.κ_log y hy i hp hq Lab₀ T.marks_κG_le T.κ0_ent
-  refine ⟨Ev, ha, hd, fun Y u hu => ?_, hEv⟩
+  refine ⟨Ev, ha, hd, fun Y u hu => ?_, hEv, hex⟩
   have := hb Y u hu
   rwa [treeLenCov_eq_treeLenCovOne (T.step k hk N₁ ν β p₁).hG' T.m₀ Y, show -2 * T.κdec = -(2 * T.κdec) by ring] at this
 
@@ -358,7 +389,7 @@ theorem obsEv_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG 
             (flFieldOne S.G' (lvLowG d L N₁ T.m₁ k ϱ) T.BG₂ T.κ 1 ν D
               (hatLift S.G' 1 ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) D ψh)) y i) Ev D
           (obsDomains S (LocalCover.nbhdF T.m₀ y) T.m₀ k (LocalCover.fam T.m₀ y))) := by
-  obtain ⟨Ev, ha, hd, hb, hEv⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν Dsc hϱ hS hp y i Lab₀
+  obtain ⟨Ev, ha, hd, hb, hEv, -⟩ := obsEv_fromTower_rawYG T k hk N₁ ν β p₁ hN hνpos hν Dsc hϱ hS hp y i Lab₀
   exact ⟨Ev, ha, fun Y u hu u' hu' h => hd Y u hu u' hu' (agreeOn_mono (fun x hx => Or.inl hx) h.1) h.2,
     hb, hEv⟩
 
@@ -411,7 +442,8 @@ theorem obsEv_fromTower_rawY {κmin : ℝ} (T : StepTower κmin)
     (T.scaleDataG_of_fixed Dsc) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
     (S := T.step k hk N₁ ν β p₁) rfl hp y i Lab₀
   rw [e] at G
-  exact G
+  obtain ⟨Ev, ha, hd, hb, hEv, -⟩ := G
+  exact ⟨Ev, ha, hd, hb, hEv⟩
 
 
 /-- **The one sharp-hat expansion at the tower.**  The family `Ev` of
