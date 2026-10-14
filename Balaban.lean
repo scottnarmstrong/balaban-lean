@@ -1782,6 +1782,7 @@ public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalTagSupport
+public import Balaban.Green.FinalGenericMatrix
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Fluctuation.DecMarkCorrSum
 public import Balaban.Fluctuation.DecMarkCorrRooted

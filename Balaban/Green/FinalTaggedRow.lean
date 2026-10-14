@@ -138,6 +138,71 @@ theorem taggedA0_nonneg (hd : 0 < d) (hL : 0 < L) {κ t : ℝ} (ht : 0 ≤ t) :
   unfold taggedA0
   positivity
 
+/-- Weighted pointwise bound for the tagged approximate Green function of any coercive `U` with
+exponentially decaying entries; either endpoint can subsequently be summed without losing the
+rate `r`.  Here `ε` is any positive number with `ε ≤ δ` and
+`ε ≤ ctRate A δ g (ballConst d (δ / 4))`. -/
+theorem taggedG_weighted_entry_bound_of_coercive
+    (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ r : ℝ} (hκ : 0 ≤ κ)
+    (hr : r ≤ ε / 8) (hκM : κ * 7 ^ d ≤ ε / 8 * M)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x y : L1Torus d N₀) :
+    Real.exp (r * dist x y) *
+        ‖taggedG Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) U t s x y‖ ≤
+      2 * Real.exp (pdH d * κ) / (g + t) * Real.exp (-(ε / 2) * dist x y) := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hgt : 0 < g + t := by linarith
+  have hκM' : κ * 7 ^ d / M ≤ ε / 8 := by rw [div_le_iff₀ hM']; linarith
+  have hdist : 0 ≤ dist x y := dist_nonneg
+  have hz : ∀ z ∈ (Finset.univ : Finset (MacIdx d N₀ M)),
+      ‖tagMon (macTags d N₀ M z x y) s *
+        (Matrix.diagonal (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) *
+          boxG (U) (macBoxF d N₀ M z) t) x y‖ ≤
+      macChi d N₀ M z x * (Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
+        (2 / (g + t) * Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y))) := by
+    intro z _
+    rw [Matrix.diagonal_mul, norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg (macChi_nonneg z x)]
+    have hE : ‖tagMon (macTags d N₀ M z x y) s‖ ≤
+        Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
+      refine (norm_tagMon_le _ hs).trans ?_
+      rw [← Real.exp_add]
+      apply Real.exp_le_exp.2
+      have := macTags_card_le hM z x y
+      unfold pdH
+      nlinarith
+    have hG := boxG_entry_bound_of_coercive U hA hδ hg hU hUdec ht
+      (macBoxF d N₀ M z) x y
+    have hχ := macChi_nonneg (d := d) (m := N₀) (M := M) z x
+    calc _ = macChi d N₀ M z x * (‖tagMon (macTags d N₀ M z x y) s‖ *
+          ‖boxG (U) (macBoxF d N₀ M z) t x y‖) := by ring
+      _ ≤ _ := by gcongr
+  unfold taggedG taggedMat
+  rw [Matrix.of_apply]
+  have hsum := (norm_sum_le _ _).trans (Finset.sum_le_sum hz)
+  rw [← Finset.sum_mul, macChi_sum, one_mul] at hsum
+  have hfin : Real.exp (r * dist x y) * (Real.exp (pdH d * κ) *
+      Real.exp (κ * 7 ^ d * (dist x y / M)) *
+        (2 / (g + t) * Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y))) ≤
+      2 * Real.exp (pdH d * κ) / (g + t) * Real.exp (-(ε / 2) * dist x y) := by
+    have hexp : Real.exp (r * dist x y) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
+        Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y) ≤ Real.exp (-(ε / 2) * dist x y) := by
+      rw [← Real.exp_add, ← Real.exp_add]
+      apply Real.exp_le_exp.2
+      have h1 : κ * 7 ^ d * (dist x y / M) = (κ * 7 ^ d / M) * dist x y := by ring
+      rw [h1]
+      nlinarith
+    calc _ = (2 * Real.exp (pdH d * κ) / (g + t)) *
+          (Real.exp (r * dist x y) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
+            Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y)) := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_left hexp (by positivity)
+  exact (mul_le_mul_of_nonneg_left hsum (Real.exp_pos _).le).trans hfin
+
+
 /-- Weighted pointwise bound for the tagged approximate Green function; either endpoint
 can subsequently be summed without losing the rate `r`. -/
 theorem taggedG_weighted_entry_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
@@ -151,57 +216,36 @@ theorem taggedG_weighted_entry_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv
       2 * Real.exp (pdH d * κ) / (finalGap d L + t) *
         Real.exp (-(pdEps d L / 2) * dist x y) := by
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hg := finalGap_pos (d := d) hL
-  have hε := pdEps_pos (d := d) (L := L) hd
-  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
-  set ε := pdEps d L with hεdef
-  have hεr : ε ≤ finalRate d L := min_le_right _ _
-  have hgt : 0 < finalGap d L + t := by linarith
-  have hκM' : κ * 7 ^ d / M ≤ ε / 8 := by rw [div_le_iff₀ hM']; linarith
-  have hdist : 0 ≤ dist x y := dist_nonneg
-  have hz : ∀ z ∈ (Finset.univ : Finset (MacIdx d N₀ M)),
-      ‖tagMon (macTags d N₀ M z x y) s *
-        (Matrix.diagonal (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) *
-          boxG (finalOp d L N₀ k v a) (macBoxF d N₀ M z) t) x y‖ ≤
-      macChi d N₀ M z x * (Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
-        (2 / (finalGap d L + t) * Real.exp (-finalRate d L * dist x y))) := by
-    intro z _
-    rw [Matrix.diagonal_mul, norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs,
-      abs_of_nonneg (macChi_nonneg z x)]
-    have hE : ‖tagMon (macTags d N₀ M z x y) s‖ ≤
-        Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
-      refine (norm_tagMon_le _ hs).trans ?_
-      rw [← Real.exp_add]
-      apply Real.exp_le_exp.2
-      have := macTags_card_le hM z x y
-      unfold pdH
-      nlinarith
-    have hG := boxG_final_entry_bound (L := L) (k := k) hd hk hv0 hv1 ha1 ha2 hmass ht
-      (macBoxF d N₀ M z) x y
-    have hχ := macChi_nonneg (d := d) (m := N₀) (M := M) z x
-    calc _ = macChi d N₀ M z x * (‖tagMon (macTags d N₀ M z x y) s‖ *
-          ‖boxG (finalOp d L N₀ k v a) (macBoxF d N₀ M z) t x y‖) := by ring
-      _ ≤ _ := by gcongr
-  unfold taggedG taggedMat
-  rw [Matrix.of_apply]
-  have hsum := (norm_sum_le _ _).trans (Finset.sum_le_sum hz)
-  rw [← Finset.sum_mul, macChi_sum, one_mul] at hsum
-  have hfin : Real.exp (r * dist x y) * (Real.exp (pdH d * κ) *
-      Real.exp (κ * 7 ^ d * (dist x y / M)) *
-        (2 / (finalGap d L + t) * Real.exp (-finalRate d L * dist x y))) ≤
-      2 * Real.exp (pdH d * κ) / (finalGap d L + t) * Real.exp (-(ε / 2) * dist x y) := by
-    have hexp : Real.exp (r * dist x y) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
-        Real.exp (-finalRate d L * dist x y) ≤ Real.exp (-(ε / 2) * dist x y) := by
-      rw [← Real.exp_add, ← Real.exp_add]
-      apply Real.exp_le_exp.2
-      have h1 : κ * 7 ^ d * (dist x y / M) = (κ * 7 ^ d / M) * dist x y := by ring
-      rw [h1]
-      nlinarith
-    calc _ = (2 * Real.exp (pdH d * κ) / (finalGap d L + t)) *
-          (Real.exp (r * dist x y) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
-            Real.exp (-finalRate d L * dist x y)) := by ring
-      _ ≤ _ := mul_le_mul_of_nonneg_left hexp (by positivity)
-  exact (mul_le_mul_of_nonneg_left hsum (Real.exp_pos _).le).trans hfin
+  have _ := hr0
+  exact taggedG_weighted_entry_bound_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_right _ _)
+    ht hM hκ hr hκM hs x y
+
+/-- **T2, for a general matrix.** Weighted row sums of the tagged `G_*`: for `‖s p‖ ≤ e^κ`,
+`0 ≤ r ≤ ε/8` and `κ 7^d ≤ (ε/8) M`,
+`∑_y e^{r dist x y} ‖G_*(s,t) x y‖ ≤ 2 e^{H κ} ballConst d (ε/2) / (g + t)`. -/
+theorem taggedG_row_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ r : ℝ} (hκ : 0 ≤ κ)
+    (hr : r ≤ ε / 8) (hκM : κ * 7 ^ d ≤ ε / 8 * M)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x : L1Torus d N₀) :
+    ∑ y, Real.exp (r * dist x y) *
+        ‖taggedG Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) U t s x y‖ ≤
+      2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t) := by
+  have hgt : 0 < g + t := by linarith
+  have hentry := taggedG_weighted_entry_bound_of_coercive U hA hδ hg hU hUdec hε hεc ht hM hκ hr hκM hs x
+  calc _ ≤ ∑ y : L1Torus d N₀, 2 * Real.exp (pdH d * κ) / (g + t) *
+        Real.exp (-(ε / 2) * dist x y) := Finset.sum_le_sum fun y _ => hentry y
+    _ = 2 * Real.exp (pdH d * κ) / (g + t) *
+        ∑ y : L1Torus d N₀, Real.exp (-(ε / 2) * dist x y) := by rw [Finset.mul_sum]
+    _ ≤ 2 * Real.exp (pdH d * κ) / (g + t) * ballConst d (ε / 2) :=
+        mul_le_mul_of_nonneg_left (ballSum_L1Torus d N₀ (by positivity) x) (by positivity)
+    _ = 2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t) := by ring
+
 
 /-- **T2.** Weighted row sums of the tagged `G_*`: for `‖s p‖ ≤ e^κ`, `0 ≤ r ≤ ε/8` and
 `κ 7^d ≤ (ε/8) M`, `∑_y e^{r dist x y} ‖G_*(s,t) x y‖ ≤ A₀(t)`. -/
@@ -213,17 +257,57 @@ theorem taggedG_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     ∑ y, Real.exp (r * dist x y) *
         ‖taggedG Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
           (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤ taggedA0 d L κ t := by
-  have hg := finalGap_pos (d := d) (Nat.pos_of_ne_zero (NeZero.ne L))
-  have hε := pdEps_pos (d := d) (L := L) hd
-  let ε := pdEps d L
-  have hentry := taggedG_weighted_entry_bound hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hr0 hr hκM hs x
-  calc _ ≤ ∑ y : L1Torus d N₀, 2 * Real.exp (pdH d * κ) / (finalGap d L + t) *
-        Real.exp (-(ε / 2) * dist x y) := Finset.sum_le_sum fun y _ => hentry y
-    _ = 2 * Real.exp (pdH d * κ) / (finalGap d L + t) *
-        ∑ y : L1Torus d N₀, Real.exp (-(ε / 2) * dist x y) := by rw [Finset.mul_sum]
-    _ ≤ 2 * Real.exp (pdH d * κ) / (finalGap d L + t) * ballConst d (ε / 2) :=
-        mul_le_mul_of_nonneg_left (ballSum_L1Torus d N₀ (by positivity) x) (by positivity)
-    _ = taggedA0 d L κ t := by unfold taggedA0; ring
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have _ := hr0
+  exact taggedG_row_sum_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_right _ _)
+    ht hM hκ hr hκM hs x
+
+/-- **T3, for a general matrix.**  Weighted row sums of the tagged family: under the hypotheses of
+`taggedGfin_of_coercive` and `0 ≤ r ≤ ε/8`, for every `s` in the closed polydisc `‖s p‖ ≤ e^κ`,
+`∑_y e^{r dist x y} ‖G_fin(s,t) x y‖ ≤ (4/3) · 2 e^{H κ} ballConst d (ε/2) / (g + t)`. -/
+theorem taggedGfin_row_bound_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * ((16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ ε * M)
+    {r : ℝ} (hr0 : 0 ≤ r) (hr : r ≤ ε / 8)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x : L1Torus d N₀) :
+    ∑ y, Real.exp (r * dist x y) *
+        ‖taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) U t s x y‖ ≤
+      4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t)) := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hq : (16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ) / M ≤ 1 / 4 := by
+    rw [div_le_iff₀ hM']; linarith
+  have hκM : κ * 7 ^ d ≤ ε / 8 * M := by linarith
+  have hw1 : ∀ x y : L1Torus d N₀, 1 ≤ Real.exp (r * dist x y) := fun x y =>
+    Real.one_le_exp (mul_nonneg hr0 dist_nonneg)
+  have hww : ∀ x : L1Torus d N₀, Real.exp (r * dist x x) = 1 := fun x => by simp
+  have hsub : ∀ x u y : L1Torus d N₀,
+      Real.exp (r * dist x y) ≤ Real.exp (r * dist x u) * Real.exp (r * dist u y) := by
+    intro x u y
+    rw [← Real.exp_add]
+    exact Real.exp_le_exp.2 (by nlinarith [dist_triangle x u y])
+  have hinv := weightedRow_inv_le (fun x y : L1Torus d N₀ => Real.exp (r * dist x y)) hw1 hww hsub
+    (taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+      (macTags d N₀ M) (U) t s) (q := 1 / 4) (by norm_num)
+    (fun x => (taggedK_row_sum_of_coercive U hA hδ hg hU hUdec hε hεδ hεc ht hM hκ hr0 hr hκM hs x).trans hq)
+  have h43 : 1 / (1 - (1 / 4 : ℝ)) = 4 / 3 := by norm_num
+  rw [h43] at hinv
+  have hgt : 0 < g + t := by linarith
+  have hA0 : 0 ≤ 2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t) := by
+    have : 0 ≤ ballConst d (ε / 2) := ballConst_decay_nonneg (by positivity)
+    positivity
+  unfold taggedGfin
+  rw [mul_comm (4 / 3 : ℝ)]
+  exact weightedRow_mul_le (fun x y : L1Torus d N₀ => Real.exp (r * dist x y))
+    (fun x y => (Real.exp_pos _).le) hsub _ _ (by norm_num) (a := 2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t))
+    (fun x => taggedG_row_sum_of_coercive U hA hδ hg hU hUdec hε hεc ht hM hκ hr hκM hs x)
+    hinv.2 x
+
 
 /-- **T3.**  Weighted row sums of the tagged family: under the hypotheses of `taggedGfin_final`
 and `0 ≤ r ≤ ε/8`, for every `s` in the closed polydisc `‖s p‖ ≤ e^κ`,
@@ -238,32 +322,42 @@ theorem taggedGfin_row_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 �
         ‖taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
           (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤ 4 / 3 * taggedA0 d L κ t := by
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
-  have hε := pdEps_pos (d := d) (L := L) hd
-  have hq : pdB d L * Real.exp (pdH d * κ) / M ≤ 1 / 4 := by
-    rw [div_le_iff₀ hM']; linarith
-  have hκM : κ * 7 ^ d ≤ pdEps d L / 8 * M := by linarith
-  have hw1 : ∀ x y : L1Torus d N₀, 1 ≤ Real.exp (r * dist x y) := fun x y =>
-    Real.one_le_exp (mul_nonneg hr0 dist_nonneg)
-  have hww : ∀ x : L1Torus d N₀, Real.exp (r * dist x x) = 1 := fun x => by simp
-  have hsub : ∀ x u y : L1Torus d N₀,
-      Real.exp (r * dist x y) ≤ Real.exp (r * dist x u) * Real.exp (r * dist u y) := by
-    intro x u y
-    rw [← Real.exp_add]
-    exact Real.exp_le_exp.2 (by nlinarith [dist_triangle x u y])
-  have hinv := weightedRow_inv_le (fun x y : L1Torus d N₀ => Real.exp (r * dist x y)) hw1 hww hsub
-    (taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-      (macTags d N₀ M) (finalOp d L N₀ k v a) t s) (q := 1 / 4) (by norm_num)
-    (fun x => (taggedK_row_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hr0 hr hκM hs x).trans hq)
-  have h43 : 1 / (1 - (1 / 4 : ℝ)) = 4 / 3 := by norm_num
-  rw [h43] at hinv
-  have hA0 := taggedA0_nonneg (d := d) (L := L) hd hL (κ := κ) ht
-  unfold taggedGfin
-  rw [mul_comm (4 / 3 : ℝ)]
-  exact weightedRow_mul_le (fun x y : L1Torus d N₀ => Real.exp (r * dist x y))
-    (fun x y => (Real.exp_pos _).le) hsub _ _ (by norm_num) (a := taggedA0 d L κ t)
-    (fun x => taggedG_row_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hr0 hr hκM hs x)
-    hinv.2 x
+  exact taggedGfin_row_bound_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_left _ _) (min_le_right _ _)
+    ht hM hκ hMB hMκ hr0 hr hs x
+
+/-- **T3, entry bound, for a general matrix.**
+`‖G_fin(s,t) x y‖ ≤ (4/3) · 2 e^{H κ} ballConst d (ε/2) / (g + t) · e^{-r dist x y}`. -/
+theorem taggedGfin_entry_bound_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * ((16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ ε * M)
+    {r : ℝ} (hr0 : 0 ≤ r) (hr : r ≤ ε / 8)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x y : L1Torus d N₀) :
+    ‖taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+        (macTags d N₀ M) U t s x y‖ ≤
+      4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t)) *
+        Real.exp (-r * dist x y) := by
+  have h := taggedGfin_row_bound_of_coercive U hA hδ hg hU hUdec hε hεδ hεc ht hM hκ hMB hMκ hr0 hr hs x
+  have h1 : Real.exp (r * dist x y) * ‖taggedGfin Finset.univ (macBoxF d N₀ M)
+      (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
+      (U) t s x y‖ ≤ 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t)) :=
+    (Finset.single_le_sum (f := fun y => Real.exp (r * dist x y) * ‖taggedGfin Finset.univ
+      (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
+      (U) t s x y‖) (fun y _ => mul_nonneg (Real.exp_pos _).le
+        (norm_nonneg _)) (Finset.mem_univ y)).trans h
+  have h2 : Real.exp (-r * dist x y) * Real.exp (r * dist x y) = 1 := by
+    rw [← Real.exp_add]; simp
+  calc _ = Real.exp (-r * dist x y) * (Real.exp (r * dist x y) * ‖taggedGfin Finset.univ
+        (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
+        (U) t s x y‖) := by rw [← mul_assoc, h2, one_mul]
+    _ ≤ Real.exp (-r * dist x y) * (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t))) :=
+        mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
+    _ = _ := by ring
+
 
 /-- **T3, entry bound.**  `‖G_fin(s,t) x y‖ ≤ (4/3) A₀(t) e^{-r dist x y}`. -/
 theorem taggedGfin_entry_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
@@ -275,23 +369,11 @@ theorem taggedGfin_entry_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 
     ‖taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
         (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
       4 / 3 * taggedA0 d L κ t * Real.exp (-r * dist x y) := by
-  have h := taggedGfin_row_bound hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hMB hMκ hr0 hr hs x
-  have h1 : Real.exp (r * dist x y) * ‖taggedGfin Finset.univ (macBoxF d N₀ M)
-      (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
-      (finalOp d L N₀ k v a) t s x y‖ ≤ 4 / 3 * taggedA0 d L κ t :=
-    (Finset.single_le_sum (f := fun y => Real.exp (r * dist x y) * ‖taggedGfin Finset.univ
-      (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
-      (finalOp d L N₀ k v a) t s x y‖) (fun y _ => mul_nonneg (Real.exp_pos _).le
-        (norm_nonneg _)) (Finset.mem_univ y)).trans h
-  have h2 : Real.exp (-r * dist x y) * Real.exp (r * dist x y) = 1 := by
-    rw [← Real.exp_add]; simp
-  calc _ = Real.exp (-r * dist x y) * (Real.exp (r * dist x y) * ‖taggedGfin Finset.univ
-        (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
-        (finalOp d L N₀ k v a) t s x y‖) := by rw [← mul_assoc, h2, one_mul]
-    _ ≤ Real.exp (-r * dist x y) * (4 / 3 * taggedA0 d L κ t) :=
-        mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
-    _ = _ := by ring
-
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact taggedGfin_entry_bound_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_left _ _) (min_le_right _ _)
+    ht hM hκ hMB hMκ hr0 hr hs x y
 /-- **T3, rate-loss column bound.**  For `0 ≤ r' < r ≤ ε/8`,
 `∑_x e^{r' dist x y} ‖G_fin(s,t) x y‖ ≤ (4/3) A₀(t) ballConst d (r - r')`. -/
 theorem taggedGfin_column_bound (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
