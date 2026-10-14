@@ -167,7 +167,15 @@ composition now loses nothing (constant 1, as in P3 Lemma 4.1 (4.29)), and the c
 holds with the radius sequence of the class (at d = L = 3 for γ ≤ 1/4). For the second, the background
 engine required a separation index larger than that of the local generating set; the sharper distance
 estimate of the papers (r₁ = 1 at separation 5L·M₁) is now proved for the local generating set, and
-the engine is being rerun in a form that accepts it (`notes/phase1/WIDEGEN.md`, route A).
+the engine has been rerun in a form that accepts it (`notes/phase1/WIDEGEN.md`, route A).
+
+Recomputing a term with the local generating set gives the same coefficients as the term of the
+step: this replacement identity is now proved for any two generating sets on one torus, under
+hypotheses on the component of the polymer (cube operators, the decoupled fields and the
+compositions agree on it). The local covariance, its square root and the local fluctuation variable
+are proved analytic and bounded on the local domain. Remaining: the instance of the identity at the
+local generating set (depth of the components, the local data domains) and the fluctuation integral
+of a local term.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
