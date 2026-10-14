@@ -31,20 +31,20 @@ variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L]
 local notation "𝔅" => CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ
 
 open Classical in
-/-- Regrouping of a cube-indexed coefficient family by site sets, with the clauses of the
+/-- At source radius `ρ > 0` (balls `{∑ ‖g‖ < ρ}` and `{∑ ‖g‖ ≤ ρ / 2}`); the landed theorem is its `ρ = 1` corollary.  Regrouping of a cube-indexed coefficient family by site sets, with the clauses of the
 root's terms. -/
-theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
+theorem rootTermFamily_of_cubeFamily_rho (ρ : ℝ) (hρ : 0 < ρ) (hN : L ∣ N₁)
     (C : CTorus d L N₁ m₁ K → Fin N → (CTorus d L N₁ m₁ K → Fin N → ℂ) → Finset 𝔅 → ℂ)
     {κ lam B : ℝ} (hκ : 0 < κ) (hlam : c1 d L * κ ≤ lam) (hB : 0 ≤ B)
-    (hsupp : ∀ x i, ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
+    (hsupp : ∀ x i, ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ},
       ∀ T', C x i g T' ≠ 0 →
         rootCube (m₀ := 1) (blockIndex x) ∈ T' ∧ IsPolyDom 1 K (sitesOf T'))
-    (hloc : ∀ x i T', ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
-      ∀ g' ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
+    (hloc : ∀ x i T', ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ},
+      ∀ g' ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ},
       (∀ y ∈ sitesOf T', g y = g' y) → C x i g T' = C x i g' T')
     (han : ∀ x i T', AnalyticOnNhd ℂ (fun g => C x i g T')
-      {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1})
-    (hbd : ∀ x i T', ∀ g : CTorus d L N₁ m₁ K → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
+      {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ})
+    (hbd : ∀ x i T', ∀ g : CTorus d L N₁ m₁ K → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ ≤ ρ / 2 →
       ‖C x i g T'‖ ≤ B * Real.exp (-lam * dExt T')) :
     ∃ U : CTorus d L N₁ m₁ K → Finset (CTorus d L N₁ m₁ K) →
         (CTorus d L N₁ m₁ K → Fin N → ℂ) → (Fin N → ℂ),
@@ -52,11 +52,11 @@ theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
         U x X = 0) ∧
       (∀ x X g g', (∀ y ∈ X, g y = g' y) → U x X g = U x X g') ∧
       (∀ x X, AnalyticOnNhd ℂ (U x X)
-        {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
-      (∀ x X g, ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
+        {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ}) ∧
+      (∀ x X g, ∑ y, ∑ i, ‖g y i‖ ≤ ρ / 2 →
         ‖U x X g‖ ≤ B * Real.exp lam *
           Real.exp (-κ * (X.card : ℝ) / ((L ^ (m₁ + 1) * L ^ K : ℕ) : ℝ) ^ d)) ∧
-      (∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1}, ∀ x i,
+      (∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < ρ}, ∀ x i,
         ∑ X : Finset (CTorus d L N₁ m₁ K), U x X g i = ∑ T' : Finset 𝔅, C x i g T') := by
   -- the restriction to `X` as a continuous linear map
   have hres : ∀ X : Finset (CTorus d L N₁ m₁ K),
@@ -114,9 +114,9 @@ theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
             Real.exp (-κ * (X.card : ℝ) / ((L ^ (m₁ + 1) * L ^ K : ℕ) : ℝ) ^ d) := by
         intro T' hT'
         have hX : Finset.univ.filter (· ∈ sitesOf T') = X := (Finset.mem_filter.1 hT').2
-        have hg' : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ ≤ 1 / 2 :=
+        have hg' : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ ≤ ρ / 2 :=
           (hnorm X g).trans hg
-        have hgB : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ < 1 := by
+        have hgB : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ < ρ := by
           linarith
         by_cases h0 : C x i (fun y i => if y ∈ X then g y i else 0) T' = 0
         · rw [h0, norm_zero]; positivity
@@ -138,7 +138,7 @@ theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
     rw [← Finset.sum_fiberwise Finset.univ
       (fun T' : Finset 𝔅 => Finset.univ.filter (· ∈ sitesOf T')) (fun T' => C x i g T')]
     refine Finset.sum_congr rfl fun X _ => ?_
-    have hgB : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ < 1 :=
+    have hgB : ∑ y, ∑ i, ‖(fun y i => if y ∈ X then g y i else (0 : ℂ)) y i‖ < ρ :=
       lt_of_le_of_lt (hnorm X g) hg
     by_cases hc : (x ∈ X ∧ IsPolymer d ((N₁ * L ^ m₁) * L ^ K) (L ^ (m₁ + 1) * L ^ K) X)
     · simp only [hc, and_self, ite_true]
@@ -157,6 +157,36 @@ theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
       refine ⟨?_, ?_⟩
       · rw [← hX]; simpa using mem_sitesOf_of_rootCube_blockIndex T' x hroot
       · rw [← hX]; exact sitesOf_isPolymer hN T' hpoly
+
+open Classical in
+/-- Regrouping of a cube-indexed coefficient family by site sets, with the clauses of the
+root's terms. -/
+theorem rootTermFamily_of_cubeFamily (hN : L ∣ N₁)
+    (C : CTorus d L N₁ m₁ K → Fin N → (CTorus d L N₁ m₁ K → Fin N → ℂ) → Finset 𝔅 → ℂ)
+    {κ lam B : ℝ} (hκ : 0 < κ) (hlam : c1 d L * κ ≤ lam) (hB : 0 ≤ B)
+    (hsupp : ∀ x i, ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
+      ∀ T', C x i g T' ≠ 0 →
+        rootCube (m₀ := 1) (blockIndex x) ∈ T' ∧ IsPolyDom 1 K (sitesOf T'))
+    (hloc : ∀ x i T', ∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
+      ∀ g' ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1},
+      (∀ y ∈ sitesOf T', g y = g' y) → C x i g T' = C x i g' T')
+    (han : ∀ x i T', AnalyticOnNhd ℂ (fun g => C x i g T')
+      {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1})
+    (hbd : ∀ x i T', ∀ g : CTorus d L N₁ m₁ K → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
+      ‖C x i g T'‖ ≤ B * Real.exp (-lam * dExt T')) :
+    ∃ U : CTorus d L N₁ m₁ K → Finset (CTorus d L N₁ m₁ K) →
+        (CTorus d L N₁ m₁ K → Fin N → ℂ) → (Fin N → ℂ),
+      (∀ x X, ¬ (x ∈ X ∧ IsPolymer d ((N₁ * L ^ m₁) * L ^ K) (L ^ (m₁ + 1) * L ^ K) X) →
+        U x X = 0) ∧
+      (∀ x X g g', (∀ y ∈ X, g y = g' y) → U x X g = U x X g') ∧
+      (∀ x X, AnalyticOnNhd ℂ (U x X)
+        {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
+      (∀ x X g, ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
+        ‖U x X g‖ ≤ B * Real.exp lam *
+          Real.exp (-κ * (X.card : ℝ) / ((L ^ (m₁ + 1) * L ^ K : ℕ) : ℝ) ^ d)) ∧
+      (∀ g ∈ {g : CTorus d L N₁ m₁ K → Fin N → ℂ | ∑ y, ∑ i, ‖g y i‖ < 1}, ∀ x i,
+        ∑ X : Finset (CTorus d L N₁ m₁ K), U x X g i = ∑ T' : Finset 𝔅, C x i g T') := by
+  exact rootTermFamily_of_cubeFamily_rho 1 one_pos hN C hκ hlam hB hsupp hloc han hbd
 
 /-- The pairing form of the regrouping identity (the shape of the root's sum at one scale): if
 `U` regroups `C` as in the last clause of `rootTermFamily_of_cubeFamily`, then
