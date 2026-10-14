@@ -373,6 +373,230 @@ records for every source of the strict `l^1` ball on one label system, the deter
 (`StepTowerG.detPackage_fromTowerG`), the chart identity of the exponentiated source
 (`expSourceChart_scale_fromTowerG`), and the source direct terms as a family over the relative
 chart.  The fixed `stepPieces_fromTower` is its corollary at `T.toG`. -/
+theorem StepTowerG.stepPieces_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) {q₀ : ℕ} (hLq : L = 2 * q₀ + 1)
+    (hhull : 2 * d * L * (1 + collarB d L) * (3 / 2 * T.κdec + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ T.κ) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    3 / 2 * T.κdec ≤ hullRate d L
+      ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L : ℝ) + 1)) / (2 * d * L)) ∧
+    (∃ C : StepOutputConsts d L, C.k0 = T.κ0 ∧ C.kdec = T.κdec ∧ C.k' = T.κ' ∧
+      C.kout = 3 / 2 * T.κdec ∧ C.kH = 2 * T.κdec - 1 ∧ C.kapp = T.κ ∧
+      C.kdet = (T.κ - Real.log 2 - 2 * Real.log ((detDeg d L : ℝ) + 1)) / (2 * d * L) ∧
+      C.Bhull = collarB d L ∧ C.lhull = hullRate d L C.kdet ∧
+      C.Kc = 2 * (K0 d L T.κ0 + 1) ∧
+      C.Kall = max (2 * K0 d L T.κ0) (rootUnionK d L T.m₀ T.m₁ T.κ0) ∧
+      C.Ktot = C.Kc + C.Kall) ∧
+    ∃ CE CF CE' CF' : ℝ, 0 < CE ∧ 0 < CF ∧ 0 < CE' ∧ 0 < CF' ∧
+    ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ T.m₀ ∣ N₁), 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp0 : 0 < p₁),
+    p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) → StepScaleDataG T k hk N₁ ν β p₁ →
+      (∃ 𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))),
+        ∃ hdom : ∀ Y ∈ 𝒴, IsDj T.m₀ (k + 1) Y,
+        ∀ g : Fld d L N₁ T.m₁ (k + 1) N, g ∈ l1BallRho d L N₁ T.m₁ (k + 1) N ρ →
+        ∃ BR : StepActivityBound (T.step k hk N₁ ν β p₁)
+            (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g,
+        ∃ BC : StepActivityBoundC (T.step k hk N₁ ν β p₁)
+            (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g,
+          BR.m₀ = T.m₀ ∧ BC.m₀ = T.m₀ ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧
+          BC.Lb = BR.Lb ∧
+          HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
+          HEq BR.BS ((T.step k hk N₁ ν β p₁).blockSplit T.m₀ hp0) ∧ HEq BC.BS BR.BS ∧
+          BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
+          BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
+          BR.Kc = 2 * (K0 d L T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
+          BR.εH ≤ CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+              Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+            ρ * CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
+              Real.sqrt (β * (L : ℝ) ^ (k * (d - 2)))) ∧
+      (∃ E : ∀ z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))),
+          DetExpansionLocC (T.step k hk N₁ ν β p₁) 1 z T.t
+            ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+            ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))),
+        (∀ z D T', (E z).term D T' = ∑ y ∈ (T.step k hk N₁ ν β p₁).blockU z,
+          detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D y T') ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          ∑ X ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+              (K := k + 1) 1 (k + 1) Set.univ))).image (detCollarHullC q₀),
+            (E z).detGroupedC q₀ D X =
+            rootTrace (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a 1 ν
+              (unitQ (T.step k hk N₁ ν β p₁).G') (unitP (T.step k hk N₁ ν β p₁).G')
+              ((T.step k hk N₁ ν β p₁).blockU z) (fun _ => 1)
+              (svec (T.step k hk N₁ ν β p₁).G' (bgFieldC (T.step k hk N₁ ν β p₁).G'
+                (T.step k hk N₁ ν β p₁).a ν (bgC0 d L N) D))
+              (bgMultC (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a ν (bgC0 d L N) D)) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          ∀ X : Set (CTorus d L N₁ T.m₁ (k + 1)),
+            ‖(E z).detGroupedC q₀ D X‖ ≤
+              hullConst d L
+                  ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+                  ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L T.κ /
+                    (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp T.κ)))) *
+                Real.exp (-hullRate d L
+                  ((T.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) *
+                  sizeJ 1 (k + 1) X)) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          ∀ X : Set (CTorus d L N₁ T.m₁ (k + 1)), (E z).detGroupedC q₀ D X ≠ 0 →
+            IsPolyDom 1 (k + 1) X ∧
+              box (rootCube (m₀ := 1) (K := k + 1) z).1 (cellSide L 1 T.m₁ (k + 1)) ⊆ X) ∧
+        (∀ z (D D₂ : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D₂ →
+          ∀ X : Set (CTorus d L N₁ T.m₁ (k + 1)),
+            (∀ v ∈ X, D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) →
+            (E z).detGroupedC q₀ D X = (E z).detGroupedC q₀ D₂ X) ∧
+        (∀ {σ : Equiv.Perm (CTorus d L N₁ T.m₁ (k + 1))},
+          GenSymm L N₁ T.m₁ (k + 1) (k + 1) 1 σ →
+          ∃ Sy : LatSymm (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).G' σ,
+            (∀ D : BgData (T.step k hk N₁ ν β p₁).G' N,
+              XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+              XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t (Sy.sym D)) ∧
+            ∀ z, (∀ (D : BgData (T.step k hk N₁ ν β p₁).G' N) T',
+                (E (rootAct σ z)).term (Sy.sym D) (cubeAct σ T') = (E z).term D T') ∧
+              ∀ (D : BgData (T.step k hk N₁ ν β p₁).G' N)
+                (X : Set (CTorus d L N₁ T.m₁ (k + 1))),
+                (E (rootAct σ z)).detGroupedC q₀ (Sy.sym D) (σ '' X) =
+                  (E z).detGroupedC q₀ D X) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          ∀ {R : Matrix (Fin N) (Fin N) ℂ}, Rᵀ * R = 1 →
+            (∀ T', (E z).term (D.rot R) T' = (E z).term D T') ∧
+            ∀ X : Set (CTorus d L N₁ T.m₁ (k + 1)),
+              (E z).detGroupedC q₀ (D.rot R) X = (E z).detGroupedC q₀ D X) ∧
+        (∀ (D : BgData (T.step k hk N₁ ν β p₁).G' N),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t D →
+          ∀ {Q : Matrix (Fin N) (Fin N) ℝ}, Qᵀ * Q = 1 →
+            XiCData (T.step k hk N₁ ν β p₁).G' (compWeight L 1) ν (k + 1) 1 T.t
+              (D.rot (cmat Q)))) ∧
+      (∃ Jr : (T.step k hk N₁ ν β p₁).JointRep T.t (2 * p₁),
+      ∃ val : ((((T.step k hk N₁ ν β p₁).U × Fin N → ℂ) ×
+            ((T.step k hk N₁ ν β p₁).U × Fin N → ℂ))) →
+          (((T.step k hk N₁ ν β p₁).U × Fin N → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin N → ℂ)) →
+            ℂ → (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+              (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ,
+        (∀ x w σ Θ, val x w σ Θ =
+          (-((T.step k hk N₁ ν β p₁).β : ℂ)) * raySrc3
+            (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+              (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+              (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne (T.step k hk N₁ ν β p₁).hG (T.step k hk N₁ ν β p₁).hG'
+                (le_refl (k + 1)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t))
+            taylorWeight x.1 w.1 σ Θ.1 +
+          ((T.step k hk N₁ ν β p₁).β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N,
+            Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+              (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+              (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t
+                (fun D' ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                  (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+                    T.BG₂ T.κ (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν D' ψ')
+                  s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+        ∀ (g : Fld d L N₁ T.m₁ (k + 1) N) (x : (T.step k hk N₁ ν β p₁).EC),
+          (∀ r : ℝ, r ∈ Set.Icc (0 : ℝ) 1 → ∀ q, ‖((r : ℂ) • x) q‖ ≤ 2 * p₁) →
+          ∀ τ : ℝ, τ ∈ Set.Icc (0 : ℝ) 1 →
+            Jr.W2 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g
+                (rawOf (T.step k hk N₁ ν β p₁).D', (τ : ℂ) • x) =
+              val (x, x) (x, x) (τ : ℂ)
+                  (rawOf (T.step k hk N₁ ν β p₁).D',
+                    fun y i => g y i / ((T.step k hk N₁ ν β p₁).β : ℂ)) -
+                val (x, x) (x, x) (τ : ℂ) (rawOf (T.step k hk N₁ ν β p₁).D', 0)) ∧
+      (∀ q : ℝ, 0 < q → q ≤ ρ →
+        ∀ S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁), S = T.step k hk N₁ ν β p₁ →
+        ∀ hp : 0 < S.p₁,
+        ∃ (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+              ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+              (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+            (𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))))
+            (Tt : Set (CTorus d L N₁ T.m₁ (k + 1)) → ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+              ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+              (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+                (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+            (I : DirectTerms S T.m₀ hp (fun ψ => (ψ, ψ)) p₁ 2
+                  (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β))
+                  (2 * T.κdec - 1)
+                  (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+                  (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+                  (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2
+                    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val (physAgΘ S)
+                  (AgFDirPair S)),
+            I.𝒴 = 𝒴 ∧ I.T = Tt ∧
+            ∃ hF : DirectTermsFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
+                (physVqRho S 1 ν T.t ρ q),
+              (∀ g : Fld d L N₁ T.m₁ (k + 1) N, ∑ x, ∑ i, ‖g x i‖ < q →
+                ∃ hg : (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) ∈ physVqRho S 1 ν T.t ρ q,
+                  physInclScaled N S (((1 / S.β : ℝ)) : ℂ) (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) =
+                    (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∧
+                  (I.atThetaOn S T.m₀ _ hF hg).𝒴 = 𝒴 ∧ (I.atThetaOn S T.m₀ _ hF hg).T = Tt) ∧
+              ∃ hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β),
+                4 * (S.β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (q / S.β)) ≤
+                  CE' * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+                      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
+                    q * CF' * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
+                      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ∧
+                ∀ {Kc : ℝ} (hKc : K0 d L T.κ0 ≤ Kc),
+                (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                  AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+                    (labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      hLN hp0 (by norm_num) hεU
+                      T.κ0_ent hKc r.1 r.2).H y Φ)
+                    (physVqRho S 1 ν T.t ρ q ×ˢ ball (0 : ℂ) 2)) ∧
+                (∀ e (he : e ∈ physVqRho S 1 ν T.t ρ q) (u : ℂ),
+                  labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      hLN hp0 (by norm_num) hεU
+                      T.κ0_ent hKc e u =
+                    dtAct S T.m₀ (I.atThetaOn S T.m₀ _ hF he)
+                      hLN hp0 (by norm_num) hεU
+                      T.κ0_ent hKc u) ∧
+                (∀ e ∈ physVqRho S 1 ν T.t ρ q, ∀ u : ℂ, ‖u‖ < 2 →
+                  ∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit T.m₀ hp).Ωb b),
+                  (labelActFamilyOn S T.m₀ (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      hLN hp0 (by norm_num) hεU
+                      T.κ0_ent hKc e u).H y Φ =
+                    I.T y.1 (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ)
+                      (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ) u
+                      (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e))) := by
+  classical
+  have e : ((detDeg d L + 1 : ℕ) : ℝ) = (detDeg d L : ℝ) + 1 := by push_cast; ring
+  have hout := T.kout_le_hullRate hhull
+  unfold detRateG at hout
+  rw [e] at hout
+  obtain ⟨CE, CF, hCE, hCF, H⟩ := sourceActivityC_scale_fromTowerG_rho T hA p
+  obtain ⟨β₂, CE', CF', h2', hCE', hCF', H2⟩ :=
+    sourceFamilyRelative_scale_fromTowerG_rho T hA p
+  refine ⟨hout, ?_, CE, CF, CE', CF', hCE, hCF, hCE', hCF', fun ρ hρ => ?_⟩
+  · obtain ⟨C, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩ :=
+      T.exists_outputConsts hhull
+    exact ⟨C, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩
+  obtain ⟨β₁, h2, hρβ, H1⟩ := H ρ hρ
+  refine ⟨max β₁ β₂, le_trans h2 (le_max_left _ _), hρβ.trans (le_max_left _ _), ?_⟩
+  intro k hk N₁ _ hLN hN ν hν0 hν β hβ p₁ hp0 hp₁ D
+  have hLN1 : L ∣ N₁ := by
+    refine dvd_trans ?_ hLN
+    have hm := T.m₀_pos
+    exact dvd_pow_self L (by omega)
+  have hβ1 : β₁ ≤ β := le_trans (le_max_left _ _) hβ
+  refine ⟨H1 k hk N₁ hLN hN ν hν0 hν β hβ1 p₁ hp0 hp₁ D,
+    T.detPackage_fromTowerG hLq k hk N₁ hLN1 hN hν0.le hν β p₁,
+    expSourceChart_scale_fromTowerG T k hk N₁ ν hν0 hν β p₁ hp0 D, ?_⟩
+  intro q hq hqρ S hS hp
+  exact H2 k hk N₁ hLN hN ν hν0 hν β (le_trans (le_max_right _ _) hβ) ρ
+    (max_le (by linarith) (hρβ.trans hβ1)) p₁ hp0 hp₁ q hq hqρ D S hS hp
+
+open Classical in
+/-- The landed statement: the case `ρ = 1`. -/
 theorem StepTowerG.stepPieces_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
     (T : StepTowerG d L N κmin) {q₀ : ℕ} (hLq : L = 2 * q₀ + 1)
     (hhull : 2 * d * L * (1 + collarB d L) * (3 / 2 * T.κdec + c1 d L * Real.log 2) +
@@ -567,60 +791,13 @@ theorem StepTowerG.stepPieces_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
                     I.T y.1 (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ)
                       (S.hatOf T.m₀ p₁ hp Φ, S.hatOf T.m₀ p₁ hp Φ) u
                       (physInclScaled N S (((1 / S.β : ℝ)) : ℂ) e))) := by
-  classical
-  have e : ((detDeg d L + 1 : ℕ) : ℝ) = (detDeg d L : ℝ) + 1 := by push_cast; ring
-  have hout := T.kout_le_hullRate hhull
-  unfold detRateG at hout
-  rw [e] at hout
-  obtain ⟨β₁, CE, CF, h2, hCE, hCF, H1⟩ : ∃ β₁ CE CF : ℝ, 2 ≤ β₁ ∧ 0 < CE ∧ 0 < CF ∧
-      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], L ^ T.m₀ ∣ N₁ → 5 < N₁ →
-      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 →
-      ∀ β : ℝ, β₁ ≤ β → ∀ (p₁ : ℝ) (hp : 0 < p₁),
-      p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) → StepScaleDataG T k hk N₁ ν β p₁ →
-      ∃ 𝒴 : Finset (Set (CTorus d L N₁ T.m₁ (k + 1))),
-      ∃ hdom : ∀ Y ∈ 𝒴, IsDj T.m₀ (k + 1) Y,
-      ∀ g : Fld d L N₁ T.m₁ (k + 1) N, g ∈ l1Ball d L N₁ T.m₁ (k + 1) N →
-      ∃ BR : StepActivityBound (T.step k hk N₁ ν β p₁)
-          (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g,
-      ∃ BC : StepActivityBoundC (T.step k hk N₁ ν β p₁)
-          (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g,
-        BR.m₀ = T.m₀ ∧ BC.m₀ = T.m₀ ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧
-        BC.Lb = BR.Lb ∧
-        HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
-        HEq BR.BS ((T.step k hk N₁ ν β p₁).blockSplit T.m₀ hp) ∧ HEq BC.BS BR.BS ∧
-        BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
-        BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
-        BR.Kc = 2 * (K0 d L T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
-        BR.εH ≤ CE * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
-            Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) +
-          CF * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
-            Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := by
-    obtain ⟨CE, CF, hCE, hCF, H⟩ := sourceActivityC_scale_fromTowerG_rho T hA p
-    obtain ⟨β₀, hβ₀, -, h⟩ := H 1 one_pos
-    refine ⟨β₀, CE, CF, hβ₀, hCE, hCF, ?_⟩
-    intro k hk N₁ _ hLN hN ν hν hν' β hβ p₁ hp hp₁ D
-    obtain ⟨𝒴, hdom, h2⟩ := h k hk N₁ hLN hN ν hν hν' β hβ p₁ hp hp₁ D
-    exact ⟨𝒴, hdom, fun g hg => by simpa only [one_mul] using h2 g hg⟩
-  obtain ⟨β₂, CE', CF', h2', hCE', hCF', H2⟩ :=
-    sourceFamilyRelative_scale_fromTowerG_rho T hA p
-  refine ⟨hout, ?_, max β₁ β₂, CE, CF, CE', CF', le_trans h2 (le_max_left _ _), hCE, hCF, hCE',
-    hCF', ?_⟩
-  · obtain ⟨C, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩ :=
-      T.exists_outputConsts hhull
-    exact ⟨C, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩
+  obtain ⟨hout, hC, CE, CF, CE', CF', hCE, hCF, hCE', hCF', H⟩ :=
+    T.stepPieces_fromTowerG_rho hLq hhull hA p
+  obtain ⟨β₀, h2, -, Hk⟩ := H 1 one_pos
+  refine ⟨hout, hC, β₀, CE, CF, CE', CF', h2, hCE, hCF, hCE', hCF', ?_⟩
   intro k hk N₁ _ hLN hN ν hν0 hν β hβ p₁ hp0 hp₁ D
-  have hLN1 : L ∣ N₁ := by
-    refine dvd_trans ?_ hLN
-    have hm := T.m₀_pos
-    exact dvd_pow_self L (by omega)
-  refine ⟨H1 k hk N₁ hLN hN ν hν0 hν β (le_trans (le_max_left _ _) hβ) p₁ hp0 hp₁ D,
-    T.detPackage_fromTowerG hLq k hk N₁ hLN1 hN hν0.le hν β p₁,
-    expSourceChart_scale_fromTowerG T k hk N₁ ν hν0 hν β p₁ hp0 D, ?_⟩
-  intro q hq hq1 S hS hp
-  exact H2 k hk N₁ hLN hN ν hν0 hν β (le_trans (le_max_right _ _) hβ) 1
-    (by rw [max_self]; exact (le_trans (by linarith) (le_trans (le_max_right _ _) hβ)))
-    p₁ hp0 hp₁ q hq hq1 D S hS hp
-
+  obtain ⟨⟨𝒴, hdom, h1⟩, h2', h3, h4⟩ := Hk k hk N₁ hLN hN ν hν0 hν β hβ p₁ hp0 hp₁ D
+  exact ⟨⟨𝒴, hdom, fun g hg => by simpa only [one_mul] using h1 g hg⟩, h2', h3, h4⟩
 end PiecesG
 
 section Pieces
@@ -637,6 +814,204 @@ the amplitude constants, for every scale and one `D : StepScaleData T …`, at t
 `l^1` ball on one label system, the determinant package (one family `z ↦ E z` with sum, bound,
 anchor, locality, covariance and rotation clauses), the chart identity of the exponentiated source,
 and the source direct terms as a family over the relative chart. -/
+theorem stepPieces_fromTower_rho (T : StepTower κmin) (hT : stepHullMin ≤ κmin) {A₁ : ℝ}
+    (hA : 0 < A₁) (p : ℕ) :
+    3 / 2 * T.κdec ≤ hullRate 3 3
+      ((T.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 : ℝ) + 1)) / 18) ∧
+    (∃ C : StepOutputConsts 3 3, C.k0 = T.κ0 ∧ C.kdec = T.κdec ∧ C.k' = T.κ' ∧
+      C.kout = 3 / 2 * T.κdec ∧ C.kH = 2 * T.κdec - 1 ∧ C.kapp = T.κ ∧
+      C.kdet = (T.κ - Real.log 2 - 2 * Real.log ((detDeg 3 3 : ℝ) + 1)) / 18 ∧
+      C.Bhull = collarB 3 3 ∧ C.lhull = hullRate 3 3 C.kdet ∧
+      C.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧
+      C.Kall = max (2 * K0 3 3 T.κ0) (rootUnionK 3 3 1 T.m₁ T.κ0) ∧ C.Ktot = C.Kc + C.Kall) ∧
+    ∃ CE CF CE' CF' : ℝ, 0 < CE ∧ 0 < CF ∧ 0 < CE' ∧ 0 < CF' ∧
+    ∀ ρ : ℝ, 0 < ρ → ∃ β₀ : ℝ, 2 ≤ β₀ ∧ ρ ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁), 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 →
+    ∀ β : ℝ, β₀ ≤ β → ∀ (p₁ : ℝ) (hp0 : 0 < p₁),
+    p₁ ≤ pLog A₁ p (β * 3 ^ k) → StepScaleData T k hk N₁ ν β p₁ →
+      (∃ 𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))),
+        ∃ hdom : ∀ Y ∈ 𝒴, IsDj 1 (k + 1) Y,
+        ∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, g ∈ l1BallRho 3 3 N₁ T.m₁ (k + 1) 2 ρ →
+        ∃ BR : StepActivityBound (T.step k hk N₁ ν β p₁)
+            (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+        ∃ BC : StepActivityBoundC (T.step k hk N₁ ν β p₁)
+            (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g,
+          BR.m₀ = 1 ∧ BC.m₀ = 1 ∧ BR.Lb = ({Y // Y ∈ 𝒴} ⊕ {Y // Y ∈ 𝒴}) ∧ BC.Lb = BR.Lb ∧
+          HEq BR.Lab ((thickLabels 𝒴 hdom).sum (thickLabels 𝒴 hdom)) ∧ HEq BC.Lab BR.Lab ∧
+          HEq BR.BS ((T.step k hk N₁ ν β p₁).blockSplit 1 hp0) ∧ HEq BC.BS BR.BS ∧
+          BR.κ0 = T.κ0 ∧ BC.κ0 = T.κ0 ∧ BR.κ' = T.κ' ∧ BC.κ' = T.κ' ∧
+          BR.κH = 2 * T.κdec - 1 ∧ BC.κH = BR.κH ∧
+          BR.Kc = 2 * (K0 3 3 T.κ0 + 1) ∧ BC.Kc = BR.Kc ∧ BR.εH = BC.εH ∧
+          BR.εH ≤ CE * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+            ρ * CF * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k)) ∧
+      (
+      ∃ E : ∀ z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))),
+          DetExpansionLocC (T.step k hk N₁ ν β p₁) 1 z T.t (towerDetRate T.κ)
+            (towerDetConst T.κ),
+        (∀ z D T', (E z).term D T' = ∑ y ∈ (T.step k hk N₁ ν β p₁).blockU z,
+          detActivityBg 1 (compWeight 3 1) 1 ν (rho4 3 3 2 T.BG T.κ) D y T') ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          ∑ X ∈ (Finset.univ : Finset (Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+              (K := k + 1) 1 (k + 1) Set.univ))).image detCollarHull, (E z).detGrouped D X =
+            rootTrace (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a 1 ν
+              (unitQ (T.step k hk N₁ ν β p₁).G') (unitP (T.step k hk N₁ ν β p₁).G')
+              ((T.step k hk N₁ ν β p₁).blockU z) (fun _ => 1)
+              (svec (T.step k hk N₁ ν β p₁).G' (bgFieldC (T.step k hk N₁ ν β p₁).G'
+                (T.step k hk N₁ ν β p₁).a ν (bgC0 3 3 2) D))
+              (bgMultC (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a ν (bgC0 3 3 2) D)) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          ∀ X : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+            ‖(E z).detGrouped D X‖ ≤ hullConst 3 3 (towerDetRate T.κ) (towerDetConst T.κ) *
+              Real.exp (-hullRate 3 3 (towerDetRate T.κ) * sizeJ 1 (k + 1) X)) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          ∀ X : Set (CTorus 3 3 N₁ T.m₁ (k + 1)), (E z).detGrouped D X ≠ 0 →
+            IsPolyDom 1 (k + 1) X ∧
+              box (rootCube (m₀ := 1) (K := k + 1) z).1 (cellSide 3 1 T.m₁ (k + 1)) ⊆ X) ∧
+        (∀ z (D D₂ : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D₂ →
+          ∀ X : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+            (∀ v ∈ X, D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) →
+            (E z).detGrouped D X = (E z).detGrouped D₂ X) ∧
+        (∀ {σ : Equiv.Perm (CTorus 3 3 N₁ T.m₁ (k + 1))},
+          GenSymm 3 N₁ T.m₁ (k + 1) (k + 1) 1 σ →
+          ∃ Sy : LatSymm (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).G' σ,
+            (∀ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
+              XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+              XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t (Sy.sym D)) ∧
+            ∀ z, (∀ (D : BgData (T.step k hk N₁ ν β p₁).G' 2) T',
+                (E (rootAct σ z)).term (Sy.sym D) (cubeAct σ T') = (E z).term D T') ∧
+              ∀ (D : BgData (T.step k hk N₁ ν β p₁).G' 2)
+                (X : Set (CTorus 3 3 N₁ T.m₁ (k + 1))),
+                (E (rootAct σ z)).detGrouped (Sy.sym D) (σ '' X) = (E z).detGrouped D X) ∧
+        (∀ z (D : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          ∀ {R : Matrix (Fin 2) (Fin 2) ℂ}, Rᵀ * R = 1 →
+            (∀ T', (E z).term (D.rot R) T' = (E z).term D T') ∧
+            ∀ X : Set (CTorus 3 3 N₁ T.m₁ (k + 1)),
+              (E z).detGrouped (D.rot R) X = (E z).detGrouped D X) ∧
+        (∀ (D : BgData (T.step k hk N₁ ν β p₁).G' 2),
+          XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t D →
+          ∀ {Q : Matrix (Fin 2) (Fin 2) ℝ}, Qᵀ * Q = 1 →
+            XiCData (T.step k hk N₁ ν β p₁).G' (compWeight 3 1) ν (k + 1) 1 T.t
+              (D.rot (cmat Q)))) ∧
+      (
+      ∃ Jr : (T.step k hk N₁ ν β p₁).JointRep T.t (2 * p₁),
+      ∃ val : ((((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) ×
+            ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ))) →
+          (((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ) × ((T.step k hk N₁ ν β p₁).U × Fin 2 → ℂ)) →
+            ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 ×
+              (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ,
+        (∀ x w σ Θ, val x w σ Θ =
+          (-((T.step k hk N₁ ν β p₁).β : ℂ)) * raySrc3
+            (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+              (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+              (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (interactionOne (T.step k hk N₁ ν β p₁).hG (T.step k hk N₁ ν β p₁).hG'
+                (le_refl (k + 1)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν T.t))
+            taylorWeight x.1 w.1 σ Θ.1 +
+          ((T.step k hk N₁ ν β p₁).β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2,
+            Θ.2 s.1 s.2 *
+            dirTermSrc (hatFun (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+              (T.step k hk N₁ ν β p₁).ν T.t (T.step k hk N₁ ν β p₁).hG'
+              (((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+              (onXi (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a₁
+                (T.step k hk N₁ ν β p₁).ν T.t
+                (fun D' ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                  (flFieldOne (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                    T.BG₂ T.κ (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν D' ψ')
+                  s.1 s.2)))
+              (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+        ∀ (g : Fld 3 3 N₁ T.m₁ (k + 1) 2) (x : (T.step k hk N₁ ν β p₁).EC),
+          (∀ r : ℝ, r ∈ Set.Icc (0 : ℝ) 1 → ∀ q, ‖((r : ℂ) • x) q‖ ≤ 2 * p₁) →
+          ∀ τ : ℝ, τ ∈ Set.Icc (0 : ℝ) 1 →
+            Jr.W2 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) g
+                (rawOf (T.step k hk N₁ ν β p₁).D', (τ : ℂ) • x) =
+              val (x, x) (x, x) (τ : ℂ)
+                  (rawOf (T.step k hk N₁ ν β p₁).D',
+                    fun y i => g y i / ((T.step k hk N₁ ν β p₁).β : ℂ)) -
+                val (x, x) (x, x) (τ : ℂ) (rawOf (T.step k hk N₁ ν β p₁).D', 0)) ∧
+      (∀ q : ℝ, 0 < q → q ≤ ρ →
+        ∀ S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁), S = T.step k hk N₁ ν β p₁ →
+        ∀ hp : 0 < S.p₁,
+        ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+              ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+            (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+            (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+              ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+              (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+            (I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+                  (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1)
+                  (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ))
+                  (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+                  (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val (physAgΘ S)
+                  (AgFDirPair S)),
+            I.𝒴 = 𝒴 ∧ I.T = Tt ∧
+            ∃ hF : DirectTermsFamilyOn S 1 (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ)) I
+                (physVqRho S 1 ν T.t ρ q),
+              (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+                ∃ hg : (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) ∈ physVqRho S 1 ν T.t ρ q,
+                  physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) (⟨rawOf S.D', rawOf_mem_rawSub _⟩, g) =
+                    (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∧
+                  (I.atThetaOn S 1 _ hF hg).𝒴 = 𝒴 ∧ (I.atThetaOn S 1 _ hF hg).T = Tt) ∧
+              ∃ hεU : 0 ≤ S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β),
+                4 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                    (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) ≤
+                  CE' * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
+                    q * CF' * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ∧
+                ∀ {Kc : ℝ} (hKc : K0 3 3 T.κ0 ≤ Kc),
+                (∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+                  AnalyticOnNhd ℂ (fun r : physParam 2 S × ℂ =>
+                    (labelActFamilyOn S 1 (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      (show 3 ^ 1 ∣ N₁ by simpa using h3N) hp0 (by norm_num) hεU
+                      T.κ0_ent hKc r.1 r.2).H y Φ)
+                    (physVqRho S 1 ν T.t ρ q ×ˢ ball (0 : ℂ) 2)) ∧
+                (∀ e (he : e ∈ physVqRho S 1 ν T.t ρ q) (u : ℂ),
+                  labelActFamilyOn S 1 (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      (show 3 ^ 1 ∣ N₁ by simpa using h3N) hp0 (by norm_num) hεU
+                      T.κ0_ent hKc e u =
+                    dtAct S 1 (I.atThetaOn S 1 _ hF he)
+                      (show 3 ^ 1 ∣ N₁ by simpa using h3N) hp0 (by norm_num) hεU
+                      T.κ0_ent hKc u) ∧
+                (∀ e ∈ physVqRho S 1 ν T.t ρ q, ∀ u : ℂ, ‖u‖ < 2 →
+                  ∀ (y : {Y // Y ∈ I.𝒴}) (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+                  (labelActFamilyOn S 1 (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ)) I hF
+                      (show 3 ^ 1 ∣ N₁ by simpa using h3N) hp0 (by norm_num) hεU
+                      T.κ0_ent hKc e u).H y Φ =
+                    I.T y.1 (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ)
+                      (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ) u
+                      (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e))) := by
+  classical
+  obtain ⟨-, -, CE, CF, CE', CF', hCE, hCF, hCE', hCF', H⟩ :=
+    T.toG.stepPieces_fromTowerG_rho (q₀ := 1) rfl (T.hhull_toG_of_stepHullMin hT) hA p
+  refine ⟨T.kout_le_hullRate hT, stepOutput_consts_physical T hT, CE, CF, CE', CF', hCE, hCF,
+    hCE', hCF', fun ρ hρ => ?_⟩
+  obtain ⟨β₀, h2, hρβ, H⟩ := H ρ hρ
+  refine ⟨β₀, h2, hρβ, ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁ D
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  have G := H k hk N₁ (by simpa using h3N) hN ν hν0 (by simpa using hν) β hβ p₁ hp0
+    (by rw [e]; exact hp₁) (StepTower.scaleDataG_of_fixed T D)
+  have Gdet := detPackage_fromTower T k hk N₁ h3N hN hν0.le hν β p₁
+  unfold StepTowerG.step at G
+  obtain ⟨G1, -, G3, G4⟩ := G
+  revert G1 G3 G4
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G1 G3 G4
+  exact ⟨G1, Gdet, G3, G4⟩
+
+open Classical in
+/-- The landed statement: the case `ρ = 1`. -/
 theorem stepPieces_fromTower (T : StepTower κmin) (hT : stepHullMin ≤ κmin) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) :
     3 / 2 * T.κdec ≤ hullRate 3 3
@@ -809,27 +1184,13 @@ theorem stepPieces_fromTower (T : StepTower κmin) (hT : stepHullMin ≤ κmin) 
                     I.T y.1 (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ)
                       (S.hatOf 1 p₁ hp Φ, S.hatOf 1 p₁ hp Φ) u
                       (physInclScaled 2 S (((1 / S.β : ℝ)) : ℂ) e))) := by
-  classical
-  obtain ⟨-, -, β₀, CE, CF, CE', CF', h2, hCE, hCF, hCE', hCF', H⟩ :=
-    T.toG.stepPieces_fromTowerG (q₀ := 1) rfl (T.hhull_toG_of_stepHullMin hT) hA p
-  refine ⟨T.kout_le_hullRate hT, stepOutput_consts_physical T hT, β₀, CE, CF, CE', CF', h2, hCE,
-    hCF, hCE', hCF', ?_⟩
+  obtain ⟨hout, hC, CE, CF, CE', CF', hCE, hCF, hCE', hCF', H⟩ :=
+    stepPieces_fromTower_rho T hT hA p
+  obtain ⟨β₀, h2, -, Hk⟩ := H 1 one_pos
+  refine ⟨hout, hC, β₀, CE, CF, CE', CF', h2, hCE, hCF, hCE', hCF', ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁ D
-  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
-  have G := H k hk N₁ (by simpa using h3N) hN ν hν0 (by simpa using hν) β hβ p₁ hp0
-    (by rw [e]; exact hp₁) (StepTower.scaleDataG_of_fixed T D)
-  have Gdet := detPackage_fromTower T k hk N₁ h3N hN hν0.le hν β p₁
-  unfold StepTowerG.step at G
-  obtain ⟨G1, -, G3, G4⟩ := G
-  revert G1 G3 G4
-  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
-  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
-  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
-  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
-  subst hϱ' hb'
-  intro G1 G3 G4
-  exact ⟨G1, Gdet, G3, G4⟩
-
+  obtain ⟨⟨𝒴, hdom, h1⟩, h2', h3, h4⟩ := Hk k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁ D
+  exact ⟨⟨𝒴, hdom, fun g hg => by simpa only [one_mul] using h1 g hg⟩, h2', h3, h4⟩
 end Pieces
 
 section Instance
