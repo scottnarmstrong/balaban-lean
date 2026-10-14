@@ -31,17 +31,21 @@ objects.  Every object is computed from the datum `Θ` of `𝔹` alone: no ambie
   of `ψ̂`, `|ψ̂| ≤ c_ψ`, and the parameters `s = σ w` for an analytic parameter map `σ` from a
   polydisc (`σ = extParams 𝔹 X₁` for the expansion of `𝔹`, or the transport `τ` of the replacement
   identity `coef_eTermFun_replacement_localB_hat`);
-* `analyticOnNhd_setIntegral_box`: a parameter integral over the real box `|ψ̂| ≤ c_ψ` against a
-  finite measure of a jointly analytic, bounded integrand is analytic and bounded;
+* `analyticOnNhd_setIntegral_compact`, `isCompact_hatBox`: a parameter integral over a compact set
+  `K` of real hat variables inside the box `|ψ̂| ≤ c_ψ` against a measure with `γ(K) < ∞` of a
+  jointly analytic, bounded integrand is analytic and bounded;
 * `fanLocalHat_integral_cover`: **the `ψ̂`-integral of the local term**,
-  `(Θ, w) ↦ ∫_{|ψ̂| ≤ c_ψ} Φ(…, ψ'(Θ, σ w, ψ̂)) dγ(ψ̂)`, is analytic on the local chart times the
-  polydisc and bounded by `B γ(box)`;
-* `localB_eTermHat_integral`: the instance at `𝔹 = localB (k + 1) … Y` and the old-term
-  functional `Φ = eTermFun` of the E-part (`localB_eTermFun_analytic`, `localB_eTermFun_bound`);
-* `localB_eTermHat_integral_xiFieldDom`: the clauses `analyticE` and `boundE` (uniform bound) of
-  the successor class for the `ψ̂`-integrated E-part term at a parameter point `w₀` of the
-  polydisc, read on the class domain `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})` through the cut-off `clipRaw 𝔹`
-  (`LocalClassChart.lean`), for `ε_{k+1} ≤ ε'`.
+  `(Θ, w) ↦ ∫_K Φ(…, ψ'(Θ, σ w, ψ̂)) dγ(ψ̂)`, is analytic on the local chart times the polydisc
+  and bounded by `B γ(K)`;
+* `evTerm_bound_analyticOnNhd_of_bd`: the analyticity and the bound of the terms `𝓔(X, Y)` of
+  Theorem I-5 use (AE1) only, not the locality (AE2);
+* `localB_eTermHat_integral`: the instance at `𝔹 = localB t … Y⁺` and the old-term functional
+  `Φ = eTermFun` of the E-part (`localB_eTermFun_analytic`, `localB_eTermFun_bound`);
+* `localB_eTermHat_evTerm_xiFieldDom`: the clauses `analyticE` and `boundE` (per old polymer
+  `X`) of the successor class for the term of `Y`: the coefficients of the `ψ̂`-integrated E-part
+  over the connected families of the ambient expansion with `Y[𝒞] = Y`, read on the class domain
+  `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})` through the cut-off `clipRaw 𝔹` (`LocalClassChart.lean`),
+  `ε_{k+1} ≤ ε'`.
 -/
 
 @[expose] public section
@@ -438,28 +442,24 @@ section BoxIntegral
 variable {P I : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P] [FiniteDimensional ℂ P]
   [Fintype I]
 
-/-- **A parameter integral over the real box `|ψ̂| ≤ c_ψ`** of a jointly analytic, bounded
-integrand: if `(q, v) ↦ F q v` is analytic at `(q, v)` for `q ∈ S` and complex `v` with
-`|v| ≤ c_ψ`, and bounded there by `B`, then `q ↦ ∫_{|ψ̂| ≤ c_ψ} F q ψ̂ dγ(ψ̂)` is analytic on `S`
-and bounded by `B γ(box)`, for every measure `γ` of finite mass on the box. -/
-theorem analyticOnNhd_setIntegral_box {γ : Measure (I → ℝ)} {cψ B : ℝ}
-    (hγ : γ {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ} < ⊤) {S : Set P} {F : P → (I → ℂ) → ℂ}
+/-- **A parameter integral over a compact set of real hat variables** of a jointly analytic,
+bounded integrand: if `(q, v) ↦ F q v` is analytic at `(q, v)` for `q ∈ S` and complex `v` with
+`|v| ≤ c_ψ`, and bounded there by `B`, then `q ↦ ∫_K F q ψ̂ dγ(ψ̂)` is analytic on `S` and bounded
+by `B γ(K)`, for every compact set `K` of real hat variables inside the box `|ψ̂| ≤ c_ψ` and every
+measure `γ` with `γ(K) < ∞`.  (`K` may be the box itself, or the product of the Euclidean balls
+`|ψ̂(b)| ≤ c_ψ` of the unit points `b`, which is invariant under `O(N)`.) -/
+theorem analyticOnNhd_setIntegral_compact {γ : Measure (I → ℝ)} {cψ B : ℝ} {K : Set (I → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ) (hγ : γ K < ⊤) {S : Set P}
+    {F : P → (I → ℂ) → ℂ}
     (hF : ∀ q ∈ S, ∀ v : I → ℂ, (∀ r, ‖v r‖ ≤ cψ) →
       AnalyticAt ℂ (fun x : P × (I → ℂ) => F x.1 x.2) (q, v))
     (hB : ∀ q ∈ S, ∀ v : I → ℂ, (∀ r, ‖v r‖ ≤ cψ) → ‖F q v‖ ≤ B) :
-    AnalyticOnNhd ℂ (fun q => ∫ ψ in {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ},
-        F q (fun r => (ψ r : ℂ)) ∂γ) S ∧
-      ∀ q ∈ S, ‖∫ ψ in {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ}, F q (fun r => (ψ r : ℂ)) ∂γ‖ ≤
-        B * (γ {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ}).toReal := by
-  set K : Set (I → ℝ) := {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ} with hK
-  have hKe : K = Set.pi Set.univ (fun _ : I => Set.Icc (-cψ) cψ) := by
-    ext ψ
-    simp only [hK, Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies, Set.mem_Icc, abs_le]
-  have hKc : IsCompact K := by rw [hKe]; exact isCompact_univ_pi fun _ => isCompact_Icc
+    AnalyticOnNhd ℂ (fun q => ∫ ψ in K, F q (fun r => (ψ r : ℂ)) ∂γ) S ∧
+      ∀ q ∈ S, ‖∫ ψ in K, F q (fun r => (ψ r : ℂ)) ∂γ‖ ≤ B * (γ K).toReal := by
   have hKm : MeasurableSet K := hKc.isClosed.measurableSet
   have : IsFiniteMeasure (γ.restrict K) := ⟨by rw [Measure.restrict_apply_univ]; exact hγ⟩
   have hv : ∀ ψ ∈ K, ∀ r, ‖((fun r => (ψ r : ℂ)) : I → ℂ) r‖ ≤ cψ := fun ψ hψ r => by
-    simpa [Complex.norm_real] using hψ r
+    simpa [Complex.norm_real] using hKb ψ hψ r
   refine ⟨fun q hq => ?_, fun q hq => ?_⟩
   · exact analyticAt_integral_comp (P := P) (V := I → ℂ) (μ := γ.restrict K) hKc hKm
       (ae_restrict_mem hKm) (ι := fun ψ : I → ℝ => fun r => (ψ r : ℂ))
@@ -467,6 +467,14 @@ theorem analyticOnNhd_setIntegral_box {γ : Measure (I → ℝ)} {cψ B : ℝ}
       (fun ψ hψ => hF q hq _ (hv ψ hψ))
   · refine (norm_setIntegral_le_of_norm_le_const hγ (fun ψ hψ => hB q hq _ (hv ψ hψ))).trans ?_
     simp [Measure.real]
+
+omit [NormedAddCommGroup P] [NormedSpace ℂ P] [FiniteDimensional ℂ P] [Fintype I] in
+/-- The box `|ψ̂| ≤ c_ψ` of real hat variables is compact. -/
+theorem isCompact_hatBox (cψ : ℝ) : IsCompact {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ} := by
+  have hKe : {ψ : I → ℝ | ∀ r, |ψ r| ≤ cψ} = Set.pi Set.univ (fun _ : I => Set.Icc (-cψ) cψ) := by
+    ext ψ
+    simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies, Set.mem_Icc, abs_le]
+  rw [hKe]; exact isCompact_univ_pi fun _ => isCompact_Icc
 
 end BoxIntegral
 
@@ -478,10 +486,10 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν Kc Cx : ℝ} {ι : Type*} [Fintype ι]
 
 /-- **The `ψ̂`-integral of the local term at a local chart point** (P3 (4.46) on `𝔹`, cover form;
-W780 D3 "the hat variable").  For every measure `γ` of finite mass on the real box `|ψ̂| ≤ c_ψ` of
-the unit lattice of `𝔹`, the function
-`(Θ, w) ↦ ∫_{|ψ̂| ≤ c_ψ} Φ(F₁(σ w, Θ), Sol(σ w, …), (Θ, cc C^{1/2}(σ w) ψ̂)) dγ(ψ̂)`
-is analytic on the local chart `Ξ^c(𝔹; 1, ε')` times the polydisc and bounded there by `B γ(box)`,
+W780 D3 "the hat variable").  For every compact set `K` of real hat variables on the unit lattice
+of `𝔹` inside the box `|ψ̂| ≤ c_ψ` and every measure `γ` with `γ(K) < ∞`, the function
+`(Θ, w) ↦ ∫_K Φ(F₁(σ w, Θ), Sol(σ w, …), (Θ, cc C^{1/2}(σ w) ψ̂)) dγ(ψ̂)`
+is analytic on the local chart `Ξ^c(𝔹; 1, ε')` times the polydisc and bounded there by `B γ(K)`,
 where `B` bounds `Φ` on `FlRealLC`.  The integrand at a chart point `Θ` is computed from `Θ`
 alone (local background, local square root, local fluctuation field). -/
 theorem fanLocalHat_integral_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
@@ -532,10 +540,10 @@ theorem fanLocalHat_integral_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
     (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
       (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
     {B : ℝ} (hΦbd : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ‖Φ t.1 t.2.1 t.2.2‖ ≤ B)
-    {γ : Measure (unitPts Gp × Fin N → ℝ)}
-    (hγ : γ {ψ : unitPts Gp × Fin N → ℝ | ∀ r, |ψ r| ≤ cψ} < ⊤) :
+    {γ : Measure (unitPts Gp × Fin N → ℝ)} {K : Set (unitPts Gp × Fin N → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ) (hγ : γ K < ⊤) :
     AnalyticOnNhd ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ) =>
-        ∫ ψ in {ψ : unitPts Gp × Fin N → ℝ | ∀ r, |ψ r| ≤ cψ},
+        ∫ ψ in K,
           Φ (F₁ (σ q.2, q.1))
         (Sol (σ q.2, flEdat Gp Hm (F₁ (σ q.2, q.1)) q.1.1
           (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
@@ -554,7 +562,7 @@ theorem fanLocalHat_integral_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
         polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) ∧
     ∀ q ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         polydisc (0 : ι → ℂ) (fun _ => Real.exp κ),
-      ‖∫ ψ in {ψ : unitPts Gp × Fin N → ℝ | ∀ r, |ψ r| ≤ cψ},
+      ‖∫ ψ in K,
           Φ (F₁ (σ q.2, q.1))
         (Sol (σ q.2, flEdat Gp Hm (F₁ (σ q.2, q.1)) q.1.1
           (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
@@ -569,12 +577,12 @@ theorem fanLocalHat_integral_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
                 (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
                 (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
             else 0) ∂γ‖ ≤
-        B * (γ {ψ : unitPts Gp × Fin N → ℝ | ∀ r, |ψ r| ≤ cψ}).toReal := by
+        B * (γ K).toReal := by
   have hA := fanLocalHat_analytic_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
     hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hΦ
   have hB := fanLocalHat_norm_le_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
     hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 hΦbd
-  refine analyticOnNhd_setIntegral_box (P := RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ))
+  refine analyticOnNhd_setIntegral_compact (P := RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ))
     (F := fun (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ))
       (v : unitPts Gp × Fin N → ℂ) =>
         Φ (F₁ (σ q.2, q.1))
@@ -590,7 +598,7 @@ theorem fanLocalHat_integral_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
               (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ q.2, q.1)).2
                 (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
                 (unitQ Gp) (unitP Gp) *ᵥ v)) (⟨unitBlock x, h⟩, i)
-            else 0)) hγ ?_ ?_
+            else 0)) hKc hKb hγ ?_ ?_
   · rintro ⟨Θ, w⟩ ⟨hΘ, hw⟩ v hv
     have h := hA ((Θ, v), w) ⟨⟨hΘ, hv⟩, hw⟩
     refine h.comp_of_eq (((analyticAt_fst.comp analyticAt_fst).prod analyticAt_snd).prod
@@ -690,8 +698,9 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm} {a₁ ν : ℝ}
 `𝔹 = localB t … Y⁺` at `ϱ = 5 L M₁`, `r₀ = 4 d L³ + L`).  The old-term functional
 `Φ = eTermFun 𝔹 𝔹_k(X) 𝔹_j(X) H⁻ …` of the E-part, composed with the decoupled background of the
 cover of `𝔹`, the local hat lift `ψ' = cc C^{1/2}(σ w) ψ̂` and the fluctuation field of `H⁻`, and
-integrated in `ψ̂` over the box `|ψ̂| ≤ c_ψ` against `γ`, is analytic on the local chart
-`Ξ^c_{k+1}(𝔹; 1, ε')` times the polydisc and bounded there by `Bd γ(box)`, `Bd` the bound of the
+integrated in `ψ̂` over a compact set `K` inside the box `|ψ̂| ≤ c_ψ` against `γ`, is analytic on
+the local chart `Ξ^c_{k+1}(𝔹; 1, ε')` times the polydisc and bounded there by `Bd γ(K)`, `Bd` the
+  bound of the
 old term on its chart `Ξ^c_j(𝔹_j(X); b, b² ε' + K₂ δ₃ + K₂ δfl)` (the test (4.37) is the hypothesis
 `hE`).  Instance of `fanLocalHat_integral_cover` with `localB_coverData`,
 `localB_eTermFun_analytic` and `localB_eTermFun_bound`. -/
@@ -779,13 +788,12 @@ theorem localB_eTermHat_integral {ι : Type*} [Fintype ι]
       P ∉ (coverOf (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁))))).parCubes X₁f
         → σ w ⟨P, hP⟩ = 1)
     {γ : Measure (unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
-    (hγ : γ {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-      → ℝ | ∀ r, |ψ r| ≤ cψ} < ⊤)
+      {K : Set (unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ) (hγ : γ K < ⊤)
     {Bd : ℝ} (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
       (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ Bd) :
     AnalyticOnNhd ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ) =>
-        ∫ ψ in {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-          → ℝ | ∀ r, |ψ r| ≤ cψ},
+        ∫ ψ in K,
           eTermFun (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
             (compWeight L a₁) Fk E (F₁ (σ q.2, q.1))
         (Sol (σ q.2, flEdat (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁
@@ -820,8 +828,7 @@ theorem localB_eTermHat_integral {ι : Type*} [Fintype ι]
     ∀ q ∈ XiCRaw (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν
       (k + 1) 1 eps ×ˢ
         polydisc (0 : ι → ℂ) (fun _ => Real.exp κ),
-      ‖∫ ψ in {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-        → ℝ | ∀ r, |ψ r| ≤ cψ},
+      ‖∫ ψ in K,
           eTermFun (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
             (compWeight L a₁) Fk E (F₁ (σ q.2, q.1))
         (Sol (σ q.2, flEdat (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁
@@ -850,8 +857,7 @@ theorem localB_eTermHat_integral {ι : Type*} [Fintype ι]
                       (ψ r : ℂ))))
                 (⟨unitBlock x, h⟩, i)
             else 0) ∂γ‖ ≤
-        Bd * (γ {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-          → ℝ | ∀ r, |ψ r| ≤ cψ}).toReal := by
+        Bd * (γ K).toReal := by
   have hcd := localB_coverData ht Yp hN₁ hMM hag HBp
   have ha₁0 : 0 < a₁ := by linarith
   exact fanLocalHat_integral_cover hk1 ha₁ ha₂ hS hcd.1 HBp hκ hM hMX (Cchi_nonneg d L)
@@ -860,7 +866,7 @@ theorem localB_eTermHat_integral {ι : Type*} [Fintype ι]
     (localB_eTermFun_analytic hb₁ hbC ht Yp hN₁ hMM hag hS ha₁0 HBp HBk HBj hP hq colk colj hκ hM
       hnum dsX₀ hN hj hF hFkan hFk hE)
     (fun _ ht' => localB_eTermFun_bound hb₁ hbC ht Yp hN₁ hMM hag hS ha₁0 HBp HBk HBj hP hq colk
-      colj hκ hM hnum dsX₀ hN hj hF hFk hEb ht') hγ
+      colj hκ hM hnum dsX₀ hN hj hF hFk hEb ht') hKc hKb hγ
 
 /-- **The clauses `analyticE` and `boundE` of the successor class for the E-part recomputed on
 `𝔹 = localB t … Y⁺`** (P3 (4.46)-(4.47)).  The term of the polymer `Y` is the sum, over the
@@ -868,8 +874,8 @@ connected families `𝒞` of the expansion of the ambient set `G` with `Y[𝒞] 
 coefficients `coef(·, 𝒞)` in the parameters `w` of the `ψ̂`-integrated local E-part
 (`localB_eTermHat_integral`), evaluated at the cut-off `clipRaw 𝔹 (Ψ, h)` of the pair of fields.
 On the class domain `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})` (field `dom` of `xiFieldDom`), `ε_{k+1} ≤ ε'`, it is
-analytic and bounded by `Eb γ(box) e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}`, the bound of the
-ambient term (`eterm_expansion_hat_rawY`) times the mass of the box.  Uses the chart nesting
+analytic and bounded by `Eb γ(K) e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}`, the bound of the
+ambient term (`eterm_expansion_hat_rawY`) times the mass `γ(K)`.  Uses the chart nesting
 `analyticOnNhd_comp_clipRaw_xiFieldDom` and `evTerm_bound_analyticOnNhd_of_bd` (no locality). -/
 theorem localB_eTermHat_evTerm_xiFieldDom {ι : Type*} [DecidableEq ι] [Fintype ι] {ϱa : ℝ}
     {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱa} {cI : ι → ℕ × CTorus d L N₁ m₁ (k + 1)}
@@ -967,8 +973,8 @@ theorem localB_eTermHat_evTerm_xiFieldDom {ι : Type*} [DecidableEq ι] [Fintype
       P ∉ (coverOf (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁))))).parCubes X₁f
         → σ w ⟨P, hP⟩ = 1)
     {γ : Measure (unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
-    (hγ : γ {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-      → ℝ | ∀ r, |ψ r| ≤ cψ} < ⊤)
+      {K : Set (unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ) (hγ : γ K < ⊤)
     (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
       (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
         ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j' X))
@@ -976,8 +982,7 @@ theorem localB_eTermHat_evTerm_xiFieldDom {ι : Type*} [DecidableEq ι] [Fintype
     AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
         evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X)
           (fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
-          ∫ ψ in {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-            → ℝ | ∀ r, |ψ r| ≤ cψ},
+          ∫ ψ in K,
             eTermFun (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
               (compWeight L a₁) Fk E (F₁ (σ w, Θ))
         (Sol (σ w, flEdat (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁ (σ w, Θ)) Θ.1
@@ -1014,8 +1019,7 @@ theorem localB_eTermHat_evTerm_xiFieldDom {ι : Type*} [DecidableEq ι] [Fintype
           (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
       ‖evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X)
           (fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
-          ∫ ψ in {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-            → ℝ | ∀ r, |ψ r| ≤ cψ},
+          ∫ ψ in K,
             eTermFun (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
               (compWeight L a₁) Fk E (F₁ (σ w, Θ))
         (Sol (σ w, flEdat (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁ (σ w, Θ)) Θ.1
@@ -1043,14 +1047,12 @@ theorem localB_eTermHat_evTerm_xiFieldDom {ι : Type*} [DecidableEq ι] [Fintype
                       (ψ r : ℂ))))
                 (⟨unitBlock x, h⟩, i)
             else 0) ∂γ) Y (clipRaw (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) p)‖ ≤
-        Eb * (γ {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-          → ℝ | ∀ r, |ψ r| ≤ cψ}).toReal *
+        Eb * (γ K).toReal *
           Real.exp (-κ₀ * treeLenCovOne m₀ j' X - 2 * κdec * treeLenCov Ga m₀ Y) := by
   obtain ⟨hA, hB⟩ := localB_eTermHat_integral hb₁ hbC ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp HBk
     HBj hP hq colk colj hκ hM hMX hnum dsX₀ hN hj hF hHm hFkan hFk hE hmarD hαD hsm cc hcψ
-    hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hγ hEb
-  have hγ0 : 0 ≤ (γ {ψ : unitPts (GsSpec.localB t ht Yp (le_refl (minSep L (L ^ m₁)))) × Fin N
-    → ℝ | ∀ r, |ψ r| ≤ cψ}).toReal := ENNReal.toReal_nonneg
+    hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hEb
+  have hγ0 : 0 ≤ (γ K).toReal := ENNReal.toReal_nonneg
   have hEv := evTerm_bound_analyticOnNhd_of_bd (c := cI)
     (U := RawData d L (N₁ * L ^ m₁) (k + 1) N)
     hcov hd hL hcI hcinj hdisj hopt hκ₀ hκdec hκκ h1 hlog (mul_nonneg hEb0 hγ0) hA
