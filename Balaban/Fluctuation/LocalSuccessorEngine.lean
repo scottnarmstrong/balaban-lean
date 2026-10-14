@@ -37,7 +37,8 @@ different separation indices.
 * `classOldDecLocal_expansion_index`, `classOldDecObsLocal_expansion_index`: W754's expansions of
   one inherited label with the class `C` at its own index `ϱc` (the step at `ϱ`);
 * `classOldDecLocal_expansion_localB`: for a class at the low index `R₀(d, L)` whose term
-  generator at `(j, X)` is `𝔹_j(X) = localB j _ X hsep` and whose domain is `Ξ^c_j(𝔹_j(X); 1, ε_j)`, the chart hypothesis is the radius test `C₀² ε₂ ≤ ε_j` of a
+  generator at `(j, X)` is `𝔹_j(X) = localB j _ X hsep` and whose domain is
+  `Ξ^c_j(𝔹_j(X); 1, ε_j)`, the chart hypothesis is the radius test `C₀² ε₂ ≤ ε_j` of a
   whole-level generator; no factor of the restriction route enters;
 * `not_chartTest_newest`: that test (the same for a whole-level generator) is false at `j = k` for
   a chart radius `ε ≥ ε_{k+1}` when `2 L^α < C₀⁴` (`d = L = 3`): the composition chain of the landed
@@ -339,7 +340,8 @@ theorem classOldDecLocal_expansion_localB {P : Consts} {εseq : ℕ → ℝ}
 /-- **The radius test of the chart hypothesis fails for the newest old terms.**  The test
 `C₀² (C₀² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` of `classOldDecLocal_expansion_localB` (and of the
 whole-level route through `xiDom_of_xiCData`) is false at `j = k` for the class sequence when the
-chart radius is at least `ε_{k+1}` and `2 L^α < C₀⁴` (`not_chartTest_eps_succ`; e.g. `d = L = 3`). -/
+chart radius is at least `ε_{k+1}` and `2 L^α < C₀⁴` (`not_chartTest_eps_succ`; e.g.
+`d = L = 3`). -/
 theorem not_chartTest_newest {P : Consts} (hα₀ : 0 < P.α₀)
     (hK : 2 * (L : ℝ) ^ P.alpha d < scaledC0 d ^ 4) {eps δ₃ δfl : ℝ}
     (heps : P.eps d L (k + 1) ≤ eps) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl) :

@@ -22,7 +22,8 @@ sequence.
   the whole-level chart in the local chart (`localB_xiDom_massless_linear`) multiplies the radius by
   `K = (2 K₁ + 2) C₁`.  Lemma 4.2 of P3 (printed p. 77, condition (4.37)) needs
   `ε' + (K₂ + 1) δ₃ ≤ ε_k` for the radius `ε'` of the new chart and the radius `ε_k` of the input
-  terms.  With `ε' = K ε_{k+1}` and the input at `ε_k` this fails for the class sequence of P4 (H.1):
+  terms.  With `ε' = K ε_{k+1}` and the input at `ε_k` this fails for the class sequence of
+  P4 (H.1):
   `ε_k ≤ 2 L^α ε_{k+1}` (`epsSeq_le_two_rpow_mul_succ`) and `2 L^α < K` when `α ≤ 2`
   (`two_rpow_lt_localLoss`), so `K ε_{k+1} + δ > ε_k` (`not_localLoss_eps_succ_le`).
 * **The chart test of the landed expansion has the same defect for every class**
@@ -274,8 +275,8 @@ theorem not_chartTest_eps_succ {d L : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 <
   exact not_mul_eps_succ_add_le P hα₀ hK k (mul_nonneg hC hδ) h4
 
 /-- `α = (d - 2)/2 - γ ≤ 2` for `d ≤ 6` and `γ ≥ 0` (the case `d = 3` of the fixed tower). -/
-theorem _root_.Balaban.SmallField.Def6.Consts.alpha_le_two {d : ℕ} (P : Consts) (hd : d ≤ 6) (hγ : 0 ≤ P.γ) :
-    P.alpha d ≤ 2 := by
+theorem _root_.Balaban.SmallField.Def6.Consts.alpha_le_two {d : ℕ} (P : Consts) (hd : d ≤ 6)
+    (hγ : 0 ≤ P.γ) : P.alpha d ≤ 2 := by
   unfold Consts.alpha
   have : (d : ℝ) ≤ 6 := by exact_mod_cast hd
   linarith
