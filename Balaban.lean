@@ -1928,4 +1928,11 @@ public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
 public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
+public import Balaban.Fluctuation.LocalPairCubeOps
+public import Balaban.Fluctuation.LocalPairGs
+public import Balaban.Fluctuation.LocalPairDecFixed
+public import Balaban.Fluctuation.LocalPairDecBg
+public import Balaban.Fluctuation.LocalPairCompose
+public import Balaban.Fluctuation.LocalPairReplacement
+public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Inhabited.RootParams
