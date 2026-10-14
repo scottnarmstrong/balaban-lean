@@ -30,7 +30,7 @@ bond, with explicit majorants on the region `‖w x‖ ≤ √β / 2` (that is `
 The dependence of `α` on the coarse field `θ` is nonlocal; it enters only through the fixed `a`
 (blocker G4 of BASEPLAN).
 
-The last section states the footprint-margin theorem `baseFootprint_margin_of_cutoff` (BASE-KERNEL-4
+The last section states the footprint-margin theorem `baseFootprint_margin_of_cutoff_of_bondCross` (BASE-KERNEL-4
 (2.6), (2.8)) with the background comparison across `∂Ω''` as an explicit hypothesis.
 -/
 
@@ -372,7 +372,7 @@ section Margin
 
 variable {d N : ℕ} (nn : ℕ → ℕ) (L M K : ℕ) [∀ k, NeZero (nn k)] [NeZero M] [NeZero L]
 
-/-- **T1, `baseFootprint_margin_of_cutoff`** (BASE-KERNEL-4 (2.6), (2.8)).  On the support of the
+/-- **T1, conditional form, `baseFootprint_margin_of_cutoff_of_bondCross`.** The crossing-bond margin `bondCross` (sector centre against the retained spin across ∂Ω″, P5 Lemma 2.1) is a HYPOTHESIS here and is the open content of T1; for those bonds this theorem proves nothing new. (BASE-KERNEL-4 (2.6), (2.8)).  On the support of the
 fluctuation cutoff, `|φ - e| ≤ r` on the footprints of `𝒥₊` with the chart radius `r ≤ δ₀/4`
 of (2.8), the strict margins (2.4) of `BaseCutoffMargins` hold on the footprints of `𝒥₊`.
 
@@ -385,7 +385,7 @@ The background `e` is the sector background on the set `Din` and the retained sp
   landed results and is exactly what remains open (BASE-KERNEL-4 §2, row 3).
 The block test (`block`) and the regime-(B) site test (`site`) are the other output tests of (2.6).
 The conclusion for the three first cases is `baseCutoffMargins_of_convenient`. -/
-theorem baseFootprint_margin_of_cutoff {regimeB : Prop} {ν δ₀ r : ℝ} {h : Fin N → ℝ}
+theorem baseFootprint_margin_of_cutoff_of_bondCross {regimeB : Prop} {ν δ₀ r : ℝ} {h : Fin N → ℝ}
     {P : Set (Torus d (nn 1))} {Dplus : Set (Torus d (M * nn K * L ^ K))}
     {φ e : Torus d (M * nn K * L ^ K) → Fin N → ℝ}
     {θ : Torus d (M * nn K * L ^ (K - 1)) → Fin N → ℝ}
