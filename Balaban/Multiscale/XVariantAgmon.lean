@@ -249,9 +249,9 @@ theorem xS2_le {ak b x : ℝ} (hak : 0 < ak) (hb : 0 ≤ b) (hx : 0 ≤ x) : xS2
 theorem xS2_nonneg {ak b x : ℝ} (hak : 0 < ak) (hb : 0 ≤ b) (hx : 0 ≤ x) : 0 ≤ xS2 ak b x := by
   unfold xS2; positivity
 
-/-- **The conjugation error of the x-variant averaging form.**  With `B = (e^{2εd} - 1)²`,
-`(w²φ)ᵀ A φ - (wφ)ᵀ A (wφ) ≥ - L² B ‖ℓ⁻¹ (wφ)‖²`, uniformly in `x ≥ 0`. -/
-theorem xAvg_diff_ge (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+/-- Core of `xAvg_diff_ge` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xAvg_diff_ge_of_ak {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ}
     (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (hL : 3 ≤ L)
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
@@ -265,7 +265,6 @@ theorem xAvg_diff_ge (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights 
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hL0 : (0 : ℝ) < L := by linarith
   have hL1 : (1 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
-  have hak := ha k hk le_rfl
   have hak0 : 0 < a k := by linarith [hak.1]
   have hb0 : 0 ≤ aT / (L : ℝ) ^ 2 := by positivity
   set s₁ := xS1 (a k) x with hs₁d
@@ -394,6 +393,21 @@ theorem xAvg_diff_ge (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights 
   rw [hwsq, mul_add]
   exact combine_aux hsum hbnd1 e1 e2 hbnd2
 
+/-- **The conjugation error of the x-variant averaging form.**  With `B = (e^{2εd} - 1)²`,
+`(w²φ)ᵀ A φ - (wφ)ᵀ A (wφ) ≥ - L² B ‖ℓ⁻¹ (wφ)‖²`, uniformly in `x ≥ 0`. -/
+theorem xAvg_diff_ge (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+    (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (hL : 3 ≤ L)
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
+    -((L : ℝ) ^ 2 * (Real.exp (ε * (2 * d)) - 1) ^ 2 *
+        wsq G (fun y => Real.exp (ε * r y) * φ y)) ≤
+      (fun y => Real.exp (ε * r y) ^ 2 * φ y) ⬝ᵥ
+          xAvgMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) *ᵥ φ -
+        (fun y => Real.exp (ε * r y) * φ y) ⬝ᵥ
+          xAvgMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) *ᵥ
+            (fun y => Real.exp (ε * r y) * φ y) :=
+  xAvg_diff_ge_of_ak G ha (ha k hk le_rfl) haT1 hx hL hr hε0 φ
+
 end XErr
 
 section XEnergy
@@ -448,12 +462,10 @@ theorem kappa_x_le (hd : 0 < d) (hL : 3 ≤ L) {ε : ℝ} (hε0 : 0 ≤ ε) (hε
     nlinarith
   nlinarith
 
-/-- **The modified commutator estimate for `G_{k,x}`** (GREEN.md §4.2, F-04): for `w = exp (ε r)`,
-`v = w φ`, uniformly in `x ≥ 0`,
-`½ ‖∂v‖² + (c_x - 4 d ε² - L² (e^{2εd} - 1)²) ‖ℓ⁻¹ v‖² ≤ ∑ w² φ (A_x φ)`,
-`A_x = -Δ + ν + Q* a Q|_x`. -/
-theorem x_weighted_core (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+/-- Core of `x_weighted_core` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_weighted_core_of_ak (hd : 0 < d) (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ 1 / 2) {φ : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hφ : ∀ y, y ∉ G.Ω 1 → φ y = 0) :
     (1 / 2) * latticeEnergy (fun y => Real.exp (ε * r y) * φ y) +
@@ -462,10 +474,10 @@ theorem x_weighted_core (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → 
       (fun y => Real.exp (ε * r y) ^ 2 * φ y) ⬝ᵥ
         xFullMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) ν *ᵥ φ := by
   set v : Torus d (N₀ * L ^ (k + 1)) → ℝ := fun y => Real.exp (ε * r y) * φ y with hv
-  have hcore := xCore_real G hd hL hk hν ha haT1 haT2 hx v
+  have hcore := xCore_real_of_ak G hd hL hν ha hak haT1 haT2 hx v
   have hlap := lap_diff r ε ν φ
   have hlapE := lap_error_le G hr hε0 hε1 hφ
-  have havg := xAvg_diff_ge G hk ha haT1 hx hL hr hε0 φ
+  have havg := xAvg_diff_ge_of_ak G ha hak haT1 hx hL hr hε0 φ
   have hwsq : ∑ y, invSqSpacing G y * v y ^ 2 = wsq G v := rfl
   rw [hwsq] at hcore
   have hsplit : ∀ ψ : Torus d (N₀ * L ^ (k + 1)) → ℝ, ∀ g : Torus d (N₀ * L ^ (k + 1)) → ℝ,
@@ -479,11 +491,25 @@ theorem x_weighted_core (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → 
   rw [hlap]
   nlinarith [hcore, hlapE, havg]
 
-/-- **The Agmon energy inequality for `G_{k,x}`**, uniformly in `x ≥ 0`:
-for `0 ≤ ε ≤ ε₀' = c_x/(16 d L)`, `H_{k,x}(α₀) u = f`, `v = w ũ`,
-`½ ‖∂v‖² + (c_x/4) ‖ℓ⁻¹ v‖² ≤ c_x⁻¹ ‖ℓ w f‖²`. -/
-theorem x_agmon_energy (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+/-- **The modified commutator estimate for `G_{k,x}`** (GREEN.md §4.2, F-04): for `w = exp (ε r)`,
+`v = w φ`, uniformly in `x ≥ 0`,
+`½ ‖∂v‖² + (c_x - 4 d ε² - L² (e^{2εd} - 1)²) ‖ℓ⁻¹ v‖² ≤ ∑ w² φ (A_x φ)`,
+`A_x = -Δ + ν + Q* a Q|_x`. -/
+theorem x_weighted_core (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
     (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ 1 / 2) {φ : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hφ : ∀ y, y ∉ G.Ω 1 → φ y = 0) :
+    (1 / 2) * latticeEnergy (fun y => Real.exp (ε * r y) * φ y) +
+        (xPoincareConst d - (4 * d * ε ^ 2 + (L : ℝ) ^ 2 * (Real.exp (ε * (2 * d)) - 1) ^ 2)) *
+          wsq G (fun y => Real.exp (ε * r y) * φ y) ≤
+      (fun y => Real.exp (ε * r y) ^ 2 * φ y) ⬝ᵥ
+        xFullMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) ν *ᵥ φ :=
+  x_weighted_core_of_ak G hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx hr hε0 hε1 hφ
+
+/-- Core of `x_agmon_energy` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_agmon_energy_of_ak (hd : 0 < d) (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
     (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ xAgmonRate d L) {u f : G.Ω 1 → ℂ}
@@ -507,7 +533,21 @@ theorem x_agmon_energy (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → �
       unfold xCoerciveConst; ring
     rwa [e] at this
   · intro φ hφ
-    exact x_weighted_core G hd hL hk hν ha haT1 haT2 hx hr hε0 hεhalf hφ
+    exact x_weighted_core_of_ak G hd hL hν ha hak haT1 haT2 hx hr hε0 hεhalf hφ
+
+/-- **The Agmon energy inequality for `G_{k,x}`**, uniformly in `x ≥ 0`:
+for `0 ≤ ε ≤ ε₀' = c_x/(16 d L)`, `H_{k,x}(α₀) u = f`, `v = w ũ`,
+`½ ‖∂v‖² + (c_x/4) ‖ℓ⁻¹ v‖² ≤ c_x⁻¹ ‖ℓ w f‖²`. -/
+theorem x_agmon_energy (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+    (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) {u f : G.Ω 1 → ℂ}
+    (hu : xDirichletOperator G a aT x ν α *ᵥ u = f) :
+    (1 / 2) * cEnergy (agmonField G ε r u) +
+        (xPoincareConst d / 4) * cwsq G (agmonField G ε r u) ≤
+      (1 / xPoincareConst d) * agmonSource G ε r f :=
+  x_agmon_energy_of_ak G hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα hr hε0 hε1 hu
 
 end XEnergy
 
@@ -719,24 +759,29 @@ section XBlock
 variable {k : ℕ}
 variable (G : GeneratingSet d L N₀ (k + 1) ϱ)
 
+/-- Core of `xDirichletOperator_mulVec_inv` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xDirichletOperator_mulVec_inv_of_ak (hd : 0 < d) (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2)) (f : G.Ω 1 → ℂ) :
+    xDirichletOperator G a aT x ν α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) = f := by
+  have hU := xDirichletOperator_isUnit_of_ak G hd hL hν ha hak haT1 haT2 hx α hα
+  rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
+    Matrix.one_mulVec]
+
 /-- `H_{k,x}(α₀) G_{k,x}(α₀) f = f`. -/
 theorem xDirichletOperator_mulVec_inv (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
     {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2)) (f : G.Ω 1 → ℂ) :
-    xDirichletOperator G a aT x ν α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) = f := by
-  have hU := xDirichletOperator_isUnit G hd hL hk hν ha haT1 haT2 hx α hα
-  rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
-    Matrix.one_mulVec]
+    xDirichletOperator G a aT x ν α *ᵥ ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) = f :=
+  xDirichletOperator_mulVec_inv_of_ak G hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα f
 
-/-- **G-2(vii)(i): the `L²` Agmon block decay for `G_{k,x}(α₀)`, uniformly in `x ≥ 0`.**
-Let `G` be a generating set of level `k + 1` (so `Ω_{k+1}` is its top layer), `u` solve
-`H_{k,x}(α₀) u = f` with `f` supported in the block `Δ_{j'}(y')`, `y ∈` layer `j`,
-`1 ≤ j, j' ≤ k + 1`, `0 ≤ ε ≤ ε₀' = c_x/(16 d L)`, `L ≤ exp ((ε/2)(ϱ - 1))`. Then for
-`0 ≤ t ≤ d(y, y')`
-`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c_x) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`. -/
-theorem green_G2i_x (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+/-- Core of `green_G2i_x` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem green_G2i_x_of_ak (hd : 0 < d) (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
     (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
     {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k + 1)
     {y y' : Torus d (N₀ * L ^ (k + 1))} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
@@ -762,8 +807,53 @@ theorem green_G2i_x (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
       exact mul_le_mul_of_nonneg_left this (by positivity)
     nlinarith
   exact green_G2i_gen G hd hc0 hc2 hj1 hjk hj'1 hj'k hy hy' hε0 hεd
-    (fun r hr => x_agmon_energy G hd hL hk hν ha haT1 haT2 hx α hα hr hε0 hε1 hu) hsupp ht0 ht
+    (fun r hr => x_agmon_energy_of_ak G hd hL hν ha hak haT1 haT2 hx α hα hr hε0 hε1 hu) hsupp ht0 ht
     hϱ hsep
+
+/-- **G-2(vii)(i): the `L²` Agmon block decay for `G_{k,x}(α₀)`, uniformly in `x ≥ 0`.**
+Let `G` be a generating set of level `k + 1` (so `Ω_{k+1}` is its top layer), `u` solve
+`H_{k,x}(α₀) u = f` with `f` supported in the block `Δ_{j'}(y')`, `y ∈` layer `j`,
+`1 ≤ j, j' ≤ k + 1`, `0 ≤ ε ≤ ε₀' = c_x/(16 d L)`, `L ≤ exp ((ε/2)(ϱ - 1))`. Then for
+`0 ≤ t ≤ d(y, y')`
+`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c_x) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`. -/
+theorem green_G2i_x (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+    (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
+    {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k + 1)
+    {y y' : Torus d (N₀ * L ^ (k + 1))} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {u f : G.Ω 1 → ℂ} (hu : xDirichletOperator G a aT x ν α *ᵥ u = f)
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ (k + 1) j' z = jBlock d L N₀ (k + 1) j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ z ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (z + Pi.single μ 1) - zeroExt (G.Ω 1) u z‖ ^ 2) +
+      Real.sqrt (∑ z ∈ G.blk j y, ‖zeroExt (G.Ω 1) u z‖ ^ 2) ≤
+    13 * L / xPoincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
+      Real.sqrt (Green.sqNorm f) :=
+  green_G2i_x_of_ak G hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα hj1 hjk hj'1 hj'k hy hy' hu hsupp ht0 ht hε0 hε1 hϱ hsep
+
+/-- Core of `green_G2i_x_green` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem green_G2i_x_green_of_ak (hd : 0 < d) (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+    (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ xCoerciveConst d / (2 * (G.spacing y) ^ 2))
+    {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k + 1)
+    {y y' : Torus d (N₀ * L ^ (k + 1))} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {f : G.Ω 1 → ℂ}
+    (hsupp : ∀ z : G.Ω 1, f z ≠ 0 → jBlock d L N₀ (k + 1) j' z = jBlock d L N₀ (k + 1) j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ z ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) (z + Pi.single μ 1) -
+          zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) z‖ ^ 2) +
+      Real.sqrt (∑ z ∈ G.blk j y,
+        ‖zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) z‖ ^ 2) ≤
+    13 * L / xPoincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
+      Real.sqrt (Green.sqNorm f) :=
+  green_G2i_x_of_ak G hd hL hν ha hak haT1 haT2 hx α hα hj1 hjk hj'1 hj'k hy hy'
+    (xDirichletOperator_mulVec_inv_of_ak G hd hL hν ha hak haT1 haT2 hx α hα f) hsupp ht0 ht hε0 hε1 hϱ
+    hsep
 
 /-- **G-2(vii)(i) for the Green's function** `G_{k,x}(α₀) = H_{k,x}(α₀)⁻¹`. -/
 theorem green_G2i_x_green (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
@@ -783,9 +873,7 @@ theorem green_G2i_x_green (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ �
         ‖zeroExt (G.Ω 1) ((xDirichletOperator G a aT x ν α)⁻¹ *ᵥ f) z‖ ^ 2) ≤
     13 * L / xPoincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
       Real.sqrt (Green.sqNorm f) :=
-  green_G2i_x G hd hL hk hν ha haT1 haT2 hx α hα hj1 hjk hj'1 hj'k hy hy'
-    (xDirichletOperator_mulVec_inv G hd hL hk hν ha haT1 haT2 hx α hα f) hsupp ht0 ht hε0 hε1 hϱ
-    hsep
+  green_G2i_x_green_of_ak G hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα hj1 hjk hj'1 hj'k hy hy' hsupp ht0 ht hε0 hε1 hϱ hsep
 
 end XBlock
 

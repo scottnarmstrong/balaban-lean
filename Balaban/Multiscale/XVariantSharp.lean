@@ -102,14 +102,14 @@ section Core
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 variable (G : GeneratingSet d L N₀ (k + 1) ϱ)
 
-/-- **G-1(a′), real core, `d`-free.** For `ν ≥ 0`, `a_j ∈ [1/2, 2]` (`j ≤ k`), `a ∈ [1/2, 2]`,
-`x ≥ 0`: `½ ‖∂φ‖² + ¼ ‖ℓ⁻¹ φ‖² ≤ φᵀ (-Δ + ν + Q* a Q|_x) φ`, uniformly in `x`. -/
-theorem xCore_real_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+/-- Core of `xCore_real_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xCore_real_sharp_of_ak (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
     (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
     (1 / 2) * latticeEnergy φ + xPoincareConstSharp * ∑ y, invSqSpacing G y * φ y ^ 2 ≤
       φ ⬝ᵥ xFullMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) ν *ᵥ φ := by
-  obtain ⟨hs₁, hs, hcase⟩ := xSymbols_cases (L := L) hL (ha k hk le_rfl).1 haT1 haT2 hx
+  obtain ⟨hs₁, hs, hcase⟩ := xSymbols_cases (L := L) hL hak.1 haT1 haT2 hx
   unfold xFullMatrix
   rw [Matrix.add_mulVec, dotProduct_add, latticeLaplacian_quadratic, xAvgMatrix_quadratic]
   have hE := sum_innerEnergy_le G φ
@@ -150,6 +150,15 @@ theorem xCore_real_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : �
   rw [hlay']
   linarith
 
+/-- **G-1(a′), real core, `d`-free.** For `ν ≥ 0`, `a_j ∈ [1/2, 2]` (`j ≤ k`), `a ∈ [1/2, 2]`,
+`x ≥ 0`: `½ ‖∂φ‖² + ¼ ‖ℓ⁻¹ φ‖² ≤ φᵀ (-Δ + ν + Q* a Q|_x) φ`, uniformly in `x`. -/
+theorem xCore_real_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x)
+    (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
+    (1 / 2) * latticeEnergy φ + xPoincareConstSharp * ∑ y, invSqSpacing G y * φ y ^ 2 ≤
+      φ ⬝ᵥ xFullMatrix G a (xS1 (a k) x) (xS2 (a k) (aT / (L : ℝ) ^ 2) x) ν *ᵥ φ :=
+  xCore_real_sharp_of_ak G hL hν ha (ha k hk le_rfl) haT1 haT2 hx φ
+
 end Core
 
 section Complex
@@ -157,17 +166,17 @@ section Complex
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 variable (G : GeneratingSet d L N₀ (k + 1) ϱ)
 
-/-- **G-1(a′), the quadratic form, `d`-free** (uniform in `x ≥ 0`): for `θ ≥ 0` and
-`|α₀(y)| ≤ θ ℓ(y)⁻²`, `(1/4 - θ) (‖∂ũ‖² + ‖ℓ⁻¹u‖²) ≤ Re ⟨u, H_{k,x}(α₀) u⟩`. -/
-theorem x_multiscale_coercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
-    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+/-- Core of `x_multiscale_coercive_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_multiscale_coercive_sharp_of_ak (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
     (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) (u : G.Ω 1 → ℂ) :
     (1 / 4 - θ) * (dirichletEnergy G u + weightedSqNorm G u) ≤
       Green.reQuad (xDirichletOperator G a aT x ν α) u := by
   rw [reQuad_xDirichletOperator, reQuad_map_ofReal]
-  have h1 := xCore_real_sharp G hL hk hν ha haT1 haT2 hx (fun y => (zeroExt (G.Ω 1) u y).re)
-  have h2 := xCore_real_sharp G hL hk hν ha haT1 haT2 hx (fun y => (zeroExt (G.Ω 1) u y).im)
+  have h1 := xCore_real_sharp_of_ak G hL hν ha hak haT1 haT2 hx (fun y => (zeroExt (G.Ω 1) u y).re)
+  have h2 := xCore_real_sharp_of_ak G hL hν ha hak haT1 haT2 hx (fun y => (zeroExt (G.Ω 1) u y).im)
   have hw := sum_invSqSpacing_eq G u
   have hsplit : ∑ y, invSqSpacing G y * ‖zeroExt (G.Ω 1) u y‖ ^ 2 =
       ∑ y, invSqSpacing G y * (zeroExt (G.Ω 1) u y).re ^ 2 +
@@ -195,16 +204,26 @@ theorem x_multiscale_coercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → �
   rw [hq] at h1 h2
   nlinarith
 
-/-- **G-1(a′), coercivity, `d`-free**, for `0 ≤ θ < 1/4`, `|α₀(y)| ≤ θ ℓ(y)⁻²`, and
-`γ ≤ ℓ(y)⁻²` on `Ω₁`: `H_{k,x}(α₀)` is `(1/4 - θ) γ`-coercive, uniformly in `x ≥ 0`. -/
-theorem xDirichletOperator_isCoercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
-    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+/-- **G-1(a′), the quadratic form, `d`-free** (uniform in `x ≥ 0`): for `θ ≥ 0` and
+`|α₀(y)| ≤ θ ℓ(y)⁻²`, `(1/4 - θ) (‖∂ũ‖² + ‖ℓ⁻¹u‖²) ≤ Re ⟨u, H_{k,x}(α₀) u⟩`. -/
+theorem x_multiscale_coercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+    (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) (u : G.Ω 1 → ℂ) :
+    (1 / 4 - θ) * (dirichletEnergy G u + weightedSqNorm G u) ≤
+      Green.reQuad (xDirichletOperator G a aT x ν α) u :=
+  x_multiscale_coercive_sharp_of_ak G hL hν ha (ha k hk le_rfl) haT1 haT2 hx hθ0 α hα u
+
+/-- Core of `xDirichletOperator_isCoercive_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xDirichletOperator_isCoercive_sharp_of_ak (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ : θ < 1 / 4) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) {γ : ℝ}
     (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
     Green.IsCoercive (xDirichletOperator G a aT x ν α) ((1 / 4 - θ) * γ) := by
   intro u
-  have h := x_multiscale_coercive_sharp G hL hk hν ha haT1 haT2 hx hθ0 α hα u
+  have h := x_multiscale_coercive_sharp_of_ak G hL hν ha hak haT1 haT2 hx hθ0 α hα u
   have hc : 0 < 1 / 4 - θ := by linarith
   have hsq : γ * Green.sqNorm u ≤ weightedSqNorm G u := by
     unfold Green.sqNorm weightedSqNorm
@@ -215,6 +234,32 @@ theorem xDirichletOperator_isCoercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : �
   have hDE := dirichletEnergy_nonneg G u
   nlinarith
 
+/-- **G-1(a′), coercivity, `d`-free**, for `0 ≤ θ < 1/4`, `|α₀(y)| ≤ θ ℓ(y)⁻²`, and
+`γ ≤ ℓ(y)⁻²` on `Ω₁`: `H_{k,x}(α₀)` is `(1/4 - θ) γ`-coercive, uniformly in `x ≥ 0`. -/
+theorem xDirichletOperator_isCoercive_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ : θ < 1 / 4) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) {γ : ℝ}
+    (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
+    Green.IsCoercive (xDirichletOperator G a aT x ν α) ((1 / 4 - θ) * γ) :=
+  xDirichletOperator_isCoercive_sharp_of_ak G hL hν ha (ha k hk le_rfl) haT1 haT2 hx hθ0 hθ α hα hγ
+
+/-- Core of `xDirichletOperator_isCoercive_N1` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xDirichletOperator_isCoercive_N1_of_ak (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ (aT / 12) / (G.spacing y) ^ 2) {γ : ℝ}
+    (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
+    Green.IsCoercive (xDirichletOperator G a aT x ν α) (γ / 12) := by
+  have h := xDirichletOperator_isCoercive_sharp_of_ak G hL hν ha hak haT1 haT2 hx
+    (θ := 1 / 6) (by norm_num) (by norm_num) α
+    (fun y => (hα y).trans (by
+      have hp : 0 < (G.spacing y) ^ 2 := by have := spacing_pos G (x := y.1); positivity
+      exact div_le_div_of_nonneg_right (by linarith) hp.le)) hγ
+  have e : (1 / 4 - 1 / 6 : ℝ) * γ = γ / 12 := by ring
+  rwa [e] at h
+
 /-- **The range of N-1** (GREEN.md re-review): with `|α₀(y)| ≤ (a_{k+1}/12) ℓ(y)⁻²`, that is
 `|α₀| ≤ a_{k+1} L⁻² / 12` on `Ω_{k+1}` (`a_{k+1} = aT ∈ [1/2, 2]`; `a_{k+1}/12 ≤ 1/6 < 1/4`),
 `H_{k,x}(α₀)` is `γ / 12`-coercive for every `γ ≤ ℓ⁻²` on `Ω₁`, uniformly in `x ≥ 0`. -/
@@ -223,18 +268,13 @@ theorem xDirichletOperator_isCoercive_N1 (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ 
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ (aT / 12) / (G.spacing y) ^ 2) {γ : ℝ}
     (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
-    Green.IsCoercive (xDirichletOperator G a aT x ν α) (γ / 12) := by
-  have h := xDirichletOperator_isCoercive_sharp G hL hk hν ha haT1 haT2 hx
-    (θ := 1 / 6) (by norm_num) (by norm_num) α
-    (fun y => (hα y).trans (by
-      have hp : 0 < (G.spacing y) ^ 2 := by have := spacing_pos G (x := y.1); positivity
-      exact div_le_div_of_nonneg_right (by linarith) hp.le)) hγ
-  have e : (1 / 4 - 1 / 6 : ℝ) * γ = γ / 12 := by ring
-  rwa [e] at h
+    Green.IsCoercive (xDirichletOperator G a aT x ν α) (γ / 12) :=
+  xDirichletOperator_isCoercive_N1_of_ak G hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα hγ
 
-/-- **G-1(a′), invertibility, `d`-free**, for `|α₀(y)| ≤ ℓ(y)⁻² / 8`. -/
-theorem xDirichletOperator_isUnit_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
-    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+/-- Core of `xDirichletOperator_isUnit_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xDirichletOperator_isUnit_sharp_of_ak (hL : 3 ≤ L) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
     (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) :
     IsUnit (xDirichletOperator G a aT x ν α) := by
@@ -242,11 +282,19 @@ theorem xDirichletOperator_isUnit_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ �
   refine Green.isUnit_of_isCoercive
     (γ := (1 / 4 - 1 / 8) * (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹)
     (mul_pos (by norm_num) (inv_pos.2 (by positivity)))
-    (xDirichletOperator_isCoercive_sharp G hL hk hν ha haT1 haT2 hx (θ := 1 / 8)
+    (xDirichletOperator_isCoercive_sharp_of_ak G hL hν ha hak haT1 haT2 hx (θ := 1 / 8)
       (by norm_num) (by norm_num) α hα
       (γ := (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹) fun y => ?_)
   have hp : 0 < G.spacing y := spacing_pos G
   exact inv_anti₀ (by positivity) (pow_le_pow_left₀ hp.le (spacing_le G y.2) 2)
+
+/-- **G-1(a′), invertibility, `d`-free**, for `|α₀(y)| ≤ ℓ(y)⁻² / 8`. -/
+theorem xDirichletOperator_isUnit_sharp (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2)
+    (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) :
+    IsUnit (xDirichletOperator G a aT x ν α) :=
+  xDirichletOperator_isUnit_sharp_of_ak G hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα
 
 end Complex
 
