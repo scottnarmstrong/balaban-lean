@@ -73,8 +73,11 @@ theorem flReal_facts {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (
   refine ⟨hI.small, hsup, ?_⟩
   rw [ht22]; exact hψ
 
-/-- **The block energy is bounded on the realizable triples.** -/
-theorem blockEnergyFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+/-- **The block energy is bounded on the realizable triples, from the numerical facts alone**:
+the proof uses of `FlCore` only `0 ≤ BG`, `0 ≤ BG₂`, `0 < d`, `0 < δ₁`, `0 ≤ ν` and the
+admissible weights, which are the explicit hypotheses here. -/
+theorem blockEnergyFun_bound_of_num (hd : 0 < d) (hBG : 0 ≤ BG) (hBG₂ : 0 ≤ BG₂)
+    (hδ₁ : 0 < δ₁) (hν : 0 ≤ ν) (hw : IsAdmissibleWeights K (compWeight L a₁))
     {n : ℕ} (hn1 : 1 ≤ n) (hn : n + 1 ≤ K) (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
     {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
       (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
@@ -83,23 +86,33 @@ theorem blockEnergyFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂
       energyBd d L N (compWeight L a₁) ν n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
         (rho4 d L N BG κ) := by
   obtain ⟨hα, hsup, hψ⟩ := flReal_facts ht
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
+    have := famConst_ge_one (L := L) hBG₂ κ hd; linarith
   have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
+    mul_nonneg (cK2'_nonneg hB0) hδ₁.le
   have hρ : 0 ≤ rho4 d L N BG κ := by
-    have hBG := hC.hS.fam.2.1
     have hB1 : 0 ≤ famConst d L BG κ := by
-      have := famConst_ge_one (L := L) hBG κ hd0; linarith
+      have := famConst_ge_one (L := L) hBG κ hd; linarith
     unfold rho4
-    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
+    exact (c6'_pos hB1 (by have := gamma1_pos hd; positivity)).le
   have ha : 0 ≤ compWeight L a₁ n :=
-    (hC.HBp.weights n hn1 (by omega)).1.trans' (by norm_num)
-  exact energyBlock_bound hn ha hC.HBp.mass hV hC.δ₁_pos.le hρ hsup.val hα
+    (hw n hn1 (by omega)).1.trans' (by norm_num)
+  exact energyBlock_bound hn ha hν hV hδ₁.le hρ hsup.val hα
     (fun x hx i => by
       have hxd : x ∈ dataSites Hm := (mem_dataSites Hm).2 (Or.inl hx)
       exact (norm_le_vn _ i).trans (hψ x hxd).le) z
+
+/-- **The block energy is bounded on the realizable triples.** -/
+theorem blockEnergyFun_bound (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {n : ℕ} (hn1 : 1 ≤ n) (hn : n + 1 ≤ K) (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    (ht : t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖blockEnergyFun Gp Hm (compWeight L a₁) ν n z t.1 t.2.1 t.2.2‖ ≤
+      energyBd d L N (compWeight L a₁) ν n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
+        (rho4 d L N BG κ) :=
+  blockEnergyFun_bound_of_num (by have := hC.HBp.hd; omega) hC.hS.fam.2.1 hC.hS2.fam.2.1
+    hC.δ₁_pos hC.HBp.mass hC.HBp.weights hn1 hn z ht
 
 /-- **Locality of the block energy**: it reads the multiplier on the block, and the fluctuation
 and the tangent on the sites `readSites`. -/
