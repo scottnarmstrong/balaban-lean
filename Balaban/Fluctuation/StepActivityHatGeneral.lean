@@ -78,7 +78,7 @@ variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
 datum `D'` of `Ξ^c(𝔹_{k+1}; 1, ε)` and a hat variable `ψ̂` with `‖s ψ̂‖ < c_ψ`, the function
 `λ ↦ flComp (rawOf D', hatLift cc D' (λ ψ̂))` is analytic at `λ = s`, for an old term `E` analytic
 on `Ξ^c_j(𝔹_j(X); C₀, ε₂)`. -/
-theorem analyticAt_flComp_hatRay
+theorem analyticAt_flComp_hatRay_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
     (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1))
@@ -95,8 +95,8 @@ theorem analyticAt_flComp_hatRay
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
     {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
-    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
-      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
     {D' : BgData Gp N} (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
     (ψh : unitPts Gp × Fin N → ℂ) {s : ℂ} (hs : ∀ p, ‖s * ψh p‖ < cψ) :
     AnalyticAt ℂ (fun l : ℂ =>
@@ -136,10 +136,39 @@ theorem analyticAt_flComp_hatRay
     triple_one_mem hC hD' (hmem s fun p => (hs p).le)
   have han : AnalyticAt ℂ (fun l : ℂ =>
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (T l).1 (T l).2.1 (T l).2.2) s :=
-    (eTermFun_analytic hB hF hFkan hFk hEan (T s) hTs).comp hTan
+    (eTermFun_analytic_of_one_le hb₁ hbC hB hF hFkan hFk hEan (T s) hTs).comp hTan
   refine han.congr ?_
   filter_upwards [hU] with l hl
   exact eTermFun_value hB hF hFk E hD' (hmem l hl)
+
+/-- **An old-term functional is holomorphic along the complex ray of the hat variable**: for a
+datum `D'` of `Ξ^c(𝔹_{k+1}; 1, ε)` and a hat variable `ψ̂` with `‖s ψ̂‖ < c_ψ`, the function
+`λ ↦ flComp (rawOf D', hatLift cc D' (λ ψ̂))` is analytic at `λ = s`, for an old term `E` analytic
+on `Ξ^c_j(𝔹_j(X); C₀, ε₂)`. -/
+theorem analyticAt_flComp_hatRay
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1))
+    (H : BgHyp d L (k + 1) ϱm (compWeight L a₁) ν) (hc7 : c7 d L N BG κ ≤ thm73C3 d L N)
+    {R : ℝ} (hR : 2 ≤ R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    {D' : BgData Gp N} (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    (ψh : unitPts Gp × Fin N → ℂ) {s : ℂ} (hs : ∀ p, ‖s * ψh p‖ < cψ) :
+    AnalyticAt ℂ (fun l : ℂ =>
+      flComp hB hF E (rawOf D', hatLift Gp a₁ ν hG' cc D' (l • ψh))) s :=
+  analyticAt_flComp_hatRay_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' H hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm cc hcψ hδ₁ hEan hD' ψh hs
 
 end ERay
 
@@ -492,15 +521,15 @@ include R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc h
 values**: for `t ∈ [0,1]` and `χ_fl(ψ̂) = 1`,
 `dirTermSrc (hatFun … (flComp …)) 1 ψ̂ ψ̂ t Θ = F(t ψ̂) - F(0)` with
 `F(ψ̂) = hatFun … (flComp …) (Θ, ψ̂)`.  There is no factor `t²`. -/
-theorem dirTermSrc_flComp_ray {ϱ₁ ϱ₂ : ℝ}
+theorem dirTermSrc_flComp_ray_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {ϱ₁ ϱ₂ : ℝ}
     {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
     {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂} {r₀ δ₃ δfl : ℝ}
     {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
     (hB : BgSetting N S.G' Gk Gj S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N S.G' Gk (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
-    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L S.a₁) S.ν j (scaledC0 d)
-      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L S.a₁) S.ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
     {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x : S.E} (hx : chiFl S.U N S.p₁ x = 1) :
     dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
         (flComp hB hF E)) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ) (rawOf S.D') =
@@ -518,7 +547,7 @@ theorem dirTermSrc_flComp_ray {ϱ₁ ϱ₂ : ℝ}
       have e : ((r : ℂ) • yhat x) p = (r : ℂ) * yhat x p := rfl
       rw [e] at this
       exact lt_of_le_of_lt this hpc
-    have := analyticAt_flComp_hatRay hB hF S.hk1 S.hG S.hG' R0.H hc7 hR hsmR hRs hsmall hnum
+    have := analyticAt_flComp_hatRay_of_one_le hb₁ hbC hB hF S.hk1 S.hG S.hG' R0.H hc7 hR hsmR hRs hsmall hnum
       hnum' hMX hdm hα hsm cc hcψ hδ₁ hEan hD (yhat x) hb
     refine this.congr (Filter.Eventually.of_forall fun l => ?_)
     exact (hatFun_rawOf S.hG' cc _ hD _).symm
@@ -530,6 +559,29 @@ theorem dirTermSrc_flComp_ray {ϱ₁ ϱ₂ : ℝ}
   rw [h0]
   rfl
 
+include R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ in
+/-- **The directional term of an old-term functional along the real ray is a difference of
+values**: for `t ∈ [0,1]` and `χ_fl(ψ̂) = 1`,
+`dirTermSrc (hatFun … (flComp …)) 1 ψ̂ ψ̂ t Θ = F(t ψ̂) - F(0)` with
+`F(ψ̂) = hatFun … (flComp …) (Θ, ψ̂)`.  There is no factor `t²`. -/
+theorem dirTermSrc_flComp_ray {ϱ₁ ϱ₂ : ℝ}
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂} {r₀ δ₃ δfl : ℝ}
+    {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
+    (hB : BgSetting N S.G' Gk Gj S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N S.G' Gk (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L S.a₁) S.ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x : S.E} (hx : chiFl S.U N S.p₁ x = 1) :
+    dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (flComp hB hF E)) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ) (rawOf S.D') =
+      hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (flComp hB hF E) (rawOf S.D', S.hatC (t • x)) -
+        hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (flComp hB hF E) (rawOf S.D', 0) :=
+  S.dirTermSrc_flComp_ray_of_one_le R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ (one_le_scaledC0 d) le_rfl hB hF hEan ht hx
+
 variable {τι : Type*} [DecidableEq τι] (𝒯E : Finset τι) {ϱ₁ ϱ₂ : τι → ℝ}
   {GkE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁ τ)}
   {GjE : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₂ τ)} {r₀ δ₃ δfl : ℝ}
@@ -539,6 +591,49 @@ variable {τι : Type*} [DecidableEq τι] (𝒯E : Finset τι) {ϱ₁ ϱ₂ : 
   (hFE : ∀ τ ∈ 𝒯E, FlSetting N S.G' (GkE τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
     BG₂ δ₁ δfl (X₁E τ))
   {EE : τι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+section Thread
+
+variable {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+  (hEanE : ∀ τ ∈ 𝒯E, AnalyticOnNhd ℂ (EE τ) (XiCRaw (GjE τ) (compWeight L S.a₁) S.ν (jE τ)
+    b (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+  (hmatchE : OldEnergyHatMatch S C 𝒯E hBE hFE EE)
+
+include hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ hEanE hb₁ hbC
+  hmatchE in
+/-- **T1: the first segment of the step exponent of a general class is the value of the hat
+expansion.**  Let the old-term functionals `EE τ` of the expansion be analytic on their domains and
+represent the old energy of the class `C` (`OldEnergyHatMatch`, the named open hypothesis).  For
+`s ∈ [0,1]` and `ψ̂` in the support of `ν_{p₁}`,
+
+`s² · ((-β) · raySrc3 (hatFun … (interactionOne …)) (1-t)²/2 ψ̂ ψ̂ s Θ)
+  + β ∑_τ dirTermSrc (hatFun … (flComp (hBE τ) (hFE τ) (EE τ))) 1 ψ̂ ψ̂ s Θ = W₁(s, ψ̂)`.
+
+The factor `s²` multiplies the potential part only; the old-term parts are differences of values
+along the ray.  For the zero class and no old terms this is `Wone_zeroClass_eq_hat`. -/
+theorem Wone_eq_hat_of_oldEnergyHatMatch_of_one_le {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) {x : S.E}
+    (hx : chiFl S.U N S.p₁ x = 1) :
+    (s : ℂ) ^ 2 * ((-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν eps S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν eps)) taylorWeight (S.hatC x)
+        (S.hatC x) (s : ℂ) (rawOf S.D')) +
+      (S.β : ℂ) * ∑ τ ∈ 𝒯E, (if h : τ ∈ 𝒯E then
+        dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (flComp (hBE τ h) (hFE τ h) (EE τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (s : ℂ)
+          (rawOf S.D') else 0) = S.Wone C s x := by
+  have hV := S.Wone_zeroClass_eq_hat hC R0 hlt (baseDomain_of_rayData R0) hD hc7
+    (lt_of_lt_of_le one_lt_two hR) hsmR hMX hdm hα hsm hp₁ hcψ hpc hδ₁ hs hx
+  have hm := hmatchE (s • x) (S.chiFl_smul_eq_one hp₁ hs hx)
+  rw [S.psiAt_one_smul] at hm
+  rw [S.Wone_eq_zeroClass_add_dE, ← hV, ← hm]
+  congr 2
+  refine Finset.sum_congr rfl fun τ hτ => ?_
+  rw [dite_eq_left hτ, dite_eq_left hτ]
+  exact S.dirTermSrc_flComp_ray_of_one_le R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ
+    hpc hδ₁ hb₁ hbC (hBE τ hτ) (hFE τ hτ) (hEanE τ hτ) hs hx
+
+end Thread
+
+variable
   (hEanE : ∀ τ ∈ 𝒯E, AnalyticOnNhd ℂ (EE τ) (XiCRaw (GjE τ) (compWeight L S.a₁) S.ν (jE τ)
     (scaledC0 d) (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
   (hmatchE : OldEnergyHatMatch S C 𝒯E hBE hFE EE)
@@ -564,17 +659,8 @@ theorem Wone_eq_hat_of_oldEnergyHatMatch {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) 
       (S.β : ℂ) * ∑ τ ∈ 𝒯E, (if h : τ ∈ 𝒯E then
         dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
           (flComp (hBE τ h) (hFE τ h) (EE τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (s : ℂ)
-          (rawOf S.D') else 0) = S.Wone C s x := by
-  have hV := S.Wone_zeroClass_eq_hat hC R0 hlt (baseDomain_of_rayData R0) hD hc7
-    (lt_of_lt_of_le one_lt_two hR) hsmR hMX hdm hα hsm hp₁ hcψ hpc hδ₁ hs hx
-  have hm := hmatchE (s • x) (S.chiFl_smul_eq_one hp₁ hs hx)
-  rw [S.psiAt_one_smul] at hm
-  rw [S.Wone_eq_zeroClass_add_dE, ← hV, ← hm]
-  congr 2
-  refine Finset.sum_congr rfl fun τ hτ => ?_
-  rw [dite_eq_left hτ, dite_eq_left hτ]
-  exact S.dirTermSrc_flComp_ray R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ
-    hpc hδ₁ (hBE τ hτ) (hFE τ hτ) (hEanE τ hτ) hs hx
+          (rawOf S.D') else 0) = S.Wone C s x :=
+  S.Wone_eq_hat_of_oldEnergyHatMatch_of_one_le (C := C) (hC := hC) (R0 := R0) (hlt := hlt) (hD := hD) (hc7 := hc7) (hR := hR) (hsmR := hsmR) (hRs := hRs) (hsmall := hsmall) (hnum := hnum) (hnum' := hnum') (hMX := hMX) (hdm := hdm) (hα := hα) (hsm := hsm) (hp₁ := hp₁) (hcψ := hcψ) (hpc := hpc) (hδ₁ := hδ₁) (hb₁ := one_le_scaledC0 d) (hbC := le_rfl) (𝒯E := 𝒯E) (hBE := hBE) (hFE := hFE) (hEanE := hEanE) (hmatchE := hmatchE) hs hx
 
 variable {μι : Type*} [DecidableEq μι] (𝒯M : Finset μι) {ϱ₁M ϱ₂M : μι → ℝ}
   {GkM : ∀ τ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱ₁M τ)}
@@ -586,6 +672,65 @@ variable {μι : Type*} [DecidableEq μι] (𝒯M : Finset μι) {ϱ₁M ϱ₂M 
   (hFM : ∀ τ ∈ 𝒯M, FlSetting N S.G' (GkM τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂
     BG₂ δ₁ δfl (X₁M τ))
   {EM : μι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+section Thread
+
+variable {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+  (hEanM : ∀ τ ∈ 𝒯M, AnalyticOnNhd ℂ (EM τ) (XiCRaw (GjM τ) (compWeight L S.a₁) S.ν (jM τ)
+    b (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+  (g : Fld d L N₁ m₁ (k + 1) N)
+  (hmatchM : OldObsHatMatch S C g 𝒯M ys is hBM hFM EM)
+
+include hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ hEanM hb₁ hbC
+  hmatchM in
+/-- **T2: the second segment of the step exponent of a general class is the value of the hat
+expansion.**  Let the old observable functionals `EM τ` of the expansion be analytic on their
+domains and represent the old observable terms of the class `C` for the source `g`
+(`OldObsHatMatch`, the named open hypothesis).  For `t ∈ [0,1]` and `ψ̂` in the support of `ν_{p₁}`,
+
+`β ∑_s (g_s/β) · dirTermSrc (hatFun … (svec (flFieldOne …) s)) 1 ψ̂ ψ̂ t Θ
+  + β ∑_τ (g_{y_τ,i_τ}/β) · dirTermSrc (hatFun … (flComp (hBM τ) (hFM τ) (EM τ))) 1 ψ̂ ψ̂ t Θ
+  = W₂(t, ψ̂; g)`,
+
+with the source factor `g/β` and the outer factor `β` of the expansion, and no factor `t²`.  For
+the zero class and no old terms this is `Wtwo_zeroClass_eq_hat`. -/
+theorem Wtwo_eq_hat_of_oldObsHatMatch_of_one_le {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x : S.E}
+    (hx : chiFl S.U N S.p₁ x = 1) :
+    (S.β : ℂ) * (∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N, (g s.1 s.2 / (S.β : ℂ)) *
+        dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (onXi S.G' S.a₁ S.ν eps
+            (fun D ψ' => svec (stepG d L N₁ m₁ k ϱ)
+              (flFieldOne S.G' (stepG d L N₁ m₁ k ϱ) BG₂ κ S.a₁ S.ν D ψ') s.1 s.2)))
+          (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ) (rawOf S.D')) +
+      (S.β : ℂ) * ∑ τ ∈ 𝒯M, (if h : τ ∈ 𝒯M then
+        (g (ys τ) (is τ) / (S.β : ℂ)) *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ)
+            (rawOf S.D') else 0) = S.Wtwo C g t x := by
+  have hT := S.Wtwo_zeroClass_eq_hat hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα
+    hsm hp₁ hcψ hpc hδ₁ g ht hx
+  have hm := hmatchM (t • x) (S.chiFl_smul_eq_one hp₁ ht hx)
+  rw [S.psiAt_one_smul] at hm
+  have hB : (S.β : ℂ) * ∑ τ ∈ 𝒯M, (if h : τ ∈ 𝒯M then
+        (g (ys τ) (is τ) / (S.β : ℂ)) *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ)
+            (rawOf S.D') else 0) =
+      S.dF C g (S.psiAt t x) - S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x) := by
+    rw [← hm]
+    congr 1
+    refine Finset.sum_congr rfl fun τ hτ => ?_
+    rw [dite_eq_left hτ, dite_eq_left hτ]
+    rw [S.dirTermSrc_flComp_ray_of_one_le R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ
+      hpc hδ₁ hb₁ hbC (hBM τ hτ) (hFM τ hτ) (hEanM τ hτ) ht hx]
+  rw [hT, hB]
+  show S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x) +
+    (S.dF C g (S.psiAt t x) - S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x)) =
+      S.dF C g (S.psiAt t x)
+  ring
+
+end Thread
+
+variable
   (hEanM : ∀ τ ∈ 𝒯M, AnalyticOnNhd ℂ (EM τ) (XiCRaw (GjM τ) (compWeight L S.a₁) S.ν (jM τ)
     (scaledC0 d) (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
   (g : Fld d L N₁ m₁ (k + 1) N)
@@ -616,28 +761,8 @@ theorem Wtwo_eq_hat_of_oldObsHatMatch {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) {x 
         (g (ys τ) (is τ) / (S.β : ℂ)) *
           dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
             (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ)
-            (rawOf S.D') else 0) = S.Wtwo C g t x := by
-  have hT := S.Wtwo_zeroClass_eq_hat hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα
-    hsm hp₁ hcψ hpc hδ₁ g ht hx
-  have hm := hmatchM (t • x) (S.chiFl_smul_eq_one hp₁ ht hx)
-  rw [S.psiAt_one_smul] at hm
-  have hB : (S.β : ℂ) * ∑ τ ∈ 𝒯M, (if h : τ ∈ 𝒯M then
-        (g (ys τ) (is τ) / (S.β : ℂ)) *
-          dirTermSrc (hatFun S.G' S.a₁ S.ν eps S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
-            (flComp (hBM τ h) (hFM τ h) (EM τ))) (fun _ => (1 : ℂ)) (S.hatC x) (S.hatC x) (t : ℂ)
-            (rawOf S.D') else 0) =
-      S.dF C g (S.psiAt t x) - S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x) := by
-    rw [← hm]
-    congr 1
-    refine Finset.sum_congr rfl fun τ hτ => ?_
-    rw [dite_eq_left hτ, dite_eq_left hτ]
-    rw [S.dirTermSrc_flComp_ray R0 hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ
-      hpc hδ₁ (hBM τ hτ) (hFM τ hτ) (hEanM τ hτ) ht hx]
-  rw [hT, hB]
-  show S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x) +
-    (S.dF C g (S.psiAt t x) - S.dF (zeroClass d L N₁ m₁ k N ϱ) g (S.psiAt t x)) =
-      S.dF C g (S.psiAt t x)
-  ring
+            (rawOf S.D') else 0) = S.Wtwo C g t x :=
+  S.Wtwo_eq_hat_of_oldObsHatMatch_of_one_le (C := C) (hC := hC) (R0 := R0) (hlt := hlt) (hD := hD) (hc7 := hc7) (hR := hR) (hsmR := hsmR) (hRs := hRs) (hsmall := hsmall) (hnum := hnum) (hnum' := hnum') (hMX := hMX) (hdm := hdm) (hα := hα) (hsm := hsm) (hp₁ := hp₁) (hcψ := hcψ) (hpc := hpc) (hδ₁ := hδ₁) (hb₁ := one_le_scaledC0 d) (hbC := le_rfl) (𝒯M := 𝒯M) (ys := ys) (is := is) (hBM := hBM) (hFM := hFM) (g := g) (hEanM := hEanM) (hmatchM := hmatchM) ht hx
 
 include hC R0 hlt hD hc7 hR hsmR hRs hsmall hnum hnum' hMX hdm hα hsm hp₁ hcψ hpc hδ₁ in
 /-- **The first segment for a class whose energy terms do not depend on the spin**: the old

@@ -564,6 +564,189 @@ theorem classOldDecLocal_expansion_localB_sharp {P : Consts} {εseq : ℕ → �
     hj1 hjk hgs hXp hy hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec
     hκ h1 hlog hκP (by simpa using hε)
 
+open Classical in
+/-- **One inherited observable label of a local class expands, at the radius test of a whole-level
+generator, with a composition constant `1 ≤ b ≤ C₀`.**  The instance `classOldDecObsLocal_expansion_localB`
+is the instance `b = C₀`, `classOldDecObsLocal_expansion_localB_sharp` the instance `b = 1`.  The class `C` is at the low index `R₀(d, L)` with domain `Ξ^c_j(𝔹_j(X); 1, ε_j)`
+(`xiFieldDom … εseq`), and its term generator at `(j, X)` is `𝔹_j(X) = localB j _ X hsep`.  The
+chart hypothesis of `classOldDecObsLocal_expansion_index` is replaced by
+`b² (b² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` (`xiCRaw_localB_sub_xiFieldDom_of_one_le`), the same test as for the
+whole-level generator `levelGS j` (`xiDom_of_xiCData`). -/
+theorem classOldDecObsLocal_expansion_localB_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {P : Consts} {εseq : ℕ → ℝ}
+    (C : StepClass d L N₁ m₁ k N (bgR0 d L)) (hm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P
+      (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N (bgR0 d L)) C.Tm)
+    (hc₉ : 0 ≤ P.c₉) (g : Fld d L N₁ m₁ (k + 1) N) (hg : Def6.l1 g < 1) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {hsep : bgR0 d L ≤ minSep L (L ^ m₁)}
+    (hgs : C.Tm.gs j X = localB j (hjk.trans (Nat.le_succ k)) X hsep)
+    {y : CTorus d L N₁ m₁ (k + 1)} (i : Fin N) (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hε : b ^ 2 * (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ≤
+      εseq j) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF (fun r => C.Tm.M j y X r.1 r.2 g i)
+          (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁)) *
+          Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
+  classOldDecObsLocal_expansion_index_of_one_le hb₁ hbC C hm hcl hc₉ g hg hj1 hjk i hXp hy hB hF hk hG hG' cc hcψ hMX hdm
+    hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP
+    (by rw [hgs]; exact xiCRaw_localB_sub_xiFieldDom_of_one_le hb₁ hε)
+
+/-- **One inherited observable label of a local class expands, at the radius test of a whole-level
+generator, with a composition constant `1 ≤ b ≤ C₀`.**  The instance `classOldDecObsLocal_expansion_localB`
+is the instance `b = C₀`, `classOldDecObsLocal_expansion_localB_sharp` the instance `b = 1`.  The class `C` is at the low index `R₀(d, L)` with domain `Ξ^c_j(𝔹_j(X); 1, ε_j)`
+(`xiFieldDom … εseq`), and its term generator at `(j, X)` is `𝔹_j(X) = localB j _ X hsep`.  The
+chart hypothesis of `classOldDecObsLocal_expansion_index` is replaced by
+`b² (b² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` (`xiCRaw_localB_sub_xiFieldDom_of_one_le`), the same test as for the
+whole-level generator `levelGS j` (`xiDom_of_xiCData`). -/
+theorem classOldDecObsLocal_expansion_localB {P : Consts} {εseq : ℕ → ℝ}
+    (C : StepClass d L N₁ m₁ k N (bgR0 d L)) (hm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P
+      (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N (bgR0 d L)) C.Tm)
+    (hc₉ : 0 ≤ P.c₉) (g : Fld d L N₁ m₁ (k + 1) N) (hg : Def6.l1 g < 1) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {hsep : bgR0 d L ≤ minSep L (L ^ m₁)}
+    (hgs : C.Tm.gs j X = localB j (hjk.trans (Nat.le_succ k)) X hsep)
+    {y : CTorus d L N₁ m₁ (k + 1)} (i : Fin N) (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hε : scaledC0 d ^ 2 * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ≤
+      εseq j) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF (fun r => C.Tm.M j y X r.1 r.2 g i)
+          (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁)) *
+          Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
+  classOldDecObsLocal_expansion_localB_of_one_le (one_le_scaledC0 d) le_rfl C hm hcl hc₉ g hg hj1 hjk hgs i hXp hy hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hε
+
+
+/-- **The corrected chart test for an inherited observable label of a local class** (P3 (4.37), W763's
+composition constant `b = 1`).  `classOldDecObsLocal_expansion_localB` with the chart hypothesis
+`C₀² (C₀² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` replaced by `ε + K₂ δ₃ + K₂ δ_fl ≤ ε_j`; with the class
+sequence and the radius `ε = ε_{k+1}` this holds at `j = k` (`chartTest_sharp_eps_succ`).  The proof
+is the shared core `classOldDecObsLocal_expansion_localB_of_one_le` at `b = 1`. -/
+theorem classOldDecObsLocal_expansion_localB_sharp {P : Consts} {εseq : ℕ → ℝ}
+    (C : StepClass d L N₁ m₁ k N (bgR0 d L)) (hm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P
+      (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N (bgR0 d L)) C.Tm)
+    (hc₉ : 0 ≤ P.c₉) (g : Fld d L N₁ m₁ (k + 1) N) (hg : Def6.l1 g < 1) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {hsep : bgR0 d L ≤ minSep L (L ^ m₁)}
+    (hgs : C.Tm.gs j X = localB j (hjk.trans (Nat.le_succ k)) X hsep)
+    {y : CTorus d L N₁ m₁ (k + 1)} (i : Fin N) (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hε : eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl ≤ εseq j) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF (fun r => C.Tm.M j y X r.1 r.2 g i)
+          (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ (P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁)) *
+          Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
+  classOldDecObsLocal_expansion_localB_of_one_le (b := 1) le_rfl (one_le_scaledC0 d) C hm hcl hc₉ g hg
+    hj1 hjk hgs i hXp hy hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec
+    hκ h1 hlog hκP (by simpa using hε)
+
 /-- **The radius test of the chart hypothesis fails for the newest old terms.**  The test
 `C₀² (C₀² ε + K₂ δ₃ + K₂ δ_fl) ≤ ε_j` of `classOldDecLocal_expansion_localB` (and of the
 whole-level route through `xiDom_of_xiCData`) is false at `j = k` for the class sequence when the

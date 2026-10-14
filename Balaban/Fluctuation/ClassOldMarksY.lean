@@ -304,6 +304,164 @@ with
 The family is `evTerm … (FFmarked … Φ Zm um tm) Y` for `Φ` the old-term functional `eTermFun` of
 `Eτ`, the pair `(F₁, Sol)` being the one of `i4b_analytic`, `Dec2.i4a_analytic`.  The hypotheses are
 those of `classOldDec_expansion` with the radius condition `hδ₁` replaced by the radius set. -/
+theorem classOldMarksY_expansion_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
+    {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {y : CTorus d L N₁ m₁ (k + 1)} (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup Gp C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hchart : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      Dom.dom j (C.Tm.gs j X) r.1 r.2) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ → ℂ →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ um tm : ℂ, (‖um‖ + ‖tm‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+          (rawOf D, markedTangDec hG' cc a₁ ν Zm um tm D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y um tm (rawOf D, ψh)) ∧
+      (∀ um tm : ℂ, (‖um‖ + ‖tm‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AgHatDir hG' Y u u' → Ev Y um tm u = Ev Y um tm u') ∧
+      (∀ um tm : ℂ, (‖um‖ + ‖tm‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y um tm u‖ ≤ (β⁻¹ * P.E₀) *
+          Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AnalyticOnNhd ℂ (fun w : ℂ × ℂ => Ev Y w.1 w.2 u)
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+            (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}) ∧
+      (∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b → (a + b) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ um : ℂ, ‖um‖ ≤ a →
+        ∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖deriv (fun t : ℂ => Ev Y um t u) 0‖ ≤
+          (β⁻¹ * P.E₀) *
+            Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y) / t₀) ∧
+      (∀ um : ℂ, (‖um‖ + ‖(0 : ℂ)‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ y ∈ Y, unitPt hG' y ∉ Zm) →
+        ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        deriv (fun t : ℂ => Ev Y um t u) 0 = 0) ∧
+      (∀ um : ℂ, (‖um‖ + ‖(0 : ℂ)‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁ →
+        ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+        ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh ψh' : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) → (∀ p, ‖ψh' p‖ ≤ cψ) →
+        (∀ y ∈ Y, ∀ i, ψh (unitPt hG' y, i) = ψh' (unitPt hG' y, i)) →
+        deriv (fun t : ℂ => Ev Y um t (rawOf D, ψh)) 0 =
+          deriv (fun t : ℂ => Ev Y um t (rawOf D, ψh')) 0) := by
+  classical
+  have hC := flCore_of hB hF
+  obtain ⟨hEan, hEbd⟩ := classOldDecEnergy_chart_radius (N := N) C hm hcl hβ hκP hE₀ a₁ ν δ₃ eps δfl hj1
+    hjk hXp hy hchart
+  have hEb : 0 ≤ β⁻¹ * P.E₀ := mul_nonneg (inv_nonneg.2 hβ.le) hE₀
+  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hB2 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) :=
+    mul_nonneg (by norm_num) (mul_nonneg (K4_pos hC.hS.fam.2.1 hd0).le
+      (by have := one_le_xiC1 d; have := hC.eps_pos; positivity))
+  obtain ⟨F₁, hF₁an, hF₁⟩ := i4b_analytic hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
+  obtain ⟨Sol, hSolan, hSolprop⟩ := Dec2.i4a_analytic (N := N) hC.hS2.fam hC.hS2.an
+    hC.SM.toCoverBase hC.hκ.le hC.hM2 false hB2 hC.δ₁_pos.le hC.B_le hC.δ₁_le
+  obtain ⟨e1, e2, e3, -, -, e6, e7, -, e9⟩ := i5_functional_hat_marked_exposed_pair_of hC hk hG
+    hG' cc hcψ Zm hMX hdm hα hsm hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Φ := eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+      (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2))
+    (R := FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)
+    (eTermFun_analytic_of_one_le hb₁ hbC hB hF hFkan hFk hEan)
+    (fun t ht a b s F₁' D ψh h => ⟨ht, h ▸ isLayerConstant_markedHatPsiF hG hG' cc F₁' Zm a b _ _ _⟩)
+    (fun t ht => eTermFun_bound_of_one_le hb₁ hbC hB hF hFk hEbd ht)
+    hconn hrow (Z := ↑X₁f) (Zα := ∅) subset_rfl (fun x hx => absurd hx (Set.notMem_empty x))
+    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local_dir hB hF hcov hX₁ Fk _ hφ hδ hag hψ)
+    hF₁an hF₁ hSolan hSolprop
+  refine ⟨fun Y um tm u => evTerm
+    (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
+    (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
+      (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+        (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um tm) Y u, ?_, e2, e3, e6, e7, ?_, ?_⟩
+  · intro um tm hw D hD ψh hψh
+    rw [← e1 um tm hw D hD ψh hψh]
+    exact (eTermFun_value hB hF hFk _ hD
+      (markedTangDec_mem_flBallLC hC hk hG hG' cc hcψ Zm hMX hdm hα hsm hw hD hψh)).symm
+  · intro um h0 Y hY u hu
+    have hnhds : {t : ℂ | (um, t) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}} ∈
+        nhds (0 : ℂ) :=
+      ((isOpen_markedRadiusSet _ δ₁).preimage
+        (continuous_const.prodMk continuous_id)).mem_nhds h0
+    have hev : (fun t : ℂ => evTerm
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
+        (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
+          (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+            (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t) Y u) =ᶠ[nhds (0 : ℂ)]
+        fun _ => evTerm
+        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
+        (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
+          (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+            (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um 0) Y u := by
+      filter_upwards [hnhds] with t ht
+      exact e9 um t 0 ht h0 Y hY u hu
+    rw [hev.deriv_eq]
+    simp
+  · intro um h0 Y D hD ψh ψh' hψh hψh' hag
+    have hnhds : {t : ℂ | (um, t) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}} ∈
+        nhds (0 : ℂ) :=
+      ((isOpen_markedRadiusSet _ δ₁).preimage
+        (continuous_const.prodMk continuous_id)).mem_nhds h0
+    refine Filter.EventuallyEq.deriv_eq ?_
+    filter_upwards [hnhds] with t ht
+    exact e2 um t ht Y (rawOf D, ψh) ⟨⟨D, hD, rfl⟩, hψh⟩ (rawOf D, ψh') ⟨⟨D, hD, rfl⟩, hψh'⟩
+      ⟨agreeOn_refl _ _, hag⟩
+
+open Classical in
+/-- **One inherited energy label expands over the decoupled domains along the masked tangent.**
+For a label `(j, y, X)` of a class member `C`, `Eτ(r) = β⁻¹ ℰ^{(j)}(y, X; r.1, r.2)`, the
+generator `𝔹_j(X)`, a mask `Zm` of unit points and marks `(um, tm)` of the radius set
+`(‖um‖ + ‖tm‖) · √N · ‖cc‖ · C_sup · c_ψ < δ₁`, there is a family `Ev Y um tm (Θ, ψ̂)` of terms
+with
+
+1. the sum identity: `flComp Eτ` at the raw data `rawOf D` and the masked tangent
+   `markedTangDec … Zm um tm D ψ̂` is `∑_{Y ∈ polymerDomains(X₁)} Ev Y um tm (rawOf D, ψ̂)`;
+2. the locality of `Ev Y um tm` in `(Θ, ψ̂)` under `AgHatDir Y`, at equal marks;
+3. the bound `β⁻¹ E₀ exp(-κ₀ d_j(X) - 2 κ_dec d(Y))`;
+4. the analyticity of `(um, tm) ↦ Ev Y um tm u` on the radius set;
+5. the Cauchy estimate of `∂_t Ev Y um t u |_{t=0}` by the bound over `t₀`;
+6. the vanishing of `∂_t Ev Y um t u |_{t=0}` for every `Y` none of whose unit points lies in `Zm`.
+
+The family is `evTerm … (FFmarked … Φ Zm um tm) Y` for `Φ` the old-term functional `eTermFun` of
+`Eτ`, the pair `(F₁, Sol)` being the one of `i4b_analytic`, `Dec2.i4a_analytic`.  The hypotheses are
+those of `classOldDec_expansion` with the radius condition `hδ₁` replaced by the radius set. -/
 theorem classOldMarksY_expansion {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
     (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
     {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
@@ -379,70 +537,8 @@ theorem classOldMarksY_expansion {P : Consts} {Dom : FieldDom d L N₁ m₁ (k +
         ∀ ψh ψh' : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) → (∀ p, ‖ψh' p‖ ≤ cψ) →
         (∀ y ∈ Y, ∀ i, ψh (unitPt hG' y, i) = ψh' (unitPt hG' y, i)) →
         deriv (fun t : ℂ => Ev Y um t (rawOf D, ψh)) 0 =
-          deriv (fun t : ℂ => Ev Y um t (rawOf D, ψh')) 0) := by
-  classical
-  have hC := flCore_of hB hF
-  obtain ⟨hEan, hEbd⟩ := classOldDecEnergy_chart (N := N) C hm hcl hβ hκP hE₀ a₁ ν δ₃ eps δfl hj1
-    hjk hXp hy hchart
-  have hEb : 0 ≤ β⁻¹ * P.E₀ := mul_nonneg (inv_nonneg.2 hβ.le) hE₀
-  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB2 : 0 ≤ 2 * (K4 d L N BG κ * (xiC1 d * eps)) :=
-    mul_nonneg (by norm_num) (mul_nonneg (K4_pos hC.hS.fam.2.1 hd0).le
-      (by have := one_le_xiC1 d; have := hC.eps_pos; positivity))
-  obtain ⟨F₁, hF₁an, hF₁⟩ := i4b_analytic hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
-  obtain ⟨Sol, hSolan, hSolprop⟩ := Dec2.i4a_analytic (N := N) hC.hS2.fam hC.hS2.an
-    hC.SM.toCoverBase hC.hκ.le hC.hM2 false hB2 hC.δ₁_pos.le hC.B_le hC.δ₁_le
-  obtain ⟨e1, e2, e3, -, -, e6, e7, -, e9⟩ := i5_functional_hat_marked_exposed_pair_of hC hk hG
-    hG' cc hcψ Zm hMX hdm hα hsm hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Φ := eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
-      (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2))
-    (R := FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)
-    (eTermFun_analytic hB hF hFkan hFk hEan)
-    (fun t ht a b s F₁' D ψh h => ⟨ht, h ▸ isLayerConstant_markedHatPsiF hG hG' cc F₁' Zm a b _ _ _⟩)
-    (fun t ht => eTermFun_bound hB hF hFk hEbd ht)
-    hconn hrow (Z := ↑X₁f) (Zα := ∅) subset_rfl (fun x hx => absurd hx (Set.notMem_empty x))
-    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local_dir hB hF hcov hX₁ Fk _ hφ hδ hag hψ)
-    hF₁an hF₁ hSolan hSolprop
-  refine ⟨fun Y um tm u => evTerm
-    (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
-    (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
-      (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
-        (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um tm) Y u, ?_, e2, e3, e6, e7, ?_, ?_⟩
-  · intro um tm hw D hD ψh hψh
-    rw [← e1 um tm hw D hD ψh hψh]
-    exact (eTermFun_value hB hF hFk _ hD
-      (markedTangDec_mem_flBallLC hC hk hG hG' cc hcψ Zm hMX hdm hα hsm hw hD hψh)).symm
-  · intro um h0 Y hY u hu
-    have hnhds : {t : ℂ | (um, t) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
-        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}} ∈
-        nhds (0 : ℂ) :=
-      ((isOpen_markedRadiusSet _ δ₁).preimage
-        (continuous_const.prodMk continuous_id)).mem_nhds h0
-    have hev : (fun t : ℂ => evTerm
-        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
-        (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
-          (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
-            (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t) Y u) =ᶠ[nhds (0 : ℂ)]
-        fun _ => evTerm
-        (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp C.m₀
-        (X1 Gp C.m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol
-          (eTermFun Gp Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
-            (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um 0) Y u := by
-      filter_upwards [hnhds] with t ht
-      exact e9 um t 0 ht h0 Y hY u hu
-    rw [hev.deriv_eq]
-    simp
-  · intro um h0 Y D hD ψh ψh' hψh hψh' hag
-    have hnhds : {t : ℂ | (um, t) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
-        (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}} ∈
-        nhds (0 : ℂ) :=
-      ((isOpen_markedRadiusSet _ δ₁).preimage
-        (continuous_const.prodMk continuous_id)).mem_nhds h0
-    refine Filter.EventuallyEq.deriv_eq ?_
-    filter_upwards [hnhds] with t ht
-    exact e2 um t ht Y (rawOf D, ψh) ⟨⟨D, hD, rfl⟩, hψh⟩ (rawOf D, ψh') ⟨⟨D, hD, rfl⟩, hψh'⟩
-      ⟨agreeOn_refl _ _, hag⟩
+          deriv (fun t : ℂ => Ev Y um t (rawOf D, ψh')) 0) :=
+  classOldMarksY_expansion_of_one_le (one_le_scaledC0 d) le_rfl C hm hcl hβ hE₀ hj1 hjk hXp hy hB hF hk hG hG' cc hcψ Zm hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart
 
 end LabelExpansion
 
