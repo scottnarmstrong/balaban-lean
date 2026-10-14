@@ -45,7 +45,10 @@ loss `4 d L³` into `M / M₁`, and the decay radius is `r₁ M₁` with `r₁ =
 * `scaled_dist_X0_sup`, `siteSetDist_X0_sup`: **the `X₀` distance with the target bound
   `T ≤ ϱ - 1` only**, for a sup-separated, cube-aligned generating set;
 * `target_le_minSep`, `localB_siteSetDist_X0`: at `ϱ = 5 L M₁` and `r₀ = 4 d L³ + L` the target is
-  `T = M₁ ≤ ϱ - 1`, so `siteSetDist ≥ M₁` for the literal local generator.
+  `T = M₁ ≤ ϱ - 1`, so `siteSetDist ≥ M₁` for the literal local generator;
+* `i4a_close_X0_sup`: **Theorem I-4a (d) on `X₀`** in the cover form (`Dec2.i4a_close` on the pair
+  `(coverOf G, G)`) for a sup-separated, cube-aligned `G`, with the factor `e^{-γ_w T}`; for
+  `G = localB …` its `CoverBase` is `localB_coverBase`.
 -/
 
 @[expose] public section
@@ -352,6 +355,97 @@ theorem localB_siteSetDist_X0 {j : ℕ} (hj : j ≤ K) (Y : Set (CTorus d L N₁
   have h := siteSetDist_X0_sup (localB_cubeAligned hj Y le_rfl hm₁) (localB_supSep hj Y le_rfl)
     hL hM hρ hN (by rw [hT1]; exact hT2) hx hxΩ
   rwa [hT1] at h
+
+/-- A centre of `W_C(X₁)` for the cover `C = coverOf G` is a centre of `𝒲 = Wpar G X₁`. -/
+theorem mem_Wpar_of_mem_Wcover {X₁ : Finset (CTorus d L N₁ m₁ K)} {w : CTorus d L N₁ m₁ K}
+    (hw : w ∈ Wcover (coverOf G) X₁) : w ∈ Wpar G X₁ := by
+  obtain ⟨z, hz, ⟨P, hP, hPs⟩, hwz⟩ := mem_Wcover.1 hw
+  exact mem_Wpar.2 ⟨z, hz, ⟨P, hP, Finset.mem_filter.2 ⟨((coverOf G).mem_Qset.1 hP).1, hPs⟩⟩, hwz⟩
+
+/-- `d(x, 𝒲) ≤ d(x, W_C(X₁))` for `C = coverOf G`. -/
+theorem siteSetDist_Wpar_le_Wcover (X₁ : Finset (CTorus d L N₁ m₁ K)) (x : CTorus d L N₁ m₁ K) :
+    siteSetDist G (Wpar G X₁) x ≤ siteSetDist G (Wcover (coverOf G) X₁) x := by
+  unfold siteSetDist
+  exact le_iInf₂ fun w hw => iInf₂_le w (mem_Wpar_of_mem_Wcover hw)
+
+/-- **Theorem I-4a (d) on `X₀` for a sup-separated generating set** (cover form `Dec2.i4a_close`
+on the pair `(coverOf G, G)`).  Under the hypotheses of `Dec2.i4a_close`, with the parameters equal
+to `1` off the parameter cubes, the physical `r₀ M₁ ℓ(x)`-collar of `X₀ ∩ Ω₁` in `X₁` and the target
+`T = ((r₀ - 4 d L³)/L) M₁ ≤ ϱ - 1`, the solutions at `s` and at `s ≡ 1` differ on `X₀ ∩ Ω₁` by at
+most `closeConst · e^{-γ_w T}` (twice that for the fields).  No `ℓ¹` cover separation and no
+`r₀ M₁ ≤ ϱ - 1` is assumed. -/
+theorem i4a_close_X0_sup {Kc Cx c BG : ℝ} {a : ℕ → ℝ} {ν : ℝ} {N : ℕ}
+    (hF : Dec2.FamSpec d L Kc Cx c BG) (hD : Dec2.Dg2Spec d L Kc Cx c BG)
+    (hCl : Dec2.CloseSpec d L Kc Cx c BG) (h1 : Dec2.OneSpec d L Kc Cx c)
+    (S : Dec2.CoverBase (coverOf G) G a ν Kc Cx) (hG : CubeAligned G m₁) (hSS : SupSep G m₁)
+    (hMM : 4 * L ^ 2 ≤ L ^ m₁) (hρ : 1 ≤ ϱ) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s : Dec2.DecParams (coverOf G)}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) {X₀ X₁ : Finset (CTorus d L N₁ m₁ K)} {r₀ : ℝ}
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ (coverOf G).cubeIdx),
+      P ∉ (coverOf G).parCubes X₁ → s ⟨P, hP⟩ = 1)
+    (hN : ∀ x ∈ X₀, x ∈ G.Ω 1 → ∀ y : CTorus d L N₁ m₁ K,
+      Green.torusDist d ((N₁ * L ^ m₁) * L ^ K) x y < r₀ * (L : ℝ) ^ m₁ * G.spacing x → y ∈ X₁)
+    (hT : (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L ≤ ϱ - 1)
+    (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀)
+    {ιU : Bool} {α₀ : G.Ω 1 → ℂ} {φ₀ δΨ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ} (Hh : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaClose d L N BG κ) (hδ₁ : δ₁ ≤ deltaClose d L N BG κ)
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : Dec2.DecFixed (coverOf G) G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : Dec2.DecFixed (coverOf G) G a ν (fun _ => 1) ιU α₀ φ₀ (pertSource G a δΨ f₁) δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ X₀ →
+      G.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖δα x - δα' x‖ ≤ closeConst d L N BG κ δ₁ *
+        Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L)))) ∧
+    (∀ y ∈ X₀, y ∈ G.Ω 1 → ∀ i : Fin N,
+      ‖svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') y i‖ ≤
+        2 * closeConst d L N BG κ δ₁ *
+          Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L)))) ∧
+    (∀ x ∈ X₀, x ∈ G.Ω 1 → ∀ (μ : Fin d) (i : Fin N), G.spacing x *
+      ‖svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα')
+          (x + Pi.single μ 1) i -
+        svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') x i‖ ≤
+        2 * closeConst d L N BG κ δ₁ *
+          Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L)))) ∧
+    (∀ x ∈ X₀, x ∈ G.Ω 1 → ∀ i : Fin N, G.spacing x ^ 2 * ‖∑ μ : Fin d,
+      (2 * svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα') x i -
+      svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα')
+          (x + Pi.single μ 1) i -
+      svec G (dphi G (Dec2.decG (coverOf G) G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα -
+        dphi G (Dec2.decG (coverOf G) G a ν (fun _ => 1)) α₀ φ₀ (pertSource G a δΨ f₁) δα')
+          (x - Pi.single μ 1) i)‖ ≤
+        2 * closeConst d L N BG κ δ₁ *
+          Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L)))) := by
+  have hd0 : 0 < d := by have := S.hd; omega
+  have hL : 3 ≤ L := S.hL
+  have hBG : 0 ≤ BG := hF.2.1
+  have hcc := closeConst_nonneg (d := d) (L := L) (κ := κ) (N := N) hBG Hh.δ₁_nn hd0
+  have hγ0 : 0 ≤ gammaW d := gammaW_nonneg hd0
+  have hL1 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hT0 : 0 ≤ (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L := by
+    have : 0 ≤ r₀ - 4 * d * (L : ℝ) ^ 3 := by linarith
+    positivity
+  have hclose := Dec2.i4a_close hF hD hCl h1 S hκ hM hs (W := Wcover (coverOf G) X₁)
+    (hW_of_par_cover hs1) Hh hδ₀ hδ₁ hfix hsm hfix' hsm'
+  have hdec : ∀ x ∈ X₀, x ∈ G.Ω 1 → decay (gammaW d) (siteSetDist G (Wcover (coverOf G) X₁) x) ≤
+      Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) := by
+    intro x hx hxΩ
+    have h := decay_anti_dist hγ0 ((siteSetDist_X0_sup hG hSS hL hMM hρ hN hT hx hxΩ).trans
+      (siteSetDist_Wpar_le_Wcover X₁ x))
+    rw [decay_of_ne_top ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal hT0] at h
+    exact h
+  obtain ⟨c1, c2, c3, c4⟩ := hclose
+  refine ⟨fun x hx => ?_, fun y hy hyΩ i => ?_, fun x hx hxΩ μ i => ?_, fun x hx hxΩ i => ?_⟩
+  · exact (c1 x).trans (mul_le_mul_of_nonneg_left (hdec x hx x.2) hcc)
+  · exact (c2 y i).trans (mul_le_mul_of_nonneg_left (hdec y hy hyΩ) (by positivity))
+  · exact (c3 x hxΩ μ i).trans (mul_le_mul_of_nonneg_left (hdec x hx hxΩ) (by positivity))
+  · exact (c4 x hxΩ i).trans (mul_le_mul_of_nonneg_left (hdec x hx hxΩ) (by positivity))
 
 end Main
 
