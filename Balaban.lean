@@ -244,6 +244,7 @@ public import Balaban.Multiscale.XVariantIdentities
 public import Balaban.Multiscale.XVariant
 public import Balaban.Multiscale.XVariantSharp
 public import Balaban.Multiscale.XVariantAgmon
+public import Balaban.Multiscale.XVariantZero
 public import Balaban.Green.BlockDistance
 public import Balaban.Green.OneScaleDecay
 public import Balaban.Green.BlockNorm

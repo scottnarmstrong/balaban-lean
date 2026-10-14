@@ -95,15 +95,14 @@ section Core
 
 variable (G : GeneratingSet d L N₀ (k + 1) ϱ) {cut : Finset (Torus d (N₀ * L ^ (k + 1)) × Fin d)}
 
-/-- **NC1, real core of the cut x-variant** (`d`-free): for `ν ≥ 0`, `a_j ∈ [1/2, 2]`, `a ∈ [1/2, 2]`,
-`x ≥ 0` and a cut avoiding the layer blocks,
-`½ ‖∂φ‖²_cut + ¼ ‖ℓ⁻¹ φ‖² ≤ φᵀ (-Δ_cut + ν + Q* a Q|_x) φ`. -/
-theorem xCore_real_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
-    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+/-- Core of `xCore_real_cut_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem xCore_real_cut_sharp_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
     (1 / 2) * cutLatticeEnergy cut φ + xPoincareConstSharp * ∑ y, invSqSpacing G y * φ y ^ 2 ≤
       φ ⬝ᵥ cutXFullMatrix G a aT x ν cut *ᵥ φ := by
-  obtain ⟨hs₁, hs, hcase⟩ := xSymbols_cases (L := L) hL (ha k hk le_rfl).1 haT1 haT2 hx
+  obtain ⟨hs₁, hs, hcase⟩ := xSymbols_cases (L := L) hL hak.1 haT1 haT2 hx
   unfold cutXFullMatrix
   rw [Matrix.add_mulVec, dotProduct_add, cutLaplacian_quadratic, xAvgMatrix_quadratic]
   have hE := sum_innerEnergy_le_cut G hcut φ
@@ -142,16 +141,28 @@ theorem xCore_real_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 �
   rw [hlay']
   linarith
 
-theorem x_multiscale_coercive_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k)
-    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+/-- **NC1, real core of the cut x-variant** (`d`-free): for `ν ≥ 0`, `a_j ∈ [1/2, 2]`, `a ∈ [1/2, 2]`,
+`x ≥ 0` and a cut avoiding the layer blocks,
+`½ ‖∂φ‖²_cut + ¼ ‖ℓ⁻¹ φ‖² ≤ φᵀ (-Δ_cut + ν + Q* a Q|_x) φ`. -/
+theorem xCore_real_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (φ : Torus d (N₀ * L ^ (k + 1)) → ℝ) :
+    (1 / 2) * cutLatticeEnergy cut φ + xPoincareConstSharp * ∑ y, invSqSpacing G y * φ y ^ 2 ≤
+      φ ⬝ᵥ cutXFullMatrix G a aT x ν cut *ᵥ φ :=
+  xCore_real_cut_sharp_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx φ
+
+/-- Core of `x_multiscale_coercive_cut_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_multiscale_coercive_cut_sharp_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ}
     (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) (u : G.Ω 1 → ℂ) :
     (1 / 4 - θ) * (cutEnergy cut (zeroExt (G.Ω 1) u) + weightedSqNorm G u) ≤
       Green.reQuad (cutXOperator G a aT x ν cut α) u := by
   rw [reQuad_cutXOperator, reQuad_map_ofReal]
-  have h1 := xCore_real_cut_sharp G hcut hL hk hν ha haT1 haT2 hx
+  have h1 := xCore_real_cut_sharp_of_ak G hcut hL hν ha hak haT1 haT2 hx
     (fun y => (zeroExt (G.Ω 1) u y).re)
-  have h2 := xCore_real_cut_sharp G hcut hL hk hν ha haT1 haT2 hx
+  have h2 := xCore_real_cut_sharp_of_ak G hcut hL hν ha hak haT1 haT2 hx
     (fun y => (zeroExt (G.Ω 1) u y).im)
   have hw := sum_invSqSpacing_eq G u
   have hsplit : ∑ y, invSqSpacing G y * ‖zeroExt (G.Ω 1) u y‖ ^ 2 =
@@ -180,14 +191,24 @@ theorem x_multiscale_coercive_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L)
   rw [hq] at h1 h2
   nlinarith
 
-theorem cutXOperator_isCoercive_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k)
+theorem x_multiscale_coercive_cut_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k)
     {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+    (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) (u : G.Ω 1 → ℂ) :
+    (1 / 4 - θ) * (cutEnergy cut (zeroExt (G.Ω 1) u) + weightedSqNorm G u) ≤
+      Green.reQuad (cutXOperator G a aT x ν cut α) u :=
+  x_multiscale_coercive_cut_sharp_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx hθ0 α hα u
+
+/-- Core of `cutXOperator_isCoercive_sharp` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem cutXOperator_isCoercive_sharp_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ}
     (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ : θ < 1 / 4)
     (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) {γ : ℝ}
     (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
     Green.IsCoercive (cutXOperator G a aT x ν cut α) ((1 / 4 - θ) * γ) := by
   intro u
-  have h := x_multiscale_coercive_cut_sharp G hcut hL hk hν ha haT1 haT2 hx hθ0 α hα u
+  have h := x_multiscale_coercive_cut_sharp_of_ak G hcut hL hν ha hak haT1 haT2 hx hθ0 α hα u
   have hc : 0 < 1 / 4 - θ := by linarith
   have hsq : γ * Green.sqNorm u ≤ weightedSqNorm G u := by
     unfold Green.sqNorm weightedSqNorm
@@ -198,9 +219,18 @@ theorem cutXOperator_isCoercive_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (
   have hDE := cutEnergy_nonneg cut (zeroExt (G.Ω 1) u)
   nlinarith
 
-/-- **NC1 for the cut x-variant: invertibility**, for `|α(y)| ≤ ℓ(y)⁻² / 8`. -/
-theorem cutXOperator_isUnit (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
-    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+theorem cutXOperator_isCoercive_sharp (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+    (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ : θ < 1 / 4)
+    (α : G.Ω 1 → ℂ) (hα : ∀ y, ‖α y‖ ≤ θ / (G.spacing y) ^ 2) {γ : ℝ}
+    (hγ : ∀ y : G.Ω 1, γ ≤ ((G.spacing y) ^ 2)⁻¹) :
+    Green.IsCoercive (cutXOperator G a aT x ν cut α) ((1 / 4 - θ) * γ) :=
+  cutXOperator_isCoercive_sharp_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx hθ0 hθ α hα hγ
+
+/-- Core of `cutXOperator_isUnit` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem cutXOperator_isUnit_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) :
     IsUnit (cutXOperator G a aT x ν cut α) := by
@@ -208,20 +238,37 @@ theorem cutXOperator_isUnit (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤
   refine Green.isUnit_of_isCoercive
     (γ := (1 / 4 - 1 / 8) * (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹)
     (mul_pos (by norm_num) (inv_pos.2 (by positivity)))
-    (cutXOperator_isCoercive_sharp G hcut hL hk hν ha haT1 haT2 hx (θ := 1 / 8)
+    (cutXOperator_isCoercive_sharp_of_ak G hcut hL hν ha hak haT1 haT2 hx (θ := 1 / 8)
       (by norm_num) (by norm_num) α hα
       (γ := (((L : ℝ) ^ (k + 1)) ^ 2)⁻¹) fun y => ?_)
   have hp : 0 < G.spacing y := spacing_pos G
   exact inv_anti₀ (by positivity) (pow_le_pow_left₀ hp.le (spacing_le G y.2) 2)
 
+/-- **NC1 for the cut x-variant: invertibility**, for `|α(y)| ≤ ℓ(y)⁻² / 8`. -/
+theorem cutXOperator_isUnit (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) :
+    IsUnit (cutXOperator G a aT x ν cut α) :=
+  cutXOperator_isUnit_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα
+
+/-- Core of `cutXOperator_mulVec_inv` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem cutXOperator_mulVec_inv_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) (f : G.Ω 1 → ℂ) :
+    cutXOperator G a aT x ν cut α *ᵥ ((cutXOperator G a aT x ν cut α)⁻¹ *ᵥ f) = f := by
+  have hU := cutXOperator_isUnit_of_ak G hcut hL hν ha hak haT1 haT2 hx α hα
+  rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
+    Matrix.one_mulVec]
+
 theorem cutXOperator_mulVec_inv (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
     {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2) (f : G.Ω 1 → ℂ) :
-    cutXOperator G a aT x ν cut α *ᵥ ((cutXOperator G a aT x ν cut α)⁻¹ *ᵥ f) = f := by
-  have hU := cutXOperator_isUnit G hcut hL hk hν ha haT1 haT2 hx α hα
-  rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
-    Matrix.one_mulVec]
+    cutXOperator G a aT x ν cut α *ᵥ ((cutXOperator G a aT x ν cut α)⁻¹ *ᵥ f) = f :=
+  cutXOperator_mulVec_inv_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα f
 
 end Core
 
@@ -380,10 +427,10 @@ section XEnergy
 
 variable (G : GeneratingSet d L N₀ (k + 1) ϱ) {cut : Finset (Torus d (N₀ * L ^ (k + 1)) × Fin d)}
 
-/-- **The conjugated real form of the cut x-variant.** For `w = exp (ε r)`, `v = w φ`,
-`½ ‖∂v‖²_cut + (¼ - 4 d ε² - L² (e^{2εd} - 1)²) ‖ℓ⁻¹ v‖² ≤ ∑ w² φ (A φ)`, uniformly in `x ≥ 0`. -/
-theorem x_weighted_core_cut (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
-    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+/-- Core of `x_weighted_core_cut` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_weighted_core_cut_of_ak (hcut : CutAligned G cut) (hL : 3 ≤ L) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
     (haT2 : aT ≤ 2) (hx : 0 ≤ x) {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r)
     {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) {φ : Torus d (N₀ * L ^ (k + 1)) → ℝ}
     (hφ : ∀ y, y ∉ G.Ω 1 → φ y = 0) :
@@ -392,10 +439,10 @@ theorem x_weighted_core_cut (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤
           wsq G (fun y => Real.exp (ε * r y) * φ y) ≤
       (fun y => Real.exp (ε * r y) ^ 2 * φ y) ⬝ᵥ cutXFullMatrix G a aT x ν cut *ᵥ φ := by
   set v : Torus d (N₀ * L ^ (k + 1)) → ℝ := fun y => Real.exp (ε * r y) * φ y with hv
-  have hcore := xCore_real_cut_sharp G hcut hL hk hν ha haT1 haT2 hx v
+  have hcore := xCore_real_cut_sharp_of_ak G hcut hL hν ha hak haT1 haT2 hx v
   have hlap := lap_diff_cut r ε ν cut φ
   have hlapE := lap_error_le_cut G (cut := cut) hr hε0 hε1 hφ
-  have havg := xAvg_diff_ge G hk ha haT1 hx hL hr hε0 φ
+  have havg := xAvg_diff_ge_of_ak G ha hak haT1 hx hL hr hε0 φ
   have hwsq : ∑ y, invSqSpacing G y * v y ^ 2 = wsq G v := rfl
   rw [hwsq] at hcore
   have hsplit : ∀ ψ : Torus d (N₀ * L ^ (k + 1)) → ℝ, ∀ g : Torus d (N₀ * L ^ (k + 1)) → ℝ,
@@ -409,11 +456,23 @@ theorem x_weighted_core_cut (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤
   rw [hlap]
   nlinarith [hcore, hlapE, havg]
 
-/-- **NC2, weighted `L²` form, for the cut x-variant** (uniform in `x ≥ 0`): for
-`0 ≤ ε ≤ ε_x = c_x/(16 d L)`, an Agmon weight `r`, `|α| ≤ ℓ⁻²/8`, `H_{cut,x}(α) u = f`, `v = w ũ`:
-`½ ‖∂v‖²_cut + (1/32) ‖ℓ⁻¹ v‖² ≤ 8 ‖ℓ w f‖²`. -/
-theorem x_agmon_energy_cut (hcut : CutAligned G cut) (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k)
-    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+/-- **The conjugated real form of the cut x-variant.** For `w = exp (ε r)`, `v = w φ`,
+`½ ‖∂v‖²_cut + (¼ - 4 d ε² - L² (e^{2εd} - 1)²) ‖ℓ⁻¹ v‖² ≤ ∑ w² φ (A φ)`, uniformly in `x ≥ 0`. -/
+theorem x_weighted_core_cut (hcut : CutAligned G cut) (hL : 3 ≤ L) (hk : 1 ≤ k) {a : ℕ → ℝ}
+    {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ} (haT1 : 1 / 2 ≤ aT)
+    (haT2 : aT ≤ 2) (hx : 0 ≤ x) {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r)
+    {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) {φ : Torus d (N₀ * L ^ (k + 1)) → ℝ}
+    (hφ : ∀ y, y ∉ G.Ω 1 → φ y = 0) :
+    (1 / 2) * cutLatticeEnergy cut (fun y => Real.exp (ε * r y) * φ y) +
+        (xPoincareConstSharp - (4 * d * ε ^ 2 + (L : ℝ) ^ 2 * (Real.exp (ε * (2 * d)) - 1) ^ 2)) *
+          wsq G (fun y => Real.exp (ε * r y) * φ y) ≤
+      (fun y => Real.exp (ε * r y) ^ 2 * φ y) ⬝ᵥ cutXFullMatrix G a aT x ν cut *ᵥ φ :=
+  x_weighted_core_cut_of_ak G hcut hL hν ha (ha k hk le_rfl) haT1 haT2 hx hr hε0 hε1 hφ
+
+/-- Core of `x_agmon_energy_cut` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem x_agmon_energy_cut_of_ak (hcut : CutAligned G cut) (hd : 0 < d) (hL : 3 ≤ L)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x : ℝ}
     (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
     (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2)
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
@@ -435,7 +494,7 @@ theorem x_agmon_energy_cut (hcut : CutAligned G cut) (hd : 0 < d) (hL : 3 ≤ L)
   have h := agmon_energy_gen_cut G (cut := cut) (M := cutXFullMatrix G a aT x ν cut)
     (c₁ := 3 / 16) (θ := 1 / 8) (c₂ := 1 / 16) (by norm_num) (by norm_num) (by norm_num) α hα
     (r := r) (ε := ε) (fun φ hφ => by
-      have h0 := x_weighted_core_cut G hcut hL hk hν ha haT1 haT2 hx hr hε0 hεhalf hφ
+      have h0 := x_weighted_core_cut_of_ak G hcut hL hν ha hak haT1 haT2 hx hr hε0 hεhalf hφ
       have hW := wsq_nonneg G (fun y => Real.exp (ε * r y) * φ y)
       have e : xPoincareConstSharp = 1 / 4 := rfl
       rw [e] at h0
@@ -443,6 +502,20 @@ theorem x_agmon_energy_cut (hcut : CutAligned G cut) (hd : 0 < d) (hL : 3 ≤ L)
         (L : ℝ) ^ 2 * (Real.exp (ε * (2 * d)) - 1) ^ 2))]) (u := u) (f := f) hu
   norm_num at h ⊢
   linarith
+
+/-- **NC2, weighted `L²` form, for the cut x-variant** (uniform in `x ≥ 0`): for
+`0 ≤ ε ≤ ε_x = c_x/(16 d L)`, an Agmon weight `r`, `|α| ≤ ℓ⁻²/8`, `H_{cut,x}(α) u = f`, `v = w ũ`:
+`½ ‖∂v‖²_cut + (1/32) ‖ℓ⁻¹ v‖² ≤ 8 ‖ℓ w f‖²`. -/
+theorem x_agmon_energy_cut (hcut : CutAligned G cut) (hd : 0 < d) (hL : 3 ≤ L) (hk : 1 ≤ k)
+    {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) {aT x : ℝ}
+    (haT1 : 1 / 2 ≤ aT) (haT2 : aT ≤ 2) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ)
+    (hα : ∀ y, ‖α y‖ ≤ (1 / 8) / (G.spacing y) ^ 2)
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ xAgmonRate d L) {u f : G.Ω 1 → ℂ}
+    (hu : cutXOperator G a aT x ν cut α *ᵥ u = f) :
+    (1 / 2) * cutEnergy cut (agmonField G ε r u) + (1 / 32) * cwsq G (agmonField G ε r u) ≤
+      8 * agmonSource G ε r f :=
+  x_agmon_energy_cut_of_ak G hcut hd hL hν ha (ha k hk le_rfl) haT1 haT2 hx α hα hr hε0 hε1 hu
 
 end XEnergy
 
