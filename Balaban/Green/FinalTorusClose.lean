@@ -576,9 +576,10 @@ section Assembly
 variable {d L k : ℕ} [NeZero L]
 
 /-- **Closeness of the resolvent on two tori, given the closeness of the entries on a cube.**
-The constant `K` depends on `d` and `L` only; the bound carries the factor `(finalGap + t)⁻¹`. -/
-theorem final_resolvent_close_of_entries (hd : 0 < d) :
-    ∃ K : ℝ, 0 ≤ K ∧ (1 ≤ k → ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+The constant `K` depends on `d` and `L` only (it is chosen before `k`); the bound carries the
+factor `(finalGap + t)⁻¹`. -/
+theorem final_resolvent_close_of_entries_core {d L : ℕ} [NeZero L] (hd : 0 < d) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ {k : ℕ}, 1 ≤ k → ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
       7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R ρ : ℕ},
       2 * (R + ρ) < m → 2 * (R + ρ) < m' → ∀ {ε : ℝ},
       (∀ q ∈ sqBox d (R + ρ), ∀ q' ∈ sqBox d (R + ρ),
@@ -590,7 +591,7 @@ theorem final_resolvent_close_of_entries (hd : 0 < d) :
           ((finalOp d L m' k v a + (t : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))⁻¹)
             (castL1 m' u) (castL1 m' w)‖ ≤
         (K * Real.exp (-(finalRate d L / 2) * ((ρ : ℝ) + 1)) +
-          ((2 * ρ + 1 : ℕ) : ℝ) ^ (2 * d) * ε * (finalGap d L)⁻¹) * (finalGap d L + t)⁻¹) := by
+          ((2 * ρ + 1 : ℕ) : ℝ) ^ (2 * d) * ε * (finalGap d L)⁻¹) * (finalGap d L + t)⁻¹ := by
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
   have hg := finalGap_pos (d := d) hL
   have hr := finalRate_pos (L := L) hd
@@ -602,7 +603,7 @@ theorem final_resolvent_close_of_entries (hd : 0 < d) :
     with hKb
   have hKb0 : 0 ≤ Kb := by positivity
   refine ⟨4 + 8 * (finalGap d L)⁻¹ * Kb, by positivity, ?_⟩
-  intro hk v a hv0 hv1 ha1 ha2 hmass m m' _ _ R ρ hm hm' ε hε t ht u w hu hw
+  intro k hk v a hv0 hv1 ha1 ha2 hmass m m' _ _ R ρ hm hm' ε hε t ht u w hu hw
   set T := (finalGap d L + t)⁻¹ with hTdef
   have hT0 : 0 < T := by positivity
   have hTg : T ≤ (finalGap d L)⁻¹ := inv_anti₀ hg (by linarith)
@@ -745,6 +746,25 @@ theorem final_resolvent_close_of_entries (hd : 0 < d) :
     rw [← this]
     nlinarith
 
+/-- **Closeness of the resolvent on two tori, given the closeness of the entries on a cube.**
+The constant `K` depends on `d` and `L` only; the bound carries the factor `(finalGap + t)⁻¹`. -/
+theorem final_resolvent_close_of_entries (hd : 0 < d) :
+    ∃ K : ℝ, 0 ≤ K ∧ (1 ≤ k → ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R ρ : ℕ},
+      2 * (R + ρ) < m → 2 * (R + ρ) < m' → ∀ {ε : ℝ},
+      (∀ q ∈ sqBox d (R + ρ), ∀ q' ∈ sqBox d (R + ρ),
+        ‖finalOp d L m k v a (castL1 m q) (castL1 m q') -
+            finalOp d L m' k v a (castL1 m' q) (castL1 m' q')‖ ≤ ε) →
+      ∀ {t : ℝ}, 0 ≤ t → ∀ {u w : Fin d → ℤ}, u ∈ sqBox d R → w ∈ sqBox d R →
+      ‖((finalOp d L m k v a + (t : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ))⁻¹)
+            (castL1 m u) (castL1 m w) -
+          ((finalOp d L m' k v a + (t : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))⁻¹)
+            (castL1 m' u) (castL1 m' w)‖ ≤
+        (K * Real.exp (-(finalRate d L / 2) * ((ρ : ℝ) + 1)) +
+          ((2 * ρ + 1 : ℕ) : ℝ) ^ (2 * d) * ε * (finalGap d L)⁻¹) * (finalGap d L + t)⁻¹) := by
+  obtain ⟨K, hK0, hK⟩ := final_resolvent_close_of_entries_core (d := d) (L := L) hd
+  exact ⟨K, hK0, fun hk => hK hk⟩
+
 theorem pow_mul_exp_neg_le (n : ℕ) {b : ℝ} (hb : 0 < b) {x : ℝ} (hx : 0 ≤ x) :
     x ^ n * Real.exp (-(2 * b) * x) ≤ (n.factorial : ℝ) / b ^ n * Real.exp (-b * x) := by
   have h := Real.pow_div_factorial_le_exp (b * x) (by positivity) n
@@ -812,15 +832,21 @@ theorem final_close_tail {g r K C₀ c₀ c : ℝ} {D ρ Rm Rc : ℕ} (hg : 0 < 
   rw [this]
   exact add_le_add hA hB
 
-/-- **Closeness of the final resolvent on two tori (blocker 7, estimate (I2), first piece).**
-For the final operator `finalOp` on the tori of sides `m` and `m'`, uniformly in `t ≥ 0`, the
-resolvent entries at the sites `castL1 m u`, `castL1 m w` and `castL1 m' u`, `castL1 m' w` of a
-centred cube `|u_μ|, |w_μ| ≤ R` (the identity on residues, a box that does not wind) differ by at
-most `C exp (-c (min m m' / 2 - R)) / (finalGap + t)`.  The constants depend on `d`, `L`, `k`
-only. -/
-theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
-    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
-      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
+/-- **Closeness of the final resolvent on two tori, from the closeness of the entries.**  The
+entries of `finalOp` at the sites of a cube of the two tori are assumed to differ by at most
+`C₀ exp(-c₀ (Rm - Rc))` (`hent`); then the resolvent entries differ by at most
+`C exp(-c (min m m' / 2 - R)) / (finalGap + t)`, where `C, c` depend on `d`, `L`, `C₀`, `c₀` only
+(not on `k`). -/
+theorem finalResolvent_twoTorus_close_of_entries {d L : ℕ} [NeZero L] (hd : 0 < d) {C₀ c₀ : ℝ}
+    (hC₀ : 0 < C₀) (hc₀ : 0 < c₀) :
+    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {k : ℕ}, 1 ≤ k → ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a →
+      a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      (∀ {m m' : ℕ} [NeZero m] [NeZero m'] {Rm Rc : ℕ}, 2 * Rm + 1 < m → 2 * Rm + 1 < m' →
+        Rc + 1 ≤ Rm → ∀ {y y' : Fin d → ℤ}, y ∈ sqBox d Rc → y' ∈ sqBox d Rc →
+        ‖finalOp d L m k v a (castL1 m y) (castL1 m y') -
+            finalOp d L m' k v a (castL1 m' y) (castL1 m' y')‖ ≤
+          C₀ * Real.exp (-c₀ * ((Rm : ℝ) - Rc))) →
+      ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
       2 * R < m → 2 * R < m' → ∀ {t : ℝ}, 0 ≤ t → ∀ {u w : Fin d → ℤ},
       u ∈ sqBox d R → w ∈ sqBox d R →
       ‖((finalOp d L m k v a + (t : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ))⁻¹)
@@ -831,8 +857,7 @@ theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
   have hg := finalGap_pos (d := d) hL
   have hr := finalRate_pos (L := L) hd
-  obtain ⟨K, hK0, hKmain⟩ := final_resolvent_close_of_entries (d := d) (L := L) (k := k) hd
-  obtain ⟨C₀, c₀, hC₀, hc₀, hent⟩ := finalOp_entry_close (d := d) (L := L) (k := k) hd
+  obtain ⟨K, hK0, hKmain⟩ := final_resolvent_close_of_entries_core (d := d) (L := L) hd
   set c : ℝ := min (finalRate d L / 4) (c₀ / 8) with hcdef
   have hc : 0 < c := lt_min (by positivity) (by positivity)
   have hcr : c ≤ finalRate d L / 4 := min_le_left _ _
@@ -841,7 +866,7 @@ theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
   have hP0 : 0 ≤ P := by positivity
   refine ⟨4 * Real.exp (6 * c) + K + P * C₀ * (finalGap d L)⁻¹ + 1, c,
     by positivity, hc, ?_⟩
-  intro v a hv0 hv1 ha1 ha2 hmass m m' _ _ R hm hm' t ht u w hu hw
+  intro k hk v a hv0 hv1 ha1 ha2 hmass hent m m' _ _ R hm hm' t ht u w hu hw
   set S := min m m' with hS
   have hSm : S ≤ m := min_le_left _ _
   have hSm' : S ≤ m' := min_le_right _ _
@@ -899,7 +924,7 @@ theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
         ‖finalOp d L m k v a (castL1 m q) (castL1 m q') -
             finalOp d L m' k v a (castL1 m' q) (castL1 m' q')‖ ≤
           C₀ * Real.exp (-c₀ * ((Rm : ℝ) - ((R + ρ : ℕ) : ℝ))) :=
-      fun q hq q' hq' => hent hv0 hv1 ha1 ha2 hfm hfm' hRc hq hq'
+      fun q hq q' hq' => hent hfm hfm' hRc hq hq'
     have h := hKmain hk hv0 hv1 ha1 ha2 hmass hm1 hm2 hεb ht hu hw
     refine h.trans ?_
     have hρ1 : (D : ℝ) / 4 ≤ (ρ : ℝ) + 1 := by
@@ -919,6 +944,29 @@ theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
     nlinarith [mul_nonneg h0 hE.le]
 
 
+
+/-- **Closeness of the final resolvent on two tori (blocker 7, estimate (I2), first piece).**
+For the final operator `finalOp` on the tori of sides `m` and `m'`, uniformly in `t ≥ 0`, the
+resolvent entries at the sites `castL1 m u`, `castL1 m w` and `castL1 m' u`, `castL1 m' w` of a
+centred cube `|u_μ|, |w_μ| ≤ R` (the identity on residues, a box that does not wind) differ by at
+most `C exp (-c (min m m' / 2 - R)) / (finalGap + t)`.  The constants depend on `d`, `L`, `k`
+only. -/
+theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
+    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
+      2 * R < m → 2 * R < m' → ∀ {t : ℝ}, 0 ≤ t → ∀ {u w : Fin d → ℤ},
+      u ∈ sqBox d R → w ∈ sqBox d R →
+      ‖((finalOp d L m k v a + (t : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ))⁻¹)
+            (castL1 m u) (castL1 m w) -
+          ((finalOp d L m' k v a + (t : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))⁻¹)
+            (castL1 m' u) (castL1 m' w)‖ ≤
+        C * Real.exp (-c * (((min m m' : ℕ) : ℝ) / 2 - R)) * (finalGap d L + t)⁻¹ := by
+  obtain ⟨C₀, c₀, hC₀, hc₀, hent⟩ := finalOp_entry_close (d := d) (L := L) (k := k) hd
+  obtain ⟨C, c, hC, hc, hcore⟩ := finalResolvent_twoTorus_close_of_entries (d := d) (L := L) hd hC₀ hc₀
+  refine ⟨C, c, hC, hc, ?_⟩
+  intro v a hv0 hv1 ha1 ha2 hmass m m' _ _ R hm hm' t ht u w hu hw
+  exact hcore hk hv0 hv1 ha1 ha2 hmass (hent hv0 hv1 ha1 ha2) hm hm' ht hu hw
+
 end Assembly
 
 
@@ -926,19 +974,26 @@ section Sqrt
 
 variable {d L k : ℕ} [NeZero L]
 
-/-- **Closeness of the inverse square root of the final operator on two tori.**  The Stieltjes
-integral of `finalResolvent_twoTorus_close`, whose bound carries the factor `(finalGap + t)⁻¹`:
-`π⁻¹ ∫₀^∞ t^{-1/2} (finalGap + t)⁻¹ dt = (finalGap)^{-1/2}`. -/
-theorem finalSqrt_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
-    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
-      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
+/-- **Closeness of the inverse square root of the final operator on two tori, from the closeness
+of the entries** (same hypothesis `hent` as `finalResolvent_twoTorus_close_of_entries`; the
+constants `C, c` do not depend on `k`). -/
+theorem finalSqrt_twoTorus_close_of_entries {d L : ℕ} [NeZero L] (hd : 0 < d) {C₀ c₀ : ℝ}
+    (hC₀ : 0 < C₀) (hc₀ : 0 < c₀) :
+    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {k : ℕ}, 1 ≤ k → ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a →
+      a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      (∀ {m m' : ℕ} [NeZero m] [NeZero m'] {Rm Rc : ℕ}, 2 * Rm + 1 < m → 2 * Rm + 1 < m' →
+        Rc + 1 ≤ Rm → ∀ {y y' : Fin d → ℤ}, y ∈ sqBox d Rc → y' ∈ sqBox d Rc →
+        ‖finalOp d L m k v a (castL1 m y) (castL1 m y') -
+            finalOp d L m' k v a (castL1 m' y) (castL1 m' y')‖ ≤
+          C₀ * Real.exp (-c₀ * ((Rm : ℝ) - Rc))) →
+      ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
       2 * R < m → 2 * R < m' → ∀ {u w : Fin d → ℤ}, u ∈ sqBox d R → w ∈ sqBox d R →
       ‖Localization.sqrtMat (finalOp d L m k v a) (castL1 m u) (castL1 m w) -
           Localization.sqrtMat (finalOp d L m' k v a) (castL1 m' u) (castL1 m' w)‖ ≤
         C * Real.exp (-c * (((min m m' : ℕ) : ℝ) / 2 - R)) / Real.sqrt (finalGap d L) := by
-  obtain ⟨C, c, hC, hc, hmain⟩ := finalResolvent_twoTorus_close (d := d) (L := L) (k := k) hd hk
+  obtain ⟨C, c, hC, hc, hmain⟩ := finalResolvent_twoTorus_close_of_entries (d := d) (L := L) hd hC₀ hc₀
   refine ⟨C, c, hC, hc, ?_⟩
-  intro v a hv0 hv1 ha1 ha2 hmass m m' _ _ R hm hm' u w hu hw
+  intro k hk v a hv0 hv1 ha1 ha2 hmass hent m m' _ _ R hm hm' u w hu hw
   have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
   have hg := finalGap_pos (d := d) hL
   have : Nonempty (L1Torus d m) := ⟨(0 : Torus d m)⟩
@@ -975,7 +1030,7 @@ theorem finalSqrt_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
     ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun s hs => by
       have hs0 : 0 < s := mem_Ioi.mp hs
       have h3 : 0 < s ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hs0 _
-      have hres := hmain hv0 hv1 ha1 ha2 hmass hm hm' hs0.le hu hw
+      have hres := hmain hk hv0 hv1 ha1 ha2 hmass hent hm hm' hs0.le hu hw
       rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
       rw [add_comm ((s : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ)),
         add_comm ((s : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))]
@@ -998,6 +1053,23 @@ theorem finalSqrt_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
       ≤ 1 / Real.pi * (Bd * (Real.pi / Real.sqrt (finalGap d L))) := by gcongr
     _ = Bd / Real.sqrt (finalGap d L) := by field_simp
     _ = _ := by rw [hBd]
+
+
+/-- **Closeness of the inverse square root of the final operator on two tori.**  The Stieltjes
+integral of `finalResolvent_twoTorus_close`, whose bound carries the factor `(finalGap + t)⁻¹`:
+`π⁻¹ ∫₀^∞ t^{-1/2} (finalGap + t)⁻¹ dt = (finalGap)^{-1/2}`. -/
+theorem finalSqrt_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
+    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
+      2 * R < m → 2 * R < m' → ∀ {u w : Fin d → ℤ}, u ∈ sqBox d R → w ∈ sqBox d R →
+      ‖Localization.sqrtMat (finalOp d L m k v a) (castL1 m u) (castL1 m w) -
+          Localization.sqrtMat (finalOp d L m' k v a) (castL1 m' u) (castL1 m' w)‖ ≤
+        C * Real.exp (-c * (((min m m' : ℕ) : ℝ) / 2 - R)) / Real.sqrt (finalGap d L) := by
+  obtain ⟨C₀, c₀, hC₀, hc₀, hent⟩ := finalOp_entry_close (d := d) (L := L) (k := k) hd
+  obtain ⟨C, c, hC, hc, hcore⟩ := finalSqrt_twoTorus_close_of_entries (d := d) (L := L) hd hC₀ hc₀
+  refine ⟨C, c, hC, hc, ?_⟩
+  intro v a hv0 hv1 ha1 ha2 hmass m m' _ _ R hm hm' u w hu hw
+  exact hcore hk hv0 hv1 ha1 ha2 hmass (hent hv0 hv1 ha1 ha2) hm hm' hu hw
 
 end Sqrt
 
