@@ -254,7 +254,8 @@ theorem cstarX_self (d L : ℕ) : cstarX d L (Cchi d L) = Balaban.Localization.c
 /-- **The pair `(coverOf G, G)` satisfies `XCover`.** -/
 theorem xCover_self (S : XSetting G a aT ν) : XCover (coverOf G) G a aT ν (Cchi d L) where
   toCoverGeom := coverGeom_self S.dg
-  hk := S.hk
+  hak1 := S.hak1
+  hak2 := S.hak2
   haT1 := S.haT1
   haT2 := S.haT2
 

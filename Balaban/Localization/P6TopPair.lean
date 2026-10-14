@@ -125,7 +125,7 @@ theorem p6_xCover_top_old {ϱF : ℝ} (hM1 : M1 = L ^ m₁) (ρ' : ℕ) (Z : Set
     Dec2.XCover (coverOf (topGS d L (c * n1) m₁ (k + 1) ϱF))
       (p6OldC (k := k) (n1 := n1) (c := c) hM1 ρ' Z) a aT ν (Cchi d L) :=
   { toCoverGeom := p6_coverGeom_top_old hM1 ρ' Z hm₁ hM hd hL hν hνL ha hsep
-    hk := hk, haT1 := haT1, haT2 := haT2 }
+    hak1 := (ha k hk (by omega)).1, hak2 := (ha k hk (by omega)).2, haT1 := haT1, haT2 := haT2 }
 
 /-- **`p6_xFootLocal_top_old`**: `Dec2.XFootLocal` for `(coverOf F^top, H⁻)`. -/
 theorem p6_xFootLocal_top_old {ϱF : ℝ} (hM1 : M1 = L ^ m₁) (ρ' : ℕ) (Z : Set (Torus d n0))
@@ -150,7 +150,7 @@ theorem p6_xCover_top_boundary {ϱF : ℝ} (hc : 14 ≤ c) (hn : n0 = L * n1) (h
     Dec2.XCover (coverOf (topGS d L (c * n1) m₁ (k + 1) ϱF))
       (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ) a aT ν (Cchi d L) :=
   { toCoverGeom := p6_coverGeom_top_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL ha hsep
-    hk := hk, haT1 := haT1, haT2 := haT2 }
+    hak1 := (ha k hk (by omega)).1, hak2 := (ha k hk (by omega)).2, haT1 := haT1, haT2 := haT2 }
 
 /-- **`p6_xFootLocal_top_boundary`**: `Dec2.XFootLocal` for `(coverOf F^top, H^∂)`. -/
 theorem p6_xFootLocal_top_boundary {ϱF : ℝ} (hc : 14 ≤ c) (hn : n0 = L * n1) (hL : 2 ≤ L)

@@ -83,7 +83,8 @@ theorem localB_xCover {ϱ : ℝ} {j : ℕ} (hj : j ≤ k + 1) (Y : Set (CTorus d
     Dec2.XCover (coverOf (SmallField.GsSpec.localB j hj Y hsep))
       (SmallField.GsSpec.localB j hj Y hsep) a aT ν (Cchi d L) where
   toCoverGeom := localB_coverGeom hj Y hsep hm₁ hM hd hL hν hνL ha hag
-  hk := hk
+  hak1 := (ha k hk (by omega)).1
+  hak2 := (ha k hk (by omega)).2
   haT1 := haT1
   haT2 := haT2
 

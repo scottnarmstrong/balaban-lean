@@ -311,8 +311,7 @@ theorem sum_w_decCov_sub_le_cover (h : κι × Fin N → ℂ) :
         ‖((decCov G a aT x ν α s φ Q P - decCov G a aT x ν α (fun _ => 1) φ Q P) *ᵥ h) p‖ ^ 2 ≤
       covCloseSq d L (a k) κ ε c₀ * ((a k + x)⁻¹) ^ 4 * Green.sqNorm h := by
   classical
-  have hk := D.st.hk
-  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k hk le_rfl
+  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := ⟨D.st.hak1, D.st.hak2⟩
   have hcx : 0 < a k + x := by have := D.x0; linarith [hak.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D.st.haT1

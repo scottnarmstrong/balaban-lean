@@ -255,8 +255,7 @@ theorem cov_weighted_bound (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fu
   classical
   have D := hfam x hx
   have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
-  have hk := D.st.hk
-  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := D.st.ha k hk le_rfl
+  have hak : a k ∈ Set.Icc (1 / 2 : ℝ) 2 := ⟨D.st.hak1, D.st.hak2⟩
   have hcx : 0 < a k + x := by have := D.x0; linarith [hak.1]
   have hb : 0 ≤ aT / (L : ℝ) ^ 2 := by
     have := D.st.haT1
@@ -442,7 +441,7 @@ theorem cov_entry_decay (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun _
   have hent := cov_entry_le_n2 (N := N) ε (fun b : unitPts G => unitRho r b.1) M p q i i'
   have hKnn : 0 ≤ covDecayConst d L (a k) ε * (a k + x)⁻¹ := by
     have D := hfam x hx
-    have hak := D.st.ha k D.st.hk le_rfl
+    have hak := (⟨D.st.hak1, D.st.hak2⟩ : _ ∧ _)
     have : 0 < a k + x := by linarith [hak.1, D.x0]
     have hα : 0 ≤ (a k + x)⁻¹ := inv_nonneg.2 this.le
     have hak0 : 0 ≤ a k := by linarith [hak.1]

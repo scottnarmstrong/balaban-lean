@@ -158,7 +158,7 @@ theorem commKx_Gsx_le_cover (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ) (g : 
   have hd : 0 < d := by have := D.st.hd; omega
   have hL1 : 1 ≤ L := by have := D.st.hL; omega
   have hε2 : ε ≤ agmonRate d := W.ε1.trans (xAgmonRate_le_agmonRate hd hL1)
-  have hK := agmonSource_commKx_le (ν := ν) G hd D.st.hk D.st.ha D.st.haT1 D.x0 α hφ hδ W.agm W.ε0 hε2
+  have hK := agmonSource_commKx_le_of_ak (ν := ν) G hd D.st.ha ⟨D.st.hak1, D.st.hak2⟩ D.st.haT1 D.x0 α hφ hδ W.agm W.ε0 hε2
     (liftOp N (Gsx G a aT x ν α s) *ᵥ g) Finset.univ (fun y hy => absurd (Finset.mem_univ _) hy)
   obtain ⟨hM, hGr⟩ := Gsx_vec_bounds_cover D W g
   have hV0 := vecSrc_nonneg G ε r g

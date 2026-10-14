@@ -47,7 +47,7 @@ theorem cov_sqrt_entry_decay (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (
         Real.exp (-(xAgmonRate d L / L) *
           Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1 q.1) := by
   have D0 := hfam 0 le_rfl
-  have hak : 0 < a k := by linarith [(D0.st.ha k D0.st.hk le_rfl).1]
+  have hak : 0 < a k := by linarith [((⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)).1]
   set B0 : ℝ := covDecayConst d L (a k) (xAgmonRate d L) * Real.exp (xAgmonRate d L * d / L) *
     Real.exp (-(xAgmonRate d L / L) *
           Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1 q.1) with hB0
@@ -103,7 +103,7 @@ theorem cov_sqrt_supNorm (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α 0 (fun 
     positivity
   set E := covSqrtEntryConst d L (a k) with hE
   have hE0 : 0 ≤ E := by
-    have hak : 0 < a k := by linarith [(D0.st.ha k D0.st.hk le_rfl).1]
+    have hak : 0 < a k := by linarith [((⟨D0.st.hak1, D0.st.hak2⟩ : _ ∧ _)).1]
     exact covSqrtEntryConst_nonneg hak
   set f : unitPts G → ℝ := fun q => Real.exp (-(xAgmonRate d L / L) *
     Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1 - k)) p.1.1 q.1) with hf
