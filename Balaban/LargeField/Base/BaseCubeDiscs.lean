@@ -456,4 +456,207 @@ theorem baseCube_log_analyticOn_close {ε : ℝ} (hε0 : 0 ≤ ε) (hεη : 3 * 
 
 end Holomorphy
 
+section Cut
+
+open Classical Balaban.Localization
+
+/-- The principal logarithm respects a block compression (as `sqrtMat_submatrix_block`). -/
+theorem logMat_submatrix_block {κ : Type*} [Fintype κ] [DecidableEq κ] (P : κ → Prop)
+    [Nonempty κ] [Nonempty {p : κ // P p}] {M : Matrix κ κ ℂ} (hM : BlockDiag P M)
+    (hR : ResOK M) (hRI : ResOK (M.submatrix
+      (Subtype.val : {p : κ // P p} → κ) (Subtype.val : {p : κ // P p} → κ)))
+    (p q : {p : κ // P p}) :
+    logMat M p.1 q.1 = logMat (M.submatrix
+      (Subtype.val : {p : κ // P p} → κ) (Subtype.val : {p : κ // P p} → κ)) p q := by
+  simp only [logMat, intMat, Matrix.neg_apply]
+  congr 1
+  refine MeasureTheory.integral_congr_ae ?_
+  refine (MeasureTheory.ae_restrict_iff' measurableSet_Ioi).2
+    (Filter.Eventually.of_forall fun y hy => ?_)
+  have hy0 : 0 ≤ y := le_of_lt hy
+  beta_reduce
+  have hsub : ((y : ℂ) • (1 : Matrix κ κ ℂ) + M).submatrix
+      (Subtype.val : {p : κ // P p} → κ) Subtype.val =
+      (y : ℂ) • (1 : Matrix {p : κ // P p} {p : κ // P p} ℂ) +
+        M.submatrix Subtype.val Subtype.val := by
+    ext a b
+    simp only [Matrix.submatrix_apply, Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply]
+    congr 1
+    simp only [Subtype.ext_iff]
+  have hinv := inv_submatrix_block P (blockDiag_add_smul_one hM y) (hR y hy0)
+    (hsub.symm ▸ hRI y hy0) p q
+  rw [hsub] at hinv
+  simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.one_apply, hinv, Subtype.ext_iff]
+
+variable {a : ℕ → ℝ} {ν : ℝ} {α α' : G.Ω 1 → ℂ} {U : Set (Torus d (N₀ * L ^ 1))}
+
+/-- **Cutting the cubes outside `U`.**  If the parameters of all cubes outside `U` vanish, every
+bond joining `U` to its complement carries the parameter `0`. -/
+theorem baseCube_crossZero {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (hout : ∀ x ∈ G.Ω 1, x ∉ U → t (jBlock d L N₀ 1 1 x) = 0) :
+    CrossZero G U (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+      t (jBlock d L N₀ 1 1 (bondTip b))) := by
+  intro b hb hcross
+  obtain ⟨h1, h2⟩ := baseCutBonds_endpoints_mem G hb
+  beta_reduce
+  by_cases hu : b.1 ∈ U
+  · rw [hout _ h2 (hcross.1 hu), mul_zero]
+  · rw [hout _ h1 hu, zero_mul]
+
+/-- With the parameters of the cubes outside `U` equal to `0`, `A_e(s)` is a direct sum over `U`
+and its complement (`U` a union of first blocks). -/
+theorem baseCube_blockDiag (hU : IsFirstBlockUnion G U)
+    {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+    (hout : ∀ x ∈ G.Ω 1, x ∉ U → t (jBlock d L N₀ 1 1 x) = 0) (e : G.Ω 1 → Fin N → ℝ) :
+    BlockDiag (fun p : G.Ω 1 × Fin N => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+      (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+        (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+          t (jBlock d L N₀ 1 1 (bondTip b))))) :=
+  baseOp_blockDiag G hU a ν α (baseCube_crossZero G hout) e
+
+theorem baseCube_agreeOn {t t' : Torus d (N₀ * L ^ (1 - 1)) → ℂ} {e e' : G.Ω 1 → Fin N → ℝ}
+    (hα : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → α z = α' z)
+    (he : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → e z = e' z)
+    (ht : ∀ x ∈ G.Ω 1, x ∈ U → t (jBlock d L N₀ 1 1 x) = t' (jBlock d L N₀ 1 1 x)) :
+    AgreeOn G U (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b)))
+      (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+        t' (jBlock d L N₀ 1 1 (bondTip b))) α α' e e' where
+  alpha := hα
+  bg := he
+  param b hb h1 h2 := by
+    obtain ⟨g1, g2⟩ := baseCutBonds_endpoints_mem G hb
+    rw [ht _ g1 h1, ht _ g2 h2]
+
+variable [Nonempty (G.Ω 1)] [NeZero N]
+variable (hU : IsFirstBlockUnion G U) (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+  (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) (hα' : ∀ z, ‖α' z‖ ≤ 1 / (8 * (L : ℝ) ^ 2))
+  {η : ℝ} (hη0 : 0 ≤ η) (hη : η ≤ baseCoercivity L / (8 * d))
+  {t t' : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+  (hs : (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+      t (jBlock d L N₀ 1 1 (bondTip b))) ∈ baseParamNbhd G η)
+  (hs' : (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+      t' (jBlock d L N₀ 1 1 (bondTip b))) ∈ baseParamNbhd G η)
+  (hout : ∀ x ∈ G.Ω 1, x ∉ U → t (jBlock d L N₀ 1 1 x) = 0)
+  (hout' : ∀ x ∈ G.Ω 1, x ∉ U → t' (jBlock d L N₀ 1 1 x) = 0)
+  {e e' : G.Ω 1 → Fin N → ℝ} (he : ∀ z, ∑ i, e z i ^ 2 = 1) (he' : ∀ z, ∑ i, e' z i ^ 2 = 1)
+  (hαU : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → α z = α' z)
+  (heU : ∀ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U → e z = e' z)
+  (htU : ∀ x ∈ G.Ω 1, x ∈ U → t (jBlock d L N₀ 1 1 x) = t' (jBlock d L N₀ 1 1 x))
+  (p q : G.Ω 1 × Fin N) (hp : (p.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+  (hq : (q.1 : Torus d (N₀ * L ^ 1)) ∈ U)
+
+include hU hν ha hα hα' hη0 hη hs hs' hout hout' he he' hαU heU htU hp hq
+
+/-- **Exact component locality of the cube family: resolvent.**  For parameters vanishing on the
+cubes outside the union of first blocks `U`, the `U × U` entries of `𝒞_{e,x}(s)` depend only on
+the data `(α, e, t)` on `U`. -/
+theorem baseCube_resolvent_local {x : ℝ} (hx : 0 ≤ x) :
+    baseResolvent N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b)))) x p q =
+    baseResolvent N (fun z i => (e' z i : ℂ)) (baseHamiltonian G a ν α'
+      (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+        t' (jBlock d L N₀ 1 1 (bondTip b)))) x p q :=
+  baseResolvent_local G hU hν ha hα hα' hη0 hη hs hs' (baseCube_crossZero G hout)
+    (baseCube_crossZero G hout') he he' (baseCube_agreeOn G hαU heU htU) hx p q hp hq
+
+/-- Exact component locality of the cube family: principal inverse square root. -/
+theorem baseCube_sqrt_local :
+    sqrtMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))))) p q =
+    sqrtMat (baseOp N (fun z i => (e' z i : ℂ)) (baseHamiltonian G a ν α'
+      (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+        t' (jBlock d L N₀ 1 1 (bondTip b))))) p q :=
+  baseSqrt_local G hU hν ha hα hα' hη0 hη hs hs' (baseCube_crossZero G hout)
+    (baseCube_crossZero G hout') he he' (baseCube_agreeOn G hαU heU htU) p q hp hq
+
+/-- Exact component locality of the cube family: principal logarithm. -/
+theorem baseCube_log_local :
+    logMat (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))))) p q =
+    logMat (baseOp N (fun z i => (e' z i : ℂ)) (baseHamiltonian G a ν α'
+      (fun b : FineBond d L N₀ => t' (jBlock d L N₀ 1 1 b.1) *
+        t' (jBlock d L N₀ 1 1 (bondTip b))))) p q :=
+  baseLog_local G hU hν ha hα hα' hη0 hη hs hs' (baseCube_crossZero G hout)
+    (baseCube_crossZero G hout') he he' (baseCube_agreeOn G hαU heU htU) p q hp hq
+
+end Cut
+
+section Component
+
+open Classical Balaban.Localization
+
+variable {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ} {U : Set (Torus d (N₀ * L ^ 1))}
+  [Nonempty (G.Ω 1)] [NeZero N]
+variable (hU : IsFirstBlockUnion G U) (hU0 : ∃ z : G.Ω 1, (z : Torus d (N₀ * L ^ 1)) ∈ U)
+  (hν : 0 ≤ ν) (ha : IsAdmissibleWeights 1 a)
+  (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) {η : ℝ} (hη0 : 0 ≤ η)
+  (hη : η ≤ baseCoercivity L / (8 * d)) {t : Torus d (N₀ * L ^ (1 - 1)) → ℂ}
+  (hs : (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+      t (jBlock d L N₀ 1 1 (bondTip b))) ∈ baseParamNbhd G η)
+  (hout : ∀ x ∈ G.Ω 1, x ∉ U → t (jBlock d L N₀ 1 1 x) = 0)
+  (e : G.Ω 1 → Fin N → ℝ) (he : ∀ z, ∑ i, e z i ^ 2 = 1)
+
+include hU hU0 hν ha hα hη0 hη hs hout he
+
+/-- **The cut component operator of the cube family.**  With the parameters of the cubes outside
+the union of first blocks `U` equal to `0`, the principal submatrix `A_U` of `A_e(s)` on `U` is
+coercive with margin `c/2`, has the Stieltjes inverse square root and the principal logarithm,
+and `A_e(s)` is block diagonal for `U`. -/
+theorem baseCube_component_covariance :
+    let A := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))))
+    let P : G.Ω 1 × Fin N → Prop := fun p => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U
+    let I := {p : G.Ω 1 × Fin N // P p}
+    let A_U : Matrix I I ℂ := A.submatrix Subtype.val Subtype.val
+    BlockDiag P A ∧ IsCoercive A_U (baseCoercivity L / 2) ∧ ResOK A_U ∧
+      sqrtMat A_U * sqrtMat A_U = A_U⁻¹ ∧ NormedSpace.exp (logMat A_U) = A_U := by
+  intro A P I A_U
+  have hcoer : IsCoercive A (baseCoercivity L / 2) :=
+    baseOp_isCoercive_of_close G hν ha hα hη0 hη hs e he
+  have hcomp : IsCoercive A_U (baseCoercivity L / 2) :=
+    isCoercive_submatrix hcoer Subtype.val Subtype.val_injective
+  have hc : 0 < baseCoercivity L / 2 :=
+    half_pos (baseCoercivity_pos (Nat.pos_of_ne_zero (NeZero.ne L)))
+  have hres : ResOK A_U := by
+    intro x hx
+    have hcx : 0 < baseCoercivity L / 2 + x := by linarith
+    rw [add_comm]
+    exact isUnit_of_isCoercive hcx (hcomp.add_smul_one x)
+  have : Nonempty I := by
+    obtain ⟨z, hzU⟩ := hU0
+    exact ⟨⟨(z, 0), hzU⟩⟩
+  exact ⟨baseCube_blockDiag G hU hout e, hcomp, hres, sqrtMat_mul_self hres, exp_logMat hres⟩
+
+/-- **Exact agreement with the cut component operator** (the cube analogue of
+`baseSector_component_entries`): the `U × U` entries of `A_e(s)⁻¹`, of its principal inverse square
+root and of its principal logarithm are those of the component operator `A_U`. -/
+theorem baseCube_component_entries :
+    let A := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G a ν α
+      (fun b : FineBond d L N₀ => t (jBlock d L N₀ 1 1 b.1) *
+        t (jBlock d L N₀ 1 1 (bondTip b))))
+    let P : G.Ω 1 × Fin N → Prop := fun p => (p.1 : Torus d (N₀ * L ^ 1)) ∈ U
+    let I := {p : G.Ω 1 × Fin N // P p}
+    let A_U : Matrix I I ℂ := A.submatrix Subtype.val Subtype.val
+    ∀ p q : I, A⁻¹ p.1 q.1 = A_U⁻¹ p q ∧ sqrtMat A p.1 q.1 = sqrtMat A_U p q ∧
+      logMat A p.1 q.1 = logMat A_U p q := by
+  intro A P I A_U
+  obtain ⟨hblock, _, hRI, _, _⟩ := baseCube_component_covariance G hU hU0 hν ha hα hη0 hη hs hout e he
+  have hR : ResOK A := resOK_baseOp G hν ha hα hη0 hη hs e he
+  have : Nonempty I := by
+    obtain ⟨z, hzU⟩ := hU0
+    exact ⟨⟨(z, 0), hzU⟩⟩
+  intro p q
+  refine ⟨?_, sqrtMat_submatrix_block P hblock hR hRI p q,
+    logMat_submatrix_block P hblock hR hRI p q⟩
+  apply inv_submatrix_block P hblock
+  · simpa using hR 0 le_rfl
+  · simpa using hRI 0 le_rfl
+
+end Component
+
 end Balaban.LargeField.Base
