@@ -190,6 +190,79 @@ theorem rootTermFamily_obs_core {d L N N₁ m₁ k : ℕ} [NeZero N₁] [NeZero 
   exact rootTermFamily_obs_core_rho S 1 one_pos t lam B hLN hB hm mObs hcl hval
 
 open Classical in
+/-- **The observable family on the chart, shared form.**  For the general tower and `ρ > 0`, at
+every scale there is one family `mObs` (for all sites `(y, i)`) with the analyticity, support,
+locality and prefactor-bound clauses on `physVqRho … ρ ρ`, and the value and pairing identities of
+the step at every fibre datum of the chart.  Both `obsCubeFamily_sourceBall_fromTowerG_rho` and
+`rootTermFamily_obs_prefactor_fromTowerG_rho` are applications. -/
+theorem obsFamilyTheta_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) {A₁ : ℝ} (hA : 0 < A₁)
+    (p : ℕ) {CR s : ℝ} (hCR : 0 < CR) (hs0 : 0 < s) (hs : s < 1 / 2) (ρ : ℝ) (hρ : 0 < ρ) :
+    ∃ (β₀ CE CF C : ℝ), 3 ≤ β₀ ∧ 0 < CE ∧ 0 < CF ∧ 0 ≤ C ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_h3N : L ^ T.m₀ ∣ N₁), 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+      ∀ (_ : StepScaleDataG T k hk N₁ ν β p₁)
+        (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁)),
+        S = T.step k hk N₁ ν β p₁ → ∀ _hp : 0 < S.p₁,
+      ∃ (mObs : CTorus d L N₁ T.m₁ (k + 1) → Fin N → physParam N S →
+          Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) T.m₀ (k + 1)
+            Set.univ) → ℂ),
+        (∀ y i, ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+      (K := k + 1) T.m₀ (k + 1) Set.univ),
+      AnalyticOnNhd ℂ (fun θ => mObs y i θ T') (physVqRho S S.a₁ S.ν T.t ρ ρ) ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, mObs y i θ T' ≠ 0 →
+        rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ θ' ∈ physVqRho S S.a₁ S.ν T.t ρ ρ,
+        agreeOn (thickSet S.G' (sitesOf T'))
+          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
+          (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
+        (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ‖mObs y i θ T'‖ ≤
+        C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) *
+          Real.exp (-(3 / 2 * T.κdec) * dExt T')) ) ∧
+        (∀ (D : BgData S.G' N) (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)),
+          XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
+          ∀ g : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < ρ →
+            (∀ (y : CTorus d L N₁ T.m₁ (k + 1)) (i : Fin N),
+              (S.withDatum D hDh).M0C (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g y i =
+                ((S.betaU ^ (1 / 2 : ℝ) : ℝ) : ℂ) *
+                  ∑ T', mObs y i ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) T') ∧
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+                ∑ y : CTorus d L N₁ T.m₁ (k + 1), ∑ i : Fin N,
+                  g y i * (S.withDatum D hDh).M0C (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
+                    g y i =
+              ∑ y : CTorus d L N₁ T.m₁ (k + 1), ∑ i : Fin N,
+                g y i * ∑ T', mObs y i ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) T') := by
+  classical
+  obtain ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, H⟩ :=
+    obsFamily_pair_fibre_prefactor_fromTowerG_rho T hA p hCR hs0 hs ρ
+  refine ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, ?_⟩
+  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS hp
+  obtain ⟨Lb, hLb, Lab, εH, hεH, A, mObs, -, hsite, hval⟩ :=
+    H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ ρ hρ le_rfl Dsc S hS hp
+  have hcl : ∀ y i, ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+      (K := k + 1) T.m₀ (k + 1) Set.univ),
+      AnalyticOnNhd ℂ (fun θ => mObs y i θ T') (physVqRho S S.a₁ S.ν T.t ρ ρ) ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, mObs y i θ T' ≠ 0 →
+        rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ θ' ∈ physVqRho S S.a₁ S.ν T.t ρ ρ,
+        agreeOn (thickSet S.G' (sitesOf T'))
+          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
+          (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
+        (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
+      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ‖mObs y i θ T'‖ ≤
+        C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) *
+          Real.exp (-(3 / 2 * T.κdec) * dExt T')) := by
+    intro y i T'
+    obtain ⟨-, -, -, -, -, -, -, -, hfam⟩ := hsite y i (by
+      subst hS
+      exact obsDomains_isDj (X₁f := LocalCover.nbhdF T.m₀ y) _ T.hd
+        (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1)
+    exact ⟨(hfam T').1, (hfam T').2.2.1, (hfam T').2.2.2.1, (hfam T').2.2.2.2.2⟩
+  exact ⟨mObs, hcl, fun D hDh hX g hg => hval D hDh hX g hg⟩
+
+open Classical in
 /-- **The observable families on the source ball, for all sites at once.**  For the general tower
 `T` and `ρ > 0` there are thresholds and a bound constant `C ≥ 0`, and at every scale a single family
 `mObs y i θ T'` (indexed by all sites `(y, i)`, chosen before the datum) such that for every datum
@@ -238,30 +311,10 @@ theorem obsCubeFamily_sourceBall_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin 
                   ∑ T'', mObs y i ((⟨rawOf D, rawOf_mem_rawSub D⟩ : rawSub N S.G'), g) T'') := by
   classical
   obtain ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, H⟩ :=
-    obsFamily_pair_fibre_prefactor_fromTowerG_rho T hA p hCR hs0 hs ρ
+    obsFamilyTheta_fromTowerG_rho T hA p hCR hs0 hs ρ hρ
   refine ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS hp
-  obtain ⟨Lb, hLb, Lab, εH, hεH, A, mObs, -, hsite, hval⟩ :=
-    H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ ρ hρ le_rfl Dsc S hS hp
-  have hcl : ∀ y i, ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
-      (K := k + 1) T.m₀ (k + 1) Set.univ),
-      AnalyticOnNhd ℂ (fun θ => mObs y i θ T') (physVqRho S S.a₁ S.ν T.t ρ ρ) ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, mObs y i θ T' ≠ 0 →
-        rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ θ' ∈ physVqRho S S.a₁ S.ν T.t ρ ρ,
-        agreeOn (thickSet S.G' (sitesOf T'))
-          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-          (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
-        (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ‖mObs y i θ T'‖ ≤
-        C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) *
-          Real.exp (-(3 / 2 * T.κdec) * dExt T')) := by
-    intro y i T'
-    obtain ⟨-, -, -, -, -, -, -, -, hfam⟩ := hsite y i (by
-      subst hS
-      exact obsDomains_isDj (X₁f := LocalCover.nbhdF T.m₀ y) _ T.hd
-        (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1)
-    exact ⟨(hfam T').1, (hfam T').2.2.1, (hfam T').2.2.2.1, (hfam T').2.2.2.2.2⟩
+  obtain ⟨mObs, hcl, hval⟩ := H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS hp
   refine ⟨mObs, fun D hDh hX y i T' => ⟨?_, ?_, ?_, ?_, ?_⟩⟩
   · exact analyticOn_sourceBall_of_chart S ρ T.t D hX _ (hcl y i T').1
   · exact fun g hg h0 => (hcl y i T').2.1 _ (rawOf_source_mem_physVqRho S ρ T.t D hX g hg) h0
@@ -315,40 +368,21 @@ theorem rootTermFamily_obs_prefactor_fromTowerG_rho {d L N : ℕ} [NeZero L] {κ
                       (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) g y i := by
   classical
   obtain ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, H⟩ :=
-    obsFamily_pair_fibre_prefactor_fromTowerG_rho T hA p hCR hs0 hs ρ
+    obsFamilyTheta_fromTowerG_rho T hA p hCR hs0 hs ρ hρ
   refine ⟨β₀, CE, CF, C, h3, hCE, hCF, hC0, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS hp
-  obtain ⟨Lb, hLb, Lab, εH, hεH, A, mObs, -, hsite, hval⟩ :=
-    H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ ρ hρ le_rfl Dsc S hS hp
+  obtain ⟨mObs, hcl, hval⟩ := H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ Dsc S hS hp
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by have := T.hL; omega : 1 ≤ L)
   have hβ1 : 1 ≤ β * (L : ℝ) ^ (k * (d - 2)) := by
     have h3k : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
     nlinarith [h3]
-  have hcl : ∀ y i, ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
-      (K := k + 1) T.m₀ (k + 1) Set.univ),
-      AnalyticOnNhd ℂ (fun θ => mObs y i θ T') (physVqRho S S.a₁ S.ν T.t ρ ρ) ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, mObs y i θ T' ≠ 0 →
-        rootCube (m₀ := T.m₀) (blockIndex y) ∈ T' ∧ IsPolyDom T.m₀ (k + 1) (sitesOf T')) ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ∀ θ' ∈ physVqRho S S.a₁ S.ν T.t ρ ρ,
-        agreeOn (thickSet S.G' (sitesOf T'))
-          (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N)
-          (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
-        (∀ x ∈ sitesOf T', θ.2 x = θ'.2 x) → mObs y i θ T' = mObs y i θ' T') ∧
-      (∀ θ ∈ physVqRho S S.a₁ S.ν T.t ρ ρ, ‖mObs y i θ T'‖ ≤
-        C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) *
-          Real.exp (-(3 / 2 * T.κdec) * dExt T')) := by
-    intro y i T'
-    obtain ⟨-, -, -, -, -, -, -, -, hfam⟩ := hsite y i (by
-      subst hS
-      exact obsDomains_isDj (X₁f := LocalCover.nbhdF T.m₀ y) _ T.hd
-        (Dsc.covers.2 (y, i)).1 (Dsc.covers.2 (y, i)).2.2.1)
-    exact ⟨(hfam T').1, (hfam T').2.2.1, (hfam T').2.2.2.1, (hfam T').2.2.2.2.2⟩
   have hLN : L ∣ N₁ := by rw [hm₀] at h3N; simpa using h3N
   have hBnn : 0 ≤ C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2))) :=
     mul_nonneg hC0 (obsPrefactor_nonneg p s hβ1)
   exact rootTermFamily_obs_core_rho S ρ hρ T.t (3 / 2 * T.κdec)
     (C * obsPrefactor p s (β * (L : ℝ) ^ (k * (d - 2)))) hLN hBnn hm₀ mObs hcl
     (fun D hDh hX g hg => (hval D hDh hX g hg).2)
+
 
 open Classical in
 /-- **The zero-class observable coefficients with the root's clauses, and the prefactor bound.**
