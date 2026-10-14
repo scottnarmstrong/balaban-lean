@@ -752,9 +752,40 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
         Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps → ∀ ψ : unitPts Gp × Fin N → ℂ,
         (∀ p, (R₁ + r) * (3 / 2) * ‖ψ p‖ ≤ cψ) →
         DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
-          (ball (0 : ℂ) (3 / 2))) := by
+          (ball (0 : ℂ) (3 / 2))) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+      ∃ (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+          (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+        (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+        (∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₁ (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+            Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) ∧
+        Ev = evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+          (X1 Gp m₀ j 𝒦X)
+          (fun u s => siteFun Gp Hm y i
+            (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+              flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+                u.1.1 (hatPsiF Gp a₁ ν hG' cc F₁
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+            (u.1, hatPsiF Gp a₁ ν hG' cc F₁
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) := by
   classical
-  obtain ⟨Ev, hsum, hloc, hbd, hanY, -⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
+  obtain ⟨Ev, hsum, hloc, hbd, hanY, hFS⟩ := fsite_expansion_hat_rawY hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
     hcov hX₁ hconn hrow hopt hΔ hκ₀ hκdec hκ h1 hlog y hy i
   have hd : 3 ≤ d := hC.HBp.hd
   have hray : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
@@ -763,7 +794,7 @@ theorem fsite_base_locInt_hat_dir_dm_ray (hC : FlCore N Gp Hm a₁ ν c BG κ ep
       DifferentiableOn ℂ (fun z : ℂ => dirTerm (Ev Y) ω (z • ψ) (z • ψ) 1 Θ)
         (ball (0 : ℂ) (3 / 2)) :=
     fun Y Θ hΘ ψ hψ => differentiableOn_dirTerm_ray_ball hR₁ hr hω (hanY Y) hΘ ψ hψ
-  refine ⟨Ev, ?_, hray⟩
+  refine ⟨Ev, ?_, hray, hanY, hFS⟩
   have hbase := locInt_dir1 (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
     (B := hatBall (N := N) Gp cψ)
     (f := hatFun Gp a₁ ν eps hG' cc (onXi Gp a₁ ν eps

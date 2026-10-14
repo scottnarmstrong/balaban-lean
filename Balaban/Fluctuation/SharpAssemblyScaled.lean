@@ -1034,7 +1034,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
             (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
                 (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
-        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+        (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
           (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
           Y ∉ 𝒯E.biUnion (fun τ => polyDom Gp (X₁E τ) m₀ (jE τ) (𝒦XE τ)) →
@@ -1052,7 +1052,58 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
                         (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
                   (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
                     (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
-            else 0 := by
+            else 0) ∧
+      ∃ (F₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+              (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+          (Ev₂ : CTorus d L N₁ m₁ (k + 1) × Fin N → Set (CTorus d L N₁ m₁ (k + 1)) →
+            RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ),
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (s : DecParams Gp) (D : BgData Gp N),
+          (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₂ a (s, rawOf D) = (φ, α)) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (p : Dec2.DecParams (coverOf Gp) × Edat Hm N),
+          (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol₂ a p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Small Hm (Sol₂ a p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol₂ a p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol₂ a p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂ a p).2)) ∧
+        (∀ a : CTorus d L N₁ m₁ (k + 1) × Fin N, Ev₂ a =
+          evTerm
+                  (fun i : ParIdx Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+                  (X1 Gp m₀ (jF a) (𝒦XF a))
+                  (fun u t => siteFun Gp Hm a.1 a.2
+                    (F₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                    (Sol₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t,
+                      flEdat Gp Hm
+                        (F₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                        u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₂ a)
+                          (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))).1
+                    (u.1, hatPsiF Gp a₁ ν hG' cc (F₂ a)
+                      (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (Y : Set (CTorus d L N₁ m₁ (k + 1))),
+          AnalyticOnNhd ℂ (Ev₂ a Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+          (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+          Y ∉ 𝒯M.biUnion (fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) →
+          T Y x w σ (Θ, g) = T Y x w σ (Θ, 0) + cβ *
+            ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+              if Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s) then
+                g s.1 s.2 * dirTerm (Ev₂ s Y) (fun _ => (1 : ℂ)) x.2 w.2 σ Θ
+              else 0 := by
   classical
   have hd : 3 ≤ d := hC.HBp.hd
   have hd0 : 0 < d := by omega
@@ -1071,7 +1122,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
   obtain ⟨TE, hE, hrayE⟩ := hat_eparts_bound_dm_dir_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ 𝒯E hBE hFE hcovE hX₁E hoptE hlogE hEbE hEanE hEbdE rE hrE hρE0 hρE
     (Rσ := Rσ)
-  obtain ⟨TF, hF, hrayF, hTF0⟩ := hat_fparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
+  obtain ⟨TF, hF, hrayF, hTF0, F₂, Sol₂, Ev₂, hF₂, hSol₂, hEvEq₂, hanEv₂, hTFg⟩ := hat_fparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ hcovF hX₁F hoptF hΔF hlogF hyF (Rσ := Rσ)
   obtain ⟨TM, hM, hrayM⟩ := hat_mparts_bound_dm_dir_eta_ray hC hconn hrow hκ₀ hκdec hκ h1 hR₁ hr hη0 hk hG hG' cc hcψ hMX
     hdm hα hsmX hδ₁ 𝒯M ys is hys hBM hFM hcovM hX₁M hoptM hlogM hEbM hEanM hEbdM hρM0 hρM
@@ -1108,7 +1159,7 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
             ((unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) |
           (xw.1.1, xw.2.1) ∈ HatRaysO Gp cψ R₁ Rσ r ∧ (xw.1.2, xw.2.2) ∈ HatRaysO Gp cψ R₁ Rσ r})
     (fun xw h => ⟨h.1, h.1, h.2, h.2⟩)).mono fun Y => (hb Y).trans (le_of_eq ?_), hrayT', h𝒴,
-    F₁, Sol, hF₁, hSol, ?_⟩
+    F₁, Sol, hF₁, hSol, ?_, F₂, Sol₂, Ev₂, hF₂, hSol₂, hEvEq₂, hanEv₂, ?_⟩
   · simp only [norm_neg, prop33EpsEtaScaled]
     ring
   · intro Y x w σ Θ hYE hYM
@@ -1120,6 +1171,18 @@ theorem interaction_expansion_hat_bound_dm_dir_eta_scaled_ray {Kc Cx c₂ BG₂ 
     · rw [ite_eq_right hYV, Finset.sum_eq_zero, mul_zero]
       intro z _
       exact ite_eq_right fun h => hYV (Finset.mem_biUnion.2 ⟨z, Finset.mem_univ _, h⟩)
+  · intro Y x w σ Θ g hYM
+    subst hT
+    dsimp only
+    rw [hTFg Y x.2 w.2 σ Θ g, hTF0 Y x.2 w.2 σ Θ, ite_eq_right hYM, ite_eq_right hYM]
+    by_cases hYF : Y ∈ Finset.univ.biUnion fun s : CTorus d L N₁ m₁ (k + 1) × Fin N =>
+        polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s)
+    · rw [ite_eq_left hYF, ite_eq_left hYF]
+      ring
+    · rw [ite_eq_right hYF, ite_eq_right hYF, Finset.sum_eq_zero]
+      · ring
+      · intro s _
+        exact ite_eq_right fun h => hYF (Finset.mem_biUnion.2 ⟨s, Finset.mem_univ _, h⟩)
 
 /-- **The four parts in the variable `ψ̂` with the sharp agreement relation, without the mass
 variation** (the sharp version of `interaction_expansion_hat_bound_dm`). -/
@@ -1452,7 +1515,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
             (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
                 (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
-        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+        (∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
           (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
           (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
           cν = 0 →
@@ -1471,10 +1534,61 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
                         (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
                   (u.1, hatPsiF Gp a₁ ν hG' cc (F₁ z)
                     (extParams Gp (↑(X₁V z) : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
-            else 0 := by
+            else 0) ∧
+      ∃ (F₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+              (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+          (Sol₂ : CTorus d L N₁ m₁ (k + 1) × Fin N →
+            Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+          (Ev₂ : CTorus d L N₁ m₁ (k + 1) × Fin N → Set (CTorus d L N₁ m₁ (k + 1)) →
+            RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ),
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (s : DecParams Gp) (D : BgData Gp N),
+          (∀ P, ‖s P‖ < Real.exp κ) →
+          InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+            (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+            F₂ a (s, rawOf D) = (φ, α)) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (p : Dec2.DecParams (coverOf Gp) × Edat Hm N),
+          (∀ P, ‖p.1 P‖ < Real.exp κ) →
+          StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+            (Sol₂ a p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol₂ a p).2 ∧
+            Small Hm (Sol₂ a p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+            Small Hm (Sol₂ a p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            SupBounds Hm (Sol₂ a p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+            (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+                (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂ a p).2)) ∧
+        (∀ a : CTorus d L N₁ m₁ (k + 1) × Fin N, Ev₂ a =
+          evTerm
+                  (fun i : ParIdx Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+                  (X1 Gp m₀ (jF a) (𝒦XF a))
+                  (fun u t => siteFun Gp Hm a.1 a.2
+                    (F₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                    (Sol₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t,
+                      flEdat Gp Hm
+                        (F₂ a (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t, u.1))
+                        u.1.1 (hatPsiF Gp a₁ ν hG' cc (F₂ a)
+                          (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))).1
+                    (u.1, hatPsiF Gp a₁ ν hG' cc (F₂ a)
+                      (extParams Gp (↑(X₁F a) : Set (CTorus d L N₁ m₁ (k + 1))) t) u.1 u.2))) ∧
+        (∀ (a : CTorus d L N₁ m₁ (k + 1) × Fin N) (Y : Set (CTorus d L N₁ m₁ (k + 1))),
+          AnalyticOnNhd ℂ (Ev₂ a Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) ∧
+        ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+          (x w : (unitPts Gp × Fin N → ℂ) × (unitPts Gp × Fin N → ℂ)) (σ : ℂ)
+          (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+          (g : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ),
+          Y ∉ 𝒯M.biUnion (fun τ => polyDom Gp (X₁M τ) m₀ (jM τ) (𝒦XM τ)) →
+          T Y x w σ (Θ, g) = T Y x w σ (Θ, 0) + cβ *
+            ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+              if Y ∈ polyDom Gp (X₁F s) m₀ (jF s) (𝒦XF s) then
+                g s.1 s.2 * dirTerm (Ev₂ s Y) (fun _ => (1 : ℂ)) x.2 w.2 σ Θ
+              else 0 := by
   classical
   have hreal := hreal_level hC hG hG' le_rfl ha₁ H hc7 (by linarith) hsm
-  obtain ⟨𝒴, T, hL, hrayL, h𝒴, F₁, Sol, hF₁, hSol, hT0⟩ :=
+  obtain ⟨𝒴, T, hL, hrayL, h𝒴, F₁, Sol, hF₁, hSol, hT0, F₂, Sol₂, Ev₂, hF₂, hSol₂, hEvEq₂, hanEv₂, hTg⟩ :=
     interaction_expansion_hat_bound_dm_dir_eta_scaled_ray (Rσ := Rσ) hC cβ hconn hrow hκ₀ hκdec hκ h1
     hR₁ hr hη0 hk hG hG' cc hcψ hMX hdm hα hsmX hδ₁ ha₁ H hc7 hR hRs hsmall hnum hnum' hreal hcovV
     hX₁V hoptV hΔV hlogV hZV hmarV 𝒯E hBE hFE hcovE hX₁E hoptE hlogE hEbE hEanE hEbdE hcovF hX₁F
@@ -1517,7 +1631,7 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
     positivity
   refine ⟨_, _, (hT'.congr_val ?_).mono fun Y => ?_,
     fun Y q hq ψ hψ => hrayT' Y (fun ζ => (ζ • ψ, ζ • ψ)) ⟨ψ, hψ, rfl⟩ q hq, by rw [h𝒴],
-    F₁, Sol, hF₁, hSol, ?_⟩
+    F₁, Sol, hF₁, hSol, ?_, F₂, Sol₂, Ev₂, hF₂, hSol₂, hEvEq₂, hanEv₂, ?_⟩
   · intro xw hxw σ hσ p hp'
     rfl
   · have hb1 : 0 ≤ prop33EpsEtaScaled d L N m₁ k m₀ a₁ BG BG₂ κ δ₁ r ρE ρM η * ‖cβ‖ *
@@ -1540,6 +1654,19 @@ theorem interaction_expansion_hat_dm_core_dir_eta_scaled_ray {Kc Cx c₂ BG₂ �
       rw [h𝒴]
       exact Finset.mem_union_left _ (Finset.mem_union_left _ (Finset.mem_union_left _
         (Finset.mem_biUnion.2 ⟨z, Finset.mem_univ _, h⟩)))
+  · intro Y x w σ Θ g hYM
+    subst hT'eq
+    dsimp only
+    by_cases hY : Y ∈ 𝒴
+    · rw [ite_eq_left hY, ite_eq_left hY, hTg Y x w σ Θ g hYM]
+      ring
+    · rw [ite_eq_right hY, ite_eq_right hY, Finset.sum_eq_zero]
+      · ring
+      · intro s _
+        refine ite_eq_right fun h => hY ?_
+        rw [h𝒴]
+        exact Finset.mem_union_left _ (Finset.mem_union_right _
+          (Finset.mem_biUnion.2 ⟨s, Finset.mem_univ _, h⟩))
 
 /-- **Proposition 3.3 in the variable `ψ̂`, with the sharp agreement relation.**  The statement of
 `interaction_expansion_hat_dm` with `AgHatF` replaced by `AgHatFDir`: the terms are local in the
