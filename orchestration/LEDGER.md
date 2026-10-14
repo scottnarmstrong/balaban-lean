@@ -1420,3 +1420,5 @@
 | 2026-10-14 | W766 | launched | BASEPLAN S1 (disintegration of the a-priori measure) and S2 (good region from the record). |
 | 2026-10-14 | W762 | landed `23833d74` | Route A batch 4: ρ-versions of `isLocExp_of_coeffFamily(_renTheta)`, M0 site records, physical renormalization records, zero-class sites, stepPieces (fromTowerG, RenSol, Joint). Route A for arbitrary unit h complete along the chain; remaining: the Root-F assembly feeding `rootF_clauses_unitField`. |
 | 2026-10-14 | W767 | launched | Two-torus observable at nonzero source: authorized appended conjuncts exporting the source part along the direct-terms chain; equality at nonzero source. |
+| 2026-10-14 | W766 | landed `c718b2f9` | `LargeField/Base/BaseRetainedDisintegrate.lean` (`baseRetained_disintegrate`, any decidable site set), `BaseRecordGoodRegion.lean` (`baseRecord_good_region`: block union, P^~3 ⊆ Ωᶜ, failed tests read only retained sites; assembled from landed lemmas). BASEPLAN S1, S2. |
+| 2026-10-14 | W768 | launched | BASEPLAN S3 (retained cut chart integral) and T2 (cutoff transfer). |
