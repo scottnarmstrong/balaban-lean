@@ -52,6 +52,19 @@ In particular cells touching the last (long) cell of either torus play no role.
   (`exists_det_ratio_localized`) on the two tori.  The matrices `U`, `U'` (the final operators)
   and `E`, `E'` enter only through their correspondence on `Y(C)^2` (`hU`, `hE`).
 * `exists_cellMap`: the maps `e` exist.
+
+**The cutoff interaction.**  For `U`, `U'` corresponding on `Y(C)^2`, the entries of the Stieltjes
+family `taggedCfinU U s` (`Green/FinalTaggedLocal`) vanish unless both sites lie in `Y(C)`
+(`taggedCfinU_eq_zero_of_not_mem`) and correspond on `Y(C)^2` at parameters `s`, `s'` supported on
+`C`, `e C` that agree along `e` (`taggedCfinU_entry_twoTorus`).
+* `integral_cutoff_twoTorus`: the integrals
+  `∫_{box ρ} F (C_U(s) ψ) dγ(ψ)` on the first torus and `∫_{box ρ} F' (C_{U'}(s') ψ') dγ'(ψ')` on the
+  second are equal when `F`, `F'` correspond on fields supported on `Y(C)` and `Y(e C)` (`hF`) and
+  the images of the restricted reference measures under `ψ ↦ ψ|_{Y(C)}` (resp. `ψ' ↦ ψ' ∘ f|_{Y(C)}`)
+  coincide (`hγ`).  `F`, `F'` are assumed measurable (`hFm`, `hFm'`).
+* `coef_cutoffInteraction_eq_twoTorus`, `coef_cutoffInteraction_final_eq_twoTorus`: the coefficients
+  `coef J C` and `coef J' (e C)` of the cutoff interaction `J` (`FinalInteractionCutoff`) are equal;
+  `J` is assumed analytic on the polydisc of radius `R > 1`.
 -/
 
 @[expose] public section
@@ -285,6 +298,145 @@ theorem boxR_transport (f : X → X') {Y B : Finset X} (hB : B ⊆ Y) (hinj : Se
 end BoxTransport
 
 
+
+section YSupp
+variable {X X' : Type*} [Fintype X] [DecidableEq X] [Fintype X'] [DecidableEq X']
+
+omit [Fintype X] in
+theorem one_sub_apply_of_mem_notMem (K : Matrix X X ℂ) (Y : Finset X)
+    (hK : ∀ x y, K x y ≠ 0 → x ∈ Y ∧ y ∈ Y) {x y : X} (h : x ∈ Y ∧ y ∉ Y ∨ x ∉ Y ∧ y ∈ Y) :
+    (1 - K) x y = 0 := by
+  have hne : x ≠ y := by
+    rintro rfl
+    rcases h with h | h
+    · exact absurd h.1 h.2
+    · exact absurd h.2 h.1
+  have hK0 : K x y = 0 := by
+    by_contra hc
+    have := hK x y hc
+    rcases h with h | h
+    · exact h.2 this.2
+    · exact h.1 this.1
+  simp [Matrix.sub_apply, hne, hK0]
+
+theorem inv_ysupp_zero (K : Matrix X X ℂ) (Y : Finset X)
+    (hK : ∀ x y, K x y ≠ 0 → x ∈ Y ∧ y ∈ Y) {w y : X} (hw : w ∈ Y) (hy : y ∉ Y) :
+    (1 - K)⁻¹ w y = 0 := by
+  by_cases hu : IsUnit (1 - K).det
+  · have h1 := congrFun (congrFun (Matrix.nonsing_inv_mul (1 - K) hu) w) y
+    rw [Matrix.mul_apply] at h1
+    have h2 : ∑ u, (1 - K)⁻¹ w u * (1 - K) u y = (1 - K)⁻¹ w y := by
+      rw [Finset.sum_eq_single y]
+      · have : K y y = 0 := by
+          by_contra hc; exact hy (hK y y hc).1
+        simp [Matrix.sub_apply, this]
+      · intro u _ hu
+        have : (1 - K) u y = 0 := by
+          by_cases huY : u ∈ Y
+          · exact one_sub_apply_of_mem_notMem K Y hK (Or.inl ⟨huY, hy⟩)
+          · have hK0 : K u y = 0 := by
+              by_contra hc; exact huY (hK u y hc).1
+            simp [Matrix.sub_apply, hu, hK0]
+        rw [this, mul_zero]
+      · intro h; exact absurd (Finset.mem_univ y) h
+    rw [h2] at h1
+    rw [h1]
+    have : w ≠ y := fun h => hy (h ▸ hw)
+    simp [this]
+  · rw [Matrix.nonsing_inv_apply_not_isUnit _ hu]; rfl
+
+theorem inv_ysupp_submatrix (K : Matrix X X ℂ) (Y : Finset X)
+    (hK : ∀ x y, K x y ≠ 0 → x ∈ Y ∧ y ∈ Y) :
+    ((1 - K)⁻¹).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)) =
+      ((1 - K).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)))⁻¹ := by
+  by_cases hu : IsUnit (1 - K).det
+  · symm
+    apply Matrix.inv_eq_right_inv
+    ext p q
+    have h1 := congrFun (congrFun (Matrix.mul_nonsing_inv (1 - K) hu) p) q
+    rw [Matrix.mul_apply] at h1
+    rw [Matrix.mul_apply]
+    have hs : ∑ u, (1 - K) p u * (1 - K)⁻¹ u q = ∑ r : Y, (1 - K) p r * (1 - K)⁻¹ r q := by
+      rw [Finset.sum_coe_sort Y (fun u => (1 - K) p u * (1 - K)⁻¹ u q)]
+      symm
+      refine Finset.sum_subset (Finset.subset_univ _) (fun u _ hu' => ?_)
+      rw [one_sub_apply_of_mem_notMem K Y hK (Or.inl ⟨p.2, hu'⟩), zero_mul]
+    rw [hs] at h1
+    simp only [Matrix.submatrix_apply]
+    rw [h1]
+    by_cases hpq : p = q
+    · subst hpq; simp
+    · have : (p : X) ≠ q := fun h => hpq (Subtype.ext h)
+      simp [this, hpq]
+  · have hd : ¬ IsUnit ((1 - K).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X))).det := by
+      rw [← det_eq_det_submatrix_of_rows (1 - K) Y (fun x hx y => by
+        have : K x y = 0 := by
+          by_contra hc; exact hx (hK x y hc).1
+        simp [Matrix.sub_apply, this])]
+      exact hu
+    rw [Matrix.nonsing_inv_apply_not_isUnit _ hd, Matrix.nonsing_inv_apply_not_isUnit _ hu]
+    ext p q; rfl
+
+theorem ysupp_mul_inv (G K : Matrix X X ℂ) (Y : Finset X)
+    (hG : ∀ x y, G x y ≠ 0 → x ∈ Y ∧ y ∈ Y) (hK : ∀ x y, K x y ≠ 0 → x ∈ Y ∧ y ∈ Y) :
+    (∀ x y, (x ∉ Y ∨ y ∉ Y) → (G * (1 - K)⁻¹) x y = 0) ∧
+    (∀ (x : X) (hx : x ∈ Y) (y : X) (hy : y ∈ Y), (G * (1 - K)⁻¹) x y =
+      ((G.submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X))) *
+        ((1 - K).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)))⁻¹) ⟨x, hx⟩ ⟨y, hy⟩) := by
+  refine ⟨fun x y hxy => ?_, fun x hx y hy => ?_⟩
+  · rw [Matrix.mul_apply]
+    refine Finset.sum_eq_zero fun w _ => ?_
+    by_cases hGw : G x w = 0
+    · rw [hGw, zero_mul]
+    · have hw := hG x w hGw
+      rcases hxy with hx | hy
+      · exact absurd hw.1 hx
+      · rw [inv_ysupp_zero K Y hK hw.2 hy, mul_zero]
+  · rw [← inv_ysupp_submatrix K Y hK, Matrix.mul_apply, Matrix.mul_apply]
+    have hs : ∑ w, G x w * (1 - K)⁻¹ w y = ∑ r : Y, G x r * (1 - K)⁻¹ r y := by
+      rw [Finset.sum_coe_sort Y (fun w => G x w * (1 - K)⁻¹ w y)]
+      symm
+      refine Finset.sum_subset (Finset.subset_univ _) (fun w _ hw => ?_)
+      have : G x w = 0 := by
+        by_contra hc; exact hw (hG x w hc).2
+      rw [this, zero_mul]
+    exact hs
+
+theorem ysupp_mul_inv_transport (f : X → X') {Y : Finset X} {Y' : Finset X'}
+    (hf : Set.BijOn f (Y : Set X) (Y' : Set X')) {G K : Matrix X X ℂ} {G' K' : Matrix X' X' ℂ}
+    (hG : ∀ x y, G x y ≠ 0 → x ∈ Y ∧ y ∈ Y) (hK : ∀ x y, K x y ≠ 0 → x ∈ Y ∧ y ∈ Y)
+    (hG' : ∀ x y, G' x y ≠ 0 → x ∈ Y' ∧ y ∈ Y') (hK' : ∀ x y, K' x y ≠ 0 → x ∈ Y' ∧ y ∈ Y')
+    (hGG : ∀ x ∈ Y, ∀ y ∈ Y, G x y = G' (f x) (f y))
+    (hKK : ∀ x ∈ Y, ∀ y ∈ Y, K x y = K' (f x) (f y)) {x y : X} (hx : x ∈ Y) (hy : y ∈ Y) :
+    (G * (1 - K)⁻¹) x y = (G' * (1 - K')⁻¹) (f x) (f y) := by
+  have hfx : f x ∈ Y' := hf.mapsTo hx
+  have hfy : f y ∈ Y' := hf.mapsTo hy
+  rw [(ysupp_mul_inv G K Y hG hK).2 x hx y hy, (ysupp_mul_inv G' K' Y' hG' hK').2 _ hfx _ hfy]
+  have hbij : Function.Bijective (fun q : Y => (⟨f q, hf.mapsTo q.2⟩ : Y')) := by
+    constructor
+    · intro a b hab
+      have := congrArg Subtype.val hab
+      exact Subtype.ext (hf.injOn a.2 b.2 this)
+    · intro b
+      obtain ⟨a, ha, hab⟩ := hf.surjOn b.2
+      exact ⟨⟨a, ha⟩, Subtype.ext hab⟩
+  set ε : Y ≃ Y' := Equiv.ofBijective _ hbij with hε
+  have h1 : G.submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)) =
+      (G'.submatrix (fun q : Y' => (q : X')) (fun q : Y' => (q : X'))).submatrix ε ε := by
+    ext p q
+    exact hGG p p.2 q q.2
+  have h2 : (1 - K).submatrix (fun q : Y => (q : X)) (fun q : Y => (q : X)) =
+      ((1 - K').submatrix (fun q : Y' => (q : X')) (fun q : Y' => (q : X'))).submatrix ε ε := by
+    ext p q
+    have : (p = q) ↔ (f p = f q) := ⟨fun h => by rw [h], fun h => Subtype.ext (hf.injOn p.2 q.2 h)⟩
+    simp only [Matrix.submatrix_apply, Matrix.sub_apply, Matrix.one_apply, hε,
+      Equiv.ofBijective_apply, hKK p p.2 q q.2]
+    have h3 : ((p : X) = q) ↔ (f p = f q) := ⟨fun h => by rw [h], fun h => hf.injOn p.2 q.2 h⟩
+    simp only [h3]
+  rw [h1, h2, Matrix.inv_submatrix_equiv, Matrix.submatrix_mul_equiv]
+  rfl
+
+end YSupp
 
 section Cyc
 variable {N : ℕ} [NeZero N]
@@ -828,28 +980,22 @@ theorem macRegion_bijOn (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     obtain ⟨x, hx, hxy⟩ := Finset.mem_image.1 h1
     exact ⟨x, mem_macRegion.2 ⟨z, hz, mem_macBoxF.1 hx⟩, hxy⟩
 
-theorem taggedKE_entry_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+theorem taggedMat_entry_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
     (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
     {e : MacIdx d N M → MacIdx d N' M}
     (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
     {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
-    {U E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' E' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
-    {t : ℝ}
-    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y))
-    (hE : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, E x y = E' (f x) (f y))
+    {a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ}
+    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (ha : ∀ z ∈ C, ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      a z x y = a' (e z) (f x) (f y))
     {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
     {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
     (hss : ∀ i ∈ C, s' (e i) = s i) {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
     (hy : y ∈ macRegion d N M C) :
-    taggedMat Finset.univ (macTags d N M)
-      (fun z => boxR U (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
-        E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
-          boxG U (macBoxF d N M z) t)) s x y =
-    taggedMat Finset.univ (macTags d N' M)
-      (fun z => boxR U' (macBoxF d N' M z) (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
-        E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
-          boxG U' (macBoxF d N' M z) t)) s' (f x) (f y) := by
+    taggedMat Finset.univ (macTags d N M) a s x y =
+      taggedMat Finset.univ (macTags d N' M) a' s' (f x) (f y) := by
   classical
   obtain ⟨e', he'⟩ := exists_cellMap (d := d) (N := N') (N' := N) (J := J) hM hN
   set g : L1Torus d N' → L1Torus d N := fun y μ => (((y μ).val : ℕ) : ZMod N) with hgdef
@@ -925,30 +1071,73 @@ theorem taggedKE_entry_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     rw [hss w (hVC hw)]
   rw [hprod]
   congr 1
+  exact ha z hzC x hx y hy
+
+theorem boxFamily_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {Y : Finset (L1Torus d N)} (hY : ∀ u, u ∈ Y ↔ u ∈ macRegion d N M C)
+    {z : MacIdx d N M} (hzC : z ∈ C) :
+    macBoxF d N M z ⊆ Y ∧ Set.InjOn f (Y : Set (L1Torus d N)) ∧
+      (∀ u, ((macChi d N M z u : ℝ) : ℂ) ≠ 0 → u ∈ macBoxF d N M z) ∧
+      (∀ u, ((macChi d N' M (e z) u : ℝ) : ℂ) ≠ 0 → u ∈ (macBoxF d N M z).image f) ∧
+      (∀ u ∈ Y, ((macChi d N M z u : ℝ) : ℂ) = ((macChi d N' M (e z) (f u) : ℝ) : ℂ)) := by
+  classical
+  obtain ⟨e', he'⟩ := exists_cellMap (d := d) (N := N') (N' := N) (J := J) hM hN
+  set g : L1Torus d N' → L1Torus d N := fun y μ => (((y μ).val : ℕ) : ZMod N) with hgdef
+  have hg : ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) := fun _ _ => rfl
+  have hmidY : ∀ u, u ∈ macRegion d N M C → ∀ i, 2 * M < (u i).val ∧ (u i).val < (J + 3) * M :=
+    fun u hu => mid_of_mem_macRegion hM hN hC hu
+  have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
+    have := (hC z hz i).2; omega
+  have hN3 : (J + 3) * M ≤ N' := by nlinarith
+  have hBimg := macBoxF_image hM hN hN' hf hg he (hC z hzC)
+  refine ⟨fun u hu => (hY u).2 (mem_macRegion.2 ⟨z, hzC, mem_macBoxF.1 hu⟩),
+    injOn_lift hf (fun u hu i => lt_of_lt_of_le (hmidY u ((hY u).1 hu) i).2 hN3),
+    fun u h => macChi_ne_zero_mem_macBoxF hM h,
+    fun u h => hBimg ▸ macChi_ne_zero_mem_macBoxF hM h, fun u hu => ?_⟩
+  rw [macChi_transport hM hN hN' hf (hmidY u ((hY u).1 hu)) he (hgoodC z hzC)]
+
+theorem taggedKE_entry_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' E' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    {t : ℝ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y))
+    (hE : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, E x y = E' (f x) (f y))
+    {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    taggedMat Finset.univ (macTags d N M)
+      (fun z => boxR U (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+        E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+          boxG U (macBoxF d N M z) t)) s x y =
+    taggedMat Finset.univ (macTags d N' M)
+      (fun z => boxR U' (macBoxF d N' M z) (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+        E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+          boxG U' (macBoxF d N' M z) t)) s' (f x) (f y) := by
+  classical
+  refine taggedMat_entry_twoTorus hM hN hN' hf he hC (fun z hzC x hx y hy => ?_) hs hs' hss hx hy
   set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
   have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
-  have hN3 : (J + 3) * M ≤ N' := by nlinarith
-  have hinjY : Set.InjOn f (Yset : Set (L1Torus d N)) :=
-    injOn_lift hf (fun u hu i => lt_of_lt_of_le (hmidY u ((hYmem u).1 hu) i).2 hN3)
-  have hBimg := macBoxF_image hM hN hN' hf hg he (hC z hzC)
-  have hBY : macBoxF d N M z ⊆ Yset := fun u hu =>
-    (hYmem u).2 (mem_macRegion.2 ⟨z, hzC, mem_macBoxF.1 hu⟩)
+  obtain ⟨hBY, hinjY, hc, hc', hcY⟩ := boxFamily_twoTorus hM hN hN' hf he hC hYmem hzC
+  have hBimg := macBoxF_image hM hN hN' hf (fun y μ => rfl) he (hC z hzC)
+    (g := fun y μ => (((y μ).val : ℕ) : ZMod N))
   have hUY : ∀ a ∈ Yset, ∀ b ∈ Yset, U a b = U' (f a) (f b) := fun a ha b hb =>
     hU a ((hYmem a).1 ha) b ((hYmem b).1 hb)
   have hEY : ∀ a ∈ Yset, ∀ b ∈ Yset, E a b = E' (f a) (f b) := fun a ha b hb =>
     hE a ((hYmem a).1 ha) b ((hYmem b).1 hb)
-  have hc : ∀ u, ((macChi d N M z u : ℝ) : ℂ) ≠ 0 → u ∈ macBoxF d N M z := fun u h =>
-    macChi_ne_zero_mem_macBoxF hM h
-  have hc' : ∀ u, ((macChi d N' M (e z) u : ℝ) : ℂ) ≠ 0 → u ∈ (macBoxF d N M z).image f :=
-    fun u h => hBimg ▸ macChi_ne_zero_mem_macBoxF hM h
-  have hcY : ∀ u ∈ Yset, ((macChi d N M z u : ℝ) : ℂ) = ((macChi d N' M (e z) (f u) : ℝ) : ℂ) :=
-    fun u hu => by
-      rw [macChi_transport hM hN hN' hf (hmidY u ((hYmem u).1 hu)) he (hgoodC z hzC)]
   rw [hBimg, Matrix.sub_apply, Matrix.sub_apply]
   congr 1
   · exact boxR_transport f hBY hinjY t hUY hc hc' hcY ((hYmem x).2 hx) ((hYmem y).2 hy)
   · exact rowmul_transport f hBY hinjY t hUY hc hc' hcY hEY ((hYmem x).2 hx) ((hYmem y).2 hy)
-
 
 theorem det_taggedKE_twoTorus (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
     (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
@@ -1162,5 +1351,359 @@ theorem coef_detRatio_eq_twoTorus (hM : 0 < M) (hd : 0 < d)
   rw [h1, h0]
 
 end Transport
+
+section Cut
+variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
+
+theorem taggedMat_ne_zero_mem (hM : 0 < M) (hd : 0 < d)
+    (a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ) {C : Finset (MacIdx d N M)}
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C) {x y : L1Torus d N}
+    (h : taggedMat Finset.univ (macTags d N M) a s x y ≠ 0) :
+    x ∈ macRegion d N M C ∧ y ∈ macRegion d N M C := by
+  classical
+  rw [taggedMat_apply_of_supportedOn _ _ _ hs] at h
+  obtain ⟨z, hz, -⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  exact (macTags_cover_box_and_ends hM hd (Finset.mem_filter.1 hz).2).2
+
+theorem boxR_entry_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y)) (t : ℝ)
+    {z : MacIdx d N M} (hzC : z ∈ C) {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    boxR U (macBoxF d N M z) (fun u => ((macChi d N M z u : ℝ) : ℂ)) t x y =
+      boxR U' (macBoxF d N' M (e z)) (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) t
+        (f x) (f y) ∧
+    (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) * boxG U (macBoxF d N M z) t) x y =
+      (Matrix.diagonal (fun u => ((macChi d N' M (e z) u : ℝ) : ℂ)) *
+        boxG U' (macBoxF d N' M (e z)) t) (f x) (f y) := by
+  classical
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  obtain ⟨hBY, hinjY, hc, hc', hcY⟩ := boxFamily_twoTorus hM hN hN' hf he hC hYmem hzC
+  have hBimg := macBoxF_image hM hN hN' hf (fun y μ => rfl) he (hC z hzC)
+    (g := fun y μ => (((y μ).val : ℕ) : ZMod N))
+  have hUY : ∀ a ∈ Yset, ∀ b ∈ Yset, U a b = U' (f a) (f b) := fun a ha b hb =>
+    hU a ((hYmem a).1 ha) b ((hYmem b).1 hb)
+  rw [hBimg]
+  refine ⟨boxR_transport f hBY hinjY t hUY hc hc' hcY ((hYmem x).2 hx) ((hYmem y).2 hy), ?_⟩
+  have h1 := rowmul_transport f hBY hinjY t hUY hc hc' hcY (A := (1 : Matrix (L1Torus d N) (L1Torus d N) ℂ))
+    (A' := (1 : Matrix (L1Torus d N') (L1Torus d N') ℂ)) (fun a ha b hb => by
+      have h3 : (a = b) ↔ (f a = f b) := ⟨fun h => by rw [h], fun h => hinjY ha hb h⟩
+      simp only [Matrix.one_apply, h3]) ((hYmem x).2 hx) ((hYmem y).2 hy)
+  simpa only [Matrix.one_mul] using h1
+
+theorem taggedGfin_entry_twoTorus (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y)) (t : ℝ)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    taggedGfin Finset.univ (macBoxF d N M) (fun z w => ((macChi d N M z w : ℝ) : ℂ))
+      (macTags d N M) U t s x y =
+    taggedGfin Finset.univ (macBoxF d N' M) (fun z w => ((macChi d N' M z w : ℝ) : ℂ))
+      (macTags d N' M) U' t s' (f x) (f y) := by
+  classical
+  obtain ⟨g, hg⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
+    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  set Y'set : Finset (L1Torus d N') :=
+    Finset.univ.filter (fun u => u ∈ macRegion d N' M (C.image e)) with hY'set
+  have hY'mem : ∀ u, u ∈ Y'set ↔ u ∈ macRegion d N' M (C.image e) := fun u => by simp [hY'set]
+  have hbij : Set.BijOn f (Yset : Set (L1Torus d N)) (Y'set : Set (L1Torus d N')) := by
+    have := macRegion_bijOn hM hN hN' hf hg he hC
+    simpa [hYset, hY'set] using this
+  unfold taggedGfin
+  refine ysupp_mul_inv_transport f hbij ?_ ?_ ?_ ?_ ?_ ?_ ((hYmem x).2 hx) ((hYmem y).2 hy)
+  · intro a b h
+    exact ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩
+  · intro a b h
+    exact ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩
+  · intro a b h
+    exact ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
+      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩
+  · intro a b h
+    exact ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
+      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩
+  · intro a ha b hb
+    exact taggedMat_entry_twoTorus hM hN hN' hf he hC (fun z hzC u hu v hv =>
+      (boxR_entry_twoTorus hM hN hN' hf he hC hU t hzC hu hv).2) hs hs' hss
+      ((hYmem a).1 ha) ((hYmem b).1 hb)
+  · intro a ha b hb
+    exact taggedMat_entry_twoTorus hM hN hN' hf he hC (fun z hzC u hu v hv =>
+      (boxR_entry_twoTorus hM hN hN' hf he hC hU t hzC hu hv).1) hs hs' hss
+      ((hYmem a).1 ha) ((hYmem b).1 hb)
+
+end Cut
+
+section Cut2
+
+open MeasureTheory Set
+variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
+
+theorem taggedCfinU_apply (U : Matrix (L1Torus d N) (L1Torus d N) ℂ) (s : MacIdx d N M → ℂ)
+    (x y : L1Torus d N) :
+    taggedCfinU d N M U s x y = ((1 / Real.pi : ℝ) : ℂ) *
+      ∫ t in Ioi (0 : ℝ), ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) U t s x y := by
+  unfold taggedCfinU
+  simp only [Matrix.smul_apply, Localization.intMat, Matrix.smul_apply, smul_eq_mul]
+
+theorem taggedGfin_ne_zero_mem (hM : 0 < M) (hd : 0 < d) (U : Matrix (L1Torus d N) (L1Torus d N) ℂ)
+    (t : ℝ) {C : Finset (MacIdx d N M)} {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {x y : L1Torus d N}
+    (h : taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) U t s x y ≠ 0) :
+    x ∈ macRegion d N M C ∧ y ∈ macRegion d N M C := by
+  classical
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  have hsupp := (ysupp_mul_inv
+    (taggedG Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+      (macTags d N M) U t s)
+    (taggedK Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+      (macTags d N M) U t s) Yset
+    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)
+    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)).1 x y
+  by_contra hc
+  apply h
+  unfold taggedGfin
+  apply hsupp
+  by_cases hx : x ∈ macRegion d N M C
+  · right
+    intro hy
+    exact hc ⟨hx, (hYmem y).1 hy⟩
+  · left
+    intro hx'
+    exact hx ((hYmem x).1 hx')
+
+theorem taggedCfinU_eq_zero_of_not_mem (hM : 0 < M) (hd : 0 < d)
+    (U : Matrix (L1Torus d N) (L1Torus d N) ℂ) {C : Finset (MacIdx d N M)}
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C) {x y : L1Torus d N}
+    (h : ¬ (x ∈ macRegion d N M C ∧ y ∈ macRegion d N M C)) :
+    taggedCfinU d N M U s x y = 0 := by
+  rw [taggedCfinU_apply]
+  have : ∀ t : ℝ, taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+      (macTags d N M) U t s x y = 0 := fun t => by
+    by_contra hc
+    exact h (taggedGfin_ne_zero_mem hM hd U t hs hc)
+  simp [this]
+
+theorem taggedCfinU_entry_twoTorus (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y))
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    taggedCfinU d N M U s x y = taggedCfinU d N' M U' s' (f x) (f y) := by
+  rw [taggedCfinU_apply, taggedCfinU_apply]
+  congr 2
+  funext t
+  rw [taggedGfin_entry_twoTorus hM hd hN hN' hf he hC hU t hs hs' hss hx hy]
+
+theorem integral_cutoff_twoTorus (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y))
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i)
+    {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ : ℝ}
+    {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ}
+    (hFm : Measurable F) (hFm' : Measurable F')
+    (hF : ∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+      (∀ x, x ∉ macRegion d N M C → w x = 0) →
+      (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+      (∀ x ∈ macRegion d N M C, w' (f x) = w x) → F' w' = F w)
+    (hγ : Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+        (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+      Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+        (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ})) :
+    (∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfinU d N M U s x y * ((ψ y : ℝ) : ℂ)) ∂γ) =
+    ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, taggedCfinU d N' M U' s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ' := by
+  classical
+  obtain ⟨g, hg⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
+    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
+  have hbij := macRegion_bijOn hM hN hN' hf hg he hC
+  set Yreg : Set (L1Torus d N) := macRegion d N M C with hYreg
+  set Y'reg : Set (L1Torus d N') := macRegion d N' M (C.image e) with hY'reg
+  set Cs := taggedCfinU d N M U s with hCs
+  set Cs' := taggedCfinU d N' M U' s' with hCs'
+  have hCs0 : ∀ x y, ¬ (x ∈ Yreg ∧ y ∈ Yreg) → Cs x y = 0 := fun x y h =>
+    taggedCfinU_eq_zero_of_not_mem hM hd U hs h
+  have hCs0' : ∀ x y, ¬ (x ∈ Y'reg ∧ y ∈ Y'reg) → Cs' x y = 0 := fun x y h =>
+    taggedCfinU_eq_zero_of_not_mem hM hd U' hs' h
+  set Gs : (↥Yreg → ℝ) → ℂ := fun φ => F (fun x => ∑ q : ↥Yreg, Cs x q * ((φ q : ℝ) : ℂ)) with hGs
+  set Gs' : (↥Yreg → ℝ) → ℂ :=
+    fun φ => F' (fun x' => ∑ q : ↥Yreg, Cs' x' (f q) * ((φ q : ℝ) : ℂ)) with hGs'
+  have hsum : ∀ (ψ : L1Torus d N → ℝ) (x : L1Torus d N),
+      ∑ y, Cs x y * ((ψ y : ℝ) : ℂ) = ∑ q : ↥Yreg, Cs x q * ((ψ q : ℝ) : ℂ) := by
+    intro ψ x
+    rw [← Finset.sum_subset (Finset.subset_univ (Finset.univ.filter fun y => y ∈ Yreg))
+      (fun y _ hy => by
+        have : y ∉ Yreg := by simpa using hy
+        rw [hCs0 x y (fun h => this h.2), zero_mul])]
+    exact Finset.sum_subtype _ (fun y => by simp) (fun y => Cs x y * ((ψ y : ℝ) : ℂ))
+  have hsum' : ∀ (ψ' : L1Torus d N' → ℝ) (x' : L1Torus d N'),
+      ∑ y, Cs' x' y * ((ψ' y : ℝ) : ℂ) = ∑ q : ↥Yreg, Cs' x' (f q) * ((ψ' (f q) : ℝ) : ℂ) := by
+    intro ψ' x'
+    have himg : Finset.univ.filter (fun y => y ∈ Y'reg) =
+        (Finset.univ.filter fun y => y ∈ Yreg).image f := by
+      ext y
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
+      constructor
+      · intro hy
+        obtain ⟨a, ha, hay⟩ := hbij.surjOn hy
+        exact ⟨a, ha, hay⟩
+      · rintro ⟨a, ha, rfl⟩
+        exact hbij.mapsTo ha
+    rw [← Finset.sum_subset (Finset.subset_univ (Finset.univ.filter fun y => y ∈ Y'reg))
+      (fun y _ hy => by
+        have : y ∉ Y'reg := by simpa using hy
+        rw [hCs0' x' y (fun h => this h.2), zero_mul]), himg,
+      Finset.sum_image (fun a ha b hb hab => hbij.injOn (by simpa using ha) (by simpa using hb) hab)]
+    exact Finset.sum_subtype _ (fun y => by simp) (fun y => Cs' x' (f y) * ((ψ' (f y) : ℝ) : ℂ))
+  have hGG : Gs = Gs' := by
+    funext φ
+    refine (hF (fun x => ∑ q : ↥Yreg, Cs x q * ((φ q : ℝ) : ℂ))
+      (fun x' => ∑ q : ↥Yreg, Cs' x' (f q) * ((φ q : ℝ) : ℂ)) (fun x hx => ?_)
+      (fun x' hx' => ?_) (fun x hx => ?_)).symm
+    · refine Finset.sum_eq_zero fun q _ => ?_
+      rw [hCs0 x q (fun h => hx h.1), zero_mul]
+    · refine Finset.sum_eq_zero fun q _ => ?_
+      rw [hCs0' x' (f q) (fun h => hx' h.1), zero_mul]
+    · refine Finset.sum_congr rfl fun q _ => ?_
+      exact congrArg (fun c => c * ((φ q : ℝ) : ℂ))
+        (taggedCfinU_entry_twoTorus hM hd hN hN' hf he hC hU hs hs' hss hx q.2).symm
+  have hr : Measurable (fun (ψ : L1Torus d N → ℝ) (q : ↥Yreg) => ψ q) :=
+    Measurable.of_eval fun q => measurable_pi_apply _
+  have hr' : Measurable (fun (ψ' : L1Torus d N' → ℝ) (q : ↥Yreg) => ψ' (f q)) :=
+    Measurable.of_eval fun q => measurable_pi_apply _
+  have hGsm : Measurable Gs := by
+    refine hFm.comp (Measurable.of_eval fun x => ?_)
+    exact Finset.measurable_sum _ fun q _ =>
+      measurable_const.mul (Complex.measurable_ofReal.comp (measurable_pi_apply q))
+  have hGsm' : Measurable Gs' := by
+    refine hFm'.comp (Measurable.of_eval fun x => ?_)
+    exact Finset.measurable_sum _ fun q _ =>
+      measurable_const.mul (Complex.measurable_ofReal.comp (measurable_pi_apply q))
+  have e1 : (∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, Cs x y * ((ψ y : ℝ) : ℂ)) ∂γ) =
+      ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}, Gs (fun q => ψ q) ∂γ := by
+    refine integral_congr_ae (Filter.Eventually.of_forall fun ψ => ?_)
+    simp only [hGs, hsum]
+  have e2 : (∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, Cs' x y * ((ψ' y : ℝ) : ℂ)) ∂γ') =
+      ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}, Gs' (fun q => ψ' (f q)) ∂γ' := by
+    refine integral_congr_ae (Filter.Eventually.of_forall fun ψ' => ?_)
+    simp only [hGs', hsum']
+  rw [e1, e2, ← integral_map hr.aemeasurable hGsm.aestronglyMeasurable, hγ, hGG,
+    integral_map hr'.aemeasurable hGsm'.aestronglyMeasurable]
+
+theorem coef_cutoffInteraction_eq_twoTorus (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {R : ℝ} (hR : 1 < R)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {U : Matrix (L1Torus d N) (L1Torus d N) ℂ} {U' : Matrix (L1Torus d N') (L1Torus d N') ℂ}
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, U x y = U' (f x) (f y))
+    {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ : ℝ}
+    {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ}
+    (hFm : Measurable F) (hFm' : Measurable F')
+    (hF : ∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+      (∀ x, x ∉ macRegion d N M C → w x = 0) →
+      (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+      (∀ x ∈ macRegion d N M C, w' (f x) = w x) → F' w' = F w)
+    (hγ : Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+        (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+      Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+        (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}))
+    (hJ : AnalyticOnNhd ℂ (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfinU d N M U s x y * ((ψ y : ℝ) : ℂ)) ∂γ)
+      (polydisc (0 : MacIdx d N M → ℂ) (fun _ => R))) :
+    coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfinU d N M U s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C =
+    coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, taggedCfinU d N' M U' s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ') (C.image e) := by
+  classical
+  have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
+    have := (hC z hz i).2; omega
+  have hinjE : Set.InjOn e (C : Set (MacIdx d N M)) := by
+    intro z1 hz1 z2 hz2 h
+    funext i
+    apply Fin.ext
+    have h1 := he z1 i (hgoodC z1 hz1 i)
+    have h2 := he z2 i (hgoodC z2 hz2 i)
+    have : ((e z1 i : Fin (macK N' M)) : ℕ) = ((e z2 i : Fin (macK N' M)) : ℕ) := by rw [h]
+    omega
+  exact (Balaban.Polymer.TwoTorusStep.coef_relabel_injOn hR e hinjE hJ
+    (fun s hs s' hs' hss => (integral_cutoff_twoTorus hM hd hN hN' hf he hC hU hs.1 hs' hss
+      hFm hFm' hF hγ).symm)).symm
+
+theorem coef_cutoffInteraction_final_eq_twoTorus {L k : ℕ} [NeZero L] {v a : ℝ}
+    (hM : 0 < M) (hd : 0 < d) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {R : ℝ} (hR : 1 < R)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      finalOp d L N k v a x y = finalOp d L N' k v a (f x) (f y))
+    {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ : ℝ}
+    {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ}
+    (hFm : Measurable F) (hFm' : Measurable F')
+    (hF : ∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+      (∀ x, x ∉ macRegion d N M C → w x = 0) →
+      (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+      (∀ x ∈ macRegion d N M C, w' (f x) = w x) → F' w' = F w)
+    (hγ : Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+        (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+      Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+        (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}))
+    (hJ : AnalyticOnNhd ℂ (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ)
+      (polydisc (0 : MacIdx d N M → ℂ) (fun _ => R))) :
+    coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C =
+    coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+      F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+      (C.image e) := by
+  have h := coef_cutoffInteraction_eq_twoTorus hM hd hN hN' hf he hR hC
+    (U := finalOp d L N k v a) (U' := finalOp d L N' k v a) hU hFm hFm' hF hγ
+    (by simpa only [taggedCfinU_finalOp] using hJ)
+  simpa only [taggedCfinU_finalOp] using h
+
+end Cut2
 
 end Balaban.Green
