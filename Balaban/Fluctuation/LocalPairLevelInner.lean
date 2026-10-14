@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalPairReplacement
 public import Balaban.Fluctuation.PhysicalReadsFNu
+public import Balaban.SmallField.LocalGeneratorCovariance
 
 /-!
 # The inner-cube hypotheses of the replacement at the local generator
@@ -26,6 +27,11 @@ vectors agree on those cubes.
   `(𝔹_k, 𝔹_k(Y))`);
 * `level_localB_inner_cross`: the hypothesis `hin` for the covers of `𝔹_{k+1}` and `𝔹_{k+1}(Y)`
   with operator generating sets `H` (whole level) and `H'`;
+* `level_localB_iff_of_cover`, `level_localB_chi_eq_of_cover`, `level_localB_qset_eq_of_cover`:
+  the IndexMatch statements with the depth condition on the cubes of the two covers only;
+  `fineCubeIdx_top_eq_of_sameCell`, `level_localB_hat_of_box`: the hat-box condition from the
+  thickened cube in the top layer; `localB_hatBox_top_of_active`, `localB_hat_of_active`: for an
+  active local cube (parameters cut off the top layer) its thickened cube is in the top layer;
 * `level_localB_active_cross`: with parameters `s'` of `𝔹_{k+1}(Y)` vanishing at the cubes off the
   top layer (the transport `τ` of P3: the lower-layer cubes of `𝔹_{k+1}(Y)` are cut), every cube of
   the cover of `𝔹_{k+1}(Y)` with a non-zero factor is a cube of the cover of `𝔹_{k+1}` with the same
@@ -80,6 +86,81 @@ section LevelInner
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl ϱH ϱH' : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 
+/-- **IndexMatch for the cubes of the two covers**: a pair `q'` is a cube of the cover of the
+ambient level set exactly when it is a cube of the cover of `𝔹_{k+1}(Y)`, if its base lies in the
+top layer `Ω_{k+1}(𝔹_{k+1}(Y))` whenever it is a cube of one of the two covers. -/
+theorem level_localB_iff_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
+    {q' : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (h : (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
+      q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
+    q' ∈ cubeIdx Gp ↔ q' ∈ cubeIdx (localB (k + 1) hk Y hsep) := by
+  by_cases hc : q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)
+  · exact level_localB_mem_cubeIdx_iff hG' hk Y hsep ((mem_localB_Ω_top q'.2).1 (h hc))
+  · exact iff_of_false (fun h' => hc (Or.inl h')) (fun h' => hc (Or.inr h'))
+
+/-- **The partition functions of the two covers agree at `x`** if the cubes of either cover whose
+bump does not vanish at `x` have their bases in the top layer (`level_localB_chi_eq` with the
+condition only on the cubes of the covers). -/
+theorem level_localB_chi_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
+    {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+      (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
+        cubeBump m₁ q'.1 q'.2 x ≠ 0 → q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
+    (q : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    chi Gp q x = chi (localB (k + 1) hk Y hsep) q x :=
+  chi_congr_of_active (fun q' hq' => level_localB_iff_of_cover hG' hk Y hsep
+    fun hc => hx q' hc hq') q
+
+/-- **The footprints of the two covers agree at `q`** if the cubes of either cover meeting the
+thickened cube `□̂_z` have their bases in the top layer (`level_localB_qset_eq` with the condition
+only on the cubes of the covers). -/
+theorem level_localB_qset_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hq : ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+      (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
+        (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
+          q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
+    (coverOf Gp).Qset q = (coverOf (localB (k + 1) hk Y hsep)).Qset q :=
+  qset_coverOf_congr fun q' hq' => level_localB_iff_of_cover hG' hk Y hsep fun hc => hq q' hc hq'
+
+/-- Two sites in the same cell of side `M₁ L^j`, `j ≤ k + 1`, have the same `𝒞_{k+1}`-cube. -/
+theorem fineCubeIdx_top_eq_of_sameCell {j : ℕ} (hj : j ≤ k + 1) {y z : CTorus d L N₁ m₁ (k + 1)}
+    (h : SameCell (L ^ (j + m₁)) y z) :
+    fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+        (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+        (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) := by
+  funext ν
+  rw [fineCubeIdx_torusCast_coord, fineCubeIdx_torusCast_coord]
+  unfold blockCoord
+  have e : L ^ (k + 1) * L ^ m₁ = L ^ (j + m₁) * L ^ (k + 1 - j) := by
+    rw [← pow_add, ← pow_add]; congr 1; omega
+  rw [e, ← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul, h ν]
+
+/-- **The hat-box condition from the hat box.**  If every site of the thickened cube `□̂_z` lies in
+the top layer `Ω_{k+1}(𝔹_{k+1}(Y))`, every cube of either cover meeting `□̂_z` has its base there
+(a cube of a cover has level at most `k + 1`, and its cell lies in a `𝒞_{k+1}`-cube). -/
+theorem level_localB_hat_of_box (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hsep : ϱl ≤ minSep L (L ^ m₁)) {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hbox : ∀ y, InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y →
+      y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
+    ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+      (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
+        (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
+          q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
+  rintro q' hc ⟨y, hyc, hyb⟩
+  have hj : q'.1 ≤ k + 1 := by
+    rcases hc with h | h
+    · exact ((mem_cubeIdx _).1 h).1.2
+    · exact ((mem_cubeIdx _).1 h).1.2
+  have hy := (mem_localB_Ω_top y).1 (hbox y hyb)
+  refine (mem_localB_Ω_top q'.2).2 fun w hw => hy w ?_
+  rw [hw]
+  exact (fineCubeIdx_top_eq_of_sameCell hj hyc).symm
+
 /-- **The inner-cube hypothesis `hin` at the local generator.**  Let `𝔹_{k+1}` be a level set and
 `𝔹_{k+1}(Y) = localB (k + 1) … Y`, with operator generating sets `H` (with `Ω₁(H)` the whole torus)
 and `H'`.  Suppose every cube of the cover of `𝔹_{k+1}` inside `T` (read on `H`) with a non-zero
@@ -101,9 +182,11 @@ theorem level_localB_inner_cross (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 
           (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
             ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
         q.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) ∧
-        (∀ x ∈ intBox q, ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), cubeBump m₁ q'.1 q'.2 x ≠ 0 →
+        (∀ x ∈ intBox q, ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+          (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → cubeBump m₁ q'.1 q'.2 x ≠ 0 →
           q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) ∧
-        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
+        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)))
     (hs : ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) →
@@ -126,14 +209,13 @@ theorem level_localB_inner_cross (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 
   have hqc' : q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx :=
     (level_localB_mem_cubeIdx_iff hG' hk Y hsep ((mem_localB_Ω_top q.2).1 hbase)).1 hqc
   have hQ : (coverOf Gp).Qset q = (coverOf (localB (k + 1) hk Y hsep)).Qset q :=
-    level_localB_qset_eq hG' hk Y hsep fun q' hq' => (mem_localB_Ω_top q'.2).1 (hhat q' hq')
+    level_localB_qset_eq_of_cover hG' hk Y hsep hhat
   refine ⟨Finset.mem_filter.2 ⟨hqc', fun x hx => hqT' x hx⟩, ?_, hnb, fun x hx => ?_⟩
   · unfold DecCover.sProd
     rw [← hQ]
-    refine Finset.prod_congr rfl fun P hP => hs P (hhat P ?_)
+    refine Finset.prod_congr rfl fun P hP => hs P (hhat P (Or.inl ((DecCover.mem_Qset _).1 hP).1) ?_)
     exact ((DecCover.mem_Qset _).1 hP).2
-  · exact level_localB_chi_eq hG' hk Y hsep
-      (fun q' hq' => (mem_localB_Ω_top q'.2).1 (hact x hx q' hq')) q
+  · exact level_localB_chi_eq_of_cover hG' hk Y hsep (hact x hx) q
 
 /-- **The interaction cube of a top cube of `𝔹_{k+1}(Y)` lies in `Ω_k(𝔹_{k+1}(Y))`** (`k ≥ 1`): its
 sites are within sup-distance `3 M₁ L^{k+1}` of the base, and `𝔹_{k+1}(Y)` is sup-separated
@@ -173,7 +255,8 @@ theorem level_localB_active_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hs : ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) →
@@ -196,11 +279,12 @@ theorem level_localB_active_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
   have hqc : q ∈ (coverOf Gp).cubeIdx :=
     (level_localB_mem_cubeIdx_iff hG' hk Y hsep ((mem_localB_Ω_top q.2).1 hdeep)).2 hq
   have hQ : (coverOf Gp).Qset q = (coverOf (localB (k + 1) hk Y hsep)).Qset q :=
-    level_localB_qset_eq hG' hk Y hsep fun q' hq' => (mem_localB_Ω_top q'.2).1 (hhq q' hq')
+    level_localB_qset_eq_of_cover hG' hk Y hsep hhq
   refine ⟨hqc, ?_, fun x hx => hH' x (localB_intBox_top_subset hk1 hk Y hsep hq hdeep hx)⟩
   unfold DecCover.sProd
   rw [hQ]
-  exact Finset.prod_congr rfl fun P hP => (hs P (hhq P ((DecCover.mem_Qset _).1 hP).2)).symm
+  exact Finset.prod_congr rfl fun P hP =>
+    (hs P (hhq P (Or.inr ((DecCover.mem_Qset _).1 hP).1) ((DecCover.mem_Qset _).1 hP).2)).symm
 
 /-- **The hypothesis `hin'` at the local generator** (under the hypotheses of
 `level_localB_active_cross`). -/
@@ -217,7 +301,8 @@ theorem level_localB_inner_cross' (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hs : ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) →
@@ -250,7 +335,8 @@ theorem level_localB_dich_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk :
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hs : ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) →
@@ -279,7 +365,8 @@ theorem level_localB_row_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk : 
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hs : ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) →
@@ -295,6 +382,86 @@ theorem level_localB_row_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk : 
     Y hsep (fun x hx => (localB (k + 1) hk Y hsep).Ω_antitone le_rfl hk1 (by omega) hx) hs'0 hhat
     hs hq hne
   exact hrow q hqc (by rw [heq]; exact hne)
+
+/-- **The thickened cube of an active local cube lies in the top layer.**  Let `k ≥ 1`,
+`m₁ ≥ 2`, `4 L² ≤ M₁ = L^{m₁}`, and let the parameters `s'` of `𝔹_{k+1}(Y)` vanish at the cubes
+of its cover whose base is not in the top layer.  If the factor `s'_z` of a cube `z` of the cover
+of `𝔹_{k+1}(Y)` does not vanish, every site of `□̂_z` lies in `Ω_{k+1}(𝔹_{k+1}(Y))`: the base of `z`
+is in the top layer (`z ∈ 𝒬(z)`), so `□̂_z` lies in `Ω_k` (sup-separation, `hatRad ≤ 4 M₁ L^{k+1}`
+up to half a cube), and a site of `□̂_z` in the layer `k` would put its own cube of layer `k`, whose
+parameter vanishes, into `𝒬(z)`. -/
+theorem localB_hatBox_top_of_active (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁)) (hm₁ : 2 ≤ m₁)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {s' : Dec2.DecParams (coverOf (localB (k + 1) hk Y hsep))}
+    (hs'0 : ∀ P ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
+      P.2 ∉ (localB (k + 1) hk Y hsep).Ω (k + 1) →
+        Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s' P = 0)
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx)
+    (hne : (coverOf (localB (k + 1) hk Y hsep)).sProd
+      (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0)
+    {y : CTorus d L N₁ m₁ (k + 1)} (hy : InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) :
+    y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
+  classical
+  have hq0 : Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s' q ≠ 0 := fun h =>
+    hne (Finset.prod_eq_zero (self_mem_Qset hq) h)
+  have hdeep : q.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
+    by_contra h
+    exact hq0 (hs'0 q hq h)
+  obtain ⟨⟨hq1, hqK⟩, hql, -⟩ := (mem_cubeIdx _).1 hq
+  have hqk : q.1 = k + 1 := (mem_layer_iff_of_mem_top hdeep hq1 hqK).1 hql
+  -- the site lies in `Ω_k`
+  have hR : (0 : ℝ) ≤ hatRad L m₁ q.1 := by unfold hatRad; positivity
+  have hd := supDist_le_of_inBox hR hy
+  have hMr : (4 : ℝ) * (L : ℝ) ^ 2 ≤ (L : ℝ) ^ m₁ := by exact_mod_cast hM
+  have hd' : (supDist q.2 y : ℝ) ≤ 4 * (L : ℝ) ^ (k + 1 + m₁) := by
+    rw [LargeField.supDist_comm]
+    have e1 : (L : ℝ) ^ (q.1 + m₁) = (L : ℝ) ^ (k + 1) * (L : ℝ) ^ m₁ := by rw [hqk, pow_add]
+    have e2 : (L : ℝ) ^ (k + 1 + m₁) = (L : ℝ) ^ (k + 1) * (L : ℝ) ^ m₁ := by rw [pow_add]
+    have e3 : (L : ℝ) ^ q.1 = (L : ℝ) ^ (k + 1) := by rw [hqk]
+    unfold hatRad at hd
+    rw [e1, e3] at hd
+    rw [e2]
+    have hp : (0 : ℝ) ≤ (L : ℝ) ^ (k + 1) := by positivity
+    nlinarith [mul_le_mul_of_nonneg_left hMr hp]
+  have hyk : y ∈ (localB (k + 1) hk Y hsep).Ω k := by
+    simpa using mem_pred_cube_sup (localB_supSep hk Y hsep) (by omega) le_rfl hdeep hd'
+  by_contra hyt
+  -- its own cube of layer `k` meets `□̂_z` and has a vanishing parameter
+  have hyl : y ∈ (localB (k + 1) hk Y hsep).layer k :=
+    (localB (k + 1) hk Y hsep).mem_layer.2 ⟨hyk, hyt⟩
+  have hA := localB_cubeAligned hk Y hsep hm₁
+  have hQ : ((k, ownBase (k + m₁) y) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈
+      (coverOf (localB (k + 1) hk Y hsep)).cubeIdx := own_mem_cubeIdx hA hk1 (by omega) hyl
+  have hsc : SameCell (L ^ (k + m₁)) y (ownBase (k + m₁) y) := ownBase_sameCell y
+  have hQt : ownBase (k + m₁) y ∉ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
+    intro h
+    have hsc' : SameCell (L ^ (k + 1 + m₁)) y (ownBase (k + m₁) y) :=
+      hsc.mono (pow_dvd_pow L (by omega))
+    exact hyt ((hA.union (k + 1) (by omega) le_rfl _ _ hsc').2 h)
+  have hQq : ((k, ownBase (k + m₁) y) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈
+      (coverOf (localB (k + 1) hk Y hsep)).Qset q :=
+    (DecCover.mem_Qset _).2 ⟨hQ, y, hsc, hy⟩
+  exact hne (Finset.prod_eq_zero hQq (hs'0 _ hQ hQt))
+
+/-- **The hat-box hypothesis of `level_localB_active_cross` holds** for parameters vanishing off the
+top layer (`localB_hatBox_top_of_active`, `level_localB_hat_of_box`). -/
+theorem localB_hat_of_active (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁)) (hm₁ : 2 ≤ m₁)
+    (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {s' : Dec2.DecParams (coverOf (localB (k + 1) hk Y hsep))}
+    (hs'0 : ∀ P ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
+      P.2 ∉ (localB (k + 1) hk Y hsep).Ω (k + 1) →
+        Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s' P = 0) :
+    ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
+      (coverOf (localB (k + 1) hk Y hsep)).sProd
+          (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+          (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
+          (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
+            q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) :=
+  fun _ hq hne => level_localB_hat_of_box (Gp := Gp) hk Y hsep fun _ hy =>
+    localB_hatBox_top_of_active hk1 hk Y hsep hm₁ hM hs'0 hq hne hy
 
 end LevelInner
 
