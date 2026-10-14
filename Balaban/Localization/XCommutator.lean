@@ -484,10 +484,9 @@ theorem blockPart_top {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁) (hs : 0 ≤ s₂ - 
     _ = _ := by ring
 
 
-/-- **The weighted pointwise bound for the commutator of the x-variant** (uniform in `x ≥ 0`) at a
-point `y` of layer `j`: Laplacian part plus the block part with `m₁`-, `m₂`-block averages of
-`w |s̃|` (`m`-blocks inside the `j`-block). -/
-theorem commKx_pointwise (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {aT x ν : ℝ}
+/-- Core of `commKx_pointwise` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem commKx_pointwise_of_ak {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2) {aT x ν : ℝ}
     (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ) {δ : ℝ}
     {φ : Torus d (N₀ * L ^ (k + 1)) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
@@ -510,7 +509,6 @@ theorem commKx_pointwise (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeig
   rcases Nat.lt_or_ge k j with hjk | hjk
   · have hjeq : j = k + 1 := by omega
     subst hjeq
-    have hak := ha k hk le_rfl
     have hak0 : 0 < a k := by linarith [hak.1]
     have hb0 : 0 ≤ aT / (L : ℝ) ^ 2 := by positivity
     have hnest1 : ∀ y y' : Torus d (N₀ * L ^ (k + 1)), y' ∈ G.blk k y → y' ∈ G.blk (k + 1) y := by
@@ -538,6 +536,28 @@ theorem commKx_pointwise (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeig
           mul_le_mul_of_nonneg_left (norm_add_le _ _) (by positivity)
       _ ≤ _ := by rw [mul_add]; linarith
 
+/-- **The weighted pointwise bound for the commutator of the x-variant** (uniform in `x ≥ 0`) at a
+point `y` of layer `j`: Laplacian part plus the block part with `m₁`-, `m₂`-block averages of
+`w |s̃|` (`m`-blocks inside the `j`-block). -/
+theorem commKx_pointwise (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a) {aT x ν : ℝ}
+    (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ) {δ : ℝ}
+    {φ : Torus d (N₀ * L ^ (k + 1)) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (s : G.Ω 1 × Fin N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjK : j ≤ k + 1) :
+    ∃ m₁ m₂ : ℕ, m₁ ≤ k + 1 ∧ m₂ ≤ k + 1 ∧
+      (∀ y y' : Torus d (N₀ * L ^ (k + 1)), y' ∈ G.blk m₁ y → y' ∈ G.blk j y) ∧
+      (∀ y y' : Torus d (N₀ * L ^ (k + 1)), y' ∈ G.blk m₂ y → y' ∈ G.blk j y) ∧
+      ∀ y : G.Ω 1, (y : Torus d (N₀ * L ^ (k + 1))) ∈ G.layer j →
+        (L : ℝ) ^ j * Real.exp (ε * r y) *
+            ‖(commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ s) y‖ ≤
+          δ * Real.exp (ε * r y) * ∑ μ : Fin d,
+              (vn (svec G s ((y : Torus d (N₀ * L ^ (k + 1))) + Pi.single μ 1) - svec G s y) +
+                vn (svec G s ((y : Torus d (N₀ * L ^ (k + 1))) - Pi.single μ 1) - svec G s y)) +
+            δ * ((L : ℝ) ^ j)⁻¹ * (Real.exp (ε * r y) * vn (svec G s y)) +
+            4 * d * (L : ℝ) ^ 2 * δ * Real.exp (ε * (2 * d)) * ((L : ℝ) ^ j)⁻¹ *
+              (blkAvg G m₁ (fun z => Real.exp (ε * r z) * vn (svec G s z)) y +
+                blkAvg G m₂ (fun z => Real.exp (ε * r z) * vn (svec G s z)) y) :=
+  commKx_pointwise_of_ak G ha (ha k hk le_rfl) haT1 hx α hφ hδ hr hε0 s hj1 hjK
 
 end Weighted
 
@@ -624,9 +644,9 @@ theorem layer_sum_assemble {ι : Type*} (S : Finset ι) {δ ℓ Cb d' : ℝ} (h�
 
 variable {k : ℕ} (G : GeneratingSet d L N₀ (k + 1) ϱ)
 
-/-- **The `L²` bound for the commutator of the x-variant with a smooth field** (uniform in
-`x ≥ 0`): `‖ℓ w K_x(φ) s‖² ≤ C δ² (‖w ∂ s‖²_Λ + ‖ℓ⁻¹ w s‖²)` when `K_x(φ) s` vanishes off `Λ`. -/
-theorem agmonSource_commKx_le (hd : 0 < d) (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a)
+/-- Core of `agmonSource_commKx_le` with `1 ≤ k` replaced by the lower bound `1/2 ≤ a_k` (the only use of `k ≥ 1`); the weights `a_j`, `1 ≤ j ≤ k`, stay in `[1/2, 2]`. -/
+theorem agmonSource_commKx_le_of_ak (hd : 0 < d) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a)
+    (hak : 1 / 2 ≤ a k ∧ a k ≤ 2)
     {aT x ν : ℝ} (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ) {δ : ℝ}
     {φ : Torus d (N₀ * L ^ (k + 1)) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
     {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
@@ -675,7 +695,7 @@ theorem agmonSource_commKx_le (hd : 0 < d) (hk : 1 ≤ k) {a : ℕ → ℝ} (ha 
     have hj1 := (Finset.mem_Icc.1 hj).1
     have hjK := (Finset.mem_Icc.1 hj).2
     obtain ⟨m₁, m₂, hm₁, hm₂, hn₁, hn₂, hpt⟩ :=
-      commKx_pointwise G hk ha haT1 hx (ν := ν) α hφ hδ hr hε0 s hj1 hjK
+      commKx_pointwise_of_ak G ha hak haT1 hx (ν := ν) α hφ hδ hr hε0 s hj1 hjK
     have hsat₁ : ∀ y y' : Torus d (N₀ * L ^ (k + 1)), y ∈ G.layer j → y' ∈ G.blk m₁ y →
         y' ∈ G.layer j := fun y y' hy hy' =>
       (G.mem_layer_iff hj1 hjK (GeneratingSet.mem_blk.1 (hn₁ y y' hy')).symm).1 hy
@@ -742,6 +762,20 @@ theorem agmonSource_commKx_le (hd : 0 < d) (hk : 1 ≤ k) {a : ℕ → ℝ} (ha 
   nlinarith [mul_nonneg hδ2 hG0, mul_nonneg hδ2 hM0,
     mul_le_mul_of_nonneg_right hC1 (mul_nonneg hδ2 hM0),
     mul_nonneg (mul_nonneg hδ2 hG0) hdd2, mul_nonneg (mul_nonneg hδ2 hM0) hdd2]
+
+/-- **The `L²` bound for the commutator of the x-variant with a smooth field** (uniform in
+`x ≥ 0`): `‖ℓ w K_x(φ) s‖² ≤ C δ² (‖w ∂ s‖²_Λ + ‖ℓ⁻¹ w s‖²)` when `K_x(φ) s` vanishes off `Λ`. -/
+theorem agmonSource_commKx_le (hd : 0 < d) (hk : 1 ≤ k) {a : ℕ → ℝ} (ha : IsAdmissibleWeights k a)
+    {aT x ν : ℝ} (haT1 : 1 / 2 ≤ aT) (hx : 0 ≤ x) (α : G.Ω 1 → ℂ) {δ : ℝ}
+    {φ : Torus d (N₀ * L ^ (k + 1)) → Fin N → ℂ} (hφ : IsSmoothField G δ φ) (hδ : 0 ≤ δ)
+    {r : Torus d (N₀ * L ^ (k + 1)) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) (s : G.Ω 1 × Fin N → ℂ)
+    (Λ : Finset (Torus d (N₀ * L ^ (k + 1))))
+    (hΛ : ∀ y : G.Ω 1, (y : Torus d (N₀ * L ^ (k + 1))) ∉ Λ →
+      (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ s) y = 0) :
+    agmonSource G ε r (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *ᵥ s) ≤
+      commXConst d L * δ ^ 2 * (vecGradOn G ε r Λ s + vecM G ε r s) :=
+  agmonSource_commKx_le_of_ak G hd ha (ha k hk le_rfl) haT1 hx α hφ hδ hr hε0 hε1 s Λ hΛ
 
 end Sum
 

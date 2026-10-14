@@ -69,3 +69,8 @@ Counts (14 rows, A4 split into A4a, A4b; each row by its first state): LANDED 1 
 written: blocker 6's composition is lossless (W763, W772, W775) and its background engine runs on `localB` (W771);
 the first step has the parametrix on the full discs (W773, W774). Open "do now" items: the principal logarithm
 on the source ball (A8), the large-field bound arithmetic (A9), L3 with the cut family centred at s = 1 (A6).
+
+## W786 status (A9 arithmetic, 2026-10-14)
+`Balaban/Inhabited/RootBoundsArith.lean`, all PROVED. (1) `rootBound_of_perTerm` (+ `amplitude_le`): per-term bound `C(C' L^e β^{-q})L^{-je}e^λ E` gives `c₉ L^{-je} E` once `β ≥ (C C' e^λ L^e/c₉)^{1/q}` (`e=(d-2)/2+δ`, `q=e/(d-2)`, as in `rootTermFamily_obs_birthScale_fromTowerG_rho`).
+(2) `betaK_inv_sq_le`: `(β_k²)⁻¹ ≤ c₉ L^{-(k+1)((d-2)/2+δ)}` for every `k` if `0≤δ≤(d-2)/2` and `L^{(d-2)/2+δ} ≤ c₉β₀²`; the stopping condition on `k_f` is not used.
+(3) `norm_kf0Deriv_le_two`: Cauchy in one source variable at radius 1/2: bound `B` on the unit ball gives `2B` for `∫₀¹∂F(tg)dt` (landed `norm_kf0Deriv_le` has 4B).

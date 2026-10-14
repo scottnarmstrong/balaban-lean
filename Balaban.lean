@@ -244,6 +244,7 @@ public import Balaban.Multiscale.XVariantIdentities
 public import Balaban.Multiscale.XVariant
 public import Balaban.Multiscale.XVariantSharp
 public import Balaban.Multiscale.XVariantAgmon
+public import Balaban.Multiscale.XVariantZero
 public import Balaban.Green.BlockDistance
 public import Balaban.Green.OneScaleDecay
 public import Balaban.Green.BlockNorm
@@ -1787,6 +1788,8 @@ public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
 public import Balaban.Green.FinalTagSupport
 public import Balaban.Green.FinalGenericMatrix
+public import Balaban.Green.FinalOpLogDet
+public import Balaban.Green.FinalLogDetLocal
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Fluctuation.DecMarkCorrSum
 public import Balaban.Fluctuation.DecMarkCorrRooted
@@ -1916,3 +1919,5 @@ public import Balaban.Fluctuation.FlCoreCover
 public import Balaban.Fluctuation.LocalPairIndexMatch
 public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseLabelAct
+public import Balaban.Localization.LocalFlSetting
+public import Balaban.Inhabited.RootBoundsArith

@@ -203,14 +203,16 @@ theorem sub_zero_eq_sum_kf0Deriv (hF : AnalyticOnNhd ℂ F (ball1 α β)) {g : �
     exact (continuousOn_finsetSum _ fun b _ => continuousOn_const.mul
         (continuousOn_fderiv_ray hF hg (unitSource a b))).intervalIntegrable_of_Icc zero_le_one
 
-/-- (b) The Cauchy estimate: `‖kf0Deriv F g a b‖ ≤ 4 B` for `l1 g ≤ 1/2`. -/
-theorem norm_kf0Deriv_le (hF : AnalyticOnNhd ℂ F (ball1 α β)) {B : ℝ}
+/-- (b) The Cauchy estimate with a radius: `‖kf0Deriv F g a b‖ ≤ B / r` for `l1 g ≤ 1/2` and
+`0 < r ≤ 1/2` (a disc of radius `r` around `t g`). -/
+theorem norm_kf0Deriv_le_radius (hF : AnalyticOnNhd ℂ F (ball1 α β)) {B r : ℝ}
+    (hr : 0 < r) (hr2 : r ≤ 1 / 2)
     (hB : ∀ g ∈ ball1 α β, ‖F g‖ ≤ B) {g : α → β → ℂ} (hg : l1 g ≤ 1 / 2) (a : α) (b : β) :
-    ‖kf0Deriv F g a b‖ ≤ 4 * B := by
+    ‖kf0Deriv F g a b‖ ≤ B / r := by
   have hg1 : g ∈ ball1 α β := by show l1 g < 1; linarith
   rw [kf0Deriv_eq_integral hF hg1]
   have := intervalIntegral.norm_integral_le_of_norm_le_const (a := 0) (b := 1)
-    (f := fun t : ℝ => fderiv ℂ F ((t : ℂ) • g) (unitSource a b)) (C := 4 * B) ?_
+    (f := fun t : ℝ => fderiv ℂ F ((t : ℂ) • g) (unitSource a b)) (C := B / r) ?_
   · simpa using this
   intro t ht
   rw [uIoc_of_le zero_le_one] at ht
@@ -219,11 +221,17 @@ theorem norm_kf0Deriv_le (hF : AnalyticOnNhd ℂ F (ball1 α β)) {B : ℝ}
     rw [l1_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg htI.1]
     nlinarith [ht.2, l1_nonneg g]
   have key := Balaban.Analysis.norm_fderiv_line_le (f := F) (w := (t : ℂ) • g)
-    (v := unitSource a b) (ρ := 1 / 4) (M := B) (by norm_num)
+    (v := unitSource a b) (ρ := r) (M := B) hr
     (fun l hl => (hF _ (line_mem_ball1 hw a b (by linarith))).differentiableAt)
     (fun l hl => hB _ (line_mem_ball1 hw a b (by linarith)))
-  calc ‖fderiv ℂ F ((t : ℂ) • g) (unitSource a b)‖ ≤ B / (1 / 4) := key
-    _ = 4 * B := by ring
+  exact key
+
+/-- (b) The Cauchy estimate: `‖kf0Deriv F g a b‖ ≤ 4 B` for `l1 g ≤ 1/2`. -/
+theorem norm_kf0Deriv_le (hF : AnalyticOnNhd ℂ F (ball1 α β)) {B : ℝ}
+    (hB : ∀ g ∈ ball1 α β, ‖F g‖ ≤ B) {g : α → β → ℂ} (hg : l1 g ≤ 1 / 2) (a : α) (b : β) :
+    ‖kf0Deriv F g a b‖ ≤ 4 * B := by
+  have := norm_kf0Deriv_le_radius hF (r := 1 / 4) (by norm_num) (by norm_num) hB hg a b
+  rwa [show B / (1 / 4) = 4 * B by ring] at this
 
 omit [Fintype α] [Fintype β] in
 /-- (c) Locality: if `F` depends only on the coordinates in `X`, so does `kf0Deriv F · a b`. -/
