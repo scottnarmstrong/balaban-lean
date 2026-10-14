@@ -159,12 +159,12 @@ a radius bookkeeping that uses the same radius sequence as the papers (the paper
 ambient chart inside a local one); the zero local class with local generators; and the exact
 localization of inherited terms at a local ambient generator (P3 (4.16), (4.9)).
 
-Two obstacles remain, both in the formal machinery rather than in the papers. First, the formal
-composition of charts loses a constant factor that P3 Lemma 4.1 (4.29) does not lose, and with it
-the chart test fails for every class with inherited terms; the fix is a composition lemma without
-this loss (in progress). Second, the formal background engine requires a separation index larger
-than that of the local generating set, so terms cannot yet be recomputed on it; this needs the
-engine to be generalized to the papers' 5L geometry (`notes/phase1/WIDEGEN.md`, route A).
+Two obstacles were found in the formal machinery, not in the papers. The first is resolved: chart
+composition now loses nothing (constant 1, as in P3 Lemma 4.1 (4.29)), and the corrected chart test
+holds with the radius sequence of the class (at d = L = 3 for γ ≤ 1/4). For the second, the background
+engine required a separation index larger than that of the local generating set; the sharper distance
+estimate of the papers (r₁ = 1 at separation 5L·M₁) is now proved for the local generating set, and
+the engine is being rerun in a form that accepts it (`notes/phase1/WIDEGEN.md`, route A).
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
