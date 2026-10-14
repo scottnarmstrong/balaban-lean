@@ -8,6 +8,7 @@ module
 public import Balaban.Correlations.Clauses
 public import Balaban.Correlations.KF0Cauchy
 public import Balaban.Model.Analytic
+public import Balaban.Correlations.RootFLog
 
 /-!
 # `KF0RootFPartial`: the clauses of Root-F with scale witness `k_f = 0`, from a one-scale input
@@ -153,53 +154,17 @@ theorem log_partition_eq_of_exp
     {g : Torus d ℓ → Fin N → ℂ} (hg : l1 g < 1) :
     Complex.log (partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0) =
       ∑ x, ∑ i, g x i * (h i : ℂ) + ∑ X : Finset (Torus d ℓ), (p ℓ X g - p ℓ X 0) := by
-  have hb : ball1 (Torus d ℓ) (Fin N) = sourceBall d N ℓ := rfl
-  set S : (Torus d ℓ → Fin N → ℂ) → ℂ := fun g => ∑ x, ∑ i, g x i * (h i : ℂ)
-    + ∑ X : Finset (Torus d ℓ), (p ℓ X g - p ℓ X 0) with hS
-  set D : (Torus d ℓ → Fin N → ℂ) → ℂ := fun g =>
-    Complex.log (partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0) - S g
-    with hD
-  have hSd : DifferentiableOn ℂ S (sourceBall d N ℓ) := by
-    refine DifferentiableOn.add (Differentiable.differentiableOn (𝕜 := ℂ)
-      (f := fun g : Torus d ℓ → Fin N → ℂ => ∑ x, ∑ i, g x i * (h i : ℂ)) (by fun_prop)) ?_
-    apply DifferentiableOn.fun_sum
-    intro X _
-    exact ((hana X).differentiableOn).sub_const _
-  have hDd : DifferentiableOn ℂ D (sourceBall d N ℓ) :=
-    (differentiableOn_logPartition (d := d) (N := N) (ℓ := ℓ) β ν h).sub hSd
-  have hexp1 : ∀ g' ∈ sourceBall d N ℓ, Complex.exp (D g') = 1 := by
-    intro g' hg'
-    have hne := (partitionFunction_div_mem_slitPlane β ν h hg')
-    have hne' := Complex.slitPlane_ne_zero hne
-    simp only [hD]
-    rw [Complex.exp_sub, Complex.exp_log hne', hS]
-    simp only
-    rw [← hexp g' hg']
-    exact div_self hne'
-  have hder : ∀ g' ∈ sourceBall d N ℓ, fderiv ℂ D g' = 0 := by
-    intro g' hg'
-    have hD1 : HasFDerivAt D (fderiv ℂ D g') g' :=
-      (hDd.differentiableAt (isOpen_sourceBall.mem_nhds hg')).hasFDerivAt
-    have h2 := hD1.cexp
-    have h3 : HasFDerivAt (fun _ : Torus d ℓ → Fin N → ℂ => (1 : ℂ))
-        (Complex.exp (D g') • fderiv ℂ D g') g' := by
-      refine h2.congr_of_eventuallyEq ?_
-      filter_upwards [isOpen_sourceBall.mem_nhds hg'] with x hx
-      exact (hexp1 x hx).symm
-    have h4 := (hasFDerivAt_const (1 : ℂ) g').unique h3
-    have h6 : Complex.exp (D g') • fderiv ℂ D g' = 0 := h4.symm
-    exact (smul_eq_zero.1 h6).resolve_left (Complex.exp_ne_zero _)
-  have hconst := (convex_ball1 (α := Torus d ℓ) (β := Fin N)).is_const_of_fderivWithin_eq_zero
-    (𝕜 := ℂ) (f := D) hDd (fun x hx => by
-      rw [fderivWithin_of_isOpen isOpen_ball1 hx]; exact hder x hx) hg
-    (zero_mem_ball1)
-  have hD0 : D 0 = 0 := by
-    simp only [hD, hS]
-    have hZ := partitionFunction_zero_ne_zero (d := d) (N := N) (ℓ := ℓ) β ν h
-    simp [div_self hZ]
-  have : D g = 0 := hconst.trans hD0
-  simp only [hD] at this
-  exact sub_eq_zero.1 this
+  have hS : ContinuousOn (fun g : Torus d ℓ → Fin N → ℂ => ∑ x, ∑ i, g x i * (h i : ℂ)
+      + ∑ X : Finset (Torus d ℓ), (p ℓ X g - p ℓ X 0)) (sourceBall d N ℓ) := by
+    refine ContinuousOn.add (Continuous.continuousOn (by fun_prop)) ?_
+    exact continuousOn_finsetSum _ fun X _ => ((hana X).continuousOn).sub continuousOn_const
+  have hZ0 := partitionFunction_zero_ne_zero (d := d) (N := N) (ℓ := ℓ) β ν h
+  exact log_eq_of_exp_eq_of_slitPlane (f := fun g => partitionFunction d N ℓ β ν h g /
+      partitionFunction d N ℓ β ν h 0) (convex_ball1 (α := Torus d ℓ) (β := Fin N)).isPreconnected
+    (zero_mem_ball1 (α := Torus d ℓ) (β := Fin N))
+    ((hS.cexp).congr fun g hg => hexp g hg) hS
+    (fun g hg => partitionFunction_div_mem_slitPlane β ν h hg)
+    (fun g hg => (hexp g hg).symm) (by simp [div_self hZ0]) g hg
 
 end Log
 

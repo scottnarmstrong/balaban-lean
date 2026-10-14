@@ -311,6 +311,7 @@ public import Balaban.Correlations.RealSequences
 public import Balaban.Correlations.MainTerm
 public import Balaban.Correlations.LemmaThree
 public import Balaban.Correlations.ZeroLimit
+public import Balaban.Correlations.RootFLog
 public import Balaban.Correlations.BoundsNu
 public import Balaban.Correlations.GoldstoneUniform
 public import Balaban.Correlations.GoldstoneStep
