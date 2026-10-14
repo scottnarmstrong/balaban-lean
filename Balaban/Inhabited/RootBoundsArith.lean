@@ -107,22 +107,7 @@ theorem norm_kf0Deriv_le_two {α β : Type*} [Fintype α] [Fintype β] [Decidabl
     [DecidableEq β] {F : (α → β → ℂ) → ℂ} (hF : AnalyticOnNhd ℂ F (ball1 α β)) {B : ℝ}
     (hB : ∀ g ∈ ball1 α β, ‖F g‖ ≤ B) {g : α → β → ℂ} (hg : l1 g ≤ 1 / 2) (a : α) (b : β) :
     ‖kf0Deriv F g a b‖ ≤ 2 * B := by
-  have hg1 : g ∈ ball1 α β := by show l1 g < 1; linarith
-  rw [kf0Deriv_eq_integral hF hg1]
-  have := intervalIntegral.norm_integral_le_of_norm_le_const (a := 0) (b := 1)
-    (f := fun t : ℝ => fderiv ℂ F ((t : ℂ) • g) (unitSource a b)) (C := 2 * B) ?_
-  · simpa using this
-  intro t ht
-  rw [Set.uIoc_of_le zero_le_one] at ht
-  have htI : t ∈ Set.Icc (0 : ℝ) 1 := ⟨ht.1.le, ht.2⟩
-  have hw : l1 ((t : ℂ) • g) ≤ 1 / 2 := by
-    rw [l1_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg htI.1]
-    nlinarith [ht.2, l1_nonneg g]
-  have key := Balaban.Analysis.norm_fderiv_line_le (f := F) (w := (t : ℂ) • g)
-    (v := unitSource a b) (ρ := 1 / 2) (M := B) (by norm_num)
-    (fun l hl => (hF _ (line_mem_ball1 hw a b (by linarith))).differentiableAt)
-    (fun l hl => hB _ (line_mem_ball1 hw a b (by linarith)))
-  calc ‖fderiv ℂ F ((t : ℂ) • g) (unitSource a b)‖ ≤ B / (1 / 2) := key
-    _ = 2 * B := by ring
+  have := norm_kf0Deriv_le_radius hF (r := 1 / 2) (by norm_num) le_rfl hB hg a b
+  rwa [show B / (1 / 2) = 2 * B by ring] at this
 
 end Balaban.Inhabited.RootBoundsArith
