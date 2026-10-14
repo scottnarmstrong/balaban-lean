@@ -1202,3 +1202,110 @@ end CubeComparison
 end Comparison
 
 end Balaban.LargeField.Base
+
+namespace Balaban.LargeField
+
+open Balaban Balaban.Background Balaban.Multiscale Balaban.Green
+open Balaban.LargeField.Base Matrix Classical Balaban.Localization
+open scoped Matrix.Norms.L2Operator
+
+variable {d N L n : ℕ} [NeZero L] [NeZero n]
+
+/-- On nonzero P5 all-good support, the physical first-step multiplier and centre satisfy the two
+hypotheses of the cube-family theorems: `‖α_z‖ ≤ 1/(8 L²)` and `∑_i e_z(i)² = 1`. -/
+theorem baseSector_cube_data (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    (∀ z : G.Ω 1, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) ∧ (∀ z : G.Ω 1, ∑ i, e z i ^ 2 = 1) :=
+  ⟨baseSector_bgMult_norm_le_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp,
+    baseSectorCenter_sq_sum ϱ aw regimeB ν h hh H θ⟩
+
+/-- **Coercivity margin of the physical first-step operator on the cube discs about the cut
+point.**  On nonzero P5 all-good support, `Re ⟨u, A_e(s) u⟩ ≥ (c/2) ‖u‖²` for the cube family
+`s_b = t_Q t_{Q'}` with `|t_Q| ≤ ρ`, `ρ² ≤ c/(8d)`. -/
+theorem baseSector_cube_coercive_disc (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+    {η : ℝ} (hη0 : 0 ≤ η) (hη : η ≤ baseCoercivity L / (8 * d)) {ρ : ℝ} (hρη : ρ ^ 2 ≤ η)
+    (t : Torus d (1 * n * L ^ (1 - 1)) → ℂ)
+    (ht : ∀ x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ).Ω 1,
+      ‖t (jBlock d L (1 * n) 1 1 x)‖ ≤ ρ) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    Green.IsCoercive (baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G aw
+      (if regimeB then ν else 0) α
+      (fun b : FineBond d L (1 * n) => t (jBlock d L (1 * n) 1 1 b.1) *
+        t (jBlock d L (1 * n) 1 1 (bondTip b))))) (baseCoercivity L / 2) := by
+  intro G α e
+  obtain ⟨hα, he⟩ := baseSector_cube_data ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
+  exact baseCube_isCoercive_disc G H.mass H.weights hα hη0 hη e he hρη ht
+
+variable [NeZero N]
+
+/-- **Exact agreement with the cut component operator, physical cube family.**  Let `U` be a
+nonempty union of first blocks and let the parameters of the cubes outside `U` vanish.  Then the
+`U × U` entries of `A_e(s)⁻¹`, of its principal inverse square root and of its principal logarithm
+are those of the component operator `A_U`; `A_U` is coercive with margin `c/2` and the cube
+parameters inside `U` are only required to keep the bond parameters within `η ≤ c/(8d)` of
+`[0,1]`. -/
+theorem baseSector_cube_component_entries (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν δ₀ : ℝ) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+    (U : Set (Torus d (1 * n * L ^ 1)))
+    (hU : IsFirstBlockUnion (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ) U)
+    (hU0 : ∃ z : (GeneratingSet.single (d := d) (L := L)
+      (N₀ := 1 * n) (k := 1) ϱ).Ω 1, (z : Torus d (1 * n * L ^ 1)) ∈ U)
+    {η : ℝ} (hη0 : 0 ≤ η) (hη : η ≤ baseCoercivity L / (8 * d))
+    (t : Torus d (1 * n * L ^ (1 - 1)) → ℂ)
+    (hs : (fun b : FineBond d L (1 * n) => t (jBlock d L (1 * n) 1 1 b.1) *
+      t (jBlock d L (1 * n) 1 1 (bondTip b))) ∈ baseParamNbhd (GeneratingSet.single
+        (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ) η)
+    (hout : ∀ x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ).Ω 1,
+      x ∉ U → t (jBlock d L (1 * n) 1 1 x) = 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : G.Ω 1 → Fin N → ℝ := fun z i =>
+      (baseSectorCenter ϱ aw regimeB ν h θ
+        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
+    let P : G.Ω 1 × Fin N → Prop := fun p => (p.1 : Torus d (1 * n * L ^ 1)) ∈ U
+    let I := {p : G.Ω 1 × Fin N // P p}
+    let A := baseOp N (fun z i => (e z i : ℂ)) (baseHamiltonian G aw (if regimeB then ν else 0) α
+      (fun b : FineBond d L (1 * n) => t (jBlock d L (1 * n) 1 1 b.1) *
+        t (jBlock d L (1 * n) 1 1 (bondTip b))))
+    let A_U : Matrix I I ℂ := A.submatrix Subtype.val Subtype.val
+    BlockDiag P A ∧ Green.IsCoercive A_U (baseCoercivity L / 2) ∧ ResOK A_U ∧
+      (∀ p q : I, A⁻¹ p.1 q.1 = A_U⁻¹ p q ∧ sqrtMat A p.1 q.1 = sqrtMat A_U p q ∧
+        logMat A p.1 q.1 = logMat A_U p q) := by
+  intro G α e P I A A_U
+  obtain ⟨hα, he⟩ := baseSector_cube_data ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
+  have hi : Nonempty I := by
+    obtain ⟨z, hzU⟩ := hU0
+    exact ⟨⟨(z, 0), hzU⟩⟩
+  let : Nonempty (G.Ω 1 × Fin N) := ⟨hi.some.1⟩
+  have : Nonempty (G.Ω 1) := ⟨hi.some.1.1⟩
+  obtain ⟨hb, hc, hr, _, _⟩ :=
+    baseCube_component_covariance G hU hU0 H.mass H.weights hα hη0 hη hs hout e he
+  exact ⟨hb, hc, hr, baseCube_component_entries G hU hU0 H.mass H.weights hα hη0 hη hs hout e he⟩
+
+end Balaban.LargeField
