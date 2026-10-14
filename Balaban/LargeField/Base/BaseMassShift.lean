@@ -80,4 +80,47 @@ theorem xDirichletOperator_zero_eq_dirichletOperator (hL : 2 ≤ L) {a : ℕ →
 
 end L1
 
+section L3
+
+/-- **L3, with the mass bound `ν L² ≤ 1` kept (the bound can be dropped once `massLe` has moved
+from `OpSetting` to `CoverBase`).**  `XCover` holds at `k = 0` with `a₀ = 2`, `a₁ = 1` and
+`aT = 2 L² / (2 L² - 1)`, the weights of `xDirichletOperator_zero_eq_dirichletOperator`. -/
+theorem base_xCover_massShift_exists_of_massLe {d L N₁ m₁ : ℕ} [NeZero L] [NeZero N₁]
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hN₁ : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * (L : ℝ) ^ 2 ≤ 1) :
+    ∃ (G : GeneratingSet d L (N₁ * L ^ m₁) 1 (Inhabited.LevelStep.rhoSepG d L m₁))
+      (a : ℕ → ℝ) (aT : ℝ), a 0 = 2 ∧ a 1 = 1 ∧
+        aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1) ∧
+        Dec2.XCover (coverOf G) G a aT ν (Cchi d L) := by
+  obtain ⟨G, -, S⟩ := baseDGSetting_exists (m₁ := m₁) (N₁ := N₁) hd hL hM hN₁ hν0 hν
+  have hL2 : 2 ≤ L := by omega
+  have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hL4 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
+  refine ⟨G, Function.update (Background.compWeight L 1) 0 2, 2 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - 1),
+    by simp, ?_, ?_, ?_⟩
+  · rw [Function.update_of_ne (by omega)]
+    exact Background.compWeight_one hL2 1
+  · have : Function.update (Background.compWeight L 1) 0 2 1 = 1 := by
+      rw [Function.update_of_ne (by omega)]
+      exact Background.compWeight_one hL2 1
+    rw [this]; ring
+  have hw : IsAdmissibleWeights 1 (Function.update (Background.compWeight L 1) 0 2) := by
+    intro j h1 h2
+    rw [Function.update_of_ne (by omega)]
+    exact S.weights j h1 h2
+  have hpos : 0 < 2 * (L : ℝ) ^ 2 - 1 := by linarith
+  have haT : 2 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - 1) = 1 + 1 / (2 * (L : ℝ) ^ 2 - 1) := by
+    field_simp; ring
+  have hle : 1 / (2 * (L : ℝ) ^ 2 - 1) ≤ 1 := by
+    rw [div_le_one hpos]; linarith
+  have hge : 0 ≤ 1 / (2 * (L : ℝ) ^ 2 - 1) := by positivity
+  refine Dec2.xCover_self (k := 0)
+    { dg := { S with weights := hw }
+      hak1 := by rw [Function.update_self]; norm_num
+      hak2 := by rw [Function.update_self]
+      haT1 := by rw [haT]; linarith
+      haT2 := by rw [haT]; linarith }
+
+end L3
+
 end Balaban.LargeField.Base

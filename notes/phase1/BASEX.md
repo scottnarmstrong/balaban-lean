@@ -33,3 +33,8 @@ Reading task, no Lean edits. Claims: PROVED = landed declaration, OPEN, REFUTED.
 ## 5. Risks
 - L2 is the only edit to landed statements; if refused, no route avoids it (the non-x chain needs `nu' L^2 <= 1`).
 - Not checked in Lean: that no lemma outside the grep (a library lemma called with `S.toOpSetting`) uses `massLe` indirectly; L2/L3 settle it by compilation.
+
+## W824 status
+- L1 PROVED (`Base/BaseMassShift.lean`): x-variant at x = 0, k = 0, a0 = 2, aT = 2 a1 L^2/(2 L^2 - a1) equals the first-step (cut) Dirichlet operator, any mass nu, hypotheses 2 <= L, 0 <= a1 <= 2.
+- L2 NOT DONE: moving `massLe` out of `OpSetting` breaks standalone-`OpSetting` consumers that need it (`dirichlet_weighted` Decoupled2Close:64, `cubeBlockBounds_mixed` CubeBlockBoundsMixed:98,153, CubeActionBound, CubeActionRealBound, InteractionLevelPair, MassResponseHyp, MassChangeRegion, ...): their statements would need an extra hypothesis. The x chain (Decoupled2X*, DecoupledX*) uses none of them.
+- L3 PARTIAL: `base_xCover_massShift_exists_of_massLe` (XCover at k = 0 with a0 = 2, a1 = 1, L1's aT) under nu L^2 <= 1; the hypothesis drops once L2 is done.
