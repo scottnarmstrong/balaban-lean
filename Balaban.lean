@@ -1956,3 +1956,4 @@ public import Balaban.Green.FinalDetRatioSmall
 public import Balaban.Green.FinalSourceAmplitude
 public import Balaban.Green.FinalSecondOrder
 public import Balaban.Inhabited.RootParamsLinks
+public import Balaban.Fluctuation.LocalClassRot
