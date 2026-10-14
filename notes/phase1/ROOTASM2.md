@@ -74,3 +74,8 @@ on the source ball (A8), the large-field bound arithmetic (A9), L3 with the cut 
 `Balaban/Inhabited/RootBoundsArith.lean`, all PROVED. (1) `rootBound_of_perTerm` (+ `amplitude_le`): per-term bound `C(C' L^e β^{-q})L^{-je}e^λ E` gives `c₉ L^{-je} E` once `β ≥ (C C' e^λ L^e/c₉)^{1/q}` (`e=(d-2)/2+δ`, `q=e/(d-2)`, as in `rootTermFamily_obs_birthScale_fromTowerG_rho`).
 (2) `betaK_inv_sq_le`: `(β_k²)⁻¹ ≤ c₉ L^{-(k+1)((d-2)/2+δ)}` for every `k` if `0≤δ≤(d-2)/2` and `L^{(d-2)/2+δ} ≤ c₉β₀²`; the stopping condition on `k_f` is not used.
 (3) `norm_kf0Deriv_le_two`: Cauchy in one source variable at radius 1/2: bound `B` on the unit ball gives `2B` for `∫₀¹∂F(tg)dt` (landed `norm_kf0Deriv_le` has 4B).
+
+## W797 status (A1 rootParams, 2026-10-14)
+`Balaban/Inhabited/RootParams.lean`: `exists_rootParams` (Root-F order: δ, κ, c₉, L M, tower T, β₀, ν h, kf), `exists_tower_blockSize`, `exists_kf_scale`. PROVED, no hypotheses beyond 3 ≤ d, 2 ≤ N.
+Constraints: δ=(d-2)/8 (δ ≤ (d-2)/2 for `betaK_inv_sq_le`; δ < s(d-2), s=1/4, for the birth-scale bound); L=7 (odd, ≥ 6, 5 < L^{m₀}, m₀=1); decay c₁κ ≤ (3/2)κ_dec; M=L^{m₁+1} with hMB, hMκ of W787 at max κ 1, obtained from `large_block` by raising κ_min; β₀ for `rootBound_of_perTerm`, `cutConst_mul_lt_of_large`, `betaK_inv_sq_le` (L^e ≤ c₉β₀²); kf from ν.
+UNVERIFIED: the amplitude and cut constants C, C', B, p, R are quantified (positive), not read off the landed tower bounds; the window `StepTowerG.bgR0_le_minSep` holds for any T; γ ≤ 1/4 (chart test) is independent of δ (α = (d-2)/2 - γ), not linked; kf here is any valid index, not `kStop`.
