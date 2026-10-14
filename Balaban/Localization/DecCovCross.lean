@@ -10,6 +10,7 @@ public import Balaban.Localization.Dec2Covariance
 public import Balaban.Localization.Decoupled2XLocal
 public import Balaban.Localization.DecCovCutSupport
 public import Balaban.Polymer.TwoTorusXGreen
+public import Balaban.Localization.LocalHatCov
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -1312,7 +1313,246 @@ theorem decCovSqrt_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
     (fun v y hy hy' hyT => hQQ v.1 y hy hy' v.2 hyT) (fun v w => hPP v.1 w.1 v.2 w.2)
     ⟨κ, hκ⟩ ⟨κ', hκ'⟩ i j
 
+/-- **The square root applied to a vector, on a component.**  Under the hypotheses of
+`decCovSqrt_block_cross`, if two vectors on the coarse index sets correspond on the matched block,
+then the images under `C^{1/2}(s)` of the two pairs correspond on it. -/
+theorem decCovSqrt_mulVec_block_cross {κι κι' UK : Type*} [Fintype κι] [DecidableEq κι]
+    [Fintype κι'] [DecidableEq κι'] [Fintype UK]
+    (S : XCover C H a aT ν Cx) (S' : XCover C' H' a aT ν Cx')
+    (hF : FootLocalGeom C) (hF' : FootLocalGeom C')
+    (hαA : AdmPot H α) (hαB : AdmPot H' α')
+    (hlay : ∀ y ∈ T, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx C H a aT x ν α s))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx C' H' a aT x ν α' s'))
+    (hdich : ∀ q ∈ C.cubeIdx, C.sProd s q ≠ 0 → SubI H (intBox q) T ∨ DisjI H (intBox q) T)
+    (hdich' : ∀ q ∈ C'.cubeIdx, C'.sProd s' q ≠ 0 →
+      SubI H' (intBox q) T ∨ DisjI H' (intBox q) T)
+    (hin : ∀ q ∈ innerCentres C H T, C.sProd s q ≠ 0 →
+      q ∈ innerCentres C' H' T ∧ C'.sProd s' q = C.sProd s q ∧
+      (∀ x₀ ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x₀ ∨ ∃ μ : Fin d, y = x₀ + Pi.single μ 1 ∨ y = x₀ - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x₀ ∈ intBox q, C.chi q x₀ = C'.chi q x₀))
+    (hin' : ∀ q ∈ innerCentres C' H' T, C'.sProd s' q ≠ 0 →
+      q ∈ innerCentres C H T ∧ C.sProd s q ≠ 0)
+    (hα : ∀ (x₀ : CTorus d L N₁ m₁ (k + 1)) (hx : x₀ ∈ H.Ω 1) (hx' : x₀ ∈ H'.Ω 1), x₀ ∈ T →
+      α ⟨x₀, hx⟩ = α' ⟨x₀, hx'⟩)
+    (hφ : ∀ y ∈ T, φ' y = φ y)
+    (hH : ∀ x : ℝ, 0 < x → HRespects C H a aT x ν α s T)
+    (hH' : ∀ x : ℝ, 0 < x → HRespects C' H' a aT x ν α' s' T)
+    (hM : ∀ x : ℝ, 0 < x → IsUnit (decM C H a aT x ν α s φ))
+    (hM' : ∀ x : ℝ, 0 < x → IsUnit (decM C' H' a aT x ν α' s' φ'))
+    (cκ : κι → Prop) (cκ' : κι' → Prop) (Q : Matrix κι (H.Ω 1) ℂ) (Q' : Matrix κι' (H'.Ω 1) ℂ)
+    (P : Matrix κι κι ℂ) (P' : Matrix κι' κι' ℂ) (e : UK → κι) (e' : UK → κι')
+    (hei : Function.Injective e) (hei' : Function.Injective e')
+    (hes : ∀ κ, cκ κ → ∃ v, e v = κ) (hes' : ∀ κ, cκ' κ → ∃ v, e' v = κ)
+    (hec : ∀ v, cκ (e v)) (hec' : ∀ v, cκ' (e' v))
+    (hQ : BD cκ (fun y : H.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q)
+    (hQ' : BD cκ' (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q')
+    (hP : BD cκ cκ P) (hP' : BD cκ' cκ' P')
+    (hQQ : ∀ (v : UK) (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1),
+      y ∈ T → Q' (e' v) ⟨y, hy'⟩ = Q (e v) ⟨y, hy⟩)
+    (hPP : ∀ v w : UK, P' (e' v) (e' w) = P (e v) (e w))
+    (ψ : κι × Fin N → ℂ) (ψ' : κι' × Fin N → ℂ) (hψ : ∀ (w : UK) (j : Fin N), ψ' (e' w, j) = ψ (e w, j))
+    (v : UK) (i : Fin N) :
+    (decCovSqrt C' H' a aT ν α' s' φ' Q' P' *ᵥ ψ') (e' v, i) =
+      (decCovSqrt C H a aT ν α s φ Q P *ᵥ ψ) (e v, i) := by
+  classical
+  obtain ⟨h, hh⟩ : ∃ h : UK × Fin N → κι × Fin N, ∀ w, h w = (e w.1, w.2) := ⟨_, fun _ => rfl⟩
+  obtain ⟨h', hh'⟩ : ∃ h' : UK × Fin N → κι' × Fin N, ∀ w, h' w = (e' w.1, w.2) :=
+    ⟨_, fun _ => rfl⟩
+  have hhi : Function.Injective h := fun u v e₀ => by
+    rw [hh, hh] at e₀
+    exact Prod.ext (hei (Prod.ext_iff.1 e₀).1) (Prod.ext_iff.1 e₀).2
+  have hhi' : Function.Injective h' := fun u v e₀ => by
+    rw [hh', hh'] at e₀
+    exact Prod.ext (hei' (Prod.ext_iff.1 e₀).1) (Prod.ext_iff.1 e₀).2
+  have hBD : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decCovSqrt C H a aT ν α s φ Q P) :=
+    decCovSqrt_BD_of_GsxBD hF
+      (fun x hx => Gsx_BD_of_dich S hx.le hαA (hU x hx) hdich) hH hM cκ Q P hQ hP
+  have hBD' : BD (fun p : κι' × Fin N => cκ' p.1) (fun p : κι' × Fin N => cκ' p.1)
+      (decCovSqrt C' H' a aT ν α' s' φ' Q' P') :=
+    decCovSqrt_BD_of_GsxBD hF'
+      (fun x hx => Gsx_BD_of_dich S' hx.le hαB (hU' x hx) hdich') hH' hM' cκ' Q' P' hQ' hP'
+  simp only [Matrix.mulVec, dotProduct]
+  have e1 : ∑ p, decCovSqrt C H a aT ν α s φ Q P (e v, i) p * ψ p =
+      ∑ w, decCovSqrt C H a aT ν α s φ Q P (e v, i) (h w) * ψ (h w) := by
+    refine sum_range_of_inj h hhi _ fun p hp => ?_
+    by_cases hz : decCovSqrt C H a aT ν α s φ Q P (e v, i) p = 0
+    · rw [hz, zero_mul]
+    · exfalso
+      have hc : cκ p.1 := (hBD _ _ hz).1 (hec v)
+      obtain ⟨w, hw⟩ := hes p.1 hc
+      exact hp (w, p.2) (by rw [hh, hw])
+  have e2 : ∑ p, decCovSqrt C' H' a aT ν α' s' φ' Q' P' (e' v, i) p * ψ' p =
+      ∑ w, decCovSqrt C' H' a aT ν α' s' φ' Q' P' (e' v, i) (h' w) * ψ' (h' w) := by
+    refine sum_range_of_inj h' hhi' _ fun p hp => ?_
+    by_cases hz : decCovSqrt C' H' a aT ν α' s' φ' Q' P' (e' v, i) p = 0
+    · rw [hz, zero_mul]
+    · exfalso
+      have hc : cκ' p.1 := (hBD' _ _ hz).1 (hec' v)
+      obtain ⟨w, hw⟩ := hes' p.1 hc
+      exact hp (w, p.2) (by rw [hh', hw])
+  rw [e1, e2]
+  refine Finset.sum_congr rfl fun w _ => ?_
+  rw [hh, hh', hψ w.1 w.2]
+  congr 1
+  exact decCovSqrt_block_cross S S' hF hF' hαA hαB hlay hU hU' hdich hdich' hin hin' hα hφ hH hH'
+    hM hM' cκ cκ' Q Q' P P' e e' hei hei' hes hes' hec hec' hQ hQ' hP hP' hQQ hPP v w.1 i w.2
+
+
 end SqrtCross
+
+section UnitLift
+
+open Balaban.Fluctuation
+
+variable {N : ℕ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+
+/-- **The local hat lift agrees with the ambient lift on a component.**  `H` is a generating set of
+level `k + 1` (the ambient one), `H'` another generating set (the local one); `T` is a union of
+`(k+1)`-blocks on which the hypotheses of `decCovSqrt_block_cross` hold for the pairs
+`(coverOf H, H)`, `(coverOf H', H')` and every `x > 0`.  If the hat variables `ψ̂`, `ψ̂'` on the
+unit lattices agree on the unit blocks of `T`, then at every site `x` of `T` in the top layer, the
+local hat lift `if unitBlock x ∈ unitPts H' then (cc • C'^{1/2}(s') ψ̂')(unitBlock x, i) else 0`
+equals the ambient lift `liftC (cc • C^{1/2}(s) ψ̂)` of the ambient generating set. -/
+theorem localLift_eq_liftC_on_component (hG' : IsLevel H (k + 1))
+    (S : XCover (coverOf H) H a aT ν Cx) (S' : XCover (coverOf H') H' a aT ν Cx')
+        (hαA : AdmPot H α) (hαB : AdmPot H' α')
+    (hlay : ∀ y ∈ T, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx (coverOf H) H a aT x ν α s))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx (coverOf H') H' a aT x ν α' s'))
+    (hdich : ∀ q ∈ (coverOf H).cubeIdx, (coverOf H).sProd s q ≠ 0 → SubI H (intBox q) T ∨ DisjI H (intBox q) T)
+    (hdich' : ∀ q ∈ (coverOf H').cubeIdx, (coverOf H').sProd s' q ≠ 0 →
+      SubI H' (intBox q) T ∨ DisjI H' (intBox q) T)
+    (hin : ∀ q ∈ innerCentres (coverOf H) H T, (coverOf H).sProd s q ≠ 0 →
+      q ∈ innerCentres (coverOf H') H' T ∧ (coverOf H').sProd s' q = (coverOf H).sProd s q ∧
+      (∀ x₀ ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x₀ ∨ ∃ μ : Fin d, y = x₀ + Pi.single μ 1 ∨ y = x₀ - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x₀ ∈ intBox q, (coverOf H).chi q x₀ = (coverOf H').chi q x₀))
+    (hin' : ∀ q ∈ innerCentres (coverOf H') H' T, (coverOf H').sProd s' q ≠ 0 →
+      q ∈ innerCentres (coverOf H) H T ∧ (coverOf H).sProd s q ≠ 0)
+    (hα : ∀ (x₀ : CTorus d L N₁ m₁ (k + 1)) (hx : x₀ ∈ H.Ω 1) (hx' : x₀ ∈ H'.Ω 1), x₀ ∈ T →
+      α ⟨x₀, hx⟩ = α' ⟨x₀, hx'⟩)
+    (hφ : ∀ y ∈ T, φ' y = φ y)
+    (hH : ∀ x : ℝ, 0 < x → HRespects (coverOf H) H a aT x ν α s T)
+    (hH' : ∀ x : ℝ, 0 < x → HRespects (coverOf H') H' a aT x ν α' s' T)
+    (hM : ∀ x : ℝ, 0 < x → IsUnit (decM (coverOf H) H a aT x ν α s φ))
+    (hM' : ∀ x : ℝ, 0 < x → IsUnit (decM (coverOf H') H' a aT x ν α' s' φ'))
+    (hTblk : IsBlockUnion L (N₁ * L ^ m₁) (k + 1) (k + 1) T) (cc : ℂ)
+    (ψh : unitPts H × Fin N → ℂ) (ψh' : unitPts H' × Fin N → ℂ)
+    (hψ : ∀ (b : UnitTorus d L N₁ m₁ k) (hb : b ∈ unitPts H) (hb' : b ∈ unitPts H'),
+      (∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b) → ∀ j : Fin N,
+        ψh' (⟨b, hb'⟩, j) = ψh (⟨b, hb⟩, j))
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hxT : x₀ ∈ T) (hxtop : x₀ ∈ H.layer (k + 1)) (i : Fin N) :
+    (if h : unitBlock x₀ ∈ unitPts H' then
+      (cc • (Balaban.Localization.decCovSqrt H' a aT ν α' s' φ' (unitQ H') (unitP H') *ᵥ ψh')) (⟨unitBlock x₀, h⟩, i)
+      else 0) =
+    liftC hG' (cc • (Balaban.Localization.decCovSqrt H a aT ν α s φ (unitQ H) (unitP H) *ᵥ ψh)) x₀ i := by
+  classical
+  have hF := footLocalGeom_coverOf H
+  have hF' := footLocalGeom_coverOf H'
+  have hmemH : ∀ v : {b : UnitTorus d L N₁ m₁ k // ∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b},
+      v.1 ∈ unitPts H := fun v => by
+    obtain ⟨y, -, hytop, hyb⟩ := v.2
+    exact (mem_unitPts H).2 ⟨y, hytop, hyb⟩
+  have hmemH' : ∀ v : {b : UnitTorus d L N₁ m₁ k // ∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b},
+      v.1 ∈ unitPts H' := fun v => by
+    obtain ⟨y, hyT, hytop, hyb⟩ := v.2
+    exact (mem_unitPts H').2 ⟨y, (hlay y hyT (k + 1) (by omega) le_rfl).1 hytop, hyb⟩
+  obtain ⟨cκ, hcκ⟩ : ∃ cκ : unitPts H → Prop, ∀ b, cκ b ↔
+      ∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b.1 := ⟨_, fun _ => Iff.rfl⟩
+  obtain ⟨cκ', hcκ'⟩ : ∃ cκ' : unitPts H' → Prop, ∀ b, cκ' b ↔
+      ∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b.1 := ⟨_, fun _ => Iff.rfl⟩
+  have hQ : BD cκ (fun y : H.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) (unitQ H) := by
+    intro b y hne
+    have hb : unitBlock (y : CTorus d L N₁ m₁ (k + 1)) = b.1 := by
+      by_contra hne'
+      exact hne (by simp [unitQ, hne'])
+    rw [hcκ]
+    constructor
+    · rintro ⟨y₀, hy₀T, hy₀top, hy₀b⟩
+      exact (hTblk y₀ y (jBlock_eq_of_unitBlock_eq (hy₀b.trans hb.symm))).1 hy₀T
+    · intro hyT
+      obtain ⟨x₁, hx₁top, hx₁b⟩ := (mem_unitPts H).1 b.2
+      exact ⟨y, hyT, layer_of_unitBlock H (hx₁b.trans hb.symm) hx₁top, hb⟩
+  have hQ' : BD cκ' (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) (unitQ H') := by
+    intro b y hne
+    have hb : unitBlock (y : CTorus d L N₁ m₁ (k + 1)) = b.1 := by
+      by_contra hne'
+      exact hne (by simp [unitQ, hne'])
+    rw [hcκ']
+    constructor
+    · rintro ⟨y₀, hy₀T, hy₀top, hy₀b⟩
+      exact (hTblk y₀ y (jBlock_eq_of_unitBlock_eq (hy₀b.trans hb.symm))).1 hy₀T
+    · intro hyT
+      obtain ⟨x₁, hx₁top, hx₁b⟩ := (mem_unitPts H').1 b.2
+      have hytop' : (y : CTorus d L N₁ m₁ (k + 1)) ∈ H'.layer (k + 1) :=
+        layer_of_unitBlock H' (hx₁b.trans hb.symm) hx₁top
+      exact ⟨y, hyT, (hlay y hyT (k + 1) (by omega) le_rfl).2 hytop', hb⟩
+  have hP : BD cκ cκ (unitP H) := by
+    intro b b' hne
+    have hb : unitBlock1 b.1 = unitBlock1 b'.1 := by
+      by_contra h
+      exact hne (by simp [unitP, h])
+    have key : ∀ (b b' : unitPts H), unitBlock1 b.1 = unitBlock1 b'.1 → cκ b → cκ b' := by
+      intro b b' hb hcb
+      rw [hcκ] at hcb ⊢
+      obtain ⟨y₀, hy₀T, hy₀top, hy₀b⟩ := hcb
+      obtain ⟨x₁, hx₁top, hx₁b⟩ := (mem_unitPts H).1 b'.2
+      refine ⟨x₁, ?_, hx₁top, hx₁b⟩
+      refine (hTblk y₀ x₁ ?_).1 hy₀T
+      rw [← unitBlock1_unitBlock, ← unitBlock1_unitBlock, hy₀b, hx₁b]
+      exact hb
+    exact ⟨key b b' hb, key b' b hb.symm⟩
+  have hP' : BD cκ' cκ' (unitP H') := by
+    intro b b' hne
+    have hb : unitBlock1 b.1 = unitBlock1 b'.1 := by
+      by_contra h
+      exact hne (by simp [unitP, h])
+    have key : ∀ (b b' : unitPts H'), unitBlock1 b.1 = unitBlock1 b'.1 → cκ' b → cκ' b' := by
+      intro b b' hb hcb
+      rw [hcκ'] at hcb ⊢
+      obtain ⟨y₀, hy₀T, hy₀top, hy₀b⟩ := hcb
+      obtain ⟨x₁, hx₁top, hx₁b⟩ := (mem_unitPts H').1 b'.2
+      have hx₁T : x₁ ∈ T := by
+        refine (hTblk y₀ x₁ ?_).1 hy₀T
+        rw [← unitBlock1_unitBlock, ← unitBlock1_unitBlock, hy₀b, hx₁b]
+        exact hb
+      exact ⟨x₁, hx₁T, (hlay x₁ hx₁T (k + 1) (by omega) le_rfl).2 hx₁top, hx₁b⟩
+    exact ⟨key b b' hb, key b' b hb.symm⟩
+  have key := decCovSqrt_mulVec_block_cross (C := coverOf H) (C' := coverOf H') S S' hF hF' hαA hαB
+    hlay hU hU' hdich hdich' hin hin' hα hφ hH hH' hM hM' cκ cκ' (unitQ H) (unitQ H') (unitP H)
+    (unitP H')
+    (UK := {b : UnitTorus d L N₁ m₁ k // ∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b})
+    (fun v => ⟨v.1, hmemH v⟩) (fun v => ⟨v.1, hmemH' v⟩) (fun u v e₀ => Subtype.ext
+      (congrArg (fun p : unitPts H => p.1) e₀)) (fun u v e₀ => Subtype.ext
+      (congrArg (fun p : unitPts H' => p.1) e₀))
+    (fun b hb => ⟨⟨b.1, (hcκ b).1 hb⟩, rfl⟩) (fun b hb => ⟨⟨b.1, (hcκ' b).1 hb⟩, rfl⟩)
+    (fun v => (hcκ _).2 v.2) (fun v => (hcκ' _).2 v.2) hQ hQ' hP hP' (fun v y hy hy' hyT => rfl)
+    (fun v w => rfl) ψh ψh' (fun w j => hψ w.1 (hmemH w) (hmemH' w) w.2 j)
+    ⟨unitBlock x₀, ⟨x₀, hxT, hxtop, rfl⟩⟩ i
+  rw [dite_eq_left ((mem_unitPts H').2 ⟨x₀, (hlay x₀ hxT (k + 1) (by omega) le_rfl).1 hxtop, rfl⟩)]
+  simp only [Pi.smul_apply, smul_eq_mul, liftC_apply]
+  congr 1
+
+
+/-- The ambient hat lift is `liftC (cc • C^{1/2}(1) ψ̂)` with `C^{1/2}(1) = decCovSqrt` at the
+datum `D` (unfolding of `hatLift`, `hatCovSqrt`); together with `localLift_eq_liftC_on_component`
+this compares the local hat lift with `hatLift`. -/
+theorem hatLift_eq_liftC_decCovSqrt {ϱ₀ : ℝ} {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
+    (hG' : IsLevel Gp (k + 1)) (a₁ ν : ℝ) (cc : ℂ) (D : BgData Gp N)
+    (ψh : unitPts Gp × Fin N → ℂ) :
+    hatLift Gp a₁ ν hG' cc D ψh =
+      liftC hG' (cc • (Balaban.Localization.decCovSqrt Gp (compWeight L a₁) a₁ ν
+        (bgMultC Gp (compWeight L a₁) ν (bgC0 d L N) D) (fun _ => 1)
+        (barField Gp D.Ψ (bgFieldC Gp (compWeight L a₁) ν (bgC0 d L N) D)) (unitQ Gp)
+        (unitP Gp) *ᵥ ψh)) := rfl
+
+end UnitLift
+
 
 end XPair
 
