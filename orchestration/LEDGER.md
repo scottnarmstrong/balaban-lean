@@ -1422,3 +1422,5 @@
 | 2026-10-14 | W767 | launched | Two-torus observable at nonzero source: authorized appended conjuncts exporting the source part along the direct-terms chain; equality at nonzero source. |
 | 2026-10-14 | W766 | landed `c718b2f9` | `LargeField/Base/BaseRetainedDisintegrate.lean` (`baseRetained_disintegrate`, any decidable site set), `BaseRecordGoodRegion.lean` (`baseRecord_good_region`: block union, P^~3 ⊆ Ωᶜ, failed tests read only retained sites; assembled from landed lemmas). BASEPLAN S1, S2. |
 | 2026-10-14 | W768 | launched | BASEPLAN S3 (retained cut chart integral) and T2 (cutoff transfer). |
+| 2026-10-14 | W768 | landed `d3378eba` | `LargeField/Base/BaseChartRetained.lean`: **`baseChartIntegral_retained`** (normalized cut chart integral on a proper component with exterior spins fixed), `baseRetainedChartIntegral_eq`, `baseRetainedChartIntegral_gaussian`, `baseOp_submatrix_comp`; `BaseCutoffTransfer.lean` (bundles landed lemmas). BASEPLAN S3, T2. Open: Fubini over φ_ret, background recomputed from φ_ret (T1/G4). |
+| 2026-10-14 | W769 | launched | BASEPLAN G2 (site-local remainder with majorants, fixed e, α) and T1's statement. |
