@@ -1022,44 +1022,56 @@ theorem liftOp_Gsx_apply_cross {x₀ z : CTorus d L N₁ m₁ (k + 1)} (hx₀ : 
       hxT
   · rfl
 
-/-- **The entries of the decoupled covariance `C_x(s)` of two pairs agree** on a component `T`:
-with `Q`, `Q'`, `P`, `P'` block diagonal for a splitting `cκ` of the coarse index set (rows of
-`Q` with `cκ κ` read exactly the sites of `T`) and agreeing there, the entries of `C_x(s)` at two
-coarse indices with `cκ` agree. -/
-theorem decCov_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
+/-- **The entries of the decoupled covariance `C_x(s)` of two pairs agree** on a component `T`
+(general form, with two coarse index sets).  `Q`, `P` (resp. `Q'`, `P'`) are block diagonal for
+the splitting `cκ` (resp. `cκ'`) of the coarse index set: rows of `Q` with `cκ κ` read exactly the
+sites of `T`.  The coarse indices with `cκ`, `cκ'` are matched by the common block `UK` through
+injections `e`, `e'` onto them, and `Q`, `Q'`, `P`, `P'` correspond on it. -/
+theorem decCov_block_cross {κι κι' UK : Type*} [Fintype κι] [DecidableEq κι] [Fintype κι']
+    [DecidableEq κι'] [Fintype UK]
     (hM : IsUnit (decM C H a aT x ν α s φ)) (hM' : IsUnit (decM C' H' a aT x ν α' s' φ'))
-    (cκ : κι → Prop) (Q : Matrix κι (H.Ω 1) ℂ) (Q' : Matrix κι (H'.Ω 1) ℂ)
-    (P P' : Matrix κι κι ℂ)
+    (cκ : κι → Prop) (cκ' : κι' → Prop) (Q : Matrix κι (H.Ω 1) ℂ) (Q' : Matrix κι' (H'.Ω 1) ℂ)
+    (P : Matrix κι κι ℂ) (P' : Matrix κι' κι' ℂ) (e : UK → κι) (e' : UK → κι')
+    (hei : Function.Injective e) (hei' : Function.Injective e')
+    (hes : ∀ κ, cκ κ → ∃ v, e v = κ) (hes' : ∀ κ, cκ' κ → ∃ v, e' v = κ)
+    (hec : ∀ v, cκ (e v)) (hec' : ∀ v, cκ' (e' v))
     (hQ : BD cκ (fun y : H.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q)
-    (hQ' : BD cκ (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q')
-    (hP : BD cκ cκ P) (hP' : BD cκ cκ P')
-    (hQQ : ∀ (κ : κι) (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1),
-      cκ κ → y ∈ T → Q' κ ⟨y, hy'⟩ = Q κ ⟨y, hy⟩)
-    (hPP : ∀ κ κ' : κι, cκ κ → cκ κ' → P' κ κ' = P κ κ')
-    {κ κ' : κι} (hκ : cκ κ) (hκ' : cκ κ') (i j : Fin N) :
-    decCov C' H' a aT x ν α' s' φ' Q' P' (κ, i) (κ', j) =
-      decCov C H a aT x ν α s φ Q P (κ, i) (κ', j) := by
+    (hQ' : BD cκ' (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q')
+    (hP : BD cκ cκ P) (hP' : BD cκ' cκ' P')
+    (hQQ : ∀ (v : UK) (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1),
+      y ∈ T → Q' (e' v) ⟨y, hy'⟩ = Q (e v) ⟨y, hy⟩)
+    (hPP : ∀ v w : UK, P' (e' v) (e' w) = P (e v) (e w)) (v w : UK) (i j : Fin N) :
+    decCov C' H' a aT x ν α' s' φ' Q' P' (e' v, i) (e' w, j) =
+      decCov C H a aT x ν α s φ Q P (e v, i) (e w, j) := by
   classical
   have hTΩ : ∀ y ∈ T, (y ∈ H.Ω 1 ↔ y ∈ H'.Ω 1) := fun y hy => mem_Ω_one_cross (hlay y hy)
   obtain ⟨f, f', g, g', hf, hf', hg, hg', hfi, hfi', hgi, hgi', hs, hs', hsN, hsN'⟩ :=
     exists_block_maps_N (N := N) (H := H) (H' := H') hTΩ
-  obtain ⟨h, hh⟩ : ∃ h : {v : κι // cκ v} × Fin N → κι × Fin N, ∀ w, h w = (w.1.1, w.2) :=
+  obtain ⟨h, hh⟩ : ∃ h : UK × Fin N → κι × Fin N, ∀ w, h w = (e w.1, w.2) := ⟨_, fun _ => rfl⟩
+  obtain ⟨h', hh'⟩ : ∃ h' : UK × Fin N → κι' × Fin N, ∀ w, h' w = (e' w.1, w.2) :=
     ⟨_, fun _ => rfl⟩
-  have hhi : Function.Injective h := fun u v e => by
-    rw [hh, hh] at e
-    exact Prod.ext (Subtype.ext (Prod.ext_iff.1 e).1) (Prod.ext_iff.1 e).2
-  have hsK : ∀ b : κι × Fin N, cκ b.1 → ∃ w, h w = b := fun b hb =>
-    ⟨(⟨b.1, hb⟩, b.2), by rw [hh]⟩
+  have hhi : Function.Injective h := fun u v e₀ => by
+    rw [hh, hh] at e₀
+    exact Prod.ext (hei (Prod.ext_iff.1 e₀).1) (Prod.ext_iff.1 e₀).2
+  have hhi' : Function.Injective h' := fun u v e₀ => by
+    rw [hh', hh'] at e₀
+    exact Prod.ext (hei' (Prod.ext_iff.1 e₀).1) (Prod.ext_iff.1 e₀).2
+  have hsK : ∀ b : κι × Fin N, cκ b.1 → ∃ w, h w = b := fun b hb => by
+    obtain ⟨v, hv⟩ := hes b.1 hb
+    exact ⟨(v, b.2), by rw [hh, hv]⟩
+  have hsK' : ∀ b : κι' × Fin N, cκ' b.1 → ∃ w, h' w = b := fun b hb => by
+    obtain ⟨v, hv⟩ := hes' b.1 hb
+    exact ⟨(v, b.2), by rw [hh', hv]⟩
   have hG := Gsx_BD_of_dich S hx hαA hU hdich
   have hG' := Gsx_BD_of_dich S' hx hαB hU' hdich'
   have hA : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := covA_BD (N := N) cκ hP _ _ _
-  have hA' : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
-      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P')) := covA_BD (N := N) cκ hP' _ _ _
+  have hA' : BD (fun p : κι' × Fin N => cκ' p.1) (fun p : κι' × Fin N => cκ' p.1)
+      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P')) := covA_BD (N := N) cκ' hP' _ _ _
   have hQl : BD (fun p : κι × Fin N => cκ p.1)
       (fun p : H.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ T) (liftRect N Q) :=
     BD.liftOp hQ
-  have hQl' : BD (fun p : κι × Fin N => cκ p.1)
+  have hQl' : BD (fun p : κι' × Fin N => cκ' p.1)
       (fun p : H'.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ T) (liftRect N Q') :=
     BD.liftOp hQ'
   have hTm : BD (fun p : H.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ T)
@@ -1079,43 +1091,43 @@ theorem decCov_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
   have hAQTQ := hAQT.mul hQt
   have hAQTQ' := hAQT'.mul hQt'
   -- the baseline `A`
-  have cA : ∀ u v : {v : κι // cκ v} × Fin N,
-      covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') (h u) (h v) =
+  have cA : ∀ u v : UK × Fin N,
+      covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') (h' u) (h' v) =
         covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) (h u) (h v) := by
-    rintro ⟨⟨u1, hu1⟩, i1⟩ ⟨⟨v1, hv1⟩, j1⟩
-    simp only [hh, covA, Matrix.add_apply, Matrix.smul_apply, Matrix.sub_apply, smul_eq_mul,
-      liftOp]
-    rw [hPP u1 v1 hu1 hv1]
+    rintro ⟨u1, i1⟩ ⟨v1, j1⟩
+    simp only [hh, hh', covA, Matrix.add_apply, Matrix.smul_apply, Matrix.sub_apply, smul_eq_mul,
+      liftOp, Matrix.one_apply, Prod.mk.injEq, hei.eq_iff, hei'.eq_iff]
+    rw [hPP u1 v1]
   -- `A Q`
-  have cAQ : ∀ (u : {v : κι // cκ v} × Fin N)
+  have cAQ : ∀ (u : UK × Fin N)
       (w : {z : CTorus d L N₁ m₁ (k + 1) // z ∈ T ∧ z ∈ H.Ω 1} × Fin N),
-      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') * liftRect N Q') (h u) (g' w) =
+      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') * liftRect N Q') (h' u) (g' w) =
         (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q) (h u) (g w) := by
     intro u w
-    refine mul_block_corr h h h h g g' hhi hhi _ _ _ _ (fun u b hne => ?_) (fun u b hne => ?_)
+    refine mul_block_corr h h' h h' g g' hhi hhi' _ _ _ _ (fun u b hne => ?_) (fun u b hne => ?_)
       (fun u v => cA u v) (fun v w => ?_) u w
-    · exact hsK b ((hA _ _ hne).1 (by rw [hh]; exact u.1.2))
-    · exact hsK b ((hA' _ _ hne).1 (by rw [hh]; exact u.1.2))
-    · obtain ⟨⟨v1, hv1⟩, j1⟩ := v
+    · exact hsK b ((hA _ _ hne).1 (by rw [hh]; exact hec _))
+    · exact hsK' b ((hA' _ _ hne).1 (by rw [hh']; exact hec' _))
+    · obtain ⟨v1, j1⟩ := v
       obtain ⟨⟨w1, hw1⟩, i1⟩ := w
-      show liftRect N Q' (h (⟨v1, hv1⟩, j1)) (g' (⟨w1, hw1⟩, i1)) =
-        liftRect N Q (h (⟨v1, hv1⟩, j1)) (g (⟨w1, hw1⟩, i1))
-      simp only [hh, hg, hg', hf, hf', liftRect]
+      show liftRect N Q' (h' (v1, j1)) (g' (⟨w1, hw1⟩, i1)) =
+        liftRect N Q (h (v1, j1)) (g (⟨w1, hw1⟩, i1))
+      simp only [hh, hh', hg, hg', hf, hf', liftRect]
       split_ifs
-      · exact hQQ v1 w1 hw1.2 ((hTΩ _ hw1.1).1 hw1.2) hv1 hw1.1
+      · exact hQQ v1 w1 hw1.2 ((hTΩ _ hw1.1).1 hw1.2) hw1.1
       · rfl
   -- `A Q (liftOp Ĝ - Π)`
-  have cAQT : ∀ (u : {v : κι // cκ v} × Fin N)
+  have cAQT : ∀ (u : UK × Fin N)
       (w : {z : CTorus d L N₁ m₁ (k + 1) // z ∈ T ∧ z ∈ H.Ω 1} × Fin N),
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') * liftRect N Q' *
-        (liftOp N (Gsx C' H' a aT x ν α' s') - decPi C' H' a aT x ν α' s' φ')) (h u) (g' w) =
+        (liftOp N (Gsx C' H' a aT x ν α' s') - decPi C' H' a aT x ν α' s' φ')) (h' u) (g' w) =
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q *
         (liftOp N (Gsx C H a aT x ν α s) - decPi C H a aT x ν α s φ)) (h u) (g w) := by
     intro u w
-    refine mul_block_corr h h g g' g g' hgi hgi' _ _ _ _ (fun u b hne => ?_)
+    refine mul_block_corr h h' g g' g g' hgi hgi' _ _ _ _ (fun u b hne => ?_)
       (fun u b hne => ?_) (fun u v => cAQ u v) (fun v w => ?_) u w
-    · exact hsN b ((hAQ _ _ hne).1 (by rw [hh]; exact u.1.2))
-    · exact hsN' b ((hAQ' _ _ hne).1 (by rw [hh]; exact u.1.2))
+    · exact hsN b ((hAQ _ _ hne).1 (by rw [hh]; exact hec _))
+    · exact hsN' b ((hAQ' _ _ hne).1 (by rw [hh']; exact hec' _))
     · obtain ⟨⟨v1, hv1⟩, j1⟩ := v
       obtain ⟨⟨w1, hw1⟩, i1⟩ := w
       show (liftOp N (Gsx C' H' a aT x ν α' s') - decPi C' H' a aT x ν α' s' φ')
@@ -1128,44 +1140,69 @@ theorem decCov_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
         decPi_apply_cross S S' hF hF' hαA hαB hx hlay hU hU' hdich hdich' hin hin' hα hφ hH hH'
           hM hM' hv1.2 ((hTΩ _ hv1.1).1 hv1.2) hw1.2 ((hTΩ _ hw1.1).1 hw1.2) hv1.1 hw1.1]
   -- `A Q (liftOp Ĝ - Π) Q*`
-  have cAQTQ : ∀ (u w : {v : κι // cκ v} × Fin N),
+  have cAQTQ : ∀ (u w : UK × Fin N),
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') * liftRect N Q' *
         (liftOp N (Gsx C' H' a aT x ν α' s') - decPi C' H' a aT x ν α' s' φ') *
-          (liftRect N Q')ᵀ) (h u) (h w) =
+          (liftRect N Q')ᵀ) (h' u) (h' w) =
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q *
         (liftOp N (Gsx C H a aT x ν α s) - decPi C H a aT x ν α s φ) *
           (liftRect N Q)ᵀ) (h u) (h w) := by
     intro u w
-    refine mul_block_corr h h g g' h h hgi hgi' _ _ _ _ (fun u b hne => ?_)
+    refine mul_block_corr h h' g g' h h' hgi hgi' _ _ _ _ (fun u b hne => ?_)
       (fun u b hne => ?_) (fun u v => cAQT u v) (fun v w => ?_) u w
-    · exact hsN b ((hAQT _ _ hne).1 (by rw [hh]; exact u.1.2))
-    · exact hsN' b ((hAQT' _ _ hne).1 (by rw [hh]; exact u.1.2))
+    · exact hsN b ((hAQT _ _ hne).1 (by rw [hh]; exact hec _))
+    · exact hsN' b ((hAQT' _ _ hne).1 (by rw [hh']; exact hec' _))
     · obtain ⟨⟨v1, hv1⟩, j1⟩ := v
-      obtain ⟨⟨w1, hw1⟩, i1⟩ := w
-      show (liftRect N Q')ᵀ (g' (⟨v1, hv1⟩, j1)) (h (⟨w1, hw1⟩, i1)) =
-        (liftRect N Q)ᵀ (g (⟨v1, hv1⟩, j1)) (h (⟨w1, hw1⟩, i1))
-      simp only [Matrix.transpose_apply, hh, hg, hg', hf, hf', liftRect]
+      obtain ⟨w1, i1⟩ := w
+      show (liftRect N Q')ᵀ (g' (⟨v1, hv1⟩, j1)) (h' (w1, i1)) =
+        (liftRect N Q)ᵀ (g (⟨v1, hv1⟩, j1)) (h (w1, i1))
+      simp only [Matrix.transpose_apply, hh, hh', hg, hg', hf, hf', liftRect]
       split_ifs
-      · exact hQQ w1 v1 hv1.2 ((hTΩ _ hv1.1).1 hv1.2) hw1 hv1.1
+      · exact hQQ w1 v1 hv1.2 ((hTΩ _ hv1.1).1 hv1.2) hv1.1
       · rfl
   -- the whole product
-  have cAll : ∀ (u w : {v : κι // cκ v} × Fin N),
+  have cAll : ∀ (u w : UK × Fin N),
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P') * liftRect N Q' *
         (liftOp N (Gsx C' H' a aT x ν α' s') - decPi C' H' a aT x ν α' s' φ') *
-          (liftRect N Q')ᵀ * covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P')) (h u) (h w) =
+          (liftRect N Q')ᵀ * covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P')) (h' u) (h' w) =
       (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P) * liftRect N Q *
         (liftOp N (Gsx C H a aT x ν α s) - decPi C H a aT x ν α s φ) *
           (liftRect N Q)ᵀ * covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) (h u) (h w) := by
     intro u w
-    refine mul_block_corr h h h h h h hhi hhi _ _ _ _ (fun u b hne => ?_)
+    refine mul_block_corr h h' h h' h h' hhi hhi' _ _ _ _ (fun u b hne => ?_)
       (fun u b hne => ?_) (fun u v => cAQTQ u v) (fun v w => cA v w) u w
-    · exact hsK b ((hAQTQ _ _ hne).1 (by rw [hh]; exact u.1.2))
-    · exact hsK b ((hAQTQ' _ _ hne).1 (by rw [hh]; exact u.1.2))
-  have e1 := cA (⟨κ, hκ⟩, i) (⟨κ', hκ'⟩, j)
-  have e2 := cAll (⟨κ, hκ⟩, i) (⟨κ', hκ'⟩, j)
-  simp only [hh] at e1 e2
+    · exact hsK b ((hAQTQ _ _ hne).1 (by rw [hh]; exact hec _))
+    · exact hsK' b ((hAQTQ' _ _ hne).1 (by rw [hh']; exact hec' _))
+  have e1 := cA (v, i) (w, j)
+  have e2 := cAll (v, i) (w, j)
+  simp only [hh, hh'] at e1 e2
   unfold decCov
   rw [Matrix.add_apply, Matrix.add_apply, Matrix.smul_apply, Matrix.smul_apply, e1, e2]
+
+/-- **The entries of the decoupled covariance `C_x(s)` of two pairs agree** on a component `T`,
+with a common coarse index set `κι`: with `Q`, `Q'`, `P`, `P'` block diagonal for a splitting `cκ`
+of `κι` (rows of `Q` with `cκ κ` read exactly the sites of `T`) and agreeing there, the entries of
+`C_x(s)` at two coarse indices with `cκ` agree. -/
+theorem decCov_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
+    (hM : IsUnit (decM C H a aT x ν α s φ)) (hM' : IsUnit (decM C' H' a aT x ν α' s' φ'))
+    (cκ : κι → Prop) (Q : Matrix κι (H.Ω 1) ℂ) (Q' : Matrix κι (H'.Ω 1) ℂ)
+    (P P' : Matrix κι κι ℂ)
+    (hQ : BD cκ (fun y : H.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q)
+    (hQ' : BD cκ (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q')
+    (hP : BD cκ cκ P) (hP' : BD cκ cκ P')
+    (hQQ : ∀ (κ : κι) (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1),
+      cκ κ → y ∈ T → Q' κ ⟨y, hy'⟩ = Q κ ⟨y, hy⟩)
+    (hPP : ∀ κ κ' : κι, cκ κ → cκ κ' → P' κ κ' = P κ κ')
+    {κ κ' : κι} (hκ : cκ κ) (hκ' : cκ κ') (i j : Fin N) :
+    decCov C' H' a aT x ν α' s' φ' Q' P' (κ, i) (κ', j) =
+      decCov C H a aT x ν α s φ Q P (κ, i) (κ', j) := by
+  classical
+  exact decCov_block_cross S S' hF hF' hαA hαB hx hlay hU hU' hdich hdich' hin hin' hα hφ hH hH' hM hM'
+    cκ cκ Q Q' P P' (UK := {v : κι // cκ v}) (fun v => v.1) (fun v => v.1)
+    (fun u v e₀ => Subtype.ext e₀) (fun u v e₀ => Subtype.ext e₀) (fun κ hκ => ⟨⟨κ, hκ⟩, rfl⟩)
+    (fun κ hκ => ⟨⟨κ, hκ⟩, rfl⟩) (fun v => v.2) (fun v => v.2) hQ hQ' hP hP'
+    (fun v y hy hy' hyT => hQQ v.1 y hy hy' v.2 hyT) (fun v w => hPP v.1 w.1 v.2 w.2)
+    ⟨κ, hκ⟩ ⟨κ', hκ'⟩ i j
 
 end CovCross
 
@@ -1173,10 +1210,64 @@ section SqrtCross
 
 variable {N : ℕ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
 
-/-- **The entries of the square root `C^{1/2}(s)` of two pairs agree** on a component `T`: if the
-hypotheses of `decCov_apply_cross` hold for every `x > 0`, the entries of
-`C^{1/2}(s) = π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) dx` at two coarse indices with `cκ` agree (the integrands
+/-- **The entries of the square root `C^{1/2}(s)` of two pairs agree** on a component `T` (general
+form, two coarse index sets matched by a common block `UK`): if the hypotheses of
+`decCov_block_cross` hold for every `x > 0`, the entries of
+`C^{1/2}(s) = π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) dx` at the matched coarse indices agree (the integrands
 agree pointwise on `(0, ∞)`; no integrability is needed). -/
+theorem decCovSqrt_block_cross {κι κι' UK : Type*} [Fintype κι] [DecidableEq κι] [Fintype κι']
+    [DecidableEq κι'] [Fintype UK]
+    (S : XCover C H a aT ν Cx) (S' : XCover C' H' a aT ν Cx')
+    (hF : FootLocalGeom C) (hF' : FootLocalGeom C')
+    (hαA : AdmPot H α) (hαB : AdmPot H' α')
+    (hlay : ∀ y ∈ T, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx C H a aT x ν α s))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx C' H' a aT x ν α' s'))
+    (hdich : ∀ q ∈ C.cubeIdx, C.sProd s q ≠ 0 → SubI H (intBox q) T ∨ DisjI H (intBox q) T)
+    (hdich' : ∀ q ∈ C'.cubeIdx, C'.sProd s' q ≠ 0 →
+      SubI H' (intBox q) T ∨ DisjI H' (intBox q) T)
+    (hin : ∀ q ∈ innerCentres C H T, C.sProd s q ≠ 0 →
+      q ∈ innerCentres C' H' T ∧ C'.sProd s' q = C.sProd s q ∧
+      (∀ x₀ ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x₀ ∨ ∃ μ : Fin d, y = x₀ + Pi.single μ 1 ∨ y = x₀ - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x₀ ∈ intBox q, C.chi q x₀ = C'.chi q x₀))
+    (hin' : ∀ q ∈ innerCentres C' H' T, C'.sProd s' q ≠ 0 →
+      q ∈ innerCentres C H T ∧ C.sProd s q ≠ 0)
+    (hα : ∀ (x₀ : CTorus d L N₁ m₁ (k + 1)) (hx : x₀ ∈ H.Ω 1) (hx' : x₀ ∈ H'.Ω 1), x₀ ∈ T →
+      α ⟨x₀, hx⟩ = α' ⟨x₀, hx'⟩)
+    (hφ : ∀ y ∈ T, φ' y = φ y)
+    (hH : ∀ x : ℝ, 0 < x → HRespects C H a aT x ν α s T)
+    (hH' : ∀ x : ℝ, 0 < x → HRespects C' H' a aT x ν α' s' T)
+    (hM : ∀ x : ℝ, 0 < x → IsUnit (decM C H a aT x ν α s φ))
+    (hM' : ∀ x : ℝ, 0 < x → IsUnit (decM C' H' a aT x ν α' s' φ'))
+    (cκ : κι → Prop) (cκ' : κι' → Prop) (Q : Matrix κι (H.Ω 1) ℂ) (Q' : Matrix κι' (H'.Ω 1) ℂ)
+    (P : Matrix κι κι ℂ) (P' : Matrix κι' κι' ℂ) (e : UK → κι) (e' : UK → κι')
+    (hei : Function.Injective e) (hei' : Function.Injective e')
+    (hes : ∀ κ, cκ κ → ∃ v, e v = κ) (hes' : ∀ κ, cκ' κ → ∃ v, e' v = κ)
+    (hec : ∀ v, cκ (e v)) (hec' : ∀ v, cκ' (e' v))
+    (hQ : BD cκ (fun y : H.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q)
+    (hQ' : BD cκ' (fun y : H'.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ T) Q')
+    (hP : BD cκ cκ P) (hP' : BD cκ' cκ' P')
+    (hQQ : ∀ (v : UK) (y : CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1),
+      y ∈ T → Q' (e' v) ⟨y, hy'⟩ = Q (e v) ⟨y, hy⟩)
+    (hPP : ∀ v w : UK, P' (e' v) (e' w) = P (e v) (e w)) (v w : UK) (i j : Fin N) :
+    decCovSqrt C' H' a aT ν α' s' φ' Q' P' (e' v, i) (e' w, j) =
+      decCovSqrt C H a aT ν α s φ Q P (e v, i) (e w, j) := by
+  unfold decCovSqrt
+  rw [Matrix.smul_apply, Matrix.smul_apply, smul_eq_mul, smul_eq_mul]
+  congr 1
+  unfold intMat
+  refine MeasureTheory.setIntegral_congr_fun
+    (measurableSet_Ioi : MeasurableSet (Set.Ioi (0 : ℝ))) (fun y hy => ?_)
+  unfold decSqrtInt
+  simp only [Matrix.smul_apply, smul_eq_mul]
+  rw [decCov_block_cross (x := y) S S' hF hF' hαA hαB (le_of_lt hy) hlay (hU y hy) (hU' y hy)
+    hdich hdich' hin hin' hα hφ (hH y hy) (hH' y hy) (hM y hy) (hM' y hy) cκ cκ' Q Q' P P' e e'
+    hei hei' hes hes' hec hec' hQ hQ' hP hP' hQQ hPP v w i j]
+
+/-- **The entries of the square root `C^{1/2}(s)` of two pairs agree** on a component `T`, with a
+common coarse index set `κι` (see `decCovSqrt_block_cross`). -/
 theorem decCovSqrt_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
     (S : XCover C H a aT ν Cx) (S' : XCover C' H' a aT ν Cx')
     (hF : FootLocalGeom C) (hF' : FootLocalGeom C')
@@ -1213,16 +1304,13 @@ theorem decCovSqrt_apply_cross {κι : Type*} [Fintype κι] [DecidableEq κι]
     {κ κ' : κι} (hκ : cκ κ) (hκ' : cκ κ') (i j : Fin N) :
     decCovSqrt C' H' a aT ν α' s' φ' Q' P' (κ, i) (κ', j) =
       decCovSqrt C H a aT ν α s φ Q P (κ, i) (κ', j) := by
-  unfold decCovSqrt
-  rw [Matrix.smul_apply, Matrix.smul_apply, smul_eq_mul, smul_eq_mul]
-  congr 1
-  unfold intMat
-  refine MeasureTheory.setIntegral_congr_fun (measurableSet_Ioi : MeasurableSet (Set.Ioi (0 : ℝ))) (fun y hy => ?_)
-  unfold decSqrtInt
-  simp only [Matrix.smul_apply, smul_eq_mul]
-  rw [decCov_apply_cross (x := y) S S' hF hF' hαA hαB (le_of_lt hy) hlay (hU y hy) (hU' y hy)
-    hdich hdich' hin hin' hα hφ (hH y hy) (hH' y hy) (hM y hy) (hM' y hy) cκ Q Q' P P' hQ hQ' hP
-    hP' hQQ hPP hκ hκ' i j]
+  classical
+  exact decCovSqrt_block_cross S S' hF hF' hαA hαB hlay hU hU' hdich hdich' hin hin' hα hφ hH hH'
+    hM hM' cκ cκ Q Q' P P' (UK := {v : κι // cκ v}) (fun v => v.1) (fun v => v.1)
+    (fun u v e₀ => Subtype.ext e₀) (fun u v e₀ => Subtype.ext e₀) (fun κ hκ => ⟨⟨κ, hκ⟩, rfl⟩)
+    (fun κ hκ => ⟨⟨κ, hκ⟩, rfl⟩) (fun v => v.2) (fun v => v.2) hQ hQ' hP hP'
+    (fun v y hy hy' hyT => hQQ v.1 y hy hy' v.2 hyT) (fun v w => hPP v.1 w.1 v.2 w.2)
+    ⟨κ, hκ⟩ ⟨κ', hκ'⟩ i j
 
 end SqrtCross
 
