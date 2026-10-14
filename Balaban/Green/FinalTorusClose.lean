@@ -8,6 +8,7 @@ module
 public import Balaban.Green.FinalBoxResolvent
 public import Balaban.Green.LimitCauchy
 public import Balaban.Polymer.TwoTorusFinal
+public import Balaban.Green.FinalMassSqrt
 
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -39,7 +40,7 @@ sites of a centred cube `{|u_μ| ≤ R}` of `ℤ^d` are lifted to both tori by t
 
 @[expose] public section
 
-open Finset Matrix
+open Finset Matrix MeasureTheory Set
 
 namespace Balaban.Green
 
@@ -963,5 +964,84 @@ theorem finalResolvent_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
 
 end Assembly
 
+
+section Sqrt
+
+variable {d L k : ℕ} [NeZero L]
+
+/-- **Closeness of the inverse square root of the final operator on two tori.**  The Stieltjes
+integral of `finalResolvent_twoTorus_close`, whose bound carries the factor `(finalGap + t)⁻¹`:
+`π⁻¹ ∫₀^∞ t^{-1/2} (finalGap + t)⁻¹ dt = (finalGap)^{-1/2}`. -/
+theorem finalSqrt_twoTorus_close (hd : 0 < d) (hk : 1 ≤ k) :
+    ∃ C c : ℝ, 0 < C ∧ 0 < c ∧ ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 →
+      7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v → ∀ {m m' : ℕ} [NeZero m] [NeZero m'] {R : ℕ},
+      2 * R < m → 2 * R < m' → ∀ {u w : Fin d → ℤ}, u ∈ sqBox d R → w ∈ sqBox d R →
+      ‖Localization.sqrtMat (finalOp d L m k v a) (castL1 m u) (castL1 m w) -
+          Localization.sqrtMat (finalOp d L m' k v a) (castL1 m' u) (castL1 m' w)‖ ≤
+        C * Real.exp (-c * (((min m m' : ℕ) : ℝ) / 2 - R)) / Real.sqrt (finalGap d L) := by
+  obtain ⟨C, c, hC, hc, hmain⟩ := finalResolvent_twoTorus_close (d := d) (L := L) (k := k) hd hk
+  refine ⟨C, c, hC, hc, ?_⟩
+  intro v a hv0 hv1 ha1 ha2 hmass m m' _ _ R hm hm' u w hu hw
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have : Nonempty (L1Torus d m) := ⟨(0 : Torus d m)⟩
+  have : Nonempty (L1Torus d m') := ⟨(0 : Torus d m')⟩
+  have hA := finalMass_resOK (L := L) (N₀ := m) (k := k) hd hk hv0 hv1 ha1 ha2 hmass
+  have hA' := finalMass_resOK (L := L) (N₀ := m') (k := k) hd hk hv0 hv1 ha1 ha2 hmass
+  set Bd : ℝ := C * Real.exp (-c * (((min m m' : ℕ) : ℝ) / 2 - R)) with hBd
+  have hBd0 : 0 ≤ Bd := by positivity
+  set μ : Measure ℝ := volume.restrict (Ioi (0 : ℝ)) with hμ
+  have e1 := Localization.integrable_sqrt_entry hA (castL1 m u) (castL1 m w)
+  have e2 := Localization.integrable_sqrt_entry hA' (castL1 m' u) (castL1 m' w)
+  have hdiff : Localization.sqrtMat (finalOp d L m k v a) (castL1 m u) (castL1 m w) -
+      Localization.sqrtMat (finalOp d L m' k v a) (castL1 m' u) (castL1 m' w) =
+      ((1 / Real.pi : ℝ) : ℂ) * ∫ y, (((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ) + finalOp d L m k v a)⁻¹
+            (castL1 m u) (castL1 m w) -
+        ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ) + finalOp d L m' k v a)⁻¹
+            (castL1 m' u) (castL1 m' w)) ∂μ := by
+    rw [integral_sub e1 e2]
+    simp only [Localization.sqrtMat, Localization.intMat, Matrix.smul_apply, smul_eq_mul]
+    ring
+  rw [hdiff]
+  have hint : Integrable (fun s : ℝ => Bd * (s ^ (-(1 / 2 : ℝ)) * (finalGap d L + s)⁻¹)) μ :=
+    (Localization.integrableOn_rpow_inv_add hg).const_mul Bd
+  have hbound := norm_integral_le_of_norm_le
+    (f := fun y : ℝ => (((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ) + finalOp d L m k v a)⁻¹
+            (castL1 m u) (castL1 m w) -
+        ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ) + finalOp d L m' k v a)⁻¹
+            (castL1 m' u) (castL1 m' w)))
+    hint
+    ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun s hs => by
+      have hs0 : 0 < s := mem_Ioi.mp hs
+      have h3 : 0 < s ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hs0 _
+      have hres := hmain hv0 hv1 ha1 ha2 hmass hm hm' hs0.le hu hw
+      rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+      rw [add_comm ((s : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ)),
+        add_comm ((s : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))]
+      calc s ^ (-(1 / 2 : ℝ)) * ‖(finalOp d L m k v a + (s : ℂ) • (1 : Matrix (L1Torus d m)
+            (L1Torus d m) ℂ))⁻¹ (castL1 m u) (castL1 m w) - (finalOp d L m' k v a + (s : ℂ) •
+              (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ))⁻¹ (castL1 m' u) (castL1 m' w)‖
+          ≤ s ^ (-(1 / 2 : ℝ)) * (Bd * (finalGap d L + s)⁻¹) :=
+            mul_le_mul_of_nonneg_left hres h3.le
+        _ = _ := by ring))
+  rw [integral_const_mul, Localization.integral_rpow_inv_add hg] at hbound
+  have hpi : 0 < Real.pi := Real.pi_pos
+  have hsq : 0 < Real.sqrt (finalGap d L) := Real.sqrt_pos.2 hg
+  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+  calc 1 / Real.pi * ‖∫ y, (((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m) (L1Torus d m) ℂ) + finalOp d L m k v a)⁻¹
+            (castL1 m u) (castL1 m w) -
+        ((y ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((y : ℂ) • (1 : Matrix (L1Torus d m') (L1Torus d m') ℂ) + finalOp d L m' k v a)⁻¹
+            (castL1 m' u) (castL1 m' w)) ∂μ‖
+      ≤ 1 / Real.pi * (Bd * (Real.pi / Real.sqrt (finalGap d L))) := by gcongr
+    _ = Bd / Real.sqrt (finalGap d L) := by field_simp
+    _ = _ := by rw [hBd]
+
+end Sqrt
 
 end Balaban.Green
