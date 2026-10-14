@@ -234,6 +234,68 @@ theorem eterm_fan_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps
 with one locality clause, for raw data agreeing on `Y` itself and hat variables agreeing at the unit
 points of `Y`.  Obtained from `i5_functional_hatLC_rawY_of_fan` and `eterm_fan_local_rawY`; the thick
 statement `eterm_expansion_hat_dir` is its corollary and returns the same `Ev`. -/
+theorem eterm_expansion_hat_rawY_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb) {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    (hEan : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖E r‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X)) :
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+        RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+      (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF E (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+        Ev Y u = Ev Y u') ∧
+      (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  classical
+  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
+  have hC := flCore_of hB hF
+  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα
+    hsm hδ₁ hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb
+    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
+    (eTermFun_analytic_of_one_le hb₁ hbC hB hF hFkan hFk hEan)
+    (fun t ht => eTermFun_bound_of_one_le hb₁ hbC hB hF hFk hEbd ht)
+    (fun {F₁} hF₁ {Sol} hSol => eterm_fan_local_rawY hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
+      hX₁ hconn hrow hF₁ hSol Fk E)
+  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', h3', h4'⟩
+  rw [← h1' D hD ψh hψh]
+  exact (eTermFun_value hB hF hFk E hD
+    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
+
+/-- **An old term expands over the domains `Y ⊃ X₁`, exact locality**: `eterm_expansion_hat_dir`
+with one locality clause, for raw data agreeing on `Y` itself and hat variables agreeing at the unit
+points of `Y`.  Obtained from `i5_functional_hatLC_rawY_of_fan` and `eterm_fan_local_rawY`; the thick
+statement `eterm_expansion_hat_dir` is its corollary and returns the same `Ev`. -/
 theorem eterm_expansion_hat_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
     (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -275,21 +337,8 @@ theorem eterm_expansion_hat_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀
           {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
         ‖Ev Y u‖ ≤ Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
       (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  classical
-  obtain ⟨Fk, hFkan, hFk⟩ := theorem72_analytic (G := Gk) (a := compWeight L a₁) (ν := ν) hB.HBk
-  have hC := flCore_of hB hF
-  obtain ⟨Ev, h1', h2', h3', h4'⟩ := i5_functional_hatLC_rawY_of_fan hC hk hG hG' cc hcψ hMX hdm hα
-    hsm hδ₁ hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb
-    (Φ := eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E)
-    (eTermFun_analytic hB hF hFkan hFk hEan)
-    (fun t ht => eTermFun_bound hB hF hFk hEbd ht)
-    (fun {F₁} hF₁ {Sol} hSol => eterm_fan_local_rawY hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov
-      hX₁ hconn hrow hF₁ hSol Fk E)
-  refine ⟨Ev, fun D hD ψh hψh => ?_, h2', h3', h4'⟩
-  rw [← h1' D hD ψh hψh]
-  exact (eTermFun_value hB hF hFk E hD
-    (hatLift_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hD hψh)).symm
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
+  eterm_expansion_hat_rawY_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEb hEan hEbd
 
 /-- **An old term expands over the domains `Y ⊃ X₁`, with terms local in `ψ̂` at the unit points
 of `Y` only** (sharp form of `eterm_expansion_hat`; the landed `AgHat` clause is also returned). -/
