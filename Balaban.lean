@@ -1774,6 +1774,7 @@ public import Balaban.Green.FinalTagColumn
 public import Balaban.Green.FinalTagColumnSqrt
 public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalLocalityAE
+public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalTagSupport
 public import Balaban.Fluctuation.MarkIntTermAnalytic
 public import Balaban.Fluctuation.DecMarkCorrSum
