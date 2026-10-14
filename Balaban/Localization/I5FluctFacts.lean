@@ -133,6 +133,153 @@ structure FlSetting (N : ℕ) (Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
   depm : ∀ x ∈ dataSites Gk, ∀ y ∈ composeDep Gk Hm x, y ∈ X₁f
   num : FlNum d L N BG BG₂ κ eps δ₃ δ₁ δfl
 
+/-- **The point facts of Lemma DL with the fluctuation, with a composition constant
+`1 ≤ b ≤ C₀`**: the composed datum of `𝔹_k(X)` lies in `Ξ^c_K(𝔹_k(X); 1, ε₃)` and its composition
+with `𝔹_j(X)` in `Ξ^c_j(𝔹_j(X); b, ε₃)`, `ε₃ = b² ε' + K₂' δ₃ + K₂' δfl`.  At `b = 1` (P3 (4.29),
+(4.37)): `Ξ^c_j(𝔹_j(X); 1, ε' + K₂' δ₃ + K₂' δfl)`. -/
+theorem point_facts_fl_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Fk : RawData d L (N₁ * L ^ m₁) K N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f →
+      s ⟨P, hP⟩ = 1)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
+    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ∀ x ∈ dataSites Hm, vn (ψ' x) < δ₁)
+    (hψc : IsLayerConstant Hm ψ') :
+    ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (δφ : Hm.Ω 1 × Fin N → ℂ),
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧ F₁ (s, rawOf D) = (φ, α) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
+        (flEdat Gp Hm (φ, α) D.Ψ ψ') ∧
+      (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ ∧
+      XiCData Gk (compWeight L a₁) ν K 1
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+        (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) ∧
+      D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol s (rawOf D, ψ') =
+        rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) ∧
+      D2raw Gk Gj (compWeight L a₁) Fk
+          (rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) =
+        rawOf (composeData hB.hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) ∧
+      XiCData Gj (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+        (composeData hB.hq (compWeight L a₁)
+          (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+            (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc))
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) := by
+  classical
+  have hd0 : 0 < d := by have := hB.HBp.hd; omega
+  have hκ0 := hB.hκ.le
+  have hE1 : 1 ≤ Real.exp κ := Real.one_le_exp hκ0
+  have hc1 := one_le_xiC1 d
+  have hε := hB.num.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hB.num.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hB.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC hB.HBp hδ0 hδ0' hδ1 hDom
+  have hsle : ∀ P, ‖s P‖ ≤ Real.exp κ := fun P => (hs P).le
+  -- the old facts
+  obtain ⟨φ, α, hI, hFeq, hst, hD1, -, -⟩ := point_facts_of_one_le hb₁ hbC hB hF₁ hFk hs hs1 hD
+  obtain ⟨φ', α', hI', hu', -, -, hbb⟩ := i4b_exists_unique hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM
+    hsle hδ0 le_rfl hδ0' hδ1 hνε hDom
+  obtain ⟨rfl, rfl⟩ := hu' φ α hI
+  -- the strict inequalities of the fluctuation data
+  have hK4 : 0 < K4 d L N BG κ := K4_pos hB.hS.fam.2.1 hd0
+  have hB4 : 0 < K4 d L N BG κ * (xiC1 d * eps) := mul_pos hK4 hδ0
+  have hphi : ∀ x : Gp.Ω 1, vn (fun i => φ (x, i)) < 3 / 2 := by
+    intro x
+    have hxd : (x : CTorus d L N₁ m₁ K) ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl x.2)
+    have h1 := vn_Psi_lt hδ0.le hDom hxd
+    have h2 := vn_le_sub_add (fun i => φ (x, i)) (D.Ψ x)
+    have h3 := hbb.val x
+    have h4 := hF.num.phi_lt
+    nlinarith
+  set e := flEdat Gp Hm (φ, α) D.Ψ ψ' with he
+  have hstrict : StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ e :=
+    flEdat_strict hF.hPmp hbb hB4 hphi hF.num.δ₁_pos hψ
+  obtain ⟨hfld, hfix, hs6, hsK, hdp, huniq⟩ := hSol (s, e) hs hstrict
+  set δφ := (Sol (s, e)).1 with hδφ
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hF.hS2.fam.2.1 κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hF.num.δ₁_pos.le
+  have hδΨ : ∀ x ∈ dataSites Gk,
+      vn (fun i => composeField Gk Hm (compWeight L a₁) δφ ψ' x i) ≤ δfl := fun x _ =>
+    (flPsi_bound hF.hPm (by have := hB.HBp.hL; omega) hB.ha₁ hV hF.num.δ₁_pos.le hdp.val
+      (fun y hy => (hψ y hy).le) x).trans hF.num.flb
+  -- the numerical conditions at `b² ε' + K₂' δ₃ (+ K₂' δfl)`, from those at `C₀² ε'`
+  have hb2 : b ^ 2 * eps ≤ scaledC0 d ^ 2 * eps :=
+    mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by linarith) hbC 2) hε.le
+  have hbb : b ^ 2 * eps + xiK2 d L N * δ₃ ≤ scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ := by
+    linarith
+  have hbb' : xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃) ≤
+      xiC1 d * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃) :=
+    mul_le_mul_of_nonneg_left hbb (by linarith)
+  have hK1 := (bgK1_pos (d := d) (L := L) (N := N)).le
+  have hsmall₂ : (4 * d + 6) * ((2 * d + 1) * (b ^ 2 * eps + xiK2 d L N * δ₃)) ≤ 1 :=
+    le_trans (by gcongr) hB.num.small₂
+  have hc1f : xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃) + 5 * δfl ≤ bgC1 d L N := by
+    linarith [hF.num.c1_f]
+  have hK1sf : bgK1 d L N * (xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃)) ≤ deltaStar d L N :=
+    le_trans (mul_le_mul_of_nonneg_left hbb' hK1) hF.num.K1s_f
+  have hsmf : bgK1 d L N * (xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃)) + cK2 d L N * δfl <
+      bgC0 d L N := by
+    have := mul_le_mul_of_nonneg_left hbb' hK1
+    linarith [hF.num.sm_f]
+  have hX3 : XiCData Gk (compWeight L a₁) ν K 1
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) :=
+    xiCData_perturb hB.HBk hF.num.δfl_nn hF.num.δfl_le_one hsmall₂ hc1f
+      hF.num.star_f hK1sf hsmf (flPsi_layerConst hF.hPm _ δφ hψc) hδΨ hst
+  have hrawD : D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol s (rawOf D, ψ') =
+      rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) := by
+    refine Prod.ext (funext fun x => funext fun i => ?_) rfl
+    show composeField Gk Gp (compWeight L a₁) (F₁ (s, rawOf D)).1 D.Ψ x i +
+      composeField Gk Hm (compWeight L a₁) (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1
+        ψ' x i = _
+    rw [hFeq]
+    exact (flDatum_Ψ hB.hP hF.hPm _ φ δφ D ψ' hψc x i).symm
+  have hUk := xiCData_unionC hX3
+  have hFk' := hFk _ hUk
+  refine ⟨φ, α, δφ, hI, hFeq, hstrict, rfl, hX3, hrawD, ?_, ?_⟩
+  · rw [D2raw_rawOf, hFk']
+  · have hbbb : b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl ≤
+        scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl := by linarith
+    have hsmall₃ : (4 * d + 6) * ((2 * d + 1) *
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) ≤ 1 :=
+      le_trans (by gcongr) hF.num.small₃
+    have hth₃ : xiC1 d * (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ≤ thm73C1 d L N :=
+      le_trans (mul_le_mul_of_nonneg_left hbbb (by linarith)) hF.num.th₃
+    exact i5_stage2_of_one_le hb₁ hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hsmall₃ hth₃ hB.hj hX3
+
 /-- **The point facts of Lemma DL with the fluctuation.** -/
 theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
@@ -184,70 +331,8 @@ theorem point_facts_fl (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃
         (composeData hB.hq (compWeight L a₁)
           (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
             (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc))
-          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) := by
-  classical
-  have hd0 : 0 < d := by have := hB.HBp.hd; omega
-  have hκ0 := hB.hκ.le
-  have hE1 : 1 ≤ Real.exp κ := Real.one_le_exp hκ0
-  have hc1 := one_le_xiC1 d
-  have hε := hB.num.eps_pos
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hDom := xiCData_inDomainC hB.HBp hB.num.small1 hD
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hB.num.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := hB.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC hB.HBp hδ0 hδ0' hδ1 hDom
-  have hsle : ∀ P, ‖s P‖ ≤ Real.exp κ := fun P => (hs P).le
-  -- the old facts
-  obtain ⟨φ, α, hI, hFeq, hst, hD1, -, -⟩ := point_facts hB hF₁ hFk hs hs1 hD
-  obtain ⟨φ', α', hI', hu', -, -, hbb⟩ := i4b_exists_unique hB.hS hB.Sp hB.HBp hB.hκ.le hB.hM
-    hsle hδ0 le_rfl hδ0' hδ1 hνε hDom
-  obtain ⟨rfl, rfl⟩ := hu' φ α hI
-  -- the strict inequalities of the fluctuation data
-  have hK4 : 0 < K4 d L N BG κ := K4_pos hB.hS.fam.2.1 hd0
-  have hB4 : 0 < K4 d L N BG κ * (xiC1 d * eps) := mul_pos hK4 hδ0
-  have hphi : ∀ x : Gp.Ω 1, vn (fun i => φ (x, i)) < 3 / 2 := by
-    intro x
-    have hxd : (x : CTorus d L N₁ m₁ K) ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl x.2)
-    have h1 := vn_Psi_lt hδ0.le hDom hxd
-    have h2 := vn_le_sub_add (fun i => φ (x, i)) (D.Ψ x)
-    have h3 := hbb.val x
-    have h4 := hF.num.phi_lt
-    nlinarith
-  set e := flEdat Gp Hm (φ, α) D.Ψ ψ' with he
-  have hstrict : StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ e :=
-    flEdat_strict hF.hPmp hbb hB4 hphi hF.num.δ₁_pos hψ
-  obtain ⟨hfld, hfix, hs6, hsK, hdp, huniq⟩ := hSol (s, e) hs hstrict
-  set δφ := (Sol (s, e)).1 with hδφ
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hF.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hF.num.δ₁_pos.le
-  have hδΨ : ∀ x ∈ dataSites Gk,
-      vn (fun i => composeField Gk Hm (compWeight L a₁) δφ ψ' x i) ≤ δfl := fun x _ =>
-    (flPsi_bound hF.hPm (by have := hB.HBp.hL; omega) hB.ha₁ hV hF.num.δ₁_pos.le hdp.val
-      (fun y hy => (hψ y hy).le) x).trans hF.num.flb
-  have hX3 : XiCData Gk (compWeight L a₁) ν K 1
-      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
-      (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) :=
-    xiCData_perturb hB.HBk hF.num.δfl_nn hF.num.δfl_le_one hB.num.small₂ hF.num.c1_f
-      hF.num.star_f hF.num.K1s_f hF.num.sm_f (flPsi_layerConst hF.hPm _ δφ hψc) hδΨ hst
-  have hrawD : D1rawFl Gp Gk Hm (compWeight L a₁) F₁ Sol s (rawOf D, ψ') =
-      rawOf (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc) := by
-    refine Prod.ext (funext fun x => funext fun i => ?_) rfl
-    show composeField Gk Gp (compWeight L a₁) (F₁ (s, rawOf D)).1 D.Ψ x i +
-      composeField Gk Hm (compWeight L a₁) (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1
-        ψ' x i = _
-    rw [hFeq]
-    exact (flDatum_Ψ hB.hP hF.hPm _ φ δφ D ψ' hψc x i).symm
-  have hUk := xiCData_unionC hX3
-  have hFk' := hFk _ hUk
-  refine ⟨φ, α, δφ, hI, hFeq, hstrict, rfl, hX3, hrawD, ?_, ?_⟩
-  · rw [D2raw_rawOf, hFk']
-  · exact i5_stage2 hB.ha₁ hB.HBk hB.HBj hB.hq hB.colj hF.num.small₃ hF.num.th₃ hB.hj hX3
+          (flDatum Gk hB.hP hF.hPm (compWeight L a₁) φ δφ D ψ' hψc)) :=
+  point_facts_fl_of_one_le (one_le_scaledC0 d) le_rfl hB hF hF₁ hFk hSol hs hs1 hD hψ hψc
 
 end Facts
 
