@@ -110,6 +110,88 @@ def FlReal : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 
 
 section Facts
 
+/-- **Theorem I-4b at a realizable point, from `FlCore`**: for `|s_P| < e^κ` and a datum of
+`Ξ^c_K(𝔹_{k+1}; 1, ε')` the decoupled background field exists, is unique in its ball, and has the
+bounds `BgBounds` with the constant `K₄ C₁ ε'`.  This is the only use of `DGSetting` in the point
+facts; the cover form is `coverBg_exists`. -/
+theorem flCore_bgBounds (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D) :
+    ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧
+      (∀ φ' α', IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ' α' →
+        φ' = φ ∧ α' = α) ∧
+      BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)) := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hε := hC.eps_pos
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
+  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
+  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
+    (bgC1_le_bgC0 d L N hd0))
+  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  obtain ⟨φ, α, hI, hu, -, -, hbb⟩ := i4b_exists_unique hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
+    (fun P => (hs P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom
+  exact ⟨φ, α, hI, hu, hbb⟩
+
+/-- **The point facts for a functional of the decoupled objects, at a given background field** (the
+common step of `point_facts_core`, one generating set with `DGSetting`, and of its cover form
+`point_facts_core_cover`).  If `(φ, α)` is a decoupled background field of `D` at `s` with the bounds
+of Theorem I-4b, then the fluctuation datum is strict and the triple `((φ, α), δφ, (Θ, ψ'))`, with
+`δφ` returned by `Sol`, lies in `FlReal`.  Neither `DGSetting` nor a cover of `𝔹_{k+1}` enters. -/
+theorem point_facts_core_of_bg (hBG : 0 ≤ BG) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2) (hδ₁ : 0 < δ₁)
+    (hPmp : Precedes Hm Gp)
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ K) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f →
+      s ⟨P, hP⟩ = 1)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν K 1 eps D)
+    {φ : Gp.Ω 1 × Fin N → ℂ} {α : Gp.Ω 1 → ℂ}
+    (hI : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
+    (hbb : BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)))
+    {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hψ : ψ' ∈ FlBall Hm δ₁) :
+    StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
+        (flEdat Gp Hm (φ, α) D.Ψ ψ') ∧
+      ((φ, α), (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1, (rawOf D, ψ')) ∈
+        FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
+  classical
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hDom := xiCData_inDomainC HBp hsmall hD
+  have hK4 : 0 < K4 d L N BG κ := K4_pos hBG hd0
+  have hB4 : 0 < K4 d L N BG κ * (xiC1 d * eps) := mul_pos hK4 hδ0
+  have hphi' : ∀ x : Gp.Ω 1, vn (fun i => φ (x, i)) < 3 / 2 := by
+    intro x
+    have hxd : (x : CTorus d L N₁ m₁ K) ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl x.2)
+    have h1 := vn_Psi_lt hδ0.le hDom hxd
+    have h2 := vn_le_sub_add (fun i => φ (x, i)) (D.Ψ x)
+    have h3 := hbb.val x
+    have h4 := hphi
+    nlinarith
+  have hstrict : StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
+      (flEdat Gp Hm (φ, α) D.Ψ ψ') :=
+    flEdat_strict hPmp hbb hB4 hphi' hδ₁ hψ
+  obtain ⟨hfld, hfix, hs6, hsK, hdp, -⟩ := hSol (s, flEdat Gp Hm (φ, α) D.Ψ ψ') hs hstrict
+  exact ⟨hstrict, s, D, ψ', (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2, hs, hs1, hD, hψ, hI, rfl,
+    hfld, hfix, hs6, hsK, hdp⟩
+
 /-- **The point facts for a functional of the decoupled objects**: the decoupled background and
 fluctuation at a realizable point exist, are given by `F₁` and `Sol`, satisfy the strict
 inequalities, and the triple lies in `FlReal`. -/
@@ -143,41 +225,18 @@ theorem point_facts_core (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG�
         (flEdat Gp Hm (φ, α) D.Ψ ψ') ∧
       Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ') = (δφ, δα) ∧
       ((φ, α), δφ, (rawOf D, ψ')) ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
-  classical
   have hd0 : 0 < d := by have := hC.HBp.hd; omega
   have hc1 := one_le_xiC1 d
   have hε := hC.eps_pos
   have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
-  have hδ1 : xiC1 d * eps ≤ c7 d L N BG κ := hC.c7le
-  have hδ0' : xiC1 d * eps ≤ bgC0 d L N := hδ1.trans ((c7_le_bgC1 d L N BG κ).trans
-    (bgC1_le_bgC0 d L N hd0))
-  have hνε : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
-    have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
   have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC hC.HBp hδ0 hδ0' hδ1 hDom
-  have hsle : ∀ P, ‖s P‖ ≤ Real.exp κ := fun P => (hs P).le
-  obtain ⟨φ, α, hI, hu', -, -, hbb⟩ := i4b_exists_unique hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
-    hsle hδ0 le_rfl hδ0' hδ1 hνε hDom
-  have hFeq : F₁ (s, rawOf D) = (φ, α) := hF₁ s D hs hU φ α hI
-  have hK4 : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
-  have hB4 : 0 < K4 d L N BG κ * (xiC1 d * eps) := mul_pos hK4 hδ0
-  have hphi : ∀ x : Gp.Ω 1, vn (fun i => φ (x, i)) < 3 / 2 := by
-    intro x
-    have hxd : (x : CTorus d L N₁ m₁ K) ∈ dataSites Gp := (mem_dataSites Gp).2 (Or.inl x.2)
-    have h1 := vn_Psi_lt hδ0.le hDom hxd
-    have h2 := vn_le_sub_add (fun i => φ (x, i)) (D.Ψ x)
-    have h3 := hbb.val x
-    have h4 := hC.phi_lt
-    nlinarith
-  have hstrict : StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁
-      (flEdat Gp Hm (φ, α) D.Ψ ψ') :=
-    flEdat_strict hC.hPmp hbb hB4 hphi hC.δ₁_pos hψ
-  obtain ⟨hfld, hfix, hs6, hsK, hdp, -⟩ := hSol (s, flEdat Gp Hm (φ, α) D.Ψ ψ') hs hstrict
-  refine ⟨φ, α, (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1, (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2,
-    hI, hFeq, hstrict, rfl, ?_⟩
-  exact ⟨s, D, ψ', (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).2, hs, hs1, hD, hψ, hI, rfl,
-    hfld, hfix, hs6, hsK, hdp⟩
+    inUnionDomainC_of_inDomainC hC.HBp hδ0
+      (hC.c7le.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hC.c7le
+      (xiCData_inDomainC hC.HBp hC.small1 hD)
+  obtain ⟨φ, α, hI, -, hbb⟩ := flCore_bgBounds hC hs hD
+  obtain ⟨hstrict, hmem⟩ := point_facts_core_of_bg hC.hS.fam.2.1 hC.HBp hC.eps_pos hC.small1
+    hC.phi_lt hC.δ₁_pos hC.hPmp hSol hs hs1 hD hI hbb hψ
+  exact ⟨φ, α, _, _, hI, hF₁ s D hs hU φ α hI, hstrict, rfl, hmem⟩
 
 end Facts
 
@@ -276,6 +335,192 @@ theorem expansion_of_AE (hd : 3 ≤ d) (hL : 3 ≤ L)
 
 end Tail
 
+section FanCore
+
+/-- **(AE1), analyticity, for a functional of the decoupled objects, at given backgrounds** (the
+common step of `fanF_analytic`, one generating set with `DGSetting`, and of its cover form
+`fanF_analytic_cover`): `hbg` is Theorem I-4b at the realizable points (existence, uniqueness and
+bounds of the decoupled background field), `F₁` an analytic function returning it. -/
+theorem fanF_analytic_of_bg (hκ : 0 < κ) (hBG : 0 ≤ BG) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hδ₁ : 0 < δ₁) (hPmp : Precedes Hm Gp)
+    (hbg : ∀ s : DecParams Gp, (∀ P, ‖s P‖ < Real.exp κ) → ∀ D : BgData Gp N,
+      XiCData Gp (compWeight L a₁) ν K 1 eps D → ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+        IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧
+        (∀ φ' α', IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ' α' →
+          φ' = φ ∧ α' = α) ∧
+        BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)))
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
+    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)) :
+    AnalyticOnNhd ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+        (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
+        (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+      Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1))
+            p.1.1.1 p.1.2)).1 p.1)
+      ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁) ×ˢ
+        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) (fun _ => Real.exp κ)) := by
+  classical
+  rintro ⟨⟨u, ψ'⟩, s⟩ ⟨⟨⟨D, hD, rfl⟩, hψ⟩, hs⟩
+  have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
+    norm_extParams_lt hE1 hs'
+  have hs1 := extParams_hs1 (X₁f := X₁f) (Gp := Gp) s
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
+    have hd0 : 0 < d := by have := HBp.hd; omega
+    have hc1 := one_le_xiC1 d
+    have hδ0 : 0 < xiC1 d * eps := by positivity
+    exact inUnionDomainC_of_inDomainC HBp hδ0
+      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
+      (xiCData_inDomainC HBp hsmall hD)
+  obtain ⟨φ, α, hI, -, hbb⟩ := hbg _ hsx D hD
+  have hFeq := hF₁ _ D hsx hU φ α hI
+  obtain ⟨hstrict, hmem⟩ := point_facts_core_of_bg hBG HBp heps hsmall hphi hδ₁ hPmp hSol hsx hs1
+    hD hI hbb hψ
+  set pt : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) := ((rawOf D, ψ'), s) with hpt
+  set g0 : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) →
+      DecParams Gp × RawData d L (N₁ * L ^ m₁) K N :=
+    fun p => (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1) with hg0
+  have hext : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+      extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2) pt :=
+    (analyticAt_extParams s).comp_of_eq analyticAt_snd rfl
+  have ha0 : AnalyticAt ℂ g0 pt := hext.prod (analyticAt_fst.comp analyticAt_fst)
+  have ha1 : AnalyticAt ℂ (fun p => F₁ (g0 p)) pt :=
+    (hF₁an (g0 pt) ⟨hsx, D, hU, rfl⟩).comp_of_eq ha0 rfl
+  have hφ1 : AnalyticAt ℂ (fun p => (F₁ (g0 p)).1) pt := analyticAt_fst.comp ha1
+  have hΨ1 : ∀ y jj, AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+      p.1.1.1 y jj) pt := fun y jj =>
+    (analyticAt_rawΨ y jj (rawOf D)).comp_of_eq (analyticAt_fst.comp analyticAt_fst) rfl
+  set ed : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) → Edat Hm N :=
+    fun p => flEdat Gp Hm (F₁ (g0 p)) p.1.1.1 p.1.2 with hed
+  have haed : AnalyticAt ℂ ed pt := by
+    refine AnalyticAt.prod (analyticAt_barField (fun p => (F₁ (g0 p)).1) (fun p => p.1.1.1)
+      (fun r => analyticAt_pi_iff.1 hφ1 r) hΨ1) (AnalyticAt.prod
+      (analyticAt_flAlpha (fun p => (F₁ (g0 p)).2) (fun y => analyticAt_pi_iff.1
+        (analyticAt_snd.comp ha1) y))
+      (AnalyticAt.prod (analyticAt_snd.comp analyticAt_fst) analyticAt_const))
+  have e2 : ed pt = flEdat Gp Hm (φ, α) D.Ψ ψ' := by
+    show flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)) D.Ψ ψ' = _
+    rw [hFeq]
+  have hSolpt : AnalyticAt ℂ (fun p => Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2,
+      ed p)) pt := by
+    refine (hSolan (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)
+      ⟨hsx, ?_⟩).comp_of_eq (hext.prod haed) rfl
+    rw [e2]; exact hstrict
+  have hg : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
+      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
+      (F₁ (g0 p), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, ed p)).1,
+        p.1)) pt :=
+    ha1.prod ((analyticAt_fst.comp hSolpt).prod analyticAt_fst)
+  have hval : (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) pt.2,
+      ed pt)).1, pt.1) = ((φ, α), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
+        flEdat Gp Hm (φ, α) D.Ψ ψ')).1, (rawOf D, ψ')) := by
+    have e1 : F₁ (g0 pt) = (φ, α) := hFeq
+    show (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)).1,
+      (rawOf D, ψ')) = _
+    rw [e1, e2]
+  have hΦpt := hΦ _ hmem
+  rw [← hval] at hΦpt
+  exact hΦpt.comp_of_eq hg rfl
+
+/-- **The bound of a functional of the decoupled objects on the polydisc, at given backgrounds**
+(the common step of the bound in `i5_functional` and of its cover form `fanF_bound_cover`): if `Φ`
+is bounded by `B` on the realizable triples, the composite `Φ(F₁(s, Θ), Sol(s, …), (Θ, ψ'))` is
+bounded by `B` for `Θ` in the chart, `ψ'` in the ball and `s` in the polydisc. -/
+theorem fanF_bound_of_bg (hκ : 0 < κ) (hBG : 0 ≤ BG) (HBp : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hδ₁ : 0 < δ₁) (hPmp : Precedes Hm Gp)
+    (hbg : ∀ s : DecParams Gp, (∀ P, ‖s P‖ < Real.exp κ) → ∀ D : BgData Gp N,
+      XiCData Gp (compWeight L a₁) ν K 1 eps D → ∃ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+        IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α ∧
+        (∀ φ' α', IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ' α' →
+          φ' = φ ∧ α' = α) ∧
+        BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)))
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N → (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ} {B : ℝ}
+    (hΦbd : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ‖Φ t.1 t.2.1 t.2.2‖ ≤ B) :
+    ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁,
+      ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
+        (fun _ => Real.exp κ),
+      ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, u.1))
+            u.1.1 u.2)).1 u‖ ≤ B := by
+  rintro ⟨u1, ψ'⟩ ⟨⟨D, hD, rfl⟩, hψ⟩ s hs
+  have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
+    norm_extParams_lt hE1 hs'
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
+    have hd0 : 0 < d := by have := HBp.hd; omega
+    have hc1 := one_le_xiC1 d
+    have hδ0 : 0 < xiC1 d * eps := by positivity
+    exact inUnionDomainC_of_inDomainC HBp hδ0
+      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
+      (xiCData_inDomainC HBp hsmall hD)
+  obtain ⟨φ, α, hI, -, hbb⟩ := hbg _ hsx D hD
+  obtain ⟨-, hmem⟩ := point_facts_core_of_bg hBG HBp heps hsmall hphi hδ₁ hPmp hSol hsx
+    (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hI hbb hψ
+  show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
+    (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
+      flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
+        D.Ψ ψ')).1 (rawOf D, ψ')‖ ≤ _
+  rw [hF₁ _ D hsx hU φ α hI]
+  exact hΦbd _ hmem
+
+end FanCore
+
 section Fan
 
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
@@ -317,76 +562,9 @@ theorem fanF_analytic
           flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1))
             p.1.1.1 p.1.2)).1 p.1)
       ((XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁) ×ˢ
-        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) (fun _ => Real.exp κ)) := by
-  classical
-  rintro ⟨⟨u, ψ'⟩, s⟩ ⟨⟨⟨D, hD, rfl⟩, hψ⟩, hs⟩
-  have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
-  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
-  have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
-    norm_extParams_lt hE1 hs'
-  have hs1 := extParams_hs1 (X₁f := X₁f) (Gp := Gp) s
-  obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmem⟩ :=
-    point_facts_core hC hF₁ hSol hsx hs1 hD hψ
-  set pt : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
-      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) := ((rawOf D, ψ'), s) with hpt
-  set g0 : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
-      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) →
-      DecParams Gp × RawData d L (N₁ * L ^ m₁) K N :=
-    fun p => (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, p.1.1) with hg0
-  have hext : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
-      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
-      extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2) pt :=
-    (analyticAt_extParams s).comp_of_eq analyticAt_snd rfl
-  have ha0 : AnalyticAt ℂ g0 pt := hext.prod (analyticAt_fst.comp analyticAt_fst)
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
-    have hd0 : 0 < d := by have := hC.HBp.hd; omega
-    have hc1 := one_le_xiC1 d
-    have hε := hC.eps_pos
-    have hδ0 : 0 < xiC1 d * eps := by positivity
-    exact inUnionDomainC_of_inDomainC hC.HBp hδ0
-      (hC.c7le.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hC.c7le
-      (xiCData_inDomainC hC.HBp hC.small1 hD)
-  have ha1 : AnalyticAt ℂ (fun p => F₁ (g0 p)) pt :=
-    (hF₁an (g0 pt) ⟨hsx, D, hU, rfl⟩).comp_of_eq ha0 rfl
-  have hφ1 : AnalyticAt ℂ (fun p => (F₁ (g0 p)).1) pt := analyticAt_fst.comp ha1
-  have hΨ1 : ∀ y jj, AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
-      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
-      p.1.1.1 y jj) pt := fun y jj =>
-    (analyticAt_rawΨ y jj (rawOf D)).comp_of_eq (analyticAt_fst.comp analyticAt_fst) rfl
-  set ed : (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)) ×
-      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) → Edat Hm N :=
-    fun p => flEdat Gp Hm (F₁ (g0 p)) p.1.1.1 p.1.2 with hed
-  have haed : AnalyticAt ℂ ed pt := by
-    refine AnalyticAt.prod (analyticAt_barField (fun p => (F₁ (g0 p)).1) (fun p => p.1.1.1)
-      (fun r => analyticAt_pi_iff.1 hφ1 r) hΨ1) (AnalyticAt.prod
-      (analyticAt_flAlpha (fun p => (F₁ (g0 p)).2) (fun y => analyticAt_pi_iff.1
-        (analyticAt_snd.comp ha1) y))
-      (AnalyticAt.prod (analyticAt_snd.comp analyticAt_fst) analyticAt_const))
-  have hSolpt : AnalyticAt ℂ (fun p => Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2,
-      ed p)) pt := by
-    refine (hSolan (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)
-      ⟨hsx, ?_⟩).comp_of_eq (hext.prod haed) rfl
-    have : ed pt = flEdat Gp Hm (φ, α) D.Ψ ψ' := by
-      show flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)) D.Ψ ψ' = _
-      rw [hFeq]
-    rw [this]; exact hstrict
-  have hg : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) K N ×
-      (CTorus d L N₁ m₁ K → Fin N → ℂ)) × (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) =>
-      (F₁ (g0 p), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) p.2, ed p)).1,
-        p.1)) pt :=
-    ha1.prod ((analyticAt_fst.comp hSolpt).prod analyticAt_fst)
-  have hval : (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) pt.2,
-      ed pt)).1, pt.1) = ((φ, α), δφ, (rawOf D, ψ')) := by
-    have e1 : F₁ (g0 pt) = (φ, α) := hFeq
-    have e2 : ed pt = flEdat Gp Hm (φ, α) D.Ψ ψ' := by
-      show flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)) D.Ψ ψ' = _
-      rw [hFeq]
-    show (F₁ (g0 pt), (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, ed pt)).1,
-      (rawOf D, ψ')) = _
-    rw [e1, e2, hSeq]
-  have hΦpt := hΦ ((φ, α), δφ, (rawOf D, ψ')) hmem
-  rw [← hval] at hΦpt
-  exact hΦpt.comp_of_eq hg rfl
+        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ) (fun _ => Real.exp κ)) :=
+  fanF_analytic_of_bg hC.hκ hC.hS.fam.2.1 hC.HBp hC.eps_pos hC.small1 hC.c7le hC.phi_lt hC.δ₁_pos
+    hC.hPmp (fun _ hs _ hD => flCore_bgBounds hC hs hD) hF₁an hF₁ hSolan hSol hΦ
 
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ K)}
 
@@ -715,20 +893,9 @@ theorem i5_functional (hcov : CovSetup Gp m₀ j X 𝒦X)
   have hbd : ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁,
       ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
         (fun _ => Real.exp κ),
-      ‖F u s‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X) := by
-    rintro ⟨u1, ψ'⟩ ⟨⟨D, hD, rfl⟩, hψ⟩ s hs
-    have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
-    have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
-    have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s P‖ < Real.exp κ :=
-      norm_extParams_lt hE1 hs'
-    obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmem⟩ := point_facts_core hC hF₁ hSolprop hsx
-      (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ
-    show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
-      (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
-        flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D))
-          D.Ψ ψ')).1 (rawOf D, ψ')‖ ≤ _
-    rw [hFeq, hSeq]
-    exact hΦbd _ hmem
+      ‖F u s‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X) :=
+    fanF_bound_of_bg hC.hκ hC.hS.fam.2.1 hC.HBp hC.eps_pos hC.small1 hC.c7le hC.phi_lt hC.δ₁_pos
+      hC.hPmp (fun _ hs _ hD => flCore_bgBounds hC hs hD) hF₁ hSolprop hΦbd
   have hloc := fanF_local hC hcov hX₁ hconn hrow hF₁ hSolprop hZ hmar hΦloc
   obtain ⟨Ev, hsum, hlocY, hbound, hanY⟩ := expansion_of_AE (a₁ := a₁) hC.HBp.hd hC.HBp.hL
     hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hana hbd hloc
