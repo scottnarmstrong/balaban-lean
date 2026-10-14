@@ -129,63 +129,64 @@ section Defect
 
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L]
 
-/-- Entry bound of one defect, before summing: the sum runs over the intermediate site `w`. -/
-theorem boxR_final_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
-    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+/-- Entry bound of one defect, for any coercive `U` with exponentially decaying entries, before
+summing: the sum runs over the intermediate site `w`.  Here `ε` is any positive number with
+`ε ≤ δ` and `ε ≤ ctRate A δ g (ballConst d (δ / 4))`. -/
+theorem boxR_le_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {g A δ ε : ℝ}
+    (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
     {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) (z : MacIdx d N₀ M) (x y : L1Torus d N₀) :
-    ‖boxR (finalOp d L N₀ k v a) (macBoxF d N₀ M z)
+    ‖boxR U (macBoxF d N₀ M z)
         (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) t x y‖ ≤
-      2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t)) *
-        ∑ w, pdInd z x w * (dist x w * Real.exp (-pdEps d L * (dist x w + dist w y))) := by
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hg := finalGap_pos (d := d) hL
-  have hε := pdEps_pos (d := d) (L := L) hd
+      2 * A * pdLip d / (M * (g + t)) *
+        ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y))) := by
   have hM' : (0 : ℝ) < M := by exact_mod_cast hM
   have hsupp : ∀ u, ((macChi d N₀ M z u : ℝ) : ℂ) ≠ 0 → u ∈ macBoxF d N₀ M z := fun u hu =>
     mem_macBoxF.2 (macChi_mem_box hM (by exact_mod_cast hu))
-  rw [boxR_eq_neg_commutator (boxH_isUnit_final hd hk hv0 hv1 ha1 ha2 hmass ht _) hsupp,
+  rw [boxR_eq_neg_commutator (boxH_isUnit_of_coercive U hA hδ hg hU hUdec ht _) hsupp,
     Matrix.neg_apply, norm_neg, Matrix.mul_apply, Finset.mul_sum]
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun w _ => ?_)
   rw [Matrix.sub_apply, Matrix.mul_diagonal, Matrix.diagonal_mul]
   by_cases h : x ∈ macBox d N₀ M z ∨ w ∈ macBox d N₀ M z
   · have hind : pdInd z x w = 1 := by unfold pdInd; simp [h]
     rw [hind, one_mul]
-    set A := dist x w with hA
+    set Dw := dist x w with hDw
     set b := dist w y with hb
-    have hA0 : 0 ≤ A := dist_nonneg
+    have hD0 : 0 ≤ Dw := dist_nonneg
     have hb0 : 0 ≤ b := dist_nonneg
-    have hU := finalMass_entry_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 ha1 ha2 x w
-    have hG := boxG_final_entry_bound (L := L) (k := k) hd hk hv0 hv1 ha1 ha2 hmass ht
+    have hUx := hUdec x w
+    have hG := boxG_entry_bound_of_coercive U hA hδ hg hU hUdec ht
       (macBoxF d N₀ M z) w y
     have hΔ : ‖((macChi d N₀ M z w : ℝ) : ℂ) - ((macChi d N₀ M z x : ℝ) : ℂ)‖ ≤
-        pdLip d * (A / M) := by
+        pdLip d * (Dw / M) := by
       rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs, abs_sub_comm]
       exact macChi_lipschitz hM z x w
-    have e1 : Real.exp (-blockDecayRate d * A) ≤ Real.exp (-pdEps d L * A) := by
+    have e1 : Real.exp (-δ * Dw) ≤ Real.exp (-ε * Dw) := by
       apply Real.exp_le_exp.2
-      have : pdEps d L ≤ blockDecayRate d := min_le_left _ _
+      have : ε ≤ δ := hεδ
       nlinarith
-    have e2 : Real.exp (-finalRate d L * b) ≤ Real.exp (-pdEps d L * b) := by
+    have e2 : Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * b) ≤ Real.exp (-ε * b) := by
       apply Real.exp_le_exp.2
-      have : pdEps d L ≤ finalRate d L := min_le_right _ _
+      have : ε ≤ ctRate A δ g (ballConst d (δ / 4)) := hεc
       nlinarith
-    have e3 : Real.exp (-pdEps d L * (A + b)) =
-        Real.exp (-pdEps d L * A) * Real.exp (-pdEps d L * b) := by
+    have e3 : Real.exp (-ε * (Dw + b)) =
+        Real.exp (-ε * Dw) * Real.exp (-ε * b) := by
       rw [← Real.exp_add]; congr 1; ring
-    have hrw : (finalOp d L N₀ k v a x w * ((macChi d N₀ M z w : ℝ) : ℂ) -
-        ((macChi d N₀ M z x : ℝ) : ℂ) * finalOp d L N₀ k v a x w) *
-        boxG (finalOp d L N₀ k v a) (macBoxF d N₀ M z) t w y =
-        finalOp d L N₀ k v a x w * (((macChi d N₀ M z w : ℝ) : ℂ) -
+    have hrw : (U x w * ((macChi d N₀ M z w : ℝ) : ℂ) -
+        ((macChi d N₀ M z x : ℝ) : ℂ) * U x w) *
+        boxG (U) (macBoxF d N₀ M z) t w y =
+        U x w * (((macChi d N₀ M z w : ℝ) : ℂ) -
           ((macChi d N₀ M z x : ℝ) : ℂ)) *
-        boxG (finalOp d L N₀ k v a) (macBoxF d N₀ M z) t w y := by ring
+        boxG (U) (macBoxF d N₀ M z) t w y := by ring
     rw [hrw, norm_mul, norm_mul]
-    have hC := (finalDecayC_pos (L := L) hd).le
+    have hgt : 0 < g + t := by linarith
     have hlip : 0 ≤ pdLip d := by unfold pdLip; positivity
-    calc _ ≤ (finalDecayC d L * Real.exp (-pdEps d L * A)) * (pdLip d * (A / M)) *
-          (2 / (finalGap d L + t) * Real.exp (-pdEps d L * b)) := by
+    calc _ ≤ (A * Real.exp (-ε * Dw)) * (pdLip d * (Dw / M)) *
+          (2 / (g + t) * Real.exp (-ε * b)) := by
           gcongr
-          · exact hU.trans (by gcongr)
-          · exact hG.trans (by gcongr)
+          · exact hUx.trans (mul_le_mul_of_nonneg_left e1 hA)
+          · exact hG.trans (mul_le_mul_of_nonneg_left e2 (by positivity))
       _ = _ := by
           rw [e3]; field_simp
   · replace h := not_or.1 h
@@ -195,6 +196,21 @@ theorem boxR_final_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v
       by_contra hc; exact h.2 (macChi_mem_box hM hc)
     have hind : pdInd z x w = 0 := by unfold pdInd; simp [h.1, h.2]
     simp [hx, hw, hind]
+
+
+/-- Entry bound of one defect, before summing: the sum runs over the intermediate site `w`. -/
+theorem boxR_final_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) (z : MacIdx d N₀ M) (x y : L1Torus d N₀) :
+    ‖boxR (finalOp d L N₀ k v a) (macBoxF d N₀ M z)
+        (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) t x y‖ ≤
+      2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t)) *
+        ∑ w, pdInd z x w * (dist x w * Real.exp (-pdEps d L * (dist x w + dist w y))) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact boxR_le_sum_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (min_le_left _ _) (min_le_right _ _)
+    ht hM z x y
 
 /-- **T1.** Entry bound of one defect: for `U = finalOp` in the mass window, `t ≥ 0`, a cell `z`
 of the macro cover at scale `M`,
@@ -325,23 +341,23 @@ theorem norm_tagMon_le {Pc : Type*} (V : Finset Pc) {s : Pc → ℂ} {κ : ℝ}
     _ = Real.exp (κ * V.card) := by
         rw [Finset.prod_const, mul_comm, Real.exp_nat_mul]
 
-/-- Pointwise convolution bound for the tagged defect, before summing either endpoint.
-This bound uses tag cardinalities, not symmetry of the operator or the tags. -/
-theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
-    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+/-- Pointwise convolution bound for the tagged defect of any coercive `U` with exponentially
+decaying entries, before summing either endpoint.  This bound uses tag cardinalities, not
+symmetry of the operator or the tags. -/
+theorem taggedK_entry_le_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
     {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x y : L1Torus d N₀) :
     ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-        (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
+        (macTags d N₀ M) U t s x y‖ ≤
       Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
-        ((2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t))) * (2 * 7 ^ d)) *
-        ∑ w, dist x w * Real.exp (-pdEps d L * (dist x w + dist w y)) := by
-  have hg := finalGap_pos (d := d) (Nat.pos_of_ne_zero (NeZero.ne L))
+        ((2 * A * pdLip d / (M * (g + t))) * (2 * 7 ^ d)) *
+        ∑ w, dist x w * Real.exp (-ε * (dist x w + dist w y)) := by
   have hM' : (0 : ℝ) < M := by exact_mod_cast hM
-  have hC := (finalDecayC_pos (L := L) hd).le
   have hlip : 0 ≤ pdLip d := by unfold pdLip; positivity
-  let ε := pdEps d L
-  let A₀ := 2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t))
+  let A₀ := 2 * A * pdLip d / (M * (g + t))
   have hA₀0 : 0 ≤ A₀ := by positivity
   have hE : ∀ z : MacIdx d N₀ M, ‖tagMon (macTags d N₀ M z x y) s‖ ≤
       Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
@@ -357,7 +373,7 @@ theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 �
   refine (norm_sum_le _ _).trans ?_
   have hz : ∀ z ∈ (Finset.univ : Finset (MacIdx d N₀ M)),
       ‖tagMon (macTags d N₀ M z x y) s *
-          boxR (finalOp d L N₀ k v a) (macBoxF d N₀ M z)
+          boxR (U) (macBoxF d N₀ M z)
             (fun u => ((macChi d N₀ M z u : ℝ) : ℂ)) t x y‖ ≤
         Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) * A₀ *
           ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y))) := by
@@ -365,7 +381,7 @@ theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 �
     rw [norm_mul]
     calc _ ≤ (Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M))) *
           (A₀ * ∑ w, pdInd z x w * (dist x w * Real.exp (-ε * (dist x w + dist w y)))) :=
-          mul_le_mul (hE z) (boxR_final_le_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM z x y)
+          mul_le_mul (hE z) (boxR_le_sum_of_coercive U hA hδ hg hU hUdec hεδ hεc ht hM z x y)
             (norm_nonneg _) (by positivity)
       _ = _ := by ring
   refine (Finset.sum_le_sum hz).trans ?_
@@ -383,38 +399,56 @@ theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 �
         mul_le_mul_of_nonneg_left hle (by positivity)
     _ = _ := by ring
 
-/-- **T2.** Row sums of the tagged defect.  For tag parameters `s` with `‖s p‖ ≤ e^κ`,
-`0 ≤ r ≤ ε/8` and `κ 7^d ≤ (ε/8) M`:
-`∑_y e^{r dist x y} ‖K(s,t) x y‖ ≤ B e^{H κ} / M`, with `B = pdB d L`, `H = pdH d`. -/
-theorem taggedK_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+
+/-- Pointwise convolution bound for the tagged defect, before summing either endpoint.
+This bound uses tag cardinalities, not symmetry of the operator or the tags. -/
+theorem taggedK_entry_le_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x y : L1Torus d N₀) :
+    ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+        (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
+      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
+        ((2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t))) * (2 * 7 ^ d)) *
+        ∑ w, dist x w * Real.exp (-pdEps d L * (dist x w + dist w y)) := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact taggedK_entry_le_sum_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (min_le_left _ _) (min_le_right _ _)
+    ht hM hκ hs x y
+
+/-- **T2, for a general matrix.**  Row sums of the tagged defect of any coercive `U` with
+exponentially decaying entries.  For tag parameters `s` with `‖s p‖ ≤ e^κ`, `0 ≤ r ≤ ε/8` and
+`κ 7^d ≤ (ε/8) M`, where `ε > 0` is at most `δ` and at most `ctRate A δ g (ballConst d (δ / 4))`:
+`∑_y e^{r dist x y} ‖K(s,t) x y‖ ≤ B e^{H κ} / M`, with
+`B = 16 · 7^d · A · pdLip d / (g ε) · (ballConst d (ε/2) · ballConst d (3ε/4))`. -/
+theorem taggedK_row_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
     {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ r : ℝ} (hκ : 0 ≤ κ) (hr0 : 0 ≤ r)
-    (hr : r ≤ pdEps d L / 8) (hκM : κ * 7 ^ d ≤ pdEps d L / 8 * M)
+    (hr : r ≤ ε / 8) (hκM : κ * 7 ^ d ≤ ε / 8 * M)
     {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x : L1Torus d N₀) :
     ∑ y, Real.exp (r * dist x y) *
         ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-          (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
-      pdB d L * Real.exp (pdH d * κ) / M := by
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hg := finalGap_pos (d := d) hL
-  have hε := pdEps_pos (d := d) (L := L) hd
+          (macTags d N₀ M) U t s x y‖ ≤
+      16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4)) *
+        Real.exp (pdH d * κ) / M := by
   have hM' : (0 : ℝ) < M := by exact_mod_cast hM
-  have hC := (finalDecayC_pos (L := L) hd).le
   have hlip : 0 ≤ pdLip d := by unfold pdLip; positivity
-  set ε := pdEps d L with hεdef
   set σ : ℝ := r + κ * 7 ^ d / M with hσdef
   have hσ0 : 0 ≤ σ := by positivity
   have hσ : σ ≤ ε / 4 := by
     have : κ * 7 ^ d / M ≤ ε / 8 := by rw [div_le_iff₀ hM']; linarith
     linarith
-  set A₀ : ℝ := 2 * finalDecayC d L * pdLip d / (M * (finalGap d L + t)) with hA₀
+  set A₀ : ℝ := 2 * A * pdLip d / (M * (g + t)) with hA₀
   have hA₀0 : 0 ≤ A₀ := by positivity
-  have hA₀le : A₀ ≤ 2 * finalDecayC d L * pdLip d / (M * finalGap d L) := by
+  have hA₀le : A₀ ≤ 2 * A * pdLip d / (M * g) := by
     rw [hA₀]
     apply div_le_div_of_nonneg_left (by positivity) (by positivity)
     nlinarith
   -- pointwise bound on the entries
-  have hentry := taggedK_entry_le_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hs x
+  have hentry := taggedK_entry_le_sum_of_coercive U hA hδ hg hU hUdec hεδ hεc ht hM hκ hs x
   have hexp : ∀ y : L1Torus d N₀, Real.exp (r * dist x y) *
       Real.exp (κ * 7 ^ d * (dist x y / M)) = Real.exp (σ * dist x y) := by
     intro y
@@ -433,16 +467,33 @@ theorem taggedK_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     _ ≤ Real.exp (pdH d * κ) * (A₀ * (2 * 7 ^ d)) *
           ((4 / ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) :=
         mul_le_mul_of_nonneg_left hdbl (by positivity)
-    _ ≤ Real.exp (pdH d * κ) * ((2 * finalDecayC d L * pdLip d / (M * finalGap d L)) * (2 * 7 ^ d)) *
+    _ ≤ Real.exp (pdH d * κ) * ((2 * A * pdLip d / (M * g)) * (2 * 7 ^ d)) *
           ((4 / ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) := by
         have hb1 : 0 ≤ ballConst d (ε / 2) := ballConst_decay_nonneg (by positivity)
         have hb2 : 0 ≤ ballConst d (3 * ε / 4) := ballConst_decay_nonneg (by positivity)
         gcongr
     _ = _ := by
-        unfold pdB
-        simp only [← hεdef]
         field_simp
         ring_nf
+
+
+/-- **T2.** Row sums of the tagged defect.  For tag parameters `s` with `‖s p‖ ≤ e^κ`,
+`0 ≤ r ≤ ε/8` and `κ 7^d ≤ (ε/8) M`:
+`∑_y e^{r dist x y} ‖K(s,t) x y‖ ≤ B e^{H κ} / M`, with `B = pdB d L`, `H = pdH d`. -/
+theorem taggedK_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ r : ℝ} (hκ : 0 ≤ κ) (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (hκM : κ * 7 ^ d ≤ pdEps d L / 8 * M)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (x : L1Torus d N₀) :
+    ∑ y, Real.exp (r * dist x y) *
+        ‖taggedK Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤
+      pdB d L * Real.exp (pdH d * κ) / M := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact taggedK_row_sum_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_left _ _) (min_le_right _ _)
+    ht hM hκ hr0 hr hκM hs x
 
 /-- **T2, weighted form.**  With the weight `ω x = e^{r dist x₀ x}` the weighted row sums of the
 tagged defect are at most `B e^{H κ} / M`; this is the hypothesis `hD` of
@@ -464,6 +515,44 @@ theorem taggedK_weighted_row_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 
   have h1 : dist x₀ x ≤ dist x₀ y + dist x y := (dist_triangle x₀ y x).trans_eq (by rw [dist_comm y x])
   nlinarith
 
+/-- **T3, for a general matrix.**  Let `U` be coercive with gap `g`, with entries bounded by
+`A e^{-δ dist}`, and let `ε > 0` satisfy `ε ≤ δ` and `ε ≤ ctRate A δ g (ballConst d (δ / 4))`.
+For `M ≥ 4 B e^{H κ}` and `M ≥ 8 κ 7^d / ε`, `B` the constant of `taggedK_row_sum_of_coercive`, on
+the closed polydisc `‖s p‖ ≤ e^κ` the matrix `1 - K(s,t)` is invertible, the entries of
+`G_fin(s,t)` are analytic, and `G_fin(1,t) = (U + t)⁻¹`. -/
+theorem taggedGfin_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε) (hεδ : ε ≤ δ)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * ((16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ ε * M) :
+    (16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ) / M ≤ 1 / 4 ∧
+    (∀ s ∈ {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ ≤ Real.exp κ},
+      IsUnit (1 - taggedK Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) U t s)) ∧
+    (∀ x y, AnalyticOnNhd ℂ (fun s => taggedGfin Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) U t s x y)
+      {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ ≤ Real.exp κ}) ∧
+    taggedGfin Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) U t (fun _ => 1) =
+      (shiftMat U t)⁻¹ := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hq : (16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ) / M ≤ 1 / 4 := by
+    rw [div_le_iff₀ hM']; linarith
+  have hκM : κ * 7 ^ d ≤ ε / 8 * M := by linarith
+  have hD := taggedGfin_of_weighted_row_sum Finset.univ (macBoxF d N₀ M)
+    (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+    (fun u => by exact_mod_cast macChi_sum (d := d) (m := N₀) (M := M) u)
+    (macTags d N₀ M) (U) t (ω := fun _ => (1 : ℝ)) (fun _ => one_pos)
+    (q := (16 * 7 ^ d * A * pdLip d / (g * ε) * (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ) / M) (by linarith)
+    {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ ≤ Real.exp κ} (by
+      intro s hs x
+      have := taggedK_row_sum_of_coercive U hA hδ hg hU hUdec hε hεδ hεc ht hM hκ le_rfl
+        (by positivity) hκM hs x
+      simpa using this)
+  exact ⟨hq, hD.1, hD.2.1, hD.2.2 (fun p => by simpa using Real.one_le_exp hκ)⟩
+
+
 /-- **T3.**  For `M ≥ 4 B e^{H κ}` (so that `q = B e^{Hκ}/M ≤ 1/4`) and `M ≥ 8 κ 7^d / ε`, on the
 closed polydisc `‖s p‖ ≤ e^κ` the matrix `1 - K(s,t)` is invertible, the entries of `G_fin(s,t)`
 are analytic, and `G_fin(1,t) = (U + t)⁻¹`. -/
@@ -483,22 +572,11 @@ theorem taggedGfin_final (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
         (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M)
         (finalOp d L N₀ k v a) t (fun _ => 1) =
       (shiftMat (finalOp d L N₀ k v a) t)⁻¹ := by
-  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
-  have hε := pdEps_pos (d := d) (L := L) hd
-  have hq : pdB d L * Real.exp (pdH d * κ) / M ≤ 1 / 4 := by
-    rw [div_le_iff₀ hM']; linarith
-  have hκM : κ * 7 ^ d ≤ pdEps d L / 8 * M := by linarith
-  have hD := taggedGfin_of_weighted_row_sum Finset.univ (macBoxF d N₀ M)
-    (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-    (fun u => by exact_mod_cast macChi_sum (d := d) (m := N₀) (M := M) u)
-    (macTags d N₀ M) (finalOp d L N₀ k v a) t (ω := fun _ => (1 : ℝ)) (fun _ => one_pos)
-    (q := pdB d L * Real.exp (pdH d * κ) / M) (by linarith)
-    {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ ≤ Real.exp κ} (by
-      intro s hs x
-      have := taggedK_row_sum hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ le_rfl
-        (by positivity) hκM hs x
-      simpa using this)
-  exact ⟨hq, hD.1, hD.2.1, hD.2.2 (fun p => by simpa using Real.one_le_exp hκ)⟩
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact taggedGfin_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_left _ _) (min_le_right _ _)
+    ht hM hκ hMB hMκ
 
 end Tagged
 

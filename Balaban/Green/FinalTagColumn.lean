@@ -142,6 +142,35 @@ theorem taggedK_column_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ 
         ring_nf
 
 
+/-- **Column bound for the tagged approximate Green function at the full rate, for a general
+matrix.**  Let `U` be coercive with gap `g` and with entries bounded by `A e^{-δ dist}`, and let
+`ε > 0` satisfy `ε ≤ δ` and `ε ≤ ctRate A δ g (ballConst d (δ / 4))`.  For `‖s p‖ ≤ e^κ`,
+`0 ≤ r ≤ ε/8` and `κ 7^d ≤ (ε/8) M`:
+`∑_x e^{r dist x y} ‖G_*(s,t) x y‖ ≤ 2 e^{H κ} ballConst d (ε/2) / (g + t)`. -/
+theorem taggedG_column_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    {g A δ ε : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) (hε : 0 < ε)
+    (hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4)))
+    {t : ℝ} (ht : 0 ≤ t) {M : ℕ} (hM : 0 < M) {κ r : ℝ} (hκ : 0 ≤ κ)
+    (hr : r ≤ ε / 8) (hκM : κ * 7 ^ d ≤ ε / 8 * M)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (y : L1Torus d N₀) :
+    ∑ x, Real.exp (r * dist x y) *
+        ‖taggedG Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) U t s x y‖ ≤
+      2 * Real.exp (pdH d * κ) * ballConst d (ε / 2) / (g + t) := by
+  have hentry := fun x => taggedG_weighted_entry_bound_of_coercive U hA hδ hg hU hUdec hε hεc ht hM
+    hκ hr hκM hs x y
+  have hgt : 0 < g + t := by linarith
+  have hball : ∑ x : L1Torus d N₀, Real.exp (-(ε / 2) * dist x y) ≤ ballConst d (ε / 2) := by
+    simpa only [dist_comm] using ballSum_L1Torus d N₀ (show 0 < ε / 2 by positivity) y
+  calc _ ≤ ∑ x : L1Torus d N₀, 2 * Real.exp (pdH d * κ) / (g + t) *
+        Real.exp (-(ε / 2) * dist x y) := Finset.sum_le_sum fun x _ => hentry x
+    _ = 2 * Real.exp (pdH d * κ) / (g + t) *
+        ∑ x : L1Torus d N₀, Real.exp (-(ε / 2) * dist x y) := by rw [Finset.mul_sum]
+    _ ≤ 2 * Real.exp (pdH d * κ) / (g + t) * ballConst d (ε / 2) :=
+        mul_le_mul_of_nonneg_left hball (by positivity)
+    _ = _ := by ring
+
 /-- Column bound for the tagged approximate Green function at the full rate. -/
 theorem taggedG_column_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
@@ -151,17 +180,12 @@ theorem taggedG_column_sum (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ 
     ∑ x, Real.exp (r * dist x y) *
         ‖taggedG Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
           (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y‖ ≤ taggedA0 d L κ t := by
-  have hg := finalGap_pos (d := d) (Nat.pos_of_ne_zero (NeZero.ne L))
-  have hε := pdEps_pos (d := d) (L := L) hd
-  let ε := pdEps d L
-  have hentry := fun x => taggedG_weighted_entry_bound hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hr0 hr hκM hs x y
-  calc _ ≤ ∑ x : L1Torus d N₀, 2 * Real.exp (pdH d * κ) / (finalGap d L + t) *
-        Real.exp (-(ε / 2) * dist x y) := Finset.sum_le_sum fun x _ => hentry x
-    _ = 2 * Real.exp (pdH d * κ) / (finalGap d L + t) *
-        ∑ x : L1Torus d N₀, Real.exp (-(ε / 2) * dist x y) := by rw [Finset.mul_sum]
-    _ ≤ 2 * Real.exp (pdH d * κ) / (finalGap d L + t) * ballConst d (ε / 2) :=
-        mul_le_mul_of_nonneg_left (by simpa only [dist_comm] using ballSum_L1Torus d N₀ (show 0 < ε / 2 by positivity) y) (by positivity)
-    _ = taggedA0 d L κ t := by unfold taggedA0; ring
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have _ := hr0
+  exact taggedG_column_sum_of_coercive (finalOp d L N₀ k v a) (finalDecayC_pos hd).le
+    (blockDecayRate_pos hd) (finalGap_pos hL) (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) (pdEps_pos hd) (min_le_right _ _)
+    ht hM hκ hr hκM hs y
 
 /-- Column bound for the final tagged resolvent at the full row rate, with no extra
 ball constant and under exactly the existing macro-scale conditions. -/

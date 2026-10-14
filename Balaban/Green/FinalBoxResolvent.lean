@@ -463,6 +463,127 @@ theorem taggedGfin_of_weighted_row_sum (S : Finset Z) (B : Z → Finset ι) (c :
 
 end Tagged
 
+section GenericBox
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- Cutting a coercive matrix along a region `B` (zeroing the entries between `B` and its
+complement) keeps the coercivity constant. -/
+theorem isCoercive_blockCut {U : Matrix ι ι ℂ} {g : ℝ} (hU : IsCoercive U g) (B : Finset ι) :
+    IsCoercive (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then U x y else 0) g := by
+  intro u
+  set u₁ : ι → ℂ := fun i => if i ∈ B then u i else 0 with hu₁
+  set u₂ : ι → ℂ := fun i => if i ∈ B then 0 else u i with hu₂
+  have hmv : ∀ i, ((Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then U x y else 0) *ᵥ u) i =
+      (if i ∈ B then (U *ᵥ u₁) i else (U *ᵥ u₂) i) := by
+    intro i
+    simp only [Matrix.mulVec, dotProduct, Matrix.of_apply]
+    by_cases hi : i ∈ B
+    · simp only [hi, ite_true]
+      refine Finset.sum_congr rfl fun j _ => ?_
+      by_cases hj : j ∈ B <;> simp [hj, hu₁]
+    · simp only [hi, ite_false]
+      refine Finset.sum_congr rfl fun j _ => ?_
+      by_cases hj : j ∈ B <;> simp [hj, hu₂]
+  have hq : reQuad (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then U x y else 0) u =
+      reQuad U u₁ + reQuad U u₂ := by
+    unfold reQuad
+    rw [← Complex.add_re, ← Finset.sum_add_distrib]
+    congr 1
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [hmv i]
+    by_cases hi : i ∈ B <;> simp [hi, hu₁, hu₂]
+  have hs : sqNorm u = sqNorm u₁ + sqNorm u₂ := by
+    unfold sqNorm
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    by_cases hi : i ∈ B <;> simp [hi, hu₁, hu₂]
+  rw [hq, hs, mul_add]
+  exact add_le_add (hU u₁) (hU u₂)
+
+variable {d N₀ : ℕ} [NeZero N₀]
+
+omit [Fintype ι] in
+/-- The cut of `U + t` along `B` is the cut of `U`, plus `t`. -/
+theorem blockCut_shift_eq (U : Matrix ι ι ℂ) (t : ℝ) (B : Finset ι) :
+    (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then U x y else 0) + (t : ℂ) • (1 : Matrix ι ι ℂ) =
+      Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0 := by
+  ext x y
+  simp only [shiftMat, Matrix.add_apply, Matrix.of_apply, Matrix.smul_apply, smul_eq_mul]
+  by_cases hxy : x = y
+  · subst hxy; simp
+  · by_cases h : (x ∈ B ↔ y ∈ B) <;> simp [h, Matrix.one_apply_ne hxy]
+
+/-- Combes--Thomas for the cut of a decaying coercive `U` on the torus: the cut of `U + t` is
+invertible with the decaying inverse bound of `combesThomas`. -/
+theorem blockCut_resolvent_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {g A δ : ℝ}
+    (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) {t : ℝ} (ht : 0 ≤ t)
+    (B : Finset (L1Torus d N₀)) :
+    IsUnit (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0) ∧
+      ∀ x y, ‖(Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0)⁻¹ x y‖ ≤
+        2 / (g + t) * Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y) := by
+  have hK : ∀ x : L1Torus d N₀, ∑ y, Real.exp (-(δ / 4) * dist x y) ≤ ballConst d (δ / 4) :=
+    fun x => ballSum_L1Torus (d := d) (m := N₀) (by positivity) x
+  have hκ : 0 ≤ ballConst d (δ / 4) := ballConst_decay_nonneg (by positivity)
+  have hdec : ∀ x y, ‖(Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then U x y else 0) x y‖ ≤
+      A * Real.exp (-δ * dist x y) := by
+    intro x y
+    simp only [Matrix.of_apply]
+    split_ifs
+    · exact hUdec x y
+    · simp only [norm_zero]; positivity
+  have h := combesThomas (c₀ := A) (δ₀ := δ) (γ₀ := g) (κ := ballConst d (δ / 4)) hA hδ hg hκ hdec
+    hK (isCoercive_blockCut hU B) ht
+  rw [blockCut_shift_eq] at h
+  refine ⟨h.1, fun x y => ?_⟩
+  exact (h.2 x y).trans_eq (by simp only [div_eq_mul_inv])
+
+/-- Invertibility of the box operator and its inverse, for a decaying coercive `U`. -/
+theorem boxH_inv_eq_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {g A δ : ℝ}
+    (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) {t : ℝ} (ht : 0 ≤ t)
+    (B : Finset (L1Torus d N₀)) :
+    IsUnit (boxH U B t) ∧ boxG U B t =
+      boxP B * (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0)⁻¹ *
+        boxP B := by
+  have hM := (blockCut_resolvent_of_coercive U hA hδ hg hU hUdec ht B).1
+  obtain ⟨hMP, hMA⟩ := blockDiag_facts (B := B) (M := Matrix.of fun x y =>
+    if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0) (A := shiftMat U t) (fun x y => by
+      simp only [Matrix.of_apply])
+  obtain ⟨hr, hl⟩ := boxH_mul_inv_of (U := U) (t := t) hM hMP hMA
+  have hu : IsUnit (boxH U B t) :=
+    (Matrix.isUnit_iff_isUnit_det _).2 (Matrix.isUnit_det_of_right_inverse hr)
+  refine ⟨hu, ?_⟩
+  have h := Matrix.inv_eq_right_inv hr
+  unfold boxG
+  rw [h, add_mul, boxP_one_sub_mul, add_zero,
+    mul_assoc (boxP B * (Matrix.of fun x y => if (x ∈ B ↔ y ∈ B) then shiftMat U t x y else 0)⁻¹)
+      (boxP B) (boxP B), boxP_mul_self]
+
+theorem boxH_isUnit_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {g A δ : ℝ}
+    (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) {t : ℝ} (ht : 0 ≤ t)
+    (B : Finset (L1Torus d N₀)) : IsUnit (boxH U B t) :=
+  (boxH_inv_eq_of_coercive U hA hδ hg hU hUdec ht B).1
+
+/-- Entry bound of the box resolvent for a decaying coercive `U`. -/
+theorem boxG_entry_bound_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) {g A δ : ℝ}
+    (hA : 0 ≤ A) (hδ : 0 < δ) (hg : 0 < g) (hU : IsCoercive U g)
+    (hUdec : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)) {t : ℝ} (ht : 0 ≤ t)
+    (B : Finset (L1Torus d N₀)) (x y : L1Torus d N₀) :
+    ‖boxG U B t x y‖ ≤
+      2 / (g + t) * Real.exp (-ctRate A δ g (ballConst d (δ / 4)) * dist x y) := by
+  rw [(boxH_inv_eq_of_coercive U hA hδ hg hU hUdec ht B).2]
+  simp only [boxP, Matrix.mul_diagonal, Matrix.diagonal_mul]
+  by_cases hx : x ∈ B <;> by_cases hy : y ∈ B
+  · simpa [hx, hy] using (blockCut_resolvent_of_coercive U hA hδ hg hU hUdec ht B).2 x y
+  all_goals
+    simp only [hx, hy, ite_true, ite_false, mul_zero, zero_mul, norm_zero]
+    positivity
+
+end GenericBox
+
 section Final
 
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L]
