@@ -129,6 +129,13 @@ and action must still be connected to the family with the required analytic doma
 locality, determinant expansion, and nonwinding torus comparison. The current abstract
 coefficient expansion does not by itself prove geometric connectedness of polymer supports.
 
+Two further results on this family. Its coefficients vanish unless their support is connected, which is
+the support property the polymer gas needs. But the square-root family vanishes at the origin of its
+parameters (every path tag contains the starting cell), so it is invertible only near the physical point
+s = 1 and not on a polydisc around 0. A localized determinant therefore cannot be taken as the logarithm
+of its determinant on the full parameter polydisc; it needs a different parametrization
+(`notes/phase1/FINALPHYS.md`).
+
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
 
