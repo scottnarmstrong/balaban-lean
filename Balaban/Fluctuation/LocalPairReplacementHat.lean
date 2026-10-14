@@ -135,7 +135,7 @@ the restricted datum `D' = localBRestrict D`, the transported parameters `τ w` 
 `cc C'^{1/2}(τ w) ψ̂'` (the square root of the cover of `𝔹_{k+1}(Y⁺)` at the local background of
 `D'`, `ψ̂'` the restriction of `ψ̂` to the unit lattice of `𝔹_{k+1}(Y⁺)`).  The hypotheses are the
 constants (those of `coef_eTermFun_replacement_localB_restrict`, `1/2 ≤ a₁ ≤ 2`, the `DecDom`
-margins `δc` at `ε` and `ε'`, the sup bound `√N ‖cc‖ K c_ψ < δ₁` with `|ψ̂| ≤ c_ψ`), the
+margin `δc` at `ε'`, the sup bound `√N ‖cc‖ K c_ψ < δ₁` with `|ψ̂| ≤ c_ψ`), the
 specifications of the solution maps and the chart of `D`. -/
 theorem coef_eTermFun_replacement_localB_hat (hG : IsLevel Hm k) (hk1 : 1 ≤ k)
     (hk : k + 1 ≤ k + 1) (Y Yp : Set (CTorus d L N₁ m₁ (k + 1)))
@@ -302,9 +302,7 @@ theorem coef_eTermFun_replacement_localB_hat (hG : IsLevel Hm k) (hk1 : 1 ≤ k)
       (k := k + 1) (ϱ := ϱ) (k + 1) hk) N} (hD : XiCData
       (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk)
       (compWeight L a₁) ν (k + 1) 1 eps D)
-    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hmarD' : decDomMargin d L N BG κ (xiC1 d * eps') < δc)
+    {δc : ℝ} (hmarD' : decDomMargin d L N BG κ (xiC1 d * eps') < δc)
     (hαD' : K4 d L N BG κ * (xiC1 d * eps') < coerciveConst d / 2)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hδ₁c : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
@@ -456,6 +454,13 @@ theorem coef_eTermFun_replacement_localB_hat (hG : IsLevel Hm k) (hk1 : 1 ≤ k)
     have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
       mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
     linarith
+  have hxle : xiC1 d * eps ≤ xiC1 d * eps' := mul_le_mul_of_nonneg_left hle (by linarith)
+  have hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2 :=
+    lt_of_le_of_lt (mul_le_mul_of_nonneg_left hxle hK4) hαD'
+  have hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc := by
+    refine lt_of_le_of_lt ?_ hmarD'
+    unfold decDomMargin
+    gcongr
   have hDom := xiCData_inDomainC HB hsmall hD
   have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
   have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
