@@ -479,7 +479,7 @@ theorem obsTiltLabels_local_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : ℝ
   have hρ0 : 0 < ρ := hq0.trans_le hq
   obtain ⟨_, _, _, _, _, _, _, _, _, hε4, _⟩ := hfam k hk N₁ hN3 hN ν hνpos hν β hβ₁' ρ hβρ p₁ hp0
     hp₁ q hq0 hq D S hS hp
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont₀, hI, hmem0, -, -, h𝒴x, F₂, Sol₂, hF₂, hSol₂, hTx⟩ :=
+  obtain ⟨val, 𝒴, Tt, hval, -, hcont₀, hI, hmem0, -, -, h𝒴x, F₂, Sol₂, hF₂, hSol₂, hTx, -⟩ :=
     sourceDirectTerms_scale_fromTowerG_ray_rho T k hk N₁ hN3 hN ν hνpos hν β ρ hρ0 hβρ p₁ q
       hq0 hq D S hS hp
   obtain ⟨Jr, I, h𝒴, hT, hF, hεU, hεpos, H⟩ := activityFamilyAnalytic_of_witnessG_rho T k hk N₁

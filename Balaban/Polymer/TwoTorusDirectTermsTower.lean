@@ -147,7 +147,7 @@ theorem sourceDirectTerms_explicit_fromTowerG {d L N : ℕ} [NeZero L] {κmin : 
                   (LocalCover.fam T.m₀ (LocalCover.blockSite k z)) S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₂ z) (Sol₂ z)
                   (blockEnergyFun S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (compWeight L S.a₁) S.ν k z) ∅ 1 0 Y) w.1) taylorWeight x.1 σ Θ
               else 0 := by
-  obtain ⟨val, 𝒴, Tt, -, -, -, hI, -, -, -, h𝒴, F₂, Sol₂, hF₂, hSol₂, hTt⟩ :=
+  obtain ⟨val, 𝒴, Tt, -, -, -, hI, -, -, -, h𝒴, F₂, Sol₂, hF₂, hSol₂, hTt, -⟩ :=
     sourceDirectTerms_scale_fromTowerG_ray_rho T k hk N₁ hLN hN ν hνpos hν β ρ hρ hβρ p₁ q hq0 hq
       D S hS hp
   refine ⟨val, 𝒴, Tt, hI, F₂, Sol₂, hF₂, hSol₂, h𝒴, fun Y x w σ Θ => ?_⟩
