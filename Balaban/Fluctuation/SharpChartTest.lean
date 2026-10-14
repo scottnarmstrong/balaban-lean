@@ -199,8 +199,8 @@ theorem eps_margin_pos [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀) (hα : 0 <
 
 /-- **The corrected chart test is satisfiable between consecutive class radii**: for `α > 0`,
 `L ≥ 2`, `α₀ > 0` and every `K₂' ≥ 0` there is `δ > 0` with `ε_{k+1} + K₂' δ + K₂' δ ≤ ε_k`. -/
-theorem exists_chartTest_sharp_eps_succ [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀) (hα : 0 < P.alpha d)
-    (hL : 2 ≤ L) (k : ℕ) {K₂ : ℝ} (hK₂ : 0 ≤ K₂) :
+theorem exists_chartTest_sharp_eps_succ [NeZero L] (P : Consts) (hα₀ : 0 < P.α₀)
+    (hα : 0 < P.alpha d) (hL : 2 ≤ L) (k : ℕ) {K₂ : ℝ} (hK₂ : 0 ≤ K₂) :
     ∃ δ : ℝ, 0 < δ ∧ P.eps d L (k + 1) + K₂ * δ + K₂ * δ ≤ P.eps d L k := by
   have hm := eps_margin_pos (d := d) P hα₀ hα hL k
   set m := (1 - (L : ℝ) ^ (-P.alpha d)) * P.eps d L k with hmdef
