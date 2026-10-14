@@ -5,7 +5,7 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 74% of the Lean by volume, and about 44% when weighted by difficulty and
+**Overall estimate: about 75% of the Lean by volume, and about 45% when weighted by difficulty and
 risk.**
 
 - **By volume.** About 590,723 lines are written. The finished formalization should need roughly
@@ -86,3 +86,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-14 (early) | ~71% | ~41% | Arbitrary unit h through the chain and at the root; off-fibre E1 and M0 families at every datum; observable coefficient on two tori; last-integral connected supports and generic estimates; blocker 6: radius bookkeeping settled, composition and engine obstacles identified |
 | 2026-10-14 (later) | ~73% | ~43% | Last integral localized (determinant ratio, interaction, term bound); blocker 6: lossless composition, background and fluctuation engine on the local generating set; first step through the parametrix |
 | 2026-10-14 (evening) | ~74% | ~44% | Blocker 6: replacement identity for two generating sets, local covariance and fluctuation variable; last integral on two tori (up to winding terms); Root-F constants satisfiable in the root's quantifier order; blocker 7 analysed at the last scales |
+| 2026-10-14 (night) | ~75% | ~45% | Blocker 6: replacement identity at the local generating set with a collar and the local fluctuation variable; last integral: second-order bound of the interaction, amplitude β^{-1} as in the papers, determinant ratio proportional to the perturbation; two-torus closeness of the final operator; Root-F skeleton re-audited |
