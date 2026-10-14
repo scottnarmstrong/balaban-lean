@@ -289,6 +289,23 @@ theorem composeField_close (h : Precedes G G') {a : ℕ → ℝ} (ha : IsAdmissi
         · exact hc h
       rw [composeField_of_not_mem a δ _ hd, norm_zero]; exact hR
 
+/-- **Closeness of two composed fields (P3 (2.59)-(2.60))**: if the difference `φ - φ₁` of two
+fine fields is bounded by `2 C e^{-γ d(·, W)}`, the composed fields with the same `Ψ'` differ at
+`x` by at most `10 e^{2dγ} C e^{-γ d(x, W)}`.  The common step of Theorem I-4b (v) for one
+generating set (`i4b_compose_close`) and for a cover (`Dec2.i4b_compose_close`). -/
+theorem composeField_sub_close (h : Precedes G G') {a : ℕ → ℝ} (ha : IsAdmissibleWeights K a)
+    {γ C : ℝ} (hγ : 0 ≤ γ) (hC : 0 ≤ C) {W : Finset (CTorus d L N₁ m₁ K)}
+    {φ φ1 : G'.Ω 1 × Fin N → ℂ}
+    (hδ : ∀ (y : CTorus d L N₁ m₁ K) (i : Fin N), ‖svec G' (φ - φ1) y i‖ ≤
+      2 * C * decay γ (siteSetDist G' W y)) (Ψ : CTorus d L N₁ m₁ K → Fin N → ℂ)
+    (x : CTorus d L N₁ m₁ K) (i : Fin N) :
+    ‖composeField G G' a φ Ψ x i - composeField G G' a φ1 Ψ x i‖ ≤
+      10 * Real.exp (γ * (2 * d)) * C * decay γ (siteSetDist G' W x) := by
+  rw [composeField_sub_zero]
+  have := composeField_close h ha hγ (by positivity : 0 ≤ 2 * C) hδ x i
+  refine this.trans (le_of_eq ?_)
+  ring
+
 end Close
 
 
@@ -333,7 +350,6 @@ theorem i4b_compose_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G
       10 * Real.exp (gammaW d * (2 * d)) *
         closeConst d L N BG κ (lemma53Const d L * δ) * decay (gammaW d) (siteSetDist G' W x) := by
   have hd0 : 0 < d := by have := HB.hd; omega
-  have hγ := gammaW_nonneg hd0
   obtain ⟨-, hval, -, -⟩ := i4b_close hS S HB hκ hM hs hW hδ0 hδε hε hδ hνε hD h h1
   have hcc : 0 ≤ closeConst d L N BG κ (lemma53Const d L * δ) := by
     have hB0 : 0 ≤ famConst d L BG κ := by
@@ -344,11 +360,7 @@ theorem i4b_compose_close {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G
     have := hS.fam.2.1
     unfold closeConst
     positivity
-  rw [composeField_sub_zero]
-  have := composeField_close hP (a := a) HB.weights hγ (by positivity : 0 ≤ 2 * closeConst d L N BG κ
-    (lemma53Const d L * δ)) hval x i
-  refine this.trans (le_of_eq ?_)
-  ring
+  exact composeField_sub_close hP HB.weights (gammaW_nonneg hd0) hcc hval D'.Ψ x i
 
 /-- **Theorem I-4b (v): locality of the decoupled composition.**  If the decoupled background
 fields of `𝔹'_k` at `(s, D')` and `(s', D'₂)` agree on the dependency set `composeDep x` of

@@ -45,6 +45,32 @@ theorem composedCloseBound_nonneg {BG κ δ r₀ : ℝ} (hBG : 0 ≤ BG) (hδ : 
     (mul_nonneg (lemma53Const_pos d L).le hδ) hd
   unfold composedCloseBound; positivity
 
+/-- **From the decay at the scaled distance to the bound on `X₀`**: a quantity bounded by
+`10 e^{2dγ_w} closeConst · e^{-γ_w D}` with `D ≥ T = ((r₀ - 4dL³)/L) M₁` (`4dL³ ≤ r₀`) is at most
+`composedCloseBound`.  The common last step of `composed_close_X0` (one generating set) and
+`composed_close_X0_sup` (a sup-separated cover). -/
+theorem le_composedCloseBound_of_dist {BG κ δ r₀ : ℝ} (hBG : 0 ≤ BG) (hδ : 0 ≤ δ) (hd : 0 < d)
+    (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {D : ENNReal}
+    (hD : ENNReal.ofReal ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L) ≤ D) {u : ℝ}
+    (hu : u ≤ 10 * Real.exp (gammaW d * (2 * d)) *
+      closeConst d L N BG κ (lemma53Const d L * δ) * decay (gammaW d) D) :
+    u ≤ composedCloseBound d L N m₁ BG κ δ r₀ := by
+  have hγ0 : 0 ≤ gammaW d := gammaW_nonneg hd
+  have hL1 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hT0 : 0 ≤ (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L := by
+    have : 0 ≤ r₀ - 4 * d * (L : ℝ) ^ 3 := by linarith
+    positivity
+  have hdec : decay (gammaW d) D ≤
+      Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) := by
+    have h' := decay_anti_dist hγ0 hD
+    rw [decay_of_ne_top ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal hT0] at h'
+    exact h'
+  refine hu.trans ?_
+  unfold composedCloseBound
+  have hcc := closeConst_nonneg (d := d) (L := L) (κ := κ) (N := N) hBG
+    (mul_nonneg (lemma53Const_pos d L).le hδ) hd
+  exact mul_le_mul_of_nonneg_left hdec (by positivity)
+
 /-- **Closeness of the composed datum on `X₀`** (I-4b (v) with the geometry of `X₀`). -/
 theorem composed_close_X0 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
     (HB : BgHyp d L K ϱ a ν) (hP : Precedes G' G) {κ : ℝ} (hκ : 0 ≤ κ)
@@ -62,25 +88,10 @@ theorem composed_close_X0 {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G
     (h1 : IsDecBg G a ν (rho4 d L N BG κ) (fun _ => 1) D φ1 α1)
     {x : CTorus d L N₁ m₁ K} (hx : x ∈ X₀) (hxΩ : x ∈ G.Ω 1) (i : Fin N) :
     ‖composeField G' G a φ D.Ψ x i - composeField G' G a φ1 D.Ψ x i‖ ≤
-      composedCloseBound d L N m₁ BG κ δ r₀ := by
-  have hd0 : 0 < d := by have := HB.hd; omega
-  have hγ0 : 0 ≤ gammaW d := gammaW_nonneg hd0
-  have hL1 : (0 : ℝ) < L := by exact_mod_cast (by have := HB.hL; omega : 0 < L)
-  have hT0 : 0 ≤ (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L := by
-    have : 0 ≤ r₀ - 4 * d * (L : ℝ) ^ 3 := by linarith
-    positivity
-  have hW := hW_of_par (X₁ := X₁) hs1
-  have hc := i4b_compose_close hS S HB hP hκ hM hs hW hδ0 hδε hε hδ hνε hD h h1 x i
-  have hdec : decay (gammaW d) (siteSetDist G (Wpar G X₁) x) ≤
-      Real.exp (-(gammaW d * ((r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L))) := by
-    have h' := decay_anti_dist hγ0 (siteSetDist_X0 S hN hr hx hxΩ)
-    rw [decay_of_ne_top ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal hT0] at h'
-    exact h'
-  refine hc.trans ?_
-  unfold composedCloseBound
-  have hcc := closeConst_nonneg (d := d) (L := L) (κ := κ) (N := N) hS.fam.2.1
-    (mul_nonneg (lemma53Const_pos d L).le hδ0.le) hd0
-  exact mul_le_mul_of_nonneg_left hdec (by positivity)
+      composedCloseBound d L N m₁ BG κ δ r₀ :=
+  le_composedCloseBound_of_dist hS.fam.2.1 hδ0.le (by have := HB.hd; omega) hr₀
+    (siteSetDist_X0 S hN hr hx hxΩ)
+    (i4b_compose_close hS S HB hP hκ hM hs (hW_of_par hs1) hδ0 hδε hε hδ hνε hD h h1 x i)
 
 end Close
 
