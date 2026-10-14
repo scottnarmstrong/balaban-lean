@@ -491,3 +491,9 @@ depend on nothing outside X, or only for those X whose whole construction region
 non-winding box? In the second case, which margin should the statement carry?
 
 (Details: `notes/phase1/TORUSCOH2.md` T6.)
+
+### Item 24, addendum (2026-10-14): small tori at the last scales
+
+For the terms T_j(x,X) of Root-F on a torus of side ℓ = q·M L^{k_f+1} with q small (4 ≤ q ≤ C L), the localized term for a polymer X near the origin is built from objects whose read region wraps around the torus, so two tori ℓ, ℓ' give different values. Do the papers (P4 (H.4), p. 677) intend exact independence of the torus for all non-winding X (the polymer does not wind, but the construction region does), or only agreement up to a term of size e^{-c M q} that is then collected into the winding polymers? If the latter, is the collection into polymers of the same scale j containing X (with the bound e^{-κ|X'|/s_j^d}) what the construction does? If exact, which fixed formula (infinite-volume operator, or a fixed box of side independent of ℓ) defines T_j for such X, and where does the difference go in the identity log Z(g)/Z(0) = ⟨g,h⟩ + Σ T? Finally, may the statement of Root-F carry min(ℓ,ℓ') ≥ 4·(C L + 1) M L^{k_f+1} as a standing condition in the clause?
+
+(Details: `notes/phase1/TORUSLAST.md`.)
