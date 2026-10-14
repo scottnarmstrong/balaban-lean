@@ -59,6 +59,42 @@ theorem rootBound_of_perTerm {C C' lam e q β c₉ L E j : ℝ} {u : ℝ}
       = (C * C' * Real.exp lam * L ^ e * β ^ (-q)) * L ^ (-(j * e)) * E := by ring
     _ ≤ c₉ * L ^ (-(j * e)) * E := by gcongr
 
+/-- **The `𝓟` arithmetic with a real power.**  For `β_k = β₀ L^{k(d-2)}` (`betaK`), `3 ≤ d`,
+`2 ≤ L`, a real `p` with `p (d-2) ≥ (d-2)/2 + δ` and
+`L^{(d-2)/2+δ} ≤ c₉ β₀^p`: `β_k^{-p} ≤ c₉ L^{-(k+1)((d-2)/2+δ)}` for every `k`. -/
+theorem betaK_inv_rpow_le {d L k : ℕ} {β0 c₉ δ p : ℝ} (hd : 3 ≤ d) (hL : 2 ≤ L)
+    (hc : 0 < c₉) (hβ0 : 0 < β0)
+    (hpδ : ((d : ℝ) - 2) / 2 + δ ≤ p * ((d : ℝ) - 2))
+    (hβ : (L : ℝ) ^ (((d : ℝ) - 2) / 2 + δ) ≤ c₉ * β0 ^ p) :
+    ((Balaban.LargeField.ActionConv.betaK d L k β0) ^ p)⁻¹ ≤
+      c₉ * (L : ℝ) ^ (-(((k + 1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))) := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hL0 : (0 : ℝ) < L := by linarith
+  set e : ℝ := ((d : ℝ) - 2) / 2 + δ with he
+  have hd2 : ((d - 2 : ℕ) : ℝ) = (d : ℝ) - 2 := by
+    rw [Nat.cast_sub (by omega)]; norm_num
+  have hpow : Balaban.LargeField.ActionConv.betaK d L k β0 ^ p =
+      β0 ^ p * (L : ℝ) ^ ((k : ℝ) * (p * ((d : ℝ) - 2))) := by
+    unfold Balaban.LargeField.ActionConv.betaK
+    rw [Real.mul_rpow hβ0.le (by positivity), ← Real.rpow_natCast, ← Real.rpow_mul hL0.le]
+    congr 2
+    push_cast [hd2]; ring
+  have hkl : (L : ℝ) ^ ((k : ℝ) * e) ≤ (L : ℝ) ^ ((k : ℝ) * (p * ((d : ℝ) - 2))) :=
+    Real.rpow_le_rpow_of_exponent_le hL1 (mul_le_mul_of_nonneg_left hpδ (Nat.cast_nonneg k))
+  have hsplit : (L : ℝ) ^ (((k + 1 : ℕ) : ℝ) * e) = (L : ℝ) ^ e * (L : ℝ) ^ ((k : ℝ) * e) := by
+    rw [← Real.rpow_add hL0]; congr 1; push_cast; ring
+  have hb0 : 0 < β0 ^ p := Real.rpow_pos_of_pos hβ0 _
+  rw [hpow, Real.rpow_neg hL0.le, ← div_eq_mul_inv, ← one_div]
+  have hpos : 0 < (L : ℝ) ^ (((k + 1 : ℕ) : ℝ) * e) := Real.rpow_pos_of_pos hL0 _
+  have hpos2 : 0 < β0 ^ p * (L : ℝ) ^ ((k : ℝ) * (p * ((d : ℝ) - 2))) :=
+    mul_pos hb0 (Real.rpow_pos_of_pos hL0 _)
+  rw [div_le_div_iff₀ hpos2 hpos, hsplit]
+  have h3 : (L : ℝ) ^ e * (L : ℝ) ^ ((k : ℝ) * e) ≤
+      c₉ * β0 ^ p * (L : ℝ) ^ ((k : ℝ) * (p * ((d : ℝ) - 2))) :=
+    mul_le_mul (by simpa [mul_comm] using hβ) hkl (Real.rpow_pos_of_pos hL0 _).le
+      (by positivity)
+  nlinarith
+
 /-- **The `𝓟` arithmetic.**  For `β_k = β₀ L^{k(d-2)}` (`betaK`), `3 ≤ d`, `2 ≤ L`,
 `0 ≤ δ ≤ (d-2)/2` and `L^{(d-2)/2+δ} ≤ c₉ β₀²`:
 `β_k^{-2} ≤ c₉ L^{-(k+1)((d-2)/2+δ)}` for every `k`, in particular for `k = k_f`. -/
@@ -67,37 +103,11 @@ theorem betaK_inv_sq_le {d L k : ℕ} {β0 c₉ δ : ℝ} (hd : 3 ≤ d) (hL : 2
     (hβ : (L : ℝ) ^ (((d : ℝ) - 2) / 2 + δ) ≤ c₉ * β0 ^ 2) :
     ((Balaban.LargeField.ActionConv.betaK d L k β0) ^ 2)⁻¹ ≤
       c₉ * (L : ℝ) ^ (-(((k + 1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))) := by
-  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
-  have hL0 : (0 : ℝ) < L := by linarith
-  set e : ℝ := ((d : ℝ) - 2) / 2 + δ with he
-  have hd2 : ((d - 2 : ℕ) : ℝ) = (d : ℝ) - 2 := by
-    rw [Nat.cast_sub (by omega)]; norm_num
-  have he0 : 0 ≤ e := by
-    have : (3 : ℝ) ≤ d := by exact_mod_cast hd
-    rw [he]; linarith
-  have heb : e ≤ (d : ℝ) - 2 := by rw [he]; linarith
-  have hsq : Balaban.LargeField.ActionConv.betaK d L k β0 ^ 2 = β0 ^ 2 * (L : ℝ) ^ (2 * (k * (d - 2))) := by
-    unfold Balaban.LargeField.ActionConv.betaK; rw [mul_pow, ← pow_mul, mul_comm (k * (d - 2)) 2]
-  have hexp : (k : ℝ) * e ≤ ((2 * (k * (d - 2)) : ℕ) : ℝ) := by
-    push_cast
-    rw [Nat.cast_sub (by omega)]
-    have hk : (0 : ℝ) ≤ k := Nat.cast_nonneg k
-    have : (3 : ℝ) ≤ d := by exact_mod_cast hd
-    push_cast
-    nlinarith
-  have hkl : (L : ℝ) ^ ((k : ℝ) * e) ≤ (L : ℝ) ^ (2 * (k * (d - 2))) := by
-    rw [← Real.rpow_natCast]
-    exact Real.rpow_le_rpow_of_exponent_le hL1 hexp
-  have hsplit : (L : ℝ) ^ (((k + 1 : ℕ) : ℝ) * e) = (L : ℝ) ^ e * (L : ℝ) ^ ((k : ℝ) * e) := by
-    rw [← Real.rpow_add hL0]; congr 1; push_cast; ring
-  rw [hsq, Real.rpow_neg hL0.le, ← div_eq_mul_inv, ← one_div]
-  have hpos : 0 < (L : ℝ) ^ (((k + 1 : ℕ) : ℝ) * e) := Real.rpow_pos_of_pos hL0 _
-  have hpos2 : 0 < β0 ^ 2 * (L : ℝ) ^ (2 * (k * (d - 2))) := by positivity
-  rw [div_le_div_iff₀ hpos2 hpos, hsplit]
-  have h3 : (L : ℝ) ^ e * (L : ℝ) ^ ((k : ℝ) * e) ≤
-      c₉ * β0 ^ 2 * (L : ℝ) ^ (2 * (k * (d - 2))) :=
-    mul_le_mul hβ hkl (Real.rpow_pos_of_pos hL0 _).le (by positivity)
-  nlinarith
+  have h3 : (3 : ℝ) ≤ d := by exact_mod_cast hd
+  have _ := hδ0
+  have h := betaK_inv_rpow_le (k := k) (δ := δ) (p := 2) hd hL hc hβ0 (by linarith)
+    (by simpa [Real.rpow_two] using hβ)
+  simpa [Real.rpow_two] using h
 
 /-- **The Cauchy step in one source variable, radius `1/2`.**  If `F` is analytic on the source
 ball `{∑|g| < 1}` and bounded by `B` there, then for `∑|g| ≤ 1/2` the first-order term
