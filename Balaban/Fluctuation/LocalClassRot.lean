@@ -617,7 +617,7 @@ theorem localHat_integral_rot_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha
       unfold decDomMargin; positivity
     linarith
   have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
-    ⟨S.toCoverGeom, hk1, ha₁, ha₂⟩
+    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
   have hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf Gp) Gp (compWeight L a₁) a₁ ν x α κ
       (Dec2.extS (coverOf Gp) (σ w)) Cx := fun x hx =>
     xData_cover_of_mem (N := N) SX hCx hx hκ.le hMX (e := (σ w, (barField Gp D.Ψ φ, α))) hdom
@@ -665,6 +665,8 @@ theorem localHat_integral_rot_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha
 end HatIntegralRot
 
 section EvTermRot
+
+open Balaban.SmallField.Def6
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
