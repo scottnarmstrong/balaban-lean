@@ -1928,3 +1928,4 @@ public import Balaban.Inhabited.RootBoundsArith
 public import Balaban.Green.FinalTermBound
 public import Balaban.Fluctuation.LocalPairCubeOps
 public import Balaban.Fluctuation.LocalPairGs
+public import Balaban.Fluctuation.LocalPairDecFixed
