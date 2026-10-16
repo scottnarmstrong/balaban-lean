@@ -680,20 +680,21 @@ theorem localHat_integral_rot_cover_of_cov (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a�
                   (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
               else 0) ∂γ)
     (Gf₂ : RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
-    (hGf₂ : ∀ (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gf₂ Θ w =
+    (hGf₂ : ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), Gf₂ (rawOf D) w =
       ∫ ψ in K,
-        Φ₂ (F₁ (σ w, Θ))
-          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+        Φ₂ (F₁ (σ w, rawOf D))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) (rawOf D).1
             (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
               if h : unitBlock x ∈ unitPts Gp then
-                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
-                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
                   (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
               else 0))).1
-          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+          (rawOf D, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
               if h : unitBlock x ∈ unitPts Gp then
-                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
-                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
                   (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
               else 0) ∂γ)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {w : ι → ℂ}
@@ -738,7 +739,7 @@ theorem localHat_integral_rot_cover_of_cov (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a�
   let Hm' : (unitPts Gp × Fin N → ℝ) → ℂ := fun ψ' =>
     Φ₂ (F₁ (σ w, rawOf D)) (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) D.Ψ (lift ψ'))).1
       (rawOf D, lift ψ')
-  have e2 : Gf₂ (rawOf D) w = ∫ ψ in K, Hm' ψ ∂γ := hGf₂ _ _
+  have e2 : Gf₂ (rawOf D) w = ∫ ψ in K, Hm' ψ ∂γ := hGf₂ D hD w hw
   have e1 : Gf₁ (rotRaw (cmat Q) (rawOf D)) w =
       ∫ ψ in K, Hm' (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∂γ := by
     rw [hGf₁]
@@ -845,7 +846,7 @@ theorem localHat_integral_rot_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {w : ι → ℂ}
     (hw : w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) :
     Gf (rotRaw (cmat Q) (rawOf D)) w = Gf (rawOf D) w := by
-  exact localHat_integral_rot_cover_of_cov hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 hQ hΦ hKc hKb hKQ hγQ Gf hGf Gf hGf hD hw
+  exact localHat_integral_rot_cover_of_cov hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 hQ hΦ hKc hKb hKQ hγQ Gf hGf Gf (fun _ _ w _ => hGf _ w) hD hw
 
 
 end HatIntegralRot
