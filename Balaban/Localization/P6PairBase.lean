@@ -42,7 +42,7 @@ theorem p6_coverBase_old (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (h
     Dec2.CoverBase (coverOf (p6FsharpC hn hρ hc Z hM1))
       (p6OldC (k := k) (n1 := n1) (c := c) hM1 ρ' Z) a ν (Dec2.mixedKc d L) (Cchi d L) :=
   Dec2.coverBase_mixed hN (p6FsharpC hn hρ hc Z hM1)
-    (p6_coverGeom_old hn hρ hc Z hM1 hm₁ hM hd hL hν hνL ha hsep) (fun _ hq => hq)
+    (p6_coverGeom_old hn hρ hc Z hM1 hm₁ hM hd hL hν hνL ha hsep) hνL (fun _ hq => hq)
 
 /-- **`p6_footLocal_old`**: `Dec2.FootLocal (coverOf F♯) H⁻ a ν (mixedKc d L) (Cchi d L)`. -/
 theorem p6_footLocal_old (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (hc : 5 ≤ c)
@@ -93,7 +93,7 @@ theorem p6_coverBase_boundary (hc : 14 ≤ c) (hn : n0 = L * n1) (hL : 2 ≤ L)
     Dec2.CoverBase (coverOf (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1))
       (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ) a ν (Dec2.mixedKc d L) (Cchi d L) :=
   Dec2.coverBase_mixed hN (p6FsharpC (k := k) hn hρ (by omega : 5 ≤ c) st.Z hM1)
-    (p6_coverGeom_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL ha hsep) (fun _ hq => hq)
+    (p6_coverGeom_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL ha hsep) hνL (fun _ hq => hq)
 
 /-- **`p6_footLocal_boundary`**: `Dec2.FootLocal` for `(C♯, H^∂)`. -/
 theorem p6_footLocal_boundary (hc : 14 ≤ c) (hn : n0 = L * n1) (hL : 2 ≤ L)

@@ -163,7 +163,7 @@ theorem coverGeom_level : Dec2.CoverGeom (coverOf Gp) Hm a ν (Cchi d L) := by
     spacing_le_of_prec hPmp hx
   have hδ : 0 ≤ Cchi d L / (L : ℝ) ^ m₁ := by have := Cchi_nonneg d L; positivity
   exact {
-    toOpSetting := SH
+    toOpSettingCore := SH.toOpSettingCore
     blockAligned := fun q hq j hj1 hjK x x' hx hbl => by
       have hj : j = n := by rw [← Hm.layerIndex_eq hj1 hjK hx, (hG x).2]
       subst hj
@@ -199,6 +199,7 @@ theorem coverGeom_level : Dec2.CoverGeom (coverOf Gp) Hm a ν (Cchi d L) := by
 /-- **`CoverBase` for the pair of consecutive levels.** -/
 theorem coverBase_level : Dec2.CoverBase (coverOf Gp) Hm a ν (levelKc d L) (Cchi d L) where
   toCoverGeom := coverGeom_level S SH hG hG'
+  massLe := SH.massLe
   nc hα _ hq := cubeBlockBounds_level S SH hG hG' hα hq
 
 /-- **`FootLocal` for the pair of consecutive levels.** -/

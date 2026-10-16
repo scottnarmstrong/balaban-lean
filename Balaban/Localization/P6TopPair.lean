@@ -76,7 +76,7 @@ theorem p6_coverBase_top_old {ϱF : ℝ} (hM1 : M1 = L ^ m₁) (ρ' : ℕ) (Z : 
     Dec2.CoverBase (coverOf (topGS d L (c * n1) m₁ (k + 1) ϱF))
       (p6OldC (k := k) (n1 := n1) (c := c) hM1 ρ' Z) a ν (Dec2.mixedKc d L) (Cchi d L) :=
   Dec2.coverBase_mixed hN (topGS d L (c * n1) m₁ (k + 1) ϱF)
-    (p6_coverGeom_top_old hM1 ρ' Z hm₁ hM hd hL hν hνL ha hsep) (fun _ hq => hq)
+    (p6_coverGeom_top_old hM1 ρ' Z hm₁ hM hd hL hν hνL ha hsep) hνL (fun _ hq => hq)
 
 /-- **`p6_coverBase_top_boundary`**: `Dec2.CoverBase (coverOf F^top) H^∂ a ν (mixedKc d L)
 (Cchi d L)`. -/
@@ -89,7 +89,7 @@ theorem p6_coverBase_top_boundary {ϱF : ℝ} (hc : 14 ≤ c) (hn : n0 = L * n1)
     Dec2.CoverBase (coverOf (topGS d L (c * n1) m₁ (k + 1) ϱF))
       (p6BoundaryC (k := k) st hM1 hc hn hL hρ hZ) a ν (Dec2.mixedKc d L) (Cchi d L) :=
   Dec2.coverBase_mixed hN (topGS d L (c * n1) m₁ (k + 1) ϱF)
-    (p6_coverGeom_top_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL ha hsep)
+    (p6_coverGeom_top_boundary st hc hn hL hρ hZ hM1 hm₁ hM hd hL3 hν hνL ha hsep) hνL
     (fun _ hq => hq)
 
 /-- **`p6_footLocal_top_old`**: `Dec2.FootLocal` for `(coverOf F^top, H⁻)`. -/

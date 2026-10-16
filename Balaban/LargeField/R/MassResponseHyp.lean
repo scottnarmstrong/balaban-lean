@@ -181,7 +181,7 @@ theorem massChange_sameData_hyps_nonempty {δw : ℝ} (hδw : 0 < δw) :
   have S := dgSetting_rho h4
   have hH := bgHyp_rho m₁
   set G : GeneratingSet 3 3 (6 * 3 ^ m₁) 2 (rhoSep m₁) := GP (m₁ := m₁) (ϱ := rhoSep m₁) with hG
-  have hOp : Dec2.OpSetting G (compWeight 3 1) 0 := ⟨S.hd, S.hL, S.mass, S.massLe, S.weights, S.sep⟩
+  have hOp : Dec2.OpSetting G (compWeight 3 1) 0 := ⟨⟨S.hd, S.hL, S.mass, S.weights, S.sep⟩, S.massLe⟩
   have hK := bgK1_pos 3 3 2
   have hds := deltaStar_pos 3 3 2 hd0
   have hc6 := c6_pos 3 3 2 hd0

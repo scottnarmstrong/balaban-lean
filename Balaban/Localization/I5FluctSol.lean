@@ -76,7 +76,7 @@ theorem fl_exists_unique {cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc Cx cstar BG)
       SupBounds Hm (dphi Hm (Dec2.decG C Hm a ν s) e.2.1 e.1 (pertSource Hm a e.2.2.1 e.2.2.2) δα)
         (cK2' d L N (famConst d L BG κ) * δ₁) := by
   have Hh : DecHyp Hm a ν false e.2.1 e.1 e.2.2.1 e.2.2.2 δ₀ δ₁ :=
-    StrictDataM.hyp S.toGreen h0 h1 hle he
+    StrictDataM.hyp S.toOpSetting.toGreen h0 h1 hle he
   obtain ⟨δα, hfix, hsm, hsK, hdp, huniq, -⟩ :=
     Dec2.i4a_exists_unique hF C Hm S hκ hM hs Hh hδ₀ hδ₁
   exact ⟨δα, ⟨hsm, hfix⟩, fun δα' h' => huniq δα' h'.1 h'.2, hsK, hdp⟩

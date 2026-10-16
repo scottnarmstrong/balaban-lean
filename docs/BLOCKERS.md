@@ -95,8 +95,11 @@ inside a retained component are not linked and the length through it is never pa
 P7 pp. 527–528 keeps the cluster identity. Its two conditions now hold in our setting: the boundary
 terms read the frozen data only inside their own domains (part of the formal large-field class), and
 the halo of a removed component avoids every other component (proved for the constants used). The polymer
-gas with compatibility on these cores is an instance of the existing gas theorems; the size bound
-through core contacts and the counting remain. The question to the author is item 16 with its addendum
+gas with compatibility on these cores is formalized: the size through core contacts never charges a
+retained hole, the counting is volume-free, the size of a core equals the modular size of the class, and
+the activity bound is proved for the large-field gas up to its physical inputs (the inherited old-term
+bound, the small factor of removed components, and the size of removed components), which belong to the
+large-field step itself. The question to the author is item 16 with its addendum
 (`notes/phase1/VMOD-43.md`).
 
 Details: `notes/phase1/VMOD-40.md` to `VMOD-42.md`. Item 16.

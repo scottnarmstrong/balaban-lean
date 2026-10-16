@@ -17,11 +17,12 @@ The definitions of `Decoupled.lean` with the cover (`cubeIdx`, `χ`, `𝒬`, `s_
 `cD H` of `Decoupled.lean` do not involve the cover (only the box `intBox q` of the centre) and are
 reused.
 
-* `OpSetting H a ν`: the hypotheses on the operator alone;
+* `OpSettingCore H a ν`: the hypotheses on the operator alone, without the mass bound;
+* `OpSetting H a ν`: `OpSettingCore` and the mass bound `ν L^{2K} ≤ 1`;
 * `CoverGeom C H a ν Cx`: the properties of the pair `(C, H)` that do not involve (NC3): block
   alignment of the cubes, partition of unity, the `H`-scaled derivative bound on `χ`, the interior
   of the cubes, the overlap counts;
-* `CoverBase C H a ν Kc Cx`: `CoverGeom` and the block bounds (NC3) of the cut operators with the
+* `CoverBase C H a ν Kc Cx`: `CoverGeom`, the mass bound and the block bounds (NC3) of the cut operators with the
   constant `Kc`.
 
 These are the interface that the cut-operator estimate (NC), the partition of unity and the overlap
@@ -111,15 +112,21 @@ section Pair
 variable (C : DecCover d L N₁ m₁ K) (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ)
   (Kc Cx : ℝ)
 
-/-- **The hypotheses on the operator `H` alone**: `d ≥ 3`, `L ≥ 3`, mass regime, admissible weights
-and the separation `ϱ ≥ R₀` of the Green's function bounds (the operator part of `DGSetting`). -/
-structure OpSetting (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) : Prop where
+/-- **The hypotheses on the operator `H` alone, without the mass bound**: `d ≥ 3`, `L ≥ 3`,
+`ν ≥ 0`, admissible weights and the separation `ϱ ≥ R₀` of the Green's function bounds. -/
+structure OpSettingCore (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) :
+    Prop where
   hd : 3 ≤ d
   hL : 3 ≤ L
   mass : 0 ≤ ν
-  massLe : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1
   weights : IsAdmissibleWeights K a
   sep : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)
+
+/-- **The hypotheses on the operator `H` alone**: `d ≥ 3`, `L ≥ 3`, mass regime, admissible weights
+and the separation `ϱ ≥ R₀` of the Green's function bounds (the operator part of `DGSetting`). -/
+structure OpSetting (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) : Prop
+    extends OpSettingCore H a ν where
+  massLe : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1
 
 open Classical in
 /-- **The properties of the pair (cover `C`, operator `H`) that do not involve the cut-operator
@@ -128,7 +135,7 @@ estimate (NC3)**: the operator side `OpSetting H a ν`, and, on the pair side, `
 `sum_chi` (partition of unity on `Ω₁(H)`), `chi_smooth` (the `H`-scaled derivative bounds on
 `χ_z`, with the constant `Cx`), `inner_near` (`supp χ_z` and the stencil: the interior of the
 cube), `card_box` (at most `3 · 5^d` cubes meet a point), `card_qset` (`|𝒬(z)| ≤ N₀`). -/
-structure CoverGeom : Prop extends OpSetting H a ν where
+structure CoverGeom : Prop extends OpSettingCore H a ν where
   blockAligned : ∀ q ∈ C.cubeIdx, BlockAligned H (intBox q)
   chi_unit : ∀ q ∈ C.cubeIdx, ∀ {x z : CTorus d L N₁ m₁ K}, x ∈ H.Ω 1 →
     (z = x ∨ ∃ μ : Fin d, z = x + Pi.single μ 1 ∨ z = x - Pi.single μ 1) →
@@ -144,7 +151,13 @@ structure CoverGeom : Prop extends OpSetting H a ν where
 /-- **The properties of the pair used by (DG1)--(DG4)**: `CoverGeom`, and `nc`, the block bounds
 (NC3) of the cut operator `H_z(A)⁻¹` of every cover cube, with the constant `Kc`. -/
 structure CoverBase : Prop extends CoverGeom C H a ν Cx where
+  massLe : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1
   nc : ∀ {α : H.Ω 1 → ℂ}, AdmPot H α → ∀ q ∈ C.cubeIdx, CubeBlockBounds H a ν α q Kc
+
+/-- The operator setting of a `CoverBase` (with the mass bound). -/
+theorem CoverBase.toOpSetting {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+    {a : ℕ → ℝ} {ν : ℝ} {Kc Cx : ℝ} (S : CoverBase C H a ν Kc Cx) : OpSetting H a ν :=
+  ⟨S.toOpSettingCore, S.massLe⟩
 
 end Pair
 

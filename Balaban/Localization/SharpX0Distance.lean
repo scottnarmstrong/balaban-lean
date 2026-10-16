@@ -135,7 +135,7 @@ theorem localB_coverBase {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁
     (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)) :
     Dec2.CoverBase (coverOf (SmallField.GsSpec.localB j hj X hsep))
       (SmallField.GsSpec.localB j hj X hsep) a ν (Dec2.mixedKc d L) (Cchi d L) :=
-  Dec2.coverBase_mixed hN _ (localB_coverGeom hj X hsep hm₁ hM hd hL hν hνL ha hag)
+  Dec2.coverBase_mixed hN _ (localB_coverGeom hj X hsep hm₁ hM hd hL hν hνL ha hag) hνL
     (fun _ hq => hq)
 
 end LocalB

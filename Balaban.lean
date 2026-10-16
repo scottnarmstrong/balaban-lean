@@ -1964,3 +1964,5 @@ public import Balaban.LargeField.R.RHaloSep
 public import Balaban.Polymer.GasCore
 public import Balaban.Fluctuation.LocalClassExtend
 public import Balaban.Fluctuation.LocalClassSum
+public import Balaban.Polymer.GasCoreSize
+public import Balaban.LargeField.R.RGasCore

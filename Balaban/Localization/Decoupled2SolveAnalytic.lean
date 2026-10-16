@@ -96,7 +96,7 @@ theorem i4a_analytic {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG) (hA : An
     exact h1'.inter h2'
   have hyp : ∀ p : DecParams C × Edat H N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
       StrictDataM H N ιU δ₀ δ₁ p.2 → DecHyp H a ν ιU p.2.2.1 p.2.1 p.2.2.2.1 p.2.2.2.2 δ₀ δ₁ :=
-    fun p _ hp => StrictDataM.hyp S.toGreen h0 h1 hle1 hp
+    fun p _ hp => StrictDataM.hyp S.toOpSetting.toGreen h0 h1 hle1 hp
   have hfam : ∀ p : DecParams C × Edat H N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
       GreenFamily H N (decG C H a ν p.1) B Γ := fun p hp =>
     (hF.2.2 C H S hκ hM (s := p.1) (fun P => (hp P).le) N).1.1
