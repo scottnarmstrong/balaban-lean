@@ -96,7 +96,7 @@ theorem p6_opSetting_of {N₁' m₁' K' : ℕ} [NeZero N₁'] {ϱ' : ℝ}
     (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν) (hνL : ν * ((L : ℝ) ^ K') ^ 2 ≤ 1)
     (ha : IsAdmissibleWeights K' a)
     (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ' - 1)) : Dec2.OpSetting H a ν :=
-  ⟨hd, hL, hν, hνL, ha, hsep⟩
+  ⟨⟨hd, hL, hν, ha, hsep⟩, hνL⟩
 
 /-- **`p6_opSetting_old`**: the `Dec2.OpSetting` of the old operator `H⁻ = 𝔹_k(W_k)`
 (`d, L ≥ 3`, `0 ≤ ν`, `ν L^{2K} ≤ 1`, admissible weights, `2 d log L ≤ agmonRate(d)/16 (ϱ - 1)`
@@ -128,7 +128,7 @@ theorem p6_coverGeom_of_pair {N₁' m₁' K' : ℕ} [NeZero N₁'] {ϱF ϱH : �
     (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν) (hνL : ν * ((L : ℝ) ^ K') ^ 2 ≤ 1)
     (ha : IsAdmissibleWeights K' a) (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱH - 1)) :
     Dec2.CoverGeom (coverOf F) H a ν (Cchi d L) where
-  toOpSetting := p6_opSetting_of H hd hL hν hνL ha hsep
+  toOpSettingCore := (p6_opSetting_of H hd hL hν hνL ha hsep).toOpSettingCore
   blockAligned q hq := p6_blockAligned hF hSS hHF (by omega) ((mem_cubeIdx F).2 ((mem_cubeIdx F).1 hq))
   chi_unit q hq x z hx hz := p6_chi_unit hF hHF (by omega) (by omega) hq hx hz
   sum_chi x hx := p6_sum_chi hF hHF (by omega) (by omega) hx

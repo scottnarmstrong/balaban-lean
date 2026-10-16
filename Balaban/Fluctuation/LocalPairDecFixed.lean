@@ -502,8 +502,8 @@ theorem decSol_value_cross {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG)
     have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
       (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
     exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
-  have Hh := StrictDataM.hyp S.toGreen h0 h1 hle1 he
-  have Hh' := StrictDataM.hyp S'.toGreen h0 h1 hle1 he'
+  have Hh := StrictDataM.hyp S.toOpSetting.toGreen h0 h1 hle1 he
+  have Hh' := StrictDataM.hyp S'.toOpSetting.toGreen h0 h1 hle1 he'
   obtain ⟨hfld, hfix, hsm, -⟩ := hSol (s, e) hs he
   obtain ⟨hfld', hfix', hsm', -⟩ := hSol' (s', e') hs' he'
   obtain ⟨hα, hcorr⟩ := decFixed_component_cross hF S S' hκ hM (fun P => (hs P).le)

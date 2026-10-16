@@ -77,10 +77,12 @@ torus (the common cover), the property `nc` of `CoverBase` holds with the consta
 position of the physical wall of `H`. -/
 theorem coverBase_mixed (hN : 5 < N₁) (F : GeneratingSet d L (N₁ * L ^ m₁) K ϱ')
     {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
-    {Cx : ℝ} (G : CoverGeom C H a ν Cx) (hC : ∀ q ∈ C.cubeIdx, q ∈ cubeIdx F) :
+    {Cx : ℝ} (G : CoverGeom C H a ν Cx) (hmass : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1)
+    (hC : ∀ q ∈ C.cubeIdx, q ∈ cubeIdx F) :
     CoverBase C H a ν (mixedKc d L) Cx where
   toCoverGeom := G
-  nc := fun {_} hα q hq => (cubeBlockBounds_mixed hN F G.toOpSetting hα (hC q hq)
+  massLe := hmass
+  nc := fun {_} hα q hq => (cubeBlockBounds_mixed hN F ⟨G.toOpSettingCore, hmass⟩ hα (hC q hq)
     (G.blockAligned q hq))
 
 end Balaban.Localization.Dec2

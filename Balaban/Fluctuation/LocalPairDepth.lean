@@ -160,7 +160,7 @@ theorem level_coverBase_mixed (h : IsLevel G K) {ϱH : ℝ}
     Dec2.CoverBase (coverOf G) H a ν (Dec2.mixedKc d L) (Cchi d L) :=
   Dec2.coverBase_mixed hN G (p6_coverGeom_of_pair (isLevel_top_cubeAligned h hm₁) (isLevel_top_supSep h)
     (isLevel_top_precedes h H) hM
-    hd hL hν hνL ha hag) (fun _ hq => hq)
+    hd hL hν hνL ha hag) hνL (fun _ hq => hq)
 
 end LevelCube
 

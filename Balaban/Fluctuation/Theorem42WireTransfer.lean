@@ -398,7 +398,7 @@ theorem regIneq_transfer (hd : 3 ≤ d) (hL : 3 ≤ L) {N : ℕ} :
   have : NeZero N₁ := ⟨by rintro rfl; exact absurd (by simp) (NeZero.ne (0 * L ^ m₁))⟩
   have hL2 : 2 ≤ L := by omega
   have hOp : Dec2.OpSetting G0 (compWeight L a₁) ν :=
-    ⟨H0.hd, H0.hL, H0.mass, H0.massLe, H0.weights, hsep⟩
+    ⟨⟨H0.hd, H0.hL, H0.mass, H0.weights, hsep⟩, H0.massLe⟩
   have hD1U : InUnionDomainC G1 (bgC0 d L N) (thm73C1 d L N) ν D1 :=
     ⟨δ1, ε1, hδ10, hδε1, hε1, hδ1c, hνε1, hD1⟩
   obtain ⟨hDuU, hfield, hmult⟩ := theorem73_complex ha₁ H0 H1 hprec hD1U

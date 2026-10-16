@@ -268,7 +268,7 @@ theorem layered_response {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw) [NeZ
     LayerBounds G τ (Kw * (cF d L * (A₀ * R)))
       (bgField G a ν D' - bgField G a ν D) (bgMult G a ν D' - bgMult G a ν D) := by
   subst hN
-  exact layered_response_core hW H ⟨H.hd, H.hL, H.mass, H.massLe, H.weights, hsep⟩ hδ0 hδ hD hδ0' hδ' hD' hK hKw hh hKk hτ hA₀ hR hRγ hΩ hcol
+  exact layered_response_core hW H ⟨⟨H.hd, H.hL, H.mass, H.weights, hsep⟩, H.massLe⟩ hδ0 hδ hD hδ0' hδ' hD' hK hKw hh hKk hτ hA₀ hR hRγ hΩ hcol
     hτs hτw
 
 /-- `LayerProfile` is inhabited: the constant profile. -/

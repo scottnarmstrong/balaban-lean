@@ -69,7 +69,7 @@ theorem opSetting_nonempty :
       Dec2.OpSetting H (compWeight 3 1) 0 := by
   obtain ⟨m₁, h4, -⟩ := exists_m₁_cstar
   have S := dgSetting_rho h4
-  exact ⟨m₁, rhoSep m₁, GP m₁ (rhoSep m₁), ⟨S.hd, S.hL, S.mass, S.massLe, S.weights, S.sep⟩⟩
+  exact ⟨m₁, rhoSep m₁, GP m₁ (rhoSep m₁), ⟨⟨S.hd, S.hL, S.mass, S.weights, S.sep⟩, S.massLe⟩⟩
 
 /-- **`XSetting` is inhabited** at positive scale (`k = 1`, `a_{k+1} = 1`). -/
 theorem xSetting_nonempty :
