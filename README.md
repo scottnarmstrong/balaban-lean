@@ -147,8 +147,10 @@ contains an account of Bałaban's renormalization group for lattice Yang–Mills
 the ancestors of the O(N) papers formalized here. Its reading of Bałaban's Yang–Mills large-field gas
 (clusters formed after removing the retained large-field components) suggested the route we now
 follow for the large-field gas ([blocker 4](docs/BLOCKERS.md)), and it informs our reading of the
-torus-independence clause (blocker 7) and of the first renormalization step (blocker 1). Details:
-[notes/phase1/YMACCOUNT.md](notes/phase1/YMACCOUNT.md), [notes/phase1/VMOD-43.md](notes/phase1/VMOD-43.md).
+torus-independence clause (blocker 7), of the first renormalization step (blocker 1), and the design
+we now follow for the change of background along the flow (blocker 2). Details:
+[notes/phase1/YMACCOUNT.md](notes/phase1/YMACCOUNT.md), [notes/phase1/VMOD-43.md](notes/phase1/VMOD-43.md),
+[notes/phase1/Q13-YM.md](notes/phase1/Q13-YM.md).
 
 ## License
 
