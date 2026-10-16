@@ -34,3 +34,8 @@ Conclusion: (O) closes on landed material plus the identification; (N) closes on
 
 W812 status (14 Oct 2026): `Balaban/Green/FinalSecondOrder.lean`. Leaf 1: `norm_sub_fderiv_le_of_polydisc` (constant 2B(R/T)^2, not B(R/T)^2/(1-R/T)). Leaf 2: `cutoffInteraction_final_phys_sub2` (hypothesis `Measure.map Neg.neg γ = γ`; J of `F - F φ₀` equals J of the remainder; bound 2B(R₁/Rphys)^2 γ(box) e^{-(κ-1)|C|}).
 Leaf 4: `betaK_inv_mul_sq_cut_le` (ρ = A (log β)^q, p < 1, e ≤ p(d-2)). Leaf 3 (cross term with the odd part of G0) NOT done: it is the remaining open input.
+
+W841 status (16 Oct 2026): `Balaban/Green/FinalCrossTerm.lean`, generic lemmas for leaf 3, all proved.
+(1) `norm_odd_le_of_polydisc`: ‖(G w - G(-w))/2‖ ≤ 2B(R/T)^3 for ‖G‖ ≤ B on radius T, G'(0) = 0.
+(2) `setIntegral_box_odd_mul_exp_eq`, `norm_setIntegral_box_odd_mul_exp_le`: odd cancellation against e^{g_even+g_odd}, bound Cf Ce Co γ(box).
+(3) `norm_log_sub_log_sub_le`: |log Z1 - log Z0 - ⟨J2⟩| ≤ (A1 E O V + (A1+A2)^2 E2 V)/z0 + X^2 (hypotheses: continuity, parity, sup bounds on the box, Re Z0 > 0, |Z0| ≥ z0, X ≤ 1/2). Physical identification of G0, J1, J2 and the sizes in β are NOT proved here.

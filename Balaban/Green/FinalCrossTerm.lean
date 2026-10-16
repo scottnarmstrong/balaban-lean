@@ -226,4 +226,155 @@ theorem norm_setIntegral_box_odd_mul_exp_le {γ : Measure (ι → ℝ)}
 
 end Cancellation
 
+section Log
+
+variable {ι : Type*} [Fintype ι]
+
+/-- `log (Z₀ (1 + x)) = log Z₀ + log (1 + x)` for `Re Z₀ > 0` and `‖x‖ < 1`. -/
+theorem log_mul_one_add_eq {Z x : ℂ} (hZ : 0 < Z.re) (hx : ‖x‖ < 1) :
+    Complex.log (Z * (1 + x)) = Complex.log Z + Complex.log (1 + x) := by
+  have hx1 : 0 < (1 + x).re := by
+    have := Complex.abs_re_le_norm x
+    simp only [Complex.add_re, Complex.one_re]
+    have h2 : |x.re| ≤ ‖x‖ := this
+    have := (abs_le.1 h2).1
+    linarith
+  have hZ0 : Z ≠ 0 := fun h => by simp [h] at hZ
+  have hy0 : (1 + x) ≠ 0 := fun h => by simp [h] at hx1
+  rw [Complex.log_mul_eq_add_log_iff hZ0 hy0]
+  have a := Complex.abs_arg_lt_pi_div_two_iff.2 (Or.inl hZ)
+  have b := Complex.abs_arg_lt_pi_div_two_iff.2 (Or.inl hx1)
+  rw [abs_lt] at a b
+  constructor <;> linarith
+
+/-- **First-order bound of the new last-step terms (generic form).**
+Let `γ` be symmetric, `J₁` odd, `g_even` even, `g_odd` odd (all continuous), `G₀ = g_even + g_odd`,
+`J = J₁ + J₂`, and
+`Z₀ = ∫_box e^{G₀} dγ`, `Z₁ = ∫_box e^{G₀ + J} dγ`.  Suppose on the box
+`‖J₁‖ ≤ A₁`, `‖J₂‖ ≤ A₂`, `‖e^{g_even}‖ ≤ E`, `‖e^{g_odd} - 1‖ ≤ O`, `‖e^{G₀}‖ ≤ E₂`,
+with `A₁ + A₂ ≤ 1`, and `0 < Re Z₀`, `z₀ ≤ ‖Z₀‖`, `X ≤ 1/2` where
+`X = (A₁ E O V + A₂ E₂ V + (A₁ + A₂)² E₂ V) / z₀` and `V = γ(box)`.  Then
+`‖log Z₁ - log Z₀ - (∫_box J₂ e^{G₀} dγ) / Z₀‖ ≤ (A₁ E O V + (A₁ + A₂)² E₂ V) / z₀ + X²`. -/
+theorem norm_log_sub_log_sub_le {γ : Measure (ι → ℝ)}
+    (hsym : Measure.map Neg.neg γ = γ) {ρ : ℝ} (hρ : 0 ≤ ρ)
+    (hγ : γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤)
+    {J₁ J₂ ge go : (ι → ℝ) → ℂ} (hJ₁c : Continuous J₁) (hJ₂c : Continuous J₂)
+    (hgec : Continuous ge) (hgoc : Continuous go)
+    (hJ₁ : ∀ ψ, J₁ (-ψ) = - J₁ ψ) (hge : ∀ ψ, ge (-ψ) = ge ψ)
+    {A₁ A₂ E O E₂ z₀ : ℝ}
+    (hA₁ : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖J₁ ψ‖ ≤ A₁)
+    (hA₂ : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖J₂ ψ‖ ≤ A₂)
+    (hE : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖Complex.exp (ge ψ)‖ ≤ E)
+    (hO : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖Complex.exp (go ψ) - 1‖ ≤ O)
+    (hE₂ : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖Complex.exp (ge ψ + go ψ)‖ ≤ E₂)
+    (hA : A₁ + A₂ ≤ 1) (hz₀ : 0 < z₀)
+    (hZre : 0 < (∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, Complex.exp (ge ψ + go ψ) ∂γ).re)
+    (hZ : z₀ ≤ ‖∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, Complex.exp (ge ψ + go ψ) ∂γ‖)
+    (hX : (A₁ * E * O * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal +
+        A₂ * E₂ * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal +
+        (A₁ + A₂) ^ 2 * E₂ * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal) / z₀ ≤ 1 / 2) :
+    ‖Complex.log (∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ},
+          Complex.exp (ge ψ + go ψ + (J₁ ψ + J₂ ψ)) ∂γ) -
+        Complex.log (∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, Complex.exp (ge ψ + go ψ) ∂γ) -
+        (∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, J₂ ψ * Complex.exp (ge ψ + go ψ) ∂γ) /
+          (∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, Complex.exp (ge ψ + go ψ) ∂γ)‖ ≤
+      (A₁ * E * O * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal +
+        (A₁ + A₂) ^ 2 * E₂ * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal) / z₀ +
+      ((A₁ * E * O * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal +
+        A₂ * E₂ * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal +
+        (A₁ + A₂) ^ 2 * E₂ * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal) / z₀) ^ 2 := by
+  set S : Set (ι → ℝ) := {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} with hS
+  set V : ℝ := (γ S).toReal with hV
+  have hSm : MeasurableSet S := (isCompact_box ρ).isClosed.measurableSet
+  have h0S : (0 : ι → ℝ) ∈ S := fun y => by simpa using hρ
+  have hint : ∀ {u : (ι → ℝ) → ℂ}, Continuous u → IntegrableOn u S γ := fun hu =>
+    hu.continuousOn.integrableOn_of_subset_isCompact (isCompact_box ρ) hSm subset_rfl hγ.ne
+  have hV0 : 0 ≤ V := ENNReal.toReal_nonneg
+  have hA₁0 : 0 ≤ A₁ := (norm_nonneg _).trans (hA₁ 0 h0S)
+  have hA₂0 : 0 ≤ A₂ := (norm_nonneg _).trans (hA₂ 0 h0S)
+  have hE0 : 0 ≤ E := (norm_nonneg _).trans (hE 0 h0S)
+  have hO0 : 0 ≤ O := (norm_nonneg _).trans (hO 0 h0S)
+  have hE₂0 : 0 ≤ E₂ := (norm_nonneg _).trans (hE₂ 0 h0S)
+  set G : (ι → ℝ) → ℂ := fun ψ => ge ψ + go ψ with hG
+  set Z₀ : ℂ := ∫ ψ in S, Complex.exp (G ψ) ∂γ with hZ₀
+  set Z₁ : ℂ := ∫ ψ in S, Complex.exp (G ψ + (J₁ ψ + J₂ ψ)) ∂γ with hZ₁
+  set rem : (ι → ℝ) → ℂ := fun ψ =>
+    Complex.exp (J₁ ψ + J₂ ψ) - 1 - (J₁ ψ + J₂ ψ) with hrem
+  set I₁ : ℂ := ∫ ψ in S, J₁ ψ * Complex.exp (G ψ) ∂γ with hI₁
+  set I₂ : ℂ := ∫ ψ in S, J₂ ψ * Complex.exp (G ψ) ∂γ with hI₂
+  set I₃ : ℂ := ∫ ψ in S, rem ψ * Complex.exp (G ψ) ∂γ with hI₃
+  have hGc : Continuous G := hgec.add hgoc
+  have hi1 : IntegrableOn (fun ψ => J₁ ψ * Complex.exp (G ψ)) S γ := hint (by fun_prop)
+  have hi2 : IntegrableOn (fun ψ => J₂ ψ * Complex.exp (G ψ)) S γ := hint (by fun_prop)
+  have hi3 : IntegrableOn (fun ψ => rem ψ * Complex.exp (G ψ)) S γ := hint (by fun_prop)
+  have hi0 : IntegrableOn (fun ψ => Complex.exp (G ψ)) S γ := hint (by fun_prop)
+  have hZ₁eq : Z₁ = Z₀ + (I₁ + I₂ + I₃) := by
+    have : ∀ ψ, Complex.exp (G ψ + (J₁ ψ + J₂ ψ)) = Complex.exp (G ψ) +
+        (J₁ ψ * Complex.exp (G ψ) + J₂ ψ * Complex.exp (G ψ) + rem ψ * Complex.exp (G ψ)) := by
+      intro ψ
+      rw [Complex.exp_add]; simp only [hrem]; ring
+    simp only [hZ₁, hZ₀, hI₁, hI₂, hI₃]
+    simp_rw [this]
+    have hi12 : IntegrableOn (fun ψ => J₁ ψ * Complex.exp (G ψ) + J₂ ψ * Complex.exp (G ψ))
+        S γ := hint (by fun_prop)
+    have hi123 : IntegrableOn (fun ψ => J₁ ψ * Complex.exp (G ψ) + J₂ ψ * Complex.exp (G ψ) +
+        rem ψ * Complex.exp (G ψ)) S γ := hint (by fun_prop)
+    rw [integral_add hi0 hi123, integral_add hi12 hi3, integral_add hi1 hi2]
+  have hb1 : ‖I₁‖ ≤ A₁ * E * O * V :=
+    norm_setIntegral_box_odd_mul_exp_le hsym hγ hJ₁c hgec hgoc hJ₁ hge hA₁ hE hO
+  have hb2 : ‖I₂‖ ≤ A₂ * E₂ * V := by
+    refine (norm_setIntegral_le_of_norm_le_const hγ (C := A₂ * E₂) (fun ψ hψ => ?_)).trans ?_
+    · rw [norm_mul]; exact mul_le_mul (hA₂ ψ hψ) (hE₂ ψ hψ) (norm_nonneg _) hA₂0
+    · rw [Measure.real]
+  have hb3 : ‖I₃‖ ≤ (A₁ + A₂) ^ 2 * E₂ * V := by
+    refine (norm_setIntegral_le_of_norm_le_const hγ (C := (A₁ + A₂) ^ 2 * E₂)
+      (fun ψ hψ => ?_)).trans ?_
+    · rw [norm_mul]
+      have hJ : ‖J₁ ψ + J₂ ψ‖ ≤ A₁ + A₂ :=
+        (norm_add_le _ _).trans (add_le_add (hA₁ ψ hψ) (hA₂ ψ hψ))
+      have hr : ‖rem ψ‖ ≤ (A₁ + A₂) ^ 2 :=
+        (Complex.norm_exp_sub_one_sub_id_le (hJ.trans hA)).trans
+          (pow_le_pow_left₀ (norm_nonneg _) hJ 2)
+      exact mul_le_mul hr (hE₂ ψ hψ) (norm_nonneg _) (sq_nonneg _)
+    · rw [Measure.real]
+  set P : ℝ := (A₁ * E * O * V + (A₁ + A₂) ^ 2 * E₂ * V) / z₀ with hP
+  set X : ℝ := (A₁ * E * O * V + A₂ * E₂ * V + (A₁ + A₂) ^ 2 * E₂ * V) / z₀ with hXdef
+  have hZ0ne : Z₀ ≠ 0 := fun h => by simp [h] at hZre
+  have hZpos : 0 < ‖Z₀‖ := lt_of_lt_of_le hz₀ hZ
+  set x : ℂ := (I₁ + I₂ + I₃) / Z₀ with hx
+  have hdivb : ∀ {w : ℂ} {b : ℝ}, ‖w‖ ≤ b → ‖w / Z₀‖ ≤ b / z₀ := by
+    intro w b hw
+    rw [norm_div]
+    exact div_le_div₀ ((norm_nonneg _).trans hw) hw hz₀ hZ
+  have hxX : ‖x‖ ≤ X := by
+    refine (hdivb ?_)
+    exact (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add hb1 hb2)) hb3)
+  have hx1 : ‖x‖ < 1 := by
+    have : X ≤ 1 / 2 := hX
+    linarith
+  have hZ₁x : Z₁ = Z₀ * (1 + x) := by
+    rw [hZ₁eq, hx]; field_simp
+  have hlog : Complex.log Z₁ = Complex.log Z₀ + Complex.log (1 + x) := by
+    rw [hZ₁x]; exact log_mul_one_add_eq hZre hx1
+  have hsplit : Complex.log Z₁ - Complex.log Z₀ - I₂ / Z₀ =
+      (Complex.log (1 + x) - x) + (I₁ + I₃) / Z₀ := by
+    rw [hlog, hx]; ring
+  have hlg : ‖Complex.log (1 + x) - x‖ ≤ X ^ 2 := by
+    have h := Complex.norm_log_one_add_sub_self_le hx1
+    have hxnn := norm_nonneg x
+    have hX2 : ‖x‖ ≤ 1 / 2 := hxX.trans hX
+    calc ‖Complex.log (1 + x) - x‖ ≤ ‖x‖ ^ 2 * (1 - ‖x‖)⁻¹ / 2 := h
+      _ ≤ ‖x‖ ^ 2 := by
+          have : (1 - ‖x‖)⁻¹ ≤ 2 := by
+            rw [inv_le_comm₀ (by linarith) (by norm_num)]; linarith
+          have hsq := sq_nonneg ‖x‖
+          nlinarith
+      _ ≤ X ^ 2 := pow_le_pow_left₀ hxnn hxX 2
+  have hrest : ‖(I₁ + I₃) / Z₀‖ ≤ P := hdivb ((norm_add_le _ _).trans (add_le_add hb1 hb3))
+  show ‖Complex.log Z₁ - Complex.log Z₀ - I₂ / Z₀‖ ≤ P + X ^ 2
+  rw [hsplit]
+  exact (norm_add_le _ _).trans (by linarith)
+
+end Log
+
 end Balaban.Green
