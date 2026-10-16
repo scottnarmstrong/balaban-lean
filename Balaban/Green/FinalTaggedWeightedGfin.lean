@@ -335,6 +335,44 @@ theorem final_taggedGfin_close_weighted (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (h�
   rw [hexp]
   linarith
 
+/-- **Closeness of the Stieltjes family `taggedCfinU` of the final operators on two tori,
+polynomial in the number of cells.**  The Stieltjes integral of `final_taggedGfin_close_weighted`
+(through `taggedCfinU_close_of_Gfin`): the entries differ by at most `P (nC² + nC⁴) √ε / √g`, with
+the constant `P` of `final_taggedGfin_close_weighted`. -/
+theorem final_taggedCfinU_close_weighted (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ (nC : ℕ) {k J N N' : ℕ} [NeZero N] [NeZero N'], 1 ≤ k →
+      2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' → ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {ε : ℝ}, (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε) →
+      ∀ {s : MacIdx d N M → ℂ}, s ∈ supportedOn C →
+      ∀ {s' : MacIdx d N' M → ℂ}, s' ∈ supportedOn (C.image e) →
+      (∀ i ∈ C, s' (e i) = s i) → (∀ p, ‖s p‖ ≤ Real.exp κ) →
+      ∀ {x y : L1Torus d N}, x ∈ macRegion d N M C → y ∈ macRegion d N M C →
+      ‖taggedCfinU d N M (finalOp d L N k v a) s x y -
+          taggedCfinU d N' M (finalOp d L N' k v a) s' (f x) (f y)‖ ≤
+        P * ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * Real.sqrt ε / Real.sqrt (finalGap d L) := by
+  classical
+  obtain ⟨P, hP0, hP⟩ := final_taggedGfin_close_weighted (L := L) hd hM hκ hMB hMκ
+  refine ⟨P, hP0, ?_⟩
+  intro nC k J N N' _ _ hk hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass ε hU s hs s' hs' hss
+    hsκ x y hx hy
+  have hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ := by
+    intro p
+    by_cases hp : p ∈ C.image e
+    · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hp
+      rw [hss i hi]; exact hsκ i
+    · rw [hs' p hp, norm_zero]; exact (Real.exp_pos _).le
+  exact taggedCfinU_close_of_Gfin hd hM hκ hMB hMκ hk hv0 hv1 ha1 ha2 hmass hsκ hsκ'
+    (Q := P * ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * Real.sqrt ε)
+    (fun r hr => hP nC hk hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass hU hr.le hs hs' hss hsκ hx hy)
+
 end TwoTorus
 
 end Balaban.Green
