@@ -1981,3 +1981,4 @@ public import Balaban.Fluctuation.LocalClassLatHat
 public import Balaban.Fluctuation.LocalClassLat
 public import Balaban.Localization.LatPairGeom
 public import Balaban.Fluctuation.LocalClassLatData
+public import Balaban.Fluctuation.LocalClassLatPaving
