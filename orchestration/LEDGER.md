@@ -1562,3 +1562,4 @@
 | 2026-10-16 | W848 | landed | `Fluctuation/LocalClassFresh.lean` + cores `Dec2.fieldsCross_of_agree` (LocalPairReplacement), `localHat_fields_congr` (LocalClassLocal; W820's theorem core + tail): `localB_freshTermHat_evTerm_local`, **`localB_freshTermHat_evTerm_ext`**. Open: per-site bound of the completed fresh term. |
 | 2026-10-16 | W851 (Opus) | launched | Blocker 6: the Terms record of the local successor class at level k+1 (compose the landed clauses into SFTermClausesStrong), eucEloc design. |
 | 2026-10-16 | W852 | launched | Dedup: `fieldDom_completion_extension` (W829) as the parameter-free case of W840's `fieldDom_completion_analytic_param`. |
+| 2026-10-16 | W852 | landed | Cleanup: `fieldDom_completion_analytic_param` moved to `LocalClassExtend.lean` as the core; `fieldDom_completion_extension` its parameter-free application (closes the W840 dedup item). |
