@@ -1975,3 +1975,6 @@ public import Balaban.Fluctuation.LocalClassCov
 public import Balaban.Localization.LatPairCover
 public import Balaban.Localization.LatPairBg
 public import Balaban.Localization.LatPairCov
+public import Balaban.Fluctuation.LocalClassLatCore
+public import Balaban.Fluctuation.LocalClassLatFan
+public import Balaban.Fluctuation.LocalClassLatHat
