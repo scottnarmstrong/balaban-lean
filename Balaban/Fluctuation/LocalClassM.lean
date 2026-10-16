@@ -35,9 +35,9 @@ file carries a parameter `g` through the chain without re-proving it.
 * `evTerm_congr_fun`, `evTerm_source_congr`: the term depends on a source parameter only through
   its restriction to `X ⊆ X₁ ⊆ Y` (it vanishes unless `X₁ ⊆ Y`);
 * `localB_mTermHat_evTerm_local`: exact locality of the term on the class domain, for every source;
-* `fieldDom_completion_analytic_param`: the completion extension with an analytic parameter
-  (`fieldDom_completion_extension`, analyticity clause, for a function of the pair and a
-  parameter; the landed statement is the case without parameter, which this file does not edit);
+* the completion extension with an analytic parameter is `fieldDom_completion_analytic_param`
+  in `LocalClassExtend.lean` (of which `fieldDom_completion_extension` is the case without
+  parameter);
 * `localB_mTermHat_evTerm_ext_loc`, `…_ext_an`, `…_ext`: the term composed with the completion
   `cpl` at `Y`: the same value at two triples `(Ψ, h, g)`, `(Ψ', h', g')` equal on `Y` (all fields and
   all sources: `localM`), equal to the recomputed term on the class domain (so `rotM`, `eucM`
