@@ -1929,6 +1929,7 @@ public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseXCover
 public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.LargeField.Base.BaseXCov
+public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
