@@ -138,6 +138,59 @@ theorem final_boxFamily_close_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     rw [one_div] at e1 e2
     nlinarith
 
+/-- **Closeness of the tagged `G_*` and the tagged defect `K` of the final operators on two tori,
+without the factor `e^{κ |C|}`.**  Under the hypotheses of `final_taggedGK_close` and
+`hMκ : 8 κ 7^d ≤ pdEps d L * M`, the entries of the tagged `G_*` (resp. `K`) differ at
+`x, y ∈ Y(C)` by at most `|C| e^{H κ}` times the error `δ` of `final_boxFamily_close_weighted`
+for `χ_z G_z` (resp. `R_z`).  The rate is `σ = pdEps d L / 4`; the condition
+`κ 7^d / M ≤ σ` of `taggedMat_close_twoTorus_weighted_le` follows from `hMκ`. -/
+theorem final_taggedGK_close_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) {ε κ : ℝ} (hκ : 0 ≤ κ)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    (hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε)
+    {t : ℝ} (ht : 0 ≤ t)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} (hx : x ∈ macRegion d N M C) (hy : y ∈ macRegion d N M C) :
+    ‖taggedG Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) (finalOp d L N k v a) t s x y -
+        taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+          (macTags d N' M) (finalOp d L N' k v a) t s' (f x) (f y)‖ ≤
+      (C.card : ℝ) * Real.exp (pdH d * κ) *
+        Real.sqrt ((((((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2 * ε * (finalGap d L + t)⁻¹ ^ 2) *
+          (4 * (finalGap d L + t)⁻¹))) ∧
+    ‖taggedK Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) (finalOp d L N k v a) t s x y -
+        taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+          (macTags d N' M) (finalOp d L N' k v a) t s' (f x) (f y)‖ ≤
+      (C.card : ℝ) * Real.exp (pdH d * κ) *
+        Real.sqrt (((((8 * M + 1) ^ d : ℕ) : ℝ) * ε * (finalGap d L + t)⁻¹ *
+          (2 + (finalDecayC d L / finalGap d L + 1) * (((8 * M + 1) ^ d : ℕ) : ℝ) ^ 2)) *
+          (2 * (pdC1 d L / M) * (finalGap d L + t)⁻¹)) := by
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hε := pdEps_pos (d := d) (L := L) hd
+  have hσ : κ * 7 ^ d / M ≤ pdEps d L / 4 := by
+    rw [div_le_iff₀ hM']
+    have : (0 : ℝ) ≤ κ * 7 ^ d := by positivity
+    nlinarith
+  refine ⟨?_, ?_⟩
+  · unfold taggedG
+    exact taggedMat_close_twoTorus_weighted_le hM hN hN' hf he hC hκ (by positivity) hσ
+      (fun z hzC u hu w hw => (final_boxFamily_close_weighted hM hN hN' hf he hC hd hk hv0 hv1 ha1
+        ha2 hmass hU ht hzC hu hw).1) hs hs' hss hsκ hx hy
+  · unfold taggedK
+    exact taggedMat_close_twoTorus_weighted_le hM hN hN' hf he hC hκ (by positivity) hσ
+      (fun z hzC u hu w hw => (final_boxFamily_close_weighted hM hN hN' hf he hC hd hk hv0 hv1 ha1
+        ha2 hmass hU ht hzC hu hw).2) hs hs' hss hsκ hx hy
+
 end TwoTorus
 
 end Balaban.Green
