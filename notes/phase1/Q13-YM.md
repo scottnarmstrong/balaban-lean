@@ -83,3 +83,8 @@ weights, which are then analytic in b on a transverse polydisc of radius of orde
 the inductive class carry for k <= k_0 and for k > k_0, and does it shrink or grow with k? In Yang-Mills the tests reach every
 pinned plaquette within 2LMR_1 of the large-field region (CMP119 p. 248), so the collar data the background reads are tested;
 is P5 (1.19) to be read with square^~ replaced by the neighbourhood of 2R_{k-1}+3 cubes, or does a different argument give the alignment on the retained shell?
+
+W862 status (leaves 2, 3, 7 of section 5; files Balaban/LargeField/Regime/A0Prime{Support,Weight,Reserve}.lean, no landed file changed):
+leaf 2: reg/chiK/chiPrimeNew/chiY at mass 0 (and nu_k = 0) are h-free for constant real h; S5(i) follows from chiK_rot (chiK_zero_mass_rot_fixed_h, chiPrimeNew_zero_mass_rot_fixed_h).
+leaf 3: weight_real_bounds (landed actionG, e^{-2E|X|} <= w <= 1); complex source: entire, |w| <= e^{beta mu |C| |Im h|^2/2}; one-block R-c analytic on |q|<c with |w| <= e^{beta|q|^2/c}; the constant 1/(2c) is FALSE (blockGap_re_lt_of_imag).
+leaf 7: collar_reserve with p_*(d) = d and A0^2 lam_{k-1}^2 > a (4 R_b + 7)^d.
