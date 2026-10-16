@@ -172,4 +172,58 @@ theorem norm_odd_le_of_polydisc {T R B : ℝ} (hR : 0 < R) (hRT : R < T)
 
 end Odd
 
+section Cancellation
+
+variable {ι : Type*} [Fintype ι]
+
+/-- The box integral of an odd function times `e^{g_even + g_odd}` equals the box integral of
+`f e^{g_even} (e^{g_odd} - 1)`, for `γ` symmetric. -/
+theorem setIntegral_box_odd_mul_exp_eq {γ : Measure (ι → ℝ)}
+    (hsym : Measure.map Neg.neg γ = γ) {ρ : ℝ} (hγ : γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤)
+    {f ge go : (ι → ℝ) → ℂ} (hfc : Continuous f) (hgec : Continuous ge) (hgoc : Continuous go)
+    (hf : ∀ ψ, f (-ψ) = - f ψ) (hge : ∀ ψ, ge (-ψ) = ge ψ) :
+    ∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, f ψ * Complex.exp (ge ψ + go ψ) ∂γ =
+      ∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ},
+        f ψ * Complex.exp (ge ψ) * (Complex.exp (go ψ) - 1) ∂γ := by
+  set S : Set (ι → ℝ) := {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} with hS
+  have hSm : MeasurableSet S := (isCompact_box ρ).isClosed.measurableSet
+  have hint : ∀ {u : (ι → ℝ) → ℂ}, Continuous u → IntegrableOn u S γ := fun hu =>
+    hu.continuousOn.integrableOn_of_subset_isCompact (isCompact_box ρ) hSm subset_rfl hγ.ne
+  have h1 : IntegrableOn (fun ψ => f ψ * Complex.exp (ge ψ) * (Complex.exp (go ψ) - 1)) S γ :=
+    hint (by fun_prop)
+  have h2 : IntegrableOn (fun ψ => f ψ * Complex.exp (ge ψ)) S γ := hint (by fun_prop)
+  have h0 : ∫ ψ in S, f ψ * Complex.exp (ge ψ) ∂γ = 0 :=
+    setIntegral_box_odd_eq_zero hsym (fun ψ => by simp [hf, hge])
+  have : ∀ ψ, f ψ * Complex.exp (ge ψ + go ψ) =
+      f ψ * Complex.exp (ge ψ) * (Complex.exp (go ψ) - 1) + f ψ * Complex.exp (ge ψ) := by
+    intro ψ; rw [Complex.exp_add]; ring
+  simp_rw [this]
+  rw [integral_add h1 h2, h0, add_zero]
+
+/-- **Odd cancellation with a weight.**  For `γ` symmetric, `f` odd, `g_even` even, `g_odd`
+odd, with pointwise bounds on the box,
+`‖∫_box f e^{g_even + g_odd} dγ‖ ≤ Cf Ce Co γ(box)`. -/
+theorem norm_setIntegral_box_odd_mul_exp_le {γ : Measure (ι → ℝ)}
+    (hsym : Measure.map Neg.neg γ = γ) {ρ : ℝ} (hγ : γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤)
+    {f ge go : (ι → ℝ) → ℂ} (hfc : Continuous f) (hgec : Continuous ge) (hgoc : Continuous go)
+    (hf : ∀ ψ, f (-ψ) = - f ψ) (hge : ∀ ψ, ge (-ψ) = ge ψ) {Cf Ce Co : ℝ}
+    (hCf : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖f ψ‖ ≤ Cf)
+    (hCe : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖Complex.exp (ge ψ)‖ ≤ Ce)
+    (hCo : ∀ ψ ∈ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, ‖Complex.exp (go ψ) - 1‖ ≤ Co) :
+    ‖∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, f ψ * Complex.exp (ge ψ + go ψ) ∂γ‖ ≤
+      Cf * Ce * Co * (γ {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal := by
+  rw [setIntegral_box_odd_mul_exp_eq hsym hγ hfc hgec hgoc hf hge]
+  refine (norm_setIntegral_le_of_norm_le_const hγ (C := Cf * Ce * Co) (fun ψ hψ => ?_)).trans
+    ?_
+  · rw [norm_mul, norm_mul]
+    have a := hCf ψ hψ
+    have b := hCe ψ hψ
+    have c := hCo ψ hψ
+    have a0 := (norm_nonneg _).trans a
+    have b0 := (norm_nonneg _).trans b
+    gcongr
+  · rw [Measure.real]
+
+end Cancellation
+
 end Balaban.Green
