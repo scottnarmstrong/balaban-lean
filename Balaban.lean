@@ -2003,3 +2003,4 @@ public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
 public import Balaban.Green.FinalCoefWeighted
+public import Balaban.Polymer.TwoTorusFibreWeighted
