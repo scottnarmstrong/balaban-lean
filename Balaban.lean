@@ -1989,3 +1989,5 @@ public import Balaban.Fluctuation.LocalClassM
 public import Balaban.Green.FinalCrossTerm
 public import Balaban.Fluctuation.LocalClassAssembly
 public import Balaban.Fluctuation.LocalClassLatTau
+public import Balaban.Polymer.TwoTorusEdgeChain
+public import Balaban.Polymer.TwoTorusResum
