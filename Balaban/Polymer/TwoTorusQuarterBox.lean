@@ -652,6 +652,133 @@ theorem image_translate (σ : MacIdx d N M ≃ MacIdx d N M) (σ' : MacIdx d N' 
 
 end CellMap
 
+/-- **Transport of the log-det coefficient closeness to a cyclic shift (any bound).**  If the
+coefficients of two tori differ by at most `Φ (min N N'/2 - (J+3) M) εE |C|` for supports in the
+window `[4, J]` (the hypothesis `hmain`), they differ by the same amount for supports whose cells
+are in that window after a cyclic shift by `p` cells.  The bound `Φ` is arbitrary: the absolute
+(`final_coef_logdet_close_twoTorus_box`) and the weighted closeness both use this statement. -/
+theorem final_coef_logdet_close_twoTorus_box_of {d M L : ℕ} [NeZero L] {κ : ℝ} (hκ : 0 < κ) {rE η : ℝ} (nC : ℕ)
+    (Φ : ℝ → ℝ → ℕ → ℝ)
+    (hmain : ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        Φ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)) εE C.card ) :
+    ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        Φ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)) εE C.card  := by
+  intro k hk J N N' _ _ hN hN' hMN hMN' p f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE'
+    εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  obtain ⟨σ, hσ⟩ := exists_cellShift (N := N) (M := M) d p
+  obtain ⟨σ', hσ'⟩ := exists_cellShift (N := N') (M := M) d p
+  obtain ⟨e1, he1⟩ := exists_translate (N := N) (d := d) (fun _ => ((M * p : ℕ) : ZMod N))
+  obtain ⟨e1', he1'⟩ := exists_translate (N := N') (d := d) (fun _ => ((M * p : ℕ) : ZMod N'))
+  have hκ1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hρ1 : 1 < ρ := lt_trans hκ1 hρ
+  have hρ1' : 1 < ρ' := lt_trans hκ1 hρ'
+  have hemap := cellMap_translate σ σ' hσ hσ' he
+  have hcard : (C.map σ.toEmbedding).card ≤ nC := by rw [Finset.card_map]; exact hCc
+  have hCw := window_translate σ hσ hC
+  have hEcl' : ∀ x ∈ macRegion d N M (C.map σ.toEmbedding), ∀ y ∈ macRegion d N M (C.map σ.toEmbedding),
+      ‖E.submatrix e1.symm e1.symm x y -
+        E'.submatrix e1'.symm e1'.symm ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x)
+          ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) y)‖ ≤ εE := by
+    intro x hx y hy
+    have hxx : x = e1 (e1.symm x) := (e1.apply_symm_apply x).symm
+    have hyy : y = e1 (e1.symm y) := (e1.apply_symm_apply y).symm
+    have hx0 : e1.symm x ∈ macRegion d N M C := by
+      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hxx]; exact hx
+    have hy0 : e1.symm y ∈ macRegion d N M C := by
+      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hyy]; exact hy
+    have key : ∀ z : L1Torus d N, f (e1.symm z) = e1'.symm
+        ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) z) := by
+      intro z
+      refine (Equiv.eq_symm_apply e1').2 ?_
+      funext μ
+      have hz : (e1.symm z) μ + ((M * p : ℕ) : ZMod N) = z μ := by
+        have := he1 (e1.symm z) μ
+        rw [Equiv.apply_symm_apply] at this
+        exact this.symm
+      exact ((he1' (f (e1.symm z)) μ).trans ((hf (e1.symm z) μ).trans
+        (congrArg (fun w : ZMod N => (((w.val : ℕ)) : ZMod N')) hz)))
+    have hEc := hEcl _ hx0 _ hy0
+    rw [key x, key y] at hEc
+    exact hEc
+  have hcoefs := hmain hk hN hN' (f := fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N'))
+    (fun _ _ => rfl) (e := fun w => σ' (e (σ.symm w))) hemap hcard hCw hv0 hv1 ha1 ha2 hmass ht
+    (wSmall_submatrix_equiv e1 he1 hE) (wSmall_submatrix_equiv e1' he1' hE') hεE hEcl' hρ hρ'
+    (analyticOnNhd_comp_perm σ hell) (analyticOnNhd_comp_perm σ' hell') h0 h0'
+    (fun s hs => by
+      rw [det_taggedKE_translate hMN σ hσ e1 he1 E v a t s]
+      exact hdet (s ∘ σ) (comp_perm_mem_ball σ hs))
+    (fun s hs => by
+      rw [det_taggedKE_translate hMN' σ' hσ' e1' he1' E' v a t s]
+      exact hdet' (s ∘ σ') (comp_perm_mem_ball σ' hs))
+  have himg := image_translate σ σ' e C
+  rw [himg, coef_comp_perm σ hρ1 hell, coef_comp_perm σ' hρ1' hell', Finset.card_map] at hcoefs
+  exact hcoefs
 /-- **The localized coefficients of the logarithm of the perturbed defect on two tori, for supports
 in a two-sided box.**  This is `final_coef_logdet_close_twoTorus_unif` for a support whose cells
 are, after the cyclic shift by `p` cells in every coordinate, in the window of indices `[4, J]`: the
@@ -704,56 +831,9 @@ theorem final_coef_logdet_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < 
   obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
     final_coef_logdet_close_twoTorus_unif (L := L) hd hM hκ hMB hMκ hrE hη0 hη nC
   refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
-  intro k hk J N N' _ _ hN hN' hMN hMN' p f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE'
-    εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
-  obtain ⟨σ, hσ⟩ := exists_cellShift (N := N) (M := M) d p
-  obtain ⟨σ', hσ'⟩ := exists_cellShift (N := N') (M := M) d p
-  obtain ⟨e1, he1⟩ := exists_translate (N := N) (d := d) (fun _ => ((M * p : ℕ) : ZMod N))
-  obtain ⟨e1', he1'⟩ := exists_translate (N := N') (d := d) (fun _ => ((M * p : ℕ) : ZMod N'))
-  have hκ1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
-  have hρ1 : 1 < ρ := lt_trans hκ1 hρ
-  have hρ1' : 1 < ρ' := lt_trans hκ1 hρ'
-  have hemap := cellMap_translate σ σ' hσ hσ' he
-  have hcard : (C.map σ.toEmbedding).card ≤ nC := by rw [Finset.card_map]; exact hCc
-  have hCw := window_translate σ hσ hC
-  have hEcl' : ∀ x ∈ macRegion d N M (C.map σ.toEmbedding), ∀ y ∈ macRegion d N M (C.map σ.toEmbedding),
-      ‖E.submatrix e1.symm e1.symm x y -
-        E'.submatrix e1'.symm e1'.symm ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x)
-          ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) y)‖ ≤ εE := by
-    intro x hx y hy
-    have hxx : x = e1 (e1.symm x) := (e1.apply_symm_apply x).symm
-    have hyy : y = e1 (e1.symm y) := (e1.apply_symm_apply y).symm
-    have hx0 : e1.symm x ∈ macRegion d N M C := by
-      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hxx]; exact hx
-    have hy0 : e1.symm y ∈ macRegion d N M C := by
-      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hyy]; exact hy
-    have key : ∀ z : L1Torus d N, f (e1.symm z) = e1'.symm
-        ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) z) := by
-      intro z
-      refine (Equiv.eq_symm_apply e1').2 ?_
-      funext μ
-      have hz : (e1.symm z) μ + ((M * p : ℕ) : ZMod N) = z μ := by
-        have := he1 (e1.symm z) μ
-        rw [Equiv.apply_symm_apply] at this
-        exact this.symm
-      exact ((he1' (f (e1.symm z)) μ).trans ((hf (e1.symm z) μ).trans
-        (congrArg (fun w : ZMod N => (((w.val : ℕ)) : ZMod N')) hz)))
-    have hEc := hEcl _ hx0 _ hy0
-    rw [key x, key y] at hEc
-    exact hEc
-  have hcoefs := hmain hk hN hN' (f := fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N'))
-    (fun _ _ => rfl) (e := fun w => σ' (e (σ.symm w))) hemap hcard hCw hv0 hv1 ha1 ha2 hmass ht
-    (wSmall_submatrix_equiv e1 he1 hE) (wSmall_submatrix_equiv e1' he1' hE') hεE hEcl' hρ hρ'
-    (analyticOnNhd_comp_perm σ hell) (analyticOnNhd_comp_perm σ' hell') h0 h0'
-    (fun s hs => by
-      rw [det_taggedKE_translate hMN σ hσ e1 he1 E v a t s]
-      exact hdet (s ∘ σ) (comp_perm_mem_ball σ hs))
-    (fun s hs => by
-      rw [det_taggedKE_translate hMN' σ' hσ' e1' he1' E' v a t s]
-      exact hdet' (s ∘ σ') (comp_perm_mem_ball σ' hs))
-  have himg := image_translate σ σ' e C
-  rw [himg, coef_comp_perm σ hρ1 hell, coef_comp_perm σ' hρ1' hell', Finset.card_map] at hcoefs
-  exact hcoefs
+  exact final_coef_logdet_close_twoTorus_box_of hκ nC (rE := rE) (η := η)
+    (fun X εE c => P * (C₀ * Real.exp (-c₀ * X) + εE) / (Real.exp κ - 1) ^ c) hmain
+
 
 end LogDet
 
@@ -821,16 +901,57 @@ theorem cutoff_integral_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx 
   rw [hT, Equiv.symm_apply_apply]
   exact congrArg (· * _) h1
 
-/-- **The coefficients of the cutoff interaction of the final operators on two tori, for supports in
-a two-sided box.**  This is `final_coef_cutoffInteraction_close_twoTorus_unif` for a support whose
-cells are, after the cyclic shift by `p` cells in every coordinate, in the window of indices
-`[4, J]`; `f` identifies the two tori by the residues of the shifted coordinates and `e` is the
-identity on the shifted indices `≤ J + 4`. -/
-theorem final_coef_cutoffInteraction_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < d)
+/-- **Transport of the cutoff-interaction coefficient closeness to a cyclic shift (any bound).**  If the
+coefficients of two tori differ by at most `Ψ (min N N'/2 - (J+3) M)` (times `Lip |Y(C)| ρ γ(box ρ) / (e^κ - 1)^{|C|}`) for supports in the
+window `[4, J]` (the hypothesis `hmain`), they differ by the same amount for supports whose cells
+are in that window after a cyclic shift by `p` cells.  The bound `Φ` is arbitrary: the absolute
+(`final_coef_cutoffInteraction_close_twoTorus_box`) and the weighted closeness both use this statement. -/
+theorem final_coef_cutoffInteraction_close_twoTorus_box_of {d M L : ℕ} [NeZero L] (hd : 0 < d)
     (hM : 0 < M) {κ : ℝ}
     (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
-    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
-    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ {k : ℕ}, 1 ≤ k →
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) (Ψ : ℝ → ℝ)
+    (hmain : ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (Ψ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card ) :
+    ∀ {k : ℕ}, 1 ≤ k →
       ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
       M ∣ N → M ∣ N' → ∀ {p : ℕ},
       ∀ {f : L1Torus d N → L1Torus d N'},
@@ -872,12 +993,8 @@ theorem final_coef_cutoffInteraction_close_twoTorus_box {d M L : ℕ} [NeZero L]
           F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
           (C.image e)‖ ≤
         Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
-          (P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
-            Real.sqrt (finalGap d L)) * ρ) *
-          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
-  obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
-    final_coef_cutoffInteraction_close_twoTorus_unif (L := L) hd hM hκ hMB hMκ nC
-  refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
+          (Ψ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card  := by
   intro k hk J N N' _ _ hN hN' hMN hMN' p f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B'
     Lip hρ hγfin hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
   obtain ⟨σ, hσ⟩ := exists_cellShift (N := N) (M := M) d p
@@ -1017,6 +1134,66 @@ theorem final_coef_cutoffInteraction_close_twoTorus_box {d M L : ℕ} [NeZero L]
   rw [himg, Finset.card_map, hmapS] at hcoefs
   rw [← h1, ← h2]
   exact hcoefs
+/-- **The coefficients of the cutoff interaction of the final operators on two tori, for supports in
+a two-sided box.**  This is `final_coef_cutoffInteraction_close_twoTorus_unif` for a support whose
+cells are, after the cyclic shift by `p` cells in every coordinate, in the window of indices
+`[4, J]`; `f` identifies the two tori by the residues of the shifted coordinates and `e` is the
+identity on the shifted indices `≤ J + 4`. -/
+theorem final_coef_cutoffInteraction_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < d)
+    (hM : 0 < M) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+            Real.sqrt (finalGap d L)) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
+  obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
+    final_coef_cutoffInteraction_close_twoTorus_unif (L := L) hd hM hκ hMB hMκ nC
+  refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
+  exact final_coef_cutoffInteraction_close_twoTorus_box_of hd hM hκ hMB hMκ nC
+    (fun X => P * (C₀ * Real.exp (-c₀ * X)) / Real.sqrt (finalGap d L)) hmain
+
 
 end Cutoff
 
@@ -1047,6 +1224,108 @@ theorem quarter_exponent {N N' M m t : ℕ} [NeZero N] (hMN : M ∣ N) (hN : N �
   have h2 : (0 : ℝ) ≤ M := by positivity
   push_cast
   nlinarith [mul_nonneg h2 (sub_nonneg.2 h1)]
+
+/-- **Transport of the log-det coefficient closeness to the quarter box (any bound).**  If the
+coefficients differ by at most `Φ (min N N'/2 - (J+3) M) εE |C|` in the shifted window, with `Φ`
+non-increasing in its first argument, they differ by at most `Φ (M (2t - 7)) εE |C|` on the
+quarter box.  Both the absolute and the weighted bounds use this statement. -/
+theorem finalCoef_logdet_close_quarterBox_of {d M L : ℕ} [NeZero L] (hM : 0 < M) {κ : ℝ} {rE η : ℝ} (nC : ℕ)
+    (Φ : ℝ → ℝ → ℕ → ℝ)
+    (hΦ : ∀ {X X' : ℝ} (εE : ℝ) (c : ℕ), X ≤ X' → Φ X' εE c ≤ Φ X εE c)
+    (hmain : ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        Φ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)) εE C.card ) :
+    ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {N N' : ℕ} [NeZero N] [NeZero N'], M ∣ N → M ∣ N' → N ≤ N' →
+      ∀ {m t : ℕ}, 5 ≤ t → 4 * (m + t) ≤ macK N M →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod N') =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 8 →
+        ((e z i : ℕ) + (m + 4)) % macK N' M = ((z i : ℕ) + (m + 4)) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK N M - m ≤ (z i : ℕ)) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {s : ℝ}, 0 ≤ s →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s' ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) s -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) s)) s').det =
+          Complex.exp (ell s')) →
+      (∀ s' ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) s -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) s)) s').det =
+          Complex.exp (ell' s')) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        Φ ((M : ℝ) * (2 * (t : ℝ) - 7)) εE C.card  := by
+  intro k hk N N' _ _ hMN hMN' hNN m t ht hbox f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass s hs E E'
+    hE hE' εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  have hK : macK N M = N / M := macK_eq_div_of_dvd hMN
+  have hMpos : 0 < M := hM
+  have hKN : N = M * macK N M := by
+    rw [hK]; exact (Nat.mul_div_cancel' hMN).symm
+  have hKm : 2 * m + 5 ≤ macK N M := by omega
+  have hN1 : 2 * ((2 * m + 4) + 6) * M ≤ N := by
+    have : 2 * ((2 * m + 4) + 6) ≤ macK N M := by omega
+    calc 2 * ((2 * m + 4) + 6) * M ≤ macK N M * M := Nat.mul_le_mul_right _ this
+      _ = N := by rw [mul_comm, ← hKN]
+  have hN2 : 2 * ((2 * m + 4) + 6) * M ≤ N' := le_trans hN1 hNN
+  have hCw : ∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + (m + 4)) % macK N M ∧
+      ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 4 := fun z hz i =>
+    box_window (z i).isLt (hC z hz i) hKm
+  have key := hmain hk hN1 hN2 hMN hMN' (p := m + 4) hf
+    (fun z i hz => he z i (by omega)) hCc hCw hv0 hv1 ha1 ha2 hmass hs hE hE' hεE hEcl hρ hρ' hell
+    hell' h0 h0' hdet hdet'
+  refine key.trans ?_
+  exact hΦ εE C.card (quarter_exponent hMN hNN hbox)
 
 /-- **The localized coefficients of the logarithm of the perturbed defect on the quarter box
 (W837, leaf 2).**  The support `C` has all its cell indices, in every coordinate, within `m` cells
@@ -1102,10 +1381,113 @@ theorem finalCoef_logdet_close_quarterBox {d M L : ℕ} [NeZero L] (hd : 0 < d) 
   obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
     final_coef_logdet_close_twoTorus_box (L := L) hd hM hκ hMB hMκ hrE hη0 hη nC
   refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
-  intro k hk N N' _ _ hMN hMN' hNN m t ht hbox f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass s hs E E'
-    hE hE' εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  have hden : ∀ c : ℕ, 0 < (Real.exp κ - 1) ^ c := fun c => by
+    have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+    exact pow_pos (by linarith) _
+  exact @finalCoef_logdet_close_quarterBox_of d M L _ hM κ rE η nC
+    (fun X εE c => P * (C₀ * Real.exp (-c₀ * X) + εE) / (Real.exp κ - 1) ^ c)
+    (fun {X X'} εE c hX => by
+      refine div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left (add_le_add_left ?_ _) hP0)
+        (hden c).le
+      exact mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 (by nlinarith)) hC₀.le) (fun {k} hk => hmain hk)
+
+
+/-- **Transport of the cutoff-interaction coefficient closeness to the quarter box (any bound).**
+If the coefficients differ by `Ψ (min N N'/2 - (J+3) M)` (times the factors of the statement) in
+the shifted window, with `Ψ` non-increasing, they differ by `Ψ (M (2t - 7))` on the quarter box. -/
+theorem finalCoef_cutoff_close_quarterBox_of {d M L : ℕ} [NeZero L] (hd : 0 < d) {κ : ℝ} (hκ : 1 ≤ κ) (nC : ℕ)
+    (Ψ : ℝ → ℝ) (hΨ : ∀ {X X' : ℝ}, X ≤ X' → Ψ X' ≤ Ψ X)
+    (hmain : ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (Ψ (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card ) :
+    ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {N N' : ℕ} [NeZero N] [NeZero N'], M ∣ N → M ∣ N' → N ≤ N' →
+      ∀ {m t : ℕ}, 5 ≤ t → 4 * (m + t) ≤ macK N M →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod N') =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 8 →
+        ((e z i : ℕ) + (m + 4)) % macK N' M = ((z i : ℕ) + (m + 4)) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK N M - m ≤ (z i : ℕ)) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (Ψ ((M : ℝ) * (2 * (t : ℝ) - 7))) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card  := by
+  intro k hk N N' _ _ hMN hMN' hNN m t ht hbox f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B'
+    Lip hρ hγfin hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
   have hK : macK N M = N / M := macK_eq_div_of_dvd hMN
-  have hMpos : 0 < M := hM
   have hKN : N = M * macK N M := by
     rw [hK]; exact (Nat.mul_div_cancel' hMN).symm
   have hKm : 2 * m + 5 ≤ macK N M := by omega
@@ -1118,18 +1500,28 @@ theorem finalCoef_logdet_close_quarterBox {d M L : ℕ} [NeZero L] (hd : 0 < d) 
       ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 4 := fun z hz i =>
     box_window (z i).isLt (hC z hz i) hKm
   have key := hmain hk hN1 hN2 hMN hMN' (p := m + 4) hf
-    (fun z i hz => he z i (by omega)) hCc hCw hv0 hv1 ha1 ha2 hmass hs hE hE' hεE hEcl hρ hρ' hell
-    hell' h0 h0' hdet hdet'
+    (fun z i hz => he z i (by omega)) hCc hCw hv0 hv1 ha1 ha2 hmass hρ hγfin hγfin' hBR hFan hFB
+    hFan' hFB' hFm hFm' hFclose hγ
   refine key.trans ?_
   have hexp := quarter_exponent hMN hNN hbox
-  have hle : Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((2 * m + 4 + 3) * M : ℕ) : ℝ))) ≤
-      Real.exp (-c₀ * ((M : ℝ) * (2 * (t : ℝ) - 7))) :=
-    Real.exp_le_exp.2 (by nlinarith [hc₀, hexp])
+  have hBc0 : 0 ≤ 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+      Real.sqrt (finalGap d L) := by
+    have : 0 ≤ ballConst d (pdEps d L / 2) :=
+      ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
+    positivity
+  have hLip : 0 ≤ Lip := by
+    have := hFclose 0 0 (fun _ _ => rfl) (fun _ _ => rfl) (fun x => by simpa using mul_nonneg hBc0 hρ)
+      (fun x => by simpa using mul_nonneg hBc0 hρ) 1 zero_le_one (fun x _ => by simp)
+    exact le_trans (norm_nonneg _) (by simpa using this)
   have hden : 0 < (Real.exp κ - 1) ^ C.card := by
-    have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+    have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
     exact pow_pos (by linarith) _
   refine div_le_div_of_nonneg_right ?_ hden.le
-  exact mul_le_mul_of_nonneg_left (by gcongr) hP0
+  refine mul_le_mul_of_nonneg_right ?_ ENNReal.toReal_nonneg
+  refine mul_le_mul_of_nonneg_left ?_ hLip
+  refine mul_le_mul_of_nonneg_right ?_ hρ
+  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+  exact hΨ (quarter_exponent hMN hNN hbox)
 
 /-- **The coefficients of the cutoff interaction on the quarter box (W837, leaf 2).**  Same
 geometry as `finalCoef_logdet_close_quarterBox`: the support is within `m` cells of the origin,
@@ -1186,50 +1578,16 @@ theorem finalCoef_cutoff_close_quarterBox {d M L : ℕ} [NeZero L] (hd : 0 < d) 
   obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
     final_coef_cutoffInteraction_close_twoTorus_box (L := L) hd hM hκ hMB hMκ nC
   refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
-  intro k hk N N' _ _ hMN hMN' hNN m t ht hbox f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B'
-    Lip hρ hγfin hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
-  have hK : macK N M = N / M := macK_eq_div_of_dvd hMN
-  have hKN : N = M * macK N M := by
-    rw [hK]; exact (Nat.mul_div_cancel' hMN).symm
-  have hKm : 2 * m + 5 ≤ macK N M := by omega
-  have hN1 : 2 * ((2 * m + 4) + 6) * M ≤ N := by
-    have : 2 * ((2 * m + 4) + 6) ≤ macK N M := by omega
-    calc 2 * ((2 * m + 4) + 6) * M ≤ macK N M * M := Nat.mul_le_mul_right _ this
-      _ = N := by rw [mul_comm, ← hKN]
-  have hN2 : 2 * ((2 * m + 4) + 6) * M ≤ N' := le_trans hN1 hNN
-  have hCw : ∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + (m + 4)) % macK N M ∧
-      ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 4 := fun z hz i =>
-    box_window (z i).isLt (hC z hz i) hKm
-  have key := hmain hk hN1 hN2 hMN hMN' (p := m + 4) hf
-    (fun z i hz => he z i (by omega)) hCc hCw hv0 hv1 ha1 ha2 hmass hρ hγfin hγfin' hBR hFan hFB
-    hFan' hFB' hFm hFm' hFclose hγ
-  refine key.trans ?_
-  have hexp := quarter_exponent hMN hNN hbox
-  have hle : Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((2 * m + 4 + 3) * M : ℕ) : ℝ))) ≤
-      Real.exp (-c₀ * ((M : ℝ) * (2 * (t : ℝ) - 7))) :=
-    Real.exp_le_exp.2 (by nlinarith [hc₀, hexp])
-  have hBc0 : 0 ≤ 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
-      Real.sqrt (finalGap d L) := by
-    have : 0 ≤ ballConst d (pdEps d L / 2) :=
-      ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
-    positivity
-  have hLip : 0 ≤ Lip := by
-    have := hFclose 0 0 (fun _ _ => rfl) (fun _ _ => rfl) (fun x => by simpa using mul_nonneg hBc0 hρ)
-      (fun x => by simpa using mul_nonneg hBc0 hρ) 1 zero_le_one (fun x _ => by simp)
-    exact le_trans (norm_nonneg _) (by simpa using this)
-  have hden : 0 < (Real.exp κ - 1) ^ C.card := by
-    have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
-    exact pow_pos (by linarith) _
   have hg : 0 < Real.sqrt (finalGap d L) := by
     have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
     exact Real.sqrt_pos.2 (finalGap_pos (d := d) hL)
-  refine div_le_div_of_nonneg_right ?_ hden.le
-  refine mul_le_mul_of_nonneg_right ?_ ENNReal.toReal_nonneg
-  refine mul_le_mul_of_nonneg_left ?_ hLip
-  refine mul_le_mul_of_nonneg_right ?_ hρ
-  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
-  refine div_le_div_of_nonneg_right ?_ hg.le
-  exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle hC₀.le) hP0
+  exact @finalCoef_cutoff_close_quarterBox_of d M L _ hd κ hκ nC
+    (fun X => P * (C₀ * Real.exp (-c₀ * X)) / Real.sqrt (finalGap d L))
+    (fun {X X'} hX => by
+      refine div_le_div_of_nonneg_right ?_ hg.le
+      exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
+        (Real.exp_le_exp.2 (by nlinarith)) hC₀.le) hP0) (fun {k} hk => hmain hk)
+
 
 /-- **The two last-integral coefficient families on the quarter box, with common constants
 (W837, leaf 2).**  The conjunction of `finalCoef_logdet_close_quarterBox` and
