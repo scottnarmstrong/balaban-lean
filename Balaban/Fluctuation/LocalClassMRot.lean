@@ -801,6 +801,212 @@ theorem localB_freshTermHat_evTerm_xiFieldDom [DecidableEq ι] {ϱa : ℝ}
     rw [e] at this
     exact this
 
+/-- **The clause `rotM` for the fresh source term on the local chart, real rotations.**  For a real
+orthogonal `Q`, the term of `Y` for the component `i` of the site `y` (the `ψ̂`-integral of
+`δφ(y, i)`, read through the cut-off `clipRaw`) at the rotated pair of fields `(Q Ψ, Q h)` is
+`∑ l, Q i l` times the term of component `l` at `(Ψ, h)`, on the class domain.  The compact set `K`
+and the measure `γ` are invariant under `ψ̂ ↦ (1 ⊗ Qᵀ) ψ̂`.  Proof: `localHat_integral_rot_cover_of_cov`
+with the functionals `δφ(y, i)` and `∑ l, Q i l δφ(y, l)` (`svec_rotFld`), the linearity of the
+integral (`fanLocalHat_integrableOn_cover`) and of the coefficients (`evTerm_sum_linear`). -/
+theorem localB_freshTermHat_evTerm_rot [DecidableEq ι] {ϱa : ℝ}
+    {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱa} {cI : ι → ℕ × CTorus d L N₁ m₁ (k + 1)}
+    {m₀ j' : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+    {εseq : ℕ → ℝ} (hεseq : εseq (k + 1) ≤ eps)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    (hKQ : ∀ ψ : unitPts Gp × Fin N → ℝ,
+      (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈ K ↔ ψ ∈ K)
+    (hγQ : Measure.map (fun (ψ : unitPts Gp × Fin N → ℝ) (r : unitPts Gp × Fin N) =>
+      ∑ j, Q j r.2 * ψ (r.1, j)) γ = γ)
+    (y : CTorus d L N₁ m₁ (k + 1))
+    (Gi : Fin N → RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
+    (hGi : ∀ (l : Fin N) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gi l Θ w =
+      ∫ ψ in K,
+        siteFun Gp Hm y l (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hp : (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom (k + 1) Gp
+      p.1 p.2) (i : Fin N) :
+    evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) (Gi i) Y
+        (clipRaw Gp (rotField (cmat Q) p.1, rotField (cmat Q) p.2)) =
+      ∑ l, cmat Q i l * evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) (Gi l) Y (clipRaw Gp p) := by
+  classical
+  have hp' : XiDom Gp (compWeight L a₁) ν (k + 1) (εseq (k + 1)) p.1 p.2 := hp
+  have hmem : clipRaw Gp p ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps :=
+    clipRaw_mem_xiCRaw_of_xiDom hεseq hp'
+  have hsite : ∀ l, AnalyticOnNhd ℂ (fun t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) ×
+        (Hm.Ω 1 × Fin N → ℂ) × (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+          (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) => siteFun Gp Hm y l t.1 t.2.1 t.2.2)
+      (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) := fun l =>
+    (siteFun_analytic (Gp := Gp) (Hm := Hm) y l).mono (Set.subset_univ _)
+  have hbd : ∀ l, ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
+      ‖siteFun Gp Hm y l t.1 t.2.1 t.2.2‖ ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    fun l t ht => by
+      obtain ⟨-, hsup, -⟩ := flReal_facts ht.1
+      simpa [siteFun] using hsup.val y l
+  have hA : ∀ l, AnalyticOnNhd ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ) =>
+      Gi l q.1 q.2) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) := fun l => by
+    have h := (fanLocalHat_integral_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall
+      hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1
+      (Φ := siteFun Gp Hm y l) (hsite l) (B := cK2' d L N (famConst d L BG₂ κ) * δ₁) (hbd l)
+      hKc hKb hγ).1
+    have hfun : (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ) => Gi l q.1 q.2) =
+        fun q => ∫ ψ in K,
+        siteFun Gp Hm y l (F₁ (σ q.2, q.1))
+          (Sol (σ q.2, flEdat Gp Hm (F₁ (σ q.2, q.1)) q.1.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ q.2, q.1)).2
+                  (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (q.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ q.2, q.1)).2
+                  (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ := by
+      funext q
+      exact hGi l q.1 q.2
+    rw [hfun]; exact h
+  have hlin : evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X)
+      (fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
+        ∑ l, cmat Q i l * Gi l Θ w) Y (clipRaw Gp p) =
+      ∑ l, cmat Q i l * evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) (Gi l) Y (clipRaw Gp p) := by
+    rw [evTerm_sum_linear (c := cI) (G := Ga) (m₀ := m₀) (Real.one_lt_exp_iff.2 hκ) Finset.univ
+      (fun l => cmat Q i l) (X1 Ga m₀ j' 𝒦X) Y
+      (fun l (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) => Gi l Θ) (clipRaw Gp p)
+      (fun l _ w hw => ?_)]
+    · exact (hA l (clipRaw Gp p, w) ⟨hmem, hw⟩).comp_of_eq
+        (analyticAt_const.prod analyticAt_id) rfl
+  have hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ u,
+      (bg, δφ, u) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      ((rotFld (cmat Q) bg.1, bg.2), rotFld (cmat Q) δφ, rotU (cmat Q) u) ∈
+        FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      siteFun Gp Hm y i (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) =
+      (fun bg δφ u => ∑ l, cmat Q i l * siteFun Gp Hm y l bg δφ u) bg δφ u :=
+    fun bg δφ u _ _ => by
+      simp only [siteFun]
+      exact svec_rotFld (cmat Q) δφ y i
+  have key := evTerm_clipRaw_rot_of_cov (G := Gp) (c := cI) (Ga := Ga) (m₀ := m₀)
+    (X₁ := X1 Ga m₀ j' 𝒦X) Y (Real.one_lt_exp_iff.2 hκ) (a := compWeight L a₁) (ν := ν)
+    (eps := eps) (j := k + 1) (εj := εseq (k + 1)) hεseq (Q := Q)
+    (Gf₁ := Gi i)
+    (Gf₂ := fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
+      ∑ l, cmat Q i l * Gi l Θ w) (p := p) ?_ hp'
+  · exact key.trans hlin
+  · intro D hD w hw
+    refine localHat_integral_rot_cover_of_cov (Gp := Gp)
+      (Φ₁ := siteFun Gp Hm y i)
+      (Φ₂ := fun bg δφ u => ∑ l, cmat Q i l * siteFun Gp Hm y l bg δφ u)
+      hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁
+      hPmp hHm hF₁ hSol hσκ hσ1 hQ hΦ hKc hKb hKQ hγQ (Gi i) (fun Θ w => hGi i Θ w)
+      (fun Θ w => ∑ l, cmat Q i l * Gi l Θ w) ?_ hD hw
+    intro D hD w hw
+    have hint : ∀ l, IntegrableOn (fun ψ : unitPts Gp × Fin N → ℝ =>
+        siteFun Gp Hm y l (F₁ (σ w, rawOf D))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) (rawOf D).1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (rawOf D, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0)) K γ := fun l =>
+      fanLocalHat_integrableOn_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD
+        hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ
+        (hsite l) (hbd l) ⟨D, hD, rfl⟩ hw
+    obtain ⟨I, hI⟩ : ∃ I : Fin N → (unitPts Gp × Fin N → ℝ) → ℂ, ∀ l ψ, I l ψ =
+        siteFun Gp Hm y l (F₁ (σ w, rawOf D))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) (rawOf D).1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (rawOf D, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp (rawOf D).1 (F₁ (σ w, rawOf D)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) := ⟨_, fun _ _ => rfl⟩
+    have hint' : ∀ l, IntegrableOn (I l) K γ := fun l => by
+      have : I l = _ := funext (hI l)
+      rw [this]; exact hint l
+    calc ∑ l, cmat Q i l * Gi l (rawOf D) w
+        = ∑ l, cmat Q i l * ∫ ψ in K, I l ψ ∂γ :=
+          Finset.sum_congr rfl fun l _ => by rw [hGi l (rawOf D) w]; simp only [hI]
+      _ = ∫ ψ in K, ∑ l, cmat Q i l * I l ψ ∂γ := by
+          rw [integral_finsetSum _ (fun l _ => (hint' l).const_mul (cmat Q i l))]
+          exact Finset.sum_congr rfl fun l _ => (integral_const_mul _ _).symm
+      _ = _ := by
+          refine setIntegral_congr_fun hKc.isClosed.measurableSet fun ψ _ => ?_
+          simp only [hI]
+
+/-- **The fresh source term `∑_i g(y, i) · (term of δφ(y, i))` is invariant under the simultaneous
+real rotation of the fields and of the source**, on the class domain: `(Ψ, h, g) ↦ (Q Ψ, Q h, Q g)`
+(`⟨g, δφ⟩` is `O(N)`-invariant).  From `localB_freshTermHat_evTerm_rot` and `Qᵀ Q = 1`. -/
+theorem localB_freshTermHat_pair_rot [DecidableEq ι] {ϱa : ℝ}
+    {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱa} {cI : ι → ℕ × CTorus d L N₁ m₁ (k + 1)}
+    {m₀ j' : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+    {εseq : ℕ → ℝ} (hεseq : εseq (k + 1) ≤ eps)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    (hKQ : ∀ ψ : unitPts Gp × Fin N → ℝ,
+      (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈ K ↔ ψ ∈ K)
+    (hγQ : Measure.map (fun (ψ : unitPts Gp × Fin N → ℝ) (r : unitPts Gp × Fin N) =>
+      ∑ j, Q j r.2 * ψ (r.1, j)) γ = γ)
+    (y : CTorus d L N₁ m₁ (k + 1))
+    (Gi : Fin N → RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
+    (hGi : ∀ (l : Fin N) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gi l Θ w =
+      ∫ ψ in K,
+        siteFun Gp Hm y l (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hp : (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom (k + 1) Gp
+      p.1 p.2) (g : Fld d L N₁ m₁ (k + 1) N) :
+    ∑ i, rotField (cmat Q) g y i *
+        evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) (Gi i) Y
+          (clipRaw Gp (rotField (cmat Q) p.1, rotField (cmat Q) p.2)) =
+      ∑ l, g y l * evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) (Gi l) Y (clipRaw Gp p) := by
+  have h := fun i => localB_freshTermHat_evTerm_rot (Ga := Ga) (cI := cI) (m₀ := m₀) (j' := j')
+    (𝒦X := 𝒦X) hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall
+    hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ
+    hεseq hQ hKQ hγQ y Gi hGi Y p hp i
+  simp only [h]
+  exact fresh_amp_rot_pair hQ (g y)
+
 end Fresh
 
 end Balaban.Localization
