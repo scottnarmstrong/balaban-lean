@@ -310,6 +310,13 @@ size and the boundary-shell factor of the output at the same σ? If no such fact
 intended argument a different localization of these boundary labels, or a cancellation in the
 physical O(N) gas?
 
+
+### Item 14, fifth addendum (2026-10-16): why every hole is completed
+
+(a) In the example of the fourth addendum, is the new hole Omega_{k+1}^c a union of pi'_{k+1} cubes (it is a neighbourhood of radius at least R_k of a union of cubes), so that the completion Y of X meets Omega_{k+1} only in the cubes of X cap Omega_{k+1} and the size d_{k+1}(Y mod Omega_{k+1}^c) stays O(1)? (b) If the face of Omega_{k+1}^c can cut the pi'_{k+1} cubes, which of the two takes the completion of retained components in P5 (1.33): the hole spins as arguments of B^(k)(X, A_k) in (2.47)-(2.48), or only the dependence of B on A_k cap Z? (c) May B^(k)(X, A_k) have a domain X cutting a retained component Z, with the plain size d_k(X) and the dependence on A_k cap Z for the whole Z (as in CMP119 (2.41), where X cap Z~ is nonempty for a plain domain)? (d) If not, is the intended payment a label-and-pocket format, with the bound in the label size alone and the sum over terms touching one pocket paid by e^{-H_k |Z|_eta} of (1.31)? (e) In either case, are the marks of P3 (4.44) rooted at X cap Omega_{k+1} (third addendum (i)-(iii))? (f) We ask for a short yes/no on (a) and (c) first.
+
+(Details: `notes/phase1/VMOD-44.md`.)
+
 ### Item 15 (2026-10-13): the range of the operation R^{(k)} (minor; confirmation only)
 
 P7 Theorem 2 (printed p. 497) states that R^{(k)} acts for k < k_0 and is the identity for

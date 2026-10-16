@@ -38,3 +38,8 @@ Reading task, no Lean edits. Claims: PROVED = landed declaration, OPEN, REFUTED.
 - L1 PROVED (`Base/BaseMassShift.lean`): x-variant at x = 0, k = 0, a0 = 2, aT = 2 a1 L^2/(2 L^2 - a1) equals the first-step (cut) Dirichlet operator, any mass nu, hypotheses 2 <= L, 0 <= a1 <= 2.
 - L2 NOT DONE: moving `massLe` out of `OpSetting` breaks standalone-`OpSetting` consumers that need it (`dirichlet_weighted` Decoupled2Close:64, `cubeBlockBounds_mixed` CubeBlockBoundsMixed:98,153, CubeActionBound, CubeActionRealBound, InteractionLevelPair, MassResponseHyp, MassChangeRegion, ...): their statements would need an extra hypothesis. The x chain (Decoupled2X*, DecoupledX*) uses none of them.
 - L3 PARTIAL: `base_xCover_massShift_exists_of_massLe` (XCover at k = 0 with a0 = 2, a1 = 1, L1's aT) under nu L^2 <= 1; the hypothesis drops once L2 is done.
+
+## W832 status
+- L4 PROVED (`BaseConstrainedCov.lean`): `baseOp_add_smul_one`, `shiftedOp_mul_constrainedCov`, `baseOp_shift_mul_constrainedCov` ((A_e + x)^-1 = (1+x)^-1 P_e + G - G e M^-1 N, G = (H + x)^-1); `baseOp_mul_constrainedCov` is now its x = 0 application (statement unchanged).
+- L5 PROVED (`Base/BaseXCov.lean`): `baseCovX_one` (covariance at s = 1 is `baseResolvent`), `baseCovX_analytic` (entries analytic on `DecDom`), `baseCovX_bound` and `baseResolvent_entry_bound` (entry bound B(d, L, kappa), independent of x, nu, a, aT, G).
+- No obstruction: the Gsx chain constants (`valConstX`, `kConstX`, `smallConstX`, `cstarX`) do not involve the mass or x'; the regime `cstarX e^(N0 kappa) <= L^m1` and `delta^2 smallConstX <= 1/4` is independent of x.
