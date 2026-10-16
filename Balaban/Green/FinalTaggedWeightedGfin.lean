@@ -193,4 +193,148 @@ theorem final_taggedGK_close_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
 
 end TwoTorus
 
+/-- The error of `χ_z G_z` is at most `2 nB √ε T / √g`. -/
+theorem sqrt_boxG_err_le {nB ε T g : ℝ} (hnB : 0 ≤ nB) (hε : 0 ≤ ε) (hT : 0 < T) (hg : 0 < g)
+    (hTg : T ≤ g⁻¹) :
+    Real.sqrt ((nB ^ 2 * ε * T ^ 2) * (4 * T)) ≤ 2 * nB * Real.sqrt ε * T * (Real.sqrt g)⁻¹ := by
+  rw [Real.sqrt_le_iff]
+  refine ⟨by positivity, ?_⟩
+  have h1 : (2 * nB * Real.sqrt ε * T * (Real.sqrt g)⁻¹) ^ 2 = 4 * nB ^ 2 * ε * T ^ 2 * g⁻¹ := by
+    rw [mul_pow, mul_pow, mul_pow, mul_pow, inv_pow, Real.sq_sqrt hε, Real.sq_sqrt hg.le]
+    ring
+  rw [h1]
+  have h2 : 0 ≤ 4 * nB ^ 2 * ε * T ^ 2 := by positivity
+  calc (nB ^ 2 * ε * T ^ 2) * (4 * T) = 4 * nB ^ 2 * ε * T ^ 2 * T := by ring
+    _ ≤ _ := mul_le_mul_of_nonneg_left hTg h2
+
+/-- The error of `R_z` is at most `√ε T √K`. -/
+theorem sqrt_boxR_err_le {nB ε T c P0 : ℝ} (hε : 0 ≤ ε) (hT : 0 < T) (hK : 0 ≤ 2 * c * (nB * (2 + P0 * nB ^ 2))) :
+    Real.sqrt ((nB * ε * T * (2 + P0 * nB ^ 2)) * (2 * c * T)) ≤
+      Real.sqrt ε * T * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) := by
+  rw [Real.sqrt_le_iff]
+  refine ⟨by positivity, ?_⟩
+  rw [mul_pow, mul_pow, Real.sq_sqrt hε, Real.sq_sqrt hK]
+  ring_nf
+  exact le_rfl
+
+section TwoTorus
+
+variable {d L M : ℕ} [NeZero L]
+
+/-- **Closeness of the tagged parametrix `G_fin` of the final operators on two tori, polynomial in
+the number of cells.**  Under the hypotheses of `final_taggedGfin_close` (`hMB`, `hMκ`; the entries
+of the operators differ by at most `ε` on `Y(C)²`), the entries of `G_fin(s, t)` differ at
+`x, y ∈ Y(C)` by at most `P (nC² + nC⁴) √ε (g + t)⁻¹`, for every `nC ≥ |C|`.  The constant `P`
+depends on `d`, `L`, `M`, `κ` only (not on `nC`, `k`, the window, the sides or `t`), and there is no
+factor `e^{κ nC}`: the tag monomials are bounded through the distance decay
+(`taggedMat_close_twoTorus_weighted_le`).  The price is `√ε` instead of `ε`. -/
+theorem final_taggedGfin_close_weighted (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) :
+    ∃ P : ℝ, 0 ≤ P ∧ ∀ (nC : ℕ) {k J N N' : ℕ} [NeZero N] [NeZero N'], 1 ≤ k →
+      2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' → ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {ε : ℝ}, (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε) →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {s : MacIdx d N M → ℂ}, s ∈ supportedOn C →
+      ∀ {s' : MacIdx d N' M → ℂ}, s' ∈ supportedOn (C.image e) →
+      (∀ i ∈ C, s' (e i) = s i) → (∀ p, ‖s p‖ ≤ Real.exp κ) →
+      ∀ {x y : L1Torus d N}, x ∈ macRegion d N M C → y ∈ macRegion d N M C →
+      ‖taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+            (macTags d N M) (finalOp d L N k v a) t s x y -
+          taggedGfin Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+            (macTags d N' M) (finalOp d L N' k v a) t s' (f x) (f y)‖ ≤
+        P * ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * Real.sqrt ε * (finalGap d L + t)⁻¹ := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hA0 := finalDecayC_pos (L := L) hd
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hε := pdEps_pos (d := d) (L := L) hd
+  have hC1 : 0 ≤ pdC1 d L := by
+    unfold pdC1 pdLip
+    have := ballConst_nonneg (d := d) (r := pdEps d L / 4) (by positivity)
+    positivity
+  set nB : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) with hnBdef
+  have hnB : 0 ≤ nB := by positivity
+  set Hk : ℝ := Real.exp (pdH d * κ) with hHk
+  have hHk0 : 0 < Hk := Real.exp_pos _
+  set P0 : ℝ := finalDecayC d L / finalGap d L + 1 with hP0
+  have hP00 : 0 ≤ P0 := by positivity
+  set c : ℝ := pdC1 d L / M with hc
+  have hc0 : 0 ≤ c := by positivity
+  have hK0 : 0 ≤ 2 * c * (nB * (2 + P0 * nB ^ 2)) := by positivity
+  set sq : ℝ := Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) with hsq
+  have hsq0 : 0 ≤ sq := Real.sqrt_nonneg _
+  set w : ℝ := Real.sqrt (finalGap d L) with hw
+  have hw0 : 0 < w := Real.sqrt_pos.2 hg
+  refine ⟨(8 / 3) * nB ^ 2 * Hk * w⁻¹ + (32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹,
+    by positivity, ?_⟩
+  intro nC k J N N' _ _ hk hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass ε hU t ht s hs s' hs'
+    hss hsκ x y hx hy
+  have hε0 : 0 ≤ ε := (norm_nonneg _).trans (hU x hx y hy)
+  have hgt : 0 < finalGap d L + t := by linarith
+  set T : ℝ := (finalGap d L + t)⁻¹ with hT
+  have hT0 : 0 < T := inv_pos.2 hgt
+  have hTg : T ≤ (finalGap d L)⁻¹ := inv_anti₀ hg (by linarith)
+  set r : ℝ := Real.sqrt ε with hr
+  have hr0 : 0 ≤ r := Real.sqrt_nonneg _
+  have hnC0 : (0 : ℝ) ≤ nC := Nat.cast_nonneg _
+  have hCc' : (C.card : ℝ) ≤ nC := by exact_mod_cast hCc
+  set δ1 : ℝ := 2 * nB * r * T * w⁻¹ with hδ1
+  set δ2 : ℝ := r * T * sq with hδ2
+  have hδ10 : 0 ≤ δ1 := by positivity
+  have hδ20 : 0 ≤ δ2 := by positivity
+  have hGK := fun p (hp : p ∈ macRegion d N M C) q (hq : q ∈ macRegion d N M C) =>
+    final_taggedGK_close_weighted hM hN hN' hf he hC hd hk hv0 hv1 ha1 ha2 hmass hκ hMκ hU ht hs hs'
+      hss hsκ hp hq
+  have hb1 := sqrt_boxG_err_le (nB := nB) (T := T) (g := finalGap d L) hnB hε0 hT0 hg hTg
+  have hb2 := sqrt_boxR_err_le (nB := nB) (ε := ε) (T := T) (c := c) (P0 := P0) hε0 hT0 hK0
+  have hCe : (C.card : ℝ) * Hk ≤ nC * Hk := mul_le_mul_of_nonneg_right hCc' hHk0.le
+  have hcore := final_taggedGfin_close_core (nC := nC) hd hM hκ hMB hMκ hk hN hN' hf he hCc hC hv0
+    hv1 ha1 ha2 hmass ht hs hs' hss hsκ hx hy (δG := nC * Hk * δ1) (δK := nC * Hk * δ2)
+    (by positivity) (by positivity)
+    (fun p hp q hq => ((hGK p hp q hq).1).trans
+      (mul_le_mul hCe hb1 (Real.sqrt_nonneg _) (by positivity)))
+    (fun p hp q hq => ((hGK p hp q hq).2).trans
+      (mul_le_mul hCe hb2 (Real.sqrt_nonneg _) (by positivity)))
+  refine hcore.trans ?_
+  have hwinv : 0 ≤ w⁻¹ := by positivity
+  have e1 : ((nC : ℝ) * nB) * (nC * Hk * δ1 * (4 / 3)) =
+      ((8 / 3) * nB ^ 2 * Hk * w⁻¹) * (nC : ℝ) ^ 2 * r * T := by
+    rw [hδ1]; ring
+  have e2 : ((nC : ℝ) * nB) ^ 3 * (2 * Hk * T * (4 / 3 * (4 / 3 * (nC * Hk * δ2)))) =
+      ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq) * (nC : ℝ) ^ 4 * r * T * T := by
+    rw [hδ2]; ring
+  have e3 : ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq) * (nC : ℝ) ^ 4 * r * T * T ≤
+      ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) * (nC : ℝ) ^ 4 * r * T := by
+    have h0 : 0 ≤ ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq) * (nC : ℝ) ^ 4 * r * T := by positivity
+    calc _ = (((32 / 9) * nB ^ 3 * Hk ^ 2 * sq) * (nC : ℝ) ^ 4 * r * T) * T := rfl
+      _ ≤ (((32 / 9) * nB ^ 3 * Hk ^ 2 * sq) * (nC : ℝ) ^ 4 * r * T) * (finalGap d L)⁻¹ :=
+          mul_le_mul_of_nonneg_left hTg h0
+      _ = _ := by ring
+  rw [e1, e2]
+  have hp1 : 0 ≤ ((8 / 3) * nB ^ 2 * Hk * w⁻¹) * (nC : ℝ) ^ 2 * r * T := by positivity
+  have hp2 : 0 ≤ ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) * (nC : ℝ) ^ 4 * r * T := by
+    positivity
+  have hq1 : 0 ≤ ((8 / 3) * nB ^ 2 * Hk * w⁻¹) * (nC : ℝ) ^ 4 * r * T := by positivity
+  have hq2 : 0 ≤ ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) * (nC : ℝ) ^ 2 * r * T := by
+    positivity
+  have hexp : ((8 / 3) * nB ^ 2 * Hk * w⁻¹ + (32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) *
+      ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * r * T =
+      ((8 / 3) * nB ^ 2 * Hk * w⁻¹) * (nC : ℝ) ^ 2 * r * T +
+      ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) * (nC : ℝ) ^ 4 * r * T +
+      (((8 / 3) * nB ^ 2 * Hk * w⁻¹) * (nC : ℝ) ^ 4 * r * T +
+        ((32 / 9) * nB ^ 3 * Hk ^ 2 * sq * (finalGap d L)⁻¹) * (nC : ℝ) ^ 2 * r * T) := by
+    ring
+  rw [hexp]
+  linarith
+
+end TwoTorus
+
 end Balaban.Green
