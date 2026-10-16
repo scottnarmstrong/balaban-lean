@@ -1972,3 +1972,6 @@ public import Balaban.Polymer.GasCoreSize
 public import Balaban.LargeField.R.RGasCore
 public import Balaban.Fluctuation.LocalClassTau
 public import Balaban.Fluctuation.LocalClassCov
+public import Balaban.Localization.LatPairCover
+public import Balaban.Localization.LatPairBg
+public import Balaban.Localization.LatPairCov
