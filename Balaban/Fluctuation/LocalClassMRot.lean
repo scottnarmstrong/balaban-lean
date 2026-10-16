@@ -1009,4 +1009,25 @@ theorem localB_freshTermHat_pair_rot [DecidableEq ι] {ϱa : ℝ}
 
 end Fresh
 
+section FreshLocal
+
+open Balaban Balaban.Multiscale
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
+variable {ι : Type*} [DecidableEq ι] [Fintype ι] (c : ι → ℕ × CTorus d L N₁ m₁ K) {U : Type*}
+
+/-- **Locality in the source of the fresh term**: the term `∑_i g(y, i) · 𝓔_i(Y)` of a site `y` of
+the root set `X₁` does not change when the source `g` is changed off `Y` (it vanishes unless
+`X₁ ⊆ Y`, which puts `y` in `Y`). -/
+theorem fresh_source_local {X₁ Y : Set (CTorus d L N₁ m₁ K)} {y : CTorus d L N₁ m₁ K}
+    (hy : y ∈ X₁) (Gi : Fin N → U → (ι → ℂ) → ℂ) (u : U)
+    {g g' : CTorus d L N₁ m₁ K → Fin N → ℂ} (hg : ∀ z ∈ Y, g z = g' z) :
+    ∑ i, g y i * evTerm c G m₀ X₁ (Gi i) Y u = ∑ i, g' y i * evTerm c G m₀ X₁ (Gi i) Y u := by
+  by_cases hXY : X₁ ⊆ Y
+  · rw [hg y (hXY hy)]
+  · simp [evTerm_eq_zero_of_not_subset (c := c) (G := G) (m₀ := m₀) hXY]
+
+end FreshLocal
+
 end Balaban.Localization
