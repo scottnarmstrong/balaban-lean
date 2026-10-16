@@ -21,7 +21,7 @@ The integral is taken over the physical point only: `s ≡ 1` and `φ₀ · φ�
 integral does not exist.  At a parameter `s` the covariance `(1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}`
 behaves like `x⁻¹ (P_e + (Σ_z s_z χ_z)(1 - φ₀ φ₀ᵀ / (φ₀ · φ₀)))` as `x → ∞`, whose coefficient is
 the identity only if `Σ_z s_z χ_z = 1` and `φ₀ · φ₀ = 1`; for example at `s ≡ 0` the covariance is
-`(1 + x)⁻¹ P_e`, and `∫ ((1 + x)⁻¹ - (1 + x)⁻¹ P_e) dx` diverges.  The step's logarithm `decLog`
+`(1 + x)⁻¹ P_e` and the integral diverges (`baseCovX_log_not_integrable`).  The step's logarithm `decLog`
 avoids this because the comparison there is `covA`, whose large-`x` behaviour is matched by the
 `A Q ⋯ Q* A` structure of its covariance; for `k = 0` there is no such factor.
 -/
@@ -448,6 +448,71 @@ theorem baseCovX_log_exact {d L N N₁ m₁ : ℕ} [NeZero N₁] [NeZero L] {ϱ 
   · exact (hb y z).congr_fun (fun x hx => (hpt x (mem_Ioi.mp hx).le).symm) measurableSet_Ioi
   · rw [setIntegral_congr_fun measurableSet_Ioi (fun x hx => hpt x (mem_Ioi.mp hx).le)]
     exact hd y z
+
+/-- **The logarithm integral does not exist off the physical point.**  If every cube product
+`s_z` vanishes (for instance at `s ≡ 0`), the shifted covariance is `(1 + x)⁻¹ P_e`, and the
+diagonal entry of `C_x(s) - (1 + x)⁻¹` at a site where `e_i(p)² ≠ 1` is `(1 + x)⁻¹ (e_i(p)² - 1)`,
+which is not integrable on `(0, ∞)`. -/
+theorem baseCovX_log_not_integrable {d L N N₁ m₁ : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν : ℝ} {α : G.Ω 1 → ℂ}
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
+    {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (hs0 : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd s q = 0) (p : G.Ω 1) (i : Fin N)
+    (hne : restrictField G φ p i * restrictField G φ p i ≠ 1) :
+    ¬ IntegrableOn (fun x : ℝ =>
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) (p, i) (p, i))
+      (Ioi 0) := by
+  have hG : ∀ x : ℝ, Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s = 0 := fun x => by
+    have h1 : Dec2.Gstarx (coverOf G) G a aT 0 (ν + x) α s = 0 := by
+      unfold Dec2.Gstarx
+      exact Finset.sum_eq_zero fun q hq => by rw [hs0 q hq, zero_smul]
+    unfold Dec2.Gsx
+    rw [h1, Matrix.zero_mul]
+  have hL : liftOp N (0 : Matrix (G.Ω 1) (G.Ω 1) ℂ) = 0 := by
+    ext u v; simp [liftOp]
+  have hP : ∀ x : ℝ, Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ = 0 := fun x => by
+    unfold Dec2.decPi
+    rw [hG x, hL, Matrix.zero_mul, Matrix.zero_mul, Matrix.zero_mul]
+  have hform : ∀ x : ℝ, 0 < x →
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) (p, i) (p, i) =
+        ((((1 + x)⁻¹ : ℝ) : ℂ)) * (restrictField G φ p i * restrictField G φ p i - 1) := by
+    intro x hx
+    rw [hG x, hP x, hL]
+    have hc : (1 + (x : ℂ))⁻¹ = (((1 + x)⁻¹ : ℝ) : ℂ) := by push_cast; rfl
+    simp only [Matrix.sub_apply, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul, Matrix.zero_apply,
+      basePart_apply, ite_true, Matrix.one_apply, hc]
+    ring
+  intro hint
+  have hc0 : (restrictField G φ p i * restrictField G φ p i - 1) ≠ 0 := sub_ne_zero.2 hne
+  have h3 := hint.congr_fun (fun x hx => hform x (mem_Ioi.mp hx)) measurableSet_Ioi
+  have h4 : IntegrableOn (fun x : ℝ => (restrictField G φ p i * restrictField G φ p i - 1)⁻¹ *
+      (((((1 + x)⁻¹ : ℝ) : ℂ)) * (restrictField G φ p i * restrictField G φ p i - 1))) (Ioi 0) :=
+    h3.const_mul _
+  have h2 : IntegrableOn (fun x : ℝ => (((1 + x)⁻¹ : ℝ) : ℂ)) (Ioi 0) :=
+    IntegrableOn.congr_fun h4 (fun x hx => by rw [mul_left_comm, inv_mul_cancel₀ hc0, mul_one]) measurableSet_Ioi
+  have h5 : IntegrableOn (fun x : ℝ => (1 + x)⁻¹) (Ioi 0) := by
+    have h6 : IntegrableOn (fun x : ℝ => ‖(((1 + x)⁻¹ : ℝ) : ℂ)‖) (Ioi 0) := h2.norm
+    refine IntegrableOn.congr_fun h6 (fun x hx => ?_) measurableSet_Ioi
+    simp only [Complex.norm_real, Real.norm_eq_abs]
+    exact abs_of_nonneg (inv_nonneg.2 (by have := mem_Ioi.mp hx; linarith))
+  have h7 : IntegrableOn (fun x : ℝ => x⁻¹) (Ioi 1) := by
+    have h8 : IntegrableOn (fun x : ℝ => 2 * (1 + x)⁻¹) (Ioi 1) :=
+      (h5.mono_set (Ioi_subset_Ioi zero_le_one)).const_mul 2
+    refine Integrable.mono' h8 ?_ ?_
+    · refine ContinuousOn.aestronglyMeasurable ?_ measurableSet_Ioi
+      exact continuousOn_inv₀.mono fun x hx => (lt_trans zero_lt_one (mem_Ioi.mp hx)).ne'
+    · refine (ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun x hx => ?_)
+      have hx1 : 1 < x := mem_Ioi.mp hx
+      rw [Real.norm_of_nonneg (inv_nonneg.2 (by linarith)), ← one_div, ← one_div,
+        mul_one_div, div_le_div_iff₀ (by linarith) (by linarith)]
+      linarith
+  exact not_integrableOn_Ioi_inv h7
 
 end Physical
 
