@@ -738,4 +738,68 @@ end LogDet
 
 end Final
 
+section Cutoff
+
+open MeasureTheory Set Balaban.Localization Balaban.Analysis
+
+variable {d M N L k : ℕ} [NeZero N] [NeZero L] {p : ℕ}
+
+/-- The field transport `ψ ↦ ψ ∘ τ⁻¹` is a measurable equivalence. -/
+theorem exists_fieldEquiv {ι : Type*} (e : ι ≃ ι) :
+    ∃ T : (ι → ℝ) ≃ᵐ (ι → ℝ), ∀ ψ x, T ψ x = ψ (e.symm x) :=
+  ⟨MeasurableEquiv.arrowCongr' e (MeasurableEquiv.refl ℝ), fun _ _ => rfl⟩
+
+theorem fieldEquiv_preimage_box {ι : Type*} (e : ι ≃ ι) (T : (ι → ℝ) ≃ᵐ (ι → ℝ))
+    (hT : ∀ ψ x, T ψ x = ψ (e.symm x)) (ρ : ℝ) :
+    T ⁻¹' {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} = {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} := by
+  ext ψ
+  simp only [Set.mem_preimage, Set.mem_ofPred_eq, hT]
+  exact ⟨fun h y => by simpa using h (e y), fun h y => h _⟩
+
+theorem measurableSet_box {ι : Type*} [Finite ι] (ρ : ℝ) :
+    MeasurableSet {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} := by
+  have : {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ} = ⋂ y, {ψ : ι → ℝ | |ψ y| ≤ ρ} := by
+    ext ψ; simp
+  rw [this]
+  exact MeasurableSet.iInter fun y =>
+    measurableSet_le ((measurable_pi_apply y).abs) measurable_const
+
+theorem integral_box_map {ι : Type*} [Finite ι] (e : ι ≃ ι) (T : (ι → ℝ) ≃ᵐ (ι → ℝ))
+    (hT : ∀ ψ x, T ψ x = ψ (e.symm x)) (γ : Measure (ι → ℝ)) (ρ : ℝ) (g : (ι → ℝ) → ℂ) :
+    ∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, g ψ ∂(γ.map T) =
+      ∫ ψ in {ψ : ι → ℝ | ∀ y, |ψ y| ≤ ρ}, g (T ψ) ∂γ := by
+  rw [Measure.restrict_map T.measurable (measurableSet_box ρ), fieldEquiv_preimage_box e T hT ρ]
+  exact integral_map_equiv T g
+
+theorem analyticOnNhd_polydisc_comp_equiv {ι : Type*} [Fintype ι] (e : ι ≃ ι) {R : ℝ}
+    {F : (ι → ℂ) → ℂ} (hF : AnalyticOnNhd ℂ F (polydisc (0 : ι → ℂ) (fun _ => R))) :
+    AnalyticOnNhd ℂ (fun w : ι → ℂ => F (fun x => w (e x))) (polydisc (0 : ι → ℂ) (fun _ => R)) := by
+  let T : (ι → ℂ) →L[ℂ] (ι → ℂ) := ContinuousLinearMap.pi fun x => ContinuousLinearMap.proj (e x)
+  have hT : ∀ w, T w = fun x => w (e x) := fun w => rfl
+  exact hF.comp (fun w _ => T.analyticAt w) (fun w hw x => by
+    simpa using hw (e x))
+
+theorem cutoff_integral_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M)
+    (e : L1Torus d N ≃ L1Torus d N) (he : ∀ x i, e x i = x i + ((M * p : ℕ) : ZMod N))
+    (T : (L1Torus d N → ℝ) ≃ᵐ (L1Torus d N → ℝ)) (hT : ∀ ψ x, T ψ x = ψ (e.symm x))
+    (γ : Measure (L1Torus d N → ℝ)) (ρ : ℝ) (F : (L1Torus d N → ℂ) → ℂ) (v a : ℝ)
+    (s : MacIdx d N M → ℂ) :
+    ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+        F (fun x => ∑ y, taggedCfin d L N k M v a s (e x) y * ((ψ y : ℝ) : ℂ)) ∂(γ.map T) =
+      ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+        F (fun x => ∑ y, taggedCfin d L N k M v a (s ∘ σ) x y * ((ψ y : ℝ) : ℂ)) ∂γ := by
+  have h := integral_box_map (ι := L1Torus d N) e T hT γ ρ
+    (fun ψ => F (fun x => ∑ y, taggedCfin d L N k M v a s (e x) y * ((ψ y : ℝ) : ℂ)))
+  refine h.trans (integral_congr_ae (Filter.Eventually.of_forall fun ψ => ?_))
+  dsimp only
+  refine congrArg F (funext fun x => ?_)
+  rw [← Equiv.sum_comp e]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  have h1 := congrFun (congrFun (taggedCfin_translate (L := L) (k := k) hMN σ hσ e he v a s) x) y
+  rw [hT, Equiv.symm_apply_apply]
+  exact congrArg (· * _) h1
+
+end Cutoff
+
 end Balaban.Green
