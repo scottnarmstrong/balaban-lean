@@ -118,7 +118,6 @@ theorem coverGeom_self (S : DGSetting G a ν) :
   hd := S.hd
   hL := S.hL
   mass := S.mass
-  massLe := S.massLe
   weights := S.weights
   sep := S.sep
   blockAligned q hq :=
@@ -156,6 +155,7 @@ theorem coverGeom_self (S : DGSetting G a ν) :
 theorem coverBase_self (S : DGSetting G a ν) :
     CoverBase (coverOf G) G a ν (selfKc d L) (Cchi d L) where
   toCoverGeom := coverGeom_self S
+  massLe := S.massLe
   nc hα _ hq := selfKc_spec S.hd S.hL G S hα hq
 
 /-- **The geometry of the cover of `G` for the locality** (`CoverLocalGeom`). -/

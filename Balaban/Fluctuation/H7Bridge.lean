@@ -73,7 +73,7 @@ theorem cubeDiff_step3_quadratic_gen (hd : 3 ≤ d) (hL : 3 ≤ L) {N : ℕ} {C�
   subst hN
   have : NeZero N₁ := ⟨by rintro rfl; exact absurd (by simp) (NeZero.ne (0 * L ^ m₁))⟩
   have hOp : Dec2.OpSetting G a ν :=
-    ⟨H.hd, H.hL, H.mass, H.massLe, H.weights, hsep⟩
+    ⟨⟨H.hd, H.hL, H.mass, H.weights, hsep⟩, H.massLe⟩
   refine hstep H hOp hδ0 hδε hε hδ1 hνε hD hδ0' hδε' hε' hδ1' hνε' hDu hK1 hKw W hsupp hΨ hh
     hδ₁0 hδ₁s hδ₁w hdΨ Q R hr hDist hδr hQR hQR1 hQblk hreg ?_ β hβ
   intro y hy hyΩ

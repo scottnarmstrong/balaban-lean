@@ -1328,8 +1328,8 @@ theorem decSol_value_twoTorus {Kc Cx cstar BG : ℝ} (hF : Dec2.FamSpec d L Kc C
     have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
       (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
     exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
-  have Hh := StrictDataM.hyp SA.toGreen h0 h1 hle1 he
-  have Hh' := StrictDataM.hyp SB.toGreen h0 h1 hle1 he'
+  have Hh := StrictDataM.hyp SA.toOpSetting.toGreen h0 h1 hle1 he
+  have Hh' := StrictDataM.hyp SB.toOpSetting.toGreen h0 h1 hle1 he'
   obtain ⟨hfld, hfix, hsm, -⟩ := hSol (s, e) hs he
   obtain ⟨hfld', hfix', hsm', -⟩ := hSol' (s', e') hs' he'
   obtain ⟨hα, hcorr⟩ := decSol_component_unique hj1 hj hjp hF SA SB hκ hM (fun P => (hs P).le)

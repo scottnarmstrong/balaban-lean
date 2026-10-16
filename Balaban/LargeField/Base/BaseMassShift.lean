@@ -82,17 +82,18 @@ end L1
 
 section L3
 
-/-- **L3, with the mass bound `ν L² ≤ 1` kept (the bound can be dropped once `massLe` has moved
-from `OpSetting` to `CoverBase`).**  `XCover` holds at `k = 0` with `a₀ = 2`, `a₁ = 1` and
-`aT = 2 L² / (2 L² - 1)`, the weights of `xDirichletOperator_zero_eq_dirichletOperator`. -/
-theorem base_xCover_massShift_exists_of_massLe {d L N₁ m₁ : ℕ} [NeZero L] [NeZero N₁]
-    (hd : 3 ≤ d) (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hN₁ : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
-    (hν : ν * (L : ℝ) ^ 2 ≤ 1) :
+/-- **L3, for every mass `ν ≥ 0`.**  `XCover` holds at `k = 0` with `a₀ = 2`, `a₁ = 1` and
+`aT = 2 L² / (2 L² - 1)`, the weights of `xDirichletOperator_zero_eq_dirichletOperator`. The
+x-variant setting does not involve the mass bound, so the cover geometry is built at mass `0` and
+the mass is then changed. -/
+theorem base_xCover_massShift_exists {d L N₁ m₁ : ℕ} [NeZero L] [NeZero N₁]
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hN₁ : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν) :
     ∃ (G : GeneratingSet d L (N₁ * L ^ m₁) 1 (Inhabited.LevelStep.rhoSepG d L m₁))
       (a : ℕ → ℝ) (aT : ℝ), a 0 = 2 ∧ a 1 = 1 ∧
         aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1) ∧
         Dec2.XCover (coverOf G) G a aT ν (Cchi d L) := by
-  obtain ⟨G, -, S⟩ := baseDGSetting_exists (m₁ := m₁) (N₁ := N₁) hd hL hM hN₁ hν0 hν
+  obtain ⟨G, -, S⟩ := baseDGSetting_exists (m₁ := m₁) (N₁ := N₁) hd hL hM hN₁ (le_refl (0 : ℝ))
+    (by simp)
   have hL2 : 2 ≤ L := by omega
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hL4 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
@@ -114,12 +115,23 @@ theorem base_xCover_massShift_exists_of_massLe {d L N₁ m₁ : ℕ} [NeZero L] 
   have hle : 1 / (2 * (L : ℝ) ^ 2 - 1) ≤ 1 := by
     rw [div_le_one hpos]; linarith
   have hge : 0 ≤ 1 / (2 * (L : ℝ) ^ 2 - 1) := by positivity
-  refine Dec2.xCover_self (k := 0)
+  have X0 := Dec2.xCover_self (k := 0) (aT := 2 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - 1))
     { dg := { S with weights := hw }
       hak1 := by rw [Function.update_self]; norm_num
       hak2 := by rw [Function.update_self]
       haT1 := by rw [haT]; linarith
       haT2 := by rw [haT]; linarith }
+  exact { X0 with mass := hν0 }
+
+/-- **L3 under the mass bound `ν L² ≤ 1`**: `base_xCover_massShift_exists`. -/
+theorem base_xCover_massShift_exists_of_massLe {d L N₁ m₁ : ℕ} [NeZero L] [NeZero N₁]
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hN₁ : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (_hν : ν * (L : ℝ) ^ 2 ≤ 1) :
+    ∃ (G : GeneratingSet d L (N₁ * L ^ m₁) 1 (Inhabited.LevelStep.rhoSepG d L m₁))
+      (a : ℕ → ℝ) (aT : ℝ), a 0 = 2 ∧ a 1 = 1 ∧
+        aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1) ∧
+        Dec2.XCover (coverOf G) G a aT ν (Cchi d L) :=
+  base_xCover_massShift_exists hd hL hM hN₁ hν0
 
 end L3
 

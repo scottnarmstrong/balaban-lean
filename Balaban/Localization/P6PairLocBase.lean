@@ -66,7 +66,7 @@ theorem p6_coverBase_loc (hM1 : g.M1 = S.L ^ m₁) (hm₁ : 2 ≤ m₁) (hM : 4 
   Dec2.coverBase_mixed hN
     (p6FsharpC (k := k) (Hl.F.hnn k (by omega)) (g.three_L_le_floor Hl (k - 1))
       (by have := g.hc; omega : 5 ≤ g.c) (Hl.step k).Z hM1)
-    (p6_coverGeom_loc g Hl k Zc hZc hk hM1 hm₁ hM hd hL3 hν hνL ha hsep) (fun _ hq => hq)
+    (p6_coverGeom_loc g Hl k Zc hZc hk hM1 hm₁ hM hd hL3 hν hνL ha hsep) hνL (fun _ hq => hq)
 
 /-- **`p6_action_at_one` for the real step, `CoverBase` discharged** (`p6_coverBase_loc`). -/
 theorem p6_action_at_one_real' (hM1 : g.M1 = S.L ^ m₁) (hm₁ : 2 ≤ m₁) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)

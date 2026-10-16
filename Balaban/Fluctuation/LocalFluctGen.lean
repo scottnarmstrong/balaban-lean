@@ -210,7 +210,7 @@ theorem localB_footLocal_of_precedes {t : ℕ} (ht : t ≤ K) (Y : Set (CTorus d
     Dec2.FootLocal (coverOf (GsSpec.localB t ht Y hsep)) Hm a ν (Dec2.mixedKc d L) (Cchi d L) :=
   { toCoverBase := Dec2.coverBase_mixed hN (GsSpec.localB t ht Y hsep)
       (p6_coverGeom_of_pair (localB_cubeAligned ht Y hsep hm₁) (localB_supSep ht Y hsep) hP hM
-        hd hL hν hνL ha hag) (fun _ hq => hq)
+        hd hL hν hνL ha hag) hνL (fun _ hq => hq)
     chi_core := (Dec2.footLocalGeom_coverOf _).chi_core }
 
 /-- **`RowInHat` of the pair `(coverOf 𝔹_t(Y), H⁻)`** for every `H⁻ ≺ 𝔹_t(Y)`
