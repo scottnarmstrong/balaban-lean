@@ -15,8 +15,18 @@ public import Balaban.Localization.DecoupledCovLocal
 
 Weighted comparison and exact core agreement of the shifted covariance
 `(1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}` of the first step, uniformly in `x ≥ 0`, and of its Stieltjes
-square root.  Everything is an application of the step's weighted closeness of `Z = Ĝ - Π`
-(`vecM_decZ_sub_le_cover`) at `x' = 0` and mass `ν + x`.
+square root `π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) dx`.  Everything is an application of the landed locality
+and closeness theorems of the step's x-variant chain at `x' = 0` and mass `ν + x`.
+
+* `baseCovX_sub_decay`: two parameter families equal to `1` off `W` give covariances whose entries
+  differ by `B e^{-γ r(y)}`, `r` the truncated distance from `y` to `W`, uniformly in `x ≥ 0`
+  (from `vecM_decZ_sub_le_cover`).
+* `baseCovX_exact`: if every active cube lies inside `Sr` or is disjoint from `Y ⊇ Sr`, the
+  parameters agree on the cubes inside `Sr`, and `Y` contains the neighbours of `Sr`, then the rows
+  of the covariance at the sites of `Y` do not depend on `s` (from `Gsx_local`, the fixed point
+  of `decZ_exact`).
+* `baseCovX_sqrt_sub_decay`, `baseCovX_sqrt_exact`: the same for the Stieltjes square root; the
+  weighted comparison loses half the rate (`stieltjes_interp`).
 -/
 
 @[expose] public section
@@ -672,5 +682,133 @@ theorem baseCovX_sqrt_exact {κ δ : ℝ} {α : G.Ω 1 → ℂ}
     hagree hnbr hφ y z hy]
 
 end SqrtIntegrable
+
+section SqrtCompare
+
+open MeasureTheory Set
+
+/-- **Weighted comparison of the Stieltjes square root.**  For two parameter families on the
+discs `‖s_P‖ ≤ e^κ` that are `1` on every cube whose interaction cube is not inside `W`, the
+entries of `π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) dx` differ by `B e^{-γ r(y) / 2}`, `r` the path distance from
+`y` to `W` truncated at any `T`, `γ = xAgmonRate d L`; `B` depends only on `d, L, κ`.  (The
+weighted bound of the covariance is uniform in the shift and the decay `B/(1 + x)` of
+`baseCovX_decay` makes the integral converge; their interpolation costs half the rate.) -/
+theorem baseCovX_sqrt_sub_decay (d L : ℕ) [NeZero L] (κ : ℝ) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {N₁ m₁ N : ℕ} [NeZero N₁] {ϱ : ℝ}
+      {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx : ℝ}
+      {δ : ℝ} {α : G.Ω 1 → ℂ} {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+      (_S : Dec2.XCover (coverOf G) G a aT ν Cx) (_hCx : 0 ≤ Cx) (_hκ : 0 ≤ κ)
+      (_hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (_hδ : 0 ≤ δ)
+      (_hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (_hα : AdmPot G α)
+      (_hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (_hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+      {W : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)}
+      (_hW : ∀ z ∈ cubeIdx G, sProd G s z ≠ 1 → intBox z ⊆ W)
+      (_hW' : ∀ z ∈ cubeIdx G, sProd G s' z ≠ 1 → intBox z ⊆ W)
+      {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
+      (_hφ : IsConstraintField G δ φ) (T : ℝ) (y z : G.Ω 1 × Fin N),
+      ‖((1 / Real.pi : ℝ) : ℂ) * (∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+            liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+            Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z) -
+        ((1 / Real.pi : ℝ) : ℂ) * (∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+            liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+            Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z)‖ ≤
+        B * Real.exp (-(xAgmonRate d L * truncSetDistR G W T y.1 / 2)) := by
+  obtain ⟨B1, hB1, hdec⟩ := baseCovX_decay d L κ
+  set Kc : ℝ := Real.sqrt (zCloseConst d L * Real.exp (N0 d L * κ) ^ 2) * ((L : ℝ) ^ 2) with hKc
+  have hKc0 : 0 ≤ Kc := by rw [hKc]; positivity
+  refine ⟨4 / Real.pi * Real.sqrt (2 * B1 * (2 * Kc)), by positivity, ?_⟩
+  intro N₁ m₁ N _ ϱ G a aT ν Cx δ α s s' S hCx hκ hM hδ hsm hα hs hs' W hW hW' φ hφ T y z
+  have hν : 0 ≤ ν := S.mass
+  set E : ℝ := Real.exp (-(xAgmonRate d L * truncSetDistR G W T y.1)) with hE
+  have hE0 : 0 < E := Real.exp_pos _
+  have i1 := baseCovX_integrand_integrableOn S hCx hκ hM hδ hsm hα hs hφ y z
+  have i2 := baseCovX_integrand_integrableOn S hCx hκ hM hδ hsm hα hs' hφ y z
+  have hF0 : ∀ x : ℝ, 0 < x → 0 ≤ ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖ := fun _ _ => norm_nonneg _
+  have hF1 : ∀ x : ℝ, 0 < x → ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖ ≤ (2 * B1) / (1 + x) := by
+    intro x hx
+    have h1 := hdec (xCover_add_mass S hx.le) hCx hν hx.le hκ hM hδ hsm hα hs hφ y z
+    have h2 := hdec (xCover_add_mass S hx.le) hCx hν hx.le hκ hM hδ hsm hα hs' hφ y z
+    refine (norm_sub_le _ _).trans ?_
+    have : 2 * B1 / (1 + x) = B1 / (1 + x) + B1 / (1 + x) := by ring
+    rw [this]
+    exact add_le_add h1 h2
+  have hF2 : ∀ x : ℝ, 0 < x → ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖ ≤ 2 * Kc * E := by
+    intro x hx
+    exact baseCovX_sub_decay (xCover_add_mass S hx.le) hCx hκ hM hδ hsm hα hs hs' hW hW' hφ T y z
+  have hpt : ∀ x ∈ Ioi (0 : ℝ),
+      ‖((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+      ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖ =
+      x ^ (-(1 / 2 : ℝ)) * ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖ := by
+    intro x hx
+    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos (mem_Ioi.mp hx) _
+    rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+  have hint' : IntegrableOn (fun x : ℝ => x ^ (-(1 / 2 : ℝ)) *
+      ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z‖) (Ioi 0) :=
+    Integrable.congr (i1.sub i2).norm
+      ((ae_restrict_iff' measurableSet_Ioi).2
+        (Filter.Eventually.of_forall fun x hx => hpt x hx))
+  have hI := stieltjes_interp (A := 2 * B1) (b := 2 * Kc * E) (by positivity) (by positivity)
+    hF0 hF1 hF2 hint'
+  -- the norm of the difference of the integrals
+  rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity),
+    ← integral_sub i1 i2]
+  have hn := norm_integral_le_integral_norm (μ := volume.restrict (Ioi (0 : ℝ)))
+    (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z -
+      ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z)
+  rw [setIntegral_congr_fun measurableSet_Ioi (fun x hx => hpt x hx)] at hn
+  have hsq : Real.sqrt (2 * B1 * (2 * Kc * E)) =
+      Real.sqrt (2 * B1 * (2 * Kc)) * Real.exp (-(xAgmonRate d L * truncSetDistR G W T y.1 / 2)) := by
+    have e1 : 2 * B1 * (2 * Kc * E) = (2 * B1 * (2 * Kc)) * E := by ring
+    rw [e1, Real.sqrt_mul (by positivity)]
+    congr 1
+    have e2 : E = Real.exp (-(xAgmonRate d L * truncSetDistR G W T y.1 / 2)) *
+        Real.exp (-(xAgmonRate d L * truncSetDistR G W T y.1 / 2)) := by
+      rw [hE, ← Real.exp_add]; congr 1; ring
+    rw [e2, Real.sqrt_mul_self (Real.exp_pos _).le]
+  have hpi := Real.pi_pos
+  calc 1 / Real.pi * ‖∫ x in Ioi (0 : ℝ), _‖ ≤ 1 / Real.pi * (4 * Real.sqrt (2 * B1 * (2 * Kc * E))) :=
+        mul_le_mul_of_nonneg_left (hn.trans hI) (by positivity)
+    _ = _ := by rw [hsq]; ring
+
+end SqrtCompare
 
 end Balaban.LargeField.Base
