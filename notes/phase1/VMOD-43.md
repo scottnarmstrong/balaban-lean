@@ -1,91 +1,47 @@
-# VMOD-43: P5 boundary size and the fine chosen-cover size
+# VMOD-43: core incidence for the P7 removed-component gas (blocker 4, item 16)
 
-**Verdict.** **PROVED for an explicitly aligned open-to-fine lift:** the inequality needed to pass a P5 H7 bound to the fine D7 size holds with $a_*=1/(8\,3^d)$ and $b_*=1/4$. **OPEN for actual D7 labels:** the required open-domain lift and complement-component identification have not been proved in Lean. A two-sided comparison with P5 is not established. A
-two-sided comparison of two *fine* sizes is proved below.
+**Scope.** Refute-first reading of P7 (3.25)-(3.28), printed pp. 527-528 of s002200050486.pdf, with the definitions of P5 (1.33)-(1.35), against the Yang-Mills reading in `notes/phase1/YMACCOUNT.md` (account of https://github.com/ethanwsussman/Yang--Mills-LLM-experiment, commit e392ef4; unrefereed, used as a hint only; its core-cluster reading is at part I lines 20632-20651, 20757-20925, 21733-21898, 22700-22728, 23298-23314). No Lean edits. Notation: Y_k retained (first-kind) large-field region, Z_i removed components, Omega_k^c the large-field set, "core" = polymer minus retained components.
 
-## 1. The two normalizations
+## 1. What P7 and P5 say
 
-**PROVED (PDF pages checked).** P1 (2.26)–(2.27), printed p. 117, makes $\pi'_k$ the cover by open cubes of side $LM$ in the scale-$k$ lattice, translated on the $M$-cube grid;
-consecutive translates overlap in a strip of width $(L-1)M$ for $L>1$. P5 (1.33)–(1.34), printed p. 496, requires $X\in\mathcal D_k(\mathrm{mod}\,\Omega^c)$ and sets
-$$D_P(X,\Omega)=\inf_{\Gamma\subset X^\circ}M^{-1}|\Gamma|_\eta,\qquad \eta=L^{-k},$$
-where $\Gamma$ is a connected continuous tree meeting **every** open $\pi'_k$ cube meeting $X^\circ\cap\Omega^\circ$. The cube need not be contained in $X^\circ$. The component rule
-says each continuum component of $(\Omega^\circ)^c$ is contained in $X^\circ$ or disjoint from it.
+**SOURCE (P7 p. 527-528, verbatim).** "The Mayer expansion yields a sum over sets of 'clusters'; each cluster {X_1,...,X_p} is determined by the condition that UX_i is a connected domain. This domain intersects at least one component Z_i. Let us denote by {Z_i1,...,Z_iq} all the components it intersects. The cluster determines the 'polymer' X = UX_i U (U Z_ir^{~~2})^{~2}. For a given polymer X in D_k(mod Omega_k^c cap Y_k) we sum over all clusters and all sets {Z_i1,...,Z_iq} determining the polymer." Then (3.27) sums over "sets of disjoint domains X_i in D_k(mod ...)".
 
-**PROVED (landed declarations checked).** Set $M=L^{m_0+m_1}$ and $a_k=ML^k=L^{m_0+m_1+k}$ fine sites. `Fluctuation/SizeModDefs.lean:ModAdmissible` chooses aligned half-open boxes
-$B_b=\texttt{box}\ b\ (La_k)$ with $B_b\subset X_f$ and $X_f\cap\Omega_f\subset\bigcup_{b\in\mathcal K}B_b$; it chooses a connected NN graph $(W,E)$ in $X_f$ meeting each chosen box.
-`dcovModE` minimizes $|E|/a_k$, since `Localization/TreeLength.lean:scaleW` gives weight $a_k^{-1}$ to every bond. `dcovMod` is its finite real value;
-`LargeField/Def7FineSize.lean:d7SizeAtE`, `d7SizePreE`, and `d7SizeE` pull it to the history's fine torus at the specified region. In fine coordinates $|\Gamma|_\eta/M=\ell_f/a_k$,
-where $\ell_f$ is Euclidean length measured in fine-site units. This is a unit conversion, not an identification of trees or domains.
+**SOURCE (P5 (1.33)-(1.34)).** D_k(mod Omega^c) = domains X such that each component of Omega^c is contained in X or disjoint from X. d_k(X mod Omega^c) = inf (1/M)|Gamma|_eta over connected tree graphs Gamma "contained in the domain X and intersecting every cube of the cover which intersects X cap Omega". P5 comments: for X containing components of Omega^c the function "measures the linear size of components of X cap Omega, together with distances between the components".
+So with Omega^c cap Y_k the retained holes: every label and polymer contains whole retained holes (item 2(c) holds by definition), and the tree is a path in X through the holes, which is paid at full length.
 
-## 2. A fine all-eligible surrogate
+**Question (1). OPEN, with a reading.** P7 never says "modulo Y_k" for the connectedness of UX_i; the sentence is plain "connected domain". Against the core reading: the size (1.34) charges the tree inside the whole X, hole included; the sentence on p. 528 follows the plain-connectedness convention of D_k. For the core reading: Y_k and the notation D_k(mod Omega_k^c cap Y_k) are present exactly so that hole lengths are not extra variables; the Yang-Mills ancestor (CMP122b (1.90)-(1.91), pp. 386-388, CMP116 (2.11)) forms clusters on X'\UY_i; and without it the estimate "almost completely standard" is false (VMOD-41 section 2). The text alone does not decide. The core reading is the only reading under which the P7 sentence is true for the exact example of VMOD-41, so it is the most plausible one; but P7 would then have to declare the incidence rule, and it does not.
 
-Define $\mathcal Q(X_f,\Omega_f)=\{b:\ b\text{ is }a_k\text{-aligned},\ B_b\cap(X_f\cap\Omega_f)\ne\varnothing\}$, with **no** requirement $B_b\subset X_f$. Let $D_A$ be the infimum
-of $|E|/a_k$ over connected NN graphs in $X_f$ meeting every $B_b$, $b\in\mathcal Q$. This matches P5's “which intersects $X\cap\Omega$” incidence after an aligned lift. Requiring
-`ModAdmissible`'s chosen family to equal $\mathcal Q$ is ill-typed mathematically when an eligible box crosses $\partial X_f$: `ModAdmissible` requires each chosen box to lie inside
-$X_f$.
+## 2. Is (3.27) still an identity with core incidence?
 
-**PROVED (fine lower comparison).** If `IsDj m₀ k X_f`, the subfamily of eligible boxes **contained** in $X_f$ covers $X_f\cap\Omega_f$. A graph for $D_A$ meets this subfamily and
-gives a `ModAdmissible` witness. Hence $\Delta:=\mathrm{dcovMod}(X_f,\Omega_f)\le D_A$. This does not need the component rule.
+Set-up (PROVED from the printed formula, no new input). The curly bracket of (3.26) is S = sum_n sum_{Z_1..Z_n} sum_{A''cap Z_i} prod_i T''_k(Z_i, A''cap Z_i) e^{E_k|Z_i|} * exp B''(...), with T''_k(Y_k, A''cap Y_k) e^{B(Y_k)} outside.
 
-**PROVED (fine upper comparison, conditional only on the stated landed hypotheses).** Assume `DjMod m₀ k Ωf Xf`, `IsPiUnion m₀ k Ωf`, $k\le K$, and $L^{m_0}\mid N_1$. Put
-$c_1=[3(2L-1)]^d$, the landed `Fluctuation.c1` (`SizeModCore.lean`). `SizeModG1.lean:G1_cellCount` and `exists_admissible_eq_dcovMod` give a minimizing chosen graph and at most
-$c_1(1+\Delta)$ active $a_k$-cells. For each such cell $C$, choose $z_C\in C$ and a chosen box $B$ covering it. Alignment makes $C\subset B$; join $z_C$ to the graph's hit in $B$ by
-at most $dLa_k$ NN bonds, all in $X_f$. Every aligned box meeting an active cell contains that entire cell, hence meets the enlarged graph at $z_C$. Therefore
-$$\Delta\le D_A\le(1+dLc_1)\Delta+dLc_1.\tag{2.1}$$
-The bound uses landed G1 only in the **reverse fine comparison**; it is not used to infer $\Delta$ from a paper tree. Formula (2.1) is a mathematical proof of a modular fine analogue of
-`Localization/TreeLengthPaper.lean:treeLenAll_le`; the modular wrapper `D_A` and its Lean theorem have not landed.
+**(a) PROVED conditionally on one SOURCE check.** The integrations in S are the T''_k(Z_i), over the variables on the removed components (P5 (1.29): T_k(Z,A cap Z) F integrates psi_k over Z, F fixed outside). The variables on Y_k and the multi-index A'' cap Y_k are parameters of S: P7 says the activities are "functions of psi, psi', h, g restricted to X, where psi, psi' are now determined by the multi-index A''_k cap Y_k, in particular psi = psi_k on ... (Omega_k cap Y_k) cup Y_k^c". Mayer's identity exp(sum b_X) = prod(1+f_X) is exact for any gas, and the integral of a product of f_X over the removed variables factorizes over groups that share no removed component Z_i, because each b_X depends on the integration variables of Z_i only for Z_i meeting X (terms disjoint from every Z_i cancel by P7's remark after (3.26)). Two terms whose domains meet only inside Y_k therefore have independent integrals; the sum over A'' cap Z_i factorizes by the same argument. Hence the identity holds with incompatibility = "share a removed component or a core point", and then (3.28) is the exponential of the sum over core-connected clusters. Condition: B''^(k)(X, A'') must depend on A'' only through A'' cap (X cap (UZ_i U Y_k)); P7 writes B''(Y_k U UZ_i, A''_k) with the full multi-index, so this is SOURCE-silent and must be confirmed. Without it cross links through the multi-index would exist even for disjoint cores.
+Consequence for the print: with core incidence the polymers X_-, X_+ of VMOD-41 overlap in the hole, so (3.27) must read "sets of core-disjoint polymers" (they are still in D_k(mod ...), both contain the whole hole), not "disjoint domains". The product rho''(X_-)rho''(X_+) is then a term of exp(sum P), as (3.28) already has it. OPEN-PAPER: the printed (3.27) "disjoint domains" has to be altered; the disjointness used for exponentiation is core-disjointness.
 
-## 3. Continuous tree to a fine graph
+**(b) OPEN (not in P7).** P7 pp. 527-528 does not state the size of the halo (Z^{~~2})^{~2} nor its separation from retained holes. What the landed record gives: distinct raw components have sup-distance at least omega_k (RRipeCard.comp_sep, VMOD-41 section 1); removed components have at most crit_k^d cells. If the halo radius is below omega_k/2, halos of distinct removed components are disjoint from each other and from every retained hole, hence lie in the core. This is a comparison of radius with omega_k which I have not verified; if a halo meets a retained hole, the polymer would contain a hole fragment, which D_k(mod) forbids, so it would have to be completed to the whole hole, and this is blocker 3 again.
 
-**PROVED CONDITIONAL ON `OPEN-ALIGNED-LIFT-IDENTIFICATION`.** Suppose $X^\circ$ is exactly a union of open $a_k$-aligned cover cubes of side $La_k$, $X_f$ is the union of their
-corresponding half-open $a_k$-cells, and the active sets and eligible cubes correspond cell by cell. Let $\Gamma\subset X^\circ$ be a finite rectifiable tree of fine-coordinate length
-$\ell_f$ meeting every P5-eligible open cube. Let $V$ comprise all aligned $a_k$-cells whose closures meet $\Gamma$.
+**(c) PROVED (definition).** Each label and polymer lies in D_k(mod Omega_k^c cap Y_k) by (1.33): contains each retained component wholly or misses it. A cluster of core-connected labels therefore carries whole retained holes.
 
-**PROVED (noncircular covering bound).** Every $C\in V$ lies in $X_f$: at a contact point $q\in\Gamma$, an open cover cube contained in $X^\circ$ contains $q$, and all incident
-aligned $a_k$-cells lie in that cube. The face-adjacency graph of $V$ is connected: crossing a face gives adjacent cells, while a simultaneous crossing of several faces has all
-incident cells in the same open cube and supplies a face-adjacent bridge. Traverse each edge of $\Gamma$ twice and sample at arc-length increments at most $a_k/4$. There are at most
-$8\ell_f/a_k+2$ samples; each radius-$a_k/4$ ball meets at most $3^d$ aligned cells. Thus $|V|\le3^d(8\ell_f/a_k+2)$.
+**Verdict on (2). Refutation not found.** The Mayer representation (3.27) is an identity under core incidence (given the condition in (a)), because the retained variables are parameters inside the brackets.
+The surviving risk is on (a): B'' depending on A'' beyond X, and on (b).
 
-**PROVED (graph and incidence).** Join representative fine sites of a spanning tree of the face-adjacency graph of $V$ by $a_k$ NN bonds per cell edge, inside $X_f$, and prune
-redundant bonds. Its normalized cost is at most $|V|-1$. If $\Gamma$ meets an eligible open box, the contact point lies in an aligned cell contained in that box, so its representative
-is in the matching fine box. Thus the graph meets **all** boxes in $\mathcal Q$, and
-$$D_A\le 8\,3^d D_P+2\,3^d,\qquad
-\Delta\le8\,3^dD_P+2\,3^d.\tag{3.1}$$
-Take the infimum over $\Gamma$; no minimizing paper tree is required. Equivalently,
-$$D_P\ge a_*\Delta-b_*,\qquad a_*=(8\,3^d)^{-1},\quad b_*=1/4.\tag{3.2}$$
-As a separate noncircular cell count, every active $a_k$ -cell lies in an eligible open box met by $\Gamma$, so it lies within sup-distance $La_k$ of $\Gamma$. The same samples give
-$n_\pi(X\cap\Omega)\le(2L+4)^d(8D_P+2)$. This count is not needed for the sharper construction (3.1).
+## 3. Consequences if (2) holds
 
-**OPEN (actual paper-to-D7 application).** `FineSizeFrame.hM` supplies $M=L^{m_0+m_1}$, and `d7Pull` supplies a torus cast, but no landed theorem identifies every P5 open box, every
-active cell, or the exact $X^\circ$ with that pullback. `OPEN-ALIGNED-LIFT-IDENTIFICATION` is therefore a genuine premise of (3.1). Continuum components of the closed complement may
-meet at a corner while fine NN components do not; `OPEN-MOD-COMPONENT-COMPAT` must separately identify the P5 whole-component rule with `Fluctuation.DjMod` for the actual histories. A
-bare `FineValid` or a coarse `DmodOmega` assertion does not prove these premises. Accordingly `OPEN-PAPER-FINE-REALIZATION` for the actual D7 records remains **OPEN**, although its
-quantitative geometric step is proved above.
+**PROVED (from section 2).** The VMOD-41 pair X_-, X_+ (overlap N cells inside H_N, a retained hole) is not linked: the clusters Gamma_-, Gamma_+ are separate, X_- and X_+ are separate polymers of size O(g+L), and the example's N-dependence disappears. The length through a retained hole is not part of any cluster tree; the REFUTED unrestricted fine-size claim of VMOD-41 section 2 concerns connected incidence, not core incidence.
+**Not removed:** a single label X that contains a long hole with active attachments at both ends is still one polymer of large mod-size; its cost is the size D_-(X) already paid by the H7 bound for the old term (3 kappa/2 decay), not an extra gas charge.
 
-## 4. Reverse direction and D7 constants
+**What remains.** (i) State core incidence in Lean terms: core(X) = X minus retained holes; cluster connectivity = overlap of cores; this is a change of the predicates in Polymer/Gas.lean (supports = cores). (ii) Activity bound per core polymer: sum over clusters rooted at a removed component of |w| e^{3kappa/2 D}; D must be a size in which the hole is a single jump (G3 subadditivity through active-cell contact only, SizeModUnion with the common cell in Omega); the landed G3_dcov already needs the intersection to contain a pi_k cell of Omega, which is exactly core overlap. (iii) Counting: the rooted entropy G2_X, 2d crit_k^d roots per component, touched-component count by G1_cellCount (VMOD-41 section 3, packages 1-3, pure geometry). (iv) The post size D_+ of the output polymer: the output P(X) is a core-cluster sum assigned to labels containing whole holes; the bound (1.35) for them uses (1.34) with the hole inside the tree. A polymer made of two core-linked pieces separated by a retained hole is a single X only if it is also a connected union of the pieces; otherwise P(X) is the product, not a term. So the output class stays in D_k(mod) with size (1.34) and no further extra length is needed. (v) the 2 kappa/3 to kappa decay conversions of p. 528 as in VMOD-41 section 3.
 
-**PROVED for the fine surrogate; OPEN for P5.** Equation (2.1) is the reverse comparison $D_A\le A'\Delta+B'$ with $A'=1+dLc_1$, $B'=dLc_1$. It does **not** imply $D_P\le A'\Delta+B'$
-without a fine-graph-to-open-tree theorem. A half-open NN edge can cross a face omitted by a union of open cover cubes, even when that open union is connected by a remote route. For
-example, two long open strips made of side-$La_k$ cubes can touch along such a face and join only at their far end; their half-open cell lifts admit a short cross-face bond. This
-**REFUTES the proposed edge-by-edge reverse construction** from an arbitrary open-union lift. With $\Omega$ restricted by P5 (1.33), such a strip must also satisfy the
-whole-complement-component rule; this illustration alone does **not** refute a reverse bound on valid modular labels. That bound is **OPEN**. The reverse inequality is not needed to transport H7 to the fine D7 bound: (3.2) suffices after rebasing.
+## 4. Sharpened author question (item 16)
 
-**PROVED (entropy implication with matched labels).** Equation (2.1) gives $\Delta\ge(D_A-B')/A'$, hence $e^{-\lambda\Delta}\le e^{\lambda B'/A'}e^{-(\lambda/A')D_A}$ for $\lambda\ge0$. A corresponding P5 reverse bound would permit transfer of P5 (1.35) at a suitable rate after the labels and root cubes were identified. It is not needed to use the landed
-`G1_cellCount`, `SizeModEntropy.lean:G2_X`, or active-overlap `SizeModUnion.lean:G3_dcov`; those already hold for the fine size under their own hypotheses.
+In P7 p. 528 the cluster {X_1,...,X_p} is "determined by the condition that UX_i is a connected domain" and p. 527-528 takes the Mayer expansion of the curly bracket of (3.26) with the retained-region variables fixed. Is this connectedness meant on the core UX_i minus Y_k (so that two old boundary terms whose domains overlap only inside a retained large-field component of Y_k are not linked, as in the Yang-Mills gas of CMP122b (1.90)-(1.91), pp. 386-388, and CMP116 (2.11), where clusters live on X' minus U Y_i and two components are connected only through a localization domain having cubes of the core in both)? If so, the "disjoint domains X_i" of (3.27) are core-disjoint, and the size of a polymer in (3.28) does not charge the length through retained holes, because the sum over X in D_k(mod Omega_k^c cap Y_k) is then of products of such polymers. If not, what pays the length between two attachments of labels that overlap in a retained component, given that (3.10) gives a factor e^{-p_2-H_k|Z|} only for removed Z? Also: does B''(X, A'') depend on A'' only through A'' cap X, and are the halos (Z^{~~2})^{~2} of distinct removed components disjoint from each other and from the retained components?
 
-**PROVED CONDITIONAL ON (3.2) and matching analytic domains.** P5 H7 $|B(X)|\le B_0e^{-\kappa D_P}$ yields
-$$|B(X)|\le B_0e^{\kappa/4}\exp[-\kappa\Delta/(8\,3^d)].\tag{4.1}$$
-For a source bound $B_{\rm st}e^{-3\kappa D_P/2}$ the corresponding pair is $(B_{\rm st}e^{3\kappa/8},\,3\kappa/(16\,3^d))$. `LargeField/Def7.lean:D7BdryPost` and
-`Def7v2Class.lean:D7Bdry2Post` take `fac rate` as arguments, so their `fac` absorbs the exponential prefactor and `rate` takes the reduced decay. The enclosing `IsRep`/`IsRepPre` use
-the pinned `Consts7.B0`, `Consts7.Bst` and $\kappa$, $3\kappa/2$; retaining those numeric constants needs a separate source-rate reserve or a revised budget. The size bridge alone
-does not establish the physical class, its support clause, or H7 analytic-domain transport.
+## 5. Status
 
-## 5. Lean work in dependency order
+SOURCE: quoted sentences, P5 (1.33)-(1.35). PROVED: sections 2(a) (conditional), 2(c), 3 first paragraph. OPEN: reading of "connected" (section 1), dependence of B'' on A'', halo versus omega_k, printed "disjoint domains". Confidence: medium that core incidence is intended; low on halo separation. YM account is hint-only evidence and no step above depends on its truth.
 
-1. `Fluctuation/SizeModAllDefs.lean` (120–190 lines, **OPEN**): define `eligibleCover m₀ k Ω X` without a box-containment condition, and `dcovModAllE` as the infimum over NN graphs in $X$ meeting it. Prove `dcovModE_le_dcovModAllE` for `IsDj` by selecting all contained eligible boxes.
-2. `Fluctuation/SizeModAllCompare.lean` (180–280 lines, **OPEN**): under `DjMod`, `IsPiUnion Ω`, $k\le K$, $L^{m_0}\mid N_1$, prove finiteness and the real inequality (2.1). Reuse `SizeModG1.G1_cellCount`, `SizeModCore.c1`, and `exists_admissible_eq_dcovMod`; add one active-cell extension lemma.
-3. `LargeField/D7PaperSizeRebase.lean` (80–150 lines, **OPEN**): with an explicit input $D_P(X)\ge a\,\mathrm{d7SizeAt}(\Omega,X)-b$, $a>0,b\ge0$, prove $|B(X)|\le B_0e^{\kappa b}e^{-\kappa a\,\mathrm{d7SizeAt}}$, and its $3\kappa/2$ version, for finite valid labels. This is algebra, not a proof of the input.
+## 5a. W827 status (Lean: `Balaban/LargeField/R/RHaloSep.lean`, `Balaban/Polymer/GasCore.lean`)
 
-**Modelling obligation, not a landed Lean identity.** Establish for the actual open realization of each D7 label the aligned lift and component compatibility above. The continuous P5
-functional and the NN surrogate are **not literally equal**; (3.1) is the proved conditional affine bridge. Calling the remaining domain identification “small” would hide the open
-complement-topology issue. Confidence: high for (2.1), the conditional proof (3.1), and the rate rebase; unresolved for actual-history lift and the P5 reverse comparison.
+(b) Halo, with r = floor R_{k-1}: P7 halo (Z^{~~2})^{~2} = nbhd(2r+4) Z (`halo_eq_nbhd`). PROVED: any two halos of radii a, b of distinct components are disjoint when a+b < omega_k (`halo_disjoint_of_comp_sep`); the `~~`-thickenings (radius r+1) of distinct components are disjoint (`thick_disjoint`); the P7 halo of a component misses every other component, removed or retained (`halo_disjoint_comp`, from 2r+4 < omega_k). NOT implied: two P7 halos of distinct removed components. With r = floor(R_base lambda^2) (allowed by R <= R_base lambda^2, R_base >= 4L+20) one has omega_k <= 2(2r+4) (`omega_le_halo_sum`), so comp_sep alone does not separate them; they are disjoint under the extra inequality 2(2r+4) < omega_k (`halo_disjoint_halo_of_lt`), which must come from the removed-component geometry or the source.
+(a) LANDED in the Lean records: `D7Bdry`/`D7BdryPost` clauses `loc_field` (B reads psi, psi', g only on the fine set of X) and `loc_hist` (B(X, A) depends on the history only through Omega, Omega'', Z restricted to X and the local histories of the components meeting X). This is the read set of 2(a): data on X plus whole components meeting X, i.e. removed Z_i meeting X (summation variables) and retained holes (parameters).
+(3) Gas with cores: `Polymer/GasCore.lean` instantiates `gas_eq`, `gas_activity_bound` with supports core(.) (`gas_eq_core`, `gasA_core_iff`, `gas_activity_bound_core`); the size hypothesis hG3 on cores is G3_dcov folded by `dcovMod_union_range_le` (not transferred to Finset B). Hole version with expectation: `Polymer/HoleOperator.lean`.

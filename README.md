@@ -140,6 +140,16 @@ proof work started, so that the target could not drift towards what was easy to 
 - [docs/BLOCKERS.md](docs/BLOCKERS.md): the mathematical issues that currently block the proof.
 - [docs/PAPERS.md](docs/PAPERS.md): Balaban's papers and the other sources used.
 
+## Acknowledgements
+
+The public repository [ethanwsussman/Yang--Mills-LLM-experiment](https://github.com/ethanwsussman/Yang--Mills-LLM-experiment)
+contains an account of Bałaban's renormalization group for lattice Yang–Mills theory, whose papers are
+the ancestors of the O(N) papers formalized here. Its reading of Bałaban's Yang–Mills large-field gas
+(clusters formed after removing the retained large-field components) suggested the route we now
+follow for the large-field gas ([blocker 4](docs/BLOCKERS.md)), and it informs our reading of the
+torus-independence clause (blocker 7) and of the first renormalization step (blocker 1). Details:
+[notes/phase1/YMACCOUNT.md](notes/phase1/YMACCOUNT.md), [notes/phase1/VMOD-43.md](notes/phase1/VMOD-43.md).
+
 ## License
 
 The Lean sources and documentation are released under the Apache License 2.0; see [LICENSE](LICENSE).
