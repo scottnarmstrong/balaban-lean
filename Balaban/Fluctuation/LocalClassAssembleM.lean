@@ -30,11 +30,14 @@ the landed clauses into the fields at `j = k + 1` of `SFTermClausesStrong` for t
   hypotheses in the form of the landed per-label theorems; the bound is resummed per site (no volume
   factor) and needs `√N γ ρ_M < c₉ ξ_{k+1}^{(d-2)/2 + γ - α₁}`;
 * `localClass_avgM_eq_of_cov`: the averaged completed term equals `TM` on the class domain if `TM`
-  is covariant under the paving group there.
+  is covariant under the paving group there;
+* `avgTermM_act`, `localClass_eucMloc_paving`: the average is covariant for all triples, and the
+  density `Mloc` is covariant under the paving group (the clause `eucMloc` restricted to
+  `pavingSymGroup`).
 
 Not covered: complex rotations, sources of `ℓ¹` norm `≥ 1` in `rotM` (the per-label rotation
-theorem needs the analyticity of the old term in the fields at the source), `eucMloc`, and the
-per-label paving covariance of the source terms.
+theorem needs the analyticity of the old term in the fields at the source), `eucMloc` for the full
+group `fullJSymGroup`, and the per-label paving covariance of the source terms.
 -/
 
 @[expose] public section
@@ -68,6 +71,35 @@ theorem analyticAt_actTriple (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))
   convert h using 1
   funext q
   rfl
+
+
+omit [NeZero L] [NeZero N₁] in
+/-- **The group average of a site-indexed family is covariant for all triples** (the analogue of
+`avgTerm_act` with a site and a source): for a finite group `H` of torus permutations and
+`A x Y q = |H|⁻¹ Σ_{s ∈ H} f (s⁻¹ x) (s⁻¹ Y) (s⁻¹ q)`, `A (r x) (r Y) (r q) = A x Y q`, `r ∈ H`. -/
+theorem avgTermM_act {K : ℕ} {F : Type*} [AddCommGroup F] [Module ℂ F]
+    (H : Subgroup (Equiv.Perm (CTorus d L N₁ m₁ K))) [Fintype H]
+    (f A : CTorus d L N₁ m₁ K → Set (CTorus d L N₁ m₁ K) →
+      (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × Fld d L N₁ m₁ K N → F)
+    (hA : ∀ x Y q, A x Y q = ((Fintype.card H : ℂ))⁻¹ • ∑ s : H,
+      f (((s : Equiv.Perm (CTorus d L N₁ m₁ K))⁻¹ : Equiv.Perm (CTorus d L N₁ m₁ K)) x)
+        (((s : Equiv.Perm (CTorus d L N₁ m₁ K))⁻¹ : Equiv.Perm (CTorus d L N₁ m₁ K)) '' Y)
+        ((actField (s : Equiv.Perm (CTorus d L N₁ m₁ K))⁻¹ q.1.1,
+            actField (s : Equiv.Perm (CTorus d L N₁ m₁ K))⁻¹ q.1.2),
+          actField (s : Equiv.Perm (CTorus d L N₁ m₁ K))⁻¹ q.2))
+    {r : Equiv.Perm (CTorus d L N₁ m₁ K)} (hr : r ∈ H) (x : CTorus d L N₁ m₁ K)
+    (Y : Set (CTorus d L N₁ m₁ K))
+    (q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × Fld d L N₁ m₁ K N) :
+    A (r x) (r '' Y) ((actField r q.1.1, actField r q.1.2), actField r q.2) = A x Y q := by
+  rw [hA, hA]
+  congr 1
+  refine (Fintype.sum_equiv (Equiv.mulLeft (⟨r, hr⟩ : H)) _ _ fun t => ?_).symm
+  have ht : ((Equiv.mulLeft (⟨r, hr⟩ : H) t : H) : Equiv.Perm (CTorus d L N₁ m₁ K)) =
+      r * (t : Equiv.Perm (CTorus d L N₁ m₁ K)) := rfl
+  simp only [ht, _root_.mul_inv_rev, actField_mul_perm, actField_inv_actField]
+  congr 1
+  · simp [Equiv.Perm.inv_def]
+  · simp [Set.image_image, Equiv.Perm.inv_def]
 
 open Classical in
 /-- **The M-fields of the local successor class at the new level `k + 1`** (the analogue of
@@ -237,22 +269,8 @@ theorem localClass_termClausesM {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
   -- covariance of the average for all triples
   have hAMcov : ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
       ∀ x Y (q : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N),
-      AM (r x) (r '' Y) ((actField r q.1.1, actField r q.1.2), actField r q.2) = AM x Y q := by
-    intro r hr x Y q
-    rw [hAM', hAM']
-    congr 1
-    refine (Fintype.sum_equiv (Equiv.mulLeft (⟨r, hr⟩ :
-      pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))) _ _
-      fun t => ?_).symm
-    have ht : ((Equiv.mulLeft (⟨r, hr⟩ :
-        pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) t :
-          pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
-          Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) = r * (t : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) :=
-      rfl
-    simp only [ht, _root_.mul_inv_rev, actField_mul_perm, actField_inv_actField]
-    congr 1
-    · simp [Equiv.Perm.inv_def]
-    · simp [Set.image_image, Equiv.Perm.inv_def]
+      AM (r x) (r '' Y) ((actField r q.1.1, actField r q.1.2), actField r q.2) = AM x Y q :=
+    fun r hr x Y q => avgTermM_act _ f AM hAM' hr x Y q
   have hAMloc : ∀ x Y
       (q q' : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N),
       (∀ z ∈ Y, q.1.1 z = q'.1.1 z ∧ q.1.2 z = q'.1.2 z ∧ q.2 z = q'.2 z) →
@@ -706,6 +724,57 @@ theorem localClass_avgM_eq_of_cov {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
   simp only at hAM'
   rw [hAM', Finset.sum_congr rfl fun s _ => hterm s, Finset.sum_const, Finset.card_univ,
     ← Nat.cast_smul_eq_nsmul ℂ, smul_smul, inv_mul_cancel₀ hc, one_smul]
+
+open Classical in
+/-- **The clause `eucMloc` at `j = k + 1` for the paving group**, for the averaged, completed source
+terms of `localClass_termClausesM` and all pairs of fields and sources: the polymers containing
+`r x` are the images of the polymers containing `x`, and the average is covariant for all triples
+(`avgTermM_act`, no hypothesis on `TM`).  For `fullJSymGroup` see `WIDEGEN.md`, NEXT (W851), item 4. -/
+theorem localClass_eucMloc_paving {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
+    {ϱ : ℝ} (Tm : Terms d L N₁ m₁ (k + 1) N ϱ)
+    (cpl : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (TM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (AM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hAM : ∀ x Y q, AM x Y q =
+      ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
+        ℂ))⁻¹ • ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+        TM (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) x)
+          (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          (cpl (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.2),
+            actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.2))
+    (hM : ∀ x Y Ψ h g, Tm.M (k + 1) x Y Ψ h g = AM x Y ((Ψ, h), g))
+    {r : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))
+    (x : CTorus d L N₁ m₁ (k + 1)) (Ψ h g : Fld d L N₁ m₁ (k + 1) N) :
+    Mloc P.m₀ Tm (k + 1) (r x) (actField r Ψ) (actField r h) (actField r g) =
+      Mloc P.m₀ Tm (k + 1) x Ψ h g := by
+  have hri : r⁻¹ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1) :=
+    inv_mem hr
+  unfold Mloc
+  symm
+  refine finsum_mem_eq_of_bijOn (fun X => r '' X) ⟨fun X hX => ?_, fun X _ X' _ hXX => ?_,
+    fun X' hX' => ?_⟩ fun X _ => ?_
+  · obtain ⟨hXp, hx⟩ := hX
+    exact ⟨(isPolyDom_image_iff hN hr X).2 hXp, Set.mem_image_of_mem _ hx⟩
+  · exact Set.image_injective.2 r.injective hXX
+  · obtain ⟨hXp, hx⟩ := hX'
+    refine ⟨(⇑(r⁻¹)) '' X', ⟨(isPolyDom_image_iff hN hri X').2 hXp, ⟨r x, hx, by simp⟩⟩, ?_⟩
+    show r '' ((⇑(r⁻¹)) '' X') = X'
+    rw [Set.image_image]
+    simp [Equiv.Perm.inv_def]
+  · show Tm.M (k + 1) x X Ψ h g = Tm.M (k + 1) (r x) (r '' X) (actField r Ψ) (actField r h)
+      (actField r g)
+    rw [hM, hM]
+    exact (avgTermM_act _ (fun x Y q => TM x Y (cpl Y q.1, q.2)) AM hAM hr x X ((Ψ, h), g)).symm
 
 end AssembleM
 
