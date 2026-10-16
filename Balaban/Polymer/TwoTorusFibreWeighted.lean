@@ -95,6 +95,14 @@ theorem cutoff_absorb_aux {Lip nB P2 Kc gs rJ G X' D Dr A3 A5 : ℝ} {n : ℕ}
         refine mul_le_mul_of_nonneg_left ?_ hnB
         exact div_le_div_of_nonneg_right hX hgs.le
 
+/-- The hypothesis `hε` of `rootF_hcoef_limit` for `√ε` follows from that for `ε`, with the rate
+`lam` halved: `ε ≤ ε₁ e^{-lam τ}` gives `√ε ≤ √ε₁ e^{-(lam/2) τ}`. -/
+theorem sqrt_le_sqrt_mul_exp_half {ε ε₁ lam τ : ℝ} (hε₁ : 0 ≤ ε₁)
+    (h : ε ≤ ε₁ * Real.exp (-lam * τ)) :
+    Real.sqrt ε ≤ Real.sqrt ε₁ * Real.exp (-(lam / 2) * τ) := by
+  rw [← sqrt_mul_exp_neg ε₁ lam τ hε₁]
+  exact Real.sqrt_le_sqrt h
+
 /-- **The two last-integral coefficient families on the quarter box, uniformly in the size of the
 support (blocker 7).**  As `finalCoef_close_quarterBox`, without the bound `nC` of the number of
 cells: for every support `C` in the box (no premise `|C| ≤ nC`) the coefficients of the logarithm
@@ -281,3 +289,222 @@ theorem finalCoef_close_quarterBox_weighted {d M L : ℕ} [NeZero L] (hd : 0 < d
       (le_max_right _ _) (Real.sqrt_nonneg _) (le_max_right _ _) (min_le_right _ _) hy
 
 end Balaban.Green
+
+namespace Balaban.Polymer
+
+open Balaban.Green Balaban.Localization MeasureTheory Balaban.Analysis
+
+section Physical
+
+variable {d M : ℕ} {ι G : Type*}
+
+/-- **The closeness of the last-scale terms from the weighted quarter-box theorem, uniformly in the
+size of the support (blocker 7).**  As `fibre_hcoef_of_quarterBox`, without the bound `nC` of the
+number of cells (the hypotheses `hFcl`, `hγ` and the conclusion hold for every support): the
+conclusion is the hypothesis `hcoef` of `rootF_hcoef_limit` (and of
+`resum_lastScale_torus_limit`) with `κ₁ = log (1 + √(e^κ - 1))` (`Real.exp κ₁ - 1 =
+√(e^κ - 1)`, `κ₁ > 0`), `Mr = M`, and `ε ℓ g X` replaced by `√(ε ℓ g X)`: the constants are
+`Pc`, `C₀`, `c₀`.  For `hε` of `rootF_hcoef_limit` with `√ε`: if `ε ≤ ε₁ e^{-lam τ}` then
+`√ε ≤ √ε₁ e^{-(lam/2) τ}` (`Real.sqrt_le_sqrt`, `sqrt_mul_exp_neg`), so `lam` is halved. -/
+theorem fibre_hcoef_of_quarterBox_weighted {L k : ℕ} [NeZero L] (hd : 0 < d) (hM : 0 < M)
+    {κ : ℝ} (hκ : 1 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1) (hk : 1 ≤ k)
+    {v a sc : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2)
+    (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hsc : 0 ≤ sc)
+    (N : ι → ℕ) [∀ ℓ, NeZero (N ℓ)] (K : ι → ℕ)
+    (hK : ∀ ℓ, K ℓ = macK (N ℓ) M) (hMN : ∀ ℓ, M ∣ N ℓ)
+    (cen : ∀ ℓ, MacIdx d (N ℓ) M → Fin d → ℤ)
+    (hcen : ∀ ℓ z μ, cen ℓ z μ = ((z μ : ℕ) : ZMod (macK (N ℓ) M)).valMinAbs)
+    (D : Set G) (Q : ι → Finset (Fin d → ℤ) → Prop)
+    (hQ : ∀ ℓ X, Q ℓ X ↔ ∀ x ∈ X, ∀ μ, (x μ).natAbs ≤ K ℓ / 4)
+    (sz : Finset (Fin d → ℤ) → ℕ) (hsz : ∀ X, sz X = X.card)
+    (τ : ι → Finset (Fin d → ℤ) → ℕ)
+    (hτ : ∀ ℓ X, τ ℓ X = K ℓ / 4 - X.sup (fun x => Finset.univ.sup fun μ => (x μ).natAbs))
+    {t₀ : ℕ} (ht₀ : 5 ≤ t₀)
+    -- the operator `E`, its closeness `ε`, and the logarithms of the defects
+    (E : ∀ ℓ, G → Matrix (L1Torus d (N ℓ)) (L1Torus d (N ℓ)) ℂ)
+    (hW : ∀ ℓ g, g ∈ D → WSmall rE η (E ℓ g))
+    (hW0 : ∀ ℓ, WSmall rE η (0 : Matrix (L1Torus d (N ℓ)) (L1Torus d (N ℓ)) ℂ))
+    (ε : ι → G → Finset (Fin d → ℤ) → ℝ) (hε0 : ∀ ℓ g X, 0 ≤ ε ℓ g X)
+    (hEcl : ∀ ℓ ℓ' g, g ∈ D → ∀ {m : ℕ} {f : L1Torus d (N ℓ) → L1Torus d (N ℓ')},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ')) =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ))).val : ℕ)) : ZMod (N ℓ'))) →
+      ∀ C : Finset (MacIdx d (N ℓ) M), ∀ x ∈ macRegion d (N ℓ) M C, ∀ y ∈ macRegion d (N ℓ) M C,
+        ‖E ℓ g x y - E ℓ' g (f x) (f y)‖ ≤ ε ℓ g (C.image (cen ℓ)))
+    {ρ : ℝ} (hρ : Real.exp κ < ρ)
+    (ellE ell0 : ∀ ℓ, G → (MacIdx d (N ℓ) M → ℂ) → ℂ)
+    (han : ∀ ℓ g, g ∈ D → AnalyticOnNhd ℂ (ellE ℓ g) (Metric.ball 0 ρ))
+    (han0 : ∀ ℓ g, g ∈ D → AnalyticOnNhd ℂ (ell0 ℓ g) (Metric.ball 0 ρ))
+    (hz : ∀ ℓ g, g ∈ D → ellE ℓ g 0 = 0) (hz0 : ∀ ℓ g, g ∈ D → ell0 ℓ g 0 = 0)
+    (hdet : ∀ ℓ g, g ∈ D → ∀ s' ∈ Metric.ball (0 : MacIdx d (N ℓ) M → ℂ) ρ,
+      (1 - taggedMat Finset.univ (macTags d (N ℓ) M)
+        (fun z => boxR (finalOp d L (N ℓ) k v a) (macBoxF d (N ℓ) M z)
+            (fun u => ((macChi d (N ℓ) M z u : ℝ) : ℂ)) sc -
+          E ℓ g * (Matrix.diagonal (fun u => ((macChi d (N ℓ) M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L (N ℓ) k v a) (macBoxF d (N ℓ) M z) sc)) s').det =
+        Complex.exp (ellE ℓ g s'))
+    (hdet0 : ∀ ℓ g, g ∈ D → ∀ s' ∈ Metric.ball (0 : MacIdx d (N ℓ) M → ℂ) ρ,
+      (1 - taggedMat Finset.univ (macTags d (N ℓ) M)
+        (fun z => boxR (finalOp d L (N ℓ) k v a) (macBoxF d (N ℓ) M z)
+            (fun u => ((macChi d (N ℓ) M z u : ℝ) : ℂ)) sc -
+          (0 : Matrix (L1Torus d (N ℓ)) (L1Torus d (N ℓ)) ℂ) *
+            (Matrix.diagonal (fun u => ((macChi d (N ℓ) M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L (N ℓ) k v a) (macBoxF d (N ℓ) M z) sc)) s').det =
+        Complex.exp (ell0 ℓ g s'))
+    -- the cutoff interaction
+    {ρJ RF Lb mb : ℝ} (hρJ : 0 ≤ ρJ) (hLb : 0 ≤ Lb) (hmb : 0 ≤ mb)
+    (γ : ∀ ℓ, Measure (L1Torus d (N ℓ) → ℝ))
+    (hγfin : ∀ ℓ, γ ℓ {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ} < ⊤)
+    (hγmass : ∀ ℓ, (γ ℓ {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ}).toReal ≤ mb)
+    (hBR : (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρJ < RF)
+    (F : ∀ ℓ, G → (L1Torus d (N ℓ) → ℂ) → ℂ) (B' : G → ℝ) (Lip : ι → G → ℝ)
+    (hFan : ∀ ℓ g, g ∈ D → AnalyticOnNhd ℂ (F ℓ g) (polydisc (0 : L1Torus d (N ℓ) → ℂ) (fun _ => RF)))
+    (hFB : ∀ ℓ g, g ∈ D → ∀ w ∈ polydisc (0 : L1Torus d (N ℓ) → ℂ) (fun _ => RF),
+      ‖F ℓ g w‖ ≤ B' g)
+    (hFm : ∀ ℓ g, g ∈ D → Measurable (F ℓ g))
+    (hLipb : ∀ ℓ g, g ∈ D → Lip ℓ g ≤ Lb)
+    (hFcl : ∀ ℓ ℓ' g, g ∈ D → ∀ {m : ℕ} {f : L1Torus d (N ℓ) → L1Torus d (N ℓ')},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ')) =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ))).val : ℕ)) : ZMod (N ℓ'))) →
+      ∀ C : Finset (MacIdx d (N ℓ) M),
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK (N ℓ) M - m ≤ (z i : ℕ)) →
+      ∀ {e : MacIdx d (N ℓ) M → MacIdx d (N ℓ') M},
+      (∀ z i, ((z i : ℕ) + (m + 4)) % macK (N ℓ) M ≤ 2 * m + 8 →
+        ((e z i : ℕ) + (m + 4)) % macK (N ℓ') M = ((z i : ℕ) + (m + 4)) % macK (N ℓ) M) →
+      ∀ (w : L1Torus d (N ℓ) → ℂ) (w' : L1Torus d (N ℓ') → ℂ),
+        (∀ x, x ∉ macRegion d (N ℓ) M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d (N ℓ') M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρJ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρJ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d (N ℓ) M C, ‖w' (f x) - w x‖ ≤ η) →
+        ‖F ℓ' g w' - F ℓ g w‖ ≤ Lip ℓ g * η)
+    (hγ : ∀ ℓ ℓ', ∀ {m : ℕ} {f : L1Torus d (N ℓ) → L1Torus d (N ℓ')},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ')) =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ))).val : ℕ)) : ZMod (N ℓ'))) →
+      ∀ C : Finset (MacIdx d (N ℓ) M),
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK (N ℓ) M - m ≤ (z i : ℕ)) →
+        Measure.map (fun (ψ : L1Torus d (N ℓ) → ℝ) (q : ↥(macRegion d (N ℓ) M C)) => ψ q)
+            ((γ ℓ).restrict {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ}) =
+          Measure.map (fun (ψ' : L1Torus d (N ℓ') → ℝ) (q : ↥(macRegion d (N ℓ) M C)) => ψ' (f q))
+            ((γ ℓ').restrict {ψ' : L1Torus d (N ℓ') → ℝ | ∀ y, |ψ' y| ≤ ρJ}))
+    (T : ι → G → Finset (Fin d → ℤ) → ℂ)
+    (hT : ∀ ℓ g X, T ℓ g X = ∑ C ∈ (Finset.univ : Finset (Finset (MacIdx d (N ℓ) M))).filter
+      (fun C => C.image (cen ℓ) = X),
+      (coef (ellE ℓ g) C - coef (ell0 ℓ g) C +
+        coef (fun s : MacIdx d (N ℓ) M → ℂ =>
+          ∫ ψ in {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ},
+            F ℓ g (fun x => ∑ y, taggedCfin d L (N ℓ) k M v a s x y * ((ψ y : ℝ) : ℂ))
+              ∂(γ ℓ)) C)) :
+    ∃ κ₁ Pc C₀ c₀ : ℝ, 0 < κ₁ ∧ Real.exp κ₁ - 1 = Real.sqrt (Real.exp κ - 1) ∧ 0 ≤ Pc ∧
+      0 < C₀ ∧ 0 < c₀ ∧
+    ∀ ℓ ℓ' X, Q ℓ X → K ℓ ≤ K ℓ' → t₀ ≤ τ ℓ X → ∀ g ∈ D,
+      ‖T ℓ g X - T ℓ' g X‖ ≤
+        Pc * (C₀ * Real.exp (-c₀ * ((M : ℝ) * (2 * (τ ℓ X : ℝ) - 7))) + Real.sqrt (ε ℓ g X)) /
+          (Real.exp κ₁ - 1) ^ sz X := by
+  classical
+  have hκ0 : 0 < κ := by linarith
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg0 : 0 < Real.sqrt (finalGap d L) := Real.sqrt_pos.2 (finalGap_pos (d := d) hL)
+  obtain ⟨P, C₁, c₁, hP, hC₁, hc₁, hmain⟩ :=
+    finalCoef_close_quarterBox_weighted (L := L) hd hM hκ hMB hMκ hrE hη0 hη
+  have hρ1 : 1 < Real.exp κ - 1 := by
+    have h1 : (1 : ℝ) + 1 < Real.exp 1 := Real.add_one_lt_exp (by norm_num)
+    have h2 : Real.exp 1 ≤ Real.exp κ := Real.exp_le_exp.2 hκ
+    linarith
+  have hsq1 : 1 < Real.sqrt (Real.exp κ - 1) := (Real.lt_sqrt zero_le_one).2 (by linarith)
+  have hκ₁ : 0 < Real.log (1 + Real.sqrt (Real.exp κ - 1)) := Real.log_pos (by linarith)
+  have hexp : Real.exp (Real.log (1 + Real.sqrt (Real.exp κ - 1))) - 1 =
+      Real.sqrt (Real.exp κ - 1) := by
+    rw [Real.exp_log (by linarith)]; ring
+  set Jc : ℝ := Lb * ((((8 * M + 1) ^ d : ℕ) : ℝ) * ρJ * mb / Real.sqrt (finalGap d L))
+    with hJc
+  have hJc0 : 0 ≤ Jc := by positivity
+  refine ⟨Real.log (1 + Real.sqrt (Real.exp κ - 1)), P, (2 + Jc) * C₁, c₁, hκ₁, hexp, hP,
+    by positivity, hc₁, ?_⟩
+  have hC' : ∀ ℓ ℓ' g, g ∈ D → ∀ {m t : ℕ}, 5 ≤ t → 4 * (m + t) ≤ K ℓ → K ℓ ≤ K ℓ' →
+      N ℓ ≤ N ℓ' → ∀ e : MacIdx d (N ℓ) M → MacIdx d (N ℓ') M,
+      (∀ z i, ((e z i : ℕ) + (m + 4)) % macK (N ℓ') M = ((z i : ℕ) + (m + 4)) % macK (N ℓ) M) →
+      ∀ C : Finset (MacIdx d (N ℓ) M),
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK (N ℓ) M - m ≤ (z i : ℕ)) →
+      ‖(coef (ellE ℓ g) C - coef (ell0 ℓ g) C +
+        coef (fun s : MacIdx d (N ℓ) M → ℂ =>
+          ∫ ψ in {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ},
+            F ℓ g (fun x => ∑ y, taggedCfin d L (N ℓ) k M v a s x y * ((ψ y : ℝ) : ℂ))
+              ∂(γ ℓ)) C) -
+        (coef (ellE ℓ' g) (C.image e) - coef (ell0 ℓ' g) (C.image e) +
+        coef (fun s : MacIdx d (N ℓ') M → ℂ =>
+          ∫ ψ in {ψ : L1Torus d (N ℓ') → ℝ | ∀ y, |ψ y| ≤ ρJ},
+            F ℓ' g (fun x => ∑ y, taggedCfin d L (N ℓ') k M v a s x y * ((ψ y : ℝ) : ℂ))
+              ∂(γ ℓ')) (C.image e))‖ ≤
+        P * ((2 + Jc) * C₁ * Real.exp (-c₁ * ((M : ℝ) * (2 * (t : ℝ) - 7))) +
+          Real.sqrt (ε ℓ g (C.image (cen ℓ)))) / (Real.sqrt (Real.exp κ - 1)) ^ C.card := by
+    intro ℓ ℓ' g hg m t ht hbox hKK hNN e he C hCb
+    obtain ⟨f, hf⟩ : ∃ f : L1Torus d (N ℓ) → L1Torus d (N ℓ'), ∀ x μ,
+        f x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ')) =
+          ((((x μ + ((M * (m + 4) : ℕ) : ZMod (N ℓ))).val : ℕ)) : ZMod (N ℓ')) :=
+      exists_residueMap_box
+    have hbox' : 4 * (m + t) ≤ macK (N ℓ) M := by rw [← hK]; exact hbox
+    have he' : ∀ z i, ((z i : ℕ) + (m + 4)) % macK (N ℓ) M ≤ 2 * m + 8 →
+        ((e z i : ℕ) + (m + 4)) % macK (N ℓ') M = ((z i : ℕ) + (m + 4)) % macK (N ℓ) M :=
+      fun z i _ => he z i
+    set x : ℝ := Real.exp (-c₁ * ((M : ℝ) * (2 * (t : ℝ) - 7))) with hx
+    have hx0 : 0 ≤ x := (Real.exp_pos _).le
+    obtain ⟨h1, h2⟩ := hmain hk (hMN ℓ) (hMN ℓ') hNN ht hbox' hf he' hCb hv0 hv1 ha1 ha2 hmass
+    have b1 := h1 hsc (hW ℓ g hg) (hW ℓ' g hg) (hε0 ℓ g (C.image (cen ℓ)))
+      (hEcl ℓ ℓ' g hg hf C) hρ hρ (han ℓ g hg) (han ℓ' g hg) (hz ℓ g hg) (hz ℓ' g hg)
+      (hdet ℓ g hg) (hdet ℓ' g hg)
+    have b0 := h1 hsc (hW0 ℓ) (hW0 ℓ') le_rfl (εE := 0)
+      (fun x _ y _ => by simp) hρ hρ (han0 ℓ g hg) (han0 ℓ' g hg) (hz0 ℓ g hg) (hz0 ℓ' g hg)
+      (hdet0 ℓ g hg) (hdet0 ℓ' g hg)
+    have bJ := h2 hρJ (hγfin ℓ) (hγfin ℓ') hBR (hFan ℓ g hg) (hFB ℓ g hg) (hFan ℓ' g hg)
+      (hFB ℓ' g hg) (hFm ℓ g hg) (hFm ℓ' g hg) (hFcl ℓ ℓ' g hg hf C hCb he')
+      (hγ ℓ ℓ' hf C hCb)
+    have key : ∀ a a' b b' c c' : ℂ,
+        ‖(a - b + c) - (a' - b' + c')‖ ≤ ‖a - a'‖ + ‖b - b'‖ + ‖c - c'‖ := by
+      intro a a' b b' c c'
+      calc ‖(a - b + c) - (a' - b' + c')‖ = ‖(a - a') - (b - b') + (c - c')‖ := by congr 1; ring
+        _ ≤ ‖(a - a') - (b - b')‖ + ‖c - c'‖ := norm_add_le _ _
+        _ ≤ ‖a - a'‖ + ‖b - b'‖ + ‖c - c'‖ := by
+          gcongr; exact norm_sub_le _ _
+    refine (key _ _ _ _ _ _).trans ?_
+    have hPx : 0 ≤ P * (C₁ * x) := mul_nonneg hP (mul_nonneg hC₁.le hx0)
+    set A : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) * (P * (C₁ * x) / Real.sqrt (finalGap d L)) * ρJ
+      with hA
+    have hA0 : 0 ≤ A := by positivity
+    have hden : 0 < (Real.sqrt (Real.exp κ - 1)) ^ C.card := pow_pos (by linarith) _
+    have hJ : ‖coef (fun s : MacIdx d (N ℓ) M → ℂ =>
+          ∫ ψ in {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ},
+            F ℓ g (fun x => ∑ y, taggedCfin d L (N ℓ) k M v a s x y * ((ψ y : ℝ) : ℂ))
+              ∂(γ ℓ)) C -
+        coef (fun s' : MacIdx d (N ℓ') M → ℂ =>
+          ∫ ψ' in {ψ' : L1Torus d (N ℓ') → ℝ | ∀ y, |ψ' y| ≤ ρJ},
+            F ℓ' g (fun x => ∑ y, taggedCfin d L (N ℓ') k M v a s' x y * ((ψ' y : ℝ) : ℂ))
+              ∂(γ ℓ')) (C.image e)‖ ≤
+        Jc * (P * (C₁ * x)) / (Real.sqrt (Real.exp κ - 1)) ^ C.card := by
+      refine bJ.trans ?_
+      refine div_le_div_of_nonneg_right ?_ hden.le
+      have hm0 : 0 ≤ (γ ℓ {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ}).toReal :=
+        ENNReal.toReal_nonneg
+      calc Lip ℓ g * A * (γ ℓ {ψ : L1Torus d (N ℓ) → ℝ | ∀ y, |ψ y| ≤ ρJ}).toReal
+          ≤ Lb * A * mb :=
+            mul_le_mul (mul_le_mul_of_nonneg_right (hLipb ℓ g hg) hA0) (hγmass ℓ) hm0
+              (mul_nonneg hLb hA0)
+        _ = Jc * (P * (C₁ * x)) := by rw [hJc, hA]; ring
+    refine le_trans (add_le_add (add_le_add b1 b0) hJ) (le_of_eq ?_)
+    rw [Real.sqrt_zero]
+    ring
+  intro ℓ ℓ' X hQX hKK ht g hg
+  exact fibre_closeness N K hK hMN cen hcen _ T hT Q hQ sz hsz τ hτ D ht₀
+    (fun ℓ g X => Real.sqrt (ε ℓ g X)) (nC := X.card)
+    (fun ℓ ℓ' g hg m t ht hbox hKK hNN e he C _ hCb => by
+      rw [hexp]; exact hC' ℓ ℓ' g hg ht hbox hKK hNN e he C hCb) ℓ ℓ' X hQX hKK ht le_rfl g hg
+
+end Physical
+
+end Balaban.Polymer
