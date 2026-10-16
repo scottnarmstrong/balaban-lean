@@ -101,6 +101,111 @@ theorem finDim_triple (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
 
 end FinDim
 
+section EvCongr
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
+variable {ι : Type*} [DecidableEq ι] [Fintype ι] {c : ι → ℕ × CTorus d L N₁ m₁ K} {U U' : Type*}
+
+/-- The term `𝓔(X, Y)` at an argument depends on the family only through its value there. -/
+theorem evTerm_congr_fun {X₁ Y : Set (CTorus d L N₁ m₁ K)} {F : U → (ι → ℂ) → ℂ}
+    {F' : U' → (ι → ℂ) → ℂ} {u : U} {u' : U'} (h : F u = F' u') :
+    evTerm c G m₀ X₁ F Y u = evTerm c G m₀ X₁ F' Y u' := by
+  unfold evTerm
+  rw [h]
+
+open Classical in
+/-- **A term `𝓔(X, Y)` depends on a parameter `g` only through `g|_X ⊆ g|_{X₁}` and vanishes unless
+`X₁ ⊆ Y`.**  If the family `F (u, g)` does not change when `g` is changed off `X ⊆ X₁`, then
+`evTerm … Y (u, g)` does not change when `g` is changed off `Y`: if `X₁ ⊆ Y` the two sources agree
+on `X`, and otherwise both terms are `0` (`evTerm_eq_zero_of_not_subset`). -/
+theorem evTerm_source_congr {X X₁ Y : Set (CTorus d L N₁ m₁ K)} (hXX : X ⊆ X₁) {V : Type*}
+    {P : Type*} {F : V × (CTorus d L N₁ m₁ K → P) → (ι → ℂ) → ℂ}
+    (hF : ∀ (g g' : CTorus d L N₁ m₁ K → P), (∀ z ∈ X, g z = g' z) → ∀ u w,
+      F (u, g) w = F (u, g') w)
+    {g g' : CTorus d L N₁ m₁ K → P} (hg : ∀ z ∈ Y, g z = g' z) (u : V) :
+    evTerm c G m₀ X₁ F Y (u, g) = evTerm c G m₀ X₁ F Y (u, g') := by
+  by_cases hXY : X₁ ⊆ Y
+  · exact evTerm_congr_fun (funext (hF g g' (fun z hz => hg z (hXY (hXX hz))) u))
+  · rw [evTerm_eq_zero_of_not_subset hXY, evTerm_eq_zero_of_not_subset hXY]
+
+end EvCongr
+
+section CompletionParam
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+open Filter Topology in
+/-- **The completion extension with a parameter** (`fieldDom_completion_extension`, analyticity
+clause, with an extra analytic parameter `g`).  Let the domain `Dom.dom j G` lie in the
+layer-constant pairs and be open relative to them, let `T` be analytic on the domain times a set
+`Sp` of parameters, and for every parameter let `T` depend only on the restriction to `Y` for
+pairs of the domain.  Then `(p, g) ↦ T (cpl p, g)` is analytic on the domain times `Sp`.  Near a
+point `p₀` of the domain `T (cpl p, g) = T (p₀ + Q p - Q p₀, g)`, as in the landed proof for a
+function of the pair alone. -/
+theorem fieldDom_completion_analytic_param {P F : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P]
+    [NormedAddCommGroup F] [NormedSpace ℂ F]
+    (Dom : FieldDom d L N₁ m₁ K N ϱ) (j : ℕ)
+    (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (Y : Set (CTorus d L N₁ m₁ K))
+    (c : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N)
+    (hc : ∀ p, c p = Classical.epsilon (fun q : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N =>
+      Dom.dom j G q.1 q.2 ∧ ∀ z ∈ Y,
+        q.1 z = (Classical.choose (exists_layerProj (N := N) G Y) p).1 z ∧
+        q.2 z = (Classical.choose (exists_layerProj (N := N) G Y) p).2 z))
+    (hDL : ∀ p : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 → p ∈ layerSub G)
+    (hDo : ∀ p : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 →
+      ∀ᶠ q in 𝓝[layerSub G] p, Dom.dom j G q.1 q.2)
+    {Sp : Set P}
+    (T : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P → F)
+    (hT : AnalyticOnNhd ℂ T ({p | Dom.dom j G p.1 p.2} ×ˢ Sp))
+    (hloc : ∀ p p' : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 →
+      Dom.dom j G p'.1 p'.2 → (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → ∀ g, T (p, g) = T (p', g)) :
+    AnalyticOnNhd ℂ (fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P => T (c q.1, q.2))
+      ({p | Dom.dom j G p.1 p.2} ×ˢ Sp) := by
+  rintro ⟨p₀, g₀⟩ ⟨hp₀, hg₀⟩
+  obtain ⟨hQU, hQK, hQid⟩ := Classical.choose_spec (exists_layerProj (N := N) G Y)
+  set Q := Classical.choose (exists_layerProj (N := N) G Y) with hQ
+  have hQc : Continuous Q := LinearMap.continuous_of_finiteDimensional Q
+  have hφc : Continuous (fun p => p₀ + (Q p - Q p₀)) :=
+    continuous_const.add (hQc.sub continuous_const)
+  have hTφ : Tendsto (fun p => p₀ + (Q p - Q p₀)) (𝓝 p₀) (𝓝[layerSub G] p₀) := by
+    refine tendsto_nhdsWithin_iff.2 ⟨?_, Eventually.of_forall fun p =>
+      add_sub_mem_layerSub (hDL p₀ hp₀) (hQU p) (hQU p₀)⟩
+    have h := hφc.tendsto p₀
+    simp only [sub_self, add_zero] at h
+    exact h
+  have hφa : AnalyticAt ℂ (fun p => p₀ + (Q p - Q p₀)) p₀ := by
+    have hQa : AnalyticAt ℂ (fun p => Q p) p₀ := by
+      have := (LinearMap.toContinuousLinearMap Q).analyticAt p₀
+      simpa using this
+    exact analyticAt_const.add (hQa.sub analyticAt_const)
+  have hTa : AnalyticAt ℂ (fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P =>
+      T (p₀ + (Q q.1 - Q p₀), q.2)) (p₀, g₀) :=
+    AnalyticAt.comp_of_eq (g := T) (f := fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P =>
+      (p₀ + (Q q.1 - Q p₀), q.2)) (y := (p₀, g₀)) (hT (p₀, g₀) ⟨hp₀, hg₀⟩)
+      ((hφa.comp_of_eq analyticAt_fst rfl).prod analyticAt_snd) (by simp)
+  refine hTa.congr ?_
+  have hev : ∀ᶠ p in 𝓝 p₀, Dom.dom j G (p₀ + (Q p - Q p₀)).1 (p₀ + (Q p - Q p₀)).2 :=
+    hTφ.eventually (hDo p₀ hp₀)
+  have hev2 : ∀ᶠ q in 𝓝 (p₀, g₀), Dom.dom j G (p₀ + (Q q.1 - Q p₀)).1
+      (p₀ + (Q q.1 - Q p₀)).2 := (continuous_fst.tendsto (p₀, g₀)).eventually hev
+  filter_upwards [hev2] with q hq
+  have hY : ∀ z ∈ Y, (p₀ + (Q q.1 - Q p₀)).1 z = (Q q.1).1 z ∧
+      (p₀ + (Q q.1 - Q p₀)).2 z = (Q q.1).2 z :=
+    fun z hz => by
+      obtain ⟨e1, e2⟩ := hQid p₀ (hDL p₀ hp₀) z hz
+      simp only [Prod.fst_add, Prod.fst_sub, Prod.snd_add, Prod.snd_sub, Pi.add_apply,
+        Pi.sub_apply, e1, e2]
+      exact ⟨by abel, by abel⟩
+  have hex : ∃ q' : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G q'.1 q'.2 ∧ ∀ z ∈ Y,
+      q'.1 z = (Q q.1).1 z ∧ q'.2 z = (Q q.1).2 z := ⟨_, hq, hY⟩
+  obtain ⟨h1, h2⟩ := Classical.epsilon_spec hex
+  rw [← hc] at h1 h2
+  exact hloc _ _ hq h1 (fun z hz => ⟨((hY z hz).1.trans (h2 z hz).1.symm),
+    ((hY z hz).2.trans (h2 z hz).2.symm)⟩) q.2
+
+end CompletionParam
+
 section ParamM
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ₁ ϱ₂ ϱm : ℝ}
@@ -377,6 +482,309 @@ theorem localB_mTermHat_evTerm_xiFieldDom {G : Type*} [NormedAddCommGroup G] [No
     exact (hEv.2 Y (clipRaw 𝔹ₗ p.1, p.2) ⟨hmem, hp.2⟩).comp_of_eq
       (((analyticAt_clipRaw p.1).comp analyticAt_fst).prod analyticAt_snd) rfl
   · exact hEv.1 Y (clipRaw 𝔹ₗ p.1, p.2) ⟨clipRaw_mem_xiCRaw_of_xiDom hεseq hp, hg⟩
+
+omit hb₁ hbC HBk HBj hq colj hj hFkan hFk hcov hd hL hcI hcinj hdisj hopt hκ₀ hκdec hEb0 hκκ h1 hlog in
+/-- **Exact locality of the local source term on the class domain, for every source** (P3 (4.47);
+`localB_eTermHat_evTerm_local` for the functional `E (·) g`, which needs no analyticity of `E`).
+Two pairs of fields of the class domain equal on `Y` give the same term, at every source `g`. -/
+theorem localB_mTermHat_evTerm_local (htk : t = k + 1)
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → Fld d L N₁ m₁ (k + 1) N → ℂ}
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hσ0 : ∀ w, ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, P.2 ∉ (𝔹ₗ).Ω (k + 1) →
+      Dec2.extS (coverOf 𝔹ₗ) (σ w) P = 0)
+    (hσY : ∀ C ∈ connFams cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Y, ∀ w ∈ supN C (Real.exp κ),
+      ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, Dec2.extS (coverOf 𝔹ₗ) (σ w) P ≠ 0 →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ Y)
+    (Fi : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N → (ι → ℂ) → ℂ)
+    (hFi : ∀ u w, Fi u w =
+        ∫ ψ in K,
+          eTermFun 𝔹ₗ Gk Gj Hm (compWeight L a₁) Fk (fun r => E r u.2) (F₁ (σ w, u.1))
+        (Sol (σ w, flEdat 𝔹ₗ Hm (F₁ (σ w, u.1)) u.1.1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (u.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0) ∂γ)
+    (p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N)
+    (hp : (xiFieldDom (compWeight L a₁) ν εseq :
+      FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2)
+    (hp' : (xiFieldDom (compWeight L a₁) ν εseq :
+      FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p'.1 p'.2)
+    (hpp : ∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) :
+    evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p, g) =
+      evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p', g) := by
+  subst htk
+  have := localB_eTermHat_evTerm_local (X₁ := X1 Ga m₀ j' 𝒦X) (γ := γ) (Gj := Gj) Y hk1 ht Yp hN₁
+    hMM hag hS ha₁ ha₂ HBp hP colk hκ hM hMX hnum dsX₀ hN hF hHm Fk (fun r => E r g) hmarD hαD
+    hsm cc hcψ hδ₁ hF₁ hSol hσκ hσ1 hσ0 hσY hKc hKb hεseq hp hp' hpp
+  refine (evTerm_congr_fun ?_).trans (this.trans (evTerm_congr_fun ?_))
+  · funext w
+    exact hFi _ _
+  · funext w
+    exact (hFi (clipRaw (GsSpec.localB (k + 1) ht Yp (le_refl (minSep L (L ^ m₁)))) p', g) w).symm
+
+omit hb₁ hbC HBk HBj hq colj hj hFkan hFk hd hL hcI hcinj hdisj hopt hκ₀ hκdec hEb0 hκκ h1 hlog in
+omit hb₁ hbC HBk HBj hq colj hj hFkan hFk hd hL hcI hcinj hdisj hopt hκ₀ hκdec hEb0 hκκ h1 hlog in
+/-- **The local source term on all pairs of fields and sources: locality and agreement with the
+recomputed term** (`localB_eTermHat_evTerm_ext`, clauses 1-2, with the source `g`).  With `T` the
+term of `Y` for the family `Fi` of `localB_mTermHat_evTerm_xiFieldDom` read through the cut-off, and
+`cpl` the completion in the class domain at `Y`: `T ∘ cpl` takes the same value at two triples
+`(Ψ, h, g)`, `(Ψ', h', g')` equal on `Y` (all pairs and all sources: the clause `localM`), and it
+equals `T` on the class domain.  The dependence on `g` is through `g|_X`, `X ⊆ X₁ ⊆ Y`
+(`evTerm_source_congr`), given that `E (·) g` depends on `g` only on `X` (`hEg`). -/
+theorem localB_mTermHat_evTerm_ext_loc (htk : t = k + 1)
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → Fld d L N₁ m₁ (k + 1) N → ℂ}
+    (hEg : ∀ g g' : Fld d L N₁ m₁ (k + 1) N, (∀ z ∈ X, g z = g' z) → ∀ r, E r g = E r g')
+
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hσ0 : ∀ w, ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, P.2 ∉ (𝔹ₗ).Ω (k + 1) →
+      Dec2.extS (coverOf 𝔹ₗ) (σ w) P = 0)
+    (hσY : ∀ C ∈ connFams cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Y, ∀ w ∈ supN C (Real.exp κ),
+      ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, Dec2.extS (coverOf 𝔹ₗ) (σ w) P ≠ 0 →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ Y)
+    (Fi : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N → (ι → ℂ) → ℂ)
+    (hFi : ∀ u w, Fi u w =
+        ∫ ψ in K,
+          eTermFun 𝔹ₗ Gk Gj Hm (compWeight L a₁) Fk (fun r => E r u.2) (F₁ (σ w, u.1))
+        (Sol (σ w, flEdat 𝔹ₗ Hm (F₁ (σ w, u.1)) u.1.1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (u.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0) ∂γ)
+    (T : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hT : ∀ p, T p = evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p.1, p.2))
+    (cpl : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ p, cpl p = Classical.epsilon (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ q.1 q.2 ∧ ∀ z ∈ Y,
+        q.1 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).1 z ∧
+        q.2 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).2 z)) :
+    (∀ Ψ Ψ' h h' g g' : Fld d L N₁ m₁ (k + 1) N,
+      (∀ x ∈ Y, Ψ x = Ψ' x ∧ h x = h' x ∧ g x = g' x) → T (cpl (Ψ, h), g) = T (cpl (Ψ', h'), g')) ∧
+    (∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      T (cpl p, g) = T (p, g)) := by
+  classical
+  have hDL : ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      p ∈ layerSub 𝔹ₗ := fun _ hp => xiDom_mem_layerSub hp
+  obtain ⟨c1, c2⟩ := fieldDom_completion_spec (xiFieldDom (compWeight L a₁) ν εseq :
+    FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))) (k + 1) 𝔹ₗ Y cpl hcpl hDL
+  have loc : ∀ (p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+      (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p'.1 p'.2 →
+      (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → T (p, g) = T (p', g) := by
+    intro p p' g hp hp' hpp
+    rw [hT, hT]
+    exact localB_mTermHat_evTerm_local ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp hP colk hκ hM hMX hnum dsX₀ hN hF hHm hmarD hαD hsm cc hcψ hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hεseq htk Y hσ0 hσY Fi hFi p p' g hp hp' hpp
+  have hsrc : ∀ (g g' : Fld d L N₁ m₁ (k + 1) N), (∀ x ∈ Y, g x = g' x) →
+      ∀ u, evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (u, g) =
+        evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (u, g') := fun g g' hg u =>
+    evTerm_source_congr hcov.X_sub (fun g g' hgg u w => by
+      simp only [hFi, show (fun r => E r g) = (fun r => E r g') from funext (hEg g g' hgg)]) hg u
+  have hext2 : ∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      T (cpl p, g) = T (p, g) := fun p g hp =>
+    loc _ _ g (c2 p hp).1 hp (fun z hz => (c2 p hp).2 z hz)
+  refine ⟨fun Ψ Ψ' h h' g g' hag => ?_, hext2⟩
+  rw [c1 Ψ Ψ' h h' fun x hx => ⟨(hag x hx).1, (hag x hx).2.1⟩, hT, hT]
+  exact hsrc g g' (fun x hx => (hag x hx).2.2) _
+
+/-- **The local source term on all pairs of fields and sources: analyticity and the bound**
+(`localB_eTermHat_evTerm_ext`, clauses 3-4, with the source `g`): `(p, g) ↦ T (cpl p, g)` is
+analytic on the class domain times `Sg` (`fieldDom_completion_analytic_param` with
+`localB_mTermHat_evTerm_xiFieldDom` and the locality `localB_mTermHat_evTerm_local`) and bounded
+there by `Eb γ(K) e^{-κ₀ d^{cov,1}_{j'}(X) - 2 κ_dec d̃^{cov}(Y)}`. -/
+theorem localB_mTermHat_evTerm_ext_an (htk : t = k + 1)
+    {Sg : Set (Fld d L N₁ m₁ (k + 1) N)}
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → Fld d L N₁ m₁ (k + 1) N → ℂ}
+    (hE : AnalyticOnNhd ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        E q.1 q.2)
+      (XiCRaw Gj (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ×ˢ Sg))
+    (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ∀ g ∈ Sg,
+        ‖E r g‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j' X))
+
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hσ0 : ∀ w, ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, P.2 ∉ (𝔹ₗ).Ω (k + 1) →
+      Dec2.extS (coverOf 𝔹ₗ) (σ w) P = 0)
+    (hσY : ∀ C ∈ connFams cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Y, ∀ w ∈ supN C (Real.exp κ),
+      ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, Dec2.extS (coverOf 𝔹ₗ) (σ w) P ≠ 0 →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ Y)
+    (Fi : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N → (ι → ℂ) → ℂ)
+    (hFi : ∀ u w, Fi u w =
+        ∫ ψ in K,
+          eTermFun 𝔹ₗ Gk Gj Hm (compWeight L a₁) Fk (fun r => E r u.2) (F₁ (σ w, u.1))
+        (Sol (σ w, flEdat 𝔹ₗ Hm (F₁ (σ w, u.1)) u.1.1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (u.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0) ∂γ)
+    (T : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hT : ∀ p, T p = evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p.1, p.2))
+    (cpl : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ p, cpl p = Classical.epsilon (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ q.1 q.2 ∧ ∀ z ∈ Y,
+        q.1 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).1 z ∧
+        q.2 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).2 z)) :
+    (AnalyticOnNhd ℂ (fun q : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) ×
+        Fld d L N₁ m₁ (k + 1) N => T (cpl q.1, q.2))
+      {q | (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ q.1.1 q.1.2 ∧ q.2 ∈ Sg}) ∧
+    (∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 → g ∈ Sg →
+      ‖T (cpl p, g)‖ ≤ Eb * (γ K).toReal *
+        Real.exp (-κ₀ * treeLenCovOne m₀ j' X - 2 * κdec * treeLenCov Ga m₀ Y)) := by
+  classical
+  have hDL : ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      p ∈ layerSub 𝔹ₗ := fun _ hp => xiDom_mem_layerSub hp
+  obtain ⟨c1, c2⟩ := fieldDom_completion_spec (xiFieldDom (compWeight L a₁) ν εseq :
+    FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))) (k + 1) 𝔹ₗ Y cpl hcpl hDL
+  have loc : ∀ (p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+      (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p'.1 p'.2 →
+      (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → T (p, g) = T (p', g) := by
+    intro p p' g hp hp' hpp
+    rw [hT, hT]
+    exact localB_mTermHat_evTerm_local ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp hP colk hκ hM hMX hnum dsX₀ hN hF hHm hmarD hαD hsm cc hcψ hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hεseq htk Y hσ0 hσY Fi hFi p p' g hp hp' hpp
+  obtain ⟨hA, hBd⟩ := localB_mTermHat_evTerm_xiFieldDom hb₁ hbC ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp HBk HBj hP hq colk colj hκ hM hMX hnum dsX₀ hN hj hF hHm hFkan hFk hmarD hαD hsm cc hcψ hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hcov hd hL hcI hcinj hdisj hopt hκ₀ hκdec hEb0 hκκ h1 hlog hεseq hE hEb Y Fi hFi
+  have hTf : T = fun p => evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p.1, p.2) := funext hT
+  have hAT : AnalyticOnNhd ℂ T ({p | (xiFieldDom (compWeight L a₁) ν εseq :
+      FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2} ×ˢ Sg) := by
+    rw [hTf]; exact hA
+  have hext2 : ∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      T (cpl p, g) = T (p, g) := fun p g hp =>
+    loc _ _ g (c2 p hp).1 hp (fun z hz => (c2 p hp).2 z hz)
+  refine ⟨?_, fun p g hp hg => ?_⟩
+  · exact fieldDom_completion_analytic_param _ (k + 1) 𝔹ₗ Y cpl hcpl hDL
+      (fun _ hp => xiDom_eventually HBp hp) T hAT
+      (fun p p' hp hp' hpp g => loc p p' g hp hp' hpp)
+  · rw [hext2 p g hp, hT]
+    exact hBd (p, g) hp hg
+
+/-- **The local source term of `Y` on all pairs of fields and sources** (P3 (4.46)-(4.47); the
+clauses `localM`, `analyticM` and the per-label bound of `boundM` of the local successor class, with
+the source `g` carried along): the conjunction of `localB_mTermHat_evTerm_ext_loc` and
+`localB_mTermHat_evTerm_ext_an`. -/
+theorem localB_mTermHat_evTerm_ext (htk : t = k + 1)
+    {Sg : Set (Fld d L N₁ m₁ (k + 1) N)}
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → Fld d L N₁ m₁ (k + 1) N → ℂ}
+    (hE : AnalyticOnNhd ℂ (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        E q.1 q.2)
+      (XiCRaw Gj (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ×ˢ Sg))
+    (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ∀ g ∈ Sg,
+        ‖E r g‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j' X))
+    (hEg : ∀ g g' : Fld d L N₁ m₁ (k + 1) N, (∀ z ∈ X, g z = g' z) → ∀ r, E r g = E r g')
+
+    (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hσ0 : ∀ w, ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, P.2 ∉ (𝔹ₗ).Ω (k + 1) →
+      Dec2.extS (coverOf 𝔹ₗ) (σ w) P = 0)
+    (hσY : ∀ C ∈ connFams cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Y, ∀ w ∈ supN C (Real.exp κ),
+      ∀ P ∈ (coverOf 𝔹ₗ).cubeIdx, Dec2.extS (coverOf 𝔹ₗ) (σ w) P ≠ 0 →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ Y)
+    (Fi : RawData d L (N₁ * L ^ m₁) (k + 1) N × Fld d L N₁ m₁ (k + 1) N → (ι → ℂ) → ℂ)
+    (hFi : ∀ u w, Fi u w =
+        ∫ ψ in K,
+          eTermFun 𝔹ₗ Gk Gj Hm (compWeight L a₁) Fk (fun r => E r u.2) (F₁ (σ w, u.1))
+        (Sol (σ w, flEdat 𝔹ₗ Hm (F₁ (σ w, u.1)) u.1.1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (u.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts 𝔹ₗ then
+              (cc • (decCovSqrt 𝔹ₗ (compWeight L a₁) a₁ ν
+                (F₁ (σ w, u.1)).2 (Dec2.extS (coverOf 𝔹ₗ) (σ w))
+                (barField 𝔹ₗ u.1.1 (F₁ (σ w, u.1)).1) (unitQ 𝔹ₗ)
+                    (unitP 𝔹ₗ) *ᵥ (fun r => (ψ r : ℂ))))
+                (⟨unitBlock x, h⟩, i)
+            else 0) ∂γ)
+    (T : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hT : ∀ p, T p = evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Fi Y (clipRaw 𝔹ₗ p.1, p.2))
+    (cpl : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ p, cpl p = Classical.epsilon (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ q.1 q.2 ∧ ∀ z ∈ Y,
+        q.1 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).1 z ∧
+        q.2 z = (Classical.choose (exists_layerProj (N := N) 𝔹ₗ Y) p).2 z)) :
+    (∀ Ψ Ψ' h h' g g' : Fld d L N₁ m₁ (k + 1) N,
+      (∀ x ∈ Y, Ψ x = Ψ' x ∧ h x = h' x ∧ g x = g' x) → T (cpl (Ψ, h), g) = T (cpl (Ψ', h'), g')) ∧
+    (∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 →
+      T (cpl p, g) = T (p, g)) ∧
+    (AnalyticOnNhd ℂ (fun q : (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) ×
+        Fld d L N₁ m₁ (k + 1) N => T (cpl q.1, q.2))
+      {q | (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ q.1.1 q.1.2 ∧ q.2 ∈ Sg}) ∧
+    (∀ (p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) (g : Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom (compWeight L a₁) ν εseq :
+        FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) 𝔹ₗ p.1 p.2 → g ∈ Sg →
+      ‖T (cpl p, g)‖ ≤ Eb * (γ K).toReal *
+        Real.exp (-κ₀ * treeLenCovOne m₀ j' X - 2 * κdec * treeLenCov Ga m₀ Y)) :=
+  have hl1 := localB_mTermHat_evTerm_ext_loc ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp hP colk hκ hM hMX hnum dsX₀ hN hF hHm hmarD hαD hsm cc hcψ hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hcov hεseq htk hEg Y hσ0 hσY Fi hFi T hT cpl hcpl
+  have hl2 := localB_mTermHat_evTerm_ext_an hb₁ hbC ht Yp hN₁ hMM hag hS hk1 ha₁ ha₂ HBp HBk HBj hP hq colk colj hκ hM hMX hnum dsX₀ hN hj hF hHm hFkan hFk hmarD hαD hsm cc hcψ hδ₁ hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ hcov hd hL hcI hcinj hdisj hopt hκ₀ hκdec hEb0 hκκ h1 hlog hεseq htk hE hEb Y hσ0 hσY Fi hFi T hT cpl hcpl
+  ⟨hl1.1, hl1.2, hl2.1, hl2.2⟩
 
 end ParamM
 
