@@ -448,4 +448,70 @@ theorem finalOp_translate {L N k : ℕ} [NeZero N] [NeZero L] (e : L1Torus d N �
 
 end Operator
 
+section Final
+
+open MeasureTheory Set Balaban.Localization
+
+variable {d M N L k : ℕ} [NeZero N] [NeZero L] {p : ℕ}
+
+omit [NeZero L] in
+/-- A translation of the coarse torus with prescribed coordinates exists. -/
+theorem exists_translate (t : Fin d → ZMod N) :
+    ∃ e : L1Torus d N ≃ L1Torus d N, ∀ x i, e x i = x i + t i :=
+  ⟨(Equiv.addRight (t : Torus d N) : Torus d N ≃ Torus d N), fun _ _ => rfl⟩
+
+/-- **The tagged parametrix `G_fin` of the final operator is covariant under the translation by
+`p` cells.** -/
+theorem taggedGfin_final_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M)
+    (e : L1Torus d N ≃ L1Torus d N) (he : ∀ x i, e x i = x i + ((M * p : ℕ) : ZMod N))
+    (v a t : ℝ) (s : MacIdx d N M → ℂ) :
+    (taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t s).submatrix e e =
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t (s ∘ σ) :=
+  taggedGfin_submatrix_equiv (ι := L1Torus d N) (Z := MacIdx d N M) (Pc := MacIdx d N M)
+    (V := macTags d N M) (V' := macTags d N M) (B := macBoxF d N M) (B' := macBoxF d N M)
+    (c := fun z u => ((macChi d N M z u : ℝ) : ℂ)) (c' := fun z u => ((macChi d N M z u : ℝ) : ℂ))
+    (U := finalOp d L N k v a) (U' := finalOp d L N k v a)
+    e σ σ (fun z x y => macTags_translate hMN σ hσ e he z x y)
+    (finalOp_translate (L := L) (k := k) e he v a) (fun z x => mem_macBoxF_translate hMN σ hσ e he z x)
+    (fun z x => by simp only [macChi_translate hMN σ hσ e he]) t s
+
+/-- **The Stieltjes square root `taggedCfin` of the final operator is covariant under the
+translation by `p` cells.** -/
+theorem taggedCfin_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M)
+    (e : L1Torus d N ≃ L1Torus d N) (he : ∀ x i, e x i = x i + ((M * p : ℕ) : ZMod N))
+    (v a : ℝ) (s : MacIdx d N M → ℂ) :
+    (taggedCfin d L N k M v a s).submatrix e e = taggedCfin d L N k M v a (s ∘ σ) := by
+  have hG : ∀ t : ℝ, ((((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t s).submatrix e e) =
+      (((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t (s ∘ σ)) := fun t => by
+    rw [← taggedGfin_final_translate (L := L) (k := k) hMN σ hσ e he v a t s]
+    rfl
+  ext x y
+  have hent : ∀ (s' : MacIdx d N M → ℂ) (u w : L1Torus d N),
+      (taggedCfin d L N k M v a s') u w = ((1 / Real.pi : ℝ) : ℂ) *
+      ∫ t in Ioi (0 : ℝ), (((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t s') u w := fun s' u w => by
+    unfold taggedCfin
+    rw [Matrix.smul_apply]
+    simp only [Localization.intMat, smul_eq_mul]
+  rw [Matrix.submatrix_apply, hent s (e x) (e y), hent (s ∘ σ) x y]
+  have hint : (∫ t in Ioi (0 : ℝ), (((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t s) (e x) (e y)) =
+      ∫ t in Ioi (0 : ℝ), (((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+        (macTags d N M) (finalOp d L N k v a) t (s ∘ σ)) x y :=
+    integral_congr_ae (Filter.Eventually.of_forall fun t => congrFun (congrFun (hG t) x) y)
+  rw [hint]
+
+end Final
+
 end Balaban.Green
