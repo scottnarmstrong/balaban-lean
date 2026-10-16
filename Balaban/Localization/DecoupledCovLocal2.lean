@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Localization.DecoupledCovExactCover
 public import Balaban.Localization.DecoupledCovLocal
 
 /-!
@@ -32,25 +33,18 @@ variable {N : ℕ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {α
   {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
   {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
 
-theorem xDirichlet_apply_eq {z : G.Ω 1} (h : α z = α' z) (y : G.Ω 1) :
-    xDirichletOperator G a aT x₀ ν α z y = xDirichletOperator G a aT x₀ ν α' z y := by
-  unfold xDirichletOperator
-  simp only [Matrix.add_apply, Matrix.diagonal_apply]
-  by_cases hzy : z = y
-  · subst hzy; simp [h]
-  · simp [hzy]
-
-theorem commK_apply_eq2 {ι : Type*} [Fintype ι] [DecidableEq ι] {H H' : Matrix ι ι ℂ}
-    {ψ ψ' : ι → Fin N → ℂ} {u u' : ι × Fin N → ℂ} {z : ι}
-    (hH : ∀ y, H z y = H' z y) (hz : ψ z = ψ' z)
-    (h : ∀ y, H z y ≠ 0 → ψ y = ψ' y ∧ ∀ i, u (y, i) = u' (y, i)) :
-    (commK H ψ *ᵥ u) z = (commK H' ψ' *ᵥ u') z := by
-  rw [commK_mulVec, commK_mulVec]
-  refine Finset.sum_congr rfl fun y _ => Finset.sum_congr rfl fun i _ => ?_
-  by_cases h0 : H z y = 0
-  · rw [← hH y, h0]; simp
-  · obtain ⟨h1, h2⟩ := h y h0
-    rw [← hH y, h2 i, h1, hz]
+/-- The agreement of `Ĝ` on `Y` for sources agreeing on `S_Y`, in the form of the core
+`Gvec_agree` (from `dg5x'_inner`). -/
+theorem Gsx_agree_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hα' : AdmPot G α')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α' s')) :
+    ∀ g g' : G.Ω 1 → ℂ,
+      (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → g y = g' y) →
+      ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y →
+        (Gsx G a aT x₀ ν α s *ᵥ g) y = (Gsx G a aT x₀ ν α' s' *ᵥ g') y :=
+  fun _ _ hg y hy =>
+    dg5x'_inner S hx H.conn H.nn H.pot hα' hU hU' H.s1 H.s0 H.ag hA hg y hy
 
 theorem Gvec_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
     (hα' : AdmPot G α')
@@ -61,10 +55,7 @@ theorem Gvec_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X�
     ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
       (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w) (y, i) =
         (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w') (y, i) := by
-  intro y hy i
-  rw [liftOp_mulVec, liftOp_mulVec]
-  exact dg5x'_inner S hx H.conn H.nn H.pot hα' hU hU' H.s1 H.s0 H.ag hA
-    (f := fun b => w (b, i)) (f' := fun b => w' (b, i)) (fun b hb => hw b hb i) y hy
+  exact Gvec_agree (Gsx_agree_local2 S hx H hα' hA hU hU') hw
 
 section ZLocal
 
@@ -81,44 +72,22 @@ theorem commK_Gvec_local2 {w w' : G.Ω 1 × Fin N → ℂ}
         (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w)) z =
       (commK (xDirichletOperator G a aT x₀ ν α') (restrictField G φ') *ᵥ
         (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w')) z := by
-  refine commK_apply_eq2 (xDirichlet_apply_eq (hA z hz)) (hφ z (SY_subset hz)) ?_
-  intro y hy
-  have hyY := row_in_Y S hz hy
-  exact ⟨hφ y hyY, fun i => Gvec_local2 S hx H hα' hA hU hU' hw y hyY i⟩
+  exact commK_Gvec_agree (Gsx_agree_local2 S hx H hα' hA hU hU') hA hφ
+    (fun y hy => SY_subset hy) (fun z y hz h => row_in_Y S hz h) hw hz
 
 theorem decN_local2 {w w' : G.Ω 1 × Fin N → ℂ}
     (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i))
     {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
     (decN G a aT x₀ ν α s φ *ᵥ w) z = (decN G a aT x₀ ν α' s' φ' *ᵥ w') z := by
-  rw [decN_mulVec_eq, decN_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
-  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ w) z =
-      ((fieldMul (restrictField G φ'))ᵀ *ᵥ w') z := by
-    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    have := hφ z (SY_subset hz)
-    simp only [restrictField]
-    rw [this, hw z hz i]
-  rw [e1, commK_Gvec_local2 S hx H hα' hA hφ hU hU' hw hz]
+  exact decN_agree (Gsx_agree_local2 S hx H hα' hA hU hU') hA hφ
+    (fun y hy => SY_subset hy) (fun z y hz h => row_in_Y S hz h) hw hz
 
 theorem decM_local2 {v v' : G.Ω 1 → ℂ}
     (hv : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → v y = v' y)
     {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
     (decM G a aT x₀ ν α s φ *ᵥ v) z = (decM G a aT x₀ ν α' s' φ' *ᵥ v') z := by
-  rw [decM_mulVec_eq, decM_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
-  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ (fieldMul (restrictField G φ) *ᵥ v)) z =
-      ((fieldMul (restrictField G φ'))ᵀ *ᵥ (fieldMul (restrictField G φ') *ᵥ v')) z := by
-    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [fieldMul_mulVec, fieldMul_mulVec, hv z hz]
-    simp only [restrictField]
-    rw [hφ z (SY_subset hz)]
-  have e2 := commK_Gvec_local2 S hx H hα' hA hφ hU hU'
-    (w := fieldMul (restrictField G φ) *ᵥ v) (w' := fieldMul (restrictField G φ') *ᵥ v')
-    (fun y hy i => by
-      rw [fieldMul_mulVec, fieldMul_mulVec, hv y hy]
-      simp only [restrictField]
-      rw [hφ y (SY_subset hy)]) hz
-  rw [e1, e2]
+  exact decM_agree (Gsx_agree_local2 S hx H hα' hA hU hU') hA hφ
+    (fun y hy => SY_subset hy) (fun z y hz h => row_in_Y S hz h) hv hz
 
 end ZLocal
 
@@ -138,83 +107,9 @@ theorem decZ_local2 {w w' : G.Ω 1 × Fin N → ℂ}
     (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i)) :
     ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
       (decZ G a aT x₀ ν α s φ *ᵥ w) (y, i) = (decZ G a aT x₀ ν α' s' φ' *ᵥ w') (y, i) := by
-  classical
-  have hU := D.isUnit_one_sub
-  have hU' := D'.isUnit_one_sub
-  have hα' := D'.pot
-  have H0 : XWeight G 0 (fun _ => 0) := D.weight_zero
-  have H0' : XWeight G 0 (fun _ => 0) := D'.weight_zero
-  have hMs := decM_isUnit D hφ hδ hsm
-  have hMs' := decM_isUnit D' hφ' hδ hsm
-  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hMs
-  have hdet' := (Matrix.isUnit_iff_isUnit_det _).1 hMs'
-  obtain ⟨v, hv⟩ : ∃ v : G.Ω 1 → ℂ, v = (decM G a aT x₀ ν α s φ)⁻¹ *ᵥ
-      (decN G a aT x₀ ν α s φ *ᵥ w) := ⟨_, rfl⟩
-  obtain ⟨v', hv'⟩ : ∃ v : G.Ω 1 → ℂ, v = (decM G a aT x₀ ν α' s' φ')⁻¹ *ᵥ
-      (decN G a aT x₀ ν α' s' φ' *ᵥ w') := ⟨_, rfl⟩
-  have hMv : decM G a aT x₀ ν α s φ *ᵥ v = decN G a aT x₀ ν α s φ *ᵥ w := by
-    rw [hv, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet, Matrix.one_mulVec]
-  have hMv' : decM G a aT x₀ ν α' s' φ' *ᵥ v' = decN G a aT x₀ ν α' s' φ' *ᵥ w' := by
-    rw [hv', Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet', Matrix.one_mulVec]
-  obtain ⟨T, hT⟩ : ∃ T : (G.Ω 1 → ℂ) → (G.Ω 1 → ℂ), T = fun u =>
-      decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u := ⟨_, rfl⟩
-  obtain ⟨T', hT'⟩ : ∃ T : (G.Ω 1 → ℂ) → (G.Ω 1 → ℂ), T = fun u =>
-      decN G a aT x₀ ν α' s' φ' *ᵥ w' + u - decM G a aT x₀ ν α' s' φ' *ᵥ u := ⟨_, rfl⟩
-  have hTv : ∀ u, T u - v = (u - v) - decM G a aT x₀ ν α s φ *ᵥ (u - v) := by
-    intro u
-    subst hT
-    show decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u - v = _
-    rw [Matrix.mulVec_sub, hMv]
-    abel
-  have hTv' : ∀ u, T' u - v' = (u - v') - decM G a aT x₀ ν α' s' φ' *ᵥ (u - v') := by
-    intro u
-    subst hT'
-    show decN G a aT x₀ ν α' s' φ' *ᵥ w' + u - decM G a aT x₀ ν α' s' φ' *ᵥ u - v' = _
-    rw [Matrix.mulVec_sub, hMv']
-    abel
-  have hS0 := agmonSource_nonneg G 0 (fun _ => 0)
-  have hc : ∀ u, agmonSource G 0 (fun _ => 0) (T u - v) ≤
-      (1 / 4) * agmonSource G 0 (fun _ => 0) (u - v) := by
-    intro u
-    rw [hTv]
-    refine (decM_error_le D H0 hφ hδ (u - v)).trans ?_
-    exact mul_le_mul_of_nonneg_right hsm (hS0 _)
-  have hc' : ∀ u, agmonSource G 0 (fun _ => 0) (T' u - v') ≤
-      (1 / 4) * agmonSource G 0 (fun _ => 0) (u - v') := by
-    intro u
-    rw [hTv']
-    refine (decM_error_le D' H0' hφ' hδ (u - v')).trans ?_
-    exact mul_le_mul_of_nonneg_right hsm (hS0 _)
-  have hag : ∀ u u' : G.Ω 1 → ℂ,
-      (∀ z ∈ {z : G.Ω 1 | (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y}, u z = u' z) →
-      ∀ z ∈ {z : G.Ω 1 | (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y}, T u z = T' u' z := by
-    intro u u' huu z hz
-    have hz' : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y := hz
-    subst hT hT'
-    show (decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u) z =
-      (decN G a aT x₀ ν α' s' φ' *ᵥ w' + u' - decM G a aT x₀ ν α' s' φ' *ᵥ u') z
-    simp only [Pi.sub_apply, Pi.add_apply]
-    rw [decN_local2 S hx H hα' hA hφY hU hU' hw hz', huu z hz,
-      decM_local2 S hx H hα' hA hφY hU hU' (fun y hy => huu y hy) hz']
-  have hfix := fixed_point_agree T T' v v' {z : G.Ω 1 | (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y}
-    hc hc' hag
-  intro y hy i
-  have hZ : ∀ (aa : G.Ω 1 → ℂ) (ss : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ)
-      (pp : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (ww : G.Ω 1 × Fin N → ℂ) (Mi : G.Ω 1 → ℂ),
-      Mi = (decM G a aT x₀ ν aa ss pp)⁻¹ *ᵥ (decN G a aT x₀ ν aa ss pp *ᵥ ww) →
-      decZ G a aT x₀ ν aa ss pp *ᵥ ww = liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ ww -
-        liftOp N (Gsx G a aT x₀ ν aa ss) *ᵥ (fieldMul (restrictField G pp) *ᵥ Mi) := by
-    intro aa ss pp ww Mi hMi
-    unfold decZ decPi
-    rw [Matrix.sub_mulVec, hMi]
-    simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
-  have e1 := Gvec_local2 S hx H hα' hA hU hU' hw y hy i
-  have e2 := Gvec_local2 S hx H hα' hA hU hU' (w := fieldMul (restrictField G φ) *ᵥ v)
-    (w' := fieldMul (restrictField G φ') *ᵥ v') (fun y hy i => by
-      rw [fieldMul_mulVec, fieldMul_mulVec, hfix y hy]
-      simp only [restrictField]
-      rw [hφY y (SY_subset hy)]) y hy i
-  rw [hZ α s φ w v hv, hZ α' s' φ' w' v' hv', Pi.sub_apply, Pi.sub_apply, e1, e2]
+  exact decZ_agree (Gsx_agree_local2 S hx H D'.pot hA D.isUnit_one_sub D'.isUnit_one_sub) hA hφY
+    (fun y hy => SY_subset hy) (fun z y hz h => row_in_Y S hz h) D.toCover D'.toCover hφ hφ' hδ
+    hsm hw
 
 end ZLocal2
 
