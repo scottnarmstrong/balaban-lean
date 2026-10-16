@@ -14,8 +14,10 @@ import Mathlib.Tactic.Positivity
 
 The term of a polymer `Y` recomputed on a local generating set `𝔹` (P3 (4.46)-(4.47), printed
 pp. 78-79; `LocalHatTerm.lean`) is `E_X(Y)(Θ) = ∑_{𝒞 : Y[𝒞] = Y} coef(F(Θ, ·), 𝒞)` with
-`F(Θ, w) = ∫_K Φ_E(F₁(σ w, Θ), Sol(σ w, …), (Θ, cc C^{1/2}(σ w) ψ̂)) dγ(ψ̂)`, the decoupled background
-`F₁`, the fluctuation field `Sol` and the square root `C^{1/2}` all of the cover of `𝔹`.  It reads the
+`F(Θ, w) = ∫_K Φ_E(F₁(σ w, Θ), Sol(σ w, …), (Θ, cc C^{1/2}(σ w) ψ̂)) dγ(ψ̂)`, the decoupled
+  background
+`F₁`, the fluctuation field `Sol` and the square root `C^{1/2}` all of the cover of `𝔹`.  It reads
+  the
 datum `Θ` on all data sites of `𝔹`.  This file proves that on the chart it depends on `Θ` only
 through its values on a set `W` that contains the thickened interaction cube `□̂_z` of every cube
 `z` of the cover whose decoupling factor `s_z = ∏_{P ∈ 𝒬(z)} (σ w)_P` does not vanish (P3 (4.47),
@@ -24,9 +26,11 @@ through its values on a set `W` that contains the thickened interaction cube `�
 * `inBox_of_supDist_le`: a box enlarged by `t` contains the sup-distance `t`-neighbourhood of each
   of its points;
 * `eTermFun_localHat_congr`: **the integrand at one point.**  For two data of the chart agreeing on
-  `W`, the composite `Φ_E(F₁(s, Θ), Sol(s, …), (Θ, ψ'(Θ)))` with the local hat lift `ψ'(Θ)` takes the
+  `W`, the composite `Φ_E(F₁(s, Θ), Sol(s, …), (Θ, ψ'(Θ)))` with the local hat lift `ψ'(Θ)` takes
+    the
   same value.  The pair `(coverOf 𝔹, 𝔹)` is compared with itself: the background fields
-  (`Dec2.decBg_value_cross`) on the `L^{k+1}`-neighbourhood `T_b` of the active interaction cubes, the
+  (`Dec2.decBg_value_cross`) on the `L^{k+1}`-neighbourhood `T_b` of the active interaction cubes,
+    the
   local hat lifts (`Dec2.localLift_eq_localLift_on_component`) on `T_b`, then the fluctuation field
   and the composition (`eTermFun_replacement_cross_of_agree`).  Every site read lies within
   `5 L^{k+1}` of an active interaction cube, hence in its thickened cube, hence in `W`;
@@ -35,9 +39,24 @@ through its values on a set `W` that contains the thickened interaction cube `�
 * `evTerm_localHat_clipRaw_congr`: the same on the class domain `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})` through
   the cut-off `clipRaw 𝔹`, for pairs of fields agreeing on `W`.
 
-The hypotheses on the parameter map `σ` (the active thickened cubes lie in `W`; every data site of
-the old generating set `𝔹_k(X)` is read inside an active interaction cube) are discharged for the
-transported parameters `σ = τ ∘ extParams` at `𝔹 = 𝔹_{k+1}(Y⁺)` and `W = Y` in the instance section.
+At `𝔹 = 𝔹_{k+1}(Y⁺) = localB (k + 1) … Y⁺` and `W = Y`:
+
+* `localB_active_hatBox_subset`: for parameters vanishing off the top layer whose non-vanishing
+  cubes lie in `W`, the thickened cube of every active cube lies in `W` and in the top layer;
+* `comp_active_of_near`: for parameters vanishing off the top layer and equal to `1` at the cubes
+  contained in `X₁`, every data site of `𝔹_k(X)` (inside `X₀`, whose `(4 d L³ + L) M₁`-neighbourhood
+  lies in `X₁`) is read inside the interaction cube of its own cube, which is active;
+* `localB_eTermHat_evTerm_local`: **the term of `localB_eTermHat_evTerm_xiFieldDom` (at `t = k + 1`)
+  takes the same value at two pairs of fields of the class domain agreeing on `Y`**, for a parameter
+  map `σ` vanishing off the top layer whose non-vanishing cubes (for `w` supported on a connected
+  family `𝒞` with `Y[𝒞] = Y`) lie in `Y`.
+
+**The class clause.**  `SFTermClauses.localE` asks `E(Y)(Ψ, h) = E(Y)(Ψ', h')` whenever `Ψ = Ψ'` and
+`h = h'` on the polymer `Y` itself, for all pairs of fields (no domain hypothesis).  The term
+`(Ψ, h) ↦ E(Y)(clipRaw 𝔹 (Ψ, h))` reads its argument on the data sites of `𝔹` (`⊋ Y`), and off the
+chart the maps `F₁`, `Sol` are not specified; so the all-field clause is not a consequence of the
+locality on the domain proved here.  It needs a term defined on all fields that depends on `(Ψ, h)|_Y`
+and agrees with the recomputed term on the class domain (an extension from the domain).
 -/
 
 @[expose] public section
@@ -93,7 +112,8 @@ their cover bases, `F₁`, `Sol` the decoupled background and fluctuation maps, 
 
 Then for two data `D`, `D'` of the chart `Ξ^c(𝔹; 1, ε)` with the same raw values on `W` and every
 hat variable `ψ̂` with `|ψ̂| ≤ c_ψ`, the old-term functional `Φ_E` at the decoupled background, the
-fluctuation field and `(Θ, ψ'(Θ))`, `ψ'(Θ)` the local hat lift `cc C^{1/2}(s) ψ̂` at the background of
+fluctuation field and `(Θ, ψ'(Θ))`, `ψ'(Θ)` the local hat lift `cc C^{1/2}(s) ψ̂` at the background
+  of
 `Θ`, takes the same value at `Θ = D` and `Θ = D'`. -/
 theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
     {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
@@ -703,9 +723,11 @@ theorem localB_active_hatBox_subset (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
 /-- **Every data site of `𝔹_k(X)` is read inside an active interaction cube** (`𝔹` cube aligned,
 e.g. `𝔹 = 𝔹_{k+1}(Y⁺)`).  Let the parameters `s'` of the cover of `𝔹` vanish off the top layer and
 equal `1` at the cubes contained in `X₁`, and let every site within `ℓ¹`-distance
-`(4 d L³ + L) M₁ ℓ(x)` of a site `x ∈ X₀ ∩ Ω₁(𝔹)` lie in `X₁` (`ℓ(x)` the spacing of `𝔹` at `x`), with
+`(4 d L³ + L) M₁ ℓ(x)` of a site `x ∈ X₀ ∩ Ω₁(𝔹)` lie in `X₁` (`ℓ(x)` the spacing of `𝔹` at `x`),
+  with
 the data sites of `𝔹_k(X)` in `X₀`.  Then for a data site `x` of `𝔹_k(X)` its own cube `z` is a top
-cube (it lies in `X₁`, so `s'_z = 1`), every cube of `𝒬(z)` lies within `6 M₁ L^{k+1}` of `x`, hence in
+cube (it lies in `X₁`, so `s'_z = 1`), every cube of `𝒬(z)` lies within `6 M₁ L^{k+1}` of `x`,
+  hence in
 `X₁`, so the factor `s'_z` does not vanish; and `x` and its blocks of the layer indices of `𝔹_k(X)`,
 `𝔹` and `H⁻` lie in the cube of `z`, hence in `□_z`. -/
 theorem comp_active_of_near {ϱB : ℝ} {B : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱB}
@@ -835,6 +857,188 @@ theorem comp_active_of_near {ϱB : ℝ} {B : GeneratingSet d L (N₁ * L ^ m₁)
   refine mem_intBox.2 (((inBox_half_iff_sameCell (by omega) hbase).2 (hyx.trans hscx)).mono ?_)
   have : (0 : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by positivity
   linarith
+
+/-- **Exact locality of the local E-term at `𝔹_{k+1}(Y⁺)`** (P3 (4.47); the class clause `localE`
+on the class domain).  The term of the polymer `Y` recomputed on `𝔹 = 𝔹_{k+1}(Y⁺) = localB (k + 1)
+  … Y⁺`
+(the term of `localB_eTermHat_evTerm_xiFieldDom` at `t = k + 1`) takes the same value at two pairs
+  of
+fields of the class domain `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})` that agree on `Y`.  The hypotheses are those
+  of
+`localB_eTermHat_evTerm_xiFieldDom` used by the construction (the old-term functional enters only
+through its composition reads: no analyticity of `E`, `Fk` is needed), and two properties of the
+parameter map `σ`: it vanishes at the cubes of the cover of `𝔹` off the top layer (`hσ0`), and for a
+connected family `𝒞` with `Y[𝒞] = Y` and `w` supported on `𝒞`, the cubes with `(σ w)_P ≠ 0` lie in
+`Y` (`hσY`).  Both hold for the transported parameters `τ ∘ extParams`. -/
+theorem localB_eTermHat_evTerm_local {ι : Type*} [DecidableEq ι] [Fintype ι] {ϱa : ℝ}
+    {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱa} {cI : ι → ℕ × CTorus d L N₁ m₁ (k + 1)}
+    {m₀ : ℕ} {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1) (Yp : Set (CTorus d L N₁ m₁ (k + 1))) (hN₁ : 5 < N₁)
+    (hMM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ m₁) - 1)) {c BG a₁ ν : ℝ}
+    (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
+    (HBp : BgHyp d L (k + 1) (minSep L (L ^ m₁)) (compWeight L a₁) ν)
+    (hP : Precedes Gk (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
+    (colk : ∀ z ∈ collar Gk, z ∈ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1)
+    {κ eps δ₃ : ℝ} (hκ : 0 < κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hnum : ChainNum d L N m₁ BG κ (4 * d * (L : ℝ) ^ 3 + L) eps δ₃)
+    {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} (dsX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
+    (hN : ∀ x ∈ X₀, x ∈ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1 →
+      ∀ y : CTorus d L N₁ m₁ (k + 1), Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y <
+        (4 * d * (L : ℝ) ^ 3 + L) * (L : ℝ) ^ m₁ * (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L
+          (L ^ m₁)))).spacing x → y ∈ X₁f)
+    {Kf Cf c₂ BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) Gk Hm a₁ ν κ BG
+      eps δ₃ Kf Cf c₂ BG₂ δ₁ δfl X₁f)
+    (hHm : Hm.Ω (k + 1) = ∅)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {F₁ : Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) ×
+      RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1 × Fin N → ℂ) ×
+        ((GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+      m₁)))))) (D : BgData (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) N), (∀ P, ‖s
+        P‖ < Real.exp κ) →
+      InUnionDomainC (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) (bgC0 d L N) (c7 d
+        L N BG κ) ν D →
+      ∀ (φ : (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1 × Fin N → ℂ) (α :
+        (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
+          (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν (rho4 d L
+            N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) ×
+      Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+      m₁))))) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L
+          ^ m₁))))) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) Hm
+          (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) Hm
+            (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+      m₁)))))}
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf (GsSpec.localB (k + 1) hk Yp
+      (le_refl (minSep L (L ^ m₁))))).cubeIdx),
+      P ∉ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).parCubes X₁f → σ w
+        ⟨P, hP⟩ = 1)
+    (hσ0 : ∀ w, ∀ P ∈ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+      m₁))))).cubeIdx, P.2 ∉ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) →
+      Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (σ w) P = 0)
+    (hσY : ∀ C ∈ connFams cI Ga m₀ X₁ Y, ∀ w ∈ supN C (Real.exp κ),
+      ∀ P ∈ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx,
+        Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (σ w) P ≠ 0
+          →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ Y)
+    {γ : Measure (unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
+      {K : Set (unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ)
+    {εseq : ℕ → ℝ} (hεseq : εseq (k + 1) ≤ eps)
+    {p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N}
+    (hp : (xiFieldDom (compWeight L a₁) ν εseq :
+      FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) (GsSpec.localB (k + 1) hk Yp
+        (le_refl (minSep L (L ^ m₁)))) p.1 p.2)
+    (hp' : (xiFieldDom (compWeight L a₁) ν εseq :
+      FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1) (GsSpec.localB (k + 1) hk Yp
+        (le_refl (minSep L (L ^ m₁)))) p'.1 p'.2)
+    (hpp : ∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) :
+    evTerm cI Ga m₀ X₁
+        (fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
+          ∫ ψ in K,
+            eTermFun (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
+              (compWeight L a₁) Fk E (F₁ (σ w, Θ))
+              (Sol (σ w, flEdat (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁
+                (σ w, Θ)) Θ.1
+                (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+                  if h : unitBlock x ∈ unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) then
+                    (cc • (decCovSqrt (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
+                      (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                      (Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                        m₁))))) (σ w)) (barField (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L
+                          ^ m₁)))) Θ.1 (F₁ (σ w, Θ)).1)
+                      (unitQ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (unitP
+                        (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) *ᵥ (fun r =>
+                          (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+                  else 0))).1
+              (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+                  if h : unitBlock x ∈ unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) then
+                    (cc • (decCovSqrt (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
+                      (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                      (Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                        m₁))))) (σ w)) (barField (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L
+                          ^ m₁)))) Θ.1 (F₁ (σ w, Θ)).1)
+                      (unitQ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (unitP
+                        (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) *ᵥ (fun r =>
+                          (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+                  else 0) ∂γ) Y (clipRaw (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) p) =
+      evTerm cI Ga m₀ X₁
+        (fun (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ) =>
+          ∫ ψ in K,
+            eTermFun (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) Gk Gj Hm
+              (compWeight L a₁) Fk E (F₁ (σ w, Θ))
+              (Sol (σ w, flEdat (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) Hm (F₁
+                (σ w, Θ)) Θ.1
+                (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+                  if h : unitBlock x ∈ unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) then
+                    (cc • (decCovSqrt (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
+                      (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                      (Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                        m₁))))) (σ w)) (barField (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L
+                          ^ m₁)))) Θ.1 (F₁ (σ w, Θ)).1)
+                      (unitQ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (unitP
+                        (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) *ᵥ (fun r =>
+                          (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+                  else 0))).1
+              (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+                  if h : unitBlock x ∈ unitPts (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) then
+                    (cc • (decCovSqrt (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
+                      (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                      (Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                        m₁))))) (σ w)) (barField (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L
+                          ^ m₁)))) Θ.1 (F₁ (σ w, Θ)).1)
+                      (unitQ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) (unitP
+                        (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) *ᵥ (fun r =>
+                          (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+                  else 0) ∂γ) Y (clipRaw (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^
+                    m₁)))) p') := by
+  have hL : 3 ≤ L := HBp.hL
+  have hm₁ : 2 ≤ m₁ := by
+    by_contra h
+    push Not at h
+    have hL2 : L ^ m₁ ≤ L ^ 1 := Nat.pow_le_pow_right (by omega) (by omega)
+    nlinarith
+  have hcd := localB_coverData hk Yp hN₁ hMM hag HBp
+  exact evTerm_localHat_clipRaw_congr hk1 (by omega) ha₁ ha₂ hS hcd.1 HBp hκ hM hMX
+    (Cchi_nonneg d L) hnum.eps_pos hnum.small1 hnum.c7le hF.num.phi_lt hmarD hαD hsm hF₁
+    hF.hS2.fam hF.SM.toCoverBase hF.hM2 hF.num.δ₁_pos hF.num.B_le hF.num.δ₁_le hSol hF.hPmp hHm
+    (compWeight L a₁) Fk E cc hcψ hδ₁ Y hσκ
+    (fun C hC w hw => localB_active_hatBox_subset hk1 hk Yp hm₁ hMM (hσ0 w) (hσY C hC w hw))
+    (fun C hC w hw => comp_active_of_near (Hm := Hm)
+      (localB_cubeAligned hk Yp (le_refl (minSep L (L ^ m₁))) hm₁) hL hMM hP colk dsX₀ hN
+      (hσ0 w) (hσ1 w))
+    hKc hKb hεseq hp hp' hpp
 
 end LocalB
 
