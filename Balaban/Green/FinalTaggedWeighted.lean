@@ -126,21 +126,6 @@ theorem final_region_entry_close_weighted (hd : 0 < d) :
     (2 * finalDecayC d L)] at h3
   exact h4.trans h3
 
-/-- **The weighted tag bound.**  On the polydisc `‖s p‖ ≤ e^κ`, the tag monomial of the pair
-`(x, y)` is at most `e^{H κ} e^{κ 7^d dist(x,y) / M}`, with `H = pdH d`; no dependence on the
-size of the polymer. -/
-theorem norm_tagMon_macTags_le {m : ℕ} [NeZero m] (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
-    {s : MacIdx d m M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (z : MacIdx d m M)
-    (x y : L1Torus d m) :
-    ‖tagMon (macTags d m M z x y) s‖ ≤
-      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
-  refine (norm_tagMon_le _ hs).trans ?_
-  rw [← Real.exp_add]
-  apply Real.exp_le_exp.2
-  have := macTags_card_le hM z x y
-  unfold pdH
-  nlinarith
-
 /-- **Weighted version of `taggedMat_close_twoTorus`.**  If the families `a`, `a'` correspond up to
 `δ e^{-σ dist(x,y)}` on `Y(C)²` for the cells of `C`, the tagged matrices at
 parameters `s`, `s'` (supported on `C`, `e C`, equal along `e`, of modulus at most `e^κ`) differ at
@@ -168,72 +153,7 @@ theorem taggedMat_close_twoTorus_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤
       (C.card : ℝ) * Real.exp (pdH d * κ) * δ *
         Real.exp (-(σ - κ * 7 ^ d / M) * dist x y) := by
   classical
-  obtain ⟨e', he'⟩ := exists_cellMap (d := d) (N := N') (N' := N) (J := J) hM hN
-  set g : L1Torus d N' → L1Torus d N := fun y μ => (((y μ).val : ℕ) : ZMod N) with hgdef
-  have hg : ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) := fun _ _ => rfl
-  have hmidY : ∀ u, u ∈ macRegion d N M C → ∀ i, 2 * M < (u i).val ∧ (u i).val < (J + 3) * M :=
-    fun u hu => mid_of_mem_macRegion hM hN hC hu
-  have hxm := hmidY x hx
-  have hym := hmidY y hy
-  rw [taggedMat_apply_of_supportedOn _ _ _ hs, taggedMat_apply_of_supportedOn _ _ _ hs']
-  have hgoodC : ∀ z ∈ C, ∀ i, (z i : ℕ) ≤ J + 4 := fun z hz i => by
-    have := (hC z hz i).2; omega
-  have hinjE : Set.InjOn e (C : Set (MacIdx d N M)) := by
-    intro z1 hz1 z2 hz2 h
-    funext i
-    apply Fin.ext
-    have h1 := he z1 i (hgoodC z1 hz1 i)
-    have h2 := he z2 i (hgoodC z2 hz2 i)
-    have : ((e z1 i : Fin (macK N' M)) : ℕ) = ((e z2 i : Fin (macK N' M)) : ℕ) := by rw [h]
-    omega
-  have hVimg : ∀ z ∈ C, macTags d N' M (e z) (f x) (f y) = (macTags d N M z x y).image e := by
-    intro z hz
-    ext w'
-    constructor
-    · intro hw'
-      obtain ⟨w, hw, rfl⟩ := tags_backward hM hN hN' hf hg hxm hym he he' (hC z hz) hw'
-      exact Finset.mem_image_of_mem e hw
-    · intro hw'
-      obtain ⟨w, hw, rfl⟩ := Finset.mem_image.1 hw'
-      exact (tags_forward hM hN hN' hf hxm hym he (hC z hz) hw).2
-  have hsubset_iff : ∀ z ∈ C, (macTags d N M z x y ⊆ C) ↔
-      (macTags d N' M (e z) (f x) (f y) ⊆ C.image e) := by
-    intro z hz
-    rw [hVimg z hz]
-    constructor
-    · intro h
-      exact Finset.image_subset_image h
-    · intro h w hw
-      have h1 := h (Finset.mem_image_of_mem e hw)
-      obtain ⟨c, hc, hce⟩ := Finset.mem_image.1 h1
-      have hwg := (tags_forward hM hN hN' hf hxm hym he (hC z hz) hw).1
-      have : w = c := by
-        funext i
-        apply Fin.ext
-        have h1 := he w i (hwg i)
-        have h2 := he c i (hgoodC c hc i)
-        have : ((e w i : Fin (macK N' M)) : ℕ) = ((e c i : Fin (macK N' M)) : ℕ) := by rw [hce]
-        omega
-      rw [this]; exact hc
-  have hL : (Finset.univ.filter fun z => macTags d N M z x y ⊆ C) =
-      C.filter (fun z => macTags d N M z x y ⊆ C) := by
-    ext z
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-    exact ⟨fun h => ⟨h (mem_macTags_self hM z x y), h⟩, fun h => h.2⟩
-  have hR : (Finset.univ.filter fun z' => macTags d N' M z' (f x) (f y) ⊆ C.image e) =
-      (C.filter (fun z => macTags d N M z x y ⊆ C)).image e := by
-    ext z'
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
-    constructor
-    · intro h
-      have hz' : z' ∈ C.image e := h (mem_macTags_self hM z' _ _)
-      obtain ⟨z, hz, rfl⟩ := Finset.mem_image.1 hz'
-      exact ⟨z, ⟨hz, (hsubset_iff z hz).2 h⟩, rfl⟩
-    · rintro ⟨z, ⟨hz, h⟩, rfl⟩
-      exact (hsubset_iff z hz).1 h
-  rw [hL, hR, Finset.sum_image (hinjE.mono (by intro z hz; exact (Finset.mem_filter.1 hz).1))]
-  rw [← Finset.sum_sub_distrib]
-  refine (norm_sum_le _ _).trans ?_
+  refine (taggedMat_close_twoTorus_core hM hN hN' hf he hC hs hs' hss hx hy).trans ?_
   have hBz : Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) *
       (δ * Real.exp (-σ * dist x y)) =
       Real.exp (pdH d * κ) * δ * Real.exp (-(σ - κ * 7 ^ d / M) * dist x y) := by
@@ -246,21 +166,10 @@ theorem taggedMat_close_twoTorus_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤
   calc _ ≤ ∑ _z ∈ C.filter (fun z => macTags d N M z x y ⊆ C),
         Real.exp (pdH d * κ) * δ * Real.exp (-(σ - κ * 7 ^ d / M) * dist x y) := by
         refine Finset.sum_le_sum fun z hz => ?_
-        obtain ⟨hzC, hVC⟩ := Finset.mem_filter.1 hz
-        rw [hVimg z hzC]
-        have hprod : tagMon (macTags d N M z x y) s =
-            tagMon ((macTags d N M z x y).image e) s' := by
-          unfold tagMon
-          rw [Finset.prod_image (hinjE.mono (by intro w hw; exact hVC hw))]
-          refine Finset.prod_congr rfl fun w hw => ?_
-          rw [hss w (hVC hw)]
-        rw [hprod, ← mul_sub, norm_mul]
-        have hT : ‖tagMon ((macTags d N M z x y).image e) s'‖ ≤
-            Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
-          rw [← hprod]
-          exact norm_tagMon_macTags_le hM hκ hsκ z x y
+        have hzC := (Finset.mem_filter.1 hz).1
         rw [← hBz]
-        exact mul_le_mul hT (ha z hzC x hx y hy) (norm_nonneg _) (by positivity)
+        exact mul_le_mul (norm_tagMon_macTags_le hM hκ hsκ z x y) (ha z hzC x hx y hy)
+          (norm_nonneg _) (by positivity)
     _ ≤ _ := by
         rw [Finset.sum_const, nsmul_eq_mul]
         have : ((C.filter (fun z => macTags d N M z x y ⊆ C)).card : ℝ) ≤ C.card := by

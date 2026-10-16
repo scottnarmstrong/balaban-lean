@@ -341,6 +341,20 @@ theorem norm_tagMon_le {Pc : Type*} (V : Finset Pc) {s : Pc → ℂ} {κ : ℝ}
     _ = Real.exp (κ * V.card) := by
         rw [Finset.prod_const, mul_comm, Real.exp_nat_mul]
 
+/-- The tag monomial of the pair `(x, y)` is at most `e^{H κ} e^{κ 7^d dist(x,y) / M}`,
+`H = pdH d`, on the polydisc `‖s p‖ ≤ e^κ`; it does not depend on the size of the polymer. -/
+theorem norm_tagMon_macTags_le {d M m : ℕ} [NeZero m] (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    {s : MacIdx d m M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) (z : MacIdx d m M)
+    (x y : L1Torus d m) :
+    ‖tagMon (macTags d m M z x y) s‖ ≤
+      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
+  refine (norm_tagMon_le _ hs).trans ?_
+  rw [← Real.exp_add]
+  apply Real.exp_le_exp.2
+  have := macTags_card_le hM z x y
+  unfold pdH
+  nlinarith
+
 /-- Pointwise convolution bound for the tagged defect of any coercive `U` with exponentially
 decaying entries, before summing either endpoint.  This bound uses tag cardinalities, not
 symmetry of the operator or the tags. -/
@@ -360,14 +374,8 @@ theorem taggedK_entry_le_sum_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d
   let A₀ := 2 * A * pdLip d / (M * (g + t))
   have hA₀0 : 0 ≤ A₀ := by positivity
   have hE : ∀ z : MacIdx d N₀ M, ‖tagMon (macTags d N₀ M z x y) s‖ ≤
-      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) := by
-    intro z
-    refine (norm_tagMon_le _ hs).trans ?_
-    rw [← Real.exp_add]
-    apply Real.exp_le_exp.2
-    have := macTags_card_le hM z x y
-    unfold pdH
-    nlinarith
+      Real.exp (pdH d * κ) * Real.exp (κ * 7 ^ d * (dist x y / M)) :=
+    fun z => norm_tagMon_macTags_le hM hκ hs z x y
   unfold taggedK taggedMat
   rw [Matrix.of_apply]
   refine (norm_sum_le _ _).trans ?_
