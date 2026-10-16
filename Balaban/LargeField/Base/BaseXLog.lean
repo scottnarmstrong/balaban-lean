@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseResolventRange
+public import Balaban.LargeField.Base.BaseXLocal
 
 /-!
 # The logarithm of the first step's operator as an integral of the shifted resolvent
@@ -366,6 +367,87 @@ theorem baseCovX_log (d L N : ℕ) [NeZero L] :
       _ = _ := by ring
   · rw [hEq, hlog]
   · exact Localization.logMat_principal hres
+
+/-- **Exact core agreement of the logarithm rows.**  Let `s` be a parameter on the discs
+`‖s_P‖ ≤ e^κ` that is `1` on every cube inside `Sr`, such that every cube is inside `Sr` or
+disjoint from `Y ⊇ Sr`, and `Y` contains the neighbours of `Sr`.  Then for every site `y` of `Y`
+the logarithm integrand of the shifted covariance at `s`, `C_x(s) - (1 + x)⁻¹`, equals the one at
+the physical point for every `x ≥ 0`.  Hence its row at `y` is integrable and
+`-∫₀^∞ (C_x(s) - (1 + x)⁻¹) dx` is the row of `logMat A_e` there, although the integral of the
+other rows need not exist at `s`. -/
+theorem baseCovX_log_exact {d L N N₁ m₁ : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} [Nonempty (G.Ω 1 × Fin N)] {a : ℕ → ℝ}
+    {aT ν Cx : ℝ} (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx)
+    (ha0 : a 0 = 2) (ha1 : 0 ≤ a 1) (ha1' : a 1 ≤ 2)
+    (haT : aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1))
+    {α : G.Ω 1 → ℂ} (hα : AdmPot G α) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {δ : ℝ} (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
+    (hφ : IsConstraintField G δ φ) (hsq : ∀ z : G.Ω 1, ∑ i, φ z i * φ z i = 1)
+    {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    {Sr Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)} (hSY : Sr ⊆ Y)
+    (hdich : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+    (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr → (coverOf G).sProd s q = 1)
+    (hnbr : ∀ p q : G.Ω 1, (p : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Sr →
+      ((q : Balaban.Localization.CTorus d L N₁ m₁ 1) = p ∨
+        (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) + Pi.single μ 1 ∨
+          (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) - Pi.single μ 1) ∨
+        (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
+          G.blk (G.layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
+      (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y)
+    (y z : G.Ω 1 × Fin N) (hy : (y.1 : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y) :
+    (∀ x : ℝ, 0 ≤ x →
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z =
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α (fun _ => 1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α (fun _ => 1) φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z) ∧
+    IntegrableOn (fun x : ℝ =>
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z)
+      (Ioi 0) ∧
+    -∫ x in Ioi (0 : ℝ),
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z =
+      Localization.logMat (baseOp N (restrictField G φ)
+        (baseHamiltonian G a ν α (fun _ => 1))) y z := by
+  obtain ⟨B, hB, H⟩ := baseCovX_log d L N
+  have hM0 : Dec2.cstarX d L Cx ≤ (L : ℝ) ^ m₁ :=
+    le_trans (le_mul_of_one_le_right (Dec2.cstarX_pos d L hCx).le
+      (Real.one_le_exp (by positivity))) hM
+  have hsm0 : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4 :=
+    (mul_le_mul_of_nonneg_left (smallConstX_mono d L hκ) (sq_nonneg δ)).trans hsm
+  obtain ⟨-, hb, -, hd, -⟩ := H S hCx ha0 ha1 ha1' haT hα hM0 hδ hsm0 hφ hsq
+  have hpt : ∀ x : ℝ, 0 ≤ x →
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z =
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α (fun _ => 1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α (fun _ => 1) φ -
+          (((1 + x)⁻¹ : ℝ) : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)) y z := by
+    intro x hx
+    have h := baseCovX_exact (xCover_add_mass S hx) hCx hκ hM hδ hsm hα hs
+      (s' := fun _ => (1 : ℂ)) (fun P => by simpa using Real.one_le_exp hκ) hSY
+      (fun q hq _ => hdich q hq)
+      (fun q hq hq' => by rw [hagree q hq hq']; exact ((coverOf G).sProd_one q).symm) hnbr hφ y z hy
+    simp only [Matrix.sub_apply] at h ⊢
+    rw [h]
+  refine ⟨hpt, ?_, ?_⟩
+  · exact (hb y z).congr_fun (fun x hx => (hpt x (mem_Ioi.mp hx).le).symm) measurableSet_Ioi
+  · rw [setIntegral_congr_fun measurableSet_Ioi (fun x hx => hpt x (mem_Ioi.mp hx).le)]
+    exact hd y z
 
 end Physical
 
