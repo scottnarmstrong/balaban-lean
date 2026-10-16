@@ -236,4 +236,112 @@ theorem resum_lastScale {ι G S : Type*} (P : ι → Finset S) (Q : ι → S →
       have := W.add_mem (han ℓ X hX) hsm
       exact this
 
+section Instance
+
+/-- **The rate of the quarter-box closeness (W845).**  The bound of `finalCoef_close_quarterBox`,
+`P (C₀ e^{-c₀ M (2t - 7)} + ε) / (e^{κ₁} - 1)^n` for a coefficient with `n` cells, is at most
+`a e^{-λ t} e^{-κ' n}` with `a = P (C₀ e^{7 c₀ M} + ε₁)`, as soon as `λ ≤ 2 c₀ M`,
+`κ' ≤ log (e^{κ₁} - 1)` and the closeness `ε` of the operators on the support is at most
+`ε₁ e^{-λ t}`. -/
+theorem quarterBox_rate {Pc C₀ c₀ Mr κ₁ κ' lam ε₁ ε : ℝ} {t n : ℕ} (hP : 0 ≤ Pc) (hC : 0 ≤ C₀)
+    (hκ₁ : 0 < κ₁) (hκ' : κ' ≤ Real.log (Real.exp κ₁ - 1))
+    (hlam : lam ≤ 2 * c₀ * Mr) (hε0 : 0 ≤ ε) (hε : ε ≤ ε₁ * Real.exp (-lam * (t : ℝ))) :
+    Pc * (C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε) / (Real.exp κ₁ - 1) ^ n ≤
+      (Pc * (C₀ * Real.exp (7 * c₀ * Mr) + ε₁)) * Real.exp (-lam * (t : ℝ)) *
+        Real.exp (-κ' * (n : ℝ)) := by
+  have hbase : 0 < Real.exp κ₁ - 1 := by
+    have := Real.add_one_lt_exp hκ₁.ne'
+    linarith
+  have hden : Real.exp (κ' * (n : ℝ)) ≤ (Real.exp κ₁ - 1) ^ n := by
+    calc Real.exp (κ' * (n : ℝ)) ≤ Real.exp (Real.log (Real.exp κ₁ - 1) * (n : ℝ)) :=
+          Real.exp_le_exp.2 (mul_le_mul_of_nonneg_right hκ' (Nat.cast_nonneg _))
+      _ = (Real.exp κ₁ - 1) ^ n := by
+          rw [mul_comm, Real.exp_nat_mul, Real.exp_log hbase]
+  have ht0 : (0 : ℝ) ≤ t := Nat.cast_nonneg _
+  have hnum : C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε ≤
+      (C₀ * Real.exp (7 * c₀ * Mr) + ε₁) * Real.exp (-lam * (t : ℝ)) := by
+    have h1 : Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) ≤
+        Real.exp (7 * c₀ * Mr) * Real.exp (-lam * (t : ℝ)) := by
+      rw [← Real.exp_add]
+      refine Real.exp_le_exp.2 ?_
+      have : lam * (t : ℝ) ≤ 2 * c₀ * Mr * (t : ℝ) := mul_le_mul_of_nonneg_right hlam ht0
+      nlinarith
+    have := mul_le_mul_of_nonneg_left h1 hC
+    nlinarith
+  have hnum0 : 0 ≤ C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε := by positivity
+  have hexp : Real.exp (-κ' * (n : ℝ)) = (Real.exp (κ' * (n : ℝ)))⁻¹ := by
+    rw [← Real.exp_neg]; congr 1; ring
+  calc Pc * (C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε) / (Real.exp κ₁ - 1) ^ n
+      ≤ Pc * (C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε) / Real.exp (κ' * (n : ℝ)) :=
+        div_le_div_of_nonneg_left (by positivity) (Real.exp_pos _) hden
+    _ = Pc * (C₀ * Real.exp (-c₀ * (Mr * (2 * (t : ℝ) - 7))) + ε) *
+          Real.exp (-κ' * (n : ℝ)) := by rw [hexp, div_eq_mul_inv]
+    _ ≤ Pc * ((C₀ * Real.exp (7 * c₀ * Mr) + ε₁) * Real.exp (-lam * (t : ℝ))) *
+          Real.exp (-κ' * (n : ℝ)) := by
+        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hnum hP) (Real.exp_pos _).le
+    _ = _ := by ring
+
+/-- **The frame (W845).**  The cells of the macro cover, `Fin d → Fin K` (`MacIdx d N M` with
+`K = macK N M`), are the cells `Balaban.Torus d K` of the chain geometry of W843: there is a
+bijection that preserves the coordinates `(·).val`, so that the hypothesis "every coordinate
+`z i ≤ m` or `K - m ≤ z i`" of `finalCoef_close_quarterBox` is the box of radius `m` of
+`exists_edgeChain_map`. -/
+theorem macIdx_torus_frame {d K : ℕ} [NeZero K] :
+    ∃ e : (Fin d → Fin K) ≃ Balaban.Torus d K, (∀ z i, (e z i).val = (z i : ℕ)) ∧
+      ∀ (m : ℕ) (z : Fin d → Fin K),
+        ((∀ i, (z i : ℕ) ≤ m ∨ K - m ≤ (z i : ℕ)) ↔
+          ∀ μ, ((e z μ).val ≤ m ∨ K - m ≤ (e z μ).val)) := by
+  obtain ⟨k, rfl⟩ : ∃ k, K = k + 1 := ⟨K - 1, by have := NeZero.pos K; omega⟩
+  refine ⟨Equiv.piCongrRight fun _ => (ZMod.finEquiv (k + 1)).toEquiv, fun z i => rfl, ?_⟩
+  intro m z
+  exact Iff.rfl
+
+/-- **The resummation with the quarter-box closeness (W845).**  The hypothesis `hclose` of
+`resum_lastScale` follows from the bound delivered by `finalCoef_close_quarterBox` (in the form
+`Pc (C₀ e^{-c₀ M (2τ - 7)} + ε)/(e^{κ₁} - 1)^{|X|}` at the margin `τ`) together with a decay
+`ε ≤ ε₁ e^{-λ τ}` of the closeness of the operators `E` on the support. -/
+theorem resum_lastScale_of_quarterBox {ι G S : Type*} (P : ι → Finset S) (Q : ι → S → Prop)
+    (sz : S → ℕ) (τ : ι → S → ℕ) (Φ : ι → S → S) (can : S → ι) (D : Set G)
+    (W : Submodule ℂ (G → ℂ)) (R : S → Prop) (Ag : S → G → G → Prop) (T : ι → G → S → ℂ)
+    {B κ κ' κ₁ lam Pc C₀ c₀ Mr ε₁ : ℝ} {t₀ : ℕ} (ε : ι → G → S → ℝ)
+    (hB : 0 ≤ B) (hκ : 0 ≤ κ)
+    (hκ' : κ + Real.log 2 ≤ κ') (hlam : κ' ≤ lam) (hP : 0 ≤ Pc) (hC : 0 ≤ C₀) (hε₁ : 0 ≤ ε₁)
+    (hκ₁ : 0 < κ₁) (hκ'₁ : κ' ≤ Real.log (Real.exp κ₁ - 1)) (hlamc : lam ≤ 2 * c₀ * Mr)
+    (hcanP : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → X ∈ P (can X))
+    (hΦP : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → Φ ℓ X ∈ P ℓ ∧ ¬ Q ℓ (Φ ℓ X))
+    (hΦsz : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → sz (Φ ℓ X) ≤ sz X + τ ℓ X + 1)
+    (hfib : ∀ ℓ Z, (((P ℓ).filter (Q ℓ)).filter (fun X => Φ ℓ X = Z)).card ≤ 2 ^ sz Z)
+    (hRΦ : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → R X → R (Φ ℓ X))
+    (hAgΦ : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ∀ g g', Ag (Φ ℓ X) g g' → Ag X g g')
+    (hsupp : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0)
+    (hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X)
+    (han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W)
+    (hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖T ℓ g X‖ ≤ B * Real.exp (-κ' * (sz X : ℝ)))
+    (hcoef : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ D,
+      ‖T ℓ g X - T (can X) g X‖ ≤
+        Pc * (C₀ * Real.exp (-c₀ * (Mr * (2 * (τ ℓ X : ℝ) - 7))) + ε ℓ g X) /
+          (Real.exp κ₁ - 1) ^ sz X)
+    (hε0 : ∀ ℓ g X, 0 ≤ ε ℓ g X)
+    (hε : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ D,
+      ε ℓ g X ≤ ε₁ * Real.exp (-lam * (τ ℓ X : ℝ))) :
+    ∃ Tn : ι → G → S → ℂ,
+      (∀ ℓ g X, Tn ℓ g X = if Q ℓ X then T (can X) g X else
+        T ℓ g X + ∑ X₀ ∈ ((P ℓ).filter (Q ℓ)).filter (fun X₀ => Φ ℓ X₀ = X),
+          (T ℓ g X₀ - T (can X₀) g X₀)) ∧
+      (∀ ℓ g, ∑ X ∈ P ℓ, Tn ℓ g X = ∑ X ∈ P ℓ, T ℓ g X) ∧
+      (∀ ℓ ℓ' g X, Q ℓ X → Q ℓ' X → Tn ℓ g X = Tn ℓ' g X) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖Tn ℓ g X‖ ≤
+        (B + (Pc * (C₀ * Real.exp (7 * c₀ * Mr) + ε₁)) * Real.exp κ' +
+          2 * B * Real.exp (κ' * (t₀ : ℝ))) * Real.exp (-κ * (sz X : ℝ))) ∧
+      (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tn ℓ g X = 0) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
+      (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) := by
+  refine resum_lastScale P Q sz τ Φ can D W R Ag T hB (a := Pc * (C₀ * Real.exp (7 * c₀ * Mr) + ε₁))
+    (by positivity) hκ hκ' hlam hcanP hΦP hΦsz hfib hRΦ hAgΦ hsupp hloc han hbd ?_
+  intro ℓ X hX hQ ht g hg
+  exact (hcoef ℓ X hX hQ ht g hg).trans
+    (quarterBox_rate hP hC hκ₁ hκ'₁ hlamc (hε0 ℓ g X) (hε ℓ X hX hQ ht g hg))
+
+end Instance
+
 end Balaban.Polymer
