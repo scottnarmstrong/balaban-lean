@@ -5,7 +5,7 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 76% of the Lean by volume, and about 47% when weighted by difficulty and
+**Overall estimate: about 77% of the Lean by volume, and about 48% when weighted by difficulty and
 risk.**
 
 - **By volume.** About 660,000 lines are written (the [size table](#size-of-the-lean-by-area)
@@ -89,3 +89,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-14 (evening) | ~74% | ~44% | Blocker 6: replacement identity for two generating sets, local covariance and fluctuation variable; last integral on two tori (up to winding terms); Root-F constants satisfiable in the root's quantifier order; blocker 7 analysed at the last scales |
 | 2026-10-14 (night) | ~75% | ~45% | Blocker 6: replacement identity at the local generating set with a collar and the local fluctuation variable; last integral: second-order bound of the interaction, amplitude β^{-1} as in the papers, determinant ratio proportional to the perturbation; two-torus closeness of the final operator; Root-F skeleton re-audited |
 | 2026-10-16 | ~76% | ~47% | Blockers re-read against the Yang–Mills account; blocker 4 resolved in Lean up to the physical inputs (clusters on the core); blocker 6 local class: locality, bound, rotation, extension off the domain; first step: shifted resolvent and square root uniform in the shift; last scale: two-torus closeness uniform in the scale; root constants for every dimension, principal logarithm |
+| 2026-10-16 (late) | ~77% | ~48% | Blocker 6 local class assembled at the new level (energy and source parts; design review of the filing of old terms running); blocker 7 last scale: resummation with the infinite-volume limit and a two-torus closeness uniform in the support size; first step: background identified with the step's, logarithm at the physical point, localization; blocker 4 gas bound down to the small factor of removed components; blocker 2 route leaves |
