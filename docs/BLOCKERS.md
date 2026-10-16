@@ -19,7 +19,7 @@ The last section lists the problems that have been resolved since the project st
 | # | Issue | Where | Blocks | Status |
 |---|---|---|---|---|
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
-| 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; the Yang–Mills papers never switch, supporting the no-switch design; the collar condition is unproved there too |
+| 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius and a constant check remain (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
@@ -74,6 +74,8 @@ them.
 In Bałaban's Yang–Mills papers the source stays a free complex variable at every scale and the
 background is never switched, which supports the design without a switch; the same collar condition is
 printed there without proof (as read in the account of [ethanwsussman/Yang--Mills-LLM-experiment](https://github.com/ethanwsussman/Yang--Mills-LLM-experiment); `notes/phase1/YMACCOUNT.md`).
+
+A route along these lines (`notes/phase1/Q13-YM.md`): keep the large-field tests free of the external field up to the switching scale and carry the field in the weight, which preserves the symmetry the tests need; extend the direction tests of P5 (1.19) over the collar that the background reads. What remains unproved is the activity bound on the transverse source radius of order β^{-1/2}, and a check of the constant p₀ against P5 (1.30).
 
 Details: `notes/phase1/Q13-DECISION.md`, `Q13-LATE.md`, `Q13-LATE2.md`. Item 13 and its addenda.
 
