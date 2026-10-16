@@ -1977,3 +1977,5 @@ public import Balaban.Fluctuation.LocalClassTau
 public import Balaban.Fluctuation.LocalClassM
 public import Balaban.Fluctuation.LocalClassMRot
 public import Balaban.Green.FinalCrossTerm
+public import Balaban.Polymer.TwoTorusEdgeChain
+public import Balaban.Polymer.TwoTorusResum
