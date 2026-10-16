@@ -1978,3 +1978,4 @@ public import Balaban.Fluctuation.LocalClassM
 public import Balaban.Green.FinalCrossTerm
 public import Balaban.Polymer.TwoTorusEdgeChain
 public import Balaban.Polymer.TwoTorusResum
+public import Balaban.Polymer.TwoTorusResumInstance
