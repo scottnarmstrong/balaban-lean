@@ -27,7 +27,7 @@ factor in `nC` (`final_coef_logdet_close_twoTorus_unif_weighted`,
 
 @[expose] public section
 
-open Finset Matrix Balaban.Localization MeasureTheory
+open Finset Matrix Balaban.Localization Balaban.Analysis MeasureTheory
 
 namespace Balaban.Green
 
@@ -434,6 +434,73 @@ theorem final_coef_logdet_close_twoTorus_unif_weighted (hd : 0 < d) (hM : 0 < M)
           mul_le_mul_of_nonneg_left hb (by positivity)
       _ ≤ nC * Hk * (cK * (Real.sqrt ε₀ + Real.sqrt εE)) :=
           mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCc' hHk0.le) (by positivity)
+
+/-- **The coefficients of the cutoff interaction of the final operators on two tori, polynomial in
+the number of cells (blocker 7, weighted).**  As `final_coef_cutoffInteraction_close_twoTorus_unif`,
+with the constant `P` independent of the bound `nC ≥ |C|` of the number of cells: the entries of
+the Stieltjes families differ by `P (nC² + nC⁴) √ε₀ / √g`
+(`final_taggedCfinU_close_weighted`), with no factor `e^{κ nC}`. -/
+theorem final_coef_cutoffInteraction_close_twoTorus_unif_weighted (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ (nC : ℕ) {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (P * ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * Real.sqrt (C₀ * Real.exp (-c₀ *
+            (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+            Real.sqrt (finalGap d L)) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card 
+:= by
+  have hκ0 : 0 ≤ κ := by linarith
+  obtain ⟨C₀, c₀, hC₀, hc₀, hreg⟩ := final_region_entry_close_unif (L := L) hd
+  obtain ⟨P, hP0, hP⟩ := final_taggedCfinU_close_weighted (L := L) hd hM hκ0 hMB hMκ
+  refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
+  intro nC k hk
+  refine final_coef_cutoffInteraction_close_core hd hM hκ hMB hMκ nC hk
+    (δ := fun J N N' => P * ((nC : ℝ) ^ 2 + (nC : ℝ) ^ 4) * Real.sqrt (C₀ * Real.exp (-c₀ *
+      (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) / Real.sqrt (finalGap d L))
+    (fun _ _ _ => by positivity) ?_
+  intro J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass s hs s' hs' hss hsκ x y hx hy
+  have := hP nC hk hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass
+    (fun p hp q hq => hreg hk hv0 hv1 ha1 ha2 hmass hM hN hN' hf hC p hp q hq) hs hs' hss hsκ hx hy
+  rw [mul_div_assoc] at this ⊢
+  exact this
 
 end Unif
 
