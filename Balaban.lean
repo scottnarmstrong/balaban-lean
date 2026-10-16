@@ -1986,8 +1986,11 @@ public import Balaban.Localization.LatPairGeom
 public import Balaban.Fluctuation.LocalClassLatData
 public import Balaban.Fluctuation.LocalClassLatPaving
 public import Balaban.Fluctuation.LocalClassM
+public import Balaban.Fluctuation.LocalClassMRot
 public import Balaban.Green.FinalCrossTerm
 public import Balaban.Fluctuation.LocalClassAssembly
 public import Balaban.Fluctuation.LocalClassLatTau
 public import Balaban.Polymer.TwoTorusEdgeChain
 public import Balaban.Polymer.TwoTorusResum
+public import Balaban.Polymer.TwoTorusResumInstance
+public import Balaban.Polymer.TwoTorusResumLimit
