@@ -23,7 +23,7 @@ The last section lists the problems that have been resolved since the project st
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms; the full lattice clause, complex rotations and the assembly of the next level remain |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
@@ -236,6 +236,14 @@ covariantly — now done by averaging over the paving group, with covariance of 
 proved), the clause for the full lattice symmetry group (which moves supports off the paving), complex
 rotations, and the assembly of the next level. The source terms (the M-part) now
 have analyticity, locality, the summed bound and covariance under real rotations as well.
+
+A review of the assembly against the papers (October 16, `notes/phase1/LOCALCLASS-REVIEW.md`) found
+that we had filed whole old terms at the new level. In the papers (P4 Theorem 2 and (4.17)–(4.22)) an
+old term keeps its level, its domain, its generating set and its bound; only the new contributions
+created by the fluctuation integral and the renormalization go to the new level, and those are the terms
+whose analyticity requires the local generating sets. The general results above carry over; the
+assembly is being redone in this form. We also restrict the rotation symmetry of the class to real
+rotations, as the papers state it, and label the new terms by centres for the full lattice symmetry.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
