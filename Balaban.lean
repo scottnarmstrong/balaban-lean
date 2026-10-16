@@ -1686,6 +1686,9 @@ public import Balaban.Fluctuation.RenormEndpoint
 public import Balaban.Fluctuation.RenormEndpointSharp
 public import Balaban.Fluctuation.RenormC2Local
 public import Balaban.LargeField.R.D7ReserveArithmetic
+public import Balaban.LargeField.Regime.A0PrimeWeight
+public import Balaban.LargeField.Regime.A0PrimeReserve
+public import Balaban.LargeField.Regime.A0PrimeSupport
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.MarkedVRawY
 public import Balaban.Fluctuation.MarkedCubicJoint
