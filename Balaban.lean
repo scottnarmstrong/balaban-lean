@@ -2001,3 +2001,4 @@ public import Balaban.Polymer.TwoTorusResumLimit
 public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
+public import Balaban.Green.FinalTaggedWeightedGfin
