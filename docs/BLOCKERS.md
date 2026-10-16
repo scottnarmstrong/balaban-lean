@@ -22,7 +22,7 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; the Yang–Mills papers never switch, supporting the no-switch design; the collar condition is unproved there too |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound); one cross term, large fields and the joins remain |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity, analyticity, locality, bound and rotation covariance of the local terms; lattice covariance and the M-part remain |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; a last-scale design exists; the scales just below the last may need a floor on the torus size (item 24) |
 
@@ -179,7 +179,11 @@ Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 The papers' last step was re-read for the size of the final term: they integrate at the constant
 saddle, so the Hessian does not depend on the source g, and the identity is normalized at g = 0. The
 smallness comes from the g-derivative of the inherited term (P4 Prop. 2.2), of size β^{-1} rather than
-β^{-2}; that bound is not yet formalized.
+β^{-2}. The estimates this needs are now proved in a general form: the part of the interaction that is
+linear in the fluctuation averages to zero against the symmetric cutoff Gaussian, the remainder is of
+second order, and the cross term of the linear part with the source-free exponent is controlled by a
+third-order bound on its odd part. What remains is to identify these pieces with the physical density
+of the last step, and the large-field part.
 
 ## 6. Local generating sets and analyticity on their domains
 
