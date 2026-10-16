@@ -227,4 +227,85 @@ theorem edgeChain_isPolymer {s t : ℕ} [NeZero s] (Y Z : Finset (Balaban.Torus 
 
 end Chain
 
+section EdgeBand
+
+variable {d K : ℕ}
+
+theorem card_fiber_le_two_pow {B : Type*} [Fintype B] [DecidableEq B] (P : Finset B → Prop)
+    (Φ : Finset B → Finset B) (hΦ : ∀ Y, P Y → Y ⊆ Φ Y) (Z : Finset B) :
+    ((Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z)).card ≤ 2 ^ Z.card := by
+  have hsub : ((Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z)) ⊆
+      Z.powerset := by
+    intro Y hY
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hY
+    obtain ⟨h1, rfl⟩ := hY
+    exact Finset.mem_powerset.2 (hΦ Y h1)
+  exact (Finset.card_le_card hsub).trans (by rw [Finset.card_powerset])
+
+/-- **The edge band (W843, blocker 7, leaf 3).**  Let `T Y` be the terms of the polymers `Y` of a
+class `P` with the crude bound `‖T Y‖ ≤ c e^{-κ' |Y|}` (rate `κ'` in the number of cells), and let
+`Φ` enlarge each `Y` of the class by a chain of at most `t + 1` cells (`Y ⊆ Φ Y`,
+`|Φ Y| ≤ |Y| + t + 1`).  Then the sum of the terms over the polymers enlarged to `Z` is bounded by
+`c e^{κ' (t + 1)} e^{-κ |Z|}` as soon as `κ + log 2 ≤ κ'`: the `κ'`-decay pays the chain
+(`e^{κ' (t+1)}`) and the `2 ^ |Z|` preimages (`log 2` of the rate). -/
+theorem edgeBand_fiber_bound {B : Type*} [Fintype B] [DecidableEq B] (P : Finset B → Prop)
+    (Φ : Finset B → Finset B) (T : Finset B → ℂ) {c κ κ' : ℝ} {t : ℕ} (hc : 0 ≤ c)
+    (hκ0 : 0 ≤ κ) (hκ : κ + Real.log 2 ≤ κ') (hsub : ∀ Y, P Y → Y ⊆ Φ Y)
+    (hcard : ∀ Y, P Y → (Φ Y).card ≤ Y.card + (t + 1))
+    (hT : ∀ Y, P Y → ‖T Y‖ ≤ c * Real.exp (-κ' * (Y.card : ℝ))) (Z : Finset B) :
+    ‖∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z), T Y‖ ≤
+      c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ * (Z.card : ℝ)) := by
+  have hκ' : 0 ≤ κ' - κ := by
+    have : 0 ≤ Real.log 2 := Real.log_nonneg (by norm_num)
+    linarith
+  have hterm : ∀ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z),
+      ‖T Y‖ ≤ c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ' * (Z.card : ℝ)) := by
+    intro Y hY
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hY
+    obtain ⟨hP, rfl⟩ := hY
+    have h1 : ((Φ Y).card : ℝ) ≤ (Y.card : ℝ) + ((t : ℝ) + 1) := by exact_mod_cast hcard Y hP
+    refine (hT Y hP).trans ?_
+    rw [mul_assoc, ← Real.exp_add]
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc
+    have hk0 : 0 ≤ κ' := le_trans (by have := Real.log_nonneg (by norm_num : (1 : ℝ) ≤ 2); linarith) hκ
+    nlinarith
+  have hcnt := card_fiber_le_two_pow P Φ hsub Z
+  have h2 : ((2 : ℝ) ^ Z.card) = Real.exp ((Z.card : ℝ) * Real.log 2) := by
+    rw [Real.exp_nat_mul, Real.exp_log (by norm_num)]
+  calc ‖∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z), T Y‖
+      ≤ ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z), ‖T Y‖ :=
+        norm_sum_le _ _
+    _ ≤ ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z),
+          c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ' * (Z.card : ℝ)) :=
+        Finset.sum_le_sum hterm
+    _ = (((Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z)).card : ℝ) *
+          (c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ' * (Z.card : ℝ))) := by
+        rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ ((2 : ℝ) ^ Z.card) *
+          (c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ' * (Z.card : ℝ))) := by
+        refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+        exact_mod_cast hcnt
+    _ = c * Real.exp (κ' * ((t : ℝ) + 1)) *
+          Real.exp ((Z.card : ℝ) * Real.log 2 + -κ' * (Z.card : ℝ)) := by
+        rw [h2, Real.exp_add]; ring
+    _ ≤ c * Real.exp (κ' * ((t : ℝ) + 1)) * Real.exp (-κ * (Z.card : ℝ)) := by
+        refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (by positivity)
+        have : (0 : ℝ) ≤ Z.card := Nat.cast_nonneg _
+        nlinarith
+
+/-- The edge band at the rate `κ' = 8 κ + 2` of the brief: for `κ ≥ 0` the hypothesis
+`κ + log 2 ≤ κ'` holds, and the sum over the preimages is bounded by
+`c e^{(8κ + 2)(t + 1)} e^{-κ |Z|}`; for `t ≤ 4` the prefactor is `c e^{5 (8κ + 2)}`. -/
+theorem edgeBand_fiber_bound_rate {B : Type*} [Fintype B] [DecidableEq B] (P : Finset B → Prop)
+    (Φ : Finset B → Finset B) (T : Finset B → ℂ) {c κ : ℝ} {t : ℕ} (hc : 0 ≤ c) (hκ : 0 ≤ κ)
+    (hsub : ∀ Y, P Y → Y ⊆ Φ Y) (hcard : ∀ Y, P Y → (Φ Y).card ≤ Y.card + (t + 1))
+    (hT : ∀ Y, P Y → ‖T Y‖ ≤ c * Real.exp (-(8 * κ + 2) * (Y.card : ℝ))) (Z : Finset B) :
+    ‖∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => P Y ∧ Φ Y = Z), T Y‖ ≤
+      c * Real.exp ((8 * κ + 2) * ((t : ℝ) + 1)) * Real.exp (-κ * (Z.card : ℝ)) := by
+  refine edgeBand_fiber_bound P Φ T hc hκ ?_ hsub hcard hT Z
+  have := Real.log_two_lt_d9
+  linarith
+
+end EdgeBand
+
 end Balaban.Polymer
