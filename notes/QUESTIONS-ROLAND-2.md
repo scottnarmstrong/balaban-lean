@@ -336,6 +336,13 @@ additional decay of the coefficients across the retained component?
 (Details: `notes/phase1/VMOD-40.md`, `VMOD-41.md`, `VMOD-42.md`. The same geometry is behind
 item 14 (iv).)
 
+
+### Item 16, addendum (2026-10-16): clusters on the core?
+
+In P7 p. 528 the cluster {X_1,...,X_p} is "determined by the condition that UX_i is a connected domain" and p. 527-528 takes the Mayer expansion of the curly bracket of (3.26) with the retained-region variables fixed. Is this connectedness meant on the core UX_i minus Y_k (so that two old boundary terms whose domains overlap only inside a retained large-field component of Y_k are not linked, as in the Yang-Mills gas of CMP122b (1.90)-(1.91), pp. 386-388, and CMP116 (2.11), where clusters live on X' minus U Y_i and two components are connected only through a localization domain having cubes of the core in both)? If so, the "disjoint domains X_i" of (3.27) are core-disjoint, and the size of a polymer in (3.28) does not charge the length through retained holes, because the sum over X in D_k(mod Omega_k^c cap Y_k) is then of products of such polymers. If not, what pays the length between two attachments of labels that overlap in a retained component, given that (3.10) gives a factor e^{-p_2-H_k|Z|} only for removed Z? Also: does B''(X, A'') depend on A'' only through A'' cap X, and are the halos (Z^{~~2})^{~2} of distinct removed components disjoint from each other and from the retained components?
+
+(Details: `notes/phase1/VMOD-43.md`; the Yang–Mills analogue as read in the public account linked from `notes/phase1/YMACCOUNT.md`.)
+
 ### Item 17 (2026-10-13): the base case k = 0 of the large-field induction, and the last integral when k_f = 0
 
 P5 (H.1), (1.1) writes the density rho_k as a sum over large-field regions Z_k of terms carrying

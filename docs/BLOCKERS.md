@@ -88,6 +88,14 @@ hole between their attachments. The factor of P7 (3.10) does not grow with the s
 component. We do not see what pays this length in the bound for the polymer activity, or whether an
 incidence restriction excludes such links.
 
+A possible resolution (October 16): in Bałaban's Yang–Mills large-field gas (CMP 122 pp. 386–388,
+as read in the account of [ethanwsussman/Yang--Mills-LLM-experiment](https://github.com/ethanwsussman/Yang--Mills-LLM-experiment)),
+clusters are formed after the retained large-field components are removed, so two labels overlapping only
+inside a retained component are not linked and the length through it is never paid. Read the same way,
+P7 pp. 527–528 keeps the cluster identity, provided the boundary terms read the frozen data only inside
+their own domains and the halos of removed components stay apart. The question to the author is now
+item 16 with its addendum (`notes/phase1/VMOD-43.md`).
+
 Details: `notes/phase1/VMOD-40.md` to `VMOD-42.md`. Item 16.
 
 A comparison with Dimock's large-field papers (`notes/phase1/LFDIMOCK.md`) found no direct substitute for the
