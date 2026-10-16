@@ -428,6 +428,27 @@ theorem baseCovX_bound (d L : ℕ) [NeZero L] (κ : ℝ) :
     mul_le_mul hc hBase (norm_nonneg _) zero_le_one
   linarith
 
+/-- **The first step's resolvent `(A_e + x)⁻¹` is bounded entrywise, uniformly in `x ≥ 0`.**  The
+bound `B` depends only on `d` and `L`. -/
+theorem baseResolvent_entry_bound (d L : ℕ) [NeZero L] :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {N₁ m₁ N : ℕ} [NeZero N₁] {ϱ : ℝ}
+      {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx x : ℝ}
+      (_S : Dec2.XCover (coverOf G) G a aT (ν + x) Cx) (_hCx : 0 ≤ Cx) (_hx : 0 ≤ x)
+      (_ha0 : a 0 = 2) (_ha1 : 0 ≤ a 1) (_ha1' : a 1 ≤ 2)
+      (_haT : aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1))
+      {α : G.Ω 1 → ℂ} (_hα : AdmPot G α)
+      (_hM : Dec2.cstarX d L Cx ≤ (L : ℝ) ^ m₁) {δ : ℝ} (_hδ : 0 ≤ δ)
+      (_hsm : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+      {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
+      (_hφ : IsConstraintField G δ φ) (_hsq : ∀ z : G.Ω 1, ∑ i, φ z i * φ z i = 1)
+      (y z : G.Ω 1 × Fin N),
+      ‖baseResolvent N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1)) x y z‖ ≤ B := by
+  obtain ⟨B, hB0, H⟩ := baseCovX_bound d L 0
+  refine ⟨B, hB0, ?_⟩
+  intro N₁ m₁ N _ ϱ G a aT ν Cx x S hCx hx ha0 ha1 ha1' haT α hα hM δ hδ hsm φ hφ hsq y z
+  rw [(baseCovX_one S hCx hx ha0 ha1 ha1' haT hα hM hδ hsm hφ hsq).1]
+  exact H S hCx hx le_rfl (by simpa using hM) hδ hsm hα (fun P => by simp) hφ y z
+
 end Bound
 
 end Balaban.LargeField.Base
