@@ -9,6 +9,8 @@ public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.Localization.Decoupled2XAnalytic
 public import Balaban.Localization.DecoupledCovariance
 public import Balaban.Localization.Dec2Covariance
+public import Balaban.Multiscale.ConstraintMain
+public import Balaban.Multiscale.ConstraintSandwich
 
 /-!
 # The x-dependent constrained covariance of the first step
@@ -203,5 +205,152 @@ theorem baseCovX_analytic {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : �
   exact (((hP.smul_const ((1 + (x : ℂ))⁻¹)).add hGl).sub hPi) y z
 
 end Analytic
+
+section Bound
+
+variable {d L N₁ m₁ N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+
+/-- An entry of a vector field is bounded by the weighted norm `vecM`. -/
+theorem entry_sq_le_vecM (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (s : G.Ω 1 × Fin N → ℂ)
+    (p : G.Ω 1) (i : Fin N) :
+    ‖s (p, i)‖ ^ 2 ≤ (L : ℝ) ^ 2 * vecM G 0 (fun _ => 0) s := by
+  have hsp : G.spacing (p : Torus d (N₁ * L ^ m₁ * L ^ 1)) = (L : ℝ) ^ 1 :=
+    spacing_of_mem_Ωk G (le_refl 1) p.2
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  unfold vecM wsq
+  have h1 := Finset.single_le_sum
+    (f := fun y : Torus d (N₁ * L ^ m₁ * L ^ 1) =>
+      invSqSpacing G y * (Real.exp (0 * (fun _ => (0 : ℝ)) y) * vn (svec G s y)) ^ 2)
+    (fun y _ => mul_nonneg (invSqSpacing_nonneg G y) (sq_nonneg _))
+    (Finset.mem_univ (p : Torus d (N₁ * L ^ m₁ * L ^ 1)))
+  have h2 : ‖s (p, i)‖ ^ 2 ≤ vn (svec G s p) ^ 2 := by
+    rw [vn_sq]
+    have := Finset.single_le_sum (f := fun i' : Fin N => ‖svec G s p i'‖ ^ 2)
+      (fun _ _ => sq_nonneg _) (Finset.mem_univ i)
+    simpa [svec_of_mem] using this
+  have h3 : invSqSpacing G (p : Torus d (N₁ * L ^ m₁ * L ^ 1)) = ((L : ℝ) ^ 2)⁻¹ := by
+    rw [invSqSpacing_eq G p.2, hsp]; simp
+  simp only [zero_mul, Real.exp_zero, one_mul] at h1 ⊢
+  rw [h3] at h1
+  calc ‖s (p, i)‖ ^ 2 ≤ vn (svec G s p) ^ 2 := h2
+    _ = (L : ℝ) ^ 2 * (((L : ℝ) ^ 2)⁻¹ * vn (svec G s p) ^ 2) := by
+        field_simp
+    _ ≤ _ := mul_le_mul_of_nonneg_left h1 (by positivity)
+
+omit [NeZero N₁] in
+/-- Entries of a matrix are the components of its action on a basis vector. -/
+theorem mulVec_single_entry {ι : Type*} [Fintype ι] [DecidableEq ι] (M : Matrix ι ι ℂ) (p q : ι) :
+    (M *ᵥ (Pi.single q 1 : ι → ℂ)) p = M p q := by
+  simp [Matrix.mulVec, dotProduct, Pi.single_apply]
+
+/-- The weighted source norm of a basis vector is at most `L²`. -/
+theorem vecSrc_single_le (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (q : G.Ω 1) (j : Fin N) :
+    vecSrc G 0 (fun _ => 0) (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ) ≤ (L : ℝ) ^ 2 := by
+  have hsp : G.spacing (q : Torus d (N₁ * L ^ m₁ * L ^ 1)) = (L : ℝ) ^ 1 :=
+    spacing_of_mem_Ωk G (le_refl 1) q.2
+  unfold vecSrc
+  rw [Finset.sum_eq_single j]
+  · rw [agmonSource_eq, Finset.sum_eq_single q]
+    · simp [Multiscale.comp, hsp]
+    · intro z _ hz
+      have : Multiscale.comp G (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ) j z = 0 := by
+        simp [Multiscale.comp, hz]
+      simp [this]
+    · simp
+  · intro i _ hi
+    rw [agmonSource_eq]
+    refine Finset.sum_eq_zero fun z _ => ?_
+    have : Multiscale.comp G (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ) i z = 0 := by
+      simp [Multiscale.comp, hi]
+    simp [this]
+  · simp
+
+/-- `|u - v|² ≤ 2|u|² + 2|v|²` for the weighted source norm. -/
+theorem agmonSource_sub_le (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (u v : G.Ω 1 → ℂ) :
+    agmonSource G 0 (fun _ => 0) (u - v) ≤
+      2 * agmonSource G 0 (fun _ => 0) u + 2 * agmonSource G 0 (fun _ => 0) v := by
+  simp only [agmonSource_eq, Pi.sub_apply]
+  rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_le_sum fun x _ => ?_
+  have h2 : ‖u x - v x‖ ^ 2 ≤ 2 * ‖u x‖ ^ 2 + 2 * ‖v x‖ ^ 2 := by
+    have h := norm_sub_le (u x) (v x)
+    nlinarith [sq_nonneg (‖u x‖ - ‖v x‖), norm_nonneg (u x), norm_nonneg (v x),
+      norm_nonneg (u x - v x)]
+  have h0 : 0 ≤ G.spacing x ^ 2 * Real.exp (0 * (fun _ => (0 : ℝ)) x) ^ 2 := by positivity
+  nlinarith [mul_le_mul_of_nonneg_left h2 h0]
+
+/-- **Weighted bounds on vector fields.**  With the data `Dec2.XData` at `x' = 0` (the mass `ν` is
+arbitrary), the vector fields `Ĝ g` and `Π g` obey `vecM ≤ c E² vecSrc g` with `c` depending on `d`
+only and `E = e^{N₀ κ}`. -/
+theorem baseCovX_vec_bound {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ}
+    {aT ν Cx κ δ : ℝ} {α : G.Ω 1 → ℂ}
+    {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (D : Dec2.XData (coverOf G) G a aT ν 0 α κ s Cx)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (g : G.Ω 1 × Fin N → ℂ) :
+    vecM G 0 (fun _ => 0) (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ g) ≤
+        valConstX d * Real.exp (N0 d L * κ) ^ 2 * vecSrc G 0 (fun _ => 0) g ∧
+      vecM G 0 (fun _ => 0) (Dec2.decPi (coverOf G) G a aT 0 ν α s φ *ᵥ g) ≤
+        42 * (valConstX d * Real.exp (N0 d L * κ) ^ 2) * vecSrc G 0 (fun _ => 0) g := by
+  have hd : 0 < d := by have := D.st.hd; omega
+  have W : XWeight G 0 (fun _ => 0) :=
+    ⟨isAgmonWeight_zero G, le_rfl, (xAgmonRate_pos hd D.st.hL).le⟩
+  have hV : 0 ≤ valConstX d * Real.exp (N0 d L * κ) ^ 2 := by
+    unfold valConstX; positivity
+  have hS := vecSrc_nonneg G 0 (fun _ => 0) g
+  refine ⟨(Gsx_vec_bounds_cover D W g).1, ?_⟩
+  set h : G.Ω 1 → ℂ := (Dec2.decM (coverOf G) G a aT 0 ν α s φ)⁻¹ *ᵥ
+    (Dec2.decN (coverOf G) G a aT 0 ν α s φ *ᵥ g) with hh
+  have e1 : Dec2.decPi (coverOf G) G a aT 0 ν α s φ *ᵥ g =
+      liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ (fieldMul (restrictField G φ) *ᵥ h) := by
+    unfold Dec2.decPi
+    rw [hh, Matrix.mulVec_mulVec, Matrix.mulVec_mulVec, Matrix.mulVec_mulVec]
+  have A1 : vecM G 0 (fun _ => 0) (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ
+      (fieldMul (restrictField G φ) *ᵥ h)) ≤ valConstX d * Real.exp (N0 d L * κ) ^ 2 *
+        vecSrc G 0 (fun _ => 0) (fieldMul (restrictField G φ) *ᵥ h) :=
+    (Gsx_vec_bounds_cover D W (fieldMul (restrictField G φ) *ᵥ h)).1
+  have A2 := vecSrc_fieldMul_le (ε := 0) (r := fun _ => 0) hφ h
+  have A3 : agmonSource G 0 (fun _ => 0) h ≤
+      4 * agmonSource G 0 (fun _ => 0) (Dec2.decN (coverOf G) G a aT 0 ν α s φ *ᵥ g) :=
+    decM_inv_le_cover D W hφ hδ hsm (Dec2.decN (coverOf G) G a aT 0 ν α s φ *ᵥ g)
+  have hN : Dec2.decN (coverOf G) G a aT 0 ν α s φ *ᵥ g =
+      (fieldMul (restrictField G φ))ᵀ *ᵥ g -
+        commK (xDirichletOperator G a aT 0 ν α) (restrictField G φ) *ᵥ
+          (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ g) := by
+    unfold Dec2.decN constraintN
+    rw [Matrix.sub_mulVec, Matrix.mulVec_mulVec]
+  have A4 := agmonSource_sub_le G ((fieldMul (restrictField G φ))ᵀ *ᵥ g)
+    (commK (xDirichletOperator G a aT 0 ν α) (restrictField G φ) *ᵥ
+          (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ g))
+  have A5 := agmonSource_fieldMul_transpose_le (ε := 0) (r := fun _ => 0) hφ g
+  have A6 : agmonSource G 0 (fun _ => 0) (commK (xDirichletOperator G a aT 0 ν α)
+      (restrictField G φ) *ᵥ (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 ν α s) *ᵥ g)) ≤
+        δ ^ 2 * kConstX d L κ * vecSrc G 0 (fun _ => 0) g :=
+    commKx_Gsx_le_cover D W hφ.toIsSmoothField hδ g
+  rw [← hN] at A4
+  have hk0 := kConstX_nonneg d L κ
+  have hsm' : δ ^ 2 * kConstX d L κ ≤ 1 / 18 := by
+    unfold smallConstX at hsm
+    nlinarith [sq_nonneg δ]
+  have hAh := agmonSource_nonneg G 0 (fun _ => 0) h
+  have hn0 := agmonSource_nonneg G 0 (fun _ => 0)
+    (Dec2.decN (coverOf G) G a aT 0 ν α s φ *ᵥ g)
+  rw [e1]
+  have hv : δ ^ 2 * kConstX d L κ * vecSrc G 0 (fun _ => 0) g ≤
+      1 / 18 * vecSrc G 0 (fun _ => 0) g := mul_le_mul_of_nonneg_right hsm' hS
+  have hb : agmonSource G 0 (fun _ => 0) h ≤
+      4 * (2 * (9 / 4 * vecSrc G 0 (fun _ => 0) g) + 2 * (1 / 18 * vecSrc G 0 (fun _ => 0) g)) := by
+    calc _ ≤ _ := A3
+      _ ≤ _ := by nlinarith
+  have hc : vecSrc G 0 (fun _ => 0) (fieldMul (restrictField G φ) *ᵥ h) ≤
+      9 / 4 * (4 * (2 * (9 / 4 * vecSrc G 0 (fun _ => 0) g) +
+        2 * (1 / 18 * vecSrc G 0 (fun _ => 0) g))) := A2.trans (by nlinarith)
+  calc _ ≤ _ := A1
+    _ ≤ valConstX d * Real.exp (N0 d L * κ) ^ 2 *
+        (9 / 4 * (4 * (2 * (9 / 4 * vecSrc G 0 (fun _ => 0) g) +
+          2 * (1 / 18 * vecSrc G 0 (fun _ => 0) g)))) := mul_le_mul_of_nonneg_left hc hV
+    _ ≤ _ := by nlinarith [mul_nonneg hV hS]
+
+end Bound
 
 end Balaban.LargeField.Base
