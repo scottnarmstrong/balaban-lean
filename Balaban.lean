@@ -2002,6 +2002,9 @@ public import Balaban.Polymer.TwoTorusResum
 public import Balaban.Polymer.TwoTorusResumInstance
 public import Balaban.Polymer.TwoTorusResumLimit
 public import Balaban.Polymer.TwoTorusResumRootF
+public import Balaban.Fluctuation.LocalClassAssembleE
+public import Balaban.Fluctuation.LocalClassAssembleM
+public import Balaban.Fluctuation.LocalClassLabels
 public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
