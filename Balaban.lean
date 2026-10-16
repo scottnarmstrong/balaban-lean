@@ -2010,3 +2010,6 @@ public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
 public import Balaban.LargeField.R.RGasCoreInputs
 public import Balaban.LargeField.R.RGasCoreConn
+public import Balaban.Green.FinalCoefWeighted
+public import Balaban.Polymer.TwoTorusFibreWeighted
+public import Balaban.Polymer.TwoTorusResumWired
