@@ -485,4 +485,192 @@ theorem baseCovX_exact {κ δ : ℝ} {α : G.Ω 1 → ℂ}
 
 end CovExact
 
+section Interp
+
+open MeasureTheory Set
+
+/-- An integrand `x^{-1/2} F(x)` with `0 ≤ F ≤ min (A / (1 + x)) b` has integral at most
+`4 √(A b)` on `(0, ∞)`. -/
+theorem stieltjes_interp {A b : ℝ} (hA : 0 ≤ A) (hb : 0 ≤ b) {F : ℝ → ℝ}
+    (hF0 : ∀ x, 0 < x → 0 ≤ F x) (hF1 : ∀ x, 0 < x → F x ≤ A / (1 + x))
+    (hF2 : ∀ x, 0 < x → F x ≤ b)
+    (hint : IntegrableOn (fun x : ℝ => x ^ (-(1 / 2 : ℝ)) * F x) (Ioi 0)) :
+    ∫ x in Ioi (0 : ℝ), x ^ (-(1 / 2 : ℝ)) * F x ≤ 4 * Real.sqrt (A * b) := by
+  have hr0 : ∀ x : ℝ, 0 < x → 0 < x ^ (-(1 / 2 : ℝ)) := fun x hx => Real.rpow_pos_of_pos hx _
+  rcases hA.eq_or_lt with hA0 | hApos
+  · have hz : ∀ x ∈ Ioi (0 : ℝ), x ^ (-(1 / 2 : ℝ)) * F x = 0 := by
+      intro x hx
+      have hx' : 0 < x := hx
+      have : F x ≤ 0 := by have := hF1 x hx'; rwa [← hA0, zero_div] at this
+      rw [le_antisymm this (hF0 x hx'), mul_zero]
+    rw [setIntegral_congr_fun measurableSet_Ioi hz, integral_zero, ← hA0, zero_mul,
+      Real.sqrt_zero, mul_zero]
+  rcases hb.eq_or_lt with hb0 | hbpos
+  · have hz : ∀ x ∈ Ioi (0 : ℝ), x ^ (-(1 / 2 : ℝ)) * F x = 0 := by
+      intro x hx
+      have hx' : 0 < x := hx
+      have : F x ≤ 0 := by have := hF2 x hx'; rwa [← hb0] at this
+      rw [le_antisymm this (hF0 x hx'), mul_zero]
+    rw [setIntegral_congr_fun measurableSet_Ioi hz, integral_zero, ← hb0, mul_zero,
+      Real.sqrt_zero, mul_zero]
+  set X : ℝ := A / b with hXdef
+  have hX : 0 < X := div_pos hApos hbpos
+  have hsplit : ∫ x in Ioi (0 : ℝ), x ^ (-(1 / 2 : ℝ)) * F x =
+      (∫ x in Ioc (0 : ℝ) X, x ^ (-(1 / 2 : ℝ)) * F x) +
+        ∫ x in Ioi X, x ^ (-(1 / 2 : ℝ)) * F x := by
+    rw [← Set.Ioc_union_Ioi_eq_Ioi hX.le]
+    exact setIntegral_union (Set.Ioc_disjoint_Ioi le_rfl) measurableSet_Ioi
+      (hint.mono_set (Set.Ioc_subset_Ioi_self)) (hint.mono_set (Set.Ioi_subset_Ioi hX.le))
+  -- the part near zero
+  have hI1 : IntegrableOn (fun x : ℝ => b * x ^ (-(1 / 2 : ℝ))) (Ioc 0 X) := by
+    have := (intervalIntegral.intervalIntegrable_rpow' (a := 0) (b := X)
+      (r := -(1 / 2 : ℝ)) (by norm_num)).1
+    exact this.const_mul b
+  have hP1 : ∫ x in Ioc (0 : ℝ) X, x ^ (-(1 / 2 : ℝ)) * F x ≤
+      ∫ x in Ioc (0 : ℝ) X, b * x ^ (-(1 / 2 : ℝ)) := by
+    refine setIntegral_mono_on (hint.mono_set Set.Ioc_subset_Ioi_self) hI1 measurableSet_Ioc
+      fun x hx => ?_
+    have hx' : 0 < x := hx.1
+    rw [mul_comm]
+    exact mul_le_mul_of_nonneg_right (hF2 x hx') (hr0 x hx').le
+  have hV1 : ∫ x in Ioc (0 : ℝ) X, b * x ^ (-(1 / 2 : ℝ)) = 2 * b * X ^ (1 / 2 : ℝ) := by
+    rw [integral_const_mul, ← intervalIntegral.integral_of_le hX.le,
+      integral_rpow (Or.inl (by norm_num))]
+    rw [Real.zero_rpow (by norm_num)]
+    norm_num
+    ring
+  -- the tail
+  have hI2 : IntegrableOn (fun x : ℝ => A * x ^ (-(3 / 2 : ℝ))) (Ioi X) :=
+    (integrableOn_Ioi_rpow_of_lt (by norm_num) hX).const_mul A
+  have hP2 : ∫ x in Ioi X, x ^ (-(1 / 2 : ℝ)) * F x ≤ ∫ x in Ioi X, A * x ^ (-(3 / 2 : ℝ)) := by
+    refine setIntegral_mono_on (hint.mono_set (Set.Ioi_subset_Ioi hX.le)) hI2 measurableSet_Ioi
+      fun x hx => ?_
+    have hx' : 0 < x := lt_trans hX hx
+    have h1 : F x ≤ A * x⁻¹ := by
+      refine (hF1 x hx').trans ?_
+      rw [div_eq_mul_inv]
+      exact mul_le_mul_of_nonneg_left (inv_anti₀ hx' (by linarith)) hA
+    have h2 : x ^ (-(3 / 2 : ℝ)) = x ^ (-(1 / 2 : ℝ)) * x⁻¹ := by
+      rw [← Real.rpow_neg_one, ← Real.rpow_add hx']; norm_num
+    rw [h2]
+    calc x ^ (-(1 / 2 : ℝ)) * F x ≤ x ^ (-(1 / 2 : ℝ)) * (A * x⁻¹) :=
+          mul_le_mul_of_nonneg_left h1 (hr0 x hx').le
+      _ = _ := by ring
+  have hV2 : ∫ x in Ioi X, A * x ^ (-(3 / 2 : ℝ)) = 2 * A * X ^ (-(1 / 2 : ℝ)) := by
+    rw [integral_const_mul, integral_Ioi_rpow_of_lt (by norm_num) hX]
+    norm_num
+    ring
+  rw [hsplit]
+  refine (add_le_add hP1 hP2).trans ?_
+  rw [hV1, hV2]
+  have hsA := Real.sqrt_pos.2 hApos
+  have hsb := Real.sqrt_pos.2 hbpos
+  have e1 : X ^ (1 / 2 : ℝ) = Real.sqrt A / Real.sqrt b := by
+    rw [← Real.sqrt_eq_rpow, hXdef, Real.sqrt_div hA]
+  have e2 : X ^ (-(1 / 2 : ℝ)) = Real.sqrt b / Real.sqrt A := by
+    rw [Real.rpow_neg hX.le, ← Real.sqrt_eq_rpow, hXdef, Real.sqrt_div hA, inv_div]
+  rw [e1, e2, Real.sqrt_mul hA]
+  have hbb : b = Real.sqrt b * Real.sqrt b := (Real.mul_self_sqrt hb).symm
+  have hAA : A = Real.sqrt A * Real.sqrt A := (Real.mul_self_sqrt hA).symm
+  apply le_of_eq
+  field_simp
+  nlinarith [hbb, hAA]
+
+end Interp
+
+section SqrtIntegrable
+
+open MeasureTheory Set
+
+variable {d L N₁ m₁ N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx : ℝ}
+
+/-- The integrand of the Stieltjes square root is integrable on `(0, ∞)`, for every parameter
+family on the discs `‖s_P‖ ≤ e^κ`. -/
+theorem baseCovX_integrand_integrableOn {κ δ : ℝ} {α : G.Ω 1 → ℂ}
+    {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hα : AdmPot G α)
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (y z : G.Ω 1 × Fin N) :
+    IntegrableOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+        liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+        Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z) (Ioi 0) := by
+  obtain ⟨B, hB0, hdec⟩ := baseCovX_decay d L κ
+  have hν : 0 ≤ ν := S.mass
+  have hD : ∀ x : ℝ, 0 ≤ x → Dec2.XData (coverOf G) G a aT (ν + x) 0 α κ s Cx :=
+    fun x hx => ⟨xCover_add_mass S hx, hCx, hα, le_rfl, hκ, hM, hs⟩
+  have hrpow : ContinuousOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (Ioi 0) := by
+    refine Complex.continuous_ofReal.comp_continuousOn ?_
+    exact fun y hy =>
+      (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+  have hbd : ∀ x : ℝ, 0 < x →
+      ‖((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z‖ ≤
+        B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹) := by
+    intro x hx
+    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hx _
+    have hpt := hdec (xCover_add_mass S hx.le) hCx hν hx.le hκ hM hδ hsm hα hs hφ y z
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+    calc x ^ (-(1 / 2 : ℝ)) * _ ≤ x ^ (-(1 / 2 : ℝ)) * (B / (1 + x)) :=
+          mul_le_mul_of_nonneg_left hpt h3.le
+      _ = _ := by rw [div_eq_mul_inv]; ring
+  have hcont : ContinuousOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z) (Ioi 0) := by
+    have h := continuousOn_baseCovX_shift (fun x hx => hD x hx) hφ hδ hsm
+    exact hrpow.mul ((continuousOn_pi.1 (continuousOn_pi.1 h y) z).mono Ioi_subset_Ici_self)
+  have hgi : IntegrableOn (fun x : ℝ => B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹)) (Ioi 0) :=
+    (Localization.integrableOn_rpow_inv_add one_pos).const_mul B
+  refine Integrable.mono' hgi ((hcont).aestronglyMeasurable measurableSet_Ioi) ?_
+  exact (ae_restrict_iff' measurableSet_Ioi).2
+    (Filter.Eventually.of_forall fun x hx => hbd x (mem_Ioi.mp hx))
+
+/-- **Exact core agreement of the Stieltjes square root.**  Under the hypotheses of
+`baseCovX_exact` (which do not involve the shift), the rows of `π⁻¹ ∫₀^∞ x^{-1/2} C_x(s) dx` at the
+sites of `Y` do not depend on `s`. -/
+theorem baseCovX_sqrt_exact {κ δ : ℝ} {α : G.Ω 1 → ℂ}
+    {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hα : AdmPot G α)
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {Sr Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)} (hSY : Sr ⊆ Y)
+    (hdich : ∀ q ∈ (coverOf G).cubeIdx,
+      ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+      SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+    (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr →
+      (coverOf G).sProd s q = (coverOf G).sProd s' q)
+    (hnbr : ∀ p q : G.Ω 1, (p : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Sr →
+      ((q : Balaban.Localization.CTorus d L N₁ m₁ 1) = p ∨
+        (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) + Pi.single μ 1 ∨
+          (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) - Pi.single μ 1) ∨
+        (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
+          G.blk (G.layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
+      (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (y z : G.Ω 1 × Fin N) (hy : (y.1 : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y) :
+    ((1 / Real.pi : ℝ) : ℂ) * ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z =
+      ((1 / Real.pi : ℝ) : ℂ) * ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z := by
+  congr 1
+  refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+  rw [baseCovX_exact (xCover_add_mass S (mem_Ioi.mp hx).le) hCx hκ hM hδ hsm hα hs hs' hSY hdich
+    hagree hnbr hφ y z hy]
+
+end SqrtIntegrable
+
 end Balaban.LargeField.Base
