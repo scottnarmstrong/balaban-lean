@@ -1931,8 +1931,11 @@ public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseXCover
 public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.LargeField.Base.BaseXCov
+public import Balaban.LargeField.Base.BaseBackgroundLocal
+public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
+public import Balaban.LargeField.Base.BaseXLog
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
@@ -1999,3 +2002,6 @@ public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassAssembleM
 public import Balaban.Fluctuation.LocalClassLabels
+public import Balaban.Polymer.TwoTorusFibre
+public import Balaban.Green.FinalTaggedWeighted
+public import Balaban.Green.FinalTaggedWeightedGfin

@@ -199,28 +199,25 @@ open Balaban.Localization
 
 variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
 
-/-- **Approximate `taggedMat_entry_twoTorus`.**  If the families `a`, `a'` correspond up to `δ` on
-`Y(C)²` for the cells of `C`, the tagged matrices at parameters `s`, `s'` (supported on `C`, `e C`,
-equal along `e`, of modulus at most `e^κ`) differ by at most `|C| e^{κ |C|} δ` at `x, y ∈ Y(C)`. -/
-theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+/-- Core of the two-torus closeness of tagged matrices: the difference at `x, y ∈ Y(C)` is at
+most the sum over the cells `z ∈ C` with `macTags z x y ⊆ C` of `‖tagMon‖` times the entry
+difference. -/
+theorem taggedMat_close_twoTorus_core (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
     (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
     {e : MacIdx d N M → MacIdx d N' M}
     (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
     {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
     {a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ}
-    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ} {δ κ : ℝ} (hκ : 0 ≤ κ)
-    (hδ : 0 ≤ δ)
-    (ha : ∀ z ∈ C, ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
-      ‖a z x y - a' (e z) (f x) (f y)‖ ≤ δ)
-    {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
+    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ}     {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
     {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
-    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    (hss : ∀ i ∈ C, s' (e i) = s i)
     {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
     (hy : y ∈ macRegion d N M C) :
     ‖taggedMat Finset.univ (macTags d N M) a s x y -
       taggedMat Finset.univ (macTags d N' M) a' s' (f x) (f y)‖ ≤
-      (C.card : ℝ) * Real.exp (κ * C.card) * δ := by
+      ∑ z ∈ C.filter (fun z => macTags d N M z x y ⊆ C),
+        ‖tagMon (macTags d N M z x y) s‖ * ‖a z x y - a' (e z) (f x) (f y)‖ := by
   classical
   obtain ⟨e', he'⟩ := exists_cellMap (d := d) (N := N') (N' := N) (J := J) hM hN
   set g : L1Torus d N' → L1Torus d N := fun y μ => (((y μ).val : ℕ) : ZMod N) with hgdef
@@ -287,21 +284,45 @@ theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
       exact (hsubset_iff z hz).1 h
   rw [hL, hR, Finset.sum_image (hinjE.mono (by intro z hz; exact (Finset.mem_filter.1 hz).1))]
   rw [← Finset.sum_sub_distrib]
-  refine (norm_sum_le _ _).trans ?_
-  calc _ ≤ ∑ _z ∈ C.filter (fun z => macTags d N M z x y ⊆ C),
-        Real.exp (κ * C.card) * δ := by
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun z hz => ?_)
+  obtain ⟨hzC, hVC⟩ := Finset.mem_filter.1 hz
+  rw [hVimg z hzC]
+  have hprod : tagMon (macTags d N M z x y) s =
+      tagMon ((macTags d N M z x y).image e) s' := by
+    unfold tagMon
+    rw [Finset.prod_image (hinjE.mono (by intro w hw; exact hVC hw))]
+    refine Finset.prod_congr rfl fun w hw => ?_
+    rw [hss w (hVC hw)]
+  rw [hprod, ← mul_sub, norm_mul]
+
+/-- **Approximate `taggedMat_entry_twoTorus`.**  If the families `a`, `a'` correspond up to `δ` on
+`Y(C)²` for the cells of `C`, the tagged matrices at parameters `s`, `s'` (supported on `C`, `e C`,
+equal along `e`, of modulus at most `e^κ`) differ by at most `|C| e^{κ |C|} δ` at `x, y ∈ Y(C)`. -/
+theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ}
+    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ} {δ κ : ℝ} (hκ : 0 ≤ κ)
+    (hδ : 0 ≤ δ)
+    (ha : ∀ z ∈ C, ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖a z x y - a' (e z) (f x) (f y)‖ ≤ δ)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    ‖taggedMat Finset.univ (macTags d N M) a s x y -
+      taggedMat Finset.univ (macTags d N' M) a' s' (f x) (f y)‖ ≤
+      (C.card : ℝ) * Real.exp (κ * C.card) * δ := by
+  classical
+  refine (taggedMat_close_twoTorus_core hM hN hN' hf he hC hs hs' hss hx hy).trans ?_
+  calc _ ≤ ∑ _z ∈ C.filter (fun z => macTags d N M z x y ⊆ C), Real.exp (κ * C.card) * δ := by
         refine Finset.sum_le_sum fun z hz => ?_
         obtain ⟨hzC, hVC⟩ := Finset.mem_filter.1 hz
-        rw [hVimg z hzC]
-        have hprod : tagMon (macTags d N M z x y) s =
-            tagMon ((macTags d N M z x y).image e) s' := by
-          unfold tagMon
-          rw [Finset.prod_image (hinjE.mono (by intro w hw; exact hVC hw))]
-          refine Finset.prod_congr rfl fun w hw => ?_
-          rw [hss w (hVC hw)]
-        rw [hprod, ← mul_sub, norm_mul]
-        have hT : ‖tagMon ((macTags d N M z x y).image e) s'‖ ≤ Real.exp (κ * C.card) := by
-          rw [← hprod]
+        have hT : ‖tagMon (macTags d N M z x y) s‖ ≤ Real.exp (κ * C.card) := by
           unfold tagMon
           rw [norm_prod]
           calc ∏ w ∈ macTags d N M z x y, ‖s w‖ ≤ ∏ _w ∈ macTags d N M z x y, Real.exp κ :=
@@ -883,6 +904,124 @@ theorem final_taggedG_entry_le (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 
       2 * Real.exp (pdH d * κ) / (finalGap d L + t) * 1 := mul_le_mul_of_nonneg_left this h2
     _ = _ := by rw [mul_one, div_eq_mul_inv]
 
+/-- **Core of the closeness of the tagged parametrix `G_fin` on two tori.**  If the entries of the
+tagged `G_*` and of the tagged defect `K` differ by at most `δG`, `δK` on `Y(C)²`, then those of
+`G_fin = G_* (1 - K)⁻¹` differ at `x, y ∈ Y(C)` by at most
+`|C| (8M+1)^d (4/3) δG + (|C| (8M+1)^d)^3 · 2 e^{H κ} (g + t)⁻¹ (4/3)² δK`, `|C| ≤ nC`.
+Shared by the absolute and the distance-weighted versions. -/
+theorem final_taggedGfin_close_core (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {nC : ℕ} (hk : 1 ≤ k) (hN : 2 * (J + 6) * M ≤ N) (hN' : 2 * (J + 6) * M ≤ N')
+    {f : L1Torus d N → L1Torus d N'} (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hCc : C.card ≤ nC)
+    (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1' : 1 / 2 ≤ a) (ha2 : a ≤ 2)
+    (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) {t : ℝ} (ht : 0 ≤ t)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} (hx : x ∈ macRegion d N M C) (hy : y ∈ macRegion d N M C)
+    {δG δK : ℝ} (hδG0 : 0 ≤ δG) (hδK0 : 0 ≤ δK)
+    (hGG : ∀ p ∈ macRegion d N M C, ∀ q ∈ macRegion d N M C,
+      ‖taggedG Finset.univ (macBoxF d N M)
+        (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
+      taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δG)
+    (hKK : ∀ p ∈ macRegion d N M C, ∀ q ∈ macRegion d N M C,
+      ‖taggedK Finset.univ (macBoxF d N M)
+        (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
+      taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δK) :
+    ‖taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+            (macTags d N M) (finalOp d L N k v a) t s x y -
+          taggedGfin Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+            (macTags d N' M) (finalOp d L N' k v a) t s' (f x) (f y)‖ ≤
+      ((nC : ℝ) * (((8 * M + 1) ^ d : ℕ) : ℝ)) * (δG * (4 / 3)) +
+        ((nC : ℝ) * (((8 * M + 1) ^ d : ℕ) : ℝ)) ^ 3 *
+          (2 * Real.exp (pdH d * κ) * (finalGap d L + t)⁻¹ * (4 / 3 * (4 / 3 * δK))) := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  set nB : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) with hnBdef
+  have hnB : 0 ≤ nB := by positivity
+  set nY : ℝ := (nC : ℝ) * nB with hnY
+  set Hk : ℝ := Real.exp (pdH d * κ) with hHk
+  have hgt : 0 < finalGap d L + t := by linarith
+  set gT : ℝ := (finalGap d L + t)⁻¹ with hgT
+  have hgT0 : 0 < gT := inv_pos.2 hgt
+  -- the tag parameter on the second torus
+  have hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ := by
+    intro p
+    by_cases hp : p ∈ C.image e
+    · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hp
+      rw [hss i hi]; exact hsκ i
+    · rw [hs' p hp, norm_zero]; exact (Real.exp_pos _).le
+  -- the sets
+  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
+  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
+  set Y'set : Finset (L1Torus d N') :=
+    Finset.univ.filter (fun u => u ∈ macRegion d N' M (C.image e)) with hY'set
+  have hY'mem : ∀ u, u ∈ Y'set ↔ u ∈ macRegion d N' M (C.image e) := fun u => by simp [hY'set]
+  obtain ⟨g, hg'⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
+    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
+  have hbij : Set.BijOn f (Yset : Set (L1Torus d N)) (Y'set : Set (L1Torus d N')) := by
+    have := macRegion_bijOn hM hN hN' hf hg' he hC
+    simpa [hYset, hY'set] using this
+  have hYcard : (Yset.card : ℝ) ≤ nY := by
+    have h1 : Yset = C.biUnion (macBoxF d N M) := by
+      ext u; rw [hYmem, mem_biUnion_macBoxF]
+    rw [h1]
+    calc ((C.biUnion (macBoxF d N M)).card : ℝ) ≤ (C.card : ℝ) * nB := by
+          have := card_biUnion_macBoxF_le hM C
+          rw [hnBdef]; exact_mod_cast this
+      _ ≤ nY := by
+          rw [hnY]; exact mul_le_mul_of_nonneg_right (by exact_mod_cast hCc) hnB
+  have hY0 : (0 : ℝ) ≤ Yset.card := by positivity
+  obtain ⟨hu, hinv⟩ := final_inv_one_sub_taggedK (L := L) (k := k) (N := N) hd hk hv0 hv1 ha1' ha2
+    hmass ht hM hκ hMB hMκ hsκ
+  obtain ⟨hu', hinv'⟩ := final_inv_one_sub_taggedK (L := L) (k := k) (N := N') hd hk hv0 hv1 ha1'
+    ha2 hmass ht hM hκ hMB hMκ hsκ'
+  have hgG := final_taggedG_entry_le (L := L) (k := k) (N := N') hd hk hv0 hv1 ha1' ha2 hmass ht hM
+    hκ hMκ hsκ'
+  have hGG' : ∀ p ∈ Yset, ∀ q ∈ Yset, ‖taggedG Finset.univ (macBoxF d N M)
+      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
+      taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δG :=
+    fun p hp q hq => hGG p ((hYmem p).1 hp) q ((hYmem q).1 hq)
+  have hKK' : ∀ p ∈ Yset, ∀ q ∈ Yset, ‖taggedK Finset.univ (macBoxF d N M)
+      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
+      taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δK :=
+    fun p hp q hq => hKK p ((hYmem p).1 hp) q ((hYmem q).1 hq)
+  have hmain := ysupp_close (G := taggedG Finset.univ (macBoxF d N M)
+      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s)
+    (K := taggedK Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+      (macTags d N M) (finalOp d L N k v a) t s)
+    (G' := taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+      (macTags d N' M) (finalOp d L N' k v a) t s')
+    (K' := taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+      (macTags d N' M) (finalOp d L N' k v a) t s') f hbij
+    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)
+    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
+      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)
+    (fun a b h => ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
+      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩)
+    (fun a b h => ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
+      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩)
+    (δG := δG) (δK := δK) (g₁ := 2 * Hk * gT) (a₁ := 4 / 3) hδG0 hδK0 (by positivity)
+    (by norm_num) hGG' hKK' hgG hinv hinv' hu hu' ((hYmem x).2 hx) ((hYmem y).2 hy)
+  unfold taggedGfin
+  refine hmain.trans ?_
+  have hpos : 0 ≤ δG * (4 / 3) := by positivity
+  calc (Yset.card : ℝ) * (δG * (4 / 3)) + (Yset.card : ℝ) ^ 3 *
+        (2 * Hk * gT * (4 / 3 * (4 / 3 * δK)))
+      ≤ nY * (δG * (4 / 3)) + nY ^ 3 * (2 * Hk * gT * (4 / 3 * (4 / 3 * δK))) := by
+        gcongr
+
+
 /-- **Closeness of the tagged parametrix `G_fin` of the final operators on two tori.**  The
 constant `P` depends on `d`, `L`, `M`, `κ` and a bound `nC` for the number of cells of `C` only
 (not on `k`, the window `v, a`, the sides `N`, `N'`, or `t`); `ε` bounds the difference of the
@@ -933,43 +1072,6 @@ theorem final_taggedGfin_close (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤
   set gT : ℝ := (finalGap d L + t)⁻¹ with hgT
   have hgT0 : 0 < gT := inv_pos.2 hgt
   have hgTg : gT ≤ (finalGap d L)⁻¹ := inv_anti₀ hg (by linarith)
-  -- the tag parameter on the second torus
-  have hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ := by
-    intro p
-    by_cases hp : p ∈ C.image e
-    · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hp
-      rw [hss i hi]; exact hsκ i
-    · rw [hs' p hp, norm_zero]; exact (Real.exp_pos _).le
-  obtain ⟨hGc, hKc⟩ := final_taggedGK_close hM hN hN' hf he hC hd hk hv0 hv1 ha1' ha2 hmass hκ hU
-    ht hs hs' hss hsκ hx hy
-  -- the sets
-  set Yset : Finset (L1Torus d N) := Finset.univ.filter (fun u => u ∈ macRegion d N M C) with hYset
-  have hYmem : ∀ u, u ∈ Yset ↔ u ∈ macRegion d N M C := fun u => by simp [hYset]
-  set Y'set : Finset (L1Torus d N') :=
-    Finset.univ.filter (fun u => u ∈ macRegion d N' M (C.image e)) with hY'set
-  have hY'mem : ∀ u, u ∈ Y'set ↔ u ∈ macRegion d N' M (C.image e) := fun u => by simp [hY'set]
-  obtain ⟨g, hg'⟩ : ∃ g : L1Torus d N' → L1Torus d N, ∀ y μ, g y μ = (((y μ).val : ℕ) : ZMod N) :=
-    ⟨fun y μ => (((y μ).val : ℕ) : ZMod N), fun _ _ => rfl⟩
-  have hbij : Set.BijOn f (Yset : Set (L1Torus d N)) (Y'set : Set (L1Torus d N')) := by
-    have := macRegion_bijOn hM hN hN' hf hg' he hC
-    simpa [hYset, hY'set] using this
-  have hYcard : (Yset.card : ℝ) ≤ nY := by
-    have h1 : Yset = C.biUnion (macBoxF d N M) := by
-      ext u; rw [hYmem, mem_biUnion_macBoxF]
-    rw [h1]
-    calc ((C.biUnion (macBoxF d N M)).card : ℝ) ≤ (C.card : ℝ) * nB := by
-          have := card_biUnion_macBoxF_le hM C
-          rw [hnBdef]; exact_mod_cast this
-      _ ≤ nY := by
-          rw [hnY]; exact mul_le_mul_of_nonneg_right (by exact_mod_cast hCc) hnB
-  have hY0 : (0 : ℝ) ≤ Yset.card := by positivity
-  obtain ⟨hu, hinv⟩ := final_inv_one_sub_taggedK (L := L) (k := k) (N := N) hd hk hv0 hv1 ha1' ha2
-    hmass ht hM hκ hMB hMκ hsκ
-  obtain ⟨hu', hinv'⟩ := final_inv_one_sub_taggedK (L := L) (k := k) (N := N') hd hk hv0 hv1 ha1'
-    ha2 hmass ht hM hκ hMB hMκ hsκ'
-  have hgG := final_taggedG_entry_le (L := L) (k := k) (N := N') hd hk hv0 hv1 ha1' ha2 hmass ht hM
-    hκ hMκ hsκ'
-  have hcc0 : 0 ≤ cc := by positivity
   have hCc' : (C.card : ℝ) * Real.exp (κ * C.card) ≤ cc := by
     rw [hcc]
     apply mul_le_mul (by exact_mod_cast hCc) _ (Real.exp_pos _).le (by positivity)
@@ -978,48 +1080,17 @@ theorem final_taggedGfin_close (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤
   set δK : ℝ := cc * (nB * ε * gT * (2 + P0 * nB ^ 2)) with hδK
   have hδG0 : 0 ≤ δG := by positivity
   have hδK0 : 0 ≤ δK := by positivity
-  have hGG : ∀ p ∈ Yset, ∀ q ∈ Yset, ‖taggedG Finset.univ (macBoxF d N M)
-      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
-      taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
-        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δG := by
-    intro p hp q hq
-    refine (final_taggedGK_close hM hN hN' hf he hC hd hk hv0 hv1 ha1' ha2 hmass hκ hU ht hs hs' hss
-      hsκ ((hYmem p).1 hp) ((hYmem q).1 hq)).1.trans ?_
+  have hcc0 : 0 ≤ cc := by positivity
+  refine (final_taggedGfin_close_core hd hM hκ hMB hMκ hk hN hN' hf he hCc hC hv0 hv1 ha1' ha2 hmass ht hs hs' hss hsκ hx hy
+    hδG0 hδK0 (fun p hp q hq => ?_) (fun p hp q hq => ?_)).trans ?_
+  · refine (final_taggedGK_close hM hN hN' hf he hC hd hk hv0 hv1 ha1' ha2 hmass hκ hU ht hs hs' hss
+      hsκ hp hq).1.trans ?_
     exact mul_le_mul_of_nonneg_right hCc' (by positivity)
-  have hKK : ∀ p ∈ Yset, ∀ q ∈ Yset, ‖taggedK Finset.univ (macBoxF d N M)
-      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s p q -
-      taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
-        (macTags d N' M) (finalOp d L N' k v a) t s' (f p) (f q)‖ ≤ δK := by
-    intro p hp q hq
-    refine (final_taggedGK_close hM hN hN' hf he hC hd hk hv0 hv1 ha1' ha2 hmass hκ hU ht hs hs' hss
-      hsκ ((hYmem p).1 hp) ((hYmem q).1 hq)).2.trans ?_
+  · refine (final_taggedGK_close hM hN hN' hf he hC hd hk hv0 hv1 ha1' ha2 hmass hκ hU ht hs hs' hss
+      hsκ hp hq).2.trans ?_
     exact mul_le_mul_of_nonneg_right hCc' (by positivity)
-  have hmain := ysupp_close (G := taggedG Finset.univ (macBoxF d N M)
-      (fun z u => ((macChi d N M z u : ℝ) : ℂ)) (macTags d N M) (finalOp d L N k v a) t s)
-    (K := taggedK Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
-      (macTags d N M) (finalOp d L N k v a) t s)
-    (G' := taggedG Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
-      (macTags d N' M) (finalOp d L N' k v a) t s')
-    (K' := taggedK Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
-      (macTags d N' M) (finalOp d L N' k v a) t s') f hbij
-    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
-      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)
-    (fun a b h => ⟨(hYmem a).2 (taggedMat_ne_zero_mem hM hd _ hs h).1,
-      (hYmem b).2 (taggedMat_ne_zero_mem hM hd _ hs h).2⟩)
-    (fun a b h => ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
-      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩)
-    (fun a b h => ⟨(hY'mem a).2 (taggedMat_ne_zero_mem hM hd _ hs' h).1,
-      (hY'mem b).2 (taggedMat_ne_zero_mem hM hd _ hs' h).2⟩)
-    (δG := δG) (δK := δK) (g₁ := 2 * Hk * gT) (a₁ := 4 / 3) hδG0 hδK0 (by positivity)
-    (by norm_num) hGG hKK hgG hinv hinv' hu hu' ((hYmem x).2 hx) ((hYmem y).2 hy)
-  unfold taggedGfin
-  refine hmain.trans ?_
-  -- arithmetic
-  have hpos : 0 ≤ δG * (4 / 3) := by positivity
-  calc (Yset.card : ℝ) * (δG * (4 / 3)) + (Yset.card : ℝ) ^ 3 *
-        (2 * Hk * gT * (4 / 3 * (4 / 3 * δK)))
-      ≤ nY * (δG * (4 / 3)) + nY ^ 3 * (2 * Hk * gT * (4 / 3 * (4 / 3 * δK))) := by
-        gcongr
+  show nY * (δG * (4 / 3)) + nY ^ 3 * (2 * Hk * gT * (4 / 3 * (4 / 3 * δK))) ≤ a1 * ε * gT
+  calc nY * (δG * (4 / 3)) + nY ^ 3 * (2 * Hk * gT * (4 / 3 * (4 / 3 * δK)))
     _ = ε * gT * (nY * (4 / 3) * cc * nB ^ 2 * gT +
           nY ^ 3 * (2 * Hk * (4 / 3 * (4 / 3)) * (cc * (nB * (2 + P0 * nB ^ 2)))) * gT) := by
         rw [hδG, hδK]; ring
@@ -1028,6 +1099,63 @@ theorem final_taggedGfin_close (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤
             (finalGap d L)⁻¹) := by
         gcongr
     _ = a1 * ε * gT := by rw [ha1def]; ring
+
+/-- **Core of the closeness of the Stieltjes family `taggedCfinU` on two tori.**  If the entries
+of `G_fin(s, r)` and `G_fin(s', r)` of the two tori differ by at most `Q (g + r)⁻¹` for every
+`r > 0`, then those of `taggedCfinU` differ by at most `Q / √g`.  Shared by the absolute and the
+distance-weighted versions. -/
+theorem taggedCfinU_close_of_Gfin (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    (hk : 1 ≤ k) {f : L1Torus d N → L1Torus d N'}
+    {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2)
+    (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    {s : MacIdx d N M → ℂ} {s' : MacIdx d N' M → ℂ}
+    (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ) (hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} {Q : ℝ}
+    (hres : ∀ r : ℝ, 0 < r →
+      ‖taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) (finalOp d L N k v a) r s x y -
+        taggedGfin Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+          (macTags d N' M) (finalOp d L N' k v a) r s' (f x) (f y)‖ ≤
+        Q * (finalGap d L + r)⁻¹) :
+    ‖taggedCfinU d N M (finalOp d L N k v a) s x y -
+        taggedCfinU d N' M (finalOp d L N' k v a) s' (f x) (f y)‖ ≤
+      Q / Real.sqrt (finalGap d L) := by
+  classical
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hint1 := taggedCfin_integrable (L := L) (N₀ := N) (k := k) (M := M) hd hk hv0 hv1 ha1 ha2
+    hmass hM hκ hMB hMκ hsκ x y
+  have hint2 := taggedCfin_integrable (L := L) (N₀ := N') (k := k) (M := M) hd hk hv0 hv1 ha1 ha2
+    hmass hM hκ hMB hMκ hsκ' (f x) (f y)
+  set μ : Measure ℝ := volume.restrict (Ioi (0 : ℝ)) with hμ
+  rw [taggedCfinU_apply, taggedCfinU_apply, ← mul_sub, ← integral_sub hint1 hint2]
+  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+  have hint : Integrable (fun r : ℝ => Q * (r ^ (-(1 / 2 : ℝ)) * (finalGap d L + r)⁻¹)) μ :=
+    (Localization.integrableOn_rpow_inv_add hg).const_mul Q
+  have hbound := norm_integral_le_of_norm_le
+    (f := fun r : ℝ => ((r ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
+          (macTags d N M) (finalOp d L N k v a) r s x y -
+      ((r ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        taggedGfin Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
+          (macTags d N' M) (finalOp d L N' k v a) r s' (f x) (f y))
+    hint
+    ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun r hr => by
+      have hr0 : 0 < r := mem_Ioi.mp hr
+      have h3 : 0 < r ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hr0 _
+      have hres := hres r hr0
+      rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+      calc r ^ (-(1 / 2 : ℝ)) * ‖_‖ ≤ r ^ (-(1 / 2 : ℝ)) * (Q * (finalGap d L + r)⁻¹) :=
+            mul_le_mul_of_nonneg_left hres h3.le
+        _ = _ := by ring))
+  rw [integral_const_mul, Localization.integral_rpow_inv_add hg] at hbound
+  have hpi : 0 < Real.pi := Real.pi_pos
+  have hsq : 0 < Real.sqrt (finalGap d L) := Real.sqrt_pos.2 hg
+  calc 1 / Real.pi * ‖_‖ ≤ 1 / Real.pi * (Q * (Real.pi / Real.sqrt (finalGap d L))) := by
+        gcongr
+    _ = _ := by field_simp
+
 
 /-- **Closeness of the Stieltjes family `taggedCfinU` of the final operators on two tori.**  The
 Stieltjes integral of `final_taggedGfin_close`: the entries differ by at most `P ε / √g`, with the
@@ -1057,8 +1185,6 @@ theorem final_taggedCfinU_close (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 �
   refine ⟨P, hP0, ?_⟩
   intro k J N N' _ _ hk hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass ε hU s hs s' hs' hss
     hsκ x y hx hy
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hg := finalGap_pos (d := d) hL
   have hε0 : 0 ≤ ε := (norm_nonneg _).trans (hU x hx y hy)
   have hsκ' : ∀ p, ‖s' p‖ ≤ Real.exp κ := by
     intro p
@@ -1066,37 +1192,9 @@ theorem final_taggedCfinU_close (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 �
     · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.1 hp
       rw [hss i hi]; exact hsκ i
     · rw [hs' p hp, norm_zero]; exact (Real.exp_pos _).le
-  have hint1 := taggedCfin_integrable (L := L) (N₀ := N) (k := k) (M := M) hd hk hv0 hv1 ha1 ha2
-    hmass hM hκ hMB hMκ hsκ x y
-  have hint2 := taggedCfin_integrable (L := L) (N₀ := N') (k := k) (M := M) hd hk hv0 hv1 ha1 ha2
-    hmass hM hκ hMB hMκ hsκ' (f x) (f y)
-  set μ : Measure ℝ := volume.restrict (Ioi (0 : ℝ)) with hμ
-  rw [taggedCfinU_apply, taggedCfinU_apply, ← mul_sub, ← integral_sub hint1 hint2]
-  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
-  have hint : Integrable (fun r : ℝ => (P * ε) * (r ^ (-(1 / 2 : ℝ)) * (finalGap d L + r)⁻¹)) μ :=
-    (Localization.integrableOn_rpow_inv_add hg).const_mul (P * ε)
-  have hbound := norm_integral_le_of_norm_le
-    (f := fun r : ℝ => ((r ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-        taggedGfin Finset.univ (macBoxF d N M) (fun z u => ((macChi d N M z u : ℝ) : ℂ))
-          (macTags d N M) (finalOp d L N k v a) r s x y -
-      ((r ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-        taggedGfin Finset.univ (macBoxF d N' M) (fun z u => ((macChi d N' M z u : ℝ) : ℂ))
-          (macTags d N' M) (finalOp d L N' k v a) r s' (f x) (f y))
-    hint
-    ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall fun r hr => by
-      have hr0 : 0 < r := mem_Ioi.mp hr
-      have h3 : 0 < r ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hr0 _
-      have hres := hP hk hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass hU hr0.le hs hs' hss hsκ hx hy
-      rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
-      calc r ^ (-(1 / 2 : ℝ)) * ‖_‖ ≤ r ^ (-(1 / 2 : ℝ)) * (P * ε * (finalGap d L + r)⁻¹) :=
-            mul_le_mul_of_nonneg_left hres h3.le
-        _ = _ := by ring))
-  rw [integral_const_mul, Localization.integral_rpow_inv_add hg] at hbound
-  have hpi : 0 < Real.pi := Real.pi_pos
-  have hsq : 0 < Real.sqrt (finalGap d L) := Real.sqrt_pos.2 hg
-  calc 1 / Real.pi * ‖_‖ ≤ 1 / Real.pi * (P * ε * (Real.pi / Real.sqrt (finalGap d L))) := by
-        gcongr
-    _ = _ := by field_simp
+  exact taggedCfinU_close_of_Gfin hd hM hκ hMB hMκ hk hv0 hv1 ha1 ha2 hmass hsκ hsκ'
+    (fun r hr => hP hk hN hN' hf he hCc hC hv0 hv1 ha1 ha2 hmass hU hr.le hs hs' hss
+      hsκ hx hy)
 
 /-- A site of the window, lifted by the identity on residues. -/
 theorem castL1_val_eq (x : L1Torus d N) :

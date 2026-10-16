@@ -35,9 +35,9 @@ file carries a parameter `g` through the chain without re-proving it.
 * `evTerm_congr_fun`, `evTerm_source_congr`: the term depends on a source parameter only through
   its restriction to `X ⊆ X₁ ⊆ Y` (it vanishes unless `X₁ ⊆ Y`);
 * `localB_mTermHat_evTerm_local`: exact locality of the term on the class domain, for every source;
-* `fieldDom_completion_analytic_param`: the completion extension with an analytic parameter
-  (`fieldDom_completion_extension`, analyticity clause, for a function of the pair and a
-  parameter; the landed statement is the case without parameter, which this file does not edit);
+* the completion extension with an analytic parameter is `fieldDom_completion_analytic_param`
+  in `LocalClassExtend.lean` (of which `fieldDom_completion_extension` is the case without
+  parameter);
 * `localB_mTermHat_evTerm_ext_loc`, `…_ext_an`, `…_ext`: the term composed with the completion
   `cpl` at `Y`: the same value at two triples `(Ψ, h, g)`, `(Ψ', h', g')` equal on `Y` (all fields and
   all sources: `localM`), equal to the recomputed term on the class domain (so `rotM`, `eucM`
@@ -142,81 +142,6 @@ theorem evTerm_source_congr {X X₁ Y : Set (CTorus d L N₁ m₁ K)} (hXX : X �
   · rw [evTerm_eq_zero_of_not_subset hXY, evTerm_eq_zero_of_not_subset hXY]
 
 end EvCongr
-
-section CompletionParam
-
-variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-
-open Filter Topology in
-/-- **The completion extension with a parameter** (`fieldDom_completion_extension`, analyticity
-clause, with an extra analytic parameter `g`).  Let the domain `Dom.dom j G` lie in the
-layer-constant pairs and be open relative to them, let `T` be analytic on the domain times a set
-`Sp` of parameters, and for every parameter let `T` depend only on the restriction to `Y` for
-pairs of the domain.  Then `(p, g) ↦ T (cpl p, g)` is analytic on the domain times `Sp`.  Near a
-point `p₀` of the domain `T (cpl p, g) = T (p₀ + Q p - Q p₀, g)`, as in the landed proof for a
-function of the pair alone. -/
-theorem fieldDom_completion_analytic_param {P F : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P]
-    [NormedAddCommGroup F] [NormedSpace ℂ F]
-    (Dom : FieldDom d L N₁ m₁ K N ϱ) (j : ℕ)
-    (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (Y : Set (CTorus d L N₁ m₁ K))
-    (c : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N)
-    (hc : ∀ p, c p = Classical.epsilon (fun q : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N =>
-      Dom.dom j G q.1 q.2 ∧ ∀ z ∈ Y,
-        q.1 z = (Classical.choose (exists_layerProj (N := N) G Y) p).1 z ∧
-        q.2 z = (Classical.choose (exists_layerProj (N := N) G Y) p).2 z))
-    (hDL : ∀ p : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 → p ∈ layerSub G)
-    (hDo : ∀ p : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 →
-      ∀ᶠ q in 𝓝[layerSub G] p, Dom.dom j G q.1 q.2)
-    {Sp : Set P}
-    (T : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P → F)
-    (hT : AnalyticOnNhd ℂ T ({p | Dom.dom j G p.1 p.2} ×ˢ Sp))
-    (hloc : ∀ p p' : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G p.1 p.2 →
-      Dom.dom j G p'.1 p'.2 → (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → ∀ g, T (p, g) = T (p', g)) :
-    AnalyticOnNhd ℂ (fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P => T (c q.1, q.2))
-      ({p | Dom.dom j G p.1 p.2} ×ˢ Sp) := by
-  rintro ⟨p₀, g₀⟩ ⟨hp₀, hg₀⟩
-  obtain ⟨hQU, hQK, hQid⟩ := Classical.choose_spec (exists_layerProj (N := N) G Y)
-  set Q := Classical.choose (exists_layerProj (N := N) G Y) with hQ
-  have hQc : Continuous Q := LinearMap.continuous_of_finiteDimensional Q
-  have hφc : Continuous (fun p => p₀ + (Q p - Q p₀)) :=
-    continuous_const.add (hQc.sub continuous_const)
-  have hTφ : Tendsto (fun p => p₀ + (Q p - Q p₀)) (𝓝 p₀) (𝓝[layerSub G] p₀) := by
-    refine tendsto_nhdsWithin_iff.2 ⟨?_, Eventually.of_forall fun p =>
-      add_sub_mem_layerSub (hDL p₀ hp₀) (hQU p) (hQU p₀)⟩
-    have h := hφc.tendsto p₀
-    simp only [sub_self, add_zero] at h
-    exact h
-  have hφa : AnalyticAt ℂ (fun p => p₀ + (Q p - Q p₀)) p₀ := by
-    have hQa : AnalyticAt ℂ (fun p => Q p) p₀ := by
-      have := (LinearMap.toContinuousLinearMap Q).analyticAt p₀
-      simpa using this
-    exact analyticAt_const.add (hQa.sub analyticAt_const)
-  have hTa : AnalyticAt ℂ (fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P =>
-      T (p₀ + (Q q.1 - Q p₀), q.2)) (p₀, g₀) :=
-    AnalyticAt.comp_of_eq (g := T) (f := fun q : (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × P =>
-      (p₀ + (Q q.1 - Q p₀), q.2)) (y := (p₀, g₀)) (hT (p₀, g₀) ⟨hp₀, hg₀⟩)
-      ((hφa.comp_of_eq analyticAt_fst rfl).prod analyticAt_snd) (by simp)
-  refine hTa.congr ?_
-  have hev : ∀ᶠ p in 𝓝 p₀, Dom.dom j G (p₀ + (Q p - Q p₀)).1 (p₀ + (Q p - Q p₀)).2 :=
-    hTφ.eventually (hDo p₀ hp₀)
-  have hev2 : ∀ᶠ q in 𝓝 (p₀, g₀), Dom.dom j G (p₀ + (Q q.1 - Q p₀)).1
-      (p₀ + (Q q.1 - Q p₀)).2 := (continuous_fst.tendsto (p₀, g₀)).eventually hev
-  filter_upwards [hev2] with q hq
-  have hY : ∀ z ∈ Y, (p₀ + (Q q.1 - Q p₀)).1 z = (Q q.1).1 z ∧
-      (p₀ + (Q q.1 - Q p₀)).2 z = (Q q.1).2 z :=
-    fun z hz => by
-      obtain ⟨e1, e2⟩ := hQid p₀ (hDL p₀ hp₀) z hz
-      simp only [Prod.fst_add, Prod.fst_sub, Prod.snd_add, Prod.snd_sub, Pi.add_apply,
-        Pi.sub_apply, e1, e2]
-      exact ⟨by abel, by abel⟩
-  have hex : ∃ q' : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N, Dom.dom j G q'.1 q'.2 ∧ ∀ z ∈ Y,
-      q'.1 z = (Q q.1).1 z ∧ q'.2 z = (Q q.1).2 z := ⟨_, hq, hY⟩
-  obtain ⟨h1, h2⟩ := Classical.epsilon_spec hex
-  rw [← hc] at h1 h2
-  exact hloc _ _ hq h1 (fun z hz => ⟨((hY z hz).1.trans (h2 z hz).1.symm),
-    ((hY z hz).2.trans (h2 z hz).2.symm)⟩) q.2
-
-end CompletionParam
 
 section ParamM
 
