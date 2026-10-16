@@ -278,6 +278,87 @@ theorem RegionHistory.omega_le_halo_of_floor_eq (hk : 1 ≤ k)
     S.omega k ≤ 2 * (2 * ⌊R (k - 1)⌋₊ + 4) := by
   rw [hR]; exact H.omega_le_halo_sum hk
 
+
+include H in
+/-- **The size of the core of a removed component is at most its number of cells** (`c2 = 1`,
+volume-free): the cells `zs` of the core of a removed component with halo domain `lab` are
+nonempty and site-connected (`siteConnected_sitesOf_halo`), so `dExt zs ≤ |zs|`
+(`dExt_le_card_of_connected`) once `d7Pull lab ∈ 𝒟_k`. -/
+theorem RegionHistory.dExt_removed_core_le_card (Fr : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K) (hk : 1 ≤ k) (c : H.Comp k)
+    (hc : c.1 ∈ H.rem k) (hω : S.omega k ≤ 2 * (2 * ⌊R (k - 1)⌋₊ + 4))
+    {lab : Finset (Torus S.d (n k))}
+    (hlab : (lab : Set (Torus S.d (n k))) =
+      nbhd (2 * ⌊R (k - 1)⌋₊ + 4) (c.1 : Set (Torus S.d (n k))))
+    {zs : Finset (CubeB (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ k
+      (d7Pull Fr k (H.omegaPost k)))}
+    (hXZ : d7Pull Fr k (lab : Set (Torus S.d (n k))) =
+      Yhat (d7Pull Fr k (H.omegaPost k)) (sitesOf zs))
+    (hz : zs.Nonempty) (hDj : IsDj m₀ k (d7Pull Fr k (lab : Set (Torus S.d (n k))))) :
+    dExt (d := S.d) zs ≤ 1 * (zs.card : ℝ) :=
+  dExt_le_card_of_connected Fr.divN₁ hkK zs hz
+    (H.siteConnected_sitesOf_halo Fr hnn hkK hk c hc hω hlab hXZ).2 (by rw [← hXZ]; exact hDj)
+
 end Region
+
+section Instance
+
+open Balaban.Polymer RegionHistory Balaban.Background
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L] [NeZero S.M] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
+  {Yt Zt : Type*} [Fintype Yt] [Fintype Zt] {τ : Zt → ℂ}
+
+open Classical in
+/-- **The physical large-field gas bound with the connectivity of the removed cores discharged**
+(`notes/phase1/VMOD-43.md` §5d).  The instance `gas_activity_bound_physical_of_D7BdryPost` with
+`hconnZ` replaced by its source: the domain `labZ z` of the heavy object `z` is the halo
+`nbhd (2⌊R_{k-1}⌋ + 4)` of a removed component `cz z` of `Z^pre_k` (`k ≥ 1`), and
+`ω_k ≤ 2(2⌊R_{k-1}⌋ + 4)` (true for `⌊R_{k-1}⌋ = ⌊R_base λ_{k-1}²⌋`,
+`omega_le_halo_of_floor_eq`).  The constant of the size bound is `c2 = 1`, independent of the
+torus, of `k` and of the component. -/
+theorem gas_activity_bound_physical_of_D7BdryPost_halo {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+    (hD : D7BdryPost Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv) {A : LabHist S n R k0 K}
+    (hA : A ∈ rep.hist) {hext : Fin N → ℂ} (hhB : hext ∈ hSetB hv)
+    (p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ))
+    (labY : Yt → Finset (Torus S.d (n k))) (hlabY : Function.Injective labY)
+    (hlabYv : ∀ y, labY y ∈ bdryDomsPost Fr A k (Zof A))
+    (hp : ∀ y, H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (labY y : Set (Torus S.d (n k)))) aw μs ε ε1 νs hext
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)))
+    (labZ : Zt → Finset (Torus S.d (n k))) (hlabZ : Function.Injective labZ)
+    (hDjZ : ∀ z, IsDj m₀ k (d7Pull Fr k (labZ z : Set (Torus S.d (n k)))))
+    {cy zs cr : _ → Finset (CubeB (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ k
+      (d7Pull Fr k (A.H.omegaPost k)))}
+    (hXY : ∀ y, d7Pull Fr k (labY y : Set (Torus S.d (n k))) =
+      Yhat (d7Pull Fr k (A.H.omegaPost k)) (sitesOf (cy y)))
+    (hXZ : ∀ z, d7Pull Fr k (labZ z : Set (Torus S.d (n k))) =
+      Yhat (d7Pull Fr k (A.H.omegaPost k)) (sitesOf (zs z)))
+    (hk : 1 ≤ k) (hω : S.omega k ≤ 2 * (2 * ⌊R (k - 1)⌋₊ + 4))
+    (cz : Zt → A.H.Comp k) (hcz : ∀ z, (cz z).1 ∈ A.H.rem k)
+    (hlabZ' : ∀ z, (labZ z : Set (Torus S.d (n k))) =
+      nbhd (2 * ⌊R (k - 1)⌋₊ + 4) ((cz z).1 : Set (Torus S.d (n k))))
+    {κ' p' h' : ℝ} (hfac : 0 ≤ fac) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ rate) (hp' : 0 ≤ p')
+    (hκ : aEnt S.d S.L + 1 ≤ rate - κ')
+    (hz : ∀ z, (zs z).Nonempty) (hcr : ∀ z, cr z ⊆ zs z)
+    (β : Yt → ℂ) (hβ : ∀ y, β y = rep.B A (labY y) (extK p.1) (extK p.2.1) hext p.2.2)
+    (hτ : ∀ z, ‖τ z‖ ≤ Real.exp (-p' - h' * (zs z).card))
+    (hh : fac * Real.exp fac * Real.exp (κ' * cG S.d S.L) *
+        (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1)) +
+      κ' * (1 + cG S.d S.L) + c1 S.d S.L + 3 +
+      Real.log (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1) *
+        Real.exp ((aEnt S.d S.L + 1) * 1)) ≤ h')
+    (X : NePoly (CubeB (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ k
+      (d7Pull Fr k (A.H.omegaPost k)))) :
+    ‖gasK cy zs cr β τ X‖ ≤
+      3 * c1 S.d S.L * Real.exp (-p') * Real.exp (-(κ' - 2) * dExt (d := S.d) X.1) :=
+  gas_activity_bound_physical_of_D7BdryPost hD hA hhB p labY hlabY hlabYv hp labZ hlabZ hDjZ hXY hXZ
+    (fun z => (A.H.siteConnected_sitesOf_halo Fr hnn hkK hk (cz z) (hcz z) hω (hlabZ' z)
+      (hXZ z)).2) hfac hκ' hκ'' hp' hκ hz hcr β hβ hτ hh X
+
+end Instance
 
 end Balaban.LargeField
