@@ -418,4 +418,239 @@ theorem baseCovX_decay (d L : ℕ) [NeZero L] (κ : ℝ) :
 
 end Decay
 
+section MassCover
+
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {C : Balaban.Localization.DecCover d L N₁ m₁ (k + 1)}
+  {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν Cx : ℝ}
+
+/-- The x-variant cover setting does not involve the mass beyond `0 ≤ ν`: it holds at the mass
+`ν + x` for every `x ≥ 0`. -/
+theorem xCover_add_mass (S : Dec2.XCover C H a aT ν Cx) {x : ℝ} (hx : 0 ≤ x) :
+    Dec2.XCover C H a aT (ν + x) Cx :=
+  { S with mass := add_nonneg S.mass hx }
+
+end MassCover
+
+section Continuity
+
+open Set
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν Cx κ δ : ℝ}
+  {α : G.Ω 1 → ℂ} {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ}
+  {φ : Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+
+/-- The mass-shifted x-variant Dirichlet operator is continuous in the shift. -/
+theorem continuous_xDirichlet_shift (α' : G.Ω 1 → ℂ) :
+    Continuous (fun x : ℝ => xDirichletOperator G a aT 0 (ν + x) α') := by
+  have e : ∀ x : ℝ, xDirichletOperator G a aT 0 (ν + x) α' =
+      xDirichletOperator G a aT 0 ν α' + (x : ℂ) • (1 : Matrix (G.Ω 1) (G.Ω 1) ℂ) := by
+    intro x
+    rw [← cutXOperator_empty, ← cutXOperator_empty]
+    exact cutXOperator_add_mass G a aT 0 ν x _ α'
+  simp only [e]
+  exact continuous_const.add (Complex.continuous_ofReal.smul continuous_const)
+
+variable (hfam : ∀ x : ℝ, 0 ≤ x → Dec2.XData (coverOf G) G a aT (ν + x) 0 α κ s Cx)
+include hfam
+
+theorem continuousOn_cubeGx_shift {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
+    (hq : q ∈ (coverOf G).cubeIdx) :
+    ContinuousOn (fun x : ℝ => cubeGx G a aT 0 (ν + x) α q) (Ici 0) := by
+  have e : ∀ x : ℝ, cubeHx G a aT 0 (ν + x) α q =
+      cutXOperator G a aT 0 ν (cubeCut G (intBox q)) α + (x : ℂ) • 1 := fun x =>
+    cutXOperator_add_mass G a aT 0 ν x _ α
+  unfold cubeGx
+  refine ContinuousOn.mul (contOn_matrix_inv ?_ fun x hx => ?_) continuousOn_const
+  · simp only [e]
+    exact (continuous_const.add (Complex.continuous_ofReal.smul continuous_const)).continuousOn
+  · have D := hfam x hx
+    exact Dec2.cubeHx_isUnit D.st D.pot le_rfl hq
+
+theorem continuousOn_Gsx_shift :
+    ContinuousOn (fun x : ℝ => Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) (Ici 0) := by
+  have hK : ∀ q, ContinuousOn (fun x : ℝ => Dec2.Kzx (coverOf G) G a aT 0 (ν + x) q) (Ici 0) := by
+    intro q
+    unfold Dec2.Kzx
+    have h := (continuous_xDirichlet_shift (G := G) (a := a) (aT := aT) (ν := ν)
+      (0 : G.Ω 1 → ℂ)).continuousOn (s := Ici 0)
+    exact (continuousOn_const.mul h).sub (h.mul continuousOn_const)
+  unfold Dec2.Gsx
+  refine ContinuousOn.mul ?_ (contOn_matrix_inv (continuousOn_const.sub ?_) fun x hx =>
+    (hfam x hx).isUnit_one_sub)
+  · unfold Dec2.Gstarx
+    refine continuousOn_finsetSum _ fun q hq => ?_
+    exact (continuousOn_const (c := (coverOf G).sProd s q)).smul
+      (continuousOn_const.mul (continuousOn_cubeGx_shift hfam hq))
+  · unfold Dec2.Kcalx
+    refine continuousOn_finsetSum _ fun q hq => ?_
+    exact (continuousOn_const (c := (coverOf G).sProd s q)).smul
+      ((hK q).mul (continuousOn_cubeGx_shift hfam hq))
+
+include φ in
+theorem continuousOn_decPi_shift (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) :
+    ContinuousOn (fun x : ℝ => Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) (Ici 0) := by
+  have hX := (continuous_xDirichlet_shift (G := G) (a := a) (aT := aT) (ν := ν) α).continuousOn
+    (s := Ici 0)
+  have hGs := continuousOn_Gsx_shift hfam
+  have hcK : ContinuousOn (fun x : ℝ => commK (xDirichletOperator G a aT 0 (ν + x) α)
+      (restrictField G φ)) (Ici 0) := by
+    unfold commK
+    exact (contOn_matrix_mul continuousOn_const (continuousOn_liftOp hX)).sub
+      (contOn_matrix_mul hX continuousOn_const)
+  have hM : ContinuousOn (fun x : ℝ => Dec2.decM (coverOf G) G a aT 0 (ν + x) α s φ) (Ici 0) := by
+    unfold Dec2.decM constraintM
+    exact continuousOn_const.sub
+      (contOn_matrix_mul (contOn_matrix_mul hcK (continuousOn_liftOp hGs)) continuousOn_const)
+  have hN : ContinuousOn (fun x : ℝ => Dec2.decN (coverOf G) G a aT 0 (ν + x) α s φ) (Ici 0) := by
+    unfold Dec2.decN constraintN
+    exact continuousOn_const.sub (contOn_matrix_mul hcK (continuousOn_liftOp hGs))
+  have hMi : ContinuousOn (fun x : ℝ => (Dec2.decM (coverOf G) G a aT 0 (ν + x) α s φ)⁻¹)
+      (Ici 0) := contOn_matrix_inv hM fun x hx => decM_isUnit_cover (hfam x hx) hφ hδ hsm
+  unfold Dec2.decPi
+  exact contOn_matrix_mul (contOn_matrix_mul (contOn_matrix_mul (continuousOn_liftOp hGs)
+    continuousOn_const) hMi) hN
+
+include φ in
+theorem continuousOn_baseCovX_shift (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) :
+    ContinuousOn (fun x : ℝ => (1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+      liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+        Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) (Ici 0) := by
+  have hinv : ContinuousOn (fun x : ℝ => (1 + (x : ℂ))⁻¹) (Ici 0) := by
+    refine (continuousOn_const.add Complex.continuous_ofReal.continuousOn).inv₀ fun x hx => ?_
+    have : (1 : ℝ) + x ≠ 0 := by have : (0 : ℝ) ≤ x := hx; linarith
+    show (1 : ℂ) + (x : ℂ) ≠ 0
+    exact_mod_cast this
+  exact ((hinv.smul continuousOn_const).add (continuousOn_liftOp (continuousOn_Gsx_shift hfam))).sub
+    (continuousOn_decPi_shift hfam hφ hδ hsm)
+
+end Continuity
+
+section Main
+
+open MeasureTheory Set
+
+/-- **The Stieltjes integral of the first step's shifted resolvent family.**  For the parametrized
+family `x ↦ (1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}` (at mass `ν + x`; it is `(A_e(s) + x)⁻¹` at
+`s ≡ 1`), with `B` depending only on `d, L, κ`, at every point `e = (s, φ₀, α₀)` of the polydisc
+`DecDom`:
+* the integrand `x^{-1/2} C_x(e)` of the Stieltjes integral is dominated by
+  `B x^{-1/2} (1 + x)⁻¹` and is integrable on `(0, ∞)`;
+* every entry of `π⁻¹ ∫₀^∞ x^{-1/2} C_x(e) dx` is analytic in `e` on `DecDom` and bounded by `B`. -/
+theorem baseCovX_sqrt (d L : ℕ) [NeZero L] (κ : ℝ) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {N₁ m₁ N : ℕ} [NeZero N₁] {ϱ : ℝ}
+      {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx : ℝ}
+      (_S : Dec2.XCover (coverOf G) G a aT ν Cx) (_hCx : 0 ≤ Cx) (_hκ : 0 ≤ κ)
+      (_hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+      {δ : ℝ} (_hδ : 0 ≤ δ) (_hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (y z : G.Ω 1 × Fin N),
+      (∀ e ∈ DecDom G N κ δ, ∀ x : ℝ, 0 < x →
+        ‖((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+            liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+            Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z‖ ≤
+          B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹)) ∧
+      (∀ e ∈ DecDom G N κ δ, IntegrableOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z)
+        (Ioi 0)) ∧
+      AnalyticOnNhd ℂ (fun e : DecData G N => ((1 / Real.pi : ℝ) : ℂ) *
+        ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+            liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+            Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z)
+        (DecDom G N κ δ) ∧
+      (∀ e ∈ DecDom G N κ δ, ‖((1 / Real.pi : ℝ) : ℂ) *
+        ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+          ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+            liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+            Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z‖
+        ≤ B) := by
+  obtain ⟨B, hB0, hdec⟩ := baseCovX_decay d L κ
+  refine ⟨B, hB0, ?_⟩
+  intro N₁ m₁ N _ ϱ G a aT ν Cx S hCx hκ hM δ hδ hsm y z
+  have hν : 0 ≤ ν := S.mass
+  have hD : ∀ e ∈ DecDom G N κ δ, ∀ x : ℝ, 0 ≤ x →
+      Dec2.XData (coverOf G) G a aT (ν + x) 0 e.2.2 κ (Dec2.extS (coverOf G) e.1) Cx :=
+    fun e he x hx => xData_cover_of_mem (xCover_add_mass S hx) hCx le_rfl hκ hM he
+  have hpt : ∀ e ∈ DecDom G N κ δ, ∀ x : ℝ, 0 ≤ x →
+      ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z‖ ≤
+        B / (1 + x) := by
+    intro e he x hx
+    have D := hD e he x hx
+    exact hdec (xCover_add_mass S hx) hCx hν hx hκ hM hδ hsm D.pot D.sb
+      he.2.1.toIsConstraintField y z
+  have hrpow : ContinuousOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (Ioi 0) := by
+    refine Complex.continuous_ofReal.comp_continuousOn ?_
+    exact fun y hy =>
+      (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+  have hbd : ∀ e ∈ DecDom G N κ δ, ∀ x : ℝ, 0 < x →
+      ‖((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z‖ ≤
+        B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹) := by
+    intro e he x hx
+    have h3 : 0 < x ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hx _
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg h3.le]
+    calc x ^ (-(1 / 2 : ℝ)) * _ ≤ x ^ (-(1 / 2 : ℝ)) * (B / (1 + x)) :=
+          mul_le_mul_of_nonneg_left (hpt e he x hx.le) h3.le
+      _ = _ := by rw [div_eq_mul_inv]; ring
+  have hcont : ∀ e ∈ DecDom G N κ δ, ContinuousOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z)
+      (Ioi 0) := by
+    intro e he
+    have h := continuousOn_baseCovX_shift (fun x hx => hD e he x hx)
+      he.2.1.toIsConstraintField hδ hsm
+    exact hrpow.mul ((continuousOn_pi.1 (continuousOn_pi.1 h y) z).mono Ioi_subset_Ici_self)
+  have hgi : IntegrableOn (fun x : ℝ => B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹)) (Ioi 0) :=
+    (Localization.integrableOn_rpow_inv_add one_pos).const_mul B
+  have hgc : ContinuousOn (fun x : ℝ => B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹)) (Ioi 0) := by
+    refine continuousOn_const.mul (ContinuousOn.mul ?_ (Localization.continuousOn_inv_add_Ioi one_pos))
+    exact fun y hy =>
+      (Real.continuousAt_rpow_const _ _ (Or.inl (mem_Ioi.mp hy).ne')).continuousWithinAt
+  have hint : ∀ e ∈ DecDom G N κ δ, IntegrableOn (fun x : ℝ => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z)
+      (Ioi 0) := by
+    intro e he
+    refine Integrable.mono' hgi ((hcont e he).aestronglyMeasurable measurableSet_Ioi) ?_
+    exact (ae_restrict_iff' measurableSet_Ioi).2
+      (Filter.Eventually.of_forall fun x hx => hbd e he x (mem_Ioi.mp hx))
+  refine ⟨hbd, hint, ?_, ?_⟩
+  · have hA := Localization.analyticOnNhd_integral_Ioi (E := DecData G N)
+      (G := fun x e => ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G e.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1) e.2.1) y z)
+      (g := fun x => B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹)) (isOpen_decDom κ δ)
+      (fun x hx e he => analyticAt_const.mul
+        (baseCovX_analytic (xCover_add_mass S hx.le) hCx hκ hM hδ hsm y z e he))
+      hcont hgc hgi (fun x hx e he => hbd e he x hx)
+    intro e he
+    exact analyticAt_const.mul (hA e he)
+  · intro e he
+    have hn := norm_integral_le_of_norm_le (μ := volume.restrict (Ioi (0 : ℝ))) hgi
+      ((ae_restrict_iff' measurableSet_Ioi).2
+        (Filter.Eventually.of_forall fun x hx => hbd e he x (mem_Ioi.mp hx)))
+    have hval : ∫ x in Ioi (0 : ℝ), B * (x ^ (-(1 / 2 : ℝ)) * (1 + x)⁻¹) = B * Real.pi := by
+      rw [integral_const_mul, Localization.integral_rpow_inv_add one_pos]
+      simp
+    rw [hval] at hn
+    have hpi := Real.pi_pos
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+    calc 1 / Real.pi * _ ≤ 1 / Real.pi * (B * Real.pi) :=
+          mul_le_mul_of_nonneg_left hn (by positivity)
+      _ = B := by field_simp
+
+end Main
+
 end Balaban.LargeField.Base
