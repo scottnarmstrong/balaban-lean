@@ -653,4 +653,57 @@ theorem baseCovX_sqrt (d L : ℕ) [NeZero L] (κ : ℝ) :
 
 end Main
 
+section Physical
+
+open MeasureTheory Set
+
+variable {d L N₁ m₁ N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ} {ν Cx : ℝ}
+
+/-- **At the physical point `s ≡ 1` the Stieltjes integral is the inverse square root of the first
+step's operator.**  The family `x ↦ (1 + x)⁻¹ P_e + Ĝ_{0,1} - Π_{0,1}` is `(A_e + x)⁻¹`
+(`baseCovX_one`), so `π⁻¹ ∫₀^∞ x^{-1/2} (A_e + x)⁻¹ dx` is `sqrtMat A_e`, the principal inverse
+square root: its square is `A_e⁻¹ = (A_e + 0)⁻¹`, the covariance of the first step, and `A_e + x`
+is invertible for every `x ≥ 0`. -/
+theorem baseCovX_sqrt_one {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} [Nonempty (G.Ω 1 × Fin N)]
+    {a : ℕ → ℝ} {aT : ℝ} (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx)
+    (ha0 : a 0 = 2) (ha1 : 0 ≤ a 1) (ha1' : a 1 ≤ 2)
+    (haT : aT = 2 * a 1 * (L : ℝ) ^ 2 / (2 * (L : ℝ) ^ 2 - a 1))
+    {α : G.Ω 1 → ℂ} (hα : AdmPot G α) (hM : Dec2.cstarX d L Cx ≤ (L : ℝ) ^ m₁)
+    {δ : ℝ} (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L 0 ≤ 1 / 4)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (hsq : ∀ z : G.Ω 1, ∑ i, φ z i * φ z i = 1) :
+    (∀ x : ℝ, 0 ≤ x → IsUnit ((x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) +
+      baseOp N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1)))) ∧
+    (∀ y z : G.Ω 1 × Fin N,
+      ((1 / Real.pi : ℝ) : ℂ) * ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α (fun _ => 1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α (fun _ => 1) φ) y z =
+        Localization.sqrtMat (baseOp N (restrictField G φ)
+          (baseHamiltonian G a ν α (fun _ => 1))) y z) ∧
+    Localization.sqrtMat (baseOp N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1))) *
+        Localization.sqrtMat (baseOp N (restrictField G φ)
+          (baseHamiltonian G a ν α (fun _ => 1))) =
+      baseResolvent N (restrictField G φ) (baseHamiltonian G a ν α (fun _ => 1)) 0 := by
+  have hone := fun x (hx : 0 ≤ x) => baseCovX_one (xCover_add_mass S hx) hCx hx ha0 ha1 ha1' haT
+    hα hM hδ hsm hφ hsq
+  have hres : Localization.ResOK (baseOp N (restrictField G φ)
+      (baseHamiltonian G a ν α (fun _ => 1))) := by
+    intro x hx
+    have h := (hone x hx).2
+    rw [add_comm] at h
+    exact (Matrix.isUnit_iff_isUnit_det _).2 (Matrix.isUnit_det_of_right_inverse h)
+  refine ⟨hres, fun y z => ?_, ?_⟩
+  · show _ = ((1 / Real.pi : ℝ) : ℂ) * ∫ x in Ioi (0 : ℝ), ((x ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+      (((x : ℂ) • (1 : Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ) + baseOp N (restrictField G φ)
+        (baseHamiltonian G a ν α (fun _ => 1)))⁻¹ y z)
+    congr 1
+    refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
+    have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
+    rw [← (hone x hx0).1, baseResolvent, add_comm]
+  · rw [Localization.sqrtMat_mul_self hres, baseResolvent]
+    simp
+
+end Physical
+
 end Balaban.LargeField.Base
