@@ -531,3 +531,138 @@ theorem localB_mTermHat_evTerm_rot {ϱa : ℝ} {Ga : GeneratingSet d L (N₁ * L
           refine setIntegral_congr_fun hKc.isClosed.measurableSet fun ψ _ => ?_
           simp only [hI]
           rfl
+
+end ParamMRot
+
+section Fresh
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Analysis
+  Balaban.Fluctuation Balaban.LargeField Finset Matrix MeasureTheory
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+variable {a₁ ν Kc Cx : ℝ} {ι : Type*} [Fintype ι]
+variable (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ BG₂ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf Gp)} (hσan : ∀ w, AnalyticAt ℂ σ w)
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → σ w ⟨P, hP⟩ = 1)
+  {γ : Measure (unitPts Gp × Fin N → ℝ)} {K : Set (unitPts Gp × Fin N → ℝ)}
+  (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ) (hγ : γ K < ⊤)
+
+include hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm hcψ hδ₁0 hδ₁ hPmp
+  hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hKc hKb hγ
+
+/-- **The integrand of the `ψ̂`-integral of a local fan term is integrable**: for `Φ` analytic and
+bounded on the realizable triples with layer-constant fluctuation, at a datum `Θ` of the chart and a
+parameter `w` of the polydisc, `ψ̂ ↦ Φ(F₁(σ w, Θ), Sol(σ w, …), (Θ, cc C^{1/2}(σ w) ψ̂))` is
+integrable over the compact set `K` (continuous there and bounded). -/
+theorem fanLocalHat_integrableOn_cover
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁))
+    {B : ℝ} (hΦbd : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ‖Φ t.1 t.2.1 t.2.2‖ ≤ B)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps) {w : ι → ℂ}
+    (hw : w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) :
+    IntegrableOn (fun ψ : unitPts Gp × Fin N → ℝ =>
+        Φ (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0)) K γ := by
+  classical
+  have hA := fanLocalHat_analytic_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
+    hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 hΦ
+  have hB := fanLocalHat_norm_le_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
+    hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 hΦbd
+  have hv : ∀ ψ ∈ K, ∀ r, ‖((fun r => (ψ r : ℂ)) : unitPts Gp × Fin N → ℂ) r‖ ≤ cψ :=
+    fun ψ hψ r => by simpa [Complex.norm_real] using hKb ψ hψ r
+  have hcast : Continuous (fun ψ : unitPts Gp × Fin N → ℝ => (fun r => (ψ r : ℂ) :
+      unitPts Gp × Fin N → ℂ)) := by fun_prop
+  set Ψ : (unitPts Gp × Fin N → ℂ) → ℂ := fun v =>
+    Φ (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ v)) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ v)) (⟨unitBlock x, h⟩, i)
+              else 0) with hΨ
+  have hmemT : ∀ v : unitPts Gp × Fin N → ℂ, (∀ r, ‖v r‖ ≤ cψ) →
+      ((Θ, v), w) ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+        polydisc (0 : ι → ℂ) (fun _ => Real.exp κ) := fun v hv => ⟨⟨hΘ, hv⟩, hw⟩
+  have hΨan : ∀ v : unitPts Gp × Fin N → ℂ, (∀ r, ‖v r‖ ≤ cψ) → AnalyticAt ℂ Ψ v := by
+    intro v hv
+    have hρ : AnalyticAt ℂ (fun v : unitPts Gp × Fin N → ℂ => ((Θ, v), w)) v :=
+      (analyticAt_const.prod analyticAt_id).prod analyticAt_const
+    exact (hA _ (hmemT v hv)).comp_of_eq hρ rfl
+  have hKm : MeasurableSet K := hKc.isClosed.measurableSet
+  have : IsFiniteMeasure (γ.restrict K) := ⟨by rw [Measure.restrict_apply_univ]; exact hγ⟩
+  have hcont : ContinuousOn (fun ψ : unitPts Gp × Fin N → ℝ => Ψ (fun r => (ψ r : ℂ))) K :=
+    fun ψ hψ => ContinuousAt.continuousWithinAt (ContinuousAt.comp (g := Ψ)
+      (f := fun ψ : unitPts Gp × Fin N → ℝ => (fun r => (ψ r : ℂ) : unitPts Gp × Fin N → ℂ))
+      (hΨan _ (hv ψ hψ)).continuousAt hcast.continuousAt)
+  refine Integrable.of_bound (C := B) (hcont.aestronglyMeasurable hKm) ?_
+  refine (ae_restrict_iff' hKm).2 (Filter.Eventually.of_forall fun ψ hψ => ?_)
+  exact hB _ (hmemT _ (hv ψ hψ))
+
+end Fresh
+
+end Balaban.Localization
