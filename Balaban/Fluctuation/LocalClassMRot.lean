@@ -534,10 +534,44 @@ theorem localB_mTermHat_evTerm_rot {ϱa : ℝ} {Ga : GeneratingSet d L (N₁ * L
 
 end ParamMRot
 
+section FreshAmp
+
+open Matrix Balaban.Background
+
+variable {N : ℕ}
+
+/-- The sources enter the fresh term only through the amplitude `g(y, i)`. -/
+theorem fresh_amp_rot_pair {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) {τ : Fin N → ℂ}
+    (g : Fin N → ℂ) :
+    ∑ i, (cmat Q).mulVec g i * ∑ l, cmat Q i l * τ l = ∑ l, g l * τ l := by
+  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
+  have h1 : ∀ i, (cmat Q).mulVec g i * ∑ l, cmat Q i l * τ l =
+      ∑ l, ∑ j, (cmat Q i j * cmat Q i l) * (g j * τ l) := by
+    intro i
+    simp only [Matrix.mulVec, dotProduct, Finset.sum_mul, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun l _ => by ring
+  simp only [h1]
+  rw [Finset.sum_comm]
+  have h2 : ∀ l, ∑ i, ∑ j, (cmat Q i j * cmat Q i l) * (g j * τ l) = g l * τ l := by
+    intro l
+    rw [Finset.sum_comm]
+    have : ∀ j, ∑ i, (cmat Q i j * cmat Q i l) * (g j * τ l) =
+        (if j = l then 1 else 0) * (g j * τ l) := by
+      intro j
+      rw [← Finset.sum_mul]
+      congr 1
+      have := congrFun (congrFun hR j) l
+      simpa [Matrix.mul_apply, Matrix.transpose_apply, Matrix.one_apply] using this
+    rw [Finset.sum_congr rfl (fun j _ => this j)]
+    simp
+  exact Finset.sum_congr rfl fun l _ => h2 l
+
+end FreshAmp
+
 section Fresh
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Analysis
-  Balaban.Fluctuation Balaban.LargeField Finset Matrix MeasureTheory
+  Balaban.Fluctuation Balaban.LargeField Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Finset Matrix MeasureTheory
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
@@ -662,6 +696,110 @@ theorem fanLocalHat_integrableOn_cover
   refine Integrable.of_bound (C := B) (hcont.aestronglyMeasurable hKm) ?_
   refine (ae_restrict_iff' hKm).2 (Filter.Eventually.of_forall fun ψ hψ => ?_)
   exact hB _ (hmemT _ (hv ψ hψ))
+
+
+
+/-- **The fresh source term `⟨g, δφ⟩` on the local chart: analyticity and the bound of the term of
+`Y` for the site `y`, component `i`** (P3 (4.46), `fsite_expansion` recomputed on `𝔹`).  The
+function expanded is `G_{y,i}(Θ, w) = ∫_K δφ(F₁(σ w, Θ), …)(y, i) dγ(ψ̂)`, the `ψ̂`-integral of the
+site functional `siteFun` of the local fluctuation field; the source `g` enters the fresh term only
+through the amplitude `g(y, i)`.  The term of `Y` read through the cut-off `clipRaw` is analytic in
+the pair of fields on the class domain and bounded there by
+`(cK2' δ₁) γ(K) e^{-2 κ_dec d̃^cov(Y)}`, for a root family with `treeLenCovOne = 0`
+(the fresh term has no old polymer). -/
+theorem localB_freshTermHat_evTerm_xiFieldDom [DecidableEq ι] {ϱa : ℝ}
+    {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱa} {cI : ι → ℕ × CTorus d L N₁ m₁ (k + 1)}
+    {m₀ j' : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : CovSetup Ga m₀ j' X 𝒦X) (hd : 3 ≤ d) (hL : 3 ≤ L) (hcI : ∀ i, cI i ∈ cubeIdx Ga)
+    (hcinj : Function.Injective cI) (hdisj : ∀ i, Disjoint (Pset m₁ (cI i)) (X1 Ga m₀ j' 𝒦X))
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j' 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j') E₀ = treeLenCovOne m₀ j' X)
+    (hΔ : treeLenCovOne m₀ j' X = 0) (hBG₂ : 0 ≤ BG₂)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    {εseq : ℕ → ℝ} (hεseq : εseq (k + 1) ≤ eps)
+    (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N)
+    (Gi : RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
+    (hGi : ∀ (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gi Θ w =
+      ∫ ψ in K,
+        siteFun Gp Hm y i (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) :
+    AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Gi Y (clipRaw Gp p))
+      {p | (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom (k + 1) Gp
+        p.1 p.2} ∧
+    ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom (compWeight L a₁) ν εseq : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom (k + 1) Gp
+        p.1 p.2 →
+      ‖evTerm cI Ga m₀ (X1 Ga m₀ j' 𝒦X) Gi Y (clipRaw Gp p)‖ ≤
+        (cK2' d L N (famConst d L BG₂ κ) * δ₁) * (γ K).toReal *
+          Real.exp (-2 * κdec * treeLenCov Ga m₀ Y) := by
+  classical
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hBG₂ κ hd0; linarith
+  have hBnn : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hδ₁0.le
+  have hγ0 : 0 ≤ (γ K).toReal := ENNReal.toReal_nonneg
+  obtain ⟨hA, hB⟩ := fanLocalHat_integral_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall
+    hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1
+    (Φ := siteFun Gp Hm y i) ((siteFun_analytic (Gp := Gp) (Hm := Hm) y i).mono (Set.subset_univ _))
+    (B := cK2' d L N (famConst d L BG₂ κ) * δ₁)
+    (fun t ht => by
+      obtain ⟨-, hsup, -⟩ := flReal_facts ht.1
+      simpa [siteFun] using hsup.val y i) hKc hKb hγ
+  have hfun : (fun q : RawData d L (N₁ * L ^ m₁) (k + 1) N × (ι → ℂ) => Gi q.1 q.2) =
+      fun q => ∫ ψ in K,
+        siteFun Gp Hm y i (F₁ (σ q.2, q.1))
+          (Sol (σ q.2, flEdat Gp Hm (F₁ (σ q.2, q.1)) q.1.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ q.2, q.1)).2
+                  (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (q.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ q.2, q.1)).2
+                  (Dec2.extS (coverOf Gp) (σ q.2)) (barField Gp q.1.1 (F₁ (σ q.2, q.1)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ := by
+    funext q
+    exact hGi q.1 q.2
+  have hEv := evTerm_bound_analyticOnNhd_of_bd (c := cI)
+    (U := RawData d L (N₁ * L ^ m₁) (k + 1) N) (F := Gi)
+    hcov hd hL hcI hcinj hdisj hopt hκ₀ hκdec hκκ h1 hlog (mul_nonneg hBnn hγ0)
+    (S := XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps)
+    (by rw [hfun]; exact hA)
+    (fun u hu s hs => by
+      have := hB (u, s) ⟨hu, hs⟩
+      rw [hGi, hΔ, mul_zero, Real.exp_zero, mul_one]
+      exact this)
+  refine ⟨fun p hp => ?_, fun p hp => ?_⟩
+  · have hmem : clipRaw Gp p ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps :=
+      clipRaw_mem_xiCRaw_of_xiDom hεseq hp
+    exact (hEv.2 Y (clipRaw Gp p) hmem).comp_of_eq (analyticAt_clipRaw p) rfl
+  · have := hEv.1 Y (clipRaw Gp p) (clipRaw_mem_xiCRaw_of_xiDom hεseq hp)
+    have e : -κ₀ * treeLenCovOne m₀ j' X - 2 * κdec * treeLenCov Ga m₀ Y =
+        -2 * κdec * treeLenCov Ga m₀ Y := by rw [hΔ]; ring
+    rw [e] at this
+    exact this
 
 end Fresh
 
