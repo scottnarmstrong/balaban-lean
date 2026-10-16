@@ -24,7 +24,7 @@ The last section lists the problems that have been resolved since the project st
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity; analyticity, locality and bounds of the local energy and source terms; rotation covariance of the energy terms; lattice covariance and the assembly of the next level remain |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; a last-scale design exists; the scales just below the last may need a floor on the torus size (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -269,7 +269,8 @@ alone.
 A design for the last scale (October 16, `notes/phase1/TORUSLAST2.md`): define the last-scale terms
 from one canonical torus chosen by the support, and move the difference on any other torus onto polymers
 that reach outside the quarter box; the uniform closeness of the final operators on two tori pays for this
-at distance of a few cells from the box edge. Truncating the walk expansion of the final operator to the
+at distance of a few cells from the box edge (proved, together with the chains and an abstract assembly
+that keeps the identity and makes the terms exactly equal on two tori). Truncating the walk expansion of the final operator to the
 region, as in the Yang–Mills account, does not work here: the final operator is a Schur complement and the
 truncation changes it by order one near the boundary. Root-F as stated carries no lower bound on the
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so
