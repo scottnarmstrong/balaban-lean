@@ -1932,6 +1932,7 @@ public import Balaban.LargeField.Base.BaseXCover
 public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.LargeField.Base.BaseXCov
 public import Balaban.LargeField.Base.BaseBackgroundLocal
+public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
 public import Balaban.LargeField.Base.BaseXLog
