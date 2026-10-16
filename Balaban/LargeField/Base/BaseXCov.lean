@@ -143,4 +143,65 @@ theorem baseCovX_one {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ →
 
 end One
 
+section Analytic
+
+variable {d L N₁ m₁ N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ} {x : ℝ}
+
+/-- **L5, analyticity.**  Every entry of the x-dependent constrained covariance
+`(1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}` (at `x' = 0` and mass `ν + x`) is analytic in
+`(s, φ₀, α)` on `DecDom G N κ δ`.  The hypotheses on `κ`, `δ` are those of the step's chain and
+do not involve `x` or `ν`. -/
+theorem baseCovX_analytic {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx : ℝ}
+    (S : Dec2.XCover (coverOf G) G a aT (ν + x) Cx) (hCx : 0 ≤ Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ : ℝ} (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (y z : G.Ω 1 × Fin N) :
+    AnalyticOnNhd ℂ
+      (fun p : DecData G N =>
+        ((1 + (x : ℂ))⁻¹ • basePart (restrictField G p.2.1) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1)) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1) p.2.1) y z)
+      (DecDom G N κ δ) := by
+  intro e he
+  have hα : AdmPot G e.2.2 := fun w => (he.2.2 w).le
+  have D := xData_cover_of_mem (N := N) S hCx (le_refl (0 : ℝ)) hκ hM he
+  have hφ : IsConstraintField G δ e.2.1 := he.2.1.toIsConstraintField
+  have hpr : AnalyticAt ℂ (fun p : DecData G N => ((p.1, p.2.2) : DecParams G × (G.Ω 1 → ℂ))) e :=
+    AnalyticAt.prod analyticAt_fst (analyticAt_snd.comp analyticAt_snd)
+  have hHx : RectAt (fun p : DecData G N => xDirichletOperator G a aT 0 (ν + x) p.2.2) e :=
+    RectAt.comp' (f := fun p : DecData G N => ((p.1, p.2.2) : DecParams G × (G.Ω 1 → ℂ)))
+      (rectAt_xDirichlet (G := G) a aT 0 (ν + x) ((e.1, e.2.2) : DecParams G × (G.Ω 1 → ℂ))) hpr
+  have hGs : RectAt (fun p : DecData G N =>
+      Dec2.Gsx (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1)) e :=
+    RectAt.comp' (f := fun p : DecData G N => ((p.1, p.2.2) : DecParams G × (G.Ω 1 → ℂ)))
+      (Dec2.matAt_Gsx S (le_refl (0 : ℝ)) hα D.isUnit_one_sub) hpr
+  have hGl := hGs.liftOp (N := N)
+  have hHl := hHx.liftOp (N := N)
+  have hF := rectAt_fieldMul (G := G) (N := N) e
+  have hK : RectAt (fun p : DecData G N =>
+      commK (xDirichletOperator G a aT 0 (ν + x) p.2.2) (restrictField G p.2.1)) e := by
+    unfold commK
+    exact (hF.transpose'.mul hHl).sub (hHx.mul hF.transpose')
+  have hMa : RectAt (fun p : DecData G N =>
+      Dec2.decM (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1) p.2.1) e := by
+    unfold Dec2.decM constraintM
+    exact (hF.transpose'.mul hF).sub ((hK.mul hGl).mul hF)
+  have hNa : RectAt (fun p : DecData G N =>
+      Dec2.decN (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1) p.2.1) e := by
+    unfold Dec2.decN constraintN
+    exact hF.transpose'.sub (hK.mul hGl)
+  have hdet : (Dec2.decM (coverOf G) G a aT 0 (ν + x) e.2.2 (Dec2.extS (coverOf G) e.1)
+      e.2.1).det ≠ 0 :=
+    ((Matrix.isUnit_iff_isUnit_det _).1 (decM_isUnit_cover D hφ hδ hsm)).ne_zero
+  have hMi := hMa.inv hdet
+  have hPi : RectAt (fun p : DecData G N =>
+      Dec2.decPi (coverOf G) G a aT 0 (ν + x) p.2.2 (Dec2.extS (coverOf G) p.1) p.2.1) e := by
+    unfold Dec2.decPi
+    exact (((hGl.mul hF).mul hMi).mul hNa)
+  have hP : RectAt (fun p : DecData G N => basePart (restrictField G p.2.1)) e := by
+    unfold basePart
+    exact hF.mul hF.transpose'
+  exact (((hP.smul_const ((1 + (x : ℂ))⁻¹)).add hGl).sub hPi) y z
+
+end Analytic
+
 end Balaban.LargeField.Base
