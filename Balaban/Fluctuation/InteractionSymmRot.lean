@@ -57,6 +57,35 @@ theorem xiCData_rot_iff {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) {n 
 
 end Data
 
+section BackgroundCore
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+variable {a₁ ν BG κ : ℝ}
+
+/-- **The rotation step of `F₁_rot`**, for any notion `P s D φ α` of decoupled background that is
+carried to itself by the rotation of the datum and of the field (the notion `IsDecBg` of the
+one-generating-set chain, or `Dec2.IsDecBg (coverOf Gp) Gp` of the cover form): if `F₁` returns
+`(φ, α)` at every `(s, D)` with `P s D φ α`, and `(φ, α)` is such a background of `D` at `s`, then
+`F₁` returns `(R φ, α)` at the rotated datum.  Shared by `F₁_rot` and its cover form. -/
+theorem F₁_rot_of_isBg
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {P : DecParams Gp → BgData Gp N → (Gp.Ω 1 × Fin N → ℂ) → (Gp.Ω 1 → ℂ) → Prop}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), P s D φ α → F₁ (s, rawOf D) = (φ, α))
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    (hP : ∀ (s : DecParams Gp) (D : BgData Gp N) (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+      P s D φ α → P s (D.rot (cmat Q)) (rotFld (cmat Q) φ) α)
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData Gp N}
+    (hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D)
+    {φ : Gp.Ω 1 × Fin N → ℂ} {α : Gp.Ω 1 → ℂ} (hI : P s D φ α) :
+    F₁ (s, rotRaw (cmat Q) (rawOf D)) = (rotFld (cmat Q) φ, α) :=
+  hF₁ s (D.rot (cmat Q)) hs ((inUnionDomainC_rot_iff hQ).2 hU) _ _ (hP s D φ α hI)
+
+end BackgroundCore
+
 section Background
 
 variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
@@ -113,11 +142,9 @@ theorem F₁_rot
       (rotFld (cmat Q) (F₁ (s, rawOf D)).1, (F₁ (s, rawOf D)).2) := by
   obtain ⟨hU, φ, α, hI, hFeq⟩ := bg_point hC hF₁ hs hD
   rw [hFeq]
-  have hU' := (inUnionDomainC_rot_iff hQ).2 hU
-  have hI' : IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s (D.rot (cmat Q))
-      (rotFld (cmat Q) φ) α :=
-    (DecEquiv.isDecBg_rot_iff (isRealOrth_ofReal hQ).1 _ s D φ α).2 hI
-  exact hF₁ s (D.rot (cmat Q)) hs hU' _ _ hI'
+  exact F₁_rot_of_isBg (P := fun s D φ α => IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α)
+    hF₁ hQ (fun s D φ α h =>
+      (DecEquiv.isDecBg_rot_iff (isRealOrth_ofReal hQ).1 _ s D φ α).2 h) hs hU hI
 
 /-- **Reality of the decoupled background**: `F₁ (conj s, Θ) = conj F₁ (s, Θ)` for real `Θ`. -/
 theorem F₁_conj
