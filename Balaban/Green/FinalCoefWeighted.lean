@@ -281,4 +281,160 @@ theorem final_taggedKE_close_weighted (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
 
 end TwoTorus
 
+/-- Simplification of the error of the tagged perturbed defect: for `0 ≤ T ≤ g⁻¹` the error
+terms of `final_taggedKE_close_weighted` are at most `cK (√ε + √εE)`, where `cK` depends on
+`nB`, `P0`, `c`, `η` and `g` only. -/
+theorem weighted_defect_err_le {nB ε εE η T c P0 g : ℝ} (hnB : 0 ≤ nB) (hε : 0 ≤ ε)
+    (hεE : 0 ≤ εE) (hη : 0 ≤ η) (hT : 0 < T) (hg : 0 < g) (hTg : T ≤ g⁻¹) (hc : 0 ≤ c)
+    (hP0 : 0 ≤ P0) :
+    Real.sqrt ((nB * ε * T * (2 + P0 * nB ^ 2)) * (2 * c * T)) +
+        nB * (2 * T * Real.sqrt (εE * (2 * η)) +
+          η * Real.sqrt ((nB ^ 2 * ε * T ^ 2) * (4 * T))) ≤
+      (g⁻¹ * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) + 2 * nB * g⁻¹ * Real.sqrt (2 * η) +
+          2 * nB ^ 2 * η * g⁻¹ * (Real.sqrt g)⁻¹) * (Real.sqrt ε + Real.sqrt εE) := by
+  have hK0 : 0 ≤ 2 * c * (nB * (2 + P0 * nB ^ 2)) := by positivity
+  have hsq0 := Real.sqrt_nonneg ε
+  have hsqE0 := Real.sqrt_nonneg εE
+  have hgi : 0 < g⁻¹ := inv_pos.2 hg
+  have hsg : 0 < (Real.sqrt g)⁻¹ := inv_pos.2 (Real.sqrt_pos.2 hg)
+  have b1 := sqrt_boxR_err_le (nB := nB) (ε := ε) (T := T) (c := c) (P0 := P0) hε hT hK0
+  have b2 := sqrt_boxG_err_le (nB := nB) (ε := ε) (T := T) (g := g) hnB hε hT hg hTg
+  have b3 : Real.sqrt (εE * (2 * η)) = Real.sqrt εE * Real.sqrt (2 * η) :=
+    Real.sqrt_mul hεE _
+  have hs2 : 0 ≤ Real.sqrt (2 * η) := Real.sqrt_nonneg _
+  have hsK : 0 ≤ Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) := Real.sqrt_nonneg _
+  have c1 : Real.sqrt ε * T * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) ≤
+      g⁻¹ * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) * Real.sqrt ε := by
+    have := mul_le_mul_of_nonneg_right hTg (mul_nonneg hsq0 hsK)
+    nlinarith
+  have c2 : nB * (2 * T * Real.sqrt (εE * (2 * η))) ≤
+      2 * nB * g⁻¹ * Real.sqrt (2 * η) * Real.sqrt εE := by
+    rw [b3]
+    have := mul_le_mul_of_nonneg_right hTg (mul_nonneg hsqE0 hs2)
+    nlinarith [mul_nonneg hnB (mul_nonneg hsqE0 hs2)]
+  have c3 : nB * (η * Real.sqrt ((nB ^ 2 * ε * T ^ 2) * (4 * T))) ≤
+      2 * nB ^ 2 * η * g⁻¹ * (Real.sqrt g)⁻¹ * Real.sqrt ε := by
+    have h1 : η * Real.sqrt ((nB ^ 2 * ε * T ^ 2) * (4 * T)) ≤
+        η * (2 * nB * Real.sqrt ε * g⁻¹ * (Real.sqrt g)⁻¹) :=
+      mul_le_mul_of_nonneg_left (b2.trans (by
+        have := mul_le_mul_of_nonneg_right hTg (by positivity :
+          0 ≤ 2 * nB * Real.sqrt ε * (Real.sqrt g)⁻¹)
+        nlinarith)) hη
+    calc _ ≤ nB * (η * (2 * nB * Real.sqrt ε * g⁻¹ * (Real.sqrt g)⁻¹)) :=
+          mul_le_mul_of_nonneg_left h1 hnB
+      _ = _ := by ring
+  have hA : 0 ≤ g⁻¹ * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) * Real.sqrt εE := by positivity
+  have hB : 0 ≤ 2 * nB * g⁻¹ * Real.sqrt (2 * η) * Real.sqrt ε := by positivity
+  have hC : 0 ≤ 2 * nB ^ 2 * η * g⁻¹ * (Real.sqrt g)⁻¹ * Real.sqrt εE := by positivity
+  nlinarith [b1, c1, c2, c3, hA, hB, hC]
+
+section Unif
+
+variable {d M L : ℕ} [NeZero L]
+
+/-- **The localized coefficients of the logarithm of the perturbed defect on two tori, polynomial
+in the number of cells (blocker 7, weighted).**  As `final_coef_logdet_close_twoTorus_unif`, with
+the constant `P` independent of the bound `nC ≥ |C|` of the number of cells: the bound is
+`P nC³ (√ε₀ + √εE) / (e^κ - 1)^{|C|}`, `ε₀ = C₀ exp(-c₀ (min N N'/2 - (J+3) M))`; there is no
+factor `e^{κ nC}`.  The price is the square roots, from the interpolation with the decay of the
+entries (`final_taggedKE_close_weighted`). -/
+theorem final_coef_logdet_close_twoTorus_unif_weighted (hd : 0 < d) (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1)
+    :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ (nC : ℕ) {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C, ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        P * (nC : ℝ) ^ 3 * (Real.sqrt (C₀ * Real.exp (-c₀ *
+            (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) + Real.sqrt εE) /
+          (Real.exp κ - 1) ^ C.card := by
+  classical
+  obtain ⟨C₀, c₀, hC₀, hc₀, hreg⟩ := final_region_entry_close_unif (L := L) hd
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hg := finalGap_pos (d := d) hL
+  have hA0 := finalDecayC_pos (L := L) hd
+  have hM' : (0 : ℝ) < M := by exact_mod_cast hM
+  have hε := pdEps_pos (d := d) (L := L) hd
+  have hC1 : 0 ≤ pdC1 d L := by
+    unfold pdC1 pdLip
+    have := ballConst_nonneg (d := d) (r := pdEps d L / 4) (by positivity)
+    positivity
+  set nB : ℝ := (((8 * M + 1) ^ d : ℕ) : ℝ) with hnBdef
+  have hnB : 0 ≤ nB := by positivity
+  set Hk : ℝ := Real.exp (pdH d * κ) with hHk
+  have hHk0 : 0 < Hk := Real.exp_pos _
+  set P0 : ℝ := finalDecayC d L / finalGap d L + 1 with hP0
+  have hP00 : 0 ≤ P0 := by positivity
+  set c : ℝ := pdC1 d L / M with hc
+  have hc0 : 0 ≤ c := by positivity
+  set cK : ℝ := (finalGap d L)⁻¹ * Real.sqrt (2 * c * (nB * (2 + P0 * nB ^ 2))) +
+    2 * nB * (finalGap d L)⁻¹ * Real.sqrt (2 * η) +
+    2 * nB ^ 2 * η * (finalGap d L)⁻¹ * (Real.sqrt (finalGap d L))⁻¹ with hcK
+  have hcK0 : 0 ≤ cK := by positivity
+  refine ⟨2 * nB ^ 2 * Hk * cK, C₀, c₀, by positivity, hC₀, hc₀, ?_⟩
+  intro nC k hk J N N' _ _ hN hN' f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE' εE
+    hεE0 hEc ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  set ε₀ : ℝ := C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))
+    with hε₀
+  have hε00 : 0 ≤ ε₀ := by positivity
+  have hU : ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖finalOp d L N k v a x y - finalOp d L N' k v a (f x) (f y)‖ ≤ ε₀ :=
+    fun x hx y hy => hreg hk hv0 hv1 ha1 ha2 hmass hM hN hN' hf hC x hx y hy
+  have hnC0 : (0 : ℝ) ≤ nC := Nat.cast_nonneg _
+  have hCc' : (C.card : ℝ) ≤ nC := by exact_mod_cast hCc
+  have hsum0 : 0 ≤ Real.sqrt ε₀ + Real.sqrt εE := by positivity
+  have key := final_coef_logdet_close_core hd hM hκ hMB hMκ hrE hη nC hk hN hN' hf he hCc hC hv0
+    hv1 ha1 ha2 hmass ht hE hE' hρ hρ' hell hell' h0 h0' hdet hdet'
+    (δ0 := nC * Hk * (cK * (Real.sqrt ε₀ + Real.sqrt εE))) (by positivity) ?_
+  · refine key.trans (le_of_eq ?_)
+    rw [hnBdef]
+    ring
+  · intro s hs s' hs' hss hsκ x y hx hy
+    have h := final_taggedKE_close_weighted hM hN hN' hf he hC hd hk hv0 hv1 ha1 ha2 hmass hκ.le
+      hMκ hrE hη0 hU hE hE' hEc ht hs hs' hss hsκ hx hy
+    refine h.trans ?_
+    have hgt : 0 < finalGap d L + t := by linarith
+    have hT0 : 0 < (finalGap d L + t)⁻¹ := inv_pos.2 hgt
+    have hTg : (finalGap d L + t)⁻¹ ≤ (finalGap d L)⁻¹ := inv_anti₀ hg (by linarith)
+    have hb := weighted_defect_err_le (nB := nB) (ε := ε₀) (εE := εE) (η := η)
+      (T := (finalGap d L + t)⁻¹) (c := c) (P0 := P0) (g := finalGap d L) hnB hε00 hεE0 hη0 hT0
+      hg hTg hc0 hP00
+    calc _ ≤ (C.card : ℝ) * Hk * (cK * (Real.sqrt ε₀ + Real.sqrt εE)) :=
+          mul_le_mul_of_nonneg_left hb (by positivity)
+      _ ≤ nC * Hk * (cK * (Real.sqrt ε₀ + Real.sqrt εE)) :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCc' hHk0.le) (by positivity)
+
+end Unif
+
 end Balaban.Green
