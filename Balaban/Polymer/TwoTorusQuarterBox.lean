@@ -112,6 +112,7 @@ theorem taggedMat_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc
   rw [hV, tagMon_map_equiv, ← ha z]
   rfl
 
+omit [Fintype Pc] in
 theorem taggedG_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc)
     {V V' : Z → ι → ι → Finset Pc} {B B' : Z → Finset ι} {c c' : Z → ι → ℂ}
     {U U' : Matrix ι ι ℂ}
@@ -126,6 +127,7 @@ theorem taggedG_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc)
   have h : (c' (σ z)) ∘ e = c z := funext (hc z)
   rw [h]
 
+omit [Fintype Pc] in
 theorem taggedK_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc)
     {V V' : Z → ι → ι → Finset Pc} {B B' : Z → Finset ι} {c c' : Z → ι → ℂ}
     {U U' : Matrix ι ι ℂ}
@@ -137,6 +139,7 @@ theorem taggedK_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc)
   unfold taggedK
   exact taggedMat_submatrix_equiv e σ ρ hV (fun z => boxR_submatrix_equiv e hU (hB z) (hc z) t) s
 
+omit [Fintype Pc] in
 theorem taggedGfin_submatrix_equiv (e : ι ≃ ι) (σ : Z ≃ Z) (ρ : Pc ≃ Pc)
     {V V' : Z → ι → ι → Finset Pc} {B B' : Z → Finset ι} {c c' : Z → ι → ℂ}
     {U U' : Matrix ι ι ℂ}
@@ -214,7 +217,7 @@ theorem mem_macCore_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N 
     (z : MacIdx d N M) (x : L1Torus d N) :
     e x ∈ macCore d N M (σ z) ↔ x ∈ macCore d N M z := by
   unfold macCore
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   refine forall_congr' fun i => ?_
   rw [he, Fin.ext_iff, hσ, macCell_add_cell hMN, Fin.ext_iff]
   have h1 := (macCell N M (x i)).isLt
@@ -291,6 +294,7 @@ theorem mem_macRegion_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d 
   · rintro ⟨c, hc, hx⟩
     exact ⟨σ c, Finset.mem_map_of_mem _ hc, (mem_macBox_translate hMN σ hσ e he c x).2 hx⟩
 
+omit [NeZero N] in
 theorem mem_macArc_translate (a b t u : ZMod N) :
     u + t ∈ macArc (a + t) (b + t) ↔ u ∈ macArc a b := by
   unfold macArc
@@ -302,11 +306,12 @@ theorem mem_macArc_translate (a b t u : ZMod N) :
   · rintro ⟨e, he, rfl⟩
     exact ⟨e, he, by ring⟩
 
+omit [NeZero N] in
 theorem mem_macPath_translate (e : L1Torus d N ≃ L1Torus d N) {t : Fin d → ZMod N}
     (he : ∀ x i, e x i = x i + t i) (x y q : L1Torus d N) :
     e q ∈ macPath d N (e x) (e y) ↔ q ∈ macPath d N x y := by
   unfold macPath
-  simp only [Set.mem_setOf_eq, he]
+  simp only [Set.mem_ofPred_eq, he]
   refine exists_congr fun k => ?_
   simp only [add_left_inj]
   rw [mem_macArc_translate]
@@ -454,7 +459,7 @@ open MeasureTheory Set Balaban.Localization
 
 variable {d M N L k : ℕ} [NeZero N] [NeZero L] {p : ℕ}
 
-omit [NeZero L] in
+omit [NeZero N] [NeZero L] in
 /-- A translation of the coarse torus with prescribed coordinates exists. -/
 theorem exists_translate (t : Fin d → ZMod N) :
     ∃ e : L1Torus d N ≃ L1Torus d N, ∀ x i, e x i = x i + t i :=
@@ -511,6 +516,225 @@ theorem taggedCfin_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N M
         (macTags d N M) (finalOp d L N k v a) t (s ∘ σ)) x y :=
     integral_congr_ae (Filter.Eventually.of_forall fun t => congrFun (congrFun (hG t) x) y)
   rw [hint]
+
+section LogDet
+
+open Balaban.Localization Balaban.Analysis
+
+variable {d M N L k : ℕ} [NeZero N] [NeZero L] {p : ℕ}
+
+theorem comp_perm_mem_ball {Z : Type*} [Fintype Z] (σ : Z ≃ Z) {ρ : ℝ} {s : Z → ℂ}
+    (hs : s ∈ Metric.ball (0 : Z → ℂ) ρ) : s ∘ σ ∈ Metric.ball (0 : Z → ℂ) ρ := by
+  rw [mem_ball_zero_iff] at hs ⊢
+  refine lt_of_le_of_lt ((pi_norm_le_iff_of_nonneg (norm_nonneg _)).2 fun z => ?_) hs
+  exact norm_le_pi_norm s (σ z)
+
+theorem analyticOnNhd_comp_perm {Z : Type*} [Fintype Z] (σ : Z ≃ Z) {ρ : ℝ} {f : (Z → ℂ) → ℂ}
+    (hf : AnalyticOnNhd ℂ f (Metric.ball (0 : Z → ℂ) ρ)) :
+    AnalyticOnNhd ℂ (fun s : Z → ℂ => f (s ∘ σ)) (Metric.ball (0 : Z → ℂ) ρ) := by
+  let T : (Z → ℂ) →L[ℂ] (Z → ℂ) := ContinuousLinearMap.pi fun z => ContinuousLinearMap.proj (σ z)
+  have hT : ∀ s, T s = s ∘ σ := fun s => rfl
+  have h := hf.comp (fun s _ => T.analyticAt s) (fun s hs => (hT s ▸ comp_perm_mem_ball σ hs))
+  exact h
+
+theorem wSmall_submatrix_equiv {r η : ℝ} (e : L1Torus d N ≃ L1Torus d N) {t : Fin d → ZMod N}
+    (he : ∀ x i, e x i = x i + t i) {E : Matrix (L1Torus d N) (L1Torus d N) ℂ}
+    (hE : WSmall r η E) : WSmall r η (E.submatrix e.symm e.symm) := by
+  have hd : ∀ x y, dist (e.symm x) (e.symm y) = dist x y := fun x y => by
+    have := dist_translate e he (e.symm x) (e.symm y)
+    simpa using this.symm
+  constructor
+  · intro x
+    have := hE.1 (e.symm x)
+    rw [← Equiv.sum_comp e.symm] at this
+    simpa [Matrix.submatrix_apply, hd] using this
+  · intro y
+    have := hE.2 (e.symm y)
+    rw [← Equiv.sum_comp e.symm] at this
+    simpa [Matrix.submatrix_apply, hd] using this
+
+/-- **The determinant of the perturbed tagged defect is covariant**: the defect built from the
+transported perturbation `E ∘ τ⁻¹` at the parameter `s` has the determinant of the defect built
+from `E` at the parameter `s ∘ σ`. -/
+theorem det_taggedKE_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx d N M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M)
+    (e : L1Torus d N ≃ L1Torus d N) (he : ∀ x i, e x i = x i + ((M * p : ℕ) : ZMod N))
+    (E : Matrix (L1Torus d N) (L1Torus d N) ℂ) (v a t : ℝ) (s : MacIdx d N M → ℂ) :
+    (1 - taggedMat Finset.univ (macTags d N M)
+        (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+            (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+          E.submatrix e.symm e.symm * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+    (1 - taggedMat Finset.univ (macTags d N M)
+        (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+            (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+          E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M z) t)) (s ∘ σ)).det := by
+  rw [← Matrix.det_submatrix_equiv_self e]
+  have hU := finalOp_translate (L := L) (k := k) e he v a
+  have hmat := taggedMat_submatrix_equiv (ι := L1Torus d N) (Z := MacIdx d N M)
+    (Pc := MacIdx d N M) e σ σ (V := macTags d N M) (V' := macTags d N M)
+    (a := fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+            (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+          E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M z) t))
+    (a' := fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+            (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+          E.submatrix e.symm e.symm * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M z) t))
+    (fun z x y => macTags_translate hMN σ hσ e he z x y) (fun z => by
+      have hc : (fun u => ((macChi d N M (σ z) u : ℝ) : ℂ)) ∘ e =
+          fun u => ((macChi d N M z u : ℝ) : ℂ) := funext fun u => by
+        simp only [Function.comp, macChi_translate hMN σ hσ e he]
+      show ((boxR (finalOp d L N k v a) (macBoxF d N M (σ z))
+            (fun u => ((macChi d N M (σ z) u : ℝ) : ℂ)) t -
+          E.submatrix e.symm e.symm * (Matrix.diagonal (fun u => ((macChi d N M (σ z) u : ℝ) : ℂ)) *
+            boxG (finalOp d L N k v a) (macBoxF d N M (σ z)) t))).submatrix e e = _
+      rw [submatrix_equiv_sub, submatrix_equiv_mul, submatrix_equiv_mul,
+        Matrix.submatrix_diagonal_equiv, hc,
+        boxR_submatrix_equiv e hU (fun x => mem_macBoxF_translate hMN σ hσ e he z x)
+          (fun x => congrArg (fun r : ℝ => (r : ℂ)) (macChi_translate hMN σ hσ e he z x)) t,
+        boxG_submatrix_equiv e hU (fun x => mem_macBoxF_translate hMN σ hσ e he z x) t,
+        Matrix.submatrix_submatrix]
+      simp) s
+  rw [submatrix_equiv_sub, Matrix.submatrix_one_equiv, hmat]
+
+theorem coef_comp_perm {Z : Type*} [Fintype Z] [DecidableEq Z] (σ : Z ≃ Z) {ρ : ℝ} (hρ : 1 < ρ)
+    {f : (Z → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball (0 : Z → ℂ) ρ)) (C : Finset Z) :
+    coef (fun s : Z → ℂ => f (s ∘ σ)) (C.map σ.toEmbedding) = coef f C := by
+  have hρ0 : 0 < ρ := by linarith
+  refine coef_relabel hρ σ (f := f) (f' := fun s : Z → ℂ => f (s ∘ σ)) ?_ ?_ (fun s _ => rfl) C
+  · rw [polydisc_eq_ball hρ0]; exact hf
+  · rw [polydisc_eq_ball hρ0]; exact analyticOnNhd_comp_perm σ hf
+
+/-- **The localized coefficients of the logarithm of the perturbed defect on two tori, for supports
+in a two-sided box.**  This is `final_coef_logdet_close_twoTorus_unif` for a support whose cells
+are, after the cyclic shift by `p` cells in every coordinate, in the window of indices `[4, J]`: the
+two tori are identified by the residues of the shifted coordinates, and the cell map `e` is the
+identity on the shifted indices `≤ J + 4`. -/
+theorem final_coef_logdet_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < d) (hM : 0 < M)
+    {κ : ℝ} (hκ : 0 < κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1) (nC : ℕ) :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {t : ℝ}, 0 ≤ t →
+      ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+      WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+      (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+        ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+      ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+      ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+      AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+      ell 0 = 0 → ell' 0 = 0 →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+        (1 - taggedMat Finset.univ (macTags d N M)
+          (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+              (fun u => ((macChi d N M z u : ℝ) : ℂ)) t -
+            E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N k v a) (macBoxF d N M z) t)) s).det =
+          Complex.exp (ell s)) →
+      (∀ s ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+        (1 - taggedMat Finset.univ (macTags d N' M)
+          (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+              (fun u => ((macChi d N' M z u : ℝ) : ℂ)) t -
+            E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+              boxG (finalOp d L N' k v a) (macBoxF d N' M z) t)) s).det =
+          Complex.exp (ell' s)) →
+      ‖coef ell C - coef ell' (C.image e)‖ ≤
+        P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ))) + εE) /
+          (Real.exp κ - 1) ^ C.card := by
+  obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
+    final_coef_logdet_close_twoTorus_unif (L := L) hd hM hκ hMB hMκ hrE hη0 hη nC
+  refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
+  intro k hk J N N' _ _ hN hN' hMN hMN' p f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass t ht E E' hE hE'
+    εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+  obtain ⟨σ, hσ⟩ := exists_cellShift (N := N) (M := M) d p
+  obtain ⟨σ', hσ'⟩ := exists_cellShift (N := N') (M := M) d p
+  obtain ⟨e1, he1⟩ := exists_translate (N := N) (d := d) (fun _ => ((M * p : ℕ) : ZMod N))
+  obtain ⟨e1', he1'⟩ := exists_translate (N := N') (d := d) (fun _ => ((M * p : ℕ) : ZMod N'))
+  have hκ1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hρ1 : 1 < ρ := lt_trans hκ1 hρ
+  have hρ1' : 1 < ρ' := lt_trans hκ1 hρ'
+  -- the transported cell map
+  have hemap : ∀ z i, (z i : ℕ) ≤ J + 4 →
+      (((fun w => σ' (e (σ.symm w))) z i : Fin (macK N' M)) : ℕ) = z i := by
+    intro z i hz
+    have hz' : (z i : ℕ) = (((σ.symm z) i : ℕ) + p) % macK N M := by
+      have := hσ (σ.symm z) i
+      rw [Equiv.apply_symm_apply] at this
+      exact this
+    show ((σ' (e (σ.symm z)) i : Fin (macK N' M)) : ℕ) = z i
+    rw [hσ', he (σ.symm z) i (by rw [← hz']; exact hz), ← hz']
+  have hcard : (C.map σ.toEmbedding).card ≤ nC := by rw [Finset.card_map]; exact hCc
+  have hCw : ∀ z ∈ C.map σ.toEmbedding, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J := by
+    intro z hz i
+    obtain ⟨c, hc, rfl⟩ := Finset.mem_map.1 hz
+    have := hC c hc i
+    rw [Equiv.toEmbedding_apply, hσ]
+    exact this
+  have hf' : ∀ x μ, (fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x μ =
+      ((((x μ).val : ℕ)) : ZMod N') := fun _ _ => rfl
+  have hEcl' : ∀ x ∈ macRegion d N M (C.map σ.toEmbedding), ∀ y ∈ macRegion d N M (C.map σ.toEmbedding),
+      ‖E.submatrix e1.symm e1.symm x y -
+        E'.submatrix e1'.symm e1'.symm ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x)
+          ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) y)‖ ≤ εE := by
+    intro x hx y hy
+    have hxx : x = e1 (e1.symm x) := (e1.apply_symm_apply x).symm
+    have hyy : y = e1 (e1.symm y) := (e1.apply_symm_apply y).symm
+    have hx0 : e1.symm x ∈ macRegion d N M C := by
+      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hxx]; exact hx
+    have hy0 : e1.symm y ∈ macRegion d N M C := by
+      rw [← mem_macRegion_translate hMN σ hσ e1 he1 C, ← hyy]; exact hy
+    have key : ∀ z : L1Torus d N, f (e1.symm z) = e1'.symm
+        ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) z) := by
+      intro z
+      refine (Equiv.eq_symm_apply e1').2 ?_
+      funext μ
+      have hz : (e1.symm z) μ + ((M * p : ℕ) : ZMod N) = z μ := by
+        have := he1 (e1.symm z) μ
+        rw [Equiv.apply_symm_apply] at this
+        exact this.symm
+      exact ((he1' (f (e1.symm z)) μ).trans ((hf (e1.symm z) μ).trans
+        (congrArg (fun w : ZMod N => (((w.val : ℕ)) : ZMod N')) hz)))
+    have hEc := hEcl _ hx0 _ hy0
+    rw [key x, key y] at hEc
+    exact hEc
+  have hcoefs := hmain hk hN hN' (f := fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N'))
+    (fun _ _ => rfl) (e := fun w => σ' (e (σ.symm w))) hemap hcard hCw hv0 hv1 ha1 ha2 hmass ht
+    (wSmall_submatrix_equiv e1 he1 hE) (wSmall_submatrix_equiv e1' he1' hE') hεE hEcl' hρ hρ'
+    (analyticOnNhd_comp_perm σ hell) (analyticOnNhd_comp_perm σ' hell') h0 h0'
+    (fun s hs => by
+      rw [det_taggedKE_translate hMN σ hσ e1 he1 E v a t s]
+      exact hdet (s ∘ σ) (comp_perm_mem_ball σ hs))
+    (fun s hs => by
+      rw [det_taggedKE_translate hMN' σ' hσ' e1' he1' E' v a t s]
+      exact hdet' (s ∘ σ') (comp_perm_mem_ball σ' hs))
+  have himg : (C.map σ.toEmbedding).image (fun w => σ' (e (σ.symm w))) =
+      (C.image e).map σ'.toEmbedding := by
+    ext w
+    simp only [Finset.mem_image, Finset.mem_map, Equiv.toEmbedding_apply]
+    constructor
+    · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
+      exact ⟨e c, ⟨c, hc, rfl⟩, by simp⟩
+    · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
+      exact ⟨σ c, ⟨c, hc, rfl⟩, by simp⟩
+  rw [himg, coef_comp_perm σ hρ1 hell, coef_comp_perm σ' hρ1' hell', Finset.card_map] at hcoefs
+  exact hcoefs
+
+end LogDet
 
 end Final
 
