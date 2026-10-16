@@ -219,6 +219,19 @@ produces a mass forcing of size nu_k. The current-scale cube factors test direct
 one cube of Z_k^c, whereas the data sites of the background reach 2 R_{k-1} + 3 cubes from it.
 Details: `notes/phase1/Q13-LATE.md`, `notes/phase1/Q13-LATE2.md`.)
 
+
+### Item 13, addendum (2026-10-16): the switch in the light of the Yang–Mills papers
+
+In Balaban's Yang-Mills papers the current is a free complex variable at every scale, the background is never switched, and the
+supports of the characteristic functions do not involve it (CMP119 pp. 246-248; CMP109 pp. 263, 277). Is the O(N) reading the
+same: for k <= k_0 the sharp sets of P5 (1.18)-(1.19) and the reference of P7 are massless and the source enters only the
+weights, which are then analytic in b on a transverse polydisc of radius of order beta_k^{-1/2}? Which transverse radius does
+the inductive class carry for k <= k_0 and for k > k_0, and does it shrink or grow with k? In Yang-Mills the tests reach every
+pinned plaquette within 2LMR_1 of the large-field region (CMP119 p. 248), so the collar data the background reads are tested;
+is P5 (1.19) to be read with square^~ replaced by the neighbourhood of 2R_{k-1}+3 cubes, or does a different argument give the alignment on the retained shell?
+
+(Details: `notes/phase1/Q13-YM.md`; the Yang–Mills reading is from the public account linked in `notes/phase1/YMACCOUNT.md`.)
+
 ### Item 14, second addendum (2026-10-12): old boundary terms in a new hole
 
 P6 (4.32)–(4.34), p. 34. P5 (1.38)–(1.39) gives an old boundary term B^(k)(X, A_k); P5 (2.47)–(2.48)

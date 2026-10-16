@@ -113,3 +113,6 @@ Names are proposals; "uses" lists landed lemmas. Stage S (sector structure), T (
 - `decBg_one_eq_bgField_of_inDomainR`, `baseSingle_decBg_one` (`Base/BaseBackgroundIdent.lean`): the level-1 decoupled background at s ≡ 1 is (bgField, bgMult), with uniqueness — under the extra smallness δ ≤ c7 (the first step uses δ ≤ bgC1; OPEN whether the sector data meet c7).
 - Operators: `baseOp_baseHamiltonian_one` (a₀ never enters: avgMatrix sums over 1..k), `decGs_one_bgMult` (Gs(s ≡ 1) = dirichletOperator⁻¹ at bgMult).
 - OPEN: transport between the `1*n` torus of `baseSectorDatum` and `N₁*L^{m₁}` (`Nat.one_mul` cast).
+## W859 status
+- Smallness: c7 <= bgC1 (`c7_le_bgC1`); the sector data lie in Psi~(4 d L delta0), so they meet delta <= c7 iff 4 d L delta0 <= c7 d L N BG kappa (`baseSectorDatum_inDomainR_c7`); delta0 is the free cube-test radius, shrinking it only strengthens the landed bgC1 hypothesis.
+- Transport: `bgData_single_eq`, `inDomainR_cast`, `baseSectorDatum_decBg_one` (`Base/BaseBackgroundIdent2.lean`; datum carried by `cast` along `1*n = N1*L^m1`).
