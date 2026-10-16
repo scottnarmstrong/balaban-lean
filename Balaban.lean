@@ -2005,6 +2005,7 @@ public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassAssembleM
 public import Balaban.Fluctuation.LocalClassLabels
+public import Balaban.Fluctuation.LocalClassInherit
 public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
