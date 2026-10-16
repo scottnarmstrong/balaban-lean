@@ -1987,6 +1987,7 @@ public import Balaban.Fluctuation.LocalClassLatData
 public import Balaban.Fluctuation.LocalClassLatPaving
 public import Balaban.Fluctuation.LocalClassM
 public import Balaban.Fluctuation.LocalClassMRot
+public import Balaban.Fluctuation.LocalClassFresh
 public import Balaban.Green.FinalCrossTerm
 public import Balaban.Fluctuation.LocalClassAssembly
 public import Balaban.Fluctuation.LocalClassLatTau
