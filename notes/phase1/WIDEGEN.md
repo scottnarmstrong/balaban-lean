@@ -152,3 +152,7 @@ Leaves 1–3 are the analytic content of P3 p. 78 ("unchanged for a generating s
 9. `eucE`, `eucEloc` — OPEN: geometry done (item 2); missing a lattice symmetry `LatSymm` between the covers of `𝔹(Y⁺)` and `𝔹((rY)⁺)` with equivariance of `F₁`, `Sol`, `decCovSqrt` and the unit lattice (`evTerm_relabel` and the translate/permute lemmas exist only for `lvTop`, `d = 3`), and invariance of `γ` under the induced map of unit points.
 10. `analyticM`, `rotM`, `eucM`, `eucMloc`, `localM`, `boundM` — OPEN (not attempted): the M-part on `localB` (`siteFun`, `classOldDecObsLocal`), same route as 3–9.
 Auxiliary bounds: `blockEnergyFun_bound` at `localB` — LANDED (W794 `blockEnergyFun_bound_of_num`, `localB_blockEnergyFun_bound`); `nuBlockFun_bound` at `localB` without `IsLevel` — LANDED (W794 `nuBlockFun_bound_of_num`, `localB_nuBlockFun_bound`).
+
+## NEXT (W821) — rotE for the local term (real rotations)
+`Fluctuation/LocalClassRot.lean`: `decCovSqrt_rot(_cover)`, `F₁_rot_cover` (core `F₁_rot_of_isBg` shared with `F₁_rot`), `fanLC_rot_cover`, `eTermFun_rot_cover`, `localHat_integral_rot_cover`, `localB_eTermHat_evTerm_rot` (clause `rotE`, real `Q`; extra premises: `E` Q-invariant on the chart of `𝔹_j(X)`, `K`, `γ` invariant under `ψ̂ ↦ (1⊗Qᵀ)ψ̂`).
+OPEN: complex `R ∈ SO(N,ℂ)` (no change of variables for the real `ψ̂`-integral; needs analytic continuation in `R`).
