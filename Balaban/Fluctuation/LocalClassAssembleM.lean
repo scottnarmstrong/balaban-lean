@@ -36,7 +36,7 @@ the landed clauses into the fields at `j = k + 1` of `SFTermClausesStrong` for t
   `pavingSymGroup`).
 
 Not covered: complex rotations, sources of `ℓ¹` norm `≥ 1` in `rotM` (the per-label rotation
-theorem needs the analyticity of the old term in the fields at the source), `eucMloc` for the full
+result uses the analyticity of the old term in the fields at the source), `eucMloc` for the full
 group `fullJSymGroup`, and the per-label paving covariance of the source terms.
 -/
 
