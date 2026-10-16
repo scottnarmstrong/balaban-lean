@@ -100,22 +100,13 @@ variable {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
 variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
 variable {a₁ ν Kc Cx : ℝ}
 
-/-- **Exact locality of the local integrand at one point** (P3 (4.47) on `𝔹`, cover form, one
-pair).  Let `(coverOf 𝔹, 𝔹)` and `(coverOf 𝔹, H⁻)` be the background and fluctuation pairs with
-their cover bases, `F₁`, `Sol` the decoupled background and fluctuation maps, `s` parameters with
-`|s_P| < e^κ`, and `W` a set of sites such that
-
-* (`hact`) the thickened interaction cube `□̂_z` of every cube `z` of the cover with `s_z ≠ 0` lies
-  in `W` and in the top layer of `𝔹`;
-* (`hcomp`) every data site `x` of `𝔹_k(X)` and the blocks of `x` read by the composition lie in the
-  interaction cube of a cube `z` with `s_z ≠ 0`.
-
-Then for two data `D`, `D'` of the chart `Ξ^c(𝔹; 1, ε)` with the same raw values on `W` and every
-hat variable `ψ̂` with `|ψ̂| ≤ c_ψ`, the old-term functional `Φ_E` at the decoupled background, the
-fluctuation field and `(Θ, ψ'(Θ))`, `ψ'(Θ)` the local hat lift `cc C^{1/2}(s) ψ̂` at the background
-  of
-`Θ`, takes the same value at `Θ = D` and `Θ = D'`. -/
-theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
+/-- **Exact locality of the decoupled fields at one point** (the common core of
+`eTermFun_localHat_congr` and of the locality of the source terms).  Under the hypotheses of
+`eTermFun_localHat_congr` on the geometry (`hact`) and the data, for two data `D`, `D'` of the chart
+agreeing on `W`, the background fields `φ` agree at the sites of the interaction cubes of the cubes
+with `s_z ≠ 0`, the fluctuation fields `δφ` (for the local hat lifts `ψ'(D)`, `ψ'(D')`) agree at
+every site, and the hat lifts agree at the sites of the active interaction cubes. -/
+theorem localHat_fields_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
     {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
     (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
@@ -152,51 +143,47 @@ theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 �
         (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
-    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅) (ac : ℕ → ℝ)
-    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
-    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
     (hδ₁c : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
     {s : Dec2.DecParams (coverOf Gp)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
     {W : Set (CTorus d L N₁ m₁ (k + 1))}
     (hact : ∀ q ∈ (coverOf Gp).cubeIdx,
       (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
         ∀ y, InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y → y ∈ W ∧ y ∈ Gp.Ω (k + 1))
-    (hcomp : ∀ x ∈ dataSites Gk, ∃ q ∈ (coverOf Gp).cubeIdx,
-      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ ∀ y : CTorus d L N₁ m₁ (k + 1),
-        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Gp.blk (Gp.layerIndex x) x ∨
-          y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ intBox q)
     {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
     (hDD : ∀ z ∈ W, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
     {ψh : unitPts Gp × Fin N → ℂ} (hψh : ∀ p, ‖ψh p‖ ≤ cψ) :
-    eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D))
-        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) (rawOf D).1
+    (∀ y, (∃ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ y ∈ intBox q) →
+        svec Gp (F₁ (s, rawOf D)).1 y = svec Gp (F₁ (s, rawOf D')).1 y) ∧
+    (∀ y, svec Hm (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) (rawOf D).1
           (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
             if h : unitBlock x ∈ unitPts Gp then
               (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2
                 (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D).1 (F₁ (s, rawOf D)).1)
                 (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
-            else 0))).1
-        (rawOf D, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
-            if h : unitBlock x ∈ unitPts Gp then
-              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2
-                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D).1 (F₁ (s, rawOf D)).1)
-                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
-            else 0) =
-    eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D'))
-        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D')) (rawOf D').1
+            else 0))).1 y =
+        svec Hm (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D')) (rawOf D').1
           (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
             if h : unitBlock x ∈ unitPts Gp then
               (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D')).2
                 (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D').1 (F₁ (s, rawOf D')).1)
                 (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
-            else 0))).1
-        (rawOf D', fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            else 0))).1 y) ∧
+    (∀ y, (∃ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ y ∈ intBox q) →
+        (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2
+                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D).1 (F₁ (s, rawOf D)).1)
+                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+            else 0) y =
+        (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
             if h : unitBlock x ∈ unitPts Gp then
               (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D')).2
                 (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D').1 (F₁ (s, rawOf D')).1)
                 (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
-            else 0) := by
+            else 0) y) ∧
+    (∀ y, (∃ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ y ∈ intBox q) → y ∈ W) := by
   classical
   have hd0 : 0 < d := by have := HBp.hd; omega
   have hxi := one_le_xiC1 d
@@ -390,46 +377,15 @@ theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 �
     hSol hs hD hψb.1
   have he' := strictDataM_flEdat_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 le_rfl hPmp hF₁
     hSol hs hD' hψb'.1
-  have hcp : ∀ x ∈ dataSites Gk,
-      (∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ Gp.layer n)) ∧
-      ∀ y : CTorus d L N₁ m₁ (k + 1),
-        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Gp.blk (Gp.layerIndex x) x) → y ∈ Yb := by
-    intro x hx
-    obtain ⟨q, hq, hne, hrd⟩ := hcomp x hx
-    refine ⟨fun _ _ _ => Iff.rfl, fun y hy => ?_⟩
-    have hyq : y ∈ intBox q := hrd y (by
-      rcases hy with h | h | h
-      · exact Or.inl h
-      · exact Or.inr (Or.inl h)
-      · exact Or.inr (Or.inr (Or.inl h)))
-    exact hTbYb (hTTb y (hint q hq hne y hyq))
-  have hcm : ∀ x ∈ dataSites Gk,
-      (∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Hm.layer n ↔ x ∈ Hm.layer n)) ∧
-      ∀ y : CTorus d L N₁ m₁ (k + 1),
-        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ Yb := by
-    intro x hx
-    obtain ⟨q, hq, hne, hrd⟩ := hcomp x hx
-    refine ⟨fun _ _ _ => Iff.rfl, fun y hy => ?_⟩
-    have hyq : y ∈ intBox q := hrd y (by
-      rcases hy with h | h | h
-      · exact Or.inl h
-      · exact Or.inr (Or.inl h)
-      · exact Or.inr (Or.inr (Or.inr h)))
-    exact hTbYb (hTTb y (hint q hq hne y hyq))
-  have hkT : ∀ x ∈ dataSites Gk, x ∈ T := fun x hx => by
-    obtain ⟨q, hq, hne, hrd⟩ := hcomp x hx
-    exact hint q hq hne x (hrd x (Or.inl rfl))
-  have hdk : ∀ x ∈ dataSites Gk, D.Ψ x = D'.Ψ x ∧ (x ∈ Gk.Ω 1 → D.h x = D'.h x) :=
-    fun x hx => ⟨(hDD x (hTW x (hkT x hx))).1, fun _ => (hDD x (hTW x (hkT x hx))).2⟩
   have hresf : ∀ x ∈ T, x ∈ Hm.Ω 1 → ∀ y ∈ resSites Hm x,
-      (∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Hm.layer n ↔ y ∈ Hm.layer n)) ∧ (y ∈ Hm.Ω 1 → y ∈ Yb) ∧
-        y ∈ Yb := by
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Hm.layer n ↔ y ∈ Hm.layer n)) ∧
+        (y ∈ Hm.Ω 1 → y ∈ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1)))) ∧ y ∈ Yb := by
     intro x hx _ y hy
     have := supDist_le_of_mem_resSites hy
     have hyb : y ∈ Yb := (hYb y).2 ⟨x, hx, by omega⟩
-    exact ⟨fun _ _ _ => Iff.rfl, fun _ => hyb, hyb⟩
-  exact (eTermFun_replacement_cross_of_agree hS S S HBp HBp hκ.le hM hF₁ hF₁ hF₂ Sf Sf hM₂
-    (by positivity) hδ₁0.le hB hδ₁ hSol hSol ac Fk E hs hs hDd hDd' ψ₁ ψ₂ he he'
+    exact ⟨fun _ _ _ => Iff.rfl, fun _ => Finset.mem_univ _, hyb⟩
+  obtain ⟨hsvb, hsvf⟩ := fieldsCross_of_agree hS S S HBp HBp hκ.le hM hF₁ hF₁ hF₂ Sf Sf hM₂
+    (by positivity) hδ₁0.le hB hδ₁ hSol hSol hs hs hDd hDd' ψ₁ ψ₂ he he'
     hTbYb (fun _ _ _ _ _ => Iff.rfl)
     (fun q hq hne => Or.inl fun x hx => hTTb _ (hint q hq hne _ hx))
     (fun q hq hne => Or.inl fun x hx => hTTb _ (hint q hq hne _ hx))
@@ -438,15 +394,140 @@ theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 �
     (fun q hq _ => ⟨hq, rfl, fun _ _ _ _ _ _ _ => Iff.rfl, fun _ _ => rfl⟩)
     (fun q hq hne => ⟨hq, hne⟩) hresb (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) hdatb
     (fun y hy => (hDD y (hYbW y hy).1).1)
-    (fun x hx => hTbYb (hTTb x hx)) (fun x hx => hTTb x hx) (fun _ _ => Iff.rfl)
+    (Yf := Finset.univ) (Tf := T)
+    (fun x hx => Finset.mem_univ _) (fun x hx => hTTb x hx) (fun _ _ => Iff.rfl)
     (fun q hq hne => Or.inl fun x hx => hint q hq hne _ hx)
     (fun q hq hne => Or.inl fun x hx => hint q hq hne _ hx)
     (fun q hq hne x _ hx => hint q hq hne _ hx)
     (fun q hq hne x _ hx => hint q hq hne _ hx)
     (fun q hq _ => ⟨hq, rfl, fun _ _ _ _ _ _ _ => Iff.rfl, fun _ _ => rfl⟩)
-    (fun q hq hne => ⟨hq, hne⟩) hresf hcp hcm hdk
+    (fun q hq hne => ⟨hq, hne⟩) hresf
     (fun x hx _ y hy => hψ12 y (hTTb1 x hx y (supDist_le_of_mem_resSites hy)))
-    (fun x hx => hψ12 x (hTTb x (hkT x hx)))).symm
+  refine ⟨fun y ⟨q, hq, hne, hy⟩ => hsvb y (hTbYb (hTTb y (hint q hq hne y hy))),
+    fun y => hsvf y (Finset.mem_univ _), fun y ⟨q, hq, hne, hy⟩ => hψ12 y (hTTb y (hint q hq hne y hy)),
+    fun y ⟨q, hq, hne, hy⟩ => hTW y (hint q hq hne y hy)⟩
+
+
+/-- **Exact locality of the local integrand at one point** (P3 (4.47) on `𝔹`, cover form, one
+pair).  Let `(coverOf 𝔹, 𝔹)` and `(coverOf 𝔹, H⁻)` be the background and fluctuation pairs with
+their cover bases, `F₁`, `Sol` the decoupled background and fluctuation maps, `s` parameters with
+`|s_P| < e^κ`, and `W` a set of sites such that
+
+* (`hact`) the thickened interaction cube `□̂_z` of every cube `z` of the cover with `s_z ≠ 0` lies
+  in `W` and in the top layer of `𝔹`;
+* (`hcomp`) every data site `x` of `𝔹_k(X)` and the blocks of `x` read by the composition lie in the
+  interaction cube of a cube `z` with `s_z ≠ 0`.
+
+Then for two data `D`, `D'` of the chart `Ξ^c(𝔹; 1, ε)` with the same raw values on `W` and every
+hat variable `ψ̂` with `|ψ̂| ≤ c_ψ`, the old-term functional `Φ_E` at the decoupled background, the
+fluctuation field and `(Θ, ψ'(Θ))`, `ψ'(Θ)` the local hat lift `cc C^{1/2}(s) ψ̂` at the background
+  of
+`Θ`, takes the same value at `Θ = D` and `Θ = D'`. -/
+theorem eTermFun_localHat_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
+    {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Kc₂ Cx₂ c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L Kc₂ Cx₂ c₂ BG₂)
+    (Sf : Dec2.CoverBase (coverOf Gp) Hm (compWeight L a₁) ν Kc₂ Cx₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₁ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hB : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤
+      deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅) (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hδ₁c : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    {s : Dec2.DecParams (coverOf Gp)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    {W : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hact : ∀ q ∈ (coverOf Gp).cubeIdx,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+        ∀ y, InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y → y ∈ W ∧ y ∈ Gp.Ω (k + 1))
+    (hcomp : ∀ x ∈ dataSites Gk, ∃ q ∈ (coverOf Gp).cubeIdx,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Gp.blk (Gp.layerIndex x) x ∨
+          y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ intBox q)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    (hDD : ∀ z ∈ W, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
+    {ψh : unitPts Gp × Fin N → ℂ} (hψh : ∀ p, ‖ψh p‖ ≤ cψ) :
+    eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D))
+        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) (rawOf D).1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2
+                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D).1 (F₁ (s, rawOf D)).1)
+                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (rawOf D, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2
+                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D).1 (F₁ (s, rawOf D)).1)
+                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+            else 0) =
+    eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D'))
+        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D')) (rawOf D').1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D')).2
+                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D').1 (F₁ (s, rawOf D')).1)
+                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (rawOf D', fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (s, rawOf D')).2
+                (Dec2.extS (coverOf Gp) s) (barField Gp (rawOf D').1 (F₁ (s, rawOf D')).1)
+                (unitQ Gp) (unitP Gp) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+            else 0) := by
+  classical
+  obtain ⟨hsvb, hsvf, hψ, hWa⟩ := localHat_fields_congr hk1 hL2 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps
+    hsmall hc7 hphi hmarD hαD hsm hF₁ hF₂ Sf hM₂ hδ₁0 hB hδ₁ hSol hPmp hHm cc hcψ hδ₁c hs hact
+    hD hD' hDD hψh
+  have hkq : ∀ x ∈ dataSites Gk, ∃ q ∈ (coverOf Gp).cubeIdx,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 ∧ ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Gp.blk (Gp.layerIndex x) x ∨
+          y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ intBox q := hcomp
+  refine (eTermFun_congr_raw (Gk := Gk) (Gj := Gj) ac Fk E _ _
+    (u := (rawOf D, _)) (u' := (rawOf D', _)) fun x hx => ?_).trans
+    (eTermFun_cross ac Fk E (rawOf D', _) (fun x hx => ?_) (fun x hx => ?_)).symm
+  · obtain ⟨q, hq, hne, hrd⟩ := hkq x hx
+    have hxq : x ∈ intBox q := hrd x (Or.inl rfl)
+    have hW := hDD x (hWa x ⟨q, hq, hne, hxq⟩)
+    exact ⟨hW.1, fun _ => hW.2, hψ x ⟨q, hq, hne, hxq⟩⟩
+  · obtain ⟨q, hq, hne, hrd⟩ := hkq x hx
+    exact ⟨fun _ _ _ => Iff.rfl, fun y hy => hsvb y ⟨q, hq, hne, hrd y (by
+      rcases hy with h | h | h
+      · exact Or.inl h
+      · exact Or.inr (Or.inl h)
+      · exact Or.inr (Or.inr (Or.inl h)))⟩⟩
+  · obtain ⟨q, hq, hne, hrd⟩ := hkq x hx
+    exact ⟨fun _ _ _ => Iff.rfl, fun y hy => hsvf y⟩
 
 /-- **Exact locality of the local term on the chart** (P3 (4.47): `E(Y)` depends on the datum on
 `W` only).  The term of `Y` recomputed on `𝔹`, `∑_{𝒞 ∈ connFams Y} coef(F(Θ, ·), 𝒞)` with the
