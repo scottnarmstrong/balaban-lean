@@ -1231,7 +1231,189 @@ theorem finalCoef_cutoff_close_quarterBox {d M L : ℕ} [NeZero L] (hd : 0 < d) 
   refine div_le_div_of_nonneg_right ?_ hg.le
   exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle hC₀.le) hP0
 
+/-- **The two last-integral coefficient families on the quarter box, with common constants
+(W837, leaf 2).**  The conjunction of `finalCoef_logdet_close_quarterBox` and
+`finalCoef_cutoff_close_quarterBox`: for a support `C` within `m` cells of the origin in every
+coordinate, `4 (m + t) ≤ K`, `t ≥ 5`, the coefficients of the logarithm of the perturbed defect, and
+those of the cutoff interaction, of the final operators on the tori `N ≤ N'` (multiples of `M`)
+differ by at most the stated multiples of `e^{-c₀ M (2t - 7)}`, with `P, C₀, c₀` independent of the
+scale `k ≥ 1`, of the tori, of `m`, `t` and of `C`. -/
+theorem finalCoef_close_quarterBox {d M L : ℕ} [NeZero L] (hd : 0 < d) (hM : 0 < M)
+    {κ : ℝ} (hκ : 1 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {rE η : ℝ} (hrE : pdEps d L / 4 ≤ rE) (hη0 : 0 ≤ η)
+    (hη : 4 * (Real.exp (pdH d * κ) * (2 / finalGap d L * η *
+      ballConst d (3 * pdEps d L / 4))) ≤ 1) (nC : ℕ) :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {N N' : ℕ} [NeZero N] [NeZero N'], M ∣ N → M ∣ N' → N ≤ N' →
+      ∀ {m t : ℕ}, 5 ≤ t → 4 * (m + t) ≤ macK N M →
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * (m + 4) : ℕ) : ZMod N') =
+        ((((x μ + ((M * (m + 4) : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + (m + 4)) % macK N M ≤ 2 * m + 8 →
+        ((e z i : ℕ) + (m + 4)) % macK N' M = ((z i : ℕ) + (m + 4)) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, (z i : ℕ) ≤ m ∨ macK N M - m ≤ (z i : ℕ)) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ((∀ {s : ℝ}, 0 ≤ s →
+        ∀ {E : Matrix (L1Torus d N) (L1Torus d N) ℂ} {E' : Matrix (L1Torus d N') (L1Torus d N') ℂ},
+        WSmall rE η E → WSmall rE η E' → ∀ {εE : ℝ}, 0 ≤ εE →
+        (∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+          ‖E x y - E' (f x) (f y)‖ ≤ εE) →
+        ∀ {ρ ρ' : ℝ}, Real.exp κ < ρ → Real.exp κ < ρ' →
+        ∀ {ell : (MacIdx d N M → ℂ) → ℂ} {ell' : (MacIdx d N' M → ℂ) → ℂ},
+        AnalyticOnNhd ℂ ell (Metric.ball 0 ρ) → AnalyticOnNhd ℂ ell' (Metric.ball 0 ρ') →
+        ell 0 = 0 → ell' 0 = 0 →
+        (∀ s' ∈ Metric.ball (0 : MacIdx d N M → ℂ) ρ,
+          (1 - taggedMat Finset.univ (macTags d N M)
+            (fun z => boxR (finalOp d L N k v a) (macBoxF d N M z)
+                (fun u => ((macChi d N M z u : ℝ) : ℂ)) s -
+              E * (Matrix.diagonal (fun u => ((macChi d N M z u : ℝ) : ℂ)) *
+                boxG (finalOp d L N k v a) (macBoxF d N M z) s)) s').det =
+            Complex.exp (ell s')) →
+        (∀ s' ∈ Metric.ball (0 : MacIdx d N' M → ℂ) ρ',
+          (1 - taggedMat Finset.univ (macTags d N' M)
+            (fun z => boxR (finalOp d L N' k v a) (macBoxF d N' M z)
+                (fun u => ((macChi d N' M z u : ℝ) : ℂ)) s -
+              E' * (Matrix.diagonal (fun u => ((macChi d N' M z u : ℝ) : ℂ)) *
+                boxG (finalOp d L N' k v a) (macBoxF d N' M z) s)) s').det =
+            Complex.exp (ell' s')) →
+        ‖coef ell C - coef ell' (C.image e)‖ ≤
+          P * (C₀ * Real.exp (-c₀ * ((M : ℝ) * (2 * (t : ℝ) - 7))) + εE) /
+            (Real.exp κ - 1) ^ C.card) ∧
+       (∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+        0 ≤ ρ →
+        γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+        γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+        (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ < RF →
+        ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+        AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+        (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+        AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+        (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+        Measurable F → Measurable F' →
+        (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+          (∀ x, x ∉ macRegion d N M C → w x = 0) →
+          (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+          (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+            Real.sqrt (finalGap d L)) * ρ) →
+          (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+            Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+          (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+        Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+            (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+          Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+            (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+        ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+            F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+          coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+            F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+            (C.image e)‖ ≤
+          Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+            (P * (C₀ * Real.exp (-c₀ * ((M : ℝ) * (2 * (t : ℝ) - 7)))) /
+              Real.sqrt (finalGap d L)) * ρ) *
+            (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card))
+ := by
+  obtain ⟨P₁, C₁, c₁, hP₁, hC₁, hc₁, h₁⟩ :=
+    finalCoef_logdet_close_quarterBox (L := L) hd hM (by linarith : 0 < κ) hMB hMκ hrE hη0 hη nC
+  obtain ⟨P₂, C₂, c₂, hP₂, hC₂, hc₂, h₂⟩ :=
+    finalCoef_cutoff_close_quarterBox (L := L) hd hM hκ hMB hMκ nC
+  refine ⟨max P₁ P₂, max C₁ C₂, min c₁ c₂, le_trans hP₁ (le_max_left _ _),
+    lt_of_lt_of_le hC₁ (le_max_left _ _), lt_min hc₁ hc₂, ?_⟩
+  intro k hk N N' _ _ hMN hMN' hNN m t ht hbox f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass
+  have hy : (0 : ℝ) ≤ (M : ℝ) * (2 * (t : ℝ) - 7) := by
+    have : (5 : ℝ) ≤ t := by exact_mod_cast ht
+    have : (0 : ℝ) ≤ M := by positivity
+    nlinarith
+  have hmono : ∀ {Q₁ Q C₁' C' c₁' c' : ℝ}, 0 ≤ Q₁ → Q₁ ≤ Q → 0 ≤ C₁' → C₁' ≤ C' → c' ≤ c₁' →
+      Q₁ * (C₁' * Real.exp (-c₁' * ((M : ℝ) * (2 * (t : ℝ) - 7)))) ≤
+        Q * (C' * Real.exp (-c' * ((M : ℝ) * (2 * (t : ℝ) - 7)))) := by
+    intro Q₁ Q C₁' C' c₁' c' hQ₁ hQ hC₁' hC' hc
+    have hexp : Real.exp (-c₁' * ((M : ℝ) * (2 * (t : ℝ) - 7))) ≤
+        Real.exp (-c' * ((M : ℝ) * (2 * (t : ℝ) - 7))) :=
+      Real.exp_le_exp.2 (by nlinarith)
+    have hQ0 : 0 ≤ Q := le_trans hQ₁ hQ
+    exact mul_le_mul hQ (mul_le_mul hC' hexp (Real.exp_pos _).le (le_trans hC₁' hC'))
+      (mul_nonneg hC₁' (Real.exp_pos _).le) hQ0
+  have hmono' : ∀ {εE : ℝ}, 0 ≤ εE →
+      P₁ * (C₁ * Real.exp (-c₁ * ((M : ℝ) * (2 * (t : ℝ) - 7))) + εE) ≤
+        max P₁ P₂ * (max C₁ C₂ * Real.exp (-min c₁ c₂ * ((M : ℝ) * (2 * (t : ℝ) - 7))) + εE) := by
+    intro εE hεE
+    have := hmono hP₁ (le_max_left P₁ P₂) hC₁.le (le_max_left C₁ C₂) (min_le_left c₁ c₂)
+    have h2 : 0 ≤ max P₁ P₂ := le_trans hP₁ (le_max_left _ _)
+    nlinarith [mul_nonneg hP₁ hεE, mul_nonneg h2 hεE, mul_le_mul_of_nonneg_right (le_max_left P₁ P₂) hεE]
+  refine ⟨?_, ?_⟩
+  · intro s hs E E' hE hE' εE hεE hEcl ρ ρ' hρ hρ' ell ell' hell hell' h0 h0' hdet hdet'
+    have key := h₁ hk hMN hMN' hNN ht hbox hf he hCc hC hv0 hv1 ha1 ha2 hmass hs hE hE' hεE hEcl hρ
+      hρ' hell hell' h0 h0' hdet hdet'
+    refine key.trans ?_
+    have hden : 0 < (Real.exp κ - 1) ^ C.card := by
+      have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+      exact pow_pos (by linarith) _
+    exact div_le_div_of_nonneg_right (hmono' hεE) hden.le
+  · intro γ γ' ρ RF B' Lip hρ hγfin hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
+    have key := h₂ hk hMN hMN' hNN ht hbox hf he hCc hC hv0 hv1 ha1 ha2 hmass hρ hγfin hγfin' hBR
+      hFan hFB hFan' hFB' hFm hFm' hFclose hγ
+    refine key.trans ?_
+    have hBc0 : 0 ≤ 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L) := by
+      have : 0 ≤ ballConst d (pdEps d L / 2) :=
+        ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
+      positivity
+    have hLip : 0 ≤ Lip := by
+      have := hFclose 0 0 (fun _ _ => rfl) (fun _ _ => rfl)
+        (fun x => by simpa using mul_nonneg hBc0 hρ)
+        (fun x => by simpa using mul_nonneg hBc0 hρ) 1 zero_le_one (fun x _ => by simp)
+      exact le_trans (norm_nonneg _) (by simpa using this)
+    have hden : 0 < (Real.exp κ - 1) ^ C.card := by
+      have : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+      exact pow_pos (by linarith) _
+    have hg : 0 < Real.sqrt (finalGap d L) := by
+      have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+      exact Real.sqrt_pos.2 (finalGap_pos (d := d) hL)
+    refine div_le_div_of_nonneg_right ?_ hden.le
+    refine mul_le_mul_of_nonneg_right ?_ ENNReal.toReal_nonneg
+    refine mul_le_mul_of_nonneg_left ?_ hLip
+    refine mul_le_mul_of_nonneg_right ?_ hρ
+    refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+    refine div_le_div_of_nonneg_right ?_ hg.le
+    exact hmono hP₂ (le_max_right P₁ P₂) hC₂.le (le_max_right C₁ C₂) (min_le_right c₁ c₂)
+
+/-- The identification of the tori by the residues of the shifted coordinates exists. -/
+theorem exists_residueMap_box {d N N' M p : ℕ} [NeZero N] [NeZero N'] :
+    ∃ f : L1Torus d N → L1Torus d N', ∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+      ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N') :=
+  ⟨fun x μ => ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N') - ((M * p : ℕ) : ZMod N'),
+    fun _ _ => sub_add_cancel _ _⟩
+
+theorem macK_le_macK_of_dvd {N N' M : ℕ} [NeZero N] [NeZero N'] (hMN : M ∣ N) (hMN' : M ∣ N')
+    (hNN : N ≤ N') : macK N M ≤ macK N' M := by
+  rw [macK_eq_div_of_dvd hMN, macK_eq_div_of_dvd hMN']
+  exact Nat.div_le_div_right hNN
+
+/-- The cell map that is the identity on the shifted indices exists when `K ≤ K'`. -/
+theorem exists_cellMap_box {d N N' M p : ℕ} [NeZero N] [NeZero N']
+    (hKK : macK N M ≤ macK N' M) :
+    ∃ e : MacIdx d N M → MacIdx d N' M, ∀ z i,
+      ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M := by
+  have hK : 0 < macK N M := macK_pos N M
+  have hK' : 0 < macK N' M := macK_pos N' M
+  refine ⟨fun z i => ⟨(((z i : ℕ) + p) % macK N M + (macK N' M - p % macK N' M)) % macK N' M,
+    Nat.mod_lt _ hK'⟩, fun z i => ?_⟩
+  show ((((z i : ℕ) + p) % macK N M + (macK N' M - p % macK N' M)) % macK N' M + p) %
+    macK N' M = _
+  set w := ((z i : ℕ) + p) % macK N M with hw
+  have hwlt : w < macK N' M := lt_of_lt_of_le (Nat.mod_lt _ hK) hKK
+  have hdiv := Nat.mod_add_div p (macK N' M)
+  have hmod := Nat.mod_lt p hK'
+  have h1 : w + (macK N' M - p % macK N' M) + p = w + macK N' M * (1 + p / macK N' M) := by
+    rw [Nat.mul_add, Nat.mul_one]; omega
+  rw [Nat.mod_add_mod, h1, Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt hwlt]
+
 end QuarterBox
 
 end Balaban.Green
+
 
