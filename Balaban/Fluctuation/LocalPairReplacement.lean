@@ -107,6 +107,192 @@ variable {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
 variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
 variable {a : ℕ → ℝ} {ν : ℝ}
 
+/-- **The replacement identity with two fluctuation variables** (`eTermFun_replacement_cross`
+with the fluctuation `ψ₁` on the first side and `ψ₂` on the second).  Under the hypotheses of
+`eTermFun_replacement_cross`, if `ψ₁ = ψ₂` at the residual rows (for `H⁻`) of the sites of `T_f` and
+at the data sites of `𝔹_k(X)`, the old-term functional takes the same value on the two sides.  With
+the same pair on both sides this is the locality of the composite in the datum and the fluctuation
+variable. -/
+theorem eTermFun_replacement_cross_of_agree
+    {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf Gp) Gp a ν Kc Cx) (Sb' : Dec2.CoverBase (coverOf Gl) Gl a ν Kc Cx)
+    (HB : BgHyp d L (k + 1) ϱ a ν) (HB' : BgHyp d L (k + 1) ϱl a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gp) Gp a ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl)) (D : BgData Gl N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gl) Gl a ν (rho4 d L N BG κ) s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {Kc₂ Cx₂ c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L Kc₂ Cx₂ c₂ BG₂)
+    (Sf : Dec2.CoverBase (coverOf Gp) Hm a ν Kc₂ Cx₂)
+    (Sf' : Dec2.CoverBase (coverOf Gl) Hl a ν Kc₂ Cx₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf Gl) × Edat Hl N → (Hl.Ω 1 × Fin N → ℂ) × (Hl.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm a ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm a ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm a ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) × Edat Hl N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hl N false δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi Hl (Dec2.decG (coverOf Gl) Hl a ν p.1) p.2.2.1 p.2.1
+          (pertSource Hl a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf Gl) Hl a ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hl a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small Hl (Sol' p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hl (Sol' p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hl (Sol' p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hl.Ω 1 → ℂ, Small Hl δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gl) Hl a ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hl a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {s : Dec2.DecParams (coverOf Gp)} {s' : Dec2.DecParams (coverOf Gl)}
+    (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D : BgData Gp N} {D' : BgData Gl N}
+    (hDd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDd' : InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D')
+    (ψ₁ ψ₂ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+    (he : StrictDataM Hm N false δ₀ δ₁ (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ₁))
+    (he' : StrictDataM Hl N false δ₀ δ₁ (flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ₂))
+    -- the background component
+    {Yb Tb : Finset (CTorus d L N₁ m₁ (k + 1))} (hTYb : Tb ⊆ Yb)
+    (hYlayb : ∀ y ∈ Yb, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Gp.layer n ↔ y ∈ Gl.layer n))
+    (hdichb : ∀ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+      SubI Gp (intBox q) Tb ∨ DisjI Gp (intBox q) Tb)
+    (hdichb' : ∀ q ∈ (coverOf Gl).cubeIdx,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 →
+        SubI Gl (intBox q) Tb ∨ DisjI Gl (intBox q) Tb)
+    (hrowb : ∀ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+      ∀ x ∈ Yb, x ∈ intBox q → x ∈ Tb)
+    (hrowb' : ∀ q ∈ (coverOf Gl).cubeIdx,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 → ∀ x ∈ Yb, x ∈ intBox q → x ∈ Tb)
+    (hinb : ∀ q ∈ Dec2.innerCentres (coverOf Gp) Gp Tb,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+        q ∈ Dec2.innerCentres (coverOf Gl) Gl Tb ∧
+        (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q =
+          (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ∧
+        (∀ x ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+          (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+            ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Gp.layer n ↔ y ∈ Gl.layer n)) ∧
+        (∀ x ∈ intBox q, (coverOf Gp).chi q x = (coverOf Gl).chi q x))
+    (hinb' : ∀ q ∈ Dec2.innerCentres (coverOf Gl) Gl Tb,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 →
+        q ∈ Dec2.innerCentres (coverOf Gp) Gp Tb ∧
+          (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0)
+    (hresb : ∀ x ∈ Tb, x ∈ Gp.Ω 1 → ∀ y ∈ resSites Gp x, y ∈ Gp.Ω 1 ∧ y ∈ Yb)
+    (hactb : ∀ y ∈ Yb, y ∈ Gp.Ω 1 → ∀ q : ℕ × CTorus d L N₁ m₁ (k + 1), 1 ≤ q.1 →
+      q.1 ≤ k + 1 → bump q.1 q.2 y ≠ 0 →
+        ∀ n, 1 ≤ n → n ≤ k + 1 → (q.2 ∈ Gp.layer n ↔ q.2 ∈ Gl.layer n))
+    (hdatb : ∀ y ∈ Yb, y ∈ Gp.Ω 1 → ∀ z ∈ approxDep Gp y, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
+    (hΨYb : ∀ y ∈ Yb, D.Ψ y = D'.Ψ y)
+    -- the fluctuation component
+    {Yf Tf : Finset (CTorus d L N₁ m₁ (k + 1))} (hTYf : Tf ⊆ Yf) (hTfb : Tf ⊆ Tb)
+    (hYΩf : ∀ x ∈ Yf, (x ∈ Hm.Ω 1 ↔ x ∈ Hl.Ω 1))
+    (hdichf : ∀ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+      SubI Hm (intBox q) Tf ∨ DisjI Hm (intBox q) Tf)
+    (hdichf' : ∀ q ∈ (coverOf Gl).cubeIdx,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 →
+        SubI Hl (intBox q) Tf ∨ DisjI Hl (intBox q) Tf)
+    (hrowf : ∀ q ∈ (coverOf Gp).cubeIdx, (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+      ∀ x ∈ Yf, x ∈ intBox q → x ∈ Tf)
+    (hrowf' : ∀ q ∈ (coverOf Gl).cubeIdx,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 → ∀ x ∈ Yf, x ∈ intBox q → x ∈ Tf)
+    (hinf : ∀ q ∈ Dec2.innerCentres (coverOf Gp) Hm Tf,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0 →
+        q ∈ Dec2.innerCentres (coverOf Gl) Hl Tf ∧
+        (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q =
+          (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ∧
+        (∀ x ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+          (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+            ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Hm.layer n ↔ y ∈ Hl.layer n)) ∧
+        (∀ x ∈ intBox q, (coverOf Gp).chi q x = (coverOf Gl).chi q x))
+    (hinf' : ∀ q ∈ Dec2.innerCentres (coverOf Gl) Hl Tf,
+      (coverOf Gl).sProd (Dec2.extS (coverOf Gl) s') q ≠ 0 →
+        q ∈ Dec2.innerCentres (coverOf Gp) Hm Tf ∧
+          (coverOf Gp).sProd (Dec2.extS (coverOf Gp) s) q ≠ 0)
+    (hresf : ∀ x ∈ Tf, x ∈ Hm.Ω 1 → ∀ y ∈ resSites Hm x,
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ Hm.layer n ↔ y ∈ Hl.layer n)) ∧ (y ∈ Hm.Ω 1 → y ∈ Yf) ∧
+        y ∈ Yb)
+    -- the composition
+    (hcp : ∀ x ∈ dataSites Gk,
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ Gl.layer n)) ∧
+      ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Gp.blk (Gp.layerIndex x) x) → y ∈ Yb)
+    (hcm : ∀ x ∈ dataSites Gk,
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Hm.layer n ↔ x ∈ Hl.layer n)) ∧
+      ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ Yf)
+    (hdk : ∀ x ∈ dataSites Gk, D.Ψ x = D'.Ψ x ∧ (x ∈ Gk.Ω 1 → D.h x = D'.h x))
+    -- the two fluctuation variables
+    (hψrow : ∀ x ∈ Tf, x ∈ Hm.Ω 1 → ∀ y ∈ resSites Hm x, ψ₁ y = ψ₂ y)
+    (hψk : ∀ x ∈ dataSites Gk, ψ₁ x = ψ₂ x) :
+    eTermFun Gl Gk Gj Hl ac Fk E (F₁' (s', rawOf D'))
+        (Sol' (s', flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ₂)).1 (rawOf D', ψ₂) =
+      eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D))
+        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ₁)).1 (rawOf D, ψ₁) := by
+  classical
+  -- the background fields
+  obtain ⟨hbα, hbφ⟩ := Dec2.decBg_value_cross hS Sb Sb' HB HB' hκ hM hF₁ hF₁' hs hs' hDd hDd'
+    hTYb hYlayb hdichb hdichb' hrowb hrowb' hinb hinb' hresb hactb hdatb
+  have hΩb : ∀ y ∈ Yb, (y ∈ Gp.Ω 1 ↔ y ∈ Gl.Ω 1) := fun y hy => mem_Ω_one_cross (hYlayb y hy)
+  have hsvb : ∀ y ∈ Yb, svec Gp (F₁ (s, rawOf D)).1 y = svec Gl (F₁' (s', rawOf D')).1 y :=
+    fun y hy => svec_cross (hΩb y hy) fun h h' i => (hbφ y h h' hy i).symm
+  -- the data of the fluctuation problems
+  have hα0 : ∀ (x : CTorus d L N₁ m₁ (k + 1)) (hx : x ∈ Hm.Ω 1) (hx' : x ∈ Hl.Ω 1), x ∈ Tf →
+      (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ₁).2.1 ⟨x, hx⟩ =
+        (flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ₂).2.1 ⟨x, hx'⟩ := by
+    intro x hx hx' hxT
+    have hxb : x ∈ Tb := hTfb hxT
+    have hΩx := hΩb x (hTYb hxb)
+    simp only [flEdat, flAlpha]
+    by_cases hp : x ∈ Gp.Ω 1
+    · rw [dite_eq_left hp, dite_eq_left (hΩx.1 hp)]
+      exact (hbα x hp (hΩx.1 hp) hxb).symm
+    · rw [dite_eq_right hp, dite_eq_right (fun h => hp (hΩx.2 h))]
+  have hφ0 : ∀ x ∈ Tf, x ∈ Hm.Ω 1 → ∀ y ∈ resSites Hm x,
+      (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ₁).1 y =
+        (flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ₂).1 y := by
+    intro x hxT hx y hy
+    have hyb : y ∈ Yb := (hresf x hxT hx y hy).2.2
+    simp only [flEdat]
+    funext i
+    rw [barField_eq_svec, barField_eq_svec, hsvb y hyb, hΨYb y hyb]
+    simp only [(hΩb y hyb)]
+  obtain ⟨-, hfφ⟩ := Dec2.decSol_value_cross hF₂ Sf Sf' hκ hM₂ false h0 h1 hδ₀ hδ₁ hSol hSol' hs
+    hs' he he' hTYf hYΩf hdichf hdichf' hrowf hrowf' hinf hinf'
+    (fun x hx hxΩ y hy => ⟨(hresf x hx hxΩ y hy).1, (hresf x hx hxΩ y hy).2.1⟩) hα0 hφ0
+    (fun x hx hxΩ y hy => hψrow x hx hxΩ y hy) (fun _ _ _ _ _ => rfl)
+  have hsvf : ∀ y ∈ Yf,
+      svec Hm (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ₁)).1 y =
+        svec Hl (Sol' (s', flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ₂)).1 y :=
+    fun y hy => svec_cross (hYΩf y hy) fun h h' i => (hfφ y h h' hy i).symm
+  -- the composition
+  rw [eTermFun_congr_raw (Gk := Gk) (Gj := Gj) ac Fk E _ _ (u := (rawOf D', ψ₂))
+    (u' := (rawOf D, ψ₁)) fun x hx => ⟨(hdk x hx).1.symm, fun h => ((hdk x hx).2 h).symm,
+      (hψk x hx).symm⟩]
+  exact eTermFun_cross ac Fk E (rawOf D, ψ₁)
+    (fun x hx => ⟨(hcp x hx).1, fun y hy => hsvb y ((hcp x hx).2 y hy)⟩)
+    (fun x hx => ⟨(hcm x hx).1, fun y hy => hsvf y ((hcm x hx).2 y hy)⟩)
+
 /-- **The replacement identity (abstract form), at one point.**  Let `(𝔹, 𝔹⁻)` and `(𝔹', 𝔹'⁻)` be
 the background and fluctuation generating sets of two sides, with the covers `coverOf 𝔹`,
 `coverOf 𝔹'`; let `F₁`, `F₁'` (decoupled background fields) and `Sol`, `Sol'` (decoupled fluctuation
@@ -255,49 +441,11 @@ theorem eTermFun_replacement_cross
     eTermFun Gl Gk Gj Hl ac Fk E (F₁' (s', rawOf D'))
         (Sol' (s', flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ')).1 (rawOf D', ψ') =
       eTermFun Gp Gk Gj Hm ac Fk E (F₁ (s, rawOf D))
-        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ') := by
-  classical
-  -- the background fields
-  obtain ⟨hbα, hbφ⟩ := Dec2.decBg_value_cross hS Sb Sb' HB HB' hκ hM hF₁ hF₁' hs hs' hDd hDd'
-    hTYb hYlayb hdichb hdichb' hrowb hrowb' hinb hinb' hresb hactb hdatb
-  have hΩb : ∀ y ∈ Yb, (y ∈ Gp.Ω 1 ↔ y ∈ Gl.Ω 1) := fun y hy => mem_Ω_one_cross (hYlayb y hy)
-  have hsvb : ∀ y ∈ Yb, svec Gp (F₁ (s, rawOf D)).1 y = svec Gl (F₁' (s', rawOf D')).1 y :=
-    fun y hy => svec_cross (hΩb y hy) fun h h' i => (hbφ y h h' hy i).symm
-  -- the data of the fluctuation problems
-  have hα0 : ∀ (x : CTorus d L N₁ m₁ (k + 1)) (hx : x ∈ Hm.Ω 1) (hx' : x ∈ Hl.Ω 1), x ∈ Tf →
-      (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ').2.1 ⟨x, hx⟩ =
-        (flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ').2.1 ⟨x, hx'⟩ := by
-    intro x hx hx' hxT
-    have hxb : x ∈ Tb := hTfb hxT
-    have hΩx := hΩb x (hTYb hxb)
-    simp only [flEdat, flAlpha]
-    by_cases hp : x ∈ Gp.Ω 1
-    · rw [dite_eq_left hp, dite_eq_left (hΩx.1 hp)]
-      exact (hbα x hp (hΩx.1 hp) hxb).symm
-    · rw [dite_eq_right hp, dite_eq_right (fun h => hp (hΩx.2 h))]
-  have hφ0 : ∀ x ∈ Tf, x ∈ Hm.Ω 1 → ∀ y ∈ resSites Hm x,
-      (flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ').1 y =
-        (flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ').1 y := by
-    intro x hxT hx y hy
-    have hyb : y ∈ Yb := (hresf x hxT hx y hy).2.2
-    simp only [flEdat]
-    funext i
-    rw [barField_eq_svec, barField_eq_svec, hsvb y hyb, hΨYb y hyb]
-    simp only [(hΩb y hyb)]
-  obtain ⟨-, hfφ⟩ := Dec2.decSol_value_cross hF₂ Sf Sf' hκ hM₂ false h0 h1 hδ₀ hδ₁ hSol hSol' hs
-    hs' he he' hTYf hYΩf hdichf hdichf' hrowf hrowf' hinf hinf'
-    (fun x hx hxΩ y hy => ⟨(hresf x hx hxΩ y hy).1, (hresf x hx hxΩ y hy).2.1⟩) hα0 hφ0
-    (fun _ _ _ _ _ => rfl) (fun _ _ _ _ _ => rfl)
-  have hsvf : ∀ y ∈ Yf,
-      svec Hm (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 y =
-        svec Hl (Sol' (s', flEdat Gl Hl (F₁' (s', rawOf D')) D'.Ψ ψ')).1 y :=
-    fun y hy => svec_cross (hYΩf y hy) fun h h' i => (hfφ y h h' hy i).symm
-  -- the composition
-  rw [eTermFun_congr_raw (Gk := Gk) (Gj := Gj) ac Fk E _ _ (u := (rawOf D', ψ'))
-    (u' := (rawOf D, ψ')) fun x hx => ⟨(hdk x hx).1.symm, fun h => ((hdk x hx).2 h).symm, rfl⟩]
-  exact eTermFun_cross ac Fk E (rawOf D, ψ')
-    (fun x hx => ⟨(hcp x hx).1, fun y hy => hsvb y ((hcp x hx).2 y hy)⟩)
-    (fun x hx => ⟨(hcm x hx).1, fun y hy => hsvf y ((hcm x hx).2 y hy)⟩)
+        (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ') :=
+  eTermFun_replacement_cross_of_agree hS Sb Sb' HB HB' hκ hM hF₁ hF₁' hF₂ Sf Sf' hM₂ h0 h1 hδ₀
+    hδ₁ hSol hSol' ac Fk E hs hs' hDd hDd' ψ' ψ' he he' hTYb hYlayb hdichb hdichb' hrowb hrowb'
+    hinb hinb' hresb hactb hdatb hΨYb hTYf hTfb hYΩf hdichf hdichf' hrowf hrowf' hinf hinf' hresf
+    hcp hcm hdk (fun _ _ _ _ _ => rfl) (fun _ _ => rfl)
 
 /-- **The coefficient equality.**  For a parameter index `ι`, maps `σ`, `τ` from the parameters
 `w : ι → ℂ` to the cut parameters of the two sides (e.g. `extParams` and its transport) and a
