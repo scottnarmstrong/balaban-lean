@@ -140,4 +140,51 @@ theorem card_fibre_le_one {ι : Type*} [Fintype ι] (F : FineSizeFrame S n M K m
 
 end Fibre
 
+section Instance
+
+variable [∀ k, NeZero (n k)] {Yt Zt : Type*} [Fintype Yt] [Fintype Zt] {β : Yt → ℂ} {τ : Zt → ℂ}
+
+open Classical in
+/-- **The activity bound of the physical large-field gas, with the fibre bounds discharged.**
+The instance of `gas_activity_bound_core_dExt_count` at the cells of the fine region
+`d7Pull F k Om`, with `core := id`, for old terms labelled by distinct domains `labY y` and heavy
+objects labelled by distinct domains `labZ z`, whose fine sets are `Ŷ` of their cores: the fibre
+bounds are `m_Y = m_Z = 1` (`card_fibre_le_one`), `hN` is `F.divN₁`.  The remaining inputs are
+`hB` (bound (1.35) with `3κ/2` decay in `dExt` of the core, `κ'' = 3κ/2`, `κ'' - κ' ≥ a_ent + 1`),
+`hτ` (the factor (3.10) of the removed components), `hzd` (a removed core has size at most `c2`
+times its number of cells; see `dExt_core_le_d7SizePre_add_removed`), and `hh`. -/
+theorem gas_activity_bound_physical (F : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
+    (Om : Set (Torus S.d (n k)))
+    (labY : Yt → Finset (Torus S.d (n k))) (hlabY : Function.Injective labY)
+    (labZ : Zt → Finset (Torus S.d (n k))) (hlabZ : Function.Injective labZ)
+    {cy zs cr : _ → Finset (CubeB (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ k (d7Pull F k Om))}
+    (hXY : ∀ y, d7Pull F k (labY y : Set (Torus S.d (n k))) =
+      Yhat (d7Pull F k Om) (sitesOf (cy y)))
+    (hXZ : ∀ z, d7Pull F k (labZ z : Set (Torus S.d (n k))) =
+      Yhat (d7Pull F k Om) (sitesOf (zs z)))
+    {B0 κ' κ'' c2 p h : ℝ}
+    (hc2 : 0 ≤ c2) (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hp : 0 ≤ p)
+    (hκ : aEnt S.d S.L + 1 ≤ κ'' - κ')
+    (hz : ∀ z, (zs z).Nonempty) (hcr : ∀ z, cr z ⊆ zs z)
+    (hB : ∀ y, ‖β y‖ ≤ B0 * Real.exp (-κ'' * dExt (d := S.d) (cy y)))
+    (hτ : ∀ z, ‖τ z‖ ≤ Real.exp (-p - h * (zs z).card))
+    (hzd : ∀ z, dExt (d := S.d) (zs z) ≤ c2 * (zs z).card)
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * cG S.d S.L) *
+        (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1)) +
+      κ' * (c2 + cG S.d S.L) + c1 S.d S.L + 3 +
+      Real.log (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1) *
+        Real.exp ((aEnt S.d S.L + 1) * c2)) ≤ h)
+    (X : NePoly (CubeB (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ k (d7Pull F k Om))) :
+    ‖gasK cy zs cr β τ X‖ ≤
+      3 * c1 S.d S.L * Real.exp (-p) * Real.exp (-(κ' - 2) * dExt (d := S.d) X.1) := by
+  have := gas_activity_bound_core_dExt_count (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁)
+    (K := K) (m₀ := m₀) (j := k) (Ω := d7Pull F k Om) (β := β) (τ := τ) F.divN₁ hkK id
+    (cy := cy) (zs := zs) (cr := cr) (mY := 1) (mZ := 1) hc2 hB0 hκ' hκ'' hp hκ hz hcr
+    (fun T => by convert card_fibre_le_one F hnn hkK Om labY hlabY cy hXY T using 3; simp)
+    (fun T => by convert card_fibre_le_one F hnn hkK Om labZ hlabZ zs hXZ T using 3; simp) le_rfl hB hτ hzd hh X
+  simpa using this
+
+end Instance
+
 end Balaban.LargeField
