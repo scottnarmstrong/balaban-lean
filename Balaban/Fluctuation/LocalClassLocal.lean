@@ -656,4 +656,186 @@ theorem evTerm_localHat_clipRaw_congr (hk1 : 1 ≤ k) (hL2 : 2 ≤ L) (ha₁ : 1
 
 end Same
 
+section LocalB
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ₁ ϱ₂ ϱm : ℝ}
+variable {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
+variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+
+/-- **The thickened cubes of the active cubes of `𝔹_{k+1}(Y⁺)` lie in a set `W`** containing the
+cubes with a non-vanishing parameter.  Let the parameters `s'` of the cover of `𝔹_{k+1}(Y⁺)` vanish
+at the cubes whose base is not in the top layer, and let every cube with `s'_P ≠ 0` lie in `W`.  If
+`s'_z ≠ 0`, every site `y` of `□̂_z` lies in the top layer (`localB_hatBox_top_of_active`), its own
+top cube is in `𝒬(z)`, so its parameter does not vanish, so `y ∈ W`. -/
+theorem localB_active_hatBox_subset (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
+    (Yp : Set (CTorus d L N₁ m₁ (k + 1))) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {s' : Dec2.DecParams (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))}
+    (hs'0 : ∀ P ∈ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx,
+      P.2 ∉ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) →
+        Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) s' P = 0)
+    {W : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hW : ∀ P ∈ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx,
+      Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) s' P ≠ 0 →
+        ∀ y, SameCell (L ^ (P.1 + m₁)) y P.2 → y ∈ W) :
+    ∀ q ∈ (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx,
+      (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).sProd
+          (Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) s') q ≠
+        0 →
+      ∀ y, InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y →
+        y ∈ W ∧ y ∈ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) := by
+  classical
+  intro q hq hne y hy
+  have htop := localB_hatBox_top_of_active hk1 hk Yp (le_refl (minSep L (L ^ m₁))) hm₁ hM hs'0 hq
+    hne hy
+  have hyl : y ∈ (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).layer (k + 1) :=
+    (mem_layer_iff_of_mem_top htop (by omega) le_rfl).2 rfl
+  have hP := own_mem_cubeIdx (localB_cubeAligned hk Yp (le_refl (minSep L (L ^ m₁))) hm₁)
+    (by omega : 1 ≤ k + 1) le_rfl hyl
+  have hsc : SameCell (L ^ (k + 1 + m₁)) y (ownBase (k + 1 + m₁) y) := ownBase_sameCell y
+  have hQ : ((k + 1, ownBase (k + 1 + m₁) y) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈
+      (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).Qset q :=
+    (DecCover.mem_Qset _).2 ⟨hP, y, hsc, hy⟩
+  have hne' : Dec2.extS (coverOf (GsSpec.localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))) s'
+      (k + 1, ownBase (k + 1 + m₁) y) ≠ 0 := fun h0 => hne (Finset.prod_eq_zero hQ h0)
+  exact ⟨hW _ hP hne' y hsc, htop⟩
+
+/-- **Every data site of `𝔹_k(X)` is read inside an active interaction cube** (`𝔹` cube aligned,
+e.g. `𝔹 = 𝔹_{k+1}(Y⁺)`).  Let the parameters `s'` of the cover of `𝔹` vanish off the top layer and
+equal `1` at the cubes contained in `X₁`, and let every site within `ℓ¹`-distance
+`(4 d L³ + L) M₁ ℓ(x)` of a site `x ∈ X₀ ∩ Ω₁(𝔹)` lie in `X₁` (`ℓ(x)` the spacing of `𝔹` at `x`), with
+the data sites of `𝔹_k(X)` in `X₀`.  Then for a data site `x` of `𝔹_k(X)` its own cube `z` is a top
+cube (it lies in `X₁`, so `s'_z = 1`), every cube of `𝒬(z)` lies within `6 M₁ L^{k+1}` of `x`, hence in
+`X₁`, so the factor `s'_z` does not vanish; and `x` and its blocks of the layer indices of `𝔹_k(X)`,
+`𝔹` and `H⁻` lie in the cube of `z`, hence in `□_z`. -/
+theorem comp_active_of_near {ϱB : ℝ} {B : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱB}
+    (hA : CubeAligned B m₁) (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hP : Precedes Gk B)
+    (colk : ∀ z ∈ collar Gk, z ∈ B.Ω 1)
+    {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} (dsX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
+    (hN : ∀ x ∈ X₀, x ∈ B.Ω 1 →
+      ∀ y : CTorus d L N₁ m₁ (k + 1), Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y <
+        (4 * d * (L : ℝ) ^ 3 + L) * (L : ℝ) ^ m₁ * B.spacing x → y ∈ X₁f)
+    {s' : Dec2.DecParams (coverOf B)}
+    (hs'0 : ∀ P ∈ (coverOf B).cubeIdx, P.2 ∉ B.Ω (k + 1) → Dec2.extS (coverOf B) s' P = 0)
+    (hs'1 : ∀ (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf B).cubeIdx),
+      P ∉ (coverOf B).parCubes X₁f → s' ⟨P, hP⟩ = 1) :
+    ∀ x ∈ dataSites Gk, ∃ q ∈ (coverOf B).cubeIdx,
+      (coverOf B).sProd (Dec2.extS (coverOf B) s') q ≠ 0 ∧
+      ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ B.blk (B.layerIndex x) x ∨
+          y ∈ Hm.blk (Hm.layerIndex x) x) → y ∈ intBox q := by
+  classical
+  intro x hx
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hMr : (4 : ℝ) * (L : ℝ) ^ 2 ≤ (L : ℝ) ^ m₁ := by exact_mod_cast hM
+  have hx1 : x ∈ B.Ω 1 := by
+    rcases (mem_dataSites Gk).1 hx with h | h
+    · exact hP.mem_Ω1 h
+    · exact colk x h
+  obtain ⟨hn1, hnK, hxl⟩ := B.layerIndex_spec hx1
+  have hcube : ((B.layerIndex x, ownBase (B.layerIndex x + m₁) x) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈
+      (coverOf B).cubeIdx := own_mem_cubeIdx hA hn1 hnK hxl
+  have hscx : SameCell (L ^ (B.layerIndex x + m₁)) x (ownBase (B.layerIndex x + m₁) x) :=
+    ownBase_sameCell x
+  have hsp : B.spacing x = (L : ℝ) ^ B.layerIndex x := B.spacing_eq hn1 hnK hxl
+  have hpow : (L : ℝ) ^ (B.layerIndex x + m₁) = (L : ℝ) ^ B.layerIndex x * (L : ℝ) ^ m₁ :=
+    pow_add _ _ _
+  -- the neighbourhood of `x` lies in `X₁`
+  have hnear : ∀ z, (supDist x z : ℝ) ≤ 6 * (L : ℝ) ^ (B.layerIndex x + m₁) → z ∈ X₁f := by
+    intro z hz
+    refine hN x (dsX₀ x hx) hx1 z (lt_of_le_of_lt (torusDist_le_mul_supDist x z) ?_)
+    rw [hsp]
+    rw [hpow] at hz
+    have hA0 : 0 < (L : ℝ) ^ B.layerIndex x * (L : ℝ) ^ m₁ := by positivity
+    have hL3' : (27 : ℝ) ≤ (L : ℝ) ^ 3 := by nlinarith
+    have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+    have e : (4 * d * (L : ℝ) ^ 3 + L) * (L : ℝ) ^ m₁ * (L : ℝ) ^ B.layerIndex x =
+        (4 * d * (L : ℝ) ^ 3 + L) * ((L : ℝ) ^ B.layerIndex x * (L : ℝ) ^ m₁) := by ring
+    rw [e]
+    calc (d : ℝ) * (supDist x z : ℝ) ≤ d * (6 * ((L : ℝ) ^ B.layerIndex x * (L : ℝ) ^ m₁)) :=
+          mul_le_mul_of_nonneg_left hz hd
+      _ < (4 * d * (L : ℝ) ^ 3 + L) * ((L : ℝ) ^ B.layerIndex x * (L : ℝ) ^ m₁) := by
+          nlinarith [mul_pos hL0 hA0, mul_nonneg hd hA0.le, mul_nonneg (mul_nonneg hd hA0.le)
+            (by linarith : (0 : ℝ) ≤ (L : ℝ) ^ 3 - 27)]
+  -- the own cube lies in `X₁`, so it is a top cube
+  have hnot : ((B.layerIndex x, ownBase (B.layerIndex x + m₁) x) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∉
+      (coverOf B).parCubes X₁f := by
+    intro h
+    refine (Finset.mem_filter.1 h).2 fun z hz => hnear z ?_
+    have hxz : SameCell (L ^ (B.layerIndex x + m₁)) x z := hscx.trans (mem_cubeP.1 hz).symm
+    have := supDist_le_of_sameCell (pow_pos (by omega) _) hxz
+    have h1 : (supDist x z : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by exact_mod_cast this
+    have : (0 : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by positivity
+    linarith
+  have hone : Dec2.extS (coverOf B) s' (B.layerIndex x, ownBase (B.layerIndex x + m₁) x) = 1 := by
+    unfold Dec2.extS
+    rw [dite_eq_left hcube]
+    exact hs'1 _ hcube hnot
+  have hntop : B.layerIndex x = k + 1 := by
+    by_contra hne
+    have hb : ownBase (B.layerIndex x + m₁) x ∉ B.Ω (k + 1) := by
+      intro hb
+      obtain ⟨⟨h1, h2⟩, hl, -⟩ := (mem_cubeIdx _).1 hcube
+      exact hne ((mem_layer_iff_of_mem_top hb h1 h2).1 hl)
+    have := hs'0 _ hcube hb
+    rw [hone] at this
+    exact one_ne_zero this
+  -- the own cube is active
+  have hact : (coverOf B).sProd (Dec2.extS (coverOf B) s')
+      (B.layerIndex x, ownBase (B.layerIndex x + m₁) x) ≠ 0 := by
+    unfold DecCover.sProd
+    refine Finset.prod_ne_zero_iff.2 fun P hPQ => ?_
+    obtain ⟨hPc, y, hyP, hyB⟩ := (DecCover.mem_Qset _).1 hPQ
+    have hP1 : P.1 ≤ k + 1 := ((mem_cubeIdx _).1 hPc).1.2
+    have hsub : cubeP P ⊆ X₁f := by
+      intro z hz
+      refine hnear z ?_
+      have h1 := supDist_le_of_sameCell (pow_pos (by omega) _) hscx
+      have hR : (0 : ℝ) ≤ hatRad L m₁ (B.layerIndex x) := by unfold hatRad; positivity
+      have h2 := supDist_le_of_inBox hR hyB
+      have h3 := supDist_le_of_sameCell (pow_pos (by omega) _) (hyP.trans (mem_cubeP.1 hz).symm)
+      have h4 : L ^ (P.1 + m₁) ≤ L ^ (B.layerIndex x + m₁) :=
+        Nat.pow_le_pow_right (by omega) (by omega)
+      have ht := supDist_triangle x (ownBase (B.layerIndex x + m₁) x) z
+      have ht' := supDist_triangle (ownBase (B.layerIndex x + m₁) x) y z
+      rw [supDist_comm (ownBase (B.layerIndex x + m₁) x) y] at ht'
+      have e1 : (supDist x z : ℝ) ≤ (supDist x (ownBase (B.layerIndex x + m₁) x) : ℝ) +
+          (supDist y (ownBase (B.layerIndex x + m₁) x) : ℝ) + (supDist y z : ℝ) := by
+        exact_mod_cast ht.trans (by omega)
+      have e2 : (supDist x (ownBase (B.layerIndex x + m₁) x) : ℝ) ≤
+          (L : ℝ) ^ (B.layerIndex x + m₁) := by exact_mod_cast h1
+      have e3 : (supDist y z : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by
+        exact_mod_cast h3.trans h4
+      have e4 : hatRad L m₁ (B.layerIndex x) ≤ 13 / 4 * (L : ℝ) ^ (B.layerIndex x + m₁) := by
+        unfold hatRad
+        rw [hpow]
+        have hp : (0 : ℝ) ≤ (L : ℝ) ^ B.layerIndex x := by positivity
+        nlinarith [mul_le_mul_of_nonneg_left hMr hp]
+      have : (0 : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by positivity
+      linarith
+    have hPn : P ∉ (coverOf B).parCubes X₁f := fun h => (Finset.mem_filter.1 h).2 hsub
+    unfold Dec2.extS
+    rw [dite_eq_left hPc, hs'1 P hPc hPn]
+    exact one_ne_zero
+  refine ⟨_, hcube, hact, fun y hy => ?_⟩
+  -- the reads lie in the own cube
+  have hblk : ∀ {ϱ' : ℝ} (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ'),
+      y ∈ G.blk (G.layerIndex x) x → SameCell (L ^ (B.layerIndex x + m₁)) y x := by
+    intro ϱ' G h
+    have hle := layerIndex_le_of_Ω_empty G G.top x
+    exact (sameCell_of_jBlock_eq hle (GeneratingSet.mem_blk.1 h)).mono (pow_dvd_pow L (by omega))
+  have hyx : SameCell (L ^ (B.layerIndex x + m₁)) y x := by
+    rcases hy with rfl | h | h | h
+    · exact SameCell.refl _ _
+    · exact hblk Gk h
+    · exact hblk B h
+    · exact hblk Hm h
+  have hbase := ownBase_cubeBase (m₁ := m₁) (n := B.layerIndex x) x
+  refine mem_intBox.2 (((inBox_half_iff_sameCell (by omega) hbase).2 (hyx.trans hscx)).mono ?_)
+  have : (0 : ℝ) ≤ (L : ℝ) ^ (B.layerIndex x + m₁) := by positivity
+  linarith
+
+end LocalB
+
 end Balaban.Localization
