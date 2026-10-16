@@ -7,6 +7,8 @@ module
 
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.Localization.DecoupledCovClose
+public import Balaban.Localization.Decoupled2FpGeometry
+public import Balaban.Localization.DecoupledCovLocal
 
 /-!
 # Locality of the first step's shifted covariance and of its square root
@@ -176,5 +178,311 @@ theorem baseCovX_sub_decay {κ δ : ℝ} {α : G.Ω 1 → ℂ}
   linarith
 
 end Compare
+
+section Exact
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT x₀ ν Cx κ δ : ℝ}
+  {α : G.Ω 1 → ℂ} {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ}
+  {φ : Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+  {Sr Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+
+/-- Outside every active cube the Green function vanishes. -/
+theorem Gsx_mulVec_eq_zero_of_dich (u : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ)
+    (hact : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd u q ≠ 0 →
+      SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+    (g : G.Ω 1 → ℂ) {y : G.Ω 1}
+    (hyS : (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∉ Sr)
+    (hyY : (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y) :
+    (Dec2.Gsx (coverOf G) G a aT x₀ ν α u *ᵥ g) y = 0 := by
+  classical
+  have hcore : (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∉ Dec2.Core (coverOf G) u := by
+    intro h
+    unfold Dec2.Core at h
+    obtain ⟨q, hq, hyq⟩ := Finset.mem_biUnion.1 h
+    have hq' := Finset.mem_filter.1 hq
+    have hbox := coreBox_subset_box hyq
+    rcases hact q hq'.1 hq'.2 with h1 | h1
+    · exact hyS (h1 y hbox)
+    · exact h1 y hbox hyY
+  simp only [Matrix.mulVec, dotProduct]
+  exact Finset.sum_eq_zero fun y' _ => by
+    rw [Dec2.Gsx_apply_eq_zero_of_not_core (Dec2.footLocalGeom_coverOf G) y y' hcore, zero_mul]
+
+/-- **Exact agreement of the Green function.**  If every active cube lies inside `Sr` or is
+disjoint from `Y ⊇ Sr`, the parameters agree on the cubes inside `Sr`, and the sources agree on
+`Sr`, then the outputs agree on all of `Y`. -/
+theorem Gsx_exact (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hx : 0 ≤ x₀) (hα : AdmPot G α)
+    (hU : IsUnit (1 - Dec2.Kcalx (coverOf G) G a aT x₀ ν α s))
+    (hU' : IsUnit (1 - Dec2.Kcalx (coverOf G) G a aT x₀ ν α s'))
+    (hdich : ∀ q ∈ (coverOf G).cubeIdx, ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+      SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+    (hSY : Sr ⊆ Y)
+    (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr →
+      (coverOf G).sProd s q = (coverOf G).sProd s' q)
+    {g g' : G.Ω 1 → ℂ}
+    (hg : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → g y = g' y) :
+    ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y →
+      (Dec2.Gsx (coverOf G) G a aT x₀ ν α s *ᵥ g) y =
+        (Dec2.Gsx (coverOf G) G a aT x₀ ν α s' *ᵥ g') y := by
+  classical
+  intro y hyY
+  by_cases hyS : (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr
+  · refine Dec2.Gsx_local S hx hα hα hU hU' ?_ hagree (fun _ _ => rfl) hg y hyS
+    intro q hq hact
+    rcases hdich q hq hact with h | h
+    · exact Or.inl h
+    · exact Or.inr (fun x hx hxS => h x hx (hSY hxS))
+  · rw [Gsx_mulVec_eq_zero_of_dich s (fun q hq h => hdich q hq (Or.inl h)) g hyS hyY,
+      Gsx_mulVec_eq_zero_of_dich s' (fun q hq h => hdich q hq (Or.inr h)) g' hyS hyY]
+
+section ZExact
+
+variable (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hx : 0 ≤ x₀) (hα : AdmPot G α)
+  (hU : IsUnit (1 - Dec2.Kcalx (coverOf G) G a aT x₀ ν α s))
+  (hU' : IsUnit (1 - Dec2.Kcalx (coverOf G) G a aT x₀ ν α s'))
+  (hdich : ∀ q ∈ (coverOf G).cubeIdx, ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+    SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+  (hSY : Sr ⊆ Y)
+  (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr →
+    (coverOf G).sProd s q = (coverOf G).sProd s' q)
+  (hrow : ∀ z y : G.Ω 1, (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr →
+    xDirichletOperator G a aT x₀ ν α z y ≠ 0 →
+    (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y)
+include S hx hα hU hU' hdich hSY hagree hrow
+
+theorem commK_Gsx_exact {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → ∀ i,
+      w (y, i) = w' (y, i))
+    {z : G.Ω 1} (hz : (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr) :
+    (commK (xDirichletOperator G a aT x₀ ν α) (restrictField G φ) *ᵥ
+        (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w)) z =
+      (commK (xDirichletOperator G a aT x₀ ν α) (restrictField G φ) *ᵥ
+        (liftOp N (Gsx G a aT x₀ ν α s') *ᵥ w')) z := by
+  refine commK_apply_eq (fun y hy i => ?_)
+  rw [liftOp_mulVec, liftOp_mulVec]
+  exact Gsx_exact S hx hα hU hU' hdich hSY hagree (g := fun b => w (b, i))
+    (g' := fun b => w' (b, i)) (fun b hb => hw b hb i) y (hrow z y hz hy)
+
+theorem decN_exact {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → ∀ i,
+      w (y, i) = w' (y, i))
+    {z : G.Ω 1} (hz : (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr) :
+    (decN G a aT x₀ ν α s φ *ᵥ w) z = (decN G a aT x₀ ν α s' φ *ᵥ w') z := by
+  rw [decN_mulVec_eq, decN_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
+  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ w) z =
+      ((fieldMul (restrictField G φ))ᵀ *ᵥ w') z := by
+    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
+    exact Finset.sum_congr rfl fun i _ => by rw [hw z hz i]
+  rw [e1, commK_Gsx_exact (φ := φ) S hx hα hU hU' hdich hSY hagree hrow hw hz]
+
+theorem decM_exact {v v' : G.Ω 1 → ℂ}
+    (hv : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → v y = v' y)
+    {z : G.Ω 1} (hz : (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr) :
+    (decM G a aT x₀ ν α s φ *ᵥ v) z = (decM G a aT x₀ ν α s' φ *ᵥ v') z := by
+  rw [decM_mulVec_eq, decM_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
+  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ (fieldMul (restrictField G φ) *ᵥ v)) z =
+      ((fieldMul (restrictField G φ))ᵀ *ᵥ (fieldMul (restrictField G φ) *ᵥ v')) z := by
+    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [fieldMul_mulVec, fieldMul_mulVec, hv z hz]
+  have e2 := commK_Gsx_exact (φ := φ) S hx hα hU hU' hdich hSY hagree hrow
+    (w := fieldMul (restrictField G φ) *ᵥ v) (w' := fieldMul (restrictField G φ) *ᵥ v')
+    (fun y hy i => by rw [fieldMul_mulVec, fieldMul_mulVec, hv y hy]) hz
+  rw [e1, e2]
+
+omit hrow in
+theorem Gvec_exact {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → ∀ i,
+      w (y, i) = w' (y, i)) :
+    ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w) (y, i) =
+        (liftOp N (Gsx G a aT x₀ ν α s') *ᵥ w') (y, i) := by
+  intro y hy i
+  rw [liftOp_mulVec, liftOp_mulVec]
+  exact Gsx_exact S hx hα hU hU' hdich hSY hagree (g := fun b => w (b, i))
+    (g' := fun b => w' (b, i)) (fun b hb => hw b hb i) y hy
+
+end ZExact
+
+section ZExact2
+
+variable (D : Dec2.XData (coverOf G) G a aT ν x₀ α κ s Cx)
+  (D' : Dec2.XData (coverOf G) G a aT ν x₀ α κ s' Cx)
+  (hφ : IsConstraintField G δ φ) (hδ : 0 ≤ δ) (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hdich : ∀ q ∈ (coverOf G).cubeIdx, ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+    SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+  (hSY : Sr ⊆ Y)
+  (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr →
+    (coverOf G).sProd s q = (coverOf G).sProd s' q)
+  (hrow : ∀ z y : G.Ω 1, (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr →
+    xDirichletOperator G a aT x₀ ν α z y ≠ 0 →
+    (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y)
+include D D' hφ hδ hsm hdich hSY hagree hrow
+
+/-- **Exact agreement of `Z = Ĝ - Π`.**  If every active cube of `s` or `s'` lies inside `Sr` or is
+disjoint from `Y ⊇ Sr`, the parameters agree on the cubes inside `Sr`, the rows of the operator
+from `Sr` stay in `Y`, and `w = w'` on `Sr`, then `Z_s w = Z_{s'} w'` on all of `Y`. -/
+theorem decZ_exact {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → ∀ i,
+      w (y, i) = w' (y, i)) :
+    ∀ y : G.Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      (decZ G a aT x₀ ν α s φ *ᵥ w) (y, i) = (decZ G a aT x₀ ν α s' φ *ᵥ w') (y, i) := by
+  classical
+  have S := D.st
+  have hx := D.x0
+  have hα := D.pot
+  have hU := D.isUnit_one_sub
+  have hU' := D'.isUnit_one_sub
+  have H0 : XWeight G 0 (fun _ => 0) := D.weight_zero
+  have H0' : XWeight G 0 (fun _ => 0) := D'.weight_zero
+  have hMs := decM_isUnit_cover D hφ hδ hsm
+  have hMs' := decM_isUnit_cover D' hφ hδ hsm
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hMs
+  have hdet' := (Matrix.isUnit_iff_isUnit_det _).1 hMs'
+  obtain ⟨v, hv⟩ : ∃ v : G.Ω 1 → ℂ, v = (decM G a aT x₀ ν α s φ)⁻¹ *ᵥ
+      (decN G a aT x₀ ν α s φ *ᵥ w) := ⟨_, rfl⟩
+  obtain ⟨v', hv'⟩ : ∃ v : G.Ω 1 → ℂ, v = (decM G a aT x₀ ν α s' φ)⁻¹ *ᵥ
+      (decN G a aT x₀ ν α s' φ *ᵥ w') := ⟨_, rfl⟩
+  have hMv : decM G a aT x₀ ν α s φ *ᵥ v = decN G a aT x₀ ν α s φ *ᵥ w := by
+    rw [hv, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet, Matrix.one_mulVec]
+  have hMv' : decM G a aT x₀ ν α s' φ *ᵥ v' = decN G a aT x₀ ν α s' φ *ᵥ w' := by
+    rw [hv', Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ hdet', Matrix.one_mulVec]
+  obtain ⟨T, hT⟩ : ∃ T : (G.Ω 1 → ℂ) → (G.Ω 1 → ℂ), T = fun u =>
+      decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u := ⟨_, rfl⟩
+  obtain ⟨T', hT'⟩ : ∃ T : (G.Ω 1 → ℂ) → (G.Ω 1 → ℂ), T = fun u =>
+      decN G a aT x₀ ν α s' φ *ᵥ w' + u - decM G a aT x₀ ν α s' φ *ᵥ u := ⟨_, rfl⟩
+  have hTv : ∀ u, T u - v = (u - v) - decM G a aT x₀ ν α s φ *ᵥ (u - v) := by
+    intro u
+    subst hT
+    show decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u - v = _
+    rw [Matrix.mulVec_sub, hMv]
+    abel
+  have hTv' : ∀ u, T' u - v' = (u - v') - decM G a aT x₀ ν α s' φ *ᵥ (u - v') := by
+    intro u
+    subst hT'
+    show decN G a aT x₀ ν α s' φ *ᵥ w' + u - decM G a aT x₀ ν α s' φ *ᵥ u - v' = _
+    rw [Matrix.mulVec_sub, hMv']
+    abel
+  have hS0 := agmonSource_nonneg G 0 (fun _ => 0)
+  have hc : ∀ u, agmonSource G 0 (fun _ => 0) (T u - v) ≤
+      (1 / 4) * agmonSource G 0 (fun _ => 0) (u - v) := by
+    intro u
+    rw [hTv]
+    refine (decM_error_le_cover D H0 hφ hδ (u - v)).trans ?_
+    exact mul_le_mul_of_nonneg_right hsm (hS0 _)
+  have hc' : ∀ u, agmonSource G 0 (fun _ => 0) (T' u - v') ≤
+      (1 / 4) * agmonSource G 0 (fun _ => 0) (u - v') := by
+    intro u
+    rw [hTv']
+    refine (decM_error_le_cover D' H0' hφ hδ (u - v')).trans ?_
+    exact mul_le_mul_of_nonneg_right hsm (hS0 _)
+  have hag : ∀ u u' : G.Ω 1 → ℂ,
+      (∀ z ∈ {z : G.Ω 1 | (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr}, u z = u' z) →
+      ∀ z ∈ {z : G.Ω 1 | (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr},
+        T u z = T' u' z := by
+    intro u u' huu z hz
+    have hz' : (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr := hz
+    subst hT hT'
+    show (decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u) z =
+      (decN G a aT x₀ ν α s' φ *ᵥ w' + u' - decM G a aT x₀ ν α s' φ *ᵥ u') z
+    simp only [Pi.sub_apply, Pi.add_apply]
+    rw [decN_exact (φ := φ) S hx hα hU hU' hdich hSY hagree hrow hw hz', huu z hz,
+      decM_exact (φ := φ) S hx hα hU hU' hdich hSY hagree hrow (fun y hy => huu y hy) hz']
+  have hfix := fixed_point_agree T T' v v'
+    {z : G.Ω 1 | (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr} hc hc' hag
+  intro y hy i
+  have hZ : ∀ (ss : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ) (ww : G.Ω 1 × Fin N → ℂ)
+      (Mi : G.Ω 1 → ℂ),
+      Mi = (decM G a aT x₀ ν α ss φ)⁻¹ *ᵥ (decN G a aT x₀ ν α ss φ *ᵥ ww) →
+      decZ G a aT x₀ ν α ss φ *ᵥ ww = liftOp N (Gsx G a aT x₀ ν α ss) *ᵥ ww -
+        liftOp N (Gsx G a aT x₀ ν α ss) *ᵥ (fieldMul (restrictField G φ) *ᵥ Mi) := by
+    intro ss ww Mi hMi
+    unfold decZ decPi
+    rw [Matrix.sub_mulVec, hMi]
+    simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
+  have e1 := Gvec_exact S hx hα hU hU' hdich hSY hagree hw y hy i
+  have e2 := Gvec_exact S hx hα hU hU' hdich hSY hagree
+    (w := fieldMul (restrictField G φ) *ᵥ v) (w' := fieldMul (restrictField G φ) *ᵥ v')
+    (fun y hy i => by
+      rw [fieldMul_mulVec, fieldMul_mulVec, hfix y hy]) y hy i
+  rw [hZ s w v hv, hZ s' w' v' hv', Pi.sub_apply, Pi.sub_apply, e1, e2]
+
+end ZExact2
+
+section RowGeometry
+
+/-- A non-zero entry of the shifted Dirichlet operator joins a site to itself, to a lattice
+neighbour, or to a site of its layer block. -/
+theorem xDirichlet_row_cases (α : G.Ω 1 → ℂ) {p q : G.Ω 1}
+    (h : xDirichletOperator G a aT x₀ ν α p q ≠ 0) :
+    (q : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) = p ∨
+      (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) =
+          (p : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) + Pi.single μ 1 ∨
+        (q : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) =
+          (p : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) - Pi.single μ 1) ∨
+      (q : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈
+        G.blk (G.layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ (k + 1))) p := by
+  by_contra hcon
+  push Not at hcon
+  obtain ⟨h1, h2, h3⟩ := hcon
+  exact h (xDirichlet_entry_eq_zero (G := G) (a := a) (aT := aT) (x₀ := x₀) (ν := ν) α h1
+    (fun μ => ⟨fun e => (h2 μ).1 e, fun e => (h2 μ).2 e⟩) h3)
+
+end RowGeometry
+
+end Exact
+
+section CovExact
+
+variable {d L N₁ m₁ N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx x : ℝ}
+
+/-- **Exact core agreement of the shifted covariance, uniformly in `x`.**  Let `Sr ⊆ Y` be sets of
+cubes such that every active cube of `s` or `s'` (non-zero product of its parameters) lies inside
+`Sr` or is disjoint from `Y`, the parameters agree on the cubes inside `Sr`, and `Y` contains the
+lattice and layer-block neighbours of the sites of `Sr`.  Then the rows of the shifted covariance
+`(1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}` at the sites of `Y` do not depend on `s`. -/
+theorem baseCovX_exact {κ δ : ℝ} {α : G.Ω 1 → ℂ}
+    {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (S : Dec2.XCover (coverOf G) G a aT (ν + x) Cx) (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hα : AdmPot G α)
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {Sr Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)} (hSY : Sr ⊆ Y)
+    (hdich : ∀ q ∈ (coverOf G).cubeIdx,
+      ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+      SubI G (intBox q) Sr ∨ DisjI G (intBox q) Y)
+    (hagree : ∀ q ∈ (coverOf G).cubeIdx, SubI G (intBox q) Sr →
+      (coverOf G).sProd s q = (coverOf G).sProd s' q)
+    (hnbr : ∀ p q : G.Ω 1, (p : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Sr →
+      ((q : Balaban.Localization.CTorus d L N₁ m₁ 1) = p ∨
+        (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) + Pi.single μ 1 ∨
+          (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+            (p : Balaban.Localization.CTorus d L N₁ m₁ 1) - Pi.single μ 1) ∨
+        (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
+          G.blk (G.layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
+      (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (y z : G.Ω 1 × Fin N) (hy : (y.1 : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y) :
+    ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z =
+      ((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s') -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s' φ) y z := by
+  rw [baseCovX_eq_add_decZ, baseCovX_eq_add_decZ]
+  have D : Dec2.XData (coverOf G) G a aT (ν + x) 0 α κ s Cx := ⟨S, hCx, hα, le_rfl, hκ, hM, hs⟩
+  have D' : Dec2.XData (coverOf G) G a aT (ν + x) 0 α κ s' Cx := ⟨S, hCx, hα, le_rfl, hκ, hM, hs'⟩
+  have h := decZ_exact D D' hφ hδ hsm hdich hSY hagree
+    (fun p q hp hpq => hnbr p q hp (xDirichlet_row_cases α hpq))
+    (w := (Pi.single z 1 : G.Ω 1 × Fin N → ℂ)) (w' := (Pi.single z 1 : G.Ω 1 × Fin N → ℂ))
+    (fun _ _ _ => rfl) y.1 hy y.2
+  rw [mulVec_single_entry, mulVec_single_entry] at h
+  simp only [Matrix.add_apply]
+  rw [h]
+
+end CovExact
 
 end Balaban.LargeField.Base
