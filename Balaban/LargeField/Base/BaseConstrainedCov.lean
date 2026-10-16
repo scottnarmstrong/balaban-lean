@@ -361,32 +361,97 @@ theorem ring_aux {R : Type*} [Ring R] (P Hl Gl T : R) (hHG : Hl * Gl = 1) (hPP :
   rw [h5, h1, h2, h3, h4]
   abel
 
-/-- **The constrained covariance is the inverse of `A_e`.**  For an exact constraint field
-(`∑ᵢ e_z,i² = 1`), `H G = G H = 1` and `M = e² - K(e) Ĝ e` invertible, the matrix
-`P_e + Ĝ - Ĝ e M⁻¹ N` is the two-sided inverse of `A_e = Q_e Ĥ Q_e + P_e`. -/
-theorem baseOp_mul_constrainedCov {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
-    {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) (hM : IsUnit (constraintM H G e)) :
-    baseOp N e H * (basePart e + liftOp N G -
-        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) = 1 ∧
-      (basePart e + liftOp N G -
-        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) * baseOp N e H = 1 := by
+theorem ring_aux_smul {R : Type*} [Ring R] [Algebra ℂ R] (P Hl Gl T : R) (c : ℂ) (hc : c ≠ 0)
+    (hHG : Hl * Gl = 1) (hPP : P * P = P)
+    (hPGT : P * Gl * T = P) (hPT : P * T = T) :
+    ((1 - P) * Hl * (1 - P) + c • P) * (c⁻¹ • P + Gl - Gl * T * Gl) = 1 := by
+  have hQT : (1 - P) * T = 0 := by rw [sub_mul, one_mul, hPT, sub_self]
+  have hPG : P * (Gl * T * Gl) = P * Gl := by
+    rw [← mul_assoc, ← mul_assoc, mul_assoc P Gl T, ← mul_assoc, hPGT]
+  have hHG' : Hl * (Gl * T * Gl) = T * Gl := by
+    rw [← mul_assoc, ← mul_assoc, hHG, one_mul]
+  have hQP : (1 - P) * P = 0 := by rw [sub_mul, one_mul, hPP, sub_self]
+  have h1 : (1 - P) * (c⁻¹ • P + Gl - Gl * T * Gl) = Gl - Gl * T * Gl := by
+    have : (1 - P) * (c⁻¹ • P + Gl - Gl * T * Gl) =
+        c⁻¹ • ((1 - P) * P) + ((Gl - Gl * T * Gl) - (P * Gl - P * (Gl * T * Gl))) := by
+      simp only [mul_sub, mul_add, sub_mul, one_mul, mul_smul_comm]
+      abel
+    rw [this, hQP, hPG]; simp
+  have h2 : Hl * (Gl - Gl * T * Gl) = 1 - T * Gl := by rw [mul_sub, hHG, hHG']
+  have h3 : (1 - P) * (1 - T * Gl) = 1 - P := by
+    rw [mul_sub, mul_one, ← mul_assoc, hQT, zero_mul, sub_zero]
+  have h4 : P * (c⁻¹ • P + Gl - Gl * T * Gl) = c⁻¹ • P := by
+    rw [mul_sub, mul_add, mul_smul_comm, hPP, hPG]; abel
+  have h5 : ((1 - P) * Hl * (1 - P) + c • P) * (c⁻¹ • P + Gl - Gl * T * Gl) =
+      (1 - P) * (Hl * ((1 - P) * (c⁻¹ • P + Gl - Gl * T * Gl))) +
+        c • (P * (c⁻¹ • P + Gl - Gl * T * Gl)) := by
+    rw [add_mul, smul_mul_assoc, mul_assoc, mul_assoc]
+  rw [h5, h1, h2, h3, h4, smul_smul, mul_inv_cancel₀ hc, one_smul]
+  abel
+
+theorem basePart_mul_self {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) :
+    basePart e * basePart e = basePart e := by
+  have hE := fieldMul_transpose_mul_self he
+  unfold basePart
+  calc fieldMul e * (fieldMul e)ᵀ * (fieldMul e * (fieldMul e)ᵀ)
+      = fieldMul e * ((fieldMul e)ᵀ * fieldMul e) * (fieldMul e)ᵀ := by
+        simp only [Matrix.mul_assoc]
+    _ = _ := by rw [hE, Matrix.mul_one]
+
+omit [Fintype ι] in
+theorem liftOp_add_smul_one (x : ℂ) (H : Matrix ι ι ℂ) :
+    liftOp N (H + x • (1 : Matrix ι ι ℂ)) =
+      liftOp N H + x • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) := by
+  ext p q
+  simp only [liftOp, Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, smul_eq_mul,
+    Prod.ext_iff]
+  by_cases h1 : p.1 = q.1 <;> by_cases h2 : p.2 = q.2 <;> simp [h1, h2]
+
+/-- **The shifted operator.**  `A_e + x = Q_e ((H + x) ⊗ I) Q_e + (1 + x) P_e` for an exact
+constraint field. -/
+theorem baseOp_add_smul_one {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) (x : ℂ)
+    (H : Matrix ι ι ℂ) :
+    baseOp N e H + x • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ) =
+      (1 - basePart e) * liftOp N (H + x • (1 : Matrix ι ι ℂ)) * (1 - basePart e) +
+        (1 + x) • basePart e := by
+  have hPP := basePart_mul_self he
+  have hQQ : (1 - basePart e) * (1 - basePart e) = 1 - basePart e := by
+    simp only [sub_mul, mul_sub, one_mul, mul_one, hPP]; abel
+  unfold baseOp
+  rw [liftOp_add_smul_one, mul_add, add_mul, mul_smul_comm, mul_one, smul_mul_assoc, hQQ,
+    add_smul, one_smul, sub_eq_add_neg, smul_add, smul_neg]
+  abel
+
+/-- **The shifted constrained covariance inverts the shifted operator.**  For `c = 1 + x ≠ 0`,
+with `Hs = H + x` and `G` its two-sided inverse, `M = e² - K(e) Ĝ e` invertible, the matrix
+`c⁻¹ P_e + Ĝ - Ĝ e M⁻¹ N` is the two-sided inverse of `Q_e (Hs ⊗ I) Q_e + c P_e`. -/
+theorem shiftedOp_mul_constrainedCov {Hs G : Matrix ι ι ℂ} (c : ℂ) (hc : c ≠ 0)
+    (hHG : Hs * G = 1) (hGH : G * Hs = 1)
+    {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) (hM : IsUnit (constraintM Hs G e)) :
+    ((1 - basePart e) * liftOp N Hs * (1 - basePart e) + c • basePart e) *
+        (c⁻¹ • basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM Hs G e)⁻¹ * constraintN Hs G e) = 1 ∧
+      (c⁻¹ • basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM Hs G e)⁻¹ * constraintN Hs G e) *
+        ((1 - basePart e) * liftOp N Hs * (1 - basePart e) + c • basePart e) = 1 := by
   have hE := fieldMul_transpose_mul_self he
   have hW : IsUnit (constraintForm G e) := by
     rw [constraintForm_eq_mul hHG hGH e]
-    exact IsUnit.mul (show IsUnit G from ⟨⟨G, H, hGH, hHG⟩, rfl⟩) hM
+    exact IsUnit.mul (show IsUnit G from ⟨⟨G, Hs, hGH, hHG⟩, rfl⟩) hM
   have hWi : constraintForm G e * (constraintForm G e)⁻¹ = 1 :=
     Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hW)
-  have hCov : liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e =
+  have hCov : liftOp N G * fieldMul e * (constraintM Hs G e)⁻¹ * constraintN Hs G e =
       liftOp N G * (fieldMul e * (constraintForm G e)⁻¹ * (fieldMul e)ᵀ) * liftOp N G := by
     rw [← constrainedOp_eq hHG hGH e]
     unfold constrainedOp
     simp only [Matrix.mul_assoc]
-  have hHl : liftOp N H * liftOp N G = 1 := by rw [← liftOp_mul, hHG, liftOp_one]
-  have key : baseOp N e H * (basePart e + liftOp N G -
-        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) = 1 := by
+  have hHl : liftOp N Hs * liftOp N G = 1 := by rw [← liftOp_mul, hHG, liftOp_one]
+  have key : ((1 - basePart e) * liftOp N Hs * (1 - basePart e) + c • basePart e) *
+      (c⁻¹ • basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM Hs G e)⁻¹ * constraintN Hs G e) = 1 := by
     rw [hCov]
-    unfold baseOp basePart
-    refine ring_aux _ _ _ _ hHl ?_ ?_ ?_
+    unfold basePart
+    refine ring_aux_smul _ _ _ _ c hc hHl ?_ ?_ ?_
     · calc fieldMul e * (fieldMul e)ᵀ * (fieldMul e * (fieldMul e)ᵀ)
           = fieldMul e * ((fieldMul e)ᵀ * fieldMul e) * (fieldMul e)ᵀ := by
             simp only [Matrix.mul_assoc]
@@ -402,6 +467,37 @@ theorem baseOp_mul_constrainedCov {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hG
             simp only [Matrix.mul_assoc]
         _ = _ := by rw [hE, Matrix.mul_one]
   exact ⟨key, mul_eq_one_comm.1 key⟩
+
+/-- **L4: the constrained covariance of the shifted operator `A_e + x`.**  For `1 + x ≠ 0`,
+`G` a two-sided inverse of `H + x` and `M = e² - K(e) Ĝ e` (formed with `H + x`) invertible,
+`(1 + x)⁻¹ P_e + Ĝ - Ĝ e M⁻¹ N` is the two-sided inverse of `A_e + x`. -/
+theorem baseOp_shift_mul_constrainedCov {H G : Matrix ι ι ℂ} (x : ℂ) (hx : 1 + x ≠ 0)
+    (hHG : (H + x • (1 : Matrix ι ι ℂ)) * G = 1) (hGH : G * (H + x • (1 : Matrix ι ι ℂ)) = 1)
+    {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1)
+    (hM : IsUnit (constraintM (H + x • (1 : Matrix ι ι ℂ)) G e)) :
+    (baseOp N e H + x • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) *
+        ((1 + x)⁻¹ • basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM (H + x • (1 : Matrix ι ι ℂ)) G e)⁻¹ *
+          constraintN (H + x • (1 : Matrix ι ι ℂ)) G e) = 1 ∧
+      ((1 + x)⁻¹ • basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM (H + x • (1 : Matrix ι ι ℂ)) G e)⁻¹ *
+          constraintN (H + x • (1 : Matrix ι ι ℂ)) G e) *
+        (baseOp N e H + x • (1 : Matrix (ι × Fin N) (ι × Fin N) ℂ)) = 1 := by
+  rw [baseOp_add_smul_one he]
+  exact shiftedOp_mul_constrainedCov (1 + x) hx hHG hGH he hM
+
+/-- **The constrained covariance is the inverse of `A_e`.**  For an exact constraint field
+(`∑ᵢ e_z,i² = 1`), `H G = G H = 1` and `M = e² - K(e) Ĝ e` invertible, the matrix
+`P_e + Ĝ - Ĝ e M⁻¹ N` is the two-sided inverse of `A_e = Q_e Ĥ Q_e + P_e`. -/
+theorem baseOp_mul_constrainedCov {H G : Matrix ι ι ℂ} (hHG : H * G = 1) (hGH : G * H = 1)
+    {e : ι → Fin N → ℂ} (he : ∀ z, ∑ i, e z i * e z i = 1) (hM : IsUnit (constraintM H G e)) :
+    baseOp N e H * (basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) = 1 ∧
+      (basePart e + liftOp N G -
+        liftOp N G * fieldMul e * (constraintM H G e)⁻¹ * constraintN H G e) * baseOp N e H = 1 := by
+  have h := baseOp_shift_mul_constrainedCov (N := N) (H := H) (G := G) 0 (by simp)
+    (by simpa using hHG) (by simpa using hGH) he (by simpa using hM)
+  simpa using h
 
 end Inverse
 
