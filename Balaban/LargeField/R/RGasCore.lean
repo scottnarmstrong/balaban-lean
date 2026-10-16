@@ -7,6 +7,7 @@ module
 
 public import Balaban.Polymer.GasCoreSize
 public import Balaban.LargeField.Def7FineSize
+public import Balaban.LargeField.R.RExtraSize
 
 /-!
 # The core gas against the modular size of the large-field class (blocker 4)
@@ -62,5 +63,81 @@ theorem dExt_core_eq_d7Size {R : ℕ → ℝ} {k0 : ℕ} [∀ k, NeZero (n k)]
     (hfin : d7SizeE F A k X ≠ ⊤) :
     dExt (d := S.d) T = d7Size F A k X :=
   dExt_core_eq_d7SizeAt F k _ T X hX hcon hfin
+
+/-- **The size of a core of a domain, after `R`, against the size before `R`.**  For a domain `X`
+with `X_f = Ŷ(sitesOf T)` in `𝒟_k` of finite size, `1 ≤ k ≤ K`, the size `dExt T` of its core is
+at most `d7SizePre` plus `(d L + d + 3)` per cube of the removed components meeting `X`, each
+removed component having at most `(2ρ_k + 10)^d` cubes (`d7Size_le_d7SizePre_add_removed`). -/
+theorem dExt_core_le_d7SizePre_add_removed {R : ℕ → ℝ} {k0 : ℕ} [∀ k, NeZero (n k)]
+    (F : FineSizeFrame S n M K m₀ m₁) (A : LabHist S n R k0 K) (G : S.Good)
+    (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.rho j + 21 ≤ n j) {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K)
+    (T : Finset (CubeB (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ k
+      (d7Pull F k (A.H.omegaPost k))))
+    (X : Finset (Torus S.d (n k)))
+    (hX : d7Pull F k (X : Set (Torus S.d (n k))) =
+      Yhat (d7Pull F k (A.H.omegaPost k)) (sitesOf T))
+    (hDj : IsDj m₀ k (d7Pull F k (X : Set (Torus S.d (n k)))))
+    (hfin : d7SizeE F A k X ≠ ⊤) :
+    dExt (d := S.d) T ≤ d7SizePre F A k X +
+      ((S.d : ℝ) * S.L + S.d + 3) *
+        (((A.H.remMeeting X).card : ℝ) * ((2 * S.rho k + 10 : ℕ) ^ S.d : ℕ)) := by
+  rw [dExt_core_eq_d7Size F A k T X hX hDj.2.2 hfin]
+  exact d7Size_le_d7SizePre_add_removed F A G hT hk hkK hDj
+
+section Fibre
+
+variable [∀ k, NeZero (n k)]
+
+/-- Every cube of `𝕋_k` is the cube index of an aligned fine site. -/
+theorem exists_cubeIdx_eq (F : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K) (q : Torus S.d (n k)) :
+    ∃ b : Balaban.Localization.CTorus S.d S.L F.N₁ m₁ K, cubeIdx F k b = q := by
+  have hside := fine_side_eq F hnn hkK
+  have hcs : cellSide S.L m₀ m₁ k = S.L ^ k * M := by
+    unfold cellSide; rw [F.hM, ← pow_add]; congr 1; ring
+  have hpos : 0 < cellSide S.L m₀ m₁ k := cellSide_pos m₀ m₁ k
+  have hlt : ∀ μ, (q μ).val * cellSide S.L m₀ m₁ k <
+      F.N₁ * S.L ^ m₁ * S.L ^ K := by
+    intro μ
+    rw [hside, Nat.mul_comm (cellSide S.L m₀ m₁ k)]
+    exact Nat.mul_lt_mul_of_pos_right (ZMod.val_lt (q μ)) hpos
+  refine ⟨fun μ => (((q μ).val * cellSide S.L m₀ m₁ k : ℕ) : ZMod _), ?_⟩
+  funext μ
+  rw [cubeIdx_apply, ← hcs, ZMod.val_natCast, Nat.mod_eq_of_lt (hlt μ),
+    Nat.mul_div_cancel _ hpos, ZMod.natCast_zmod_val]
+
+/-- The fine lift of a set of cubes determines the set. -/
+theorem d7Pull_injective (F : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K) :
+    Function.Injective (d7Pull F (m₀ := m₀) k) := by
+  intro Y Y' h
+  ext q
+  obtain ⟨b, rfl⟩ := exists_cubeIdx_eq F hnn hkK q
+  have := congrArg (fun s => b ∈ s) h
+  simpa [d7Pull_iff] using this
+
+/-- **Fibre bound: a core determines its domain.**  Two domains whose fine sets are `Ŷ` of the
+cells of the same core are equal; hence at most one label has a given core, `m_Y = m_Z = 1`
+in `gas_activity_bound_core_dExt_count`. -/
+theorem card_fibre_le_one {ι : Type*} [Fintype ι] (F : FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
+    (Om : Set (Torus S.d (n k)))
+    (lab : ι → Finset (Torus S.d (n k))) (hlab : Function.Injective lab)
+    (core : ι → Finset (CubeB (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ k (d7Pull F k Om)))
+    (hX : ∀ i, d7Pull F k (lab i : Set (Torus S.d (n k))) =
+      Yhat (d7Pull F k Om) (sitesOf (core i)))
+    (T : Finset (CubeB (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ k (d7Pull F k Om))) :
+    ((Finset.univ.filter (fun i => core i = T)).card : ℝ) ≤ 1 := by
+  classical
+  have h1 : (Finset.univ.filter (fun i => core i = T)).card ≤ 1 := by
+    refine Finset.card_le_one.2 fun i hi i' hi' => ?_
+    have e : core i = core i' := by
+      rw [(Finset.mem_filter.1 hi).2, (Finset.mem_filter.1 hi').2]
+    have : d7Pull F k (lab i : Set (Torus S.d (n k))) = d7Pull F k (lab i' : Set _) := by
+      rw [hX, hX, e]
+    exact hlab (Finset.coe_injective (d7Pull_injective F hnn hkK this))
+  exact_mod_cast h1
+
+end Fibre
 
 end Balaban.LargeField
