@@ -199,28 +199,25 @@ open Balaban.Localization
 
 variable {d M J N N' : ℕ} [NeZero N] [NeZero N']
 
-/-- **Approximate `taggedMat_entry_twoTorus`.**  If the families `a`, `a'` correspond up to `δ` on
-`Y(C)²` for the cells of `C`, the tagged matrices at parameters `s`, `s'` (supported on `C`, `e C`,
-equal along `e`, of modulus at most `e^κ`) differ by at most `|C| e^{κ |C|} δ` at `x, y ∈ Y(C)`. -/
-theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+/-- Core of the two-torus closeness of tagged matrices: the difference at `x, y ∈ Y(C)` is at
+most the sum over the cells `z ∈ C` with `macTags z x y ⊆ C` of `‖tagMon‖` times the entry
+difference. -/
+theorem taggedMat_close_twoTorus_core (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
     (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
     (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
     {e : MacIdx d N M → MacIdx d N' M}
     (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
     {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
     {a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ}
-    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ} {δ κ : ℝ} (hκ : 0 ≤ κ)
-    (hδ : 0 ≤ δ)
-    (ha : ∀ z ∈ C, ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
-      ‖a z x y - a' (e z) (f x) (f y)‖ ≤ δ)
-    {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
+    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ}     {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
     {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
-    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    (hss : ∀ i ∈ C, s' (e i) = s i)
     {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
     (hy : y ∈ macRegion d N M C) :
     ‖taggedMat Finset.univ (macTags d N M) a s x y -
       taggedMat Finset.univ (macTags d N' M) a' s' (f x) (f y)‖ ≤
-      (C.card : ℝ) * Real.exp (κ * C.card) * δ := by
+      ∑ z ∈ C.filter (fun z => macTags d N M z x y ⊆ C),
+        ‖tagMon (macTags d N M z x y) s‖ * ‖a z x y - a' (e z) (f x) (f y)‖ := by
   classical
   obtain ⟨e', he'⟩ := exists_cellMap (d := d) (N := N') (N' := N) (J := J) hM hN
   set g : L1Torus d N' → L1Torus d N := fun y μ => (((y μ).val : ℕ) : ZMod N) with hgdef
@@ -287,21 +284,45 @@ theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
       exact (hsubset_iff z hz).1 h
   rw [hL, hR, Finset.sum_image (hinjE.mono (by intro z hz; exact (Finset.mem_filter.1 hz).1))]
   rw [← Finset.sum_sub_distrib]
-  refine (norm_sum_le _ _).trans ?_
-  calc _ ≤ ∑ _z ∈ C.filter (fun z => macTags d N M z x y ⊆ C),
-        Real.exp (κ * C.card) * δ := by
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun z hz => ?_)
+  obtain ⟨hzC, hVC⟩ := Finset.mem_filter.1 hz
+  rw [hVimg z hzC]
+  have hprod : tagMon (macTags d N M z x y) s =
+      tagMon ((macTags d N M z x y).image e) s' := by
+    unfold tagMon
+    rw [Finset.prod_image (hinjE.mono (by intro w hw; exact hVC hw))]
+    refine Finset.prod_congr rfl fun w hw => ?_
+    rw [hss w (hVC hw)]
+  rw [hprod, ← mul_sub, norm_mul]
+
+/-- **Approximate `taggedMat_entry_twoTorus`.**  If the families `a`, `a'` correspond up to `δ` on
+`Y(C)²` for the cells of `C`, the tagged matrices at parameters `s`, `s'` (supported on `C`, `e C`,
+equal along `e`, of modulus at most `e^κ`) differ by at most `|C| e^{κ |C|} δ` at `x, y ∈ Y(C)`. -/
+theorem taggedMat_close_twoTorus (hM : 0 < M) (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N'))
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {a : MacIdx d N M → Matrix (L1Torus d N) (L1Torus d N) ℂ}
+    {a' : MacIdx d N' M → Matrix (L1Torus d N') (L1Torus d N') ℂ} {δ κ : ℝ} (hκ : 0 ≤ κ)
+    (hδ : 0 ≤ δ)
+    (ha : ∀ z ∈ C, ∀ x ∈ macRegion d N M C, ∀ y ∈ macRegion d N M C,
+      ‖a z x y - a' (e z) (f x) (f y)‖ ≤ δ)
+    {s : MacIdx d N M → ℂ} (hs : s ∈ Balaban.Localization.supportedOn C)
+    {s' : MacIdx d N' M → ℂ} (hs' : s' ∈ Balaban.Localization.supportedOn (C.image e))
+    (hss : ∀ i ∈ C, s' (e i) = s i) (hsκ : ∀ p, ‖s p‖ ≤ Real.exp κ)
+    {x y : L1Torus d N} (hx : x ∈ macRegion d N M C)
+    (hy : y ∈ macRegion d N M C) :
+    ‖taggedMat Finset.univ (macTags d N M) a s x y -
+      taggedMat Finset.univ (macTags d N' M) a' s' (f x) (f y)‖ ≤
+      (C.card : ℝ) * Real.exp (κ * C.card) * δ := by
+  classical
+  refine (taggedMat_close_twoTorus_core hM hN hN' hf he hC hs hs' hss hx hy).trans ?_
+  calc _ ≤ ∑ _z ∈ C.filter (fun z => macTags d N M z x y ⊆ C), Real.exp (κ * C.card) * δ := by
         refine Finset.sum_le_sum fun z hz => ?_
         obtain ⟨hzC, hVC⟩ := Finset.mem_filter.1 hz
-        rw [hVimg z hzC]
-        have hprod : tagMon (macTags d N M z x y) s =
-            tagMon ((macTags d N M z x y).image e) s' := by
-          unfold tagMon
-          rw [Finset.prod_image (hinjE.mono (by intro w hw; exact hVC hw))]
-          refine Finset.prod_congr rfl fun w hw => ?_
-          rw [hss w (hVC hw)]
-        rw [hprod, ← mul_sub, norm_mul]
-        have hT : ‖tagMon ((macTags d N M z x y).image e) s'‖ ≤ Real.exp (κ * C.card) := by
-          rw [← hprod]
+        have hT : ‖tagMon (macTags d N M z x y) s‖ ≤ Real.exp (κ * C.card) := by
           unfold tagMon
           rw [norm_prod]
           calc ∏ w ∈ macTags d N M z x y, ‖s w‖ ≤ ∏ _w ∈ macTags d N M z x y, Real.exp κ :=
