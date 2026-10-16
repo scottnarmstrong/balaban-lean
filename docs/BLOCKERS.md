@@ -23,7 +23,7 @@ The last section lists the problems that have been resolved since the project st
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity, analyticity, locality, bound and rotation covariance of the local terms; lattice covariance and the M-part remain |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity; analyticity, locality and bounds of the local energy and source terms; rotation covariance of the energy terms; lattice covariance and the assembly of the next level remain |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; a last-scale design exists; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
@@ -230,7 +230,8 @@ the term's own domain, the bound summed over the old polymers, and covariance un
 term must be defined for all fields; outside the domain it is extended by choosing a point of the domain
 with the same values on its support (a fixed outside value fails, because the domain constrains the
 fields beyond the support). Remaining: covariance under lattice symmetries (the extension must be chosen
-covariantly), complex rotations, the source terms (the M-part), and the assembly of the next level.
+covariantly), complex rotations, the rotation covariance of the source terms, and the assembly of the next
+level. The source terms (the M-part) now have analyticity, locality and the summed bound as well.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
