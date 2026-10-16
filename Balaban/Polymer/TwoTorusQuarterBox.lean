@@ -607,6 +607,51 @@ theorem coef_comp_perm {Z : Type*} [Fintype Z] [DecidableEq Z] (σ : Z ≃ Z) {�
   · rw [polydisc_eq_ball hρ0]; exact hf
   · rw [polydisc_eq_ball hρ0]; exact analyticOnNhd_comp_perm σ hf
 
+section CellMap
+
+variable {d M N N' : ℕ} {p J : ℕ}
+
+theorem cellMap_translate (σ : MacIdx d N M ≃ MacIdx d N M) (σ' : MacIdx d N' M ≃ MacIdx d N' M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M)
+    (hσ' : ∀ z i, (σ' z i : ℕ) = ((z i : ℕ) + p) % macK N' M)
+    {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) :
+    ∀ z i, (z i : ℕ) ≤ J + 4 →
+      (((fun w => σ' (e (σ.symm w))) z i : Fin (macK N' M)) : ℕ) = z i := by
+  intro z i hz
+  have hz' : (z i : ℕ) = (((σ.symm z) i : ℕ) + p) % macK N M := by
+    have := hσ (σ.symm z) i
+    rw [Equiv.apply_symm_apply] at this
+    exact this
+  show ((σ' (e (σ.symm z)) i : Fin (macK N' M)) : ℕ) = z i
+  rw [hσ', he (σ.symm z) i (by rw [← hz']; exact hz), ← hz']
+
+theorem window_translate (σ : MacIdx d N M ≃ MacIdx d N M)
+    (hσ : ∀ z i, (σ z i : ℕ) = ((z i : ℕ) + p) % macK N M) {C : Finset (MacIdx d N M)}
+    (hC : ∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) :
+    ∀ z ∈ C.map σ.toEmbedding, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J := by
+  intro z hz i
+  obtain ⟨c, hc, rfl⟩ := Finset.mem_map.1 hz
+  have := hC c hc i
+  rw [Equiv.toEmbedding_apply, hσ]
+  exact this
+
+theorem image_translate (σ : MacIdx d N M ≃ MacIdx d N M) (σ' : MacIdx d N' M ≃ MacIdx d N' M)
+    (e : MacIdx d N M → MacIdx d N' M) (C : Finset (MacIdx d N M)) :
+    (C.map σ.toEmbedding).image (fun w => σ' (e (σ.symm w))) =
+      (C.image e).map σ'.toEmbedding := by
+  classical
+  ext w
+  simp only [Finset.mem_image, Finset.mem_map, Equiv.toEmbedding_apply]
+  constructor
+  · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
+    exact ⟨e c, ⟨c, hc, rfl⟩, by simp⟩
+  · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
+    exact ⟨σ c, ⟨c, hc, rfl⟩, by simp⟩
+
+end CellMap
+
 /-- **The localized coefficients of the logarithm of the perturbed defect on two tori, for supports
 in a two-sided box.**  This is `final_coef_logdet_close_twoTorus_unif` for a support whose cells
 are, after the cyclic shift by `p` cells in every coordinate, in the window of indices `[4, J]`: the
@@ -668,25 +713,9 @@ theorem final_coef_logdet_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < 
   have hκ1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
   have hρ1 : 1 < ρ := lt_trans hκ1 hρ
   have hρ1' : 1 < ρ' := lt_trans hκ1 hρ'
-  -- the transported cell map
-  have hemap : ∀ z i, (z i : ℕ) ≤ J + 4 →
-      (((fun w => σ' (e (σ.symm w))) z i : Fin (macK N' M)) : ℕ) = z i := by
-    intro z i hz
-    have hz' : (z i : ℕ) = (((σ.symm z) i : ℕ) + p) % macK N M := by
-      have := hσ (σ.symm z) i
-      rw [Equiv.apply_symm_apply] at this
-      exact this
-    show ((σ' (e (σ.symm z)) i : Fin (macK N' M)) : ℕ) = z i
-    rw [hσ', he (σ.symm z) i (by rw [← hz']; exact hz), ← hz']
+  have hemap := cellMap_translate σ σ' hσ hσ' he
   have hcard : (C.map σ.toEmbedding).card ≤ nC := by rw [Finset.card_map]; exact hCc
-  have hCw : ∀ z ∈ C.map σ.toEmbedding, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J := by
-    intro z hz i
-    obtain ⟨c, hc, rfl⟩ := Finset.mem_map.1 hz
-    have := hC c hc i
-    rw [Equiv.toEmbedding_apply, hσ]
-    exact this
-  have hf' : ∀ x μ, (fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x μ =
-      ((((x μ).val : ℕ)) : ZMod N') := fun _ _ => rfl
+  have hCw := window_translate σ hσ hC
   have hEcl' : ∀ x ∈ macRegion d N M (C.map σ.toEmbedding), ∀ y ∈ macRegion d N M (C.map σ.toEmbedding),
       ‖E.submatrix e1.symm e1.symm x y -
         E'.submatrix e1'.symm e1'.symm ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x)
@@ -722,15 +751,7 @@ theorem final_coef_logdet_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < 
     (fun s hs => by
       rw [det_taggedKE_translate hMN' σ' hσ' e1' he1' E' v a t s]
       exact hdet' (s ∘ σ') (comp_perm_mem_ball σ' hs))
-  have himg : (C.map σ.toEmbedding).image (fun w => σ' (e (σ.symm w))) =
-      (C.image e).map σ'.toEmbedding := by
-    ext w
-    simp only [Finset.mem_image, Finset.mem_map, Equiv.toEmbedding_apply]
-    constructor
-    · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
-      exact ⟨e c, ⟨c, hc, rfl⟩, by simp⟩
-    · rintro ⟨_, ⟨c, hc, rfl⟩, rfl⟩
-      exact ⟨σ c, ⟨c, hc, rfl⟩, by simp⟩
+  have himg := image_translate σ σ' e C
   rw [himg, coef_comp_perm σ hρ1 hell, coef_comp_perm σ' hρ1' hell', Finset.card_map] at hcoefs
   exact hcoefs
 
@@ -800,6 +821,204 @@ theorem cutoff_integral_translate (hMN : M ∣ N) (σ : MacIdx d N M ≃ MacIdx 
   rw [hT, Equiv.symm_apply_apply]
   exact congrArg (· * _) h1
 
+/-- **The coefficients of the cutoff interaction of the final operators on two tori, for supports in
+a two-sided box.**  This is `final_coef_cutoffInteraction_close_twoTorus_unif` for a support whose
+cells are, after the cyclic shift by `p` cells in every coordinate, in the window of indices
+`[4, J]`; `f` identifies the two tori by the residues of the shifted coordinates and `e` is the
+identity on the shifted indices `≤ J + 4`. -/
+theorem final_coef_cutoffInteraction_close_twoTorus_box {d M L : ℕ} [NeZero L] (hd : 0 < d)
+    (hM : 0 < M) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) (nC : ℕ) :
+    ∃ P C₀ c₀ : ℝ, 0 ≤ P ∧ 0 < C₀ ∧ 0 < c₀ ∧ ∀ {k : ℕ}, 1 ≤ k →
+      ∀ {J N N' : ℕ} [NeZero N] [NeZero N'], 2 * (J + 6) * M ≤ N → 2 * (J + 6) * M ≤ N' →
+      M ∣ N → M ∣ N' → ∀ {p : ℕ},
+      ∀ {f : L1Torus d N → L1Torus d N'},
+      (∀ x μ, f x μ + ((M * p : ℕ) : ZMod N') =
+        ((((x μ + ((M * p : ℕ) : ZMod N)).val : ℕ)) : ZMod N')) →
+      ∀ {e : MacIdx d N M → MacIdx d N' M},
+      (∀ z i, ((z i : ℕ) + p) % macK N M ≤ J + 4 →
+        ((e z i : ℕ) + p) % macK N' M = ((z i : ℕ) + p) % macK N M) →
+      ∀ {C : Finset (MacIdx d N M)}, C.card ≤ nC →
+      (∀ z ∈ C, ∀ i, 4 ≤ ((z i : ℕ) + p) % macK N M ∧ ((z i : ℕ) + p) % macK N M ≤ J) →
+      ∀ {v a : ℝ}, 0 ≤ v → v ≤ 1 → 1 / 2 ≤ a → a ≤ 2 → 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v →
+      ∀ {γ : Measure (L1Torus d N → ℝ)} {γ' : Measure (L1Torus d N' → ℝ)} {ρ RF B' Lip : ℝ},
+      0 ≤ ρ →
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤ →
+      (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ < RF →
+      ∀ {F : (L1Torus d N → ℂ) → ℂ} {F' : (L1Torus d N' → ℂ) → ℂ},
+      AnalyticOnNhd ℂ F (polydisc (0 : L1Torus d N → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F w‖ ≤ B') →
+      AnalyticOnNhd ℂ F' (polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF)) →
+      (∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' w‖ ≤ B') →
+      Measurable F → Measurable F' →
+      (∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+        (∀ x, x ∉ macRegion d N M C → w x = 0) →
+        (∀ x', x' ∉ macRegion d N' M (C.image e) → w' x' = 0) →
+        (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) →
+        (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+        (∀ x ∈ macRegion d N M C, ‖w' (f x) - w x‖ ≤ η) → ‖F' w' - F w‖ ≤ Lip * η) →
+      Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q)
+          (γ.restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+        Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q))
+          (γ'.restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) →
+      ‖coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C -
+        coef (fun s' : MacIdx d N' M → ℂ => ∫ ψ' in {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s' x y * ((ψ' y : ℝ) : ℂ)) ∂γ')
+          (C.image e)‖ ≤
+        Lip * (((nC * (8 * M + 1) ^ d : ℕ) : ℝ) *
+          (P * (C₀ * Real.exp (-c₀ * (((min N N' : ℕ) : ℝ) / 2 - (((J + 3) * M : ℕ) : ℝ)))) /
+            Real.sqrt (finalGap d L)) * ρ) *
+          (γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}).toReal / (Real.exp κ - 1) ^ C.card := by
+  obtain ⟨P, C₀, c₀, hP0, hC₀, hc₀, hmain⟩ :=
+    final_coef_cutoffInteraction_close_twoTorus_unif (L := L) hd hM hκ hMB hMκ nC
+  refine ⟨P, C₀, c₀, hP0, hC₀, hc₀, ?_⟩
+  intro k hk J N N' _ _ hN hN' hMN hMN' p f hf e he C hCc hC v a hv0 hv1 ha1 ha2 hmass γ γ' ρ RF B'
+    Lip hρ hγfin hγfin' hBR F F' hFan hFB hFan' hFB' hFm hFm' hFclose hγ
+  obtain ⟨σ, hσ⟩ := exists_cellShift (N := N) (M := M) d p
+  obtain ⟨σ', hσ'⟩ := exists_cellShift (N := N') (M := M) d p
+  obtain ⟨e1, he1⟩ := exists_translate (N := N) (d := d) (fun _ => ((M * p : ℕ) : ZMod N))
+  obtain ⟨e1', he1'⟩ := exists_translate (N := N') (d := d) (fun _ => ((M * p : ℕ) : ZMod N'))
+  obtain ⟨T, hT⟩ := exists_fieldEquiv e1
+  obtain ⟨T', hT'⟩ := exists_fieldEquiv e1'
+  have hκ1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+  have hemap := cellMap_translate σ σ' hσ hσ' he
+  have hcard : (C.map σ.toEmbedding).card ≤ nC := by rw [Finset.card_map]; exact hCc
+  have hCw := window_translate σ hσ hC
+  have himg := image_translate σ σ' e C
+  obtain ⟨hJan, -⟩ := cutoffInteraction_final (N₀ := N) (k := k) (L := L) (v := v) (a := a) hd hk
+    hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hρ hγfin hBR hFan hFB
+  obtain ⟨hJan', -⟩ := cutoffInteraction_final (N₀ := N') (k := k) (L := L) (v := v) (a := a) hd hk
+    hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hρ hγfin' hBR hFan' hFB'
+  have hJanb : AnalyticOnNhd ℂ (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ)
+      (Metric.ball 0 (Real.exp κ)) := by
+    rw [← polydisc_eq_ball (Real.exp_pos κ)]; exact hJan
+  have hJanb' : AnalyticOnNhd ℂ (fun s : MacIdx d N' M → ℂ => ∫ ψ in {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ},
+      F' (fun x => ∑ y, taggedCfin d L N' k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ')
+      (Metric.ball 0 (Real.exp κ)) := by
+    rw [← polydisc_eq_ball (Real.exp_pos κ)]; exact hJan'
+  have key : ∀ z : L1Torus d N, f (e1.symm z) = e1'.symm
+      ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) z) := by
+    intro z
+    refine (Equiv.eq_symm_apply e1').2 ?_
+    funext μ
+    have hz : (e1.symm z) μ + ((M * p : ℕ) : ZMod N) = z μ := by
+      have := he1 (e1.symm z) μ
+      rw [Equiv.apply_symm_apply] at this
+      exact this.symm
+    exact ((he1' (f (e1.symm z)) μ).trans ((hf (e1.symm z) μ).trans
+      (congrArg (fun w : ZMod N => (((w.val : ℕ)) : ZMod N')) hz)))
+  have hmapS : (γ.map T) {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} =
+      γ {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ} := by
+    rw [Measure.map_apply T.measurable (measurableSet_box ρ), fieldEquiv_preimage_box e1 T hT ρ]
+  have hmapS' : (γ'.map T') {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} =
+      γ' {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ} := by
+    rw [Measure.map_apply T'.measurable (measurableSet_box ρ), fieldEquiv_preimage_box e1' T' hT' ρ]
+  have hFB1 : ∀ w ∈ polydisc (0 : L1Torus d N → ℂ) (fun _ => RF), ‖F (fun x => w (e1 x))‖ ≤ B' :=
+    fun w hw => hFB _ (fun x => by simpa using hw (e1 x))
+  have hFB1' : ∀ w ∈ polydisc (0 : L1Torus d N' → ℂ) (fun _ => RF), ‖F' (fun x => w (e1' x))‖ ≤ B' :=
+    fun w hw => hFB' _ (fun x => by simpa using hw (e1' x))
+  have hFclose1 : ∀ (w : L1Torus d N → ℂ) (w' : L1Torus d N' → ℂ),
+      (∀ x, x ∉ macRegion d N M (C.map σ.toEmbedding) → w x = 0) →
+      (∀ x', x' ∉ macRegion d N' M ((C.map σ.toEmbedding).image (fun w => σ' (e (σ.symm w)))) →
+        w' x' = 0) →
+      (∀ x, ‖w x‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ) →
+      (∀ x', ‖w' x'‖ ≤ (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+        Real.sqrt (finalGap d L)) * ρ) → ∀ η : ℝ, 0 ≤ η →
+      (∀ x ∈ macRegion d N M (C.map σ.toEmbedding),
+        ‖w' ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) x) - w x‖ ≤ η) →
+      ‖F' (fun x => w' (e1' x)) - F (fun x => w (e1 x))‖ ≤ Lip * η := by
+    intro w w' hw hw' hbw hbw' η hη hcl
+    refine hFclose (fun x => w (e1 x)) (fun x' => w' (e1' x')) (fun x hx => hw _ ?_)
+      (fun x' hx' => hw' _ ?_) (fun x => hbw _) (fun x' => hbw' _) η hη (fun x hx => ?_)
+    · rwa [mem_macRegion_translate hMN σ hσ e1 he1]
+    · rw [himg, mem_macRegion_translate hMN' σ' hσ' e1' he1']; exact hx'
+    · have := hcl (e1 x) ((mem_macRegion_translate hMN σ hσ e1 he1 C x).2 hx)
+      have h2 : e1' (f x) = (fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) (e1 x) := by
+        exact (Equiv.eq_symm_apply e1').1
+          ((congrArg f (e1.symm_apply_apply x).symm).trans (key (e1 x)))
+      rw [h2]; exact this
+  have hγ1 : Measure.map (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M (C.map σ.toEmbedding))) => ψ q)
+        ((γ.map T).restrict {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ}) =
+      Measure.map (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M (C.map σ.toEmbedding))) =>
+          ψ' ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) q))
+        ((γ'.map T').restrict {ψ' : L1Torus d N' → ℝ | ∀ y, |ψ' y| ≤ ρ}) := by
+    obtain ⟨Ψ, hΨm, hΨ1, hΨ2⟩ : ∃ Ψ : (↥(macRegion d N M C) → ℝ) →
+        (↥(macRegion d N M (C.map σ.toEmbedding)) → ℝ), Measurable Ψ ∧
+        (∀ ψ : L1Torus d N → ℝ, (fun q : ↥(macRegion d N M (C.map σ.toEmbedding)) => T ψ q) =
+          Ψ (fun q0 : ↥(macRegion d N M C) => ψ q0)) ∧
+        (∀ ψ' : L1Torus d N' → ℝ,
+          (fun q : ↥(macRegion d N M (C.map σ.toEmbedding)) => T' ψ'
+            ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) q)) =
+          Ψ (fun q0 : ↥(macRegion d N M C) => ψ' (f q0))) := by
+      have hmem : ∀ q : ↥(macRegion d N M (C.map σ.toEmbedding)),
+          e1.symm q.1 ∈ macRegion d N M C := fun q =>
+        (mem_macRegion_translate hMN σ hσ e1 he1 C (e1.symm q.1)).1
+          (by rw [Equiv.apply_symm_apply]; exact q.2)
+      refine ⟨fun g q => g ⟨e1.symm q.1, hmem q⟩, ?_, fun ψ => ?_, fun ψ' => ?_⟩
+      · exact Measurable.of_eval fun q => measurable_pi_apply _
+      · funext q
+        exact hT ψ q.1
+      · funext q
+        exact (hT' ψ' _).trans (congrArg ψ' (key q.1).symm)
+    have hS := fieldEquiv_preimage_box e1 T hT ρ
+    have hS' := fieldEquiv_preimage_box e1' T' hT' ρ
+    have hRm : Measurable (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M (C.map σ.toEmbedding))) => ψ q) :=
+      Measurable.of_eval fun q => measurable_pi_apply _
+    have hRm' : Measurable (fun (ψ' : L1Torus d N' → ℝ)
+        (q : ↥(macRegion d N M (C.map σ.toEmbedding))) =>
+          ψ' ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) q)) :=
+      Measurable.of_eval fun q => measurable_pi_apply _
+    rw [Measure.restrict_map T.measurable (measurableSet_box ρ), hS,
+      Measure.restrict_map T'.measurable (measurableSet_box ρ), hS',
+      Measure.map_map hRm T.measurable, Measure.map_map hRm' T'.measurable]
+    have hc1 : (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M (C.map σ.toEmbedding))) => ψ q) ∘ T =
+        Ψ ∘ (fun (ψ : L1Torus d N → ℝ) (q : ↥(macRegion d N M C)) => ψ q) :=
+      funext fun ψ => hΨ1 ψ
+    have hc2 : (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M (C.map σ.toEmbedding))) =>
+          ψ' ((fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N')) q)) ∘ T' =
+        Ψ ∘ (fun (ψ' : L1Torus d N' → ℝ) (q : ↥(macRegion d N M C)) => ψ' (f q)) :=
+      funext fun ψ' => hΨ2 ψ'
+    rw [hc1, hc2, ← Measure.map_map hΨm (Measurable.of_eval fun q => measurable_pi_apply _),
+      ← Measure.map_map hΨm (Measurable.of_eval fun q => measurable_pi_apply _), hγ]
+  have hcoefs := hmain hk hN hN' (f := fun (x : L1Torus d N) μ => ((((x μ).val : ℕ)) : ZMod N'))
+    (fun _ _ => rfl) (e := fun w => σ' (e (σ.symm w))) hemap hcard hCw hv0 hv1 ha1 ha2 hmass
+    (γ := γ.map T) (γ' := γ'.map T') (ρ := ρ) (RF := RF) (B' := B') (Lip := Lip) hρ
+    (by rw [hmapS]; exact hγfin) (by rw [hmapS']; exact hγfin') hBR
+    (F := fun w => F (fun x => w (e1 x))) (F' := fun w => F' (fun x => w (e1' x)))
+    (analyticOnNhd_polydisc_comp_equiv e1 hFan) hFB1
+    (analyticOnNhd_polydisc_comp_equiv e1' hFan') hFB1'
+    (hFm.comp (Measurable.of_eval fun x => measurable_pi_apply (e1 x)))
+    (hFm'.comp (Measurable.of_eval fun x => measurable_pi_apply (e1' x))) hFclose1 hγ1
+  have h1 : coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+        F (fun x => ∑ y, taggedCfin d L N k M v a s (e1 x) y * ((ψ y : ℝ) : ℂ)) ∂(γ.map T))
+        (C.map σ.toEmbedding) =
+      coef (fun s : MacIdx d N M → ℂ => ∫ ψ in {ψ : L1Torus d N → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F (fun x => ∑ y, taggedCfin d L N k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C := by
+    rw [← coef_comp_perm σ hκ1 hJanb C]
+    exact congrArg (fun g => coef g (C.map σ.toEmbedding))
+      (funext fun s => cutoff_integral_translate (L := L) (k := k) hMN σ hσ e1 he1 T hT γ ρ F v a s)
+  have h2 : coef (fun s : MacIdx d N' M → ℂ => ∫ ψ in {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ},
+        F' (fun x => ∑ y, taggedCfin d L N' k M v a s (e1' x) y * ((ψ y : ℝ) : ℂ)) ∂(γ'.map T'))
+        ((C.image e).map σ'.toEmbedding) =
+      coef (fun s : MacIdx d N' M → ℂ => ∫ ψ in {ψ : L1Torus d N' → ℝ | ∀ y, |ψ y| ≤ ρ},
+          F' (fun x => ∑ y, taggedCfin d L N' k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ')
+        (C.image e) := by
+    rw [← coef_comp_perm σ' hκ1 hJanb' (C.image e)]
+    exact congrArg (fun g => coef g ((C.image e).map σ'.toEmbedding))
+      (funext fun s => cutoff_integral_translate (L := L) (k := k) hMN' σ' hσ' e1' he1' T' hT' γ' ρ F' v a s)
+  rw [himg, Finset.card_map, hmapS] at hcoefs
+  rw [← h1, ← h2]
+  exact hcoefs
+
 end Cutoff
 
 end Balaban.Green
+
