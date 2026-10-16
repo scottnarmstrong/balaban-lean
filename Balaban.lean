@@ -1930,6 +1930,8 @@ public import Balaban.LargeField.Base.BaseConstrainedCov
 public import Balaban.LargeField.Base.BaseXCover
 public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.LargeField.Base.BaseXCov
+public import Balaban.LargeField.Base.BaseXSqrt
+public import Balaban.LargeField.Base.BaseXLocal
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
@@ -1966,5 +1968,8 @@ public import Balaban.LargeField.R.RHaloSep
 public import Balaban.LargeField.R.HoleBoxUnion
 public import Balaban.LargeField.R.HoleCompletionSize
 public import Balaban.Polymer.GasCore
+public import Balaban.Fluctuation.LocalClassExtend
+public import Balaban.Fluctuation.LocalClassSum
 public import Balaban.Polymer.GasCoreSize
 public import Balaban.LargeField.R.RGasCore
+public import Balaban.Fluctuation.LocalClassTau

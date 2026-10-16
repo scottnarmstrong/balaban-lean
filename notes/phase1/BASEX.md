@@ -43,3 +43,14 @@ Reading task, no Lean edits. Claims: PROVED = landed declaration, OPEN, REFUTED.
 - L4 PROVED (`BaseConstrainedCov.lean`): `baseOp_add_smul_one`, `shiftedOp_mul_constrainedCov`, `baseOp_shift_mul_constrainedCov` ((A_e + x)^-1 = (1+x)^-1 P_e + G - G e M^-1 N, G = (H + x)^-1); `baseOp_mul_constrainedCov` is now its x = 0 application (statement unchanged).
 - L5 PROVED (`Base/BaseXCov.lean`): `baseCovX_one` (covariance at s = 1 is `baseResolvent`), `baseCovX_analytic` (entries analytic on `DecDom`), `baseCovX_bound` and `baseResolvent_entry_bound` (entry bound B(d, L, kappa), independent of x, nu, a, aT, G).
 - No obstruction: the Gsx chain constants (`valConstX`, `kConstX`, `smallConstX`, `cstarX`) do not involve the mass or x'; the regime `cstarX e^(N0 kappa) <= L^m1` and `delta^2 smallConstX <= 1/4` is independent of x.
+
+## W835 status
+- Square root PROVED (`Base/BaseXSqrt.lean`): x-decay `‖C_x(s) entry‖ ≤ B/(1+x)` (`baseCovX_decay`, B(d,L,kappa), uniform in x, nu, s on the discs `|s_P| ≤ e^kappa`; proof: cube operators at mass nu+x are `(L^-2/8 + x)`-coercive by the mass shift `cutXOperator_add_mass`, then `Gstarx_sqNorm_le`, `Gsx_sqNorm_le`, `decPi_sqNorm_le`).
+- `baseCovX_sqrt`: on `DecDom` the integrand `x^{-1/2} C_x(e)` is dominated by `B x^{-1/2}(1+x)^{-1}`, integrable, and every entry of `pi^-1 ∫ x^{-1/2} C_x(e) dx` is analytic on `DecDom` and bounded by B.
+- `baseCovX_sqrt_one`: at `s = 1` the integral is `sqrtMat A_e` (principal inverse square root of `A_e = baseOp`), its square is `baseResolvent .. 0 = A_e^{-1}`; `A_e + x` is a unit for all `x >= 0`. For `s != 1` the integral is the analytic continuation off s = 1, not an inverse square root of a defined operator.
+- Open: weighted comparison/exact core agreement of the sqrt family, logarithm of `A_e + x`, torus lift (unchanged from "OPEN after L5").
+
+## W838 status
+- `Base/BaseXLocal.lean`: weighted comparison `baseCovX_sub_decay` (entries differ by B e^{-γ r(y)}, uniform in x ≥ 0, both families equal to 1 off W; from `vecM_decZ_sub_le_cover` at x' = 0, mass ν + x) and Stieltjes version `baseCovX_sqrt_sub_decay` (rate γ/2: interpolation `stieltjes_interp` of the weighted bound with `baseCovX_decay`).
+- Exact core agreement `baseCovX_exact`, `baseCovX_sqrt_exact`: active cubes inside Sr or disjoint from Y ⊇ Sr, parameters agree inside Sr, Y contains the neighbours of Sr ⇒ rows at Y agree (cover port of `decZ_local2`: `decZ_exact`; no `massLe`).
+- Not done: comparison of two families that agree off W but are not 1 there (needs `Gsx_sub_Gd` between two s); logarithm; torus lift.
