@@ -270,7 +270,8 @@ A design for the last scale (October 16, `notes/phase1/TORUSLAST2.md`): define t
 from one canonical torus chosen by the support, and move the difference on any other torus onto polymers
 that reach outside the quarter box; the uniform closeness of the final operators on two tori pays for this
 at distance of a few cells from the box edge (proved, together with the chains and an abstract assembly
-that keeps the identity and makes the terms exactly equal on two tori). Truncating the walk expansion of the final operator to the
+that keeps the identity and makes the terms exactly equal on two tori; since Root-F's tori are unbounded,
+the common value is the limit over growing tori, which the closeness makes convergent). Truncating the walk expansion of the final operator to the
 region, as in the Yang–Mills account, does not work here: the final operator is a Schur complement and the
 truncation changes it by order one near the boundary. Root-F as stated carries no lower bound on the
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so

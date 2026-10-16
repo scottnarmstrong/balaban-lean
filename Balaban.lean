@@ -1981,3 +1981,5 @@ public import Balaban.Green.FinalCrossTerm
 public import Balaban.Polymer.TwoTorusEdgeChain
 public import Balaban.Polymer.TwoTorusResum
 public import Balaban.Polymer.TwoTorusResumInstance
+public import Balaban.Polymer.TwoTorusResumLimit
+public import Balaban.Polymer.TwoTorusResumRootF
