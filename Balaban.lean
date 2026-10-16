@@ -1971,3 +1971,4 @@ public import Balaban.Fluctuation.LocalClassSum
 public import Balaban.Polymer.GasCoreSize
 public import Balaban.LargeField.R.RGasCore
 public import Balaban.Fluctuation.LocalClassTau
+public import Balaban.Fluctuation.LocalClassCov
