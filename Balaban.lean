@@ -2009,3 +2009,4 @@ public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
 public import Balaban.LargeField.R.RGasCoreInputs
+public import Balaban.LargeField.R.RGasCoreConn
