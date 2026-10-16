@@ -1410,14 +1410,14 @@ open Balaban.Fluctuation
 
 variable {N : ℕ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
 
-/-- **The local hat lift agrees with the ambient lift on a component.**  `H` is a generating set of
-level `k + 1` (the ambient one), `H'` another generating set (the local one); `T` is a union of
-`(k+1)`-blocks on which the hypotheses of `decCovSqrt_block_cross` hold for the pairs
-`(coverOf H, H)`, `(coverOf H', H')` and every `x > 0`.  If the hat variables `ψ̂`, `ψ̂'` on the
-unit lattices agree on the unit blocks of `T`, then at every site `x` of `T` in the top layer, the
-local hat lift `if unitBlock x ∈ unitPts H' then (cc • C'^{1/2}(s') ψ̂')(unitBlock x, i) else 0`
-equals the ambient lift `liftC (cc • C^{1/2}(s) ψ̂)` of the ambient generating set. -/
-theorem localLift_eq_liftC_on_component (hG' : IsLevel H (k + 1))
+/-- **The local hat lifts of two pairs agree on a component.**  `H`, `H'` are two generating sets
+(neither need be a level set); `T` is a union of `(k+1)`-blocks on which the hypotheses of
+`decCovSqrt_block_cross` hold for the pairs `(coverOf H, H)`, `(coverOf H', H')` and every `x > 0`.
+If the hat variables `ψ̂`, `ψ̂'` on the unit lattices agree on the unit blocks of `T`, then at every
+site `x` of `T` in the top layer the two local hat lifts
+`if unitBlock x ∈ unitPts H then (cc • C^{1/2}(s) ψ̂)(unitBlock x, i) else 0` agree.  With `H' = H`
+this is the locality of the local hat lift in the background and the multipliers. -/
+theorem localLift_eq_localLift_on_component
     (S : XCover (coverOf H) H a aT ν Cx) (S' : XCover (coverOf H') H' a aT ν Cx')
         (hαA : AdmPot H α) (hαB : AdmPot H' α')
     (hlay : ∀ y ∈ T, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n))
@@ -1450,7 +1450,9 @@ theorem localLift_eq_liftC_on_component (hG' : IsLevel H (k + 1))
     (if h : unitBlock x₀ ∈ unitPts H' then
       (cc • (Balaban.Localization.decCovSqrt H' a aT ν α' s' φ' (unitQ H') (unitP H') *ᵥ ψh')) (⟨unitBlock x₀, h⟩, i)
       else 0) =
-    liftC hG' (cc • (Balaban.Localization.decCovSqrt H a aT ν α s φ (unitQ H) (unitP H) *ᵥ ψh)) x₀ i := by
+    (if h : unitBlock x₀ ∈ unitPts H then
+      (cc • (Balaban.Localization.decCovSqrt H a aT ν α s φ (unitQ H) (unitP H) *ᵥ ψh)) (⟨unitBlock x₀, h⟩, i)
+      else 0) := by
   classical
   have hF := footLocalGeom_coverOf H
   have hF' := footLocalGeom_coverOf H'
@@ -1534,10 +1536,55 @@ theorem localLift_eq_liftC_on_component (hG' : IsLevel H (k + 1))
     (fun v => (hcκ _).2 v.2) (fun v => (hcκ' _).2 v.2) hQ hQ' hP hP' (fun v y hy hy' hyT => rfl)
     (fun v w => rfl) ψh ψh' (fun w j => hψ w.1 (hmemH w) (hmemH' w) w.2 j)
     ⟨unitBlock x₀, ⟨x₀, hxT, hxtop, rfl⟩⟩ i
-  rw [dite_eq_left ((mem_unitPts H').2 ⟨x₀, (hlay x₀ hxT (k + 1) (by omega) le_rfl).1 hxtop, rfl⟩)]
-  simp only [Pi.smul_apply, smul_eq_mul, liftC_apply]
+  rw [dite_eq_left ((mem_unitPts H').2 ⟨x₀, (hlay x₀ hxT (k + 1) (by omega) le_rfl).1 hxtop, rfl⟩),
+    dite_eq_left ((mem_unitPts H).2 ⟨x₀, hxtop, rfl⟩)]
+  simp only [Pi.smul_apply, smul_eq_mul]
   congr 1
 
+/-- **The local hat lift agrees with the ambient lift on a component.**  `H` is a generating set of
+level `k + 1` (the ambient one), `H'` another generating set (the local one); `T` is a union of
+`(k+1)`-blocks on which the hypotheses of `decCovSqrt_block_cross` hold for the pairs
+`(coverOf H, H)`, `(coverOf H', H')` and every `x > 0`.  If the hat variables `ψ̂`, `ψ̂'` on the
+unit lattices agree on the unit blocks of `T`, then at every site `x` of `T` in the top layer, the
+local hat lift `if unitBlock x ∈ unitPts H' then (cc • C'^{1/2}(s') ψ̂')(unitBlock x, i) else 0`
+equals the ambient lift `liftC (cc • C^{1/2}(s) ψ̂)` of the ambient generating set. -/
+theorem localLift_eq_liftC_on_component (hG' : IsLevel H (k + 1))
+    (S : XCover (coverOf H) H a aT ν Cx) (S' : XCover (coverOf H') H' a aT ν Cx')
+        (hαA : AdmPot H α) (hαB : AdmPot H' α')
+    (hlay : ∀ y ∈ T, ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx (coverOf H) H a aT x ν α s))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Kcalx (coverOf H') H' a aT x ν α' s'))
+    (hdich : ∀ q ∈ (coverOf H).cubeIdx, (coverOf H).sProd s q ≠ 0 → SubI H (intBox q) T ∨ DisjI H (intBox q) T)
+    (hdich' : ∀ q ∈ (coverOf H').cubeIdx, (coverOf H').sProd s' q ≠ 0 →
+      SubI H' (intBox q) T ∨ DisjI H' (intBox q) T)
+    (hin : ∀ q ∈ innerCentres (coverOf H) H T, (coverOf H).sProd s q ≠ 0 →
+      q ∈ innerCentres (coverOf H') H' T ∧ (coverOf H').sProd s' q = (coverOf H).sProd s q ∧
+      (∀ x₀ ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x₀ ∨ ∃ μ : Fin d, y = x₀ + Pi.single μ 1 ∨ y = x₀ - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x₀ ∈ intBox q, (coverOf H).chi q x₀ = (coverOf H').chi q x₀))
+    (hin' : ∀ q ∈ innerCentres (coverOf H') H' T, (coverOf H').sProd s' q ≠ 0 →
+      q ∈ innerCentres (coverOf H) H T ∧ (coverOf H).sProd s q ≠ 0)
+    (hα : ∀ (x₀ : CTorus d L N₁ m₁ (k + 1)) (hx : x₀ ∈ H.Ω 1) (hx' : x₀ ∈ H'.Ω 1), x₀ ∈ T →
+      α ⟨x₀, hx⟩ = α' ⟨x₀, hx'⟩)
+    (hφ : ∀ y ∈ T, φ' y = φ y)
+    (hH : ∀ x : ℝ, 0 < x → HRespects (coverOf H) H a aT x ν α s T)
+    (hH' : ∀ x : ℝ, 0 < x → HRespects (coverOf H') H' a aT x ν α' s' T)
+    (hM : ∀ x : ℝ, 0 < x → IsUnit (decM (coverOf H) H a aT x ν α s φ))
+    (hM' : ∀ x : ℝ, 0 < x → IsUnit (decM (coverOf H') H' a aT x ν α' s' φ'))
+    (hTblk : IsBlockUnion L (N₁ * L ^ m₁) (k + 1) (k + 1) T) (cc : ℂ)
+    (ψh : unitPts H × Fin N → ℂ) (ψh' : unitPts H' × Fin N → ℂ)
+    (hψ : ∀ (b : UnitTorus d L N₁ m₁ k) (hb : b ∈ unitPts H) (hb' : b ∈ unitPts H'),
+      (∃ y ∈ T, y ∈ H.layer (k + 1) ∧ unitBlock y = b) → ∀ j : Fin N,
+        ψh' (⟨b, hb'⟩, j) = ψh (⟨b, hb⟩, j))
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hxT : x₀ ∈ T) (hxtop : x₀ ∈ H.layer (k + 1)) (i : Fin N) :
+    (if h : unitBlock x₀ ∈ unitPts H' then
+      (cc • (Balaban.Localization.decCovSqrt H' a aT ν α' s' φ' (unitQ H') (unitP H') *ᵥ ψh')) (⟨unitBlock x₀, h⟩, i)
+      else 0) =
+    liftC hG' (cc • (Balaban.Localization.decCovSqrt H a aT ν α s φ (unitQ H) (unitP H) *ᵥ ψh)) x₀ i := by
+  rw [localLift_eq_localLift_on_component S S' hαA hαB hlay hU hU' hdich hdich' hin hin' hα hφ hH
+    hH' hM hM' hTblk cc ψh ψh' hψ hxT hxtop i, dite_eq_left ((mem_unitPts H).2 ⟨x₀, hxtop, rfl⟩)]
+  rfl
 
 /-- The ambient hat lift is `liftC (cc • C^{1/2}(1) ψ̂)` with `C^{1/2}(1) = decCovSqrt` at the
 datum `D` (unfolding of `hatLift`, `hatCovSqrt`); together with `localLift_eq_liftC_on_component`
