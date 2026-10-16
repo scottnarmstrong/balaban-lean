@@ -351,6 +351,83 @@ theorem baseCovX_vec_bound {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : �
           2 * (1 / 18 * vecSrc G 0 (fun _ => 0) g)))) := mul_le_mul_of_nonneg_left hc hV
     _ ≤ _ := by nlinarith [mul_nonneg hV hS]
 
+omit [NeZero N₁] in
+theorem basePart_apply {ι : Type*} [Fintype ι] [DecidableEq ι] (e : ι → Fin N → ℂ) (p q : ι)
+    (i j : Fin N) :
+    basePart e (p, i) (q, j) = if p = q then e p i * e p j else 0 := by
+  by_cases h : p = q
+  · subst h
+    simp [basePart, fieldMul, Matrix.mul_apply, Matrix.transpose_apply]
+  · simp [basePart, fieldMul, Matrix.mul_apply, Matrix.transpose_apply, h]
+
+/-- **L5, boundedness, uniform in `x ≥ 0`.**  There is `B`, depending only on `d, L, κ`, such that
+every entry of the x-dependent constrained covariance `(1 + x)⁻¹ P_e + Ĝ_{0,s} - Π_{0,s}` (at
+`x' = 0` and mass `ν + x`) is bounded by `B`, for every `x ≥ 0`, every mass `ν`, every weights
+`a` and `aT`, every setting `G` and every `s` with `‖s_P‖ ≤ e^κ`, in the regime `δ² C(κ) ≤ 1/4`. -/
+theorem baseCovX_bound (d L : ℕ) [NeZero L] (κ : ℝ) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {N₁ m₁ N : ℕ} [NeZero N₁] {ϱ : ℝ}
+      {G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ} {a : ℕ → ℝ} {aT ν Cx x : ℝ}
+      (_S : Dec2.XCover (coverOf G) G a aT (ν + x) Cx) (_hCx : 0 ≤ Cx) (_hx : 0 ≤ x)
+      (_hκ : 0 ≤ κ) (_hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+      {δ : ℝ} (_hδ : 0 ≤ δ) (_hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+      {α : G.Ω 1 → ℂ} (_hα : AdmPot G α)
+      {s : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ} (_hs : ∀ P, ‖s P‖ ≤ Real.exp κ)
+      {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
+      (_hφ : IsConstraintField G δ φ) (y z : G.Ω 1 × Fin N),
+      ‖((1 + (x : ℂ))⁻¹ • basePart (restrictField G φ) +
+          liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) -
+          Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ) y z‖ ≤ B := by
+  set V : ℝ := valConstX d * Real.exp (N0 d L * κ) ^ 2 with hV
+  have hV0 : 0 ≤ V := by rw [hV]; unfold valConstX; positivity
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  refine ⟨9 / 4 + Real.sqrt ((L : ℝ) ^ 2 * (V * (L : ℝ) ^ 2)) +
+    Real.sqrt ((L : ℝ) ^ 2 * (42 * V * (L : ℝ) ^ 2)), by positivity, ?_⟩
+  intro N₁ m₁ N _ ϱ G a aT ν Cx x S hCx hx hκ hM δ hδ hsm α hα s hs φ hφ y z
+  obtain ⟨p, i⟩ := y
+  obtain ⟨q, j⟩ := z
+  have D : Dec2.XData (coverOf G) G a aT (ν + x) 0 α κ s Cx := ⟨S, hCx, hα, le_rfl, hκ, hM, hs⟩
+  obtain ⟨hb1, hb2⟩ := baseCovX_vec_bound D hφ hδ hsm (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ)
+  have hS := vecSrc_single_le G q j
+  have hE1 := entry_sq_le_vecM G (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) *ᵥ
+    (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ)) p i
+  have hE2 := entry_sq_le_vecM G (Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ *ᵥ
+    (Pi.single (q, j) 1 : G.Ω 1 × Fin N → ℂ)) p i
+  rw [mulVec_single_entry] at hE1 hE2
+  have hG : ‖liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) (p, i) (q, j)‖ ≤
+      Real.sqrt ((L : ℝ) ^ 2 * (V * (L : ℝ) ^ 2)) := by
+    refine Real.le_sqrt_of_sq_le (hE1.trans ?_)
+    refine mul_le_mul_of_nonneg_left (hb1.trans ?_) (by positivity)
+    exact mul_le_mul_of_nonneg_left hS hV0
+  have hP : ‖Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ (p, i) (q, j)‖ ≤
+      Real.sqrt ((L : ℝ) ^ 2 * (42 * V * (L : ℝ) ^ 2)) := by
+    refine Real.le_sqrt_of_sq_le (hE2.trans ?_)
+    refine mul_le_mul_of_nonneg_left (hb2.trans ?_) (by positivity)
+    exact mul_le_mul_of_nonneg_left hS (by positivity)
+  have hBase : ‖basePart (restrictField G φ) (p, i) (q, j)‖ ≤ 9 / 4 := by
+    rw [basePart_apply]
+    split_ifs
+    · have h1 : ‖restrictField G φ p i‖ ≤ 3 / 2 :=
+        (norm_le_vn (φ p) i).trans (hφ.bound p p.2)
+      have h2 : ‖restrictField G φ p j‖ ≤ 3 / 2 :=
+        (norm_le_vn (φ p) j).trans (hφ.bound p p.2)
+      rw [norm_mul]
+      nlinarith [norm_nonneg (restrictField G φ p i), norm_nonneg (restrictField G φ p j)]
+    · simp; norm_num
+  have hc : ‖(1 + (x : ℂ))⁻¹‖ ≤ 1 := by
+    have : (1 + (x : ℂ)) = ((1 + x : ℝ) : ℂ) := by push_cast; ring
+    rw [this, norm_inv, Complex.norm_real, Real.norm_of_nonneg (by linarith)]
+    exact inv_le_one_of_one_le₀ (by linarith)
+  simp only [Matrix.sub_apply, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul]
+  have t1 := norm_sub_le ((1 + (x : ℂ))⁻¹ * basePart (restrictField G φ) (p, i) (q, j) +
+    liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) (p, i) (q, j))
+    (Dec2.decPi (coverOf G) G a aT 0 (ν + x) α s φ (p, i) (q, j))
+  have t2 := norm_add_le ((1 + (x : ℂ))⁻¹ * basePart (restrictField G φ) (p, i) (q, j))
+    (liftOp N (Dec2.Gsx (coverOf G) G a aT 0 (ν + x) α s) (p, i) (q, j))
+  rw [norm_mul] at t2
+  have t3 : ‖(1 + (x : ℂ))⁻¹‖ * ‖basePart (restrictField G φ) (p, i) (q, j)‖ ≤ 1 * (9 / 4) :=
+    mul_le_mul hc hBase (norm_nonneg _) zero_le_one
+  linarith
+
 end Bound
 
 end Balaban.LargeField.Base
