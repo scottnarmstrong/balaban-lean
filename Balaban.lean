@@ -1998,3 +1998,4 @@ public import Balaban.Polymer.TwoTorusResumLimit
 public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassAssembleM
+public import Balaban.Fluctuation.LocalClassLabels
