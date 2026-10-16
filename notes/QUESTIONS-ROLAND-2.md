@@ -317,6 +317,9 @@ physical O(N) gas?
 
 (Details: `notes/phase1/VMOD-44.md`.)
 
+
+Our own reading (October 16), for (a): P5 (2.3)–(2.4) take π′_{k+1} as the cover of the torus by all L²M-blocks (the identity (2.4) needs a block centred at every site), so the face of the new hole can cut the π′_{k+1} cubes and the completion does spill active cells along a long face; we checked this in Lean for the region step as we formalized it. Please confirm that π′_{k+1} is the family of all such blocks.
+
 ### Item 15 (2026-10-13): the range of the operation R^{(k)} (minor; confirmation only)
 
 P7 Theorem 2 (printed p. 497) states that R^{(k)} acts for k < k_0 and is the identity for
@@ -379,6 +382,18 @@ thresholds (a higher power of log beta in delta_0), or from another source?
 
 (Details: `notes/phase1/KF0-P7.md`, `KF0-LAST.md`. Our frozen root statement covers all masses,
 so the range k_f = 0 is needed.)
+
+
+### Item 17, addendum (2026-10-16): the first step as in the Yang–Mills papers?
+
+In Bałaban's Yang–Mills papers (CMP 119 §1, pp. 246–248, as read in the public account linked from
+`notes/phase1/YMACCOUNT.md`), the bare density is a single term with no large-field region; the
+small-field tests are inserted by the first renormalization step through its own decompositions of unity,
+and inside a bad region the raw variables are kept and never integrated over; the reserve for the first
+large-field components comes from a high power of the logarithm in the level-0 threshold. Does P5 §1
+follow the same pattern for the O(N) model, so that (a) the bare density needs no tests and (c) the bound
+(1.31) for the first large-field components comes from the choice of the threshold at k = 0? The case
+k_f = 0 (no renormalization step) does not arise in the Yang–Mills papers; question (b) stands.
 
 ### Item 18 (2026-10-13): the cut family for the last integral (P7 section 4)
 
