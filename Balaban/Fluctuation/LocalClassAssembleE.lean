@@ -36,8 +36,13 @@ of the three steps into the fields at `j = k + 1` of `SFTermClausesStrong`.
   `localB_eTermHat_evTerm_rot`, `localB_eTermHat_evTerm_paving_tau` with a relabelling of the old
   labels) and the resummation of `norm_sum_rooted_le_boundE`.
 
-Not covered here: the complex rotations of `rotE` (`SO(N, ℂ)`), the density covariance `eucEloc`,
-the levels `j ≤ k` (inherited terms), and the M-part.
+* `assembly_Eloc_paving`, `localClass_eucEloc_paving`: the density `Eloc` of the distributed
+  averaged terms is covariant under the paving group, for all pairs of fields (the clause `eucEloc`
+  restricted to `pavingSymGroup`).
+
+Not covered here: the complex rotations of `rotE` (`SO(N, ℂ)`), the clause `eucEloc` for the full
+group `fullJSymGroup` (it fails for the uniform distribution in general: `WIDEGEN.md`, NEXT (W851)),
+the levels `j ≤ k` (inherited terms); the M-part is `LocalClassAssembleM.lean`.
 -/
 
 @[expose] public section
@@ -605,5 +610,104 @@ theorem localClass_avg_eq_sum_of_cov {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
     A hA hY hp
 
 end AssembleE
+
+end Balaban.Localization
+
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Localization Balaban.SmallField Balaban.SmallField.Def6 Finset
+
+section ElocPaving
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {m₀ : ℕ}
+
+open Classical in
+/-- **The density of the uniformly distributed terms is covariant under the paving group**, for
+all pairs of fields: `Eloc_K(blockBase (r y))(r Ψ, r h) = Eloc_K(y)(Ψ, h)` for `r` in the paving
+group, if the polymer terms `S` are covariant for all pairs (`avgTerm_act`).  The polymers containing
+the block of `r y` are the images of the polymers containing `y`.  This is the clause `eucEloc` at
+`j = K` restricted to `pavingSymGroup`; for the full group `fullJSymGroup` it fails in general
+(`WIDEGEN.md`, NEXT (W851), item 4). -/
+theorem assembly_Eloc_paving (hN : L ^ m₀ ∣ N₁) {ϱ : ℝ} (Tm : Terms d L N₁ m₁ K N ϱ)
+    (S : Set (CTorus d L N₁ m₁ K) → Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → ℂ)
+    (hS : ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K, ∀ Y
+      (p : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N),
+      S (r '' Y) (actField r p.1, actField r p.2) = S Y p)
+    (hE : ∀ y Y Ψ h, Tm.E K y Y Ψ h = if y ∈ Y then
+      ((((Finset.univ : Finset (CTorus d L N₁ m₁ K)).filter
+        (fun z => z ∈ Y ∧ Aligned (L ^ K) z)).card : ℕ) : ℂ)⁻¹ * S Y (Ψ, h) else 0)
+    {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (y : CTorus d L N₁ m₁ K) (Ψ h : Fld d L N₁ m₁ K N) :
+    Eloc m₀ Tm K (blockBase L K (r y)) (actField r Ψ) (actField r h) = Eloc m₀ Tm K y Ψ h := by
+  have hri : r⁻¹ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K := inv_mem hr
+  unfold Eloc
+  symm
+  refine finsum_mem_eq_of_bijOn (fun X => r '' X) ⟨fun X hX => ?_, fun X _ X' _ hXX => ?_,
+    fun X' hX' => ?_⟩ fun X hX => ?_
+  · obtain ⟨hXp, hy⟩ := hX
+    exact ⟨(isPolyDom_image_iff hN hr X).2 hXp,
+      blockBase_mem_image hr (blockUnion_of_isPolyDom hN hXp) hy⟩
+  · exact Set.image_injective.2 r.injective hXX
+  · obtain ⟨hXp, hy⟩ := hX'
+    have hXp' : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K ((⇑(r⁻¹)) '' X') :=
+      (isPolyDom_image_iff hN hri X').2 hXp
+    refine ⟨(⇑(r⁻¹)) '' X', ⟨hXp', ?_⟩, ?_⟩
+    · refine blockUnion_of_isPolyDom hN hXp' _ ⟨_, hy, rfl⟩ y ?_
+      exact (blockBase_inv_blockBase hr y).symm
+    · simp only
+      rw [Set.image_image]
+      simp [Equiv.Perm.inv_def]
+  · obtain ⟨hXp, hy⟩ := hX
+    exact (assembly_eucE hN S hS (Tm.E K) hE hr hXp hy Ψ h).symm
+
+end ElocPaving
+
+end Balaban.Fluctuation
+
+namespace Balaban.Localization
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.SmallField.Def6
+  Balaban.SmallField.Def6v2 Balaban.SmallField.GsSpec Balaban.LargeField Balaban.Fluctuation
+  Finset Matrix
+
+section ElocPavingClass
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
+
+open Classical in
+/-- **The clause `eucEloc` at `j = k + 1` for the paving group**, for the averaged, completed,
+distributed terms of `localClass_termClausesE` and all pairs of fields (`assembly_Eloc_paving` with
+the covariance `avgTerm_act` of the average, which needs no hypothesis on the terms `T`). -/
+theorem localClass_eucEloc_paving {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
+    {ϱ : ℝ} (Tm : Terms d L N₁ m₁ (k + 1) N ϱ)
+    (cpl : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (T : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (A : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hA : ∀ Y p, A Y p =
+      ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
+        ℂ))⁻¹ • ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+        T (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          (cpl (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.2)))
+    (hE : ∀ y Y Ψ h, Tm.E (k + 1) y Y Ψ h = if y ∈ Y then
+      ((((Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1))).filter
+        (fun z => z ∈ Y ∧ Aligned (L ^ (k + 1)) z)).card : ℕ) : ℂ)⁻¹ * A Y (Ψ, h) else 0)
+    {r : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))
+    (y : CTorus d L N₁ m₁ (k + 1)) (Ψ h : Fld d L N₁ m₁ (k + 1) N) :
+    Eloc P.m₀ Tm (k + 1) (blockBase L (k + 1) (r y)) (actField r Ψ) (actField r h) =
+      Eloc P.m₀ Tm (k + 1) y Ψ h :=
+  assembly_Eloc_paving hN Tm (fun Y p => A Y p)
+    (fun _ hr' Y p => avgTerm_act
+      (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))
+      (fun Y p => T Y (cpl Y p)) A hA hr' Y p) hE hr y Ψ h
+
+end ElocPavingClass
 
 end Balaban.Localization
