@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.RGasCore
 public import Balaban.Fluctuation.SizeModCellPath
+public import Balaban.LargeField.Def7
 
 /-!
 # Inputs of the physical large-field gas bound (blocker 4)
@@ -147,5 +148,51 @@ theorem dExt_le_card_of_connected (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   linarith
 
 end Core
+
+section OldTerms
+
+open Balaban.LargeField.Def7 Balaban.Polymer RegionHistory Balaban.Multiscale Balaban.Background
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
+
+/-- **The old-term bound `hB` of the physical gas, from (D7) of the post-`R` class.**
+Let `rep` satisfy `D7BdryPost` with constant `fac` and rate `rate` (`B₀` and `κ''` of
+`gas_activity_bound_physical`; `rate = 3κ/2` for `IsRep`).  Let `labY y` be boundary domains of
+the post-`R` class (`bdryDomsPost`: `FineValid`) of a history `A ∈ rep.hist`, whose fine sets are
+`Ŷ` of the cells `cy y` of the fine post-`R` region, and let `β y` be the boundary terms
+`ℬ^{(k)}(labY y, A)` at one external field `h ∈ hSetB`, one pair of block fields and one `g` that
+lie in the `H7` domain at every `labY y`.  Then `‖β y‖ ≤ fac · e^{-rate · dExt (cy y)}`, the
+size `dExt` of the core being the modular size `d7Size` of the domain
+(`dExt_core_eq_d7Size`).  The hypotheses on the domain are exactly: membership in
+`bdryDomsPost` (validity), `d7Pull Fr k (labY y) = Ŷ(sitesOf (cy y))`, and the `H7` domain
+condition at the point. -/
+theorem old_term_bound_of_D7BdryPost {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
+    {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
+    {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
+    {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+    (hD : D7BdryPost Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv) {A : LabHist S n R k0 K}
+    (hA : A ∈ rep.hist) {h : Fin N → ℂ} (hh : h ∈ hSetB hv)
+    (p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ))
+    {Yt : Type*} (labY : Yt → Finset (Torus S.d (n k)))
+    (hlab : ∀ y, labY y ∈ bdryDomsPost Fr A k (Zof A))
+    (hp : ∀ y, H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (labY y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)))
+    {cy : Yt → Finset (CubeB (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ k
+      (d7Pull Fr k (A.H.omegaPost k)))}
+    (hXY : ∀ y, d7Pull Fr k (labY y : Set (Torus S.d (n k))) =
+      Yhat (d7Pull Fr k (A.H.omegaPost k)) (sitesOf (cy y)))
+    (β : Yt → ℂ) (hβ : ∀ y, β y = rep.B A (labY y) (extK p.1) (extK p.2.1) h p.2.2) :
+    ∀ y, ‖β y‖ ≤ fac * Real.exp (-rate * dExt (d := S.d) (cy y)) := by
+  intro y
+  have hmem := mem_bdryDomsPost.1 (hlab y)
+  have hcon : SiteConnected (d7Pull Fr k (labY y : Set (Torus S.d (n k)))) :=
+    hmem.2.1.1.2.2
+  have hfin := d7SizeE_ne_top_of_mem (hlab y)
+  rw [dExt_core_eq_d7Size Fr A k (cy y) (labY y) (hXY y) hcon hfin, hβ y]
+  exact (hD.bound A hA (labY y) (hlab y) h hh p (hp y)).le
+
+end OldTerms
 
 end Balaban.LargeField
