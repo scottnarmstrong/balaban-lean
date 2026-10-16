@@ -31,3 +31,8 @@ Reduction via (2): NO as stated (section 2). Route A: not recommended; new struc
 
 ## 7. Status
 PROVED: sections 1 (landed split), 2 (d7Size charges trees; blocker 4 changes only linking). OPEN: alignment doubt (section 2), plain-domain compatibility, reserve double use. No Lean change.
+
+## 8. W833 status (leaf 0, 2026-10-16)
+0a REFUTED: holes of the landed RegionStep are not unions of aligned L-boxes. `R/HoleBoxUnion`: the hole contains nbhd_{rho+4}(U') and lies in nbhd_{rho+L+3}(U') (openings use L-blocks with arbitrary corner); a flat face of U' at coordinate e (direction i0) gives a hole face at e+rho+4, and every aligned box through a face site contains a site of Omega unless (e+rho+5) = 0 mod L (`omega_hole_face_misaligned`; witnesses `exists_step_hole_not_boxUnion` for P={0}, L>=8 and `exists_step_inherited_hole_not_boxUnion` for Z={0}, rho=0, L>=6). The spill of VMOD-36 occurs for L-1 of the L residues of rho.
+0b `R/HoleCompletionSize`: spill-free (Y cap Omega inside X): d(Y) <= d(X), no tree, no marks; general: d(Y) <= cost E + cost E' with E' the explicit tree through the hole meeting the spill boxes; the spill is paid (`G1_cellCount`). Aligned fix: `compl_isAlignedBoxUnion` (complement of an aligned-box union is one), so aligned-corner openings would remove the spill (a change of RegionStep: author ruling).
+0c: the face theorem applies to every face site of U' (all sites along the long face); blocker 3 keeps the tree through the hole plus the residue condition.

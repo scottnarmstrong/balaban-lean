@@ -1962,6 +1962,7 @@ public import Balaban.Inhabited.RootParamsLinks
 public import Balaban.Fluctuation.LocalClassRot
 public import Balaban.LargeField.R.RHaloSep
 public import Balaban.LargeField.R.HoleBoxUnion
+public import Balaban.LargeField.R.HoleCompletionSize
 public import Balaban.Polymer.GasCore
 public import Balaban.Polymer.GasCoreSize
 public import Balaban.LargeField.R.RGasCore

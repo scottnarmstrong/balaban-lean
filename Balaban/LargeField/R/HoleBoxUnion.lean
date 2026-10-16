@@ -29,6 +29,12 @@ is fixed by the radii alone, not by the lattice of aligned boxes.
 * `exists_step_hole_not_boxUnion`: a region step on `Torus d n1` (`L ∣ n1`, `L ≥ 8`) with one new
   cube `P = {0}` and `Z = ∅`, whose hole contains a site lying in no aligned `L`-box inside the
   hole.  So the statement of leaf 0a is false for the landed `RegionStep`.
+* `exists_step_inherited_hole_not_boxUnion`: the same for an inherited hole (`Z = {0}`, `P = ∅`,
+  `ρ = 0`, `L ≥ 6`): the hole is `nbhd_{ρ+4} U'` up to a layer of width `L-1`, the face of `U'`
+  is at `e = 0`, and `(e + ρ + 5) mod L = 5 ≠ 0`.
+* `compl_isAlignedBoxUnion`: what would make 0a true: the complement of a union of aligned
+  `L`-boxes is a union of aligned `L`-boxes (the aligned boxes tile the torus).  The openings of
+  the region step use arbitrary corners, so `Ω_K` is not such a union.
 -/
 
 @[expose] public section
@@ -127,6 +133,27 @@ theorem hole_face_misaligned {L : ℕ} (hL : 0 < L) (hLn : L ∣ n)
     exact cycNorm_natCast_ge hm (by omega) (by omega)
 
 end Core
+
+section Compl
+
+variable {d n : ℕ} [NeZero n]
+
+/-- What would make leaf 0a true: if `Ω` is a union of aligned `L`-boxes, so is its complement
+(the aligned boxes tile the torus when `L ∣ n`).  The region step does not satisfy the
+hypothesis: `Ω_K` is a union of `L`-blocks with arbitrary corners. -/
+theorem compl_isAlignedBoxUnion {L : ℕ} (hL : 0 < L) (hLn : L ∣ n) (Ω : Set (Torus d n))
+    (h : ∀ z ∈ Ω, ∃ b, Aligned L b ∧ z ∈ Localization.box b L ∧ Localization.box b L ⊆ Ω) :
+    ∀ z ∈ Ωᶜ, ∃ b, Aligned L b ∧ z ∈ Localization.box b L ∧
+      Localization.box b L ⊆ Ωᶜ := by
+  intro z hz
+  refine ⟨cbase L z, aligned_cbase z, mem_box_cbase hL z, fun y hy hyΩ => ?_⟩
+  obtain ⟨b', hb', hyb', hsub⟩ := h y hyΩ
+  have h1 := cbase_eq_of_mem_box hLn hb' hyb'
+  have h2 := cbase_eq_of_mem_box hLn (aligned_cbase z) hy
+  rw [h2] at h1
+  exact hz (hsub (h1 ▸ mem_box_cbase hL z))
+
+end Compl
 
 section Step
 
@@ -227,6 +254,59 @@ theorem exists_step_hole_not_boxUnion (i0 : Fin d) (hL : 8 ≤ L) (hLn : L ∣ n
   refine ⟨⟨∅, {0}, ∅, ∅, ∅, fun y _ => hOP y, Set.empty_subset _, Set.empty_subset _,
     Set.empty_subset _⟩, rfl, Function.update (0 : Torus d n1) i0 (((3 : ℕ) : ZMod n1)), ?_⟩
   exact single_cube_hole_not_boxUnion i0 hL hLn hn _ hOP
+
+/-- **Leaf 0a, refuted for an inherited hole.**  `Z = {0}`, `Rprev = Rk = 0` (so `ρ = 0`), no new
+cubes.  Then `U'_k` has its extreme coordinate `e = 0` in the direction `i0`, the hole is
+`nbhd_{ρ+4} U'_k` up to the layer of width `L-1`, and its face is aligned only if
+`(e + ρ + 5) ≡ 0 (mod L)`; here `5 mod L ≠ 0` for `L ≥ 6`.  The site of the hole at the face has
+no aligned `L`-box inside the hole. -/
+theorem exists_step_inherited_hole_not_boxUnion (i0 : Fin d) (hL : 6 ≤ L) (hLn : L ∣ n1)
+    (hn : L + 11 ≤ n1) :
+    ∃ st : RegionStep d L (L * n1) n1 0 0, st.Z = {0} ∧ st.P = ∅ ∧
+      ∃ z : Torus d n1, z ∉ st.Omega ∧ ∀ b : Torus d n1, Aligned L b →
+        z ∈ Localization.box b L → ∃ y ∈ Localization.box b L, y ∈ st.Omega := by
+  have hL0 : 0 < L := by omega
+  have hn0 : NeZero (L * n1) := ⟨Nat.mul_ne_zero hL0.ne' (NeZero.ne n1)⟩
+  let st : RegionStep d L (L * n1) n1 0 0 :=
+    ⟨{0}, ∅, ∅, ∅, ∅, Set.empty_subset _, Set.empty_subset _, Set.empty_subset _,
+      Set.empty_subset _⟩
+  refine ⟨st, rfl, rfl, ?_⟩
+  have hf : ⌊(0 : ℝ)⌋₊ = 0 := Nat.floor_zero
+  have key := omega_hole_face_misaligned st hL0 hLn rfl i0 0 1
+    (by rw [hf]; omega) ?_ (blockMap L n1 (0 : Torus d (L * n1))) ?_ ?_ ?_
+  · rw [hf] at key
+    exact ⟨_, key⟩
+  · rintro u ⟨x, hx, rfl⟩
+    have hx' : x ∈ nbhd (0 + 1) ({0} : Set (Torus d (L * n1))) := by
+      simpa [Region.U, thick, hf] using hx
+    obtain ⟨x', hx', hd⟩ := mem_nbhd.mp hx'
+    rw [Set.mem_singleton_iff] at hx'
+    subst hx'
+    have h1 := cycNorm_le_supDist x 0 i0
+    obtain ⟨t, ht, htx⟩ := (cycNorm_le_iff _ _).mp (h1.trans hd)
+    have hb : blockCoord L n1 (x i0) = ((t / L : ℤ) : ZMod n1) :=
+      blockCoord_intCast rfl _ t (by simpa using htx)
+    have ht' := abs_le.mp ht
+    have hLz : (2 : ℤ) ≤ L := by exact_mod_cast (by omega : 2 ≤ L)
+    simp only [blockMap_apply]
+    rw [hb]
+    rcases (by omega : t = -1 ∨ t = 0 ∨ t = 1) with rfl | rfl | rfl
+    · refine ⟨1, le_rfl, ?_⟩
+      have : (-1 : ℤ) / L = -1 :=
+        ((Int.ediv_emod_unique (a := -1) (b := (L : ℤ)) (q := -1) (r := (L : ℤ) - 1)
+          (by omega)).2 ⟨by ring, by omega, by omega⟩).1
+      rw [this]; simp
+    · exact ⟨0, by omega, by simp⟩
+    · refine ⟨0, by omega, ?_⟩
+      have : (1 : ℤ) / L = 0 := Int.ediv_eq_zero_of_lt (by omega) (by omega)
+      simp [this]
+  · exact ⟨0, by simpa [Region.U, thick, hf] using subset_nbhd 1 ({0} : Set (Torus d (L * n1))) rfl, rfl⟩
+  · simp [blockMap_apply, blockCoord]
+  · have hv : ((5 : ℕ) : ZMod n1).val = 5 := by
+      rw [ZMod.val_natCast]; exact Nat.mod_eq_of_lt (by omega)
+    rw [hf]
+    simp only [zero_add]
+    rw [hv, Nat.mod_eq_of_lt (by omega : 5 < L)]; omega
 
 end Witness
 
