@@ -198,6 +198,111 @@ theorem F₁_rot_cover {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
       (DecEquiv.isDecBg2_rot_iff (C := coverOf Gp) (H := Gp) (a := compWeight L a₁) (ν := ν) hR
         (rho4 d L N BG κ) s D φ α).2 h) hs hU ⟨hI.small, hI.fixed, hI.field⟩
 
+/-- **Two-functional form of `fanLC_rot_cover`**: the covariance hypothesis `hΦ` relates two
+functionals, `Φ₁` at the rotated triple and `Φ₂` at the triple; the conclusion is
+`Φ₁(F₁(s, R Θ), Sol(s, …), (R Θ, R ψ')) = Φ₂(F₁(s, Θ), Sol(s, …), (Θ, ψ'))`. -/
+theorem fanLC_rot_cover_of_cov {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (heps : 0 < eps)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1) (hc7 : xiC1 d * eps ≤ c7 d L N BG κ)
+    (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2) {δ₁ BG₂ : ℝ} (hδ₁ : 0 < δ₁)
+    (hPmp : Precedes Hm Gp)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    {Φ₁ Φ₂ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ u,
+      (bg, δφ, u) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      ((rotFld (cmat Q) bg.1, bg.2), rotFld (cmat Q) δφ, rotU (cmat Q) u) ∈
+        FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      Φ₁ (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) = Φ₂ bg δφ u)
+    {s : Dec2.DecParams (coverOf Gp)} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs1 : ∀ (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → s ⟨P, hP⟩ = 1)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {ψ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} (hψ : ψ' ∈ FlBallLC Hm δ₁) :
+    Φ₁ (F₁ (s, rotRaw (cmat Q) (rawOf D)))
+      (Sol (s, flEdat Gp Hm (F₁ (s, rotRaw (cmat Q) (rawOf D))) (rotRaw (cmat Q) (rawOf D)).1
+        (fun x => cmat Q *ᵥ ψ' x))).1 (rotRaw (cmat Q) (rawOf D), fun x => cmat Q *ᵥ ψ' x) =
+    Φ₂ (F₁ (s, rawOf D)) (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ') := by
+  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
+  have hD' := xiCData_rot hQ hD
+  have hψ1 : ψ' ∈ FlBall Hm δ₁ := hψ.1
+  have hψ1' : (fun x => cmat Q *ᵥ ψ' x) ∈ FlBall Hm δ₁ := fun x hx => by
+    show vn (cmat Q *ᵥ ψ' x) < δ₁
+    rw [vn_rot (isRealOrth_ofReal hQ)]
+    exact hψ1 x hx
+  have hlc' : IsLayerConstant Hm (fun x => cmat Q *ᵥ ψ' x) := isLayerConstant_rot hψ.2
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC HBp hδ0
+      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
+      (xiCData_inDomainC HBp hsmall hD)
+  obtain ⟨φ, α, δφ, δα, hI, hF, hstr, hS1, hmem⟩ :=
+    point_facts_core_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁ hPmp hF₁ hSol hs hs1 hD hψ1
+  obtain ⟨φ', α', δφ', δα', hI', hF', hstr', hS1', hmem'⟩ :=
+    point_facts_core_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁ hPmp hF₁ hSol hs hs1 hD'
+      hψ1'
+  have hF'' : F₁ (s, rotRaw (cmat Q) (rawOf D)) = (rotFld (cmat Q) φ, α) := by
+    have := F₁_rot_cover hS S HBp hκ hM heps hsmall hc7 hF₁ hs hD hQ
+    rw [this, hF]
+  have hF3 : F₁ (s, rawOf (D.rot (cmat Q))) = (φ', α') := hF'
+  have hpa : (φ', α') = (rotFld (cmat Q) φ, α) := by rw [← hF3]; exact hF''
+  obtain ⟨h1, h2⟩ := Prod.mk.inj hpa
+  subst φ'
+  subst α'
+  have hE := flEdat_rot (Gp := Gp) (Hm := Hm) (cmat Q) (φ, α) D.Ψ ψ'
+  have hSolr := Sol_rot (Gp := Gp) (Hm := Hm) (a₁ := a₁) (ν := ν) (BG := BG) (BG₂ := BG₂)
+    (κ := κ) (eps := eps) (δ₁ := δ₁) hSol hR hs
+    (φ₀ := (flEdat Gp Hm (φ, α) D.Ψ ψ').1) (α₀ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.1)
+    (δΨ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.1) (f₁ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.2)
+    hstr (by rw [← hE]; exact hstr')
+  have hSa : (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ := by rw [hS1]
+  have hSb : (Sol (s, flEdat Gp Hm (rotFld (cmat Q) φ, α) (DecEquiv.rotSite (cmat Q) D.Ψ)
+      (DecEquiv.rotSite (cmat Q) ψ'))).1 = rotFld (cmat Q) δφ := by
+    rw [hE, hSolr, hSa]
+  rw [hF'', hF]
+  show Φ₁ (rotFld (cmat Q) φ, α) (Sol (s, flEdat Gp Hm (rotFld (cmat Q) φ, α)
+      (DecEquiv.rotSite (cmat Q) D.Ψ) (DecEquiv.rotSite (cmat Q) ψ'))).1
+      (rotU (cmat Q) (rawOf D, ψ')) = _
+  rw [hSb, hS1]
+  show Φ₁ (rotFld (cmat Q) (φ, α).1, (φ, α).2) (rotFld (cmat Q) δφ) (rotU (cmat Q) (rawOf D, ψ')) = _
+  have hm1 : ((φ, α), δφ, (rawOf D, ψ')) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ :=
+    ⟨hmem, hψ.2⟩
+  have hm2 : ((rotFld (cmat Q) (φ, α).1, (φ, α).2), rotFld (cmat Q) δφ,
+      rotU (cmat Q) (rawOf D, ψ')) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
+    have hδ' : δφ' = rotFld (cmat Q) δφ := by
+      have h0 := congrArg Prod.fst hS1'
+      exact h0.symm.trans hSb
+    have h3 : ((rotFld (cmat Q) φ, α), δφ', rawOf (BgData.rot (cmat Q) D),
+        fun x => cmat Q *ᵥ ψ' x) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := ⟨hmem', hlc'⟩
+    rw [hδ'] at h3
+    exact h3
+  exact hΦ (φ, α) δφ (rawOf D, ψ') hm1 hm2
+
 /-- **`O(N)` covariance of the fan composite for the cover of `𝔹_{k+1}`** (cover form of
 `fnOfDecSol_rot`, at a point and with the local hypotheses `Dec2.DecSpecs`, `Dec2.CoverBase`
 in place of `FlCore`): if `Φ` is invariant under `(R φ, α; R δφ; R u)` on the realizable triples
@@ -248,62 +353,8 @@ theorem fanLC_rot_cover {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
       (Sol (s, flEdat Gp Hm (F₁ (s, rotRaw (cmat Q) (rawOf D))) (rotRaw (cmat Q) (rawOf D)).1
         (fun x => cmat Q *ᵥ ψ' x))).1 (rotRaw (cmat Q) (rawOf D), fun x => cmat Q *ᵥ ψ' x) =
     Φ (F₁ (s, rawOf D)) (Sol (s, flEdat Gp Hm (F₁ (s, rawOf D)) D.Ψ ψ')).1 (rawOf D, ψ') := by
-  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
-  have hD' := xiCData_rot hQ hD
-  have hψ1 : ψ' ∈ FlBall Hm δ₁ := hψ.1
-  have hψ1' : (fun x => cmat Q *ᵥ ψ' x) ∈ FlBall Hm δ₁ := fun x hx => by
-    show vn (cmat Q *ᵥ ψ' x) < δ₁
-    rw [vn_rot (isRealOrth_ofReal hQ)]
-    exact hψ1 x hx
-  have hlc' : IsLayerConstant Hm (fun x => cmat Q *ᵥ ψ' x) := isLayerConstant_rot hψ.2
-  have hd0 : 0 < d := by have := HBp.hd; omega
-  have hc1 := one_le_xiC1 d
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC HBp hδ0
-      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
-      (xiCData_inDomainC HBp hsmall hD)
-  obtain ⟨φ, α, δφ, δα, hI, hF, hstr, hS1, hmem⟩ :=
-    point_facts_core_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁ hPmp hF₁ hSol hs hs1 hD hψ1
-  obtain ⟨φ', α', δφ', δα', hI', hF', hstr', hS1', hmem'⟩ :=
-    point_facts_core_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁ hPmp hF₁ hSol hs hs1 hD'
-      hψ1'
-  have hF'' : F₁ (s, rotRaw (cmat Q) (rawOf D)) = (rotFld (cmat Q) φ, α) := by
-    have := F₁_rot_cover hS S HBp hκ hM heps hsmall hc7 hF₁ hs hD hQ
-    rw [this, hF]
-  have hF3 : F₁ (s, rawOf (D.rot (cmat Q))) = (φ', α') := hF'
-  have hpa : (φ', α') = (rotFld (cmat Q) φ, α) := by rw [← hF3]; exact hF''
-  obtain ⟨h1, h2⟩ := Prod.mk.inj hpa
-  subst φ'
-  subst α'
-  have hE := flEdat_rot (Gp := Gp) (Hm := Hm) (cmat Q) (φ, α) D.Ψ ψ'
-  have hSolr := Sol_rot (Gp := Gp) (Hm := Hm) (a₁ := a₁) (ν := ν) (BG := BG) (BG₂ := BG₂)
-    (κ := κ) (eps := eps) (δ₁ := δ₁) hSol hR hs
-    (φ₀ := (flEdat Gp Hm (φ, α) D.Ψ ψ').1) (α₀ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.1)
-    (δΨ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.1) (f₁ := (flEdat Gp Hm (φ, α) D.Ψ ψ').2.2.2)
-    hstr (by rw [← hE]; exact hstr')
-  have hSa : (Sol (s, flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ := by rw [hS1]
-  have hSb : (Sol (s, flEdat Gp Hm (rotFld (cmat Q) φ, α) (DecEquiv.rotSite (cmat Q) D.Ψ)
-      (DecEquiv.rotSite (cmat Q) ψ'))).1 = rotFld (cmat Q) δφ := by
-    rw [hE, hSolr, hSa]
-  rw [hF'', hF]
-  show Φ (rotFld (cmat Q) φ, α) (Sol (s, flEdat Gp Hm (rotFld (cmat Q) φ, α)
-      (DecEquiv.rotSite (cmat Q) D.Ψ) (DecEquiv.rotSite (cmat Q) ψ'))).1
-      (rotU (cmat Q) (rawOf D, ψ')) = _
-  rw [hSb, hS1]
-  show Φ (rotFld (cmat Q) (φ, α).1, (φ, α).2) (rotFld (cmat Q) δφ) (rotU (cmat Q) (rawOf D, ψ')) = _
-  have hm1 : ((φ, α), δφ, (rawOf D, ψ')) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ :=
-    ⟨hmem, hψ.2⟩
-  have hm2 : ((rotFld (cmat Q) (φ, α).1, (φ, α).2), rotFld (cmat Q) δφ,
-      rotU (cmat Q) (rawOf D, ψ')) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := by
-    have hδ' : δφ' = rotFld (cmat Q) δφ := by
-      have h0 := congrArg Prod.fst hS1'
-      exact h0.symm.trans hSb
-    have h3 : ((rotFld (cmat Q) φ, α), δφ', rawOf (BgData.rot (cmat Q) D),
-        fun x => cmat Q *ᵥ ψ' x) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := ⟨hmem', hlc'⟩
-    rw [hδ'] at h3
-    exact h3
-  exact hΦ (φ, α) δφ (rawOf D, ψ') hm1 hm2
+  exact fanLC_rot_cover_of_cov hS S HBp hκ hM heps hsmall hc7 hphi hδ₁ hPmp hF₁ hSol hQ hΦ hs hs1 hD hψ
+
 
 end FanRot
 
@@ -338,6 +389,82 @@ theorem d1Triple_rot (a : ℕ → ℝ) (R : Matrix (Fin N) (Fin N) ℂ)
     · simp only [hx, ↓reduceIte]
       funext i
       simp [Matrix.mulVec, dotProduct]
+
+/-- **Two-functional form of `eTermFun_rot_cover`**: `E₁ (R r) = E₂ r` on the chart gives
+`Φ_{E₁}(R φ, α; R δφ; R u) = Φ_{E₂}(φ, α; δφ; u)` on realizable triples. -/
+theorem eTermFun_rot_cover_of_cov {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx) (hG : CubeAligned Gp m₁)
+    (hSS : SupSep Gp m₁) (hMM : 4 * L ^ 2 ≤ L ^ m₁) (ha₁ : 0 < a₁)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν)
+    (HBk : BgHyp d L (k + 1) ϱ₁ (compWeight L a₁) ν)
+    (HBj : BgHyp d L (k + 1) ϱ₂ (compWeight L a₁) ν) (hP : Precedes Gk Gp) (hq : Precedes Gj Gk)
+    (colk : ∀ z ∈ collar Gk, z ∈ Gp.Ω 1) (colj : ∀ z ∈ collar Gj, z ∈ Gk.Ω 1)
+    {κ r₀ eps δ₃ : ℝ} (hκ : 0 < κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃) {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (dsX₀ : ∀ x ∈ dataSites Gk, x ∈ X₀)
+    (hN : ∀ x ∈ X₀, x ∈ Gp.Ω 1 → ∀ y : CTorus d L N₁ m₁ (k + 1),
+      Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y < r₀ * (L : ℝ) ^ m₁ * Gp.spacing x →
+        y ∈ X₁f)
+    (hT : (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L ≤ ϱ - 1)
+    (hr₀ : 4 * d * (L : ℝ) ^ 3 ≤ r₀) {j : ℕ} (hj : j ≤ k + 1)
+    {Kf Cf c₂ BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kf Cf c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E₁ E₂ : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ}
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    (hEr : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), E₁ (rotRaw (cmat Q) r) = E₂ r)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)
+    (ht' : ((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) ∈
+      FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₁ (rotFld (cmat Q) t.1.1, t.1.2)
+        (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₂ t.1 t.2.1 t.2.2 := by
+  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
+  obtain ⟨D, ψ', hlc, -, -, hd1, hD2, hXj⟩ :=
+    eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
+      hnum dsX₀ hN hT hr₀ hj hF hFk ht
+  obtain ⟨D2, ψ2, hlc2, -, -, hd1', hD2', -⟩ :=
+    eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
+      hnum dsX₀ hN hT hr₀ hj hF hFk ht'
+  set F := flDatum Gk hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc with hFdef
+  set F2 := flDatum Gk hP hF.hPm (compWeight L a₁)
+    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
+      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).1.1
+    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
+      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).2.1
+    D2 ψ2 hlc2 with hF2def
+  have hrawF2 : rawOf F2 = rawOf (F.rot (cmat Q)) := by
+    rw [← hd1']
+    show d1Triple Gp Gk Hm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+      (rotU (cmat Q) t.2.2) = _
+    rw [d1Triple_rot, hd1]
+    rfl
+  have hF2 : F2 = F.rot (cmat Q) :=
+    Background.BgData.ext' (congrArg Prod.fst hrawF2) (congrArg Prod.snd hrawF2)
+  have e1 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₂ t.1 t.2.1 t.2.2 =
+      E₂ (rawOf (composeData hq (compWeight L a₁)
+        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F) F)) := by
+    show E₂ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1
+      t.2.2)) = _
+    rw [hd1, hD2]
+  have e2 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₁ (rotFld (cmat Q) t.1.1, t.1.2)
+      (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
+      E₁ (rawOf (composeData hq (compWeight L a₁)
+        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F2) F2)) := by
+    show E₁ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁)
+      (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2))) = _
+    rw [hd1', hD2']
+  rw [e1, e2, hF2, (bgFieldC_rot (compWeight L a₁) ν hR (bgC0 d L N) F).1, composeData_rot]
+  exact hEr _ ⟨_, hXj, rfl⟩
 
 /-- **`O(N)`-invariance of the old-term functional on the realizable triples, for a sup-separated
 parent** (cover form; for the old term `E` invariant under real rotations on the chart of
@@ -379,45 +506,8 @@ theorem eTermFun_rot_cover {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) 
     eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (rotFld (cmat Q) t.1.1, t.1.2)
         (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 := by
-  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
-  obtain ⟨D, ψ', hlc, -, -, hd1, hD2, hXj⟩ :=
-    eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
-      hnum dsX₀ hN hT hr₀ hj hF hFk ht
-  obtain ⟨D2, ψ2, hlc2, -, -, hd1', hD2', -⟩ :=
-    eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
-      hnum dsX₀ hN hT hr₀ hj hF hFk ht'
-  set F := flDatum Gk hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc with hFdef
-  set F2 := flDatum Gk hP hF.hPm (compWeight L a₁)
-    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
-      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
-      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).1.1
-    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
-      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
-      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).2.1
-    D2 ψ2 hlc2 with hF2def
-  have hrawF2 : rawOf F2 = rawOf (F.rot (cmat Q)) := by
-    rw [← hd1']
-    show d1Triple Gp Gk Hm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
-      (rotU (cmat Q) t.2.2) = _
-    rw [d1Triple_rot, hd1]
-    rfl
-  have hF2 : F2 = F.rot (cmat Q) :=
-    Background.BgData.ext' (congrArg Prod.fst hrawF2) (congrArg Prod.snd hrawF2)
-  have e1 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 =
-      E (rawOf (composeData hq (compWeight L a₁)
-        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F) F)) := by
-    show E (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1
-      t.2.2)) = _
-    rw [hd1, hD2]
-  have e2 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (rotFld (cmat Q) t.1.1, t.1.2)
-      (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
-      E (rawOf (composeData hq (compWeight L a₁)
-        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F2) F2)) := by
-    show E (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁)
-      (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2))) = _
-    rw [hd1', hD2']
-  rw [e1, e2, hF2, (bgFieldC_rot (compWeight L a₁) ν hR (bgC0 d L N) F).1, composeData_rot]
-  exact hEr _ ⟨_, hXj, rfl⟩
+  exact eTermFun_rot_cover_of_cov hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM hnum dsX₀ hN hT hr₀ hj hF hFk hQ hEr ht ht'
+
 
 end ETermRot
 
@@ -516,6 +606,165 @@ theorem measurableEmbedding_hatRot {I : Type*} [Fintype I] {Q : Matrix (Fin N) (
       continuous_invFun := by fun_prop }
   exact e.measurableEmbedding
 
+/-- **Two-functional form of `localHat_integral_rot_cover`**: `Φ₁` at the rotated triple equals
+`Φ₂` at the triple (`hΦ`), `Gf₁`, `Gf₂` are the `ψ̂`-integrals of `Φ₁`, `Φ₂`; then
+`Gf₁ (R Θ) w = Gf₂ Θ w` on the chart. -/
+theorem localHat_integral_rot_cover_of_cov (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ BG₂ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf Gp)}
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → σ w ⟨P, hP⟩ = 1)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    {Φ₁ Φ₂ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ u,
+      (bg, δφ, u) ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      ((rotFld (cmat Q) bg.1, bg.2), rotFld (cmat Q) δφ, rotU (cmat Q) u) ∈
+        FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      Φ₁ (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) = Φ₂ bg δφ u)
+    {γ : Measure (unitPts Gp × Fin N → ℝ)} {K : Set (unitPts Gp × Fin N → ℝ)}
+    (hKc : IsCompact K) (hKb : ∀ ψ ∈ K, ∀ r, |ψ r| ≤ cψ)
+    (hKQ : ∀ ψ : unitPts Gp × Fin N → ℝ,
+      (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈ K ↔ ψ ∈ K)
+    (hγQ : Measure.map (fun (ψ : unitPts Gp × Fin N → ℝ) (r : unitPts Gp × Fin N) =>
+      ∑ j, Q j r.2 * ψ (r.1, j)) γ = γ)
+    (Gf₁ : RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
+    (hGf₁ : ∀ (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gf₁ Θ w =
+      ∫ ψ in K,
+        Φ₁ (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ)
+    (Gf₂ : RawData d L (N₁ * L ^ m₁) (k + 1) N → (ι → ℂ) → ℂ)
+    (hGf₂ : ∀ (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (w : ι → ℂ), Gf₂ Θ w =
+      ∫ ψ in K,
+        Φ₂ (F₁ (σ w, Θ))
+          (Sol (σ w, flEdat Gp Hm (F₁ (σ w, Θ)) Θ.1
+            (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0))).1
+          (Θ, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+              if h : unitBlock x ∈ unitPts Gp then
+                (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, Θ)).2
+                  (Dec2.extS (coverOf Gp) (σ w)) (barField Gp Θ.1 (F₁ (σ w, Θ)).1)
+                  (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ r : ℂ)))) (⟨unitBlock x, h⟩, i)
+              else 0) ∂γ)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {w : ι → ℂ}
+    (hw : w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) :
+    Gf₁ (rotRaw (cmat Q) (rawOf D)) w = Gf₂ (rawOf D) w := by
+  classical
+  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
+  have hs : ∀ P, ‖σ w P‖ < Real.exp κ := hσκ w hw
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HBp hκ.le hM heps hsmall hc7 hs hD
+  have hUd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC HBp hδ0
+      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
+      (xiCData_inDomainC HBp hsmall hD)
+  have hFe : F₁ (σ w, rawOf D) = (φ, α) := hF₁ (σ w) D hs hUd φ α ⟨hI.small, hI.fixed, hI.field⟩
+  have hFr : F₁ (σ w, rotRaw (cmat Q) (rawOf D)) = (rotFld (cmat Q) φ, α) := by
+    rw [F₁_rot_cover hS S HBp hκ hM heps hsmall hc7 hF₁ hs hD hQ, hFe]
+  have hdom := decDom_of_coverBg hS S HBp hκ.le hM heps hsmall hc7 hphi hs hD hI hmarD hαD
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
+    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
+  have hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf Gp) Gp (compWeight L a₁) a₁ ν x α κ
+      (Dec2.extS (coverOf Gp) (σ w)) Cx := fun x hx =>
+    xData_cover_of_mem (N := N) SX hCx hx hκ.le hMX (e := (σ w, (barField Gp D.Ψ φ, α))) hdom
+  have hφc : IsConstraintField Gp δc (barField Gp D.Ψ φ) := hdom.2.1.toIsConstraintField
+  have hUL := (isUnitLatticeB_unit (G := Gp)).toIsUnitLattice
+  have hTK : ∀ ψ ∈ K, (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈ K :=
+    fun ψ hψ => (hKQ ψ).2 hψ
+  let lift : (unitPts Gp × Fin N → ℝ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ :=
+    fun ψ' (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts Gp then
+        (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
+          (Dec2.extS (coverOf Gp) (σ w)) (barField Gp D.Ψ (F₁ (σ w, rawOf D)).1)
+          (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ' r : ℂ)))) (⟨unitBlock x, h⟩, i)
+      else 0
+  let Hm' : (unitPts Gp × Fin N → ℝ) → ℂ := fun ψ' =>
+    Φ₂ (F₁ (σ w, rawOf D)) (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) D.Ψ (lift ψ'))).1
+      (rawOf D, lift ψ')
+  have e2 : Gf₂ (rawOf D) w = ∫ ψ in K, Hm' ψ ∂γ := hGf₂ _ _
+  have e1 : Gf₁ (rotRaw (cmat Q) (rawOf D)) w =
+      ∫ ψ in K, Hm' (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∂γ := by
+    rw [hGf₁]
+    refine setIntegral_congr_fun hKc.isClosed.measurableSet fun ψ hψ => ?_
+    have hlift := localHatLift_rot_cover (Gp := Gp) (a₁ := a₁) (ν := ν) hQ (D := D) (s := σ w)
+      (F₁ := F₁) hFe hFr hfam hφc hδc hsm hUL cc ψ
+    have hψ' : lift (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈
+        FlBallLC Hm δ₁ := by
+      refine localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS S HBp hκ.le hM hMX hCx hF₁ heps
+        hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 hδ₁
+        (ψh := fun r => ((∑ j, Q j r.2 * ψ (r.1, j) : ℝ) : ℂ)) fun r => ?_
+      rw [Complex.norm_real, Real.norm_eq_abs]
+      exact hKb _ (hTK ψ hψ) r
+    show _ = Hm' _
+    rw [hlift]
+    exact fanLC_rot_cover_of_cov hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁ hSol hQ hΦ hs
+      (hσ1 w) hD hψ'
+  rw [e1, e2]
+  have hemb := measurableEmbedding_hatRot (I := unitPts Gp) hQ
+  have h3 := hemb.setIntegral_map (μ := γ) Hm' K
+  rw [hγQ] at h3
+  have hpre : (fun (ψ : unitPts Gp × Fin N → ℝ) (r : unitPts Gp × Fin N) =>
+      ∑ j, Q j r.2 * ψ (r.1, j)) ⁻¹' K = K := Set.ext fun ψ => hKQ ψ
+  rw [hpre] at h3
+  exact h3.symm
+
 /-- **The `ψ̂`-integral of a local term is `O(N)`-invariant** (rotation step of the clause `rotE` for
 the term `E_X(Y)` of the local class, real rotations; cover form).  For a real orthogonal `Q`, a
 compact set `K` of hat variables and a measure `γ` that are invariant under `ψ̂ ↦ (1 ⊗ Qᵀ) ψ̂`, and
@@ -596,71 +845,8 @@ theorem localHat_integral_rot_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) {w : ι → ℂ}
     (hw : w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) :
     Gf (rotRaw (cmat Q) (rawOf D)) w = Gf (rawOf D) w := by
-  classical
-  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
-  have hs : ∀ P, ‖σ w P‖ < Real.exp κ := hσκ w hw
-  have hd0 : 0 < d := by have := HBp.hd; omega
-  have hc1 := one_le_xiC1 d
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HBp hκ.le hM heps hsmall hc7 hs hD
-  have hUd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC HBp hδ0
-      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
-      (xiCData_inDomainC HBp hsmall hD)
-  have hFe : F₁ (σ w, rawOf D) = (φ, α) := hF₁ (σ w) D hs hUd φ α ⟨hI.small, hI.fixed, hI.field⟩
-  have hFr : F₁ (σ w, rotRaw (cmat Q) (rawOf D)) = (rotFld (cmat Q) φ, α) := by
-    rw [F₁_rot_cover hS S HBp hκ hM heps hsmall hc7 hF₁ hs hD hQ, hFe]
-  have hdom := decDom_of_coverBg hS S HBp hκ.le hM heps hsmall hc7 hphi hs hD hI hmarD hαD
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
-      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
-      unfold decDomMargin; positivity
-    linarith
-  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
-    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
-  have hfam : ∀ x, 0 ≤ x → Dec2.XData (coverOf Gp) Gp (compWeight L a₁) a₁ ν x α κ
-      (Dec2.extS (coverOf Gp) (σ w)) Cx := fun x hx =>
-    xData_cover_of_mem (N := N) SX hCx hx hκ.le hMX (e := (σ w, (barField Gp D.Ψ φ, α))) hdom
-  have hφc : IsConstraintField Gp δc (barField Gp D.Ψ φ) := hdom.2.1.toIsConstraintField
-  have hUL := (isUnitLatticeB_unit (G := Gp)).toIsUnitLattice
-  have hTK : ∀ ψ ∈ K, (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈ K :=
-    fun ψ hψ => (hKQ ψ).2 hψ
-  let lift : (unitPts Gp × Fin N → ℝ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ :=
-    fun ψ' (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
-      if h : unitBlock x ∈ unitPts Gp then
-        (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ w, rawOf D)).2
-          (Dec2.extS (coverOf Gp) (σ w)) (barField Gp D.Ψ (F₁ (σ w, rawOf D)).1)
-          (unitQ Gp) (unitP Gp) *ᵥ (fun r => (ψ' r : ℂ)))) (⟨unitBlock x, h⟩, i)
-      else 0
-  let Hm' : (unitPts Gp × Fin N → ℝ) → ℂ := fun ψ' =>
-    Φ (F₁ (σ w, rawOf D)) (Sol (σ w, flEdat Gp Hm (F₁ (σ w, rawOf D)) D.Ψ (lift ψ'))).1
-      (rawOf D, lift ψ')
-  have e2 : Gf (rawOf D) w = ∫ ψ in K, Hm' ψ ∂γ := hGf _ _
-  have e1 : Gf (rotRaw (cmat Q) (rawOf D)) w =
-      ∫ ψ in K, Hm' (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∂γ := by
-    rw [hGf]
-    refine setIntegral_congr_fun hKc.isClosed.measurableSet fun ψ hψ => ?_
-    have hlift := localHatLift_rot_cover (Gp := Gp) (a₁ := a₁) (ν := ν) hQ (D := D) (s := σ w)
-      (F₁ := F₁) hFe hFr hfam hφc hδc hsm hUL cc ψ
-    have hψ' : lift (fun r : unitPts Gp × Fin N => ∑ j, Q j r.2 * ψ (r.1, j)) ∈
-        FlBallLC Hm δ₁ := by
-      refine localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS S HBp hκ.le hM hMX hCx hF₁ heps
-        hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 hδ₁
-        (ψh := fun r => ((∑ j, Q j r.2 * ψ (r.1, j) : ℝ) : ℂ)) fun r => ?_
-      rw [Complex.norm_real, Real.norm_eq_abs]
-      exact hKb _ (hTK ψ hψ) r
-    show _ = Hm' _
-    rw [hlift]
-    exact fanLC_rot_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁ hSol hQ hΦ hs
-      (hσ1 w) hD hψ'
-  rw [e1, e2]
-  have hemb := measurableEmbedding_hatRot (I := unitPts Gp) hQ
-  have h3 := hemb.setIntegral_map (μ := γ) Hm' K
-  rw [hγQ] at h3
-  have hpre : (fun (ψ : unitPts Gp × Fin N → ℝ) (r : unitPts Gp × Fin N) =>
-      ∑ j, Q j r.2 * ψ (r.1, j)) ⁻¹' K = K := Set.ext fun ψ => hKQ ψ
-  rw [hpre] at h3
-  exact h3.symm
+  exact localHat_integral_rot_cover_of_cov hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 hQ hΦ hKc hKb hKQ hγQ Gf hGf Gf hGf hD hw
+
 
 end HatIntegralRot
 
@@ -692,6 +878,25 @@ theorem clipRaw_rot (R : Matrix (Fin N) (Fin N) ℂ)
       funext i
       simp [Matrix.mulVec, dotProduct]
 
+/-- **Two-functional form of `evTerm_clipRaw_rot`**. -/
+theorem evTerm_clipRaw_rot_of_cov {ι : Type*} [DecidableEq ι] [Fintype ι] {c : ι → ℕ × CTorus d L N₁ m₁ k}
+    {ϱa : ℝ} {Ga : GeneratingSet d L (N₁ * L ^ m₁) k ϱa} {m₀ : ℕ}
+    {X₁ : Set (CTorus d L N₁ m₁ k)}
+    (Y : Set (CTorus d L N₁ m₁ k)) {Rr : ℝ} (hRr : 1 < Rr)
+    {a : ℕ → ℝ} {ν eps : ℝ} {j : ℕ} {εj : ℝ} (hε : εj ≤ eps)
+    {Q : Matrix (Fin N) (Fin N) ℝ}
+    {Gf₁ Gf₂ : RawData d L (N₁ * L ^ m₁) k N → (ι → ℂ) → ℂ}
+    (hG : ∀ D : BgData G N, XiCData G a ν j 1 eps D →
+      ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Rr), Gf₁ (rotRaw (cmat Q) (rawOf D)) w = Gf₂ (rawOf D) w)
+    {p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N} (hp : XiDom G a ν j εj p.1 p.2) :
+    evTerm c Ga m₀ X₁ Gf₁ Y (clipRaw G (rotField (cmat Q) p.1, rotField (cmat Q) p.2)) =
+      evTerm c Ga m₀ X₁ Gf₂ Y (clipRaw G p) := by
+  obtain ⟨D, hD, hDu⟩ := clipRaw_mem_xiCRaw_of_xiDom hε hp
+  rw [clipRaw_rot]
+  refine evTerm_congr_polydisc c hRr X₁ Y fun w hw => ?_
+  rw [hDu]
+  exact hG D hD w hw
+
 /-- **The term of the class is invariant under real rotations, from the invariance of the
 function expanded** (rotation step of `rotE` at the level of `evTerm`): if `Gf (R Θ) w = Gf Θ w`
 for `Θ` in the chart of the expansion and `w` in the polydisc of radius `e^κ > 1`, then
@@ -708,11 +913,7 @@ theorem evTerm_clipRaw_rot {ι : Type*} [DecidableEq ι] [Fintype ι] {c : ι �
     {p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N} (hp : XiDom G a ν j εj p.1 p.2) :
     evTerm c Ga m₀ X₁ Gf Y (clipRaw G (rotField (cmat Q) p.1, rotField (cmat Q) p.2)) =
       evTerm c Ga m₀ X₁ Gf Y (clipRaw G p) := by
-  obtain ⟨D, hD, hDu⟩ := clipRaw_mem_xiCRaw_of_xiDom hε hp
-  rw [clipRaw_rot]
-  refine evTerm_congr_polydisc c hRr X₁ Y fun w hw => ?_
-  rw [hDu]
-  exact hG D hD w hw
+  exact evTerm_clipRaw_rot_of_cov Y hRr hε hG hp
 
 end EvTermRot
 
