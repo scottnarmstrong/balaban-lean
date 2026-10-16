@@ -21,10 +21,10 @@ The last section lists the problems that have been resolved since the project st
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius and a constant check remain (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
-| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)); a radius condition is being checked; author confirmation asked (item 16 addendum) |
+| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), for histories run with the largest radii; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori, with one condition on the rates open; the scales just below the last may need a floor on the torus size (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -124,8 +124,9 @@ bound, the small factor of removed components, and the size of removed component
 large-field step itself. Two of the three are now proved: the inherited old-term bound follows from the
 bound of the formal large-field class, and the size of a removed component is at most its number of
 cells, because its halo is connected whenever the separation of large-field components is at most twice
-the halo radius. That holds at the largest radius the papers allow; we are checking that the construction
-uses that radius. What remains is the small factor of removed components, P7 (3.10), on the halo, and the
+the halo radius. That holds at the largest radius the papers allow. In our construction the radius is a
+free choice up to that maximum, and the maximal choice meets every hypothesis placed on the radii, so the
+large-field histories are run with it. What remains is the small factor of removed components, P7 (3.10), on the halo, and the
 arithmetic of the constants. The question to the author is item 16 with its addendum
 (`notes/phase1/VMOD-43.md`).
 
@@ -291,8 +292,8 @@ that keeps the identity and makes the terms exactly equal on two tori; since Roo
 the common value is the limit over growing tori, which the closeness makes convergent; the closeness is
 now uniform in the size of the support, after replacing the crude bound of the tags by one that grows
 only with distance). This is now wired into the resummation for Root-F's tori: the last-scale coefficient
-sums converge over growing tori with any prescribed decay rate, provided one condition on the rates holds
-(a constant of the closeness must be fixed before the cube size M; being checked). Truncating the walk expansion of the final operator to the
+sums converge over growing tori with any prescribed decay rate. The decay constant of the closeness depends
+only on the dimension and L, so the condition on the rates holds once the cube size M is large. Truncating the walk expansion of the final operator to the
 region, as in the Yang–Mills account, does not work here: the final operator is a Schur complement and the
 truncation changes it by order one near the boundary. Root-F as stated carries no lower bound on the
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so
