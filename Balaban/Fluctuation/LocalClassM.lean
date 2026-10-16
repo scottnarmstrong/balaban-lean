@@ -10,28 +10,40 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# The source terms `ℳ` on the local chart: analyticity in the fields and the source, and the bound
+# The source terms `ℳ` on the local chart: analyticity, locality and the bound
 
 The term of a polymer `Y` of level `k + 1` coming from an inherited source term `ℳ^{(j)}_i(y, X)`
 is, for a fixed component `i`, the term of `LocalHatTerm.lean` with the old-term functional
 `E_g(r) = ℳ^{(j)}_i(y, X; r.1, r.2, g)`, which depends on the source `g` as a parameter.  The clause
-`analyticM` asks analyticity jointly in the fields and in `g`; the clauses already landed for the
-energy terms (`localB_eTermHat_evTerm_xiFieldDom`) are analytic in the fields for each fixed
-functional.  This file carries a parameter `g` of a finite-dimensional complex space `G`
-(analytic on a set `Sg`) through the chain without re-proving it:
+`analyticM` asks analyticity jointly in the fields and in `g`, and `localM` asks that the term not
+change when `(Ψ, h, g)` is changed off `Y`, for all fields and all sources; the landed results for
+the energy terms are analytic in the fields for one fixed functional, and local for fixed `g`.  This
+file carries a parameter `g` through the chain without re-proving it.
 
 * `analyticOnNhd_of_forall_clm`, `analyticOnNhd_mem_of_transfer`: a map into a finite-dimensional
-  space is analytic when every continuous linear functional of it is, and if a bound by `0` of
-  every function bounded by `0` on a set `Dm` transfers, then its values lie in `Dm`.  Applied to
+  space is analytic when every continuous linear functional of it is; if the bound `0` of every
+  function bounded by `0` on a set `Dm` transfers, the values of the map lie in `Dm`.  Applied to
   the triple map `((Θ, ψ̂), w) ↦ (F₁(σ w, Θ), Sol(σ w, …), (Θ, ψ'))` (from
-  `fanLocalHat_analytic_cover`, `fanLocalHat_norm_le_cover`) and to the composition
-  `D2raw ∘ d1Triple` (from `localB_eTermFun_analytic`, `localB_eTermFun_bound`), this gives that the
-  maps are analytic and take values in the realizable triples, resp. in the chart of the old term;
-* `localB_mTermHat_integral_param`: the `ψ̂`-integral of the old-term functional `E (·) g` is
-  analytic in `((Θ, g), w)` and bounded by `Bd γ(K)`;
-* `localB_mTermHat_evTerm_xiFieldDom`: the clauses `analyticM` (jointly in the pair of fields and
-  the source) and the bound of `boundM` for one old label, for the term of `Y` read through the
-  cut-off `clipRaw 𝔹` on the class domain `Ξ^c_{k+1}(𝔹; 1, ε_{k+1})`.
+  `fanLocalHat_analytic_cover`, `fanLocalHat_norm_le_cover`) and to `D2raw ∘ d1Triple` (from
+  `localB_eTermFun_analytic`, `localB_eTermFun_bound`), the maps are analytic and take values in
+  the realizable triples, resp. in the chart of the old term, with no change to the landed proofs;
+* `localB_mTermHat_integral_param`: the `ψ̂`-integral of `E (·) g` is analytic in `((Θ, g), w)`
+  on the chart times `Sg` times the polydisc, and bounded by `Bd γ(K)`;
+* `localB_mTermHat_evTerm_xiFieldDom`: `analyticM` (jointly in the pair of fields and the source,
+  on the class domain times `Sg`) and the per-label bound of `boundM`, for the term of `Y` read
+  through the cut-off `clipRaw 𝔹`, `E` analytic on the chart times `Sg`;
+* `evTerm_congr_fun`, `evTerm_source_congr`: the term depends on a source parameter only through
+  its restriction to `X ⊆ X₁ ⊆ Y` (it vanishes unless `X₁ ⊆ Y`);
+* `localB_mTermHat_evTerm_local`: exact locality of the term on the class domain, for every source;
+* `fieldDom_completion_analytic_param`: the completion extension with an analytic parameter
+  (`fieldDom_completion_extension`, analyticity clause, for a function of the pair and a
+  parameter; the landed statement is the case without parameter, which this file does not edit);
+* `localB_mTermHat_evTerm_ext_loc`, `…_ext_an`, `…_ext`: the term composed with the completion
+  `cpl` at `Y`: the same value at two triples `(Ψ, h, g)`, `(Ψ', h', g')` equal on `Y` (all fields and
+  all sources: `localM`), equal to the recomputed term on the class domain (so `rotM`, `eucM`
+  transfer), analytic on the class domain times `Sg` (`analyticM`), and bounded there;
+* `analyticOnNhd_vec_sum`, `norm_sum_evTerm_vn_le_boundM`: the sum over old labels, componentwise,
+  and in the Euclidean norm of `ℂ^N` with the factor `√N` (`boundM`, with `≤`).
 -/
 
 @[expose] public section
@@ -787,5 +799,53 @@ theorem localB_mTermHat_evTerm_ext (htk : t = k + 1)
   ⟨hl1.1, hl1.2, hl2.1, hl2.2⟩
 
 end ParamM
+
+section Sum
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱa : ℝ}
+
+/-- **The vector of a family of component-wise analytic functions is analytic.**  A finite sum over
+labels, componentwise in `Fin N`. -/
+theorem analyticOnNhd_vec_sum {X τι : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X] {S : Set X}
+    (𝒯 : Finset τι) (T : Fin N → τι → X → ℂ)
+    (h : ∀ i, ∀ τ ∈ 𝒯, AnalyticOnNhd ℂ (T i τ) S) :
+    AnalyticOnNhd ℂ (fun x i => ∑ τ ∈ 𝒯, T i τ x) S := fun x hx =>
+  analyticAt_pi_iff.2 fun i => Finset.analyticAt_fun_sum _ fun τ hτ => h i τ hτ x hx
+
+/-- **The clause `boundM` for a sum of source terms of the localization expansion over old
+labels** (`norm_sum_evTerm_le_boundE` for the components of a vector).  The terms
+`evTerm … (X₁(τ)) (F i τ) Y u` of the labels `τ ∈ 𝒯E`, each of which satisfies the per-label bound
+`Eb_τ γ e^{-κ₀ d_{j_τ}(X_τ) - 2 κ_dec d̃^cov(Y)}` in every component `i` at the argument `u` (for the
+extended terms, `localB_mTermHat_evTerm_ext_an`, clause 4, at `u = (clipRaw 𝔹 (cpl p), g)`), with
+roots in `X₁(τ)` and per-site sums of `Eb_τ e^{-κ₀ d_{j_τ}(X_τ)}` at most `ρ_M`, add up in the
+Euclidean norm of `ℂ^N` to at most `√N E₀ e^{-κ sizeJ(Y)}`, for `Y ∈ 𝒟_{lev}`, a generating set of
+level `lev`, `γ ρ_M c₁ (L^{lev} L^{m₀ + m₁})^d ≤ E₀` and `κ ≤ 2 κ_dec - 1`.  The factor `√N`
+is `vn_le_sqrt_mul`. -/
+theorem norm_sum_evTerm_vn_le_boundM {τι ι U : Type*} [DecidableEq τι] [DecidableEq ι] [Fintype ι]
+    (cI : ι → ℕ × CTorus d L N₁ m₁ K) (𝒯E : Finset τι)
+    {Ga : GeneratingSet d L (N₁ * L ^ m₁) K ϱa} {lev m₀ : ℕ} (hGa : IsLevel Ga lev)
+    (hN : L ^ m₀ ∣ N₁) {Y : Set (CTorus d L N₁ m₁ K)} (hY : IsPolyDom m₀ lev Y)
+    (rE : τι → CTorus d L N₁ m₁ K) (jE : τι → ℕ) (XE 𝒦XE : τι → Set (CTorus d L N₁ m₁ K))
+    (hrE : ∀ τ ∈ 𝒯E, rE τ ∈ X1 Ga m₀ (jE τ) (𝒦XE τ))
+    (EbE : τι → ℝ) (hEb0 : ∀ τ ∈ 𝒯E, 0 ≤ EbE τ) {κ₀ ρE : ℝ} (hρE0 : 0 ≤ ρE)
+    (hρE : ∀ x : CTorus d L N₁ m₁ K, ∑ τ ∈ 𝒯E.filter (fun τ => rE τ = x),
+      EbE τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jE τ) (XE τ)) ≤ ρE)
+    {γ κdec κ E₀ : ℝ} (hγ : 0 ≤ γ) (hκ : κ ≤ 2 * κdec - 1)
+    (hE₀ : γ * ρE * c1 d L * ((L : ℝ) ^ lev) ^ d * ((L : ℝ) ^ (m₀ + m₁)) ^ d ≤ E₀)
+    (F : Fin N → τι → U → (ι → ℂ) → ℂ) (u : U)
+    (hT : ∀ i, ∀ τ ∈ 𝒯E, ‖evTerm cI Ga m₀ (X1 Ga m₀ (jE τ) (𝒦XE τ)) (F i τ) Y u‖ ≤ EbE τ * γ *
+      Real.exp (-κ₀ * treeLenCovOne m₀ (jE τ) (XE τ) - 2 * κdec * treeLenCov Ga m₀ Y)) :
+    Balaban.Multiscale.vn (fun i => ∑ τ ∈ 𝒯E,
+        evTerm cI Ga m₀ (X1 Ga m₀ (jE τ) (𝒦XE τ)) (F i τ) Y u) ≤
+      Real.sqrt N * (E₀ * Real.exp (-κ * sizeJ m₀ lev Y)) := by
+  have hE0 : 0 ≤ E₀ * Real.exp (-κ * sizeJ m₀ lev Y) := by
+    have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+    have : 0 ≤ γ * ρE * c1 d L * ((L : ℝ) ^ lev) ^ d * ((L : ℝ) ^ (m₀ + m₁)) ^ d := by positivity
+    exact mul_nonneg (this.trans hE₀) (Real.exp_pos _).le
+  exact vn_le_sqrt_mul hE0 fun i =>
+    norm_sum_evTerm_le_boundE cI 𝒯E hGa hN hY rE jE XE 𝒦XE hrE EbE hEb0 hρE0 hρE hγ hκ hE₀ (F i) u
+      (hT i)
+
+end Sum
 
 end Balaban.Localization
