@@ -28,7 +28,10 @@ ROOT.md are `rootedSum e y X` (the term of the root site `y = rootSite z` on the
   holds at every site; `finsum_polysAt_eq_of_sitesOf`: the same for `hDM` (Theorem 3.1 (b)).
   The two premises `hval`, `hrepl` are the open part of `hDz`, `hDM`: the family version of
   Theorem 3.1 (a)/(b) on the whole-level domain (complex non-constant `h` included) and the
-  replacement identity of the terms recomputed on `𝔹_{k+1}(Y⁺)` at its pairs.
+  replacement identity of the terms recomputed on `𝔹_{k+1}(Y⁺)` at its pairs;
+* `rootedDensity_paving_cov`: the paving covariance `hDzcov` of a density with a rooted expansion
+  from the covariance of its coefficients (the full-group covariance `hDzfull` is not of this
+  form).
 
 **The new level.**  `localClass_newLevel_of_expansion` assembles, for the class sequence
 `ε_j = P.eps d L j` and the larger sequence `εL_j = K_loc ε_j`, `K_loc = (2 K₁ + 2) C₁`
@@ -211,6 +214,54 @@ theorem finsum_polysAt_eq_of_sitesOf {N : ℕ}
   rw [finsum_mem_eq_finite_toFinset_sum _ hfin] at h
   simp only [Finset.sum_apply]
   exact h
+
+open Classical in
+/-- **The paving covariance of a density from the covariance of its cube-set expansion**
+(the input `hDzcov` of `localClass_centre_Eloc_eq_chart`): if `𝒟(rootSite z)(q) = Σ_T e q z T` on a
+set `S` and the coefficients are covariant under the paving group,
+`e (r q) (rootAct r z) (r • T) = e q z T`, then `𝒟(r y)(r q) = 𝒟(y)(q)` for `r` in the paving group
+and `q, r q ∈ S`.  (The covariance under the full group `fullJSymGroup` does not follow this way:
+a symmetry outside the paving group does not map `π_{k+1}`-cubes to cubes.) -/
+theorem rootedDensity_paving_cov {N : ℕ} (hN : L ^ m₀ ∣ N₁)
+    (S : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Prop)
+    (Dz : CTorus d L N₁ m₁ K → Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → ℂ)
+    (hDzblock : ∀ y y' q, blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y' → Dz y q = Dz y' q)
+    (e : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → RootIdx d L N₁ m₁ K →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ)
+    (hval : ∀ q, S q → ∀ z, Dz (rootSite z) q = ∑ T, e q z T)
+    {r : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hr : r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    (y : CTorus d L N₁ m₁ K) {q : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N} (hq : S q)
+    (hq' : S (actField r q.1, actField r q.2))
+    (hecov : ∀ z T, e (actField r q.1, actField r q.2) (rootAct r z) (cubeAct r T) = e q z T) :
+    Dz (r y) (actField r q.1, actField r q.2) = Dz y q := by
+  set z : RootIdx d L N₁ m₁ K := blockIndex y with hz
+  have hzy : rootSite z = blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y :=
+    rootSite_blockIndex y
+  have hbb : blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K
+        (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y) :=
+    (cbase_eq_self_of_aligned (aligned_cbase _)).symm
+  have h1 : Dz y q = Dz (rootSite z) q := hDzblock _ _ _ (by rw [hzy]; exact hbb)
+  have h2 : Dz (r y) (actField r q.1, actField r q.2) =
+      Dz (rootSite (rootAct r z)) (actField r q.1, actField r q.2) := by
+    refine hDzblock _ _ _ ?_
+    have hbb2 : blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K
+        (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K
+          (r (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y))) =
+        blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K
+          (r (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y)) :=
+      cbase_eq_self_of_aligned (aligned_cbase _)
+    rw [rootSite_rootAct, hzy, hbb2]
+    exact blockBase_perm_eq_of_blockBase_eq hr hbb
+  have hbij : Function.Bijective (cubeAct (m₀ := m₀) r) := by
+    refine Function.bijective_iff_has_inverse.2 ⟨cubeAct r⁻¹, fun T => cubeAct_cubeAct hN hr T,
+      fun T => ?_⟩
+    have := cubeAct_cubeAct hN (inv_mem hr) T
+    rwa [inv_inv] at this
+  rw [h1, h2, hval _ hq', hval _ hq]
+  exact (Fintype.sum_bijective _ hbij _ _ fun T => (hecov z T).symm).symm
 
 end Rooted
 
