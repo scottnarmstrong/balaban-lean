@@ -2447,3 +2447,4 @@ public import Balaban.Polymer.TwoTorusGapTowerEnergyGeom
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarkCorr
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarks
 public import Balaban.Polymer.TwoTorusGapTowerEnergyCoef
+public import Balaban.Polymer.TwoTorusGapTowerEnergyDirect
