@@ -2062,6 +2062,8 @@ public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedFinal
+public import Balaban.LargeField.R.RGasRepCoupled
+public import Balaban.LargeField.R.RGasRepDecor
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
@@ -2321,3 +2323,6 @@ public import Balaban.Polymer.TwoTorusGapDataTowerMem
 public import Balaban.Fluctuation.VacuumFlow
 public import Balaban.Fluctuation.VacuumStep
 public import Balaban.Fluctuation.VacuumDet
+public import Balaban.SmallField.IrrelTorusDefectGeom
+public import Balaban.SmallField.IrrelTorusDefectJet
+public import Balaban.SmallField.IrrelTorusDefectTail
