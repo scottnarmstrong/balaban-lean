@@ -553,3 +553,17 @@ on Z (so that no function is evaluated at C(s)ψ with ψ large), and that the bo
 only coupling between Z and its complement?
 
 (Details: `notes/phase1/FINALPHYS3.md` §§6–7.)
+
+### Item 24, second addendum (2026-10-17): no floor seems needed at the scales just below the last
+
+We traced the read regions of the step-k terms at the scales just below the last one. Only the aligned L-block
+cover of the polymer (the π′_k cubes, L cells of side M L^k) and its hull read L cells; everything else needs a
+fixed number of cells. Since a nonzero term lives on a union of π′_k cubes, a support of radius R already contains
+an L-block, so the L-block margin is bounded by the support itself, and the transport of the terms between two
+tori works for supports of radius below ℓ/20. The remaining range ℓ/20 ≤ R < ℓ/4 of the quarter box we handle by
+translation (for compact supports) and by the decay e^{−κ|X|} (for wide ones). The question: at these steps, do the
+papers' step-k terms for a polymer X read the full aligned L-block cover around X, and are they invariant under
+translation of X by multiples of M L^k? If both hold, no lower bound on the torus size is needed; if the terms are
+not translation invariant, is a floor such as the one in the Yang–Mills account intended?
+
+(Details: `notes/phase1/TORUSLAST2.md` §6.)

@@ -24,7 +24,7 @@ The last section lists the problems that have been resolved since the project st
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral remains); author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20 (proved), the rest of the quarter box in progress (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -349,6 +349,12 @@ truncation changes it by order one near the boundary. Root-F as stated carries n
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so
 either those terms are shown to be torus-local with a margin independent of L, or the statement needs a
 floor on the torus size. This is part of item 24.
+
+Progress (October 17, `notes/phase1/TORUSLAST2.md` §6): at those scales only the aligned L-block cover of a
+polymer and its hull read L cells; every other ingredient needs a fixed number of cells. A nonzero term lives on
+a union of such blocks, so its support already contains an L-block, and the transport between two tori holds for
+supports of radius below ℓ/20 without any floor (proved). The rest of the quarter box is to be handled by
+translation covariance (being proved) and the decay of wide terms; the question is in item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
