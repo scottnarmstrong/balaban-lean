@@ -81,6 +81,15 @@ theorem avgDomM_complete (i₀ : Fin N) (νj : ℝ) :
   show avgDomM P a (physMass L k (ν k)) Tm j i₀ νj = _
   rw [hμ, avgDom_eq]
 
+/-- The landed class carries the complex rotation invariance `CRotE` of the second version in its
+complete regime. -/
+theorem cRotE_of_landed (hF : IsSFFamily P β ν a Tm ρd Ek) :
+    ∀ (N₁ : ℕ) [NeZero N₁], CRotE P ((⟨k₀, ν⟩ : Regime L) |> fun Rg => completeXiDom P Rg a N₁)
+      (Tm N₁) := fun N₁ _ => by
+  show CRotE P (xiFieldDom (aIdeal L k (a k)) (physMass L k (ν k)) (P.eps d L)) (Tm N₁)
+  rw [hμ]
+  exact fun j hj1 hjk y X hX hy R hR Ψ h h1 h2 => (hF.torus N₁).rotE j hj1 hjk y X hX hy R hR Ψ h h1 h2
+
 /-- **Comparison for the premises of the anisotropic I-6**: for a member of the landed class in
 its complete regime, the statement `IsSFFamily2.premisesTermAnisoInf` of the second version at the
 member `toXi` is the landed statement `Def6.IsSFFamily.premisesTermAnisoInf`. -/
@@ -95,7 +104,7 @@ theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek)
       (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDomInf P β ν a Tm j i₀) := by
-  have h := (hF.toXi 0 hS hμ).premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
+  have h := (hF.toXi 0 hS hμ).premisesTermAnisoInf (cRotE_of_landed hμ 0 hF) hd hL hϱ hj1 hjk hsmall hκ hne
   rw [liftDomInfM_complete hμ 0] at h
   exact h
 
@@ -146,7 +155,7 @@ theorem renormalization_aniso_of_v2 (d L N m₁ : ℕ) [NeZero L] (P : Consts)
   refine ⟨C, hC0, ?_⟩
   intro k ϱ β ν a Ek Tm ρd hF hS hβν
   have hμ : physMass L k (ν k) = Def6.bgMass L k (β k) (ν k) := physMass_eq_bgMass_of_lt hβν
-  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hS hμ)
+  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hS hμ) (cRotE_of_landed hμ 0 hF)
   simp only [avgFamilyAM_complete hμ 0, avgDomM_complete hμ 0] at h
   exact h
 

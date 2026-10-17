@@ -81,7 +81,7 @@ theorem sfTermClausesStrong_localBZeroTerms {P : Consts} (hE₀ : 0 ≤ P.E₀)
     intro j _ hjk y r _ Ψ h _ _
     rw [Eloc_localBZeroTerms, Eloc_localBZeroTerms]
   rotM := by
-    intro j _ _ x X _ _ R hR Ψ h g _ _
+    intro j _ _ x X _ _ R hR Ψ h g _ _ _ _
     show (0 : Fin N → ℂ) = R.mulVec 0
     simp
   eucM := by intros; rfl

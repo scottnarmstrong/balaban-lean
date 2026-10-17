@@ -339,6 +339,7 @@ theorem aCoef_avgFamilyAM_eq_v1 {d L N m₁ k : ℕ} [NeZero L] {ϱ : ℝ} {P : 
     {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
       (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
     (h : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρ Ek)
+    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     {sf : SFData d L m₁ k N ϱ}
     {St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d L N₁ m₁ k N} {hv : EuclideanSpace ℝ (Fin N)}
     {vc : CorrCoef d} (hD : D1Corr P.m₀ sf St hv vc) (hTm : sf.Tm = Tm)
@@ -347,7 +348,7 @@ theorem aCoef_avgFamilyAM_eq_v1 {d L N m₁ k : ℕ} [NeZero L] {ϱ : ℝ} {P : 
     aCoef (avgFamilyAM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j)
         (anisoRadius d L N P j)) i₀ (nuIdeal L k (Rg.ν k) j) x = vc.v1 j x := by
   subst hTm
-  obtain ⟨β', ν', hν', hμ, hF'⟩ := h.toLanded
+  obtain ⟨β', ν', hν', hμ, hF'⟩ := h.toLanded hCR
   let sf' : SFData d L m₁ k N ϱ := { sf with β := β', ν := ν', a := a }
   have hνk : sf'.ν k = sf.ν k := by
     show ν' k = sf.ν k

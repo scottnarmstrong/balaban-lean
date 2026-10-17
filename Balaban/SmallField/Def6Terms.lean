@@ -152,9 +152,19 @@ def actField (g : Equiv.Perm (CTorus d L N₁ m₁ k)) (Ψ : Fld d L N₁ m₁ k
 def rotField (R : Matrix (Fin N) (Fin N) ℂ) (Ψ : Fld d L N₁ m₁ k N) :
     Fld d L N₁ m₁ k N := fun x => R.mulVec (Ψ x)
 
-/-- Complex orthogonal matrices in `O(N)(ℝ)` or `SO(N, ℂ)`: `Rᵀ R = 1` and `R` real or `det R = 1`. -/
+/-- Real orthogonal matrices `O(N, ℝ)`, as complex matrices: `Rᵀ R = 1` and all entries real.  These
+are the rotations of the invariance clauses of the small-field class (P1 (H.4), P4 (H.3)). -/
 def IsRot (R : Matrix (Fin N) (Fin N) ℂ) : Prop :=
+  R.transpose * R = 1 ∧ ∀ i j, (R i j).im = 0
+
+/-- Complex orthogonal matrices in `O(N, ℝ)` or `SO(N, ℂ)`: `Rᵀ R = 1` and `R` real or
+`det R = 1`.  The frame bridges of the renormalization step use them; they are obtained from the
+real rotations of `IsRot` by analytic continuation along a path (`Def6RotContinuation`). -/
+def IsCRot (R : Matrix (Fin N) (Fin N) ℂ) : Prop :=
   R.transpose * R = 1 ∧ ((∀ i j, (R i j).im = 0) ∨ R.det = 1)
+
+theorem IsRot.isCRot {R : Matrix (Fin N) (Fin N) ℂ} (h : IsRot R) : IsCRot R :=
+  ⟨h.1, Or.inl h.2⟩
 
 
 /-! ### The dictionary with `ℤ^d` (infinite volume) -/

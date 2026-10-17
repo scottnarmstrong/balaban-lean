@@ -308,7 +308,7 @@ theorem pinTerms_clauses {P : Consts} {cj : ℕ → ℝ} {Dom : FieldDom d L N�
     intro j _ hjk y r _ Ψ h _ _
     rw [Eloc_pinTerms, Eloc_pinTerms]
   rotM := by
-    intro j _ _ x X _ _ R hR Ψ h g _ _
+    intro j _ _ x X _ _ R hR Ψ h g _ _ _ _
     show ((wCoef P.κ cj j X : ℝ) : ℂ) • mCore (R *ᵥ h x) =
       R *ᵥ (((wCoef P.κ cj j X : ℝ) : ℂ) • mCore (h x))
     rw [mCore_rot hR.1, Matrix.mulVec_smul]
