@@ -1423,6 +1423,7 @@ public import Balaban.LargeField.R.ZeroDomainSepRho
 public import Balaban.LargeField.R.DenominatorRot
 public import Balaban.LargeField.R.RhoZeroPhysical
 public import Balaban.LargeField.R.RopPhysical
+public import Balaban.LargeField.R.RopRestricted
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
@@ -2045,6 +2046,8 @@ public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RRemovedKernelPre
 public import Balaban.LargeField.R.RTransport
+public import Balaban.LargeField.R.RTransportDensity
+public import Balaban.LargeField.R.RTransportFactor
 public import Balaban.LargeField.R.RRemovedLocality
 public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
@@ -2066,6 +2069,10 @@ public import Balaban.SmallField.XiMassResponseBounds
 public import Balaban.SmallField.XiMassResponseXi
 public import Balaban.Fluctuation.LocalClassBirthResponse
 public import Balaban.Fluctuation.LocalClassBirthChart
+public import Balaban.LargeField.R.CoreResponse
+public import Balaban.LargeField.R.CoreResponseSum
+public import Balaban.LargeField.R.CoreResponseHess
+public import Balaban.LargeField.R.CoreResponseOsc
 public import Balaban.SmallField.XiUnitWitness
 public import Balaban.Green.FinalTailGas
 public import Balaban.LargeField.R.RRemovedWindowGen
