@@ -64,3 +64,7 @@ times e^{E_k|Z|} (absorbed in K for rem, as in III.8.7), against the factor F of
 ## Status (W878, 2026-10-17): leaves 2 and 3
 - Leaf 3 DONE `R/RRemovedTau.lean`: `log_b_le_lamHat`, `p2Run_le_A2_lamHat_pow`, `removed_kerBound_logC_of_window` (moved into `RRemovedFactor.lean`, replacing `removed_kerBound_of_window`, whose conclusion dropped `log C(a)`), `norm_integral_le_of_kerBound`, `norm_tau_le_of_removed_kernels`, and the composed `…_halo_of_removed_factor_run_of_kernel` (kernel hypotheses in place of `hrem`; units: gas `H = H_k M^d`, card = number of cubes `c`).
 - Leaf 2 DONE `R/RRemovedLres.lean`: (III.8.4) `lres_lhs_le` for any `C_R` at least an explicit constant (`Typing.CR` is not tied to Definition III.8.6, none added), `CR_le_A2_pow_of_large`, `CR_window_of_large` (`hCR` of leaf 1 for `λ ≥ max {1, C_R/A₂}`), `lres_at_scale`.
+
+## Status (W880, 2026-10-17): leaf 4
+- `R/RRemovedShell.lean`: product-set, shell and ball bounds (<= 1, per-variable radii) on `outPartMeasure` / `subMeasure`; `chiDD_norm_lt`. `R/RRemovedShellTree.lean`: Fubini along a rooted forest of output variables, `outPartMeasure_chiTilde_le` (ball 3 delta_k per block from `ChiTildeProp`). `R/RRemovedShellVol.lean`: per-block arithmetic `tree_block_factor_le`, `zero_block_factor_le` (C_vol = log(v_N max{3,C6}^N A0^N)), `volume_zeroCutoff_le` (chi_{Z0} ball), `removed_cubeVol_le` (|Z|_k <= (M crit_k)^d).
+- Not tied: the change of variables psi'' = psi~ - psi^0 and the shell predicate for psi_{k1} on U~3 \ Z_{k1} (no landed predicate; leaf 5).
