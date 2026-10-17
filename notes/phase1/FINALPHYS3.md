@@ -94,3 +94,47 @@ Check first whether a parameter-integral analyticity lemma on a finite measure a
 - `Balaban/Green/FinalConstants.lean`: L-C. In the variable psi the physical field is phi_0 + beta^{-1/2} C(s) psi, so an interaction analytic on the radius-Rphys polydisc around phi_0 has radius beta^{1/2} Rphys in psi; the condition B rho < R becomes B(kappa) beta^{-1/2} p_1 < Rphys (`cutoffInteraction_final_phys`, `cutoffInteraction_final_fluctRadius` with Rphys = landed `fluctRadius`).
 - Which side wins: the landed hypothesis of Lemma 2.5 is B_5 beta^{-1/2} p_1 <= fluctRadius; here B_5 is replaced by B(kappa) >= 8/3 e^{pdH kappa}/sqrt(finalGap), pdH 3 = 13357 (`pdH_three`). For fixed p_1 it holds for beta >= (B p_1/Rphys)^2 + 1 (`cutConst_mul_lt_of_large`); if p_1 is taken proportional to beta^{1/2} delta it is a smallness condition on that proportionality constant.
 - NOT done: the identification of the actual F_{k_f} (an F on the polydisc of radius fluctRadius around the background, bounded) with a landed declaration; F, phi_0, B' stay hypotheses. L-D (tail) open.
+
+## W887 status (17 October 2026): blocker 5, L-C decided
+- Case (a): the Root-F cutoff is `p₁ = pLog A₁ p β = A₁ (log β)^p` (DAPhysicalCutoff), small against `√β`, and `fluctRadius` does not depend on `β`; so `B(κ) β^{-1/2} p₁ < fluctRadius` holds as it stands for `β ≥ max 1 (pLogThreshold A₁ p (fluctRadius/(2(B(κ)+1))))`. No cutoff smaller by a constant factor is needed; the tail region (L-D) is unchanged. The "p₁ proportional to β^{1/2} δ" reading of W790 is not the landed choice.
+- `Balaban/Green/FinalRadiusCompare.lean`: `cutConst_mul_pLog_lt`, `cutoffInteraction_final_pLog` (analyticity of J_ρ on the polydisc at ρ = pLog). F_{k_f} itself is still a hypothesis.
+
+## 6. W888 (17 October 2026): the tail region sup|psi| > rho. Read: P7 pp. 529-533 text (4.1)-(4.14); P4 pp. 719-720 text (6.1)-(6.7);
+P5 (1.24)-(1.31), (2.5)-(2.9); P3 (CMP 182) sections 1-2 (text layer, `pdftotext`). PROVED = on those pages; OPEN = not decided.
+**Verdict: neither T1 nor T2 as stated; the source's route is T1 with ABSOLUTE bounds on the large blocks and no s on them.**
+1. **PROVED (P4 p.720 (6.1)-(6.3), (6.6)).** In the small-field last step there is NO tail region: chi_{k_1} is already part of the
+   density rho_{k_1}, with domain Xi(1,delta) in Psi(3 delta) (6.1), and chi({|psi| < p_1}) is the cutoff of the reference variable (6.6).
+   The complement of a cutoff is produced one step earlier by the decomposition of unity 1 = prod_{cubes}(chi + chi^c) (P5 (2.5)-(2.6),
+   p. 502), whose terms P_{k+1} are the large-field regions; this is T1 (a product over cubes), carried out in the previous step.
+2. **PROVED (P7 p.529 (4.1), p.531 (4.9)-(4.11)).** In the general last step P7 does NOT introduce (2.6) again ("we do not introduce
+   now the decomposition of unity"). The density is sum over Z_k of rho'_k(Z_k) chi_k(Z_k) exp(A_k + F_k + R^(k))(Z_k^c): F, R^(k) are
+   evaluated on Z_k^c only (|psi - h| < (5L+3) delta_k there, P7 p.529); on Z the weight is the large-field density rho'(Z), and the
+   operator T0_{k+1}(Z, .) is an integration "independent of any spin variable", bounded ABSOLUTELY by (4.10)=(1.31)[5]:
+   exp(-p_2(beta) - H_k |Z|) sup chi|F| (the Gaussian tail e^{-p_2} per region, e^{-H_k|Z|} for large Z; P5 (1.26)-(1.31)).
+3. **PROVED (P7 (4.11)-(4.14)).** Z-components enter the Mayer expansion as polymers: boundary terms B'' with localization
+   domain meeting both Z_i and Z_i^c are kept, and a polymer X = (union X_i) U (union Z_ir) has activity bounded by (4.12) =
+   prod_r exp(-p_2 - H|Z_ir| + ...) * prod_i eps exp(-(3/2 kappa - kappa_0) d(X_i)); (4.13): total <= eps^-2 e^{-p_2} e^{-(...) d(X)}.
+   So the large field activities are separate polymers with ABSOLUTE bounds (T2-like), but they sit INSIDE the same expansion,
+   interacting with the small-field polymers through the boundary terms (not T2's "separate sum", not decoupled by an s on Z).
+4. **PROVED (P3 sections 1-2, text).** P3 localizes functions of the BACKGROUND configurations (solutions of the variational problems of [3])
+   through the random walk expansion (2.8) of G(s) on small-field domains; no Gaussian covariance interpolation, no treatment of
+   large-field blocks. So the unsettled question of section 2(d) is answered for the source: the s-expansion is applied to Z^c only;
+   the repository's C(s) (Lemma AE, complex s) is the repository's device (as already noted in section 1) and the source gives no
+   rule for Z. Decision for the Lean route: **s acts on psi restricted to small-field blocks; on Z the weight is evaluated at s = 1
+   with the real covariance, and is bounded absolutely by the tail of the standard Gaussian gamma on psi.**
+5. **Key observation (elementary).** Because psi is the unit Gaussian (P4 (6.6)), gamma is a product over sites: the tail of a block
+   does not depend on the covariance, and gamma{psi: |psi_x| > rho for all x in Z} <= (2^{dim/2} e^{-rho^2/4})^{|Z|}: the factor
+   e^{-c rho^2 |Z|} replaces e^{-H_k|Z|} (rho = p_1 = A_1 (log beta)^p gives e^{-c' (log beta)^{2p} |Z|}).
+**OPEN (flagged):** (i) the identification of the large-field density rho'(Z) of the repository (LargeField/*) with the weight bounded
+here, and the cross boundary terms of (4.11) (the F_{k_f} values on Z^c with Z-dependent background); (ii) whether Root-F's polymer
+expansion (Polymer/*) accepts mixed small/large polymers with these activities.
+**Lean leaves** (each <= 300 lines; inputs: landed `pdGaussian`, `lintegral_gauss_space`, `PiTools.lintegral_fintype_prod_eq_prod`,
+`oneSiteGaussian_tail_le`, `cutoffInteraction_final_pLog`):
+ T-1 `Green/FinalTailBound.lean`: `pdGaussian_tail_all_le` (all sites of Z large), `pdGaussian_tail_exists_le` (one block), box complement.  [W888, done]
+ T-2 `Green/FinalTailBlocks.lean`: product over blocks z in Z of the block-large events (selection of one site per block) <= prod_z |z| tail.
+ T-3 `Green/FinalTailSplit.lean`: 1 = prod_z(chi_z + 1 - chi_z) as an exact set-integral identity over subsets Z of blocks (landed `integral_eq_sum_largeSites`
+     in `LargeField/Base/KF0CutoffSplit.lean` is the one-site-set version; reuse for the block version).
+ T-4 `Green/FinalTailActivity.lean`: |int_{Z large, rest small} F(C(1) psi) d gamma| <= sup|F| * tail^{|Z|}, giving the per-Z activity (4.12) with e^{-H|Z|} := tail^{|Z|}.
+ T-5 (orchestrator/author): bridge of (i) and (ii).
+**W889 status (T-2..T-4 proved).** `Green/FinalTailBlocks.lean` `pdGaussian_tail_blocks_le` (disjoint blocks of Z all large: measure <= prod_z |z| t); `Green/FinalTailSplit.lean` `integral_eq_sum_blocksSplit` (exact sum over Z of integrals over {Z large, rest small}, any measure); `Green/FinalTailActivity.lean` `norm_setIntegral_blocksSplit_le` (|int| <= B prod_z |z| t, no s on Z).
+Here t = 2^{N/2} e^{-rho^2/4}, so e^{-H_z} = |z| 2^{N/2} e^{-rho^2/4}, H_z = rho^2/4 - log|z| - (N/2) log 2; at rho = p_1 = A_1 (log beta)^p this is (A_1^2/4)(log beta)^{2p} - O(log|z|) per block (blocks of bounded volume: H = (A_1^2/4)(log beta)^{2p}(1 - o(1))).
