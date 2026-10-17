@@ -194,4 +194,25 @@ theorem amplitude_small_of_hnumH (d L N k : ℕ) (a₁ κ cψ : ℝ) (cc : ℂ) 
 
 end NumSmall
 
+section Margin
+
+/-- **The corner margin against `hr₀` at `L = d = 3`.**  The margin `r₀ ≤ (L - 1) L^{m₀}` of a site
+in a corner of its cell of side `L^{k+1+m₀+m₁}` (`X₁` contains the `(L - 1)` cells around it)
+together with `BgSetting.hr₀ : 4 d L^3 ≤ r₀` forces `m₀ ≥ 5` at `L = d = 3`: for `m₀ ≤ 4` there is
+no `r₀`. -/
+theorem no_corner_margin_of_le_four {r₀ : ℝ} {m₀ : ℕ} (hm : m₀ ≤ 4)
+    (hr₀ : 4 * (3 : ℕ) * ((3 : ℕ) : ℝ) ^ 3 ≤ r₀) :
+    ¬ r₀ ≤ (((3 : ℕ) : ℝ) - 1) * ((3 : ℕ) : ℝ) ^ m₀ := by
+  intro h
+  have h3 : ((3 : ℕ) : ℝ) ^ m₀ ≤ ((3 : ℕ) : ℝ) ^ 4 :=
+    pow_le_pow_right₀ (by norm_num) hm
+  norm_num at hr₀ h h3
+  nlinarith
+
+/-- For `m₀ = 5` the corner margin and `hr₀` are compatible at `L = d = 3` (`r₀ = 324 ≤ 486`). -/
+theorem corner_margin_five : 4 * (3 : ℕ) * ((3 : ℕ) : ℝ) ^ 3 ≤
+    (((3 : ℕ) : ℝ) - 1) * ((3 : ℕ) : ℝ) ^ 5 := by norm_num
+
+end Margin
+
 end Balaban.Fluctuation
