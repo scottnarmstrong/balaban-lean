@@ -59,4 +59,18 @@ theorem window_pt_combine_ennreal {c0 rd cN cI Bq g A AD AD'' Ckk : ℝ} (hc0 : 
   rw [← ENNReal.ofReal_mul (by positivity), ← ENNReal.ofReal_mul (by positivity)]
   exact ENNReal.ofReal_le_ofReal (window_pt_combine hc0 hc01 hrd hcN hcI hsum hmono hquot)
 
+/-- **`hbG` assembled from its parts**: the integral `Iint` of the Gaussian chain equals `cN e^{-g}`, `Qtot = cI B_q`, and the
+denominator `rd` equals the integral `I`. -/
+theorem window_pt_combine_final {c0 rd I cN cI Bq g A AD AD'' Ckk : ℝ} {Iint Qtot : ℝ≥0∞} (hc0 : 0 ≤ c0)
+    (hc01 : c0 ≤ 1) (hrd : 0 < rd) (hrdI : rd = I) (hcN : 0 < cN) (hcI : 0 < cI) (hsum : AD - Ckk ≤ A)
+    (hmono : AD'' ≤ AD) (hquot : Real.exp (-g - (AD'' - Ckk)) * cN / cI / I ≤ Bq)
+    (hint : Iint = ENNReal.ofReal (cN * Real.exp (-g))) (hQ : Qtot = ENNReal.ofReal (cI * Bq)) :
+    ENNReal.ofReal (c0 / rd) * ENNReal.ofReal (Real.exp (-A)) * Iint ≤ Qtot := by
+  subst hint hQ hrdI
+  exact window_pt_combine_ennreal hc0 hc01 hrd hcN hcI hsum hmono hquot
+
+/-- A positive real integral gives a positive integral in `ℝ≥0∞`. -/
+theorem window_pos_of_eq {Iint : ℝ≥0∞} {x : ℝ} (h : Iint = ENNReal.ofReal x) (hx : 0 < x) : 0 < Iint := by
+  rw [h]; exact ENNReal.ofReal_pos.mpr hx
+
 end Balaban.LargeField
