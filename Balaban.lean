@@ -2161,3 +2161,4 @@ public import Balaban.Polymer.TwoTorusGapClose
 public import Balaban.Polymer.TwoTorusGapCloseResum
 public import Balaban.Polymer.TwoTorusGapIdentEnergy
 public import Balaban.Polymer.TwoTorusGapIdent
+public import Balaban.Polymer.TwoTorusGapIdentBlock
