@@ -2446,3 +2446,4 @@ public import Balaban.Inhabited.StepIdentityFibreExplicitCore
 public import Balaban.Polymer.TwoTorusGapTowerEnergyGeom
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarkCorr
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarks
+public import Balaban.Polymer.TwoTorusGapTowerEnergyCoef
