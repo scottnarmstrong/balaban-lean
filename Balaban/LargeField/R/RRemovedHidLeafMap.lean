@@ -39,13 +39,14 @@ theorem forest_leaf_map (r : {r : ι // pa r = r}) (B : BlockTree m k1 (sc r.1))
       (Finset.univ.filter fun s : X => ls s = l).card = m ^ (sc (lp l) - 1)) :
     ∃ lf : X → Fin B.nLeaf,
       (∀ x, (Finset.univ.filter fun s : X => lf s = x).card = m ^ B.leafScale x) ∧
-      ∀ s, B.leafScale (lf s) = sc (lp (ls s)) - 1 := by
+      (∀ s, B.leafScale (lf s) = sc (lp (ls s)) - 1) ∧ ∀ s, (el.symm (lf s)).1 = ls s := by
   have hls : ∀ l : {l : Lf // pa^[Fintype.card ι] (lp l) = r.1},
       B.leafScale (el l) = sc (lp l.1) - 1 := by
     intro l
     unfold BlockTree.leafScale
     rw [hleaf l, hsc]
-  refine ⟨fun s => el ⟨ls s, hroot s⟩, fun x => ?_, fun s => hls ⟨ls s, hroot s⟩⟩
+  refine ⟨fun s => el ⟨ls s, hroot s⟩, fun x => ?_, fun s => hls ⟨ls s, hroot s⟩,
+    fun s => by simp⟩
   obtain ⟨l, rfl⟩ := el.surjective x
   rw [hls l, ← hcardL l.1 l.2]
   congr 1

@@ -157,6 +157,25 @@ theorem blk_eq_top (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' + 1 
   have h1 := histScale_eq (M := M) (c := 1) (M1 := M) (by simp) hnn (L := S.L) hq hmK
   simpa using h1
 
+theorem mem_fib_cast (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' + 1 ≤ K) {q : ℕ}
+    (hq : q ≤ m' + 1) (yq : BlockAt S n M K q) :
+    ∀ s : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)),
+      s ∈ fib S.d S.L (M * n (m' + 1)) (m' + 1) q (torusCast (blk_eq_top hnn hmK hq).symm yq) ↔
+        jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s) = yq := by
+  intro s
+  rw [mem_fib]
+  have := jBlock_torusCast (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (N₀' := M * n K)
+    (k := m' + 1) (K := K) (j := q) hq (by omega) (fine_eq_top hnn hmK).symm (blk_eq_top hnn hmK hq) s
+  rw [this]
+  constructor
+  · intro h
+    have h' := congrArg (torusCast (blk_eq_top hnn hmK hq)) h
+    rwa [torusCast_cast_symm] at h'
+  · intro h
+    have h' := congrArg (torusCast (blk_eq_top hnn hmK hq).symm) h
+    rwa [torusCast_symm_cast] at h'
+
+
 theorem card_leaf_sites (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' + 1 ≤ K) {q : ℕ}
     (hq : q ≤ m' + 1) (yq : BlockAt S n M K q)
     (zset : Finset (Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))))
@@ -166,21 +185,7 @@ theorem card_leaf_sites (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m'
       jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s.1) = yq).card =
         (S.L ^ S.d) ^ q := by
   classical
-  have hfib : ∀ s : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)),
-      s ∈ fib S.d S.L (M * n (m' + 1)) (m' + 1) q (torusCast (blk_eq_top hnn hmK hq).symm yq) ↔
-        jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s) = yq := by
-    intro s
-    rw [mem_fib]
-    have := jBlock_torusCast (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (N₀' := M * n K)
-      (k := m' + 1) (K := K) (j := q) hq (by omega) (fine_eq_top hnn hmK).symm (blk_eq_top hnn hmK hq) s
-    rw [this]
-    constructor
-    · intro h
-      have h' := congrArg (torusCast (blk_eq_top hnn hmK hq)) h
-      rwa [torusCast_cast_symm] at h'
-    · intro h
-      have h' := congrArg (torusCast (blk_eq_top hnn hmK hq).symm) h
-      rwa [torusCast_symm_cast] at h'
+  have hfib := mem_fib_cast hnn hmK hq yq
   have h2 := card_fib (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (q := m' + 1) hq
     (torusCast (blk_eq_top hnn hmK hq).symm yq)
   have h3 : (S.L ^ q) ^ S.d = (S.L ^ S.d) ^ q := by rw [← pow_mul, ← pow_mul, mul_comm]

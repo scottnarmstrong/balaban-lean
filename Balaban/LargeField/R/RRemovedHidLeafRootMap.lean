@@ -64,7 +64,10 @@ theorem root_leaf_map (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' +
       jBlock S.d S.L (M * n K) K (m' + 1) (torusCast (fine_eq_top hnn hmK).symm s) = y) :
     ∃ lf : ↥(fib S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1) z) → Fin B.nLeaf,
       (∀ x, (Finset.univ.filter fun s => lf s = x).card = (S.L ^ S.d) ^ B.leafScale x) ∧
-      ∀ s, (H.locGen Z M hmK hL hR).layerIndex s.1 = B.leafScale (lf s) := by
+      (∀ s, (H.locGen Z M hmK hL hR).layerIndex s.1 = B.leafScale (lf s)) ∧
+      ∀ s, (el.symm (lf s)).1.1.1 = ⟨(H.locGen Z M hmK hL hR).layerIndex s.1,
+        jBlock S.d S.L (M * n K) K ((H.locGen Z M hmK hL hR).layerIndex s.1)
+          (torusCast (fine_eq_top hnn hmK).symm s.1)⟩ := by
   classical
   have hnr : nd ⟨m' + 1, y⟩ := by
     have := r.1.2
@@ -187,9 +190,11 @@ theorem root_leaf_map (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' +
       · rw [hl, hry]
     rw [Finset.filter_congr (fun s _ => key s)]
     exact card_leaf_sites hnn hmK (by omega) yq _ hsub
-  obtain ⟨lf, hc, hs⟩ := forest_leaf_map (m := S.L ^ S.d) (fun i : {b : Σ s, BlockAt S n M K s // nd b} => i.1.1) pa
+  obtain ⟨lf, hc, hs, hlf⟩ := forest_leaf_map (m := S.L ^ S.d) (fun i : {b : Σ s, BlockAt S n M K s // nd b} => i.1.1) pa
     (fun l => l.1.2) r B e el hsc hleaf ls hroot (fun l hl => by convert hcardL l hl)
-  refine ⟨lf, hc, fun s => ?_⟩
+  refine ⟨lf, hc, fun s => ?_, fun s => ?_⟩
+  swap
+  · rw [hlf s]; exact hls s
   rw [hs s]
   have hpar := leaf_parent nd (ls s) (hls s)
   show _ = (ls s).1.2.1.1 - 1
