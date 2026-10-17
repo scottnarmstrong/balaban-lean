@@ -1808,6 +1808,7 @@ public import Balaban.Green.FinalRadiusCompare
 public import Balaban.Green.FinalRadiusClass
 public import Balaban.Green.FinalPolydiscClass
 public import Balaban.Green.FinalPolydiscLocal
+public import Balaban.Green.FinalLocalBound
 public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
