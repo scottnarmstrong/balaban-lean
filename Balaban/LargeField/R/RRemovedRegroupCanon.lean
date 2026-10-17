@@ -18,7 +18,9 @@ public import Balaban.LargeField.R.RRemovedRegroupOut
   outputs satisfies the typing hypotheses of `exists_regroup` (`hTo`, `hTi`) and the cover
   hypothesis `hTm` of `exists_parC`;
 * `core_snd_eq`: a configuration of the internal variables of `C` whose vector of coordinates is
-  that of the core coordinates of `x` is the restriction `ρ_C x`.
+  that of the core coordinates of `x` is the restriction `ρ_C x`;
+* `core_weight_eq`: the weight of the operator of `C` in the unrolled weight is its weight at the
+  core variables and window parameters read from `Θ`.
 -/
 
 @[expose] public section
@@ -141,6 +143,67 @@ theorem canonT_spec {k1 m : ℕ} (h : k1 < m) (hmK : m ≤ K) {Z : H.Comp m}
     obtain ⟨-, -, e3⟩ := e1
     have hb' : b = y'.1 := e3
     exact margin_not_ZBlk_of (by omega) C.2.1 C'.2.1 b hV hnz (hb' ▸ y'.2.2)
+
+/-- **The weight of a core operator in the coordinates of `Θ`** (step (3)): the weight of the
+operator of the ancestor `C` at the outputs `ancOut C P (ρ_P x)` and the variables `ρ_C x` read from
+`x` is the weight at the core outputs and variables `cC` (the values of `Θ` on the core coordinates,
+`hc1`, `hc2`) merged with the parameters `parC wT`, `wT` the values of `Θ` on the window
+coordinates in `T` (`hwT`).  This is the integrand of `hcore_of_anc`, with `parC par w C` the value
+of `parC` at the `T`-component of `w`. -/
+theorem core_weight_eq {k1 m : ℕ} (h : k1 < m) (hmK : m ≤ K) {Z : H.Comp m}
+    (hq : ∀ s, k1 < s → ∀ Y : H.Comp s, H.Desc s m Y Z → ¬ IsKept H s Y)
+    (T : Set ↥(locOp geo cs SD KD hH lab m hmK Z).A)
+    (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) m Z), ↥(H.parts k1 P.1)),
+        OutIdx (K := K) (M := M) R C.2.1 ⊕
+          ↥(locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).A) →
+        ↥(locOp geo cs SD KD hH lab m hmK Z).A)
+    (hκ2 : ∀ (C : Σ P : ↥(H.ancFin (k1 + 1) m Z), ↥(H.parts k1 P.1))
+        (q : ↥(locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).A),
+        (κc ⟨C, Sum.inr q⟩).1 =
+          (⟨⟨Fin.castLE (mem_ancFin.mp C.1.2).le (ancInc (by omega) C.2.2 q.1).1.1,
+              (ancInc (by omega) C.2.2 q.1).1.2.1, (ancInc (by omega) C.2.2 q.1).1.2.2⟩,
+            inclVar_mem hmK (mem_ancFin.mp C.1.2) (ancInc (by omega) C.2.2 q.1)⟩ :
+            InternalVars (H.localHistory M K m Z) m))
+    (parC : (∀ t : ↥T, VarVal N t.1.1.isSpin) →
+        ∀ C : (Σ P : ↥(H.ancFin (k1 + 1) m Z), ↥(H.parts k1 P.1)),
+          OutPar N R (H.localHistory M K k1 C.2.1) k1)
+    (C : Σ P : ↥(H.ancFin (k1 + 1) m Z), ↥(H.parts k1 P.1))
+    (ρP : SubCfg N (H.localHistory M K m Z) m (locOp geo cs SD KD hH lab m hmK Z).A →
+      SubCfg N (H.localHistory M K (k1 + 1) C.1.1) (k1 + 1)
+        (locOp geo cs SD KD hH lab (k1 + 1) (by omega) C.1.1).A)
+    (hρP : ∀ x p, ρP x p = x ⟨_, locOp_A_incl geo cs SD KD hmK (mem_ancFin.mp C.1.2)
+      (fun t ht Y' h' => hq t (by omega) Y' h') p.1 p.2⟩)
+    (ρC : SubCfg N (H.localHistory M K m Z) m (locOp geo cs SD KD hH lab m hmK Z).A →
+      SubCfg N (H.localHistory M K k1 C.2.1) k1
+        (locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).A)
+    (hρC : ∀ x p, ρC x p = x ⟨_, locOp_A_incl geo cs SD KD hmK
+      (desc_of_parts C.2.2 (mem_ancFin.mp C.1.2))
+      (fun t ht Y' h' => hq t (lt_of_le_of_lt le_rfl ht) Y' h') p.1 p.2⟩)
+    (hpar : ∀ (ρP' : SubCfg N (H.localHistory M K m Z) m (locOp geo cs SD KD hH lab m hmK Z).A →
+          SubCfg N (H.localHistory M K (k1 + 1) C.1.1) (k1 + 1)
+            (locOp geo cs SD KD hH lab (k1 + 1) (by omega) C.1.1).A)
+        (_ : ∀ x p, ρP' x p = x ⟨_, locOp_A_incl geo cs SD KD hmK (mem_ancFin.mp C.1.2)
+          (fun t ht Y' h' => hq t (by omega) Y' h') p.1 p.2⟩)
+        (x : SubCfg N (H.localHistory M K m Z) m (locOp geo cs SD KD hH lab m hmK Z).A),
+        ancOut (N := N) (R := R) C.2.1 C.1.1 (ρP' x) =
+          mergeOut (H.localHistory M K k1 C.2.1) k1
+            (fun y => VarVal.toEuc (x (κc ⟨C, Sum.inl y⟩))) (parC (fun t => x t.1) C))
+    (x : SubCfg N (H.localHistory M K m Z) m (locOp geo cs SD KD hH lab m hmK Z).A)
+    (cC : OutZ N R (H.localHistory M K k1 C.2.1) k1 ×
+      SubCfg N (H.localHistory M K k1 C.2.1) k1
+        (locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).A)
+    (wT : ∀ t : ↥T, VarVal N t.1.1.isSpin) (hwT : ∀ t, wT t = x t.1)
+    (hc1 : ∀ y, cC.1 y = VarVal.toEuc (x (κc ⟨C, Sum.inl y⟩)))
+    (hc2 : ∀ q, VarVal.toEuc (cC.2 q) = VarVal.toEuc (x (κc ⟨C, Sum.inr q⟩)))
+    (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) :
+    (locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).T.absW
+        (ancOut (N := N) (R := R) C.2.1 C.1.1 (ρP x)) (ρC x) hv g =
+      (locOp geo cs SD KD hH lab k1 (h.le.trans hmK) C.2.1).T.absW
+        (mergeOut (H.localHistory M K k1 C.2.1) k1 cC.1 (parC wT C)) cC.2 hv g := by
+  have e1 : wT = fun t : ↥T => x t.1 := funext hwT
+  have e2 : (fun y => VarVal.toEuc (x (κc ⟨C, Sum.inl y⟩))) = cC.1 := funext fun y => (hc1 y).symm
+  have e3 : cC.2 = ρC x := core_snd_eq geo cs SD KD h hmK hq κc hκ2 C ρC hρC x cC.2 hc2
+  rw [hpar ρP hρP x, e2, ← e1, ← e3]
 
 end Canon
 
