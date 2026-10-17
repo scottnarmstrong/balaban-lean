@@ -289,6 +289,125 @@ theorem ActionConvInput.cost_le (I : ActionConvInput W Kconv Kbg γw M M₁ cC c
   rw [W.mcount_eq]
   exact key
 
+/-- **The shared core of the window action theorem** (P631 (8)-(10)): for a finite family `s` of
+chains of conversions (chain `i` of the step of scale `sc i < k`, on its own generating set) and
+scale-`k` actions `Wa i`, conditional on the named source estimates of `ActionConvInput` for the
+family (`analytic_T`, `p7_first`, `window_decay` with `bgRem` = `T_{i,k} - Wa i`, `analytic_win`),
+`∑_i Wa i = ∑_i T_{i, sc i + 1} + C` with `C` analytic and `|C| ≤ C₁₅ ∑_i m_i`.  Used by
+`window_conversion` (steps `j ∈ [k₁, k)`) and `window_conversion_pieces` (pieces of the window). -/
+theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (hsc : ∀ i ∈ s, sc i < k)
+    {N₀c Kc : ι → ℕ} [∀ i, NeZero (N₀c i)] {ϱc : ι → ℝ}
+    {Gc : (i : ι) → GeneratingSet d L (N₀c i) (Kc i) (ϱc i)} {Xc : (i : ι) → Region (Gc i)}
+    {br : ι → MassBranch} (chain : (i : ι) → ConvChain S (sc i) k (Gc i) (Xc i) (br i) N)
+    (Wa : ι → U → ℂ) (mc : ι → ℝ) (hmc : ∀ i ∈ s, 0 ≤ mc i)
+    (analytic_T : ∀ i ∈ s, ∀ n, sc i + 1 ≤ n → n ≤ k →
+      AnalyticOnNhd ℂ (fun u => (chain i).T u n) S)
+    (p7_first : ∀ i ∈ s, ∀ n, sc i + 2 ≤ n → n ≤ k → ∀ u ∈ S,
+      ‖(chain i).cost u n‖ ≤ Kconv *
+        (((chain i).β (sc i + 1) * ε (sc i + 1) ^ 2) / ((chain i).β n * ε n ^ 2)) * mc i)
+    (window_decay : ∀ i ∈ s, ∀ u ∈ S,
+      ‖(chain i).T u k - Wa i u‖ ≤
+        Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i)
+    (analytic_win : ∀ i ∈ s, AnalyticOnNhd ℂ (Wa i) S)
+    {γ η α α₀ : ℝ} (hd : 2 ≤ d) (hL : 1 < L) (hγ : 0 < γ) (hα₀ : 0 < α₀)
+    (hε : ε = epsSeq L α α₀) (hγα : (d : ℝ) - 2 - 2 * α = 2 * γ)
+    (hflow : ∀ i ∈ s, ∃ B : ℝ, 0 < B ∧ ∃ g : ℕ → ℝ,
+      (∀ m, Real.exp (-η) ≤ g m ∧ g m ≤ Real.exp η) ∧
+      ∀ n, sc i + 1 ≤ n → n ≤ k → (chain i).β n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
+    (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
+    (hsep : ∀ i ∈ s, 0 ≤ M * (Rhat (sc i - 1) - 1) - 2 * M₁) :
+    ∃ C : U → ℂ, (∀ u ∈ S, ∑ i ∈ s, Wa i u = ∑ i ∈ s, (chain i).T u (sc i + 1) + C u) ∧
+      AnalyticOnNhd ℂ C S ∧
+      ∀ u ∈ S, ‖C u‖ ≤ (9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
+        ∑ i ∈ s, mc i := by
+  set q : ℝ := (L : ℝ) ^ (-(2 * γ)) with hq
+  have hL1 : (1 : ℝ) < L := by exact_mod_cast hL
+  have hq0 : 0 < q := Real.rpow_pos_of_pos (by linarith) _
+  have hq1 : q < 1 := Real.rpow_lt_one_of_one_lt_of_neg hL1 (by linarith)
+  refine ⟨fun u => ∑ i ∈ s, Wa i u - ∑ i ∈ s, (chain i).T u (sc i + 1), fun u _ => by ring, ?_, ?_⟩
+  · have h1 : AnalyticOnNhd ℂ (fun u => ∑ i ∈ s, Wa i u) S := by
+      have : (fun u => ∑ i ∈ s, Wa i u) = ∑ i ∈ s, Wa i := by
+        funext u
+        rw [Finset.sum_apply]
+      rw [this]
+      exact Finset.analyticOnNhd_sum _ fun i hi => analytic_win i hi
+    have h2 : AnalyticOnNhd ℂ (fun u => ∑ i ∈ s, (chain i).T u (sc i + 1)) S := by
+      have : (fun u => ∑ i ∈ s, (chain i).T u (sc i + 1)) =
+          ∑ i ∈ s, fun u => (chain i).T u (sc i + 1) := by
+        funext u
+        rw [Finset.sum_apply]
+      rw [this]
+      exact Finset.analyticOnNhd_sum _ fun i hi =>
+        analytic_T i hi (sc i + 1) le_rfl (by have := hsc i hi; omega)
+    exact h1.sub h2
+  · intro u hu
+    -- the per-chain identity
+    have hstep : ∀ i ∈ s, Wa i u - (chain i).T u (sc i + 1) =
+        -(∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n + ((chain i).T u k - Wa i u)) := by
+      intro i hi
+      have hik := hsc i hi
+      have := (chain i).telescope hu (m := k) (by omega) le_rfl
+      linear_combination -this
+    have hsum : ∑ i ∈ s, Wa i u - ∑ i ∈ s, (chain i).T u (sc i + 1) = -∑ i ∈ s,
+        (∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n + ((chain i).T u k - Wa i u)) := by
+      rw [← Finset.sum_sub_distrib, ← Finset.sum_neg_distrib]
+      exact Finset.sum_congr rfl hstep
+    have hnorm : ∀ i ∈ s,
+        ‖∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n + ((chain i).T u k - Wa i u)‖ ≤
+          (9 * Real.exp (2 * η) * Kconv / (1 - q) + Kbg) * mc i := by
+      intro i hi
+      have hik := hsc i hi
+      have hm := hmc i hi
+      obtain ⟨B, hB, g, hg, hβ⟩ := hflow i hi
+      have hKc' : 0 ≤ 9 * Real.exp (2 * η) * Kconv := by positivity
+      have hcost : ∀ n ∈ Finset.Ioc (sc i + 1) k,
+          ‖(chain i).cost u n‖ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - sc i - 1) * mc i := by
+        intro n hn
+        obtain ⟨hn1, hn2⟩ := Finset.mem_Ioc.1 hn
+        calc ‖(chain i).cost u n‖ ≤ _ := p7_first i hi n (by omega) hn2 u hu
+          _ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - sc i - 1) * mc i := by
+            apply mul_le_mul_of_nonneg_right _ hm
+            have hr := p631_ratio_free L d hL hd α α₀ γ B η hα₀ hB hγα g hg (j := sc i) (n := n)
+              (by omega)
+            rw [hε, hβ (sc i + 1) le_rfl (by omega), hβ n (by omega) hn2]
+            calc Kconv * _ ≤ Kconv * (9 * Real.exp (2 * η) * q ^ (n - sc i - 1)) :=
+                  mul_le_mul_of_nonneg_left hr hKc
+              _ = _ := by ring
+      have h1 : ‖∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n‖ ≤
+          (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i := by
+        refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hcost).trans ?_)
+        have : ∑ n ∈ Finset.Ioc (sc i + 1) k,
+            ((9 * Real.exp (2 * η) * Kconv)) * q ^ (n - sc i - 1) * mc i =
+            (9 * Real.exp (2 * η) * Kconv) * mc i *
+              ∑ n ∈ Finset.Ioc (sc i + 1) k, q ^ (n - sc i - 1) := by
+          rw [Finset.mul_sum]
+          exact Finset.sum_congr rfl fun n _ => by ring
+        rw [this]
+        have hg := geom_Ioc_le hq0.le hq1 (sc i) k
+        calc (9 * Real.exp (2 * η) * Kconv) * mc i *
+              ∑ n ∈ Finset.Ioc (sc i + 1) k, q ^ (n - sc i - 1)
+            ≤ (9 * Real.exp (2 * η) * Kconv) * mc i * (1 / (1 - q)) :=
+              mul_le_mul_of_nonneg_left hg (mul_nonneg hKc' hm)
+          _ = (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i := by ring
+      have h2 : ‖(chain i).T u k - Wa i u‖ ≤ Kbg * mc i := by
+        refine (window_decay i hi u hu).trans ?_
+        have : Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) ≤ 1 := by
+          rw [Real.exp_le_one_iff]
+          nlinarith [hsep i hi]
+        calc Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i
+            ≤ Kbg * 1 * mc i := by
+              apply mul_le_mul_of_nonneg_right _ hm
+              exact mul_le_mul_of_nonneg_left this hKb
+          _ = Kbg * mc i := by ring
+      calc _ ≤ ‖∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n‖ +
+            ‖(chain i).T u k - Wa i u‖ := norm_add_le _ _
+        _ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i + Kbg * mc i := add_le_add h1 h2
+        _ = _ := by ring
+    show ‖∑ i ∈ s, Wa i u - ∑ i ∈ s, (chain i).T u (sc i + 1)‖ ≤ _
+    rw [hsum, norm_neg]
+    refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hnorm).trans ?_)
+    rw [Finset.mul_sum]
+
 /-- **The window action theorem** (P631 (8)-(9); LFR (2.15′)): conditional on the input
 `ActionConvInput`, on the window configurations in the complex domain `S`,
 `β_k A*_k(X_win, 𝔹_{k₁,k}; ψ, φ_{k₁,k}) = 𝒜_win(ψ) + C_{k₁,k}(ψ)` with `C_{k₁,k}` analytic on `S`
@@ -309,92 +428,14 @@ theorem window_conversion (I : ActionConvInput W Kconv Kbg γw M M₁ cC cW ε R
     ∃ C : U → ℂ, (∀ u ∈ S, W.windowAction u = W.Awin u + C u) ∧ AnalyticOnNhd ℂ C S ∧
       ∀ u ∈ S, ‖C u‖ ≤ (9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
         ∑ j ∈ Finset.Ico k1 k, W.mcount j := by
-  set q : ℝ := (L : ℝ) ^ (-(2 * γ)) with hq
-  have hL1 : (1 : ℝ) < L := by exact_mod_cast hL
-  have hq0 : 0 < q := Real.rpow_pos_of_pos (by linarith) _
-  have hq1 : q < 1 := Real.rpow_lt_one_of_one_lt_of_neg hL1 (by linarith)
-  refine ⟨fun u => W.windowAction u - W.Awin u, fun u _ => by ring, ?_, ?_⟩
-  · have h1 : AnalyticOnNhd ℂ W.windowAction S := by
-      have : W.windowAction = ∑ j ∈ Finset.Ico k1 k, fun u =>
-          (W.βk : ℂ) * actionRegionC (W.Xw j) W.ak W.νk (W.Datw u) (W.φw u) := by
-        funext u
-        rw [W.windowAction_eq_sum u, Finset.sum_apply]
-      rw [this]
-      exact Finset.analyticOnNhd_sum _ fun j hj => I.analytic_win j hj
-    have h2 : AnalyticOnNhd ℂ W.Awin S := by
-      have : W.Awin = ∑ j ∈ Finset.Ico k1 k, fun u => (W.chain j).T u (j + 1) := by
-        funext u
-        rw [Finset.sum_apply]; rfl
-      rw [this]
-      exact Finset.analyticOnNhd_sum _ fun j hj =>
-        I.analytic_T j hj (j + 1) le_rfl (by have := (Finset.mem_Ico.1 hj).2; omega)
-    exact h1.sub h2
-  · intro u hu
-    -- the per-step identity
-    have hstep : ∀ j ∈ Finset.Ico k1 k,
-        (W.βk : ℂ) * actionRegionC (W.Xw j) W.ak W.νk (W.Datw u) (W.φw u) - (W.chain j).T u (j + 1) =
-          -(∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n + W.bgRem u j) := by
-      intro j hj
-      have hjk := (Finset.mem_Ico.1 hj).2
-      have := (W.chain j).telescope hu (m := k) (by omega) le_rfl
-      unfold WindowSetup.bgRem
-      linear_combination -this
-    have hsum : W.windowAction u - W.Awin u = -∑ j ∈ Finset.Ico k1 k,
-        (∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n + W.bgRem u j) := by
-      rw [W.windowAction_eq_sum u]
-      unfold WindowSetup.Awin
-      rw [← Finset.sum_sub_distrib, ← Finset.sum_neg_distrib]
-      exact Finset.sum_congr rfl hstep
-    have hnorm : ∀ j ∈ Finset.Ico k1 k,
-        ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n + W.bgRem u j‖ ≤
-          (9 * Real.exp (2 * η) * Kconv / (1 - q) + Kbg) * W.mcount j := by
-      intro j hj
-      have hjk := (Finset.mem_Ico.1 hj).2
-      have hm := W.mcount_nonneg j
-      obtain ⟨B, hB, g, hg, hβ⟩ := hflow j hj
-      have hKc' : 0 ≤ 9 * Real.exp (2 * η) * Kconv := by positivity
-      have hcost : ∀ n ∈ Finset.Ioc (j + 1) k, ‖(W.chain j).cost u n‖ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - j - 1) * W.mcount j := by
-        intro n hn
-        obtain ⟨hn1, hn2⟩ := Finset.mem_Ioc.1 hn
-        calc ‖(W.chain j).cost u n‖ ≤ _ := I.p7_first j hj n (by omega) hn2 u hu
-          _ ≤ (9 * Real.exp (2 * η) * Kconv) * q ^ (n - j - 1) * W.mcount j := by
-            apply mul_le_mul_of_nonneg_right _ hm
-            have hr := p631_ratio_free L d hL hd α α₀ γ B η hα₀ hB hγα g hg (j := j) (n := n) (by omega)
-            have hbe : ∀ m, j + 1 ≤ m → m ≤ k → (W.chain j).β m = B * (L : ℝ) ^ ((d - 2) * m) * g m :=
-              fun m h1 h2 => hβ m h1 h2
-            rw [hε, hbe (j + 1) le_rfl (by omega), hbe n (by omega) hn2]
-            calc Kconv * _ ≤ Kconv * (9 * Real.exp (2 * η) * q ^ (n - j - 1)) :=
-                  mul_le_mul_of_nonneg_left hr hKc
-              _ = _ := by ring
-      have h1 : ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n‖ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j := by
-        refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hcost).trans ?_)
-        have : ∑ n ∈ Finset.Ioc (j + 1) k, ((9 * Real.exp (2 * η) * Kconv)) * q ^ (n - j - 1) * W.mcount j =
-            (9 * Real.exp (2 * η) * Kconv) * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1) := by
-          rw [Finset.mul_sum]
-          exact Finset.sum_congr rfl fun n _ => by ring
-        rw [this]
-        have hg := geom_Ioc_le hq0.le hq1 j k
-        calc (9 * Real.exp (2 * η) * Kconv) * W.mcount j * ∑ n ∈ Finset.Ioc (j + 1) k, q ^ (n - j - 1)
-            ≤ (9 * Real.exp (2 * η) * Kconv) * W.mcount j * (1 / (1 - q)) :=
-              mul_le_mul_of_nonneg_left hg (mul_nonneg hKc' hm)
-          _ = (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j := by ring
-      have h2 : ‖W.bgRem u j‖ ≤ Kbg * W.mcount j := by
-        refine (I.window_decay j hj u hu).trans ?_
-        have : Real.exp (-γw * (M * (Rhat (j - 1) - 1) - 2 * M₁)) ≤ 1 := by
-          rw [Real.exp_le_one_iff]
-          nlinarith [hsep j hj]
-        calc Kbg * Real.exp (-γw * (M * (Rhat (j - 1) - 1) - 2 * M₁)) * W.mcount j
-            ≤ Kbg * 1 * W.mcount j := by
-              apply mul_le_mul_of_nonneg_right _ hm
-              exact mul_le_mul_of_nonneg_left this hKb
-          _ = Kbg * W.mcount j := by ring
-      calc _ ≤ ‖∑ n ∈ Finset.Ioc (j + 1) k, (W.chain j).cost u n‖ + ‖W.bgRem u j‖ := norm_add_le _ _
-        _ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * W.mcount j + Kbg * W.mcount j := add_le_add h1 h2
-        _ = _ := by ring
-    show ‖W.windowAction u - W.Awin u‖ ≤ _
-    rw [hsum, norm_neg]
-    refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hnorm).trans ?_)
-    rw [Finset.mul_sum]
+  obtain ⟨C, hC, hCa, hCb⟩ := window_conversion_core (Finset.Ico k1 k) (fun j => j)
+    (fun j hj => (Finset.mem_Ico.1 hj).2) (N₀c := fun _ => N₀) (Kc := fun _ => K) W.chain
+    (fun j u => (W.βk : ℂ) * actionRegionC (W.Xw j) W.ak W.νk (W.Datw u) (W.φw u)) W.mcount
+    (fun j _ => W.mcount_nonneg j) I.analytic_T I.p7_first (fun j hj u hu => I.window_decay j hj u hu)
+    I.analytic_win hd hL hγ hα₀ hε hγα hflow hKc hKb hγw hsep
+  refine ⟨C, fun u hu => ?_, hCa, hCb⟩
+  rw [W.windowAction_eq_sum u, hC u hu]
+  rfl
 
 end Window
 
