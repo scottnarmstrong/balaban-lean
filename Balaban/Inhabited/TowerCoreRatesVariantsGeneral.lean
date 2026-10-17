@@ -28,11 +28,12 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Polymer Balaban.SmallField.Def6 Filter Topology
 open LevelStep
 
-/-- **Two-radius core rates at general `(d, L, N)`**, given a family of level pairs: the core
+/-- **Two-radius core rates with an extra eventual predicate on `t`**: `tower_core_rates_two_general_of_pair`
+with `Pr m₁ BG BG₂ κ t` (eventually true as `t → 0+`, for all parameters) added to the conclusion. The core
 rates of `tower_core_rates_general_of_pair` with the margins `2 K₄ ξ₁ t < δ_*′(B, γ₁/8)` at
 `B = famConst BG κ` and `K₁ ξ₁ t < δ_*`, and the step core, the domain margin and the coercivity
 margin at the radius `2 t`. -/
-theorem tower_core_rates_two_general_of_pair
+theorem tower_core_rates_two_general_of_pair_pred
     {d L : ℕ} [NeZero L] (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L)
     {N₁ K : ℕ} [NeZero N₁] {ϱ ϱm : ℕ → ℝ} {a₁ ν : ℝ}
     (Gp : ∀ m₁ : ℕ, GeneratingSet d L (N₁ * L ^ m₁) K (ϱ m₁))
@@ -43,9 +44,11 @@ theorem tower_core_rates_two_general_of_pair
       IsLevel (Hm m₁) n ∧ IsLevel (Gp m₁) (n + 1) ∧
       BgHyp d L K (ϱ m₁) (compWeight L a₁) ν)
     {κ0 κdec : ℝ} (κmin : ℝ) (hκ0 : aEnt d L + 1 ≤ κ0)
-    (hκdec : 3 * κ0 + c1 d L + 5 ≤ κdec) :
+    (hκdec : 3 * κ0 + c1 d L + 5 ≤ κdec)
+    (Pr : ℕ → ℝ → ℝ → ℝ → ℝ → Prop)
+    (hP : ∀ m₁ BG BG₂ κ, ∀ᶠ t in 𝓝[>] (0 : ℝ), Pr m₁ BG BG₂ κ t) :
     ∃ (m₁ : ℕ) (c BG κ t c₂ BG₂ δc : ℝ),
-      4 ≤ m₁ ∧ 0 < t ∧
+      Pr m₁ BG BG₂ κ t ∧ 4 ≤ m₁ ∧ 0 < t ∧
       Nonempty (FlCore N (Gp m₁) (Hm m₁) a₁ ν c BG κ t (levelKc d L)
         (Cchi d L) c₂ BG₂ t) ∧
       0 ≤ κ0 ∧ 3 * κ0 + 3 ≤ κdec ∧
@@ -175,16 +178,60 @@ theorem tower_core_rates_two_general_of_pair
       positivity
   have hev2 := hT.eventually hev
   have hpos : ∀ᶠ t in 𝓝[>] (0 : ℝ), 0 < t := self_mem_nhdsWithin
-  obtain ⟨t, hC, g1, g2, g3, g4, g5, g6, g7, g8, g9, hC2, g6', g7', ht0⟩ := (hev.and ((wk e1).and ((wk e2).and
-    ((wk e3).and ((wk e4).and ((wk e5).and ((wk e6).and ((wk e7).and ((wk e8).and ((wk e9).and (hev2.and ((wk e6').and ((wk e7').and hpos))))))))))))).exists
+  obtain ⟨t, hC, g1, g2, g3, g4, g5, g6, g7, g8, g9, hC2, g6', g7', ht0, hPt⟩ := (hev.and ((wk e1).and ((wk e2).and
+    ((wk e3).and ((wk e4).and ((wk e5).and ((wk e6).and ((wk e7).and ((wk e8).and ((wk e9).and (hev2.and ((wk e6').and ((wk e7').and (hpos.and (hP m₁ BG BG₂ κ))))))))))))))).exists
   have hlogA : Real.log A ≤ A - 1 := Real.log_le_sub_one_of_pos (by linarith)
   have hlogκ : Real.log A ≤ (κ / 2 - 1) / 2 := by linarith
   have hκdec3 : 3 * κ0 + 3 ≤ κdec := by linarith
-  refine ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, hC, hκ00, hκdec3, hκ1, by linarith, hlogκ,
+  refine ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, hPt, h4, ht0, hC, hκ00, hκdec3, hκ1, by linarith, hlogκ,
     c7_le_thm73C3_of_large hd0 hBG1 hκ2, hm3, g6, g7,
     hδcSX, g1.le, g2, g3.le, g4.le, g5.le, hκ0, by linarith, hB0, le_max_right _ _, g8, g9, hC2, g6', g7'⟩
 
-
+/-- **Two-radius core rates at general `(d, L, N)`**, given a family of level pairs: the core
+rates of `tower_core_rates_general_of_pair` with the margins `2 K₄ ξ₁ t < δ_*′(B, γ₁/8)` at
+`B = famConst BG κ` and `K₁ ξ₁ t < δ_*`, and the step core, the domain margin and the coercivity
+margin at the radius `2 t`. -/
+theorem tower_core_rates_two_general_of_pair
+    {d L : ℕ} [NeZero L] (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L)
+    {N₁ K : ℕ} [NeZero N₁] {ϱ ϱm : ℕ → ℝ} {a₁ ν : ℝ}
+    (Gp : ∀ m₁ : ℕ, GeneratingSet d L (N₁ * L ^ m₁) K (ϱ m₁))
+    (Hm : ∀ m₁ : ℕ, GeneratingSet d L (N₁ * L ^ m₁) K (ϱm m₁))
+    (hpair : ∀ m₁ : ℕ, 4 ≤ m₁ → ∃ n : ℕ,
+      Nonempty (Localization.DGSetting (Gp m₁) (compWeight L a₁) ν) ∧
+      Nonempty (Localization.Dec2.OpSetting (Hm m₁) (compWeight L a₁) ν) ∧
+      IsLevel (Hm m₁) n ∧ IsLevel (Gp m₁) (n + 1) ∧
+      BgHyp d L K (ϱ m₁) (compWeight L a₁) ν)
+    {κ0 κdec : ℝ} (κmin : ℝ) (hκ0 : aEnt d L + 1 ≤ κ0)
+    (hκdec : 3 * κ0 + c1 d L + 5 ≤ κdec) :
+    ∃ (m₁ : ℕ) (c BG κ t c₂ BG₂ δc : ℝ),
+      4 ≤ m₁ ∧ 0 < t ∧
+      Nonempty (FlCore N (Gp m₁) (Hm m₁) a₁ ν c BG κ t (levelKc d L)
+        (Cchi d L) c₂ BG₂ t) ∧
+      0 ≤ κ0 ∧ 3 * κ0 + 3 ≤ κdec ∧
+      4 * ((d : ℕ) : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ ∧ 1 ≤ (κ / 2 - 1) / 2 ∧
+      Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ 1) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2 ∧
+      c7 d L N BG κ ≤ thm73C3 d L N ∧
+      cstarX d L * Real.exp (N0 d L * κ) ≤ ((L : ℕ) : ℝ) ^ m₁ ∧
+      decDomMargin d L N BG κ (xiC1 d * t) < δc ∧
+      K4 d L N BG κ * (xiC1 d * t) < coerciveConst d / 2 ∧
+      δc ^ 2 * smallConstX d L κ ≤ 1 / 4 ∧
+      2 * t ≤ deltaStar d L N ∧ cK2 d L N * (2 * t) < bgC0 d L N / 2 ∧
+      cK2 d L N * t ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8) ∧
+      cK2' d L N (famConst d L BG₂ κ) * t ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8) ∧
+      2 * (compC4 d * (bgK1 d L N * (xiC1 d * t))) + 5 * (2 * t) ≤ bgC1 d L N ∧
+      aEnt d L + 1 ≤ κ0 ∧
+      0 + 3 * κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1 ∧ 0 ≤ famConst d L BG₂ κ ∧ κmin ≤ κ ∧
+      2 * (K4 d L N BG κ * (xiC1 d * t)) <
+        deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8) ∧
+      bgK1 d L N * (xiC1 d * t) < deltaStar d L N ∧
+      Nonempty (FlCore N (Gp m₁) (Hm m₁) a₁ ν c BG κ (2 * t)
+        (levelKc d L) (Cchi d L) c₂ BG₂ (2 * t)) ∧
+      decDomMargin d L N BG κ (xiC1 d * (2 * t)) < δc ∧
+      K4 d L N BG κ * (xiC1 d * (2 * t)) < coerciveConst d / 2 := by
+  obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, -, h⟩ :=
+    tower_core_rates_two_general_of_pair_pred N hd hL Gp Hm hpair κmin hκ0 hκdec
+      (fun _ _ _ _ _ => True) (fun _ _ _ _ => Filter.Eventually.of_forall fun _ => trivial)
+  exact ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h⟩
 
 /-- The `renSol` variant: `tower_core_rates_two_general_of_pair` without the three conjuncts at the radius `2 t`. -/
 theorem tower_core_rates_renSol_general_of_pair
@@ -266,6 +313,45 @@ theorem tower_core_rates_ren_general_of_pair
     tower_core_rates_renSol_general_of_pair N hd hL Gp Hm hpair κmin hκ0 hκdec
   exact ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht, hC, h1, h2, h3, h4', h5, h6, h7, h8, h9, h10,
     h11, h12, h13, h14, h15, h16, h17, h18, h19, h20⟩
+
+/-- **Two-radius core rates at general `(d, L, N)`**, unconditional, with an extra eventual
+predicate `Pr m₁ BG BG₂ κ t` on `t` in the conclusion (see `tower_core_rates_two_general_of_pair_pred`): the level pair is
+`GpG d L 9 m₁ 1`, `HmG d L 9 m₁ 1`, as in `tower_core_rates_general`. -/
+theorem tower_core_rates_two_general_pred
+    {d L : ℕ} [NeZero L] (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L)
+    {ν : ℝ} (hν0 : 0 ≤ ν) (hν : ν * (L : ℝ) ^ (2 * (1 + 1)) ≤ 1)
+    {κ0 κdec : ℝ} (κmin : ℝ) (hκ0 : aEnt d L + 1 ≤ κ0)
+    (hκdec : 3 * κ0 + c1 d L + 5 ≤ κdec)
+    (Pr : ℕ → ℝ → ℝ → ℝ → ℝ → Prop)
+    (hP : ∀ m₁ BG BG₂ κ, ∀ᶠ t in 𝓝[>] (0 : ℝ), Pr m₁ BG BG₂ κ t) :
+    ∃ (m₁ : ℕ) (c BG κ t c₂ BG₂ δc : ℝ),
+      Pr m₁ BG BG₂ κ t ∧ 4 ≤ m₁ ∧ 0 < t ∧
+      Nonempty (FlCore N (GpG d L 9 m₁ 1) (HmG d L 9 m₁ 1) 1 ν c BG κ t (levelKc d L)
+        (Cchi d L) c₂ BG₂ t) ∧
+      0 ≤ κ0 ∧ 3 * κ0 + 3 ≤ κdec ∧
+      4 * ((d : ℕ) : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ ∧ 1 ≤ (κ / 2 - 1) / 2 ∧
+      Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ 1) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2 ∧
+      c7 d L N BG κ ≤ thm73C3 d L N ∧
+      cstarX d L * Real.exp (N0 d L * κ) ≤ ((L : ℕ) : ℝ) ^ m₁ ∧
+      decDomMargin d L N BG κ (xiC1 d * t) < δc ∧
+      K4 d L N BG κ * (xiC1 d * t) < coerciveConst d / 2 ∧
+      δc ^ 2 * smallConstX d L κ ≤ 1 / 4 ∧
+      2 * t ≤ deltaStar d L N ∧ cK2 d L N * (2 * t) < bgC0 d L N / 2 ∧
+      cK2 d L N * t ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8) ∧
+      cK2' d L N (famConst d L BG₂ κ) * t ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8) ∧
+      2 * (compC4 d * (bgK1 d L N * (xiC1 d * t))) + 5 * (2 * t) ≤ bgC1 d L N ∧
+      aEnt d L + 1 ≤ κ0 ∧
+      0 + 3 * κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1 ∧ 0 ≤ famConst d L BG₂ κ ∧ κmin ≤ κ ∧
+      2 * (K4 d L N BG κ * (xiC1 d * t)) <
+        deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8) ∧
+      bgK1 d L N * (xiC1 d * t) < deltaStar d L N ∧
+      Nonempty (FlCore N (GpG d L 9 m₁ 1) (HmG d L 9 m₁ 1) 1 ν c BG κ (2 * t)
+        (levelKc d L) (Cchi d L) c₂ BG₂ (2 * t)) ∧
+      decDomMargin d L N BG κ (xiC1 d * (2 * t)) < δc ∧
+      K4 d L N BG κ * (xiC1 d * (2 * t)) < coerciveConst d / 2 :=
+  tower_core_rates_two_general_of_pair_pred (N₁ := 9) (K := 1 + 1) N hd hL
+    (fun m₁ => GpG d L 9 m₁ 1) (fun m₁ => HmG d L 9 m₁ 1) (a₁ := 1) (ν := ν)
+    (hpair_lvG hd hL hν0 hν) κmin hκ0 hκdec Pr hP
 
 /-- **Two-radius core rates at general `(d, L, N)`**, unconditional: the level pair is
 `GpG d L 9 m₁ 1`, `HmG d L 9 m₁ 1`, as in `tower_core_rates_general`. -/
