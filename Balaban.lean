@@ -2007,6 +2007,7 @@ public import Balaban.Fluctuation.LocalClassAssembleM
 public import Balaban.Fluctuation.LocalClassLabels
 public import Balaban.Fluctuation.LocalClassInherit
 public import Balaban.Fluctuation.LocalClassCentre
+public import Balaban.Fluctuation.LocalClassAmplitude
 public import Balaban.Polymer.TwoTorusFibre
 public import Balaban.Green.FinalTaggedWeighted
 public import Balaban.Green.FinalTaggedWeightedGfin
