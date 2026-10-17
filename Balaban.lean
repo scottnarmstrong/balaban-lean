@@ -2337,6 +2337,8 @@ public import Balaban.LargeField.R.WindowCloseHbGMain
 public import Balaban.LargeField.R.WindowCloseHidAction
 public import Balaban.LargeField.R.WindowCloseHidActionU
 public import Balaban.LargeField.R.WindowCloseHidExists
+public import Balaban.LargeField.R.WindowCloseBridge
+public import Balaban.LargeField.R.WindowCloseAZ
 public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
