@@ -152,3 +152,260 @@ The cheapest next *geometric* test is to keep P5's every-offset openings and pro
 **What this unblocks.** Equations (1)–(14) give a precise spill-free completion lemma and reusable aligned-region radius and halo specifications. They do not discharge blocker 3's P6 coefficient transfer, P7 gas bound, or the frozen `Balaban.logPartition_multiscale` (Root-F); `Balaban.lowTemperature_correlations` (Root-C) remains downstream. Verification here was read-only `rg` inspection of the named Lean declarations, `pdftotext -layout` of P5–P7 with a rendered check of P5 p. 502, and an independent $L=8$, $n_K=32$ finite-torus check of (10)–(11). No Lean file was edited or built.
 
 **Confidence:** high for (1)–(15), the covariance counterexample, the distinction between fixed and every-offset boxes, and the conditional rectangular proof (16); medium for reusing every downstream ripeness lemma without implementation because the modified `RegionStep` has not been formalized; low for a full analytic P5–P7 induction under any of the proposed changes. The precise open conditions are the physical P6 assignment/active-root estimate, P5 continuous-to-fine size comparison if the fine size is used, the P7 retained-hole bridge, and (for phase R3) phase-aware history locality and H7 covariance.
+
+---
+
+# Round 2: exact all-offset spill and the retained-hole payment
+
+**Freeze and verdict (17 October 2026).** This addendum uses the read-only repository at `feba164f53c5c13df058faa2c057c44e9ba55d90` and the P5–P7 PDFs identified in `review/SOURCES.md`. R3 remains withdrawn. The every-offset opening **does** admit inherited holes with forced active spill: the obstruction is a thin seam made when thick pieces approach diagonally, and it can have arbitrary length in $d\ge3$. A nonaligned flat face of a thick rectangle has no spill. The separate two-attachment bridge is charged by P5's size, but none of the displayed P6 assignment, P7 removed-component factor, P5 history clause, or existing H7 bound provides the *additional coefficient decay* needed when two individually cheap attachments become one output label. The precise source-to-physical producer is still open; the statements below refute closure **from the stated class bounds**, not the possibility of a stronger O(N) coefficient theorem.
+
+## 1. Exact geometry of the every-offset opening
+
+Work in $\pi_{k+1}$-cell coordinates on a sufficiently large torus, and let $\mathcal B_L$ be **all** translates of $[0,L-1]^d$ by one cell. For any cell set $S$ define
+
+$$I_L(S)=\bigcup\{B\in\mathcal B_L:B\subseteq S\},\qquad
+C_L(S)=I_L(S^c)^c=\{x:\text{every }B\in\mathcal B_L\text{ with }x\in B\text{ meets }S\}.\tag{18}$$
+
+$I_L$ is monotone, contractive and idempotent: each point of $I_L(S)$ lies in one of its defining blocks, hence $I_L(I_L(S))=I_L(S)$. Consequently $C_L$ is monotone, extensive and idempotent. An integer block distance is at least $m$ exactly when the block misses $\operatorname{nbhd}_{m-1}F$. Therefore the **landed** `Geometry/Openings.lean:opening` and `openingIn` give the exact identities
+
+$$\Omega'{}^c=C_L(A),\quad A=\operatorname{nbhd}_{\rho+4}U',\qquad
+\Omega^c=C_L(A\cup\operatorname{nbhd}_3P).\tag{19}$$
+
+Indeed $F=\operatorname{nbhd}_3U'$ and $m=\rho+2$ in `Region.OmegaPrime`; $\operatorname{nbhd}_{m-1}F=\operatorname{nbhd}_{\rho+4}U'$ by the sup-metric neighbourhood composition. Also `Region.Omega` keeps precisely the $L$-blocks inside $\Omega'$ missing $\operatorname{nbhd}_3P$, so $\Omega^c=C_L(\Omega'{}^c\cup\operatorname{nbhd}_3P)$. Idempotence and monotonicity imply $C_L(C_L(A)\cup B)=C_L(A\cup B)$, proving (19). This is the literal all-offset reading of P5 (2.3)–(2.4), (2.8), printed pp. 502–503, and of `Region/Step.lean:Region.OmegaPrime`, `Region.Omega`.
+
+Here is an **exact necessary and sufficient spill test**, rather than a face-alignment heuristic. For a hole component $H\subseteq\Omega^c$ and an existing $L$-block union $X$, put
+
+$$\mathfrak D_L(H;X)=H\setminus I_L(X\cup H).\tag{20}$$
+
+Since $X=I_L(X)$, the completion $X\cup H$ is an $L$-block union if and only if $\mathfrak D_L(H;X)=\varnothing$. Proof: points of $X$ already have witnessing blocks inside $X\cup H$; every other point is in $H$ and has one precisely when it lies in $I_L(X\cup H)$. For an arbitrary block-union completion $Y\supseteq X\cup H$, each $x\in\mathfrak D_L(H;X)$ requires a block $B\subseteq Y$ containing $x$ with $B\nsubseteq X\cup H$. If the other complement components are at distance at least $L$ from $H$ and $X$ does not contain the outside sites of such a block, that block necessarily adds an **active** site. Without that separation, an added site might lie in another hole, so (20) is the exact test for the literal $X\cup H$ and the lower bound for arbitrary completions must mention the other holes. For a completely general finite configuration the exact minimum active spill is the finite set-cover quantity
+
+$$s_\Omega(X,H)=\min_{\mathscr B\subseteq\mathcal B_L:\ X\cup H\subseteq\bigcup\mathscr B}
+\left|\bigl((\bigcup\mathscr B)\cap\Omega\bigr)\setminus X\right|.\tag{21}$$
+
+This formula includes all possible box choices and makes no unproved assertion that defect cells each require distinct new active cells. If $X\cup H$ is already a block union, (21) is zero. `DjMod` connectedness and whole-component validity impose further conditions on a chosen $\mathscr B$; (21) only measures the geometric box-cover obstruction.
+
+There is also a closed-form **zero-spill** version of (21), valid even when other holes are nearby:
+
+$$s_\Omega(X,H)=0\quad\Longleftrightarrow\quad
+X\cup H\subseteq I_L(X\cup\Omega^c).\tag{21a}$$
+
+For the forward direction, a zero-spill block union $Y$ lies in $X\cup\Omega^c$, hence $Y=I_L(Y)\subseteq I_L(X\cup\Omega^c)$. Conversely the inclusion makes $Y=I_L(X\cup\Omega^c)$ a block union containing $X\cup H$; it adds no active cell outside $X$. This is the exact answer to which inherited holes **force geometric active spill for a given old label**. It depends on the attachment label $X$ and the other holes, not solely on the curvature or side lengths of $H$. Whole-component validity can make the feasible `DjMod` family smaller, but cannot turn a positive $s_\Omega$ into zero.
+
+The criterion distinguishes the proposed shapes sharply. Every nonwrapping rectangle whose side lengths are at least $L$ is $L$-open by the coordinate formula (16), so a thick rectangular inherited hole is spill-free under this cover, regardless of its residue modulo $L$. Nonrectangularity alone is **not sufficient** either: a union of $L$-open rectangles is $L$-open. A side shorter than $L$ is an obstruction for that rectangle, but it is **not necessary** for spill. In (19), if $2(\rho+4)+1\ge L$, then $A$ itself is $L$-open: it is a union of sup-norm balls of side $2(\rho+4)+1$, and each such ball is a union of $L$-blocks. Thus any intrinsic defect of $H=C_L(A)$ lies in $H\setminus A$. By `opening_disjoint_nbhd` and `opening_compl_subset`, more precisely
+
+$$\mathfrak D_L(H;\varnothing)\subseteq H\setminus A
+\subseteq \operatorname{nbhd}_{\rho+L+3}U'\setminus\operatorname{nbhd}_{\rho+4}U'.\tag{22}$$
+
+This is a collar of radial width $L-1$; it can have arbitrarily large **length**. If $2(\rho+4)+1<L$, an inherited piece itself may be thinner than $L$, an additional obstruction allowed by the broad Lean `RadiusHyp` (which gives only an upper bound on $R_j$). In the intended large-radius P5 regime, the seam obstruction below survives even though every input piece is thick. A $P$-generated part $\operatorname{nbhd}_3P$ has side seven for a one-cell seed and can itself be thinner than $L$ when $L>7$; interactions between it and $A$ are governed by the same exact test (20), rather than by a clean inherited/new dichotomy.
+
+### A thick inherited seam, for every $L\ge2$
+
+Let $r=\rho+4$, let $w\ge1$, set $a=w-1+r$, and choose two $w\times w$ rectangles in the first two coordinates of $U'$:
+
+$$U_1=[0,w-1]^2,\qquad U_2=U_1+(w-1+2r,\,w-1+2r+L).\tag{23}$$
+
+Take the same nonempty interval $J_0$ in each remaining coordinate, and no $P$ seeds. In the first two coordinates $A=\operatorname{nbhd}_r U'$ is the union of two **thick** rectangles $A_1,A_2$ satisfying
+
+$$\max_x A_1=\min_x A_2=a,\qquad
+\max_y A_1=a,\quad\min_y A_2=a+L.\tag{24}$$
+
+Their common range in each remaining coordinate is $J=\operatorname{nbhd}_rJ_0$. For each $j=1,\ldots,L-1$ and $z\in J^{d-2}$, put
+
+$$p_{j,z}=(a,a+j,z),\quad q^-_{j,z}=(a-1,a+j,z),\quad q^+_{j,z}=(a+1,a+j,z).\tag{25}$$
+
+**Proof of the obstruction.** Any $L$-block containing $p_{j,z}$ has an $x$-interval containing $a$ and a $y$-interval of $L$ consecutive cells containing $a+j$. The latter cannot lie wholly in the gap $[a+1,a+L-1]$, so it meets $y\le a$ or $y\ge a+L$. In the first case the block meets $A_1$ at $x=a$; in the second it meets $A_2$ there. Its other coordinate intervals contain $z\in J^{d-2}$. Therefore **every** block through $p_{j,z}$ meets $A$, and $p_{j,z}\in H=C_L(A)$. Conversely $q^-_{j,z}\in\Omega$: a block with $x$-interval $[a-L,a-1]$ and $y$-interval $[a+j,a+j+L-1]$ misses $A_1$ by its $y$ range and $A_2$ by its $x$ range. Similarly $q^+_{j,z}\in\Omega$ using $x\in[a+1,a+L]$, $y\in[a+j-L+1,a+j]$. The remaining-coordinate block intervals can be any intervals containing $z$. Finally, an $L$-block through $p_{j,z}$ contains either $q^-_{j,z}$ or $q^+_{j,z}$, because its $x$ interval of length at least two contains either $a-1$ or $a+1$. Hence
+
+$$p_{j,z}\in H\setminus I_L(H),\qquad
+Y\supseteq H,\ I_L(Y)=Y\quad\Longrightarrow\quad
+q^-_{j,z}\in Y\ \text{or}\ q^+_{j,z}\in Y.\tag{26}$$
+
+Choose $X$ attached to $H$ away from all $q^\pm_{j,z}$, as a bounded $L$-block collar near one end. Then every block-union completion $Y\supseteq X\cup H$ has at least $(L-1)|J|^{d-2}$ distinct active spill cells, by (26). In $d=3$, taking $|J|=N$ gives **at least $(L-1)N$ active cells**, with $r,L$ fixed. This is a long seam, not a flat-face residue effect. `Fluctuation/SizeModG1.lean:G1_cellCount` then forces a size increase at least linear in $N$ whenever its valid-label hypotheses hold: if $c_1=[3(2L-1)]^d$, $n_\pi(Y\cap\Omega)\le c_1(1+D(Y))$ implies $D(Y)\ge (L-1)N/c_1-1$ in coarse-cell units. More basically, P5 (1.34) must visit cover cubes meeting this active seam; no claim about an exact fine/continuous size equality is needed.
+
+The shapes (23) can be made inputs of the **landed one-step region function**, not merely arbitrary $U'$: take two fine-lattice seed prisms translated by $L$ times the two shifts in (23), use the same phase in each coordinate, and apply `Region.Uprime L n1 ⌊Rprev⌋₊`, which performs the $\operatorname{nbhd}_{\lfloor R_{k-1}\rfloor+1}$ thickening internally. Each image is an equal translated rectangle of some width $w$; choose the translation after computing that width. Increase the torus period so these and the test blocks do not wrap. Put `P=Q=R=S=∅`, satisfying the four `RegionStep` subset fields. The points $p_{j,z}$ form a nearest-neighbour chain from $A_1$ to $A_2$, so they belong to the **same** component of $\Omega^c$ as both thick prisms. This proves a counterexample at the `RegionStep` set-function level for any $r=\rho+4$ and $L\ge2$; we have **not** proved that the chosen $Z_k$ occurs in every stricter admissible multiscale history. It corrects `VMOD-44` §2's inference that thickening by $r\ge L$ automatically makes the closed hole an all-offset block union. The old `omega_hole_face_misaligned` remains a fixed-grid theorem and is not the proof of (26).
+
+For the abstract old-label test, take an earlier rectangular hole containing only the first long seed prism and an $L$-block active collar at one end; its union is a connected, whole-hole label with modular size bounded independently of $N$. In the landed chosen-cover size one block at the collar and a one-vertex graph suffice; in P5's all-eligible-cube continuous size a tree across the bounded collar has length $O_L(1)$. The new hole from (23) contains both thick prisms and the seam, so its whole-component completion forces (26). This is a consistent two-region **class-level** configuration; a full source history realizing it with a nonzero physical O(N) coefficient has not been constructed here.
+
+## 2. What does, and does not, pay a two-attachment bridge
+
+The geometric bridge already has a lower bound independent of the seam example. For a rectangular retained hole $H_N$ of length $N$, take valid labels $X_-=H_N\cup A_-$ and $X_+=H_N\cup A_+$ with one bounded active attachment at opposite ends. As proved in (15), each input modular size is $O_L(1)$, while the modular size of their union is at least $w(N-2L)$ in the landed chosen-cover model; P5 (1.34), printed p. 496, has a corresponding positive continuous-tree length. This says **where the output norm charges the distance**. It does not provide a factor in the coefficient that pays it.
+
+**P6 assignment.** P6 (4.32)–(4.34), printed p. 34, first localizes an old boundary term in $X\cap\Omega_{k+1}$, allows disconnected $Y_1$, and says P3 (4.48)–(4.49) continue with modular sizes. P3 (4.48), printed pp. 79–80, joins each mark to a source tree that meets *all* eligible cubes of the **plain** old label; a modular source tree need not reach the far side of a retained hole. The P6 sentence is the desired transfer, not a displayed proof of its missing bridge estimate. In the seam family, completion can add $\Omega(N)$ active cells with zero marks; an H7-admissible constant old coefficient has all interpolation derivatives zero. The geometric class bound therefore cannot yield P6 (4.34) uniformly from old H7 and the P3 mark gain. This does not exhibit such a coefficient in the actual O(N) producer; `OPEN-P6-INHERITED-HOLE-ASSIGNMENT` and the mixed covariance/active-root premises of `LFROOT3.md` remain genuine physical obligations.
+
+**P7 retained-hole bridge.** P7 (3.26), printed p. 527, moves old boundary terms meeting a **removed** component into the braces. Page 528 takes connected clusters of those domains and assigns the union of their labels and the thickened removed components as a polymer; (3.27)–(3.28) assert its activity bound. P7 (3.10), printed p. 520, gives $e^{-p_2(\beta_k)-H_k|c|_\eta}$ once for each **removed** component $c$, and p. 528 cites also the better $3\kappa/2$ old-boundary rate. Put small removed components $c_\pm$ at gaps of a fixed length $g>\omega_k$ and larger than the P7 halo radius beyond the two ends of $H_N$, and extend $X_\pm$ to meet their respective $c_\pm$. The old sizes and $|c_\pm|$ remain bounded as $N\to\infty$, whereas the union output has size $\ge cN-O(1)$. For positive scalar old coefficients chosen below their H7 bounds and positive allowed removed-component weights, the product weight of this connected *geometric* cluster is bounded below by a positive constant depending on the fixed scale but **not** on $N$. It cannot satisfy $|w_N|\le B e^{-\kappa D(Y_N)}$ with volume-independent $B$ and $\kappa>0$, since the right side tends to zero. Equivalently, the two fixed $p_2$ factors would have to dominate $\kappa cN-O(1)$. `Fluctuation/SizeModUnion.lean:G3_dcov` deliberately assumes overlap in an **active** cell; $X_-\cap X_+=H_N$ does not meet it. `LargeField/R/RHaloSep.lean:halo_disjoint_comp` excludes halos of removed components from other components, but says nothing about the path through a distinct retained $H_N$. This is an abstract-class counterexample to the proposed P7 estimate from the displayed weights; a physical cancellation or active-core clustering rule remains possible. It agrees with `VMOD-41.md` §2 and `VMOD-42.md` §§1–3.
+
+The scalar class test can respect the source symmetry: assign the same real positive constant to every image of each test label under the finite group of partition-preserving translations and lattice rotations, and zero to other label orbits. Modular size and the H7 upper bound are invariant under that group. The coefficients are constant in spin and source fields, hence analytic and $O(N)$-invariant. The particular positive two-label product above remains present; orbit averaging or duplication cannot create the missing factor $e^{-\kappa cN}$ in a bound on absolute cluster weights. This still tests the **abstract H7 class**, not a coefficient computed from the physical density.
+
+**History and large-field factors.** P5 (1.33)–(1.36), printed pp. 496–497, require whole-component labels and history dependence and define the modular length; they do not multiply an old $B^{(k)}(X,\mathbb A_k)$ by decay in the diameter of a hole it touches. P5 (2.47)–(2.48), printed pp. 512–513, keep the old boundary expression in the fluctuation integral. The operator estimate P5 (1.30)–(1.31), printed p. 495, places $e^{-\ell p_2(\beta_k)-H_k|Z|_\eta}$ on an **integrated large-field component operator**, separate from H7's coefficient bound (1.38)–(1.39), printed p. 497. P7 (3.26) factors the retained-component operator $T''_k(Y_k)$ *outside* the removed-component gas; its retained factor is therefore not present in the claimed coefficient bound for $\rho''_k(X)$ or the resulting H7 term. Moving part of it into those coefficients is a change of representation with a reserve ledger, not an implication of (3.10).
+
+Even the proposed direct payment by $H_k|Z|_\eta$ alone has no **unconditional** geometry inequality for a small birth component. P5 (1.2), printed p. 489, sets $R_j=R_0(\log(a\beta_{j-1}))^2$, while (1.30) sets $H_j=H_0\log\beta_j$. For an abstract one-cell $Z$ at a fixed scale, $|Z|_\eta$ is a fixed finite number under that scale's volume normalization, but its enlarged hole has diameter $\asymp R_j$ and admits opposite attachments at distance $\asymp R_j$; for fixed $R_0,H_0,\kappa>0$ and large $\beta_j$, the quadratic logarithm eventually exceeds $H_0|Z|_\eta\log\beta_j$. An admissible **physical** $Z_j$ may itself have a radius-dependent minimum volume, so this one-cell calculation is a refutation only of the *bare* inequality without that extra geometric hypothesis. The polynomial $p_2(\beta_j)=A_2(\log\beta_j)^{p_2}$ could numerically pay a bounded-at-one-scale bridge if a share were retained, but P5 (1.31) and P7 (3.10) do not allocate such a share to every boundary coefficient, and P7 already uses its removed-component share for the gas. For a long component $|Z|_\eta\gtrsim N$ may make the $H_k$ factor large enough numerically, yet the same missing allocation and repeated-use issue remain. Thus “the large-field factor pays the hole length” is a **new theorem to construct**, not a consequence of the printed bounds. `LFH7PRIME2.md` §G1–G2 reaches the same placement and double-spending warning for a proposed shell charge.
+
+## 3. Nearest covariant repair and Lean interface
+
+The smallest class change supported by these counterexamples keeps the **active attachment set** explicit. A boundary object carries a finite union $C$ of active $\pi'_k$ blocks, a set $\mathcal P$ of whole hole components whose *histories* it reads, and, for each $H\in\mathcal P$, the set $A_H(C)$ of active cells where $C$ attaches to $H$. Its field locality is on $C$ and the source-required adjacent strips; its history locality is on the whole components in $\mathcal P$. These are sets, with no distinguished corner or tie-breaking root, so translations and lattice rotations carry $(C,\mathcal P,A_H)$ to the transformed data and preserve covariance. This uses the existing separation between `LargeField/Def7Hist.lean:D7Bdry.loc_field` and `loc_hist` described in `VMOD-44.md` §1, but **changes** the `FineValid`/`DjMod` support and size clauses.
+
+If $A_H$ has one attachment, completion of $H$ for history costs no bridge in the active label. If it has two or more, let $b_H$ be the infimum of the ordinary positive-length trees in $H\cup C$ joining the attachment sets, with the P5 (1.34) normalization (or `bondCost (scaleW ...)` in the fine model). The infimum over all trees is Euclidean-covariant. A term or connected gas cluster that **really couples** those attachments must carry either an extra $e^{-\tau b_H}$ coefficient factor, or a single allocated birth credit $q_H\ge\tau b_H+E_H$ where $E_H$ pays its rooted entropy; the sum of all such allocations from one component must be bounded by its unused P5/P7 operator reserve. If it does not couple them, split it into active-core terms and do not make a Mayer edge solely because the history pocket is shared. For a connected finite hole of $h$ coarse cells, a spanning tree has $h-1$ cell bonds, and adjoining $m$ attachment cells takes at most $m$ further bonds, so a coarse corridor can always be charged by $h-1+m$ bonds. **This is only a geometric upper bound**; the available reserve must still dominate it after earlier expenses. The one-cell, $R_j\asymp(\log\beta)^2$ example shows why $H_j|Z|$ alone is not a universal such reserve.
+
+A precise two-size producer obligation, suitable for the landed objects, is the following. For each *nonzero physical* P6 assignment $(X,J,Y)$, define
+
+$$b_6(X,J,Y)=\bigl[D_+(Y)-L^{-1}D_-(X)-d(2L+1)^d|J|\bigr]_+.\tag{27}$$
+
+Prove either $b_6=0$ by a physical active-rooted incidence theorem or an additional factor $e^{-\kappa b_6}$ in its coefficient. For each *nonzero physical* P7 cluster $\Gamma$, with old labels $X_i$, removed components $c_r$ and output $Y_\Gamma$, define
+
+$$b_7(\Gamma)=\Bigl[D_+(Y_\Gamma)-\sum_iD_-(X_i)
+ -2dL(|\Gamma_{\rm old}|-1)- (dL+d+3)\sum_r|c_r|\Bigr]_+.\tag{28}$$
+
+The exact constants in (28) are the landed `G3_dcov` active-overlap junction constant and `SizeModExtend` newly-active-cell constant; (28) is a **residual definition**, not an established geometric inequality when the overlap is only in a hole. The output weight must supply $e^{-\kappa b_7}$, or the construction must prove that such a cluster is absent/splits on active cores. A shared retained history is insufficient for a gas edge. In Lean, retain `Fluctuation.IsPiPrimeUnion`, `DjMod`, `dcovModE`, `dcovModE_completion_le_of_noSpill`, `G1_cellCount`, `G3_dcov`, and `RHaloSep` as their actual landed statements; add `IsLBlockUnion`/`I_L` defect lemmas around `RegionStep.Omega`, an attachment relation on `OmegaComp`, and **physical producer** hypotheses for (27)–(28). The paper-to-fine comparison `OPEN-PAPER-FINE-REALIZATION` in `Def7FineSize.lean` is still required before using these fine residuals to assert P5's continuous-tree H7.
+
+Concretely, the first new Lean leaf should be the following signature shape (names below are **proposed**, while the names after `:=` in the prose above are landed):
+
+```lean
+def allOffsetInterior (L : ℕ) (S : Set (Torus d n)) : Set (Torus d n) :=
+  {x | ∃ c, x ∈ lblock L c ∧ lblock L c ⊆ S}
+
+theorem union_hole_isLBlockUnion_iff {X H : Set (Torus d n)}
+    (hX : IsLBlockUnion L X) :
+  IsLBlockUnion L (X ∪ H) ↔ H ⊆ allOffsetInterior L (X ∪ H)
+
+theorem omegaPrime_compl_eq_close (st : RegionStep d L n0 n1 Rprev Rk) :
+  (st.OmegaPrime)ᶜ = (allOffsetInterior L
+    ((nbhd (⌊Rk⌋₊ + 4) st.Uprime)ᶜ))ᶜ
+```
+
+The last line is mathematical Lean shape: parentheses, casts, and the neighbourhood-composition theorem must be elaborated in the actual module. The counterexample leaf should quantify $d\ge3$, $L\ge2$, a seam length $N$, and a sufficiently large period, construct `st` with empty new seeds, and return a component `H` of `st.Omegaᶜ` and $(L-1)N$ distinct coarse cells $q$ in `st.Omega` such that every `IsLBlockUnion L Y` with `H ⊆ Y` contains at least one of the two flanks for each seam cell. Pullback through `IsPiPrimeUnion` then yields the `cellCount` lower bound. The producer leaves must quantify **nonzero** assignments or clusters and attach either the zero-residual proof or a coefficient bound with the extra factor in (27) or (28); a geometric lemma alone cannot discharge those leaves.
+
+If the actual P6/P7 coefficients factor over active cores, route B of `VMOD-44.md`—plain domains with whole-component *history decorations*—is the cheaper specialization: it removes the artificial retained-hole edge and lets P3's plain source tree prove its original (4.48). If a real term couples distant active attachments through a hole, plain domains alone cannot represent it as one local connected term; the paid multi-attachment object above is then the nearest repair. Neither choice can be declared proved without the actual coefficient identity, its analytic-space transport, and one-use reserve accounting. The fixed-grid R3 changes the regions and covariance and addresses neither producer obligation.
+
+**What this unblocks and status.** Equations (18)–(26) settle the exact all-offset **geometry** and replace the fixed-grid long-face argument by a valid thick-seam counterexample. Equations (27)–(28) isolate the two remaining coefficient obligations. Blocker 3 is **not closed by P5–P7's displayed estimates or the landed geometric lemmas**; closure needs an active-core splitting theorem or a covariant paid-attachment producer with a no-double-spend large-field ledger. Root-F and Root-C remain downstream. Confidence: high for (18)–(26), the rectangular/no-rectangle distinction and the abstract impossibility from fixed old/removed weights; high for the source placement of P5/P7 factors; medium for realizing the thick-seam input in a stricter multiscale history; low for choosing between active-core splitting and a paid producer before the actual O(N) coefficients are constructed. No Lean file or file under `/home/scott/Balaban` was edited.
+
+# Round 3: testing the physical paid-attachment claim
+
+Read-only Lean snapshot checked for this round: `/home/scott/Balaban` at commit `f1c1541ac0fa130c102838c376c9eee38b7fbe77`. Journal pagination below is from the P5, P6 and P7 PDF text already extracted in this scratch directory; B.7 is cited to its separate scratch note, not as a journal result. No source file outside this directory was edited.
+
+**Verdict.** Theorem B.7 of `/home/scott/Balaban-scratch/astra-kf0b/KF0B.md`, lines 527–650, gives a rigorous warning against scalar active-core factorization *after* a shared good variable is integrated. I agree that such a factorization cannot be used as a general rule for final coefficients. It does **not** prove that the specific P7 coefficient at a *retained large-field hole* fails to split: B.7 integrates a good middle variable, whereas the retained component and its output field remain outside the removed-component integral in P7 (3.26), printed p. 527. Conversely, none of the landed massive-kernel decay statements proves the requested factor $e^{-\kappa b_6}$ or $e^{-\kappa b_7}$ for a physical assignment or cluster. In fact, the proposed inference from the current H7 class, P7's displayed factors, and those kernel bounds is false. Thus the two proposed closures cannot yet be selected as a theorem about the actual $O(N)$ coefficients. The nearest true result is the conditional linked-producer lemma below, together with a concrete class-level counterexample to its missing premise. **Blocker 3 remains open.** This distinguishes a failure of the claimed deduction from a counterexample to Balaban's physical construction.
+
+## 3.1 What B.7 proves at each integration order
+
+Use B.7's notation $A(y)=\int_Ge^{\epsilon y\tanh x}\,d\gamma(x)$, $B(y)=\int_He^{\epsilon y\tanh x}\,d\gamma(x)$, and $R=B/A$. At a fixed retained value $t$ of the middle block, the two end-block cutoff ratios multiply exactly: the joint ratio is $R(\tanh t)^2$. If the middle good block is then integrated, the four cutoff weights satisfy
+
+$$w_\varnothing=\int_G A(\tanh t)^2d\gamma(t),\quad w_a=w_c=\int_G A(\tanh t)B(\tanh t)d\gamma(t),\quad w_{ac}=\int_G B(\tanh t)^2d\gamma(t).\tag{29}$$
+
+Because $R$ is nonconstant on $G$ (B.7 (B.55)), strict Cauchy–Schwarz gives $w_\varnothing w_{ac}>w_aw_c$. Equivalently the covariance of the two conditional ratios under probability proportional to $\mathbf1_G A^2d\gamma$ is positive. Hence the scalar log coefficient with activating set $\{a,c\}$ is nonzero, although this set is disconnected. Its *linked footprint* includes the middle good block $b$. This is a proof of nonfactorization of the **integrated scalar** weights, not a proof that the conditional functions at fixed $t$ fail to multiply. B.7 itself explicitly limits its conclusion to the exact cutoff-cell reading and does not identify that reading with P7's prepared density. In the retained-hole problem the component $H$ is large-field data and its output is not integrated in the bracket of P7 (3.26). The exact identity `LargeField/R/RGasRepCoupled.lean:Rop_famDecompRestricted_coupled` leaves the common $\xi$ integral and the output $\psi$ in place; `prod_mul_Rop_famDecompRestricted_coupled` also leaves the coupling $f(\psi,\xi)$ in place. Neither theorem gives scalar core factorization after the $\xi$ integral. A proof for the actual coefficients must say which shared variables are integrated, which are conditional, and which linked footprints remain. P7 pp. 527–528, (3.26)–(3.28), states the Mayer reorganization but does not supply that distinction as a coefficient identity.
+
+## 3.2 A rigorous obstruction to automatic termwise payment
+
+Retain the rectangular $H_n$, $X_-=H_n\cup A_-$, $X_+=H_n\cup A_+$ of Round 2, with bounded active collars $A_\pm$ at opposite ends, and put bounded removed components $c_\pm$ next to the respective collars. Increase the torus period with $n$, keeping $d,L$ and all collar, halo and component sizes fixed. The Round-2 tree calculation gives constants $C_0,C_1>0$ and $w>0$, independent of $n$, with
+
+$$D_-(X_-)+D_-(X_+)\le C_0,\qquad D_+(Y_n)\ge w(n-2L)-C_1,\qquad |c_-|+|c_+|\le C_1.\tag{30}$$
+
+For two old labels and two removed components, (28) therefore gives, writing $C_2=C_0+C_1+2dL+(dL+d+3)C_1$,
+
+$$b_7(\Gamma_n)\ge [w(n-2L)-C_2]_+\longrightarrow\infty.\tag{31}$$
+
+Choose a real $u>0$ below the old H7 bound at $X_\pm$ and a fixed allowed removed weight $t>0$ for each $c_\pm$. They may be arbitrarily small but are independent of $n$. The connected **full-label geometric** Mayer family with these four objects has the nonzero product weight
+
+$$|W_n|=t^2(e^u-1)^2>0,\tag{32}$$
+
+since the old labels meet in $H_n$. For every fixed $A<\infty$ and $\kappa>0$, (31)–(32) contradict $|W_n|\le A e^{-\kappa b_7(\Gamma_n)}$ for sufficiently large $n$. This is an exact implication failure: H7, the two fixed P7 (3.10) factors, and any independent Green-kernel bound cannot imply a termwise paid-bridge estimate for all permitted old coefficients. A coefficient constant in the fields has no covariance line crossing $H_n$. To make the class test history-local, on each history and label set it equal to $u$ precisely when the whole components meeting that label have the chosen local-history pattern, and zero otherwise; assign the same value on every image of this pattern under partition-preserving translations and lattice rotations. Agreement of the local histories of components meeting the label then preserves its value, exactly as `D7BdryPost.loc_hist` requires. It is constant in all fields and sources, so `loc_field`, analyticity, reality and $O(N)$ invariance are immediate; choosing $u$ below the minimum H7 bound for the two bounded-size label orbits gives `D7BdryPost.bound`. This construction tests the **abstract class** and the full-label cluster convention of P7 p. 528. It does not assert that a coefficient computed from the low-temperature $O(N)$ density equals this chosen constant. If an actual source-to-gas identity instead disconnects these labels on their charged active cores, then this particular geometric family is absent from that gas; proving that identity is precisely the alternative producer obligation.
+
+The P6 seam is independent of any crossing covariance. Round 2 (23)–(26) gives at least $(L-1)n$ new active cells under a whole-component completion with an empty mark set $J$. By `Fluctuation/SizeModG1.lean:G1_cellCount`, a valid completed label has $D_+(Y_n)\ge (L-1)n/[3(2L-1)]^d-1$, while the old one-attachment label has $D_-(X_n)\le C_3$ for a fixed $C_3$. Thus
+
+$$b_6(X_n,\varnothing,Y_n)\ge (L-1)n/[3(2L-1)]^d-1-C_3/L\longrightarrow\infty.\tag{33}$$
+
+An H7-admissible old coefficient may depend only on the whole component's *history* and be constant in the fluctuation field. It then has no marked derivative and no crossing Green line. The current H7 premises do not force its zero-mark completed assignment to vanish or give it (33)'s exponential. This does **not** prove that P6's actual assignment produces such a nonzero term: P6 p. 34, (4.32)–(4.34), asserts the assignment estimate without specifying a restriction that would exclude it. The exact missing theorem is either that such assignments have zero coefficient, or a new source-to-coefficient payment. In particular, a decay theorem for a massive covariance cannot alone pay a purely historical completion cost.
+
+## 3.3 Audit of the landed decay estimates
+
+The following are genuine landed estimates, with their objects and hypotheses kept visible.
+
+| Declaration | Estimate actually obtained | Missing bridge to (27)–(28) |
+| --- | --- | --- |
+| `Balaban/Fluctuation/CovarianceWeighted.lean:cov_entry_decay` | Under `XData` for all resolvent parameters, a constraint field, and $\delta^2\operatorname{smallConstX}\le1/4$, a covariance matrix entry is at most $C(d,L,a_k,x)e^{-[xAgmonRate(d,L)/L]\operatorname{torusDist}(p,q)}$. | No formula for a P6 assignment or P7 Mayer coefficient as a connected sum of such entries. |
+| `Balaban/Fluctuation/CovSqrtSupComplex.lean:covC_entry_decay`, `covC_sqrt_entry_decay` | Complex decoupled covariance and square-root entries obey the same geometric rate, assuming `XData G ... κ s` for every spectral parameter and the constraint and smallness premises. | No connected-footprint expansion, determinant control, or bridge incidence for a retained hole. |
+| `Balaban/Green/CoarseOperator.lean:coarseGreen_decay` | A coarse Green entry decays at its `trRate d L`, under its positivity, mass and scale hypotheses. | It is an operator-kernel statement, not a coefficient bound. |
+| `Balaban/Green/FinalMassGreen.lean:finalMass_inverse_decay` and `Balaban/Green/FinalComplexHessian.lean:finalHessianC_inverse_decay` | For the final massive reference operator, off-diagonal entries decay at `finalRate d L`; the complex spin Hessian also has a local diagonal term. | These concern the final reference Hessian. `FinalMassGreen.lean` explicitly leaves its physical-density identification open and they give no general P6/P7 cluster identity. |
+| `Balaban/Green/FinalLiftDecayResponse.lean:composeField_response_le` | Subject to `BgHyp`, `Dec2.OpSetting`, domain and data-agreement premises, a response to a distant data change is bounded by a constant times $e^{-\gamma_w n}$. | This is one response difference, not a mixed linked coefficient across every attachment or a budget ledger. `Balaban/Fluctuation/FarDecay.lean` also takes `WeightedProp51` as an explicit input. |
+
+For example, `covC_entry_decay` gives a rate $\mu_C=xAgmonRate(d,L)/L$ in its torus-distance units. To use one crossing line of length $\ell$ to pay a deficit $b$, one must prove $\mu_C\ell\ge\kappa b$ **after** the fine/coarse and continuous-tree comparisons, and still pay the graph count. For a linked graph with edges $e$, the required inequality is $\sum_e\mu_e\ell_e+q\ge\kappa b+E$, where $E$ pays the linked-family entropy and $q$ is a genuinely unused birth credit. None of the listed declarations supplies a map from a nonzero P6 assignment or P7 cluster to those edges, an inequality between their lengths and $b_6$ or $b_7$, or an allocation $q$. The rates $\mu_e$ are fixed by the operator hypotheses; the class parameter $\kappa$ and the size comparison cannot simply be identified with them. The (33) example has no edges at all, so its missing payment cannot be recovered by improving a pointwise kernel constant.
+
+The landed gas results make the boundary equally explicit. `LargeField/R/RGasRepDecor.lean:gasDecor_eq` proves an exact combinatorial identity for decorated couplings $b_X(S)$ with $b_X(\varnothing)=0$, light objects $(X,S)$, and charged supports $c_x(X)\cup\bigcup_{m\in S}c_z(m)$; its header says these weights are not the old undecorated `gasK`. It does not construct $b_X(S)$ from `Rep.B` or prove a crossing estimate. `LargeField/R/RGasCore.lean:gas_activity_bound_physical` assumes `hB`, `hτ`, `hXY`, `hXZ`, `hzd` and the numerical `hh`. The specialized `LargeField/R/RGasCoreFinal.lean:gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run` still assumes `hrem : ∀z, ‖τ z‖≤\exp[-p2Run-H|c_z|]` and core-label identities. Its conclusion bounds `gasK` on the chosen core support, **conditional on that representation and those inputs**; it is not an assertion that every full-label P7 cluster has $e^{-\kappa b_7}$. `LargeField/R/D7GasRootEntropy.lean` explicitly labels the retained-hole bridge open. This is why a gas bound on active cores cannot be substituted for the requested physical producer theorem.
+
+## 3.4 The nearest true producer statement and a one-use ledger
+
+Here is the exact elementary statement that a linked physical construction would be able to use. For one assignment or cluster $\gamma$, let $a_\gamma\in\mathbb C$ be its coefficient, $A_\gamma\ge0$ its ordinary old-term/removed-factor prefactor, $b_\gamma\ge0$ its deficit (27) or (28), $E_\gamma\ge0$ its entropy charge, and $\mathcal G_\gamma$ a finite family of linked witnesses. Suppose each witness $g$ has a complex amplitude $a_{\gamma,g}$, a nonnegative crossing cost $\ell_{\gamma,g}=\sum_{e\in g}\mu_e\operatorname{dist}(e)$, and a nonnegative allocated birth credit $q_{\gamma,g}$, with
+
+$$a_\gamma=\sum_{g\in\mathcal G_\gamma}a_{\gamma,g},\quad
+|a_{\gamma,g}|\le A_{\gamma,g}e^{-\ell_{\gamma,g}-q_{\gamma,g}-E_\gamma},\quad
+\sum_g A_{\gamma,g}\le A_\gamma e^{E_\gamma},\quad
+\ell_{\gamma,g}+q_{\gamma,g}\ge\kappa b_\gamma.\tag{34}$$
+
+Then the triangle inequality and monotonicity of the exponential give, with **every constant shown**,
+
+$$|a_\gamma|\le\sum_g A_{\gamma,g}e^{-\ell_{\gamma,g}-q_{\gamma,g}-E_\gamma}
+\le e^{-\kappa b_\gamma-E_\gamma}\sum_gA_{\gamma,g}
+\le A_\gamma e^{-\kappa b_\gamma}.\tag{35}$$
+
+This proves the paid factor *if* the physical linked expansion and length/credit incidence in (34) are produced. Taking $b_\gamma=b_6$ or $b_7$ gives precisely the two bounds requested in Round 2. A single response bound is insufficient for the first equality in (34); a uniform tree or walk expansion of the logarithm and determinant, with activation separate from footprint, is needed. If there is no crossing edge, (34) says explicitly that $q_{\gamma,g}\ge\kappa b_\gamma$. If the coefficient actually splits into factors on separate active cores, the correct gas should omit the artificial full-hole edge instead of paying it.
+
+For each component $H$ when it is created, write its **available** operator exponent as $Q_H\ge0$; do not call all of P5's $H_k|Z|_\eta$ available without subtracting the portions already used to prove the operator, removed-component factor, normalization, and earlier boundary bounds. In any simultaneously present compatible family $\mathcal F$ of assignments or clusters, a valid ledger must supply nonnegative $r_H$ and $q_H(\gamma,g)$ such that
+
+$$r_H+\sum_{(\gamma,g)\in\mathcal F}q_H(\gamma,g)\le Q_H,
+\qquad q_{\gamma,g}=\sum_Hq_H(\gamma,g).\tag{36}$$
+
+Indeed, with $s_H=Q_H-r_H-\sum_{\mathcal F}q_H\ge0$ the identity
+
+$$e^{-Q_H}=e^{-r_H}\prod_{(\gamma,g)\in\mathcal F}e^{-q_H(\gamma,g)}e^{-s_H}\tag{37}$$
+
+shows that no component's exponent was spent twice. These equalities hold **for each family**; moving factors from P7's retained operator outside the braces of (3.26) into its gas coefficients also requires a source-level algebraic reorganization preserving (3.26). P7 (3.10), printed p. 520, pays removed components, while the retained operator remains outside the braces on p. 527. P5 (1.30)–(1.31), printed p. 495, gives the operator small factor, not (36) or the algebraic transfer. For a small abstract birth component, Round 2's $R_j\asymp(\log\beta)^2$ versus $H_j\asymp\log\beta$ example shows that $H_j|Z|_\eta$ alone cannot be asserted to dominate $\kappa b$ without a minimum-volume or geometry hypothesis. Hence (36) must include an explicit numeric lower bound on the **unused** credit or the linked line charge; it cannot be filled with a symbolic large-field factor.
+
+The corresponding covariant class repair is a boundary object $(C,\mathcal P,(A_H)_{H\in\mathcal P},q)$: $C$ is the active footprint, $\mathcal P$ the retained whole-component histories read, $A_H$ the finite active attachment set at each $H$, and $q$ its recorded, one-use birth credit. The linked spatial footprint may pass through a good integrated block, as in B.7, while its activating set is disconnected. A retained hole is included in a charged tree only when a witness or allocated credit pays that tree. All objects are finite sets and metric tree costs; translation and lattice rotation move them naturally, so no fixed grid phase or chosen root breaks Euclidean covariance. Merely changing to plain domains (route B of `VMOD-44.md`) does not prove that a genuinely linked coefficient can be separated. The smallest valid class change therefore records **both** activation and linked footprint, plus attachment credits when a retained hole is traversed; an active-core specialization is allowed only after an exact factorization theorem for those particular coefficients.
+
+## 3.5 Lean producer signatures and status
+
+The exact landed carriers available for the boundary coefficient are `LargeField/Def7.lean:Rep.B` and `D7BdryPost.bound`; the latter is a bound on `rep.B A X ψ ψ' h g` at a valid domain, not on a P6 assignment or P7 cluster. The exact fine size is `LargeField/Def7FineSize.lean:d7SizeAt F k Om X` (the real value of `dcovModE`, only meaningful for `FineValidAt`); `d7SizePre` is the corresponding pre-`R` size. The current repository has **no type of physical P6 assignments or physical P7 linked clusters carrying both a coefficient and a crossing-witness graph**. Consequently there is no honest closed Lean signature using only landed physical constructors for the requested producer. Here is a fully typed *interface shape*, with `Phys6` and `Phys7` explicitly new types and `Dold`, `Dnew`, `oldSum`, `remCard` required to be identified with `d7SizeAt`/`d7SizePre` and the actual region step before it can be claimed physical:
+
+```lean
+-- Proposed definitions and theorems; none of these names is landed.
+def bridgeDeficit6 {Phys6 : Type*} (Dold Dnew : Phys6 → ℝ)
+    (marks : Phys6 → ℕ) (d L : ℕ) (a : Phys6) : ℝ :=
+  max 0 (Dnew a - Dold a / (L : ℝ) -
+    (d : ℝ) * (2 * (L : ℝ) + 1) ^ d * (marks a : ℝ))
+
+def bridgeDeficit7 {Phys7 : Type*} (Dnew oldSum : Phys7 → ℝ)
+    (oldCard remCard : Phys7 → ℕ) (d L : ℕ) (g : Phys7) : ℝ :=
+  max 0 (Dnew g - oldSum g -
+    (2 * (d : ℝ) * L) * ((oldCard g : ℝ) - 1) -
+    ((d : ℝ) * L + d + 3) * (remCard g : ℝ))
+
+-- Specifications for the missing physical producers.  These are Props, not proofs.
+def P6PhysicalPaid
+    {Phys6 : Type*} (nonzero : Phys6 → Prop) (amp : Phys6 → ℂ)
+    (base Dold Dnew : Phys6 → ℝ) (marks : Phys6 → ℕ)
+    (d L : ℕ) (κ : ℝ) : Prop :=
+  ∀ a, nonzero a →
+    ‖amp a‖ ≤ base a * Real.exp (-κ * bridgeDeficit6 Dold Dnew marks d L a)
+
+def P7PhysicalPaid
+    {Phys7 : Type*} (nonzero : Phys7 → Prop) (amp : Phys7 → ℂ)
+    (base Dnew oldSum : Phys7 → ℝ) (oldCard remCard : Phys7 → ℕ)
+    (d L : ℕ) (κ : ℝ) : Prop :=
+  ∀ g, nonzero g →
+    ‖amp g‖ ≤ base g * Real.exp (-κ *
+      bridgeDeficit7 Dnew oldSum oldCard remCard d L g)
+
+-- The conditional theorem proved by (35); the physical work is `hlinked` and `hcharge`.
+theorem paidBridge_of_witness {A : Type*} (amp : A → ℂ)
+    (base residual crossing credit : A → ℝ) (κ : ℝ)
+    (hbase : ∀ a, 0 ≤ base a)
+    (hlinked : ∀ a, ‖amp a‖ ≤ base a * Real.exp (-(crossing a + credit a)))
+    (hcharge : ∀ a, κ * residual a ≤ crossing a + credit a) :
+    ∀ a, ‖amp a‖ ≤ base a * Real.exp (-κ * residual a) := by
+  intro a
+  calc
+    ‖amp a‖ ≤ base a * Real.exp (-(crossing a + credit a)) := hlinked a
+    _ ≤ base a * Real.exp (-κ * residual a) :=
+      mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr (by linarith [hcharge a])) (hbase a)
+```
+
+`P6PhysicalPaid` and `P7PhysicalPaid` are **specifications, not landed results**; the proof of `paidBridge_of_witness` is just exponent arithmetic. The missing physical theorems must build the linked decomposition (34) from the actual coefficients, prove its length/credit inequality, and verify (36). In particular the needed P7 theorem must identify its `amp` with the decorated coefficient generated from `Rep.B` and the removed operator, not merely with an arbitrary `gasK` input. It must also prove its result on P5's continuous-tree size (1.34), or first discharge `Def7FineSize.lean`'s `OPEN-PAPER-FINE-REALIZATION` comparison; a fine-size theorem alone does not close the printed H7.
+
+**What is settled.** B.7 proves scalar post-integration nonfactorization, (30)–(33) refute automatic per-cluster payment from the present H7 and operator-kernel inputs, and (34)–(37) give the exact sufficient producer and no-double-spend ledger with its proof. The available Lean theorems give kernel decay and conditional gas estimates but no source-to-linked-coefficient construction satisfying (34)–(36). The actual $O(N)$ paid producer and the alternative exact active-core factorization remain unproved; blocker 3 and hence the dependent Root-F/Root-C path are not closed. Confidence: high in the algebraic and class-level counterexamples, the integration-order distinction, and the audit of the named landed statements; low in either physical closure until its producer identity and budget are constructed.
