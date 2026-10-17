@@ -216,8 +216,9 @@ cost of a constant factor in the radius (proved). The coefficient bounds of the 
 stated with a bound on the whole interaction, which grows with the volume. The term-by-term version is
 proved: each local term's coefficients are bounded by its own size and vanish away from what it reads; the
 volume-uniform bound follows from the count of the polymers through a point (proved, with a constant
-independent of the volume) once the terms, composed with the background, depend only weakly on distant data
-(the decay of the background's response; in progress). For the large-field part, P7 §4 does not apply the cut
+independent of the volume) and the weak dependence of the terms, composed with the background, on distant
+data (proved: the background's response decays exponentially and the terms are Lipschitz inside the local
+chart); the remaining input is the count of sites at each distance, which is polynomial (in progress). For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
 block are proved, and so are the decomposition into large-field block sets, the activity of each set, and
