@@ -2094,3 +2094,5 @@ public import Balaban.LargeField.R.RRemovedRegroupPi
 public import Balaban.LargeField.R.RRemovedRegroupCore
 public import Balaban.LargeField.R.RRemovedRegroupSplit
 public import Balaban.LargeField.R.RRemovedRegroupTheta
+public import Balaban.LargeField.R.RRemovedRegroupOut
+public import Balaban.LargeField.R.RRemovedRegroupCanon
