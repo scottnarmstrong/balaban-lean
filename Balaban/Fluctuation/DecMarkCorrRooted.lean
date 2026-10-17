@@ -52,14 +52,12 @@ variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
   {𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
   {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **A label left out of `markedIdx` misses the mask of the root.**  With the trivial read sets,
-a pair `(b, Y)`, `Y ∈ dom b`, is left out of `markedIdx … z` only if the nearest-neighbour
-thickening of `Y` does not meet the fine block of the root `z`; the mask `blockU z` is supported
-in that fine block (`blockU_supported`), so no site of `Y` has its unit point in the mask. -/
-theorem noUnitPt_blockU_of_not_mem_markedIdx
-    (dom : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
-      Finset (Set (CTorus d L N₁ m₁ (k + 1))))
-    {b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+/-- **Core of `noUnitPt_blockU_of_not_mem_markedIdx`, for any index type `β` of the expansions.**
+With the trivial read sets, a pair `(b, Y)`, `Y ∈ dom b`, left out of `markedIdx … z` has no site
+whose unit point lies in the mask `blockU z`. -/
+theorem noUnitPt_blockU_of_not_mem_markedIdx_of {β : Type*} [Fintype β]
+    (dom : β → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    {b : β} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
     (hY : Y ∈ dom b)
     (hnot : (b, Y) ∉ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) dom z) :
     ∀ y ∈ Y, unitPt S.hG' y ∉ S.blockU z := by
@@ -71,6 +69,19 @@ theorem noUnitPt_blockU_of_not_mem_markedIdx
   have h2 : y ∈ psiThick Y ∩ fineBlock z := ⟨Or.inl hy, S.blockU_supported z hmem y rfl⟩
   rw [hmiss] at h2
   exact h2
+
+/-- **A label left out of `markedIdx` misses the mask of the root.**  With the trivial read sets,
+a pair `(b, Y)`, `Y ∈ dom b`, is left out of `markedIdx … z` only if the nearest-neighbour
+thickening of `Y` does not meet the fine block of the root `z`; the mask `blockU z` is supported
+in that fine block (`blockU_supported`), so no site of `Y` has its unit point in the mask. -/
+theorem noUnitPt_blockU_of_not_mem_markedIdx
+    (dom : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    {b : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : Y ∈ dom b)
+    (hnot : (b, Y) ∉ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) dom z) :
+    ∀ y ∈ Y, unitPt S.hG' y ∉ S.blockU z :=
+  S.noUnitPt_blockU_of_not_mem_markedIdx_of z dom hY hnot
 
 /-- **Resummation of the rooted outputs of the corrected marks.**  Let `(F₁ b, Sol b)` be a pair
 with the eight clauses for every block `b` at the step `S` (`cc = β_k^{-1/2}`, mask `blockU z`),
