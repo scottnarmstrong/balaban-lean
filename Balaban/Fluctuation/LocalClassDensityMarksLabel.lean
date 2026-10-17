@@ -282,6 +282,137 @@ theorem classLabel_PJ_masked_eq_flComp {P : Consts} {Dom : FieldDom d L N₁ m�
   rfl
 
 open Classical in
+/-- **Core of `deriv_classLabel_PJ_eq_sum_marked`, for given maps.**  For maps `(F₁, Sol, Fk)` whose
+expansion of the label along the masked tangent of every root `z` has the sum identity and the
+analyticity in the marks of `classOldMarkedLocal_sum` (`hexp`), the mark identity of the label holds
+at every datum of the chart: the derivative at `0` of
+`t ↦ ℰ^{(j)}(y, X; Jr.PJ j (rawOf D, s ψ̂ + t v_z))` is
+`β ∑_Y ∂_t|₀ evTerm … (FFmarked … (blockU z) s t) Y (rawOf D, ψ̂)`. -/
+theorem deriv_classLabel_PJ_eq_sum_marked_of {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hcl : SFTermClauses P Dom C.Tm)
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {y : CTorus d L N₁ m₁ (k + 1)} {X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hS : GsSpecStrong j (hjk.trans (Nat.le_succ k)) X (C.Tm.gs j X))
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    {c BG κ r₀ δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hB : BgSetting N S.G' Gk (C.Tm.gs j X) S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N S.G' Gk (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl
+      X₁f)
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} (hβ : 0 < S.β)
+    {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
+    {Sol : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
+        ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ)}
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hexp : ∀ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
+      (∀ um tm : ℂ, (‖um‖ + ‖tm‖) *
+        (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+          (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁ →
+        ∀ D : BgData S.G' N, XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps D →
+        ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+        flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+          (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν (S.blockU z) um tm D ψh) =
+        ∑ Y ∈ polymerDomains
+          (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X), evTerm
+            (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
+            (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+              (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+                (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) um tm) Y
+            (rawOf D, ψh)) ∧
+      (∀ Y, ∀ u ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+        AnalyticOnNhd ℂ (fun w : ℂ × ℂ =>
+          evTerm (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G'
+            C.m₀ (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+              (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+                (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) w.1 w.2) Y u)
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+            (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+              (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁})) :
+    ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+    ∀ (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (x : S.E),
+      (∀ p, ‖yhat x p‖ ≤ cψ) → ∀ s : ℂ, (∀ p, ‖(s • yhat x) p‖ < pp) →
+      ‖s‖ * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁ →
+      deriv (fun t : ℂ => C.Tm.E j y X
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2) 0 =
+        (S.β : ℂ) * ∑ Y ∈ polymerDomains
+          (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X),
+          deriv (fun t : ℂ => evTerm
+            (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
+            (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+              (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+                (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
+            (rawOf D, yhat x)) 0 := by
+  intro D hD z x hx s hs hsr
+  obtain ⟨hsum, han⟩ := hexp z
+  have hu : ((rawOf D, yhat x) : RawData d L (N₁ * L ^ m₁) (k + 1) N × S.EC) ∈
+      XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} := ⟨⟨D, hD, rfl⟩, hx⟩
+  have hU : ∀ᶠ t : ℂ in nhds 0,
+      (∀ p, ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ < pp) ∧
+      (‖s‖ + ‖t‖) * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁ := by
+    refine Filter.Eventually.and (Filter.eventually_all.2 fun p => ?_) ?_
+    · have hc : Continuous fun t : ℂ => ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+          S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ := by fun_prop
+      exact hc.continuousAt.eventually_lt continuousAt_const (by simpa using hs p)
+    · have hc : Continuous fun t : ℂ => (‖s‖ + ‖t‖) *
+          (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+            (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) := by fun_prop
+      exact hc.continuousAt.eventually_lt continuousAt_const (by simpa using hsr)
+  have hβ0 : (S.β : ℂ) ≠ 0 := by exact_mod_cast hβ.ne'
+  have h0 : (s, (0 : ℂ)) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+      (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁} := by
+    show (‖s‖ + ‖(0 : ℂ)‖) * _ < δ₁
+    rw [norm_zero, add_zero]
+    exact hsr
+  have han' := fun Y => differentiableAt_mark_slice (han Y (rawOf D, yhat x) hu (s, 0) h0)
+  refine deriv_eq_sum_of_expansion
+    (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X))
+    (fun Y t => evTerm
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
+      (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+        (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+          (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
+      (rawOf D, yhat x))
+    (fun t => flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+      (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
+        (S.blockU z) s t D (yhat x)))
+    (fun t => C.Tm.E j y X
+      (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
+      (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2)
+    (S.β : ℂ) hβ0 hU (fun t ht => by exact hsum s t ht.2 D hD (yhat x) hx) (fun t ht => ?_)
+    (fun Y _ => by exact han' Y)
+  rw [Jr.classLabel_PJ_masked_eq_flComp C hcl hj1 hjk (y := y) hS hB hF hc7 hR hsmR hRs hsmall
+    hnum hnum' hcψ hMX hdm hα hsm hβ hD z x hx s t (fun p => (ht.1 p).le) ht.2, ← mul_assoc,
+    inv_mul_cancel₀ hβ0, one_mul]
+
+
+open Classical in
 /-- **The mark identity of an inherited label at every datum of the chart** (any external field),
 with a localized ambient set `Gk`.  There are maps `(F₁, Sol, Fk)` (those of
 `classOldMarkedLocal_sum`) such that for every datum `D` of the chart, every root `z`, every `x` with
@@ -358,55 +489,8 @@ theorem deriv_classLabel_PJ_eq_sum_marked {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b �
   obtain ⟨F₁, Sol, Fk, -, -, hexp⟩ := classOldMarkedLocal_sum hb₁ hbC C hm hcl hβ hE₀ hj1 hjk
     hXp hy hB hF S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov
     hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart
-  refine ⟨F₁, Sol, Fk, fun D hD z x hx s hs hsr => ?_⟩
-  obtain ⟨hsum, han⟩ := hexp (S.blockU z)
-  have hu : ((rawOf D, yhat x) : RawData d L (N₁ * L ^ m₁) (k + 1) N × S.EC) ∈
-      XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ×ˢ
-        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} := ⟨⟨D, hD, rfl⟩, hx⟩
-  have hU : ∀ᶠ t : ℂ in nhds 0,
-      (∀ p, ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
-        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ < pp) ∧
-      (‖s‖ + ‖t‖) * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁ := by
-    refine Filter.Eventually.and (Filter.eventually_all.2 fun p => ?_) ?_
-    · have hc : Continuous fun t : ℂ => ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
-          S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ := by fun_prop
-      exact hc.continuousAt.eventually_lt continuousAt_const (by simpa using hs p)
-    · have hc : Continuous fun t : ℂ => (‖s‖ + ‖t‖) *
-          (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-            (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) := by fun_prop
-      exact hc.continuousAt.eventually_lt continuousAt_const (by simpa using hsr)
-  have hβ0 : (S.β : ℂ) ≠ 0 := by exact_mod_cast hβ.ne'
-  have h0 : (s, (0 : ℂ)) ∈ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
-      (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁} := by
-    show (‖s‖ + ‖(0 : ℂ)‖) * _ < δ₁
-    rw [norm_zero, add_zero]
-    exact hsr
-  have han' := fun Y => differentiableAt_mark_slice (han Y (rawOf D, yhat x) hu (s, 0) h0)
-  refine deriv_eq_sum_of_expansion
-    (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-      S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X))
-    (fun Y t => evTerm
-      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
-      (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG'
-        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
-        (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
-          (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
-      (rawOf D, yhat x))
-    (fun t => flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
-      (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
-        (S.blockU z) s t D (yhat x)))
-    (fun t => C.Tm.E j y X
-      (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
-        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
-      (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
-        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2)
-    (S.β : ℂ) hβ0 hU (fun t ht => by exact hsum s t ht.2 D hD (yhat x) hx) (fun t ht => ?_)
-    (fun Y _ => by exact han' Y)
-  rw [Jr.classLabel_PJ_masked_eq_flComp C hcl hj1 hjk (y := y) hS hB hF hc7 hR hsmR hRs hsmall
-    hnum hnum' hcψ hMX hdm hα hsm hβ hD z x hx s t (fun p => (ht.1 p).le) ht.2, ← mul_assoc,
-    inv_mul_cancel₀ hβ0, one_mul]
+  exact ⟨F₁, Sol, Fk, Jr.deriv_classLabel_PJ_eq_sum_marked_of C hcl hj1 hjk hS hB hF hc7 hR hsmR
+    hRs hsmall hnum hnum' hcψ hMX hdm hα hsm hβ (fun z => hexp (S.blockU z))⟩
 
 end StepSetting.JointRep
 
