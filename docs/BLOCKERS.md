@@ -338,8 +338,11 @@ value at every datum for a class with inherited labels is proved up to numerical
 showed that the inherited terms must enter through their irrelevant parts (P1 Prop. 3.10, (3.126)–(3.131), used in
 P4 p. 704): the per-term bound of the class (P4 (H.4)) does not decay with the level, so a sum of the raw terms over
 the domains containing a given set is not bounded uniformly in the scale, while the irrelevant parts gain a factor
-L^{-(k-j)(d+α₃)}. The representation by irrelevant parts is proved on ℤ^d; its torus form, and its use as the label
-functional of the activities, are being built. The papers take the class index at least 4, which the label settings
+L^{-(k-j)(d+α₃)}. The representation by irrelevant parts is proved on ℤ^d, and now also its exact torus form
+(the irrelevant parts summed over the labels give the energy terms of the class on every torus). What remains is
+their bound: away from the cube of each centre it follows from the ℤ^d bound once the data lie in the analytic
+domain of the anisotropic expansion (an open analytic input), and the label at the cube itself carries the torus
+defect of the renormalization conditions. The papers take the class index at least 4, which the label settings
 need. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
