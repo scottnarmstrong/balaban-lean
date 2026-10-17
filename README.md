@@ -39,7 +39,9 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   supply; the coupling across a large-field set is a question to the author.
 - **Blockers 1–3** (the base case of the large-field induction and the case with no renormalization
   step, the change of background along the flow, old boundary terms across a long hole) have
-  designed routes, with one estimate or one source question open in each.
+  designed routes, with one estimate or one source question open in each. We no longer wait for the
+  author's answers to these questions: where the papers are ambiguous we choose a reading and prove
+  what it needs ([`notes/phase1/PLAN-B.md`](notes/phase1/PLAN-B.md)).
 
 ## The mathematics
 
