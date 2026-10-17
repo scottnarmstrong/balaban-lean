@@ -2045,6 +2045,8 @@ public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RRemovedKernelPre
 public import Balaban.LargeField.R.RTransport
+public import Balaban.LargeField.R.RTransportDensity
+public import Balaban.LargeField.R.RTransportFactor
 public import Balaban.LargeField.R.RRemovedLocality
 public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
