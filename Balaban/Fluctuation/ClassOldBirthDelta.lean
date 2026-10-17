@@ -136,4 +136,106 @@ theorem deltafl_le_of_flb {d L N k : ℕ} [NeZero L] {BG₂ κ δ₁ δfl α α�
         mul_le_mul_of_nonneg_left hδ₁k h
     _ = _ := by ring
 
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ : Finset (CTorus d L N₁ m₁ (k + 1))}
+  {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+open Classical in
+/-- **The birth-domain old-cover expansion with constant conditions only.**  The radii are
+`δ₃ = N · composedCloseBound(…, C_{Ξ1} ε′, r₀)` and `δfl = N (5 K₂″ δ₁ + δ₁)`, with `δ₁ ≤ c_δ ε_k`;
+the remaining hypotheses are the constants `L^α`, `c₃`, `c_fl`, `α₀`, `r`. -/
+theorem classOldDec_expansion_cover_birth_consts_delta [NeZero N] {P : Consts} {μ : ℝ}
+    {α α₀ c₃ cfl A cδ : ℝ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀)
+    {j : ℕ} {y : CTorus d L N₁ m₁ (k + 1)}
+    (hgs : X ⊆ ↑((C.Tm.gs j X).Ω 1) ∧ ∀ i, j < i → (C.Tm.gs j X).Ω i = ∅)
+    (hAn : AnalyticOnNhd ℂ
+      (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N => C.Tm.E j y X p.1 p.2)
+      {p | (xiFieldDom (compWeight L a₁) μ (epsSeq L α α₀) : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom j
+        (C.Tm.gs j X) p.1 p.2})
+    (hBd : ∀ Ψ h, (xiFieldDom (compWeight L a₁) μ (epsSeq L α α₀) : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom j
+      (C.Tm.gs j X) Ψ h → ‖C.Tm.E j y X Ψ h‖ ≤ P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X))
+    {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) (hN : L ^ C.m₀ ∣ N₁) (hjk : j ≤ k)
+    (hXp : IsPolyDom C.m₀ j X)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    {K : ℕ} {ξ : ℕ → Fin 3 → ℂ} {q c₈ r : ℝ}
+    (H : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (H' : BgHyp d L (k + 1) ϱ (compWeight L a₁) μ)
+    (heps : 0 < eps)
+    (hq0 : 0 ≤ q) (hq1 : q < 1) (hc : 0 ≤ c₈) (hs : c₈ * q ≤ 1 - q)
+    (hξ : ∀ n, ‖ξ n‖ ≤ c₈ / 4 * q ^ (n + 1))
+    (hμ : (μ : ℂ) = ν * ∏ n ∈ Ico j K, ((1 + ξ n 2) / (1 + ξ n 1)))
+    (hτr : Real.exp (3 * (c₈ / 4 * (q ^ (j + 1) / (1 - q)))) - 1 < r) (hr : r ≤ 1 / 16)
+    (hα₀ : 0 ≤ α₀) (hα0 : 0 ≤ α) (hBG : 0 ≤ BG) (hBG₂ : 0 ≤ BG₂) (hδ₁0 : 0 ≤ δ₁) (hd : 0 < d) (hcδ : 0 ≤ cδ)
+    (hδ₃def : δ₃ = N * composedCloseBound d L N m₁ BG κ (xiC1 d * eps) r₀)
+    (hδfldef : δfl = N * (5 * (cK2' d L N (famConst d L BG₂ κ) * δ₁) + δ₁))
+    (hδ₁k : δ₁ ≤ cδ * epsSeq L α α₀ k)
+    (hc₃def : c₃ = N * (xiC1 d * (L : ℝ) ^ (-α)) * composedCloseBound d L N m₁ BG κ 1 r₀)
+    (hcfldef : cfl = N * (5 * cK2' d L N (famConst d L BG₂ κ) + 1) * cδ)
+    (hepsK : eps ≤ epsSeq L α α₀ (k + 1)) (hLα : 16 * scaledC0 d ^ 4 ≤ (L : ℝ) ^ α)
+    (hcc : 16 * scaledC0 d ^ 2 * xiK2 d L N * (c₃ + cfl) ≤ 1)
+    (hAdef : A = α₀ * epsTail 0)
+    (hAK : ((N : ℝ) + 1) * cK2 d L N * A ≤ 4)
+    (hrK : (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * r ≤ 1)
+    (hsmA : (4 * d + 6) * ((2 * d + 1) * A) ≤ 1) (hc1A : 4 * (xiC1 d * A) ≤ bgC1 d L N)
+    (hKA : bgK1 d L N * (xiC1 d * A) + 3 * r ≤ deltaStar d L N)
+    (hζA : 8 * A * r ≤ deltaStar d L N) :
+    ∃ 𝒦X : Set (CTorus d L N₁ m₁ (k + 1)),
+      ∀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1)),
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X →
+        ∀ (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f),
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+          RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+        (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+          ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+          flComp hB hF (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+            (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+          ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+            Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+        (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+          Ev Y u = Ev Y u') ∧
+        (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          ‖Ev Y u‖ ≤ (β⁻¹ * P.E₀) *
+            Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+        (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  have hc₃0 : 0 ≤ c₃ := by
+    have h0 : 0 ≤ xiC1 d := by unfold xiC1; positivity
+    have hq0 : 0 ≤ (L : ℝ) ^ (-α) := Real.rpow_nonneg (Nat.cast_nonneg _) _
+    have := composedCloseBound_nonneg (d := d) (L := L) (N := N) (m₁ := m₁) (κ := κ) (r₀ := r₀)
+      hBG (zero_le_one) hd
+    rw [hc₃def]; positivity
+  have hδ₃ := delta3_nonneg hBG hd heps.le hδ₃def
+  obtain ⟨hδfl, hδflK⟩ := deltafl_le_of_flb (L := L) (k := k) (α := α) (α₀ := α₀) (κ := κ)
+    hBG₂ hd hδ₁0 hδ₁k hδfldef hcfldef
+  have hcfl : 0 ≤ cfl := by
+    have hB0 : 0 ≤ famConst d L BG₂ κ := by
+      have := famConst_ge_one (L := L) hBG₂ κ hd; linarith
+    have hK := cK2'_nonneg (d := d) (L := L) (N := N) hB0
+    rw [hcfldef]; positivity
+  exact classOldDec_expansion_cover_birth_consts C hm hgs hAn hBd hβ hE₀ hN hjk hXp hk hG hG' cc
+    hcψ hMX hdm hα hsm hδ₁ hconn hrow hκ₀ hκdec hκ h1 hlog hκP H H' heps hδ₃ hδfl hq0 hq1 hc hs
+    hξ hμ hτr hr hα₀ hα0 hc₃0 hcfl hepsK
+    (delta3_le_of_close hα₀ hα0 hBG hd hepsK hδ₃def hc₃def) hδflK hLα hcc hAdef hAK hrK hsmA hc1A
+    hKA hζA
+
 end Balaban.Fluctuation
