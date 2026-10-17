@@ -2041,3 +2041,8 @@ public import Balaban.Green.FinalCoefWeighted
 public import Balaban.Polymer.TwoTorusFibreWeighted
 public import Balaban.Polymer.TwoTorusResumWired
 public import Balaban.Polymer.TwoTorusResumConst
+public import Balaban.SmallField.XiMassResponse
+public import Balaban.SmallField.XiMassResponseBounds
+public import Balaban.SmallField.XiMassResponseXi
+public import Balaban.Fluctuation.LocalClassBirthResponse
+public import Balaban.Fluctuation.LocalClassBirthChart
