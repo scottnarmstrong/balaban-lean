@@ -389,8 +389,11 @@ cells (from the lattice symmetries already proved), so a support of diameter D a
 recentred, and the transport holds when 25D + 25 < min(ℓ, ℓ′) (proved, given the correspondence of
 coefficients near the origin). Wide supports are bounded by the decay of the terms with an absolute rate, and the
 scales just below the last are now assembled into the two-torus resummation for every support in the quarter box,
-given the closeness of the step's functional between two tori at those scales (being derived from the
-transport of the step's ingredients); the question is in item 24, second addendum.
+given the closeness of the step's functional between two tori at those scales. For compact supports the step's
+energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
+their own closeness, which the earlier scales provide; the identification of the step's terms with these
+expansions and the same transport for the determinant and observable terms are in progress. The question is in
+item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
