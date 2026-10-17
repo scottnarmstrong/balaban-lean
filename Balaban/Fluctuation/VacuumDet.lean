@@ -8,6 +8,8 @@ module
 public import Balaban.Fluctuation.DetOutputTerms
 public import Balaban.Fluctuation.StepComplexProp26Agree
 public import Balaban.Localization.DecoupledCovReal
+public import Balaban.Fluctuation.DetRotation
+public import Balaban.LargeField.Background.CubeUnitBg
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -29,11 +31,16 @@ every root separately:
   `c_vac = ½ log det C^{(k)} / |T^{(k+1)}_1|`;
 * `sum_detExpansionLocC_term_root_im`: for real data each root contributes a real number,
   `Im ∑_T t_z(D', T) = 0` (the diagonal of the real logarithm of `𝒜`).
+* `sum_detExpansionLocC_term_rot`: the value of a root does not change under a real rotation of
+  the datum, for every record (under the premises of the landed construction
+  `exists_detExpansionLocC_rot_real`, whose terms are invariant one by one);
+  `constUnitBg_rot`: the rotation of the vacuum datum of `e` is the vacuum datum of `Q e`; so the
+  value of a root at the vacuum datum does not depend on the choice of the unit vector
+  (`sum_detExpansionLocC_term_vacuum_rot`).
 
 Not proved here: that the value of a root at the vacuum datum is independent of the root (only the
 covariance under cell-aligned translations is landed, `rootTrace_unitAct`), its independence of the
-torus, and its independence of the unit vector of the vacuum for an arbitrary record (for the record
-of `exists_detExpansionLocC_rot_real` the terms themselves are invariant).
+torus, and that the vacuum datum lies in the chart.
 -/
 
 @[expose] public section
@@ -134,6 +141,84 @@ theorem sum_detExpansionLocC_term_root_im
   norm_num
 
 end Real
+
+section Rot
+
+variable {ϱm : ℝ} {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  {c BG κ Kc Cx c₂ BG₂ δ₁ δc : ℝ}
+
+/-- **A real rotation of the datum does not change the value of a root**: for every record `E` at
+the root `z` and every datum `D` of the chart, `∑_T t_z(Q D, T) = ∑_T t_z(D, T)` for `Qᵀ Q = 1`
+real.  Both sides are the rooted trace of the block of `z` (`DetExpansionLocC.sum_eq`), and the
+record of the landed construction has invariant terms (`exists_detExpansionLocC_rot_real`, whose
+premises are taken here). -/
+theorem sum_detExpansionLocC_term_rot
+    (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hδc : 0 ≤ δc)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (hconn : HatConn S.G') (hN : L ^ m₀ ∣ N₁)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1)
+    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) (D : BgData S.G' N)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D) :
+    ∑ T, E.term (D.rot (cmat Q)) T = ∑ T, E.term D T := by
+  obtain ⟨E', -, hE'⟩ :=
+    exists_detExpansionLocC_rot_real S hC hδc hMX hdm hα hsm hconn hN hz z hQ
+  have hDr := xiCData_rot hQ hD
+  rw [← E.sum_eq _ hDr, ← E.sum_eq D hD, E'.sum_eq _ hDr, E'.sum_eq D hD]
+  exact Finset.sum_congr rfl fun T _ => hE' D hD T
+
+end Rot
+
+end StepSetting
+
+section VacuumDatum
+
+variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+/-- **The rotated vacuum datum**: `Q · (Ψ ≡ e, h̃ ≡ e) = (Ψ ≡ Q e, h̃ ≡ Q e)`. -/
+theorem constUnitBg_rot (G : GeneratingSet d L N₀ K ϱ) (Q : Matrix (Fin N) (Fin N) ℝ)
+    (e : Fin N → ℝ) :
+    (LargeField.constUnitBg G e).rot (cmat Q) = LargeField.constUnitBg G (Q *ᵥ e) := by
+  refine BgData.ext' (funext fun x => ?_) (funext fun x => ?_)
+  · funext i
+    simp only [BgData.rot, LargeField.constUnitBg, BgData.clip]
+    split_ifs
+    · exact (cmat_mulVec Q e i).symm
+    · simp
+  · funext i
+    simp only [BgData.rot, LargeField.constUnitBg, BgData.clip]
+    split_ifs
+    · exact (cmat_mulVec Q e i).symm
+    · simp
+
+end VacuumDatum
+
+namespace StepSetting
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {m₀ : ℕ} {eps κ'' cdet : ℝ}
+  {ϱm : ℝ} {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  {c BG κ Kc Cx c₂ BG₂ δ₁ δc : ℝ}
+
+/-- **The value of a root at the vacuum datum does not depend on the unit vector**: if the vacuum
+datum of `e` lies in the chart, then for every real `Q` with `Qᵀ Q = 1` the value
+`∑_T t_z(D₀(Q e), T)` equals `∑_T t_z(D₀(e), T)`. -/
+theorem sum_detExpansionLocC_term_vacuum_rot
+    (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hδc : 0 ≤ δc)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (hconn : HatConn S.G') (hN : L ^ m₀ ∣ N₁)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1)
+    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) (e : Fin N → ℝ)
+    (h0 : XiCData S.G' S.a S.ν (k + 1) 1 eps (LargeField.constUnitBg S.G' e)) :
+    ∑ T, E.term (LargeField.constUnitBg S.G' (Q *ᵥ e)) T =
+      ∑ T, E.term (LargeField.constUnitBg S.G' e) T := by
+  rw [← constUnitBg_rot S.G' Q e]
+  exact S.sum_detExpansionLocC_term_rot hC hδc hMX hdm hα hsm hconn hN hz E hQ _ h0
 
 end StepSetting
 
