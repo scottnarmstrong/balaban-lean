@@ -234,6 +234,12 @@ neither works as stated:
 
 The precise question is now item 14, fourth addendum.
 
+Update (17 October, night). Ruling R4 is being implemented. Two corrections came out of it: P7 (3.22)–(3.25) fixes
+only aggregate identities for the new boundary coefficient ℬ′, so we choose and record an explicit construction from
+the landed localization expansions; and the pointwise bound (3.10″) does not imply the output-integrated bound used by the
+gas theorem (a counterexample with m output points), so the gas activity is restated as an operator acting on the output
+field. The window bound is being finished (the step that timed out is being split).
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
@@ -310,6 +316,12 @@ blocks couples them, and no choice of connected boundary terms reproduces the we
 expands after (4.11) into linked terms, whose activating set may be disconnected while the set they read is connected.
 Being built now: the polymer gas with separate activating sets and footprints (W990), and the reorganization of the last
 integral into linked terms with their bounds (W984).
+
+Update (17 October, night). The abstract gas for linked terms is proved (W990): exact identity and activity bound,
+with the large boundary constant of P7 (4.12)–(4.13) paid by the heavy charge. The last integral now has the variational
+background on the complement of the bad set, bounds on the retained reference operator, and the exact crossing identity
+of the boundary difference (W997). What remains is the bound on the coefficient summed over all linked clusters with a
+given footprint, the heavy activity at the operator level, and the identification of the physical Hessian.
 
 ## 6. Local generating sets and analyticity on their domains
 
@@ -494,6 +506,10 @@ gap-scale clause (W979). The energy term needs the same recentred transport as t
 term's formula clauses must be kept by the theorems that produce them; both are being done (W988, with a proof-body
 refactor that leaves all statements unchanged). The wide threshold needs K ≥ 61, which fails at the top few gap scales of
 the smallest tori when L < 61; a separate argument for these finitely many scales is to be written.
+
+Update (17 October, night). The tower's determinant and observable terms are proved to agree on two tori (W988).
+The energy term's coefficient is built on a record whose explicit form was discarded by the theorems that produce it;
+those theorems are being refactored to keep it (no statement changes), followed by its recentred comparison.
 
 ## Large pieces of work that are not blockers
 
