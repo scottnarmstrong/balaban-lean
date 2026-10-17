@@ -2069,6 +2069,9 @@ public import Balaban.LargeField.R.RRemovedFinalRgComp
 public import Balaban.LargeField.R.RRemovedFinalWit
 public import Balaban.LargeField.R.KeptOutcomeGamma
 public import Balaban.LargeField.R.KeptOutcomeWindow
+public import Balaban.LargeField.R.KeptOutcomeGain23
+public import Balaban.LargeField.R.KeptOutcomeGainRipe
+public import Balaban.LargeField.R.KeptOutcomeGainIntegral
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
