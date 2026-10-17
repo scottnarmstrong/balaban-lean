@@ -2227,7 +2227,11 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Fluctuation.LocalClassDensityIrrelCount
 public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppLen
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSpec
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
+public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
