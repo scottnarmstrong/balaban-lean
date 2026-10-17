@@ -2348,6 +2348,9 @@ public import Balaban.SmallField.IrrelTorusXidomPatchGeom
 public import Balaban.SmallField.IrrelTorusXidomPatch
 public import Balaban.SmallField.IrrelTorusXidomLocal
 public import Balaban.SmallField.IrrelTorusXidomRealFrame
+public import Balaban.SmallField.IrrelTorusXidomFrameField
+public import Balaban.SmallField.IrrelTorusXidomSourceFrame
+public import Balaban.SmallField.IrrelTorusXidomSecondDiff
 public import Balaban.LargeField.Regime.A0PrimeRadiusWeight
 public import Balaban.LargeField.Regime.A0PrimeRadiusStep
 public import Balaban.LargeField.Regime.A0PrimeRadiusObservable
