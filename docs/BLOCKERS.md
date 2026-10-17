@@ -12,7 +12,7 @@ item numbers below refer to that file.
 
 The last section lists the problems that have been resolved since the project started.
 
-*Last updated: 2026-10-16.*
+*Last updated: 2026-10-17.*
 
 ## Summary
 
@@ -21,10 +21,10 @@ The last section lists the problems that have been resolved since the project st
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius and a constant check remain (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
-| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized up to the physical inputs of the large-field step; author confirmation asked (item 16 addendum) |
+| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built: replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms; the full lattice clause, complex rotations and the assembly of the next level remain |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form; the scales just below the last may need a floor on the torus size (item 24) |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -121,7 +121,19 @@ gas with compatibility on these cores is formalized: the size through core conta
 retained hole, the counting is volume-free, the size of a core equals the modular size of the class, and
 the activity bound is proved for the large-field gas up to its physical inputs (the inherited old-term
 bound, the small factor of removed components, and the size of removed components), which belong to the
-large-field step itself. The question to the author is item 16 with its addendum
+large-field step itself. Two of the three are now proved: the inherited old-term bound follows from the
+bound of the formal large-field class, and the size of a removed component is at most its number of
+cells, because its halo is connected whenever the separation of large-field components is at most twice
+the halo radius. That holds at the largest radius the papers allow. In our construction the radius is a
+free choice up to that maximum, and the maximal choice meets every hypothesis placed on the radii, so the
+large-field histories are run with it. What remains is the small factor of removed components, P7 (3.10).
+The gas bound is now proved from (3.10) in the form printed in the paper, given a numerical condition on its
+exponent p₂; the size term of (3.10) is not needed, since removed components are small and one copy of
+e^{−p₂} pays for their size. No part of the formalization yet produces (3.10) itself: it is the bound of the
+removed operator, which belongs to the large-field step (P7 (3.7)–(3.10)). The halos used as labels of
+removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
+and the halos are wider than one block; the Lean proof of this is in progress.
+The question to the author is item 16 with its addendum
 (`notes/phase1/VMOD-43.md`).
 
 Details: `notes/phase1/VMOD-40.md` to `VMOD-42.md`. Item 16.
@@ -237,6 +249,14 @@ proved), the clause for the full lattice symmetry group (which moves supports of
 rotations, and the assembly of the next level. The source terms (the M-part) now
 have analyticity, locality, the summed bound and covariance under real rotations as well.
 
+A review of the assembly against the papers (October 16, `notes/phase1/LOCALCLASS-REVIEW.md`) found
+that we had filed whole old terms at the new level. In the papers (P4 Theorem 2 and (4.17)–(4.22)) an
+old term keeps its level, its domain, its generating set and its bound; only the new contributions
+created by the fluctuation integral and the renormalization go to the new level, and those are the terms
+whose analyticity requires the local generating sets. The general results above carry over; the
+assembly is being redone in this form. We also restrict the rotation symmetry of the class to real
+rotations, as the papers state it, and label the new terms by centres for the full lattice symmetry.
+
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
 
@@ -277,7 +297,9 @@ at distance of a few cells from the box edge (proved, together with the chains a
 that keeps the identity and makes the terms exactly equal on two tori; since Root-F's tori are unbounded,
 the common value is the limit over growing tori, which the closeness makes convergent; the closeness is
 now uniform in the size of the support, after replacing the crude bound of the tags by one that grows
-only with distance). Truncating the walk expansion of the final operator to the
+only with distance). This is now wired into the resummation for Root-F's tori: the last-scale coefficient
+sums converge over growing tori with any prescribed decay rate. The decay constant of the closeness depends
+only on the dimension and L, so the condition on the rates holds once the cube size M is large. Truncating the walk expansion of the final operator to the
 region, as in the Yang–Mills account, does not work here: the final operator is a Schur complement and the
 truncation changes it by order one near the boundary. Root-F as stated carries no lower bound on the
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so
