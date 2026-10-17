@@ -95,7 +95,7 @@ theorem lf4R_removed_of_flow
     (hgen : F.beta F.k0 * F.nu F.k0 ≤ 1 → 2 * (F.L : ℝ) ^ 2 ≤ F.beta F.k0)
     (Bs : BudgetSetup S P) (hjk0 : j + 1 ≤ k0)
     (hwit : ∀ z, ∀ a ∈ Hs z, ∃ (H : RegionHistory S n R k0 K)
-      (hY : (cz z).1 ∈ comps (S.omega (j + 1)) (H.Zp (j + 1))) (hadm : H.Admissible)
+      (hY : (cz z).1 ∈ comps (S.omega (j + 1)) (H.Zp (j + 1))) (_ : H.Admissible)
       (κK : ∀ m, H.Comp m → ℝ),
       (∀ i, i + 1 ≤ k0 → ∀ c : H.Comp (i + 1), c.1 ∉ H.rem (i + 1) →
         S.Ripe (i + 1) (H.bk (i + 1) c) →
