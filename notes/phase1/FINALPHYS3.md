@@ -170,3 +170,13 @@ Read: `SmallField/Def6.lean` (`IsSF`, `Eloc`, `Edens`), `Def6v2.lean` (`SFTermCl
 
 **W920 (blocker 5, B′ not uniform in the volume).** `Green/FinalLocalBound.lean`: per term (`coef_cutoff_term`) analytic, coefficient bound `b γ e^{-(κ-1)|C|}`, and zero at nonempty `C` whose region `Y(C)` misses the read set (`taggedCfinU_eq_zero_of_not_mem`); sum over terms (`coef_cutoff_sum_near`, `norm_coef_cutoff_class_le_near`) involves only terms whose read set meets `Y(C)`; `norm_coef_cutoff_class_le_count`: `≤ γ e^{-(κ-1)|C|} (∑A_j)|W| E₀`.
 Open: the read set of `E(y,X)∘Λ_j` is hypothesis `hΛloc` (the lift `Λ_j` is not strictly local in `w`), and the polymer count `hcount` is not landed.
+
+W922 (blocker 5): `Green/FinalCountPolymers.lean` proves `hcount` with A = L^((m0+m1)d) c1 K0(d,L,kappa-1) for kappa >= a_ent+2 (`hcount_class`, `norm_coef_cutoff_class_le_card`).
+`Green/FinalCountNear.lean`: `norm_coef_cutoff_le_of_near_read` (coefficient <= gamma delta e^{-(kappa-1)|C|} when f varies by <= delta off S, S misses Y(C)); `norm_coef_cutoff_class_le_decay` (volume-uniform bound with decaying lift).
+Missing: `hnear` for the lift (decay of the background response, W890 `coreResponse_farBounds`, plus a Lipschitz/Cauchy bound of the terms E on the domain, absent from SFTermClauses).
+
+**W924 status (blocker 5, `hnear` proved; `Green/FinalLiftDecay*.lean`).** (1) response: `composeField_response_le` (far-data response of the composed datum, Lemma 4.1 + `composeField_sub_close`), `lift_far_bound`; (2) Cauchy/Lipschitz: `norm_sub_le_of_analytic_line` (general), `norm_E_sub_le_of_line`, tube `xiDom_localB_tube` (Ξ2 + restriction to `localB`), `norm_E_sub_le_of_local_diff`; `hnear_lift` gives `ε n = 20 N e^{2dγ_w} K_w C_F e^{-γ_w n}` (room: the numerical conditions of the local polydisc theorem at radius `2 c ε_K`; typing premise `Dec2.OpSetting` of the step set).
+Composed bound `norm_coef_cutoff_class_le_lift` (hnear, hΛ, hsub discharged; `hreach`, `hW` stay about the read set `Sset ⊇` the explicit blocks/path-distance set); `sum_poly_decay_le`: `|W n| ≤ C_W (n+1)^r` gives a bound independent of `Nm`. Not done: the count `|W n|` itself (path-metric ball of the step set).
+
+W926 (blocker 5, level count): `Green/FinalLevelCount.lean` gives the explicit read sets (`readSet_hS`), `exists_level_reach` (`hreach`, `Nm = d'(N₁L^{m₁}L^{kS+1})+1`), `exists_mem_level_set` (`hW`) and `card_level_set_le` (`|W n| ≤ Cw (n+1)^{d'}`, `Cw = |C|(8M+1)^d (L^{kS})^{d'}(2L^{kS+1}+2d'L^{kS+1}+3)^{d'}`, uniform in the torus sizes).
+`Green/FinalLevelCountBound.lean`: `norm_coef_cutoff_class_le_levels`, the volume-uniform bound of the last integral with the decay and all counting inputs discharged. `Cw` depends on `|C|`, `M`, `kS`, `L`, `d`, `d'` only.

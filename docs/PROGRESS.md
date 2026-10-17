@@ -5,10 +5,10 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 78% of the Lean by volume, and about 49% when weighted by difficulty and
+**Overall estimate: about 79% of the Lean by volume, and about 51% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 690,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 715,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit daf2dfd4 2026-10-17.
+Computed at commit eb5ccc5c 2026-10-17.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 172 | 68,833 | 2,750 |
-| Green's functions and random walks | 94 | 37,538 | 1,773 |
+| Lattice, analysis, Gaussian and polymer tools | 176 | 69,769 | 2,770 |
+| Green's functions and random walks | 123 | 42,844 | 1,883 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
 | Localization expansions (P3, P6) | 243 | 77,309 | 3,610 |
-| Small-field class (P1, P4, P5) | 136 | 41,772 | 2,132 |
-| Fluctuation step and renormalization (P4-P6) | 493 | 167,717 | 5,450 |
+| Small-field class (P1, P4, P5) | 137 | 42,492 | 2,153 |
+| Fluctuation step and renormalization (P4-P6) | 514 | 173,824 | 5,598 |
 | Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 536 | 146,004 | 7,786 |
+| Large-field regions (P5-P7, E9-E10) | 574 | 155,180 | 8,027 |
 | Observables and correlations (P8, P9) | 70 | 16,760 | 663 |
-| **Total** | **2163** | **692,734** | **29,068** |
+| **Total** | **2256** | **714,979** | **29,608** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -91,3 +91,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-16 | ~76% | ~47% | Blockers re-read against the Yang–Mills account; blocker 4 resolved in Lean up to the physical inputs (clusters on the core); blocker 6 local class: locality, bound, rotation, extension off the domain; first step: shifted resolvent and square root uniform in the shift; last scale: two-torus closeness uniform in the scale; root constants for every dimension, principal logarithm |
 | 2026-10-16 (late) | ~77% | ~48% | Blocker 6 local class assembled at the new level (energy and source parts; design review of the filing of old terms running); blocker 7 last scale: resummation with the infinite-volume limit and a two-torus closeness uniform in the support size; first step: background identified with the step's, logarithm at the physical point, localization; blocker 4 gas bound down to the small factor of removed components; blocker 2 route leaves |
 | 2026-10-17 | ~78% | ~49% | Blocker 4: the halo labels lie in the domain class and the gas bound needs only the small factor of removed components (P7 (3.10)); the plan for (3.10) is in place, with the removed kernel tied to the R operation, its exponent bound, the residual loss, the window volumes and the locality of the step's objects proved. Blocker 6: rotation clauses real, complex rotations by Cayley paths; successor class with centre-labelled terms; old terms keep their birth domain, with the mass response of the domain proved. Blocker 2: constant check against P5 (1.30) done. Blocker 7: rate condition settled for large blocks. |
+| 2026-10-18 | ~79% | ~51% | Blocker 4: the removed outcome of R built with P7's restricted reference density (generic R decomposition, factorization over components), the decay estimate (2.4) and the oscillation bound at every scale, the window integral assembled (geometry, ancestors, regrouping, Gaussian chain in progress). Blocker 5: the large-field part of the last integral by P7 §4 (tail blocks as polymers), the cut family on the class radius, N components, the domain inclusion, and volume-uniform coefficient bounds. Blocker 6: old terms keep their birth domain (mass response, unit witness, constants), the new level's clauses on the actual chart, the new density for complex external fields and its expansion value for a general class (conditional on the old terms' marks). Blocker 7: no floor needed below ℓ/20; translation covariance and recentring. |
