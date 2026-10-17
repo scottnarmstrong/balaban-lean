@@ -2274,3 +2274,4 @@ public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
 public import Balaban.LargeField.R.WindowCompose
 public import Balaban.LargeField.R.WindowComposeQuot
+public import Balaban.LargeField.R.WindowComposeChain
