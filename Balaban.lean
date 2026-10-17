@@ -2213,3 +2213,5 @@ public import Balaban.Polymer.TwoTorusGapObsRecentreDom
 public import Balaban.Polymer.TwoTorusGapObsRecentreCoef
 public import Balaban.Polymer.TwoTorusGapObsRecentreDet
 public import Balaban.Polymer.TwoTorusGapObsFull
+public import Balaban.Polymer.TwoTorusGapStepDet
+public import Balaban.Polymer.TwoTorusGapStepDetPair
