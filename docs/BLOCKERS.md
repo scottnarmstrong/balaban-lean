@@ -299,7 +299,9 @@ chart points under one numerical condition on the radii (the gap between success
 condition now follows from the constants (the class radii decrease geometrically, with ratio L^{−α} ≤
 1/(16 C₀⁴)), and the expansion of the old terms is stated on their birth domains, using only the clauses of
 each old term at its own level. Two auxiliary radii of the step are small multiples of the class radius
-(one once the cube size is large, proved; the other, the fluctuation radius, being checked for β large).
+(one once the cube size is large, the other for β large; both proved), and the chain is tied to the run:
+what it still takes from outside is the bound on the renormalization corrections of the flow (P4 (5.31))
+and a small margin in the mass condition, ν L^{2(k+1)}(1 + r) ≤ 1 instead of ≤ 1.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
