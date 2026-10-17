@@ -2165,3 +2165,4 @@ public import Balaban.Polymer.TwoTorusGapIdentBlock
 public import Balaban.Polymer.TwoTorusGapIdentCells
 public import Balaban.Polymer.TwoTorusGapIdentPair
 public import Balaban.Polymer.TwoTorusGapIdentFamily
+public import Balaban.Polymer.TwoTorusGapIdentDet
