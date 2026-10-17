@@ -2124,6 +2124,9 @@ public import Balaban.LargeField.R.RRemovedChainRegroup
 public import Balaban.LargeField.R.RRemovedHidOut
 public import Balaban.LargeField.R.RRemovedHidVar
 public import Balaban.LargeField.R.RRemovedHidRegroup
+public import Balaban.LargeField.R.RRemovedHidGen
+public import Balaban.LargeField.R.RRemovedHidNode
+public import Balaban.LargeField.R.RRemovedHidFree
 public import Balaban.LargeField.R.RRemovedChainIntegral
 public import Balaban.LargeField.R.RRemovedChainForestInt
 public import Balaban.LargeField.R.RRemovedChainForestMain
