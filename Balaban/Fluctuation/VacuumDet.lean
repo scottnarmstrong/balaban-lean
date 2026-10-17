@@ -31,6 +31,10 @@ every root separately:
   `c_vac = ½ log det C^{(k)} / |T^{(k+1)}_1|`;
 * `sum_detExpansionLocC_term_root_im`: for real data each root contributes a real number,
   `Im ∑_T t_z(D', T) = 0` (the diagonal of the real logarithm of `𝒜`).
+* `norm_logA_le`, `norm_sum_detExpansionLocC_term_root_le`, `abs_halfLogDetC_le`: the bounds
+  `‖𝕃_{pq}‖ ≤ covBLog`, `‖∑_T t_z(D', T)‖ ≤ ½ N |B(z)| covBLog` and
+  `|½ log det C^{(k)}| ≤ ½ N L^d covBLog · |T^{(k+1)}_1|` (Theorem I-4c at `s = 1`, `κ = 0`):
+  the determinant part of the vacuum value `e₀` of a step is at most `½ N L^d covBLog` per block.
 * `sum_detExpansionLocC_term_rot`: the value of a root does not change under a real rotation of
   the datum, for every record (under the premises of the landed construction
   `exists_detExpansionLocC_rot_real`, whose terms are invariant one by one);
@@ -139,6 +143,92 @@ theorem sum_detExpansionLocC_term_root_im
   rw [Complex.mul_im, Complex.im_sum]
   simp only [Complex.im_sum, specFun_real_diag_im, Finset.sum_const_zero, mul_zero, zero_add]
   norm_num
+
+include H hδ'0 hδ' hD'R hδ0 hχ hfam hsm in
+/-- The standing hypotheses of Theorem I-4c at the real datum of the step, at `s = 1`, `κ = 0`. -/
+theorem covStanding_step :
+    CovStanding S.G' S.a S.a₁ S.ν (bgMult S.G' S.a S.ν S.D') 0 (fun _ => 1) S.δ
+      (svec S.G' (bgField S.G' S.a S.ν S.D')) (unitQ S.G') (unitP S.G') :=
+  ⟨hfam, S.constraintField_bg H hδ'0 hδ' hD'R hδ0 hχ, hδ0.le, hsm,
+    (isUnitLatticeB_unit (G := S.G')).toIsUnitLattice⟩
+
+include H hδ'0 hδ' hD'R hδ0 hχ hfam hsm in
+/-- **The entries of `𝕃 = log 𝒜` are bounded**: `‖𝕃_{pq}‖ ≤ covBLog d L a_k (a₁/L²) 0`
+(Theorem I-4c, at the real datum of the step). -/
+theorem norm_logA_le (p q : S.U × Fin N) :
+    ‖S.logA p q‖ ≤ covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 := by
+  have Hs := S.covStanding_step H hδ'0 hδ' hD'R hδ0 hχ hfam hsm
+  have hc : 0 ≤ covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 := by
+    unfold covBLog
+    have := covB4_nonneg d L (S.a k) 0
+    have := Hs.hak
+    positivity
+  exact norm_entry_le_of_sqNorm hc (fun f => decLog_bound Hs f) p q
+
+include H hδ'0 hδ' hD'R hδ0 hχ hfam hsm in
+/-- **The value of a root is bounded by the volume of its block**: for a real datum of the chart,
+`‖∑_T t_z(D', T)‖ ≤ ½ N |B(z)| covBLog d L a_k (a₁/L²) 0`. -/
+theorem norm_sum_detExpansionLocC_term_root_le
+    {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps S.D') :
+    ‖∑ T, E.term S.D' T‖ ≤
+      (1 / 2 : ℝ) * N * (S.blockU z).card * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 := by
+  rw [← E.sum_eq S.D' hD, rootTrace_one_eq_logAC S z, S.logAC_eq H hδ'0 hδ' hD'R, norm_mul]
+  have hhalf : ‖-(1 / 2 : ℂ)‖ = 1 / 2 := by simp
+  rw [hhalf]
+  have hsum : ‖∑ y ∈ S.blockU z, ∑ i : Fin N, S.logA (y, i) (y, i)‖ ≤
+      (S.blockU z).card * (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by
+    refine (norm_sum_le _ _).trans ?_
+    calc ∑ y ∈ S.blockU z, ‖∑ i : Fin N, S.logA (y, i) (y, i)‖
+        ≤ ∑ _y ∈ S.blockU z, (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by
+          refine Finset.sum_le_sum fun y _ => (norm_sum_le _ _).trans ?_
+          calc ∑ i : Fin N, ‖S.logA (y, i) (y, i)‖
+              ≤ ∑ _i : Fin N, covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 :=
+                Finset.sum_le_sum fun i _ =>
+                  S.norm_logA_le H hδ'0 hδ' hD'R hδ0 hχ hfam hsm (y, i) (y, i)
+            _ = N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 := by simp
+      _ = (S.blockU z).card * (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by simp
+  calc (1 / 2 : ℝ) * ‖∑ y ∈ S.blockU z, ∑ i : Fin N, S.logA (y, i) (y, i)‖
+      ≤ (1 / 2 : ℝ) * ((S.blockU z).card * (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0)) :=
+        mul_le_mul_of_nonneg_left hsum (by norm_num)
+    _ = _ := by ring
+
+include H hδ'0 hδ' hD'R hδ0 hχ hfam hsm in
+/-- **The vacuum value of the determinant terms per block is bounded**: for a real datum of the
+step, `|½ log det C^{(k)}| ≤ ½ N L^d covBLog d L a_k (a₁/L²) 0 · |T^{(k+1)}_1|`
+(`|T^{(k)}_1| = L^d |T^{(k+1)}_1|`); the constant does not depend on the torus. -/
+theorem abs_halfLogDetC_le :
+    |S.halfLogDetC| ≤
+      (1 / 2 : ℝ) * N * (L : ℝ) ^ d * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 * S.nBlocks := by
+  have h1 := S.halfLogDetCC_eq H hδ'0 hδ' hD'R hδ0 hχ hfam hsm
+  have hL : (L : ℝ) ^ d ≠ 0 := pow_ne_zero _ (by exact_mod_cast NeZero.ne L)
+  have hnB : (L : ℝ) ^ d * S.nBlocks = S.nU := by
+    unfold nBlocks; field_simp
+  have hn : |S.halfLogDetC| = ‖S.halfLogDetCC‖ := by
+    rw [h1, Complex.norm_real, Real.norm_eq_abs]
+  rw [hn]
+  unfold halfLogDetCC
+  rw [S.logAC_eq H hδ'0 hδ' hD'R, norm_mul]
+  have hhalf : ‖-(1 / 2 : ℂ)‖ = 1 / 2 := by simp
+  rw [hhalf]
+  have hsum : ‖∑ y : S.U, ∑ i : Fin N, S.logA (y, i) (y, i)‖ ≤
+      S.nU * (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by
+    refine (norm_sum_le _ _).trans ?_
+    calc ∑ y : S.U, ‖∑ i : Fin N, S.logA (y, i) (y, i)‖
+        ≤ ∑ _y : S.U, (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by
+          refine Finset.sum_le_sum fun y _ => (norm_sum_le _ _).trans ?_
+          calc ∑ i : Fin N, ‖S.logA (y, i) (y, i)‖
+              ≤ ∑ _i : Fin N, covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 :=
+                Finset.sum_le_sum fun i _ =>
+                  S.norm_logA_le H hδ'0 hδ' hD'R hδ0 hχ hfam hsm (y, i) (y, i)
+            _ = N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0 := by simp
+      _ = S.nU * (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0) := by simp [nU]
+  rw [← hnB] at hsum
+  calc (1 / 2 : ℝ) * ‖∑ y : S.U, ∑ i : Fin N, S.logA (y, i) (y, i)‖
+      ≤ (1 / 2 : ℝ) * ((L : ℝ) ^ d * S.nBlocks *
+          (N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) 0)) :=
+        mul_le_mul_of_nonneg_left hsum (by norm_num)
+    _ = _ := by ring
 
 end Real
 
