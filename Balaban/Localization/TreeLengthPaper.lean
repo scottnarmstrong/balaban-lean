@@ -118,8 +118,8 @@ theorem treeLenCovOne_le_treeLenAll {X : Set (CTorus d L N₁ m₁ K)}
   exact csInf_le hbdd ⟨_, W, E, fullCover_chosen hX, hW1, hW2, hW3, rfl⟩
 
 /-- **Core of `extend_tree`, for any nonnegative weights.**  If every cube of `fullCover m₀ j X` is
-linked inside `X` to the connected structure `(W, E)` at cost at most `ρ ≥ 0`, then a connected
-structure in `X` meets every cube of `fullCover m₀ j X` at cost at most
+linked inside `X` to the connected structure `(W, E)` at cost at most `ρ ≥ 0`, then some
+connected structure in `X` meets every cube of `fullCover m₀ j X` at cost at most
 `bondCost ω E + cellCount a_j X · ρ`. -/
 theorem extend_tree_of_linked {X : Set (CTorus d L N₁ m₁ K)}
     {ω : CTorus d L N₁ m₁ K → CTorus d L N₁ m₁ K → ℝ} (hω : ∀ x y, 0 ≤ ω x y)
