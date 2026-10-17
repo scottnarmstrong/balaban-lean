@@ -142,11 +142,13 @@ identity of P7 (3.5) proved unconditionally; its error term is bounded once the 
 component varies little over the cutoff ball. That needed the decay of the background's response from the
 removed component to the component's edge (Q13-SHARED (2.4)), now proved uniformly in the component and the
 scale; the error term is then of order one for the massless reference once the removed component lies at
-distance of order log β_k inside its component (the geometric margin, to be derived from the history). The
+distance of order log β_k inside its component. The history provides that margin (about R_base λ² cells), with
+no cap from the coarse layers (proved). The
 R operation now uses this density (its decomposition is generic in the reference density, and factorizes over
 the separated components), and the window integral of the removed outcome, from which (3.10) follows, is
-assembled from proved pieces; its remaining inputs are the regrouping of the variables, the composition identity,
-the unrolling of the step's kernel into its ancestors, and the geometry of the removed components (in progress). The locality holds for the
+assembled from proved pieces, including the unrolling of the step's kernel into its ancestors and the geometry of
+the removed components; its remaining inputs are the regrouping of the variables and the composition identity (in
+progress), and the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
@@ -293,8 +295,11 @@ close to real ones (a counterexample is in Lean), but they need not be: any comp
 with bounded entries factors as a real rotation times a Cayley transform, and the Cayley path stays in
 the domain, so invariance along it follows from the real clause (proved). The theorems of the
 renormalization step still carry it as an explicit hypothesis; restating them on the Cayley path is
-planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and old terms
-keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and their clauses at the new level are
+proved for the actual chart (the terms are completed in a slightly larger chart where only their locality is
+used, since the crude chart inclusion fails at every level). What remains for the new level is the identity
+between the actual new density and the sum of these terms: the density is so far defined only for a real
+constant external field, and the identity is landed only at one datum. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
