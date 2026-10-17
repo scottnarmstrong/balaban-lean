@@ -107,24 +107,16 @@ theorem hdt_of_detSum_thr36 (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
           (rawOf (Dat (can X) g))))
     :
     ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → ∀ g ∈ Dset, Td ℓ g X = Td (can X) g X := by
-  intro ℓ X hX hQX hW g hg
   have hK26 : ∀ ℓ, 26 ≤ K ℓ := fun ℓ => by have := hK36 ℓ; omega
-  have hDc26 : Dc ℓ ≤ (K ℓ - 26) / 25 := by have := hDc ℓ; omega
-  have hXc : X ∈ P (can X) :=
-    mem_P_can (P := P) (Q := Q) (can := can) (hK26 := hK26) (hP := hP) (hQ := hQ)
-      (hcanK := hcanK) ℓ X hX hQX
+  refine hdt_of_detSum_gen (Dc := Dc) hN2 hk νS β p₁ δ hd hL hm₀ hm₁ hN hC hδc hcap hsm hmar hαK
+    hconn hD hK26 (fun ℓ => by have := hDc ℓ; omega) hside P Q can Wd hP hQ hcanK Zr Ycub hYs hZr
+    Td hTd hsp hq ?_ hraw
+  intro ℓ X hX hQX _
   have hKK : K ℓ ≤ K (can X) := hcanK ℓ X hX hQX
-  have : NeZero aK := ⟨(cellSide_pos (L := L) m₀ m₁ (k + 1)).ne'⟩
   have hapos : 0 < aK := cellSide_pos (L := L) m₀ m₁ (k + 1)
-  have hXq : ∀ c ∈ (↑X : Set (Fin d → ℤ)), ∀ μ, (c μ).natAbs ≤ K ℓ / 4 := fun c hc μ =>
-    (hQ ℓ X).1 hQX c hc μ
   have hDs1 : (aK * (Dc ℓ + 1) - 1) + 1 ≤ aK * (Dc ℓ + 1) := by
     have : 1 ≤ aK * (Dc ℓ + 1) := Nat.one_le_iff_ne_zero.2 (by positivity)
     omega
-  have hmargin := compact_site_margins (K := K ℓ) (K' := K (can X)) (cs := aK)
-    (Dc := Dc ℓ) (Ds := aK * (Dc ℓ + 1) - 1) (q := aK * (K ℓ / 4 + 1))
-    (hK26 ℓ) hKK hapos hDc26 hDs1 (Nat.le_add_right _ _)
-  have hqn := hmargin.2.2
   have h4 : 4 * L ^ (k + 1) ≤ aK := by
     have : aK = L ^ (k + 1) * L ^ (m₀ + m₁) := by
       rw [cellSide, ← pow_add]; congr 1; ring
@@ -137,28 +129,7 @@ theorem hdt_of_detSum_thr36 (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
   have hsl := compact36_slack (K := K ℓ) (K' := K (can X)) (Lk := L ^ (k + 1))
     (Dc := Dc ℓ) (Ds := aK * (Dc ℓ + 1) - 1) hKK h4 (pow_pos (by omega) _) (hK36 ℓ) (hDc ℓ) hDs1
   rw [← hside ℓ, ← hside (can X)] at hsl
-  rw [← hside ℓ] at hqn
-  have hnc : N₁ ℓ * L ^ m₁ ≤ N₁ (can X) * L ^ m₁ := by
-    have h1 : (N₁ ℓ * L ^ m₁) * L ^ (k + 1) ≤ (N₁ (can X) * L ^ m₁) * L ^ (k + 1) := by
-      rw [hside ℓ, hside (can X)]; exact Nat.mul_le_mul_left _ hKK
-    exact Nat.le_of_mul_le_mul_right h1 (pow_pos (by omega) _)
-  have hinj : Function.Injective bc[ℓ, can X] := by
-    have h0 : ∀ ℓ' : ι, NeZero (N₁ ℓ' * L ^ m₁ * L ^ (k + 1 - (k + 1))) := fun ℓ' =>
-      ⟨by have := NeZero.pos (N₁ ℓ'); have := NeZero.pos L; positivity⟩
-    have := h0 ℓ
-    have := h0 (can X)
-    refine boxMap_injective_of_le (d := d) ?_
-    rw [Nat.sub_self, pow_zero, mul_one, mul_one]
-    exact hnc
-  rw [hTd ℓ g X hX hg, hTd (can X) g X hXc hg, hZr ℓ X hX hQX, Finset.sum_image (fun a _ b _ h => hinj h)]
-  refine Finset.sum_congr rfl fun zc hzc => ?_
-  exact (sum_blockU_detActivityBg_cellSites_gen hN2 hk νS β p₁ δ hd hL hm₀ hm₁ (hN ℓ) (hN (can X))
-    (hC ℓ) (hC (can X)) hδc hcap hsm hmar hαK (hconn ℓ) (hconn (can X)) (hD ℓ g hg)
-    (hD (can X) g hg) (Kn := K ℓ) (Kn' := K (can X)) (Ds := aK * (Dc ℓ + 1) - 1)
-    (q := aK * (K ℓ / 4 + 1)) (hK26 ℓ) hKK (hside ℓ) (hside (can X)) hDc26 rfl hXq (Ycub ℓ X)
-    (Ycub (can X) X) (hYs ℓ X hX) (hYs (can X) X hXc) zc (hsp ℓ X g hX hQX hW hg zc hzc)
-    (hq ℓ X g hX hQX hW hg zc hzc) hqn hsl.1 hsl.2
-    (hraw ℓ X g hX hQX hW hg zc hzc)).symm
+  exact hsl
 
 end DetFamily
 

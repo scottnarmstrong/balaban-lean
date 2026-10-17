@@ -64,6 +64,47 @@ local notation "XA[" ℓ "]" => (↑(LocalCover.nbhdF m₀ (xs ℓ)) : Set (CTor
 set_option hygiene false in
 local notation "𝒴A[" ℓ "]" => polyDom (GA[ℓ]) (LocalCover.nbhdF m₀ (xs ℓ)) m₀ k
   (LocalCover.fam m₀ (xs ℓ))
+/-- **The four `T`-hypotheses of the gap-scale step from the new and the inherited terms.** -/
+theorem gapStep_T_facts {ι G : Type*} {d : ℕ} (P : ι → Finset (Finset (Fin d → ℤ))) (Dset : Set G)
+    (sz : Finset (Fin d → ℤ) → ℕ) (W : Submodule ℂ (G → ℂ)) (R : Finset (Fin d → ℤ) → Prop)
+    (Ag : Finset (Fin d → ℤ) → G → G → Prop)
+    (T Te Td To Tinh : ι → G → Finset (Fin d → ℤ) → ℂ) {Bn Bi κ' : ℝ}
+    (hsplit : ∀ ℓ g X, T ℓ g X = Te ℓ g X + Td ℓ g X + To ℓ g X + Tinh ℓ g X)
+    (hsuppN : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Te ℓ g X + Td ℓ g X + To ℓ g X = 0)
+    (hsuppI : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tinh ℓ g X = 0)
+    (hlocN : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' →
+      Te ℓ g X + Td ℓ g X + To ℓ g X = Te ℓ g' X + Td ℓ g' X + To ℓ g' X)
+    (hlocI : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tinh ℓ g X = Tinh ℓ g' X)
+    (hanN : ∀ ℓ X, X ∈ P ℓ → (fun g => Te ℓ g X + Td ℓ g X + To ℓ g X) ∈ W)
+    (hanI : ∀ ℓ X, X ∈ P ℓ → (fun g => Tinh ℓ g X) ∈ W)
+    (hbdN : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset,
+      ‖Te ℓ g X + Td ℓ g X + To ℓ g X‖ ≤ Bn * Real.exp (-κ' * (sz X : ℝ)))
+    (hbdI : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖Tinh ℓ g X‖ ≤ Bi * Real.exp (-κ' * (sz X : ℝ))) :
+    (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0) ∧
+    (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X) ∧
+    (∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W) ∧
+    (∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖T ℓ g X‖ ≤ (Bn + Bi) * Real.exp (-κ' * (sz X : ℝ))) := by
+  classical
+  have hsupp : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0 := fun ℓ X hX hR' g => by
+    have h1 := hsuppN ℓ X hX hR' g
+    have h2 := hsuppI ℓ X hX hR' g
+    rw [hsplit, h1, h2, add_zero]
+  have hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X := fun ℓ X hX g g' h => by
+    rw [hsplit, hsplit, hlocN ℓ X hX g g' h, hlocI ℓ X hX g g' h]
+  have han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W := fun ℓ X hX => by
+    have : (fun g => T ℓ g X) =
+        (fun g => Te ℓ g X + Td ℓ g X + To ℓ g X) + (fun g => Tinh ℓ g X) := by
+      funext g; simp only [Pi.add_apply]; rw [hsplit]
+    rw [this]; exact W.add_mem (hanN ℓ X hX) (hanI ℓ X hX)
+  have hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖T ℓ g X‖ ≤
+      (Bn + Bi) * Real.exp (-κ' * (sz X : ℝ)) := fun ℓ X hX g hg => by
+    rw [hsplit]
+    calc _ ≤ ‖Te ℓ g X + Td ℓ g X + To ℓ g X‖ + ‖Tinh ℓ g X‖ := norm_add_le _ _
+      _ ≤ Bn * Real.exp (-κ' * (sz X : ℝ)) + Bi * Real.exp (-κ' * (sz X : ℝ)) :=
+        add_le_add (hbdN ℓ X hX g hg) (hbdI ℓ X hX g hg)
+      _ = _ := by ring
+  exact ⟨hsupp, hloc, han, hbd⟩
+
 /-- **The gap-scale step with the inherited terms of the previous scale.** -/
 theorem resum_gapScale_torus_step (hN2 : 2 ≤ N)
     (hk : 1 ≤ k)
@@ -353,24 +394,8 @@ theorem resum_gapScale_torus_step (hN2 : 2 ≤ N)
       (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
       (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) := by
   classical
-  have hsupp : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0 := fun ℓ X hX hR' g => by
-    have h1 := hsuppN ℓ X hX hR' g
-    have h2 := hsuppI ℓ X hX hR' g
-    rw [hsplit, h1, h2, add_zero]
-  have hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X := fun ℓ X hX g g' h => by
-    rw [hsplit, hsplit, hlocN ℓ X hX g g' h, hlocI ℓ X hX g g' h]
-  have han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W := fun ℓ X hX => by
-    have : (fun g => T ℓ g X) =
-        (fun g => Te ℓ g X + Td ℓ g X + To ℓ g X) + (fun g => Tinh ℓ g X) := by
-      funext g; simp only [Pi.add_apply]; rw [hsplit]
-    rw [this]; exact W.add_mem (hanN ℓ X hX) (hanI ℓ X hX)
-  have hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖T ℓ g X‖ ≤
-      (Bn + Bi) * Real.exp (-κ' * (sz X : ℝ)) := fun ℓ X hX g hg => by
-    rw [hsplit]
-    calc _ ≤ ‖Te ℓ g X + Td ℓ g X + To ℓ g X‖ + ‖Tinh ℓ g X‖ := norm_add_le _ _
-      _ ≤ Bn * Real.exp (-κ' * (sz X : ℝ)) + Bi * Real.exp (-κ' * (sz X : ℝ)) :=
-        add_le_add (hbdN ℓ X hX g hg) (hbdI ℓ X hX g hg)
-      _ = _ := by ring
+  obtain ⟨hsupp, hloc, han, hbd⟩ := gapStep_T_facts P Dset sz W R Ag T Te Td To Tinh hsplit hsuppN
+    hsuppI hlocN hlocI hanN hanI hbdN hbdI
   exact resum_gapScale_torus_full hN2 hk νS β p₁ δ hC hG cc hcψ hMX hδc hmar hαK hsm hF₁ hSol hd hL hm₀ hm₁ hN hcov hX₁ h𝒦 hD hψh hum hZ hBM hconn hcap hK26 hside P Q can Wd hP hQ hcanK hcompact hcoverX hBl hfamD Te hTe Zr Ycub hYs hZr Td hTd hsp hq hslack hrawD sz τ W R Ag T hsz hτ hR hAg hWd (add_nonneg hBn hBi) le_rfl hκ hκ₂ hlam hκ' hsupp hloc han hbd To Tinh hKL xs iy hxsb hspO hqS hq₁ hrad hEv hdEv hdj θ hθ hp Lab ys hys A hκ0 hεH hK Rg hRg 𝒰 hTo hrawO hmemV hAeq0 hAeqθ hsplit (hinh_of_quarterBox K P Q sz τ can Dset Tinh Wd hQ hcanK hIH)
 
 end Final
