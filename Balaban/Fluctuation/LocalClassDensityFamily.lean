@@ -418,4 +418,142 @@ theorem classOldMarkedLocal_blockMarks_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b �
 
 end BlockMarks
 
+section JointIdentity
+
+namespace StepSetting.JointRep
+
+variable {S : StepSetting d L N₁ m₁ k N ϱ} {eps pp : ℝ} (Jr : S.JointRep eps pp)
+
+open Classical in
+/-- **The mark identity of an inherited label, for given maps.**  For a step `S`, a label
+`τ = (j, y, X)` of the class `C` with the hypotheses of `deriv_classLabel_PJ_eq_sum_marked`, and
+given maps `(F₁, Sol, Fk)` with their analyticity and defining properties: at every datum `D` of
+the chart, every root `z`, every `x` with `|ψ̂(x)| ≤ c_ψ` and every first mark `s` with `s ψ̂`
+inside the box of `Jr` and `‖s‖` in the radius of the marks, the derivative at `0` of
+`t ↦ ℰ^{(j)}(y, X; Jr.PJ j (rawOf D, s ψ̂ + t v_z))` is
+`β ∑_Y ∂_t|₀ evDec … (blockU z) s t Y (rawOf D, ψ̂)` for the marked terms of these maps
+(`deriv_classLabel_PJ_eq_sum_marked_of`, its expansion property from
+`classOldMarkedLocal_joint_of`).  With `classOldMarkedLocal_blockMarks_of` for the same maps, the
+marks of the label are jointly analytic. -/
+theorem deriv_classLabel_PJ_eq_sum_marked_joint_of {b : ℝ} (hb₁ : 1 ≤ b)
+    (hbC : b ≤ scaledC0 d) {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
+    (hE₀ : 0 ≤ P.E₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {y : CTorus d L N₁ m₁ (k + 1)} {X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hS : GsSpecStrong j (hjk.trans (Nat.le_succ k)) X (C.Tm.gs j X))
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    {c BG κ r₀ δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hB : BgSetting N S.G' Gk (C.Tm.gs j X) S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N S.G' Gk (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl
+      X₁f)
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} (hcov : CovSetup S.G' C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' C.m₀ j 𝒦X)
+    (hconn : HatConn S.G')
+    (hrow : RowInHat (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hchart : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L S.a₁) S.ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      Dom.dom j (C.Tm.gs j X) r.1 r.2)
+    (hβ : 0 < S.β)
+    {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData S.G' N,
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
+      ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSolprop : ∀ p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi (stepG d L N₁ m₁ k ϱ)
+            (Dec2.decG (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1)
+            p.2.2.1 p.2.1
+            (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2)
+            (Sol p).2 ∧
+        Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false
+          p.2.2.1 p.2.1
+          (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small (stepG d L N₁ m₁ k ϱ) (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (stepG d L N₁ m₁ k ϱ) (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (stepG d L N₁ m₁ k ϱ) (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ,
+          Small (stepG d L N₁ m₁ k ϱ) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false
+            p.2.2.1 p.2.1
+            (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' →
+          δα' = (Sol p).2))
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
+      InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) S.ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L S.a₁) S.ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L S.a₁) S.ν (bgC0 d L N) D)) :
+    ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+    ∀ (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (x : S.E),
+      (∀ p, ‖yhat x p‖ ≤ cψ) → ∀ s : ℂ, (∀ p, ‖(s • yhat x) p‖ < pp) →
+      ‖s‖ * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁ →
+      deriv (fun t : ℂ => C.Tm.E j y X
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2) 0 =
+        (S.β : ℂ) * ∑ Y ∈ polymerDomains
+          (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X),
+          deriv (fun t : ℂ => evTerm
+            (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
+            (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+              (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+                (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
+            (rawOf D, yhat x)) 0 := by
+  refine Jr.deriv_classLabel_PJ_eq_sum_marked_of C hcl hj1 hjk hS hB hF hc7 hR hsmR hRs hsmall
+    hnum hnum' hcψ hMX hdm hα hsm hβ (y := y) (𝒦X := 𝒦X) (fun z => ?_)
+  obtain ⟨e1, -, -, -, -, hJ⟩ := classOldMarkedLocal_joint_of hb₁ hbC C hm hcl hβ hE₀ hj1 hjk
+    hXp hy hB hF S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov
+    hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart hF₁an hF₁ hSolan hSolprop hFkan hFk
+    (S.blockU z)
+  refine ⟨fun um tm hw D hD ψh hψh => ?_, fun Y u hu w hw => ?_⟩
+  · have key := e1 um tm hw D hD ψh hψh
+    exact key
+  · have key := AnalyticAt.comp_of_eq
+      (g := fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) ×
+          (ℂ × ℂ) => evDec X₁f C.m₀ j 𝒦X S.a₁ S.ν S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
+        (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
+          (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) p.2.1 p.2.2 Y p.1)
+      (f := fun w' : ℂ × ℂ => (u, w')) (hJ Y (u, w) ⟨hu, hw⟩)
+      (analyticAt_const.prod analyticAt_id) rfl
+    rw [Function.comp_def] at key
+    exact key
+
+end StepSetting.JointRep
+
+end JointIdentity
+
 end Balaban.Fluctuation
