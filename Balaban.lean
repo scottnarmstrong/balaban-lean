@@ -2269,3 +2269,4 @@ public import Balaban.Polymer.TwoTorusGapDataThrFull
 public import Balaban.Polymer.TwoTorusGapDataThrEnergy
 public import Balaban.Polymer.TwoTorusGapDataThrFinal
 public import Balaban.Polymer.TwoTorusGapDataThrStep
+public import Balaban.Polymer.TwoTorusGapDataTower
