@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 79% of the Lean by volume, and about 51% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 750,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 755,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,7 +48,7 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit ec576207 2026-10-17.
+Computed at commit cf59c40c 2026-10-17.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
@@ -58,11 +58,11 @@ Computed at commit ec576207 2026-10-17.
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
 | Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
 | Small-field class (P1, P4, P5) | 137 | 42,492 | 2,153 |
-| Fluctuation step and renormalization (P4-P6) | 537 | 186,076 | 5,704 |
+| Fluctuation step and renormalization (P4-P6) | 538 | 186,294 | 5,711 |
 | Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 646 | 166,517 | 8,205 |
+| Large-field regions (P5-P7, E9-E10) | 655 | 168,797 | 8,223 |
 | Observables and correlations (P8, P9) | 70 | 16,760 | 663 |
-| **Total** | **2402** | **751,456** | **30,064** |
+| **Total** | **2412** | **753,954** | **30,089** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
