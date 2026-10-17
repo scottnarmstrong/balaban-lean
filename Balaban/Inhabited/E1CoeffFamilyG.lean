@@ -29,9 +29,9 @@ before every parameter, the locality premises of `E1ParamRawLocal.lean`, and
 `paramMarked_analytic_local_bound` with the support lemmas of `GsumActiveParam.lean`.
 
 * `e1MarkParam_pairs_fromTowerG`: the field theorem with the defining clauses of the pairs and the
-  block dependence for every parameter exposed (in `E1CoeffFamilyGCore.lean`).
+  block dependence for every parameter exposed (in `E1CoeffFamilyGFields.lean`).
 * `e1Mark_hG_rawY_fromTowerG`: the sharp locality premise `hG` of
-  `paramMarked_analytic_local_bound` (in `E1CoeffFamilyGCore.lean`).
+  `paramMarked_analytic_local_bound` (in `E1CoeffFamilyGFields.lean`).
 * `e1CoeffFamily_value_fromTowerG`: analyticity, locality, bound and support of the coefficient
   family, with the identity of the coefficient sum at `(rawOf D′, 0)` and the local energy term of
   the step with the datum `D′` of the chart with constant field `h₀`.

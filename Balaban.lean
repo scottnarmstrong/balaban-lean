@@ -2491,6 +2491,7 @@ public import Balaban.Green.FinalLargeAggregate
 public import Balaban.Green.FinalLargeAggregateIdentity
 public import Balaban.LargeField.Base.BaseFirstPhysicalP
 public import Balaban.Inhabited.ZeroSourceActivityCommonCore
+public import Balaban.Inhabited.E1CoeffFamilyGFields
 public import Balaban.Inhabited.E1CoeffFamilyGCore
 public import Balaban.Inhabited.E0CoeffFamilyGCore
 public import Balaban.Inhabited.StepIdentityFibreExplicitCore
