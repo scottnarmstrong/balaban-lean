@@ -322,8 +322,8 @@ theorem deriv_classLabel_PJ_eq_sum_marked_of {P : Consts} {Dom : FieldDom d L N�
         ∀ D : BgData S.G' N, XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps D →
         ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
         flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
-          (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν (S.blockU z) um tm
-            D ψh) =
+          (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
+            (S.blockU z) um tm D ψh) =
         ∑ Y ∈ polymerDomains
           (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
           S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X), evTerm
