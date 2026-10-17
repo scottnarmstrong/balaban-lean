@@ -22,11 +22,11 @@ the class (`isDj_of_polyDom`); they are rooted by the landed bridge construction
 * `polyDom_isDj_one`: the domains of the expansion of a label are domains of `𝒟_{k+1}` for the block
   index `1` (the hypothesis `hdom` of `markedIdx`, `bridgeFamily`, `rootUnionLabels`).
 * `classOldMarkedLocal_rootedMarks_of`: for the given maps of a label and a root `z`, every domain
-  `Y` of the expansion either meets the fine block of the root through its nearest neighbours, and then
-  its bridge `bridge 1 z Y` is a domain of `𝒟_{k+1}` (index `1`) containing `Y` and the root cube,
-  of size at most `d(Y) + c_Br`, on whose blocks the block-level mark of `Y` (block index `1`, mask
-  `blockU z`) depends; or it does not, and then the mark derivative of `Y` vanishes (no site of `Y`
-  has its unit point in the mask; mark-locality of `classOldMarkedLocal_joint_of`).
+  `Y` of the expansion either meets the fine block of the root through its nearest neighbours, and
+  then its bridge `bridge 1 z Y` is a domain of `𝒟_{k+1}` (index `1`) containing `Y` and the root
+  cube, of size at most `d(Y) + c_Br`, on whose blocks the block-level mark of `Y` (block index `1`,
+  mask `blockU z`) depends; or it does not, and then the mark derivative of `Y` vanishes (no site of
+  `Y` has its unit point in the mask; mark-locality of `classOldMarkedLocal_joint_of`).
 
 With `rootUnionLabels` on the class domains these give the labels of the marks of a class in the
 common label system (`commonLabels` with `Lab` the root-union labels of the class domains).
@@ -94,8 +94,8 @@ variable (S : StepSetting d L N₁ m₁ k N ϱ)
   {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
 /-- **The rooted marks of one inherited label.**  For a step `S`, a label `τ = (j, y, X)` of the
-class `C` with the hypotheses of `classOldMarkedLocal_blockMarks_of`, given maps, a root `z` and a clamp
-radius `0 < ρ ≤ c_ψ`, every domain `Y` of the expansion of the label (`L^{C.m₀} ∣ N₁`, `1 ≤ C.m₀`,
+class `C` with the hypotheses of `classOldMarkedLocal_blockMarks_of`, given maps, a root `z` and a
+clamp radius `0 < ρ ≤ c_ψ`, every domain `Y` of the expansion of the label (`L^{C.m₀} ∣ N₁`, `1 ≤ C.m₀`,
 `d ≥ 3`, `L ≥ 2`):
 
 1. if `psiThick Y` meets the fine block of `z`: the bridge `bridge 1 z Y` is a domain of `𝒟_{k+1}`
