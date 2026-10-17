@@ -2157,6 +2157,11 @@ public import Balaban.LargeField.R.RRemovedHidLeafSite
 public import Balaban.LargeField.R.RRemovedHidLeafMap
 public import Balaban.LargeField.R.RRemovedHidLeafChain
 public import Balaban.LargeField.R.RRemovedHidLeafRoot
+public import Balaban.LargeField.R.RRemovedHidLeafRootMap
+public import Balaban.LargeField.R.RRemovedHidLeafMean
+public import Balaban.LargeField.R.RRemovedHidLeafAssemble
+public import Balaban.LargeField.R.RRemovedHidLeafFinal
+public import Balaban.LargeField.R.RRemovedHidLeafWindow
 public import Balaban.LargeField.R.RRemovedHidQuotAct
 public import Balaban.LargeField.R.RRemovedHidQuotStep
 public import Balaban.LargeField.R.RRemovedChainIntegral
