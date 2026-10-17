@@ -98,6 +98,25 @@ theorem blockSite_recentred {rc r : ℕ} (tA : CTorus d L N₁ m₁ (k + 1))
   rw [← blockSite_add_coarse tB htB, sub_add_cancel,
     blockSite_boxMap (K := k + 1) (r := r) le_rfl _ hz hr hs, blockSite_add_coarse tA htA]
 
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- **A bijection between filtered sums.** -/
+theorem sum_ite_bij {α β : Type*} [Fintype α] [Fintype β] (pA : α → Prop) (pB : β → Prop)
+    [DecidablePred pA] [DecidablePred pB]
+    (F : α → ℂ) (F' : β → ℂ) (ψ : α → β) (hmap : ∀ a, pA a → pB (ψ a) ∧ F' (ψ a) = F a)
+    (hinj : ∀ a₁ a₂, pA a₁ → pA a₂ → ψ a₁ = ψ a₂ → a₁ = a₂)
+    (hsurj : ∀ b, pB b → ∃ a, pA a ∧ ψ a = b) :
+    (∑ b, if pB b then F' b else 0) = ∑ a, if pA a then F a else 0 := by
+  classical
+  rw [← Finset.sum_filter, ← Finset.sum_filter]
+  symm
+  refine Finset.sum_bij (fun a _ => ψ a) (fun a ha => ?_) (fun a₁ ha₁ a₂ ha₂ h => ?_)
+    (fun b hb => ?_) (fun a ha => ?_)
+  · exact Finset.mem_filter.2 ⟨Finset.mem_univ _, (hmap a (Finset.mem_filter.1 ha).2).1⟩
+  · exact hinj a₁ a₂ (Finset.mem_filter.1 ha₁).2 (Finset.mem_filter.1 ha₂).2 h
+  · obtain ⟨a, ha, rfl⟩ := hsurj b (Finset.mem_filter.1 hb).2
+    exact ⟨a, Finset.mem_filter.2 ⟨Finset.mem_univ _, ha⟩, rfl⟩
+  · exact (hmap a (Finset.mem_filter.1 ha).2).2.symm
+
 end BlocksRec
 
 end Balaban.Polymer.TwoTorusStep
