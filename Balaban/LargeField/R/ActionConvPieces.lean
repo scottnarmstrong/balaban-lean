@@ -98,19 +98,20 @@ variable [NormedAddCommGroup U] [NormedSpace ℂ U]
 
 /-- **The window action theorem for the pieces** (P631 (8)-(9); LFR (2.15′); route A′ of
 `LF4R-PLAN.md` §9.3): conditional on the named source estimates of `ActionConvInput` for the
-chains of the pieces (`analytic_T`, `p7_first` (P7 (2.11)), `window_decay` (W) for the background
-replacement remainder `T_{i,k} - β_k A*_k(X_i; ψ, φ_{k₁,k})`, `analytic_win`), on the window
-configurations of the complex domain `S`,
+chains of the pieces (`analytic_T`, `p7_first` (P7 (2.11), with the couplings `βs i n` of the
+scales `n`, of the P4 (H.6) form `hflow`), `window_decay` (W) for the background replacement
+remainder `T_{i,k} - β_k A*_k(X_i; ψ, φ_{k₁,k})`, `analytic_win`), on the window configurations of
+the complex domain `S`,
 `β_k A*_k(X_win, 𝔹_{k₁,k}; ψ, φ_{k₁,k}) = ∑_i T_{i, sc i + 1}(ψ) + C_{k₁,k}(ψ)` with `C_{k₁,k}`
 analytic on `S` and `|C_{k₁,k}| ≤ C₁₅ ∑_i |X_i|_{sc i + 1}`,
 `C₁₅ = 9 e^{2η} K_conv/(1 - L^{-2γ}) + K_bg` (the constant of `window_conversion`). -/
 theorem window_conversion_pieces (W : PieceWindowSetup d L N₀ K N S ι sc k1 k)
-    {Kconv Kbg γw M M₁ : ℝ} {ε Rhat : ℕ → ℝ}
+    {Kconv Kbg γw M M₁ : ℝ} {ε Rhat : ℕ → ℝ} (βs : ι → ℕ → ℝ)
     (analytic_T : ∀ i, ∀ n, sc i + 1 ≤ n → n ≤ k →
       AnalyticOnNhd ℂ (fun u => (W.chain i).T u n) S)
     (p7_first : ∀ i, ∀ n, sc i + 2 ≤ n → n ≤ k → ∀ u ∈ S,
       ‖(W.chain i).cost u n‖ ≤ Kconv *
-        (((W.chain i).β (sc i + 1) * ε (sc i + 1) ^ 2) / ((W.chain i).β n * ε n ^ 2)) * W.mcount i)
+        ((βs i (sc i + 1) * ε (sc i + 1) ^ 2) / (βs i n * ε n ^ 2)) * W.mcount i)
     (window_decay : ∀ i, ∀ u ∈ S,
       ‖(W.chain i).T u k - (W.βk : ℂ) * actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)‖ ≤
         Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * W.mcount i)
@@ -120,7 +121,7 @@ theorem window_conversion_pieces (W : PieceWindowSetup d L N₀ K N S ι sc k1 k
     (hε : ε = epsSeq L α α₀) (hγα : (d : ℝ) - 2 - 2 * α = 2 * γ)
     (hflow : ∀ i, ∃ B : ℝ, 0 < B ∧ ∃ g : ℕ → ℝ,
       (∀ m, Real.exp (-η) ≤ g m ∧ g m ≤ Real.exp η) ∧
-      ∀ n, sc i + 1 ≤ n → n ≤ k → (W.chain i).β n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
+      ∀ n, sc i + 1 ≤ n → n ≤ k → βs i n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
     (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
     (hsep : ∀ i, 0 ≤ M * (Rhat (sc i - 1) - 1) - 2 * M₁) :
     ∃ C : U → ℂ,
@@ -130,7 +131,7 @@ theorem window_conversion_pieces (W : PieceWindowSetup d L N₀ K N S ι sc k1 k
         ∑ i, W.mcount i := by
   obtain ⟨C, hC, hCa, hCb⟩ := window_conversion_core Finset.univ sc (fun i _ => PieceWindowSetup.sc_lt W i)
     W.chain (fun i u => (W.βk : ℂ) * actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u))
-    W.mcount (fun i _ => W.mcount_nonneg i) (fun i _ => analytic_T i) (fun i _ => p7_first i)
+    W.mcount (fun i _ => W.mcount_nonneg i) βs (fun i _ => analytic_T i) (fun i _ => p7_first i)
     (fun i _ => window_decay i) (fun i _ => analytic_win i) hd hL hγ hα₀ hε hγα
     (fun i _ => hflow i) hKc hKb hγw (fun i _ => hsep i)
   exact ⟨C, fun u hu => by rw [W.windowAction_eq_sum u, hC u hu], hCa, hCb⟩
