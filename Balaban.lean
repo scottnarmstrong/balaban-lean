@@ -1797,7 +1797,7 @@ public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalRadiusCompare
-import Balaban.Green.FinalTailBound
+public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
