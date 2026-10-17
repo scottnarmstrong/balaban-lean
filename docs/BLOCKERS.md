@@ -152,7 +152,9 @@ ancestors and the shell variables of the quiet steps exposed: every variable of 
 Gaussian variable or a shell variable, the Gaussian integral and the shell volumes are bounded, and the pointwise
 bound and support of the integrand follow. Two inputs of this step remain named: a bound on the ratio of the
 characteristic function to the restricted reference density that is uniform in the outputs still free, and the
-quietness of each ancestor of the window; both are being derived, together with the composed bound. The other
+quietness of each ancestor of the window. The composed bound is proved from these inputs. The quietness of the
+ancestors is how the window's starting scale is chosen; the quotient bound is being reconciled with the landed bound
+of P7 (2.58′), which carries the value of the window's Gaussian weight at the centre in the numerator. The other
 remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
