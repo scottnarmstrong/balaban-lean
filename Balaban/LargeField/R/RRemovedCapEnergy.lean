@@ -20,6 +20,13 @@ distance dominates the torus distance divided by `L^k`.
 * `margin_of_torusDist_top`: the hypothesis of `margin_of_torusDist` gives the margin `(T - 1) / L^k`;
 * `hmargin_removed_uncapped`: `hmargin_removed` for every `Rm ≤ M ⌊R_{k-1}⌋ / L`, with no condition
   `Rm ≤ ϱ - 1`.
+
+## The energy `E_k` of P7 (3.7)-(3.10) (question B)
+
+`hEZ_of_vacuum_bound`: from the vacuum bound `|E_k| ≤ C'_E λ_k + C'_E` (P7 p. 520, a source premise: the
+vacuum constant `Ek` of the small-field class, `IsSF … Ek`, `StepClass.Ek`, has no landed bound) and the
+volume bound `|Z|_k ≤ (M crit_k)^d` (`removed_cubeVol_le`), the hypothesis `hEZ` of
+`removedKernel_kerBound_of_window_inst` for `EZ = E_k |Z|_k`.
 -/
 
 @[expose] public section
@@ -171,5 +178,17 @@ theorem hmargin_removed_uncapped {Rm : ℝ} (hR1 : Rm ≤ (S.M : ℝ) * ⌊R k'�
   nlinarith
 
 end Removed
+
+section Energy
+
+/-- **`hEZ` for `EZ = E_k |Z|_k`** from the vacuum bound `|E_k| ≤ C'_E λ + C'_E` and `|Z|_k ≤ V`. -/
+theorem hEZ_of_vacuum_bound {Ek CE' lam cnt vol : ℝ} (hE : |Ek| ≤ CE' * lam + CE') (hcnt : 0 ≤ cnt)
+    (hcv : cnt ≤ vol) : Ek * cnt ≤ (CE' * lam + CE') * vol := by
+  have h0 : 0 ≤ CE' * lam + CE' := (abs_nonneg _).trans hE
+  calc Ek * cnt ≤ |Ek| * cnt := mul_le_mul_of_nonneg_right (le_abs_self _) hcnt
+    _ ≤ (CE' * lam + CE') * cnt := mul_le_mul_of_nonneg_right hE hcnt
+    _ ≤ _ := mul_le_mul_of_nonneg_left hcv h0
+
+end Energy
 
 end Balaban.LargeField
