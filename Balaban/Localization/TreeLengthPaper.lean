@@ -23,6 +23,8 @@ over a chosen family of cubes covering `X`.
 * `fullCover_chosen`: `fullCover` is a chosen family of a domain.
 * `treeLenCovOne_le_treeLenAll`: `treeLenCovOne ≤ treeLenAll`.
 * `treeLenAll_le`: `treeLenAll ≤ (1 + 2 d L c₁) treeLenCovOne + 2 d L c₁`, `c₁ = (3(2L-1))^d`.
+* `extend_tree_of_linked`: the extension of a tree to all contained cubes, for any nonnegative
+  weights and any cost `ρ` of linking a cube to the tree (the core of `extend_tree`).
 -/
 
 @[expose] public section
@@ -115,37 +117,22 @@ theorem treeLenCovOne_le_treeLenAll {X : Set (CTorus d L N₁ m₁ K)}
     exact bondCost_scaleW_nonneg E
   exact csInf_le hbdd ⟨_, W, E, fullCover_chosen hX, hW1, hW2, hW3, rfl⟩
 
-/-- Extending a tree meeting a chosen family to one meeting all contained cubes: each extra cube
-costs at most `2 d L`. -/
-theorem extend_tree {X 𝒦 : Set (CTorus d L N₁ m₁ K)} (h𝒦 : ChosenOne m₀ j X 𝒦)
+/-- **Core of `extend_tree`, for any nonnegative weights.**  If every cube of `fullCover m₀ j X` is
+linked inside `X` to the connected structure `(W, E)` at cost at most `ρ ≥ 0`, then a connected
+structure in `X` meets every cube of `fullCover m₀ j X` at cost at most
+`bondCost ω E + cellCount a_j X · ρ`. -/
+theorem extend_tree_of_linked {X : Set (CTorus d L N₁ m₁ K)}
+    {ω : CTorus d L N₁ m₁ K → CTorus d L N₁ m₁ K → ℝ} (hω : ∀ x y, 0 ≤ ω x y)
     {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
-    (hW : ConnStruct W E) (hWX : ↑W ⊆ X) (hmeet : MeetsOne m₀ j 𝒦 W) :
+    (hW : ConnStruct W E) (hWX : ↑W ⊆ X) {ρ : ℝ} (hρ0 : 0 ≤ ρ)
+    (hlink : ∀ b ∈ fullCover m₀ j X, ∃ p ∈ W, Linked X ω ρ p b) :
     ∃ W' E', ConnStruct W' E' ∧ (↑W' ⊆ X) ∧ MeetsOne m₀ j (fullCover m₀ j X) W' ∧
-      bondCost (scaleW L m₀ m₁ j) E' ≤ bondCost (scaleW L m₀ m₁ j) E +
-        (cellCount (cellSide L m₀ m₁ j) X : ℝ) * (2 * d * L) := by
+      bondCost ω E' ≤ bondCost ω E + (cellCount (cellSide L m₀ m₁ j) X : ℝ) * ρ := by
   classical
   set a := cellSide L m₀ m₁ j with ha
   have ha0 : 0 < a := cellSide_pos m₀ m₁ j
-  have hapos : (0 : ℝ) < a := by exact_mod_cast ha0
-  have haR : (a : ℝ) = (L : ℝ) ^ (m₀ + m₁ + j) := by
-    rw [ha]; unfold cellSide; push_cast; congr 1; ring
-  have hω : ∀ x y : CTorus d L N₁ m₁ K, 0 ≤ scaleW L m₀ m₁ j x y := fun x y => by
-    unfold scaleW; positivity
-  set ρ : ℝ := 2 * d * L with hρ
-  -- every point of a contained cube is linked to the tree
-  have hlink : ∀ b ∈ fullCover m₀ j X, ∃ p ∈ W, Linked X (scaleW L m₀ m₁ j) ρ p b := by
-    intro b hb
-    have hbX : b ∈ X := hb.2 (mem_box_self b (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha0))
-    obtain ⟨K, hK, hbK⟩ := h𝒦.2 b hbX
-    obtain ⟨p, hpW, hpK⟩ := hmeet K hK
-    refine ⟨p, hpW, ?_⟩
-    have := linked_box_pair (R := X) (ω := scaleW L m₀ m₁ j) hω K (L * a)
-      (c := ((a : ℝ))⁻¹) (h𝒦.1 K hK).2 (fun x y _ _ => by
-        unfold scaleW; rw [haR]) hpK hbK
-    refine Covers.mono_c this (le_of_eq ?_)
-    rw [hρ]; push_cast; field_simp
   have key : ∀ S : Finset (CTorus d L N₁ m₁ K), (∀ b ∈ S, b ∈ fullCover m₀ j X) →
-      Covers X (scaleW L m₀ m₁ j) (bondCost (scaleW L m₀ m₁ j) E + S.card * ρ) (W ∪ S) := by
+      Covers X ω (bondCost ω E + S.card * ρ) (W ∪ S) := by
     intro S
     induction S using Finset.induction_on with
     | empty =>
@@ -180,8 +167,38 @@ theorem extend_tree {X 𝒦 : Set (CTorus d L N₁ m₁ K)} (h𝒦 : ChosenOne m
     h4.trans ?_⟩
   · exact Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha0
   · have : (S.card : ℝ) ≤ cellCount a X := by exact_mod_cast hcard
-    have hρ0 : 0 ≤ ρ := by rw [hρ]; positivity
     nlinarith
+
+/-- Extending a tree meeting a chosen family to one meeting all contained cubes: each extra cube
+costs at most `2 d L`. -/
+theorem extend_tree {X 𝒦 : Set (CTorus d L N₁ m₁ K)} (h𝒦 : ChosenOne m₀ j X 𝒦)
+    {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
+    (hW : ConnStruct W E) (hWX : ↑W ⊆ X) (hmeet : MeetsOne m₀ j 𝒦 W) :
+    ∃ W' E', ConnStruct W' E' ∧ (↑W' ⊆ X) ∧ MeetsOne m₀ j (fullCover m₀ j X) W' ∧
+      bondCost (scaleW L m₀ m₁ j) E' ≤ bondCost (scaleW L m₀ m₁ j) E +
+        (cellCount (cellSide L m₀ m₁ j) X : ℝ) * (2 * d * L) := by
+  classical
+  set a := cellSide L m₀ m₁ j with ha
+  have ha0 : 0 < a := cellSide_pos m₀ m₁ j
+  have hapos : (0 : ℝ) < a := by exact_mod_cast ha0
+  have haR : (a : ℝ) = (L : ℝ) ^ (m₀ + m₁ + j) := by
+    rw [ha]; unfold cellSide; push_cast; congr 1; ring
+  have hω : ∀ x y : CTorus d L N₁ m₁ K, 0 ≤ scaleW L m₀ m₁ j x y := fun x y => by
+    unfold scaleW; positivity
+  set ρ : ℝ := 2 * d * L with hρ
+  -- every point of a contained cube is linked to the tree
+  have hlink : ∀ b ∈ fullCover m₀ j X, ∃ p ∈ W, Linked X (scaleW L m₀ m₁ j) ρ p b := by
+    intro b hb
+    have hbX : b ∈ X := hb.2 (mem_box_self b (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) ha0))
+    obtain ⟨K, hK, hbK⟩ := h𝒦.2 b hbX
+    obtain ⟨p, hpW, hpK⟩ := hmeet K hK
+    refine ⟨p, hpW, ?_⟩
+    have := linked_box_pair (R := X) (ω := scaleW L m₀ m₁ j) hω K (L * a)
+      (c := ((a : ℝ))⁻¹) (h𝒦.1 K hK).2 (fun x y _ _ => by
+        unfold scaleW; rw [haR]) hpK hbK
+    refine Covers.mono_c this (le_of_eq ?_)
+    rw [hρ]; push_cast; field_simp
+  exact extend_tree_of_linked (m₀ := m₀) (j := j) hω hW hWX (by rw [hρ]; positivity) hlink
 
 /-- **Comparison of the two sizes** (T3): for a domain `X ∈ 𝒟_j`,
 `d_j(X) ≤ (1 + 2 d L c₁) d^cov_j(X) + 2 d L c₁`, with `c₁ = (3 (2L-1))^d`

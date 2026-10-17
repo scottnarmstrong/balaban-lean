@@ -215,14 +215,15 @@ noncomputable def cellCount (a : ℕ) (X : Set (CTorus d L N₁ m₁ K)) : ℕ :
   (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ box b a ⊆ X).card
 
 open Classical in
-/-- An aligned cube `box b' (L a)` contains at most `L^d` aligned points. -/
-theorem card_aligned_in_cube {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (ha0 : 0 < a)
+/-- **Core of `card_aligned_in_cube`, for any factor `r`**: an aligned cube `box b' (r a)` contains
+at most `r^d` aligned points. -/
+theorem card_aligned_in_box_mul {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (ha0 : 0 < a) (r : ℕ)
     {b' : CTorus d L N₁ m₁ K} (hb' : Aligned a b') :
-    (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ b ∈ box b' (L * a)).card ≤
-      L ^ d := by
+    (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ b ∈ box b' (r * a)).card ≤
+      r ^ d := by
   classical
-  have hsub : (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ b ∈ box b' (L * a)) ⊆
-      (Fintype.piFinset fun _ : Fin d => Finset.range L).image
+  have hsub : (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ b ∈ box b' (r * a)) ⊆
+      (Fintype.piFinset fun _ : Fin d => Finset.range r).image
         (fun t : Fin d → ℕ => b' + natT (fun μ => a * t μ)) := by
     intro b hb
     obtain ⟨hal, w, hw, rfl⟩ := (Finset.mem_filter.1 hb).2
@@ -231,7 +232,7 @@ theorem card_aligned_in_cube {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (h
     · rw [Fintype.mem_piFinset]
       intro μ
       rw [Finset.mem_range, Nat.div_lt_iff_lt_mul ha0]
-      have := hw μ; linarith [mul_comm L a]
+      have := hw μ; linarith [mul_comm r a]
     · have hmod : ∀ μ, w μ % a = 0 := fun μ => by
         have := hal μ
         rwa [mod_of_aligned_add ha hb' μ] at this
@@ -241,8 +242,16 @@ theorem card_aligned_in_cube {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (h
       rw [hmod μ] at this
       omega
   calc _ ≤ _ := Finset.card_le_card hsub
-    _ ≤ (Fintype.piFinset fun _ : Fin d => Finset.range L).card := Finset.card_image_le
-    _ = L ^ d := by simp
+    _ ≤ (Fintype.piFinset fun _ : Fin d => Finset.range r).card := Finset.card_image_le
+    _ = r ^ d := by simp
+
+open Classical in
+/-- An aligned cube `box b' (L a)` contains at most `L^d` aligned points. -/
+theorem card_aligned_in_cube {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (ha0 : 0 < a)
+    {b' : CTorus d L N₁ m₁ K} (hb' : Aligned a b') :
+    (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ b ∈ box b' (L * a)).card ≤
+      L ^ d :=
+  card_aligned_in_box_mul ha ha0 L hb'
 
 open Classical in
 /-- A cell `γ` lies in at most `L^d` aligned cubes `box b' (L a)`. -/
