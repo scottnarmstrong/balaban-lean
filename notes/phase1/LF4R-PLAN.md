@@ -161,3 +161,7 @@ The factor is L^{+d}: the bound |E_k| <= C'_E lam + C'_E is not a geometric sum 
 ## Status (W912, 2026-10-17): leaf 6, blocker 4, regrouping
 - `R/RRemovedRegroup{Disj,Pi,Core,Split,Theta,Out,Canon}.lean`: ancestors read disjoint coordinates (`incl_ne_of_ne`); `exists_regroup` (measure preserving `Θ` into window `(ψ_k↾Z₀, tree group, T)`, core `hcore_of_anc` variables, first-integrated `Jv`, with its coordinates); `exists_parC`, `canonT_spec`, `core_snd_eq`, `core_weight_eq` (the outputs `ancOut C P (ρ_P x)` are `mergeOut (core outputs) (parC …)`).
 - Not landed: `hid`/`hsupp` (Gaussian tree integration of `Jv` for the unrolled quiet step kernels, `integral_window_comp` is not connected to `quietKernel`/`gaussProd`).
+
+## Status (W918, 2026-10-17): blocker 4, Gaussian chain (a), (b)
+- `R/RRemovedChain{Tree,Prod,Forest,Graded,Read,Level,Split}.lean`: `exists_blockTree_of_tree`, `windowIntegrand_eq_prod`, `lintegral_nodes_comp`, `forest_trees` (one BlockTree per root), `graded_forest`, `gaussProd_unroll_eq` (product of the quiet gaussProd = product over Gaussian blocks of ancestors, fields via `subVarField`), `absW_quiet_split`.
+- Not done: (c) bounds of quietRest e^b and shells in the Jv integral, node coordinates in a new regroup (exists_regroup hides Lx), (d) sup density e^{Lc}, hid/hsupp; the final instance of forest_trees on `graded_forest` (value function psi0, `hcard` from `card_blockFibre`) is not assembled.

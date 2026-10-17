@@ -125,7 +125,8 @@ The nodes are the blocks `b` of `nd` (scales in `[k₁ + 1, top]`, `hrange`); th
 coarsening if that is a node of scale at most `top`, and the node itself otherwise (a root); the
 leaves are the pairs (node, child block of that node that is not a node). -/
 theorem graded_forest
-    (hcard : ∀ s (y : blk (s + 1)), (Finset.univ.filter fun y' : blk s => up s y' = y).card = m)
+    (hcard : ∀ s (y : blk (s + 1)), nd ⟨s + 1, y⟩ →
+      (Finset.univ.filter fun y' : blk s => up s y' = y).card = m)
     (hrange : ∀ b, nd b → k1 + 1 ≤ b.1 ∧ b.1 ≤ top)
     [Fintype {b : Σ s, blk s // nd b}]
     [Fintype {q : (Σ s, blk s) × {b : Σ s, blk s // nd b} //
@@ -152,7 +153,44 @@ theorem graded_forest
     have h := graded_children_sum blk up nd hrange (fun _ => (1 : ℕ)) y hi
     simp only [Finset.sum_const, smul_eq_mul, mul_one] at h
     rw [h]
-    exact hcard s' y
+    exact hcard s' y hi
+
+/-- The set of nodes is finite. -/
+theorem finite_graded_nodes (hrange : ∀ b, nd b → b.1 ≤ top) :
+    Finite {b : Σ s, blk s // nd b} := by
+  refine Finite.of_injective (fun b : {b : Σ s, blk s // nd b} =>
+    (⟨⟨b.1.1, Nat.lt_succ_of_le (hrange _ b.2)⟩, b.1.2⟩ : Σ s : Fin (top + 1), blk s)) ?_
+  intro b b' h
+  obtain ⟨⟨s, y⟩, hb⟩ := b
+  obtain ⟨⟨s', y'⟩, hb'⟩ := b'
+  simp only [Sigma.mk.inj_iff, Fin.mk.injEq] at h
+  obtain ⟨h1, h2⟩ := h
+  subst h1
+  have h3 := eq_of_heq h2
+  subst h3
+  rfl
+
+/-- The set of leaves is finite. -/
+theorem finite_graded_leaves (hrange : ∀ b, nd b → b.1 ≤ top) :
+    Finite {q : (Σ s, blk s) × {b : Σ s, blk s // nd b} //
+      (⟨q.1.1 + 1, up q.1.1 q.1.2⟩ : Σ s, blk s) = q.2.1 ∧ ¬ nd q.1} := by
+  have := finite_graded_nodes blk nd hrange
+  refine Finite.of_injective (fun q : {q : (Σ s, blk s) × {b : Σ s, blk s // nd b} //
+      (⟨q.1.1 + 1, up q.1.1 q.1.2⟩ : Σ s, blk s) = q.2.1 ∧ ¬ nd q.1} =>
+    ((⟨⟨q.1.1.1, by
+        have h1 := congrArg Sigma.fst q.2.1
+        have h2 := hrange _ q.1.2.2
+        simp only at h1 h2
+        omega⟩, q.1.1.2⟩ : Σ s : Fin (top + 1), blk s), q.1.2)) ?_
+  intro q q' h
+  obtain ⟨⟨⟨s, y⟩, i⟩, hq⟩ := q
+  obtain ⟨⟨⟨s', y'⟩, i'⟩, hq'⟩ := q'
+  simp only [Prod.mk.injEq, Sigma.mk.inj_iff, Fin.mk.injEq] at h
+  obtain ⟨⟨h1, h2⟩, h3⟩ := h
+  subst h1 h3
+  have h4 := eq_of_heq h2
+  subst h4
+  rfl
 
 end Graded
 
