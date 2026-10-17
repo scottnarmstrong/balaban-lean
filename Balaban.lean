@@ -2044,3 +2044,4 @@ public import Balaban.SmallField.XiMassResponse
 public import Balaban.SmallField.XiMassResponseBounds
 public import Balaban.SmallField.XiMassResponseXi
 public import Balaban.Fluctuation.LocalClassBirthResponse
+public import Balaban.Fluctuation.LocalClassBirthChart
