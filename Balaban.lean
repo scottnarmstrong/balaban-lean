@@ -1423,6 +1423,9 @@ public import Balaban.LargeField.R.ZeroDomainSepRho
 public import Balaban.LargeField.R.DenominatorRot
 public import Balaban.LargeField.R.RhoZeroPhysical
 public import Balaban.LargeField.R.RopPhysical
+public import Balaban.LargeField.R.RopRestricted
+public import Balaban.LargeField.R.RRemovedGeometry
+public import Balaban.LargeField.R.RRemovedMargin
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
@@ -2078,3 +2081,13 @@ public import Balaban.Fluctuation.LocalClassDensityChart
 public import Balaban.Fluctuation.LocalClassDensityCentre
 public import Balaban.Fluctuation.LocalClassDensitySource
 public import Balaban.Fluctuation.LocalClassDensityLevel
+public import Balaban.LargeField.R.RRemovedWindowGen
+public import Balaban.LargeField.R.RRemovedWindowKernel
+public import Balaban.LargeField.R.RRemovedWindowPoint
+public import Balaban.LargeField.R.RRemovedWindowVol
+public import Balaban.LargeField.R.RRemovedWindowCore
+public import Balaban.LargeField.R.RRemovedWindow
+public import Balaban.LargeField.R.RRemovedFracArith
+public import Balaban.LargeField.R.RRemovedFracE
+public import Balaban.LargeField.R.RRemovedFracInst
+public import Balaban.LargeField.R.RRemovedWindowInst
