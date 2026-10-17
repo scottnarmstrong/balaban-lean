@@ -2114,3 +2114,4 @@ public import Balaban.Fluctuation.LocalClassDensityHAnalytic
 public import Balaban.Fluctuation.LocalClassDensityHCont
 public import Balaban.Fluctuation.LocalClassDensityHZero
 public import Balaban.Fluctuation.LocalClassDensityValFamily
+public import Balaban.Fluctuation.LocalClassDensityValClass
