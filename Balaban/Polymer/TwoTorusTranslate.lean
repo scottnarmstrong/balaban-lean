@@ -163,6 +163,77 @@ theorem boxMap_add_intCast {m m' r : ℕ} [NeZero m] (hm : 2 * r + 1 < m) (c : T
   rw [valMinAbs_intCast_of_abs_le hm (hc μ)]
   simp [boxMap]
 
+/-- A box of side `s` inside a set of cyclic spread `D` (all coordinate differences have centred
+representatives of absolute value at most `D`) has `s ≤ D + 1`, if `2 D + 3 < n`. -/
+theorem box_side_le_of_spread {n s D : ℕ} [NeZero n] (hd : 0 < d) (hs : 0 < s) (hn : 2 * D + 3 < n)
+    {b : Torus d n} {X : Set (Torus d n)} (hbox : box b s ⊆ X)
+    (hD : ∀ x ∈ X, ∀ y ∈ X, ∀ μ, |(x μ - y μ).valMinAbs| ≤ D) : s ≤ D + 1 := by
+  by_contra hlt
+  have hs' : D + 1 < s := by omega
+  set μ₀ : Fin d := ⟨0, hd⟩
+  have hb : b ∈ X := hbox ⟨fun _ => 0, fun _ => hs, by funext μ; simp [natT]⟩
+  have hp : b + natT (n := n) (Pi.single μ₀ (D + 1)) ∈ X := by
+    refine hbox ⟨Pi.single μ₀ (D + 1), fun μ => ?_, rfl⟩
+    by_cases h : μ = μ₀
+    · subst h; simp; omega
+    · simp [h]; omega
+  have h1 := hD _ hp b hb μ₀
+  have h2 : (b + natT (n := n) (Pi.single μ₀ (D + 1))) μ₀ - b μ₀ =
+      (((D + 1 : ℕ) : ℤ) : ZMod n) := by
+    simp [natT]
+  rw [h2, valMinAbs_intCast_of_abs_le (r := D + 1) (by omega)
+    (by push_cast; exact (abs_of_nonneg (by positivity)).le)] at h1
+  push_cast at h1
+  rw [abs_of_nonneg (by positivity)] at h1
+  omega
+
+/-- **Choice of the recentring vector.**  If `X₁ ∪ Y` has cyclic spread `D` relative to the points of
+`X₁`, `X₁` contains a box of side `L a` (`L ≥ 2`, `a` the cell side), and `25 D + 25 < n`, there is
+an integer vector `z`, with every entry divisible by `a`, such that the translate by `z` of every
+point of `X₁ ∪ Y` lies in the centred box of radius `D + (D + 1) / 4`. -/
+theorem exists_recentring {n a L D : ℕ} [NeZero n] (hd : 0 < d) (ha : 0 < a) (hL : 2 ≤ L)
+    {X₁ Y : Set (Torus d n)} (hbox : ∃ b, box b (L * a) ⊆ X₁)
+    (hD : ∀ x ∈ X₁, ∀ y ∈ X₁ ∪ Y, ∀ μ, |(x μ - y μ).valMinAbs| ≤ D) (hn : 25 * D + 25 < n) :
+    ∃ z : Fin d → ℤ, (∀ μ, (a : ℤ) ∣ z μ) ∧
+      ∀ x ∈ X₁ ∪ Y, InBox d (D + (D + 1) / 4) n (x + fun μ => ((z μ : ℤ) : ZMod n)) := by
+  obtain ⟨b, hb⟩ := hbox
+  have hLa : 0 < L * a := Nat.mul_pos (by omega) ha
+  have hspread := box_side_le_of_spread hd hLa (by omega) hb
+    (fun x hx y hy => hD x hx y (Or.inl hy))
+  have ha2 : 2 * a ≤ D + 1 := by nlinarith
+  have hbX : b ∈ X₁ := hb ⟨fun _ => 0, fun _ => hLa, by funext μ; simp [natT]⟩
+  have hai : (0 : ℤ) < a := by exact_mod_cast ha
+  refine ⟨fun μ => -((a : ℤ) * (((b μ).valMinAbs + (a : ℤ) / 2) / a)), fun μ => ?_, fun x hx μ => ?_⟩
+  · exact (dvd_neg.2 (dvd_mul_right _ _))
+  · set v := (b μ).valMinAbs with hv
+    set q := (v + (a : ℤ) / 2) / a with hq
+    have h1 := Int.emod_add_mul_ediv (v + (a : ℤ) / 2) a
+    have h2 := Int.emod_nonneg (v + (a : ℤ) / 2) hai.ne'
+    have h3 := Int.emod_lt_of_pos (v + (a : ℤ) / 2) hai
+    rw [← hq] at h1
+    have hz : |v + -((a : ℤ) * q)| ≤ ((a / 2 : ℕ) : ℤ) := by
+      rw [abs_le]
+      generalize (a : ℤ) * q = m at *
+      push_cast
+      omega
+    have hxD := hD b hbX x hx μ
+    set e := (b μ - x μ).valMinAbs with he
+    have hxe : x μ + ((-((a : ℤ) * q) : ℤ) : ZMod n) =
+        (((v - e + -((a : ℤ) * q) : ℤ)) : ZMod n) := by
+      have h4 : x μ = b μ - (e : ZMod n) := by rw [he, ZMod.coe_valMinAbs]; ring
+      have h5 : b μ = (v : ZMod n) := by rw [hv, ZMod.coe_valMinAbs]
+      rw [h4, h5]; push_cast; ring
+    have ha2' : a / 2 ≤ (D + 1) / 4 := by omega
+    show |(x μ + ((-((a : ℤ) * q) : ℤ) : ZMod n)).valMinAbs| ≤
+      ((D + (D + 1) / 4 : ℕ) : ℤ)
+    rw [hxe, valMinAbs_intCast_of_abs_le (r := D + (D + 1) / 4) (by omega) ?_]
+    · rw [abs_le] at hz hxD ⊢
+      push_cast at hz ⊢
+      omega
+    · rw [abs_le] at hz hxD ⊢
+      push_cast at hz ⊢
+      omega
+
 end Cast
 
 
@@ -257,6 +328,75 @@ theorem evTerm_boxMap_recentred {U U' : Type*} {m₀ : ℕ} {R : ℕ} {ρ : ℝ}
     (S' := (Equiv.addRight tB) '' S') hSt (F := FA) (F' := FB) (u := u) (u' := u') hcoef
   rw [← hB, hYt]
   exact hmain.trans hA
+
+
+/-- **The torus clause for a polymer of small diameter anywhere on the torus** (item 24, part 2).
+Let `X₁` (the cover) contain a box of side `L a_{k+1}` and let `X₁ ∪ Y` have cyclic spread `D`
+relative to the points of `X₁` (`|(x - y)_μ|_centred ≤ D`), with
+`25 D + 25 < min (N₁ L^m₁ L^(k+1), N₁' L^m₁ L^(k+1))`.  Then there are translations `tA`, `tB` of the
+two tori by the same integer vector `z` with every entry a multiple of `a_{k+1}`, taking
+`X₁ ∪ Y` into the centred box of radius `D + (D + 1) / 4` (`20 (D + (D + 1) / 4) + 20 < 25 D + 25`),
+such that the transport map recentred at `tA`, `tB`, `φ x = bm (x + tA) - tB`, satisfies the
+conclusion of `evTerm_boxMap_recentred`: for the second-torus set `S' = φ '' X₁`, the term of
+`φ '' Y` equals the term of `Y`, given the corresponding coefficients of the recentred functions.
+No assumption involves the position of `X₁` relative to the origin. -/
+theorem evTerm_boxMap_of_diameter {U U' : Type*} {m₀ D : ℕ} {ρ : ℝ} (hρ : 1 < ρ)
+    (hd : 0 < d) (hL : 2 ≤ L)
+    (hm₀ : 1 ≤ m₀) (hm₁ : 1 ≤ m₁) (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 25 * D + 25 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 25 * D + 25 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hbox : ∃ b, box b (L * cellSide L m₀ m₁ (k + 1)) ⊆ X₁)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hD : ∀ x ∈ X₁, ∀ y ∈ X₁ ∪ Y, ∀ μ, |(x μ - y μ).valMinAbs| ≤ D) :
+    ∃ z : Fin d → ℤ, (∀ μ, ((cellSide L m₀ m₁ (k + 1) : ℕ) : ℤ) ∣ z μ) ∧
+      (∀ x ∈ X₁ ∪ Y, InBox d (D + (D + 1) / 4) ((N₁ * L ^ m₁) * L ^ (k + 1))
+        (x + fun μ => ((z μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))))) ∧
+      ∃ (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+        (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+        (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val),
+      tA = (fun μ => ((z μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1)))) ∧
+      tB = (fun μ => ((z μ : ℤ) : ZMod ((N₁' * L ^ m₁) * L ^ (k + 1)))) ∧
+      ∀ {S' : Set (CTorus d L N₁' m₁ (k + 1))}
+    (_hS' : S' = (fun x => bm (x + tA) - tB) '' X₁)
+      {F : U → (ParIdx (GA) X₁ → ℂ) → ℂ} {F' : U' → (ParIdx (GB) S' → ℂ) → ℂ} {u : U} {u' : U'}
+    (_hF : AnalyticOnNhd ℂ (F u) (polydisc (0 : ParIdx (GA) X₁ → ℂ) (fun _ => ρ)))
+    (_hF' : AnalyticOnNhd ℂ (F' u') (polydisc (0 : ParIdx (GB) S' → ℂ) (fun _ => ρ)))
+    {FA : U → (ParIdx (GA) ((Equiv.addRight tA) '' X₁) → ℂ) → ℂ}
+    {FB : U' → (ParIdx (GB) ((Equiv.addRight tB) '' S') → ℂ) → ℂ}
+    (_hFA : FA = fun u s => F u (s ∘ parEquiv
+      (DecEquiv.CoverSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) tA
+        (fun μ => (pow_dvd_pow L (by omega)).trans (htA μ)))
+      (DecEquiv.PolymerSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) hN tA htA) rfl))
+    (_hFB : FB = fun u s => F' u (s ∘ parEquiv
+      (DecEquiv.CoverSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) tB
+        (fun μ => (pow_dvd_pow L (by omega)).trans (htB μ)))
+      (DecEquiv.PolymerSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) hN' tB htB) rfl))
+    (_hcoef : ∀ C ∈ connFams (fun i : ParIdx (GA) ((Equiv.addRight tA) '' X₁) => i.1.1) (GA) m₀
+        ((Equiv.addRight tA) '' X₁) ((Equiv.addRight tA) '' Y),
+      ∀ C' : Finset (ParIdx (GB) ((Equiv.addRight tB) '' S')),
+        (∀ i ∈ C, ∃ i' ∈ C', i'.1.1 = Prod.map id bm i.1.1) →
+        (∀ i' ∈ C', ∃ i ∈ C, i'.1.1 = Prod.map id bm i.1.1) →
+        coef (FB u') C' = coef (FA u) C),
+
+      evTerm (fun i : ParIdx (GB) S' => i.1.1) (GB) m₀ S' F'
+        ((fun x => bm (x + tA) - tB) '' Y) u' =
+      evTerm (fun i : ParIdx (GA) X₁ => i.1.1) (GA) m₀ X₁ F Y u := by
+  have hapos : 0 < cellSide L m₀ m₁ (k + 1) := cellSide_pos m₀ m₁ (k + 1)
+  obtain ⟨z, hz, hbx⟩ := exists_recentring (n := (N₁ * L ^ m₁) * L ^ (k + 1)) (a := cellSide L m₀ m₁ (k + 1))
+    (L := L) (D := D) hd hapos hL hbox hD hn
+  have hnR : 20 * (D + (D + 1) / 4) + 20 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hnR' : 20 * (D + (D + 1) / 4) + 20 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣
+      ((fun μ => ((z μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1)))) μ).val := fun μ =>
+    dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ)
+  have htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣
+      ((fun μ => ((z μ : ℤ) : ZMod ((N₁' * L ^ m₁) * L ^ (k + 1)))) μ).val := fun μ =>
+    dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)
+  refine ⟨z, hz, fun x hx => hbx x hx, _, _, htA, htB, rfl, rfl, ?_⟩
+  intro S' hS' F F' u u' hF hF' FA FB hFA hFB hcoef
+  exact evTerm_boxMap_recentred hρ hd hL hm₀ hm₁ hN hN' hnR hnR' _ _ htA htB hbox
+    (fun x hx => hbx x (Or.inl hx)) (fun y hy => hbx y (Or.inr hy)) hS' hF hF' hFA hFB hcoef
 
 end Recentre
 
