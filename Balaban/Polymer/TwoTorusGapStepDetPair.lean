@@ -223,6 +223,109 @@ theorem cubeAct_recentred_cells {r : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m�
     rintro _ ⟨y, hy, rfl⟩
     exact hbd y hy
 
+/-- **The determinant block sum at the cells of a polymer, with the spread bound `Dc` as a
+parameter** (`Dc ≤ (Kn - 26) / 25`): the core of `sum_blockU_detActivityBg_cellSites`. -/
+theorem sum_blockU_detActivityBg_cellSites_gen (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
+    (hd : 0 < d) (hL : 2 ≤ L) (hm₀ : 1 ≤ m₀) (hm₁ : 1 ≤ m₁)
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L 1) νS (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L 1) νS (k + 1) 1 eps D')
+    {Kn Kn' Ds q : ℕ} [NeZero Kn] [NeZero Kn'] (hK : 26 ≤ Kn) (hKK' : Kn ≤ Kn')
+    (hm : (N₁ * L ^ m₁) * L ^ (k + 1) = aK * Kn) (hm' : (N₁' * L ^ m₁) * L ^ (k + 1) = aK * Kn')
+    {Dc : ℕ} (hDc : Dc ≤ (Kn - 26) / 25) (hDsdef : Ds = aK * (Dc + 1) - 1)
+    {X : Set (Fin d → ℤ)} (hXq : ∀ c ∈ X, ∀ μ, (c μ).natAbs ≤ Kn / 4)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (Y' : Finset (CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hY : sitesOf Y = {x | (fun μ => (((((x μ).val / aK : ℕ)) : ZMod Kn)).valMinAbs) ∈ X})
+    (hY' : sitesOf Y' = {x' | (fun μ => (((((x' μ).val / aK : ℕ)) : ZMod Kn')).valMinAbs) ∈ X})
+    (zc : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hsp : ∀ x ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK),
+      ∀ y ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK) ∪ sitesOf Y, ∀ μ,
+      |(x μ - y μ).valMinAbs| ≤ Ds)
+    (hq : ∀ x ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK) ∪ sitesOf Y, ∀ μ,
+      |(x μ).valMinAbs| ≤ q)
+    (hqn : 2 * q + 2 * (Ds + (Ds + 1) / 4) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hslack : 20 * (Ds + (Ds + 1) / 4 + 2 * L ^ (k + 1)) + 20 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hslack' : 20 * (Ds + (Ds + 1) / 4 + 2 * L ^ (k + 1)) + 20 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : ∀ z : Fin d → ℤ, (∀ μ, ((aK : ℕ) : ℤ) ∣ z μ) →
+      (∀ x ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK) ∪ sitesOf Y, ∀ μ,
+        |(x μ).valMinAbs + z μ| ≤ ((Ds + (Ds + 1) / 4 : ℕ) : ℤ)) →
+      RawBoxAgree {w | InBox d (Ds + (Ds + 1) / 4 + 2 * L ^ (k + 1) + 3 * L ^ (k + 1))
+          ((N₁ * L ^ m₁) * L ^ (k + 1)) w}
+        (symRaw (Equiv.addRight (fun μ => ((z μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1)))))
+          (rawOf D))
+        (symRaw (Equiv.addRight (fun μ => ((z μ : ℤ) : ZMod ((N₁' * L ^ m₁) * L ^ (k + 1)))))
+          (rawOf D'))) :
+    ∑ y' ∈ (Finset.univ.filter fun u : unitPts (GB) =>
+        unitBlock1 (u : UnitTorus d L N₁' m₁ k) = bc zc),
+        detActivityBg m₀ (compWeight L 1) 1 νS (rho4 d L N BG κ) D' y' Y' =
+      ∑ y ∈ (Finset.univ.filter fun u : unitPts (GA) =>
+        unitBlock1 (u : UnitTorus d L N₁ m₁ k) = zc),
+        detActivityBg m₀ (compWeight L 1) 1 νS (rho4 d L N BG κ) D y Y := by
+  classical
+  have : NeZero aK := ⟨(cellSide_pos (L := L) m₀ m₁ (k + 1)).ne'⟩
+  have hapos : 0 < aK := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hLpos : 0 < L := by omega
+  have hpK : 0 < L ^ (k + 1) := pow_pos hLpos _
+  have hap : 4 * L ^ (k + 1) ≤ aK := by
+    have h4 : 4 ≤ L ^ (m₀ + m₁) := by
+      calc 4 = 2 ^ 2 := by norm_num
+        _ ≤ L ^ 2 := Nat.pow_le_pow_left hL 2
+        _ ≤ L ^ (m₀ + m₁) := Nat.pow_le_pow_right hLpos (by omega)
+    have : aK = L ^ (k + 1) * L ^ (m₀ + m₁) := by
+      unfold cellSide; rw [← pow_add]; congr 1; omega
+    rw [this]
+    nlinarith
+  have hbox : ∃ b, box b (L * aK) ⊆ box (rootCube (m₀ := m₀) zc).1 (L * aK) := ⟨_, subset_rfl⟩
+  have hDs1 : Ds + 1 ≤ aK * (Dc + 1) := by
+    have : 1 ≤ aK * (Dc + 1) := Nat.one_le_iff_ne_zero.2 (by positivity)
+    omega
+  have hDsa : aK ≤ Ds + 1 := by
+    rw [hDsdef]
+    have := Nat.le_mul_of_pos_right aK (show 0 < Dc + 1 by omega)
+    omega
+  obtain ⟨hn25, hn25', -⟩ := compact_site_margins (K := Kn) (K' := Kn') (cs := aK)
+    (Dc := Dc) (Ds := Ds) (q := 0) hK hKK' hapos hDc hDs1 (Nat.zero_le _)
+  rw [← hm] at hn25
+  rw [← hm'] at hn25'
+  obtain ⟨zv, hz, hint⟩ := exists_recentring_int (n := (N₁ * L ^ m₁) * L ^ (k + 1))
+    (a := aK) (L := L) (D := Ds) (q := q) hd hapos hL (cellSide_dvd hN le_rfl) hbox
+    hsp hn25 hq hqn
+  have hxX : rootSite zc ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK) :=
+    box_mono _ (by nlinarith) (rootSite_mem_box_rootCube (m₀ := m₀) zc)
+  obtain ⟨rc, hzc, hrc, hzz, hroot, hn1, hn1', hnS, hnS', hnH, hnH'⟩ :=
+    det_root_recentred (N₁' := N₁') hd hL hm₀ hm₁ zc zv hDsa hap hn25 hqn hslack hslack'
+      (fun μ => hq _ (Or.inl hxX) μ) (fun x hx μ => hint x (Or.inl hx) μ)
+  have hnR : 2 * (Ds + (Ds + 1) / 4) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hbd : ∀ y ∈ sitesOf Y, InBox d (Ds + (Ds + 1) / 4 + 2 * L ^ (k + 1))
+      ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + fun μ => ((zv μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1)))) :=
+    fun y hy => inBox_mono (by omega) (inBox_add_intCast hnR y zv (hint y (Or.inr hy)))
+  have hbm : boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1)) ''
+      sitesOf Y = sitesOf Y' := by
+    rw [hY, hY']
+    exact boxMap_image_cellSites hm hm' hK hKK' X hXq
+  have hYc := cubeAct_recentred_cells hN hN' _ _ (fun μ => dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ))
+    (fun μ => dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)) Y Y' hbm
+    (fun y hy => boxMap_add_intCast hnR y zv (hint y (Or.inr hy))) hbd (by omega)
+  exact sum_blockU_detActivityBg_recentred hN2 hk νS β p₁ δ hN hN' hC hC' hδc hcap hsm hmar hαK
+    hconn hconn' hD hD' _ _ (fun μ => dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ))
+    (fun μ => dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)) zc (bc zc) hzz hzc hrc
+    (fun x hx => hroot x (box_mono _ (by nlinarith) hx)) Y Y' hYc hbd hn1 hn1' hnS hnS' hnH hnH'
+    (hraw zv hz hint)
+
 /-- **The determinant block sum at the cells of a polymer.**  Let `X` be a set of cells of the
 quarter box of the torus with `Kc` cells per side (`26 ≤ Kc ≤ Kc'`) of cyclic spread at most
 `(Kc - 26) / 25`, `Y`, `Y'` the cubes of its cells on the two tori, and `zc` a coarse root such that
@@ -282,56 +385,7 @@ theorem sum_blockU_detActivityBg_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS �
       ∑ y ∈ (Finset.univ.filter fun u : unitPts (GA) =>
         unitBlock1 (u : UnitTorus d L N₁ m₁ k) = zc),
         detActivityBg m₀ (compWeight L 1) 1 νS (rho4 d L N BG κ) D y Y := by
-  classical
-  have : NeZero aK := ⟨(cellSide_pos (L := L) m₀ m₁ (k + 1)).ne'⟩
-  have hapos : 0 < aK := cellSide_pos (L := L) m₀ m₁ (k + 1)
-  have hLpos : 0 < L := by omega
-  have hpK : 0 < L ^ (k + 1) := pow_pos hLpos _
-  have hap : 4 * L ^ (k + 1) ≤ aK := by
-    have h4 : 4 ≤ L ^ (m₀ + m₁) := by
-      calc 4 = 2 ^ 2 := by norm_num
-        _ ≤ L ^ 2 := Nat.pow_le_pow_left hL 2
-        _ ≤ L ^ (m₀ + m₁) := Nat.pow_le_pow_right hLpos (by omega)
-    have : aK = L ^ (k + 1) * L ^ (m₀ + m₁) := by
-      unfold cellSide; rw [← pow_add]; congr 1; omega
-    rw [this]
-    nlinarith
-  have hbox : ∃ b, box b (L * aK) ⊆ box (rootCube (m₀ := m₀) zc).1 (L * aK) := ⟨_, subset_rfl⟩
-  have hDs1 : Ds + 1 ≤ aK * ((Kn - 26) / 25 + 1) := by
-    have : 1 ≤ aK * ((Kn - 26) / 25 + 1) := Nat.one_le_iff_ne_zero.2 (by positivity)
-    omega
-  have hDsa : aK ≤ Ds + 1 := by
-    rw [hDsdef]
-    have := Nat.le_mul_of_pos_right aK (show 0 < (Kn - 26) / 25 + 1 by omega)
-    omega
-  obtain ⟨hn25, hn25', -⟩ := compact_site_margins (K := Kn) (K' := Kn') (cs := aK)
-    (Dc := (Kn - 26) / 25) (Ds := Ds) (q := 0) hK hKK' hapos le_rfl hDs1 (Nat.zero_le _)
-  rw [← hm] at hn25
-  rw [← hm'] at hn25'
-  obtain ⟨zv, hz, hint⟩ := exists_recentring_int (n := (N₁ * L ^ m₁) * L ^ (k + 1))
-    (a := aK) (L := L) (D := Ds) (q := q) hd hapos hL (cellSide_dvd hN le_rfl) hbox
-    hsp hn25 hq hqn
-  have hxX : rootSite zc ∈ box (rootCube (m₀ := m₀) zc).1 (L * aK) :=
-    box_mono _ (by nlinarith) (rootSite_mem_box_rootCube (m₀ := m₀) zc)
-  obtain ⟨rc, hzc, hrc, hzz, hroot, hn1, hn1', hnS, hnS', hnH, hnH'⟩ :=
-    det_root_recentred (N₁' := N₁') hd hL hm₀ hm₁ zc zv hDsa hap hn25 hqn hslack hslack'
-      (fun μ => hq _ (Or.inl hxX) μ) (fun x hx μ => hint x (Or.inl hx) μ)
-  have hnR : 2 * (Ds + (Ds + 1) / 4) + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hbd : ∀ y ∈ sitesOf Y, InBox d (Ds + (Ds + 1) / 4 + 2 * L ^ (k + 1))
-      ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + fun μ => ((zv μ : ℤ) : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1)))) :=
-    fun y hy => inBox_mono (by omega) (inBox_add_intCast hnR y zv (hint y (Or.inr hy)))
-  have hbm : boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1)) ''
-      sitesOf Y = sitesOf Y' := by
-    rw [hY, hY']
-    exact boxMap_image_cellSites hm hm' hK hKK' X hXq
-  have hYc := cubeAct_recentred_cells hN hN' _ _ (fun μ => dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ))
-    (fun μ => dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)) Y Y' hbm
-    (fun y hy => boxMap_add_intCast hnR y zv (hint y (Or.inr hy))) hbd (by omega)
-  exact sum_blockU_detActivityBg_recentred hN2 hk νS β p₁ δ hN hN' hC hC' hδc hcap hsm hmar hαK
-    hconn hconn' hD hD' _ _ (fun μ => dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ))
-    (fun μ => dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)) zc (bc zc) hzz hzc hrc
-    (fun x hx => hroot x (box_mono _ (by nlinarith) hx)) Y Y' hYc hbd hn1 hn1' hnS hnS' hnH hnH'
-    (hraw zv hz hint)
+  exact sum_blockU_detActivityBg_cellSites_gen (Dc := (Kn - 26) / 25) hN2 hk νS β p₁ δ hd hL hm₀ hm₁ hN hN' hC hC' hδc hcap hsm hmar hαK hconn hconn' hD hD' hK hKK' hm hm' le_rfl hDsdef hXq Y Y' hY hY' zc hsp hq hqn hslack hslack' hraw
 
 end Pair
 
