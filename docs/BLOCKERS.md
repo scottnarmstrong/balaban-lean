@@ -22,9 +22,9 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral remains); author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route settled from P7 §4: large-field components as polymers with absolute bounds; being built) and the joins remain |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20 (proved), the rest of the quarter box in progress (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -136,8 +136,12 @@ window integral of the removed outcome, ripeness and the residual-loss arithmeti
 arithmetic, the passage from kernel bounds to the gas, the volumes of the window variables and the removed
 kernel itself (tied to the R operation, with its pointwise exponent bound) are now proved. Two points
 remain before the window integral: the reference density must use the action restricted to the removed
-component, as P7 writes it (ours uses a larger region), and the objects of the step must be shown not to
-read the field inside the integrated region; both are in progress. The halos used as labels of
+component, as P7 writes it, and the objects of the step must be shown not to read the field inside the
+integrated region. Both are now done up to explicit inputs: the restricted density is defined, with the
+identity of P7 (3.5) proved unconditionally; its error term is bounded once the action outside the removed
+component varies little over the cutoff ball, which needs the decay of the background's response from the
+removed component to the component's edge (Q13-SHARED (2.4), in progress). The locality holds for the
+characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
 size of a removed halo is counted by its enclosing box, since removed components are boxes of bounded side.
@@ -198,7 +202,12 @@ only on d, L and N, while the field cutoff grows only like a power of log β, so
 keeps the field inside the analyticity domain (proved). For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
-block are proved; the decomposition into large-field block sets and the per-set activity are being built.
+block are proved, and so are the decomposition into large-field block sets, the activity of each set, and
+the polymer gas for these sets (counting of connected block sets, entropy, the activity bound for β large,
+which needs the exponent of the field cutoff to exceed half that of p₂). One point is open and is now a question to the author (item 18 addendum):
+on cells meeting a large-field set the decoupled covariance would move the field out of the analyticity
+domain, and we read P7 as expanding only on the complement, with the large set entering through a
+background that depends on it.
 
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
@@ -284,7 +293,15 @@ shrink with our choice of radii, so old terms keep the domain of the scale where
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
 so is the resulting inclusion when the real witness of the external field is a unit vector, as in our
-scheme (`notes/phase1/D2B.md`); it is being applied to the actual chart points.
+scheme (`notes/phase1/D2B.md`). The unit-vector condition has since been removed (any chart point can be
+re-realized at a unit witness, at the cost of doubling the radius), and the inclusion holds for the actual
+chart points under one numerical condition on the radii (the gap between successive class radii). That
+condition now follows from the constants (the class radii decrease geometrically, with ratio L^{−α} ≤
+1/(16 C₀⁴)), and the expansion of the old terms is stated on their birth domains, using only the clauses of
+each old term at its own level. Two auxiliary radii of the step are small multiples of the class radius
+(one once the cube size is large, the other for β large; both proved), and the chain is tied to the run:
+what it still takes from outside is the bound on the renormalization corrections of the flow (P4 (5.31))
+and a small margin in the mass condition, ν L^{2(k+1)}(1 + r) ≤ 1 instead of ≤ 1.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
@@ -334,6 +351,15 @@ truncation changes it by order one near the boundary. Root-F as stated carries n
 torus size; for the scales just below the last one, the margin our locality results need grows with L, so
 either those terms are shown to be torus-local with a margin independent of L, or the statement needs a
 floor on the torus size. This is part of item 24.
+
+Progress (October 17, `notes/phase1/TORUSLAST2.md` §6): at those scales only the aligned L-block cover of a
+polymer and its hull read L cells; every other ingredient needs a fixed number of cells. A nonzero term lives on
+a union of such blocks, so its support already contains an L-block, and the transport between two tori holds for
+supports of radius below ℓ/20 without any floor (proved). The terms are covariant under translations by whole
+cells (from the lattice symmetries already proved), so a support of diameter D anywhere in the quarter box can be
+recentred, and the transport holds when 25D + 25 < min(ℓ, ℓ′) (proved, given the correspondence of
+coefficients near the origin, which is being supplied). Wide supports are to be bounded by the decay of the
+terms; the question is in item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 

@@ -67,6 +67,10 @@ public import Balaban.Polymer.TwoTorusDet
 public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.TwoTorusCoef
+public import Balaban.Polymer.TwoTorusGapScales
+public import Balaban.Polymer.TwoTorusTranslate
+public import Balaban.Polymer.TwoTorusRecentre
+public import Balaban.Polymer.TwoTorusWideBand
 public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.TwoTorusDirectTerms
 public import Balaban.Polymer.TwoTorusDirectTermsTower
@@ -1801,6 +1805,8 @@ public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
 public import Balaban.Green.FinalTailActivity
+public import Balaban.Green.FinalTailBridge
+public import Balaban.Green.FinalTailConsts
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
@@ -1913,6 +1919,12 @@ public import Balaban.Fluctuation.ClassOldEndpointE
 public import Balaban.Fluctuation.ClassOldMarksY
 public import Balaban.Fluctuation.ClassOldDecInputM
 public import Balaban.Fluctuation.ClassOldCover
+public import Balaban.Fluctuation.ClassOldCoverSlices
+public import Balaban.Fluctuation.ClassOldBirthConsts
+public import Balaban.Fluctuation.ClassOldBirthDelta
+public import Balaban.Fluctuation.ClassOldBirthFluct
+public import Balaban.Fluctuation.ClassOldBirthRun
+public import Balaban.Fluctuation.ClassOldCoverBirth
 public import Balaban.Fluctuation.ClassOldEndpointM
 public import Balaban.Inhabited.ClassOldExpansionFromTower
 public import Balaban.Fluctuation.ClassOldLocalGk
@@ -2032,6 +2044,7 @@ public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RRemovedKernelPre
+public import Balaban.LargeField.R.RTransport
 public import Balaban.LargeField.R.RRemovedLocality
 public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
@@ -2057,3 +2070,5 @@ public import Balaban.LargeField.R.CoreResponse
 public import Balaban.LargeField.R.CoreResponseSum
 public import Balaban.LargeField.R.CoreResponseHess
 public import Balaban.LargeField.R.CoreResponseOsc
+public import Balaban.SmallField.XiUnitWitness
+public import Balaban.Green.FinalTailGas

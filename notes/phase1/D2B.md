@@ -27,3 +27,23 @@ Open: `hk` for the actual chart data when `j < k`, `h₀` nonunit; the smallness
 ## Status (W885)
 `Fluctuation/LocalClassBirthChart.lean`: `xiDom_birth_of_unit_realization` (unit real witness needed for ONE realization of the chart point), `xiDom_birth_chart`, `xiCRaw_dom_birth` (hchart ⊆ `xiFieldDom A μ ε`), `xiCRaw_dom_birth_flow` (μ from the flow product, τ = exp(3c₈q^{j+1}/(4(1-q))) − 1), `xiDom_birth_chart_top` (j = top, no witness condition). (DL-gap), exact: `C₀²(C₀²ε′+K₂δ₃+K₂δfl)(1+K_m τ) ≤ ε_j`, `K_m = 1+16(N+1)cK2`; not a `ChainNum` field (small₂, th2, c1, K1s lack the factor C₀² and δfl), so smallness is stated for ε_j (`hsmε hc1ε hKε hζε`, τ < r ≤ 1/16).
 Unit witness: NOT forced and NOT provable from landed data (nonunit h₀ allowed by XiC at level j, MASS-LEVEL §3); re-realizing at h_* needs a response of the real background to a change of h₀ (not landed). It is the explicit hypothesis `hunit` (D is realized with ∑h₀²=1, the pinned scheme).
+
+## Status (W886)
+`SmallField/XiUnitWitness.lean`: the unit witness is no longer a hypothesis. `unitWitness_real` (real background at h₀' = h₀/|h₀| = old one + (δφ,δα), K₂e², source ν(h₀'−h₀) through Prop 5.1; needs Ω_{j+1}=∅ and N ≥ 1), `xiC_unitWitness` (same complex datum, h''' = h''+h₀−h₀', XiC radius E = 2e+2(N+1)K₂e²; the factor 2 is the mass clause √νℓ|φ−h₀'|, unavoidable for h₀ = 0), `xiDom_birth_of_realization`, `xiCRaw_dom_birth_unitfree` (+ `_flow_unitfree`): hunit removed, (DL-gap) becomes (2E₁+2(N+1)K₂E₁²)(1+K_mτ) ≤ ε_j, E₁ = C₀²(C₀²ε′+K₂δ₃+K₂δfl), plus G.Ω(j+1)=∅ (automatic for j = k).
+
+W893 (D2(b) wiring): `Fluctuation/ClassOldCoverBirth.lean`: `gs_top_layer_empty_of_clauses` (hΩ from `gs_spec`, in scope via `hcl`), `classOldDec_expansion_cover_birth` (Dom = xiFieldDom (compWeight L a₁) μ εs, hchart from `xiCRaw_dom_birth_flow_unitfree`).
+Remaining named hypotheses: `hcl` on the birth domain (full clauses, not only `inherit_le` slices), BgHyp at ν and μ, the flow bound hξ and hμ, hDL, hsmε, hc1ε, hKε, hζε, hτr, hr; none follows from landed class constants.
+
+Status (W894): the cover expansion uses only the level-j slices `analyticE`, `boundE` at the label (no level-(k+1) field, no other label; `gs_spec` only for the birth chart inclusion). Core `classOldDec_expansion_cover_of_slices` (`Fluctuation/ClassOldCover.lean`); `classOldDec_expansion_cover` is an application.
+Birth: `classOldDec_expansion_cover_birth_slices` (`Fluctuation/ClassOldCoverSlices.lean`) takes the `gs_spec`, `analyticE`, `boundE` slices at the label on the birth domain; `classOldDec_expansion_cover_birth` is an application of it.
+
+Status (W896): `Fluctuation/ClassOldBirthConsts.lean`: `dlGap_of_consts` (DL-gap from `ε′ ≤ ε_j/Λ`, `Λ ≥ 16C₀⁴`, `δ₃,δfl ≤ c ε_j`, `16C₀²K₂'(c₃+c_fl) ≤ 1`, `K_m r ≤ 1`, `(N+1)K₂A ≤ 4`, `A = α₀ epsTail 0`), `epsSeq_anti`, `epsSeq_succ_le_of_le`, `epsSeq_le_tail_zero`.
+`classOldDec_expansion_cover_birth_consts`: the slices theorem with `hDL`, `hsmε`, `hc1ε`, `hKε`, `hζε` replaced by constant conditions (`hLα`, `hcc`, `hAK`, `hrK`, `hsmA`, `hc1A`, `hKA`, `hζA`) and `eps ≤ ε_{k+1}`, `δ₃,δfl ≤ c·ε_k`; the bounds `δ₃ ≤ c₃ε_k`, `δfl ≤ c_flε_k` are NOT derived from `ChainNum`/fluctuation bounds (hypotheses).
+
+Status (W897): `Fluctuation/ClassOldBirthDelta.lean`: `delta3_le_of_close` (δ₃ = N·composedCloseBound(…, C_{Ξ1}ε′, r₀) ≤ c₃ε_k, c₃ = N C_{Ξ1} L^{-α} composedCloseBound(…,1,r₀)), `c3_le_of_decay` (c₃ ≤ η iff-type condition log(Λ₀/η) ≤ γ_w(r₀−4dL³)L^{m₁}/L), `deltafl_le_of_flb` (δfl = N(5K₂″δ₁+δ₁) ≤ c_fl ε_k for δ₁ ≤ c_δ ε_k; no landed β^{-3/8} bound, it enters through cψ/δ₁).
+`classOldDec_expansion_cover_birth_consts_delta`: the consts theorem with δ₃, δfl given by these formulas; hypotheses δ₁ ≤ c_δ ε_k, c₃/c_fl definitions, hcc, and the constant conditions.
+
+Status (W899): `Fluctuation/ClassOldBirthFluct.lean`: `delta1_le_of_amp` (δ₁ = 2√N‖cc‖C c_ψ, ‖cc‖ ≤ β_k^{-1/2}, c_ψ = A₁(log β_k)^p, β_k ≥ M L^{(d-2)k}, α ≤ (d-2)(1/2-u): δ₁ ≤ c_δ ε_k iff-type size condition 2√N C A₁(p/u)^p ≤ c_δ α₀ M^{1/2-u}; uses (log x)^p ≤ (p/u)^p x^u).
+`classOldDec_expansion_cover_birth_consts_fluct`: consts_delta with hδ₁, hδ₁k replaced by these amplitude/size hypotheses; only constants remain.
+
+Status (W900): `Fluctuation/ClassOldBirthRun.lean`: `classOldDec_expansion_cover_birth_run` (a) `betaK_lower`, `betaRun_lower` (M = β₀, resp. β e^{-ε}); (b) amplitude cc = β_k^{-1/2}, cutoff `pLog A₁ p β_k`; (c) `mass_relation_of_nuSeq`, hξ in the `rg_flow_infty` form with c₈ = 4C_f/β (input about the actual flow); (d) `bgHyp_of_mass`, margin ν L^{2(k+1)}(1+r) ≤ 1 (r ≤ 1/16); (e) hW proved (`covSupConstC_pos`).
