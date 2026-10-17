@@ -157,12 +157,12 @@ variable
     (hψh : ∀ ℓ, ∀ g ∈ Dset, ∀ p, ‖ψh ℓ g p‖ ≤ cψ)
     {Zm : ∀ ℓ, Finset (unitPts (GA[ℓ]))} {um tm : ℂ}
     (hum : (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
-    {x₀ : ∀ ℓ, CTorus d L (N₁ ℓ) m₁ (k + 1)}
-    (hZ : ∀ ℓ, readSites (HA[ℓ]) k (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) (x₀ ℓ)) ⊆
-      ↑(X₁f ℓ))
-    (hBM : ∀ ℓ, BlockMargin (GA[ℓ]) (X₁f ℓ)
+    {Bl : ∀ ℓ, Finset (CTorus d L (N₁ ℓ) m₁ (k + 1))}
+    (hZ : ∀ ℓ, ∀ x₀ ∈ Bl ℓ,
+      readSites (HA[ℓ]) k (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) x₀) ⊆ ↑(X₁f ℓ))
+    (hBM : ∀ ℓ, ∀ x₀ ∈ Bl ℓ, BlockMargin (GA[ℓ]) (X₁f ℓ)
       (↑(blockSites d L (N₁ ℓ) m₁ (k + 1) k
-        (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) (x₀ ℓ))) :
+        (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) x₀)) :
         Set (CTorus d L (N₁ ℓ) m₁ (k + 1))))
 
 variable
@@ -177,7 +177,7 @@ variable
     (hcompact : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → ∀ c ∈ X, ∀ c' ∈ X, ∀ μ,
       |c μ - c' μ| ≤ (((K ℓ - 26) / 25 : ℕ) : ℤ))
     (hcoverX : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → X₁f (can X) = (X₁f ℓ).image bm[ℓ, can X])
-    (hx₀c : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → x₀ (can X) = bm[ℓ, can X] (x₀ ℓ))
+    (hBl : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → Bl (can X) = (Bl ℓ).image bm[ℓ, can X])
     (hfamD : ∀ ℓ X g, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → g ∈ Dset →
       ∀ Ds : ℕ, Ds = cellSide L m₀ m₁ (k + 1) * ((K ℓ - 26) / 25 + 1) - 1 →
       ∀ z : Fin d → ℤ, (∀ μ, ((cellSide L m₀ m₁ (k + 1) : ℕ) : ℤ) ∣ z μ) →
@@ -204,13 +204,13 @@ variable
           unitPt (hG ℓ) y ∈ Zm ℓ)))
     (Tnew : ι → G → Finset (Fin d → ℤ) → ℂ)
     (hTnew : ∀ ℓ g X, X ∈ P ℓ → g ∈ Dset →
-      Tnew ℓ g X = evDec (X₁f ℓ) m₀ j (𝒦X ℓ) a₁ ν (hG ℓ) cc (F₁ ℓ) (Sol ℓ)
+      Tnew ℓ g X = ∑ x₀ ∈ Bl ℓ, evDec (X₁f ℓ) m₀ j (𝒦X ℓ) a₁ ν (hG ℓ) cc (F₁ ℓ) (Sol ℓ)
         (blockEnergyFun (GA[ℓ]) (HA[ℓ]) (compWeight L a₁) ν k
-          (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) (x₀ ℓ))) (Zm ℓ) um tm
+          (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) x₀)) (Zm ℓ) um tm
         cellsOf[ℓ, X] (rawOf (Dat ℓ g), ψh ℓ g))
 
 include hC hk hG cc hcψ hMX hmar hαK hsm hF₁ hSol hd hL hm₀ hm₁ hN hcov hX₁ h𝒦 hD hψh hum hZ hBM
-  hK26 hside hP hQ hcanK hcompact hcoverX hx₀c hfamD hTnew
+  hK26 hside hP hQ hcanK hcompact hcoverX hBl hfamD hTnew
 
 /-- **The exact torus clause of the new terms at the gap scale** (item 24, part 1: `hnew` of
 `hFclose_of_split`).  Let the new terms `Tnew ℓ g X` on the torus `ℓ` be the terms `evDec` of the
@@ -238,8 +238,13 @@ theorem hnew_of_blockEnergy :
     (n' := (N₁ (can X) * L ^ m₁) * L ^ (k + 1)) (hside ℓ) (hside (can X)) (hK26 ℓ) hKK
     (↑X : Set (Fin d → ℤ)) hXq
   rw [hTnew ℓ g X hX hg, hTnew (can X) g X hXc hg]
+  have hn : (N₁ ℓ * L ^ m₁) * L ^ (k + 1) ≤ (N₁ (can X) * L ^ m₁) * L ^ (k + 1) := by
+    rw [hside ℓ, hside (can X)]; exact Nat.mul_le_mul_left _ hKK
+  have hinj : Function.Injective bm[ℓ, can X] := boxMap_injective_of_le (d := d) hn
   by_cases hsub : (↑(X₁f ℓ) : Set (CTorus d L (N₁ ℓ) m₁ (k + 1))) ⊆ cellsOf[ℓ, X]
-  · have := evDec_cellSites_blockEnergy (N₁ := N₁ ℓ) (N₁' := N₁ (can X)) (hC := hC ℓ)
+  · rw [hBl ℓ X hX hQX, Finset.sum_image (fun x _ y _ h => hinj h)]
+    refine Finset.sum_congr rfl fun x₀ hx₀ => ?_
+    have := evDec_cellSites_blockEnergy (N₁ := N₁ ℓ) (N₁' := N₁ (can X)) (hC := hC ℓ)
       (hC' := hC (can X)) (hk := hk) (hGA := hG ℓ) (hGB := hG (can X)) (cc := cc) (hcψ := hcψ)
       (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁ ℓ) (hF₁' := hF₁ (can X))
       (hSol := hSol ℓ) (hSol' := hSol (can X)) (hd := hd) (hL := hL) (hm₀ := hm₀) (hm₁ := hm₁)
@@ -247,13 +252,19 @@ theorem hnew_of_blockEnergy :
       (hX₁ := hX₁ ℓ) (hcov' := hcov (can X)) (hX₁' := hX₁ (can X)) (h𝒦 := h𝒦 ℓ)
       (hD := hD ℓ g hg) (hD' := hD (can X) g hg) (hψh := hψh ℓ g hg)
       (hψh' := hψh (can X) g hg) (hum := hum)
-      (hfamD := hfamD ℓ X g hX hQX hW hg _ rfl) (hZ := hZ ℓ) (hBM := hBM ℓ) (hK := hK26 ℓ)
+      (hfamD := hfamD ℓ X g hX hQX hW hg _ rfl) (x₀ := x₀) (hZ := hZ ℓ x₀ hx₀)
+      (hBM := hBM ℓ x₀ hx₀) (hK := hK26 ℓ)
       (hKK' := hKK) (hm := hside ℓ) (hm' := hside (can X)) (hDsdef := rfl) (hXq := hXq)
       (hXs := hXs) (hY := rfl) (hXc := hsub)
-    rw [← hx₀c ℓ X hX hQX] at this
     exact this.symm
-  · rw [evDec_eq_zero_of_not_subset (hG ℓ) cc (F₁ ℓ) (Sol ℓ) _ (Zm ℓ) um tm _ _ (hX₁ ℓ) hsub]
+  · have h1 : ∀ x₀ ∈ Bl ℓ, evDec (X₁f ℓ) m₀ j (𝒦X ℓ) a₁ ν (hG ℓ) cc (F₁ ℓ) (Sol ℓ)
+        (blockEnergyFun (GA[ℓ]) (HA[ℓ]) (compWeight L a₁) ν k
+          (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) x₀)) (Zm ℓ) um tm
+        cellsOf[ℓ, X] (rawOf (Dat ℓ g), ψh ℓ g) = 0 := fun x₀ _ =>
+      evDec_eq_zero_of_not_subset (hG ℓ) cc (F₁ ℓ) (Sol ℓ) _ (Zm ℓ) um tm _ _ (hX₁ ℓ) hsub
+    rw [Finset.sum_eq_zero h1]
     symm
+    refine Finset.sum_eq_zero fun x₀ _ => ?_
     refine evDec_eq_zero_of_not_subset (hG (can X)) cc (F₁ (can X)) (Sol (can X)) _ (Zm (can X))
       um tm _ _ (hX₁ (can X)) ?_
     intro hsub'
@@ -264,9 +275,7 @@ theorem hnew_of_blockEnergy :
     have h2 := hsub' h1
     rw [← hbm] at h2
     obtain ⟨y, hy, hyx⟩ := h2
-    have hn : (N₁ ℓ * L ^ m₁) * L ^ (k + 1) ≤ (N₁ (can X) * L ^ m₁) * L ^ (k + 1) := by
-      rw [hside ℓ, hside (can X)]; exact Nat.mul_le_mul_left _ hKK
-    rw [← boxMap_injective_of_le hn hyx]
+    rw [← hinj hyx]
     exact hy
 
 /-- **The torus clause at a gap scale for the block-energy terms** (item 24, part 3).  The terms of
@@ -314,7 +323,7 @@ theorem resum_gapScale_torus_blockEnergy (sz : Finset (Fin d → ℤ) → ℕ)
     Wd hP hQ hsz hτ hR hAg hcanK hWd hB ha hκ hκ₂ hlam hκ' hsupp hloc han hbd Tnew Tinh hsplit
     (fun ℓ X hX hQX hW _ g hg => hnew_of_blockEnergy hC hk hG cc hcψ hMX hmar hαK hsm hF₁ hSol hd
       hL hm₀ hm₁ hN hcov hX₁ h𝒦 hD hψh hum hZ hBM hK26 hside P Q can Wd hP hQ hcanK hcompact
-      hcoverX hx₀c hfamD Tnew hTnew ℓ X hX hQX hW g hg) hinh
+      hcoverX hBl hfamD Tnew hTnew ℓ X hX hQX hW g hg) hinh
 
 end Family
 
