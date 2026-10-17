@@ -2320,3 +2320,9 @@ public import Balaban.Fluctuation.VacuumDet
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.IrrelTorusDefectJet
 public import Balaban.SmallField.IrrelTorusDefectTail
+public import Balaban.SmallField.IrrelTorusDefectExpand
+public import Balaban.SmallField.IrrelTorusDefectInverse
+public import Balaban.SmallField.IrrelTorusDefectWholeJet
+public import Balaban.SmallField.IrrelTorusDefectSmallSum
+public import Balaban.SmallField.IrrelTorusDefectMatrix
+public import Balaban.SmallField.IrrelTorusDefectWholeSum
