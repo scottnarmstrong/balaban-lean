@@ -2149,6 +2149,7 @@ public import Balaban.LargeField.R.RRemovedHidCore
 public import Balaban.LargeField.R.RRemovedHidGu
 public import Balaban.LargeField.R.RRemovedHidRead
 public import Balaban.LargeField.R.RRemovedHidO
+public import Balaban.LargeField.R.RRemovedHidCoreGen
 public import Balaban.LargeField.R.RRemovedHidCoreThm
 public import Balaban.LargeField.R.RRemovedHidAux
 public import Balaban.LargeField.R.RRemovedHidMain
@@ -2219,6 +2220,8 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyActSum
 public import Balaban.Fluctuation.LocalClassDensityFamilyActM1
 public import Balaban.Fluctuation.LocalClassDensityFamilyActTower
 public import Balaban.Fluctuation.LocalClassDensityFamilyActDecay
+public import Balaban.Fluctuation.LocalClassDensityFamilyIdx
+public import Balaban.Fluctuation.LocalClassDensityFamilyIdxSum
 public import Balaban.Green.FinalLevelCount
 public import Balaban.Green.FinalLevelCountBound
 public import Balaban.Green.FinalConstsClose
