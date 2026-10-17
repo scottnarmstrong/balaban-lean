@@ -1272,6 +1272,8 @@ public import Balaban.Fluctuation.OldTermsLiftMoment
 public import Balaban.Fluctuation.OldTermsLiftMomentSum
 public import Balaban.Fluctuation.OldTermsLiftRenormMoment
 public import Balaban.Fluctuation.OldTermsLiftMomentClass
+public import Balaban.Fluctuation.OldTermsLiftDomGeom
+public import Balaban.Fluctuation.OldTermsLiftDomAction
 public import Balaban.Fluctuation.GeneralClassPathAnalytic
 public import Balaban.Fluctuation.GeneralClassRegularC
 public import Balaban.Fluctuation.StepNormGauss
