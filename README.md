@@ -7,12 +7,39 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 750,000 lines of Lean (about 595,000 without comments and blank
+As of October 2026, about 755,000 lines of Lean (about 600,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
 has come, and [docs/BLOCKERS.md](docs/BLOCKERS.md) for the mathematical questions that currently
 block it.
+
+## Where the work stands
+
+As of 17 October 2026. The small-field part of one renormalization step (background fields,
+localization, the fluctuation integral and its expansion, the inductive class of effective actions)
+is largely formalized, for general d, L and N. The remaining work is concentrated in seven blockers,
+described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
+
+- **The large-field gas (blocker 4).** The gas of removed large-field components is now bounded from
+  the bound of each removed outcome, summed over histories. That bound is being completed along
+  P7: the intermediate Gaussian variables of the window are integrated exactly, the actions of
+  its steps are summed into the action of the window up to a bounded constant (P7 (2.15′)), and
+  the cancellation identity of (2.58′) is applied. The bounds of the kept components (Theorem
+  III.8.9 (a)) need the same step; their plan is in `notes/phase1/LF4K-PLAN.md`.
+- **The general inductive class (blocker 6).** The value of the new density for a class with
+  inherited terms needs those terms through their irrelevant parts (P1 Prop. 3.10, as used in P4
+  p. 704), because the raw terms do not sum uniformly in the scale. The activity theorems are now
+  generic in the label functional, with a count uniform in the scale; the torus form of the
+  irrelevant parts is being built.
+- **Two tori (blocker 7).** At the scales just below the last, the torus clause holds on the whole
+  quarter box given the closeness of the inherited terms, with the induction over these scales;
+  what remains is to tie the abstract terms to the step terms of the flow.
+- **The last integral (blocker 5).** The small-field part is done up to data that the flow must
+  supply; the coupling across a large-field set is a question to the author.
+- **Blockers 1–3** (the base case of the large-field induction and the case with no renormalization
+  step, the change of background along the flow, old boundary terms across a long hole) have
+  designed routes, with one estimate or one source question open in each.
 
 ## The mathematics
 
