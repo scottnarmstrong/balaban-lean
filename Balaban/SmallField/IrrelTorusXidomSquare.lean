@@ -26,7 +26,7 @@ open Balaban.Background Balaban.Multiscale Matrix Finset
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
   {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
-  {a₁ ν δ ε η θ : ℝ} {j : ℕ}
+  {a : ℕ → ℝ} {a₁ ν δ ε η θ : ℝ} {j : ℕ}
   {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
   {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ}
   {φr φc : G'.Ω 1 × Fin N → ℂ}
@@ -99,5 +99,71 @@ theorem HypS.comp_square_sharp
       have b1 := b2_le hd0 H.ηpos H.hθ0 H.hθ1 H.hsmall (M := 1)
       nlinarith only [hc', hr', b3, b1]
     _ = θ ^ 2 * η * (2 * d + 10) := by ring
+
+/-- A class chart supplies a scaled composition witness with the sharp complex square bound. -/
+theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
+    {a₁ ε₀ θ : ℝ} {j : ℕ}
+    (hprec : Precedes G G') (hL : 2 ≤ L) (ha₁ : 0 < a₁)
+    (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) (hjθ : (L : ℝ) ^ j = θ * (L : ℝ) ^ k)
+    (hnj : ∀ x ∈ G.Ω 1, G.layerIndex x ≤ j) (hgap : ScaleGap G G' θ)
+    (hcol : ∀ z ∈ collar G, z ∈ G'.Ω 1 ∧ 1 ≤ θ * G'.spacing z)
+    (hsmall : (4 * d + 6) * (xiC1 d * ε₀) ≤ 1)
+    (hX : XiC G' a ν k 1 ε₀ Ψ0 h0 Ψ'' h'') :
+    ∃ φr φc : G'.Ω 1 × Fin N → ℂ,
+      ScaledPsiC G ν (scaledC0 d * θ) (xiC1 d * ε₀) j
+        (reR G G' a₁ φr Ψ0) h0
+        (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') ∧
+      ∀ x ∈ G.Ω 1,
+        ‖∑ i, ccv G G' a₁ φc Ψ0 Ψ'' x i * ccv G G' a₁ φc Ψ0 Ψ'' x i -
+          ∑ i, crv G G' a₁ φr Ψ0 x i * crv G G' a₁ φr Ψ0 x i‖
+          ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10) := by
+  have hc1 := one_le_xiC1 d
+  have hε₀ := hX.2.1
+  have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
+  have hC1a : 2 * (2 * (d : ℝ) + 1) ≤ xiC1 d := by unfold xiC1; nlinarith
+  have hsmall' : (4 * d + 6) * ((2 * d + 1) * ε₀) ≤ 1 := by
+    refine le_trans ?_ hsmall
+    exact mul_le_mul_of_nonneg_left
+      (mul_le_mul_of_nonneg_right (by
+        have : (2 * (d : ℝ) + 1) ≤ xiC1 d := by linarith
+        exact this) hε₀.le) (by positivity)
+  have hP := xiC_one_subset H' hsmall' hX
+  obtain ⟨-, -, Dr, Dc, hXr, hC, hDcU, hb⟩ := hX
+  have hXr' := hXr
+  obtain ⟨hR, hDomR, hbr⟩ := hXr
+  set η := xiC1 d * ε₀ with hη
+  have hηpos : 0 < η := by positivity
+  have hη1 : η ≤ 1 := by nlinarith [mul_nonneg hd hηpos.le]
+  have hEta : xiEta d 1 ε₀ ≤ η := by
+    unfold xiEta
+    rw [hη]
+    have : (2 * (d : ℝ) + 1) ≤ xiC1 d := by linarith
+    nlinarith [mul_le_mul_of_nonneg_right this hε₀.le]
+  have hEta2 : 2 * xiEta d 1 ε₀ ≤ η := by
+    unfold xiEta
+    rw [hη]
+    nlinarith [mul_le_mul_of_nonneg_right hC1a hε₀.le]
+  obtain ⟨hφre, hunr⟩ := xi_unit H' hXr'
+  have hfr := fieldBounds_mono (xi_fieldBounds H' one_pos hε₀ le_rfl hXr') hEta
+  have hfc := fieldBounds_mono (xiC_fieldBounds H' one_pos hε₀ le_rfl hXr' hC hDcU hb) hEta2
+  let φr := bgField G' a ν Dr
+  let φc := bgFieldC G' a ν (bgC0 d L N) Dc
+  have HS : HypS G G' a₁ ν η η η θ j Ψ0 h0 Ψ'' h'' φr φc :=
+    { prec := hprec, hL := hL, ha₁ := ha₁, hθ0 := hθ0, hθ1 := hθ1,
+      hjθ := hjθ, hnj := hnj, gap := hgap, hcol := hcol,
+      hδ := hηpos, hδη := le_rfl, hηε := le_rfl, hε1 := hη1,
+      hsmall := hsmall, hν := H'.mass, hνk := H'.massLe, hPC := hP,
+      hφr := hφre
+      hbr := fieldBounds_congr hfr
+        (fun x hx => by funext i; simp [psiR, hR.1 x hx i])
+      hmass := fun z => by
+        have hh := (hbr.mass z).le
+        rw [one_mul] at hh
+        exact hh.trans (by nlinarith)
+      hbc := fieldBounds_congr hfc (fun x hx => by funext i; simp [psiC])
+      hdiff := fun z => (hb.val z).le.trans (by nlinarith) }
+  refine ⟨φr, φc, scaledComposition HS, ?_⟩
+  intro x hx
+  exact Balaban.SmallField.HypS.comp_square_sharp HS hx
 
 end Balaban.SmallField
