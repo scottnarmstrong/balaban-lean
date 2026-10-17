@@ -26,6 +26,17 @@ The last section lists the problems that have been resolved since the project st
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is reduced to the irrelevant-part representation of the inherited terms (P1 Prop. 3.10), whose torus identity is proved; their bound remains (one open analytic input, and the torus defect at the centre's cube) |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms, with the induction over the gap scales (proved in abstract form); tying it to the tower's step terms remains (item 24) |
 
+## Proceeding without the author's answers
+
+Several blockers carry questions to the author. We no longer wait for them: the two main theorems are
+statements about the model, so any construction that proves them is acceptable. Where the papers are
+ambiguous we choose a reading, record it, and prove what it needs; an answer, if it comes, becomes a
+check. Two of these choices change approved definitions and wait for a ruling: the extended direction
+tests of blocker 2, and opening new regions with aligned blocks, which removes the spill of blocker 3.
+The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Three
+focused analyses are running: the shifted data in the anisotropic domain (blocker 6), the activity bound on
+the source radius β^{-1/2} (blocker 2), and the case with no renormalization step (blocker 1).
+
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
 The inductive description (P5 (H.1), (1.1)) writes the density at scale k as a sum over
