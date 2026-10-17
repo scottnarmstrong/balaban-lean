@@ -34,7 +34,7 @@ terms, the centre being transported with the polymer:
   group average of a centre-labelled family (the analogues of `avgTerm_*` of `LocalClassCov.lean`);
   `blockBase_perm_eq_of_blockBase_eq`: the paving group permutes the `L^K`-blocks;
 * `localClass_termClausesE_centre`: the slices at `j = k + 1` of `gs_spec`, `gsStrong`,
-  `pavingGS`, `analyticE`, `rotE` (real matrices), `eucE`, `localE`, `boundE` (no volume factor:
+  `pavingGS`, `analyticE`, `rotE`, `eucE`, `localE`, `boundE` (no volume factor:
   each centre carries its own terms);
 * `localClass_centre_Eloc_eq`: **the per-centre identity** `Eloc_{k+1}(y) = 𝒟(y)` on the domain of
   the whole-lattice generating set `levelGS (k + 1)`, from (i) the expansion identity
@@ -245,7 +245,7 @@ localization of the per-block new density `ℰ^{(k+1)}(z)`), depending on `z` on
 * `hTErot`: invariance under real orthogonal `Q`.
 Let `AE z Y` be the average over the paving group of the completed terms, the centre transported
 with the polymer, and `Tm.E (k + 1) y Y = AE y Y` for `y ∈ Y`.  Then the slices at `j = k + 1` of
-`gs_spec`, `gsStrong`, `pavingGS`, `analyticE`, `rotE` (real matrices), `eucE`, `localE`, `boundE`
+`gs_spec`, `gsStrong`, `pavingGS`, `analyticE`, `rotE`, `eucE`, `localE`, `boundE`
 hold.  No paving covariance of `TE` is used. -/
 theorem localClass_termClausesE_centre {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
     [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
@@ -329,9 +329,9 @@ theorem localClass_termClausesE_centre {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
         (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N => Tm.E (k + 1) y X p.1 p.2)
         {p | (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
           (Tm.gs (k + 1) X) p.1 p.2}) ∧
-    -- `rotE`, real matrices
+    -- `rotE`
     (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ, IsRot R →
-      (∀ i j, (R i j).im = 0) → ∀ Ψ h,
+      ∀ Ψ h,
       (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
         (Tm.gs (k + 1) X) Ψ h →
       (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
@@ -428,7 +428,7 @@ theorem localClass_termClausesE_centre {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
       (boundE_paving_invariant hN P.E₀ P.κ)
       (fun z Y p hz hp => by rw [(hext z Y hp.1).1 p hp.2]; exact hTEbd z Y hp.1 hz p hp.2) hz hp
   refine ⟨fun X _ => ?_, fun X _ => ?_, fun X _ r hr i => ?_, fun y X hX hy => ?_,
-    fun y X hX hy R hR hre Ψ h h1 h2 => ?_, fun y X hX hy r hr Ψ h _ _ => ?_,
+    fun y X hX hy R hR Ψ h h1 h2 => ?_, fun y X hX hy r hr Ψ h _ _ => ?_,
     fun y X Ψ Ψ' h h' hX => ?_, fun y X hX hy Ψ h h1 => ?_⟩
   · rw [hgs]
     exact localB_collar_gs_spec (le_refl (k + 1)) (le_refl (minSep L (L ^ m₁))) (hYp X)
@@ -446,7 +446,7 @@ theorem localClass_termClausesE_centre {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
     rw [hEf, hgs]
     intro p hp
     exact hAan y X p ⟨hX, hp⟩
-  · obtain ⟨Q, hQ, rfl⟩ := exists_cmat_of_isRot_real hR hre
+  · obtain ⟨Q, hQ, rfl⟩ := exists_cmat_of_isRot_real hR hR.2
     rw [hE, hE]
     simp only [hy, ↓reduceIte]
     rw [hgs] at h1 h2
@@ -573,9 +573,9 @@ theorem localClass_termClausesE_centre_of_labels {P : Consts} (hN : L ^ P.m₀ �
         (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N => Tm.E (k + 1) y X p.1 p.2)
         {p | (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
           (Tm.gs (k + 1) X) p.1 p.2}) ∧
-    -- `rotE`, real matrices
+    -- `rotE`
     (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ, IsRot R →
-      (∀ i j, (R i j).im = 0) → ∀ Ψ h,
+      ∀ Ψ h,
       (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
         (Tm.gs (k + 1) X) Ψ h →
       (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)

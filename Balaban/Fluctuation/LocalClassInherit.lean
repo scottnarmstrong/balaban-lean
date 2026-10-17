@@ -220,7 +220,8 @@ theorem SFTermClauses.inherit_le {P : Consts} {Dom Dom' : FieldDom d L N₁ m₁
           Eloc P.m₀ Tm' j y Ψ h) ∧
     -- `rotM`
     (∀ j, 1 ≤ j → j ≤ k → ∀ x X, IsPolyDom P.m₀ j X → x ∈ X →
-      ∀ R : Matrix (Fin N) (Fin N) ℂ, IsRot R → ∀ Ψ h g, Dom'.dom j (Tm'.gs j X) Ψ h →
+      ∀ R : Matrix (Fin N) (Fin N) ℂ, IsRot R → ∀ Ψ h g, Def6.l1 g < 1 →
+        Def6.l1 (rotField R g) < 1 → Dom'.dom j (Tm'.gs j X) Ψ h →
         Dom'.dom j (Tm'.gs j X) (rotField R Ψ) (rotField R h) →
         Tm'.M j x X (rotField R Ψ) (rotField R h) (rotField R g) = R.mulVec (Tm'.M j x X Ψ h g)) ∧
     -- `eucM`
@@ -259,7 +260,7 @@ theorem SFTermClauses.inherit_le {P : Consts} {Dom Dom' : FieldDom d L N₁ m₁
   refine ⟨fun j hj1 hjk X hX => ?_, fun j hj1 hjk y X hX hy => ?_,
     fun j hj1 hjk x X hX hx => ?_, fun j hj1 hjk y X hX hy R hR Ψ h h1 h2 => ?_,
     fun j hj1 hjk X hX r hr i => ?_, fun j hj1 hjk y X hX hy r hr Ψ h h1 h2 => ?_,
-    fun j hj1 hjk hjK y r hr Ψ h h1 h2 => ?_, fun j hj1 hjk x X hX hx R hR Ψ h g h1 h2 => ?_,
+    fun j hj1 hjk hjK y r hr Ψ h h1 h2 => ?_, fun j hj1 hjk x X hX hx R hR Ψ h g hg hg' h1 h2 => ?_,
     fun j hj1 hjk x X hX hx r hr Ψ h g h1 h2 => ?_, fun j hj1 hjk hjK x r hr Ψ h g h1 h2 => ?_,
     fun j hjk y X Ψ Ψ' h h' hX => ?_, fun j hjk x X Ψ Ψ' h h' g g' hX => ?_,
     fun j hj1 hjk y X hX hy Ψ h h1 => ?_, fun j hj1 hjk x X hX hx Ψ h g h1 hg => ?_⟩
@@ -282,7 +283,7 @@ theorem SFTermClauses.inherit_le {P : Consts} {Dom Dom' : FieldDom d L N₁ m₁
     exact hcl.eucEloc j hj1 hjK y r hr Ψ h (hsub j hjk _ _ _ h1) (hsub j hjk _ _ _ h2)
   · rw [hgs j hjk] at h1 h2
     rw [hM j hjk]
-    exact hcl.rotM j hj1 (hjk.trans hkK) x X hX hx R hR Ψ h g (hsub j hjk _ _ _ h1)
+    exact hcl.rotM j hj1 (hjk.trans hkK) x X hX hx R hR Ψ h g hg hg' (hsub j hjk _ _ _ h1)
       (hsub j hjk _ _ _ h2)
   · rw [hgs j hjk] at h1 h2
     rw [hM j hjk]
