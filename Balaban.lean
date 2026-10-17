@@ -2501,6 +2501,7 @@ public import Balaban.LargeField.R.WindowConvPhysCells
 public import Balaban.LargeField.R.WindowConvPhysPieceCells
 public import Balaban.LargeField.R.WindowConvPhysCountBridge
 public import Balaban.LargeField.R.WindowConvPhysPieceCount
+public import Balaban.LargeField.R.WindowConvPhysReadTransport
 public import Balaban.LargeField.Base.BaseFirstLocalCode
 public import Balaban.LargeField.Base.BaseFirstReserve
 public import Balaban.Green.FinalLargeAggregate
