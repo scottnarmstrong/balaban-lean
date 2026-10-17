@@ -475,6 +475,140 @@ theorem localClass_termClausesE_centre {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
     rw [hgs] at h1
     exact hAbd y X (Ψ, h) hy ⟨hX, h1⟩
 
+open Classical in
+/-- **The E-fields of the new level with centre labels, from per-label pieces**
+(`localClass_termClausesE_centre` for `TE z Y = Σ_{τ ∈ 𝒯E} T_τ(z, Y)`; the re-instantiation with
+centre labels of W851's `localClass_termClausesE_of_labels`).  Per-label hypotheses on the class
+domain of `𝔹_{k+1}(Y⁺)`: analyticity, locality, invariance under real rotations, dependence on the
+centre through its block, the per-label bound `‖T_τ(z, Y)‖ ≤ E_b(τ, z, Y)`; numerical hypothesis
+`hsum`: the per-centre resummation `Σ_τ E_b(τ, z, Y) ≤ E₀ e^{-κ d_{k+1}(Y)}` (for the new
+contributions: P4 p. 704 with the irrelevant parts `s_{jk}^{d+α₃}` paying the volume, decision
+D3(b); OPEN for the actual pieces). -/
+theorem localClass_termClausesE_centre_of_labels {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
+    {a : ℕ → ℝ} {ν : ℝ} {εseq : ℕ → ℝ}
+    (HB : BgHyp d L (k + 1) (minSep L (L ^ m₁)) a ν)
+    (Yp : Set (CTorus d L N₁ m₁ (k + 1)) → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hYp : ∀ Y z, z ∈ Yp Y ↔ ∃ x ∈ Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁))
+    (Tm : Terms d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁)))
+    (hgs : ∀ Y, Tm.gs (k + 1) Y =
+      localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁))))
+    (cpl : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ Y p, cpl Y p = Classical.epsilon
+      (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+          (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) q.1 q.2 ∧
+        ∀ z ∈ Y,
+          q.1 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).1 z ∧
+          q.2 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).2 z))
+    {τι : Type*} (𝒯E : Finset τι)
+    (Tl : τι → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTlblock : ∀ τ ∈ 𝒯E, ∀ z z' Y p,
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) z =
+        blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) z' →
+      Tl τ z Y p = Tl τ z' Y p)
+    (hTlan : ∀ τ ∈ 𝒯E, ∀ z Y, IsPolyDom P.m₀ (k + 1) Y → AnalyticOnNhd ℂ (Tl τ z Y)
+      {p | (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2})
+    (hTlloc : ∀ τ ∈ 𝒯E, ∀ z Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p'.1 p'.2 →
+      (∀ x ∈ Y, p.1 x = p'.1 x ∧ p.2 x = p'.2 x) → Tl τ z Y p = Tl τ z Y p')
+    (EbE : τι → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → ℝ)
+    (hTlbd : ∀ τ ∈ 𝒯E, ∀ z Y, IsPolyDom P.m₀ (k + 1) Y → z ∈ Y →
+      ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
+      ‖Tl τ z Y p‖ ≤ EbE τ z Y)
+    (hsum : ∀ z Y, IsPolyDom P.m₀ (k + 1) Y → z ∈ Y →
+      ∑ τ ∈ 𝒯E, EbE τ z Y ≤ P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ (k + 1) Y))
+    (hTlrot : ∀ τ ∈ 𝒯E, ∀ z Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
+      ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
+      Tl τ z Y (rotField (cmat Q) p.1, rotField (cmat Q) p.2) = Tl τ z Y p)
+    (AE : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hAE : ∀ z Y p, AE z Y p =
+      ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
+        ℂ))⁻¹ • ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+        ∑ τ ∈ 𝒯E, Tl τ (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) z)
+          (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          (cpl (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.2)))
+    (hE : ∀ y Y Ψ h, Tm.E (k + 1) y Y Ψ h = if y ∈ Y then AE y Y (Ψ, h) else 0) :
+    -- `gs_spec`
+    (∀ X, IsPolyDom P.m₀ (k + 1) X →
+      X ⊆ ↑((Tm.gs (k + 1) X).Ω 1) ∧ ∀ i, k + 1 < i → (Tm.gs (k + 1) X).Ω i = ∅) ∧
+    -- `gsStrong`
+    (∀ X, IsPolyDom P.m₀ (k + 1) X →
+      GsSpecStrong (k + 1) (le_refl (k + 1)) X (Tm.gs (k + 1) X)) ∧
+    -- `pavingGS`
+    (∀ X, IsPolyDom P.m₀ (k + 1) X →
+      ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1), ∀ i,
+        (((Tm.gs (k + 1) (r '' X)).Ω i : Finset (CTorus d L N₁ m₁ (k + 1))) :
+            Set (CTorus d L N₁ m₁ (k + 1))) =
+          r '' (((Tm.gs (k + 1) X).Ω i : Finset (CTorus d L N₁ m₁ (k + 1))) :
+            Set (CTorus d L N₁ m₁ (k + 1)))) ∧
+    -- `analyticE`
+    (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X →
+      AnalyticOnNhd ℂ
+        (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N => Tm.E (k + 1) y X p.1 p.2)
+        {p | (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+          (Tm.gs (k + 1) X) p.1 p.2}) ∧
+    -- `rotE`, real matrices
+    (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ, IsRot R →
+      (∀ i j, (R i j).im = 0) → ∀ Ψ h,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (Tm.gs (k + 1) X) Ψ h →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (Tm.gs (k + 1) X) (rotField R Ψ) (rotField R h) →
+      Tm.E (k + 1) y X (rotField R Ψ) (rotField R h) = Tm.E (k + 1) y X Ψ h) ∧
+    -- `eucE`
+    (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X →
+      ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1), ∀ Ψ h,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (Tm.gs (k + 1) X) Ψ h →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (Tm.gs (k + 1) (r '' X)) (actField r Ψ) (actField r h) →
+      Tm.E (k + 1) (blockBase L (k + 1) (r y)) (r '' X) (actField r Ψ) (actField r h) =
+        Tm.E (k + 1) y X Ψ h) ∧
+    -- `localE`
+    (∀ y X Ψ Ψ' h h', (∀ x ∈ X, Ψ x = Ψ' x ∧ h x = h' x) →
+      Tm.E (k + 1) y X Ψ h = Tm.E (k + 1) y X Ψ' h') ∧
+    -- `boundE`
+    (∀ y X, IsPolyDom P.m₀ (k + 1) X → y ∈ X → ∀ Ψ h,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (Tm.gs (k + 1) X) Ψ h →
+      ‖Tm.E (k + 1) y X Ψ h‖ ≤ P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ (k + 1) X)) :=
+  localClass_termClausesE_centre hN HB Yp hYp Tm hgs cpl hcpl
+    (fun z Y p => ∑ τ ∈ 𝒯E, Tl τ z Y p)
+    (fun z z' Y p hzz => Finset.sum_congr rfl fun τ hτ => hTlblock τ hτ z z' Y p hzz)
+    (fun z Y hY p hp => Finset.analyticAt_fun_sum _ fun τ hτ => hTlan τ hτ z Y hY p hp)
+    (fun z Y hY p p' hp hp' hpp => Finset.sum_congr rfl fun τ hτ =>
+      hTlloc τ hτ z Y hY p p' hp hp' hpp)
+    (fun z Y hY hz p hp => (norm_sum_le _ _).trans
+      ((Finset.sum_le_sum fun τ hτ => hTlbd τ hτ z Y hY hz p hp).trans (hsum z Y hY hz)))
+    (fun z Y hY Q hQ p hp => Finset.sum_congr rfl fun τ hτ => hTlrot τ hτ z Y hY Q hQ p hp)
+    AE hAE hE
+
 /-- **The domain of the whole-lattice generating set of level `k + 1` is invariant under the
 paving group** (`xiDom_image_pavingSymGroup'` with `𝔹 = 𝔹' = levelGS (k + 1)`). -/
 theorem xiFieldDom_levelGS_act {m₀ : ℕ} {a : ℕ → ℝ} {ν : ℝ} {εseq : ℕ → ℝ} {ϱ : ℝ}
