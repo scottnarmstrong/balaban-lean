@@ -137,8 +137,8 @@ theorem hdt_of_detSum (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
   have hinj : Function.Injective bc[ℓ, can X] := by
     have h0 : ∀ ℓ' : ι, NeZero (N₁ ℓ' * L ^ m₁ * L ^ (k + 1 - (k + 1))) := fun ℓ' =>
       ⟨by have := NeZero.pos (N₁ ℓ'); have := NeZero.pos L; positivity⟩
-    haveI := h0 ℓ
-    haveI := h0 (can X)
+    have := h0 ℓ
+    have := h0 (can X)
     refine boxMap_injective_of_le (d := d) ?_
     rw [Nat.sub_self, pow_zero, mul_one, mul_one]
     exact hnc
