@@ -67,6 +67,92 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X : Set (CTorus d L N₁ m₁ (k + 1))}
 
 open Classical in
+/-- **The cover expansion of `classOldDec_expansion_cover` from the level-`j` slices of the clauses.**
+Of the term clauses only the slices at the label `(j, y, X)` are used: analyticity of
+`ℰ^{(j)}(y, X)` on the level-`j` field domain (clause `analyticE`) and its bound
+`E₀ exp(-κ_P d_j(X))` there (clause `boundE`).  No part of the structure at the level `k + 1`
+and no other label is needed. -/
+theorem classOldDec_expansion_cover_of_slices {P : Consts}
+    {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀)
+    {j : ℕ} {y : CTorus d L N₁ m₁ (k + 1)}
+    (hAn : AnalyticOnNhd ℂ
+      (fun p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N => C.Tm.E j y X p.1 p.2)
+      {p | Dom.dom j (C.Tm.gs j X) p.1 p.2})
+    (hBd : ∀ Ψ h, Dom.dom j (C.Tm.gs j X) Ψ h →
+      ‖C.Tm.E j y X Ψ h‖ ≤ P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X))
+    {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) (hN : L ^ C.m₀ ∣ N₁) (hjk : j ≤ k)
+    (hXp : IsPolyDom C.m₀ j X)
+    (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hchart : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      Dom.dom j (C.Tm.gs j X) r.1 r.2) :
+    ∃ 𝒦X : Set (CTorus d L N₁ m₁ (k + 1)),
+      ∀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1)),
+        (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp C.m₀ j 𝒦X →
+        ∀ (hB : BgSetting N Gp Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f),
+    ∃ Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+          RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) → ℂ,
+        (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+          ∀ ψh : unitPts Gp × Fin N → ℂ, (∀ p, ‖ψh p‖ ≤ cψ) →
+          flComp hB hF (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+            (rawOf D, hatLift Gp a₁ ν hG' cc D ψh) =
+          ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+            Gp C.m₀ (X1 Gp C.m₀ j 𝒦X), Ev Y (rawOf D, ψh)) ∧
+        (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          ∀ u' ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          agreeOn Y u.1 u'.1 → (∀ y ∈ Y, ∀ i, u.2 (unitPt hG' y, i) = u'.2 (unitPt hG' y, i)) →
+          Ev Y u = Ev Y u') ∧
+        (∀ Y, ∀ u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+          ‖Ev Y u‖ ≤ (β⁻¹ * P.E₀) *
+            Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
+        (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+            {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
+  obtain ⟨𝒦X, hcov, hopt⟩ := exists_covSetup_of_isPolyDom hG' hN (by omega) hXp
+  have hEan : AnalyticOnNhd ℂ
+      (fun r : RawData d L (N₁ * L ^ m₁) (k + 1) N => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+      (XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j (scaledC0 d)
+        (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) :=
+    analyticOnNhd_const.mul (hAn.mono fun r hr => hchart r hr)
+  have hEbd : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j (scaledC0 d)
+        (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖(β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2‖ ≤
+        (β⁻¹ * P.E₀) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X) := by
+    intro r hr
+    have key : P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X) ≤
+        P.E₀ * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X) := by
+      unfold sizeJ
+      rw [hm]
+      refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hE₀
+      have := treeLenCovOne_nonneg (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1)
+        C.m₀ j X
+      nlinarith
+    rw [norm_mul, norm_inv, Complex.norm_real, Real.norm_of_nonneg hβ.le]
+    calc β⁻¹ * ‖C.Tm.E j y X r.1 r.2‖
+        ≤ β⁻¹ * (P.E₀ * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X)) :=
+          mul_le_mul_of_nonneg_left ((hBd _ _ (hchart r hr)).trans key) (inv_nonneg.2 hβ.le)
+      _ = _ := by ring
+  exact ⟨𝒦X, fun X₁f hX₁ hB hF =>
+    eterm_expansion_hat_rawY_of_one_le (one_le_scaledC0 d) le_rfl hB hF hk hG hG' cc hcψ hMX hdm hα
+      hsm hδ₁ hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog (mul_nonneg (inv_nonneg.2 hβ.le) hE₀)
+      hEan hEbd⟩
+
+
+open Classical in
 /-- **`classOldDec_expansion` without `hcov`, `hX₁`, `hopt`.**  The cover data come from
 `exists_covSetup_of_isPolyDom`: some chosen family `𝒦_X` works for every finset `X₁f` of sites with
 underlying set `X1 Gp m₀ j 𝒦_X`; the hypotheses `hB`, `hF` are about this `X₁f`, hence stated
@@ -114,10 +200,11 @@ theorem classOldDec_expansion_cover {P : Consts} {Dom : FieldDom d L N₁ m₁ (
             Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
         (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
             {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) := by
-  obtain ⟨𝒦X, hcov, hopt⟩ := exists_covSetup_of_isPolyDom hG' hN (by omega) hXp
-  exact ⟨𝒦X, fun X₁f hX₁ hB hF =>
-    classOldDec_expansion C hm hcl hβ hE₀ hj1 hjk hXp hy hB hF hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-      hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart⟩
+  exact classOldDec_expansion_cover_of_slices C hm
+    (hcl.analyticE j hj1 (hjk.trans (Nat.le_succ k)) y X (hm ▸ hXp) hy)
+    (fun Ψ h hd => hcl.boundE j hj1 (hjk.trans (Nat.le_succ k)) y X (hm ▸ hXp) hy Ψ h hd)
+    hβ hE₀ hN hjk hXp hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hconn hrow hκ₀ hκdec hκ h1 hlog
+    hκP hchart
 
 
 open Classical in

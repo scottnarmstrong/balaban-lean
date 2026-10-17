@@ -33,3 +33,6 @@ Unit witness: NOT forced and NOT provable from landed data (nonunit h₀ allowed
 
 W893 (D2(b) wiring): `Fluctuation/ClassOldCoverBirth.lean`: `gs_top_layer_empty_of_clauses` (hΩ from `gs_spec`, in scope via `hcl`), `classOldDec_expansion_cover_birth` (Dom = xiFieldDom (compWeight L a₁) μ εs, hchart from `xiCRaw_dom_birth_flow_unitfree`).
 Remaining named hypotheses: `hcl` on the birth domain (full clauses, not only `inherit_le` slices), BgHyp at ν and μ, the flow bound hξ and hμ, hDL, hsmε, hc1ε, hKε, hζε, hτr, hr; none follows from landed class constants.
+
+Status (W894): the cover expansion uses only the level-j slices `analyticE`, `boundE` at the label (no level-(k+1) field, no other label; `gs_spec` only for the birth chart inclusion). Core `classOldDec_expansion_cover_of_slices` (`Fluctuation/ClassOldCover.lean`); `classOldDec_expansion_cover` is an application.
+Birth: `classOldDec_expansion_cover_birth_slices` (`Fluctuation/ClassOldCoverSlices.lean`) takes the `gs_spec`, `analyticE`, `boundE` slices at the label on the birth domain; `classOldDec_expansion_cover_birth` is an application of it.
