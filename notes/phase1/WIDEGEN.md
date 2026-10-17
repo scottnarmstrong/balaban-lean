@@ -295,3 +295,24 @@ Files: `SmallField/IrrelTorus.lean`, `IrrelTorusSum.lean`, `RenormTermwiseDefs.l
 **PROVED.** `exists_stepTower_base : ∀ κmin, ∃ T : StepTower κmin, ∃ δ₃ δfl, ChainNum 3 3 2 T.m₁ T.BG T.κ 324 T.t δ₃ ∧ FlNum 3 3 2 T.BG T.BG₂ T.κ T.t δ₃ T.t δfl` (via `BgSettingData.joint_num_eventually`, `exists_stepTowerThetaG_pred`, `tower_core_rates_two_general{,_of_pair}_pred`: the `t` is chosen in the eventual filter together with any predicate `Pr m₁ BG BG₂ κ t`; originals derived with `Pr = True`).
 **PROVED.** `exists_stepTower_labelRate m₀ : ∃ κmin, ∀ T : StepTower κmin, ∃ κdec, 4·3·7³ κdec ≤ T.κ ∧ (2 T.κdec−1) A_{m₀} + 1 ≤ 2 κdec` (`T.κdec` is the fixed number `100(aEnt+2+c₁+10)`; `m₀` is fixed before `κmin`, no circularity).
 **NOT DONE.** Combining both for one tower: `exists_stepTower_pred` takes any `Pr`, so `exists_stepTower_base` at `κmin(m₀)` from `exists_stepTower_labelRate` is a one-line merge of the two (the tower of `_base` is a `StepTower κmin` for any `κmin`).
+
+## W998 — blocker 6: structural premises of the class chain at the tower (`Inhabited/StepTowerChainStruct{,Amp}.lean`)
+Table for the premises of `e0CoeffFamily_class_exists_tower_base` (A class/source data kept; B producer; C per-label bounds and chart; D no producer).
+| premise | class | producer or reason |
+|---|---|---|
+| `m₀, A₁, p, k, N₁, 3∣N₁, 5<N₁, ν, β, p₁`, regime inequalities, `S = T.step …`; `3^C.m₀ ∣ N₁`, `7 ≤ C.m₀`, `C.m₀ = m₀` | A | typing data of the scale and of the torus family |
+| `C, z, 𝒯E` and its equation, `P, Dom, bL` and its bounds, `P.m₀ = C.m₀`, `SFTermClauses`, `0 ≤ P.E₀`, `i₀ i₁`, `XL, 𝒦X`, `ChosenOne`, `hopt` | A | class and label data (`hopt` says `𝒦X` is optimal; `exists_optimal_chosen` shows it can be met) |
+| `StepScaleData T k hk N₁ ν β p₁` | B | `StepTower.scale` (threshold `βray`, in `β₀`) |
+| `0 < S.p₁`, `cψ`, `ρ`, `ρ ≤ cψ`, `ρ < 2p₁`, `S.p₁ ≤ ρ` | B | `cψ = ρ = p₁` |
+| `HatConn`, `RowInHat` | B | `StepTower.hatConn_step`, `rowInHat_step` |
+| `F₁L` with analyticity and defining property | B | `i4b_analytic` (from `Dt.core`) |
+| `SolL` with analyticity and defining property | B | `Dec2.i4a_analytic` (from `Dt.core`) |
+| `FkL` with analyticity and `bgFieldC` property | B | `theorem72_analytic` at `(hBs τ).HBk` |
+| `bb`, `0<bb`, `0<markedRad`, `2U markedRad<t`, `(U+bb) markedRad<t` | B | `bb = corrR`; `corrR_pos`, `two_corrR_mul_decMR_lt`, `markedRad_eq`; `2U ≤ corrR` from `exists_beta0_corrR` (in `β₀`) |
+| `G₁, hG₁, 𝒴C, h𝒴, H, hH, εC, 0 ≤ εC, hεC` | B | definitions of the proof (`epsC_nonneg`) |
+| first entry of the numerical condition, `4·(2 ε_U) ≤ θ` | B | `StepTower.exists_beta0_amp` (`sourceAmp_scale`, `physAmp_facts`, `sourceAmp_doubled_hDA`; `β₀` enlarged) |
+| `hchart` (label chart in `Dom.dom`, `Ψ·Ψ` in the slit plane), `Bτ`, `hEbd`, `CI KL α₃ n₁`, `hEbI`, `hEbL` | C | per-label bounds and chart (W986/W995), kept named |
+| `hdom` | D | `Dom` is a bare predicate; `SFTermClauses` does not give a neighbourhood of `const e_{i₀}`. Statement: `∀ j ∈ [1,k], ∃ ρ>0, ∀ G (levels > j empty) Ψ, (‖Ψ−e_{i₀}‖ ≤ ρ, constant on `j`-blocks) → Dom.dom j G Ψ (const e_{i₀})`; source P1 §3 (domain of the terms `E_j`, `Ψ^c`, p. 123 (3.14)); true for `Dom = pinFieldDom/xiFieldDom` once a neighbourhood lemma for `Pin`/`XiDom` is proved |
+| analyticity of `Edens C.m₀ C.Tm j` at `Jr.PJ j (rawOf D, s•ŷ(x))`, `j ≤ k`, `s∈[0,1]`, `‖x‖ ≤ p₁` | D | needs `Jr.PJ j (…) ∈ Dom.dom j (Tm.gs j X)` for all labels; the chart of the composed pairs at the levels `j` (`composedPairAtC`) in the class domain; no landed statement (same family as `hchart`, but for `levelGS j`, not `Gj τ`); then `analyticE` of `SFTermClauses` and a finite sum |
+| `corrU/(T.t/(2 markedRad)) · X(E₀,CI,KL,α₃,n₁,κdec,m₀) ≤ 1/(8 K³ c₁ e^{…})` | A (regime) | smallness of `β` against the class constants: `markedRad ≤ √2 C_max p₁/√β_k`, so it holds for `β ≥ β₀(E₀,CI,KL,α₃,n₁,κdec,m₀)`; cannot be put in the `β₀` chosen before the class (P1 §3, "β large depending on the constants") |
+New: `e0CoeffFamily_class_exists_tower_struct` (same conclusion; premises = A, C, `hdom`, the path analyticity, the smallness above, in this order). `β₀` is `max` of the thresholds of `T.scale`, `exists_beta0_corrR`, `exists_beta0_amp` and the base `β₀`.
