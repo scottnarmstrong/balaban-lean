@@ -221,6 +221,78 @@ theorem obsHker_rec {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ 
       exact h1) (T₁.image σAc) hT1
   rw [← stepB, hcomp, mid, stepA]
 
+set_option hygiene false in
+local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- **The recentring map is injective on the sets of the box.** -/
+theorem image_recentred_inj {R : ℕ}
+    (hn' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    {Y₁ Y₂ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (h₁ : ∀ y ∈ Y₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    (h₂ : ∀ y ∈ Y₂, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    (h : (fun x => bm (x + tA) - tB) '' Y₁ = (fun x => bm (x + tA) - tB) '' Y₂) : Y₁ = Y₂ := by
+  rw [image_recentred, image_recentred] at h
+  have h1 := (Equiv.addRight tB).symm.injective.image_injective h
+  have hbx : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) →
+      ∀ x ∈ (Equiv.addRight tA) '' Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    rintro Y hY _ ⟨y, hy, rfl⟩
+    exact hY y hy
+  have h2 := image_boxMap_inj hn' (hbx _ h₁) (hbx _ h₂) h1
+  exact (Equiv.addRight tA).injective.image_injective h2
+
+/-- **Preimages of the sets with blocks in the recentred cubes.**  For a set `T` of cubes whose
+translates lie in the box and a domain `Y'` of the second torus whose blocks lie in the image of `T`
+under the recentred cube map, there is a set `Y` whose translate lies in the box, with
+`φ '' Y = Y'` and blocks in `T`. -/
+theorem preimage_recentred {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnL : 2 * R + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnL' : 2 * R + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA))
+    {Y' : Set (CTorus d L N₁' m₁ (k + 1))} (hY' : IsDj m₀ (k + 1) Y')
+    (hY'T : blocksOf m₀ (k + 1) Set.univ Y' ⊆ T.image (fun b => σBi (σc (σAc b)))) :
+    ∃ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) ∧
+      (fun x => bm (x + tA) - tB) '' Y = Y' ∧ blocksOf m₀ (k + 1) Set.univ Y ⊆ T := by
+  have hσA := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tA htA)
+  have hσB := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tB htB)
+  have hinjA := cubeMap_injective_sym hN hσA
+  have hT1 : ∀ b ∈ T.image σAc, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro b hb x hx
+    obtain ⟨b0, hb0, rfl⟩ := Finset.mem_image.1 hb
+    rw [cubeMap_translate_val hN tA htA] at hx
+    have hx' : x - tA ∈ box b0.1 aK :=
+      (Balaban.Localization.DecEquiv.mem_box_add_iff _ tA (x - tA) _).1 (by simpa using hx)
+    simpa using hT b0 hb0 (x - tA) hx'
+  have hD : IsDj m₀ (k + 1) ((Equiv.addRight tB) '' Y') := isDj_image_translate hN' tB htB hY'
+  have hcomp : (T.image (fun b => σBi (σc (σAc b)))).image σBc = (T.image σAc).image σc := by
+    rw [Finset.image_image, Finset.image_image]
+    exact Finset.image_congr (fun b _ => cubeMap_cubeMap_inv_sym hN' tB htB _)
+  have hsub : blocksOf m₀ (k + 1) Set.univ ((Equiv.addRight tB) '' Y') ⊆
+      (T.image σAc).image σc := by
+    rw [← hcomp, blocksOf_image_sym hN' hσB]
+    exact Finset.image_subset_image hY'T
+  obtain ⟨-, hZR, hZimg, hZT⟩ := preimage_of_blocksOf_subset_image hN hN' hnL hnL' hT1 hD hsub
+  refine ⟨(Equiv.addRight tA).symm '' (bm' '' ((Equiv.addRight tB) '' Y')), ?_, ?_, ?_⟩
+  · intro y hy
+    exact hZR _ (add_mem_of_mem_symm_image hy)
+  · rw [image_recentred, Equiv.image_symm_image, hZimg, Equiv.symm_image_image]
+  · have h1 := blocksOf_image_sym hN hσA ((Equiv.addRight tA).symm '' (bm' '' ((Equiv.addRight tB) '' Y')))
+    rw [Equiv.image_symm_image] at h1
+    intro b hb
+    have : σAc b ∈ T.image σAc := hZT (by rw [h1]; exact Finset.mem_image_of_mem _ hb)
+    obtain ⟨b1, hb1, he⟩ := Finset.mem_image.1 this
+    rwa [← hinjA he]
+
 end DomRec
 
 end Balaban.Polymer.TwoTorusStep
