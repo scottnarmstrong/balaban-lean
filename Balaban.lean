@@ -2013,6 +2013,8 @@ public import Balaban.LargeField.R.RGasCoreInputs
 public import Balaban.LargeField.R.RGasCoreBlock
 public import Balaban.LargeField.R.RGasCoreBlockCore
 public import Balaban.LargeField.R.RGasCoreBlockGeom
+public import Balaban.LargeField.R.RGasCoreHaloDj
+public import Balaban.LargeField.R.RGasCorePay
 public import Balaban.LargeField.R.RGasCoreConn
 public import Balaban.LargeField.R.RRadiusMax
 public import Balaban.LargeField.R.RGasCoreTau
