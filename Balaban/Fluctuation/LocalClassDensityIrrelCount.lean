@@ -16,7 +16,7 @@ public import Balaban.Fluctuation.HatPolyDom
 functional is `X^⋆ = X ∪ st₊(y)` enlarged to a polymer, and a polymer can be the support of at most
 `mult` different labels.  `classActivity_hnumH_of_uniform_mult` is the same bound multiplied by
 `mult`: the labels are split into `mult` classes of pairwise different triples by their rank in
-the fibre of the triple (`rank_lt`, `rank_injective`), and the injective count is applied to each
+the fibre of the triple (`fibreRank_lt`, `fibreRank_injective`), and the injective count is applied to each
 class.
 -/
 
@@ -32,14 +32,14 @@ section Rank
 variable {ι : Type*} [Fintype ι] {γ : Type*} [DecidableEq γ]
 
 open Classical in
-/-- The rank of a label in the fibre of its triple, for the enumeration of `ι`. -/
-noncomputable def fibreRank (tr : ι → γ) (τ : ι) : ℕ :=
-  (Finset.univ.filter fun τ' => tr τ' = tr τ ∧ Fintype.equivFin ι τ' < Fintype.equivFin ι τ).card
-
-open Classical in
-theorem fibreRank_lt {tr : ι → γ} {mult : ℕ}
+/-- The rank `rk τ` of a label in the fibre of its triple (the number of labels of the fibre
+before it in the enumeration of `ι`) is below the size of the fibre. -/
+theorem fibreRank_lt {tr : ι → γ} {mult : ℕ} {rk : ι → ℕ}
+    (hrk : ∀ τ, rk τ = (Finset.univ.filter fun τ' =>
+      tr τ' = tr τ ∧ Fintype.equivFin ι τ' < Fintype.equivFin ι τ).card)
     (hmult : ∀ τ, (Finset.univ.filter fun τ' => tr τ' = tr τ).card ≤ mult) (τ : ι) :
-    fibreRank tr τ < mult := by
+    rk τ < mult := by
+  rw [hrk]
   refine lt_of_lt_of_le (Finset.card_lt_card ?_) (hmult τ)
   refine ⟨fun τ' h => ?_, fun h => ?_⟩
   · exact Finset.mem_filter.2 ⟨Finset.mem_univ _, (Finset.mem_filter.1 h).2.1⟩
@@ -47,13 +47,17 @@ theorem fibreRank_lt {tr : ι → γ} {mult : ℕ}
     exact lt_irrefl _ this.2.2
 
 open Classical in
-theorem fibreRank_injective {tr : ι → γ} {τ τ' : ι} (h : tr τ = tr τ')
-    (hr : fibreRank tr τ = fibreRank tr τ') : τ = τ' := by
+/-- The rank is injective on a fibre. -/
+theorem fibreRank_injective {tr : ι → γ} {rk : ι → ℕ}
+    (hrk : ∀ τ, rk τ = (Finset.univ.filter fun τ' =>
+      tr τ' = tr τ ∧ Fintype.equivFin ι τ' < Fintype.equivFin ι τ).card)
+    {τ τ' : ι} (h : tr τ = tr τ') (hr : rk τ = rk τ') : τ = τ' := by
   by_contra hne
   have hne' : Fintype.equivFin ι τ ≠ Fintype.equivFin ι τ' := fun e => hne ((Fintype.equivFin ι).injective e)
   have key : ∀ a b : ι, tr a = tr b → Fintype.equivFin ι a < Fintype.equivFin ι b →
-      fibreRank tr a < fibreRank tr b := by
+      rk a < rk b := by
     intro a b hab hlt
+    rw [hrk a, hrk b]
     refine Finset.card_lt_card ⟨fun c hc => ?_, fun hs => ?_⟩
     · obtain ⟨-, hc1, hc2⟩ := Finset.mem_filter.1 hc
       exact Finset.mem_filter.2 ⟨Finset.mem_univ _, hc1.trans hab, hc2.trans hlt⟩
@@ -118,19 +122,23 @@ theorem classActivity_hnumH_of_uniform_mult {ι : Type*} [Fintype ι] {m₀ : �
         2 * Bτ τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jL τ) (XL τ) -
           2 * κdec * treeLenCov S.G' m₀ Y)
       else 0 with hf
-  have hmaps : ∀ τ ∈ (Finset.univ : Finset ι), fibreRank tr τ ∈ Finset.range mult :=
-    fun τ _ => Finset.mem_range.2 (fibreRank_lt hmult' τ)
+  set rk : ι → ℕ := fun τ => (Finset.univ.filter fun τ' =>
+    tr τ' = tr τ ∧ Fintype.equivFin ι τ' < Fintype.equivFin ι τ).card with hrkdef
+  have hrk : ∀ τ, rk τ = (Finset.univ.filter fun τ' =>
+      tr τ' = tr τ ∧ Fintype.equivFin ι τ' < Fintype.equivFin ι τ).card := fun τ => rfl
+  have hmaps : ∀ τ ∈ (Finset.univ : Finset ι), rk τ ∈ Finset.range mult :=
+    fun τ _ => Finset.mem_range.2 (fibreRank_lt hrk hmult' τ)
   rw [← Finset.sum_fiberwise_of_maps_to hmaps]
   have hcls : ∀ i ∈ Finset.range mult,
-      ∑ τ ∈ Finset.univ.filter (fun τ => fibreRank tr τ = i), f τ ≤ R := by
+      ∑ τ ∈ Finset.univ.filter (fun τ => rk τ = i), f τ ≤ R := by
     intro i _
-    rw [Finset.sum_subtype (Finset.univ.filter (fun τ => fibreRank tr τ = i))
-      (p := fun τ => fibreRank tr τ = i) (fun τ => by simp) f]
+    rw [Finset.sum_subtype (Finset.univ.filter (fun τ => rk τ = i))
+      (p := fun τ => rk τ = i) (fun τ => by simp) f]
     exact classActivity_hnumH_of_uniform_gen S hm1 hN hL hκ hκH hrate
-      (fun τ : {τ // fibreRank tr τ = i} => jL τ.1) (fun τ => yL τ.1) (fun τ => XL τ.1)
+      (fun τ : {τ // rk τ = i} => jL τ.1) (fun τ => yL τ.1) (fun τ => XL τ.1)
       (fun τ => X₁f τ.1) (fun τ => 𝒦X τ.1) (fun τ => hj τ.1) (fun τ => hXp τ.1)
       (fun τ => hy τ.1) (fun τ => hal τ.1)
-      (fun τ τ' h1 h2 h3 => Subtype.ext (fibreRank_injective
+      (fun τ τ' h1 h2 h3 => Subtype.ext (fibreRank_injective hrk
         (by simp only [htr, h1, h2, h3]) (τ.2.trans τ'.2.symm)))
       (fun τ => hcov τ.1) 𝒴C h𝒴dj (fun τ => Bτ τ.1) n₁ hCI hKL hE₀ hα
       (fun τ => hEbI τ.1) (fun τ => hEbL τ.1) Y hY
