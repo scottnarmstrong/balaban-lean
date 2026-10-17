@@ -440,8 +440,9 @@ inside the box of `Jr` and `‖s‖` in the radius of the marks, the derivative 
 `t ↦ ℰ^{(j)}(y, X; Jr.PJ j (rawOf D, s ψ̂ + t v_z))` is
 `β ∑_Y ∂_t|₀ evDec … (blockU z) s t Y (rawOf D, ψ̂)` for the marked terms of these maps
 (`deriv_classLabel_PJ_eq_sum_marked_of`, its expansion property from
-`classOldMarkedLocal_joint_of`).  With `classOldMarkedLocal_blockMarks_of` for the same maps, the
-marks of the label are jointly analytic. -/
+`classOldMarkedLocal_joint_of`), and this function of `t` is differentiable at `0`.  With
+`classOldMarkedLocal_blockMarks_of` for the same maps, the marks of the label are jointly
+analytic. -/
 theorem deriv_classLabel_PJ_eq_sum_marked_joint_of {b : ℝ} (hb₁ : 1 ≤ b)
     (hbC : b ≤ scaledC0 d) {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
     (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
@@ -538,7 +539,12 @@ theorem deriv_classLabel_PJ_eq_sum_marked_joint_of {b : ℝ} (hb₁ : 1 ≤ b)
               ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
               (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
                 (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
-            (rawOf D, yhat x)) 0 := by
+            (rawOf D, yhat x)) 0 ∧
+      DifferentiableAt ℂ (fun t : ℂ => C.Tm.E j y X
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2) 0 := by
   refine Jr.deriv_classLabel_PJ_eq_sum_marked_of C hcl hj1 hjk hS hB hF hc7 hR hsmR hRs hsmall
     hnum hnum' hcψ hMX hdm hα hsm hβ (y := y) (𝒦X := 𝒦X) (fun z => ?_)
   obtain ⟨e1, -, -, -, -, hJ⟩ := classOldMarkedLocal_joint_of hb₁ hbC C hm hcl hβ hE₀ hj1 hjk

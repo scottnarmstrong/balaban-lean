@@ -287,7 +287,8 @@ expansion of the label along the masked tangent of every root `z` has the sum id
 analyticity in the marks of `classOldMarkedLocal_sum` (`hexp`), the mark identity of the label holds
 at every datum of the chart: the derivative at `0` of
 `t ↦ ℰ^{(j)}(y, X; Jr.PJ j (rawOf D, s ψ̂ + t v_z))` is
-`β ∑_Y ∂_t|₀ evTerm … (FFmarked … (blockU z) s t) Y (rawOf D, ψ̂)`. -/
+`β ∑_Y ∂_t|₀ evTerm … (FFmarked … (blockU z) s t) Y (rawOf D, ψ̂)`, and this function of `t` is
+differentiable at `0` (it agrees near `0` with `β` times the sum of the marked terms). -/
 theorem deriv_classLabel_PJ_eq_sum_marked_of {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
     (C : StepClass d L N₁ m₁ k N ϱ) (hcl : SFTermClauses P Dom C.Tm)
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
@@ -363,7 +364,12 @@ theorem deriv_classLabel_PJ_eq_sum_marked_of {P : Consts} {Dom : FieldDom d L N�
               ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
               (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
                 (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
-            (rawOf D, yhat x)) 0 := by
+            (rawOf D, yhat x)) 0 ∧
+      DifferentiableAt ℂ (fun t : ℂ => C.Tm.E j y X
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
+          (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+            S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2) 0 := by
   intro D hD z x hx s hs hsr
   obtain ⟨hsum, han⟩ := hexp z
   have hu : ((rawOf D, yhat x) : RawData d L (N₁ * L ^ m₁) (k + 1) N × S.EC) ∈
@@ -390,30 +396,48 @@ theorem deriv_classLabel_PJ_eq_sum_marked_of {P : Consts} {Dom : FieldDom d L N�
     rw [norm_zero, add_zero]
     exact hsr
   have han' := fun Y => differentiableAt_mark_slice (han Y (rawOf D, yhat x) hu (s, 0) h0)
-  refine deriv_eq_sum_of_expansion
-    (polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-      S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X))
-    (fun Y t => evTerm
+  set Ev : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ → ℂ := fun Y t => evTerm
       (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) S.G' C.m₀
       (X1 S.G' C.m₀ j 𝒦X) (FFmarked X₁f S.a₁ S.ν S.hG'
         ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol
         (eTermFun S.G' Gk (C.Tm.gs j X) (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) Fk
           (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) (S.blockU z) s t) Y
-      (rawOf D, yhat x))
-    (fun t => flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
-      (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
-        (S.blockU z) s t D (yhat x)))
-    (fun t => C.Tm.E j y X
+      (rawOf D, yhat x) with hEv
+  set Etil : ℂ → ℂ := fun t => C.Tm.E j y X
       (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
         S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).1
       (Jr.PJ j (rawOf D, s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
-        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2)
-    (S.β : ℂ) hβ0 hU (fun t ht => by exact hsum s t ht.2 D hD (yhat x) hx) (fun t ht => ?_)
-    (fun Y _ => by exact han' Y)
-  rw [Jr.classLabel_PJ_masked_eq_flComp C hcl hj1 hjk (y := y) hS hB hF hc7 hR hsmR hRs hsmall
-    hnum hnum' hcψ hMX hdm hα hsm hβ hD z x hx s t (fun p => (ht.1 p).le) ht.2, ← mul_assoc,
-    inv_mul_cancel₀ hβ0, one_mul]
-
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))).2 with hEtil
+  have hsum' : ∀ t ∈ {t : ℂ | (∀ p, ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ < pp) ∧
+      (‖s‖ + ‖t‖) * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁},
+      flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+        (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
+          (S.blockU z) s t D (yhat x)) =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X), Ev Y t := fun t ht => by
+    exact hsum s t ht.2 D hD (yhat x) hx
+  have hend : ∀ t ∈ {t : ℂ | (∀ p, ‖(s • yhat x + t • ((Jr.Mx (rawOf D))⁻¹ *ᵥ
+        S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) p‖ < pp) ∧
+      (‖s‖ + ‖t‖) * (Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+        (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ))) < δ₁},
+      flComp hB hF (fun r => (S.β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)
+        (rawOf D, markedTangDec S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν
+          (S.blockU z) s t D (yhat x)) = (S.β : ℂ)⁻¹ * Etil t := fun t ht => by
+    rw [hEtil]
+    beta_reduce
+    rw [Jr.classLabel_PJ_masked_eq_flComp C hcl hj1 hjk (y := y) hS hB hF hc7 hR hsmR hRs
+      hsmall hnum hnum' hcψ hMX hdm hα hsm hβ hD z x hx s t (fun p => (ht.1 p).le) ht.2,
+      ← mul_assoc, inv_mul_cancel₀ hβ0, one_mul]
+  refine ⟨deriv_eq_sum_of_expansion _ Ev _ Etil (S.β : ℂ) hβ0 hU hsum' hend
+    (fun Y _ => han' Y), ?_⟩
+  have hev : Etil =ᶠ[nhds (0 : ℂ)] fun t => (S.β : ℂ) * ∑ Y ∈ polymerDomains
+      (fun i : ParIdx S.G' (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      S.G' C.m₀ (X1 S.G' C.m₀ j 𝒦X), Ev Y t := by
+    filter_upwards [hU] with t ht
+    rw [← hsum' t ht, hend t ht, ← mul_assoc, mul_inv_cancel₀ hβ0, one_mul]
+  exact ((DifferentiableAt.fun_sum fun Y _ => han' Y).const_mul _).congr_of_eventuallyEq hev
 
 open Classical in
 /-- **The mark identity of an inherited label at every datum of the chart** (any external field),
@@ -492,8 +516,9 @@ theorem deriv_classLabel_PJ_eq_sum_marked {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b �
   obtain ⟨F₁, Sol, Fk, -, -, hexp⟩ := classOldMarkedLocal_sum hb₁ hbC C hm hcl hβ hE₀ hj1 hjk
     hXp hy hB hF S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov
     hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart
-  exact ⟨F₁, Sol, Fk, Jr.deriv_classLabel_PJ_eq_sum_marked_of C hcl hj1 hjk hS hB hF hc7 hR hsmR
-    hRs hsmall hnum hnum' hcψ hMX hdm hα hsm hβ (fun z => hexp (S.blockU z))⟩
+  exact ⟨F₁, Sol, Fk, fun D hD z x hx s hs hsr =>
+    (Jr.deriv_classLabel_PJ_eq_sum_marked_of C hcl hj1 hjk hS hB hF hc7 hR hsmR hRs hsmall hnum
+      hnum' hcψ hMX hdm hα hsm hβ (fun z => hexp (S.blockU z)) D hD z x hx s hs hsr).1⟩
 
 end StepSetting.JointRep
 

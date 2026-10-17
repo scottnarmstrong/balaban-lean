@@ -445,7 +445,7 @@ theorem classMarksFamily_sum_eq_deriv {ι : Type*} [Fintype ι]
   rw [Finset.sum_congr rfl fun q _ => hval q, Finset.sum_coe_sort _ F,
     sum_markedIdx_eq _ _ z F hzero]
   refine Finset.sum_congr rfl fun τ _ => ?_
-  rw [hid τ, Finset.mul_sum]
+  rw [(hid τ).1, Finset.mul_sum]
 
 end StepSetting.JointRep
 
