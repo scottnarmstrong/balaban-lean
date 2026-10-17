@@ -1701,3 +1701,5 @@
 | 2026-10-18 | W926 | launched | Blocker 5: read sets, W n, hreach/hW, |W n| ≤ Cw(n+1)^d; composed bound. |
 | 2026-10-18 | W926 | landed | eb5ccc5c: `Green/FinalLevelCount.lean`, `FinalLevelCountBound.lean`: `readSet_hS`, `exists_level_reach`, `exists_mem_level_set`, **`card_level_set_le`** (|W n| ≤ Cw (n+1)^{d′}), **`norm_coef_cutoff_class_le_levels`** (volume-uniform coefficient bound with all counting inputs discharged). |
 | 2026-10-18 | W927 | launched | Blocker 5: hθ and all numerical premises of the small-field last integral for the run's constants. |
+| 2026-10-18 | W927 | landed | 84caa88c: `Green/FinalConstsClose.lean`: `size_of_beta_large`, `epsSeq_le_three_alpha`, `three_alpha_le_one_of_small`, **`final_consts_of_large`** (all numerical premises from α₀ small, c small, ε₀ ≤ ε_K/(2K_loc)), **`norm_coef_cutoff_class_le_levels_of_large`**. Setting data left: hθ (block datum in the class chart with room ε₀; only proved for concrete steps), Dec2.OpSetting for stepG. |
+| 2026-10-18 | W928 | launched | Blocker 7: gap-scale terms into the two-torus resummation; the gap-scale closeness stated exactly. |
