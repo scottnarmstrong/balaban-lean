@@ -70,3 +70,142 @@ The **exact type of a successful output**, with $K=k+1$ and implicit `d L N₁ m
 Here `S` and `C` have the types `StepSetting d L N₁ m₁ k N ϱ` and `StepClass d L N₁ m₁ k N ϱ`. This is a **target conclusion, not a theorem**: an arbitrary `C` does not satisfy it. A meaningful producer theorem must quantify the *old* `IsSFFamily2` member and the actual RG construction of `C` and `TmFam`, then derive, rather than assume, the five family fields and two auxiliary properties. Such a construction and theorem do not exist in the inspected Lean. The one formal implication that can be proved now is the structure-constructor implication from exactly `P.Admissible`, `CoeffBounds`, `∀ N₂, IsSF2`, `TorusIndep`, and `∀ j, RenormCond`; restating those as hypotheses would merely rename the missing producer and would not resolve W954(iv). No new Lean theorem or build is claimed here.
 
 **Confidence and limits.** High: declarations, quantifiers, the absence of a tower-to-family producer in the inspected `Inhabited`, `Fluctuation`, `SmallField` and `Polymer/TwoTorus*` files, and the distinction between exact torus independence and quantitative defect. Moderate: whether the source's analytic estimates can be sharpened on the currently chosen `completeXiDom` without changing its radius schedule; `LocalClassInherit.lean` identifies a concrete missing domain inclusion. Low: the OCR-only exact typography of P1 (H.6)–(H.7) and P4 (H.5); no new citation is inferred from those garbled symbols.
+
+---
+
+# Part 2. Proposed successor class and scale induction (round 2)
+
+**Status of this part.** This is a definition and theorem *proposal* for the orchestrator, not an approved addition to Lean. No successor constructor or general-class scale induction is landed. The sources for this part are P1, *A low temperature expansion for classical N-vector models. I*, pp. 117–119 (H.5)–(H.7), pp. 146–153 (3.104), (3.126)–(3.128), Proposition 3.10 and Corollary 3.11; P4, *A low temperature expansion for classical N-vector models. II*, pp. 677–680 (H.2)–(H.7) and Theorem 1, pp. 703–706 (4.14)–(4.23), and p. 716 (5.27)–(5.31). The identifiers P1 and P4 are those in `review/SOURCES.md`. The PDFs are scans: the text layer mangles several displayed formulas, especially P1 (H.6)–(H.7), P4 (H.5), (4.21)–(4.22), and (5.28)–(5.31). Page, equation, and verbal references are reliable; I do not infer exact signs from the OCR of those displays. P4 p. 680 explicitly says the map is existential and the renormalization procedure supplies the new coefficients, so the counterterms must be fixed as part of the output, not selected by an arbitrary witness after the fact.
+
+## 2.1 The mathematical output on one torus
+
+Set $K=k+1$ and retain the step torus $\Lambda_K=\mathrm{CTorus}(d,L,N_1,m_1,K)$. Input is a *real* old family of level $k$, together with its transport to this physical torus; call the transported terms $T^{\rm old,K}$ and vacuum constant $E_k$. It must agree with the class `C : StepClass d L N₁ m₁ k N ϱ` used in the step: $C.m₀=P.m₀$, $C.Tm=T^{\rm old,K}$ at every $j\leq k$, and $C.Ek=E_k$. This transport is substantive: `Terms ... k ...` and `Terms ... (k+1) ...` have different carriers. `Fluctuation/GeneralClassMatch.lean:50` and `Inhabited/GeneralClassWitnessStep.lean:49` explicitly call it `OLD-TERMS-LIFT` and say they do not perform it. At fixed physical circumference one expects to compare the old torus with side parameter $LN_1$ to the new torus with parameter $N_1$; an explicit lattice equivalence, the pullback of fields and polymers, and preservation of all class clauses are required. Copying `C.Tm` as an input bypasses this *induction* step.
+
+The level-$K$ energy label is the **complete, renormalized** local contribution of the step. Its raw rooted density $D_E(z;q)$ comprises the fluctuation energy, determinant, old-class contribution through the marked activity, changes from the field substitution, and the local counterterms. P4 pp. 703–705, (4.14)–(4.22), is the source filing. The `e0CoeffFamily_*_fromTower*` results provide coefficients for the fluctuation-plus-determinant part (and the general-class marked activity conditionally); they do **not** by themselves give all of (4.22). The inherited `irrelTorus` pieces are a rearrangement of the old energy used as labels in the expansion: `StepClass.sum_classLabels_irrelTorus_eq_Edens` and `e0CoeffFamily_class_fromTower_of_irrelBounds_X` (`Fluctuation/LocalClassDensityIrrelChainX.lean:57`) use them to estimate the new coefficient family. They are **not added again** to $T'_K.E$; doing that would count the inherited action twice. The step observable $D_M(x;q,g)$ includes the fluctuation observable and the change of the inherited observable under the substituted field (P4 (4.18), (H.7)). Its source coefficients are a separate construction, not `e0` energy coefficients.
+
+Choose the renormalization parameters $\xi=(\xi_1,\xi_2,\xi_3,\ldots)$ from the reference-jet equations of P4 (H.5), §5, and use them in $D_E,D_M$. Let $\mathcal T_E$ be *all* resulting energy labels with local functionals $T_\tau(z,Y;q)$ and let $T_M(x,Y;q,g)$ be the complete observable local functional. The labels must satisfy the root sum identities $D_E(z;q)=\sum_{Y\ni z}\sum_{\tau\in\mathcal T_E}T_\tau(z,Y;q)$ and $D_M(x;q,g)=\sum_{Y\ni x}T_M(x,Y;q,g)$ throughout the complex class chart, not just on `StepSetting.hh₀`'s constant-$h$ fibre. Complete each local term from $Y$ to $\mathbb B_K(Y^+)$ with `cpl` in the enlarged locality chart. If $\mathcal P_K$ is the finite paving symmetry group, define the centre-labelled averages
+
+$$A_E(y,Y;q)=|\mathcal P_K|^{-1}\sum_{s\in\mathcal P_K}\sum_{\tau\in\mathcal T_E}T_\tau(s^{-1}y,s^{-1}Y;\operatorname{cpl}_{s^{-1}Y}(s^{-1}q)),\qquad A_M(x,Y;q,g)=|\mathcal P_K|^{-1}\sum_{s\in\mathcal P_K}T_M(s^{-1}x,s^{-1}Y;\operatorname{cpl}_{s^{-1}Y}(s^{-1}q),s^{-1}g).$$
+
+These are precisely the formulas of the `hAE` and `hAM` arguments of `localClass_newLevel_of_expansion` (`Fluctuation/LocalClassDensityLevel.lean:289`, around lines 365–445). Centre labels are essential: a uniform division of a rooted coefficient over $Y$ does not give `eucEloc` for `fullJSymGroup` (`notes/phase1/WIDEGEN.md`, W868 D1(a)/D5(a)). Define the new `Terms` record by the **exact level split**
+
+$$T'.E_j(y,Y;q)=\begin{cases}{\bf1}_{y\in Y}A_E(y,Y;q),&j=K,\\ T^{\rm old,K}.E_j(y,Y;q),&j\ne K,\end{cases}\quad T'.M_j(x,Y;q,g)=\begin{cases}A_M(x,Y;q,g),&j=K,\\T^{\rm old,K}.M_j(x,Y;q,g),&j\ne K,\end{cases}$$
+
+and $T'.gs_j(Y)=\mathbb B_K(Y^+)$ at $j=K$, $T^{\rm old,K}.gs_j(Y)$ otherwise. The new-level generator is the `localB` specified by `hgs` in `localClass_newLevel_of_expansion`; $Y^+$ is the `Yp` of that theorem. The `j\ne K` branch merely totalizes Lean's `Terms.E/M/gs : ℕ → …`; the class uses $1\le j\le K$. The new `StepClass` at step index $k$ is `⟨P.m₀, T', E_K⟩` (its type is `StepClass d L N₁ m₁ k N ϱ`, because that structure's `Tm` already has torus index $K$; see `Fluctuation/StepObjects.lean:254`). For use as the *next step's* input, the same family must then be transported from torus index $K$ to index $K+1$. No automatic coercion supplies this.
+
+There are two vacuum quantities that must not be conflated. Let $e_0^{\rm vac}$ be the total vacuum value of the **raw new local density before the reference-value subtraction** fixed by the renormalization procedure. Its subtraction is part of the finalized $A_E$, whose local reference value must vanish for `RenormCond.val`. The successor vacuum constant is uniquely forced by the density identity:
+
+$$E_K\,S.nBlocks=S.Eppp(C)\,S.nU-e_0^{\rm vac},\qquad E_K=\frac{S.Eppp(C)\,S.nU-e_0^{\rm vac}}{S.nBlocks}.$$
+
+Under $S.nBlocks>0$, `StepSetting.vacuumEnergy_succ_of_absorb` (`Fluctuation/VacuumEnergy.lean:46`) and `StepSetting.vacuumEnergy_succ_eq_increment` (`Fluctuation/VacuumStep.lean:88`) give $E_K=L^dE_k+g_k$ with the three logarithmic normalization terms and $-e_0^{\rm vac}/S.nBlocks$. The $L^d$ is forced by $S.nU=L^dS.nBlocks$. These theorems prove the algebra **given** the absorption identity; they do not construct $e_0^{\rm vac}$, the reference subtraction, or a bound on $g_k$. In particular, evaluating the already-centred $T'.E$ at the reference point to define $e_0^{\rm vac}$ would give zero and lose the absorbed constant.
+
+The concrete Lean definition proposed for the structural part is the following. Here `F := Fld d L N₁ m₁ K N`, `Λ := CTorus d L N₁ m₁ K`; `AE`, `AM`, and `Gnew` have the types displayed, and their *defining equalities* are the `hAE`, `hAM`, `hgs` equations of `localClass_newLevel_of_expansion`, not free choice.
+
+```lean
+-- PROPOSAL: not landed; K is k + 1.
+def successorTerms (Old : Terms d L N₁ m₁ K N ϱ)
+    (AE : Λ → Set Λ → (F × F) → ℂ)
+    (AM : Λ → Set Λ → ((F × F) × F) → Fin N → ℂ)
+    (Gnew : Set Λ → GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
+    Terms d L N₁ m₁ K N ϱ where
+  E := fun j y Y Ψ h =>
+    if j = K then (if y ∈ Y then AE y Y (Ψ, h) else 0)
+    else Old.E j y Y Ψ h
+  M := fun j x Y Ψ h g =>
+    if j = K then AM x Y ((Ψ, h), g) else Old.M j x Y Ψ h g
+  gs := fun j Y => if j = K then Gnew Y else Old.gs j Y
+
+def successorClass (Old : StepClass d L N₁ m₁ k N ϱ)
+    (AE : Λ → Set Λ → (F × F) → ℂ)
+    (AM : Λ → Set Λ → ((F × F) × F) → Fin N → ℂ)
+    (Gnew : Set Λ → GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+    (S : StepSetting d L N₁ m₁ k N ϱ) (eVac : ℝ) :
+    StepClass d L N₁ m₁ k N ϱ :=
+  ⟨Old.m₀, successorTerms Old.Tm AE AM Gnew,
+    (S.Eppp Old * S.nU - eVac) / S.nBlocks⟩
+```
+
+For the family, *each* $N_2$ has its own transported old terms, step setting, label functions, centre averages, $e_0^{\rm vac}(N_2)$, and density $\rho'_d(N_2)$. Define `TmFam' N₂ := successorTerms (OldStepFam N₂) (AE N₂) (AM N₂) (Gnew N₂)` and `EkFam' N₂ := (Sfam N₂).Eppp (OldClassFam N₂) * (Sfam N₂).nU / (Sfam N₂).nBlocks - eVac N₂ / (Sfam N₂).nBlocks`. `ρd' N₂` must be the actual small-field RG transform of `ρd N₂` with the chosen counterterms and observable source, on every physical datum in `IsSF2.density`. There is currently no all-datum, all-torus Lean `RGStep` operator of this type. A family of arbitrary functions with the correct type would not prove the induction. At the distinguished torus, the construction must prove `TmFam' N₁ = (successorClass C …).Tm` and `EkFam' N₁ = (successorClass C …).Ek`; uniform choices of counterterms and labels are needed to make this a *single family*, rather than independent per-torus renormalizations.
+
+## 2.2 Clause ledger for the proposed successor
+
+The entries below distinguish a landed **conditional reducer** from a producer of its actual hypotheses. `LocalClassDensityLevel` fixes $\varrho=\mathrm{minSep}(L,L^{m_1})$ and its `hN : L ^ P.m₀ ∣ N₁`; the target class in Part 1 is indexed by general $\varrho$ and every `[NeZero N₂]`. For the concrete tower this mismatch is strict: `rhoSep m₁` (`Localization/I5Inhabited.lean:216`) is $\mathrm{bgR0}(3,3)+360\cdot3^{m_1}+1+$ a nonnegative logarithmic term, whereas `minSep 3 (3^m₁)` (`LargeField/Background/MinimalGenSet.lean:176`) is $15\cdot3^{m_1}$. Thus the $\varrho$-indexed `Terms` and `GeneratingSet` cannot be identified by definitional equality. An explicit change-of-separation theorem or a generalization of the local-class assembly is needed, as is treatment of small/nondivisible tori.
+
+| Required field or clause | Landed result usable for the successor | Still missing for the actual step; source |
+|---|---|---|
+| `IsSFFamily2.admissible` | `P.Admissible` is an unchanged field of an old `IsSFFamily2` member (`SmallField/Def6v2.lean:249`). | Choose the *same* `P` and preserve its constants; the tower alone chooses no `P`. P4 pp. 679–680 (H.6), (1.4). |
+| `IsSFFamily2.coeff` | `CoeffBounds` is defined at `SmallField/Def6.lean:470`; `Fluctuation/LocalClassBirth.lean:45` `physMass_birth_eq_prod` and `Flow/RunningCoefficients.lean` give algebra of the flow. | A uniform solution of the renormalization equations giving `β`, `Rg.ν`, `a` and `CoeffBounds d L K P β Rg.ν a`, including the new scale's lower/upper bounds. The zero-class fibre results in `Inhabited/RenormPhysicalRecord.lean` are conditional and do not establish a general-class family flow. P4 pp. 679, 715–716 (5.23)–(5.31). |
+| `IsSF2.density` on each torus | `localClass_newLevel_of_expansion` concludes the `Edens K` and `Mloc K` identities *if* `hDz`, `hDM` hold; `StepSetting.vacuumEnergy_succ_of_absorb` handles the constant. | The actual RG integral equals `expo2` at **every** real datum and source, with cutoff `Xi`, old levels and the new density (P4 (4.17)–(4.22)); off-fibre nonvanishing; expansion-value identity for all complex `h`; observable counterpart; actual vacuum absorption. `E0locJ`/`densE0` and `M0J`/`densM0` are defined in `LocalClassDensityH*.lean`, but general-class `hval`/`hrepl` and `hDM` remain conditional (`WIDEGEN.md` W907, W916, W921). P4 pp. 704–706. |
+| `IsSF2.terms`, old $j\le k$ | `SFTermClauses.inherit_le` (`Fluctuation/LocalClassInherit.lean:182`) copies all old slices at the **same** torus index if `hsub : Dom'.dom j ⊆ Dom.dom j`; `xiDom_birth` / `xiDom_birth_of_unit` (`Fluctuation/LocalClassBirthResponse.lean:37`) and `xiC_massResponse` (`SmallField/XiMassResponseXi.lean:149`) are local mass-response tools. | First construct `OLD-TERMS-LIFT`. Second, the source's birth-frozen domains (W868 D2(b)) need a birth-mass domain family and step-chart inclusion with the cumulated mass factor. Existing `completeXiDom P Rg a` (`SmallField/Def6v2Bridge.lean:171`) uses the **current** mass `Rg.sfBgMass K` for *all* $j$, so `inherit_le` does not apply by identity. No theorem gives its required same-radius inclusion after renormalization; `Consts.eps j` is independent of the current scale. One must either prove this stronger inclusion with a genuine radius margin, or propose and approve a birth-domain carrier and reprove the v2-to-I6 bridge for it. `xiDom_birth` alone proves a step-chart statement, not this class-field inclusion. P4 p. 704 (4.19), p. 716 (5.28), P4 p. 677 (H.4). |
+| `IsSF2.terms` / `gsStrong`, new `gs_spec`, `pavingGS`, `analyticE`, `eucE`, `localE`, `boundE`, `eucEloc` | `localClass_newLevel_of_expansion` (`Fluctuation/LocalClassDensityLevel.lean:289`) supplies exactly these $K$-slices and `gsStrong` once its `hAE`, `hE`, `hgs`, `hDz`, `hDzfull`, `hDzblock`, per-label chart and summability hypotheses hold. Its proof uses `localClass_termClausesE_centre_chart`, `localClass_eucEloc_centre_chart`, and `localClass_centre_Edens_eq_chart` (`LocalClassCentre.lean`, `LocalClassDensityCentre.lean`). `localClass_centre_boundE_of_param` (`LocalClassAmplitude.lean:81`) gives the amplitude reduction. | For actual final $D_E$: all local labels of (4.22), `hDz`/function-level replacement and off-fibre expansion; full-group covariance `hDzfull` and block covariance; per-centre `hsum ≤ P.E₀ e^{-P.κ sizeJ}` with the fluctuation small factor, not only a per-label bound; extension/locality on the enlarged chart; complex-domain numerical margins. `e0CoeffFamily_class_fromTower_of_irrelBounds_X` is conditional on `hEbI,hEbL,hEbd`, `hchart`, label settings and numerics; the filed cube/torus defect and `X^⋆` estimates remain open (`WIDEGEN.md` W967/W970/W972). P1 pp. 146–153 (3.126)–(3.128); P4 pp. 677–678 (H.4), 705–706 Proposition 4.1. |
+| New `rotE` | The $K$-slice of `localClass_newLevel_of_expansion` proves the required `IsRot` statement from its per-label real orthogonal invariance; `LocalClassRot.lean` provides the conditional label covariance. `IsRot` means **real** orthogonal matrices (`SmallField/Def6Terms.lean:157`). | Supply the real covariance of every actual final energy label, including counterterms and the off-fibre density, on the required chart. Complex rotations belong to the *separate* `CRotE` obligation below. P4 pp. 677–678 (H.3)–(H.4). |
+| New `analyticM`, `eucM`, `localM`, `boundM`, `eucMloc` | `localClass_newLevel_of_expansion` gives the new slices from `hAM`, `hM`, `hDM`, `hDMfull`, `hTMbd`, `hBM`; `localClass_termClausesM_chart` (`LocalClassAssembleM.lean:114`), `localClass_eucMloc_site_chart` (`LocalClassCentre.lean:1379`), `localClass_site_boundM_of_param` (`LocalClassAmplitude.lean:115`) supply conditional pieces. | Produce the observable $T_M$ for the full class, `hDM` on the whole field/source chart, `hDMfull`, and a **strict** amplitude `BM < P.c₉ L^{-K((d-2)/2+γ-α₁)}` after the source and fluctuation bounds; show locality and analyticity of its completed terms. P4 pp. 679 (H.7), 704 (4.18), 706 Proposition 4.2. |
+| New `rotM` | `localClass_newLevel_of_expansion` concludes real-matrix covariance of the new observable term from `hTMrot`, including the rotated source (`LocalClassDensityLevel.lean` after line 535). The conclusion's explicit zero-imaginary-part assumption is redundant with `IsRot`; it therefore matches `SFTermClauses.rotM` once the source norm premises are supplied. | Supply `hTMrot` for the actual final observable label on the full chart and verify the rotated source satisfies `l1 < 1` where the class invokes it. The separate `CRotE` predicate concerns energy only. P4 p. 679 (H.7). |
+| `IsSF2.gsStrong`, all levels | New level: `localClass_newLevel_of_expansion`. Old levels: the old class's `gsStrong` after an honest torus lift. | `SFTermClauses.inherit_le` does not return `gsStrong` because it is an `IsSF2` field; prove its separate transport using exact `gs` equality and `GsSpecStrong` under the torus equivalence. P3 (4.4)–(4.6), as cited in `SmallField/Def6v2.lean:220`. |
+| `IsSFFamily2.torusIndep` (`TorusIndep.E_eq`) | None of the two-torus theorems asserts equality of these new term functions. `Polymer/TwoTorusGapStepFinal.lean:68` `resum_gapScale_torus_full` gives quantitative comparison under an inherited closeness hypothesis, not `E_eq`. | One common **infinite-volume** label functional and canonical completion/averaging, with equality of $A_E^{N_1}$ and $A_E^{N_2}$ on a polymer nonwinding in both tori, for every pulled-back complex field. Include old-term lift coherence, determinant and background finite-volume effects, and the chosen counterterms; exact torus independence may require subtracting a torus defect before filing. `TorusIndep` only records energy `E_eq`, not `M_eq`. P4 pp. 677–678 (H.4); P1 pp. 152–153 (3.126)–(3.128). |
+| `IsSFFamily2.renorm`, old levels $j\le k$ | Old `RenormCond` and `TorusIndep` can in principle identify the infinite-volume stabilized terms after coherent torus transport. `Fluctuation/LocalClassInherit.lean:182` only handles analytic/local term clauses. | Prove that `ElocInf`, `momentSum`, and `nuIdeal L K (Rg.ν K) j` agree with their old-scale counterparts after the flow and lift. In particular $\nu_j$ must be preserved when the current scale changes. Without this, even old `dh` has a different reference mass. P4 pp. 678–679 (H.5)–(H.6), p. 716 (5.28). |
+| `IsSFFamily2.renorm`, new level $j=K$: `val`, `dh`, `dpsi` | `RenormCond`'s exact fields are in `SmallField/Def6.lean:435`; `LocalClassDensityLevel` supplies the identity of `Eloc` with the rooted density when `hDz` holds. | Solve the reference-value and first-jet equations for counterterms at the **family** level, prove the full `ElocInf` equations and differentiation under the polymer sum. A fibre-only solution cannot establish the off-fibre analytic derivatives. P4 pp. 678–679 (H.5), pp. 705–706, §5 pp. 714–716. |
+| `IsSFFamily2.renorm`, new `moment` | `SmallField/Def6BridgeInfMoment.lean:175` `IsSFFamily.tendsto_momentSeq` and `...:230` `liftInf_moment` propagate an **assumed** `RenormCond.moment`; `SmallField/Def6AvgMoment.lean:230` `avgFamily_moment` handles an averaged cut-off under its own inputs. | Prove `Tendsto (fun n => momentSum P.m₀ (TmFam' (n+1)) K i₀ i₁) atTop (𝓝 0)` for every $i_0\ne i_1$ from the second-jet renormalization equation and uniform summable tails. The raw all-centre tensor cancellation and filed torus defect remain open (`W970-HANDOFF.md` items 1–4); a trace estimate or one-torus equality is insufficient. P4 pp. 678–679 (H.5), P1 pp. 118–119 and 152–153. |
+| Auxiliaries `CRotE`, `MomNum` | `MomNum` is numerical (`SmallField/Def6v2Renorm.lean:53` uses it separately); `CRotE` is separately required in `Def6v2Renorm.lean:65`. `IsCRot` includes `SO(N,ℂ)` (`SmallField/Def6Terms.lean:163`), and `SmallField/Def6v2.lean:168` records the absent path for analytic continuation. | Show `CRotE P (completeXiDom P Rg a N₂) (TmFam' N₂)` for **every** torus (including inherited levels) and `MomNum d L N K j ϱ P` for all $1\le j\le K$. Neither is an `IsSFFamily2` field. P4 (H.3)–(H.5), pp. 677–679. |
+
+## 2.3 Exact induction target and open premises
+
+The mathematical theorem is: for a family $(\rho_k,T_k,E_k)$ in `IsSFFamily2` at scale $k$ with `CRotE` and the required `MomNum`, for the specified small-field RG map and the **common** renormalization solution $\xi$, its full output family $(\rho_K,T_K,E_K)$ defined in §2.1 lies in `IsSFFamily2` at $K$, has `CRotE` on every torus, and has the required `MomNum` at all $j\le K$. At the distinguished torus, its `StepClass` is `successorClass C …`. The output density identity is part of the theorem: $\rho_K(N_2)=\mathcal R_{k\to K}^{\rm sf}(\rho_k(LN_2);\xi)$ on every physical datum, with the appropriate old/new torus equivalence and source. Without that identity, the existential class theorem could be satisfied by an unrelated family.
+
+Here is the *exact binder/result shape* in the types of the existing class. The capitalized names in the premise line are **proposed packages of the concrete conditions listed below**, not declarations already present; `RGStep` is the proposed full-datum family transformation, and `oldLift` the proposed geometric transport. Thus the display is a specification for a future Lean theorem, not code claimed to elaborate today.
+
+```lean
+-- PROPOSED THEOREM; d = L = 3, N = 2 in the present StepTower implementation.
+theorem StepTower.successor_isSFFamily2
+    {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k)
+    (P : Consts) (Rg : Regime 3) (β a : ℕ → ℝ)
+    (OldTm : ∀ (N₂ : ℕ) [NeZero N₂],
+       Terms 3 3 N₂ T.m₁ k 2 (rhoSep T.m₁))
+    (Oldρ : ∀ (N₂ : ℕ) [NeZero N₂],
+       (CTorus 3 3 N₂ T.m₁ k → Fin 2 → ℝ) →
+       (Fin 2 → ℝ) →
+       (CTorus 3 3 N₂ T.m₁ k → Fin 2 → ℝ) → ℝ)
+    (OldEk : ℕ → ℝ)
+    (hOld : IsSFFamily2 P Rg β a (completeXiDom P Rg a)
+       OldTm Oldρ OldEk)
+    (hOldCR : ∀ (N₂ : ℕ) [NeZero N₂],
+       CRotE P (completeXiDom P Rg a N₂) (OldTm N₂))
+    (hNum : ∀ j, 1 ≤ j → j ≤ k →
+       MomNum 3 3 2 k j (rhoSep T.m₁) P)
+    (hStepNumerics : StepNumerics T k P Rg β a)
+    (hLift : OldTermsLift T k OldTm Oldρ OldEk)
+    (hOutput : SuccessorOutput T k P Rg β a OldTm Oldρ OldEk)
+    (hEst : SuccessorEstimates T k P Rg β a hLift hOutput) :
+    ∃ (Tm' : ∀ (N₂ : ℕ) [NeZero N₂],
+         Terms 3 3 N₂ T.m₁ (k+1) 2 (rhoSep T.m₁))
+      (ρ' : ∀ (N₂ : ℕ) [NeZero N₂],
+         (CTorus 3 3 N₂ T.m₁ (k+1) → Fin 2 → ℝ) →
+         (Fin 2 → ℝ) →
+         (CTorus 3 3 N₂ T.m₁ (k+1) → Fin 2 → ℝ) → ℝ)
+      (Ek' : ℕ → ℝ),
+      (∀ (N₂ : ℕ) [NeZero N₂],
+         Tm' N₂ = successorTerms (hLift.terms N₂)
+           (hOutput.AE N₂) (hOutput.AM N₂) (hOutput.Gnew N₂)) ∧
+      (∀ (N₂ : ℕ) [NeZero N₂],
+         Ek' N₂ = ((hOutput.step N₂).Eppp (hLift.stepClass N₂) *
+                    (hOutput.step N₂).nU - hOutput.eVac N₂) /
+                   (hOutput.step N₂).nBlocks) ∧
+      (∀ (N₂ : ℕ) [NeZero N₂],
+         ρ' N₂ = RGStep T k (Oldρ, OldTm, OldEk) hOutput.ξ N₂) ∧
+      (∀ (N₂ : ℕ) [NeZero N₂],
+         let C' := successorClass (hLift.stepClass N₂)
+           (hOutput.AE N₂) (hOutput.AM N₂) (hOutput.Gnew N₂)
+           (hOutput.step N₂) (hOutput.eVac N₂)
+         C'.m₀ = P.m₀ ∧ C'.Tm = Tm' N₂ ∧ C'.Ek = Ek' N₂) ∧
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm' ρ' Ek' ∧
+      (∀ (N₂ : ℕ) [NeZero N₂],
+         CRotE P (completeXiDom P Rg a N₂) (Tm' N₂)) ∧
+      (∀ j, 1 ≤ j → j ≤ k+1 →
+         MomNum 3 3 2 (k+1) j (rhoSep T.m₁) P)
+```
+
+The intended package meanings are narrow. `StepNumerics` supplies the tower's positive mass, large $\beta$, the side conditions of `StepScaleData` where that record applies, and matches $S.a,S.ν,S.β$ to the old/new regime and coefficient sequences. Its extension to small or nondivisible tori is a separate obligation. `OldTermsLift` supplies the explicit physical-torus equivalence, transported old terms/density, the exact equalities at $j\le k$, preserved old clauses, `RenormCond` data and nonwinding coherence. `SuccessorOutput` contains the *unique selected* counterterm solution, the actual `StepSetting` family, raw $D_E,D_M$, `eVac`, all local labels, their prescribed paving averages, and the **pointwise** identity defining `RGStep` on every datum. `SuccessorEstimates` consists of: (i) the per-label P1 (3.128) and P4 Proposition 4.1/4.2 bounds, chart inclusion and summability needed by `localClass_newLevel_of_expansion`; (ii) `hDz`, `hDM`, `hDzfull`, `hDMfull` on the whole class chart; (iii) the old-level birth-domain transport or a new current-domain inclusion; (iv) exact nonwinding equality of the new energy terms; (v) four new renormalization jets, including the second-moment limit; (vi) uniform coefficient-flow and vacuum bounds; (vii) `CRotE` complex rotation covariance. These are **open mathematical/Lean obligations**, not fields to assume in a theorem advertised as the completed scale induction. A useful near-term *conditional assembly lemma* may take them as hypotheses and build the structure, but it would only expose the blocker, not resolve it.
+
+Two architectural checks must precede approval. First, `completeXiDom` fixes the mass at the *current* scale for all old levels (`SmallField/Def6v2Bridge.lean:171`), whereas W868 chose birth-frozen domains; the displayed conclusion is consequently stronger than the currently justified inheritance argument. Second, `localClass_newLevel_of_expansion` is currently specialized to `minSep` and divisible tori, while `IsSFFamily2` quantifies over every `[NeZero N₂]`. Both require actual bridge theorems or an approved class-carrier change. A theorem that simply assumes `IsSFFamily2` of the successor, or chooses unrelated terms/densities to fill these gaps, would not be the P4 Theorem 1 mapping.
+
+**Confidence.** High for the structural definition, the $L^d$ vacuum normalization, the distinct old-term and new-coefficient roles, and the clause inventory, because each is checked against the cited Lean declarations. High that no current general-class successor producer follows from `e0CoeffFamily_class_fromTower_of_irrelBounds_X` alone. Moderate for the exact final decomposition of P4 (4.22): its scan formula is garbled, so the proposal deliberately specifies the new density by its complete RG identity and prescribed renormalization solution rather than guessing a missing sign or counterterm. Low for an unmodified `completeXiDom` successor theorem: the mass/domain conflict and the all-torus quantifier are unresolved.
