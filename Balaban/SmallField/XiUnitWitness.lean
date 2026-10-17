@@ -550,3 +550,143 @@ theorem xiC_unitWitness [NeZero N] {j : ℕ} {e : ℝ} {Ψ₀ : Torus d (N₀ * 
 end Main
 
 end Balaban.SmallField
+
+namespace Balaban.Fluctuation
+
+open Finset Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField
+  Balaban.SmallField.Def6v2 Balaban.Flow
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+/-- The smallness conditions of `xiC_unitWitness` for the radius `e` follow from those at the larger
+radius `E = 2 e + 2 (N + 1) K₂ e²` of the birth inclusion. -/
+theorem unitWitness_numerics {e E r : ℝ} (hd : 0 < d) (he : 0 < e)
+    (hE : E = 2 * e + 2 * ((N : ℝ) + 1) * (cK2 d L N * e ^ 2)) (hr0 : 0 ≤ r)
+    (hsm : (4 * d + 6) * ((2 * d + 1) * E) ≤ 1) (hc1 : 4 * (xiC1 d * E) ≤ bgC1 d L N)
+    (hK : bgK1 d L N * (xiC1 d * E) + 3 * r ≤ deltaStar d L N) :
+    (4 * d + 6) * ((2 * d + 1) * e) ≤ 1 ∧ 2 * (xiC1 d * e) ≤ bgC1 d L N ∧
+      e ≤ deltaStar d L N ∧ e + cK2 d L N * e ^ 2 ≤ bgC0 d L N := by
+  have hK2 := cK2_pos d L N
+  have hC1 := one_le_xiC1 d
+  have hN : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  have hq : 0 ≤ cK2 d L N * e ^ 2 := by positivity
+  have hq' : 0 ≤ ((N : ℝ) + 1) * (cK2 d L N * e ^ 2) := by positivity
+  have heE : e ≤ E := by rw [hE]; nlinarith
+  have hKE : e + cK2 d L N * e ^ 2 ≤ E := by rw [hE]; nlinarith
+  have hE0 : 0 < E := he.trans_le heE
+  have hCE : E ≤ xiC1 d * E := le_mul_of_one_le_left hE0.le hC1
+  have hB1 := bgK1_ge_one (d := d) (L := L) (N := N)
+  have hCK : xiC1 d * E ≤ bgK1 d L N * (xiC1 d * E) :=
+    le_mul_of_one_le_left (by positivity) hB1
+  have hc0 := bgC1_le_bgC0 d L N hd
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · refine le_trans ?_ hsm; gcongr
+  · nlinarith
+  · linarith
+  · linarith
+
+/-- **The birth inclusion without the unit-witness hypothesis** (decision D2(b), blocker 6).  The
+chart point `D` realizes a member of `Ξ^c_j(𝔹; C₀, e)` at the step mass `ν`, with a possibly
+non-unit real witness; the layers above `j` are empty.  It is re-realized at the unit witness
+`h₀ / |h₀|` (`xiC_unitWitness`), in `Ξ^c_j(𝔹; 1, E)` with `E = 2 e₁ + 2 (N + 1) K₂ e₁²`,
+`e₁ ≥ C₀² e`, and then lies in the birth-mass domain `Ξ^c_j(𝔹; 1, ε_j)` at `μ = ν (1 + t)` as
+soon as `E (1 + K_m |t|) ≤ ε_j`. -/
+theorem xiDom_birth_of_realization [NeZero N] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {A : ℕ → ℝ} {ν μ C₀ e e₁ E εj t r : ℝ} {j : ℕ} (H : BgHyp d L k ϱ A ν)
+    (H' : BgHyp d L k ϱ A μ) (hΩ : G.Ω (j + 1) = ∅) (hσ : 1 ≤ C₀) (hrad : C₀ ^ 2 * e ≤ e₁)
+    (hε : 0 < e₁) (hE : E = 2 * e₁ + 2 * ((N : ℝ) + 1) * (cK2 d L N * e₁ ^ 2))
+    (hsm : (4 * d + 6) * ((2 * d + 1) * E) ≤ 1) (hc1 : 4 * (xiC1 d * E) ≤ bgC1 d L N)
+    (hμ : μ = ν * (1 + t)) (ht1 : |t| ≤ 1) (htr : |t| < r) (hr : r ≤ 1 / 16)
+    (hK : bgK1 d L N * (xiC1 d * E) + 3 * r ≤ deltaStar d L N)
+    (hζ : 8 * E * r ≤ deltaStar d L N)
+    (hee : E * (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * |t|) ≤ εj)
+    {D : BgData G N}
+    (hD : ∃ (Ψ₀ : Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
+        (Ψ'' h'' : Localization.CTorus d L N₁ m₁ k → Fin N → ℂ),
+      XiC G A ν j C₀ e Ψ₀ h₀ Ψ'' h'' ∧ RealizesC D Ψ₀ h₀ Ψ'' h'') :
+    Def6.XiDom G A μ j εj D.Ψ D.h := by
+  obtain ⟨Ψ₀, h₀, Ψ'', h'', hxc, hR⟩ := hD
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hr0 : 0 ≤ r := (abs_nonneg t).trans htr.le
+  obtain ⟨n1, n2, n3, n4⟩ := unitWitness_numerics (N := N) hd0 hε hE hr0 hsm hc1 hK
+  have hR' : RealizesC D Ψ₀ h₀ (fun x i => D.Ψ x i - Ψ₀ x i) (fun x i => D.h x i - h₀ i) :=
+    ⟨fun x hx i => by simp [hR.1 x hx i], fun x hx i => by simp [hR.2 x hx i]⟩
+  have hx1 : XiC G A ν j 1 e₁ Ψ₀ h₀ (fun x i => D.Ψ x i - Ψ₀ x i) (fun x i => D.h x i - h₀ i) :=
+    xiC_rescale_of_agree hσ hrad (fun x hx i => by rw [hR.1 x hx i]; ring)
+      (fun x hx i => by rw [hR.2 x hx i]; ring) hxc
+  have hEpos : 0 < E := by rw [hE]; have := cK2_pos d L N; positivity
+  obtain ⟨h₀', h''', hu, hxE, hRe⟩ := xiC_unitWitness H hΩ hε n1 n2 n3 n4 hx1
+  rw [← hE] at hxE
+  exact xiDom_birth_of_unit_realization (C₀ := 1) (e := E) (e₁ := E) H H' le_rfl (by simp)
+    hEpos
+    hsm hc1 hμ ht1 htr hr hK hζ hee ⟨Ψ₀, h₀', _, h''', hxE, hRe D hR', hu⟩
+
+/-- **The chart point lies in the birth-mass domain, without the unit-witness hypothesis**
+(decision D2(b)).  The chart data of `ClassOldCover.hchart`: `D` realizes a member of
+`Ξ^c_j(𝔹; C₀, e)` at the step mass `ν`, `C₀ = scaledC0 d`, `e = C₀² ε′ + K₂ δ₃ + K₂ δfl`, with
+no condition on the real witness; the layers above `j` are empty.  With `E₁ = C₀² e` the (DL-gap) is
+`(2 E₁ + 2 (N + 1) K₂ E₁²) (1 + K_m τ) ≤ ε_j`, `K_m = 1 + 16 (N + 1) K₂`, and the other hypotheses
+are those of `xiDom_birth_chart`. -/
+theorem xiDom_birth_chart_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {A : ℕ → ℝ} {ν μ eps δ₃ δfl εj τ r t : ℝ} {j : ℕ} (H : BgHyp d L k ϱ A ν)
+    (H' : BgHyp d L k ϱ A μ) (hΩ : G.Ω (j + 1) = ∅)
+    (heps : 0 < eps) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl)
+    (hμ : μ = ν * (1 + t)) (ht : |t| ≤ τ) (hτr : τ < r) (hr : r ≤ 1 / 16)
+    (hDL : (2 * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) +
+        2 * ((N : ℝ) + 1) * (cK2 d L N * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) ^ 2)) *
+      (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τ) ≤ εj)
+    (hsmε : (4 * d + 6) * ((2 * d + 1) * εj) ≤ 1) (hc1ε : 4 * (xiC1 d * εj) ≤ bgC1 d L N)
+    (hKε : bgK1 d L N * (xiC1 d * εj) + 3 * r ≤ deltaStar d L N)
+    (hζε : 8 * εj * r ≤ deltaStar d L N)
+    {D : BgData G N}
+    (hD : Localization.XiCData G A ν j (scaledC0 d)
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) D) :
+    Def6.XiDom G A μ j εj D.Ψ D.h := by
+  have hd : 0 < d := by have := H.hd; omega
+  have hC : 0 < scaledC0 d := by unfold scaledC0; positivity
+  have hQ := cK2_pos d L N
+  have hK2 : 0 < xiK2 d L N := by unfold xiK2; positivity
+  have hE₁ : 0 < scaledC0 d ^ 2 *
+      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) := by positivity
+  set E₁ := scaledC0 d ^ 2 * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+    with hE₁def
+  set E := 2 * E₁ + 2 * ((N : ℝ) + 1) * (cK2 d L N * E₁ ^ 2) with hEdef
+  have hE0 : 0 < E := by rw [hEdef]; positivity
+  have hEq : scaledC0 d ^ 2 * (scaledC0 d ^ 2 * (E / scaledC0 d ^ 4) + xiK2 d L N * 0 +
+      xiK2 d L N * 0) = E := by
+    have : scaledC0 d ≠ 0 := hC.ne'
+    field_simp
+    ring
+  obtain ⟨n0, n1, n2, n3, n4, n5, n6, n7⟩ := chart_numerics (L := L) (N := N) hd
+    (eps := E / scaledC0 d ^ 4) (δ₃ := 0) (δfl := 0) (by positivity) le_rfl le_rfl ht hτr hr
+    (by rw [hEq]; exact hDL) hsmε hc1ε hKε hζε
+  rw [hEq] at n1 n2 n5 n6 n7
+  exact xiDom_birth_of_realization (C₀ := scaledC0 d) (e₁ := E₁) (E := E) H H' hΩ
+    (one_le_scaledC0 d) le_rfl hE₁ rfl n1 n2 hμ n3 n4 hr n5 n6 n7 hD
+
+/-- **`hchart` at the birth mass, without the unit-witness hypothesis.**  The raw data of the chart
+`Ξ^c_j(𝔹; C₀, e)` at the step mass `ν` lie in `xiFieldDom A μ ε`, under the (DL-gap) of
+`xiDom_birth_chart_unitfree`; the layers above `j` are empty.  This replaces `hunit` of
+`xiCRaw_dom_birth`. -/
+theorem xiCRaw_dom_birth_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {A : ℕ → ℝ} {ν μ eps δ₃ δfl τ r t : ℝ} {εs : ℕ → ℝ} {j : ℕ} (H : BgHyp d L k ϱ A ν)
+    (H' : BgHyp d L k ϱ A μ) (hΩ : G.Ω (j + 1) = ∅)
+    (heps : 0 < eps) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl)
+    (hμ : μ = ν * (1 + t)) (ht : |t| ≤ τ) (hτr : τ < r) (hr : r ≤ 1 / 16)
+    (hDL : (2 * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) +
+        2 * ((N : ℝ) + 1) * (cK2 d L N * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) ^ 2)) *
+      (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τ) ≤ εs j)
+    (hsmε : (4 * d + 6) * ((2 * d + 1) * εs j) ≤ 1) (hc1ε : 4 * (xiC1 d * εs j) ≤ bgC1 d L N)
+    (hKε : bgK1 d L N * (xiC1 d * εs j) + 3 * r ≤ deltaStar d L N)
+    (hζε : 8 * εs j * r ≤ deltaStar d L N) :
+    ∀ p ∈ Localization.XiCRaw G A ν j (scaledC0 d)
+        (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      (xiFieldDom A μ εs : FieldDom d L N₁ m₁ k N ϱ).dom j G p.1 p.2 := by
+  rintro p ⟨D, hD, rfl⟩
+  exact xiDom_birth_chart_unitfree H H' hΩ heps hδ₃ hδfl hμ ht hτr hr hDL hsmε hc1ε hKε hζε hD
+
+end Balaban.Fluctuation
