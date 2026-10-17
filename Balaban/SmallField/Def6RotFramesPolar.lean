@@ -104,7 +104,6 @@ theorem exists_polar {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1)
 
 
 
-/-- scalar functions -/
 /-- The Cayley parameter `(l - 1)/(l + 1)` of an eigenvalue `l > 0`. -/
 noncomputable def sig (l : ℝ) : ℝ := (l - 1) / (l + 1)
 /-- The eigenvalue of `cay(sS)` for the eigenvalue `l` of `H = cay(S)`. -/
