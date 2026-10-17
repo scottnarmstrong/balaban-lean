@@ -2082,6 +2082,7 @@ public import Balaban.LargeField.R.RGasRepR4Measure
 public import Balaban.LargeField.R.RGasRepR4Decor
 public import Balaban.LargeField.R.RGasRepR4Operator
 public import Balaban.LargeField.R.RGasRepR4Fresh
+public import Balaban.LargeField.R.RGasRepR4Pointwise
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
