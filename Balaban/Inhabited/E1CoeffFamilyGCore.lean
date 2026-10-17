@@ -518,7 +518,9 @@ theorem e1CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
             (physVq S S.a₁ S.ν T.t 1))
           (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
             (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)),
-          Lb = {Y // Y ∈ I0.𝒴} ∧ HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
+          Lb = {Y // Y ∈ I0.𝒴} ∧ εH = 2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))) ∧
+              HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
           HEq A₀ (commonAct (zeroSourceAct
             (labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0 hFd
               (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by subst hS; exact hp) (by norm_num) hεU
@@ -609,7 +611,7 @@ theorem e1CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
   · intro z θ i u Φ
     exact ((hF z).2.2.2.1 {Y // Y ∈ I0.𝒴} (thickLabels I0.𝒴 I0.dom)).2 θ i u Φ
   swap
-  · refine ⟨Jr, fun D' hX => ?_, val, I0, hFd, hεU, rfl, ?_, ?_, hex⟩
+  · refine ⟨Jr, fun D' hX => ?_, val, I0, hFd, hεU, rfl, rfl, ?_, ?_, hex⟩
     · have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
       exact e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β
         p₁ (show 0 < p₁ from hp) D _ rfl hp Jr val hval I0 hFd hεU A hAeq

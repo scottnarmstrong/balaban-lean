@@ -339,7 +339,9 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
                 (physVq S S.a₁ S.ν T.t 1))
               (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
                 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)),
-              Lb = {Y // Y ∈ I0.𝒴} ∧ HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
+              Lb = {Y // Y ∈ I0.𝒴} ∧ εH = 2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+                (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))) ∧
+              HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
               HEq A₀ (commonAct (zeroSourceAct
                 (labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0 hFd
                   (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by subst hS; exact hp) (by norm_num) hεU
