@@ -2439,3 +2439,7 @@ public import Balaban.LargeField.R.WindowConvPhysMass
 public import Balaban.LargeField.Base.BaseFirstLocalCode
 public import Balaban.LargeField.Base.BaseFirstReserve
 public import Balaban.LargeField.Base.BaseFirstPhysicalP
+public import Balaban.Inhabited.ZeroSourceActivityCommonCore
+public import Balaban.Inhabited.E1CoeffFamilyGCore
+public import Balaban.Inhabited.E0CoeffFamilyGCore
+public import Balaban.Inhabited.StepIdentityFibreExplicitCore
