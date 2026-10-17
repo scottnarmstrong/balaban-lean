@@ -1555,6 +1555,8 @@ public import Balaban.Inhabited.StepScaleDataG
 public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTowerGProducer
 public import Balaban.Inhabited.StepTowerGProducers
+public import Balaban.Inhabited.StepTowerSmall
+public import Balaban.Inhabited.StepTowerSmallBase
 public import Balaban.Inhabited.StepTowerThetaG
 public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
