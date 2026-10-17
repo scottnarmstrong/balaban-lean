@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
+public import Balaban.Localization.I5Inhabited
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -232,5 +233,86 @@ theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * 
   exact Finset.notMem_empty _
 
 end Bundle
+
+section Family
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱ₂ ϱ₀ ϱ₃ ϱm : ℝ}
+
+/-- **The per-label settings of a family of labels** (the hypotheses `BgSetting`, `FlSetting`,
+`X₁f = X1` of `e0CoeffFamily_class_fromTower_of_families_gen`).  For labels `τ = (j_τ, y_τ, X_τ)`
+with covering setups `(X_τ, 𝒦_τ)` of index `m₀`, `1 ≤ j_τ ≤ k`, the sets `Gk τ = 𝔹_k(Z_τ)`,
+`Gj τ = 𝔹_{j_τ}(X_τ)` on the finer cube torus (`castLocalB`, indices `ϱ₁`, `ϱ₂`) satisfy
+`BgSetting` with `X₀ = dataSites (Gk τ)`, `X₁f τ = X1 Gp m₀ j_τ 𝒦_τ`, and `FlSetting`, from one base
+setting of the step, under `(5 L + 13) c₁ + r₀ L ≤ (L - 2) L^{m₀+1}`. -/
+theorem settings_family_castLocalB {ι : Type*} {N₁' m₁' : ℕ} [NeZero N₁']
+    (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    {Gk0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
+    {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₃}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {a₁ ν c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ m₁ (k + 1))} {j₁ : ℕ}
+    (hB0 : BgSetting N Gp Gk0 Gj0 a₁ ν c BG κ r₀ eps δ₃ X₀' X₁f' j₁)
+    (hF0 : FlSetting N Gp Gk0 Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f'')
+    (hG : IsLevel Hm k) (hL : 2 ≤ L) {m₀ : ℕ} (jL : ι → ℕ)
+    (XL 𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hj1 : ∀ τ, 1 ≤ jL τ) (hjk : ∀ τ, jL τ ≤ k) (hcov : ∀ τ, CovSetup Gp m₀ (jL τ) (XL τ) (𝒦X τ))
+    (hϱ₁ : bgR0 d L ≤ ϱ₁) (hϱ₂ : bgR0 d L ≤ ϱ₂) (hs₁ : ϱ₁ ≤ minSep L (L ^ m₁'))
+    (hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')) {c₁ : ℕ} (hm1 : L ^ m₁' ≤ L ^ m₁ * c₁)
+    (hm : (((5 * L + 13) * c₁ : ℕ) : ℝ) + r₀ * L ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (m₀ + 1)) :
+    ∃ (Gk : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁)
+      (Gj : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂)
+      (X₀ X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))),
+      (∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (jL τ) (𝒦X τ)) ∧
+      (∀ τ, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (jL τ)) ∧
+      (∀ τ, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ)) := by
+  classical
+  let X' : ι → Set (CTorus d L N₁' m₁' (k + 1)) :=
+    fun τ => {x' | (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ XL τ}
+  let Z' : ι → Set (CTorus d L N₁' m₁' (k + 1)) := fun τ => {z' | ∃ y' ∈ X' τ,
+    supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast z' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
+        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast y' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L}
+  let X₁F : ι → Finset (CTorus d L N₁ m₁ (k + 1)) :=
+    fun τ => (Set.toFinite (X1 Gp m₀ (jL τ) (𝒦X τ))).toFinset
+  have hX₁F : ∀ τ, (↑(X₁F τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (jL τ) (𝒦X τ) :=
+    fun τ => Set.Finite.coe_toFinset _
+  have key := fun τ => bgFlSetting_castLocalB hc hG' hB0 hF0 hG hL (hj1 τ) (hjk τ) (hcov τ)
+    (X' := X' τ) (Z' := Z' τ) (fun _ => Iff.rfl) (fun _ => Iff.rfl) hϱ₁ hϱ₂ hs₁ hs₂ hm1 hm
+    (hX₁F τ)
+  exact ⟨fun τ => castG hc (localB k (Nat.le_succ k) (Z' τ) hs₁),
+    fun τ => castG hc (localB (jL τ) (by have := hjk τ; omega) (X' τ) hs₂),
+    fun τ => dataSites (castG hc (localB k (Nat.le_succ k) (Z' τ) hs₁)), X₁F, hX₁F,
+    fun τ => (key τ).1, fun τ => (key τ).2⟩
+
+end Family
+
+section Numerics
+
+/-- **The index of the class at `L = 3` fits the finer cube torus.**  For `m₁' = m₁ + 4` the bound
+`rhoSep m₁ ≤ minSep 3 (3^{m₁+4}) = 1215 · 3^{m₁}` holds as soon as
+`bgR0 3 3 + 1 + 6 log 3 / (agmon_3 / 16) ≤ 855 · 3^{m₁}`. -/
+theorem rhoSep_le_minSep_three {m₁ : ℕ}
+    (h : bgR0 3 3 + 1 + 6 * Real.log 3 / (agmonRate 3 / 16) ≤ 855 * (3 : ℝ) ^ m₁) :
+    Localization.I5Inhabited.rhoSep m₁ ≤ minSep 3 (3 ^ (m₁ + 4)) := by
+  unfold Localization.I5Inhabited.rhoSep minSep
+  push_cast
+  rw [pow_add]
+  have : (0 : ℝ) ≤ 3 ^ m₁ := by positivity
+  linarith
+
+/-- **The block-index condition at `L = d = 3`.**  With `c₁ = 3^4 = 81` (`m₁' = m₁ + 4`) and
+`r₀ ≤ 324`, the condition `(5 L + 13) c₁ + r₀ L ≤ (L - 2) L^{m₀+1}` of
+`bgFlSetting_castLocalB` holds for `m₀ ≥ 7`. -/
+theorem index_condition_shift_three {m₀ : ℕ} (hm : 7 ≤ m₀) {r₀ : ℝ} (hr : r₀ ≤ 324) :
+    (((5 * 3 + 13) * 81 : ℕ) : ℝ) + r₀ * ((3 : ℕ) : ℝ) ≤
+      (((3 - 2 : ℕ)) : ℝ) * ((3 : ℕ) : ℝ) ^ (m₀ + 1) := by
+  have h : ((3 : ℕ) : ℝ) ^ 8 ≤ ((3 : ℕ) : ℝ) ^ (m₀ + 1) :=
+    pow_le_pow_right₀ (by norm_num) (by omega)
+  norm_num at h ⊢
+  linarith
+
+end Numerics
 
 end Balaban.Fluctuation
