@@ -6,6 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.SmallField.IrrelTorusXidomSquare
+public import Balaban.SmallField.RenormAnisoCtx
+public import Balaban.SmallField.PsiGeomTube
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
@@ -20,6 +22,8 @@ real centre and its orthogonal component. It is used with the normalized compose
 @[expose] public section
 
 namespace Balaban.SmallField
+
+open Balaban.Background Balaban.Multiscale
 
 /-- Normalizing a complex spin changes its real longitudinal coefficient only quadratically
 in the transverse displacement. -/
@@ -91,5 +95,62 @@ theorem longitudinal_contraction_le
     _ ≤ 2 * τ ^ 2 * ζ ^ 2 + 24 * τ ^ 2 * ζ ^ 2 + 12 * τ ^ 2 * ζ ^ 2 := by
       nlinarith only [hLong, h1, h2]
     _ = 38 * τ ^ 2 * ζ ^ 2 := by ring
+
+/-- The longitudinal invariant of a source tube datum has the required quadratic size.
+The weaker complex spin size from scaled composition is absorbed by doubling the tube radius. -/
+theorem vInv_bound_of_source_tube {d N : ℕ}
+    {p h : Fin N → ℝ} {z h' : Fin N → ℂ}
+    {ν τ ζ : ℝ} (hν : 0 < ν) (hτ : 0 < τ) (hτ1 : τ ≤ 1)
+    (hντ : ν ≤ τ ^ 2) (hζ : 0 < ζ) (hζ1 : ζ ≤ 1 / 200)
+    (hp : |∑ i, p i ^ 2 - 1| < τ ^ 2 * ζ)
+    (hh1 : ν * |1 - (∑ i, p i * h i) / rn p| < τ ^ 2 * ζ ^ 2)
+    (hh2 : ν * |∑ i, h i ^ 2 - 1| < τ ^ 2 * ζ ^ 2)
+    (hz : vn z < ζ + τ * ζ)
+    (hsq : ‖∑ i, ((p i : ℂ) + z i) * ((p i : ℂ) + z i) -
+      ∑ i, (p i : ℂ) * (p i : ℂ)‖ < τ ^ 2 * ζ)
+    (hh' : ν * vn h' < τ ^ 2 * ζ)
+    (hph' : ν * ‖∑ i, ((p i / rn p : ℝ) : ℂ) * h' i‖ < τ ^ 2 * ζ ^ 2) :
+    ‖vInv (fun _ : Site d => fun i => (p i : ℂ) + z i)
+      ((ν : ℂ) • fun i => (h i : ℂ) + h' i) - ν‖ ≤
+      98 * τ ^ 2 * ζ ^ 2 := by
+  have hζ2 : 0 < 2 * ζ := by positivity
+  have hζ200 : 2 * ζ ≤ 1 / 100 := by linarith
+  have hp2 : |∑ i, p i ^ 2 - 1| < τ ^ 2 * (2 * ζ) := by
+    nlinarith [sq_nonneg τ]
+  have hh12 : ν * |1 - (∑ i, p i * h i) / rn p| < τ ^ 2 * (2 * ζ) ^ 2 := by
+    nlinarith [sq_nonneg τ, sq_nonneg ζ, mul_nonneg (sq_nonneg τ) (sq_nonneg ζ)]
+  have hh22 : ν * |∑ i, h i ^ 2 - 1| < τ ^ 2 * (2 * ζ) ^ 2 := by
+    nlinarith [sq_nonneg τ, sq_nonneg ζ, mul_nonneg (sq_nonneg τ) (sq_nonneg ζ)]
+  have hz2 : vn z < 2 * ζ + τ ^ 2 * (2 * ζ) := by
+    nlinarith [sq_nonneg τ]
+  have hsq2 : ‖∑ i, ((p i : ℂ) + z i) * ((p i : ℂ) + z i) -
+      ∑ i, (p i : ℂ) * (p i : ℂ)‖ < τ ^ 2 * (2 * ζ) := by
+    nlinarith [sq_nonneg τ]
+  have hh'2 : ν * vn h' < τ ^ 2 * (2 * ζ) := by
+    nlinarith [sq_nonneg τ]
+  have hph'2 : ν * ‖∑ i, ((p i / rn p : ℝ) : ℂ) * h' i‖ <
+      τ ^ 2 * (2 * ζ) ^ 2 := by
+    nlinarith [sq_nonneg τ, sq_nonneg ζ, mul_nonneg (sq_nonneg τ) (sq_nonneg ζ)]
+  have hv := lemma33_tube hν hτ hτ1 hντ hζ2 hζ200 hp2 hh12 hh22 hz2 hsq2 hh'2 hph'2
+  have he : vInv (fun _ : Site d => fun i => (p i : ℂ) + z i)
+      ((ν : ℂ) • fun i => (h i : ℂ) + h' i) =
+      (ν : ℂ) * tubeV p z h h' := by
+    unfold vInv uInv sqrtC tubeV tubeU uExt dot dotc
+    simp only [Pi.smul_apply, smul_eq_mul]
+    simp_rw [mul_left_comm _ (ν : ℂ)]
+    rw [← Finset.mul_sum]
+    ring
+  rw [he]
+  have he2 : (ν : ℂ) * tubeV p z h h' - ν = (ν : ℂ) * (tubeV p z h h' - 1) := by ring
+  rw [he2, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hν]
+  have hV := hv.2.1
+  have hV' : ν * ‖tubeV p z h h' - 1‖ <
+      ν * (1 / 2 * (7 * τ) ^ 2 * (2 * ζ) ^ 2 / ν) :=
+    mul_lt_mul_of_pos_left hV hν
+  have hν0 : ν ≠ 0 := hν.ne'
+  calc
+    ν * ‖tubeV p z h h' - 1‖
+        ≤ ν * (1 / 2 * (7 * τ) ^ 2 * (2 * ζ) ^ 2 / ν) := hV'.le
+    _ = 98 * τ ^ 2 * ζ ^ 2 := by field_simp [hν0]; ring
 
 end Balaban.SmallField
