@@ -537,6 +537,29 @@ theorem removedKernel_vanish (hdom : ∀ o o' x, (remZeroSplit a k Z0 o).2 = (re
     removedKernel_support a k Z0 P EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm hum hc0m hrm h
   exact hd ((hdom o' o x ho').1 hd')
 
+/-- **The removed operator is the removed part of `R` applied to the pre-operator**
+(`Rop_remDecomp_removed` for `removedKernel`): for the term
+`ρ(o) = ∫ dx K^pre(o, x) χ̃_k χ_S χ⁰ χ''(o, x) f(o, x)` of the pre-operator against a function `f`
+that does not read `ψ_k↾Z₀`, `χ_{Z''}(o) R[ρ](o) = ρ_{k,0}(Z)(o) e^{-EZ} ∫ dx K^rem(o, x) f(o, x)`. -/
+theorem Rop_remDecomp_removedKernel (hv : EuclideanSpace ℝ (Fin N))
+    (f : OutT N R a k → SubCfg N a k P.A → ℝ)
+    (hf : ∀ o o' x, (remZeroSplit a k Z0 o).2 = (remZeroSplit a k Z0 o').2 → f o x = f o' x)
+    (hint : ∀ y : OutRest N R a k Z0, Integrable
+      (fun q : OutZero N R a k Z0 × SubCfg N a k P.A =>
+        toRKernel a k P.T.K t s z w (remZeroMerge a k Z0 (q.1, y)) q.2 hv *
+          f (remZeroMerge a k Z0 (q.1, y)) q.2)
+      ((outPartMeasure N (Vblk R a k) (· ∈ Z0)).prod (subMeasure N a k P.A)))
+    (hrc : ∀ q : OutZero N R a k Z0 × OutRest N R a k Z0,
+      r q.1 q.2 = c0 (remZeroMerge a k Z0 q) * r q.1 q.2)
+    (o : OutT N R a k) :
+    u o * Rop (remDecomp a k Z0 r)
+        (fun o' => ∫ x, toRKernel a k P.T.K t s z w o' x hv * f o' x ∂(subMeasure N a k P.A)) o =
+      r (remZeroSplit a k Z0 o).1 (remZeroSplit a k Z0 o).2 * Real.exp (-EZ) *
+        ∫ x, (removedKernel a k Z0 P t s z w u c0 r EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm hum
+          hc0m hrm).K o x hv * f o x ∂(subMeasure N a k P.A) :=
+  Rop_remDecomp_removed a k Z0 (subMeasure N a k P.A) (toRKernel a k P.T.K t s z w) u c0 r EZ hv f
+    hf hint hrc o
+
 end LFProps
 
 end Balaban.LargeField
