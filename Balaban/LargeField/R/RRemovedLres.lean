@@ -26,7 +26,7 @@ at least an explicit constant (`lres_lhs_le`), for `λ ≥ 1`; `C_vol` is a real
 statement (the value `log (v_N max {3, C₆}^N A₀^N)` is an instance).  The crit bound is the landed
 `crit_le_critBar`.  Then `C_R ≤ A₂ λ^{p₂ - 2d - 1}` for `λ ≥ max {1, C_R/A₂}`
 (`CR_le_A2_pow_of_large`, `p₂ ≥ 2d + 3`), which gives the hypothesis `hCR` of
-`removed_kerBound_of_window` (`CR_window_of_large`).
+`removed_kerBound_logC_of_window` (`CR_window_of_large`).
 -/
 
 @[expose] public section
@@ -130,7 +130,7 @@ theorem CR_le_A2_pow_of_large {S : Setting} (ok : S.Ok) {x : ℝ} (hx : 1 ≤ x)
     rwa [div_le_iff₀ hA, mul_comm] at hxC
   exact this.trans (mul_le_mul_of_nonneg_left h2 hA.le)
 
-/-- The hypothesis `hCR` of `removed_kerBound_of_window`: `C_R λ^{2d+1} ≤ A₂ λ^{p₂}` for
+/-- The hypothesis `hCR` of `removed_kerBound_logC_of_window`: `C_R λ^{2d+1} ≤ A₂ λ^{p₂}` for
 `λ ≥ max {1, C_R/A₂}`. -/
 theorem CR_window_of_large {S : Setting} (ok : S.Ok) {x : ℝ} (hx : 1 ≤ x)
     (hxC : S.CR / S.A2 ≤ x) : S.CR * x ^ (2 * S.d + 1) ≤ S.A2 * x ^ S.p2 :=

@@ -21,8 +21,7 @@ factor `F_𝔞` (with `‖F_𝔞‖ ≤ 1`; the factor `e^{E_k|Z|}` is absorbed 
 
 * `log_b_le_lamHat`: `log b_k ≤ λ̂_k` under `RunningHyp`; `p2Run_le_A2_lamHat_pow`.
 * `removed_kerBound_logC_of_window`: the exponent assembly with the history weight kept: the
-  exponent is `A₂ λ^{p₂} + H_k M^d c + 1 + log C(𝔞)` (the landed `removed_kerBound_of_window` drops
-  `log C(𝔞) ≥ 0`, which is what the sum over histories needs).
+  exponent is `A₂ λ^{p₂} + H_k M^d c + 1 + log C(𝔞)` (in `RRemovedFactor.lean`).
 * `norm_integral_le_of_kerBound`: `‖∫∫ w F‖ ≤ e^{-κ}` from `KerBound` and `‖F‖ ≤ 1`.
 * `norm_tau_le_of_removed_kernels`: `hrem`, from the kernel bounds and `∑_𝔞 C(𝔞)^{-1} ≤ 1`.
 * the composed theorem `…_of_kernel`.
@@ -70,29 +69,6 @@ theorem p2Run_le_A2_lamHat_pow (hrun : RunningHyp d L β ν a ε b nn) (k : ℕ)
   exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hb0 (log_b_le_lamHat hrun k) _) hA2
 
 end Arith
-
-section Window
-
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ}
-
-/-- The exponent assembly of `removed_kerBound_of_window` with the history weight kept: the
-exponent is `A₂ λ^{p₂} + H_k M^d c + 1 + log C(𝔞)`.  Same hypotheses. -/
-theorem removed_kerBound_logC_of_window {a : LocalHistory S n M K} {k : ℕ}
-    {A : Set (InternalVars a k)}
-    {T : LFKernel (OutT N R a k) (SubCfg N a k A) (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N)}
-    {P : BudgetConsts} {c : ℕ} {κpre logC Gp : ℝ}
-    (hG : Gp = P.budgetG S k κpre logC c)
-    (hrip : 2 * S.A2 * S.lam k ^ S.p2 + 1 ≤ Gp)
-    (hCR : S.CR * S.lam k ^ (2 * S.d + 1) ≤ S.A2 * S.lam k ^ S.p2)
-    (hwin : KerBound a k T (κpre - S.CR * S.lam k ^ (2 * S.d + 1))) :
-    KerBound a k T
-      (S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S c + 1 + logC) := by
-  refine hwin.mono ?_
-  have h : Gp = κpre - logC - HRun P.H0 P.beta k * BudgetConsts.cubeVol S c := hG
-  linarith
-
-end Window
 
 section Integral
 
