@@ -2274,3 +2274,4 @@ public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
 public import Balaban.SmallField.IrrelTorus
 public import Balaban.SmallField.IrrelTorusSum
+public import Balaban.SmallField.IrrelTorusBoundTube
