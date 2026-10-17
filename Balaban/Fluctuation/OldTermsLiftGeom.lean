@@ -180,34 +180,32 @@ theorem liftOldGS_layerIndex [NeZero L] [NeZero N₁] {ϱ : ℝ}
   apply (liftOldGS G).layerIndex_eq hj1 (Nat.le_succ_of_le hjk)
   exact (liftOldGS_mem_layer G hjk x).2 hmem
 
-/-- Relabel the inherited term functions and their generating sets on the physical torus.
-The newly born level is zero here; a successor construction supplies its own terms. -/
+/-- Relabel the term functions and their generating sets on the physical torus.
+The successor construction replaces the newly born slice after this pullback. -/
 noncomputable def liftOldTerms [NeZero L] [NeZero N₁] {ϱ : ℝ}
     (Tm : Terms d L (L * N₁) m₁ k N ϱ) : Terms d L N₁ m₁ (k + 1) N ϱ where
-  E j y X Ψ h := if j ≤ k then
-      Tm.E j (oldTorusEquiv.symm y) (oldTorusEquiv.symm '' X)
-        (lowerNewField Ψ) (lowerNewField h) else 0
-  M j x X Ψ h g := if j ≤ k then
-      Tm.M j (oldTorusEquiv.symm x) (oldTorusEquiv.symm '' X)
-        (lowerNewField Ψ) (lowerNewField h) (lowerNewField g) else 0
+  E j y X Ψ h := Tm.E j (oldTorusEquiv.symm y) (oldTorusEquiv.symm '' X)
+    (lowerNewField Ψ) (lowerNewField h)
+  M j x X Ψ h g := Tm.M j (oldTorusEquiv.symm x) (oldTorusEquiv.symm '' X)
+    (lowerNewField Ψ) (lowerNewField h) (lowerNewField g)
   gs j X := liftOldGS (Tm.gs j (oldTorusEquiv.symm '' X))
 
 theorem liftOldTerms_E [NeZero L] [NeZero N₁] {ϱ : ℝ}
-    (Tm : Terms d L (L * N₁) m₁ k N ϱ) {j : ℕ} (hj : j ≤ k)
+    (Tm : Terms d L (L * N₁) m₁ k N ϱ) (j : ℕ)
     (y : CTorus d L N₁ m₁ (k + 1)) (X : Set (CTorus d L N₁ m₁ (k + 1)))
     (Ψ h : Fld d L N₁ m₁ (k + 1) N) :
     (liftOldTerms Tm).E j y X Ψ h = Tm.E j (oldTorusEquiv.symm y)
       (oldTorusEquiv.symm '' X) (lowerNewField Ψ) (lowerNewField h) := by
-  simp [liftOldTerms, hj]
+  rfl
 
 theorem liftOldTerms_M [NeZero L] [NeZero N₁] {ϱ : ℝ}
-    (Tm : Terms d L (L * N₁) m₁ k N ϱ) {j : ℕ} (hj : j ≤ k)
+    (Tm : Terms d L (L * N₁) m₁ k N ϱ) (j : ℕ)
     (x : CTorus d L N₁ m₁ (k + 1)) (X : Set (CTorus d L N₁ m₁ (k + 1)))
     (Ψ h g : Fld d L N₁ m₁ (k + 1) N) :
     (liftOldTerms Tm).M j x X Ψ h g = Tm.M j (oldTorusEquiv.symm x)
       (oldTorusEquiv.symm '' X) (lowerNewField Ψ) (lowerNewField h)
       (lowerNewField g) := by
-  simp [liftOldTerms, hj]
+  rfl
 
 /-- Local dependence of an inherited energy term survives the site relabeling. -/
 theorem liftOldTerms_localE [NeZero L] [NeZero N₁] {ϱ : ℝ}
@@ -218,13 +216,11 @@ theorem liftOldTerms_localE [NeZero L] [NeZero N₁] {ϱ : ℝ}
     (Ψ Ψ' h h' : Fld d L N₁ m₁ (k + 1) N)
     (hagree : ∀ x ∈ X, Ψ x = Ψ' x ∧ h x = h' x) :
     (liftOldTerms Tm).E j y X Ψ h = (liftOldTerms Tm).E j y X Ψ' h' := by
-  by_cases hj : j ≤ k
-  · simp only [liftOldTerms_E Tm hj]
-    apply hcl.localE
-    intro z hz
-    obtain ⟨x, hx, rfl⟩ := hz
-    simpa [lowerNewField] using hagree x hx
-  · simp [liftOldTerms, hj]
+  simp only [liftOldTerms_E]
+  apply hcl.localE
+  intro z hz
+  obtain ⟨x, hx, rfl⟩ := hz
+  simpa [lowerNewField] using hagree x hx
 
 /-- Local dependence of an inherited observable term survives the site relabeling. -/
 theorem liftOldTerms_localM [NeZero L] [NeZero N₁] {ϱ : ℝ}
@@ -235,13 +231,11 @@ theorem liftOldTerms_localM [NeZero L] [NeZero N₁] {ϱ : ℝ}
     (Ψ Ψ' h h' g g' : Fld d L N₁ m₁ (k + 1) N)
     (hagree : ∀ z ∈ X, Ψ z = Ψ' z ∧ h z = h' z ∧ g z = g' z) :
     (liftOldTerms Tm).M j x X Ψ h g = (liftOldTerms Tm).M j x X Ψ' h' g' := by
-  by_cases hj : j ≤ k
-  · simp only [liftOldTerms_M Tm hj]
-    apply hcl.localM
-    intro z hz
-    obtain ⟨w, hw, rfl⟩ := hz
-    simpa [lowerNewField] using hagree w hw
-  · simp [liftOldTerms, hj]
+  simp only [liftOldTerms_M]
+  apply hcl.localM
+  intro z hz
+  obtain ⟨w, hw, rfl⟩ := hz
+  simpa [lowerNewField] using hagree w hw
 
 /-- Apply the physical-torus relabeling coherently to every member of an old family. -/
 noncomputable def liftOldTermsFam [NeZero L] {m₁ k N : ℕ} {ϱ : ℝ}
