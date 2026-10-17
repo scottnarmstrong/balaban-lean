@@ -202,8 +202,9 @@ only on d, L and N, while the field cutoff grows only like a power of log β, so
 keeps the field inside the analyticity domain (proved). For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
-block are proved, and so are the decomposition into large-field block sets and the activity of each set in
-the form the polymer gas takes. One point is open and is now a question to the author (item 18 addendum):
+block are proved, and so are the decomposition into large-field block sets, the activity of each set, and
+the polymer gas for these sets (counting of connected block sets, entropy, the activity bound for β large,
+which needs the exponent of the field cutoff to exceed half that of p₂). One point is open and is now a question to the author (item 18 addendum):
 on cells meeting a large-field set the decoupled covariance would move the field out of the analyticity
 domain, and we read P7 as expanding only on the complement, with the large set entering through a
 background that depends on it.
@@ -297,8 +298,8 @@ re-realized at a unit witness, at the cost of doubling the radius), and the incl
 chart points under one numerical condition on the radii (the gap between successive class radii). That
 condition now follows from the constants (the class radii decrease geometrically, with ratio L^{−α} ≤
 1/(16 C₀⁴)), and the expansion of the old terms is stated on their birth domains, using only the clauses of
-each old term at its own level; what remains is to show that two auxiliary radii of the step are small
-multiples of the class radius.
+each old term at its own level. Two auxiliary radii of the step are small multiples of the class radius
+(one once the cube size is large, proved; the other, the fluctuation radius, being checked for β large).
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
