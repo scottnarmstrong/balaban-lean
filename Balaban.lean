@@ -2314,3 +2314,7 @@ public import Balaban.Polymer.TwoTorusGapDataTowerMem
 public import Balaban.Fluctuation.VacuumFlow
 public import Balaban.Fluctuation.VacuumStep
 public import Balaban.Fluctuation.VacuumDet
+public import Balaban.LargeField.R.RRemovedFracMassArith
+public import Balaban.LargeField.R.RRemovedFracMassCore
+public import Balaban.LargeField.R.RRemovedFracMassReserve
+public import Balaban.LargeField.R.RRemovedWindowMass
