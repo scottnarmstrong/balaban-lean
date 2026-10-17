@@ -37,16 +37,20 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Analysis Balaban.Inhabited.LevelStep
 
-/-- **The general record with the determinant data at the doubled radius is inhabited**, with
-cover index `m₀` and output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`.  This is the single
+/-- **The general record with the determinant data at the doubled radius is inhabited**, with an
+extra predicate `Pr` on `(m₁, BG, BG₂, κ, t)` that holds eventually as `t → 0+`, and which the
+producer guarantees for the tower's own parameters; cover index `m₀` and output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`.  This is the single
 long producer of the chain. -/
-theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
-    (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
-    ∃ T : StepTowerThetaG d L N κmin, T.m₀ = m₀ ∧
+theorem exists_stepTowerThetaG_pred (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (hN : 2 ≤ N) (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ)
+    (Pr : ℕ → ℝ → ℝ → ℝ → ℝ → Prop)
+    (hP : ∀ m₁ BG BG₂ κ, ∀ᶠ t in nhdsWithin (0 : ℝ) (Set.Ioi (0 : ℝ)), Pr m₁ BG BG₂ κ t) :
+    ∃ T : StepTowerThetaG d L N κmin, Pr T.m₁ T.BG T.BG₂ T.κ T.t ∧ T.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
       (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
   classical
-  obtain ⟨R, hm, hent, h0, hs, hC2, hdm2, hα2⟩ : ∃ R : StepTowerRenG d L N κmin, R.m₀ = m₀ ∧
+  obtain ⟨R, hPR, hm, hent, h0, hs, hC2, hdm2, hα2⟩ : ∃ R : StepTowerRenG d L N κmin,
+      Pr R.m₁ R.BG R.BG₂ R.κ R.t ∧ R.m₀ = m₀ ∧
       entropyLoss + c1 d L * κroot ≤ 3 / 2 * R.κdec ∧
       (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → R.κ0 = aEnt d L + 2) ∧
       bgK1 d L N * (xiC1 d * R.t) < deltaStar d L N ∧
@@ -70,14 +74,14 @@ theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 �
     have hd0 : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
     have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
     set κm : ℝ := max κmin (max (4 * Real.log A + 2) (2 * d * L * κ' + D + 1)) with hκmdef
-    obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, h4, ht0, hCn, hκ0n, hκdec, hκ, h1, -, hc7,
+    obtain ⟨m₁, c, BG, κ, t, c₂, BG₂, δc, hPt, h4, ht0, hCn, hκ0n, hκdec, hκ, h1, -, hc7,
       hMX, hdm, hα, hsmX, g1, g2, g3, g4, g5, hκE, hκa, hB0, hmin, hmar, hsol, hC2, hdm2, hα2⟩ :=
-      tower_core_rates_two_general (d := d) (L := L) N hd hL (ν := νref L)
+      tower_core_rates_two_general_pred (d := d) (L := L) N hd hL (ν := νref L)
         (by unfold νref; positivity)
         (by
           unfold νref
           rw [one_div, inv_mul_eq_div, div_le_one (by positivity)])
-        κm (κ0 := κ0) (κdec := κdec) (by linarith) (by linarith)
+        κm (κ0 := κ0) (κdec := κdec) (by linarith) (by linarith) Pr hP
     obtain ⟨hC⟩ := hCn
     have hm1 : κmin ≤ κ := le_trans (le_max_left _ _) hmin
     have hm2 : 4 * Real.log A + 2 ≤ κ :=
@@ -127,7 +131,7 @@ theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 �
       δ'_cap := hδ'a, δ'_step := hδ'b, δ'_coer := hδ'c, block_base := hbig, xi_small := hxi1
       rho_nonneg := hρ, det_z := hz, det_rate := hrate
       ren_margin := hmar, r₀ := r₀, r₀_pos := hr0, r₀_le := hr1, D₀_le_one := hD0
-      D₀_le_star := hDs, D₁_le_star := hD1 }, rfl, ?_, ?_, hsol, hC2, hdm2, hα2⟩
+      D₀_le_star := hDs, D₁_le_star := hD1 }, hPt, rfl, ?_, ?_, hsol, hC2, hdm2, hα2⟩
     · show entropyLoss + c1 d L * κroot ≤ 3 / 2 * κdec
       rw [hκdecdef]
       linarith
@@ -183,7 +187,7 @@ theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 �
     core2 := hC2
     dom_margin2 := hdm2
     coer_margin2 := hα2
-    r₀_xi := ?_ }, hm, hent, h0⟩
+    r₀_xi := ?_ }, hPR, hm, hent, h0⟩
   · simp only [StepTowerRenG.shrink]
     have : A * r ≤ c6 d L N := by nlinarith
     calc _ = A * r := by rw [hAdef]; ring
@@ -191,6 +195,18 @@ theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 �
   · simp only [StepTowerRenG.shrink]; nlinarith
   · simp only [StepTowerRenG.shrink]; nlinarith
   · simp only [StepTowerRenG.shrink]; nlinarith
+
+/-- **The general record with the determinant data at the doubled radius is inhabited**, with
+cover index `m₀` and output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`.  This is the single
+long producer of the chain. -/
+theorem exists_stepTowerThetaG (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
+    (m₀ : ℕ) (hm₀ : 1 ≤ m₀) (κroot entropyLoss κmin : ℝ) :
+    ∃ T : StepTowerThetaG d L N κmin, T.m₀ = m₀ ∧
+      entropyLoss + c1 d L * κroot ≤ 3 / 2 * T.κdec ∧
+      (entropyLoss + c1 d L * κroot ≤ 150 * (aEnt d L + 2) → T.κ0 = aEnt d L + 2) := by
+  obtain ⟨T, -, h⟩ := exists_stepTowerThetaG_pred d L N hd hL hN m₀ hm₀ κroot entropyLoss κmin
+    (fun _ _ _ _ _ => True) (fun _ _ _ _ => Filter.Eventually.of_forall fun _ => trivial)
+  exact ⟨T, h⟩
 
 /-- **The general record with the solution margins is inhabited**, with cover index `m₀` and
 output-rate floor `entropyLoss + c₁ κ_root ≤ (3/2) κ_dec`. -/
