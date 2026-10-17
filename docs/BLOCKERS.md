@@ -21,7 +21,7 @@ The last section lists the problems that have been resolved since the project st
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius and a constant check remain (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
-| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce; the labels of removed components are being completed to block unions; author confirmation asked (item 16 addendum) |
+| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce; author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
@@ -130,8 +130,9 @@ large-field histories are run with it. What remains is the small factor of remov
 The gas bound is now proved from (3.10) in the form printed in the paper, given a numerical condition on its
 exponent p₂; the size term of (3.10) is not needed, since removed components are small and one copy of
 e^{−p₂} pays for their size. No part of the formalization yet produces (3.10) itself: it is the bound of the
-removed operator, which belongs to the large-field step (P7 (3.7)–(3.10)). The labels of removed components
-must also be completed to unions of aligned blocks, so that they lie in the domain class; this is being done.
+removed operator, which belongs to the large-field step (P7 (3.7)–(3.10)). The halos used as labels of
+removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
+and the halos are wider than one block; the Lean proof of this is in progress.
 The question to the author is item 16 with its addendum
 (`notes/phase1/VMOD-43.md`).
 
