@@ -101,6 +101,16 @@ theorem quietStepInput'_nonempty_pos (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.C
     b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
     b_rot := fun _ _ _ _ _ _ _ _ => rfl
     b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+    vacE := fun _ _ => 0
+    vacEpp := fun _ _ => 0
+    vacEppp := fun _ _ => 0
+    b0 := fun _ _ _ _ _ _ => 0
+    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
+    b0_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
+      simp only [norm_zero]
+      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
+      unfold volScale
+      positivity
     b_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
       simp only [norm_zero]
       refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
