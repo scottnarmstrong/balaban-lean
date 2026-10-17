@@ -689,22 +689,6 @@ theorem xiCRaw_dom_birth_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^ 
   rintro p ⟨D, hD, rfl⟩
   exact xiDom_birth_chart_unitfree H H' hΩ heps hδ₃ hδfl hμ ht hτr hr hDL hsmε hc1ε hKε hζε hD
 
-/-- If `μ = ν P` with `P` complex and `μ`, `ν` real, then `μ = ν (1 + t)` with `t` real and
-`|t| ≤ ‖P - 1‖`. -/
-theorem exists_real_defect {ν μ : ℝ} {P : ℂ} (hμ : (μ : ℂ) = ν * P) :
-    ∃ t : ℝ, μ = ν * (1 + t) ∧ |t| ≤ ‖P - 1‖ := by
-  by_cases hν : ν = 0
-  · have : μ = 0 := by
-      have h0 : (μ : ℂ) = 0 := by rw [hμ, hν]; simp
-      exact_mod_cast h0
-    exact ⟨0, by simp [this, hν], by simp⟩
-  · refine ⟨μ / ν - 1, by field_simp; ring, ?_⟩
-    have hν' : (ν : ℂ) ≠ 0 := by exact_mod_cast hν
-    have e : (((μ / ν - 1 : ℝ)) : ℂ) = P - 1 := by
-      push_cast
-      rw [hμ]; field_simp
-    rw [← e, Complex.norm_real, Real.norm_eq_abs]
-
 /-- **`xiCRaw_dom_birth_unitfree` with the birth mass given by the flow**: `μ = ν ∏_{n ∈ [j, K)}
 (1 + ξ₃^{(n)})/(1 + ξ₂^{(n)})` and `‖ξ_n‖ ≤ (c₈/4) q^{n+1}`; the mass defect is
 `τ = exp (3 (c₈/4) q^{j+1}/(1-q)) - 1`. -/
