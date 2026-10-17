@@ -692,6 +692,7 @@ public import Balaban.SmallField.Def6v2Source
 public import Balaban.SmallField.Def6v2Inhabited
 public import Balaban.SmallField.Def6v2Bridge
 public import Balaban.SmallField.Def6v2Birth
+public import Balaban.SmallField.Def6v2BirthMass
 public import Balaban.SmallField.Def6v2BridgeMass
 public import Balaban.SmallField.Def6v2Renorm
 public import Balaban.SmallField.Def6RotContinuation
