@@ -692,6 +692,7 @@ public import Balaban.SmallField.Def6v2Source
 public import Balaban.SmallField.Def6v2Inhabited
 public import Balaban.SmallField.Def6v2Bridge
 public import Balaban.SmallField.Def6v2Birth
+public import Balaban.SmallField.Def6v2BirthMass
 public import Balaban.SmallField.Def6v2BridgeMass
 public import Balaban.SmallField.Def6v2Renorm
 public import Balaban.SmallField.Def6RotContinuation
@@ -1272,6 +1273,13 @@ public import Balaban.Fluctuation.OldTermsLiftMoment
 public import Balaban.Fluctuation.OldTermsLiftMomentSum
 public import Balaban.Fluctuation.OldTermsLiftRenormMoment
 public import Balaban.Fluctuation.OldTermsLiftMomentClass
+public import Balaban.Fluctuation.OldTermsLiftDomGeom
+public import Balaban.Fluctuation.OldTermsLiftDomAction
+public import Balaban.Fluctuation.OldTermsLiftDomOp
+public import Balaban.Fluctuation.OldTermsLiftDomBg
+public import Balaban.Fluctuation.OldTermsLiftDomBounds
+public import Balaban.Fluctuation.OldTermsLiftDomXi
+public import Balaban.Fluctuation.OldTermsLiftDomBirth
 public import Balaban.Fluctuation.GeneralClassPathAnalytic
 public import Balaban.Fluctuation.GeneralClassRegularC
 public import Balaban.Fluctuation.StepNormGauss
