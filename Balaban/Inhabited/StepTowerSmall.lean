@@ -55,4 +55,24 @@ theorem exists_stepTower_base (κmin : ℝ) :
   obtain ⟨δ₃, δfl, h1, h2⟩ := hT hBG hBG₂
   exact ⟨T, δ₃, δfl, h1, h2⟩
 
+/-- **The label rate of the class chain at a tower.**  For every cover index `m₀` there is a lower
+bound `κmin` such that every tower `T : StepTower κmin` admits a label rate `κdec` with
+`4·3·7³ κdec ≤ T.κ` and `(2 T.κdec - 1) A_{m₀} + 1 ≤ 2 κdec`, where
+`A_{m₀} = 3^{m₀-1} + 2·3·3^{m₀}·(3^{m₀-1})³ c₁`.  (The tower rate `T.κdec` is a fixed number.) -/
+theorem exists_stepTower_labelRate (m₀ : ℕ) :
+    ∃ κmin : ℝ, ∀ T : StepTower κmin, ∃ κdec : ℝ,
+      4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T.κ ∧
+      (2 * T.κdec - 1) * (((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
+        ((3 : ℕ) : ℝ) ^ m₀ * ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3) + 1 ≤ 2 * κdec := by
+  set K : ℝ := 100 * (aEnt 3 3 + 2 + c1 3 3 + 10) with hK
+  set A : ℝ := ((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
+        ((3 : ℕ) : ℝ) ^ m₀ * ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3 with hA
+  refine ⟨2058 * ((2 * K - 1) * A + 1), fun T => ?_⟩
+  have hTK : T.κdec = K := by rw [T.κdec_eq, T.κ0_eq, hK]
+  refine ⟨((2 * T.κdec - 1) * A + 1) / 2, ?_, by linarith⟩
+  have := T.κmin_le
+  rw [hTK]
+  norm_num
+  linarith
+
 end Balaban.Inhabited
