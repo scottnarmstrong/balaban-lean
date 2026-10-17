@@ -271,6 +271,7 @@ public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
 public import Balaban.Green.KF0CovarianceAtoms
+public import Balaban.Green.KF0CovarianceNoise
 public import Balaban.Green.KF0HoleWalk
 public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
