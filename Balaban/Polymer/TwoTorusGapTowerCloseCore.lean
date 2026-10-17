@@ -20,7 +20,8 @@ witnesses of `stepIdentity_zeroClass_fibre_fromTowerG_explicitCore` are chosen o
   determinant term in the form `hTd` (`Zr = {z}`), and the bounds
   `‖c‖, ‖dz‖ ≤ B e^{-(3/2) κ_dec dExt C}` on `physV`, `‖mObs‖ ≤ B e^{-(3/2) κ_dec dExt C}` on
   `physVq`, with one constant `B` for all tori (the entropy bound `sum_exp_obsRemLab_le` makes the
-  constant of the observable coefficient independent of the torus);
+  constant of the observable coefficient independent of the torus); analyticity, locality and
+  support of the three terms;
 * on every family of tori: `hob` (the observable coefficient of a site at a support of the quarter box
   that is not wide is the same on `ℓ` and on `can X`), `hdt` (the determinant term of a root) and
   `hen` (the mark coefficient of a root), under the data of the gap scale.
@@ -69,7 +70,9 @@ tower on every torus of side `n` with scale data (the witnesses of the explicit 
 * on every torus: the step identity of the zero class on the fibre `h ≡ h₀`; `e0 = dz + c`; the
   determinant term at a chart datum `D′` is the specification `hTd` with `Zr = {z}`; the bounds
   `‖c z θ C‖, ‖dz z θ C‖ ≤ B e^{-(3/2) κ_dec dExt C}` for `θ ∈ physV` and
-  `‖mObs y i θ C‖ ≤ B e^{-(3/2) κ_dec dExt C}` for `θ ∈ physVq`;
+  `‖mObs y i θ C‖ ≤ B e^{-(3/2) κ_dec dExt C}` for `θ ∈ physVq`; the analyticity of `c`, `dz` on
+  `physV` and of `mObs` on `physVq`; their locality (`c`, `dz`: the restriction to the thickened
+  hull of `sitesOf C`; `mObs`: the restriction to `sitesOf C`); their support (the root cube in `C`);
 * on every family of tori `ℓ` with scale data: the clauses `hob` (as in
   `towerNewTerms_twoTorus_fromTowerG`), `hdt` (as there) and `hen` (as in
   `towerEnergyCoef_twoTorus_fromTowerG`) for the witnesses of the tori `ℓ`. -/
@@ -120,11 +123,34 @@ theorem towerGapTerms_twoTorus_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin :
                     detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D' y C) ∧
           ∀ C : Finset (CubeB (d := d) (L := L) (N₁ := n) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
               Set.univ),
-            (∀ z, ∀ θ ∈ physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t,
-              ‖c n h3 h5' Dn z θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C) ∧
-              ‖dz n h3 h5' Dn z θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C)) ∧
-            ∀ y i, ∀ θ ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q,
-              ‖mObs n h3 h5' Dn y i θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C)) ∧
+            (∀ z, (∀ θ ∈ physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t,
+                ‖c n h3 h5' Dn z θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C) ∧
+                ‖dz n h3 h5' Dn z θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C)) ∧
+              AnalyticOnNhd ℂ (fun θ => c n h3 h5' Dn z θ C)
+                (physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t) ∧
+              AnalyticOnNhd ℂ (fun θ => dz n h3 h5' Dn z θ C)
+                (physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t) ∧
+              (∀ θ ∈ physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t,
+                ∀ θ' ∈ physV (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t,
+                physRestrict (N := N) (thickSet (ST[n]).G' (Yhat Set.univ (sitesOf C)))
+                    (physIncl N (ST[n]) θ) =
+                  physRestrict (thickSet (ST[n]).G' (Yhat Set.univ (sitesOf C)))
+                    (physIncl N (ST[n]) θ') →
+                c n h3 h5' Dn z θ C = c n h3 h5' Dn z θ' C ∧
+                  dz n h3 h5' Dn z θ C = dz n h3 h5' Dn z θ' C) ∧
+              (∀ θ, c n h3 h5' Dn z θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C) ∧
+              (∀ θ, dz n h3 h5' Dn z θ C ≠ 0 → rootCube (m₀ := 1) z ∈ C)) ∧
+            ∀ y i, (∀ θ ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q,
+                ‖mObs n h3 h5' Dn y i θ C‖ ≤ B * Real.exp (-(3 / 2 * T.κdec) * dExt C)) ∧
+              AnalyticOnNhd ℂ (fun θ => mObs n h3 h5' Dn y i θ C)
+                (physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q) ∧
+              (∀ θ ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q,
+                ∀ θ' ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q,
+                physRestrict (N := N) (sitesOf C) (physIncl N (ST[n]) θ) =
+                  physRestrict (sitesOf C) (physIncl N (ST[n]) θ') →
+                mObs n h3 h5' Dn y i θ C = mObs n h3 h5' Dn y i θ' C) ∧
+              (∀ θ ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q, mObs n h3 h5' Dn y i θ C ≠ 0 →
+                rootCube (m₀ := 1) (blockIndex y) ∈ C)) ∧
         ∀ {ι : Type*} (N₁ : ι → ℕ) [∀ ℓ, NeZero (N₁ ℓ)] (h3N : ∀ ℓ, L ^ T.m₀ ∣ N₁ ℓ)
           (h5 : ∀ ℓ, 5 < N₁ ℓ) (D : ∀ ℓ, StepScaleDataG T k hk (N₁ ℓ) ν β p₁),
         (∀ {G : Type*} (K : ι → ℕ) [∀ ℓ, NeZero (K ℓ)]
@@ -317,7 +343,11 @@ theorem towerGapTerms_twoTorus_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin :
       rw [hm₀] at h
       exact h
     refine ⟨hid n h3 h5' Dn, he0 n h3 h5' Dn, hdzAll n h3 h5' Dn,
-      fun C => ⟨fun z θ hθ => ⟨?_, ?_⟩, fun y i θ hθ => ?_⟩⟩
+      fun C => ⟨fun z => ⟨fun θ hθ => ⟨?_, ?_⟩, (hc2 n h3 h5' Dn z C).1, (hd2 n h3 h5' Dn z C).1,
+        fun θ hθ θ' hθ' hr => ⟨(hc2 n h3 h5' Dn z C).2.1 θ hθ θ' hθ' hr,
+          (hd2 n h3 h5' Dn z C).2.1 θ hθ θ' hθ' hr⟩,
+        fun θ hne => ((hc2 n h3 h5' Dn z C).2.2.2.2 θ hne).1,
+        fun θ hne => ((hd2 n h3 h5' Dn z C).2.2.2 θ hne).1⟩, fun y i => ?_⟩⟩
     · have hx : Real.exp (-T.κ' * dExt C) ≤ Real.exp (-(3 / 2 * T.κdec) * dExt C) :=
         Real.exp_le_exp.2 (by
           have h0 := mul_le_mul_of_nonneg_right hκ'ge (dExt_nonneg C)
@@ -339,6 +369,8 @@ theorem towerGapTerms_twoTorus_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin :
         obsDomains_isDj (X₁f := LocalCover.nbhdF 1 y) _ T.hd (hcov1.2 (y, i)).1
           (hcov1.2 (y, i)).2.2.1
       obtain ⟨-, -, -, -, -, -, -, -, -, hfam⟩ := hsite n h3 h5' Dn y i hdj
+      refine ⟨fun θ hθ => ?_, (hfam C).1, (hfam C).2.2.2.2,
+        fun θ hθ hne => ((hfam C).2.2.1 θ hθ hne).1⟩
       have h1 := (hfam C).2.1 θ hθ
       rw [T.obsFamilyRate_eq] at h1
       have hbx := rootCube_mem_obsRowLabel_obsDomains (ST[n]) T.hd hN1 y (hcov1.2 (y, i)).1
