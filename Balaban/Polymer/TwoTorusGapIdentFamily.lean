@@ -209,6 +209,17 @@ variable
           (jBlock d L (N₁ ℓ * L ^ m₁) (k + 1) (k + 1) x₀)) (Zm ℓ) um tm
         cellsOf[ℓ, X] (rawOf (Dat ℓ g), ψh ℓ g))
 
+include hK26 hP hQ hcanK in
+/-- **A support of the quarter box is a polymer of the canonical torus.** -/
+theorem mem_P_can (ℓ : ι) (X : Finset (Fin d → ℤ)) (hX : X ∈ P ℓ) (hQX : Q ℓ X) :
+    X ∈ P (can X) := by
+  obtain ⟨Y, hY, rfl⟩ := (hP ℓ _).1 hX
+  have hbox : ∀ b ∈ Y, ∀ μ, (b μ).valMinAbs.natAbs ≤ K ℓ / 4 := fun b hb μ =>
+    (hQ ℓ _).1 hQX _ (Finset.mem_image_of_mem _ hb) μ
+  obtain ⟨Y', hY', h⟩ := quarterBox_polymer_larger (by have := hK26 ℓ; omega)
+    (hcanK ℓ _ hX hQX) hY hbox
+  exact (hP _ _).2 ⟨Y', hY', h.symm⟩
+
 include hC hk hG cc hcψ hMX hmar hαK hsm hF₁ hSol hd hL hm₀ hm₁ hN hcov hX₁ h𝒦 hD hψh hum hZ hBM
   hK26 hside hP hQ hcanK hcompact hcoverX hBl hfamD hTnew
 
@@ -222,13 +233,7 @@ are equal. -/
 theorem hnew_of_blockEnergy :
     ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → ∀ g ∈ Dset, Tnew ℓ g X = Tnew (can X) g X := by
   intro ℓ X hX hQX hW g hg
-  have hXc : X ∈ P (can X) := by
-    obtain ⟨Y, hY, rfl⟩ := (hP ℓ _).1 hX
-    have hbox : ∀ b ∈ Y, ∀ μ, (b μ).valMinAbs.natAbs ≤ K ℓ / 4 := fun b hb μ =>
-      (hQ ℓ _).1 hQX _ (Finset.mem_image_of_mem _ hb) μ
-    obtain ⟨Y', hY', h⟩ := quarterBox_polymer_larger (by have := hK26 ℓ; omega)
-      (hcanK ℓ _ hX hQX) hY hbox
-    exact (hP _ _).2 ⟨Y', hY', h.symm⟩
+  have hXc : X ∈ P (can X) := mem_P_can (P := P) (Q := Q) (can := can) (hK26 := hK26) (hP := hP) (hQ := hQ) (hcanK := hcanK) ℓ X hX hQX
   have hKK : K ℓ ≤ K (can X) := hcanK ℓ X hX hQX
   have : NeZero (cellSide L m₀ m₁ (k + 1)) := ⟨(cellSide_pos (L := L) m₀ m₁ (k + 1)).ne'⟩
   have hXq : ∀ c ∈ (↑X : Set (Fin d → ℤ)), ∀ μ, (c μ).natAbs ≤ K ℓ / 4 := fun c hc μ =>

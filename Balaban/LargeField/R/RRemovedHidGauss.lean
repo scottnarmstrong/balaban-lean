@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.RRemovedHidFree
 public import Balaban.LargeField.R.RRemovedChainGaussMain
+public import Balaban.LargeField.R.RRemovedHidGaussEq
 
 /-!
 # The Gaussian integral over the node coordinates of the regrouping (W929)
@@ -131,101 +132,49 @@ theorem lintegral_gauss_coords {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ 
     refine (hpa i).2 ?_
     have : i.1.1 = m' + 1 := by rw [hy]
     omega
-  let u : {b : Σ s, BlockAt S n M K s // nd b} → EuclideanSpace ℝ (Fin N) := fun b =>
-    if h : b.1.1 = m' + 1 then ft (ee.symm 0) (h ▸ b.1.2) else 0
-  have hZV : ∀ y, y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' →
-      y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) := fun y hy =>
-    ZBlk_mem_Vblk hm Z y (gaussBlocks_zblk hm Z hy)
-  have hfldn' : ∀ (Ψ : {i : {b : Σ s, BlockAt S n M K s // nd b} // ¬ Fx i} →
-      EuclideanSpace ℝ (Fin N)) j (y : BlockAt S n M K (j + 1)) (h : nd ⟨j + 1, y⟩), j + 1 ≤ m' →
-      fld (ee.symm Ψ) (j + 1) y =
-        if hF : Fx ⟨⟨j + 1, y⟩, h⟩ then u ⟨⟨j + 1, y⟩, h⟩ else Ψ ⟨⟨⟨j + 1, y⟩, h⟩, hF⟩ := by
-    intro Ψ j y h hj
-    obtain ⟨hkj, hjm, c', hc', hy⟩ := (hnd j y).mp h
-    have hF : ¬ Fx ⟨⟨j + 1, y⟩, h⟩ := by
-      rintro ⟨y', hy', -⟩
-      have := (Sigma.mk.inj_iff.mp hy').1
-      omega
-    rw [dite_eq_right_of_eq_false (eq_false hF)]
-    obtain ⟨hb, hA⟩ := node_var geo cs SD KD hkj hj hm hq hc'
-      (gaussBlocks_zblk (by omega : j + 1 ≤ K) c' hy)
-    have hpN : (⟨mkVar (H.localHistory M K (m' + 1) Z) (m' + 1) (j + 1) .large y (by omega) hb, hA⟩ :
-        ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A) ∈ Nd := (hNd _).mpr ⟨rfl, h⟩
-    have h1 := hfldn (ee.symm Ψ) ⟨_, hpN⟩
-    have h2 := hEn (ee.symm Ψ) ⟨_, hpN⟩ ⟨⟨⟨j + 1, y⟩, h⟩, hF⟩ rfl
-    rw [ee.apply_symm_apply] at h2
-    exact h1.trans h2.symm
-  have hft' : ∀ (Ψ : {i : {b : Σ s, BlockAt S n M K s // nd b} // ¬ Fx i} →
-      EuclideanSpace ℝ (Fin N)) (y : BlockAt S n M K (m' + 1)) (h : nd ⟨m' + 1, y⟩),
-      ft (ee.symm Ψ) y =
-        if hF : Fx ⟨⟨m' + 1, y⟩, h⟩ then u ⟨⟨m' + 1, y⟩, h⟩ else Ψ ⟨⟨⟨m' + 1, y⟩, h⟩, hF⟩ := by
-    intro Ψ y h
-    by_cases hF : Fx ⟨⟨m' + 1, y⟩, h⟩
-    · rw [dite_eq_left_of_eq_true (eq_true hF)]
-      obtain ⟨y', hy', hy2⟩ := hF
-      have h3 : y' = y := eq_of_heq (Sigma.mk.inj_iff.mp hy').2.symm
-      subst h3
-      refine (hftt _ (ee.symm 0) y' hy2.1 hy2.2).trans ?_
-      simp [u]
-    · rw [dite_eq_right_of_eq_false (eq_false hF)]
-      obtain ⟨hkj, -, c', hc', hy⟩ := (hnd m' y).mp h
-      rw [ancFin_self] at hc'
-      have hcZ : c' = Z := Finset.mem_singleton.mp hc'
-      subst hcZ
-      have hnt : ¬ (y ∈ V2 ∧ P2 y) := fun ht => hF ⟨y, rfl, ht⟩
-      by_cases h0 : y ∈ Z0
-      · have h4 := hftz (ee.symm Ψ) ⟨y, hZV y hy, h0⟩
-        have h5 := hEz (ee.symm Ψ) ⟨y, hZV y hy, h0⟩ ⟨⟨⟨m' + 1, y⟩, h⟩, hF⟩ rfl
-        rw [ee.apply_symm_apply] at h5
-        exact h4.trans h5.symm
-      · have h4 := hftg (ee.symm Ψ) ⟨y, hZV y hy, (hG3 y).mpr ⟨hy, h0, hnt⟩⟩
-        have h5 := hEg (ee.symm Ψ) ⟨y, hZV y hy, (hG3 y).mpr ⟨hy, h0, hnt⟩⟩ ⟨⟨⟨m' + 1, y⟩, h⟩, hF⟩ rfl
-        rw [ee.apply_symm_apply] at h5
-        exact h4.trans h5.symm
-  have hmain := lintegral_gauss_unrolled hk1 hm Z nd hnd hnd0 pa hpa c z hc hz Fx hFx' u
-    (fun s y => fld (ee.symm 0) s y) (fun Ψ => fld (ee.symm Ψ)) (fun Ψ => ft (ee.symm Ψ))
-    (fun Ψ s y h => hfldb _ _ s y h) hfldn' hft'
-  refine le_trans (le_of_eq ?_) (hmain.trans (le_of_eq ?_))
-  · rw [← hEq.lintegral_comp_emb ee.measurableEmbedding]
-    refine lintegral_congr fun v => ?_
-    simp only [MeasurableEquiv.symm_apply_apply]
-  · -- the roots are the top Gaussian blocks of the tree group
-    have hroots : (Finset.univ.filter fun r : {b : Σ s, BlockAt S n M K s // nd b} =>
-        pa r = r ∧ Fx r) = Finset.univ.filter Fx := by
-      ext r
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-      exact ⟨fun h => h.2, fun h => ⟨hFx' r h, h⟩⟩
-    rw [hroots]
-    have hval : ∀ r ∈ Finset.univ.filter Fx,
-        ENNReal.ofReal ((c (r.1.1 - 1) * z r.1.1 ^ 2 / (2 * Real.pi)) ^ ((N : ℝ) / 2)) =
-          ENNReal.ofReal ((c m' * z (m' + 1) ^ 2 / (2 * Real.pi)) ^ ((N : ℝ) / 2)) := by
-      intro r hr
-      obtain ⟨y, hy, -⟩ := (Finset.mem_filter.mp hr).2
-      have : r.1.1 = m' + 1 := by rw [hy]
-      rw [this]
-      rfl
-    rw [Finset.prod_congr rfl hval, Finset.prod_const]
-    congr 1
-    refine Finset.card_bij (fun r hr => Classical.choose (Finset.mem_filter.mp hr).2) ?_ ?_ ?_
-    · intro r hr
-      have h := Classical.choose_spec (Finset.mem_filter.mp hr).2
-      refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, h.2.1, h.2.2, ?_⟩
-      obtain ⟨-, -, c', hc', hy⟩ := (hnd m' (Classical.choose (Finset.mem_filter.mp hr).2)).mp
-        (by have := r.2; rw [h.1] at this; exact this)
-      rw [ancFin_self] at hc'
-      exact (Finset.mem_singleton.mp hc') ▸ hy
-    · intro r1 hr1 r2 hr2 h12
-      have e1 := (Classical.choose_spec (Finset.mem_filter.mp hr1).2).1
-      have e2 := (Classical.choose_spec (Finset.mem_filter.mp hr2).2).1
-      exact Subtype.ext (e1.trans ((congrArg (fun y => (⟨m' + 1, y⟩ : Σ s, BlockAt S n M K s)) h12).trans
-        e2.symm))
-    · intro y hy
-      obtain ⟨-, hy1, hy2, hy3⟩ := Finset.mem_filter.mp hy
-      have hn : nd ⟨m' + 1, y⟩ := (hnd m' y).mpr ⟨hk1, le_rfl, Z, by
-        rw [ancFin_self]; exact Finset.mem_singleton_self _, hy3⟩
-      refine ⟨⟨⟨m' + 1, y⟩, hn⟩, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ⟨y, rfl, hy1, hy2⟩⟩, ?_⟩
-      have h := Classical.choose_spec (⟨y, rfl, hy1, hy2⟩ : Fx ⟨⟨m' + 1, y⟩, hn⟩)
-      exact eq_of_heq (Sigma.mk.inj_iff.mp h.1).2.symm
+  have hFxdef : ∀ i : {b : Σ s, BlockAt S n M K s // nd b},
+      Fx i ↔ ∃ y : BlockAt S n M K (m' + 1), i.1 = ⟨m' + 1, y⟩ ∧ y ∈ V2 ∧ P2 y := fun i => Iff.rfl
+  obtain ⟨B, e, el, -, -, -, hE⟩ := lintegral_gauss_coords_eq geo cs SD KD hk1 hm hq nd hnd hnd0 Z0 V2 G3 P2 hV2 hZ0g hG3 Nd hNd c z hc hz fld ft hfldn hfldb hftg hftz hftt pa hpa Fx hFxdef (ee.symm 0)
+  rw [hE]
+  refine le_trans (prod_forest_eq_le (m := S.L ^ S.d) (k1 := k1) (top := m' + 1) (N := N)
+    (fun i : {b : Σ s, BlockAt S n M K s // nd b} => i.1.1) pa (by have := NeZero.pos S.L; positivity)
+    (fun i => (hrange i.1 i.2).2) c z hc hz Fx B _) (le_of_eq ?_)
+  have hroots : (Finset.univ.filter fun r : {b : Σ s, BlockAt S n M K s // nd b} =>
+      pa r = r ∧ Fx r) = Finset.univ.filter Fx := by
+    ext r
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    exact ⟨fun h => h.2, fun h => ⟨hFx' r h, h⟩⟩
+  rw [hroots]
+  have hval : ∀ r ∈ Finset.univ.filter Fx,
+      ENNReal.ofReal ((c (r.1.1 - 1) * z r.1.1 ^ 2 / (2 * Real.pi)) ^ ((N : ℝ) / 2)) =
+        ENNReal.ofReal ((c m' * z (m' + 1) ^ 2 / (2 * Real.pi)) ^ ((N : ℝ) / 2)) := by
+    intro r hr
+    obtain ⟨y, hy, -⟩ := (Finset.mem_filter.mp hr).2
+    have : r.1.1 = m' + 1 := by rw [hy]
+    rw [this]
+    rfl
+  rw [Finset.prod_congr rfl hval, Finset.prod_const]
+  congr 1
+  refine Finset.card_bij (fun r hr => Classical.choose (Finset.mem_filter.mp hr).2) ?_ ?_ ?_
+  · intro r hr
+    have h := Classical.choose_spec (Finset.mem_filter.mp hr).2
+    refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, h.2.1, h.2.2, ?_⟩
+    obtain ⟨-, -, c', hc', hy⟩ := (hnd m' (Classical.choose (Finset.mem_filter.mp hr).2)).mp
+      (by have := r.2; rw [h.1] at this; exact this)
+    rw [ancFin_self] at hc'
+    exact (Finset.mem_singleton.mp hc') ▸ hy
+  · intro r1 hr1 r2 hr2 h12
+    have e1 := (Classical.choose_spec (Finset.mem_filter.mp hr1).2).1
+    have e2 := (Classical.choose_spec (Finset.mem_filter.mp hr2).2).1
+    exact Subtype.ext (e1.trans ((congrArg (fun y => (⟨m' + 1, y⟩ : Σ s, BlockAt S n M K s)) h12).trans
+      e2.symm))
+  · intro y hy
+    obtain ⟨-, hy1, hy2, hy3⟩ := Finset.mem_filter.mp hy
+    have hn : nd ⟨m' + 1, y⟩ := (hnd m' y).mpr ⟨hk1, le_rfl, Z, by
+      rw [ancFin_self]; exact Finset.mem_singleton_self _, hy3⟩
+    refine ⟨⟨⟨m' + 1, y⟩, hn⟩, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ⟨y, rfl, hy1, hy2⟩⟩, ?_⟩
+    have h := Classical.choose_spec (⟨y, rfl, hy1, hy2⟩ : Fx ⟨⟨m' + 1, y⟩, hn⟩)
+    exact eq_of_heq (Sigma.mk.inj_iff.mp h.1).2.symm
 
 end GaussCoords
 

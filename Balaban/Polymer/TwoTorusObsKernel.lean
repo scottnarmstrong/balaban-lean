@@ -340,6 +340,111 @@ theorem cubeMap_injOn_box {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m�
   rw [cubeMap_val, cubeMap_val] at h1
   exact Subtype.ext (boxMap_inj (hm' := hm') (hS b₁ hb₁) (hS b₂ hb₂) h1)
 
+/-- **The kernels of two domain families under a bijection of the domains.**  Let `f`, `g` be
+mutually inverse maps between the domains with label `T₁` of `𝒴` and the domains with label `T₁'` of
+`𝒴'`, with `c' (f Y) = c Y`.  Then the kernels at `T₁'` and at `T₁` agree.  The comparisons of the
+two tori (`obsHker_twoTorus_of_mem`) and of one torus with itself under a translation
+(`obsHker_sym`) are instances. -/
+theorem obsHker_congr_bij {N₁ N₁' K m₀ : ℕ} [NeZero N₁] [NeZero N₁']
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ K))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ K))}
+    (f : Set (CTorus d L N₁ m₁ K) → Set (CTorus d L N₁' m₁ K))
+    (g : Set (CTorus d L N₁' m₁ K) → Set (CTorus d L N₁ m₁ K))
+    (c : Set (CTorus d L N₁ m₁ K) → ℂ) (c' : Set (CTorus d L N₁' m₁ K) → ℂ)
+    (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ))
+    (T₁' : Finset (CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := K) m₀ K Set.univ))
+    (hA : ∀ Y ∈ 𝒴, obsRowLabel m₀ K Y = T₁ → f Y ∈ 𝒴' ∧ obsRowLabel m₀ K (f Y) = T₁')
+    (hB : ∀ Y' ∈ 𝒴', obsRowLabel m₀ K Y' = T₁' → g Y' ∈ 𝒴 ∧ obsRowLabel m₀ K (g Y') = T₁)
+    (hgf : ∀ Y ∈ 𝒴, obsRowLabel m₀ K Y = T₁ → g (f Y) = Y)
+    (hfg : ∀ Y' ∈ 𝒴', obsRowLabel m₀ K Y' = T₁' → f (g Y') = Y')
+    (hc : ∀ Y ∈ 𝒴, obsRowLabel m₀ K Y = T₁ → c' (f Y) = c Y) :
+    obsHker 𝒴' c' m₀ T₁' = obsHker 𝒴 c m₀ T₁ := by
+  classical
+  unfold obsHker
+  symm
+  refine Finset.sum_nbij' f g (fun Y hY => ?_) (fun Y' hY' => ?_) (fun Y hY => ?_)
+    (fun Y' hY' => ?_) (fun Y hY => ?_)
+  · rw [Finset.mem_filter] at hY ⊢
+    exact hA Y hY.1 hY.2
+  · rw [Finset.mem_filter] at hY' ⊢
+    exact hB Y' hY'.1 hY'.2
+  · rw [Finset.mem_filter] at hY
+    exact hgf Y hY.1 hY.2
+  · rw [Finset.mem_filter] at hY'
+    exact hfg Y' hY'.1 hY'.2
+  · rw [Finset.mem_filter] at hY
+    exact (hc Y hY.1 hY.2).symm
+
+/-- **The kernels of two domain families that correspond under the box map** (the abstract form of
+`obsHker_twoTorus`): for domain families `𝒴`, `𝒴'` of disjoint domains with `bm '' Y ∈ 𝒴' ↔ Y ∈ 𝒴`
+for the sets `Y` of the box, coefficients agreeing on corresponding domains, and a set `T₁` of cubes
+of the box, the kernels agree at `cubeMap '' T₁` and at `T₁`. -/
+theorem obsHker_twoTorus_of_mem {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
+    (hmem : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) → (bm '' Y ∈ 𝒴' ↔ Y ∈ 𝒴))
+    (c : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ) (c' : Set (CTorus d L N₁' m₁ (k + 1)) → ℂ)
+    (hc : ∀ Y ∈ 𝒴,
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) → c' (bm '' Y) = c Y)
+    (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hT₁ : ∀ b ∈ T₁, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    obsHker 𝒴' c' m₀ (T₁.image (σc)) = obsHker 𝒴 c m₀ T₁ := by
+  classical
+  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T₁
+    (fun x hx => inBox_of_mem_sitesOf hT₁ hx)
+  have hYR : ∀ Y ∈ 𝒴, obsRowLabel m₀ (k + 1) Y = T₁ →
+      ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := fun Y hY hl =>
+    inBox_of_blocksOf_subset hN hT₁ (hdj Y hY) (le_of_eq hl)
+  have hYR' : ∀ Y' ∈ 𝒴', obsRowLabel m₀ (k + 1) Y' = T₁.image (σc) →
+      ∀ y ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) y := by
+    intro Y' hY' hl y hy
+    have hDj := hdj' Y' hY'
+    have hs := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
+    have hy' : y ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by rw [hs]; exact ⟨hy, trivial⟩
+    change y ∈ sitesOf (obsRowLabel m₀ (k + 1) Y') at hy'
+    rw [hl, hsT] at hy'
+    obtain ⟨w, hw, rfl⟩ := hy'
+    exact inBox_boxMap hm' (inBox_of_mem_sitesOf hT₁ hw)
+  have hlab : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) →
+      (obsRowLabel m₀ (k + 1) (bm '' Y) = T₁.image (σc) ↔ obsRowLabel m₀ (k + 1) Y = T₁) := by
+    intro Y hYR
+    change blocksOf m₀ (k + 1) Set.univ (bm '' Y) = T₁.image (σc) ↔
+      blocksOf m₀ (k + 1) Set.univ Y = T₁
+    rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
+    refine ⟨fun h => ?_, fun h => by rw [h]⟩
+    have hS : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y ∪ T₁,
+        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) b.1 := by
+      intro b hb
+      rcases Finset.mem_union.1 hb with hb | hb
+      · exact hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ ha))
+      · exact hT₁ b hb b.1 (mem_box_self _ ha)
+    exact eq_of_image_eq_of_injOn (cubeMap_injOn_box hN hN' hm' hS) Finset.subset_union_left
+      Finset.subset_union_right h
+  refine obsHker_congr_bij (fun Y => bm '' Y)
+    (fun Y' => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) '' Y')
+    c c' T₁ (T₁.image (σc)) (fun Y hY hl => ?_) (fun Y' hY' hl => ?_) (fun Y hY hl => ?_)
+    (fun Y' hY' hl => ?_) (fun Y hY hl => hc Y hY (hYR Y hY hl))
+  · exact ⟨(hmem Y (hYR Y hY hl)).2 hY, (hlab Y (hYR Y hY hl)).2 hl⟩
+  · have h1 := hYR' Y' hY' hl
+    have hbx : ∀ y ∈ boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) '' Y',
+        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y := by
+      rintro _ ⟨y, hy, rfl⟩
+      exact inBox_boxMap hm (h1 y hy)
+    have himg := image_image_boxMap hm h1
+    have hmm := hmem _ hbx
+    rw [himg] at hmm
+    exact ⟨hmm.1 hY', (hlab _ hbx).1 (by rw [himg]; exact hl)⟩
+  · exact image_image_boxMap hm' (hYR Y hY hl)
+  · exact image_image_boxMap hm (hYR' Y' hY' hl)
+
 /-- **D3 (b): the kernel of the observable on two tori.**  For the local covers of a site `xs` of
 the box and of `bm xs`, coefficients `c`, `c'` of the domains with `c' (bm '' Y) = c Y` for the
 domains `Y` of the box, and a set `T₁` of cubes of the box: the kernels
@@ -366,47 +471,8 @@ theorem obsHker_twoTorus {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀
     obsHker (polyDom (GB) (LocalCover.nbhdF m₀ (bm xs)) m₀ k (LocalCover.fam m₀ (bm xs))) c' m₀
         (T₁.image (σc)) =
       obsHker (polyDom (GA) (LocalCover.nbhdF m₀ xs) m₀ k (LocalCover.fam m₀ xs)) c m₀ T₁ := by
-  classical
-  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
-  have hcs : aK ≤ L * aK := cellSide_le_mul
-  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T₁
-    (fun x hx => inBox_of_mem_sitesOf hT₁ hx)
-  unfold obsHker
-  refine sum_image_boxMap_of_inBox hm hm' _ _ c c' ?_ ?_ ?_ ?_
-  · intro Y hY
-    rw [Finset.mem_filter] at hY
-    exact inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2)
-  · intro Y' hY'
-    rw [Finset.mem_filter] at hY'
-    intro y hy
-    have hDj := hdj' Y' hY'.1
-    have hs := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
-    have hy' : y ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by rw [hs]; exact ⟨hy, trivial⟩
-    change y ∈ sitesOf (obsRowLabel m₀ (k + 1) Y') at hy'
-    rw [hY'.2, hsT] at hy'
-    obtain ⟨w, hw, rfl⟩ := hy'
-    exact inBox_boxMap hm' (inBox_of_mem_sitesOf hT₁ hw)
-  · intro Y hYR
-    rw [Finset.mem_filter, Finset.mem_filter,
-      mem_polyDom_site_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' xs hX₁R hYR]
-    refine and_congr_right fun _ => ?_
-    change blocksOf m₀ (k + 1) Set.univ (bm '' Y) = T₁.image (σc) ↔
-      blocksOf m₀ (k + 1) Set.univ Y = T₁
-    rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
-    refine ⟨fun h => ?_, fun h => by rw [h]⟩
-    have hS : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y ∪ T₁,
-        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) b.1 := by
-      intro b hb
-      rcases Finset.mem_union.1 hb with hb | hb
-      · exact hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ ha))
-      · exact hT₁ b hb b.1 (mem_box_self _ ha)
-    exact eq_of_image_eq_of_injOn (cubeMap_injOn_box hN hN' hm' hS) Finset.subset_union_left
-      Finset.subset_union_right h
-  · intro Y hY
-    rw [Finset.mem_filter] at hY
-    exact hc Y hY.1 (inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2))
+  exact obsHker_twoTorus_of_mem hN hN' hnF hnF' hdj hdj'
+    (fun Y hYR => mem_polyDom_site_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' xs hX₁R hYR) c c' hc T₁ hT₁
 
 set_option hygiene false in
 local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
@@ -514,6 +580,21 @@ theorem obsUnitVec_unitImage (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : �
     rw [Prod.mk.injEq] at h'
     exact h (Prod.ext (unitPt_eq_of_unitImage_eq hn hn' (SA).hG' (SB).hG' hx hx₀ h'.1) h'.2)
 
+/-- **The coefficients along two directions agree when the terms agree on corresponding hat
+variables.**  `P` is a correspondence of hat variables; if `P (ζ • e) (ζ • e')` for `‖ζ‖ < c_ψ`
+and the terms agree at the pairs of norm `≤ c_ψ` satisfying `P`, the coordinate derivatives along `e`
+and `e'` agree. -/
+theorem hatCoeff_congr_of_corr {U U' : Type*} {Rw Rw' : Type*} {E : Rw × (U × Fin N → ℂ) → ℂ}
+    {E' : Rw' × (U' × Fin N → ℂ) → ℂ} {r : Rw} {r' : Rw'} {e : U × Fin N → ℂ}
+    {e' : U' × Fin N → ℂ} (he : ∀ q, ‖e q‖ ≤ 1) (he' : ∀ q, ‖e' q‖ ≤ 1) {cψ : ℝ}
+    (hcψ : 0 < cψ) (P : (U × Fin N → ℂ) → (U' × Fin N → ℂ) → Prop)
+    (hP : ∀ ζ : ℂ, ‖ζ‖ < cψ → P (ζ • e) (ζ • e'))
+    (hE : ∀ (ψh : U × Fin N → ℂ) (ψh' : U' × Fin N → ℂ), (∀ q, ‖ψh q‖ ≤ cψ) →
+      (∀ q, ‖ψh' q‖ ≤ cψ) → P ψh ψh' → E' (r', ψh') = E (r, ψh)) :
+    hatCoeff E' r' e' = hatCoeff E r e :=
+  hatCoeff_congr_of_eqOn hcψ fun ζ hζ => hE _ _ (smul_mem_ball he hζ) (smul_mem_ball he' hζ)
+    (hP ζ hζ)
+
 /-- **D3 (b): the coefficients of corresponding marks on two tori.**  Let the terms `Ev' Y'` and
 `Ev Y` take equal values at hat variables of norm `≤ c_ψ` that agree at corresponding unit points of
 the box.  Then for a site `x₀` of the box the coordinate derivatives along the unit vectors of the
@@ -532,8 +613,10 @@ theorem hatCoeff_obsUnitVec_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁
     (a : Fin N) :
     hatCoeff E' r' (obsUnitVec (SB) (ιu (unitPt (SA).hG' x₀), a)) =
       hatCoeff E r (obsUnitVec (SA) (unitPt (SA).hG' x₀, a)) := by
-  refine hatCoeff_congr_of_eqOn hcψ fun ζ hζ => hE _ _ (smul_mem_ball (norm_obsUnitVec_le _ _) hζ)
-    (smul_mem_ball (norm_obsUnitVec_le _ _) hζ) fun x hx i => ?_
+  refine hatCoeff_congr_of_corr (norm_obsUnitVec_le _ _) (norm_obsUnitVec_le _ _) hcψ
+    (fun ψh ψh' => ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      ∀ i, ψh' (unitPt (SB).hG' (bm x), i) = ψh (unitPt (SA).hG' x, i))
+    (fun ζ hζ x hx i => ?_) hE
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [obsUnitVec_unitImage hN2 hk νS β p₁ δ hn hn' hx₀ a hx i]
 
@@ -560,6 +643,35 @@ theorem blockMarkC_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
   rw [h2] at h
   exact h
 
+/-- **The remainder marks of two settings agree under a correspondence of hat variables.**  `P`
+is a correspondence of hat variables closed under the ray `ζ ↦ ζ ψ̂` (`hP`); if the terms `Ev'`,
+`Ev` take equal values at the pairs of norm `≤ c_ψ` satisfying `P`, the remainder marks `obsGrRawC`
+of `Y'` and `Y` agree (for `p₁ / c_ψ ≤ 1/4`). -/
+theorem obsGrRawC_congr {N₁ N₁' : ℕ} [NeZero N₁] [NeZero N₁'] {S : StepSetting d L N₁ m₁ k N ϱ}
+    {S' : StepSetting d L N₁' m₁ k N ϱ} {m₀ : ℕ} (hp : 0 < S.p₁) (hp' : 0 < S'.p₁)
+    (hpp : S'.p₁ = S.p₁)
+    {Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (S.U × Fin N → ℂ) → ℂ}
+    {Ev' : Set (CTorus d L N₁' m₁ (k + 1)) →
+      RawData d L (N₁' * L ^ m₁) (k + 1) N × (S'.U × Fin N → ℂ) → ℂ}
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (Y : {Y // Y ∈ 𝒴}) (Y' : {Y' // Y' ∈ 𝒴'})
+    {r : RawData d L (N₁ * L ^ m₁) (k + 1) N} {r' : RawData d L (N₁' * L ^ m₁) (k + 1) N}
+    {cψ : ℝ} (hcψ : 0 < cψ) (hq : S.p₁ / cψ ≤ 1 / 4)
+    (P : (S.U × Fin N → ℂ) → (S'.U × Fin N → ℂ) → Prop)
+    {Φ : ∀ c, (S.blockSplit m₀ hp).Ωb c} {Φ' : ∀ c, (S'.blockSplit m₀ hp').Ωb c}
+    (hP : ∀ ζ : ℂ, ‖ζ‖ < cψ / S.p₁ →
+      P (ζ • S.hatOf m₀ S.p₁ hp Φ) (ζ • S'.hatOf m₀ S'.p₁ hp' Φ'))
+    (hE : ∀ (ψh : S.U × Fin N → ℂ) (ψh' : S'.U × Fin N → ℂ), (∀ q, ‖ψh q‖ ≤ cψ) →
+      (∀ q, ‖ψh' q‖ ≤ cψ) → P ψh ψh' → Ev' Y'.1 (r', ψh') = Ev Y.1 (r, ψh)) (u : ℂ) :
+    obsGrRawC S' m₀ hp' Ev' 𝒴' r' (some Y') u Φ' = obsGrRawC S m₀ hp Ev 𝒴 r (some Y) u Φ := by
+  have h4 : 4 ≤ cψ / S.p₁ := four_le_of hcψ hp hq
+  show remExt (fun ζ : ℂ => Ev' Y'.1 (r', ζ • S'.hatOf m₀ S'.p₁ hp' Φ')) u =
+    remExt (fun ζ : ℂ => Ev Y.1 (r, ζ • S.hatOf m₀ S.p₁ hp Φ)) u
+  refine remExt_congr_of_eqOn (ρ := cψ / S.p₁) (by linarith) (fun ζ hζ => ?_) u
+  exact hE _ _ (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ)
+    (smul_mem_ball_p hp' (norm_hatOf_p₁_le Φ') (by rwa [hpp])) (hP ζ hζ)
+
 /-- **D3 (d): the remainder marks on two tori.**  Let the terms `Ev' Y'` and `Ev Y` take equal
 values at hat variables of norm `≤ c_ψ` that agree at corresponding unit points of the box.  For
 block variables `Φ`, `Φ'` agreeing at corresponding unit points of the box, the remainder marks
@@ -585,16 +697,14 @@ theorem obsGrRawC_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
       Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
         Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) (u : ℂ) :
     obsGrRawC (SB) m₀ hp' Ev' 𝒴' r' (some Y') u Φ' = obsGrRawC (SA) m₀ hp Ev 𝒴 r (some Y) u Φ := by
-  have h4 : 4 ≤ cψ / p₁ := four_le_of hcψ hp hq
   have hhat : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x → ∀ i,
       (SB).hatOf m₀ (SB).p₁ hp' Φ' (unitPt (SB).hG' (bm x), i) =
         (SA).hatOf m₀ (SA).p₁ hp Φ (unitPt (SA).hG' x, i) :=
     hatOf_boxMap (SA).hG' (SB).hG' hN2 hk νS β p₁ δ m₀ p₁ hp hp' Φ Φ' hΦ
-  show remExt (fun ζ : ℂ => Ev' Y'.1 (r', ζ • (SB).hatOf m₀ (SB).p₁ hp' Φ')) u =
-    remExt (fun ζ : ℂ => Ev Y.1 (r, ζ • (SA).hatOf m₀ (SA).p₁ hp Φ)) u
-  refine remExt_congr_of_eqOn (ρ := cψ / p₁) (by linarith) (fun ζ hζ => ?_) u
-  refine hE _ _ (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ)
-    (smul_mem_ball_p hp' (norm_hatOf_p₁_le Φ') hζ) fun x hx i => ?_
+  refine obsGrRawC_congr hp hp' rfl Y Y' hcψ hq
+    (fun ψh ψh' => ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+      ∀ i, ψh' (unitPt (SB).hG' (bm x), i) = ψh (unitPt (SA).hG' x, i))
+    (fun ζ hζ x hx i => ?_) hE u
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [hhat x hx i]
 
