@@ -71,28 +71,21 @@ section Response
 
 variable {d L N : ℕ} [NeZero L]
 
-/-- **The response of the massless background to a change of the block field on a set of blocks** (Lemma 4.1
-for the lifted data `dataR`).  There are `K_w, δ_w > 0` depending only on `(d, L, N)` such that: for `ψ, ψ'` in
-`Ψ̃(𝔹; τ)`, `Ψ̃(𝔹; τ')` (`τ, τ' ≤ c₁`, `K₁ τ ≤ min(δ_*, δ_w)`) that agree off the set `Z_f` of `k`-blocks and differ
-by at most `t ≤ min(δ_*, δ_w)` on each block of `Z_f`, the background and multiplier differences satisfy
+/-- **The response of the massless background to a change of the block field on a set of blocks**, for constants
+`(K_w, δ_w)` of the weighted Proposition 5.1 (`WeightedProp51S`, inhabited by `weightedProp51S_exists`): for `ψ, ψ'`
+in `Ψ̃(𝔹; τ)`, `Ψ̃(𝔹; τ')` (`τ, τ' ≤ c₁`, `K₁ τ ≤ min(δ_*, δ_w)`) that agree off the set `Z_f` of `k`-blocks and
+differ by at most `t ≤ min(δ_*, δ_w)` on each block of `Z_f`, the background and multiplier differences satisfy
 `FarBounds` with rate `γ_w` and constant `K_w C_F t` from the `Ω₁`-shadow of the fine sites of `Z_f`. -/
-theorem coreResponse_farBounds (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
-      ∀ {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ},
-        BgHyp d L k ϱ a 0 → Dec2.OpSetting G a 0 →
-        ∀ {τ τ' : ℝ}, 0 < τ → τ ≤ bgC1 d L N → bgK1 d L N * τ ≤ min (deltaStar d L N) δw →
-        0 < τ' → τ' ≤ bgC1 d L N →
-        ∀ {ψ ψ' : BlockField d L (N₁ * L ^ m₁) k N}, TubeOn G Set.univ τ ψ → TubeOn G Set.univ τ' ψ' →
-        ∀ (Zf : Finset (Torus d (N₁ * L ^ m₁ * L ^ (k - k)))), (∀ z ∉ Zf, ψ' z = ψ z) →
-        ∀ {t : ℝ}, 0 ≤ t → t ≤ min (deltaStar d L N) δw →
-        (∀ z ∈ Zf, rn (fun i => ψ' z i - ψ z i) ≤ t) →
-        FarBounds G (shadow G (Zf.biUnion (fib d L (N₁ * L ^ m₁) k k))) (gammaW d) (Kw * (cF d L * t))
-          (bgField G a 0 (dataR G ψ') - bgField G a 0 (dataR G ψ))
-          (bgMult G a 0 (dataR G ψ') - bgMult G a 0 (dataR G ψ)) := by
-  obtain ⟨Kw, δw, hK, hδw, hfar⟩ := lemma41_domain_uncond (N := N) hd hL
-  refine ⟨Kw, δw, hK, hδw, ?_⟩
-  intro N₁ m₁ k _ ϱ G a H hOp τ τ' hτ hτ1 hτs hτ' hτ1' ψ ψ' ht ht' Zf hoff t ht0 hts hdiff
-  have hd0 : 0 < d := by omega
+theorem coreResponse_farBounds_of_weighted {Kw δw : ℝ} (hWP : WeightedProp51S d L N Kw δw) (hd0 : 0 < d)
+    {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ}
+    (H : BgHyp d L k ϱ a 0) (hOp : Dec2.OpSetting G a 0) {τ τ' : ℝ} (hτ : 0 < τ) (hτ1 : τ ≤ bgC1 d L N)
+    (hτs : bgK1 d L N * τ ≤ min (deltaStar d L N) δw) (hτ' : 0 < τ') (hτ1' : τ' ≤ bgC1 d L N)
+    {ψ ψ' : BlockField d L (N₁ * L ^ m₁) k N} (ht : TubeOn G Set.univ τ ψ) (ht' : TubeOn G Set.univ τ' ψ')
+    (Zf : Finset (Torus d (N₁ * L ^ m₁ * L ^ (k - k)))) (hoff : ∀ z ∉ Zf, ψ' z = ψ z) {t : ℝ}
+    (ht0 : 0 ≤ t) (hts : t ≤ min (deltaStar d L N) δw) (hdiff : ∀ z ∈ Zf, rn (fun i => ψ' z i - ψ z i) ≤ t) :
+    FarBounds G (shadow G (Zf.biUnion (fib d L (N₁ * L ^ m₁) k k))) (gammaW d) (Kw * (cF d L * t))
+      (bgField G a 0 (dataR G ψ') - bgField G a 0 (dataR G ψ))
+      (bgMult G a 0 (dataR G ψ') - bgMult G a 0 (dataR G ψ)) := by
   have hc10 := bgC1_le_bgC0 d L N hd0
   have hD : InDomainC G 0 τ τ (dataR G ψ) := Base.inDomainC_of_inDomainR hτ (inDomainR_of_tube G hτ ht)
   have hD' : InDomainC G 0 τ' τ' (dataR G ψ') :=
@@ -145,13 +138,34 @@ theorem coreResponse_farBounds (hd : 3 ≤ d) (hL : 3 ≤ L) :
       simpa [rn] using ht0
   have hν : ∀ ε δ : ℝ, (0 : ℝ) * ((L : ℝ) ^ k) ^ 2 * ε ^ 2 ≤ δ ^ 2 := fun ε δ => by
     rw [zero_mul, zero_mul]; positivity
-  have hF := hfar H hOp hτ le_rfl (hτ1.trans hc10) hτ1 (hν τ τ) hD hτ' le_rfl (hτ1'.trans hc10) hτ1'
+  have hF := lemma41_domain_S hWP hd0 H hOp hτ le_rfl (hτ1.trans hc10) hτ1 (hν τ τ) hD hτ' le_rfl (hτ1'.trans hc10) hτ1'
     (hν τ' τ') hD' (hτs.trans (min_le_left _ _)) (hτs.trans (min_le_right _ _)) W hsupp hΨ hh ht0
     (hts.trans (min_le_left _ _)) (hts.trans (min_le_right _ _)) hdΨ
   obtain ⟨e1, e2⟩ := theorem72_real H (inUnionDomainR_of_tube G hτ hτ1 ht)
   obtain ⟨e1', e2'⟩ := theorem72_real H (inUnionDomainR_of_tube G hτ' hτ1' ht')
   rw [e1, e2, e1', e2'] at hF
   exact hF
+
+/-- **The response of the massless background to a change of the block field on a set of blocks** (Lemma 4.1
+for the lifted data `dataR`): `coreResponse_farBounds_of_weighted` with the constants `K_w, δ_w > 0` of
+`weightedProp51S_exists`, depending only on `(d, L, N)`. -/
+theorem coreResponse_farBounds (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
+      ∀ {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ},
+        BgHyp d L k ϱ a 0 → Dec2.OpSetting G a 0 →
+        ∀ {τ τ' : ℝ}, 0 < τ → τ ≤ bgC1 d L N → bgK1 d L N * τ ≤ min (deltaStar d L N) δw →
+        0 < τ' → τ' ≤ bgC1 d L N →
+        ∀ {ψ ψ' : BlockField d L (N₁ * L ^ m₁) k N}, TubeOn G Set.univ τ ψ → TubeOn G Set.univ τ' ψ' →
+        ∀ (Zf : Finset (Torus d (N₁ * L ^ m₁ * L ^ (k - k)))), (∀ z ∉ Zf, ψ' z = ψ z) →
+        ∀ {t : ℝ}, 0 ≤ t → t ≤ min (deltaStar d L N) δw →
+        (∀ z ∈ Zf, rn (fun i => ψ' z i - ψ z i) ≤ t) →
+        FarBounds G (shadow G (Zf.biUnion (fib d L (N₁ * L ^ m₁) k k))) (gammaW d) (Kw * (cF d L * t))
+          (bgField G a 0 (dataR G ψ') - bgField G a 0 (dataR G ψ))
+          (bgMult G a 0 (dataR G ψ') - bgMult G a 0 (dataR G ψ)) := by
+  obtain ⟨Kw, δw, hK, hδw, hW⟩ := weightedProp51S_exists N hd hL
+  refine ⟨Kw, δw, hK, hδw, ?_⟩
+  intro N₁ m₁ k _ ϱ G a H hOp τ τ' hτ hτ1 hτs hτ' hτ1' ψ ψ' ht ht' Zf hoff t ht0 hts hdiff
+  exact coreResponse_farBounds_of_weighted hW (by omega) H hOp hτ hτ1 hτs hτ' hτ1' ht ht' Zf hoff ht0 hts hdiff
 
 /-- **The one-site derivative of the massless background** (deliverable (1) of the core-to-action response):
 `J_{x i, z j} = ∂ φ⁰(ψ_k)(x, i) / ∂ ψ_k(z)_j`, the derivative at `t = 0` of `t ↦ φ⁰(ψ_k + t e_{z j})(x, i)`
