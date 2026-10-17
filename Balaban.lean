@@ -2079,6 +2079,7 @@ public import Balaban.LargeField.R.KeptOutcomeOneGain
 public import Balaban.LargeField.R.KeptOutcomeOneNode
 public import Balaban.LargeField.R.KeptOutcomeThreeSupport
 public import Balaban.LargeField.R.KeptOutcomeThreeLocal
+public import Balaban.LargeField.R.KeptOutcomeThreeWeightLocal
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
