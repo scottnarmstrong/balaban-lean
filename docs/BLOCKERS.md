@@ -314,7 +314,10 @@ used, since the crude chart inclusion fails at every level). What remains for th
 between the actual new density and the sum of these terms. The density is now defined for complex,
 non-constant external fields (it agrees with the earlier one on constant real fields, and is analytic on the
 class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
-is being proved at every datum, which is done for the zero class. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+is being proved at every datum. That is done for the zero class; for a general class the value at every datum is
+proved given the marks and activities of the old terms, and these are now being built from the old terms on the
+local generating sets (the replacement identity of the old terms on those sets holds as functions of the datum,
+proved). Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
