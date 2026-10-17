@@ -2061,6 +2061,7 @@ public import Balaban.LargeField.R.RRemovedLocality
 public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
+public import Balaban.LargeField.R.RRemovedFinal
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
