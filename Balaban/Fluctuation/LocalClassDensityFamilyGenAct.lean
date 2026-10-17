@@ -175,15 +175,16 @@ theorem classActivityDomains_isDj_gen {ι : Type*} [Fintype ι]
 
 
 open Classical in
-/-- **The fields of the activity family of the inherited energy.**  For a finite family of labels
-of the class `C` with their settings and given maps (the hypotheses of
-`classOldMarkedLocal_joint_of`), a mask `Zm`, a clamp radius `0 < ρ ≤ c_ψ`, radii `1 < a`,
+/-- **The fields of the activity family of a generic label functional.**  For a finite family of
+labels with functionals `Eτ τ` (analytic on the chart image of `Gj τ`, bounded by
+`B_τ e^{-(κ_dec - 1) d^cov_{m₀}(X_τ)}`), their settings and given maps (the hypotheses of
+`classOldMarkedLocal_joint_gen`), a mask `Zm`, a clamp radius `0 < ρ ≤ c_ψ`, radii `1 < a`,
 `0 ≤ b'` with `(a + b') · markedRad < δ₁`, and the activities `H` of the domains of `𝒴C` given by
 the formula `hH`:
 
 1. `H θ Y u` is measurable;
 2. it depends only on the blocks of `Y` (index `1`);
-3. it is bounded by `∑_{τ : Y ∈ polyDom τ} 2 E₀ e^{-κ₀ d(X_τ) - 2κ_dec d^cov_{m₀}(Y)}`;
+3. it is bounded by `∑_{τ : Y ∈ polyDom τ} 2 B_τ e^{-κ₀ d(X_τ) - 2κ_dec d^cov_{m₀}(Y)}`;
 4. it is analytic in `(θ, u)` on `physV × {‖u‖ < a}`;
 5. it is continuous in the configuration for `θ ∈ physV`, `‖u‖ < a`;
 6. it is holomorphic in `u` on the disc for `θ ∈ physV`;
