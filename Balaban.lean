@@ -2356,3 +2356,4 @@ public import Balaban.LargeField.Base.BaseFirstMajorant
 public import Balaban.LargeField.Base.BaseFirstRecordCount
 public import Balaban.LargeField.Base.BaseFirstPartition
 public import Balaban.LargeField.Base.BaseFirstCutRecord
+public import Balaban.LargeField.Base.BaseFirstCutFactor
