@@ -2123,3 +2123,4 @@ public import Balaban.Fluctuation.LocalClassDensityHAnalytic
 public import Balaban.Fluctuation.LocalClassDensityHCont
 public import Balaban.Fluctuation.LocalClassDensityHZero
 public import Balaban.Green.FinalLiftDecayCauchy
+public import Balaban.Green.FinalLiftDecayTerm
