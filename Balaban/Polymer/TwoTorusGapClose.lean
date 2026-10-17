@@ -6,7 +6,6 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusGapCloseSym
-public import Balaban.Polymer.TwoTorusGapCloseCoef
 public import Balaban.Polymer.TwoTorusGapAssembly
 import Mathlib.Tactic.Ring
 
