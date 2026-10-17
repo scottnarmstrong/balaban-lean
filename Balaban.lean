@@ -2062,6 +2062,8 @@ public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedFinal
+public import Balaban.LargeField.R.RGasRepCoupled
+public import Balaban.LargeField.R.RGasRepDecor
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
@@ -2225,7 +2227,11 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Fluctuation.LocalClassDensityIrrelCount
 public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppLen
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSpec
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
+public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
@@ -2321,3 +2327,14 @@ public import Balaban.Green.FinalLargeGas
 public import Balaban.Green.FinalLargeBounds
 public import Balaban.Green.FinalLargeBackground
 public import Balaban.Green.FinalLargeClosing
+public import Balaban.Correlations.C1StarFromStepCore
+public import Balaban.Correlations.C1StarFromStep
+public import Balaban.Correlations.C1StarFromStepRootC
+public import Balaban.Correlations.C1StarFromStepLimits
+public import Balaban.SmallField.IrrelTorusDefectGeom
+public import Balaban.SmallField.IrrelTorusDefectJet
+public import Balaban.SmallField.IrrelTorusDefectTail
+public import Balaban.LargeField.R.RRemovedFracMassArith
+public import Balaban.LargeField.R.RRemovedFracMassCore
+public import Balaban.LargeField.R.RRemovedFracMassReserve
+public import Balaban.LargeField.R.RRemovedWindowMass
