@@ -2084,6 +2084,8 @@ public import Balaban.LargeField.R.RRemovedWindowPoint
 public import Balaban.LargeField.R.RRemovedWindowVol
 public import Balaban.LargeField.R.RRemovedWindowCore
 public import Balaban.LargeField.R.RRemovedWindow
+public import Balaban.LargeField.R.RRemovedWindowAnc
+public import Balaban.LargeField.R.RRemovedWindowAncCore
 public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
