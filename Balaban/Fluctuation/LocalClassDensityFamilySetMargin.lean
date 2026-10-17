@@ -53,6 +53,46 @@ theorem cycNorm_lt_of_torusDist_lt {n : ℕ} [NeZero n] {x y : Torus d n} {R : �
   rw [cycNorm_sub_comm] at h3
   linarith
 
+/-- **The chain of distances.**  Let `(X, 𝒦_X)` be a covering setup of index `m₀` and `j ≤ k` for the
+level generating set `Gp` of level `k + 1`.  If `x` is within sup-distance `D` of `z`, `z` within `ℓ₀`
+of `w ∈ X`, `y` within the torus distance `R` of `x`, and `ℓ₀ + D + R ≤ (L - 2) a_{k+1}`, then
+`y ∈ X₁`. -/
+theorem mem_X1_of_chain {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    (hL : 2 ≤ L) {j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : CovSetup Gp m₀ j X 𝒦X) {x z w y : CTorus d L N₁ m₁ (k + 1)} {ℓ₀ D : ℕ} {R : ℝ}
+    (hxz : supDist x z ≤ D) (hzw : supDist z w ≤ ℓ₀) (hw : w ∈ X)
+    (hy : Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y < R)
+    (hr : (ℓ₀ : ℝ) + D + R ≤ (((L - 2) * cellSide L m₀ m₁ (k + 1) : ℕ) : ℝ)) :
+    y ∈ X1 Gp m₀ j 𝒦X := by
+  obtain ⟨q, hq, hwq⟩ := hcov.chosen.2 w hw
+  have hxz' := supDist_le_iff.1 hxz
+  have hzw' := supDist_le_iff.1 hzw
+  have hbd : ∀ μ, cycNorm ((N₁ * L ^ m₁) * L ^ (k + 1)) (y μ - w μ) ≤
+      (L - 2) * cellSide L m₀ m₁ (k + 1) := by
+    intro μ
+    have h1 := cycNorm_lt_of_torusDist_lt hy μ
+    have h2 : cycNorm _ (y μ - w μ) ≤ cycNorm _ (y μ - x μ) + cycNorm _ (x μ - z μ) +
+        cycNorm _ (z μ - w μ) := by
+      exact (cycNorm_sub_le (y μ) (z μ) (w μ)).trans
+        (Nat.add_le_add_right (cycNorm_sub_le (y μ) (x μ) (z μ)) _)
+    have h3 : (cycNorm _ (y μ - w μ) : ℝ) ≤ cycNorm _ (y μ - x μ) + cycNorm _ (x μ - z μ) +
+        cycNorm _ (z μ - w μ) := by exact_mod_cast h2
+    have h4 : (cycNorm _ (x μ - z μ) : ℝ) ≤ D := by exact_mod_cast hxz' μ
+    have h5 : (cycNorm _ (z μ - w μ) : ℝ) ≤ ℓ₀ := by exact_mod_cast hzw' μ
+    have : (cycNorm _ (y μ - w μ) : ℝ) ≤ (((L - 2) * cellSide L m₀ m₁ (k + 1) : ℕ) : ℝ) := by
+      linarith
+    exact_mod_cast this
+  have hv : ∀ μ, ∃ t : ℤ, |t| ≤ (((L - 2) * cellSide L m₀ m₁ (k + 1) : ℕ) : ℤ) ∧
+      (t : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) = y μ - w μ := fun μ =>
+    (cycNorm_le_iff _ _).1 (hbd μ)
+  choose v hv1 hv2 using hv
+  have hyw : y = w + (intTorus v : CTorus d L N₁ m₁ (k + 1)) := by
+    funext μ
+    simp only [Pi.add_apply, intTorus_apply, hv2]
+    ring
+  rw [hyw]
+  exact shift_mem_X1 hG' hcov.hN hL (by have := hcov.hjK; omega) hq hwq v hv1
+
 /-- **The margin `hmar` for `Gk = 𝔹_k(Z)`** (P3 (4.8): `X₀^{~r₀} ⊂ X₁`).  Let `(X, 𝒦_X)` be a covering
 setup of index `m₀` and `j ≤ k` for the level generating set `Gp` of level `k + 1`, `Z` a set of sites
 within sup-distance `ℓ₀` of `X`, and
@@ -71,35 +111,9 @@ theorem hmar_localB {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' :
   intro x hx y hy
   obtain ⟨z, hz, hxz⟩ := localB_dataSites_range (j := k) hL hx
   obtain ⟨w, hwX, hzw⟩ := hZ z hz
-  obtain ⟨q, hq, hwq⟩ := hcov.chosen.2 w hwX
-  have hxz' := supDist_le_iff.1 hxz
-  have hzw' := supDist_le_iff.1 hzw
-  have hbd : ∀ μ, cycNorm ((N₁ * L ^ m₁) * L ^ (k + 1)) (y μ - w μ) ≤
-      (L - 2) * cellSide L m₀ m₁ (k + 1) := by
-    intro μ
-    have h1 := cycNorm_lt_of_torusDist_lt hy μ
-    have h2 : cycNorm _ (y μ - w μ) ≤ cycNorm _ (y μ - x μ) + cycNorm _ (x μ - z μ) +
-        cycNorm _ (z μ - w μ) := by
-      exact (cycNorm_sub_le (y μ) (z μ) (w μ)).trans
-        (Nat.add_le_add_right (cycNorm_sub_le (y μ) (x μ) (z μ)) _)
-    have h3 : (cycNorm _ (y μ - w μ) : ℝ) ≤ cycNorm _ (y μ - x μ) + cycNorm _ (x μ - z μ) +
-        cycNorm _ (z μ - w μ) := by exact_mod_cast h2
-    have h4 : (cycNorm _ (x μ - z μ) : ℝ) ≤ 11 * (L : ℝ) ^ m₁ * (L : ℝ) ^ k + 1 := by
-      exact_mod_cast hxz' μ
-    have h5 : (cycNorm _ (z μ - w μ) : ℝ) ≤ ℓ₀ := by exact_mod_cast hzw' μ
-    have : (cycNorm _ (y μ - w μ) : ℝ) ≤ (((L - 2) * cellSide L m₀ m₁ (k + 1) : ℕ) : ℝ) := by
-      linarith
-    exact_mod_cast this
-  have hv : ∀ μ, ∃ t : ℤ, |t| ≤ (((L - 2) * cellSide L m₀ m₁ (k + 1) : ℕ) : ℤ) ∧
-      (t : ZMod ((N₁ * L ^ m₁) * L ^ (k + 1))) = y μ - w μ := fun μ =>
-    (cycNorm_le_iff _ _).1 (hbd μ)
-  choose v hv1 hv2 using hv
-  have hyw : y = w + (intTorus v : CTorus d L N₁ m₁ (k + 1)) := by
-    funext μ
-    simp only [Pi.add_apply, intTorus_apply, hv2]
-    ring
-  rw [hyw]
-  exact shift_mem_X1 hG' hcov.hN hL (by have := hcov.hjK; omega) hq hwq v hv1
+  refine mem_X1_of_chain hG' hL hcov hxz hzw hwX hy ?_
+  push_cast at hr ⊢
+  linarith
 
 omit [NeZero L] in
 /-- **The margin condition in terms of the index `m₀`.**  If `ℓ₀ ≤ c L^{m₁+k}` and
