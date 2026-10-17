@@ -166,3 +166,4 @@ Read: `SmallField/Def6.lean` (`IsSF`, `Eloc`, `Edens`), `Def6v2.lean` (`SFTermCl
 
 ## 10. W917 (17 October 2026): blocker 5, polydisc inclusion
 `Green/FinalPolydiscClass.lean`: lift Λ_j(w) = `composedPairAtC … j (S.dataUC (w∘e⁻¹))` (level-dependent, as (H.2); a single Λ cannot represent F), analytic (`analyticOnNhd_composedPair`); `hsub` for whole-level charts (`gs j X = levelGS j`) from θ ∈ Ξ^c(𝔹';1,ε₀) by (Ξ3) at b=1, (Ξ2), level monotonicity (`dataUC_xiCData_of_close`, `composedPair_xiDom_of_xiCData`); `cutoffInteraction_final_class_polydisc` (composed, with `…_of_polydisc_subset_levels`). Open: local gs j X ≠ levelGS j (restriction with loss K_loc, landed only at level = torus index).
+- W919 (blocker 5): Green/FinalPolydiscLocal.lean: composedPair_xiDom_localB_of_xiCData, cutoffInteraction_final_class_polydisc_local (Tm.gs = localB, room K_loc(ε₀+K₂'Ncε_K) ≤ ε_K); core localB_xiDom_level_linear in Fluctuation/LocalClassDensityChart.lean.

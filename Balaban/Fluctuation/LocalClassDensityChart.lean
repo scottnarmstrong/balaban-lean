@@ -73,6 +73,41 @@ section TopLoss
 
 variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁]
 
+/-- **The core of the sharp chart inclusion, at every level `j ≤ K`** (P3 (4.44); (Ξ1), (D2)):
+a datum `D` of `Ξ^c_K(levelGS j; 1, ε)` (level of the mass = index `K` of the torus), `1 ≤ j ≤ K`,
+`BgHyp` at `K`, `C₁ ε ≤ c₀, c₁`, restricts to the data sites of `localB j X` and lies, with its
+backgrounds recomputed there, in `Ξ^c_j(localB j X; 1, εb)` whenever `K_loc ε ≤ εb`,
+`K_loc = (2 K₁ + 2) C₁`.  Every pair `(Ψ, h)` that agrees with `D` on the data sites and on the
+first domain of the local set lies in the class domain `Ξ^c_j(localB j X; 1, εb)`. -/
+theorem localB_xiDom_level_linear {j : ℕ} (hj1 : 1 ≤ j) (hj : j ≤ K)
+    {X : Set (CTorus d L N₁ m₁ K)} {ϱ : ℝ}
+    {hsep : ϱ ≤ minSep L (L ^ m₁)} {a : ℕ → ℝ} {ν ε εb : ℝ} (H : BgHyp d L K ϱ a ν)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1)
+    (hc0 : xiC1 d * ε ≤ bgC0 d L N) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
+    (hεb : (2 * bgK1 d L N + 2) * (xiC1 d * ε) ≤ εb)
+    {D : BgData (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj) N}
+    (hD : XiCData (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := ϱ) j hj)
+      a ν K 1 ε D)
+    {Ψ h : Fld d L N₁ m₁ K N}
+    (hΨ : ∀ x ∈ dataSites (localB j hj X hsep), ∀ i, Ψ x i = D.Ψ x i)
+    (hh : ∀ x ∈ (localB j hj X hsep).Ω 1, ∀ i, h x i = D.h x i) :
+    XiDom (localB j hj X hsep) a ν j εb Ψ h := by
+  obtain ⟨Ψ₀, h₀, Ψ'', h'', hXi, hC⟩ := hD
+  have hεpos : 0 < ε := hXi.2.1
+  have hData := xiC_one_subset H hsmall hXi
+  have hδpos : 0 < xiC1 d * ε := mul_pos (lt_of_lt_of_le zero_lt_one (one_le_xiC1 d)) hεpos
+  have hmass : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * ε) ^ 2 ≤ (xiC1 d * ε) ^ 2 := by
+    have h1 := H.massLe
+    have h2 := sq_nonneg (xiC1 d * ε)
+    nlinarith
+  have hLoc : XiCData (localB j hj X hsep) a ν j 1 εb
+      (localBRestrict (X := X) (hsep := hsep) hj1 D) :=
+    localB_xiCData_restrict hj1 H H.mass hδpos le_rfl hc0 hc1 hmass (by linarith) D
+      ⟨Ψ₀, h₀, Ψ'', h'', hData, hC⟩
+  exact localB_xiDom_of_xiCData_one le_rfl hLoc
+    (fun x hx i => (hΨ x hx i).trans (congrFun (localBRestrict_Ψ hj1 D hx) i).symm)
+    (fun x hx i => (hh x hx i).trans (congrFun (localBRestrict_h hj1 D hx) i).symm)
+
 /-- **The whole-level chart of the top level lies in the local chart with the loss
 `K_loc = (2 K₁ + 2) C₁`** (P3 (4.44); (Ξ1) and (D2)): for `1 ≤ K`, a background mass `ν` with
 `BgHyp` (so `ν L^{2K} ≤ 1`) and `C₁ ε ≤ c₀, c₁`,
@@ -87,22 +122,14 @@ theorem localB_xiDom_top_linear (hK1 : 1 ≤ K) {X : Set (CTorus d L N₁ m₁ K
       a ν K ε Ψ h) :
     XiDom (localB K le_rfl X hsep) a ν K εb Ψ h := by
   obtain ⟨Ψ₀, h₀, Ψ'', h'', hΨ, hh, hXi⟩ := hAmb
-  have hεpos : 0 < ε := hXi.2.1
-  have hData := xiC_one_subset H hsmall hXi
-  obtain ⟨_, _, Dr, Dc, hXR, hC, hU, hBC⟩ := hXi
-  have hδpos : 0 < xiC1 d * ε := mul_pos (lt_of_lt_of_le zero_lt_one (one_le_xiC1 d)) hεpos
-  have hmass : ν * ((L : ℝ) ^ K) ^ 2 * (xiC1 d * ε) ^ 2 ≤ (xiC1 d * ε) ^ 2 := by
-    have h1 := H.massLe
-    have h2 := sq_nonneg (xiC1 d * ε)
-    nlinarith
-  have hLoc : XiCData (localB K le_rfl X hsep) a ν K 1 εb
-      (localBRestrict (X := X) (hsep := hsep) hK1 Dc) :=
-    localB_xiCData_restrict hK1 H H.mass hδpos le_rfl hc0 hc1 hmass (by linarith) Dc
-      ⟨Ψ₀, h₀, Ψ'', h'', hData, hC⟩
-  refine localB_xiDom_of_xiCData_one le_rfl hLoc (fun x hx i => ?_) (fun x hx i => ?_)
-  · rw [localBRestrict_Ψ hK1 Dc hx, hΨ x i, hC.1 x ((mem_dataSites _).2
-      (Or.inl (localB_dataSites_subset_levelGS_omega_one hK1 le_rfl hx))) i]
-  · rw [localBRestrict_h hK1 Dc hx, hh x i, hC.2 x (by simp [levelGS, hK1]) i]
+  obtain ⟨hσ, hε, Dr, Dc, hXR, hC, hU, hBC⟩ := hXi
+  exact localB_xiDom_level_linear hK1 le_rfl H hsmall hc0 hc1 hεb
+    (D := Dc) ⟨Ψ₀, h₀, Ψ'', h'', ⟨hσ, hε, Dr, Dc, hXR, hC, hU, hBC⟩, hC⟩
+    (fun x hx i => by
+      rw [hΨ x i, hC.1 x ((mem_dataSites _).2
+        (Or.inl (localB_dataSites_subset_levelGS_omega_one hK1 le_rfl hx))) i])
+    (fun x hx i => by
+      rw [hh x i, hC.2 x (by simp [levelGS, hK1]) i])
 
 end TopLoss
 
