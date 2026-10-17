@@ -2078,6 +2078,11 @@ public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedFinal
 public import Balaban.LargeField.R.RGasRepCoupled
 public import Balaban.LargeField.R.RGasRepDecor
+public import Balaban.LargeField.R.RGasRepR4Complex
+public import Balaban.LargeField.R.RGasRepR4Term
+public import Balaban.LargeField.R.RGasRepR4Measure
+public import Balaban.LargeField.R.RGasRepR4Decor
+public import Balaban.LargeField.R.RGasRepR4Operator
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
@@ -2380,6 +2385,9 @@ public import Balaban.Green.FinalLargeLinkedMayer
 public import Balaban.Green.FinalLargeActivation
 public import Balaban.Green.FinalLargeRestrictedCut
 public import Balaban.Green.FinalLargeRoom
+public import Balaban.Green.FinalHoleBackground
+public import Balaban.Green.FinalHoleReference
+public import Balaban.Green.FinalHoleBoundary
 public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
@@ -2426,3 +2434,4 @@ public import Balaban.LargeField.R.WindowConvPhysSwitch
 public import Balaban.LargeField.R.WindowConvPhysMass
 public import Balaban.LargeField.Base.BaseFirstLocalCode
 public import Balaban.LargeField.Base.BaseFirstReserve
+public import Balaban.LargeField.Base.BaseFirstPhysicalP
