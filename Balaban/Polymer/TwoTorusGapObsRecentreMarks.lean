@@ -223,6 +223,68 @@ theorem obsMarkLabels_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) 
       exact Prod.ext ((congrArg (unitAct (SB).G' SSB hUB).symm h1).trans
         (Equiv.symm_apply_apply _ _)) rfl
 
+/-- The hat variables correspond under the recentring map. -/
+theorem hatOf_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) (m₀ : ℕ) (ρ : ℝ)
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁) {R : ℕ}
+    {tA : CTorus d L N₁ m₁ (k + 1)} {tB : CTorus d L N₁' m₁ (k + 1)}
+    {Φ : ∀ c, ((SA).blockSplit m₀ hp).Ωb c} {Φ' : ∀ c, ((SB).blockSplit m₀ hp').Ωb c}
+    (hΦ : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+      Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm (x + tA) - tB)))
+        ⟨unitPt (SB).hG' (bm (x + tA) - tB), rfl⟩ =
+        Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) :
+    ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) → ∀ i,
+      (SB).hatOf m₀ ρ hp' Φ' (unitPt (SB).hG' (bm (x + tA) - tB), i) =
+        (SA).hatOf m₀ ρ hp Φ (unitPt (SA).hG' x, i) := by
+  intro x hx i
+  simp only [StepSetting.hatOf]
+  rw [hΦ x hx]
+
+/-- **The first-order marks under the recentring map.** -/
+theorem blockMarkC_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {tA : CTorus d L N₁ m₁ (k + 1)} {tB : CTorus d L N₁' m₁ (k + 1)}
+    {Φ : ∀ c, ((SA).blockSplit m₀ hp).Ωb c} {Φ' : ∀ c, ((SB).blockSplit m₀ hp').Ωb c}
+    (hΦ : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+      Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm (x + tA) - tB)))
+        ⟨unitPt (SB).hG' (bm (x + tA) - tB), rfl⟩ =
+        Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩)
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hx₀ : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x₀ + tA))
+    (a : Fin N) :
+    blockMarkC (SB) m₀ hp' (unitPt (SB).hG' (bm (x₀ + tA) - tB)) a Φ' =
+      blockMarkC (SA) m₀ hp (unitPt (SA).hG' x₀) a Φ :=
+  hatOf_rec hN2 hk νS β p₁ δ m₀ (SA).p₁ hp hp' hΦ x₀ hx₀ a
+
+/-- The unit vectors of corresponding marks correspond under the recentring map. -/
+theorem obsUnitVec_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {R : ℕ}
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {tA : CTorus d L N₁ m₁ (k + 1)} {tB : CTorus d L N₁' m₁ (k + 1)}
+    (SSA : LatSymm (SA).G' (SA).G' (Equiv.addRight tA)) (hUA : UnitBlockPres (Equiv.addRight tA))
+    (SSB : LatSymm (SB).G' (SB).G' (Equiv.addRight tB)) (hUB : UnitBlockPres (Equiv.addRight tB))
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hx₀ : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x₀ + tA))
+    (a : Fin N) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA)) (i : Fin N) :
+    obsUnitVec (SB) (unitPt (SB).hG' (bm (x₀ + tA) - tB), a)
+        (unitPt (SB).hG' (bm (x + tA) - tB), i) =
+      obsUnitVec (SA) (unitPt (SA).hG' x₀, a) (unitPt (SA).hG' x, i) := by
+  have e0 := unitPt_recentred (R := R) hn (SA).hG' (SB).hG' SSA hUA SSB hUB hx₀
+  have e1 := unitPt_recentred (R := R) hn (SA).hG' (SB).hG' SSA hUA SSB hUB hx
+  unfold obsUnitVec
+  by_cases h : (unitPt (SA).hG' x, i) = (unitPt (SA).hG' x₀, a)
+  · rw [Prod.mk.injEq] at h
+    have h2 : unitPt (SB).hG' (bm (x + tA) - tB) = unitPt (SB).hG' (bm (x₀ + tA) - tB) :=
+      e1.trans ((congrArg (fun u : (SA).U => (unitAct (SB).G' SSB hUB).symm
+        (ιu (unitAct (SA).G' SSA hUA u))) h.1).trans e0.symm)
+    rw [h2, h.1, h.2, Pi.single_eq_same, Pi.single_eq_same]
+  · rw [Pi.single_eq_of_ne h, Pi.single_eq_of_ne]
+    intro h'
+    rw [Prod.mk.injEq] at h'
+    have h1 : (unitAct (SB).G' SSB hUB).symm (ιu (unitAct (SA).G' SSA hUA (unitPt (SA).hG' x))) =
+        (unitAct (SB).G' SSB hUB).symm (ιu (unitAct (SA).G' SSA hUA (unitPt (SA).hG' x₀))) :=
+      e1.symm.trans (h'.1.trans e0)
+    exact h (Prod.ext (unitPt_eq_of_rec_eq hn hn' (SA).hG' (SB).hG' SSA hUA SSB hUB hx hx₀ h1)
+      h'.2)
+
 end RecentreMarks
 
 end Balaban.Polymer.TwoTorusStep
