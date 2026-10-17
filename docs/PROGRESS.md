@@ -5,10 +5,10 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 77% of the Lean by volume, and about 48% when weighted by difficulty and
+**Overall estimate: about 78% of the Lean by volume, and about 49% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 680,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 690,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 223be006 2026-10-16.
+Computed at commit daf2dfd4 2026-10-17.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 171 | 68,243 | 2,745 |
-| Green's functions and random walks | 94 | 37,434 | 1,771 |
+| Lattice, analysis, Gaussian and polymer tools | 172 | 68,833 | 2,750 |
+| Green's functions and random walks | 94 | 37,538 | 1,773 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
 | Localization expansions (P3, P6) | 243 | 77,309 | 3,610 |
-| Small-field class (P1, P4, P5) | 130 | 39,645 | 2,021 |
-| Fluctuation step and renormalization (P4-P6) | 486 | 164,760 | 5,403 |
+| Small-field class (P1, P4, P5) | 136 | 41,772 | 2,132 |
+| Fluctuation step and renormalization (P4-P6) | 493 | 167,717 | 5,450 |
 | Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 516 | 142,035 | 7,656 |
-| Observables and correlations (P8, P9) | 70 | 16,758 | 663 |
-| **Total** | **2129** | **682,985** | **28,773** |
+| Large-field regions (P5-P7, E9-E10) | 536 | 146,004 | 7,786 |
+| Observables and correlations (P8, P9) | 70 | 16,760 | 663 |
+| **Total** | **2163** | **692,734** | **29,068** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -90,3 +90,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-14 (night) | ~75% | ~45% | Blocker 6: replacement identity at the local generating set with a collar and the local fluctuation variable; last integral: second-order bound of the interaction, amplitude β^{-1} as in the papers, determinant ratio proportional to the perturbation; two-torus closeness of the final operator; Root-F skeleton re-audited |
 | 2026-10-16 | ~76% | ~47% | Blockers re-read against the Yang–Mills account; blocker 4 resolved in Lean up to the physical inputs (clusters on the core); blocker 6 local class: locality, bound, rotation, extension off the domain; first step: shifted resolvent and square root uniform in the shift; last scale: two-torus closeness uniform in the scale; root constants for every dimension, principal logarithm |
 | 2026-10-16 (late) | ~77% | ~48% | Blocker 6 local class assembled at the new level (energy and source parts; design review of the filing of old terms running); blocker 7 last scale: resummation with the infinite-volume limit and a two-torus closeness uniform in the support size; first step: background identified with the step's, logarithm at the physical point, localization; blocker 4 gas bound down to the small factor of removed components; blocker 2 route leaves |
+| 2026-10-17 | ~78% | ~49% | Blocker 4: the halo labels lie in the domain class and the gas bound needs only the small factor of removed components (P7 (3.10)); the plan for (3.10) is in place, with the removed kernel tied to the R operation, its exponent bound, the residual loss, the window volumes and the locality of the step's objects proved. Blocker 6: rotation clauses real, complex rotations by Cayley paths; successor class with centre-labelled terms; old terms keep their birth domain, with the mass response of the domain proved. Blocker 2: constant check against P5 (1.30) done. Blocker 7: rate condition settled for large blocks. |
