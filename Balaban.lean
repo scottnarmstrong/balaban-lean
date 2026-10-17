@@ -2107,3 +2107,9 @@ public import Balaban.LargeField.R.RRemovedRegroupCanon
 public import Balaban.Fluctuation.LocalClassDensityCompletion
 public import Balaban.Fluctuation.VacuumEnergy
 public import Balaban.Green.FinalInteractionClass
+public import Balaban.Fluctuation.LocalClassDensityH
+public import Balaban.Fluctuation.LocalClassDensityHDef
+public import Balaban.Fluctuation.LocalClassDensityHRep
+public import Balaban.Fluctuation.LocalClassDensityHAnalytic
+public import Balaban.Fluctuation.LocalClassDensityHCont
+public import Balaban.Fluctuation.LocalClassDensityHZero
