@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.RRemovedChainSplit
+public import Balaban.LargeField.R.RRemovedHidQuotAct
 public import Balaban.LargeField.Operators.QuietBound
 
 /-!
@@ -58,48 +59,17 @@ theorem absW_quiet_le {k : ℕ} (hk1 : 1 ≤ k) (hk : k + 1 ≤ K) (hadm : H.Adm
            (if ∀ p : ↥(newPrimeVars (H.localHistory M K (k + 1) Z') k),
               |‖VarVal.toEuc (restrictSub (newPrimeVars_sub (H.localHistory M K (k + 1) Z') k) x p)‖ ^ 2 - 1| <
                 3 * (S.d : ℝ) * S.L * cs.delta k then (1 : ℝ≥0∞) else 0))) := by
-  rw [absW_quiet_split geo cs SD hk hadm Z' hQ hz hc o x hv g]
-  gcongr
-  by_cases hchi : ChiNewAt geo cs H k Z' o x
-  · have hunit := quietRest_unit (N := N) geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
+  refine (absW_quiet_le_action geo cs SD hk1 hk hadm Z' hQ hz hc hδ hdL o x hv g hg).trans ?_
+  refine mul_le_mul' le_rfl ?_
+  have h1 : ENNReal.ofReal (Real.exp (-mainActionLoc geo (H.locRH (k + 1) Z') k Z'.1
+      (locComp_mem H hk Z') hk cs (locRH_rem (k + 1) Z') o x hv)) ≤ 1 := by
+    rw [← ENNReal.ofReal_one]
+    refine ENNReal.ofReal_le_ofReal (Real.exp_le_one_iff.mpr ?_)
+    have := mainActionLoc_nonneg geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
       (locRH_rem (k + 1) Z') hβ haw hμ o x hv
-    have h2 : Real.exp ((SD.ker k (H.localHistory M K (k + 1) Z')).b o x hv g).re ≤
-        Real.exp ((cs.Cb * Real.log (cs.beta k) + cs.Cb * cs.B0) *
-          volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
-            z ∉ (H.localHistory M K (k + 1) Z').Z k}) :=
-      Real.exp_le_exp.mpr ((Complex.re_le_norm _).trans
-        (SD.b_bound H hadm k Z' o x hv g hg hchi))
-    have hI1 : (if ∀ y : {y : BlockAt S n M K (k + 1) //
-        y ∈ Vblk R (H.localHistory M K (k + 1) Z') (k + 1) ∧
-          newOutP (H.localHistory M K (k + 1) Z') k y},
-        |‖restrictOutPart o (newOutP (H.localHistory M K (k + 1) Z') k) y‖ ^ 2 - 1| <
-          3 * (S.d : ℝ) * S.L * cs.delta k then (1 : ℝ≥0∞) else 0) = 1 := by
-      have hall : ∀ y : {y : BlockAt S n M K (k + 1) //
-          y ∈ Vblk R (H.localHistory M K (k + 1) Z') (k + 1) ∧
-            newOutP (H.localHistory M K (k + 1) Z') k y},
-          |‖restrictOutPart o (newOutP (H.localHistory M K (k + 1) Z') k) y‖ ^ 2 - 1| <
-            3 * (S.d : ℝ) * S.L * cs.delta k := by
-        intro y
-        have := shell_newOut geo cs hk Z' o x hchi y.1 y.2.2
-        simpa [restrictOutPart, outField, y.2.1] using this
-      simp only [hall, implies_true, ↓reduceIte]
-    have hI2 : (if ∀ p : ↥(newPrimeVars (H.localHistory M K (k + 1) Z') k),
-        |‖VarVal.toEuc (restrictSub (newPrimeVars_sub (H.localHistory M K (k + 1) Z') k) x p)‖ ^ 2 - 1| <
-          3 * (S.d : ℝ) * S.L * cs.delta k then (1 : ℝ≥0∞) else 0) = 1 := by
-      have hall : ∀ p : ↥(newPrimeVars (H.localHistory M K (k + 1) Z') k),
-          |‖VarVal.toEuc (restrictSub (newPrimeVars_sub (H.localHistory M K (k + 1) Z') k) x p)‖ ^ 2 - 1| <
-            3 * (S.d : ℝ) * S.L * cs.delta k := fun p =>
-        shell_newPrime geo cs hk hk1 hδ hdL Z' hQ o x hchi p.1 p.2
-      simp only [hall, implies_true, ↓reduceIte]
-    rw [hI1, hI2, mul_one, mul_one]
-    refine ENNReal.ofReal_le_ofReal ?_
-    calc _ ≤ 1 * Real.exp ((SD.ker k (H.localHistory M K (k + 1) Z')).b o x hv g).re :=
-          mul_le_mul_of_nonneg_right hunit.2 (Real.exp_pos _).le
-      _ ≤ _ := by rw [one_mul]; exact h2
-  · have hz0 := quietRest_eq_zero geo (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
-      (locRH_rem (k + 1) Z') o x hv hchi
-    rw [hz0, zero_mul, ENNReal.ofReal_zero]
-    exact zero_le
+    linarith
+  rw [mul_assoc]
+  exact (mul_le_mul' h1 le_rfl).trans (le_of_eq (one_mul _))
 
 end Bound
 
