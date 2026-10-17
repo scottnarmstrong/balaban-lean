@@ -1730,3 +1730,5 @@
 | 2026-10-17 | W940 (W938 continued) | launched | Blocker 4: hμ (block-tree mean = compMeanT), hP. |
 | 2026-10-17 | W940 | landed | f2c411a4: `R/RRemovedHidMean.lean`: `tree_mean_eq_site_avg`, **`compMeanT_re_eq_composedMean`** (hμ given the leaf map lf, hcard, hscale, hval), `compWeightZ_eq_blockWeight`, `composedPrecision_eq_mul_composedWeight` (hP by definition; for actual cs.z, cs.beta only a^♮ = a_z(1+η_z), III.1.6, enters through `hid`). |
 | 2026-10-17 | W941 (W940 continued) | launched | Blocker 4: the leaf map for `windowOfHistory`'s generating set vs the history's Gaussian blocks; hval; exact node integral = constNat·exp(−gaussNat). |
+| 2026-10-17 | W941 | landed | cd594ab4: `R/RRemovedHidLeaf.lean`: `gaussBlocks_iff_locStep`, `gaussBlocks_iff_locGen` (a block is a window node iff a site of it is outside Ω_{j+1}(full)), `windowGenSet_mem_iff_full`, `windowGenSet_layerIndex_eq_full`. |
+| 2026-10-17 | W942 (W941 continued) | launched | Blocker 4: layerIndex range of top Gaussian blocks, the leaf map lf, hval, the assembled exact node integral; stop rule clarified (routine geometry/casts/assembly are not stopping points). |
