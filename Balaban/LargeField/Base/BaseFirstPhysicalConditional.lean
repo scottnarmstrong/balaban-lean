@@ -9,7 +9,7 @@ import Mathlib.Tactic.FunProp
 # Raw conditional first-spin integrals
 
 These identities split the exact physical sphere-spin measure into raw exterior/collar spins
-and good-interior spins for a chosen first component and record geometry. They use the
+and spins in the record's proposed interior for a chosen first component. They use the
 test-free `baseRho1` integrand and the first `P` decomposition. They do not insert the
 later `Q,R,S` selectors or identify P5's fluctuation operator.
 -/
@@ -48,7 +48,7 @@ open Classical in
 integrated conditionally, and every exterior and collar spin retained as a raw sphere variable.
 The equality is Fubini's theorem for any such choice of `br`; matching `br` to the history is
 a separate requirement for a physical staged record. -/
-theorem baseRho1_eq_conditional_goodInterior
+theorem baseRho1_eq_conditional_recordInterior
     {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)]
     {R : ℕ → ℝ} {k0 K N : ℕ} [NeZero S.L] [NeZero N]
     (H : RegionHistory S n R k0 K) (Z' : H.Comp 1)
@@ -91,7 +91,7 @@ theorem baseRho1_eq_conditional_goodInterior
 open Classical in
 /-- The first `P` decomposition remains exact after conditioning on the interior spins
 chosen by a component and record. The retained variables are still sphere spins. -/
-theorem baseRho1_eq_sum_firstP_conditional_goodInterior
+theorem baseRho1_eq_sum_firstP_conditional_recordInterior
     {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)]
     {R : ℕ → ℝ} {k0 K N : ℕ} [NeZero S.L] [NeZero N]
     (H : RegionHistory S n R k0 K) (Z' : H.Comp 1)
