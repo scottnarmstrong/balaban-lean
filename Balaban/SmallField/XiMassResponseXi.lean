@@ -65,6 +65,34 @@ theorem xiCOne_of_xiAt (H : BgHyp d L k ϱ a ν) (hε : 0 < e) {Dr : BgData G N}
 
 end Real
 
+/-- The arithmetic of the radius `e' = e (1 + K_m |t|)`, with `s = |t|`, `V = 8 K₂ e s`, `n = N`,
+`Q = K₂`. -/
+theorem massKm_arith {e s Q n K : ℝ} (he : 0 < e) (hs0 : 0 ≤ s) (hs1 : s ≤ 1) (hQ : 0 ≤ Q) (hn : 0 ≤ n)
+    (hK1 : 1 + 16 * n * Q ≤ K) (hK2 : 1 + 16 * Q ≤ K) :
+    (1 + s) * e + n * (Q * (8 * e * s)) ≤ e * (1 + K * s) ∧
+    e + Q * (8 * e * s) ≤ e * (1 + K * s) ∧
+    e + n * (Q * (8 * e * s) + Q * (8 * e * s)) ≤ e * (1 + K * s) ∧
+    e + (Q * (8 * e * s) + Q * (8 * e * s)) ≤ e * (1 + K * s) ∧
+    (1 + s) * e ≤ e * (1 + K * s) ∧
+    (1 + s) * e ^ 2 + (1 + s) * n * (Q * (8 * e * s)) * e ≤ (1 * (e * (1 + K * s))) ^ 2 := by
+  have hes : 0 ≤ e * s := mul_nonneg he.le hs0
+  have hnQ : 0 ≤ n * Q := mul_nonneg hn hQ
+  have hK0 : 1 ≤ K := by nlinarith
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · nlinarith [mul_nonneg hes (sub_nonneg.2 hK1)]
+  · nlinarith [mul_nonneg hes (sub_nonneg.2 hK2)]
+  · nlinarith [mul_nonneg hes (sub_nonneg.2 hK1)]
+  · nlinarith [mul_nonneg hes (sub_nonneg.2 hK2)]
+  · nlinarith [mul_nonneg hes (sub_nonneg.2 hK0)]
+  · have h1 : (1 + s) * (1 + 8 * n * Q * s) ≤ (1 + K * s) ^ 2 := by
+      nlinarith [mul_nonneg hs0 (sub_nonneg.2 hK1), mul_nonneg hs0 hnQ, mul_nonneg hs0 hs0,
+        mul_nonneg (mul_nonneg hs0 hs0) (sub_nonneg.2 hK0), mul_nonneg hs0 (sub_nonneg.2 hs1),
+        mul_nonneg (mul_nonneg hs0 hnQ) (sub_nonneg.2 hs1)]
+    have h2 : (1 + s) * e ^ 2 + (1 + s) * n * (Q * (8 * e * s)) * e =
+        e ^ 2 * ((1 + s) * (1 + 8 * n * Q * s)) := by ring
+    rw [h2, one_mul, mul_pow]
+    exact mul_le_mul_of_nonneg_left h1 (sq_nonneg e)
+
 section Response
 
 variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν μ : ℝ}
@@ -111,5 +139,56 @@ theorem massResponse_real (H : BgHyp d L k ϱ a ν) (H' : BgHyp d L k ϱ a μ) {
   exact ⟨δφ, δα, by rw [← f2, hf, f1], by rw [← m2, hm, m1], hsup, hsmall⟩
 
 end Response
+
+section Main
+
+variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν μ : ℝ}
+  {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
+  {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+
+/-- **The mass response of the class domain at a fixed level `j`** (decision D2(b), Step 2 of
+`notes/phase1/D2B.md`).  Let `μ = ν (1 + t)`, `|t| ≤ 1`, with `BgHyp` at both masses.  If
+`(Ψ₀ + Ψ'', h₀ + h'') ∈ Ξ^c_j(𝔹; 1, e)` at the mass `ν`, then it lies in
+`Ξ^c_j(𝔹; 1, e (1 + K_m |t|))` at the mass `μ`, with `K_m = 1 + 16 (N + 1) K₂`
+(`K₂ = cK2 d L N`, so `K_m` depends on `d, L, N` only).
+
+Hypotheses: `hsm`, `hc1`, `hK`, `hζ` are the smallness conditions of `exists_isRenSol` for the
+radius `e` and the parameter radius `r > |t|` (`4 C₁ e ≤ c₁`); `hk` is the top-level norm clause
+`ν L^{2k} | |h₀|² - 1 | < e²` (it is part of `Ξ^c_k`, and is automatic for `j = k`, for `ν = 0`
+and for `|h₀| = 1`, see `notes/phase1/MASS-LEVEL.md` (D1-top)): the background theory of
+Theorem 5.2 sees the datum through the top-level domain `Ψ̃^c_k`. -/
+theorem xiC_massResponse {j : ℕ} (H : BgHyp d L k ϱ a ν) (H' : BgHyp d L k ϱ a μ) {e t r : ℝ}
+    (hε : 0 < e) (hsm : (4 * d + 6) * ((2 * d + 1) * e) ≤ 1)
+    (hc1 : 4 * (xiC1 d * e) ≤ bgC1 d L N) (hμ : μ = ν * (1 + t)) (ht1 : |t| ≤ 1)
+    (htr : |t| < r) (hr : r ≤ 1 / 16)
+    (hK : bgK1 d L N * (xiC1 d * e) + 3 * r ≤ deltaStar d L N)
+    (hζ : 8 * e * r ≤ deltaStar d L N)
+    (hk : ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, h₀ i ^ 2 - 1| < (1 * e) ^ 2)
+    (hX : XiC G a ν j 1 e Ψ₀ h₀ Ψ'' h'') :
+    XiC G a μ j 1 (e * (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * |t|)) Ψ₀ h₀ Ψ'' h'' := by
+  obtain ⟨-, -, Dr, Dc, ⟨hR, hDomR, hbr⟩, hC, hDcU, hb⟩ := hX
+  have hXrk : XiAt G a ν k 1 e Dr Ψ₀ h₀ := ⟨hR, hDomR, { hbr with hnorm := hk }⟩
+  have hXk : XiC G a ν k 1 e Ψ₀ h₀ Ψ'' h'' := ⟨one_pos, hε, Dr, Dc, hXrk, hC, hDcU, hb⟩
+  obtain ⟨hDRU', δr, δαr, hfr, hmr, hsr, hsmr⟩ :=
+    massResponse_real H H' hε hsm hc1 hμ ht1 htr hr hK hζ hXrk
+  obtain ⟨hDcU', δc, δαc, hfc, hmc, hsc, hsmc⟩ :=
+    massResponse_single H H' hε hsm hc1 hμ ht1 htr hr hK hζ ⟨Ψ₀, h₀, Ψ'', h'', hXk, hC⟩
+  have hQ := cK2_pos d L N
+  have ht0 := abs_nonneg t
+  have hμle : μ ≤ (1 + |t|) * ν := by
+    rw [hμ, mul_comm ν]
+    exact mul_le_mul_of_nonneg_right (by linarith [le_abs_self t]) H.mass
+  have hV : 0 ≤ cK2 d L N * (8 * e * |t|) := by positivity
+  obtain ⟨a1, a2, a3, a4, a5, a6⟩ := massKm_arith (n := (N : ℝ)) (Q := cK2 d L N)
+    (K := 1 + 16 * ((N : ℝ) + 1) * cK2 d L N) hε ht0 ht1 hQ.le (Nat.cast_nonneg N)
+    (by nlinarith [Nat.cast_nonneg (α := ℝ) N]) (by nlinarith [Nat.cast_nonneg (α := ℝ) N])
+  have hε' : 0 < e * (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * |t|) := by positivity
+  refine ⟨one_pos, hε', Dr, Dc, ⟨hR, hDRU', ?_⟩, hC, hDcU', ?_⟩
+  · rw [hfr, hmr]
+    exact xiBounds_massResponse ht0 hε hV H'.mass hμle H'.massLe a1 a2 hbr hsr hsmr
+  · rw [hfr, hmr, hfc, hmc]
+    exact xiCBounds_massResponse ht0 hε hV H'.mass hμle a3 a4 a5 a6 hb hsr hsc hsmr hsmc
+
+end Main
 
 end Balaban.SmallField
