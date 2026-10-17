@@ -2357,6 +2357,8 @@ public import Balaban.SmallField.IrrelTorusXidomSmallSource
 public import Balaban.SmallField.IrrelTorusXidomThreshold
 public import Balaban.SmallField.IrrelTorusXidomSplit
 public import Balaban.SmallField.IrrelTorusXidomBound
+public import Balaban.SmallField.IrrelTorusXidomThresholdScale
+public import Balaban.SmallField.IrrelTorusXidomBoundScale
 public import Balaban.LargeField.Regime.A0PrimeRadiusWeight
 public import Balaban.LargeField.Regime.A0PrimeRadiusStep
 public import Balaban.LargeField.Regime.A0PrimeRadiusObservable
