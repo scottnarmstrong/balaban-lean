@@ -789,83 +789,6 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **The conclusion of `markedEv_joint_physV`.**  For a step `S` (`Gp = S.G'`) there is one pair
-`(F₁, Sol)` (not depending on the marks) such that:
-
-1. the eight clauses of the landed `MarkedBlockExpansionDecTwo` hold (`MarkedBlockExpansionDecPair`);
-2. (J): `evDec … um tm Y (Θ, ψ̂)` is analytic in `((Θ, ψ̂), (um, tm))` at every point of
-   `(Ξ^c × B̂) × W`, `B̂ = {‖ψ̂‖ ≤ c_ψ}`, `W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`;
-3. on the parameter space `physParam = rawSub × sources`: `((e, ψ̂), (um, tm)) ↦ evDec … Y (e.1, ψ̂)`
-   is analytic at every point of `(physV × B̂) × W` (the source coordinate of `e` does not enter);
-4. the derivative marks: for every hat field `‖ψ̂‖ ≤ c_ψ` and radii `a ≥ 0`, `b > 0` with
-   `(a + b) · markedRad < δ₁`, `(e, u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}` is analytic on
-   `physV × {‖u‖ < a}`: the shape of the field `holG` of `ParamMarkFamily`, per label;
-5. the derivative marks jointly with the hat field: `((e, ψ̂), u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}`
-   is analytic at every point of `(physV × B̂) × {u | (u, 0) ∈ W}`;
-6. the defining properties of the pair: `F₁` returns the decoupled background on every admissible
-   `(s, D)` (`hF₁`), and `Sol` is the unique small solution of the decoupled correction equation
-   with the stated bounds (`hSol`), exactly as in `evDec_local_rawY`. -/
-def MarkedEvJointPhysV (S : StepSetting d L N₁ m₁ k N ϱ)
-    (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm) (cc : ℂ)
-    (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ) (Zm : Finset (unitPts S.G'))
-    (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ) (𝒦X : Set (CTorus d L N₁ m₁ (k + 1)))
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) : Prop :=
-    ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
-        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
-      (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
-      -- 1. the landed clauses
-      MarkedBlockExpansionDecPair N Hm S.hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z
-        F₁ Sol ∧
-      -- 2. (J) on the chart
-      (∀ Y, AnalyticOnNhd ℂ
-        (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
-          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2.1 p.2.2 Y p.1)
-        ((XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
-      -- 3. (J) on the parameter set `physV`
-      (∀ Y, AnalyticOnNhd ℂ
-        (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
-          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2.1 p.2.2 Y
-            ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2))
-        ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
-      -- 4. the derivative marks on `physV × {‖u‖ < a}`, fixed hat field
-      (∀ Y, ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
-        ∀ a b : ℝ, 0 ≤ a → 0 < b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-        AnalyticOnNhd ℂ (fun p : physParam N S × ℂ => deriv (fun t : ℂ =>
-          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
-            ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), ψh)) 0)
-          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) ∧
-      -- 5. the derivative marks jointly with the hat field
-      (∀ Y, AnalyticOnNhd ℂ
-        (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × ℂ => deriv (fun t : ℂ =>
-          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
-            ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
-        ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
-      -- 6. the defining properties of the pair
-      ((∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
-        InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
-          (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
-          F₁ (s, rawOf D) = (φ, α)) ∧
-      (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
-        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
-          (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
-            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
-          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
-            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
-          Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
-          Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
-          SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
-          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
-            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
-              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)))
-
 /-- **Core of clauses 3–5 of `markedEv_joint_physV`, for any functional `Φ`.**  For a step `S`
 (`Gp = S.G'`), a pair `(F₁, Sol)` and a functional `Φ` whose localized marked terms
 `evDec … Φ Zm um tm Y (Θ, ψ̂)` are analytic in `((Θ, ψ̂), (um, tm))` at every point of
@@ -943,6 +866,83 @@ theorem markedEv_physV_of_joint
     exact hbd a b ha hb.le hab u t hu.le ht.le Y _ ⟨hΘ, hψh⟩
   have key := analyticOnNhd_deriv_mark_cauchy (isOpen_physV S a₁ ν eps hC.HBp) hf hb hW hM
   exact key
+
+/-- **The conclusion of `markedEv_joint_physV`.**  For a step `S` (`Gp = S.G'`) there is one pair
+`(F₁, Sol)` (not depending on the marks) such that:
+
+1. the eight clauses of the landed `MarkedBlockExpansionDecTwo` hold (`MarkedBlockExpansionDecPair`);
+2. (J): `evDec … um tm Y (Θ, ψ̂)` is analytic in `((Θ, ψ̂), (um, tm))` at every point of
+   `(Ξ^c × B̂) × W`, `B̂ = {‖ψ̂‖ ≤ c_ψ}`, `W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`;
+3. on the parameter space `physParam = rawSub × sources`: `((e, ψ̂), (um, tm)) ↦ evDec … Y (e.1, ψ̂)`
+   is analytic at every point of `(physV × B̂) × W` (the source coordinate of `e` does not enter);
+4. the derivative marks: for every hat field `‖ψ̂‖ ≤ c_ψ` and radii `a ≥ 0`, `b > 0` with
+   `(a + b) · markedRad < δ₁`, `(e, u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}` is analytic on
+   `physV × {‖u‖ < a}`: the shape of the field `holG` of `ParamMarkFamily`, per label;
+5. the derivative marks jointly with the hat field: `((e, ψ̂), u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}`
+   is analytic at every point of `(physV × B̂) × {u | (u, 0) ∈ W}`;
+6. the defining properties of the pair: `F₁` returns the decoupled background on every admissible
+   `(s, D)` (`hF₁`), and `Sol` is the unique small solution of the decoupled correction equation
+   with the stated bounds (`hSol`), exactly as in `evDec_local_rawY`. -/
+def MarkedEvJointPhysV (S : StepSetting d L N₁ m₁ k N ϱ)
+    (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm) (cc : ℂ)
+    (a₁ ν BG BG₂ κ eps δ₁ κdec cψ : ℝ) (Zm : Finset (unitPts S.G'))
+    (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ) (𝒦X : Set (CTorus d L N₁ m₁ (k + 1)))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) : Prop :=
+    ∃ (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+      (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)),
+      -- 1. the landed clauses
+      MarkedBlockExpansionDecPair N Hm S.hG' cc a₁ ν BG BG₂ κ eps δ₁ κdec cψ Zm X₁f m₀ j 𝒦X z
+        F₁ Sol ∧
+      -- 2. (J) on the chart
+      (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
+          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2.1 p.2.2 Y p.1)
+        ((XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- 3. (J) on the parameter set `physV`
+      (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
+          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2.1 p.2.2 Y
+            ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2))
+        ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- 4. the derivative marks on `physV × {‖u‖ < a}`, fixed hat field
+      (∀ Y, ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
+        ∀ a b : ℝ, 0 ≤ a → 0 < b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParam N S × ℂ => deriv (fun t : ℂ =>
+          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
+            ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), ψh)) 0)
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) ∧
+      -- 5. the derivative marks jointly with the hat field
+      (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × ℂ => deriv (fun t : ℂ =>
+          evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z) Zm p.2 t Y
+            ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
+        ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) ∧
+      -- 6. the defining properties of the pair
+      ((∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+        InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+          (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α)) ∧
+      (∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+        StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+          (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+          Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+          Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+          (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+            Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+              (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)))
 
 /-- **Joint analyticity of the localized marked terms on the parameter set `physV`, and of the
 derivative marks.**  For a step `S` (`Gp = S.G'`), under the hypotheses of
