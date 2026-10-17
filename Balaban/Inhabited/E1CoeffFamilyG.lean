@@ -246,7 +246,7 @@ theorem e1CoeffFamily_value_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁ D ϱ hϱ S hS hp
   obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, h1, h2, h3, h4, h5, h6, h7, h8, h9, Jr, h10, val, I0, hFd,
     hεU, -, hL, hA', -⟩ := H k hk N₁ h3N hN ν hν0 hν β hβ p₁ hp₁ D hϱ S hS hp
-  exact ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, h1, fun z => ⟨(h2 z).1, (h2 z).2.2⟩, h3, h4, h5, h6, h7,
+  exact ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, h1, fun z => ⟨(h2 z).1, (h2 z).2.2.2⟩, h3, h4, h5, h6, h7,
     h8, h9, Jr, h10, val, I0, hFd, hεU, hL, hA'⟩
 
 open Classical in

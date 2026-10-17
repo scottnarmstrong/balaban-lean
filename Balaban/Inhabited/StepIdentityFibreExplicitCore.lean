@@ -122,6 +122,9 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG_explicitCore {d L N : ℕ} [NeZe
             (∀ δα' : (stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ T.m₁ k ϱ) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) ∧
+        (∀ (θ : physParam N S) (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ), DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+            (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
         Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
           (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
             (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) A₀
@@ -593,9 +596,9 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG_explicitCore {d L N : ℕ} [NeZe
       { D with covers := by have h := D.covers; rw [hm₀] at h; exact h }
       (T.step k hk N₁ ν β p₁) rfl hp
   have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
-  choose hP hsp hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
+  choose hP hsp hdp hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
-    fun z => ⟨hP z, hsp z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
+    fun z => ⟨hP z, hsp z, hdp z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
     hamp, hlab, hsrc, hsite, ?_⟩
   intro D' hDh hX g hg
   have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1

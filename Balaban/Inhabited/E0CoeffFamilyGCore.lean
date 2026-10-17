@@ -217,6 +217,9 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
             (∀ δα' : (stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ T.m₁ k ϱ) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) ∧
+        (∀ (θ : physParam N S) (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ), DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+            (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
         Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
           (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
             (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) A₀
@@ -397,7 +400,7 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
   have hz1 := hβ'.1
   obtain ⟨Jr, hraw, hExplicit⟩ := hβ'.2.2.2.2.2.2.2.2
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hsp, hfam, c, hc, hC, hcv⟩ := hz1 z
+  obtain ⟨hP, hsp, hdp, hfam, c, hc, hC, hcv⟩ := hz1 z
   subst hϱ
   obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
   have hLN : L ∣ N₁ := by rw [hm₀] at h3N; simpa using h3N
@@ -446,7 +449,7 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
     intro C θ hθ
     refine ((hdz2 C).2.2.1 θ hθ).trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0)
     nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-  refine ⟨hP, hsp, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
+  refine ⟨hP, hsp, hdp, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
   · intro C
     obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
     exact ⟨a1, a2, hdzB C, a4⟩

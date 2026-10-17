@@ -394,6 +394,9 @@ theorem e1CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
             (∀ δα' : (stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ T.m₁ k ϱ) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
               Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) ∧
+        (∀ (θ : physParam N S) (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+          (u : ℂ), DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+            (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
         Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
           (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
             (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) A₀
@@ -647,7 +650,7 @@ theorem e1CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
             holG := fun i Φ _ => hholG i Φ
             contA := fun y θ hθ u hu => hA'.contA y θ hθ u (Metric.ball_subset_ball hU2 hu)
             contG := fun i θ hθ u hu => hcontG i θ hθ u hu }
-  refine ⟨hP, hspec, ⟨hfam⟩, _, fun _ _ => rfl, fun C => ?_, fun D' hDh hD => ?_⟩
+  refine ⟨hP, hspec, fun θ i u => hdep θ i u, ⟨hfam⟩, _, fun _ _ => rfl, fun C => ?_, fun D' hDh hD => ?_⟩
   swap
   · exact e1Param_fibre_value_of_fields_fromTowerG T hm₀ D (by rwa [hm₀] at h3N) (by have := T.hL; omega) hβpos
       rfl (S := T.step k hk N₁ ν β p₁) rfl hp (e1DomG_isDj T hm₀ D rfl) (fun b => F₁ (z, b))
