@@ -2132,3 +2132,4 @@ public import Balaban.Green.FinalLiftDecayGeo
 public import Balaban.Green.FinalLiftDecayFar
 public import Balaban.Green.FinalLiftDecayNear
 public import Balaban.Green.FinalLiftDecayPoly
+public import Balaban.Green.FinalLiftDecayCoef
