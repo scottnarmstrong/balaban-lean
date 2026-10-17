@@ -2358,6 +2358,9 @@ public import Balaban.Green.FinalLargeLinkedMayer
 public import Balaban.Green.FinalLargeActivation
 public import Balaban.Green.FinalLargeRestrictedCut
 public import Balaban.Green.FinalLargeRoom
+public import Balaban.Green.FinalHoleBackground
+public import Balaban.Green.FinalHoleReference
+public import Balaban.Green.FinalHoleBoundary
 public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
