@@ -229,4 +229,126 @@ theorem cancelBracket_add_Cnat1_ge (Du : BgData G N) (Zb : Finset (Torus d (N₀
 
 end Bracket
 
+section Landed
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] [NeZero N] {ϱ ϱ' : ℝ}
+  {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+
+theorem constNat_pos {βk : ℝ} (hβ : 0 < βk) {aN : Torus d (N₀ * L ^ (k - k)) → ℝ}
+    {Zb : Finset (Torus d (N₀ * L ^ (k - k)))} (haN : ∀ z ∈ Zb, 0 < aN z) :
+    0 < constNat N βk aN Zb := by
+  unfold constNat
+  refine Finset.prod_pos fun z hz => Real.rpow_pos_of_pos ?_ _
+  have := haN z hz
+  positivity
+
+/-- **The pointwise bound (2.58′) for the removed outcome** (Lemma III.8.7 step (2), removed
+bullet), for the landed objects of `cancellation_identity`: with `𝒢^♮ = gaussNat`,
+`β_k A*_k(X_win) = β₀ actionRegionC D`, `𝒜_win = β_k A*_k(X_win) - C_{k₁,k}`,
+`const^♮ = constNat … aN`, `const = constNat … compWeightZ`, and a denominator
+`den = e^{-A_den - (N/2) log β_k n₀ + Ẽ₀}` (Lemma III.8.2, `n₀ = |Z₀|`):
+`e^{-𝒢^♮ - 𝒜_win} const^♮ / const / den ≤
+  e^{(N/2) log β_k n₀ - Ẽ₀ + (A_den - β_k A*_k(Z; ψ⁰_k, φ⁰_k)) + 1 + 3 + |C^♮_0| + C_{k₁,k}}`.
+Hypotheses: the identity (2.58′) (the conclusion of `cancellation_identity`), the bounds (a)-(c)
+of Lemma III.6.4 (the conclusions of `remaining_terms_of_lemma262`), the real domain, positive
+weights `a^♮_z`, the layers of the window blocks (for `a_z > 0`), and the denominator identity.  In
+the source the action of the denominator is `β_k A*_k(Z; ψ⁰_k, φ⁰_k)`, so `A_den - A_Z = 0`; with the
+landed `denominator_eq` it is `β_k effActionNorm G' ψ⁰_k` (LF4R-PLAN §4.3 item 2). -/
+theorem removedFactor_le {a₁ : ℝ} (hprec : Precedes G G')
+    (ψ0 : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ) (Du : BgData G N)
+    {φu : G.Ω 1 × Fin N → ℂ} (D : Region G) (Zr Zk1 : Region G')
+    (Zb : Finset (Torus d (N₀ * L ^ (k - k)))) {β0 ν : ℝ} (ϖ : ℕ → ℝ)
+    (aN : Torus d (N₀ * L ^ (k - k)) → ℝ) (ψk : Torus d (N₀ * L ^ (k - k)) → Fin N → ℂ)
+    (hβ0 : 0 < β0) (hν : 0 ≤ ν) (ha₁ : 0 < a₁) (hL : 2 ≤ L) (ha : ∀ j, 0 ≤ compWeight L a₁ j)
+    (haN : ∀ z ∈ Zb, 0 < aN z)
+    (hZb : ∀ z ∈ Zb, ∀ x ∈ fib d L N₀ k k z, 1 ≤ G.layerIndex x ∧ G.layerIndex x < k)
+    (hDat : (windowData G G' hprec (compWeight L a₁) ψ0 h).IsReal) (hDu : Du.IsReal)
+    (hφu : ∀ p, (φu p).im = 0)
+    (hφ : ∀ p, (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h) p).im = 0)
+    (hid : gaussNat G ϖ Du.Ψ (betaK d L k β0) aN ψk Zb +
+          (β0 : ℂ) * actionRegionC D (compWeight L a₁) ν Du φu -
+          ((Real.log (constNat N (betaK d L k β0) aN Zb) : ℝ) : ℂ) =
+        (β0 : ℂ) * actionRegionC Zr (compWeight L a₁) ν (psiZeroData G' ψ0 h)
+            (phiZero G' (compWeight L a₁) ψ0 h) -
+          (β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h) (phiZero G' (compWeight L a₁) ψ0 h) +
+          ((betaK d L k β0 : ℝ) * ∑ z ∈ Zb, (1 / 2 : ℂ) * (aN z : ℂ) *
+              dotC (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z)
+                (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z) +
+            (β0 : ℂ) * (deltaActionC D (compWeight L a₁) ν
+                (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+                (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu
+                (hprec.restrictα (alphaZero G' (compWeight L a₁) ψ0 h)) +
+              nuTerm D ν (windowData G G' hprec (compWeight L a₁) ψ0 h)
+                (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu)) +
+          (β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+            (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu -
+          ((Real.log (constNat N (betaK d L k β0) (compWeightZ G a₁) Zb) : ℝ) : ℂ) +
+          Cnat a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk)
+    (hA0 : ‖(β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h)
+      (phiZero G' (compWeight L a₁) ψ0 h)‖ < 1 / 4)
+    (hb : ‖(1 / 2 : ℂ) * (β0 : ℂ) * D.sitePair (hprec.restrictα (alphaZero G' (compWeight L a₁) ψ0 h))
+        (svec G (φu - hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)))
+        (svec G (φu - hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)))‖ < 1 / 4)
+    (hst : ‖(β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+        (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu‖ < 1 / 4)
+    (hnu : ‖(β0 : ℂ) * nuTerm D ν (windowData G G' hprec (compWeight L a₁) ψ0 h)
+        (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu‖ < 1 / 4)
+    {den Aden E0 : ℝ} (n0 : ℝ)
+    (hden : den = Real.exp (-Aden - (N : ℝ) / 2 * Real.log (betaK d L k β0) * n0 + E0))
+    (Ckk : ℝ) :
+    Real.exp (-(gaussNat G ϖ Du.Ψ (betaK d L k β0) aN ψk Zb).re -
+          (((β0 : ℂ) * actionRegionC D (compWeight L a₁) ν Du φu).re - Ckk)) *
+        constNat N (betaK d L k β0) aN Zb / constNat N (betaK d L k β0) (compWeightZ G a₁) Zb /
+        den ≤
+      Real.exp ((N : ℝ) / 2 * Real.log (betaK d L k β0) * n0 - E0 +
+        (Aden - ((β0 : ℂ) * actionRegionC Zr (compWeight L a₁) ν (psiZeroData G' ψ0 h)
+          (phiZero G' (compWeight L a₁) ψ0 h)).re) + 1 + 3 +
+        ‖Cnat0 a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk‖ + Ckk) := by
+  have hβk : 0 < betaK d L k β0 := by unfold betaK; positivity
+  have hc1 := constNat_pos (N := N) hβk haN
+  have hc2 := constNat_pos (N := N) hβk (fun z hz => compWeightZ_pos ha₁ hL G (hZb z hz))
+  rw [← Real.exp_log hc1, ← Real.exp_log hc2]
+  have hre := congrArg Complex.re hid
+  rw [Cnat_eq_zero_add_one] at hre
+  simp only [Complex.add_re, Complex.sub_re, Complex.ofReal_re] at hre
+  have hB := cancelBracket_add_Cnat1_ge a₁ hprec ψ0 h Du Zb hβ0.le ϖ aN (fun z hz => (haN z hz).le) D
+    hν ha hDat hDu hφu hφ hb hnu
+  have hA0' : |((β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h)
+      (phiZero G' (compWeight L a₁) ψ0 h)).re| < 1 / 4 :=
+    (Complex.abs_re_le_norm _).trans_lt hA0
+  have hst' : |((β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+      (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu).re| < 1 / 4 :=
+    (Complex.abs_re_le_norm _).trans_lt hst
+  simp only [Complex.add_re] at hB
+  set Gn := (gaussNat G ϖ Du.Ψ (betaK d L k β0) aN ψk Zb).re
+  set Aw := ((β0 : ℂ) * actionRegionC D (compWeight L a₁) ν Du φu).re
+  set AZ := ((β0 : ℂ) * actionRegionC Zr (compWeight L a₁) ν (psiZeroData G' ψ0 h)
+    (phiZero G' (compWeight L a₁) ψ0 h)).re
+  set A0 := ((β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h)
+    (phiZero G' (compWeight L a₁) ψ0 h)).re
+  set Sst := ((β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+      (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu).re
+  set C0 := (Cnat0 a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk).re
+  set C1 := (Cnat1 a₁ hprec ψ0 h Du Zb β0 ϖ aN).re
+  set B := (((betaK d L k β0 : ℝ) : ℂ) * ∑ z ∈ Zb, (1 / 2 : ℂ) * (aN z : ℂ) *
+          dotC (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z)
+            (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z)).re +
+      ((β0 : ℂ) * (deltaActionC D (compWeight L a₁) ν
+          (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+          (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu
+          (hprec.restrictα (alphaZero G' (compWeight L a₁) ψ0 h)) +
+        nuTerm D ν (windowData G G' hprec (compWeight L a₁) ψ0 h)
+          (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu)).re
+  have h258 : Gn + Aw - Real.log (constNat N (betaK d L k β0) aN Zb) =
+      AZ - A0 + B + Sst - Real.log (constNat N (betaK d L k β0) (compWeightZ G a₁) Zb) +
+        (C0 + C1) := by
+    linarith [hre]
+  have key := removedFactor_le_of_identity (Ckk := Ckk) (Aden := Aden) (E0 := E0)
+    (nlb := (N : ℝ) / 2 * Real.log (betaK d L k β0) * n0) h258 hden hA0' hst' hB
+  refine key.trans (Real.exp_le_exp.2 ?_)
+  have := Complex.abs_re_le_norm (Cnat0 a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk)
+  linarith
+
+end Landed
+
 end Balaban.LargeField.ActionConv
