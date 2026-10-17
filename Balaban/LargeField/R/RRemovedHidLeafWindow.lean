@@ -131,8 +131,150 @@ theorem window_node_integral_eq {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤
             (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)))) =
         ENNReal.ofReal (ActionConv.constNat N βk aN Zb *
           Real.exp (-(ActionConv.gaussNat (W.windowGenSet hWh) (varpi (m' + 1) z) Ψ βk aN ψk Zb).re)) := by
-  sorry
+  classical
+  obtain ⟨B, e, el, he0, hsc, hleaf, hE⟩ := lintegral_gauss_coords_eq geo cs SD KD hk1 hm hq nd hnd hnd0
+    Z0 V2 G3 P2 hV2 hZ0g hG3 Nd hNd c z hc hz fld ft hfldn hfldb hftg hftz hftt pa hpa Fx hFxdef v0
+  have hnn := H.F.hnn
+  have hL : 2 ≤ S.L := H.F.ok.two_le_L
+  have hR : ∀ j, 1 ≤ j → j < m' + 1 → S.Rb ≤ R j := fun j _ _ => geo.hRlow j
+  have hmpos : 0 < S.L ^ S.d := by have := NeZero.pos S.L; positivity
+  have hgauss : ∀ y : BlockAt S n M K (m' + 1), nd ⟨m' + 1, y⟩ →
+      y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' := by
+    intro y h
+    obtain ⟨-, -, c', hc', hg⟩ := (hnd m' y).mp h
+    rw [ancFin_self] at hc'
+    rwa [Finset.mem_singleton.mp hc'] at hg
+  have hndg : ∀ y : BlockAt S n M K (m' + 1), y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' →
+      nd ⟨m' + 1, y⟩ := fun y hy =>
+    (hnd m' y).mpr ⟨hk1, le_rfl, Z, by rw [ancFin_self]; exact Finset.mem_singleton_self _, hy⟩
+  have hrootY : ∀ r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r}, Fx r.1 →
+      ∃ y : BlockAt S n M K (m' + 1), r.1.1 = ⟨m' + 1, y⟩ ∧ y ∈ V2 ∧ P2 y :=
+    fun r h => (hFxdef r.1).mp h
+  let ych : {r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} // Fx r.1} →
+      BlockAt S n M K (m' + 1) := fun r => Classical.choose (hrootY r.1 r.2)
+  have hych : ∀ r : {r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} // Fx r.1},
+      r.1.1.1 = ⟨m' + 1, ych r⟩ ∧ ych r ∈ V2 ∧ P2 (ych r) :=
+    fun r => Classical.choose_spec (hrootY r.1 r.2)
+  let f : {r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} // Fx r.1} →
+      Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1))) := fun r =>
+    torusCast (blk_eq_top hnn hm (le_refl (m' + 1))).symm (ych r)
+  have hf : Function.Injective f := by
+    intro r r' h
+    have h1 := torusCast_injective _ h
+    have h2 : r.1.1.1 = r'.1.1.1 := by rw [(hych r).1, (hych r').1, h1]
+    exact Subtype.ext (Subtype.ext (Subtype.ext h2))
+  have hZb' : ∀ x, x ∈ Zb ↔ ∃ r, f r = x := by
+    intro x
+    constructor
+    · intro hx
+      obtain ⟨y, hyV, hyP, hyg, rfl⟩ := (hZb x).mp hx
+      let b : {b : Σ s, BlockAt S n M K s // nd b} := ⟨⟨m' + 1, y⟩, hndg y hyg⟩
+      have hfix : pa b = b := (hpa b).2 (fun h => by
+        have := h.2
+        change m' + 1 + 1 ≤ m' + 1 at this
+        omega)
+      let r : {r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} // Fx r.1} :=
+        ⟨⟨b, hfix⟩, (hFxdef b).mpr ⟨y, rfl, hyV, hyP⟩⟩
+      refine ⟨r, ?_⟩
+      have h1 : (⟨m' + 1, y⟩ : Σ s, BlockAt S n M K s) = ⟨m' + 1, ych r⟩ := (hych r).1
+      have h2 : y = ych r := eq_of_heq (Sigma.mk.inj_iff.mp h1).2
+      show torusCast _ (ych r) = torusCast _ y
+      rw [h2]
+    · rintro ⟨r, rfl⟩
+      obtain ⟨hr1, hr2, hr3⟩ := hych r
+      refine (hZb _).mpr ⟨ych r, hr2, hr3, ?_, rfl⟩
+      exact hgauss _ (by have := r.1.1.2; rwa [hr1] at this)
+  have hPpos : ∀ r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r}, Fx r.1 →
+      0 < (B r).composedPrecision c z := by
+    intro r hr
+    obtain ⟨y, hry, -⟩ := hrootY r hr
+    have hrk : r.1.1.1 = m' + 1 := congrArg Sigma.fst hry
+    exact (B r).composedPrecision_pos hmpos c z (fun s hs hle => hz s hs (by rw [← hrk]; exact hle))
+      (fun j hj hlt => hc j hj (by rw [← hrk]; exact hlt))
+  have hreal : ∀ zb ∈ Zb, ∀ i, (ψk zb i - ActionConv.compMeanT (W.windowGenSet hWh)
+      (varpi (m' + 1) z) Ψ zb i).im = 0 := by
+    intro zb hzb i
+    obtain ⟨y, hyV, hyP, hyg, rfl⟩ := (hZb zb).mp hzb
+    rw [Complex.sub_im, compMeanT_im_eq_zero (W.windowGenSet hWh) (varpi (m' + 1) z) Ψ _ i
+      (fun s hs => by rw [hΨ y hyV hyP hyg s hs i]; exact Complex.ofReal_im _),
+      hψk y hyV hyP hyg i, Complex.ofReal_im]
+    simp
+  have hμ : ∀ r : {r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} // Fx r.1},
+      (fun r : {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r} =>
+        (fun b : {b : Σ s, BlockAt S n M K s // nd b} =>
+            if h : b.1.1 = m' + 1 then ft v0 (h ▸ b.1.2) else 0) r.1 -
+          (B r).composedMean z (fun x => (fun l : {q : (Σ s, BlockAt S n M K s) ×
+              {b : Σ s, BlockAt S n M K s // nd b} //
+            (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
+              Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1} => fld v0 l.1.1.1 l.1.1.2)
+            ((el r).symm x).1)) r.1 =
+        (WithLp.toLp 2 fun i => (ψk (f r) i - ActionConv.compMeanT (W.windowGenSet hWh)
+          (varpi (m' + 1) z) Ψ (f r) i).re : EuclideanSpace ℝ (Fin N)) := by
+    intro r
+    obtain ⟨hr1, hr2, hr3⟩ := hych r
+    have hyg : ych r ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' :=
+      hgauss _ (by have := r.1.1.2; rwa [hr1] at this)
+    have hyk1 : ∀ x : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)),
+        jBlock S.d S.L (M * n K) K (m' + 1) (torusCast (fine_eq_top hnn hm).symm x) = ych r →
+          x ∉ H.locFine Z M k1 := fun x hx hxl => by
+      have := hZk1 x hxl
+      rw [hx] at this
+      exact hV2 _ hr2 hr3 this
+    have hzy := mem_fib_cast hnn hm (le_refl (m' + 1)) (ych r)
+    have hGlay : ∀ s ∈ fib S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1)
+        (torusCast (blk_eq_top hnn hm (le_refl (m' + 1))).symm (ych r)),
+        (W.windowGenSet hWh).layerIndex s = (H.locGen Z M hm hL hR).layerIndex s := by
+      intro s hs
+      have hsY := (hzy s).mp hs
+      obtain ⟨hZ, -⟩ := gauss_top_site hnn hm hL hR hyg hsY
+      have hx : s ∈ W.Z \ W.Zk1 := Finset.mem_sdiff.mpr
+        ⟨by rw [hWZ, RegionHistory.mem_locFineFin]; exact hZ,
+         by rw [hWZk1, RegionHistory.mem_locFineFin]; exact hyk1 s hsY⟩
+      exact (windowGenSet_layerIndex_eq_full W hWh hx).trans (layerIndex_congr W.full _ hWfull s)
+    exact root_mean hnn hm hL hR hk1p hk1 nd hnd hnd0 pa hpa r.1 (ych r) hr1 (B r.1) (e r.1) (el r.1)
+      (hsc r.1) (hleaf r.1) hyk1 _ hzy (W.windowGenSet hWh) hGlay z Ψ ψk (fun s y => fld v0 s y)
+      (fun b => if h : b.1.1 = m' + 1 then ft v0 (h ▸ b.1.2) else 0)
+      (fun s hs i => hΨ (ych r) hr2 hr3 hyg s hs i)
+      (fun i => by
+        have hut := ut_eq nd r.1.1 (ych r) hr1 (ft v0)
+        simp only at hut ⊢
+        rw [hut]
+        exact hψk (ych r) hr2 hr3 hyg i)
+  obtain ⟨aN, hP, hprod⟩ := ActionConv.prod_roots_eq_constNat_exp_of_inj
+    (ρ := {r : {b : Σ s, BlockAt S n M K s // nd b} // pa r = r}) (fun r => Fx r.1)
+    (fun r => (B r).composedPrecision c z)
+    (fun r => (fun b : {b : Σ s, BlockAt S n M K s // nd b} =>
+            if h : b.1.1 = m' + 1 then ft v0 (h ▸ b.1.2) else 0) r.1 -
+          (B r).composedMean z (fun x => (fun l : {q : (Σ s, BlockAt S n M K s) ×
+              {b : Σ s, BlockAt S n M K s // nd b} //
+            (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
+              Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1} => fld v0 l.1.1.1 l.1.1.2)
+            ((el r).symm x).1))
+    (W.windowGenSet hWh) (varpi (m' + 1) z) Ψ hβ ψk Zb f hf hZb' hPpos hreal hμ
+  refine ⟨aN, fun zb hzb => ?_, hE.trans (by convert hprod)⟩
+  obtain ⟨r, rfl⟩ := (hZb' zb).mp hzb
+  rw [← hP r]
+  exact hPpos r.1 r.2
 
 end Window
+
+section Instance
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) {k : ℕ} (Z : H.Comp k) {M : ℕ} [NeZero M] [NeZero S.L]
+  (g : Geo S n R M) (hkK : k ≤ K) (hW : H.RipeWindow k Z)
+
+/-- The hypotheses `hWfull`, `hWZ`, `hWZk1` of `window_node_integral_eq` hold for `windowOfHistory` (definitional). -/
+theorem windowOfHistory_full_Ω (j : ℕ) :
+    (windowOfHistory H Z g hkK hW).full.Ω j =
+      (H.locGen Z M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j)).Ω j := rfl
+
+theorem windowOfHistory_Z : (windowOfHistory H Z g hkK hW).Z = H.locFineFin Z k := rfl
+
+theorem windowOfHistory_Zk1 :
+    (windowOfHistory H Z g hkK hW).Zk1 = H.locFineFin Z (S.k1 k) := rfl
+
+end Instance
+
 
 end Balaban.LargeField
