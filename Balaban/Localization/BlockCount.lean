@@ -210,11 +210,6 @@ section Chosen
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L]
 
 open Classical in
-/-- The number of cells of side `a` (aligned boxes `box b a`) contained in `X`. -/
-noncomputable def cellCount (a : ℕ) (X : Set (CTorus d L N₁ m₁ K)) : ℕ :=
-  (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ box b a ⊆ X).card
-
-open Classical in
 /-- **Core of `card_aligned_in_cube`, for any factor `r`**: an aligned cube `box b' (r a)` contains
 at most `r^d` aligned points. -/
 theorem card_aligned_in_box_mul {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K) (ha0 : 0 < a) (r : ℕ)
@@ -244,6 +239,11 @@ theorem card_aligned_in_box_mul {a : ℕ} (ha : a ∣ (N₁ * L ^ m₁) * L ^ K)
   calc _ ≤ _ := Finset.card_le_card hsub
     _ ≤ (Fintype.piFinset fun _ : Fin d => Finset.range r).card := Finset.card_image_le
     _ = r ^ d := by simp
+
+open Classical in
+/-- The number of cells of side `a` (aligned boxes `box b a`) contained in `X`. -/
+noncomputable def cellCount (a : ℕ) (X : Set (CTorus d L N₁ m₁ K)) : ℕ :=
+  (Finset.univ.filter fun b : CTorus d L N₁ m₁ K => Aligned a b ∧ box b a ⊆ X).card
 
 open Classical in
 /-- An aligned cube `box b' (L a)` contains at most `L^d` aligned points. -/
