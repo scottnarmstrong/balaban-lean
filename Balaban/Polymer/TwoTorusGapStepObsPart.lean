@@ -110,7 +110,7 @@ theorem mem_polyDom_blockSite_recentred_iff (hGA : IsLevel (GA) (k + 1)) (hGB : 
 /-- **The blocks of a recentred domain correspond.**  The blocks `b` with the domain `Y` and the blocks
 `b'` of the second torus with the domain `φ '' Y` correspond by `b ↦ bc (b + τA) - τB`. -/
 theorem blocks_recentred (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
-    (hd : 0 < d) (hL : 2 ≤ L) (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hL : 2 ≤ L) (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
     (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
     (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
     (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
@@ -294,7 +294,7 @@ theorem vpartTerm_recentred_core
     rw [htAz]; exact dvd_val_intCast (cellSide_dvd hN le_rfl) (hz μ)
   have htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val := fun μ => by
     rw [htBz]; exact dvd_val_intCast (cellSide_dvd hN' le_rfl) (hz μ)
-  obtain ⟨hmap, hinj, hsurj⟩ := blocks_recentred hGA hGB hd hL hN hN' tA tB htA htB hYR hn20 hn20'
+  obtain ⟨hmap, hinj, hsurj⟩ := blocks_recentred hGA hGB hL hN hN' tA tB htA htB hYR hn20 hn20'
     hnF hnF'
   refine sum_ite_bij _ _ _ _ (fun b => bc (b + τA) - τB) (fun b hb => ?_) hinj hsurj
   obtain ⟨hX₁R, hxs, hmem⟩ := hmap b hb
