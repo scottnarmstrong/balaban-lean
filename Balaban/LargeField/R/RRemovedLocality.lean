@@ -9,6 +9,8 @@ public import Balaban.LargeField.R.RRemovedKernelPre
 public import Balaban.LargeField.R.SmallFactorChi
 public import Balaban.LargeField.R.ChiBridgeHist
 public import Balaban.LargeField.Operators.QuietIndep
+public import Balaban.LargeField.R.HgeoDischarge
+public import Balaban.LargeField.R.ZeroDomainD
 
 /-!
 # Locality of the objects of the removed kernel (Lemma III.1.5, Lemma III.8.4 (i))
@@ -262,5 +264,55 @@ theorem preOp_dom_congr (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
 
 end Dom
 
+
+section Geometry
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+  (H : RegionHistory S n R k0 K) [NeZero S.L] [NeZero S.M]
+
+/-- **`Z₀` consists of Gaussian blocks** (Lemma III.3.2 (d)): a set `Z₀` of `(k+1)`-blocks all of
+whose sites lie in the fine set `Z_0` (`fineZzero`) of a component `Z'` of `Z_{k+1}` lies in
+`gaussBlocks`, the blocks of `Ω^c_{k+1} ∩ Z'` of the localized history.  Operative radii
+`R_j = R_base λ̂_j²`. -/
+theorem zzero_subset_gaussBlocks (hR : ∀ j, R j = S.Rb * S.lam j ^ 2) {k : ℕ} (hK : k + 1 ≤ K)
+    (Z' : H.Comp (k + 1)) (Z0 : Set (BlockAt S n S.M K (k + 1)))
+    (hZ0 : ∀ b ∈ Z0, BlockSub (S := S) (n := n) (M := S.M) (K := K) (k + 1) b
+      (H.fineZzero (k + 1) Z')) :
+    Z0 ⊆ gaussBlocks (H.localHistory S.M K (k + 1) Z') k := by
+  intro b hb
+  rw [gaussBlocks_iff hK Z' b]
+  obtain ⟨x0, hx0⟩ := exists_site_in_block (S := S) (n := n) (M := S.M) hK b
+  have hx : blockMap (S.L ^ (k + 1)) (S.M * n (k + 1)) (torusCast (H.fineTorus_eq hK) x0) ∈
+      H.Zzero (k + 1) Z' := by
+    rw [blockMap_torusCast]
+    exact hZ0 b hb x0 hx0
+  have hc := blockCube_eq_cubeMap H.F.hnn hK hx0
+  have hcm := H.cubeMap_torusCast (k := k + 1) (j := k + 1) hK x0
+  refine ⟨?_, ?_⟩
+  · rw [hc, ← hcm]
+    exact (H.Zzero_margin hR hK (by omega) Z' hx).2.2
+  · rw [hc, ← hcm]
+    exact H.Zzero_not_mem_Omega_top hR hK Z' hx
+
+
+variable {N : ℕ} (g : Geo S n R S.M) (cs : OpConsts) (hv : EuclideanSpace ℝ (Fin N))
+
+/-- **`χ_S` does not read `ψ_k` on `Z₀`, for a component `Z` of `Z_k`** (Lemma III.5.0 (a)): the
+geometric hypothesis `hsep` of `chiS_congr` is `hgeo_two_fine`, for the localized history of `Z`,
+`Z''_0 =` the fine set of `ZzeroDD` and `Z_0 =` `fineZzero`; `Z₀` is a set of `k`-blocks inside
+`fineZzero`. -/
+theorem chiS_congr_zzero {k : ℕ} (hkK : k ≤ K) (hk : 1 ≤ k) (Z : H.Comp k)
+    (Z0 : Set (BlockAt S n S.M K k))
+    (hZ0 : ∀ b ∈ Z0, BlockSub (S := S) (n := n) (M := S.M) (K := K) k b (H.fineZzero k Z))
+    {ψ ψ' : BlockAt S n S.M K k → EuclideanSpace ℝ (Fin N)} (hψ : ∀ y, y ∉ Z0 → ψ y = ψ' y) :
+    chiS (H.localHistory S.M K k Z) k g H.F.hnn cs hv hkK
+        (fineSet (S := S) (n := n) S.M K k (H.ZzeroDD k Z)) ψ =
+      chiS (H.localHistory S.M K k Z) k g H.F.hnn cs hv hkK
+        (fineSet (S := S) (n := n) S.M K k (H.ZzeroDD k Z)) ψ' := by
+  refine chiS_congr _ k g H.F.hnn cs hv H.F.ok.two_le_L hkK _ Z0 (H.fineZzero k Z) hZ0 ?_ hψ
+  intro y0 hy0 x hx
+  exact (H.hgeo_two_fine hkK hk Z y0 hy0 _ (by rwa [← blockMap_level_eq_cubeMap H g hkK x])).2
+
+end Geometry
 
 end Balaban.LargeField
