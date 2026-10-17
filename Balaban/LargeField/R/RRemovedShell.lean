@@ -91,14 +91,28 @@ theorem outPartMeasure_shell_le_one (hN : 2 ≤ N) {α : Type} [Finite α] (V : 
     (fun y => (volume_shellSet_le N hN (ht y) (ht1 y)).trans (ENNReal.ofReal_le_one.mpr (hct y)))
   exact this
 
+/-- **The shells of a finite family of non-spin variables have measure at most `1`.** -/
+theorem pi_shell_le_one (hN : 2 ≤ N) {ι : Type} [Fintype ι] (b : ι → Bool) (hb : ∀ i, b i = false)
+    (t : ι → ℝ) (ht : ∀ i, 0 < t i) (ht1 : ∀ i, t i ≤ 1 / 2) (hct : ∀ i, cShell N * t i ≤ 1) :
+    (Measure.pi fun i => varMeasure N (b i))
+      {x | ∀ i, |‖VarVal.toEuc (x i)‖ ^ 2 - 1| < t i} ≤ 1 := by
+  have hset : {x : ∀ i, VarVal N (b i) | ∀ i, |‖VarVal.toEuc (x i)‖ ^ 2 - 1| < t i} =
+      Set.pi Set.univ (fun i => (VarVal.toEuc : VarVal N (b i) → EuclideanSpace ℝ (Fin N)) ⁻¹'
+        shellSet N (t i)) := by
+    ext x; simp [shellSet]
+  rw [hset]
+  refine pi_pi_le_one (fun i => varMeasure N (b i)) _ fun i => ?_
+  rw [(measurePreserving_toEuc_false (N := N) _ (hb i)).measure_preimage
+    (measurableSet_shellSet N (t i)).nullMeasurableSet]
+  exact (volume_shellSet_le N hN (ht i) (ht1 i)).trans (ENNReal.ofReal_le_one.mpr (hct i))
+
 /-- **Shells, internal variables** (non-spin). -/
 theorem subMeasure_shell_le_one (hN : 2 ≤ N) (a : LocalHistory S n M K) {k : ℕ}
     (A : Set (InternalVars a k)) (hA : ∀ p ∈ A, p.isSpin = false) (t : A → ℝ)
     (ht : ∀ p, 0 < t p) (ht1 : ∀ p, t p ≤ 1 / 2) (hct : ∀ p, cShell N * t p ≤ 1) :
     subMeasure N a k A {x | ∀ p : A, |‖VarVal.toEuc (x p)‖ ^ 2 - 1| < t p} ≤ 1 := by
-  exact subMeasure_pi_le_one a A hA (fun p => shellSet N (t p))
-    (fun p => measurableSet_shellSet N (t p))
-    (fun p => (volume_shellSet_le N hN (ht p) (ht1 p)).trans (ENNReal.ofReal_le_one.mpr (hct p)))
+  unfold subMeasure
+  exact pi_shell_le_one hN (fun p : A => p.1.isSpin) (fun p => hA p.1 p.2) t ht ht1 hct
 
 /-- **Balls, output variables**: `‖o y - c y‖ < r y` with `v_N (r y)^N ≤ 1`. -/
 theorem outPartMeasure_ball_le_one (hN : 0 < N) {α : Type} [Finite α] (V : Set α) (P : α → Prop)
