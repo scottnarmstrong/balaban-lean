@@ -171,6 +171,22 @@ theorem xiCRaw_dom_birth {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {A : ℕ
   rintro p ⟨D, hD, rfl⟩
   exact xiDom_birth_chart H H' heps hδ₃ hδfl hμ ht hτr hr hDL hsmε hc1ε hKε hζε (hunit D hD)
 
+/-- If `μ = ν P` with `P` complex and `μ`, `ν` real, then `μ = ν (1 + t)` with `t` real and
+`|t| ≤ ‖P - 1‖`. -/
+theorem exists_real_defect {ν μ : ℝ} {P : ℂ} (hμ : (μ : ℂ) = ν * P) :
+    ∃ t : ℝ, μ = ν * (1 + t) ∧ |t| ≤ ‖P - 1‖ := by
+  by_cases hν : ν = 0
+  · have : μ = 0 := by
+      have h0 : (μ : ℂ) = 0 := by rw [hμ, hν]; simp
+      exact_mod_cast h0
+    exact ⟨0, by simp [this, hν], by simp⟩
+  · refine ⟨μ / ν - 1, by field_simp; ring, ?_⟩
+    have hν' : (ν : ℂ) ≠ 0 := by exact_mod_cast hν
+    have e : (((μ / ν - 1 : ℝ)) : ℂ) = P - 1 := by
+      push_cast
+      rw [hμ]; field_simp
+    rw [← e, Complex.norm_real, Real.norm_eq_abs]
+
 /-- **`xiCRaw_dom_birth` with the birth mass given by the flow.**  If
 `μ = ν ∏_{n ∈ [j, K)} (1 + ξ₃^{(n)})/(1 + ξ₂^{(n)})` (the ratio `δ_K/δ_j` of `deltaSeq`) and
 `‖ξ_n‖ ≤ (c₈/4) q^{n+1}` (P4 (5.31)), the mass defect is
@@ -201,19 +217,7 @@ theorem xiCRaw_dom_birth_flow {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {A 
         (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
       (xiFieldDom A μ εs : FieldDom d L N₁ m₁ k N ϱ).dom j G p.1 p.2 := by
   have hbd := norm_ratio_prod_sub_one_le_geom hq0 hq1 hc hs hξ j K
-  obtain ⟨t, ht, htb⟩ : ∃ t : ℝ, μ = ν * (1 + t) ∧
-      |t| ≤ ‖∏ n ∈ Ico j K, ((1 + ξ n 2) / (1 + ξ n 1)) - 1‖ := by
-    by_cases hν : ν = 0
-    · have : μ = 0 := by
-        have h0 : (μ : ℂ) = 0 := by rw [hμ, hν]; simp
-        exact_mod_cast h0
-      exact ⟨0, by simp [this, hν], by simp⟩
-    · refine ⟨μ / ν - 1, by field_simp; ring, ?_⟩
-      have hν' : (ν : ℂ) ≠ 0 := by exact_mod_cast hν
-      have e : (((μ / ν - 1 : ℝ)) : ℂ) = ∏ n ∈ Ico j K, ((1 + ξ n 2) / (1 + ξ n 1)) - 1 := by
-        push_cast
-        rw [hμ]; field_simp
-      rw [← e, Complex.norm_real, Real.norm_eq_abs]
+  obtain ⟨t, ht, htb⟩ := exists_real_defect hμ
   exact xiCRaw_dom_birth H H' heps hδ₃ hδfl ht (htb.trans hbd) hτr hr hDL hsmε hc1ε hKε hζε hunit
 
 /-- **The top level `j = K`**: no condition on the real witness (the norm clause is part of the
