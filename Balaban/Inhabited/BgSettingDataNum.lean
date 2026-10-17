@@ -30,11 +30,11 @@ section Num
 
 open Filter Topology
 
-/-- The smallness conditions of `ChainNum` and `FlNum` are satisfiable simultaneously with
-`δ₁ = ε'` and `δ₃ = A ε'` (`FlNum` for the same `ε'`, `δ₃` as the chain). -/
-theorem joint_num_exists (d L N m₁ : ℕ) [NeZero L] (hd : 0 < d) {BG BG₂ : ℝ} (hBG : 0 ≤ BG)
+/-- The smallness conditions of `ChainNum` and `FlNum` hold simultaneously for all small
+`ε' > 0`, with `δ₃`, `δ_fl` depending on `ε'` (the eventual form of `joint_num_exists`). -/
+theorem joint_num_eventually (d L N m₁ : ℕ) [NeZero L] (hd : 0 < d) {BG BG₂ : ℝ} (hBG : 0 ≤ BG)
     (hBG₂ : 0 ≤ BG₂) (κ r₀ : ℝ) :
-    ∃ eps δ₃ δfl : ℝ, ChainNum d L N m₁ BG κ r₀ eps δ₃ ∧
+    ∀ᶠ eps : ℝ in 𝓝[>] (0 : ℝ), ∃ δ₃ δfl : ℝ, ChainNum d L N m₁ BG κ r₀ eps δ₃ ∧
       FlNum d L N BG BG₂ κ eps δ₃ eps δfl := by
   set A : ℝ := N * composedCloseBound d L N m₁ BG κ (xiC1 d) r₀ with hA
   have hA0 : 0 ≤ A := by
@@ -110,15 +110,25 @@ theorem joint_num_exists (d L N m₁ : ℕ) [NeZero L] (hd : 0 < d) {BG BG₂ : 
       exact ContinuousAt.eventually_lt (by simp only [hF]; fun_prop) (by fun_prop)
         (by simp only [hF0]; simpa using hT)
   have hpos : ∀ᶠ e : ℝ in 𝓝[>] 0, 0 < e := self_mem_nhdsWithin
-  obtain ⟨e, ⟨⟨h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11⟩,
-    ⟨g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11⟩⟩, he⟩ :=
-    ((key.filter_mono nhdsWithin_le_nhds).and hpos).exists
+  filter_upwards [key.filter_mono nhdsWithin_le_nhds, hpos] with e
+    ⟨⟨h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11⟩,
+    ⟨g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11⟩⟩ he
   have hFe : 0 ≤ F e := by simp only [hF]; positivity
-  refine ⟨e, A * e, F e, ⟨he, h1.le, h2.le, h3.le, h4.le, by positivity, h5.le, h6.le, h7.le,
+  refine ⟨A * e, F e, ⟨he, h1.le, h2.le, h3.le, h4.le, by positivity, h5.le, h6.le, h7.le,
     h8.le, h9, h10.le, h11.le, ?_⟩, ⟨he, g1.le, g2.le, g3.le, g4, le_rfl, hFe, g5.le, g6.le,
     g7.le, g8.le, g9, g10.le, g11.le⟩⟩
   rw [composedCloseBound_linear]
   rw [hA]; nlinarith
+
+/-- The smallness conditions of `ChainNum` and `FlNum` are satisfiable simultaneously with
+`δ₁ = ε'` and `δ₃ = A ε'` (`FlNum` for the same `ε'`, `δ₃` as the chain). -/
+theorem joint_num_exists (d L N m₁ : ℕ) [NeZero L] (hd : 0 < d) {BG BG₂ : ℝ} (hBG : 0 ≤ BG)
+    (hBG₂ : 0 ≤ BG₂) (κ r₀ : ℝ) :
+    ∃ eps δ₃ δfl : ℝ, ChainNum d L N m₁ BG κ r₀ eps δ₃ ∧
+      FlNum d L N BG BG₂ κ eps δ₃ eps δfl := by
+  obtain ⟨e, h⟩ := (joint_num_eventually d L N m₁ hd hBG hBG₂ κ r₀).exists
+  obtain ⟨δ₃, δfl, h1, h2⟩ := h
+  exact ⟨e, δ₃, δfl, h1, h2⟩
 
 end Num
 

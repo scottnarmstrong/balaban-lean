@@ -63,6 +63,62 @@ theorem pieces_regions_disjoint {k1 m' : ℕ} {Z : H.Comp (m' + 1)} (g : Geo S n
     exact key _ _ _ _ heq (fun h => hne (hinj h)) h1 h1'
   · exact piece_sites_disjoint_lt hmK hgt (hjf i).2 (hcf i') (hcf i) h1' h1 h2
 
+/-- The geometric `PieceWindowSetup` used by `sum_mainActionLoc_eq_gen`.  The parameters
+`ak`, `νk`, `βk`, `Datw`, and `φw` are explicit so that a physical read comparison can
+specialize them to the window configuration of P7 p. 501 (2.14)–(2.16). -/
+noncomputable def pieceWindowSetupOfFamily (g : Geo S n R M)
+    {k1 m' : ℕ} {Z : H.Comp (m' + 1)} (hmK : m' + 1 ≤ K)
+    {ϱ : ℝ} (Wp : WindowPieces S.d S.L (M * n (m' + 1)) (m' + 1) ϱ)
+    (hWh : Wp.Hyp) {ι : Type*} [Fintype ι] (jf : ι → ℕ)
+    (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, k1 ≤ jf i ∧ jf i ≤ m')
+    (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
+    (hinj : Function.Injective fun i => (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)))
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (Xw : ι → Region (Wp.windowGenSet hWh))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔
+      torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+        Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xwin : Region (Wp.windowGenSet hWh))
+    (hsites : Xwin.sites = Finset.univ.biUnion fun i => (Xw i).sites)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+      (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (decomp : ∀ i, StepDecomp (Xc i))
+    (ak : ℕ → ℝ) (νk βk : ℝ) (Datw : BgData (Wp.windowGenSet hWh) N)
+    (φw : (Wp.windowGenSet hWh).Ω 1 × Fin N → ℂ) (br : MassBranch)
+    (chain : ∀ i, ConvChain (Set.univ : Set Unit) (jf i) (m' + 1)
+      (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+        (locComp_mem H (hjK i) (cf i)) (hjK i)) (Xc i) br N) :
+    PieceWindowSetup S.d S.L (M * n (m' + 1)) (m' + 1) N
+      (Set.univ : Set Unit) ι jf k1 (m' + 1) := by
+  classical
+  exact
+    { sc_mem := fun i => Finset.mem_Ico.2 ⟨(hjf i).1, by have := (hjf i).2; omega⟩
+      ϱw := ϱ
+      Gw := Wp.windowGenSet hWh
+      Xw := Xw
+      Xwin := Xwin
+      Xwin_sites := hsites
+      Xw_disj := fun i _ i' _ hne => Finset.disjoint_left.2 fun x hx hx' =>
+        pieces_regions_disjoint g hmK jf cf hjf hcf hinj hne x ((hXw i x).mp hx) ((hXw i' x).mp hx')
+      ak := ak
+      νk := νk
+      βk := βk
+      Datw := fun _ => Datw
+      φw := fun _ => φw
+      N₀c := fun i => g.M1 * (g.c * n (jf i + 1))
+      neN₀c := fun _ => inferInstance
+      Kc := fun i => jf i + 1
+      ϱc := fun _ => minSep S.L g.M1
+      Gc := fun i => locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+        (locComp_mem H (hjK i) (cf i)) (hjK i)
+      Xc := Xc
+      br := fun _ => br
+      chain := chain
+      decomp := decomp
+      mcount := fun i => (decomp i).total
+      mcount_eq := fun _ => rfl }
+
 
 open Classical in
 /-- **S5 for a family of pieces** (LFR (2.15′), P7 (2.12)-(2.16)).  Let `(j_i, c_i)_{i ∈ ι}` be an injective
@@ -156,33 +212,8 @@ theorem sum_mainActionLoc_eq_gen (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
       exact this.2
     · rintro ⟨i, -, hx⟩
       exact ⟨jf i, hjf i, cf i, hcf i, (hXw i x).mp hx⟩
-  let W : PieceWindowSetup S.d S.L (M * n (m' + 1)) (m' + 1) N (Set.univ : Set Unit) ι jf k1
-      (m' + 1) :=
-    { sc_mem := fun i => Finset.mem_Ico.2 ⟨(hjf i).1, by have := (hjf i).2; omega⟩
-      ϱw := ϱ
-      Gw := Wp.windowGenSet hWh
-      Xw := Xw
-      Xwin := Xwin
-      Xwin_sites := hsites
-      Xw_disj := fun i _ i' _ hne => Finset.disjoint_left.2 fun x hx hx' =>
-        pieces_regions_disjoint g hmK jf cf hjf hcf hinj hne x ((hXw i x).mp hx) ((hXw i' x).mp hx')
-      ak := ak
-      νk := νk
-      βk := βk
-      Datw := fun _ => Datw
-      φw := fun _ => φw
-      N₀c := fun i => g.M1 * (g.c * n (jf i + 1))
-      neN₀c := fun _ => inferInstance
-      Kc := fun i => jf i + 1
-      ϱc := fun _ => minSep S.L g.M1
-      Gc := fun i => locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-        (locComp_mem H (hjK i) (cf i)) (hjK i)
-      Xc := Xc
-      br := fun _ => br
-      chain := chain
-      decomp := decomp
-      mcount := fun i => (decomp i).total
-      mcount_eq := fun _ => rfl }
+  let W := pieceWindowSetupOfFamily g hmK Wp hWh jf cf hjf hcf hinj hjK Xw hXw
+    Xwin hsites Xc decomp ak νk βk Datw φw br chain
   have hanT : ∀ (i : ι) (m : ℕ), jf i + 1 ≤ m → m ≤ m' + 1 →
       AnalyticOnNhd ℂ (fun u => (W.chain i).T u m) Set.univ := by
     intro i m _ _
@@ -199,14 +230,15 @@ theorem sum_mainActionLoc_eq_gen (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
   obtain ⟨C, hC, -, hCb⟩ := window_conversion_pieces W (Kconv := Kconv) (Kbg := Kbg) (γw := γw)
     (M := M₀) (M₁ := M₁) (ε := ε) (Rhat := Rhat) (fun _ m => cs.beta m)
     (fun i m h1 h2 => hanT i m (by omega) h2)
-    (fun i m h1 h2 u _ => by simpa using p7_first i m h1 h2)
-    (fun i u _ => by simpa using window_decay i) (fun i => hanW i) hd hL hγ hα₀ hε hγα
+    (fun i m h1 h2 u _ => by simpa only [W, pieceWindowSetupOfFamily] using p7_first i m h1 h2)
+    (fun i u _ => by simpa only [W, pieceWindowSetupOfFamily] using window_decay i)
+    (fun i => hanW i) hd hL hγ hα₀ hε hγα
     (fun i => hflow i) hKc hKb hγw hsep
-  refine ⟨C (), ?_, by simpa using hCb () (Set.mem_univ _)⟩
+  refine ⟨C (), ?_, by simpa only [W, pieceWindowSetupOfFamily] using hCb () (Set.mem_univ _)⟩
   have h1 := hC () (Set.mem_univ _)
   have h2 := congrArg Complex.re h1
   rw [Complex.add_re, Complex.re_sum] at h2
-  have h3 : ∀ i, ((W.chain i).T () (jf i + 1)).re = mainActionLoc g (H.locRH (jf i + 1) (cf i)) (jf i)
+  have h3 : ∀ i, ((chain i).T () (jf i + 1)).re = mainActionLoc g (H.locRH (jf i + 1) (cf i)) (jf i)
       (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) cs (locRH_rem (jf i + 1) (cf i)) (ou i)
       (xu i) hv := by
     intro i
@@ -217,6 +249,7 @@ theorem sum_mainActionLoc_eq_gen (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
       (hjK i) cs (locRH_rem (jf i + 1) (cf i)) hj1 Set.univ (m' + 1) br (Xc i) (hXc i)
       (fun _ => ou i) (fun _ => xu i) (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i) (fun _ _ => hS i)
       (by have := (hjf i).2; omega) (Set.mem_univ ())
+  simp only [W, pieceWindowSetupOfFamily] at h2
   simp only [h3] at h2
   linarith
 

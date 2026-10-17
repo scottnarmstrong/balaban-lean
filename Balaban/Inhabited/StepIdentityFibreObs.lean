@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.ObsFamilyJoint
 public import Balaban.Inhabited.ObsFamilyPrefactor
 public import Balaban.Inhabited.StepIdentityFibre
+public import Balaban.Inhabited.StepIdentityFibreObsCore
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -482,16 +483,15 @@ theorem obsFamily_pair_fibre_fromTowerG_rho {d L N : ℕ} [NeZero L] {κmin : �
                     g y i =
               ∑ y : CTorus d L N₁ T.m₁ (k + 1), ∑ i : Fin N,
                 g y i * ∑ T', mObs y i ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), g) T' := by
-  classical
-  obtain ⟨β₀, CE, CF, C, h3, hCE, hCF, -, H⟩ := obsFamily_pair_fibre_prefactor_fromTowerG_rho T hA p hCR hs0 hs ρ
-  refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
-  intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1 Dsc S hS hp
-  obtain ⟨Lb, hLb, Lab, εH, hεH, A, mObs, hamp, hsite, hval⟩ :=
+  obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ :=
+    obsFamily_pair_fibre_fromTowerG_rho_core T hA p hCR hs0 hs ρ
+  refine ⟨β₀, CE, CF, h3, hCE, hCF, fun k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1
+    Dsc S hS hp => ?_⟩
+  obtain ⟨Lb, hLb, Lab, εH, hεH, A, mObs, hamp, -, -, hsite, hval⟩ :=
     H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp0 hp₁ q hq0 hq1 Dsc S hS hp
   refine ⟨Lb, hLb, Lab, εH, hεH, A, mObs, hamp, fun y i hdj => ?_, hval⟩
-  obtain ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, hfam⟩ := hsite y i hdj
-  exact ⟨hR, h1, hεΘ, Ev, ha, hd, hb, hmk, fun T' =>
-    ⟨(hfam T').1, (hfam T').2.1, (hfam T').2.2.1, (hfam T').2.2.2.1, (hfam T').2.2.2.2.1⟩⟩
+  obtain ⟨hR, h1, hεΘ, Ev, -, hrest⟩ := hsite y i hdj
+  exact ⟨hR, h1, hεΘ, Ev, hrest⟩
 
 open Classical in
 /-- **The observable coefficient family of all sites, and the source pairing on the fibre.**
