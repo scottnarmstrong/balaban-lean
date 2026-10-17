@@ -2059,3 +2059,4 @@ public import Balaban.SmallField.XiMassResponseXi
 public import Balaban.Fluctuation.LocalClassBirthResponse
 public import Balaban.Fluctuation.LocalClassBirthChart
 public import Balaban.SmallField.XiUnitWitness
+public import Balaban.Green.FinalTailGas
