@@ -326,10 +326,11 @@ non-constant external fields (it agrees with the earlier one on constant real fi
 class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
 is being proved at every datum. That is done for the zero class; for a general class the value at every datum is
 proved given the marks and activities of the old terms. The marks are now built from the old terms on the local
-generating sets, label by label (their sum identity, locality, bounds and joint analyticity proved), and so are their activities,
-so the value at every datum for a class with inherited labels is proved up to numerical conditions: one of them,
-on the activities, is so far usable only when the class index is 1, while the settings of the labels want a large
-class index; whether this costs more than a constant is being checked (the replacement identity of the old terms on those sets holds as functions of the datum, proved). Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+generating sets, label by label (their sum identity, locality, bounds and joint analyticity proved), and so are their
+activities (the replacement identity of the old terms on those sets holds as functions of the datum, proved). So the
+value at every datum for a class with inherited labels is proved up to numerical conditions. One of them, on the
+activities, is so far usable only when the class index is 1, while the settings of the labels want a large class
+index; whether this costs more than a constant is being checked. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
