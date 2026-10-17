@@ -22,7 +22,7 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral remains); author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; the comparison and the N-component form proved; the domain inclusion in progress); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20 (proved), the rest of the quarter box in progress (item 24) |
 
@@ -142,11 +142,13 @@ identity of P7 (3.5) proved unconditionally; its error term is bounded once the 
 component varies little over the cutoff ball. That needed the decay of the background's response from the
 removed component to the component's edge (Q13-SHARED (2.4)), now proved uniformly in the component and the
 scale; the error term is then of order one for the massless reference once the removed component lies at
-distance of order log β_k inside its component (the geometric margin, to be derived from the history). The
+distance of order log β_k inside its component. The history provides that margin (about R_base λ² cells), with
+no cap from the coarse layers (proved). The
 R operation now uses this density (its decomposition is generic in the reference density, and factorizes over
 the separated components), and the window integral of the removed outcome, from which (3.10) follows, is
-assembled from proved pieces; its remaining inputs are the regrouping of the variables, the composition identity,
-the unrolling of the step's kernel into its ancestors, and the geometry of the removed components (in progress). The locality holds for the
+assembled from proved pieces, including the unrolling of the step's kernel into its ancestors and the geometry of
+the removed components; its remaining inputs are the regrouping of the variables and the composition identity (in
+progress), and the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
@@ -203,9 +205,12 @@ of local factors, each zero on disconnected supports and bounded uniformly in th
 defect operator 1 − K(s), which is invertible on the whole parameter polydisc. The interaction, with its
 cutoff kept on the real field, is analytic on the same polydisc with local, bounded coefficients. What
 remains: the large-field part (the region where the field cutoff fails) and the joins to the physical
-flow. The comparison of constants is done: the analyticity radius of the last-scale interaction depends
-only on d, L and N, while the field cutoff grows only like a power of log β, so for β large the cut family
-keeps the field inside the analyticity domain (proved). For the large-field part, P7 §4 does not apply the cut
+flow. For the comparison of constants, the last-scale interaction has been identified with the summed
+energy terms of the class at the last scale; its analyticity domain is the class domain, of radius ε_{k_f}
+(which shrinks with the scale), not a fixed constant as we first assumed. The condition needed is
+B(κ) β_{k_f}^{−1/2} p₁(β_{k_f}) < c ε_{k_f}, and it holds for β above a threshold independent of the scale
+(proved). The theorems of the last integral now hold for the N components of the model (the scalar ones
+are the one-component case). What remains here is that the final field lies in every term's domain. For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
 block are proved, and so are the decomposition into large-field block sets, the activity of each set, and
@@ -293,8 +298,11 @@ close to real ones (a counterexample is in Lean), but they need not be: any comp
 with bounded entries factors as a real rotation times a Cayley transform, and the Cayley path stays in
 the domain, so invariance along it follows from the real clause (proved). The theorems of the
 renormalization step still carry it as an explicit hypothesis; restating them on the Cayley path is
-planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and old terms
-keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and their clauses at the new level are
+proved for the actual chart (the terms are completed in a slightly larger chart where only their locality is
+used, since the crude chart inclusion fails at every level). What remains for the new level is the identity
+between the actual new density and the sum of these terms: the density is so far defined only for a real
+constant external field, and the identity is landed only at one datum. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and

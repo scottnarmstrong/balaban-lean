@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.RRemovedMargin
+public import Balaban.LargeField.R.RRemovedCapEnergy
 public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 import Mathlib
@@ -18,8 +19,7 @@ import Mathlib
 (`hmargin_removed`, `hZr_removed`) at `R = (2/γ_w) log β_k`, and `ν = 0`:
 `quotient ≤ exp (F_z + C_Ẽ' D₀^d + C_♮ λ_k^{2d+1} + 4 + C_k)`, `F_z = (N/2) log β_k |Z₀|`.
 
-Needed beyond the history: `log β_k ≤ λ_k`, `λ_{k-1}` large (`removed_margin_arith`), and the cap
-`(2/γ_w) log β_k ≤ ϱ - 1` of the generating set (`rhoSepG_sub_one_ge`: `ϱ - 1 ≥ 4 d L³ L^{m₁}`).
+Needed beyond the history: `log β_k ≤ λ_k`, `λ_{k-1}` large (`removed_margin_arith`).
 -/
 
 @[expose] public section
@@ -45,7 +45,7 @@ include ok in
 Typing data from the history: `hbx` (the box `Z₀`), `hZrsites` (the action region `Z_r`), `hq`.
 Source bounds: `hnat` (`|C^♮_0| ≤ C_♮ λ^{2d+1}`), `hCEt` (`C_Ẽ'` collects `C_Ẽ` and the margin constant),
 `hlogβ` (`log β_k ≤ λ_k`, from `log_b_le_lamHat`), `hxl` (`λ_{k-1}` large, `removed_margin_arith`),
-`hcap` (`(2/γ_w) log β_k ≤ ϱ - 1`, the separation of the generating set), `ν = 0`. -/
+`ν = 0` (no cap on the margin: `hmargin_removed_uncapped`). -/
 theorem removed_quotient_le_of_history {a₁ : ℝ} (hprec : Precedes G₀ G)
     (ψ0 : BlockV S.d S.L (N₁ * S.L ^ m₁) (k' + 1) → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ) (Du : BgData G₀ N)
     {φu : G₀.Ω 1 × Fin N → ℂ} (D : Region G₀) (Zr Zk1 : Region G)
@@ -117,7 +117,6 @@ theorem removed_quotient_le_of_history {a₁ : ℝ} (hprec : Precedes G₀ G)
       min (deltaStar S.d S.L N) δw)
     (hρs : zeroRadius (cSix S.d D0 (psiZeroK N G (compWeight S.L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata Hbg))
       (betaK S.d S.L (k' + 1) β0) p0 ≤ min (deltaStar S.d S.L N) δw)
-    (hϱ : 1 ≤ ϱ) (hcap : 2 / gammaW S.d * Real.log (betaK S.d S.L (k' + 1) β0) ≤ ϱ - 1)
     (hRfl : ⌊R k'⌋₊ = ⌊S.Rb * S.lam k' ^ 2⌋₊)
     (hlogβ : Real.log (betaK S.d S.L (k' + 1) β0) ≤ S.lam (k' + 1))
     (hxl : ((S.L : ℝ) * (2 / gammaW S.d) * (1 + S.θp) + S.M) / (S.M * S.Rb) ≤ S.lam k')
@@ -145,7 +144,7 @@ theorem removed_quotient_le_of_history {a₁ : ℝ} (hprec : Precedes G₀ G)
     positivity
   have hR1 := removed_margin_arith ok hRfl hγ hlogβ hxl
   have hZr := hZr_removed Hh hkK Zc hq G Zr b0 w hbx hZrsites
-  have hmargin := hmargin_removed Hh hkK Zc hq G Zr b0 w hbx hZrsites hϱ hR1 hcap
+  have hmargin := hmargin_removed_uncapped Hh hkK Zc hq G Zr b0 w hbx hZrsites hR1
   have hb2 := (denominatorRestricted_bounds_of_margin_of_weighted G (compWeight S.L a₁) hd hk b0 w hw1 hwD hm
     hXreg hΩ hdata Hbg hWP hKw hOp hsep2 hδ hδc hψout Zr le_rfl h hh1 ha hβ0 hp0 hrad hsmall hρs hZr hmargin).2
   have hD1 : 1 ≤ D0 := (hw1 ⟨0, hd0⟩).trans (hwD _)

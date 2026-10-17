@@ -1426,6 +1426,7 @@ public import Balaban.LargeField.R.RopPhysical
 public import Balaban.LargeField.R.RopRestricted
 public import Balaban.LargeField.R.RRemovedGeometry
 public import Balaban.LargeField.R.RRemovedMargin
+public import Balaban.LargeField.R.RRemovedCapEnergy
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
@@ -1804,6 +1805,7 @@ public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalRadiusCompare
+public import Balaban.Green.FinalRadiusClass
 public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
@@ -2077,6 +2079,9 @@ public import Balaban.LargeField.R.CoreResponseHess
 public import Balaban.LargeField.R.CoreResponseOsc
 public import Balaban.SmallField.XiUnitWitness
 public import Balaban.Green.FinalTailGas
+public import Balaban.Fluctuation.LocalClassDensityChart
+public import Balaban.Fluctuation.LocalClassDensityCentre
+public import Balaban.Fluctuation.LocalClassDensityLevel
 public import Balaban.LargeField.R.RRemovedWindowGen
 public import Balaban.LargeField.R.RRemovedWindowKernel
 public import Balaban.LargeField.R.RRemovedWindowPoint
@@ -2096,3 +2101,6 @@ public import Balaban.LargeField.R.RRemovedRegroupSplit
 public import Balaban.LargeField.R.RRemovedRegroupTheta
 public import Balaban.LargeField.R.RRemovedRegroupOut
 public import Balaban.LargeField.R.RRemovedRegroupCanon
+public import Balaban.Fluctuation.LocalClassDensityCompletion
+public import Balaban.Fluctuation.VacuumEnergy
+public import Balaban.Green.FinalInteractionClass
