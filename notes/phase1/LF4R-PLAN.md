@@ -60,3 +60,7 @@ times e^{E_k|Z|} (absorbed in K for rem, as in III.8.7), against the factor F of
 5. `R/RRemovedKernel.lean`: Definition III.8.5: `Trem` as an `LFKernel` from the pre-kernel, `outcomeKernel` (rem weight), translation psi'' = psi~ - psi^0, division by the denominator; the pointwise exponent bound (2.58') with `Denominator`. Inputs: `GaussChange`, `DomainIdentity`, `RhoZeroPhysical`. Likely 2 files.
 6. `R/RRemovedWindow.lean`: (III.8.5) at gamma = 0 for `Trem`: steps (1)-(4): Fubini order, ball/tree volumes on Z^c_0 cap Z and Z_0 (leaf 4), (D5) for the core (`locOp_pkgBound_kappa`), the exponent sum with `c_1 >= C_W`; concl `KerBound a k Trem (kappa^pre - C_R lam^{2d+1})`.
 7. `R/RRemovedFinal.lean`: `lf4R_removed`: (3.10') for all ripe components, feeding `RGasCoreFinal` (replaces `hrem`).
+
+## Status (W878, 2026-10-17): leaves 2 and 3
+- Leaf 3 DONE `R/RRemovedTau.lean`: `log_b_le_lamHat`, `p2Run_le_A2_lamHat_pow`, `removed_kerBound_logC_of_window` (the landed conclusion drops `log C(a)`, which the sum over histories needs), `norm_integral_le_of_kerBound`, `norm_tau_le_of_removed_kernels`, and the composed `…_halo_of_removed_factor_run_of_kernel` (kernel hypotheses in place of `hrem`; units: gas `H = H_k M^d`, card = number of cubes `c`).
+- Leaf 2 DONE `R/RRemovedLres.lean`: (III.8.4) `lres_lhs_le` for any `C_R` at least an explicit constant (`Typing.CR` is not tied to Definition III.8.6, none added), `CR_le_A2_pow_of_large`, `CR_window_of_large` (`hCR` of leaf 1 for `λ ≥ max {1, C_R/A₂}`), `lres_at_scale`.
