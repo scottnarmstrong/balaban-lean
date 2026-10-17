@@ -1806,6 +1806,7 @@ public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalRadiusCompare
 public import Balaban.Green.FinalRadiusClass
+public import Balaban.Green.FinalPolydiscClass
 public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
