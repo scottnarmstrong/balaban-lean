@@ -52,12 +52,12 @@ theorem lintegral_ite_le_one {α : Type*} [MeasurableSpace α] (μ : Measure α)
 
 /-- **The product of the root densities is at most `e^{L_c}`**: each factor of the product over the
 elements of `{a // V a}` is at least `1`, and at least `ρ₀` on those elements satisfying `g`. -/
-theorem root_prod_le {α : Type} [Fintype α] (V g : α → Prop) [DecidablePred V] [DecidablePred g]
-    [Fintype {a // V a}] (f : {a // V a} → ℝ) (ρ0 : ℝ) (hf1 : ∀ i, 1 ≤ f i)
+theorem root_prod_le {α : Type} [Fintype α] (V g Q : α → Prop) [DecidablePred V] [DecidablePred g]
+    [DecidablePred Q] (hQ : ∀ a, Q a ↔ V a ∧ g a) [Fintype {a // V a}] (f : {a // V a} → ℝ) (ρ0 : ℝ) (hf1 : ∀ i, 1 ≤ f i)
     (hfg : ∀ i, g i.1 → ρ0 ≤ f i) :
-    ENNReal.ofReal ρ0 ^ (Finset.univ.filter fun a => V a ∧ g a).card ≤
+    ENNReal.ofReal ρ0 ^ (Finset.univ.filter Q).card ≤
       ENNReal.ofReal (∏ i, f i) := by
-  have hcard : (Finset.univ.filter fun a => V a ∧ g a).card =
+  have hcard : (Finset.univ.filter Q).card =
       (Finset.univ.filter fun i : {a // V a} => g i.1).card := by
     rw [← Finset.card_map (Function.Embedding.subtype V)]
     congr 1
@@ -65,10 +65,11 @@ theorem root_prod_le {α : Type} [Fintype α] (V g : α → Prop) [DecidablePred
     simp only [Finset.mem_map, Finset.mem_filter, Finset.mem_univ, true_and,
       Function.Embedding.coe_subtype]
     constructor
-    · rintro ⟨hV, hg'⟩
+    · intro hQa
+      obtain ⟨hV, hg'⟩ := (hQ a).mp hQa
       exact ⟨⟨a, hV⟩, hg', rfl⟩
     · rintro ⟨i, hi, rfl⟩
-      exact ⟨i.2, hi⟩
+      exact (hQ _).mpr ⟨i.2, hi⟩
   rw [hcard, ← Finset.prod_const, ENNReal.ofReal_prod_of_nonneg
     (fun i _ => (zero_le_one.trans (hf1 i)))]
   refine (Finset.prod_le_prod fun i hi => ENNReal.ofReal_le_ofReal
