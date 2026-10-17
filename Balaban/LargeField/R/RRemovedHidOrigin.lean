@@ -105,9 +105,9 @@ theorem shell_cover {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z : H.C
     (hnd : ∀ j (y : BlockAt S n M K (j + 1)), nd ⟨j + 1, y⟩ ↔ (k1 ≤ j ∧ j ≤ m' ∧
       ∃ c ∈ H.ancFin (j + 1) (m' + 1) Z, y ∈ gaussBlocks (H.localHistory M K (j + 1) c) j))
     (rad : ℕ → ℝ)
-    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
-      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
-    (hN : ∀ (j : ℕ) (_ : k1 ≤ j) (_ : j ≤ m') (c : H.Comp (j + 1)) (hd : H.Desc (j + 1) (m' + 1) c Z)
+    (Good : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A → Prop)
+    (hN : ∀ x, Good x → ∀ (j : ℕ) (_ : k1 ≤ j) (_ : j ≤ m') (c : H.Comp (j + 1)) (hd : H.Desc (j + 1) (m' + 1) c Z)
       (κ : VarKind) (y : BlockAt S n M K j)
       (hb : BlockSub (S := S) (n := n) (M := M) (K := K) j y
         (varSet (H.localHistory M K (j + 1) c) j κ)),
@@ -118,7 +118,7 @@ theorem shell_cover {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z : H.C
             (Nat.lt_succ_self j) hb)⟩ : InternalVars (H.localHistory M K (m' + 1) Z) (m' + 1)) ∈
           (locOp geo cs SD KD hH lab (m' + 1) hm Z).A,
         |‖VarVal.toEuc (x ⟨_, hA⟩)‖ ^ 2 - 1| < rad j)
-    (hO : ∀ (j : ℕ) (_ : k1 ≤ j) (hj2 : j + 1 ≤ m') (c : H.Comp (j + 1)) (hd : H.Desc (j + 1) (m' + 1) c Z)
+    (hO : ∀ x, Good x → ∀ (j : ℕ) (_ : k1 ≤ j) (hj2 : j + 1 ≤ m') (c : H.Comp (j + 1)) (hd : H.Desc (j + 1) (m' + 1) c Z)
       (y : BlockAt S n M K (j + 1)) (_ : newOutP (H.localHistory M K (j + 1) c) j y)
       (hb : BlockSub (S := S) (n := n) (M := M) (K := K) (j + 1) y
         (varSet (H.localHistory M K (m' + 1) Z) (j + 1) .large))
@@ -145,7 +145,8 @@ theorem shell_cover {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z : H.C
             InternalVars (H.localHistory M K (m' + 1) Z) (m' + 1)))
     (p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A) :
     p ∈ Set.range κc ∨ (p.1.1.2.1 = VarKind.large ∧ nd ⟨(p.1.1.1 : ℕ), p.1.1.2.2⟩) ∨
-      ∃ j, k1 ≤ j ∧ j ≤ m' ∧ |‖VarVal.toEuc (x p)‖ ^ 2 - 1| < rad j := by
+      ∃ j, k1 ≤ j ∧ j ≤ m' ∧ k1 ≤ (p.1.1.1 : ℕ) ∧
+        ∀ x, Good x → |‖VarVal.toEuc (x p)‖ ^ 2 - 1| < rad j := by
   obtain ⟨pi, hpA⟩ := p
   rcases var_origin geo cs SD KD (m' + 1) (by omega) hm Z hq pi hpA with
     ⟨P', hd, C, hC, q, hq', hqe⟩ | ⟨s, hs1, hst, Y', hd, κ, y, hb, hqe⟩
@@ -160,7 +161,7 @@ theorem shell_cover {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z : H.C
     · by_cases hnc : BlockSub (S := S) (n := n) (M := M) (K := K) s y
           ((H.localHistory M K (s + 1) Y').Z s)ᶜ
       · right; right
-        exact ⟨s, hs1, hs', hN s hs1 hs' Y' hd VarKind.large y hb ⟨rfl, Or.inr hnc⟩ hpA⟩
+        exact ⟨s, hs1, hs', hs1, fun x hx => hN x hx s hs1 hs' Y' hd VarKind.large y hb ⟨rfl, Or.inr hnc⟩ hpA⟩
       · have hz := ZBlk_of_not_blockSub_compl hK1 Y' hnc
         obtain ⟨Y'', hY'', hcube⟩ := (ZBlk_pre_iff hK1 Y' y).mp hz
         have hz'' : ZBlk (H.localHistory M K s Y'') s y :=
@@ -179,9 +180,9 @@ theorem shell_cover {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z : H.C
           · right; left
             exact ⟨rfl, (hnd j y).mpr ⟨hj, by omega, Y'', mem_ancFin.mpr hdY'', hg⟩⟩
           · right; right
-            exact ⟨j, hj, by omega, hO j hj (by omega) Y'' hdY'' y ho _ hpA⟩
+            exact ⟨j, hj, by omega, (by show k1 ≤ j + 1; omega), fun x hx => hO x hx j hj (by omega) Y'' hdY'' y ho _ hpA⟩
     · right; right
-      exact ⟨s, hs1, hs', hN s hs1 hs' Y' hd VarKind.fluct y hb ⟨rfl, Or.inl rfl⟩ hpA⟩
+      exact ⟨s, hs1, hs', hs1, fun x hx => hN x hx s hs1 hs' Y' hd VarKind.fluct y hb ⟨rfl, Or.inl rfl⟩ hpA⟩
 
 end Origin
 
