@@ -2092,3 +2092,5 @@ public import Balaban.LargeField.R.RRemovedWindowInst
 public import Balaban.LargeField.R.RRemovedRegroupDisj
 public import Balaban.LargeField.R.RRemovedRegroupPi
 public import Balaban.LargeField.R.RRemovedRegroupCore
+public import Balaban.LargeField.R.RRemovedRegroupSplit
+public import Balaban.LargeField.R.RRemovedRegroupTheta
