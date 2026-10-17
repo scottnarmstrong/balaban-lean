@@ -2320,3 +2320,4 @@ public import Balaban.Fluctuation.VacuumDet
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.IrrelTorusDefectJet
 public import Balaban.SmallField.IrrelTorusDefectTail
+public import Balaban.Polymer.TwoTorusGapTowerTie
