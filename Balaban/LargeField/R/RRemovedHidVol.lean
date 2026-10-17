@@ -27,21 +27,6 @@ section Vol
 
 variable {N : ℕ}
 
-/-- **The shells of a finite family of non-spin variables have measure at most `1`.** -/
-theorem pi_shell_le_one (hN : 2 ≤ N) {ι : Type} [Fintype ι] (b : ι → Bool) (hb : ∀ i, b i = false)
-    (t : ι → ℝ) (ht : ∀ i, 0 < t i) (ht1 : ∀ i, t i ≤ 1 / 2) (hct : ∀ i, cShell N * t i ≤ 1) :
-    (Measure.pi fun i => varMeasure N (b i))
-      {x | ∀ i, |‖VarVal.toEuc (x i)‖ ^ 2 - 1| < t i} ≤ 1 := by
-  have hset : {x : ∀ i, VarVal N (b i) | ∀ i, |‖VarVal.toEuc (x i)‖ ^ 2 - 1| < t i} =
-      Set.pi Set.univ (fun i => (VarVal.toEuc : VarVal N (b i) → EuclideanSpace ℝ (Fin N)) ⁻¹'
-        shellSet N (t i)) := by
-    ext x; simp [shellSet]
-  rw [hset]
-  refine pi_pi_le_one (fun i => varMeasure N (b i)) _ fun i => ?_
-  rw [(measurePreserving_toEuc_false (N := N) _ (hb i)).measure_preimage
-    (measurableSet_shellSet N (t i)).nullMeasurableSet]
-  exact (volume_shellSet_le N hN (ht i) (ht1 i)).trans (ENNReal.ofReal_le_one.mpr (hct i))
-
 /-- The integral of the indicator of a set of measure at most `1` is at most `1`. -/
 theorem lintegral_ite_le_one {α : Type*} [MeasurableSpace α] (μ : Measure α) (P : α → Prop)
     [DecidablePred P] (h : μ {a | P a} ≤ 1) : ∫⁻ a, (if P a then (1 : ℝ≥0∞) else 0) ∂μ ≤ 1 := by
