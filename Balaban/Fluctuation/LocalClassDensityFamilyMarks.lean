@@ -32,11 +32,11 @@ of a pair `q = (τ, Y)` is, at a parameter `θ` whose raw datum lies in the char
   (`deriv_classLabel_PJ_eq_sum_marked_joint_of` label by label; the pairs left out of `markedIdx`
   contribute zero, `classOldMarkedLocal_rootedMarks_of`).
 
-Not proved here: the locality of the marks in the parameter `θ` on `sitesOf T` (it needs the exact
-raw locality of the marked terms of `eTermFun`, landed only for `blockEnergyFun`:
-`evDec_local_rawY`), the passage from the sum of the label derivatives to the Fréchet derivative of
-`ℰ_k` (the differentiability of every label term along the line), and the bound in the form
-`F1 j e^{-(2κ_dec - 1) 𝗱(y1 j)}` with a summable `F1`.
+The locality of the marks in the parameter is `classMarksFamily_local`
+(`LocalClassDensityFamilyLocal`), the identity (M2) with the Fréchet derivative of `ℰ_k` is
+`classMarksFamily_ae_fderiv_eq_sum` (`LocalClassDensityFamilyDeriv`).  Not treated: the bound in the
+form `F1 j e^{-(2κ_dec - 1) 𝗱(y1 j)}` with the decay of `F1` in the label size (the comparison of
+`d^cov_{C.m₀}(Y)` with `𝗱` of the bridge label at the block index `1`).
 -/
 
 @[expose] public section
