@@ -14,8 +14,8 @@ import Mathlib.Tactic.FieldSimp
 /-!
 # The inherited levels of the local successor class: domain monotonicity
 
-P4 Theorem 2 (1.8), p. 682: the terms `ℰ^{(j)}`, `ℳ^{(j)}`, `j ≤ k`, of the class at step `k + 1` are
-the terms of the class at step `k`, restricted to the new (smaller) domains, with the same
+P4 Theorem 2 (1.8), p. 682: the terms `ℰ^{(j)}`, `ℳ^{(j)}`, `j ≤ k`, of the class at step `k + 1`
+are the terms of the class at step `k`, restricted to the new (smaller) domains, with the same
 generating sets `𝔹_j(X)` and the same bounds.  In Lean the terms of a level `j ≤ k` are kept
 (`Tm'.E j = Tm.E j`, `Tm'.M j = Tm.M j`, `Tm'.gs j = Tm.gs j`) and the clauses of these levels
 transfer to every field domain whose level-`j` part is contained in the old one
