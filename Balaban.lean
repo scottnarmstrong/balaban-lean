@@ -2230,4 +2230,5 @@ public import Balaban.Polymer.TwoTorusGapStepObsPart
 public import Balaban.Polymer.TwoTorusGapStepObsTilt
 public import Balaban.Polymer.TwoTorusGapStepObsAct
 public import Balaban.Polymer.TwoTorusGapStepObsCoef
+public import Balaban.Polymer.TwoTorusGapStepObsPair
 public import Balaban.Polymer.TwoTorusGapStepFull
