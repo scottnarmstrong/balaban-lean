@@ -100,6 +100,32 @@ theorem HypS.comp_square_sharp
       nlinarith only [hc', hr', b3, b1]
     _ = θ ^ 2 * η * (2 * d + 10) := by ring
 
+/-- The sharp square displacement in the real-plus-complex coordinates of `ScaledPsiC`. -/
+theorem HypS.comp_square_scaled
+    (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
+    ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+        dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
+        (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+          dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) -
+      ∑ i, (reR G G' a₁ φr Ψ0 x i : ℂ) * (reR G G' a₁ φr Ψ0 x i : ℂ)‖ <
+      (scaledC0 d * θ) ^ 2 * η := by
+  have hcastr : ∀ i, crv G G' a₁ φr Ψ0 x i =
+      ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) := fun i =>
+    congrFun (H.real_crv x).eq_ofReal i
+  have e0 : ∀ i, crv G G' a₁ φr Ψ0 x i +
+      dPsi G G' a₁ φr φc Ψ0 Ψ'' x i = ccv G G' a₁ φc Ψ0 Ψ'' x i :=
+    fun i => by simp [dPsi]
+  simp only [← hcastr, e0]
+  have hcoeff : 2 * (d : ℝ) + 10 < (scaledC0 d) ^ 2 := by
+    unfold scaledC0
+    nlinarith [sq_nonneg (d : ℝ)]
+  calc
+    _ ≤ θ ^ 2 * η * (2 * d + 10) := Balaban.SmallField.HypS.comp_square_sharp H hx
+    _ < θ ^ 2 * η * (scaledC0 d) ^ 2 :=
+      mul_lt_mul_of_pos_left hcoeff (mul_pos (pow_pos H.hθ0 2) H.ηpos)
+    _ = (scaledC0 d * θ) ^ 2 * η := by ring
+
 /-- A class chart supplies a scaled composition witness with the sharp complex square bound. -/
 theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
     {a₁ ε₀ θ : ℝ} {j : ℕ}
