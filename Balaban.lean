@@ -270,6 +270,7 @@ public import Balaban.Green.KF0WalkSeries
 public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
+public import Balaban.Green.KF0CovarianceAtoms
 public import Balaban.Green.KF0HoleWalk
 public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
@@ -909,6 +910,7 @@ public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.LargeField.Base.KF0MeanShell
 public import Balaban.LargeField.Base.KF0BoundarySquare
 public import Balaban.LargeField.Base.KF0SectorSum
+public import Balaban.LargeField.Base.KF0BadCharge
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
