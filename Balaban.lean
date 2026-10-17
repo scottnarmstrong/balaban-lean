@@ -2129,6 +2129,7 @@ public import Balaban.LargeField.R.RRemovedHidNode
 public import Balaban.LargeField.R.RRemovedHidFree
 public import Balaban.LargeField.R.RRemovedHidOrigin
 public import Balaban.LargeField.R.RRemovedHidGauss
+public import Balaban.LargeField.R.RRemovedHidTube
 public import Balaban.LargeField.R.RRemovedChainIntegral
 public import Balaban.LargeField.R.RRemovedChainForestInt
 public import Balaban.LargeField.R.RRemovedChainForestMain
