@@ -2318,3 +2318,4 @@ public import Balaban.SmallField.IrrelTorusXidomData
 public import Balaban.SmallField.IrrelTorusXidomGeometry
 public import Balaban.SmallField.IrrelTorusXidomNumeric
 public import Balaban.SmallField.IrrelTorusXidomChart
+public import Balaban.SmallField.IrrelTorusXidomRotate
