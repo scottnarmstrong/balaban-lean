@@ -1805,6 +1805,9 @@ public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalRadiusCompare
+public import Balaban.Green.FinalRadiusClass
+public import Balaban.Green.FinalPolydiscClass
+public import Balaban.Green.FinalPolydiscLocal
 public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
@@ -2093,6 +2096,13 @@ public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
 public import Balaban.LargeField.R.RRemovedWindowInst
+public import Balaban.LargeField.R.RRemovedRegroupDisj
+public import Balaban.LargeField.R.RRemovedRegroupPi
+public import Balaban.LargeField.R.RRemovedRegroupCore
+public import Balaban.LargeField.R.RRemovedRegroupSplit
+public import Balaban.LargeField.R.RRemovedRegroupTheta
+public import Balaban.LargeField.R.RRemovedRegroupOut
+public import Balaban.LargeField.R.RRemovedRegroupCanon
 public import Balaban.Fluctuation.LocalClassDensityCompletion
 public import Balaban.Fluctuation.VacuumEnergy
 public import Balaban.Green.FinalInteractionClass

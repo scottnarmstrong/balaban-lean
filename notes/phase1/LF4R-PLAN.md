@@ -157,3 +157,7 @@ W906 (blocker 4): `famDecompOf` (`RopConcrete.lean`) is the generic `R` decompos
 
 **7.6 (W913, 2026-10-17)** `Fluctuation/VacuumEnergy.lean`: `eppp_sub_Ek`, `vacuumEnergy_succ_of_absorb` (E_{k+1} = L^d (E_k + c_k) - e0/nBlocks, e0 the vacuum value of the new localized terms, P4 (4.21)), `abs_vacuumEnergy_succ_le`.
 The factor is L^{+d}: the bound |E_k| <= C'_E lam + C'_E is not a geometric sum of the per-step constants; it needs a bound on e0 (the new terms' vacuum value, OPEN-VACUUM in DETFIT.md) cancelling L^d E'''_k. `hEZ` stays on the source premise via `hEZ_of_vacuum_bound`.
+
+## Status (W912, 2026-10-17): leaf 6, blocker 4, regrouping
+- `R/RRemovedRegroup{Disj,Pi,Core,Split,Theta,Out,Canon}.lean`: ancestors read disjoint coordinates (`incl_ne_of_ne`); `exists_regroup` (measure preserving `Θ` into window `(ψ_k↾Z₀, tree group, T)`, core `hcore_of_anc` variables, first-integrated `Jv`, with its coordinates); `exists_parC`, `canonT_spec`, `core_snd_eq`, `core_weight_eq` (the outputs `ancOut C P (ρ_P x)` are `mergeOut (core outputs) (parC …)`).
+- Not landed: `hid`/`hsupp` (Gaussian tree integration of `Jv` for the unrolled quiet step kernels, `integral_window_comp` is not connected to `quietKernel`/`gaussProd`).
