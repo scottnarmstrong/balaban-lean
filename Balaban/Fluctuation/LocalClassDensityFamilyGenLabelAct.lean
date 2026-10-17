@@ -32,6 +32,25 @@ variable (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * 
   {a₁ ν c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
 
 open Classical in
+/-- **The `LabelAct` family of given activities with a given bound.**  Activities `H θ Y u` of the
+domains of `𝒴C` which are measurable, depend only on the blocks of `Y` and are bounded by
+`ε_C e^{-κ_H d^cov_1(Y)}` are the activities of one `LabelAct` family on `thickLabels 𝒴C`
+(entropy constant `K₀(κ₀)`, `κ₀ ≥ a_ent + 1`). -/
+theorem classActivityFamily_labelAct_of_bound (hN1 : L ^ 1 ∣ N₁) (hp : 0 < S.p₁)
+    (𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒴dj : ∀ Y ∈ 𝒴C, IsDj 1 (k + 1) Y) {εC κH κ0 : ℝ} (hκ0 : aEnt d L + 1 ≤ κ0)
+    (H : physParam N S → {Y // Y ∈ 𝒴C} → ℂ → (∀ b, (S.blockSplit 1 hp).Ωb b) → ℂ)
+    (hmeas : ∀ θ Y u, Measurable (H θ Y u))
+    (hdep : ∀ θ (Y : {Y // Y ∈ 𝒴C}) u, DepOn (blocksOf 1 (k + 1) Set.univ Y.1) (H θ Y u))
+    (hbd : ∀ θ (Y : {Y // Y ∈ 𝒴C}) u Φ, ‖H θ Y u Φ‖ ≤
+      εC * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1)) :
+    ∃ A : physParam N S → ℂ → LabelAct (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj)
+        (S.blockSplit 1 hp).Ωb εC κH κ0 (K0 d L κ0),
+      ∀ θ u Y, (A θ u).H Y = H θ Y u :=
+  ⟨fun θ u => ⟨fun Y => H θ Y u, fun Y => hmeas θ Y u, fun Y => hdep θ Y u,
+    fun Y Φ => hbd θ Y u Φ, fun b' => entropy_thick hN1 le_rfl 𝒴C h𝒴dj hκ0 b'⟩, fun _ _ _ => rfl⟩
+
+open Classical in
 /-- **The activity family of the inherited energy as one `LabelAct` family.**  Under the hypotheses
 of `classActivityFamily_fields_gen`, the entropy rate `κ₀' ≥ a_ent + 1` and the numerical condition
 `hnumH` (the bound of `classActivityFamily_fields_gen` is at most `ε_C e^{-κ_H d^cov_1(Y)}` on every
@@ -136,9 +155,8 @@ theorem classActivityFamily_labelAct_gen {ι : Type*} [Fintype ι]
     hκ₀ hκdec hκ h1 hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ
     hρc hp ha1 hbb hab 𝒴C h𝒴 H hH
   have hN1 : L ^ 1 ∣ N₁ := (pow_dvd_pow L hm1).trans hN
-  refine ⟨fun θ u => ⟨fun Y => H θ Y u, fun Y => hmeas θ Y u, fun Y => hdep θ Y u,
-    fun Y Φ => (hbd θ Y u Φ).trans (hnumH Y.1 Y.2),
-    fun b' => entropy_thick hN1 le_rfl 𝒴C h𝒴dj hκ0 b'⟩, fun _ _ _ => rfl⟩
+  exact classActivityFamily_labelAct_of_bound S hN1 hp 𝒴C h𝒴dj hκ0 H hmeas hdep
+    fun θ Y u Φ => (hbd θ Y u Φ).trans (hnumH Y.1 Y.2)
 
 end ActFamilyGenLabel
 
