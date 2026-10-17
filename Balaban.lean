@@ -2133,6 +2133,7 @@ public import Balaban.LargeField.R.RRemovedHidTube
 public import Balaban.LargeField.R.RRemovedHidVol
 public import Balaban.LargeField.R.RRemovedHidChain
 public import Balaban.LargeField.R.RRemovedHidCover
+public import Balaban.LargeField.R.RRemovedHidPW
 public import Balaban.LargeField.R.RRemovedChainIntegral
 public import Balaban.LargeField.R.RRemovedChainForestInt
 public import Balaban.LargeField.R.RRemovedChainForestMain
