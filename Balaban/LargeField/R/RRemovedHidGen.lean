@@ -66,10 +66,10 @@ theorem exists_nodes_shells_equiv :
 integral of `G` over the nodes `(a, nd, w)` is at most `P` for every value `sh` of the shells, and the
 shell indicators `I_O`, `I_S` integrate to at most `1`, then `∫ φ ≤ K P`. -/
 theorem lintegral_nodes_shells_le (φ : (A × RO) × ((Nd × Sh) × W) → ℝ≥0∞) (K P : ℝ≥0∞) (hK : K ≠ ∞)
-    (G : A → Nd → W → Sh → ℝ≥0∞) (IO : RO → ℝ≥0∞) (IS : Sh → ℝ≥0∞)
+    (G : A → RO → Nd → W → Sh → ℝ≥0∞) (IO : RO → ℝ≥0∞) (IS : Sh → ℝ≥0∞)
     (hIOf : ∀ ro, IO ro ≠ ∞) (hISf : ∀ sh, IS sh ≠ ∞)
-    (hφ : ∀ a ro nd sh w, φ ((a, ro), ((nd, sh), w)) ≤ K * G a nd w sh * IO ro * IS sh)
-    (hG : ∀ sh, ∫⁻ x : A × (Nd × W), G x.1 x.2.1 x.2.2 sh ∂(μA.prod (μNd.prod μW)) ≤ P)
+    (hφ : ∀ a ro nd sh w, φ ((a, ro), ((nd, sh), w)) ≤ K * G a ro nd w sh * IO ro * IS sh)
+    (hG : ∀ ro sh, ∫⁻ x : A × (Nd × W), G x.1 ro x.2.1 x.2.2 sh ∂(μA.prod (μNd.prod μW)) ≤ P)
     (hIO : ∫⁻ ro, IO ro ∂μRO ≤ 1) (hIS : ∫⁻ sh, IS sh ∂μSh ≤ 1) :
     ∫⁻ j, φ j ∂((μA.prod μRO).prod ((μNd.prod μSh).prod μW)) ≤ K * P := by
   obtain ⟨e, he, hep⟩ := exists_nodes_shells_equiv μA μRO μNd μSh μW
@@ -83,7 +83,7 @@ theorem lintegral_nodes_shells_le (φ : (A × RO) × ((Nd × Sh) × W) → ℝ�
       ∂(μA.prod (μNd.prod μW)) ≤ K * P * IO q.1 * IS q.2 := by
     intro q
     calc ∫⁻ x : A × (Nd × W), φ (e.symm (q, x)) ∂(μA.prod (μNd.prod μW))
-        ≤ ∫⁻ x : A × (Nd × W), (K * IO q.1 * IS q.2) * G x.1 x.2.1 x.2.2 q.2
+        ≤ ∫⁻ x : A × (Nd × W), (K * IO q.1 * IS q.2) * G x.1 q.1 x.2.1 x.2.2 q.2
             ∂(μA.prod (μNd.prod μW)) := by
           refine lintegral_mono fun x => ?_
           have : e.symm (q, x) = ((x.1, q.1), ((x.2.1, q.2), x.2.2)) :=
@@ -91,11 +91,11 @@ theorem lintegral_nodes_shells_le (φ : (A × RO) × ((Nd × Sh) × W) → ℝ�
           rw [this]
           refine (hφ x.1 q.1 x.2.1 q.2 x.2.2).trans (le_of_eq ?_)
           ring
-      _ = (K * IO q.1 * IS q.2) * ∫⁻ x : A × (Nd × W), G x.1 x.2.1 x.2.2 q.2
+      _ = (K * IO q.1 * IS q.2) * ∫⁻ x : A × (Nd × W), G x.1 q.1 x.2.1 x.2.2 q.2
             ∂(μA.prod (μNd.prod μW)) := by
           exact lintegral_const_mul' _ _ (ENNReal.mul_ne_top (ENNReal.mul_ne_top hK (hIOf _))
             (hISf _))
-      _ ≤ (K * IO q.1 * IS q.2) * P := by gcongr; exact hG q.2
+      _ ≤ (K * IO q.1 * IS q.2) * P := by gcongr; exact hG q.1 q.2
       _ = K * P * IO q.1 * IS q.2 := by ring
   refine (lintegral_mono h2).trans ?_
   by_cases hc : K * P = ∞
