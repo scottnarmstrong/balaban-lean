@@ -2267,3 +2267,5 @@ public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
 public import Balaban.Polymer.TwoTorusGapDataThrEnergy
+public import Balaban.Polymer.TwoTorusGapDataThrFinal
+public import Balaban.Polymer.TwoTorusGapDataThrStep
