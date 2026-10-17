@@ -279,3 +279,158 @@ Balaban.Correlations.rootC_of_rootFAndC1Star
 The physical missing bridge is a producer with conclusion `RootFAndC1Star d N hN`, or, given a completed Root-F producer, a theorem adding a `C1Star d N L M hN` for the **same** $L,M$ at $\kappa_*,c_9=1$. Its statement must retain the quantifier order of `C1Star.data`: constants and $L,M$ before $\beta$; for every $\beta$ the scale function, running coefficients, $\mu$, the finite-torus decompositions, and remainder limits for all $0<\nu\le1$. The central unfinished proof obligations are: (i) obtain the physical F2/F3 identities from the observable layer and last-scale integration, including the bound (10), (ii) establish coefficient continuity at $\nu=0$ uniformly enough for (14) and (16), and (iii) establish the zero-field limits of the remainders. Positive-field remainder limits along tori may be proved afterward from (9), Proof I and Gaussian kernel convergence, rather than assumed as separate data. The existence of $\gamma_\infty$ and its $O(\beta^{-1})$ estimate then follows from F1 by (23); $m_0$ follows from F2 by (15). The `L\ge3` requirement of the Gaussian package is also part of the joint producer, whereas frozen Root-F promises only $L\ge2$.
 
 This bridge would unblock the frozen Root-C provider after its statement correspondence and the Root-F provider are sealed; it is **not** unblocked by the landed `Correlations` or `Observables` files alone. Confidence is high in the fixed-$\nu$ limit and the conditional deduction because their proof steps and constants are explicit in the landed files. Confidence is high that Root-F's abstract clauses cannot force the zero-field assertions, by the counterexample. Confidence in a future physical C-1* producer remains open: its scale-resolved hypotheses are exactly the unproved mathematical content, and the garbled source passages do not fill that gap.
+---
+
+# Part 2. Producing `C1Star` from the physical RG step
+
+**Scope and verdict.** The missing physical input is exactly `Balaban.Correlations.C1Star` in `Balaban/Correlations/C1Star.lean`, not an unspecified extra estimate. Its three clauses are `C1StarF1`, `C1StarF2`, and `C1StarF3`. The landed `Flow` theorems prove the numerical consequences of a *given* physical coefficient equation and its bounds; the landed `Observables` theorems prove consequences of a *given* `IsObs` layer. Neither set constructs the physical equation, the observable layer after a fluctuation and renormalization step, or the final source derivatives. Consequently the implication “physical RG construction $Rightarrow$ `C1Star`” remains a theorem to prove. The theorem targets below identify the inputs at the level of one step. No use of Root-F's bound on its generic $T_j$ can replace them: that bound has exponent $(d-2)/2+\delta$ and has no coefficient or zero-field parameter data.
+
+## 2.1 Exact content of the Lean interface
+
+Put $p=d-2$, $q_*=L^{-2\gamma _0}$, and $Q=ML$. The structure `C1Star d N L M hN` first chooses, **before** $\beta$, $a,\gamma _0,c_*,c_\xi,c',\rho _0,\rho _1,\beta_*$ satisfying
+$$
+\frac1{2(1-L^{-2})}<a<\frac32,\quad 0<\gamma _0\le\frac12,\quad
+c_*,c_\xi,c'>0,\quad 0<\rho _0\le p,\quad 0<\rho _1<1.
+\tag{2.1}
+$$
+For every $\beta\ge\beta_*$ it then supplies a single family, simultaneously for all $0\le\nu\le1$: a stopping index $J(\nu)$, real vectors $\xi_k(\nu)\in\mathbb R^3$, real $\mu_j(\nu;x)$ for $j\ge1$, torus errors $e_m^\ell,r_{tr}^\ell,r_{lg}^\ell$, their thermodynamic limits $r_{tr},r_{lg}$, and their right limits $r_{tr,0},r_{lg,0}$. For $0<\nu\le1$ it requires $J(\nu)\ge1$, $J(\nu)\to\infty$ as $\nu\downarrow0$, and
+$$\tfrac12\le L^{J(\nu)}\sqrt\nu\le L^2.\tag{2.2}$$
+Here and below $\gamma_j(\nu)=\prod_{i<j}(1+\xi_i(\nu)_2)^{-1}$, $\delta_j(\nu)=\prod_{i<j}(1+\xi_i(\nu)_2)/(1+\xi_i(\nu)_1)$, and $\beta_j(\nu)=\beta L^{jp}\gamma_j(\nu)$: these are precisely `gammaR`, `deltaR`, `betaR` applied to real $\xi$, rather than new physical parameters.
+
+There is a quantifier trap here: F1 and F2 ask for $\xi_k(\nu)$ and $\mu_j(\nu;x)$ at **all** indices, although the physical RG at positive $\nu$ stops at $J(\nu)$. No estimate for an unperformed step is needed. Define $\xi_k(\nu)=0$ for $k\ge J(\nu)$ and $\mu_j(\nu;x)=0$ for $j>J(\nu)$; at $\nu=0$ use the indefinitely iterated massless physical flow. The formulae at the terminal scale use only $k<J$ and $j\le J$. For each fixed index, $J(\nu)\to\infty$ makes this extension eventually equal to the physical term as $\nu\downarrow0$, so it preserves the required continuity. This extension is part of the assembly proof, rather than an assertion that the physical massive flow continues through arbitrarily large masses.
+
+`C1StarF1` is, for every $k$ and $0\le\nu\le1$,
+$$\|\xi_k(\nu)\|\le\frac{c_\xi}{4\beta}q_*^{k+1},\qquad
+\xi_k(\nu)\longrightarrow\xi_k(0)\quad(\nu\downarrow0).\tag{2.3}$$
+The second assertion is pointwise in $k$, in the finite dimensional `Fin 3 → ℝ` norm.
+
+`C1StarF2` says, for every $j\ge1$, $x\in\mathbb Z^d$, $0\le\nu\le1$,
+$$|\mu_j(\nu;x)|\le c_*\beta^{-1/2+\rho _1}L^{-j\rho _0},\qquad
+\mu_j(\nu;x)\longrightarrow\mu_j(0;x).\tag{2.4}$$
+Writing $m_J(\nu;x)=1-\sum_{j=0}^{J-1}\beta_j(\nu)^{-1/2}\mu_{j+1}(\nu;x)$, for each fixed $0<\nu\le1,x$ there is $\ell_0$ such that every **admissible** $\ell\ge\ell_0$ with $ML^{J+1}\mid\ell$ satisfies the *exact* physical equality
+$$\operatorname{blockM}_{\ell}(\beta,\nu)
+=m_J(\nu;x)+e_m^\ell(\nu;x),\qquad
+|e_m^\ell(\nu;x)|\le c_*\beta^{-2}L^{-2Jp}.\tag{2.5}$$
+`blockM` is the $e_1$ component of the torus expectation at zero. The $\ell_0$ quantifier belongs to F2; F3 has no such threshold.
+
+`C1StarF3` says that for **every** admissible $\ell$ and nonwrapping pair $x,y$ ($2|(x-y)_i|<\ell$ for every coordinate),
+$$
+\begin{split}
+\operatorname{blockGtr}_{\ell}(x-y)&=m_J(\nu;x)m_J(\nu;y)
+ \sum_{j=0}^{J-1}\frac{T_j^{\ell,\nu\delta_j(\nu)}(x,y)}{\beta\gamma_j(\nu)}
+ +r_{tr}^{\ell}(\nu;x,y),\\
+\operatorname{blockGlg}_{\ell}(x-y)&=r_{lg}^{\ell}(\nu;x,y),
+\end{split}\tag{2.6}
+$$
+where $T_j^{\ell,\mu}$ is the *specific* `termKernel d L (freeSeq d L a) μ J j (ℓ/L^J-1)`, not Root-F's polymer term with the same letter. Both errors obey
+$$|r_\#^\ell(\nu;x,y)|\le c_*\big[(1+|x-y|)^{-(p+\rho _0)}+\nu^{p/2}\big]
+e^{-c'\sqrt\nu|x-y|},\qquad \#=tr,lg.\tag{2.7}$$
+For every $\nu>0,x,y$, each $r_\#^\ell$ converges to $r_\#(\nu;x,y)$ in the **`LimAlong (ML)`** sense (all sufficiently high powers dividing $\ell$, not just the sequence $\ell=(ML)^n$), and $r_\#(\nu;x,y)\to r_{\#,0}(x,y)$ as $\nu\downarrow0$. Finally `RootFAndC1Star d N hN` requires this `C1Star` for the *same* $L\ge3,M\ge1$ chosen in its Root-F clause at $\kappa=\kappa_*(d)$, $c_9=1$. A construction with a new $L$ or $M$ would not prove that joint proposition.
+
+## 2.2 What is already a theorem, with constants
+
+Let $B,\alpha _0>0$ be fixed physical step constants, uniform in $k,\nu,\ell$, and set
+$$C_0=\operatorname{rgCxi}(B,\alpha _0)=168B/\alpha _0^2,\qquad c_\xi=4C_0=672B/\alpha _0^2.\tag{2.8}$$
+Assume the physical coefficient equation at every step is represented by the analytic triangular $A_k,c_k,f_k$ and the conjugation symmetry, with **all** the hypotheses of `Balaban.Flow.rg_step_infty`, including $\eta_k\le (2B/\alpha _0^2)\beta^{-1}q_*^{k+1}$ and its contraction condition. That landed theorem gives a unique real solution $\xi_k(\nu)$, analytic in its step parameters, with
+$$\|\xi_k(\nu)\|\le C_0\beta^{-1}q_*^{k+1}=\frac{c_\xi}{4\beta}q_*^{k+1}.\tag{2.9}$$
+This is the **bound half** of F1, provided the physical step exists also at $\nu=0$. `Balaban.Flow.norm_xi_le_of_step` packages the same stepwise bound into the sequence bound. For F1's continuity half, the coefficient data must converge uniformly on the fixed point ball and the triangular inverses must converge as $\nu\downarrow0$; then `Balaban.Flow.tendsto_rg_solution` applies. Analyticity in an abstract parameter alone does not supply the physical parameter map or its continuity. P4 §5, (5.23)–(5.27), pp. 715–716, is the fixed point calculation; (5.28)–(5.33), pp. 716–717, gives its coupling recursions and products. The PDF text layer mangles some formula symbols in (5.25)–(5.32), so (2.8)–(2.9) quote the *landed Lean constants*, not a claimed literal transcription of P4.
+
+For any such real sequence, `Balaban.Flow.betaSeq_eq` and `nuSeq_eq` identify the recursions
+$$\beta_{k+1}=\frac{L^p\beta_k}{1+\xi_k(2)},\qquad
+\nu_{k+1}=L^2\nu_k\frac{1+\xi_k(2)}{1+\xi_k(1)}.\tag{2.10}$$
+They imply the products in §2.1 by induction. If $6C_0q_*\le\beta(1-q_*)$, `Balaban.Flow.rg_flow_infty` proves the two product limits and, with $\Gamma_\infty(\nu)=\lim_j\gamma_j(\nu)$,
+$$
+|\Gamma_\infty(\nu)-1|\le\frac{2C_0q_*}{\beta(1-q_*)},\qquad
+|\Delta_\infty(\nu)-1|\le\frac{6C_0q_*}{\beta(1-q_*)},
+\tag{2.11}
+$$
+$$
+\left|\beta_j(\nu)^{-1}-(\beta\Gamma_\infty(\nu))^{-1}L^{-jp}\right|
+\le e^2\frac{2C_0q_*}{1-q_*}\beta^{-2}L^{-jp}q_*^j.\tag{2.12}
+$$
+`Balaban.Flow.exists_inv_betaSeq_asymptotics` gives the same coefficient asymptotic with $c_8=c_\xi/\beta$. Thus the $\gamma$ in Root-C is **$\Gamma_\infty(0)$**, and the coefficient in the leading Green term is exactly $(\beta\Gamma_\infty(0))^{-1}m(0)^2$. The identification needs the physical observable covariance to use the *same* $\beta_j$ as (2.10); that equality is a missing physical step, not a consequence of the abstract products. From `Balaban.Flow.norm_gammaSeq_le`, if $c_\xi q_*/[\beta(1-q_*)]\le\log 2$, then $|\gamma_j|,|\gamma_j^{-1}|\le2$; the real factors $1+\xi_i(2)>0$ make $\gamma_j\in[1/2,2]$. Consequently
+$$\beta_j^{-1/2}\le\sqrt2\,\beta^{-1/2}L^{-jp/2}.\tag{2.13}$$
+For $\nu>0$, $\Gamma_\infty(\nu)$ is the limit of the zero-extended sequence after the physical stop and is used only as a convenient bound. The identified physical coefficient is $\Gamma_\infty(0)$, obtained from the genuinely infinite massless sequence.
+
+The stop scale is also conditional: `Balaban.LargeField.StopIndex.kStop_succ_C1Star` derives (2.2) with $J=kStop+1$ from a `RunningHyp`; `kStop_rootF_scale` gives the Root-F version. When the same running family satisfies `RunningHyp` for all $0<\nu\le1$, the upper bound in (2.2) implies $J(\nu)\to\infty$: if $J\le K$ and $0<\nu<(2L^K)^{-2}$, then $L^J\sqrt\nu<1/2$. The physical proof must still give the uniform family of `RunningHyp` witnesses.
+
+For the observable layer, `Balaban.Observables.IsObs` (`LayerDef.lean`) already *states* the $\mu$ bound, normalized $M^{(j)}(h,h)=0$, localized $R^{ij}$ bound, source derivative identifications, and covariance decomposition on a fixed torus. From such a layer, `Balaban.Observables.Mk_const` proves $M_k(h,h)=m_kh$; `Gk_const` proves $G_k=C_k+R_k$ at $h$; `Gk_longitudinal`, with its explicit `hG` hypothesis, removes the Gaussian longitudinal term. `Balaban.Observables.lemma_2_1` proves the transverse form of a hard-spin background Jacobian and a stabilizer-invariant covariance, conditional on `IsBgAt` and the covariance symmetry. `Balaban.Observables.sum_R_le` proves, assuming `IsObs`, `CoeffBounds`, the polymer count $K_0$, admissible domain points, and $L^J\sqrt\nu\le L^2$,
+$$\sum_{1\le i\le j\le J}\beta_{i-1}^{-1}
+\sum_{X\ni x,y}\|R^{ij}(x,y;X)\|
+\le C_R\beta^{-3/2+\rho _1}(1+r)^{-(p+\rho _0)}
+e^{-\delta _0\sqrt\nu r/(2L^2)},\quad r=|x-y|.\tag{2.14}$$
+Here the landed proof takes $C_R=eK_0C_{\rm series}$, with $C_{\rm series}$ furnished by `Balaban.Observables.core_series`; the half exponent is necessary. The scalar `Balaban.Observables.first_order_step`, `Balaban.Observables.gaussian_main_term`, `Balaban.Observables.second_order_new`, `Balaban.Observables.R2new_final`, `Balaban.Observables.R3_final`, and `Balaban.Observables.improved_first_of_const` bound pieces of the proposed induction under their explicit analytic and scale hypotheses. They do **not** assert that a physical fluctuation integral and renormalization map produce an `IsObs` successor. `Balaban.Observables.first_order_iff` is likewise an equivalence conditional on its composition identity, rather than a proof of that identity. `Balaban.termDirect_freeSeq_unit` identifies an *abstract free-flow* kernel with $L^{-jp}KC_{tr}K^T$; it does not identify the physical observable's `Gker` argument with that kernel.
+
+## 2.3 Exact one-step assignments
+
+The following are theorem **targets**, not names of landed declarations. They are phrased so that their hypotheses are local to the step and their conclusions yield the next inductive layer. A Lean implementation can use the existing `Terms`, `IsSF`, `ObsTerms`, `IsObs`, `CoeffBounds`, `RunningHyp` carriers; the physical map $\mathcal T_k$ and its source derivatives have not yet been given a landed Lean type, so no compile-ready declaration can honestly be printed for that map.
+
+**RG-CoefficientStep($k$).** Input: a physical normalized small-field density $\rho_k(\psi;g)$ in `IsSF` with its P4/P5 analytic, reality, large-field, and torus-locality hypotheses; a specified block fluctuation measure $\mathcal T_k$; its three renormalization equations after the free-flow choice $c=ab,d=b$; the field values $\nu=0$ and $0<\nu\le1$ for which $k<J(\nu)$; and uniform bounds on the resulting $A_k,c_k,f_k$ *exactly as in* `Balaban.Flow.rg_step_infty`, with $\eta_k\le(2B/\alpha _0^2)\beta^{-1}q_*^{k+1}$. Require their dependence on $\nu$ to obey the explicit uniform-data and inverse-matrix convergence hypotheses of `Balaban.Flow.tendsto_rg_solution` as $\nu\downarrow0$ (with the previously determined $\xi_0,\ldots,\xi_{k-1}$ as parameters). Conclusion: the physical counterterms solve $A_k\xi_k+c_k(\xi_k)=f_k(\xi_k)$ uniquely in the contraction ball, are real, obey (2.9), and converge to the solution at $\nu=0$; the **physical** new couplings obey (2.10), and the fine penalty parameters equal the sequence `freeSeq d L a` (equivalently $a_j=a(1-L^{-2})/(1-L^{-2j})$ in unit-lattice notation for $j\ge1$). This selects the free-flow branch; P4 p. 717 also mentions another branch (5.34), which would change the kernel dictionary. Proof after the physical data have been constructed: apply `Balaban.Flow.rg_step_infty` and `Balaban.Flow.tendsto_rg_solution`, then rewrite the physical renormalization equations by P4 (5.28). The missing part is the construction and bounds of $A_k,c_k,f_k$ from $\mathcal T_k$, uniformly at $\nu=0$; `Balaban.Flow.triangularBounds_matrixInfty` only handles a matrix with already supplied entries.
+
+**RG-ObservableStep($k$).** Input: the same physical $\mathcal T_k$, an `IsSF`/`IsObs` layer at scale $k$, the centered fluctuation with covariance $C^{(k)}$, P9 Proposition 3.1's localization/connected-product estimate, the stated polymer counting bound $\sum_{X\ni x,y}e^{-\kappa d_j(X)}\le K_0$, the exponent conditions of P9 p. 511 ($\rho_1=3\rho_2$, $0<\rho_0\le\min\{p/2,1-3p\rho_2\}$, $0<\gamma<\min\{p/2,1\}$, $\gamma>2p\rho_2$), and source derivative bounds for the large-field term $R_0^{(k+1)}$ of P9 (3.42)–(3.45). Conclusion: the *actual* differentiated transformed density has an `IsObs` layer at scale $k+1$, with
+$$
+m_{k+1}(x)=m_k(x)-\beta_k^{-1/2}\mu_{k+1}(x),\quad
+|\mu_{k+1}(x)|\le C_M\beta^{-1/2+\rho _1}L^{-(k+1)\rho _0},
+\tag{2.15}
+$$
+$$M^{(k+1)}(x;h,h)=0,\qquad
+\|R^{i,k+1}(x,y;X)\|
+\le C_R'\beta^{-1/2+\rho _1}L^{-(k+1)\rho _0}
+e^{-\delta _0L^{-i}|x-y|_1}e^{-\kappa d_{k+1}(X)}
+\quad(1\le i\le k+1).\tag{2.16}$$
+The old $M^{(j)},R^{ij}$ are transported by the new background composition and satisfy their old bounds; $G_{k+1}=C_{k+1}+R_{k+1}$ with
+$$C_{k+1}(x,y)=m_{k+1}(x)m_{k+1}(y)
+\sum_{j=0}^{k}\beta_j^{-1}G^{(j+1)}(x,y).\tag{2.17}$$
+The new $M^{(k+1)}$ must be the unnormalized first-order term minus $\mu_{k+1}\varphi_{k+1}$, with $\mu_{k+1}$ defined by evaluation at $(h,h)$; the difference between the old and new $m$ in every Gaussian term belongs to $R_{k+1}$ with (2.16). This is P9 (3.1)–(3.10), (3.16)–(3.23), (3.44)–(3.49), pp. 501–514. The theorem must choose its large-$\beta$ threshold and inductive slack so that the net coefficients $C_M,C_R'$ in (2.15)–(2.16) are at most $1$, as required by the literal `IsObs.μ_bound` and `IsObs.boundR` fields; putting `IsObs` itself among the output assumptions would be circular. P9's proof sketches several of the renormalization contributions as “similar”; they need explicit estimates in the physical theorem.
+
+**RG-KernelStep($k$).** Input: the physical hard-spin background at $h$, its derivative $H_k$, its fluctuation covariance $C^{(k)}$, the free-flow equality for $a_k$, and the exact finite-torus block covariance/inverse identities of the Gaussian construction. Conclusion, for the *actual* kernel in (2.17), with $j=k$ and mass $\mu=\nu\delta_k(\nu)$,
+$$G^{(k+1)}(x,y;h,h)=L^{kp}
+T_k^{\ell,\mu}(x,y)(I-h\otimes h),\qquad
+h^TG^{(k+1)}=G^{(k+1)}h=0.\tag{2.18}$$
+Equivalently $\beta_k^{-1}G^{(k+1)}=(\beta\gamma_k)^{-1}T_k(I-h\otimes h)$. This is the exact normalization needed in F3; any missed $L^{kp}$ would change the Goldstone coefficient. Proof after identifying the physical $H_k,C^{(k)}$: use `Observables.lemma_2_1` for transversality and `Balaban.termDirect_freeSeq_unit` (with the $j=0$ case `termDirect_freeSeq_zero`) for the free Gaussian dictionary. P9 (4.12)–(4.14), pp. 517–518, gives the physical expression; (4.17), p. 518, is the free sum rule. The missing equality is between the **physical** $H_kC^{(k)}H_k^*$ and the landed abstract Schur kernel, including weighted adjoints and torus indexing. `LayerStructure.lemma_2_1` alone gives only a scalar transverse kernel, not its value.
+
+**RG-FamilyStep($k$).** Input: two admissible tori carrying the *same* physical initial density and marked source, and the physical step's local finite-set construction. Conclusion: the coefficient equations, their unique $\xi_k$, the scalar $\mu_{k+1}(x)$, and each localized $R^{i,k+1}(x,y;X)$ agree when the common support embeds in the interior quarter boxes; at fixed $k,i,x,y,X$ they are right-continuous in $\nu$ at $0$, with the uniform bounds (2.9), (2.15), (2.16). Proof: restriction commutes with the fluctuation and counterterm maps on common finite sets; uniqueness of the coefficient fixed point then gives torus independence. For continuity use the coefficient result above and dominated convergence in each finite localization integral or a uniform analytic parameter theorem. **This is a distinct hypothesis about the family**, absent from `IsObs` (`LayerDef.lean` explicitly says its O5 continuity and torus clause is not in that file). Root-F's two-torus clause compares only its $T_j$ at fixed $\nu$ and does not prove these statements for $\xi,\mu,R^{ij}$.
+
+The base case must identify the microscopic hard-spin source derivative and covariance with the scale-zero objects, and the induction needs a common $L,M,a,\rho _0,\rho _1,\gamma _0,\beta_*$ for **all** $k,\nu,\ell$. This cannot be obtained by choosing a fresh constant at each step. The one-step assignments above, plus this base case, give F1 and the scale-resolved parts of F2/F3 by induction. They are the mathematically exact content needed from P4 §5 and P9 §§2–3; P8, Balaban–O'Carroll, *Annals of Physics* **260** (1997), pp. 1–8, gives an effective-action method for the massive Gross–Neveu model, not these O(N) estimates.
+
+## 2.4 Terminal integration, torus limits, and zero field
+
+A final-scale theorem is unavoidable: it is **not** an ordinary induction step. Its input is the physical layer at $J=J(\nu)$, the final massive integration, and the large-field polymer expansion. Its exact conclusion is the finite-torus source identity
+$$\log Z_\ell(g)=F_J(h,g)+R^{(J)}(h,g)+P^{(J)}(g)\tag{2.19}$$
+on every admissible torus, with the first two $g$ derivatives at $0$ identified with the physical `blockM`, `blockGtr`, `blockGlg`. P9 (4.2)–(4.9), pp. 515–517, is the source. In particular require the **quantitative** derivative estimates, for $r=|x-y|$ and fixed constants $K_0,K_2,\delta_T>0$,
+$$|\partial_{g(x)}(R^{(J)}+P^{(J)})(0)|\le3K_0\beta_{J-1}^{-2},\qquad
+|\partial_{g(x)}\partial_{g(y)}(R^{(J)}+P^{(J)})(0)|
+\le K_2\beta_{J-1}^{-2}e^{-\delta_TL^{-J}r}.\tag{2.20}$$
+P9 p. 517 gives a sharper displayed off-diagonal estimate but its text layer is garbled; (2.20) is the clear bound from the preceding unsimplified $\beta_{J-1}^{-2}$ polymer estimate, with a constant absorbing its finite sum and $e^{2dL\kappa}$. The paper does **not** state right continuity of these terms at $\nu=0$; their vanishing will follow from (2.20). Under $\gamma_{J-1}\ge1/2$,
+$$3K_0\beta_{J-1}^{-2}\le12K_0L^{2p}\beta^{-2}L^{-2Jp},\tag{2.21}$$
+which is F2's $e_m$ bound if $c_*\ge12K_0L^{2p}$. The same estimate implies the terminal first derivative vanishes as $J(\nu)\to\infty$.
+
+For completeness, (2.20) also gives the **stronger** spatial form needed for F3. Put $u=L^{-J}$ and $A_{p,\delta}:=e^{\delta/2}\sup_{t\ge0}t^{2p}e^{-\delta t/2}<\infty$. Since $u\le1$, for every $r\ge0$,
+$$u^{2p}e^{-\delta ur/2}
+=(1+r)^{-2p}[u(1+r)]^{2p}e^{-\delta u(1+r)/2}e^{\delta u/2}
+\le A_{p,\delta}(1+r)^{-2p}.\tag{2.22}$$
+Also (2.2) gives $u\ge\sqrt\nu/L^2$. Split the exponential in (2.20) in halves, apply (2.22) and $2p\ge p+\rho _0$, and obtain
+$$K_2\beta_{J-1}^{-2}e^{-\delta_Tur}
+\le4K_2L^{2p}A_{p,\delta_T}\beta^{-2}(1+r)^{-(p+\rho _0)}
+e^{-\delta_T\sqrt\nu r/(2L^2)}.\tag{2.23}$$
+For $\beta\ge1$ this is absorbed into (2.7), even without its extra $\nu^{p/2}$ allowance. The observable remainder (2.14) is absorbed with $c'\le\min(\delta_0,\delta_T)/(2L^2)$ and $c_*\ge C_R+4K_2L^{2p}A_{p,\delta_T}$ because $\beta^{-3/2+\rho _1}\le1$. Combining (2.17), (2.18), (2.19) gives the exact equalities (2.5)–(2.6). This is the complete numerical reduction from the proposed step outputs to F2/F3.
+
+At fixed $\nu>0$, `Balaban.Correlations.onePoint_tendsto_along_multiples` and `twoPoint_tendsto_along_multiples` already give the physical thermodynamic limits from Root-F. `Balaban.termKernel_converges` supplies the limit of each of the finitely many kernels in (2.6), so subtraction gives the F3 `LimAlong (ML)` remainder limits; no separate physical torus-limit theorem for the *sum* is required. The only caveat is the already stated common-family and normalization equality, which permits the same $m_J,\xi_j$ in every torus. For F2, the torus correction needs only its eventual bound (2.5), exactly as `C1StarF2` asks.
+
+At $\nu\downarrow0$, each fixed $(i,j,x,y)$ observable term must converge by `RG-FamilyStep`; the bound (2.16) and polymer count give a summable majorant, since
+$$
+\sum_{j=i}^{\infty}L^{-j\rho _0}=\frac{L^{-i\rho _0}}{1-L^{-\rho _0}},\qquad
+\sum_{i=1}^{\infty}L^{-(i-1)p-i\rho _0}<\infty.\tag{2.24}
+$$
+For a fixed pair $x,y$, drop the exponentials. The $(i,j)$ summand is at most $2K_0C_R'\beta^{-3/2+\rho_1}L^{-(i-1)p-j\rho_0}$, independently of $\nu,J,\ell$. Its full double sum is
+$$\frac{2K_0C_R'\beta^{-3/2+\rho_1}L^{-\rho_0}}
+{(1-L^{-\rho_0})(1-L^{-(p+\rho_0)})}<\infty.\tag{2.24a}$$
+Tannery then gives the right limit of the observable double sum. The terminal term tends to zero by (2.21)–(2.23). `Balaban.Correlations.c1Star_remainder_limit_criterion` and `Balaban.Correlations.c1Star_truncated_limit_criterion` formalize precisely this double-limit argument once the summands and their bounds are supplied. In particular the zero-field limit of the longitudinal part is the limit of the observable $R^{ij}$ sum; the Gaussian part is zero at every scale by (2.18).
+
+The zero-field magnetization is therefore the **same** physical observable limit
+$$m(0)=1-\sum_{j=1}^{\infty}\beta_{j-1}(0)^{-1/2}\mu_j(0;x),\tag{2.25}$$
+independent of $x$ because it is the pointwise limit of the translation-invariant physical magnetization. Its convergence follows from (2.4), (2.13), and $\sum_jL^{-(j-1)p/2-j\rho_0}<\infty$. The coefficient in the transverse Green term is $m(0)^2/(\beta\Gamma_\infty(0))$ by (2.12), (2.18), the free sum rule `Balaban.KernelHyp.tsum_eq_latticeGreen`, and the limit argument in Part 1. P9 (4.15)–(4.18), pp. 518–519, motivates this comparison; it treats the $\nu\downarrow0$ coefficient dependence only implicitly. The explicit pointwise continuity assertions in F1–F3 are what make that argument valid for the actual flow.
+
+**Lean integration target.** A producer theorem should conclude `Nonempty (Balaban.Correlations.C1Star d N L M hN)` from one coherent physical family carrying `IsSF`, `IsObs`, the four step outputs above, a base case, `RunningHyp`, and the terminal theorem (2.19)–(2.20), with $L,M$ those of Root-F. It should then be paired with the Root-F clause to prove `Balaban.Correlations.RootFAndC1Star d N hN`. `Balaban.Correlations.rootC_of_rootFAndC1Star` consumes that joint hypothesis. This assignment does not ask an agent to reprove the scalar summation, coefficient products, kernel limits, or Root-C assembly already landed.
+
+**Confidence.** High for the exact Lean interface, the conditional numerical reductions (2.8)–(2.25), and the separation between landed analytic lemmas and missing physical construction. Moderate for the proposed physical step and terminal theorem until the P5/P7 large-field source bounds, weighted-adjoint convention in (2.18), and the $\nu=0$ parameter domain are checked in a single formal step. P9 ends with §4 on p. 519 (references p. 519–520): the requested “P9 §5” does not exist. P8's PDF text layer has garbled typography, and P4's has damaged coefficient formulas; neither is used here as authority for an unreadable constant.
