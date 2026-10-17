@@ -2013,6 +2013,14 @@ public import Balaban.Polymer.GasCore
 public import Balaban.Fluctuation.LocalClassExtend
 public import Balaban.Fluctuation.LocalClassSum
 public import Balaban.Polymer.GasCoreSize
+public import Balaban.Polymer.GasLinked
+public import Balaban.Polymer.GasLinkedEq
+public import Balaban.Polymer.GasLinkedBound
+public import Balaban.Polymer.GasLinkedCore
+public import Balaban.Polymer.GasLinkedCoverage
+public import Balaban.Polymer.GasLinkedCoverageBound
+public import Balaban.Polymer.GasLinkedSingleton
+public import Balaban.Polymer.GasLinkedToy
 public import Balaban.LargeField.R.RGasCore
 public import Balaban.Fluctuation.LocalClassTau
 public import Balaban.Fluctuation.LocalClassCov
