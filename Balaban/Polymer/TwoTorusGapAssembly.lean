@@ -149,6 +149,129 @@ section Assembly
 
 variable {d : ℕ}
 
+/-- **The torus clause at a gap scale with the margin of the wide supports as the hypothesis.**  The
+core of `resum_gapScale_torus`: the wide supports enter only through `τ ℓ X ≤ 7 |X|` (`hWm`), so a
+different threshold of the wide supports gives the same rates (`hκ' : 7 lam + κ₂ ≤ κ'`). -/
+theorem resum_gapScale_torus_of_wideMargin {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZero (K ℓ)] (hd : 0 < d)
+    (hK : ∀ ℓ, 2 ≤ K ℓ) (P : ι → Finset (Finset (Fin d → ℤ)))
+    (Q : ι → Finset (Fin d → ℤ) → Prop) (sz : Finset (Fin d → ℤ) → ℕ)
+    (τ : ι → Finset (Fin d → ℤ) → ℕ) (can : Finset (Fin d → ℤ) → ι) (D : Set G)
+    (W : Submodule ℂ (G → ℂ)) (R : Finset (Fin d → ℤ) → Prop)
+    (Ag : Finset (Fin d → ℤ) → G → G → Prop) (T : ι → G → Finset (Fin d → ℤ) → ℂ)
+    (Wd : ι → Finset (Fin d → ℤ) → Prop)
+    {B a κ κ₂ κ' lam : ℝ} {t₀ : ℕ}
+    (hP : ∀ ℓ X, X ∈ P ℓ ↔ ∃ Y, IsAnimal (blockGraph d (K ℓ)) Y ∧
+      X = Y.image (fun b μ => (b μ).valMinAbs))
+    (hQ : ∀ ℓ X, Q ℓ X ↔ ∀ x ∈ X, ∀ μ, (x μ).natAbs ≤ K ℓ / 4)
+    (hsz : ∀ X, sz X = X.card)
+    (hτ : ∀ ℓ X, τ ℓ X = K ℓ / 4 - X.sup (fun x => Finset.univ.sup fun μ => (x μ).natAbs))
+    (hR : ∀ ℓ X, X ∈ P ℓ → R X)
+    (hAg : ∀ X Z, X ⊆ Z → ∀ g g', Ag Z g g' → Ag X g g')
+    (hcanK : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → K ℓ ≤ K (can X))
+    (hWm : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → Wd ℓ X → τ ℓ X ≤ 7 * X.card)
+    (hB : 0 ≤ B) (ha : 0 ≤ a) (hκ : 0 ≤ κ)
+    (hκ₂ : κ + Real.log 2 ≤ κ₂) (hlam : κ₂ ≤ lam) (hκ' : 7 * lam + κ₂ ≤ κ')
+    (hsupp : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0)
+    (hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X)
+    (han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W)
+    (hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖T ℓ g X‖ ≤ B * Real.exp (-κ' * (sz X : ℝ)))
+    (hFclose : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ D,
+      ‖T ℓ g X - T (can X) g X‖ ≤
+        a * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :
+    ∃ Φ : ι → Finset (Fin d → ℤ) → Finset (Fin d → ℤ),
+    ∃ Tn : ι → G → Finset (Fin d → ℤ) → ℂ,
+      (∀ ℓ X, X ∈ P ℓ → Q ℓ X → X ⊆ Φ ℓ X) ∧
+      (∀ ℓ g X, Tn ℓ g X = if Q ℓ X then T (can X) g X else
+        T ℓ g X + ∑ X₀ ∈ ((P ℓ).filter (Q ℓ)).filter (fun X₀ => Φ ℓ X₀ = X),
+          (T ℓ g X₀ - T (can X₀) g X₀)) ∧
+      (∀ ℓ g, ∑ X ∈ P ℓ, Tn ℓ g X = ∑ X ∈ P ℓ, T ℓ g X) ∧
+      (∀ ℓ ℓ' g X, Q ℓ X → Q ℓ' X → Tn ℓ g X = Tn ℓ' g X) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖Tn ℓ g X‖ ≤
+        (B + (a + 2 * B) * Real.exp κ₂ + 2 * B * Real.exp (κ₂ * (t₀ : ℝ))) *
+          Real.exp (-κ * (sz X : ℝ))) ∧
+      (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tn ℓ g X = 0) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
+      (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) := by
+  obtain ⟨Φ, hsub, hΦP, hΦsz, hfib, hRΦ, hAgΦ⟩ :=
+    lastScale_chain K hd hK P Q sz τ R Ag hP hQ hsz hτ hR hAg
+  have hcanP : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → X ∈ P (can X) := by
+    intro ℓ X hX hQX
+    obtain ⟨Y, hY, rfl⟩ := (hP ℓ _).1 hX
+    have hbox : ∀ b ∈ Y, ∀ μ, (b μ).valMinAbs.natAbs ≤ K ℓ / 4 := fun b hb μ =>
+      (hQ ℓ _).1 hQX _ (Finset.mem_image_of_mem _ hb) μ
+    obtain ⟨Y', hY', h⟩ := quarterBox_polymer_larger (hK ℓ) (hcanK ℓ _ hX hQX) hY hbox
+    exact (hP _ _).2 ⟨Y', hY', h.symm⟩
+  have hκ₂0 : 0 ≤ κ₂ := by
+    have : 0 ≤ Real.log 2 := Real.log_nonneg (by norm_num)
+    linarith
+  have hlam0 : 0 ≤ lam := le_trans hκ₂0 hlam
+  have hκκ' : κ₂ ≤ κ' := by linarith
+  have hΦsz' : ∀ ℓ X, X ∈ P ℓ → Q ℓ X →
+      sz (Φ ℓ X) ≤ sz X + (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X + 1 := by
+    intro ℓ X hX hQX
+    by_cases hw : Wd ℓ X
+    · simp only [hw, ↓reduceIte]
+      have h1 := hΦsz ℓ X hX hQX
+      have h3 : τ ℓ X ≤ 7 * sz X := by
+        rw [hsz]
+        exact hWm ℓ X hX hQX hw
+      omega
+    · simp only [hw, ↓reduceIte]
+      exact hΦsz ℓ X hX hQX
+  have hbd' : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖T ℓ g X‖ ≤ B * Real.exp (-κ₂ * (sz X : ℝ)) := by
+    intro ℓ X hX g hg
+    refine (hbd ℓ X hX g hg).trans ?_
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hB
+    have : (0 : ℝ) ≤ sz X := Nat.cast_nonneg _
+    nlinarith
+  have hcl : ∀ ℓ X, X ∈ P ℓ → Q ℓ X →
+      t₀ ≤ (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X → ∀ g ∈ D,
+      ‖T ℓ g X - T (can X) g X‖ ≤ (a + 2 * B) *
+        Real.exp (-lam * (((fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X : ℕ) : ℝ)) *
+          Real.exp (-κ₂ * (sz X : ℝ)) := by
+    intro ℓ X hX hQX ht g hg
+    by_cases hw : Wd ℓ X
+    · simp only [hw, ↓reduceIte] at ht ⊢
+      have hc := hcanP ℓ X hX hQX
+      have h1 := hbd ℓ X hX g hg
+      have h2 := hbd (can X) X hc g hg
+      have h3 : ‖T ℓ g X - T (can X) g X‖ ≤ 2 * B * Real.exp (-κ' * (sz X : ℝ)) := by
+        calc ‖T ℓ g X - T (can X) g X‖ ≤ ‖T ℓ g X‖ + ‖T (can X) g X‖ := norm_sub_le _ _
+          _ ≤ 2 * B * Real.exp (-κ' * (sz X : ℝ)) := by linarith
+      refine h3.trans ?_
+      have h4 : Real.exp (-κ' * (sz X : ℝ)) ≤
+          Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
+        rw [← Real.exp_add]
+        refine Real.exp_le_exp.2 ?_
+        push_cast
+        have : (0 : ℝ) ≤ sz X := Nat.cast_nonneg _
+        nlinarith
+      have h5 : 0 ≤ Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
+        positivity
+      calc 2 * B * Real.exp (-κ' * (sz X : ℝ))
+          ≤ 2 * B * (Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :=
+            mul_le_mul_of_nonneg_left h4 (by positivity)
+        _ ≤ (a + 2 * B) * (Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) *
+            Real.exp (-κ₂ * (sz X : ℝ))) :=
+            mul_le_mul_of_nonneg_right (by linarith) h5
+        _ = (a + 2 * B) * Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) *
+            Real.exp (-κ₂ * (sz X : ℝ)) := by ring
+    · simp only [hw, ↓reduceIte] at ht ⊢
+      refine (hFclose ℓ X hX hQX hw ht g hg).trans ?_
+      have h5 : 0 ≤ Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
+        positivity
+      calc a * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))
+          = a * (Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) := by ring
+        _ ≤ (a + 2 * B) * (Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :=
+            mul_le_mul_of_nonneg_right (by linarith) h5
+        _ = (a + 2 * B) * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by ring
+  obtain ⟨Tn, h⟩ := resum_lastScale P Q sz
+    (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) Φ can D W R Ag T hB
+    (a := a + 2 * B) (by positivity) hκ hκ₂ hlam hcanP hΦP hΦsz' (fun ℓ Z => by convert hfib ℓ Z)
+    hRΦ hAgΦ hsupp hloc han hbd' hcl
+  refine ⟨Φ, Tn, hsub, ?_⟩
+  convert h
+
 /-- **The torus clause at a gap scale (item 24, blocker 7).**  The terms `T ℓ g X` of the tori `ℓ`
 are indexed by the polymers `P ℓ` of `Torus d (K ℓ)` read in centred coordinates; `Q ℓ` is the
 quarter box, `τ ℓ X = K ℓ / 4 - (largest absolute coordinate of X)` the margin, `can X` a torus
@@ -207,87 +330,12 @@ theorem resum_gapScale_torus {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZero (K
       (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tn ℓ g X = 0) ∧
       (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
       (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) := by
-  obtain ⟨Φ, hsub, hΦP, hΦsz, hfib, hRΦ, hAgΦ⟩ :=
-    lastScale_chain K hd hK P Q sz τ R Ag hP hQ hsz hτ hR hAg
-  have hcanP : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → X ∈ P (can X) := by
-    intro ℓ X hX hQX
-    obtain ⟨Y, hY, rfl⟩ := (hP ℓ _).1 hX
-    have hbox : ∀ b ∈ Y, ∀ μ, (b μ).valMinAbs.natAbs ≤ K ℓ / 4 := fun b hb μ =>
-      (hQ ℓ _).1 hQX _ (Finset.mem_image_of_mem _ hb) μ
-    obtain ⟨Y', hY', h⟩ := quarterBox_polymer_larger (hK ℓ) (hcanK ℓ _ hX hQX) hY hbox
-    exact (hP _ _).2 ⟨Y', hY', h.symm⟩
-  have hκ₂0 : 0 ≤ κ₂ := by
-    have : 0 ≤ Real.log 2 := Real.log_nonneg (by norm_num)
-    linarith
-  have hlam0 : 0 ≤ lam := le_trans hκ₂0 hlam
-  have hκκ' : κ₂ ≤ κ' := by linarith
-  have hΦsz' : ∀ ℓ X, X ∈ P ℓ → Q ℓ X →
-      sz (Φ ℓ X) ≤ sz X + (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X + 1 := by
-    intro ℓ X hX hQX
-    by_cases hw : Wd ℓ X
-    · simp only [hw, ↓reduceIte]
-      have h1 := hΦsz ℓ X hX hQX
-      have h2 := hWd ℓ X hX hQX hw
-      have h3 : τ ℓ X ≤ 7 * sz X := by
-        rw [hsz]
-        refine margin_le_of_wide h2 ?_
-        rw [hτ]; omega
-      omega
-    · simp only [hw, ↓reduceIte]
-      exact hΦsz ℓ X hX hQX
-  have hbd' : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖T ℓ g X‖ ≤ B * Real.exp (-κ₂ * (sz X : ℝ)) := by
-    intro ℓ X hX g hg
-    refine (hbd ℓ X hX g hg).trans ?_
-    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hB
-    have : (0 : ℝ) ≤ sz X := Nat.cast_nonneg _
-    nlinarith
-  have hcl : ∀ ℓ X, X ∈ P ℓ → Q ℓ X →
-      t₀ ≤ (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X → ∀ g ∈ D,
-      ‖T ℓ g X - T (can X) g X‖ ≤ (a + 2 * B) *
-        Real.exp (-lam * (((fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) ℓ X : ℕ) : ℝ)) *
-          Real.exp (-κ₂ * (sz X : ℝ)) := by
-    intro ℓ X hX hQX ht g hg
-    by_cases hw : Wd ℓ X
-    · simp only [hw, ↓reduceIte] at ht ⊢
-      have hc := hcanP ℓ X hX hQX
-      have h1 := hbd ℓ X hX g hg
-      have h2 := hbd (can X) X hc g hg
-      have h3 : ‖T ℓ g X - T (can X) g X‖ ≤ 2 * B * Real.exp (-κ' * (sz X : ℝ)) := by
-        calc ‖T ℓ g X - T (can X) g X‖ ≤ ‖T ℓ g X‖ + ‖T (can X) g X‖ := norm_sub_le _ _
-          _ ≤ 2 * B * Real.exp (-κ' * (sz X : ℝ)) := by linarith
-      refine h3.trans ?_
-      have h4 : Real.exp (-κ' * (sz X : ℝ)) ≤
-          Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
-        rw [← Real.exp_add]
-        refine Real.exp_le_exp.2 ?_
-        push_cast
-        have : (0 : ℝ) ≤ sz X := Nat.cast_nonneg _
-        nlinarith
-      have h5 : 0 ≤ Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
-        positivity
-      calc 2 * B * Real.exp (-κ' * (sz X : ℝ))
-          ≤ 2 * B * (Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :=
-            mul_le_mul_of_nonneg_left h4 (by positivity)
-        _ ≤ (a + 2 * B) * (Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) *
-            Real.exp (-κ₂ * (sz X : ℝ))) :=
-            mul_le_mul_of_nonneg_right (by linarith) h5
-        _ = (a + 2 * B) * Real.exp (-lam * ((7 * sz X : ℕ) : ℝ)) *
-            Real.exp (-κ₂ * (sz X : ℝ)) := by ring
-    · simp only [hw, ↓reduceIte] at ht ⊢
-      refine (hFclose ℓ X hX hQX hw ht g hg).trans ?_
-      have h5 : 0 ≤ Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
-        positivity
-      calc a * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))
-          = a * (Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) := by ring
-        _ ≤ (a + 2 * B) * (Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :=
-            mul_le_mul_of_nonneg_right (by linarith) h5
-        _ = (a + 2 * B) * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by ring
-  obtain ⟨Tn, h⟩ := resum_lastScale P Q sz
-    (fun ℓ X => if Wd ℓ X then 7 * sz X else τ ℓ X) Φ can D W R Ag T hB
-    (a := a + 2 * B) (by positivity) hκ hκ₂ hlam hcanP hΦP hΦsz' (fun ℓ Z => by convert hfib ℓ Z)
-    hRΦ hAgΦ hsupp hloc han hbd' hcl
-  refine ⟨Φ, Tn, hsub, ?_⟩
-  convert h
+  refine resum_gapScale_torus_of_wideMargin K hd hK P Q sz τ can D W R Ag T Wd hP hQ hsz hτ hR hAg
+    hcanK (fun ℓ X hX hQX hw => ?_) hB ha hκ hκ₂ hlam hκ' hsupp hloc han hbd hFclose
+  have h2 := hWd ℓ X hX hQX hw
+  rw [← hsz X]
+  refine margin_le_of_wide (hsz X ▸ h2) ?_
+  rw [hτ]; omega
 
 end Assembly
 
