@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.ClassOldCover
+public import Balaban.Fluctuation.ClassOldCoverSlices
 public import Balaban.SmallField.XiUnitWitness
 import Mathlib.Tactic.Linarith
 
@@ -108,9 +109,10 @@ theorem classOldDec_expansion_cover_birth [NeZero N] {P : Consts} {εs : ℕ →
             Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov Gp C.m₀ Y)) ∧
         (∀ Y, AnalyticOnNhd ℂ (Ev Y) (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
             {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ})) :=
-  classOldDec_expansion_cover C hm hcl hβ hE₀ hN hj1 hjk hXp hy hk hG hG' cc hcψ hMX hdm hα hsm hδ₁
-    hconn hrow hκ₀ hκdec hκ h1 hlog hκP
-    (xiCRaw_dom_birth_flow_unitfree H H' (gs_top_layer_empty_of_clauses hcl hj1 (by omega) (hm ▸ hXp))
-      heps hδ₃ hδfl hq0 hq1 hc hs hξ hμ hτr hr hDL hsmε hc1ε hKε hζε)
+  classOldDec_expansion_cover_birth_slices C hm (hcl.gs_spec j hj1 (by omega) X (hm ▸ hXp))
+    (hcl.analyticE j hj1 (by omega) y X (hm ▸ hXp) hy)
+    (fun Ψ h hd => hcl.boundE j hj1 (by omega) y X (hm ▸ hXp) hy Ψ h hd)
+    hβ hE₀ hN hjk hXp hk hG hG' cc hcψ hMX hdm hα hsm hδ₁ hconn hrow hκ₀ hκdec hκ h1 hlog hκP
+    H H' heps hδ₃ hδfl hq0 hq1 hc hs hξ hμ hτr hr hDL hsmε hc1ε hKε hζε
 
 end Balaban.Fluctuation
