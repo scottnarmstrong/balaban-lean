@@ -182,4 +182,18 @@ theorem window_quotient_at {a₁ : ℝ}
 
 end Quotient
 
+section BlockVField
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L]
+
+/-- A block field on the `k`-blocks is the top-scale part of a multiscale block field (zero on the other scales). -/
+theorem exists_blockV_of_top (F : BlockField d L N₀ k N) :
+    ∃ ψ0 : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N), ∀ z i, ψ0 ⟨k, z⟩ i = F z i := by
+  classical
+  refine ⟨fun b => if h : b.1 = k then WithLp.toLp 2 (F (cast (congrArg (fun i => Torus d (N₀ * L ^ (k - i))) h) b.2)) else 0,
+    fun z i => ?_⟩
+  simp
+
+end BlockVField
+
 end Balaban.LargeField

@@ -80,6 +80,18 @@ theorem windowOfHistory_hbZ :
   rw [mem_locFineFin, mem_locFineFin, mem_locFine, mem_locFine,
     cubeMap_eq_of_jBlock_eq (hnn := hnn) hm le_rfl h]
 
+/-- `x ∈ Z` lies in the top layer `k` of `𝔹_k(U_k)`. -/
+theorem windowOfHistory_bdry_layerIndex (hk : 1 ≤ k)
+    {x : Torus S.d (M * n k * S.L ^ k)} (hx : x ∈ (windowOfHistory H Z g hkK hW).Z) :
+    (windowOfHistory H Z g hkK hW).bdry.layerIndex x = k :=
+  (windowOfHistory H Z g hkK hW).bdry.layerIndex_eq hk le_rfl
+    ((GeneratingSet.mem_layer _).2 ⟨windowOfHistory_bdryCover g hkK hW x hx, by rw [GeneratingSet.top]; simp⟩)
+
+/-- The torus sizes of the level `m' + 1` and of the top level agree: `M n_{m'+1} = M n_K L^{K-(m'+1)}`. -/
+theorem window_hNq {m' : ℕ} (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hm : m' + 1 ≤ K) :
+    M * n (m' + 1) = M * n K * S.L ^ (K - (m' + 1)) := by
+  rw [nn_eq_pow' hnn hm]; ring
+
 /-- **`𝔹_{k₁,k} ≺ 𝔹_k(U_k)` for the actual window.** -/
 theorem windowOfHistory_precedes :
     Precedes ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW))
