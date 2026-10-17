@@ -7,6 +7,8 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityFamilyActLabel
 public import Balaban.Fluctuation.HatLabelsAct
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenAct
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenLabelAct
 
 /-!
 # The activity family of the inherited energy of a class (`LocalClassDensityFamilyAct`)
@@ -76,10 +78,7 @@ theorem classActivityDomains_isDj {ι : Type*} [Fintype ι]
     (𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
     (h𝒴 : 𝒴C = Finset.univ.biUnion fun τ => polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)) :
     ∀ Y ∈ 𝒴C, IsDj 1 (k + 1) Y := by
-  intro Y hY
-  rw [h𝒴, Finset.mem_biUnion] at hY
-  obtain ⟨τ, -, hYτ⟩ := hY
-  exact polyDom_isDj_one S.hG' le_rfl hN hm1 (hcov τ) hd (hopt τ) hYτ
+  exact classActivityDomains_isDj_gen S jL XL X₁f 𝒦X hcov hopt hN hm1 hd 𝒴C h𝒴
 
 open Classical in
 /-- **The fields of the activity family of the inherited energy.**  For a finite family of labels
@@ -197,187 +196,13 @@ theorem classActivityFamily_fields {ι : Type*} [Fintype ι]
       physRestrict (N := N) A (physIncl N S θ) = physRestrict A (physIncl N S θ') →
       ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ Y : {Y // Y ∈ 𝒴C},
         Y.1 ⊆ Yhat Set.univ A → H θ Y (s : ℂ) = H θ' Y (s : ℂ)) := by
-  classical
-  set CHr := XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps with hCHr
-  have hN1 : L ^ 1 ∣ N₁ := (pow_dvd_pow L hm1).trans hN
-  have ha0 : 0 < a := zero_lt_one.trans ha1
-  have hBA := fun τ => classOldMarkedLocal_blockActs_of S hb₁ hbC C hm hcl hβ hE₀ (hj1 τ)
-    (hjk τ) (hXp τ) (hy τ) (hB τ) (hF τ) hG cc hcψ hMX hdm hα hsm (hcov τ) (hX₁ τ) hconn hrow
-    (hopt τ) hκ₀ hκdec hκ h1 hlog hκP (hchart τ) (hF₁an τ) (hF₁ τ) (hSolan τ) (hSolprop τ)
-    (hFkan τ) (hFk τ) Zm 1 hρ hρc hp
-  have hW : ∀ τ (u : ℂ), ‖u‖ ≤ a →
-      (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := fun τ u hu =>
-    mem_markedRadiusSet_of_pos (flCore_of (hB τ) (hF τ)).δ₁_pos hab hu
-      (by rw [norm_zero]; exact hbb)
-  have hmem : ∀ Θ ∈ CHr, ∀ Φ : (∀ b, (S.blockSplit 1 hp).Ωb b), (Θ, S.hatOf 1 ρ hp Φ) ∈
-      CHr ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} :=
-    fun Θ hΘ Φ => ⟨hΘ, fun p => (S.hatOf_mem 1 hρ hp Φ p).trans hρc⟩
-  have hYdj := classActivityDomains_isDj S C jL XL X₁f 𝒦X hcov hopt hN hm1 hd 𝒴C h𝒴
-  -- the term of a label at the clamped hat field
-  have hcontT := fun τ Y Θ (hΘ : Θ ∈ CHr) (um : ℂ) (hum : ‖um‖ ≤ a) =>
-    (hBA τ).2.1 Y Θ hΘ um (hW τ um hum)
-  have hdepT := fun τ (Y : Set (CTorus d L N₁ m₁ (k + 1)))
-    (hY : ∀ y ∈ Y, box (cbase (cellSide L 1 m₁ (k + 1)) y) (cellSide L 1 m₁ (k + 1)) ⊆ Y)
-    Θ (hΘ : Θ ∈ CHr) (um : ℂ) (hum : ‖um‖ ≤ a) =>
-    (hBA τ).1 Y Y subset_rfl hY Θ hΘ um (hW τ um hum)
-  have hbdT := fun τ Y Θ (hΘ : Θ ∈ CHr) (um : ℂ) (hum : ‖um‖ ≤ a) Φ =>
-    (hBA τ).2.2.1 Y Θ hΘ a bb ha0.le hbb hab um hum Φ
-  have hanT := fun τ Y Φ => ((hBA τ).2.2.2 Y Φ).mono
-    (Set.prod_mono subset_rfl (fun u hu => hW τ u (mem_ball_zero_iff.1 hu).le))
-  -- the activity on and off the chart
-  have hpos : ∀ θ u, (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a →
-      ∀ Y : {Y // Y ∈ 𝒴C}, H θ Y u = fun Φ =>
-        ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ) then
-          (S.β : ℂ) * (evDec (X₁f τ) C.m₀ (jL τ) (𝒦X τ) a₁ ν S.hG' cc (F₁ τ) (Sol τ)
-            (eTermFun S.G' (Gk τ) (C.Tm.gs (jL τ) (XL τ)) Hm (compWeight L a₁) (Fk τ)
-              (fun r => (S.β : ℂ)⁻¹ * C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2)) Zm u 0 Y.1
-              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ) -
-            evDec (X₁f τ) C.m₀ (jL τ) (𝒦X τ) a₁ ν S.hG' cc (F₁ τ) (Sol τ)
-            (eTermFun S.G' (Gk τ) (C.Tm.gs (jL τ) (XL τ)) Hm (compWeight L a₁) (Fk τ)
-              (fun r => (S.β : ℂ)⁻¹ * C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2)) Zm 0 0 Y.1
-              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ))
-        else 0 := fun θ u hc Y => by
-    funext Φ
-    rw [hH, ite_eq_left hc]
-  have hneg : ∀ θ u, ¬ ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a) →
-      ∀ Y : {Y // Y ∈ 𝒴C}, H θ Y u = fun _ => 0 := fun θ u hc Y => by
-    funext Φ
-    rw [hH, ite_eq_right hc]
-  have h0a : ‖(0 : ℂ)‖ ≤ a := by rw [norm_zero]; exact ha0.le
-  have hholH : ∀ Y Φ, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ => H r.1 Y r.2 Φ)
-      (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a) := by
-    intro Y Φ
-    have hsum : AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
-        ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ) then
-          (S.β : ℂ) * (evDec (X₁f τ) C.m₀ (jL τ) (𝒦X τ) a₁ ν S.hG' cc (F₁ τ) (Sol τ)
-            (eTermFun S.G' (Gk τ) (C.Tm.gs (jL τ) (XL τ)) Hm (compWeight L a₁) (Fk τ)
-              (fun r => (S.β : ℂ)⁻¹ * C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2)) Zm r.2 0 Y.1
-              ((r.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ) -
-            evDec (X₁f τ) C.m₀ (jL τ) (𝒦X τ) a₁ ν S.hG' cc (F₁ τ) (Sol τ)
-            (eTermFun S.G' (Gk τ) (C.Tm.gs (jL τ) (XL τ)) Hm (compWeight L a₁) (Fk τ)
-              (fun r => (S.β : ℂ)⁻¹ * C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2)) Zm 0 0 Y.1
-              ((r.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ))
-        else 0) (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a) := by
-      refine Finset.analyticOnNhd_fun_sum _ fun τ _ => ?_
-      by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-      · have hA := hanT τ Y.1 Φ
-        have h0 := (hanT τ Y.1 Φ).comp (f := fun r : physParam N S × ℂ => (r.1, (0 : ℂ)))
-          (fun r _ => analyticAt_fst.prod analyticAt_const)
-          (fun r (hr : r ∈ physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a) =>
-            ⟨hr.1, Metric.mem_ball_self ha0⟩)
-        rw [Function.comp_def] at h0
-        have hd := (analyticOnNhd_const (v := (S.β : ℂ))).mul (hA.sub h0)
-        refine hd.congr ((isOpen_physV S a₁ ν eps (hB τ).HBp).prod Metric.isOpen_ball) ?_
-        intro r _
-        exact (ite_eq_left hYτ).symm
-      · refine (analyticOnNhd_const (v := (0 : ℂ))).congr
-          ((isOpen_physV S a₁ ν eps (hB τ).HBp).prod Metric.isOpen_ball) ?_
-        intro r _
-        exact (ite_eq_right hYτ).symm
-    by_cases hι : Nonempty ι
-    · obtain ⟨τ₀⟩ := hι
-      refine hsum.congr ((isOpen_physV S a₁ ν eps (hB τ₀).HBp).prod Metric.isOpen_ball) ?_
-      intro r hr
-      have hc : (r.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖r.2‖ < a :=
-        ⟨hr.1.1, mem_ball_zero_iff.1 hr.2⟩
-      show _ = H r.1 Y r.2 Φ
-      rw [hpos r.1 r.2 hc Y]
-    · exfalso
-      have hY2 : Y.1 ∈ Finset.univ.biUnion
-          fun τ => polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ) := by
-        rw [← h𝒴]; exact Y.2
-      obtain ⟨τ, -, -⟩ := Finset.mem_biUnion.1 hY2
-      exact hι ⟨τ⟩
-  refine ⟨?_, ?_, ?_, hholH, ?_, ?_, ?_⟩
-  · intro θ Y u
-    by_cases hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a
-    · rw [hpos θ u hc Y]
-      refine Finset.measurable_fun_sum _ fun τ _ => ?_
-      by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-      · simp only [hYτ, ite_true]
-        exact (continuous_const.mul ((hcontT τ Y.1 _ hc.1 u hc.2.le).sub
-          (hcontT τ Y.1 _ hc.1 0 h0a))).measurable
-      · simp only [hYτ, ite_false]
-        exact measurable_const
-    · rw [hneg θ u hc Y]
-      exact measurable_const
-  · intro θ Y u
-    have hYc := cell_subset_of_isDj hN1 (hYdj Y.1 Y.2)
-    by_cases hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a
-    · rw [hpos θ u hc Y]
-      intro Φ Φ' h
-      refine Finset.sum_congr rfl fun τ _ => ?_
-      by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-      · rw [ite_eq_left hYτ, ite_eq_left hYτ]
-        exact congrArg (fun w => (S.β : ℂ) * w) (congrArg₂ (fun x y => x - y)
-          (hdepT τ Y.1 hYc _ hc.1 u hc.2.le Φ Φ' h) (hdepT τ Y.1 hYc _ hc.1 0 h0a Φ Φ' h))
-      · rw [ite_eq_right hYτ, ite_eq_right hYτ]
-    · rw [hneg θ u hc Y]
-      intro Φ Φ' _
-      rfl
-  · intro θ Y u Φ
-    have hnn : ∀ τ, 0 ≤ (if Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ) then
-        2 * P.E₀ * Real.exp (-κ₀ * treeLenCovOne C.m₀ (jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' C.m₀ Y.1) else 0) := fun τ => by
-      split_ifs
-      · positivity
-      · exact le_rfl
-    by_cases hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a
-    · rw [hpos θ u hc Y]
-      refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun τ _ => ?_)
-      by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-      · rw [ite_eq_left hYτ, ite_eq_left hYτ, norm_mul, Complex.norm_of_nonneg hβ.le]
-        have hA := hbdT τ Y.1 _ hc.1 u hc.2.le Φ
-        have hB0 := hbdT τ Y.1 _ hc.1 0 h0a Φ
-        have hsub := (norm_sub_le _ _).trans (add_le_add hA hB0)
-        calc S.β * ‖_ - _‖ ≤ S.β * ((S.β⁻¹ * P.E₀) * Real.exp (-κ₀ *
-              treeLenCovOne C.m₀ (jL τ) (XL τ) - 2 * κdec * treeLenCov S.G' C.m₀ Y.1) +
-              (S.β⁻¹ * P.E₀) * Real.exp (-κ₀ * treeLenCovOne C.m₀ (jL τ) (XL τ) -
-                2 * κdec * treeLenCov S.G' C.m₀ Y.1)) :=
-              mul_le_mul_of_nonneg_left hsub hβ.le
-          _ = 2 * P.E₀ * Real.exp (-κ₀ * treeLenCovOne C.m₀ (jL τ) (XL τ) -
-              2 * κdec * treeLenCov S.G' C.m₀ Y.1) := by
-              field_simp
-              ring
-      · rw [ite_eq_right hYτ, ite_eq_right hYτ, norm_zero]
-    · rw [hneg θ u hc Y, norm_zero]
-      exact Finset.sum_nonneg fun τ _ => hnn τ
-  · intro Y θ hθ u hu
-    have hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈ CHr ∧ ‖u‖ < a :=
-      ⟨hθ.1, mem_ball_zero_iff.1 hu⟩
-    rw [hpos θ u hc Y]
-    refine continuous_finsetSum _ fun τ _ => ?_
-    by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-    · simp only [hYτ, ite_true]
-      exact continuous_const.mul ((hcontT τ Y.1 _ hc.1 u hc.2.le).sub
-        (hcontT τ Y.1 _ hc.1 0 h0a))
-    · simp only [hYτ, ite_false]
-      exact continuous_const
-  · intro θ hθ Y Φ
-    refine AnalyticOnNhd.differentiableOn ?_
-    exact (hholH Y Φ).comp (f := fun u : ℂ => (θ, u))
-      (fun _ _ => analyticAt_const.prod analyticAt_id) (fun u hu => ⟨hθ, hu⟩)
-  · intro A θ hθ θ' hθ' hres s hs Y hsub
-    have hagA := ((physRestrict_physIncl_eq_iff S A θ θ').1 hres).1
-    rw [Yhat_univ] at hsub
-    have hagY : agreeOn Y.1 (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)
-        (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) := agreeOn_mono hsub hagA
-    have hsn : ‖(s : ℂ)‖ ≤ 1 := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
-    have hca : ‖(s : ℂ)‖ < a := lt_of_le_of_lt hsn ha1
-    rw [hpos θ (s : ℂ) ⟨hθ.1, hca⟩ Y, hpos θ' (s : ℂ) ⟨hθ'.1, hca⟩ Y]
-    funext Φ
-    refine Finset.sum_congr rfl fun τ _ => ?_
-    by_cases hYτ : Y.1 ∈ polyDom S.G' (X₁f τ) C.m₀ (jL τ) (𝒦X τ)
-    · rw [ite_eq_left hYτ, ite_eq_left hYτ]
-      have hloc := fun um (hum : ‖um‖ ≤ a) => evDec_eTermFun_local_rawY (hB τ) (hF τ) S.hk1 hG
-        S.hG' cc hcψ Zm um 0 hMX hdm hα hsm (hW τ um hum) (hcov τ) (hX₁ τ) hconn hrow (hF₁ τ)
-        (hSolprop τ) (Fk τ) (fun r => (S.β : ℂ)⁻¹ * C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2) Y.1
-        (hmem (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) hθ.1 Φ)
-        (hmem (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) hθ'.1 Φ) hagY (fun _ _ _ => rfl)
-      exact congrArg (fun w => (S.β : ℂ) * w) (congrArg₂ (fun x y => x - y)
-        (hloc (s : ℂ) hca.le) (hloc 0 h0a))
-    · rw [ite_eq_right hYτ, ite_eq_right hYτ]
+  have hraw := fun τ => classOldEnergy_chart_radius_raw (N := N) (b := b) C hm hcl hκP hE₀ a₁ ν
+    δ₃ eps δfl (hj1 τ) (hjk τ) (hXp τ) (hy τ) (hchart τ)
+  exact classActivityFamily_fields_gen S hb₁ hbC
+    (fun τ r => C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2) (fun _ => P.E₀) (fun _ => hE₀) hβ jL XL Gk
+    (fun τ => C.Tm.gs (jL τ) (XL τ)) X₀ X₁f 𝒦X hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn
+    hrow hopt hκ₀ hκdec hκ h1 hlog (fun τ => (hraw τ).1) (fun τ => (hraw τ).2) F₁ hF₁an hF₁ Sol
+    hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ hρc hp ha1 hbb hab 𝒴C h𝒴 H hH
 
 open Classical in
 /-- **The activity family of the inherited energy as one `LabelAct` family.**  Under the hypotheses
@@ -480,14 +305,13 @@ theorem classActivityFamily_labelAct {ι : Type*} [Fintype ι]
     ∃ A : physParam N S → ℂ → LabelAct (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj)
         (S.blockSplit 1 hp).Ωb εC κH κ0 (K0 d L κ0),
       ∀ θ u Y, (A θ u).H Y = H θ Y u := by
-  obtain ⟨hmeas, hdep, hbd, -, -, -, -⟩ := classActivityFamily_fields S hb₁ hbC C hm hcl hβ hE₀
-    jL yL XL hj1 hjk hXp hy Gk X₀ X₁f 𝒦X hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt
-    hκ₀ hκdec hκ h1 hlog hκP hchart F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ
-    hρc hp ha1 hbb hab 𝒴C h𝒴 H hH
-  have hN1 : L ^ 1 ∣ N₁ := (pow_dvd_pow L hm1).trans hN
-  refine ⟨fun θ u => ⟨fun Y => H θ Y u, fun Y => hmeas θ Y u, fun Y => hdep θ Y u,
-    fun Y Φ => (hbd θ Y u Φ).trans (hnumH Y.1 Y.2),
-    fun b' => entropy_thick hN1 le_rfl 𝒴C h𝒴dj hκ0 b'⟩, fun _ _ _ => rfl⟩
+  have hraw := fun τ => classOldEnergy_chart_radius_raw (N := N) (b := b) C hm hcl hκP hE₀ a₁ ν
+    δ₃ eps δfl (hj1 τ) (hjk τ) (hXp τ) (hy τ) (hchart τ)
+  exact classActivityFamily_labelAct_gen S hb₁ hbC
+    (fun τ r => C.Tm.E (jL τ) (yL τ) (XL τ) r.1 r.2) (fun _ => P.E₀) (fun _ => hE₀) hβ jL XL Gk
+    (fun τ => C.Tm.gs (jL τ) (XL τ)) X₀ X₁f 𝒦X hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn
+    hrow hopt hκ₀ hκdec hκ h1 hlog (fun τ => (hraw τ).1) (fun τ => (hraw τ).2) F₁ hF₁an hF₁ Sol
+    hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ hρc hp ha1 hbb hab 𝒴C h𝒴 h𝒴dj H hH hκ0 hnumH
 
 end ActFamily
 
