@@ -2354,6 +2354,7 @@ public import Balaban.SmallField.IrrelTorusDefectWholeJet
 public import Balaban.SmallField.IrrelTorusDefectSmallSum
 public import Balaban.SmallField.IrrelTorusDefectMatrix
 public import Balaban.SmallField.IrrelTorusDefectWholeSum
+public import Balaban.Polymer.TwoTorusGapTowerTie
 public import Balaban.LargeField.R.RRemovedFracMassArith
 public import Balaban.LargeField.R.RRemovedFracMassCore
 public import Balaban.LargeField.R.RRemovedFracMassReserve
