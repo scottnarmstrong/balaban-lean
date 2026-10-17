@@ -36,3 +36,6 @@ Remaining named hypotheses: `hcl` on the birth domain (full clauses, not only `i
 
 Status (W894): the cover expansion uses only the level-j slices `analyticE`, `boundE` at the label (no level-(k+1) field, no other label; `gs_spec` only for the birth chart inclusion). Core `classOldDec_expansion_cover_of_slices` (`Fluctuation/ClassOldCover.lean`); `classOldDec_expansion_cover` is an application.
 Birth: `classOldDec_expansion_cover_birth_slices` (`Fluctuation/ClassOldCoverSlices.lean`) takes the `gs_spec`, `analyticE`, `boundE` slices at the label on the birth domain; `classOldDec_expansion_cover_birth` is an application of it.
+
+Status (W896): `Fluctuation/ClassOldBirthConsts.lean`: `dlGap_of_consts` (DL-gap from `ε′ ≤ ε_j/Λ`, `Λ ≥ 16C₀⁴`, `δ₃,δfl ≤ c ε_j`, `16C₀²K₂'(c₃+c_fl) ≤ 1`, `K_m r ≤ 1`, `(N+1)K₂A ≤ 4`, `A = α₀ epsTail 0`), `epsSeq_anti`, `epsSeq_succ_le_of_le`, `epsSeq_le_tail_zero`.
+`classOldDec_expansion_cover_birth_consts`: the slices theorem with `hDL`, `hsmε`, `hc1ε`, `hKε`, `hζε` replaced by constant conditions (`hLα`, `hcc`, `hAK`, `hrK`, `hsmA`, `hc1A`, `hKA`, `hζA`) and `eps ≤ ε_{k+1}`, `δ₃,δfl ≤ c·ε_k`; the bounds `δ₃ ≤ c₃ε_k`, `δfl ≤ c_flε_k` are NOT derived from `ChainNum`/fluctuation bounds (hypotheses).
