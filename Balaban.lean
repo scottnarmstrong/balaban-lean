@@ -1802,6 +1802,7 @@ public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
 public import Balaban.Green.FinalTailActivity
 public import Balaban.Green.FinalTailBridge
+public import Balaban.Green.FinalTailConsts
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
