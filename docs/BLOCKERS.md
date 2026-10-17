@@ -143,7 +143,10 @@ component varies little over the cutoff ball. That needed the decay of the backg
 removed component to the component's edge (Q13-SHARED (2.4)), now proved uniformly in the component and the
 scale; the error term is then of order one for the massless reference once the removed component lies at
 distance of order log β_k inside its component (the geometric margin, to be derived from the history). The
-R operation is being rebuilt with this density. The locality holds for the
+R operation now uses this density (its decomposition is generic in the reference density, and factorizes over
+the separated components), and the window integral of the removed outcome, from which (3.10) follows, is
+assembled from proved pieces; its remaining inputs are the regrouping of the variables, the composition identity,
+the unrolling of the step's kernel into its ancestors, and the geometry of the removed components (in progress). The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
