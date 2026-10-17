@@ -30,3 +30,6 @@ Unit witness: NOT forced and NOT provable from landed data (nonunit h₀ allowed
 
 ## Status (W886)
 `SmallField/XiUnitWitness.lean`: the unit witness is no longer a hypothesis. `unitWitness_real` (real background at h₀' = h₀/|h₀| = old one + (δφ,δα), K₂e², source ν(h₀'−h₀) through Prop 5.1; needs Ω_{j+1}=∅ and N ≥ 1), `xiC_unitWitness` (same complex datum, h''' = h''+h₀−h₀', XiC radius E = 2e+2(N+1)K₂e²; the factor 2 is the mass clause √νℓ|φ−h₀'|, unavoidable for h₀ = 0), `xiDom_birth_of_realization`, `xiCRaw_dom_birth_unitfree` (+ `_flow_unitfree`): hunit removed, (DL-gap) becomes (2E₁+2(N+1)K₂E₁²)(1+K_mτ) ≤ ε_j, E₁ = C₀²(C₀²ε′+K₂δ₃+K₂δfl), plus G.Ω(j+1)=∅ (automatic for j = k).
+
+W893 (D2(b) wiring): `Fluctuation/ClassOldCoverBirth.lean`: `gs_top_layer_empty_of_clauses` (hΩ from `gs_spec`, in scope via `hcl`), `classOldDec_expansion_cover_birth` (Dom = xiFieldDom (compWeight L a₁) μ εs, hchart from `xiCRaw_dom_birth_flow_unitfree`).
+Remaining named hypotheses: `hcl` on the birth domain (full clauses, not only `inherit_le` slices), BgHyp at ν and μ, the flow bound hξ and hμ, hDL, hsmε, hc1ε, hKε, hζε, hτr, hr; none follows from landed class constants.
