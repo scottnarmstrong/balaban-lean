@@ -17,8 +17,8 @@ labels `(j, y, X)` of the inductive hypotheses with new functionals: the irrelev
 term (P1 (3.104); FLUCTUATION.md §3.2, `I(y,X) = ℰ(y,X) - T_X - A_{y,X} - Φ_{y,X}`, landed in
 `ℤ^d` form as `Itw`), plus, at the cube `□(y)` of the cover whose central large cube contains `y`,
 the relevant local parts `T_{X'} + Φ_{y,X'}` resummed over the polymers `X' ∋ y` (P1 p. 152:
-"for each `y` we take the cube `□` from the cover `π_j` which contains the point `y` in the
-central large cube of `□`, and we assign the local expression to `ℰ_{irrel}(y, □)`").
+for each `y` the cube `□` of the cover `π_j` containing `y` in its central large cube is taken,
+and the local expression of `y` is assigned to the term of `(y, □)`).
 
 * `irrelTorus`: the label functional `ℰ^{(j)}_{irrel}(y, X; Ψ, h)` on the fine torus;
 * `irrelTorus_congr`: it depends on `(Ψ, h)` only through `Ψ` on `X^⋆ = X ∪ st₊(y)` and `h` on

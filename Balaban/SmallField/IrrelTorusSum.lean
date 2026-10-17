@@ -404,9 +404,9 @@ theorem sum_classLabels_irrelTorus_eq_Edens {P : Consts} {Dom : FieldDom d L N�
     (hdom j hj1 hjk) (ψ j) (h j)
 
 open Classical in
-/-- **P1 (3.127) for the members of the class** (P-6): for a member of `IsSFFamily2` on its main
-instance `completeXiDom` (complete backgrounds), on every torus `N₁` with `L^{m₀} ∣ N₁` and at every
-level `1 ≤ j ≤ k` with P1's smallness `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
+/-- **P1 (3.127) for the members of the class** (P-6): for a member of `IsSFFamily2` on the main
+field domain `completeXiDom` (complete backgrounds), on every torus `N₁` with `L^{m₀} ∣ N₁` and at
+every level `1 ≤ j ≤ k` with P1's smallness `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
 `Σ_{y ∈ Λ_j} Σ_{X ∋ y} ℰ^{(j)}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for all fields.  Only the term
 clauses of the torus and the background hypotheses (from `admissible`, `coeff`, `d, L ≥ 3`,
 `ϱ ≥ R₀`) are used: not `MomNum`, not `CRotE`, not the renormalization conditions. -/
