@@ -299,9 +299,9 @@ theorem marked_vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : I
 
 /-- **Core of `evDec_local_rawY`, for any functional `Φ`.**  If the fan of `Φ` along the masked
 tangent is local for the sharp agreement relation on the components (`hloc`, the conclusion of
-`marked_fan_local_rawY_of`), the coefficient `evDec … Φ … Zm um tm Y` takes equal values at two data of
-`XiCRaw × ball` whose raw parts agree on `Y` and whose hat variables agree at the unit points of `Y`.
-The landed statement for `blockEnergyFun` follows. -/
+`marked_fan_local_rawY_of`), the coefficient `evDec … Φ … Zm um tm Y` takes equal values at two
+data of `XiCRaw × ball` whose raw parts agree on `Y` and whose hat variables agree at the unit
+points of `Y`.  The landed statement for `blockEnergyFun` follows. -/
 theorem evDec_local_rawY_of (hG' : IsLevel Gp (k + 1))
     (cc : ℂ) {cψ : ℝ} (Zm : Finset (unitPts Gp)) (um tm : ℂ)
     (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
