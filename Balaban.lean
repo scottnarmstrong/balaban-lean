@@ -2149,6 +2149,7 @@ public import Balaban.LargeField.R.RRemovedHidCore
 public import Balaban.LargeField.R.RRemovedHidGu
 public import Balaban.LargeField.R.RRemovedHidRead
 public import Balaban.LargeField.R.RRemovedHidO
+public import Balaban.LargeField.R.RRemovedHidCoreGen
 public import Balaban.LargeField.R.RRemovedHidCoreThm
 public import Balaban.LargeField.R.RRemovedHidAux
 public import Balaban.LargeField.R.RRemovedHidMain
