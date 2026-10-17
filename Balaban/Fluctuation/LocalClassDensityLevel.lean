@@ -5,7 +5,8 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.LocalClassDensitySource
+public import Balaban.Fluctuation.LocalClassDensityCentre
+public import Balaban.Fluctuation.LocalClassDensityChart
 public import Balaban.Fluctuation.RootMarkedBound
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
