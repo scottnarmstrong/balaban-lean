@@ -2222,3 +2222,4 @@ public import Balaban.Polymer.TwoTorusGapObsFull
 public import Balaban.Polymer.TwoTorusGapStepDet
 public import Balaban.Polymer.TwoTorusGapStepDetPair
 public import Balaban.Polymer.TwoTorusGapStepDetFamily
+public import Balaban.Polymer.TwoTorusGapStepObsDom
