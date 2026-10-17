@@ -510,3 +510,365 @@ Verbatim binder fragment (with the already-bound variables of WindowCompose.sum_
         cs.beta m = B * (S.L : ℝ) ^ ((S.d - 2) * m) * gg m)
 
 The corrected uniform binder keeps the left side of window_decay verbatim and replaces its right side by Kwin * (decomp i).total. Equation (34) is then the corresponding C₁₅.
+
+## Part 3. The regional source and the four terminal residuals
+
+**17 October 2026. Verdict.** The five requested inequalities cannot presently be proved for a nonempty history from the landed history objects. The obstruction is mathematical in the *stated interfaces*, not an elaboration problem: `WindowCompose.sum_mainActionLoc_eq_gen` accepts an arbitrary `StepDecomp`, arbitrary target `ak, νk, βk, Datw, φw`, and one fixed `MassBranch`; its real-domain premise does not assert the originating-scale read energy, the P6 cut-source response, or the P7 supported common-cover comparison. Below are (i) an exact finite-action expansion and a proved six-budget implication to `hsource`, (ii) a canonical meaning and complete finite estimates for the four residuals, and (iii) exact reasons the physical instances are still missing. No Lean worktree was created and no file under `/home/scott/Balaban` was changed.
+
+### 3.1 Exact Lean targets
+
+The first binder is copied from `ActionConv.p7_first_of_rg_source` in `Balaban/LargeField/R/WindowConvSource.lean`; here $W:\texttt{PieceWindowSetup}\ d\ L\ N_0\ K\ N\ S\ \iota\ sc\ k_1\ k$:
+
+```lean
+hsource : ∀ i n, sc i + 2 ≤ n → n ≤ k → ∀ u ∈ S,
+  ‖(W.chain i).cost u n‖ ≤
+    Ksrc * (βs i (sc i + 1) * epsSeq L α α₀ (sc i + 1) ^ 2) *
+      ‖ξ i (n - 1)‖ * W.mcount i
+```
+
+The four binders below are copied from `PieceWindowSetup.window_uniform_of_parts` in `Balaban/LargeField/R/WindowConvUniform.lean`. They are statements about **chosen** intermediate actions $P,Q,R:\iota\to U\to\mathbb C$; the theorem neither defines them nor imposes a physical meaning:
+
+```lean
+hpair : ∀ i, ∀ u ∈ S,
+  ‖(W.chain i).T u k - P i u‖ ≤ Kpair * W.mcount i
+hcoef : ∀ i, ∀ u ∈ S,
+  ‖P i u - Q i u‖ ≤ Kcoef * W.mcount i
+hswitch : ∀ i, ∀ u ∈ S,
+  ‖Q i u - R i u‖ ≤ Kswitch * W.mcount i
+hread : ∀ i, ∀ u ∈ S,
+  ‖R i u - (W.βk : ℂ) *
+    actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)‖ ≤
+      Kread * W.mcount i
+```
+
+The history specialization is `WindowCompose.sum_mainActionLoc_eq_gen`: $j=sc(i)=jf(i)$, $k=m'+1$, $\beta_s(i,n)=\texttt{cs.beta}\ n$, $W.\texttt{chain}\ i=\texttt{pieceChain}$ by `hchain`, and $W.\texttt{mcount}\ i=(\texttt{decomp}\ i).\texttt{total}$. `ConvChain.step` proves $\texttt{cost}=T_{i,n-1}-T_{i,n}$; `PieceChain.pieceChain_T` identifies the real part of its first action with `mainActionLoc`. These are exact identities, not size estimates.
+
+### 3.2 Exact source algebra and a sufficient six-budget theorem
+
+Fix $i$, put $j=sc(i)$, $j+2\le n\le k$, and work on its **own** `locGen` and region $X_i^c$. Write $\widehat\beta=\texttt{(W.chain i).β}\ n>0$, $\widehat\beta_u=\texttt{(W.chain i).β}\ (n-1)$, $\mu=\texttt{(W.chain i).ν}\ n$, $\mu_u=\texttt{(W.chain i).ν}\ (n-1)$, $a=a_n$, $a_u=a_{n-1}$, $\phi=\phi_n$, $\phi_u=\phi_{n-1}$, and $w=\phi_u-\phi$. `pieceChain` keeps the full datum $D=\texttt{locData}$, including $h$, fixed. `ConvChain.coeff` and `ConvChain.mass` give
+
+$$\widehat\beta_u a_u(\ell)=\widehat\beta a(\ell),\qquad
+\widehat\beta_u\mu_u=\widehat\beta\mu+\mu e_n. \tag{35}$$
+
+Under the `OpConsts`–RG identification and recursion of Part 2, `flow_increment_eq_of_ident` gives $b_n:=\widehat\beta_u-\widehat\beta=\widehat\beta\xi_{n-1,3}$ and $e_n=\widehat\beta\xi_{n-1,2}$. Set $\rho=\|\xi_{n-1}\|_\infty$; then $|b_n|,|e_n|\le\widehat\beta\rho$, $|\widehat\beta_u|\le\widehat\beta(1+\rho)$, and $|\widehat\beta_u\mu_u|\le\widehat\beta|\mu|(1+\rho)$.
+
+For $x\in X_i^c$, let $\ell_x$ be its local layer, $c_x=a(\ell_x)L^{-2\ell_x}$, $r_x=D.\Psi_x-Q\phi_x$, $t_x=Qw_x$, $s_x=\phi_x-D.h_x$, and $w_x=\phi_{u,x}-\phi_x$. On every oriented fine bond of the torus put $\omega_b=\texttt{X.starWeight}(b)\in\{0,\frac12,1\}$, $g_b=\partial\bar\phi_b$, $v_b=\partial\bar w_b$; the exterior value of $\bar w$ is zero because the datum is fixed. Dots below are the complex **bilinear** coordinate sum. Direct expansion of the three squares in `actionRegionC` gives the exact equality
+
+$$
+\begin{aligned}
+\texttt{(W.chain i).cost}\ u\ n={}&
+ \frac{\widehat\beta}{2}\sum_{x\in X_i^c}c_x
+          \bigl(-2r_x\!\cdot t_x+t_x\!\cdot t_x\bigr)\\
+&+\frac{b_n}{2}\sum_b\omega_b\,g_b\!\cdot g_b
+ +\widehat\beta_u\sum_b\omega_b\,g_b\!\cdot v_b
+ +\frac{\widehat\beta_u}{2}\sum_b\omega_b\,v_b\!\cdot v_b\\
+&+\frac{\mu e_n}{2}\sum_{x\in X_i^c}s_x\!\cdot s_x
+ +\widehat\beta_u\mu_u\sum_{x\in X_i^c}s_x\!\cdot w_x
+ +\frac{\widehat\beta_u\mu_u}{2}\sum_{x\in X_i^c}w_x\!\cdot w_x .
+\end{aligned}\tag{36}
+$$
+
+To verify (36), use $r(\phi_u)=r(\phi)-Qw$, $g(\phi_u)=g(\phi)+\partial\bar w$, and $s(\phi_u)=s(\phi)+w$, then substitute (35). `ConvChain.step` identifies the resulting action difference with `cost`. The half-weighted crossing bonds are **already in the bond sums**. No stationarity cancellation has discarded them. P6 p. 14 (2.31) rewrites some of these terms using the Euler–Lagrange equation and displays the resulting surface flux; its extra cut source occurs in the equation used to bound $w$, even though it is invisible in the finite square expansion.
+
+Use the Euclidean coordinate norm and define six nonnegative read energies
+
+$$
+\begin{array}{lll}
+E_B=\sum_{x\in X_i^c}|c_x|\,|r_x|_2^2,&
+E_G=\sum_b\omega_b|g_b|_2^2,&
+E_M=|\mu|\sum_{x\in X_i^c}|s_x|_2^2,\\
+E'_B=\sum_{x\in X_i^c}|c_x|\,|t_x|_2^2,&
+E'_G=\sum_b\omega_b|v_b|_2^2,&
+E'_M=|\mu|\sum_{x\in X_i^c}|w_x|_2^2 .
+\end{array}\tag{37}
+$$
+
+The bond sums include every positive-weight internal and crossing bond. Let
+$A_i=\texttt{cs.beta}(j+1)\varepsilon_{j+1}^2\,W.\texttt{mcount}(i)\ge0$.
+Suppose $0\le\rho\le1$ and six fixed nonnegative constants $B_B,B_G,B_M,B'_B,B'_G,B'_M$ satisfy, **uniformly in the physical piece, conversion scale, and allowed configuration**,
+
+$$
+\begin{array}{lll}
+\widehat\beta E_B\le B_B A_i,&
+\widehat\beta E_G\le B_G A_i,&
+\widehat\beta E_M\le B_M A_i,\\
+\widehat\beta E'_B\le B'_B A_i\rho^2,&
+\widehat\beta E'_G\le B'_G A_i\rho^2,&
+\widehat\beta E'_M\le B'_M A_i\rho^2 .
+\end{array}\tag{38}
+$$
+
+Then the **exact `hsource` binder** follows with
+
+$$
+K_{\rm src}=
+\frac{B_G+B_M}{2}
+ +\sqrt{B_BB'_B}
+ +2\sqrt{B_GB'_G}
+ +2\sqrt{B_MB'_M}
+ +\frac{B'_B}{2}+B'_G+B'_M . \tag{39}
+$$
+
+Here is every inequality. The complex bilinear Cauchy bound gives
+$|\sum c_xr_x\cdot t_x|\le\sqrt{E_BE'_B}$, and analogously for the $G,M$ sums. By (36) and $\rho\le1$,
+
+$$
+\begin{aligned}
+|\texttt{cost}| \le\widehat\beta\bigl[
+ &\tfrac{\rho}{2}(E_G+E_M)+\sqrt{E_BE'_B}
+ +2\sqrt{E_GE'_G}+2\sqrt{E_ME'_M}\\
+ &+\tfrac12E'_B+E'_G+E'_M\bigr].
+\end{aligned}\tag{40}
+$$
+
+For example $\widehat\beta\sqrt{E_BE'_B}
+=\sqrt{(\widehat\beta E_B)(\widehat\beta E'_B)}
+\le\sqrt{B_BB'_B}\,A_i\rho$. Substitute all six inequalities (38) into (40); the last three terms are bounded by $(B'_B/2+B'_G+B'_M)A_i\rho^2\le(\cdots)A_i\rho$. This is (39) times $A_i\rho$, exactly `hsource`. It also covers $\rho=0$: (38) forces all response read energies to vanish, so `cost=0`.
+
+**What (38) requires physically.** The unprimed three inequalities retain the energy of the *originating* scale $j+1$ on all reads of the later action, including the actual physical mass and crossing bonds. The primed three require a regional response proportional to the RG increment on those same reads. `theorem71`/`theorem72` give existence, EL, hard-spin and fixed-coefficient bounds; `theorem72_linearResponse` varies the **datum** at fixed coefficients. `MassChangeRegion.massChange_region_bound` varies the mass at fixed coefficients under its own full-domain, operator, spacing and region-cardinality hypotheses. None states (38) for the coefficient-and-mass step of `pieceChain`, including the P6 cut source. P6 p. 11 (2.25) and the following wall paragraph give an absolute per-cube bound, while p. 14 (2.31) invokes P2 response for the additional cut source; they do not assert the $j$-dependent factors in (38). P7 p. 500 (2.11) cites that discussion but does not supply a separate proof of the originating-energy gain. Thus (38) is a precise sufficient theorem target, **not** a theorem already obtained from the history.
+
+There are two independent, exact interface obstructions to deducing `hsource`. First, `ActionConvWindow.StepDecomp` requires only `wt_nonneg`. For **any** region $X$, take one cube indexed by `Unit` equal to $X$, give it weight zero, take one wall equal to `X.crossing` and assign it to that cube, with incidence bound one. All `StepDecomp` fields hold and `total=0`, even if $X$ is nonempty. `WindowCompose.sum_mainActionLoc_eq_gen` takes `decomp` as an argument and does not require physical cube weights. Any nonzero conversion cost then contradicts `hsource`, regardless of $K_{\rm src}$. This proves that a canonical positive mixed-count construction, or at least lower bounds paying every action read, is indispensable.
+
+Second, `OpConsts.mu` and `OpConsts.muAct` are independent fields. `PieceChain.pieceChain` starts with `locBg` at mass `cs.mu (j+1)`, but at $n=j+2$ uses `bgFieldC` at `br.elMass (cs.muAct n)`. Neither `hchain` nor `hS` states branch coherence at the starting scale. The missing equality is
+
+$$
+\texttt{cs.mu}(j+1)=
+\texttt{br.elMass}(\texttt{cs.muAct}(j+1)), \tag{41}
+$$
+
+with an explicit one-time mass switch instead when the window crosses $k_0$. A finite hard-spin chart shows why this matters. For unit spins at angles $\theta,u$, $0<u<\pi/2$, and field $h=(1,0)$, let
+$A_m(\theta)=a(1-\cos(\theta-u))+m(1-\cos\theta)$, $a,m>0$.
+The massless minimizer is $\theta_0=u$, while $A'_m(u)=m\sin u>0$, so its nearby massive minimizer $\theta_m$ differs and $A_m(\theta_0)>A_m(\theta_m)$. Keep all action coefficients and datum fixed, take the first background mass zero and the next complete background mass $m$, and set $\xi=0$. Then the one-step action difference is
+$\widehat\beta[A_m(\theta_0)-A_m(\theta_m)]>0$ but the `hsource` right side is zero. This is a model-level witness for the missing (41), not a constructed counterexample to an RG history in which (41) and the switch rule have been proved.
+
+### 3.3 Canonical intermediate actions and `hpair`
+
+To give the four abstract Lean binders a physical reading, fix one piece and write $G_i=\texttt{W.Gc}\ i=\texttt{locGen}$, $X_i=\texttt{W.Xc}\ i$, $D_i=\texttt{locData}$, $\widehat\beta_k=\texttt{(W.chain i).β}\ k$, $a_i=\texttt{(W.chain i).a}\ k$, $\mu_i=\texttt{(W.chain i).ν}\ k$, and $\phi_i=\texttt{(W.chain i).φ}\ u\ k$. A common-cover construction for P7 (2.14) would supply on **this same $G_i$** a reference datum $D_i^{\rm ref}$ and four small backgrounds $\phi_i^{\rm ref}(a_i,br_i)$, $\phi_i^{\rm ref}(ak,br_i)$, $\phi_i^{\rm ref}(ak,br_w)$, with $br_w$ the target mass convention. It must identify $D_i^{\rm ref}$ with $D_i$ on every action read, or charge their difference separately. For the clearest four-term split, first assume that read equality and set
+
+$$
+\begin{aligned}
+P_i(u)&=\widehat\beta_k A_{X_i}(a_i,\mu_i;D_i,\phi_i^{\rm ref}(a_i,br_i)),\\
+Q_i(u)&=\widehat\beta_k A_{X_i}(ak,\mu_i;D_i,\phi_i^{\rm ref}(ak,br_i)),\\
+R_i(u)&=\widehat\beta_k A_{X_i}(ak,\mu_i;D_i,\phi_i^{\rm ref}(ak,br_w)).
+\end{aligned}\tag{42}
+$$
+
+These are **proposed mathematical instantiations** of the already-bound Lean functions $P,Q,R$, not definitions present in `PieceWindowSetup`. If the transported reference datum differs on a block or crossing endpoint, the corresponding action change belongs in `hread`, and (42) must use a common intermediate datum chosen consistently.
+
+At fixed $G_i,a_i,\mu_i,D_i$, put $w=\phi_i^{\rm ref}(a_i,br_i)-\phi_i$. Let $E_B,E_G,E_M$ be the three unprimed read energies of (37) for $\phi_i$, and $E'_B,E'_G,E'_M$ the three perturbation energies for $w$. Suppose the actual P7 local/window pair and its complex tube give, for six constants $F_B,F_G,F_M,F'_B,F'_G,F'_M\ge0$,
+
+$$
+\widehat\beta_k E_Z\le F_Z A_i,\qquad
+\widehat\beta_k E'_Z\le F'_Z A_i\theta_i^2
+\quad(Z=B,G,M),\qquad
+\theta_i=K_R e^{-2\gamma_w a_j},\quad
+a_j=2M[\widehat R_j]-M-2M_1\ge0. \tag{43}
+$$
+
+The fixed-coefficient version of the square expansion (36), with $b=e=0$, proves
+
+$$
+|T_{i,k}-P_i|
+\le A_i\left[
+\theta_i\sum_{Z=B,G,M}\sqrt{F_ZF'_Z}
++\frac{\theta_i^2}{2}\sum_{Z=B,G,M}F'_Z\right]. \tag{44}
+$$
+
+Indeed each cross term is bounded by
+$\widehat\beta_k\sqrt{E_ZE'_Z}
+\le\sqrt{F_ZF'_Z}A_i\theta_i$, and each square by
+$\widehat\beta_kE'_Z/2\le F'_ZA_i\theta_i^2/2$.
+Since $a_j\ge0$, $\theta_i^2\le K_R\theta_i$. If
+
+$$
+H_{\rm pair}:=\sup_{j\ge k_1}
+\bigl\{\texttt{cs.beta}(j+1)\varepsilon_{j+1}^2
+e^{-2\gamma_wa_j}\bigr\}<\infty, \tag{45}
+$$
+
+then the **exact `hpair` binder** follows with
+
+$$
+K_{\rm pair}
+=H_{\rm pair}K_R
+\left(\sum_Z\sqrt{F_ZF'_Z}
++\frac{K_R}{2}\sum_ZF'_Z\right). \tag{46}
+$$
+
+This tracks $d,L,N$ through the six read constants and $K_R$, and the history radii through $H_{\rm pair}$. Here is a bound for (45) with its own scale indices, rather than reusing (12), whose coupling index and exponent differ. Assume the Part 1 flow and radius schedule, $0\le\alpha$, $a,R_{\rm base},M,\gamma_w>0$, and write $e=d-2$, $x_j=\log(\beta_0a)+1+je\log L$, $[\widehat R_j]\ge R_{\rm base}x_j^2-1$. Then $\varepsilon_{j+1}\le3\alpha_0L^{-\alpha(j+1)}$, the reconstruction bound $cs.beta(j+1)\le a^{-1}e^{x_{j+1}-1+\eta}$, and $e-2\alpha=2\gamma$ give
+
+$$\begin{aligned}
+\operatorname{cs.beta}(j+1)\varepsilon_{j+1}^2
+&\le9\alpha_0^2a^{-1}
+ \exp\{x_j-1+\eta+2\gamma\log L-2\alpha j\log L\}\\
+&\le9\alpha_0^2a^{-1}\exp\{x_j-1+\eta+2\gamma\log L\}.
+\end{aligned}$$
+
+Moreover $a_j\ge2MR_{\rm base}x_j^2-3M-2M_1$. Since
+$x_j-4\gamma_wMR_{\rm base}x_j^2
+\le(16\gamma_wMR_{\rm base})^{-1}$ by completing the square,
+
+$$H_{\rm pair}\le
+9\alpha_0^2a^{-1}
+\exp\{\eta-1+2\gamma\log L
++2\gamma_w(3M+2M_1)
++(16\gamma_wMR_{\rm base})^{-1}\}. \tag{47}$$
+
+This is the scalar absorption, **conditional on (43)**. If the radius schedule or $0\le\alpha$ is unavailable, retain the exact finite supremum (45) as an explicit premise.
+
+The physical implication (43) is not landed. P6 p. 6 (2.13) and p. 7 (2.14)–(2.16) bound a specific supported datum change on its generating set. P7 p. 501 (2.14) invokes that bound for an inverse local/window replacement. `Balaban.Fluctuation.lemma41_domain_uncond` is a fixed-$G$, fixed-coefficient response under a named support, operator bound and two complex-domain hypotheses; `Balaban.Background.theorem73_complex` is a composition identity under a `Precedes` pair and complex domains. `Balaban.LargeField.exists_region_Xfine_window` proves the site cast and layer equality, but constructs neither the P7 datum pair nor the uniform read energies (43). P3 p. 56 (2.55)–(2.56) is a localization estimate for a decoupled background family under Proposition 2.1's hypotheses, not an unconditional assertion about this window pair. Its PDF text layer is garbled around the norms and constants, so no exact numerical constant from those displays is used here.
+
+### 3.4 The coefficient residual `hcoef`
+
+Keep the intermediate actions (42), and insert
+$Q_i^0=\widehat\beta_k A_{X_i}(ak,\mu_i;D_i,\phi_i^{\rm ref}(a_i,br_i))$.
+Then $P_i-Q_i=(P_i-Q_i^0)+(Q_i^0-Q_i)$; this is the required separation between the **coefficient read** and the **background response to that coefficient**. For the fixed field in $Q_i^0$, the kinetic and mass terms cancel exactly, so `Balaban.LargeField.ActionConv.PieceWindowSetup.coeff_target_mismatch` gives
+
+$$
+P_i-Q_i^0=\frac12\sum_{x\in X_i}
+ L^{-2\ell_x}
+ \{\widehat\beta_{j+1}\operatorname{cs.aw}(\ell_x)
+       -\widehat\beta_k ak(\ell_x)\}
+ r_x\cdot r_x . \tag{48}
+$$
+
+Here $r_x=D_i.\Psi_x-Q\phi_i^{\rm ref}(a_i,br_i)_x$. The identity uses the exact `pieceChain` invariant
+$\widehat\beta_k a_i(\ell)=\widehat\beta_{j+1}\operatorname{cs.aw}(\ell)$.
+Define the nonnegative absolute block reads
+
+$$B_i=\frac12\sum_xL^{-2\ell_x}|\operatorname{cs.aw}(\ell_x)|\,|r_x|_2^2,\qquad
+B_i^{\rm wt}=\frac12\sum_xL^{-2\ell_x}|ak(\ell_x)-\operatorname{cs.aw}(\ell_x)|\,|r_x|_2^2 .
+\tag{49}$$
+
+The complex bilinear inequality $|r_x\cdot r_x|\le|r_x|_2^2$, (48), and
+$\widehat\beta_{j+1}cs.aw-\widehat\beta_kak
+=(\widehat\beta_{j+1}-\widehat\beta_k)cs.aw
+ +\widehat\beta_k(cs.aw-ak)$ give, term by term,
+
+$$|P_i-Q_i^0|
+\le|\widehat\beta_{j+1}-\widehat\beta_k|B_i
+    +\widehat\beta_k B_i^{\rm wt}. \tag{50}$$
+
+The fine-unit couplings are positive under the RG envelope. If the **originating block budget**
+$\widehat\beta_{j+1}B_i\le C_B A_i$ and the **target weight budget**
+$\widehat\beta_kB_i^{\rm wt}\le K_{\rm wt}m_i$ hold, the calculation (30)–(31), with the block read at the reference field, yields
+
+$$|P_i-Q_i^0|\le
+\left\{\frac{9C_BC_\xi\alpha_0^2e^{3\eta}q}{1-q}
+      +K_{\rm wt}\right\}m_i,\qquad q=L^{-2\gamma}. \tag{51}$$
+
+The first summand is zero when $k=j+1$. The bound is an exact application of the finite sum in `Balaban.LargeField.ActionConv.coeff_mismatch_sum_le` and the scalar flow estimate; it does **not** identify $ak$ with `cs.aw`. The second summand is essential when the common window coefficient differs from the originating coefficient. A simple way to express $K_{\rm wt}$ in terms of physical radii is to prove directly, for every layer read by the piece,
+$|ak(\ell)-cs.aw(\ell)|\le\kappa_i|cs.aw(\ell)|$ and
+$\sup_i\{\kappa_i(\widehat\beta_k/\widehat\beta_{j+1})
+  cs.beta(j+1)\varepsilon_{j+1}^2\}<\infty$; then (49) gives
+$K_{\rm wt}=C_B$ times this supremum. A uniform $\kappa_i$ alone is insufficient because the displayed source factor grows with the originating scale.
+
+To pay $Q_i^0-Q_i$, put $w_i=\phi_i^{\rm ref}(ak,br_i)
+-\phi_i^{\rm ref}(a_i,br_i)$ and form the six energies (37) at **fixed**
+$ak,\mu_i,D_i$, with base field $\phi_i^{\rm ref}(a_i,br_i)$ and perturbation $w_i$.
+Suppose nonnegative constants $G_Z,G'_Z$ and numbers $\sigma_i\ge0$ satisfy
+
+$$\widehat\beta_k E_Z\le G_ZA_i,\qquad
+  \widehat\beta_k E'_Z\le G'_ZA_i\sigma_i^2
+  \quad(Z=B,G,M), \tag{52}$$
+
+and put
+
+$$H_{\rm resp}:=\sup_i
+cs.beta(j_i+1)\varepsilon_{j_i+1}^2
+\left\{\sigma_i\sum_Z\sqrt{G_ZG'_Z}
+       +\frac{\sigma_i^2}{2}\sum_ZG'_Z\right\}<\infty. \tag{53}$$
+
+At fixed coefficients the square expansion has one cross term and one half-square per $Z$. Cauchy and (52) give
+$|Q_i^0-Q_i|
+\le A_i[\sigma_i\sum_Z\sqrt{G_ZG'_Z}
++\sigma_i^2\sum_ZG'_Z/2]
+\le H_{\rm resp}m_i$.
+Together with (51), this proves the **exact `hcoef` binder** with
+
+$$K_{\rm coef}=
+\frac{9C_BC_\xi\alpha_0^2e^{3\eta}q}{1-q}
++K_{\rm wt}+H_{\rm resp}. \tag{54}$$
+
+All factors in (54) are displayed; $C_B,G_Z,G'_Z$ depend on $d,L,N$ and the common chart/geometry bounds, while $K_{\rm wt},H_{\rm resp}$ are specified suprema over the history's layer radii and coefficient responses. Neither (49)'s physical budgets nor (52) is a landed history theorem. In particular `Balaban.Background.theorem72_linearResponse` varies $D$ at fixed $a,\mu$, and `Balaban.LargeField.ActionConv.massChange_region_bound` varies $\mu$ at fixed $a$; neither controls the variation $a_i\to ak$ of the actual background. P6 p. 14 (2.31) is the regional algebra for a coefficient change, with a cut source, but it does not identify this terminal common-window response. Therefore (54) is a proved **conditional** implication, not a discharge of `hcoef` for `pieceChain`.
+
+### 3.5 The mass-convention residual `hswitch`
+
+When the same branch and same mass parameter are used in $Q_i$ and $R_i$, uniqueness of the background on the *same* generating set and datum makes $Q_i=R_i$ and one may take $K_{\rm switch}=0$. This equality requires matching domains and normalization, not merely the label of a branch. It is the natural case if all later `pieceChain` backgrounds and the terminal action use one `br`. The exceptional first step still needs (41) or a separate source charge.
+
+For a true massless-to-complete comparison at the switching scale $q_0=k_0+1$, let $\phi^0,\phi^m$ solve the two EL equations for the same $G_i,ak,D_i$ and collar; evaluate *both* actions with the physical mass $\mu=mL^{-2q_0}$. Let $Q_i=\widehat\beta_{q_0}A_{X_i}(ak,\mu;D_i,\phi^0)$ and $R_i=\widehat\beta_{q_0}A_{X_i}(ak,\mu;D_i,\phi^m)$, with
+$\widehat\beta_{q_0}=\beta_{q_0}/L^{q_0(d-2)}$.
+The theorem `Balaban.LargeField.ActionConv.massChange_region_bound_cubes` in `MassChangeCrossing.lean` applies if its **stated** IsEL, BgBounds, GreenSetting, OpSetting, spacing, smallness, common-domain, region-cardinality and cube-cover hypotheses all hold, with its cube count $n=m_i$. Its exact right side, writing
+$K_m=\sqrt N\,K_w$ and $d=e+2$, is
+
+$$|Q_i-R_i|
+\le\left[
+ (d+2)M^dL^2(K_mB_h)^2\beta_{q_0}m^2
+ +2dM^{d-1}L^2K_mB_h\,\beta_{q_0}m\delta_0
+\right]m_i. \tag{55}$$
+
+If $0\le m,\delta_0\le1$ and the switch inequality
+$\beta_{q_0}m\le C_{\rm sw}=e^{2\epsilon_{\rm sw}}L^d$ from `MASS-RESPONSE.md` Section 1 holds, then
+$\beta_{q_0}m^2\le C_{\rm sw}$ and
+$\beta_{q_0}m\delta_0\le C_{\rm sw}$, so the **exact `hswitch` binder** follows with
+
+$$K_{\rm switch}=C_{\rm sw}
+\{(d+2)M^dL^2(K_mB_h)^2
+ +2dM^{d-1}L^2K_mB_h\}. \tag{56}$$
+
+Here $\epsilon_{\rm sw}$ denotes the switch envelope in `MASS-RESPONSE.md`; identifying it with the flow envelope $\eta$ would require an additional premise.
+
+One can retain $\delta_0$ in the second term for a sharper radius-dependent constant. The $2dM^{d-1}$ term counts crossing bonds with their half weights; deleting it would contradict the one-site boundary-flux example of `INTERFACE-A.md` Section 1. The theorem covers the switching scale $q_0$ under its hypotheses. It does not show that a comparison made at an arbitrary later terminal scale $k$ has $\beta_km_k\le C_{\rm sw}$, nor does it place the two actual window backgrounds on its common collar. If $Q_i,R_i$ use different generating sets, this mass theorem cannot be applied until the supported/read transport is proved. P6 p. 11, after (2.25), explicitly handles walls; P7 p. 501 (2.14) does not erase this switch charge.
+
+### 3.6 The action-read residual `hread`
+
+Let $A_i^{\rm loc}=\operatorname{actionRegionC}(X_i,ak,\mu_i,D_i,\phi_i^{\rm ref}(ak,br_w))$ and
+$A_i^{\rm win}=\operatorname{actionRegionC}(W.Xw\,i,W.ak,W.\nu k,W.Datw\,u,W.\phi w\,u)$.
+For (42), $R_i=\widehat\beta_k A_i^{\rm loc}$. The exact normalized difference is
+
+$$R_i-\beta_k A_i^{\rm win}
+=(\widehat\beta_k-\beta_k)A_i^{\rm loc}
+ +\beta_k(A_i^{\rm loc}-A_i^{\rm win}). \tag{57}$$
+
+Thus two explicit, nonnegative read budgets
+$|\widehat\beta_k-\beta_k|\,|A_i^{\rm loc}|
+\le K_{\beta{\rm read}}m_i$ and
+$|\beta_k|\,|A_i^{\rm loc}-A_i^{\rm win}|
+\le K_{\rm geomread}m_i$
+prove the **exact `hread` binder** with
+$K_{\rm read}=K_{\beta{\rm read}}+K_{\rm geomread}$ by the triangle inequality. This is also a usable corrected form when exact read equality fails.
+
+There is a sharp zero-cost criterion. Choose the fine-unit target normalization
+$W.\beta k=\widehat\beta_k=
+\operatorname{betaCanon}(d,L,\operatorname{cs.beta}(k),k,0)$,
+$W.ak=ak$, and $W.\nu k=\mu_i$ for each piece. Construct a transport from
+$X_i$ on `locGen` to $W.Xw\,i$ on the window generating set that preserves
+(a) all sites and their layer indices, (b) the block averaging sets and the values of $D.\Psi$ and $Q\phi$, (c) each positive-weight oriented internal/crossing bond, its weight $1$ or $1/2$, its endpoints, and the exterior values of $D$, and (d) the mass reads $\phi-D.h$ and the spacing factors. Then the three finite sums defining `actionRegionC` agree term by term; (57) is zero and $K_{\rm read}=0$. If any of (a)–(d) fails, the unmatched terms must be bounded as in Part 2 (28), including the crossing read. The target common mass $W.\nu k$ also has to match **every** $\mu_i$, or a separate mass-coefficient sum enters $K_{\rm geomread}$.
+
+The landed `Balaban.LargeField.exists_region_Xfine_window` establishes the site cast and layer index, a portion of (a). `Balaban.LargeField.mainActionLoc_congr_window` compares one local action at two node configurations under its own read equalities; it does not transport `locData` or `actionRegionC` from `locGen` to `Wp.windowGenSet`. The setup theorem `Balaban.LargeField.sum_mainActionLoc_eq_gen` takes `ak, νk, βk, Datw, φw` as free arguments and supplies no (b)–(d). In particular, with a nonzero local action and a fixed nonempty piece, varying the free $\beta_k$ makes the left side of `hread` arbitrarily large while $m_i$ stays fixed. If the allowed zero-weight `StepDecomp` is used, $m_i=0$ and any nonzero mismatch violates `hread` even for a fixed target. Therefore the history objects alone imply no finite $K_{\rm read}$.
+
+### 3.7 Exact discharge ledger and conclusion
+
+| Requested Lean hypothesis | Sufficient physical statement and proved implication | Status for the landed actual history |
+|---|---|---|
+| `p7_first_of_rg_source.hsource` | Coherent first background (41), the same local datum and all bond reads, and six scaled origin/response budgets (38) imply the binder with (39) by (36)–(40). | The coefficient/mass regional response with P6's cut source and positive mixed-count cover is missing. |
+| `PieceWindowSetup.window_uniform_of_parts.hpair` | A P7 local/window supported pair on one common cover with complex domains and six read budgets (43) implies (46), with radius bound (47). | The actual supported datum pair and its origin-energy read budget are missing. |
+| `PieceWindowSetup.window_uniform_of_parts.hcoef` | Originating block budget, target-weight budget, and fixed-$ak$ coefficient-response budgets (52)–(53) imply (54). | The exact fixed-field mismatch is landed; the physical budgets and coefficient response are missing. |
+| `PieceWindowSetup.window_uniform_of_parts.hswitch` | Exact same-branch equality gives zero; at the actual switch, the full premises of `Balaban.LargeField.ActionConv.massChange_region_bound_cubes` and $\beta_{q_0}m\le C_{\rm sw}$ give (56). | Regional mass algebra is landed conditionally; matching actual collar/domain, counting and placement of the switch in every piece are missing. |
+| `PieceWindowSetup.window_uniform_of_parts.hread` | Full normalized read transport (a)–(d) gives zero; otherwise the two explicit budgets after (57) give their sum. | Only site/layer transport is landed; target normalization and block/bond/exterior reads are missing. |
+
+Under the five displayed sufficient statements, `PieceWindowSetup.window_uniform_of_parts` gives
+$K_{\rm win}=K_{\rm pair}+K_{\rm coef}+K_{\rm switch}+K_{\rm read}$.
+Together with the flow hypotheses of Part 2, `window_conversion_pieces_of_rg_source` then yields the corrected finite bound
+
+$$\|C(u)\|\le
+\left\{\frac{81e^{3\eta}K_{\rm src}C_\xi\alpha_0^2}
+                  {1-L^{-2\gamma}}
++K_{\rm pair}+K_{\rm coef}+K_{\rm switch}+K_{\rm read}\right\}
+\sum_i m_i,\qquad u\in S. \tag{58}$$
+
+This is a proof of the **conditional** implication to $|C|\le C_{15}\sum_i m_i$, with $C_{15}$ displayed. It is **not a proof of the requested five physical premises** for the actual RG history. The missing statements are mathematically substantive: the unrestricted zero-weight decomposition and target data prevent an unconditional derivation from the current theorem interface, while the necessary supported/cut-source/coefficient-response estimates are absent from the cited Lean background theorems. No honest finite constant depending only on $d,L,N$ and the radii can be assigned to all five premises without those physical restrictions. The original P7 exponentially decaying `window_decay` is stronger still: the coefficient and switch charges in (54), (56) are merely uniform.
+
+**Paper provenance.** P7, *Communications in Mathematical Physics* **198** (1998), 493–534, journal pp. 500–501, (2.10)–(2.16), especially (2.11), (2.14); source file `sources/s002200050486.pdf`. P6, *Communications in Mathematical Physics* **198** (1998), 1–45, journal pp. 6–7, 11, 14, (2.13)–(2.16), (2.25), (2.31); `sources/s002200050470.pdf`. P3, *Communications in Mathematical Physics* **182** (1996), 33–82, journal p. 56, (2.55)–(2.56) and Proposition 2.1; `sources/BF02506385.pdf`. The P3 text extraction is damaged in these displays, so no unverified numerical transcription is used. The local interpretations and status are cross-checked against `notes/phase1/MASS-RESPONSE.md`, `INTERFACE-A.md` and `P631-INPUTS-2.md`; these notes themselves label the collar and regional source comparisons as open.
+
+**Confidence.** High in the exact algebra (36), (48), (57), the finite Cauchy bounds and constant arithmetic (39), (47), (51), (54), (56), (58), conditional on their stated sign, flow and read hypotheses. High that the five actual-history physical premises are unproved by the landed declarations named here. Moderate that the proposed $P,Q,R$ in (42) is the most economical decomposition for a future proof; the actual supported pair may require additional intermediate actions and a correspondingly larger read charge.
