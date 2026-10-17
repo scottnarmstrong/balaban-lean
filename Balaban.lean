@@ -2339,6 +2339,7 @@ public import Balaban.SmallField.IrrelTorusXidomGeometry
 public import Balaban.SmallField.IrrelTorusXidomNumeric
 public import Balaban.SmallField.IrrelTorusXidomChart
 public import Balaban.SmallField.IrrelTorusXidomRotate
+public import Balaban.SmallField.IrrelTorusXidomLarge
 public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
