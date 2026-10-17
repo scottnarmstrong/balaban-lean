@@ -2293,6 +2293,7 @@ public import Balaban.LargeField.R.WindowCloseNode
 public import Balaban.LargeField.R.WindowCloseSum
 public import Balaban.LargeField.R.WindowCloseNodeExact
 public import Balaban.LargeField.R.WindowCloseQuot
+public import Balaban.LargeField.R.WindowCloseQuotHist
 public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
