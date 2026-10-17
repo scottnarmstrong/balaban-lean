@@ -44,9 +44,11 @@ whole-level domain.  Completing in the **larger** local chart `Ξ^c_{k+1}(𝔹_{
 `εL ≥ K_loc ε_{k+1}`, whose pairs contain the whole-level pairs (`levelGS_xiFieldDom_sub_localB`),
 this needs of `TE` only its **locality** on the larger chart, not its analyticity or its bound
 there.
-Locality on a chart of radius `eps` requires only the numerical smallness of `eps` (the landed
-`localB_eTermHat_evTerm_local` takes the old-term functional as an arbitrary function), so (4.37)
-does not enter.  The analyticity, the bound and the rotation invariance stay at the class radius.
+For the per-label terms, locality on a local chart of radius `εL_{k+1} ≤ eps` needs only the
+numerical premises `ChainNum`, `FlSetting` at `eps` (the landed `localB_eTermHat_evTerm_local` has
+no analyticity premise on the old-term functional), so (4.37) does not enter; for the terms of the
+actual density this is part of their identification (OPEN).  The analyticity, the bound and the
+rotation invariance stay at the class radius.
 
 * `localB_xiDom_top_linear`, `levelGS_xiFieldDom_sub_localB`: the sharp chart inclusion with the
   loss `K_loc`, at the top level, in the form of the class domains of the polymers of level `k + 1`;
