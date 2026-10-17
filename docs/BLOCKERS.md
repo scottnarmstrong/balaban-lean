@@ -23,7 +23,7 @@ The last section lists the problems that have been resolved since the project st
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral is reduced to two named inputs, a uniform quotient bound and the quietness of the ancestors, and the vacuum energy bound); author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is proved given the old terms' activities (their marks are built) |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is proved (marks and activities of the old terms built), up to a numerical condition on the class index being checked |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20 (proved), the rest of the quarter box in progress (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
@@ -156,8 +156,12 @@ quietness of each ancestor of the window. The composed bound is proved from thes
 ancestors is how the window's starting scale is chosen; the quotient bound needs the integrand bound to keep the action
 of the quiet steps and their exact Gaussian composition, which P7 (2.58′) pairs with the restricted density (the bound
 of the steps that keeps the action, the identification of each step's action with the window's action, and the exact
-Gaussian integral over the window's intermediate variables are proved; matching the composed Gaussian with the one of
-P7 (2.58′) and the assembled bound are in progress). The other
+Gaussian integral over the window's intermediate variables are proved, and the composed Gaussian matches the one of
+P7 (2.58′)). Since each step's action depends on the intermediate variables, the factor of (2.58′) has to be
+obtained from the cancellation identity at each configuration before integrating; that composition is the next
+step. Above the window, the gas bound is now derived from the window bound of each history (summed over histories,
+with the ripeness of removed components from the counter of the history), given two further inputs: the
+representation of the output of R as the gas with these removed weights, and the bound of the kept components. The other
 remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
@@ -326,9 +330,11 @@ non-constant external fields (it agrees with the earlier one on constant real fi
 class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
 is being proved at every datum. That is done for the zero class; for a general class the value at every datum is
 proved given the marks and activities of the old terms. The marks are now built from the old terms on the local
-generating sets, label by label (their sum identity, locality, bounds and joint analyticity proved), so the value at
-every datum for a class with inherited labels needs only the activities of the old terms, now being built the same
-way (the replacement identity of the old terms on those sets holds as functions of the datum, proved). Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+generating sets, label by label (their sum identity, locality, bounds and joint analyticity proved), and so are their
+activities (the replacement identity of the old terms on those sets holds as functions of the datum, proved). So the
+value at every datum for a class with inherited labels is proved up to numerical conditions. One of them, on the
+activities, is so far usable only when the class index is 1, while the settings of the labels want a large class
+index; whether this costs more than a constant is being checked. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
