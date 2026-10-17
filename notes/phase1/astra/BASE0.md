@@ -199,3 +199,238 @@ P5 §3 and P6 §2–§3 need the first integral's local action terms, vacuum con
 At scale one the combinatorial history has no old component (`base_parts_empty`). In regime A it also has no ripe component (`base_noRipe`); in regime B the ripe-window condition is not used at this index. Thus the inherited-operator and old-boundary parts of the induction have no base obligation. A genuine base output still needs a physical H.7 boundary family, which may be newly created by the first integral. P5 (1.31) is the **$ψ_1$-integrated component bound**; it neither proves those H.7 estimates nor the exact density identity. Finally, when $k_f=0$ there is no ordinary $0\to1$ step; P7 §4, p. 529, starts from a density already satisfying the inductive hypotheses. This base-step design therefore leaves the one-scale final integral of item 17(b) open, as `LF-BASE-KF0.md` Part G and `KF0-P7.md` explain.
 
 **What this unblocks.** The mathematical base convention is fixed: no bare $\chi_0$, four first-step failure sets, retained raw spins on $D_{\rm out}$, and a threshold whose power pays the first-history numerical budget, including one or two $p_2$ factors. The next proof target is the physical `Prop279Phys` plus exact transform identity and `BaseStepData.S2`; only then can (20) close P5 (1.31) and feed the induction. **Confidence:** high for the algebra, Theorem 1, Corollary 2 and Lemma 3 under their stated hypotheses; high that the zero-input and margin counterexamples prohibit the current shortcut; no claim of a proved physical first-component (1.31) or $k_f=0$ last integral.
+
+## Part 2. The localized first integral and the actual scope of the landed chart theorems
+
+17 October 2026, round 2. **Result:** an exact *raw conditional* first integral and a boundary-uniform operator estimate for its $P$ witnesses are given below. The requested physical P5 (1.31) for **every** first component still does not follow: a proposed application of the landed chart normalization to a proper large-field sector has a false hypothesis, and P6's block-only $P$ estimate is false for the $AB$ test of (3). The corrected full-component theorem is stated precisely in §2.4, with its proof from the missing local majorant and the already established reserve. This identifies the remaining mathematical assertion, rather than treating a zero-kernel abstract input as its proof.
+
+### 2.1 The exact physical first partition, and a conditional component integral
+
+Write $\Lambda_0=\operatorname{Torus}_d(Ln)$ and $\Lambda_1=\operatorname{Torus}_d(n)$, and suppose $n=Mm$ so that the $\pi_1$ cubes have $M^d$ first blocks. For $\theta=z_1\psi_1$ put $G_\beta(\theta,\phi)=\prod_{y\in\Lambda_1}t_0(\theta_y-Q\phi_y)$ and $E(\phi;g)=\exp[-\beta H(\phi)+\langle g,\phi\rangle]$. These are exactly `baseKernel` and the spin exponential in `baseRho1` of `BasePhysicalDensity.lean`, with $a=a_{\rm Ker}$; `basePhysicalDensity` proves
+
+$$Z_\Lambda(g)=\int d\psi_1\,z_1^{N|\Lambda_1|}\int d\sigma_{\Lambda_0}(\phi)\,G_\beta(z_1\psi_1,\phi)E(\phi;g).\tag{22}$$
+
+At fixed $(\theta,\phi)$ define $W_P$ by (4), with $C_c=A_cB_c$ as in (3). Then the **pointwise, physical** identity is
+
+$$\rho_1(\psi_1;g)=\sum_{P\subset\pi_1}\rho_{1,P}(\psi_1;g),\qquad
+\rho_{1,P}=z_1^{N|\Lambda_1|}\int d\sigma_{\Lambda_0}(\phi)\,G_\beta(z_1\psi_1,\phi)E(\phi;g)W_P(\phi,z_1\psi_1).\tag{23}$$
+
+This follows by multiplying (4) into the integrable density in `baseRho1` and interchanging a **finite** sum and integral. `chiPrimeZero_decomposition` proves the pointwise identity for arbitrary $M$; `spin_integrand_bound` and `baseRho1_integrable` supply the fixed-output and global physical integrability. `baseSector_selected_sector_weight` and `baseSector_physical_cut_selection` prove related pointwise selection and cut facts only for the specialized `baseSectorN L n`, whose cube parameter is **$M=1$**. Reblocking those facts to the actual $\pi_1$ with $M>1$ is an additional bridge, not an already landed equality.
+
+Here is a literal local integral that keeps the raw variables. Fix one first component $X$, let $D_X$ be the fine sites mapping to cubes of $X$, and $Y_X$ the first blocks in $X$. Freeze the exterior spins $\tau$ and exterior coarse field. Let $H_X(\phi_{D_X};\tau)$ contain every bond energy whose bond meets $D_X$, once, and all field terms at sites of $D_X$. For separated components these bond sets are disjoint; bonds left over belong to the exterior action. Thus their exponentials multiply to the exact full Boltzmann factor. The failed-test footprints lie in $D_X$: a $P$ cube's block and site tests are in that cube, every bond-test endpoint is in its one-neighbourhood, and `baseRecord_good_region` places the entire three-neighbourhood of $P$ in $\Omega_1^c\subset Z_1^{\rm pre}$. The connecting one-neighbourhood path lies in the same component $X$. Let $J_X$ be *any* product of the remaining real record indicators, so $0\le J_X\le1$. With product **probability** sphere measure define
+
+$$\begin{aligned}
+(\mathcal K_{X,P,J}F)(\tau)
+={}&\int_{\mathbb R^{NY_X}}\prod_{y\in Y_X}t_0(\theta_y-Q\phi_y)\,d\theta_y
+\int_{(S^{N-1})^{D_X}}e^{-\beta H_X(\phi_{D_X};\tau)+\langle g_{D_X},\phi_{D_X}\rangle}\,
+W_{P,X}(\phi,\theta)J_X(\phi,\theta)F(\phi,\theta;\tau)\,d\widehat\sigma_{D_X}(\phi).
+\end{aligned}\tag{24}$$
+
+$W_{P,X}$ is the product of $1-C_c$ on $P\cap X$ and $C_c$ on the other tested cubes of $X$. Indicators touching the frozen exterior read its actual spins; they are never replaced by a free boundary condition. Formula (24) is an exact finite-measure **conditional** integral for the raw $P$ sector. In the $\psi_1$ variable its integrand has $z_1^{N|Y_X|}$ and $d\psi_1$, which become $d\theta$ because $z_1>0$. In the geometric sphere convention multiply the right side by $s_N^{|D_X|}$. The first small-field expectation itself integrates only the chart variables on $D_+$; (24) integrates also the retained variables because it is an operator-norm test of the type in P5 (1.26). It is not yet P6's $T_1(X)$: peeling off the small-field action, its determinant, vacuum term and crossing-boundary activity is a further **identity to prove**.
+
+**Theorem 4 (boundary-uniform physical $P$ operator bound).** With $n_P=|P\cap X|\ge1$, $\beta>0$, $a>0$, $L,M\ge1$, $0<\nu\le1$, and $\|F\|_\infty<\infty$, (24) obeys, for every exterior configuration $\tau$,
+
+$$\bigl|\mathcal K_{X,P,J}F(\tau)\bigr|\le
+e^{\|g_{D_X}\|_1}\|F\|_\infty
+\left[M^d2^{N/2}e^{-L^{d-2}p_0(\beta)^2}+(2d+1)(LM)^de^{-p_0(\beta)^2/(4a)}\right]^{n_P}.\tag{25}$$
+
+*Proof.* The full conditional Gaussian integral of a first block is one regardless of its spin block mean or the exterior configuration. Expand each $1-A_cB_c$ into $(1-A_c)+A_c(1-B_c)$ and drop all other indicators, which are at most one. For $n_A$ selected $A$ failures, choose one of $M^d$ blocks per cube. The selected Gaussian variables are disjoint, and (7) gives $q_A^{n_A}$. For $n_B$ selected $B$ failures choose one of at most $(2d+1)(LM)^d$ bonds/sites per cube. Every chosen bond lies in $H_X$ by the footprint hypothesis, even if it crosses the boundary of an individual $\pi_1$ cube; a bond is chosen at most twice. Each selected energy is at least $\delta_0^2/2$, so $\beta H_X\ge n_B\beta\delta_0^2/4=n_Bp_0(\beta)^2/(4a)$, exactly (8). The remaining energy is nonnegative, product sphere probability has mass one, and the source is bounded by $e^{\|g_{D_X}\|_1}$. Summing the $2^{n_P}$ assignments by the binomial theorem gives (25). All bounds are uniform in $\tau$. $\square$
+
+This upgrades Theorem 1 from a torus integral to a conditional **operator** estimate for components with a $P$ witness. Corollary 2 and Lemma 3 turn (25) into a first-component reserve when the component's size is charged to these $P$ witnesses and all chart/boundary losses are separately bounded. They say nothing when $P\cap X=\varnothing$ and $Q$, $R$ or $S$ creates $X$.
+
+### 2.2 Two false steps and explicit counterexamples
+
+**False step A: using the landed all-good chart theorem for a proper bad sector.** `baseSectorCubeProduct` in `BaseSectorSupport.lean` is $\prod_c C_c$. The exact hypotheses of `baseSectorChartIntegral_eq_normalized` (`BaseChartComponentNormalization.lean`) and `baseRetainedChartIntegral_gaussian` (`BaseChartRetained.lean`) include
+
+$$\texttt{hp}:\quad\prod_c C_c(\phi_0,\theta)\ne0.\tag{26}$$
+
+For any $P\ne\varnothing$, $W_P(\phi,\theta)\ne0$ implies $C_c=0$ for some $c$, and therefore the left side of (26) is zero. The premise is **logically incompatible** with the proper large-field sector to be estimated. `baseSectorChartIntegral_eq_cut_gaussian` (`BaseChartCutFamily.lean`) has no explicit (26), but its integrand contains the same *global* cutoff $\prod_c C_c$, so it too represents only the all-good chart term. This is not a vacuous sector: take every spin equal to $h$, let every $\theta_y=h$ except one block $y_*$, and set $\theta_{y_*}=h+3\delta_0u$ for a unit vector $u$. All bond and site tests pass, precisely the cube containing $y_*$ fails its $A$ test, and an open neighbourhood of this configuration has positive physical measure. The all-good chart integral is zero there, while the $P$-sector integral is positive for $g=0$. `baseSector_physical_cut_selection` does supply a proper cut $U$ from the selected failed set, but its last conclusion explicitly says that under (26) $P=\varnothing$ and $U$ is the whole torus. Moreover `baseSectorCenter` in `BaseSectorSupport.lean` uses `GeneratingSet.single`, the full first torus, and falls back to $h$ when its global background-domain test fails; a proper-sector centre must instead use the good region and the actual raw collar. An arbitrary-$U$ Gaussian algebra theorem with (26) does not repair this support mismatch.
+
+**False step B: applying P6 (3.4)'s Gaussian $P$ gain to $P=\{c:C_c=0\}$.** Choose a real spin configuration with one bond of length greater than $\delta_0$, and set $\theta_y=Q\phi_y$ on every first block. Then every $A_c=1$, while one or two adjacent $B_c$ fail. Thus $P\ne\varnothing$ but *no* Gaussian block tail occurs. P6 (3.4), p. 16, charges its $P$ set using the block test of P5 (2.5); it cannot be imported verbatim for the base convention (3). The corrected disjoint witness split is
+
+$$1-A_cB_c=(1-A_c)+A_c(1-B_c),\tag{27}$$
+
+with the first term paid by (7) and the second by bond/site energy (8) or by the appropriately shared `baseMainAction_bond_gain`/`baseMainAction_site_gain`. Equation (25) proves this correction after the retained variables are integrated. In a P6 majorant the energy share used for this $B$ witness must also be withheld from the shares used for $Q$ and $S$; multiplying three estimates that each spend the full action would be another invalid step.
+
+### 2.3 The exact chart formula that a proper sector needs
+
+The proper-sector replacement is mathematically unambiguous. Fix $P,Q,R,S$, their regions $\Omega_1,\Omega''_1,Z_1$, a component $X$, exterior raw spins, and the retained variables. Let $U= D_X\cap\widehat\Omega_1$. On $U$ choose a unit background $e_x$ determined by the coarse output and the fixed collar spins, **independent of the spins to be integrated**. Good tests $C_c=1$ for $c\subset\Omega_1$ give
+
+$$|\theta_y-\phi_x|\le2\delta_0+d(L-1)\delta_0,\qquad
+|\phi_x-e_x|\le C_{\rm hs}L\delta_0\le\tfrac14,quad
+C_{\rm hs}=d+2+4dK_1.\tag{28}$$
+
+The first inequality is the block test plus a path of at most $d(L-1)$ tested bonds within a block. The second is exactly the conclusion of `spins_near_background` when its `BaseSpinSupport` and `BgHyp` hypotheses are supplied. It implies $\phi_x\cdot e_x=1-|\phi_x-e_x|^2/2\ge31/32>0$, so each such spin has the unique tangent chart coordinate $v_x=\sqrt\beta[\phi_x-(\phi_x\cdot e_x)e_x]\in e_x^\perp$ and
+
+$$\phi_x=e_x\sqrt{1-|v_x|^2/\beta}+v_x/\sqrt\beta,\quad |v_x|<\sqrt\beta,\qquad
+d\sigma(\phi_x)=\beta^{-(N-1)/2}(1-|v_x|^2/\beta)^{-1/2}dv_x.\tag{29}$$
+
+The last identity is the geometric surface-measure chart formula `toSphere_eq_graph`/`integral_sphere_pi_hemisphere_cutoff` in `SphereChart.lean`; `baseGoodIntegral_eq_baseChartIntegral` proves its finite-product form for any measurable cutoff **already known** to have this hemisphere support. The collar spins outside $U$ are kept raw. For $D_-=D_X\cap(\widehat\Omega_1\setminus\widehat\Omega''_1)$ the tangent coordinates are retained; for $D_+=D_X\cap\widehat\Omega''_1$ they are integrated in the first small-field expectation. At fixed collar and retained variables, the exact local integral is therefore the $D_+$ integral of the literal kernel, Boltzmann factor, source and selected tests after substitution (29), multiplied by $\prod_{x\in D_+}\beta^{-(N-1)/2}(1-|v_x|^2/\beta)^{-1/2}$. The $D_-$ Jacobians accompany their later retained-variable integration. Every bond touching a raw site still uses that raw spin; no crossing-bond energy can be deleted.
+
+For clarity, let $W_{\mathfrak a}$ be the product of the four **ordered** selectors: $W_P$ of (4), the $Q$ selector from P5 (2.14), the $R$ selector from P5 (2.43), and the $S$ selector from P6 (3.2), each evaluated only on its eligible cube set. At fixed exterior data $\tau$ and fixed $\theta_X$, set $\Phi_x=\sigma_x$ on $D_{\rm out}$ and use (29) with $v_x$ on $D_-\sqcup D_+$. If $W_{\mathfrak a}$ vanishes off the hemispheres on $D_-\sqcup D_+$ and $e$ depends only on $(\theta_X,\sigma_{D_{\rm out}},\tau)$, finite-product change of variables gives the **exact selected local spin integral**
+
+$$\begin{aligned}
+&\int d\sigma_{D_X}(\phi)\,
+ W_{\mathfrak a}(\phi,\theta)G_X(\theta,\phi)
+ e^{-\beta H_X(\phi;\tau)+\langle g_{D_X},\phi\rangle}F(\phi,\theta)\\
+&=\int d\sigma_{D_{\rm out}}(\sigma)
+  \int_{|v_x|<\sqrt\beta,\ x\in D_-\sqcup D_+}
+  \prod_{x\in D_-\sqcup D_+}
+    \frac{\beta^{-(N-1)/2}\,dv_x}{\sqrt{1-|v_x|^2/\beta}}\;
+ W_{\mathfrak a}(\Phi,\theta)G_X(\theta,\Phi)
+ e^{-\beta H_X(\Phi;\tau)+\langle g_{D_X},\Phi\rangle}F(\Phi,\theta).
+\end{aligned}\tag{29a}$$
+
+Here $G_X=\prod_{y\in Y_X}t_0(\theta_y-Q\phi_y)$, and $d\sigma$ is the **geometric** sphere measure. The proof is Fubini over the finite site sets followed by (29) at each chart site; because the centre is independent of its integration variable, no derivative of $e$ enters the Jacobian. The $D_+$ integral on the second line, with $(\sigma,v_-)$ held fixed, is the precise first expectation that the P5/P6 operator must contain. Equation (29a) is not yet an equality with the *renormalized* P6 $T_1$: that equality additionally allocates its small-field action, determinant, vacuum and boundary terms. The local hemisphere premise and this allocation are the two assertions absent from the landed all-good chain.
+
+For the Gaussian reference choose cut parameters $s_b=0$ on bonds crossing $U$ and $s_b=1$ otherwise. `baseSector_selected_cut` gives `IsFirstBlockUnion`, `CrossZero` and parameter membership. The exact identity is $q_1=q_s+(q_1-q_s)$; hence the *activity* contains $e^{-(q_1-q_s)}$ together with the chart Jacobian, cutoff, nonlinear normal-coordinate term, source and regime-A mass perturbation. `baseSector_cut_exponent_of_product_ne_zero` proves precisely this algebra, but again with the **global** product support (26). `baseRetainedChartIntegral_gaussian` proves the principal-submatrix Gaussian/determinant calculation for a cut $U$, but with the same support premise. Replacing (26) by the good-cube product on $U$ and supplying the collar data in (28) is the missing local theorem. Its exact statement must retain $(q_1-q_s)$; dropping it changes the physical density whenever a crossing bond has nonzero energy. `baseSector_component_logDet_factorization` can then split the determinant after this legitimate cut; it does not perform the support replacement.
+
+The further $Q,R,S$ partitions are inserted **in order**: $Q$ on the eligible cubes of $\Omega_1^{\sim3}$ by P5 (2.13)–(2.14), pp. 503–504; $R$ on the eligible cubes of $\Omega_1$ by P5 (2.42)–(2.43), p. 511; $S$ on the eligible first-output cubes in P6 (3.2), pp. 15–16. On each stage the two characteristic functions sum to one pointwise in the variables available at that stage. The source operator is P5 (2.47), pp. 512–513, followed by P6 (3.2). At the test-free base, only factors of the *old density's* small-field $\chi_0$ and old component operator disappear; the **new** failed-test factor $\chi'^{(0)c}(P)$ remains and is replaced by $1-A_cB_c$ as in (27). A proof identifying this staged operator with (23), after the $D_+$ expectation and the good small-field action have been peeled off, is **not** among the landed theorems just cited. Formula (29) gives its necessary local measure, not that missing identification or a bound for its activity.
+
+### 2.4 Corrected full-component majorant and deduction of (1.31)
+
+Here is the exact remaining assertion. For each admissible record and $X$, let $\mathcal T^{\rm phys}_{1,X}$ be the operator from the staged construction of §2.3, with the $D_+$ chart expectation already evaluated and with its physical determinant, vacuum normalization, crossing-bond activity and P6 boundary term allocated. Split $P=P_A\sqcup P_B$ by (27), with $P_B$ carrying a chosen bond/site witness; write $(|P_A|+|P_B|+|Q|+|R|+|S|)_X$ for the sum of their cardinalities after intersection with $X$. A **physical local majorant** must prove, uniformly in retained boundary spins and in the source ball,
+
+$$\int d\psi_1|_X\,|\mathcal T^{\rm phys}_{1,X}F|
+\le\exp\{-A_3\lambda_0^{2p_0}(|P_A|+|P_B|+|Q|+|R|+|S|)_X
+ +(c_1\lambda_0+c_2)|X|_1\}\sup\chi_X|F|.\tag{30}$$
+
+The support $\chi_X$ must be P5 (1.24)–(1.25), p. 494. To make $A_3>0$ explicit, choose $p_1=p_0$ as P6 does in (3.9), require $p_0(\beta_1)\ge A_0c_\lambda^{p_0}\lambda_0^{p_0}$, and split the nonnegative main action into four shares: one for $P_B$, one for $Q$, one for $S$, and one residual share. Before witness-choice and volume costs, conservative available coefficients of $\lambda_0^{2p_0}$ per seed are
+
+$$\begin{array}{c|ccccc}
+\text{seed}&P_A&P_B&Q&R&S\\ \hline
+\text{coefficient}&L^{d-2}A_0^2&A_0^2/(16a)&2\gamma_0A_0^2/[6^d(9K_1)^2]&A_1^2/4&\gamma_0 A_0^2c_\lambda^{2p_0}/[8\cdot6^dK_1^2].
+\end{array}\tag{31}$$
+
+The $P_A$ coefficient follows from (7); the $P_B$ coefficient follows from (8) with one quarter of the bare action; the $Q$ and $S$ coefficients are one quarter of P6 (3.7) and (3.8), p. 18; the $R$ coefficient is P6 (3.4), p. 16. These last three source rates apply **only after** their action and Gaussian measures have been identified with the physical local operator. The source's own (3.9), p. 18, sets $p_1=p_0$ and $A_3=\min\{8\gamma_0A_0^2/[6^d(9K_1)^2],A_1^2/8\}$ in its block-only convention; (31) is a conservative proposed modification for the $AB$ base test, not a claim that P6 proves it verbatim. Let $c_*$ be the minimum of the five positive coefficients in (31), and let $C_{\rm wit},C_{\rm loc}\ge0$. If a local activity proof bounds all witness-choice losses by $C_{\rm wit}n_X$ and all sphere, chart, determinant, localization and boundary losses by $C_{\rm loc}(\lambda_0+1)|X|_1$, then the **written inequalities**
+
+$$C_{\rm wit}\le\tfrac12c_*\lambda_0^{2p_0},\qquad
+A_3=\tfrac12c_*,\qquad c_1\lambda_0+c_2\ge C_{\rm loc}(\lambda_0+1)\tag{32}$$
+
+turn the typewise factors into (30): $c_*\lambda_0^{2p_0}n_X-C_{\rm wit}n_X\ge A_3\lambda_0^{2p_0}n_X$, and the last inequality absorbs the volume loss. A sufficient explicit threshold for the first condition is $\lambda_0\ge(2C_{\rm wit}/c_*)^{1/(2p_0)}$, in addition to $\lambda_0\ge1$; $c_1,c_2\ge C_{\rm loc}$ suffice for the second. **No landed theorem supplies a physical, volume-uniform $C_{\rm loc}$ for this proper sector**, so (31)–(32) are a corrected proof target, not an unconditional verification of (30).
+
+Once (30) and the exact density identity are proved, P6 (3.11), p. 19, supplies the record-counting target $\sum_{\mathfrak a|X}C_1(\mathfrak a|X)^{-1}\le1$. `RegionHistory.base_exponents` gives the base values of $\kappa_1$ and $\log C_1$; `RegionHistory.base_budget` and Lemma 3 give
+
+$$\kappa_1-\log C_1-H_1|X|_1\ge\ell p_2(\beta_1),\qquad \ell\in\{1,2\},\tag{33}$$
+
+under (15). Multiply each instance of (30) by $C_1^{-1}C_1$, take the supremum of $C_1e^{-\kappa_1}$ using (33), and sum the $C_1^{-1}$ weights. This is exactly (20), hence P5 (1.31). The derivation is complete **conditional on (30), physical identification and record counting**; the high-power threshold pays the reserve but cannot manufacture a missing component kernel estimate.
+
+### 2.5 Lean correspondence and final verdict
+
+| Step | Landed declaration and what it actually proves | Missing proper-sector statement |
+|---|---|---|
+| Starting density and first partition | `basePhysicalDensity`, `baseRho1_integrable` in `BasePhysicalDensity.lean`; `chiPrimeZero_decomposition` in `BaseRecord.lean` | Glue generic $M$ record tests to `baseRho1` as (23) |
+| Retained $P$ footprint and witnesses | `baseRecord_good_region`, `baseF_decomposition`, `baseBlock_gain`, `baseMainAction_bond_gain`, `baseMainAction_site_gain` | Identify the witnesses with factors of the nonzero physical component; use shared action energy for $P_B,Q,S$ |
+| Good spin chart | `spins_near_background` under `BaseSpinSupport`; `baseSectorSpinSupport_of_product_ne_zero` only on global all-good support | `baseRecord_localSpinSupport` from good cubes in $\Omega_1$ and raw collar spins; no all-good hypothesis |
+| Exact chart measure and action | `toSphere_eq_graph`, `baseGoodIntegral_eq_baseChartIntegral`, `basePhysicalExponent_chart`, `baseSector_cut_exponent_of_product_ne_zero` | Conditional hemisphere chart of (29) on $\Omega_1$ for the selected $P,Q,R,S$ record, with crossing activity |
+| Cut Gaussian and determinant | `baseSector_selected_cut`, `baseRetainedChartIntegral_gaussian`, `baseSector_component_logDet_factorization` | Replace their global `hp` by the local record support; split $D_+$ from retained $D_-$ and raw exterior |
+| P6 majorant and closure | Source P6 (3.4)–(3.9); landed `RegionHistory.base_budget` and `base_exponents` | Prove (30) for the physical operator, with a nonzero exact transform identity and the count (1.27) |
+
+**Verdict and confidence.** Equations (22)–(25), the incompatibility (26), the bond-only counterexample, and the chart change (28)–(29) under its stated local-support hypothesis are rigorous. The two counterexamples show why the present all-good chart chain and the unmodified P6 block gain cannot prove the requested full first-component bound. The corrected statement (30) has an explicit route to P5 (1.31) through (31)–(33), but its local physical activity estimate and exact staged identification are still open in the landed code and have not been proved in this note. Confidence is high in these negative and conditional conclusions; **P5 (1.31) for every first large-field component is not claimed proved.**
+
+## Part 3. The proper-record chart and the limit of the present operator argument
+
+**Update to Part 2.** Its table says that `baseRecord_localSpinSupport` is missing. The required statement is in fact already landed, under the name `baseSpinSupport_of_baseRecord` in `BaseSupport.lean`. The theorem below uses it. This repairs the first obstruction in that table, but does not remove the global all-good premise of the Gaussian and determinant theorems. Throughout this part the first density is the test-free `baseRho1` of `BasePhysicalDensity.lean`, with $M$ absorbed into the coarse torus side $M n_1$ when comparing its notation with `BaseRecord.lean`. A selected $P$ is **proper** when its first-sector weight is nonzero and $P\ne\varnothing$.
+
+### 3.1 Local spin support: proved, without an all-good premise
+
+**Proposition P3.1 (the landed local-support lemma).** Let $G:\texttt{GeneratingSet}\ d\ L\ (M n_1)\ 1\ \varrho$, $b:\texttt{BaseRecord}\ d\ L\ n_1\ R$, and suppose
+
+$$x\in G.\Omega 1\quad\Longleftrightarrow\quad\operatorname{cubeMap}(x)\in b.\Omega.\tag{34}$$
+
+Assume the scale relation $n_0=Ln_1$, $\delta_0>0$, unit spins $\phi$, a unit $h$, and background data $D$ equal to $\theta$ on the blocks of $G.\Omega1$, to the **raw** $\phi$ on $\operatorname{collar}G$, and to $h$ for the field on $G.\Omega1$. If
+
+$$\chi'_0(c;\phi,\theta)=1\qquad(c\notin b.P),\tag{35}$$
+
+then `BaseSpinSupport G (if regimeB then ν else 0) δ₀ φ h D` holds. The conclusion has no premise $\prod_c\chi'_0(c)\ne0$; (35) is exactly the good-cube factor of the selected $P$ term. In Lean this is the full statement of `baseSpinSupport_of_baseRecord` (`BaseSupport.lean`, lines 73–133), with (34) its `hΩ`, (35) its `hsupp`, and the three data equalities its `hDΨ`, `hDc`, `hDh`. `RegionHistory.baseSpinSupport` (same file, lines 143–159) supplies (34) for `histGen` when its stated no-removal and $L\ge2$ hypotheses hold.
+
+*Proof.* If $x\in G.\Omega1\cup\operatorname{collar}G$, `exists_near_of_mem_dataSites` places its scale-one cube at index distance at most $3$ from a cube of $b.\Omega$. `BaseRecord.not_mem_P_of_near_Omega` says this cube is outside $b.P$. Unpacking (35) by `chiPrimeZero_eq_one_iff` therefore gives its block, bond and, in regime B, site tests. The block test is transported to `spinBlockAverage` by `spinAverage_eq_spinBlockAverage`. For a bond with either endpoint in the data sites, apply the bond test in that endpoint's cube. The site test holds on every data site; in regime A its coefficient is zero and $0<\delta_0^2$. The remaining `BaseSpinSupport` fields are exactly the unit and data hypotheses. This is the proof in `BaseSupport.lean`; every use of a good test is local to the $3$-neighbourhood of $\Omega_1$. $\square$
+
+**Scope.** The theorem assumes the data equalities, the existence of $G$, and the background hypothesis in the next step. A bare `BaseRecord` alone does not construct $D$ or an admissible background. The record's $Q,R,S$ fields may be arbitrary subject to their geometry; they do not enter the proof of (35).
+
+### 3.2 Conditional hemisphere chart on the selected record: proved
+
+Fix $\theta$ and all raw spins $\sigma$ outside $E=G.\Omega1$, including $\Gamma=\operatorname{collar}G$. Construct $D=D(\theta,\sigma_\Gamma)$ as in Proposition P3.1, and set $e_x=\Re\,\texttt{bgField}\ G\ a\ \nu_*\ D(x)$ for $x\in E$, where $\nu_* =\nu$ in regime B and $0$ in regime A. Thus $e$ is **independent of every spin subsequently integrated on $E$**. Let $W_P=\prod_{c\in P}(1-C_c)\prod_{c\notin P}C_c$, and let $V_{QR}$ be any measurable pre-expectation $Q,R$ selector taking values in $[0,1]$. Then $W_PV_{QR}\ne0$ implies (35). A post-expectation $S$ selector may be included only when it is a measurable function of the variables fixed at this stage; otherwise multiply it after that expectation, as P6 (3.2), pp. 15–16, prescribes. This corrects the unqualified single-product reading of $W_{\mathfrak a}$ in (29a).
+
+Explicitly, take $\Psi(x)=\theta_{j\operatorname{Block}(x)}$ on $E$, $\Psi(x)=\sigma_x$ on $\Gamma$, and zero elsewhere; take $\widetilde h=h$ on $E$ and zero elsewhere. The block lift is constant on every complete first block of $E$, while the collar values have no such requirement. Therefore these fields satisfy the layer-constancy hypotheses of `BgData.clip` (`Background/Data.lean`, lines 219–243), which constructs $D$ with the equalities used in Proposition P3.1. This construction uses the first-block-union property of $G.\Omega1$; it is not a consequence of arbitrary pointwise choices of $\Psi$.
+
+**Proposition P3.2 (conditional record chart).** Assume `BgHyp d L 1 ϱ a ν_*` and
+
+$$4dL\delta_0\le\texttt{bgC1}\ d\ L\ N,\qquad C_{\rm hs}L\delta_0\le\tfrac14,
+\quad C_{\rm hs}=d+2+4d\,\texttt{bgK1}\ d\ L\ N.\tag{36}$$
+
+On $W_PV_{QR}\ne0$, every $x\in E$ satisfies $|e_x|=1$, $|\phi_x-e_x|\le C_{\rm hs}L\delta_0$ and $e_x\cdot\phi_x>0$. Hence $v_x=\sqrt\beta(\phi_x-(e_x\cdot\phi_x)e_x)$ is unique, $v_x\in e_x^\perp$, $|v_x|\le\sqrt\beta C_{\rm hs}L\delta_0<\sqrt\beta$, and (29) recovers $\phi_x$. For every integrable selected physical integrand $F$ and fixed exterior $\sigma$, its conditional spin integral is **exactly**
+
+$$\int_{(S^{N-1})^E}W_PV_{QR} F(\phi_E,\sigma)\,d\sigma_E
+=\beta^{-m/2}\int_{\prod_{x\in E}\{|v_x|<\sqrt\beta\}}W_PV_{QR} F(\Phi_E(v),\sigma)
+\prod_{x\in E}(1-|v_x|^2/\beta)^{-1/2}\,dv_E,
+\qquad m=(N-1)|E|.\tag{37}$$
+
+Here $d\sigma$ is geometric surface measure, as in `aprioriMeasure` (`Frozen/Model/AprioriMeasure.lean`); probability surface measure instead contributes $s_N^{-|E|}$ on the right. $F$ may contain the literal `baseKernel`, **all** bond factors touching $E$, the source, and any pre-expectation selector. No crossing bond is omitted.
+
+*Proof.* Proposition P3.1 supplies `BaseSpinSupport`; `spins_near_background` (`SpinsNearBackground.lean`, lines 422–495) under (36) gives all three stated background assertions and the tangent bound, pointwise on $E$. Unit length gives $e_x\cdot\phi_x=\sqrt{1-|v_x|^2/\beta}>0$. The sphere graph Jacobian at each $x$ is $\beta^{-(N-1)/2}(1-|v_x|^2/\beta)^{-1/2}$. Multiply these identities over finite $E$ and apply Fubini. The conditional centre does not vary with $\phi_E$, because its block data are $\theta$ and its collar data are the fixed $\sigma_\Gamma$. `integral_sphere_pi_hemisphere_cutoff` and `baseGoodIntegral_eq_baseChartIntegral` (`BaseChartIdentity.lean`, lines 130–220) are the landed full-product form of this geometric change of variables when a cutoff has the proved hemisphere support. $\square$
+
+The independence of the centre is essential. If one sets $e(\phi)=\phi$ for a single spin, the alleged tangent coordinate is identically zero while the sphere measure has positive mass on open sets; (37) would be false. The data construction above excludes this counterexample. Proposition P3.2 is an integral identity, not yet the P6 component operator or an activity estimate.
+
+### 3.3 The cut Gaussian and determinant: the true local statement
+
+Write $E=I\sqcup J$, where $I=D_+\cap E$ is the set integrated in the first expectation and $J=E\setminus I$ contains the retained chart sites. Assume $I$ is a union of complete first blocks and cut every Hessian bond from $I$ to $J$. The raw sites $E^c$ are **not** coordinates of this Hessian: they remain arguments of the physical crossing activity. Let $K_s$ be the real symmetric positive definite matrix of the cut tangent quadratic form on $E$, with blocks $K_I,K_J$, and set $q_s(v)=\frac12\langle v,K_sv\rangle$. Zero crossing entries give
+
+$$K_s=K_I\oplus K_J,\quad q_s(v_I,v_J)=q_I(v_I)+q_J(v_J),\quad
+\det K_s=(\det K_I)(\det K_J).\tag{38}$$
+
+For fixed $v_J$ and raw $\sigma_{E^c}$, define the **literal activity** $A_s$ by the exact equality
+
+$$\mathcal I_{\rm phys}(\Phi(v),\sigma;\theta,g)
+=e^{-q_s(v)}A_s(v,\sigma;\theta,g).\tag{39}$$
+
+To make (39) non-tautological, write the Gaussian kernel as $K(\theta,\Phi)=\kappa\exp[-B_{\rm block}(\Phi,\theta)]$ and define the **exact**, as yet unbounded, remainder by $R(v,\sigma)=\beta H(\Phi,\sigma)+B_{\rm block}(\Phi,\theta)-B(e,\sigma;\theta)-q_1(v)$. Here $B(e,\sigma;\theta)$ is any specified background constant, and $q_1$ is the local uncut Hessian quadratic allocated from that same exponent. Then, including the chart Jacobian $J_\beta$ in $\mathcal I_{\rm phys}$, its $A_s$ is exactly
+
+$$\kappa e^{-B(e,\sigma;\theta)}e^{-R(v,\sigma)}e^{-[q_1(v)-q_s(v)]}
+J_\beta(v)W_PV_{QR}e^{\langle g,\Phi\rangle}.\tag{40}$$
+
+The physical boundary bonds with a raw endpoint are included in $R$ (or kept literally in $A_s$). They cannot be represented by a determinant on $E$. If $m_I=(N-1)|I|$, the exact first integral at fixed $(v_J,\sigma)$ is
+
+$$\int_{\mathbb R^{m_I}}e^{-q_I(v_I)}A_s(v_I,v_J,\sigma)\,dv_I
+=(2\pi)^{m_I/2}(\det K_I)^{-1/2}\,
+\mathbb E_{\gamma_I}A_s(V_I,v_J,\sigma),\tag{41}$$
+
+where $\gamma_I$ is the centred Gaussian with covariance $K_I^{-1}$; the chart-domain indicator is in $A_s$. The complete chart prefactor $\beta^{-m/2}$ from (37) is allocated between $I$ and $J$. Equations (38)–(41) follow by block-matrix multiplication, the real Gaussian integral, and the definition (39). They do **not** bound $A_s$. The algebraic cut identity $q_1=q_s+(q_1-q_s)$ is the content of `baseSector_cut_exponent_of_product_ne_zero` (`BaseChartCutFamily.lean`, pp. 1–3 of that file); `baseRetainedChartIntegral_gaussian` (`BaseChartRetained.lean`, line 819) and `baseSector_selected_cut_gaussian_factorization` (`BaseChartComponentGauss.lean`, line 269) prove a corresponding Gaussian/determinant result for their stated **single, globally all-good** centre. The generic matrix steps also appear as `cinner_hessian_add_of_cross_zero` (`BaseChartRetained.lean`) and `trace_logMat_eq_blocks` (`BaseComponentDeterminant.lean`). None of those sector theorems replaces its hypothesis `baseSectorCubeProduct ≠ 0` by (35), nor constructs $K_s$ from $D(\theta,\sigma_\Gamma)$ for a proper record. Thus (38)–(41) are proved as finite-dimensional identities **conditional on a positive local $K_s$ and the exact local quadratic allocation**; their proposed identification with the landed sector Gaussian is false.
+
+For a concrete failure if one drops the crossing activity or factors the *uncut* determinant, take $K_1=\begin{pmatrix}1&t\\t&1\end{pmatrix}$, $0<|t|<1$, and cut to $K_s=I_2$. Then $q_1-q_s=t v_1v_2\ne0$ and $\det K_1=1-t^2\ne(\det K_I)(\det K_J)=1$. Both discrepancies persist on open sets. This is the local algebra behind the crossing term in P5 (2.47), pp. 512–513, and P6 (3.2), pp. 15–16.
+
+### 3.4 Exact first transform, a nonzero sector, and the count
+
+For fixed $\theta$ let $\mathcal K(\theta,\phi)$ denote the literal integrand of `baseRho1`: `baseKernel` times $e^{-\beta H+\langle g,\phi\rangle}$, including the $z_1^D$ Jacobian in the $\psi_1$ variable. The exact first identity, with no chart or Gaussian allocation, is
+
+$$\rho_1(\psi_1;g)=z_1^D\sum_{P\subset\pi_1}\int W_P(\phi,z_1\psi_1)
+\mathcal K(z_1\psi_1,\phi)\,d\sigma_\Lambda(\phi).\tag{42}$$
+
+Its proof is (4), finite distributivity, and linearity of the integral; `basePhysicalDensity` and `chiPrimeZero_decomposition` supply exactly those ingredients. At the later stages, insert each $Q$, then $R$, then $S$ binary partition **on the variables then present**. Summing over all records restores (42), by repeated $\chi+(1-\chi)=1$ and finite Fubini. This is an exact identity for the staged *unrenormalized* pieces. It is not an identification of those pieces with P6's renormalized $T_1(X)$: that requires the local background action, (39), Gaussian normalizations, vacuum terms, and boundary allocation to match P5 (2.47)/P6 (3.2).
+
+The identity is nonzero on a proper sector. Set all spins to $h$, choose one block $y_*$ and set $\theta_{y_*}=h+3\delta_0u$ for a unit $u$, with $\theta_y=h$ elsewhere. Then exactly its cube $c_*$ fails $A$, every $B$ passes, and $W_{\{c_*\}}=1$. For $g=0$, `baseKernel` and the Boltzmann factor are strictly positive. Strict inequalities persist on an open set of positive sphere and Lebesgue measure, so the $P=\{c_*\}$ term of (42) is strictly positive. The later partitions place each point in at least one $Q,R,S$ sector; therefore some proper complete record also has positive integral. This directly rules out using the zero all-good chart term as the physical proper-record operator.
+
+There is an elementary **global** count: if the coarse torus has $V$ cubes, a record is determined by four subsets $P,Q,R,S$, so there are at most $2^{4V}$ records. With $C_{\rm glob}=2^{4V}$, $\sum_{\mathfrak a}C_{\rm glob}^{-1}\le1$. This volume-wide count cannot replace P5 (1.27), p. 494, for a single component: outside cubes can change $\Omega\cap X$.
+
+**Proposition P3.3 (the P5 local count, using P6's local coding bound).** P6 §3, p. 19, immediately before (3.11), bounds the number of choices of the *new regions restricted to a fixed component* by $2^{6(LM)^{-d}|Z_0^c\cap X|_\eta}$; its separate old-region factor is $2^{M^{-d}|Z_0\cap X|_\eta}$. At $k=0$, $Z_0=\varnothing$, so in the landed base convention $|X|_\eta=(LM)^d\#X$ the number $r_X$ of admissible restricted first records satisfies
+
+$$r_X\le2^{6\#X},\qquad
+\log C_1(X)=\tfrac54 L^d\#X,\qquad
+\sum_{\mathfrak a|X}C_1(X)^{-1}
+\le\exp[(6\log2-\tfrac54L^d)\#X]\le1.\tag{43}$$
+
+The middle equality is `RegionHistory.base_exponents` (`BaseHistory.lean`, lines 212–236), the base case of P6 (3.11), p. 19. For the last inequality $d\ge3,L\ge2$ imply $L^d\ge8$, hence $(5/4)L^d\ge10>6>6\log2$. This proves (1.27) mathematically **with P6's stated local coding estimate as input**. The landed base files verify the value of $C_1$ but contain no theorem formalizing that local coding estimate or the final sum inequality; a Lean closure still needs that count. The estimate applies to P6's admissible *localized restrictions*, not to arbitrary `BaseRecord` structures with no chosen component.
+
+### 3.5 What can be proved about (30)
+
+The exact hypotheses needed to turn (41) into (30) are now visible. In addition to Theorems 3–4, one must prove, for every proper admissible record and every component $X$:
+
+1. A **physical identification** of the staged piece of (42) with P5 (2.47)/P6 (3.2) after the $I=D_+$ expectation, retaining the raw exterior and the factor $e^{-[q_1-q_s]}$ in (40).
+2. A positive local $K_s$ and an activity inequality for the *actual* $A_s$, uniform in $(v_J,\sigma_{E^c})$, which allocates the bare bond/site action between $P_B,Q,S$, the Gaussian tails to $P_A,R$, and bounds chart, determinant, source, localization and boundary terms by $C_{\rm loc}(\lambda_0+1)|X|_1+C_{\rm wit}n_X$.
+3. An identification of the admissible local record restrictions in the physical transform with those counted in P6's p. 19 estimate, so that Proposition P3.3 applies to precisely the operators in the sum.
+
+Under these three quantitative hypotheses, (31)–(32) prove (30) with $A_3=c_*/2$, $c_1,c_2\ge C_{\rm loc}$ and $\lambda_0^{2p_0}\ge2C_{\rm wit}/c_*$. Indeed the five witness types contribute at least $c_*\lambda_0^{2p_0}n_X$; subtracting the witness-choice cost leaves $A_3\lambda_0^{2p_0}n_X$, and the remaining loss is at most $(c_1\lambda_0+c_2)|X|_1$. Proposition P3.3 and `RegionHistory.base_budget` then yield (33) and P5 (1.31) exactly as in §2.4. This is a **conditional theorem**, with its analytic and record-identification hypotheses displayed rather than hidden in the definition of $\mathcal T^{\rm phys}_{1,X}$.
+
+The landed statements do not establish those hypotheses. `baseMargin_counterexample` (`Prop279Counter.lean`, lines 83–142) exhibits a nonzero proper $P$ term whose good bond test lies arbitrarily close to its threshold; thus the strict record tests alone cannot supply the margin needed by `baseCutoffTransfer`. The bond-only example in §2.2 shows that P6 (3.4)'s $P$ Gaussian rate cannot be applied to the base $A B$ test. The globally all-good hypotheses of `baseRetainedChartIntegral_gaussian` and `baseSector_selected_cut_gaussian_factorization` are incompatible with this same nonzero proper term. These are counterexamples to specific attempted implications, **not** counterexamples to the correctly formulated physical estimate (30). No bound of the form (30) for that physical operator is proved by the cited landed files or by (38)–(42). P5/P6 give the induction template and its rates, but their formulas do not themselves verify the test-free base identification and its local activity allocation.
+
+**Lean shape and conclusion.** The first lemma is already `baseSpinSupport_of_baseRecord`, followed by `spins_near_background`. The next useful Lean declaration should take `G`, `br`, (34)–(36), fixed raw collar data, and `hsupp` as inputs and conclude a conditional chart identity of the form (37) for a measurable selected cutoff. A subsequent theorem must construct a local positive cut Hessian and prove (39)–(41) with the *record* centre; its majorant must expose $P_A/P_B$ and the $Q,R,S$ shares. A separate Lean local record-count theorem should formalize P6's p. 19 coding bound and conclude (43). Only then can `RegionHistory.base_budget` close (1.31). Confidence is high in Propositions P3.1–P3.2, the elementary cut identities, (42), the deduction (43) from P6's stated count, and the counterexamples; confidence in an unconditional (30) is **not warranted** by the present evidence. The local-support obstacle from Part 2 is removed. The physical activity and identification remain open; the source-level count is available but has no landed Lean proof.
