@@ -152,6 +152,65 @@ theorem chain_top (hmK : m' + 1 ≤ K) (nd : (Σ s, BlockAt S n M K s) → Prop)
   subst h1
   exact eq_of_heq h2
 
+theorem blk_eq_top (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' + 1 ≤ K) {q : ℕ}
+    (hq : q ≤ m' + 1) : M * n (m' + 1) * S.L ^ (m' + 1 - q) = M * n K * S.L ^ (K - q) := by
+  have h1 := histScale_eq (M := M) (c := 1) (M1 := M) (by simp) hnn (L := S.L) hq hmK
+  simpa using h1
+
+theorem card_leaf_sites (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hmK : m' + 1 ≤ K) {q : ℕ}
+    (hq : q ≤ m' + 1) (yq : BlockAt S n M K q)
+    (zset : Finset (Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))))
+    (hsub : ∀ s, jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s) = yq →
+      s ∈ zset) :
+    (Finset.univ.filter fun s : ↥zset =>
+      jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s.1) = yq).card =
+        (S.L ^ S.d) ^ q := by
+  classical
+  have hfib : ∀ s : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)),
+      s ∈ fib S.d S.L (M * n (m' + 1)) (m' + 1) q (torusCast (blk_eq_top hnn hmK hq).symm yq) ↔
+        jBlock S.d S.L (M * n K) K q (torusCast (fine_eq_top hnn hmK).symm s) = yq := by
+    intro s
+    rw [mem_fib]
+    have := jBlock_torusCast (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (N₀' := M * n K)
+      (k := m' + 1) (K := K) (j := q) hq (by omega) (fine_eq_top hnn hmK).symm (blk_eq_top hnn hmK hq) s
+    rw [this]
+    constructor
+    · intro h
+      have h' := congrArg (torusCast (blk_eq_top hnn hmK hq)) h
+      rwa [torusCast_cast_symm] at h'
+    · intro h
+      have h' := congrArg (torusCast (blk_eq_top hnn hmK hq).symm) h
+      rwa [torusCast_symm_cast] at h'
+  have h2 := card_fib (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (q := m' + 1) hq
+    (torusCast (blk_eq_top hnn hmK hq).symm yq)
+  have h3 : (S.L ^ q) ^ S.d = (S.L ^ S.d) ^ q := by rw [← pow_mul, ← pow_mul, mul_comm]
+  rw [← h3, ← h2]
+  refine Finset.card_bij (fun s _ => s.1) (fun s hs => ?_) (fun s _ s' _ h => Subtype.ext h)
+    (fun s hs => ?_)
+  · exact (hfib s.1).mpr (Finset.mem_filter.mp hs).2
+  · exact ⟨⟨s, hsub s ((hfib s).mp hs)⟩, Finset.mem_filter.mpr ⟨Finset.mem_univ _, (hfib s).mp hs⟩, rfl⟩
+
+theorem eq_of_sigma_jBlock (x : Torus S.d (M * n K * S.L ^ K)) {a q : ℕ} (yq : BlockAt S n M K q)
+    (h : (⟨a, jBlock S.d S.L (M * n K) K a x⟩ : Σ s, BlockAt S n M K s) = ⟨q, yq⟩) :
+    jBlock S.d S.L (M * n K) K q x = yq := by
+  obtain ⟨h1, h2⟩ := Sigma.mk.inj_iff.mp h
+  subst h1
+  exact eq_of_heq h2
+
+theorem leaf_parent (nd : (Σ s, BlockAt S n M K s) → Prop)
+    (l : {q : (Σ s, BlockAt S n M K s) × {b : Σ s, BlockAt S n M K s // nd b} //
+      (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
+        Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1}) {q : ℕ} {yq : BlockAt S n M K q}
+    (h : l.1.1 = ⟨q, yq⟩) :
+    l.1.2.1 = ⟨q + 1, blockMap S.L (M * n K * S.L ^ (K - (q + 1))) yq⟩ := by
+  obtain ⟨⟨⟨q1, b1⟩, ⟨pn, hpn⟩⟩, ⟨hh1, hh2⟩⟩ := l
+  simp only at h hh1 ⊢
+  obtain ⟨e1, e2⟩ := Sigma.mk.inj_iff.mp h
+  subst e1
+  have := eq_of_heq e2
+  subst this
+  exact hh1.symm
+
 end Root
 
 end Balaban.LargeField
