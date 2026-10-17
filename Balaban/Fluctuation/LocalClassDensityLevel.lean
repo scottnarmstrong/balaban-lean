@@ -13,13 +13,22 @@ import Mathlib.Tactic.Positivity
 /-!
 # The new level of the successor class for the class sequence
 
-**The rooted per-centre sum.**  Theorem 3.1 (a) (`thm31aC_of_input`, `e0CoeffFamily_value_fromTowerG`)
-writes the per-block density as `ℰ₀^{(k+1)}(z) = Σ_T e z T`, a sum over the finite sets `T` of
-`π_{k+1}`-cubes; the rooted terms of ROOT.md are `rootedSum e y X` (the term of the root site
-`y = rootSite z` on the polymer `X = sitesOf T`).  `finsum_polysAt_rootedSum`: if every non-zero
-`e z T` lives on a polymer containing the root site, then
-`Σ_{X ∋ rootSite z} rootedSum e (rootSite z) X = Σ_T e z T`, which is the left side of the
-expansion identity `hDz` in the indexing of the class (`polysAt`).
+**The expansion identities from cube-set expansions.**  Theorem 3.1 (a)
+(`thm31aC_of_input`, `e0CoeffFamily_value_fromTowerG`) writes the per-block density as
+`ℰ₀^{(k+1)}(z) = Σ_T e z T`, a sum over the finite sets `T` of `π_{k+1}`-cubes; the rooted terms of
+ROOT.md are `rootedSum e y X` (the term of the root site `y = rootSite z` on the polymer
+`X = sitesOf T`).
+
+* `finsum_polysAt_sitesOf`, `finsum_polysAt_rootedSum`: if every non-zero coefficient lives on a
+  polymer containing the site (the anchor), the sum over the polymers of the site (`polysAt`, the
+  indexing of the class) of the site-sums or rooted sums is the sum of all coefficients;
+* `finsum_polysAt_eq_of_rootedSum`: **the identification of the centre-labelled terms**: if
+  `TE (rootSite z) Y = rootedSum (e q) (rootSite z) Y` at the pairs `q` of the whole-level domain
+  (`hrepl`) and `𝒟(rootSite z)(q) = Σ_T e q z T` there (`hval`), the expansion identity `hDz`
+  holds at every site; `finsum_polysAt_eq_of_sitesOf`: the same for `hDM` (Theorem 3.1 (b)).
+  The two premises `hval`, `hrepl` are the open part of `hDz`, `hDM`: the family version of
+  Theorem 3.1 (a)/(b) on the whole-level domain (complex non-constant `h` included) and the
+  replacement identity of the terms recomputed on `𝔹_{k+1}(Y⁺)` at its pairs.
 
 **The new level.**  `localClass_newLevel_of_expansion` assembles, for the class sequence
 `ε_j = P.eps d L j` and the larger sequence `εL_j = K_loc ε_j`, `K_loc = (2 K₁ + 2) C₁`
@@ -51,40 +60,26 @@ section Rooted
 variable {d L N₁ m₁ K : ℕ} [NeZero L] [NeZero N₁] {m₀ : ℕ}
 
 open Classical in
-/-- **The rooted per-centre sum over the polymers of the root site.**  For a coefficient family
-`e z T` (roots `z`, finite sets `T` of level-`K` cubes) whose non-zero coefficients at the root `z`
-live on polymers `sitesOf T` containing the root site, the sum over the polymers `X ∋ rootSite z`
-of the rooted terms is the sum of all coefficients of `z`. -/
-theorem finsum_polysAt_rootedSum
-    (e : RootIdx d L N₁ m₁ K →
-      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ)
-    (z : RootIdx d L N₁ m₁ K)
-    (hsupp : ∀ T, e z T ≠ 0 →
-      IsPolyDom m₀ K (sitesOf T) ∧ rootSite z ∈ sitesOf T) :
-    ∑ᶠ X ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (rootSite z),
-        rootedSum e (rootSite z) X = ∑ T, e z T := by
-  have hfin : (polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (rootSite z)).Finite :=
+/-- **The polymer sum of a cube-set expansion at a site.**  For a family `f T` over the finite sets
+`T` of level-`K` cubes whose non-zero members live on polymers `sitesOf T` containing the site `x`,
+`Σ_{X ∋ x} Σ_{T : sitesOf T = X} f T = Σ_T f T` (the sum over `X` runs over `polysAt`). -/
+theorem finsum_polysAt_sitesOf
+    (f : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ)
+    (x : CTorus d L N₁ m₁ K)
+    (hsupp : ∀ T, f T ≠ 0 → IsPolyDom m₀ K (sitesOf T) ∧ x ∈ sitesOf T) :
+    ∑ᶠ X ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K x,
+        ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = X), f T = ∑ T, f T := by
+  have hfin : (polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K x).Finite :=
     Set.toFinite _
-  have hroot : ∀ X, rootedSum e (rootSite z) X =
-      ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = X), e z T := by
-    intro X
-    unfold rootedSum
-    have h1 : Finset.univ.filter (fun z' : RootIdx d L N₁ m₁ K => rootSite z' = rootSite z) =
-        {z} := by
-      ext z'
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
-      exact ⟨fun h => rootSite_injective h, fun h => h ▸ rfl⟩
-    rw [h1, Finset.sum_singleton]
   rw [finsum_mem_eq_finite_toFinset_sum _ hfin]
-  simp_rw [hroot]
   set s := Finset.univ.filter (fun T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
     (K := K) m₀ K Set.univ) => sitesOf T ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K
-      (rootSite z)) with hs
+      x) with hs
   have hfib := Finset.sum_fiberwise_of_maps_to (s := s) (t := hfin.toFinset) (g := sitesOf)
-    (fun T hT => by simpa [hs] using hT) (fun T => e z T)
+    (fun T hT => by simpa [hs] using hT) f
   have hin : ∀ X ∈ hfin.toFinset,
-      ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = X), e z T =
-        ∑ T ∈ s.filter (fun T => sitesOf T = X), e z T := by
+      ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = X), f T =
+        ∑ T ∈ s.filter (fun T => sitesOf T = X), f T := by
     intro X hX
     refine Finset.sum_congr ?_ fun _ _ => rfl
     ext T
@@ -100,6 +95,122 @@ theorem finsum_polysAt_rootedSum
   by_contra h
   obtain ⟨h1, h2⟩ := hsupp T h
   exact hT (by simp only [hs, Finset.mem_filter, Finset.mem_univ, true_and]; exact ⟨h1, h2⟩)
+
+open Classical in
+/-- **The rooted per-centre sum over the polymers of the root site.**  For a coefficient family
+`e z T` (roots `z`, finite sets `T` of level-`K` cubes) whose non-zero coefficients at the root `z`
+live on polymers `sitesOf T` containing the root site, the sum over the polymers `X ∋ rootSite z`
+of the rooted terms is the sum of all coefficients of `z`. -/
+theorem finsum_polysAt_rootedSum
+    (e : RootIdx d L N₁ m₁ K →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ)
+    (z : RootIdx d L N₁ m₁ K)
+    (hsupp : ∀ T, e z T ≠ 0 →
+      IsPolyDom m₀ K (sitesOf T) ∧ rootSite z ∈ sitesOf T) :
+    ∑ᶠ X ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (rootSite z),
+        rootedSum e (rootSite z) X = ∑ T, e z T := by
+  have hroot : ∀ X, rootedSum e (rootSite z) X =
+      ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = X), e z T := by
+    intro X
+    unfold rootedSum
+    have h1 : Finset.univ.filter (fun z' : RootIdx d L N₁ m₁ K => rootSite z' = rootSite z) =
+        {z} := by
+      ext z'
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
+      exact ⟨fun h => rootSite_injective h, fun h => h ▸ rfl⟩
+    rw [h1, Finset.sum_singleton]
+  simp_rw [hroot]
+  exact finsum_polysAt_sitesOf (e z) (rootSite z) hsupp
+
+/-- A site lies in a polymer of `𝒟_K` iff the base of its `L^K`-block does. -/
+theorem mem_iff_blockBase_mem_of_isPolyDom (hN : L ^ m₀ ∣ N₁) {X : Set (CTorus d L N₁ m₁ K)}
+    (hX : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K X) (y : CTorus d L N₁ m₁ K) :
+    y ∈ X ↔ blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y ∈ X := by
+  have hbb : blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K
+      (blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y) =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y :=
+    cbase_eq_self_of_aligned (aligned_cbase _)
+  exact ⟨fun h => blockUnion_of_isPolyDom hN hX y h _ hbb,
+    fun h => blockUnion_of_isPolyDom hN hX _ h y hbb.symm⟩
+
+open Classical in
+/-- **The expansion identity `hDz` from a rooted expansion of the per-block density** (the
+identification of the centre-labelled terms, decision D5(a)).  Let, at every pair `q` of a set `S`
+(in the application: the whole-level domain at the class radius),
+* `hval`: the per-block density at the root site be the sum of the coefficients of a cube-set
+  expansion, `𝒟(rootSite z)(q) = Σ_T e q z T` (Theorem 3.1 (a): `thm31aC_of_input`,
+  `e0CoeffFamily_value_fromTowerG`);
+* `hsupp`: every non-zero coefficient live on a polymer containing the root site (the anchor);
+* `hrepl`: the term of the centre `rootSite z` and the polymer `Y ∋ rootSite z` be the rooted
+  coefficient at `q`, `TE (rootSite z) Y q = rootedSum (e q) (rootSite z) Y` (for the terms
+  recomputed on `𝔹_{k+1}(Y⁺)`: the replacement identity at the whole-level pairs).
+With the dependence of `TE` and `𝒟` on the centre through its block, `Σ_{Y ∋ y} TE y Y q = 𝒟(y)(q)`
+for every site `y` and every `q ∈ S`. -/
+theorem finsum_polysAt_eq_of_rootedSum {N : ℕ} (hN : L ^ m₀ ∣ N₁)
+    (S : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Prop)
+    (TE : CTorus d L N₁ m₁ K → Set (CTorus d L N₁ m₁ K) →
+      Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → ℂ)
+    (hTEblock : ∀ z z' Y p, blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K z =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K z' → TE z Y p = TE z' Y p)
+    (Dz : CTorus d L N₁ m₁ K → Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → ℂ)
+    (hDzblock : ∀ y y' q, blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y' → Dz y q = Dz y' q)
+    (e : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → RootIdx d L N₁ m₁ K →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ)
+    (hval : ∀ q, S q → ∀ z, Dz (rootSite z) q = ∑ T, e q z T)
+    (hsupp : ∀ q, S q → ∀ z T, e q z T ≠ 0 →
+      IsPolyDom m₀ K (sitesOf T) ∧ rootSite z ∈ sitesOf T)
+    (hrepl : ∀ q, S q → ∀ z Y, IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y →
+      rootSite z ∈ Y → TE (rootSite z) Y q = rootedSum (e q) (rootSite z) Y)
+    (y : CTorus d L N₁ m₁ K) {q : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N} (hq : S q) :
+    ∑ᶠ Y ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K y, TE y Y q = Dz y q := by
+  set z : RootIdx d L N₁ m₁ K := blockIndex y with hz
+  have hzy : rootSite z = blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y :=
+    rootSite_blockIndex y
+  have hbz : blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K (rootSite z) =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L K y := by
+    rw [blockBase_rootSite, hzy]
+  have hpoly : polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K y =
+      polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (rootSite z) := by
+    ext Y
+    refine ⟨fun h => ⟨h.1, ?_⟩, fun h => ⟨h.1, ?_⟩⟩
+    · rw [hzy]; exact (mem_iff_blockBase_mem_of_isPolyDom hN h.1 y).1 h.2
+    · have := h.2
+      rw [hzy] at this
+      exact (mem_iff_blockBase_mem_of_isPolyDom hN h.1 y).2 this
+  rw [hpoly, finsum_mem_congr rfl fun Y hY => (hTEblock y (rootSite z) Y q hbz.symm).trans
+    (hrepl q hq z Y hY.1 hY.2), finsum_polysAt_rootedSum (e q) z (hsupp q hq z), ← hval q hq z]
+  exact hDzblock _ _ _ hbz
+
+open Classical in
+/-- **The expansion identity `hDM` from a site-labelled cube-set expansion of the per-site density**
+(Theorem 3.1 (b), `thm31bC_of_input_M0`): if `𝒟_M(x)(q, g) = Σ_T m q g x T` on `S`, every non-zero
+coefficient lives on a polymer containing `x`, and `TM x Y (q, g) = Σ_{T : sitesOf T = Y} m q g x T`
+for the polymers `Y ∋ x`, then `Σ_{Y ∋ x} TM x Y (q, g) = 𝒟_M(x)(q, g)` on `S`. -/
+theorem finsum_polysAt_eq_of_sitesOf {N : ℕ}
+    (S : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Prop)
+    (TM : CTorus d L N₁ m₁ K → Set (CTorus d L N₁ m₁ K) →
+      (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × Fld d L N₁ m₁ K N → Fin N → ℂ)
+    (DM : CTorus d L N₁ m₁ K →
+      (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) × Fld d L N₁ m₁ K N → Fin N → ℂ)
+    (m : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N → Fld d L N₁ m₁ K N → CTorus d L N₁ m₁ K →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → Fin N → ℂ)
+    (hval : ∀ q, S q → ∀ g x, DM x (q, g) = ∑ T, m q g x T)
+    (hsupp : ∀ q, S q → ∀ g x T, m q g x T ≠ 0 → IsPolyDom m₀ K (sitesOf T) ∧ x ∈ sitesOf T)
+    (hrepl : ∀ q, S q → ∀ g x Y, IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y →
+      x ∈ Y → TM x Y (q, g) = ∑ T ∈ Finset.univ.filter (fun T => sitesOf T = Y), m q g x T)
+    (x : CTorus d L N₁ m₁ K) {q : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N} (hq : S q)
+    (g : Fld d L N₁ m₁ K N) :
+    ∑ᶠ Y ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K x, TM x Y (q, g) = DM x (q, g) := by
+  funext i
+  have hfin : (polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K x).Finite := Set.toFinite _
+  rw [finsum_mem_congr rfl fun Y hY => hrepl q hq g x Y hY.1 hY.2, hval q hq g x,
+    finsum_mem_eq_finite_toFinset_sum _ hfin]
+  have h := finsum_polysAt_sitesOf (fun T => m q g x T i) x fun T hT =>
+    hsupp q hq g x T fun h0 => hT (by rw [h0]; rfl)
+  rw [finsum_mem_eq_finite_toFinset_sum _ hfin] at h
+  simp only [Finset.sum_apply]
+  exact h
 
 end Rooted
 
