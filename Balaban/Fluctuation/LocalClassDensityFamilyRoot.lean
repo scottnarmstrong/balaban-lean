@@ -95,8 +95,8 @@ variable (S : StepSetting d L N₁ m₁ k N ϱ)
 
 /-- **The rooted marks of one inherited label.**  For a step `S`, a label `τ = (j, y, X)` of the
 class `C` with the hypotheses of `classOldMarkedLocal_blockMarks_of`, given maps, a root `z` and a
-clamp radius `0 < ρ ≤ c_ψ`, every domain `Y` of the expansion of the label (`L^{C.m₀} ∣ N₁`, `1 ≤ C.m₀`,
-`d ≥ 3`, `L ≥ 2`):
+clamp radius `0 < ρ ≤ c_ψ`, every domain `Y` of the expansion of the label (`L^{C.m₀} ∣ N₁`,
+`1 ≤ C.m₀`, `d ≥ 3`, `L ≥ 2`):
 
 1. if `psiThick Y` meets the fine block of `z`: the bridge `bridge 1 z Y` is a domain of `𝒟_{k+1}`
    for the block index `1`, contains `Y` and the root cube, has size at most `d(Y) + c_Br`, and the
