@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.LocalClassDensityValFamily
+public import Balaban.Fluctuation.ClassOldTermInputE
 
 /-!
 # The datum-indexed coefficient family of `ℰ₁^{(k+1)}` for a general class (blocker 6, item (1))
@@ -26,6 +27,14 @@ parameters whose `(raw datum, source)` agree on `sitesOf T`, bounded by
 `d_Ext T = sizeJ`, and `ℰ₁^{(k+1)}(z)` at the raw datum of every chart datum `D` (any field) is
 `∑_T c (rawOf D, 0) T`.  The old densities `ℰ^{(j)}` are required to be analytic at the composed
 pairs of the path (`hE`), which gives the split of the derivative of `W₁^C`.
+
+`fderiv_EJ_eq_sum_labels`, `fderiv_EJ_eq_sum_sigma`: the derivative of `ℰ_k` in the hat variable is
+the sum over the labels `τ = (j, y, X)` of the derivatives of the label terms `ℰ^{(j)}(y, X)` at
+the composed pairs, so marks of the inherited energy may be given label by label (a family `G τ`
+for each label, joined over `Σ τ, ι τ`).
+
+`densE0_rootSite_eq_sum_of_root`: the input `hval` of `finsum_polysAt_eq_of_rootedSum` at one root
+on the whole class domain, from the value identity at that root at every chart datum.
 -/
 
 @[expose] public section
@@ -239,5 +248,60 @@ theorem densE0_rootSite_eq_sum_of_root {m₀ : ℕ} (z : RootIdx d L N₁ m₁ (
       simp only [Finset.mem_univ, ite_true]
   have h := Jr.densE0_rootSite_eq_sum C e' hval' hε hq z
   simpa only [e', ite_true] using h
+
+end Balaban.Fluctuation.StepSetting.JointRep
+
+namespace Balaban.Fluctuation.StepSetting.JointRep
+
+open Balaban Balaban.Background Balaban.Multiscale Balaban.Localization Balaban.SmallField
+  Balaban.SmallField.Def6 Balaban.Polymer
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ eps pp : ℝ}
+  {S : StepSetting d L N₁ m₁ k N ϱ} (Jr : S.JointRep eps pp) (C : StepClass d L N₁ m₁ k N ϱ)
+
+open Classical in
+/-- **The derivative of the inherited energy `ℰ_k` in the hat variable is the sum over the labels
+of the derivatives of the label terms** at the composed pairs, at a point where every label term is
+differentiable (`𝒯E` the label set of the class, `mem_classLabels_E_iff`). -/
+theorem fderiv_EJ_eq_sum_labels
+    (𝒯E : Finset (ℕ × CTorus d L N₁ m₁ (k + 1) × Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒯 : 𝒯E = ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
+    (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (u : S.EC)
+    (hd : ∀ τ ∈ 𝒯E, DifferentiableAt ℂ (fun w : S.EC =>
+        C.Tm.E τ.1 τ.2.1 τ.2.2 (Jr.PJ τ.1 (Θ, w)).1 (Jr.PJ τ.1 (Θ, w)).2) u) :
+    fderiv ℂ (fun w : S.EC => Jr.EJ C (Θ, w)) u =
+      ∑ τ ∈ 𝒯E, fderiv ℂ (fun w : S.EC =>
+          C.Tm.E τ.1 τ.2.1 τ.2.2 (Jr.PJ τ.1 (Θ, w)).1 (Jr.PJ τ.1 (Θ, w)).2) u := by
+  have e : (fun w : S.EC => Jr.EJ C (Θ, w)) = fun w =>
+      ∑ τ ∈ 𝒯E, C.Tm.E τ.1 τ.2.1 τ.2.2 (Jr.PJ τ.1 (Θ, w)).1 (Jr.PJ τ.1 (Θ, w)).2 := by
+    funext w
+    unfold EJ
+    rw [h𝒯, sum_classLabels_E_eq_Edens C.m₀ C.Tm (fun j => (Jr.PJ j (Θ, w)).1)
+      (fun j => (Jr.PJ j (Θ, w)).2)]
+  rw [e]
+  exact fderiv_fun_sum hd
+
+open Classical in
+/-- **Marks of the inherited energy label by label.**  If for every label `τ` the derivative of the
+label term in the direction `v` is the sum of a finite family `G τ`, the derivative of `ℰ_k` is the
+sum of the joined family over `Σ τ, ι τ`. -/
+theorem fderiv_EJ_eq_sum_sigma
+    (𝒯E : Finset (ℕ × CTorus d L N₁ m₁ (k + 1) × Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒯 : 𝒯E = ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
+    (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (u v : S.EC)
+    (hd : ∀ τ ∈ 𝒯E, DifferentiableAt ℂ (fun w : S.EC =>
+        C.Tm.E τ.1 τ.2.1 τ.2.2 (Jr.PJ τ.1 (Θ, w)).1 (Jr.PJ τ.1 (Θ, w)).2) u)
+    {ι : 𝒯E → Type*} [∀ τ, Fintype (ι τ)] (G : ∀ τ, ι τ → ℂ)
+    (hG : ∀ τ : 𝒯E, fderiv ℂ (fun w : S.EC =>
+        C.Tm.E τ.1.1 τ.1.2.1 τ.1.2.2 (Jr.PJ τ.1.1 (Θ, w)).1 (Jr.PJ τ.1.1 (Θ, w)).2) u v =
+      ∑ i, G τ i) :
+    fderiv ℂ (fun w : S.EC => Jr.EJ C (Θ, w)) u v = ∑ p : Σ τ, ι τ, G p.1 p.2 := by
+  rw [Jr.fderiv_EJ_eq_sum_labels C 𝒯E h𝒯 Θ u hd, sum_apply, ← Finset.sum_coe_sort,
+    Fintype.sum_sigma]
+  exact Finset.sum_congr rfl fun τ _ => hG τ
 
 end Balaban.Fluctuation.StepSetting.JointRep
