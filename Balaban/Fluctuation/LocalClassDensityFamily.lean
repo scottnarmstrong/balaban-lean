@@ -31,17 +31,24 @@ fan) does, with `R = FlRealLC`.
   bidiscs, the Cauchy estimate of the mark derivative, mark-locality, and **joint analyticity of the
   marked terms in `((Θ, ψ̂), (um, tm))`** on `(Ξ^c × B̂) × W`,
   `W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`.
-* `classOldMarkedLocal_joint`: the same, for some maps.
-* `classOldMarkedLocal_physV_of`: for a step `S` (`Gp = S.G'`), the marked terms on the parameter
-  set `physV` and the derivative marks (`markedEv_physV_of_joint`): analytic on
-  `physV × {‖u‖ < a}` (the shape of `holG`, per label and domain), and jointly with the hat field.
-* `classOldMarkedLocal_blockMarks_of`: **the block-level marks of a label**, for any block index
-  `mb`: `Φ ↦ ∂_t evDec … Eτ … um t Y (Θ, S.hatOf mb ρ hp Φ)|_{t=0}` depends only on the blocks of
-  any `mb`-cell union `Y′ ⊇ Y`, is continuous and measurable, is bounded by
+* `classOldMarkedLocal_blockMarks_of`: **the block-level marks of a label** for a step `S`
+  (`Gp = S.G'`), given maps and any block index `mb`:
+  `Φ ↦ ∂_t evDec … Eτ … um t Y (Θ, S.hatOf mb ρ hp Φ)|_{t=0}` depends only on the blocks of any
+  `mb`-cell union `Y′ ⊇ Y`, is continuous and measurable, is bounded by
   `β⁻¹ E₀ e^{-κ₀ d(X) - 2κ_dec d(Y)} / t₀`, and is analytic in `(e, u)` on `physV × {‖u‖ < a}`
-  (`deriv_evDec_hatOf_fields` with the clauses above).  The block index of (M2) is `1`, while the
-  cover of the label expansion has the index `C.m₀` of the class; the landed `decMarkG` uses one
-  index for both, which is why the block index is free here.
+  (`deriv_evDec_hatOf_fields`, with `markedEv_physV_of_joint` for the analyticity on `physV`).  The
+  block index of (M2) is `1`, while the cover of the label expansion has the index `C.m₀` of the
+  class; the landed `decMarkG` uses one index for both, which is why the block index is free here.
+* `StepSetting.JointRep.deriv_classLabel_PJ_eq_sum_marked_joint_of`: **the mark identity of the
+  label for the same given maps**: the derivative at `0` of
+  `t ↦ ℰ^{(j)}(y, X; Jr.PJ j (rawOf D, s ψ̂ + t v_z))` is `β ∑_Y ∂_t|₀` of the marked terms
+  (`deriv_classLabel_PJ_eq_sum_marked_of` with the expansion property from
+  `classOldMarkedLocal_joint_of`).  The maps of the landed `deriv_classLabel_PJ_eq_sum_marked` are
+  hidden in an existential, so the identity is restated for given maps.
+
+The composed family `G₁` of (M2) (rooting of the label domains into the common labels, the cut-off
+outside the chart and the disc of `u`, the sum over the labels of the class) and the activity family
+(M1) are not constructed here.
 -/
 
 @[expose] public section
