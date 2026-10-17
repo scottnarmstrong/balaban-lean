@@ -219,19 +219,22 @@ theorem classActivityFamily_labelAct_red {ι : Type*} [Fintype ι]
     ⟨fun θ Y u => if θ ∈ physV S a₁ ν eps then H θ Y u else fun _ => 0, fun _ _ _ => rfl⟩
   have hH1p : ∀ θ ∈ physV S a₁ ν eps, ∀ Y u, H1 θ Y u = H θ Y u := fun θ hθ Y u => by
     rw [hH1]; simp [hθ]
-  refine ⟨fun θ u => ⟨fun Y => H1 θ Y u, fun Y => ?_, fun Y => ?_, fun Y Φ => ?_,
-    fun b' => entropy_thick hN1 le_rfl 𝒴C h𝒴dj hκ0 b'⟩, ?_, ?_, ?_, ?_, ?_⟩
-  · by_cases hθ : θ ∈ physV S a₁ ν eps
-    · rw [hH1p θ hθ]; exact hmeas θ Y u
-    · rw [hH1]; simp only [hθ, ↓reduceIte]; exact measurable_const
-  · by_cases hθ : θ ∈ physV S a₁ ν eps
-    · rw [hH1p θ hθ]; exact hdep θ Y u
-    · rw [hH1]; simp only [hθ, ↓reduceIte]; exact fun _ _ _ => rfl
-  · by_cases hθ : θ ∈ physV S a₁ ν eps
-    · rw [hH1p θ hθ]; exact hsmall θ hθ Y Φ u
-    · rw [hH1]; simp only [hθ, ↓reduceIte, norm_zero]; exact hnn Y
+  obtain ⟨A, hA⟩ := classActivityFamily_labelAct_of_bound S hN1 hp 𝒴C h𝒴dj hκ0 H1
+    (fun θ Y u => by
+      by_cases hθ : θ ∈ physV S a₁ ν eps
+      · rw [hH1p θ hθ]; exact hmeas θ Y u
+      · rw [hH1]; simp only [hθ, ↓reduceIte]; exact measurable_const)
+    (fun θ Y u => by
+      by_cases hθ : θ ∈ physV S a₁ ν eps
+      · rw [hH1p θ hθ]; exact hdep θ Y u
+      · rw [hH1]; simp only [hθ, ↓reduceIte]; exact fun _ _ _ => rfl)
+    (fun θ Y u Φ => by
+      by_cases hθ : θ ∈ physV S a₁ ν eps
+      · rw [hH1p θ hθ]; exact hsmall θ hθ Y Φ u
+      · rw [hH1]; simp only [hθ, ↓reduceIte, norm_zero]; exact hnn Y)
+  refine ⟨A, ?_, ?_, ?_, ?_, ?_⟩
   · intro θ hθ u Y
-    exact hH1p θ hθ Y u
+    rw [hA]; exact hH1p θ hθ Y u
   · intro Y Φ
     have hopen : IsOpen (physV S a₁ ν eps) := by
       have hY : Y.1 ∈ Finset.univ.biUnion fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) := by
@@ -240,18 +243,16 @@ theorem classActivityFamily_labelAct_red {ι : Type*} [Fintype ι]
       obtain ⟨τ, -, -⟩ := hY
       exact isOpen_physV S a₁ ν eps (hB τ).HBp
     refine (hhol Y Φ).congr (hopen.prod Metric.isOpen_ball) fun r hr => ?_
-    show H r.1 Y r.2 Φ = H1 r.1 Y r.2 Φ
-    rw [hH1p r.1 hr.1]
+    show H r.1 Y r.2 Φ = (A r.1 r.2).H Y Φ
+    rw [hA, hH1p r.1 hr.1]
   · intro Y θ hθ u hu
-    show Continuous (H1 θ Y u)
-    rw [hH1p θ hθ]
+    rw [show (A θ u).H Y = H1 θ Y u from hA θ u Y, hH1p θ hθ]
     exact hcont Y θ hθ u hu
   · intro θ hθ Y Φ
-    have : (fun u => H1 θ Y u Φ) = fun u => H θ Y u Φ := funext fun u => by rw [hH1p θ hθ]
-    show DifferentiableOn ℂ (fun u => H1 θ Y u Φ) _
+    have : (fun u => (A θ u).H Y Φ) = fun u => H θ Y u Φ :=
+      funext fun u => by rw [hA, hH1p θ hθ]
     rw [this]
     exact hdiff θ hθ Y Φ
   · intro Z θ hθ θ' hθ' hres s hs Y hsub
-    show H1 θ Y (s : ℂ) = H1 θ' Y (s : ℂ)
-    rw [hH1p θ hθ, hH1p θ' hθ']
+    rw [hA, hA, hH1p θ hθ, hH1p θ' hθ']
     exact hloc Z θ hθ θ' hθ' hres s hs Y hsub

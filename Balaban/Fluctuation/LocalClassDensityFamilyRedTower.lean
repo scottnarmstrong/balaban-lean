@@ -243,105 +243,27 @@ theorem e0CoeffFamily_class_fromTower_of_families_red {κmin : ℝ} (T : StepTow
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   classical
-  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower_of_labels_gen T hA p
-  obtain ⟨β₂, -, H2⟩ := zeroSourceFamily_fields_fromTower T hHull hA p
-  refine ⟨max β₁ β₂, h31.trans (le_max_left _ _), ?_⟩
+  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_core T hHull hA p
+  refine ⟨β₀, hβ₀, ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
-  have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨F₁, Sol, HC⟩ := H1 k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_left _ _).trans hβ) p₁ hp₁ Dt
-    S hS hp
-  obtain ⟨Jr, Lb₀, _, Lab₀, A₀, hεpos, h0hol, h0cont, h0diff, h0loc, h0W⟩ :=
-    H2 k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_right _ _).trans hβ) p₁ hp0 hp₁ Dt S hS hp
+  obtain ⟨Jr, HG'⟩ := HG k hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk
     Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec
     hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hSg hc7 R hR hsmR hRs
     hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC hmr hsa
     hnumR hE hεnum
-  have hκ0' : aEnt 3 3 + 1 ≤ T.κ0 := by linarith [T.κ0_two]
   have ha1 : (1 : ℝ) < corrU := by norm_num [corrU]
-  have hε : 0 ≤ max (2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ
-      T.t (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / S.β)))) εC := hεpos.le.trans (le_max_left _ _)
-  have hdomC : ∀ τ : ι, ∀ Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ),
-      IsDj 1 (k + 1) Y :=
-    fun τ Y hY => polyDom_isDj_one S.hG' le_rfl hN hm1 (hcov τ) le_rfl (hopt τ) hY
-  have h𝒴dj := classActivityDomains_isDj_gen S jL XL X₁f 𝒦X hcov
-    hopt hN hm1 le_rfl 𝒴C h𝒴
   have hκ0' : aEnt 3 3 + 1 ≤ T.κ0 := by linarith [T.κ0_two]
-  -- the activity family of the class on the small radius
-  obtain ⟨AC, hAC, hhol, hcont, hdiff, hloc⟩ := classActivityFamily_labelAct_red S hb₁ hbC
-    Eτ Bτ hBτ hβS
-    jL XL Gk Gj X₀ X₁f 𝒦X hB hFl S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX
-    hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan
-    hSolprop FkL hFkan hFk hN hm1 le_rfl (S.blockU z) hρ hρc hp ha1 hbb.le hab 𝒴C h𝒴 h𝒴dj H
-    (fun θ Y u Φ => by rw [hH]) hκ0' hmr hsa hnumR
-  have hW := Jr.classActivityFamily_ae_W1_eq_gen C hb₁ hbC
-    Eτ Bτ hBτ hβS
-    jL XL hj1 hjk Gk Gj
-    hlocE
-    X₀ X₁f 𝒦X hB hFl hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
-    F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hSg hc7 hR hsmR hRs hsmall hnum hnum' z hρ
-    hρc hρpp hp ha1 hbb.le hab 𝒴C h𝒴 H hH hEJ hρp
-  have hθ0 : ∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
-      ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-        (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈ physV S S.a₁ S.ν T.t := fun D hD =>
-    physVqRho_subset S S.a₁ S.ν T.t 1 1 (rawOf_source_mem_physVqRho S 1 T.t D hD 0 (by simp))
-  obtain ⟨hM1hol, hM1cont, hM1diff, hM1loc, hM1W⟩ := Jr.classActivityFamily_sum_fields C hp A₀
-    (fun θ u => commonAct AC hN1 (by norm_num) (fun _ => Set.univ)
-      (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC T.κ0_two θ u)
-    (fun _ => Set.univ) (e1Dom S) (e1Dom_isDj_of_eq T Dt hS) hN1 (by norm_num) hε T.κ0_two
-    h0hol
-    (commonAct_holA_analytic AC hN1 (by norm_num) _ _ hdomC hεC T.κ0_two fun Y Φ _ => hhol Y Φ)
-    h0cont
-    (commonAct_contA AC hN1 (by norm_num) _ _ hdomC hεC T.κ0_two fun Y θ hθ u hu =>
-      (hcont Y θ hθ u hu).continuousOn)
-    h0diff
-    (fun θ hθ => commonAct_holA_differentiableOn AC hN1 (by norm_num) _ _ hdomC hεC T.κ0_two θ
-      fun Y Φ => hdiff θ hθ Y Φ)
-    h0loc
-    (fun T' θ hθ θ' hθ' hres s hs y hsub => by
-      cases y with
-      | inl Y => exact hloc (sitesOf T') θ hθ θ' hθ' hres s hs Y hsub
-      | inr _ => rfl)
-    h0W
-    (fun D hD s hs => by
-      filter_upwards [hW D hD s hs] with x hx
-      rw [hx, commonAct_total AC hN1 (by norm_num) _ _ hdomC hεC T.κ0_two]
-      simp only [hAC _ (hθ0 D hD)])
-  -- the labels of the rooted pairs: the bridges among the root-union labels of the class domains
-  have hbr : ∀ q : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
-      (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z},
-      bridge 1 z q.1.2 ∈ bridgeFamily 1 (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
-        (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z := fun q => by
-    have hq : (q.1.1, q.1.2) ∈ markedIdx (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
-        (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z := q.2
-    obtain ⟨h1', h2', h3'⟩ := mem_markedIdx.1 hq
-    exact mem_bridgeFamily.2 ⟨q.1.1, q.1.2, h1', h2', h3', rfl⟩
-  have hKc : K0 3 3 T.κ0 + 1 ≤ 2 * (K0 3 3 T.κ0 + 1) +
-      (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) + rootUnionK 3 3 1 T.m₁ T.κ0 := by
-    have h0 := K0_pos 3 3 T.κ0
-    have h1' := rootUnionK_nonneg (d := 3) (L := 3) (m₁ := T.m₁) 1 T.κ0
-    linarith
-  obtain ⟨F1, c, e, -, hprop, hvals, hval⟩ := HC Jr C z (Lb₀ ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
-      (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
-      (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ))))
-    (Lab₀.sum (commonLabels (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj) hN1
-      (by norm_num) (fun _ => Set.univ)
-      (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC)) _
-    (2 * T.κdec - 1)
-    (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
-      rootUnionK 3 3 1 T.m₁ T.κ0) _
-    ι hb₁ hbC
-    Eτ Bτ hBτ hβS
-    jL XL hj1 hjk Gk Gj
-    hlocE
-    X₀ X₁f 𝒦X hB hFl hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
-    F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc
-    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ
-    (fun q => Sum.inl (Sum.inr (Sum.inr ⟨z, ⟨bridge 1 z q.1.2, hbr q⟩⟩))) (fun _ => rfl) hE
-    hM1hol hM1cont hM1diff hM1loc hM1W
-    (lt_of_lt_of_le hεpos (le_max_left _ _)) hKc le_rfl T.marks_hκ hεnum
-  exact ⟨e, _, fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
-    (hprop T').2.2.2.2⟩, fun D hX => ⟨(hvals D hX).2.2.1, (hvals D hX).2.2.2⟩, hval⟩
+  have h𝒴dj := classActivityDomains_isDj_gen S jL XL X₁f 𝒦X hcov hopt hN hm1 le_rfl 𝒴C h𝒴
+  exact HG' C z ι hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hFl hcψ hMX hdm
+    hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan
+    hSolprop FkL hFkan hFk hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc hρpp hN hm1 hbb hab G₁
+    hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC h𝒴dj
+    (classActivityFamily_labelAct_red S hb₁ hbC Eτ Bτ hBτ hβS jL XL Gk Gj X₀ X₁f 𝒦X hB hFl S.hG
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀
+      hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hN hm1 le_rfl
+      (S.blockU z) hρ hρc hp ha1 hbb.le hab 𝒴C h𝒴 h𝒴dj H (fun θ Y u Φ => by rw [hH]) hκ0' hmr
+      hsa hnumR) hE hεnum
 
 end Balaban.Inhabited
