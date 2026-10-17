@@ -2517,6 +2517,7 @@ public import Balaban.Polymer.TwoTorusGapTowerEnergySmall
 public import Balaban.Polymer.TwoTorusGapTowerCloseAux
 public import Balaban.Polymer.TwoTorusGapTowerCloseCore
 public import Balaban.Polymer.TwoTorusGapTowerCloseResum
+public import Balaban.Polymer.TwoTorusGapTowerCloseTower
 public import Balaban.SmallField.IrrelTorusXidomCanonical
 public import Balaban.SmallField.IrrelTorusXidomCanonicalData
 public import Balaban.SmallField.IrrelTorusXidomStep
