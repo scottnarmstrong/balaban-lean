@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.SmallField.IrrelTorusXidomGeometry
+import Balaban.Fluctuation.RenormExpLemma35
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -98,5 +99,42 @@ theorem xiC_second_diff_levelGS_pullback
       have hBdiv : 0 ≤ B / θh := div_nonneg hB0 hθh0.le
       positivity
     exact mul_nonneg (mul_nonneg hSigma hθ) hε
+
+/-- The estimate applies to any chosen realization of the complex chart. Uniqueness of
+`RealizesC` identifies it with the realization selected by `xiC_second_diff`. -/
+theorem xiC_second_diff_levelGS_pullback_realization
+    {d L N₁ m₁ k N j : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱ' : ℝ}
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {G' : GeneratingSet d L (N₁ * L ^ m₁) k ϱ'}
+    {a₁ ν θ ε' θh : ℝ} (ha₁ : 0 < a₁)
+    (hBg : BgHyp d L k ϱ' (compWeight L a₁) ν)
+    (hprec : Precedes (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k) (ϱ := ϱ) j hjk) G')
+    (hgap : ScaleGap (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+      (k := k) (ϱ := ϱ) j hjk) G' θ)
+    (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) (hθh0 : 0 < θh) (hθh1 : θh < 1)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * ε') ≤ 1)
+    (hc1 : xiC1 d * ε' ≤ bgC1 d L N)
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    {Ψ'' h'' : CTorus d L N₁ m₁ k → Fin N → ℂ}
+    (hXi : XiC G' (compWeight L a₁) ν k 1 ε' Ψ₀ h₀ Ψ'' h'')
+    (Dc : BgData G' N) (hDc : RealizesC Dc Ψ₀ h₀ Ψ'' h'') :
+    ∃ B : ℝ, 0 ≤ B ∧
+      ∀ (y : CTorus d L N₁ m₁ k) (ψ : Site d → Spin N),
+        (∀ s, ψ s = composeField
+            (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+              (k := k) (ϱ := ϱ) j hjk)
+            G' (compWeight L a₁)
+            (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) Dc) Dc.Ψ
+            (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s)) →
+        ∀ x μ μ', ‖ψ (x + Pi.single μ 1 + Pi.single μ' 1) -
+          ψ (x + Pi.single μ 1) - ψ (x + Pi.single μ' 1) + ψ x‖ ≤
+            xiSigma d L N B θh * θ ^ (2 - θh) * ε' := by
+  obtain ⟨B, hB0, Dc', hDc', hsec⟩ := xiC_second_diff_levelGS_pullback
+    hd hL hj1 hjk ha₁ hBg hprec hgap hθ0 hθ1 hθh0 hθh1 hsmall hc1 hXi
+  have he : Dc' = Dc := Balaban.Fluctuation.realizesC_unique hDc' hDc
+  subst Dc'
+  exact ⟨B, hB0, hsec⟩
+
 
 end Balaban.SmallField

@@ -2351,6 +2351,12 @@ public import Balaban.SmallField.IrrelTorusXidomRealFrame
 public import Balaban.SmallField.IrrelTorusXidomFrameField
 public import Balaban.SmallField.IrrelTorusXidomSourceFrame
 public import Balaban.SmallField.IrrelTorusXidomSecondDiff
+public import Balaban.SmallField.IrrelTorusXidomSecondDiffData
+public import Balaban.SmallField.IrrelTorusXidomSmall
+public import Balaban.SmallField.IrrelTorusXidomSmallSource
+public import Balaban.SmallField.IrrelTorusXidomThreshold
+public import Balaban.SmallField.IrrelTorusXidomSplit
+public import Balaban.SmallField.IrrelTorusXidomBound
 public import Balaban.LargeField.Regime.A0PrimeRadiusWeight
 public import Balaban.LargeField.Regime.A0PrimeRadiusStep
 public import Balaban.LargeField.Regime.A0PrimeRadiusObservable
