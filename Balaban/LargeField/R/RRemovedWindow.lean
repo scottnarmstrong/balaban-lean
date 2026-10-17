@@ -70,6 +70,55 @@ theorem removed_exponent_le (S : Setting) (ok : S.Ok) (k : ℕ) (hx : 1 ≤ S.la
   have h6 : c * (nZ0 + nTree) = c * nZ0 + c * nTree := by ring
   nlinarith [hL, h1, h2, h3, h4, h5, h6, hFr, hEZ, hκ]
 
+/-- **The window integral for a generic integrand** (steps (2)-(4) of (III.8.5), with the gain
+`e^{-γ}`): if `∫_J F` is bounded by `Core · e^{bw} e^{Lc} frac` on the support set `E`, with the core
+bound `hcore` and the volume bound `hvol`, then `e^{EZ} ∫ F ≤ e^{-(κ^pre - C_R λ^{2d+1} + γ)}`.
+`γ = 0` is the removed kernel (`removedKernel_kerBound_of_window`). -/
+theorem window_lintegral_le_exp (S : Setting) (ok : S.Ok) (k : ℕ) (hx : 1 ≤ S.lam k) (N : ℕ)
+    {Cvol CEt CE' Cnat D0 : ℝ} (hCE' : 0 ≤ CE') (hD0 : 0 ≤ D0) (hCvol : 0 ≤ Cvol)
+    (hCR : ((N : ℝ) / 2 * Real.log 2 + N * S.p0 + |Cvol| + 2 * CE') *
+        ((S.M : ℝ) ^ S.d * (2 * S.c0 * S.Rb + 2 * S.c0 + 10) ^ S.d) +
+        D0 ^ S.d * (N * S.p0 + |Cvol| + |CEt|) + Cnat + 10 ≤ S.CR)
+    {Y Wd Cr Jv : Type*} [MeasurableSpace Y] [MeasurableSpace Wd] [MeasurableSpace Cr]
+    [MeasurableSpace Jv] {μY : Measure Y} {μW : Measure Wd} {μC : Measure Cr} {μJ : Measure Jv}
+    [SFinite μW] [SFinite μC] [SFinite μJ]
+    (Θ : Y ≃ᵐ Wd × (Cr × Jv)) (hΘ : MeasurePreserving Θ μY (μW.prod (μC.prod μJ)))
+    (E : Set Wd) (hE : MeasurableSet E) (F : Y → ℝ≥0∞) (hFm : Measurable F)
+    (Core : Wd → Cr → ℝ≥0∞) (bw frac : Wd → Cr → ℝ)
+    {Bw Ck Fr Fz Lc κcore κpre nZ0 nTree EZ γ : ℝ}
+    (hid : ∀ w c, ∫⁻ j, F (Θ.symm (w, c, j)) ∂μJ ≤ Core w c *
+      ENNReal.ofReal (Real.exp (bw w c) * Real.exp Lc * frac w c))
+    (hsupp : ∀ w c, w ∉ E → ∫⁻ j, F (Θ.symm (w, c, j)) ∂μJ = 0)
+    (hbw : ∀ w c, w ∈ E → bw w c ≤ Bw) (hfrac0 : ∀ w c, 0 ≤ frac w c)
+    (hfrac : ∀ w c, w ∈ E → frac w c ≤ Real.exp Fr)
+    (hcore : ∀ w, ∫⁻ c, Core w c ∂μC ≤ ENNReal.ofReal (Real.exp (-κcore)))
+    (hvol : ENNReal.ofReal (Real.exp (Lc + Fz)) * μW E ≤
+      ENNReal.ofReal (Real.exp (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree))))
+    (hFr : Fr + γ ≤ Fz + CEt * D0 ^ S.d + Cnat * S.lam k ^ (2 * S.d + 1) + 4 + Ck)
+    (hEZ : EZ ≤ (CE' * S.lam k + CE') * ((S.M : ℝ) * S.crit k) ^ S.d)
+    (hnT : nTree ≤ ((S.M : ℝ) * S.crit k) ^ S.d) (hnZ : nZ0 ≤ D0 ^ S.d)
+    (hκ : κpre ≤ κcore - (Bw + Ck)) :
+    ENNReal.ofReal (Real.exp EZ) * ∫⁻ p, F p ∂μY ≤
+      ENNReal.ofReal (Real.exp (-(κpre - S.CR * S.lam k ^ (2 * S.d + 1) + γ))) := by
+  have hpt := fun w c => window_pointwise_le (fun w c => ∫⁻ j, F (Θ.symm (w, c, j)) ∂μJ)
+    Core E bw frac Bw Lc Fr hid hsupp hbw hfrac0 hfrac w c
+  have h2 := lintegral_window_core_le Θ hΘ F hFm Core E hE
+    (Bw + Lc + Fr) κcore (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) -
+      (Lc + Fz)) hpt hcore (vol_of_weighted hvol)
+  have h3 := removed_exponent_le S ok k hx N hCE' hD0 hCvol hCR (Lc := Lc) (Fr := Fr + γ) hFr hEZ
+    hnT hnZ hκ
+  calc ENNReal.ofReal (Real.exp EZ) * ∫⁻ p, F p ∂μY
+      ≤ ENNReal.ofReal (Real.exp EZ) * ENNReal.ofReal (Real.exp (Bw + Lc + Fr +
+          (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) - (Lc + Fz)) -
+          κcore)) := by gcongr
+    _ = ENNReal.ofReal (Real.exp (EZ + (Bw + Lc + Fr +
+          (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) - (Lc + Fz)) -
+          κcore))) := by
+        rw [← ENNReal.ofReal_mul (Real.exp_pos _).le, ← Real.exp_add]
+    _ ≤ _ := by
+        refine ENNReal.ofReal_le_ofReal (Real.exp_le_exp.2 ?_)
+        linarith
+
 section Window
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
@@ -159,25 +208,12 @@ theorem removedKernel_kerBound_of_window (ok : S.Ok) (hx : 1 ≤ S.lam k)
   have hFm : Measurable (F hv g par) :=
     measurable_removedWindowF a k Z0 P htm hsm hzm hwm hc0m hrm hv g par (F hv g par)
       (hF hv g par)
-  have hpt := fun w' c => window_pointwise_le (fun w c => ∫⁻ j, F hv g par (Θ.symm (w, c, j)) ∂μJ)
-    (Core hv g par) (E par) (bw hv g par) (frac hv g par) Bw Lc Fr (hid hv g par)
-    (hsupp hv g par) (hbw hv g par) (hfrac0 hv g par) (hfrac hv g par) w' c
-  have h2 := lintegral_window_core_le Θ hΘ (F hv g par) hFm (Core hv g par) (E par) (hE par)
-    (Bw + Lc + Fr) κcore (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) -
-      (Lc + Fz)) hpt (hcore hv g hg par) (vol_of_weighted (hvol par))
-  have h3 := removed_exponent_le S ok k hx N hCE' hD0 hCvol hCR (Lc := Lc) hFr hEZ hnT hnZ hκ
   refine h1.trans ?_
-  calc ENNReal.ofReal (Real.exp EZ) * ∫⁻ p, F hv g par p ∂_
-      ≤ ENNReal.ofReal (Real.exp EZ) * ENNReal.ofReal (Real.exp (Bw + Lc + Fr +
-          (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) - (Lc + Fz)) -
-          κcore)) := by gcongr
-    _ = ENNReal.ofReal (Real.exp (EZ + (Bw + Lc + Fr +
-          (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree) - (Lc + Fz)) -
-          κcore))) := by
-        rw [← ENNReal.ofReal_mul (Real.exp_pos _).le, ← Real.exp_add]
-    _ ≤ _ := by
-        refine ENNReal.ofReal_le_ofReal (Real.exp_le_exp.2 ?_)
-        linarith
+  have := window_lintegral_le_exp S ok k hx N hCE' hD0 hCvol hCR Θ hΘ (E par) (hE par)
+    (F hv g par) hFm (Core hv g par) (bw hv g par) (frac hv g par) (Fz := Fz) (Lc := Lc)
+    (hid hv g par) (hsupp hv g par) (hbw hv g par) (hfrac0 hv g par) (hfrac hv g par)
+    (hcore hv g hg par) (hvol par) (γ := 0) (by linarith) hEZ hnT hnZ hκ
+  simpa using this
 
 end Window
 
