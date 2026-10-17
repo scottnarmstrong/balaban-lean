@@ -2334,6 +2334,7 @@ public import Balaban.LargeField.R.WindowCloseQuotHist
 public import Balaban.LargeField.R.WindowCloseHbG
 public import Balaban.LargeField.R.WindowCloseQuotPt
 public import Balaban.LargeField.R.WindowCloseHbGMain
+public import Balaban.LargeField.R.WindowCloseHidAction
 public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
