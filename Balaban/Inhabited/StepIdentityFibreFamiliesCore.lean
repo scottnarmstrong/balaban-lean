@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.StepIdentityFibreExplicitCore
 public import Balaban.Inhabited.StepIdentityFibre
 public import Balaban.Inhabited.StepIdentityFibreObsCore
 public import Balaban.Inhabited.E0CoeffFamily
@@ -25,6 +26,10 @@ together with the formula clauses that the latter does not state:
   covers of the blocks and of the sites, the activity `Ao` has its explicit values at the zero source
   and at a nonzero source, and for every site `(y, i)` the family `Ev` of `mObs y i` is
   `evTerm … (siteFun … y i …)` for a decoupled pair (`obsFamily_pair_fibre_fromTowerG_rho_core`).
+
+It is the projection of `stepIdentity_zeroClass_fibre_fromTowerG_explicitCore`
+(`StepIdentityFibreExplicitCore.lean`), which also states the explicit direct terms of the record
+`I0`.
 -/
 
 @[expose] public section
@@ -508,38 +513,17 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG_core {d L N : ℕ} [NeZero L] {�
               ∑ y : CTorus d L N₁ T.m₁ (k + 1), ∑ i : Fin N, g y i *
                 ∑ T', mObs y i ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N
                     S.G'), g) T') := by
-  classical
-  obtain ⟨C, hk0, -, hk', -, hkH, -, -, -, -, hKc, hKall, -⟩ := T.exists_outputConsts hhull
-  obtain ⟨βe, hβe3, He⟩ := e0CoeffFamily_value_fromTowerG T hm₀ C hKc hKall hkH hk0 hk' hA p
-  let T' : StepTowerG d L N κmin :=
-    { T with m₀ := 1, m₀_pos := le_rfl, κ_log := by simpa only [hm₀] using T.κ_log }
-  obtain ⟨βo, CE, CF, -, hCE, hCF, Ho⟩ :=
-    obsFamily_pair_fibre_fromTowerG_rho_core T' hA p hCR hs0 hs 1
-  obtain ⟨βa, -, Ha⟩ := stepIdentity_zeroClass_fibre_local_fromTowerG T hA p
-  refine ⟨max (max βe βo) βa, CE, CF, hβe3.trans ((le_max_left _ _).trans (le_max_left _ _)),
-    hCE, hCF, ?_⟩
+  obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ :=
+    stepIdentity_zeroClass_fibre_fromTowerG_explicitCore T hm₀ hhull hA p hCR hs0 hs
+  refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
   intro k hk N₁ _ h3N hN ν hνpos hν β hβ p₁ hp₁ q hq0 hq1 D ϱ hϱ S hS hp
-  subst hϱ
-  obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
-  have hβe : βe ≤ β := ((le_max_left _ _).trans (le_max_left _ _)).trans hβ
-  have hβo : βo ≤ β := ((le_max_right _ _).trans (le_max_left _ _)).trans hβ
-  have hβa : βa ≤ β := (le_max_right _ _).trans hβ
-  have hp0 : 0 < p₁ := hp
-  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, hroot⟩ :=
-    He k hk N₁ h3N hN ν hνpos hν β hβe p₁ hp₁ D (ϱ := rhoSepG d L T.m₁) rfl
-      (T.step k hk N₁ ν β p₁) rfl hp
-  obtain ⟨Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hamp, hlab, hsrc, hsite, hpair⟩ :=
-    Ho k hk N₁ (by rwa [hm₀] at h3N) hN ν hνpos hν β hβo p₁ hp0 hp₁ q hq0 hq1
-      { D with covers := by have h := D.covers; rw [hm₀] at h; exact h }
-      (T.step k hk N₁ ν β p₁) rfl hp
-  have hid := Ha k hk N₁ h3N hN ν hνpos hν β hβa p₁ hp0 hp₁ D (T.step k hk N₁ ν β p₁) rfl
-  choose hP hF c hc1 hc2 hcv dz hd1 hd2 e0 he0 he2 hev using hroot
+  obtain ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα, hroot,
+    hrest⟩ := H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp₁ q hq0 hq1 D hϱ S hS hp
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
-    fun z => ⟨hP z, hF z, c z, hc1 z, hc2 z, hcv z, dz z, hd1 z, hd2 z, he0 z, he2 z, hev z⟩,
-    hamp, hlab, hsrc, hsite, ?_⟩
-  intro D' hDh hX g hg
-  have hg1 : ∑ x, ∑ i, ‖g x i‖ < 1 := lt_of_lt_of_le hg hq1
-  rw [hid D' hDh hX g hg1, (hpair D' hDh hX g hg).2,
-    Finset.sum_congr rfl fun z _ => (hev z).1 D' hDh hX]
+    fun z => ?_, hrest⟩
+  obtain ⟨hP, hF, c, hc1, hc2, hcv, dz, hd1, hd2, he0, he2, hev, E, hE1, hE2, val, I0, hFd, hεU, hL,
+    hA', -⟩ := hroot z
+  exact ⟨hP, hF, c, hc1, hc2, hcv, dz, hd1, hd2, he0, he2, hev, E, hE1, hE2, val, I0, hFd, hεU, hL,
+    hA'⟩
 
 end Balaban.Inhabited
