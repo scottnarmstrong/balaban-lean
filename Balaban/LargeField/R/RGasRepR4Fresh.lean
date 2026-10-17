@@ -75,7 +75,7 @@ variable [NormedAddCommGroup U] [NormedSpace ℂ U]
 extension: the sum of the chosen coefficients equals the extension at all
 cuts open.  In the physical application `F S u 1` must be identified with
 the difference of the old and new exponent in P7 (3.23)–(3.25). -/
-theorem r4Fresh_aggregate
+theorem r4Fresh_aggregate_of_localization
     (c : ι → ℕ × CTorus d L N₁ m₁ K)
     {j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ K)}
     (hS : CovSetup G m₀ j X 𝒦X) (hd : 3 ≤ d) (hL : 3 ≤ L)
