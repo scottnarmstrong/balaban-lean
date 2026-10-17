@@ -2099,3 +2099,4 @@ public import Balaban.Green.FinalInteractionClass
 public import Balaban.Fluctuation.LocalClassDensityH
 public import Balaban.Fluctuation.LocalClassDensityHDef
 public import Balaban.Fluctuation.LocalClassDensityHRep
+public import Balaban.Fluctuation.LocalClassDensityHAnalytic
