@@ -272,4 +272,108 @@ theorem Rop_famDecompRestricted_apply (σ : Finset ι) (ν : ℝ) (h : Fin N →
 
 end Fam
 
+section Factor
+
+open RegionHistory
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] (N : ℕ) {k N₀ : ℕ} [NeZero N₀] [NeZero N]
+  (hN : N₀ * S.L ^ (k - k) = M * n K * S.L ^ (K - k)) {ι : Type} [Fintype ι]
+  (a : ι → LocalHistory S n M K) {ϱ : ℝ} (G : ι → GeneratingSet S.d S.L N₀ k ϱ) (aw : ℕ → ℝ) {D : ℕ}
+  (hd : 2 ≤ S.d) (hk : 1 ≤ k)
+  (b0 : ι → Torus S.d (N₀ * S.L ^ (k - k))) (w : ι → Fin S.d → ℕ)
+  (hw1 : ∀ c i, 1 ≤ w c i) (hwD : ∀ c i, w c i ≤ D) (hm : D + 2 ≤ N₀ * S.L ^ (k - k))
+  (X : ι → Set (Torus S.d (N₀ * S.L ^ (k - k))))
+  (hXreg : ∀ c, box (b0 c) (w c) ∪ shellOut (box (b0 c) (w c)) ⊆ X c)
+  (hsep : ∀ c c', c ≠ c' → Disjoint (X c) (box (b0 c') (w c')))
+  (hΩ : ∀ c, OverTop (G c) (box (b0 c) (w c) ∪ shellOut (box (b0 c) (w c))))
+  (hdata : ∀ c, ∀ x ∈ dataSites (G c), jBlock S.d S.L N₀ k k x ∈ X c) (H : BgHyp S.d S.L k ϱ aw 0)
+  (δ : ι → ℝ) (hδ : ∀ c, 0 < δ c)
+  (hδc : ∀ c, δ c ≤ psiZeroC11 N (G c) aw hd hk (b0 c) (w c) (hw1 c) (hwD c) hm (hXreg c) (hΩ c) (hdata c) H)
+  (Zr : ∀ c, Region (G c)) (σ : Finset ι) (Z0 : ι → Set (BlockAt S n M K k))
+  (hZ0 : ∀ (c : ι) (y : BlockAt S n M K k), (y ∈ Vblk R (a c) k ∧ y ∈ Z0 c) ↔
+    torusCast hN.symm y ∈ zb b0 w c)
+  (hsepV : ∀ c c' : σ, c ≠ c' → ∀ y ∈ Vblk R (a c.1) k, torusCast hN.symm y ∉ zb b0 w c'.1)
+
+set_option hygiene false in
+/-- The restriction of a block field to the blocks of `V_c`. -/
+local notation "rs[" c "," ψ "]" =>
+  (fun ybk : Vblk R (a c) k =>
+    (WithLp.toLp 2 (fun ii => ψ (torusCast hN.symm ybk.1) ii) : EuclideanSpace ℝ (Fin N)))
+
+set_option hygiene false in
+/-- The variable of `Z₀(c)` carrying the image of `u ∈ SuppSpace (zb c)` in `OutZero`. -/
+local notation "fo[" c "," u "]" =>
+  (fun ybk : {y : BlockAt S n M K k // y ∈ Vblk R (a c) k ∧ y ∈ Z0 c} =>
+    (WithLp.toLp 2 (fun ii => u (⟨torusCast hN.symm ybk.1, (hZ0 c ybk.1).1 ybk.2⟩, ii)) :
+      EuclideanSpace ℝ (Fin N)))
+
+set_option hygiene false in
+/-- The extension (zero off `V_c`) of the output equal to `0` on `Z₀(c)` and to `y` on `V_c ∖ Z₀(c)`. -/
+local notation "ψo[" c "," y "]" =>
+  (fun (z : Torus S.d (N₀ * S.L ^ (k - k))) (i : Fin N) =>
+    outField N (remZeroMerge (a c) k (Z0 c) (0, y)) (torusCast hN z) i)
+
+set_option hygiene false in
+/-- The variable `u ∈ SuppSpace (zb c)` of `Z₀(c)` carrying the output `wv : OutZero`. -/
+local notation "uo[" c "," wv "]" =>
+  (WithLp.toLp 2 (fun p : ↥(zb b0 w c) × Fin N =>
+    wv ⟨torusCast hN p.1.1, (hZ0 c _).2 (by rw [torusCast_symm_cast]; exact p.1.2)⟩ p.2) :
+    SuppSpace (zb b0 w c) N)
+
+include hZ0 hsepV in
+open Classical in
+/-- **Factorization of the restricted `R` over separated components** (P7 §3, `LF4R-PLAN` §6.5): for
+`ρ = ∏_c ρ_c ∘ res_c`, components with `V_c ∩ Z₀(c') = ∅` for `c ≠ c'`, and the one-component densities `r_c` of the
+removed kernel (the equation `hr`: `rhoZeroRestricted` at the outside field `ψ_y` read off the output, `0` off the
+tube), `R[ρ](ψ) = ∏_c R_c[ρ_c](res_c ψ)` at every block field `ψ`.  The geometric premise `hXV` is that the region
+`X_c = U^∼_k(c)` of the component lies over its volume `V_c` (so that the output outside `V_c`, where the extension
+`ψ_y` is `0`, is not read).  There is no hypothesis relating the densities of the family and the `r_c`. -/
+theorem Rop_famDecompRestricted_factor (ν : ℝ) (h : Fin N → ℝ) (β0 p0 : ℝ)
+    (r : ∀ c : ι, OutZero N R (a c) k (Z0 c) → OutRest N R (a c) k (Z0 c) → ℝ)
+    (hr : ∀ (c : σ) (wv : OutZero N R (a c.1) k (Z0 c.1)) (y : OutRest N R (a c.1) k (Z0 c.1)),
+      r c.1 wv y =
+        if hψ : TubeOn (G c.1) (X c.1 \ box (b0 c.1) (w c.1)) (δ c.1) ψo[c.1, y] then
+          rhoZeroRestricted (G c.1) aw hd hk (b0 c.1) (w c.1) (hw1 c.1) (hwD c.1) hm (hXreg c.1) (hΩ c.1)
+            (hdata c.1) H (hδ c.1) (hδc c.1) hψ (Zr c.1) ν h β0 p0 uo[c.1, wv]
+        else 0)
+    (hXV : ∀ c : σ, ∀ z ∈ X c.1, torusCast hN z ∈ Vblk R (a c.1) k)
+    (ρc : ∀ c : ι, OutT N R (a c) k → ℝ) (ρ : BlockField S.d S.L N₀ k N → ℝ)
+    (hρ : ∀ ψ, ρ ψ = ∏ c : σ, ρc c.1 rs[c.1, ψ]) (ψ : BlockField S.d S.L N₀ k N) :
+    Rop (famDecompRestricted N G aw hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc Zr σ ν h β0 p0) ρ ψ =
+      ∏ c : σ, Rop (remDecomp (a c.1) k (Z0 c.1) (r c.1)) (ρc c.1) rs[c.1, ψ] := by
+  classical
+  refine RopProd_factor_famEquiv N hN a b0 w X hXreg hsep σ Z0 hZ0 hsepV r ρc ρ hρ
+    (fun c u y => famRhoRestricted N G aw hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc Zr σ ν h β0 p0
+      c.1 y u) ?_ ψ
+  intro c y u
+  set y' := restrictOutPart rs[c.1, famOut N b0 w X hXreg hsep σ y] (· ∉ Z0 c.1) with hy'
+  have hag : ∀ z ∈ X c.1 \ box (b0 c.1) (w c.1),
+      famOut N b0 w X hXreg hsep σ y z = (fun (z : Torus S.d (N₀ * S.L ^ (k - k))) (i : Fin N) =>
+        outField N (remZeroMerge (a c.1) k (Z0 c.1) (0, y')) (torusCast hN z) i) z := by
+    intro z hz
+    have hV := hXV c z hz.1
+    have hZ : torusCast hN z ∉ Z0 c.1 := fun hh => hz.2 (mem_boxFinset.1
+      (by simpa [torusCast_symm_cast] using (hZ0 c.1 (torusCast hN z)).1 ⟨hV, hh⟩))
+    funext i
+    simp only [outField, hV, ↓reduceDIte, remZeroMerge, hZ, hy', restrictOutPart]
+    simp [torusCast_symm_cast]
+  have hid : uo[c.1, fo[c.1, u]] = u := by
+    ext ⟨⟨z, hz⟩, i⟩
+    dsimp only
+    congr!
+    exact torusCast_symm_cast hN z
+  rw [hr c, hid]
+  by_cases hT : FamTube N G b0 w X δ c.1 (famOut N b0 w X hXreg hsep σ y)
+  · have hT' : TubeOn (G c.1) (X c.1 \ box (b0 c.1) (w c.1)) (δ c.1) ψo[c.1, y'] :=
+      (tubeOn_congr (G c.1) hag).1 hT
+    simp only [famRhoRestricted, hT, hT', ↓reduceDIte]
+    exact congrFun (rhoZeroRestricted_congr (G c.1) aw hd hk (b0 c.1) (w c.1) (hw1 c.1) (hwD c.1) hm (hXreg c.1)
+      (hΩ c.1) (hdata c.1) H (hδ c.1) (hδc c.1) hT hT' (Zr c.1) ν h hag β0 p0) u |>.symm
+  · have hT' : ¬ TubeOn (G c.1) (X c.1 \ box (b0 c.1) (w c.1)) (δ c.1) ψo[c.1, y'] :=
+      fun hh => hT ((tubeOn_congr (G c.1) hag).2 hh)
+    simp only [famRhoRestricted, hT, hT', ↓reduceDIte]
+
+end Factor
+
 end Balaban.LargeField
