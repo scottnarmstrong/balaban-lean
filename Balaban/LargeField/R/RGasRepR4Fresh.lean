@@ -101,12 +101,20 @@ theorem r4Fresh_aggregate
     (hbd : ∀ u ∈ Su, ∀ s ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ₁),
       ‖F S u s‖ ≤ Eb * Real.exp (-(κ - 1) * treeLenCovOne m₀ j X))
     (hloc : LocalityAEOn (Real.exp κ₁) Su
-      (fun i => Pset m₁ (c i)) (compY c (X1 G m₀ j 𝒦X)) Ag (F S))
-    (u : U) (hu : u ∈ Su) :
-    F S u 1 = ∑ Y ∈ polymerDomains c G m₀ (X1 G m₀ j 𝒦X),
-      r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y u := by
-  exact (localization_expansion c hS hd hL hc hcinj hdisj hopt hκ₀ hκ hκ₁
-    h1 hlog hEb hrefl hlink hana hbd hloc).1 u hu
+      (fun i => Pset m₁ (c i)) (compY c (X1 G m₀ j 𝒦X)) Ag (F S)) :
+    (∀ u ∈ Su, F S u 1 = ∑ Y ∈ polymerDomains c G m₀ (X1 G m₀ j 𝒦X),
+      r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y u) ∧
+    (∀ Y, ∀ u ∈ Su, ∀ u' ∈ Su,
+      AgY Y u u' →
+      r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y u =
+        r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y u') ∧
+    (∀ Y, ∀ u ∈ Su,
+      ‖r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y u‖ ≤
+        Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κ * treeLenCov G m₀ Y)) ∧
+    (∀ Y, AnalyticOnNhd ℂ
+      (r4Fresh (G := G) (m₀ := m₀) c (X1 G m₀ j 𝒦X) F S Y) Su) := by
+  exact localization_expansion c hS hd hL hc hcinj hdisj hopt hκ₀ hκ hκ₁
+    h1 hlog hEb hrefl hlink hana hbd hloc
 
 end Aggregate
 
