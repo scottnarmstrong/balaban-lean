@@ -2277,3 +2277,5 @@ public import Balaban.LargeField.R.WindowComposeQuot
 public import Balaban.LargeField.R.WindowComposeChain
 public import Balaban.LargeField.R.WindowComposeGeom
 public import Balaban.LargeField.R.WindowComposeCongr
+public import Balaban.LargeField.R.WindowComposePt
+public import Balaban.LargeField.R.WindowComposeCore
