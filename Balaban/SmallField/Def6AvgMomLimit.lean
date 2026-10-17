@@ -7,6 +7,7 @@ module
 
 public import Balaban.SmallField.Def6AvgMomTorus
 public import Balaban.SmallField.Def6BridgeInfMoment
+public import Balaban.SmallField.IrrelTorusDefectPairSmall
 
 /-!
 # Reynolds averaging: the second moment of `T∞` around an arbitrary centre
@@ -257,14 +258,22 @@ noncomputable def MomN (i₀ i₁ : Fin N) (y : Site d) (n : ℕ) (X' : Finset (
     (liftSq L j (ibase (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) j z.1 -
       ibase (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) j z'.1) : ℂ)
 
-theorem MomY_eq_zero {i₀ i₁ : Fin N} {y : Site d} {X' : Finset (Site d)}
-    (h : ¬ (InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X' ∧ y ∈ X')) :
-    MomY P β ν a Tm j i₀ i₁ y X' = 0 := by
-  unfold MomY
+/-- The infinite pair tensor vanishes when its shape is absent from the rooted infinite family. -/
+theorem weightedMomY_eq_zero {i₀ i₁ : Fin N} {y : Site d} {X' : Finset (Site d)}
+    (h : ¬ (InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X' ∧ y ∈ X'))
+    (w : ↥X' → ↥X' → ℂ) :
+    (∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (GE P β ν a Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' * w z z') = 0 := by
   refine Finset.sum_eq_zero fun z _ => Finset.sum_eq_zero fun z' _ => ?_
   have : GE P β ν a Tm j i₀ (nuIdeal L k (ν k) j) y X' = fun _ => 0 :=
     funext fun c => GE_eq_zero h _ c
   simp [tensB, D2, this]
+
+theorem MomY_eq_zero {i₀ i₁ : Fin N} {y : Site d} {X' : Finset (Site d)}
+    (h : ¬ (InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X' ∧ y ∈ X')) :
+    MomY P β ν a Tm j i₀ i₁ y X' = 0 := by
+  unfold MomY
+  exact weightedMomY_eq_zero h _
 
 section LimF
 
@@ -305,6 +314,27 @@ theorem momC_nonneg (y : Site d) : 0 ≤ momC (d := d) L m₁ P (liftRadius d L 
   have h4 : 0 ≤ 4 * P.E₀ / liftRadius d L N P j ^ 2 := by positivity
   positivity
 
+/-- The common Cauchy bound for a torus pair sum with any weight bounded by squared pair length. -/
+theorem weightedMomN_bound {y : Site d} {n : ℕ} {X' : Finset (Site d)} (hy : y ∈ X')
+    (hgood : GoodAt L m₁ k P.m₀ j X' n) (w : ↥X' → ↥X' → ℂ)
+    (hw : ∀ z z', ‖w z z'‖ ≤ ∑ μ, (((z.1 μ - z'.1 μ : ℤ) : ℝ)) ^ 2) :
+    ‖∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (EauxC (Tm (torusSeq L P.m₀ n)) j i₀ (nuIdeal L k (ν k) j) y X') z z' * w z z'‖ ≤
+      (momC (d := d) L m₁ P (liftRadius d L N P j) y * (24 * Real.exp 1)) *
+        Real.exp (-(P.κ - 1) * sizeSeq L m₁ k P.m₀ j X' n) := by
+  have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
+  have ctx := hF.ctxSeq hn i₀ n
+  have hE0 := hF.admissible.E₀_nonneg
+  have h := ctx.norm_mom_torus_le (torusSeq_dvd P.m₀ n) hE0 (i₀ := i₀) (i₁ := i₁) hgood.1 hgood.2 hy w hw
+  refine h.trans ?_
+  have hs0 : 0 ≤ sizeSeq L m₁ k P.m₀ j X' n := sizeSeq_nonneg P.m₀ j X' n
+  have hp := poly_exp_tail' (κ := P.κ) hs0
+  have hC := momC_nonneg hF (y := y) (L := L) (m₁ := m₁) (j := j)
+  calc _ ≤ momC (d := d) L m₁ P (liftRadius d L N P j) y *
+        (24 * Real.exp 1 * Real.exp (-(P.κ - 1) * sizeSeq L m₁ k P.m₀ j X' n)) :=
+        mul_le_mul_of_nonneg_left hp hC
+    _ = _ := by ring
+
 /-- **The bound of the contribution of a good shape on a torus.** -/
 theorem MomN_bound {y : Site d} {n : ℕ} {X' : Finset (Site d)} (hy : y ∈ X')
     (hgood : GoodAt L m₁ k P.m₀ j X' n) :
@@ -312,16 +342,37 @@ theorem MomN_bound {y : Site d} {n : ℕ} {X' : Finset (Site d)} (hy : y ∈ X')
       (momC (d := d) L m₁ P (liftRadius d L N P j) y * (24 * Real.exp 1)) *
         Real.exp (-(P.κ - 1) * sizeSeq L m₁ k P.m₀ j X' n) := by
   have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
-  have ctx := hF.ctxSeq hn i₀ n
-  have hE0 := hF.admissible.E₀_nonneg
-  have h := ctx.norm_mom_torus_le (torusSeq_dvd P.m₀ n) hE0 (i₀ := i₀) (i₁ := i₁) hgood.1 hgood.2 hy
-    (fun z z' => (liftSq L j (ibase (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) j z.1 -
-      ibase (L := L) (N₁ := torusSeq L P.m₀ n) (m₁ := m₁) (k := k) j z'.1) : ℂ))
-    (fun z z' => by
-      rw [Complex.norm_real, Real.norm_eq_abs,
-        abs_of_nonneg (Finset.sum_nonneg fun μ _ => sq_nonneg _)]
-      exact liftSq_ibase_sub_le z.1 z'.1)
   unfold MomN
+  apply weightedMomN_bound hF hn hy hgood
+  intro z z'
+  rw [Complex.norm_real, Real.norm_eq_abs,
+    abs_of_nonneg (Finset.sum_nonneg fun μ _ => sq_nonneg _)]
+  exact liftSq_ibase_sub_le z.1 z'.1
+
+/-- The common infinite-volume Cauchy bound for a weighted pair sum. -/
+theorem weightedMomY_bound {y : Site d} {X' : Finset (Site d)} (hy : y ∈ X')
+    (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X')
+    (w : ↥X' → ↥X' → ℂ)
+    (hw : ∀ z z', ‖w z z'‖ ≤ ∑ μ, (((z.1 μ - z'.1 μ : ℤ) : ℝ)) ^ 2) :
+    ‖∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (GE P β ν a Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' * w z z'‖ ≤
+      (momC (d := d) L m₁ P (liftRadius d L N P j) y * (24 * Real.exp 1)) *
+        Real.exp (-(P.κ - 1) * dInf L m₁ k P.m₀ j X') := by
+  obtain ⟨n₀, hn₀⟩ := exists_goodAt (L := L) (m₁ := m₁) (k := k) hX
+  have hE0 := hF.admissible.E₀_nonneg
+  refine bound_dInf hn₀ (norm_nonneg _) (by linarith [hn.hκ, aEnt_nonneg d L]) fun n hgood => ?_
+  have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
+  have ctx := hF.ctxSeq hn i₀ n
+  have h := ctx.norm_mom_torus_le (torusSeq_dvd P.m₀ n) hE0 (i₀ := i₀) (i₁ := i₁) hgood.1 hgood.2 hy w hw
+  have heq :
+    (∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (GE P β ν a Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' * w z z') =
+      ∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (EauxC (Tm (torusSeq L P.m₀ n)) j i₀ (nuIdeal L k (ν k) j) y X') z z' *
+      w z z' := by
+    refine Finset.sum_congr rfl fun z _ => Finset.sum_congr rfl fun z' _ => ?_
+    rw [tensB_GE_eq_EauxC hF hn hy hX hgood z z']
+  rw [heq]
   refine h.trans ?_
   have hs0 : 0 ≤ sizeSeq L m₁ k P.m₀ j X' n := sizeSeq_nonneg P.m₀ j X' n
   have hp := poly_exp_tail' (κ := P.κ) hs0
@@ -337,31 +388,25 @@ theorem MomY_bound {y : Site d} {X' : Finset (Site d)} (hy : y ∈ X')
     ‖MomY P β ν a Tm j i₀ i₁ y X'‖ ≤
       (momC (d := d) L m₁ P (liftRadius d L N P j) y * (24 * Real.exp 1)) *
         Real.exp (-(P.κ - 1) * dInf L m₁ k P.m₀ j X') := by
-  obtain ⟨n₀, hn₀⟩ := exists_goodAt (L := L) (m₁ := m₁) (k := k) hX
-  have hE0 := hF.admissible.E₀_nonneg
-  refine bound_dInf hn₀ (norm_nonneg _) (by linarith [hn.hκ, aEnt_nonneg d L]) fun n hgood => ?_
+  unfold MomY
+  apply weightedMomY_bound hF hn hy hX
+  intro z z'
+  refine (norm_sum_le _ _).trans (le_of_eq (Finset.sum_congr rfl fun μ _ => ?_))
+  rw [norm_pow, Complex.norm_intCast, sq_abs]
+
+/-- Good-shape equality of arbitrary matching pair weights, with the GE/EauxC tensor transfer
+factored out of the scalar and matrix instances. -/
+theorem weightedMomN_eq_weightedMomY {y : Site d} {n : ℕ} {X' : Finset (Site d)}
+    (hy : y ∈ X') (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X')
+    (hgood : GoodAt L m₁ k P.m₀ j X' n)
+    (wN wY : ↥X' → ↥X' → ℂ) (hw : ∀ z z', wN z z' = wY z z') :
+    (∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (EauxC (Tm (torusSeq L P.m₀ n)) j i₀ (nuIdeal L k (ν k) j) y X') z z' * wN z z') =
+    ∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+      (GE P β ν a Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' * wY z z' := by
   have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
-  have ctx := hF.ctxSeq hn i₀ n
-  have h := ctx.norm_mom_torus_le (torusSeq_dvd P.m₀ n) hE0 (i₀ := i₀) (i₁ := i₁) hgood.1 hgood.2 hy
-    (fun z z' => ∑ μ, (((z.1 μ - z'.1 μ : ℤ) : ℂ)) ^ 2)
-    (fun z z' => by
-      refine (norm_sum_le _ _).trans (le_of_eq (Finset.sum_congr rfl fun μ _ => ?_))
-      rw [norm_pow, Complex.norm_intCast, sq_abs])
-  have heq : MomY P β ν a Tm j i₀ i₁ y X' = ∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
-      (EauxC (Tm (torusSeq L P.m₀ n)) j i₀ (nuIdeal L k (ν k) j) y X') z z' *
-      (∑ μ, (((z.1 μ - z'.1 μ : ℤ) : ℂ)) ^ 2) := by
-    unfold MomY
-    refine Finset.sum_congr rfl fun z _ => Finset.sum_congr rfl fun z' _ => ?_
-    rw [tensB_GE_eq_EauxC hF hn hy hX hgood z z']
-  rw [heq]
-  refine h.trans ?_
-  have hs0 : 0 ≤ sizeSeq L m₁ k P.m₀ j X' n := sizeSeq_nonneg P.m₀ j X' n
-  have hp := poly_exp_tail' (κ := P.κ) hs0
-  have hC := momC_nonneg hF (y := y) (L := L) (m₁ := m₁) (j := j)
-  calc _ ≤ momC (d := d) L m₁ P (liftRadius d L N P j) y *
-        (24 * Real.exp 1 * Real.exp (-(P.κ - 1) * sizeSeq L m₁ k P.m₀ j X' n)) :=
-        mul_le_mul_of_nonneg_left hp hC
-    _ = _ := by ring
+  refine Finset.sum_congr rfl fun z _ => Finset.sum_congr rfl fun z' _ => ?_
+  rw [tensB_GE_eq_EauxC hF hn hy hX hgood z z', hw z z']
 
 /-- On a good small torus the two contributions agree. -/
 theorem MomN_eq_MomY {y : Site d} {n : ℕ} {X' : Finset (Site d)} (hy : y ∈ X')
@@ -370,19 +415,11 @@ theorem MomN_eq_MomY {y : Site d} {n : ℕ} {X' : Finset (Site d)} (hy : y ∈ X
     MomN P ν Tm j i₀ i₁ y n X' = MomY P β ν a Tm j i₀ i₁ y X' := by
   have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
   have hX := infPoly_of_small hn.hjk hy hgood hsz
-  have hsmall := small_coords_of_tauY hn.hjk hy hgood hsz
   unfold MomN MomY
-  refine Finset.sum_congr rfl fun z _ => Finset.sum_congr rfl fun z' _ => ?_
-  rw [tensB_GE_eq_EauxC hF hn hy hX hgood z z']
-  congr 1
-  rw [liftSq_ibase_sub (fun μ => by
-      have h1 := hsmall z.1 z.2 μ
-      have h2 := hsmall z'.1 z'.2 μ
-      have h3 := abs_nonneg (z.1 μ)
-      have h4 := abs_nonneg (z'.1 μ)
-      have h5 : |z.1 μ - z'.1 μ| ≤ |z.1 μ| + |z'.1 μ| := abs_sub _ _
-      have h6 : (0 : ℤ) ≤ ((L * L ^ (P.m₀ + m₁) : ℕ) : ℤ) := Int.natCast_nonneg _
-      omega) hn.hjk]
+  apply weightedMomN_eq_weightedMomY hF hn hy hX hgood
+  intro z z'
+  rw [liftSq_ibase_sub (fun μ =>
+    pair_small_of_tauY hn.hjk hy hgood hsz z.2 z'.2 μ) hn.hjk]
   push_cast
   rfl
 
