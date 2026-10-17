@@ -155,6 +155,236 @@ theorem classActivityFamily_sum_fields (C : StepClass d L N₁ m₁ k N ϱ) (hp 
     exact (LabelAct.sum_total _ _ _).symm
 
 open Classical in
+/-- The generic version of `classE1_M1_of_family` (any label functionals `Eτ`). -/
+theorem classE1_M1_of_family_gen {ι : Type*} [Fintype ι]
+    (C : StepClass d L N₁ m₁ k N ϱ)
+    {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    {m₀ : ℕ} (Eτ : ι → RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) (Bτ : ι → ℝ)
+    (hBτ : ∀ τ, 0 ≤ Bτ τ) (hβ : 0 < S.β)
+    (jL : ι → ℕ) (XL : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hj1 : ∀ τ, 1 ≤ jL τ) (hjk : ∀ τ, jL τ ≤ k)
+    (Gk : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁)
+    (Gj : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
+    (hlocE : ∀ τ Ψ Ψ' h h', (∀ x ∈ XL τ, Ψ x = Ψ' x ∧ h x = h' x) →
+      Eτ τ (Ψ, h) = Eτ τ (Ψ', h'))
+    (X₀ X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))) (𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hB : ∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν c BG κ r₀ eps δ₃ (X₀ τ)
+      (X₁f τ) (jL τ))
+    (hF : ∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂
+      δ₁ δfl (X₁f τ))
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : ∀ τ, CovSetup S.G' m₀ (jL τ) (XL τ) (𝒦X τ))
+    (hX₁ : ∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ (jL τ) (𝒦X τ))
+    (hconn : HatConn S.G')
+    (hrow : RowInHat (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν)
+    (hopt : ∀ τ, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ (XL τ)) ∧ MeetsOne m₀ (jL τ) (𝒦X τ) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (jL τ)) E₀ = treeLenCovOne m₀ (jL τ) (XL τ))
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEan : ∀ τ, AnalyticOnNhd ℂ (Eτ τ) (XiCRaw (Gj τ) (compWeight L S.a₁) S.ν (jL τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEbd : ∀ τ, ∀ r ∈ XiCRaw (Gj τ) (compWeight L S.a₁) S.ν (jL τ) b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖Eτ τ r‖ ≤ Bτ τ * Real.exp (-(κdec - 1) * treeLenCovOne m₀ (jL τ) (XL τ)))
+    (F₁ : ι → DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (hF₁an : ∀ τ, AnalyticOnNhd ℂ (F₁ τ) {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧
+      ∃ D : BgData S.G' N, InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D ∧
+        q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ τ, ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N BG κ) s D φ α →
+        F₁ τ (s, rawOf D) = (φ, α))
+    (Sol : ι → Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N →
+      ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ))
+    (hSolan : ∀ τ, AnalyticOnNhd ℂ (Sol τ) {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSolprop : ∀ τ, ∀ p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ m₁ k ϱ) N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (stepG d L N₁ m₁ k ϱ) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol τ p).1 = dphi (stepG d L N₁ m₁ k ϱ)
+            (Dec2.decG (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1)
+            p.2.2.1 p.2.1
+            (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol τ p).2 ∧
+        Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false
+          p.2.2.1 p.2.1
+          (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol τ p).2 ∧
+        Small (stepG d L N₁ m₁ k ϱ) (Sol τ p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (stepG d L N₁ m₁ k ϱ) (Sol τ p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (stepG d L N₁ m₁ k ϱ) (Sol τ p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ,
+          Small (stepG d L N₁ m₁ k ϱ) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf S.G') (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false
+            p.2.2.1 p.2.1
+            (pertSource (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' →
+          δα' = (Sol τ p).2))
+    (Fk : ∀ τ, RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((Gk τ).Ω 1 × Fin N → ℂ) × ((Gk τ).Ω 1 → ℂ))
+    (hFkan : ∀ τ, AnalyticOnNhd ℂ (Fk τ) {p | ∃ D : BgData (Gk τ) N,
+      InUnionDomainC (Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ τ, ∀ D : BgData (Gk τ) N, InUnionDomainC (Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D →
+      Fk τ (rawOf D) = (bgFieldC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D,
+        bgMultC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D))
+    (hS : ∀ (τ : ι) (h : (jL τ) ≤ k + 1), GsSpecStrong (jL τ) h (XL τ)
+      (Gj τ))
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (z : RootIdx d L N₁ m₁ (k + 1)) {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hρpp : ρ < pp)
+    (hp : 0 < S.p₁) {a bb : ℝ} (ha1 : 1 < a) (hbb : 0 ≤ bb)
+    (hab : (a + bb) * markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
+    (𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (h𝒴 : 𝒴C = Finset.univ.biUnion fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ))
+    (H : physParam N S → {Y // Y ∈ 𝒴C} → ℂ → (∀ b, (S.blockSplit 1 hp).Ωb b) → ℂ)
+    (hH : ∀ θ Y u Φ, H θ Y u Φ =
+      if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+          XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < a then
+        ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
+          (S.β : ℂ) * (evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ)
+            (eTermFun S.G' (Gk τ) (Gj τ) (stepG d L N₁ m₁ k ϱ)
+              (compWeight L S.a₁) (Fk τ)
+              (fun r => (S.β : ℂ)⁻¹ * Eτ τ r)) (S.blockU z) u 0 Y.1
+              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ) -
+            evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ)
+            (eTermFun S.G' (Gk τ) (Gj τ) (stepG d L N₁ m₁ k ϱ)
+              (compWeight L S.a₁) (Fk τ)
+              (fun r => (S.β : ℂ)⁻¹ * Eτ τ r)) (S.blockU z) 0 0 Y.1
+              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ))
+        else 0
+      else 0)
+    (hEJ : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ w : S.EC,
+      Jr.EJ C (rawOf D, w) = ∑ τ, Eτ τ (Jr.PJ (jL τ) (rawOf D, w)))
+    (hρp : S.p₁ ≤ ρ)
+    (hN : L ^ m₀ ∣ N₁) (hm1 : 1 ≤ m₀) (hd : 3 ≤ d) (hL : 2 ≤ L) (hN1 : L ^ 1 ∣ N₁)
+    (h𝒴dj : ∀ Y ∈ 𝒴C, IsDj 1 (k + 1) Y)
+    (hdomC : ∀ τ, ∀ Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ), IsDj 1 (k + 1) Y)
+    {εC κH κ0 : ℝ} (hκ0 : aEnt d L + 2 ≤ κ0) (hεC : 0 ≤ εC)
+    (hnumH : ∀ Y ∈ 𝒴C, (∑ τ : ι, if Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
+        2 * Bτ τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jL τ) (XL τ) -
+          2 * κdec * treeLenCov S.G' m₀ Y)
+      else 0) ≤ εC * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
+    {Lb₀ : Type*} [Fintype Lb₀]
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+      Set.univ Lb₀) {ε₀ K₀ : ℝ}
+    (A₀ : physParam N S → ℂ → LabelAct Lab₀ (S.blockSplit 1 hp).Ωb ε₀ κH κ0 K₀)
+    {β₀ : Type*} [Fintype β₀] (reads₀ : β₀ → Set (CTorus d L N₁ m₁ (k + 1)))
+    (dom₀ : β₀ → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (hdom₀ : ∀ b, ∀ Y ∈ dom₀ b, IsDj 1 (k + 1) Y) (hε : 0 ≤ max ε₀ εC)
+    {Q : Set (∀ b, (S.blockSplit 1 hp).Ωb b)}
+    (h0hol : ∀ y, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ => (A₀ r.1 r.2).H y Φ)
+      (physV S S.a₁ S.ν eps ×ˢ Metric.ball (0 : ℂ) a))
+    (h0cont : ∀ y, ∀ θ ∈ physV S S.a₁ S.ν eps, ∀ u ∈ Metric.ball (0 : ℂ) a,
+      ContinuousOn ((A₀ θ u).H y) Q)
+    (h0diff : ∀ θ ∈ physV S S.a₁ S.ν eps, ∀ y Φ,
+      DifferentiableOn ℂ (fun u => (A₀ θ u).H y Φ) (Metric.ball (0 : ℂ) a))
+    (h0loc : ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ), ∀ θ ∈ physV S S.a₁ S.ν eps, ∀ θ' ∈ physV S S.a₁ S.ν eps,
+      physRestrict (N := N) (sitesOf T') (physIncl N S θ) =
+        physRestrict (sitesOf T') (physIncl N S θ') →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y, Lab₀.ysite y ⊆ Yhat Set.univ (sitesOf T') →
+        (A₀ θ (s : ℂ)).H y = (A₀ θ' (s : ℂ)).H y)
+    (h0W : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+        Jr.W1 (zeroClass d L N₁ m₁ k N ϱ) (rawOf D, (s : ℂ) • yhat x) =
+          ∑ y, (A₀ ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+            (0 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
+            ((S.blockSplit 1 hp).restr x)) :
+    ∃ AC : physParam N S → ℂ → LabelAct (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj)
+        (S.blockSplit 1 hp).Ωb εC κH κ0 (K0 d L κ0),
+      (∀ θ u Y, (AC θ u).H Y = H θ Y u) ∧
+      (∀ y, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun r : physParam N S × ℂ =>
+        (commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+          (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+          hN1 hL reads₀ dom₀ hdom₀ hε hκ0 r.1 r.2).H y Φ)
+        (physV S S.a₁ S.ν eps ×ˢ Metric.ball (0 : ℂ) a)) ∧
+      (∀ y, ∀ θ ∈ physV S S.a₁ S.ν eps, ∀ u ∈ Metric.ball (0 : ℂ) a, ContinuousOn
+        ((commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+          (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+          hN1 hL reads₀ dom₀ hdom₀ hε hκ0 θ u).H y) Q) ∧
+      (∀ θ ∈ physV S S.a₁ S.ν eps, ∀ y Φ, DifferentiableOn ℂ (fun u =>
+        (commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+          (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+          hN1 hL reads₀ dom₀ hdom₀ hε hκ0 θ u).H y Φ) (Metric.ball (0 : ℂ) a)) ∧
+      (∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+          Set.univ), ∀ θ ∈ physV S S.a₁ S.ν eps, ∀ θ' ∈ physV S S.a₁ S.ν eps,
+        physRestrict (N := N) (sitesOf T') (physIncl N S θ) =
+          physRestrict (sitesOf T') (physIncl N S θ') →
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
+          (commonLabels (Lab₀.sum (commonLabels (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj)
+            hN1 hL (fun _ => Set.univ)
+            (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC))
+            hN1 hL reads₀ dom₀ hdom₀).ysite y ⊆ Yhat Set.univ (sitesOf T') →
+          (commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+            (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+            hN1 hL reads₀ dom₀ hdom₀ hε hκ0 θ (s : ℂ)).H y =
+          (commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+            (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+            hN1 hL reads₀ dom₀ hdom₀ hε hκ0 θ' (s : ℂ)).H y) ∧
+      (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+        ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
+          Jr.W1 C (rawOf D, (s : ℂ) • yhat x) =
+            ∑ y, (commonAct (fun θ u => (A₀ θ u).sum (commonAct AC hN1 hL (fun _ => Set.univ)
+              (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u))
+              hN1 hL reads₀ dom₀ hdom₀ hε hκ0
+              ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+                (0 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
+              ((S.blockSplit 1 hp).restr x)) := by
+  classical
+  have hκ0' : aEnt d L + 1 ≤ κ0 := by linarith
+  obtain ⟨AC, hAC⟩ := classActivityFamily_labelAct_gen S hb₁ hbC Eτ Bτ hBτ hβ jL XL Gk Gj X₀ X₁f
+    𝒦X hB hF S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt
+    hκ₀ hκdec hκ h1 hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd
+    (S.blockU z) hρ hρc hp ha1 hbb hab 𝒴C h𝒴 h𝒴dj H (fun θ Y u Φ => by rw [hH]) hκ0' hnumH
+  obtain ⟨-, -, -, hhol, hcont, hdiff, hloc⟩ := classActivityFamily_fields_gen S hb₁ hbC Eτ Bτ
+    hBτ hβ jL XL Gk Gj X₀ X₁f 𝒦X hB hF S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα
+    hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop
+    Fk hFkan hFk hN hm1 hd (S.blockU z) hρ hρc hp ha1 hbb hab 𝒴C h𝒴 H (fun θ Y u Φ => by rw [hH])
+  have hW := Jr.classActivityFamily_ae_W1_eq_gen C hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj hlocE
+    X₀ X₁f 𝒦X hB hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁
+    hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum hnum' z hρ hρc hρpp
+    hp ha1 hbb hab 𝒴C h𝒴 H hH hEJ hρp
+  have hfun : ∀ Y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+      (fun r : physParam N S × ℂ => (AC r.1 r.2).H Y Φ) = fun r => H r.1 Y r.2 Φ :=
+    fun Y Φ => funext fun r => by rw [hAC]
+  refine ⟨AC, hAC, Jr.classActivityFamily_sum_fields C hp A₀ (fun θ u => commonAct AC hN1 hL
+    (fun _ => Set.univ) (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) hdomC hεC hκ0 θ u)
+    reads₀ dom₀ hdom₀ hN1 hL hε hκ0 h0hol ?_ h0cont ?_ h0diff ?_ h0loc ?_ h0W ?_⟩
+  · refine commonAct_holA_analytic AC hN1 hL _ _ hdomC hεC hκ0 fun Y Φ _ => ?_
+    rw [hfun Y Φ]
+    exact hhol Y Φ
+  · refine commonAct_contA AC hN1 hL _ _ hdomC hεC hκ0 fun Y θ hθ u hu => ?_
+    rw [show (AC θ u).H Y = fun Φ => H θ Y u Φ from funext fun Φ => by rw [hAC]]
+    exact (hcont Y θ hθ u hu).continuousOn
+  · intro θ hθ
+    refine commonAct_holA_differentiableOn AC hN1 hL _ _ hdomC hεC hκ0 θ fun Y Φ => ?_
+    rw [show (fun u => (AC θ u).H Y Φ) = fun u => H θ Y u Φ from funext fun u => by rw [hAC]]
+    exact hdiff θ hθ Y Φ
+  · intro T' θ hθ θ' hθ' hres s hs y hsub
+    cases y with
+    | inl Y =>
+      show (AC θ (s : ℂ)).H Y = (AC θ' (s : ℂ)).H Y
+      rw [hAC, hAC]
+      exact hloc (sitesOf T') θ hθ θ' hθ' hres s hs Y hsub
+    | inr _ => rfl
+  · intro D hD s hs
+    filter_upwards [hW D hD s hs] with x hx
+    rw [hx, commonAct_total AC hN1 hL _ _ hdomC hεC hκ0]
+    simp only [hAC]
+
+
+open Classical in
 /-- **The input (M1) of a class with inherited labels.**  For the labels of the class (`𝒯E`) with
 their settings, given maps and the hypotheses of `classActivityFamily_ae_W1_eq`, the domains `𝒴C`
 of their expansions (`h𝒴dj`: domains of `𝒟_{k+1}` for the index `1`, `classActivityDomains_isDj`;
@@ -364,48 +594,26 @@ theorem classE1_M1_of_family {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) 
   have hjk : ∀ τ : 𝒯E, τ.1.1 ≤ k := fun τ => (Finset.mem_Icc.1 (hmem𝒯 τ).1).2
   have hXp : ∀ τ : 𝒯E, IsPolyDom C.m₀ τ.1.1 τ.1.2.2 := fun τ => (hmem𝒯 τ).2.2.1
   have hy : ∀ τ : 𝒯E, τ.1.2.1 ∈ τ.1.2.2 := fun τ => (hmem𝒯 τ).2.2.2
-  have hκ0' : aEnt d L + 1 ≤ κ0 := by linarith
-  obtain ⟨AC, hAC⟩ := classActivityFamily_labelAct S hb₁ hbC C hm hcl hβ hE₀ (fun τ => τ.1.1)
-    (fun τ => τ.1.2.1) (fun τ => τ.1.2.2) hj1 hjk hXp hy Gk X₀ X₁f 𝒦X hB hF S.hG
-    ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ
-    h1 hlog hκP hchart F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd (S.blockU z) hρ hρc
-    hp ha1 hbb hab 𝒴C h𝒴 h𝒴dj H (fun θ Y u Φ => by rw [hH]) hκ0' hnumH
-  obtain ⟨-, -, -, hhol, hcont, hdiff, hloc⟩ := classActivityFamily_fields S hb₁ hbC C hm hcl hβ
-    hE₀ (fun τ => τ.1.1) (fun τ => τ.1.2.1) (fun τ => τ.1.2.2) hj1 hjk hXp hy Gk X₀ X₁f 𝒦X hB hF
-    S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀
-    hκdec hκ h1 hlog hκP hchart F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd
-    (S.blockU z) hρ hρc hp ha1 hbb hab 𝒴C h𝒴 H (fun θ Y u Φ => by rw [hH])
-  have hW := Jr.classActivityFamily_ae_W1_eq C 𝒯E h𝒯 hb₁ hbC hm hcl hβ hE₀ Gk X₀ X₁f 𝒦X hB hF
-    hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hκP hchart F₁ hF₁an hF₁ Sol
-    hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum hnum' z hρ hρc hρpp hp ha1 hbb hab
-    𝒴C h𝒴 H hH hρp
-  have hfun : ∀ Y (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
-      (fun r : physParam N S × ℂ => (AC r.1 r.2).H Y Φ) = fun r => H r.1 Y r.2 Φ :=
-    fun Y Φ => funext fun r => by rw [hAC]
-  refine ⟨AC, hAC, Jr.classActivityFamily_sum_fields C hp A₀ (fun θ u => commonAct AC hN1 hL
-    (fun _ => Set.univ) (fun τ : 𝒯E => polyDom S.G' (X₁f τ) C.m₀ τ.1.1 (𝒦X τ)) hdomC hεC hκ0 θ u)
-    reads₀ dom₀ hdom₀ hN1 hL hε hκ0 h0hol ?_ h0cont ?_ h0diff ?_ h0loc ?_ h0W ?_⟩
-  · refine commonAct_holA_analytic AC hN1 hL _ _ hdomC hεC hκ0 fun Y Φ _ => ?_
-    rw [hfun Y Φ]
-    exact hhol Y Φ
-  · refine commonAct_contA AC hN1 hL _ _ hdomC hεC hκ0 fun Y θ hθ u hu => ?_
-    rw [show (AC θ u).H Y = fun Φ => H θ Y u Φ from funext fun Φ => by rw [hAC]]
-    exact (hcont Y θ hθ u hu).continuousOn
-  · intro θ hθ
-    refine commonAct_holA_differentiableOn AC hN1 hL _ _ hdomC hεC hκ0 θ fun Y Φ => ?_
-    rw [show (fun u => (AC θ u).H Y Φ) = fun u => H θ Y u Φ from funext fun u => by rw [hAC]]
-    exact hdiff θ hθ Y Φ
-  · intro T' θ hθ θ' hθ' hres s hs y hsub
-    cases y with
-    | inl Y =>
-      show (AC θ (s : ℂ)).H Y = (AC θ' (s : ℂ)).H Y
-      rw [hAC, hAC]
-      exact hloc (sitesOf T') θ hθ θ' hθ' hres s hs Y hsub
-    | inr _ => rfl
-  · intro D hD s hs
-    filter_upwards [hW D hD s hs] with x hx
-    rw [hx, commonAct_total AC hN1 hL _ _ hdomC hεC hκ0]
-    simp only [hAC]
+  have hraw := fun τ : 𝒯E => classOldEnergy_chart_radius_raw (N := N) (b := b) C hm hcl hκP hE₀
+    S.a₁ S.ν δ₃ eps δfl (hj1 τ) (hjk τ) (hXp τ) (hy τ) (hchart τ)
+  have hEJ : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → ∀ w : S.EC,
+      Jr.EJ C (rawOf D, w) = ∑ τ : 𝒯E,
+        C.Tm.E τ.1.1 τ.1.2.1 τ.1.2.2 (Jr.PJ τ.1.1 (rawOf D, w)).1
+          (Jr.PJ τ.1.1 (rawOf D, w)).2 := fun D _ w => by
+    unfold StepSetting.JointRep.EJ
+    rw [Finset.sum_coe_sort 𝒯E (fun τ => C.Tm.E τ.1 τ.2.1 τ.2.2 (Jr.PJ τ.1 (rawOf D, w)).1
+      (Jr.PJ τ.1 (rawOf D, w)).2), h𝒯,
+      sum_classLabels_E_eq_Edens C.m₀ C.Tm (fun j => (Jr.PJ j (rawOf D, w)).1)
+      (fun j => (Jr.PJ j (rawOf D, w)).2)]
+  have key := Jr.classE1_M1_of_family_gen (ι := 𝒯E) (m₀ := C.m₀) C hb₁ hbC
+    (fun τ r => C.Tm.E τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2) (fun _ => P.E₀) (fun _ => hE₀) hβ
+    (fun τ => τ.1.1) (fun τ => τ.1.2.2) hj1 hjk Gk (fun τ => C.Tm.gs τ.1.1 τ.1.2.2)
+    (fun τ Ψ Ψ' h h' hag => hcl.localE τ.1.1 τ.1.2.1 τ.1.2.2 Ψ Ψ' h h' hag) X₀ X₁f 𝒦X hB hF hcψ
+    hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog (fun τ => (hraw τ).1)
+    (fun τ => (hraw τ).2) F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall
+    hnum hnum' z hρ hρc hρpp hp ha1 hbb hab 𝒴C h𝒴 H hH hEJ hρp hN hm1 hd hL hN1 h𝒴dj hdomC hκ0
+    hεC hnumH Lab₀ A₀ reads₀ dom₀ hdom₀ hε h0hol h0cont h0diff h0loc h0W
+  exact key
 
 end StepSetting.JointRep
 

@@ -2210,6 +2210,12 @@ public import Balaban.Fluctuation.LocalClassDensityValM
 public import Balaban.Fluctuation.LocalClassDensityMarks
 public import Balaban.Fluctuation.LocalClassDensityMarksH
 public import Balaban.Fluctuation.LocalClassDensityMarksLabel
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenJoint
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenAct
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenLabelAct
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenCount
+public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
 public import Balaban.Fluctuation.LocalClassDensityFamily
 public import Balaban.Fluctuation.LocalClassDensityFamilyRoot
 public import Balaban.Fluctuation.LocalClassDensityFamilyMarks
@@ -2267,6 +2273,7 @@ public import Balaban.Polymer.TwoTorusGapStepObsFamily
 public import Balaban.Polymer.TwoTorusGapStepFinal
 public import Balaban.Polymer.TwoTorusGapTowerStep
 public import Balaban.Polymer.TwoTorusGapTowerChain
+public import Balaban.Polymer.TwoTorusGapDataSrc
 public import Balaban.Polymer.TwoTorusGapStepFull
 public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
@@ -2277,3 +2284,11 @@ public import Balaban.SmallField.IrrelTorusSum
 public import Balaban.SmallField.IrrelTorusBoundTube
 public import Balaban.SmallField.IrrelTorusBoundId
 public import Balaban.SmallField.IrrelTorusBound
+public import Balaban.Polymer.TwoTorusGapDataThr
+public import Balaban.Polymer.TwoTorusGapDataThrDet
+public import Balaban.Polymer.TwoTorusGapDataThrFull
+public import Balaban.Polymer.TwoTorusGapDataThrEnergy
+public import Balaban.Polymer.TwoTorusGapDataThrFinal
+public import Balaban.Polymer.TwoTorusGapDataThrStep
+public import Balaban.Polymer.TwoTorusGapDataTower
+public import Balaban.Polymer.TwoTorusGapDataTowerMem

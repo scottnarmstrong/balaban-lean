@@ -155,6 +155,44 @@ field), with a localized ambient set: at the lifted tangent `liftC v` of a compl
 unit lattice in the ball of fluctuations,
 `flComp Eτ (rawOf H.D', liftC v) = β⁻¹ ℰ^{(j)}(y, X; composedPairAtC … j (H.dataUCH (ψ^{(k)} + v)))`
 (P3 (4.16); `StepSetting.classOldEndpointLocal_liftC` is the case of a constant real field). -/
+theorem classOldEndpointLocalH_liftC_gen
+    (Eτ : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hlocE : ∀ Ψ Ψ' h h', (∀ x ∈ X, Ψ x = Ψ' x ∧ h x = h' x) → Eτ (Ψ, h) = Eτ (Ψ', h'))
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (hS : GsSpecStrong j (hjk.trans (Nat.le_succ k)) X Gj)
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ r₀ δ₃ δfl : ℝ}
+    {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j₁ : ℕ}
+    (hB : BgSetting N S.G' Gk Gj S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j₁)
+    (hF : FlSetting N S.G' Gk (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl
+      X₁f)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps H.D')
+    (hc7 : c7 d L N BG κ ≤ thm73C3 d L N) {R : ℝ} (hR : 2 ≤ R)
+    (hsmR : 2 * (compC4 d * (bgK1 d L N * (xiC1 d * eps))) + 5 * (R * δ₁) ≤ bgC1 d L N)
+    (hRs : R * δ₁ ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * δ₁) < bgC0 d L N / 2)
+    (hnum : cK2 d L N * δ₁ ≤ c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hnum' : cK2' d L N (famConst d L BG₂ κ) * δ₁ ≤
+      c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (v : S.EC) (hv : liftC S.hG' v ∈ FlBall (stepG d L N₁ m₁ k ϱ) δ₁) :
+    flComp hB hF (fun raw => (S.β : ℂ)⁻¹ * Eτ raw) (rawOf H.D', liftC S.hG' v) =
+      (S.β : ℂ)⁻¹ * Eτ
+        (composedPairAtC S.a S.ν (Nat.le_succ k) j (H.dataUCH ((fun q =>
+          (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
+            (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
+              (unitRep (G' := S.G') q.1) q.2) + v))) := by
+  have hz : IsLayerConstant (stepG d L N₁ m₁ k ϱ) (liftC S.hG' v) :=
+    isLayerConstant_liftC S.hG S.hG' v
+  rw [flComp_rawOf hB hF _ hD hz]
+  congr 1
+  exact hlocE _ _ _ _ fun x hx =>
+    H.flCompLocalH_agree_on_X hj1 hjk hS hB hF hD hc7 hR hsmR hRs hsmall hnum hnum' v hv hz hx
+
+/-- **The endpoint identity of an inherited energy label at a free block datum** (any external
+field), with a localized ambient set: at the lifted tangent `liftC v` of a complex field `v` of the
+unit lattice in the ball of fluctuations,
+`flComp Eτ (rawOf H.D', liftC v) = β⁻¹ ℰ^{(j)}(y, X; composedPairAtC … j (H.dataUCH (ψ^{(k)} + v)))`
+(P3 (4.16); `StepSetting.classOldEndpointLocal_liftC` is the case of a constant real field). -/
 theorem classOldEndpointLocalH_liftC
     {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ} {Tm : Terms d L N₁ m₁ (k + 1) N ϱ}
     (hcl : SFTermClauses P Dom Tm) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
@@ -185,12 +223,9 @@ theorem classOldEndpointLocalH_liftC
           (composeData (S.hG.precedes S.hG' (le_refl (k + 1))) S.a
             (bgFieldC S.G' S.a S.ν (bgC0 d L N) H.D') H.D').Ψ
               (unitRep (G' := S.G') q.1) q.2) + v))).2 := by
-  have hz : IsLayerConstant (stepG d L N₁ m₁ k ϱ) (liftC S.hG' v) :=
-    isLayerConstant_liftC S.hG S.hG' v
-  rw [flComp_rawOf hB hF _ hD hz]
-  congr 1
-  exact hcl.localE j y X _ _ _ _ fun x hx =>
-    H.flCompLocalH_agree_on_X hj1 hjk hS hB hF hD hc7 hR hsmR hRs hsmall hnum hnum' v hv hz hx
+  exact classOldEndpointLocalH_liftC_gen H (fun r => Tm.E j y X r.1 r.2) hj1 hjk
+    (fun Ψ Ψ' h h' hag => hcl.localE j y X Ψ Ψ' h h' hag) hS hB hF hD hc7 hR hsmR hRs hsmall hnum
+    hnum' v hv
 
 end StepSettingH
 
