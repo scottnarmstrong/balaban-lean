@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.LocalClassDensityMarksLabel
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.DecMarkBlocks
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenJoint
 
 /-!
 # Joint analyticity of the marked terms of an inherited label (`LocalClassDensityFamily`)
@@ -261,38 +262,11 @@ theorem classOldMarkedLocal_joint_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ sc
       ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ}) ×ˢ
         {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
-  have hC := flCore_of hB hF
-  obtain ⟨hEan, hEbd⟩ := classOldDecEnergy_chart_radius (N := N) C hm hcl hβ hκP hE₀ a₁ ν δ₃ eps
+  obtain ⟨hEan, hEbd⟩ := classOldEnergy_chart_radius_raw (N := N) C hm hcl hκP hE₀ a₁ ν δ₃ eps
     δfl hj1 hjk hXp hy hchart
-  have hEb : 0 ≤ β⁻¹ * P.E₀ := mul_nonneg (inv_nonneg.2 hβ.le) hE₀
-  have hΦan := eTermFun_analytic_of_one_le hb₁ hbC hB hF hFkan hFk hEan
-  have hR : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ∀ (a b : ℂ)
-      (s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
-      (F₁' : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
-        (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) (D : BgData Gp N)
-      (ψh : unitPts Gp × Fin N → ℂ),
-      t.2.2.2 = markedHatPsiF a₁ ν hG' cc F₁' Zm a b
-        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh →
-      t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := fun t ht a b s F₁' D ψh h =>
-    ⟨ht, h ▸ isLayerConstant_markedHatPsiF hG hG' cc F₁' Zm a b _ _ _⟩
-  have hΦbd := fun t (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) =>
-    eTermFun_bound_of_one_le hb₁ hbC hB hF hFk hEbd ht
-  have hBM : BlockMargin Gp X₁f (∅ : Set (CTorus d L N₁ m₁ (k + 1))) :=
-    fun x hx => absurd hx (Set.notMem_empty x)
-  obtain ⟨e1, e2, -, e4, -, -, e7, -, e9⟩ := i5_functional_hat_marked_exposed_pair_of hC hk hG
-    hG' cc hcψ Zm hMX hdm hα hsm hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hR hΦbd
-    hconn hrow (Z := ↑X₁f) subset_rfl hBM
-    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local_dir hB hF hcov hX₁ Fk _ hφ hδ hag hψ)
-    hF₁an hF₁ hSolan hSolprop
-  obtain ⟨-, -, -, hJ⟩ := marked_expansion_product_pair_of hC hk hG hG'
-    cc hcψ Zm hMX hdm hα hsm hcov hX₁ hopt hκ₀ hκdec hκ h1 hlog hEb hΦan hR hΦbd
-    hconn hrow (Z := ↑X₁f) subset_rfl hBM
-    (fun t _ t' _ hφ _ hδ hag hψ => eTermFun_local_dir hB hF hcov hX₁ Fk _ hφ hδ hag hψ)
-    hF₁an hF₁ hSolan hSolprop
-  refine ⟨fun um tm hw D hD ψh hψh => ?_, e2, e4, e7, e9, hJ⟩
-  rw [← e1 um tm hw D hD ψh hψh]
-  exact (eTermFun_value hB hF hFk _ hD
-    (markedTangDec_mem_flBallLC hC hk hG hG' cc hcψ Zm hMX hdm hα hsm hw hD hψh)).symm
+  exact classOldMarkedLocal_joint_gen hb₁ hbC (fun r => C.Tm.E j y X r.1 r.2) hE₀ hβ hB hF hk hG
+    hG' cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd hF₁an hF₁
+    hSolan hSolprop hFkan hFk Zm
 
 end LabelJoint
 

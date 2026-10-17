@@ -2207,6 +2207,7 @@ public import Balaban.Fluctuation.LocalClassDensityValM
 public import Balaban.Fluctuation.LocalClassDensityMarks
 public import Balaban.Fluctuation.LocalClassDensityMarksH
 public import Balaban.Fluctuation.LocalClassDensityMarksLabel
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenJoint
 public import Balaban.Fluctuation.LocalClassDensityFamily
 public import Balaban.Fluctuation.LocalClassDensityFamilyRoot
 public import Balaban.Fluctuation.LocalClassDensityFamilyMarks
