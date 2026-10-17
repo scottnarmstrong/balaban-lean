@@ -39,3 +39,9 @@ Birth: `classOldDec_expansion_cover_birth_slices` (`Fluctuation/ClassOldCoverSli
 
 Status (W896): `Fluctuation/ClassOldBirthConsts.lean`: `dlGap_of_consts` (DL-gap from `ε′ ≤ ε_j/Λ`, `Λ ≥ 16C₀⁴`, `δ₃,δfl ≤ c ε_j`, `16C₀²K₂'(c₃+c_fl) ≤ 1`, `K_m r ≤ 1`, `(N+1)K₂A ≤ 4`, `A = α₀ epsTail 0`), `epsSeq_anti`, `epsSeq_succ_le_of_le`, `epsSeq_le_tail_zero`.
 `classOldDec_expansion_cover_birth_consts`: the slices theorem with `hDL`, `hsmε`, `hc1ε`, `hKε`, `hζε` replaced by constant conditions (`hLα`, `hcc`, `hAK`, `hrK`, `hsmA`, `hc1A`, `hKA`, `hζA`) and `eps ≤ ε_{k+1}`, `δ₃,δfl ≤ c·ε_k`; the bounds `δ₃ ≤ c₃ε_k`, `δfl ≤ c_flε_k` are NOT derived from `ChainNum`/fluctuation bounds (hypotheses).
+
+Status (W897): `Fluctuation/ClassOldBirthDelta.lean`: `delta3_le_of_close` (δ₃ = N·composedCloseBound(…, C_{Ξ1}ε′, r₀) ≤ c₃ε_k, c₃ = N C_{Ξ1} L^{-α} composedCloseBound(…,1,r₀)), `c3_le_of_decay` (c₃ ≤ η iff-type condition log(Λ₀/η) ≤ γ_w(r₀−4dL³)L^{m₁}/L), `deltafl_le_of_flb` (δfl = N(5K₂″δ₁+δ₁) ≤ c_fl ε_k for δ₁ ≤ c_δ ε_k; no landed β^{-3/8} bound, it enters through cψ/δ₁).
+`classOldDec_expansion_cover_birth_consts_delta`: the consts theorem with δ₃, δfl given by these formulas; hypotheses δ₁ ≤ c_δ ε_k, c₃/c_fl definitions, hcc, and the constant conditions.
+
+Status (W899): `Fluctuation/ClassOldBirthFluct.lean`: `delta1_le_of_amp` (δ₁ = 2√N‖cc‖C c_ψ, ‖cc‖ ≤ β_k^{-1/2}, c_ψ = A₁(log β_k)^p, β_k ≥ M L^{(d-2)k}, α ≤ (d-2)(1/2-u): δ₁ ≤ c_δ ε_k iff-type size condition 2√N C A₁(p/u)^p ≤ c_δ α₀ M^{1/2-u}; uses (log x)^p ≤ (p/u)^p x^u).
+`classOldDec_expansion_cover_birth_consts_fluct`: consts_delta with hδ₁, hδ₁k replaced by these amplitude/size hypotheses; only constants remain.
