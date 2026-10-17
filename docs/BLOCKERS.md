@@ -314,7 +314,10 @@ used, since the crude chart inclusion fails at every level). What remains for th
 between the actual new density and the sum of these terms. The density is now defined for complex,
 non-constant external fields (it agrees with the earlier one on constant real fields, and is analytic on the
 class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
-is being proved at every datum, which is done for the zero class. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+is being proved at every datum. That is done for the zero class; for a general class the value at every datum is
+proved given the marks and activities of the old terms, and these are now being built from the old terms on the
+local generating sets (the replacement identity of the old terms on those sets holds as functions of the datum,
+proved). Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
@@ -386,8 +389,11 @@ cells (from the lattice symmetries already proved), so a support of diameter D a
 recentred, and the transport holds when 25D + 25 < min(ℓ, ℓ′) (proved, given the correspondence of
 coefficients near the origin). Wide supports are bounded by the decay of the terms with an absolute rate, and the
 scales just below the last are now assembled into the two-torus resummation for every support in the quarter box,
-given the closeness of the step's functional between two tori at those scales (being derived from the
-transport of the step's ingredients); the question is in item 24, second addendum.
+given the closeness of the step's functional between two tori at those scales. For compact supports the step's
+energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
+their own closeness, which the earlier scales provide; the identification of the step's terms with these
+expansions and the same transport for the determinant and observable terms are in progress. The question is in
+item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
