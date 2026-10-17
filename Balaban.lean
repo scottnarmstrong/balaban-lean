@@ -2009,6 +2009,7 @@ public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassAssembleM
 public import Balaban.Fluctuation.LocalClassLabels
+public import Balaban.Fluctuation.LocalClassBirth
 public import Balaban.Fluctuation.LocalClassInherit
 public import Balaban.Fluctuation.LocalClassCentre
 public import Balaban.Fluctuation.LocalClassAmplitude
