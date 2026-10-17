@@ -62,12 +62,13 @@ variable {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Ek : ℕ → ℝ}
 
 section Lift
 
-variable (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek) (hd : 3 ≤ d) (hL : 3 ≤ L)
+variable (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
+  (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) (hd : 3 ≤ d) (hL : 3 ≤ L)
   (hϱ : bgR0 d L ≤ ϱ) (hj1 : 1 ≤ j) (hjk : j ≤ k)
   (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
-include hF hd hL hϱ hj1 hjk hsmall
+include hF hCR hd hL hϱ hj1 hjk hsmall
 
-omit hd hL hϱ hj1 hjk in
+omit hCR hd hL hϱ hj1 hjk in
 /-- The anisotropic radius condition holds for the second version at `r_j = anisoRadius`. -/
 theorem IsSFFamily2.anisoRadiusOK (i₀ : Fin N) :
     AnisoRadiusOK d L N P j (anisoRadius d L N P j) :=
@@ -85,7 +86,7 @@ theorem IsSFFamily2.premisesTermAnisoInf (hκ : aEnt d L + 3 ≤ P.κ) {i₀ i�
       (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDomInfM P a (Rg.sfBgMass k) Tm j (Rg.ν k) i₀) := by
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hF'.premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
 
@@ -98,7 +99,7 @@ theorem IsSFFamily2.premisesCoreInf (hκ : aEnt d L + 3 ≤ P.κ) {i₀ i₁ : F
       (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDomInfM P a (Rg.sfBgMass k) Tm j (Rg.ν k) i₀) := by
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hF'.premisesCoreInf hd hL hϱ hκ hj1 hjk hsmall hne
 
@@ -107,8 +108,9 @@ end Lift
 section Mom
 
 variable (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
+  (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
   (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
-include hF hn hne
+include hF hCR hn hne
 
 /-- **`SumConds` for the second version**: a member of the second version on the wide domain at
 the complete mass satisfies the renormalization conditions (H.5)(1)-(4) of I-6 on the lifted
@@ -117,7 +119,7 @@ versions of the class). -/
 theorem IsSFFamily2.sumCondsInf :
     SumConds (liftInf (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (nuIdeal L k (Rg.ν k) j)
       (liftRadius d L N P j)) i₀ i₁ (nuIdeal L k (Rg.ν k) j) := by
-  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded hCR
   rw [← hν]
   exact hF'.sumCondsInf hn.noChi hne
 
@@ -132,8 +134,8 @@ theorem IsSFFamily2.bridgeInf {T : TermFamily d N}
         K0 d L (P.κ - 2)) (liftDomInfM P a (Rg.sfBgMass k) Tm j (Rg.ν k) i₀) ∧
     SumConds T i₀ i₁ (nuIdeal L k (Rg.ν k) j) := by
   subst hT
-  exact ⟨hF.premisesCoreInf hn.hd hn.hL hn.hϱ hn.hj1 hn.hjk hn.hsmall hn.hκ hne,
-    hF.sumCondsInf hn hne⟩
+  exact ⟨hF.premisesCoreInf hCR hn.hd hn.hL hn.hϱ hn.hj1 hn.hjk hn.hsmall hn.hκ hne,
+    hF.sumCondsInf hCR hn hne⟩
 
 /-! ### The Reynolds-averaged family at the complete mass -/
 
@@ -147,7 +149,7 @@ theorem IsSFFamily2.premisesTermAnisoAvg :
       (((L : ℝ) ^ (P.m₀ + m₁)) ^ d * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 *
         (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)))
       (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j)) := by
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hF'.premisesTermAnisoAvg hn.noChi hne
 
@@ -155,7 +157,7 @@ theorem IsSFFamily2.premisesTermAnisoAvg :
 theorem IsSFFamily2.sumCondsAvgA :
     SumConds (avgFamilyAM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j)
       (anisoRadius d L N P j)) i₀ i₁ (nuIdeal L k (Rg.ν k) j) := by
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hF'.sumCondsAvgA hn.noChi hne
 
@@ -169,7 +171,7 @@ theorem IsSFFamily2.premisesTermAvgA :
       (((L : ℝ) ^ (P.m₀ + m₁)) ^ d * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 *
         (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)))
       (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j)) := by
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hF'.premisesTermAvgA hn.noChi hne
 
@@ -187,7 +189,7 @@ theorem IsSFFamily2.energy_sub_Aterm_avgA {ψ : Site d → Spin N} {b : Spin N} 
         Itw (avgFamilyAM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j)
           (anisoRadius d L N P j)) i₀ i₁ (nuIdeal L k (Rg.ν k) j) X.1 ψ b := by
   obtain ⟨hr0, hr1, -⟩ := hF.anisoRadiusOK hn.hsmall i₀
-  exact energy_sub_Aterm_eq_tsum_Itw (hF.premisesTermAvgA hn hne) (hF.sumCondsAvgA hn hne)
+  exact energy_sub_Aterm_eq_tsum_Itw (hF.premisesTermAvgA hCR hn hne) (hF.sumCondsAvgA hCR hn hne)
     (pow_pos hr0 2) hF.admissible.E₀_nonneg (diamA_nonneg d L P.m₀ m₁) dat
 
 /-- **`Σ_y A_y = 0` on every torus** for the averaged family of the second version. -/
@@ -197,7 +199,7 @@ theorem IsSFFamily2.Aterm_torus_sum_avgA (ℓ : ℕ) [NeZero ℓ] (ψT : Torus d
         (anisoRadius d L N P j)) i₀ (nuIdeal L k (Rg.ν k) j) z *
       (dot (ψT (y + liftSite ℓ z)) (ψT (y + liftSite ℓ z)) - dot (ψT y) (ψT y)) = 0 := by
   obtain ⟨hr0, hr1, -⟩ := hF.anisoRadiusOK hn.hsmall i₀
-  exact Aterm_torus_sum_tw (hF.premisesTermAvgA hn hne) (hF.sumCondsAvgA hn hne)
+  exact Aterm_torus_sum_tw (hF.premisesTermAvgA hCR hn hne) (hF.sumCondsAvgA hCR hn hne)
     (pow_pos hr0 2) hF.admissible.E₀_nonneg ℓ ψT
 
 end Mom
@@ -221,7 +223,8 @@ theorem IsSFFamily2.termwise_irrelevant_aniso_class (d L N m₁ : ℕ) [NeZero L
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → 3 ≤ d → 3 ≤ L → bgR0 d L ≤ ϱ →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → 3 ≤ d → 3 ≤ L → bgR0 d L ≤ ϱ →
       aEnt d L + 3 ≤ P.κ →
       ∀ (j : ℕ), 1 ≤ j → j ≤ k →
       P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N) →
@@ -240,8 +243,8 @@ theorem IsSFFamily2.termwise_irrelevant_aniso_class (d L N m₁ : ℕ) [NeZero L
   obtain ⟨C, hC0, hC⟩ :=
     IsSFFamily.termwise_irrelevant_aniso_class d L N m₁ P.noChi hP.noChi Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hC k ϱ β' ν' a Ek Tm _ hF'
 
@@ -253,7 +256,8 @@ theorem IsSFFamily2.termwise_irrelevant_aniso_class_eps (d L N m₁ : ℕ) [NeZe
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → 3 ≤ d → 3 ≤ L → bgR0 d L ≤ ϱ →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → 3 ≤ d → 3 ≤ L → bgR0 d L ≤ ϱ →
       aEnt d L + 3 ≤ P.κ →
       ∀ (j : ℕ), 1 ≤ j → j ≤ k →
       P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N) →
@@ -272,8 +276,8 @@ theorem IsSFFamily2.termwise_irrelevant_aniso_class_eps (d L N m₁ : ℕ) [NeZe
   obtain ⟨C, hC0, hC⟩ :=
     IsSFFamily.termwise_irrelevant_aniso_class_eps d L N m₁ P.noChi hP.noChi Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hC k ϱ β' ν' a Ek Tm _ hF'
 
@@ -286,7 +290,8 @@ theorem IsSFFamily2.termwise_irrelevant_avg_aniso (d L N m₁ : ℕ) [NeZero L] 
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (σ ε K₂ : ℝ),
       DataHypAniso (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j))
@@ -303,8 +308,8 @@ theorem IsSFFamily2.termwise_irrelevant_avg_aniso (d L N m₁ : ℕ) [NeZero L] 
   obtain ⟨C, hC0, hC⟩ :=
     IsSFFamily.termwise_irrelevant_avg_aniso d L N m₁ P.noChi hP.noChi Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF j hn
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR j hn
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hC k ϱ β' ν' a Ek Tm _ hF' j hn.noChi
 
@@ -318,7 +323,8 @@ theorem IsSFFamily2.termwise_irrelevant_avg_aniso_scaled (d L N m₁ : ℕ) [NeZ
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (s σ ε K₂ : ℝ),
       DataHypAniso (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j))
@@ -336,8 +342,8 @@ theorem IsSFFamily2.termwise_irrelevant_avg_aniso_scaled (d L N m₁ : ℕ) [NeZ
   obtain ⟨CI, hCI0, hCI⟩ := IsSFFamily.termwise_irrelevant_avg_aniso_scaled d L N m₁ P.noChi
     hP.noChi Λ Ksig γ C₀ KR hΛ hKsig hC₀ hα₃
   refine ⟨CI, hCI0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF j hn
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR j hn
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hCI k ϱ β' ν' a Ek Tm _ hF' j hn.noChi
 
@@ -362,7 +368,8 @@ theorem IsSFFamily2.renormalization_aniso (d L N m₁ : ℕ) [NeZero L] (P : Con
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (σ ε K₂ : ℝ),
       DataHypAniso (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j))
@@ -394,8 +401,8 @@ theorem IsSFFamily2.renormalization_aniso (d L N m₁ : ℕ) [NeZero L] (P : Con
   obtain ⟨C, hC0, hC⟩ :=
     IsSFFamily.renormalization_aniso d L N m₁ P.noChi hP.noChi Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF j hn
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR j hn
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hC k ϱ β' ν' a Ek Tm _ hF' j hn.noChi
 
@@ -411,7 +418,8 @@ theorem IsSFFamily2.renormalization_aniso_scaled (d L N m₁ : ℕ) [NeZero L] (
       (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
       (ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
-      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+      IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek →
+      (∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (s σ ε K₂ : ℝ),
       DataHypAniso (avgDomM P a (Rg.sfBgMass k) Tm j i₀ (nuIdeal L k (Rg.ν k) j))
@@ -444,8 +452,8 @@ theorem IsSFFamily2.renormalization_aniso_scaled (d L N m₁ : ℕ) [NeZero L] (
   obtain ⟨CI, hCI0, hCI⟩ := IsSFFamily.renormalization_aniso_scaled d L N m₁ P.noChi hP.noChi
     Λ Ksig γ C₀ KR hΛ hKsig hC₀ hα₃
   refine ⟨CI, hCI0, ?_⟩
-  intro k ϱ Rg β a Ek Tm ρd hF j hn
-  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded
+  intro k ϱ Rg β a Ek Tm ρd hF hCR j hn
+  obtain ⟨β', ν', hν, hμ, hF'⟩ := hF.toLanded hCR
   rw [← hμ, ← hν]
   exact hCI k ϱ β' ν' a Ek Tm _ hF' j hn.noChi
 

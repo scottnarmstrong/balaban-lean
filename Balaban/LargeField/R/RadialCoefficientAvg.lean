@@ -145,7 +145,7 @@ theorem xiDom_rot {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
     rw [e, Matrix.mulVec_add, Pi.add_apply, cmat_mulVec]
 
 theorem isRot_cmat {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) : IsRot (cmat Q) :=
-  ⟨(isRealOrth_ofReal hQ).1, Or.inl fun i j => by simp [cmat]⟩
+  ⟨(isRealOrth_ofReal hQ).1, fun i j => by simp [cmat]⟩
 
 omit [NeZero L] [NeZero N₁] in
 theorem rotField_constFld (R : Matrix (Fin N) (Fin N) ℂ) (v : Fin N → ℂ) :
@@ -257,7 +257,7 @@ theorem v1Loc_axis_eq (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ : Fin N}
   filter_upwards [hev] with s hs
   have hd1 := xiDom_line ctx hX (i₀ := i₀) u hs
   have hd2 := xiDom_rot hQ hd1
-  have key := ctx.sf.rotE j ctx.j1 ctx.jk y X hX hy (cmat Q) (isRot_cmat hQ) _ _ hd1 hd2
+  have key := ctx.sf.rotE j ctx.j1 ctx.jk y X hX hy (cmat Q) (isRot_cmat hQ).isCRot _ _ hd1 hd2
   rw [rotField_add_smul, hre] at key
   exact key
 

@@ -122,6 +122,7 @@ observable layer of the second version on the wide domain at the complete mass, 
 The constants are those of the landed statement. -/
 theorem IsSFObs2.improved_first_of_tube
     (hS : IsSFObs2 P Q Rg β a (completeXiDom P Rg a N₁) Tm ρd Ek Ot Gker)
+    (hCR : CRotE P (completeXiDom P Rg a N₁) Tm)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) (hν : 0 < Rg.ν k) (hj1 : 1 ≤ j)
     (hjk : j ≤ k) (hρ : 0 < ρ)
     (hrad : ∃ δ : ℝ, 0 < δ ∧ δ ≤ bgC0 d L N ∧ δ ≤ bgC1 d L N ∧
@@ -163,7 +164,8 @@ theorem IsSFObs2.improved_first_of_tube
   have hO' : IsObs P.noChi Q (betaObs β k (Rg.ν k)) Rg.ν a Tm Ot Gker :=
     isObs_of_isObs2 hμ h0 hS.obs
   have ctx : LiftCtx P.noChi (betaObs β k (Rg.ν k)) Rg.ν a Tm (fun _ _ _ => 0) Ek j ρ :=
-    ⟨isSF_of_termClauses (P := P.noChi) rfl (by rw [hμ]; exact hS.sf.terms.noChi),
+    ⟨isSF_of_termClauses (P := P.noChi) rfl (by rw [hμ]; exact hS.sf.terms.noChi)
+        (by rw [hμ]; exact hCR),
       by rw [hμ]; exact hBg, hν, hj1, hjk, hρ, hrad⟩
   have hβ0' : 0 < betaObs β k (Rg.ν k) 0 := by rw [h0]; exact hβ0
   have key := Balaban.Observables.improved_first_of_tube hO' ctx hN hX hx hy hlayer

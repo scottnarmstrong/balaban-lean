@@ -687,6 +687,7 @@ public import Balaban.SmallField.Def6v2Inhabited
 public import Balaban.SmallField.Def6v2Bridge
 public import Balaban.SmallField.Def6v2BridgeMass
 public import Balaban.SmallField.Def6v2Renorm
+public import Balaban.SmallField.Def6RotContinuation
 public import Balaban.SmallField.Def6v2RenormCompare
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
