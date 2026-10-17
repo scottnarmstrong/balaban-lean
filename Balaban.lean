@@ -688,6 +688,8 @@ public import Balaban.SmallField.Def6v2Bridge
 public import Balaban.SmallField.Def6v2BridgeMass
 public import Balaban.SmallField.Def6v2Renorm
 public import Balaban.SmallField.Def6RotContinuation
+public import Balaban.SmallField.Def6RotFramesPolar
+public import Balaban.SmallField.Def6RotFrames
 public import Balaban.SmallField.Def6v2RenormCompare
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel
@@ -1689,6 +1691,7 @@ public import Balaban.Fluctuation.RenormC2Local
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.LargeField.Regime.A0PrimeWeight
 public import Balaban.LargeField.Regime.A0PrimeReserve
+public import Balaban.LargeField.Regime.A0PrimeCollarOk
 public import Balaban.LargeField.Regime.A0PrimeSupport
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.MarkedVRawY
@@ -2017,6 +2020,9 @@ public import Balaban.LargeField.R.RGasCoreInputs
 public import Balaban.LargeField.R.RGasCoreBlock
 public import Balaban.LargeField.R.RGasCoreBlockCore
 public import Balaban.LargeField.R.RGasCoreBlockGeom
+public import Balaban.LargeField.R.RGasCoreHaloDj
+public import Balaban.LargeField.R.RGasCorePay
+public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RGasCoreConn
 public import Balaban.LargeField.R.RRadiusMax
 public import Balaban.LargeField.R.RGasCoreTau

@@ -14,12 +14,10 @@ public import Balaban.LargeField.R.RGasCoreTau
 `notes/phase1/VMOD-43.md`.  The halo `nbhd (2⌊R_{k-1}⌋ + 4) c` of a removed component `c` of
 `Z^pre_k` is a nonempty site-connected set of cubes, but the gas bound needs the fine set of a label
 to be a union of `π'_k`-cubes (`IsDj`, field `IsPiPrimeUnion`: every fine site of the label lies in
-an aligned box of `L` cells inside the label).  The block completion of the halo, the union of the
-boxes of `L^d` cubes based at the points of the halo, has this property.
+an aligned box of `L` cells inside the label).  The raw halo has this property
+(`RegionHistory.isDj_d7Pull_halo`, `RGasCoreHaloDj.lean`); this file keeps the statements for labels
+between the halo and radius `m + L - 1`.
 
-* `RegionHistory.exists_block_halo_label`: for a removed component `c` there is a set `labZ` of cubes
-  with `nbhd m c ⊆ labZ ⊆ nbhd (m + L - 1) c` (`m = 2⌊R_{k-1}⌋ + 4`) whose fine set is in `𝒟_k`
-  (`IsDj`), when `ω_k ≤ 2m` (true for `⌊R_{k-1}⌋ = ⌊R_base λ_{k-1}²⌋`).
 * `RegionHistory.block_halo_subset_omegaPost`, `block_halo_disjoint_comp`: every label between the
   halo and radius `m + L - 1` lies in `Ω_k^post` and misses every other component of `Z^pre_k`
   (`m + L - 1 < ω_k`).
@@ -53,40 +51,6 @@ theorem RegionHistory.block_halo_radius_lt_omega (hk : 1 ≤ k) :
   simp only [Nat.add_sub_cancel]
   have := Nat.pos_of_ne_zero (NeZero.ne S.L)
   omega
-
-include H in
-/-- **Existence of block-completed halo labels** (blocker 4).  For a removed component `c` of
-`Z^pre_k` with `ω_k ≤ 2(2⌊R_{k-1}⌋ + 4)`, there is a set `labZ` of cubes of `𝕋_k` with
-`nbhd (2⌊R_{k-1}⌋+4) c ⊆ labZ ⊆ nbhd (2⌊R_{k-1}⌋ + 4 + L - 1) c` whose fine set `d7Pull labZ` is in
-`𝒟_k`: nonempty, a union of `π'_k`-cubes (the union of the boxes of `L^d` cubes based at the halo
-cubes) and site-connected (the halo is connected and each box is connected and meets the halo). -/
-theorem RegionHistory.exists_block_halo_label (Fr : FineSizeFrame S n M K m₀ m₁)
-    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K) (c : H.Comp k)
-    (hω : S.omega k ≤ 2 * (2 * ⌊R (k - 1)⌋₊ + 4)) :
-    ∃ labZ : Finset (Torus S.d (n k)),
-      nbhd (2 * ⌊R (k - 1)⌋₊ + 4) (c.1 : Set (Torus S.d (n k))) ⊆ (labZ : Set (Torus S.d (n k))) ∧
-      (labZ : Set (Torus S.d (n k))) ⊆
-        nbhd (2 * ⌊R (k - 1)⌋₊ + 4 + S.L - 1) (c.1 : Set (Torus S.d (n k))) ∧
-      IsDj m₀ k (d7Pull Fr k (labZ : Set (Torus S.d (n k)))) := by
-  have hLpos : 0 < S.L := Nat.pos_of_ne_zero (NeZero.ne S.L)
-  obtain ⟨B, h1, h2, h3, h4⟩ := exists_block_completion (c.1 : Set (Torus S.d (n k)))
-    (2 * ⌊R (k - 1)⌋₊ + 4) S.L hLpos
-  have hconn := h4 (H.halo_reach c hω)
-  refine ⟨B, h1, by
-    have : 2 * ⌊R (k - 1)⌋₊ + 4 + (S.L - 1) = 2 * ⌊R (k - 1)⌋₊ + 4 + S.L - 1 := by omega
-    rwa [this] at h2, ?_⟩
-  have hN := fine_side_eq Fr hnn hkK
-  have : NeZero (cellSide S.L m₀ m₁ k) := ⟨(cellSide_pos m₀ m₁ k).ne'⟩
-  rw [d7Pull_eq_preimage_siteCube]
-  refine ⟨?_, ?_, ?_⟩
-  · obtain ⟨x, hx⟩ := comp_nonempty c.2
-    obtain ⟨z, hz⟩ := siteCube_surj' hN x
-    exact ⟨z, by rw [Set.mem_preimage, hz]; exact h1 (mem_nbhd.2 ⟨x, hx, by rw [supDist_self]; omega⟩)⟩
-  · intro z hz
-    obtain ⟨b, hb1, hb2, hb3⟩ := box_fibre hN (B : Set (Torus S.d (n k))) h3 z hz
-    exact ⟨b, hb1, hb2, hb3⟩
-  · have := siteConnected_d7Pull Fr hnn hkK (B : Set (Torus S.d (n k))) hconn
-    rwa [d7Pull_eq_preimage_siteCube] at this
 
 include H in
 /-- **A label between the halo and radius `2⌊R_{k-1}⌋ + 4 + L - 1` lies in `Ω_k^post`.** -/
@@ -143,7 +107,7 @@ open Classical in
 /-- **The physical large-field gas bound for block-completed halo labels, with the removed factor
 (3.10) in the source form.**  The domain `labZ z` of the heavy object `z` is any set of cubes inside
 `nbhd (2⌊R_{k-1}⌋ + 4 + L - 1) (cz z)` whose fine set is in `𝒟_k` (`hDjZ`; by
-`exists_block_halo_label` such labels exist and contain the halo), `cz z` a removed component of
+`RegionHistory.isDj_d7Pull_halo` the halo itself is such a label), `cz z` a removed component of
 `Z^pre_k`.  `hrem` is P7 (3.10), `‖τ z‖ ≤ exp(-p₂ - H |c_z|)`, and `hpay` says that one copy of `p₂`
 pays `h'` times the bound `(2(2⌊R_{k-1}⌋+4+L-1)+1)^d (2ρ_k+10)^d` of the number of cells. -/
 theorem gas_activity_bound_physical_of_D7BdryPost_block_removed_factor {m₀ m₁ : ℕ}

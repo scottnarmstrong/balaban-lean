@@ -59,7 +59,7 @@ cubes, so every datum site of G is tested. Changes: (1.19) the test region and c
 U~ and U'~ at distance > rho_k; (1.24) gains |psi_i(b) - h| < 2 delta_i/sqrt(nu_i) on layer-i blocks (RD of `Q13-LATE.md`);
 (1.27) a large-field component absorbs the cubes within rho_k of a failing cube, so its volume grows by up to (2 rho_k+1)^d, a
 power of lambda_{k-1}^2; (1.30)-(1.31) the reserve beta delta^2 = A_0^2 lambda^{2p_0}/a must exceed it, which a larger p_0
-gives, as YM's t_0^{p_0} beats its collar count. OPEN: p_0 against P5 (1.30) is unchecked, as is the complementary sector.
+gives, as YM's t_0^{p_0} beats its collar count. Status: the check of p_0 against P5 (1.30) is done (P5 asks p_2 >= 2d+2 and takes p_2 = p_0 - 2d - 2, so the source gives p_0 >= 4d+4; the landed constraints give p_0 >= d+2, `collar_reserve_of_typing`); the complementary sector is OPEN.
 ## 4. Where YM does not help
 SOURCE/OPEN: the account lists the collar-alignment estimate as unproved in YM (ym4 item C13); (d1) is "proof outstanding"; YM
 has no mass forcing of size nu_k at k > k_0 (`Q13-LATE.md`, half-space model), so the O(N) retained-shell problem is stronger.
