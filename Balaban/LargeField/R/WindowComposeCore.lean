@@ -317,11 +317,6 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
           (Φ (wd, cc, j)).2.2 y.1 y.2.1 y.2.2.2.1 y.2.2.1]
         exact (φ7 (wd, cc, j) y).symm)
       (fun p => congrArg VarVal.toEuc (φ9 (wd, cc, j) p).symm) hv g
-  have hjSh := fun (p : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A //
-      p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}) =>
-    ((hjS p.1).resolve_left p.2.1).resolve_left (fun h => p.2.2.2 ((hNd p.1).mpr h))
-  have hjT := fun (t : ↥T) => ((hjS t.1).resolve_left (hTnr t.1 t.2)).resolve_left
-    (fun h => hNT t.1 ((hNd t.1).mpr h) t.2)
   let Ewin : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1) →
       Set (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 ×
         (∀ t : ↥T, VarVal N t.1.1.isSpin))) := fun par =>
@@ -343,70 +338,8 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
     · intro t
       have := hTsh t
       rwa [φ3 (wd, cc, j) t] at this
-  have hsupp : ∀ hv g par wd cc,
-      wd ∉ (Ewin par) →
-      ∫⁻ j, F hv g par (Φ (wd, cc, j)) ∂
-          (((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3))).prod
-              (((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin)).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)))) = 0 := by
-    intro hv g par wd cc hw
-    have h0 : ∀ j, F hv g par (Φ (wd, cc, j)) = 0 := fun j => by
-      by_contra hne
-      exact hw (hFpt2 hv g par wd cc j hne)
-    simp only [h0, lintegral_zero]
-  refine ⟨fun hv g par wd cc => ?_, hsupp⟩
-  by_cases hw : wd ∈ (Ewin par)
-  swap
-  · rw [hsupp hv g par wd cc hw]; exact zero_le
-  have hIO : ∫⁻ ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)), (if (∀ y : {y : BlockAt S n M K (m' + 1) //
-            y ∈ (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) ∧
-              (ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)},
-          |‖ro y‖ ^ 2 - 1| < r m') then (1 : ℝ≥0∞) else 0)
-        ∂(outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) ≤ 1 := by
-    refine lintegral_ite_le_one _ _ ?_
-    exact outPartMeasure_shell_le_one hN2 _ _ (fun _ => r m') (fun _ => (hrad m' hk1 le_rfl).1)
-      (fun _ => (hrad m' hk1 le_rfl).2.1) (fun _ => (hrad m' hk1 le_rfl).2.2)
-  have hIS : ∀ ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)), True := fun _ => trivial
-  have hIS' : ∫⁻ sh : (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin),
-      (if (∀ p : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, |‖VarVal.toEuc (sh p)‖ ^ 2 - 1| < r (jS p.1)) then (1 : ℝ≥0∞) else 0)
-        ∂(Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin) ≤ 1 := by
-    refine lintegral_ite_le_one _ _ ?_
-    refine pi_shell_le_one hN2 (fun p => p.1.1.isSpin) (fun p => ?_) (fun p => r (jS p.1))
-      (fun p => (hrad _ (hjSh p).1 (hjSh p).2.1).1) (fun p => (hrad _ (hjSh p).1 (hjSh p).2.1).2.1)
-      (fun p => (hrad _ (hjSh p).1 (hjSh p).2.1).2.2)
-    have := (hjSh p).2.2.1
-    unfold InternalVars.isSpin
-    exact decide_eq_false (fun h => by omega)
-  let Gint : (∀ s, BlockAt S n M K s → EuclideanSpace ℝ (Fin N)) →
-      (BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N)) → ℝ := fun fld ft =>
-    (∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (m' + 1) =>
-            ∃ c' ∈ H.ancFin (m' + 1) (m' + 1) Z,
-              y ∈ gaussBlocks (H.localHistory M K (m' + 1) c') m'),
-          cs.z (m' + 1) ^ N * gaussDens (cs.beta m' * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-            (cs.z (m' + 1) • ft y - ((S.L : ℝ) ^ S.d)⁻¹ •
-              ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K m' =>
-                blockMap S.L (M * n K * S.L ^ (K - (m' + 1))) y' = y), fld m' y')) *
-        ∏ j ∈ Finset.Ico k1 m',
-          ∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (j + 1) =>
-              ∃ c' ∈ H.ancFin (j + 1) (m' + 1) Z,
-                y ∈ gaussBlocks (H.localHistory M K (j + 1) c') j),
-            cs.z (j + 1) ^ N * gaussDens (cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-              (cs.z (j + 1) • fld (j + 1) y - ((S.L : ℝ) ^ S.d)⁻¹ •
-                ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K j =>
-                  blockMap S.L (M * n K * S.L ^ (K - (j + 1))) y' = y), fld j y')
-  by_cases hg : g ∈ l1Ball (GIdx S n M K N)
-  swap
-  · have hpos : ENNReal.ofReal (Real.exp bw0) * Qtot ≠ 0 :=
-      mul_ne_zero (by rw [ne_eq, ENNReal.ofReal_eq_zero, not_le]; exact Real.exp_pos _) hQtot.ne'
-    simp only [hg, ↓reduceIte]
-    rw [ENNReal.top_mul hpos]
-    exact le_top
-  simp only [hg, ↓reduceIte]
-  have hK : ENNReal.ofReal (Real.exp bw0) * (∏ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
-            (locOp geo cs SD KD hH lab k1 hk1K C.2.1).T.absW
-              (mergeOut (H.localHistory M K k1 C.2.1) k1 (cc C).1 (parC wd.2.2 C)) (cc C).2 hv g) ≠ ⊤ :=
-    ENNReal.mul_ne_top ENNReal.ofReal_ne_top (ENNReal.prod_ne_top fun C _ => ENNReal.ofReal_ne_top)
-  let brk : OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3) → (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) → (∀ t : ↥Nd, VarVal N t.1.1.isSpin) →
-      (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) → OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 → ℝ≥0∞ := fun a ro nd sh w' =>
+  let brk : EuclideanSpace ℝ (Fin N) → OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1) → (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin))) → (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) → (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) → (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) →
+      OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3) → (∀ t : ↥Nd, VarVal N t.1.1.isSpin) → OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 → ℝ≥0∞ := fun hv par wd cc ro sh a nd w' =>
     if (TB m' Z (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).1 par)).2)) (newRestrict (H.localHistory M K (m' + 1) Z)
             (newVars_sub_locOp_A geo cs SD KD hm (hq (m' + 1) (by omega) Z (Desc.refl Z))) (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1) ∧
           ∀ (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
@@ -438,75 +371,84 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
                     (desc_of_parts c.2 (mem_ancFin.mp P.2))))
                 (ρ (j.1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) c.1
                   (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1)) hv))) else 0
-  let Bq : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) → (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) → ℝ≥0∞ := fun ro sh => ⨆ a, ⨆ nd, ⨆ w', brk a ro nd sh w'
-  refine le_trans (lintegral_nodes_shells_le
-      (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)) (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) (Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin) (Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin) (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))
-      (fun j => F hv g par (Φ (wd, cc, j)))
-      (ENNReal.ofReal (Real.exp bw0) * (∏ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
-            (locOp geo cs SD KD hH lab k1 hk1K C.2.1).T.absW
-              (mergeOut (H.localHistory M K k1 C.2.1) k1 (cc C).1 (parC wd.2.2 C)) (cc C).2 hv g)) Qtot hK
-      (fun a ro nd w' sh => Bq ro sh * ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).1 par)).2)) y)))
-      (fun ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) => if (∀ y : {y : BlockAt S n M K (m' + 1) //
-            y ∈ (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) ∧
-              (ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)},
-          |‖ro y‖ ^ 2 - 1| < r m') then (1 : ℝ≥0∞) else 0) (fun sh : (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) => if (∀ p : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, |‖VarVal.toEuc (sh p)‖ ^ 2 - 1| < r (jS p.1)) then (1 : ℝ≥0∞) else 0)
-      (fun ro => by split_ifs <;> simp) (fun sh => by split_ifs <;> simp)
-      (fun a ro nd sh w' => ?_) (fun ro sh => ?_) hIO hIS') ?_
-  · refine (hF hv g par (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).1 (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1 (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.2).le.trans
-      (le_trans ((hpt hv g par wd cc ((a, ro), ((nd, sh), w'))).1 (Bq ro sh) hg ?_) ?_)
-    · intro hT
-      have e : brk a ro nd sh w' = _ := ite_eq_left_iff.mpr (fun hn => absurd hT hn)
-      refine e.symm.le.trans ?_
-      exact le_iSup_of_le a (le_iSup_of_le nd (le_iSup_of_le w' le_rfl))
-    · rw [gchain_eq geo cs SD KD hk1 hm hq hz0 hc ρ hρ _ (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1
-        (fun s y => subVarField N (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1 s y)
-        (fun y => outField N _ y) (fun _ _ => rfl) (fun _ => rfl)]
-      rw [core_prod_eq geo cs SD KD hmk hm hq T κc hκ2 parC hparC ρ hρ
-        (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1 cc wd.2.2
-        (fun t => (φ3 (wd, cc, ((a, ro), ((nd, sh), w'))) t).symm)
-        (fun C y => φ4 (wd, cc, ((a, ro), ((nd, sh), w'))) C y)
-        (fun C q => φ5 (wd, cc, ((a, ro), ((nd, sh), w'))) C q) hv g]
-      exact le_of_eq (by ring)
-  · have hI : ∀ a' nd' w', brk a' ro nd' sh w' * (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot := by
-      intro a' nd' w'
-      simp only [brk]
-      split_ifs with hT'
-      · exact (hbG hv par wd cc ro sh a' nd' w' (fun v s y => subVarField N
-          (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y)
-          (fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
-            ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
-              (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
-                (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y)
-          (fun _ _ _ => rfl) (fun _ _ => rfl) hw hT').2
-      · simp
-    have hBI : Bq ro sh * (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot := by
-      simp only [Bq, ENNReal.iSup_mul]
-      exact iSup_le fun a' => iSup_le fun nd' => iSup_le fun w' => hI a' nd' w'
-    by_cases hB0 : Bq ro sh = 0
-    · simp [hB0]
-    · have hex : ∃ a nd w', brk a ro nd sh w' ≠ 0 := by
-        by_contra hcon
-        push Not at hcon
-        exact hB0 (by simp [Bq, hcon])
-      obtain ⟨a, nd, w', hne⟩ := hex
-      have hIpos : 0 < (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) := by
-        simp only [brk] at hne
-        split_ifs at hne with hT'
-        · exact (hbG hv par wd cc ro sh a nd w' (fun v s y => subVarField N
+  let Qf : EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1) → (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin))) → (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
+      (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) → (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) → ℝ≥0∞ := fun hv _ par wd cc ro sh => ⨆ a, ⨆ nd, ⨆ w', brk hv par wd cc ro sh a nd w'
+  exact window_hid_core_glue geo cs SD KD (hk1p := hk1p) (hk1 := hk1) (hm := hm) (hk1K := hk1K) (hk1K1 := hk1K1) (hmk := hmk) (hq := hq) (hz0 := hz0) (hc := hc) (r := r) (TB := TB) (bw0 := bw0) (ρ := ρ) (hρ := hρ) (Z0 := Z0) (V2 := V2) (G3 := G3) (P2 := P2) (T := T) (Nd := Nd) (nd := nd) (hNd := hNd) (κc := κc) (jS := jS) (hjS := hjS) (hTnr := hTnr) (hNT := hNT) (hN2 := hN2) (hrad := hrad) (hκ2 := hκ2) (parC := parC) (hparC := hparC) (F := F) (Ewin := Ewin) (Φ := Φ) (φ3 := φ3) (φ4 := φ4) (φ5 := φ5) (hFpt2 := hFpt2)
+    (Qf := Qf) (P := Qtot) (hP0 := hQtot.ne')
+    (hFpt1 := fun hv g par wd cc j o' x hx ho' hg hw => by
+      subst hx ho'
+      refine (hF hv g par (Φ (wd, cc, j)).1 (Φ (wd, cc, j)).2.1 (Φ (wd, cc, j)).2.2).le.trans
+        ((hpt hv g par wd cc j).1 (Qf hv g par wd cc j.1.2 j.2.1.2) hg ?_)
+      intro hT
+      have e : brk hv par wd cc j.1.2 j.2.1.2 j.1.1 j.2.1.1 j.2.2 = _ :=
+        ite_eq_left_iff.mpr (fun hn => absurd hT hn)
+      exact e.symm.le.trans (le_iSup_of_le j.1.1 (le_iSup_of_le j.2.1.1 (le_iSup_of_le j.2.2 le_rfl))))
+    (hG := fun hv g par wd cc ro sh hg hw fld ft hfld hft => by
+      have hfld' : fld = fun v s y => subVarField N (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y :=
+        funext fun v => funext fun s => funext fun y => hfld v s y
+      have hft' : ft = fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
+          ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
+            (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
+              (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y :=
+        funext fun v => funext fun y => hft v y
+      subst hfld' hft'
+      let Gint : (∀ s, BlockAt S n M K s → EuclideanSpace ℝ (Fin N)) →
+          (BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N)) → ℝ := fun fld ft =>
+        (∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (m' + 1) =>
+                ∃ c' ∈ H.ancFin (m' + 1) (m' + 1) Z,
+                  y ∈ gaussBlocks (H.localHistory M K (m' + 1) c') m'),
+              cs.z (m' + 1) ^ N * gaussDens (cs.beta m' * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+                (cs.z (m' + 1) • ft y - ((S.L : ℝ) ^ S.d)⁻¹ •
+                  ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K m' =>
+                    blockMap S.L (M * n K * S.L ^ (K - (m' + 1))) y' = y), fld m' y')) *
+            ∏ j ∈ Finset.Ico k1 m',
+              ∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (j + 1) =>
+                  ∃ c' ∈ H.ancFin (j + 1) (m' + 1) Z,
+                    y ∈ gaussBlocks (H.localHistory M K (j + 1) c') j),
+                cs.z (j + 1) ^ N * gaussDens (cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+                  (cs.z (j + 1) • fld (j + 1) y - ((S.L : ℝ) ^ S.d)⁻¹ •
+                    ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K j =>
+                      blockMap S.L (M * n K * S.L ^ (K - (j + 1))) y' = y), fld j y')
+      have hI : ∀ a' nd' w', brk hv par wd cc ro sh a' nd' w' * (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot := by
+        intro a' nd' w'
+        simp only [brk]
+        split_ifs with hT'
+        · exact (hbG hv par wd cc ro sh a' nd' w' (fun v s y => subVarField N
             (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y)
             (fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
               ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
                 (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
                   (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y)
-            (fun _ _ _ => rfl) (fun _ _ => rfl) hw hT').1
-        · exact absurd rfl hne
-      have hBfin : Bq ro sh ≠ ⊤ := by
-        intro hB
-        rw [hB, ENNReal.top_mul hIpos.ne'] at hBI
-        exact hQtotT (top_le_iff.mp hBI)
-      rw [lintegral_const_mul' _ _ hBfin]
-      exact hBI
-  · exact le_of_eq (by ring)
+            (fun _ _ _ => rfl) (fun _ _ => rfl) hw hT').2
+        · simp
+      have hBI : Qf hv g par wd cc ro sh * (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot := by
+        simp only [Qf, ENNReal.iSup_mul]
+        exact iSup_le fun a' => iSup_le fun nd' => iSup_le fun w' => hI a' nd' w'
+      by_cases hB0 : Qf hv g par wd cc ro sh = 0
+      · simp [hB0]
+      · have hex : ∃ a nd w', brk hv par wd cc ro sh a nd w' ≠ 0 := by
+          by_contra hcon
+          push Not at hcon
+          exact hB0 (by simp [Qf, hcon])
+        obtain ⟨a, nd, w', hne⟩ := hex
+        have hIpos : 0 < (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) := by
+          simp only [brk] at hne
+          split_ifs at hne with hT'
+          · exact (hbG hv par wd cc ro sh a nd w' (fun v s y => subVarField N
+              (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y)
+              (fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
+                ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
+                  (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
+                    (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y)
+              (fun _ _ _ => rfl) (fun _ _ => rfl) hw hT').1
+          · exact absurd rfl hne
+        have hBfin : Qf hv g par wd cc ro sh ≠ ⊤ := by
+          intro hB
+          rw [hB, ENNReal.top_mul hIpos.ne'] at hBI
+          exact hQtotT (top_le_iff.mp hBI)
+        rw [lintegral_const_mul' _ _ hBfin]
+        exact hBI
+)
 
 end Core
 
