@@ -81,11 +81,11 @@ local notation "σBi" => Balaban.Fluctuation.cubeMap (d := d) (L := L) (N₁ := 
 set_option hygiene false in
 local notation "XA" => (↑(LocalCover.nbhdF m₀ xs) : Set (CTorus d L N₁ m₁ (k + 1)))
 set_option hygiene false in
-local notation "XB" => (↑(LocalCover.nbhdF m₀ (bm xs)) : Set (CTorus d L N₁' m₁ (k + 1)))
+local notation "XB" => (↑(LocalCover.nbhdF m₀ xs') : Set (CTorus d L N₁' m₁ (k + 1)))
 set_option hygiene false in
 local notation "𝒴A" => polyDom (GA) (LocalCover.nbhdF m₀ xs) m₀ k (LocalCover.fam m₀ xs)
 set_option hygiene false in
-local notation "𝒴B" => polyDom (GB) (LocalCover.nbhdF m₀ (bm xs)) m₀ k (LocalCover.fam m₀ (bm xs))
+local notation "𝒴B" => polyDom (GB) (LocalCover.nbhdF m₀ xs') m₀ k (LocalCover.fam m₀ xs')
 
 /-- **The coefficient of the observable at the cells of a polymer on two tori.** -/
 theorem obsCoeffParam_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
@@ -109,7 +109,8 @@ theorem obsCoeffParam_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
     (Y' : Finset (CubeB (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ))
     (hbm : bm '' sitesOf Y = sitesOf Y')
-    (xs : CTorus d L N₁ m₁ (k + 1)) (iy : Fin N)
+    (xs : CTorus d L N₁ m₁ (k + 1)) (xs' : CTorus d L N₁' m₁ (k + 1)) (hxs' : xs' = bm xs)
+    (iy : Fin N)
     (hsp : ∀ x ∈ LocalCover.nbhd m₀ xs, ∀ y ∈ LocalCover.nbhd m₀ xs ∪ sitesOf Y, ∀ μ,
       |(x μ - y μ).valMinAbs| ≤ Ds)
     (hqS : ∀ x ∈ LocalCover.nbhd m₀ xs ∪ sitesOf Y, ∀ μ, |(x μ).valMinAbs| ≤ q)
@@ -169,8 +170,8 @@ theorem obsCoeffParam_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
           (u.1, hatPsiF (GA) 1 νS (SA).hG' cc F₁
             (extParams (GA) (XA) s) u.1 u.2)))
     (hEv' : Ev' = evTerm (fun i : ParIdx (GB) (XB) => i.1.1) (GB)
-        m₀ (X1 (GB) m₀ k (LocalCover.fam m₀ (bm xs)))
-        (fun u s => siteFun (GB) (HB) (bm xs) iy
+        m₀ (X1 (GB) m₀ k (LocalCover.fam m₀ xs'))
+        (fun u s => siteFun (GB) (HB) xs' iy
           (F₁' (extParams (GB) (XB) s, u.1))
           (Sol' (extParams (GB) (XB) s,
             flEdat (GB) (HB) (F₁' (extParams (GB)
@@ -250,7 +251,7 @@ theorem obsCoeffParam_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
         (fun θ m T'' => obsHker (𝒴B) (fun Y => hatCoeff (Ev' Y)
           (θ.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) (obsUnitVec (SB) m)) m₀ T'')
         (obsRemLab (𝒴B) (fun Y => Sum.inl (Sum.inr Y))
-          (obsY0 m₀ (Lb' ⊕ Lb') (𝒴B) (rootCube (m₀ := m₀) (blockIndex (bm xs)))))
+          (obsY0 m₀ (Lb' ⊕ Lb') (𝒴B) (rootCube (m₀ := m₀) (blockIndex xs'))))
         (fun θ => obsGrFam (SB) m₀ hp' Ev' (𝒴B)
           (XiCRaw (GB) (compWeight L 1) νS (k + 1) 1 eps) θ) θ' Y' =
       obsCoeffParam ((SA).blockSplit m₀ hp).μ
@@ -264,6 +265,7 @@ theorem obsCoeffParam_cellSites (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
         (fun θ => obsGrFam (SA) m₀ hp Ev (𝒴A)
           (XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps) θ) θ Y := by
   classical
+  subst hxs'
   have hapos : 0 < aK := cellSide_pos (L := L) m₀ m₁ (k + 1)
   have : NeZero aK := ⟨hapos.ne'⟩
   have hLK : L ^ (k + 1) ≤ aK := by
